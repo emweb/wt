@@ -1,0 +1,119 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WABSTRACTTOGGLEBUTTON_H_
+#define WABSTRACTTOGGLEBUTTON_H_
+
+#include <Wt/WFormWidget>
+
+namespace Wt {
+
+class WLabel;
+
+/*! \brief An abstract base class for radio buttons and check boxes.
+ *
+ * A toggle button provides a button with a boolean state (checked or
+ * unchecked), and a text label.
+ *
+ * To act on a change of the state, either connect a slot to the changed()
+ * signal, or connect a slot to the
+ * \link WAbstractToggleButton::checked checked\endlink or
+ * \link WAbstractToggleButton::unChecked unChecked\endlink signals.
+ *
+ * The current state (checked or unchecked) may be inspected using the
+ * isChecked() method.
+ *
+ * FIXME: add image functionality for the label.
+ */
+class WT_API WAbstractToggleButton : public WFormWidget
+{
+protected:
+  /*! \brief Create an unchecked toggle button with empty label and optional
+   *         parent.
+   */
+  WAbstractToggleButton(WContainerWidget *parent = 0);
+
+  /*! \brief Create an unchecked toggle button with given text and optional
+   *         parent.
+   */
+  WAbstractToggleButton(const WString& text, WContainerWidget *parent = 0);
+
+  WAbstractToggleButton(bool withLabel, const WString& text,
+			WContainerWidget *parent = 0);
+
+
+public:
+  /*! \brief Change the text of the label.
+   */
+  void setText(const WString& text);
+
+  /*! \brief Get the text of the label.
+   */
+  const WString text() const;
+
+  /*! \brief Returns the state of the button.
+   */
+  bool isChecked() const { return checked_; }
+
+public slots:
+  /*! \brief Change the state of the button.
+   *
+   * Does not emit one of the
+   * \link WAbstractToggleButton::checked checked\endlink or
+   * \link WAbstractToggleButton::unChecked unChecked \endlink signals.
+   *
+   * \sa setChecked(), setUnChecked()
+   */
+  void setChecked(bool);
+
+  /*! \brief Set the button checked.
+   *
+   * Does not emit the \link WAbstractToggleButton::checked checked\endlink
+   * signal.
+   *
+   * \sa setChecked(bool)
+   */
+  virtual void setChecked();
+
+  /*! \brief Set the button unChecked.
+   *
+   * Does not emit the
+   * \link WAbstractToggleButton::unChecked unChecked \endlink signal.
+   *
+   * \sa setChecked(bool)
+   */
+  virtual void setUnChecked();
+
+  virtual void load();
+
+public:
+  /*! \brief %Signal emitted when the button gets checked.
+   */
+  EventSignal<void> checked;
+
+  /*! \brief %Signal emitted when the button gets unChecked.
+   */
+  EventSignal<void> unChecked;
+
+protected:
+  bool    checked_;
+
+private:
+  bool    checkedChanged_;
+
+  bool wasChecked_;
+  void undoSetChecked();
+  void undoSetUnChecked();
+
+protected:
+  virtual void updateDom(DomElement& element, bool all);
+  virtual void setFormData(CgiEntry *entry);
+  virtual void setNoFormData();
+};
+
+}
+
+#endif // WABSTRACTTOGGLEBUTTON_H_

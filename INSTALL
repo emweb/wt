@@ -1,0 +1,294 @@
+                          Wt Installation instructions
+
+   This page lists the instructions for building and installing Wt 2.1.4.
+   It is organized in 3 sections:
+     * Requirements
+     * Building and installing the library
+     * Trying the examples (or your own Wt application)
+
+   Instructions for installing Wt on a Win32 platform are provided in a
+   seperate file (INSTALL.win32.html).
+
+Requirements
+
+   The library provides two ways for deploying applications: either using
+   the FastCGI protocol, in conjunction with a webserver (like apache), or
+   using a built-in web server (wthttpd). You only need one of these, but
+   you can have both of them.
+
+   The built-in web server is more convenient during development and is
+   easier to setup. It is also the only option available for Win32.
+
+   The FastCGI based solution provides more flexibility for deployment of
+   the application. The built-in web server runs all sessions in a single
+   process, while the FastCGI based solution allows different deployment
+   schemes including dedicated processes per sessions.
+
+   Each of these two choices correspond to a library. Below it is outlined
+   how to configure the build process of Wt to include either or both
+   options, which result in building the libraries libwthttp and libfcgi.
+
+   Thus, to build a Wt library with built-in web server you need to link
+   against libwt and libwthttp. To build a Wt library which acts as a
+   FastCGI process, you need to link against libwt and libfcgi.
+
+  1 Unix-like
+
+     * Compiler: gcc-3.3.4 or higher, or gcc-4.1.x or higher, or other
+       Ansi C++ compiler that can deal with boost-like C++ code.
+     * CMake cross-platform build system (www.cmake.org): cmake-2.4.
+     * C++ boost library (version 1.34.1 or higher), preferably with
+       thread support enabled. You can verify you have a thread-enabled
+       boost installation by locating the libboost_thread library. Thread
+       support is not essential: Wt functionality is not affected except
+       for exotic things like server push. Most importantly, even without
+       thread support Wt can handle multiple concurrent sessions.
+
+    1a Using FastCGI
+
+   When using FastCGI, Wt requires a webserver (like apache) which
+   supports FastCGI protocol.
+     * FCGI library, including C++ bindings (libfcgi++)
+     * Fastcgi or mod_fcgi plugin for apache
+     * Apache (1 or 2)
+       should work for other web servers as well, but the default
+       configuration assumes apache when installing the library or
+       deploying examples
+
+    1b Using wthttpd
+
+   When using the built-in webserver, Wt only requires one additional C++
+   gem of a library for asynchronous I/O.
+     * Asio library: version 0.3.9 or higher, boost or non-boost version
+       (http://asio.sf.net).
+     * (optionally) libz, for compression over HTTP.
+     * (optionally) openssl, for supporting HTTPS.
+
+  2 Win32
+
+   Wt for Windows has its own [1]installation instructions.
+     * Microsoft Visual Studio C++.
+     * CMake cross-platform build system (www.cmake.org): cmake-2.4.
+
+  3 Additional and optional requirements for some of the examples
+
+     * libgd2 (style, wt-homepage, mandelbrot)
+     * libmysql++-2.x (hangman)
+     __________________________________________________________________
+
+Building and installing the Wt library
+
+    1. Create a build directory
+
+   The easiest way to build the library is in a seperate build directory,
+   for example within the top-level of the Wt package:
+    $ cd wt-x.xx
+    $ mkdir build
+    $ cd build
+
+    2. Configure the library
+
+    $ cmake ../
+
+   The latter command will try to locate the necessary libraries. If
+   everything is OK, then this should end with something like:
+  -- Generating done
+  -- Build files have been written to: /home/kdforc0/project/wt/build
+
+   To build a multi-threaded version of Wt, which uses multiple threads
+   for handling concurrent requests, you need a thread-enabled boost
+   library (with -mt versions of the boost libraries). Otherwise, the
+   cmake will report:
+  ...
+  -- Looking for pthread_create in pthread - found
+  ** Disabling multi threading.
+  ...
+
+   Most linux distributions do not provide thread enabled boost libraries
+   by default. In gentoo, you need the -threads or -threadsonly USE flag
+   when emerging boost.
+
+   If CMake fails, because it cannot resolve all dependencies, then you
+   may help CMake by setting some variables to help CMake locate the
+   libraries. This may be done on the command-line using -Dvar=value or
+   using the interactive program:
+    $ ccmake .
+
+   Variables that affect the location of dependencies are:
+
+   BOOST_COMPILER
+          The boost compiler signature. For a library
+          libboost_regex-gcc41-mt-1_34_1.so, this is 'gcc41'
+
+   BOOST_VERSION
+          The boost compiler signature. For a library
+          libboost_regex-gcc41-mt-1_34_1.so, this is '1_34_1'
+
+   BOOST_DIR
+          The boost installation directory. This is the directory where
+          lib/ and include/ are located for your boost installation.
+
+   Other variables specify several build and configuration aspects of Wt,
+   of which the most relevant ones are:
+
+   CMAKE_INSTALL_PREFIX
+          Installation prefix for the library and include files)
+
+   CONFIGDIR
+          Path for configuration files (default is /etc/wt/)
+
+   CONNECTOR_FCGI
+          Build the FastCGI connector (libwtfcgi) ?
+
+   CONNECTOR_HTTP
+          Build the stand-alone httpd connector (libwthttp) ?
+
+   EXAMPLES_CONNECTOR
+          Which connector library to use for the examples? (wthttp or
+          wtfcgi)
+
+   MULTI_THREADED
+          Build a multi-threaded wthttpd? While on by default, and
+          recommended, you may want to disable this for example if you
+          suspect threading problems. Note that recursive event loops
+          (most notably when using Dialog::exec()) are not possible
+          without thread support.
+
+   The following variables apply to the FastCGI connector:
+
+   RUNDIR
+          Default location for Wt runtime session management (can be
+          overridden in the Configuration file)
+
+   WEBUSER
+          Webserver username: used to assign permissions to RUNDIR
+
+   WEBGROUP
+          Webserver groupname: used to assign permissions to RUNDIR
+
+   DEPLOYROOT
+          Path to deploy examples into -- if you want that.
+
+   The following variables apply to the wthttpd connector:
+
+   WTHTTP_CONFIGURATION
+          Location of the wthttpd configuration file (default is
+          /etc/wt/wthttpd)
+
+   HTTP_WITH_SSL
+          Compile with support for SSL, for secure HTTP (HTTPS). This
+          requires an OpenSSL library.
+
+   HTTP_WITH_ZLIB
+          Compile with support for compression over HTTP. This requires
+          the libz library.
+
+   To change any entry, use [Enter]. To save and quit, do [c] followed by
+   [g].
+
+    3. Build the library
+
+    $ make
+
+    4. Install the library (as user with sufficient permissions):
+
+    $ make install
+
+    5. Get your LD_LIBRARY_PATH ok, if needed (mostly for FastCGI).
+
+   If you did not install Wt in a directory (CMAKE_INSTALL_PREFIX)
+   included in the default linker dynamic library search path, then the
+   web server will not be able to start Wt programs (such as the
+   examples).
+
+   Fix it by (as user with sufficient permissions):
+    $ ln -s /your/path/to/lib/libwt.so /usr/lib
+    $ ln -s /your/path/to/lib/libwtfcgi.so /usr/lib
+     __________________________________________________________________
+
+Trying the examples (or your own Wt application)
+
+   Deploying an application is different when using FastCGI or the
+   built-in web server (wthttpd).
+
+   The examples that come with the library use the connector specified by
+   the build option EXAMPLES_CONNECTOR (see supra).
+
+  A. Using FastCGI and apache
+
+    1. Build the examples
+
+    $ make -C examples
+
+    2. Deploy the example X
+
+    $ cd examples/X
+    $ ./deploy.sh
+
+    3. Configure Apache
+
+   Treat the example as a mod_fastcgi application, by adding a line to
+   20_mod_fastcgi.conf in your Apache configuration modules.d/ directory,
+   e.g.:
+    FastCgiServer /var/www/localhost/htdocs/wt-examples/composer/composer.wt
+
+    4. Restart apache
+
+  B. Using wthttpd
+
+    1. Build the examples
+
+    $ make -C examples
+
+    2. Run the example X
+
+   Some examples use additional files, such as message resource bundles,
+   which are not indicated with absolute path names. Therefore the working
+   directory should be the source directory for the example (unless you
+   use the ./deploy.sh script to deploy everything in a permenant
+   directory). A similar argument goes for icons and the setting of the
+   --docroot variable.
+    $ cd ../examples/X # source directory for example X
+    $ ln -s ../../resources . # include standard Wt resource files
+    $ ../../build/examples/X/X.wt --docroot . --http-address 0.0.0.0 --http-port
+ 8080
+
+   This will start a httpd server listening on all local interfaces, on
+   port 8080, and you may browse the example at [2]http://127.0.0.1:8080/
+
+   To make sure the web server has all auxiliary files (like images, CSS
+   style sheets, and perhaps other things) in place for the web
+   application, you could use the ./deploy.sh script to copy everything
+   into a directory (see the cmake DEPLOYROOT variable)
+
+   These are all the command-line options that are available:
+General options:
+  -h [ --help ]              produce help message
+  -t [ --threads ] arg (=10) number of threads
+  --docroot arg              document root for static files
+  --errroot arg              root for error pages
+  --no-compression           do not compress dynamic text/html and text/plain
+                             responses
+  --deploy-path arg (=/)     location for deployment
+  --session-id-prefix arg    prefix for session-id's (overrides wt_config.xml
+                             setting)
+  -p [ --pid-file ] arg      path to pid file (may be empty)
+
+HTTP server options:
+  --http-address arg    IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
+  --http-port arg (=80) HTTP port (e.g. 80)
+
+HTTPS server options:
+  --https-address arg     IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
+  --https-port arg (=443) HTTPS port (e.g. 443)
+  --ssl-certificate arg   SSL server certificate chain file
+                          e.g. "/etc/ssl/certs/vsign1.pem"
+  --ssl-private-key arg   SSL server private key file
+                          e.g. "/etc/ssl/private/company.pem"
+  --ssl-tmp-dh arg        File for temporary Diffie-Hellman parameters
+                          e.g. "/etc/ssl/dh512.pem"
+
+References
+
+   1. file://localhost/home/koen/project/wt/cvs/wt/INSTALL.win32.html
+   2. http://127.0.0.1:8080/

@@ -1,0 +1,506 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef CHART_WAXIS_H_
+#define CHART_WAXIS_H_
+
+#include <Wt/WFont>
+#include <Wt/WPen>
+#include <Wt/WString>
+#include <boost/any.hpp>
+#include <cfloat>
+
+namespace Wt {
+  namespace Chart {
+
+class WCartesianChart;
+class WChart2DRenderer;
+
+/*! \brief Enumeration that indicates a chart axis.
+ *
+ * \sa WCartesianChart::axis(Axis)
+ *
+ * \ingroup charts
+ */
+enum Axis {
+  XAxis = 0,            //!< X axis.
+  YAxis = 1,            //!< First Y axis (== Y1Axis).
+  Y1Axis = YAxis,       //!< First Y axis (== YAxis).
+  Y2Axis = 2,           //!< Second Y Axis.
+  OrdinateAxis = YAxis  //!< Ordinate axis (== Y1Axis for a 2D plot).
+  /* Future:
+   ,XAxis_3D = 0,
+    ZAxis_3D = 1, // = Y
+    YAxis_3D = 2
+   */
+};
+
+/*! \brief Enumeration that indicates a logical location for an axis.
+ *
+ * The location is dependent on the values of the other axis.
+ *
+ * \sa WAxis::setLocation(AxisLocation)
+ *
+ * \ingroup charts
+ */
+enum AxisLocation {
+  MinimumValue,  //!< At the minimum value.
+  MaximumValue,  //!< At the maximum value.
+  ZeroValue      //!< At the zero value (if displayed).
+};
+
+/*! \brief Enumeration that indicates a scale for an axis.
+ *
+ * The scale determines how values are mapped onto an axis.
+ *
+ * \sa WAxis::setScale(AxisScale scale)
+ *
+ * \ingroup charts
+ */
+enum AxisScale {
+  /*! A category scale is set as the scale for the X axis in a \link
+   * Chart::CategoryChart CategoryChart\endlink, and is only
+   * applicable there. It lists all values, evenly spaced, and
+   * consecutively in the order of the model.
+   */
+  CategoryScale = 0,
+
+  /*! A linear scale is the default scale for all axes, except for the
+   * X scale in a CategoryScale. It maps values in a linear
+   * fashion on the axis.
+   */
+  LinearScale = 1,
+
+  /*! A logarithmic scale is useful for plotting values with of a
+   * large range, but only works for positive values.
+   */
+  LogScale = 2,
+
+  /*! A date scale is a special linear scale, which is useful for the
+   * X axis in a ScatterPlot, when the X series contain dates (of type
+   * WDate).
+   */
+  DateScale = 3
+};
+
+/*! \class WAxis Wt/Chart/WAxis Wt/Chart/WAxis
+ *  \brief Class which represents an axis of a cartesian chart.
+ *
+ * A cartesian chart has two or three axes: an X axis (\link
+ * Chart::XAxis XAxis\endlink), a Y axis (\link Chart::YAxis
+ * YAxis\endlink) and optionally a second Y axis (\link Chart::Y2Axis
+ * Y2Axis\endlink). Each of the up to three axes in a cartesian
+ * chart has a unique id() that identifies which of these three axes
+ * it is in the enclosing chart().
+ *
+ * Use setVisible(bool) to change the visibility of an axis,
+ * setGridLinesEnabled(bool) to show grid lines for an axis. The pen
+ * styles for rendering the axis or grid lines may be changed using
+ * setPen() and setGridLinesPen(). A margin between the axis and the
+ * main plot area may be configured using setMargin().
+ *
+ * By default, the axis will automatically adjust its range so that
+ * all data will be visible. You may manually specify a range using
+ * setMinimum(), setMaximum or setRange(). The interval between labels
+ * is by default automatically adjusted depending on the axis length
+ * and the range, but may be manually specified using
+ * setLabelInterval().
+ *
+ * The axis has support for being "broken", to support displaying data
+ * with a few outliers which would otherwise swamp the chart. This is
+ * not done automatically, but instead you need to use setBreak() to
+ * specify the value range that needs to be omitted from the axis. The
+ * omission is rendered in the axis and in bars that cross the break.
+ *
+ * The labels are shown using a "%.4g" format string for numbers, and
+ * "dd/MM/yyyy" (for \link Chart::DateScale DateScale\endlink). The
+ * format may be customized using setLabelFormat(). The angle of the
+ * label text may be changed using setLabelAngle(double). By default,
+ * all labels are printed horizontally.
+ * 
+ * \sa WCartesianChart
+ *
+ * \ingroup charts
+ */
+class WT_API WAxis
+{
+public:
+  /*! \brief Constant which indicates automatic minimum calculation.
+   *
+   * \sa setMinimum()
+   */
+  static const double AUTO_MINIMUM;
+
+  /*! \brief Constant which indicates automatic maximum calculation
+   *
+   * \sa setMaximum()
+   */
+  static const double AUTO_MAXIMUM;
+
+  /*! \brief Returns the axis id.
+   *
+   * \sa chart(), WCartesianChart::axis(Axis)
+   */
+  Axis id() const { return axis_; }
+
+  /*! \brief Set whether this axis is visible.
+   *
+   * Changes whether the axis is displayed, including ticks and
+   * labels. The rendering of the grid lines is controlled seperately
+   * by setGridLinesEnabled(bool).
+   *
+   * The default value is true for the X axis and first Y axis, but false
+   * for the second Y axis.
+   *
+   * \sa setGridLinesEnabled(bool).
+   */
+  void setVisible(bool visible);
+
+  /*! \brief Returns whether this axis is visible.
+   *
+   * \sa setVisible(bool)
+   */
+  bool isVisible() const { return visible_; }
+
+  /*! \brief Set the axis location.
+   *
+   * Configures the location of the axis, relative to values on the
+   * other values (i.e. Y values for the X axis, and X values for the
+   * Y axis).
+   *
+   * The default value is Chart::MinimumValue.
+   *
+   * \sa location()
+   */
+  void setLocation(AxisLocation location);
+
+  /*! \brief Returns the axis location.
+   *
+   * \sa setLocation(AxisLocation)
+   */
+  AxisLocation location() const { return location_; }
+
+  /*! \brief Set the scale of the axis.
+   *
+   * For the X scale in a \link Chart::CategoryChart
+   * CategoryChart\endlink, the scale should be left unchanged to
+   * \link Chart::CategoryScale CategoryScale\endlink.
+   *
+   * For all other axes, the default value is \link Chart::LinearScale
+   * LinearScale\endlink, but this may be changed to \link
+   * Chart::LogScale LogScale\endlink or \link Chart::DateScale
+   * DateScale\endlink. \link Chart::DateScale DateScale\endlink is
+   * only useful for the X axis in a ScatterPlot which contains WDate
+   * values.
+   *
+   * \sa scale()
+   */
+  void setScale(AxisScale scale);
+
+  /*! \brief Returns the scale of the axis.
+   *
+   * \sa setScale(AxisScale)
+   */
+  AxisScale scale() const { return scale_; }
+
+  /*! \brief Set the minimum value displayed on the axis.
+   *
+   * Specify the minimum value to be displayed on the axis. By
+   * default, the minimum and maximum values are determined
+   * automatically so that all the data can be displayed.
+   *
+   * The default value is \link WAxis::AUTO_MINIMUM AUTO_MINIMUM\endlink,
+   * which indicates that the value must be determined automatically.
+   *
+   * \sa minimum(), setMaximum(double)
+   */
+  void setMinimum(double min);
+
+  /*! \brief Returns the minimum value displayed on the axis.
+   *
+   * \sa maximum(), setMinimum(double)
+   */
+  double minimum() const;
+
+  /*! \brief Set the maximum value for the axis displayed on the axis.
+   *
+   * Specify the maximum value to be displayed on the axis. By
+   * default, the minimum and maximum values are determined
+   * automatically so that all the data can be displayed.
+   *
+   * The default value is \link WAxis::AUTO_MAXIMUM
+   * AUTO_MAXIMUM\endlink, which indicates that the value must be
+   * determined automatically.
+   *
+   * \sa minimum(), setMinimum(double)
+   */
+  void setMaximum(double max);
+
+  /*! \brief Returns the maximum value displayed on the axis.
+   *
+   * \sa minimum(), setMaximum(double)
+   */
+  double maximum() const;
+
+  /*! \brief Set the axis range (minimum and maximum values).
+   *
+   * Specify both minimum and maximum value for the axis.
+   *
+   * \sa setMinimum(double), setMaximum(double).
+   */
+  void setRange(double min, double max);
+
+  /*! \brief Specify a range that needs to be omitted from the axis.
+   *
+   * This is useful to display data with a few outliers which would
+   * otherwise swamp the chart. This is not done automatically, but
+   * instead you need to use setBreak() to specify the value range
+   * that needs to be omitted from the axis. The omission is rendered
+   * in the axis and in BarSeries that cross the break.
+   */
+  void setBreak(double min, double max);
+
+  /*! \brief Set the label interval.
+   *
+   * Specifies the interval for displaying labels (and ticks) on the axis.
+   * The default value is 0.0, and indicates that the interval should be
+   * computed automatically.
+   *
+   * \sa setLabelFormat(const WString&)
+   */
+  void setLabelInterval(double labelInterval);
+
+  /*! \brief Returns the label interval.
+   *
+   * \sa setLabelInterval(double)
+   */
+  double labelInterval() const { return labelInterval_; }
+
+  /*! \brief Set the label format.
+   *
+   * Set a format string which is used to format values, both for the
+   * axis labels as well as data series values (see
+   * WDataSeries::setLabelsEnabled(Axis, bool)).
+   *
+   * For an axis with a \link Chart::LinearScale LinearScale\endlink
+   * or \link Chart::LogScale LogScale\endlink scale, the format string
+   * must be a format string that is accepted by snprintf() and which
+   * formats one double. If the format string is an empty string,
+   * "%.4g" is used.
+   *
+   * For an axis with a \link Chart::DateScale DateScale\endlink
+   * scale, the format string must be a format string accepted by
+   * WDate::toString(const WString&), to format a date. If the format
+   * string is an empty string, "dd/MM/yyyy", "MMM yy" or "yyyy" is
+   * used depending on the situation.
+   *
+   * The default value is an empty string ("").
+   *
+   * \sa labelFormat()
+   */
+  void setLabelFormat(const WString& format);
+
+  /*! \brief Returns the label format string.
+   *
+   * \sa setLabelFormat(const WString&)
+   */
+  const WString& labelFormat() const { return labelFormat_; }
+
+  /*! \brief Sets the label angle.
+   *
+   * Sets the angle used for displaying the labels (in degrees). A 0 angle
+   * corresponds to horizontal text. Note that this option is only supported
+   * by the InlineSvgVml renderers, but not by HtmlCanvas.
+   *
+   * The default value is 0.0 ("horizontal text").
+   *
+   * \sa labelAngle()
+   */
+  void setLabelAngle(double angle);
+
+  /*! \brief Returns the label angle.
+   *
+   * \sa setLabelAngle(double)
+   */
+  double labelAngle() const { return labelAngle_; }
+
+  /*! \brief Sets whether gridlines are displayed for this axis.
+   *
+   * When <i>enabled</i>, gird lines are drawn for each tick on this axis,
+   * using the gridLinesPen().
+   *
+   * Unlike all other visual aspects of an axis, rendering of the
+   * gridlines is not controlled by setDisplayEnabled(bool).
+   *
+   * \sa setGridLinesPen(const WPen&), isGridLinesEnabled()
+   */
+  void setGridLinesEnabled(bool enabled);
+
+  /*! \brief Returns whether gridlines are displayed for this axis.
+   *
+   * \sa setGridLinesEnabled(bool)
+   */
+  bool isGridLinesEnabled() const { return gridLines_; }
+
+  /*! \brief Changes the pen used for rendering the axis and ticks.
+   *
+   * The default value is a black pen of 0 width.
+   *
+   * \sa setGridLinesPen(const WPen&).
+   */
+  void setPen(const WPen& pen);
+
+  /*! \brief Returns the pen used for rendering the axis and ticks.
+   *
+   * \sa setPen(const WPen&)
+   */
+  const WPen& pen() const { return pen_; }
+
+  /*! \brief Changes the pen used for rendering the grid lines.
+   *
+   * The default value is a gray pen of 0 width.
+   *
+   * \sa setPen(const WPen&), gridLinesPen().
+   */
+  void setGridLinesPen(const WPen& pen);
+
+  /*! \brief Returns the pen used for rendering the grid lines.
+   *
+   * \sa setGidLinesPen(const WPen&)
+   */
+  const WPen& gridLinesPen() const { return gridLinesPen_; }
+
+  /*! \brief Sets the margin between the axis and the plot area.
+   *
+   * The margin is defined in pixels.
+   *
+   * The default value is 0.
+   *
+   * \sa margin()
+   */
+  void setMargin(int pixels);
+
+  /*! \brief Returns the margin between the axis and the plot area.
+   *
+   * \sa setMargin(int)
+   */
+  int margin() const { return margin_; }
+
+  /*! \brief Set the axis title.
+   *
+   * The default title is empty.
+   *
+   * \sa title()
+   */
+  void setTitle(const WString& title);
+
+  /*! \brief Returns the axis title.
+   *
+   * \sa setTitle()
+   */
+  const WString& title() const { return title_; }
+
+  /*! \brief Set the axis title font.
+   *
+   * The default title font is a 12 point Sans Serif font.
+   *
+   * \sa titleFont()
+   */
+  void setTitleFont(const WFont& titleFont);
+
+  /*! \brief Returns the axis title font.
+   *
+   * \sa setTitle()
+   */
+  const WFont& titleFont() const { return titleFont_; }
+
+  WString label(double u) const;
+
+  /*! \brief Returns the chart to which this axis belongs.
+   *
+   * \sa axis()
+   */
+  WCartesianChart *chart() const { return chart_; }
+
+  int segmentCount() const { return segments_.size(); }
+
+private:
+  WCartesianChart *chart_;
+  Axis             axis_;
+  bool             visible_;
+  AxisLocation     location_;
+  AxisScale        scale_;
+  double           labelInterval_;
+  WString          labelFormat_;
+  bool             gridLines_;
+  WPen             pen_, gridLinesPen_;
+  int              margin_;
+  double           labelAngle_;
+  WString          title_;
+  WFont            titleFont_;
+
+  struct Segment {
+    double minimum, maximum;
+
+    mutable double renderMinimum, renderMaximum, renderLength, renderStart;
+
+    Segment();
+  };
+
+  std::vector<Segment> segments_;
+
+  mutable double renderInterval_;
+
+  WAxis();
+  void init(WCartesianChart *chart, Axis axis);
+  void update();
+
+  template <typename T>
+  bool set(T& m, const T& v);
+
+  void prepareRender(WChart2DRenderer& renderer) const;
+  void computeRange(WChart2DRenderer& renderer, const Segment& segment) const;
+
+  struct TickLabel {
+    enum TickLength { Zero, Short, Long };
+
+    double u;
+    TickLength tickLength;
+    WString    label;
+
+    TickLabel(double v, TickLength length, const WString& l = WString());
+  };
+
+  void getLabelTicks(WChart2DRenderer& renderer, std::vector<TickLabel>& ticks,
+		     int segment) const;
+
+  double map(double u, AxisLocation otherLocation, int segment) const;
+  double map(const boost::any& value, AxisLocation otherLocation, int segment)
+    const;
+  double map(int rowIndex, int columnIndex, AxisLocation otherLocation,
+	     int segment) const;
+  static double getDateValue(const boost::any& value);
+  double calcAutoNumLabels(const Segment& s) const;
+
+  friend class WCartesianChart;
+  friend class WChart2DRenderer;
+};
+
+template <typename T>
+bool WAxis::set(T& m, const T& v)
+{
+  if (m != v) {
+    m = v;
+    update();
+    return true;
+  } else
+    return false;
+}
+
+  }
+}
+
+#endif // CHART_WAXIS_H_

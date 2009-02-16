@@ -1,0 +1,133 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTABLE_ROW_H_
+#define WTABLE_ROW_H_
+
+#include <Wt/WObject>
+
+namespace Wt {
+
+class DomElement;
+class WTable;
+class WTableCell;
+
+/*! \class WTableRow Wt/WTableRow Wt/WTableRow
+ *  \brief A row in a WTable
+ *
+ * A table row is not a widget -- it only has a logistic function, for
+ * managing various properties of a single row in a table.
+ *
+ * You cannot access table cells through the row. Instead, to access
+ * table cells, see WTable::elementAt().
+ *
+ * \sa WTable, WTableColumn
+ */
+class WT_API WTableRow : public WObject 
+{
+public:
+  /*! \brief The table to which this row belongs.
+   *
+   * \sa WTable::rowAt()
+   */
+  WTable *table() const { return table_; }
+
+  /*! \brief The row number of this row in the table.
+   *
+   * \sa WTable::rowAt()
+   */
+  int rowNum() const;
+
+  /*! \brief Set the row height.
+   *
+   * The default row height is 'auto' (WLength()).
+   *
+   * \sa height(), WWidget::resize()
+   */
+  void setHeight(const WLength& height);
+
+  /*! \brief Get the row height.
+   *
+   * \sa setHeight(const WLength&)
+   */
+  WLength height() const;
+
+  /*! \brief Set the CSS style class for this row.
+   *
+   * The style is inherited by all table cells in this row.
+   *
+   * \sa styleClass(), WWidget::setStyleClass(const WString& style)
+   */
+  void setStyleClass(const WString& style);
+
+  /*! \brief Get the CSS style class for this row.
+   *
+   * \sa styleClass(), WWidget::styleClass()
+   */
+  const WString& styleClass() const { return styleClass_; }
+
+  /*! \brief Set whether the row must be hidden.
+   *
+   * Hide or show the row.
+   *
+   * The default value is false (row is not hidden).
+   *
+   * \sa hide(), show()
+   */
+  void setHidden(bool how);
+
+  /*! \brief Return whether the rows is hidden.
+   *
+   * \sa setHidden()
+   */
+  bool isHidden() const { return hidden_; }
+
+  /*! \brief Hide the row.
+   *
+   * \sa setHidden()
+   */
+  void hide();
+
+  /*! \brief Show the row.
+   *
+   * \sa setHidden()
+   */
+  void show();
+
+private:
+  WTableRow(WTable *table, int numCells);
+  ~WTableRow();
+  void expand(int numCells);
+
+  struct TableData {
+    WTableCell *cell;
+
+    /* used during rendering */
+    bool overSpanned;
+
+    TableData();
+  };
+
+  WTable *table_;
+  std::vector<TableData> cells_;
+
+  WLength *height_;
+  WString  styleClass_;
+  bool     hidden_, hiddenChanged_, wasHidden_;
+
+  void updateDom(DomElement& element, bool all);
+
+  void insertColumn(int column);
+  void deleteColumn(int column);
+
+  void undoHide();
+
+  friend class WTable;
+};
+
+}
+
+#endif // WTABLE_ROW_H_

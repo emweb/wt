@@ -1,0 +1,79 @@
+body, td {
+  font-family:arial,sans-serif;
+}
+
+button {
+  margin-left: 10px;
+  margin-right: 10px;
+  padding-left: 5px;
+  padding-right :5px;
+  font-size: x-small;
+}
+
+.label {
+  font-weight: bold;
+  font-size: smaller;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.option {
+  cursor: pointer; cursor: hand;
+  color: blue;
+  font-size: smaller;
+  text-decoration: underline;
+}
+
+.sep {
+  padding: 5px;
+}
+
+button.default {
+  font-weight: bold
+}
+
+.lighter {
+  background-color: #e0ecff;
+}
+
+.darker {
+  background-color: #C3D9FF;
+}
+
+.status {
+  font-size: smaller;
+}
+
+.error {
+  color: red;
+  font-size: smaller;
+}
+
+.remove {
+  cursor: pointer; cursor: hand;
+  color: blue;
+  font-size: x-small;
+  text-decoration: underline;
+}
+
+.feedback div {
+  margin: 10px;
+}
+
+.suggest {
+  background-color: #e0ecff;
+  color: #1010cc;
+  border: 1px solid #666666;
+  cursor: default;
+  font-size: smaller;
+  padding: 2px;
+}
+
+.suggest span {
+  padding-left: 0.5em;
+  padding-right: 0.5em;  
+}
+
+.suggest .sel {
+  background-color: #C3D9FF;
+}

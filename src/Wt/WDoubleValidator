@@ -1,0 +1,121 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WDOUBLEVALIDATOR_H_
+#define WDOUBLEVALIDATOR_H_
+
+#include <limits>
+
+#include <Wt/WValidator>
+
+namespace Wt {
+
+/*! \class WDoubleValidator Wt/WDoubleValidator Wt/WDoubleValidator
+ *  \brief A validator for validating floating point user input.
+ *
+ * This validator checks whether user input is a double in the pre-defined
+ * range.
+ */
+class WT_API WDoubleValidator : public WValidator
+{
+public:
+  /*! \brief Create a new double validator that accepts any double.
+   */
+  WDoubleValidator(WObject *parent = 0);
+
+  /*! \brief Create a new double validator that accepts double
+   *         within the given range.
+   */
+  WDoubleValidator(double minimum, double maximum, WObject *parent = 0);
+
+  /*! \brief Return the bottom of the valid double range.
+   *
+   * The default value is -std::numeric_limits<int>::max().
+   */
+  double bottom() const { return bottom_; }
+
+  /*! \brief Set the bottom of the valid double range.
+   */
+  void setBottom(double bottom);
+
+  /*! \brief Return the top of the valid double range.
+   */
+  double top() const { return top_; }
+
+  /*! \brief Set the top of the valid double range.
+   *
+   * The default value is std::numeric_limits<int>::max().
+   */
+  void setTop(double top);
+
+  /*! \brief Set the range of valid doubles.
+   */
+  virtual void setRange(double bottom, double top);
+
+  /*! \brief Validate the given input.
+   *
+   * The input is considered valid only when it is blank for a non-mandatory
+   * field, or represents a double within the valid range.
+   */
+  virtual State validate(WString& input, int& pos) const;
+
+  virtual void createExtConfig(std::ostream& config) const;
+
+  /*! \brief Set the message to display when the input is not a number.
+   *
+   * The default value is "Must be a number."
+   */
+  void setInvalidNotANumberText(const WString& text);
+
+  /*! \brief Returns the message displayed when the input is not a number.
+   *
+   * \sa setInvalidNotANumberText(const WString&)
+   */
+  WString invalidNotANumberText() const;
+
+  /*! \brief Set message to display when the number is too small
+   *
+   * Depending on whether bottom() and top() are real bounds, the
+   * default message is "The number must be between {1} and {2}" or
+   * "The number must be larger than {1}".
+   */
+  void setInvalidTooSmallText(const WString& text);
+
+  /*! \brief Returns the message displayed when the number is too small.
+   *
+   * \sa setInvalidTooSmallText(const WString&)
+   */
+  WString invalidTooSmallText() const;
+
+  /*! \brief Set message to display when the number is too large
+   *
+   * Depending on whether bottom() and top() are real bounds, the
+   * default message is "The number must be between {1} and {2}" or
+   * "The number must be smaller than {2}".
+   */
+  void setInvalidTooLargeText(const WString& text);
+
+  /*! \brief Returns the message displayed when the number is too large.
+   *
+   * \sa setInvalidTooLargeText(const WString&)
+   */
+  WString invalidTooLargeText() const;
+
+protected:
+  std::string javaScriptValidate(const std::string& jsRef) const;
+
+private:
+  double bottom_;
+  double top_;
+
+  WString tooSmallText_;
+  WString tooLargeText_;
+  WString nanText_;
+};
+
+}
+
+#endif // WDOUBLEVALIDATOR_H_

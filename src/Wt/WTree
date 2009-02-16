@@ -1,0 +1,123 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTREE_H_
+#define WTREE_H_
+
+#include <set>
+
+#include <Wt/WCompositeWidget>
+#include <Wt/WSignalMapper>
+
+namespace Wt {
+
+  namespace Private {
+    class SentinelTreeNode;
+  }
+
+  class WTreeNode;
+
+/*! \class WTree Wt/WTree Wt/WTree
+ *  \brief A widget that represents a navigatable tree
+ *
+ * %WTree provides a tree widget, and coordinates selection
+ * functionality.
+ *
+ * Unlike the MVC-based WTreeView widget, the tree renders a widget
+ * hierarchy, rather than a hierarhical standard model. This provides
+ * extra flexibility (as any widget can be used as contents), at the
+ * cost of server-side, client-side and bandwidth resources
+ * (especially for large tree tables).
+ *
+ * The tree is implemented as a hierarchy of WTreeNode widgets.
+ *
+ * Selection is rendered by calling WTreeNode::renderSelected(bool). Only
+ * tree nodes that are \link WTreeNode::setSelectable(bool) selectable\endlink
+ * may participate in the selection.
+ *
+ * \sa WTreeNode
+ * \sa WTreeView
+ */
+class WT_API WTree : public WCompositeWidget
+{
+public:
+  /*! \brief Create a new tree.
+   */
+  WTree(WContainerWidget *parent = 0);
+
+  /*! \brief Set the tree root node.
+   *
+   * \sa treeRoot()
+   */
+  void setTreeRoot(WTreeNode *root);
+
+  /*! \brief Get the root node.
+   *
+   * \sa setTreeRoot(WTreeNode *)
+   */
+  WTreeNode *treeRoot() const { return treeRoot_; }
+
+  /*! \brief Set the selection mode.
+   *
+   * The default selection mode is Wt::NoSelection.
+   */
+  void setSelectionMode(SelectionMode mode);
+
+  /*! \brief Get the selection mode.
+   */
+  SelectionMode selectionMode() const { return selectionMode_; } 
+
+  /*! \brief Typedef for a set of WTreeNode's.
+   */
+  typedef std::set<WTreeNode *> WTreeNodeSet;
+
+  /*! \brief Get the set of selected tree nodes.
+   */
+  const WTreeNodeSet& selectedNodes() const { return selection_; }
+
+  /*! \brief Set a selection of tree nodes.
+   */
+  void select(const WTreeNodeSet& nodes);
+
+  /*! \brief Select or unselect the given <i>node</i>.
+   */
+  void select(WTreeNode *node, bool selected = true);
+
+  /*! \brief Return if the given <i>node</i> is currently selected.
+   */
+  bool isSelected(WTreeNode *node) const;
+
+  /*! \brief Clear the current selection.
+   */
+  void clearSelection();
+
+  /*! \brief %Signal that is emitted when the selection changes.
+   */
+  Signal<> itemSelectionChanged;
+
+private:
+  WTreeNode                 *treeRoot_;
+  Private::SentinelTreeNode *sentinelRoot_;
+
+  SelectionMode              selectionMode_;
+  WTreeNodeSet               selection_;
+  WSignalMapper<WTreeNode *, WMouseEvent> onClickMapper_;
+
+  void onClick(WTreeNode *node, WMouseEvent event);
+
+  void selectRange(WTreeNode *from, WTreeNode *to);
+  void extendSelection(WTreeNode *node);
+
+protected:
+  void nodeRemoved(WTreeNode *node);
+  void nodeAdded(WTreeNode *node);
+
+  friend class Private::SentinelTreeNode;
+};
+
+}
+
+#endif // WTREE_H_

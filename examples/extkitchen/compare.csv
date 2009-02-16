@@ -1,0 +1,6 @@
+"Project","Type","Language(s)","Degrades gracefully","Monolithic","Since"
+"Wt","Library","C++","Yes (subset)","No","1/12/2005"
+"Echo2","Servlet","Java","No","No","17/3/2005"
+"ZK","Servlet","XML + Java","No","No","27/2/2006"
+"GWT","Framework","Java + server-side","No","Yes","16/5/2006"
+"ExtJs","Library","JavaScript + server-side","No (manually possible)","Yes","1/8/2007"

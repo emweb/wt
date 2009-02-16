@@ -1,0 +1,87 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WRECT_AREA_H_
+#define WRECT_AREA_H_
+
+#include <Wt/WAbstractArea>
+#include <Wt/WRectF>
+
+namespace Wt {
+
+/*! \class WRectArea Wt/WRectArea Wt/WRectArea
+ *  \brief A rectangular interactive area in a widget.
+ *
+ * The area may be added to a WImage or WPaintedWidget. The rectangle
+ * is specified in pixel coordinates.
+ *
+ * \sa WImage::addArea(), WPaintedWidget::addArea()
+ * \sa WCircleArea, WPolygonArea
+ */
+class WT_API WRectArea : public WAbstractArea
+{
+public:
+  /*! \brief Default constructor.
+   *
+   * The default constructor creates a rectangular area spans the
+   * whole widget.
+   */
+  WRectArea();
+
+  /*! \brief Construct a rectangular area with given geometry.
+   *
+   * The arguments are in pixel units.
+   */  
+  WRectArea(int x, int y, int width, int height);
+
+  /*! \brief Construct a rectangular area with given geometry.
+   *
+   * The <i>rect</i> argument is in pixel units.
+   */  
+  WRectArea(const WRectF& rect);
+
+  /*! \brief Set the top-left X coordinate.
+   */
+  void setX(int x);
+
+  /*! \brief Returns the top-left X coordinate.
+   */
+  int x() const { return x_; }
+
+  /*! \brief Set the top-left Y coordinate.
+   */
+  void setY(int y);
+
+  /*! \brief Returns the top-left Y coordinate.
+   */
+  int y() const { return y_; }
+
+  /*! \brief Set the width.
+   */
+  void setWidth(int width);
+
+  /*! \brief Returns the width.
+   */
+  int width() const { return width_; }
+
+  /*! \brief Set the height.
+   */
+  void setHeight(int height);
+
+  /*! \brief Returns the height.
+   */
+  int height() const { return height_; }
+
+private:
+  int x_, y_, width_, height_;
+
+protected:
+  virtual void updateDom(DomElement& element, bool all);
+};
+
+}
+
+#endif // WRECT_AREA_H_

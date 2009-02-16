@@ -1,0 +1,66 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSUB_MENU_ITEM_H_
+#define WSUB_MENU_ITEM_H_
+
+#include <Wt/WMenuItem>
+
+namespace Wt {
+
+  class WMenu;
+
+/*! \brief A menu item that contains a nested sub menu.
+ *
+ * This class specializes menu item to have an optional sub menu.
+ *
+ * When the item is shown and hidden when the item is selected
+ * respectively deselected.
+ *
+ * \sa WMenuItem, WMenu
+ */
+class WT_API WSubMenuItem : public WMenuItem
+{
+public:
+  /*! \brief Create a new item.
+   *
+   * \sa WMenuItem::WMenuItem(const WString&, WWidget *, LoadPolicy)
+   */
+  WSubMenuItem(const WString& text, WWidget *contents,
+	       LoadPolicy policy = LazyLoading);
+
+  /*! \brief Set a sub menu.
+   *
+   * Ownership of the <i>subMenu</i> is transferred to the item. In
+   * most cases, the sub menu would use the same contents stack as the
+   * parent menu.
+   *
+   * The default submenu is 0, in which case the item behaves as a
+   * plain WMenuItem.
+   *
+   * \note A sub menu can only be set before the item is added to a menu.
+   */
+  void setSubMenu(WMenu *subMenu);
+
+  /*! \brief Return the sub menu.
+   *
+   * \sa setSubMenu()
+   */
+  WMenu *subMenu() { return subMenu_; }
+
+protected:
+  virtual WWidget *createItemWidget();
+  virtual void updateItemWidget(WWidget *itemWidget);
+  virtual void renderSelected(bool selected);
+  virtual SignalBase& activateSignal();
+
+private:
+  WMenu *subMenu_;
+};
+
+}
+
+#endif // SUB_MENU_ITEM_H_

@@ -1,0 +1,186 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCSSDECORATIONSTYLE_H_
+#define WCSSDECORATIONSTYLE_H_
+
+#include <Wt/WBorder>
+#include <Wt/WColor>
+#include <Wt/WFont>
+#include <Wt/WWidget>
+
+namespace Wt {
+
+class DomElement;
+class WWebWidget;
+
+/*! \defgroup style Style classes
+ *  \brief Collection of classes for markup of widgets.
+ *
+ * The recommended way to provide style information for your %Wt
+ * application is using CSS stylesheets. You may add rules to the
+ * inline style sheet using WCssStyleSheet::addRule(), or by linking
+ * one or more external stylesheets using WApplication::useStyleSheet().
+ *
+ * Alternatively, you may also provide style information directly,
+ * using WCssDecorationStyle, which you can manipulate for each widget
+ * using WWidget::decorationStyle().
+ */
+
+/*! \class WCssDecorationStyle Wt/WCssDecorationStyle Wt/WCssDecorationStyle
+ *  \brief A style class for a single widget or style sheet rule.
+ *
+ * You can either access the decoration style using
+ * WWidget::decorationStyle() or you may use a WCssDecorationStyle to
+ * add a rule to the inline style sheet using
+ * WCssStyleSheet::addRule(const std::string&, const WCssDecorationStyle& style, const std::string&).
+ *
+ * \ingroup style
+ */
+class WT_API WCssDecorationStyle
+{
+public:
+  typedef Wt::Cursor Cursor;
+  static const Cursor Default = Wt::ArrowCursor;
+  static const Cursor Auto = Wt::AutoCursor;
+  static const Cursor CrossHair = Wt::CrossCursor;
+  static const Cursor Pointer = Wt::PointingHandCursor;
+  static const Cursor Move = Wt::OpenHandCursor;
+  static const Cursor Wait = Wt::WaitCursor;
+  static const Cursor Text = Wt::IBeamCursor;
+  static const Cursor Help = Wt::WhatsThisCursor;
+
+  /*! \brief How a background image must be repeated.
+   */
+  enum Repeat { RepeatXY,  //!< Repeat horizontally and vertically, default
+		RepeatX,   //!< Repeat horizontally
+		RepeatY,   //!< Repeat vertically
+		NoRepeat   //!< Do not repeat
+  };
+
+  /*! \brief Text decoration options
+   */
+  enum TextDecoration { Underline   = 0x1, //!< Underline
+			Overline    = 0x2, //!< Overline
+			LineThrough = 0x4, //!< LineThrough
+			Blink       = 0x8  //!< Blink
+  };
+
+  /*! \brief Create a default style
+   */
+  WCssDecorationStyle();
+
+  /*! \brief Assignment operator.
+   */
+  WCssDecorationStyle& operator= (const WCssDecorationStyle& other);
+
+  /*! \brief Set the cursor style
+   */
+  void setCursor(Cursor c);
+
+  /*! \brief Get the cursor style
+   */
+  Cursor cursor() const { return cursor_; }
+
+  /*! \brief Set the background color.
+   */
+  void setBackgroundColor(WColor color);
+
+  /*! \brief Get the background color.
+   */
+  WColor backgroundColor() const { return backgroundColor_; }
+
+  /*! \brief Set a background image URL.
+   *
+   * The image may be placed in a particular location by specifying
+   * sides by OR'ing WWidget::Side values together, e.g. (Right | Top).
+   */
+  void setBackgroundImage(const std::string& imageHRef,
+			  Repeat repeat = RepeatXY,
+			  int sides = 0);
+
+  /*! \brief Get the background image URL.
+   */
+  const std::string& backgroundImage() const { return backgroundImage_; }
+
+  /*! \brief Get the background image repeat.
+   */
+  Repeat backgroundImageRepeat() const { return backgroundImageRepeat_; }
+
+  /*! \brief Set the foreground color.
+   */
+  void setForegroundColor(WColor color);
+
+  /*! \brief Get the foreground color.
+   */
+  WColor foregroundColor() const { return foregroundColor_; }
+
+  /*! \brief Set the border style.
+   *  
+   * A border may be placed in a particular location by specifying
+   * sides by OR'ing WWidget::Side values together, e.g. (Right | Top).
+   */
+  void setBorder(WBorder border, int sides = WWidget::All);
+
+  /*! \brief Get the border style.
+   */
+  WBorder border() const { return border_; }
+
+  /*! \brief Change the font.
+   */
+  void setFont(const WFont& font);
+
+  /*! \brief Get a reference to the font.
+   */
+  WFont& font() { return font_; }
+
+  /*! \brief Set the text decoration options.
+   *
+   * You may logically or together any of the options of the
+   * TextDecoration enumeration.
+   *
+   * The default is 0.
+   */
+  void setTextDecoration(int decoration);
+
+  /*! \brief Get the text decoration options.
+   */
+  int textDecoration() const { return textDecoration_; }
+
+  std::string cssText();
+  void updateDomElement(DomElement& element, bool all);
+
+private:
+  WWebWidget      *widget_;
+
+  Cursor           cursor_;
+  WBorder          border_;
+  WColor           backgroundColor_;
+  WColor	   foregroundColor_;
+  std::string	   backgroundImage_;
+  Repeat	   backgroundImageRepeat_;
+  int              backgroundImageLocation_;
+  WFont		   font_;
+  int              textDecoration_;
+  int              borderPosition_;  
+
+  bool		   cursorChanged_;
+  bool		   borderChanged_;
+  bool		   foregroundColorChanged_;
+  bool		   backgroundColorChanged_;
+  bool	  	   backgroundImageChanged_;
+  bool		   fontChanged_;
+  bool             textDecorationChanged_;
+
+  void changed();
+
+  void setWebWidget(WWebWidget *widget);
+  friend class WWebWidget;
+};
+
+}
+
+#endif // WCSSDECORATIONSTYLE_H_

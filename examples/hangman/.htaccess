@@ -1,0 +1,16 @@
+<Files .htaccess>
+order allow,deny
+deny from all
+</Files>
+<Files dict.txt>
+order allow,deny
+deny from all
+</Files>
+<Files dict-nl.txt>
+order allow,deny
+deny from all
+</Files>
+<Files HangmanDb.info>
+order allow,deny
+deny from all
+</Files>

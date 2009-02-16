@@ -1,0 +1,178 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPAINTDEVICE_H_
+#define WPAINTDEVICE_H_
+
+#include <Wt/WLength>
+#include <Wt/WString>
+
+namespace Wt {
+
+class WPainter;
+class WPainterPath;
+class WRectF;
+
+/*! \class WPaintDevice Wt/WPaintDevice Wt/WPaintDevice
+ *  \brief The abstract base class for a paint device
+ *
+ * A %WPaintDevice is a device on which may be painted using a
+ * WPainter. You should never paint directly on a paint device.
+ *
+ * The device defines the size of the drawing area, using width() and
+ * height(). These dimensions must be defined in pixel units. In the
+ * future, additional information will be included to convert these pixel
+ * units to lengths (using DPI information).
+ *
+ * You should reimplement this class if you wish to extend the %Wt paint
+ * system to paint on other devices.
+ *
+ * <i>Note: this interface is subject to changes, which are likely to
+ * happen to increase optimization possibilities for the painting
+ * using different devices.</i>
+ *
+ * \sa WPainter
+ *
+ * \ingroup painting
+ */
+class WT_API WPaintDevice
+{
+public:
+  /*! \brief Enumeration to communicate painter state changes.
+   *
+   * \sa setChanged(int)
+   */
+  enum ChangeFlags {
+    Pen = 0x1,         //!< Properties of the pen have changed
+    Brush = 0x2,       //!< Properties of the brush have changed
+    Font = 0x4,        //!< Properties of the font have changed
+    Hints = 0x8,       //!< Some render hints have changed
+    Transform = 0x10,  //!< The transformation has changed
+    Clipping = 0x20    //!< The clipping has changed
+  };
+
+  /*! \brief Destructor.
+   *
+   * Frees all resources associated with this device.
+   */
+  virtual ~WPaintDevice();
+
+  /*! \brief Return the device width.
+   *
+   * The device width, in pixels, establishes the width of the device
+   * coordinate system.
+   */
+  WLength width() const { return width_; }
+
+  /*! \brief Return the device height.
+   *
+   * The device height, in pixels, establishes the height of the device
+   * coordinate system.
+   */
+  WLength height() const { return height_; }
+
+  /*! \brief Indicate changes in painter state.
+   *
+   * The <i>flags</i> argument is the logical OR of one or more change flags.
+   *
+   * \sa ChangeFlags
+   */
+  virtual void setChanged(int flags) = 0;
+
+  /*! \brief Draw an arc.
+   *
+   * The arc is defined as in WPainter::drawArc(const WRectF&,
+   * startAngle, spanAngle), but the angle is expressed in degrees.
+   *
+   * The arc must be stroked, filled, and transformed using the
+   * current painter settings.
+   */
+  virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle)
+    = 0;
+
+  /*! \brief Draw an image.
+   *
+   * Draws <i>sourceRect</i> from the image with URL <i>imageUri</i>
+   * and original dimensions <i>imgWidth</i> and <i>imgHeight</i> to
+   * the location, into the rectangle defined by <i>rect</i>.
+   *
+   * The image is transformed using the current painter settings.
+   */
+  virtual void drawImage(const WRectF& rect, const std::string& imageUri,
+			 int imgWidth, int imgHeight,
+			 const WRectF& sourceRect) = 0;
+
+  /*! \brief Draw a line.
+   *
+   * The line must be stroked and transformed using the current
+   * painter settings.
+   */
+  virtual void drawLine(double x1, double y1, double x2, double y2) = 0;
+
+  /*! \brief Draw a path.
+   *
+   * The path must be stroked, filled, and transformed using the
+   * current painter settings.
+   */
+  virtual void drawPath(const WPainterPath& path) = 0;
+
+  /*! \brief Draw text.
+   *
+   * The text must be rendered, stroked and transformed using the
+   * current painter settings.
+   */
+  virtual void drawText(const WRectF& rect, int flags, const WString& text) = 0;
+
+  /*! \brief Initialize the device for painting.
+   *
+   * This method is called when a WPainter starts painting.
+   *
+   * \sa WPainter::begin(WPaintDevice *), painter()
+   */
+  virtual void init() = 0;
+
+  /*! \brief Finish painting on the device.
+   *
+   * This method is called when a WPainter stopped painting.
+   *
+   * \sa WPainter::end()
+   */
+  virtual void done() = 0;
+
+  /*! \brief Return whether painting is active.
+   *
+   * \sa init(), painter()
+   */
+  bool paintActive() const { return painter_ != 0; }
+
+protected:
+  /*! \brief Create a paint device with given dimensions.
+   *
+   * \sa width(), height()
+   */
+  WPaintDevice(const WLength& width, const WLength& height);
+
+  /*! \brief Return the painter that is currently painting on the device.
+   *
+   * \sa init()
+   */
+  WPainter *painter() const { return painter_; }
+
+protected:
+  WLength normalizedPenWidth(const WLength& width, bool correctCosmetic) const;
+
+private:
+  WLength width_;
+  WLength height_;
+
+  WPainter *painter_;
+
+  friend class WPainter;
+};
+
+}
+
+#endif // WPAINTER_H_

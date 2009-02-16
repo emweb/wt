@@ -1,0 +1,649 @@
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
+#include "Wt/WModelIndex"
+#include "Wt/WAbstractItemModel"
+#include "Wt/WItemSelectionModel"
+#include "Wt/WDate"
+#include "Wt/WWebWidget"
+
+#include "WtException.h"
+
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
+namespace {
+  const char *DRAG_DROP_MIME_TYPE = "application/x-wabstractitemmodelselection";
+}
+
+namespace Wt {
+
+WAbstractItemModel::WAbstractItemModel(WObject *parent)
+  : WObject(parent)
+{ }
+
+WAbstractItemModel::~WAbstractItemModel()
+{ }
+
+bool WAbstractItemModel::canFetchMore(const WModelIndex& parent) const
+{
+  return false;
+}
+
+void WAbstractItemModel::fetchMore(const WModelIndex& parent)
+{ }
+
+int WAbstractItemModel::flags(const WModelIndex& index) const
+{
+  return ItemIsSelectable;
+}
+
+bool WAbstractItemModel::hasChildren(const WModelIndex& index) const
+{
+  return rowCount(index) > 0 && columnCount(index) > 0;
+}
+
+bool WAbstractItemModel::hasIndex(int row, int column,
+				  const WModelIndex& parent) const
+{
+  return (row >= 0
+	  && column >= 0
+	  && row < rowCount(parent)
+	  && column < columnCount(parent));
+}
+
+std::map<int, boost::any> WAbstractItemModel::itemData(const WModelIndex& index)
+  const
+{
+  std::map<int, boost::any> result;
+
+  if (index.isValid()) {
+    for (int i = 0; i <= UrlRole; ++i)
+      result[i] = data(index, i);
+    result[UserRole] = data(index, UserRole);
+  }
+
+  return result;
+}
+
+boost::any WAbstractItemModel::data(int row, int column, int role,
+				    const WModelIndex& parent) const
+{
+  return data(index(row, column, parent), role);
+}
+
+boost::any WAbstractItemModel::headerData(int section,
+					  Orientation orientation,
+					  int role) const
+{
+  return boost::any();
+}
+
+void WAbstractItemModel::sort(int column, SortOrder order)
+{ }
+
+bool WAbstractItemModel::insertColumns(int column, int count,
+				       const WModelIndex& parent)
+{
+  return false;
+}
+
+bool WAbstractItemModel::insertRows(int row, int count,
+				    const WModelIndex& parent)
+{
+  return false;
+}
+
+bool WAbstractItemModel::removeColumns(int column, int count,
+				       const WModelIndex& parent)
+{
+  return false;
+}
+
+bool WAbstractItemModel::removeRows(int row, int count,
+				    const WModelIndex& parent)
+{
+  return false;
+}
+
+bool WAbstractItemModel::setData(const WModelIndex& index,
+				 const boost::any& value, int role)
+{
+  return false;
+}
+
+bool WAbstractItemModel::setHeaderData(int section, Orientation orientation,
+				       const boost::any& value, int role)
+{
+  return false;
+}
+
+bool WAbstractItemModel::setHeaderData(int section, const boost::any& value)
+{
+  return setHeaderData(section, Horizontal, value);
+}
+
+bool WAbstractItemModel::setItemData(const WModelIndex& index,
+				     const std::map<int, boost::any>& values)
+{
+  bool result = true;
+
+  bool wasBlocked = dataChanged.isBlocked();
+  dataChanged.setBlocked(true);
+
+  for (std::map<int, boost::any>::const_iterator i = values.begin();
+       i != values.end(); ++i)
+    if (i->first != EditRole)
+      if (!setData(index, i->second, i->first))
+	result = false;
+
+  dataChanged.setBlocked(wasBlocked);
+  dataChanged.emit(index, index);
+
+  return result;
+}
+
+bool WAbstractItemModel::insertColumn(int column, const WModelIndex& parent)
+{
+  return insertColumns(column, 1, parent);
+}
+
+bool WAbstractItemModel::insertRow(int row, const WModelIndex& parent)
+{
+  return insertRows(row, 1, parent);
+}
+
+bool WAbstractItemModel::removeColumn(int column, const WModelIndex& parent)
+{
+  return removeColumns(column, 1, parent);
+}
+
+bool WAbstractItemModel::removeRow(int row, const WModelIndex& parent)
+{
+  return removeRows(row, 1, parent);
+}
+
+bool WAbstractItemModel::setData(int row, int column, const boost::any& value,
+				 int role, const WModelIndex& parent)
+{
+  WModelIndex i = index(row, column, parent);
+
+  if (i.isValid())
+    return setData(i, value, role);
+  else
+    return false;
+}
+
+WModelIndex WAbstractItemModel::createIndex(int row, int column, void *ptr)
+  const
+{
+  return WModelIndex(row, column, this, ptr);
+}
+
+WModelIndex WAbstractItemModel::createIndex(int row, int column, uint64_t id)
+  const
+{
+  return WModelIndex(row, column, this, id);
+}
+
+WModelIndex WAbstractItemModel::createIndex(int row, int column,
+					    const Sha1::Digest& hashId) const
+{
+  return WModelIndex(row, column, this, hashId);
+}
+
+void *WAbstractItemModel::toRawIndex(const WModelIndex& index) const
+{
+  return 0;
+}
+
+WModelIndex WAbstractItemModel::fromRawIndex(void *rawIndex) const
+{
+  return WModelIndex();
+}
+
+std::string WAbstractItemModel::mimeType() const
+{
+  return DRAG_DROP_MIME_TYPE;
+}
+
+std::vector<std::string> WAbstractItemModel::acceptDropMimeTypes() const
+{
+  std::vector<std::string> result;
+
+  result.push_back(DRAG_DROP_MIME_TYPE);
+
+  return result;
+}
+
+void WAbstractItemModel::copyData(const WAbstractItemModel *source,
+				  const WModelIndex& sIndex,
+				  WAbstractItemModel *destination,
+				  const WModelIndex& dIndex)
+{
+  destination->setItemData(dIndex, source->itemData(sIndex));
+}
+
+void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
+				   int row, int column,
+				   const WModelIndex& parent)
+{
+  // TODO: For now, we assumes selectionBehavior() == RowSelection !
+
+  WItemSelectionModel *selectionModel
+    = dynamic_cast<WItemSelectionModel *>(e.source());
+  if (selectionModel) {
+    WAbstractItemModel *sourceModel = selectionModel->model();
+
+    /*
+     * (1) Insert new rows (or later: cells ?)
+     */
+    if (action == MoveAction || row == -1) {
+      if (row == -1)
+	row = rowCount(parent);
+
+      insertRows(row, selectionModel->selectedIndexes().size(), parent);
+    }
+
+    /*
+     * (2) Copy data
+     */
+    WModelIndexSet selection = selectionModel->selectedIndexes();
+
+    int r = row;
+    for (WModelIndexSet::const_iterator i = selection.begin();
+	 i != selection.end(); ++i) {
+      WModelIndex sourceIndex = *i;
+      if (selectionModel->selectionBehavior() == SelectRows) {
+	WModelIndex sourceParent = sourceIndex.parent();
+
+	for (int col = 0; col < sourceModel->columnCount(sourceParent); ++col) {
+	  WModelIndex s = sourceModel->index(sourceIndex.row(), col,
+					     sourceParent);
+	  WModelIndex d = index(r, col, parent);
+	  copyData(sourceModel, s, this, d);
+	}
+
+	++r;
+      } else {
+	  
+      }
+    }
+
+    /*
+     * (3) Remove original data
+     */
+    if (action == MoveAction) {
+      while (!selectionModel->selectedIndexes().empty()) {
+	WModelIndex i = *selectionModel->selectedIndexes().rbegin();
+
+	sourceModel->removeRow(i.row(), i.parent());
+      }
+    }
+  }
+}
+
+void WAbstractItemModel::beginInsertColumns(const WModelIndex& parent, 
+					    int first, int last)
+{
+  first_ = first;
+  last_ = last;
+  parent_ = parent;
+
+  columnsAboutToBeInserted.emit(parent_, first, last);
+}
+
+void WAbstractItemModel::endInsertColumns()
+{
+  columnsInserted.emit(parent_, first_, last_);
+}
+
+void WAbstractItemModel::beginInsertRows(const WModelIndex& parent,
+					 int first, int last)
+{
+  first_ = first;
+  last_ = last;
+  parent_ = parent;
+
+  rowsAboutToBeInserted.emit(parent, first, last);
+}
+
+void WAbstractItemModel::endInsertRows()
+{
+  rowsInserted.emit(parent_, first_, last_);
+}
+
+void WAbstractItemModel::beginRemoveColumns(const WModelIndex& parent,
+					    int first, int last)
+{
+  first_ = first;
+  last_ = last;
+  parent_ = parent;
+
+  columnsAboutToBeRemoved.emit(parent, first, last);
+}
+
+void WAbstractItemModel::endRemoveColumns()
+{
+  columnsRemoved.emit(parent_, first_, last_);
+}
+
+void WAbstractItemModel::beginRemoveRows(const WModelIndex& parent,
+					 int first, int last)
+{
+  first_ = first;
+  last_ = last;
+  parent_ = parent;
+
+  rowsAboutToBeRemoved.emit(parent, first, last);
+}
+
+void WAbstractItemModel::endRemoveRows()
+{
+  rowsRemoved.emit(parent_, first_, last_);
+}
+
+namespace {
+
+bool matchValue(const boost::any& value,
+		const boost::any& query,
+		MatchFlags flags)
+{
+  MatchFlags f = MatchFlags(flags & 0x1F);
+
+  if ((f & 0x0F) == MatchExactly)
+    return (query.type() == value.type())
+      && asJSLiteral(query) == asJSLiteral(value);
+  else {
+    std::string query_str = asString(query).toUTF8();
+    std::string value_str = asString(value).toUTF8();
+
+    switch (f) {
+    case MatchStringExactly:
+      return boost::algorithm::iequals(value_str, query_str);
+    case MatchStringExactly | MatchCaseSensitive:
+      return boost::algorithm::equals(value_str, query_str);
+
+    case MatchStartsWith:
+      return boost::algorithm::istarts_with(value_str, query_str);
+    case MatchStartsWith | MatchCaseSensitive:
+      return boost::algorithm::starts_with(value_str, query_str);
+
+    case MatchEndsWith:
+      return boost::algorithm::iends_with(value_str, query_str);
+    case MatchEndsWith | MatchCaseSensitive:
+      return boost::algorithm::ends_with(value_str, query_str);
+
+    default:
+      throw WtException("Not yet implemented: WAbstractItemModel::match with "
+			"MatchFlags = "
+			+ boost::lexical_cast<std::string>(flags));
+    }
+  }
+}
+
+}
+
+WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
+					  int role,
+					  const boost::any& value,
+					  int hits,
+					  MatchFlags flags)
+  const
+{
+  WModelIndexList result;
+
+  const int rc = rowCount(start.parent());
+
+  for (int i = 0; i < rc; ++i) {
+    int row = start.row() + i;
+
+    if (row >= rc)
+      if (!(flags & MatchWrap))
+	break;
+      else
+	row -= rc;
+
+    WModelIndex idx = index(row, start.column(), start.parent());
+    boost::any v = data(idx, role);
+
+    if (matchValue(v, value, flags))
+      result.push_back(idx);
+  }
+
+  return result;
+}
+
+std::string asJSLiteral(const boost::any& v)
+{
+  if (v.empty())
+    return std::string("''");
+  else if (v.type() == typeid(WString))
+    return boost::any_cast<WString>(v).jsStringLiteral();
+  else if (v.type() == typeid(std::string))
+    return
+      WWebWidget::jsStringLiteral(boost::any_cast<std::string>(v), '\'');
+  else if (v.type() == typeid(const char *))
+    return
+      WWebWidget::jsStringLiteral(boost::any_cast<const char *>(v), '\'');
+  else if (v.type() == typeid(WDate)) {
+    const WDate& d = boost::any_cast<WDate>(v);
+
+    return "new Date('" + boost::lexical_cast<std::string>(d.month())
+      + "/" + boost::lexical_cast<std::string>(d.day())
+      + "/" + boost::lexical_cast<std::string>(d.year())
+      + "')";
+  }
+
+#define ELSE_LEXICAL_ANY(TYPE) \
+  else if (v.type() == typeid(TYPE)) \
+    return boost::lexical_cast<std::string>(boost::any_cast<TYPE>(v))
+
+  ELSE_LEXICAL_ANY(short);
+  ELSE_LEXICAL_ANY(unsigned short);
+  ELSE_LEXICAL_ANY(int);
+  ELSE_LEXICAL_ANY(unsigned int);
+  ELSE_LEXICAL_ANY(long);
+  ELSE_LEXICAL_ANY(unsigned long);
+  ELSE_LEXICAL_ANY(int64_t);
+  ELSE_LEXICAL_ANY(uint64_t);
+  ELSE_LEXICAL_ANY(float);
+  ELSE_LEXICAL_ANY(double);
+
+#undef ELSE_LEXICAL_ANY
+
+  else
+    throw WtException(std::string("WAbstractItemModel: unsupported type ")
+		      + v.type().name());
+}
+
+WString asString(const boost::any& v, const WString& format)
+{
+  if (v.empty())
+    return WString();
+  else if (v.type() == typeid(WString))
+    return boost::any_cast<WString>(v);
+  else if (v.type() == typeid(std::string))
+    return WString::fromUTF8(boost::any_cast<std::string>(v));
+  else if (v.type() == typeid(const char *))
+    return WString::fromUTF8(boost::any_cast<const char *>(v));
+  else if (v.type() == typeid(WDate)) {
+    const WDate& d = boost::any_cast<WDate>(v);
+
+    return d.toString(format.empty() ? "dd/MM/yy" : format);
+  }
+
+#define ELSE_LEXICAL_ANY(TYPE)						\
+  else if (v.type() == typeid(TYPE)) {					\
+    if (format.empty())							\
+      return WString(boost::lexical_cast<std::string>			\
+		     (boost::any_cast<TYPE>(v)));			\
+    else {								\
+      char buf[100];							\
+      snprintf(buf, 100, format.toUTF8().c_str(), boost::any_cast<TYPE>(v)); \
+      return WString::fromUTF8(buf);					\
+    }									\
+  }
+
+  ELSE_LEXICAL_ANY(short)
+  ELSE_LEXICAL_ANY(unsigned short)
+  ELSE_LEXICAL_ANY(int)
+  ELSE_LEXICAL_ANY(unsigned int)
+  ELSE_LEXICAL_ANY(long)
+  ELSE_LEXICAL_ANY(unsigned long)
+  ELSE_LEXICAL_ANY(int64_t)
+  ELSE_LEXICAL_ANY(uint64_t)
+  ELSE_LEXICAL_ANY(float)
+  ELSE_LEXICAL_ANY(double)
+
+#undef ELSE_LEXICAL_ANY
+
+  else
+    throw WtException(std::string("WAbstractItemModel: unsupported type ")
+		      + v.type().name());
+}
+
+double asNumber(const boost::any& v)
+{
+  if (v.empty())
+    return std::numeric_limits<double>::signaling_NaN();
+  else if (v.type() == typeid(WString))
+    try {
+      return boost::lexical_cast<double>(boost::any_cast<WString>(v).toUTF8());
+    } catch (boost::bad_lexical_cast&) {
+      return std::numeric_limits<double>::signaling_NaN();
+    }
+  else if (v.type() == typeid(std::string))
+    try {
+      return boost::lexical_cast<double>(boost::any_cast<std::string>(v));
+    } catch (boost::bad_lexical_cast&) {
+      return std::numeric_limits<double>::signaling_NaN();
+    }
+  else if (v.type() == typeid(const char *))
+    try {
+      return boost::lexical_cast<double>(boost::any_cast<const char *>(v));
+    } catch (boost::bad_lexical_cast&) {
+      return std::numeric_limits<double>::signaling_NaN();
+    }
+  else if (v.type() == typeid(WDate))
+    return static_cast<double>(boost::any_cast<WDate>(v).modifiedJulianDay());
+
+#define ELSE_NUMERICAL_ANY(TYPE) \
+  else if (v.type() == typeid(TYPE)) \
+    return static_cast<double>(boost::any_cast<TYPE>(v))
+
+  ELSE_NUMERICAL_ANY(short);
+  ELSE_NUMERICAL_ANY(unsigned short);
+  ELSE_NUMERICAL_ANY(int);
+  ELSE_NUMERICAL_ANY(unsigned int);
+  ELSE_NUMERICAL_ANY(long);
+  ELSE_NUMERICAL_ANY(unsigned long);
+  ELSE_NUMERICAL_ANY(int64_t);
+  ELSE_NUMERICAL_ANY(uint64_t);
+  ELSE_NUMERICAL_ANY(float);
+  ELSE_NUMERICAL_ANY(double);
+
+#undef ELSE_NUMERICAL_ANY
+
+  else
+    throw WtException(std::string("WAbstractItemModel: unsupported type ")
+		      + v.type().name());
+}
+
+boost::any updateFromJS(const boost::any& v, std::string s)
+{
+  if (v.empty())
+    return boost::any(s);
+  else if (v.type() == typeid(WString))
+    return boost::any(WString::fromUTF8(s));
+  else if (v.type() == typeid(std::string))
+    return boost::any(s);
+  else if (v.type() == typeid(const char *))
+    return boost::any(s);
+  else if (v.type() == typeid(WDate))
+    return boost::any(WDate::fromString(WString::fromUTF8(s),
+					"ddd MMM dd yyyy"));
+#define ELSE_LEXICAL_ANY(TYPE) \
+  else if (v.type() == typeid(TYPE)) \
+    return boost::any(boost::lexical_cast<TYPE>(s))
+
+  ELSE_LEXICAL_ANY(short);
+  ELSE_LEXICAL_ANY(unsigned short);
+  ELSE_LEXICAL_ANY(int);
+  ELSE_LEXICAL_ANY(unsigned int);
+  ELSE_LEXICAL_ANY(long);
+  ELSE_LEXICAL_ANY(unsigned long);
+  ELSE_LEXICAL_ANY(int64_t);
+  ELSE_LEXICAL_ANY(uint64_t);
+  ELSE_LEXICAL_ANY(float);
+  ELSE_LEXICAL_ANY(double);
+
+#undef ELSE_LEXICAL_ANY
+
+  else
+    throw WtException(std::string("WAbstractItemModel: unsupported type ")
+		      + v.type().name());
+}
+
+
+
+extern bool lessThan(const boost::any& d1, const boost::any& d2)
+{
+  const bool UNSPECIFIED_IS_SMALLER = true;
+
+  /*
+   * If the types are the same then we use std::operator< on that type
+   * otherwise we compare lexicographically
+   */
+  if (!d1.empty())
+    if (!d2.empty()) {
+      if (d1.type() == d2.type()) {
+	if (d1.type() == typeid(bool))
+	  return static_cast<int>(boost::any_cast<bool>(d1))
+	    < static_cast<int>(boost::any_cast<bool>(d2));
+
+#define ELSE_COMPARE_ANY(TYPE) 		    \
+	else if (d1.type() == typeid(TYPE)) \
+	  return boost::any_cast<TYPE>(d1) < boost::any_cast<TYPE>(d2)
+
+	ELSE_COMPARE_ANY(WString);
+	ELSE_COMPARE_ANY(std::string);
+	ELSE_COMPARE_ANY(WDate);
+	ELSE_COMPARE_ANY(short);
+	ELSE_COMPARE_ANY(unsigned short);
+	ELSE_COMPARE_ANY(int);
+	ELSE_COMPARE_ANY(unsigned int);
+	ELSE_COMPARE_ANY(long);
+	ELSE_COMPARE_ANY(unsigned long);
+	ELSE_COMPARE_ANY(int64_t);
+	ELSE_COMPARE_ANY(uint64_t);
+	ELSE_COMPARE_ANY(float);
+	ELSE_COMPARE_ANY(double);
+
+#undef ELSE_COMPARE_ANY
+	else
+	  throw WtException(std::string("WAbstractItemModel: unsupported type ")
+			    + d1.type().name());
+      } else {
+	WString s1 = asString(d1);
+	WString s2 = asString(d2);
+
+	return s1 < s2;
+      }
+    } else
+      return !UNSPECIFIED_IS_SMALLER;
+  else
+    if (!d2.empty())
+      return !UNSPECIFIED_IS_SMALLER;
+    else
+      return false; // ok?
+}
+
+}

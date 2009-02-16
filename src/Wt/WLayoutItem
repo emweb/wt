@@ -1,0 +1,75 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WLAYOUT_ITEM_H_
+#define WLAYOUT_ITEM_H_
+
+#include <Wt/WDllDefs.h>
+
+namespace Wt {
+
+  class WLayout;
+  class WWidget;
+  class WWidgetItem;
+  class WLayoutItemImpl;
+
+/*! \class WLayoutItem Wt/WLayoutItem Wt/WLayoutItem
+ *  \brief An abstract base class for items that can participate in a layout.
+ *
+ * \sa WLayout
+ */
+class WT_API WLayoutItem
+{
+public:
+  /*! \brief Destroy a layout item.
+   */
+  virtual ~WLayoutItem();
+
+  /*! \brief Find the widget item corresponding to the given <i>widget</i>
+   *
+   * The widget is searched recursively inside nested layouts.
+   */
+  virtual WWidgetItem *findWidgetItem(WWidget *widget) = 0;
+
+  /*! \brief Get the layout that implements this WLayoutItem.
+   *
+   * This implements a type-safe upcasting mechanism to a WLayout.
+   */
+  virtual WLayout *layout() = 0;
+
+  /*! \brief Get the widget that is held by this WLayoutItem.
+   *
+   * This implements a type-safe upcasting mechanism to a WWidgetItem.
+   */
+  virtual WWidget *widget() = 0;
+
+  /*! \brief Get the layout in which this item is contained.
+   */
+  WLayout *parentLayout() const { return layout_; }
+
+  /*! \brief Get the implementation for this layout item.
+   *
+   * The implementation of a layout item depends on the kind of
+   * container for which the layout does layout management.
+   */
+  virtual WLayoutItemImpl *impl() const = 0;
+
+protected:
+  /*! \brief Create a new layout item.
+   */
+  WLayoutItem();
+
+private:
+  WLayout *layout_;
+
+  virtual void setParent(WWidget *parent) = 0;
+
+  friend class WLayout;
+};
+
+}
+
+#endif // WLAYOUT_ITEM_H_

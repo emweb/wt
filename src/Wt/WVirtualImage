@@ -1,0 +1,216 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WVIRTUALIMAGE_H_
+#define WVIRTUALIMAGE_H_
+
+#include <limits>
+#include <Wt/WCompositeWidget>
+#include <Wt/WJavaScriptSlot>
+
+namespace Wt {
+
+class WImage;
+class WMouseEvent;
+
+/*! \class WVirtualImage Wt/WVirtualImage Wt/WVirtualImage
+ *  \brief An abstract widget that shows a viewport to a virtually large image.
+ *
+ * %WVirtualImage is an abstract class which renders a large image in
+ * small pieces. The large image is broken down, and rendered as a
+ * grid of smaller square images parts.
+ *
+ * The %WVirtualImage may provide interactive navigation using the
+ * mouse, by reacting to dragging of the mouse on the image.
+ * 
+ * The %WVirtualImage renders pieces in and bordering the current
+ * viewport. In this way, provided the individual pieces load
+ * sufficiently fast, the user has effectively the impression of
+ * scrolling through a single large image, without glitches. Whenever
+ * the image is navigated, if necessary, new images are rendered to
+ * maintain the border. Images that are too far from the current
+ * viewport are pruned away, so that browser memory remains bounded.
+ *
+ * To use this class, you must reimplement one of two virtual methods
+ * to specify the contents of each grid piece. Either you provide a
+ * suitable WImage for every grid piece, or you provide a WResource
+ * which renders the contents for a WImage for every grid piece.
+ *
+ * The total image dimensions are (0, 0) to (imageWidth, imageHeight)
+ * for a finite image, and become unbounded (including negative numbers)
+ * for each dimension which is Infinite.
+ */
+class WT_API WVirtualImage : public WCompositeWidget
+{
+public:
+  /*! \brief Special value for imageWidth or imageHeight
+   */
+  static const int64_t Infinite;
+
+  /*! \brief Construct a viewport for a virtual image.
+   *
+   * You must specify the size of the viewport, and the size of the
+   * virtual image. The latter dimensions may be the special value
+   * Infinite, indicating that in one or more dimensions, the image
+   * size is infinite (in practice limited by MAXINT).
+   *
+   * In addition, you must specify the size of each square grid
+   * item. The default is 256 by 256.
+   */
+  WVirtualImage(int viewPortWidth, int viewPortHeight,
+		int64_t imageWidth, int64_t imageHeight,
+		int gridImageSize = 256, WContainerWidget *parent = 0);
+
+  /*! \brief Destructor
+   */
+  ~WVirtualImage();
+
+  /*! \brief Regenerate and redraw the image pieces.
+   *
+   * This method invalidates all current grid images, and recreates
+   * them.
+   */
+  void redrawAll();
+
+  /*! \brief Enable mouse dragging to scroll around the image.
+   *
+   * The cursor is changed to a 'move' symbol to indicate the interactivity.
+   */
+  void enableDragging();
+
+  /*! \brief Scroll the viewport of the image over a distance.
+   *
+   * Scroll the viewport over the image over an indicated distance.
+   */
+  void scroll(int64_t dx, int64_t dy);
+
+  /*! \brief Scroll the viewport of the image to a specific coordinate.
+   *
+   * Scroll the viewport so that its top left coordinate becomes (x, y).
+   */
+  void scrollTo(int64_t x, int64_t y);
+
+  /*! \brief Return the virtual image width.
+   */
+  int64_t imageWidth() const { return imageWidth_; }
+
+  /*! \brief Return the virtual image height.
+   */
+  int64_t imageHeight() const { return imageHeight_; }
+
+  /*! \brief Resize the virtual image.
+   */
+  void resizeImage(int64_t w, int64_t h);
+
+  /*! \brief Return the viewport width.
+   */
+  int viewPortWidth() const { return viewPortWidth_; }
+
+  /*! \brief Return the viewport height.
+   */
+  int viewPortHeight() const { return viewPortHeight_; }
+
+  /*! \brief Returns the pieceSize
+   */
+  int gridImageSize() const { return gridImageSize_; }
+
+  /*! \brief Returns the current top left X coordinate.
+   */
+  int64_t currentTopLeftX() const { return currentX_; }
+
+  /*! \brief Returns the current top left Y coordinate.
+   */
+  int64_t currentTopLeftY() const { return currentY_; }
+
+  /*! \brief Returns the current bottom right X coordinate.
+   */
+  int64_t currentBottomRightX() const { return currentX_ + viewPortWidth_; }
+
+  /*! \brief Returns the current bottom right Y coordinate.
+   */
+  int64_t currentBottomRightY() const { return currentY_ + viewPortHeight_; }
+
+  /*! \brief Signal emitted whenever the viewport changes.
+   */
+  Signal<int64_t, int64_t> viewPortChanged;
+
+protected:
+  /*! \brief Create a grid image for the given rectangle.
+   *
+   * Create the image which spans image coordinates with left upper
+   * corner (x, y) and given width and height.
+   *
+   * Width and height will not necesarilly equal gridImageSize(), if the
+   * the image is not infinite sized.
+   *
+   * The default implementation calls render() and creates an image
+   * for the resource returned.
+   *
+   * You should override this method if you wish to serve for example
+   * static image content.
+   *
+   * \sa render()
+   */
+  virtual WImage *createImage(int64_t x, int64_t y, int width, int height);
+
+  /*! \brief Render a grid image for the given rectangle.
+   *
+   * Returns a resource that streams an image which renders the
+   * rectangle which spans image coordinates with left upper corner
+   * (x, y) and given width and height.
+   *
+   * Width and height will not necesarilly equal gridImageSize(), if the
+   * the image is not infinite sized.
+   *
+   * The default implementation throws an Exception. You must
+   * reimplement this method unless you reimplement createImage().
+   *
+   * \sa createImage()
+   */
+  virtual WResource *render(int64_t x, int64_t y, int width, int height);
+
+private slots:
+  void mouseUp(const WMouseEvent& e);
+
+private:
+  WContainerWidget *impl_;
+  WContainerWidget *contents_;
+
+  struct Rect {
+    int64_t x1, y1, x2, y2;
+    
+    Rect(int64_t x1_, int64_t y1_, int64_t x2_, int64_t y2_)
+      : x1(x1_), y1(y1_), x2(x2_), y2(y2_) { }
+  };
+
+  typedef std::map<int64_t, WImage *> GridMap;
+  GridMap grid_;
+
+  int gridImageSize_;
+
+  int viewPortWidth_;
+  int viewPortHeight_;
+  int64_t imageWidth_;
+  int64_t imageHeight_;
+
+  int64_t currentX_;
+  int64_t currentY_;
+
+  Rect neighbourhood(int64_t x, int64_t y, int marginX, int marginY);
+  int64_t gridKey(int64_t i, int64_t j);
+  void decodeKey(int64_t key, int64_t& i, int64_t& j);
+  void generateGridItems(int64_t newX, int64_t newY);
+  void cleanGrid();
+  bool visible(int64_t i, int64_t j) const;
+
+  void internalScrollTo(int64_t x, int64_t y, bool moveViewPort);
+
+  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
+};
+
+}
+
+#endif // WVIRTUALIMAGE_H_

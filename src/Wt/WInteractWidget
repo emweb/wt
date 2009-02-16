@@ -1,0 +1,191 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WINTERACT_WIDGET_H_
+#define WINTERACT_WIDGET_H_
+
+#include <Wt/WWebWidget>
+#include <Wt/WEvent>
+
+namespace Wt {
+
+class JSlot;
+
+/*! \class WInteractWidget Wt/WInteractWidget Wt/WInteractWidget
+ *  \brief A widget that can receive user-interface interaction
+ *
+ * This abstract widget provides access to event signals that
+ * correspond to user-interface interaction through mouse or keyboard.
+ *
+ * When JavaScript is disabled, only the #clicked event will
+ * propagate (but without event details information).
+ */
+class WT_API WInteractWidget : public WWebWidget
+{
+public:
+  /*! \brief Create an InteractWidget with optional parent.
+   */
+  WInteractWidget(WContainerWidget *parent = 0);
+
+  ~WInteractWidget();
+
+  /*! \brief Event signal emitted when a keyboard key is pushed down.
+   *
+   * The keyWentDown signal is the first signal emitted when a key is
+   * pressed (before the keyPressed signal). Unlike \link
+   * WInteractWidget::keyPressed keyPressed\endlink however it is also
+   * emitted for modifier keys (such as "shift", "control", ...) or
+   * keyboard navigation keys that do not have a corresponding
+   * character.
+   *
+   * \sa WInteractWidget::keyPressed, WInteractWidget::keyWentUp
+   */
+  EventSignal<WKeyEvent> keyWentDown;
+
+  /*! \brief Event signal emitted when a "character" was entered.
+   *
+   * The keyPressed signal is emitted when a key is pressed, and a
+   * character is entered. Unlike \link
+   * WInteractWidget::keyWentDown\endlink, it is emitted only for key
+   * presses that result in a character being entered, and thus not
+   * for modifier keys or keyboard navigation keys.
+   *
+   * \sa WInteractWidget::keyWentDown
+   */
+  EventSignal<WKeyEvent> keyPressed;
+    
+  /*! \brief Event signal emitted when a keyboard key is released.
+   *
+   * This is the counter-part of the \link
+   * WInteractWidget::keyWentDown\endlink event. Every key-down has its
+   * corresponding key-up.
+   *
+   * \sa WInteractWidget::keyWentDown
+   */
+  EventSignal<WKeyEvent> keyWentUp;
+
+  /*! \brief Event signal emitted when enter was pressed.
+   *
+   * This signal is emitted when the Enter or Return key was pressed.
+   *
+   * \sa keyPressed, Key_Enter
+   */
+  EventSignal<void> enterPressed;
+
+  /*! \brief Event signal emitted when escape was pressed.
+   *
+   * This signal is emitted when the Escape key was pressed.
+   *
+   * \sa keyPressed, Key_Escape
+   */
+  EventSignal<void> escapePressed;
+
+  /*! \brief Event signal emitted when a mouse key was clicked on this
+   *         widget.
+   *
+   * The event details contains information such as the \link
+   * WMouseEvent::button button\endlink, optional \link
+   * WMouseEvent::modifiers() keyboard modifiers\endlink, and mouse
+   * coordinates relative to the \link WMouseEvent::widget()
+   * widget\endlink, the window \link WMouseEvent::window()
+   * window\endlink, or the \link WMouseEvent::document()
+   * document\endlink.
+   *
+   * @note When JavaScript is disabled, the event details contain
+   * invalid information.
+   */
+  EventSignal<WMouseEvent> clicked;
+
+  /*! \brief Event signal emitted when a mouse key was double clicked
+   *         on this widget.
+   *
+   * The event details contains information such as the \link
+   * WMouseEvent::button button\endlink, optional \link
+   * WMouseEvent::modifiers() keyboard modifiers\endlink, and mouse
+   * coordinates relative to the \link WMouseEvent::widget()
+   * widget\endlink, the window \link WMouseEvent::window()
+   * window\endlink, or the \link WMouseEvent::document()
+   * document\endlink.
+   *
+   * @note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent> doubleClicked;
+
+  /*! \brief Event signal emitted when a mouse key was pushed down on this
+   *         widget.
+   *
+   * The event details contains information such as the \link
+   * WMouseEvent::button button\endlink, optional \link
+   * WMouseEvent::modifiers() keyboard modifiers\endlink, and mouse
+   * coordinates relative to the \link WMouseEvent::widget()
+   * widget\endlink, the window \link WMouseEvent::window()
+   * window\endlink, or the \link WMouseEvent::document()
+   * document\endlink.
+   *
+   * @note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent> mouseWentDown;
+
+  /*! \brief Event signal emitted when a mouse key was released on this
+   *         widget.
+   *
+   * The event details contains information such as the \link
+   * WMouseEvent::button button\endlink, optional \link
+   * WMouseEvent::modifiers() keyboard modifiers\endlink, and mouse
+   * coordinates relative to the \link WMouseEvent::widget()
+   * widget\endlink, the window \link WMouseEvent::window()
+   * window\endlink, or the \link WMouseEvent::document()
+   * document\endlink.
+   *
+   * @note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent> mouseWentUp;
+
+  /*! \brief Event signal emitted when the mouse went out of this widget.
+   *
+   * @note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent> mouseWentOut;
+    
+  /*! \brief Event signal emitted when the mouse entered this widget.
+   *
+   * @note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent> mouseWentOver;
+
+  /*! \brief Event signal emitted when the mouse moved over this widget.
+   *
+   * @note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent> mouseMoved;
+
+  /*! \brief Configure dragging.
+   *
+   * Enable drag&drop for this widget. The mimeType is used to find a
+   * suitable drop target, which must accept dropping of this mimetype.
+   *
+   * By default, the entire widget is dragged. One may specify another widget
+   * to be dragged (for example the parent), or a drag widget whose function
+   * is only to represent the drag visually (when isDragWidgetOnly = true).
+   *
+   * The widget to be identified as source in the dropEvent may be given
+   * explicitly, and will default to this widget otherwise.
+   *
+   * \sa WWidget::dropEvent(), WWidget::acceptDrops(), WDropEvent
+   *
+   * @note When JavaScript is disabled, drag&drop does not work.
+   */
+  void setDraggable(const std::string& mimeType, WWidget *dragWidget = 0,
+		    bool isDragWidgetOnly = false, WObject *sourceWidget = 0);
+protected:
+  void updateDom(DomElement& element, bool all);
+
+  JSlot *dragSlot_;
+};
+
+}
+
+#endif // WINTERACT_WIDGET_H_

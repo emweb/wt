@@ -1,0 +1,163 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTABLE_H_
+#define WTABLE_H_
+
+#include <Wt/WInteractWidget>
+#include <Wt/WTableCell>
+#include <Wt/WTableColumn>
+#include <Wt/WTableRow>
+
+namespace Wt {
+
+/*! \class WTable Wt/WTable Wt/WTable
+ *  \brief A container widget which provides layout of children in a table grid.
+ *
+ * WTable is a \link WWidget::setInline(bool) stacked \endlink widget.
+ *
+ * A WTable provides a way to manage the lay-out of children differently
+ * from the default inline or stacked layout of a WContainerWidget, by
+ * using a grid.
+ *
+ * Access to the contents of a WTable happens through WTableCell
+ * widgets. Use elementAt(int row, int column) to access the cell at a
+ * particular position in the table. The WTable automatically resizes
+ * when necessary.
+ *
+ * It is possible to insert and delete entire rows or columns from the
+ * table using the insertColumn(int column), insertRow(int row),
+ * deleteColumn(int column), or deleteRow(int row) methods.
+ *
+ * \sa WTableCell, WTableRow, WTableColumn
+ */
+class WT_API WTable : public WInteractWidget
+{
+public:
+  /*! \brief Construct an empty table.
+   */
+  WTable(WContainerWidget *parent = 0);
+
+  /*! \brief Delete the table and its entire contents.
+   */
+  ~WTable();
+
+  /*! \brief Access the table element at the given row and column.
+   *
+   * If the row/column is beyond the current table dimensions, then
+   * the table is expanded automatically.
+   */
+  WTableCell *elementAt(int row, int column);
+
+  /*! \brief Get the row object for the given row.
+   *
+   * Like with elementAt(), the table expands automatically when the row
+   * is beyond the current table dimensions.
+   *
+   * \sa elementAt(int, int), columnAt(int)
+   */
+  WTableRow    *rowAt(int row);
+
+  /*! \brief Get the column object for the given column.
+   *
+   * Like with elementAt(), the table expands automatically when the
+   * column is beyond the current table dimensions.
+   *
+   * \sa elementAt(int, int), rowAt(int)
+   */
+  WTableColumn *columnAt(int column);
+
+  /*! \brief Delete the given table cell and its contents.
+   *
+   * The table cell at that position is recreated.
+   */
+  void removeCell(WTableCell *item);
+
+  /*! \brief Delete the table cell at the given position.
+   *
+   * \sa removeCell(WTableCell)
+   */
+  void removeCell(int row, int column);
+
+  /*! \brief Insert an empty row.
+   */
+  void insertRow(int row);
+
+  /*! \brief Delete the given row and all its contents.
+   *
+   * Rows below the given row are shifted up.
+   */
+  void deleteRow(int row);
+
+  /*! \brief Insert an empty column.
+   */
+  void insertColumn(int column);
+
+  /*! \brief Delete the given column and all its contents.
+   */
+  void deleteColumn(int column);
+
+  /*! \brief Clear the entire table.
+   */
+  void clear();
+
+  /*! \brief The number of rows in the table (<b>deprecated</b>).
+   *
+   * \deprecated Use rowCount() instead.
+   */
+  int numRows() const;
+
+  /*! \brief Returns the number of rows in the table.
+   */
+  int rowCount() const;
+
+  /*! \brief The number of columns in the table (<b>deprecated</b>).
+   *
+   * \deprecated Use columnCount() instead.
+   */
+  int numColumns() const;
+
+  /*! \brief Returns the number of columns in the table.
+   */
+  int columnCount() const;
+
+  void printDebug();
+  
+private:
+  static const int BIT_GRID_CHANGED = 0;
+  static const int BIT_COLUMNS_CHANGED = 1;
+
+  std::bitset<3>               flags_;
+
+  std::vector<WTableRow *>     rows_;
+  std::vector<WTableColumn *> *columns_;
+  std::set<WTableRow *>       *rowsChanged_;
+  unsigned                     rowsAdded_;
+
+  void expand(int row, int column, int rowSpan, int columnSpan);
+  WTableRow::TableData& itemAt(int row, int column);
+
+  void repaintRow(WTableRow *row);
+  void repaintColumn(WTableColumn *col);
+
+  friend class WTableCell;
+  friend class WTableColumn;
+  friend class WTableRow;
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+  virtual DomElement    *createDomElement(WApplication *app);
+  virtual void           getDomChanges(std::vector<DomElement *>& result,
+				       WApplication *app);
+
+private:
+  DomElement *createRow(int row, bool withIds, WApplication *app);
+};
+
+}
+
+#endif // WTABLE_H_

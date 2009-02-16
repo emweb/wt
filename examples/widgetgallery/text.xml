@@ -1,0 +1,1177 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="basics-intro">
+    
+    <h1>Basic widgets</h1>
+
+    <p>
+      The basic widgets provide structural building blocks of a web
+      application developed using Wt. Some of these widgets correspond
+      to HTML elements, while others have a non-trivial
+      implementation.
+    </p>
+
+    <p>
+      They are often used to build more complex composite
+      widgets. Wt's widgets all inherit from WWidget. In order to be
+      displayed, they have to be part of the widget tree
+      hierarchy. This can be done by assigning a parent to a widget
+      during construction, or by inserting the widget into a parent's
+      children list. Widgets can be inserted directly into a <a
+      href="#/basics/wcontainerwidget">WContainerWidget</a>, or set in
+      a <a href="#/style-and-layout">layout manager</a>.
+    </p>
+    
+    <p>
+      User interaction is facilitated using Wt's signal/slot event
+      mechanism. Wt translates HTML CGI or JavaScript events uniformly
+      to C++ method invocations. For example, the descendants of
+      WInteractWidget emit events such as key events (keyPressed,
+      keyWentDown, keyWentUp, ...) and mouse events (clicked,
+      doubleClicked, but also mouseWentOver and mouseMoved). Except
+      for mouse clicks, these events can only be handled when
+      JavaScript is available.
+    </p>
+    
+    <p>
+      In this widget demo application, occasionally selected events
+      are demonstrated and shown in the event window at the bottom of
+      the browser window. Please refer to the reference manual for a
+      full list of events for every widget.
+    </p>
+
+    <p>
+      Basic widgets have only a limited amount of styling. This allows
+      you to customize the look of these widgets using CSS to fit
+      within your design.
+    </p>
+    
+    <p>
+      Related topics: <a href="#/events">Events</a> and <a
+      href="#/style-and-layout">Style and Layout</a>.
+    </p>
+  </message>
+
+  <message id="basics-WText">
+    <p>
+      A WText corresponds to an HTML &lt;span&gt; or &lt;div&gt;
+      element. It may display XHTML-styled text (possibly with
+      <i>markup</i> html tags) or plain text.
+    </p>
+    
+    <p>
+      WText displays a <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WString.html"
+      target="_blank">WString</a>. This string class provides support
+      for localization and internationalization:
+      <ul>
+	<li>it implements a Unicode string (internally representated
+	as UTF-8.</li>
+	<li>it implements a localizable string (see also <a
+	href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WString.html#0afc7dc0f9897456d71b569a86ca26c1" target="_blank">WString::tr()</a>). The
+	actual value corresponding to a key is retrieved from a <a
+	href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WLocalizedStrings.html"
+	target="_blank">WLocalizedStrings</a> instance, taking into
+	account the current locale. The default implementation of this
+	interface class uses XML files, which are convenient for
+	specifying XHTML snippets.</li>
+      </ul>
+    </p>
+    
+    <p>
+      WText allows the text to be formatted as XHTML or as plain text
+      (escaping all special HTML characters). All XHTML text content,
+      that is not read from a localized strings interface (which is
+      considered safe by definition), is protected against unwanted
+      side effects from Cross-Site Scripting (XSS) attacks. The text
+      of a e.g. an XHTML-formatted WText is passed through an XML
+      parser and all malicious tags are filtered (unless this feature
+      is explicitly disabled).
+    </p>
+
+  </message>
+
+  <message id="basics-WText-events">
+    <p>
+      Although the functionality of WText is very basic, it inherits,
+      like most widgets, from WInteractWidget. As a consequence, a WText
+      can react on a whole set of events; a few mouse events are
+      demonstrated below.
+    </p>
+  </message>
+
+  <message id="basics-WBreak">
+    <p>
+    A WBreak corresponds to an HTML &lt;br/&gt; element.
+    </p>
+
+    <p>
+      WBreak forces a line break between <i>inline</i> widgets.
+
+      Whether a widget is layed out inline is a property of every
+      widget class. For example, WText, WLineEdit, WComboBox,
+      etc... are inline widgets and will therefore lay out as text,
+      flowing from left to right and top to bottom (for most
+      languages).
+    </p>
+
+    <p>Related topics: <a href="#/style-and-layout">Style and Layout</a>.</p>
+  </message>
+
+  <message id="basics-WAnchor">
+    <p>
+      A WAnchor corresponds to an HTML &lt;a&gt; element, and provides a
+      link to an URL:
+    </p>
+  </message>
+
+  <message id="basics-WAnchor-more">
+    <p>
+      When an anchor is activated, by default the browser will
+      replace the Wt application with the targeted document. This may be
+      changed to suggest the browser to follow the link in a new window,
+      using the <span class="code">setTarget()</span> method.
+    </p>
+
+    <p>
+      You may specify the anchor's target URL directly, but anchors
+      can also be pointed to a <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WResource.html" target="_blank">WResource</a>. This
+      allows you to serve auxiliary files related to a particular
+      application session, and perhaps dynamically generate the
+      content. Wt includes <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WFileResource.html" target="_blank">WFileResource</a>
+      to stream a file and <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMemoryResource.html" target="_blank">WMemoryResource</a>
+      to stream a data vector.
+    </p>
+    
+    <p>
+      WAnchor may also play an important role for navigation within
+      your application, using Wt's internal paths, since they provide
+      support for bookmarks, the browser back/forward buttons, and
+      following links in new windows. For example, the <a
+      href="#/basics/wmenu">WMenu</a> widget (used here to navigate Wt
+      widgets) uses anchors for its items by default.
+    </p>
+
+    <p>
+      WAnchor is an instance of WContainerWidget, and as a
+      consequence, any WWidget can be the clickable content of an
+      anchor. It may be a table, a table cell, an image (demonstrated
+      below), ...
+    </p>
+  </message>
+
+  <message id="basics-WAnchor-related">
+    <p>
+      Related topics: <a href="#/internal_paths">Internal paths</a>.
+    </p>    
+  </message>
+
+  <message id="basics-WImage">
+    <p>
+      A WImage corresponds to an HTML &lt;img&gt; element, and displays an
+      image.
+    </p>
+  </message>
+
+  <message id="basics-WImage-more">
+    <p>
+      Like an anchor, you may set the image URL directly, or point
+      the image to a WResource to perhaps generate an image on the fly.
+    </p>
+
+    <p>
+      There are alternative methods to display or generate graphics
+      in Wt:
+    </p>
+    <ul>
+      <li>
+	You may use the CSS background-image property when using
+	images as styling objects (see <a
+	href="#/style-and-layout">Style and Layout</a>).
+      </li>
+      <li>
+	You can also use the vector graphics API to use graphics
+	primitives to paint graphics (see <a
+	href="#/vector-graphics">Vector Graphics</a>)
+      </li>
+    </ul>
+
+    <p>
+      Since WImage is also a WInteractWidget, it provides the usual
+      keyboard and mouse event handling. But images also have support
+      for a more fine-grained event by defining interactive areas (see
+      <a href="#/events/areas">Event areas</a>).
+    </p>
+
+    <p>
+      Related topics: <a href="#/events/areas">Event areas</a>.
+    </p>
+  </message>
+
+  <message id="basics-WTable">
+    <p>
+      A WTable corresponds to an HTML &lt;table&gt; element, and organizes
+      content in a tabular structure.
+    </p>
+
+    <p>
+      The WTable widget uses the companion classes <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableRow.html"
+      target="_blank">WTableRow</a> and <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableColumn.html"
+      target="_blank">WTableColumn</a> to represent table rows
+      (&lt;tr&gt;) and columns (&lt;td&gt;). Each table cell
+      corresponds to a <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WTableCell.html"
+      target="_blank">WTableCell</a> widget, which is a specialized
+      WContainerWidget.
+    </p>
+
+    <p>
+      An example of a WTable:
+    </p>
+  </message>
+
+  <message id="basics-WTable-more">
+    <p>
+      While flexible, in many cases Wt provides more specialized
+      widgets to deal with certain uses of WTable.
+    </p>
+
+    <p>
+      If you want to create a tabular layout you should consider the
+      <a href="#/style-and-layout/wgridlayout">WGridLayout</a> layout
+      class instead. If you wish to present a lot of data in a table, you
+      can also use one of the Model-View-Classes (<a
+      href="#/mvc-widgets/wtreeview">WTreeView</a> or <a
+      href="#/mvc-widgets/ext__tableview">Ext::TableView</a>), as these
+      may offer a higher performance and other benefits such as controls
+      for interactive column resizing and headers.
+    </p>
+  </message>
+
+  <message id="basics-WTree">
+    <p>
+      The WTreeNode class is a flexible building blocks for creating
+      a hierarchical tree. Through specialization, the tree contents can
+      be customized to contain abitrary widgets.
+    </p>
+
+    <p>
+      The tree supports several options for progressively loading the
+      tree contents, and all expand/collapse behaviour is optimized to
+      client-side when JavaScript is available (although the entire tree
+      is implemented purely in C++).
+    </p>
+
+    <p>
+      The WTree class manages a hierarchy of WTreeNode nodes, and
+      provides support for single or multiple selection.
+    </p>
+
+    <p>
+      This example also uses a small class called
+      <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WIconPair.html"
+      target="_blank">WIconPair</a>, which
+      provides an easy interface to showing one of two icons.
+    </p>
+  </message>
+
+  <message id="basics-WTree-more">
+    <p>
+      The flexibility of the WTree class comes at a cost (in terms of
+      client-side and server-side resources). In many cases, the <a
+      href="#/mvc-widgets/wtreeview">WTreeView</a> class may be more
+      suitable for displaying large data models, using a MVC
+      (Model-View-Controller) approach.
+    </p>
+
+    <p>
+      Related topics: <a href="#/mvc-widgets/wtreeview">WTreeView</a>.
+    </p>    
+  </message>
+
+  <message id="basics-WTreeTable">
+    <p>
+      The WTreeTable combines the functionality of a <a href="#/basics/wtree">
+      WTree</a> and a <a href="#/basics/wtable">WTable</a>. It is a table
+      where the first column contains a collapsible tree. The
+      <a href="#/mvc-widgets/wtreeview">WTreeView</a> is the MVC equivalent
+      of a WTreeTable, but a WTreeTable is more flexible, as every row can
+      have any height, and any widget can be contained within a cell.
+    </p>
+
+    <p>
+      Related topics: <a href="#/mvc-widgets/wtreeview">WTreeView</a>,
+      <a href="#/basics/wtable">WTable</a>,
+      <a href="#/basics/wtree">WTree</a>.
+    </p>
+  </message>
+
+  <message id="basics-WPanel">
+    <p>
+      WPanel provides basic panels that may be used to organize
+      different window areas of your application.
+    </p>
+
+    <p>
+      The can be thought of as a WContainerWidget with an optional
+      title and whose contents can be collapsed.
+    </p>
+  </message>
+  
+  <message id="basics-WPanel-related">
+    <p>
+      Related topics: <a href="#/basics/wgroupbox">WGroupBox</a>.
+    </p>    
+  </message>
+
+  <message id="basics-WTabWidget">
+    <p>
+      WTabWidget organizes content in tab panes. Any widget of any
+      complexity can provide the content for each of the tabs.
+    </p>
+
+    <p>
+      WTabWidget is in fact a specialization of WMenu, and therefore
+      offers all of the features of that class, including support for
+      internal paths. It also shows how the WMenu can be customized to
+      provide a distinct look and feel.
+    </p>
+  </message>
+
+  <message id="basics-WTabWidget-more">
+    <p>
+      Related topics: <a href="#/basics/wmenu">WMenu</a>.
+    </p>
+  </message>
+
+  <message id="basics-WContainerWidget">
+    <p>
+      A WContainerWidget corresponds to an HTML &lt;div&gt; or
+      &lt;span&gt; element, and groups other widgets.
+    </p>
+
+    <p>
+      One of the most fundamental building blocks of Wt, the widget
+      itself is usually invisible. The widgets that are contained
+      within the container widget can be layed out using CSS or one of
+      Wt's layout managers. CSS is usually the best option, but does
+      not work if you require vertical fitting or stretching of
+      children to the height of the container, or if you need to
+      layout children in a grid.
+    </p>
+
+    <p>
+      Wt also provides some specialized WContainerWidget classes that
+      have additional markup or behaviour:
+      <ul>
+	<li><a href="#/basics/wanchor">WAnchor</a> links to a URL</li>
+	<li><a href="#/basics/wgroupbox">WGroupBox</a> adds a title
+	and a frame</li>
+	<li><a href="#/basics/wstackedwidget">WStackedWidget</a>
+	displays only one of the children at a time</li>
+	<li><a href="#/basics/wtable">WTableCell</a> represents a cell
+	in a WTable</li>
+        <!--
+	<li><a href="#/ext/splitter">Ext::Splitter</a> separates
+	children with a border that can be dragged to change children
+	width or height</li>
+        -->
+      </ul>
+    </p>
+
+    <p>
+      Related topics: <a href="#/style-and-layout">Style and Layout</a>.
+    </p>
+  </message>
+
+  <message id="basics-WMenu">
+    <p>
+      A WMenu provides a list of items which are associated with some
+      contents, and of which one is selected at a time.
+    </p>
+
+    <p>
+      WMenu works in conjunction with a <a
+      href="#/basics/wstackedwidget">WStackedWidget</a>, which manages
+      the contents.
+    </p>
+
+    <p>
+      By default, the menu does not provide any styling, and can be
+      rendered using HTML &lt;ul&gt; and &lt;li&gt; elements. It
+      should be styled using CSS. The look and behaviour of menu items
+      can be customized by reimplementing these items. For example,
+      the <a href="#/basics/wtabwidget">WTabWidget</a> is merely a
+      specialized WMenu.
+    </p>
+
+    <p>
+      You can create items with submenus by using the <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSubMenuItem.html">WSubMenuItem</a> rather than the default <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a>.
+    </p>
+
+    <p>
+      A WMenu has full support for bookmarks and the back button, by
+      rendering its items using <a
+      href="#/basics/wanchor">WAnchor</a> and the Wt internal path API.
+    </p>
+
+    <p>
+      The panel at the left is implemented using the WMenu class.
+    </p>
+  </message>
+
+  <message id="basics-WGroupBox">
+    <p>
+      A WContainerWidget corresponds to an HTML &lt;fieldset&gt; element,
+      and provides a frame and title around a group of widgets.
+    </p>
+  </message>
+
+  <message id="basics-WGroupBox-contents">
+    <p>
+      Some contents goes here.
+    </p>
+  </message>
+
+  <message id="basics-WGroupBox-related">
+    <p>
+      Related topics: <a href="#/basics/wcontainerwidget">WContainerWidget</a>
+      and <a href="#/basics/wpanel">WPanel</a>.
+    </p>
+  </message>
+
+  <message id="basics-WStackedWidget">
+    <p>
+      A WStackedWidget is a container widget which only displays a
+      single child at a time.
+    </p>
+    <p>
+      Related topics: <a href="#/basics/wcontainerwidget">WContainerWidget</a>.
+    </p>
+  </message>
+
+  <message id="formwidgets-intro">
+    <h1>Form widgets</h1>
+
+    <p>
+      Form widgets are used to allow the user to enter data.
+    </p>
+
+    <p>
+      The form widgets listed here are the <i>native</i> widgets
+      offered by Wt. Alternatively, you can use <a
+      href="#/ext-widgets">Ext Form Widgets</a>, which rely on
+      presence of JavaScript and a third party JavaScript library.
+    </p>
+  </message>
+
+  <message id="formwidgets-WPushButton">
+    <p>
+      A WPushButton corresponds to an HTML &lt;button&gt; element.
+    </p>
+    
+    <p>
+      WPushButton generates clicked events when clicked upon.
+    </p>
+  </message>
+
+  <message id="formwidgets-WPushButton-more">
+    <p>
+      You may decorate a WPushButton with a background image to create
+      a clickable image. As a descendant of class WFormWidget,
+      WPushButtons can be disabled or enabled.
+    </p>
+  </message>
+
+  <message id="formwidgets-WCheckBox">
+    <p>
+      A WCheckBox corresponds to an HTML &lt;input
+      type="checkbox"&gt; element.
+    </p>
+  </message>
+
+  <message id="formwidgets-WRadioButton">
+    <p>
+      A WRadioButton corresponds to an HTML &lt;input
+      type="radio"&gt; element.
+    </p>
+  </message>
+
+  <message id="formwidgets-WRadioButton-group">
+    <p>
+      In most cases, you'll group them together in a WButtonGroup, so
+      that only one can be selected at a time
+    </p>
+  </message>
+
+  <message id="formwidgets-WComboBox">
+    <p>
+      A WComboBox corresponds to an HTML &lt;select&gt; element.
+    </p>
+  </message>
+
+  <message id="formwidgets-WComboBox-model">
+    <p>
+      WComboBox is a View widget (see also <a
+      href="#/mvc-widgets/">Model-View-Controller</a>) which
+      instantiates its own WStringListModel by default. You can use
+      the widget also in conjunction with another model.
+    </p>
+  </message>
+
+  <message id="formwidgets-WSelectionBox">
+    <p>
+      A WSelectionBox corresponds to an HTML &lt;select&gt; element.
+    </p>
+
+    <p>
+      A WSelectionBox lets the user select one option...
+    </p>
+  </message>
+
+  <message id="formwidgets-WSelectionBox-model">
+    <p>
+      WSelectionBox is a View widget (see also <a
+      href="#/mvc-widgets/">Model-View-Controller</a>) which
+      instantiates its own WStringListModel by default. You can use
+      the widget also in conjunction with another model.
+    </p>
+  </message>
+
+  <message id="formwidgets-WLineEdit">
+    <p>
+      A WLineEdit corresponds to an HTML &lt;input type="text"&gt; element.
+    </p>
+
+    <p>
+      The WLineEdit below reacts on every 'key up' event.
+    </p>
+  </message>
+
+  <message id="formwidgets-WLineEdit-more">
+    <p>
+      <a href="#/form-validators">Form validators</a> can be used to
+      to validate the user's input with immediate client-side
+      feedback.
+    </p>
+  </message>
+
+  <message id="formwidgets-WTextArea">
+    <p>
+      A WTextArea corresponds to an HTML &lt;textarea&gt; element.
+    </p>
+  </message>
+
+  <message id="formwidgets-WTextArea-contents">A WTextArea is a multiline text editing area.
+
+In contrast to WTextEdit, which is a HTML editor and has rich text
+editing functionality (bold, underline, adjustable font sizes etc),
+WTextArea has no formatting capabilities
+  </message>
+
+  <message id="formwidgets-WTextArea-related">
+    <p>
+      <a href="#/form-validators">Form validators</a> can be used to
+      to validate the user's input with immediate client-side
+      feedback.
+    </p>
+
+    <p>
+      Related topics: <a href="#/form-widgets/wtextedit">WTextEdit</a>.
+    </p>
+  </message>
+
+  <message id="formwidgets-WCalendar">
+    <p>
+      A WCalendar widget displays a simple calendar, which can be used to
+      input one or more dates.
+    </p>
+  </message>
+
+  <message id="formwidgets-WTextEdit">
+    <p>
+      A WTextEdit corresponds to an HTML &lt;textarea&gt; element.
+    </p>
+
+    <p>
+      <a href="#/form-validators">Form validators</a> can be used to
+      to validate the user's input with immediate client-side
+      feedback.
+    </p>
+  </message>
+
+  <message id="formwidgets-WSuggestionPopup">
+    <p>
+      The WSuggestionPopup can be used in conjunction with a <a
+      href="#/form-widgets/wlineedit">WLineEdit</a> or <a
+      href="#/form-widgets/wtextarea">WTextArea</a> to offer
+      auto-completion suggestions.
+    </p>
+
+    <p>
+      Try to enter John's email address below:
+    </p>
+  </message>
+
+  <message id="validators-intro">
+    <p>
+      A validator is a rule set that validates user input, and can be
+      associated with any WFormWidget.
+    </p>
+
+    <p>
+      Validation happens both at the client side (in the browser) and
+      server side. The advantage of client-side validation is that the
+      user receives feedback without a server round-trip time, but
+      requires JavaScript support (which is not always available), and
+      can easily be tampered with or circumvented. Therefore,
+      server-side validation is always required in any case. All
+      built-in validators provide both client-side and server-side
+      validation. If you implement a custom validator, client-side
+      validation (in JavaScript) may be optional. You could consider
+      to reimplement WRegExpValidator, as it is quite flexible and
+      will give you client-side validation out-of-the-box.
+    </p>
+    <p>
+      Wt supplies validators for dates, doubles, integers, 
+      string length (minimum and maximum) and regular expressions. 
+      You can also implement your own server-side/client-side 
+      validators.
+    </p>
+    <p>
+      The example below uses a red background to indicate invalid 
+      fields, the default in Wt.
+    </p>
+  </message>
+
+  <message id="ext-intro">
+    <h1>Ext Widgets</h1>
+    <p>
+      Wt's Ext widgets are a layer around the ExtJS JavaScript
+      library. The Ext controls can now be used in Wt in the same way
+      as native Wt widgets, but they have a different look.
+    </p>
+
+    <p>
+      Download Ext and obtain a proper license from ExtJs.
+      ExtJs is not included in the Wt download.
+    </p>
+  </message>
+
+  <message id="ext-Button">
+    <p>
+      Ext::Button is similar to <a href="#/form-widgets/wpushbutton">
+      WPushButton</a>. Ext provides some extra styles.
+      Like WPushButton, you probably want to connect a signal handler to the
+      clicked signal.
+    </p>
+  </message>
+
+  <message id="ext-LineEdit">
+    <p>
+      This class represents the ExtJs equivalent of a LineEdit. Use
+      <a href="#/form-validators">Validators</a> to validate the contents
+      of an Ext::LineEdit client and server side. In the example below, the
+      keyWentUp signal is shown when activated.
+    </p>
+  </message>
+
+  <message id="ext-NumberField">
+    <p>
+      The NumerField input class allows a user to type in a numeric value
+      with a specified decimal precision. The example below has its precision
+      set to 2.
+    </p>
+  </message>
+
+  <message id="ext-CheckBox">
+    <p>
+      The Ext equivalent of a <a href="#/form-widgets/wcheckbox">WCheckBox</a>.
+      The examples demonstrate the checked event.
+    </p>
+  </message>
+
+  <message id="ext-ComboBox">
+    <p>
+      The Ext equivalent of a <a href="#/form-widgets/wcombobox">WComboBox</a>.
+      The Ext combobox suggests possible completions as you type, similar to
+      the <a href="#/form-widgets/wsuggestionpopup">WSuggestionPopup</a>.
+      Select your favorite Belgian beer below.
+    </p>
+  </message>
+
+  <message id="ext-RadioButton">
+    <p>
+      The Ext radio button looks like this, and behaves similar
+      to <a href="#/form-widgets/wradiobutton">Wt's native radio button</a>.
+      Like WRadioButtons, Ext::RadioButtons must be added to a <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WButtonGroup.html">
+      WButtonGroup</a> to give them their typical exclusive selection
+      behavior. The following radio buttons all belong to the same WButtonGroup.
+    </p>
+  </message>
+
+  <message id="ext-Calendar">
+    <p>
+      The Ext::Calendar provides the same functionality as the
+      <a href="#/form-widgets/wcalendar">WCalendar</a>, but looks different.
+    </p>
+  </message>
+
+  <message id="ext-DateField">
+    <p>
+      An Ext::DateField is an input method for a date. It is Ext's equivalent
+      for the <a href="#/form-widgets/wdatepicker">WDatePicker</a> class.
+    </p>
+  </message>
+
+  <message id="ext-Menu">
+    <p>
+      The Ext::Menu class offers a desktop-application style menu.
+      Wt's <a href="#/basics/wmenu">WMenu</a> class is the functional
+      alternative, but the default display style of a WMenu is quite
+      different from that of an Ext::Menu.
+    </p>
+    <p>
+      The Ext::Menu resides under the first button of the Ext::ToolBar, which
+      you can see below. The example demonstrates how other widgets can be
+      added to the toolbar.
+    </p>
+  </message>
+
+  <message id="ext-Dialog">
+    <p>
+      These classes are demonstrated in the
+      <a href="#/dialogs/ext-dialogs">dialog</a> menu.
+    </p>
+  </message>
+
+  <message id="graphics-intro">
+    <p>
+      This example shows how Wt works with vector graphics.
+      Wt's WPaintedWidget renders as SVG, VML or HTML5 graphics
+      depending on the capabilities of the browser. The backend
+      decides how to render the graphics, the application
+      programmer has to draw his graphics using the available
+      methods in the WPainter API. The drawing primitives include
+      points, lines, arcs, cubic splines, text, etc.
+    </p>
+    <p>
+      The example also demonstrates the horizontal and
+      vertical <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSlider.html" target="_blank">
+      WSlider</a> widgets. Here, the events of the WSlider
+      widgets are used to scale and rotate the emweb logo.
+    </p>
+  </message>
+
+  <message id="dialogs-intro">
+    <h1>Wt Dialog Widgets</h1>
+
+    <p>
+      Wt supports modal dialogs. There are four classes involved in
+      dialogs:
+      <ul>
+        <li>
+          WDialog: a widget that displays contents within a window drawn
+          on top of the screen. Any widget can be inserted in a WDialog.
+        </li>
+        <li>
+          WMessageBox: a WDialog that contains only a single line of text
+          and some configurable buttons. It is convenient to use this class
+          if you only have to display a simple message.
+        </li>
+        <li>
+          Ext::Dialog: ExtJs equivalent of WDialog. Ext dialogs can be moved
+          and resized, whereas native Wt dialogs do not (yet) have this
+          functionality.
+        </li>
+        <li>
+          Ext::MessageBox: ExtJs equivalent for WMessageBox.
+        </li>
+      </ul>
+      Wt has no support for non-modal dialogs.
+    </p>
+    <p>
+      WDialogs have two methods to invoke them. The traditional
+      method, borrowed from desktop GUI toolkits, involves calling
+      exec(). This starts a local event loop which returns when
+      the dialog is closed. While this method is convenient and
+      familiar, it usually does not scale for web applications, as
+      every session displaying a dialog keeps a thread occupied for
+      an extended period of time. This may not be a problem if you
+      plan to deploy every user session in its own process, but
+      otherwise sessions will stall as the server runs out of
+      threads. The scalable alternative to the local event loop
+      is not to invoke exec(), but to show the dialog
+      similar to what you would do with any other widget,
+      and delete when the 'finished' signal is triggered.
+    </p>
+  </message>
+
+  <message id="dialogs-WDialog">
+    <p>
+      WDialog implements the functionality of a modal dialog box.
+      Any widget or combination of widgets can be displayed in a
+      WDialog: it is a WContainerWidget displayed in a
+      dialog box.
+    </p>
+  </message>
+
+  <message id="dialogs-WMessageBox">
+    <p>
+      WMessageBox is a convenience class for simple modal
+      dialog boxes. They contain a line of text (the message)
+      and a number of buttons.
+    </p>
+    <p>
+      With respect to programming style, the first and the third example
+      use a local event loop, the second and the last button don't. The
+      difference is invisible; it is usually better not to use a local
+      event loop.
+    </p>
+  </message>
+
+  <message id="dialogs-ExtDialog">
+    <p>
+      Ext dialogs and message boxes have similar functionality
+      as the Wt dialogs. MessageBox contains text messages, the
+      Dialogs can contain any content, and the progress dialog is
+      a dialog containing a progress bar.
+    </p>
+    <p>
+      The progress bar example occupies a session thread, while
+      the dialog and the message box don't. This is a programming style
+      difference that is invisible to the users of the application. As
+      with Wt's dialogs, both can be used in the mode of your choice,
+      though it is usually required not to lock up session threads.
+    </p>
+  </message>
+
+  <message id="charts-intro">
+    <h1>The Charting library</h1>
+
+    <p>
+      The example below demonstrates pretty much the complete
+      interface of the charting library. This widget is identical
+      to the separate charting example, so it also demonstrates how
+      Object-Oriented widgets can be easily reused in other
+      applications without having to worry about naming conflicts
+      or HTML identifier clashes.
+    </p>
+  </message>
+
+  <message id="mvc-intro">
+    <h1>The Model-View-Controller pattern</h1>
+
+    <p>
+      Wt implements the MVC design pattern in its user interface. With
+      this pattern, user interface is separated from business logic and
+      storage of the data itself (be it in memory, in a database, in files,
+      ...).
+    </p>
+    <p>
+      The MVC views (such as WTreeView, but also WComboBox and Charts) are
+      classes to display the data. The models (inherited from
+      WAbstractItemModel) represent the data itself. The control is
+      everything that you write around the model and the view, to let the
+      data change in response to user actions; the 'business logic'.
+    </p>
+  </message>
+
+  <message id="mvc-models">
+    <h2>WAbstractItemModel, WAbstractListModel</h2>
+    <p>
+      The abstract model interfaces are used within the view,
+      so these are the classes you must implement for your data,
+      which may e.g. be stored in a database. Wt includes two
+      implementations of models for in-memory storage of data:
+      the WStandardItemModel and the WStringListModel. They are
+      convenience models but can also be used as examples to
+      implement your own model.
+    </p>
+    <p>
+      The AbstractItemModel can represent tables, trees and
+      treetables.
+    </p>
+
+    <h2>WStandardItemModel</h2>
+    <p>
+      The WStandardItemModel is a ready-to-use in-memory model
+      that supports all features of the WAbstractItemModel.
+    </p>
+
+    <h2>WStringListModel</h2>
+    <p>
+      The WStringListModel is a simple, single-dimensional list of
+      strings
+    </p>
+  </message>
+
+  <message id="mvc-stringlistviews">
+    <p>
+      WComboBox, WSelectionBox and Ext::ComboBox can either be filled by
+      traditional insertItem() calls, or by making a reference to a model.
+      The three examples below are three views on the same model. With the
+      Ext combobox, you can modify the model. Type a new item in the text
+      field of the combobox, press the button, and watch how the new item
+      also becomes available in the WComboBox and the WSelectionBox without
+      writing a single line of code.
+    </p>
+  </message>
+
+  <message id="mvc-ExtTable">
+    <p>
+      The Ext::TableView can be seen in action in
+      <a href="#/charts/pie-charts">the Charts section</a> of this demo.
+      Double-click on a value in a table to modify the model. The table
+      and the chart are both views on the same model; the changes in the
+      model are immediately reflected in the chart too.
+    </p>
+  </message>
+
+  <message id="mvc-WTreeView">
+    <p>
+    </p>
+  </message>
+
+  <message id="mvc-Chart">
+    <p>
+      These classes are graphical views that visualize the data
+      of the model. They can be seen in action in
+      <a href="#/charts/pie-charts">the Charts section</a> of this demo.
+      Double-click on a value in a table to modify the model. The table
+      and the chart are both views on the same model; the changes in the
+      model are immediately reflected in the charts too.
+    </p>
+  </message>
+
+  <message id="events-intro">
+    <h1>Browser-Generated Events in Wt</h1>
+
+    <p>
+      This section demonstrates the basic events that an application can
+      receive from the browser: mouse events, keyboard events and drag and
+      drop events. These events are generated by every widget that
+      inherits from WInteractWidget, which most widgets do. When listeners
+      to these events are present, the browser forwards these events to
+      the server, where the necessary callback functions are invoked
+      through Wt's signal/slot mechanism. As such, a Wt application can
+      react to events by writing only C++ code.
+    </p>
+    <p>
+      Specific widgets emit of course events specific to their functionality.
+      A WTreeNode for example can be expanded, collapsed, or selected. Each
+      of these actions is causes a signal to be emitted. Refer to the
+      reference documentation of the widget you are working with to find out
+      what signals a widget emits.
+    </p>
+    <p>
+      For a generic overview of events in Wt, including a description of the
+      client-side event handling (avoids round-trip to the server) and
+      how to write your own JavaScript events, please take a look in the
+      <a href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html" target="_blank">
+      library overview</a>.
+    </p>
+  </message>
+
+  <message id="events-WKeyEvent-1">
+    <p>
+      WKeyEvent provides detailed information for a keyboard event. Type in
+      the WLineEdit fields below to demonstrate the events. In general,
+      WKeyEvents are generated by every <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WInteractWidget.html" target="_blank">
+      WInteractWidget</a>.
+    </p>
+    <p>
+      This WLineEdit listens to the events keyWentUp and keyWentDown.
+    </p>
+  </message>
+
+  <message id="events-WKeyEvent-2">
+    <p>
+      The next WLineEdit displays the keyPressed events.
+    </p>
+  </message>
+
+  <message id="events-WKeyEvent-3">
+    <p>
+      In the line edit below, the events EnterPressed and
+      escapePressed are shown (note however that catching escape is
+      a major problem in most browsers; do not expect it to work).
+    </p>
+  </message>
+
+  <message id="events-WMouseEvent">
+    <p>
+      WMouseEvent gives detailed information for signals
+      related to mouse operations. The demonstrated WMouseEvents are
+      generated by every <a
+      href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WInteractWidget.html">
+      WInteractWidget</a>; this demonstration uses WContainerWidgets.
+    </p>
+    <p>
+      In the gray area on the left, the events clicked,
+      doubleClicked, mouseWentOut and mouseWentOver are shown.
+      The area on the right demonstrates mouseWentDown, mouseWentUp
+      and mouseMoved.
+    </p>
+  </message>
+
+  <message id="events-WDropEvent">
+    <p>
+      This example demonstrates the use of WDropEvents.
+    </p>
+  </message>
+
+  <message id="style-layout-intro">
+    <h1>Style and layout</h1>
+    <p>
+      The layout of a Wt application and the style can be specified
+      using Cascading Style Sheets (CSS). Wt provides several API
+      methods and classes to specify and manipulate your internal or
+      external style sheets.
+    </p>
+
+    <p>
+      Unfortunately, with respect to layout, CSS (and HTML) do not
+      provide the designer with useful tools when it comes to vertical
+      layout: the contents simply flows from top to bottom, in a
+      single page. The page-style may work in many cases, but for
+      those situations where you want to have more control of the
+      organization of your content in the browser window, Wt also
+      provides standard layout managers.
+    </p>
+  </message>
+
+  <message id="style-and-layout-css">
+    <h1>Cascading Style Sheets (CSS)</h1>
+
+    <p>
+      Using CSS, you can provide rules that specify both markup and
+      layout properties of widgets. These rules are linked to certain
+      widgets using <i>selectors</i>. Selectors may match widgets
+      based on the style class or widget id of the widget or one of
+      its ancestors.
+    </p>
+
+    <p>
+      The important API methods and class for working with your
+      application stylesheet are:
+      <ul>
+	<li>WApplication::useStyleSheet()</li>
+	<li>WApplication::styleSheet() returns the internal stylesheet
+	(an instance of WCssStyleSheet), which can be manipulated
+	dynamically to add, modify or removing rules.</li>
+	<li>WWidget::setStyleClass()</li>
+	<li>WWidget::setId()</li>
+      </ul>
+    </p>
+
+    <p>
+      Most of the capabilities of CSS are also exposed in the WWidget
+      API, and can thus be directly specified for a single
+      widget. Properties that are related to layout can be specified
+      using methods of WWidget, while properties that are decorative
+      can be set in methods of WCssDecorationStyle, which can be
+      accessed using WWidget::decorationStyle().
+    </p>
+
+  </message>
+
+  <message id="layout-WBoxLayout">
+    <p>
+      These classes provide a horizontal or vertical layout of widgets
+      inside a <a href="#/basics/wcontainerwidget">WContainerWidget</a>.
+    </p>
+    <p>
+      In the example below, a WHBoxLayout with default padding (9
+      pixels) and spacing (6 pixels) is used to manage two child
+      widgets. If no stretch factors have been specified, space is
+      evenly distributed to all widgets.
+    </p>
+  </message>
+
+  <message id="layout-WBoxLayout-stretch">
+    <p>
+      If we give Item 1 a non-zero stretch factor, then Item 2 will
+      only use its minimum width, and Item 1 will get all remaining
+      space, as illustrated below.
+    </p>
+  </message>
+
+  <message id="layout-WBoxLayout-vbox">
+    <p>
+      WVBoxLayout works in exactly the same way, but stacks children
+      vertically.
+    </p>
+  </message>
+
+  <message id="layout-WBoxLayout-nested">
+    <p>
+      Layout managers may be arbitrarily nested to create complex
+      layouts. In the example below, we nested a WHBoxLayout with
+      items 2 and 3 inside a WVBoxLayout with item 1.
+    </p>
+  </message>
+
+  <message id="layout-item1">
+    <div>
+      Item 1
+    </div>
+  </message>
+
+  <message id="layout-item2">
+    <div>
+      Item 2
+    </div>
+  </message>
+
+  <message id="layout-item3">
+    <div>
+      Item 3
+    </div>
+  </message>
+
+  <message id="layout-WGridLayout">
+    <p>
+      This class organizes children widgets inside a <a
+      href="#/basics/wcontainerwidget">WContainerWidget</a> in a grid.
+    </p>
+
+    <p>
+      Like <a href="#/style-and-layout/wboxlayout">WBoxLayout</a>, a
+      stretch factor defined for rows or columns is used to distribute
+      excess space. In the example below, row 1 and columns 1 and 2
+      are given a non-zero stretch factor.
+    </p>
+  </message>
+
+  <message id="grid-item">
+    <div>
+      Item ({1}, {2})
+    </div>
+  </message>
+
+  <message id="layout-WBorderLayout">
+    <p>
+      A layout manager that organizes the container space in up to 5
+      regions, with a central region consuming any excess space.
+    </p>
+    <p>
+      Any of the regions can be omitted.
+    </p>
+  </message>
+
+  <message id="borderlayout-item">
+    <div>
+      {1} item
+    </div>
+  </message>
+
+</messages>

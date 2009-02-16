@@ -1,0 +1,88 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTREETABLENODE_H_
+#define WTREETABLENODE_H_
+
+#include <Wt/WTreeNode>
+
+namespace Wt {
+
+class WTreeTable;
+
+/*! \class WTreeTableNode Wt/WTreeTableNode Wt/WTreeTableNode
+ *  \brief A specialized tree node which allows additional data to be
+ *         associated with each node.
+ *
+ * The additional data is displayed inside columns, in conjunction with
+ * a WTreeTable.
+ *
+ * \sa WTreeNode, WTreeTable
+ */
+class WT_API WTreeTableNode : public WTreeNode
+{
+public:
+  /*! \brief Create a new WTreeTableNode.
+   *
+   * \sa WTreeNode::WTreeNode()
+   */
+  WTreeTableNode(const WString& labelText,
+		 WIconPair *labelIcon = 0,
+		 WTreeTableNode *parentNode = 0);
+
+  /*! \brief Set a widget to be displayed in the given column for this node.
+   *
+   * Columns are counted starting from 0 for the tree list itself, and 1
+   * for the first additional column.
+   */
+  void setColumnWidget(int column, WWidget *item);
+
+  /*! \brief Get the widget to be displayed in the given column.
+   *
+   * Returns the widget set previously using setColumnWidget, or 0 if no widget
+   * was previously set.
+   */
+  WWidget *columnWidget(int column);
+
+  WTreeTable *table() const { return table_; }
+
+  virtual void addChildNode(WTreeNode *node);
+
+protected:
+
+  /*! \brief Sets the table for this node.
+   *
+   * This method is called when the node is inserted, directly, or indirectly
+   * into a table.
+   *
+   * You may want to reimplement this method if you wish to customize the
+   * behaviour of the node depending on table properties. For example to only
+   * associate data with the node when the tree list is actually used inside
+   * a table.
+   */
+  virtual void setTable(WTreeTable *table);
+
+private:
+  WTreeTable                               *table_;
+  WContainerWidget                         *row_;
+  std::vector<std::pair<WWidget *, bool> >  columnWidgets_;
+
+  /*
+   * the number of columns, besides the the tree itself
+   */
+  void                     createExtraColumns(int numColumns);
+
+  /*
+   * The width for the column, counting from 1
+   */
+  WLength                  columnWidth(int column);
+
+  friend class WTreeTable;
+};
+
+}
+
+#endif // WTREETABLENODE_H_

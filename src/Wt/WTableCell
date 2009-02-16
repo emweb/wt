@@ -1,0 +1,113 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTABLECELL_H_
+#define WTABLECELL_H_
+
+#include <Wt/WContainerWidget>
+
+namespace Wt {
+
+class WTable;
+class WTableRow;
+
+/*! \class WTableCell Wt/WTableCell Wt/WTableCell
+ *  \brief A container widget that represents a cell in a table.
+ *
+ * A WTable provides a grid of %WTableCell widgets. The contents of
+ * each cell is accessed through a %WTableCell. A %WtableCell may
+ * overspan more than one grid item, by specifying a \link
+ * setRowSpan() rowSpan \endlink and \link setColumnSpan() columnSpan
+ * \endlink. WTableCells at overspanned positions are hidden.
+ *
+ * A %WTableCell acts as any other WContainerWidget, except that both
+ * the vertical and horizontal alignment of contents may be specified
+ * with setContentAlignment(int contentAlignment).
+ *
+ * The inline property of a %WTableCell is not used.
+ *
+ * \sa WTable::elementAt(int row, int column)
+ */
+class WT_API WTableCell : public WContainerWidget
+{
+public:
+  /*! \brief Set the row span.
+   *
+   * The row span indicates how many table rows this WTableCell
+   * overspans. By default, a WTableCell has a row span of 1, only
+   * occupying its own grid cell. A row span greater than 1 indicates
+   * that table cells to the right of this one are overspanned.
+   */
+  void setRowSpan(int rowSpan);
+  
+  /*! \brief Get the row span.
+   *
+   * \sa setRowSpan(int rowSpan)
+   */
+  int rowSpan() const { return rowSpan_; }
+
+  /*! \brief Set the column span.
+   *
+   * The column span indicates how many table columns this WTableCell
+   * overspans. By default, a WTableCell has a column span of 1, only
+   * occupying its own grid cell. A column span greater than 1 indicates
+   * that table cells below this one are overspanned.
+   */
+  void setColumnSpan(int colSpan);
+
+  /*! \brief Get the column span.
+   *
+   * \sa setColumnSpan(int colSpan)
+   */
+  int columnSpan() const { return columnSpan_; }
+
+  /*! \brief Set the horizontal and vertical content alignment.
+   *
+   * Set the horizontal and vertical content alignment, as the logical
+   * OR'ed value of WWidget::VerticalAlignment and
+   * WContainerWidget::HorizontalAlignment. The default alignment is
+   * (\link Wt::AlignTop AlignTop \endlink | \link
+   * Wt::AlignLeft AlignLeft \endlink).
+   */
+  void setContentAlignment(int contentAlignment);
+
+  /*! \brief Get the content alignment.
+   *
+   * \sa setContentAlignment(int contentAlignment)
+   */
+  int contentAlignment() const;
+
+  /*! \brief get the row index of this cell.
+   */
+  int row() const;
+
+  /*! \brief get the column index of this cell.
+   */
+  int column() const { return column_; }
+
+  /*! \brief get the table to which this cell belongs.
+   */
+  WTable *table() const;
+
+private:
+  WTableCell(WTableRow *row, int column);
+
+  WTableRow *row_;
+  int  column_;
+  int  rowSpan_, columnSpan_;
+  bool spanChanged_;
+
+  friend class WTableRow;
+  friend class WTable;
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+};
+
+}
+
+#endif // WTEXT_H_

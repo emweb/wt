@@ -1,0 +1,245 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTEXT_H_
+#define WTEXT_H_
+
+#include <Wt/WInteractWidget>
+#include <Wt/WString>
+
+namespace Wt {
+
+/*! \brief Enumeration that indicates the text format.
+ *
+ * \sa WText::setTextFormat()
+ */
+enum TextFormat {
+  XHTMLText,       //!< Format text as XSS-safe XHTML markup'ed text
+  XHTMLUnsafeText, //!< Format text as XHTML markup'ed text
+  PlainText        //!< Format text as plain text
+#ifndef DOXYGEN_ONLY
+  ,XHTMLFormatting = XHTMLText,
+  XHTMLUnsafeFormatting = XHTMLUnsafeText,
+  PlainFormatting = PlainText
+#endif
+};
+
+/*! \class WText Wt/WText Wt/WText
+ *  \brief A widget that renders (XHTML) text.
+ *
+ * The text is provided through a WString, which may either hold a
+ * literal text, or a key to localized text which is looked up in
+ * locale dependent XML files (see WString::tr()).
+ *
+ * Use setTextFormat() to configure the textFormat of the text. The
+ * default textFormat is Wt::XHMTLText, which allows any XHMTL
+ * textFormat to be included in the text. Tags and attributes that
+ * indicate "active" content are not allowed and stripped out, to
+ * avoid security risks exposed by JavaScript such as the common
+ * web-based <a
+ * href="http://en.wikipedia.org/wiki/Cross_site_scriptingCross-Site">
+ * Cross-Site Scripting (XSS)</a> malicious attack.
+ *
+ * The Wt::PlainText format will display the text literally
+ * (escaping any HTML special characters).
+ *
+ * In some situations, Wt::XHTMLUnsafeText is useful. Like
+ * XHTMLText, it allows XHTML markup, but it also allows potentially
+ * dangerous tags and attributes. Use this if you're sure that a user
+ * cannot interfere with the text set, and XHTMLText is too limiting.
+ *
+ * WText is by default an \link WWidget::setInline(bool) inline
+ * \endlink widget, unless the XHTML contents starts with a
+ * block-level element such as <tt>&lt;div&gt;</tt>,
+ * <tt>&lt;h&gt;</tt> or <tt>&lt;p&gt;</tt>.
+ *
+ * \sa WApplication::setLocale()
+ * \sa WApplication::messageResourceBundle()
+ */
+class WT_API WText : public WInteractWidget
+{
+public:
+  typedef Wt::TextFormat Formatting;
+  static const Wt::TextFormat XHTMLFormatting = XHTMLText;
+  static const Wt::TextFormat XHTMLUnsafeFormatting = XHTMLUnsafeText;
+  static const Wt::TextFormat PlainFormatting = PlainText;
+
+  /*! \brief Construct a text widget with an empty text.
+   */
+  WText(WContainerWidget *parent = 0);
+
+  /*! \brief Construct a text widget with given text.
+   *
+   * The textFormat is set to Wt::XHTMLText, unless the <i>text</i> is
+   * literal (not created using WString::tr()) and it could not be
+   * parsed as valid XML. In that case the textFormat is set to
+   * Wt::PlainText.
+   *
+   * Therefore, if you wish to use Wt::XHTMLText, but cannot be sure
+   * about <i>text</i> being valid XML, you should verify that the
+   * textFormat() is Wt::XHTMLText after construction.
+   *
+   * The XML parser will silently discard malicious tags and
+   * attributes silently for literal text with Wt::XHTMLText.
+   */
+  WText(const WString& text, WContainerWidget *parent = 0);
+
+  /*! \brief Construct a text widget with given text and format
+   *
+   * If <i>textFormat</i> is Wt::XHTMLText and <i>text</i> is not
+   * literal (not created using WString::tr()), then if the
+   * <i>text</i> could not be parsed as valid XML, the textFormat is
+   * changed to Wt::PlainText.
+   *
+   * Therefore, if you wish to use Wt::XHTMLText, but cannot be sure
+   * about <i>text</i> being valid XML, you should verify that the
+   * textFormat() is Wt::XHTMLText after construction.
+   *
+   * The XML parser will silently discard malicious tags and
+   * attributes silently for literal text with <i>textFormat</i> of
+   * Wt::XHTMLText.
+   */
+  WText(const WString& text, TextFormat textFormat,
+	WContainerWidget *parent = 0);
+
+  /*! \brief Construct a text widget with a given text.
+   *
+   * \deprecated Not useful anymore. Let the widget autodetect using
+   *             its heuristics, or call setInline() explicitly
+   *             after construction.
+   *
+   * This is an overloaded constructor provided for convience and
+   * equivalent to:
+   *
+   * \code
+   * WText *t = new WText(text, parent);
+   * t->setInline(inlined)
+   * \endcode
+   *
+   * The format is set to Wt::XHTMLText, unless the <i>text</i> is
+   * literal (not created using WString::tr()) and it could not be
+   * parsed as valid XML. In that case the textFormat is set to
+   * Wt::PlainText.
+   *
+   * The XML parser will silently discard malicious tags and
+   * attributes silently for literal text with Wt::XHTMLText.
+   *
+   * Therefore, if you wish to use Wt::XHTMLText, but cannot be sure
+   * about <i>text</i> being valid XML, you should verify that the
+   * textFormat() is Wt::XHTMLText after construction.
+   *
+   * \note Since 2.1.4, some heuristics are used to see if the text is
+   *       an HTML block-level element, so this constructor is no
+   *       longer as useful.
+   */
+  WText(bool inlined, const WString& text, WContainerWidget *parent = 0);
+
+  /*! \brief Returns the text.
+   *
+   * When a literal XHTMLFormatted text was set, this may differ from
+   * the text that was set since malicious tags/attributes may have
+   * been stripped.
+   *
+   * \sa setText(const WString&)
+   */
+  const WString& text() const { return text_; }
+
+  /*! \brief Set the text.
+   *
+   * When the current format is Wt::XHTMLText, and
+   * <i>text</i> is literal (not created using WString::tr()), it is
+   * parsed using an XML parser which discards malicious tags and
+   * attributes silently. When the parser encounters an XML parse
+   * error, the textFormat is changed to Wt::PlainText.
+   *
+   * Returns whether the text could be set using the current
+   * textFormat. A return value of false indicates that the textFormat
+   * was changed in order to be able to accept the new text.
+   *
+   * \sa text(), setText()
+   */
+  bool setText(const WString& text);
+
+  /*! \brief Set the textFormat.
+   *
+   * The textFormat controls how the string should be interpreted:
+   * either as plain text, which is displayed literally, or as
+   * XHTML-markup.
+   *
+   * When changing the textFormat to Wt::XHTMLText, and the
+   * current text is literal (not created using WString::tr()), the
+   * current text is parsed using an XML parser which discards
+   * malicious tags and attributes silently. When the parser
+   * encounters an XML parse error, the textFormat is left unchanged,
+   * and this method returns false.
+   *
+   * Returns whether the textFormat could be set for the current text.
+   *
+   * The default format is Wt::XHTMLText.
+   */
+  bool setTextFormat(TextFormat format);
+
+  /*! \brief Returns the textFormat.
+   *
+   * \sa setTextFormat()
+   */
+  TextFormat textFormat() const { return textFormat_; }
+
+  /*! \brief Set the formatting (<b>deprecated</b>).
+   *
+   * \deprecated Has been renamed to setTextFormat().
+   */
+  bool setFormatting(Formatting format);
+
+  /*! \brief Returns the formatting (<b>deprecated</b>).
+   *
+   * \deprecated Has been renamed to textFormat()
+   */
+  Formatting formatting() const { return textFormat_; }
+
+  /*! \brief Configure word wrapping.
+   *
+   * When <i>on</i> is true, the widget may break lines, creating a
+   * multi-line text. When <i>on</i> is false, the text will displayed
+   * on a single line, unless the text contains end-of-lines (for
+   * Wt::PlainText) or &lt;br /&gt; tags or other block-level tags
+   * (for Wt::XHTMLText).
+   *
+   * The default value is true.
+   *
+   * \sa wordWrap()
+   */
+  void setWordWrap(bool on);
+
+  /*! \brief Returns whether the widget may break lines.
+   *
+   * \sa setWordWrap(bool)
+   */
+  bool wordWrap() const { return wordWrap_; }
+
+  virtual void refresh();
+
+private:
+  WString      text_;
+  TextFormat   textFormat_;
+  bool         wordWrap_;
+
+  bool textChanged_, wordWrapChanged_;
+
+  bool        checkWellFormed();
+  std::string formattedText() const;
+  void        autoAdjustInline();
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+
+  friend class WLabel;
+};
+
+}
+
+#endif // WTEXT_H_

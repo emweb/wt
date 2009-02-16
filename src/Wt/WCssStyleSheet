@@ -1,0 +1,240 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCSS_STYLE_SHEET_H_
+#define WCSS_STYLE_SHEET_H_
+
+#include <vector>
+#include <set>
+#include <string>
+
+#include <Wt/WBreak>
+#include <Wt/WCssDecorationStyle>
+
+namespace Wt {
+
+class WApplication;
+class WCssStyleSheet;
+class WCssTemplateWidget;
+
+/*! \class WCssRule Wt/WCssStyleSheet Wt/WCssStyleSheet
+ *  \brief Abstract rule in a CSS style sheet.
+ *
+ * A rule presents CSS style properties that are applied to a selected
+ * set of elements.
+ *
+ * Use WCssTemplateRule if you would like to use a template widget for
+ * specifying (and updating) the style through the WWidget API, or
+ * WCssTextRule if you want to specify the CSS text declarations
+ * directly.
+ *
+ * \sa WCssStyleSheet
+ *
+ * \ingroup style
+ */
+class WCssRule
+{
+public:
+  /*! \brief Delete a CSS rule.
+   */
+  virtual ~WCssRule();
+
+  /*! \brief Returns the selector.
+   */
+  const std::string& selector() const { return selector_; }
+
+  /*! \brief Returns the style sheet to which this rule belongs.
+   */
+  WCssStyleSheet *sheet() const { return sheet_; }
+
+  /*! \brief Indicate that the rule has changed and needs updating
+   *
+   * This will result in updateDomElement() to be called, to update the
+   * stylesheet rule.
+   */
+  void modified();
+
+  /*! \brief Returns the declarations.
+   *
+   * This is a semi-colon separated list of CSS declarations.
+   */
+  virtual const std::string declarations() = 0;
+
+  virtual bool updateDomElement(DomElement& cssRuleElement, bool all);
+
+protected:
+  /*! \brief Create a new CSS rule with given selector.
+   */
+  WCssRule(const std::string& selector);
+
+private:
+  std::string  selector_;
+  WCssStyleSheet *sheet_;
+
+  friend class WCssStyleSheet;
+};
+
+/*! \class WCssTemplateRule Wt/WCssStyleSheet Wt/WCssStyleSheet
+ *  \brief A CSS rule based on a template widget.
+ *
+ * This is a CSS rule whose CSS style properties are defined based on
+ * properties of a template widget. When modifying the template
+ * widget, these changes are reflected on the CSS rule and thus all
+ * widgets that have this CSS rule.
+ *
+ * \sa WCssStyleSheet
+ *
+ * \ingroup style
+ */
+class WCssTemplateRule : public WCssRule
+{
+public:
+  /*! \brief Create a CSS rule with a given selector.
+   *
+   * The selector should be a valid CSS selector.
+   *
+   * \note If you want to update the rule, then the selector should be
+   * unique and not contain commas, since this is not supported by
+   * Microsoft Internet Explorer.
+   */
+  WCssTemplateRule(const std::string& selector);
+
+  ~WCssTemplateRule();
+
+  /*! \brief Returns the widget used as a template.
+   *
+   * Various properties of the widget are reflected in the CSS style:
+   * - size and dimensions: WWidget::resize(), WWidget::setMinimumSize(),
+   * and WWidget::setMaximumSize()
+   * - its position: WWidget::setPositionScheme(), WWidget::setOffsets(),
+   * WWidget::setFloatSide(), WWidget::setClearSides()
+   * - visibility: WWidget::hide(), WWidget::show() and WWidget::setHidden()
+   * - margins: WWidget::setMargin()
+   * - line height: WWidget::setLineHeight()
+   * - all decoration style properties: WWidget::decorationStyle()
+   */
+  WWidget *templateWidget();
+
+  const std::string declarations();
+
+  bool updateDomElement(DomElement& cssRuleElement, bool all);
+
+private:
+  WCssTemplateWidget *widget_;
+};
+
+/*! \class WCssTextRule Wt/WCssStyleSheet Wt/WCssStyleSheet
+ *  \brief A CSS rule specified directly using CSS declarations
+ *
+ * \sa WCssStyleSheet
+ *
+ * \ingroup style
+ */
+class WCssTextRule : public WCssRule
+{
+public:
+  /*! \brief Create a CSS rule with a given selector and declarations.
+   */
+  WCssTextRule(const std::string& selector, const WString& declarations);
+
+  const std::string declarations();
+
+private:
+  WString declarations_;
+};
+
+/*! \class WCssStyleSheet Wt/WCssStyleSheet Wt/WCssStyleSheet
+ *  \brief A CSS style sheet.
+ *
+ * \sa WApplication::styleSheet()
+ *
+ * \ingroup style
+ */
+class WT_API WCssStyleSheet
+{
+public:
+  /*! \brief Create a new empty style sheet.
+   */
+  WCssStyleSheet();
+
+  /*! \brief Destroy a style sheet, and all rules in it.
+   */
+  ~WCssStyleSheet();
+
+  /*! \brief Add a CSS rule.
+   *
+   * Add a rule using the CSS selector <i>selector</i>, with CSS
+   * declarations in <i>declarations</i>. These declarations must be a
+   * list separated by semi-colons (;).
+   *
+   * Optionally, you may give a <i>ruleName</i>, which may later be
+   * used to check if the rule was already defined.
+   *
+   * \sa isDefined(const std::string& ruleName).
+   */
+  WCssTextRule *addRule(const std::string& selector,
+			const WString& declarations,
+			const std::string& ruleName = std::string());
+
+  /*! \brief Add a CSS rule.
+   *
+   * Add a rule using the CSS selector <i>selector</i>, with styles specified
+   * in <i>style</i>.
+   *
+   * Optionally, you may give a <i>ruleName</i>, which may later be
+   * used to check if the rule was already defined.
+   *
+   * \sa isDefined(const std::string& ruleName).
+   */
+  WCssTemplateRule *addRule(const std::string& selector,
+			    const WCssDecorationStyle& style,
+			    const std::string& ruleName = std::string());
+
+  /*! \brief Add a CSS rule.
+   *
+   * Optionally, you may give a <i>ruleName</i>, which may later be
+   * used to check if the rule was already defined.
+   *
+   * \sa isDefined(const std::string& ruleName).
+   */
+  WCssRule *addRule(WCssRule *rule,
+		    const std::string& ruleName = std::string());
+
+  /*! \brief Returns if a rule was already defined in this style sheet.
+   *
+   * Returns whether a rule was added with the given <i>ruleName</i>.
+   *
+   * \sa addRule()
+   */
+  bool isDefined(const std::string& ruleName) const;
+
+  /*! \brief Remove a rule.
+   */
+  void removeRule(WCssRule *rule);
+
+  void ruleModified(WCssRule *rule);
+
+  std::string cssText(bool all);
+  void javaScriptUpdate(WApplication *app, std::ostream& js, bool all);
+
+  void clear();
+
+private:
+  typedef std::vector<WCssRule *> RuleList;
+  typedef std::set<WCssRule *> RuleSet;
+
+  RuleList rules_;
+  RuleList rulesAdded_;
+
+  RuleSet rulesModified_;
+  std::vector<std::string> rulesRemoved_;
+
+  std::set<std::string> defined_;
+};
+
+}
+
+#endif // WCSS_STYLE_SHEET_H_

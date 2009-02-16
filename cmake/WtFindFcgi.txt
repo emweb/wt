@@ -1,0 +1,37 @@
+# This file sets:
+# - FCGI_INCLUDE_DIRS
+# - FCGI_LIBRARIES
+# - FCGI_FOUND
+
+
+FIND_PATH(FCGI_INCLUDE_DIR
+    fcgio.h
+  PATHS
+    /usr/include
+    /usr/local/include
+    /usr/include/fastcgi
+)
+
+FIND_LIBRARY(FCGI_LIB fcgi
+  /usr/lib
+  /usr/local/lib
+  ${USERLIB_ROOT}/lib
+)
+
+FIND_LIBRARY(FCGIPP_LIB fcgi++
+  /usr/lib
+  /usr/local/lib
+  ${USERLIB_ROOT}/lib
+)
+
+SET(FCGI_FOUND FALSE)
+
+IF(FCGI_INCLUDE_DIR
+    AND FCGI_LIB
+    AND FCGIPP_LIB)
+  SET(FCGI_FOUND TRUE)
+  SET(FCGI_LIBRARIES ${FCGI_LIB} ${FCGIPP_LIB})
+  SET(FCGI_INCLUDE_DIRS ${FCGI_INCLUDE_DIR})
+ENDIF(FCGI_INCLUDE_DIR
+    AND FCGI_LIB
+    AND FCGIPP_LIB)

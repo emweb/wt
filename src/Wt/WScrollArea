@@ -1,0 +1,106 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSCROLLAREA_H_
+#define WSCROLLAREA_H_
+
+#include <Wt/WWebWidget>
+
+namespace Wt {
+
+class WScrollBar;
+
+/*! \class WScrollArea Wt/WScrollArea Wt/WScrollArea
+ *  \brief A widget that adds scrolling capabilities to its content.
+ *
+ * Use a WScrollArea to add scrolling capabilities to another widget.
+ * When the content is bigger than the WScrollArea, scrollbars are added
+ * so that the user can still view the entire content.
+ *
+ * Use setScrollBarPolicy() to configure if and when the scrollbars may
+ * appear.
+ *
+ * In many cases, it might be easier to use the CSS overflow property
+ */
+class WScrollArea : public WWebWidget
+{
+public:
+  /*! brief Policy for showing a scrollbar.
+   */
+  enum ScrollBarPolicy {
+    ScrollBarAsNeeded,	//!< Automatic
+    ScrollBarAlwaysOff, //!< Always show a scrollbar
+    ScrollBarAlwaysOn   //!< Never show a scrollbar
+  };
+
+  /*! \brief Create a scroll area.
+   */
+  WScrollArea(WContainerWidget *parent = 0);
+
+  ~WScrollArea();
+
+  /*! \brief Set the widget that is the contents of the scroll area.
+   *
+   * Setting a new widget will delete the previously set widget.
+   */
+  void setWidget(WWidget *widget);
+
+  /*! \brief Remove the widget content.
+   */
+  WWidget *takeWidget();
+
+  /*! \brief Get the widget content.
+   */
+  WWidget *widget() const { return widget_; }
+
+  /*! \brief Get the horizontal scrollbar.
+   */
+  WScrollBar *horizontalScrollBar() const { return horizontalScrollBar_; }
+
+  /*! \brief Get the vertical scrollbar.
+   */
+  WScrollBar *verticalScrollBar() const { return verticalScrollBar_; }
+
+  /*! \brief Set the policy for both scrollbars.
+   *
+   * \sa setHorizontalScrollBarPolicy(), setVerticalScrollBarPolicy()
+   */
+  void setScrollBarPolicy(ScrollBarPolicy scrollBarPolicy);
+
+  /*! \brief Set the horizontal scroll bar policy.
+   *
+   * \sa setScrollBarPolicy()
+   */
+  void setHorizontalScrollBarPolicy(ScrollBarPolicy scrollBarPolicy);
+
+  /*! \brief Set the vertical scroll bar policy.
+   *
+   * \sa setScrollBarPolicy()
+   */
+  void setVerticalScrollBarPolicy(ScrollBarPolicy scrollBarPolicy);
+
+private:
+  WWidget *widget_;
+  bool widgetChanged_;
+
+  WScrollBar *horizontalScrollBar_;
+  WScrollBar *verticalScrollBar_;
+  bool scrollBarChanged_;
+
+  ScrollBarPolicy horizontalScrollBarPolicy_, verticalScrollBarPolicy_;
+  bool scrollBarPolicyChanged_;
+
+  void scrollBarChanged();
+  friend class WScrollBar;
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+};
+
+}
+
+#endif // WSCROLLAREA

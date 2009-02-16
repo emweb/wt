@@ -1,0 +1,226 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WBOX_LAYOUT_H_
+#define WBOX_LAYOUT_H_
+
+#include <Wt/WGridLayout>
+
+namespace Wt {
+
+/*! \class WBoxLayout Wt/WBoxLayout Wt/WBoxLayout
+ *  \brief A layout manager which arranges widgets horizontally or vertically
+ *
+ * This layout manager arranges widgets horizontally or vertically
+ * inside the parent container. The space is divided so that each
+ * widgets is given its minimum size, and remaining space is divided
+ * according to stretch factors among the widgets. The widget minimum
+ * height or width is used for sizing each widget, whose default
+ * values may be overridden using WWidget::setMinimumSize().
+ *
+ * Each item is separated using a constant spacing, which defaults to
+ * 6 pixels, and can be changed using setSpacing(). In addition, when
+ * this layout is a top-level layout (i.e. is not nested inside
+ * another layout), a margin is set around the contents, which thus
+ * replaces padding defined for the container. This margin defaults to
+ * 9 pixels, and can be changed using setContentsMargins(). It is not
+ * allowed to define padding for the container widget using its CSS
+ * 'padding' property or the WContainerWidget::setPadding(). You can
+ * add more space between two widgets using addSpacing().
+ *
+ * For each item a stretch factor may be defined, which controls how
+ * remaining space is used. Each item is stretched using the stretch
+ * factor to fill the remaining space.
+ *
+ * \note This layout manager is applicable only to WContainerWidget
+ * container widgets. You may use it within an Ext::Container
+ * indirectly by first setting a WContainerWidget using a WFitLayout.
+ *
+ * \note When JavaScript support is not available, only Safari and
+ * Firefox properly implement this box layout. For other browsers,
+ * only the horizontal layout is properly implemented, while
+ * vertically all widgets use their minimum size.
+ *
+ * \note When set on a WContainerWidget, this layout manager accepts the
+ *       following hints (see setLayoutHint()):
+ *   <ul>
+ *     <li>"table-layout" with possible values "auto" (default) or "fixed".<br/>
+ *       Use "fixed" to prevent nested tables from overflowing the layout.
+ *       In that case, you will need to specify a width (in CSS or otherwise)
+ *       for at least one item in every column that has no stretch factor.</li>
+ *  </ul>
+ */
+class WT_API WBoxLayout : public WLayout
+{
+public:
+  /*! \brief Enumeration of the direction in which widgets are layed out.
+   */
+  enum Direction {
+    LeftToRight, //!< Horizontal layout, widgets are arranged from left to right
+    RightToLeft, //!< Horizontal layout, widgets are arranged from right to left
+    TopToBottom, //!< Vertical layout, widgets are arranged from top to bottom
+    BottomToTop  //!< Vertical layout, widgets are arranged from bottom to top
+  };
+
+  /*! \brief Create a new box layout.
+   *
+   * This constructor is rarely used. Instead, use the convenient
+   * constructors of the specialized WHBoxLayout or WVBoxLayout classes.
+   *
+   * Use <i>parent</i>=0 to created a layout manager that can be
+   * nested inside other layout managers.
+   */
+  WBoxLayout(Direction dir, WWidget *parent = 0);
+
+  virtual void addItem(WLayoutItem *item);
+  virtual void removeItem(WLayoutItem *item);
+  virtual WLayoutItem *itemAt(int index) const;
+  virtual int count() const;
+
+  /*! \brief Set the layout direction.
+   *
+   * \sa direction()
+   */
+  void setDirection(Direction direction);
+
+  /*! \brief Returns the layout direction.
+   *
+   * \sa setDirection()
+   */
+  Direction direction() const { return direction_; }
+
+  /*! \brief Set spacing between each item.
+   *
+   * The default spacing is 6 pixels.
+   */
+  void setSpacing(int size);
+
+  /*! \brief Returns the spacing between each item.
+   *
+   * \sa setSpacing()
+   */
+  int spacing() const { return grid_.horizontalSpacing_; }
+
+  /*! \brief Adds a widget to the layout.
+   *
+   * Adds a widget to the layout, with given <i>stretch</i> factor.
+   *
+   * The <i>alignment</i> specifies the vertical and horizontal
+   * alignment of the item. The default value 0 indicates that the
+   * item is stretched to fill the entire column or row. The alignment can
+   * be specified as a logical combination of a horizontal alignment
+   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
+   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
+   * Wt::AlignBottom).
+   *
+   * \sa addLayout(WLayout *, int), insertWidget()
+   */
+  void addWidget(WWidget *widget, int stretch = 0, int alignment = 0);
+
+  /*! \brief Adds a nested layout to the layout.
+   *
+   * Adds a nested layout, with given <i>stretch</i> factor.
+   *
+   * \sa addWidget(WWidget *, int, int), insertLayout()
+   */
+  void addLayout(WLayout *layout, int stretch = 0, int alignment = 0);
+
+  /*! \brief Adds extra spacing.
+   *
+   * Adds extra spacing to the layout.
+   *
+   * \sa addStretch(), insertStretch()
+   */
+  void addSpacing(const WLength& size);
+
+  /*! \brief Adds a stretch element.
+   *
+   * Adds a stretch element to the layout. This adds an empty space
+   * that stretches as needed.
+   *
+   * \sa addSpacing(), insertStretch()
+   */
+  void addStretch(int stretch = 0);
+
+  /*! \brief Inserts a widget in the layout.
+   *
+   * Inserts a widget in the layout at position <i>index</i>,
+   * with given <i>stretch</i> factor.
+   *
+   * The <i>alignment</i> specifies the vertical and horizontal
+   * alignment of the item. The default value 0 indicates that the
+   * item is stretched to fill the entire column or row. The alignment can
+   * be specified as a logical combination of a horizontal alignment
+   * (Wt::AlignLeft, Wt::AlignCenter, or Wt::AlignRight) and a
+   * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
+   * Wt::AlignBottom).
+   *
+   * \sa insertLayout(), addWidget(WWidget *, int, int)
+   */
+  void insertWidget(int index, WWidget *widget, int stretch = 0,
+		    int alignment = 0);
+
+  /*! \brief Inserts a nested layout in the layout.
+   *
+   * Inserts a nested layout in the layout at position<i>index</i>,
+   * with given <i>stretch</i> factor.
+   *
+   * \sa insertWidget(), addLayout(WLayout *, int)
+   */
+  void insertLayout(int index, WLayout *layout, int stretch = 0,
+		    int alignment = 0);
+
+  /*! \brief Inserts extra spacing in the layout.
+   *
+   * Inserts extra spacing in the layout at position <i>index</i>.
+   *
+   * \sa insertStretch(), addSpacing()
+   */
+  void insertSpacing(int index, const WLength& size);
+
+  /*! \brief Inserts a stretch element in the layout.
+   *
+   * Inserts a stretch element in the layout at position
+   * <i>index</i>. This adds an empty space that stretches as needed.
+   *
+   * \sa insertSpacing(), addStretch()
+   */
+  void insertStretch(int index, int stretch = 0);
+
+  /*! \brief Set the stretch factor for a nested layout.
+   *
+   * The <i>layout</i> must have previously been added to this layout
+   * using insertLayout() or addLayout().
+   *
+   * Returns whether the <i>stretch</i> could be set.
+   */
+  bool setStretchFactor(WLayout *layout, int stretch);
+
+  /*! \brief Set the stretch factor for a nested layout.
+   *
+   * The <i>widget</i> must have previously been added to this layout
+   * using insertWidget() or addWidget().
+   *
+   * Returns whether the <i>stretch</i> could be set.
+   */
+  bool setStretchFactor(WWidget *widget, int stretch);
+
+  Impl::Grid& grid() { return grid_; }
+
+protected:
+  void insertItem(int index, WLayoutItem *item, int stretch, int alignment);
+
+private:
+  Direction  direction_;
+  Impl::Grid grid_;
+
+  void setStretchFactor(int index, int stretch);
+  WWidget *createSpacer(const WLength& size);
+};
+
+}
+
+#endif // WBOX_LAYOUT_H_

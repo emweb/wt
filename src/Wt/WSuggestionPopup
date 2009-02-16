@@ -1,0 +1,229 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSUGGESTION_POPUP_H_
+#define WSUGGESTION_POPUP_H_
+
+#include <Wt/WCompositeWidget>
+#include <Wt/WJavaScript>
+
+namespace Wt {
+
+class WFormWidget;
+
+/*! \class WSuggestionPopup Wt/WSuggestionPopup Wt/WSuggestionPopup
+ *  \brief A widget which popups to assist in editing a textarea or lineedit.
+ *
+ * This widget is only available when JavaScript is enabled.
+ *
+ * This widget may be associated with one or more WFormWidget (typically a
+ * WLineEdit or a WTextArea).
+ *
+ * When the user starts editing one of the associated widgets, this
+ * popup will show just below it, offering a list of suggestions that
+ * match in some way with the current edit. The mechanism for
+ * filtering the total list of suggestions must be specified through a
+ * separate JavaScript function. This function may also highlight part(s)
+ * of the suggestions to provide feed-back on how they match.
+ *
+ * The class is initialized with two JavaScript functions, one for filtering
+ * the suggestions, and one for editing the value of the textarea when a
+ * suggestion is selected. Two static methods, generateMatcherJS() and
+ * generateReplacerJS() may be used to generate these functions based on a
+ * set of options (in the Options struct). If the flexibility provided
+ * in this way is not sufficient, and writing JavaScript does not give you
+ * an instant heart-attack, you may provide your own implementations.
+ *
+ * The matcherJS function block must have the following JavaScript signature:
+ * 
+ * \code
+ * function (editElement) {
+ *   // fetch the location of cursor and current text in the editElement
+ *   // and store pre-processed.
+ *
+ *   // return a function that matches a suggestion with the current value
+ *   // of the editElement.
+ *   return function(suggestion) {
+ *
+ *     // 1) remove markup from the suggestion
+ *     // 2) check suggestion if it matches
+ *     // 3) add markup to suggestion
+ *
+ *     return { match : ...,      // does the suggestion match ? (boolean)
+ *              suggestion : ...  // modified suggestion markup
+ *             };
+ *   }
+ * }
+ * \endcode
+ *
+ * The replacerJS function block that edits the value has the following
+ * JavaScript signature.
+ *
+ * \code
+ * function (editElement, suggestionText, suggestionValue) {
+ *
+ *   // editElement is the form element which must be edited.
+ *   // suggestionText and suggestionValue are the displayed text
+ *   // and stored value for the matched suggestion.
+ *
+ *   editElement.value = modifiedEditValue;
+ *   editElement.selectionStart = edit.selectionEnd = modifiedPos;
+ * }
+ * \endcode
+ *
+ * To style the suggestions, you should style the \<span\> element inside
+ * this widget, and the \<span\>."sel" element to style the current selection.
+ *
+ * Usage example:
+ * \code
+ *
+ * // options for email address suggestions
+ * WSuggestionPopup::Options contactOptions
+ * = { "<B>",         // highlightBeginTag
+ *     "</B>",        // highlightEndTag
+ *     ',',           // listSeparator      (for multiple addresses)
+ *     " \\n",        // whitespace
+ *     "-., \"@\\n;", // wordSeparators     (within an address)
+ *     ", "           // appendReplacedText (prepare next email address)
+ *    };
+ *
+ * WSuggestionPopup *popup
+ *   = new WSuggestionPopup(WSuggestionPopup::generateMatcherJS(contactOptions),
+ *	                  WSuggestionPopup::generateReplacerJS(contactOptions),
+ *                          parent);
+ * WTextArea *textEdit = new WTextArea(parent);
+ * popup->forEdit(textEdit);
+ *
+ * // load popup data
+ * for (unsigned i = 0; i < contacts.size(); ++i)
+ *   popup->addSuggestion(contacts[i].formatted(), contacts[i].formatted());
+ *
+ * // set style
+ * popup->setStyleClass("suggest");
+ *
+ * \endcode
+ *
+ * Example CSS:
+ *
+ * \code
+.suggest {
+  background-color: #e0ecff;
+  color: #1010cc;
+  border: 1px solid #666666;
+  cursor: default;
+  font-size: smaller;
+  padding: 2px;
+}
+
+.suggest span {
+  padding-left: 0.5em;
+  padding-right: 0.5em;  
+}
+
+.suggest .sel {
+  background-color: #C3D9FF;
+}
+ * \endcode
+ *
+ * A screenshot of this example:
+ * \image html WSuggestionPopup-1.png "Example of WSuggestionPopup"
+ */
+class WT_API WSuggestionPopup : public WCompositeWidget
+{
+public:
+  /*! \brief Construct a WSuggestionPopup with given matcherJS and replacerJS.
+   */
+  WSuggestionPopup(const std::string& matcherJS,
+		   const std::string& replacerJS,
+		   WContainerWidget *parent = 0);
+
+  /*! \brief Let this suggestion popup assist in editing the given edit field.
+   *
+   * A single suggestion popup may assist in several edits by repeated calls
+   * of this method.
+   */
+  void forEdit(WFormWidget *edit);
+
+  /*! \brief Clear the list of suggestions.
+   */
+  void clearSuggestions();
+
+  /*! \brief Add a new suggestion.
+   */
+  void addSuggestion(const WString& suggestionText,
+		     const WString& suggestionValue);
+
+  /*! \brief A configuration object to generate a matcher and replacer
+   *         JavaScript function.
+   */
+  struct Options {
+    /*! \brief Open tag to highlight a match in a suggestion.
+     *
+     * Must be an opening markup tag, such as &lt;B&gt;. The tag
+     * name must be all uppercase! (really?)
+     */
+    std::string highlightBeginTag;
+
+    /*! \brief Close tag to highlight a match in a suggestion.
+     *
+     * Must be a closing markup tag, such as &lt;/B&gt;. The tag
+     * name must be all uppercase!
+     */
+    std::string highlightEndTag;
+
+    /*! \brief When editing a list of values, the separator used
+     *         for different items.
+     *
+     * For example, ',' to separate different values on komma. Specify
+     * 0 for no list separation.
+     */
+    char listSeparator;
+
+    /*! \brief When editing a value, the whitespace characters ignored
+     *         before the current value.
+     *
+     * For example, " \\n" to ignore spaces and newlines.
+     */
+    std::string whitespace;
+
+    /*! \brief To show suggestions based on matches of the edited
+     *         value with parts of the suggestion.
+     *
+     * For example, " .@" will also match with suggestion text after a space,
+     * a dot (.) or an at-symbol (@).
+     */
+    std::string wordSeparators;
+
+    /*! \brief When replacing the current edited value with suggestion value,
+     *         append the following string as well.
+     */
+    std::string appendReplacedText;
+  };
+
+  /*! \brief Create a matcher JavaScript function based on some
+   *         generic options.
+   */
+  static std::string generateMatcherJS(const Options& options);
+
+  /*! \brief Create a replacer JavaScript function based on some
+   *         generic options.
+   */
+  static std::string generateReplacerJS(const Options& options);
+
+private:
+  std::string       matcherJS_;
+  std::string       replacerJS_;
+  WContainerWidget *content_;
+
+  JSlot editKeyDown_;
+  JSlot editKeyUp_;
+  JSlot suggestionClicked_;
+  JSlot delayHide_;
+};
+
+}
+
+#endif // WSUGGESTION_POPUP_H_

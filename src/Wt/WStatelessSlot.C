@@ -1,0 +1,118 @@
+#include "Wt/WObject"
+#include "Wt/WStatelessSlot"
+#include "Wt/WSignal"
+
+#include <string>
+#include "Utils.h"
+
+namespace Wt {
+
+WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method)
+  : target_(obj),
+    method_(method),
+    undoMethod_(0),
+    learned_(false)
+{ }
+
+WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method, 
+			       WObjectMethod undomethod)
+  : target_(obj),
+    method_(method),
+    undoMethod_(undomethod),
+    learned_(false)
+{ }
+
+WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method,
+			       const std::string& javaScript)
+  : target_(obj),
+    method_(method),
+    undoMethod_(0),
+    learned_(true),
+    jscript_(javaScript)
+{ }
+
+WStatelessSlot::~WStatelessSlot()
+{
+  for (unsigned i = 0; i < connectingSignals_.size(); ++i)
+    connectingSignals_[i]->removeSlot(this);
+}
+
+bool WStatelessSlot::implementsMethod(WObjectMethod method) const
+{
+  return method_ == method;
+}
+
+void WStatelessSlot::reimplementPreLearn(WObjectMethod undoMethod)
+{
+  undoMethod_ = undoMethod;
+  setNotLearned();
+}
+
+void WStatelessSlot::reimplementJavaScript(const std::string& javaScript)
+{
+  undoMethod_ = 0;
+  learned_ = true;
+  setJavaScript(javaScript);
+}
+
+WStatelessSlot::SlotType WStatelessSlot::type() const
+{
+  if (method_ == 0)
+    return JavaScriptSpecified;
+  else
+    if (undoMethod_ == 0)
+      return AutoLearnStateless;
+    else
+      return PreLearnStateless;
+} 
+ 
+bool WStatelessSlot::learned() const
+{
+  return learned_;
+}
+
+void WStatelessSlot::setJavaScript(const std::string& javaScript)
+{
+  jscript_ = javaScript;
+  learned_ = true;
+
+  for (size_t i = 0; i < connectingSignals_.size(); i++)
+    connectingSignals_[i]->senderRepaint();
+}
+
+void WStatelessSlot::setNotLearned()
+{
+  if (learned_) {
+    jscript_.clear();
+    learned_ = false;
+
+    for (size_t i = 0; i < connectingSignals_.size(); i++)
+      connectingSignals_[i]->senderRepaint();    
+  }
+}
+
+void WStatelessSlot::trigger()
+{
+  if (method_)
+    (target_->*(method_))();
+}
+
+void WStatelessSlot::undoTrigger()
+{
+  if (undoMethod_)
+    (target_->*(undoMethod_))();
+}
+
+void WStatelessSlot::addConnection(EventSignalBase* s)
+{
+  int f = Utils::indexOf(connectingSignals_, s);
+  if (f == -1)
+    connectingSignals_.push_back(s);
+}	
+
+void WStatelessSlot::removeConnection(EventSignalBase* s)	
+{
+  Utils::erase(connectingSignals_, s);
+}
+
+}

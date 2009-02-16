@@ -1,0 +1,127 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WLABEL_H_
+#define WLABEL_H_
+
+#include <Wt/WInteractWidget>
+
+namespace Wt {
+
+  class WFormWidget;
+  class WImage;
+  class WText;
+
+  namespace Ext {
+
+    class FormField;
+
+  }
+
+/*! \class WLabel Wt/WLabel Wt/WLabel
+ *  \brief A widget that may act as a label corresponding to a form field.
+ *
+ * WLabel is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * A WLabel may contain an image and/or text that acts like a proxy
+ * for giving focus to a WFormWidget. When both an image and text
+ * are specified, the image is put at the left of the text.
+ */
+class WT_API WLabel : public WInteractWidget
+{
+public:
+  /*! \brief Construct a WLabel with empty text and optional parent.
+   */
+  WLabel(WContainerWidget *parent = 0);
+
+  /*! \brief Construct a WLabel with a given text.
+   */
+  WLabel(const WString& text, WContainerWidget *parent = 0);
+
+  /*! \brief Construct a WLabel with an image.
+   */
+  WLabel(WImage *image, WContainerWidget *parent = 0);
+
+  ~WLabel();
+
+  /*! \brief Return the buddy of this label.
+   *
+   * \sa setBuddy(WFormWidget *)
+   */
+  WFormWidget *buddy() const { return buddy_; }
+
+  /*! \brief Set the buddy of this label.
+   *
+   * Sets the buddy FormWidget for which this label acts as a proxy.
+   *
+   * \sa WFormWidget::label(), setBuddy(Ext::FormField *), buddy()
+   */
+  void setBuddy(WFormWidget *buddy);
+
+  /*! \brief Set the buddy of this label.
+   *
+   * Sets the buddy Ext::FormField for which this label acts as a proxy.
+   * When using this method, the result of buddy() is not defined.
+   *
+   * \sa Ext::FormField::label(), setBuddy(WFormWidget *)
+   */
+  void setBuddy(Ext::FormField *buddy);
+
+  /*! \brief Set the label text.
+   */
+  void setText(const WString& text);
+
+  /*! \brief Get the label text.
+   */
+  const WString& text() const;
+
+  /*! \brief Set the image.
+   */
+  void setImage(WImage *image);
+
+  /*! \brief Get the image.
+   */
+  WImage *image() const { return image_; }
+
+  /*! \brief Configure word wrapping.
+   *
+   * When <i>on</i> is true, the widget may break lines, creating a
+   * multi-line text. When <i>on</i> is false, the text will displayed
+   * on a single line, unless the text contains end-of-lines (for
+   * Wt::PlainText) or &lt;br /&gt; tags or other block-level tags
+   * (for Wt::XHTMLText).
+   *
+   * The default value is false.
+   *
+   * \sa wordWrap()
+   */
+  void setWordWrap(bool on);
+
+  /*! \brief Returns whether word wrapping is on.
+   *
+   * \sa setWordWrap()
+   */
+  bool wordWrap() const;
+
+private:
+  WFormWidget *buddy_;
+  WText  *text_;
+  WImage *image_;
+
+  bool buddyChanged_, newImage_, newText_;
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+  virtual void           getDomChanges(std::vector<DomElement *>& result,
+				       WApplication *app);
+
+  friend class WAnchor;
+};
+
+}
+
+#endif // WLABEL_H_

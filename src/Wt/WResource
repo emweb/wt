@@ -1,0 +1,185 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WRESOURCE_H_
+#define WRESOURCE_H_
+
+#include <Wt/WObject>
+#include <Wt/WSignal>
+
+namespace Wt {
+
+class WebRequest;
+
+/*! \class WResource Wt/WResource Wt/WResource
+ *  \brief An object which can be rendered in the HTTP protocol.
+ *
+ * Besides the main page, other objects may be rendered as additional
+ * resources, such as frames or dynamic images.
+ *
+ * To serve resources that you create on the fly, you need to specialize this
+ * class and reimplement:
+ * - resourceMimeType() to return an appropriate mime type (e.g. "image/png")
+ * - streamResourceData() to stream the data for the image
+ * - optionally, setArguments() for parsing request arguments that may impact
+ *   how you serve the resource (e.g. you may have a parameter that indicates
+ *   the desired image file type).
+ *
+ * In addition, you may want to help the browser to start a suitable
+ * helper application, or the user to save the file with a suitable
+ * name, by setting an appropriate file name using suggestFileName().
+ *
+ * For small resources, or resources that you do not want to generate
+ * on the fly, you can also use the WMemoryResource or WFileResource
+ * which stream data from respectively memory or a file.
+ *
+ * A resource can be used directly in conjunction with WAnchor or a
+ * WImage, which has the benefit that these classes are aware of
+ * resource changes that you can indicate by emitting the \link
+ * WResource::dataChanged dataChanged signal\endlink.
+ */
+class WT_API WResource : public WObject
+{
+public:
+  /*! \brief Create a new resource.
+   */
+  WResource(WObject* parent = 0);
+
+  /*! \brief Destroy the resource.
+   *
+   * You must make sure that the resource is nog longer in use (no
+   * longer referred within the application) when deleting it.
+   */
+  ~WResource();
+
+  /*! \brief Suggest a filename to the user for the data streamed by this
+   *         resource.
+   *
+   * For resources, intended to be downloaded by the user, suggest a
+   * name used for saving. The filename extension may also help the
+   * browser to identify the correct program for opening the resource.
+   */
+  void suggestFileName(const std::string& name);
+
+  /*! \brief Generate an URL for this resource.
+   *
+   * Generates a new url that refers to this resource. The url is
+   * unique to assure that it is not cached by the web browser, and
+   * can thus be used to refer to a new "version" of the resource,
+   * which can be indicated by emitting the \link
+   * WResource::dataChanged dataChanged signal\endlink.
+   */
+  const std::string generateUrl() const;
+
+  /*! \brief Can this resource be streamed reentrantly ?
+   *
+   * Reentrant resources may be streamed concurrently to the user. Thus,
+   * its resourceMimeType() and streamResourceData() functions must be
+   * implemented in a thread-safe way.
+   *
+   * \sa setReentrant()
+   */
+  bool reentrant() const { return reentrant_; }
+
+  /*! \brief Specify if this resource may be streamed reentrantly.
+   *
+   * A reentrant resource may stream its data concurrently with other
+   * resources (and with the main event handling ? perhaps this is not
+   * necessary...)
+   *
+   * \sa reentrant()
+   */
+  void setReentrant(bool reentrant);
+
+  /*! \brief Emit this signal if the data presented in this resource
+   *         has changed.
+   */
+  Signal<void> dataChanged;
+
+  const std::string& suggestedFileName() const { return fileName_; }
+
+  /*! \brief Stream the resource to a stream.
+   *
+   * This is a convenience method to serialize to a stream (for example
+   * a files stream).
+   */
+  void write(std::ostream& out);
+
+protected:
+  /*! \brief Return the mimetype.
+   *
+   * Implement this method to return the correct mime type for your
+   * resource, e.g. "text/html".
+   */
+  virtual const std::string resourceMimeType() const = 0;
+
+  /*! \brief Values corresponding to a single argument name
+   */
+  typedef std::vector<std::string> ArgumentValues;
+
+  /*! \brief A map for request arguments
+   */
+  typedef std::map<std::string, ArgumentValues> ArgumentMap;
+
+  /*! \brief Stream the data for this resource.
+   *
+   * Implement this method to output the data for this resource.
+   *
+   * Returns whether all data has been streamed. If not, call flush()
+   * from outside the mean event loop to indicate that more data is
+   * available. This is how "server-push" is implemented. The stream
+   * is not closed until this function returns true.
+   *
+   * \sa flush()
+   */
+  virtual bool streamResourceData(std::ostream& stream,
+				  const ArgumentMap& arguments) = 0;
+
+  /*! \brief Flush data for this resource.
+   *
+   * This is only valid when a previous call to streamResourceData()
+   * returned false.
+   *
+   * This will trigger a call to streamResourceData() to retrieve more
+   * data to be transmitted.
+   *
+   * \sa streamResourceData()
+   */
+  void flush();
+
+  /*! \brief Handle the request arguments.
+   *
+   * This method is called before serving the resource, and provides
+   * the request arguments. You may want to reimplement this method if
+   * you want to tailor how the resource is served based on request
+   * arguments.
+   *
+   * The default implementation does nothing.
+   */
+  virtual void setArguments(const ArgumentMap& arguments);
+
+  /*! \brief Add a HTTP header.
+   *
+   * Headers may be added only before the content-type is set, which
+   * is done before streaming the resource data. This method can only
+   * be used from within a reimplemented setArguments() method.
+   */
+  void addHeader(const std::string& name, const std::string& value);
+
+  friend class WebSession;
+  friend class WebController;
+
+private:
+  bool         reentrant_;
+  std::string  fileName_;
+  WebRequest  *webRequest_;
+
+  void setRequest(WebRequest *request);
+};
+
+}
+
+#endif // WRESOURCE_H_

@@ -1,0 +1,52 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef EXT_RADIOBUTTON_H_
+#define EXT_RADIOBUTTON_H_
+
+#include <Wt/Ext/AbstractToggleButton>
+
+namespace Wt {
+
+  class WRadioButton;
+
+  namespace Ext {
+
+/*! \class RadioButton Wt/Ext/RadioButton Wt/Ext/RadioButton
+ *  \brief A user control that represents a radio button.
+ *
+ * Add the radio button to a WButtonGroup to group together different
+ * options that are mutually exclusive.
+ *
+ * The API is identical to the WRadioButton API.
+ *
+ * \sa AbstractToggleButton
+ *
+ * \ingroup ext
+ */
+class WT_EXT_API RadioButton : public AbstractToggleButton
+{
+public:
+  /*! \brief Create an unchecked radio button with empty label and optional
+   *          parent.
+   */
+  RadioButton(WContainerWidget *parent = 0);
+
+  /*! \brief Create an unchecked radio button with given text and optional
+   *         parent.
+   */
+  RadioButton(const WString& text, WContainerWidget *parent = 0);
+
+  WRadioButton *wtRadioButton() const;
+
+private:
+  std::string getExtName() const;
+};
+
+  }
+}
+
+#endif // EXT_RADIOBUTTON_H_

@@ -1,0 +1,185 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTABWIDGET_H_
+#define WTABWIDGET_H_
+
+#include <Wt/WCompositeWidget>
+
+namespace Wt {
+
+  class WMenu;
+  class WMenuItem;
+  class WStackedWidget;
+
+/*! \class WTabWidget Wt/WTabWidget Wt/WTabWidget
+ *  \brief A widget that organizes contents in tab panes.
+ *
+ * This widget combines a horizontal WMenu with a WStackedWidget, and a
+ * tab-like look.
+ *
+ * This widget uses the following resources:
+ * <ul>
+ *  <li><i>resourcesURL</i>/tab_b.gif</li>
+ *  <li><i>resourcesURL</i>/tab_l.gif</li>
+ *  <li><i>resourcesURL</i>/tab_r.gif</li>
+ * </ul>
+ *
+ * These files may be found in the resources/ folder of the %Wt distribution. 
+ *
+ * The default value for <i>resourcesURL</i> is "resources/". This
+ * value may be overridden with any valid URL which points to the
+ * location where these files may be found, by configuring the
+ * <i>resourcesURL</i> property in your %Wt configuration file.
+ *
+ * \image html WTabWidget-1.png "An example WTabWidget"
+ */
+class WT_API WTabWidget : public WCompositeWidget
+{
+public:
+  /*! \brief When should the contents be loaded ?
+   */
+  enum LoadPolicy { LazyLoading,     //!< Lazy loading: on first use
+		    PreLoading       //!< Pre-loading: before first use
+  };
+
+  /*! \brief Create a new WTabWidget
+   */
+  WTabWidget(WContainerWidget *parent = 0);
+
+  /*! \brief Add a new tab, with <i>child</i> as content, and the given label.
+   *
+   * Returns the menu item that implements the tab item.
+   */
+  WMenuItem *addTab(WWidget *child, const WString& label,
+		    LoadPolicy = LazyLoading);
+
+  /*! \brief Removes a tab item.
+   *
+   * The widget itself is not deleted.
+   *
+   * \sa WMenu::removeItem()
+   */
+  void removeTab(WWidget *widget);
+
+  /*! \brief Return the number of tabs.
+   */
+  int count() const;
+
+  /*! \brief Get the content widget at the given tab <i>index</i>.
+   */
+  WWidget *widget(int index) const;
+
+  /*! \brief Get the index of the given widget.
+   *
+   * If the widget is not in this tab widget, then -1 is returned.
+   */
+  int indexOf(WWidget *widget) const;
+
+  /*! \brief Activate the tab at <i>index</i>.
+   */
+  void setCurrentIndex(int index);
+
+  /*! \brief Get the index of the activated tab.
+   */
+  int currentIndex() const;
+
+  /*! \brief Activate the tab showing the given <i>widget</i>
+   */
+  void setCurrentWidget(WWidget *widget);
+
+  /*! \brief Get the widget of the activated tab.
+   */
+  WWidget *currentWidget() const;
+
+  /*! \brief Enable or disable a tab.
+   *
+   * Enables or disables the tab at <i>index</i>. A disabled tab cannot be
+   * activated.
+   */
+  void setTabEnabled(int index, bool enable);
+
+  /*! \brief Returns if a tab is enabled.
+   */
+  bool isTabEnabled(int index) const;
+
+  /*! \brief Hide or show a tab.
+   *
+   * Hides are shows the tab at <i>index</i>.
+   */
+  void setTabHidden(int index, bool hidden);
+
+  /*! \brief Return if a tab is hidden.
+   */
+  bool isTabHidden(int index) const;
+
+  /*! \brief Change the label for a tab.
+   */
+  void setTabText(int index, const WString& label);
+
+  /*! \brief Get the label for a tab.
+   */
+  const WString& tabText(int index) const;
+
+  /*! \brief Set the tooltip for a tab.
+   *
+   * The tooltip is shown when the user hovers over the label.
+   */
+  void setTabToolTip(int index, const WString& tip);
+
+  /*! \brief Get the tooltip for a tab.
+   */
+  const WString& tabToolTip(int index) const;
+
+  /*! \brief Enable internal paths for items.
+   *
+   * \copydetails WMenu::setInternalPathEnabled
+   */
+  void setInternalPathEnabled();
+
+  /*! \brief Returns whether internal paths are enabled.
+   *
+   * \copydetails WMenu::internalPathEnabled
+   */
+  bool internalPathEnabled() const;
+
+  /*! \brief Set the internal base path.
+   *
+   * \copydetails WMenu::setInternalBasePath
+   */
+  void setInternalBasePath(const std::string& path);
+
+  /*! \brief Returns the internal base path.
+   *
+   * \copydetails WMenu::internalBasePath
+   */
+  const std::string& internalBasePath() const;
+
+ /*! \brief %Signal emitted when the user activates a tab.
+   *
+   * The index of the newly activated tab is passed as an argument.
+   */
+  Signal<int> currentChanged;
+
+private:
+  WContainerWidget *layout_;
+  WMenu            *menu_;
+  WStackedWidget   *contents_;
+
+  struct TabItem {
+    bool    enabled;
+    bool    hidden;
+    WString toolTip;
+  };
+
+  std::vector<TabItem> items_;
+
+  void onItemSelected(WMenuItem *item);
+};
+
+}
+
+#endif // EXT_TABWIDGET_H_

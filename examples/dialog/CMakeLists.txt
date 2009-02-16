@@ -1,0 +1,23 @@
+
+ADD_EXECUTABLE(dialog.wt
+  DialogExample.C
+)
+
+TARGET_LINK_LIBRARIES(dialog.wt
+  ${EXAMPLES_CONNECTOR}
+)
+
+INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
+
+#
+# Create a deploy script
+#
+SET(APPNAME dialog)
+SET(APPBIN dialog.wt)
+SET(APPRESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.css")
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/deploy.sh
+  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
+)
+
+ADD_DEPENDENCIES(dialog.wt wt ${EXAMPLES_CONNECTOR})

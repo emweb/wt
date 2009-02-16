@@ -1,0 +1,159 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPOPUP_MENU_ITEM_H_
+#define WPOPUP_MENU_ITEM_H_
+
+#include <Wt/WCompositeWidget>
+
+namespace Wt {
+
+class WCheckBox;
+class WPopupMenu;
+class WText;
+
+/*! \class WPopupMenuItem Wt/WPopupMenuItem Wt/WPopupMenuItem
+ *  \brief An item in a popup menu.
+ *
+ * An item may have a text, icon, and can be checkable or lead to a
+ * submenu.
+ *
+ * When the mouse hovers over the item, its class is changed from
+ * "unselected" to "selected".
+ *
+ * \sa WPopupMenu
+ */
+class WT_API WPopupMenuItem : public WCompositeWidget
+{
+public:
+  /*! \brief Create a new item with given text.
+   *
+   * \sa WPopupMenu::addItem(const WString& text)
+   */
+  WPopupMenuItem(const WString& text);
+
+  /*! \brief Create a new item with given icon and text.
+   *
+   * The icon is displayed left to the text.
+   *
+   * \note The icon should have a width of 16 pixels.
+   *
+   * \sa WPopupMenu::addItem(const std::string& iconPath, const WString& text)
+   */
+  WPopupMenuItem(const std::string& iconPath, const WString& text);
+
+  /*! \brief Destructor.
+   */
+  ~WPopupMenuItem();
+
+  /*! \brief Set the item text.
+   *
+   * \sa setIcon()
+   */
+  void setText(const WString& text);
+
+  /*! \brief Returns the item text.
+   *
+   * \sa setText()
+   */
+  const WString& text() const;
+
+  /*! \brief Set the item icon path.
+   *
+   * The icon should have a width of 16 pixels.
+   *
+   * \sa setText()
+   */
+  void setIcon(const std::string& path);
+
+  /*! \brief Returns the item icon path.
+   *
+   * \sa setIcon()
+   */
+  const std::string& icon();
+
+  /*! \brief Set if the item is checkable.
+   *
+   * When an item is checkable, a checkbox is displayed to the left of the
+   * item text (instead of an icon).
+   *
+   * \sa setChecked(), checked()
+   */
+  void setCheckable(bool how);
+
+  /*! \brief Returns whether the item is checkable.
+   *
+   * \sa setCheckable()
+   */
+  bool isCheckable() const { return checkBox_; }
+
+  /*! \brief Set a sub menu for the item.
+   *
+   * Sets a submenu for the item. Ownership of the submenu is transferred
+   * to the item.
+   *
+   * \sa popupMenu()
+   */
+  void setPopupMenu(WPopupMenu *menu);
+
+  /*! \brief Change the checked state.
+   *
+   * This is only used when isCheckable() == true.
+   *
+   * \sa setCheckable(bool), isCheckable()
+   */
+  void setChecked(bool how);
+
+  /*! \brief Return the checked state.
+   *
+   * This is only used when isCheckable() == true.
+   *
+   * \sa setChecked(bool), isCheckable()
+   */
+  bool isChecked() const;
+
+  /*! \brief Associated additional data with the item.
+   */
+  void setData(void *data);
+
+  /*! \brief Returns additional data of the item.
+   */
+  void *data() const { return data_; }
+
+  WCheckBox *checkBox() const { return checkBox_; }
+
+  /*! \brief %Signal emitted when an item is activated.
+   */
+  Signal<> triggered;
+
+  virtual void load();
+
+private:
+  // Constructs a separator
+  WPopupMenuItem(bool);
+
+  WContainerWidget *impl_;
+  WText            *text_;
+  WCheckBox        *checkBox_;
+  WPopupMenu       *subMenu_;
+  void             *data_;
+  bool              separator_;
+
+  void create();
+  void renderOver();
+  void renderOut();
+  void renderSelected(bool selected);
+  void onMouseUp();
+
+  WPopupMenu *parentMenu();
+  WPopupMenu *topLevelMenu();
+
+  friend class WPopupMenu;
+};
+
+}
+
+#endif // WPOPUP_MENU_ITEM_H_

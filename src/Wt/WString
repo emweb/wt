@@ -1,0 +1,529 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSTRING_H_
+#define WSTRING_H_
+
+#include <string>
+#include <vector>
+#include <iosfwd>
+#include "Wt/WDllDefs.h"
+
+namespace Wt {
+
+/*! \brief Enumeration that indicates a character encoding.
+ *
+ * Character encodings are used to represent characters in a stream of
+ * bytes.
+ *
+ * \relates WString
+ */
+enum CharEncoding {
+  /*! \brief Each byte represents a character, using the local
+   *         server-side system locale
+   */
+  LocalEncoding,
+  /*! \brief The byte stream represents unicode characters encoded using UTF-8.
+   */
+  UTF8
+};
+
+/*! \class WString Wt/WString Wt/WString
+ *  \brief A unicode string class, with support for localization.
+ *
+ * %Wt offers this string to facilitate handling of unicode text
+ * through the user interface, and to offer support for localized text
+ * using message resource bundles.
+ *
+ * A %WString may be constructed from a std::string, std::wstring or
+ * c-style strings (const char * and const wchar_t *), and converted
+ * to each of these strings taking into account the locale in which
+ * the %Wt application runs on the web server. Independent of the
+ * locale on the web server, you may convert from and to UTF8 unicode
+ * encoded std::strings.
+ *
+ * By using the static functions WString::tr() (or WWidget::tr()), one
+ * may construct a localized string. The key is used to retrieve its
+ * current value from the application's message-resource
+ * bundles.
+ *
+ * Argument place holder in a string, denoted using {<i>n</i>} for the
+ * <i>n</i>'th argument, may be substituted by values set using
+ * arg(int) and arg(std::string).
+ *
+ * %WString is used by all built-in widgets for displayed text. By
+ * calling WApplication::setLocale() or WApplication::refresh(), the
+ * contents of every %WString is reevaluated in the new locale, by
+ * calling refresh(). In this way, the contents of the whole user
+ * interface is adapted to a possibly changed locale.
+ *
+ * To benefit from the localization properties of %WString, you should
+ * design your own widget classes to use %WString in their interface
+ * for any text that is displayed. In this way, your own widgets will
+ * automatically, and without any extra effort, participate in a
+ * relocalization triggered by WApplication::setLocale().
+ *
+ * This string class does not provide anything more than basic
+ * manipulations. Instead, you should convert to a standard library
+ * string class to manipulate the string contents and perform string
+ * algorithms on them. In particular, we recommend to use the
+ * conversion methods toUTF8(), fromUTF8() and the WString(..., \link
+ * Wt::UTF8 UTF8\endlink) constructor to convert from and to UTF8
+ * encoded std::strings. In this way, you can support the whole
+ * unicode character set, with backward compatible support for the
+ * standard 7-bit ASCII set. Since %WString internally uses
+ * UTF8-encoding, and UTF8-encoding is used by the library for
+ * communication with the browser, there is no actual conversion
+ * overhead. Only when you need to run string algorithms that require
+ * the actual length of the string in number of characters, you would
+ * need to convert to a wide string representation such as
+ * std::wstring.
+ *
+ * \sa WApplication::messageResourceBundle()
+ * \sa WApplication::locale()
+ */
+class WT_API WString
+{
+public:
+  /*! \brief Construct an empty string
+   *
+   * Create a literal string with empty contents ("").
+   */
+  WString();
+
+  /*! \brief Construct a %WString from a wide C string
+   *
+   * The wide string is implicitly converted to proper unicode. Note
+   * that there are known issues with the portability of wchar_t since
+   * its width and encoding are platform dependent.
+   */
+  WString(const wchar_t *value);
+
+  /*! \brief Copy constructor
+   */
+  WString(const WString& other);
+
+  /*! \brief Construct a %WString from a wide C++ string
+   *
+   * The wide string is implicitly converted to proper unicode. Note
+   * that there are known issues with the portability of wchar_t since
+   * its width and encoding are platform dependent.
+   */
+  WString(const std::wstring& value);
+
+  /*! \brief Construct a %WString from a C string.
+   *
+   * The C string is implicitly converted to unicode. When
+   * <i>encoding</i> is \link Wt::LocalEncoding LocalEncoding\endlink,
+   * the current locale is used to interpret the C string. When
+   * encoding is \link Wt::UTF8 UTF8\endlink, the C string is
+   * interpreted as a UTF8 encoded unicode string.
+   */
+  WString(const char *value, CharEncoding encoding = LocalEncoding);
+
+  /*! \brief Construct a %WString from a C++ string.
+   *
+   * The C++ string is implicitly converted to unicode. When
+   * <i>encoding</i> is \link Wt::LocalEncoding LocalEncoding\endlink,
+   * the current locale is used to interpret the C++ string. When
+   * encoding is \link Wt::UTF8 UTF8\endlink, the C++ string is
+   * interpreted as a UTF8 encoded unicode string.
+   */
+  WString(const std::string& value, CharEncoding encoding = LocalEncoding);
+
+  /*! \brief Delete a %WString
+   *
+   * Frees all resources associated with this string.
+   */
+  ~WString();
+
+  /*! \brief Assignment operator
+   *
+   * Copy another string into this string.
+   */
+  WString& operator= (const WString& rhs);
+
+  /*! \brief Comparison operator
+   *
+   * Compares to strings and returns true if the strings are exactly
+   * the same. This may require evaluating a localized string in the
+   * current locale.
+   */
+  bool operator== (const WString& rhs) const;
+
+  /*! \brief Comparison operator
+   *
+   * Compares to strings lexicographically. This may require
+   * evaluating a localized string in the current locale. The unicode
+   * representation of the strings are compared.
+   */
+  bool operator< (const WString& rhs) const;
+
+  /*! \brief Comparison operator
+   *
+   * Compares to strings lexicographically. This may require
+   * evaluating a localized string in the current locale. The unicode
+   * representation of the strings are compared.
+   */
+  bool operator> (const WString& rhs) const;
+
+  /*! \brief Self-concatenation operator
+   *
+   * Appends a string to the current value. If the string was localized,
+   * this automatically converts it to a literal string, by evaluating the
+   * string using the current locale.
+   */
+  WString& operator+= (const WString& rhs);
+
+  /*! \brief Self-concatenation operator
+   *
+   * Appends a string to the current value. If the string was localized,
+   * this automatically converts it to a literal string, by evaluating the
+   * string using the current locale.
+   */
+  WString& operator+= (const std::wstring& rhs);
+
+  /*! \brief Self-concatenation operator
+   *
+   * Appends a string to the current value. If the string was localized,
+   * this automatically converts it to a literal string, by evaluating the
+   * string using the current locale.
+   */
+  WString& operator+= (const wchar_t *rhs);
+
+  /*! \brief Self-concatenation operator
+   *
+   * Appends a string to the current value. The right hand side is
+   * interpreted in the server locale and converted to unicode. If the
+   * string was localized, this automatically converts it to a literal
+   * string, by evaluating the string using the current locale.
+   */
+  WString& operator+= (const std::string& rhs);
+
+  /*! \brief Self-concatenation operator
+   *
+   * Appends a string to the current value. The right hand side is
+   * interpreted in the server locale and converted to unicode. If the
+   * string was localized, this automatically converts it to a literal
+   * string, by evaluating the string using the current locale.
+   */
+  WString& operator+= (const char *rhs);
+
+  /*! \brief Is the string empty ?
+   */
+  bool empty() const;
+
+  /*! \brief Construct a %WString from a UTF8 unicode encoded string.
+   *
+   * This is equivalent to using the constructor WString(<i>value</i>,
+   * UTF8).
+   */
+  static WString fromUTF8(const std::string& value);
+
+  /*! \brief Construct a %WString from a UTF8 unicode encoded string.
+   *
+   * This is equivalent to using the constructor WString(<i>value</i>,
+   * UTF8).
+   */
+  static WString fromUTF8(const char *value);
+
+  /*! \brief Get the value as a UTF8 unicode encoded string.
+   *
+   * For a localized string, returns the current localized value.
+   *
+   * \sa fromUTF8()
+   */
+  std::string toUTF8() const;
+
+  /*! \brief Construct a localized string with the specified key.
+   *
+   * Whenever the value of the string is needed, the key is used for a
+   * lookup in the application message resource bundles taking into
+   * account the current application locale. If the key cannot be
+   * resolved, its value is set to '??key??'.
+   *
+   * \sa WApplication::messageResourceBundle(), WApplication::locale(), WApplication::localizedStrings()
+   */
+  static WString tr(const char *key);
+
+  /*! \brief Construct a localized string with the specified key.
+   *
+   * \sa tr(const char *)
+   */
+  static WString tr(const std::string& key);
+
+  /*! \brief Get the value as a wide C++ string.
+   *
+   * For a localized string, returns the current localized value.
+   */
+  std::wstring value() const;
+
+  /*! \brief Get the value as a narrow C++ string.
+   *
+   * For a localized string, returns the current localized value.
+   *
+   * Any wide character is narrowed, possibly losing information. If
+   * you wish to keep all information, use toUTF8() instead, which
+   * encodes wide characters in the string.
+   *
+   * \sa toUTF8()
+   */
+  std::string narrow() const;
+
+  /*! \brief Get the value as a wide C++ string.
+   *
+   * For a localized string, returns the current localized value.
+   */
+  operator std::wstring() const;
+
+  /*! \brief Is this string literal or localized ?
+   *
+   * \sa tr()
+   */
+  bool literal() const { return !impl_ || impl_->key_.empty(); }
+
+  /*! \brief Get the key for this localized string.
+   *
+   * When the string is literal, the result is undefined.
+   */
+  const std::string key() const;
+
+  /*! \brief Add a value for the next positional string argument of this
+   *         localized string.
+   *
+   * In the resource, the <i>n</i>-th argument is reffered to as using
+   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
+   * apples in the shop.'  with first argument value 'Bart' and second
+   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   */
+  WString& arg(const std::wstring& value);
+
+  /*! \brief Add a value for the next positional string argument of this
+   *         localized string.
+   *
+   * In the resource, the <i>n</i>-th argument is reffered to as using
+   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
+   * apples in the shop.'  with first argument value 'Bart' and second
+   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   */
+  WString& arg(const std::string& value, CharEncoding = LocalEncoding);
+
+  WString& arg(const char *value, CharEncoding = LocalEncoding);
+
+  /*! \brief Add a value for the next positional string argument of this
+   *         localized string.
+   *
+   * In the resource, the <i>n</i>-th argument is reffered to as using
+   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
+   * apples in the shop.'  with first argument value 'Bart' and second
+   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   */
+  WString& arg(const WString& value);
+
+  /*! \brief Add a value for the next positional integer argument of this
+   *         localized string.
+   *
+   * In the resource, the <i>n</i>-th argument is reffered to as using
+   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
+   * apples in the shop.'  with first argument value 'Bart' and second
+   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   */
+  WString& arg(int value);
+
+  /*! \brief Add a value for the next positional integer argument of this
+   *         localized string.
+   *
+   * In the resource, the <i>n</i>-th argument is reffered to as using
+   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
+   * apples in the shop.'  with first argument value 'Bart' and second
+   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   */
+  WString& arg(double value);
+
+  /*! \brief The list of arguments
+   *
+   * Each argument is UTF8 encoded.
+   */
+  const std::vector<std::string>& args() const;
+
+  /*! \brief Refresh the message.
+   *
+   * For a localized message, this rereads the value from the message
+   * resource bundle.
+   *
+   * Returns whether the value has changed.
+   */
+  bool refresh();
+
+  /*! \brief Returns the string as a JavaScript literal
+   *
+   * The <i>delimiter</i> may be a single or double quote.
+   *
+   * \sa WWebWidget::jsStringLiteral()
+   */
+  std::string jsStringLiteral(char delimiter = '\'') const;
+
+  static const WString emptyString;
+
+private:
+  WString(const char *key, bool);
+
+  std::string utf8_;
+
+  void makeLiteral();
+
+  struct Impl {
+    std::string              key_;
+    std::vector<std::string> arguments_;
+  };
+
+  static std::vector<std::string> stArguments_;
+
+  void createImpl();
+
+  Impl *impl_;
+};
+
+/* \brief Short hand for WString(const char * value, UTF8)
+ *
+ * \relates WString
+ */
+extern WString utf8(const char *value);
+
+/* \brief Short hand for WString(const std::string& value, UTF8)
+ *
+ * \relates WString
+ */
+extern WString utf8(const std::string& value);
+
+/*! \brief Concatenate two WStrings
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const WString& lhs, const WString& rhs);
+
+/*! \brief Conatenate a WString with a C++ wide string
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const WString& lhs, const std::wstring& rhs);
+
+/*! \brief Conatenate a WString with a C wide string
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const WString& lhs, const wchar_t *rhs);
+
+/*! \brief Conatenate a WStrin with a C++ string
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const WString& lhs, const std::string& rhs);
+
+/*! \brief Conatenate a WString with a C string
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const WString& lhs, const char *rhs);
+
+/*! \brief Conatenate a C++ wide string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const std::wstring& lhs, const WString& rhs);
+
+/*! \brief Conatenate a C wide string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const wchar_t *lhs, const WString& rhs);
+
+/*! \brief Conatenate a C++ string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const std::string& lhs, const WString& rhs);
+
+/*! \brief Conatenate a C string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API WString operator+ (const char *lhs, const WString& rhs);
+
+/*! \brief Compare a C string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API bool operator== (const char *lhs, const WString& rhs);
+
+/*! \brief Compare a C wide string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API bool operator== (const wchar_t *lhs, const WString& rhs);
+
+/*! \brief Compare a C++ string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API bool operator== (const std::string& lhs, const WString& rhs);
+
+/*! \brief Compare a C++ wide string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API bool operator== (const std::wstring& lhs, const WString& rhs);
+
+/*! \brief Compare a C string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API bool operator!= (const char *lhs, const WString& rhs);
+
+/*! \brief Compare a C wide string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API bool operator!= (const wchar_t *lhs, const WString& rhs);
+
+/*! \brief Compare a C++ string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API bool operator!= (const std::string& lhs, const WString& rhs);
+
+/*! \brief Compare a C++ wide string with a WString
+ *
+ * \relates WString
+ */
+extern WT_API bool operator!= (const std::wstring& lhs, const WString& rhs);
+
+/*! \brief Output a WString to a C++ wide stream
+ *
+ * \relates WString
+ */
+extern WT_API std::wostream& operator<< (std::wostream& lhs, const WString& rhs);
+
+/*! \brief Output a WString to a C++ stream
+ *
+ * \relates WString
+ */
+extern WT_API std::ostream& operator<< (std::ostream& lhs, const WString& rhs);
+
+/*! \brief Alias for %WString (<b>deprecated</b>).
+ *
+ * \deprecated use WString instead.
+ *
+ * %WString provides all the functionality of the now deprecated
+ * WMessage, but is used more consistently through the API.
+ *
+ * \relates WString
+ */
+typedef WString WMessage;
+
+}
+
+#endif // WSTRING_H_

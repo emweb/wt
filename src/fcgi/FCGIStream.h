@@ -1,0 +1,30 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef FCGI_STREAM_H_
+#define FCGI_STREAM_H_
+
+#include "WebStream.h"
+#include "WebRequest.h"
+
+class FCGX_Request;
+
+namespace Wt {
+
+class FCGIStream : public WebStream
+{
+public:
+  FCGIStream();
+  ~FCGIStream();
+
+  virtual WebRequest *getNextRequest(int timeoutsec);
+  virtual void addSocketNotifier(WSocketNotifier *notifier);
+  virtual void removeSocketNotifier(WSocketNotifier *notifier);
+};
+
+}
+
+#endif // FCGI_STREAM_H_

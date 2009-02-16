@@ -1,0 +1,355 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef CHART_WCARTESIAN_CHART_H_
+#define CHART_WCARTESIAN_CHART_H_
+
+#include <Wt/Chart/WAbstractChart>
+#include <Wt/Chart/WAxis>
+#include <Wt/Chart/WDataSeries>
+
+namespace Wt {
+
+class WAbstractItemModel;
+class WPainter;
+class WPainterPath;
+
+  namespace Chart {
+
+class WChart2DRenderer;
+class WChartPalette;
+
+/*! \brief Enumeration type that indicates a chart type for a cartesian
+ *         chart.
+ *
+ * \ingroup charts
+ */
+enum ChartType {
+  CategoryChart, //!< The X series are categories
+  ScatterPlot    //!< The X series must be interpreted as numerical data
+};
+
+/*! \class WCartesianChart Wt/Chart/WCartesianChart Wt/Chart/WCartesianChart
+ *  \brief A cartesian chart.
+ *
+ * A cartesian chart is a chart that uses X and Y axes. It can display
+ * one or multiple data series, which each may be rendered using bars,
+ * lines, areas, or points.
+ *
+ * To use a cartesian chart, the minimum you need to do is set a model
+ * using setModel(), set the model column that holds the X data using
+ * setXSeriesColumn(), and add one or more series using
+ * addSeries(const WDataSeries&). Each series corresponds to one data
+ * column that holds Y data.
+ *
+ * A cartesian chart is either a \link Chart::CategoryChart
+ * CategoryChart\endlink or a \link Chart::ScatterPlot
+ * ScatterPlot\endlink.
+ *
+ * In a <b>CategoryChart</b>, the X series represent different
+ * categories, which are listed consecutively in model row order. The
+ * X axis scale is set to \link Chart::CategoryScale
+ * CategoryScale\endlink.
+ *
+ * \image html ChartWCartesianChart-1.png "A category chart with bar series"
+ *
+ * Each series may be rendered differently, and this is configured in
+ * the data series (see WDataSeries for more information).
+ *
+ * In a <b>ScatterPlot</b>, the X series data are interpreted as
+ * numbers on a numerical scale. The scale for the X axis defaults to
+ * a \link Chart::LinearScale LinearScale\endlink, but this may be
+ * changed to a \link Chart::DateScale DateScale\endlink when the X
+ * series contains dates (of type WDate) to create a time series
+ * chart, or to a \link Chart::LogScale LogScale\endlink. A
+ * ScatterPlot supports the same types of data series as a
+ * CategoryChart, but does not support stacking.
+ *
+ * \image html ChartWCartesianChart-2.png "A time series scatter plot with line series"
+ *
+ * The cartesian chart has support for dual Y axes. Each data series may
+ * be bound to one of the two Y axes. By default, only the first Y axis
+ * is displayed. To show the second Y axis you will need to call:
+ *
+ * \code
+   chart->axis(Y2Axis).setVisible(true);
+   \endcode
+ *
+ * By default a chart has a horizontal X axis and a vertical Y axis,
+ * which corresponds to a \link Wt::Vertical Vertical\endlink
+ * orientation. The orientation may be changed to \link Wt::Horizontal
+ * Horizontal\endlink using setOrientation().
+ *
+ * The styling of the series data are dictated by a palette which may
+ * be set using setPalette(WChartPalette *), but may be overridden by
+ * settings in each data series.  
+ *
+ * \sa WDataSeries, WAxis
+ * \sa WPieChart
+ *
+ * \ingroup charts
+ */
+class WT_API WCartesianChart : public WAbstractChart
+{
+public:
+  /*! \brief Create a new cartesian chart.
+   *
+   * Creates a cartesian chart of type CategoryChart.
+   */
+  WCartesianChart(WContainerWidget *parent = 0);
+
+  /*! \brief Create a new cartesian chart.
+   *
+   * Creates a cartesian chart of the indicated <i>type</i>.
+   */
+  WCartesianChart(ChartType type, WContainerWidget *parent = 0);
+
+  /*! \brief Change the chart type.
+   *
+   * The chart type determines how (x,y) data are interpreted. In a
+   * CategoryChart, the X values are categories, and these are plotted
+   * consecutively, evenly spaced, and in row order. In a ScatterPlot,
+   * the X values are interpreted numerically (as for Y values).
+   *
+   * The default chart type is a CategoryChart.
+   *
+   * \sa chartType()
+   * \sa WAxis::setScale(), axis(Axis)
+   */
+  void setType(ChartType type);
+
+  /*! \brief Returns the chart type.
+   *
+   * \sa setChartType(ChartType type)
+   */
+  ChartType type() const { return type_; }
+
+  /*! \brief Change the chart orientation.
+   *
+   * Sets the chart orientation, which corresponds to the orientation of
+   * the Y axis: a Vertical orientation corresponds to the conventional
+   * way of a horizontal X axis and vertical Y axis. A Horizontal
+   * orientation is the other way around.
+   *
+   * The default orientation is Vertical.
+   *
+   * \sa orientation()
+   */
+  void setOrientation(Orientation orientation);
+
+  /*! \brief Returns the chart orientation.
+   *
+   * \sa setOrientation(Orientation)
+   */  
+  Orientation orientation() const { return orientation_; }
+
+  /*! \brief Change the the model column for the X series.
+   *
+   * Use this method to specify the data for the X series. For a
+   * ScatterPlot this is mandatory, while for a CategoryChart, if
+   * not specified, an increasing series of integer numbers will
+   * be used (1, 2, ...).
+   *
+   * The default value is -1 (not specified).
+   *
+   * \sa XSeriesColumn()
+   */
+  void setXSeriesColumn(int modelColumn);
+
+  /*! \brief Returns the model column for the X series.
+   *
+   * \sa setXSeriesColumn(int)
+   */
+  int XSeriesColumn() const { return XSeriesColumn_; }
+
+  //later, activates a 3D plot
+  //void setXYData(int modelColumnX, int modelColumnY);
+  //bool is3D() const;
+
+  /*! \brief Add a data series.
+   *
+   * A single chart may display one or more data series. Each data series
+   * displays data from a single model column in the chart. Series are
+   * plotted in the order that they have been added to the chart.
+   *
+   * \sa removeSeries(int), setSeries(const std::vector<WDataSeries>&)
+   */
+  void addSeries(const WDataSeries& series);
+
+  /*! \brief Remove a data series.
+   *
+   * This removes the first data series which plots the given
+   * <i>modelColumn</i>.
+   *
+   * \sa addSeries(const WDataSeries&)
+   * \sa setSeries(const std::vector<WDataSeries>&).
+   */
+  void removeSeries(int modelColumn);
+
+  /*! \brief Change all data series.
+   *
+   * Replaces the current list of series with the new list.
+   *
+   * \sa series(), addSeries(const WDataSeries&), removeSeries(int)
+   */
+  void setSeries(const std::vector<WDataSeries>& series);
+
+  int seriesIndexOf(int modelColumn) const;
+
+  /*! \brief Returns a data series corresponding to a data column.
+   *
+   * Returns a reference to the first data series that plots data
+   * from <i>modelColumn</i>.
+   */
+  WDataSeries& series(int modelColumn);
+
+  /*! \brief Returns a data series corresponding to a data column.
+   *
+   * Returns a const reference to the first data series that plots data
+   * from <i>modelColumn</i>.
+   */
+  const WDataSeries& series(int modelColumn) const;
+
+  /*! \brief Returns a list with the current data series.
+   *
+   * Returns the complete list of current data series.
+   *
+   * \sa setSeries(const std::vector<WDataSeries>&)
+   */
+  const std::vector<WDataSeries>& series() const { return series_; }
+
+  /*! \brief Access a chart axis.
+   *
+   * Returns a reference to the specified <i>axis</i>.
+   */
+  WAxis& axis(Axis axis);
+
+  /*! \brief Access a chart axis.
+   *
+   * Returns a const reference to the specified <i>axis</i>.
+   */
+  const WAxis& axis(Axis axis) const;
+
+  /*! \brief Change the margin between bars of different series.
+   *
+   * Use this method to change the margin that is set between bars of
+   * different series. The margin is specified as a fraction of the
+   * width. For example, a value of 0.1 adds a 10% margin between bars
+   * of each series. Negative values are also allowed. For example, use
+   * a margin of -1 to plot the bars of different series on top of
+   * each other.
+   *
+   * The default value is 0.
+   */
+  void setBarMargin(double margin);
+
+  /*! \brief Returns the margin between bars of different series.
+   *
+   * \sa setBarMargin(double)
+   */
+  double barMargin() const { return barMargin_; }
+
+  /*! \brief Enable the legend.
+   *
+   * If <i>enabled</i> is true, then a default legend is added to the right
+   * of the chart. You should provide space for the legend using
+   * the setChartPadding() method. Only series for which the legend
+   * is enabled or included in this legend (see
+   * WDataSeries::isLegendEnabled()).
+   *
+   * To have more control over the legend, you could reimplement the
+   * renderLegendItem() method to customize how one item in the legend
+   * is rendered, or, alternatively you could reimplement the paint(WPainter& painter, const WRectF&) method in which you use the
+   * renderLegendItem() method repeatedly to render a legend at an arbitrary position.
+   *
+   * The default value is false.
+   *
+   * \sa WDataSeries::setLegendEnabled(bool)
+   */
+  void setLegendEnabled(bool enabled);
+
+  /*! \brief Returns whether the legend is enabled.
+   *
+   * \sa setLegendEnabled(bool)
+   */
+  bool isLegendEnabled() const { return legend_; }
+  
+  virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
+    const;
+
+  /*! \brief Draws the marker for a given data series.
+   *
+   * Draws the marker for the indicated <i>series</i> in the <i>result</i>.
+   * This method is called while painting the chart, and you may
+   * want to reimplement this method if you wish to provide a custom
+   * marker for a particular data series.
+   *
+   * \sa setLegendEnabled(bool)
+   */
+  virtual void drawMarker(const WDataSeries& series, WPainterPath& result)
+    const;
+
+  /*! \brief Renders the legend item for a given data series.
+   *
+   * Renders the legend item for the indicated <i>series</i> in the <i>paintert</i> at position <i>pos</i>. The default implementation draws the marker, and the
+   * series description to the right. The series description is taken
+   * from the model's header data for that series' data column.
+   *
+   * This method is called while painting the chart, and you may
+   * want to reimplement this method if you wish to provide a custom
+   * marker for a particular data series.
+   *
+   * \sa setLegendEnabled(bool)
+   */
+  virtual void renderLegendItem(WPainter& painter, const WPointF& pos,
+				const WDataSeries& series) const;
+
+protected:
+  void paintEvent(WPaintDevice *paintDevice);
+
+  /*! \brief Create a renderer which renders the chart.
+   *
+   * The rendering of the chart is delegated to a WChart2DRenderer
+   * class, which will render the chart within the <i>rectangle</i> of
+   * the <i>painter</i>.
+   *
+   * You may want to reimplement this method if you wish to override
+   * one or more aspects of the rendering, by returning an new instance
+   * of a specialized WChart2DRenderer class.
+   *
+   * After rendering, the renderer is deleted.
+   *
+   * \sa WChart2DRenderer::render()
+   */
+  virtual WChart2DRenderer *createRenderer(WPainter& painter,
+					   const WRectF& rectangle) const;
+
+private:
+  Orientation               orientation_;
+  int                       XSeriesColumn_;
+  ChartType                 type_;
+  std::vector<WDataSeries>  series_;
+  WAxis                     axes_[3];
+  double                    barMargin_;
+  bool                      legend_;
+
+  void init();
+  virtual void modelColumnsInserted(const WModelIndex& parent,
+				    int start, int end);
+  virtual void modelColumnsRemoved(const WModelIndex& parent,
+				   int start, int end);
+  virtual void modelRowsInserted(const WModelIndex& parent,
+				 int start, int end);
+  virtual void modelRowsRemoved(const WModelIndex& parent,
+				int start, int end);
+  virtual void modelDataChanged(const WModelIndex& topLeft,
+			        const WModelIndex& bottomRight);
+};
+
+  }
+}
+
+#endif // CHART_WCARTESIAN_CHART_H_

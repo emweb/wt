@@ -1,0 +1,46 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WMESSAGE_RESOURCES_
+#define WMESSAGE_RESOURCES_
+
+#include <string>
+#include <vector>
+#include <map>
+
+namespace Wt {
+
+class WString;
+
+class WMessageResources
+{
+public:
+  WMessageResources(const std::string& path, bool loadInMemory = true);
+
+  void hibernate();
+
+  const std::string& path() const { return path_; }
+
+  bool resolveKey(const std::string& key, std::string& value);
+
+  void refresh();
+
+  typedef std::map<std::string, std::string> KeyValueMap;
+
+private:
+  const bool loadInMemory_;
+  bool loaded_;
+  const std::string path_;
+
+  KeyValueMap local_;
+  KeyValueMap defaults_;
+
+  bool readResourceFile(const std::string& locale, KeyValueMap& valueMap);
+};
+
+}
+
+#endif // WMESSAGE_RESOURCES_

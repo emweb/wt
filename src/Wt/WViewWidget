@@ -1,0 +1,144 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WVIEWWIDGET_H_
+#define WVIEWWIDGET_H_
+
+#include <Wt/WWebWidget>
+
+namespace Wt {
+
+/*! \class WViewWidget Wt/WViewWidget Wt/WViewWidget
+ *  \brief An abstract base class for a MVC view that is rendered using a
+ *         widget.
+ *
+ * In principle, %Wt widgets are self-contained and implement the
+ * Model, View and Controller of the so-called Model-View-Controller
+ * (MVC) design pattern. This allows the developer to keep Model and
+ * View together, or, seperate Model and View in any way that he
+ * likes.
+ *
+ * This widget facilitates separation of the View from the Model and
+ * Controller in a particular way. The use of this widget provides two
+ * benefits. The classic MVC benefit is a decoupling between view and
+ * model, which would allow easier maintainance of code (although that
+ * is debatable for a highly interactive application). In addition,
+ * this widget enforces the View to be stateless, as it is only
+ * created transiently on the server. Therefore the View does not
+ * require session resources. This may increase scalability for
+ * Internet-deployments.
+ *
+ * The View is rendered as a widget, but this widget is created only
+ * temporarily on the server side, each time that rendering is
+ * needed. This rendered view must simply reflect the state of the
+ * model.
+ *
+ * Currently, the View cannot enclose FormWidget objects which would
+ * allow direct manipulation of the model (but we are working to
+ * remove this limitation in the future, and let the Model/Controller
+ * handle editing changes) and the View may only be updated by a
+ * complete rerendering of the entire view.
+ *
+ * The View widget may contain event handling code, but only in one of
+ * the following ways:
+ * <ul>
+ *   <li>event handling implemented directly in JavaScript code</li>
+ *   <li>event handling implemented in pre-learned stateless slot
+ *     implementations</li>
+ * </ul>
+ * Thus, currently, event handling code related to the View cannot be
+ * implemented at server-side (but we are thinking about a solution for
+ * this as well...).
+ * 
+ * The renderView() method must be implemented to create widgets that
+ * reflect the current state of the model. Whenever the model is
+ * changed, a call to update() will rerender the View.
+ */
+class WT_API WViewWidget : public WWebWidget
+{
+public:
+  /*! \brief Create a new view widget.
+   */
+  WViewWidget(WContainerWidget *parent = 0);
+
+  /*! \brief Update the view.
+   *
+   * Typically, the model will want to update the view when the model
+   * has changed.
+   *
+   * This will trigger a call to renderView() to ask for a new rendering of
+   * the view.
+   */
+  void update();
+
+protected:
+  /*! \brief Create a widget that renders the View.
+   *
+   * This method must be reimplemented to return a widget that renders the
+   * view. The returned widget will be deleted by %WViewWidget.
+   */
+  virtual WWidget *renderView() = 0;
+
+  virtual void load();
+
+  virtual void updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+
+  virtual void prepareRerender();
+  virtual void doneRerender();
+
+  virtual void refresh();
+
+private:
+  WWidget *contents_;
+  bool needContentsUpdate_;
+};
+
+/*! \class WStaticModelView Wt/WViewWidget Wt/WViewWidget
+ *  \brief A widget that implements a view for a non-changing model.
+ *
+ * This model uses a function object which is passed in the
+ * constructor to render the View, and does not react to changes.
+ *
+ * You may want to use the utility function Wt::makeStaticModel() to create an
+ * instance of this class.
+ */
+template <typename Renderer>
+class WStaticModelView : public WViewWidget
+{
+public:
+  /*! \brief Construct a new static model view, given a function
+   *         object to render the View widget.
+   */
+  WStaticModelView(Renderer f, WContainerWidget *parent = 0)
+    : WViewWidget(parent),
+      f_(f) { }
+
+protected:
+  WWidget *renderView() {
+    return f_();
+  }
+
+  Renderer f_;
+};
+
+/*! \brief Wrap a widget into a view with a non-changing model.
+ *
+ * The ViewRenderer is called without arguments and must return a
+ * newly created widget (WWidget *).
+ *
+ * \relates WStaticModelView
+ */
+template <typename Renderer>
+WStaticModelView<Renderer>
+*makeStaticModel(Renderer f, WContainerWidget *parent = 0)
+{
+  return new WStaticModelView<Renderer>(f, parent);
+}
+
+}
+
+#endif // WVIEWWIDGET_H_

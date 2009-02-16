@@ -1,0 +1,78 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCIRCLE_AREA_H_
+#define WCIRCLE_AREA_H_
+
+#include <Wt/WAbstractArea>
+
+namespace Wt {
+
+  class WPointF;
+  class WPoint;
+
+/*! \class WCircleArea Wt/WCircleArea Wt/WCircleArea
+ *  \brief A circular interactive area in a widget.
+ *
+ * The area may be added to a WImage or WPaintedWidget. The circle is
+ * specified in pixel coordinates.
+ *
+ * \sa WImage::addArea(), WPaintedWidget::addArea()
+ * \sa WRectArea, WPolygonArea
+ */
+class WT_API WCircleArea : public WAbstractArea
+{
+public:
+  /*! \brief Default constructor.
+   *
+   * Specifies a circular area with center (0, 0) and radius 0. 
+   */
+  WCircleArea();
+
+  /*! \brief Construct a circular area with given geometry. 
+   *
+   * The arguments are in pixel units.
+   */
+  WCircleArea(int x, int y, int radius);
+
+  /*! \brief Set the center.
+   */
+  void setCenter(const WPoint& point);
+
+  /*! \brief Set the center.
+   */
+  void setCenter(const WPointF& point);
+
+  /*! \brief Set the center.
+   */
+  void setCenter(int x, int y);
+
+  /*! \brief Returns the center X coordinate.
+   */
+  int centerX() const { return x_; }
+
+  /*! \brief Returns the center Y coordinate.
+   */
+  int centerY() const { return y_; }
+
+  /*! \brief Set the radius. 
+   */
+  void setRadius(int radius);
+
+  /*! \brief Returns the radius.
+   */
+  int radius() const { return r_; }
+
+private:
+  int x_, y_, r_;
+
+protected:
+  virtual void updateDom(DomElement& element, bool all);
+};
+
+}
+
+#endif // WCIRCLE_AREA_H_

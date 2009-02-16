@@ -1,0 +1,170 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WFONT_H_
+#define WFONT_H_
+
+#include <Wt/WLength>
+#include <Wt/WString>
+
+namespace Wt {
+
+class DomElement;
+class WWebWidget;
+
+/*! \class WFont Wt/WFont Wt/WFont
+ *  \brief A style class describing a font.
+ *
+ * \ingroup style painting
+ */
+class WT_API WFont
+{
+public:
+  /*! \brief The generic font family.
+   */
+  enum GenericFamily { Default,   //!< Browser-dependent default
+		       Serif,     //!< e.g. Times
+		       SansSerif, //!< e.g. Helvetica
+		       Cursive,   //!< e.g. Zapf-Chancery
+		       Fantasy,   //!< e.g. Western
+		       Monospace  //!< e.g. Courier
+  };
+
+  /*! \brief The font style.
+   */
+  enum Style { NormalStyle, //!< Normal (default)
+	       Italic,      //!< Italic
+	       Oblique      //!< Oblique
+  };
+
+  /*! \brief The font variant.
+   */
+  enum Variant { NormalVariant, //!< Normal (default)
+		 SmallCaps      //!< Small Capitals 
+  };
+
+  /*! \brief The font weight.
+   */
+  enum Weight { NormalWeight, //!< Normal (default) (Value == 400)
+		Bold,         //!< Bold (Value == 700)
+		Bolder,       //!< Bolder than the parent widget
+		Lighter,      //!< Lighter than the parent widget
+		Value         //!< Specify a value (100 - 900)
+  };
+
+  /*! \brief The font size.
+   */
+  enum Size { XXSmall,  //!< Extra Extra small
+	      XSmall,   //!< Extra small
+	      Small,    //!< Small
+	      Medium,   //!< Medium, default
+	      Large,    //!< Large
+	      XLarge,   //!< Extra large
+	      XXLarge,  //!< Extra Extra large
+	      Smaller,  //!< Relatively smaller than the parent widget
+	      Larger,   //!< Relatively larger than the parent widget
+	      FixedSize //!< Explicit size, See also fontFixedSize()
+  };
+
+  /*! \brief A default font (dependent on the user agent).
+   */
+  WFont();
+
+  bool operator==(const WFont& other) const;
+  bool operator!=(const WFont& other) const;
+
+  /*! \brief Set the font family.
+   *
+   * The font family is specified using a generic family name,
+   * in addition to a comma-seperated list of specific font choices.
+   *
+   * The first specific font that can be matched will be used, otherwise
+   * a generic font will be used.
+   */
+  void setFamily(GenericFamily genericFamily,
+		 const WString specificFamilies = WString());
+
+  /*! \brief Get the font generic family.
+   */
+  GenericFamily genericFamily() const { return genericFamily_; }
+
+  /*! \brief Get the font specific family names.
+   */
+  const WString& specificFamilies() const { return specificFamilies_; }
+
+  /*! \brief Set the font style.
+   */
+  void setStyle(Style style);
+
+  /*! \brief Get the font style.
+   */
+  Style style() const { return style_; }
+
+  /*! \brief Set the font variant.
+   */
+  void setVariant(Variant variant);
+
+  /*! \brief Get the font variant.
+   */
+  Variant variant() const { return variant_; }
+
+  /*! \brief Set the font weight.
+   *
+   * When setting weight == Value, you may specify a value.
+   *
+   * Valid values are between 100 and 900, and are rounded to multiples of
+   * 100.
+   */
+  void setWeight(Weight weight, int value = 400);
+
+  /*! \brief Get the font weight.
+   */
+  Weight weight() const { return weight_; }
+
+  /*! \brief Get the font weight value.
+   */
+  int weightValue() const { return weightValue_; }
+
+  /*! \brief Set the font size.
+   */
+  void setSize(Size size, const WLength& fixedSize = WLength());
+
+  /*! \brief Get the font size.
+   */
+  Size size() const { return size_; }
+
+  /*! \brief Get the fixed font size for \link WFont::FixedSize FixedSize \endlink.
+   */
+  WLength fixedSize() const { return fixedSize_; }
+
+  const std::string cssText() const;
+
+  void updateDomElement(DomElement& element, bool fontall, bool all);
+
+private:
+  WWebWidget    *widget_;
+  GenericFamily genericFamily_;
+  WString       specificFamilies_;
+  Style         style_;
+  Variant       variant_;
+  Weight        weight_;
+  int           weightValue_;
+  Size          size_;
+  WLength       fixedSize_;
+
+  bool familyChanged_;
+  bool styleChanged_;
+  bool variantChanged_;
+  bool weightChanged_;
+  bool sizeChanged_;
+
+  void setWebWidget(WWebWidget *w);
+  friend class WCssDecorationStyle;
+};
+
+}
+
+#endif // WFONT_H_

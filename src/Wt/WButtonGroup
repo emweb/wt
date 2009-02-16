@@ -1,0 +1,93 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WBUTTONGROUP_H_
+#define WBUTTONGROUP_H_
+
+#include <Wt/WObject>
+
+namespace Wt {
+
+class WRadioButton;
+
+  namespace Ext {
+    class RadioButton;
+  }
+
+/*! \class WButtonGroup Wt/WButtonGroup Wt/WButtonGroup
+ *  \brief A class for grouping radio buttons logically together.
+ *
+ * A button group manages a set of \link WRadioButton radio buttons
+ * \endlink, making them exclusive of each other.
+ */
+class WT_API WButtonGroup : public WObject
+{
+public:
+  /*! \brief Create a new empty button group.
+   */
+  WButtonGroup(WObject* parent = 0);
+
+  /*! \brief Delete a button group.
+   *
+   * This does not delete the radio buttons, but simply removes them
+   * from the group.
+   */
+  ~WButtonGroup();
+
+  /*! \brief Add a radio button to the group.
+   */
+  void addButton(WRadioButton *button);
+
+  /*! \brief Add a radio button to the group.
+   */
+  void addButton(Ext::RadioButton *button);
+
+  /*! \brief Remove a radio button from the group.
+   */
+  void removeButton(WRadioButton *button);
+
+  /*! \brief Remove a radio button from the group.
+   */
+  void removeButton(Ext::RadioButton *button);
+
+  /*! \brief Sets the currently selected radiobutton
+   *
+   * Pass the index of the radiobutton to select. -1 will unselect
+   * all radiobuttons.
+   */
+  void setSelectedButtonIndex(int idx);
+
+  /*! \brief Returns the index of the selected radiobutton
+   *
+   * If there is no radiobutton selected this function returns -1.
+   */
+  int selectedButtonIndex() const;
+
+  /*! \brief Returns the selected radiobutton
+   *
+   * If there is no radiobutton selected this function returns 0.
+   */
+  WRadioButton* selectedButton();
+
+  /*! \brief Returns the number of radiobuttons
+   *
+   */
+  int count() const;
+
+private:    
+  std::vector<WRadioButton *> buttons_;
+
+  void uncheckOthers(WRadioButton *button);
+
+  virtual void setFormData(CgiEntry *entry);
+  virtual void setNoFormData();
+
+  friend class WRadioButton;
+};
+
+}
+
+#endif // WBUTTONGROUP_H_

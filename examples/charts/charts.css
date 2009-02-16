@@ -1,0 +1,60 @@
+body, html {
+  font-family:verdana,helvetica,tahoma,sans-serif;
+}
+
+p.p {
+  margin: 16px 0px;
+  font-size: smaller;
+}
+
+h2 {
+  padding-left: 30px;
+  border-bottom: 1px solid #000;
+}
+
+h2 span {
+  border-bottom: 0.2em solid #000;
+}
+
+.trhead {
+  font-family: sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  border-bottom: 1px solid black;
+}
+
+.trhead td {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.trdata {
+  font-family: sans-serif;
+  font-size: 10pt;
+}
+
+.trdata td {
+  vertical-align: middle;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.trdata td input[type="checkbox"] {
+  text-align: center;
+  margin: 0px auto;
+  display: block;
+}
+
+.tdhead {
+  font-family: sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  padding-right: 8px;
+  text-align: right;
+}
+
+.tddata {
+  font-family: sans-serif;
+  font-size: 10pt;
+  padding-left: 4px;
+}

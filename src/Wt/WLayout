@@ -1,0 +1,192 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WLAYOUT_H_
+#define WLAYOUT_H_
+
+#include <vector>
+#include <string>
+#include <Wt/WLayoutItem>
+
+namespace Wt {
+
+class WWidgetItem;
+class WLayoutItemImpl;
+
+/*! \class WLayout Wt/WLayout Wt/WLayout
+ *  \brief An abstract base class for layout managers.
+ *
+ * This class is the abstract base class for any layout manager. A layout
+ * manager is associated with a container widget, and manages the layout of
+ * children inside the whole space available to the container widget.
+ * 
+ * Layout managers may be used with WContainerWidget and
+ * Ext::Container container widgets. A suitable implementation for all
+ * layout classes is not yet available for both containers, and thus
+ * you need to refer to the documentation of a layout manager to
+ * see if it is applicable to your situation.
+ *
+ * The implementation of the layout manager depends on the container widget
+ * to which it is set, and is therefore deferred to WLayoutImpl.
+ *
+ * A layout never assumes ownership of contained items, instead these
+ * are owned by the parent widget to which the layout is applied.
+ *
+ * \note When applying a layout manager to a WContainerWidget, you may
+ * not define any padding for the container widget. Instead, use
+ * setContentsMargins().
+ */
+class WT_API WLayout : public WLayoutItem
+{
+public:
+  /*! \brief Destroy the layout.
+   */
+  virtual ~WLayout();
+
+  /*! \brief Add a layout <i>item</i>.
+   *
+   * The item may be a widget or nested layout.
+   *
+   * How the item is layed out with respect to siblings is
+   * implementation specific to the layout manager. In some cases, a
+   * layout manager will overload this method with extra arguments
+   * that specify layout options.
+   *
+   * \sa removeItem(WLayoutItem *), addWidget(WWidget *)
+   */
+  virtual void addItem(WLayoutItem *item) = 0;
+
+  /*! \brief Add the given <i>widget</i> to the layout.
+   *
+   * This method wraps the widget in a WWidgetItem and calls
+   * addItem(WLayoutItem *).
+   *
+   * How the widget is layed out with respect to siblings is
+   * implementation specific to the layout manager. In some cases, a
+   * layout manager will overload this method with extra arguments
+   * that specify layout options.
+   *
+   * \sa removeWidget(WWidget *), addItem(WLayoutItem *)
+   */
+  void addWidget(WWidget *widget);
+
+  /*! \brief Remove a layout <i>item</i> (widget or nested layout).
+   *
+   * \sa addItem(WLayoutItem *), removeWidget(WWidget *)
+   */
+  virtual void removeItem(WLayoutItem *item) = 0;
+
+  /*! \brief Remove the given <i>widget</i> from the layout.
+   *
+   * This method finds the corresponding WWidgetItem and calls
+   * removeItem(WLayoutItem *). The widget itself is not destroyed.
+   *
+   * \sa addWidget(WWidget *), removeItem(WLayoutItem *)
+   */
+  void removeWidget(WWidget *widget);
+
+  /*! \brief Return the number of items in this layout.
+   *
+   * This may be a theoretical number, which is greater than the
+   * actual number of items. It can be used to iterate over the items
+   * in the layout, in conjunction with itemAt().
+   */
+  virtual int count() const = 0;
+
+  /*! \brief Return the layout item at a specific <i>index</i>.
+   *
+   * If there is no item at the <i>index</i>, 0 is returned.
+   *
+   * \sa indexOf(WLayoutItem *), count()
+   */
+  virtual WLayoutItem *itemAt(int index) const = 0;
+
+  /*! \brief Return the index of a given <i>item</i>.
+   *
+   * The default implementation loops over all items, and returns the
+   * index for which itemAt(index) equals <i>item</i>.
+   *
+   * \sa itemAt(int)
+   */
+  virtual int indexOf(WLayoutItem *item) const;
+
+  /*! \brief Finds the widget item associated with the given <i>widget</i>.
+   */
+  virtual WWidgetItem *findWidgetItem(WWidget *widget);
+
+  /*! \brief Provide a hint to the layout implementation.
+   *
+   * In some caes, a layout implementation may require some hints for
+   * rendering its contents. Possible hints are indicated in the
+   * reference documentation for each layout manager.
+   */
+  void setLayoutHint(const std::string& name, const std::string& value);
+
+  virtual WWidget *widget() { return 0; }
+  virtual WLayout *layout() { return this; }
+
+  WLayoutItemImpl *impl() const { return impl_; }
+
+  /*! \brief Set contents margins (in pixels).
+   *
+   * The default contents margins are 9 pixels in all directions.
+   *
+   * \note Only used when the layout manager is applied to a WContainerWidget.
+   *
+   * \sa setContentsMargins()
+   */
+  void setContentsMargins(int left, int top, int right, int bottom);
+
+  /*! \brief Returns the contents margins.
+   *
+   * \sa getContentsMargins()
+   */
+  void getContentsMargins(int *left, int *top, int *right, int *bottom) const;
+
+protected:
+  /*! \brief Create a layout.
+   */
+  WLayout();
+
+  /*! \brief Update the layout.
+   *
+   * Must be called whenever some properties of the layout have changed.
+   */
+  void update(WLayoutItem *item = 0);
+
+  /*! \brief Update the layout, adding the given layout <i>item</i>.
+   *
+   * Must be called from the implementation of addItem(WLayoutItem *)
+   */
+  void updateAddItem(WLayoutItem *item);
+
+  /*! \brief Update the layout, remove the given layout <i>item</i>.
+   *
+   * Must be called from the implementation of removeItem(WLayoutItem *)
+   */
+  void updateRemoveItem(WLayoutItem *item);
+
+  /*! \brief Set the layout in the <i>parent</i>.
+   *
+   * Must be called from the constructor after the layout has been fully
+   * created (since it will call virtual methods count() and itemAt()).
+   */
+  void setLayoutInParent(WWidget *parent);
+
+private:
+  typedef std::vector<std::pair<std::string, std::string> > HintsList;
+
+  int    *WT_ARRAY margins_;
+  WLayoutItemImpl *impl_;
+  HintsList       *hints_;
+
+  virtual void setParent(WWidget *parent);
+  friend class WWidget;
+};
+
+}
+
+#endif // WLAYOUT_H_

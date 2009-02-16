@@ -1,0 +1,155 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WFORM_WIDGET_H_
+#define WFORM_WIDGET_H_
+
+#include <Wt/WInteractWidget>
+#include <Wt/WValidator>
+
+namespace Wt {
+
+class WLabel;
+
+/*! \class WFormWidget Wt/WFormWidget Wt/WFormWidget
+ *  \brief A widget that correspond to an HTML form element.
+ *
+ * A %WFormWidget may receive focus, can be disabled, and can have a
+ * label that acts as proxy for getting focus. It provides signals
+ * which reflect changes to its value, or changes to its focus.
+ *
+ * Form widgets also have built-in support for validation, using
+ * setValidator(WValidator *). If the validator provide client-side
+ * validation, then an invalid validation state is reflected using the
+ * style class "Wt-invalid". On the server-side, you should run the
+ * validator using validate().
+ */
+class WT_API WFormWidget : public WInteractWidget
+{
+public:
+  /*! \brief Construct a WFormWidget with an optional parent.
+   */
+  WFormWidget(WContainerWidget *parent = 0);
+
+  /*! \brief Destroy a WFormWidget.
+   *
+   * If a label was associated with the widget, the label is updated
+   * as well to indicate the loss of the buddy.
+   */
+  ~WFormWidget();
+
+  /*! \brief Get the label associated with this widget.
+   *
+   * Returns the label (if there is one) that acts as a proxy for this widget.
+   *
+   * \sa WLabel::setBuddy(WFormWidget *)
+   */
+  WLabel *label() const { return label_; }
+
+  /*! \brief Set the hidden state of this widget.
+   *
+   * If the widget has a label, it hidden or shown together with this
+   * widget.
+   */
+  void setHidden(bool hidden);
+
+  /*! \brief Return whether the widget is enabled.
+   */
+  bool isEnabled() const;
+
+  /*! \brief Set a validator for this field.
+   *
+   * The validator is used to validate the current input.
+   *
+   * If the validator has no parent yet, then ownership is transferred
+   * to the form field, and thus the validator will be deleted
+   * together with the form field.
+   *
+   * The default value is 0.
+   *
+   * \sa validate()
+   */
+  void setValidator(WValidator *validator);
+
+  /*! \brief Get the validator.
+   */
+  WValidator *validator() const { return validator_; }
+
+  /*! \brief Validate the field.
+   */
+  virtual WValidator::State validate();
+
+public slots:
+  /*! \brief Change the enabled state of the widget.
+   *
+   * A widget that is disabled cannot receive focus or user interaction.
+   */
+  void setEnabled(bool enabled);
+
+  /*! \brief Enable the widget.
+   *
+   * \sa setEnabled(bool)
+   */
+  void enable();
+
+  /*! \brief Disable the widget.
+   *
+   * \sa setEnabled(bool)
+   */
+  void disable();
+
+  /*! \brief Give focus to this widget.
+   *
+   * Giving focus to an input element only works when JavaScript is enabled.
+   */
+  void setFocus();
+
+public:
+  /*! \brief Signal emitted when the value was changed.
+   */
+  EventSignal<void> changed;
+  /*! \brief Signal emitted when ??
+   */
+  EventSignal<void> selected;
+  /*! \brief Signal emitted when the widget lost focus.
+   */
+  EventSignal<void> blurred;
+  /*! \brief Signal emitted when the widget recieved focus.
+   */
+  EventSignal<void> focussed;
+
+protected:
+  WLabel     *label_;
+  WValidator *validator_;
+  JSlot      *validate_, *filterInput_;
+
+private:
+  static const int BIT_ENABLED         = 0;
+  static const int BIT_ENABLED_CHANGED = 1;
+  static const int BIT_WAS_ENABLED     = 2;
+  static const int BIT_GOT_FOCUS       = 3;
+  static const int BIT_INITIAL_FOCUS   = 4;
+
+  std::bitset<5> flags_;
+
+  void undoEnable();
+  void undoDisable();
+  void undoSetFocus();
+
+  void setLabel(WLabel *label);
+
+  void validatorChanged();
+
+protected:
+  void updateDom(DomElement& element, bool all);
+
+  friend class WLabel;
+  friend class WValidator;
+};
+
+}
+
+#endif // WFORM_WIDGET_H_

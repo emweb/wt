@@ -1,0 +1,70 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#ifndef WSTRING_UTIL_H_
+#define WSTRING_UTIL_H_
+
+#include <string>
+#include <Wt/WDllDefs.h>
+
+namespace Wt {
+  /*! \brief Convert a narrow to a wide string.
+   *
+   * Convert a narrow string to a wide string. This method will not
+   * perform any code conversion, it simply represents the same string
+   * with a same number of wide characters.
+   *
+   * \sa narrow(const std::wstring&), fromUTF8(const std::string& s)
+   *
+   * \relates WString
+   */
+  extern WT_API std::wstring widen(const std::string& s);
+
+  /*! \brief Convert a wide to a narrow string.
+   *
+   * Convert a wide string to a narrow string. This method will not
+   * perform any code conversion, it simply represents (as far as possible)
+   * the same string with a same number of narrow characters.
+   *
+   * In general this will lead to a loss of information. If you wish to
+   * preserve all information, you should us toUTF8() instead.
+   *
+   * \sa widen(const std::string&), toUTF8(const std::wstring& s)
+   *
+   * \relates WString
+   */
+  extern WT_API std::string  narrow(const std::wstring& s);
+
+  /*! \brief Decode a UTF8 string a wide string.
+   *
+   * Decode a UTF8 string to a wide string. In a UTF8 encoded unicode string,
+   * some unicode characters are represented in more than one byte.
+   * This method will decode to extract the proper unicode characters from
+   * the string. The resulting string may thus be shorter (has less characters)
+   * than the original, but does not lead to a loss of information.
+   *
+   * \sa toUTF8(const std::string& s), narrow(const std::wstring&)
+   *
+   * \relates WString
+   */
+  extern WT_API std::wstring fromUTF8(const std::string& s);
+
+  /*! \brief Encode a wide string to UTF8.
+   *
+   * Convert a wide string to UTF8. This method will encode the given
+   * wide string in UTF8. This may result in a string that is possibly
+   * longer (has more characters), but does not lead to a loss of
+   * information.
+   *
+   * \sa fromUTF8(const std::string& s), narrow(const std::wstring&) 
+   *
+   * \relates WString
+   */
+  extern WT_API std::string toUTF8(const std::wstring& s);
+}
+
+#endif // WSTRING_UTIL_H_

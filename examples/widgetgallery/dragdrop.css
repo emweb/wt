@@ -1,0 +1,21 @@
+.character {
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #000;
+}
+
+.blue-drop-site {
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #000;
+
+  background-color: #e0ecff;
+}
+
+.red-drop-site {
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #000;
+
+  background-color: #ffece0;
+}

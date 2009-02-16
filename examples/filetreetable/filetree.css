@@ -1,0 +1,36 @@
+body {
+  font-family:arial,sans-serif; font-size: smaller;
+}
+
+.treenodelabel {
+  cursor:pointer;cursor:hand;
+}
+
+.selected {
+  background-color: #FFFFAA;
+}
+
+.treenodechildcount {
+  color:blue;
+}
+
+.header * {
+  font-weight: bold;
+}
+
+.header {
+  border-bottom: solid 1px;
+}
+
+.date {
+  text-align: right;
+  padding-right: 3px;
+}
+
+.fsize {
+  text-align: right;
+}
+
+.table {
+  border: solid 2px;
+}

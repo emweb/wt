@@ -1,0 +1,139 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WLINEEDIT_H_
+#define WLINEEDIT_H_
+
+#include <Wt/WFormWidget>
+
+namespace Wt {
+
+/*! \class WLineEdit Wt/WLineEdit Wt/WLineEdit
+ *  \brief A widget that provides a single line edit.
+ *
+ * To act upon text changes, connect a slot to the \link
+ * WFormWidget::changed changed \endlink signal. This signal is
+ * emitted when the user changed the content, and subsequently removes
+ * the focus from the line edit.
+ *
+ * To act upon editing, connect a slot to the \link
+ * WInteractWidget::keyWentUp keyWentUp<WKeyEvent>\endlink signal.
+ *
+ * At all times, the current content may be accessed with the text()
+ * method.
+ *
+ * You may specify a maximum length for the input using
+ * setMaxLength(). If you wish to provide more detailed input
+ * validation, you may set a validator using the
+ * setValidator(WValidator *) method. Validators provide, in general,
+ * both client-side validation (as visual feed-back only) and
+ * server-side validation when calling validate().
+ *
+ * %WLineEdit is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * \sa WTextArea
+ */
+class WT_API WLineEdit : public WFormWidget
+{
+public:
+  /*! \brief Enumeration that describes how the contents is displayed.
+   *
+   * \sa setEchoMode(EchoMode)
+   */
+  enum EchoMode { Normal,   //!< Characters are shown.
+		  Password  //!< Hide the contents as for a password.
+  };
+
+  /*! \brief Construct a line edit with empty content and optional parent.
+   */
+  WLineEdit(WContainerWidget *parent = 0);
+
+  /*! \brief Construct a line edit with given content and optional parent.
+   */
+  WLineEdit(const WString& content, WContainerWidget *parent = 0);
+
+  /*! \brief Specify the width of the line edit in number of characters.
+   *
+   * This specifies the width of the line edit that is roughly
+   * equivalent with <i>chars</i> characters. This does not limit the
+   * maximum length of a string that may be entered, which may be set
+   * using setMaxLength(int).
+   *
+   * The default value is 10.
+   */
+  void setTextSize(int chars);
+
+  /*! \brief Get the current width of the line edit in number of characters.
+   *
+   * \sa setTextSize(int)
+   */
+  int textSize() const { return textSize_; }
+
+  /*! \brief Change the content of the line edit.
+   *
+   * The default value is "".
+   *
+   * \sa text()
+   */
+  void setText(const WString& text);
+
+  /*! \brief Get the current content.
+   *
+   * \sa setText(const WString&)
+   */
+  const WString& text() const { return content_; }
+
+  /*! \brief Specify the maximum length of text that can be entered.
+   *
+   * A value <= 0 indicates that there is no limit.
+   *
+   * The default value is -1.
+   */
+  void setMaxLength(int length);
+
+  /*! \brief Returns the maximum length of text that can be entered.
+   *
+   * \sa setMaxLength(int)
+   */
+  int maxLength() const { return maxLength_; }
+
+  /*! \brief Set the echo mode.
+   *
+   * The default echo mode is Normal.
+   */
+  void setEchoMode(EchoMode echoMode);
+
+  /*! \brief Get the echo mode.
+   *
+   * \sa setEchoMode(EchoMode)
+   */
+  EchoMode echoMode() const { return echoMode_; }
+
+  WValidator::State validate();
+
+private:
+  WString      content_;
+  int          textSize_;
+  int          maxLength_;
+  EchoMode     echoMode_;
+
+  static const int BIT_CONTENT_CHANGED    = 0;
+  static const int BIT_TEXT_SIZE_CHANGED  = 1;
+  static const int BIT_MAX_LENGTH_CHANGED = 2;
+  static const int BIT_ECHO_MODE_CHANGED  = 3;
+
+  std::bitset<4> flags_;
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+
+  virtual void setFormData(CgiEntry *entry);
+};
+
+}
+
+#endif // WLINEEDIT_H_

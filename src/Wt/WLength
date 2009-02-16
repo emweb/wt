@@ -1,0 +1,93 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WLENGTH_H_
+#define WLENGTH_H_
+
+#include <string>
+#include "Wt/WDllDefs.h"
+
+namespace Wt {
+
+/*! \class WLength Wt/WLength Wt/WLength
+ *  \brief A class that specifies a length.
+ */
+class WT_API WLength
+{
+public:
+  /*! \brief The unit
+   */
+  enum Unit {FontEm,     //!< The relative font size
+	     FontEx,     //!< The height of an 'x' in the font
+	     Pixel,      //!< Pixel, relative to canvas resolution
+	     Inch,       //!< Inche
+	     Centimeter, //!< Centimeter
+	     Millimeter, //!< Millimeter
+	     Point,      //!< Point (1/72 Inch)
+	     Pica,       //!< Pica (12 Point)
+	     Percentage  //!< Percentage (meaning context-sensitive)
+  };
+
+  static WLength Auto;
+
+  /*! \brief Automatic length
+   *
+   * Specifies an 'auto' length.
+   */
+  WLength();
+
+  /*! \brief Length with value and unit.
+   */
+  WLength(double value, Unit unit = Pixel);
+
+  /*! \brief Length is unspecified, hence automatic ?
+   */
+  bool isAuto() const { return auto_; }
+
+  /*! \brief Get te value.
+   */
+  double value() const { return value_; }
+
+  /*! \brief Get te unit.
+   */
+  Unit unit() const { return unit_; }
+
+  const std::string cssText() const;
+
+  bool operator== (const WLength& other) const;
+
+  bool operator!= (const WLength& other) const;
+
+  WLength operator*=(double s) { value_ *= s; return *this; }
+
+  double toPixels() const;
+  
+private:
+  bool auto_;
+  Unit unit_;
+  double value_;
+};
+
+inline Wt::WLength operator*(const Wt::WLength &l, double s)
+{
+  WLength retval(l);
+  retval *= s;
+  return retval;
+}
+
+inline Wt::WLength operator*(double s, const Wt::WLength &l)
+{
+  return l * s;
+}
+
+inline Wt::WLength operator/(const Wt::WLength &l, double s)
+{
+  return l * (1/s);
+}
+
+}
+
+#endif // WLENGTH

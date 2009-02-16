@@ -1,0 +1,196 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSLIDER_H_
+#define WSLIDER_H_
+
+#include <Wt/WCompositeWidget>
+#include <Wt/WJavaScript>
+
+namespace Wt {
+
+class WSliderBackground;
+
+/*! \class WSlider Wt/WSlider Wt/WSlider
+ *  \brief A horizontal or vertical slider control.
+ *
+ * A slider allows the user to specify an integer value within a particular
+ * range using a visual slider.
+ *
+ * The slider must be sized explicitly using WWidget::resize(const WLength&,
+ * const WLength&). The default size is 150 x 50 pixels for a horizontal slider,
+ * and 50 x 150 pixels for a vertical sliders.
+ *
+ * \image html WSlider-1.png "Horizontal slider with ticks on both sides."
+ *
+ */
+class WT_API WSlider : public WCompositeWidget
+{
+public:
+  /*! \brief Enumeration that specifies the location of ticks.
+   */
+  enum TickPosition {
+    NoTicks = 0x0,          //!< Do not render ticks.
+    TicksBothSides = 0x3,   //!< Render ticks on both sides.
+    TicksAbove = 0x1,       //!< Render ticks above (horizontal slider)
+    TicksBelow = 0x2,       //!< Render ticks below (horizontal slider)
+    TicksLeft = TicksAbove, //!< Render ticks on the left side (vertical slider)
+    TicksRight = TicksBelow //!< Render ticks on the right side (vertical slider)
+  };
+
+  /*! \brief Create a default horizontal slider.
+   *
+   * The slider shows no ticks, has a range from 0 to 99, and has tickInterval
+   * of 0 (defaulting to three ticks over the whole range).
+   *
+   * The initial value is 0.
+   */
+  WSlider(WContainerWidget *parent = 0);
+
+  /*! \brief Create a default slider of the given orientation.
+   *
+   * The slider shows no ticks, has a range from 0 to 99, and has tickInterval
+   * of 0 (defaulting to three ticks over the whole range).
+   *
+   * The initial value is 0.
+   */
+  WSlider(Orientation orientation, WContainerWidget *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  ~WSlider();
+
+  /*! \brief Change the slider orientation.
+   *
+   * \sa orientation()
+   */
+  void setOrientation(Wt::Orientation orientation);
+
+  /*! \brief Returns the slider orientation.
+   *
+   * \sa setOrientation()
+   */
+  Orientation orientation() const { return orientation_; }
+
+  /*! \brief Change the tick interval.
+   *
+   * The tick interval specifies the interval for placing ticks along
+   * the slider. The interval is specified in value units (not pixel
+   * units). A value of 0 specifies an automatic tick interval, which
+   * defaults to 3 ticks spanning the whole range.
+   *
+   * \sa tickInterval(), setTickPosition()
+   */
+  void setTickInterval(int tickInterval);
+
+  /*! \brief Returns the tick interval.
+   *
+   * \sa setTickInterval()
+   */
+  int tickInterval() const { return tickInterval_; }
+
+  /*! \brief Set the tick position.
+   *
+   * The tick position indicates if and where ticks are placed around the
+   * slider groove.
+   *
+   * \sa tickPosition(), setTickInterval()
+   */
+  void setTickPosition(TickPosition tickPosition);
+
+  /*! \brief Return the tick position.
+   *
+   * \sa setTickPosition(), setTickInterval()
+   */
+  TickPosition tickPosition() const { return tickPosition_; }
+
+  /*! \brief Change the slider value.
+   *
+   * The value is automatically trimmed to the valid range (minimum()
+   * to maximum()).
+   *
+   * \sa value()
+   */
+  void setValue(int value);
+
+  /*! \brief Returns the current slider value.
+   *
+   * \sa setValue()
+   */
+  int value() const { return value_; }
+
+  /*! \brief Set the maximum value.
+   *
+   * The maximum value defines the upper limit of the valid range. The
+   * lower limit and current value are automatically adjusted to
+   * remain valid.
+   *
+   * \sa maximum(), setMinimum(), setRange()
+   */
+  void setMaximum(int maximum);
+
+  /*! \brief Returns the maximum value.
+   *
+   * \sa setMaximum(int)
+   */
+  int maximum() const { return maximum_; }
+
+  /*! \brief Set the minimum value.
+   *
+   * The minimum value defines the lower limit of the valid range. The
+   * upper limit and current value are automatically adjusted to
+   * remain valid.
+   *
+   * \sa minimum(), setMaximum(), setRange()
+   */
+  void setMinimum(int minimum);
+
+  /*! \brief Returns the minimum value.
+   *
+   * \sa setMinimum(int)
+   */
+  int minimum() const { return minimum_; }
+
+  /*! \brief Set the value range.
+   *
+   * \sa setMinimum(), setMaximum()
+   */
+  void setRange(int minimum, int maximum);
+
+  /*! \brief %Signal emitted when the user has changed the value of the
+   *         slider.
+   *
+   * The new value is passed as the argument.
+   */
+  Signal<int> valueChanged;
+
+  virtual void resize(const WLength& width, const WLength& height);
+
+private:
+  Orientation        orientation_;
+  int                tickInterval_;
+  TickPosition       tickPosition_;
+  int                minimum_, maximum_;
+
+  int                value_;
+
+  WContainerWidget  *impl_;
+  WSliderBackground *background_;
+  WContainerWidget  *handle_;
+
+  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
+
+  int range() const { return maximum_ - minimum_; }
+
+  void create();
+  void update();
+  void updateSliderPosition();
+  void onSliderClick(const WMouseEvent& event);
+};
+
+}
+
+#endif // WSLIDER_H_

@@ -1,0 +1,169 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WMESSAGEBOX_
+#define WMESSAGEBOX_
+
+#include <Wt/WDialog>
+
+namespace Wt {
+
+class WContainerWidget;
+class WImage;
+class WPushButton;
+class WText;
+
+template <typename T, typename A1> class WSignalMapper;
+
+/*! \class WMessageBox Wt/WMessageBox Wt/WMessageBox
+ *  \brief A standard dialog for confirmation or to get simple user input
+ *
+ * The message box shows a message in a dialog window, with a number
+ * of buttons. These buttons may be standard buttons, or customized.
+ *
+ * There are two distinct ways for using a %WMessageBox, which reflect
+ * the two ways of dealing with a WDialog box.
+ *
+ * The easiest way is using the static show() method, which shows a
+ * message box, blocks the current thread, and returns the button that
+ * was pressed by the user. Since this uses the WDialog::exec(), it suffers
+ * from the same scalability issues.
+ *
+ * The more elaborate way is by creating a WMessageBox, and connecting
+ * the buttonClicked signal to a method. This method then interpretes
+ * the result and deletes the message box.
+ *
+ * Example code (using the exec() method):
+ * \code
+ * // ...
+ * StandardButton
+ *   result = WMessageBox::show("Confirm", "About to wreak havoc... Continue ?",
+ *                              Ok | Cancel);
+ * // ...
+ * \endcode
+ *
+ * This will show a message box that looks like this:
+ *
+ * \image html WMessageBox-1.png "Example of a WMessageBox"
+ */
+class WT_API WMessageBox : public WDialog
+{
+public:
+  using WDialog::show;
+
+  /*! \brief Create an empty message box.
+   *
+   * The button labels may be set fixed English (if i18n = false), or fetched
+   * from a resource bundle if i18n = true. In that case, the key for each
+   * button is exactly the same as the English text.
+   */
+  WMessageBox(bool i18n = false);
+
+  /*! \brief Create a message box with given caption, text, icon, and
+   *         buttons.
+   *
+   * The button labels may be set fixed English (if i18n = false), or fetched
+   * from a resource bundle if i18n = true. In that case, the key for each
+   * button is exactly the same as the English text.
+   */
+  WMessageBox(const WString& caption, const WString& text, Icon icon,
+	      int buttons, bool i18n = false);
+
+  /*! \brief Set the text for the message box.
+   */
+  void setText(const WString& text);
+
+  /*! \brief Get the message box text.
+   */
+  const WString& text() const;
+
+  /*! \brief Get the text widget.
+   *
+   * This may be useful to customize the style or layout of the displayed
+   * text.
+   */
+  WText *textWidget() const { return text_; }
+
+  /*! \brief Set the icon.
+   */
+  void setIcon(Icon icon);
+
+  /*! \brief Get the icon.
+   */
+  Icon icon() const { return icon_; }
+
+  /* !\brief Get the icon image.
+   *
+   * This may be useful to customize the style or layout of the displayed
+   * icon. If icon() == NoIcon, then this method returns 0.
+   */
+  WImage *iconImage() const { return iconImage_; }
+
+  /*! \brief Add a custom button with given text.
+   *
+   * When the button is clicked, the associated result will be returned.
+   */
+  WPushButton *addButton(const WString& text, StandardButton result);
+
+  /*! \brief Set standard buttons for the message box.
+   */
+  void setButtons(int buttons);
+
+  /*! \brief Get the standard buttons.
+   */
+  int buttons() const { return buttons_; }
+
+  /*! \brief Get the button widget for the given standard button.
+   *
+   * This may be useful to customize the style or layout of the button.
+   */
+  WPushButton *button(StandardButton b);
+
+  /*! \brief Get the result of this message box.
+   *
+   * This value is only defined after a button has been clicked.
+   */
+  StandardButton result() { return result_; }
+
+  /*! \brief Convenience method to show a message box, blocking the current
+   *         thread.
+   *
+   * Show a message box, blocking the current thread until the message box
+   * is closed, and return the result.
+   */
+  static StandardButton show(const WString& caption,
+			     const WString& text,
+			     int buttons, bool i18n = false);
+
+  /*! \brief %Signal emitted when a button is clicked.
+   */
+  Signal<StandardButton> buttonClicked;
+
+private:
+  int  buttons_;
+  Icon icon_;
+  bool i18n_;
+  StandardButton result_;
+
+  WContainerWidget *buttonContainer_;
+  WText            *text_;
+  WImage           *iconImage_;
+  WSignalMapper<StandardButton,NoClass> *buttonMapper_;
+
+  void create();
+
+  void onButtonClick(StandardButton b);
+  void mappedButtonClick(StandardButton b);
+
+  static StandardButton order_[];
+
+  static const char *buttonText_[];
+  static const char *iconURI[];
+};
+
+}
+
+#endif // WMESSAGEBOX_

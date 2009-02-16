@@ -1,0 +1,266 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSORT_FILTER_PROXY_MODEL_H_
+#define WSORT_FILTER_PROXY_MODEL_H_
+
+#include <Wt/WAbstractProxyModel>
+
+namespace Wt {
+
+struct WSortFilterProxyRegExp;
+
+/*! \class WSortFilterProxyModel Wt/WSortFilterProxyModel
+ *         Wt/WSortFilterProxyModel
+ *  \brief A proxy model for %Wt's item models that provides filtering
+ *         and/or sorting.
+ *
+ * This proxy model does not store data itself, but presents data from
+ * a source model, after filtering rows. It also allows sorting of the
+ * source model data, without actually altering the source model. This
+ * may be convenient when the source model does not support sorting
+ * (i.e. does not reimplement WAbstractProxyModel::sort()), or you do
+ * not want to reorder the underlying model since that affects all views
+ * on the model.
+ *
+ * To use the proxy model to filter data, you use the methods
+ * setFilterKeyColumn(), setFilterRegExp() and setFilterRole() to
+ * specify a filtering operation based on the values of a single
+ * column. If this filtering mechanism is too limiting, you can
+ * provide specialized filtering by reimplementing the
+ * filterAcceptRow() method.
+ *
+ * Sorting is provided by reimplementing the standard
+ * WAbstractItemModel::sort() method. In this way, a view class such
+ * as WTreeView may resort the model as indicated by the user. Use
+ * setSortRole() to indicate on what data role sorting should be done,
+ * or reimplement the lessThan() method to provide a specialized
+ * sorting method.
+ *
+ * By default, the proxy does automatically re-filter and re-sort when
+ * the original model changes. You can enable this behaviour using
+ * setDynamicSortFilter().
+ *
+ * \note The implementation is not yet complete: the proxy model does
+ *       not yet react properly to row insertions and row removals in the
+ *       source model.
+ *
+ * \ingroup modelview
+ */
+class WSortFilterProxyModel : public WAbstractProxyModel
+{
+public:
+  /*! \brief Constructor.
+   */
+  WSortFilterProxyModel(WObject *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  virtual ~WSortFilterProxyModel();
+
+  virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const;
+  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
+
+  virtual void setSourceModel(WAbstractItemModel *sourceModel);
+
+  /*! \brief Specify the column on which the filtering is applied.
+   *
+   * This configures the column on which the filterRegExp() is applied.
+   *
+   * The default value is 0.
+   *
+   * \sa setFilterRegExp(), setFilterRole()
+   */
+  void setFilterKeyColumn(int column);
+
+  /*! \brief Return the column on which the filtering is applied.
+   *
+   * \sa setFilterKeyColumn()
+   */
+  int filterKeyColumn() const { return filterKeyColumn_; }
+
+  /*! \brief Specify a regular expression for filtering.
+   *
+   * This configures the regular expression used for filtering on
+   * filterKeyColumn().
+   *
+   * The default value is an empty expression, which disables
+   * filtering.
+   *
+   * \sa setFilterKeyColumn(), setFilterRole()
+   */
+  void setFilterRegExp(const WString& pattern);
+
+  /*! \brief Return the regular expression used for filtering.
+   *
+   * \sa setFilterRegExp()
+   */
+  WString filterRegExp() const;
+
+  /*! \brief Specify the data role used for filtering.
+   *
+   * This configures the data role used for filtering on
+   * filterKeyColumn().
+   *
+   * The default value is \link Wt::DisplayRole DisplayRole\endlink.
+   *
+   * \sa setFilterKeyColumn(), setFilterRegExp()
+   */
+  void setFilterRole(int role);
+
+  /*! \brief Return the data role used for filtering.
+   *
+   * \sa setFilterRole()
+   */
+  int filterRole() const { return filterRole_; }
+
+  /*! \brief Specify the data role used used for sorting.
+   *
+   * This configures the data role used for sorting.
+   *
+   * The default value is \link Wt::DisplayRole DisplayRole\endlink.
+   *
+   * \sa lessThan()
+   */
+  void setSortRole(int role);
+
+  /*! \brief Return the data role used for sorting.
+   *
+   * \sa setSortRole()
+   */
+  int sortRole() const { return sortRole_; }
+
+  /*! \brief Configure the proxy to dynamically track changes in the
+   *         source model.
+   *
+   * When <i>enable</i> is true, the proxy will re-filter and re-sort
+   * the model when changes happen to the source model.
+   *
+   * \note This may be ackward when editing through the proxy model,
+   * since changing some data may rearrange the model and thus
+   * invalidate model indexes. Therefore it is usually less
+   * complicated to manipulate directly the source model instead.
+   *
+   * \sa lessThan()
+   */
+  void setDynamicSortFilter(bool enable);
+
+  /*! \brief Returns whether this proxy dynmically filters and sorts.
+   *
+   * \sa setDynamicSortFilter()
+   */
+  bool dynamicSortFilter() const { return dynamic_; }
+
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+
+  virtual WModelIndex parent(const WModelIndex& index) const;
+  virtual WModelIndex index(int row, int column,
+			    const WModelIndex& parent = WModelIndex()) const;
+
+  virtual void sort(int column, SortOrder order = AscendingOrder);
+
+protected:
+  /*! \brief Returns whether a source row is accepted by the filter.
+   *
+   * The default implementation uses filterKeyColumn(), filterRole()
+   * and filterRegExp().
+   *
+   * You may want to reimplement this method to provide specialized
+   * filtering.
+   */
+  virtual bool filterAcceptRow(int sourceRow, const WModelIndex& sourceParent)
+    const;
+
+  /*! \brief Compares two indexes.
+   *
+   * The default implementation uses sortRole() and an order operator
+   * that tries to use the operator< when the data is of the same type, or
+   * lexicographical ordering otherwise.
+   *
+   * You may want to reimplement this method to provide specialized
+   * sorting.
+   */
+  virtual bool lessThan(const WModelIndex& lhs, const WModelIndex& rhs)
+    const;
+
+private:
+  /*
+   * For every proxy parent, we keep the following info:
+   */
+  struct Item {
+    // maps source rows to proxy rows
+    std::vector<int> sourceRowMap_;
+    // maps proxy rows to source rows
+    std::vector<int> proxyRowMap_;
+
+    WModelIndex sourceIndex_;
+
+    Item(const WModelIndex& sourceIndex) : sourceIndex_(sourceIndex) { }
+  };
+
+  struct Compare {
+    Compare(const WSortFilterProxyModel *aModel, Item *anItem)
+      : model(aModel), item(anItem) { }
+
+    bool operator()(int sourceRow1, int sourceRow2) const;
+
+    bool lessThan(int sourceRow1, int sourceRow2) const;
+
+    const WSortFilterProxyModel *model;
+    Item *item;
+  };
+
+  // WModelIndex is one of source model
+  typedef std::map<WModelIndex, Item *> ItemMap;
+
+  WSortFilterProxyRegExp *regex_;
+
+  int       filterKeyColumn_, filterRole_;
+  int       sortKeyColumn_, sortRole_;
+  SortOrder sortOrder_;
+  bool      dynamic_;
+
+  std::vector<boost::signals::connection> modelConnections_;
+  mutable ItemMap mappedIndexes_;
+
+  void sourceColumnsAboutToBeInserted(const WModelIndex& parent,
+				      int start, int end);
+  void sourceColumnsInserted(const WModelIndex& parent, int start, int end);
+
+  void sourceColumnsAboutToBeRemoved(const WModelIndex& parent,
+				     int start, int end);
+  void sourceColumnsRemoved(const WModelIndex& parent, int start, int end);
+
+  void sourceRowsAboutToBeInserted(const WModelIndex& parent,
+				   int start, int end);
+  void sourceRowsInserted(const WModelIndex& parent, int start, int end);
+
+  void sourceRowsAboutToBeRemoved(const WModelIndex& parent,
+				  int start, int end);
+  void sourceRowsRemoved(const WModelIndex& parent, int start, int end);
+
+  void sourceDataChanged(const WModelIndex& topLeft,
+			 const WModelIndex& bottomRight);
+
+  void sourceHeaderDataChanged(Orientation orientation, int start, int end);
+
+  void sourceLayoutAboutToBeChanged();
+  void sourceLayoutChanged();
+
+  Item *itemFromSourceIndex(const WModelIndex& sourceIndex) const;
+  Item *parentItemFromIndex(const WModelIndex& index) const;
+  Item *itemFromIndex(const WModelIndex& index) const;
+  void resetMappings();
+  void updateItem(Item *item) const;
+  void rebuildSourceRowMap(Item *item) const;
+
+  int changedMappedRow(int sourceRow, int currentMappedRow, Item *item) const;
+};
+
+}
+
+#endif // WSORT_FILTER_PROXY_MODEL_H_

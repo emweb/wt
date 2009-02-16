@@ -1,0 +1,38 @@
+IF(BOOST_FS_LIB_MT AND EXISTS ${BOOST_FS_LIB_MT})
+  SET(HAVE_FILETREE_BOOST true)
+ELSE(BOOST_FS_LIB_MT AND EXISTS ${BOOST_FS_LIB_MT})
+  SET(HAVE_FILETREE_BOOST false)
+ENDIF(BOOST_FS_LIB_MT AND EXISTS ${BOOST_FS_LIB_MT})
+
+IF(NOT WIN32 AND NOT HAVE_FILETREE_BOOST)
+  MESSAGE(STATUS "** Filetreetable example needs boost_filesystem library... Skipping.")
+ELSE(NOT WIN32 AND NOT HAVE_FILETREE_BOOST)
+
+  ADD_EXECUTABLE(filetreetable.wt
+    FileTreeTable.C
+    FileTreeTableNode.C
+    FileTreeExample.C
+  )
+
+  TARGET_LINK_LIBRARIES(filetreetable.wt
+    ${EXAMPLES_CONNECTOR}
+    ${BOOST_FS_LIB_MT}
+  )
+
+  INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
+
+  #
+  # Create a deploy script
+  #
+  SET(APPNAME filetreetable)
+  SET(APPBIN filetreetable.wt)
+  SET(APPRESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.css ${CMAKE_CURRENT_SOURCE_DIR}/icons")
+  CONFIGURE_FILE(
+    ${WT_SOURCE_DIR}/deploy.sh
+    ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
+  )
+
+  ADD_DEPENDENCIES(filetreetable.wt wt ${EXAMPLES_CONNECTOR})
+
+ENDIF(NOT WIN32 AND NOT HAVE_FILETREE_BOOST)
+

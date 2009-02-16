@@ -1,0 +1,63 @@
+#include "WtRandom.h"
+
+#include <boost/nondet_random.hpp>
+
+#ifdef __linux__
+#if 0
+/*
+ * We get errors from the destructor...
+ */
+#define __use_random_device__
+#endif
+#endif
+#ifdef WIN32
+#define __use_random_device__
+#include <process.h> // for getpid()
+#include <stdlib.h>
+#include <windows.h>
+#endif
+
+class WtRandom::Private
+{
+public:
+#ifdef __use_random_device__
+  boost::random_device rnd_;
+#endif
+};
+
+WtRandom::WtRandom():
+_p(new WtRandom::Private)
+{ 
+#ifndef __use_random_device__
+  srand48(getpid());
+#endif // __use_random_device__
+}
+
+WtRandom::~WtRandom()
+{
+  delete _p;
+}
+
+unsigned int WtRandom::rand()
+{
+#ifdef __use_random_device__
+  return _p->rnd_();
+#else
+  return lrand48();
+#endif // __use_random_device__
+}
+
+namespace{
+  // Random number generator instantiation for the static methods of WtRandom
+  WtRandom wtRandom;
+}
+
+unsigned int WtRandom::getUnsigned()
+{
+  return wtRandom.rand();
+}
+
+double WtRandom::getDouble()
+{
+  return ((double)wtRandom.rand())/(RAND_MAX);
+}

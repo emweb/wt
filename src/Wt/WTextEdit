@@ -1,0 +1,155 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTEXTEDIT_H_
+#define WTEXTEDIT_H_
+
+#include <Wt/WTextArea>
+
+namespace Wt {
+
+/*! \class WTextEdit Wt/WTextEdit Wt/WTextEdit
+ *  \brief A rich-text XHTML editor.
+ *
+ * The editor provides interactive editing of XHTML text. By default
+ * it provides basic mark-up (font, formatting, color, links, and
+ * lists), but additional buttons may be added to the tool bars that
+ * add additional formatting options.
+ *
+ * The implementation is based on <a
+ * href="http://tinymce.moxiecode.com/">TinyMCE</a>. The widget may be
+ * configured and tailored using the setExtraPlugins() and
+ * setToolBar() methods that provide direct access to the underlying
+ * TinyMCE component.
+ *
+ * To use this widget, you need to download TinyMCE (version 3.0.7 or
+ * later) and deploy the tinymce/jscripts/tiny_mce folder to
+ * <i>tinyMCEURL</i>. The default value for <i>tinyMCEURL</i> is
+ * <i>resourcesURL</i>"/tiny_mce", where <i>resourcesURL</i> is the
+ * configuration property that locates the %Wt resources/ folder
+ * (i.e., we assume by default that you copy the tiny_mce folder to
+ * the resources/ folder).
+ *
+ * The value may be overridden with a URL that points to the directory
+ * where the tiny_mce folder is located, by configuring the
+ * <i>tinyMCEURL</i> property in your %Wt configuration file.
+ *
+ * \image html WTextEdit-1.png "Default configuration of a WTextEdit"
+ */
+class WT_API WTextEdit : public WTextArea
+{
+public:
+  /*! \brief Create a new text editor.
+   */
+  WTextEdit(WContainerWidget *parent = 0);
+
+  /*! \brief Create a new text editor and initialize with given text.
+   *
+   * The <i>text</i> should be valid XHTML.
+   */
+  WTextEdit(const WString& text, WContainerWidget *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  ~WTextEdit();
+
+  /*! \brief Set the content.
+   *
+   * The <i>text</i> should be valid XHTML.
+   *
+   * The default value is "".
+   */
+  virtual void setText(const WString& text);
+
+  /*! \brief Set the stylesheet for displaying the content.
+   *
+   * The content is rendered using the rules defined in this
+   * stylesheet. The stylesheet is also used to derive additional
+   * styles that are available in the text editor, for example in the
+   * "styleselect" button.
+   *
+   * Multiple stylesheets may be specified as a comma separated list.
+   */
+  void setStyleSheet(const std::string& uri);
+
+  /*! \brief Returns the content stylesheet.
+   *
+   * \sa setStyleSheet()
+   */
+  const std::string& styleSheet() const { return styleSheet_; }
+
+  /*! \brief Load additional TinyMCE plugins.
+   *
+   * %Wt loads by default only the plugin 'safari' (which adds support
+   * for the Safari web browser). Use this method to load additional
+   * plugins. Multiple plugins may be specified as a comma separated
+   * list.
+   *
+   * The various plugins are described in the <a
+   * href="http://wiki.moxiecode.com/index.php/TinyMCE:Plugins">TinyMCE
+   * documentation</a>.
+   *
+   * \note Plugins can only be loaded before the initial display of
+   * the widget.
+   */
+  void setExtraPlugins(const std::string& plugins);
+
+  /*! \brief Returns the extra plugins.
+   *
+   * \sa setExtraPlugins()
+   */
+  const std::string& extraPlugins() const { return extraPlugins_; }
+
+  /*! \brief Configure a tool bar.
+   *
+   * This configures the buttons for the <i>i'th</i> tool bar (with 0
+   * <= <i>i</i> <= 3).
+   *
+   * The syntax and available buttons is documented in the <a
+   * href="http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/theme_advanced_buttons_1_n">TinyMCE
+   * documentation</a>.
+   *
+   * The default <i>config</i> for the first tool bar (<i>i</i> = 0)
+    is: "fontselect, |, bold, italic, underline, |, fontsizeselect, |,
+    forecolor, backcolor, |, justifyleft, justifycenter, justifyright,
+    justifyfull, |, anchor, |, numlist, bullist".
+   *
+   * By default, the other three tool bars are disabled (<i>config</i> = "").
+   *
+   * Note that some buttons are only available after loading extra
+   * plugins using setExtraPlugins().
+   *
+   * \note The tool bar configuration can only be set before the
+   * initial display of the widget.
+   */
+  void setToolBar(int i, const std::string& config);
+
+  /*! \brief Returns a tool bar configuration.
+   *
+   * \sa setToolBar()
+   */
+  const std::string& toolBar(int i) { return buttons_[i]; }
+
+  virtual void resize(const WLength& width, const WLength& height);
+
+  virtual void load();
+
+private:
+  bool        rendered_, contentChanged_;
+  std::string styleSheet_, extraPlugins_;
+  std::string buttons_[4];
+
+  virtual DomElement *renderRemove();
+  virtual void updateDom(DomElement& element, bool all);
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app);
+
+  static void initTinyMCE();
+};
+
+}
+
+#endif // WTEXTEDIT_H_

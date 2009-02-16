@@ -1,0 +1,103 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WREGEXPVALIDATOR_H_
+#define WREGEXPVALIDATOR_H_
+
+#include <limits>
+#include <Wt/WValidator>
+
+#include <boost/regex.hpp>
+
+namespace Wt {
+
+struct WRegExpValidatorImpl;
+
+/*! \class WRegExpValidator Wt/WRegExpValidator Wt/WRegExpValidator
+ *  \brief A validator that checks user input against a regular expression.
+ *
+ * This validator checks whether user input is matched by the given
+ * (perl-like) regular expression.
+ *
+ * The following perl features are not supported (since client-side validation
+ * cannot handle them):
+ * <ul>
+ *   <li>No Lookbehind support, i.e. the constructs (?<=text) and (?<!text).
+ *     </li>
+ *   <li>No atomic grouping, i.e. the construct (?>group).</li>
+ *   <li>No conditional expressions, i.e. the consturct (?ifthen|else).</li>
+ * </ul>
+ *
+ * <i>This validator does not fully support unicode: it matches on the
+ * UTF8-encoded representation of the string.</i>
+ */
+class WT_API WRegExpValidator : public WValidator
+{
+public:
+  /*! \brief Create a new regular expression validator.
+   */
+  WRegExpValidator(WObject *parent = 0);
+
+  /*! \brief Create a new regular expression validator that accepts input
+   *         that matches the given regular expression (<b>deprecated</b>).
+   *
+   * \deprecated Use WRegExpValidator(const WString&, WObject *) instead.
+   */
+  WRegExpValidator(const boost::regex& rx);
+
+  /*! \brief Create a new regular expression validator that accepts input
+   *         that matches the given regular expression.
+   *
+   * This constructs a validator that matches the perl regular
+   * expression <i>expr</i>.
+   */
+  WRegExpValidator(const WString& expr, WObject *parent = 0);
+
+  /*! \brief Delete the regexp validator.
+   */
+  ~WRegExpValidator();
+
+  /*! \brief Set the regular expression for valid input.
+   *
+   * Sets the perl regular expression <i>expr</i>.
+   */
+  void setRegExp(const WString& expr);
+
+  const boost::regex& regExp() const;
+
+  /*! \brief Validate the given input.
+   *
+   * The input is considered valid only when it is blank for a non-mandatory
+   * field, or matches the regular expression.
+   */
+  virtual State validate(WString& input, int& pos) const;
+
+  virtual void createExtConfig(std::ostream& config) const;
+
+  void setNoMatchText(const WString& text);
+
+  /*! \brief Set the message to display when the input does not match.
+   *
+   * The default value is "Invalid input".
+   */
+  void setInvalidNoMatchText(const WString& text);
+
+  /*! \brief Returns the message displayed when the input does not match.
+   *
+   * \sa setInvalidNoMatchText(const WString&)
+   */
+  WString invalidNoMatchText() const;
+  
+protected:
+  std::string javaScriptValidate(const std::string& jsRef) const;
+
+private:
+  WRegExpValidatorImpl *impl_;
+};
+
+}
+
+#endif // WREGEXPVALIDATOR_H_

@@ -1,0 +1,191 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPAINTED_WIDGET_H_
+#define WPAINTED_WIDGET_H_
+
+#include "Wt/WInteractWidget"
+
+namespace Wt {
+
+class WAbstractArea;
+class WImage;
+class WPaintDevice;
+class WWidgetPainter;
+
+/*! \class WPaintedWidget Wt/WPaintedWidget Wt/WPaintedWidget
+ *  \brief A widget that is painted using vector graphics.
+ *
+ * Depending on the browser, different rendering methods are used:
+ *
+ * <table>
+ *   <tr><td><b>Browser</b></td><td><b>Methods</b></td>
+ *       <td><b>Default method</b></td></tr>
+ *   <tr><td>Firefox 1.5+</td><td>HtmlCanvas, InlineSVG</td>
+ *       <td>HtmlCanvas</td></tr>
+ *   <tr><td>Internet Explorer 6.0+</td><td>InlineVML</td>
+ *       <td>InlineVML</td></tr>
+ *   <tr><td>Safari</td><td>HtmlCanvas, InlineSVG</td>
+ *       <td>HtmlCanvas</td></tr>
+ *   <tr><td>Opera</td><td>InlineSVG, HtmlCanvas*</td>
+ *       <td>InlineSVG</td></tr>
+ *   <tr><td>other</td><td>?</td><td>HtmlCanvas</td></tr>
+ * </table>
+ * <i>* HtmlCanvas occasionally suffers from rendering artefacts in Opera.</i>
+ *
+ * If no JavaScript is available, the JavaScript-based HtmlCanvas will
+ * not be used, and InlineSVG will be used instead. The method used
+ * may be changed by using setPreferredMethod().
+ *
+ * InlineSVG requires that the document is rendered as XHTML. This
+ * must be enabled in the configuration file using the
+ * &lt;send-xhtml-mime-type&gt; option. By default, this option is
+ * off.
+ *
+ * To use a %WPaintedWidget, you must derive from it and reimplement
+ * paintEvent(WPaintDevice *paintDevice). To paint on a WPaintDevice,
+ * you will need to use a WPainter. Repainting is triggered by calling
+ * the update() method.
+ *
+ * A %WPaintedWidget requires that its size is specified in pixel
+ * units using resize().
+ *
+ * \ingroup painting
+ */
+class WT_API WPaintedWidget : public WInteractWidget
+{
+public:
+  /*! \brief Enumeration that indicates a rendering method.
+   */
+  enum Method {
+    /*! \brief SVG (Most browsers) or VML (Internet Explorer) embedded in
+     *         the page.
+     */
+    InlineSvgVml,
+
+    /*! \brief The WHATWG HTML 5 canvas element.
+     */
+    HtmlCanvas
+  };
+
+  /*! \brief Create a new painted widget.
+   */
+  WPaintedWidget(WContainerWidget *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  ~WPaintedWidget();
+
+  /*! \brief Set the preferred rendering method.
+   *
+   * When <i>method</i> is supported by the browser, then it is chosen
+   * for rendering.
+   */
+  void setPreferredMethod(Method method);
+
+  /*! \brief Get the preferred rendering method.
+   *
+   * \sa setPreferredMethod(Method)
+   */
+  Method preferredMethod() const { return preferredMethod_; }
+
+  /*! \brief Let the widget repaint itself.
+   *
+   * Repainting is not immediate, but happens after when the event loop
+   * is exited.
+   */
+  void update();
+
+  virtual void resize(const WLength& width, const WLength& height);
+
+  /*! \brief Add an interactive area.
+   *
+   * Adds the <i>area</i> which listens to events in a specific region
+   * of the widget. Areas are organized in a list, to which the given
+   * <i>area</i> is appended. When areas overlap, the area with the
+   * lowest index receives the event.
+   *
+   * Ownership of the <i>area</i> is transferred to the widget.
+   *
+   * \sa insertArea(int, WAbstractArea *)
+   *
+   * \note When defining at least one area, no more events will
+   * propagate to the widget itself. As a work-around, you can emulate
+   * this by listening for events on a WRectArea that corresponds to
+   * the whole widget, and which is added as the last area (catching
+   * all events that were not caught by preceding areas).
+   */
+  void addArea(WAbstractArea *area);
+
+  /*! \brief Insert an interactive area.
+   *
+   * Inserts the <i>area</i> which listens to events in the
+   * coresponding area of the widget. Areas are organized in a list,
+   * and the <i>area</i> is inserted at index <i>index</i>. When areas
+   * overlap, the area with the lowest index receives the event.
+   *
+   * Ownership of the <i>Area</i> is transferred to the widget.
+   *
+   * \sa addArea(WAbstractArea *)
+   *
+   * \note When defining at least one area, no more events will
+   * propagate to the widget itself. As a work-around, you can emulate
+   * this by listening for events on a WRectArea that corresponds to
+   * the whole widget, and which is added as the last area (catching
+   * all events that were not caught by preceding areas).
+   */
+  void insertArea(int index, WAbstractArea *area);
+
+  /*! \brief Removes an interactive area.
+   *
+   * Removes the <i>area</i> from this widget, returning the
+   * ownership.
+   *
+   * \sa addArea(WAbstractArea *)
+   */
+  void removeArea(WAbstractArea *area);
+
+  /*! \brief Returns the interactive area at the given index.
+   *
+   * Returns 0 if <i>index</i> was invalid.
+   *
+   * \sa insertArea(int, WAbstractArea *)
+   */
+  WAbstractArea *area(int index) const;
+
+  /*! \brief Returns the interactive areas set for this widget.
+   *
+   * \sa addArea()
+   */
+  const std::vector<WAbstractArea *> areas() const;
+
+protected:
+  /*! \brief Paint the widget.
+   *
+   * You should reimplement this method to paint the contents of the widget,
+   * using the given paintDevice.
+   */
+  virtual void paintEvent(WPaintDevice *paintDevice) = 0;
+
+  virtual DomElementType domElementType() const;
+  virtual void        updateDom(DomElement& element, bool all);
+  virtual DomElement *createDomElement(WApplication *app);
+  virtual void        getDomChanges(std::vector<DomElement *>& result,
+				    WApplication *app);
+
+private:
+  Method          preferredMethod_;
+  WWidgetPainter *painter_;
+  bool            needRepaint_;
+  WImage         *areaImage_;
+
+  bool createPainter();
+  void createAreaImage();
+};
+
+}
+
+#endif // WPAINTED_WIDGET_H_

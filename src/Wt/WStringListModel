@@ -1,0 +1,97 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSTRING_LIST_MODEL_H_
+#define WSTRING_LIST_MODEL_H_
+
+#include <Wt/WAbstractListModel>
+
+namespace Wt {
+
+/*! \class WStringListModel Wt/WStringListModel Wt/WStringListModel
+ *  \brief An model that manages a list of strings.
+ *
+ * This model only manages a unidimensional list of strings. It is
+ * used as the default model for view classes that show a
+ * list.
+ *
+ * The model only presents \link Wt::DisplayRole DisplayRole\endlink
+ * data of a single column of data, but otherwise provides support for
+ * all standard features of a model, including editing and addition
+ * and removal of data rows.
+ *
+ * You can populate the model by passing a list of strings to its
+ * consructor, or by using the setStringList() method. You can set or
+ * retrieve data using the setData() and data() methods, and add or
+ * remove data using the insertRows() and removeRows() methods.
+ *
+ * \sa WComboBox, WSelectionBox, Ext::ComboBox
+ *
+ * \ingroup modelview
+ */
+class WT_API WStringListModel : public WAbstractListModel
+{
+public:
+  /*! \brief Create a new empty string list model.
+   */
+  WStringListModel(WObject *parent = 0);
+
+  /*! \brief Create a new string list model.
+   */
+  WStringListModel(const std::vector<WString>& strings, WObject *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  ~WStringListModel();
+
+  /*! \brief Set a new string list.
+   *
+   * Replaces the current string list with a new list.
+   *
+   * \sa dataChanged
+   */
+  void setStringList(const std::vector<WString>& strings);
+
+  /*! \brief Returns the string list.
+   *
+   * \sa setStringList()
+   */
+  const std::vector<WString>& stringList() const { return strings_; }
+
+  /*! \brief Returns the flags for an item.
+   *
+   * This method is reimplemented to return \link Wt::ItemIsSelectable
+   * ItemIsSelectable\endlink | \link Wt::ItemIsEditable
+   * ItemIsEditable\endlink.
+   *
+   * \sa Wt::ItemFlag
+   */
+  virtual int flags(const WModelIndex& index) const;
+
+  using WAbstractListModel::setData;
+  virtual bool setData(const WModelIndex& index, const boost::any& value,
+		       int role = EditRole);
+
+  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
+    const;
+
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+
+  virtual bool insertRows(int row, int count,
+			  const WModelIndex& parent = WModelIndex());
+
+  virtual bool removeRows(int row, int count,
+			  const WModelIndex& parent = WModelIndex());
+
+  virtual void sort(int column, SortOrder order = AscendingOrder);
+
+private:
+  std::vector<WString> strings_;
+};
+
+}
+
+#endif // WSTRING_LIST_MODEL_H_

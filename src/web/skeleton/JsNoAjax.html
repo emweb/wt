@@ -1,0 +1,45 @@
+_$_XMLPREAMBLE_$_
+_$_DOCTYPE_$_
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:v="urn:schemas-microsoft-com:vml"
+      lang="en" dir="ltr">
+<head>
+<meta http-equiv='refresh' content='$KEEPALIVE' />
+<meta http-equiv='Pragma' content='no-cache' />
+<title>$TITLE</title>
+_$_STYLESHEETS_$_
+<style type="text/css">
+$STYLESHEET
+</style>
+<script language="JavaScript">
+function update(signalName) {
+  document.forms[0].signal.value = signalName;
+  document.forms[0].submit();
+}
+
+function getElement(id) {
+  var el = document.getElementById(id);
+  if (!el)
+    for (var i = 0; i < window.frames.length; ++i) {
+      el = window.frames[i].document.getElementById(id);
+      if (el)
+        return el;
+    }
+  return el;
+}
+
+function addTimerEvent(timerid, msec) {
+  setTimeout('var obj=getElement("' + timerid + '"); if (obj) { obj.onclick(); }',
+             msec);
+}
+
+</script>
+</head>
+<body onload="_$_ONLOAD_$_">
+  <form method='post' action='_$_RELATIVE_URL_$_' id='form' enctype='multipart/form-data'>
+    <input name='signal' id='signal' type='hidden' value='none'></input>
+    <input name='request' id='request' type='hidden' value='page'></input>
+    _$_HTML_$_
+  </form>
+</body>
+</html>

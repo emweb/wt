@@ -1,0 +1,132 @@
+_$_XMLPREAMBLE_$_
+_$_DOCTYPE_$_
+<html _$_HTMLATTRIBUTES_$_ class="ext-strict">
+<head>
+<meta http-equiv='X-UA-Compatible' content='IE=7' _$_METACLOSE_$_
+<title></title>
+<!--[if gte IE 6]>
+<style type="text/css">
+v\:* { behavior: url(#default#VML);position:absolute }
+</style>
+<xml:namespace ns="urn:schemas-microsoft-com:vml" prefix="v"/>
+<script id="ie-deferred-loader" defer="defer" src="//:"></script>
+<![endif]-->
+<style type="text/css" id="Wt-inline-css">
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+
+(function() {
+
+try {
+  document.execCommand("BackgroundImageCache", false, true);
+} catch (err) { }
+
+function loadScript(uri) {
+  var s = document.createElement('script');
+  s.setAttribute('src', uri);
+  var h = document.getElementsByTagName('head')[0];
+  h.appendChild(s);
+}
+
+function rand() {
+  return Math.round(Math.random()*1000000) + _$_RANDOMSEED_$_;
+}
+
+if (window.opera)
+  window.opera.setOverrideHistoryNavigationMode("compatible");
+
+// ajax support
+var ajax = (window.XMLHttpRequest || window.ActiveXObject);
+
+// cookie support
+var testcookie='jscookietest=valid';
+document.cookie=testcookie;
+var no_replace = _$_RELOAD_IS_NEWSESSION_$_
+  || (_$_USE_COOKIES_$_ && document.cookie.indexOf(testcookie) != -1);
+document.cookie=testcookie+';expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
+// hash to query
+var hash = window.location.hash;
+if (hash.length > 0)
+  hash = hash.substr(1);
+var qstart = hash.indexOf('?');
+if (qstart != -1)
+  hash = hash.substr(0, qstart);
+
+var ua = navigator.userAgent.toLowerCase();
+if ((ua.indexOf("gecko") == -1) || (ua.indexOf("webkit") != -1))
+  hash = unescape(hash);
+
+// scale (VML)
+if (screen.deviceXDPI != screen.logicalXDPI)
+  scaleInfo = "&scale=" + screen.deviceXDPI / screen.logicalXDPI;
+else
+  scaleInfo = "";
+
+// determine url
+var selfUrl='_$_SELF_URL_$_';
+
+var needSessionInUrl = !no_replace || !ajax;
+
+if (needSessionInUrl) {
+  function getSessionFromUrl() {
+    var url, idx, i, queryString, params, tokens;
+    url = top.location.href;
+    idx = url.indexOf('?');
+    queryString = idx >= 0 ? url.substr(idx + 1) : url;
+    idx = queryString.lastIndexOf("#");
+    queryString = idx >= 0 ? queryString.substr(0, idx) : queryString;
+    params = queryString.split("&");
+
+    for (i = 0, len = params.length; i < len; i++) {
+      tokens = params[i].split("=");
+      if (tokens.length >= 2)
+        if (tokens[0] === "wtd")
+          return unescape(tokens[1]);
+    }
+
+    return null;
+  }
+
+  if (getSessionFromUrl() === '_$_SESSION_ID_$_')
+    needSessionInUrl = false;
+}
+
+if (needSessionInUrl) {
+  if (hash.length > 0)
+    selfUrl += '#' + hash;
+  if (document.images)
+    window.location.replace(selfUrl);
+  else
+    window.location.href = selfUrl;
+} else {
+  if (hash.length > 0)
+    selfUrl += '&_=' + encodeURIComponent(hash);
+
+  loadScript(selfUrl + '&js=yes&ajax=yes' + scaleInfo + '&request=script&rand='
+    + rand());
+}
+
+})();
+
+var isLoaded = false;
+
+function onLoad() { isLoaded = true; }
+
+/* ]]> */
+</script>
+_$_AUTO_REDIRECT_$_
+</head>
+<body onload="onLoad();">
+<!--[if gte IE 6]>
+<iframe id="Wt-history-iframe" src="_$_BLANK_HTML_$_"
+ style="position:absolute;top:0;left:0;width:1px;height:1px;visibility:hidden;">
+</iframe> 
+<![endif]-->
+<input id="Wt-history-field" type="hidden"/>
+<noscript>
+  <a href="_$_REDIRECT_URL_$_">_$_NOSCRIPT_TEXT_$_</a>
+</noscript>
+</body>
+</html>

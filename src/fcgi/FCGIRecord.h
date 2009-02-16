@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+// This may look like C code, but it's really -*- C++ -*-
+#ifndef FCGIRECORD_H_
+#define FCGIRECORD_H_
+
+#include <stdio.h>
+#include <iostream>
+
+class FCGIRecord
+{
+public:
+  FCGIRecord();
+  FCGIRecord(short requestId, char version);
+  ~FCGIRecord();
+
+  void clear();
+  bool good() { return good_; }
+
+  unsigned char type() const { return type_; }
+  unsigned char version() const { return version_; }
+  unsigned short requestId() const { return requestId_; }
+  unsigned short contentLength() const { return contentLength_; }
+  const unsigned char *contentData() const { return contentData_; }
+
+  unsigned short plainTextLength() const { return plainTextLength_; }
+  const unsigned char *plainText() const { return plainTextBuf_; }
+
+  void read(int fd);
+
+  bool getParam(const std::string name, std::string& value) const;
+
+  class Exception : public std::exception
+  {
+  public:
+    const char *what() const throw() { return what_.c_str(); }
+
+  private:
+    Exception(const std::string what);
+    ~Exception() throw();
+
+    std::string what_;
+
+    friend class FCGIRecord;
+  };
+
+private:
+  bool good_;
+
+  unsigned char version_;
+  unsigned char type_;
+  unsigned short requestId_;
+  unsigned short contentLength_;
+  unsigned char paddingLength_;
+  unsigned char reserved_;
+  unsigned char *contentData_;
+
+  unsigned short plainTextLength_;
+  unsigned char *plainTextBuf_;
+  unsigned short plainTextBufLength_;
+
+  int getChar(int fd, bool waitForIt);
+  bool getBuffer(int fd, unsigned char *buf, int length);
+  bool getAndAssign(int fd, unsigned char& r, bool waitForIt);
+};
+
+extern std::ostream& operator<< (std::ostream&, const FCGIRecord& r);
+
+#endif // FCGIRECORD_H_

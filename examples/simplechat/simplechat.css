@@ -1,0 +1,91 @@
+body, html {
+  font-family:arial,sans-serif;
+  overflow-x: hidden;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+h2, h3, h4, h5 {
+  color: #505050;
+}
+
+h2 {
+  padding-left: 30px;
+  border-bottom: 1px solid #000;
+}
+
+h2 span {
+  border-bottom: 0.2em solid #000;
+}
+
+
+button {
+  padding-left: 5px;
+  padding-right: 5px;
+  font-size: smaller;
+}
+
+.chat {
+  border: 2px solid #CCCCCC;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 85%;
+  height: 300px;
+}
+
+span.chat-info {
+  font-style: oblique;
+  color: gray;
+}
+
+textarea.chat-noedit {
+  border: 2px solid #73A6FF;
+  margin: -2px;
+}
+
+textarea.chat-edit {
+  border: 1px solid #CCCCCC;
+  margin: -1px;
+}
+
+.chat-user {
+  color: #DD7200;
+  font-weight: bold;
+  padding-right: 0.2em;
+}
+
+.chat-self {
+  color: #B42600;
+  font-weight: bold;
+  padding-right: 0.2em;
+}
+
+.chat-highlight {
+  font-weight: bold;
+}
+
+.chat-msgs {
+  border-right: 2px solid #BBBBBB;
+  margin-left: 1px;
+}
+
+.chat-users {
+  width: 12ex;
+}
+
+.chat-msg {
+  padding: 2px;
+}
+
+.chat-users DIV {
+  margin: 3px 3px 3px 6px;
+}
+
+.chat-users DIV .chat-self {
+  font-weight: bold;
+}
+

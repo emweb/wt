@@ -1,0 +1,292 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WMODEL_INDEX_H_
+#define WMODEL_INDEX_H_
+
+#include <vector>
+#include <set>
+#include <boost/any.hpp>
+#include <boost/array.hpp>
+
+#include <Wt/WDllDefs.h>
+
+namespace Wt {
+
+  /*! \brief Namespace for SHA-1 hashes.
+   */
+  namespace Sha1 {
+
+    /*! \brief A Sha-1 digest.
+     *
+     * \sa WModelIndex::internalHashId(), WAbstractItemModel::createIndex(int, int, const Sha1::Digest&) const
+     */
+    typedef boost::array<unsigned char, 20> Digest;
+  }
+
+class WAbstractItemModel;
+
+/*! \defgroup modelview Model/view system
+ *  \brief Classes that participate implement %Wt's model/view system.
+ */
+
+/*! \brief Enumeration that indicates a role for a data item.
+ *
+ * A single data item can have data associated with it corresponding
+ * to different roles. Each role may be used by the corresponding view
+ * class in a different way.
+ *
+ * \sa WModelIndex::setData()
+ *
+ * \ingroup modelview
+ */
+enum ItemDataRole {
+  DisplayRole = 0,      //!< Role for textual representation
+  DecorationRole = 1,   //!< Role for the url of an icon
+  EditRole = 2,         //!< Role for the edited value
+  StyleClassRole = 3,   //!< Role for the style class
+  CheckStateRole = 4,   //!< Role that indicates if the item is checked
+  ToolTipRole = 5,      //!< Role for a tooltip
+  InternalPathRole = 6, //!< Role for an internal path activated when clicked
+  UrlRole = 7,          //!< Role for a url activated when clicked
+  UserRole = 32         //!< First role reserved for user purposes
+};
+
+/*! \brief Flags that data item options
+ *
+ * \sa WModelIndex::flags()
+ *
+ * \ingroup modelview
+ */
+enum ItemFlag {
+  ItemIsSelectable = 0x1,    //!< Item can be selected
+  ItemIsEditable = 0x2,      //!< Item can be edited
+  ItemIsUserCheckable = 0x4, //!< Item can be checked
+  ItemIsDragEnabled = 0x8,   //!< Item can be dragged
+  ItemIsDropEnabled = 0x10   //!< Item can be a drop target
+};
+
+/*! \brief Enumeration that indicates a sort order.
+ *
+ * \ingroup modelview
+ */
+enum SortOrder {
+  AscendingOrder,  //!< Ascending sort order
+  DescendingOrder  //!< Descending sort order
+};
+
+/*! \brief Enumeration that indicates a drop action.
+ *
+ * \sa WAbstractItemModel::dropEvent()
+ *
+ * \ingroup modelview
+ */
+enum DropAction {
+  CopyAction = 0x1, //!< Copy the selection
+  MoveAction = 0x2  //!< Move the selection (deleting originals)
+};
+
+/*! \class WModelIndex Wt/WModelIndex Wt/WModelIndex
+ *  \brief An index to a data item of a data model.
+ *
+ * Indexes are used to indicate a particular item in a
+ * WAbstractItemModel. It points to the item at a given row and
+ * column, within a parent model index.
+ *
+ * An index is immutable. The default constructor creates an invalid
+ * index, which by convention indicates the parent of top level
+ * indexes.
+ *
+ * Valid indexes are created by the model, within the protected
+ * WAbstractItemModel::createIndex() methods. In this way, models can
+ * define the internal pointer or id suitable for identifying items in
+ * the model.
+ *
+ * Upon the model's choice, model indexes for hierarchical models may
+ * have an internal Id represented by a int64_t (internalId()), a
+ * pointer (internalPointer()), or an internal hash
+ * (internalHashId()). The former are convenient for in-memory models,
+ * while the latter is useful for models that keep data out of memory
+ * (on disk or in a database).
+ *
+ * \sa WAbstractItemModel
+ *
+ * \ingroup modelview
+ */
+class WT_API WModelIndex
+{
+public:
+  /*! \brief Create an invalid WModelIndex.
+   *
+   * Returns a model index for which isValid() return false.
+   */
+  WModelIndex();
+
+  /*! \brief Copy constructor.
+   */
+  WModelIndex(const WModelIndex& other);
+
+  /*! \brief Returns the column for this model index.
+   *
+   * \sa row()
+   */
+  int column() const { return column_; }
+
+  /*! \brief Returns the row for this model index.
+   *
+   * \sa column()
+   */
+  int row() const { return row_; }
+
+  /*! \brief Returns the internal pointer.
+   *
+   * The internal pointer is used by the model to retrieve the corresponding
+   * data.
+   *
+   * This is only defined when the model created the index using
+   * WAbstractItemModel::createIndex(int, int, void *) const.
+   *
+   * \sa internalId(), WAbstractItemModel::createIndex(int, int, void *) const
+   */
+  void *internalPointer() const { 
+    return *reinterpret_cast<void **>
+      (const_cast<WModelIndex *>(this)->internalId_.c_array()); 
+  }
+
+  /*! \brief Returns the internal id.
+   *
+   * The internal id is used by the model to retrieve the
+   * corresponding data.
+   *
+   * This is only defined when the model created the index using
+   * WAbstractItemModel::createIndex(int, int, uint64_t) const.
+   *
+   * \sa internalPointer(), WAbstractItemModel::createIndex(int, int, uint64_t) const
+   */
+  uint64_t internalId() const {
+    return *reinterpret_cast<uint64_t*>
+      (const_cast<WModelIndex *>(this)->internalId_.c_array());
+  }
+
+  /*! \brief Returns a long internal id.
+   *
+   * A long internal id (20 bytes) may be used by models that do not keep
+   * data in memory.
+   *
+   * The 20 bytes length has been chosen to be able store SHA-1 hash ids.
+   */
+  Sha1::Digest internalHashId() const { return internalId_; }
+
+  /*! \brief Returns a model index for a child item.
+   *
+   * This is a convenience method, and is only defined for indexes
+   * that are valid().
+   *
+   * It has the same function as WAbstractItemModel::index() but is
+   * less general because the latter expression may also be used to
+   * retrieve top level children, i.e. when <i>index</i> is invalid.
+   *
+   * \sa WAbstractItemModel::index(), isValid()
+   */
+  WModelIndex child(int row, int column) const;
+
+  /*! \brief Returns an index to the parent.
+   *
+   * This is a convenience method for WAbstractItemModel::parent().
+   *
+   * For a top level data item, the parent() is an invalid index (see
+   * WModelIndex()).
+   *
+   * \sa WAbstractItemModel::parent()
+   */
+  WModelIndex parent() const;
+
+  /*! \brief Returns data in the model at this index.
+   *
+   * This is a convenience method. It is less general than using
+   * WAbstractItemModel::data(), because the latter expression may
+   * also be used to retrieve top level children, i.e. when <i>index</i>
+   * is invalid.
+   *
+   * \sa WAbstractItemModel::data()
+   * \sa ItemDataRole
+   */
+  boost::any data(int role = DisplayRole) const;
+
+  /*! \brief Returns the flags for this item.
+   *
+   * This is a convenience method for WAbstractItemModel::flags().
+   *
+   * \sa WAbstractItemModel::flags()
+   * \sa ItemFlag
+   */
+  int flags() const;
+
+  /*! \brief Returns whether the index is a real valid index.
+   *
+   * Returns true when the index points to a valid data item, i.e. at
+   * a valid row() and column().
+   *
+   * An index may be invalid for two reasons:
+   *  - an operation requested an index that was out of model bounds,
+   *  - or, the index corresponds to the model's top level root item, and is
+   *    thus the parent index for top level items.
+   */
+  bool isValid() const { return model_ != 0; }
+
+  /*! \brief Returns the model to which this (valid) index is bound.
+   */
+  const WAbstractItemModel *model() const { return model_; }
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true only if the indexes point at the same data, in the
+   * same model.
+   */
+  bool operator== (const WModelIndex& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * \sa operator==()
+   */
+  bool operator!= (const WModelIndex& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the index comes topologically before <i>other</i>.
+   */
+  bool operator< (const WModelIndex& other) const;
+
+  struct UnorderedLess {
+    bool operator()(const WModelIndex& i1, const WModelIndex& i2) const;
+  };
+
+private:
+  const WAbstractItemModel *model_;
+  int row_, column_;
+  Sha1::Digest internalId_;
+
+  WModelIndex(int row, int column, const WAbstractItemModel *model, void *ptr);
+  WModelIndex(int row, int column, const WAbstractItemModel *model,
+	      uint64_t id);
+  WModelIndex(int row, int column, const WAbstractItemModel *model,
+	      const Sha1::Digest& id);
+
+  friend class WAbstractItemModel;
+
+  void getAncestors(std::vector<WModelIndex>& ancestors) const;
+};
+
+typedef std::set<WModelIndex> WModelIndexSet;
+typedef std::set<WModelIndex, WModelIndex::UnorderedLess>
+  WModelIndexUnorderedSet;
+typedef std::vector<WModelIndex> WModelIndexList;
+
+}
+
+/*! @} */
+
+#endif // WMODEL_INDEX_H_

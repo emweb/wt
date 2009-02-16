@@ -1,0 +1,307 @@
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include "Wt/WCssStyleSheet"
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
+
+#include "DomElement.h"
+#include "EscapeOStream.h"
+#include "Utils.h"
+
+namespace Wt {
+
+class WCssTemplateWidget : public WWebWidget
+{
+public:
+  WCssTemplateWidget(WCssTemplateRule *rule)
+    : rule_(rule)
+  { }
+
+  virtual void setPositionScheme(PositionScheme scheme) {
+    WWebWidget::setPositionScheme(scheme);
+    rule_->modified();
+  }
+
+  virtual void setOffsets(const WLength& offset, int sides = All) {
+    WWebWidget::setOffsets(offset, sides);
+    rule_->modified();
+  }
+
+  virtual void resize(const WLength& width, const WLength& height) {
+    WWebWidget::resize(width, height);
+    rule_->modified();
+  }
+
+  virtual void setMinimumSize(const WLength& width, const WLength& height) {
+    WWebWidget::setMinimumSize(width, height);
+    rule_->modified();
+  }
+
+  virtual void setMaximumSize(const WLength& width, const WLength& height) {
+    WWebWidget::setMaximumSize(width, height);
+    rule_->modified();
+  }
+
+  virtual void setLineHeight(const WLength& height) {
+    WWebWidget::setLineHeight(height);
+    rule_->modified();
+  }
+
+  virtual void setFloatSide(Side s) {
+    WWebWidget::setFloatSide(s);
+    rule_->modified();
+  }
+
+  virtual void setClearSides(int sides) {
+    WWebWidget::setClearSides(sides);
+    rule_->modified();
+  }
+
+  virtual void setMargin(const WLength& margin, int sides = All) {
+    WWebWidget::setMargin(margin, sides);
+    rule_->modified();
+  }
+
+  virtual void setHidden(bool hidden) {
+    WWebWidget::setHidden(hidden);
+    rule_->modified();
+  }
+
+  virtual void setPopup(bool popup) {
+    WWebWidget::setPopup(popup);
+    rule_->modified();
+  }
+
+  virtual void setInline(bool isinline) {
+    WWebWidget::setInline(isinline);
+    rule_->modified();
+  }
+
+  virtual WCssDecorationStyle& decorationStyle() {
+    return WWebWidget::decorationStyle();
+
+    // Assumption here! We should really catch modifications to the
+    // stylesheet...
+    rule_->modified();
+  }
+
+  virtual void setVerticalAlignment(VerticalAlignment alignment,
+				    const WLength& length = WLength()) {
+    WWebWidget::setVerticalAlignment(alignment, length);
+    rule_->modified();
+  }
+
+  virtual DomElementType domElementType() const { return DomElement_SPAN; }
+
+private:
+  WCssTemplateRule *rule_;
+};
+
+WCssRule::WCssRule(const std::string& selector)
+  : selector_(selector),
+    sheet_(0)
+{ }
+
+WCssRule::~WCssRule()
+{ 
+  if (sheet_)
+    sheet_->removeRule(this);
+}
+
+void WCssRule::modified()
+{
+  if (sheet_)
+    sheet_->ruleModified(this);
+}
+
+bool WCssRule::updateDomElement(DomElement& cssRuleElement, bool all)
+{
+  return false;
+}
+
+WCssTemplateRule::WCssTemplateRule(const std::string& selector)
+  : WCssRule(selector)
+{
+  widget_ = new WCssTemplateWidget(this);
+}
+
+WCssTemplateRule::~WCssTemplateRule()
+{
+  delete widget_;
+}
+
+WWidget *WCssTemplateRule::templateWidget()
+{
+  return widget_;
+}
+
+const std::string WCssTemplateRule::declarations()
+{
+  DomElement e(DomElement::ModeUpdate, widget_->domElementType());
+  updateDomElement(e, true);
+  return e.cssStyle();
+}
+
+bool WCssTemplateRule::updateDomElement(DomElement& element, bool all)
+{
+  widget_->updateDom(element, all);
+  return true;
+}
+
+WCssTextRule::WCssTextRule(const std::string& selector,
+			     const WString& declarations)
+  : WCssRule(selector),
+    declarations_(declarations)
+{ }
+
+const std::string WCssTextRule::declarations()
+{
+  return declarations_.toUTF8(); 
+}
+
+WCssStyleSheet::WCssStyleSheet()
+{ }
+
+WCssStyleSheet::~WCssStyleSheet()
+{
+  while (!rules_.empty())
+    delete rules_.back();
+}
+
+WCssRule *WCssStyleSheet::addRule(WCssRule *rule, const std::string& ruleName)
+{
+  rules_.push_back(rule);
+  rulesAdded_.push_back(rule);
+  rule->sheet_ = this;
+
+  if (!ruleName.empty())
+    defined_.insert(ruleName);
+
+  return rule;
+}
+
+WCssTemplateRule *WCssStyleSheet::addRule(const std::string& selector,
+					  const WCssDecorationStyle& style,
+					  const std::string& ruleName)
+{
+  WCssTemplateRule *result = new WCssTemplateRule(selector);
+  result->templateWidget()->decorationStyle() = style;
+
+  addRule(result, ruleName);
+  return result;
+}
+
+WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
+				      const WString& declarations,
+				      const std::string& ruleName)
+{
+  WCssTextRule *result = new WCssTextRule(selector, declarations);
+  addRule(result, ruleName);
+  return result;
+}
+
+bool WCssStyleSheet::isDefined(const std::string& ruleName) const
+{
+  return defined_.find(ruleName) != defined_.end();
+}
+
+void WCssStyleSheet::removeRule(WCssRule *rule)
+{
+  if (Utils::erase(rules_, rule)) {
+    if (!Utils::erase(rulesAdded_, rule))
+      rulesRemoved_.push_back(rule->selector());
+
+    rulesModified_.erase(rule);
+  }
+}
+
+void WCssStyleSheet::ruleModified(WCssRule *rule)
+{
+  rulesModified_.insert(rule);
+}
+
+std::string WCssStyleSheet::cssText(bool all)
+{
+  std::string result;
+
+  RuleList& toProcess = all ? rules_ : rulesAdded_;
+
+  for (unsigned i = 0; i < toProcess.size(); ++i) {
+    WCssRule *rule = toProcess[i];
+    result += rule->selector() + " { " + rule->declarations() + " }\n";
+  }
+
+  rulesAdded_.clear();
+
+  if (all)
+    rulesModified_.clear();
+
+  return result;
+}
+
+void WCssStyleSheet::javaScriptUpdate(WApplication *app,
+				      std::ostream& js, bool all)
+{
+  if (!all) {
+    for (unsigned i = 0; i < rulesRemoved_.size(); ++i) {
+      js << WT_CLASS ".removeCssRule(";
+      DomElement::jsStringLiteral(js, rulesRemoved_[i], '\'');
+      js << ");";
+    }
+    rulesRemoved_.clear();
+
+    for (RuleSet::const_iterator i = rulesModified_.begin();
+	 i != rulesModified_.end(); ++i) {
+      js << "{ var d= " WT_CLASS ".getCssRule(";
+      DomElement::jsStringLiteral(js, (*i)->selector(), '\'');
+      js << ");if(d){";
+
+      DomElement *d = DomElement::updateGiven("d", DomElement_SPAN);
+      if ((*i)->updateDomElement(*d, false)) {
+	EscapeOStream sout(js);
+	d->asJavaScript(sout, DomElement::Update);
+      }
+
+      delete d;
+
+      js << "}}";
+    }
+    rulesModified_.clear();
+  }
+
+  if (!app->environment().agentIE() && !app->environment().agentKonqueror()) {
+    RuleList& toProcess = all ? rules_ : rulesAdded_;
+
+    for (unsigned i = 0; i < toProcess.size(); ++i) {
+      WCssRule *rule = toProcess[i];
+      js << WT_CLASS ".addCss('"
+	 << rule->selector() << "',";
+      DomElement::jsStringLiteral(js, rule->declarations(), '\'');
+      js << ");";
+    }
+
+    rulesAdded_.clear();
+    if (all)
+      rulesModified_.clear();
+  } else {
+    std::string text = cssText(all);
+
+    if (!text.empty()) {
+      js << WT_CLASS ".addCssText(";
+      DomElement::jsStringLiteral(js, text, '\'');
+      js << ");";
+    }
+  }
+}
+
+void WCssStyleSheet::clear()
+{
+  while (!rules_.empty())
+    delete rules_.back();
+}
+
+} // namespace Wt

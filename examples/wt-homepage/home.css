@@ -1,0 +1,56 @@
+.treenodechildcount {
+    color:blue;
+}
+
+.Wt-tabs {
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+.Wt-tabs span {
+    border-bottom:1px solid #accf8a;
+}
+
+.Wt-tabs span span {
+    color:#777777;
+}
+
+.Wt-tabs a {
+    border-bottom:1px solid #accf8a;
+    text-decoration: none;
+}
+
+.Wt-tabs span.itemselected span {
+    color:black;
+}
+
+.Wt-tabs span:hover {
+    text-decoration: none;
+    color: #70BD1A;
+}
+
+ol, ul {
+    list-style: bullet;
+}
+
+.fragment {
+    font-family:monospace,fixed;
+}
+
+pre.fragment {
+    background-color: #F5F5F5;
+    border: 1px solid #CCCCCC;
+    margin: 4px 8px 4px 2px;
+    padding: 4px 6px;
+}
+
+td.sponsor-logo {
+    text-align: center;
+    vertical-align: middle;
+    padding: 5px;
+}
+
+td.sponsor-role {
+    vertical-align: middle;
+    padding: 5px;
+}

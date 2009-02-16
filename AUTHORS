@@ -1,0 +1,16 @@
+Wt is being developed jointly by the following authors:
+
+* Koen Deforche (koen@emweb.be)
+  Main developer
+
+* Wim Dumon (wim@emweb.be)
+  Windows port, hangman example, and tutorial.
+
+The following people contributed code in the past, but this code is no longer
+part of Wt:
+
+* Abdiel Janulgue (xynopsis@yahoo.com)
+  Contributed XLObject (template based signal/slot system), which has
+  been replaced by a Boost.Signals-based signal/slot system
+
+Many people have contributed patches and bug fixes, see the Changelog

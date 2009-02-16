@@ -1,0 +1,18 @@
+create database hangman;
+use hangman;
+
+create table users (
+  user char(50) primary key,
+  pass char(50),
+  numgames int,
+  score int,
+  lastseen datetime,
+  index(score)
+  );
+
+grant insert, select, update on hangman.users
+  to "hangman"@"localhost" identified by "hangwoman";
+
+insert into hangman.users values ("guest", md5("guest"), 0, 0, now());
+
+#alter table users add lastseen datetime;

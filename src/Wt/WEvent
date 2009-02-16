@@ -1,0 +1,447 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WEVENT_H_
+#define WEVENT_H_
+
+#include <Wt/WWidget>
+
+namespace Wt {
+
+class CgiParser;
+class WObject;
+class WString;
+
+template<class E> class EventSignal;
+
+class WT_API JavaScriptEvent {
+public:
+  // for mouse events:
+  int  clientX, clientY;
+  int  documentX, documentY;
+  int  screenX, screenY;
+  int  widgetX, widgetY;
+  int  dragDX, dragDY;
+
+  // for key events or mouse event modifiers
+  bool right;
+  int  keyCode, charCode, modifiers;
+
+  // for scroll events
+  int  scrollX, scrollY, viewportWidth, viewportHeight;
+
+  // event type
+  std::string type;
+
+  // target id
+  std::string tid;
+
+  std::string response;
+
+  std::vector<std::string> userEventArgs;
+
+  void get(const CgiParser& parser, const std::string& se);
+
+  JavaScriptEvent();
+};
+
+/*! \brief Enumeration flags for keyboard modifiers
+ *
+ * \sa WMouseEvent::modifiers(), WKeyEvent::modifiers()
+ *
+ * \ingroup signalslot
+ */
+enum KeyboardModifier {
+  NoModifier = 0,         //!< No modifiers
+  ShiftModifier = 0x1,    //!< Shift key pressed
+  ControlModifier = 0x2,  //!< Control key pressed
+  AltModifier = 0x4,      //!< Alt key pressed
+  MetaModifier = 0x8   //!< Meta key pressed ("Windows" or "Command" (Mac) key) 
+};
+
+/*! \class WMouseEvent Wt/WEvent Wt/WEvent
+ *  \brief A class providing details for a mouse event.
+ *
+ * \sa WInteractWidget::clicked
+ *
+ * \ingroup signalslot
+ */
+class WT_API WMouseEvent
+{
+public:
+  /*! \brief Default constructor
+   */
+  WMouseEvent();
+
+  /*! \brief Enumeration for the mouse button.
+   */
+  enum Button { LeftButton,    //!< Left button
+		MiddleButton,  //!< Middle button
+		RightButton    //!< Right button
+  };
+
+  /*! \brief A mouse coordinate.
+   */
+  struct Coordinates {
+    int x; //!< X coordinate
+    int y; //!< Y coordinate
+
+    Coordinates(int x_, int y_)
+      : x(x_), y(y_) { }
+  };
+
+  /*! \brief Get the button.
+   */
+  Button button() const { return jsEvent_.right ? RightButton : LeftButton; }
+
+  /*! \brief Returns keyboard modifiers.
+   *
+   * The result is a logical OR of \link Wt::KeyboardModifier
+   * KeyboardModifier\endlink flags.
+   */
+  int modifiers() const { return jsEvent_.modifiers; }
+
+  /*! \brief Get the mouse position relative to the document.
+   */
+  Coordinates document() const
+  { return Coordinates(jsEvent_.documentX, jsEvent_.documentY); }
+
+  /*! \brief Get the mouse position relative to the window.
+   *
+   * This differs from documentX() only through scrolling
+   * through the document.
+   */
+  Coordinates window() const
+  { return Coordinates(jsEvent_.clientX, jsEvent_.clientY); }
+
+  /*! \brief Get the mouse position relative to the screen.
+   */
+  Coordinates screen() const
+  { return Coordinates(jsEvent_.screenX, jsEvent_.screenY); }
+
+  /*! \brief Get the mouse position relative to the widget.
+   */
+  Coordinates widget() const
+  { return Coordinates(jsEvent_.widgetX, jsEvent_.widgetY); }
+
+  /*! \brief Get the distance over which the mouse has been dragged.
+   *
+   * This is only defined for a mouseWentUp event.
+   */
+  Coordinates dragDelta() const
+  { return Coordinates(jsEvent_.dragDX, jsEvent_.dragDY); }
+
+  /*! \brief Returns whether the alt key is pressed (<b>deprecated</b>).
+   *
+   * \deprecated Use modifiers() instead.
+   */
+  bool altKey() const { return (jsEvent_.modifiers & AltModifier) != 0; }
+
+  /*! \brief Returns whether the meta key is pressed (<b>deprecated</b>).
+   *
+   * \deprecated Use modifiers() instead.
+   */
+  bool metaKey() const { return (jsEvent_.modifiers & MetaModifier) != 0; }
+
+  /*! \brief Returns whether the control key is pressed (<b>deprecated</b>).
+   *
+   * \deprecated Use modifiers() instead.
+   */
+  bool ctrlKey() const { return (jsEvent_.modifiers & ControlModifier) != 0; }
+
+  /*! \brief Returns whether the shift key is pressed (<b>deprecated</b>).
+   *
+   * \deprecated Use modifiers() instead.
+   */
+  bool shiftKey() const { return (jsEvent_.modifiers & ShiftModifier) != 0; }
+
+  WMouseEvent(const JavaScriptEvent& jsEvent);
+
+protected:
+  JavaScriptEvent jsEvent_;
+};
+
+/*! \brief Enumeration for key codes
+ *
+ * These are key codes that identify a key on a keyboard. All keys
+ * listed here can be identified across all browsers and (Western)
+ * keyboards. A %Key is returned by WKeyEvent::key(). If you want to
+ * identify a character, you should use the WKeyEvent::charCode()
+ * method instead.
+ *
+ * \sa WInteractWidget::keyWentDown, WInteractWidget::keyWentUp
+ *
+ * \ingroup signalslot
+ */
+enum Key {
+  Key_unknown = 0,     //!< Unknown key.
+  Key_Enter = 13,      //!< Enter key.
+  Key_Tab = 9,         //!< Tab key.
+  Key_Backspace = 8,   //!< Backspace key.
+  Key_Shift = 16,      //!< Shift key.
+  Key_Control = 17,    //!< Control key.
+  Key_Alt = 18,        //!< Alt key.
+  Key_PageUp = 33,     //!< Page up key.
+  Key_PageDown = 34,   //!< Page down key.
+  Key_End = 35,        //!< End key.
+  Key_Home = 36,       //!< Home key.
+  Key_Left = 37,       //!< Left arrow key.
+  Key_Up = 38,         //!< Up arrow key.
+  Key_Right = 39,      //!< Right arrow key.
+  Key_Down = 40,       //!< Down arrow key.
+  Key_Insert = 45,     //!< Insert key.
+  Key_Delete = 46,     //!< Delete key.
+  Key_Escape = 27,     //!< Escape key.
+  Key_F1 = 112,        //!< F1 function key.
+  Key_F2 = 113,        //!< F2 function key.
+  Key_F3 = 114,        //!< F3 function key.
+  Key_F4 = 115,        //!< F4 function key.
+  Key_F5 = 116,        //!< F5 function key.
+  Key_F6 = 117,        //!< F6 function key.
+  Key_F7 = 118,        //!< F7 function key.
+  Key_F8 = 119,        //!< F8 function key.
+  Key_F9 = 120,        //!< F9 function key.
+  Key_F10 = 121,       //!< F10 function key.
+  Key_F11 = 122,       //!< F11 function key.
+  Key_F12 = 123,       //!< F12 function key.
+  Key_Space = ' ',     //!< Space
+  Key_A = 'A',         //!< 'A' key
+  Key_B = 'B',         //!< 'B' key
+  Key_C = 'C',         //!< 'C' key
+  Key_D = 'D',         //!< 'D' key
+  Key_E = 'E',         //!< 'E' key
+  Key_F = 'F',         //!< 'F' key
+  Key_G = 'G',         //!< 'G' key
+  Key_H = 'H',         //!< 'H' key
+  Key_I = 'I',         //!< 'I' key
+  Key_J = 'J',         //!< 'J' key
+  Key_K = 'K',         //!< 'K' key
+  Key_L = 'L',         //!< 'L' key
+  Key_M = 'M',         //!< 'M' key
+  Key_N = 'N',         //!< 'N' key
+  Key_O = 'O',         //!< 'O' key
+  Key_P = 'P',         //!< 'P' key
+  Key_Q = 'Q',         //!< 'Q' key
+  Key_R = 'R',         //!< 'R' key
+  Key_S = 'S',         //!< 'S' key
+  Key_T = 'T',         //!< 'T' key
+  Key_U = 'U',         //!< 'U' key
+  Key_V = 'V',         //!< 'V' key
+  Key_W = 'W',         //!< 'W' key
+  Key_X = 'X',         //!< 'X' key
+  Key_Y = 'Y',         //!< 'Y' key
+  Key_Z = 'Z'          //!< 'Z' key
+};
+
+/*! \class WKeyEvent Wt/WEvent Wt/WEvent
+ *  \brief A class providing details for a keyboard event.
+ *
+ * A key event is associated with the WInteractWidget::keyWentDown,
+ * WInteractWidget::keyWentUp and WInteractWidget::keyPressed signals.
+ *
+ * \ingroup signalslot
+ */
+class WT_API WKeyEvent
+{
+public:
+  /*! \brief Default constructor
+   */
+  WKeyEvent();
+
+  /*! \brief Returns the key code key that was pressed or released.
+   *
+   * The key code corresponds to the actual key on the keyboard,
+   * rather than the generated character.
+   *
+   * All three types of key events provide this information.
+   *
+   * \sa modifiers(), charCode()
+   */
+  Key key() const;
+
+  /*! \brief Returns keyboard modifiers.
+   *
+   * The result is a logical OR of \link Wt::KeyboardModifier
+   * KeyboardModifier\endlink flags.
+   *
+   * All three types of key events provide this information.
+   *
+   * \sa key(), charCode()
+   */
+  int modifiers() const { return jsEvent_.modifiers; }
+
+  /*! \brief Returns the unicode character code.
+   *
+   * This is only defined for a \link WInteractWidget::keyPressed
+   * keyPressed \endlink event, and returns the unicode character code
+   * of a character that is entered.
+   *
+   * For the \link WInteractWidget::keyWentDown keyWentDown \endlink
+   * and \link WInteractWidget::keyWentUp keyWentUp \endlink events,
+   * '0' is returned.
+   *
+   * The charCode() may be different from key(). For example, a \link
+   * Wt::Key_M Key_M\endlink key may correspond to 'm' or 'M'
+   * character, depending on whether the shift key is pressed
+   * simultaneously.
+   *
+   * \sa key(), text()
+   */
+  int charCode() const;
+
+  /*! \brief The (unicode) text that this key generated.
+   *
+   * This is only defined for a \link WInteractWidget::keyPressed
+   * keyPressed \endlink event, and returns a string that holds
+   * exactly one unicode character, which corresponds to charCode().
+   *
+   * For the \link WInteractWidget::keyWentDown keyWentDown \endlink
+   * and \link WInteractWidget::keyWentUp keyWentUp \endlink events,
+   * an empty string is returned.
+   *
+   * \sa charCode()
+   */
+  WString text() const;
+
+  /*! \brief Returns the raw key code (<b>deprecated</b>).
+   *
+   * \deprecated The value returned is somewhat browser-specific, and
+   * it is therefore recommended to use the key() method instead.
+   *
+   * \sa key()
+   */
+  int keyCode() const { return jsEvent_.keyCode; }
+
+  /*! \brief Returns whether the alt key is pressed (<b>deprecated</b>).
+   *
+   * \deprecated Use modifiers() instead.
+   */
+  bool altKey() const { return (jsEvent_.modifiers & AltModifier) != 0; }
+
+  /*! \brief Returns whether the meta key is pressed (<b>deprecated</b>).
+   *
+   * \deprecated Use modifiers() instead.
+   */
+  bool metaKey() const { return (jsEvent_.modifiers & MetaModifier) != 0; }
+
+  /*! \brief Returns whether the control key is pressed (<b>deprecated</b>).
+   *
+   * \deprecated Use modifiers() instead.
+   */
+  bool ctrlKey() const { return (jsEvent_.modifiers & ControlModifier) != 0; }
+
+  /*! \brief Returns whether the shift key is pressed (<b>deprecated</b>).
+   *
+   * \deprecated Use modifiers() instead.
+   */
+  bool shiftKey() const { return (jsEvent_.modifiers & ShiftModifier) != 0; }
+
+  WKeyEvent(const JavaScriptEvent& jsEvent);
+
+private:
+  JavaScriptEvent jsEvent_;
+};
+
+/*! \class WDropEvent Wt/WEvent Wt/WEvent
+ *  \brief A class providing details for a drop event.
+ *
+ * \sa WWidget::dropEvent(WDropEvent)
+ *
+ * \ingroup signalslot
+ */
+class WT_API WDropEvent
+{
+public:
+  WDropEvent(WObject *source, const std::string& mimeType,
+	     const WMouseEvent& mouseEvent);
+
+  /*! \brief The source of the drag&drop operation.
+   *
+   * The source is the widget that was set draggable using
+   * WInteractWidget::setDraggable().
+   */
+  WObject *source() const { return dropSource_; }
+
+  /*! \brief The mime type of this drop event.
+   */
+  const std::string& mimeType() const { return dropMimeType_; }
+
+  /*! \brief Return the original mouse event.
+   */
+  const WMouseEvent& mouseEvent() const { return mouseEvent_; }
+
+private:
+  WObject            *dropSource_;
+  std::string         dropMimeType_;
+  const WMouseEvent&  mouseEvent_;
+};
+
+/*! \class WScrollEvent Wt/WEvent Wt/WEvent
+ *  \brief A class providing details for a scroll event.
+ *
+ * \sa WContainerWidget::scrolled
+ *
+ * \ingroup signalslot
+ */
+class WT_API WScrollEvent
+{
+public:
+  /*! \brief Default constructor
+   */
+  WScrollEvent();
+
+  /*! \brief Returns the current horizontal scroll position.
+   *
+   * \sa scrollY(), viewportWidth()
+   */
+  int scrollX() const { return jsEvent_.scrollX; }
+
+  /*! \brief Returns the current vertical scroll position.
+   *
+   * \sa scrollX(), viewportHeight()
+   */
+  int scrollY() const { return jsEvent_.scrollY; }
+
+  /*! \brief Returns the current horizontal viewport width.
+   *
+   * Returns the current viewport width.
+   *
+   * \sa viewportHeight(), scrollX()
+   */
+  int viewportWidth() const { return jsEvent_.viewportWidth; }
+
+  /*! \brief Returns the current horizontal viewport height.
+   *
+   * Returns the current viewport height.
+   *
+   * \sa viewportWidth(), scrollY()
+   */
+  int viewportHeight() const { return jsEvent_.viewportHeight; }
+
+private:
+  JavaScriptEvent jsEvent_;
+
+  WScrollEvent(const JavaScriptEvent& jsEvent);
+
+  friend class EventSignal<WScrollEvent>;
+};
+
+class WT_API WResponseEvent
+{
+public:
+  const std::string& response() { return jsEvent_.response; }
+
+private:
+  JavaScriptEvent jsEvent_;
+
+  WResponseEvent(const JavaScriptEvent& jsEvent);
+
+  friend class EventSignal<WResponseEvent>;
+};
+
+}
+
+#endif // WEVENT_H_

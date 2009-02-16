@@ -1,0 +1,197 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPEN_H_
+#define WPEN_H_
+
+#include <Wt/WLength>
+#include <Wt/WColor>
+
+namespace Wt {
+
+/*! \brief Enumeration that indicates a pen style.
+ *
+ * \ingroup painting
+ *
+ * \relates WPen
+ */
+enum PenStyle {
+  NoPen = 0x0,          //!< Do not stroke
+  SolidLine = 0x1,      //!< Stroke with a solid line
+  DashLine = 0x2,       //!< Stroked with a dashed line
+  DotLine = 0x3,        //!< Stroke with a dotted line
+  DashDotLine = 0x4,    //!< Stroke with a dash dot line
+  DashDotDotLine = 0x5  //!< Stroke with a dash dot dot line
+};
+
+/*! \brief Enumeration that indicates how line end points are rendered
+ *
+ * \ingroup painting
+ *
+ * \relates WPen
+ */
+enum PenCapStyle {
+  FlatCap = 0x00,       //!< Flat ends
+  SquareCap = 0x10,     //!< Square ends (prolongs line with half width)
+  RoundCap = 0x20       //!< Round ends (terminates with a half circle)
+};
+
+/*! \brief Enumeration that indicates how line joins are rendered.
+ *
+ * \ingroup painting
+ *
+ * \relates WPen
+ */
+enum PenJoinStyle {
+  MiterJoin = 0x00,     //!< Pointy joins
+  BevelJoin = 0x40,     //!< Squared-off joins
+  RoundJoin = 0x80      //!< Rounded joins
+};
+
+/*! \class WPen Wt/WPen Wt/WPen
+ *  \brief Class that defines the style for pen strokes
+ *
+ * A pen defines the properties of how lines (that may surround
+ * shapes) are rendered.
+ *
+ * A pen of width 0 is a cosmetic pen, and is always rendered as 1 pixel
+ * width.
+ *
+ * \sa WPainter::setPen(), WBrush
+ *
+ * \ingroup painting
+ */
+class WT_API WPen
+{
+public:
+  /*! \brief Default constructor.
+   *
+   * Constructs a black solid pen of 0 width, with \link
+   * Wt::SquareCap SquareCap\endlink line ends and \link Wt::BevelJoin
+   * BevelJoin\endlink line join style.
+   */
+  WPen();
+
+  /*! \brief Construct a black pen with a particular style.
+   *
+   * Constructs a black pen of 0 width, with \link Wt::SquareCap
+   * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
+   * line join style.
+   *
+   * The line style is set to <i>style</i>.
+   */
+  WPen(PenStyle style);
+
+  /*! \brief Construct a solid pen of a particular color.
+   *
+   * Constructs a solid pen of 0 width, with \link Wt::SquareCap
+   * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
+   * line join style.
+   *
+   * The pen color is set to <i>color</i>.
+   */
+  WPen(const WColor& color);
+
+  /*! \brief Construct a solid pen of a particular standard color.
+   *
+   * Constructs a solid pen of 0 width, with \link Wt::SquareCap
+   * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
+   * line join style.
+   *
+   * The pen color is set to <i>color</i>.
+   */
+  WPen(GlobalColor color);
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the pens are exactly the same.
+   */
+  bool operator==(const WPen& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the pens are different.
+   */
+  bool operator!=(const WPen& other) const;
+
+  /*! \brief Change the pen style.
+   *
+   * \sa style()
+   */
+  void setStyle(PenStyle style);
+
+  /*! \brief Return the pen style.
+   *
+   * \sa setStyle(PenStyle)
+   */
+  PenStyle style() const
+    { return static_cast<PenStyle>(style_ & StyleMask_); }
+
+  /*! \brief Change the style for rendering line ends.
+   *
+   * \sa capStyle()
+   */
+  void setCapStyle(PenCapStyle style);
+
+  /*! \brief Returns the style for rendering line ends.
+   *
+   * \sa setCapStyle(PenCapStyle)
+   */
+  PenCapStyle capStyle() const
+    { return static_cast<PenCapStyle>(style_ & CapStyleMask_); }
+
+  /*! \brief Change the style for rendering line joins.
+   *
+   * \sa joinStyle()
+   */
+  void setJoinStyle(PenJoinStyle style);
+
+  /*! \brief Returns the style for rendering line joins.
+   *
+   * \sa setJoinStyle(PenJoinStyle)
+   */
+  PenJoinStyle joinStyle() const
+    { return static_cast<PenJoinStyle>(style_ & JoinStyleMask_); }
+
+  /*! \brief Change the pen width.
+   *
+   * A pen width <i>must</i> be specified using WLength::Pixel units.
+   *
+   * \sa width()
+   */
+  void setWidth(const WLength& width);
+
+  /*! \brief Returns the pen width.
+   *
+   * \sa setWidth(const WLength&)
+   */
+  const WLength& width() const { return width_; }
+
+  /*! \brief Change the pen color.
+   *
+   * \sa color()
+   */
+  void setColor(const WColor& color);
+
+  /*! \brief Returns the pen color.
+   *
+   * \sa color()
+   */
+  const WColor& color() const { return color_; }
+
+private:
+  static const unsigned StyleMask_ = 0x0F;
+  static const unsigned CapStyleMask_ = 0x30;
+  static const unsigned JoinStyleMask_ = 0xC0;
+
+  unsigned style_; // (OR of PenStyle, CapStyle and JoinStyle)
+  WLength  width_;
+  WColor   color_;
+};
+
+}
+
+#endif // WPEN_H_

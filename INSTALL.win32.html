@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+</head>
+<title>Wt Installation</title>
+<body>
+<h1>Wt Installation instructions for Windows</h1>
+
+This page lists the instructions for building and installing Wt on Windows.
+It is organized in 3 sections:
+<ul>
+<li>Requirements</li>
+<li>Building and installing the library</li>
+<li>Trying the examples (or your own Wt application)</li>
+</ul>
+
+<h2>Requirements</h2>
+
+<p>
+Wt for Windows uses the built-in web server connector - fastcgi is not
+supported. The built-in web server is more convenient during development
+and is easier to setup. To use the built-in server, you have to link your
+projects against libwt and libwthttp.</p>
+
+<p>Requirements:
+<ul>
+  <li>Microsoft Visual Studio C++ 2005. Wt and all its dependencies also
+      build on the Express Edition, which is free (as in beer) to use. If you
+      use the Express Edition, you will also need to install the Platform
+      SDK, which can be downloaded from Microsoft. It is recommended to
+      upgrade your MSVC 2005 with Service Pack 1 as it contains important
+      bugfixes. We have not tested Wt on older versions of MSVC.</li>
+  <li>CMake cross-platform build system (www.cmake.org): cmake-2.4.x,
+      Windows version.</li>
+  <li>Boost 1_33_1 (or later), plus boost_asio_0_3_7 (or later), until
+      boost_asio is officially part of boost. boost_asio_0_3_7 needs a
+      small patch to solve an initialization bug which is critical for Wt.</li>
+  <li>Xerces-C++ XML parser, version 2.7.0 or newer.</li>
+  <li>OpenSSL, version 0.9.8d or newer.</li>
+  <li>zlib 1.2.3</li>
+</ul>
+</p>
+
+<p>Additional and optional requirements for some of the examples
+<ul>
+<li>libgd (style, wt-homepage, mandelbrot)</li>
+<li>libmysql and libmysql++-2.x (hangman)</li>
+</ul>
+</p>
+
+<p>On unix systems, libraries are usually installed in standard locations,
+with their header files in /usr/include (or variants) and the libraries in
+/usr/lib (or variants). Windows does not have such standard locations for
+storing header files and libraries. Therefore, you will have to point out
+where the libraries can be found. If you follow the recommendations below,
+the task of specifying these paths will be require minimal effort (but
+you'll still have to ensure that the executable will be able to locate the
+DLLs at runtime, e.g. by adding the directories to PATH).
+</p>
+
+<p>CMake will automatically locate your libraries in subdirectories of
+USERLIB_ROOT (defaults to c:/libraries). Use the following directories:
+<ul>
+  <li>Boost: During configuration of Boost, set the prefix to $USERLIB_ROOT/Boost</li>
+  <li>Boost asio: unpack boost asio to $USERLIB_ROOT/Boost/boost_asio_0_3_7</li>
+  <li>Xerces-C++: TBD</li>
+  <li>OpenSSL: TBD</li>
+  <li>zlib: TBD</li>
+  <li>libgd: TBD</li>
+  <li>libmysql: TBD</li>
+  <li>libmysql++: TBD</li>
+</ul>
+
+<p>
+We stronly recommend to use libraries which are all built using the same
+compiler (MSVC 2005 SP1) and the same runtime configuration (/MT, /MD, /MTd
+or /MDd) to avoid incompatibilities with the C runtime libraries. Mixing
+CRTs is NOT recommended, the <a href="http://www.zlib.net/DLL_FAQ.txt">zlib
+DLL FAQ</a> clearly explains why and what you should do about it (in
+short: use MSVC 2005 prebuilt libraries, and if not available, rebuild
+the dependency libraries from the sources).
+</p>
+
+<hr />
+
+<h2>Building and installing the Wt library</h2>
+
+<h4>1. Run CMake</h4>
+
+<p>In the CMake GUI, set the 'Where is your source code' to the location where
+you unpacked the source code. Set 'Where to build the binaries' to a build
+directory (can be the same as the location of the source code). Press
+'Configure' and choose 'Build For Visual Studio 8 2005'.</p>
+
+<p>During configuration, you will see messages that confirm that fastcgi is
+disabled, and that wthttp is enabled. You will probably also receive
+notifications of dependencies that were not found. You can now manually
+adjust the paths to the dependencies and other configuration parameters,
+and press the 'Configure' button again. When your configuration is complete,
+press 'Ok' and a solution file will be generated.</p>
+
+
+<p>Some variables you may want to change are:</p>
+
+<dl>
+<dt><strong>CMAKE_INSTALL_PREFIX</strong></dt>
+<dd>Installation prefix for the library and include files)</dd>
+<dt><strong>CONFIGURATION</strong></dt>
+<dd>Location of the configuration file</dd>
+</dl>
+
+<h4>2. Build the library and the examples</h4>
+
+Start Microsoft Visual Studio, open the generated solution file, and
+select Build->Build Solution (or hit F7).
+
+<h4>3. Install the library:</h4>
+
+No installation is required for wt applications, as long as the application
+is able to locate its dependencies (.dll files). Add the directories to the
+dependencies to the PATH, copy them to the current directory, or to any other
+location where Windows looks for dll files.
+
+<hr />
+
+<h2>Trying the examples (or your own Wt application)</h2>
+
+<h3>Using wthttpd</h3>
+
+<h4>1. Run the example <i>X</i></h4> in the MSVC IDE
+
+Right-click on the example project you want to run, and select 'Properties'.
+In Configuration Properties->Debugging, set the Command Arguments to
+<pre>
+--http-address=0.0.0.0 --http-port=8080 --deploy-path=/hello --docroot=.
+</pre>
+The easiest way to locate the dependency dlls, is to append their location
+to the PATH variable. In order to do so, change the Environment field to
+contain a PATH directive:
+<pre>
+PATH=c:/libraries/lib;c:/Boost/lib;&lt;path to wt.dll&gt;;&lt;path to wthttp.dll&gt;
+</pre>
+
+<p>
+This will start a httpd server listening on all local interfaces, on
+port 8080, and you may browse the example at <a
+href="http://127.0.0.1:8080/hello">http://127.0.0.1:8080/hello</a></p>
+
+<p>
+These are all the command-line options that are available:
+<pre>
+General options:
+  -h [ --help ]              produce help message
+  -t [ --threads ] arg (=10) number of threads
+  --docroot arg              document root for static files
+  --no-compression           do not compress dynamic text/html and text/plain 
+                             responses
+  --deploy-path arg (=/)     location for deployment
+
+HTTP server options:
+  --http-address arg    IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
+  --http-port arg (=80) HTTP port (e.g. 80)
+
+HTTPS server options:
+  --https-address arg     IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
+  --https-port arg (=443) HTTPS port (e.g. 443)
+  --ssl-certificate arg   SSL server certificate chain file
+                          e.g. "/etc/ssl/certs/vsign1.pem"
+  --ssl-private-key arg   SSL server private key file
+                          e.g. "/etc/ssl/private/company.pem"
+  --ssl-tmp-dh arg        File for temporary Diffie-Hellman parameters
+                          e.g. "/etc/ssl/dh512.pem"
+</pre>
+</p>
+
+</body>
+</html>

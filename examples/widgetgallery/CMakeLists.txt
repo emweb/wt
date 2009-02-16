@@ -1,0 +1,51 @@
+ADD_EXECUTABLE(widgetgallery.wt
+  main.C
+  BasicControls.C
+  ChartWidgets.C
+  ControlsWidget.C
+  DialogWidgets.C
+  EventsDemo.C
+  EventDisplayer.C
+  WidgetGallery.C
+  ExtWidgets.C
+  FormWidgets.C
+  GraphicsWidgets.C
+  MvcWidgets.C
+  Validators.C
+  StyleLayout.C
+  ../charts/ChartsExample.C
+  ../charts/ChartConfig.C
+  ../charts/CsvUtil.C
+  ../charts/PanelList.C
+  ../dragdrop/Character.C
+  ../dragdrop/DragExample.C
+  ../painting/PaintExample.C
+  ../painting/ShapesWidget.C
+  ../treeview/TreeViewExample.C
+)
+TARGET_LINK_LIBRARIES(widgetgallery.wt wtext ${EXAMPLES_CONNECTOR})
+
+#
+# If you have Wt installed somehwere, you should use the
+# installed Wt header files for your own Wt projects.
+# e.g. INCLUDE_DIRECTORIES(/usr/local/include)
+# instead of the following:
+#
+INCLUDE_DIRECTORIES(
+  ${WT_SOURCE_DIR}/src
+  ../charts
+  ../dragdrop
+  ../painting
+  ../treeview
+)
+
+#
+# Create a deploy script
+#
+SET(APPNAME widgetgallery)
+SET(APPBIN widgetgallery.wt)
+SET(APPRESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/icons ${CMAKE_CURRENT_SOURCE_DIR}/*.xml ${CMAKE_CURRENT_SOURCE_DIR}/*.css ${CMAKE_CURRENT_SOURCE_DIR}/*.csv")
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/deploy.sh
+  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
+)

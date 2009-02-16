@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="treeview-introduction">
+    <h2>WTreeView example</h2>
+
+    <p>This example illustrates the WTreeView widget. This widget is
+    part of Wt's MVC widgets, and are an alternative to the WTree, and
+    WTreeTable widgets which are not MVC.</p>
+
+    <p>The widget supports very large models by loading only the
+    visible region (with some margin) in the browser. This results in
+    low memory consumption (on client and server) and fast load
+    times.</p>
+
+    <p>This example uses a WStandardItemModel to populate the tree
+    table. As is demonstrated, various roles may be used to indicate
+    text, icons, selectable items (through check boxes), and also URLs
+    or internal paths.</p>
+
+    <p>Many aspects of the tree view widget are not illustrated here,
+    such as the various supported selection behaviors and modes, and
+    reacting to item click events</p>
+
+    <p>Except for the selection of items, the view does not yet offer
+    the possibility to modify the model. Together with more fine
+    grained control of how to display the data through delegates,
+    support for editing will be added in the near future.</p>
+  </message>
+</messages>

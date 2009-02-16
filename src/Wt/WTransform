@@ -1,0 +1,248 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTRANSFORM_H_
+#define WTRANSFORM_H_
+
+#include "Wt/WDllDefs.h"
+
+namespace Wt {
+
+class WPointF;
+
+/*! \class WTransform Wt/WTransform Wt/WTransform
+ *  \brief A 2D affine transformation matrix.
+ *
+ * The matrix is encoded using 6 parameters:
+ *  \verbatim
+    m11  m12   0
+    m21  m22   0
+    dx   dy    1
+    \endverbatim
+ * 
+ * In this representation, dx (=m31) and dy (=m32) represent the
+ * translation components, and m<i>xy</i> represent a 2D matrix that
+ * contains the scale, rotation (and skew) components.
+ *
+ * \ingroup painting
+ */
+class WT_API WTransform
+{
+public:
+  /*! \brief Default constructor.
+   *
+   * Creates the identity transformation matrix.
+   */
+  WTransform();
+
+  /*! \brief Construct a custom matrix by specifying the parameters.
+   *
+   * Creates a matrix from the specified parameters.
+   */
+  WTransform(double m11, double m12, double m21, double m22,
+	     double dx, double dy);
+
+  /*! \brief Assignment operator.
+   *
+   * Copies the transformation from the <i>rhs</i>.
+   */
+  WTransform& operator=(const WTransform& rhs);
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the transforms are exactly the same.
+   */
+  bool operator==(const WTransform& rhs) const;
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the transforms are different.
+   */
+  bool operator!=(const WTransform& rhs) const;
+
+  /*! \brief Identity check.
+   *
+   * Returns true if the transform represents an identity transformation.
+   */
+  bool isIdentity() const;
+  
+  /*! \brief Returns the horizontal scaling factor.
+   */
+  double m11() const { return m_[M11]; }
+
+  /*! \brief Returns the vertical shearing factor.
+   */
+  double m12() const { return m_[M21]; }
+
+  /*! \brief Returns m13 = 0.
+   */
+  double m13() const { return 0; }
+
+  /*! \brief Returns the horizontal shearing factor.
+   */
+  double m21() const { return m_[M12]; }
+
+  /*! \brief Returns the vertical scaling factor.
+   */
+  double m22() const { return m_[M22]; }
+
+  /*! \brief Returns m23 = 0.
+   */
+  double m23() const { return 0; }
+
+  /*! \brief Returns the horizontal translation factor.
+   *
+   * Is equivalent to dx()
+   */
+  double m31() const { return m_[M13]; }
+
+  /*! \brief Returns the vertical translation factor.
+   *
+   * Is equivalent to dy()
+   */
+  double m32() const { return m_[M23]; }
+
+  /*! \brief Returns m33 = 1.
+   */
+  double m33() const { return 1; }
+
+  /*! \brief Returns the horizontal translation factor.
+   *
+   * Is equivalent to m31()
+   */
+  double dx() const { return m_[DX]; }
+
+  /*! \brief Returns the vertical translation factor.
+   *
+   * Is equivalent to m32()
+   */
+  double dy() const { return m_[DY]; }
+
+  /*! \brief Apply the transformation to a point.
+   *
+   * Returns the transformed point.
+   *
+   * \sa map(double x, double y, double *tx, double *ty) const
+   */
+  WPointF map(const WPointF& p) const;
+
+  /*! \brief Apply the transformation to a point.
+   *
+   * Sets the point (<i>tx</i>, <i>ty</i>) to the transformation of
+   * the point (<i>x</i>, <i>y</i>).
+   *
+   * \sa map(const WPointF&)
+   */
+  void map(double x, double y, double *tx, double *ty) const;
+
+  /*! \brief Resets the transformation to the identity.
+   *
+   * \sa isIdentity(), WTransform()
+   */
+  void reset();
+
+  /*! \brief Rotate the transformation.
+   *
+   * Applies a clock-wise rotation to the current transformation
+   * matrix, over <i>angle</i> degrees.
+   *
+   * \sa rotateRadians(double)
+   */
+  WTransform& rotate(double angle);
+
+  /*! \brief Rotate the transformation.
+   *
+   * Applies a clock-wise rotation to the current transformation
+   * matrix, over <i>angle</i> radians.
+   *
+   * \sa rotate(double)
+   */
+  WTransform& rotateRadians(double angle);
+
+  /*! \brief Scale the transformation.
+   *
+   * Applies a clock-wise rotation to the current transformation
+   * matrix, over <i>angle</i> radians.
+   *
+   * \sa shear(double, double)
+   */
+  WTransform& scale(double sx, double sy);
+
+  /*! \brief Shear the transformation.
+   *
+   * Shears the current transformation
+   *
+   * \sa scale(double, double), rotate(double, double)
+   */
+  WTransform& shear(double sh, double sv);
+
+  /*! \brief Translate the transformation.
+   *
+   * Translates the current transformation
+   */
+  WTransform& translate(double dx, double dy);
+
+  static double degreesToRadians(double angle);
+
+  // adds a transform that is conceptually applied after this transform.
+  WTransform& operator*= (const WTransform& rhs);
+  WTransform operator* (const WTransform& rhs) const;
+
+  double determinant() const;
+  WTransform adjoint() const;
+  WTransform inverted() const;
+
+  /*! \brief Decompose the transformation
+   *
+   * Decomposes the transformation into elementary operations:
+   * translation (<i>dx</i>, <i>dy</i>), followed by rotation
+   * (<i>alpha</i>), followed by scale (<i>sx</i>, <i>sy</i>) and
+   * vertical shearing factor (<i>sh</i>). The angle is expressed in
+   * radians.
+   *
+   * This performs a Gram-Schmidt orthonormalization.
+   */
+  void decomposeTranslateRotateScaleSkew(double& dx, double& dy,
+					 double& alpha,
+					 double& sx, double& sy,
+					 double& sh) const;
+
+  /*! \brief Decompose the transformation
+   *
+   * Decomposes the transformation into elementary operations:
+   * translation (<i>dx</i>, <i>dy</i>), followed by rotation
+   * (<i>alpha2</i>), followed by scale (<i>sx</i>, <i>sy</i>) and
+   * again a rotation (<i>alpha2</i>). The angles are expressed in
+   * radians.
+   *
+   * This performs a Singular Value Decomposition.
+   */
+  void decomposeTranslateRotateScaleRotate(double& dx, double& dy,
+					   double& alpha1,
+					   double& sx, double& sy,
+					   double& alpha2) const;
+
+private:
+  // we use row,column indices; prepend transformations to the left,
+  // and transform column point vectors: X' = M.X
+
+  // by row: real 2x2 matrix:
+  static const int M11 = 0;
+  static const int M12 = 1;
+  static const int M21 = 2;
+  static const int M22 = 3;
+
+  static const int M13 = 4;
+  static const int DX = 4;
+  static const int M23 = 5;
+  static const int DY = 5;
+
+  double m_[6];
+};
+
+}
+
+#endif // WTRANSFORM_H_

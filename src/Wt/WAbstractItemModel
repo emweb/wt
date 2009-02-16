@@ -1,0 +1,810 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WABSTRACT_ITEM_MODEL_H_
+#define WABSTRACT_ITEM_MODEL_H_
+
+#include <Wt/WObject>
+#include <Wt/WModelIndex>
+#include <Wt/WSignal>
+#include <Wt/WString>
+#include <Wt/WWidget>
+
+#include <boost/any.hpp>
+
+namespace Wt {
+
+  /*! \brief Flags that specify how to match two values.
+   *
+   * Except when MatchExactly, the lexical matching is done (by comparing
+   * string representations of the value with the query). This is by default
+   * case insensitive, unless MatchCaseSensitive is OR'ed.
+   *
+   * \ingroup modelview
+   */
+  enum MatchFlags {
+    MatchExactly = 0,         //!< Same type and value
+    MatchStringExactly = 1,   //!< Lexical match
+    MatchStartsWith = 2,      //!< Match start with query
+    MatchEndsWith = 3,        //!< Match end with query
+    MatchRegExp = 4,          //!< Regular expression match
+    MatchWildCard = 5,        //!< Wildcard match
+    MatchCaseSensitive = 0x10,//!< Case sensitive
+    MatchWrap = 0x20          //!< Wrap around whole model
+  };
+
+/*! \class WAbstractItemModel Wt/WAbstractItemModel Wt/WAbstractItemModel
+ *  \brief An abstract model for use with %Wt's view classes.
+ *
+ * This abstract model is used by several %Wt view widgets (WComboBox,
+ * WSelectionBox, WTreeView, Ext::ComboBox, and Ext::TableView) as
+ * data models.
+ *
+ * In general, it organizes data in a hierarchical structure of
+ * tables, where every item stores data and optionally a nested table
+ * of data. Every data item is at a particular row and column of a
+ * parent item, and items may be referenced using the helper class
+ * WModelIndex. Top level data have an \link WModelIndex::isValid()
+ * invalid\endlink parent WModelIndex.
+ *
+ * Column header data may also be specified, for each top-level
+ * column.
+ *
+ * The data itself is of type boost::any, which can either be empty, or hold
+ * any of the following type of data:
+ *  - bool
+ *  - numbers: standard C++ numeric types (int, double, etc...)
+ *  - strings: WString or std::string
+ *  - dates: WDate
+ *
+ * Conversion between native types and boost::any is done like this:
+ * <ul>
+ *  <li>Conversion from <i>v</i> (of type <i>Type</i>) to boost::any <i>a</i>
+ *   (for setData() and setHeaderData())
+ *    <pre>
+ * boost::any <i>a</i> = boost::any(<i>v</i>);
+ *    </pre>
+ *   For example:
+ *    <pre>
+ * WDate d(1976,6,14);
+ * model->setData(row, column, boost::any(d));
+ *    </pre>
+ * 
+ *  </li>
+ *  <li>Conversion from boost::any <i>a</i> to <i>v</i> (of type <i>Type</i>)
+     (for data() and headerData()):
+ *    <pre>
+ * <i>Type v</i> = boost::any_cast<<i>Type</i>>(<i>a</i>);
+ *    </pre>
+ *   For example:
+ *    <pre>
+ * WDate d = boost::any_cast<WDate>(model->data(row, column));
+ *    </pre>
+ *  </li>
+ *  <li>Checking if a boost::any <i>a</i> holds a value:</li>
+ *    <pre>
+ * if (!<i>a</i>.empty()) {
+ *   ...
+ * }
+ *    </pre>
+ *  </li>
+ *  <li>Determining the value type of a boost::any <i>a</i>, for example:</li>
+ *    <pre>
+ * if (<i>a</i>.type() == typeid(double)) {
+ *   ...
+ * }
+ *    </pre>
+ *  </li>
+ * </ul>
+ *
+ * In addition, there are a number of utility functions that try to interpret
+ * a boost::any value as a string (asString()) or number (asNumber()).
+ *
+ * To implement a custom model, you need to reimplement the following methods:
+ *  - index() and parent() methods that allow one to navigate the model
+ *  - columnCount() and rowCount() to specify the top level geometry and the
+ *    nested geometry at every item
+ *  - data() to return the data for an item
+ *  - optionally, headerData() to return row and column header data
+ *  - optionally, flags() to indicate data options
+ *
+ * A crucial point in implementing a hierarchial model is to decide
+ * how to reference an index in terms of an internal pointer
+ * (WModelIndex::internalPointer()) or internal id
+ * (WModelIndex::internalId()). Other than the top-level index, which
+ * is special since it is referenced using an \link
+ * WModelIndex::isValid() invalid\endlink index), every index with
+ * children must be identifiable using this number or pointer. For
+ * example, in the WStandardItemModel, the internal pointer points to
+ * the parent WStandardItem. For table models, the internal pointer
+ * plays no role, since only the toplevel index has children.
+ *
+ * If you want to support editing of the model, then you also need to
+ * reimplement:
+ *  - setData() and setHeaderData() to change data. View classes will use
+ *    the \link Wt::EditRole EditRole\endlink to pass an edited value.
+ *
+ * After data was modified, the model must emit the \link
+ * WAbstractItemModel::dataChanged dataChanged\endlink signal.
+ *
+ * Finally, if you want to support insertion of new data or removal of
+ * data (changing the geometry) by any of the view classes, then you
+ * need to reimplement the following methods:
+ * - insertRows() and insertColumns()
+ * - removeRows() and removeColumns()
+ *
+ * Alternatively, you can provide your own API for changing the
+ * model. In either case it is important that you call the
+ * corresponding protected member functions which will emit the
+ * relevant signals so that views can adapt themselves to the new
+ * geometry.
+ *
+ * \ingroup modelview
+ */
+class WT_API WAbstractItemModel : public WObject
+{
+public:
+  /*! \brief Create a new data model.
+   */
+  WAbstractItemModel(WObject *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  virtual ~WAbstractItemModel();
+
+  /*! \brief Returns the number of columns.
+   *
+   * This returns the number of columns at index <i>parent</i>.
+   *
+   * \sa rowCount()
+   */
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const = 0;
+
+  /*! \brief Returns the number of rows.
+   *
+   * This returns the number of rows at index <i>parent</i>.
+   *
+   * \sa columnCount()
+   */
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const = 0;
+
+  // not yet used by WTreeView
+  virtual bool canFetchMore(const WModelIndex& parent) const;
+
+  // not yet used by WTreeView
+  virtual void fetchMore(const WModelIndex& parent);
+
+  /*! \brief Returns the flags for an item.
+   *
+   * The default implementation returns \link Wt::ItemIsSelectable
+   * ItemIsSelectable\endlink.
+   *
+   * \sa Wt::ItemFlag
+   */
+  virtual int flags(const WModelIndex& index) const;
+
+  /*! \brief Returns if there are children at an index.
+   *
+   * Returns true when rowCount(index) > 0 and columnCount(index) > 0.
+   *
+   * \sa rowCount(), columnCount()
+   */
+  virtual bool hasChildren(const WModelIndex& index) const;
+
+  /*! \brief Returns the parent for a model index.
+   *
+   * You should use createIndex() to create a model index that corresponds
+   * to the parent of a given index.
+   *
+   * \sa index()
+   */
+  virtual WModelIndex parent(const WModelIndex& index) const = 0;
+
+  /*! \brief Returns data at a specific model index.
+   *
+   * Return data for a given role at a given index.
+   *
+   * \sa flags(), headerData(), setData()
+   */
+  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
+    const = 0;
+
+  /*! \brief Returns all data at a specific index.
+   *
+   * This is a convenience function that returns a map with data
+   * corresponding to all standard roles.
+   *
+   * \sa data()
+   */
+  virtual std::map<int, boost::any> itemData(const WModelIndex& index)
+    const;
+
+  /*! \brief Returns the row or column header data.
+   *
+   * When <i>orientation</i> is \link Wt::Horizontal
+   * Horizontal\endlink, <i>section</i> is a column number, when
+   * <i>orientation</i> is \link Wt::Vertical Vertical\endlink,
+   * <i>section</i> is a row number.
+   *
+   * \sa data(), setHeaderData()
+   */
+  virtual boost::any headerData(int section,
+				Orientation orientation = Horizontal,
+				int role = DisplayRole) const;
+
+  /*! \brief Returns the child index for the given row and column.
+   *
+   * When implementing this method, you can use createIndex() to
+   * create an index that corresponds to the item at <i>row</i> and
+   * <i>column</i> within <i>parent</i>.
+   *
+   * If the location is invalid (out of bounds at the parent), then an
+   * invalid index must be returned.
+   *
+   * \sa parent()
+   */
+  virtual WModelIndex index(int row, int column,
+			    const WModelIndex& parent = WModelIndex())
+    const = 0;
+
+  /*! \brief Returns an index list for data items that match.
+   *
+   * Returns an index list of data items that match, starting at start, and
+   * searching further in that column. If flags specifes MatchWrap then the
+   * search wraps around from the start. If hits is not -1, then at most that
+   * number of hits are returned.
+   */
+  virtual WModelIndexList match(const WModelIndex& start,
+				int role,
+				const boost::any& value,
+				int hits = -1,
+				MatchFlags flags
+				  = MatchFlags(MatchStartsWith | MatchWrap))
+    const;
+
+  /*! \brief Returns the data item at the given column and row.
+   *
+   * This is a convenience method, and is equivalent to:
+   * \code
+   * index(row, column, parent).data(role)
+   * \endcode
+   *
+   * \sa index(), data()
+   */
+  boost::any data(int row, int column, int role = DisplayRole,
+		  const WModelIndex& parent = WModelIndex()) const;
+
+  /*! \brief Returns if an index at the given position is valid
+   *         (i.e. falls within the column-row bounds).
+   *
+   * Equivalent to:
+   * \code
+   * return row >= 0 && column >= 0
+   *        && row < rowCount(parent) && column < columnCount(parent);
+   * \endcode
+   *
+   * \sa rowCount(), columnCount()
+   */
+  virtual bool hasIndex(int row, int column,
+			const WModelIndex& parent = WModelIndex()) const;
+
+  /*! \brief Insert one or more columns.
+   *
+   * Returns true if the operation was successful.
+   *
+   * The default implementation returns false. If you reimplement this
+   * method, then you must call beginInsertColumns() and
+   * endInsertColumns() before and after the operation.
+   *
+   * \sa insertRows(), removeColumns(), beginInsertColumns(), endInsertColumns()
+   */
+  virtual bool insertColumns(int column, int count,
+			     const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Insert one or more rows.
+   *
+   * Returns true if the operation was successful. If you reimplement this
+   * method, then you must call beginInsertRows() and
+   * endInsertRows() before and after the operation.
+   *
+   * The default implementation returns false.
+   *
+   * \sa insertColumns(), removeRows(), beginInsertRows(), endInsertRows()
+   */
+  virtual bool insertRows(int row, int count,
+			  const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Remove columns.
+   *
+   * Returns true if the operation was successful.
+   *
+   * The default implementation returns false. If you reimplement this
+   * method, then you must call beginRemoveColumns() and
+   * endRemoveColumns() before and after the operation.
+   *
+   * \sa removeRows(), insertColumns(), beginRemoveColumns(), endRemoveColumns()
+   */
+  virtual bool removeColumns(int column, int count,
+			     const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Remove rows.
+   *
+   * Returns true if the operation was successful.
+   *
+   * The default implementation returns false. If you reimplement this
+   * method, then you must call beginRemoveRows() and endRemoveRows()
+   * before and after the operation.
+   *
+   * \sa removeColumns(), insertRows(), beginRemoveRows(), endRemoveRows()
+   */
+  virtual bool removeRows(int row, int count,
+			  const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Set data at the given model index.
+   *
+   * Returns true if the operation was successful.
+   *
+   * The default implementation returns false. If you reimplement this
+   * method, you must emit the the \link
+   * WAbstractItemModel::dataChanged dataChanged\endlink signal after
+   * data was changed.
+   *
+   * \sa data()
+   */
+  virtual bool setData(const WModelIndex& index, const boost::any& value,
+		       int role = EditRole);
+
+  /*! \brief Set data at the given model index.
+   *
+   * This is a convenience function that sets data for all roles at once.
+   *
+   * \sa setData()
+   */
+  virtual bool setItemData(const WModelIndex& index,
+			   const std::map<int, boost::any>& values);
+
+  /*! \brief Set header data for a column or row.
+   *
+   * Returns true if the operation was successful.
+   *
+   * \sa headerData()
+   */
+  virtual bool setHeaderData(int section, Orientation orientation,
+			     const boost::any& value,
+			     int role = EditRole);
+
+
+  /*! \brief Set column header data (<b>deprecated</b>).
+   *
+   * Returns true if the operation was successful.
+   *
+   * \deprecated Use setHeaderData(int, Orientation, const boost::any&, int)
+   *             instead.
+   */
+  bool setHeaderData(int section, const boost::any& value);
+
+  /*! \brief Sort the model according to a particular column.
+   *
+   * If the model supports sorting, then it should emit the \link
+   * WAbstractItemModel::layoutAboutToBeChanged layoutAboutToBeChanged
+   * \endlink signal, rearrange its items, and afterwards emit the
+   * \link WAbstractItemModel::layoutChanged layoutChanged
+   * \endlink signal.
+   *
+   * \sa layoutAboutToBeChanged, layoutChanged
+   */
+  virtual void sort(int column, SortOrder order = AscendingOrder);
+
+  /*! \brief Convert a model index to a raw pointer that remains valid
+   *         while the model's layout is changed. 
+   *
+   * Use this method to temporarily save model indexes while the model's
+   * layout is changed by for example a sorting operation.
+   *
+   * The default implementation returns 0, which indicates that the
+   * index cannot be converted to a raw pointer. If you reimplement
+   * this method, you also need to reimplemnt fromRawIndex().
+   *
+   * \sa layoutAboutToBeChanged, sort(), fromRawIndex()
+   */
+  virtual void *toRawIndex(const WModelIndex& index) const;
+
+  /*! \brief Convert a raw pointer to a model index. 
+   *
+   * Use this method to create model index from temporary raw
+   * pointers. It is the reciproce method of toRawIndex().
+   *
+   * You can return an invalid modelindex if the rawIndex no longer points
+   * to a valid item because of the layout change.
+   *
+   * \sa toRawIndex()
+   */
+  virtual WModelIndex fromRawIndex(void *rawIndex) const;
+
+  /*! \brief Returns a mime-type for dragging a set of indexes.
+   *
+   * This method returns a mime-type that describes dragging of a selection
+   * of items.
+   *
+   * The drop event will indicate a \link WItemSelectionModel
+   * selection model\endlink for this abstract item model as \link
+   * WDropEvent::source() source\endlink.
+   *
+   * The default implementation returns a mime-type for generic
+   * drag&drop support between abstract item models.
+   *
+   * \sa acceptDropMimeTypes()
+   */
+  virtual std::string mimeType() const;
+
+  /*! \brief Returns a list of mime-types that could be accepted for a
+   *         drop event.
+   *
+   * The default implementation only accepts drag&drop support between
+   * abstract item models.
+   *
+   * \sa mimeType()
+   */
+  virtual std::vector<std::string> acceptDropMimeTypes() const;
+
+  /*! \brief Handle a drop event.
+   *
+   * The default implementation only handles generic drag&drop between
+   * abstract item models. Source item data is copied (but not the
+   * source item's flags).
+   *
+   * The location in the model is indicated by the <i>row</i> and
+   * <i>column</i> within the <i>parent</i> index. If <i>row</i> is
+   * -1, then the item is appended to the <i>parent</i>. Otherwise,
+   * the item is inserted at or copied over the indicated item (and
+   * subsequent rows). When <i>action</i> is a \link Wt::MoveAction
+   * MoveAction\endlink, the original items are deleted from the
+   * source model.
+   *
+   * You may want to reimplement this method if you want to handle
+   * other mime-type data, or if you want to refine how the drop event
+   * of an item selection must be interpreted.
+   *
+   * \note Currently, only row selections are handled by the default
+   *       implementation.
+   *
+   * \sa mimeType(), WItemSelectionModel
+   */
+  virtual void dropEvent(const WDropEvent& e, DropAction action,
+			 int row, int column, const WModelIndex& parent);
+
+  /*! \brief Insert one column.
+   *
+   * This is a convenience method that adds a single column, and is
+   * equivalent to:
+   * \code
+   * insertColumns(column, 1, parent);
+   * \endcode
+   *
+   * Returns true if the operation was successful.
+   *
+   * \sa insertColumns()
+   */
+  bool insertColumn(int column, const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Insert one row.
+   *
+   * This is a convenience method that adds a single row, and is
+   * equivalent to:
+   * \code
+   * insertRows(row, 1, parent);
+   * \endcode
+   *
+   * Returns true if the operation was successful.
+   *
+   * \sa insertRows()
+   */
+  bool insertRow(int row, const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Remove one column.
+   *
+   * This is a convenience method that removes a single column, and is
+   * equivalent to:
+   * \code
+   * removeColumns(column, 1, parent);
+   * \endcode
+   *
+   * Returns true if the operation was successful.
+   *
+   * \sa removeColumns()
+   */
+  bool removeColumn(int column, const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Remove one row.
+   *
+   * This is a convenience method that removes a single row, and is
+   * equivalent to:
+   * \code
+   * removeRows(row, 1, parent);
+   * \endcode
+   *
+   * Returns true if the operation was successful.
+   *
+   * \sa removeRows()
+   */
+  bool removeRow(int row, const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Set data at the given row and column.
+   *
+   * This is a convience method, and is equivalent to:
+   * \code
+   * setData(index(row, column, parent), value, role);
+   * \endcode
+   *
+   * Returns true if the operation was successful.
+   *
+   * \sa setData(), index()
+   */
+  bool setData(int row, int column, const boost::any& value,
+	       int role = EditRole, const WModelIndex& parent = WModelIndex());
+
+  /*! \brief %Signal emitted before a number of columns will be inserted.
+   *
+   * The first argument is the parent index. The two integer arguments
+   * are the column numbers that the first and last column will have when
+   * inserted.
+   *
+   * \sa columnsInserted, beginInsertColumns()
+   */
+  Signal<WModelIndex, int, int> columnsAboutToBeInserted;
+
+  /*! \brief %Signal emitted before a number of columns will be removed.
+   *
+   * The first argument is the parent index. The two integer arguments
+   * are the column numbers of the first and last column that will be
+   * removed.
+   *
+   * \sa columnsRemoved, beginRemoveColumns()
+   */
+  Signal<WModelIndex, int, int> columnsAboutToBeRemoved;
+ 
+  /*! \brief %Signal emitted after a number of columns were inserted.
+   *
+   * The first argument is the parent index. The two integer arguments
+   * are the column numbers of the first and last column that were
+   * inserted.
+   *
+   * \sa columnsAboutToInserted, endInsertColumns()
+   */
+  Signal<WModelIndex, int, int> columnsInserted;
+
+  /*! \brief %Signal emitted after a number of columns were removed.
+   *
+   * The first argument is the parent index. The two integer arguments
+   * are the column numbers of the first and last column that were removed.
+   *
+   * \sa columnsAboutToBeRemoved, endRemoveColumns()
+   */
+  Signal<WModelIndex, int, int> columnsRemoved;
+
+  /*! \brief %Signal emitted before a number of rows will be inserted.
+   *
+   * The first argument is the parent index. The two integer arguments
+   * are the row numbers that the first and last row will have when
+   * inserted.
+   *
+   * \sa rowsInserted, beginInsertRows()
+   */
+  Signal<WModelIndex, int, int> rowsAboutToBeInserted;
+
+  /*! \brief %Signal emitted before a number of rows will be removed.
+   *
+   * The first argument is the parent index. The two integer arguments
+   * are the row numbers of the first and last row that will be
+   * removed.
+   *
+   * \sa rowsRemoved, beginRemoveRows()
+   */
+  Signal<WModelIndex, int, int> rowsAboutToBeRemoved;
+ 
+  /*! \brief %Signal emitted after a number of rows were inserted.
+   *
+   * The first argument is the parent index. The two integer arguments
+   * are the row numbers of the first and last row that were inserted.
+   *
+   * \sa rowsAboutToBeInserted, endInsertRows()
+   */
+  Signal<WModelIndex, int, int> rowsInserted;
+
+  /*! \brief %Signal emitted after a number of rows were removed.
+   *
+   * The first argument is the parent index. The two integer arguments
+   * are the row numbers of the first and last row that were removed.
+   *
+   * \sa rowsAboutToBeRemoved, endRemoveRows()
+   */
+  Signal<WModelIndex, int, int> rowsRemoved;
+
+  /*! \brief %Signal emitted when some data was changed.
+   *
+   * The two arguments are the model indexes of the top-left and bottom-right
+   * data items that span the rectangle of changed data items.
+   *
+   * \sa setData()
+   */
+  Signal<WModelIndex, WModelIndex> dataChanged;
+
+  /*! \brief %Signal emitted when some header data was changed.
+   *
+   * The first argument indicates the orientation of the header, and
+   * the two integer arguments are the row or column numbers of the
+   * first and last header item of which the value was changed.
+   *
+   * \sa setHeaderData()
+   */
+  Signal<Orientation, int, int> headerDataChanged;
+
+  /*! \brief %Signal emitted when the layout is about to be changed.
+   *
+   * A layout change reorders the data in the model, but no data is
+   * added or removed. Model indexes are invalidated by a layout
+   * change, but indexes may be ported across a layout change by using
+   * the toRawIndex() and fromRawIndex() methods.
+   *
+   * \sa layoutChanged, toRawIndex(), fromRawIndex()
+   */
+  Signal<> layoutAboutToBeChanged;
+
+  /*! \brief %Signal emitted when the layout is changed.
+   *
+   * \sa layoutAboutToBeChanged
+   */
+  Signal<> layoutChanged;
+
+protected:
+  /*! \brief Create a model index for the given row and column.
+   *
+   * Use this method to create a model index. <i>ptr</i> is an
+   * internal pointer that may be used to associate the index with
+   * particular model data.
+   *
+   * \sa WModelIndex::internalPointer()
+   */
+  WModelIndex createIndex(int row, int column, void *ptr) const;
+
+  /*! \brief Create a model index for the given row and column.
+   *
+   * Use this method to create a model index. <i>id</i> is an
+   * internal id that may be used to associate the index with
+   * particular model data.
+   *
+   * \sa WModelIndex::internalId()
+   */
+  WModelIndex createIndex(int row, int column, uint64_t id) const;
+
+  /*! \brief Create a model index for the given row and column.
+   *
+   * Use this method to create a model index. <i>hashId</i> is an
+   * internal id (of 20 bytes, long enough to hold a SHA-1 digest)
+   * that may be used to associate the index with particular model
+   * data.
+   *
+   * Using a long internal id may be useful for models that wish to keep
+   * all of their data on disk or in a database (but not in memory).
+   *
+   * \sa WModelIndex::internalHashId()
+   */
+  WModelIndex createIndex(int row, int column, const Sha1::Digest& hashId)
+    const;
+
+  /*! \brief Method to be called before inserting columns.
+   *
+   * If your model supports insertion of columns, then you should call
+   * this method before inserting one or more columns, and
+   * endInsertColumns() afterwards. These methods emit the necessary
+   * signals to allow view classes to update themselves.
+   *
+   * \sa endInsertColumns(), insertColumns(), columnsAboutToBeInserted
+   */  
+  void beginInsertColumns(const WModelIndex& parent, int first, int last);
+
+  /*! \brief Method to be called before inserting rows.
+   *
+   * If your model supports insertion of rows, then you should call
+   * this method before inserting one or more rows, and
+   * endInsertRows() afterwards. These methods emit the necessary
+   * signals to allow view classes to update themselves.
+   *
+   * \sa endInsertRows(), insertRows(), rowsAboutToBeInserted
+   */  
+  void beginInsertRows(const WModelIndex& parent, int first, int last);
+
+  /*! \brief Method to be called before removing columns.
+   *
+   * If your model supports removal of columns, then you should call
+   * this method before removing one or more columns, and
+   * endRemoveColumns() afterwards. These methods emit the necessary
+   * signals to allow view classes to update themselves.
+   *
+   * \sa endRemoveColumns(), removeColumns(), columnsAboutToBeRemoved
+   */  
+  void beginRemoveColumns(const WModelIndex& parent, int first, int last);
+
+  /*! \brief Method to be called before removing rows.
+   *
+   * If your model supports removal of rows, then you should call this
+   * method before removing one or more rows, and endRemoveRows()
+   * afterwards. These methods emit the necessary signals to allow
+   * view classes to update themselves.
+   *
+   * \sa endRemoveRows(), removeRows(), rowsAboutToBeRemoved
+   */  
+  void beginRemoveRows(const WModelIndex& parent, int first, int last);
+
+  /*! \brief Method to be called after inserting columns.
+   *
+   * \sa beginInsertColumns()
+   */
+  void endInsertColumns();
+
+  /*! \brief Method to be called after inserting rows.
+   *
+   * \sa beginInsertRows()
+   */  
+  void endInsertRows();
+
+  /*! \brief Method to be called after removing columns.
+   *
+   * \sa beginRemoveColumns()
+   */  
+  void endRemoveColumns();
+
+  /*! \brief Method to be called after removing rows.
+   *
+   * \sa beginRemoveRows()
+   */
+  void endRemoveRows();
+
+private:
+  int first_, last_;
+  WModelIndex parent_;
+
+  static void copyData(const WAbstractItemModel *source,
+		       const WModelIndex& sIndex,
+		       WAbstractItemModel *destination,
+		       const WModelIndex& dIndex);
+};
+
+extern WT_API std::string asJSLiteral(const boost::any& v);
+
+/*! \brief Interpret a boost::any as a string value.
+ *
+ * The conversion works as follows:
+ *  - a boost::any without a value is converted to an empty string
+ *  - number types (integers and doubles) are formatted using the
+ *    formatString using snprintf, or if omitted, are lexically casted.
+ *  - WDate is converted with WDate::toString() using the indicated
+ *    format string, or otherwise "dd/MM/yy" notation.
+ *
+ * \relates WAbstractItemModel
+ */
+extern WT_API WString asString(const boost::any& v,
+			       const WString& formatString
+			       = WString::emptyString);
+
+/*! \brief Interpret a boost::any as a number value.
+ *
+ * A boost::any without a value, or a string that does not represent a
+ * number, is converted to a "NaN". You can check for this value using
+ * the libc function isnan(). A WDate is converted to an integer
+ * number using the WDate::modifiedJulianDay() method.
+ *
+ * \relates WAbstractItemModel
+ */
+extern WT_API double asNumber(const boost::any& v);
+
+extern WT_API bool lessThan(const boost::any& d1, const boost::any& d2);
+
+extern WT_API boost::any updateFromJS(const boost::any& v, std::string s);
+
+}
+
+#endif // WABSTRACT_ITEM_MODEL_H_

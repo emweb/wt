@@ -1,0 +1,55 @@
+# This file defines:
+# - MXML_INCLUDE_DIRS
+# - MXML_LIB_DIRS
+# - MXML_FOUND (always true)
+# - MXML_LIBRARIES
+# - MXML_SOURCES
+#
+# This file uses the built-in MXML lib unless MXML_SUPPLIED is set to false or
+# no system installed mxml has been found.
+# TARGET_LINK_LIBRARIES should be called with MXML_LIB; MXML_SOURCES should
+# be added to the list of sources to compile. At any given time, only one
+# of both will be different from the empty string.
+
+FIND_LIBRARY(MXML_LIB
+  NAMES
+    mxml
+  PATHS
+    /usr/lib
+    /usr/local/lib
+    ${USERLIB_ROOT}/lib
+)
+
+FIND_PATH(MXML_INCLUDE mxml.h
+    /usr/include
+    /usr/local/include
+    ${USERLIB_ROOT}/include
+)
+
+IF(MXML_SUPPLIED OR NOT EXISTS ${MXML_LIB} OR NOT EXISTS ${MXML_INCLUDE})
+  MESSAGE("** Using supplied mxml library. ")
+
+  SET(MXML_SOURCES
+      mxml/mxml-attr.c
+      mxml/mxml-entity.c
+      mxml/mxml-file.c
+      mxml/mxml-index.c
+      mxml/mxml-node.c
+      mxml/mxml-private.c
+      mxml/mxml-search.c
+      mxml/mxml-set.c
+      mxml/mxml-string.c
+     )
+
+  SET(MXML_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/mxml)
+  SET(MXML_LIBRARIES "")
+
+ELSE(MXML_SUPPLIED OR NOT EXISTS ${MXML_LIB} OR NOT EXISTS ${MXML_INCLUDE})
+  MESSAGE("** Using installed mxml library: " ${MXML_LIB})
+  SET(MXML_SOURCES "")
+  SET(MXML_LIBRARIES ${MXML_LIB})
+  SET(MXML_INCLUDE_DIRS ${MXML_INCLUDE})
+ENDIF(MXML_SUPPLIED OR NOT EXISTS ${MXML_LIB} OR NOT EXISTS ${MXML_INCLUDE})
+
+SET(MXML_FOUND true)
+

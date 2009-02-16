@@ -1,0 +1,47 @@
+body, html {
+    height: 100%; margin: 0px;
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 10pt;
+}
+
+div.Wt-popupmenu {
+    background: white;
+    color: black;
+    border: 1px solid #666666;
+    z-index: 200;
+    cursor: default;
+}
+
+div.Wt-popupmenu .notselected, div.Wt-popupmenu .selected {
+    padding: 2px 0px;
+}
+
+div.Wt-popupmenu .selected {
+    background: blue;
+    color: white;
+}
+
+div.Wt-popupmenu .separator {
+    border-top: 1px solid #CCCCCC;
+    border-bottom: 1px solid #DDDDDD;
+    margin: 0px 3px;
+}
+
+.maindiv {
+    background-color: #e0ecff
+}
+
+.Wt-treeview {
+    background-color: white;
+    border: 1px solid #C3D9FF;
+}
+
+.title {
+    font-weight: bold;
+}
+
+.about {
+    background-color: white;
+    border: 1px solid #C3D9FF;
+    font-size: 80%;
+}

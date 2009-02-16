@@ -1,0 +1,7 @@
+Mini-XML 2.4 is now available for download from:
+
+    http://www.easysw.com/~mike/mxml/software.php
+
+Mini-XML 2.4 fixes some build and XML parsing bugs, adds support
+for the apos character entity, and adds per-thread global settings.
+

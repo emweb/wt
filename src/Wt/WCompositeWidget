@@ -1,0 +1,106 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCOMPOSITE_WIDGET_H_
+#define WCOMPOSITE_WIDGET_H_
+
+#include <Wt/WWidget>
+
+namespace Wt {
+
+/*! \class WCompositeWidget Wt/WCompositeWidget Wt/WCompositeWidget
+ *  \brief A widget that hides the implementation of composite widgets.
+ *
+ * Composite widgets, built on top of the WebWidgets, should derive
+ * from this class, and use setImplementation() to set the widget that
+ * implements the composite widget (which is typically a WContainerWidget
+ * or a WTable, or another widget that allows composition, including perhaps
+ * another %WCompositeWidget).
+ *
+ * Using this class you can completely hide the implementation of your
+ * composite widget, and provide access to only the standard WWidget
+ * methods.
+ */
+class WT_API WCompositeWidget : public WWidget {
+public:
+  /*! \brief Create a WCompositeWidget.
+   */
+  WCompositeWidget(WContainerWidget* parent = 0);
+  ~WCompositeWidget();
+
+  virtual const std::string formName() const;
+
+  virtual void setPositionScheme(PositionScheme scheme);
+  virtual PositionScheme positionScheme() const;
+  virtual void setOffsets(const WLength& offset, int sides = All);
+  virtual WLength offset(Side s) const;
+  virtual void resize(const WLength& width, const WLength& height);
+  virtual WLength width() const;
+  virtual WLength height() const;
+  virtual void setMinimumSize(const WLength& width, const WLength& height);
+  virtual WLength minimumWidth() const;
+  virtual WLength minimumHeight() const;
+  virtual void setMaximumSize(const WLength& width, const WLength& height);
+  virtual WLength maximumWidth() const;
+  virtual WLength maximumHeight() const;
+  virtual void setLineHeight(const WLength& height);
+  virtual WLength lineHeight() const;
+  virtual void setFloatSide(Side s);
+  virtual Side floatSide() const;
+  virtual void setClearSides(int sides);
+  virtual int clearSides() const;
+  virtual void setMargin(const WLength& margin, int sides = All);
+  virtual WLength margin(Side side) const;
+  virtual void setHidden(bool);
+  virtual bool isHidden() const;
+  virtual void setPopup(bool);
+  virtual bool isPopup() const;
+  virtual void setInline(bool);
+  virtual bool isInline() const;
+  virtual WCssDecorationStyle& decorationStyle();
+  void setStyleClass(const char *styleClass);
+  virtual void setStyleClass(const WString& styleClass);
+  virtual WString styleClass() const;
+  virtual void setVerticalAlignment(VerticalAlignment alignment,
+				    const WLength& length = WLength());
+  virtual VerticalAlignment verticalAlignment() const;
+  virtual WLength verticalAlignmentLength() const;
+  virtual WWebWidget *webWidget();
+  virtual void setToolTip(const WString& text);
+  virtual WString toolTip() const;
+  virtual void refresh();
+  virtual void setAttributeValue(const std::string& name,
+				 const WString& value);
+  virtual void load();
+  virtual bool loaded() const;
+  virtual void setId(const std::string& id);
+
+protected:
+  virtual void addChild(WWidget *child);
+  virtual void removeChild(WWidget *child);
+  virtual void setHideWithOffsets(bool how);
+
+  virtual bool isVisible() const;
+  virtual bool isStubbed() const;
+
+  /*! \brief Set the implementation widget
+   *
+   * This sets the widget that implements this compositeWidget. Ownership
+   * of the widget is completely transferred (including deletion).
+   */
+  void setImplementation(WWidget *widget);
+
+private:
+  WWidget *impl_;
+
+  virtual void setLayout(WLayout *layout);
+  virtual WLayout *layout();
+  virtual WLayoutItemImpl *createLayoutItemImpl(WLayoutItem *layoutItem);
+};
+
+}
+
+#endif // WCOMPOSITE_WIDGET_H_

@@ -1,0 +1,88 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTEXTAREA_H_
+#define WTEXTAREA_H_
+
+#include <Wt/WFormWidget>
+
+namespace Wt {
+
+/*! \class WTextArea Wt/WTextArea Wt/WTextArea
+ *  \brief A widget that provides a multi-line edit.
+ *
+ * %WTextArea is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * To act upon text changes, connect a slot to the changed() signal.
+ * This signal is emitted when the user changed the content, and
+ * subsequently removes the focus from the line edit.
+ *
+ * To act upon editing, connect a slot to the
+ * WInteractWidget::keyWentUp signal.
+ *
+ * At all times, the current content may be accessed with the text()
+ * method.
+ *
+ * \sa WLineEdit
+ */
+class WT_API WTextArea : public WFormWidget
+{
+public:
+  /*! \brief Construct a text area with empty content and optional parent.
+   */
+  WTextArea(WContainerWidget *parent = 0);
+
+  /*! \brief Construct a text area with given content and optional parent.
+   */
+  WTextArea(const WString& content, WContainerWidget *parent = 0);
+
+  /*! \brief Specify the number of columns.
+   */
+  void setColumns(int cols);
+
+  /*! \brief Specify the number of rows.
+   */
+  void setRows(int rows);
+
+  /*! \brief Get the number of columns.
+   */
+  int  columns() const { return cols_; }
+
+  /*! \brief Get the number of rows.
+   */
+  int  rows() const { return rows_; }
+
+  /*! \brief Get the current content.
+   */
+  const WString& text() const { return content_; }
+
+  /*! \brief Change the content of the text area.
+   *
+   * The default text is "".
+   */
+  virtual void setText(const WString& text);
+
+  WValidator::State validate();
+
+private:
+  WString content_;
+  int     cols_, rows_;
+
+  bool contentChanged_;
+  bool colsRowsChanged_;
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+
+  virtual void        setFormData(CgiEntry *entry);
+
+  void resetContentChanged();
+};
+
+}
+
+#endif // WTEXTAREA_H_

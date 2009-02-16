@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="introduction">
+
+<h2><span>Wt Chat client</span></h2>
+
+<p>This is a simple multi-user chat client and server.</p>
+
+<p>For simplicity, server and client all run in the same process, and
+therefore it is ideal for a deployment using wthttpd, when running all
+clients in the same process. (Because all I/O is asynchroneous, this
+probably could easily support thousands of simultaneous users as
+well).</p>
+
+<p>The client is contained in a widget (SimpleChatWidget), and can be
+instantiated as many times as you like, even in the same
+application. <br />
+
+Because of the widget abstraction, it is straight forward to include a
+chat client in your own application, by linking both the client and
+server classes into your application.</p>
+  </message>
+
+  <message id="details">
+
+<p>The implementation uses server-initiated updates, a feature that is
+still under development in Wt. When a message is received, the user
+interface (i.e. widget tree) not only of the current session, but also
+of all other clients is updated simultaneously, as part of handling
+the event.</p>
+
+  </message>
+
+</messages>

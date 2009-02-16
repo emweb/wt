@@ -1,0 +1,562 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WJAVASCRIPT_H_
+#define WJAVASCRIPT_H_
+
+#include <Wt/WSignal>
+#include <Wt/WEvent>
+#include <Wt/WJavaScriptSlot>
+#include <boost/lexical_cast.hpp>
+
+namespace Wt {
+
+/*! \class JSignal Wt/WJavaScript Wt/WJavaScript
+ *  \brief A signal to relay JavaScript to C++ calls.
+ *
+ * A JSignal, like an EventSignal, provides communicates events from
+ * JavaScript to C++ code. However, it not tied to a built-in
+ * event. Instead, it can be emitted from within custom JavaScript
+ * code using the JavaScript Wt.emit() function.
+ *
+ * The signal is identified by a unique name within the scope of a
+ * WObject, or a unique global name (when declaring the signal in your
+ * WApplication).
+ * 
+ * The signal supports up to 6 arguments. Values for these arguments
+ * may be specified in the JavaScript Wt.emit() (or the deprecated
+ * global function WtSignalEmit()).
+ *
+ * To define a signal within a widget, consider the following example:
+ *
+ * \code
+ * class MyWidget : public WCompositeWidget
+ * {
+ * public:
+ *   // ...
+ *   JSignal<std::string, int> doSome;
+ *   // ...
+ * };
+ *
+ * MyWidget::MyWidget()
+ *   : doSome(this, "dosome")
+ * { 
+ *   //...
+ * }
+ * \endcode
+ *
+ * The following JavaScript code will then emit the signal for a DOM
+ * element <i>element</i> that corresponds to a widget of class
+ * MyWidget:
+ *
+ * \code
+ * Wt.emit(element, 'dosome', 'foo', 42);
+ * \endcode
+ *
+ * The argument <i>element</i> is either a \link WWidget::jsRef() DOM
+ * element\endlink, or the \link WObject::id() object ID\endlink of a
+ * WObject. The conversion between the JavaScript argument (ax) and
+ * the C++ type Ax uses boost::lexical_cast<Ax>(ax).
+ *
+ * By adding a signal to your WApplication object, you define a
+ * 'global' signal. In that case, the first argument to Wt.emit() may
+ * also be the constant 'Wt':
+ *
+ * \code
+ * Wt.emit(Wt, 'dosome', 'foo', 42);
+ * \endcode
+ *
+ * You can use the methods createCall() or createEventCall() to let the
+ * signal itself generate this JavaScript call for you. The latter variant
+ * allows you to pass the original JavaScript event as a last argument of
+ * type WMouseEvent or WKeyEvent.
+ *
+ * For example, for a signal declaration:
+ * \code
+ * JSignal<std::string, int, WMouseEvent> doSome;
+ * \endcode
+ * the following would be a suitable JavaScript call:
+ * \code
+ * Wt.emit(Wt, {name: 'dosome', event: event, eventObject: object}, 'foo', 42);
+ * \endcode
+ *
+ * \sa WWidget::jsRef(), WObject::id()
+ *
+ * \ingroup signalslot
+ */
+template <typename A1 = NoClass, typename A2 = NoClass,
+	  typename A3 = NoClass, typename A4 = NoClass,
+	  typename A5 = NoClass, typename A6 = NoClass>
+class JSignal : public EventSignalBase
+{
+public:
+  /*! \brief Construct a signal for the given object, and name.
+   *
+   * The given <i>name</i> must be unique for all user signals
+   * specified for the object <i>object</i>. Ownership of the signal
+   * is not transferred to the object.
+   *
+   * If <i>collectSlotJavaScript</i> is true, then javascript
+   * specified for connected slots (using JSlot) or learned by
+   * \link WObject::implementStateless() stateless slot
+   * learning\endlink, is collected to client-side
+   * JavaScript. Therefore the signal must be called from client-side
+   * JavaScript by using createCall() or createEventCall().
+   */
+  JSignal(WObject *object, const std::string& name,
+	  bool collectSlotJavaScript = false);
+
+  /*! \brief Destructor.
+   */
+  ~JSignal();
+
+  /*! \brief Returns the signal name.
+   */
+  const std::string& name() const { return name_; }
+
+  virtual const std::string encodeCmd() const;
+
+  /*! \brief Returns a JavaScript call that triggers the signal.
+   *
+   * This is:
+   * \code
+     Wt.emit([element], [name], arg1, ...);
+   * \endcode
+   *
+   * When the signal was constructed with collectSlotJavaScript ==
+   * true, the inline JavaScript from slots defined as JavaScript or
+   * from learned stateless slots is included as well.
+   *
+   * \sa createEventCall()
+   */
+  const std::string createCall(const std::string& arg1 = std::string(),
+			       const std::string& arg2 = std::string(),
+			       const std::string& arg3 = std::string(),
+			       const std::string& arg4 = std::string(),
+			       const std::string& arg5 = std::string(),
+			       const std::string& arg6 = std::string()) const;
+
+  /*! \brief Returns a JavaScript call that triggers the signal, passing
+   *         the original event too.
+   *
+   * Similar to createCall(), the following JavaScript is returned:
+   * \code
+     Wt.emit([element], { name: [name], eventObject: [jsObject], event: [jsEvent]},
+             arg1, ...);
+   * \endcode
+   *
+   * In addition to information identifying the signal (<i>element</i>
+   * and <i>name</i>) and the arguments, also information on the original
+   * JavaScript event is transferred. In this way, you can propagate the
+   * corresponding event class (WMouseEvent or WKeyEvent) as an additional
+   * last argument in the slot.
+   */
+  const std::string createEventCall(const std::string& jsObject,
+				    const std::string& jsEvent,
+				    const std::string& arg1 = std::string(),
+				    const std::string& arg2 = std::string(),
+				    const std::string& arg3 = std::string(),
+				    const std::string& arg4 = std::string(),
+				    const std::string& arg5 = std::string(),
+				    const std::string& arg6 = std::string())
+    const;
+
+  /*! \brief Returns whether the signal is connected to at least one slot.
+   */
+  virtual bool isConnected() const;
+
+  /*! \brief Connect a slot that takes no arguments.
+   *
+   * The slot is specified as a method of class V, which is equal to
+   * class V, or a base class of class V. In addition, to check for
+   * stateless implementations, class T must be also be a descendant of
+   * WObject. Thus, the following statement must return a non-null pointer:
+   *
+   * \code
+   * WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
+   * \endcode
+   *
+   * If a stateless implementation is specified for the slot, then
+   * the visual behaviour will be learned in terms of JavaScript, and
+   * will be cached on the client side for instant feed-back, in
+   * addition running the slot on the server.
+   */
+  template<class T, class V>
+    boost::signals::connection connect(T *target, void (V::*method)());
+
+  /*! \brief Connect a slot that takes one argument.
+   *
+   * This is only possible for signals that take at least one argument.
+   *
+   * \sa connect(T *target, void (V::*method)())
+   */
+  template<class T, class V>
+    boost::signals::connection connect(T *target, void (V::*method)(A1));
+
+  /*! \brief Connect a slot that takes two arguments.
+   *
+   * This is only possible for signals that take at least two arguments.
+   *
+   * \sa connect(T *target, void (V::*method)())
+   */
+  template<class T, class V>
+    boost::signals::connection connect(T *target, void (V::*method)(A1, A2));
+
+  /*! \brief Connect a slot that takes three arguments.
+   *
+   * This is only possible for signals that take at least three arguments.
+   *
+   * \sa connect(T *target, void (V::*method)())
+   */
+  template<class T, class V>
+    boost::signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3));
+
+  /*! \brief Connect a slot that takes four arguments.
+   *
+   * This is only possible for signals that take at least four arguments.
+   *
+   * \sa connect(T *target, void (V::*method)())
+   */
+  template<class T, class V>
+    boost::signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4));
+
+  /*! \brief Connect a slot that takes five arguments.
+   *
+   * This is only possible for signals that take at least five arguments.
+   *
+   * \sa connect(T *target, void (V::*method)())
+   */
+  template<class T, class V>
+    boost::signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4,A5));
+
+  /*! \brief Connect a slot that takes six arguments.
+   *
+   * This is only possible for signals that take at least six arguments.
+   *
+   * \sa connect(T *target, void (V::*method)())
+   */
+  template<class T, class V>
+    boost::signals::connection connect(T *target,
+				       void (V::*method)(A1,A2,A3,A4,A5,A6));
+
+  /*! \brief Connect a slot that is specified as JavaScript only.
+   *
+   * This will provide a client-side connection between the event and
+   * some JavaScript code as implemented by the slot. Unlike other
+   * connects, this does not cause the event to propagated to the
+   * application, and thus the state changes induced by the
+   * <i>slot</i> are invisible to the server-side.
+   */
+  void connect(JSlot& slot);
+
+  /*! \brief Emit the signal.
+   *
+   * The arguments must exactly match the arguments of the target
+   * function.
+   *
+   * This will cause all connected slots to be triggered, with the given
+   * arguments.
+   */
+  void emit(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
+	    A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+	    A5 a5 = NoClass::none, A6 a6 = NoClass::none);
+
+  /*! \brief Emit the signal.
+   *
+   * This is equivalent to emit().
+   *
+   * \sa emit
+   */
+  void operator()(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
+		  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+		  A5 a5 = NoClass::none, A6 a6 = NoClass::none);
+
+  virtual boost::signals::connection connectBase(WObject *target,
+						 void (WObject::*method)());
+
+private:
+  std::string name_;
+  bool collectSlotJavaScript_;
+  void processDynamic(const JavaScriptEvent& e);
+
+  boost::signal6<void, A1, A2, A3, A4, A5, A6> *impl_;
+};
+
+/*
+ * JSignal -- specialization for void
+ */
+template<>
+class WT_API JSignal<void> : public JSignal<>
+{ 
+public:
+  JSignal(WObject *object, const std::string& name,
+	  bool collectSlotJavaScript = false);
+};
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+JSignal<A1, A2, A3, A4, A5, A6>::JSignal(WObject *object,
+					 const std::string& name,
+					 bool collectSlotJavaScript)
+  : EventSignalBase(object),
+    name_(name),
+    collectSlotJavaScript_(collectSlotJavaScript),
+    impl_(0)
+{ }
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+JSignal<A1, A2, A3, A4, A5, A6>::~JSignal()
+{
+  prepareDestruct();
+  delete impl_;
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+const std::string JSignal<A1, A2, A3, A4, A5, A6>::encodeCmd() const
+{
+  return sender()->uniqueId() + "." + name_;
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+const std::string JSignal<A1, A2, A3, A4, A5, A6>
+::createCall(const std::string& arg1, const std::string& arg2,
+	     const std::string& arg3, const std::string& arg4,
+	     const std::string& arg5, const std::string& arg6) const
+{
+  return EventSignalBase::createUserEventCall(std::string(), std::string(),
+					      name_, arg1, arg2, arg3,
+					      arg4, arg5, arg6);
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+const std::string JSignal<A1, A2, A3, A4, A5, A6>
+::createEventCall(const std::string& jsObject, const std::string& jsEvent,
+		  const std::string& arg1, const std::string& arg2,
+		  const std::string& arg3, const std::string& arg4,
+		  const std::string& arg5, const std::string& arg6) const
+{
+  return EventSignalBase::createUserEventCall(jsObject, jsEvent,
+					      name_, arg1, arg2, arg3,
+					      arg4, arg5, arg6);
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+template <class T, class V>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(T *target, void (V::*method)(A1, A2, A3, A4, A5, A6))
+{
+  exposeSignal();
+  assert(dynamic_cast<V *>(target));
+  if (!impl_)
+    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+  return impl_->connect(boost::bind(method, target, ::_1, ::_2,
+				    ::_3, ::_4, ::_5, ::_6));
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+template <class T, class V>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(T *target, void (V::*method)(A1, A2, A3, A4, A5))
+{
+  exposeSignal();
+  assert(dynamic_cast<V *>(target));
+  if (!impl_)
+    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+  return impl_->connect(boost::bind(method, target, ::_1, ::_2,
+				    ::_3, ::_4, ::_5));
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+template <class T, class V>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(T *target, void (V::*method)(A1, A2, A3, A4))
+{
+  exposeSignal();
+  assert(dynamic_cast<V *>(target));
+  if (!impl_)
+    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+  return impl_->connect(boost::bind(method, target, ::_1, ::_2, ::_3, ::_4));
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+template <class T, class V>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(T *target, void (V::*method)(A1, A2, A3))
+{
+  exposeSignal();
+  assert(dynamic_cast<V *>(target));
+  if (!impl_)
+    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+  return impl_->connect(boost::bind(method, target, ::_1, ::_2, ::_3));
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+template <class T, class V>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(T *target, void (V::*method)(A1, A2))
+{
+  exposeSignal();
+  assert(dynamic_cast<V *>(target));
+  if (!impl_)
+    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+  return impl_->connect(boost::bind(method, target, ::_1, ::_2));
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+template <class T, class V>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(T *target, void (V::*method)(A1))
+{
+  exposeSignal();
+  assert(dynamic_cast<V *>(target));
+  if (!impl_)
+    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+  return impl_->connect(boost::bind(method, target, ::_1));
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+template <class T, class V>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(T *target, void (V::*method)())
+{
+  exposeSignal();
+  WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
+  assert(o);
+
+  WStatelessSlot *s = o->isStateless(static_cast<WObject::Method>(method));
+
+  if (collectSlotJavaScript_ && s)
+    return EventSignalBase::connect(static_cast<WObject::Method>(method), o, s);
+  else {
+    if (!impl_)
+      impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+    return impl_->connect(boost::bind(method, target));
+  }
+}
+
+extern void WT_API throwWtException(const std::string& msg);
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+void JSignal<A1, A2, A3, A4, A5, A6>::connect(JSlot& slot)
+{
+  if (!collectSlotJavaScript_)
+    throwWtException("JSignal::connect(JSlot) only makes sense for a JSignal "
+		     "which collects JavaScript from slots");
+
+  EventSignalBase::connect(slot);
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connectBase(WObject *target, void (WObject::*method)())
+{
+  return connect(target, method);
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+void JSignal<A1, A2, A3, A4, A5, A6>::emit(A1 a1, A2 a2, A3 a3,
+					  A4 a4, A5 a5, A6 a6)
+{
+  if (impl_) {
+    pushSender(sender());
+    (*impl_)(a1, a2, a3, a4, a5, a6);
+    popSender();
+  }
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+void JSignal<A1, A2, A3, A4, A5, A6>::operator()(A1 a1, A2 a2, A3 a3,
+						    A4 a4, A5 a5, A6 a6)
+{
+  emit(a1, a2, a3, a4, a5, a6);
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+bool JSignal<A1, A2, A3, A4, A5, A6>::isConnected() const
+{
+  return impl_ ? impl_->num_slots() > 0 : EventSignalBase::isConnected();
+}
+
+template <typename T>
+struct SignalArgTraits
+{
+  static T unMarshal(const JavaScriptEvent& jse, int argi) {
+    if ((unsigned)argi >= jse.userEventArgs.size())
+      throwWtException("Missing JavaScript argument: "
+		       + boost::lexical_cast<std::string>(argi));
+
+    try {
+      return boost::lexical_cast<T>(jse.userEventArgs[argi]);
+    } catch (boost::bad_lexical_cast) {
+      throwWtException("Bad argument format: '"
+		       + jse.userEventArgs[argi] + "' for C++ type '"
+		       + typeid(T).name() + "'");
+      return T();
+    }
+  }
+};
+
+template<>
+struct SignalArgTraits<NoClass>
+{
+  static NoClass unMarshal(const JavaScriptEvent& jse, int argi) {
+    if ((unsigned)argi < jse.userEventArgs.size())
+      throwWtException("Redundant JavaScript argument: '"
+		       + jse.userEventArgs[argi] + "'");
+    return NoClass::none;
+  }
+};
+
+template<>
+struct SignalArgTraits<WMouseEvent>
+{
+  static WMouseEvent unMarshal(const JavaScriptEvent& jse, int argi) {
+    return WMouseEvent(jse);
+  }
+};
+
+template<>
+struct SignalArgTraits<WKeyEvent>
+{
+  static WKeyEvent unMarshal(const JavaScriptEvent& jse, int argi) {
+    return WKeyEvent(jse);
+  }
+};
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+void JSignal<A1, A2, A3, A4, A5, A6>::processDynamic(const JavaScriptEvent& jse)
+{
+  emit(SignalArgTraits<A1>::unMarshal(jse, 0),
+       SignalArgTraits<A2>::unMarshal(jse, 1),
+       SignalArgTraits<A3>::unMarshal(jse, 2),
+       SignalArgTraits<A4>::unMarshal(jse, 3),
+       SignalArgTraits<A5>::unMarshal(jse, 4),
+       SignalArgTraits<A6>::unMarshal(jse, 5));
+}
+
+}
+
+#endif // WUSER_SIGNAL_H_

@@ -1,0 +1,45 @@
+# This file defines:
+# - MYSQLPP_LIBRARIES
+# - MYSQLPP_INCLUDE_DIRS
+# - MYSQLPP_FOUND
+# - MSQLPP_DEFINITIONS
+#
+
+FIND_LIBRARY(MYSQLPP_LIBRARIES mysqlpp
+    /usr/lib
+    /usr/local/lib
+    ${USERLIB_ROOT}/lib
+)
+
+FIND_PATH(MYSQLPP_INCLUDE mysql++/mysql++.h
+    /usr/include
+    /usr/local/include
+    ${USERLIB_ROOT}/include
+)
+
+FIND_PATH(MYSQL_INCLUDE mysql.h
+    /usr/include
+    /usr/local/include
+    /usr/include/mysql
+    /usr/local/include/mysql
+    ${USERLIB_ROOT}/include
+)
+
+SET(MYSQLPP_FOUND FALSE)
+
+IF(MYSQLPP_LIBRARIES
+    AND MYSQLPP_INCLUDE
+    AND MYSQL_INCLUDE)
+  SET(MYSQLPP_FOUND TRUE)
+  SET(MYSQLPP_INCLUDE_DIRS ${MYSQLPP_INCLUDE} ${MYSQL_INCLUDE})
+  IF(WIN32)
+    # Static linkage of mysqlpp, hence we don't want __declspecs
+    SET(MSQLPP_DEFINITIONS -DMYSQLPP_NO_DLL)
+  ELSE(WIN32)
+    SET(MSQLPP_DEFINITIONS "")
+  ENDIF(WIN32)
+
+ENDIF(MYSQLPP_LIBRARIES
+    AND MYSQLPP_INCLUDE
+    AND MYSQL_INCLUDE)
+

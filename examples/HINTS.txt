@@ -1,0 +1,40 @@
+Building the examples:
+----------------------
+
+The examples are not built by default when building the library.
+Do a 'make -C examples' from your Wt build directory to build them.
+
+Running the examples:
+---------------------
+
+- All examples will expect to find auxiliary files with the examples
+  source directory as the working directory as well as the httpd
+  server document root.
+
+  Thus, using the built-in httpd, the recipe for running for example 'composer'
+  is, starting from the Wt source directory:
+
+  $ cd examples/composer
+  $ ../../build/examples/composer/composer.wt --docroot=. \
+      --http-address=0.0.0.0 --http-port=8080
+
+- Some examples require the Wt resources folder, which by default they expect
+  to find in 'resources/'
+
+  From within the example source folder, do:
+  $ ln -s ../../resources .
+
+  You will notice 404 File not Found errors for resources/ files if you are
+  missing the resources files.
+
+- Some examples need third-party JavaScript libraries (ExtJS or TinyMCE)
+
+  Download ExtJS at http://yogurtearl.com/ext-2.0.2.zip, and install it
+  according to these instructions:
+    http://www.webtoolkit.eu/wt/doc/reference/html/group__ext.html
+
+  Download TinyMCE at http://tinymce.moxiecode.com/ and install its
+    tiny_mce folder into the resources/ folder.
+
+  You will notice 404 File not Found errors for ext/ or resources/tiny_mce/ if
+  you are missing these JavaScript libraries.

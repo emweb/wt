@@ -1,0 +1,12 @@
+Major:
+- server-initiated updates are still not entirely reliable: may cause
+  memory leaks in browsers, and are sensitive to proxy servers closing
+  inactive connections...
+
+Minor:
+- key handling in SuggestionPopup.C behaves differently in different browsers
+- getAttribute() in SuggestionPopup.C gets literal character entitites in Opera
+- Adding widgets to a container with a layout manager (something that you
+  should not do according to the documentation) and subsequently removing
+  them causes javascript errors.
+

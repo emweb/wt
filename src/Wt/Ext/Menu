@@ -1,0 +1,164 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef EXT_MENU_H_
+#define EXT_MENU_H_
+
+#include <Wt/Ext/Widget>
+#include <Wt/Ext/MenuItem>
+
+namespace Wt {
+  namespace Ext {
+
+/*! \class Menu Wt/Ext/Menu Wt/Ext/Menu
+ *  \brief A menu presented in a popup window.
+ *
+ * A menu is always presented in a popup window, and, unlike other
+ * widgets, cannot be instantiated on its own (by adding to a
+ * WContainerWidget). Instead it must be associated with a Button or
+ * MenuItem (to create sub menus).
+ *
+ * Usage example:
+ * \code
+  // ...
+
+  // Create a menu with some items
+
+  Ext::Menu *menu = new Ext::Menu();
+  Ext::MenuItem *item;
+
+  item = menu->addItem("File open...");
+  item->setIcon("icons/yellow-folder-open.png");
+
+  item = menu->addItem("I dig Wt");
+  item->setCheckable(true);
+  item->setChecked(true);
+
+  item = menu->addItem("I dig Wt too");
+  item->setCheckable(true);
+
+  menu->addSeparator();
+  menu->addItem("Menu item");
+  menu->addSeparator();
+
+  // Add a sub menu
+
+  Ext::Menu *subMenu = new Ext::Menu();
+  subMenu->addItem("Do this");
+  subMenu->addItem("And that");
+
+  item = menu->addMenu("More ...", subMenu);
+  item->setIcon("icons/yellow-folder-open.png");
+
+  // Create a tool bar
+
+  Ext::ToolBar *toolBar = new Ext::ToolBar(ex);
+
+  // Associate the menu with a button
+
+  Ext::Button *b
+    = toolBar->addButton("Button w/Menu", menu);
+  b->setIcon("icons/yellow-folder-closed.png");
+
+  // ...
+ * \endcode
+ *
+ * \image html ExtMenu-1.png "Example of a Menu"
+ *
+ * \sa MenuItem, AbstractButton::setMenu()
+ *
+ * \ingroup ext
+ */
+class WT_EXT_API Menu : public Widget
+{
+public:
+  /*! \brief Create a new menu.
+   *
+   * The menu cannot be added to a WContainerWidget, but must instead be
+   * associated with a Button or MenuItem.
+   *
+   * \sa Button::setMenu(), MenuItem::setMenu(), addMenu().
+   */
+  Menu();
+
+  /*! \brief Add an item with given text.
+   */
+  MenuItem *addItem(const WString& text);
+
+  /*! \brief Add an item with given icon and text.
+   */
+  MenuItem *addItem(const std::string& iconPath, const WString& text);
+
+  /*! \brief Add an item with given text, and specify a slot method to be
+   *         called when activated.
+   *
+   * The <i>target</i> and <i>method</i> are connected to the
+   * MenuItem::activated signal.
+   */
+  template<class T, class V>
+    MenuItem *addItem(const WString& text,
+			T *target, void (V::*method)());
+    
+  /*! \brief Add an item with given text and icon, and specify a slot
+   *         method to be called when activated.
+   *
+   * The <i>target</i> and <i>method</i> are connected to the
+   * MenuItem::activated signal.
+   */
+  template<class T, class V>
+    MenuItem *addItem(const std::string& iconPath, const WString& text,
+			T *target, void (V::*method)());
+
+  /*! \brief Add a submenu, with given text.
+   */
+  MenuItem *addMenu(const WString& text, Menu *menu);
+
+  /*! \brief Add a submenu, with given icon and text.
+   */
+  MenuItem *addMenu(const std::string& iconPath, const WString& text,
+		    Menu *menu);
+
+  /*! \brief Add a menu item.
+   */
+  void add(MenuItem *item);
+
+  /*! \brief Add a widget to the menu.
+   */
+  void add(WWidget *item);
+
+  /*! \brief Add a separator to the menu.
+   */
+  void addSeparator();
+
+protected:
+  void removeChild(WWidget *child);
+
+private:
+  virtual std::string createJS(DomElement *inContainer);
+
+  std::vector<WWidget *> items_;
+};
+
+template<class T, class V>
+MenuItem *Menu::addItem(const WString& text,
+			T *target, void (V::*method)())
+{
+  return addItem(std::string(), text, target, method);
+}
+
+template<class T, class V>
+MenuItem *Menu::addItem(const std::string& iconPath, const WString& text,
+			T *target, void (V::*method)())
+{
+  MenuItem *item = addItem(iconPath, text);
+  item->activated.connect(target, method);
+  return item;
+}
+
+  }
+}
+
+#endif // EXT_MENU_H_

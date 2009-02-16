@@ -1,0 +1,80 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSCROLLBAR_H_
+#define WSCROLLBAR_H_
+
+#include <Wt/WWidget>
+
+namespace Wt {
+
+class WScrollArea;
+class DomElement;
+
+/*! \class WScrollBar Wt/WScrollBar Wt/WScrollBar
+ *  \brief A scrollbar attached to a scroll area.
+ *
+ * A WScrollArea always has two scrollbars (even if they are not visible,
+ * for example when the policy is WSCrollArea::ScrollBarAlwaysOff). Using the
+ * tie(WScrollBar *one, WScrollBar *two) functions, it is possible to tie to
+ * scrollbars together, so that they will scroll together.
+ *
+ * Note: this apparently does not work with konqueror, but ChangeLog of khtml
+ * shows that it has been added recently.
+ *
+ * In the future, a scrolled() signal will be added.
+ *
+ * \sa WScrollArea
+ */
+class WScrollBar : public WObject
+{
+public:
+  /*! \brief Get the orientation of this scrollbar.
+   */
+  Orientation orientation() const { return orientation_; }
+
+  /*! \brief Tie two scrollbars together.
+   *
+   * The effect of this call is that these scrollbars will keep their
+   * positions synchronised.
+   */
+  static void tie(WScrollBar *one, WScrollBar *two);
+
+  /*! \brief Untie two scrollbars, that were previously tied together.
+   *
+   * Undo a tie(WScrollBar *one, WScrollBar *two);
+   *
+   */
+  static void unTie(WScrollBar *one, WScrollBar *two);
+
+public slots:
+  /*! \brief Set the scrollbar value.
+   *
+   * This will move the scrollbar to the given value.
+   */
+  void setValue(int value);
+
+private:
+  WScrollBar(WScrollArea *area, Orientation orientation);
+  ~WScrollBar();
+
+  WScrollArea *scrollArea_;
+  Orientation orientation_;
+
+  std::vector<WScrollBar *> ties_;
+  bool tiesChanged_;
+
+  int value_;
+  bool valueSet_;
+
+  void updateDom(DomElement& element, bool all);
+
+  friend class WScrollArea;
+};
+
+}
+
+#endif // WSCROLLBAR_H_

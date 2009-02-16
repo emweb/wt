@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="about-text">
+    <div style="margin: 3px;"><i>Hints:</i>
+    <ul style="margin-top: 0px">
+      <li>You can drag a selection of files to a different folder.</li>
+      <li>You can edit a file by double-clicking.</li>
+      <li>There is a context popup menu for <i>leaf</i> folders.</li>
+      <li>You can sort on each column.</li>
+    </ul></div>
+  </message>
+</messages>

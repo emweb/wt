@@ -1,0 +1,64 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WRADIOBUTTON_H_
+#define WRADIOBUTTON_H_
+
+#include <Wt/WAbstractToggleButton>
+
+namespace Wt {
+
+class WButtonGroup;
+
+/*! \class WRadioButton Wt/WRadioButton Wt/WRadioButton
+ *  \brief A user control that represents a radio button.
+ *
+ * %WRadioButton is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * Add the radio button to a WButtonGroup to group together different
+ * options that are mutually exclusive.
+ *
+ * \sa WAbstractToggleButton
+ */
+class WT_API WRadioButton : public WAbstractToggleButton
+{
+public:
+  /*! \brief Create an unchecked radio button with empty label and optional
+   *         parent.
+   */
+  WRadioButton(WContainerWidget *parent = 0);
+
+  /*! \brief Create an unchecked radio button with given text and optional
+   *         parent.
+   */
+  WRadioButton(const WString& text, WContainerWidget *parent = 0);
+
+  WRadioButton(bool withLabel, const WString& text,
+	       WContainerWidget *parent = 0);
+
+  /*! \brief Delete a radio button
+   */
+  ~WRadioButton();
+
+  virtual void	      getFormObjects(std::vector<WObject *>& formObjects);
+
+private:
+  WButtonGroup *buttonGroup_;
+
+  void setGroup(WButtonGroup *buttonGroup);
+  friend class WButtonGroup;
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+
+  virtual void        setFormData(CgiEntry *entry);
+  virtual void        setNoFormData();
+};
+
+}
+
+#endif // WRADIOBUTTON_H_

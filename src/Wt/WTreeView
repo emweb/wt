@@ -1,0 +1,736 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTREE_VIEW_H_
+#define WTREE_VIEW_H_
+
+#include <set>
+#include <vector>
+
+#include <Wt/WCompositeWidget>
+#include <Wt/WJavaScript>
+#include <Wt/WModelIndex>
+#include <Wt/WSignalMapper>
+
+namespace Wt {
+
+class WAbstractItemModel;
+class WApplication;
+class WCheckBox;
+class WCssRule;
+class WCssTemplateRule;
+class WImage;
+class WItemSelectionModel;
+class WText;
+class WTreeViewNode;
+
+/*! \class WTreeView Wt/WTreeView Wt/WTreeView
+ *  \brief A view class that displays a model as a tree or tree table.
+ *
+ * The view displays data from a WAbstractItemModel in a tree or tree
+ * table. It provides incremental rendering, allowing the display of
+ * data models of any size efficiently, without excessive use of
+ * client- or serverside resources. Data of all predefined roles is
+ * displayed (see also ItemDataRole), including text, icons,
+ * checkboxes, and tooltips .
+ *
+ * By default, all but the first columns are given a width of 150px,
+ * and the first column takes the remaining size. <b>Note that this
+ * may have as consequence that the first column's size is reduced to
+ * 0.</b>. Column widths of all columns, including the first column,
+ * can be set through the API (setColumnWidth(), and also by the
+ * user using handles provided in the header.
+ *
+ * Optionally, the treeview may be configured so that the first column
+ * is always visible while scrolling through the other columns, which
+ * may be convenient if you wish to display a model with many
+ * columns. Use setColumn1Fixed() to enable this behaviour.
+ *
+ * If the model supports sorting (WAbstractItemModel::sort()), such as
+ * the WStandardItemModel, then you can enable sorting buttons in the
+ * header, using setSortingEnabled().
+ *
+ * You can allow selection on row or item level (using
+ * setSelectionBehavior()), and selection of single or multiple items
+ * (using setSelectionMode()), and listen for changes in the selection
+ * using the \link WTreeView::selectionChanged
+ * selectionChanged\endlink signal.
+ *
+ * You may enable drag & drop support for this view, whith awareness
+ * of the items in the model. When enabling dragging (see
+ * setDragEnabled()), the current selection may be dragged, but only
+ * when all items in the selection indicate support for dragging
+ * (controlled by the \link Wt::ItemIsDragEnabled
+ * ItemIsDragEnabled\endlink flag), and if the model indicates a
+ * mime-type (controlled by WAbstractItemModel::mimeType()). Likewise,
+ * by enabling support for dropping (see setDropsEnabled()), the
+ * treeview may receive a drop event on a particular item, at least if
+ * the item indicates support for drops (controlled by the \link
+ * Wt::ItemIsDropEnabled ItemIsDropEnabled\endlink flag).
+ *
+ * You may also react to mouse click events on any item, by connecting
+ * to one of the \link WTreeView::clicked clicked\endlink or \link
+ * WTreeView::doubleClicked doubleClicked\endlink signals.
+ *
+ * \ingroup modelview
+ */
+class WT_API WTreeView : public WCompositeWidget
+{
+public:
+  /*! \brief Create a new tree view.
+   */
+  WTreeView(WContainerWidget *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  ~WTreeView();
+
+  /*! \brief Set the model.
+   *
+   * The view will render the data in the given <i>model</i>. Changes
+   * to the model are reflected in the view.
+   *
+   * When resetting a model, all nodes are initially collapsed, the
+   * selection is cleared, and the root index corresponds to the
+   * model's top level node (see setRootIndex()).
+   *
+   * The initial model is 0.
+   *
+   * Ownership of the model is not transferred (and thus the
+   * previously set model is not deleted).
+   *
+   * \sa setRootIndex()
+   */
+  void setModel(WAbstractItemModel *model);
+
+  /*! \brief Returns the model.
+   *
+   * \sa setModel()
+   */
+  WAbstractItemModel *model() const { return model_; }
+
+  /*! \brief Set the root index.
+   *
+   * The root index is the model index that is considered the root
+   * node. This node itself is not rendered, but all its children are
+   * the top level nodes.
+   *
+   * The default value is WModelIndex(), corresponding to the
+   * invisible root.
+   *
+   * \sa setModel()
+   */
+  void setRootIndex(const WModelIndex& rootIndex);
+
+  /*! \brief Returns the root index.
+   *
+   * \sa setRootIndex()
+   */
+  const WModelIndex& rootIndex() const { return rootIndex_; }
+
+  /*! \brief Set the header height.
+   *
+   * Use this method to change the header height. You may also enable
+   * the use of multi-line headers. By default, the header text is a 
+   * single line, that is centered vertically.
+   *
+   * The default value is 20 pixels.
+   */
+  void setHeaderHeight(const WLength& height, bool multiLine = false);
+
+  /*! \brief Return the header height.
+   *
+   * \sa setHeaderHeight()
+   */
+  const WLength& headerHeight() const { return headerHeight_; }
+
+  /*! \brief Set the row height.
+   *
+   * The view assumes that all rows are of the same height. Use this
+   * method to set the height.
+   *
+   * The default value is 20 pixels.
+   *
+   * \note The height must be specified in WLength::Pixel units.
+   *
+   * \sa setColumnWidth()
+   */
+  void setRowHeight(const WLength& rowHeight);
+
+  /*! \brief Return the row height.
+   */
+  const WLength& rowHeight() const { return rowHeight_; }
+
+  /*! \brief Set the column format string.
+   *
+   * The DisplayRole data for that column is converted to a string using
+   * asString(), with the given format.
+   *
+   * The default value is "".
+   */
+  void setColumnFormat(int column, const WString& format);
+
+  /*! \brief Returns the column format string.
+   *
+   * \sa setColumnFormat()
+   */
+  WString columnFormat(int column) const;
+
+  /*! \brief Set the column width.
+   *
+   * For a model with \link WAbstractItemModel::columnCount()
+   * columnCount()\endlink == <i>N</i>, the initial width of columns
+   * 1..<i>N</i> is set to 150 pixels, and column 0 will take all
+   * remaining space.
+   *
+   * \note The actual space occupied by each column is the column width
+   *       augmented by 7 pixels for internal padding and a border.
+   *
+   * \sa setRowHeight()
+   */
+  void setColumnWidth(int column, const WLength& width);
+ 
+  /*! \brief Returns the column width.
+   *
+   * \sa setColumnWidth()
+   */
+  WLength columnWidth(int column) const;
+
+  /*! \brief Set the content alignment for a column.
+   *
+   * The default value is \link Wt::AlignLeft AlignLeft\endlink.
+   *
+   * \note For column 0, \link Wt::AlignCenter AlignCenter\endlink is
+   * currently not supported.
+   *
+   * \sa setHeaderAlignment()
+   */
+  void setColumnAlignment(int column, HorizontalAlignment alignment);
+
+  /*! \brief Set the header alignment for a column.
+   *
+   * The default value is \link Wt::AlignLeft AlignLeft\endlink.
+   *
+   * \sa setColumnAlignment()
+   */
+  void setHeaderAlignment(int column, HorizontalAlignment alignment);
+
+  /*! \brief Returns the content alignment for a column.
+   *
+   * \sa setColumnAlignment()
+   */
+  HorizontalAlignment columnAlignment(int column) const;
+
+  /*! \brief Returns the header alignment for a column.
+   *
+   * \sa setHeaderAlignment()
+   */
+  HorizontalAlignment headerAlignment(int column) const;
+
+  /*! \brief Sets the column border color
+   *
+   * The default border color is \link Wt::white white\endlink.
+   */
+  void setColumnBorder(const WColor& color);
+
+  /*! \brief Sets the base urls for icons.
+   *
+   * This widget relies on several icons that are distributed together
+   * with %Wt for drawing icons, lines, and backgrounds.
+   *
+   * The default location for the image pack is <i>resourcesURL</i>.
+   *
+   * The default value for <i>resourcesURL</i> is "resources/". This
+   * value may be overridden with a URL that points to a folder where
+   * these files are located, by configuring the <i>resourcesURL</i>
+   * property in your %Wt configuration file.
+   */
+  void setImagePack(const std::string& uri);
+
+  /*! \brief Returns the base url for icons.
+   *
+   * \sa setImagePack()
+   */
+  std::string imagePack() const { return imagePack_; }
+
+  /*! \brief Expand or collapse a node.
+   *
+   * \sa expand(), collapse()
+   */
+  void setExpanded(const WModelIndex&, bool expanded);
+
+  /*! \brief Returns whether a node is expanded.
+   *
+   * \sa setExpanded()
+   */
+  bool isExpanded(const WModelIndex& index) const;
+
+  /*! \brief Collapse a node.
+   *
+   * \sa setExpanded(), expand()
+   */
+  void collapse(const WModelIndex& index);
+
+  /*! \brief Expand a node.
+   *
+   * \sa setExpanded(), collapse()
+   */
+  void expand(const WModelIndex& index);
+
+  /*! \brief Expand all nodes to a depth.
+   *
+   * Expands all nodes to the given <i>depth</i>. A depth of 1 corresponds
+   * to the top level nodes.
+   *
+   * \sa expand()
+   */
+  void expandToDepth(int depth);
+
+  /*! \brief Set if alternating row colors are to be used.
+   *
+   * Configure whether rows get an alternating background color. These
+   * are implemented by using a background image on the root node, like:
+   * \image html stripe-30px.gif "Sample image use for alternating row colors"
+   *
+   * The image that is used is
+   * imagePack() + "/stripes/stripe-<i>n</i>px.gif", where <i>n</i> is the
+   * row height. In the resource folder are images pregenerated for
+   * one color and row sizes from 10 to 30px.
+   *
+   * The default value is false.
+   *
+   * \sa setImagePack()
+   */
+  void setAlternatingRowColors(bool enable);
+
+  /*! \brief Returns whether alternating row colors are used.
+   *
+   * \sa setAlternatingRowColors()
+   */
+  bool alternatingRowColors() const { return alternatingRowColors_; }
+
+  /*! \brief Set whether toplevel items are decorated.
+   *
+   * By default, top level nodes have expand/collapse and other lines
+   * to display their linkage and offspring, like any node.
+   *
+   * By setting <i>show</i> to false, you can hide these decorations
+   * for root nodes, and in this way mimic a plain list.
+   *
+   * \sa Ext::TableView
+   */
+  void setRootIsDecorated(bool show);
+
+  /*! \brief Returns whether toplevel items are decorated.
+   *
+   * \sa setRootIsDecorated()
+   */
+  bool rootIsDecorated() const { return rootIsDecorated_; }
+
+  /*! \brief Sort the data according to a column.
+   *
+   * Sorts the data according to data in column <i>column</i> and sort
+   * order <i>order</i>.
+   *
+   * \sa WAbstractItemModel::sort()
+   */
+  void sortByColumn(int column, SortOrder order);
+
+  /*! \brief Enable sorting.
+   *
+   * Enable or disable sorting by the user.
+   *
+   * Sorting is enabled by default.
+   *
+   * \sa WAbstractItemModel::sort()
+   */
+  void setSortingEnabled(bool enabled);
+
+  /*! \brief Returns whether sorting is enabled.
+   *
+   * \sa setSortingEnabled()
+   */
+  bool isSortingEnabled() const { return sorting_; }
+
+  /*! \brief Enable interactive column resizing
+   *
+   * Enable or disable column resize handles for interactive resizing of
+   * the columns.
+   *
+   * \sa setColumnResizeEnabled()
+   */
+  void setColumnResizeEnabled(bool enabled);
+
+  /*! \brief Returns whether column resizing is enabled.
+   *
+   * \sa setColumnResizeEnabled()
+   */
+  bool isColumnResizeEnabled() const { return columnResize_; }
+
+  /*! \brief Change the selection behaviour.
+   *
+   * The selection behavior indicates whether whole rows or individual
+   * items can be selected. It is a property of the selectionModel().
+   *
+   * By default, selection operates on rows (\link Wt::SelectRows
+   * SelectRows\endlink), in which case model indexes will always be
+   * in the first column (column 0).
+   *
+   * Alternatively, you can allow selection for individual items
+   * (\link Wt::SelectItems SelectItems\endlink).
+   *
+   * \sa WItemSelectionModel::setSelectionBehavior(), setSelectionMode()
+   */
+  void setSelectionBehavior(SelectionBehavior behavior);
+
+  /*! \brief Returns the selection behaviour.
+   *
+   * \sa setSelectionBehavior()
+   */
+  SelectionBehavior selectionBehavior() const;
+
+  /*! \brief Set the selection mode.
+   *
+   * By default selection is disabled (\link Wt::NoSelection
+   * NoSelection \endlink).
+   *
+   * \sa setSelectionBehavior()
+   */
+  void setSelectionMode(SelectionMode mode);
+
+  /*! \brief Returns the selection mode.
+   *
+   * \sa setSelectionMode()
+   */
+  SelectionMode selectionMode() const { return selectionMode_; }
+
+  /*! \brief Returns the selection model.
+   *
+   * The selection model keeps track of the currently selected items.
+   */
+  WItemSelectionModel *selectionModel() const { return selectionModel_; }
+
+  /*! \brief Sets the selected items
+   *
+   * Replaces the current selection with <i>indexes</i>.
+   *
+   * \sa select(), selectionModel()
+   */
+  void setSelectedIndexes(const WModelIndexSet& indexes);
+
+  /*! \brief Select a single item.
+   *
+   * \sa setSelectedIndexes(), selectionModel()
+   */
+  void select(const WModelIndex& index, SelectionFlag option = Select);
+
+  /*! \brief Returns wheter an item is selected.
+   *
+   * This is a convenience method for:
+   * \code
+   * selectionModel()->isSelected(index)
+   * \endcode
+   *
+   * \sa selectedIndexes(), select(), selectionModel()
+   */
+  bool isSelected(const WModelIndex& index) const;
+
+  /*! \brief Returns the set of selected items.
+   *
+   * The model indexes are returned as a set, topologically ordered (in
+   * the order they appear in the view).
+   *
+   * This is a convenience method for:
+   * \code
+   * selectionModel()->selectedIndexes()
+   * \endcode
+   *
+   * \sa setSelectedIndexes()
+   */
+  WModelIndexSet selectedIndexes() const;
+
+  /*! \brief Enable the selection to be dragged (drag & drop).
+   *
+   * To enable dragging of the selection, you first need to enable
+   * selection using setSelectionMode().
+   *
+   * Whether an individual item may be dragged is controlled by the
+   * item's \link Wt::ItemIsDragEnabled ItemIsDragEnabled \endlink
+   * flag. The selection can be dragged only if all items currently
+   * selected can be dragged.
+   *
+   * \sa setDropsEnabled() 
+   */
+  void setDragEnabled(bool enable);
+
+  /*! \brief Enable drop operations (drag & drop).
+   *
+   * When drop is enabled, the tree view will indicate that something
+   * may be dropped when the mime-type of the dragged object is
+   * compatible with one of the model's accepted drop mime-types (see
+   * WAbstractItemModel::acceptDropMimeTypes()) or this widget's
+   * accepted drop mime-types (see WWidget::acceptDrops()), and the
+   * target item has drop enabled (which is controlled by the item's
+   * \link Wt::ItemIsDropEnabled ItemIsDropEnabled \endlink flag).
+   *
+   * Drop events must be handled in dropEvent().
+   *
+   * \sa setDragEnabled(), dropEvent()
+   */
+  void setDropsEnabled(bool enable);
+
+  /*! \brief Configure whether horizontal scrolling includes the first column.
+   *
+   * To display a model with many columns, this option allows you to
+   * keep the first column fixed while scrolling through the other
+   * columns of the model.
+   *
+   * The default value is false.
+   *
+   * \note Currently, you must set this option before any other manipulation
+   *       of a newly created treeview.
+   */
+  void setColumn1Fixed(bool enable);
+
+  virtual void resize(const WLength& width, const WLength& height);
+  virtual void load();
+
+  /*! \brief %Signal emitted when a node is collapsed.
+   *
+   * \sa setExpanded(), expanded
+   */
+  Signal<WModelIndex> collapsed;
+
+  /*! \brief %Signal emitted when a node is expanded.
+   *
+   * \sa setExpanded(), collapsed
+   */
+  Signal<WModelIndex> expanded;
+
+  /*! \brief %Signal emitted when an item is clicked.
+   *
+   * \sa doubleClicked
+   */
+  Signal<WModelIndex, WMouseEvent> clicked;
+
+  /*! \brief %Signal emitted when an item is double clicked.
+   *
+   * \sa doubleClicked
+   */
+  Signal<WModelIndex, WMouseEvent> doubleClicked;
+
+  /*! \brief %Signal emitted when an item is double clicked.
+   *
+   * \sa doubleClicked
+   */
+  Signal<WModelIndex, WMouseEvent> mouseWentDown;
+
+  /*! \brief %Signal emitted when the selection is changed.
+   *
+   * \sa select(), setSelectionMode(), setSelectionBehavior()
+   */
+  Signal<void> selectionChanged;
+
+protected:
+  /*! \brief Handle a drop event (drag & drop).
+   *
+   * The <i>event</i> object contains details about the drop
+   * operation, identifying the source (which provides the data) and
+   * the mime-type of the data. The drop was received on the
+   * <i>target</i> item.
+   *
+   * The drop event can be handled either by the view itself, or by
+   * the model. The default implementation checks if the mime-type is
+   * accepted by the model, and if so passes the drop event to the
+   * model. If the source is the view's own selection model, then the
+   * drop event will be handled as a \link Wt::MoveAction
+   * MoveAction\endlink, otherwise the drop event will be handled as a
+   * \link Wt::CopyAction CopyAction\endlink.
+   *
+   * \sa WAbstractItemModel::dropEvent()
+   */
+  virtual void dropEvent(const WDropEvent& event, const WModelIndex& target);
+
+private:
+  struct ColumnInfo {
+    WCssTemplateRule   *styleRule;
+    int                 id;
+    SortOrder           sortOrder;
+    HorizontalAlignment alignment;
+    HorizontalAlignment headerAlignment;
+    WLength             width;
+    WString             format;
+
+    std::string styleClass() const;
+
+    ColumnInfo(const WTreeView *view, WApplication *app, int id, int column);
+  };
+
+  struct CheckedInfo {
+    WModelIndex  index;
+    WCheckBox   *checkBox;
+
+    CheckedInfo(const WModelIndex& anIndex, WCheckBox *aCheckBox)
+      : index(anIndex), checkBox(aCheckBox) { }
+
+    CheckedInfo() { }
+  };
+
+  typedef std::map<WModelIndex, WTreeViewNode *> NodeMap;
+
+  WAbstractItemModel  *model_;
+  WItemSelectionModel *selectionModel_;
+  WModelIndex          rootIndex_;
+  WLength              rowHeight_, headerHeight_;
+  WModelIndexSet       expanded_;
+  NodeMap              renderedNodes_;
+  WTreeViewNode       *rootNode_;
+  std::string          imagePack_;
+  WCssTemplateRule    *rowHeightRule_, *headerHeightRule_,
+    *rowWidthRule_, *rowContentsWidthRule_, *c0WidthRule_;
+  WCssRule            *borderColorRule_;
+  bool                 alternatingRowColors_;
+  bool                 rootIsDecorated_;
+  SelectionMode        selectionMode_;
+  bool                 sorting_, columnResize_;
+  bool                 multiLineHeader_;
+  bool                 column1Fixed_;
+
+  std::vector<void *> expandedRaw_, selectionRaw_;
+  void *rawRootIndex_;
+
+  mutable std::vector<ColumnInfo> columns_;
+  mutable int nextColumnId_;
+
+  WSignalMapper<CheckedInfo> *checkedChangeMapper_;
+  WSignalMapper<int>         *clickedForSortMapper_;
+  WSignalMapper<WModelIndex> *clickedMapper_;
+
+  // in rows, as indicated by the current position of the viewport:
+  int viewportTop_;
+  int viewportHeight_;
+
+  // the firstRenderedRow may differ from viewportTop_, because the user
+  // adjusted the view port slightly, but not enough to trigger a correction
+  //
+  // the validRowCount may differ from viewportHeight_ as a result of
+  // expanding or collapsing nodes, or inserting and deleting rows.
+  // it takes into account that an expanded node may be incomplete, and
+  // thus everything beyond is irrelevant
+  int firstRenderedRow_;
+  int validRowCount_;
+
+  // rendered nodes in memory (including those collapsed and not included in
+  // actualRenderedRowCount_), but excluding nodes that are simply there since
+  // some of its children are rendered
+  int nodeLoad_;
+
+  int currentSortColumn_;
+
+  WContainerWidget *impl_;
+  WContainerWidget *headers_, *headerContainer_;
+  WContainerWidget *contents_, *contentsContainer_;
+
+  int firstRemovedRow_, removedHeight_;
+
+  std::vector<boost::signals::connection> modelConnections_;
+  JSlot resizeHandleMDownJS_, resizeHandleMMovedJS_, resizeHandleMUpJS_,
+    tieContentsHeaderScrollJS_, tieRowsScrollJS_, itemClickedJS_,
+    itemDoubleClickedJS_, itemMouseDownJS_;
+
+  JSignal<std::string, int, std::string, std::string,
+          std::string, WMouseEvent> itemEvent_;
+
+  bool     dragEnabled_, dropsEnabled_;
+  WWidget *dragWidget_;
+
+  void initLayoutJavaScript();
+  void rerender();
+  void rerenderHeader();
+  void rerenderTree();
+
+  void modelColumnsInserted(const WModelIndex& parent, int start, int end);
+  void modelColumnsRemoved(const WModelIndex& parent, int start, int end);
+  void modelRowsInserted(const WModelIndex& parent, int start, int end);
+  void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
+  void modelRowsRemoved(const WModelIndex& parent, int start, int end);
+  void modelDataChanged(const WModelIndex& topLeft,
+			const WModelIndex& bottomRight);
+  void modelHeaderDataChanged(Orientation orientation, int start, int end);
+  void modelLayoutAboutToBeChanged();
+  void modelLayoutChanged();
+
+  void onViewportChange(WScrollEvent event);
+  void onCheckedChange(CheckedInfo info);
+  void toggleSortColumn(int columnid);
+  void onItemEvent(std::string nodeId, int columnId, std::string type,
+		   std::string extra1, std::string extra2, WMouseEvent event);
+  void setRootNodeStyle();
+  void setCollapsed(const WModelIndex& index);
+
+  int calcOptimalFirstRenderedRow() const;
+  int calcOptimalRenderedRowCount() const;
+
+  void shiftModelIndexes(const WModelIndex& parent, int start, int count);
+  static int shiftModelIndexes(const WModelIndex& parent, int start, int count,
+			       WAbstractItemModel *model, WModelIndexSet& set);
+
+  void addRenderedNode(WTreeViewNode *node);
+  void removeRenderedNode(WTreeViewNode *node);
+
+  void adjustToViewport(WTreeViewNode *changed = 0);
+
+  void pruneNodes(WTreeViewNode *node, int& theNodeRow);
+  void adjustRenderedNode(WTreeViewNode *node, int& theNodeRow);
+
+  WWidget *widgetForIndex(const WModelIndex& index) const;
+  int subTreeHeight(const WModelIndex& index,
+		    int lowerBound = 0,
+		    int upperBound = std::numeric_limits<int>::max());
+  int renderedRow(const WModelIndex& index,
+		  WWidget *w,
+		  int lowerBound = 0,
+		  int upperBound = std::numeric_limits<int>::max());
+  int getIndexRow(const WModelIndex& index,
+		  const WModelIndex& ancestor,
+		  int lowerBound = 0,
+		  int upperBound = std::numeric_limits<int>::max());
+
+  int columnCount() const;
+  int columnById(int columnid) const;
+  std::string columnStyleClass(int column) const;
+
+  int renderLowerBound() const;
+  int renderUpperBound() const;
+
+  void renderedRowsChanged(int row, int count);
+  void convertToRaw(WModelIndexSet& set, std::vector<void *>& result);
+
+  WContainerWidget *headerRow();
+  WWidget *createHeaderWidget(WApplication *app, int column);
+  WWidget *headerWidget(int column);
+  WText   *headerTextWidget(int column);
+  WImage  *headerSortIconWidget(int column);
+
+  void selectionHandleClick(const WModelIndex& index, int modifiers);
+  void handleClick(const WModelIndex& index);
+  bool internalSelect(const WModelIndex& index, SelectionFlag option);
+  void selectRange(const WModelIndex& first, const WModelIndex& last);
+  void extendSelection(const WModelIndex& index);
+  void clearSelection();
+
+  void checkDragSelection();
+  void configureModelDragDrop();
+  void expandChildrenToDepth(const WModelIndex& index, int depth);
+
+  ColumnInfo& columnInfo(int column) const;
+
+  friend class WTreeViewNode;
+};
+
+}
+
+#endif // WTREE_VIEW_H_

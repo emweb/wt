@@ -1,0 +1,197 @@
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include "Wt/WContainerWidget"
+#include "Wt/WGridLayout"
+#include "Wt/WWidgetItem"
+
+namespace Wt {
+
+  namespace Impl {
+
+Grid::Row::Row(int stretch)
+  : stretch_(stretch)
+{ }
+
+Grid::Column::Column(int stretch)
+  : stretch_(stretch)
+{ }
+
+Grid::Item::Item(WLayoutItem *item, int alignment)
+  : item_(item),
+    rowSpan_(1),
+    colSpan_(1),
+    alignment_(alignment)
+{ }
+
+Grid::Grid()
+  : horizontalSpacing_(6),
+    verticalSpacing_(6)
+{ }
+
+Grid::~Grid()
+{
+  for (unsigned i = 0; i < items_.size(); ++i)
+    for (unsigned j = 0; j < items_[i].size(); ++j)
+      delete items_[i][j].item_;
+}
+
+  }
+
+WGridLayout::WGridLayout(WWidget *parent)
+  : WLayout()
+{
+  if (parent)
+    setLayoutInParent(parent);
+}
+
+void WGridLayout::addItem(WLayoutItem *item)
+{
+  addItem(item, 0, columnCount());
+}
+
+void WGridLayout::removeItem(WLayoutItem *item)
+{
+  int index = indexOf(item);
+
+  if (index != -1) {
+    updateRemoveItem(item);
+
+    int row = index / columnCount();
+    int col = index % columnCount();
+
+    grid_.items_[row][col].item_ = 0;
+  }
+}
+
+WLayoutItem *WGridLayout::itemAt(int index) const
+{
+  int row = index / columnCount();
+  int col = index % columnCount();
+
+  return grid_.items_[row][col].item_;
+}
+
+int WGridLayout::count() const
+{
+  return grid_.rows_.size() * grid_.columns_.size();
+}
+
+void WGridLayout::addItem(WLayoutItem *item, int row, int column,
+			  int rowSpan, int columnSpan, int alignment)
+{
+  columnSpan = std::max(1, columnSpan);
+  rowSpan = std::max(1, rowSpan);
+
+  expand(row, column, rowSpan, columnSpan);
+
+  Impl::Grid::Item& gridItem = grid_.items_[row][column];
+
+  delete gridItem.item_;
+  gridItem.item_ = item;
+  gridItem.rowSpan_ = rowSpan;
+  gridItem.colSpan_ = columnSpan;
+  gridItem.alignment_ = alignment;
+
+  updateAddItem(item);
+}
+
+void WGridLayout::addLayout(WLayout *layout, int row, int column, int alignment)
+{
+  addItem(layout, row, column, 1, 1, alignment);
+}
+
+void WGridLayout::addLayout(WLayout *layout, int row, int column,
+			    int rowSpan, int columnSpan, int alignment)
+{
+  addItem(layout, row, column, rowSpan, columnSpan, alignment);
+}
+
+void WGridLayout::addWidget(WWidget *widget, int row, int column, int alignment)
+{
+  addItem(new WWidgetItem(widget), row, column, 1, 1, alignment);
+}
+
+void WGridLayout::addWidget(WWidget *widget, int row, int column,
+			    int rowSpan, int columnSpan, int alignment)
+{
+  addItem(new WWidgetItem(widget), row, column, rowSpan, columnSpan, alignment);
+}
+
+void WGridLayout::setHorizontalSpacing(int size)
+{
+  grid_.horizontalSpacing_ = size;
+
+  update();
+}
+
+void WGridLayout::setVerticalSpacing(int size)
+{
+  grid_.verticalSpacing_ = size;
+
+  update();
+}
+
+int WGridLayout::columnCount() const
+{
+  return grid_.columns_.size();
+}
+
+int WGridLayout::rowCount() const
+{
+  return grid_.rows_.size();
+}
+
+void WGridLayout::setColumnStretch(int column, int stretch)
+{
+  expand(0, column, 0, 1);
+  grid_.columns_[column].stretch_ = stretch;
+
+  update();
+}
+
+int WGridLayout::columnStretch(int column) const
+{
+  return grid_.columns_[column].stretch_;
+}
+
+void WGridLayout::setRowStretch(int row, int stretch)
+{
+  expand(row, 0, 1, 0);
+  grid_.rows_[row].stretch_ = stretch;
+
+  update();
+}
+
+int WGridLayout::rowStretch(int row) const
+{
+  return grid_.rows_[row].stretch_;
+}
+
+void WGridLayout::expand(int row, int column, int rowSpan, int columnSpan)
+{
+  int newRowCount = std::max(rowCount(), row + rowSpan);
+  int newColumnCount = std::max(columnCount(), column + columnSpan);
+
+  int extraRows = newRowCount - rowCount();
+  int extraColumns = newColumnCount - columnCount();
+
+  if (extraColumns > 0) {
+    for (int row = 0; row < rowCount(); ++row)
+      grid_.items_[row].insert(grid_.items_[row].end(), extraColumns,
+			       Impl::Grid::Item());
+    grid_.columns_.insert(grid_.columns_.end(), extraColumns,
+			  Impl::Grid::Column());
+  }
+
+  if (extraRows > 0) {
+    grid_.items_.insert(grid_.items_.end(), extraRows,
+			std::vector<Impl::Grid::Item>(newColumnCount));
+    grid_.rows_.insert(grid_.rows_.end(), extraRows, Impl::Grid::Row());
+  }
+}
+
+}

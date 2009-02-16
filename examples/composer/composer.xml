@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF8"?>
+<messages>
+  <message id="msg.send">Send (not really)</message>
+  <message id="msg.savenow">Save Now</message>
+  <message id="msg.discard">Discard</message>
+  <message id="msg.to">To:</message>
+  <message id="msg.cc">Cc:</message>
+  <message id="msg.bcc">Bcc:</message>
+  <message id="msg.addcc">Add Cc</message>
+  <message id="msg.addbcc">Add Bcc</message>
+  <message id="msg.subject">Subject:</message>
+  <message id="msg.attachfile">Attach a file</message>
+  <message id="msg.attachanother">Attach another file</message>
+  <message id="msg.remove">remove</message>
+  <message id="msg.file-empty">Error: file was empty!</message>
+  <message id="msg.file-too-large">Error: maximum file size is 100 Kb.</message>
+  <message id="msg.uploading">Uploading attachments...</message>
+  <message id="msg.attachment.failed">Error: empty or oversized attachments?</message>
+  <message id="example.info">
+    <p>This is an example application of
+      <a href="http://witty.sourceforge.net/">Wt</a>, a C++ toolkit for
+      developping web applications.</p>
+    <p>The benefit of Wt's widget approach to web development is the
+      possibility to define self-contained components (such as in this case
+      the Composer widget) which may be instantiated in the same way as
+      basic widgets, despite its internal complexity (such as keeping track
+      of uploaded attachments and asynchronous uploading of file
+      attachments.</p>
+    <p>The source code (about 1300 lines of commented C++ code) is included
+      in the latest Wt distribution, or can <a href="http://jose.med.kuleuven.ac.be/wt/doc/examples/html/group__composerexample.html">be browsed online</a>
+      </p>
+  </message>
+</messages>

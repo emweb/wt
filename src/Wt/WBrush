@@ -1,0 +1,105 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WBRUSH_H_
+#define WBRUSH_H_
+
+#include <Wt/WColor>
+
+namespace Wt {
+
+/*! \brief Enumeration that indicates a fill style.
+ *
+ * \ingroup painting
+ *
+ * \relates WBrush
+ */
+enum WBrushStyle {
+  NoBrush = 0,      //!< Do not fill
+  SolidPattern = 1  //!< Fill with a solid color
+};
+
+/*! \class WBrush Wt/WBrush Wt/WBrush
+ *  \brief Class that defines the style for filling areas
+ *
+ * A brush defines the properties of how areas (the interior of
+ * shapes) are filled.
+ *
+ * \sa WPainter::setBrush(), WPen
+ *
+ * \ingroup painting
+ */
+class WT_API WBrush
+{
+public:
+  /*! \brief Default constructor.
+   *
+   * Constructs a brush with a \link Wt::NoBrush NoBrush\endlink fill style.
+   */
+  WBrush();
+
+  /*! \brief Construct a brush with a particular style.
+   *
+   * Constructs a black brush with the indicated <i>style</i>.
+   */
+  WBrush(WBrushStyle style);
+
+  /*! \brief Construct a solid brush of a particular color.
+   *
+   * Constructs a solid brush with the indicated <i>color</i>.
+   */
+  WBrush(const WColor& color);
+
+  /*! \brief Construct a solid brush with a particular standard color.
+   *
+   * Constructs a solid brush with the indicated <i>color</i>.
+   */
+  WBrush(GlobalColor color);
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the brushes are exactly the same.
+   */
+  bool operator==(const WBrush& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the brushes are different.
+   */
+  bool operator!=(const WBrush& other) const;
+
+  /*! \brief Change the brush style.
+   *
+   * \sa style()
+   */
+  void setStyle(WBrushStyle style);
+
+  /*! \brief Returns the fill style.
+   *
+   * \sa setStyle(WBrushStyle)
+   */
+  WBrushStyle style() const { return style_; }
+
+  /*! \brief Change the brush color.
+   *
+   * \sa color()
+   */
+  void setColor(const WColor& color);
+
+  /*! \brief Returns the brush color.
+   *
+   * \sa color()
+   */
+  const WColor& color() const { return color_; }
+
+private:
+  WBrushStyle style_;
+  WColor      color_;
+};
+
+}
+
+#endif // WBRUSH_H_

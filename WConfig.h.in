@@ -1,0 +1,28 @@
+#ifndef WCONFIG_H
+#define WCONFIG_H
+
+// Version defines
+#define WT_SERIES ${VERSION_SERIES}
+#define WT_MAJOR  ${VERSION_MAJOR}
+#define WT_MINOR  ${VERSION_MINOR}
+
+/*! \brief A constant that encodes the library version of %Wt
+ *
+ * You may use this constant to check for the version of %Wt at build-time.
+ */
+#define WT_VERSION (((WT_SERIES & 0xff) << 24) | ((WT_MAJOR & 0xff) << 16) | ((WT_MINOR & 0xff) << 8))
+#define WT_VERSION_STR "${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}"
+#define WT_CLASS       "Wt${VERSION_SERIES}_${VERSION_MAJOR}_${VERSION_MINOR}"
+
+#define RUNDIR "${RUNDIR}"
+#define WT_CONFIG_XML "${CONFIGURATION}"
+#define WTHTTP_CONFIGURATION "${WTHTTP_CONFIGURATION}"
+
+#cmakedefine WTHTTP_WITH_ZLIB
+
+#cmakedefine WT_STATIC
+#cmakedefine WTHTTP_STATIC
+#cmakedefine WT_EXT_STATIC
+
+#endif
+

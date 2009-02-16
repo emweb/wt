@@ -1,0 +1,192 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WFILEUPLOAD_H_
+#define WFILEUPLOAD_H_
+
+#include <Wt/WWebWidget>
+
+namespace Wt {
+
+/*! \class WFileUpload Wt/WFileUpload Wt/WFileUpload
+ *  \brief A widget that allows a file to be uploaded.
+ *
+ * This widget is displayed as a box in which a filename can be entered and
+ * a browse button.
+ *
+ * Depending on availability of JavaScript, the behaviour of the widget
+ * is different, but the API is designed in a way which facilitates
+ * a portable use.
+ *
+ * When JavaScript is available, the file will not be uploaded until
+ * upload() is called. This will start an asynchronous upload (and
+ * thus return immediately). When the file has been uploaded, the
+ * \link WFileUpload::uploaded uploaded \endlink signal is emitted, or
+ * if the file was too large, the \link WFileUpload::fileTooLarge
+ * fileTooLarge \endlink signal is emitted.
+ *
+ * When no JavaScript is available, the file will be uploaded with the
+ * next click event. Thus, upload() is not useful -- the file will
+ * already be uploaded, and the corresponding signals will already be
+ * emitted. To test if upload() is needed, you may check using the
+ * isUploaded() call.
+ *
+ * Thus, to properly use the widget, one needs to follow these
+ * rules:
+ * <ul>
+ *   <li>Be prepared to handle the \link WFileUpload::uploaded
+ *       uploaded \endlink or \link WFileUpload::fileTooLarge
+ *       fileTooLarge \endlink signal
+ *       also when upload() was not called.</li>
+ *   <li>Check with isUploaded() if upload() will schedule a new
+ *       upload. if (isUploaded()) then upload() will no have any
+ *       effect. if (!isUploaded()), upload() will start and end
+ *       when either of the two signals \link WFileUpload::uploaded
+ *       uploaded \endlink or \link WFileUpload::fileTooLarge
+ *       fileTooLarge \endlink signal is emitted.
+ *   </li>
+ * </ul>
+ *
+ * The %WFileUpload widget must be hidden or deleted when a file is
+ * received. In addition it is wise to prevent the user from uploading
+ * the file twice.
+ *
+ * The uploaded file is automatically spooled to a local temporary
+ * file which will be deleted together with the WFileUpload widget,
+ * unless stealSpooledFile() is called.
+ */
+class WT_API WFileUpload : public WWebWidget {
+public:
+  /*! \brief Construct a file upload widget
+   */
+  WFileUpload(WContainerWidget *parent = 0);
+
+  ~WFileUpload();
+
+  /*! \brief Set the size of the file input.
+   */
+  void setFileTextSize(int chars);
+
+  /*! \brief Get the size of the file input.
+   */
+  int fileTextSize() const { return textSize_; }
+
+  /*! \brief Get the spooled location of the uploaded file.
+   *
+   * Returns the temporary filename in which the uploaded file
+   * was spooled. The file is guaranteed to exist as long as
+   * the WFileUpload widget is not deleted, or a new file is
+   * not uploaded.
+   *
+   * \sa stealSpooledFile()
+   * \sa uploaded
+   */
+  const std::string& spoolFileName() const { return spoolFileName_; }
+
+  /*! \brief Get the client filename.
+   */
+  const WString& clientFileName() const { return clientFileName_; }
+
+  /*! \brief Get the client content description.
+   */
+  const WString& contentDescription() const { return contentDescription_; }
+
+  /*! \brief Steal the spooled file.
+   *
+   * By stealing the file, the spooled file will no longer be deleted
+   * together with this widget, which means you need to take care of
+   * managing that.
+   */
+  void stealSpooledFile();
+
+  /*! \brief Check if no filename was given and thus no file uploaded.
+   *
+   * Return whether a non-empty filename was given.
+   */
+  bool emptyFileName() const { return clientFileName_.value().empty(); }
+
+  /*! \brief Returns whether the upload() slot will trigger a new
+   *         upload.
+   */
+  bool isUploaded() const { return methodIframe_ == false; }
+
+  /*! \brief Signal emitted when a new file was uploaded.
+   *
+   * This signal is emitted when a new file has been received.
+   * It is good practice to hide or delete the WFileUpload widget
+   * when a file has been uploaded succesfully.
+   *
+   * \sa upload()
+   * \sa fileTooLarge
+   */
+  Signal<void> uploaded;
+
+  /*! \brief Signal emitted when the user tried to upload a too large file.
+   *
+   * The parameter is the approximate size of the file the user tried
+   * to upload.
+   *
+   * The maximum file size is determined by the maximum request size,
+   * which may be configured in the configuration file (<max-request-size>).
+   *
+   * \sa uploaded
+   * \sa WApplication::requestTooLarge
+   */
+  Signal<int> fileTooLarge;
+
+  /*! \brief Signal emitted when the user selected a new file.
+   *
+   * One could react on the user selecting a (new) file, by uploading
+   * the file immediately.
+   *
+   * Caveat: this signal is not emitted with konqueror and possibly
+   * other browsers. Thus, in the above scenario you should still provide
+   * an alternative way to call the upload() method.
+   */
+  EventSignal<void> changed;
+
+public slots:
+  /*! \brief Start the file upload.
+   *
+   * The uploaded signal is emitted when a file is uploaded, or the
+   * WFileUpload::fileTooLarge signal is emitted when the file size
+   * exceeded the maximum request size.
+   *
+   * \sa uploaded
+   * \sa isUploaded
+   */
+  void upload();
+
+private:
+  int textSize_;
+  bool textSizeChanged_;
+
+  std::string spoolFileName_;
+  WString     clientFileName_;
+  WString     contentDescription_;
+  bool isStolen_;
+  bool doUpload_;
+
+  bool     methodIframe_;
+
+  virtual void        requestTooLarge(int size);
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElement    *createDomElement(WApplication *app);
+  virtual DomElementType domElementType() const;
+
+  virtual void        setFormData(CgiEntry *entry);
+  virtual void        setNoFormData();
+  virtual void        formDataSet();
+  virtual void        htmlText(std::ostream& out);
+
+  friend class WFileUpload_EmptyWidget;
+};
+
+}
+
+#endif // WFILEUPLOAD_H_

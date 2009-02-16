@@ -1,0 +1,95 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WINPLACE_EDIT_H_
+#define WINPLACE_EDIT_H_
+
+#include <Wt/WCompositeWidget>
+
+namespace Wt {
+
+class WText;
+class WLineEdit;
+class WPushButton;
+
+/*! \class WInPlaceEdit Wt/WInPlaceEdit Wt/WInPlaceEdit
+ *  \brief A widget that provides in-place-editable text.
+ *
+ * The %WInPlaceEdit provides a text that may be edited in place by
+ * the user by clicking on it. When clicked, the text turns into a
+ * line edit with a save and cancel button.
+ *
+ * When the user saves the edit, the \link WInPlaceEdit::valueChanged
+ * valueChanged \endlink signal is emitted.
+ *
+ * Example:
+ * \code
+ *   // ..
+ *
+ *   new WText("Name: ", app->root());
+ *   WInPlaceEdit *edit = new WInPlaceEdit("Bob Smith", app->root());
+ *   edit->setStyleClass("inplace");
+ *
+ *   // ...
+ *
+ *   // the corresponding style sheet, e.g. using an inline stylesheet
+ *   app->styleSheet().addRule("*.inplace span:hover",
+ *                             "background-color: gray");
+ *
+ *   // ...
+ * \endcode
+ *
+ * This code will produce an edit that looks like:
+ * \image html WInPlaceEdit-1.png "WInPlaceEdit text mode"
+ * When the text is clicked, the edit will expand to become:
+ * \image html WInPlaceEdit-2.png "WInPlaceEdit edit mode"
+ */
+class WT_API WInPlaceEdit : public WCompositeWidget
+{
+public:
+  /*! \brief Create an in-place edit with the given text.
+   */
+  WInPlaceEdit(const WString& text, WContainerWidget *parent = 0);
+
+  /*! \brief The current saved text value.
+   */
+  const WString& text() const;
+
+  /*! \brief Set the current text.
+   */
+  void setText(const WString& text);
+
+  /*! \brief Access the line edit.
+   */
+  WLineEdit *lineEdit() const { return edit_; }
+
+  /*! \brief Access the save button.
+   */
+  WPushButton *saveButton() const { return save_; }
+
+  /*! \brief Access the cancel button.
+   */
+  WPushButton *cancelButton() const { return cancel_; }
+
+public:
+  /*! \brief %Signal emitted when the value has been changed.
+   */
+  Signal<WString> valueChanged;
+
+private slots:
+  void save();
+
+private:
+  WContainerWidget *impl_;
+  WText            *text_;
+  WLineEdit        *edit_;
+  WPushButton      *save_;
+  WPushButton      *cancel_;
+};
+
+}
+
+#endif // WINPLACE_EDIT_H_

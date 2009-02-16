@@ -1,0 +1,69 @@
+body {
+    font-family:arial,sans-serif;
+}
+
+p.p {
+  margin: 16px 0px;
+  font-size: smaller;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+h2, h3, h4, h5 {
+  color: #505050;
+}
+
+h2 {
+  padding-left: 30px;
+  border-bottom: 1px solid #000;
+}
+
+h2 span {
+  border-bottom: 0.2em solid #000;
+}
+
+/*
+ * top-level layout
+ */
+.north {
+    background:#0000AA url(ext/resources/images/default/basic-dialog/hd-sprite.gif) repeat-x scroll 0px -83px;
+    border:0px none;
+    padding-left:3px;
+    padding-top:3px;
+}
+
+.dialog .x-layout-panel-north {
+    background:#EEEEEE;
+    border:0px none;
+    padding-left:3px;
+    padding-top:3px;
+}
+
+.north .header {
+    color: white;
+    padding-top: 3px;
+}
+
+.Wt-treeview {
+    font-family: arial,tahoma,helvetica,sans-serif !important;
+    font-size: 11px !important;
+}
+
+/*
+ * for Widgets tree
+ */
+.treenodelabel {
+  cursor:pointer;cursor:hand;
+  font-size: 10pt;
+}
+
+.treenodelabel:hover {
+  text-decoration: underline;
+}
+
+.treenodechildcount {
+  font-size: 10pt;
+  color:blue;
+}

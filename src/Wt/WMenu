@@ -1,0 +1,308 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WMENU_H_
+#define WMENU_H_
+
+#include <vector>
+
+#include <Wt/WCompositeWidget>
+#include <Wt/WMenuItem>
+
+namespace Wt {
+
+class WStackedWidget;
+class WTable;
+
+/*! \class WMenu Wt/WMenu Wt/WMenu
+ *  \brief A widget that shows a menu of options.
+ *
+ * The %WMenu widget offers menu navigation in conjunction with a
+ * WStackedWidget, where different 'contents' are stacked upon each
+ * other.  Each choice in the menu (which is implemented as a
+ * WMenuItem) corresponds to a tab in the contents stack. The contents
+ * stack may contain other items, and could be shared with other WMenu
+ * instances. (the old restriction of a dedicated contents stack has
+ * been removed since Wt 2.2.1).
+ *
+ * An example for using %WMenu is:
+ *
+ * \code
+   // create the stack where the contents will be located
+   WStackedWidget *contents = new WStackedWidget(contentsParent);
+
+   // create a menu
+   WMenu *menu = new WMenu(contents, Wt::Vertical, menuParent);
+
+   // add four items using the default lazy loading policy.
+   menu->addItem("Introduction", new WText(tr("intro"));
+   menu->addItem("Download", new WText("Not yet available"));
+   menu->addItem("Demo", new DemoWidget());
+   menu->addItem(new WMenuItem("Demo2", new DemoWidget()));
+
+ * \endcode
+ *
+ * After contruction, the first entry will be selected. At any time,
+ * it is possible to select a particular item using select().
+ *
+ * The %WMenu implementation offers fine-grained control on how
+ * contents should be preloaded. By default, all contents is
+ * lazy-loaded, only when needed. To improve response time, an item
+ * may also be preloaded (using addItem()). In that case, the item
+ * will be loaded in the background, before its first use. In any
+ * case, once the contents corresponding to a menu item is loaded,
+ * subsequent navigation to it is handled entirely client-side.
+ *
+ * The %WMenu may participate in the application's internal path,
+ * which lets menu items correspond to internal URLs, see
+ * setInternalPathEnabled().
+ *
+ * The layout of the menu may be Horizontal or Vertical. The look of
+ * the items may be defined through style sheets. The default WMenuItem
+ * implementation uses two style classes to distinguish between activated
+ * and inactivated menu items: "item" and "itemselected". By using
+ * CSS nested selectors, a different style may be defined for items in a
+ * different menu.
+ *
+ * For example, the (old) %Wt homepage used the following CSS rules to
+ * style the two menu (which both are assigned the style class .menu):
+ *
+ * \code
+.menu * .item {
+  cursor: pointer; cursor: hand;
+  color: blue;
+  text-decoration: underline;
+}
+
+.menu * .itemselected {
+  color: blue;
+  text-decoration: underline;
+  font-weight: bold;  
+}
+ * \endcode
+ *
+ * You may customize the rendering and behaviour of menu entries by
+ * specializing WMenuItem.
+ *
+ * \sa WMenuItem
+ */
+class WT_API WMenu : public WCompositeWidget
+{
+public:
+  /*! \brief Construct a new menu.
+   *
+   * Construct a menu to manage the widgets in <i>contentsStack</i>,
+   * and sets the menu <i>orientation</i>.
+   *
+   * Each menu item will manage a single widget in the
+   * <i>contentsStack</i>, making it the current widget when the menu
+   * item is activated.
+   */
+  WMenu(WStackedWidget *contentsStack, Orientation orientation,
+	WContainerWidget *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  ~WMenu();
+
+  /*! \brief Add an item.
+   *
+   * Adds a menu item with given <i>contents</i>, which is added to
+   * the menu's associated contents stack.
+   *
+   * <i>contents</i> may be 0, in which case no contents in the contents
+   * stack is associated with the menu item.
+   *
+   * Returns the corresponding WMenuItem.
+   *
+   * \sa addItem(WMenuItem *)
+   */
+  WMenuItem *addItem(const WString& name, WWidget *contents,
+		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
+
+  /*! \brief Add an item.
+   *
+   * Adds a menu item. Use this form to add specialized WMenuItem
+   * implementations.
+   *
+   * \sa addItem(const WString&, WWidget *, WMenuItem::LoadPolicy)
+   */
+  WMenuItem *addItem(WMenuItem *item);
+
+  /*! \brief Remove an item.
+   *
+   * Removes the given item. The item and its contents is not deleted.
+   *
+   * \sa addItem(), ~WMenuItem()
+   */
+  void removeItem(WMenuItem *item);
+
+  /*! \brief Select an item.
+   *
+   * Select the menu item <i>item</i>.
+   *
+   * \sa select(int), currentItem()
+   */
+  void select(WMenuItem *item);
+
+  /*! \brief Select an item.
+   *
+   * Menu items in a menu with <i>N</i> items are numbered from 0 to
+   * <i>N</i> - 1.
+   *
+   * \sa select(WMenuItem *), currentIndex()
+   */
+  void select(int index);
+
+  /*! \brief %Signal which indicates that a new item was selected.
+   *
+   * This signal is emitted when an item was selected. It is emitted
+   * both when the user activated an item, or when select() was
+   * invoked.
+   *
+   * \sa itemSelectRendered
+   */
+  Signal<WMenuItem *> itemSelected;
+
+  /*! \brief %Signal which indicates that a new selected item is rendered.
+   *
+   * This signal is similar to \link WMenu::itemSelected
+   * itemSelected\endlink, but is emitted from within a stateless
+   * slot. Therefore, any slot connected to this signal will be
+   * optimized to client-side JavaScript, and must support the
+   * contract of a stateless slot.
+   *
+   * If you are unsure what is the difference with the \link
+   * WMenu::itemSelected itemSelected\endlink signal, you'll probably
+   * need the latter instead.
+   *
+   * \sa itemSelected
+   */
+  Signal<WMenuItem *> itemSelectRendered;
+
+  /*! \brief Returns the items.
+   *
+   * Returns the list of menu items in this menu.
+   */
+  const std::vector<WMenuItem *>& items() const { return items_; }
+
+  /*! \brief Returns the currently selected item.
+   *
+   * \sa currentIndex(), select(WMenuItem *)
+   */
+  WMenuItem *currentItem() const;
+
+  /*! \brief Returns the index of the currently selected item.
+   *
+   * \sa currentItem(), select(int)
+   */
+  int currentIndex() const { return current_; }
+
+  /*! \brief Returns the orientation.
+   *
+   * The orientation is set at time of construction.
+   */
+  Orientation orientation() const { return orientation_; }
+
+  /*! \brief Render using an HTML list.
+   *
+   * By default, the the menu is rendered using an HTML &lt;table&gt;
+   * element for layout. Setting this option enables rendering using
+   * &lt;ul&gt; and &lt;il&gt; elements, as is commonly done for
+   * CSS-based designs.
+   *
+   * \note You cannot use this method after items have been added to
+   * the menu.
+   */
+  void setRenderAsList(bool enable);
+
+  /*! \brief Return whether the menu is rendered as an HTML list.
+   *
+   * \sa setRenderAsList(bool)
+   */
+  bool renderAsList() const { return renderAsList_; }
+
+  /*! \brief Enable internal paths for items.
+   *
+   * The menu participates in the internal path by changing the
+   * internal path when an item has been selected, and listening for
+   * path changes to react to path selections. As a consequence this
+   * allows the user to bookmark the current menu selection and
+   * revisit it later, use back/forward buttons to navigate through
+   * history of visited menu items, and allows indexing of pages.
+   *
+   * For each menu item, WMenuItem::pathComponent() is appended to the
+   * internal base path (internalBasePath()), which defaults to the
+   * internal path (WApplication::internalPath()) but may be changed
+   * using setInternalBasePath(), with a '/' appended to turn it into
+   * a folder, if needed.
+   *
+   * By default, menu interaction does not change the application
+   * internal path.
+   *
+   * \sa WMenuItem::setPathComponent().
+   */
+  void setInternalPathEnabled();
+
+  /*! \brief Returns whether the menu generates internal paths entries.
+   *
+   * \sa setInternalPathEnabled()
+   */
+  bool internalPathEnabled() const { return internalPathEnabled_; }
+
+  /*! \brief Set the internal base path.
+   *
+   * A '/' is appended to turn it into a folder, if needed.
+   *
+   * \sa setInternalPathEnabled(), internalBasePath()
+   */
+  void setInternalBasePath(const std::string& basePath);
+
+  /*! \brief Returns the internal base path.
+   *
+   * The default value is the application's internalPath
+   * (WApplication::internalPath()) that was recorded when
+   * setInternalPathEnabled() was called, and together with each
+   * WMenuItem::pathComponent() determines the paths for each item.
+   *
+   * For example, if internalBasePath() is <tt>"/examples/"</tt> and
+   * pathComponent() for a particular item is <tt>"charts/"</tt>, then
+   * the internal path for that item will be
+   * <tt>"/examples/charts/"</tt>.
+   *
+   * \sa setInternalPathEnabled()
+   */
+  const std::string& internalBasePath() const { return basePath_; }
+
+private:
+  WWidget          *impl_;
+  WStackedWidget   *contentsStack_;
+  Orientation       orientation_;
+  bool              renderAsList_;
+  bool              internalPathEnabled_;
+  std::string       basePath_, previousInternalPath_;
+
+  std::vector<WMenuItem *> items_;
+
+  int current_;
+  int previousCurrent_;
+  int previousStackIndex_;
+
+  int indexOf(WMenuItem *item);
+
+  void selectVisual(WMenuItem *item);
+  void selectVisual(int item);
+  void undoSelectVisual();
+  friend class WMenuItem;
+
+  void internalPathChanged(std::string path);
+  void setFromState(const std::string& value);
+  void updateItems();
+};
+
+}
+
+#endif // WMENU_H_

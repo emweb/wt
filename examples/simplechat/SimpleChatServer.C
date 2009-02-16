@@ -1,0 +1,95 @@
+/*
+ * Copyright (C) 2007 Koen Deforche
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include "SimpleChatServer.h"
+
+#include <iostream>
+#include <boost/lexical_cast.hpp>
+
+using namespace Wt;
+
+const WString ChatEvent::formattedHTML(const WString& user) const
+{
+  switch (type_) {
+  case Login:
+    return "<span class='chat-info'>"
+      + user_ + " joined the conversation.</span>";
+  case Logout:
+    return "<span class='chat-info'>"
+      + ((user == user_) ? "You" : user_)
+      + " logged out.</span>";
+  case Message:{
+    WString result;
+
+    result = WString("<span class='")
+      + ((user == user_) ? "chat-self" : "chat-user")
+      + "'>" + user_ + ":</span>";
+
+    if (message_.toUTF8().find(user.toUTF8()) != std::string::npos)
+      return result + "<span class='chat-highlight'>" + message_ + "</span>";
+    else
+      return result + message_;
+  }
+  default:
+    return "";
+  }
+}
+
+
+SimpleChatServer::SimpleChatServer()
+{ }
+
+bool SimpleChatServer::login(const WString& user)
+{
+  boost::mutex::scoped_lock lock(mutex_);
+  
+  if (users_.find(user) == users_.end()) {
+    users_.insert(user);
+
+    chatEvent.emit(ChatEvent(ChatEvent::Login, user));
+
+    return true;
+  } else
+    return false;
+}
+
+void SimpleChatServer::logout(const WString& user)
+{
+  boost::mutex::scoped_lock lock(mutex_);
+  
+  UserSet::iterator i = users_.find(user);
+
+  if (i != users_.end()) {
+    users_.erase(i);
+
+    chatEvent.emit(ChatEvent(ChatEvent::Logout, user));
+  }
+}
+
+WString SimpleChatServer::suggestGuest()
+{
+  boost::mutex::scoped_lock lock(mutex_);
+
+  for (int i = 1;; ++i) {
+    std::string s = "guest " + boost::lexical_cast<std::string>(i);
+    WString ss = s;
+
+    if (users_.find(ss) == users_.end())
+      return ss;
+  }
+}
+
+void SimpleChatServer::sendMessage(const WString& user, const WString& message)
+{
+  boost::mutex::scoped_lock lock(mutex_);
+
+  chatEvent.emit(ChatEvent(user, message));
+}
+
+SimpleChatServer::UserSet SimpleChatServer::users()
+{
+  return users_;
+}

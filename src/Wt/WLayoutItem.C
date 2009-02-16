@@ -1,0 +1,19 @@
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include "Wt/WLayoutItem"
+#include "Wt/WLayout"
+
+namespace Wt {
+
+WLayoutItem::WLayoutItem()
+  : layout_(0)
+{ }
+
+WLayoutItem::~WLayoutItem()
+{ }
+
+}

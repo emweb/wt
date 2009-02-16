@@ -1,0 +1,686 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+<style>
+  dt { font-weight: bold; }
+  h3 { text-decoration: underline; }
+</style>
+</head>
+<title>Wt Release notes</title>
+<body>
+<h1>Wt Release notes</h1>
+
+This file lists important notes on migrating existing applications to
+newer version of Wt. It lists changes in the library that may break
+the way you build Wt, the way you configure Wt or the Wt API and
+behaviour.
+
+<h2>Release 2.2.3 (Jan 26, 2009)</h2>
+
+<p>This release is a maintenance release, with mostly bug fixes and
+feature improvements.</p>
+
+<h3>A) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a>:</dt>
+  <dd><samp>const char *</samp> data in <samp>boost::any</samp> is now
+    also supported.</dd>
+  <dt><a href="classWt_1_1WAbstractProxyModel.html">WAbstractProxyModel</a>:
+  </dt><dd>Implemented <samp>toRawIndex()</samp>
+    and <samp>fromRawIndex()</samp> so that indexes can be recovered
+    when the model's layout is changed, if the underlying model
+    provides implementations for <samp>toRawIndex()</samp>
+    and <samp>fromRawIndex()</samp>.</dd>
+  <dt><a href="classWt_1_1WComboBox.html">WComboBox</a>:</dt>
+  <dd>Also supports <samp>StyleClassRole</samp> data role for items</dd>
+  <dt><a href="classWt_1_1WDialog.html">WDialog</a>:</dt>
+  <dd>New method <samp>setTitleBarEnabled()</samp> to disable the default
+  title bar.</dd>
+  <dt><a href="classWt_1_1WMenu.html">WMenu</a>:</dt>
+  <dd>New method <samp>removeItem()</samp>, only works when rendered as a
+    list.</dd>
+  <dt><a href="classWt_1_1WTabWidget.html">WTabWidget</a>:</dt>
+  <dd>New method <samp>removeTab()</samp>.</dd>
+  <dt><a href="classWt_1_1WTreeView.html">WTreeView</a>:</dt>
+  <dd><ul>
+      <li>New method <samp>setColumn1Fixed()</samp> to fix the first
+    column while scrolling horizontally through the other columns.</li>
+      <li>New method <samp>setColumnFormat()</samp> to control formatting of
+    data.</li>
+      <li>New method <samp>setColumnBorder()</samp> to set the
+    internal column border color.</li>
+      <li>New method <samp>setColumnResizeEnabled()</samp> to disable resize
+    handles.</li>
+      <li>The view now also reacts correctly to insertion and
+    removal of model columns.</li>
+    </ul>
+  </dd>
+</dl>
+
+<h3>B) New examples</h3>
+
+<dl>
+  <dt><a href="http://www.webtoolkit.eu/wt/examples/gitmodel/gitview.wt">
+      gitmodel:</a></dt>
+  <dd>An example that demonstrates how to implement a custom abstract
+    item model.</dd>
+  <dt><a href="http://www.webtoolkit.eu/wt/examples/treeview-dragdrop/treeview-dragdrop.wt">treeview-dragdrop</a>:</dt>
+  <dd>An example that demonstrates drag and drop support in WTreeView.</dd>
+</dl>
+
+<h3>C) Changes that break backward compatibility</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WApplication.html">WApplication</a>:</dt>
+  <dd><samp>useStyleSheet()</samp> only supports a subset of IE condition
+    strings, since the string is now parsed by Wt rather than by IE (when
+    dynamically loading stylesheets, the comment-syntax does not work
+    reliably).</dd>
+</dl>
+
+<h2>Release 2.2.2 (Dec 1, 2008)</h2>
+
+<p><i>As of now, we will also be listing noteworthy new API features,
+even if they are no concern for backwards compatibility.</i></p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WPopupMenu.html">WPopupMenu</a>,
+    <a href="classWt_1_1WPopupMenuItem.html">WPopupMenuItem</a>:</dt>
+  <dd>A popup menu, which you would typically use to present a
+  context menu.</dd>
+  <dt><a href="classWt_1_1WAbstractProxyModel.html">WAbstractProxyModel</a>,
+    <a href="classWt_1_1WSortFilterProxyModel.html">WSortFilterProxyModel</a>:</dt>
+  <dd>Proxy models, which present data from a source model in a
+  different way.</dd>
+  <dt><a href="classWt_1_1WLoadingIndicator.html">WLoadingIndicator</a>, <a href="classWt_1_1WDefaultLoadingIndicator.html">WDefaultLoadingIndicator</a>,
+  <a href="classWt_1_1WOverlayLoadingIndicator.html">WOverlayLoadingIndicator</a>:</dt>
+  <dd>Customizable loading indicators.</dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WTreeView.html">WTreeView</a>, <a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a>:</dt>
+  <dd>The WAbstractItemModel interface was extended to allow handling
+  of drag &amp; drop events, and WTreeView now is able to start
+  dragging and handle dropping of item selections and other data.</dd>
+  <dt><a href="classWt_1_1JSignal.html">JSignal</a>:</dt>
+  <dd>You can now pass the original (keyboard/mouse) JavaScript event
+  as a parameter to custom signals.</dd>
+  <dt><a href="classWt_1_1WTreeView.html">WTreeView</a>:</dt>
+  <dd>access mouse event in itemClicked, doubleClicked and
+  mouseWentDown signals.</dd>
+  <dt><a href="classWt_1_1WServer.html">WServer</a>:</dt>
+  <dd>Support for widget-set mode, allowing a Wt application to be
+  embedded in an existing web page/application.</dd>
+</dl>
+
+<h3>C) Changes that break backward compatibility</h3>
+
+<p>This release does not contain changes that break existing
+applications.</p>
+
+<h2>Release 2.2.1 (Nov 3, 2008)</h2>
+
+<p>This release is as usually a mix of bug fixes, improvements and new
+features.</p>
+
+<p>We have made a significant change to the MVC system, which will
+break existing program code in case you have implemented your own
+models (i.e. deriving from <samp>WAbstractItemModel</samp>) or views
+widgets (i.e. components that listen to model changes).</p>
+
+<p>
+The <samp>WAbstractItemModel</samp> interface was changed to support
+hierarchical models. This means that most methods will now take an
+extra parameter that specifies the parent <samp>WModelIndex</samp>,
+and also all signals have now this extra parameter. Because the
+parameter has a default value of WModelIndex() which corresponds to
+the top level parent, the API is largely backwards compatible when
+merely using the model. It is only those classes that reimplement the
+interface, or listen to signal events, that are affected.
+</p>
+
+<p>
+The immediate benefit of the new <samp>WAbstracItemModel</samp>
+interface is that it allows us to implement View widgets like the new
+<samp>WTreeView</samp> widget.
+</p>
+
+<h2>Release 2.2.0 (Sept 12, 2008)</h2>
+
+<p>This release has a rather substantial rewrite (and simplification)
+of Wt's bootstrapping process. In the past, Wt used a frameset trick
+to be able to load the AJAX-based skeleton when JavaScript was
+available. Isntead, now, the entire AJAX-based stuff is loaded
+directly into the bootstrap page. A benefit of the new approach is
+that we avoid iframe tricks, which have been deprecated from strict
+HTML and XHTML. But, it was in fact motivated in the first place to
+support all major browsers for a new internal path API. This new API
+allows to fully support URL changes and bookmarks in a unified way
+(i.e. it works equally when the browser supports AJAX, no JavaScript,
+or is a bot such as google bot).</p>
+
+<p>As a consequence, this release contains the following changes that
+may break your application:</p>
+
+<ul>
+  <li><samp>WMenu::enableBrowserHistory()</samp> and <samp>WMenu::browserHistoryId()</samp> have been removed, use the new methods <samp>WMenu::setInternalPathEnabled()</samp> and <samp>WMenu::setInternalBasePath()</samp>
+  </li>
+  <li><samp>WMenuItem</samp> has been reorganized, and if you have
+  specialized WMenuItem you will need to adapt your reimplementation
+  to the new virtual interface. In the new interface, you need to
+  reimplement <samp>WMenuItem::createItemWidget()</samp> and
+  <samp>WMenuItem::updateItemWidget()</samp> allowing you to react to
+  item changes (internal path or text). The default implementation now
+  always uses a WAnchor.</li>
+  <li><samp>WApplication::setState()</samp>, <samp>WApplication::state()</samp> and <samp>WApplication::stateChanged</samp> have been deprecated. It is stronly advised that you use the new internal path API instead. This does require you to treat different parts of the state as a file hierarchy. See the <samp>WApplication::setInternalPath() documentation</samp>.
+  </li>
+</ul>
+
+<p>
+  The following methods have been deprecated (but are still supported):
+<ul>
+  <li><samp>WTable::numRows()</samp> has been renamed
+  to <samp>WTable::rowCount()</samp>.</li>
+  <li><samp>WTable::numColumns()</samp> has been renamed
+  to <samp>WTable::columnCount()</samp>.</li>
+</ul>
+
+<h2>Release 2.1.5 (July 25, 2008)</h2>
+
+<p>Wt now installs its include files in a Wt/ subdirectory. You may
+want to change your build files to pick up this new include directory,
+or, change your code to scope the include files to look like
+#include&lt;Wt/WLineEdit&gt; instead of #include&lt;WLineEdit&gt;</p>
+
+<p>This release contains the following changes that may break your
+application:</p>
+
+<ul>
+  <li><samp>WText</samp> will validate XHTML text when it is set to the
+   widget. The old behaviour was to validate only before
+   rendering. The change was needed to be able to react to XML parse
+   errors. As a consequence if you are creating a WText with text that
+   is not valid XML, followed by a
+   call <samp>setFormatting(WText::PlainFormatting)</samp>, you should
+   change this now to use the new <samp>WText</samp> constructor which
+   takes the TextFormat as a new argument: <samp>new WText(text,
+   Wt::PlainText, parentWidget)</samp>
+  </li>
+  <li><samp>WContainerWidget::setLayout(WLayout *layout, bool fitWidth, bool
+   fitHeight)</samp> has been replaced with the more generic
+   <samp>WContainerWidget::setLayout(WLayout *layout, int
+   alignment)</samp>.
+  </li>
+</ul>
+
+<p>
+  The following methods and enumerations have been deprecated (but are
+  still supported):
+<ul>
+  <li><samp>enum WText::Formatting</samp> has been renamed
+  to <samp>Wt::TextFormat</samp>. The old values map as follows on new
+  values:
+    <ul>
+      <li><samp>WText::XHTMLFormatting</samp> becomes <samp>Wt::XHTMLText</samp>;</li>
+      <li><samp>WText::XHTMLUnsafeFormatting</samp> becomes <samp>Wt::XHTMLUnsafeText</samp></li>
+      <li><samp>WText::PlainFormatting</samp> becomes <samp>Wt::PlainText</samp></li>
+    </ul>
+  </li>
+  <li><samp>WText::setFormatting()</samp> has been renamed
+  to <samp>WText::setTextFormat()</samp> and
+  WText::formatting()</samp> has been renamed
+  to <samp>WText::textFormat()</samp>.</li>
+</ul>
+
+<h2>Release 2.1.4 (July 4, 2008)</h2>
+
+<p>The following has changed for building Wt:</p>
+
+<ul>
+  <li>The CMake variable CONFIGURATION (which defaulted to
+  /etc/wt/wt_config.xml) is no longer used, but instead there is now a
+  CONFIGDIR (/etc/wt/) which is used to store configuration
+  files.
+  </li>
+</ul>
+</p>
+
+<p>The following has changed in the wt_config.xml file:</p>
+
+<ul>
+  <li>The &lt;valgrind-path&gt; setting for the FCGI connector may now
+    be a command-line including arguments</li>
+</ul>
+</p>
+
+<p>This release should not contain changes that may break your
+application.</p>
+
+<h2>Release 2.1.3 (May 20, 2008)</h2>
+
+<p>This release should not contain changes that may break your
+application.</p>
+
+<h2>Release 2.1.2 (April 14, 2008)</h2>
+
+<p>The following changes may break your application build:</p>
+
+<ul>
+  <li><samp>WTreeNode::expanded()</samp> has been renamed
+  to <samp>WTreeNode::isExpanded()</samp>.</li>
+</ul>
+</p>
+
+<h2>Release 2.1.1 (April 10, 2008)</h2>
+
+<p>This release should not break any of your applications, but we did
+ deprecate some methods and enumeration types. You are advised to
+ migrate to the replacements methods since we will discontinue support
+ for the older ones in the future.</p>
+
+<p>
+  The following methods and enumerations have been deprecated:
+<ul>
+  <li><samp>enum SelectionUnit</samp> has been renamed
+  to <samp>SelectionBehavior</samp>. The old values map as follows on new
+  values: <samp>CellSelection</samp> becomes <samp>SelectItems</samp>;
+    <samp>RowSelection</samp> becomes <samp>SelectRows</samp>.</li>
+  <li><samp>WWidget::setOffset(int sides, WLength)</samp> is deprecated,
+  and the new method is <samp>WWidget::setOffsets(WLength, int
+  sides)</samp>: the argument order has been switched to be consistent
+  with the method signature of <samp>setMargin()</samp>
+  and <samp>setPadding()</samp>.</li>
+  <li><samp>WResource::suggestFilename()</samp> has been renamed to
+  <samp>WResource::suggestFileName()</samp>.</li>
+</ul>
+</p>
+
+<p>
+  The following changes affect run-time behaviour:
+<ul>
+  <li><samp>WTreeNode</samp> now supports a policy for when to show a child count
+  indication. The old behaviour was to always show the child count.
+  Now, by default this option is disabled. Use
+  <samp>WTreeNode::setChildCountPolicy(Enabled)</samp> to get the old
+  behaviour back, if you wish.</li>
+</ul>
+</p>
+
+<h2>Release 2.1.0</h2>
+
+<p>The library dependencies have changed slightly.</p>
+
+<p>
+To build Wt 2.1.0, you need:
+<ul>
+  <li>CMake 2.4 or later</li>
+  <li>boost 1.34.1 (boost 1.33.1 might should still work, but is
+    not recommended)</li>
+  <li>asio 0.3.9: either the boost or non-boost version <i>(only
+      for the http connector)</i></li>
+  <li><i>optionally</i>, openssl for HTTPS support <i>(only for the http
+      connector)</i></li>
+  <li><i>optionally</i>, libz for gzip compression support <i>(only for
+      the http connector)</i></li>
+  <li>fcgi library, including C++ bindings (libfcgi++)<i>(only for the
+      fcgi connector)</i></li>
+</ul>
+</p>
+<p>Furthermore, the Wt::Ext library has been upgraded and now wraps
+around the extjs 2.x library, instead of extjs 1.x.</p>
+
+<p>Some API changes may need a porting effort:
+  <ul>
+    <li><samp>Ext::ProgressDialog</samp>: doesn't show by default, you
+    need to call show() to show the dialog.</li>
+    <li><samp>Ext::ContentPanel</samp>, <samp>Ext::BorderLayout</samp> have
+    been removed. They have been replaced with a stand-alone layout
+    system, that may manage contents in
+    an <samp>Ext::Container</samp>. The layout system provides
+    <samp>WBorderLayout</samp> and several other layout managers.</li>
+    <li><samp>WSignalMapper</samp> has been expanded to allow mapping of
+      signals with an extra argument, which is passed to the mapped
+      signal. Because of this, the signature of the class has been
+      expanded with an extra template argument. If you have forward
+      declarations to <samp>WSignalMapper</samp>, you will need to modify
+      these too (or simply include <samp>WSignalMapper</samp>).<li>
+    <li><samp>WAnchor</samp>: no longer uses a <samp>WLabel</samp> internally,
+      and the label-releated methods have been removed.</li>
+  </ul>
+</p>
+
+<h2>Release 2.0.5</h2>
+
+<ul>
+  <li><samp>WDialog</samp> (and <samp>WMessageBox</samp>) usage changed, and
+    is now more like Qt. When you are not
+    using <samp>WDialog::exec()</samp> or <samp>WMessageBox::show(...)</samp>,
+    then you must explictly <samp>show()</samp> the dialog to show it. You
+    can now also <samp>hide()</samp> the dialog if you want.
+  </li>
+  <li>
+    Moved several enums from within classes to the Wt namespace. This is
+    likely to break your code at compile time when you are using one. The
+    fix is to remove the class scope from the enum type or value.
+    <ul>
+      <li><samp>WScrollArea::Orientation</samp> -> <samp>Wt::Orientation</samp></li>
+      <li><samp>WMenu::Orientation</samp> -> <samp>Wt::Orientation</samp></li>
+      <li><samp>WMessageBox::StandardButton</samp> -> <samp>Wt::StandardButton</samp></li>
+      <li><samp>WMessageBox::Icon</samp> -> <samp>Wt::Icon</samp></li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Release 2.0.4</h2>
+
+<i>Important: 2.0.4a contains a fix for a bug introduced in 2.0.4 that
+  reset the deploy-path in wthttpd.</i>
+
+<p>
+  This release adds a few new features:
+  
+  <ul>
+    <li><samp>WComboBox</samp> (and <samp>WSelectionBox</samp>) now use
+      a <samp>WAbstractItemModel</samp> in a more flexible model/view
+      system.</li>
+    <li>Stylesheets may be browser-conditional (by Patrick Fischer)</li>
+    <li>wthttpd may serve custom error pages (by Patrick Fischer)</li>
+    <li><samp>WResource</samp> can now access HTTP GET or POST query
+      arguments. This will break your code (at compile time) if you
+      have implemented your own <samp>WResource</samp>, since the signature of the
+      <samp>streamResourceData()</samp> method has been changed to pass
+      the arguments map as a second parameter.</li>
+  </ul>
+</p>
+
+<h2>Release 2.0.1</h2>
+
+<p>
+  This release fixes some build-related problems, as well as smaller
+  bugs. The main improvement in this release is related to use of Wt
+  in resource-constrained embedded systems.
+</p>
+
+<p>
+  The most visible change is that the dependency on the Xerces C++ XML
+  library was dropped in favour of the much smaller Mini-XML
+  library. The draw-back is a reduction of supported character
+  encodings to only UTF8 and UTF16, next to the default locale character
+  encoding (which is typically an 8-bit flavour).
+</p>
+
+<p>
+  When using the built-in httpd, you can now disable support for SSL
+  at compile time, freeing a number of SSL-related dependencies.
+</p>
+
+<p>
+  In the API, more comparison operators (== and !=) were added to
+  WString, and a WViewWidget was added for simple MVC widgets (with
+  the main purpose to reduce session-state at the server).
+</p>
+
+<h2>Release 2.0.0</h2>
+
+<p>
+  This release contains numerous changes which are likely to cause some
+  porting effort for Wt 1.1.x applications to work properly.
+</p>
+
+<p>
+<emph>If you are upgrading from a 1.99.x release, you will notice that
+some of these notes have actually evolved, especially with respect to
+WString and unicode support.</emp>
+</p>
+
+<p>
+  Here is a list of changes with respect to Wt 1.1.x that are likely
+  to require your attention, and some tips on how to do the porting.
+</p>
+
+<h4>1) Namespace Wt</h4>
+
+<p>All Wt classes are now inside the namespace <samp>Wt</samp>.</p>
+
+<p>To handle this change, you will need to:
+  <ul>
+    <li>Wrap forward declarations to Wt widgets in header files inside a
+      Wt namespace, or <samp>#include &lt;WFwdDeclarations&gt;</samp></li>
+    <li>and scope all Wt classes with <samp>Wt::</samp>, </li>
+    <li>or import the Wt namespace: <samp>using namespace Wt;</samp></li>
+  </ul>
+</p>
+
+<h4>2) WString</h4>
+
+<p>
+  Previously, most widgets offered double methods that either used a
+  <samp>std::string</samp> for literal text, or a
+  <samp>WMessage</samp> for localized text.
+</p>
+
+<p>
+  In the new release, widgets use <samp>Wt::WString</samp> for both
+  literal and localized text. WString offers unicode support for both
+  literal as well as localized text. To create a literal string,
+  simply assign or construct a Wt::WString from that string. The
+  strings supported or both narrow and wide C and C++ strings. UTF8
+  encoded narrow strings may also be converted. To create a localized
+  string, use one of the static methods <samp>WString::tr(const
+  std::string key)</samp> and <samp>WWidget::tr(const std::string
+  key)</samp>.
+</p>
+
+<p>
+  To help with legacy code, WMessage is now a typedef for WString, but
+  is deprecated and should not be used in new code. Unfortunately, the
+  constructors <samp>WMessage(const char *text)</samp> and
+  <samp>WMessage(const std::string text)</samp>, changed meaning!
+  While previously they took a key to construct a localized message,
+  they now take a literal text (the exact opposite!), since they are
+  in fact plain WString() constructors. As a consequence your application
+  will display key values instead of resolving those values (but will
+  not break entirely).
+</p>
+<p>
+  The new approach offers the benefit of only requiring one method
+  signature for both literal and localizable text. This not only
+  simplifies our work, but more importantly by using
+  <samp>WString</samp> for displayed text in the API of your own
+  widgets, localization (including the automatic language switching)
+  comes automatically and is decided on by the user of your widget.
+</p>
+<p>
+  Fortunately, there is a straightforward trick to handle most consequences
+  of this change:
+  <ul>
+   <li>Replace <samp>WMessage(...)</samp> with <samp>tr(...)</samp>,</li>
+   <li>add <samp>.value()</samp> when using the result of functions such
+     as <samp>WText::text()</samp>,
+   <li>change your own classes to use <samp>WString</samp>
+     wherever they expect some text that will be displayed, instead of
+     std::string or WMessage.</li>
+  </ul>
+</p>
+
+<h4>3) Wide string API</h4>
+
+<p>
+  Since Wt 2.0.0, the API for Wt has been changed to use WString
+  instead of C++ narrow strings. WString supports both narrow and wide
+  strings, and provides conversion between both. It does not provide
+  string operations, however, and instead acts as a string
+  container. You should convert to a C++ string type to perform
+  operations. You should also not use WString outside of the user
+  interface part of your application.
+</p>
+
+<h4>4) No more wmain()</h4>
+
+<p>
+  Previously, the Wt library implemented the <samp>main(int argc, char
+  **argv)</samp> function, and called a <samp>wmain()</samp> function
+  which created the WApplication instance.
+</p>
+<p>
+  Wt 2.0.0 allows multiple applications to run within a single process.
+  Therefore, the <samp>WApplication::exec()</samp> approach was no longer
+  feasible. The new approach requires that:
+
+  <ul>
+    <li>your main function should look like this:
+<pre>
+int main(int argc, char **argv)
+{
+  return Wt::WRun(argc, argv, &amp;createApplication);
+}
+</pre>
+    </li>
+    <li>where createApplication is a function of the following
+      signature:
+
+<pre>
+Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+{
+  // return a new application object.
+}
+</pre>
+
+    </li>
+  </ul>
+</p>
+
+<h4>5) Configuration in /etc/wt/wt_config.xml</h4>
+
+<p>
+  Wt 2.0.0 uses a configuration file for a number of settings that 
+  could previously be configured at build time of the library, or
+  in the API. The latter functions are:
+
+<ul>
+  <li><samp>WApplication::setMaximumRquestSize()</samp></li>
+  <li><samp>WApplication::setIdleTimeout()</samp></li>  
+</ul>
+
+</p>
+
+<h4>6) Removed obsolete classes</h4>
+
+<p>
+  Wt 2.0.0 removed a number of classes that were still in the widget
+  tree, but have been obsoleted by more flexible classes:
+
+<ul>
+  <li><samp>WAbstractTab</samp>, <samp>WButtonTab</samp>, and <samp>WTabWidget</samp> are obsoleted by the more flexible <samp>WMenu</samp>.</li>
+</ul>
+
+</p>
+
+<h4>7) Deprecate boost::regex from WRegExpValidator API</h4>
+
+<p>
+  The constructor and methods that takes a boost::regex object in
+  the WRegExpValidator API have been deprecated, to remove the dependency
+  on boost from the public API. You should consider the std::string based
+  construtor and method instead.
+</p>
+
+<h4>8) WObject::emit() has been removed.</h4>
+
+<p>
+  Since Wt 1.99.1, we have removed WObject::emit() function. Instead,
+  you may simply call the signal with its arguments, or use the
+  explicit emit method (recommended).</p>
+
+<p>
+  To adapt your code, you should: 
+  <ul>
+    <li>Replace all <samp>emit(MySignal(...))</samp> with <samp>MySignal(...)</samp> or <samp>MySignal.emit(...)</samp>
+    </li>
+  </ul>
+</p>
+
+
+<h4>9) WResource::streamResourceData() signature has changed.</h4>
+
+<p>
+  Since Wt 2.0.0, WResource::streamResourceData() returns a boolean value
+  which indicates if all data has been streamed. If you have reimplemented
+  WResource for your applications, you must update the signature and return
+  true.
+</p>
+<p>
+  The change is relevant only within the new server-push support that is
+  now in Wt 2.0.0. This allows you to continuously append to the content
+  of a resource.
+</p>
+
+<h4>10) Rename of WJavascriptSlot to JSlot.</h4>
+
+<h2>Release 1.1.7</h2>
+
+This release contains lots of additions and improvements, but should
+be completely backwards-compatible.
+
+<h2>Release 1.1.6</h2>
+
+There is one change which will impact the behaviour of current applications:
+Currently, on exit, by default the last widget updates are shown. So, no
+more good-bye message. This changes slightly when one needs to redirect()
+to a new location: not when WApplication::exec() returns, but during the
+same event handling as when calling WApplication::quit().
+
+<h2>Release 1.1.5</h2>
+
+Nothing special...
+
+<h2>Release 1.1.4</h2>
+
+Changes to impact everybody, since the previous release:
+
+<ul>
+<li>
+  The dependency for libxml++ (and its large number of dependencies) has
+  been dropped, and replaced by Xerces-C++ (which has no further dependencies).
+</li>
+<li>
+  Wt programs need to link against libwtfcgi.so, instead of libwt.so. In the
+  future Wt will also support different web-connnector systems besides
+  FastCGI.
+</li>
+<li>
+  The signatures of wmain() and WApplication constructor have changed:
+  new signatures are:
+  <ul>
+    <li>int wmain(const WEnvironment& env)</li>
+    <li>WApplication::WApplication(const WEnvironment& env)</li>
+ </ul>
+</li>
+</ul>
+
+<h3>Other changes:</h3>
+
+<ul>
+  <li>Support for unicode is implemented, but perhaps needs more testing
+  by non-Western people ? Only UTF-8 is supported currently.</li>
+  <li>Addition of a WTimer class -- see mission example.</li>
+  <li>Many bug fixes which should make Wt more robust against illegal CGI
+    requests (which are ignored), and now Wt should exit cleanly in more
+    (all?) circumstances.</li>
+  <li>Addition of feed-back for pending AJAX requests (does not work yet on
+    IE).</li>
+  <li>Support for style sheets is improved: now inline decoration styles
+    will override style sheet styles. See hangman or treelist examples.</li>
+  <li>The browser can be redirected to a new page. This is useful when the
+    application is terminated -- or to change during the application from
+    HTTP to HTTPS and back.</li>
+  <li>WValidationStatus API has changed -- less complicated now.</li>
+</ul>
+
+</body>
+</html>

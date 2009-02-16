@@ -1,0 +1,75 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPOINT_H_
+#define WPOINT_H_
+
+#include "Wt/WDllDefs.h"
+
+namespace Wt {
+
+/*! \class WPoint Wt/WPoint Wt/WPoint
+ *  \brief Utility class that defines a 2D point.
+ *
+ * \sa WImagePolygonArea
+ */
+class WT_API WPoint
+{
+public:
+  /*! \brief Default constructor.
+   *
+   * Constructs a <i>null</i> point.
+   *
+   * \sa isNull()
+   */
+  WPoint();
+
+  /*! \brief Construct a point.
+   *
+   * Constructs a point (<i>x</i>, <i>y</i>).
+   */
+  WPoint(int x, int y)
+    : x_(x), y_(y) { }
+
+  /*! \brief Check for a <i>null</i> point.
+   *
+   * \sa WPoint()
+   */
+  bool isNull() const;
+
+  /*! \brief Changes the X coordinate.
+   */
+  void setX(int x) { x_ = x; }
+
+  /*! \brief Changes the Y coordinate.
+   */
+  void setY(int y) { y_ = y; }
+
+  /*! \brief Returns the X coordinate.
+   */
+  int x() const { return x_; }
+
+  /*! \brief Returns the Y coordinate.
+   */
+  int y() const { return y_; }
+
+  /*! \brief Comparison operator.
+   */
+  bool operator== (const WPoint& other) const;
+
+  /*! \brief Comparison operator.
+   */
+  bool operator!= (const WPoint& other) const;
+
+  WPoint& operator+= (const WPoint& other);
+
+private:
+  int x_, y_;
+};
+
+};
+
+#endif // WPOINTF_H_

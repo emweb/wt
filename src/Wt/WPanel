@@ -1,0 +1,188 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPANEL_H_
+#define WPANEL_H_
+
+#include <Wt/WCompositeWidget>
+
+namespace Wt {
+
+  class WContainerWidget;
+  class WIconPair;
+  class WText;
+
+/*! \class WPanel Wt/WPanel Wt/WPanel
+ *  \brief A %WPanel provides a container which may be manipulated.
+ *
+ * This widget is in development. It will provide features similar to the
+ * Ext::Panel.
+ *
+ * \image html WPanel-1.png "Two panels: the top panel is collapsed, and the bottom panel expanded"
+ *
+ * \sa Ext::Panel
+ */
+class WT_API WPanel : public WCompositeWidget
+{
+public:
+  /*! \brief Construct a panel.
+   */
+  WPanel(WContainerWidget *parent = 0);
+
+  /*! \brief Set a title.
+   *
+   * The panel title is set in the title bar. This method also makes
+   * the title bar visible by calling setTitleBar(true).
+   *
+   * The default value is "" (no title).
+   *
+   * \sa title(), setTitleBar(bool)
+   */
+  void setTitle(const WString& title);
+
+  /*! \brief Get the title.
+   *
+   * \sa setTitle(const WString&)
+   */
+  WString title() const;
+
+  /*! \brief Show or hide a title bar for the panel.
+   *
+   * The title bar appears at the top of the panel.
+   *
+   * The default value is false: the title bar is not shown unless a
+   * title is set or the panel is made collapsible.
+   *
+   * \sa setTitle(const WString&), setCollapsible(bool)
+   */
+  void setTitleBar(bool enable);
+
+  /*! \brief Returns if a title bar is set.
+   *
+   * \sa setTitleBar(bool)
+   */
+  bool titleBar() const { return titleBar_ != 0; }
+
+  /*! \brief Make the panel collapsible.
+   *
+   * When <i>on</i> is true, a collapse/expand icon is added to the
+   * title bar. This also calls setTitleBar(true) to enable the
+   * title bar.
+   *
+   * The default value is false.
+   *
+   * \sa setTitleBar(bool), setCollapsed(bool), isCollapsed()
+   */
+  void setCollapsible(bool on);
+
+  /*! \brief Returns if the panel can be collapsed by the user.
+   *
+   * \sa setCollapsible(bool)
+   */
+  bool isCollapsible() const { return collapseIcon_ != 0; } 
+
+  /*! \brief Set the panel expanded or collapsed.
+   *
+   * When <i>on</i> is true, equivalent to collapse(), otherwise to
+   * expand().
+   *
+   * The default value is false.
+   *
+   * \sa setCollapsible(bool)
+   */
+  void setCollapsed(bool on);
+
+  /*! \brief Returns if the panel is collapsed.
+   *
+   * \sa setCollapsed(bool)
+   * \sa \link collapsed collapsed\endlink and \link expanded
+   * expanded\endlink signals
+   */
+  bool isCollapsed() const;
+
+  /*! \brief Collapse the panel.
+   *
+   * When isCollapsible() is true, the panel is collapsed to minimize
+   * screen real-estate.
+   *
+   * \sa setCollapsible(bool), expand()
+   */
+  void collapse();
+
+  /*! \brief Collapse the panel.
+   *
+   * When isCollapsible() is true, the panel is expanded to its original
+   * state.
+   *
+   * \sa setCollapsible(bool), expand()
+   */
+  void expand();
+
+  /*! \brief Set the central widget.
+   *
+   * Sets the widget that is the contents of the panel. When a widget was
+   * previously set, the old widget is deleted first.
+   *
+   * The default value is 0 (no widget set).
+   */
+  void setCentralWidget(WWidget *);
+
+  /*! \brief Return the central widget.
+   *
+   * \sa setCentralWidget()
+   */
+  WWidget *centralWidget() const { return centralWidget_; }
+
+  /*! \brief %Signal emitted when the panel is collapsed.
+   *
+   * %Signal emitted when the panel is collapsed. The signal is only
+   * emitted when the panel is collapsed by the user using the
+   * collapse icon in the tible bar, not when calling
+   * setCollapsed(bool).
+   *
+   * \sa expanded
+   */
+  Signal<> collapsed;
+
+  /*! \brief %Signal emitted when the panel is expanded.
+   *
+   * %Signal emitted when the panel is expanded. The signal is only
+   * emitted when the panel is expanded by the user using the expand
+   * icon in the title bar, not when calling setCollapsed(bool).
+   *
+   * \sa collapsed
+   */
+  Signal<> expanded;
+
+  Signal<bool> collapsedSS;
+  Signal<bool> expandedSS;
+
+  WIconPair *collapseIcon() const { return collapseIcon_; }
+
+private:
+  WContainerWidget *titleBar_;
+  WIconPair        *collapseIcon_;
+  WText            *title_;
+
+  WContainerWidget *impl_;
+  WWidget          *centralWidget_;
+
+  bool wasCollapsed_;
+
+  void doExpand();
+  void doCollapse();
+  void undoExpand();
+  void undoCollapse();
+
+  virtual void onExpand();
+  virtual void onCollapse();
+
+  WContainerWidget *centralArea() const;
+};
+
+}
+
+#endif // WPANEL_H_

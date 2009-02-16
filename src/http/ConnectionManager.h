@@ -1,0 +1,59 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * All rights reserved.
+ */
+//
+// connection_manager.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~
+//
+// Copyright (c) 2003-2006 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+
+#ifndef HTTP_CONNECTION_MANAGER_HPP
+#define HTTP_CONNECTION_MANAGER_HPP
+
+#include <set>
+#include <boost/noncopyable.hpp>
+#include "Connection.h" // On WIN32, must be before thread stuff
+#ifdef THREADED
+#include <boost/thread/mutex.hpp>
+#endif // THREADED
+
+
+namespace http {
+namespace server {
+
+/// Manages open connections so that they may be cleanly stopped when the server
+/// needs to shut down.
+class ConnectionManager
+  : private boost::noncopyable
+{
+public:
+  /// Add the specified connection to the manager and start it.
+  void start(ConnectionPtr c);
+
+  /// Stop the specified connection.
+  void stop(ConnectionPtr c);
+
+  /// Stop all connections.
+  void stopAll();
+
+private:
+  /// The managed connections.
+  std::set<ConnectionPtr> connections_;
+
+#ifdef THREADED
+  /// Mutex to protect access to connections_
+  boost::mutex mutex_;
+#endif // THREADED
+};
+
+} // namespace server
+} // namespace http
+
+#endif // HTTP_CONNECTION_MANAGER_HPP

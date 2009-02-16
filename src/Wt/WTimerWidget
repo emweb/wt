@@ -1,0 +1,44 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTIMERWIDGET__
+#define WTIMERWIDGET_
+
+#include <Wt/WInteractWidget>
+
+namespace Wt {
+
+class WTimer;
+
+/*
+ * Wt-private widget that is created in conjunction with
+ * WTimer widget. It's clicked signal serves as the event signal
+ * that will be activated when the event expires.
+ */
+class WTimerWidget : public WInteractWidget
+{
+public:
+  WTimerWidget(WTimer *timer);
+  ~WTimerWidget();
+
+  void timerStart();
+  bool timerExpired();
+
+private:
+  WTimer *timer_;
+  bool timerStarted_;
+  bool timerStopped_;
+
+protected:
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+
+  friend class WebSession;
+};
+
+}
+
+#endif // WTIMERWIDGET_

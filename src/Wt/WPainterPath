@@ -1,0 +1,340 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPAINTERPATH_H_
+#define WPAINTERPATH_H_
+
+#include <Wt/WPointF>
+#include <Wt/WRectF>
+#include <vector>
+
+namespace Wt {
+
+/*! \class WPainterPath Wt/WPainterPath Wt/WPainterPath
+ *  \brief Helper class for composing a (complex) path.
+ *
+ * The path that is composed in a painter path may consist of multiple
+ * closed sub-paths. Only the last sub-path can be left open.
+ *
+ * A %WPainterPath maintains a current position, and the path is
+ * composed by defining drawing operations, which draw a line (see
+ * lineTo()), arc (see arcTo()), or bezier curve (see quadTo() and
+ * cubicTo()) from the current position to a new position. A new sub
+ * path may be started by moving the current position to a new
+ * location (see moveTo()), which automatically closes the previous
+ * sub path.
+ *
+ * When sub paths overlap, the result is undefined (it is dependent on
+ * the underlying painting device).
+ *
+ * \sa WPainter::drawPath(const WPainterPath&)
+ *
+ * \ingroup painting
+ */
+class WT_API WPainterPath
+{
+public:
+  /*! \brief Default constructor.
+   *
+   * Creates an empty path, and sets the current position to (0, 0).
+   */
+  WPainterPath();
+
+  /*! \brief Construct a new path, and set the initial position.
+   *
+   * Creates an empty path, and sets the current position to
+   * <i>startPoint</i>.
+   */
+  WPainterPath(const WPointF& startPoint);
+
+  /*! \brief Copy constructor.
+   */
+  WPainterPath(const WPainterPath& path);
+
+  /*! \brief Assignment operator.
+   */
+  WPainterPath& operator= (const WPainterPath& path);
+
+  /*! \brief Return the current position.
+   *
+   * Returns the current position, which is the end point of the last
+   * move or draw operation, and which well be the start point of the
+   * next draw operation.
+   */
+  WPointF currentPosition() const;
+
+  /*! \brief Returns whether the path is empty.
+   *
+   * Returns true if the path contains no drawing operations.
+   */
+  bool isEmpty() const;
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the paths are exactly the same.
+   */
+  bool operator== (const WPainterPath& path) const;  
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the paths are different.
+   */
+  bool operator!= (const WPainterPath& path) const;
+
+  /*! \brief Close the last sub path.
+   *
+   * Draws a line from the current position to the start position of
+   * the last sub path (which is the end point of the last move
+   * operation), and sets the current position to (0, 0).
+   */
+  void closeSubPath();
+  
+  /*! \brief Moves the current position to a new location.
+   *
+   * Moves the current position to a new point, implicitly closing the last
+   * sub path.
+   *
+   * \sa closeSubPath(), moveTo(double, double)
+   */
+  void moveTo(const WPointF& point);
+  
+  /*! \brief Moves the current position to a new location.
+   *
+   * Moves the current position to a new point, implicitly closing the last
+   * sub path.
+   *
+   * \sa closeSubPath(), moveTo(double, double)
+   */
+  void moveTo(double x, double y);
+  
+  /*! \brief Draws a straight line.
+   *
+   * Draws a straight line from the current position to <i>point</i>,
+   * which becomes the new current position.
+   *
+   * \sa lineTo(double, double)
+   */
+  void lineTo(const WPointF& point);
+  
+  /*! \brief Draws a straight line.
+   *
+   * Draws a straight line from the current position to (<i>x</i>,
+   * <i>y</i>), which becomes the new current position.
+   *
+   * \sa lineTo(const WPointF&)
+   */
+  void lineTo(double x, double y);
+  
+  /*! \brief Draws a cubic bezier curve.
+   *
+   * Draws a cubic bezier curve from the current position to
+   * <i>endPoint</i>, which becomes the new current position. The
+   * bezier curve uses the two control points <i>c1</i> and <i>c2</i>.
+   *
+   * \sa cubicTo(double c1x, double c1y, double c2x, double c2y, double endPointx, double endPointy)
+   */
+  void cubicTo(const WPointF& c1, const WPointF& c2, const WPointF& endPoint);
+  
+  /*! \brief Draws a cubic bezier curve.
+   *
+   * This is an overloaded method provided for convenience.
+   *
+   * \sa cubicTo(const WPointF&, const WPointF&, const WPointF&)
+   */
+  void cubicTo(double c1x, double c1y, double c2x, double c2y,
+	       double endPointx, double endPointy);
+  
+  /*! \brief Draws an arc.
+   *
+   * Draws an arc which is a segment of a circle. The circle is
+   * defined with center (<i>cx</i>, <i>cy</i>) and <i>radius</i>. The
+   * segment starts at <i>startAngle</i>, and spans an angle given by
+   * <i>spanAngle</i>. These angles are expressed in degrees, and are
+   * measured counter-clockwise starting from the 3 o'clock position.
+   *
+   * Implicitly draws a line from the current position to the start of
+   * the arc, if the current position is different from the start.
+   *
+   * \sa arcMoveTo(double cx, double cy, double radius, double angle)
+   */
+  void arcTo(double cx, double cy, double radius,
+	     double startAngle, double sweepLength);
+
+  /*! \brief Draws an arc (<b>deprecated</b>).
+   *
+   * \deprecated Use arcTo(double cx, double cy, double radius, double startAngle, double sweepLength) instead since not all renderers support elliptical segments (width != height).
+   *
+   * Draws an arc which is a segment of an ellipse, which fits in the
+   * rectangle defined by top left position (<i>x</i>,
+   * <i>y</i>), and size <i>width</i> x <i>height</i>. The segment starts at
+   * <i>startAngle</i>, and spans an angle given by
+   * <i>spanAngle</i>. These angles are expressed in degrees, and are
+   * measured counter-clockwise starting from the 3 o'clock position.
+   *
+   * \sa arcMoveTo(double cx, double cy, double radius, double startAngle, double sweepLength)
+   *
+   */
+  void arcTo(double x, double y, double width, double height,
+	     double startAngle, double sweepLength);
+
+  /*! \brief Move to a point on an arc.
+   *
+   * Moves to a point on a circle. The circle is defined with center
+   * (<i>cx</i>, <i>cy</i>) and <i>radius</i>, and the point is at
+   * <i>angle</i> degrees measured counter-clockwise starting from the
+   * 3 o'clock position.
+   *
+   * \sa arcTo(double cx, double cy, double radius, double startAngle, double sweepLength)
+   */
+  void arcMoveTo(double cx, double cy, double radius, double angle);
+
+  /*! \brief Move to a point on an arc.
+   *
+   * Moves to a point on an ellipse. The ellipse fits in the
+   * rectangle defined by top left position (<i>x</i>,
+   * <i>y</i>), and size <i>width</i> x <i>height</i>, and the point is at
+   * <i>angle</i> degrees measured counter-clockwise starting from the
+   * 3 o'clock position.
+   *
+   * \sa arcTo(double x, double y, double width, double height, double startAngle, double sweepLength)
+   */
+  void arcMoveTo(double x, double y, double width, double height, double angle);
+
+  /*! \brief Draw a quadratic bezier curve
+   *
+   * Draws a quadratic bezier curve from the current position to
+   * <i>endPoint</i>, which becomes the new current position. The
+   * bezier curve uses the single control point <i>c</i>.
+   *
+   * \sa quadTo(double cx, double cy, double endPointx, double endPointy)
+   */
+  void quadTo(const WPointF& c, const WPointF& endPoint);
+
+  /*! \brief Draw a quadratic bezier curve.
+   *
+   * This is an overloaded method provided for convenience.
+   *
+   * \sa quadTo(const WPointF&, const WPointF&)
+   */
+  void quadTo(double cx, double cy, double endPointx, double endPointy);
+
+  /*! \brief Draw an ellipse.
+   *
+   * This method closes the current sub path, and adds an ellipse that is
+   * bounded by the rectangle <i>boundingRectangle</i>.
+   *
+   * <i>Note: some renderers only support circles (width == height)</i>
+   *
+   * \sa addEllipse(double x, double y, double width, double height), arcTo()
+   */
+  void addEllipse(const WRectF& boundingRectangle);
+
+  /*! \brief Draw an ellipse.
+   *
+   * This method closes the current sub path, and adds an ellipse that is
+   * bounded by the rectangle defined by top left position (<i>x</i>,
+   * <i>y</i>), and size <i>width</i> x <i>height</i>.
+   *
+   * <i>Note: some renderers only support circles (width == height)</i>
+   *
+   * \sa addEllipse(const WRectF&), arcTo()
+   */
+  void addEllipse(double x, double y, double width, double height);
+
+  /*! \brief Draw a rectangle.
+   *
+   * This method closes the current sub path, and adds a rectangle
+   * that is defined by <i>rectangle</i>.
+   *
+   * \sa addRect(double x, double y, double width, double height)
+   */
+  void addRect(const WRectF& rectangle);
+
+  /*! \brief Draw a rectangle.
+   *
+   * This method closes the current sub path, and adds a rectangle
+   * that is defined by top left position (<i>x</i>, <i>y</i>), and
+   * size <i>width</i> x <i>height</i>.
+   *
+   * \sa addRect(const WRectF&)
+   */
+  void addRect(double x, double y, double width, double height);
+
+  /*! \brief Add a path.
+   *
+   * Adds an entire <i>path</i> to the current path. If the path's
+   * begin position is different from the current position, the last
+   * sub path is first closed, otherwise the last sub path is extended
+   * with the path's first sub path.
+   *
+   * \sa connectPath(const WPainterPath&)
+   */
+  void addPath(const WPainterPath& path);
+
+  /*! \brief Add a path, connecting.
+   *
+   * Adds an entire <i>path</i> to the current path. If the path's
+   * begin position is different from the current position, the last
+   * sub path is first closed, otherwise the last sub path is extended
+   * with the path's first sub path.
+   *
+   * \sa connectPath(const WPainterPath&)
+   */
+  void connectPath(const WPainterPath& path);
+
+  class Segment {
+  public:
+    enum Type {
+      MoveTo, LineTo,
+      CubicC1, CubicC2, CubicEnd,
+      QuadC, QuadEnd,
+      ArcC, ArcR, ArcAngleSweep 
+    };
+
+    double x() const { return x_; }
+    double y() const { return y_; }
+    Type   type() const { return type_; }
+
+    bool operator== (const Segment& other) const;
+    bool operator!= (const Segment& other) const;
+
+  private:
+    Segment(double x, double y, Type type);
+
+    double x_, y_;
+    Type   type_;
+
+    friend class WPainterPath;
+  };
+
+  const std::vector<Segment>& segments() const { return segments_; }
+
+  /* Returns the start position before drawing segment i */
+  WPointF positionAtSegment(int i) const;
+
+  bool asRect(WRectF& result) const;
+
+  /*! \brief Returns the bounding box of the control points.
+   *
+   * Returns the bounding box of all control points. This is guaranteed to
+   * be a superset of the actual bounding box.
+   */
+  WRectF controlPointRect() const;
+
+private:
+  bool isRect_;
+  std::vector<Segment> segments_;
+
+  WPointF getSubPathStart() const;
+  WPointF beginPosition() const;
+
+  static WPointF getArcPosition(double cx, double cy, double rx, double ry,
+				double angle);
+};
+
+}
+
+#endif // WPAINTERPATH_H_

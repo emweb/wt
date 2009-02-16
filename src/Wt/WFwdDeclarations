@@ -1,0 +1,69 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WFWD_DECLARATIONS_H_
+#define WFWD_DECLARATIONS_H_
+
+namespace Wt {
+  class JSlot;
+  class WAbstractToggleButton;
+  class WAnchor;
+  class WApplication;
+  class WBorder;
+  class WBreak;
+  class WButtonGroup;
+  class WCheckBox;
+  class WColor;
+  class WComboBox;
+  class WCompositeWidget;
+  class WContainerWidget;
+  class WCssDecorationStyle;
+  class WCssStyleSheet;
+  class WDoubleValidator;
+  class WEnvironment;
+  class WMouseEvent;
+  class WKeyEvent;
+  class WFileResource;
+  class WFileUpload;
+  class WFont;
+  class WFormWidget;
+  class WGroupBox;
+  class WIconPair;
+  class WImage;
+  class WInPlaceEdit;
+  class WInteractWidget;
+  class WIntValidator;
+  class WLabel;
+  class WLength;
+  class WLineEdit;
+  class WMenu;
+  class WMenuItem;
+  class WMessageResourceBundle;
+  class WObject;
+  class WPushButton;
+  class WRadioButton;
+  class WRegExpValidator;
+  class WResource;
+  class WScrollArea;
+  class WScrollBar;
+  class WSelectionBox;
+  class WStackedWidget;
+  class WString;
+  class WSuggestionPopup;
+  class WTable;
+  class WTableCell;
+  class WText;
+  class WTextArea;
+  class WTimer;
+  class WTreeNode;
+  class WValidationStatus;
+  class WValidator;
+  class WWebWidget;
+  class WWidget;
+  typedef class WString WMessage;
+}
+
+#endif // WFWD_DECLARATIONS_H_

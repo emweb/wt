@@ -1,0 +1,270 @@
+body, html {
+    font-family:arial,sans-serif;
+    height: 100%;
+    width: 100%;
+    margin: 0px; padding: 0px; border: none;
+    overflow: hidden;
+}
+
+a {
+    outline: none;
+}
+
+ul {
+    list-style-type: disc;
+    list-style-position: outside;
+    margin: 1.12em 0;
+}
+
+.contents p {
+    margin: 16px 0px
+}
+
+.contents h1 {
+    font-size: 150%;
+    font-weight: bold;
+    color: #528B12; 
+    margin: 7px 0px;
+}
+
+.contents h2 {
+    font-size: 120%;
+    font-weight: bold;
+    color: #528B12;
+    margin: 7px 0px;
+}
+
+.contents h2 span {
+    border-bottom: 0.2em solid #000;
+}
+
+.contents h3 {
+    font-size: 100%;
+    font-weight: bold;
+    color: #528B12;
+    margin: 7px 0px;
+}
+
+.trhead {
+    font-family: sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    border-bottom: 1px solid black;
+}
+
+.trhead td {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.trdata {
+    font-family: sans-serif;
+    font-size: 10pt;
+}
+
+.trdata td {
+    vertical-align: middle;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.trdata td input[type="checkbox"] {
+    text-align: center;
+    margin: 0px auto;
+    display: block;
+}
+
+.tdhead {
+    font-family: sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    padding-right: 8px;
+    text-align: right;
+}
+
+.tddata {
+    font-family: sans-serif;
+    font-size: 10pt;
+    padding-left: 4px;
+}
+
+.suggest {
+    background-color: #e0ecff;
+    color: #1010cc;
+    border: 1px solid #666666;
+    cursor: default;
+    font-size: smaller;
+    padding: 2px;
+}
+
+.suggest span {
+    padding-left: 0.5em;
+    padding-right: 0.5em;  
+}
+
+.suggest .highlight {
+    padding: 0px;
+    font-weight: bold;
+}
+
+.suggest .sel {
+    background-color: #C3D9FF;
+}
+
+ul.menu {
+    margin:0px;
+    padding-left:0px;
+    padding-bottom:30px;
+    text-indent:5px;
+    list-style:none;
+    width:200px;
+    border-right: 3px solid #EEEEEE;
+}
+
+ul.menu li {
+    padding-top: 8px;
+}
+
+ul.menu a {
+    letter-spacing:1px;
+    text-decoration:none;
+    padding-bottom:5px;
+    width:200px;
+}
+
+ul.menu .itemselected, ul.menu .itemselected a, ul.menu .itemselected a {
+    color: black;
+}
+
+ul.menu .item, ul.menu a.item, ul.menu .item a {
+    color: #7E7E7E;
+}
+
+ul.menu a:hover, ul.menu .item a:hover {
+    color: #70BD1A;
+    text-decoration: none;
+}
+
+ul.submenu {
+    font-size: 90%;
+    margin-left: 15px;
+    padding-bottom: 0px;
+    width: auto;
+    border-right: 0px;
+}
+
+ul.submenu li {
+    padding-top: 4px;
+}
+
+ul.submenu li a {
+    padding-bottom: 0px;
+}
+
+span.title {
+    font-size: 150%;
+    font-weight: bold;
+    color: #528B12;
+}
+
+span.doc {
+    vertical-align: top;
+}
+
+span.doc a {
+    color: #7E7E7E;
+    text-decoration: none;
+    vertical-align: top;
+}
+
+span.doc a:hover {
+    color: #70BD1A;
+    text-decoration: none;
+}
+
+span.reactive {
+    display: block;
+    background-color: #CCCCCC;
+    cursor: pointer;cursor:hand;
+    margin: 3px 0px;
+}
+
+div.contents {
+    padding: 6px;
+}
+
+.example-table {
+    margin: 5px auto;
+    border: 1px solid gray;
+}
+
+.example-table td {
+    padding: 3px 5px;
+    border-right: 1px solid gray;
+}
+
+.example-tree .selected {
+    background-color: yellow;
+}
+
+.tabwidget {
+    border-bottom: 1px solid #84b0c7;
+    padding-bottom: 3px;
+    height: 100px;
+}
+
+.in-place-edit span {
+    margin:1px
+}
+
+.in-place-edit span:hover{
+    background-color:#FFFFCC;
+    margin:0px;
+    border:1px solid #CCCCCC;
+}
+
+.tree-table .header * {
+  font-weight: bold;
+}
+
+.tree-table .header {
+  border-bottom: solid 1px;
+}
+
+.validators td {
+    padding: 3px;
+}
+
+.centered {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.yellow-box {
+    background-color: #ffffb4;
+    border: 1px solid black;
+    white-space: nowrap;
+    margin-top: 1ex;
+    margin-bottom: 1ex;
+}
+
+.green-box {
+    background-color: #c4ffb4;
+    min-height: 30px;
+    text-align: center;
+    padding: 3px;
+    white-space: nowrap;
+}
+
+.blue-box {
+    background-color: #65dae8;
+    min-height: 30px;
+    text-align: center;
+    padding: 3px;
+    white-space: nowrap;
+}
+
+.events {
+    border: 4px solid #528B12;
+    padding: 5px;
+}

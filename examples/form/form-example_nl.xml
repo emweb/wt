@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<messages>
+  <message id="language">Taal:</message>
+
+  <message id="example.form">Formulier voorbeeld</message>
+  <message id="example.name">Naam (*):</message>
+  <message id="example.firstname">Voornaam:</message>
+  <message id="example.country">Land (*):</message>
+  <message id="example.city">Stad:</message>
+  <message id="example.birthdate">Geb. datum (dd/mm/yyyy) (*):</message>
+  <message id="example.childcount">Aantal kinderen:</message>
+  <message id="example.remarks">Opmerkingen:</message>
+  <message id="example.choosecountry">(Kies eerst een land)</message>
+
+  <message id="submit">Verstuur</message>
+
+  <message id="error.name">Fout: gelieve een naam te geven.</message>
+  <message id="error.country">Fout: gelieve uw land op te geven.</message>
+  <message id="error.birthdate">Fout: gelieve uw geboorte datum op te geven.</message>
+  <message id="error.childcount">Fout: een geldig aantal kinderen is 0-30.</message>
+
+  <message id="quit">Afsluiten</message>
+
+  <message id="January">Januari</message>
+  <message id="February">Februari</message>
+  <message id="March">Maart</message>
+  <message id="April">April</message>
+  <message id="May">Mei</message>
+  <message id="June">Juni</message>
+  <message id="July">Juli</message>
+  <message id="August">Augustus</message>
+  <message id="September">September</message>
+  <message id="October">Oktober</message>
+  <message id="November">November</message>
+  <message id="December">December</message>
+
+  <message id="Mon">Maa</message>
+  <message id="Tue">Din</message>
+  <message id="Wed">Woe</message>
+  <message id="Thu">Don</message>
+  <message id="Fri">Vri</message>
+  <message id="Sat">Zat</message>
+  <message id="Sun">Zon</message>
+
+  <message id="Close">Venster Sluiten</message>
+
+</messages>

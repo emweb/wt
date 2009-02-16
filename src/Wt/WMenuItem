@@ -1,0 +1,220 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WMENU_ITEM_H_
+#define WMENU_ITEM_H_
+
+#include <Wt/WObject>
+#include <Wt/WString>
+
+namespace Wt {
+
+class SignalBase;
+class WContainerWidget;
+class WMenu;
+class WWidget;
+
+/*! \brief A single item in a menu.
+ *
+ * The item determines the look and behaviour of a single item in a
+ * WMenu.
+ *
+ * By default, a WMenuItem is implemented using a WAnchor widget. When
+ * the menu participates in application internal paths (see
+ * WMenu::setInternalPathEnabled()), the anchor references the
+ * bookmark URL corresponding to the pathComponent() for the item (see
+ * WApplication::bookmarkUrl().
+ *
+ * To provide another look for the menu items (such as perhaps adding
+ * an icon), you can specialize this class, and reimplement the
+ * virtual methods:
+ *
+ * - createItemWidget(): to provide another widget to represent the
+ *   item.
+ * - updateItemWidget(): to update the widget to reflect item changes,
+ *   triggered by for example setText() and setPathComponent().
+ * - optionally, activateSignal(): to bind the event for activating
+ *   the item to something else than the clicked event.
+ * - optionally, renderSelected(bool): if you need to do additional
+ *   styling to reflect a selection, other than changing style classes.
+ *
+ * \sa WMenu
+ * \sa WMenu::addItem(WMenuItem *)
+ */
+class WT_API WMenuItem : public WObject
+{
+public:
+  /*! \brief Enumeration that determines when contents should be loaded.
+   */
+  enum LoadPolicy {
+    LazyLoading, //!< Lazy loading: on first use
+    PreLoading   //!< Pre-loading: before first use
+  };
+
+  /*! \brief Create a new item.
+   *
+   * The text specifies the item text. The contents is the widget that must
+   * be shown in the WMenu contents stack when the item is selected.
+   *
+   * The load policy specifies whether the contents widgets is transmitted
+   * only when it the item is activated for the first time (LazyLoading)
+   * or transmitted prior to first rendering.
+   *
+   * The pathComponent() is derived from <i>text</i>, and can be
+   * customized using setPathComponent().
+   *
+   * <i>contents</i> may be 0, in which case no contents is associated with
+   * the item in the contents stack.
+   */
+  WMenuItem(const WString& text, WWidget *contents,
+	    LoadPolicy policy = LazyLoading);
+
+  /* !\brief Destructor.
+   *
+   * Removes the item from the menu (if it was added previously to one), and
+   * also deletes the contents that was associated with the item.
+   *
+   * \sa WMenu::removeItem()
+   */
+  ~WMenuItem();
+
+  /*! \brief Set the text for this item.
+   *
+   * Unless a custom path component was defined, the pathComponent()
+   * is also updated based on the new text.
+   *
+   * The item widget is updated using updateItemWidget().
+   *
+   * \sa setPathComponent();
+   */
+  void setText(const WString& text);
+
+  /*! \brief Return the text for this item.
+   *
+   * \sa setText();
+   */
+  const WString& text() const { return text_; }
+
+  /*! \brief Set the path component for this item.
+   *
+   * The path component is used by the menu item in the application
+   * internal path (see WApplication::setInternalPath()), when
+   * internal paths are enabled (see WMenu::setInternalPathEnabled())
+   * for the menu.
+   *
+   * You may specify an empty <i>path</i> to let a menu item be the
+   * "default" menu option.
+   *
+   * For example, if WMenu::internalBasePath() is
+   * <tt>"/examples/"</tt> and pathComponent() for is
+   * <tt>"charts/"</tt>, then the internal path for the item will be
+   * <tt>"/examples/charts/"</tt>.
+   *
+   * By default, the path is automatically derived from text(). If a
+   * \link WString::literal() literal text\endlink is used, the path
+   * is based on the text itself, otherwise on the \link
+   * WString::key() key\endlink. It is converted to lower case, and
+   * replacing white space and special characters with '_'.
+   *
+   * \sa setText(), WMenu::setInternalPathEnabled()
+   */
+  void setPathComponent(const std::string& path);
+
+  /*! \brief Returns the path component for this item.
+   *
+   * You may want to reimplement this to customize the path component
+   * set by the item in the application internal path.
+   *
+   * \sa setPathComponent()
+   */
+  virtual std::string pathComponent() const;
+
+  /*! \brief Returns the menu.
+   */
+  WMenu *menu() const { return menu_; }
+
+  /*! \brief Returs the contents widget for this item.
+   *
+   * The contents widget is the widget in the WStackedWidget associated with
+   * this item.
+   */
+  WWidget *contents() const;
+  WWidget *takeContents();
+
+  /*! \brief Returns the widget that represents the item.
+   *
+   * This returns the item widget, creating it using
+   * createItemWidget() if necessary.
+   */
+  WWidget *itemWidget();
+
+public slots:
+  /*! \brief Select this item.
+   */
+  void select();
+
+protected:
+  /*! \brief Create the widget that represents the item.
+   *
+   * The default implementation will simply return a WAnchor. A call
+   * to createItemWidget() is immediately followed by
+   * updateItemWidget().
+   *
+   * If you reimplement this method, you should probably also
+   * reimplement updateItemWidget().
+   */
+  virtual WWidget *createItemWidget();
+
+  /*! \brief Update the widget that represents the item.
+   *
+   * The default implementation will cast the <i>itemWidget</i> to a
+   * WAnchor, and set the anchor's text and destination according to
+   * text() and pathComponent().
+   *
+   * \sa createItemWidget()
+   */
+  virtual void updateItemWidget(WWidget *itemWidget);
+
+  /*! \brief Render the item as selected or unselected.
+   *
+   * The default implementation sets the styleclass for itemWidget()
+   * to 'item' for an unselected, and 'itemselected' for a selected
+   * item.
+   *
+   * Note that this method is called from within a stateless slot
+   * implementation, and thus should be stateless as well.
+   */
+  virtual void renderSelected(bool selected);
+
+  /*! \brief Returns the signal used to activate the item.
+   *
+   * The default implementation will tries to cast the itemWidget() to
+   * a WInteractWidget and returns the \link WInteractWidget::clicked
+   * clicked signal\endlink.
+   */
+  virtual SignalBase& activateSignal();
+
+private:
+  WWidget          *itemWidget_;
+  WContainerWidget *contentsContainer_;
+  WWidget          *contents_;
+  WMenu            *menu_;
+  WString           text_;
+  std::string       pathComponent_;
+  bool              customPathComponent_;
+
+  void     loadContents();
+  void     setMenu(WMenu *menu);
+  void     selectVisual();
+  void     undoSelectVisual();
+  void     connectActivate();
+
+  friend class WMenu;
+};
+
+}
+
+#endif // WMENU_ITEM_H_

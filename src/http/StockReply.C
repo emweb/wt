@@ -1,0 +1,356 @@
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * All rights reserved.
+ */
+//
+// reply.cpp
+// ~~~~~~~~~
+//
+// Copyright (c) 2003-2006 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+
+#include "StockReply.h"
+
+#include <string>
+#include <boost/lexical_cast.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include "Request.h"
+
+namespace http {
+namespace server {
+
+namespace stock_replies {
+
+const std::string ok = "";
+const std::string ok_name = "200-ok.html";
+const std::string created =
+  "<html>"
+  "<head><title>Created</title></head>"
+  "<body><h1>201 Created</h1></body>"
+  "</html>";
+const std::string created_name = "201-created.html";
+const std::string accepted =
+  "<html>"
+  "<head><title>Accepted</title></head>"
+  "<body><h1>202 Accepted</h1></body>"
+  "</html>";
+const std::string accepted_name = "202-accepted.html";
+const std::string no_content =
+  "<html>"
+  "<head><title>No Content</title></head>"
+  "<body><h1>204 Content</h1></body>"
+  "</html>";
+const std::string no_content_name = "204-nocontent.html";
+const std::string multiple_choices =
+  "<html>"
+  "<head><title>Multiple Choices</title></head>"
+  "<body><h1>300 Multiple Choices</h1></body>"
+  "</html>";
+const std::string multiple_choices_name = "300-multiple-choices.html";
+const std::string moved_permanently =
+  "<html>"
+  "<head><title>Moved Permanently</title></head>"
+  "<body><h1>301 Moved Permanently</h1></body>"
+  "</html>";
+const std::string moved_permanently_name = "301-moved-permanently.html";
+const std::string moved_temporarily =
+  "<html>"
+  "<head><title>Moved Temporarily</title></head>"
+  "<body><h1>302 Moved Temporarily</h1></body>"
+  "</html>";
+const std::string moved_temporarily_name = "302-moved-temporarily.html";
+const std::string not_modified =
+  "<html>"
+  "<head><title>Not Modified</title></head>"
+  "<body><h1>304 Not Modified</h1></body>"
+  "</html>";
+const std::string not_modified_name = "304-not-modified.html";
+const std::string bad_request =
+  "<html>"
+  "<head><title>Bad Request</title></head>"
+  "<body><h1>400 Bad Request</h1></body>"
+  "</html>";
+const std::string bad_request_name = "400-bad-request.html";
+const std::string unauthorized =
+  "<html>"
+  "<head><title>Unauthorized</title></head>"
+  "<body><h1>401 Unauthorized</h1></body>"
+  "</html>";
+const std::string unauthorized_name = "401-unauthorized.html";
+const std::string forbidden =
+  "<html>"
+  "<head><title>Forbidden</title></head>"
+  "<body><h1>403 Forbidden</h1></body>"
+  "</html>";
+const std::string forbidden_name = "403-forbidden.html";
+const std::string not_found =
+  "<html>"
+  "<head><title>Not Found</title></head>"
+  "<body><h1>404 Not Found</h1></body>"
+  "</html>";
+const std::string not_found_name = "404-not-found.html";
+const std::string internal_server_error =
+  "<html>"
+  "<head><title>Internal Server Error</title></head>"
+  "<body><h1>500 Internal Server Error</h1></body>"
+  "</html>";
+const std::string internal_server_error_name = "500-internal-server-error.html";
+const std::string not_implemented =
+  "<html>"
+  "<head><title>Not Implemented</title></head>"
+  "<body><h1>501 Not Implemented</h1></body>"
+  "</html>";
+const std::string not_implemented_name = "501-not-implemented.html";
+const std::string bad_gateway =
+  "<html>"
+  "<head><title>Bad Gateway</title></head>"
+  "<body><h1>502 Bad Gateway</h1></body>"
+  "</html>";
+const std::string bad_gateway_name = "502-bad-gateway.html";
+const std::string service_unavailable =
+  "<html>"
+  "<head><title>Service Unavailable</title></head>"
+  "<body><h1>503 Service Unavailable</h1></body>"
+  "</html>";
+const std::string service_unavailable_name ="503-service-unavailable.html";
+
+const std::string& toText(Reply::status_type status)
+{
+  switch (status)
+  {
+  case Reply::ok:
+    return ok;
+  case Reply::created:
+    return created;
+  case Reply::accepted:
+    return accepted;
+  case Reply::no_content:
+    return no_content;
+  case Reply::multiple_choices:
+    return multiple_choices;
+  case Reply::moved_permanently:
+    return moved_permanently;
+  case Reply::moved_temporarily:
+    return moved_temporarily;
+  case Reply::not_modified:
+    return not_modified;
+  case Reply::bad_request:
+    return bad_request;
+  case Reply::unauthorized:
+    return unauthorized;
+  case Reply::forbidden:
+    return forbidden;
+  case Reply::not_found:
+    return not_found;
+  case Reply::internal_server_error:
+    return internal_server_error;
+  case Reply::not_implemented:
+    return not_implemented;
+  case Reply::bad_gateway:
+    return bad_gateway;
+  case Reply::service_unavailable:
+    return service_unavailable;
+  default:
+    return internal_server_error;
+  }
+}
+
+const std::string& toName(Reply::status_type status)
+{
+  switch (status)
+  {
+  case Reply::ok:
+    return ok_name;
+  case Reply::created:
+    return created_name;
+  case Reply::accepted:
+    return accepted_name;
+  case Reply::no_content:
+    return no_content_name;
+  case Reply::multiple_choices:
+    return multiple_choices_name;
+  case Reply::moved_permanently:
+    return moved_permanently_name;
+  case Reply::moved_temporarily:
+    return moved_temporarily_name;
+  case Reply::not_modified:
+    return not_modified_name;
+  case Reply::bad_request:
+    return bad_request_name;
+  case Reply::unauthorized:
+    return unauthorized_name;
+  case Reply::forbidden:
+    return forbidden_name;
+  case Reply::not_found:
+    return not_found_name;
+  case Reply::internal_server_error:
+    return internal_server_error_name;
+  case Reply::not_implemented:
+    return not_implemented_name;
+  case Reply::bad_gateway:
+    return bad_gateway_name;
+  case Reply::service_unavailable:
+    return service_unavailable_name;
+  default:
+    return internal_server_error_name;
+  }
+}
+
+void buildOriginalURL(const Request &req, std::string &url)
+{
+  if (url.empty()) {
+    url = "http://";
+    for (std::size_t i = 0; i < req.headerOrder.size(); ++i) {
+      Request::HeaderMap::const_iterator it = req.headerOrder[i];
+      if (it->first == "Host") {
+	url += it->second;
+	break;
+      }
+    }
+    url += req.uri;
+  }
+}
+
+void escapeOriginalUrl(const std::string &original, std::string &escaped)
+{
+  static const char bin2hex[] = "0123456789abcdef";
+  std::string::const_iterator iter(original.begin());
+
+  for (;iter != original.end(); iter++) {
+    char act = *iter;
+    if ((act >= '0' && act <= '9') ||
+	(act >= 'a' && act <= 'z') ||
+	(act >= 'Z' && act <= 'Z') ||
+	(act == '-' || act == '_'))
+      escaped += act;
+    else {
+      escaped += '%';
+      escaped += bin2hex[(((unsigned char)act) >> 4) & 0x0F];
+      escaped += bin2hex[(((unsigned char)act)     ) & 0x0F];
+    }
+  }
+  std::cerr << "ORIGINAL URL: " << original
+	    << " ESCAPED: " << escaped << std::endl;
+}
+
+} // namespace stock_replies
+
+StockReply::StockReply(const Request& request,
+		       status_type status)
+  : Reply(request),
+    status_(status),
+    transmitted_(false)
+{ }
+
+StockReply::StockReply(const Request& request,
+		       status_type status, std::string extraContent)
+  : Reply(request),
+    status_(status),
+    content_(extraContent),
+    transmitted_(false)
+{ }
+
+StockReply::StockReply(const Request& request, status_type status,
+		       const std::string &extraContent,
+		       const std::string &err_root)
+  : Reply(request),
+    status_(status),
+    err_root_(err_root),
+    content_(extraContent),
+    transmitted_(false)
+{ }
+
+void StockReply::consumeRequestBody(Buffer::const_iterator begin,
+				    Buffer::const_iterator end,
+				    bool endOfRequest)
+{
+  if (endOfRequest)
+    transmitMore();
+}
+
+Reply::status_type StockReply::responseStatus()
+{
+  return status_;
+}
+
+std::string StockReply::contentType()
+{
+  return "text/html";
+}
+
+boost::intmax_t StockReply::contentLength()
+{
+  std::string full_path(err_root_ + stock_replies::toName(status_));
+  std::string original_url;
+  std::string content = "";
+  std::string line;
+  size_t clen = content_.length();
+  boost::filesystem::ifstream ifstr(full_path);
+
+  while (ifstr.good() && !ifstr.eof()) {
+    std::getline(ifstr, line);
+    size_t index = 0;
+
+    while ((index = line.find("<-- SPECIAL CONTENT -->", index)) != line.npos) {
+      line.replace(index,sizeof("<-- SPECIAL CONTENT -->")-1, content_);
+      index += clen;
+    }
+
+    index = line.find("<-- ORIGINAL URL -->");
+
+    if (index != line.npos) {
+      stock_replies::buildOriginalURL(request_, original_url);
+      clen = original_url.length();
+
+      do {
+	line.replace(index,sizeof("<-- ORIGINAL URL -->")-1, original_url);
+	index += clen;
+      } while((index = line.find("<-- ORIGINAL URL -->", index) != line.npos));
+
+    }
+
+    index = line.find("<-- ORIGINAL URL ESCAPED -->");
+
+    if (index != line.npos) {
+      if (original_url.empty())
+	stock_replies::buildOriginalURL(request_, original_url);
+
+      std::string escapedUrl;
+      stock_replies::escapeOriginalUrl(original_url, escapedUrl);
+      clen = escapedUrl.length();
+
+      do {
+	line.replace(index,sizeof("<-- ORIGINAL URL ESCAPED -->") - 1,
+		     escapedUrl);
+	index += clen;
+      } while((index = line.find("<-- ORIGINAL URL ESCAPED -->", index)
+	       != line.npos));
+    }
+    content += line + "\r\n";
+  }
+  ifstr.close();
+
+  if (content.empty())
+    content_ = stock_replies::toText(status_) + content_;
+  else
+    content_ = content;
+
+  return content_.length();
+}
+
+asio::const_buffer StockReply::nextContentBuffer()
+{
+  if (!transmitted_) {
+    transmitted_ = true;
+    return asio::buffer(content_);
+  } else
+    return emptyBuffer;
+}
+
+
+} // namespace server
+} // namespace http

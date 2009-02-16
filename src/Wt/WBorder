@@ -1,0 +1,105 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WBORDER_H_
+#define WBORDER_H_
+
+#include <Wt/WLength>
+#include <Wt/WColor>
+
+namespace Wt {
+
+/*! \class WBorder Wt/WBorder Wt/WBorder
+ *  \brief A style class for the border of a widget.
+ *
+ * \ingroup style
+ */
+class WT_API WBorder
+{
+public:
+
+  /*! \brief The border width
+   */
+  enum Width { Thin,    //!< Browser-dependent 'thin' border.
+	       Medium,  //!< Browser-dependent 'medium' border, default.
+	       Thick,   //!< Browser-dependent 'thin' border.
+	       Explicit //!< Explicit width. See also explicitWidth()
+  };
+
+  /*! \brief The border style
+   */
+  enum Style { None,    //!< No border (width ignored), default.
+	       Hidden,  //!< Invisible border (of specified width). 
+	       Dotted,  //!< Dotted border
+	       Dashed,  //!< Dashed border
+	       Solid,   //!< Solid border
+	       Double,  //!< Double lined border
+	       Groove,  //!< Relief border grooved into the canvas
+	       Ridge,   //!< Relief border coming out of the canvas
+	       Inset,   //!< Relief border lowering contents into the canvas 
+	       Outset   //!< Relief border letting contents come out of the canvas
+  };
+
+  /*! \brief Create a border that specifies 'no border'
+   */
+  WBorder();
+
+  /*! \brief Create a border with given style, thickness and color.
+   */
+  explicit WBorder(Style style, Width = Medium, WColor color = WColor());
+
+  /*! \brief Create a border with an absolute width.
+   */
+  WBorder(Style style, const WLength& width, WColor color = WColor());
+
+  /*! \brief Comparison operator
+   */
+  bool operator==(const WBorder& other) const;
+
+  /*! \brief Comparison operator
+   */
+  bool operator!=(const WBorder& other) const;
+
+  /*! \brief Set the border width.
+   */
+  void setWidth(Width width, const WLength& explicitWidth=WLength());
+
+  /*! \brief Set the border color.
+   */
+  void setColor(WColor color);
+
+  /*! \brief Set the border style.
+   */
+  void setStyle(Style style);
+
+  /*! \brief Get the border width.
+   */
+  Width width() const { return width_; }
+
+  /*! \brief Get the border width when set explicitly.
+   */
+  WLength explicitWidth() const { return explicitWidth_; }
+
+  /*! \brief Get the border color.
+   */
+  WColor color() const { return color_; }
+
+  /*! \brief Get the border style.
+   */
+  Style style() const { return style_; }
+
+  std::string cssText() const;
+  
+private:
+  Width   width_;
+  WLength explicitWidth_;
+  WColor  color_;
+  Style   style_;
+};
+
+}
+
+#endif // WLENGTH

@@ -1,0 +1,91 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WITEM_SELECTION_MODEL_H_
+#define WITEM_SELECTION_MODEL_H_
+
+#include <Wt/WObject>
+#include <Wt/WModelIndex>
+#include <Wt/WWidget> // for SelectionBehavior, change to WGlobal later
+
+namespace Wt {
+
+class WAbstractItemModel;
+class WTreeView;
+
+/*! \class WItemSelectionModel Wt/WItemSelectionModel Wt/WItemSelectionModel
+ *  \brief A class that represents a selection for an WAbstractItemView.
+ *
+ * This model is currently only used by WTreeView, and plays only
+ * an important role in drag & drop of a selection.
+ *
+ * When a selection is dragged from a view widget, the generated drop
+ * events will have as source object (see WDropEvent::source()) this
+ * selection model.
+ *
+ * Although this class does not (yet) allow you to modify the
+ * selection, note that manipulations to the model may modify the
+ * selection (row insertions and removals may shift the selection, and
+ * row deletions may shrink the selection).
+ *
+ * \note Currently this class is cannot be shared between multiple views.
+ *
+ * \ingroup modelview
+ *
+ * \sa WTreeView, WAbstractItemModel
+ */
+class WItemSelectionModel : public WObject
+{
+public:
+  WAbstractItemModel *model() const { return model_; }
+
+  /*! \brief Returns the set of selected items.
+   *
+   * The model indexes are returned as a set, topologically ordered (in
+   * the order they appear in the view).
+   *
+   * \sa setSelectedIndexes()
+   */
+  WModelIndexSet selectedIndexes() const { return selection_; }
+
+  /*! \brief Returns wheter an item is selected.
+   *
+   * \sa selectedIndexes(), select()
+   */
+  bool isSelected(const WModelIndex& index) const;
+
+  /*! \brief Change the selection behaviour.
+   *
+   * By default, the selection contains rows (\link Wt::SelectRows
+   * SelectRows\endlink), in which case model indexes will always be
+   * have column 0, but represent the whole row.
+   *
+   * Alternatively, you can allow selection for individual items
+   * (\link Wt::SelectItems SelectItems\endlink).
+   */
+  void setSelectionBehavior(SelectionBehavior behavior);
+
+  /*! \brief Returns the selection behaviour.
+   *
+   * \sa setSelectionBehavior()
+   */
+  SelectionBehavior selectionBehavior() const { return selectionBehavior_; }
+
+private:
+  WModelIndexSet      selection_;
+  WAbstractItemModel *model_;
+  SelectionBehavior   selectionBehavior_;
+
+  WItemSelectionModel(WAbstractItemModel *model, WObject *parent = 0);
+
+  // temporary make the owning view a friend, until we have a better solution
+  // for editable selection models.
+  friend class WTreeView;
+};
+
+}
+
+#endif // WITEM_SELECTION_MODEL_H_

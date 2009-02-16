@@ -1,0 +1,58 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef EXT_COMPONENT_H_
+#define EXT_COMPONENT_H_
+
+#include <Wt/Ext/Widget>
+
+namespace Wt {
+  namespace Ext {
+
+/*! \class Component Wt/Ext/Component Wt/Ext/Component
+ *  \brief An abstract base class for widgets that can be visually disabled.
+ *
+ * %Component is the abstract base class of all major %Ext widgets,
+ * and offers an API to enable or disable a widget.
+ *
+ * \ingroup ext
+ */
+class WT_EXT_API Component : public Widget
+{
+protected:
+  Component(WContainerWidget *parent = 0);
+
+public:
+  /*! \brief Enable or disable the widget.
+   */
+  void setEnabled(bool how);
+
+  /*! \brief Enable the widget.
+   */
+  void enable();
+
+  /*! \brief Disable the widget.
+   */
+  void disable();
+
+  /*! \brief Return if enabled.
+   */
+  bool isEnabled() const { return enabled_; }
+
+protected:
+  virtual void createConfig(std::ostream& config);
+
+private:
+  bool enabled_;
+
+  void undoEnable();
+  bool wasEnabled_;
+};
+
+  }
+}
+
+#endif // EXT_COMPONENT_H_

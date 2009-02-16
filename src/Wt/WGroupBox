@@ -1,0 +1,55 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WGROUP_BOX_H_
+#define WGROUP_BOX_H_
+
+#include <Wt/WContainerWidget>
+
+namespace Wt {
+
+/*! \class WGroupBox Wt/WGroupBox Wt/WGroupBox
+ *  \brief A widget which group widgets into a frame with a title.
+ *
+ * %WGroupBox, like WContainerWidget, is by default not inline.
+ */
+class WT_API WGroupBox : public WContainerWidget
+{
+public:
+  /*! \brief Create a groupbox with empty title.
+   */
+  WGroupBox(WContainerWidget *parent = 0);
+  
+  /*! \brief Create a groupbox with given title message.
+   */
+  WGroupBox(const WString& title, WContainerWidget *parent = 0);
+
+  /*! \brief Get the title.
+   */
+  const WString& title() const { return title_; }
+
+  /*! \brief Set the title.
+   */
+  void setTitle(const WString& title);
+
+  virtual void refresh();
+
+private:
+  WString title_;
+
+  bool titleChanged_;
+
+  bool wasEmpty() const;
+
+protected:
+  virtual DomElementType domElementType() const;
+
+  virtual void  updateDom(DomElement& element, bool all);
+};
+
+}
+
+#endif // WGROUP_BOX_H_

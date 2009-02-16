@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="treeview-introduction">
+    <h2>WTreeView example</h2>
+
+    <p>This example illustrates the WTreeView widget. This widget is
+    part of Wt's MVC widgets, and are an alternative to the WTree, and
+    WTreeTable widgets which are not MVC.</p>
+
+    <p>The widget supports very large models by loading only the
+    visible region (with some margin) in the browser. This results in
+    low memory consumption (on client and server) and fast load
+    times.</p>
+
+    <p>This example uses a WStandardItemModel to populate the tree
+    table. As is demonstrated, various roles may be used to indicate
+    text, icons, selectable items (through check boxes), and also URLs
+    or internal paths.</p>
+
+    <p>Many aspects of the tree view widget are not illustrated here,
+    such as the various supported selection behaviors and modes, and
+    reacting to item click events</p>
+
+    <p>Except for the selection of items, the view does not yet offer
+    the possibility to modify the model. Together with more fine
+    grained control of how to display the data through delegates,
+    support for editing will be added in the near future.</p>
+  </message>
+
+  <message id="drink-Beer">
+    <h3>Drink: beer</h3>
+
+    <p>
+      Belgium is famous for its rich beer culture. <br />
+
+      Belgians (like most other Europeans), will tell you that they
+      have the largest variety of best beers in the world.
+    </p>
+
+    <p>
+      Read about it on wikipedia: <a
+      href="http://en.wikipedia.org/wiki/Beer">Beer</a>.
+    </p>
+  </message>
+
+  <message id="drink-Wine">
+    <h3>Drink: wine</h3>
+
+    <p>
+      Not only because of their renowned chauvinism are French people
+      so proud of their wine: they have plenty of good wines to brag
+      about. <br />
+    </p>
+
+    <p>
+      Read about it on wikipedia: <a
+      href="http://en.wikipedia.org/wiki/Wine">Wine</a>.
+    </p>
+  </message>
+
+  <message id="drink-Bordeaux wine">
+    <h3>Drink: wine (Bordeaux)</h3>
+
+    <p>
+      Bordeaux is a wine region in France.
+    </p>
+
+    <p>
+      Read about it on wikipedia: <a
+      href="http://en.wikipedia.org/wiki/Bordeaux_wine">Bordeaux wine</a>.
+    </p>
+  </message>
+
+  <message id="drink-Cava">
+    <h3>Drink: cava</h3>
+
+    <p>
+      The french do not allow the Spanish to call Cava Champaign, but
+      that is what it is.
+    </p>
+
+    <p>
+      Read about it on wikipedia: <a
+      href="http://en.wikipedia.org/wiki/Cava">Cava</a>.
+    </p>
+  </message>
+
+  <message id="drink-San Miguel">
+    <h3>Drink: San Miguel</h3>
+
+    <p>
+      A Spanish beer.
+    </p>
+
+    <p>
+      Read about it on wikipedia: <a
+      href="http://en.wikipedia.org/wiki/Mahou_Brewery">San Miguel</a>.
+    </p>
+  </message>
+
+  <message id="drink-Juice">
+    <h3>Drink: fruit juice</h3>
+
+    <p>
+      It's got vitamins all over it and entirely healthy.
+    </p>
+
+    <p>
+      Read about it on wikipedia: <a
+      href="http://en.wikipedia.org/wiki/Juice">Juice</a>.
+    </p>
+  </message>
+
+  <message id="drink-Tea">
+    <h3>Drink: tea</h3>
+
+    <p>
+      C'est la boisson du jour.
+    </p>
+
+    <p>
+      Read about it on wikipedia: <a
+      href="http://en.wikipedia.org/wiki/Tea">Tea</a>.
+    </p>
+  </message>
+</messages>

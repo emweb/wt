@@ -1,0 +1,105 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSTACKEDWIDGET_H_
+#define WSTACKEDWIDGET_H_
+
+#include <Wt/WContainerWidget>
+
+namespace Wt {
+
+/*! \class WStackedWidget Wt/WStackedWidget Wt/WStackedWidget
+ *  \brief A container widget that stacks its widgets on top of each
+ *         other.
+ *
+ * This is a container widgets which at all times has only one item
+ * visible. The widget accomplishes this using setHidden(bool) on the
+ * children.
+ *
+ * With currentIndex() and setCurrentIndex(int index) you can get
+ * or set which widget needs to be visible.
+ *
+ * %WStackedWidget, like WContainerWidget, is by default not inline.
+ */
+class WT_API WStackedWidget : public WContainerWidget
+{
+public:
+  /*! \brief Created a new stacked container widget.
+   */
+  WStackedWidget(WContainerWidget *parent = 0);
+
+  virtual void addWidget(WWidget *widget);
+
+  /*! \brief Returns the number of widgets in the stack.
+   */
+  int count() const;
+
+  /*! \brief Returns the index of the widget that is currently shown.
+   *
+   * \sa setCurrentIndex(), currentWidget()
+   */
+  int currentIndex() const;
+
+  /*! \brief Returns the widget that is currently shown.
+   *
+   * \sa setCurrentWidget(), currentIndex()
+   */
+  WWidget *currentWidget() const;
+
+  /*! \brief Returns the index of the given widget.
+   *
+   * Returns -1 if the <i>widget</i> was not added.
+   *
+   * \sa widget()
+   */
+  int indexOf(WWidget *widget) const;
+
+  /*! \brief Insert a widget at a given index
+   */
+  void insertWidget(int index, WWidget *widget);
+
+  virtual void removeWidget(WWidget *widget);
+
+  /*! \brief Returns the widget at the specified index
+   *
+   * \sa indexOf()
+   */
+  WWidget *widget(int index) const;
+
+public slots:
+  /*! \brief Shows a particular widget.
+   *
+   * The widget with index <i>index</i> is made visible, while all other
+   * widgets are invisible.
+   *
+   * \sa currentIndex(), setCurrentWidget()
+   */
+  void setCurrentIndex(int index);
+
+  /*! \brief Shows a particular widget.
+   *
+   * The widget <i>widget</i>, which must have been added before, is
+   * made visible, while all other widgets are invisible.
+   *
+   * \sa currentWidget(), setCurrentIndex()
+   */
+  void setCurrentWidget(WWidget *widget);
+
+protected:
+  virtual void removeChild(WWidget *child);
+
+private:
+  std::vector<WWidget *> widgets_;
+  int currentIndex_;
+
+  virtual DomElement *createDomElement(WApplication *app);
+  virtual void        getDomChanges(std::vector<DomElement *>& result,
+				    WApplication *app);
+};
+
+}
+
+#endif // WSTACKEDWIDGET_H_

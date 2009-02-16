@@ -1,0 +1,383 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WDATE_H_
+#define WDATE_H_
+
+#include <Wt/WDllDefs.h>
+#include <Wt/WString>
+#include <exception>
+
+namespace boost {
+  namespace gregorian {
+    class date;
+  }
+}
+
+namespace Wt {
+
+/*! \class InvalidDateException Wt/WDate Wt/WDate
+ *  \brief Exception thrown when calculating with an invalid date.
+ *
+ * \sa WDate
+ */
+class WT_API InvalidDateException : public std::exception
+{
+public:
+  InvalidDateException();
+  ~InvalidDateException() throw();
+
+  /*! \brief Get a message describing the error.
+   */
+  const char *what() const throw();
+};
+
+/*! \brief A gregorian calendar date.
+ *
+ * Class which holds a date on the gregorian calendar, specified as
+ * day/month/year.
+ *
+ * A %WDate may either specify a valid date, or be a <i>Null</i> date
+ * (using the default constructor WDate::WDate(), for which isNull() returns
+ * true).
+ *
+ * A valid date may be specified by year, month, and day of month
+ * (using the \link WDate::WDate(int year, int month, int day)
+ * WDate(int year, int month, int day) \endlink constructor,
+ * or the setDate() method). When attempting to specify an
+ * invalid date (with an impossible combination of year/month/date),
+ * isIvalid() will return false.
+ *
+ * The class provides a flexible way for converting between strings
+ * and dates. Use toString() to convert to strings, and fromString()
+ * for parsing strings. Both methods take a format string, and the
+ * same format syntax is supported by both methods.
+ *
+ * Simple operations are supported to compare dates, or to calculate
+ * with dates. These operations throw InvalidDateException when one of
+ * the dates is invalid.
+ *
+ * <i>This class is still missing localization support in its
+ * conversion methods from and to string representations.</i>
+ */
+class WT_API WDate
+{
+public:
+  /*! \brief Construct a <i>Null</i> date.
+   *
+   * A date for which isNull() returns true. A <i>Null</i> date is also
+   * invalid.
+   *
+   * \sa isValid(), isNull()
+   */
+  WDate();
+
+  /*! \brief Create a representing a modified Julian Days count.
+   *
+   * The modified Julian day is the number of days since Wednesday
+   * November 17, 1858.
+   */
+  WDate(long modifiedJulianDays);
+
+  /*! \brief Specify a date by year, month (1-12), and day (1-31)
+   *
+   * When the date is invalid, isValid() is set to false.
+   *
+   * \sa setDate(), year(), month(), day()
+   */
+  WDate(int year, int month, int day);
+
+  /*! \brief Set a date by year, month (1-12), and day (1-31)
+   *
+   * When the new date is invalid, isValid() is set to false.
+   *
+   * \sa WDate(int year, int month, int day), year(), month(), day()
+   */
+  void setDate(int year, int month, int day);
+
+  /*! \brief Add days to a date.
+   *
+   * Returns a date that is <i>ndays</i> later than this
+   * date. Negative values for <i>ndays</i> will result in a date that
+   * is as many days earlier.
+   *
+   * \sa addMonths(), addYears()
+   */
+  WDate addDays(int ndays) const;
+
+  /*! \brief Add months to a date.
+   *
+   * Returns a date that is the same day of the month, but
+   * <i>nmonths</i> later than this date. Negative values for
+   * <i>nmonths</i> will result in a date that is as many months
+   * earlier.
+   *
+   * \sa addDays(), addYears()
+   */
+  WDate addMonths(int nmonths) const;
+
+  /*! \brief Add years to a date.
+   *
+   * Returns a date that is <i>nyears</i> later than this
+   * date. Negative values for <i>nyears</i> will result in a date
+   * that is as many years earlier.
+   *
+   * \sa addDays(), addMonths()
+   */
+  WDate addYears(int nyears) const;
+
+  /*! \brief Returns if this date is <i>Null</i>.
+   *
+   * A null date is also invalid.
+   *
+   * \sa isValid(), WDate()
+   */
+  bool isNull() const;
+
+  /*! \brief Returns if this date is valid.
+   *
+   * \sa isNull(), WDate(int, int, int), setDate()
+   */
+  bool isValid() const { return valid_; }
+
+  /*! \brief Year
+   */
+  int year() const { return year_; }
+
+  /*! \brief Month (1-12)
+   */
+  int month() const { return month_; }
+
+  /*! \brief Day of month (1-31)
+   */
+  int day() const { return day_; }
+
+  /*! \brief Day of week (1-7)
+   *
+   * Returns the day of week, from Monday (=1) to Sunday (=7).
+   */
+  int dayOfWeek() const;
+
+  /*! \brief Returns the number of days from this date to <i>d</i>.
+   */
+  int daysTo(const WDate& d) const;
+
+  /*! \brief Returns the modified Julian day corresponding to this date.
+   *
+   * The modified Julian day is the number of days since Wednesday
+   * November 17, 1858.
+   */
+  long modifiedJulianDay() const;
+
+  /*! \brief Compare two dates.
+   */
+  bool operator< (const WDate& other) const;
+
+  /*! \brief Compare two dates.
+   */
+  bool operator<= (const WDate& other) const;
+
+  /*! \brief Compare two dates.
+   */
+  bool operator> (const WDate& other) const;
+
+  /*! \brief Compare two dates.
+   */
+  bool operator>= (const WDate& other) const;
+
+  /*! \brief Compare two dates.
+   */
+  bool operator== (const WDate& other) const;
+
+  /*! \brief Compare two dates.
+   */
+  bool operator!= (const WDate& other) const;
+
+  static WString defaultFormat();
+
+  /*! \brief Format this date to a WString using a default format.
+   *
+   * The default <i>format</i> is "ddd MMM d yyyy".
+   * For example, a date constructed as:
+   * \code
+   *   WDate d(2007,8,29);
+   * \endcode
+   * will be formatted as:
+   * \code
+   *   "Wed Aug 29 2007"
+   * \endcode
+   *
+   * \sa toString(const WString& format) const, fromString()
+   */
+  WString toString() const;
+
+  /*! \brief Format this date to a WString using a specified format.
+   *
+   * The <i>format</i> is a string in which the following contents has
+   * a special meaning.
+   *
+   * <table>
+   *  <tr><td><b>Code</b></td><td><b>Meaning</b></td>
+   *      <td><b>Example (for Mon Aug 3 2007)</b></td></tr>
+   *  <tr><td>d</td><td>The day as a one or two-digit number</td>
+          <td>3</td></tr>
+   *  <tr><td>dd</td><td>The day as a two-digit number (with leading 0)</td>
+          <td>03</td></tr>
+   *  <tr><td>ddd</td><td>The day abbreviated using shortDayName()</td>
+          <td>Mon</td></tr>
+   *  <tr><td>dddd</td><td>The day abbreviated using longDayName()</td>
+          <td>Monday</td></tr>
+   *  <tr><td>M</td><td>The month as a one or two-digit number</td>
+          <td>8</td></tr>
+   *  <tr><td>MM</td><td>The month as a two-digit number (with leading 0)</td>
+          <td>08</td></tr>
+   *  <tr><td>MMM</td><td>The month abbreviated using shortMonthName()</td>
+          <td>Aug</td></tr>
+   *  <tr><td>MMMM</td><td>The month abbreviated using longMonthName()</td>
+          <td>August</td></tr>
+   *  <tr><td>yy</td><td>The year as a two-digit number</td>
+          <td>07</td></tr>
+   *  <tr><td>yyyy</td><td>The year as a four-digit number</td>
+          <td>2007</td></tr>
+   * </table>
+   *
+   * Any other text is kept literally. String content between single
+   * quotes (') are not interpreted as special codes. Inside a string, a literal
+   * quote may be specifed using a double quote ('').
+   *
+   * Example of format and result:
+   * <table>
+   *  <tr><td><b>Format</b></td><td><b>Result (for Mon Aug 3 2007)</b></td></tr>
+   *  <tr><td>ddd MMM d yyyy</td><td>Mon Aug 3 2007</td></tr>
+   *  <tr><td>dd/MM/yyyy</td><td>03/08/2007</td></tr>
+   *  <tr><td>dddd, MMM d, yyyy</td><td>Wednesday, Aug 3, 2007</td></tr>
+   *  <tr><td>'MM': MM, 'd': d, 'yyyy': yyyy</td><td>MM: 08, d: 3, yyyy: 2007</td></tr>
+   * </table>
+   *
+   * \sa fromString(const WString& value, const WString& format)
+   */
+  WString toString(const WString& format) const;
+
+  /*! \brief Parse a WString to a date using a default format.
+   *
+   * The default <i>format</i> is "ddd MMM d yyyy".
+   * For example, a date specified as:
+   * \code
+   *   "Wed Aug 29 2007"
+   * \endcode
+   * will be parsed as a date that equals a date constructed as:
+   * \code
+   *   WDate d(2007,8,29);
+   * \endcode
+   *
+   * When the date could not be parsed or is not valid, an invalid
+   * date is returned (for which isValid() returns false).
+   *
+   * \sa fromString(const WString& s, const WString& format), isValid()
+   */
+  static WDate fromString(const WString& s);
+
+  /*! \brief Parse a WString to a date using a specified format.
+   *
+   * The <i>format</i> follows the same syntax as used by
+   * \link toString(const WString& format) const toString(const WString& format)\endlink.
+   *
+   * When the date could not be parsed or is not valid, an invalid
+   * date is returned (for which isValid() returns false). 
+   *
+   * \sa toString(const WString&) const
+   */
+  static WDate fromString(const WString& s, const WString& format);
+
+  /*! \brief Construct a date for the current client date.
+   *
+   * This method uses browser information to retrieve the date that is
+   * configured in the client.
+   */
+  static WDate currentDate();
+
+  /*! \brief Construct a date for the current server date.
+   *
+   * This method returns the date as indicated by the system clock of
+   * the server.
+   */
+  static WDate currentServerDate();
+
+  static bool isLeapYear(int year);
+  static bool isValid(int year, int month, int day);
+
+  /*! \brief Returns the short day name.
+   *
+   * Results (for given <i>weekDay</i>) are:<br>
+   * "Mon" (1),<br> "Tue" (2),<br> "Wed" (3),<br>
+   * "Thu" (4),<br> "Fri" (5),<br> "Sat" (6),<br> "Sun" (7).
+   *
+   * \sa longDayName()
+   */
+  static WString shortDayName(int weekday);
+
+  /*! \brief Returns the short month name.
+   *
+   * Results (for given <i>month</i>) are:<br>
+   * "Jan" (1),<br> "Feb" (2),<br> "Mar" (3),<br>
+   * "Apr" (4),<br> "May" (5),<br> "Jun" (6),<br>
+   * "Jul" (7),<br> "Aug" (8),<br> "Sep" (9),<br>
+   * "Oct" (10),<br> "Nov" (11),<br> "Dec" (12)<br>.
+   *
+   * \sa longMonthName()
+   */
+  static WString shortMonthName(int month);
+
+  /*! \brief Returns the long day name.
+   *
+   * Results (for given <i>weekDay</i>) are:<br>
+   * "Monday" (1),<br> "Tuesday" (2),<br> "Wednesday" (3),<br>
+   * "Thursday" (4),<br> "Friday" (5),<br> "Saturday" (6),<br> "Sunday" (7).
+   *
+   * \sa shortDayName()
+   */
+  static WString longDayName(int weekday);
+
+  /*! \brief Returns the long month name.
+   *
+   * Results (for given <i>month</i>) are:<br>
+   * "January" (1),<br> "February" (2),<br> "March" (3),<br>
+   * "April" (4),<br> "May" (5),<br> "June" (6),<br> "July" (7),<br>
+   * "August" (8),<br> "September" (9),<br> "October" (10),<br>
+   * "November" (11),<br> "December" (12).
+   *
+   * \sa shortDayName()
+   */
+  static WString longMonthName(int month);
+
+  static std::string extFormat(const WString& format);
+  static std::string formatToRegExp(const WString& format,
+				    std::string& dayGetJS,
+				    std::string& monthGetJS,
+				    std::string& yearGetJS);
+
+private:
+  bool valid_;
+  int  year_;
+  int  month_;
+  int  day_;
+
+  void writeLast(std::string& result, int& d, int& M, int& yr,
+		 const WString& format) const;
+  static bool parseLast(const std::string& v, unsigned& vi,
+			int& d, int& M, int& y,
+			int& day, int& month, int& year,
+			const WString& format);
+
+  static int parseShortMonthName(const std::string& v, unsigned& pos);
+  static int parseLongMonthName(const std::string& v, unsigned& pos);
+  static int parseShortDayName(const std::string& v, unsigned& pos);
+  static int parseLongDayName(const std::string& v, unsigned& pos);
+};
+
+}
+
+#endif // WDATE_H_

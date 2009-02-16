@@ -1,0 +1,26 @@
+SUBDIRS(
+  bobsmith
+  charts
+  composer
+  dialog
+  dragdrop
+  extkitchen
+  filetreetable
+  form
+  gitmodel
+  hello
+  hello-widgetset
+  javascript
+  mandelbrot
+  mission
+  painting
+  simplechat
+  style
+  treelist
+  treeview
+  treeview-dragdrop
+  wt-homepage
+  hangman
+  wtwithqt
+  widgetgallery
+)

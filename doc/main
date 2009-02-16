@@ -1,0 +1,884 @@
+namespace Wt {
+
+/*!
+
+  \mainpage Wt documentation.
+
+   <a href="http://www.webtoolkit.eu/wt/">%Wt</a> is a C++ library for
+   developing web applications.
+  
+   This is a reference manual which has been generated from
+   the source code.
+
+   For learning web application programming with %Wt, we recommend
+   reading the <a href="../../tutorial/wt-sdj.xhtml"> introduction to
+   %Wt</a> which includes a complete tutorial.
+  
+   In addition, there is also:
+   - \ref overview - Overview of the main %Wt components (recommended!).
+   - \ref example - A line-by-line explanation, mainly shows how to achieve client-side event handling in C++.
+   - \ref Installation - How to build %Wt and your applications.
+   - \ref Releasenotes - Release notes.
+   - \ref ext - Using %Ext widgets, widgets based on ExtJS.
+   - <a href="../../examples/html/modules.html">Examples documentation</a>.
+  \page overview Library overview
+  
+   \section contents Contents
+  
+   <div style="margin-left: 10px; margin-bottom: 5px;">
+   \ref wwidget_sec
+     <div style="margin-left: 10px; margin-bottom: 7px;">
+     \ref layout <br>
+     \ref style <br>
+     \ref containers <br>
+     </div>
+   \ref urls_sec <br>
+     <div style="margin-left: 10px; margin-bottom: 7px;"></div>
+   \ref application_sec <br>
+     <div style="margin-left: 10px; margin-bottom: 7px;"></div>
+   \ref signal_slot <br>
+     <div style="margin-left: 10px; margin-bottom: 7px;"></div>
+   \ref eventhandling <br>
+     <div style="margin-left: 10px; margin-bottom: 7px;"></div>
+   \ref sec_painting <br>
+     <div style="margin-left: 10px; margin-bottom: 7px;"></div>
+   \ref deployment <br>
+     <div style="margin-left: 10px; margin-bottom: 7px;">
+     \ref fastcgi <br>
+     \ref wthttpd <br>
+     </div>  
+   \ref configuration_sec
+     <div style="margin-left: 10px; margin-bottom: 7px;">
+     \ref config_session <br>
+     \ref config_general <br>
+     \ref config_fastcgi <br>
+     \ref config_wthttpd <br>
+     </div>
+     <div style="margin-left: 10px; margin-bottom: 7px;"></div>
+   \ref error_sec
+   </div>
+  
+   \section wwidget_sec 1. Widgets
+  
+   The WWidget class represents a widget, which provides abstraction
+   of a visual entity. The entire user-interface is specified by
+   creating a hierarchical structure of WWidgets, rooted at
+   WApplication::root(). By reacting to events related to these
+   widgets, you can perform business logic, and manipulate the widget
+   hierarchy to update the user interface.
+  
+   When inserting a widget in the widget hierarchy, ownership is
+   transferred to its parent in the tree. Thus, when deleting a
+   widget, all of its children are deleted as well, significantly
+   reducing the burden of memory management related to widgets. When
+   the WApplication object is deleted, the root of the tree is
+   deleted, and in this way all resources associated with any widget
+   are free'd.
+  
+   Any descendent class of WWidget is a self-contained (reusable)
+   class that encapsulates both the look and behaviour, enabling the
+   design of the user interface in am orthogonal way.
+
+   \subsection layout 1.1 Layout
+  
+   Widgets are layed out (with a few exceptions) following this
+   hierarchical structure. You have two main options for lay-out of
+   children within a container. Either you use directly HTML/CSS, in
+   which case the layout is determined by properties of the container
+   and children: each child manages its layout with respect to its
+   sibling following a (rather complex) set of rules. Alternatively,
+   %Wt provides layout managers that may be used for layout.
+
+   CSS layout considers two important categories of layout. Text-like
+   layout (\link WWidget::setInline(bool) inline\endlink) flow
+   with sibling \link WWidget::setInline(bool) inline \endlink
+   widgets in lines, wrapping at the right edge of the parent
+   container. In contrast, \link WWidget::setInline(bool) stacked
+   \endlink widgets stack vertically with respect to sibling widgets.
+  
+   Layout managers are implemented in WLayout and descendant
+   classes. They can be used in conjunction with WContainerWidget or
+   Ext::Container container classes. Note that some layout managers
+   are applicable only to a WContainerWidget and some only to an
+   Ext::Container. Due to limitations in CSS (and browser bugs),
+   vertical layout is not possible without the presence of JavaScript
+   in some browsers.
+  
+   \subsection style 1.2 Style
+  
+   For visual markup of widgets, the recommended way is to use CSS style
+   sheets. These allow the visual look to be defined seperately from the
+   the rest of the application. The location of the stylesheet may be
+   configured using WApplication::useStyleSheet().
+  
+   CSS Style selectors may be used in conjunction with widget style
+   classes that may be set for any widget using
+   WWidget::setStyleClass(). The recommended way for visual
+   response to events is by changing the style class for the widget.
+  
+   In addition to configuration using style sheets, %Wt also supports
+   the direct manipulation of a widget's style, using
+   WWidget::decorationStyle().
+  
+   \subsection containers 1.3 Widget containers
+  
+   With a few exceptions, all widgets are child of (and contained in)
+   a container widget such as WContainerWidget or
+   WTableCell. A widget is inserted into a WContainerWidget by
+   adding the widget to the container using
+   WContainerWidget::addWidget(), or by passing the parent
+   container as an argument to the constructor.
+  
+   Widgets may also be added to an Ext::Container, through a choice of
+   layout manager, (see Ext::Container::setLayout()).
+
+   \section urls_sec 2. Application URL(s)
+
+   A %Wt application, like any other CGI application, is deployed at a
+   specific location (URL) within your web server. Still, an
+   application may manage multiple URLs that correspond to internal
+   paths. These are URLs that are created by appending an internal
+   path to the application URL (this works only if the application was
+   not deployed at a location ending with a '/'). The internal path
+   may be manipulated through WApplication::setInternalPath().  Each
+   time the internal path is changed, this is reflected in the browser
+   URL and an entry is added to the browser history, allowing the user
+   to use the back and forward buttons to navigate through your
+   application.
+
+   To effectively change the internal path and obtain consistent
+   behaviour with or without JavaScript, you should use a WAnchor to
+   let the user switch to a new internal path. The easiest way to do
+   this is by using the WAnchor::setRefInternalPath(). This refers the
+   WAnchor to a URL generated by WApplication::bookmarkUrl() for the
+   new internal path (handling the no-JavaScript case), and binds a
+   slot to its \link WAnchor::clicked clicked signal\endlink, which
+   sets the same new internal path using
+   WApplication::setInternalPath() (handling the AJAX case).
+
+   Finally, you can listen for path changes using the
+   WApplication::internalPathChanged event to react to the user
+   navigating through his history or opening a bookmarked internal
+   page.
+
+   To avoid reloading the application (and spawning a new session)
+   each time the internal path is changed, when AJAX is available, the
+   internal path is indicated using a name anchor (#) after the
+   deployment URL. When no JavaScript is available, the session ID is
+   appended to the URL to avoid the session from reloading when the
+   user navigates using a WAnchor to a new internal URLs.
+
+   When your applications uses internal URLs, this has consequences
+   for relative URLs to external resources (style sheets, images,
+   JavaScript files, etc...), since these are resolved taking into
+   account the current relative URL. All relative URLs that are known
+   to the application (e.g. those set in WAnchor::setRef(),
+   WImage::setImageRef(), WApplication::useStyleSheet(), etc...) are
+   automatically replace by %Wt with an absolute URL that resolves
+   these directly within the deployment location. You should use
+   absolute URLs in CSS or XHTML for them to work within each internal
+   path, since these cannot be fixed by %Wt.
+
+   \section application_sec 3. Startup and session management
+  
+   In your application, e.g. from within your main(), you should
+   WRun() to start the %Wt application server. This method will return
+   only when shutdown is signaled by the environment, and after the
+   application server (and all remaining active sessions) has been
+   properly shutd down. One parameter to the WRun() function is a
+   createApplication function object. Alternatively, if you wish to
+   have more control over the application server, you may also
+   instantiate and configure a WServer instance directly.
+
+   For every new session (which corresponds to a new user surfing to
+   your web application), the library calls your createApplication
+   callback function to create a new WApplication object for that
+   session. The request arguments (as part of the WEnvironment object)
+   are passed to this createApplication function, and may be used to
+   customize the application or authenticate the user.
+  
+   At all times, the WApplication instance is accessible using the
+   static method WApplication::instance(), and is useful to inspect
+   startup arguments and settings (using
+   WApplication::environment()), to set or change the application
+   title (WApplication::setTitle()), to specify a locale
+   (WApplication::setLocale()) for rendering, and many other
+   application-wide settings.
+  
+   A session exits when the user browses away from the application,
+   when WApplication::quit() is called, or when the application server
+   is shut down. In any case, the application object together with the
+   entire widget tree for that session is first properly
+   deleted. Therefore, you should release resources held by your
+   widgets or application in the destructors of these objects.
+  
+   The library offers two different mechanisms to map sessions onto
+   processes: <b>dedicated processes</b> (only with FastCGI
+   deployment) and <b>shared processes</b>. The first mechanisms forks
+   a dedicated process for every distinct session. This provides the
+   kernel-level isolation of different sessions, which may be useful
+   for highly security sensitive applications. The second mechanism
+   spawns a number of processes and allocates new sessions randomly to
+   one of these processes (when using the built-in httpd, only one
+   process is used in total). This reduces the danger for DoS attacks,
+   but requires more careful programming as memory corruption affects
+   all sessions in a single process, and sessions are not isolated by
+   any other mechanism but correct programming.
+  
+   \section signal_slot 4. Signal/slot event handling
+  
+   To respond to user-interactivity events, or in general to communicate
+   events from one widget to any other, %Wt uses a signal/slot system.
+  
+   A slot is any method of any descendant of WObject. To connect a
+   signal with a slot, the only requirement is that the method
+   signature of the slot must be compatible with the signal
+   definition. In this way every method may be used as a slot, and it
+   is not necessary to explicitly indicate a particular method to be a
+   slot (as is needed in Qt), by putting them in a special section.
+   Nevertheless, you may still do that if you wish to emphasize that
+   these functions can be used as slots, or, if you have done extra
+   work to optimize the implementation of these methods as client-side
+   JavaScript code (see below).
+  
+   A signal may be created by adding a \link Signal Signal<X,
+   ...>\endlink object. You may specify up to 6 arguments which may be
+   of arbitrary types that are Copyable, that may be passed through
+   the signal to connected slots.
+  
+   The library defines several user-event signals on various widgets,
+   and it is easy and convenient to add signals and slots to widget
+   classes to communicate events and trigger callbacks.
+  
+   Event signals (\link EventSignal EventSignal<E>\endlink)
+   are signals that may be triggered internally by the library to
+   respond to user interactivity events.  The abstract base classes
+   WInteractWidget and WFormWidget define most of these event
+   signals. To react to one of these events, the programmer connects a
+   self-defined or already existing slot to such a signal.
+  
+   \section eventhandling 5. Optimizing client-side event handling
+  
+   By default, %Wt performs all event processing server-side. Every connected
+   event signal will cause the web browser to communicate with the web server
+   in order to perform the call-back code, and visual changes will be updated
+   in the web page.
+  
+   However, %Wt offers several options for incorporating client-side event
+   handling. This may in general increase responsiveness of the application
+   since the user gets an instant feed-back, avoiding the typical
+   communication delay is avoided.
+  
+   The least flexible but most convenient option for client-side event
+   handling is letting %Wt learn the visual effect of a slot and cache
+   it in JavaScript code in the browser.  In this way, the
+   functionality is still specified in C++, and therefore the
+   application still works equally when JavaScript is not available.
+   The only restriction is that this is only possible for stateless
+   call-back code -- i.e. when the visual update does not depend on
+   state that may change in the course of the application, or event
+   details.  See the documentation of WObject::implementStateless
+   for details, or the \ref example for the use of stateless
+   implementations to create a treelist widget that does all node
+   expansion / collapsing client-side, at least if JavaScript is
+   available.
+  
+   The stateless slot learning allows applications to be developed entirely
+   in C++, with only one specification of the desired behaviour, and decide
+   at run-time to optimize certain event handling in client-side JavaScript
+   if possible, and fall-back to server-side event handling otherwise.
+  
+   When the requirements for stateless slot learning cannot be met you will
+   have to resort to writing JavaScript manually. %Wt provides a number
+   of mechanisms to integrate JavaScript code with C++:
+
+   <ul>
+     <li>Using JSlot, you can specify the JavaScript for a slot,
+     when connected to an EventSignal.  </li>
+     <li>Using JSignal, you can emit a C++ signal from JavaScript
+     code, using a JavaScript function WtSignalEmit().  </li>
+     <li>Using WApplication::doJavaScript(), you can call
+     JavaScript code directly as part of event handling.</li>
+   </ul>
+
+  \section sec_painting 6. Painting
+
+  %Wt provides a vector graphics painting system, which depending on
+  the browser support, uses one of three different methods to paint
+  the graphics (inline SVG, inline VML or HTML 5 &lt;canvas&gt;
+  element). Vector graphics has as benefit a lower bandwidth usage,
+  which is indepedent of the image size. To use the paint system, you
+  need to specialize WPaintedWidget and use a WPainter to paint the
+  contents of the widget inside its WPaintedWidget::paintEvent().
+
+  \section deployment 7. Deployment
+
+  The library is designed so that, besides the application binary, no other
+  files are needed to deploy the application. Obviously, any auxiliary files
+  you use, such as message resource files, graphics, static pages, or anything
+  else, will also need to be deployed.
+
+  \subsection fastcgi 7.1 FastCGI
+
+  When linking your application against libfcgi, the resulting binary is a
+  FastCGI binary. This binary may then be deployed and managed within a
+  web server which supports the FastCGI protocol (these include apache,
+  lighttpd and many other popular web servers).
+
+  \subsection wthttpd 7.2 Built-in httpd
+
+  When linking your application against libhttp, the resulting binary is a
+  stand-alone http(s) webserver.
+
+  \section configuration_sec 8. Configuration
+
+  %Wt has one main XML configuration file (which by default is located
+  in /etc/wt/wt_config.xml, and can be overridden with the WT_CONFIG_XML
+  environment variable or the --config startup parameter for wthttpd).
+
+  The configuration file may specify several
+  <b>&lt;application-settings&gt;</b>. The settings that apply are
+  determined by the <i>location</i> attribute. Application settings
+  for the '*' location are general settings, which may be overridden
+  on a per-application level by settings with a location attribute
+  that matches the location of the application (on the file system).
+
+  \subsection config_session 8.1 Session management (wt_config.xml)
+
+  These are options related to session management, and are specified
+  inside <b>&lt;session-management&gt;</b> subsection.
+
+  <dl>
+
+    <dt><strong>dedicated-process</strong></dt>
+
+    <dd>Every session is mapped a dedicated process, allowing maximal
+      session isolation, but at an increased session cost. <br>
+      This is currently only supported using the FastCGI connector.</dd>
+    <dt><strong>shared-process</strong></dt>
+
+    <dd>Sessions share a fixed number of processes, yielding a lower
+      session cost. <br>
+      This is the only option for the Wthttpd connector.</dd>
+
+    <dt><strong>tracking</strong></dt>
+
+    <dd>How session tracking is implemented: automatically (using
+      cookies when available, otherwise using URL rewriting) or
+      strictly using URL rewriting (which allows multiple concurrent
+      sessions from one user).  </dd>
+
+    <dt><strong>reload-is-new-session</strong></dt>
+
+    <dd>Should a brower reload spawn a new session (convenient for
+      debugging) or simply refresh (using WApplication::refresh()) the
+      current session ? This setting may have implications for the URL
+      that is displayed, because session information in needed in the
+      URL to handle the reload within the current session.</dd>
+
+    <dt><strong>timeout</strong></dt>
+
+    <dd>The timeout (in seconds) for detecting an idle session. A %Wt
+      application uses a keep-alive messages to keep the session alive
+      as long as the user is visiting the page. Increasing this number
+      will result in a longer time between keep-alive message,
+      resulting in a lower server load, but at the same time will
+      detect a dead session with a longer delay, and thus have on
+      average more sessions in memory that are no longer used.</dd>
+      </dl>
+
+  \subsection config_general 8.2 General application settings (wt_config.xml)
+
+  These options are indicated directly within
+  <b>&lt;application-settings&gt;</b>, and specify settings that
+  affect the run-time behaviour of the application.
+
+  <dl>
+    <dt><strong>log-file</strong></dt>
+
+    <dd>Path to the log file used for application logging
+      (see WApplication::log()). If not specified, logging is directed to
+      stderr, which depending on the connector used ends up in the server
+      error log, into the big void, or, simply to stderr.
+    </dd>
+
+    <dt><strong>max-request-size</strong></dt>
+
+    <dd>The maximum HTTP request size (Kb) that is accepted. An oversized
+      request will result in a WApplication::requestTooLarge signal.
+      </dd>
+
+    <dt><strong>session-id-length</strong></dt>
+
+    <dd>The length (in number of characters) for the unique session ID.</dd>
+
+    <dt><strong>session-id-prefix</strong></dt>
+
+    <dd>A fixed prefix for the session ID. You can use this to implement
+      aid a load-balancer to figure out the destination for a particular
+      request.</dd>
+
+    <dt><strong>send-xhtml-mime-type</strong></dt>
+
+    <dd>Whether the application presents rendered content as XHTML or
+      HTML. %Wt always renders XHTML1 compatible HTML, but by default
+      indicates to the browser that it is in fact HTML. However, to
+      use inline SVG (see WSvgImage), it is necessary to present an
+      XHTML mime type. Setting this option will do so only for
+      browsers that indicate support for XHTML.  </dd>
+
+    <dt><strong>behind-reverse-proxy</strong></dt>
+
+    <dd>When enabling this option to indicate that the application is
+      deployed behind a reverse proxy (as would be common if you use the
+      wthttpd connector), the server location is not read from the "Host"
+      header, but from the X-Forwarded-For header, if present.</dd>
+
+    <dt><strong>properties</strong></dt>
+
+    <dd>Application-specific properties which may be accessed using
+      WApplication::readConfigurationProperty(). For example:
+      \code
+      <properties>
+        <property name="extBaseURL">/ext/</property>
+      </properties>
+      \endcode
+    </dd>
+  </dl>
+
+  \subsection config_fastcgi 8.3 FastCGI options (wt_config.xml)
+
+  These options only apply to FastCGI-based deployment, and are
+  are specified inside a <b>&lt;connector-fcgi&gt;</b> subsection.
+
+  <dl>
+    <dt><strong>enable-debug</strong></dt>
+
+    <dd>When debugging is enabled, appending a debug to the initial query
+      will enable debug information.</dd>
+
+    <dt><strong>valgrind-path</strong></dt>
+
+    <dd>Set the path to valgrind for debugging using valgrind.</dd>
+
+    <dt><strong>run-directory</strong></dt>
+
+    <dd>The path that is used by the library for managing sessions.</dd>
+  </dl>
+
+  \subsection config_wthttpd 8.4 Wt httpd (command-line or configuration file) options
+
+These options are not specified in the wt_config.xml configuration
+file, but may be indicated on the command-line, or within a
+configuration file that is located at /etc/wt/wthttpd.
+
+\code
+General options:
+  -h [ --help ]                 produce help message
+  -t [ --threads ] arg (=10)    number of threads
+  --servername arg (=localhost) servername (IP address or DNS name)
+  --docroot arg                 document root for static files
+  --errroot arg                 root for error pages
+  --accesslog arg               access log file (defaults to stdout)
+  --no-compression              do not compress dynamic text/html and
+                                text/plain responses
+  --deploy-path arg (=/)        location for deployment
+  --session-id-prefix arg       prefix for session-id's (overrides
+                                wt_config.xml setting)
+  -p [ --pid-file ] arg         path to pid file (optional)
+  -c [ --config ] arg           location of wt_config.xml. If unspecified, 
+                                WT_CONFIG_XML is searched in the environment,
+				if it does not exist then the compiled-in
+				default (/etc/wt/wt_config.xml) is tried. If
+				the default does not exist, we revert to
+				default values for all parameters.
+
+HTTP server options:
+  --http-address arg    IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
+  --http-port arg (=80) HTTP port (e.g. 80)
+
+HTTPS server options:
+  --https-address arg     IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
+  --https-port arg (=443) HTTPS port (e.g. 443)
+  --ssl-certificate arg   SSL server certificate chain file
+                          e.g. "/etc/ssl/certs/vsign1.pem"
+  --ssl-private-key arg   SSL server private key file
+                          e.g. "/etc/ssl/private/company.pem"
+  --ssl-tmp-dh arg        File for temporary Diffie-Hellman parameters
+                          e.g. "/etc/ssl/dh512.pem"
+\endcode
+
+   \section error_sec 9. Error-handling and logging
+
+   %Wt provides logging of events to a log-file (see \ref
+   config_general "log-file configuration option"). Every log entry
+   has a timestamp, the process id and the session id. %Wt uses four
+   different event types, from least to most severe:
+
+  <dl>
+    <dt><strong>notice</strong></dt>
+
+    <dd>Informational notices. These are events that may be
+    interesting for late analysis of other problems, for performance
+    analysis, or estimating server load.</dd>
+
+      <p>Generated using WApplication::log(), e.g.:
+      \code
+wApp->log("notice") << "Message";
+      \endcode
+      </p>
+
+    <dt><strong>warn</strong></dt>
+
+    <dd>Warnings. These events are generated when you are using the
+    API in a way that may not have been as intended.</dd>
+
+      <p>Generated using WApplication::log(), e.g.:
+      \code
+wApp->log("warn") << "Message";
+      \endcode
+      </p>
+
+    <dt><strong>error</strong></dt>
+
+    <dd>Non-fatal application errors. These errors indicate for
+      example unexpected input from the web browser or application
+      user, XML parsing problems, but not necessarily a programming
+      error.
+
+      <p>Generated using WApplication::log(), e.g.:
+      \code
+wApp->log("error") << "Message";
+      \endcode
+      </p>
+    </dd>
+
+    <dt><strong>fatal</strong></dt>
+
+    <dd>Fatal application errors. These errors terminate the current
+      session (but not the application server), and are errors that
+      indicate a programming error. For example, this error is
+      triggered by misuses of the API.
+
+      <p>Generated by throwing a std::exception.</p>
+    </dd>
+   </dl>
+  
+   <p>You can now proceed to the \ref example</p>
+*/
+
+/*! \page example Treelist example
+  
+   In this example we will step through the code of the <a
+   href="http://wipkip.irule.be/wt/examples/treelist/demotreelist.wt">
+   Tree List example</a>. The source code of the entire example is
+   available as leafs of the tree. Note that %Wt offers a Tree List
+   widget as part of the library (see WTreeNode), of which this
+   example is a down-stripped version.
+  
+   The example in particular demonstrates the use of stateless slot
+   learning to simultaneously implement client-side and server-side
+   event handling in C++.
+  
+   The tree constructed as hierarchy of tree nodes. A single tree node
+   is implemented in the class TreeNode. TreeNode uses the helper
+   class IconPair for rendering icons that have a state (such as the
+   expand/collapse icons). We start with a walk-over of this class.
+  
+   \section stateicon_sec IconPair: a pair of icons that reflects state.
+  
+   For the implementation of the tree list expand/collapse icons, as
+   well as the label icons (such as the folder icon), we use class
+   IconPair. It takes a pair of icons and shows only one at a
+   time. Passing clickIsSwitch = true to the constructor will make the
+   icon react to click events to switch the current icon.
+  
+   This is the class definition of IconPair:
+  
+   \dontinclude examples/treelist/IconPair.h
+   \skip IconPair
+   \until };
+  
+   IconPair is a composite widget, implemented as a WContainerWidget
+   which contains two WImage objects. The class defines two slots:
+   IconPair::showIcon1() and IconPair::showIcon2(), which show the
+   respective icon, while hiding the other icon.
+
+   Although %Wt is a C++ (server-side) library, it can also generate
+   client-side JavaScript code for instant visual response. This
+   example will use this capability to implement all of the tree
+   navigation at the client-side for those clients that support
+   JavaScript -- as if it were implemented as a JavaScript
+   library. But since everything is still plain C++ code, it works
+   whatever technology is available or lacking at the client
+   side. Think of a stateless slot implementation as creating a forked
+   implementation, with JavaScript in the client for visual response
+   -- when JavaScript is available, and C++ at the server. When no
+   JavaScript is available, everything happens at the server.
+  
+   The key concept behind %Wt's capability to implement things at the
+   client-side is stateless slot implementations. A stateless slot is,
+   besides a normal C++ function that may be connected to a signal, a
+   C++ function that promises to always have the same behaviour (until
+   it is reset, as we will see later).
+  
+   This applies to the two functions showIcon1() and showIcon2(), as
+   they simply set the corresponding icon, irrespective of any
+   application state. The library offers two methods for stateless
+   slot implementations: AutoLearned and PreLearned. An AutoLearned
+   stateless slot will only "become client-side" after the first
+   invocation. Applied to our tree widget, this would mean that the
+   first click on any icon would require a round-trip to the server
+   the first time only. An AutoLearned stateless slot simply requires
+   an indication that the particular slot confirms to the contract of
+   being stateless. A PreLearned stateless slot, on the other hand, is
+   "client-side" from the first invocation. To implement a PreLearned
+   stateless however, we need to do some extra work by providing
+   methods that exactly undo the effect of the slot. We provide here
+   two such undo methods: undoShowIcon1() and undoShowIcon2().
+  
+   Enough talk! Let's look at the implementation, starting with
+   the constructor.
+  
+   \dontinclude examples/treelist/IconPair.C
+   \skip IconPair::
+   \until {
+  
+   IconPair inherits from WCompositeWidget. A composite widget is
+   a widget which is composed from other widgets, in a way not exposed
+   in its API. In this way, you may later change the implementation
+   without any problem.
+  
+   Notice how we constructed three widgets that are used in the
+   implementation: two images (icon1_ and icon2_), and a container
+   (impl_) to hold them. The images are added to the container by
+   passing the container as the last argument in their constructor.
+  
+   WCompositeWidget requires to set the implementation widget,
+   which is in our case a WContainerWidget:
+  
+   \line setImplementation
+  
+   We declare the slots showIcon1() and showIcon2() as stateless
+   slots, allowing for client-side optimisation, and offer an undo
+   function which facilitates a PreLearned client-side implementation.
+  
+   The calls to WObject::implementStateless() state that the slots
+   showIcon1() and showIcon2() are stateless slots, and their visual
+   effect may be learned in advance. The effect of these statements is
+   merely an optimization. Any non-visual effects of these slots are
+   still propagated and executed, as expected.
+  
+   \until undoShowIcon2
+  
+   Next, we declare the widget to be an inline widget. An inline
+   widget will be layed out following the natural flow of text (left
+   to right).  This does not really matter for our example, since
+   TreeNode will do the layout with a WTable, but we do so to
+   provide consistency with a WImage which is also inline by
+   default.
+  
+   \line setInline 
+  
+   The initial state is to show the first icon:
+  
+   \line hide
+  
+   To react to click events, we connect signals with slots:
+  
+   \until ; //
+  
+   We change the cursor to a pointer to hint that clicking these icons
+   may do something useful.
+  
+   \until } //
+  
+   We also change the cursor to a pointer to
+   hint that clicking these icons will in fact perform an action.
+  
+   The rest of the class definition is:
+  
+   \until } //
+  
+   Note the implementations of undoShowIcon1() and undoShowIcon2():
+   they simply, but accurately, reset the state to what it was before
+   the respective showIcon1() and showIcon2() calls.
+  
+   \section treenode_sec TreeNode: an expandable tree node.
+  
+   TreeNode contains the implementation of the tree, as a hierarchy of
+   tree nodes. The layout of a single node is done using a 2x2 WTable:
+  
+   \verbatim
+   |-----------------------|
+   | +/- | label           |
+   |------------------------
+   |     | child1          |
+   |     | child2          |
+   |     | child3          |
+   |     |       ...       |
+   |-----------------------| \endverbatim
+  
+   The TreeNode manages a list of child nodes in a WContainerWidget
+   which will be hidden and shown when the node is expanded or
+   collapsed, and children are collapsed when the node is expanded.
+  
+   This is the TreeNode class definition:
+  
+   \dontinclude examples/treelist/TreeNode.h
+   \skip class TreeNode
+   \until }; //
+  
+   The public interface of the TreeNode provides methods to manage
+   its children, and two public slots to expand or collapse the node.
+   Remember, a slot is nothing more than a method (and the public slots:
+   does not actually mean anything, except providing a hint to the user
+   of this class that these methods are made to be connected to signals).
+  
+   We start with the implementation of the constructor:
+  
+   \dontinclude examples/treelist/TreeNode.C
+   \skip TreeNode::TreeNode
+   \until {
+  
+   We start with declaring stateless implementations for the slots.
+   It is good practice to do this first, since it must be done before
+   any connections are made to the slots.
+  
+   \until undoCollapse
+  
+   We will implement the treenode as 2 by 2 table.
+  
+   \skipline setImplementation
+  
+   We create all icons. Since currently the node is empty, we only
+   show the no-expand version (which is simply a horizontal line).
+  
+   \until noExpandIcon
+  
+   The expanded content is a WContainerWidget.
+  
+   \until hide
+  
+   We create the label and child count text widgets:
+  
+   \until treenodechildcount
+  
+   Now we add all widgets in the proper table cell, and set the correct
+   alignment.
+  
+   \until setContentAlignment(AlignMiddle)
+  
+   Finally, we connect the click events of the expandIcon to the expand
+   and collapse slots.
+  
+   \until } //
+  
+   WTable::elementAt(int row, int column) is used repeatedly to add or
+   modify contents of the table cells, expanding the table geometry as
+   needed. Finally, we make connections from the expand and collapse
+   icons to the slots we define in the TreeNode class.
+  
+   Again, we optimize the visual effect of expand() and collaps() in
+   client-side JavaScript, which is possible since they both have an
+   effect independent of application state. Typically, one will start
+   with a default dynamic slot implementation, and indicate stateless
+   implementations where desired and possible, using one of the two
+   mechanisms of stateless slot learning.
+  
+   The "business logic" of the TreeNode is simply to manage its children.
+   Whenever a child is added or removed, adjustments to its look are
+   updated by calling childNodesChanged().
+  
+   \until } //
+  
+   The expand icon of the last child is rendered differently, as it
+   needs to terminate the vertical guide line. To keep the
+   implementation simple, we simply let every child reset its proper
+   look by calling adjustExpandIcon().
+  
+   \until adjustExpandIcon
+  
+   When getting a first child, or losing the last child, the expand icon
+   changes too.
+  
+   \until adjustExpandIcon
+  
+   We also update the childCount label.
+  
+   \until setText("")
+  
+   Finally, we call WObject::resetLearnedSlots(). Because the expand()
+   slot depends on the number of children, because it needs to
+   collapse all children -- this slot is not entirely stateless,
+   breaking the contract for a stateless slot. However, we can get
+   away with still implementing as a stateless slot, by indicating
+   when the state has changed.
+  
+   \until } //
+  
+   The implementation of the collapse slot is as follows:
+  
+   \until {
+  
+   First we record the current state, so the undo method can exactly undo
+   what happened.
+  
+   \until isHidden()
+  
+   Next, we implement the actual collapse logic:
+  
+   \until } //
+  
+   Similarly, the implementation of the expand slot. However, in this
+   case we need to collapse all children as well.
+  
+   \until } //
+  
+   Since we implement these slots as prelearned stateless slots, we
+   also need to define the undo functions. Note that Because expand()
+   also collapses all child nodes, the undo function of expand() is
+   not simply collapse() and vice-versa.
+  
+   \until } //
+  
+   Finally, the adjustExpandIcon() function sets the correct images,
+   which depends on how the node relates to its siblings. The last
+   node looks a bit different.
+  
+   \until {
+  
+   We set the expand icon images:
+  
+   \until (imageLine
+  
+   Then, we set the vertical guide line if not the last child, and nothing
+   if the last child:
+  
+   \until } //
+  
+   Finally, we select the correct icon, depending on whether the node
+   has children:
+  
+   \until } //
+  
+   And that's it. By using the TreeNode class in a hierarchy, we can
+   create a tree widget. The tree widget will be implemented entirely
+   in JavaScript, if available, and otherwise as plain HTML. In any case,
+   client-side and server-side state are completely synchronized, and
+   identical by definition since they are derived from the same C++ code.
+  
+   You can now proceed to \ref Installation
+
+*/
+/*! \page Installation
+  
+   \htmlinclude INSTALL.html
+*/
+
+/*! \page Releasenotes
+  
+   \htmlinclude ReleaseNotes.html
+ */
+
+}

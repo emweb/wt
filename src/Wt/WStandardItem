@@ -1,0 +1,606 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSTANDARD_ITEM_H_
+#define WSTANDARD_ITEM_H_
+
+#include <map>
+#include <string>
+#include <vector>
+#include <Wt/WModelIndex>
+
+namespace Wt {
+
+class WStandardItemModel;
+class WString;
+
+/*! \class WStandardItem Wt/WStandardItem Wt/WStandardItem
+ *  \brief An item in a WStandardItemModel.
+ *
+ * The item provides access to various data properties: \link
+ * setText() text\endlink, \link setIcon() icon\endlink, \link
+ * setStyleClass() CSS style class\endlink, \link setToolTip() tool
+ * tip\endlink, and \link setChecked() check state\endlink, and
+ * data flags (setFlags() and setCheckable()).
+ *
+ * An item may contain a table of children items: the initial geometry
+ * may be specified in the constructor, or using the methods
+ * setRowCount() and setModelCount(). Unspecified items are 0. You can
+ * set or inspect children items using the setChild() and child()
+ * methods.
+ *
+ * It is possible to reimplement this class and specialize the methods
+ * for data acess (setData() and data()), or provide custom sorting
+ * functionality by reimplementing operator<().
+ *
+ * \ingroup modelview
+ */
+class WT_API WStandardItem
+{
+public:
+  /*! \brief Create an empty standard item.
+   */
+  WStandardItem();
+
+  /*! \brief Create an item with a text.
+   *
+   * \sa setText()
+   */
+  WStandardItem(const WString& text);
+
+  /*! \brief Create an item with an icon and a text.
+   *
+   * \sa setText(), setIcon()
+   */
+  WStandardItem(const std::string& iconUri, const WString& text);
+
+  /*! \brief Create an item with an initial geometry.
+   *
+   * \sa setRowCount(), setColumnCount()
+   */
+  WStandardItem(int rows, int columns = 1);
+
+  /*! \brief Destructor.
+   */
+  virtual ~WStandardItem();
+
+  /*! \brief Set the text.
+   *
+   * The text is stored as \link Wt::DisplayRole DisplayRole\endlink data.
+   *
+   * The default text is empty ("").
+   *
+   * \sa text(), setData()
+   */
+  void setText(const WString& text);
+
+  /*! \brief Returns the text.
+   *
+   * \sa setText()
+   */
+  WString text() const;
+
+  /*! \brief Set the icon url.
+   *
+   * The icon is stored as \link Wt::DecorationRole
+   * DecorationRole\endlink data.
+   *
+   * The default icon url is empty ("").
+   *
+   * \sa icon(), setData()
+   */
+  void setIcon(const std::string& uri);
+
+  /*! \brief Returns the icon url.
+   *
+   * \sa setIcon()
+   */
+  std::string icon() const;
+
+  /*! \brief Set the CSS style class.
+   *
+   * The style class is stored as \link Wt::StyleClassRole
+   * StyleClassRole\endlink data.
+   *
+   * The default style class is empty ("").
+   *
+   * \sa styleClass(), setData()
+   */
+  void setStyleClass(const WString& styleClass);
+
+  /*! \brief Returns the item style class.
+   *
+   * \sa setStyleClass()
+   */
+  WString styleClass() const;
+
+  /*! \brief Set a tool tip.
+   *
+   * The tool tip is stored as \link Wt::ToolTipRole ToolTipRole\endlink data.
+   *
+   * The default tool tip is empty ("").
+   *
+   * \sa toolTip(), setData()
+   */
+  void setToolTip(const WString& toolTip);
+
+  /*! \brief Returns the tool tip.
+   *
+   * \sa setToolTip()
+   */
+  WString toolTip() const;
+
+  /*! \brief Set an anchor to an internal path.
+   *
+   * The internal path is stored as \link Wt::InternalPathRole
+   * InternalPathRole\endlink data.
+   *
+   * \sa internalPath(), setData()
+   */
+  void setInternalPath(const std::string& internalpath);
+
+  /*! \brief Returns the anchor to an internal path.
+   *
+   * \sa setInternalPath(), setData()
+   */
+  std::string internalPath() const;
+
+  /*! \brief Set an anchor to an external URL.
+   *
+   * The anchor Url is stored as \link Wt::UrlRole UrlRole\endlink data.
+   *
+   * \sa setInternalPath(), setData()
+   */
+  void setUrl(const std::string& url);
+
+  /*! \brief Returns the url referenced by this item.
+   *
+   * \sa refUrl(), setData()
+   */
+  std::string url() const;
+
+  /*! \brief Set the check state.
+   *
+   * The value is stored as \link Wt::CheckStateRole
+   * CheckStateRole\endlink data.
+   *
+   * The default value is <i>false</i>. The check state is not used
+   * unless you also set the item to be checkable using
+   * setCheckable().
+   *
+   * \sa setCheckable(), setData()
+   */
+  void setChecked(bool checked);
+
+  /*! \brief Returns the check state.
+   *
+   * \sa setChecked()
+   */
+  bool isChecked() const;
+
+  /*! \brief Set the flags.
+   *
+   * The default flag value is \link Wt::ItemIsSelectable
+   * ItemIsSelectable\endlink.
+   *
+   * \sa ItemFlag, flags(), setCheckable()
+   */
+  void setFlags(int flags);
+
+  /*! \brief Returns the flags.
+   *
+   * \sa setFlags()
+   */
+  int flags() const;
+
+  /*! \brief Make the item checkable.
+   *
+   * Adds \link Wt::ItemIsUserCheckable Wt::ItemIsUserCheckable
+   * \endlink to the item's flags.
+   *
+   * \sa setFlags(), setChecked()
+   */
+  void setCheckable(bool checkable);
+
+  /*! \brief Returns whether the item is checkable.
+   *
+   * \sa setCheckable()
+   */
+  bool isCheckable() const;
+
+  void setEditable(bool editable);
+  bool isEditable() const;
+
+  /*! \brief Set item data.
+   *
+   * Sets item data for the given role.
+   *
+   * \sa data()
+   */
+  virtual void setData(const boost::any& data, int role = UserRole);
+
+  /*! \brief Returns item data.
+   *
+   * Returns item data for the given role.
+   *
+   * \sa data()
+   */
+  virtual boost::any data(int role = UserRole) const;
+
+  /*! \brief Returns whether the item has any children.
+   *
+   * This is a convenience method and checks whether rowCount() and
+   * columnCount() differ both from 0.
+   *
+   * \sa rowCount(), columnCount()
+   */
+  bool hasChildren() const;
+
+  /*! \brief Change the row count.
+   *
+   * If <i>rows</i> is bigger than the current row count, empty rows
+   * are appended.
+   *
+   * If <i>rows</i> is smaller than the current row count, rows are
+   * deleted at the end.
+   *
+   * <i>Note, if <i>rows</i> > 0, and columnCount() == 0, columnCount
+   * is first increased to 1 using setColumnCount(1).</i>.
+   *
+   * \sa setColumnCount(), rowCount()
+   */
+  void setRowCount(int rows);
+
+  /*! \brief Returns the row count.
+   *
+   * \sa setRowCount()
+   */
+  int rowCount() const;
+
+  /*! \brief Change the column count.
+   *
+   * If <i>columns</i> is bigger than the current column count, empty
+   * columns are appended.
+   *
+   * If <i>columns</i> is smaller than the current column count,
+   * columns are deleted at the end.
+   *
+   * \sa setRowCount(), columnCount()
+   */
+  void setColumnCount(int columns);
+
+  /*! \brief Returns the column count.
+   *
+   * \sa setRowCount()
+   */
+  int columnCount() const;
+
+  /*! \brief Add a single column of items.
+   *
+   * Appends a single column of <i>items</i>. If necessary,
+   * the row count is increased.
+   *
+   * Equivalent to:
+   * \code
+   * insertColumn(columnCount(), items);
+   * \endcode
+   *
+   * \sa insertColumn(), appendRow()
+   */
+  void appendColumn(const std::vector<WStandardItem *>& items);
+
+  /*! \brief Insert a single column of items.
+   *
+   * Inserts a single column of <i>items</i> at column
+   * <i>column</i>. If necessary, the row count is increased.
+   * 
+   * \sa WStandardItem::insertRow()
+   */
+  void insertColumn(int column, const std::vector<WStandardItem *>& items);
+
+  /*! \brief Add a single row of items.
+   *
+   * Appends a single row of <i>items</i>. If necessary,
+   * the column count is increased.
+   *
+   * Equivalent to:
+   * \code
+   * insertRow(rowCount(), items);
+   * \endcode
+   *
+   * \sa insertRow(), appendColumn()
+   */
+  void appendRow(const std::vector<WStandardItem *>& items);
+
+  /*! \brief Insert a single row of items.
+   *
+   * Inserts a single row of <i>items</i> at row <i>row</i>. If
+   * necessary, the column count is increased.
+   * 
+   * \sa insertColumn()
+   */
+  void insertRow(int row, const std::vector<WStandardItem *>& items);
+
+  /*! \brief Insert a number of empty columns.
+   *
+   * Inserts <i>count</i> empty columns at position <i>column</i>.
+   * 
+   * \sa insertRows()
+   */
+  void insertColumns(int column, int count);
+
+  /*! \brief Insert a number of empty rows.
+   *
+   * Inserts <i>count</i> empty rows at position <i>row</i>.
+   * 
+   * \sa insertColumns()
+   */
+  void insertRows(int row, int count);
+
+  /*! \brief Appends a row containing one item.
+   *
+   * This is a convenience method for nodes with a single column (for
+   * example for tree nodes). This adds a row with a single item, and
+   * is equivalent to:
+   *
+   * \code
+   * insertRow(rowCount(), item);
+   * \endcode
+   * 
+   * \sa insertRow(int, WStandardItem *)
+   */
+  void appendRow(WStandardItem *item);
+
+  /*! \brief Inserts a row containing one item.
+   *
+   * This is a convenience method for nodes with a single column (for
+   * example for tree nodes). This inserts a row with a single item,
+   * and is equivalent to:
+   *
+   * \code
+   * std::vector<WStandardItem *> r;
+   * r.push_back(item);
+   * insertRow(row, r);
+   * \endcode
+   * 
+   * \sa insertRow(int, const std::vector<WStandardItem *>&)
+   */
+  void insertRow(int row, WStandardItem *item);
+
+  /*! \brief Appends multiple rows containing one item.
+   *
+   * This is a convenience method for nodes with a single column (for
+   * example for tree nodes). This adds a number of rows, each
+   * containing a single item, and is equivalent to:
+   *
+   * \code
+   * insertRows(rowCount(), items);
+   * \endcode
+   * 
+   * \sa insertRows(int, const std::vector<WStandardItem *>&)
+   */
+  void appendRows(const std::vector<WStandardItem *>& items);
+
+  /*! \brief Inserts multiple rows containing one item.
+   *
+   * This is a convenience method for nodes with a single column (for
+   * example for tree nodes). This inserts a number of rows at row
+   * <i>row</i>, each containing a single item, and is equivalent to:
+   *
+   * \code
+   * for (unsigned i = 0; i < items.size(); ++i)
+   *   insertRow(row + i, items[i]);
+   * \endcode
+   * 
+   * \sa insertRow(int, WStandardItem *)
+   */
+  void insertRows(int row, const std::vector<WStandardItem *>& items);
+
+  /*! \brief Set a child item.
+   *
+   * Sets a child item <i>item</i> at position (<i>row</i>,
+   * <i>column</i>). If an item was previously set, it is deleted
+   * first.
+   *
+   * If necessary, the rowCount() and/or the columnCount() is increased.
+   *
+   * \sa child().
+   */
+  void setChild(int row, int column, WStandardItem *item);
+
+  /*! \brief Set a child item.
+   *
+   * This is a convenience method for nodes with a single column
+   * (e.g. tree nodes), and is equivalent to:
+   * \code
+   * setChild(row, 0, item);
+   * \endcode
+   *
+   * \sa setChild(int, int, WStandardItem *).
+   */
+  void setChild(int row, WStandardItem *item);
+
+  /*! \brief Returns a child item.
+   *
+   * Returns the child item at position (<i>row</i>, <i>column</i>).
+   * This may be 0 if an item was not previously set, or if the
+   * position is out of bounds.
+   *
+   * \sa setChild(int, int, WStandardItem *).
+   */
+  WStandardItem *child(int row, int column = 0) const;
+
+  /*! \brief Takes a child out of the item.
+   *
+   * Returns the child item at position (<i>row</i>, <i>column</i>),
+   * and removes it (by setting 0 instead). Ownership of the item is
+   * transferred to the caller.
+   *
+   * \sa child(int, int), setChild(int, int, WStandardItem *)
+   */
+  WStandardItem *takeChild(int row, int column);
+
+  /*! \brief Takes a column of children out of the item.
+   *
+   * Returns the column <i>column</i>, and removes the
+   * column from the model (reducing the column count by
+   * one). Ownership of all items is transferred to the caller.
+   *
+   * \sa takeRow(), removeColumn()
+   */
+  std::vector<WStandardItem *> takeColumn(int column);
+
+  /*! \brief Takes a row of children out of the item.
+   *
+   * Returns the row <i>row</i>, and removes the row from the
+   * model (reducing the row count by one). Ownership of all items is
+   * transferred to the caller.
+   *
+   * \sa takeColumn(), removeRow()
+   */
+  std::vector<WStandardItem *> takeRow(int row);
+
+  /*! \brief Remove a single column.
+   *
+   * Removes the column <i>column</i> from the model (reducing the
+   * column count by one). Is equivalent to:
+   * \code
+   * removeColumns(column, 1);
+   * \endcode
+   *
+   * \sa removeColumns(), takeColumn()
+   */
+  void removeColumn(int column);
+
+  /*! \brief Remove a number of columns.
+   *
+   * Removes <i>count</i> columns from the model (reducing the
+   * column count by <i>count</i>).
+   *
+   * \sa removeColumn(), removeRows()
+   */
+  void removeColumns(int column, int count);
+
+  /*! \brief Remove a single row.
+   *
+   * Removes the row <i>row</i> from the model (reducing the
+   * row count by one). Is equivalent to:
+   * \code
+   * removeRows(row, 1);
+   * \endcode
+   *
+   * \sa removeRows(), takeRow()
+   */
+  void removeRow(int row);
+
+  /*! \brief Remove a number of rows.
+   *
+   * Removes <i>count</i> rows from the model (reducing the
+   * row count by <i>count</i>).
+   *
+   * \sa removeRow(), removeColumns()
+   */
+  void removeRows(int row, int count);
+
+  /*! \brief Returns the model index for this item.
+   *
+   * \sa WStandardItemModel::indexFromItem()
+   */
+  WModelIndex index() const;
+
+  /*! \brief Returns the model.
+   *
+   * This is the model that this item belongs to, or 0 if the item is
+   * not associated with a model.
+   */
+  WStandardItemModel *model() const { return model_; }
+
+  /*! \brief Returns the parent item.
+   *
+   * Returns the parent item.
+   *
+   * \sa setChild()
+   */
+  WStandardItem *parent() const { return parent_; }
+
+  /*! \brief Returns the row index.
+   *
+   * Returns the row index of this item in the parent.
+   *
+   * \sa column()
+   */
+  int row() const { return row_; }
+
+  /*! \brief Returns the column index.
+   *
+   * Returns the column index of this item in the parent.
+   *
+   * \sa column()
+   */
+  int column() const { return column_; }
+
+  /*! \brief Returns a clone of this item.
+   *
+   * \sa WStandardItemModel::setItemPrototype()
+   */
+  virtual WStandardItem *clone() const;
+
+  /*! \brief Compares the item with another item.
+   *
+   * This is used during sorting (from sortChildren()), and returns
+   * which of the two items is the lesser, based on their data.
+   *
+   * The default implementation compares the data based on the value
+   * corresponding to the WStandardItemModel::sortRole().
+   *
+   * \sa sortChildren(), WStandardItemModel::setSortRole()
+   */
+  virtual bool operator< (const WStandardItem& other) const;
+
+  /*! \brief Sorts the children according to a given column and sort order.
+   *
+   * Children of this item, and all children items are sorted
+   * recursively. Existing model indexes will be invalidated by
+   * the operation (will point to other items).
+   *
+   * The WStandardItemModel::layoutAboutToBeChanged and
+   * WStandardItemModel::layoutChanged signals are emitted before and
+   * after the operation so that you get a chance to invalidate or
+   * update model indexes.
+   *
+   * \sa operator<(), WStandardItemModel::setSortRole()
+   */
+  virtual void sortChildren(int column, SortOrder order);
+
+private:
+  typedef std::map<int, boost::any> DataMap;
+  typedef std::vector<WStandardItem *> Column;
+  typedef std::vector<Column> ColumnList;
+
+  WStandardItemModel *model_;
+  WStandardItem      *parent_;
+  int                 row_, column_;
+
+  DataMap data_;
+  int     flags_;
+
+  ColumnList *columns_;
+
+  void signalModelDataChange();
+  void adoptChild(int row, int column, WStandardItem *item);
+  void orphanChild(WStandardItem *item);
+  void setModel(WStandardItemModel *model);
+  void recursiveSortChildren(int column, SortOrder order);
+  void renumberColumns(int column);
+  void renumberRows(int row);
+  void setDataImpl(const boost::any& data, int role);
+
+  friend class WStandardItemModel;
+};
+
+}
+
+#endif // WSTANDARD_ITEM_H_

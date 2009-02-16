@@ -1,0 +1,259 @@
+<!--
+    Wt Configuration File.
+
+    The Wt configuration file manages, for every Wt application, settings
+    for session management, debugging, directory for runtime information
+    such as session sockets, and some security settings.
+
+    Settings may be specified globally, or for a single application path.
+
+    The path should be as configured in the Wt build process, where it
+    defaults to /etc/wt/wt_config.xml. It can be overridden in the environment
+    variable WT_CONFIG_XML, or with the --config startup option of wthttpd.
+  -->
+
+<server>
+
+    <!-- Default application settings -->
+    <application-settings location="*">
+
+        <!-- Session management. -->
+	<session-management>
+            <!-- Every session runs within a dedicated process.
+
+	       This mode guarantees kernel-level session privacy, but as every
+	       session requires a seperate process, it is also an easy target
+	       for DoS attacks if not shielded by access control.
+
+               It is also a convenient mode during development, as it is easy
+	       to enable disable debugging using valgrind, and it always starts
+	       the latest deployed executable for a new session.
+	   
+	       Note: currently only supported using the FastCGI connector
+              -->
+
+	    <!--
+	       <dedicated-process>
+		 <max-num-sessions>100</max-num-sessions>
+	       </dedicated-process>
+	      -->
+
+	    <!-- Multiple sessions within one process.
+
+	       This mode spawns a number of processes, and sessions are
+	       allocated randomly to one of these processes (you should not
+	       use this for dynamic FCGI servers, but only in conjunction
+	       with a fixed number of static FCGI servers.
+
+	       This requires careful programming, as memory corruption in one
+	       session will kill all of the sessions in the same process. You
+	       should debug extensively using valgrind. Also, it is your
+	       responsibility to keep session state not interfering and
+	       seperated.
+
+	       On the other hand, sessions are inexpensive, and this mode
+	       suffers far less from DoS attacks than dedicated-process mode.
+	       Use it for non-critical and well-debugged web applications.
+
+	       Note: wthttpd always uses exactly one process
+              -->
+	    <shared-process>
+	        <num-processes>1</num-processes>
+	    </shared-process>
+
+	    <!-- Session tracking strategy.
+
+	       Possible values:
+		 Auto: cookies is available, otherwise URL rewriting
+		 URL:  only URL rewriting
+	      -->
+	    <tracking>URL</tracking>
+
+	    <!-- How reload should be handled.
+
+	       When reload should (or rather, may) spawn a new session, then
+	       even in the case cookies are not used for session management,
+	       the URL will not be cluttered with a sessionid.
+	       However, WApplication::refresh() will never be called.
+	      -->
+	    <reload-is-new-session>true</reload-is-new-session>
+
+	    <!-- Session timeout (seconds).
+
+	       When a session remains inactive for this amount of time, it is
+	       cleaned up.
+	      -->
+	    <timeout>600</timeout>
+	</session-management>
+
+	<!-- Settings that apply only to the FastCGI connector.
+
+	   To configure the wthttpd connector, use command line options, or
+	   configure default options in /etc/wt/wthttpd
+	  -->
+	<connector-fcgi>
+            <!-- Enable debug
+
+	       Allow debugging by appending 'debug' to the initial query for
+	       starting the application.
+	      -->
+	    <enable-debug>true</enable-debug>
+
+	    <!-- Valgrind path
+
+               If debugging is enabled and this path is not empty, then valgrind
+	       will be started for every shared process, or for every session
+	       which has ?debug appended to the command line.
+
+	       The variable is slighly misnamed. Not only a path can be set,
+	       but also options, like for example:
+
+                 /usr/bin/valgrind --leak-check=full
+             -->
+	    <valgrind-path></valgrind-path>
+
+	    <!-- Run directory
+
+               Path used by Wt to do session management.
+	      -->
+	    <run-directory>/usr/wt/run</run-directory>
+
+	    <!-- Number of threads per process
+
+               This configures the size of the thread pool. You may want to
+	       change this value if you would like to support reentrant event
+	       loops, where you block one event loop using WDialog::exec() or
+	       related static methods. Everytime you enter such an event loop,
+	       one thread is blocked, and therefore the total number of
+	       sessions that reliably can do this is limited to the number
+	       of thread you have (minus one to unblock).
+
+	       For the built-in http connector, there is a similar config
+	       option that is specified in the whttpd config file or on the
+	       command line (--num-threads).
+
+               The default value is 10.
+	      -->
+	    <num-threads>10</num-threads>
+
+	</connector-fcgi>
+
+	<!-- Log file
+
+	   When the log file is empty, or omitted, logging is done to
+	   stderr. This may end up in the web server error log file
+	   (e.g. for apache + fastcgi module), or on stderr (e.g. for
+	   the built-in httpd).
+         -->
+	<log-file></log-file>
+
+	<!-- Maximum HTTP request size (Kb) -->
+	<max-request-size>128</max-request-size>
+
+	<!-- Session id length (number of characters) -->
+	<session-id-length>16</session-id-length>
+
+	<!-- Send the XHTML mime type when appropriate
+
+	   Wt renders XHTML1 (XML variant of HTML) that is backward-compatible
+	   with HTML. In this way, Wt is capable of supporting XHTML-only
+	   features such as embedded SVG or MathML.
+
+	   The browser renders the document as XHTML or HTML depending on the
+	   mime-type that is set. By default Wt sets an XHTML mime-type
+	   (application/xhtml+xml) when the browser reports support for it. Most
+	   notably, Internet Explorer does not support it.  Because XHTML and
+	   HTML are slightly different with respect to default CSS rules, you
+	   may want to disable sending the XHTML mime-type alltogether, at least
+	   if you are not using SVG (used by the WPaintedWidget).
+	  -->
+	<send-xhtml-mime-type>false</send-xhtml-mime-type>
+
+	<!-- Do strict serialization of events.
+
+	   By default events are queued at the client-side, and
+	   transmitted to the server so that at any time only one
+	   request/response is pending. This scheme has a quality that
+	   resembles TCP: on a low-latency link you allow the
+	   transmission of many smaller requests, while on a high
+	   latency link, the events be propagated less often, but in
+	   batches.
+
+	   In any case, this scheme does not drop events, no matter
+	   how quickly they are generated.
+
+	   In rare cases, the scheme may result in unwanted behaviour,
+	   because the client-side is allowed to be slighly out of
+	   sync at the time an event is recorded with the server-side
+	   (and more so on high-latency links). The drastic
+	   alternative is to discard events while a response is
+	   pending, and can be configured by setting this option to
+	   true.
+	  -->
+	<strict-event-serialization>false</strict-event-serialization>
+
+	<!-- Redirect message shown for browsers without JavaScript support
+
+	   By default, Wt will use an automatic redirect to start the
+	   application when the browser does not support JavaScript. However,
+	   browsers are not required to follow the redirection, and in some
+           situations (when using XHTML), such automatic redirection is not
+           supported.
+
+	   This configures the text that is shown in the anchor which
+	   the user may click to be redirected to a basic HTML version of
+           your application.
+          -->
+	<redirect-message>Load basic HTML</redirect-message>
+
+	<!-- Whether we are sitting behind a reverse proxy 
+
+	   When deployed behind a reverse proxy (such as Apache or Squid),
+	   the server location is not read from the "Host" header,
+	   but from the X-Forwarded-For header, if present.
+	  -->
+	<behind-reverse-proxy>false</behind-reverse-proxy>
+
+	<!-- Runtime Properties
+     
+           These properties may be used to adapt applications to their
+	   deployment environment. Typical use is for paths to resources
+	   that may or may not be shared between several applications.
+	  -->
+	<properties>
+            <!-- resources property
+
+	       The location of the resources/ folder that is part of the Wt
+	       distribution.
+
+	       The default value is 'resources/'
+              -->
+	    <property name="resources">resources/</property>
+
+	    <!-- extBaseURL property
+
+               Used in conjunction with Ext:: widgets, and points to the
+	       location of Ext JavaScript and resource files (css, images).
+	       See the documentation for the Ext namespace for details.
+
+	       The default value is 'ext/'
+              -->
+	    <property name="extBaseURL">ext/</property>
+
+	</properties>
+
+    </application-settings>
+
+
+    <!-- Override settings for specific applications.
+
+       Location refers to physical filesystem location of the
+       application. The application prints this location to the log
+       file on startup, and this should match exactly.
+      -->
+    <!--
+    <application-settings
+       location="/var/www/localhost/wt-examples/hello.wt">
+    </application-settings>
+    -->
+</server>

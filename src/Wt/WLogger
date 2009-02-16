@@ -1,0 +1,221 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WLOGGER_H_
+#define WLOGGER_H_
+
+#include <Wt/WDllDefs.h>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+namespace Wt {
+
+class WLogEntry;
+
+/*! \class WLogger Wt/WLogger Wt/WLogger
+ *  \brief A text stream logging class.
+ *
+ * This class logs events to a stream in a flexible way. It allows to
+ * create log files using the commonly used <a
+ * href="http://www.w3.org/Daemon/User/Config/Logging.html#common-logfile-format">Common
+ * Log Format</a> or <a
+ * href="http://httpd.apache.org/docs/1.3/logs.html#combined">Combined
+ * Log Format</a>, but provides a general way for logging entries that
+ * consists of a fixed number of fields.
+ *
+ * It is used by %Wt to create the application log
+ * (WApplication::log()), and built-in httpd access log.
+ *
+ * To use this class to create your own log files, you should
+ * instantiate a logger, add one or more field definitions using
+ * addField(), and set an output stream using setStream() or
+ * setFile(). To stream data to the logger, use entry() to start
+ * formatting a new entry.
+ *
+ * \sa WApplication::log()
+ */
+class WT_API WLogger
+{
+public:
+  /*! \brief Class that indicates a field separator.
+   *
+   * \sa sep
+   */
+  struct Sep { };
+
+  /*! \brief %Field separator constant.
+   *
+   * \sa WLogEntry::operator<<(const WLogger::Sep&)
+   */
+  static const Sep sep;
+
+  /*! \brief Class that indicates a time stamp.
+   *
+   * \sa timestamp
+   */
+  struct TimeStamp { };
+
+  /*! \brief Timestamp field constant.
+   *
+   * \sa WLogEntry::operator<<(const WLogger::TimeStamp&)
+   */
+  static const TimeStamp timestamp;
+
+  /*! \brief Class that holds the configuration for a single field.
+   *
+   * \sa addField()
+   */
+  class Field {
+  public:
+    /*! \brief Returns the field name.
+     */
+    std::string name() const { return name_; }
+
+    /*! \brief Returns if the field is a quoted string.
+     *
+     * String fields can contain white-space, and are therefore quoted
+     * in the log.
+     */
+    bool isString() const { return string_; }
+
+  private:
+    std::string name_;
+    bool string_;
+
+    Field(const std::string& name, bool isString);
+
+    friend class WLogger;
+  };
+
+  /*! \brief Create a new logger.
+   */
+  WLogger();
+
+  /*! \brief Destructor.
+   */
+  ~WLogger();
+
+  /*! \brief Set the output stream.
+   *
+   * Ownership of the stream is not transferred to the logger.
+   *
+   * \sa setFile()
+   */
+  void setStream(std::ostream& o);
+
+  /*! \brief Set the output file.
+   *
+   * Opens a file output stream for <i>path</i>.
+   *
+   * \sa setStream()
+   */
+  void setFile(const std::string& path);
+
+  /*! \brief Add a field.
+   */
+  void addField(const std::string& name, bool isString);
+
+  /*! \brief Returns the field list.
+   */
+  const std::vector<Field>& fields() const { return fields_; }
+
+  /*! \brief Start a new log entry.
+   */
+  WLogEntry entry() const;
+
+private:
+  std::ostream*      o_;
+  bool               ownStream_;
+  std::vector<Field> fields_;
+
+  void addLine(const std::string& s) const;
+
+  friend class WLogEntry;
+};
+
+/*! \class WLogEntry Wt/WLogger Wt/WLogger
+ *  \brief A stream-like object for creatin an entry in a log file.
+ *
+ * This class is returned by WLogger::entry() and creates a log entry using
+ * a stream-like interface.
+ */
+class WT_API WLogEntry
+{
+public:
+  /*! \brief Copy constructor.
+   *
+   * Only the new object can be used, the original object is no longer
+   * valid.
+   */
+  WLogEntry(const WLogEntry& from);
+
+  /*! \brief Destructor.
+   */
+  ~WLogEntry();
+
+  /*! \brief Write a field separator.
+   *
+   * You must separate fields in a single entry using the WLogger::sep
+   * constant.
+   */
+  WLogEntry& operator<< (const WLogger::Sep&);
+
+  /*! \brief Write a time stamp in the current field.
+   *
+   * Formats a timestamp (date+time) to the current field.
+   */
+  WLogEntry& operator<< (const WLogger::TimeStamp&);
+
+  /*! \brief Write a string in the current field.
+   */
+  WLogEntry& operator<< (const char *);
+
+  /*! \brief Write a string in the current field.
+   */
+  WLogEntry& operator<< (const std::string&);
+
+  /*! \brief Write a number value in the current field.
+   */
+  template <typename T>
+  WLogEntry& operator<< (T t) {
+    startField();
+    impl_->currentLine_ << t;
+
+    return *this;
+  }
+
+private:
+  struct Impl {
+    const WLogger&    logger_;
+    std::stringstream currentLine_;
+    int               currentField_;
+    bool              fieldStarted_;
+
+    Impl(const WLogger& logger);
+
+    bool quote() const;
+
+    void finish();
+    void finishField();
+    void nextField();
+    void startField();
+  };
+
+  mutable Impl *impl_;
+
+  WLogEntry(const WLogger& logger);
+
+  void checkImpl();
+  void startField();
+
+  friend class WLogger;
+};
+
+}
+
+#endif // WLOGGER_H_

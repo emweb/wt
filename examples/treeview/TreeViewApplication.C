@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#include <Wt/WApplication>
+#include <Wt/WText>
+
+#include "TreeViewExample.h"
+
+using namespace Wt;
+
+class TreeViewApplication: public WApplication
+{
+public:
+  TreeViewApplication(const WEnvironment &env):
+    WApplication(env)
+  {
+    new TreeViewExample(true, root());
+    /*
+     * Stub for the drink info
+     */
+    aboutDrink_ = new WText("", root());
+    
+    internalPathChanged.connect(SLOT(this,
+				     TreeViewApplication::handlePathChange));
+  }
+private:
+  WText *aboutDrink_;
+
+  void handlePathChange(const std::string& prefix) {
+    if (prefix == "/drinks/") {
+      std::string drink = internalPathNextPart(prefix);
+      
+      aboutDrink_->setText(WString::tr("drink-" + drink));
+    }
+  }
+
+};
+
+WApplication *createApplication(const WEnvironment& env)
+{
+  WApplication *app = new TreeViewApplication(env);
+  app->setTitle("WTreeView example");
+  app->messageResourceBundle().use("drinks");
+  app->styleSheet().addRule("button", "margin: 2px");
+  //app->useStyleSheet("treeview.css");
+  
+  return app;
+}
+
+int main(int argc, char **argv)
+{
+  return WRun(argc, argv, &createApplication);
+}

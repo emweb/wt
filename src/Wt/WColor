@@ -1,0 +1,221 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCOLOR_H_
+#define WCOLOR_H_
+
+#include <Wt/WString>
+#include "Wt/WDllDefs.h"
+
+/*! \brief The namespace for %Wt.
+ */
+namespace Wt {
+
+/*! \brief Predefined colors
+ *
+ * \ingroup style
+ */
+enum GlobalColor {
+  /*! \brief Color white.
+   */
+  white,
+  /*! \brief Color black.
+   */
+  black,
+  /*! \brief Color red.
+   */
+  red,
+  /*! \brief Color dark red.
+   */
+  darkRed,
+  /*! \brief Color green.
+   */
+  green,
+  /*! \brief Color dark green.
+   */
+  darkGreen,
+  /*! \brief Color blue.
+   */
+  blue,
+  /*! \brief Color dark blue.
+   */
+  darkBlue,
+  /*! \brief Color cyan.
+   */
+  cyan,
+  /*! \brief Color dark cyan.
+   */
+  darkCyan,
+  /*! \brief Color magenta.
+   */
+  magenta,
+  /*! \brief Color dark magenta.
+   */
+  darkMagenta,
+  /*! \brief Color yellow.
+   */
+  yellow,
+  /*! \brief Color dark yellow.
+   */
+  darkYellow,
+  /*! \brief Color medium gray.
+   */
+  gray,
+  /*! \brief Color dark gray.
+   */
+  darkGray,
+  /*! \brief Color light gray.
+   */
+  lightGray,
+  /*! \brief Color transparent.
+   */
+  transparent
+};
+
+/*! \class WColor Wt/WColor Wt/WColor
+ *  \brief A class that specifies a color.
+ *
+ * A color corresponds to a CSS color. You can specify a color either using
+ * its red/green/blue components, or from a valid CSS name.
+ *
+ * The color supports an alpha channel, which determines the degree of
+ * transparency. An alpha value of 0 is completely transparent (and thus
+ * invisible), while a value of 255 is completely opaque.
+ *
+ * \ingroup style painting
+ */
+class WT_API WColor
+{
+public:
+  /*! \brief Construct a default color.
+   *
+   * The defualt color is depending on the context, another color (for
+   * example from a hierarchical parent in a widget tree), or a
+   * completely transparent color.
+   */
+  WColor();
+
+  /*! \brief Construct a color with given red/green/blue/alpha components.
+   *
+   * All four components must be specified with a value in the range
+   * (0 - 255). The alpha channel determines the degree of
+   * transparency. An alpha value of 0 is completely transparent (and
+   * thus invisible), while a value of 255 is completely opaque.
+   *
+   * \sa setRgb(int, int, int, int)
+   */
+  WColor(int red, int green, int blue, int alpha = 255);
+
+  /*! \brief Construct a color from a CSS name.
+   *
+   * The <i>name</i> may be any valid CSS color name, including names
+   * colors such as "aqua", or colors defined as RGB components.
+   *
+   * In either case, the result of the methods red(), green() and
+   * blue() is undefined.
+   *
+   * See also http://www.w3.org/TR/REC-CSS2/syndata.html#value-def-color
+   */
+  WColor(const WString& name);
+
+  /*! \brief Construct a predefined color
+   *
+   * Constructs one of the 16 predefined %Wt colors constants.
+   */
+  WColor(GlobalColor name);
+
+  /*! \brief Set the red/green/blue/alpha components.
+   *
+   * All four components must be specified with a value in the range
+   * (0 - 255). The alpha channel determines the degree of
+   * transparency. An alpha value of 0 is completely transparent (and
+   * thus invisible), while a value of 255 is completely opaque.
+   */
+  void setRgb(int red, int green, int blue, int alpha = 255);
+
+  /*! \brief Set the CSS name.
+   *
+   * The <i>name</i> may be any valid CSS color name, including names
+   * colors such as "aqua", or colors defined as RGB components.
+   *
+   * In either case, the result of the methods red(), green() and
+   * blue() is undefined.
+   *
+   * See also http://www.w3.org/TR/REC-CSS2/syndata.html#value-def-color
+   */
+  void setName(const WString& name);
+
+  /*! \brief Returns if the color is the default color.
+   *
+   * \sa WColor()
+   */
+  bool isDefault() const { return default_; }
+
+  /*! \brief Returns the red component.
+   *
+   * Only available when the color was specified in terms of the RGB
+   * components using setRgb(int, int, int, int) or WColor(int, int,
+   * int, int).
+   */
+  int red() const { return red_; }
+
+  /*! \brief Returns the green component.
+   *
+   * Only available when the color was specified in terms of the RGB
+   * components using setRgb(int, int, int, int) or WColor(int, int,
+   * int, int).
+   */
+  int green() const { return green_; }
+
+  /*! \brief Returns the blue component.
+   *
+   * Only available when the color was specified in terms of the RGB
+   * components using setRgb(int, int, int, int) or WColor(int, int,
+   * int, int).
+   */
+  int blue() const { return blue_; }
+
+  /*! \brief Returns the alpha component.
+   *
+   * Only available when the color was specified in terms of the RGB
+   * components using setRgb(int, int, int, int) or WColor(int, int,
+   * int, int).
+   */
+  int alpha() const { return alpha_; }
+
+  /*! \brief Get CSS name.
+   *
+   * Only available when it was set with setName(const WString&) or
+   * WColor(const WString& name).
+   */
+  const WString& name() const { return name_; }
+
+  /*! \brief Comparison operator.
+   *
+   * Returns true if the two colors were defined in exactly the same way.
+   * It may return false although they actually represent the same color.
+   */
+  bool operator== (const WColor& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * Returns false if the two colors were not defined in exactly the
+   * same way. It may return return although they actually represent
+   * the same color.
+   */
+  bool operator!= (const WColor& other) const;
+
+  const std::string cssText(bool withAlpha = false) const;
+
+private:
+  bool    default_;
+  int     red_, green_, blue_, alpha_;
+  WString name_;
+};
+
+}
+
+#endif // WCOLOR

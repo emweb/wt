@@ -1,0 +1,226 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSERVER_H_
+#define WSERVER_H_
+
+#include <Wt/WApplication>
+
+#ifndef JAVA
+
+namespace Wt {
+
+struct WServerImpl;
+
+/*! \class WServer Wt/WServer Wt/WServer
+ *  \brief A class encapsulating an application server.
+ *
+ * This server class represents an instance of an application server.
+ *
+ * It can only be used when linking against wthttpd (for the built-in
+ * httpd), and it offers control over starting and stopping the
+ * server. This may be used as an alternative to using WRun(), for
+ * integrating a Wt server application in an existing application,
+ * when you want to and start and stop the server as appropriate.
+ *
+ * As an example usage, consider the implementation of WRun(), which
+ * starts the server until a Ctrl-C is pressed or a termination signal
+ * has been received: \code
+
+int WRun(int argc, char *argv[], ApplicationCreator createApplication)
+{
+  try {
+    // use argv[0] as the application name to match a suitable entry
+    // in the Wt configuration file, and use the default configuration
+    // file (which defaults to /etc/wt/wt_config.xml unless the environment
+    // variable WT_CONFIG_XML is set)
+    WServer server(argv[0]);
+
+    // WTHTTP_CONFIGURATION is e.g. "/etc/wt/wthttpd"
+    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+
+    // add a single entry point, at the default location (as determined
+    // by the server configuration's deploy-path)
+    server.addEntryPoint(WServer::Application, createApplication);
+    if (server.start()) {
+      int sig = WServer::waitForShutdown();
+
+      std::cerr << "Shutdown (signal = " << sig << ")" << std::endl;
+      server.stop();
+    }
+  } catch (WServer::Exception& e) {
+    std::cerr << e.what() << "\n";
+    return 1;
+  } catch (std::exception& e) {
+    std::cerr << "exception: " << e.what() << "\n";
+    return 1;
+  }
+}
+   \endcode
+
+   \note Currently, only a single server instance may be created. We plan to
+         remove this limiation in the future.
+ */
+class WTCONNECTOR_API WServer
+{
+public:
+  /*! \class Exception
+   *  \brief Server %Exception class.
+   */
+  class WT_API Exception : public std::exception
+  {
+  public:
+    Exception(const std::string what);
+    ~Exception() throw();
+
+    /*! \brief Returns the error message.
+     */
+    const char *what() const throw() { return what_.c_str(); }
+
+  private:
+    std::string what_;
+  };
+
+  /*! \brief Enumeration that indicates the type of an entrypoint.
+   *
+   * \sa addEntryPoint()
+   */
+  enum EntryPointType {
+    /*! \brief Specifies a full-screen application.
+     *
+     * A full screen application manages the entire browser window and
+     * provides its own HTML page.
+     *
+     * \sa WApplication::root()
+     */
+    Application,
+
+    /*! \brief Specifies an application that manages one or more widgets.
+     *
+     * A widget set application is part of an existing HTML page. One or
+     * more HTML elements in that web page may be bound to widgets managed
+     * by the application.
+     *
+     * A widgetset application presents itself as a JavaScript file,
+     * and therefore should be embedded in the web page using a
+     * &lt;script&gt; tag, from within the &lt;body&gt; (since it
+     * needs access to the &lt;body&gt;).
+     *
+     * \note A WidgetSet application requires JavaScript support
+     *
+     * \sa WApplication::bindWidget()
+     */
+    WidgetSet
+  };
+
+  /*! \brief Create a new server instance.
+   *
+   * The <i>wtApplicationPath</i> is used to match specific
+   * application-settings in the %Wt configuration file. If no
+   * specific match could be found, the general settings are used
+   * (corresponding to the '*' selector).
+   *
+   * The %Wt application configuration is read from the
+   * <i>wtConfigurationFile</i>. If empty, this defaults to the value
+   * configured at build time.
+   *
+   * For more information on configuring %Wt applications, see \ref
+   * configuration_sec "Configuration".
+   *
+   * \throws Exception : indicates a configuration problem.
+   *
+   * \sa setServerConfiguration()
+   */
+  WServer(const std::string& wtApplicationPath = std::string(),
+	  const std::string& wtConfigurationFile = std::string());
+
+  /*! \brief Destructor.
+   *
+   * If the server was still running, it is stopped first by calling
+   * stop(). It is probably safer to call stop() first yourself, since
+   * this allows exceptions to be caught.
+   *
+   * \sa isRunning(), stop()
+   */
+  ~WServer();
+
+  /*! \brief Configure the HTTP(S) server.
+   *
+   * Configures the HTTP(S) server using command-line arguments, a
+   * configuration file, or both. The valid options are described in
+   * \ref config_wthttpd "Built-in httpd configuration".
+   *
+   * The applications themselves are configured using the configuration
+   * file passed to the constructor.
+   *
+   * \throws Exception : indicates a configuration problem.
+   */  
+  void setServerConfiguration(int argc, char *argv[],
+			      const std::string& serverConfigurationFile);
+
+  /*! \brief Bind an entry-point to a callback function to create
+   *         a new application.
+   *
+   * The <i>path</i> is the local URL at which the application is
+   * deployed: when a user visits this URL, the callback will be
+   * called to create a new application. If empty, the URL is inferred
+   * from the server configuration's deploy-path (see also \ref
+   * config_wthttpd "Built-in httpd configuration").
+   */
+  void addEntryPoint(EntryPointType type, ApplicationCreator callback,
+		     const std::string& path = std::string());
+
+  /*! \brief Starts the server in the background.
+   *
+   * Returns whether the server could be successfully started.
+   *
+   * \throws Exception : indicates a problem starting the server.
+   *
+   * \sa isRunning(), stop()
+   */
+  bool start();
+
+  /*! \brief Stops the server.
+   *
+   * All active application sessions are terminated cleanly, and the
+   * HTTP(S) server is shut down.
+   *
+   * \throw Exception : indicates a problem while stopping the server.
+   *
+   * \sa isRunning(), start()
+   */
+  void stop();
+
+  /*! \brief Wait for a shutdown signal.
+   *
+   * This static method blocks the current thread, waiting for a
+   * shutdown signal. The implementation and details are platform
+   * dependent, but this is usually Ctrl-C or SIGKILL.
+   *
+   * This method is convenient if you want to customize how the server
+   * is started (by instantiating a WServer object yourself, instead
+   * of using Wt::Wrun()), but still want to use %Wt as a standalone
+   * server that cleanly terminates on interruption.
+   */
+  static int waitForShutdown();
+
+  /*! \brief Returns whether the server is running.
+   *
+   * \sa start(), stop()
+   */
+  bool isRunning() const;
+
+  WServerImpl *impl() { return impl_; }
+
+private:
+  WServerImpl *impl_;
+};
+
+}
+
+#endif // JAVA
+
+#endif // WSERVER_H_ 

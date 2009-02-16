@@ -1,0 +1,238 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef CHART_WPIE_CHART_H_
+#define CHART_WPIE_CHART_H_
+
+#include <Wt/Chart/WAbstractChart>
+
+#include <Wt/WRectF>
+
+namespace Wt {
+
+  class WModelIndex;
+  class WPainter;
+
+  namespace Chart {
+
+    class WChartPalette;
+
+/*! \brief Enumeration that specifies options for the labels.
+ *
+ * \sa WPieChart::setDisplayLabels(int)
+ *
+ * \ingroup charts
+ */
+enum LabelOptions {
+  NoLabels       = 0x00, //!< Do not display labels (default).
+  Inside         = 0x01, //!< Display labels inside each segment.
+  Outside        = 0x02, //!< Display labels outside each segment.
+  TextLabel      = 0x10, //!< Display the label text
+  TextPercentage = 0x20  //!< Display the value (as percentage)
+};
+
+/*! \class WPieChart Wt/Chart/WPieChart Wt/Chart/WPieChart
+ *  \brief A pie chart.
+ *
+ * A pie chart renders a single data series as segments of a circle, so that
+ * the area of each segment is proportional to the value in the data series.
+ *
+ * To use a pie chart, you need to set a model using setModel(), and use
+ * setLabelsColumn() and setDataColumn() to specify the model column that
+ * contains the category labels and data.
+ *
+ * The pie chart may be customized visually by enabling a 3D effect
+ * (setPerspectiveEnabled()), or by specifying the angle of the first
+ * segment. One or more segments may be exploded, which seperates the
+ * segment from the rest of the pie chart, using setExplode().
+ *
+ * The segments may be labeled in various ways using
+ * setDisplayLabels().
+ *
+ * \image html ChartWPieChart-1.png "Example of a pie chart" 
+ *
+ * \sa WCartesianChart
+ *
+ * \ingroup charts
+ */
+class WT_API WPieChart : public WAbstractChart
+{
+public:
+  /*! \brief Create a new pie chart.
+   */
+  WPieChart(WContainerWidget *parent = 0);
+
+  /*! \brief Change the model column that holds the labels.
+   *
+   * The labels are used only when setDisplayLabels() is called with
+   * the \link Chart::TextLabel TextLabel\endlink option.
+   *
+   * The default value is -1 (not defined).
+   *
+   * \sa setModel(WAbstractItemModel *), setDisplayLabels(), setDataColumn(int)
+   */
+  void setLabelsColumn(int column);
+
+  /*! \brief Returns the model column used for the labels.
+   *
+   * \sa setLabelsColumn(int)
+   */
+  int labelsColumn() const { return labelsColumn_; }
+
+  /*! \brief Change the model column that holds the data.
+   *
+   * The data column should contain data that can be converted to
+   * a number, but should not necessarily be of a number type, see
+   * also asNumber(const boost::any&).
+   *
+   * The default value is -1 (not defined).
+   *
+   * \sa setModel(WAbstractItemModel *), setLabelsColumn(int)
+   */
+  void setDataColumn(int modelColumn);
+
+  /*! \brief Returns the model column used for the data.
+   *
+   * \sa setDataColumn(int)
+   */
+  int dataColumn() const { return dataColumn_; }
+
+  /*! \brief Customizes the brush used for a pie segment.
+   *
+   * By default, the brush is taken from the palette(). You can use
+   * this method to override the palette's brush for a particular
+   * <i>modelRow</i>.
+   *
+   * \sa setPalette(WChartPalette *)
+   */
+  void setBrush(int modelRow, const WBrush& brush);
+
+  /*! \brief Returns the brush used for a pie segment.
+   *
+   * \sa setBrush(int, const WBrush&)
+   */
+  WBrush brush(int modelRow) const;
+
+  /*! \brief Change the explosion factor for a pie segment.
+   *
+   * Separates the segment corresponding to model row <i>modelRow</i>
+   * from the rest of the pie. The <i>factor</i> is a positive number
+   * that represents the distance from the center as a fraction of the
+   * pie radius. Thus, 0 corresponds to no separation, and 0.1 to a
+   * 10% separation, and 1 to a separation where the segment tip is on
+   * the outer perimeter of the pie.
+   *
+   * The default value is 0.
+   */
+  void setExplode(int modelRow, double factor);
+
+  /*! \brief Returns the explosion factor for a segment.
+   *
+   * \sa setExplode(int, double)
+   */
+  double explode(int modelRow) const;
+
+  /*! \brief Enables a 3D perspective effect on the pie.
+   *
+   * A 3D perspective effect is added, which may be customized by
+   * specifying the simulated <i>height</i> of the pie. The height is
+   * defined as a fraction of the pie radius.
+   *
+   * The default value is false.
+   */
+  void setPerspectiveEnabled(bool enabled, double height = 1.0);
+
+  /*! \brief Returns whether a 3D effect is enabled.
+   *
+   * \sa setPerspectiveEnabled(bool, double)
+   */
+  bool isPerspectiveEnabled() const { return height_ > 0.0; }
+
+  /*! \brief Change the angle of the first segment.
+   *
+   * The default value is 45 degrees.
+   */
+  void setStartAngle(double degrees);
+
+  /*! \brief Returns the angle of the first segment.
+   *
+   * \sa setStartAngle(double)
+   */
+  double startAngle() const { return startAngle_; }
+
+  /*! \brief Configure if and how labels should be displayed
+   *
+   * The <i>options</i> must be the logical OR of a placement option
+   * (\link Chart::Inside Inside\endlink or \link
+   * Chart::Outside Outside\endlink) and \link
+   * Chart::TextLabel TextLabel\endlink and/or \link
+   * Chart::TextPercentage TextPercentage\endlink. If both
+   * TextLabel and TextPercentage are specified, then these are
+   * combined as "<label>: <percentage>".
+   *
+   * The default value is \link Chart::NoLabels NoLabels\endlink.
+   */
+  void setDisplayLabels(int options);
+
+  /*! \brief Returns options set for displaying labels.
+   *
+   * \sa setDisplayLabels(int)
+   */
+  int displayLabels() const { return labelOptions_; }
+
+  virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
+    const;
+
+protected:
+  void paintEvent(Wt::WPaintDevice *paintDevice);
+
+private:
+  int            labelsColumn_;
+  int            dataColumn_;
+  double         height_;
+  double         startAngle_;
+  int            labelOptions_;
+
+  struct PieData {
+    bool customBrush;
+    WBrush brush;
+    double explode;
+
+    PieData();
+  };
+
+  std::vector<PieData> pie_;
+
+  virtual void modelChanged();
+  virtual void modelColumnsInserted(const WModelIndex& parent,
+				    int start, int end);
+  virtual void modelColumnsRemoved(const WModelIndex& parent,
+				   int start, int end);
+  virtual void modelRowsInserted(const WModelIndex& parent,
+				 int start, int end);
+  virtual void modelRowsRemoved(const WModelIndex& parent,
+				int start, int end);
+  virtual void modelDataChanged(const WModelIndex& topLeft,
+				const WModelIndex& bottomRight);
+
+  void drawPie(WPainter& painter, double cx, double cy, double r, double h,
+	       double total)
+    const;
+  void drawSide(WPainter& painter, double pcx, double pcy, double r,
+		double angle, double h) const;
+  void drawOuter(WPainter& painter, double pcx, double pcy, double r,
+		 double a1, double a2, double h) const;
+
+  int prevIndex(int i) const;
+  int nextIndex(int i) const;
+
+  static WBrush darken(const WBrush& brush);
+};
+
+  }
+}
+
+#endif // CHART_WPIE_CHART_H_

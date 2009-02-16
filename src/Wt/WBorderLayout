@@ -1,0 +1,126 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WBORDER_LAYOUT_H_
+#define WBORDER_LAYOUT_H_
+
+#include <Wt/WGridLayout>
+
+namespace Wt {
+
+/*! \class WBorderLayout Wt/WBorderLayout Wt/WBorderLayout
+ *  \brief A layout manager which divides the container region in five regions.
+ *
+ * The five regions are composed of:
+ * <pre>
+     ------------------------------------
+     |              North               |
+     ------------------------------------
+     |      |                    |      |
+     | West |       Center       | East |
+     |      |                    |      |
+     ------------------------------------
+     |              South               |
+     ------------------------------------
+ * </pre>
+ *
+ * Each region may hold no more than one widget, and for all but the
+ * Center region, the widget is optional.
+ *
+ * Widgets in the North and South regions need to have  The
+ * Center widget takes all available remaining space.
+ *
+ * This layout manager is applicable to WContainerWidget or
+ * Ext::Container container widgets. They use different properties from
+ * the widgets to determine the heights for the border panes:
+ *
+ *  - When used with an Ext::Container, the North and South regions
+ *    need to have their height defined using
+ *    WWidget::resize(), and likewise, widgets in the West ad East
+ *    regions need their width defined.
+ *  - When used with a WContainerWidget, the widget minimum sizes are
+ *    used for sizing the border widgets, whose default values may be
+ *    overridden using WWidget::setMinimumSize(). You may not define any
+ *    padding for the container widget. Instead, use setContentsMargins().
+ *
+ * \note When set on a WContainerWidget, this layout manager accepts the
+ *       following hints (see setLayoutHint()):
+ *   <ul>
+ *     <li>"table-layout" with possible values "auto" (default) or "fixed".<br/>
+ *       Use "fixed" to prevent nested tables from overflowing the layout.
+ *       In that case, you will need to specify a width (in CSS or otherwise)
+ *       for at least one item in every column that has no stretch factor.</li>
+ *  </ul>
+ *
+ */
+class WT_API WBorderLayout : public WLayout
+{
+public:
+  /*! \brief Enumeration of possible positions in the layout.
+   */
+  enum Position {
+    North,  //!< North (top)
+    East,   //!< East (left)
+    South,  //!< South (bottom)
+    West,   //!< West (right)
+    Center  //!< Center
+  };
+
+  /*! \brief Create a new border layout.
+   */
+  WBorderLayout(WWidget *parent = 0);
+
+  /*! \brief Remove a border layout.
+   */
+  ~WBorderLayout();
+
+  virtual void addItem(WLayoutItem *item);
+  virtual void removeItem(WLayoutItem *item);
+  virtual WLayoutItem *itemAt(int index) const;
+  virtual int count() const;
+
+  /*! \brief Add a widget to the given position.
+   *
+   * Only one widget per position is supported.
+   *
+   * \sa addWidget(WLayoutItem *, Position)
+   */
+  void addWidget(WWidget *widget, Position position);
+
+  /*! \brief Add a layout item to the given position.
+   *
+   * Only one widget per position is supported.
+   */
+  void add(WLayoutItem *item, Position position);
+
+  /*! \brief Return the widget at a position.
+   *
+   * Returns 0 if no widget was set for that position.
+   */
+  WWidget *widgetAt(Position position) const;
+
+  /*! \brief Return the item at a position.
+   *
+   * Returns 0 if no item was set for that position.
+   */
+  WLayoutItem *itemAt(Position position) const;
+
+  /*! \brief Return the position at which the given layout item is set.
+   */
+  Position position(WLayoutItem *item) const;
+
+  Impl::Grid& grid() { return grid_; }
+
+private:
+  Impl::Grid grid_;
+
+  const Impl::Grid::Item& itemAtPosition(Position position) const;
+  Impl::Grid::Item& itemAtPosition(Position position);
+};
+
+}
+
+#endif // WBORDER_LAYOUT_H_

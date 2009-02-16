@@ -1,0 +1,31 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WVECTOR_IMAGE_H_
+#define WVECTOR_IMAGE_H_
+
+#include <Wt/WPaintDevice>
+
+namespace Wt {
+
+/*! \class WVectorImage Wt/WVectorImage Wt/WVectorImage
+ *  \brief An abstract paint device for rendering using native vector graphics.
+ *
+ * An intermediate abstract class for common functions for vector
+ * graphics renderers.
+ */
+class WT_API WVectorImage : public WPaintDevice
+{
+public:
+  virtual std::string rendered() = 0;
+
+protected:
+  WVectorImage(const WLength& width, const WLength& height);
+};
+
+}
+
+#endif // WVECTOR_IMAGE_H_

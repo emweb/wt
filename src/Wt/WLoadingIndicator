@@ -1,0 +1,66 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WLOADING_INDICATOR_H_
+#define WLOADING_INDICATOR_H_
+
+namespace Wt {
+
+class WString;
+class WWidget;
+
+/*! \class WLoadingIndicator Wt/WLoadingIndicator Wt/WLoadingIndicator
+ *  \brief An abstract interface for a loading indicator.
+ *
+ * The loading indicator displays a message while a response from the
+ * server is pending.
+ *
+ * You can reimplement this interface, and set an instance using
+ * WApplication::setLoadingIndicator() if you would like to provide a
+ * custom loading indicator instead of the default implementation
+ * (WDefaultLoadingIndicator).
+ *
+ * \sa WApplication::setLoadingIndicator()
+ */
+class WLoadingIndicator
+{
+public:
+  /*! \brief Destructor.
+   *
+   * The destructor must be reimplemented to delete the widget().
+   */
+  virtual ~WLoadingIndicator();
+
+  /*! \brief Returns the widget that visually represents the indicator.
+   *
+   * You should reimplement this method to return a widget that will be shown
+   * to indicate that a response is pending. You should position the widget
+   * on the screen using CSS.
+   *
+   * The widget will be shown and hidden using WWidget::show() and
+   * WWidget::hide(). If you want to customize this behaviour, you
+   * should reimplement the WWidget::setHidden() method. Note that
+   * these are stateless slots, and thus you need to make sure that
+   * your implementation comforms to that contract, so that it may be
+   * optimized to JavaScript (the server-side implementation will only be
+   * called during stateless slot prelearning).
+   *
+   * \note The widget will not be added to the WApplication::root() container.
+   */
+  virtual WWidget *widget() = 0;
+
+  /*! \brief Change the message that you want to be displayed.
+   *
+   * If the indicator is capable of displaying a text message, then
+   * you should reimplement this method to allow this message to be
+   * modified.
+   */
+  virtual void setMessage(const WString& text) = 0;
+};
+
+}
+
+#endif // WLOADING_INDICATOR_H_

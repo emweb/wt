@@ -1,0 +1,334 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCONTAINER_WIDGET_H_
+#define WCONTAINER_WIDGET_H_
+
+#include <Wt/WInteractWidget>
+
+namespace Wt {
+
+class WApplication;
+class StdLayoutImpl;
+
+/*! \class WContainerWidget Wt/WContainerWidget Wt/WContainerWidget
+ *  \brief A widget that holds and manages child widgets.
+ *
+ * A %WContainerWidget acts as a container for child widgets. Child
+ * widgets may be added directly to the container or using a layout
+ * manager.
+ *
+ * Use addWidget() or pass the container as constructor argument to a
+ * widget to directly add children to the container, without using a
+ * layout manager. In that case, CSS-based layout is used, which is
+ * governed by properties of the children, and properties of the
+ * container. By default, a %WContainerWidget is \link
+ * WWidget::setInline() stacked \endlink and manages its children
+ * within a rectangle. Inline child widgets are layed out in lines,
+ * wrapping around as needed, while stacked widgets are stacked
+ * vertically. The container may add padding at the container edges
+ * using setPadding(), and provide alignment of contents using
+ * setContentAlignment(). A container is rendered by default using a
+ * HTML <tt>div</tt> tag, but this may be changed to an HTML
+ * <tt>ul</tt> or <tt>ol</tt> tag to make use of other CSS layout
+ * techniques, using setList(). In addition, specializations of this
+ * class as implemented by WAnchor, WGroupBox, WStackedWidget and
+ * WTableCell provide other alternative rendering of the container.
+ *
+ * When setting the %WContainerWidget \link WWidget::setInline()
+ * inline \endlink the container only acts as a conceptual container,
+ * offering a common style to its children. Inline children are still
+ * layed out inline within the flow of the parent container of this
+ * container, as if they were inserted directly into that parent
+ * container.
+ *
+ * To use a layout manager instead of CSS-based layout, use
+ * setLayout() or pass the container as constructor argument to a
+ * layout manager. In that case you should not define any padding for
+ * the container, and widgets and nested layout managers must be added
+ * to the layout manager, instead of to the container directly.
+ *
+ */
+class WT_API WContainerWidget : public WInteractWidget
+{
+public:
+  /*! \brief How to handle overflow of inner content
+   */
+  enum Overflow {
+    OverflowVisible=0x0,//!< Show content that overflows.
+    OverflowAuto=0x1,   //!< Show scrollbars when needed.
+    OverflowHidden=0x2, //!< Hide content that overflows.
+    OverflowScroll=0x3  //!< Always show scroll bars.
+  };
+
+  /*! \brief Create a container with optional parent.
+   */
+  WContainerWidget(WContainerWidget *parent = 0);
+
+  /*! \brief Destruct a %WContainerWidget
+   */
+  ~WContainerWidget();
+
+  /*! \brief Set a layout manager for the container.
+   *
+   * Only a single layout manager may be set. Note that you can nest
+   * layout managers inside each other, to create a complex layout
+   * hierarchy.
+   *
+   * The layout manager arranges children in the entire width and
+   * height of the container. This is equivalent to \link
+   * setLayout(WLayout*, int) setLayout(<i>layout</i>,
+   * AlignJustify)\endlink
+   *
+   * \sa layout(), setLayout(WLayout *, int)
+   */
+  void setLayout(WLayout *layout);  
+
+  /*! \brief Set a layout manager for the container.
+   *
+   * The <i>alignment</i> argument determines how the layout is
+   * aligned inside the container. By default, the layout manager
+   * arranges children over the entire width and height of the
+   * container, corresponding to a value of AlignJustify. This
+   * requires that the container has a specified height (either
+   * because it is managed by another layout manager, is the root
+   * container widget, or has a height set).
+   *
+   * In general, <i>alignment</i> is the logical OR of a \link
+   * Wt::HorizontalAlignment horizontal\endlink and \link
+   * Wt::VerticalAlignment vertical alignment\endlink. Horizontal
+   * alignment options may be AlignLeft, AlignCenter, AlignRight, or
+   * AlignJustify. The only vertical alignment that is supported is
+   * '0' (corresponding to vertical justification to the full height),
+   * or AlignTop. When using a horizontal alingment different from
+   * AlignJustify, and a vertical alignment different from '0', the
+   * widget is sized in that direction to fit the contents. This is
+   * useful when the container does not have a specific size and when
+   * the layout manager does not contain any widgets that wish to
+   * consume all remaining space in that direction.
+   *
+   * Only a single layout manager may be set. If you want to replace
+   * the current layout manager, you have to erase all contents first
+   * using clear(), which also deletes the layout manager.
+   *
+   * Note that you can nest layout managers inside each other, to
+   * create a complex layout hierarchy.
+   *
+   * The widget will take ownership of <i>layout</i>.
+   *
+   * \sa layout()
+   */
+  void setLayout(WLayout *layout, int alignment);  
+
+  /*! \brief Get the layout manager that was set for the container.
+   *
+   * If no layout manager was previously set using setLayout(WLayout
+   * *), 0 is returned.
+   *
+   * \sa setLayout(WLayout *)
+   */
+  WLayout *layout() { return layout_; }
+
+  /*! \brief Add a child widget to this container.
+   *
+   * This is equivalent to passing this container as the parent when
+   * constructing the child. The widget is appended to the list of
+   * children, and thus also layed-out at the end.
+   */
+  virtual void addWidget(WWidget *widget);
+
+  /*! \brief insert a child widget in this container, before another
+   *         widget.
+   *
+   * The <i>widget</i> is inserted at the place of the <i>before</i>
+   * widget, and subsequent widgets are shifted.
+   *
+   * \sa insertWidget(int index, WWidget *widget);
+   */
+  virtual void insertBefore(WWidget *widget, WWidget *before);
+
+  /*! \brief insert a child widget in this container at given index.
+   *
+   * The <i>widget</i> is inserted at the given <i>index</i>, and
+   * subsequent widgets are shifted.
+   *
+   * \sa insertBefore(WWidget *widget, WWidget *before);
+   */
+  virtual void insertWidget(int index, WWidget *widget);
+
+  /*! \brief Remove a child widget from this container.
+   *
+   * This removes the widget from this container, but does not delete
+   * the widget !
+   */
+  virtual void removeWidget(WWidget *widget);
+
+  /*! \brief Remove and delete all child widgets.
+   *
+   * This deletes all children that have been added to this container.
+   *
+   * If a layout was set, also the layout manager is deleted.
+   */
+  virtual void clear();
+
+  /*! \brief Return the index of a widget.
+   */
+  virtual int indexOf(WWidget *widget) const;
+
+  /*! \brief Return the widget at <i>index</i>
+   */
+  virtual WWidget *widget(int index) const;
+
+  /*! \brief Get the number of widgets in this container.
+   */
+  virtual int count() const;
+
+  /*! \brief Specify how child widgets must be aligned within the container
+   *
+   * Specify the horizontal alignment of child widgets. Note that there
+   * is no way to specify vertical alignment: children are always pushed
+   * to the top of the container. Only in a WTableCell, there is a method
+   * to align the children vertically.
+   */
+  void setContentAlignment(HorizontalAlignment contentAlignment);
+
+  /*! \brief Set padding inside the widget
+   *
+   * Setting padding has the effect of adding distance between the
+   * widget children and the border.
+   */
+  void setPadding(const WLength& padding, int sides = All);
+
+  /*! \brief Get the padding set for the widget.
+   *
+   * \sa setPadding(WLength padding, Side sides);
+   */
+  WLength padding(Side side) const;
+
+  /*! \brief Get the horizontal alignment of children
+   *
+   * \sa setContentAlignment(HorizontalAlignment)
+   */
+  HorizontalAlignment contentAlignment() const
+    { return static_cast<HorizontalAlignment>(contentAlignment_ & 0x0F); }
+
+  /*! \brief Set how overflow of contained children must be handled.
+   *
+   * This is an alternative (CSS-ish) way to provide scroll bars on a
+   * container widget, compared to wrapping inside a WScrollArea.
+   *
+   * Note that currently, you cannot separately specify vertical and
+   * horizontal scroll behaviour, since this is not supported on
+   * Opera. Therefore, settings will apply automatically to both orientations.
+   *
+   * \note For Internet Explorer, setting overflow to OverflowAuto or
+   * OverflowScroll may cause problems with content that uses
+   * absolutely positioned DOM elements (such as WPaintedWidget or
+   * several %Ext widgets): due to a bug in IE, these elements will
+   * not scroll along, but stay 'fixed' at their initial
+   * position. This problem can (usually) be circumvented by using a
+   * relative position scheme relative (using \link setPositionScheme()
+   * setPositionScheme(Relative)\endlink) for the same container
+   * widget which provides the scroll bars.
+   *
+   * \sa WScrollArea
+   */
+  void setOverflow(Overflow overflow,
+		   int orientation = (Horizontal | Vertical));
+
+  /*! \brief Render the container as an HTML list.
+   *
+   * Setting <i>renderList</i> to true will cause the container to be
+   * using an HTML &lt;UL&gt; or &lt;OL&gt; type, depending on the
+   * value of <i>orderedList</i>. This must be set before the initial
+   * render of the container. When set, any contained WContainerWidget
+   * will be rendered as an HTML &lt;LI&gt;. Adding
+   * non-WContainerWidget children results in unspecified behaviour.
+   *
+   * Note that CSS default layout rules for &lt;UL&gt; and &lt;OL&gt;
+   * add margin and padding to the container, which may look odd if
+   * you do not use bullets.
+   *
+   * By default, a container is rendered using a &lt;DIV&gt; element.
+   *
+   * \sa isList(), isOrderedList(), isUnorderedList()
+   */
+  void setList(bool list, bool ordered = false);
+
+  /*! \brief Return if this container is rendered as a List
+   *
+   * \sa setList(), isOrderedList(), isUnorderedList()
+   */  
+  bool isList() const;
+
+  /*! \brief Return if this container is rendered as an Unordered List
+   *
+   * \sa setList(), isList(), isOrderedList()
+   */  
+  bool isUnorderedList() const;
+
+  /*! \brief Return if this container is rendered as an Ordered List
+   *
+   * \sa setList(), isList(), isUnrderedList()
+   */  
+  bool isOrderedList() const;
+
+  /*! \brief Event signal emitted when scrolling in the widget.
+   *
+   * This event is emitted when the user scrolls in the widget (for setting
+   * the scroll bar policy, see setOverflow()). The event conveys details
+   * such as the new scroll bar position, the total contents height and the
+   * current widget height.
+   *
+   * \sa setOverflow()
+   */
+  EventSignal<WScrollEvent> scrolled;
+
+private:
+  static const int BIT_CONTENT_ALIGNMENT_CHANGED = 0;
+  static const int BIT_PADDINGS_CHANGED = 1;
+  static const int BIT_OVERFLOW_CHANGED = 2;
+  static const int BIT_ADJUST_CHILDREN_ALIGN = 3;
+  static const int BIT_LIST = 4;
+  static const int BIT_ORDERED_LIST = 5;
+  static const int BIT_LAYOUT_CHANGED = 6;
+
+  /*
+   * Frequently used attributes.
+   */
+  std::bitset<7>            flags_;
+  int                       contentAlignment_;
+  Overflow        *WT_ARRAY overflow_;
+  WLength	  *WT_ARRAY padding_;
+  WLayout                  *layout_;
+
+  virtual bool              wasEmpty() const;
+
+  void rootAsJavaScript(WApplication *app, std::ostream& out, bool all);
+
+  friend class WebRenderer;
+
+protected:
+  virtual void removeChild(WWidget *child);
+
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app);
+  void createDomChildren(DomElement& parent, WApplication *app);
+
+  virtual DomElementType domElementType() const;
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElement    *createDomElement(WApplication *app);
+
+  virtual WLayoutItemImpl *createLayoutItemImpl(WLayoutItem *item);
+  StdLayoutImpl *layoutImpl() const;
+
+  friend class StdLayoutImpl;
+  void layoutChanged(bool deleted = false);
+};
+
+}
+
+#endif // WCONTAINER_WIDGET_H_

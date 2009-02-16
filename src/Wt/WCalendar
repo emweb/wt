@@ -1,0 +1,205 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCALENDAR_H_
+#define WCALENDAR_H_
+
+#include <Wt/WCompositeWidget>
+#include <Wt/WDate>
+#include <set>
+
+namespace boost {
+  namespace gregorian {
+    class date;
+  }
+}
+
+namespace Wt {
+
+class WTable;
+class WComboBox;
+class WInPlaceEdit;
+
+template <typename T, typename A1> class WSignalMapper;
+
+/*! \class WCalendar Wt/WCalendar Wt/WCalendar
+ *  \brief A calendar.
+ *
+ * The calendar provides navigation by month and year, and indicates the
+ * current day.
+ *
+ * The calendar may be configured to allow selection of single or
+ * multiple days, and you may listen for changes in the selection
+ * using the \link WCalendar::selectionChanged selectionChanged
+ * \endlink signal.
+ *
+ * Internationalization may be provided by indicating i18n == true in
+ * the constructor, and providing the appropriate messages for months
+ * (with keys from WDate::longMonthName()) and days (with keys from
+ * WDate::shortDayName()) in your message resource bundle.
+ *
+ * The look can be overridden using the following style class selectors:
+ *
+ * \code
+TABLE.Wt-cal-table        : The table
+
+TD.Wt-cal-header          : Header cell (week day)
+TD.Wt-cal-header-weekend  : Header cell (weekend day)
+
+TABLE.Wt-cal-table TD     : In-month day cell
+TD.Wt-cal-oom             : Out-of-month day cell
+TD.Wt-cal-sel             : Selected day cell
+TD.Wt-cal-now             : Today day cell
+*
+ * \endcode
+ *
+ * Here is a snapshot of the default look, taken on 31/08/2007 (shown as
+ * today), and 11/08/2007 currently selected.
+ * \image html WCalendar-1.png "WCalendar with default look"
+ */
+class WT_API WCalendar : public WCompositeWidget
+{
+public:
+  /*! \brief Create a new calendar.
+   *
+   * Constructs a new calendar, with optional support for internationalization.
+   * The calendar shows the current day, and has an empty selection.
+   */
+  WCalendar(bool i18n = false, WContainerWidget *parent = 0);
+
+  /*! \brief Configure single or multiple selection mode.
+   *
+   * In single selection mode, only one date may be selected: the selection()
+   * will be empty or contain exactly one item. 
+   */
+  void setMultipleSelection(bool multiple);
+
+  /*! \brief Browse to the same month in the previous year.
+   *
+   * Displays the same month in the previous year. This does not change
+   * the current selection.
+   */
+  void browseToPreviousYear();
+
+  /*! \brief Browse to the previous month.
+   *
+   * Displays the previous month. This does not change the current selection.
+   */
+  void browseToPreviousMonth();
+
+  /*! \brief Browse to the same month in the next year.
+   *
+   * Displays the same month in the next year. This does not change
+   * the current selection.
+   */
+  void browseToNextYear();
+
+  /*! \brief Browse to the next month.
+   *
+   * Displays the next month. This does not change the current selection.
+   */
+  void browseToNextMonth();
+
+  /*! \brief Browse to a date.
+   *
+   * Displays the month which contains the given date. This does not change
+   * the current selection.
+   */
+  void browseTo(const WDate& date);
+
+  /*! \brief Current month displayed
+   *
+   * Returns the month (1-12) that is currently displayed.
+   */
+  int currentMonth() const { return currentMonth_; }
+
+  /*! \brief Current year displayed
+   *
+   * Returns the year that is currently displayed.
+   */
+  int currentYear() const { return currentYear_; }
+
+  /*! \brief Clear the current selection.
+   *
+   * Clears the current selection. Will result in a selection() that is
+   * empty().
+   */
+  void clearSelection();
+
+  /*! \brief Select a date.
+   *
+   * Select one date. Both in single or multiple selection mode, this results
+   * in a selection() that contains exactly one date.
+   */
+  void select(const WDate& date);
+
+  /*! \brief Select multiple dates.
+   *
+   * Select multiple dates. In multiple selection mode, this results
+   * in a selection() that contains exactly the given dates. In single
+   * selection mode, at most one date is set (*dates.begin())
+   */
+  void select(const std::set<WDate>& dates);
+
+  /*! \brief Get the current selection.
+   *
+   * Returns the set of dates currently selected. In single selection mode,
+   * this set contains 0 or 1 dates.
+   */
+  const std::set<WDate>& selection() const { return selection_; }
+
+  /*! \brief Signal emitted when the user changes the selection.
+   *
+   * Emitted after the user has changed the current selection.
+   */
+  Signal<void> selectionChanged;
+
+  /*! \brief Signal emitted when the user has double clicked on a date.
+   *
+   * This signal indicates that he user has selected a new date, which 
+   * is only available when in single selection mode.
+   */
+  Signal<void> selected;
+
+private:
+  bool              i18n_;
+  bool              multipleSelection_;
+  int               currentYear_;
+  int               currentMonth_;
+  std::set<WDate>   selection_;
+
+  struct Coordinate {
+    int i, j;
+
+    Coordinate() : i(0), j(0) { }
+    Coordinate(int x, int y) { i = x; j = y; }
+  };
+
+  WContainerWidget                    *layout_;
+  WComboBox                           *monthEdit_;
+  WInPlaceEdit                        *yearEdit_;
+  WTable                              *calendar_;
+  WSignalMapper<Coordinate, NoClass>  *cellClickMapper_;
+  WSignalMapper<Coordinate, NoClass>  *cellDblClickMapper_;
+
+  void create();
+  void renderMonth(bool create = false);
+
+  void monthChanged(int newMonth);
+  void yearChanged(WString newYear);
+  boost::gregorian::date dateForCell(int week, int dayOfWeek);
+  bool isSelected(const WDate& d) const;
+
+  void cellClicked(Coordinate c);
+
+  bool selectInCurrentMonth(const boost::gregorian::date& dt);
+
+  void cellDblClicked(Coordinate c);
+};
+
+}
+
+#endif // WCALENDAR_H_

@@ -1,0 +1,205 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WDIALOG_H_
+#define WDIALOG_H_
+
+#include <Wt/WCompositeWidget>
+#include <Wt/WContainerWidget>
+
+namespace Wt {
+
+class WTable;
+class WText;
+
+/*! \class WDialog Wt/WDialog Wt/WDialog
+ *  \brief A %WDialog emulates a modal window.
+ *
+ * A modal window blocks the user interface, and does not allow the
+ * user to interact with any other part of the user interface until
+ * the dialog is closed.
+ *
+ * There are two distinct ways for using a %WDialog window.
+ *
+ * The easiest way is using the exec() method: after creating a
+ * %WDialog window, call the exec() method which blocks until
+ * the dialog window is closed, and returns the dialog
+ * result. Typically, an OK button will be connected to the accept()
+ * slot, and a Cancel button to the reject() slot. This solution has
+ * the drawback that it is not scalable to many concurrent sessions,
+ * since every recursive event loop (which is running durring the
+ * exec() method) locks a thread. Therefore it is only suitable for
+ * software to be deployed on an intranet.
+ *
+ * A second way is by treating the %WDialog as another widget. In this
+ * case, the %WDialog is created with the proper content, and for
+ * example an OK button is connected to a method which deletes the
+ * dialog. Unlike other widgets, a dialog is hidden by default. You must
+ * use the method show() or setHidden(true) to show the dialog.
+ *
+ * Widgets may be added to the dialog, by adding to the contents()
+ * ContainerWidget.
+ *
+ * Only one %WDialog window may exist at any time in a single
+ * application. An attempt to instantiate a second dialog will result
+ * in an exception that terminates the session.
+ *
+ * Example code for displaying a dialog and running it using the exec() method:
+ *
+ * \code
+ *  // ...
+ *
+ *  WDialog dialog("Personalia");
+ *  
+ *  new WText("Enter your name: ", dialog.contents());
+ *  WLineEdit edit(dialog.contents());
+ *  new WBreak(dialog.contents());
+ *  
+ *  WPushButton ok("Ok", dialog.contents());
+ *
+ *  // these events will accept() the Dialog
+ *  edit.enterPressed.connect(SLOT(&dialog, WDialog::accept));
+ *  ok.clicked.connect(SLOT(&dialog, WDialog::accept));
+ *  
+ *  if (dialog.exec() == WDialog::Accepted) {
+ *    setStatus("Welcome, " + edit.text());
+ *  }
+ *
+ *  // ...
+ * \endcode
+ *
+ * This dialog looks like this (using the standard look):
+ *
+ * \image html WDialog-1.png "A simple custom dialog" 
+ *
+ * \note For the dialog to render properly in IE, the "body" margin is
+ *       set to 0 (if it wasn't already).
+ */
+class WT_API WDialog : public WCompositeWidget
+{
+public:
+  /*! \brief The result of a modal dialog execution.
+   */
+  enum DialogCode { Rejected, //!< Dialog closed with reject()
+		    Accepted  //!< Dialog closed with accept()
+  };
+
+  /*! \brief Construct a %WDialog with a given window title.
+   *
+   * Only a single Dialog may be constructed at any time. Unlike other
+   * widgets, a dialog does not need to be added to a container
+   * widget.
+   */
+  WDialog(const WString& windowTitle = WString());
+
+  /*! \brief Destruct a %WDialog.
+   */
+  ~WDialog();
+
+  /*! \brief Set the dialog caption.
+   *
+   * <i>deprecated: use setWindowTitle instead</i>
+   */
+  void setCaption(const WString& caption);
+
+  /*! \brief Get the dialog caption.
+   *
+   * <i>deprecated: use windowTitle instead</i>
+   */
+  const WString& caption() const;
+
+  /*! \brief Set the dialog window title.
+   *
+   * The window title is displayed in the title bar.
+   *
+   * \sa setTitleBarEnabled()
+   */
+  void setWindowTitle(const WString& title);
+
+  /*! \brief Get the dialog window title.
+   *
+   * \sa setWindowTitle()
+   */
+  const WString& windowTitle() const;
+
+  /*! \brief Enable or disable the title bar.
+   *
+   * The titlebar is enabled by default.
+   */
+  void setTitleBarEnabled(bool enabled);
+
+  /*! \brief Returns whether the title bar is enabled.
+   *
+   * \sa setTitleBarEnabled()
+   */
+  bool isTitleBarEnabled() const { return !titleBar_->isHidden(); }
+
+  /*! \brief Get the dialog contents container.
+   *
+   * Content to the dialog window may be added to this container widget. 
+   */
+  WContainerWidget *contents() const { return contents_; }
+
+  /*! \brief Execute the dialog in a recursive event loop.
+   *
+   * Executes the dialog. This blocks the current thread of execution
+   * until one of done(DialogCode), accept() or reject() is called.
+   *
+   * <i>Warning: using exec() does not scale to many concurrent
+   * sessions, since the thread is locked.</i>
+   *
+   * \sa done(DialogCode r), accept(), reject()
+   */
+  DialogCode exec();
+
+  /*! \brief Stop a recursive event loop.
+   *
+   * Sets the dialog result, and ends a recursive event loop that was
+   * started using the exec() method.
+   */
+  virtual void done(DialogCode r);
+
+  /*! \brief Stop a recursive event loop with result is Accepted.
+   *
+   * \sa done(DialogCode r), reject(), exec()
+   */
+  virtual void accept();
+
+  /*! \brief Stop a recursive event loop with result is Rejected.
+   *
+   * \sa done(DialogCode r), accept(), exec()
+   */
+  virtual void reject();
+
+  /*! \brief %Signal emitted when the recursive event loop is ended.
+   *
+   * \sa done(DialogCode r), accept(), reject()
+   */
+  Signal<DialogCode> finished;
+
+  /*! \brief Get the result that was set for this dialog.
+   *
+   * \sa done(DialogCode r)
+   */
+  DialogCode result() const { return result_; }
+
+  virtual void setHidden(bool hidden);
+  virtual void resize(const WLength& width, const WLength& height);
+
+private:
+  WContainerWidget *impl_;
+  WText            *caption_;
+  WContainerWidget *titleBar_;
+  WContainerWidget *contents_;
+
+  DialogCode result_;
+
+  bool recursiveEventLoop_;
+};
+
+}
+
+#endif // WDIALOG_H_

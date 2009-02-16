@@ -1,0 +1,20 @@
+ADD_EXECUTABLE(demotreelist.wt DemoTreeList.C IconPair.C TreeNode.C)
+TARGET_LINK_LIBRARIES(demotreelist.wt ${EXAMPLES_CONNECTOR})
+
+INCLUDE_DIRECTORIES(
+  ${WT_SOURCE_DIR}/src
+)
+
+#
+# Create a deploy script
+#
+SET(APPNAME treelist)
+SET(APPBIN demotreelist.wt)
+SET(APPRESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/icons ${CMAKE_CURRENT_SOURCE_DIR}/*.C ${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/deploy.sh
+  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
+)
+
+ADD_DEPENDENCIES(demotreelist.wt wt ${EXAMPLES_CONNECTOR})
+

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="error-missing-data">
+
+    <div>The data file "{1}" could not be found. Check your deployment.</div>
+    
+  </message>
+  <message id="charts-introduction">
+
+<h2><span>Introduction</span></h2>
+
+<p class="p">
+  This example demonstrates some of the capabilities of
+  the <a href="http://www.webtoolkit.eu/wt/doc/reference/html/namespaceWt_1_1Chart.html"
+  target="_new">Wt charting widgets</a>. These widgets are implemented
+  using
+  the <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
+  target="_new">Wt painting API</a>, which provides cross-browser
+  native painting, using VML, SVG, or the Html 5 canvas tag.
+</p>
+
+<p class="p">
+  The two main chart widgets
+  are <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WCartesianChart.html"
+  target="_new">WCartesianChart</a>, which provides category charts
+  and scatter plots,
+  and <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WPieChart.html" target="_new">WPieChart</a>
+  which provides pie charts. These widgets are based on the MVC
+  mechanism, and retrieve their data from
+  a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html" target="_new">WAbstractItemModel</a>.
+</p>
+
+<p class="p">
+  Many aspects of the charts may be customized. By default, style
+  information for rendering data series are taken from a
+  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WChartPalette.html" target="_new">WChartPalette</a>. It
+  is straight forward to specialize this class to provide different
+  styles from the standard styles provided by <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WStandardPalette.html" target="_new">WStandardPalette</a>.
+</p>
+
+<p class="p">
+  Btw, would you expect this example to work when Ajax/JavaScript are
+  not available or disabled?
+</p>
+
+  </message>
+  <message id="category chart">
+
+<h2><span>Category Chart</span></h2>
+
+<p class="p">
+  A category chart uses categories on the X axis, and displays one or
+  more data series on the Y axes. The values corresponding to each
+  category are plotted consecutively (this is the main difference with
+  a ScatterPlot). Each data series corresponds to a column from the
+  model.
+</p>
+
+<p class="p">
+  A cartesian chart provides automatic configuration of the axes, and
+  support for a second Y axis. In addition, you may use a simple
+  built-in legend, or extend the class to provide a specialized
+  legend. In the example below, we use a manual Y axis configuration,
+  with a break as would be commonly used when your data has a few
+  outliers.
+</p>
+
+<p class="p">
+  The table view allows editing of the model, which is automatically
+  reflected in the chart.
+</p>
+
+  </message>
+  <message id="scatter plot">
+
+<h2><span>Scatter Plot (time series)</span></h2>
+
+<p class="p">
+  A scatter plot is very much like a category chart, but uses
+  numerical data on the X axis. By default, these numerical data are
+  mapped linearly on the X axis, but may also be log transformed (as
+  can be configured for the Y axes). In addition, there is special
+  support for displaying date series, by means of smart heuristics for
+  chosing the labels on the X axis.
+</p>
+
+<p class="p">
+  Below is an extract from historical financial market data.
+</p>
+
+  </message>
+  <message id="scatter plot 2">
+
+<h2><span>Scatter Plot (sine function)</span></h2>
+
+<p class="p">
+  Below we plot a single sine curves. We use 'curve' data series,
+  which creates a smooth spline curve that interpolates the data
+  points. As is typical when showing mathematical functions, we let
+  the axes cross each other at the origin (0, 0).
+</p>
+
+  </message>
+  <message id="pie chart">
+
+<h2><span>Pie chart</span></h2>
+
+<p class="p">
+  The pie chart is provided by the WPieChart widget. A pie chart can
+  only display data from one data series. The class supports both
+  plain 2D pies, as well as a 3D effect (as used below). As shown
+  below for the first segment, these may be separated from the pie to
+  show emphasis.
+</p>
+
+  </message>
+</messages>

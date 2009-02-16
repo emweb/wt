@@ -1,0 +1,43 @@
+body {
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 14px;
+}
+
+.maindiv {
+    background-color: #e0ecff
+}
+
+.Wt-treeview {
+    background-color: white;
+    border: 1px solid #C3D9FF;
+}
+
+.config {
+    background-color: white;
+    border: 1px solid #C3D9FF;
+    font-size: 80%;
+}
+
+.source-view {
+    background-color: white;
+    overflow: auto;
+    white-space: pre;
+    font-family: 'Bitstream Vera Sans Mono','Courier',monospace;
+    font-size: 85%;
+    color: #444444;
+    border: 1px solid #C3D9FF;
+    zoom: 1;
+}
+
+.source-view div {
+    padding: 6px;
+    zoom: 1;
+ }
+
+.error-msg {
+    color: #ee1111;
+}
+
+.line-edit {
+    width: 200px;
+}

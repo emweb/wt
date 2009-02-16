@@ -1,0 +1,88 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTABLE_COLUMN_H_
+#define WTABLE_COLUMN_H_
+
+#include <Wt/WObject>
+
+namespace Wt {
+
+class DomElement;
+class WLength;
+class WTable;
+
+/*! \class WTableColumn Wt/WTableColumn Wt/WTableColumn
+ *  \brief A column in a WTable
+ *
+ * A table column is not a widget -- it only has a logistic function, for
+ * managing various properties of a single column in a table.
+ *
+ * You cannot access table cells through the column. Instead, to access
+ * table cells, see WTable::elementAt().
+ *
+ * \sa WTable, WTableRow
+ */
+class WT_API WTableColumn : public WObject 
+{
+public:
+  /*! \brief The table to which this column belongs.
+   *
+   * \sa WTable::rowAt()
+   */
+  WTable *table() const { return table_; }
+
+  /*! \brief The column number of this column in the table.
+   *
+   * \sa WTable::rowAt()
+   */
+  int columnNum() const;
+
+   /*! \brief Set the column width.
+   *
+   * The default column width is 'auto' (WLength()).
+   *
+   * \sa width(), WWidget::resize()
+   */
+  void setWidth(const WLength& width);
+
+  /*! \brief Get the column width.
+   *
+   * \sa setWidth(const WLength&)
+   */
+  WLength width() const;
+
+  /*! \brief Set the CSS style class for this column.
+   *
+   * The style is inherited by all table cells in this column.
+   *
+   * \sa styleClass(), WWidget::setStyleClass(const WString& style)
+   */
+  void setStyleClass(const WString& style);
+
+  /*! \brief Get the CSS style class for this column.
+   *
+   * \sa styleClass(), WWidget::styleClass()
+   */
+  const WString& styleClass() const { return styleClass_; }
+
+private:
+  WTableColumn(WTable *table);
+  ~WTableColumn();
+
+  WTable *table_;
+
+  WLength *width_;
+  WString  styleClass_;
+
+  void updateDom(DomElement& element, bool all);
+
+  friend class WTable;
+};
+
+}
+
+#endif // WTABLE_COLUMN_H_
