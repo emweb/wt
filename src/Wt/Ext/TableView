@@ -199,17 +199,18 @@ public:
    */
   int columnWidth(int column) const;
 
-  /*! \brief Set the content alignment of a column.
+  /*! \brief Set the horizontal content alignment of a column.
    *
    * The default value is \link Wt::AlignLeft AlignLeft\endlink.
+   * The alignment parameter is a horizontal alignment flag.
    */
-  void setColumnAlignment(int column, HorizontalAlignment alignment);
+  void setColumnAlignment(int column, AlignmentFlag alignment);
 
-  /*! \brief Get content alignment of a column.
+  /*! \brief Get horizontal content alignment of a column.
    *
-   * \sa setColumnAlignment(int, HorizontalAlignment)
+   * \sa setColumnAlignment(int, AlignmentFlag)
    */
-  HorizontalAlignment columnAlignment(int column) const;
+  AlignmentFlag columnAlignment(int column) const;
 
   /*! \brief Allow a column to be sorted by the user.
    *
@@ -426,7 +427,7 @@ public:
    *
    * \sa currentCellChanged
    */
-  Signal<int, int> cellClicked;
+  Signal<int, int>& cellClicked() { return cellClicked_; }
 
   /*! \brief Signal emitted when a new cell received focus.
    *
@@ -438,7 +439,8 @@ public:
    *
    * Values of -1 indicate 'no selection'.
    */
-  Signal<int, int, int, int>  currentCellChanged;
+  Signal<int, int, int, int>& currentCellChanged()
+    { return currentCellChanged_; }
 
   /*! \brief Signal emitted when the selection changes.
    *
@@ -447,7 +449,7 @@ public:
    * \sa selectedRows() when selectionBehavior() is \link Wt::SelectRows
    * SelectRows\endlink.
    */
-  Signal<>                    itemSelectionChanged;
+  Signal<>& itemSelectionChanged() { return itemSelectionChanged_; }
 
 protected:
   virtual void updateExt();
@@ -455,6 +457,10 @@ protected:
   virtual std::string extClassName() const;
 
 private:
+  Signal<int, int> cellClicked_;
+  Signal<int, int, int, int> currentCellChanged_;
+  Signal<> itemSelectionChanged_;
+
   DataLocation        dataLocation_;
   WAbstractItemModel *model_;
   SelectionMode       selectionMode_;
@@ -472,7 +478,7 @@ private:
     int         width_;
     FormField  *editor_;
     std::string rendererJS_;
-    HorizontalAlignment alignment_;
+    AlignmentFlag alignment_;
 
     ColumnModel();
     ~ColumnModel();

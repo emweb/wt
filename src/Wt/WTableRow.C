@@ -17,7 +17,8 @@ namespace Wt {
 WTableRow::WTableRow(WTable *table, int numCells)
   : table_(table),
     height_(0),
-    hidden_(false)
+    hidden_(false),
+    hiddenChanged_(false)
 { 
   expand(numCells);
 
@@ -70,15 +71,17 @@ int WTableRow::rowNum() const
 
 void WTableRow::setHeight(const WLength& height)
 {
+#ifndef WT_TARGET_JAVA
   if (!height_)
     height_ = new WLength(height);
   else
+#endif
     *height_ = height;
 
   table_->repaintRow(this);
 }
 
-void WTableRow::setStyleClass(const WString& style)
+void WTableRow::setStyleClass(const WT_USTRING& style)
 {
   styleClass_ = style;
 
@@ -125,7 +128,7 @@ void WTableRow::updateDom(DomElement& element, bool all)
   if (!all || !styleClass_.empty())
     element.setAttribute("class", styleClass_.toUTF8());
 
-  if (all || hiddenChanged_) {
+  if ((all && hidden_) || (!all && hiddenChanged_)) {
     element.setProperty(PropertyStyleDisplay, hidden_ ? "none" : "");
     hiddenChanged_ = false;
   }

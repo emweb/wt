@@ -47,7 +47,7 @@ StyleExample::StyleExample(WContainerWidget *parent)
   new WBreak(this);
 
   WPushButton *p = new WPushButton("Update!", this);
-  p->clicked.connect(SLOT(this, StyleExample::updateStyle));
+  p->clicked().connect(SLOT(this, StyleExample::updateStyle));
 
   new WBreak(this);
 

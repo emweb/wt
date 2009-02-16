@@ -28,14 +28,14 @@ JavascriptExample::JavascriptExample(const WEnvironment& env)
   // an argument to the slot.
   promptAmount_ = Popup::createPrompt("How much do you want to pay?", "",
 				      this);
-  promptAmount_->okPressed.connect(SLOT(this, JavascriptExample::setAmount));
+  promptAmount_->okPressed().connect(SLOT(this, JavascriptExample::setAmount));
 
   // Create a popup for confirming the payment.
   //
   // Since a confirm popup does not allow input, we ignore the
   // argument carrying the input (which will be empty anyway).
   confirmPay_ = Popup::createConfirm("", this);
-  confirmPay_->okPressed.connect(SLOT(this, JavascriptExample::confirmed));
+  confirmPay_->okPressed().connect(SLOT(this, JavascriptExample::confirmed));
 
   new WText("<h2>Wt Javascript example</h2>"
 	    "<p>Wt makes abstraction of Javascript, and therefore allows you"
@@ -57,17 +57,17 @@ JavascriptExample::JavascriptExample(const WEnvironment& env)
     = new WText("Current amount: $" + promptAmount_->defaultValue(), root());
 
   WPushButton *amountButton = new WPushButton("Change ...", root());
-  amountButton->setMargin(10, WWidget::Left | WWidget::Right);
+  amountButton->setMargin(10, Left | Right);
 
   new WBreak(root());
 
   WPushButton *confirmButton = new WPushButton("Pay now.", root());
-  confirmButton->setMargin(10, WWidget::Top | WWidget::Bottom);
+  confirmButton->setMargin(10, Top | Bottom);
 
   // Connect the event handlers to a JSlot: this will execute the JavaScript
   // immediately, without a server round trip.
-  amountButton->clicked.connect(promptAmount_->show);
-  confirmButton->clicked.connect(confirmPay_->show);
+  amountButton->clicked().connect(promptAmount_->show);
+  confirmButton->clicked().connect(confirmPay_->show);
 
   // Set the initial amount
   setAmount("1000");

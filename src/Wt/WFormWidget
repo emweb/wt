@@ -110,23 +110,33 @@ public slots:
 public:
   /*! \brief Signal emitted when the value was changed.
    */
-  EventSignal<void> changed;
+  EventSignal<void>& changed();
+
   /*! \brief Signal emitted when ??
    */
-  EventSignal<void> selected;
+  EventSignal<void>& selected();
+
   /*! \brief Signal emitted when the widget lost focus.
    */
-  EventSignal<void> blurred;
+  EventSignal<void>& blurred();
+
   /*! \brief Signal emitted when the widget recieved focus.
    */
-  EventSignal<void> focussed;
+  EventSignal<void>& focussed();
 
 protected:
   WLabel     *label_;
   WValidator *validator_;
   JSlot      *validate_, *filterInput_;
 
+  // also used in WAbstractToggleButton
+  static const char *CHANGE_SIGNAL;
+
 private:
+  static const char *SELECT_SIGNAL;
+  static const char *FOCUS_SIGNAL;
+  static const char *BLUR_SIGNAL;
+
   static const int BIT_ENABLED         = 0;
   static const int BIT_ENABLED_CHANGED = 1;
   static const int BIT_WAS_ENABLED     = 2;
@@ -145,6 +155,7 @@ private:
 
 protected:
   void updateDom(DomElement& element, bool all);
+  virtual WStatelessSlot *getStateless(Method method);
 
   friend class WLabel;
   friend class WValidator;

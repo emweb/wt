@@ -33,6 +33,13 @@ WTransform::WTransform(double m11, double m12, double m21, double m22,
   m_[M23] = dy;
 }
 
+#ifdef WT_TARGET_JAVA
+WTransform WTransform::clone()
+{
+  return WTransform(m_[M11], m_[M12], m_[M21], m_[M22], m_[M13], m_[M23]);
+}
+#endif
+
 WTransform& WTransform::operator= (const WTransform& rhs)
 {
   for (unsigned i = 0; i < 6; ++i)
@@ -164,9 +171,8 @@ WTransform WTransform::inverted() const
   }
 }
 
-void WTransform::decomposeTranslateRotateScaleSkew(double& dx, double& dy,
-						   double& alpha, double& sx,
-						   double& sy, double& sh) const
+void WTransform::decomposeTranslateRotateScaleSkew(TRSSDecomposition& result)
+  const
 {
   // Performs a Gram Schmidt orthonormalization
 
@@ -181,19 +187,19 @@ void WTransform::decomposeTranslateRotateScaleSkew(double& dx, double& dy,
   q2[0] = (m_[M12] - r12 * q1[0])/r22;
   q2[1] = (m_[M22] - r12 * q1[1])/r22;
 
-  alpha = atan2(q1[1], q1[0]);
+  result.alpha = atan2(q1[1], q1[0]);
 
-  sx = r11;
-  sy = r22;
-  sh = r12 / r11;
+  result.sx = r11;
+  result.sy = r22;
+  result.sh = r12 / r11;
 
-  dx = m_[DX];
-  dy = m_[DY];
+  result.dx = m_[DX];
+  result.dy = m_[DY];
 }
 
 static void matrixMultiply(double a11, double a12, double a21, double a22,
 			   double b11, double b12, double b21, double b22,
-			   double *result)
+			   WT_ARRAY double *result)
 {
   result[0] = a11 * b11 + a12 * b21;
   result[1] = a11 * b12 + a12 * b22;
@@ -201,7 +207,8 @@ static void matrixMultiply(double a11, double a12, double a21, double a22,
   result[3] = a21 * b12 + a22 * b22;
 }
 
-static void eigenValues(double *m, double& l1, double& l2, double *v)
+static void eigenValues(WT_ARRAY double *m, WT_ARRAY double* l,
+			WT_ARRAY double *v)
 {
   const double a = m[0];
   const double b = m[1];
@@ -214,26 +221,26 @@ static void eigenValues(double *m, double& l1, double& l2, double *v)
   if (Dsqr <= 0) Dsqr = 0;
   double D = sqrt(Dsqr);
 
-  l1 = -(B + (B < 0 ? -D : D)) / 2.0;
-  l2 = -B - l1;
+  l[0] = -(B + (B < 0 ? -D : D)) / 2.0;
+  l[1] = -B - l[0];
 
-  if (fabs(l1 - l2) < 1E-5) {
+  if (fabs(l[0] - l[1]) < 1E-5) {
     v[0] = 1;
     v[2] = 0;
     v[1] = 0;
     v[3] = 1;
   } else if (fabs(c) > 1E-5) {
-    v[0] = d - l1;
+    v[0] = d - l[0];
     v[2] = -c;
-    v[1] = d - l2;
+    v[1] = d - l[1];
     v[3] = -c;
   } else if (fabs(b) > 1E-5) {
     v[0] = -b;
-    v[2] = a - l1;
+    v[2] = a - l[0];
     v[1] = -b;
-    v[3] = a - l2;
+    v[3] = a - l[1];
   } else {
-    if (fabs(l1 - a) < 1E-5) {
+    if (fabs(l[0] - a) < 1E-5) {
       v[0] = 1;
       v[2] = 0;
       v[1] = 0;
@@ -257,9 +264,7 @@ static void eigenValues(double *m, double& l1, double& l2, double *v)
 
 //#define DEBUG_SVD
 
-void WTransform::decomposeTranslateRotateScaleRotate(double& dx, double& dy,
-						     double& alpha1, double& sx,
-						     double& sy, double& alpha2)
+void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
   const
 {
   // Performs a Singular Value Decomposition
@@ -275,13 +280,13 @@ void WTransform::decomposeTranslateRotateScaleRotate(double& dx, double& dy,
 		 m_[M11], m_[M12], m_[M21], m_[M22],
 		 mtm);
 
-  double e1, e2;
+  double e[2];
   double V[4];
 
-  eigenValues(mtm, e1, e2, V);
+  eigenValues(mtm, e, V);
 
-  sx = sqrt(e1);
-  sy = sqrt(e2);
+  result.sx = sqrt(e[0]);
+  result.sy = sqrt(e[1]);
 
 #ifdef DEBUG_SVD
   std::cerr << "V: " << V[M11] << " " << V[M12] << std::endl
@@ -294,7 +299,7 @@ void WTransform::decomposeTranslateRotateScaleRotate(double& dx, double& dy,
    * it has determinant -1. We reflect around the Y axis:
    */
   if (V[0]*V[3] - V[1]*V[2] < 0) {
-    sx = -sx;
+    result.sx = -result.sx;
     V[0] = -V[0];
     V[2] = -V[2];
   }
@@ -304,10 +309,10 @@ void WTransform::decomposeTranslateRotateScaleRotate(double& dx, double& dy,
   matrixMultiply(m_[0], m_[1], m_[2], m_[3],
 		 V[0], V[1], V[2], V[3],
 		 U);
-  U[0] /= sx;
-  U[2] /= sx;
-  U[1] /= sy;
-  U[3] /= sy;
+  U[0] /= result.sx;
+  U[2] /= result.sx;
+  U[1] /= result.sy;
+  U[3] /= result.sy;
 
 #ifdef DEBUG_SVD
   std::cerr << "U: " << U[M11] << " " << U[M12] << std::endl
@@ -315,17 +320,17 @@ void WTransform::decomposeTranslateRotateScaleRotate(double& dx, double& dy,
 #endif
 
   if (U[0]*U[3] - U[1]*U[2] < 0) {
-    sx = -sx;
+    result.sx = -result.sx;
     U[0] = -U[0];
     U[2] = -U[2];
   }
 
-  alpha1 = atan2(U[2], U[0]);
-  alpha2 = atan2(V[1], V[0]);
+  result.alpha1 = atan2(U[2], U[0]);
+  result.alpha2 = atan2(V[1], V[0]);
 
 #ifdef DEBUG_SVD
-  std::cerr << "alpha1: " << alpha1 << ", alpha2: " << alpha2
-	    << ", sx: " << sx << ", sy: " << sy << std::endl;
+  std::cerr << "alpha1: " << result.alpha1 << ", alpha2: " << result.alpha2
+	    << ", sx: " << result.sx << ", sy: " << result.sy << std::endl;
 #endif
 
   /*
@@ -343,8 +348,8 @@ void WTransform::decomposeTranslateRotateScaleRotate(double& dx, double& dy,
 	    << tmp2[2] << " " << tmp2[3] << std::endl;
   */
 
-  dx = m_[DX];
-  dy = m_[DY];
+  result.dx = m_[DX];
+  result.dy = m_[DY];
 }
 
 WTransform& WTransform::operator*= (const WTransform& Y)
@@ -388,11 +393,10 @@ WTransform& WTransform::operator*= (const WTransform& Y)
   return *this;
 }
 
-WTransform WTransform::operator* (const WTransform& rhs) const
+WTransform operator* (const WTransform& lhs, const WTransform& rhs)
 {
-  WTransform result = *this;
-  result *= rhs;
-  return result;
+  WTransform result = lhs;
+  return result *= rhs;
 }
 
 }

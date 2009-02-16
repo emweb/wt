@@ -12,6 +12,7 @@
 #include "Wt/WStatelessSlot"
 #include "Wt/WJavaScriptSlot"
 
+#include "Utils.h"
 #include "WebSession.h"
 #include "WtException.h"
 
@@ -52,6 +53,17 @@ Signal<void>::Signal(WObject *sender)
   : Signal<>(sender)
 { }
 
+void *EventSignalBase::alloc()
+{
+  return WApplication::instance()->eventSignalPool_.malloc();
+}
+
+void EventSignalBase::free(void *s)
+{
+  if (s)
+    WApplication::instance()->eventSignalPool_.free(s);
+}
+
 EventSignalBase
 ::StatelessConnection::StatelessConnection(const boost::signals::connection& c,
                                            WObject *t,
@@ -66,39 +78,25 @@ bool EventSignalBase::StatelessConnection::ok() const
   return target == 0 || connection.connected();
 }
 
-EventSignalBase::Impl::Impl()
-  : id_(-1),
-    dynamic_(0)
-{ }
-
-int EventSignalBase::Impl::nextId_ = 0;
-
-void EventSignalBase::createImpl() const
-{
-  if (!impl_)
-    impl_ = new Impl();
-}
+int EventSignalBase::nextId_ = 0;
 
 bool EventSignalBase::needUpdate() const
 {
-  return impl_ && impl_->flags_.test(Impl::BIT_NEED_UPDATE);
+  return flags_.test(BIT_NEED_UPDATE);
 }
 
 void EventSignalBase::updateOk()
 {
-  if (impl_)
-    impl_->flags_.set(Impl::BIT_NEED_UPDATE, false);
+  flags_.set(BIT_NEED_UPDATE, false);
 }
 
 void EventSignalBase::removeSlot(WStatelessSlot *s)
 {
-  if (impl_) {
-    for (unsigned i = 0; i < impl_->connections_.size(); ++i) {
-      if (impl_->connections_[i].slot == s) {
-	impl_->connections_.erase(impl_->connections_.begin() + i);
-	senderRepaint();
-	return;
-      }
+  for (unsigned i = 0; i < connections_.size(); ++i) {
+    if (connections_[i].slot == s) {
+      connections_.erase(connections_.begin() + i);
+      senderRepaint();
+      return;
     }
   }
 
@@ -107,13 +105,9 @@ void EventSignalBase::removeSlot(WStatelessSlot *s)
 
 const std::string EventSignalBase::encodeCmd() const
 {
-  createImpl();
-
-  if (impl_->id_ == -1)
-    impl_->id_ = Impl::nextId_++;
-
   char buf[20];
-  sprintf(buf, "s%x", impl_->id_);
+  buf[0] = 's';
+  Utils::itoa(id_, buf + 1, 16);
   return std::string(buf);
 }
 
@@ -173,65 +167,50 @@ const std::string EventSignalBase::javaScript() const
 {
   std::string result = "";
 
-  if (impl_) {
-    for (unsigned i = 0; i < impl_->connections_.size(); ++i) {
-      if (impl_->connections_[i].ok()) {
-	if (impl_->connections_[i].slot->learned())
-	  result += impl_->connections_[i].slot->javaScript();
-      }
+  for (unsigned i = 0; i < connections_.size(); ++i) {
+    if (connections_[i].ok()) {
+      if (connections_[i].slot->learned())
+	result += connections_[i].slot->javaScript();
     }
-
-    if (preventDefault())
-      result += WT_CLASS ".cancelEvent(e);";
   }
+
+  if (preventDefault())
+    result += WT_CLASS ".cancelEvent(e);";
 
   return result;
 }
 
 void EventSignalBase::setNotExposed()
 {
-  if (impl_)
-    impl_->flags_.reset(Impl::BIT_EXPOSED);
+  flags_.reset(BIT_EXPOSED);
 }
 
 bool EventSignalBase::isExposedSignal() const
 {
-  if (impl_)
-    return impl_->flags_.test(Impl::BIT_EXPOSED);
-  else
-    return false;
+  return flags_.test(BIT_EXPOSED);
 }
 
 void EventSignalBase::setPreventDefault(bool prevent)
 {
   if (preventDefault() != prevent) {
-    if (prevent)
-      createImpl();
-
-    impl_->flags_.set(Impl::BIT_PREVENT_DEFAULT, prevent);
+    flags_.set(BIT_PREVENT_DEFAULT, prevent);
     senderRepaint();
   }
 }
 
 bool EventSignalBase::preventDefault() const
 {
-  if (impl_)
-    return impl_->flags_.test(Impl::BIT_PREVENT_DEFAULT);
-  else
-    return false;
+  return flags_.test(BIT_PREVENT_DEFAULT);
 }
 
 void EventSignalBase::prepareDestruct()
 {
   // uses virtual method encodeCmd()
-
-  if (impl_) {
-    if (impl_->flags_.test(Impl::BIT_NEEDS_AUTOLEARN)) {
-      WApplication *app = WApplication::instance();
-      if (app)
-	app->removeExposedSignal(this);  
-    }
-    impl_->flags_.reset(Impl::BIT_NEEDS_AUTOLEARN);
+  if (flags_.test(BIT_NEEDS_AUTOLEARN)) {
+    WApplication *app = WApplication::instance();
+    if (app)
+      app->removeExposedSignal(this);  
+    flags_.reset(BIT_NEEDS_AUTOLEARN);
   }
 }
 
@@ -239,14 +218,9 @@ EventSignalBase::~EventSignalBase()
 {
   prepareDestruct();
 
-  if (impl_) {
-    for (unsigned i = 0; i < impl_->connections_.size(); ++i) {
-      if (impl_->connections_[i].ok()) {
-	impl_->connections_[i].slot->removeConnection(this);
-      }
-    }
-
-    delete impl_;
+  for (unsigned i = 0; i < connections_.size(); ++i) {
+    if (connections_[i].ok())
+      connections_[i].slot->removeConnection(this);
   }
 }
 
@@ -254,14 +228,9 @@ boost::signals::connection EventSignalBase::connect(WObject::Method method,
                                                     WObject *target,
                                                     WStatelessSlot *slot)
 {
-  createImpl();
-
-  boost::signals::connection c
-    = impl_->dummy_.connect(boost::bind(method, target));
-
+  boost::signals::connection c = dummy_.connect(boost::bind(method, target));
   slot->addConnection(this);
-
-  impl_->connections_.push_back(StatelessConnection(c, target, slot));
+  connections_.push_back(StatelessConnection(c, target, slot));
 
   senderRepaint();
 
@@ -273,23 +242,17 @@ void EventSignalBase::connect(JSlot& slot)
   WStatelessSlot *s = slot.slotimp();
   s->addConnection(this);
 
-  createImpl();
-
   boost::signals::connection c;
-
-  impl_->connections_.push_back(StatelessConnection(c, 0, s));
+  connections_.push_back(StatelessConnection(c, 0, s));
 }
 
 bool EventSignalBase::isConnected() const
 {
-  if (!impl_)
-    return false;
-
-  bool result = impl_->dummy_.num_slots() > 0;
+  bool result = dummy_.num_slots() > 0;
 
   if (!result) {
-    for (unsigned i = 0; i < impl_->connections_.size(); ++i) {
-      if (impl_->connections_[i].target == 0)
+    for (unsigned i = 0; i < connections_.size(); ++i) {
+      if (connections_[i].target == 0)
 	return true;
     }
   }
@@ -300,7 +263,7 @@ bool EventSignalBase::isConnected() const
 void EventSignalBase::exposeSignal()
 {
   // cheap catch: if it's exposed, for sure it is also autolearn
-  if (impl_ && impl_->flags_.test(Impl::BIT_EXPOSED)) {
+  if (flags_.test(BIT_EXPOSED)) {
     senderRepaint();
     return;
   }
@@ -308,147 +271,101 @@ void EventSignalBase::exposeSignal()
   WApplication *app = WApplication::instance();
   app->addExposedSignal(this);
 
-  createImpl();
-
-  impl_->flags_.set(Impl::BIT_NEEDS_AUTOLEARN);
+  flags_.set(BIT_NEEDS_AUTOLEARN);
 
   if (app->exposeSignals())
-    impl_->flags_.set(Impl::BIT_EXPOSED);
+    flags_.set(BIT_EXPOSED);
 
   senderRepaint();
 }
 
 void EventSignalBase::senderRepaint()
 {
-  assert(impl_);
-
-  impl_->flags_.set(Impl::BIT_NEED_UPDATE, true);
+  flags_.set(BIT_NEED_UPDATE, true);
   sender()->signalConnectionsChanged();
 }
 
 void EventSignalBase::processNonLearnedStateless()
 {
-  if (impl_) {
-    std::vector<StatelessConnection> copy = impl_->connections_;
+  std::vector<StatelessConnection> copy = connections_;
 
-    for (unsigned i = 0; i < copy.size(); ++i) {
-      StatelessConnection& c = copy[i];
+  for (unsigned i = 0; i < copy.size(); ++i) {
+    StatelessConnection& c = copy[i];
 
-      if (c.ok() && !c.slot->learned())
-	c.slot->trigger();
-    }
+    if (c.ok() && !c.slot->learned())
+      c.slot->trigger();
   }
 }
 
 void EventSignalBase::processLearnedStateless()
 {
-  if (impl_) {
-    std::vector<StatelessConnection> copy = impl_->connections_;
+  std::vector<StatelessConnection> copy = connections_;
 
-    for (unsigned i = 0; i < copy.size(); ++i) {
-      StatelessConnection& c = copy[i];
+  for (unsigned i = 0; i < copy.size(); ++i) {
+    StatelessConnection& c = copy[i];
 
-      if (c.ok() && c.slot->learned())
-	c.slot->trigger();
-    }
+    if (c.ok() && c.slot->learned())
+      c.slot->trigger();
   }
 }
 
 void EventSignalBase::processPreLearnStateless(SlotLearnerInterface *learner)
 {
-  if (impl_) {
-    std::vector<StatelessConnection> copy = impl_->connections_;
+  std::vector<StatelessConnection> copy = connections_;
 
-    for (unsigned i = 0; i < copy.size(); ++i) {
-      StatelessConnection& c = copy[i];
+  for (unsigned i = 0; i < copy.size(); ++i) {
+    StatelessConnection& c = copy[i];
 
-      if (c.ok()
-	  && !c.slot->learned()
-	  && c.slot->type() == WStatelessSlot::PreLearnStateless) {
-	learner->learn(c.slot);
-      }
+    if (c.ok()
+	&& !c.slot->learned()
+	&& c.slot->type() == WStatelessSlot::PreLearnStateless) {
+      learner->learn(c.slot);
     }
   }
 }
 
 void EventSignalBase::processAutoLearnStateless(SlotLearnerInterface *learner)
 {
-  if (impl_) {
-    bool changed = false;
+  bool changed = false;
 
-    std::vector<StatelessConnection> copy = impl_->connections_;
+  std::vector<StatelessConnection> copy = connections_;
 
-    for (unsigned i = 0; i < copy.size(); ++i) {
-      StatelessConnection& c = copy[i];
+  for (unsigned i = 0; i < copy.size(); ++i) {
+    StatelessConnection& c = copy[i];
 
-      if (c.ok()
-	  && !c.slot->learned()
-	  && c.slot->type() == WStatelessSlot::AutoLearnStateless) {
-	learner->learn(c.slot);
-	changed = true;
-      }
+    if (c.ok()
+	&& !c.slot->learned()
+	&& c.slot->type() == WStatelessSlot::AutoLearnStateless) {
+      learner->learn(c.slot);
+      changed = true;
     }
-
-    if (changed)
-      senderRepaint();
   }
+
+  if (changed)
+    senderRepaint();
 }
 
-EventSignal<void>::EventSignal(WObject *sender)
-  : EventSignalBase(sender),
-    relay_(0)
+EventSignal<void>::EventSignal(const char *name, WObject *sender)
+  : EventSignalBase(name, sender)
 { }
-
-EventSignal<void>::EventSignal(EventSignalBase *relay)
-  : EventSignalBase(relay ? relay->sender() : 0),
-    relay_(relay)
-{ }
-
-void EventSignal<void>::setRelay(EventSignalBase *relay)
-{
-  relay_ = relay;
-}
-
-EventSignal<void>::~EventSignal()
-{
-  if (impl_) {
-    BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-    delete dynamic;
-  }
-}
 
 bool EventSignal<void>::isConnected() const
 {
-  if (relay_)
-    return relay_->isConnected();
-  else {
-    if (EventSignalBase::isConnected())
-      return true;
+  if (EventSignalBase::isConnected())
+    return true;
 
-    if (impl_) {
-      BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-
-      return dynamic && dynamic->num_slots() > 0;
-    } else
-      return false;
-  }
+  return dynamic_.num_slots() > 0;
 }
 
 void EventSignal<void>::connect(JSlot& slot)
 {
-  if (relay_)
-    relay_->connect(slot);
-  else
-    EventSignalBase::connect(slot);
+  EventSignalBase::connect(slot);
 }
 
 boost::signals::connection EventSignal<void>
 ::connectBase(WObject *target, WObject::Method method)
 {
-  if (relay_)
-    return relay_->connectBase(target, method);
-  else
-    return connect(target, method);
+  return connect(target, method);
 }
 
 void EventSignal<void>::emit()
@@ -456,19 +373,12 @@ void EventSignal<void>::emit()
   if (isBlocked())
     return;
 
-  if (relay_)
-    throw WtException("Cannot emit a relayed signal");
-
   pushSender(sender());
 
   processLearnedStateless();
   processNonLearnedStateless();
 
-  if (impl_) {
-    BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-    if (dynamic)
-      (*dynamic)();
-  }
+  dynamic_();
 
   popSender();
 }
@@ -480,18 +390,12 @@ void EventSignal<void>::operator()()
 
 void EventSignal<void>::processDynamic(const JavaScriptEvent& jse)
 {
-  if (relay_)
-    throw WtException("Internal error: processDynamic on a relayed signal?");
-  
   processNonLearnedStateless();
 
-  if (impl_) {
-    BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-    if (dynamic) {
-      pushSender(sender());
-      (*dynamic)();
-      popSender();
-    }
+  if (dynamic_.num_slots() > 0) {
+    pushSender(sender());
+    dynamic_();
+    popSender();
   }
 }
 

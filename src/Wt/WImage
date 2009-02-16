@@ -170,9 +170,11 @@ public:
 
   /*! \brief Event emitted when the image was loaded.
    */
-  EventSignal<void> loaded;
+  EventSignal<void>& imageLoaded();
 
 private:
+  static const char *LOAD_SIGNAL;
+
   static const int BIT_ALT_TEXT_CHANGED = 0;
   static const int BIT_IMAGE_REF_CHANGED = 1;
   static const int BIT_MAP_CREATED = 2;

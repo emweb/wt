@@ -18,26 +18,26 @@ class WT_API WServerPushResource : public WResource
 {
 public:
   WServerPushResource(WApplication *app);
-  virtual ~WServerPushResource();
 
   void triggerUpdate();
 
 protected:
-  virtual const std::string resourceMimeType() const;
-  virtual bool streamResourceData(std::ostream& stream,
-				  const ArgumentMap& arguments);
-  virtual void setArguments(const ArgumentMap& arguments);
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response);
 
 private:
-  WApplication *app_;
-  bool initialDataSent_;
-  bool closing_;
+  WApplication               *app_;
+  Http::ResponseContinuation *continuation_;
 
   enum Method { Undefined, IFrame, XHRStream,
 		XHRMultiPart, ServerSentEvents };
   Method method_;
 
-  void sendInitialData(std::ostream& stream);
+  void initIFrameMethod(Http::Response& response);
+  void initXhrStreamMethod(Http::Response& response);
+  void initXhrMultiPartMethod(Http::Response& response);
+  void initServerSentEventsMethod(Http::Response& response);
+
   void streamStringLiteralJSUpdate(std::ostream& s);
 };
 

@@ -98,12 +98,14 @@ void WBoxLayout::setSpacing(int size)
   grid_.verticalSpacing_ = size;
 }
 
-void WBoxLayout::addWidget(WWidget *widget, int stretch, int alignment)
+void WBoxLayout::addWidget(WWidget *widget, int stretch,
+			   WFlags<AlignmentFlag> alignment)
 {
   insertWidget(count(), widget, stretch, alignment);
 }
 
-void WBoxLayout::addLayout(WLayout *layout, int stretch, int alignment)
+void WBoxLayout::addLayout(WLayout *layout, int stretch,
+			   WFlags<AlignmentFlag> alignment)
 {
   insertLayout(count(), layout, stretch, alignment);
 }
@@ -119,13 +121,13 @@ void WBoxLayout::addStretch(int stretch)
 }
 
 void WBoxLayout::insertWidget(int index, WWidget *widget, int stretch,
-			      int alignment)
+			      WFlags<AlignmentFlag> alignment)
 {
   insertItem(index, new WWidgetItem(widget), stretch, alignment);
 }
 
 void WBoxLayout::insertLayout(int index, WLayout *layout, int stretch,
-			      int alignment)
+			      WFlags<AlignmentFlag> alignment)
 {
   insertItem(index, layout, stretch, alignment);
 }
@@ -138,7 +140,7 @@ void WBoxLayout::insertSpacing(int index, const WLength& size)
 
 void WBoxLayout::insertStretch(int index, int stretch)
 {
-  WWidget *spacer = createSpacer(0);
+  WWidget *spacer = createSpacer(WLength(0));
   insertItem(index, new WWidgetItem(spacer), stretch, 0);
 }
 
@@ -186,7 +188,7 @@ void WBoxLayout::setStretchFactor(int i, int stretch)
 }
 
 void WBoxLayout::insertItem(int index, WLayoutItem *item, int stretch,
-			    int alignment)
+			    WFlags<AlignmentFlag> alignment)
 {
   switch (direction_) {
   case RightToLeft:

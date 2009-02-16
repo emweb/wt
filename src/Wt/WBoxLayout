@@ -107,6 +107,8 @@ public:
   /*! \brief Adds a widget to the layout.
    *
    * Adds a widget to the layout, with given <i>stretch</i> factor.
+   * The <i>alignemnt</i> parameter is a combination of a horizontal
+   * and/or a vertical AlignmentFlag OR'ed together.
    *
    * The <i>alignment</i> specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
@@ -118,7 +120,8 @@ public:
    *
    * \sa addLayout(WLayout *, int), insertWidget()
    */
-  void addWidget(WWidget *widget, int stretch = 0, int alignment = 0);
+  void addWidget(WWidget *widget, int stretch = 0,
+		 WFlags<AlignmentFlag> alignment = 0);
 
   /*! \brief Adds a nested layout to the layout.
    *
@@ -126,7 +129,8 @@ public:
    *
    * \sa addWidget(WWidget *, int, int), insertLayout()
    */
-  void addLayout(WLayout *layout, int stretch = 0, int alignment = 0);
+  void addLayout(WLayout *layout, int stretch = 0,
+		 WFlags<AlignmentFlag> alignment = 0);
 
   /*! \brief Adds extra spacing.
    *
@@ -161,7 +165,7 @@ public:
    * \sa insertLayout(), addWidget(WWidget *, int, int)
    */
   void insertWidget(int index, WWidget *widget, int stretch = 0,
-		    int alignment = 0);
+		    WFlags<AlignmentFlag> alignment = 0);
 
   /*! \brief Inserts a nested layout in the layout.
    *
@@ -171,7 +175,7 @@ public:
    * \sa insertWidget(), addLayout(WLayout *, int)
    */
   void insertLayout(int index, WLayout *layout, int stretch = 0,
-		    int alignment = 0);
+		    WFlags<AlignmentFlag> alignment = 0);
 
   /*! \brief Inserts extra spacing in the layout.
    *
@@ -211,7 +215,8 @@ public:
   Impl::Grid& grid() { return grid_; }
 
 protected:
-  void insertItem(int index, WLayoutItem *item, int stretch, int alignment);
+  void insertItem(int index, WLayoutItem *item, int stretch,
+		  WFlags<AlignmentFlag> alignment);
 
 private:
   Direction  direction_;

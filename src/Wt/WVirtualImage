@@ -135,7 +135,7 @@ public:
 
   /*! \brief Signal emitted whenever the viewport changes.
    */
-  Signal<int64_t, int64_t> viewPortChanged;
+  Signal<int64_t, int64_t>& viewPortChanged() { return viewPortChanged_; }
 
 protected:
   /*! \brief Create a grid image for the given rectangle.
@@ -176,6 +176,8 @@ private slots:
   void mouseUp(const WMouseEvent& e);
 
 private:
+  Signal<int64_t, int64_t> viewPortChanged_;
+
   WContainerWidget *impl_;
   WContainerWidget *contents_;
 

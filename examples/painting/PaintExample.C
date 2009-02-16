@@ -39,7 +39,7 @@ PaintExample::PaintExample(WContainerWidget *root)
   scaleSlider->setTickInterval(5);
   scaleSlider->setTickPosition(WSlider::TicksBothSides);
   scaleSlider->resize(300, 50);
-  scaleSlider->valueChanged.connect(SLOT(this, PaintExample::scaleShape));
+  scaleSlider->valueChanged().connect(SLOT(this, PaintExample::scaleShape));
 
   layout->addWidget(scaleSlider, 0, 1, AlignCenter | AlignMiddle);
 
@@ -50,7 +50,7 @@ PaintExample::PaintExample(WContainerWidget *root)
   rotateSlider->setTickInterval(10);
   rotateSlider->setTickPosition(WSlider::TicksBothSides);
   rotateSlider->resize(50, 400);
-  rotateSlider->valueChanged.connect(SLOT(this, PaintExample::rotateShape));
+  rotateSlider->valueChanged().connect(SLOT(this, PaintExample::rotateShape));
 
   layout->addWidget(rotateSlider, 1, 0, AlignCenter | AlignMiddle);
 

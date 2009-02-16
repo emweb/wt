@@ -15,8 +15,8 @@ IconPair::IconPair(const std::string icon1URI, const std::string icon2URI,
     impl_(new Wt::WContainerWidget()),
     icon1_(new Wt::WImage(icon1URI, impl_)),
     icon2_(new Wt::WImage(icon2URI, impl_)),
-    icon1Clicked(icon1_->clicked),
-    icon2Clicked(icon2_->clicked)
+    icon1Clicked(icon1_->clicked()),
+    icon2Clicked(icon2_->clicked())
 {
   setImplementation(impl_);
 
@@ -28,11 +28,11 @@ IconPair::IconPair(const std::string icon1URI, const std::string icon2URI,
   icon2_->hide();
 
   if (clickIsSwitch) {
-    icon1_->clicked.connect(SLOT(icon1_, Wt::WImage::hide));
-    icon1_->clicked.connect(SLOT(icon2_, Wt::WImage::show));
+    icon1_->clicked().connect(SLOT(icon1_, Wt::WImage::hide));
+    icon1_->clicked().connect(SLOT(icon2_, Wt::WImage::show));
 
-    icon2_->clicked.connect(SLOT(icon2_, Wt::WImage::hide));
-    icon2_->clicked.connect(SLOT(icon1_, Wt::WImage::show)); //
+    icon2_->clicked().connect(SLOT(icon2_, Wt::WImage::hide));
+    icon2_->clicked().connect(SLOT(icon1_, Wt::WImage::show)); //
 
     decorationStyle().setCursor(Wt::WCssDecorationStyle::Pointer);
   }

@@ -64,22 +64,6 @@ public:
    */
   int columnSpan() const { return columnSpan_; }
 
-  /*! \brief Set the horizontal and vertical content alignment.
-   *
-   * Set the horizontal and vertical content alignment, as the logical
-   * OR'ed value of WWidget::VerticalAlignment and
-   * WContainerWidget::HorizontalAlignment. The default alignment is
-   * (\link Wt::AlignTop AlignTop \endlink | \link
-   * Wt::AlignLeft AlignLeft \endlink).
-   */
-  void setContentAlignment(int contentAlignment);
-
-  /*! \brief Get the content alignment.
-   *
-   * \sa setContentAlignment(int contentAlignment)
-   */
-  int contentAlignment() const;
-
   /*! \brief get the row index of this cell.
    */
   int row() const;

@@ -68,12 +68,21 @@ protected:
 private:
   WTreeTable                               *table_;
   WContainerWidget                         *row_;
-  std::vector<std::pair<WWidget *, bool> >  columnWidgets_;
+
+  struct ColumnWidget {
+    WWidget *widget;
+    bool     isSet;
+
+    ColumnWidget(WWidget *aWidget, bool set)
+      : widget(aWidget), isSet(set) { }
+  };
+
+  std::vector<ColumnWidget> columnWidgets_;
 
   /*
    * the number of columns, besides the the tree itself
    */
-  void                     createExtraColumns(int numColumns);
+  void                      createExtraColumns(int numColumns);
 
   /*
    * The width for the column, counting from 1

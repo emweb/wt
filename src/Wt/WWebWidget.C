@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <mxml.h>
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
@@ -19,6 +17,7 @@
 #include "WebSession.h"
 #include "WtException.h"
 #include "Utils.h"
+#include "XSSFilter.h"
 
 using namespace Wt;
 
@@ -35,14 +34,20 @@ WWebWidget::TransientImpl::~TransientImpl()
 
 WWebWidget::LayoutImpl::LayoutImpl()
   : positionScheme_(Static),
-    floatSide_(None),
-    clearSides_(None),
+#ifndef WT_TARGET_JAVA
+    floatSide_(static_cast<Side>(0)),
+    clearSides_(0),
+#endif // WT_TARGET_JAVA
     popup_(false),
     verticalAlignment_(AlignBaseline),
     marginsChanged_(false)
 { 
-  for (unsigned i = 0; i < 4; ++i)
+  for (unsigned i = 0; i < 4; ++i) {
+#ifdef WT_TARGET_JAVA
+    offsets_[i] = WLength();
+#endif // WT_TARGET_JAVA
     margin_[i] = WLength(0);
+  }
 }
 
 WWebWidget::LookImpl::LookImpl()
@@ -86,7 +91,6 @@ WWebWidget::WWebWidget(WContainerWidget *parent)
     children_(0)
 {
   flags_.set(BIT_INLINE);
-  flags_.set(BIT_NEED_RERENDER);
 
   if (parent)
     parent->addWidget(this);
@@ -119,23 +123,33 @@ const std::string WWebWidget::formName() const
     return WWidget::formName();
 }
 
-void WWebWidget::repaint(unsigned int flags)
+void WWebWidget::repaint(WFlags<RepaintFlag> flags)
 {
-  if (!flags_.test(BIT_NEED_RERENDER)) {
-    flags_.set(BIT_NEED_RERENDER);
-    WApplication::instance()->session()->renderer().needUpdate(this);
-  }
+  WWidget::askRerender();
 
-  flags_ |= flags;
+#ifndef WT_TARGET_JAVA
+  flags_ |= (int)flags;
+#else
+  if (flags & RepaintPropertyIEMobile)
+    flags_.set(BIT_REPAINT_PROPERTY_IEMOBILE);
+  if (flags & RepaintPropertyAttribute)
+    flags_.set(BIT_REPAINT_PROPERTY_ATTRIBUTE);
+  if (flags & RepaintInnerHtml)
+    flags_.set(BIT_REPAINT_INNER_HTML);
+#endif // WT_TARGET_JAVA
 }
 
 void WWebWidget::renderOk()
 {
-  if (flags_.test(BIT_NEED_RERENDER)) {
-    flags_.reset(BIT_NEED_RERENDER);
-    flags_ &= ~RepaintAll;
-    WApplication::instance()->session()->renderer().doneUpdate(this);
-  }
+  WWidget::renderOk();
+
+#ifndef WT_TARGET_JAVA
+  flags_ &= ~(int)RepaintAll;
+#else // WT_TARGET_JAVA
+  flags_.reset(BIT_REPAINT_PROPERTY_IEMOBILE);
+  flags_.reset(BIT_REPAINT_PROPERTY_ATTRIBUTE);
+  flags_.reset(BIT_REPAINT_INNER_HTML);
+#endif // WT_TARGET_JAVA
 }
 
 void WWebWidget::signalConnectionsChanged()
@@ -165,9 +179,6 @@ WWebWidget::~WWebWidget()
   delete transientImpl_;
   delete layoutImpl_;
   delete lookImpl_;
-
-  WApplication::instance()->session()->renderer().doneUpdate(this);
-
   delete otherImpl_;
 }
 
@@ -184,6 +195,18 @@ WCssDecorationStyle& WWebWidget::decorationStyle()
   return *lookImpl_->decorationStyle_;
 }
 
+void WWebWidget::setDecorationStyle(const WCssDecorationStyle& style)
+{
+#ifndef WT_TARGET_JAVA
+  decorationStyle() = style;
+#else
+  if (!lookImpl_)
+    lookImpl_ = new LookImpl();
+
+  lookImpl_->decorationStyle_ = &style;
+#endif // WT_TARGET_JAVA
+}
+
 DomElement *WWebWidget::renderRemove()
 {
   DomElement *e = DomElement::getForUpdate(this, DomElement_DIV);
@@ -193,7 +216,7 @@ DomElement *WWebWidget::renderRemove()
 
 void WWebWidget::removeChild(WWidget *w)
 {
-  assert(children_);
+  assert(children_ != 0);
 
   int i = Utils::indexOf(*children_, w);
 
@@ -236,7 +259,7 @@ void WWebWidget::removeChild(WWidget *w)
     }
     */
 
-  w->WObject::setParent(0);
+  w->WObject::setParent((WObject *)0);
     
   /*
    * When the child is about to be deleted, all of its descendants
@@ -266,7 +289,7 @@ void WWebWidget::setPositionScheme(PositionScheme scheme)
   repaint(RepaintPropertyAttribute);
 }
 
-WWidget::PositionScheme WWebWidget::positionScheme() const
+PositionScheme WWebWidget::positionScheme() const
 {
   return layoutImpl_ ? layoutImpl_->positionScheme_ : Static;
 }
@@ -363,6 +386,7 @@ WLength WWebWidget::lineHeight() const
   return layoutImpl_ ? layoutImpl_->lineHeight_ : WLength();
 }
 
+#ifndef WT_TARGET_JAVA
 void WWebWidget::setFloatSide(Side s)
 {
   if (!layoutImpl_)
@@ -375,15 +399,15 @@ void WWebWidget::setFloatSide(Side s)
   repaint(RepaintPropertyAttribute);
 }
 
-WWidget::Side WWebWidget::floatSide() const
+Side WWebWidget::floatSide() const
 {
   if (layoutImpl_)
     return layoutImpl_->floatSide_;
   else
-    return None;
+    return static_cast<Side>(0);
 }
 
-void WWebWidget::setClearSides(int sides)
+void WWebWidget::setClearSides(WFlags<Side> sides)
 {
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
@@ -395,17 +419,25 @@ void WWebWidget::setClearSides(int sides)
   repaint(RepaintPropertyAttribute);
 }
 
-int WWebWidget::clearSides() const
+WFlags<Side> WWebWidget::clearSides() const
 {
   if (layoutImpl_)
     return layoutImpl_->clearSides_;
   else
-    return None;
+    return WFlags<Side>(None);
 }
+#endif
 
-void WWebWidget::setVerticalAlignment(VerticalAlignment va,
+void WWebWidget::setVerticalAlignment(AlignmentFlag va,
 				      const WLength& length)
 {
+#ifndef WT_TARGET_JAVA // cnor fix this
+  if (va & AlignHorizontalMask) {
+    wApp->log("warning") << "WWebWidget::setVerticalAlignment(): alignment "
+      "(" << va << ") is horizontal, expected vertical";
+    va = AlignmentFlag(va & AlignVerticalMask);
+  }
+#endif // WT_TARGET_JAVA
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
 
@@ -417,7 +449,7 @@ void WWebWidget::setVerticalAlignment(VerticalAlignment va,
   repaint(RepaintPropertyAttribute);
 }
 
-WWidget::VerticalAlignment WWebWidget::verticalAlignment() const
+AlignmentFlag WWebWidget::verticalAlignment() const
 {
   return layoutImpl_ ? layoutImpl_->verticalAlignment_ : AlignBaseline;
 }
@@ -427,7 +459,7 @@ WLength WWebWidget::verticalAlignmentLength() const
   return layoutImpl_ ? layoutImpl_->verticalAlignmentLength_ : WLength();
 }
 
-void WWebWidget::setOffsets(const WLength& length, int sides)
+void WWebWidget::setOffsets(const WLength& length, WFlags<Side> sides)
 {
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();  
@@ -468,7 +500,7 @@ WLength WWebWidget::offset(Side s) const
 int WWebWidget::zIndex() const
 {
   if (layoutImpl_)
-    return layoutImpl_->popup_ ? 10 : 0;
+    return layoutImpl_->popup_ ? 300 : 0;
   else
     return 0;
 }
@@ -507,7 +539,7 @@ bool WWebWidget::isPopup() const
 }
 
 
-void WWebWidget::setMargin(const WLength& length, int sides)
+void WWebWidget::setMargin(const WLength& length, WFlags<Side> sides)
 {
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();  
@@ -545,7 +577,7 @@ WLength WWebWidget::margin(Side side) const
   }
 }
 
-void WWebWidget::setStyleClass(const WString& styleClass)
+void WWebWidget::setStyleClass(const WT_USTRING& styleClass)
 {
   if (!lookImpl_)
     lookImpl_ = new LookImpl();
@@ -556,24 +588,24 @@ void WWebWidget::setStyleClass(const WString& styleClass)
   repaint(RepaintPropertyAttribute);
 }
 
-void WWebWidget::setStyleClass(const char *value)
+void WWebWidget::setStyleClass(const char *styleClass)
 {
-  setStyleClass(WString(value, UTF8));
+  setStyleClass(WString::fromUTF8(styleClass));
 }
 
-WString WWebWidget::styleClass() const
+WT_USTRING WWebWidget::styleClass() const
 {
-  return lookImpl_ ? lookImpl_->styleClass_ : WString();
+  return lookImpl_ ? lookImpl_->styleClass_ : WT_USTRING();
 }
 
 void WWebWidget::setAttributeValue(const std::string& name,
-				   const WString& value)
+				   const WT_USTRING& value)
 {
   if (!otherImpl_)
     otherImpl_ = new OtherImpl();
 
   if (!otherImpl_->attributes_)
-    otherImpl_->attributes_ = new std::map<std::string, WString>;
+    otherImpl_->attributes_ = new std::map<std::string, WT_USTRING>;
   (*otherImpl_->attributes_)[name] = value;
 
   if (!otherImpl_->attributesSet_)
@@ -643,7 +675,7 @@ void WWebWidget::addChild(WWidget *child)
 
   children_->push_back(child);
 
-  child->WObject::setParent(this);
+  child->WObject::setParent((WObject *)this);
 
   if (flags_.test(BIT_LOADED))
     doLoad(child);
@@ -667,7 +699,7 @@ void WWebWidget::setHideWithOffsets(bool how)
       resetLearnedSlot(&WWidget::hide);
 
       if (parent())
-	parent()->setHideWithOffsets();
+	parent()->setHideWithOffsets(true);
     }
   }
 }
@@ -725,29 +757,43 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       /*
        * set z-index
        */
-      if (layoutImpl_->popup_)
+      if (layoutImpl_->popup_) {
 	element.setProperty(PropertyStyleZIndex,
 			    boost::lexical_cast<std::string>(zIndex()));
+	WApplication *app = WApplication::instance();
+	if (app->environment().agentIE6()) {
+	  DomElement *i = DomElement::createNew(DomElement_IFRAME);
+	  i->setId("sh" + id());
+	  i->setAttribute("class", "Wt-shim");
+	  i->setAttribute("src", "javascript:false;");
+	  i->setAttribute("title", "Popup Shim");
+	  i->setAttribute("tabindex", "-1");
+	  i->setAttribute("frameborder", "0");
 
+	  app->addAutoJavaScript
+	    ("{var w = " + jsRef() + ";"
+	     "if (w && !" WT_CLASS ".isHidden(w)) {"
+	     "var i = " WT_CLASS ".getElement('" + i->id() + "');"
+	     "i.style.width=w.clientWidth + 'px';"
+	     "i.style.height=w.clientHeight + 'px';"
+	     "}}");
+
+	  element.addChild(i);
+	}
+      }
+
+#ifndef WT_TARGET_JAVA
       /*
        * set clear: FIXME: multiple values
        */
-      switch (layoutImpl_->clearSides_) {
-      case None:
-	break;
-      case Left:
+      if (layoutImpl_->clearSides_ == Left) {
 	element.setProperty(PropertyStyleClear, "left");
-	break;
-      case Right:
+      } else if (layoutImpl_->clearSides_ == Right) {
 	element.setProperty(PropertyStyleClear, "right");
-	break;
-      case Verticals:
+      } else if (layoutImpl_->clearSides_ == Verticals) {
 	element.setProperty(PropertyStyleClear, "both");
-	break;
-      default:
-	/* illegal values */
-	;
       }
+#endif // WT_TARGET_JAVA
 
       if (!layoutImpl_->minimumWidth_.isAuto()
 	  && (layoutImpl_->minimumWidth_.value() != 0))
@@ -804,6 +850,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	element.setProperty(PropertyStyleVerticalAlign,
 			    layoutImpl_->verticalAlignmentLength_.cssText());
 	break;
+      default:
+	break;
       }
 
       if (!layoutImpl_->lineHeight_.isAuto()) // == none
@@ -824,13 +872,14 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   }
 
 
+#ifndef WT_TARGET_JAVA
   if (flags_.test(BIT_FLOAT_SIDE_CHANGED) || all) {
     if (layoutImpl_) {
       /*
        * set float
        */
       switch (layoutImpl_->floatSide_) {
-      case None:
+      case 0:
 	if (flags_.test(BIT_FLOAT_SIDE_CHANGED))
 	  element.setProperty(PropertyStyleFloat, "none");
 	break;
@@ -847,7 +896,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     }
 
     flags_.reset(BIT_FLOAT_SIDE_CHANGED);
-  }      
+  }
+#endif // WT_TARGET_JAVA
 
   if (layoutImpl_) {
     if (layoutImpl_->marginsChanged_ || all) {
@@ -894,7 +944,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   if (otherImpl_ && otherImpl_->attributes_) {
     if (all) {
-      for (std::map<std::string, WString>::const_iterator i
+      for (std::map<std::string, WT_USTRING>::const_iterator i
 	     = otherImpl_->attributes_->begin();
 	   i != otherImpl_->attributes_->end(); ++i)
 	element.setAttribute(i->first, i->second.toUTF8());
@@ -957,11 +1007,10 @@ bool WWebWidget::isStubbed() const
 {
   if (flags_.test(BIT_STUBBED))
     return true;
-  else
-    if (parent())
-      return parent()->isStubbed();
-    else
-      return false;
+  else {
+    WWidget *p = parent();
+    return p ? p->isStubbed() : false;
+  }
 }
 
 bool WWebWidget::isVisible() const
@@ -1022,6 +1071,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 
       if (!isIEMobile) {
 	DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
+	render();
 	DomElement *realElement = createDomElement(app);
 	stub->replaceWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
 	result.push_back(stub);
@@ -1029,6 +1079,8 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	propagateRenderOk();
     }
   } else {
+    render();
+
     if (isIEMobile) {
       if (flags_.test(BIT_REPAINT_PROPERTY_ATTRIBUTE)) {
 	WWidget *p = this;
@@ -1039,7 +1091,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	    w = p->webWidget();
 	} while (p && w == this);
 
-	w ->getSDomChanges(result, app);
+	w->getSDomChanges(result, app);
       } else if (flags_.test(BIT_REPAINT_INNER_HTML)
 		 || !flags_.test(BIT_REPAINT_PROPERTY_IEMOBILE)) {
 	// the last condition results from repainting the parent, in which
@@ -1055,17 +1107,12 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
     }
 
     if (transientImpl_) {
-      result.insert(result.end(), transientImpl_->childRemoveChanges_.begin(),
-		    transientImpl_->childRemoveChanges_.end());
+      Utils::insert(result, transientImpl_->childRemoveChanges_);
       transientImpl_->childRemoveChanges_.clear();
     }
 
     getDomChanges(result, app);
   }
-}
-
-void WWebWidget::prepareRerender()
-{
 }
 
 void WWebWidget::doneRerender()
@@ -1130,7 +1177,7 @@ DomElement *WWebWidget::createSDomElement(WApplication *app)
   if (!flags_.test(BIT_DONOT_STUB)
       && flags_.test(BIT_HIDDEN)
       && WApplication::instance()->session()->renderer().visibleOnly()) {
-    propagateRenderOk();
+    quickPropagateRenderOk();
 
     flags_.set(BIT_STUBBED);
 
@@ -1156,15 +1203,10 @@ DomElement *WWebWidget::createSDomElement(WApplication *app)
   } else {
     flags_.reset(BIT_STUBBED);
 
-    prepareRerender();
+    render();
 
     return createDomElement(app);
   }
-}
-
-void WWebWidget::setNoFormData()
-{
-  WObject::setNoFormData();
 }
 
 void WWebWidget::refresh()
@@ -1188,20 +1230,17 @@ void WWebWidget::setIgnoreChildRemoves(bool how)
     flags_.reset(BIT_IGNORE_CHILD_REMOVES);
 }
 
-WString WWebWidget::escapeText(const WString& text,
-			       bool newlinestoo)
+WString WWebWidget::escapeText(const WString& text, bool newlinestoo)
 {
   std::string result = text.toUTF8();
+  result = escapeText(result, newlinestoo);
+  return WString::fromUTF8(result);
+}
 
-  Wt::Utils::replace(result, '&', "&amp;");
-  Wt::Utils::replace(result, '<', "&lt;");
-  Wt::Utils::replace(result, '>', "&gt;");
-  // replace(result, '"', "&quot;");
-  // replace(result, '\'', "&apos;");
-  if (newlinestoo)
-    Wt::Utils::replace(result, '\n', "<br />");
-
-  return WString(result, UTF8);
+std::string& WWebWidget::escapeText(std::string& text, bool newlinestoo)
+{
+  text = Wt::Utils::escapeText(text, newlinestoo);
+  return text;
 }
 
 std::string WWebWidget::jsStringLiteral(const std::string& value,
@@ -1210,6 +1249,12 @@ std::string WWebWidget::jsStringLiteral(const std::string& value,
   std::stringstream result;
   DomElement::jsStringLiteral(result, value, delimiter);
   return result.str();
+}
+
+std::string WWebWidget::jsStringLiteral(const WString& value,
+					char delimiter)
+{
+  return value.jsStringLiteral(delimiter);
 }
 
 void WWebWidget::load()
@@ -1221,7 +1266,7 @@ void WWebWidget::load()
       doLoad((*children_)[i]);
 
   if (flags_.test(BIT_HIDE_WITH_OFFSETS))
-    parent()->setHideWithOffsets();
+    parent()->setHideWithOffsets(true);
 }
 
 void WWebWidget::doLoad(WWidget *w)
@@ -1237,7 +1282,7 @@ bool WWebWidget::loaded() const
   return flags_.test(BIT_LOADED);
 }
 
-WWebWidget::DropMimeType::DropMimeType(const WString& aHoverStyleClass)
+WWebWidget::DropMimeType::DropMimeType(const WT_USTRING& aHoverStyleClass)
   : hoverStyleClass(aHoverStyleClass)
 { }
 
@@ -1245,7 +1290,7 @@ WWebWidget::DropMimeType::DropMimeType()
 { }
 
 bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
-				    const WString& hoverStyleClass)
+				    const WT_USTRING& hoverStyleClass)
 {
   bool result  = false; // whether the signal needs to be connected.
   bool changed = false;
@@ -1275,11 +1320,11 @@ bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
   if (changed) {
     std::string mimeTypes = "";
 
-    for (OtherImpl::MimeTypesMap::const_iterator i
+    for (OtherImpl::MimeTypesMap::const_iterator j
 	   = otherImpl_->acceptedDropMimeTypes_->begin();
-	 i != otherImpl_->acceptedDropMimeTypes_->end(); ++i) {
+	 j != otherImpl_->acceptedDropMimeTypes_->end(); ++j) {
       mimeTypes
-	+= "{" + i->first + ":" + i->second.hoverStyleClass.toUTF8() + "}";
+	+= "{" + j->first + ":" + j->second.hoverStyleClass.toUTF8() + "}";
     }
 
     setAttributeValue("amts", mimeTypes);
@@ -1292,18 +1337,93 @@ bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
   return result;
 }
 
+EventSignal<WKeyEvent> *WWebWidget::keyEventSignal(const char *name,
+						   bool create)
+{
+  EventSignalBase *b = getEventSignal(name);
+  if (b)
+    return static_cast<EventSignal<WKeyEvent> *>(b);
+  else if (!create)
+    return 0;
+  else {
+#ifndef WT_TARGET_JAVA
+    EventSignal<WKeyEvent> *result = new EventSignal<WKeyEvent>(name, this);
+#else
+    EventSignal<WKeyEvent> *result
+      = new EventSignal<WKeyEvent>(name, this, WKeyEvent::templateEvent);
+#endif // WT_TARGET_JAVA
+
+    addEventSignal(*result);
+    return result;
+  }
+}
+
+EventSignal<void> *WWebWidget::voidEventSignal(const char *name, bool create)
+{
+  EventSignalBase *b = getEventSignal(name);
+  if (b)
+    return static_cast<EventSignal<void> *>(b);
+  else if (!create)
+    return 0;
+  else {
+    EventSignal<void> *result = new EventSignal<void>(name, this);
+    addEventSignal(*result);
+    return result;
+  }
+}
+
+EventSignal<WMouseEvent> *WWebWidget::mouseEventSignal(const char *name,
+						       bool create)
+{
+  EventSignalBase *b = getEventSignal(name);
+  if (b)
+    return static_cast<EventSignal<WMouseEvent> *>(b);
+  else if (!create)
+    return 0;
+  else {
+#ifndef WT_TARGET_JAVA
+    EventSignal<WMouseEvent> *result = new EventSignal<WMouseEvent>(name, this);
+#else
+    EventSignal<WMouseEvent> *result
+      = new EventSignal<WMouseEvent>(name, this, WMouseEvent::templateEvent);
+#endif // WT_TARGET_JAVA
+    addEventSignal(*result);
+    return result;
+  }
+}
+
+EventSignal<WScrollEvent> *WWebWidget::scrollEventSignal(const char *name,
+							 bool create)
+{
+  EventSignalBase *b = getEventSignal(name);
+  if (b)
+    return static_cast<EventSignal<WScrollEvent> *>(b);
+  else if (!create)
+    return 0;
+  else {
+#ifndef WT_TARGET_JAVA
+    EventSignal<WScrollEvent> *result
+      = new EventSignal<WScrollEvent>(name, this);
+#else
+    EventSignal<WScrollEvent> *result
+      = new EventSignal<WScrollEvent>(name, this, WScrollEvent::templateEvent);
+#endif // WT_TARGET_JAVA
+    addEventSignal(*result);
+    return result;
+  }
+}
+
 void WWebWidget::updateSignalConnection(DomElement& element,
 					EventSignalBase &signal,
-					const char *eventName,
+					const char *name,
 					bool all)
 {
-  if (all || signal.needUpdate()) {
-
+  if (name[0] != 'M' && (all || signal.needUpdate())) {
     if (signal.isConnected())
-      element.setEventSignal(eventName, signal);
+      element.setEventSignal(name, signal);
     else
       if (!all)
-	element.setEvent(eventName, std::string(), std::string());
+	element.setEvent(name, std::string(), std::string());
 
     signal.updateOk();
   }
@@ -1319,206 +1439,11 @@ std::string WWebWidget::fixRelativeUrl(const std::string& url)
   return WApplication::instance()->fixRelativeUrl(url);
 }
 
-/*
- * XML parsing for removing illegal and dangerous tags to prevent XSS.
- */
-namespace {
-
-class MyHandler
-{
-public:
-  MyHandler();
-
-  static void sax_cb(mxml_node_t *node, mxml_sax_event_t event, void *data);
-
-private:
-  void saxCallback(mxml_node_t *node, mxml_sax_event_t event);
-
-  bool isBadTag(const std::string& name);
-  bool isBadAttribute(const std::string& name);
-  bool isBadAttributeValue(const std::string& name, const std::string& value);
-
-  int discard_;
-};
-
-MyHandler::MyHandler()
-  : discard_(0)
-{ }
-
-bool MyHandler::isBadTag(const std::string& name)
-{
-  return (boost::iequals(name, "script")
-	  || boost::iequals(name, "applet")
-	  || boost::iequals(name, "object")
-	  || boost::iequals(name, "iframe")
-	  || boost::iequals(name, "frame")
-	  || boost::iequals(name, "layer")
-	  || boost::iequals(name, "ilayer")
-	  || boost::iequals(name, "frameset")
-	  || boost::iequals(name, "link")
-	  || boost::iequals(name, "meta")
-	  || boost::iequals(name, "title")
-	  || boost::iequals(name, "base")
-	  || boost::iequals(name, "basefont")
-	  || boost::iequals(name, "bgsound")
-	  || boost::iequals(name, "head")
-	  || boost::iequals(name, "body")
-	  || boost::iequals(name, "embed")
-	  || boost::iequals(name, "style")
-	  || boost::iequals(name, "blink"));
-}
-
-bool MyHandler::isBadAttribute(const std::string& name)
-{
-  return (boost::istarts_with(name, "on")
-	  || boost::istarts_with(name, "data")
-	  || boost::iequals(name, "dynsrc")
-	  || boost::iequals(name, "id")
-	  || boost::iequals(name, "name"));
-}
-
-bool MyHandler::isBadAttributeValue(const std::string& name,
-				    const std::string& value)
-{
-  if (boost::iequals(name, "action")
-      || boost::iequals(name, "background")
-      || boost::iequals(name, "codebase")
-      || boost::iequals(name, "dynsrc")
-      || boost::iequals(name, "href")
-      || boost::iequals(name, "src"))
-    return (boost::istarts_with(value, "javascript:")
-	    || boost::istarts_with(value, "vbscript:")
-	    || boost::istarts_with(value, "about:")
-	    || boost::istarts_with(value, "chrome:")
-	    || boost::istarts_with(value, "data:")
-	    || boost::istarts_with(value, "disk:")
-	    || boost::istarts_with(value, "hcp:")
-	    || boost::istarts_with(value, "help:")
-	    || boost::istarts_with(value, "livescript")
-	    || boost::istarts_with(value, "lynxcgi:")
-	    || boost::istarts_with(value, "lynxexec:")
-	    || boost::istarts_with(value, "ms-help:")
-	    || boost::istarts_with(value, "ms-its:")
-	    || boost::istarts_with(value, "mhtml:")
-	    || boost::istarts_with(value, "mocha:")
-	    || boost::istarts_with(value, "opera:")
-	    || boost::istarts_with(value, "res:")
-	    || boost::istarts_with(value, "resource:")
-	    || boost::istarts_with(value, "shell:")
-	    || boost::istarts_with(value, "view-source:")
-	    || boost::istarts_with(value, "vnd.ms.radio:")
-	    || boost::istarts_with(value, "wysiwyg:"));
-  else
-    if (boost::iequals(name, "style"))
-      return boost::icontains(value, "absolute")
-	|| boost::icontains(value, "behaviour")
-	|| boost::icontains(value, "content")
-	|| boost::icontains(value, "expression")
-	|| boost::icontains(value, "fixed")
-	|| boost::icontains(value, "include-source")
-	|| boost::icontains(value, "moz-binding")
-	|| boost::icontains(value, "javascript");
-    else
-      return false;
-}
-
-void MyHandler::saxCallback(mxml_node_t *node, mxml_sax_event_t event)
-{
-  if (event == MXML_SAX_ELEMENT_OPEN) {
-    const char *name = node->value.element.name;
-
-    if (isBadTag(name)) {
-      wApp->log("warn") << "(XSS) discarding invalid tag: " << name;
-      ++discard_;
-    }
-
-    if (discard_ == 0) {
-      for (int i = 0; i < node->value.element.num_attrs; ++i) {
-	const char *aname = node->value.element.attrs[i].name;
-	char *v = node->value.element.attrs[i].value;
-	
-	if (isBadAttribute(aname) || isBadAttributeValue(aname, v)) {
-	  wApp->log("warn") << "(XSS) discarding invalid attribute: "
-			    << aname << ": " << v;
-	  mxmlElementDeleteAttr(node, aname);
-	  --i;
-	}
-      }
-    }
-  } else if (event == MXML_SAX_ELEMENT_CLOSE) {
-    std::string name = node->value.element.name;
-    if (isBadTag(name))
-      --discard_;
-
-    if (!discard_) {
-      if (!node->child && !DomElement::isSelfClosingTag(name)) {
-	mxmlNewText(node, 0, "");
-      }
-    }
-  }
-
-  if (!discard_) {
-    if (event == MXML_SAX_ELEMENT_OPEN)
-      mxmlRetain(node);
-    else if (event == MXML_SAX_DIRECTIVE)
-      mxmlRetain(node);
-    else if (event == MXML_SAX_DATA && node->parent->ref_count > 1) {
-      /*
-       * If the parent was retained, then retain
-       * this data node as well.
-       */
-      mxmlRetain(node);
-    }
-  }
-}
-
-void MyHandler::sax_cb(mxml_node_t *node, mxml_sax_event_t event,
-			     void *data)
-{
-  MyHandler *instance = (MyHandler *)data;
-
-  instance->saxCallback(node, event);
-}
-
-}
-
 bool WWebWidget::removeScript(WString& text)
 {
-  if (text.empty())
-    return true;
-
-  std::string result = "<span>" + text.toUTF8() + "</span>";
-
-  MyHandler handler;
-
-  mxml_node_t *top = mxmlNewElement(MXML_NO_PARENT, "span");
-  mxml_node_t *first
-    = mxmlSAXLoadString(top, result.c_str(), MXML_NO_CALLBACK,
-			MyHandler::sax_cb, &handler);
-
-  if (first) {
-    char *r = mxmlSaveAllocString(top, MXML_NO_CALLBACK);
-    result = r;
-    free(r);
-  } else {
-    mxmlDelete(top);
-    wApp->log("error") << "Error parsing: " << text;
-
-    return false;
-  }
-
-  mxmlDelete(top);
-
-  /*
-   * 27 is the length of '<span><span>x</span></span>\n'
-   */
-
-  if (result.length() < 28)
-    result.clear();
-  else
-    result = result.substr(12, result.length() - 27);
-
-  text = WString::fromUTF8(result);
-
+#ifndef WT_NO_XSS_FILTER
+  return XSSFilterRemoveScript(text);
+#else
   return true;
+#endif
 }

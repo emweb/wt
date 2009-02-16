@@ -55,8 +55,7 @@ protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
 
-  virtual void        setFormData(CgiEntry *entry);
-  virtual void        setNoFormData();
+  virtual void setFormData(const FormData& formData);
 };
 
 }

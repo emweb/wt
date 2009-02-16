@@ -4,13 +4,10 @@
  * See the LICENSE file for terms of use.
  */
 
-//#define NOSPIRIT
-
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
 
-#include "CgiParser.h"
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WebController.h"
@@ -20,11 +17,11 @@
 #include <stdexcept>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#ifndef NOSPIRIT
+#ifndef WT_NO_SPIRIT
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/utility.hpp>
 #include <boost/bind.hpp>
-#endif // NOSPIRIT
+#endif // WT_NO_SPIRIT
 #include <assert.h>
 
 namespace Wt {
@@ -35,8 +32,7 @@ WEnvironment::WEnvironment(WebSession *session)
     doesAjax_(false),
     doesCookies_(false),
     dpiScale_(1),
-    contentType_(HTML4),
-    request_(0)
+    contentType_(HTML4)
 { }
 
 #if WIN32
@@ -53,27 +49,15 @@ void WEnvironment::setInternalPath(const std::string& path)
 
   // emulate historyKey argument for < Wt-2.2
   if (!path.empty()) {
-    ArgumentValues v;
+    Http::ParameterValues v;
     v.push_back(internalPath_);
-    arguments_["historyKey"] = v;
+    parameters_["historyKey"] = v;
   }
 }
 
-void WEnvironment::init(const CgiParser& cgi, const WebRequest& request)
+void WEnvironment::init(const WebRequest& request)
 {
-  for (CgiParser::EntryMap::const_iterator i = cgi.entries().begin();
-       i != cgi.entries().end(); ++i) {
-    ArgumentValues v;
-
-    CgiEntry *e = i->second;
-
-    while (e) {
-      v.push_back(e->value());
-      e = e->next();
-    }
-
-    arguments_[i->first] = v;
-  }
+  parameters_ = request.getParameterMap();
 
   urlScheme_       = request.urlScheme();
   userAgent_       = request.headerValue("User-Agent");
@@ -111,7 +95,7 @@ void WEnvironment::init(const CgiParser& cgi, const WebRequest& request)
   /*
    * Determine server host name
    */
-  if (WebController::conf().behindReverseProxy()) {
+  if (session_->controller()->configuration().behindReverseProxy()) {
     /*
      * Take the last entry in X-Forwarded-Host, assuming that we are only
      * behind 1 proxy
@@ -167,14 +151,12 @@ void WEnvironment::init(const CgiParser& cgi, const WebRequest& request)
   std::string cookie = request.headerValue("Cookie");
   doesCookies_ = !cookie.empty();
 
-#ifndef NOSPIRIT
   if (doesCookies_)
     parseCookies(cookie);
 
   locale_ = parsePreferredAcceptValue(request.headerValue("Accept-Language"));
-#endif // NOSPIRIT
 
-  if (WebController::conf().sendXHTMLMimeType()
+  if (session_->controller()->configuration().sendXHTMLMimeType()
       && (accept_.find("application/xhtml+xml") != std::string::npos))
     contentType_ = XHTML1;
 }
@@ -196,41 +178,42 @@ std::string WEnvironment::sessionId() const
   return session_->sessionId();
 }
 
-const WEnvironment::ArgumentValues&
-WEnvironment::getArgument(const std::string& argument_name) const
+const Http::ParameterValues&
+WEnvironment::getParameterValues(const std::string& name) const
 {
-  ArgumentMap::const_iterator i = arguments_.find(argument_name);
+  Http::ParameterMap::const_iterator i = parameters_.find(name);
 
-  if (i == arguments_.end())
-    throw std::runtime_error("missing argument: " + argument_name);
-  else
+  if (i != parameters_.end())
     return i->second;
+  else
+    return WebRequest::emptyValues_;
 }
 
-const std::string WEnvironment::getCookie(const std::string& cookie_name) const
+const std::string *WEnvironment::getParameter(const std::string& name) const
 {
-  CookieMap::const_iterator i = cookies_.find(cookie_name);
+  const Http::ParameterValues& values = getParameterValues(name);
+  if (!values.empty())
+    return &values[0];
+  else
+    return 0;
+}
+
+const std::string WEnvironment::getCookie(const std::string& cookieNname) const
+{
+  CookieMap::const_iterator i = cookies_.find(cookieNname);
 
   if (i == cookies_.end())
-    throw std::runtime_error("missing cookie: " + cookie_name);
+    throw std::runtime_error("Missing cookie: " + cookieNname);
   else
     return i->second;
 }
 
 std::string WEnvironment::getCgiValue(const std::string& varName) const
 {
-  if (request_)
-    return request_->envValue(varName);
-  else
-    return "";
+  return session_->getCgiValue(varName);
 }
 
-void WEnvironment::setRequest(WebRequest *request)
-{
-  request_ = request;
-}
-
-#ifndef NOSPIRIT
+#ifndef WT_NO_SPIRIT
 namespace {
   using namespace boost::spirit;
   using namespace boost;
@@ -399,7 +382,7 @@ namespace {
       definition(CookieParser const& self)
       {
 	token 
-	  = lexeme_d[+(alnum_p | ch_p('-') | chset_p("_.*$#|()"))]
+	  = lexeme_d[+(alnum_p | ch_p('-') | chset_p("_.*$#|()="))]
 	  ;
 
 	quoted_string
@@ -457,6 +440,15 @@ void WEnvironment::parseCookies(const std::string& str)
 	      << '\'' << std::endl;
 }
 
-#endif // NOSPIRIT
+#else
+std::string WEnvironment::parsePreferredAcceptValue(const std::string& str)
+{
+  return std::string();
+}
+
+void WEnvironment::parseCookies(const std::string& str)
+{
+}
+#endif // WT_NO_SPIRIT
 
 }

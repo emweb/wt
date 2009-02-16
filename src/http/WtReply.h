@@ -27,6 +27,8 @@ typedef boost::shared_ptr<WtReply> WtReplyPtr;
 class WtReply : public Reply
 {
 public:
+  typedef void (*CallbackFunction)(void *cbData);
+
   WtReply(const Request& request, const Wt::EntryPoint& ep);
   ~WtReply();
 
@@ -34,24 +36,24 @@ public:
 				  Buffer::const_iterator end,
 				  bool endOfRequest);
 
-  void setContentType(const std::string type);
-  void setLocation(const std::string location);
-  void setCout(const std::string text);
+  void setContentType(const std::string& type);
+  void setLocation(const std::string& location);
+  void send(const std::string& text, CallbackFunction callBack, void *cbData);
 
   const std::string& cin() const { return cin_; }
-
   const Request& request() const { return request_; }
+
+  virtual bool expectMoreData();
 
 protected:
   const Wt::EntryPoint& entryPoint_;
   std::string       cin_;
-  std::string       cout_;
+  std::string       cout_, nextCout_;
   std::string       contentType_;
   std::string       location_;
-  bool              responseSent_;
-  bool              done_;
-
-  HTTPRequest      *wtRequest_;
+  bool              responseSent_, sending_;
+  volatile CallbackFunction  fetchMoreData_;
+  void *            callBackData_;
 
   virtual status_type     responseStatus();
   virtual std::string     contentType();

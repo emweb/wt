@@ -7,7 +7,7 @@
 #ifndef WRECTF_H_
 #define WRECTF_H_
 
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 

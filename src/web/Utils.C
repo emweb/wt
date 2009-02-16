@@ -18,7 +18,7 @@ std::string terminate(const std::string& s, char c)
     return s;
 }
 
-void replace(std::string& s, char c, const std::string& r)
+std::string& replace(std::string& s, char c, const std::string& r)
 {
   std::string::size_type p = 0;
 
@@ -26,9 +26,11 @@ void replace(std::string& s, char c, const std::string& r)
     s.replace(p, 1, r);
     p += r.length();
   }
+
+  return s;
 }
 
-void replace(std::string& s, const std::string& k, const std::string& r)
+std::string& replace(std::string& s, const std::string& k, const std::string& r)
 {
   std::string::size_type p = 0;
 
@@ -36,11 +38,26 @@ void replace(std::string& s, const std::string& k, const std::string& r)
     s.replace(p, k.length(), r);
     p += r.length();
   }
+
+  return s;
 }
 
-WString eraseWord(const WString& s, const std::string& w)
+const std::string& escapeText(std::string& s, bool newLinesToo)
 {
-  std::string ss = s.toUTF8();
+  Wt::Utils::replace(s, '&', "&amp;");
+  Wt::Utils::replace(s, '<', "&lt;");
+  Wt::Utils::replace(s, '>', "&gt;");
+  // replace(s, '"', "&quot;");
+  // replace(s, '\'', "&apos;");
+  if (newLinesToo)
+    Wt::Utils::replace(s, '\n', "<br />");
+
+  return s;
+}
+
+std::string eraseWord(const std::string& s, const std::string& w)
+{
+  std::string ss = s;
   std::string::size_type p;
 
   if ((p = ss.find(w)) != std::string::npos) {
@@ -53,15 +70,59 @@ WString eraseWord(const WString& s, const std::string& w)
 	ss.erase(ss.begin() + p);
   }
 
-  return WString::fromUTF8(ss);
+  return ss;
 }
 
-WString addWord(const WString& s, const std::string& w)
+std::string addWord(const std::string& s, const std::string& w)
 {
   if (s.empty())
-    return WString::fromUTF8(w);
+    return w;
   else
-    return s + WString::fromUTF8(' ' + w);
+    return s + ' ' + w;
+}
+
+char *itoa(int value, char *result, int base) {
+  char* out = result;
+  int quotient = value;
+
+  do {
+    *out = "0123456789abcdef"[ std::abs( quotient % base ) ];
+    ++out;
+    quotient /= base;
+  } while (quotient);
+
+  if (value < 0 && base == 10) *out++ = '-';
+  std::reverse( result, out );
+  *out = 0;
+  return result;
+}
+
+char *round_str(double d, int digits, char *buf) {
+  static int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
+
+  int i = static_cast<int>(d * exp[digits] + (d > 0 ? 0.49 : -0.49));
+  itoa(i, buf);
+  char *num = buf;
+
+  if (num[0] == '-')
+    ++num;
+  int len = strlen(num);
+
+  if (len < digits) {
+    int shift = digits - len;
+    for (int i = digits; i >= 0; --i) {
+      if (i >= shift)
+	num[i] = num[i - shift];
+      else
+	num[i] = '0';
+    }
+  }
+  int dotPos = std::max(len - digits, 0);
+  for (int i = digits; i >= 0; --i)
+    num[dotPos + i + 1] = num[dotPos + i];
+  num[dotPos] = '.';
+
+  return buf;
 }
 
   }

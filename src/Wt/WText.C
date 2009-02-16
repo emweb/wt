@@ -29,6 +29,7 @@ WText::WText(const WString& text, WContainerWidget *parent)
   setText(text);
 }
 
+#ifndef WT_DEPRECATE_2_2_0
 WText::WText(bool inlined, const WString& text, WContainerWidget *parent)
   : WInteractWidget(parent),
     textFormat_(XHTMLText),
@@ -39,6 +40,7 @@ WText::WText(bool inlined, const WString& text, WContainerWidget *parent)
   setText(text);
   setInline(inlined);
 }
+#endif // WT_DEPRECATE_2_2_0
 
 WText::WText(const WString& text, TextFormat format, WContainerWidget *parent)
   : WInteractWidget(parent),
@@ -73,11 +75,17 @@ void WText::autoAdjustInline()
 {
   if (textFormat_ != PlainText && isInline()) {
     std::string t = text_.toUTF8();
+#ifndef WT_TARGET_JAVA
     boost::trim_left(t);
     if (   boost::istarts_with(t, "<div")
 	|| boost::istarts_with(t, "<p")
 	|| boost::istarts_with(t, "<h"))
       setInline(false);
+#else
+    t = t.substr(0, std::min(20, t.length())).toLowerCase();
+    if (t.startsWith("<div") || t.startsWith("<p") || t.startsWith("<h"))
+      setInline(false);
+#endif // WT_TARGET_JAVA
   }
 }
 
@@ -123,10 +131,12 @@ bool WText::setTextFormat(TextFormat textFormat)
     return true;
 }
 
-bool WText::setFormatting(Formatting formatting)
+#ifndef WT_DEPRECATE_2_2_0
+bool WText::setFormatting(TextFormat formatting)
 {
   return setTextFormat(formatting);
 }
+#endif // WT_DEPRECATE_2_2_0
 
 bool WText::checkWellFormed()
 {

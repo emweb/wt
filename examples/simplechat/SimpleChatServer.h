@@ -94,7 +94,7 @@ public:
    *
    * Every client should connect to this signal, and process events.
    */
-  Wt::Signal<ChatEvent> chatEvent;
+  Wt::Signal<ChatEvent>& chatEvent() { return chatEvent_; }
 
   /*! \brief Typedef for a collection of user names.
    */
@@ -105,6 +105,7 @@ public:
   UserSet users();
 
 private:
+  Wt::Signal<ChatEvent>         chatEvent_;
   boost::mutex                  mutex_;
 
   UserSet                       users_;

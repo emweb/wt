@@ -111,7 +111,7 @@ WString WIntValidator::invalidTooLargeText() const
 				 + boost::lexical_cast<std::string>(top_));
 }
 
-WValidator::State WIntValidator::validate(WString& input, int& pos) const
+WValidator::State WIntValidator::validate(WT_USTRING& input) const
 {
   std::string text = input.toUTF8();
 
@@ -130,11 +130,9 @@ WValidator::State WIntValidator::validate(WString& input, int& pos) const
       return Valid;
     else
       return Invalid;
-  } catch (boost::bad_lexical_cast&) {
+  } catch (boost::bad_lexical_cast& e) {
     return Invalid;
   }
-
-  return Valid;
 }
 
 std::string WIntValidator::javaScriptValidate(const std::string& jsRef) const

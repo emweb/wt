@@ -21,20 +21,21 @@
 
 namespace Wt {
 
+const char *WInteractWidget::KEYDOWN_SIGNAL = "M_keydown";
+const char *WInteractWidget::KEYPRESS_SIGNAL = "keypress";
+const char *WInteractWidget::KEYUP_SIGNAL = "keyup";
+const char *WInteractWidget::ENTER_PRESS_SIGNAL = "M_enterpress";
+const char *WInteractWidget::ESCAPE_PRESS_SIGNAL = "M_escapepress";
+const char *WInteractWidget::CLICK_SIGNAL = "click";
+const char *WInteractWidget::DBL_CLICK_SIGNAL = "dblclick";
+const char *WInteractWidget::MOUSE_DOWN_SIGNAL = "mousedown";
+const char *WInteractWidget::MOUSE_UP_SIGNAL = "mouseup";
+const char *WInteractWidget::MOUSE_OUT_SIGNAL = "mouseout";
+const char *WInteractWidget::MOUSE_OVER_SIGNAL = "mouseover";
+const char *WInteractWidget::MOUSE_MOVE_SIGNAL = "mousemove";
+
 WInteractWidget::WInteractWidget(WContainerWidget *parent)
   : WWebWidget(parent),
-    keyWentDown(this),
-    keyPressed(this),
-    keyWentUp(this),
-    enterPressed(this),
-    escapePressed(this),
-    clicked(this),
-    doubleClicked(this),
-    mouseWentDown(this),
-    mouseWentUp(this),
-    mouseWentOut(this),
-    mouseWentOver(this),
-    mouseMoved(this),
     dragSlot_(0)
 { }
 
@@ -43,73 +44,144 @@ WInteractWidget::~WInteractWidget()
   delete dragSlot_;
 }
 
+EventSignal<WKeyEvent>& WInteractWidget::keyWentDown()
+{
+  return *keyEventSignal(KEYDOWN_SIGNAL, true);
+}
+
+EventSignal<WKeyEvent>& WInteractWidget::keyPressed()
+{
+  return *keyEventSignal(KEYPRESS_SIGNAL, true);
+}
+
+EventSignal<WKeyEvent>& WInteractWidget::keyWentUp()
+{
+  return *keyEventSignal(KEYUP_SIGNAL, true);
+}
+
+EventSignal<void>& WInteractWidget::enterPressed()
+{
+  return *voidEventSignal(ENTER_PRESS_SIGNAL, true);
+}
+
+EventSignal<void>& WInteractWidget::escapePressed()
+{
+  return *voidEventSignal(ESCAPE_PRESS_SIGNAL, true);
+}
+
+EventSignal<WMouseEvent>& WInteractWidget::clicked()
+{
+  return *mouseEventSignal(CLICK_SIGNAL, true);
+}
+
+EventSignal<WMouseEvent>& WInteractWidget::doubleClicked()
+{
+  return *mouseEventSignal(DBL_CLICK_SIGNAL, true);
+}
+
+EventSignal<WMouseEvent>& WInteractWidget::mouseWentDown()
+{
+  return *mouseEventSignal(MOUSE_DOWN_SIGNAL, true);
+}
+
+EventSignal<WMouseEvent>& WInteractWidget::mouseWentUp()
+{
+  return *mouseEventSignal(MOUSE_UP_SIGNAL, true);
+}
+
+EventSignal<WMouseEvent>& WInteractWidget::mouseWentOut()
+{
+  return *mouseEventSignal(MOUSE_OUT_SIGNAL, true);
+}
+
+EventSignal<WMouseEvent>& WInteractWidget::mouseWentOver()
+{
+  return *mouseEventSignal(MOUSE_OVER_SIGNAL, true);
+}
+
+EventSignal<WMouseEvent>& WInteractWidget::mouseMoved()
+{
+  return *mouseEventSignal(MOUSE_MOVE_SIGNAL, true);
+}
+
 void WInteractWidget::updateDom(DomElement& element, bool all)
 {
-  if ((all && (enterPressed.isConnected()
-	       || escapePressed.isConnected()
-	       || keyWentDown.isConnected()))
-      || keyWentDown.needUpdate()
-      || enterPressed.needUpdate()
-      || escapePressed.needUpdate()) {
+  bool updateKeyDown = false;
+
+  EventSignal<void> *enterPress = voidEventSignal(ENTER_PRESS_SIGNAL, false);
+  EventSignal<void> *escapePress = voidEventSignal(ESCAPE_PRESS_SIGNAL, false);
+  EventSignal<WKeyEvent> *keyDown = keyEventSignal(KEYDOWN_SIGNAL, false);
+
+  if (all)
+    updateKeyDown = (enterPress && enterPress->isConnected())
+      || (escapePress && escapePress->isConnected())
+      || (keyDown && keyDown->isConnected());
+  else
+    updateKeyDown = (enterPress && enterPress->needUpdate())
+      || (escapePress && escapePress->needUpdate())
+      || (keyDown && keyDown->needUpdate());
+
+  if (updateKeyDown) {
     std::vector<DomElement::EventAction> actions;
 
-    if (enterPressed.isConnected()) {
-      /*
-       * prevent enterPressed from triggering a changed event on all
-       * browsers except for Opera and IE
-       */
-      std::string extraJS;
-      const WEnvironment& env = WApplication::instance()->environment();
+    if (enterPress) {
+      if (enterPress->isConnected()) {
+	/*
+	 * prevent enterPressed from triggering a changed event on all
+	 * browsers except for Opera and IE
+	 */
+	std::string extraJS;
+	const WEnvironment& env = WApplication::instance()->environment();
 
-      if (dynamic_cast<WFormWidget *>(this)
-	  && env.userAgent().find("Opera") == std::string::npos
-	  && !env.agentIE())
-	extraJS
-	  = "var g=this.onchange; this.onchange=function(){this.onchange=g;};";
+	if (dynamic_cast<WFormWidget *>(this)
+	    && env.userAgent().find("Opera") == std::string::npos
+	    && !env.agentIE())
+	  extraJS = "var g=this.onchange;"
+	    ""      "this.onchange=function(){this.onchange=g;};";
 
-      actions.push_back
-	(DomElement::EventAction("(e.keyCode && e.keyCode == 13)",
-				 enterPressed.javaScript() + extraJS,
-				 enterPressed.encodeCmd(),
-				 enterPressed.isExposedSignal()));
+	actions.push_back
+	  (DomElement::EventAction("(e.keyCode && e.keyCode == 13)",
+				   enterPress->javaScript() + extraJS,
+				   enterPress->encodeCmd(),
+				   enterPress->isExposedSignal()));
+      }
+      enterPress->updateOk();
     }
 
-    if (escapePressed.isConnected()) {
-      actions.push_back
-	(DomElement::EventAction("(e.keyCode && e.keyCode == 27)",
-				 escapePressed.javaScript(),
-				 escapePressed.encodeCmd(),
-				 escapePressed.isExposedSignal()));
+    if (escapePress) {
+      if (escapePress->isConnected()) {
+	actions.push_back
+	  (DomElement::EventAction("(e.keyCode && e.keyCode == 27)",
+				   escapePress->javaScript(),
+				   escapePress->encodeCmd(),
+				   escapePress->isExposedSignal()));
+      }
+      escapePress->updateOk();
     }
 
-    if (keyWentDown.isConnected()) {
+    if (keyDown) {
+      if (keyDown->isConnected()) {
       actions.push_back
 	(DomElement::EventAction(std::string(),
-				 keyWentDown.javaScript(),
-				 keyWentDown.encodeCmd(),
-				 keyWentDown.isExposedSignal()));
+				 keyDown->javaScript(),
+				 keyDown->encodeCmd(),
+				 keyDown->isExposedSignal()));
+      }
+      keyDown->updateOk();
     }
 
     if (!actions.empty())
       element.setEvent("keydown", actions);
     else if (!all)
       element.setEvent("keydown", "", "");
-
-    enterPressed.updateOk();
-    escapePressed.updateOk();
-    keyWentDown.updateOk();
   }
 
-  updateSignalConnection(element, keyPressed, "keypress", all);
-  updateSignalConnection(element, keyWentUp, "keyup", all);
+  EventSignalList& other = eventSignals();
 
-  updateSignalConnection(element, clicked, "click", all);
-  updateSignalConnection(element, doubleClicked, "dblclick", all);
-  updateSignalConnection(element, mouseWentDown, "mousedown", all);
-  updateSignalConnection(element, mouseMoved, "mousemove", all);
-  updateSignalConnection(element, mouseWentOut, "mouseout", all);
-  updateSignalConnection(element, mouseWentOver, "mouseover", all);
-  updateSignalConnection(element, mouseWentUp, "mouseup", all);
+  for (EventSignalList::iterator i = other.begin(); i != other.end(); ++i) {
+    EventSignalBase& s = *i;
+    updateSignalConnection(element, s, s.name(), all);
+  }
 
   WWebWidget::updateDom(element, all);
 }
@@ -140,7 +212,7 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
 			     + "._p_.dragStart(o,e);" + "}");
   }
 
-  mouseWentDown.connect(*dragSlot_);
+  mouseWentDown().connect(*dragSlot_);
 }
 
 }

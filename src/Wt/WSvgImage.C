@@ -9,6 +9,10 @@
 #include "Wt/WPainterPath"
 #include "Wt/WRectF"
 #include "Wt/WWebWidget"
+#include "Wt/Http/Request"
+#include "Wt/Http/Response"
+
+#include "Utils.h"
 
 #include <math.h>
 #include <sstream>
@@ -31,10 +35,6 @@ namespace {
       return d;
   }
 
-  double myround(double d) {
-    return static_cast<int>(d * 1000) / 1000.;
-  }
-
   bool fequal(double d1, double d2) {
     return fabs(d1 - d2) < 1E-5;
   }
@@ -46,13 +46,20 @@ int WSvgImage::nextClipId_ = 0;
 
 WSvgImage::WSvgImage(const WLength& width, const WLength& height,
 		     WObject *parent)
-  : WVectorImage(width, height),
-    WResource(parent),
+  : WResource(parent),
+    width_(width),
+    height_(height),
+    painter_(0),
     newGroup_(true),
     newClipPath_(false),
     busyWithPath_(false),
     currentClipId_(-1)
 { }
+
+WSvgImage::~WSvgImage()
+{
+  beingDeleted();
+}
 
 void WSvgImage::init()
 { }
@@ -64,6 +71,8 @@ void WSvgImage::done()
 
 void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
 {
+  char buf[30];
+
   if (fabs(spanAngle - 360.0) < 0.01) {
     finishPath();
     makeNewGroup();
@@ -71,10 +80,10 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
     std::stringstream tmp;
 
     tmp << "<"SVG"ellipse "
-	<< " cx=\""<< myround(rect.center().x())
-	<< "\" cy=\"" << myround(rect.center().y())
-	<< "\" rx=\"" << myround(rect.width() / 2)
-	<< "\" ry=\"" << myround(rect.height() / 2)
+	<< " cx=\""<< Utils::round_str(rect.center().x(), 3, buf);
+    tmp << "\" cy=\"" << Utils::round_str(rect.center().y(), 3, buf);
+    tmp << "\" rx=\"" << Utils::round_str(rect.width() / 2, 3, buf);
+    tmp << "\" ry=\"" << Utils::round_str(rect.height() / 2, 3, buf)
 	<< "\" />";
 
     shapes_ += tmp.str();
@@ -89,7 +98,7 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
   }
 }
 
-void WSvgImage::setChanged(int flags)
+void WSvgImage::setChanged(WFlags<ChangeFlag> flags)
 {
   if (flags != 0)
     newGroup_ = true;
@@ -156,6 +165,7 @@ void WSvgImage::makeNewGroup()
 
   finishPath();
 
+  char buf[30];
   std::stringstream tmp;
 
   tmp << "</"SVG"g>";
@@ -174,12 +184,12 @@ void WSvgImage::makeNewGroup()
       const WTransform& t = painter()->clipPathTransform();
       if (!t.isIdentity()) {
 	tmp << " transform=\"matrix("
-	    <<        myround(t.m11())
-	    << ' ' << myround(t.m12())
-	    << ' ' << myround(t.m21())
-	    << ' ' << myround(t.m22())
-	    << ' ' << myround(t.m31())
-	    << ' ' << myround(t.m32())
+	    <<        Utils::round_str(t.m11(), 3, buf);
+	tmp << ' ' << Utils::round_str(t.m12(), 3, buf);
+	tmp << ' ' << Utils::round_str(t.m21(), 3, buf);
+	tmp << ' ' << Utils::round_str(t.m22(), 3, buf);
+	tmp << ' ' << Utils::round_str(t.m31(), 3, buf);
+	tmp << ' ' << Utils::round_str(t.m32(), 3, buf)
 	    << ")\"";
       }
       tmp << "/></"SVG"clipPath></"SVG"defs>";
@@ -204,12 +214,12 @@ void WSvgImage::makeNewGroup()
 
   if (!currentTransform_.isIdentity()) {
     tmp << " transform=\"matrix("
-	<< myround(currentTransform_.m11())
-	<< ' ' << myround(currentTransform_.m12())
-	<< ' ' << myround(currentTransform_.m21())
-	<< ' ' << myround(currentTransform_.m22())
-	<< ' ' << myround(currentTransform_.m31())
-	<< ' ' << myround(currentTransform_.m32())
+	<< Utils::round_str(currentTransform_.m11(), 3, buf);
+    tmp << ' ' << Utils::round_str(currentTransform_.m12(), 3, buf);
+    tmp << ' ' << Utils::round_str(currentTransform_.m21(), 3, buf);
+    tmp << ' ' << Utils::round_str(currentTransform_.m22(), 3, buf);
+    tmp << ' ' << Utils::round_str(currentTransform_.m31(), 3, buf);
+    tmp << ' ' << Utils::round_str(currentTransform_.m32(), 3, buf)
 	<< ")\"";
   }
 
@@ -218,8 +228,10 @@ void WSvgImage::makeNewGroup()
   shapes_ += tmp.str();
 }
 
-void WSvgImage::drawPlainPath(std::ostream& out, const WPainterPath& path)
+void WSvgImage::drawPlainPath(std::stringstream& out, const WPainterPath& path)
 {
+  char buf[30];
+
   if (!busyWithPath_) {
     out << "<"SVG"path d=\"";
     busyWithPath_ = true;
@@ -261,41 +273,43 @@ void WSvgImage::drawPlainPath(std::ostream& out, const WPainterPath& path)
       const int fa = (fabs(deltaTheta) > M_PI ? 1 : 0);
       const int fs = (deltaTheta > 0 ? 1 : 0);
 
-      if (!fequal(current.x(), x1) || !fequal(current.y(), y1))
-	out << "L" << myround(x1 + pathTranslation_.x())
-	    << "," << myround(y1 + pathTranslation_.y());
+      if (!fequal(current.x(), x1) || !fequal(current.y(), y1)) {
+	out << 'L' << Utils::round_str(x1 + pathTranslation_.x(), 3, buf);
+	out << ',' << Utils::round_str(y1 + pathTranslation_.y(), 3, buf);
+      }
 
-      out << "A" << myround(rx) << "," << myround(ry)
-	  << " 0 " << fa << "," << fs
-	  << " " << myround(x2 + pathTranslation_.x())
-	  << "," << myround(y2 + pathTranslation_.y());
+      out << 'A' << Utils::round_str(rx, 3, buf);
+      out << ',' << Utils::round_str(ry, 3, buf);
+      out << " 0 " << fa << "," << fs;
+      out << ' ' << Utils::round_str(x2 + pathTranslation_.x(), 3, buf);
+      out << ',' << Utils::round_str(y2 + pathTranslation_.y(), 3, buf);
     } else {
       switch (s.type()) {
       case WPainterPath::Segment::MoveTo:
-	out << "M";
+	out << 'M';
 	break;
       case WPainterPath::Segment::LineTo:
-	out << "L";
+	out << 'L';
 	break;
       case WPainterPath::Segment::CubicC1:
-	out << "C";
+	out << 'C';
 	break;
       case WPainterPath::Segment::CubicC2:
       case WPainterPath::Segment::CubicEnd:
-	out << " ";
+	out << ' ';
 	break;
       case WPainterPath::Segment::QuadC:
-	out << "Q";
+	out << 'Q';
 	break;
       case WPainterPath::Segment::QuadEnd:
-	out << " ";
+	out << ' ';
 	break;
       default:
 	assert(false);
       }
 
-      out << myround(s.x() + pathTranslation_.x()) << ","
-	  << myround(s.y() + pathTranslation_.y());
+      out << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf);
+      out << ',' << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf);
     }
   }
 }
@@ -327,6 +341,7 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
 
   WRectF drect = rect;
 
+  char buf[30];
   std::stringstream tmp;
 
   bool transformed = false;
@@ -334,9 +349,11 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
   if (drect.width() != srect.width()
       || drect.height() != srect.height()) {
     tmp << "<"SVG"g transform=\"matrix("
-	<< myround(drect.width() / srect.width())
-	<< " 0 0 " << myround(drect.height() / srect.height())
-	<< ' ' << myround(drect.x()) << " " << myround(drect.y()) << ")\">";
+	<< Utils::round_str(drect.width() / srect.width(), 3, buf);
+    tmp << " 0 0 " << Utils::round_str(drect.height() / srect.height(), 3, buf);
+    tmp << ' ' << Utils::round_str(drect.x(), 3, buf)
+	<< ' ' << Utils::round_str(drect.y(), 3, buf)
+	<< ")\">";
 
     drect = WRectF(0, 0, srect.width(), srect.height());
 
@@ -358,22 +375,20 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
   int imgClipId = nextClipId_++;
 
   if (WRectF(x, y, width, height) != drect) {
-    tmp <<
-      "<"SVG"clipPath id=\"imgClip" << imgClipId << "\">"
-      "<"SVG"rect x=\"" << myround(drect.x()) << "\""
-           " y=\"" << myround(drect.y()) << "\""
-       " width=\"" << myround(drect.width()) << "\""
-      " height=\"" << myround(drect.height()) << "\""
-      " /></"SVG"clipPath>";
+    tmp << "<"SVG"clipPath id=\"imgClip" << imgClipId << "\">";
+    tmp << "<"SVG"rect x=\"" << Utils::round_str(drect.x(), 3, buf) << '"';
+    tmp << " y=\"" << Utils::round_str(drect.y(), 3, buf) << '"';
+    tmp << " width=\"" << Utils::round_str(drect.width(), 3, buf) << '"';
+    tmp << " height=\"" << Utils::round_str(drect.height(), 3, buf) << '"';
+    tmp << " /></"SVG"clipPath>";
     useClipPath = true;
   }
 
-  tmp <<
-    "<"SVG"image xlink:href=\"" << imageUri << "\""
-          " x=\"" << myround(x) << "\""
-          " y=\"" << myround(y) << "\""
-      " width=\"" << myround(width) << "\""
-      " height=\"" << myround(height) << "\"";
+  tmp << "<"SVG"image xlink:href=\"" << imageUri << "\"";
+  tmp << " x=\"" << Utils::round_str(x, 3, buf) << '"';
+  tmp << " y=\"" << Utils::round_str(y, 3, buf) << '"';
+  tmp << " width=\"" << Utils::round_str(width, 3, buf) << '"';
+  tmp << " height=\"" << Utils::round_str(height, 3, buf) << '"';
 
   if (useClipPath)
     tmp << " clip-path=\"url(#imgClip" << imgClipId << ")\"";
@@ -394,11 +409,13 @@ void WSvgImage::drawLine(double x1, double y1, double x2, double y2)
   drawPath(path);
 }
 
-void WSvgImage::drawText(const WRectF& rect, int flags, const WString& text)
+void WSvgImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+			 const WString& text)
 {
   finishPath();
   makeNewGroup();
 
+  char buf[30];
   std::stringstream tmp;
 
   tmp << "<"SVG"text";
@@ -408,14 +425,15 @@ void WSvgImage::drawText(const WRectF& rect, int flags, const WString& text)
   if (painter()->pen().color() != painter()->brush().color()
       || painter()->brush().style() == NoBrush) {
     const WColor& color = painter()->pen().color();
-    tmp << "fill:" + color.cssText() << ";";
+    tmp << "fill:" + color.cssText() << ';';
     if (color.alpha() != 255)
-      tmp << "fill-opacity:" << myround(color.alpha() / 255.) << ";";
+      tmp << "fill-opacity:" << Utils::round_str(color.alpha() / 255., 3, buf)
+	  << ';';
   }
-  tmp << "\"";
+  tmp << '"';
 
-  int horizontalAlign = flags & 0xF;
-  int verticalAlign = flags & 0xF0;
+  WFlags<AlignmentFlag> horizontalAlign = flags & AlignHorizontalMask;
+  WFlags<AlignmentFlag> verticalAlign = flags & AlignVerticalMask;
 
   switch (horizontalAlign) {
   case AlignLeft:
@@ -428,6 +446,9 @@ void WSvgImage::drawText(const WRectF& rect, int flags, const WString& text)
   case AlignCenter:
     tmp << " x=" << quote(rect.center().x())
 	<< " text-anchor=\"middle\"";
+    break;
+  default:
+    break;
   }
 
 /*
@@ -446,6 +467,9 @@ void WSvgImage::drawText(const WRectF& rect, int flags, const WString& text)
   case AlignMiddle:
     tmp << " y=" << quote(rect.center().y())
 	<< " dominant-baseline=\"middle\"";
+    break;
+  default:
+    break;
   }
 
   tmp << ">" << WWebWidget::escapeText(text, false).toUTF8() << "</"SVG"text>";
@@ -473,6 +497,8 @@ void WSvgImage::drawText(const WRectF& rect, int flags, const WString& text)
     y = rect.center().y() + fontSize * 0.25; break;
   case AlignBottom:
     y = rect.bottom() - fontSize * 0.25 ; break;
+  default:
+    break;
   }
 
   tmp << " y=" << quote(y);
@@ -490,11 +516,13 @@ std::string WSvgImage::quote(const std::string& s)
 
 std::string WSvgImage::quote(double d)
 {
-  return quote(boost::lexical_cast<std::string>(myround(d)));
+  char buf[30];
+  return quote(Utils::round_str(d, 3, buf));
 }
 
 std::string WSvgImage::fillStyle() const
 {
+  char buf[30];
   std::string result;
 
   switch (painter()->brush().style()) {
@@ -504,9 +532,11 @@ std::string WSvgImage::fillStyle() const
   case SolidPattern: {
     const WColor& color = painter()->brush().color();
     result += "fill:" + color.cssText() + ";";
-    if (color.alpha() != 255)
-      result += "fill-opacity:"
-	+ boost::lexical_cast<std::string>(myround(color.alpha() / 255.)) + ";";
+    if (color.alpha() != 255) {
+      result += "fill-opacity:";
+      result += Utils::round_str(color.alpha() / 255., 3, buf);
+      result += ';';
+    }
     break;
   }
   }
@@ -540,7 +570,7 @@ std::string WSvgImage::strokeStyle() const
       result += "stroke-opacity:"
 	+ boost::lexical_cast<std::string>(color.alpha() / 255.) + ";";
 
-    WLength w = normalizedPenWidth(pen.width(), true);
+    WLength w = painter()->normalizedPenWidth(pen.width(), true);
     if (w != WLength(1))
       result += "stroke-width:" + w.cssText() + ";";
 
@@ -595,20 +625,25 @@ std::string WSvgImage::fontStyle() const
 std::string WSvgImage::rendered()
 {
   std::stringstream s;
-
-  ArgumentMap empty;
-  streamResourceData(s, empty);
-
+  streamResourceData(s);
   return s.str();
 }
 
-const std::string WSvgImage::resourceMimeType() const
+void WSvgImage::handleRequest(const Http::Request& request,
+			      Http::Response& response)
 {
-  return "image/svg+xml";
+  response.setMimeType("image/svg+xml");
+
+#ifndef WT_TARGET_JAVA
+  std::ostream& o = response.out();
+#else
+  std::ostream o(response.out());
+#endif // WT_TARGET_JAVA
+
+  streamResourceData(o);
 }
 
-bool WSvgImage::streamResourceData(std::ostream& stream,
-				   const ArgumentMap& arguments)
+void WSvgImage::streamResourceData(std::ostream& stream)
 {
   stream << "<"SVG"svg xmlns=\"http://www.w3.org/2000/svg\""
     " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
@@ -617,8 +652,6 @@ bool WSvgImage::streamResourceData(std::ostream& stream,
     " height=\"" << height().cssText() << "\">"
 	 << "<"SVG"g><"SVG"g>" << shapes_
 	 << "</"SVG"g></"SVG"g></"SVG"svg>";
-
-  return true;
 }
 
 }

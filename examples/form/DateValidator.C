@@ -1,6 +1,7 @@
 #include "DateValidator.h"
 
 #include <Wt/WString>
+#include <boost/regex.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 using namespace boost::gregorian;
@@ -22,15 +23,15 @@ DateValidator::DateValidator(const date& bottom, const date& top)
   setNoMatchText("Must be a date in format 'dd/MM/yyyy'");
 }
 
-WValidator::State DateValidator::validate(WString& input, int& pos) const
+WValidator::State DateValidator::validate(WString& input) const
 {
-  WValidator::State state = WRegExpValidator::validate(input, pos);
+  WValidator::State state = WRegExpValidator::validate(input);
 
   std::string text = input.toUTF8();
 
   if ((state == Valid) && !text.empty()) {
     boost::smatch what;
-    boost::regex_match(text, what, regExp());
+    boost::regex_match(text, what, boost::regex(regExp().toUTF8()));
 
     try {
       date d

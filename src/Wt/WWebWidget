@@ -28,16 +28,26 @@ enum DomElementType {
   DomElement_OL,
 
   DomElement_OPTION, DomElement_UL, DomElement_SCRIPT, DomElement_SELECT,
-  DomElement_SPAN, DomElement_TABLE, DomElement_TBODY, DomElement_TD,
+  DomElement_SPAN, DomElement_TABLE, DomElement_TBODY, DomElement_THEAD,
+  DomElement_TH, DomElement_TD,
   DomElement_TEXTAREA,
 
   DomElement_TR, DomElement_P, DomElement_CANVAS,
   DomElement_MAP, DomElement_AREA
 };
 
-namespace Ext {
-  class Widget;
-}
+enum RepaintFlag {
+  RepaintPropertyIEMobile = 0x1 << 12,  // pocket PC 2002 or later
+  RepaintPropertyAttribute = 0x1 << 13, // any attribute or property
+  RepaintInnerHtml = 0x1 << 14
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag);
+
+W_DECLARE_MASK_FOR_FLAGS(RepaintFlag, RepaintAll,
+			 RepaintPropertyIEMobile | RepaintPropertyAttribute
+			 | RepaintInnerHtml);
+
 
 class WCssDecorationStyle;
 class WContainerWidget;
@@ -66,7 +76,7 @@ public:
 
   virtual void setPositionScheme(PositionScheme scheme);
   virtual PositionScheme positionScheme() const;
-  virtual void setOffsets(const WLength& offset, int sides = All);
+  virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All);
   virtual WLength offset(Side s) const;
   virtual void resize(const WLength& width, const WLength& height);
   virtual WLength width() const;
@@ -79,11 +89,13 @@ public:
   virtual WLength maximumHeight() const;
   virtual void setLineHeight(const WLength& height);
   virtual WLength lineHeight() const;
+#ifndef WT_TARGET_JAVA
   virtual void setFloatSide(Side s);
   virtual Side floatSide() const;
-  virtual void setClearSides(int sides);
-  virtual int clearSides() const;
-  virtual void setMargin(const WLength& margin, int sides = All);
+  virtual void setClearSides(WFlags<Side> sides);
+  virtual WFlags<Side> clearSides() const;
+#endif
+  virtual void setMargin(const WLength& margin, WFlags<Side> sides = All);
   virtual WLength margin(Side side) const;
   virtual void setHidden(bool);
   virtual bool isHidden() const;
@@ -91,19 +103,20 @@ public:
   virtual bool isPopup() const;
   virtual void setInline(bool);
   virtual bool isInline() const;
+  virtual void setDecorationStyle(const WCssDecorationStyle& style);
   virtual WCssDecorationStyle& decorationStyle();
+  virtual void setStyleClass(const WT_USTRING& styleClass);
   void setStyleClass(const char *styleClass);
-  virtual void setStyleClass(const WString& styleClass);
-  virtual WString styleClass() const;
-  virtual void setVerticalAlignment(VerticalAlignment alignment,
+  virtual WT_USTRING styleClass() const;
+  virtual void setVerticalAlignment(AlignmentFlag alignment,
 				    const WLength& length = WLength());
-  virtual VerticalAlignment verticalAlignment() const;
+  virtual AlignmentFlag verticalAlignment() const;
   virtual WLength verticalAlignmentLength() const;
   virtual void setToolTip(const WString& toolTip);
   virtual WString toolTip() const;
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
-				 const WString& value);
+				 const WT_USTRING& value);
   virtual void load();
   virtual bool loaded() const;
   virtual void setId(const std::string& id);
@@ -113,7 +126,7 @@ public:
   virtual void        getDomChanges(std::vector<DomElement *>& result,
 				    WApplication *app);
 
-  DomElement *	      createSDomElement(WApplication *app);
+  virtual DomElement *createSDomElement(WApplication *app);
 
   virtual DomElementType domElementType() const = 0;
 
@@ -138,6 +151,10 @@ public:
    */
   static WString escapeText(const WString& text, bool newlinesToo = false);
 
+  /*! \brief Escape HTML control characters in the text, to display literally.
+   */
+  static std::string& escapeText(std::string& text, bool newlinestoo = false);
+
   /*! \brief Remove tags/attributes from text that are not passive.
    *
    * This removes tags and attributes from XHTML-formatted text that
@@ -160,6 +177,8 @@ public:
    */
   static std::string jsStringLiteral(const std::string& v,
 				     char delimiter = '\'');
+  static std::string jsStringLiteral(const WString& v,
+				     char delimiter = '\'');
 
   /*! \brief Returns contained widgets.
    *
@@ -169,22 +188,14 @@ public:
 
   static std::string fixRelativeUrl(const std::string& url);
 
+  int  zIndex() const;
 
   void setFormObject(bool how);
-  int  zIndex() const;
   static bool canOptimizeUpdates();
 
 protected:
-  enum RepaintFlags {
-    RepaintPropertyIEMobile = 0x1 << 12,  // pocket PC 2002 or later
-    RepaintPropertyAttribute = 0x1 << 13, // any attribute or property
-    RepaintInnerHtml = 0x1 << 14,
-    RepaintAll = 0x7 << 12
-  };
+  void repaint(WFlags<RepaintFlag> flags = RepaintAll);
 
-  void repaint(unsigned int flags = RepaintAll);
-
-  virtual void prepareRerender();
   virtual void doneRerender();
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElement *renderRemove();
@@ -213,7 +224,6 @@ private:
   static const int BIT_HIDE_WITH_OFFSETS = 8;
   static const int BIT_BEING_DELETED = 9;
   static const int BIT_DONOT_STUB = 10;
-  static const int BIT_NEED_RERENDER = 11;
   static const int BIT_REPAINT_PROPERTY_IEMOBILE = 12;
   static const int BIT_REPAINT_PROPERTY_ATTRIBUTE = 13;
   static const int BIT_REPAINT_INNER_HTML = 14;
@@ -238,15 +248,17 @@ private:
 
   struct LayoutImpl {
     PositionScheme	    positionScheme_;
+#ifndef WT_TARGET_JAVA
     Side		    floatSide_;
-    int			    clearSides_;
+    WFlags<Side>	    clearSides_;
+#endif // WT_TARGET_JAVA
     WLength		    offsets_[4]; // left, right, top, bottom
     WLength		    minimumWidth_;
     WLength		    minimumHeight_;
     WLength		    maximumWidth_;
     WLength		    maximumHeight_;
     bool		    popup_;
-    VerticalAlignment	    verticalAlignment_;
+    AlignmentFlag	    verticalAlignment_;
     WLength		    verticalAlignmentLength_;
     WLength		    margin_[4];
     WLength                 lineHeight_;
@@ -260,7 +272,7 @@ private:
 
   struct LookImpl {
     WCssDecorationStyle    *decorationStyle_;
-    WString                 styleClass_;
+    WT_USTRING              styleClass_;
     WString                *toolTip_;
     bool		    styleClassChanged_;
     bool                    toolTipChanged_;
@@ -272,14 +284,14 @@ private:
   LookImpl *lookImpl_;
 
   struct DropMimeType {
-    WString hoverStyleClass;
+    WT_USTRING hoverStyleClass;
 
     DropMimeType();
-    DropMimeType(const WString& hoverStyleClass);
+    DropMimeType(const WT_USTRING& hoverStyleClass);
   };
 
   struct OtherImpl {
-    std::map<std::string, WString>      *attributes_;
+    std::map<std::string, WT_USTRING>     *attributes_;
     std::vector<std::string>            *attributesSet_;
     std::string                         *id_;
 
@@ -298,38 +310,37 @@ private:
   std::vector<WWidget *>    *children_;
   static std::vector<WWidget *> emptyWidgetList_;
 
-  void setNoFormData();
-
   virtual void signalConnectionsChanged();
 
-  bool needRerender() const { return flags_.test(BIT_NEED_RERENDER); }
   void renderOk();
   void propagateRenderOk(bool deep = true);
   void quickPropagateRenderOk();
 
-  void		      getSDomChanges(std::vector<DomElement *>& result,
-				     WApplication *app);
-  void                getSFormObjects(std::vector<WObject *>& formObjects);
-  virtual void	      getFormObjects(std::vector<WObject *>& formObjects);
-
+  virtual void getSDomChanges(std::vector<DomElement *>& result,
+			      WApplication *app);
+  void         getSFormObjects(std::vector<WObject *>& formObjects);
+  virtual void getFormObjects(std::vector<WObject *>& formObjects);
 
   /*
    * Drag & drop stuff.
    */
-  bool                setAcceptDropsImpl(const std::string& mimeType,
-					 bool accept,
-					 const WString& hoverStyleClass);
+  bool          setAcceptDropsImpl(const std::string& mimeType,
+				   bool accept,
+				   const WT_USTRING& hoverStyleClass);
 
   void setIgnoreChildRemoves(bool how);
-
-  bool requireJavaScriptLibrary(const std::string& path);
 
 protected:
   void setId(DomElement *element, WApplication *app);
   virtual WWebWidget *webWidget() { return this; }
 
+  EventSignal<void> *voidEventSignal(const char *name, bool create);
+  EventSignal<WKeyEvent> *keyEventSignal(const char *name, bool create);
+  EventSignal<WMouseEvent> *mouseEventSignal(const char *name, bool create);
+  EventSignal<WScrollEvent> *scrollEventSignal(const char *name, bool create);
+
   void updateSignalConnection(DomElement& element, EventSignalBase& signal,
-			      const char *eventName, bool all);
+			      const char *name, bool all);
 
   /*
    * WWebWidget ended up with more friends than me...

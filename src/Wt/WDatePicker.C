@@ -42,26 +42,26 @@ WDatePicker::WDatePicker(WInteractWidget *displayWidget,
   layout_->addWidget(popup_ = new WContainerWidget());
 
   calendar_ = new WCalendar(i18n, popup_);
-  calendar_->selected.connect(SLOT(popup_, WWidget::hide));
-  calendar_->selectionChanged.connect(SLOT(this, WDatePicker::setFromCalendar));
+  calendar_->selected().connect(SLOT(popup_, WWidget::hide));
+  calendar_->selectionChanged().connect(SLOT(this, WDatePicker::setFromCalendar));
 
   WContainerWidget *buttonContainer = new WContainerWidget(popup_);
   buttonContainer->setContentAlignment(AlignCenter);
   WPushButton *closeButton
     = new WPushButton(i18n ? tr("Close") : "Close", buttonContainer);
-  closeButton->clicked.connect(SLOT(popup_, WWidget::hide));
+  closeButton->clicked().connect(SLOT(popup_, WWidget::hide));
 
   popup_->hide();
   popup_->setPopup(true);
   popup_->setPositionScheme(Absolute);
   popup_->setStyleClass("Wt-popup");
 
-  popup_->escapePressed.connect(SLOT(popup_, WWidget::hide));
-  displayWidget->clicked.connect(SLOT(popup_, WWidget::show));
-  displayWidget->clicked.connect(SLOT(this, WDatePicker::setFromLineEdit));
+  popup_->escapePressed().connect(SLOT(popup_, WWidget::hide));
+  displayWidget->clicked().connect(SLOT(popup_, WWidget::show));
+  displayWidget->clicked().connect(SLOT(this, WDatePicker::setFromLineEdit));
 }
 
-void WDatePicker::setFormat(const WString& format)
+void WDatePicker::setFormat(const WT_USTRING& format)
 {
   format_ = format;
 }
@@ -72,7 +72,7 @@ void WDatePicker::setFromCalendar()
     const WDate& calDate = *calendar_->selection().begin();
 
     forEdit_->setText(calDate.toString(format_));
-    forEdit_->changed.emit();
+    forEdit_->changed().emit();
   }
 }
 

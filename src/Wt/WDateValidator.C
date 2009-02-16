@@ -14,31 +14,35 @@
 namespace Wt {
 
 WDateValidator::WDateValidator(WObject *parent)
-  : WValidator(parent),
-    format_("yyyy-MM-dd")
-{ }
+  : WValidator(parent)
+{ 
+  setFormat("yyyy-MM-dd");
+}
 
 WDateValidator::WDateValidator(const WDate& bottom, const WDate& top,
 			       WObject *parent)
   : WValidator(parent),
-    format_("yyyy-MM-dd"),
     bottom_(bottom),
     top_(top)
-{ }
+{
+  setFormat("yyyy-MM-dd");
+}
 
-WDateValidator::WDateValidator(const WString& format, WObject *parent)
-  : WValidator(parent),
-    format_(format)
-{ }
+WDateValidator::WDateValidator(const WT_USTRING& format, WObject *parent)
+  : WValidator(parent)
+{
+  setFormat(format);
+}
 
-WDateValidator::WDateValidator(const WString& format,
+WDateValidator::WDateValidator(const WT_USTRING& format,
 			       const WDate& bottom, const WDate& top,
 			       WObject *parent)
   : WValidator(parent),
-    format_(format),
     bottom_(bottom),
     top_(top)
-{ }
+{
+  setFormat(format);
+}
 
 void WDateValidator::setInvalidNotADateText(const WString& text)
 {
@@ -49,19 +53,25 @@ WString WDateValidator::invalidNotADateText() const
 {
   if (!notADateText_.empty()) {
     WString s = notADateText_;
-    s.arg(format_);
+    s.arg(formats_[0]);
     return s;
   } else
-    return WString::fromUTF8("Must be a date in the format '") + format_ + "'";
+    return WString::fromUTF8("Must be a date in the format '") + formats_[0]
+      + "'";
 }
 
 
-void WDateValidator::setFormat(const WString& format)
+void WDateValidator::setFormat(const WT_USTRING& format)
 {
-  if (format_ != format) {
-    format_ = format;
-    repaint();
-  }
+  formats_.clear();
+  formats_.push_back(format);
+  repaint();
+}
+
+void WDateValidator::setFormats(const std::vector<WT_USTRING>& formats)
+{
+  formats_ = formats;
+  repaint();
 }
 
 void WDateValidator::setBottom(const WDate& bottom)
@@ -90,7 +100,7 @@ WString WDateValidator::invalidTooEarlyText() const
 {
   if (!tooEarlyText_.empty()) {
     WString s = tooEarlyText_;
-    s.arg(bottom_.toString(format_)).arg(top_.toString(format_));
+    s.arg(bottom_.toString(formats_[0])).arg(top_.toString(formats_[0]));
     return s;
   } else
     if (bottom_.isNull())
@@ -98,11 +108,11 @@ WString WDateValidator::invalidTooEarlyText() const
     else
       if (top_.isNull())
 	return WString::fromUTF8("The date must be after ")
-	  + bottom_.toString(format_);
+	  + bottom_.toString(formats_[0]);
       else
 	return WString::fromUTF8("The date must be between ")
-	  + bottom_.toString(format_)
-	  + " and " + top_.toString(format_);
+	  + bottom_.toString(formats_[0])
+	  + " and " + top_.toString(formats_[0]);
 }
 
 void WDateValidator::setInvalidTooLateText(const WString& text)
@@ -115,7 +125,7 @@ WString WDateValidator::invalidTooLateText() const
 {
   if (!tooLateText_.empty()) {
     WString s = tooLateText_;
-    s.arg(bottom_.toString(format_)).arg(top_.toString(format_));
+    s.arg(bottom_.toString(formats_[0])).arg(top_.toString(formats_[0]));
     return s;
   } else
     if (top_.isNull())
@@ -123,11 +133,11 @@ WString WDateValidator::invalidTooLateText() const
     else
       if (bottom_.isNull())
 	return WString::fromUTF8("The date must be before ")
-	  + top_.toString(format_);
+	  + top_.toString(formats_[0]);
       else
 	return WString::fromUTF8("The date must be between ")
-	  + bottom_.toString(format_)
-	  + " and " + top_.toString(format_);
+	  + bottom_.toString(formats_[0])
+	  + " and " + top_.toString(formats_[0]);
 }
 
 WDate WDateValidator::parse(const WString& input)
@@ -135,33 +145,32 @@ WDate WDateValidator::parse(const WString& input)
   return WDate::fromString(input, "yyyy-MM-dd");
 }
 
-WValidator::State WDateValidator::validate(WString& input, int& pos) const
+WValidator::State WDateValidator::validate(WT_USTRING& input) const
 {
   if (input.empty())
-    if (isMandatory())
-      return InvalidEmpty;
-    else
-      return Valid;
+    return isMandatory() ? InvalidEmpty : Valid;
 
-  try {
-    WDate d = WDate::fromString(input, format_);
+  for (unsigned i = 0; i < formats_.size(); ++i) {
+    try {
+      WDate d = WDate::fromString(input, formats_[i]);
 
-    if (d.isValid()) {
-      if (!bottom_.isNull())
-	if (d < bottom_)
-	  return Invalid;
+      if (d.isValid()) {
+	if (!bottom_.isNull())
+	  if (d < bottom_)
+	    return Invalid;
 
-      if (!top_.isNull())
-	if (d > top_)
-	  return Invalid;
+	if (!top_.isNull())
+	  if (d > top_)
+	    return Invalid;
     
-      return Valid;
-    } else
-      return Invalid;
-  } catch (std::exception& e) {
-    wApp->log("warn") << "WDateValidator::validate(): " << e.what();
-    return Invalid;
+	return Valid;
+      }
+    } catch (std::exception& e) {
+      wApp->log("warn") << "WDateValidator::validate(): " << e.what();
+    }
   }
+
+  return Invalid;
 }
 
 std::string WDateValidator::javaScriptValidate(const std::string& jsRef) const
@@ -175,30 +184,38 @@ std::string WDateValidator::javaScriptValidate(const std::string& jsRef) const
   else
     js << "return {valid:true};";
 
-  std::string dayGetJS = "1", monthGetJS = "1", yearGetJS = "2000";
-  std::string r = WDate::formatToRegExp(format_,
-					dayGetJS, monthGetJS, yearGetJS);
+  js << "var r,res,m=-1,d=-1,y=-1;";
 
-  js << "var r=/^" << r << "$/;"
-    "var results=r.exec(e.value);"
-    "if (results==null) return {valid:false,message:tn};"
-    "var month=" << monthGetJS << ";"
-    "var day=" << dayGetJS << ";"
-    "if ((day<=0)||(day>31)||(month<=0)||(month>12))"
-    " return {valid:false,message:tn};"
-    "var d=new Date(" << yearGetJS << ",month-1,day);"
-    "if (d.getDate() != day || "
-        "d.getMonth() != month-1 || "
-        "d.getFullYear() != " << yearGetJS << ") "
-      "return {valid:false,massage:tn};"
-    ;
+  for (unsigned i = 0; i < formats_.size(); ++i) {
+    WDate::RegExpInfo r = WDate::formatToRegExp(formats_[i]);
+
+    js << "r=/^" << r.regexp << "$/;"
+      "results=r.exec(e.value);"
+      "if (results!=null) {"
+      """m=" << r.monthGetJS << ";"
+      """d=" << r.dayGetJS << ";"
+      """y=" << r.yearGetJS << ";"
+      "} else {";
+  }
+  js << "return {valid:false,message:tn};";
+
+  for (unsigned i = 0; i < formats_.size(); ++i)
+    js << "}";
+
+  js << "if ((d<=0)||(d>31)||(m<=0)||(m>12))"
+    "return {valid:false,message:tn};"
+    "var dt=new Date(y,m-1,d);"
+    "if (dt.getDate() != d || "
+        "dt.getMonth() != m-1 || "
+        "dt.getFullYear() != y) "
+      "return {valid:false,massage:tn};";
 
   if (!bottom_.isNull())
-    js << "if(d.getTime()<new Date(" << bottom_.year() << ','
+    js << "if(dt.getTime()<new Date(" << bottom_.year() << ','
        << bottom_.month()-1 << ',' << bottom_.day() << ").getTime())"
       "return {valid:false,message:ts};";
   if (!top_.isNull())
-    js << "if(d.getTime()>new Date(" << top_.year() << ','
+    js << "if(dt.getTime()>new Date(" << top_.year() << ','
        << top_.month()-1 << ',' << top_.day() << ").getTime())"
       "return {valid:false,message:tb};";
 
@@ -214,13 +231,15 @@ std::string WDateValidator::javaScriptValidate(const std::string& jsRef) const
 void WDateValidator::createExtConfig(std::ostream& config) const
 {
   config << ",format:"
-	 << WWebWidget::jsStringLiteral(WDate::extFormat(format_), '\'');
+	 << WWebWidget::jsStringLiteral(WDate::extFormat(formats_[0]), '\'');
 
   try {
     if (!bottom_.isNull())
-      config << ",minValue:" << bottom_.toString(format_).jsStringLiteral();
+      config << ",minValue:"
+	     << WWebWidget::jsStringLiteral(bottom_.toString(formats_[0]));
     if (top_.isNull())
-      config << ",maxValue:" << top_.toString(format_).jsStringLiteral();
+      config << ",maxValue:"
+	     << WWebWidget::jsStringLiteral(top_.toString(formats_[0]));
   } catch (std::exception& e) {
     wApp->log("error") << "WDateValidator: " << e.what();
   }

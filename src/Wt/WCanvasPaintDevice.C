@@ -11,10 +11,12 @@
 #include "Wt/WWebWidget"
 
 #include "DomElement.h"
+#include "Utils.h"
 
 #include <math.h>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
+
 
 namespace Wt {
 
@@ -22,13 +24,12 @@ namespace {
 
   static const double EPSILON=1E-5;
 
-  void normalizedDegreesToRadians(double angle, double sweep,
-				  double& r1, double& r2) {
+  WPointF normalizedDegreesToRadians(double angle, double sweep) {
     angle = 360 - angle;
     int i = (int)angle / 360;
     angle -= (i * 360);
 
-    r1 = WTransform::degreesToRadians(angle);
+    double r1 = WTransform::degreesToRadians(angle);
 
     if (fabs(sweep - 360) < 0.01)
       sweep = 359.9;
@@ -42,20 +43,19 @@ namespace {
     //i = (int)a2 / 360;
     //a2 -= (i * 360);
 
-    r2 = WTransform::degreesToRadians(a2);
-  }
+    double r2 = WTransform::degreesToRadians(a2);
 
-  double myround(double d)
-  {
-    return static_cast<int>(d * 100) / 100.;
+    return WPointF(r1, r2);
   }
 }
 
 WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
 				       const WLength& height,
 				       WObject *parent)
-  : WPaintDevice(width, height),
-    WObject(parent)
+  : WObject(parent),
+    width_(width),
+    height_(height),
+    painter_(0)
 { }
 
 void WCanvasPaintDevice::render(const std::string& canvasId,
@@ -104,8 +104,7 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
 
   std::stringstream tmp;
 
-  double a1, a2;
-  normalizedDegreesToRadians(startAngle, spanAngle, a1, a2);
+  WPointF ra = normalizedDegreesToRadians(startAngle, spanAngle);
 
   double sx, sy, r, lw;
   if (rect.width() > rect.height()) {
@@ -115,14 +114,15 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   } else {
     sx = std::max(0.005, rect.width() / rect.height());
     sy = 1;
-    lw = normalizedPenWidth(painter()->pen().width(), true).value()
+    lw = painter()->normalizedPenWidth(painter()->pen().width(), true).value()
       * 1 / std::min(sx, sy);
     r = rect.height()/2;
   }
 
   const WPen& pen = painter()->pen();
   if (pen.style() != NoPen)
-    lw = normalizedPenWidth(pen.width(), true).value() * 1 / std::min(sx, sy);
+    lw = painter()->normalizedPenWidth(pen.width(), true).value()
+      * 1 / std::min(sx, sy);
   else
     lw = 0;
   r = std::max(0.005, r - lw/2);
@@ -133,7 +133,7 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
       << "ctx.scale(" << sx << "," << sy << ");"
       << "ctx.lineWidth = " << lw << ";"
       << "ctx.beginPath();"
-      << "ctx.arc(0,0," << r << ',' << a1 << "," << a2 << ",true);";
+      << "ctx.arc(0,0," << r << ',' << ra.x() << "," << ra.y() << ",true);";
 
   if (painter()->brush().style() != NoBrush) {
     tmp << "ctx.fill();";
@@ -163,23 +163,25 @@ void WCanvasPaintDevice::drawImage(const WRectF& rect,
 
   int imageIndex = createImage(imgUri);
 
+  char buf[30];
   std::stringstream tmp;
   tmp << "ctx.drawImage(images[" << imageIndex
-      << "]," << myround(sourceRect.x())
-      << "," << myround(sourceRect.y())
-      << "," << myround(sourceRect.width())
-      << "," << myround(sourceRect.height())
-      << "," << myround(rect.x())
-      << "," << myround(rect.y())
-      << "," << myround(rect.width())
-      << "," << myround(rect.height()) << ");";
+      << "]," << Utils::round_str(sourceRect.x(), 3, buf);
+  tmp << ',' << Utils::round_str(sourceRect.y(), 3, buf);
+  tmp << ',' << Utils::round_str(sourceRect.width(), 3, buf);
+  tmp << ',' << Utils::round_str(sourceRect.height(), 3, buf);
+  tmp << ',' << Utils::round_str(rect.x(), 3, buf);
+  tmp << ',' << Utils::round_str(rect.y(), 3, buf);
+  tmp << ',' << Utils::round_str(rect.width(), 3, buf);
+  tmp << ',' << Utils::round_str(rect.height(), 3, buf) << ");";
 
   js_ += tmp.str();
 }
 
-void WCanvasPaintDevice::drawPlainPath(std::ostream& out,
+void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 				       const WPainterPath& path)
 {
+  char buf[30];
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   out << "ctx.beginPath();";
@@ -193,33 +195,38 @@ void WCanvasPaintDevice::drawPlainPath(std::ostream& out,
 
     switch (s.type()) {
     case WPainterPath::Segment::MoveTo:
-      out << "ctx.moveTo(" << myround(s.x()) << "," << myround(s.y()) << ");";
+      out << "ctx.moveTo(" << Utils::round_str(s.x(), 3, buf);
+      out << ',' << Utils::round_str(s.y(), 3, buf) << ");";
       break;
     case WPainterPath::Segment::LineTo:
-      out << "ctx.lineTo(" << myround(s.x()) << "," << myround(s.y()) << ");";
+      out << "ctx.lineTo(" << Utils::round_str(s.x(), 3, buf);
+      out << ',' << Utils::round_str(s.y(), 3, buf) << ");";
       break;
     case WPainterPath::Segment::CubicC1:
-      out << "ctx.bezierCurveTo(" << myround(s.x()) << "," << myround(s.y());
+      out << "ctx.bezierCurveTo(" << Utils::round_str(s.x(), 3, buf);
+      out << ',' << Utils::round_str(s.y(), 3, buf);
       break;
     case WPainterPath::Segment::CubicC2:
-      out << "," << myround(s.x()) << "," << myround(s.y());
+      out << ',' << Utils::round_str(s.x(), 3, buf) << ',';
+      out << Utils::round_str(s.y(), 3, buf);
       break;
     case WPainterPath::Segment::CubicEnd:
-      out << "," << myround(s.x()) << "," << myround(s.y()) << ");";
+      out << ',' << Utils::round_str(s.x(), 3, buf) << ',';
+      out << Utils::round_str(s.y(), 3, buf) << ");";
       break;
     case WPainterPath::Segment::ArcC:
-      out << "ctx.arc(" << myround(s.x()) << "," << myround(s.y());
+      out << "ctx.arc(" << Utils::round_str(s.x(), 3, buf) << ',';
+      out << Utils::round_str(s.y(), 3, buf);
       break;
     case WPainterPath::Segment::ArcR:
-      out << "," << myround(s.x());
+      out << ',' << Utils::round_str(s.x(), 3, buf);
       break;
     case WPainterPath::Segment::ArcAngleSweep:
       {
-	double a1, a2;
+	WPointF r = normalizedDegreesToRadians(s.x(), s.y());
 
-	normalizedDegreesToRadians(s.x(), s.y(), a1, a2);
-
-	out << "," << a1 << "," << a2 << "," << (s.y() > 0 ? "true" : "false")
+	out << ',' << r.x() << ',' << r.y() << ','
+	    << (s.y() > 0 ? "true" : "false")
 	    << ");";
       }
       break;
@@ -240,14 +247,16 @@ void WCanvasPaintDevice::drawPlainPath(std::ostream& out,
       const double cp2y = cp1y + (y - current.y())/3.0;
 
       // and now call cubic Bezier curve to function 
-      out << "ctx.bezierCurveTo("
-	  <<        myround(cp1x) << "," << myround(cp1y)
-	  << "," << myround(cp2x) << "," << myround(cp2y);
-   
+      out << "ctx.bezierCurveTo(" << Utils::round_str(cp1x, 3, buf) << ',';
+      out << Utils::round_str(cp1y, 3, buf) << ',';
+      out << Utils::round_str(cp2x, 3, buf) << ',';
+      out << Utils::round_str(cp2y, 3, buf);
+
       break;
     }
     case WPainterPath::Segment::QuadEnd:
-      out << "," << myround(s.x()) << "," << myround(s.y()) << ");";
+      out << ',' << Utils::round_str(s.x(), 3, buf) << ',';
+      out << Utils::round_str(s.y(), 3, buf) << ");";
     }
   }
 }
@@ -268,24 +277,27 @@ void WCanvasPaintDevice::drawPath(const WPainterPath& path)
     tmp << "ctx.stroke();";
   }
 
-  js_ += tmp.str();
+  js_ += tmp.str() + '\n';
 }
 
 void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
 {
   renderStateChanges();
 
+  char buf[30];
   std::stringstream tmp;
 
   tmp << "ctx.beginPath();"
-      << "ctx.moveTo(" << myround(x1) << "," << myround(y1) << ");"
-      << "ctx.lineTo(" << myround(x2) << "," << myround(y2) << ");"
-      << "ctx.stroke();";
+      << "ctx.moveTo(" << Utils::round_str(x1, 3, buf) << ',';
+  tmp << Utils::round_str(y1, 3, buf) << ");";
+  tmp << "ctx.lineTo(" << Utils::round_str(x2, 3, buf) << ',';
+  tmp << Utils::round_str(y2, 3, buf) << ");ctx.stroke();";
 
   js_ += tmp.str();
 }
 
-void WCanvasPaintDevice::drawText(const WRectF& rect, int flags,
+void WCanvasPaintDevice::drawText(const WRectF& rect,
+				  WFlags<AlignmentFlag> flags,
 				  const WString& text)
 {
   WPointF pos = painter()->combinedTransform().map(rect.topLeft());
@@ -301,8 +313,8 @@ void WCanvasPaintDevice::drawText(const WRectF& rect, int flags,
   e->setProperty(PropertyStyleHeight,
 		 boost::lexical_cast<std::string>(rect.height()) + "px");
 
-  int horizontalAlign = flags & 0xF;
-  int verticalAlign = flags & 0xF0;
+  AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
+  AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
   DomElement *t = e;
 
@@ -326,7 +338,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect, int flags,
   }
 
   t->setProperty(PropertyInnerHTML,
-		 WWebWidget::escapeText(text.value(), true).toUTF8());
+		 WWebWidget::escapeText(text, true).toUTF8());
 
   WFont f = painter()->font();
   f.updateDomElement(*t, false, true);
@@ -344,43 +356,52 @@ void WCanvasPaintDevice::drawText(const WRectF& rect, int flags,
   textElements_.push_back(e);
 }
 
-void WCanvasPaintDevice::setChanged(int flags)
+void WCanvasPaintDevice::setChanged(WFlags<ChangeFlag> flags)
 {
   changeFlags_ |= flags;
 }
 
-void WCanvasPaintDevice::renderTransform(std::ostream& s, const WTransform& t,
-					 bool invert)
+void WCanvasPaintDevice::renderTransform(std::stringstream& s,
+					 const WTransform& t, bool invert)
 {
   if (!t.isIdentity()) {
-    double dx, dy, alpha1, sx, sy, alpha2;
+    char buf[30];
+    WTransform::TRSRDecomposition d;
 
-    t.decomposeTranslateRotateScaleRotate(dx, dy, alpha1, sx, sy, alpha2);
+    t.decomposeTranslateRotateScaleRotate(d);
 
     if (!invert) {
-      if (fabs(dx) > EPSILON || fabs(dy) > EPSILON)
-	s << "ctx.translate(" << myround(dx) << ',' << myround(dy) << ");";
+      if (fabs(d.dx) > EPSILON || fabs(d.dy) > EPSILON) {
+	s << "ctx.translate(" << Utils::round_str(d.dx, 3, buf) << ',';
+	s << Utils::round_str(d.dy, 3, buf) << ");";
+      }
 
-      if (fabs(alpha1) > EPSILON)
-	s << "ctx.rotate(" << alpha1 << ");";
+      if (fabs(d.alpha1) > EPSILON)
+	s << "ctx.rotate(" << d.alpha1 << ");";
 
-      if (fabs(sx - 1) > EPSILON || fabs(sy - 1) > EPSILON)
-	s << "ctx.scale(" << sx << ',' << sy << ");";
+      if (fabs(d.sx - 1) > EPSILON || fabs(d.sy - 1) > EPSILON) {
+	s << "ctx.scale(" << Utils::round_str(d.sx, 3, buf) << ',';
+	s << Utils::round_str(d.sy, 3, buf) << ");";
+      }
 
-      if (fabs(alpha2) > EPSILON)
-	s << "ctx.rotate(" << alpha2 << ");";
+      if (fabs(d.alpha2) > EPSILON)
+	s << "ctx.rotate(" << d.alpha2 << ");";
     } else {
-      if (fabs(alpha2) > EPSILON)
-	s << "ctx.rotate(" << -alpha2 << ");";
+      if (fabs(d.alpha2) > EPSILON)
+	s << "ctx.rotate(" << -d.alpha2 << ");";
 
-      if (fabs(sx - 1) > EPSILON || fabs(sy - 1) > EPSILON)
-	s << "ctx.scale(" << 1/sx << ',' << 1/sy << ");";
+      if (fabs(d.sx - 1) > EPSILON || fabs(d.sy - 1) > EPSILON) {
+	s << "ctx.scale(" << Utils::round_str(1/d.sx, 3, buf) << ',';
+	s << Utils::round_str(1/d.sy, 3, buf) << ");";
+      }
 
-      if (fabs(alpha1) > EPSILON)
-	s << "ctx.rotate(" << -alpha1 << ");";
+      if (fabs(d.alpha1) > EPSILON)
+	s << "ctx.rotate(" << -d.alpha1 << ");";
 
-      if (fabs(dx) > EPSILON || fabs(dy) > EPSILON)
-	s << "ctx.translate(" << myround(-dx) << ',' << myround(-dy) << ");";
+      if (fabs(d.dx) > EPSILON || fabs(d.dy) > EPSILON) {
+	s << "ctx.translate(" << Utils::round_str(-d.dx, 3, buf) << ',';
+	s << Utils::round_str(-d.dy, 3, buf) << ");";
+      }
     }
   }
 }
@@ -419,7 +440,8 @@ void WCanvasPaintDevice::renderStateChanges()
     const WPen& pen = painter()->pen();
 
     s << "ctx.strokeStyle=\"" + pen.color().cssText(true)
-      << "\";ctx.lineWidth=" << normalizedPenWidth(pen.width(), true).value()
+      << "\";ctx.lineWidth="
+      << painter()->normalizedPenWidth(pen.width(), true).value()
       << ';';
 
     switch (pen.capStyle()) {

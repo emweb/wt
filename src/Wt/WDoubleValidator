@@ -60,7 +60,7 @@ public:
    * The input is considered valid only when it is blank for a non-mandatory
    * field, or represents a double within the valid range.
    */
-  virtual State validate(WString& input, int& pos) const;
+  virtual State validate(WT_USTRING& input) const;
 
   virtual void createExtConfig(std::ostream& config) const;
 

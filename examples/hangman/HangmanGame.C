@@ -39,11 +39,11 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
    // the click event.
    BackToGameText = new WText(L" Gaming Grounds ", elementAt(2, 0));
    BackToGameText->decorationStyle().setCursor(WCssDecorationStyle::Pointer);
-   BackToGameText->clicked.connect(SLOT(this, HangmanGame::showGame));
+   BackToGameText->clicked().connect(SLOT(this, HangmanGame::showGame));
 
    ScoresText = new WText(L" Highscores ", elementAt(2, 0));
    ScoresText->decorationStyle().setCursor(WCssDecorationStyle::Pointer);
-   ScoresText->clicked.connect(SLOT(this, HangmanGame::showHighScores));
+   ScoresText->clicked().connect(SLOT(this, HangmanGame::showHighScores));
    // Center the buttons horizontally.
    elementAt(2, 0)->setContentAlignment(AlignTop | AlignCenter);
 

@@ -36,15 +36,15 @@ public:
 
   /*! \brief Create a rich text editor initialized with the given HTML text.
    */
-  TextEdit(const WString& text, WContainerWidget *parent = 0);
+  TextEdit(const WT_USTRING& text, WContainerWidget *parent = 0);
 
   /*! \brief Set the text.
    */
-  void           setText(const WString& value);
+  void           setText(const WT_USTRING& value);
 
   /*! \brief Get the text.
    */
-  const WString& text() const;
+  const WT_USTRING& text() const;
 
   /*! \brief Set the default location and link text used when inserting a link.
    */

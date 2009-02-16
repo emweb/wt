@@ -142,6 +142,7 @@ private:
   std::vector<WWidget *> items_;
 };
 
+#ifndef JAVA
 template<class T, class V>
 MenuItem *Menu::addItem(const WString& text,
 			T *target, void (V::*method)())
@@ -154,9 +155,10 @@ MenuItem *Menu::addItem(const std::string& iconPath, const WString& text,
 			T *target, void (V::*method)())
 {
   MenuItem *item = addItem(iconPath, text);
-  item->activated.connect(target, method);
+  item->activated().connect(target, method);
   return item;
 }
+#endif // JAVA
 
   }
 }

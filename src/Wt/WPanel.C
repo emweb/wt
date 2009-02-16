@@ -14,14 +14,14 @@ namespace Wt {
 
 WPanel::WPanel(WContainerWidget *parent)
   : WCompositeWidget(parent),
-    collapsed(this),
-    expanded(this),
-    collapsedSS(this),
-    expandedSS(this),
     titleBar_(0),
     collapseIcon_(0),
     title_(0),
-    centralWidget_(0)
+    centralWidget_(0),
+    collapsed_(this),
+    expanded_(this),
+    collapsedSS_(this),
+    expandedSS_(this)
 {
   setImplementation(impl_ = new WContainerWidget());
 
@@ -92,14 +92,16 @@ void WPanel::setCollapsible(bool on)
     collapseIcon_ = new WIconPair(resources + "collapse.gif",
 				  resources + "expand.gif");
     collapseIcon_->setInline(false);
+#ifndef WT_TARGET_JAVA
     collapseIcon_->setFloatSide(Left);
+#endif // WT_TARGET_JAVA
     collapseIcon_->setMargin(2, Top);
     titleBar_->insertWidget(0, collapseIcon_);
 
-    collapseIcon_->icon1Clicked.connect(SLOT(this, WPanel::doCollapse));
-    collapseIcon_->icon1Clicked.connect(SLOT(this, WPanel::onCollapse));
-    collapseIcon_->icon2Clicked.connect(SLOT(this, WPanel::doExpand));
-    collapseIcon_->icon2Clicked.connect(SLOT(this, WPanel::onExpand));
+    collapseIcon_->icon1Clicked().connect(SLOT(this, WPanel::doCollapse));
+    collapseIcon_->icon1Clicked().connect(SLOT(this, WPanel::onCollapse));
+    collapseIcon_->icon2Clicked().connect(SLOT(this, WPanel::doExpand));
+    collapseIcon_->icon2Clicked().connect(SLOT(this, WPanel::onExpand));
     collapseIcon_->setState(0);
   } else if (!on && collapseIcon_) {
     delete collapseIcon_;
@@ -143,7 +145,7 @@ void WPanel::doCollapse()
   wasCollapsed_ = isCollapsed();
   centralArea()->hide();
 
-  collapsedSS.emit(true);
+  collapsedSS_.emit(true);
 }
 
 void WPanel::doExpand()
@@ -151,7 +153,7 @@ void WPanel::doExpand()
   wasCollapsed_ = isCollapsed();
   centralArea()->show();
 
-  expandedSS.emit(true);
+  expandedSS_.emit(true);
 }
 
 void WPanel::undoCollapse()
@@ -159,7 +161,7 @@ void WPanel::undoCollapse()
   if (!wasCollapsed_)
     expand();
 
-  collapsedSS.emit(false);
+  collapsedSS_.emit(false);
 }
 
 void WPanel::undoExpand()
@@ -167,17 +169,17 @@ void WPanel::undoExpand()
   if (wasCollapsed_)
     collapse();
 
-  expandedSS.emit(false);
+  expandedSS_.emit(false);
 }
 
 void WPanel::onCollapse()
 {
-  collapsed.emit();
+  collapsed_.emit();
 }
 
 void WPanel::onExpand()
 {
-  expanded.emit();
+  expanded_.emit();
 }
 
 void WPanel::setCentralWidget(WWidget * w)

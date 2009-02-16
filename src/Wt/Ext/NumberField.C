@@ -27,7 +27,7 @@ double NumberField::value() const
 {
   try {
     return boost::lexical_cast<int>(lineEdit()->text());
-  } catch (boost::bad_lexical_cast&) {
+  } catch (boost::bad_lexical_cast& e) {
     return 0; // FIXME ?
   }
 }

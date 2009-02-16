@@ -94,7 +94,8 @@ Signal<WObject *>& WObject::destroyed()
 const std::string WObject::uniqueId() const
 {
   char buf[20];
-  sprintf(buf, "o%x", id_);
+  buf[0] = 'o';
+  Utils::itoa(id_, buf + 1, 16);
   return std::string(buf);
 }
 
@@ -103,13 +104,7 @@ const std::string WObject::formName() const
   return uniqueId();
 }
 
-void WObject::setFormData(CgiEntry *entry)
-{ }
-
-void WObject::formDataSet()
-{ }
-
-void WObject::setNoFormData()
+void WObject::setFormData(const FormData& formData)
 { }
 
 void WObject::requestTooLarge(int size)
@@ -132,9 +127,11 @@ void WObject::resetLearnedSlot(Method method)
       return;
     }
   }
+}
 
-  throw WtException("WObject::resetLearnedSlot(): method that has"
-		    " no stateless implementation.");
+WStatelessSlot *WObject::getStateless(Method method)
+{
+  return 0;
 }
 
 WStatelessSlot* WObject::isStateless(Method method)
@@ -144,34 +141,47 @@ WStatelessSlot* WObject::isStateless(Method method)
       return statelessSlots_[i];
   }
 
-  return 0;
+  return getStateless(method);
 }
 
-void WObject::implementAutolearn(Method method)
+WStatelessSlot *WObject::implementAutolearn(Method method)
 {
-  statelessSlots_.push_back(new WStatelessSlot(this, method));
+  for (unsigned i = 0; i < statelessSlots_.size(); i++)
+    if (statelessSlots_[i]->implementsMethod(method)) {
+      statelessSlots_[i]->setNotLearned();
+      return statelessSlots_[i];
+    }
+
+  WStatelessSlot *result = new WStatelessSlot(this, method);
+  statelessSlots_.push_back(result);
+  return result;
 }
 
-void WObject::implementPrelearn(Method method, Method undoMethod)
+WStatelessSlot *WObject::implementPrelearn(Method method, Method undoMethod)
 {        
   for (unsigned i = 0; i < statelessSlots_.size(); i++)
     if (statelessSlots_[i]->implementsMethod(method)) {
       statelessSlots_[i]->reimplementPreLearn(undoMethod);
-      break;
+      return statelessSlots_[i];
     }
 
-  statelessSlots_.push_back(new WStatelessSlot(this, method, undoMethod));
+  WStatelessSlot *result = new WStatelessSlot(this, method, undoMethod);
+  statelessSlots_.push_back(result);
+  return result;
 }
 
-void WObject::implementPrelearned(Method method, const std::string& jsCode)
+WStatelessSlot *WObject::implementPrelearned(Method method,
+					     const std::string& jsCode)
 {        
   for (unsigned i = 0; i < statelessSlots_.size(); i++)
     if (statelessSlots_[i]->implementsMethod(method)) {
       statelessSlots_[i]->reimplementJavaScript(jsCode);
-      break;
+      return statelessSlots_[i];
     }
 
-  statelessSlots_.push_back(new WStatelessSlot(this, method, jsCode));
+  WStatelessSlot *result = new WStatelessSlot(this, method, jsCode);
+  statelessSlots_.push_back(result);
+  return result;
 }
 
 WObject *WObject::sender()

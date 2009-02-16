@@ -7,10 +7,11 @@
 #ifndef WWIDGET_H_
 #define WWIDGET_H_
 
-#include <Wt/WResource>
+#include <Wt/WObject>
 #include <Wt/WLength>
 #include <Wt/WBorder>
 #include <Wt/WSignal>
+#include <Wt/WGlobal>
 
 #include <vector>
 #include <sstream>
@@ -27,227 +28,6 @@ class WMouseEvent;
 class WString;
 class WWebWidget;
 class DomElement;
-
-/*! \brief Enumeration that indicates a direction.
- */
-enum Orientation { Horizontal = 0x1, //!< Horizontal
-		   Vertical   = 0x2  //!< Vertical
-};
-
-/*! \brief Enumeration that indicates a standard button for a message box.
- *
- * Multiple buttons may be specified by logically or'ing these values
- * together, e.g.
- * \code
- * Ok | Cancel
- * \endcode
- */
-enum StandardButton {
-  NoButton = 0x00,  //!< No button
-  Ok = 0x01,        //!< An OK button.
-  Cancel = 0x02,    //!< A Cancel button.
-  Yes = 0x04,       //!< A Yes button.
-  No = 0x08,        //!< A No button.
-  Abort = 0x10,     //!< An Abort button.
-  Retry = 0x20,     //!< A Retry button.
-  Ignore = 0x40,    //!< An Ignore button.
-  YesAll = 0x80,    //!< A Yes-to-All button.
-  NoAll = 0x100     //!< A No-to-All button.
-};
-
-/*! \brief Enumeration that indiciates a standard icon for a message box.
- */
-enum Icon {
-  NoIcon = 0,       //!< No icon
-  Information = 1,  //!< An information icon <i>(not implemented)</i>
-  Warning = 2,      //!< An warning icon <i>(not implemented)</i>
-  Critical = 3,     //!< An critical icon <i>(not implemented)</i>
-  Question = 4      //!< An question icon <i>(not implemented)</i>
-};
-
-/*! \brief Enumeration that indicates how items may be selected.
- */
-enum SelectionMode { NoSelection = 0,      //!< No selections
-		     SingleSelection = 1,  //!< Single selection only
-		     ExtendedSelection = 3 //!< Multiple selection
-};
-
-/*! \brief Enumeration that indicates what is being selected.
- */
-enum SelectionBehavior { SelectItems = 0,    //!< Select single items 
-			 SelectRows = 1      //!< Select only rows
-			 /*, SelectColumns */
-};
-
-/*! \brief Enumeration that indicates what is the selection unit
- *         (<b>deprecated</b>).
- *
- * \deprecated Use SelectionBehavior instead.
- */
-enum SelectionUnit { CellSelection = 0,    //!< Select inividual cells 
-		     RowSelection = 1      //!< Select whole rows
-};
-
-enum SelectionFlag {
-  Select = 1,
-  Deselect = 2,
-  ToggleSelect = 3,
-  ClearAndSelect = 4
-};
-
-/*! \brief Enumeration that designates a relative location.
- *
- * Values of CenterX, CenterY, and CenterXY are only valid for
- * WCssDecorationStyle::setBackgroundImage()
- *
- * \sa setMargin(const WLength& x, int sides),
-       setOffsets(const WLength& x, int sides)
- * \sa setFloatSide(Side s),
- *     setClearSides(int sides)
- * \sa WContainerWidget::setPadding(const WLength& x, int sides)
- * \sa WCssDecorationStyle::setBackgroundImage()
- */
-enum Side {
-  None = 0x0,                         //!< No side
-  Top = 0x1,                          //!< Top side
-  Bottom = 0x2,                       //!< Bottom side
-  Left = 0x4,                         //!< Left side
-  Right = 0x8,                        //!< Right side
-  CenterX = 0x10,                     //!< Center horiziontally
-  CenterY = 0x20,                     //!< Center vertically
-  CenterXY = (CenterX | CenterY),     //!< (CenterX | CenterY)
-  Verticals = (Left | Right),         //!< (Left | Right)
-  Horizontals = (Top | Bottom),       //!< (Top | Bottom)
-  All = (Top | Bottom | Left | Right) //!< All sides
-};
-
-/*! \brief Enumeration that specifies a vertical alignment.
- *
- * When used with setVerticalAlignment(), this applies only
- * to inline widgets and determines how to position itself on the
- * current line, with respect to sibling inline widgets.
- *
- * When used with WTableCell::setContentAlignment(), this determines the
- * vertical alignment of contents within the table cell.
- *
- * When used with WPainter::drawText(), this determines the vertical alignment
- * of the text with respect to the bounding rectangle.
- *
- * Not all values are applicable in all situations. The most commonly
- * used values are AlignBottom, AlignMiddle and AlignTop.
- */
-enum VerticalAlignment {
-  /*! \brief Align at baseline (default alignment).
-   */
-  AlignBaseline=0x0,
-  /*! \brief Align below the baseline (as if subscript).
-   */
-  AlignSub=0x10,
-  /*! \brief Align above the baseline (as if superscript).
-   */
-  AlignSuper=0x20,
-  /*! \brief Align top of widget with top of tallest sibling widget.
-   */
-  AlignTop=0x30,
-  /*! \brief Align top of widget with the top of the parent widget's font.
-   */
-  AlignTextTop=0x40,
-  /*! \brief Align the middle to the middle of the parent widget.
-   */
-  AlignMiddle=0x50, 
-  /*! \brief Align bottom of widget to the bottom of the lowest sigling widget.
-   */
-  AlignBottom=0x60,
-  /*! \brief Align bottom of widget to the bottom of parent widget's font.
-   */
-  AlignTextBottom=0x70,
-  AlignLength=0x80 // ?
-};
-
-/*! \brief Enumeration that specifies a horizontal alignment.
- *
- * When used with WContainerWidget::setContentAlignment(), this specifies how
- * contents should be aligned horizontally within the container.
- *
- * When used with WPainter::drawText(), this determines the horizontal
- * alignment of the text with respect to the bounding rectangle.
- *
- * Not all values are applicable in all situations. The most commonly
- * used values are AlignLeft, AlignCenter and AlignRight.
- */
-enum HorizontalAlignment {
-  AlignLeft=0x1,   //!< Align children to the left
-  AlignRight=0x2,  //!< Align children to the right
-  AlignCenter=0x3, //!< Align children to the center
-  AlignJustify=0x4 //!< Justify children left and right
-};
-
-/*! \brief Enumeration that specifies a layout mechanism for a widget.
- *
- * The layout mechanism determines how the widget positions itself relative
- * to the parent or sibling widgets.
- *
- * \sa setPositionScheme(PositionScheme scheme)
- */
-enum PositionScheme {
-  /*! \brief Static position scheme.
-   * 
-   *  The widget is layed-out with other \link Wt::Static
-   *  Static \endlink and \link Wt::Relative Relative \endlink
-   *  sibling widgets, one after another.
-   *
-   *  Inline widgets are layed out in horizontal lines (like text),
-   *  wrapping around at the end of the line to continue on the next
-   *  line. Stacked widgets are stacked vertically.
-   *
-   *  Static widgets may also float to the left or right border,
-   *  using setFloatSide().
-   */
-  Static,
-  /*! \brief Relative position scheme.
-   *
-   *  The widget is first layed out according to Static layout
-   *  rules, but after layout, the widget may be offset relative to
-   *  where it would be in a static layout, using setOffsets().
-   *
-   *  Another common use of a Relative position scheme (even with no
-   *  specified offsets) is to provide a new reference coordinate
-   *  system for Absolutely positioned widgets.
-   */
-  Relative,
-  /*! \brief Absolute position scheme.
-   *
-   *  The widget is positioned at an absolute position
-   *  with respect to the nearest ancestor widget that is either:
-   *  <ul>
-   *    <li> a WTableCell </li>
-   *    <li> or has a position scheme that is \link Wt::Relative
-   *  Relative\endlink or \link Wt::Absolute Absolute\endlink. </li>
-   *  </ul>
-   */
-  Absolute,
-  /*! \brief Fixed position scheme.
-   *
-   *  The widget is positioned at fixed position with respect to
-   *  the browser's view-pane.
-   */
-  Fixed
-};
-
-/*! \brief Cursor style
- *
- * \sa WCssDecorationStyle::setCursor(), WImageArea::setCursor()
- */
-enum Cursor {
-  ArrowCursor,        //!< Arrow, CSS 'default' cursor
-  AutoCursor,         //!< Cursor chosen by the browser, CSS 'auto' cursor.
-  CrossCursor,        //!< Crosshair, CSS 'cross' cursor
-  PointingHandCursor, //!< Pointing hand, CSS 'pointer' cursor
-  OpenHandCursor,     //!< Open hand, CSS 'move' cursor
-  WaitCursor,         //!< Wait, CSS 'wait' cursor
-  IBeamCursor,        //!< Text edit, CSS 'text' cursor
-  WhatsThisCursor     //!< Help, CSS 'help' cursor
-};
 
 /*! \class WWidget Wt/WWidget Wt/WWidget
  *  \brief A %WWidget is the abstract base class for any %Wt widget.
@@ -270,45 +50,9 @@ enum Cursor {
  * layout of widgets, in which case you should not use methods that
  * are marked as being involved in CSS-based layout only.
  */
-class WT_API WWidget : public WResource
+class WT_API WWidget : public WObject
 {
 public:
-  typedef Wt::Side Side;
-  static const Side None = Wt::None;
-  static const Side Top = Wt::Top;
-  static const Side Bottom = Wt::Bottom;
-  static const Side Left = Wt::Left;
-  static const Side Right = Wt::Right;
-  static const Side CenterX = Wt::CenterX;
-  static const Side CenterY = Wt::CenterY;
-  static const Side CenterXY = Wt::CenterXY;
-  static const Side Verticals = Wt::Verticals;
-  static const Side Horizontals = Wt::Horizontals;
-  static const Side All = Wt::All;
-
-  typedef Wt::VerticalAlignment VerticalAlignment;
-  static const VerticalAlignment AlignBaseline = Wt::AlignBaseline;
-  static const VerticalAlignment AlignSub = Wt::AlignSub;
-  static const VerticalAlignment AlignSuper = Wt::AlignSuper;
-  static const VerticalAlignment AlignTop = Wt::AlignTop;
-  static const VerticalAlignment AlignTextTop = Wt::AlignTextTop;
-  static const VerticalAlignment AlignMiddle = Wt::AlignMiddle;
-  static const VerticalAlignment AlignBottom = Wt::AlignBottom;
-  static const VerticalAlignment AlignTextBottom = Wt::AlignTextBottom;
-  static const VerticalAlignment AlignLength = Wt::AlignLength;
-
-  typedef Wt::HorizontalAlignment HorizontalAlignment;
-  static const HorizontalAlignment AlignLeft = Wt::AlignLeft;
-  static const HorizontalAlignment AlignRight = Wt::AlignRight;
-  static const HorizontalAlignment AlignCenter = Wt::AlignCenter;
-  static const HorizontalAlignment AlignJustify = Wt::AlignJustify;
-
-  typedef Wt::PositionScheme PositionScheme;
-  static const PositionScheme Static = Wt::Static;
-  static const PositionScheme Relative = Wt::Relative;
-  static const PositionScheme Absolute = Wt::Absolute;
-  static const PositionScheme Fixed = Wt::Fixed;
-
   /*! \brief Delete a widget.
    *
    * Deletes a widget and all children (recursively). If the widget is
@@ -325,7 +69,7 @@ public:
    * WContainerWidget::addWidget() or by passing a container as a
    * parent to the constructor.
    */
-  WWidget *parent() const { return dynamic_cast<WWidget *>(WObject::parent()); }
+  WWidget *parent() const { return static_cast<WWidget *>(WObject::parent()); }
 
   /*! \brief Set the widget position scheme.
    *
@@ -383,23 +127,17 @@ public:
    *
    * \sa offset(Side) const
    */
-  virtual void setOffsets(const WLength& offset, int sides = All) = 0;
+  virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All) = 0;
 
-  /*! \brief Apply offsets to a widget (<b>deprecated</b>).
-   *
-   * \deprecated use setOffsets(const WLength&, int) instead.
-   *
-   * This applies to CSS-based layout.
-   *
-   * \sa setOffsets(const WLength&, int)
-   */
-  void setOffset(int sides, const WLength& offset);
+#ifdef WT_TARGET_JAVA
+  void setOffsets(int pixels, WFlags<Side> sides = All);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Retrieve the offset of the widget.
    *
    * This applies to CSS-based layout.
    *
-   * \sa setOffsets(const WLength&, int)
+   * \sa setOffsets(const WLength&, WFlags<Side>)
    */
   virtual WLength offset(Side side) const = 0;
 
@@ -413,6 +151,10 @@ public:
    * \sa width(), height()
    */
   virtual void resize(const WLength& width, const WLength& height) = 0;
+
+#ifdef WT_TARGET_JAVA
+  void resize(int widthPixels, int heightPixels);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns the widget width.
    *
@@ -446,7 +188,7 @@ public:
    *
    * \sa resize(), minimumWidth(), minimumHeight()
    */
-  virtual void setMinimumSize(const WLength& width, const WLength&) = 0;
+  virtual void setMinimumSize(const WLength& width, const WLength& height) = 0;
 
   /*! \brief Returns the minimum width.
    *
@@ -498,6 +240,7 @@ public:
    */
   virtual WLength lineHeight() const = 0;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Specify a side to which the WWidget must float.
    *
    * This only applies to widgets with a \link Wt::Static Static
@@ -529,13 +272,14 @@ public:
    *
    * \sa setFloatSide()
    */
-  virtual void setClearSides(int sides) = 0;
+  virtual void setClearSides(WFlags<Side> sides) = 0;
 
   /*! \brief Returns the sides that should remain empty.
    *
-   * \sa setClearSides(int)
+   * \sa setClearSides(WFlags<Side>)
    */
-  virtual int clearSides() const = 0;
+  virtual WFlags<Side> clearSides() const = 0;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Set margins around the widget.
    *
@@ -552,13 +296,17 @@ public:
    *
    * \sa margin(Side side);
    */
-  virtual void setMargin(const WLength& margin, int sides = All) = 0;
+  virtual void setMargin(const WLength& margin, WFlags<Side> sides = All) = 0;
+
+#ifdef WT_TARGET_JAVA
+  virtual void setMargin(int pixels, WFlags<Side> sides = All);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns the margin set for that side.
    *
    * This applies to CSS-based layout.
    *
-   * \sa setMargin(WLength margin, int sides);
+   * \sa setMargin(WLength margin, WFlags<Side> sides);
    */
   virtual WLength margin(Side side) const = 0;
 
@@ -620,6 +368,8 @@ public:
    */
   virtual bool isInline() const = 0;
 
+  virtual void setDecorationStyle(const WCssDecorationStyle& style) = 0;
+
   /*! \brief Returns the decoration style of this widget.
    *
    * This groups all decorative aspects of the widget, which do not
@@ -637,15 +387,14 @@ public:
    * 
    * \sa WApplication::styleSheet()
    */
-  virtual void setStyleClass(const WString& styleClass) = 0;
-
+  virtual void setStyleClass(const WT_USTRING& styleClass) = 0;
   void setStyleClass(const char *styleClass);
 
   /*! \brief Returns the style class.
    *
    * \sa setStyleClass(const WString&)
    */
-  virtual WString styleClass() const = 0;
+  virtual WT_USTRING styleClass() const = 0;
 
   /*! \brief Set the vertical alignment of this (inline) widget.
    *
@@ -654,7 +403,7 @@ public:
    *
    * This applies to CSS-based layout.
    */
-  virtual void setVerticalAlignment(VerticalAlignment alignment,
+  virtual void setVerticalAlignment(AlignmentFlag alignment,
 				    const WLength& length = WLength()) = 0;
 
   /*! \brief Returns the vertical alignment.
@@ -663,7 +412,7 @@ public:
    *
    * \sa setVerticalAlignment()
    */
-  virtual VerticalAlignment verticalAlignment() const = 0;
+  virtual AlignmentFlag verticalAlignment() const = 0;
 
   /*! \brief Returns the fixed vertical alignment that was set.
    *
@@ -672,8 +421,6 @@ public:
    * \sa setVerticalAlignment()
    */
   virtual WLength verticalAlignmentLength() const = 0;
-
-  virtual WWebWidget *webWidget() = 0;
 
   /*! \brief Sets a tooltip.
    *
@@ -710,7 +457,7 @@ public:
    * \sa JSlot, WApplication::doJavaScript()
    */
   virtual void setAttributeValue(const std::string& name,
-				 const WString& value) = 0;
+				 const WT_USTRING& value) = 0;
 
   /*! \brief Short hand for WString::tr()
    *
@@ -745,7 +492,7 @@ public:
    * \sa dropEvent(), WInteractWidget::setDraggable(), stopAcceptDrops()
    */
   virtual void acceptDrops(const std::string& mimeType,
-			   const WString& hoverStyleClass = WString());
+			   const WT_USTRING& hoverStyleClass = WT_USTRING());
 
   /*! \brief No longer accept a mime type for dropping.
    *
@@ -782,8 +529,6 @@ public:
 
   Signal<WWidget *> destroyed;
 
-public slots:
-
   /*! \brief Hide this WWidget.
    *
    * \sa setHidden(bool)
@@ -796,6 +541,8 @@ public slots:
    */
   void show();
 
+  virtual DomElement *createSDomElement(WApplication *app) = 0;
+
 protected:
   /*! \brief Create a widget with a given parent.
    *
@@ -803,8 +550,6 @@ protected:
    * container, using WContainerWidget::addWidget().
    */
   WWidget(WContainerWidget* parent = 0);
-
-  bool     resourceTriggerUpdate_;
 
   /*! \brief Handle a drop event.
    *
@@ -828,34 +573,49 @@ protected:
 
   virtual bool isVisible() const = 0;
   virtual bool isStubbed() const = 0;
+  virtual void render();
 
   WWidget *adam();
 
-  /*
-   * Implement the resource methods.
-   */
-  virtual const std::string resourceMimeType() const;
-  virtual void setArguments(const ArgumentMap& arguments);
-  virtual bool streamResourceData(std::ostream& stream,
-				  const ArgumentMap& arguments);
   virtual void setLayout(WLayout *layout);
 
+  typedef boost::intrusive::list<EventSignalBase> EventSignalList;
+
+  void addEventSignal(EventSignalBase& s);
+  EventSignalBase *getEventSignal(const char *name);
+  EventSignalList& eventSignals() { return eventSignals_; }
+
+  virtual WStatelessSlot *getStateless(Method method);
+
+  void renderOk();
+  void askRerender();
+  bool needRerender() const { return needRerender_; }
+
+  virtual void getSDomChanges(std::vector<DomElement *>& result,
+			      WApplication *app) = 0;
+
 private:
-  bool     wasHidden_;
+  EventSignalList eventSignals_;
+  bool wasHidden_;
+  bool needRerender_;
 
   void undoHideShow();
+  virtual WWebWidget *webWidget() = 0;
 
   virtual WLayoutItemImpl  *createLayoutItemImpl(WLayoutItem *layout);
   virtual WLayout          *layout();
 
-  friend class WebRenderer;
-
+  friend class StdWidgetItemImpl;
   friend class WAbstractArea;
   friend class WContainerWidget;
   friend class WCompositeWidget;
+  friend class WebRenderer;
   friend class WLayout;
+  friend class WMenuItem;
   friend class WPaintedWidget;
   friend class WScrollArea;
+  friend class WSubMenuItem;
+  friend class WViewWidget;
   friend class WWebWidget;
   friend class WWidgetItem;
 };

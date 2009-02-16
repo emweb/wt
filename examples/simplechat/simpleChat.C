@@ -53,8 +53,8 @@ ChatApplication::ChatApplication(const WEnvironment& env)
   root()->addWidget(new WText(WString::tr("details")));
 
   WPushButton *b = new WPushButton("I'm schizophrenic ...", root());
-  b->clicked.connect(SLOT(b, WPushButton::hide));
-  b->clicked.connect(SLOT(this, ChatApplication::addChatWidget));
+  b->clicked().connect(SLOT(b, WPushButton::hide));
+  b->clicked().connect(SLOT(this, ChatApplication::addChatWidget));
 }
 
 void ChatApplication::addChatWidget()

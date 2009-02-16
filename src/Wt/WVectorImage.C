@@ -8,8 +8,7 @@
 
 namespace Wt {
 
-WVectorImage::WVectorImage(const WLength& width, const WLength& height)
-  : WPaintDevice(width, height)
+WVectorImage::~WVectorImage()
 { }
 
 }

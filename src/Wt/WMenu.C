@@ -18,8 +18,6 @@
 #include "WtException.h"
 #include "Utils.h"
 
-using std::find;
-
 namespace Wt {
 
 WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
@@ -28,6 +26,8 @@ WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
     contentsStack_(contentsStack),
     orientation_(orientation),
     internalPathEnabled_(false),
+    itemSelected_(this),
+    itemSelectRendered_(this),
     current_(-1)
 {
   setRenderAsList(false);
@@ -66,7 +66,7 @@ void WMenu::setInternalPathEnabled()
 
     basePath_ = Utils::terminate(app->internalPath(), '/');
 
-    app->internalPathChanged.connect(SLOT(this, WMenu::internalPathChanged));
+    app->internalPathChanged().connect(SLOT(this, WMenu::internalPathChanged));
 
     updateItems();
   }
@@ -176,7 +176,7 @@ void WMenu::select(int index)
 
   if (index != -1) {
     items_[index]->loadContents();
-    itemSelected.emit(items_[current_]);
+    itemSelected_.emit(items_[current_]);
   }
 }
 
@@ -210,7 +210,7 @@ void WMenu::selectVisual(int index)
       wApp->setInternalPath(newPath);
   }
 
-  itemSelectRendered.emit(items_[current_]);
+  itemSelectRendered_.emit(items_[current_]);
 }
 
 void WMenu::internalPathChanged(std::string path)
@@ -249,7 +249,7 @@ void WMenu::selectVisual(WMenuItem *item)
 
 int WMenu::indexOf(WMenuItem *item)
 {
-  return find(items_.begin(), items_.end(), item) - items_.begin();
+  return Utils::indexOf(items_, item);
 }
 
 void WMenu::undoSelectVisual()

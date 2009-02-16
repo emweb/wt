@@ -9,45 +9,50 @@
 namespace Wt {
 
 WPen::WPen()
-  : style_(SolidLine | SquareCap | BevelJoin),
+  : penStyle_(SolidLine),
+    penCapStyle_(SquareCap),
+    penJoinStyle_(BevelJoin),
     width_(0),
     color_(black)
 { }
 
 WPen::WPen(PenStyle style)
-  : style_(style | SquareCap | BevelJoin),
+  : penStyle_(style),
+    penCapStyle_(SquareCap),
+    penJoinStyle_(BevelJoin),
     width_(0),
     color_(black)
 { }
 
 WPen::WPen(const WColor& color)
-  : style_(SolidLine | SquareCap | BevelJoin),
+  : penStyle_(SolidLine),
+    penCapStyle_(SquareCap),
+    penJoinStyle_(BevelJoin),
     width_(0),
     color_(color)
 { }
 
 WPen::WPen(GlobalColor color)
-  : style_(SolidLine | SquareCap | BevelJoin),
+  : penStyle_(SolidLine),
+    penCapStyle_(SquareCap),
+    penJoinStyle_(BevelJoin),
     width_(0),
     color_(color)
 { }
 
 void WPen::setStyle(PenStyle style)
 {
-  style_ &= ~StyleMask_;
-  style_ |= style;
+  penStyle_ = style;
 }
 
 void WPen::setCapStyle(PenCapStyle style)
 {
-  style_ &= ~CapStyleMask_;
-  style_ |= style;
+  penCapStyle_ = style;
 }
 
 void WPen::setJoinStyle(PenJoinStyle style)
 {
-  style_ &= ~JoinStyleMask_;
-  style_ |= style;
+  penJoinStyle_ = style;
 }
 
 void WPen::setWidth(const WLength& width)
@@ -63,7 +68,9 @@ void WPen::setColor(const WColor& color)
 bool WPen::operator==(const WPen& other) const
 {
   return
-       style_ == other.style_
+       penStyle_ == other.penStyle_
+    && penCapStyle_ == other.penCapStyle_
+    && penJoinStyle_ == other.penJoinStyle_
     && width_ == other.width_
     && color_ == other.color_;
 }

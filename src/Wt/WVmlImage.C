@@ -27,6 +27,7 @@
 
 #include "DomElement.h"
 #include "EscapeOStream.h"
+#include "Utils.h"
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
@@ -50,10 +51,6 @@ namespace {
     return static_cast<int>(dpiScale * ( (Z * a) - Z/2 + 0.5 ));
   }  
 
-  double myround(double d) {
-    return static_cast<int>(d * 100000) / 100000.;
-  }
-
   bool fequal(double d1, double d2) {
     return fabs(d1 - d2) < 1E-5;
   }
@@ -73,7 +70,9 @@ namespace {
 namespace Wt {
 
 WVmlImage::WVmlImage(const WLength& width, const WLength& height)
-  : WVectorImage(width, height),
+  : width_(width),
+    height_(height),
+    painter_(0),
     clippingChanged_(false)
 { }
 
@@ -91,7 +90,7 @@ void WVmlImage::done()
   finishPaths();
 }
 
-void WVmlImage::setChanged(int flags)
+void WVmlImage::setChanged(WFlags<ChangeFlag> flags)
 {
   if (flags & (Pen | Brush))
     penBrushChanged_ = true;
@@ -165,13 +164,13 @@ static WRectF transformBbox(const WTransform& t, const WRectF& r)
   minY = maxY = p.y();
 
   for (unsigned i = 0; i < 3; ++i) {
-    WPointF p = t.map(i == 0 ? r.bottomLeft()
+    WPointF p2 = t.map(i == 0 ? r.bottomLeft()
 		      : i == 1 ? r.topRight()
 		      : r.bottomRight());
-    minX = std::min(minX, p.x());
-    maxX = std::max(maxX, p.x());
-    minY = std::min(minY, p.y());
-    maxY = std::max(maxY, p.y());
+    minX = std::min(minX, p2.x());
+    maxX = std::max(maxX, p2.x());
+    minY = std::min(minY, p2.y());
+    maxY = std::max(maxY, p2.y());
   }
 
   return WRectF(minX, minY, maxX - minX, maxY - minY);
@@ -366,12 +365,13 @@ void WVmlImage::drawLine(double x1, double y1, double x2, double y2)
   painter()->setBrush(oldBrush);
 }
 
-void WVmlImage::drawText(const WRectF& rect, int flags, const WString& text)
+void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+			 const WString& text)
 {
   finishPaths();
 
-  int horizontalAlign = flags & 0xF;
-  int verticalAlign = flags & 0xF0;
+  WFlags<AlignmentFlag> horizontalAlign = flags & AlignHorizontalMask;
+  WFlags<AlignmentFlag> verticalAlign = flags & AlignVerticalMask;
 
 #ifdef TEXT_DIVS
   DomElement *e = DomElement::createNew(DomElement::DIV);
@@ -412,7 +412,7 @@ void WVmlImage::drawText(const WRectF& rect, int flags, const WString& text)
   }
 
   t->setProperty(PropertyInnerHTML,
-		 WWebWidget::escapeText(text.value(), true).toUTF8());
+		 WWebWidget::escapeText(text, true).toUTF8());
 
   WFont f = painter()->font();
   f.updateDomElement(*t, false, true);
@@ -463,6 +463,8 @@ void WVmlImage::drawText(const WRectF& rect, int flags, const WString& text)
     y = rect.center().y(); break;
   case AlignBottom:
     y = rect.bottom() - fontSize * 0.45 ; break;
+  default:
+    break;
   }
 
   tmp << "<v:shape style=\"width:" << Z * currentRect_.width()
@@ -491,6 +493,8 @@ void WVmlImage::drawText(const WRectF& rect, int flags, const WString& text)
     tmp << "center"; break;
   case AlignRight:
     tmp << "right"; break;
+  default:
+    break;
   }
 
   Wt::WApplication *app = Wt::WApplication::instance();
@@ -512,7 +516,8 @@ std::string WVmlImage::quote(const std::string& s)
 
 std::string WVmlImage::quote(double d)
 {
-  return quote(boost::lexical_cast<std::string>(myround(d)));
+  char buf[30];
+  return quote(Utils::round_str(d, 5, buf));
 }
 
 std::string WVmlImage::colorAttributes(const WColor& color)
@@ -520,7 +525,7 @@ std::string WVmlImage::colorAttributes(const WColor& color)
   std::string result = " color=" + quote(color.cssText());
 
   if (color.alpha() != 255)
-    result += " opacity=" + quote(myround(color.alpha() / 255.));
+    result += " opacity=" + quote(color.alpha() / 255.);
 
   return result;
 }
@@ -528,15 +533,19 @@ std::string WVmlImage::colorAttributes(const WColor& color)
 std::string WVmlImage::skewElement(const WTransform& t) const
 {
   if (!t.isIdentity()) {
+    char buf[30];
     std::stringstream s;
 
     s << "<v:skew on=\"true\" matrix=\""
-      << myround(t.m11()) << ',' << myround(t.m21())
-      << ',' << myround(t.m12()) << ',' << myround(t.m22())
+      << Utils::round_str(t.m11(), 5, buf) << ',';
+    s << Utils::round_str(t.m21(), 5, buf) << ',';
+    s << Utils::round_str(t.m12(), 5, buf) << ',';
+    s << Utils::round_str(t.m22(), 5, buf)
       << ",0,0\""
       " origin=\"-0.5 -0.5\""
-      " offset=\"" << t.dx() + fabs(myround(t.m11())) * 0.5 << "px,"
-      << t.dy() + fabs(myround(t.m22())) * 0.5 << "px\"/>";
+      " offset=\"";
+    s << Utils::round_str(t.dx() + fabs(t.m11()) * 0.5, 5, buf) << "px,";
+    s << Utils::round_str(t.dy() + fabs(t.m22()) * 0.5, 5, buf) << "px\"/>";
 
     /*
      * Note adding negative t.m11() and t.m22() seems to correct a
@@ -606,7 +615,7 @@ std::string WVmlImage::strokeElement(const WPen& pen) const
       break;
     }
 
-    WLength w = normalizedPenWidth(pen.width(), false);
+    WLength w = painter()->normalizedPenWidth(pen.width(), false);
     if (w != WLength(1))
       result += " weight=" + quote(w.cssText());
 
@@ -631,9 +640,8 @@ void WVmlImage::processClipping()
 	WPointF bl = t.map(rect.bottomLeft());
 	WPointF br = t.map(rect.bottomRight());
 
-	double tlx, tly, brx, bry;
+	double tlx = 0, tly = 0, brx = 0, bry = 0;
 	bool ok = false;
-
 	if (fequal(tl.y(), tr.y())) {
 	  tlx = std::min(tl.x(), tr.x());
 	  brx = std::max(tl.x(), tr.x());

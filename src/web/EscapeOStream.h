@@ -26,6 +26,12 @@ public:
   void pushEscape(RuleSet rules);
   void popEscape();
 
+#ifdef WT_TARGET_JAVA
+  EscapeOStream& push();
+#endif // WT_TARGET_JAVA
+
+  void append(const std::string& s, const EscapeOStream& rules);
+
   EscapeOStream& operator<< (char);
   EscapeOStream& operator<< (const char *s);
   EscapeOStream& operator<< (const std::string& s);
@@ -33,8 +39,11 @@ public:
   void flush();
 
 private:
-  std::ostream& sink_;
-  std::string s_;
+  static const int S_LEN = 1024;
+
+  std::ostream *sink_;
+  char s_[S_LEN];
+  int  slen_;
 
   struct Entry {
     char c;
@@ -45,7 +54,12 @@ private:
   const char *c_special_;
 
   void mixRules();
-  void put(const char *s);
+  void put(const char *s, const EscapeOStream& rules);
+
+  void sAppend(char c);
+  void sAppend(const char *s, int length);
+  void sAppend(const std::string& s);
+
   std::vector<RuleSet> ruleSets_;
 
   static const std::vector<Entry> standardSets_[4];

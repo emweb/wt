@@ -7,6 +7,7 @@
 #include "Wt/WImage"
 #include "Wt/WAbstractArea"
 #include "Wt/WLogger"
+#include "Wt/WResource"
 
 #include "DomElement.h"
 
@@ -35,10 +36,10 @@ namespace Wt {
 
   }
 
+const char *WImage::LOAD_SIGNAL = "load";
 
 WImage::WImage(WContainerWidget *parent)
   : WInteractWidget(parent),
-    loaded(this),
     resource_(0),
     map_(0)
 {
@@ -47,7 +48,6 @@ WImage::WImage(WContainerWidget *parent)
 
 WImage::WImage(const std::string& imageRef, WContainerWidget *parent)
   : WInteractWidget(parent),
-    loaded(this),
     imageRef_(imageRef),
     resource_(0),
     map_(0)
@@ -58,7 +58,6 @@ WImage::WImage(const std::string& imageRef, WContainerWidget *parent)
 WImage::WImage(const std::string& imageRef, const WString& altText,
 	       WContainerWidget *parent)
   : WInteractWidget(parent),
-    loaded(this),
     altText_(altText),
     imageRef_(imageRef),
     resource_(0),
@@ -70,12 +69,11 @@ WImage::WImage(const std::string& imageRef, const WString& altText,
 WImage::WImage(WResource *resource, const WString& altText,
 	       WContainerWidget *parent)
   : WInteractWidget(parent),
-    loaded(this),
     altText_(altText),
     resource_(resource),
     map_(0)
 {
-  resource_->dataChanged.connect(SLOT(this, WImage::resourceChanged));
+  resource_->dataChanged().connect(SLOT(this, WImage::resourceChanged));
   imageRef_ = resource_->generateUrl();
 
   setLoadLaterWhenInvisible(false);
@@ -86,10 +84,15 @@ WImage::~WImage()
   delete map_;
 }
 
+EventSignal<void>& WImage::imageLoaded()
+{
+  return *voidEventSignal(LOAD_SIGNAL, true);
+}
+
 void WImage::setResource(WResource *resource)
 {
   resource_ = resource;
-  resource_->dataChanged.connect(SLOT(this, WImage::resourceChanged));
+  resource_->dataChanged().connect(SLOT(this, WImage::resourceChanged));
   setImageRef(resource_->generateUrl());
 }
 
@@ -178,8 +181,6 @@ void WImage::updateDom(DomElement& element, bool all)
       element.setProperty(Wt::PropertySrc, fixRelativeUrl(imageRef_));
     flags_.reset(BIT_IMAGE_REF_CHANGED);
   }
-
-  updateSignalConnection(element, loaded, "load", all);
 
   if (flags_.test(BIT_ALT_TEXT_CHANGED) || all) {
     element.setAttribute("alt", altText_.toUTF8());

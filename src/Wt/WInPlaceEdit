@@ -74,10 +74,12 @@ public:
    */
   WPushButton *cancelButton() const { return cancel_; }
 
+  Signal<WString>& valueChanged() { return valueChanged_; }
+
 public:
   /*! \brief %Signal emitted when the value has been changed.
    */
-  Signal<WString> valueChanged;
+  Signal<WString> valueChanged_;
 
 private slots:
   void save();

@@ -41,8 +41,7 @@ WLayoutItem *WWidgetItemImpl::layoutItem() const
 
 void WWidgetItemImpl::createComponent(DomElement *parentContainer)
 {
-  DomElement *e = item_->widget()->webWidget()
-    ->createSDomElement(WApplication::instance());
+  DomElement *e = item_->widget()->createSDomElement(WApplication::instance());
 
   e->setAttribute("style", e->getAttribute("style")
 		  + "position:absolute;left:-10000px;top:-10000px;"

@@ -13,11 +13,13 @@
 #include "WebController.h"
 
 namespace http {
-namespace server {
+  namespace server {
 
 WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint)
   : Reply(request),
-    entryPoint_(entryPoint)
+    entryPoint_(entryPoint),
+    sending_(false),
+    fetchMoreData_(0)
 { }
 
 WtReply::~WtReply()
@@ -40,21 +42,38 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
   }
 }
 
-void WtReply::setContentType(const std::string type)
+void WtReply::setContentType(const std::string& type)
 {
   contentType_ = type;
 }
 
-void WtReply::setLocation(const std::string location)
+void WtReply::setLocation(const std::string& location)
 {
   location_ = location;
 }
 
-void WtReply::setCout(const std::string text)
+bool WtReply::expectMoreData()
 {
-  cout_.assign(text);
+  return fetchMoreData_ != 0;
+}
 
-  responseSent_ = false;
+void WtReply::send(const std::string& text, CallbackFunction callBack,
+		   void *cbData)
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+
+  fetchMoreData_ = callBack;
+  callBackData_ = cbData;
+
+  nextCout_.assign(text);
+
+  if (!sending_) {
+    sending_ = true;
+
+    Reply::send();
+  }
 }
 
 Reply::status_type WtReply::responseStatus()
@@ -79,17 +98,34 @@ boost::intmax_t WtReply::contentLength()
 
 asio::const_buffer WtReply::nextContentBuffer()
 {
-  /*
-   * We have the whole response in memory. Just have swap ready if
-   * your server is serving big stuff. The trade-off is ok: we trade memory
-   * for threads, since this is happening asynchronously.
-   */
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+
+  cout_.swap(nextCout_);
+
   if (!responseSent_) {
     responseSent_ = true;
-    return asio::buffer(cout_);
+    if (!cout_.empty())
+      return asio::buffer(cout_);
   } else
-    return emptyBuffer;
+    cout_.clear();
+
+  while (cout_.empty() && fetchMoreData_) {
+    CallbackFunction f = fetchMoreData_;
+    fetchMoreData_ = 0;
+    (*f)(callBackData_);
+    cout_.swap(nextCout_);
+  }
+
+  // This is the last packet, unless we wait for more data
+  if (cout_.empty()) {
+    responseSent_ = false;
+    sending_ = false;
+  }
+
+  return asio::buffer(cout_);
 }
 
-}
+  }
 }

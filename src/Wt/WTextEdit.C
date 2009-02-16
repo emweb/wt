@@ -25,7 +25,7 @@ WTextEdit::WTextEdit(WContainerWidget *parent)
     parent->addWidget(this);
 }
 
-WTextEdit::WTextEdit(const WString& text, WContainerWidget *parent)
+WTextEdit::WTextEdit(const WT_USTRING& text, WContainerWidget *parent)
   : WTextArea(text),
     rendered_(false),
     contentChanged_(false)
@@ -135,7 +135,7 @@ void WTextEdit::resize(const WLength& width, const WLength& height)
   WTextArea::resize(width, height);
 }
 
-void WTextEdit::setText(const WString& text)
+void WTextEdit::setText(const WT_USTRING& text)
 {
   WTextArea::setText(text);
   contentChanged_ = true;

@@ -231,24 +231,27 @@ public:
    */
   void setNodeVisible(bool visible);
 
+  void setChildrenDecorated(bool decorated);
+  void setInteractive(bool interactive);
+
   /*! \brief %Signal emitted when the node is expanded by the user.
    *
    * \sa \link collapsed collapsed\endlink
    */
-  EventSignal<void> expanded;
+  EventSignal<WMouseEvent>& expanded();
 
   /*! \brief %Signal emitted when the node is collapsed by the user.
    *
    * \sa \link expanded expanded\endlink
    */
-  EventSignal<void> collapsed;
+  EventSignal<WMouseEvent>& collapsed();
 
   /*! \brief %Signal that is emitted when the node is added or removed from
    *         the selection
    *
    * \sa WTree::itemSelectionChanged
    */
-  Signal<bool> selected;
+  Signal<bool>& selected() { return selected_; }
 
 protected:
   /*! \brief Construct a tree node with empty labelArea().
@@ -389,7 +392,8 @@ private slots:
 
 private:
   std::vector<WTreeNode *>  childNodes_;
-  bool                      collapsed_, selectable_;
+  bool                      collapsed_, selectable_, visible_,
+    childrenDecorated_;
   WTreeNode		   *parentNode_;
   LoadPolicy                loadPolicy_;
   ChildCountPolicy          childCountPolicy_;
@@ -404,6 +408,9 @@ private:
 
   bool                      childrenLoaded_;
   bool                      populated_;
+  bool                      interactive_;
+
+  Signal<bool>              selected_;
 
   void create();
   void update();

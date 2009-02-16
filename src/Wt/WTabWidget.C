@@ -51,14 +51,14 @@ SignalBase& TabWidgetItem::activateSignal()
 {
   WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget());
 
-  return dynamic_cast<WInteractWidget *>(c->children()[0])->clicked;
+  return dynamic_cast<WInteractWidget *>(c->children()[0])->clicked();
 }
 
 }
 
 WTabWidget::WTabWidget(WContainerWidget *parent)
   : WCompositeWidget(parent),
-    currentChanged(this)
+    currentChanged_(this)
 {
   setImplementation(layout_ = new WContainerWidget());
 
@@ -117,15 +117,19 @@ WTabWidget::WTabWidget(WContainerWidget *parent)
   layout_->addWidget(menuDiv);
   layout_->addWidget(contents_);
 
-  menu_->itemSelected.connect(SLOT(this, WTabWidget::onItemSelected));
+  menu_->itemSelected().connect(SLOT(this, WTabWidget::onItemSelected));
 }
 
 WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
 			      LoadPolicy loadPolicy)
 {
-  WMenuItem *result
-    = new TabWidgetItem(label, child,
-			static_cast<WMenuItem::LoadPolicy>(loadPolicy));
+  WMenuItem::LoadPolicy policy = WMenuItem::PreLoading;
+  switch (loadPolicy) {
+  case PreLoading: policy = WMenuItem::PreLoading; break;
+  case LazyLoading: policy = WMenuItem::LazyLoading; break;
+  } 
+
+  WMenuItem *result = new TabWidgetItem(label, child, policy);
 
   menu_->addItem(result);
 
@@ -244,7 +248,7 @@ void WTabWidget::setInternalBasePath(const std::string& path)
 
 void WTabWidget::onItemSelected(WMenuItem *item)
 {
-  currentChanged.emit(menu_->currentIndex());
+  currentChanged_.emit(menu_->currentIndex());
 }
 
 }

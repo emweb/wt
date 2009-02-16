@@ -75,7 +75,7 @@ public:
   virtual bool setData(const WModelIndex& index, const boost::any& value,
 		       int role = EditRole);
 
-  virtual int flags(const WModelIndex& index) const;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
 
   virtual bool setHeaderData(int section, Orientation orientation,
 			     const boost::any& value,
@@ -104,7 +104,10 @@ public:
 
   using WAbstractItemModel::setData;
   using WAbstractItemModel::data;
+
+#ifndef WT_TARGET_JAVA
   using WAbstractItemModel::setHeaderData;
+#endif // WT_TARGET_JAVA
 
 private:
   WAbstractItemModel     *sourceModel_;

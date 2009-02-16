@@ -23,7 +23,7 @@ namespace Wt {
  * you may want to reimplement WResource and compute the data on the fly
  * while streaming.
  *
- * If you have a lot of data, you may want to use a WFileResource instead.
+ * \sa WFileResource.
  */
 class WT_API WMemoryResource : public WResource
 {
@@ -44,6 +44,8 @@ public:
    */
   WMemoryResource(const std::string& mimeType, const std::vector<char> &data,
 		  WObject *parent = 0);
+
+  ~WMemoryResource();
 
   /*! \brief Set new data for the resource to serve.
    */
@@ -69,9 +71,8 @@ private:
   std::vector<char> data_;
 
 protected:
-  virtual const std::string resourceMimeType() const;
-  virtual bool streamResourceData(std::ostream& stream,
-				  const ArgumentMap& arguments);
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response);
 };
 
 }

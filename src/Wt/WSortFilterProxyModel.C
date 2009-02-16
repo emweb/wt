@@ -5,32 +5,28 @@
  */
 
 #include <algorithm>
-#include <boost/regex.hpp>
 #include <iostream>
 
 #include "Wt/WSortFilterProxyModel"
+#include "Wt/WRegExp"
+
+#include "Utils.h"
 
 namespace Wt {
-
-struct WSortFilterProxyRegExp
-{
-  boost::regex rx;
-};
 
 bool WSortFilterProxyModel::Compare::operator()(int sourceRow1,
 						int sourceRow2) const
 {
-  if (model->sortOrder_ == AscendingOrder)
-    return lessThan(sourceRow1, sourceRow2);
-  else
-    return lessThan(sourceRow2, sourceRow1);
+  return compare(sourceRow1, sourceRow2) < 0;
 }
-  
-bool WSortFilterProxyModel::Compare::lessThan(int sourceRow1,
-					      int sourceRow2) const {
+
+int WSortFilterProxyModel::Compare::compare(int sourceRow1, int sourceRow2)
+  const
+{
+  int factor = (model->sortOrder_ == AscendingOrder) ? 1 : -1;
 
   if (model->sortKeyColumn_ == -1)
-    return sourceRow1 < sourceRow2;
+    return factor * (sourceRow1 - sourceRow2);
 
   WModelIndex lhs
     = model->sourceModel()->index(sourceRow1, model->sortKeyColumn_,
@@ -40,12 +36,16 @@ bool WSortFilterProxyModel::Compare::lessThan(int sourceRow1,
     = model->sourceModel()->index(sourceRow2, model->sortKeyColumn_,
 				  item->sourceIndex_);
 
-  return model->lessThan(lhs, rhs);
+#ifndef WT_TARGET_JAVA
+  return factor * (model->lessThan(lhs, rhs) ? -1 : 1);
+#else
+  return factor * model->compare(lhs, rhs);
+#endif
 }
 
 WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
   : WAbstractProxyModel(parent),
-    regex_(new WSortFilterProxyRegExp()),
+    regex_(0),
     filterKeyColumn_(0),
     filterRole_(DisplayRole),
     sortKeyColumn_(-1),
@@ -71,34 +71,34 @@ void WSortFilterProxyModel::setSourceModel(WAbstractItemModel *model)
 
   WAbstractProxyModel::setSourceModel(model);
 
-  modelConnections_.push_back(sourceModel()->columnsAboutToBeInserted.connect
+  modelConnections_.push_back(sourceModel()->columnsAboutToBeInserted().connect
      (SLOT(this, WSortFilterProxyModel::sourceColumnsAboutToBeInserted)));
-  modelConnections_.push_back(sourceModel()->columnsInserted.connect
+  modelConnections_.push_back(sourceModel()->columnsInserted().connect
      (SLOT(this, WSortFilterProxyModel::sourceColumnsInserted)));
 
-  modelConnections_.push_back(sourceModel()->columnsAboutToBeRemoved.connect
+  modelConnections_.push_back(sourceModel()->columnsAboutToBeRemoved().connect
      (SLOT(this, WSortFilterProxyModel::sourceColumnsRemoved)));
-  modelConnections_.push_back(sourceModel()->columnsRemoved.connect
+  modelConnections_.push_back(sourceModel()->columnsRemoved().connect
      (SLOT(this, WSortFilterProxyModel::sourceColumnsRemoved)));
 
-  modelConnections_.push_back(sourceModel()->rowsAboutToBeInserted.connect
+  modelConnections_.push_back(sourceModel()->rowsAboutToBeInserted().connect
      (SLOT(this, WSortFilterProxyModel::sourceRowsAboutToBeInserted)));
-  modelConnections_.push_back(sourceModel()->rowsInserted.connect
+  modelConnections_.push_back(sourceModel()->rowsInserted().connect
      (SLOT(this, WSortFilterProxyModel::sourceRowsInserted)));
 
-  modelConnections_.push_back(sourceModel()->rowsAboutToBeRemoved.connect
+  modelConnections_.push_back(sourceModel()->rowsAboutToBeRemoved().connect
      (SLOT(this, WSortFilterProxyModel::sourceRowsAboutToBeRemoved)));
-  modelConnections_.push_back(sourceModel()->rowsRemoved.connect
+  modelConnections_.push_back(sourceModel()->rowsRemoved().connect
      (SLOT(this, WSortFilterProxyModel::sourceRowsRemoved)));
 
-  modelConnections_.push_back(sourceModel()->dataChanged.connect
+  modelConnections_.push_back(sourceModel()->dataChanged().connect
      (SLOT(this, WSortFilterProxyModel::sourceDataChanged)));
-  modelConnections_.push_back(sourceModel()->headerDataChanged.connect
+  modelConnections_.push_back(sourceModel()->headerDataChanged().connect
      (SLOT(this, WSortFilterProxyModel::sourceHeaderDataChanged)));
 
-  modelConnections_.push_back(sourceModel()->layoutAboutToBeChanged.connect
+  modelConnections_.push_back(sourceModel()->layoutAboutToBeChanged().connect
      (SLOT(this, WSortFilterProxyModel::sourceLayoutAboutToBeChanged)));
-  modelConnections_.push_back(sourceModel()->layoutChanged.connect
+  modelConnections_.push_back(sourceModel()->layoutChanged().connect
      (SLOT(this, WSortFilterProxyModel::sourceLayoutChanged)));
 
   resetMappings();
@@ -119,22 +119,25 @@ void WSortFilterProxyModel::setSortRole(int role)
   sortRole_ = role;
 }
 
-void WSortFilterProxyModel::setFilterRegExp(const WString& pattern)
+void WSortFilterProxyModel::setFilterRegExp(const WT_USTRING& pattern)
 {
-  regex_->rx.assign(pattern.toUTF8().c_str());
+  if (!regex_)
+    regex_ = new WRegExp(pattern);
+  else
+    regex_->setPattern(pattern);
 
   if (sourceModel() && dynamic_) {
-    layoutAboutToBeChanged.emit();
+    layoutAboutToBeChanged().emit();
 
     resetMappings();
 
-    layoutChanged.emit();
+    layoutChanged().emit();
   }
 }
 
-WString WSortFilterProxyModel::filterRegExp() const
+WT_USTRING WSortFilterProxyModel::filterRegExp() const
 {
-  return WString::fromUTF8(regex_->rx.str());
+  return regex_ ? regex_->pattern() : WT_USTRING();
 }
 
 void WSortFilterProxyModel::sort(int column, SortOrder order)
@@ -143,11 +146,11 @@ void WSortFilterProxyModel::sort(int column, SortOrder order)
   sortOrder_ = order;
 
   if (sourceModel()) {
-    layoutAboutToBeChanged.emit();
+    layoutAboutToBeChanged().emit();
 
     resetMappings();
 
-    layoutChanged.emit();
+    layoutChanged().emit();
   }
 }
 
@@ -268,8 +271,7 @@ void WSortFilterProxyModel::updateItem(Item *item) const
    * Sort...
    */
   if (sortKeyColumn_ != -1) {
-    std::stable_sort(item->proxyRowMap_.begin(), item->proxyRowMap_.end(),
-		     Compare(this, item));
+    Utils::stable_sort(item->proxyRowMap_, Compare(this, item));
 
     rebuildSourceRowMap(item);
   }
@@ -292,25 +294,19 @@ int WSortFilterProxyModel::changedMappedRow(int sourceRow,
 
   if (!acceptRow)
     return -1;
-  else {
-    int newRow = std::lower_bound(item->proxyRowMap_.begin(),
-				  item->proxyRowMap_.end(), sourceRow,
-				  Compare(this, item))
-      - item->proxyRowMap_.begin();
-
-    return newRow;
-  }
+  else
+    return Utils::insertion_point(item->proxyRowMap_ , sourceRow,
+				  Compare(this, item));
 }
 
 bool WSortFilterProxyModel::filterAcceptRow(int sourceRow,
 					    const WModelIndex& sourceParent)
   const
 {
-  if (!regex_->rx.empty()) {
+  if (regex_) {
     WString s = asString(sourceModel()->data(sourceRow, filterKeyColumn_,
 					     filterRole_, sourceParent));
-
-    bool result = boost::regex_match(s.toUTF8(), regex_->rx);
+    bool result = regex_->exactMatch(s);
 
     return result;
   } else
@@ -320,7 +316,13 @@ bool WSortFilterProxyModel::filterAcceptRow(int sourceRow,
 bool WSortFilterProxyModel::lessThan(const WModelIndex& lhs,
 				     const WModelIndex& rhs) const
 {
-  return Wt::lessThan(lhs.data(sortRole_), rhs.data(sortRole_));
+  return compare(lhs, rhs) < 0;
+}
+
+int WSortFilterProxyModel::compare(const WModelIndex& lhs,
+				   const WModelIndex& rhs) const
+{
+  return Wt::compare(lhs.data(sortRole_), rhs.data(sortRole_));
 }
 
 int WSortFilterProxyModel::columnCount(const WModelIndex& parent) const
@@ -433,7 +435,7 @@ void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
       WModelIndex r = sourceModel()->index(row, bottomRight.column(),
 					   topLeft.parent());
 
-      dataChanged.emit(mapFromSource(l), mapFromSource(r));
+      dataChanged().emit(mapFromSource(l), mapFromSource(r));
     }
   }
 }
@@ -446,21 +448,21 @@ void WSortFilterProxyModel::sourceHeaderDataChanged(Orientation orientation,
     for (int row = start; row <= end; ++row) {
       int mappedRow = item->sourceRowMap_[row];
       if (mappedRow != -1)
-	headerDataChanged.emit(orientation, mappedRow, mappedRow);
+	headerDataChanged().emit(orientation, mappedRow, mappedRow);
     }
   } else
-    headerDataChanged.emit(orientation, start, end);
+    headerDataChanged().emit(orientation, start, end);
 }
 
 void WSortFilterProxyModel::sourceLayoutAboutToBeChanged()
 { 
-  layoutAboutToBeChanged.emit();
+  layoutAboutToBeChanged().emit();
   resetMappings();
 }
 
 void WSortFilterProxyModel::sourceLayoutChanged()
 {
-  layoutChanged.emit();
+  layoutChanged().emit();
 }
 
 }

@@ -28,6 +28,7 @@ void WMessageResourceBundle::use(const std::string& path, bool loadInMemory)
   messageResources_.push_back(new WMessageResources(path, loadInMemory));
 }
 
+#ifndef WT_TARGET_JAVA
 bool WMessageResourceBundle::resolveKey(const std::string& key,
 					std::string& result)
 {
@@ -39,6 +40,12 @@ bool WMessageResourceBundle::resolveKey(const std::string& key,
   result = "??" + key + "??";
   return false;
 }
+#else
+std::string *WMessageResourceBundle::resolveKey(const std::string& key)
+{
+  return 0;
+}
+#endif // WT_TARGET_JAVA
 
 void WMessageResourceBundle::refresh()
 {

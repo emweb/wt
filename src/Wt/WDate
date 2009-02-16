@@ -196,7 +196,7 @@ public:
    */
   bool operator!= (const WDate& other) const;
 
-  static WString defaultFormat();
+  static WT_USTRING defaultFormat();
 
   /*! \brief Format this date to a WString using a default format.
    *
@@ -212,7 +212,7 @@ public:
    *
    * \sa toString(const WString& format) const, fromString()
    */
-  WString toString() const;
+  WT_USTRING toString() const;
 
   /*! \brief Format this date to a WString using a specified format.
    *
@@ -259,7 +259,7 @@ public:
    *
    * \sa fromString(const WString& value, const WString& format)
    */
-  WString toString(const WString& format) const;
+  WT_USTRING toString(const WT_USTRING& format) const;
 
   /*! \brief Parse a WString to a date using a default format.
    *
@@ -278,7 +278,7 @@ public:
    *
    * \sa fromString(const WString& s, const WString& format), isValid()
    */
-  static WDate fromString(const WString& s);
+  static WDate fromString(const WT_USTRING& s);
 
   /*! \brief Parse a WString to a date using a specified format.
    *
@@ -290,7 +290,7 @@ public:
    *
    * \sa toString(const WString&) const
    */
-  static WDate fromString(const WString& s, const WString& format);
+  static WDate fromString(const WT_USTRING& s, const WT_USTRING& format);
 
   /*! \brief Construct a date for the current client date.
    *
@@ -317,7 +317,7 @@ public:
    *
    * \sa longDayName()
    */
-  static WString shortDayName(int weekday);
+  static WT_USTRING shortDayName(int weekday);
 
   /*! \brief Returns the short month name.
    *
@@ -329,7 +329,7 @@ public:
    *
    * \sa longMonthName()
    */
-  static WString shortMonthName(int month);
+  static WT_USTRING shortMonthName(int month);
 
   /*! \brief Returns the long day name.
    *
@@ -339,7 +339,7 @@ public:
    *
    * \sa shortDayName()
    */
-  static WString longDayName(int weekday);
+  static WT_USTRING longDayName(int weekday);
 
   /*! \brief Returns the long month name.
    *
@@ -351,13 +351,18 @@ public:
    *
    * \sa shortDayName()
    */
-  static WString longMonthName(int month);
+  static WT_USTRING longMonthName(int month);
 
-  static std::string extFormat(const WString& format);
-  static std::string formatToRegExp(const WString& format,
-				    std::string& dayGetJS,
-				    std::string& monthGetJS,
-				    std::string& yearGetJS);
+  static std::string extFormat(const WT_USTRING& format);
+
+  struct RegExpInfo {
+    std::string regexp;
+    std::string dayGetJS;
+    std::string monthGetJS;
+    std::string yearGetJS;
+  };
+
+  static RegExpInfo formatToRegExp(const WT_USTRING& format);
 
 private:
   bool valid_;

@@ -44,7 +44,7 @@ public:
    * Reimplement the validate method to check the validity of
    * input as an existing date.
    */
-  virtual State validate(WString& input, int& pos) const;
+  virtual State validate(WString& input) const;
 
 private:
   boost::gregorian::date bottom_, top_;

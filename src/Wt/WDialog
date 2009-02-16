@@ -155,30 +155,34 @@ public:
    */
   DialogCode exec();
 
-  /*! \brief Stop a recursive event loop.
+  /*! \brief Stop the dialog.
    *
-   * Sets the dialog result, and ends a recursive event loop that was
-   * started using the exec() method.
+   * Sets the dialog result, and emits the finished() signal.
+   *
+   * If a recursive event loop was started using the exec() method, it
+   * is ended.
+   *
+   * \sa finished(), result()
    */
   virtual void done(DialogCode r);
 
-  /*! \brief Stop a recursive event loop with result is Accepted.
+  /*! \brief Close the dialog, with result is Accepted.
    *
-   * \sa done(DialogCode r), reject(), exec()
+   * \sa done(DialogCode r), reject()
    */
   virtual void accept();
 
-  /*! \brief Stop a recursive event loop with result is Rejected.
+  /*! \brief Close the dialog, with result is Rejected.
    *
-   * \sa done(DialogCode r), accept(), exec()
+   * \sa done(DialogCode r), accept()
    */
   virtual void reject();
 
-  /*! \brief %Signal emitted when the recursive event loop is ended.
+  /*! \brief %Signal emitted when the dialog is closed.
    *
    * \sa done(DialogCode r), accept(), reject()
    */
-  Signal<DialogCode> finished;
+  Signal<DialogCode>& finished() { return finished_; }
 
   /*! \brief Get the result that was set for this dialog.
    *
@@ -194,6 +198,8 @@ private:
   WText            *caption_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
+
+  Signal<DialogCode> finished_;
 
   DialogCode result_;
 

@@ -18,10 +18,12 @@ WPolygonArea::WPolygonArea(const std::vector<WPoint>& points)
  : points_(points)
 { }
 
+#ifndef WT_TARGET_JAVA
 WPolygonArea::WPolygonArea(const std::vector<WPointF>& points)
 {
   setPoints(points);
 }
+#endif // WT_TARGET_JAVA
 
 void WPolygonArea::addPoint(int x, int y)
 {
@@ -33,23 +35,27 @@ void WPolygonArea::addPoint(const WPoint& point)
   points_.push_back(point);
 }
 
+#ifndef WT_TARGET_JAVA
 void WPolygonArea::addPoint(const WPointF& point)
 {
   points_.push_back(WPoint(static_cast<int>(point.x()),
 			   static_cast<int>(point.y())));
 }
+#endif // WT_TARGET_JAVA
 
 void WPolygonArea::setPoints(const std::vector<WPoint>& points)
 {
   points_ = points;
 }
 
+#ifndef WT_TARGET_JAVA
 void WPolygonArea::setPoints(const std::vector<WPointF>& points)
 {
   points_.clear();
   for (unsigned i = 0; i < points.size(); ++i)
     addPoint(points[i]);
 }
+#endif // WT_TARGET_JAVA
 
 void WPolygonArea::updateDom(DomElement& element, bool all)
 {

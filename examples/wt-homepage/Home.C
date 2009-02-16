@@ -105,7 +105,7 @@ Home::Home(const WEnvironment& env)
   Div *languagesDiv = new Div(topContent, "top_languages");
 
   WSignalMapper<int> *lmap = new WSignalMapper<int>(this);
-  lmap->mapped.connect(SLOT(this, Home::changeLanguage));
+  lmap->mapped().connect(SLOT(this, Home::changeLanguage));
 
   for (unsigned i = 0; i < languages.size(); ++i) {
     if (i != 0)
@@ -116,7 +116,7 @@ Home::Home(const WEnvironment& env)
     WAnchor *a = new WAnchor(bookmarkUrl(l.path), l.longDescription,
 			     languagesDiv);
 
-    lmap->mapConnect(a->clicked, i);
+    lmap->mapConnect(a->clicked(), i);
   }
 
   WText *topWt = new WText(tr("top_wt"), topContent);
@@ -158,8 +158,8 @@ Home::Home(const WEnvironment& env)
     (tr("community"), wrapViewOrDefer(&Home::community),
      WMenuItem::PreLoading);
 
-  mainMenu_->itemSelectRendered.connect(SLOT(this, Home::updateTitle));
-  mainMenu_->itemSelected.connect(SLOT(this, Home::logInternalPath));
+  mainMenu_->itemSelectRendered().connect(SLOT(this, Home::updateTitle));
+  mainMenu_->itemSelected().connect(SLOT(this, Home::logInternalPath));
   mainMenu_->select((int)0);
 
   // Make the menu be internal-path aware.
@@ -175,7 +175,7 @@ Home::Home(const WEnvironment& env)
   WText *footerWrapper = new WText(tr("footer_wrapper"), root());
   footerWrapper->setId("footer_wrapper");
 
-  internalPathChanged.connect(SLOT(this, Home::setLanguageFromPath));
+  internalPathChanged().connect(SLOT(this, Home::setLanguageFromPath));
 }
 
 void Home::changeLanguage(int index)
@@ -555,7 +555,7 @@ WWidget *Home::examples()
   examplesMenu_->addTab(wrapViewOrDefer(&Home::widgetGalleryExample),
 			tr("widget-gallery"));
 
-  examplesMenu_->currentChanged.connect(SLOT(this, Home::logInternalPath));
+  examplesMenu_->currentChanged().connect(SLOT(this, Home::logInternalPath));
 
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled();
@@ -709,13 +709,13 @@ WString Home::tr(const char *key)
 
 WApplication *createApplication(const WEnvironment& env)
 {
-  try {
-    // support for old (< Wt-2.2) homepage URLS: redirect from "states"
-    // to "internal paths"
-    // this contains the initial "history state" in old Wt versions
-    std::string historyKey = env.getArgument("historyKey")[0];
+  // support for old (< Wt-2.2) homepage URLS: redirect from "states"
+  // to "internal paths"
+  // this contains the initial "history state" in old Wt versions
+  const std::string *historyKey = env.getParameter("historyKey");
 
-    const char *mainStr[] 
+  if (historyKey) {
+    const char *mainStr[]
       = { "main:0", "/",
 	  "main:1", "/news",
 	  "main:2", "/features",
@@ -736,12 +736,12 @@ WApplication *createApplication(const WEnvironment& env)
 	  "example:8", "/examples/file-explorer",
 	  "example:9", "/examples/calendar" };
 
-    if (historyKey.find("main:4") != std::string::npos) {
+    if (historyKey->find("main:4") != std::string::npos) {
       for (unsigned i = 0; i < 10; ++i)
-	if (historyKey.find(exampleStr[i*2]) != std::string::npos) {
+	if (historyKey->find(exampleStr[i*2]) != std::string::npos) {
 	  WApplication *app = new WApplication(env);
 	  app->log("notice") << "redirecting old style URL '"
-			     << historyKey << "' to internal path: '"
+			     << *historyKey << "' to internal path: '"
 			     << exampleStr[i*2+1] << "'";
 	  app->redirect(app->bookmarkUrl(exampleStr[i*2+1]));
 	  app->quit();
@@ -749,11 +749,11 @@ WApplication *createApplication(const WEnvironment& env)
 	}
     } else
       for (unsigned i = 0; i < 6; ++i)
-	if (historyKey.find(mainStr[i*2]) != std::string::npos) {
+	if (historyKey->find(mainStr[i*2]) != std::string::npos) {
 	  WApplication *app = new WApplication(env);
 
 	  app->log("notice") << "redirecting old style URL '"
-			     << historyKey << "' to internal path: '"
+			     << *historyKey << "' to internal path: '"
 			     << mainStr[i*2+1] << "'";
 	  app->redirect(app->bookmarkUrl(mainStr[i*2+1]));
 	  app->quit();
@@ -761,8 +761,6 @@ WApplication *createApplication(const WEnvironment& env)
 	}
 
     // unknown history key, just continue
-  } catch (std::runtime_error) {
-    // no "historyKey argument, simply continue
   }
 
   return new Home(env);

@@ -11,17 +11,6 @@
 
 namespace Wt {
 
-/*! \brief Enumeration that indicates a fill style.
- *
- * \ingroup painting
- *
- * \relates WBrush
- */
-enum WBrushStyle {
-  NoBrush = 0,      //!< Do not fill
-  SolidPattern = 1  //!< Fill with a solid color
-};
-
 /*! \class WBrush Wt/WBrush Wt/WBrush
  *  \brief Class that defines the style for filling areas
  *

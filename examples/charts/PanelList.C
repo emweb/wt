@@ -30,7 +30,7 @@ void PanelList::addPanel(WPanel *panel)
   panel->setCollapsible(true);
   panel->collapse();
 
-  panel->expandedSS.connect(SLOT(this, PanelList::onExpand));
+  panel->expandedSS().connect(SLOT(this, PanelList::onExpand));
 
   WContainerWidget::addWidget(panel);
 }

@@ -12,6 +12,7 @@
 CountDownWidget::CountDownWidget(int start, int stop, unsigned msec,
 				 WContainerWidget *parent)
   : WText(parent),
+    done_(this),
     start_(start),
     stop_(stop)
 {
@@ -20,10 +21,10 @@ CountDownWidget::CountDownWidget(int start, int stop, unsigned msec,
 
   timer_ = new WTimer(this);
   timer_->setInterval(msec);
-  timer_->timeout.connect(SLOT(this, CountDownWidget::timerTick));
+  timer_->timeout().connect(SLOT(this, CountDownWidget::timerTick));
   timer_->start();
 
-  setText(boost::lexical_cast<std::wstring>(current_));
+  setText(boost::lexical_cast<std::string>(current_));
 }
 
 void CountDownWidget::cancel()
@@ -33,10 +34,10 @@ void CountDownWidget::cancel()
 
 void CountDownWidget::timerTick()
 {
-  setText(boost::lexical_cast<std::wstring>(--current_));
+  setText(boost::lexical_cast<std::string>(--current_));
 
   if (current_ <= stop_) {
     timer_->stop();
-    done.emit();
+    done_.emit();
   }
 }

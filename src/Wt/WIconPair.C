@@ -17,13 +17,12 @@ WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
   : WCompositeWidget(parent),
     impl_(new WContainerWidget()),
     icon1_(new WImage(icon1URI, impl_)),
-    icon2_(new WImage(icon2URI, impl_)),
-    icon1Clicked(icon1_->clicked),
-    icon2Clicked(icon2_->clicked)
+    icon2_(new WImage(icon2URI, impl_))
 {
   setImplementation(impl_);
   impl_->setLoadLaterWhenInvisible(false);
 
+#ifndef WT_TARGET_JAVA
   std::string fic1 = icon1_->formName();
   std::string fic2 = icon2_->formName();
   std::string hide_1 = WT_CLASS ".hide('" + fic1 +"');";
@@ -32,16 +31,17 @@ WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
   std::string show_2 = WT_CLASS ".inline('" + fic2 +"');";
   implementJavaScript(&WIconPair::showIcon1, hide_2 + show_1);
   implementJavaScript(&WIconPair::showIcon2, hide_1 + show_2);
+#endif // WT_TARGET_JAVA
 
   setInline(true);
 
   icon2_->hide();
 
   if (clickIsSwitch) {
-    icon1_->clicked.connect(SLOT(this, WIconPair::showIcon2));
-    icon2_->clicked.connect(SLOT(this, WIconPair::showIcon1));
+    icon1_->clicked().connect(SLOT(this, WIconPair::showIcon2));
+    icon2_->clicked().connect(SLOT(this, WIconPair::showIcon1));
 
-    decorationStyle().setCursor(WCssDecorationStyle::Pointer);
+    decorationStyle().setCursor(PointingHandCursor);
   }
 }
 
@@ -70,4 +70,15 @@ void WIconPair::showIcon2()
 {
   setState(1);
 }
+
+EventSignal<WMouseEvent>& WIconPair::icon1Clicked()
+{
+  return icon1_->clicked();
+}
+
+EventSignal<WMouseEvent>& WIconPair::icon2Clicked()
+{
+  return icon2_->clicked();
+}
+
 }

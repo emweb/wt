@@ -82,7 +82,7 @@ public:
    *
    * This signal is added for increased API compatibility with WPushButton.
    */
-  JSignal<>& clicked;
+  JSignal<>& clicked() { return activated(); }
 
 private:
   Panel *panel_;

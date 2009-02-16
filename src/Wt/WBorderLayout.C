@@ -14,14 +14,22 @@ namespace Wt {
 WBorderLayout::WBorderLayout(WWidget *parent)
   : WLayout()
 {
-  grid_.columns_.insert(grid_.columns_.begin(), 3, Impl::Grid::Column(false));
+  grid_.columns_.insert(grid_.columns_.begin(), 3, Impl::Grid::Column(0));
   grid_.columns_[1].stretch_ = 1;
 
-  grid_.rows_.insert(grid_.rows_.begin(), 3, Impl::Grid::Row(false));
+  grid_.rows_.insert(grid_.rows_.begin(), 3, Impl::Grid::Row(0));
   grid_.rows_[1].stretch_ = 1;
 
+#ifndef WT_TARGET_JAVA
   grid_.items_.insert(grid_.items_.begin(), 3,
 		      std::vector<Impl::Grid::Item>(3));
+#else
+  grid_.items_.insert(grid_.items_.begin(), 3, std::vector<Impl::Grid::Item>());
+  for (unsigned i = 0; i < 3; ++i) {
+    std::vector<Impl::Grid::Item>& items = grid_.items_[i];
+    items.insert(items.begin(), 3, Impl::Grid::Item());
+  }
+#endif // WT_TARGET_JAVA
 
   grid_.items_[0][0].colSpan_ = 3;
   grid_.items_[2][0].colSpan_ = 3;
@@ -137,7 +145,7 @@ WBorderLayout::Position WBorderLayout::position(WLayoutItem *item) const
 {
   for (int i = 0; i < 5; ++i) {
     if (itemAtPosition((Position)i).item_ == item) {
-      return static_cast<WBorderLayout::Position>(i);
+      return (Position)i;
     }
   }
 

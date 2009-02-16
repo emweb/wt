@@ -129,7 +129,7 @@ void WMenuItem::updateItemWidget(WWidget *itemWidget)
       url = "#";
 
     a->setRef(url);
-    a->clicked.setPreventDefault(true);
+    a->clicked().setPreventDefault(true);
   }
 }
 
@@ -139,7 +139,7 @@ SignalBase& WMenuItem::activateSignal()
     = dynamic_cast<WInteractWidget *>(itemWidget_->webWidget());
 
   if (wi)
-    return wi->clicked;
+    return wi->clicked();
   else
     throw WtException("WMenuItem::activateSignal(): "
 		      "could not dynamic_cast itemWidget() to a "

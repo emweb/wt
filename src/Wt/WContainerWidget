@@ -97,11 +97,10 @@ public:
    * because it is managed by another layout manager, is the root
    * container widget, or has a height set).
    *
-   * In general, <i>alignment</i> is the logical OR of a \link
-   * Wt::HorizontalAlignment horizontal\endlink and \link
-   * Wt::VerticalAlignment vertical alignment\endlink. Horizontal
-   * alignment options may be AlignLeft, AlignCenter, AlignRight, or
-   * AlignJustify. The only vertical alignment that is supported is
+   * In general, <i>alignment</i> is the logical OR of a horizontal and
+   * a vertical flag from \link Wt::AlignmentFlag Wt::AlignmentFlag\endlink
+   * Horizontal alignment options may be AlignLeft, AlignCenter, AlignRight,
+   * or AlignJustify. The only vertical alignment that is supported is
    * '0' (corresponding to vertical justification to the full height),
    * or AlignTop. When using a horizontal alingment different from
    * AlignJustify, and a vertical alignment different from '0', the
@@ -121,7 +120,7 @@ public:
    *
    * \sa layout()
    */
-  void setLayout(WLayout *layout, int alignment);  
+  void setLayout(WLayout *layout, WFlags<AlignmentFlag> alignment);  
 
   /*! \brief Get the layout manager that was set for the container.
    *
@@ -188,19 +187,23 @@ public:
 
   /*! \brief Specify how child widgets must be aligned within the container
    *
-   * Specify the horizontal alignment of child widgets. Note that there
-   * is no way to specify vertical alignment: children are always pushed
-   * to the top of the container. Only in a WTableCell, there is a method
-   * to align the children vertically.
+   * For a WContainerWidget, only specifes the horizontal alignment of
+   * child widgets. Note that there is no way to specify vertical
+   * alignment: children are always pushed to the top of the
+   * container.
+   *
+   * For a WTableCell, this may also specify the vertical alignment.
+   * The default alignment is (\link Wt::AlignTop AlignTop \endlink | \link
+   * Wt::AlignLeft AlignLeft \endlink).
    */
-  void setContentAlignment(HorizontalAlignment contentAlignment);
+  void setContentAlignment(WFlags<AlignmentFlag> contentAlignment);
 
   /*! \brief Set padding inside the widget
    *
    * Setting padding has the effect of adding distance between the
    * widget children and the border.
    */
-  void setPadding(const WLength& padding, int sides = All);
+  void setPadding(const WLength& padding, WFlags<Side> sides = All);
 
   /*! \brief Get the padding set for the widget.
    *
@@ -208,12 +211,11 @@ public:
    */
   WLength padding(Side side) const;
 
-  /*! \brief Get the horizontal alignment of children
+  /*! \brief Return the alignment of children
    *
-   * \sa setContentAlignment(HorizontalAlignment)
+   * \sa setContentAlignment(AlignmentFlag)
    */
-  HorizontalAlignment contentAlignment() const
-    { return static_cast<HorizontalAlignment>(contentAlignment_ & 0x0F); }
+  WFlags<AlignmentFlag> contentAlignment() const { return contentAlignment_; }
 
   /*! \brief Set how overflow of contained children must be handled.
    *
@@ -237,7 +239,7 @@ public:
    * \sa WScrollArea
    */
   void setOverflow(Overflow overflow,
-		   int orientation = (Horizontal | Vertical));
+		   WFlags<Orientation> orientation = (Horizontal | Vertical));
 
   /*! \brief Render the container as an HTML list.
    *
@@ -285,9 +287,11 @@ public:
    *
    * \sa setOverflow()
    */
-  EventSignal<WScrollEvent> scrolled;
+  EventSignal<WScrollEvent>& scrolled();
 
 private:
+  static const char *SCROLL_SIGNAL;
+
   static const int BIT_CONTENT_ALIGNMENT_CHANGED = 0;
   static const int BIT_PADDINGS_CHANGED = 1;
   static const int BIT_OVERFLOW_CHANGED = 2;
@@ -300,7 +304,7 @@ private:
    * Frequently used attributes.
    */
   std::bitset<7>            flags_;
-  int                       contentAlignment_;
+  WFlags<AlignmentFlag>     contentAlignment_;
   Overflow        *WT_ARRAY overflow_;
   WLength	  *WT_ARRAY padding_;
   WLayout                  *layout_;

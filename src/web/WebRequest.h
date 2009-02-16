@@ -8,30 +8,35 @@
 #define WEB_REQUEST_H_
 
 #include <iostream>
-
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
+#include <Wt/WGlobal>
+#include <Wt/Http/Request>
 
 namespace Wt {
 
 /*
- * A single (http) request, which conveys all of the http-related information
- * to the application: the HTTP method, headers and the request body (in in()).
- *
- * When the application has finished the request, it must:
- * - set headers, response content type and stream the response to out()
- * - or, set a redirect.
+ * A single, raw, HTTP request/response, which conveys all of the http-related
+ * information to the application and gathers the response.
  */
 class WT_API WebRequest
 {
 public:
   WebRequest();
 
+  enum ResponseState {
+    ResponseDone,
+    ResponseCallBack,
+    ResponseWaitMore
+  };
+
+  typedef void (*CallbackFunction)(void *cbData);
+
   /*
-   * Signal that the request should be flushed.
-   * Unless keepConnectionOpen() is set, the response is transmitted, and
-   * the request is deleted.
+   * Signal that the response should be flushed.
    */
-  virtual void flush();
+  virtual void flush(ResponseState state = ResponseDone,
+		     CallbackFunction callback = 0,
+		     void *callbackData = 0) = 0;
 
   /*
    * Access the stream that contains the request body.
@@ -42,6 +47,8 @@ public:
    * Access the stream to submit the response.
    */
   virtual std::ostream& out() = 0;
+
+  WT_BOSTREAM& bout() { return out(); }
 
   /*
    * (Not used)
@@ -83,12 +90,6 @@ public:
   virtual std::string headerValue(const std::string& name) const = 0;
 
   /*
-   * Synchronous use for long-lived connections.
-   */
-  void setKeepConnectionOpen(bool how);
-  bool keepConnectionOpen() const { return keepConnectionOpen_; }
-
-  /*
    * Access to specific header fields (calls headerValue()).
    */
   std::string userAgent() const;
@@ -101,15 +102,43 @@ public:
   std::string contentType() const;
   int         contentLength() const;
 
+#ifdef WT_TARGET_JAVA
+  /*
+   * In J2E, the servlet determines how session tracking is encoded in
+   * the URL.
+   */
+  std::string encodeURL(const std::string& url) const;
+#endif // WT_TARGET_JAVA
+
   void setId(int id);
   int id() const { return id_; }
 
-private:
-  bool keepConnectionOpen_;
-  int id_;
+  const std::string *getParameter(const std::string& name) const;
+  const Http::ParameterValues& getParameterValues(const std::string& name)
+    const;
+  const Http::ParameterMap& getParameterMap() const { return parameters_; }
+  const Http::UploadedFileMap& uploadedFiles() const { return files_; }
+  int postDataExceeded() const { return postDataExceeded_; }
 
 protected:
   virtual ~WebRequest();
+
+private:
+  int id_;
+
+  int postDataExceeded_;
+  Http::ParameterMap    parameters_;
+  Http::UploadedFileMap files_;
+
+  static Http::ParameterValues emptyValues_;
+
+  friend class CgiParser;
+  friend class Http::Request;
+  friend class WEnvironment;
+};
+
+class WebResponse : public WebRequest
+{ 
 };
 
 }

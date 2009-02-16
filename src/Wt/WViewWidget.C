@@ -18,28 +18,15 @@ WViewWidget::WViewWidget(WContainerWidget *parent)
 
 void WViewWidget::load()
 {
-  if (!contents_) {
-    update();
-    needContentsUpdate_ = false; // not update but create
-  }
+  update();
 
   WWebWidget::load();
 }
 
 void WViewWidget::update()
 {
-  delete contents_;
-
-  WApplication::instance()->setExposeSignals(false);
-  contents_ = renderView();
   needContentsUpdate_ = true;
-  WApplication::instance()->setExposeSignals(true);
-
-  addChild(contents_);
-
-  setInline(contents_->isInline());
-
-  repaint(RepaintInnerHtml);
+  askRerender();
 }
 
 void WViewWidget::refresh()
@@ -48,35 +35,39 @@ void WViewWidget::refresh()
     update();
 }
 
-void WViewWidget::prepareRerender()
+void WViewWidget::render()
 {
-  if (!contents_) {
-    update();
-    needContentsUpdate_ = false; // not update but create
+  if (needContentsUpdate_) {
+    delete contents_; // just to be safe
+
+    WApplication::instance()->setExposeSignals(false);
+    contents_ = renderView();
+    WApplication::instance()->setExposeSignals(true);
+
+    addChild(contents_);
+    setInline(contents_->isInline());
+
+    needContentsUpdate_ = false;
   }
 
-  WWebWidget::prepareRerender();
-}
-
-void WViewWidget::doneRerender()
-{
-  setIgnoreChildRemoves(true);
-  delete contents_;
-  contents_ = 0;
-  setIgnoreChildRemoves(false);
+  WWebWidget::render();
 }
 
 void WViewWidget::updateDom(DomElement& element, bool all)
 {
-  if (contents_ && (needContentsUpdate_ || all)) {
-    bool savedVisibleOnly =
-      WApplication::instance()->session()->renderer().visibleOnly();
-    
-    WApplication::instance()->session()->renderer()
-      .setVisibleOnly(false);
+  if (all && !contents_) {
+    needContentsUpdate_ = true;
+    render();
+  }
 
-    DomElement *e = contents_->webWidget()
-      ->createDomElement(WApplication::instance());
+  if (contents_) {
+    WApplication *app = WApplication::instance();
+
+    bool savedVisibleOnly = app->session()->renderer().visibleOnly();
+
+    WApplication::instance()->session()->renderer().setVisibleOnly(false);
+
+    DomElement *e = contents_->createSDomElement(WApplication::instance());
 
     if (!all)
       element.setWasEmpty(true); // removes previous content
@@ -89,6 +80,14 @@ void WViewWidget::updateDom(DomElement& element, bool all)
   }
 
   WWebWidget::updateDom(element, all);
+}
+
+void WViewWidget::doneRerender()
+{
+  setIgnoreChildRemoves(true);
+  delete contents_;
+  contents_ = 0;
+  setIgnoreChildRemoves(false);
 }
 
 DomElementType WViewWidget::domElementType() const

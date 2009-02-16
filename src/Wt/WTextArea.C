@@ -8,7 +8,6 @@
 #include "Wt/WTextArea"
 
 #include "DomElement.h"
-#include "CgiParser.h"
 
 namespace Wt {
 
@@ -23,7 +22,7 @@ WTextArea::WTextArea(WContainerWidget *parent)
   setFormObject(true);
 }
 
-WTextArea::WTextArea(const WString& text, WContainerWidget *parent)
+WTextArea::WTextArea(const WT_USTRING& text, WContainerWidget *parent)
   : WFormWidget(parent),
     content_(text),
     cols_(20),
@@ -35,7 +34,7 @@ WTextArea::WTextArea(const WString& text, WContainerWidget *parent)
   setFormObject(true);
 }
 
-void WTextArea::setText(const WString& text)
+void WTextArea::setText(const WT_USTRING& text)
 {
   content_ = text;
   contentChanged_ = true;
@@ -91,17 +90,18 @@ DomElementType WTextArea::domElementType() const
   return DomElement_TEXTAREA;
 }
 
-void WTextArea::setFormData(CgiEntry *entry)
+void WTextArea::setFormData(const FormData& formData)
 {
-  content_ = WString(entry->value(), UTF8);
+  if (!formData.values.empty()) {
+    const std::string& value = formData.values[0];
+    content_ = WT_USTRING::fromUTF8(value);
+  }
 }
 
 WValidator::State WTextArea::validate()
 {
   if (validator()) {
-    int pos;
-
-    return validator()->validate(content_, pos);
+    return validator()->validate(content_);
   } else
     return WValidator::Valid;
 }

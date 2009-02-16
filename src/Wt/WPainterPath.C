@@ -94,10 +94,10 @@ WPointF WPainterPath::currentPosition() const
   return positionAtSegment(segments_.size());
 }
 
-WPointF WPainterPath::positionAtSegment(int i) const
+WPointF WPainterPath::positionAtSegment(int index) const
 {
-  if (i > 0) {
-    const Segment& s = segments_[i - 1];
+  if (index > 0) {
+    const Segment& s = segments_[index - 1];
     switch (s.type()) {
     case Segment::MoveTo:
     case Segment::LineTo:

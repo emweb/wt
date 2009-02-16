@@ -29,9 +29,9 @@ namespace asio = boost::asio;
 #include <asio.hpp>
 #endif
 
-#ifdef THREADED
+#ifdef WT_THREADED
 #include <boost/thread/recursive_mutex.hpp>
-#endif // THREADED
+#endif // WT_THREADED
 
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -96,9 +96,9 @@ public:
 
   void addHeader(const std::string name, const std::string value);
 
-  void setExpectMoreData(bool how);
-  bool expectMoreData() const { return expectMoreData_; }
-  void transmitMore();
+  bool waitMoreData() const { return waitMoreData_; }
+  void setWaitMoreData(bool how);
+  void send();
 
   void logReply(Wt::WLogger& logger);
 
@@ -122,14 +122,15 @@ protected:
 
   static std::string httpDate(time_t t);
 
+#ifdef WT_THREADED
+  boost::recursive_mutex mutex_;
+#endif // WT_THREADED
+
 private:
   std::vector<std::pair<std::string, std::string> > headers_;
 
-#ifdef THREADED
-  boost::recursive_mutex  connectionMutex_;
-#endif // THREADED
-
-  Connection             *connection_;
+  // protected by replyMutex_
+  Connection *connection_;
 
 #ifndef WIN32
   struct timeval startTime_;
@@ -139,7 +140,8 @@ private:
   bool closeConnection_;
   bool chunkedEncoding_;
   bool gzipEncoding_;
-  bool expectMoreData_;
+  bool waitMoreData_;
+  bool finishing_;
 
   boost::intmax_t contentSent_;
   boost::intmax_t contentOriginalSize_;
@@ -154,7 +156,7 @@ private:
 			       int& encodedSize);
 #ifdef WTHTTP_WITH_ZLIB
   void initGzip();
-  z_stream gzipstrm_;
+  z_stream gzipStrm_;
 #endif
 };
 

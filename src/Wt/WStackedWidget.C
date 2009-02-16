@@ -94,7 +94,7 @@ void WStackedWidget::getDomChanges(std::vector<DomElement *>& result,
 				   WApplication *app)
 {
   setCurrentIndex(currentIndex_);
-  return WContainerWidget::getDomChanges(result, app);
+  WContainerWidget::getDomChanges(result, app);
 }
 
 }

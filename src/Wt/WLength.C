@@ -5,6 +5,8 @@
  */
 #include "Wt/WLength"
 
+#include "Utils.h"
+
 #include <stdio.h>
 #include <boost/lexical_cast.hpp>
 
@@ -44,9 +46,14 @@ const std::string WLength::cssText() const
   if (auto_)
     return "auto";
   else {
+#ifndef WT_TARGET_JAVA
     char buf[30];
-    sprintf(buf, "%.0f%s", value_, unitText[unit_]);
+    Utils::round_str(value_, 1, buf);
+    strcat(buf, unitText[unit_]);
     return buf;
+#else
+    return boost::lexical_cast<std::string>(value_) + unitText[unit_];
+#endif
   }
 }
 

@@ -58,7 +58,6 @@ public:
    */
   bool isChecked() const { return checked_; }
 
-public slots:
   /*! \brief Change the state of the button.
    *
    * Does not emit one of the
@@ -92,17 +91,20 @@ public slots:
 public:
   /*! \brief %Signal emitted when the button gets checked.
    */
-  EventSignal<void> checked;
+  EventSignal<void>& checked();
 
   /*! \brief %Signal emitted when the button gets unChecked.
    */
-  EventSignal<void> unChecked;
+  EventSignal<void>& unChecked();
 
 protected:
-  bool    checked_;
+  bool checked_;
 
 private:
-  bool    checkedChanged_;
+  static const char *CHECKED_SIGNAL;
+  static const char *UNCHECKED_SIGNAL;
+
+  bool checkedChanged_;
 
   bool wasChecked_;
   void undoSetChecked();
@@ -110,8 +112,9 @@ private:
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
-  virtual void setFormData(CgiEntry *entry);
-  virtual void setNoFormData();
+  virtual void setFormData(const FormData& formData);
+
+  virtual WStatelessSlot *getStateless(Method method);
 };
 
 }

@@ -52,34 +52,29 @@ void WTableCell::setColumnSpan(int colSpan)
   }
 }
 
-void WTableCell::setContentAlignment(int contentAlignment)
-{
-  HorizontalAlignment h = (HorizontalAlignment)(contentAlignment & 0x0F);
-  VerticalAlignment v = (VerticalAlignment)(contentAlignment & 0xF0);
-  WContainerWidget::setContentAlignment(h);
-  WContainerWidget::setVerticalAlignment(v);
-}
-
-int WTableCell::contentAlignment() const
-{
-  return WContainerWidget::contentAlignment() |
-    verticalAlignment();
-}
-
 DomElementType WTableCell::domElementType() const
 {
-  return DomElement_TD;
+  if (column_ < table()->headerCount(Vertical)
+      || row() < table()->headerCount(Horizontal))
+    return DomElement_TH;
+  else
+    return DomElement_TD;
 }
 
 void WTableCell::updateDom(DomElement& element, bool all)
 {
   if ((all && rowSpan_ != 1) || spanChanged_)
-    element.setAttribute("rowspan",
+    element.setAttribute("rowSpan",
 			 boost::lexical_cast<std::string>(rowSpan_));
 
   if ((all && columnSpan_ != 1) || spanChanged_)
-    element.setAttribute("colspan",
+    element.setAttribute("colSpan",
 			 boost::lexical_cast<std::string>(columnSpan_));
+
+  if (row() < table()->headerCount(Horizontal))
+    element.setAttribute("scope", "col");
+  else if (column_ < table()->headerCount(Vertical))
+    element.setAttribute("scope", "row");
 
   spanChanged_ = false;
 

@@ -19,7 +19,7 @@ namespace Wt {
 
 Dialog::Dialog(const WString& windowTitle)
   : Panel(WApplication::instance()->domRoot()),
-    finished(this),
+    finished_(this),
     contents_(0),
     sizeGripEnabled_(true),
     recursiveEventLoop_(false),
@@ -34,7 +34,7 @@ Dialog::Dialog(const WString& windowTitle)
 
 Dialog::Dialog(Bla)
   : Panel(),
-    finished(this),
+    finished_(this),
     contents_(0),
     sizeGripEnabled_(false),
     recursiveEventLoop_(false),
@@ -115,7 +115,7 @@ void Dialog::done(DialogCode result)
   } else
     hide();
 
-  finished.emit(result);
+  finished_.emit(result);
 }
 
 void Dialog::accept()

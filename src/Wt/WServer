@@ -9,7 +9,7 @@
 
 #include <Wt/WApplication>
 
-#ifndef JAVA
+#ifndef WT_TARGET_JAVA
 
 namespace Wt {
 
@@ -221,6 +221,6 @@ private:
 
 }
 
-#endif // JAVA
+#endif // WT_TARGET_JAVA
 
 #endif // WSERVER_H_ 

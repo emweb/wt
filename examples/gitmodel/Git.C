@@ -89,8 +89,8 @@ namespace {
       idx_ = 0;
     }
 
-    std::string readLine(bool stripWhite = true) {
-      std::string r;
+    std::string& readLine(std::string& r, bool stripWhite = true) {
+      r.clear();
 
       while (stripWhite
 	     && (idx_ < content_.length()) && isspace(content_[idx_]))
@@ -265,18 +265,18 @@ bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
   POpenWrapper p("git --git-dir=" + repository_ + " " + gitCmd, cache_);
 
   if (p.exitStatus() != 0)
-    throw Exception("Git error: " + p.readLine());
+    throw Exception("Git error: " + p.readLine(result));
 
   if (index == -1) {
     result = p.contents();
     return true;
   } else
-    result = p.readLine();
+    p.readLine(result);
 
   for (int i = 0; i < index; ++i) {
     if (p.finished())
       return false;
-    result = p.readLine();
+    p.readLine(result);
   }
 
   return true;
@@ -288,10 +288,10 @@ bool Git::getCmdResult(const std::string& gitCmd, std::string& result,
   POpenWrapper p("git --git-dir=" + repository_ + " " + gitCmd, cache_);
 
   if (p.exitStatus() != 0)
-    throw Exception("Git error: " + p.readLine());
+    throw Exception("Git error: " + p.readLine(result));
 
   while (!p.finished()) {
-    result = p.readLine();
+    p.readLine(result);
     if (boost::starts_with(result, tag))
       return true;
   }
@@ -303,12 +303,14 @@ int Git::getCmdResultLineCount(const std::string& gitCmd) const
 {
   POpenWrapper p("git --git-dir=" + repository_ + " " + gitCmd, cache_);
 
+  std::string r;
+
   if (p.exitStatus() != 0)
-    throw Exception("Git error: " + p.readLine());
+    throw Exception("Git error: " + p.readLine(r));
 
   int result = 0;
   while (!p.finished()) {
-    p.readLine();
+    p.readLine(r);
     ++result;
   }
 
@@ -319,6 +321,7 @@ void Git::checkRepository() const
 {
   POpenWrapper p("git --git-dir=" + repository_ + " branch", cache_);
 
+  std::string r;
   if (p.exitStatus() != 0)
-    throw Exception("Git error: " + p.readLine());
+    throw Exception("Git error: " + p.readLine(r));
 }

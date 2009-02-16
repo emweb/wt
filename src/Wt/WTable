@@ -104,28 +104,45 @@ public:
    */
   void clear();
 
+#ifndef WT_DEPRECATE_2_2_0
   /*! \brief The number of rows in the table (<b>deprecated</b>).
    *
    * \deprecated Use rowCount() instead.
    */
   int numRows() const;
+#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Returns the number of rows in the table.
    */
   int rowCount() const;
 
+#ifndef WT_DEPRECATE_2_2_0
   /*! \brief The number of columns in the table (<b>deprecated</b>).
    *
    * \deprecated Use columnCount() instead.
    */
   int numColumns() const;
+#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Returns the number of columns in the table.
    */
   int columnCount() const;
 
-  void printDebug();
-  
+  /*! \brief Set the number of header rows or columns.
+   *
+   * The default values are 0.
+   *
+   * \note This must be set before the initial rendering and cannot
+   *       be changed later.
+   */
+  void setHeaderCount(int count, Orientation orientation = Horizontal);
+
+  /*! \brief Returns the number of header rows or columns.
+   *
+   * \sa setHeaderCount()
+   */
+  int headerCount(Orientation orientation = Horizontal);
+ 
 private:
   static const int BIT_GRID_CHANGED = 0;
   static const int BIT_COLUMNS_CHANGED = 1;
@@ -136,6 +153,7 @@ private:
   std::vector<WTableColumn *> *columns_;
   std::set<WTableRow *>       *rowsChanged_;
   unsigned                     rowsAdded_;
+  int                          headerRowCount_, headerColumnCount_;
 
   void expand(int row, int column, int rowSpan, int columnSpan);
   WTableRow::TableData& itemAt(int row, int column);

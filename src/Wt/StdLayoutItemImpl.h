@@ -33,8 +33,9 @@ public:
 
   virtual void containerAddWidgets(WContainerWidget *container) = 0;
   virtual DomElement *createDomElement(bool fitWidth, bool fitHeight,
-				       int& additionalVerticalPadding,
 				       WApplication *app) = 0;
+  virtual int additionalVerticalPadding(bool fitWidth, bool fitHeight)
+    const = 0;
 };
 
 }

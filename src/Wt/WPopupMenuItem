@@ -127,7 +127,7 @@ public:
 
   /*! \brief %Signal emitted when an item is activated.
    */
-  Signal<> triggered;
+  Signal<>& triggered() { return triggered_; }
 
   virtual void load();
 
@@ -141,6 +141,8 @@ private:
   WPopupMenu       *subMenu_;
   void             *data_;
   bool              separator_;
+
+  Signal<>          triggered_;
 
   void create();
   void renderOver();

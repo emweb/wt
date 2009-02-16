@@ -143,9 +143,10 @@ public:
    *
    * \sa wasCanceled()
    */
-  Signal<> canceled;
+  Signal<>& canceled() { return canceled_; }
 
 private:
+  Signal<> canceled_;
   WString cancelButtonText_;
   int minimum_;
   int maximum_;

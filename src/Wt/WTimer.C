@@ -15,15 +15,19 @@ namespace Wt {
 WTimer::WTimer(WObject *parent)
   : WObject(parent),
     timerWidget_(new WTimerWidget(this)),
-    timeout(&timerWidget_->clicked),
     singleShot_(false),
     selfDestruct_(false),
     interval_(0),
     active_(false),
     timeout_(new Time())
 {
-  timeout.connect(SLOT(this, WTimer::gotTimeout));
+  timeout().connect(SLOT(this, WTimer::gotTimeout));
 }
+
+EventSignal<WMouseEvent>& WTimer::timeout()
+{
+  return timerWidget_->clicked();
+}   
 
 WTimer::~WTimer()
 {

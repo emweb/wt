@@ -30,7 +30,7 @@ namespace asio = boost::asio;
 
 #endif // HTTP_WITH_SSL
 
-#if defined(THREADED) && BOOST_VERSION < 103600
+#if defined(WT_THREADED) && BOOST_VERSION < 103600
 
 #ifdef BOOST_ASIO
 #include <boost/asio/detail/select_reactor.hpp>
@@ -38,7 +38,7 @@ namespace asio = boost::asio;
 #include <asio/detail/select_reactor.hpp>
 #endif // BOOST_ASIO
 
-#endif // defined(THREADED) && BOOST_VERSION < 103600
+#endif // defined(WT_THREADED) && BOOST_VERSION < 103600
 
 #include <string>
 #include <boost/noncopyable.hpp>
@@ -125,10 +125,10 @@ private:
   SslConnectionPtr new_sslconnection_;
 #endif // HTTP_WITH_SSL
 
-#if defined(THREADED) && BOOST_VERSION < 103600
+#if defined(WT_THREADED) && BOOST_VERSION < 103600
   /// Reactor that listens for selects() on auxiliary sockets. 
   asio::detail::select_reactor<false> select_reactor_;
-#endif // defined(THREADED) && BOOST_VERSION < 103600
+#endif // defined(WT_THREADED) && BOOST_VERSION < 103600
 
   /// The connection manager which owns all live connections.
   ConnectionManager connection_manager_;

@@ -19,9 +19,9 @@ namespace Wt {
 
 WPopupMenu::WPopupMenu()
   : WCompositeWidget(),
-    aboutToHide(this),
     parentItem_(0),
     result_(0),
+    aboutToHide_(this),
     recursiveEventLoop_(false)
 {
   setImplementation(impl_ = new WContainerWidget());
@@ -96,15 +96,15 @@ void WPopupMenu::done(WPopupMenuItem *result)
 {
   result_ = result;
 
-  aboutToHide.emit();
+  aboutToHide_.emit();
 
   hide();
 
   globalClickConnection_.disconnect();
   globalEscapeConnection_.disconnect();
 
-  WApplication::instance()->root()->clicked.senderRepaint();
-  WApplication::instance()->root()->escapePressed.senderRepaint();
+  WApplication::instance()->root()->clicked().senderRepaint();
+  WApplication::instance()->root()->escapePressed().senderRepaint();
 
   if (recursiveEventLoop_) {
     WebSession *session = WApplication::instance()->session();
@@ -141,13 +141,13 @@ void WPopupMenu::popup(const WPoint& p)
   // XXX
   // We rely here on the fact that no other widget is listening for
   // escape on the root()
-  if (app->root()->escapePressed.isConnected())
-    app->root()->escapePressed.emit();
+  if (app->root()->escapePressed().isConnected())
+    app->root()->escapePressed().emit();
 
   globalClickConnection_
-    = app->root()->clicked.connect(SLOT(this, WPopupMenu::done));
+    = app->root()->clicked().connect(SLOT(this, WPopupMenu::done));
   globalEscapeConnection_
-    = app->root()->escapePressed.connect(SLOT(this, WPopupMenu::done));
+    = app->root()->escapePressed().connect(SLOT(this, WPopupMenu::done));
 
   prepareRender(app);
 

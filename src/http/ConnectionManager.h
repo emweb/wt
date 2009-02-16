@@ -22,7 +22,7 @@
 #include "Connection.h" // On WIN32, must be before thread stuff
 #ifdef THREADED
 #include <boost/thread/mutex.hpp>
-#endif // THREADED
+#endif // WT_THREADED
 
 
 namespace http {
@@ -47,10 +47,10 @@ private:
   /// The managed connections.
   std::set<ConnectionPtr> connections_;
 
-#ifdef THREADED
+#ifdef WT_THREADED
   /// Mutex to protect access to connections_
   boost::mutex mutex_;
-#endif // THREADED
+#endif // WT_THREADED
 };
 
 } // namespace server

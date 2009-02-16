@@ -85,6 +85,7 @@ public:
   void insertChildAt(DomElement *child, int pos);
 
   void setAttribute(const std::string& attribute, const std::string& value);
+
   std::string getAttribute(const std::string& attribute) const;
   void removeAttribute(const std::string& attribute);
 
@@ -163,14 +164,14 @@ public:
   std::string cssStyle() const;
 
   static void fastJsStringLiteral(EscapeOStream& outRaw,
-				  EscapeOStream& outEscaped,
+				  const EscapeOStream& outEscaped,
 				  const std::string& s);
   static void jsStringLiteral(EscapeOStream& out, const std::string& s,
 			      char delimiter);
   static void jsStringLiteral(std::ostream& out, const std::string& s,
 			      char delimiter);
   static void fastHtmlAttributeValue(EscapeOStream& outRaw,
-				     EscapeOStream& outEscaped,
+				     const EscapeOStream& outEscaped,
 				     const std::string& s);
   static void htmlAttributeValue(std::ostream& out, const std::string& s);
   static bool isSelfClosingTag(const std::string& tag);
@@ -221,7 +222,7 @@ private:
 
   typedef std::map<std::string, std::string> AttributeMap;
   typedef std::map<Wt::Property, std::string> PropertyMap;
-  typedef std::map<std::string, EventHandler> EventHandlerMap;
+  typedef std::map<const char *, EventHandler> EventHandlerMap;
 
   AttributeMap    attributes_;
   PropertyMap     properties_;

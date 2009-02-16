@@ -118,6 +118,7 @@ private:
   Impl::Grid grid_;
 
   const Impl::Grid::Item& itemAtPosition(Position position) const;
+
   Impl::Grid::Item& itemAtPosition(Position position);
 };
 

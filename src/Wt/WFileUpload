@@ -58,7 +58,8 @@ namespace Wt {
  * file which will be deleted together with the WFileUpload widget,
  * unless stealSpooledFile() is called.
  */
-class WT_API WFileUpload : public WWebWidget {
+class WT_API WFileUpload : public WWebWidget 
+{
 public:
   /*! \brief Construct a file upload widget
    */
@@ -88,11 +89,11 @@ public:
 
   /*! \brief Get the client filename.
    */
-  const WString& clientFileName() const { return clientFileName_; }
+  const WT_USTRING& clientFileName() const { return clientFileName_; }
 
   /*! \brief Get the client content description.
    */
-  const WString& contentDescription() const { return contentDescription_; }
+  const WT_USTRING& contentDescription() const { return contentDescription_; }
 
   /*! \brief Steal the spooled file.
    *
@@ -106,12 +107,12 @@ public:
    *
    * Return whether a non-empty filename was given.
    */
-  bool emptyFileName() const { return clientFileName_.value().empty(); }
+  bool emptyFileName() const { return clientFileName_.empty(); }
 
   /*! \brief Returns whether the upload() slot will trigger a new
    *         upload.
    */
-  bool isUploaded() const { return methodIframe_ == false; }
+  bool isUploaded() const { return fileUploadTarget_ != 0; }
 
   /*! \brief Signal emitted when a new file was uploaded.
    *
@@ -120,9 +121,9 @@ public:
    * when a file has been uploaded succesfully.
    *
    * \sa upload()
-   * \sa fileTooLarge
+   * \sa fileTooLarge()
    */
-  Signal<void> uploaded;
+  Signal<>& uploaded() { return uploaded_; }
 
   /*! \brief Signal emitted when the user tried to upload a too large file.
    *
@@ -133,9 +134,9 @@ public:
    * which may be configured in the configuration file (<max-request-size>).
    *
    * \sa uploaded
-   * \sa WApplication::requestTooLarge
+   * \sa WApplication::requestTooLarge()
    */
-  Signal<int> fileTooLarge;
+  Signal<int>& fileTooLarge() { return fileTooLarge_; }
 
   /*! \brief Signal emitted when the user selected a new file.
    *
@@ -146,7 +147,7 @@ public:
    * other browsers. Thus, in the above scenario you should still provide
    * an alternative way to call the upload() method.
    */
-  EventSignal<void> changed;
+  EventSignal<void>& changed();
 
 public slots:
   /*! \brief Start the file upload.
@@ -161,30 +162,34 @@ public slots:
   void upload();
 
 private:
+  static const char *CHANGE_SIGNAL;
+
   int textSize_;
   bool textSizeChanged_;
 
   std::string spoolFileName_;
-  WString     clientFileName_;
-  WString     contentDescription_;
+  WT_USTRING    clientFileName_;
+  WT_USTRING    contentDescription_;
   bool isStolen_;
   bool doUpload_;
 
-  bool     methodIframe_;
+  Signal<>    uploaded_;
+  Signal<int> fileTooLarge_;
 
-  virtual void        requestTooLarge(int size);
+  WResource *fileUploadTarget_;
+
+  virtual void requestTooLarge(int size);
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElement    *createDomElement(WApplication *app);
   virtual DomElementType domElementType() const;
 
-  virtual void        setFormData(CgiEntry *entry);
-  virtual void        setNoFormData();
-  virtual void        formDataSet();
-  virtual void        htmlText(std::ostream& out);
+  virtual void setFormData(const FormData& formData);
 
-  friend class WFileUpload_EmptyWidget;
+  void setFormData(const Http::UploadedFile& file);
+
+  friend class WFileUploadResource;
 };
 
 }

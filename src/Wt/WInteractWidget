@@ -20,7 +20,7 @@ class JSlot;
  * This abstract widget provides access to event signals that
  * correspond to user-interface interaction through mouse or keyboard.
  *
- * When JavaScript is disabled, only the #clicked event will
+ * When JavaScript is disabled, only the clicked() event will
  * propagate (but without event details information).
  */
 class WT_API WInteractWidget : public WWebWidget
@@ -43,7 +43,7 @@ public:
    *
    * \sa WInteractWidget::keyPressed, WInteractWidget::keyWentUp
    */
-  EventSignal<WKeyEvent> keyWentDown;
+  EventSignal<WKeyEvent>& keyWentDown();
 
   /*! \brief Event signal emitted when a "character" was entered.
    *
@@ -55,7 +55,7 @@ public:
    *
    * \sa WInteractWidget::keyWentDown
    */
-  EventSignal<WKeyEvent> keyPressed;
+  EventSignal<WKeyEvent>& keyPressed();
     
   /*! \brief Event signal emitted when a keyboard key is released.
    *
@@ -65,7 +65,7 @@ public:
    *
    * \sa WInteractWidget::keyWentDown
    */
-  EventSignal<WKeyEvent> keyWentUp;
+  EventSignal<WKeyEvent>& keyWentUp();
 
   /*! \brief Event signal emitted when enter was pressed.
    *
@@ -73,7 +73,7 @@ public:
    *
    * \sa keyPressed, Key_Enter
    */
-  EventSignal<void> enterPressed;
+  EventSignal<void>& enterPressed();
 
   /*! \brief Event signal emitted when escape was pressed.
    *
@@ -81,7 +81,7 @@ public:
    *
    * \sa keyPressed, Key_Escape
    */
-  EventSignal<void> escapePressed;
+  EventSignal<void>& escapePressed();
 
   /*! \brief Event signal emitted when a mouse key was clicked on this
    *         widget.
@@ -97,7 +97,7 @@ public:
    * @note When JavaScript is disabled, the event details contain
    * invalid information.
    */
-  EventSignal<WMouseEvent> clicked;
+  EventSignal<WMouseEvent>& clicked();
 
   /*! \brief Event signal emitted when a mouse key was double clicked
    *         on this widget.
@@ -112,7 +112,7 @@ public:
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent> doubleClicked;
+  EventSignal<WMouseEvent>& doubleClicked();
 
   /*! \brief Event signal emitted when a mouse key was pushed down on this
    *         widget.
@@ -127,7 +127,7 @@ public:
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent> mouseWentDown;
+  EventSignal<WMouseEvent>& mouseWentDown();
 
   /*! \brief Event signal emitted when a mouse key was released on this
    *         widget.
@@ -142,25 +142,25 @@ public:
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent> mouseWentUp;
+  EventSignal<WMouseEvent>& mouseWentUp();
 
   /*! \brief Event signal emitted when the mouse went out of this widget.
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent> mouseWentOut;
+  EventSignal<WMouseEvent>& mouseWentOut();
     
   /*! \brief Event signal emitted when the mouse entered this widget.
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent> mouseWentOver;
+  EventSignal<WMouseEvent>& mouseWentOver();
 
   /*! \brief Event signal emitted when the mouse moved over this widget.
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent> mouseMoved;
+  EventSignal<WMouseEvent>& mouseMoved();
 
   /*! \brief Configure dragging.
    *
@@ -181,9 +181,28 @@ public:
   void setDraggable(const std::string& mimeType, WWidget *dragWidget = 0,
 		    bool isDragWidgetOnly = false, WObject *sourceWidget = 0);
 protected:
-  void updateDom(DomElement& element, bool all);
+  void updateDom(DomElement& element, bool all);  
 
   JSlot *dragSlot_;
+
+protected:
+  // also used in WAbstractToggleButton
+  static const char *CLICK_SIGNAL;
+
+private:
+  static const char *KEYDOWN_SIGNAL;
+  static const char *KEYPRESS_SIGNAL;
+  static const char *KEYUP_SIGNAL;
+  static const char *ENTER_PRESS_SIGNAL;
+  static const char *ESCAPE_PRESS_SIGNAL;
+  static const char *DBL_CLICK_SIGNAL;
+  static const char *MOUSE_DOWN_SIGNAL;
+  static const char *MOUSE_UP_SIGNAL;
+  static const char *MOUSE_OUT_SIGNAL;
+  static const char *MOUSE_OVER_SIGNAL;
+  static const char *MOUSE_MOVE_SIGNAL;
+
+  friend class DomElement;
 };
 
 }

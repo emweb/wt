@@ -1,0 +1,266 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WFLAGS_H_
+#define WFLAGS_H_
+
+#include <Wt/WDllDefs.h>
+
+#define WFLAGS_USE_TYPESAFE_MASKS
+
+namespace Wt {
+template<typename EnumType>
+class WT_API WFlags
+{
+  class Zero_ {};
+  typedef Zero_ *Zero;
+#ifdef WFLAGS_USE_TYPESAFE_MASKS
+  typedef const WFlags<EnumType>& MaskType;
+#else
+  typedef unsigned MaskType;
+#endif
+public:
+  typedef EnumType enum_type;
+
+  inline WFlags(const WFlags<EnumType>& other);
+
+  inline WFlags(EnumType flag);
+
+  inline WFlags(Zero zero = 0);
+
+  inline bool testFlag(EnumType flag) const;
+
+  inline WFlags<EnumType>& clear(EnumType value);
+
+  inline operator EnumType() const;
+
+  inline int bitCount() const;
+
+  inline bool operator!() const;
+
+  inline WFlags<EnumType> operator&(EnumType mask) const;
+  
+  inline WFlags<EnumType> operator&(MaskType mask) const;
+
+  inline WFlags<EnumType>& operator&=(MaskType mask);
+
+  inline WFlags<EnumType>& operator=(const WFlags<EnumType>& other);
+
+  inline WFlags<EnumType>& operator=(const EnumType other);
+
+  inline WFlags<EnumType> operator^(WFlags<EnumType> other) const;
+
+  inline WFlags<EnumType> operator^(EnumType other) const;
+
+  inline WFlags<EnumType>& operator^=(WFlags<EnumType> other);
+
+  inline WFlags<EnumType>& operator^=(EnumType other);
+
+  inline WFlags<EnumType> operator|(WFlags<EnumType> other) const;
+
+  inline WFlags<EnumType> operator|(EnumType other) const;
+
+  inline WFlags<EnumType>& operator|=(WFlags<EnumType> other);
+
+  inline WFlags<EnumType>& operator|=(EnumType other);
+
+  inline WFlags<EnumType> operator~() const;
+
+#ifdef WT_TARGET_JAVA
+  inline bool operator==(WFlags<EnumType> other) const;
+  inline bool operator==(EnumType other) const;
+  inline bool operator==(int zero) const;
+  inline bool operator!=(WFlags<EnumType> other) const;
+  inline bool operator!=(EnumType other) const;
+  inline bool operator!=(int zero) const;
+#endif
+
+private:
+  unsigned int flags_;
+
+  WFlags(int flags, bool unused): flags_(flags) {}
+  inline static WFlags<EnumType> createFromInt(int flags) {
+    return WFlags(flags, false);
+  }
+
+};
+
+template<typename EnumType>
+WFlags<EnumType>::WFlags(const WFlags<EnumType>& other):
+  flags_(other.flags_)
+{
+}
+
+template<typename EnumType>
+WFlags<EnumType>::WFlags(enum_type flag):
+  flags_(flag)
+{
+}
+
+template<typename EnumType>
+WFlags<EnumType>::WFlags(WFlags::Zero):
+  flags_(0)
+{
+}
+
+template<typename EnumType>
+bool WFlags<EnumType>::testFlag(enum_type flag) const
+{
+  return flags_ & flag;
+}
+
+template<typename EnumType>
+WFlags<EnumType>& WFlags<EnumType>::clear(enum_type flag)
+{
+  flags_ &= ~flag;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType>::operator EnumType() const
+{
+  return static_cast<EnumType>(flags_);
+}
+
+template<typename EnumType>
+int WFlags<EnumType>::bitCount() const
+{
+  unsigned n = flags_;
+  int retval = 0;
+  while (n) {
+    retval ++;
+    n &= n - 1;
+  }
+  return retval;
+}
+
+template<typename EnumType>
+bool WFlags<EnumType>::operator!() const
+{
+  return !flags_;
+}
+
+template<typename EnumType>
+WFlags<EnumType> WFlags<EnumType>::operator&(EnumType mask) const
+{
+  return WFlags<EnumType>::createFromInt(flags_ & (unsigned)mask);
+}
+
+template<typename EnumType>
+WFlags<EnumType> WFlags<EnumType>::operator&(MaskType mask) const
+{
+  return WFlags<EnumType>::createFromInt(flags_ & (unsigned)mask);
+}
+
+template<typename EnumType>
+WFlags<EnumType> &WFlags<EnumType>::operator&=(MaskType mask)
+{
+  flags_ &= (unsigned)mask;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType>& WFlags<EnumType>::operator=(const WFlags<EnumType>& other)
+{
+  flags_ = other.flags_;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType>& WFlags<EnumType>::operator=(const EnumType other)
+{
+  flags_ = other;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType> WFlags<EnumType>::operator^(WFlags<EnumType> other) const
+{
+  return WFlags<EnumType>::createFromInt(flags_ ^ other.flags_);
+}
+
+template<typename EnumType>
+WFlags<EnumType> WFlags<EnumType>::operator^(EnumType other) const
+{
+  return WFlags<EnumType>::createFromInt(flags_ ^ other);
+}
+
+template<typename EnumType>
+WFlags<EnumType>& WFlags<EnumType>::operator^=(WFlags<EnumType> other)
+{
+  flags_ ^= other.flags_;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType>& WFlags<EnumType>::operator^=(EnumType other)
+{
+  flags_ ^= other;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType> WFlags<EnumType>::operator|(WFlags<EnumType> other) const
+{
+  return WFlags<EnumType>::createFromInt(flags_ | other.flags_);
+}
+
+template<typename EnumType>
+WFlags<EnumType> WFlags<EnumType>::operator|(EnumType other) const
+{
+  return WFlags<EnumType>::createFromInt(flags_ | other);
+}
+
+template<typename EnumType>
+WFlags<EnumType>& WFlags<EnumType>::operator|=(WFlags<EnumType> other)
+{
+  flags_ |= other.flags_;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType>& WFlags<EnumType>::operator|=(EnumType other)
+{
+  flags_ |= other;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType> WFlags<EnumType>::operator~() const
+{
+  return WFlags<EnumType>::createFromInt(~flags_);
+}
+
+#ifndef WT_TARGET_JAVA
+#define W_DECLARE_OPERATORS_FOR_FLAGS(EnumType)				\
+WT_API inline Wt::WFlags<EnumType> operator|(EnumType l, EnumType r) {  \
+  Wt::WFlags<EnumType> retval(l);					\
+  retval |= r;								\
+  return retval;							\
+}									\
+WT_API inline Wt::WFlags<EnumType> operator|(EnumType l,		\
+                                             Wt::WFlags<EnumType> r) {	\
+  return r | l;								\
+}
+#else
+#define W_DECLARE_OPERATORS_FOR_FLAGS(EnumType)				\
+Wt::WFlags<EnumType> operator|(EnumType l, EnumType r);                 \
+Wt::WFlags<EnumType> operator|(EnumType l, Wt::WFlags<EnumType> r);     \
+bool operator==(EnumType l, Wt::WFlags<EnumType> r);                    \
+bool operator==(EnumType l, int zero);
+#endif
+}
+
+#ifdef WFLAGS_USE_TYPESAFE_MASKS
+#define W_DECLARE_MASK_FOR_FLAGS(EnumType, n, v) \
+  static const Wt::WFlags<EnumType> n(v)
+#else
+#define W_DECLARE_MASK_FOR_FLAGS(EnumType, n, v) \
+  static const unsigned n = (v)
+#endif
+
+#endif // WFLAGS_H_
+

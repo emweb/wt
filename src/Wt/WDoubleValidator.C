@@ -112,7 +112,7 @@ WString WDoubleValidator::invalidTooLargeText() const
 }
 
 
-WValidator::State WDoubleValidator::validate(WString& input, int& pos) const
+WValidator::State WDoubleValidator::validate(WT_USTRING& input) const
 {
   std::string text = input.toUTF8();
 
@@ -131,11 +131,9 @@ WValidator::State WDoubleValidator::validate(WString& input, int& pos) const
       return Valid;
     else
       return Invalid;
-  } catch (boost::bad_lexical_cast&) {
+  } catch (boost::bad_lexical_cast& e) {
     return Invalid;
   }
-
-  return Valid;
 }
 
 std::string WDoubleValidator::javaScriptValidate(const std::string& jsRef) const

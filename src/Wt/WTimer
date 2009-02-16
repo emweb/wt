@@ -80,8 +80,10 @@ public:
    *   WTimer::singleShot(2000, SLOT(this, MyClass::doSome));
    * \endcode
    */
+#ifndef WT_TARGET_JAVA
   template <class T, class V>
   static void singleShot(int msec, T *receiver, void (V::*method)());
+#endif // WT_TARGET_JAVA
 
 private:
   WTimerWidget *timerWidget_;
@@ -102,7 +104,7 @@ public slots:
 public:
   /*! \brief Signal emitted when the timer timeouts.
    */
-  EventSignal<void> timeout;
+  EventSignal<WMouseEvent>& timeout();
 
 private slots:
   void gotTimeout();
@@ -121,6 +123,7 @@ private:
   Time *timeout_;
 };
 
+#ifndef WT_TARGET_JAVA
 template <class T, class V>
 void WTimer::singleShot(int msec, T *receiver, void (V::*method)())
 {
@@ -128,9 +131,10 @@ void WTimer::singleShot(int msec, T *receiver, void (V::*method)())
   timer->setSingleShot(true);
   timer->setInterval(msec);
   timer->setSelfDestruct();
-  timer->timeout.connect(receiver, method);
+  timer->timeout().connect(receiver, method);
   timer->start();
 }
+#endif // WT_TARGET_JAVA
 
 }
 

@@ -9,7 +9,7 @@
 
 #include <Wt/WString>
 #include <vector>
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 

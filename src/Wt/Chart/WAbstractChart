@@ -114,7 +114,7 @@ public:
    *
    * The default is dependent on the chart type.
    */
-  void setPlotAreaPadding(int padding, int sides = All);
+  void setPlotAreaPadding(int padding, WFlags<Side> sides = All);
 
   /*! \brief Returns the internal margin for the main plot area.
    *

@@ -46,11 +46,8 @@
   #define WT_API
 #endif
 
-#ifdef JAVA
-#define WT_ARRAY volatile
-#else
 #define WT_ARRAY
-#endif
+#define W_JAVA_COMPARATOR(type)
 
 #ifdef WIN32
 typedef __int64 int64_t;            /* 64 bit signed */

@@ -11,7 +11,7 @@ namespace Wt {
 
 ProgressDialog::ProgressDialog(bool i18n)
   : MessageBox("Progress...", "", NoIcon, Cancel, i18n),
-    canceled(this),
+    canceled_(this),
     cancelButtonText_("Cancel"),
     minimum_(0),
     maximum_(100),
@@ -19,7 +19,7 @@ ProgressDialog::ProgressDialog(bool i18n)
     wasCanceled_(false)
 { 
   enableProgressBar(true);
-  buttonClicked.connect(SLOT(this, ProgressDialog::onButtonClick));
+  buttonClicked().connect(SLOT(this, ProgressDialog::onButtonClick));
 
   //show();
 }
@@ -28,7 +28,7 @@ ProgressDialog::ProgressDialog(const WString& labelText,
 			       const WString& cancelButtonText,
 			       int minimum, int maximum, bool i18n)
   : MessageBox("Progress...", labelText, NoIcon, Cancel, i18n),
-    canceled(this),
+    canceled_(this),
     cancelButtonText_(cancelButtonText),
     minimum_(minimum),
     maximum_(maximum),
@@ -36,7 +36,7 @@ ProgressDialog::ProgressDialog(const WString& labelText,
     wasCanceled_(false)
 {
   enableProgressBar(true);
-  buttonClicked.connect(SLOT(this, ProgressDialog::onButtonClick));
+  buttonClicked().connect(SLOT(this, ProgressDialog::onButtonClick));
 
   //show();
 }
@@ -97,7 +97,7 @@ void ProgressDialog::setCancelButtonText(const WString& text)
 void ProgressDialog::onButtonClick(StandardButton button)
 {
   wasCanceled_ = true;
-  canceled.emit();
+  canceled_.emit();
 }
 
   }

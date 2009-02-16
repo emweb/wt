@@ -188,13 +188,13 @@ public:
    *
    * \sa ItemFlag, flags(), setCheckable()
    */
-  void setFlags(int flags);
+  void setFlags(WFlags<ItemFlag> flags);
 
   /*! \brief Returns the flags.
    *
    * \sa setFlags()
    */
-  int flags() const;
+  WFlags<ItemFlag> flags() const;
 
   /*! \brief Make the item checkable.
    *
@@ -580,12 +580,14 @@ private:
   typedef std::vector<WStandardItem *> Column;
   typedef std::vector<Column> ColumnList;
 
+  int compare(const WStandardItem& other) const;
+
   WStandardItemModel *model_;
   WStandardItem      *parent_;
   int                 row_, column_;
 
-  DataMap data_;
-  int     flags_;
+  DataMap          data_;
+  WFlags<ItemFlag> flags_;
 
   ColumnList *columns_;
 

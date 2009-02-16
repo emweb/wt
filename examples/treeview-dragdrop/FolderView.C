@@ -43,6 +43,7 @@ void FolderView::dropEvent(const Wt::WDropEvent& event,
     WItemSelectionModel *selection
       = dynamic_cast<WItemSelectionModel *>(event.source());
 
+#ifdef WT_THREADED
     int result = WMessageBox::show
       ("Drop event",
        "Move "
@@ -51,6 +52,9 @@ void FolderView::dropEvent(const Wt::WDropEvent& event,
        + boost::any_cast<WString>(target.data(DisplayRole)).toUTF8()
        + "' ?",
        Yes | No);
+#else
+    int result = Yes;
+#endif
 
     if (result == Yes) {
       /*

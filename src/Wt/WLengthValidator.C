@@ -112,8 +112,6 @@ WValidator::State WLengthValidator::validate(WString& input, int& pos) const
     return Valid;
   else
     return Invalid;
-  
-  return Valid;
 }
 
 std::string WLengthValidator::javaScriptValidate(const std::string& jsRef) const

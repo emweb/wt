@@ -12,6 +12,8 @@
 #include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WWebWidget"
+#include "Wt/Http/Request"
+#include "Wt/Http/Response"
 
 namespace Wt {
   namespace Ext {
@@ -30,6 +32,11 @@ DataStore::DataStore(WAbstractItemModel *model, DataLocation dataLocation,
     recordIds_.push_back(-1);
     rowsInserted_ = true;
   }
+}
+
+DataStore::~DataStore()
+{
+  beingDeleted();
 }
 
 void DataStore::addColumn(int columnIndex, const std::string& fieldName)
@@ -52,11 +59,6 @@ int DataStore::rowFromId(int id) const
       return i;
 
   return -1;
-}
-
-const std::string DataStore::resourceMimeType() const
-{
-  return "text/x-json";
 }
 
 int DataStore::getRecordId(int row)
@@ -268,17 +270,19 @@ void DataStore::modelDataChanged(const WModelIndex& topLeft,
     needRefresh_ = true;
 }
 
-bool DataStore::streamResourceData(std::ostream& o,
-				   const ArgumentMap& arguments)
+void DataStore::handleRequest(const Http::Request& request,
+			      Http::Response& response)
 {
+  response.setMimeType("text/x-json");
+
   WModelIndexList matches;
 
   if (modelFilterColumn_ != -1) {
     WString query;
 
-    ArgumentMap::const_iterator i = arguments.find("query");
-    if (i != arguments.end())
-      query = WString::fromUTF8(i->second[0]);
+    const std::string *queryE = request.getParameter("query");
+    if (queryE)
+      query = WString::fromUTF8(*queryE);
 
     matches = model_->match(model_->index(0, modelFilterColumn_),
 			    DisplayRole, boost::any(query));
@@ -289,29 +293,28 @@ bool DataStore::streamResourceData(std::ostream& o,
 		  model_->rowCount() : matches.size());
   int limit = rowCount;
 
-  ArgumentMap::const_iterator i = arguments.find("start");
-  if (i != arguments.end()) {
-    try {
-      start = std::max(0, std::min(limit,
-				   boost::lexical_cast<int>(i->second[0])));
-    } catch (boost::bad_lexical_cast&) {
-      wApp->log("error") << "DataStore: start '" << i->second[0]
-			 << "' is not-a-number.";
-    }
-  }
+  const std::string *s;
 
-  i = arguments.find("limit");
-  if (i != arguments.end()) {
+  s = request.getParameter("start");
+  if (s)
+    try {
+      start = std::max(0, std::min(limit, boost::lexical_cast<int>(*s)));
+    } catch (boost::bad_lexical_cast& e) {
+      wApp->log("error") << "DataStore: start '" << s << "' is not-a-number.";
+    }
+
+  s = request.getParameter("limit");
+  if (s)
     try {
       limit = std::max(0, std::min(limit - start,
-				   boost::lexical_cast<int>(i->second[0])));
-    } catch (boost::bad_lexical_cast&) {
-      wApp->log("error") << "DataStore: limit '" << i->second[0]
-			 << "' is not-a-number.";
+				   boost::lexical_cast<int>(*s)));
+    } catch (boost::bad_lexical_cast& e) {
+      wApp->log("error") << "DataStore: limit '" << s << "' is not-a-number.";
     }
-  }
 
- o << "{"
+  std::ostream& o = response.out();
+
+  o << "{"
     << "'count':" << rowCount << ","
     << "'data':[";
 
@@ -324,16 +327,14 @@ bool DataStore::streamResourceData(std::ostream& o,
 
     o << "'id':" << getRecordId(modelRow);
 
-    for (unsigned i = 0; i < columns_.size(); ++i)
-      o << ",'" << columns_[i].fieldName << "':"
-	<< asJSLiteral(model_->data(modelRow, columns_[i].modelColumn));
+    for (unsigned j = 0; j < columns_.size(); ++j)
+      o << ",'" << columns_[j].fieldName << "':"
+	<< asJSLiteral(model_->data(modelRow, columns_[j].modelColumn));
 
     o << "}";
   }
 
   o << "]}";
-
-  return true;
 }
 
 DataStore::Column::Column(int aModelColumn, const std::string& aFieldName)

@@ -35,19 +35,14 @@ public:
 
   /*! \brief Signal emitted when the countdown reached stop.
    */
-  Wt::Signal<void> done;
+  Wt::Signal<void>& done() { return done_; }
 
-public slots:
   /*! \brief Cancel the count down.
    */
   void cancel();
 
-private slots:
-  /*! \brief Process one timer tick.
-   */
-  void timerTick();
-
 private:
+  Wt::Signal<void> done_;
   int start_;
   int stop_;
   unsigned msec_;
@@ -55,6 +50,10 @@ private:
   int current_;
 
   WTimer *timer_;
+
+  /*! \brief Process one timer tick.
+   */
+  void timerTick();
 };
 
 /*@}*/

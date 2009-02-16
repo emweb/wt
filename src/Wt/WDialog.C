@@ -17,7 +17,7 @@
 namespace Wt {
 
 WDialog::WDialog(const WString& windowTitle)
-  : finished(this),
+  : finished_(this),
     recursiveEventLoop_(false)
 { 
   setImplementation(impl_ = new WContainerWidget);
@@ -106,6 +106,8 @@ WDialog::WDialog(const WString& windowTitle)
   layout->addWidget(contents_, 1);
 
   impl_->setLayout(layout, AlignLeft);
+
+  hide();
 }
 
 WDialog::~WDialog()
@@ -145,6 +147,7 @@ void WDialog::setTitleBarEnabled(bool enable)
   titleBar_->setHidden(!enable);
 }
 
+#ifndef WT_TARGET_JAVA
 WDialog::DialogCode WDialog::exec()
 {
   if (recursiveEventLoop_)
@@ -159,6 +162,7 @@ WDialog::DialogCode WDialog::exec()
 
   return result_;
 }
+#endif // WT_TARGET_JAVA
 
 void WDialog::done(DialogCode result)
 {
@@ -171,7 +175,7 @@ void WDialog::done(DialogCode result)
   } else
     hide();
 
-  finished.emit(result);
+  finished_.emit(result);
 }
 
 void WDialog::accept()

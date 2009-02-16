@@ -15,13 +15,13 @@ namespace Wt {
 
 WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   : WCompositeWidget(parent),
-    valueChanged(this)
+    valueChanged_(this)
 {
   setImplementation(impl_ = new WContainerWidget());
   setInline(true);
 
   text_ = new WText(text, PlainText, impl_);
-  text_->decorationStyle().setCursor(WCssDecorationStyle::Default);
+  text_->decorationStyle().setCursor(ArrowCursor);
 
   edit_ = new WLineEdit(text, impl_);
   edit_->setTextSize(20);
@@ -31,27 +31,27 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   save_->hide();
   cancel_->hide();
 
-  text_->clicked.connect(SLOT(text_,   WWidget::hide));
-  text_->clicked.connect(SLOT(edit_,   WWidget::show));
-  text_->clicked.connect(SLOT(save_,   WWidget::show));
-  text_->clicked.connect(SLOT(cancel_, WWidget::show));
-  text_->clicked.connect(SLOT(edit_,   WFormWidget::setFocus));
+  text_->clicked().connect(SLOT(text_,   WWidget::hide));
+  text_->clicked().connect(SLOT(edit_,   WWidget::show));
+  text_->clicked().connect(SLOT(save_,   WWidget::show));
+  text_->clicked().connect(SLOT(cancel_, WWidget::show));
+  text_->clicked().connect(SLOT(edit_,   WFormWidget::setFocus));
 
-  edit_->enterPressed.connect(SLOT(save_,   WWidget::hide));
-  edit_->enterPressed.connect(SLOT(cancel_, WWidget::hide));
-  edit_->enterPressed.connect(SLOT(edit_,   WFormWidget::disable));
-  edit_->enterPressed.connect(SLOT(this,    WInPlaceEdit::save));
-  edit_->enterPressed.setPreventDefault(true);
+  edit_->enterPressed().connect(SLOT(save_,   WWidget::hide));
+  edit_->enterPressed().connect(SLOT(cancel_, WWidget::hide));
+  edit_->enterPressed().connect(SLOT(edit_,   WFormWidget::disable));
+  edit_->enterPressed().connect(SLOT(this,    WInPlaceEdit::save));
+  edit_->enterPressed().setPreventDefault(true);
 
-  save_->clicked.connect(SLOT(save_,   WWidget::hide));
-  save_->clicked.connect(SLOT(cancel_, WWidget::hide));
-  save_->clicked.connect(SLOT(edit_,   WFormWidget::disable));
-  save_->clicked.connect(SLOT(this,    WInPlaceEdit::save));
+  save_->clicked().connect(SLOT(save_,   WWidget::hide));
+  save_->clicked().connect(SLOT(cancel_, WWidget::hide));
+  save_->clicked().connect(SLOT(edit_,   WFormWidget::disable));
+  save_->clicked().connect(SLOT(this,    WInPlaceEdit::save));
 
-  cancel_->clicked.connect(SLOT(save_,   WWidget::hide));
-  cancel_->clicked.connect(SLOT(cancel_, WWidget::hide));
-  cancel_->clicked.connect(SLOT(edit_,   WWidget::hide));
-  cancel_->clicked.connect(SLOT(text_,   WWidget::show));
+  cancel_->clicked().connect(SLOT(save_,   WWidget::hide));
+  cancel_->clicked().connect(SLOT(cancel_, WWidget::hide));
+  cancel_->clicked().connect(SLOT(edit_,   WWidget::hide));
+  cancel_->clicked().connect(SLOT(text_,   WWidget::show));
 }
 
 const WString& WInPlaceEdit::text() const
@@ -72,7 +72,7 @@ void WInPlaceEdit::save()
   text_->setText(edit_->text());
   edit_->enable();
 
-  valueChanged.emit(edit_->text());
+  valueChanged().emit(edit_->text());
 }
 
 }

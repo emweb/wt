@@ -12,7 +12,7 @@ ENDIF(NOT BOOST_WT_FOUND)
 
 IF(BOOST_WT_MT_FOUND)
   IF(MULTI_THREADED)
-    ADD_DEFINITIONS(-DTHREADED -D_REENTRANT -DBOOST_SPIRIT_THREADSAFE)
+    ADD_DEFINITIONS(-DWT_THREADED -D_REENTRANT -DBOOST_SPIRIT_THREADSAFE)
     MESSAGE("** Enabling multi threading.")
   ELSE(MULTI_THREADED)
     MESSAGE("** Disabling multi threading.")
@@ -119,6 +119,7 @@ Wt/WLengthValidator.C
 Wt/WLineEdit.C
 Wt/WLineF.C
 Wt/WLoadingIndicator.C
+Wt/WLocalizedStrings.C
 Wt/WLogger.C
 Wt/WMemoryResource.C
 Wt/WMenu.C
@@ -144,6 +145,7 @@ Wt/WPushButton.C
 Wt/WRadioButton.C
 Wt/WRectArea.C
 Wt/WRectF.C
+Wt/WRegExp.C
 Wt/WRegExpValidator.C
 Wt/WResource.C
 Wt/WScrollArea.C
@@ -159,7 +161,6 @@ Wt/WStandardItemModel.C
 Wt/WStatelessSlot.C
 Wt/WString.C
 Wt/WSubMenuItem.C
-Wt/WLocalizedStrings.C
 Wt/WStringListModel.C
 Wt/WStringUtil.C
 Wt/WSuggestionPopup.C
@@ -190,6 +191,9 @@ Wt/WVirtualImage.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
+Wt/Http/Request.C
+Wt/Http/Response.C
+Wt/Http/ResponseContinuation.C
 web/CgiParser.C
 web/Configuration.C
 web/DomElement.C
@@ -205,6 +209,7 @@ web/WServerPushResource.C
 web/WtException.C
 web/WtRandom.C
 web/TimeUtil.C
+web/XSSFilter.C
 web/random_device.cpp
 Plain_html.C
 JsNoAjax_html.C

@@ -69,7 +69,7 @@ public:
    *
    * \sa Wt::ItemFlag
    */
-  virtual int flags(const WModelIndex& index) const;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
 
   using WAbstractListModel::setData;
   virtual bool setData(const WModelIndex& index, const boost::any& value,

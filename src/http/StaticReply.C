@@ -118,7 +118,7 @@ void StaticReply::consumeRequestBody(Buffer::const_iterator begin,
 				     bool endOfRequest)
 {
   if (endOfRequest)
-    transmitMore();
+    send();
 }
 
 Reply::status_type StaticReply::responseStatus()

@@ -40,19 +40,20 @@ void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
 	    model->insertRows(model->rowCount(),
 			      dataRow + 1 - model->rowCount());
 
-	  boost::any data;
 	  std::string s = *i;
 
-	  try {
-	    int i = boost::lexical_cast<int>(s);
+	  boost::any data;
+
+	  char *end;
+	  int i = std::strtol(s.c_str(), &end, 10);
+	  if (*end == 0)
 	    data = boost::any(i);
-	  } catch (boost::bad_lexical_cast&) {
-	    try {
-	      double d = boost::lexical_cast<double>(s);
+	  else {
+	    double d = std::strtod(s.c_str(), &end);
+	    if (*end == 0)
 	      data = boost::any(d);
-	    } catch (boost::bad_lexical_cast&) {
+	    else
 	      data = boost::any(Wt::WString::fromUTF8(s));
-	    }
 	  }
 
 	  model->setData(dataRow, col, data);

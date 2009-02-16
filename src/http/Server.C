@@ -48,9 +48,9 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig)
     ssl_context_(io_service_, asio::ssl::context::sslv23),
     ssl_acceptor_(io_service_),
 #endif // HTTP_WITH_SSL
-#if defined(THREADED) && BOOST_VERSION < 103600
+#if defined(WT_THREADED) && BOOST_VERSION < 103600
     select_reactor_(io_service_),
-#endif // defined(THREADED) && BOOST_VERSION < 103600
+#endif // defined(WT_THREADED) && BOOST_VERSION < 103600
     connection_manager_(),
     request_handler_(config.docRoot(), config.errRoot(), wtConfig.entryPoints(),
 		     accessLogger_)   
@@ -228,7 +228,7 @@ bool Server::socketSelected(int descriptor, const asio_error_code& e,
 
 void Server::select_read(int descriptor)
 {
-#ifdef THREADED
+#ifdef WT_THREADED
 #if BOOST_VERSION < 103600
   select_reactor_.start_read_op(descriptor,
       boost::bind(&Server::socketSelected, this, descriptor,
@@ -243,12 +243,12 @@ void Server::select_read(int descriptor)
 #endif
 #else
   std::cerr << "WSocketNotifier requires threading support" << std::endl;
-#endif // THREADED
+#endif // WT_THREADED
 }
 
 void Server::select_write(int descriptor)
 {
-#ifdef THREADED
+#ifdef WT_THREADED
 #if BOOST_VERSION < 103600
   select_reactor_.start_write_op(descriptor,
       boost::bind(&Server::socketSelected, this, descriptor,
@@ -263,12 +263,12 @@ void Server::select_write(int descriptor)
 #endif // BOOST_VERSION < 103600
 #else
   std::cerr << "WSocketNotifier requires threading support" << std::endl;
-#endif // THREADED
+#endif // WT_THREADED
 }
 
 void Server::select_except(int descriptor)
 {
-#ifdef THREADED
+#ifdef WT_THREADED
 #if BOOST_VERSION < 103600
   select_reactor_.start_except_op(descriptor,
       boost::bind(&Server::socketSelected, this, descriptor,
@@ -278,12 +278,12 @@ void Server::select_except(int descriptor)
 #endif // BOOST_VERSION < 103600
 #else
   std::cerr << "WSocketNotifier requires threading support" << std::endl;
-#endif // THREADED
+#endif // WT_THREADED
 }
 
 void Server::stop_select(int descriptor)
 {
-#ifdef THREADED
+#ifdef WT_THREADED
 #if BOOST_VERSION < 103600
   select_reactor_.close_descriptor(descriptor);
 #else
@@ -291,7 +291,7 @@ void Server::stop_select(int descriptor)
 #endif // BOOST_VERSION < 103600
 #else
   std::cerr << "WSocketNotifier requires threading support" << std::endl;
-#endif // THREADED
+#endif // WT_THREADED
 }
 
 

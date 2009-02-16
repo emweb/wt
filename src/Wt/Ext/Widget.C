@@ -11,6 +11,7 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "DomElement.h"
+#include "Utils.h"
 
 #include <iostream>
 #include <sstream>
@@ -158,9 +159,13 @@ void Widget::createConfig(std::ostream& config)
 
 const std::string Widget::elVar() const 
 {
+#ifndef WT_TARGET_JAVA
   char buf[20];
   std::sprintf(buf, "elo%x", rawUniqueId());
   return std::string(buf);
+#else
+  return "elo" + Utils::toHexString(rawUniqueId());
+#endif // WT_TARGET_JAVA
 }
 
 const std::string Widget::elRef() const

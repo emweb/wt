@@ -8,6 +8,8 @@
 #define WOBJECT_H_
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WGlobal>
+#include <Wt/Http/Request>
 
 #include <boost/signals/trackable.hpp>
 #include <vector>
@@ -23,11 +25,12 @@ struct WT_API NoClass
   static NoClass none;
 };
 
+#ifndef WT_TARGET_JAVA
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
   class Signal;
+#endif // WT_TARGET_JAVA
 
-class CgiEntry;
 class WStatelessSlot;
 
 /*! \class WObject Wt/WObject Wt/WObject
@@ -81,19 +84,6 @@ public:
   virtual ~WObject();  
 
   /*
-   * Formname: for widgets is the name of the equivalent web widget
-   *           for resources is the id of the widget
-   *
-   * Note that it is not unique, some widgets will share the same
-   * formname. In particular this is true for web widgets.
-   */
-  virtual const std::string formName() const;
-  virtual void setFormData(CgiEntry *entry);
-  virtual void formDataSet();
-  virtual void setNoFormData();
-  virtual void requestTooLarge(int size);
-
-  /*
    * Unique id's
    */
   unsigned rawUniqueId() const { return id_; }
@@ -109,6 +99,15 @@ public:
    * \sa WWidget::jsRef()
    */
   const std::string id() const { return formName(); }
+
+  /*
+   * Formname: for widgets is the name of the equivalent web widget
+   *           for resources is the id of the widget
+   *
+   * Note that it is not unique, some widgets will share the same
+   * formname. In particular this is true for web widgets.
+   */
+  virtual const std::string formName() const;
 
   /*! \brief Reset learned stateless slot implementations.
    *
@@ -163,8 +162,13 @@ public:
    *
    * \sa resetLearnedSlot(), EventSignal
    */
+#ifndef WT_TARGET_JAVA
   template <class T>
-    void implementStateless(void (T::*method)());
+    WStatelessSlot *implementStateless(void (T::*method)());
+#else // WT_TARGET_JAVA
+  template <class T1>
+    WStatelessSlot *implementStateless(T1 method);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Declare a slot to be stateless and learn client-side behaviour
    *         in advance.
@@ -180,8 +184,14 @@ public:
    *
    * \sa \link implementStateless() implementStateless(void (T::*method)())\endlink
    */
+#ifndef WT_TARGET_JAVA
   template <class T>
-    void implementStateless(void (T::*method)(), void (T::*undoMethod)());
+    WStatelessSlot *implementStateless(void (T::*method)(),
+				       void (T::*undoMethod)());
+#else // WT_TARGET_JAVA
+  template <class T1, class T2>
+    WStatelessSlot *implementStateless(T1 method, T2 undoMethod);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Provide a JavaScript implementation for a method
    *
@@ -198,7 +208,8 @@ public:
    * \sa \link implementStateless() implementStateless(void (T::*method)())\endlink
    */
   template <class T>
-    void implementJavaScript(void (T::*method)(), const std::string& jsCode);
+    WStatelessSlot *implementJavaScript(void (T::*method)(),
+					const std::string& jsCode);
 
   /*! \brief Add a child object.
    *
@@ -225,7 +236,9 @@ public:
    */
   WObject *parent() const { return parent_; }
 
+#ifndef WT_TARGET_JAVA
   Signal<WObject *, NoClass, NoClass, NoClass, NoClass, NoClass>& destroyed();
+#endif // WT_TARGET_JAVA
 
 protected:
   virtual void signalConnectionsChanged();
@@ -239,18 +252,31 @@ protected:
    */
   static WObject *sender();
 
-  void setParent(WObject *parent);
+  virtual void setParent(WObject *parent);
+
+  struct FormData {
+    FormData(const Http::ParameterValues& aValues,
+	     const Http::UploadedFile *aFile)
+      : values(aValues), file(aFile) { }
+
+    const Http::ParameterValues&  values;
+    const Http::UploadedFile     *file;
+  };
+
+  virtual void setFormData(const FormData& formData);
+  virtual void requestTooLarge(int size);
+
+  virtual WStatelessSlot *getStateless(Method method);
 
 private:
-  void implementPrelearn(Method method, Method undoMethod);
-  void implementPrelearned(Method method, const std::string& jsCode);
-  void implementAutolearn(Method method);
+  WStatelessSlot *implementPrelearn(Method method, Method undoMethod);
+  WStatelessSlot *implementPrelearned(Method method, const std::string& jsCode);
+  WStatelessSlot *implementAutolearn(Method method);
   void resetLearnedSlot(Method method);
 
   WStatelessSlot* isStateless(Method method);
-
   std::vector<WStatelessSlot *> statelessSlots_;
-  
+
   WObject(const WObject&);
   unsigned id_;
 
@@ -259,14 +285,18 @@ private:
   std::vector<WObject *> *children_;
   WObject                *parent_;
 
+#ifndef WT_TARGET_JAVA
   Signal<WObject *, NoClass, NoClass, NoClass, NoClass, NoClass> *destroyed_;
+#endif // WT_TARGET_JAVA
 
   static std::vector<WObject *> emptyObjectList_;
 
   template <typename E> friend class EventSignal;
   template <typename A1, typename A2, typename A3,
             typename A4, typename A5, typename A6> friend class JSignal;
+
   friend class EventSignalBase;
+  friend class WebSession;
 };
 
 template <class T>
@@ -276,29 +306,30 @@ void WObject::resetLearnedSlot(void (T::*method)())
   resetLearnedSlot(static_cast<Method>(method));
 }
 
-
+#ifndef WT_TARGET_JAVA
 template <class T>
-void WObject::implementStateless(void (T::*method)())
+WStatelessSlot *WObject::implementStateless(void (T::*method)())
 {
   assert(dynamic_cast<T *>(this));
-  implementAutolearn(static_cast<Method>(method));
+  return implementAutolearn(static_cast<Method>(method));
 }
 
 template <class T>
-void WObject::implementJavaScript(void (T::*method)(),
-				  const std::string& jsCode)
+WStatelessSlot *WObject::implementStateless(void (T::*method)(),
+					    void (T::*undoMethod)())
 {
   assert(dynamic_cast<T *>(this));
-  implementPrelearned(static_cast<Method>(method), jsCode);
+  return implementPrelearn(static_cast<Method>(method),
+			   static_cast<Method>(undoMethod));
 }
+#endif // WT_TARGET_JAVA
 
 template <class T>
-void WObject::implementStateless(void (T::*method)(),
-				 void (T::*undoMethod)())
+WStatelessSlot *WObject::implementJavaScript(void (T::*method)(),
+					     const std::string& jsCode)
 {
   assert(dynamic_cast<T *>(this));
-  implementPrelearn(static_cast<Method>(method),
-		    static_cast<Method>(undoMethod));
+  return implementPrelearned(static_cast<Method>(method), jsCode);
 }
 
 }

@@ -40,27 +40,27 @@ MandelbrotExample::MandelbrotExample(WContainerWidget *parent)
   buttons->setContentAlignment(AlignCenter);
 
   (new WPushButton("Left", buttons))
-    ->clicked.connect(SLOT(this, MandelbrotExample::moveLeft));
+    ->clicked().connect(SLOT(this, MandelbrotExample::moveLeft));
   (new WPushButton("Right", buttons))
-    ->clicked.connect(SLOT(this, MandelbrotExample::moveRight));
+    ->clicked().connect(SLOT(this, MandelbrotExample::moveRight));
   (new WPushButton("Up", buttons))
-    ->clicked.connect(SLOT(this, MandelbrotExample::moveUp));
+    ->clicked().connect(SLOT(this, MandelbrotExample::moveUp));
   (new WPushButton("Down", buttons))
-    ->clicked.connect(SLOT(this, MandelbrotExample::moveDown));
+    ->clicked().connect(SLOT(this, MandelbrotExample::moveDown));
 
   new WBreak(buttons);
 
   (new WPushButton("Zoom in", buttons))
-    ->clicked.connect(SLOT(this, MandelbrotExample::zoomIn));
+    ->clicked().connect(SLOT(this, MandelbrotExample::zoomIn));
   (new WPushButton("Zoom out", buttons))
-    ->clicked.connect(SLOT(this, MandelbrotExample::zoomOut));
+    ->clicked().connect(SLOT(this, MandelbrotExample::zoomOut));
 
   viewPortText_ = new WText(layout->elementAt(0, 1));
   layout->elementAt(0, 1)->setPadding(10);
 
   updateViewPortText();
 
-  mandelbrot_->viewPortChanged
+  mandelbrot_->viewPortChanged()
     .connect(SLOT(this, MandelbrotExample::updateViewPortText));
 }
 

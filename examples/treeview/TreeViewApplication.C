@@ -22,8 +22,8 @@ public:
      */
     aboutDrink_ = new WText("", root());
     
-    internalPathChanged.connect(SLOT(this,
-				     TreeViewApplication::handlePathChange));
+    internalPathChanged().connect(SLOT(this,
+				       TreeViewApplication::handlePathChange));
   }
 private:
   WText *aboutDrink_;

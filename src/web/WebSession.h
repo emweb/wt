@@ -9,10 +9,10 @@
 
 #include <string>
 
-#ifdef THREADED
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
-#endif // THREADED
+#endif // WT_THREADED || WT_TARGET_JAVA
 
 #include "TimeUtil.h"
 #include "WebRenderer.h"
@@ -23,30 +23,84 @@
 
 namespace Wt {
 
-class CgiParser;
+class WebController;
 class WebRequest;
+class WebResponse;
 class WApplication;
 
 /*
  * The WebSession stores the state for one session.
+ *
+ * It also handles the following tasks:
+ *  - propagate events
+ *  - determine what needs to be served
+ *    (a web page, a resource or a javascript update).
  */
 class WT_API WebSession
 {
 public:
   enum Type { Application, WidgetSet };
 
-  WebSession(const std::string& sessionId, const std::string& sessionPath,
+  WebSession(WebController *controller,
+	     const std::string& sessionId, const std::string& sessionPath,
 	     Type type, const WebRequest& request);
   ~WebSession();
 
-  Type type() const { return type_; }
+  static WebSession *instance();
 
+  Type type() const { return type_; }
   std::string docType() const;
+
+  std::string sessionId() const { return sessionId_; }
+
+  WebController *controller() const { return controller_; }
+  WEnvironment&  env() { return env_; }
+  WApplication  *app() { return app_; }
+  WebRenderer&   renderer() { return renderer_; }
+
+  void redirect(const std::string& url);
+  std::string getRedirect();
+
+  void setApplication(WApplication *app);
+
+  WLogEntry log(const std::string& type);
+
+  static void notify(const WEvent& e);
+  bool handleRequest(WebRequest& request, WebResponse& response);
+
+  /*
+   * Start a recursive event loop: finishes the request, rendering
+   * everything, and suspending the thread until someone calls
+   * unlockRecursiveEventLoop();
+   */
+  void doRecursiveEventLoop(const std::string& javascript);
+
+  /*
+   * Immediately returns, but lets the last pending recursive event loop
+   * resume and finish the current request, by swapping the request.
+   */
+  void unlockRecursiveEventLoop();
+
+  void pushEmitStack(WObject *obj);
+  void popEmitStack();
+  WObject *emitStackTop();
+
+#ifndef WT_TARGET_JAVA
+  const Time& expireTime() const { return expire_; }
+#endif // WT_TARGET_JAVA
+
+  bool done() { return state_ == Dead; }
+
+  /*
+   * URL stuff
+   */
 
   const std::string& applicationName() const { return applicationName_; }
 
   // (http://www.bigapp.com) /myapp/app.wt?wtd=ABCD
   const std::string& applicationUrl() const { return applicationUrl_; }
+
+  const std::string& deploymentPath() const { return deploymentPath_; }
 
   //    (http://www.bigapp.com/myapp/app.wt) ?wtd=ABCD
   // or (http://www.bigapp.com/myapp/) app.wt/path?wtd=ABCD
@@ -63,7 +117,7 @@ public:
     KeepInternalPath
   };
 
-  std::string bootstrapUrl(const WebRequest& request, BootstrapOption option)
+  std::string bootstrapUrl(const WebResponse& response, BootstrapOption option)
     const;
 
   // (http://www.bigapp.com/myapp/) app.wt/internal_path
@@ -77,111 +131,90 @@ public:
 
   const std::string& baseUrl() const { return baseUrl_; }
 
-  WLogEntry log(const std::string& type);
-
-  void setDebug(bool debug);
-  bool debug() const { return debug_; }
-
-  enum State {
-    JustCreated,
-    Bootstrap,
-    Loaded,
-    Dead };
-
-  bool doingFullPageRender() const;
-
-  State state() const { return state_; }
-  void setState(State state, int timeout);
-  const Time& expireTime() const { return expire_; }
-
-  bool done() { return state_ == Dead; }
-
-  void init(const CgiParser& cgi, const WebRequest& request);
-
-#ifndef JAVA
-  bool start(WApplication::ApplicationCreator createApp);
-#endif // JAVA
-
-  void kill();
-
-  void refresh();
-  void checkTimers();
-  void hibernate();
-
-  std::string   sessionId() const { return sessionId_; }
-  WebRenderer&  renderer() { return renderer_; }
-  WEnvironment& env()      { return env_; }
-  WApplication  *app()     { return app_; }
-
-  void redirect(const std::string& url);
-  std::string getRedirect();
-
-  WResource       *decodeResource(const std::string& resourceId);
-  EventSignalBase *decodeSignal(const std::string& signalId);
-  EventSignalBase *decodeSignal(const std::string& objectId,
-				const std::string& signalName);
-
-#ifdef THREADED
-  boost::mutex mutex;
-#endif // THREADED
+  std::string getCgiValue(const std::string& varName) const;
 
   class Handler {
   public:
-    Handler(WebSession& session, WebRequest *request = 0);
+    Handler(WebSession& session, WebRequest& request, WebResponse& response);
+    Handler(WebSession& session);
     ~Handler();
 
-#ifdef THREADED
-    void setLock(boost::mutex::scoped_lock *lock);
-#endif // THREADED
+    static Handler *instance();
+
+    WebResponse *response() { return response_; }
+    WebRequest  *request() { return request_; }
+    WebSession  *session() const { return &session_; }
+    void killSession();
+    
+  private:
+    void init();
 
     void setEventLoop(bool how);
 
     static void attachThreadToSession(WebSession& session);
 
-    void killSession();
     bool sessionDead(); // killed or quited()
     bool eventLoop() const { return eventLoop_; }
 
-    void setRequest(WebRequest *request);
-    WebRequest *request() { return request_; }
-    WebSession *session() const { return &session_; }
+    void swapRequest(WebRequest *request, WebResponse *response);
 
-#ifdef THREADED
+#ifdef WT_THREADED
+    void setLock(boost::mutex::scoped_lock *lock);
     boost::mutex::scoped_lock *lock() { return lock_; }
-#endif // THREADED
+    boost::mutex::scoped_lock *lock_;
 
-  private:
     Handler(const Handler&);
 
-#ifdef THREADED
-    WebSession *sessionPtr_, **prevSessionPtr_;
-    boost::mutex::scoped_lock *lock_;
-#endif // THREADED
-    WebSession& session_;
-    WebRequest *request_;
-    bool        eventLoop_;
-    bool        killed_;
+    Handler *handlerPtr_, **prevHandlerPtr_;
+    static boost::thread_specific_ptr<Handler *> threadHandler_;
+#else
+#ifndef WT_TARGET_JAVA
+    static Handler *threadHandler_;
+#endif // WT_TARGET_JAVA
+#endif // WT_THREADED
+
+    WebSession&  session_;
+    WebRequest  *request_;
+    WebResponse *response_;
+    bool         eventLoop_;
+    bool         killed_;
+
+    friend class WApplication;
+    friend class WResource;
+    friend class WebSession;
+    friend class WFileUploadResource;
   };
 
-  static WebSession *instance();
-
-  /*
-   * Start a recursive event loop: finishes the request, rendering
-   * everything, and suspending the thread until someone calls
-   * unlockRecursiveEventLoop();
-   */
-  void doRecursiveEventLoop(const std::string& javascript);
-
-  /*
-   * Immediately returns, but lets the last pending recursive event loop
-   * resume and finish the current request, by swapping the request.
-   */
-  void unlockRecursiveEventLoop();
+#ifdef WT_THREADED
+  boost::mutex& mutex() { return mutex_; }
+#endif // WT_THREADED
 
 private:
-#ifdef THREADED
-  boost::mutex  stateMutex_;
-#endif // THREADED
+  /*
+   * Misc methods
+   */
+
+  void setDebug(bool debug);
+  bool debug() const { return debug_; }
+
+  void checkTimers();
+  void hibernate();
+
+  enum State {
+    JustCreated,
+    Bootstrap,
+    Loaded,
+    Dead 
+  };
+
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+  boost::mutex stateMutex_;
+  boost::mutex mutex_;
+#endif
+
+#ifdef WT_TARGET_JAVA
+  static boost::thread_specific_ptr<Handler> threadHandler_;
+#endif // WT_TARGET_JAVA
 
   Type          type_;
   State         state_;
@@ -189,11 +222,19 @@ private:
   std::string   sessionId_;
   std::string   sessionPath_;
 
+  WebController *controller_;
   WebRenderer   renderer_;
   std::string   applicationName_, sessionQuery_;
-  std::string   bookmarkUrl_, baseUrl_, absoluteBaseUrl_, applicationUrl_;
+  std::string   bookmarkUrl_, baseUrl_, absoluteBaseUrl_;
+  std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
-  Time          expire_;
+
+#ifndef WT_TARGET_JAVA
+  Time             expire_;
+#ifdef WT_THREADED
+  boost::condition recursiveEventDone_;
+#endif // WT_THREADED
+#endif // WT_TARGET_JAVA
 
   std::string   initialInternalPath_;
   WEnvironment  env_;
@@ -203,23 +244,35 @@ private:
   std::vector<Handler *> handlers_;
   std::vector<WObject *> emitStack_;
 
-#ifdef THREADED
-  static boost::thread_specific_ptr<WebSession *> threadSession_;
-
-  boost::condition recursiveEventDone_;
-#else
-  static WebSession *threadSession_;
-#endif // THREADED
-
-  void pushEmitStack(WObject *obj);
-  void popEmitStack();
-  WObject *emitStackTop();
-
   Handler *findEventloopHandler(int index);
-  void setEnvRequest(WebRequest *request);
 
-  friend class WApplication;
-  friend class SignalBase;
+  WResource *decodeResource(const std::string& resourceId);
+  EventSignalBase *decodeSignal(const std::string& signalId);
+  EventSignalBase *decodeSignal(const std::string& objectId,
+				const std::string& signalName);
+
+  static WObject::FormData getFormData(const WebRequest& request,
+				       const std::string& name);
+
+  void render(Handler& handler, WebRenderer::ResponseType type);
+
+  enum SignalKind { LearnedStateless = 0, AutoLearnStateless = 1,
+		    Dynamic = 2 };
+  void processSignal(EventSignalBase *s, const std::string& se,
+		     const WebRequest& request, SignalKind kind);
+
+  void notifySignal(const WEvent& e);
+  void propagateFormValues(const WEvent& e);
+
+  const std::string *getSignal(const WebRequest& request,
+			       const std::string& se);
+
+  State state() const { return state_; }
+  void setState(State state, int timeout);
+
+  void init(const WebRequest& request);
+  bool start();
+  void kill();
 };
 
 }

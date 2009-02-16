@@ -3,7 +3,7 @@
  * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
- */
+  */
 #ifndef WFILE_RESOURCE_H_
 #define WFILE_RESOURCE_H_
 
@@ -15,9 +15,12 @@ namespace Wt {
 /*! \class WFileResource Wt/WFileResource Wt/WFileResource
  *  \brief A Resource which streams data from a local file
  *
- * To update the resource, either use setFileName() to point it to a new file,
- * or emit dataChanged() if only the file contents has changed, but not
- * the filename.
+ * To update the resource, either use setFileName() to point it to a
+ * new file, or emit the \link WResource::dataChanged dataChanged
+ * signal\endlink when only the file contents has changed, but not the
+ * filename.
+ *
+ * \sa WMemoryResource
  */
 class WT_API WFileResource : public WResource
 {
@@ -45,28 +48,35 @@ public:
    */
   const std::string& fileName() const { return fileName_; }
 
-  /*! \brief Get the mime-type.
-   */
-  const std::string& mimeType() const { return mimeType_; }
-
   /*! \brief Set the mime-type.
    */
   void setMimeType(const std::string& mimeType);
 
+  /*! \brief Get the mime-type.
+   */
+  const std::string& mimeType() const { return mimeType_; }
+
+  /*! \brief Configure the buffer size.
+   *
+   * This configures the size of the buffer used to transmit the file
+   * piece by piece.
+   */
+  void setBufferSize(int size);
+
+  /*! \brief Returns the buffer size.
+   *
+   * \sa setBufferSize()
+   */
+  int bufferSize() const { return bufferSize_; }
+
+protected:
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response);
+
 private:
   std::string mimeType_;
   std::string fileName_;
-
-protected:
-
-  /*! \brief Return the mimetype
-   */
-  virtual const std::string resourceMimeType() const;
-
-  /*! \brief Stream the data for this resource.
-   */
-  virtual bool streamResourceData(std::ostream& stream,
-				  const ArgumentMap& arguments);
+  int         bufferSize_;
 };
 
 }

@@ -40,7 +40,7 @@ void WAbstractChart::setPalette(WChartPalette *palette)
   update();
 }
 
-void WAbstractChart::setPlotAreaPadding(int padding, int sides)
+void WAbstractChart::setPlotAreaPadding(int padding, WFlags<Side> sides)
 {
   if (sides & Top)
     padding_[0] = padding;
@@ -102,16 +102,18 @@ void WAbstractChart::setModel(WAbstractItemModel *model)
   model_ = model;
 
   /* connect slots to new model */
-  modelConnections_.push_back(model_->columnsInserted.connect
-			      (this, &WAbstractChart::modelColumnsInserted));
-  modelConnections_.push_back(model_->columnsRemoved.connect
-			      (this, &WAbstractChart::modelColumnsRemoved));
-  modelConnections_.push_back(model_->rowsInserted.connect
-			      (this, &WAbstractChart::modelRowsInserted));
-  modelConnections_.push_back(model_->rowsRemoved.connect
-			      (this, &WAbstractChart::modelRowsRemoved));
-  modelConnections_.push_back(model_->dataChanged.connect
-			      (this, &WAbstractChart::modelDataChanged));
+  modelConnections_.push_back(model_->columnsInserted().connect
+		      (SLOT(this, WAbstractChart::modelColumnsInserted)));
+  modelConnections_.push_back(model_->columnsRemoved().connect
+		      (SLOT(this, WAbstractChart::modelColumnsRemoved)));
+  modelConnections_.push_back(model_->rowsInserted().connect
+		      (SLOT(this, WAbstractChart::modelRowsInserted)));
+  modelConnections_.push_back(model_->rowsRemoved().connect
+		      (SLOT(this, WAbstractChart::modelRowsRemoved)));
+  modelConnections_.push_back(model_->dataChanged().connect
+		      (SLOT(this, WAbstractChart::modelDataChanged)));
+  modelConnections_.push_back(model_->layoutChanged().connect
+		      (SLOT(this, WAbstractChart::modelChanged)));
 
   modelChanged();
 }

@@ -8,6 +8,7 @@
 #define DATA_STORE_H_
 
 #include <string>
+#include <Wt/WResource>
 #include <Wt/Ext/Widget>
 #include <Wt/Ext/ExtDllDefs.h>
 
@@ -42,6 +43,10 @@ public:
   DataStore(WAbstractItemModel *model, DataLocation dataLocation,
 	    WObject *parent = 0);
 
+  /*! \brief Destructor.
+   */
+  ~DataStore();
+
   /*! \brief Add a column to the list of columns to be serialized.
    *
    * The column <i>columnIndex</i> of the model is added to the current
@@ -73,9 +78,8 @@ public:
   std::string load(const std::string& storeVar, int pageSize);
 
 protected:
-  virtual const std::string resourceMimeType() const;
-  virtual bool streamResourceData(std::ostream& stream,
-				  const ArgumentMap& arguments);
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response);
 
 private:
   WAbstractItemModel *model_;

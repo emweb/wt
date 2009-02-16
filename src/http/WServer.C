@@ -17,14 +17,14 @@
 #include <pthread.h>
 #endif // !_WIN32
 
-#ifdef THREADED
+#ifdef WT_THREADED
 #ifdef BOOST_ASIO
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #else  // BOOST_ASIO
 #include <asio/thread.hpp>
 #endif // BOOST_ASIO
-#endif // THREADED
+#endif // WT_THREADED
 
 #include <boost/bind.hpp>
 
@@ -35,7 +35,7 @@
 #include "WebController.h"
 #include "HTTPStream.h"
 
-#ifdef THREADED
+#ifdef WT_THREADED
 #ifdef BOOST_ASIO
 typedef boost::thread thread_t;
 #else
@@ -76,7 +76,7 @@ struct WServerImpl {
 
   http::server::Configuration  serverConfiguration_;
   http::server::Server        *server_;
-#ifdef THREADED
+#ifdef WT_THREADED
   thread_t **threads_;
 #endif
 };
@@ -144,7 +144,7 @@ bool WServer::start()
   try {
     impl_->server_ = new http::server::Server(impl_->serverConfiguration_,
 					      impl_->wtConfiguration_);
-#ifndef THREADED
+#ifndef WT_THREADED
     impl_->serverConfiguration_.log("warn")
       << "No boost thread support, running in main thread.";
 
@@ -154,7 +154,7 @@ bool WServer::start()
     impl_->server_ = 0;
 
     return false;
-#else // THREADED
+#else // WT_THREADED
 
 #if !defined(_WIN32)
     // Block all signals for background threads.
@@ -177,7 +177,7 @@ bool WServer::start()
     pthread_sigmask(SIG_SETMASK, &old_mask, 0);
 #endif // _WIN32
 
-#endif // THREADED
+#endif // WT_THREADED
 
     return true;
   } catch (asio_system_error& e) {
@@ -192,7 +192,7 @@ bool WServer::isRunning() const
   return impl_->server_;
 }
 
-#if defined(_WIN32) && defined(THREADED)
+#if defined(_WIN32) && defined(WT_THREADED)
 
 boost::mutex     terminationMutex;
 boost::condition ctrlCHit;
@@ -225,7 +225,7 @@ void WServer::stop()
     return;
   }
 
-#ifdef THREADED
+#ifdef WT_THREADED
   try {
     // Stop the Wt application server (cleaning up all sessions).
     impl_->webController_.forceShutdown();
@@ -254,15 +254,15 @@ void WServer::stop()
   serverStopped.notify_all();
 #endif // WIN32
 
-#else // THREADED
+#else // WT_THREADED
   impl_->webController_.forceShutdown();
   impl_->server_->stop();
-#endif // THREADED
+#endif // WT_THREADED
 }
 
 int WServer::waitForShutdown()
 {
-#ifdef THREADED
+#ifdef WT_THREADED
 
 #if !defined(_WIN32)
 
@@ -293,7 +293,7 @@ int WServer::waitForShutdown()
 
 #endif // WIN32
 
-#endif // THREADED
+#endif // WT_THREADED
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)

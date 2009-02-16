@@ -23,7 +23,7 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
   : WTreeTableNode(Wt::widen(path.leaf()), createIcon(path)),
     path_(path)
 {
-  label()->setFormatting(WText::PlainFormatting);
+  label()->setFormatting(PlainFormatting);
 
   if (boost::filesystem::exists(path)) {
     if (!boost::filesystem::is_directory(path)) {

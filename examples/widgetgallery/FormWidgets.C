@@ -58,7 +58,7 @@ WWidget *FormWidgets::wPushButton()
   topic("WPushButton", result);
   new WText(tr("formwidgets-WPushButton"), result);
   WPushButton *pb = new WPushButton("Click me!", result);
-  ed_->mapConnect(pb->clicked, "WPushButton click");
+  ed_->mapConnect(pb->clicked(), "WPushButton click");
 
   new WText(tr("formwidgets-WPushButton-more"), result);
   pb = new WPushButton("Try to click me...", result);
@@ -75,10 +75,10 @@ WWidget *FormWidgets::wCheckBox()
   new WText(tr("formwidgets-WCheckBox"), result);
   WCheckBox *cb = new WCheckBox("Check me!", result);
   cb->setChecked(true);
-  ed_->mapConnect(cb->checked, "'Check me!' checked");
+  ed_->mapConnect(cb->checked(), "'Check me!' checked");
   new WBreak(result);
   cb = new WCheckBox("Check me too!", result);
-  ed_->mapConnect(cb->checked, "'Check me too!' checked");
+  ed_->mapConnect(cb->checked(), "'Check me too!' checked");
 
   return result;
 }
@@ -91,24 +91,24 @@ WWidget *FormWidgets::wRadioButton()
   new WText(tr("formwidgets-WRadioButton"), result);
   WRadioButton *rb = 0;
   rb = new WRadioButton("Radio me!", result);
-  ed_->mapConnect(rb->checked, "'Radio me!' checked (not in buttongroup)");
+  ed_->mapConnect(rb->checked(), "'Radio me!' checked (not in buttongroup)");
   new WBreak(result);
   rb = new WRadioButton("Radio me too!", result);
-  ed_->mapConnect(rb->checked, "'Radio me too!' checked "
+  ed_->mapConnect(rb->checked(), "'Radio me too!' checked "
 		 "(not in buttongroup)");
   
   new WText(tr("formwidgets-WRadioButton-group"), result);
   WButtonGroup *wgb = new WButtonGroup(result);
   rb = new WRadioButton("Radio me!", result);
-  ed_->mapConnect(rb->checked, "'Radio me!' checked");
+  ed_->mapConnect(rb->checked(), "'Radio me!' checked");
   wgb->addButton(rb);
   new WBreak(result);
   rb = new WRadioButton("No, radio me!", result);
-  ed_->mapConnect(rb->checked, "'No, Radio me!' checked");
+  ed_->mapConnect(rb->checked(), "'No, Radio me!' checked");
   wgb->addButton(rb);
   new WBreak(result);
   rb = new WRadioButton("Nono, radio me!", result);
-  ed_->mapConnect(rb->checked, "'Nono, radio me!' checked");
+  ed_->mapConnect(rb->checked(), "'Nono, radio me!' checked");
   wgb->addButton(rb);
 
   wgb->setSelectedButtonIndex(0);
@@ -127,7 +127,7 @@ WWidget *FormWidgets::wComboBox()
   cb->addItem("Medium");
   cb->addItem("Light");
   cb->setCurrentIndex(1); // select 'Medium'
-  ed_->mapConnectWString(cb->sactivated, "WComboBox activation: ");
+  ed_->mapConnectWString(cb->sactivated(), "WComboBox activation: ");
 
   new WText(tr("formwidgets-WComboBox-model"), result);
 
@@ -145,7 +145,7 @@ WWidget *FormWidgets::wSelectionBox()
   sb1->addItem("Medium");
   sb1->addItem("Light");
   sb1->setCurrentIndex(1); // Select 'medium'
-  ed_->mapConnectWString(sb1->sactivated, "WSelectionBox activation: ");
+  ed_->mapConnectWString(sb1->sactivated(), "WSelectionBox activation: ");
   new WText("<p>... or multiple options (use shift and/or ctrl-click "
 	    "to select your pizza toppings)</p>", result);
   WSelectionBox *sb2 = new WSelectionBox(result);
@@ -163,7 +163,7 @@ WWidget *FormWidgets::wSelectionBox()
   selection.insert(2);
   selection.insert(5);
   sb2->setSelectedIndexes(selection);
-  ed_->mapConnect(sb2->changed, "WSelectionBox 2 changed");
+  ed_->mapConnect(sb2->changed(), "WSelectionBox 2 changed");
 
   new WText(tr("formwidgets-WSelectionBox-model"), result);
   
@@ -177,13 +177,13 @@ WWidget *FormWidgets::wLineEdit()
   topic("WLineEdit", result);
   new WText(tr("formwidgets-WLineEdit"), result);
   WLineEdit *le = new WLineEdit("Edit me", result);
-  ed_->mapConnect(le->keyWentUp, "Line edit keyWentUp");
+  ed_->mapConnect(le->keyWentUp(), "Line edit keyWentUp");
 
   new WText("<p>The WLineEdit on the following line reacts on the "
 	    "enter button:</p>", result);
 
   le = new WLineEdit("Press enter", result);
-  ed_->mapConnect(le->enterPressed, "Line edit enterPressed");
+  ed_->mapConnect(le->enterPressed(), "Line edit enterPressed");
 
   new WText(tr("formwidgets-WLineEdit-more"), result);
 
@@ -201,7 +201,7 @@ WWidget *FormWidgets::wTextArea()
   ta->setColumns(80);
   ta->setRows(15);
   ta->setText(tr("formwidgets-WTextArea-contents"));
-  ed_->mapConnect(ta->changed, "Text areax changed");
+  ed_->mapConnect(ta->changed(), "Text areax changed");
  
   new WText(tr("formwidgets-WTextArea-related"), result);
 
@@ -215,12 +215,12 @@ WWidget *FormWidgets::wCalendar()
   topic("WCalendar", result);
   new WText(tr("formwidgets-WCalendar"), result);
   WCalendar *c = new WCalendar(false, result);
-  ed_->mapConnect(c->selectionChanged, "First calendar selectionChanged");
+  ed_->mapConnect(c->selectionChanged(), "First calendar selectionChanged");
   new WText("<p>A flag indicates if multiple dates can be selected...</p>",
 	    result);
   WCalendar *c2 = new WCalendar(false, result);
   c2->setMultipleSelection(true);
-  ed_->mapConnect(c2->selectionChanged, "Second calendar selectionChanged");
+  ed_->mapConnect(c2->selectionChanged(), "Second calendar selectionChanged");
 
   return result;
 }
@@ -235,7 +235,7 @@ WWidget *FormWidgets::wDatePicker()
   WLineEdit *le1 = new WLineEdit(result);
   WPushButton *b1 = new WPushButton("...");
   WDatePicker *dp = new WDatePicker(b1, le1, false, result);
-  ed_->mapConnect(le1->changed, "WDatePicker 1 changed");
+  ed_->mapConnect(le1->changed(), "WDatePicker 1 changed");
   new WText("(format " + dp->format() + ")", result);
   new WBreak(result);
   WLineEdit *le2 = new WLineEdit(result);
@@ -246,7 +246,7 @@ WWidget *FormWidgets::wDatePicker()
   
   le1->setTextSize(30);
   le2->setTextSize(30);
-  ed_->mapConnect(le2->changed, "WDatePicker 2 changed");
+  ed_->mapConnect(le2->changed(), "WDatePicker 2 changed");
 
   return result;
 }
@@ -262,7 +262,7 @@ WWidget *FormWidgets::wInPlaceEdit()
   new WText("Try it here: ", result);
   WInPlaceEdit *ipe = new WInPlaceEdit("This is editable text", result);
   ipe->setStyleClass("in-place-edit");
-  ed_->mapConnectWString(ipe->valueChanged, "In place edit valueChanged: ");
+  ed_->mapConnectWString(ipe->valueChanged(), "In place edit valueChanged: ");
 
   return result;
 }
@@ -317,7 +317,7 @@ WWidget *FormWidgets::wTextEdit()
 	    "interface. The default, shown below, covers only a small "
 	    "portion of TinyMCE's capabilities.</p>", result);
   WTextEdit *te = new WTextEdit(result);
-  ed_->mapConnect(te->changed, "Text edit changed");
+  ed_->mapConnect(te->changed(), "Text edit changed");
 
   return result;
 }
@@ -331,9 +331,9 @@ WWidget *FormWidgets::wFileUpload()
 	    "browser from the client to the server where Wt is running</p>",
 	    result);
   WFileUpload *fu = new WFileUpload(result);
-  fu->changed.connect(SLOT(fu, WFileUpload::upload));
-  ed_->mapConnect(fu->changed, "File upload changed");
-  ed_->mapConnect(fu->uploaded, "File upload finished");
+  fu->changed().connect(SLOT(fu, WFileUpload::upload));
+  ed_->mapConnect(fu->changed(), "File upload changed");
+  ed_->mapConnect(fu->uploaded(), "File upload finished");
   new WText("<p>The file is stored in a temporary file at the server. The "
 	    "filename at the client side, the temporary file name at the "
 	    "server and the status of the upload can be queried from the "

@@ -160,8 +160,7 @@ public:
 				    const std::string& arg2 = std::string(),
 				    const std::string& arg3 = std::string(),
 				    const std::string& arg4 = std::string(),
-				    const std::string& arg5 = std::string(),
-				    const std::string& arg6 = std::string())
+				    const std::string& arg5 = std::string())
     const;
 
   /*! \brief Returns whether the signal is connected to at least one slot.
@@ -281,12 +280,16 @@ public:
 						 void (WObject::*method)());
 
 private:
+  JSignal(const JSignal<A1, A2, A3, A4, A5, A6>&);
+
   std::string name_;
   bool collectSlotJavaScript_;
   void processDynamic(const JavaScriptEvent& e);
 
   boost::signal6<void, A1, A2, A3, A4, A5, A6> *impl_;
 };
+
+#ifndef WT_TARGET_JAVA
 
 /*
  * JSignal -- specialization for void
@@ -299,12 +302,30 @@ public:
 	  bool collectSlotJavaScript = false);
 };
 
+#else // WT_TARGET_JAVA
+
+class WT_API JSignal0 : public JSignal<NoClass>
+{
+public:
+  JSignal0(WObject *object, const std::string& name,
+	   bool collectSlotJavaScript = false);
+
+  template<class T, class V>
+    boost::signals::connection connect(T *target, void (V::*method)());
+
+  void emit();
+};
+
+#endif // WT_TARGET_JAVA
+
+#ifndef WT_TARGET_JAVA
+
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 JSignal<A1, A2, A3, A4, A5, A6>::JSignal(WObject *object,
 					 const std::string& name,
 					 bool collectSlotJavaScript)
-  : EventSignalBase(object),
+  : EventSignalBase(0, object),
     name_(name),
     collectSlotJavaScript_(collectSlotJavaScript),
     impl_(0)
@@ -343,11 +364,11 @@ const std::string JSignal<A1, A2, A3, A4, A5, A6>
 ::createEventCall(const std::string& jsObject, const std::string& jsEvent,
 		  const std::string& arg1, const std::string& arg2,
 		  const std::string& arg3, const std::string& arg4,
-		  const std::string& arg5, const std::string& arg6) const
+		  const std::string& arg5) const
 {
   return EventSignalBase::createUserEventCall(jsObject, jsEvent,
 					      name_, arg1, arg2, arg3,
-					      arg4, arg5, arg6);
+					      arg4, arg5, "");
 }
 
 template <typename A1, typename A2, typename A3,
@@ -556,6 +577,8 @@ void JSignal<A1, A2, A3, A4, A5, A6>::processDynamic(const JavaScriptEvent& jse)
        SignalArgTraits<A5>::unMarshal(jse, 4),
        SignalArgTraits<A6>::unMarshal(jse, 5));
 }
+
+#endif // WT_TARGET_JAVA
 
 }
 

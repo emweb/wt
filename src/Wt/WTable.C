@@ -18,7 +18,9 @@ WTable::WTable(WContainerWidget *parent)
   : WInteractWidget(parent),
     columns_(0),
     rowsChanged_(0),
-    rowsAdded_(0)
+    rowsAdded_(0),
+    headerRowCount_(0),
+    headerColumnCount_(0)
 { 
   setInline(false);
   setIgnoreChildRemoves(true);
@@ -37,20 +39,6 @@ WTable::~WTable()
   }
   delete rowsChanged_;
   rowsChanged_ = 0;
-}
-
-void WTable::printDebug()
-{
-  std::cerr << "Table: "
-	    << formName() << " " << rowCount() << "x" << columnCount()
-	    << std::endl;
-  
-  for (int i = 0; i < rowCount(); ++i) {
-    for (int j = 0; j < columnCount(); ++j) {
-      std::cerr << "(" << i << "," << j << "): "
-		<< itemAt(i, j).cell << std::endl;
-    }
-  }
 }
 
 WTableCell *WTable::elementAt(int row, int column)
@@ -105,20 +93,20 @@ void WTable::expand(int row, int column, int rowSpan, int columnSpan)
 
   if ((newNumRows > rowCount())
       || (newNumColumns > curNumColumns)) {
-    if (newNumColumns == curNumColumns)
+    if (newNumColumns == curNumColumns && rowCount() > headerRowCount_)
       rowsAdded_ += newNumRows - rowCount();
     else
       flags_.set(BIT_GRID_CHANGED);
 
     repaint(RepaintInnerHtml);
 
-    for (int row = rowCount(); row < newNumRows; ++row) {
+    for (int r = rowCount(); r < newNumRows; ++r) {
       rows_.push_back(new WTableRow(this, newNumColumns));
     }
 
     if (newNumColumns > curNumColumns) {
-      for (int row = 0; row < rowCount(); ++row) {
-	WTableRow *tr = rows_[row];
+      for (int r = 0; r < rowCount(); ++r) {
+	WTableRow *tr = rows_[r];
 	tr->expand(newNumColumns);
       }
     }
@@ -127,20 +115,24 @@ void WTable::expand(int row, int column, int rowSpan, int columnSpan)
   //printDebug();
 }
 
+#ifndef WT_DEPRECATE_2_2_0
 int WTable::numRows() const
 {
   return rowCount();
 }
+#endif // WT_DEPRECATE_2_2_0
 
 int WTable::rowCount() const
 {
   return rows_.size();
 }
 
+#ifndef WT_DEPRECATE_2_2_0
 int WTable::numColumns() const
 {
   return columnCount();
 }
+#endif // WT_DEPRECATE_2_2_0
 
 int WTable::columnCount() const
 {
@@ -156,9 +148,8 @@ void WTable::insertRow(int row)
 
 void WTable::insertColumn(int column)
 {
-  for (unsigned i = 0; i < rows_.size(); ++i) {
+  for (unsigned i = 0; i < rows_.size(); ++i)
     rows_[i]->insertColumn(column);
-  }
 
   if (columns_ && (unsigned)column <= columns_->size())
     columns_->insert(columns_->begin() + column, new WTableColumn(this));
@@ -177,8 +168,10 @@ void WTable::deleteRow(int row)
     }
   }
 
-  for (int i = 0; i < columnCount(); ++i)
-    delete rows_[row]->cells_[i].cell;
+  for (int i = 0; i < columnCount(); ++i) {
+    WTableCell *cell = rows_[row]->cells_[i].cell;
+    delete cell;
+  }
 
   delete rows_[row];
   rows_.erase(rows_.begin() + row);
@@ -222,6 +215,22 @@ void WTable::clear()
     deleteRow(rowCount() - 1);
 }
 
+void WTable::setHeaderCount(int count, Orientation orientation)
+{
+  if (orientation == Horizontal)
+    headerRowCount_ = count;
+  else
+    headerColumnCount_ = count;
+}
+
+int WTable::headerCount(Orientation orientation)
+{
+  if (orientation == Horizontal)
+    return headerRowCount_;
+  else
+    return headerColumnCount_;
+}
+
 void WTable::updateDom(DomElement& element, bool all)
 {
   WInteractWidget::updateDom(element, all);
@@ -234,12 +243,21 @@ DomElementType WTable::domElementType() const
 
 DomElement *WTable::createDomElement(WApplication *app)
 {
+  bool withIds = !app->environment().agentIsSpiderBot();
+
   DomElement *table = DomElement::createNew(domElementType());
   setId(table, app);
-  DomElement *tbody = DomElement::createNew(DomElement_TBODY);
-  tbody->setId(formName() + "tb");
 
-  bool withIds = !app->environment().agentIsSpiderBot();
+  DomElement *thead = 0;
+  if (headerRowCount_ != 0) {
+    thead = DomElement::createNew(DomElement_THEAD);
+    if (withIds)
+      thead->setId(formName() + "th");
+  }
+
+  DomElement *tbody = DomElement::createNew(DomElement_TBODY);
+  if (withIds)
+    tbody->setId(formName() + "tb");
 
   if (columns_) {
     for (unsigned col = 0; col < columns_->size(); ++col) {
@@ -247,7 +265,7 @@ DomElement *WTable::createDomElement(WApplication *app)
       if (withIds)
 	c->setId((*columns_)[col]);
       (*columns_)[col]->updateDom(*c, true);
-      tbody->addChild(c);
+      table->addChild(c);
     }
 
     flags_.reset(BIT_COLUMNS_CHANGED);
@@ -259,10 +277,15 @@ DomElement *WTable::createDomElement(WApplication *app)
   
   for (unsigned row = 0; row < (unsigned)rowCount(); ++row) {
     DomElement *tr = createRow(row, withIds, app);
-    tbody->addChild(tr);
+    if (row < static_cast<unsigned>(headerRowCount_))
+      thead->addChild(tr);
+    else
+      tbody->addChild(tr);
   }
   rowsAdded_ = 0;
 
+  if (thead)
+    table->addChild(thead);
   table->addChild(tbody);
 
   updateDom(*table, true);
@@ -281,12 +304,21 @@ DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
     tr->setId(rows_[row]);
   rows_[row]->updateDom(*tr, true);
 
-  for (unsigned col = 0; col < (unsigned)columnCount(); ++col) {
+  for (int col = 0; col < columnCount(); ++col) {
     WTableRow::TableData& d = itemAt(row, col);
 
     if (!d.overSpanned) {
-      DomElement *td = d.cell->createSDomElement(app);
-      tr->addChild(td);
+      DomElement *td = d.cell->createSDomElement(app); 
+
+      /*
+       * So, IE gets confused when doing appendChild() for TH followed by
+       * insertCell(-1) for TD. But, we cannot insertChild() for element 0,
+       * so we do TH with appendChild, and insertCell(col).
+       */
+      if (col < headerColumnCount_ || row < headerRowCount_)
+	tr->addChild(td);
+      else
+	tr->insertChildAt(td, col);
 
       for (int i = 0; i < d.cell->rowSpan(); ++i)
 	for (int j = 0; j < d.cell->columnSpan(); ++j)
@@ -310,9 +342,9 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
     if (rowsChanged_) {
       for (std::set<WTableRow *>::iterator i = rowsChanged_->begin();
 	   i != rowsChanged_->end(); ++i) {
-	DomElement *e = DomElement::getForUpdate(*i, DomElement_TR);
-	(*i)->updateDom(*e, false);
-	result.push_back(e);
+	DomElement *e2 = DomElement::getForUpdate(*i, DomElement_TR);
+	(*i)->updateDom(*e2, false);
+	result.push_back(e2);
       }
 
       delete rowsChanged_;
@@ -322,7 +354,7 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
     if (rowsAdded_) {
       DomElement *etb = DomElement::getForUpdate(formName() + "tb",
 						 DomElement_TBODY);
-      for (unsigned i = 0; i < rowsAdded_; ++i) {
+      for (unsigned i = 0; i < static_cast<unsigned>(rowsAdded_); ++i) {
 	DomElement *tr = createRow(rowCount() - rowsAdded_ + i, true, app);
 	etb->addChild(tr);
       }
@@ -335,10 +367,10 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
     if (flags_.test(BIT_COLUMNS_CHANGED)) {
       if (columns_) {
 	for (unsigned i = 0; i < columns_->size(); ++i) {
-	  DomElement *e
+	  DomElement *e2
 	    = DomElement::getForUpdate((*columns_)[i], DomElement_COL);
-	  (*columns_)[i]->updateDom(*e, false);
-	  result.push_back(e);
+	  (*columns_)[i]->updateDom(*e2, false);
+	  result.push_back(e2);
 	}
       }
 

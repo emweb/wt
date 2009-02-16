@@ -26,7 +26,7 @@ public:
     rule_->modified();
   }
 
-  virtual void setOffsets(const WLength& offset, int sides = All) {
+  virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All) {
     WWebWidget::setOffsets(offset, sides);
     rule_->modified();
   }
@@ -51,17 +51,19 @@ public:
     rule_->modified();
   }
 
+#ifndef WT_TARGET_JAVA
   virtual void setFloatSide(Side s) {
     WWebWidget::setFloatSide(s);
     rule_->modified();
   }
 
-  virtual void setClearSides(int sides) {
+  virtual void setClearSides(WFlags<Side> sides) {
     WWebWidget::setClearSides(sides);
     rule_->modified();
   }
+#endif // WT_TARGET_JAVA
 
-  virtual void setMargin(const WLength& margin, int sides = All) {
+  virtual void setMargin(const WLength& margin, WFlags<Side> sides = All) {
     WWebWidget::setMargin(margin, sides);
     rule_->modified();
   }
@@ -82,14 +84,14 @@ public:
   }
 
   virtual WCssDecorationStyle& decorationStyle() {
-    return WWebWidget::decorationStyle();
-
     // Assumption here! We should really catch modifications to the
     // stylesheet...
     rule_->modified();
+
+    return WWebWidget::decorationStyle();
   }
 
-  virtual void setVerticalAlignment(VerticalAlignment alignment,
+  virtual void setVerticalAlignment(AlignmentFlag alignment,
 				    const WLength& length = WLength()) {
     WWebWidget::setVerticalAlignment(alignment, length);
     rule_->modified();
@@ -153,7 +155,7 @@ bool WCssTemplateRule::updateDomElement(DomElement& element, bool all)
 }
 
 WCssTextRule::WCssTextRule(const std::string& selector,
-			     const WString& declarations)
+			   const WT_USTRING& declarations)
   : WCssRule(selector),
     declarations_(declarations)
 { }
@@ -189,14 +191,14 @@ WCssTemplateRule *WCssStyleSheet::addRule(const std::string& selector,
 					  const std::string& ruleName)
 {
   WCssTemplateRule *result = new WCssTemplateRule(selector);
-  result->templateWidget()->decorationStyle() = style;
+  result->templateWidget()->setDecorationStyle(style);
 
   addRule(result, ruleName);
   return result;
 }
 
 WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
-				      const WString& declarations,
+				      const WT_USTRING& declarations,
 				      const std::string& ruleName)
 {
   WCssTextRule *result = new WCssTextRule(selector, declarations);
@@ -206,7 +208,8 @@ WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
 
 bool WCssStyleSheet::isDefined(const std::string& ruleName) const
 {
-  return defined_.find(ruleName) != defined_.end();
+  std::set<std::string>::const_iterator i = defined_.find(ruleName);
+  return i != defined_.end();
 }
 
 void WCssStyleSheet::removeRule(WCssRule *rule)

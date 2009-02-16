@@ -10,26 +10,10 @@
 #include <string>
 #include <vector>
 #include <iosfwd>
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
+#include <Wt/WGlobal>
 
 namespace Wt {
-
-/*! \brief Enumeration that indicates a character encoding.
- *
- * Character encodings are used to represent characters in a stream of
- * bytes.
- *
- * \relates WString
- */
-enum CharEncoding {
-  /*! \brief Each byte represents a character, using the local
-   *         server-side system locale
-   */
-  LocalEncoding,
-  /*! \brief The byte stream represents unicode characters encoded using UTF-8.
-   */
-  UTF8
-};
 
 /*! \class WString Wt/WString Wt/WString
  *  \brief A unicode string class, with support for localization.
@@ -366,7 +350,13 @@ public:
    */
   std::string jsStringLiteral(char delimiter = '\'') const;
 
-  static const WString emptyString;
+#ifdef WT_TARGET_JAVA
+  WString& operator+(const char *);
+  WString& operator+(const WString &);
+  bool operator!= (const WString& rhs) const;
+#endif
+
+  static const WString Empty;
 
 private:
   WString(const char *key, bool);
@@ -386,6 +376,8 @@ private:
 
   Impl *impl_;
 };
+
+#ifndef WT_TARGET_JAVA
 
 /* \brief Short hand for WString(const char * value, UTF8)
  *
@@ -512,6 +504,7 @@ extern WT_API std::wostream& operator<< (std::wostream& lhs, const WString& rhs)
  * \relates WString
  */
 extern WT_API std::ostream& operator<< (std::ostream& lhs, const WString& rhs);
+#endif // WT_TARGET_JAVA
 
 /*! \brief Alias for %WString (<b>deprecated</b>).
  *

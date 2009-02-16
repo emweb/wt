@@ -7,7 +7,7 @@
 #ifndef WPOINTF_H_
 #define WPOINTF_H_
 
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 
@@ -26,6 +26,13 @@ public:
    * \sa isNull()
    */
   WPointF();
+
+	/*! \brief Explicit copy constructor.
+	*/
+	WPointF(const WPointF& other) {
+		x_ = other.x_;	
+		y_ = other.y_;	
+	}
 
   /*! \brief Construct a point.
    *

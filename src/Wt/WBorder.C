@@ -59,7 +59,7 @@ std::string WBorder::cssText() const
   std::string style;
   switch (style_) {
   case None:
-    return "none"; break;
+    return "none";
   case Hidden:
     style = "hidden"; break;
   case Dotted:

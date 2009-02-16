@@ -221,7 +221,7 @@ public:
    * \sa \link collapsed collapsed\endlink and \link expanded
    * expanded\endlink signals
    */
-  bool isCollapsed() const { return collapsed_; }
+  bool isCollapsed() const { return isCollapsed_; }
 
   /*! \brief Allow the user to collapse/expand the panel.
    *
@@ -259,13 +259,13 @@ public:
    *
    * \sa setCollapsible()
    */
-  JSignal<> collapsed;
+  JSignal<>& collapsed() { return collapsed_; }
 
   /*! \brief %Signal emitted when the panel is expanded.
    *
    * \sa setCollapsible()
    */
-  JSignal<> expanded;
+  JSignal<>& expanded() { return expanded_; }
 
   virtual void refresh();
 
@@ -281,7 +281,9 @@ protected:
   virtual void removeChild(WWidget *child);
 
 private:
-  bool    titleBar_, animate_, autoScrollBars_, border_, collapsed_,
+  JSignal<> collapsed_, expanded_;
+
+  bool    titleBar_, animate_, autoScrollBars_, border_, isCollapsed_,
     collapsible_, split_;
   WString title_;
 

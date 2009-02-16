@@ -17,6 +17,7 @@ const char *MessageBox::buttonText_[] = { "Ok", "Yes", "No", "Cancel" };
 
 MessageBox::MessageBox(bool i18n)
   : Dialog(Bla()),
+    buttonClicked_(this),
     buttons_(NoButton),
     i18n_(i18n),
     prompt_(false),
@@ -33,7 +34,7 @@ MessageBox::MessageBox(bool i18n)
 }
 
 MessageBox::MessageBox(const WString& caption, const WString& text,
-		       Icon icon, int buttons, bool i18n)
+		       Icon icon, WFlags<StandardButton> buttons, bool i18n)
   : Dialog(Bla()),
     text_(text),
     buttons_(buttons),
@@ -74,7 +75,7 @@ void MessageBox::setIcon(Icon icon)
   icon_ = icon;
 }
 
-void MessageBox::setButtons(int buttons)
+void MessageBox::setButtons(WFlags<StandardButton> buttons)
 {
   buttons_ = buttons;
 }
@@ -214,7 +215,7 @@ std::string MessageBox::buttonText(int buttonIndex) const
 
 StandardButton MessageBox::show(const WString& caption,
 				const WString& text,
-				int buttons, bool i18n)
+				WFlags<StandardButton> buttons, bool i18n)
 {
   MessageBox box(caption, text, NoIcon, buttons, i18n);
 
@@ -269,7 +270,7 @@ void MessageBox::onClick(std::string buttonId, std::string value)
   done(accepted ? Accepted : Rejected);
 
   if (!wasDeleted) {
-    buttonClicked.emit(b);
+    buttonClicked_.emit(b);
     catchDelete_ = 0;
   }
 }

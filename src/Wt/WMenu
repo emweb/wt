@@ -165,7 +165,7 @@ public:
    *
    * \sa itemSelectRendered
    */
-  Signal<WMenuItem *> itemSelected;
+  Signal<WMenuItem *>& itemSelected() { return itemSelected_; }
 
   /*! \brief %Signal which indicates that a new selected item is rendered.
    *
@@ -181,7 +181,7 @@ public:
    *
    * \sa itemSelected
    */
-  Signal<WMenuItem *> itemSelectRendered;
+  Signal<WMenuItem *>& itemSelectRendered() { return itemSelectRendered_; }
 
   /*! \brief Returns the items.
    *
@@ -284,6 +284,8 @@ private:
   bool              renderAsList_;
   bool              internalPathEnabled_;
   std::string       basePath_, previousInternalPath_;
+
+  Signal<WMenuItem *> itemSelected_, itemSelectRendered_;
 
   std::vector<WMenuItem *> items_;
 

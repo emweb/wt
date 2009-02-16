@@ -12,8 +12,8 @@ using namespace Wt;
 Popup::Popup(Type t, const WString& message, std::string defaultValue,
 	     WObject *parent)
   : WObject(parent),
-    okPressed(this, "ok"),
-    cancelPressed(this, "cancel"),
+    okPressed_(this, "ok"),
+    cancelPressed_(this, "cancel"),
     t_(t),
     message_(message),
     defaultValue_(defaultValue)
@@ -34,24 +34,25 @@ void Popup::setJavaScript()
   case Confirm:
     show.setJavaScript
       ("function(){ if (confirm('" + message_.narrow() + "')) {"
-       "  Wt.emit('" + id() + "','" + okPressed.name() + "', '');"
+       + okPressed_.createCall("''") +
        "} else {"
-       "  Wt.emit('" + id() + "','" + cancelPressed.name() + "');"
+       + cancelPressed_.createCall() +
        "}}");
     break;
   case Alert:
     show.setJavaScript
       ("function(){ alert('" + message_.narrow() + "');"
-       "Wt.emit('" + id() + "','" + okPressed.name() + "', '');}");
+       + okPressed_.createCall("''") +
+       "}");
     break;
   case Prompt:
     show.setJavaScript
       ("function(){var n = prompt('" + message_.narrow() + "', '"
        + defaultValue_ + "');"
        "if (n != null) {"
-       "  Wt.emit('" + id() + "','" + okPressed.name() + "', n);"
+       + okPressed_.createCall("n") +
        "} else {"
-       "  Wt.emit('" + id() + "','" + cancelPressed.name() + "');"
+       + cancelPressed_.createCall() +
        "}}");
   }
 }

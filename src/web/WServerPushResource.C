@@ -6,6 +6,8 @@
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/Http/Request"
+#include "Wt/Http/Response"
 
 #include "WServerPushResource.h"
 #include "WebSession.h"
@@ -18,89 +20,14 @@ namespace Wt {
 
 WServerPushResource::WServerPushResource(WApplication *app)
   : app_(app),
-    initialDataSent_(false),
-    closing_(false),
+    continuation_(0),
     method_(Undefined)
 { }
 
-WServerPushResource::~WServerPushResource()
-{
-  closing_ = true;
-  if (initialDataSent_)
-    flush();
-}
-
-void WServerPushResource::setArguments(const ArgumentMap& arguments)
-{
-  if (method_ == Undefined) {
-    ArgumentMap::const_iterator i = arguments.find("transport");
-    if (i == arguments.end())
-      throw WtException("WServerPushResource expects a transport");
-
-    std::string transport = i->second[0];
-
-    if (transport == "iframe")
-      method_ = IFrame;
-    else if (transport == "xhr_stream")
-      method_ = XHRStream;
-    else if (transport == "xhr_multipart")
-      method_ = XHRMultiPart;
-    else if (transport == "server_sent_events")
-      method_ = ServerSentEvents;
-    else
-      throw WtException("WServerPushResource: unknown transport: '"
-			+ transport + "'");
-  }
-
-  initialDataSent_ = false;
-}
-
-const std::string WServerPushResource::resourceMimeType() const
-{
-  switch (method_) {
-  case IFrame:
-    return "text/html; charset=UTF-8";
-  case XHRStream:
-    return "text/plain; charset=UTF-8";
-  case XHRMultiPart:
-    return "multipart/x-mixed-replace; charset=UTF-8; boundary=\""
-      + WApplication::instance()->sessionId() + "\"";
-  case ServerSentEvents:
-    return "application/x-dom-event-stream; charset=UTF-8;";
-  default:
-    throw WtException("WServerPushResource: method not set.");
-  }
-}
-
 void WServerPushResource::triggerUpdate()
 {
-  if (initialDataSent_)
-    flush();
-}
-
-void WServerPushResource::sendInitialData(std::ostream& stream)
-{
-  switch (method_) {
-  case IFrame:
-    stream << "<html><head><script src='"
-	   << WApplication::instance()->resourcesUrl() << "iframe.js'"
-	   << " type='text/javascript' charset='UTF-8'></script></head>"
-	   << "<body onLoad='reload();'>" << std::endl;
-    for (unsigned i = 0; i < 100; ++i)
-      stream << "<span></span>";
-
-    break;
-  case XHRStream:
-    stream << std::string(256, '.') << "\r\n\r\n";
-
-    break;
-  case XHRMultiPart:
-  case ServerSentEvents:
-
-    break;
-  default:
-    throw WtException("WServerPushResource: method not set.");
-  }
+  if (continuation_)
+    continuation_->doContinue();
 }
 
 void WServerPushResource::streamStringLiteralJSUpdate(std::ostream& s)
@@ -113,54 +40,106 @@ void WServerPushResource::streamStringLiteralJSUpdate(std::ostream& s)
   }
 }
 
-bool WServerPushResource::streamResourceData(std::ostream& stream,
-					     const ArgumentMap& arguments)
+void WServerPushResource::initIFrameMethod(Http::Response& response)
 {
-  if (closing_)
-    return true;
-  else {
-    if (!initialDataSent_) {
-      sendInitialData(stream);
+  method_ = IFrame;
+  response.setMimeType("text/html; charset=UTF-8");
+  response.out() << "<html><head><script src='"
+		 << WApplication::instance()->resourcesUrl() << "iframe.js'"
+		 << " type='text/javascript' charset='UTF-8'></script></head>"
+		 << "<body onLoad='reload();'>" << std::endl;
+  for (unsigned i = 0; i < 100; ++i)
+    response.out() << "<span></span>";
+}
 
-      initialDataSent_ = true;
+void WServerPushResource::initXhrStreamMethod(Http::Response& response)
+{
+  method_ = XHRStream;
+  response.setMimeType("text/plain; charset=UTF-8");
+
+#ifndef WT_TARGET_JAVA
+  response.out() << std::string(256, '.') << "\r\n\r\n";
+#else // WT_TARGET_JAVA
+  for (int i = 0; i < 256; ++i)
+    response.out() << '.';
+  response.out() << "\r\n\r\n";
+#endif // WT_TARGET_JAVA
+}
+
+void WServerPushResource::initXhrMultiPartMethod(Http::Response& response)
+{
+  method_ = XHRMultiPart;
+  response.setMimeType("multipart/x-mixed-replace; charset=UTF-8; "
+			  "boundary=\""
+			  + WApplication::instance()->sessionId() + "\"");
+}
+
+void WServerPushResource::initServerSentEventsMethod(Http::Response& response)
+{
+  method_ = ServerSentEvents;
+  response.setMimeType("application/x-dom-event-stream; charset=UTF-8;");
+}
+
+void WServerPushResource::handleRequest(const Http::Request& request,
+					Http::Response& response)
+{
+  continuation_ = request.continuation();
+
+  if (!continuation_) {
+    const std::string *transport = request.getParameter("transport");
+    if (transport) {
+      if (*transport == "iframe")
+	initIFrameMethod(response);
+      else if (*transport == "xhr_stream") 
+	initXhrStreamMethod(response);
+      else if (*transport == "xhr_multipart")
+	initXhrMultiPartMethod(response);
+      else if (*transport == "server_sent_events")
+	initServerSentEventsMethod(response);
+      else
+	throw WtException("WServerPushResource: unknown transport: '"
+			  + *transport + "'");
     }
-
-    switch(method_) {
-    case IFrame:
-      stream << "<script>e(";
-      streamStringLiteralJSUpdate(stream);
-      stream << ");</script>" << std::endl;
-
-      break;
-    case XHRStream:
-      streamStringLiteralJSUpdate(stream);
-      stream << "\r\n|O|\r\n";
-
-      break;
-    case XHRMultiPart:
-      {
-	std::stringstream s;
-	streamStringLiteralJSUpdate(s);
-
-	stream << "Content-Type: application/json\r\n"
-	       << "Content-length: " << s.str().length()
-	       << "\r\n\r\n" << s.str()
-	       << "\r\n--" << WApplication::instance()->sessionId() << "\r\n";
-      }
-
-      break;
-    case ServerSentEvents:
-      stream << "Event: orbited\n"
-	     << "data: ";
-      streamStringLiteralJSUpdate(stream);
-      stream << "\n\n";
-
-      break;
-    default:
-      throw WtException("WServerPushResource: method not set.");
-    }
-    return false;
   }
+
+  std::ostream& stream = response.out();
+
+  switch(method_) {
+  case IFrame:
+    stream << "<script>e(";
+    streamStringLiteralJSUpdate(stream);
+    stream << ");</script>" << std::endl;
+    
+    break;
+  case XHRStream:
+    streamStringLiteralJSUpdate(stream);
+    stream << "\r\n|O|\r\n";
+ 
+    break;
+  case XHRMultiPart:
+    {
+      std::stringstream s;
+      streamStringLiteralJSUpdate(s);
+
+      stream << "Content-Type: application/json\r\n"
+	     << "Content-length: " << s.str().length()
+	     << "\r\n\r\n" << s.str()
+	     << "\r\n--" << WApplication::instance()->sessionId() << "\r\n";
+    }
+
+    break;
+  case ServerSentEvents:
+    stream << "Event: orbited\n"
+	   << "data: ";
+    streamStringLiteralJSUpdate(stream);
+    stream << "\n\n";
+
+    break;
+  default:
+    throw WtException("WServerPushResource: method not set.");
+  }
+
+  continuation_ = response.createContinuation(Http::ServerEventContinuation);
 }
 
 }

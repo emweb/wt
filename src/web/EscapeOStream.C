@@ -52,12 +52,14 @@ const std::string EscapeOStream::standardSetsSpecial_[] = {
 
 
 EscapeOStream::EscapeOStream(std::ostream& sink)
-  : sink_(sink),
+  : sink_(&sink),
+    slen_(0),
     c_special_(0)
 { }
 
 EscapeOStream::EscapeOStream(EscapeOStream& other)
-  : sink_(other.sink_),
+  : sink_(0),
+    slen_(0),
     mixed_(other.mixed_),
     special_(other.special_),
     c_special_(special_.empty() ? 0 : special_.c_str())
@@ -65,13 +67,14 @@ EscapeOStream::EscapeOStream(EscapeOStream& other)
 
 EscapeOStream::~EscapeOStream()
 {
-  flush();
+  if (sink_)
+    flush();
 }
 
 void EscapeOStream::flush()
 {
-  sink_ << s_;
-  s_.clear();
+  sink_->write(s_, slen_);
+  slen_ = 0;
 }
 
 void EscapeOStream::mixRules()
@@ -122,15 +125,15 @@ void EscapeOStream::popEscape()
 
 EscapeOStream& EscapeOStream::operator<< (char c)
 {
-  if (c_special_ == 0)
-    s_.push_back(c);
-  else {
+  if (c_special_ == 0) {
+    sAppend(c);
+  } else {
     std::size_t i = special_.find(c);
 
     if (i != std::string::npos)
-      s_ += mixed_[i].s;
+      sAppend(mixed_[i].s);
     else
-      s_.push_back(c);
+      sAppend(c);
   }
 
   return *this;
@@ -138,51 +141,49 @@ EscapeOStream& EscapeOStream::operator<< (char c)
 
 EscapeOStream& EscapeOStream::operator<< (const char *s)
 {
-  if (c_special_ == 0) {
-    s_.append(s);
-    return *this;
-  }
-
-  unsigned l = std::strlen(s);
-  s_.reserve(s_.length() + 2*l);
-  put(s);
+  if (c_special_ == 0)
+    sAppend(s, strlen(s));
+  else
+    put(s, *this);
 
   return *this;
+}
+
+void EscapeOStream::append(const std::string& s, const EscapeOStream& rules)
+{
+  if (rules.c_special_ == 0)
+    sAppend(s);
+  else
+    put(s.c_str(), rules);
 }
 
 EscapeOStream& EscapeOStream::operator<< (const std::string& s)
 {
-  if (c_special_ == 0) {
-    s_.append(s);
-    return *this;
-  }
-
-  s_.reserve(s_.length() + 2*s.length());
-  put(s.c_str());
+  append(s, *this);
 
   return *this;
 }
 
-void EscapeOStream::put(const char *s)
+void EscapeOStream::put(const char *s, const EscapeOStream& rules)
 {
   for (;s;) {
-    const char *f = std::strpbrk(s, c_special_);
+    const char *f = std::strpbrk(s, rules.c_special_);
     if (f != 0) {
-      s_.append(s, (f - s));
+      sAppend(s, (f - s));
       
       unsigned i = 0;
-      for (; i < mixed_.size(); ++i)
-	if (mixed_[i].c == *f) {
-	  s_ += mixed_[i].s;
+      for (; i < rules.mixed_.size(); ++i)
+	if (rules.mixed_[i].c == *f) {
+	  sAppend(rules.mixed_[i].s);
 	  break;
 	}
 
-      if (i == mixed_.size())
-	s_.push_back(*f);
+      if (i == rules.mixed_.size())
+	sAppend(*f);
 
       s = f + 1;
     } else {
-      s_.append(s);
+      sAppend(s, strlen(s));
       s = 0;
     }
   }
@@ -190,9 +191,40 @@ void EscapeOStream::put(const char *s)
 
 EscapeOStream& EscapeOStream::operator<< (int arg)
 {
-  s_.append(boost::lexical_cast<std::string>(arg));
+  sAppend(boost::lexical_cast<std::string>(arg));
 
   return *this;
+}
+
+void EscapeOStream::sAppend(char c)
+{
+  if (slen_ == S_LEN) {
+    sink_->write(s_, slen_);
+    slen_ = 0;
+  }
+
+  s_[slen_++] = c;
+}
+
+void EscapeOStream::sAppend(const char *s, int length)
+{
+  if (slen_ + length > S_LEN) {
+    sink_->write(s_, slen_);
+    slen_ = 0;
+
+    if (length > S_LEN) {
+      sink_->write(s, length);
+      return;
+    }
+  }
+
+  memcpy(s_ + slen_, s, length);
+  slen_ += length;
+}
+
+void EscapeOStream::sAppend(const std::string& s)
+{
+  sAppend(s.c_str(), s.length());
 }
 
 }

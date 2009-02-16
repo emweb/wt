@@ -110,7 +110,7 @@ public:
    * The function can change both input and pos (the cursor position)
    * if required (but none of the current implementations do so).
    */
-  virtual State validate(WString& input, int& pos) const;
+  virtual State validate(WT_USTRING& input) const;
 
   /*! \brief Provide Ext-compatible config options for client-side validation.
    */

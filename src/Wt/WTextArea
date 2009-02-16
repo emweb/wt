@@ -37,7 +37,7 @@ public:
 
   /*! \brief Construct a text area with given content and optional parent.
    */
-  WTextArea(const WString& content, WContainerWidget *parent = 0);
+  WTextArea(const WT_USTRING& content, WContainerWidget *parent = 0);
 
   /*! \brief Specify the number of columns.
    */
@@ -57,19 +57,19 @@ public:
 
   /*! \brief Get the current content.
    */
-  const WString& text() const { return content_; }
+  const WT_USTRING& text() const { return content_; }
 
   /*! \brief Change the content of the text area.
    *
    * The default text is "".
    */
-  virtual void setText(const WString& text);
+  virtual void setText(const WT_USTRING& text);
 
   WValidator::State validate();
 
 private:
-  WString content_;
-  int     cols_, rows_;
+  WT_USTRING content_;
+  int      cols_, rows_;
 
   bool contentChanged_;
   bool colsRowsChanged_;
@@ -78,7 +78,7 @@ protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
 
-  virtual void        setFormData(CgiEntry *entry);
+  virtual void           setFormData(const FormData& formData);
 
   void resetContentChanged();
 };

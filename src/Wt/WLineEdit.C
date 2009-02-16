@@ -8,7 +8,6 @@
 #include "Wt/WLineEdit"
 
 #include "DomElement.h"
-#include "CgiParser.h"
 
 namespace Wt {
 
@@ -22,7 +21,7 @@ WLineEdit::WLineEdit(WContainerWidget *parent)
   setFormObject(true);
 }
 
-WLineEdit::WLineEdit(const WString& text, WContainerWidget *parent)
+WLineEdit::WLineEdit(const WT_USTRING& text, WContainerWidget *parent)
   : WFormWidget(parent),
     content_(text),
     textSize_(10),
@@ -33,7 +32,7 @@ WLineEdit::WLineEdit(const WString& text, WContainerWidget *parent)
   setFormObject(true);
 }
 
-void WLineEdit::setText(const WString& text)
+void WLineEdit::setText(const WT_USTRING& text)
 {
   if (content_ != text) {
     content_ = text;
@@ -106,17 +105,18 @@ DomElementType WLineEdit::domElementType() const
   return DomElement_INPUT;
 }
 
-void WLineEdit::setFormData(CgiEntry *entry)
+void WLineEdit::setFormData(const FormData& formData)
 {
-  content_ = WString(entry->value(), UTF8);
+  if (!formData.values.empty()) {
+    const std::string& value = formData.values[0];
+    content_ = WT_USTRING::fromUTF8(value);
+  }
 }
 
 WValidator::State WLineEdit::validate()
 {
   if (validator()) {
-    int pos;
-
-    return validator()->validate(content_, pos);
+    return validator()->validate(content_);
   } else
     return WValidator::Valid;
 }

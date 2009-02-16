@@ -136,10 +136,10 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
 
 void WSuggestionPopup::forEdit(WFormWidget *edit)
 {
-  edit->keyPressed.connect(editKeyDown_);
-  edit->keyWentDown.connect(editKeyDown_);
-  edit->keyWentUp.connect(editKeyUp_);
-  edit->blurred.connect(delayHide_);
+  edit->keyPressed().connect(editKeyDown_);
+  edit->keyWentDown().connect(editKeyDown_);
+  edit->keyWentUp().connect(editKeyUp_);
+  edit->blurred().connect(delayHide_);
 }
 
 void WSuggestionPopup::clearSuggestions()
@@ -155,7 +155,7 @@ void WSuggestionPopup::addSuggestion(const WString& suggestionText,
   WText *value = new WText(suggestionText, PlainText);
   line->addWidget(value);
   value->setAttributeValue("sug", suggestionValue);
-  value->clicked.connect(suggestionClicked_);
+  value->clicked().connect(suggestionClicked_);
 }
 
 namespace {

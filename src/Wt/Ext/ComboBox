@@ -197,7 +197,6 @@ public:
 
   virtual void refresh();
 
-public slots:
   /*! \brief Clear all items.
    */
   void clear();
@@ -205,13 +204,14 @@ public slots:
 public:
   /*! \brief Signal emitted when the selection changed.
    */
-  JSignal<int> activated;
+  JSignal<int>& activated() { return activated_; }
 
 protected:
   virtual void updateExt();
   virtual void createConfig(std::ostream& config);
 
 private:
+  JSignal<int>        activated_;
   DataLocation        dataLocation_;
   bool                editable_;
   int                 queryDelay_;

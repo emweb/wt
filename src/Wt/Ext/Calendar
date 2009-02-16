@@ -74,20 +74,21 @@ public:
    * the \link Calendar::selected selected \endlink signal is
    * emitted.
    */
-  Signal<void> selectionChanged;
+  Signal<void>& selectionChanged() { return selectionChanged_; }
 
   /*! \brief %Signal emitted when the user has selected a date.
    *
    * This signal indicates that the user has selected a new date,
    * which is only available when in single selection mode.
    */
-  Signal<void> selected;
+  Signal<void>& selected() { return selected_; }
 
 protected:
   virtual void updateExt();
   virtual void createConfig(std::ostream& config);
 
 private:
+  Signal<void>    selectionChanged_, selected_;
   bool            i18n_;
   std::set<WDate> selection_;
 

@@ -46,7 +46,7 @@ HangmanWidget::HangmanWidget(std::wstring user, Dictionary dict,
    createAlphabet(this);
    new WBreak(this);
    NewGameButton = new WPushButton(L"New Game", this);
-   NewGameButton->clicked.connect(SLOT(this, HangmanWidget::newGame));
+   NewGameButton->clicked().connect(SLOT(this, HangmanWidget::newGame));
 
    // prepare for first game
    newGame();
@@ -85,10 +85,10 @@ void HangmanWidget::createAlphabet(WContainerWidget *parent)
 	 new WPushButton(c, LetterButtonLayout->elementAt(i / 13, i % 13));
       LetterButtons.push_back(character);
       character->resize(30, WLength());
-      mapper->mapConnect(character->clicked, character);
+      mapper->mapConnect(character->clicked(), character);
    }
 
-   mapper->mapped.connect(SLOT(this, HangmanWidget::processButton));
+   mapper->mapped().connect(SLOT(this, HangmanWidget::processButton));
 }
 
 void HangmanWidget::newGame()

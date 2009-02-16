@@ -279,7 +279,7 @@ public:
   WStandardItem *takeItem(int row, int column = 0);
 
 #ifndef DOXYGEN_ONLY
-  virtual int flags(const WModelIndex& index) const;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
 
   virtual WModelIndex parent(const WModelIndex& index) const;
 
@@ -310,7 +310,10 @@ public:
 			     const boost::any& value, int role = EditRole);
   using WAbstractItemModel::setData;
   using WAbstractItemModel::data;
+
+#ifndef WT_TARGET_JAVA
   using WAbstractItemModel::setHeaderData;
+#endif // WT_TARGET_JAVA
 
   virtual void *toRawIndex(const WModelIndex& index) const;
   virtual WModelIndex fromRawIndex(void *rawIndex) const;
@@ -340,7 +343,7 @@ public:
    *
    * \sa WStandardItem::setData()
    */
-  Signal<WStandardItem *> itemChanged;
+  Signal<WStandardItem *>& itemChanged() { return itemChanged_; }
 
 protected:
 #ifndef DOXYGEN_ONLY
@@ -356,6 +359,8 @@ private:
 
   std::vector<HeaderData> columnHeaderData_, rowHeaderData_;
   WStandardItem *invisibleRootItem_, *itemPrototype_;
+
+  Signal<WStandardItem *> itemChanged_;
 
   void init();
   WStandardItem *itemFromIndex(const WModelIndex& index, bool lazyCreate) const;

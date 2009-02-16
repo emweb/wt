@@ -16,13 +16,11 @@ namespace Wt {
 
 Button::Button(WContainerWidget *parent)
   : AbstractButton(parent),
-    clicked(activated),
     panel_(0)
 { }
 
 Button::Button(const WString& text, WContainerWidget *parent)
   : AbstractButton(parent),
-    clicked(activated),
     panel_(0)
 {
   setText(text);

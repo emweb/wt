@@ -43,6 +43,7 @@ class WWebWidget;
 class WT_API WCssDecorationStyle
 {
 public:
+#ifndef WT_DEPRECATE_2_2_0
   typedef Wt::Cursor Cursor;
   static const Cursor Default = Wt::ArrowCursor;
   static const Cursor Auto = Wt::AutoCursor;
@@ -52,6 +53,7 @@ public:
   static const Cursor Wait = Wt::WaitCursor;
   static const Cursor Text = Wt::IBeamCursor;
   static const Cursor Help = Wt::WhatsThisCursor;
+#endif
 
   /*! \brief How a background image must be repeated.
    */
@@ -96,11 +98,11 @@ public:
   /*! \brief Set a background image URL.
    *
    * The image may be placed in a particular location by specifying
-   * sides by OR'ing WWidget::Side values together, e.g. (Right | Top).
+   * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
    */
   void setBackgroundImage(const std::string& imageHRef,
 			  Repeat repeat = RepeatXY,
-			  int sides = 0);
+			  WFlags<Side> sides = 0);
 
   /*! \brief Get the background image URL.
    */
@@ -123,7 +125,7 @@ public:
    * A border may be placed in a particular location by specifying
    * sides by OR'ing WWidget::Side values together, e.g. (Right | Top).
    */
-  void setBorder(WBorder border, int sides = WWidget::All);
+  void setBorder(WBorder border, WFlags<Side> sides = All);
 
   /*! \brief Get the border style.
    */
@@ -144,42 +146,43 @@ public:
    *
    * The default is 0.
    */
-  void setTextDecoration(int decoration);
+  void setTextDecoration(WFlags<TextDecoration> decoration);
 
   /*! \brief Get the text decoration options.
    */
-  int textDecoration() const { return textDecoration_; }
+  WFlags<TextDecoration> textDecoration() const { return textDecoration_; }
 
   std::string cssText();
   void updateDomElement(DomElement& element, bool all);
 
 private:
-  WWebWidget      *widget_;
+  WWebWidget               *widget_;
+  Cursor                    cursor_;
+  WBorder                   border_;
+  WColor                    backgroundColor_;
+  WColor	            foregroundColor_;
+  std::string	            backgroundImage_;
+  Repeat	            backgroundImageRepeat_;
+  WFlags<Side>              backgroundImageLocation_;
+  WFont		            font_;
+  WFlags<TextDecoration>    textDecoration_;
+  WFlags<Side>              borderPosition_;  
 
-  Cursor           cursor_;
-  WBorder          border_;
-  WColor           backgroundColor_;
-  WColor	   foregroundColor_;
-  std::string	   backgroundImage_;
-  Repeat	   backgroundImageRepeat_;
-  int              backgroundImageLocation_;
-  WFont		   font_;
-  int              textDecoration_;
-  int              borderPosition_;  
-
-  bool		   cursorChanged_;
-  bool		   borderChanged_;
-  bool		   foregroundColorChanged_;
-  bool		   backgroundColorChanged_;
-  bool	  	   backgroundImageChanged_;
-  bool		   fontChanged_;
-  bool             textDecorationChanged_;
+  bool		            cursorChanged_;
+  bool		            borderChanged_;
+  bool		            foregroundColorChanged_;
+  bool		            backgroundColorChanged_;
+  bool	  	            backgroundImageChanged_;
+  bool		            fontChanged_;
+  bool                      textDecorationChanged_;
 
   void changed();
 
   void setWebWidget(WWebWidget *widget);
   friend class WWebWidget;
 };
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WCssDecorationStyle::TextDecoration)
 
 }
 

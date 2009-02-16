@@ -53,7 +53,7 @@ public:
 
   /*! \brief Construct a line edit with given content and optional parent.
    */
-  WLineEdit(const WString& content, WContainerWidget *parent = 0);
+  WLineEdit(const WT_USTRING& content, WContainerWidget *parent = 0);
 
   /*! \brief Specify the width of the line edit in number of characters.
    *
@@ -78,13 +78,13 @@ public:
    *
    * \sa text()
    */
-  void setText(const WString& text);
+  void setText(const WT_USTRING& text);
 
   /*! \brief Get the current content.
    *
    * \sa setText(const WString&)
    */
-  const WString& text() const { return content_; }
+  const WT_USTRING& text() const { return content_; }
 
   /*! \brief Specify the maximum length of text that can be entered.
    *
@@ -115,7 +115,7 @@ public:
   WValidator::State validate();
 
 private:
-  WString      content_;
+  WT_USTRING     content_;
   int          textSize_;
   int          maxLength_;
   EchoMode     echoMode_;
@@ -131,7 +131,7 @@ protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
 
-  virtual void setFormData(CgiEntry *entry);
+  virtual void setFormData(const FormData& formData);
 };
 
 }

@@ -26,6 +26,8 @@ WLayout::~WLayout()
   delete[] margins_;
 }
 
+#ifndef WT_TARGET_JAVA
+
 void WLayout::getContentsMargins(int *left, int *top, int *right, int *bottom)
   const
 {
@@ -41,6 +43,28 @@ void WLayout::getContentsMargins(int *left, int *top, int *right, int *bottom)
     *bottom = 9;
   }
 }
+
+#else // WT_TARGET_JAVA
+
+int WLayout::getContentsMargin(Side side) const
+{
+  if (!margins_)
+    return 9;
+
+  switch (side) {
+  case Left:
+    return margins_[0];
+  case Top:
+    return margins_[1];
+  case Right:
+    return margins_[2];
+  case Bottom:
+    return margins_[3];
+  default:
+    return 9;
+  }
+}
+#endif // WT_TARGET_JAVA
 
 void WLayout::setContentsMargins(int left, int top, int right, int bottom)
 {
@@ -142,7 +166,7 @@ void WLayout::setParent(WWidget *parent)
 
   if (hints_) {
     for (unsigned i = 0; i < hints_->size(); ++i)
-      impl_->setHint((*hints_)[i].first, (*hints_)[i].second);
+      impl_->setHint((*hints_)[i].name, (*hints_)[i].value);
     delete hints_;
     hints_ = 0;
   }
@@ -155,7 +179,7 @@ void WLayout::setLayoutHint(const std::string& name, const std::string& value)
   else {
     if (!hints_)
       hints_ = new HintsList();
-    hints_->push_back(std::make_pair(name, value));
+    hints_->push_back(Hint(name, value));
   }
 }
 

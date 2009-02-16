@@ -23,24 +23,24 @@ namespace {
 namespace Wt {
 
 WPopupMenuItem::WPopupMenuItem(bool)
-  : triggered(this),
-    text_(0),
+  : text_(0),
     checkBox_(0),
     subMenu_(0),
     data_(0),
-    separator_(true)
+    separator_(true),
+    triggered_(this)
 {
   setImplementation(impl_ = new WContainerWidget());
   setStyleClass("separator");
 }
 
 WPopupMenuItem::WPopupMenuItem(const WString& text)
-  : triggered(this),
-    text_(0),
+  : text_(0),
     checkBox_(0),
     subMenu_(0),
     data_(0),
-    separator_(false)
+    separator_(false),
+    triggered_(this)
 {
   create();
 
@@ -48,12 +48,12 @@ WPopupMenuItem::WPopupMenuItem(const WString& text)
 }
 
 WPopupMenuItem::WPopupMenuItem(const std::string& iconPath, const WString& text)
-  : triggered(this),
-    text_(0),
+  : text_(0),
     checkBox_(0),
     subMenu_(0),
     data_(0),
-    separator_(false)
+    separator_(false),
+    triggered_(this)
 {
   create();
 
@@ -73,7 +73,7 @@ void WPopupMenuItem::create()
   setImplementation(impl_ = new WContainerWidget());
 
   implementStateless(&WPopupMenuItem::renderOver, &WPopupMenuItem::renderOut);
-  impl_->mouseWentUp.connect(SLOT(this, WPopupMenuItem::onMouseUp));
+  impl_->mouseWentUp().connect(SLOT(this, WPopupMenuItem::onMouseUp));
 
   setStyleClass("notselected");
 }
@@ -82,9 +82,9 @@ void WPopupMenuItem::load()
 {
   WCompositeWidget::load();
 
-  impl_->mouseWentOver.connect(SLOT(parentMenu(), WPopupMenuItem::show));
-  impl_->mouseWentOver.connect(SLOT(this, WPopupMenuItem::renderOver));
-  impl_->mouseWentOver.setNotExposed();
+  impl_->mouseWentOver().connect(SLOT(parentMenu(), WPopupMenuItem::show));
+  impl_->mouseWentOver().connect(SLOT(this, WPopupMenuItem::renderOver));
+  impl_->mouseWentOver().setNotExposed();
 }
 
 void WPopupMenuItem::setText(const WString& text)
@@ -192,7 +192,7 @@ void WPopupMenuItem::onMouseUp()
   if (checkBox_)
     checkBox_->setChecked(!checkBox_->isChecked());
 
-  triggered.emit();
+  triggered_.emit();
 
   topLevelMenu()->done(this);
 }

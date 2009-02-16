@@ -7,7 +7,7 @@
 #ifndef WPOINT_H_
 #define WPOINT_H_
 
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 

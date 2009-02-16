@@ -134,7 +134,7 @@ private:
   ReplyPtr reply_;
 
   /// The reply is complete.
-  bool replyDone_;
+  bool moreDataToSend_;
 
   /// We close the connection.
   bool forceClose_;

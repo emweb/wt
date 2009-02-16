@@ -29,6 +29,7 @@ public:
    */
   virtual ~WLocalizedStrings();
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Returns the value for a particular string in the current locale.
    *
    * This is equivalent to \link WString::value() s.value()\endlink.
@@ -41,6 +42,7 @@ public:
    * This is equivalent to \link WString::toUTF8() s.toUTF8()\endlink.
    */
   std::string getUTF8Value(const WString& s);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Reread the message resources.
    *
@@ -70,7 +72,11 @@ public:
    *
    * \sa WApplication::locale()
    */
+#ifndef WT_TARGET_JAVA
   virtual bool resolveKey(const std::string& key, std::string& result) = 0;
+#else // WT_TARGET_JAVA
+  virtual std::string *resolveKey(const std::string& key) = 0;
+#endif // WT_TARGET_JAVA
 };
 
 }

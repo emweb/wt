@@ -57,21 +57,21 @@ void WFont::setFamily(GenericFamily genericFamily,
   genericFamily_ = genericFamily;
   specificFamilies_ = specificFamilies;
   familyChanged_ = true;
-  if (widget_) widget_->repaint(WWebWidget::RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintPropertyAttribute);
 }
 
 void WFont::setStyle(Style style)
 {
   style_ = style;
   styleChanged_ = true;
-  if (widget_) widget_->repaint(WWebWidget::RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintPropertyAttribute);
 }
 
 void WFont::setVariant(Variant variant)
 {
   variant_ = variant;
   variantChanged_ = true;
-  if (widget_) widget_->repaint(WWebWidget::RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintPropertyAttribute);
 }
 
 void WFont::setWeight(Weight weight, int value)
@@ -79,7 +79,7 @@ void WFont::setWeight(Weight weight, int value)
   weight_ = weight;
   weightValue_ = value;
   weightChanged_ = true;
-  if (widget_) widget_->repaint(WWebWidget::RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintPropertyAttribute);
 }
 
 void WFont::setSize(Size size, const WLength& fixedSize)
@@ -91,7 +91,7 @@ void WFont::setSize(Size size, const WLength& fixedSize)
     fixedSize_ = WLength();
   }
   sizeChanged_ = true;
-  if (widget_) widget_->repaint(WWebWidget::RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintPropertyAttribute);
 }
 
 void WFont::updateDomElement(DomElement& element, bool fontall, bool all)

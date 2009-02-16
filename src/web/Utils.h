@@ -8,6 +8,7 @@
 #define UTILS_H_
 
 #include <algorithm>
+#include <set>
 #include <string>
 #include <vector>
 #include <map>
@@ -22,12 +23,23 @@ namespace Wt {
 extern std::string terminate(const std::string& s, char c);
 
 // in-place replace functions
-extern void replace(std::string& s, char c, const std::string& r);
-extern void replace(std::string& s, const std::string& c, const std::string& r);
+extern std::string& replace(std::string& s, char c, const std::string& r);
+extern std::string& replace(std::string& s, const std::string& c,
+			    const std::string& r);
+
+extern const std::string& escapeText(std::string& s, bool newLinesToo);
 
 // word manipulation (for style class editing)
-extern WString eraseWord(const WString& s, const std::string& w);
-extern WString addWord(const WString& s, const std::string& w);
+extern std::string eraseWord(const std::string& s, const std::string& w);
+extern std::string addWord(const std::string& s, const std::string& w);
+
+// fast integer to string in given buffer
+extern char *itoa(int value, char *result, int base = 10);
+
+// fast (unsafe) comparison of first n characters
+inline bool startsWith(const char *a, const char *b, int n) {
+  return memcmp(a, b, n) == 0;
+}
 
 // Finds an element in a vector. Returns the first reference to the
 // element, or -1 if the element is not found.
@@ -58,17 +70,38 @@ inline bool erase(std::vector<T>& v, const T& value)
 template<typename T>
 inline void insert(std::vector<T>& result, const std::vector<T>& elements)
 {
-#ifndef WT_JAVA
   result.insert(result.end(), elements.begin(), elements.end());
-#endif // WT_JAVA
 }
 
 template<typename T>
 inline void sort(std::vector<T>& result)
 {
-#ifndef WT_JAVA
   std::sort(result.begin(), result.end());
-#endif // WT_JAVA
+}
+
+template<typename T, typename Compare>
+inline void sort(std::vector<T>& result, const Compare& compare)
+{
+  std::sort(result.begin(), result.end(), compare);
+}
+
+template<typename T>
+inline void stable_sort(std::vector<T>& result)
+{
+  std::stable_sort(result.begin(), result.end());
+}
+
+template<typename T, typename Compare>
+inline void stable_sort(std::vector<T>& result, const Compare& compare)
+{
+  std::stable_sort(result.begin(), result.end(), compare);
+}
+
+template <typename T, typename Compare>
+inline int insertion_point(const std::vector<T>& v, const T& item,
+			   Compare compare)
+{
+  return std::lower_bound(v.begin(), v.end(), item, compare) - v.begin();
 }
 
 template <typename K, typename V, typename T>
@@ -76,6 +109,26 @@ inline V& access(std::map<K, V>& m, const T& key)
 {
   return m[key];
 }
+
+template <typename T>
+inline const T& first(const std::set<T>& s)
+{
+  return *s.begin();
+}
+
+template <typename T>
+inline const T& last(const std::set<T>& s)
+{
+  return *s.rbegin();
+}
+
+inline double round2(double d) {
+  return static_cast<int>(d * 100) / 100.;
+}
+
+extern char *round_str(double d, int digits, char *buf);
+
+extern std::string toHexString(int i);
 
   }
 }

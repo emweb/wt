@@ -26,13 +26,15 @@ namespace Wt {
  *
  * \ingroup charts
  */
-enum LabelOptions {
+enum LabelOption {
   NoLabels       = 0x00, //!< Do not display labels (default).
   Inside         = 0x01, //!< Display labels inside each segment.
   Outside        = 0x02, //!< Display labels outside each segment.
   TextLabel      = 0x10, //!< Display the label text
   TextPercentage = 0x20  //!< Display the value (as percentage)
 };
+
+W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption);
 
 /*! \class WPieChart Wt/Chart/WPieChart Wt/Chart/WPieChart
  *  \brief A pie chart.
@@ -175,13 +177,13 @@ public:
    *
    * The default value is \link Chart::NoLabels NoLabels\endlink.
    */
-  void setDisplayLabels(int options);
+  void setDisplayLabels(WFlags<LabelOption> options);
 
   /*! \brief Returns options set for displaying labels.
    *
    * \sa setDisplayLabels(int)
    */
-  int displayLabels() const { return labelOptions_; }
+  WFlags<LabelOption> displayLabels() const { return labelOptions_; }
 
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
     const;
@@ -190,11 +192,11 @@ protected:
   void paintEvent(Wt::WPaintDevice *paintDevice);
 
 private:
-  int            labelsColumn_;
-  int            dataColumn_;
-  double         height_;
-  double         startAngle_;
-  int            labelOptions_;
+  int                  labelsColumn_;
+  int                  dataColumn_;
+  double               height_;
+  double               startAngle_;
+  WFlags<LabelOption> labelOptions_;
 
   struct PieData {
     bool customBrush;

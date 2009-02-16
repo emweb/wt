@@ -13,8 +13,8 @@ namespace Wt {
 
 AbstractButton::AbstractButton(WContainerWidget *parent)
   : Component(parent),
-    activated(this, "activated", true),
-    toggled(this, "toggled", true),
+    activated_(this, "activated", true),
+    toggled_(this, "toggled", true),
     checkable_(false),
     checked_(false),
     menu_(0),
@@ -39,7 +39,7 @@ void AbstractButton::setCheckable(bool how)
   checkable_ = how;
 
   if (checkable_) {
-    toggled.connect(SLOT(this, AbstractButton::wasToggled));
+    toggled_.connect(SLOT(this, AbstractButton::wasToggled));
   }
 }
 
@@ -95,8 +95,8 @@ void AbstractButton::configureToolTip(ToolTipConfig *config)
 
 void AbstractButton::updateExt()
 {
-  updateWtSignal(&activated, activated.name(), "", "");
-  updateWtSignal(&toggled, toggled.name(), "i,c", "c");
+  updateWtSignal(&activated_, activated_.name(), "", "");
+  updateWtSignal(&toggled_, toggled_.name(), "i,c", "c");
   Component::updateExt();
 }
 
@@ -120,7 +120,7 @@ std::string AbstractButton::createJSHelper(const std::string& extClassName,
   }
 
   if (menu_) {
-    menuvar = menu_->createExtElement(result, false);
+    menuvar = menu_->createExtElement(result, 0);
     buf << ",menu:" << menuvar;
   }
 
@@ -153,9 +153,9 @@ void AbstractButton::createConfig(std::ostream& config)
     else
       config << ",cls:'x-btn-text-icon'";
 
-  addWtSignalConfig("handler", &activated, activated.name(),
+  addWtSignalConfig("handler", &activated_, activated_.name(),
 		    "", "", config);
-  addWtSignalConfig("toggleH", &toggled, toggled.name(),
+  addWtSignalConfig("toggleH", &toggled_, toggled_.name(),
 		    "i,c", "c", config);
 
   if (!toolTip().empty()) {

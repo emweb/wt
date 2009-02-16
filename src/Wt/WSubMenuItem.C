@@ -61,7 +61,7 @@ SignalBase& WSubMenuItem::activateSignal()
     WInteractWidget *wi = dynamic_cast<WInteractWidget *>
       (contents->widget(0)->webWidget());
 
-    return wi->clicked;
+    return wi->clicked();
   } else {
     return WMenuItem::activateSignal();
   }

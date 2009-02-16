@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-  namespace Private {
+  namespace Impl {
     class SentinelTreeNode;
   }
 
@@ -96,15 +96,16 @@ public:
 
   /*! \brief %Signal that is emitted when the selection changes.
    */
-  Signal<> itemSelectionChanged;
+  Signal<>& itemSelectionChanged() { return itemSelectionChanged_; }
 
 private:
   WTreeNode                 *treeRoot_;
-  Private::SentinelTreeNode *sentinelRoot_;
+  Impl::SentinelTreeNode *sentinelRoot_;
 
   SelectionMode              selectionMode_;
   WTreeNodeSet               selection_;
   WSignalMapper<WTreeNode *, WMouseEvent> onClickMapper_;
+  Signal<>                   itemSelectionChanged_;
 
   void onClick(WTreeNode *node, WMouseEvent event);
 
@@ -115,7 +116,7 @@ protected:
   void nodeRemoved(WTreeNode *node);
   void nodeAdded(WTreeNode *node);
 
-  friend class Private::SentinelTreeNode;
+  friend class Impl::SentinelTreeNode;
 };
 
 }

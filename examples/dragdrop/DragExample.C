@@ -44,7 +44,7 @@ DragExample::DragExample(WContainerWidget *parent):
   }
 
   WContainerWidget *pills = new WContainerWidget(this);
-  pills->setContentAlignment(WWidget::AlignCenter);
+  pills->setContentAlignment(AlignCenter);
 
   createDragImage("icons/blue-pill.jpg",
 		  "icons/blue-pill-small.png",

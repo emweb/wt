@@ -40,19 +40,21 @@ void WTreeTableNode::setColumnWidget(int column, WWidget *widget)
   createExtraColumns(column);
 
   if (column < (int)columnWidgets_.size()) {
-    delete columnWidgets_[column].first;
-    columnWidgets_[column] = std::make_pair(widget, true);
+    delete columnWidgets_[column].widget;
+    columnWidgets_[column] = ColumnWidget(widget, true);
   } else {
-    columnWidgets_.push_back(std::make_pair(widget, true));
+    columnWidgets_.push_back(ColumnWidget(widget, true));
   }
 
   widget->setInline(false);
+#ifndef WT_TARGET_JAVA
   widget->setFloatSide(Left);
+#endif // WT_TARGET_JAVA
   widget->resize(columnWidth(column + 1), WLength());
   if (column == static_cast<int>(columnWidgets_.size()) - 1)
     row_->addWidget(widget);
   else
-    row_->insertBefore(widget, columnWidgets_[column + 1].first);
+    row_->insertBefore(widget, columnWidgets_[column + 1].widget);
 }
 
 void WTreeTableNode::createExtraColumns(int numColumns)
@@ -60,15 +62,20 @@ void WTreeTableNode::createExtraColumns(int numColumns)
   if (!row_) {
     row_ = new WContainerWidget();
     labelArea()->insertBefore(row_, labelArea()->children()[0]);
+#ifndef WT_TARGET_JAVA
     row_->setFloatSide(Right);
+#endif // WT_TARGET_JAVA
     labelArea()->resize(WLength(100, WLength::Percentage), WLength());
     labelArea()->table()->resize(WLength(100, WLength::Percentage), WLength());
   }
 
   while (static_cast<int>(columnWidgets_.size()) < numColumns) {
-    WText *w = new WText(false, "&nbsp;", row_);
-    columnWidgets_.push_back(std::make_pair(w, false));
+    WText *w = new WText(WString::fromUTF8("&nbsp;"), row_);
+    w->setInline(false);
+    columnWidgets_.push_back(ColumnWidget(w, false));
+#ifndef WT_TARGET_JAVA
     w->setFloatSide(Left);
+#endif // WT_TARGET_JAVA
     w->resize(columnWidth(columnWidgets_.size()), WLength());
   }
 }
@@ -79,8 +86,8 @@ WWidget *WTreeTableNode::columnWidget(int column)
 
   return
     (column < static_cast<int>(columnWidgets_.size())
-     && columnWidgets_[column].second)
-    ? columnWidgets_[column].first
+     && columnWidgets_[column].isSet)
+    ? columnWidgets_[column].widget
     : 0;
 }
 
@@ -103,7 +110,7 @@ void WTreeTableNode::setTable(WTreeTable *table)
     createExtraColumns(table->numColumns() - 1);
 
     for (unsigned i = 0; i < columnWidgets_.size(); ++i)
-      columnWidgets_[i].first->resize(columnWidth(i + 1), WLength());
+      columnWidgets_[i].widget->resize(columnWidth(i + 1), WLength());
   }
 }
 

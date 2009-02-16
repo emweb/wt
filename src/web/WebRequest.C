@@ -12,21 +12,15 @@ using std::atoi;
 
 namespace Wt {
 
+Http::ParameterValues WebRequest::emptyValues_;
+
 WebRequest::WebRequest()
-  : keepConnectionOpen_(false),
-    id_(-1)
+  : id_(-1)
 { }
 
 void WebRequest::setId(int id)
 {
   id_ = id;
-}
-
-void WebRequest::flush()
-{
-  if (!keepConnectionOpen_) {
-    delete this;
-  }
 }
 
 WebRequest::~WebRequest()
@@ -57,9 +51,22 @@ int WebRequest::contentLength() const
     return atoi(lenstr.c_str());
 }
 
-void WebRequest::setKeepConnectionOpen(bool how)
+const std::string *WebRequest::getParameter(const std::string& name) const
 {
-  keepConnectionOpen_ = how;
+  const Http::ParameterValues& values = getParameterValues(name);
+
+  return !values.empty() ? &values[0] : 0;
 }
+
+const Http::ParameterValues&
+WebRequest::getParameterValues(const std::string& name) const
+{
+  Http::ParameterMap::const_iterator i = parameters_.find(name);
+  if (i != parameters_.end())
+    return i->second;
+  else
+    return emptyValues_;
+}
+
 
 }

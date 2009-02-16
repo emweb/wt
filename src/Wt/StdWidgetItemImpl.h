@@ -28,8 +28,8 @@ public:
   virtual WLayoutItem *layoutItem() const;
   virtual void containerAddWidgets(WContainerWidget *container);
   virtual DomElement *createDomElement(bool fitWidth, bool fitHeight,
-				       int& additionalVerticalPadding,
 				       WApplication *app);
+  virtual int additionalVerticalPadding(bool fitWidth, bool fitHeight) const;
 
   virtual void setHint(const std::string& name, const std::string& value);
 

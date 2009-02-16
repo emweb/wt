@@ -34,7 +34,7 @@ namespace {
   }
 
   double round125(double v) {
-    double n = pow(10, floor(log10(v)));
+    double n = pow(10, std::floor(log10(v)));
     double msd = v / n;
 
     if (msd < 1.5)
@@ -48,11 +48,11 @@ namespace {
   }
 
   double roundUp125(double v, double t) {
-    return t * ceil((v - std::numeric_limits<double>::epsilon()) / t);
+    return t * std::ceil((v - std::numeric_limits<double>::epsilon()) / t);
   }
 
   double roundDown125(double v, double t) {
-    return t * floor((v + std::numeric_limits<double>::epsilon()) / t);
+    return t * std::floor((v + std::numeric_limits<double>::epsilon()) / t);
   }
 }
 
@@ -297,7 +297,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	    double numLabels = calcAutoNumLabels(s) / 1.5;
 
 	    renderInterval_
-	      = std::max(1.0, floor(chart_->model()->rowCount() / numLabels));
+	      = std::max(1.0, std::floor(chart_->model()->rowCount() / numLabels));
 	  } else if (scale_ == LinearScale) {
 	    double numLabels = calcAutoNumLabels(s);
 
@@ -406,15 +406,15 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
       if (scale_ == LogScale) {
 	if (findMinimum)
 	  segment.renderMinimum
-	    = pow(10, (floor(log10(segment.renderMinimum - 1E-4))));
+	    = pow(10, (std::floor(log10(segment.renderMinimum - 1E-4))));
 	if (findMaximum)
 	  segment.renderMaximum
-	    = pow(10, (ceil(log10(segment.renderMaximum + 1E-4))));
+	    = pow(10, (std::ceil(log10(segment.renderMaximum + 1E-4))));
       } else {
 	if (findMinimum)
-	  segment.renderMinimum = floor(segment.renderMinimum - 1E-4);
+	  segment.renderMinimum = std::floor(segment.renderMinimum - 1E-4);
 	if (findMaximum)
-	  segment.renderMaximum = ceil(segment.renderMaximum + 1E-4);
+	  segment.renderMaximum = std::ceil(segment.renderMaximum + 1E-4);
       }
 
       diff = segment.renderMaximum - segment.renderMinimum;
@@ -429,8 +429,8 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	  && (segment.renderMaximum + 0.50 * diff >= 0))
 	segment.renderMaximum = 0;
     } else if (scale_ == LogScale) {
-      double minLog10 = floor(log10(segment.renderMinimum));
-      double maxLog10 = ceil(log10(segment.renderMaximum));
+      double minLog10 = std::floor(log10(segment.renderMinimum));
+      double maxLog10 = std::ceil(log10(segment.renderMaximum));
 
       if (findMinimum)
 	segment.renderMinimum = pow(10, (minLog10));

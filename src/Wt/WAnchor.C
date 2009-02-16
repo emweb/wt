@@ -9,6 +9,7 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WImage"
+#include "Wt/WResource"
 #include "Wt/WText"
 #include "DomElement.h"
 
@@ -135,8 +136,8 @@ void WAnchor::setRefInternalPath(const std::string& path)
   if (app->environment().ajax()) {
     if (!changeInternalPathJS_) {
       changeInternalPathJS_ = new JSlot();
-      clicked.connect(*changeInternalPathJS_);
-      clicked.setPreventDefault(true);
+      clicked().connect(*changeInternalPathJS_);
+      clicked().setPreventDefault(true);
     }
     changeInternalPathJS_->setJavaScript
       ("function(obj, event){"
@@ -154,7 +155,7 @@ void WAnchor::setResource(WResource *resource)
   resource_ = resource;
 
   if (resource_) {
-    resource_->dataChanged.connect(SLOT(this, WAnchor::resourceChanged));
+    resource_->dataChanged().connect(SLOT(this, WAnchor::resourceChanged));
     setRef(resource_->generateUrl());
   }
 }

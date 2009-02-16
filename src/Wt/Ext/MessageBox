@@ -65,7 +65,7 @@ public:
    * button is exactly the same as the English text.
    */
   MessageBox(const WString& caption, const WString& text, Icon icon,
-	     int buttons, bool i18n = false);
+	     WFlags<StandardButton> buttons, bool i18n = false);
 
   virtual ~MessageBox();
 
@@ -87,11 +87,11 @@ public:
 
   /*! \brief Set standard buttons for the message box.
    */
-  void setButtons(int buttons);
+  void setButtons(WFlags<StandardButton> buttons);
 
   /*! \brief Get the standard buttons.
    */
-  int buttons() const { return buttons_; }
+  WFlags<StandardButton> buttons() const { return buttons_; }
 
   /*! \brief Get the result of this message box.
    *
@@ -151,7 +151,8 @@ public:
    */
   static StandardButton show(const WString& caption,
 			     const WString& text,
-			     int buttons, bool i18n = false);
+			     WFlags<StandardButton> buttons,
+			     bool i18n = false);
 
   /*! \brief Convenience method to show a message box prompting for
    *         input, blocking the current thread.
@@ -169,7 +170,7 @@ public:
 
   /*! \brief %Signal emitted when a button is clicked.
    */
-  Signal<StandardButton> buttonClicked;
+  Signal<StandardButton>& buttonClicked() { return buttonClicked_; }
 
   /*! \brief Show or hide the message box.
    */
@@ -182,20 +183,21 @@ protected:
   void updateProgress(double value);
 
 private:
-  WString        text_;
-  WString        value_;
-  int            buttons_;
-  Icon           icon_;
-  bool           i18n_;
-  bool           prompt_;
-  bool           textArea_;
-  bool           progress_;
-  double         progressValue_;
-  bool           progressInfinite_;
+  Signal<StandardButton> buttonClicked_;
+  WString                text_;
+  WString                value_;
+  WFlags<StandardButton> buttons_;
+  Icon                   icon_;
+  bool                   i18n_;
+  bool                   prompt_;
+  bool                   textArea_;
+  bool                   progress_;
+  double                 progressValue_;
+  bool                   progressInfinite_;
 
-  bool           firstDisplay_;       
-  bool          *catchDelete_;
-  StandardButton result_;
+  bool                   firstDisplay_;       
+  bool                  *catchDelete_;
+  StandardButton         result_;
   JSignal<std::string, std::string> extButtonClicked_;
 
   void createConfig(std::ostream& config);

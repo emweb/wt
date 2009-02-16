@@ -10,7 +10,7 @@ WValidationStatus::WValidationStatus(WFormWidget *field,
 				     WWidget *invalidEmptyStateWidget,
 				     WContainerWidget *parent)
   : WCompositeWidget(parent),
-    validated(this),
+    validated_(this),
     field_(field),
     validStateWidget_(validStateWidget),
     invalidStateWidget_(invalidStateWidget),
@@ -36,9 +36,9 @@ WValidationStatus::WValidationStatus(WFormWidget *field,
     invalidEmptyStateWidget_->setHidden(state_ != WValidator::InvalidEmpty);
   }
 
-  field->changed.connect(SLOT(this, WValidationStatus::inputChanged));
-  field->keyWentUp.connect(SLOT(this, WValidationStatus::inputChanged));
-  //field->keyPressed.connect(SLOT(this, WValidationStatus::inputChanged));
+  field->changed().connect(SLOT(this, WValidationStatus::inputChanged));
+  field->keyWentUp().connect(SLOT(this, WValidationStatus::inputChanged));
+  //field->keyPressed().connect(SLOT(this, WValidationStatus::inputChanged));
 }
 
 void WValidationStatus::inputChanged()
@@ -55,7 +55,7 @@ void WValidationStatus::inputChanged()
 
     if ((state_ == WValidator::Valid) || (state == WValidator::Valid)) {
       state_ = state;
-      validated.emit(state_ == WValidator::Valid);
+      validated_.emit(state_ == WValidator::Valid);
     } else
       state_ = state;
   }

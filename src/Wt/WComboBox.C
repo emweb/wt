@@ -11,20 +11,19 @@
 #include "Wt/WStringListModel"
 
 #include "DomElement.h"
-#include "CgiParser.h"
 
 namespace Wt {
 
 WComboBox::WComboBox(WContainerWidget *parent)
   : WFormWidget(parent),
-    activated(this),
-    sactivated(this),
     model_(0),
     modelColumn_(0),
     currentIndex_(-1),
     itemsChanged_(false),
     selectionChanged_(false),
-    currentlyConnected_(false)
+    currentlyConnected_(false),
+    activated_(this),
+    sactivated_(this)
 { 
   setInline(true);
   setFormObject(true);
@@ -44,15 +43,15 @@ void WComboBox::setModel(WAbstractItemModel *model)
   model_ = model;
 
   modelConnections_.push_back
-    (model_->columnsInserted.connect(SLOT(this, WComboBox::itemsChanged)));
+    (model_->columnsInserted().connect(SLOT(this, WComboBox::itemsChanged)));
   modelConnections_.push_back
-    (model_->columnsRemoved.connect(SLOT(this, WComboBox::itemsChanged)));
+    (model_->columnsRemoved().connect(SLOT(this, WComboBox::itemsChanged)));
   modelConnections_.push_back
-     (model_->rowsInserted.connect(SLOT(this, WComboBox::itemsChanged)));
+     (model_->rowsInserted().connect(SLOT(this, WComboBox::itemsChanged)));
   modelConnections_.push_back
-     (model_->rowsRemoved.connect(SLOT(this, WComboBox::itemsChanged)));
+     (model_->rowsRemoved().connect(SLOT(this, WComboBox::itemsChanged)));
   modelConnections_.push_back
-     (model_->dataChanged.connect(SLOT(this, WComboBox::itemsChanged)));
+     (model_->dataChanged().connect(SLOT(this, WComboBox::itemsChanged)));
 }
 
 void WComboBox::setModelColumn(int index)
@@ -111,7 +110,7 @@ void WComboBox::setCurrentIndex(int index)
     selectionChanged_ = true;
     repaint(RepaintPropertyIEMobile);
 
-    // changed.emit();
+    // changed().emit();
   }
 }
 
@@ -130,7 +129,7 @@ void WComboBox::clear()
 void WComboBox::propagateChange()
 {
   /*
-   * copy values for when widget would be deleted from activated.emit()
+   * copy values for when widget would be deleted from activated_.emit()
    */
   int myCurrentIndex = currentIndex_;
   WString myCurrentValue;
@@ -138,20 +137,30 @@ void WComboBox::propagateChange()
   if (currentIndex_ != -1)
     myCurrentValue = currentText();
 
+#ifndef WT_TARGET_JAVA
+
   /*
    * use this connection to know if the widget was killed
    */
   boost::signals::connection alive
-    = sactivated.connect(SLOT(this, WComboBox::dummy));
+    = sactivated_.connect(SLOT(this, WComboBox::dummy));
 
-  activated.emit(currentIndex_);
+  activated_.emit(currentIndex_);
 
   if (alive.connected()) {
     alive.disconnect();
 
     if (myCurrentIndex != - 1)
-      sactivated.emit(myCurrentValue);
+      sactivated_.emit(myCurrentValue);
   }
+
+#else // WT_TARGET_JAVA
+
+  activated_.emit(currentIndex_);
+  if (myCurrentIndex != - 1)
+    sactivated_.emit(myCurrentValue);
+
+#endif // WT_TARGET_JAVA
 }
 
 void WComboBox::dummy()
@@ -197,9 +206,9 @@ void WComboBox::updateDom(DomElement& element, bool all)
   }
 
   if (!currentlyConnected_
-      && (activated.isConnected() || sactivated.isConnected())) {
+      && (activated_.isConnected() || sactivated_.isConnected())) {
     currentlyConnected_ = true;
-    changed.connect(SLOT(this, WComboBox::propagateChange));
+    changed().connect(SLOT(this, WComboBox::propagateChange));
   }
 
   WFormWidget::updateDom(element, all);
@@ -210,17 +219,21 @@ DomElementType WComboBox::domElementType() const
   return DomElement_SELECT;
 }
 
-void WComboBox::setFormData(CgiEntry *entry)
+void WComboBox::setFormData(const FormData& formData)
 {
-  if (!entry->value().empty()) {
-    try {
-      currentIndex_ = boost::lexical_cast<int>(entry->value());
-    } catch (boost::bad_lexical_cast&) {
-      wApp->log("error") << "WComboBox received illegal form value: '"
-			 << entry->value() << "'";
-    }
-  } else
-    currentIndex_ = -1;
+  if (!formData.values.empty()) {
+    const std::string& value = formData.values[0];
+
+    if (!value.empty()) {
+      try {
+	currentIndex_ = boost::lexical_cast<int>(value);
+      } catch (boost::bad_lexical_cast& e) {
+	wApp->log("error") << "WComboBox received illegal form value: '"
+			   << value << "'";
+      }
+    } else
+      currentIndex_ = -1;
+  }
 }
 
 void WComboBox::refresh()
@@ -233,10 +246,9 @@ void WComboBox::refresh()
 WValidator::State WComboBox::validate()
 {
   if (validator()) {
-    int pos;
-    WString text = currentText();
+    WT_USTRING text = currentText();
 
-    return validator()->validate(text, pos);
+    return validator()->validate(text);
   } else
     return WValidator::Valid;
 }
@@ -247,7 +259,7 @@ void WComboBox::itemsChanged()
   repaint(RepaintInnerHtml);
 }
 
-int WComboBox::findText(const WString& text, MatchFlags flags)
+int WComboBox::findText(const WString& text, WFlags<MatchFlag> flags)
 {
   WModelIndexList list = model_->match(model_->index(0, modelColumn_),
 				       DisplayRole, boost::any(text),
@@ -256,7 +268,7 @@ int WComboBox::findText(const WString& text, MatchFlags flags)
   if (list.empty())
     return -1;
   else
-    return list.front().row();
+    return list[0].row();
 }
 
 }

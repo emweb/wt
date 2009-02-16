@@ -83,7 +83,7 @@ namespace {
 
 namespace Wt {
 
-  namespace Private {
+  namespace Impl {
     class SentinelTreeNode : public WTreeNode
     {
     public:
@@ -113,13 +113,13 @@ namespace Wt {
 
 WTree::WTree(WContainerWidget *parent)
   : WCompositeWidget(parent),
-    itemSelectionChanged(this),
     treeRoot_(0),
-    selectionMode_(NoSelection)
+    selectionMode_(NoSelection),
+    itemSelectionChanged_(this)
 {
-  setImplementation(sentinelRoot_ = new Private::SentinelTreeNode(this));
+  setImplementation(sentinelRoot_ = new Impl::SentinelTreeNode(this));
 
-  onClickMapper_.mapped.connect(SLOT(this, WTree::onClick));
+  onClickMapper_.mapped().connect(SLOT(this, WTree::onClick));
 }
 
 void WTree::setTreeRoot(WTreeNode *node)
@@ -171,7 +171,7 @@ void WTree::select(WTreeNode *node, bool selected)
     }
   }
 
-  itemSelectionChanged.emit();
+  itemSelectionChanged_.emit();
 }
 
 void WTree::select(const WTreeNodeSet& nodes)
@@ -181,7 +181,7 @@ void WTree::select(const WTreeNodeSet& nodes)
   for (WTreeNodeSet::const_iterator i = nodes.begin(); i != nodes.end(); ++i)
     select(*i);
 
-  itemSelectionChanged.emit();
+  itemSelectionChanged_.emit();
 }
 
 void WTree::nodeRemoved(WTreeNode *node)
@@ -201,7 +201,7 @@ void WTree::nodeAdded(WTreeNode *node)
     if (!w)
       w = node->labelArea();
 
-    onClickMapper_.mapConnect1(w->clicked, node);
+    onClickMapper_.mapConnect1(w->clicked(), node);
     //w->clicked.setPreventDefault(true);
 
     for (unsigned i = 0; i < node->childNodes().size(); ++i)

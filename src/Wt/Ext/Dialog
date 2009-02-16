@@ -147,7 +147,7 @@ public:
    *
    * \sa done(DialogCode), accept(), reject()
    */
-  Signal<DialogCode> finished;
+  Signal<DialogCode>& finished() { return finished_; }
 
   /*! \brief Get the result that was set for this dialog.
    *
@@ -208,6 +208,7 @@ public:
   bool isSizeGripEnabled() const { return sizeGripEnabled_; }
 
 private:
+  Signal<DialogCode>    finished_;
   WContainerWidget     *contents_;
   bool                  sizeGripEnabled_;
 

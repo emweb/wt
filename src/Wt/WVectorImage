@@ -20,10 +20,9 @@ namespace Wt {
 class WT_API WVectorImage : public WPaintDevice
 {
 public:
-  virtual std::string rendered() = 0;
+  ~WVectorImage();
 
-protected:
-  WVectorImage(const WLength& width, const WLength& height);
+  virtual std::string rendered() = 0;
 };
 
 }

@@ -85,11 +85,11 @@ public slots:
 public:
   /*! \brief %Signal emitted when the button gets checked.
    */
-  EventSignal<void> checked;
+  EventSignal<void>& checked();
 
   /*! \brief %Signal emitted when the button gets unChecked.
    */
-  EventSignal<void> unChecked;
+  EventSignal<void>& unChecked();
 
 private:
   WAbstractToggleButton *wtWidget_;

@@ -19,7 +19,7 @@ DateField::DateField(WContainerWidget *parent)
     format_("dd/MM/yyyy")
 {
   //extjs: datefield doesn't stand a parent with display: none 
-  setHideWithOffsets();
+  setHideWithOffsets(true);
 }
 
 void DateField::setFormat(const WString& format)

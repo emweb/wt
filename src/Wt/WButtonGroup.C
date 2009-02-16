@@ -3,11 +3,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "CgiParser.h"
 #include "Utils.h"
 
 #include "Wt/WButtonGroup"
 #include "Wt/WRadioButton"
+
+#ifdef WT_TARGET_JAVA
+#include "Wt/Ext/RadioButton"
+#endif // WT_TARGET_JAVA
 
 namespace Wt {
 
@@ -66,13 +69,23 @@ WRadioButton* WButtonGroup::selectedButton()
   return 0;
 }
 
-void WButtonGroup::setFormData(CgiEntry *entry)
+void WButtonGroup::setFormData(const FormData& formData)
 {
-  for (unsigned i = 0; i < buttons_.size(); ++i) {
-    if (entry->value() == buttons_[i]->formName()) {
-      uncheckOthers(buttons_[i]);
-      buttons_[i]->checked_ = true;
+  if (!formData.values.empty()) {
+    const std::string& value = formData.values[0];
+
+    for (unsigned i = 0; i < buttons_.size(); ++i) {
+      if (value == buttons_[i]->formName()) {
+	uncheckOthers(buttons_[i]);
+	buttons_[i]->checked_ = true;
+      }
     }
+  } else {
+  /*
+   * none checked (form submit) or aways for ajax. In any case
+   * we don't do anything, since none checked can only be if
+   * there were actually none checked to start with ?
+   */
   }
 }
 
@@ -81,13 +94,16 @@ int WButtonGroup::count() const
   return buttons_.size();
 }
 
-void WButtonGroup::setNoFormData()
+#ifdef WT_TARGET_JAVA
+void WButtonGroup::addButton(Ext::RadioButton *button)
 {
-  /*
-   * none checked (form submit) or aways for ajax. In any case
-   * we don't do anything, since none checked can only be if
-   * there were actually none checked to start with ?
-   */
+  addButton(button->wtRadioButton());
 }
+
+void WButtonGroup::removeButton(Ext::RadioButton *button)
+{
+  removeButton(button->wtRadioButton());
+}
+#endif // WT_TARGET_JAVA
 
 }

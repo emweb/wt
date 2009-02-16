@@ -23,23 +23,23 @@ namespace server {
 
 void ConnectionManager::start(ConnectionPtr c)
 {
-#ifdef THREADED
+#ifdef WT_THREADED
   boost::mutex::scoped_lock lock(mutex_);
-#endif // THREADED
+#endif // WT_THREADED
 
   connections_.insert(c);
-#ifdef THREADED
+#ifdef WT_THREADED
   lock.unlock();
-#endif // THREADED
+#endif // WT_THREADED
 
   c->start();
 }
 
 void ConnectionManager::stop(ConnectionPtr c)
 {
-#ifdef THREADED
+#ifdef WT_THREADED
   boost::mutex::scoped_lock lock(mutex_);
-#endif // THREADED
+#endif // WT_THREADED
 
   std::set<ConnectionPtr>::iterator i = connections_.find(c);
   if(i != connections_.end()) {
@@ -57,9 +57,9 @@ void ConnectionManager::stop(ConnectionPtr c)
     return;
 #endif // WIN32
   }
-#ifdef THREADED
+#ifdef WT_THREADED
   lock.unlock();
-#endif // THREADED
+#endif // WT_THREADED
 
   c->stop();
 }

@@ -7,8 +7,10 @@
 #ifndef WLAYOUT_H_
 #define WLAYOUT_H_
 
-#include <vector>
 #include <string>
+#include <vector>
+
+#include <Wt/WGlobal>
 #include <Wt/WLayoutItem>
 
 namespace Wt {
@@ -140,11 +142,15 @@ public:
    */
   void setContentsMargins(int left, int top, int right, int bottom);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Returns the contents margins.
    *
    * \sa getContentsMargins()
    */
   void getContentsMargins(int *left, int *top, int *right, int *bottom) const;
+#else // WT_TARGET_JAVA
+  int getContentsMargin(Side side) const;
+#endif // WT_TARGET_JAVA
 
 protected:
   /*! \brief Create a layout.
@@ -177,7 +183,14 @@ protected:
   void setLayoutInParent(WWidget *parent);
 
 private:
-  typedef std::vector<std::pair<std::string, std::string> > HintsList;
+  struct Hint {
+    Hint(const std::string& aName, const std::string& aValue)
+      : name(aName), value(aValue) { }
+    std::string name;
+    std::string value;
+  };
+
+  typedef std::vector<Hint> HintsList;
 
   int    *WT_ARRAY margins_;
   WLayoutItemImpl *impl_;

@@ -74,6 +74,10 @@ public:
    */
   void update();
 
+  virtual void load();
+  virtual void render();
+  virtual void refresh();
+
 protected:
   /*! \brief Create a widget that renders the View.
    *
@@ -82,15 +86,10 @@ protected:
    */
   virtual WWidget *renderView() = 0;
 
-  virtual void load();
-
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
 
-  virtual void prepareRerender();
   virtual void doneRerender();
-
-  virtual void refresh();
 
 private:
   WWidget *contents_;

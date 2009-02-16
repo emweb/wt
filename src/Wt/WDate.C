@@ -825,18 +825,18 @@ namespace {
     throw WtException(s.str());
   }
 
-  void writeRegExpLast(std::string& result, int& d, int& M, int& y,
-		       const WString& format, int& currentGroup,
-		       std::string& dg, std::string& mg, std::string& yg) {
+  void writeRegExpLast(WDate::RegExpInfo& result, int& d, int& M, int& y,
+		       const WString& format, int& currentGroup) {
     if (d != 0) {
       switch (d) {
       case 1:
       case 2:
 	if (d == 1)
-	  result += "(\\d{1,2})";
+	  result.regexp += "(\\d{1,2})";
 	else
-	  result += "(\\d{2})";
-	dg = "parseInt(results["
+	  result.regexp += "(\\d{2})";
+
+	result.dayGetJS = "parseInt(results["
 	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10)";
 	break;
       default:
@@ -851,10 +851,11 @@ namespace {
       case 1:
       case 2:
 	if (M == 1)
-	  result += "(\\d{1,2})";
+	  result.regexp += "(\\d{1,2})";
 	else
-	  result += "(\\d{2})";
-	mg = "parseInt(results["
+	  result.regexp += "(\\d{2})";
+
+	result.monthGetJS = "parseInt(results["
 	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10)";
 	break;
       default:
@@ -867,14 +868,14 @@ namespace {
     if (y != 0) {
       switch (y) {
       case 2:
-	result += "(\\d{2})";
-	yg = "function() { var y=parseInt(results["
+	result.regexp += "(\\d{2})";
+	result.yearGetJS = "function() { var y=parseInt(results["
 	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10);"
 	  "return y>38?1900+y:2000+y;}()";
 	break;
       case 4:
-	result += "(\\d{4})";
-	yg = "parseInt(results["
+	result.regexp += "(\\d{4})";
+	result.yearGetJS = "parseInt(results["
 	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10)";
 	break;
       default:
@@ -886,14 +887,15 @@ namespace {
   }
 }
 
-std::string WDate::formatToRegExp(const WString& format,
-				  std::string& dayGetJS,
-				  std::string& monthGetJS,
-				  std::string& yearGetJS)
+WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
 {
-  std::string result;
+  RegExpInfo result;
   std::string f = format.toUTF8();
   int currentGroup = 1;
+
+  result.dayGetJS = "1";
+  result.monthGetJS = "1";
+  result.yearGetJS = "2000";
 
   bool inQuote = false;
   bool gotQuoteInQuote = false;
@@ -907,11 +909,11 @@ std::string WDate::formatToRegExp(const WString& format,
 	  gotQuoteInQuote = false;
 	  inQuote = false;
 	} else
-	  result += f[i];
+	  result.regexp += f[i];
       else
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
-	  result += f[i];
+	  result.regexp += f[i];
 	} else
 	  gotQuoteInQuote = true;
 
@@ -919,36 +921,33 @@ std::string WDate::formatToRegExp(const WString& format,
       switch (f[i]) {
       case 'd':
 	if (d == 0)
-	  writeRegExpLast(result, d, M, y, format,
-			  currentGroup, dayGetJS, monthGetJS, yearGetJS);
+	  writeRegExpLast(result, d, M, y, format, currentGroup);
 	++d;
 	break;
       case 'M':
 	if (M == 0)
-	  writeRegExpLast(result, d, M, y, format,
-			  currentGroup, dayGetJS, monthGetJS, yearGetJS);
+	  writeRegExpLast(result, d, M, y, format, currentGroup);
 	++M;
 	break;
       case 'y':
 	if (y == 0)
-	  writeRegExpLast(result, d, M, y, format,
-			  currentGroup, dayGetJS, monthGetJS, yearGetJS);
+	  writeRegExpLast(result, d, M, y, format, currentGroup);
 	++y;
 	break;
       default:
-	writeRegExpLast(result, d, M, y, format,
-			currentGroup, dayGetJS, monthGetJS, yearGetJS);
+	writeRegExpLast(result, d, M, y, format, currentGroup);
 	if (f[i] == '\'') {
 	  inQuote = true;
 	  gotQuoteInQuote = false;
-	} else
-	  result += f[i];
+	} else if (f[i] == '/')
+	  result.regexp += "\\/";
+	else
+	  result.regexp += f[i];
       }
     }
   }
 
-  writeRegExpLast(result, d, M, y, format,
-		  currentGroup, dayGetJS, monthGetJS, yearGetJS);
+  writeRegExpLast(result, d, M, y, format, currentGroup);
 
   return result;
 }

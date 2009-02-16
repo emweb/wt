@@ -5,6 +5,7 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <stdexcept>
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
@@ -55,31 +56,24 @@ void WebRenderer::setTwoPhaseThreshold(int bytes)
 
 //#define DEBUG_RENDER
 
-void WebRenderer::needUpdate(WWebWidget *w)
+void WebRenderer::needUpdate(WWidget *w)
 {
   if (session_.env().ajax()) {
-    UpdateMap& usedMap = updateMap_;
 #ifdef DEBUG_RENDER
     std::cerr << "needUpdate: " << w->formName() << " (" << typeid(*w).name()
 		  << ")" << std::endl;
 #endif //DEBUG_RENDER
-
-    usedMap.insert(w);
+    updateMap_.insert(w);
   }
 }
 
-void WebRenderer::doneUpdate(WWebWidget *w)
+void WebRenderer::doneUpdate(WWidget *w)
 {
 #ifdef DEBUG_RENDER
     std::cerr << "doneUpdate: " << w->formName() << " (" << typeid(*w).name()
 		  << ")" << std::endl;
 #endif //DEBUG_RENDER
-
-  UpdateMap& usedMap = updateMap_;
-
-  UpdateMap::iterator i = usedMap.find(w);
-  if (i != usedMap.end())
-    usedMap.erase(i);
+  updateMap_.erase(w);
 }
 
 const std::vector<WObject *>& WebRenderer::formObjects() const
@@ -97,21 +91,21 @@ void WebRenderer::discardChanges()
   collectJS(0);
 }
 
-void WebRenderer::letReloadJS(WebRequest& request, bool newSession,
+void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
 			      bool embedded)
 {
   if (!embedded)
-    setHeaders(request, "text/plain; charset=UTF-8");
+    setHeaders(response, "text/plain; charset=UTF-8");
 
-  request.out() << "window.location.reload(true);";
+  response.out() << "window.location.reload(true);";
 }
 
-void WebRenderer::letReloadHTML(WebRequest& request, bool newSession)
+void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)
 {
-  setHeaders(request, "text/html; charset=UTF-8");
-  request.out() << "<html><script type=\"text/javascript\">";
-  letReloadJS(request, newSession, true);
-  request.out() << "</script><body></body></html>";
+  setHeaders(response, "text/html; charset=UTF-8");
+  response.out() << "<html><script type=\"text/javascript\">";
+  letReloadJS(response, newSession, true);
+  response.out() << "</script><body></body></html>";
 }
 
 void WebRenderer::streamRedirectJS(std::ostream& out,
@@ -128,30 +122,31 @@ void WebRenderer::streamRedirectJS(std::ostream& out,
     " window.location.href='" << redirect << "';"; 
 }
 
-void WebRenderer::serveMainWidget(WebRequest& request,
+void WebRenderer::serveMainWidget(WebResponse& response,
 				  ResponseType responseType)
 {
   switch (responseType) {
   case UpdateResponse:
-    serveJavaScriptUpdate(request);
+    serveJavaScriptUpdate(response);
     break;
   case FullResponse:
     switch (session_.type()) {
     case WebSession::Application:
       if (session_.env().ajax())
-	serveMainscript(request);
+	serveMainscript(response);
       else
-	serveMainpage(request);
+	serveMainpage(response);
       break;
     case WebSession::WidgetSet:
-      serveWidgetSet(request);
+      serveWidgetSet(response);
     }
   }
 }
 
-void WebRenderer::serveBootstrap(WebRequest& request)
+void WebRenderer::serveBootstrap(WebResponse& response)
 {
   bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
+  Configuration& conf = session_.controller()->configuration();
 
   FileServe boot(skeletons::Boot_html);
   boot.setVar("XMLPREAMBLE", "");
@@ -160,7 +155,7 @@ void WebRenderer::serveBootstrap(WebRequest& request)
   std::stringstream noJsRedirectUrl;
   DomElement::htmlAttributeValue
     (noJsRedirectUrl,
-     session_.bootstrapUrl(request, WebSession::KeepInternalPath) + "&js=no");
+     session_.bootstrapUrl(response, WebSession::KeepInternalPath) + "&js=no");
 
   if (xhtml) {
     boot.setVar("HTMLATTRIBUTES",
@@ -168,7 +163,7 @@ void WebRenderer::serveBootstrap(WebRequest& request)
 		/*" xmlns:svg=\"http://www.w3.org/2000/svg\""*/);
     boot.setVar("METACLOSE", "/>");
     boot.setVar("AUTO_REDIRECT", "");
-    boot.setVar("NOSCRIPT_TEXT", WebController::conf().redirectMessage());
+    boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
   } else {
     if (session_.env().agentIE())
       boot.setVar("HTMLATTRIBUTES",
@@ -180,45 +175,45 @@ void WebRenderer::serveBootstrap(WebRequest& request)
     boot.setVar("AUTO_REDIRECT",
 		"<noscript><meta http-equiv=\"refresh\" content=\"0;url="
 		+ noJsRedirectUrl.str() + "\"></noscript>");
-    boot.setVar("NOSCRIPT_TEXT", WebController::conf().redirectMessage());
+    boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
   }
   boot.setVar("BLANK_HTML",
-	      session_.bootstrapUrl(request, WebSession::ClearInternalPath)
+	      session_.bootstrapUrl(response, WebSession::ClearInternalPath)
 	      + "&amp;resource=blank");
   boot.setVar("SELF_URL",
-	      session_.bootstrapUrl(request, WebSession::KeepInternalPath));
+	      session_.bootstrapUrl(response, WebSession::KeepInternalPath));
   boot.setVar("REDIRECT_URL", noJsRedirectUrl.str());
   boot.setVar("SESSION_ID", session_.sessionId());
   boot.setVar("RANDOMSEED",
-    boost::lexical_cast<std::string>(WtRandom::getUnsigned() + getpid()));
-  boot.setVar("RELOAD_IS_NEWSESSION",
-	      WebController::conf().reloadIsNewSession());
-  boot.setVar("USE_COOKIES", WebController::conf().sessionTracking()
-	      == Configuration::CookiesURL);
+	      boost::lexical_cast<std::string>(WtRandom::getUnsigned()
+					       + getpid()));
+  boot.setVar("RELOAD_IS_NEWSESSION", conf.reloadIsNewSession());
+  boot.setVar("USE_COOKIES",
+	      conf.sessionTracking() == Configuration::CookiesURL);
 
-  request.addHeader("Cache-Control", "no-cache, no-store");
-  request.addHeader("Expires", "-1");
+  response.addHeader("Cache-Control", "no-cache, no-store");
+  response.addHeader("Expires", "-1");
 
   std::string contentType = xhtml ? "application/xhtml+xml" : "text/html";
   contentType += "; charset=UTF-8";
-  request.setContentType(contentType);
+  response.setContentType(contentType);
 
-  boot.stream(request.out());
+  boot.stream(response.out());
 }
 
-void WebRenderer::serveError(WebRequest& request, const std::exception& e,
+void WebRenderer::serveError(WebResponse& response, const std::exception& e,
 			     ResponseType responseType)
 {
-  serveError(request, std::string(e.what()), responseType);
+  serveError(response, std::string(e.what()), responseType);
 }
 
-void WebRenderer::serveError(WebRequest& request, const std::string& message,
+void WebRenderer::serveError(WebResponse& response, const std::string& message,
 			     ResponseType responseType)
 {
   if (responseType == FullResponse
       && session_.type() == WebSession::Application) {
-    request.setContentType("text/html");
-    request.out()
+    response.setContentType("text/html");
+    response.out()
       << "<title>Error occurred.</title>"
       << "<h2>Error occurred.</h2>"
       << WWebWidget::escapeText(WString(message), true).toUTF8()
@@ -238,7 +233,7 @@ void WebRenderer::setCookie(const std::string name, const std::string value,
   cookiesToSet_.push_back(Cookie(name, value, path, domain, maxAge));
 }
 
-void WebRenderer::setHeaders(WebRequest& request, const std::string mimeType)
+void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 {
   std::string cookies;
 
@@ -257,15 +252,15 @@ void WebRenderer::setHeaders(WebRequest& request, const std::string mimeType)
   cookiesToSet_.clear();
 
   if (!cookies.empty())
-    request.addHeader("Set-Cookie", cookies);
+    response.addHeader("Set-Cookie", cookies);
 
-  request.setContentType(mimeType);
+  response.setContentType(mimeType);
 }
 
-void WebRenderer::serveJavaScriptUpdate(WebRequest& request)
+void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
-  setHeaders(request, "text/plain; charset=UTF-8");
-  streamJavaScriptUpdate(request.out(), request.id(), true);
+  setHeaders(response, "text/plain; charset=UTF-8");
+  streamJavaScriptUpdate(response.out(), response.id(), true);
 }
 
 void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
@@ -280,9 +275,6 @@ void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
     return;
   }
 
-  if (doTwoPhaze && !app->isQuited())
-    visibleOnly_ = true;
-
   out << collectedChanges_.str();
   collectedChanges_.str("");
 
@@ -292,35 +284,53 @@ void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
 
   out << app->newBeforeLoadJavaScript();
 
-  if (app->autoJavaScriptChanged_) {
-    out << app->javaScriptClass() << "._p_.autoJavaScript=function(){"
-	<< app->autoJavaScript_ << "};";
-    app->autoJavaScriptChanged_ = false;
-  }
-
   if (app->domRoot2_)
     app->domRoot2_->rootAsJavaScript(app, out, false);
 
   collectJavaScriptUpdate(out);
 
   if (visibleOnly_) {
-    visibleOnly_ = false;
+    bool needFetchInvisible = false;
 
-    collectJavaScriptUpdate(collectedChanges_);
+    if (!updateMap_.empty()) {
+      needFetchInvisible = true;
 
-#ifndef JAVA
-    int collectChangesLength = collectedChanges_.rdbuf()->in_avail();
-#else
-    int collectChangesLength = collectedChanges_.length();
-#endif
-    if (collectChangesLength < (int)twoPhaseThreshold_) {
-      out << collectedChanges_.str();
-      collectedChanges_.str("");
-    } else {
+      if (twoPhaseThreshold_ > 0) {
+	/*
+	 * See how large the invisible changes are, perhaps we can
+	 * send them along
+	 */
+	visibleOnly_ = false;
+
+	collectJavaScriptUpdate(collectedChanges_);
+
+#ifndef WT_TARGET_JAVA
+	int collectChangesLength = collectedChanges_.rdbuf()->in_avail();
+#else // WT_TARGET_JAVA
+	int collectChangesLength = collectedChanges_.length();
+#endif // WT_TARGET_JAVA
+	if (collectChangesLength < (int)twoPhaseThreshold_) {
+	  out << collectedChanges_.str();
+	  collectedChanges_.str("");
+	  needFetchInvisible = false;
+	}
+
+	visibleOnly_ = true;
+      }
+    }
+
+    if (needFetchInvisible)
       out << app->javaScriptClass()
 	  << "._p_.update(null, 'none', null, false);";
-    }
   }
+
+  if (app->autoJavaScriptChanged_) {
+    out << app->javaScriptClass() << "._p_.autoJavaScript=function(){"
+	<< app->autoJavaScript_ << "};";
+    app->autoJavaScriptChanged_ = false;
+  }
+
+  visibleOnly_ = true;
 
   app->domRoot_->doneRerender();
   if (app->domRoot2_)
@@ -334,25 +344,29 @@ void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
 
 void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
 {
+  Configuration& conf = session_.controller()->configuration();
+
   FileServe js(app->ajaxMethod() == WApplication::XMLHttpRequest
 	       ? skeletons::CommAjax_js
 	       : skeletons::CommScript_js);
 
   js.setVar("APP_CLASS", app->javaScriptClass());
   js.setVar("CLOSE_CONNECTION",
-	    WebController::conf().serverType() != Configuration::WtHttpdServer);
+	    conf.serverType() == Configuration::WtHttpdServer);
 
   js.stream(out);
 }
 
-void WebRenderer::serveMainscript(WebRequest& request)
+void WebRenderer::serveMainscript(WebResponse& response)
 { 
-  setHeaders(request, "text/javascript; charset=UTF-8");
+  Configuration& conf = session_.controller()->configuration();
+
+  setHeaders(response, "text/javascript; charset=UTF-8");
 
   std::string redirect = session_.getRedirect();
 
   if (!redirect.empty()) {
-    streamRedirectJS(request.out(), redirect);
+    streamRedirectJS(response.out(), redirect);
     return;
   }
 
@@ -365,8 +379,7 @@ void WebRenderer::serveMainscript(WebRequest& request)
   script.setVar("WT_CLASS", WT_CLASS);
   script.setVar("APP_CLASS", app->javaScriptClass());
   script.setVar("AUTO_JAVASCRIPT", app->autoJavaScript_);
-  script.setVar("STRICTLY_SERIALIZED_EVENTS",
-		WebController::conf().serializedEvents());
+  script.setVar("STRICTLY_SERIALIZED_EVENTS", conf.serializedEvents());
 
   /*
    * In fact only Opera (and Safari) cannot use innerHTML in XHTML
@@ -378,33 +391,31 @@ void WebRenderer::serveMainscript(WebRequest& request)
   script.setVar("INNER_HTML", innerHtml);
   script.setVar("FORM_OBJECTS", '[' + currentFormObjectsList_ + ']');
   script.setVar("RELATIVE_URL", '"'
-		+ session_.bootstrapUrl(request, WebSession::ClearInternalPath)
+		+ session_.bootstrapUrl(response, WebSession::ClearInternalPath)
 		+ '"');
   script.setVar("KEEP_ALIVE",
 		boost::lexical_cast<std::string>
-		(WebController::conf().sessionTimeout() / 2));
+		(conf.sessionTimeout() / 2));
   script.setVar("INITIAL_HASH", app->internalPath());
   script.setVar("INDICATOR_TIMEOUT", "500");
   script.setVar("ONLOAD", "loadWidgetTree();");
   script.setVar("WT_HISTORY_PREFIX", "Wt-history");
-  script.stream(request.out());
+  script.stream(response.out());
 
   app->autoJavaScriptChanged_ = false;
 
-  streamCommJs(app, request.out());
+  streamCommJs(app, response.out());
 
-  app->styleSheet().javaScriptUpdate(app, request.out(), true);
+  app->styleSheet().javaScriptUpdate(app, response.out(), true);
   app->styleSheetsAdded_ = app->styleSheets_.size();
-  loadStyleSheets(request.out(), app);
+  loadStyleSheets(response.out(), app);
 
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
-  loadScriptLibraries(request.out(), app, true);
+  loadScriptLibraries(response.out(), app, true);
  
-  request.out() << std::endl << app->beforeLoadJavaScript();
+  response.out() << std::endl << app->beforeLoadJavaScript();
 
   WWebWidget *mainWebWidget = app->domRoot_;
-
-  mainWebWidget->prepareRerender();
 
   visibleOnly_ = true;
 
@@ -418,64 +429,62 @@ void WebRenderer::serveMainscript(WebRequest& request)
   collectedChanges_.str("");
   preLearnStateless(app);
 
-  request.out() << "window.loadWidgetTree = function(){";
+  response.out() << "window.loadWidgetTree = function(){";
 
   std::string cvar;  
   {
-    EscapeOStream sout(request.out()); 
+    EscapeOStream sout(response.out()); 
     cvar = mainElement->asJavaScript(sout, DomElement::Create);
   }
-  request.out() << "document.body.appendChild(" << cvar << ");";
+  response.out() << "document.body.appendChild(" << cvar << ");";
   {
-    EscapeOStream sout(request.out()); 
+    EscapeOStream sout(response.out()); 
     mainElement->asJavaScript(sout, DomElement::Update);
   }
 
   delete mainElement;
 
-  visibleOnly_ = false;
+  updateLoadIndicator(response.out(), app, true);
 
-  updateLoadIndicator(request.out(), app, true);
-
-  request.out() << collectedChanges_.str()
-		<< app->afterLoadJavaScript() << "};";
+  response.out() << collectedChanges_.str() << app->afterLoadJavaScript()
+		 << "};";
   collectedChanges_.str("");
 
-  request.out() << "scriptLoaded = true; if (isLoaded) onLoad();";
+  response.out() << "scriptLoaded = true; if (isLoaded) onLoad();";
 
-  loadScriptLibraries(request.out(), app, false);
+  loadScriptLibraries(response.out(), app, false);
 }
 
 void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 				      bool all)
 {
-  if (app->showLoadingIndicator_.needUpdate() || all) {
+  if (app->showLoadingIndicator_->needUpdate() || all) {
     out << "showLoadingIndicator = function() {"
-	<< app->showLoadingIndicator_.javaScript() << "};";
-    app->showLoadingIndicator_.updateOk();
+	<< app->showLoadingIndicator_->javaScript() << "};";
+    app->showLoadingIndicator_->updateOk();
   }
 
-  if (app->hideLoadingIndicator_.needUpdate() || all) {
+  if (app->hideLoadingIndicator_->needUpdate() || all) {
     out << "hideLoadingIndicator = function() {"
-	<< app->hideLoadingIndicator_.javaScript() << "};";
-    app->hideLoadingIndicator_.updateOk();
+	<< app->hideLoadingIndicator_->javaScript() << "};";
+    app->hideLoadingIndicator_->updateOk();
   }
 }
 
-void WebRenderer::serveMainpage(WebRequest& request)
+void WebRenderer::serveMainpage(WebResponse& response)
 {
+  Configuration& conf = session_.controller()->configuration();
+
   WApplication *app = session_.app();
 
   std::string redirect = session_.getRedirect();
 
   if (!redirect.empty()) {
-    request.setRedirect(redirect);
+    response.setRedirect(redirect);
     return;
   }
 
   WWebWidget *mainWebWidget = app->domRoot_;
-
-  mainWebWidget->prepareRerender();
 
   visibleOnly_ = true;
 
@@ -503,6 +512,7 @@ void WebRenderer::serveMainpage(WebRequest& request)
 
   page.setVar("XMLPREAMBLE", "");
   page.setVar("DOCTYPE", session_.docType());
+  page.setVar("SESSIONID", session_.sessionId());
 
   if (app->environment().agentIsSpiderBot())
     page.setVar("WTD_SESSIONID_FIELD", "");
@@ -527,14 +537,14 @@ void WebRenderer::serveMainpage(WebRequest& request)
   }
 
   std::string url
-    = WebController::conf().sessionTracking() == Configuration::CookiesURL
-    && session_.env().supportsCookies()
+    = (conf.sessionTracking() == Configuration::CookiesURL
+       && session_.env().supportsCookies())
     ? session_.bookmarkUrl(app->newInternalPath_)
     : session_.mostRelativeUrl(app->newInternalPath_);
 
   url = app->fixRelativeUrl(url);
 
-  Wt::Utils::replace(url, '&', "&amp;");
+  url = Wt::Utils::replace(url, '&', "&amp;");
   page.setVar("RELATIVE_URL", url);
   page.setVar("STYLESHEET", app->styleSheet().cssText(true));
   page.setVar("STYLESHEETS", styleSheets);
@@ -546,16 +556,16 @@ void WebRenderer::serveMainpage(WebRequest& request)
 
   contentType += "; charset=UTF-8";
 
-  setHeaders(request, contentType);
+  setHeaders(response, contentType);
 
   // Form objects, need in either case (Ajax or not)
   currentFormObjectsList_ = createFormObjectsList(app);
 
-  page.streamUntil(request.out(), "HTML");
+  page.streamUntil(response.out(), "HTML");
 
   DomElement::TimeoutList timeouts;
   {
-    EscapeOStream out(request.out());
+    EscapeOStream out(response.out());
     mainElement->asHTML(out, timeouts);
     delete mainElement;
   }
@@ -563,25 +573,25 @@ void WebRenderer::serveMainpage(WebRequest& request)
   std::stringstream onload;
   DomElement::createTimeoutJs(onload, timeouts, app);
 
-  int refresh = WebController::conf().sessionTimeout() / 3;
+  int refresh = conf.sessionTimeout() / 3;
   for (unsigned i = 0; i < timeouts.size(); ++i)
     refresh = std::min(refresh, 1 + timeouts[i].msec/1000);
   if (app->isQuited())
     refresh = 100000; // ridiculously large
   page.setVar("REFRESH", boost::lexical_cast<std::string>(refresh));
 
-  page.stream(request.out());
+  page.stream(response.out());
 
-  app->internalPathChanged_ = false;
-
-  visibleOnly_ = false;
+  app->internalPathIsChanged_ = false;
 }
 
-void WebRenderer::serveWidgetSet(WebRequest& request)
+void WebRenderer::serveWidgetSet(WebResponse& response)
 { 
-  setHeaders(request, "text/javascript; charset=UTF-8");
+  Configuration& conf = session_.controller()->configuration();
 
   WApplication *app = session_.app();
+
+  setHeaders(response, "text/javascript; charset=UTF-8");
 
   const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
   const bool innerHtml = !xhtml || app->environment().agentGecko();
@@ -592,37 +602,33 @@ void WebRenderer::serveWidgetSet(WebRequest& request)
   script.setVar("WT_CLASS", WT_CLASS);
   script.setVar("APP_CLASS", app->javaScriptClass());
   script.setVar("AUTO_JAVASCRIPT", app->autoJavaScript_);
-  script.setVar("STRICTLY_SERIALIZED_EVENTS",
-		WebController::conf().serializedEvents());
+  script.setVar("STRICTLY_SERIALIZED_EVENTS", conf.serializedEvents());
   script.setVar("INNER_HTML", innerHtml);
   script.setVar("FORM_OBJECTS", '[' + currentFormObjectsList_ + ']');
   script.setVar("RELATIVE_URL", '"'
-		+ session_.bootstrapUrl(request, WebSession::KeepInternalPath)
+		+ session_.bootstrapUrl(response, WebSession::KeepInternalPath)
 		+ '"');
   script.setVar("KEEP_ALIVE",
-		boost::lexical_cast<std::string>
-		(WebController::conf().sessionTimeout() / 2));
+		boost::lexical_cast<std::string>(conf.sessionTimeout() / 2));
   script.setVar("INITIAL_HASH", app->internalPath());
   script.setVar("INDICATOR_TIMEOUT", "500");
   script.setVar("ONLOAD", "");
-  script.stream(request.out());
+  script.stream(response.out());
 
   app->autoJavaScriptChanged_ = false;
 
-  streamCommJs(app, request.out());
+  streamCommJs(app, response.out());
 
-  app->styleSheet().javaScriptUpdate(app, request.out(), true);
+  app->styleSheet().javaScriptUpdate(app, response.out(), true);
   app->styleSheetsAdded_ = app->styleSheets_.size();
-  loadStyleSheets(request.out(), app);
+  loadStyleSheets(response.out(), app);
 
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
-  loadScriptLibraries(request.out(), app, true);
+  loadScriptLibraries(response.out(), app, true);
  
-  request.out() << std::endl << app->beforeLoadJavaScript();
+  response.out() << std::endl << app->beforeLoadJavaScript();
 
   WWebWidget *mainWebWidget = app->domRoot_;
-
-  mainWebWidget->prepareRerender();
 
   visibleOnly_ = true;
 
@@ -633,48 +639,44 @@ void WebRenderer::serveWidgetSet(WebRequest& request)
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
   std::string cvar;
   {
-    EscapeOStream sout(request.out()); 
+    EscapeOStream sout(response.out()); 
     mainElement->asJavaScript(sout, DomElement::Create);
     cvar = mainElement->asJavaScript(sout, DomElement::Update);
   }
   delete mainElement;
 
-  request.out() << "document.body.insertBefore("
+  response.out() << "document.body.insertBefore("
 		<< cvar << ",document.body.firstChild);" << std::endl;
 
-  app->domRoot2_->rootAsJavaScript(app, request.out(), true);
+  app->domRoot2_->rootAsJavaScript(app, response.out(), true);
 
   collectedChanges_.str("");
   preLearnStateless(app);
 
-  visibleOnly_ = false;
+  updateLoadIndicator(response.out(), app, true);
 
-  updateLoadIndicator(request.out(), app, true);
-
-  request.out() << collectedChanges_.str();
+  response.out() << collectedChanges_.str();
   collectedChanges_.str("");
 
-  std::string history_prefix;
-  try {
-    history_prefix = app->environment().getArgument("Wt-history")[0];
-    request.out() << WT_CLASS << ".history.initialize('"
-		  << history_prefix << "-field', '"
-		  << history_prefix << "-iframe');";
-  } catch (...) {
+  const std::string *historyE = app->environment().getParameter("Wt-history");
+  if (historyE) {
+    response.out() << WT_CLASS << ".history.initialize('"
+		   << (*historyE)[0] << "-field', '"
+		   << (*historyE)[0] << "-iframe');";
   }
 
-  request.out() << app->afterLoadJavaScript()
+  response.out() << app->afterLoadJavaScript()
 		<< app->javaScriptClass() << "._p_.load();";
 
   if (!app->title().empty()) {
-    request.out() << app->javaScriptClass()
+    response.out() << app->javaScriptClass()
 		  << "._p_.setTitle(";
-    DomElement::jsStringLiteral(request.out(), app->title().toUTF8(), '\'');
-    request.out() << ");";
+    DomElement::jsStringLiteral(response.out(), app->title().toUTF8(), '\'');
+    response.out() << ");";
   }
   app->titleChanged_ = false;
 
-  loadScriptLibraries(request.out(), app, false);
+  loadScriptLibraries(response.out(), app, false);
 }
 
 void WebRenderer::loadScriptLibraries(std::ostream& out,
@@ -717,14 +719,16 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 {
   WApplication *app = session_.app();
 
-  std::multimap<int, WWebWidget *> depthOrder;
+  std::multimap<int, WWidget *> depthOrder;
 
   for (UpdateMap::const_iterator i = updateMap_.begin();
        i != updateMap_.end(); ++i) {
     int depth = 1;
 
-    WWidget *w = *i;
-    for (; w->parent(); w = w->parent(), ++depth) ;
+    WWidget *ww = *i;
+    WWidget *w = ww;
+    for (; w->parent(); ++depth) 
+      w = w->parent();
 
     if (w != app->domRoot_ && w != app->domRoot2_) {
 #ifdef DEBUG_RENDER
@@ -734,22 +738,26 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
                 << " (" << typeid(*w).name()
                 << ")" << std::endl;
 #endif // DEBUG_RENDER
-      // not in displayed widgets
+      // not in displayed widgets: will be removed from the update list
       depth = 0;
     }
 
-    depthOrder.insert(std::make_pair(depth, *i));
+#ifndef WT_TARGET_JAVA
+    depthOrder.insert(std::make_pair(depth, ww));
+#else
+    depthOrder.insert(depth, ww);
+#endif // WT_TARGET_JAVA
   }
 
-  for (std::multimap<int, WWebWidget *>::const_iterator i = depthOrder.begin();
+  for (std::multimap<int, WWidget *>::const_iterator i = depthOrder.begin();
        i != depthOrder.end(); ++i) {
     UpdateMap::iterator j = updateMap_.find(i->second);
     if (j != updateMap_.end()) {
-      WWebWidget *w = *j;
+      WWidget *w = i->second;
 
       // depth == 0: remove it from the update list
       if (i->first == 0) {
-	w->propagateRenderOk();
+	w->webWidget()->propagateRenderOk();
 	continue;
       }
 
@@ -757,8 +765,8 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
       //          << " updating: " << w->formName() << std::endl;
 
 #ifdef DEBUG_RENDER
-        std::cerr << "updating: " << w->formName()
-		  << " (" << typeid(*w).name() << ")" << std::endl;
+      std::cerr << "updating: " << w->formName()
+		<< " (" << typeid(*w).name() << ")" << std::endl;
 #endif
 
       if (!learning_ && visibleOnly_) {
@@ -778,8 +786,9 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 #else
 	  ;
 #endif // DEBUG_RENDER
-      } else
+      } else {
 	w->getSDomChanges(changes, app);
+      }
     }
   }
 }
@@ -900,7 +909,7 @@ void WebRenderer::collectJS(std::ostream* js)
       *js << ");";
     }
 
-    if (app->internalPathChanged_)
+    if (app->internalPathIsChanged_)
       *js << app->javaScriptClass()
 	  << "._p_.setHash('" << app->newInternalPath_ << "');";
 
@@ -908,7 +917,7 @@ void WebRenderer::collectJS(std::ostream* js)
   } else
     app->afterLoadJavaScript();
 
-  app->internalPathChanged_ = false;
+  app->internalPathIsChanged_ = false;
   app->titleChanged_ = false;
 }
 

@@ -16,23 +16,32 @@ namespace Wt {
 
 LineEdit::LineEdit(WContainerWidget *parent)
   : FormField(parent),
-    lineEdit_(new WLineEdit()),
-    keyWentDown(lineEdit_->keyWentDown),
-    keyPressed(lineEdit_->keyPressed),
-    keyWentUp(lineEdit_->keyWentUp)
+    lineEdit_(new WLineEdit())
 {
   addOrphan(lineEdit_);
 }
 
 LineEdit::LineEdit(const WString& content, WContainerWidget *parent)
   : FormField(parent),
-    lineEdit_(new WLineEdit()),
-    keyWentDown(lineEdit_->keyWentDown),
-    keyPressed(lineEdit_->keyPressed),
-    keyWentUp(lineEdit_->keyWentUp)
+    lineEdit_(new WLineEdit())
 {
   addOrphan(lineEdit_);
   setText(content);
+}
+
+EventSignal<WKeyEvent>& LineEdit::keyWentDown()
+{
+  return lineEdit_->keyWentDown();
+}
+
+EventSignal<WKeyEvent>& LineEdit::keyPressed()
+{
+  return lineEdit_->keyPressed();
+}
+
+EventSignal<WKeyEvent>& LineEdit::keyWentUp()
+{
+  return lineEdit_->keyWentUp();
 }
 
 WFormWidget *LineEdit::formWidget() const
@@ -93,10 +102,8 @@ void LineEdit::setGrowToContent(bool grow, int minWidth, int maxWidth)
 WValidator::State LineEdit::validate()
 {
   if (validator()) {
-    int pos;
-
-    WString text = lineEdit_->text();
-    return validator()->validate(text, pos);
+    WT_USTRING text = lineEdit_->text();
+    return validator()->validate(text);
   } else
     return WValidator::Valid;
 }

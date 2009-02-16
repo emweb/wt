@@ -15,6 +15,7 @@
 
 #include <Wt/WResource>
 #include <Wt/WImage>
+#include <Wt/Http/Response>
 
 #include "MandelbrotImage.h"
 
@@ -26,20 +27,13 @@ namespace {
 		       int64_t x, int64_t y, int w, int h)
       : img_(img),
 	x_(x), y_(y), w_(w), h_(h)
-    {
-      /*
-       * This resource is not entirely reentrant, since WVirtualImage
-       * may delete it at any time.
-       */
-      //setReentrant(true);
-    }
+    { }
 
     const std::string resourceMimeType() const { return "image/png"; }
 
-    bool streamResourceData(std::ostream& stream,
-			    const ArgumentMap& arguments) {
-      img_->generate(x_, y_, w_, h_, stream);
-      return true;
+    void handleRequest(const Http::Request& request,
+		       Http::Response& response) {
+      img_->generate(x_, y_, w_, h_, response.out());
     }
 
   private:

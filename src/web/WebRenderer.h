@@ -17,6 +17,7 @@
 namespace Wt {
 
 class WebRequest;
+class WebResponse;
 class WebStream;
 class DomElement;
 
@@ -25,7 +26,7 @@ class WWidget;
 class WObject;
 class WResource;
 class WStatelessSlot;
-class WWebWidget;
+class WWidget;
 
 class WT_API WebRenderer : public Wt::SlotLearnerInterface
 {
@@ -37,34 +38,31 @@ public:
   bool visibleOnly() const { return visibleOnly_; }
   void setVisibleOnly(bool how) { visibleOnly_ = how; }
 
-  void needUpdate(WWebWidget *w);
-  void doneUpdate(WWebWidget *w);
+  void needUpdate(WWidget *w);
+  void doneUpdate(WWidget *w);
   void updateFormObjects(WWebWidget *w, bool checkDescendants);
 
   enum ResponseType { UpdateResponse, FullResponse };
 
   const std::vector<WObject *>& formObjects() const;
 
-  void prepare();
   void saveChanges();
   void discardChanges();
-  void letReloadJS(WebRequest& request, bool newSession, bool embedded = false);
-  void letReloadHTML(WebRequest& request, bool newSession);
+  void letReloadJS(WebResponse& request, bool newSession, bool embedded = false);
+  void letReloadHTML(WebResponse& request, bool newSession);
 
   void streamJavaScriptUpdate(std::ostream& out, int id, bool doTwoPhaze);
 
-  void serveMainWidget(WebRequest& request, ResponseType responseType);
-  void serveBootstrap(WebRequest& request);
-  void serveError(WebRequest& request, const std::exception& error,
+  void serveMainWidget(WebResponse& request, ResponseType responseType);
+  void serveBootstrap(WebResponse& request);
+  void serveError(WebResponse& request, const std::exception& error,
 		  ResponseType responseType);
-  void serveError(WebRequest& request, const std::string& message,
+  void serveError(WebResponse& request, const std::string& message,
 		  ResponseType responseType);
 
   void setCookie(const std::string name, const std::string value,
 		 int maxAge, const std::string domain,
 		 const std::string path);
-
-  static std::string appSessionCookie(std::string url);
 
   bool preLearning() const { return learning_; }
 
@@ -93,12 +91,12 @@ private:
   std::string		 currentFormObjectsList_;
   bool                   formObjectsChanged_;
 
-  void setHeaders(WebRequest& request, const std::string mimeType);
+  void setHeaders(WebResponse& request, const std::string mimeType);
 
-  void serveJavaScriptUpdate(WebRequest& request);
-  void serveMainpage(WebRequest& request);
-  void serveMainscript(WebRequest& request);
-  void serveWidgetSet(WebRequest& request);
+  void serveJavaScriptUpdate(WebResponse& request);
+  void serveMainpage(WebResponse& request);
+  void serveMainscript(WebResponse& request);
+  void serveWidgetSet(WebResponse& request);
   void streamCommJs(WApplication *app, std::ostream& out);
 
   void collectChanges(std::vector<DomElement *>& changes);
@@ -110,14 +108,16 @@ private:
 
   std::string createFormObjectsList(WApplication *app);
 
-  std::string       learn(WStatelessSlot* slot);
   void              preLearnStateless(WApplication *app);
   std::stringstream collectedChanges_;
   void              collectJS(std::ostream *js);
 
-  typedef std::set<WWebWidget *> UpdateMap;
+  typedef std::set<WWidget *> UpdateMap;
   UpdateMap updateMap_;
   bool      learning_;
+
+public:
+  std::string       learn(WStatelessSlot* slot);
 };
 
 }

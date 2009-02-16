@@ -140,8 +140,8 @@ public:
 
   /*! \brief Returns the index of the first item that matches a text.
    */
-  int findText(const WString& text, MatchFlags flags
-	       = MatchFlags(MatchExactly | MatchCaseSensitive));
+  int findText(const WString& text,
+	       WFlags<MatchFlag> flags = MatchExactly | MatchCaseSensitive);
 
   WValidator::State validate();
 
@@ -162,7 +162,7 @@ public:
    *
    * \sa sactivated, currentIndex()
    */
-  Signal<int> activated;
+  Signal<int>& activated() { return activated_; }
 
   /*! \brief %Signal emitted when the selection changed.
    *
@@ -170,7 +170,7 @@ public:
    *
    * \sa activated, currentText()
    */
-  Signal<WString> sactivated;
+  Signal<WString>& sactivated() { return sactivated_; }
 
 private slots:
   void propagateChange();
@@ -187,13 +187,16 @@ private:
 
   std::vector<boost::signals::connection> modelConnections_;
 
+  Signal<int>     activated_;
+  Signal<WString> sactivated_;
+
   void itemsChanged();
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
 
-  virtual void setFormData(CgiEntry *entry);
+  virtual void setFormData(const FormData& formData);
 
   virtual bool isSelected(int index) const;
   virtual void dummy();

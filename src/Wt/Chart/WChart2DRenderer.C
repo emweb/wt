@@ -19,7 +19,7 @@ namespace {
   const int TICK_LENGTH = 5;
   const double CATEGORY_WIDTH = 0.8;
 
-  inline int myisnan(double d)
+  inline bool myisnan(double d)
   {
     return !(d == d);
   }
@@ -447,7 +447,7 @@ public:
 
       WColor c(black);
 
-      int alignment;
+      WFlags<AlignmentFlag> alignment;
       if (series.type() == BarSeries) {
 	if (y < 0)
 	  alignment = AlignCenter | AlignBottom;
@@ -576,8 +576,9 @@ void WChart2DRenderer::render()
 
 void WChart2DRenderer::prepareAxes()
 {
-  for (int i = 0; i < 3; ++i)
-    chart_->axis(static_cast<Axis>(i)).prepareRender(*this);
+  chart_->axis(XAxis).prepareRender(*this);
+  chart_->axis(Y1Axis).prepareRender(*this);
+  chart_->axis(Y2Axis).prepareRender(*this);
 
   if (chart_->axis(XAxis).scale() == CategoryScale) {
     switch (chart_->axis(XAxis).location()) {
@@ -680,13 +681,13 @@ void WChart2DRenderer::renderBackground()
 }
 
 void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
-				  int properties)
+				  WFlags<AxisProperty> properties)
 {
   bool vertical = axis.id() != XAxis;
 
   double u = 0;
   enum { Left = 0x1, Right = 0x2, Both = 0x3 } tickPos = Left;
-  int labelHFlags = 0;
+  WFlags<AlignmentFlag> labelHFlags = 0;
 
   switch (l) {
   case MinimumValue:
@@ -837,7 +838,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
 
       if ((properties & Labels) && !ticks[i].label.empty()
 	  && axis.isVisible()) {
-	int labelFlags = labelHFlags;
+	WFlags<AlignmentFlag> labelFlags = labelHFlags;
 
 	if (vertical)
 	  if (axis.labelAngle() == 0)
@@ -901,11 +902,11 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
   }
 }
 
-void WChart2DRenderer::renderAxes(int properties)
+void WChart2DRenderer::renderAxes(WFlags<AxisProperty> properties)
 {
-  for (unsigned i = 0; i < 3; ++i)
-    renderAxis(chart_->axis(static_cast<Axis>(i)),
-	       location_[i], properties);
+  renderAxis(chart_->axis(XAxis), location_[0], properties);
+  renderAxis(chart_->axis(Y1Axis), location_[1], properties);
+  renderAxis(chart_->axis(Y2Axis), location_[2], properties);
 }
 
 void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
@@ -918,7 +919,13 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
   double groupWidth;
   int numBarGroups;
   int currentBarGroup;
+
+#ifndef WT_TARGET_JAVA
   std::vector<double> stackedValuesInit(rows);
+#else
+  std::vector<double> stackedValuesInit;
+  stackedValuesInit.insert(stackedValuesInit.begin(), rows, 0.0);
+#endif // WT_TARGET_JAVA
 
   const bool scatterPlot = chart_->type() == ScatterPlot;
 
@@ -944,7 +951,7 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
       startSeries = endSeries = g;
     } else {
       for (unsigned i = 0; i < rows; ++i)
-	stackedValuesInit[i] = 0;
+	stackedValuesInit[i] = 0.0;
 
       if (reverseStacked) {
 	endSeries = g;
@@ -1171,11 +1178,12 @@ void WChart2DRenderer::renderLegend()
 }
 
 void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
-				   const WColor& color, int flags,
+				   const WColor& color,
+				   WFlags<AlignmentFlag> flags,
 				   double angle, int margin)
 {
-  int horizontalAlign = flags & 0xF;
-  int verticalAlign = flags & 0xF0;
+  AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
+  AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
   double width = 100;
   double height = 20;
@@ -1186,22 +1194,26 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
   double top = pos.y();
 
   if (chart_->orientation() == Horizontal) {
-    switch (flags & 0xF) {
+    switch (horizontalAlign) {
     case AlignLeft:
       verticalAlign = AlignTop; break;
     case AlignCenter:
       verticalAlign = AlignMiddle; break;
     case AlignRight:
       verticalAlign = AlignBottom; break;
+    default:
+      break;
     }
 
-    switch (flags & 0xF0) {
+    switch (verticalAlign) {
     case AlignTop:
       horizontalAlign = AlignRight; break;
     case AlignMiddle:
       horizontalAlign = AlignCenter; break;
     case AlignBottom:
       horizontalAlign = AlignLeft; break;
+    default:
+      break;
     }
   }
 
@@ -1211,8 +1223,10 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
   case AlignCenter:
     left = pos.x() - width/2; break;
   case AlignRight:
-    left = pos.x() - width - margin;
-  }
+    left = pos.x() - width - margin; 
+  default:
+    break;
+ }
 
   switch (verticalAlign) {
   case AlignTop:
@@ -1221,6 +1235,8 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
     top = pos.y() - height/2; break;
   case AlignBottom:
     top = pos.y() - height - margin; break;
+  default:
+    break;
   }
 
   WPen pen(color);

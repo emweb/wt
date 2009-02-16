@@ -12,8 +12,8 @@ namespace Wt {
 
 TabWidget::TabWidget(WContainerWidget *parent)
   : Panel(parent),
-    currentChanged(this),
-    currentChanged_(this, "tabchange", true),
+    currentChanged_(this),
+    jCurrentChanged_(this, "tabchange", true),
     currentIndex_(-1)
 {
   setLayout(new WDefaultLayout());
@@ -193,7 +193,7 @@ void TabWidget::refresh()
 void TabWidget::onTabChange(int i)
 {
   currentIndex_ = i;
-  currentChanged.emit(currentIndex_);
+  currentChanged_.emit(currentIndex_);
 }
 
 std::string TabWidget::extClassName() const
@@ -209,7 +209,7 @@ void TabWidget::updateExt()
 std::string TabWidget::createJS(DomElement *inContainer)
 {
   if (!isRendered())
-    currentChanged_.connect(SLOT(this, TabWidget::onTabChange));
+    jCurrentChanged_.connect(SLOT(this, TabWidget::onTabChange));
 
   for (unsigned i = 0; i < panels_.size(); ++i)
     panels_[i]->setTitleBar(false);
@@ -231,7 +231,7 @@ void TabWidget::createConfig(std::ostream& config)
 {
   Panel::createConfig(config);
 
-  addWtSignalConfig("tabchangeH", &currentChanged_, currentChanged_.name(),
+  addWtSignalConfig("tabchangeH", &jCurrentChanged_, jCurrentChanged_.name(),
 		    "t,p", "t.items.indexOf(p)", config);
 }
 

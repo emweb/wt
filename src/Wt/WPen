@@ -12,45 +12,6 @@
 
 namespace Wt {
 
-/*! \brief Enumeration that indicates a pen style.
- *
- * \ingroup painting
- *
- * \relates WPen
- */
-enum PenStyle {
-  NoPen = 0x0,          //!< Do not stroke
-  SolidLine = 0x1,      //!< Stroke with a solid line
-  DashLine = 0x2,       //!< Stroked with a dashed line
-  DotLine = 0x3,        //!< Stroke with a dotted line
-  DashDotLine = 0x4,    //!< Stroke with a dash dot line
-  DashDotDotLine = 0x5  //!< Stroke with a dash dot dot line
-};
-
-/*! \brief Enumeration that indicates how line end points are rendered
- *
- * \ingroup painting
- *
- * \relates WPen
- */
-enum PenCapStyle {
-  FlatCap = 0x00,       //!< Flat ends
-  SquareCap = 0x10,     //!< Square ends (prolongs line with half width)
-  RoundCap = 0x20       //!< Round ends (terminates with a half circle)
-};
-
-/*! \brief Enumeration that indicates how line joins are rendered.
- *
- * \ingroup painting
- *
- * \relates WPen
- */
-enum PenJoinStyle {
-  MiterJoin = 0x00,     //!< Pointy joins
-  BevelJoin = 0x40,     //!< Squared-off joins
-  RoundJoin = 0x80      //!< Rounded joins
-};
-
 /*! \class WPen Wt/WPen Wt/WPen
  *  \brief Class that defines the style for pen strokes
  *
@@ -127,8 +88,7 @@ public:
    *
    * \sa setStyle(PenStyle)
    */
-  PenStyle style() const
-    { return static_cast<PenStyle>(style_ & StyleMask_); }
+  PenStyle style() const { return penStyle_; }
 
   /*! \brief Change the style for rendering line ends.
    *
@@ -140,8 +100,7 @@ public:
    *
    * \sa setCapStyle(PenCapStyle)
    */
-  PenCapStyle capStyle() const
-    { return static_cast<PenCapStyle>(style_ & CapStyleMask_); }
+  PenCapStyle capStyle() const { return penCapStyle_; }
 
   /*! \brief Change the style for rendering line joins.
    *
@@ -153,8 +112,7 @@ public:
    *
    * \sa setJoinStyle(PenJoinStyle)
    */
-  PenJoinStyle joinStyle() const
-    { return static_cast<PenJoinStyle>(style_ & JoinStyleMask_); }
+  PenJoinStyle joinStyle() const { return penJoinStyle_; }
 
   /*! \brief Change the pen width.
    *
@@ -183,11 +141,9 @@ public:
   const WColor& color() const { return color_; }
 
 private:
-  static const unsigned StyleMask_ = 0x0F;
-  static const unsigned CapStyleMask_ = 0x30;
-  static const unsigned JoinStyleMask_ = 0xC0;
-
-  unsigned style_; // (OR of PenStyle, CapStyle and JoinStyle)
+  PenStyle penStyle_;
+  PenCapStyle penCapStyle_;
+  PenJoinStyle penJoinStyle_;
   WLength  width_;
   WColor   color_;
 };

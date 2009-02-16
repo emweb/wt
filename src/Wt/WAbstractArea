@@ -25,7 +25,7 @@ namespace Wt {
  *
  * \sa WImage::addArea(), WPaintedWidget::addArea()
  */
-class WT_API WAbstractArea
+class WT_API WAbstractArea : public WObject
 {
 public:
   /*! \brief Destructor.
@@ -166,9 +166,11 @@ public:
    */
   WString toolTip() const;
 
-  void setStyleClass(const WString& styleClass);
+  void setStyleClass(const WT_USTRING& styleClass);
+#ifndef WT_TARGET_JAVA
   void setStyleClass(const char *styleClass);
-  WString styleClass() const;
+#endif // WT_TARGET_JAVA
+  WT_USTRING styleClass() const;
 
   /*! \brief Set the cursor.
    *
@@ -203,7 +205,7 @@ public:
    *
    * \sa WAbstractArea::keyPressed, WAbstractArea::keyWentUp
    */
-  EventSignal<WKeyEvent>& keyWentDown;
+  EventSignal<WKeyEvent>& keyWentDown();
 
   /*! \brief Event signal emitted when a "character" was entered.
    *
@@ -215,7 +217,7 @@ public:
    *
    * \sa WAbstractArea::keyWentDown
    */
-  EventSignal<WKeyEvent>& keyPressed;
+  EventSignal<WKeyEvent>& keyPressed();
     
   /*! \brief Event signal emitted when a keyboard key is released.
    *
@@ -225,7 +227,7 @@ public:
    *
    * \sa WAbstractArea::keyWentDown
    */
-  EventSignal<WKeyEvent>& keyWentUp;
+  EventSignal<WKeyEvent>& keyWentUp();
 
   /*! \brief Event signal emitted when enter was pressed.
    *
@@ -233,7 +235,7 @@ public:
    *
    * \sa keyPressed, Key_Enter
    */
-  EventSignal<void>& enterPressed;
+  EventSignal<void>& enterPressed();
 
   /*! \brief Event signal emitted when escape was pressed.
    *
@@ -241,7 +243,7 @@ public:
    *
    * \sa keyPressed, Key_Escape
    */
-  EventSignal<void>& escapePressed;
+  EventSignal<void>& escapePressed();
 
   /*! \brief Event signal emitted when a mouse key was clicked on this
    *         widget.
@@ -257,7 +259,7 @@ public:
    * @note When JavaScript is disabled, the event details contain
    * invalid information.
    */
-  EventSignal<WMouseEvent>& clicked;
+  EventSignal<WMouseEvent>& clicked();
 
   /*! \brief Event signal emitted when a mouse key was double clicked
    *         on this widget.
@@ -272,7 +274,7 @@ public:
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent>& doubleClicked;
+  EventSignal<WMouseEvent>& doubleClicked();
 
   /*! \brief Event signal emitted when a mouse key was pushed down on this
    *         widget.
@@ -287,7 +289,7 @@ public:
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent>& mouseWentDown;
+  EventSignal<WMouseEvent>& mouseWentDown();
 
   /*! \brief Event signal emitted when a mouse key was released on this
    *         widget.
@@ -302,25 +304,25 @@ public:
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent>& mouseWentUp;
+  EventSignal<WMouseEvent>& mouseWentUp();
 
   /*! \brief Event signal emitted when the mouse went out of this widget.
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent>& mouseWentOut;
+  EventSignal<WMouseEvent>& mouseWentOut();
     
   /*! \brief Event signal emitted when the mouse entered this widget.
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent>& mouseWentOver;
+  EventSignal<WMouseEvent>& mouseWentOver();
 
   /*! \brief Event signal emitted when the mouse moved over this widget.
    *
    * @note When JavaScript is disabled, the signal will never fire.
    */
-  EventSignal<WMouseEvent>& mouseMoved;
+  EventSignal<WMouseEvent>& mouseMoved();
 
 private:
   struct AnchorImpl {
@@ -328,10 +330,12 @@ private:
     WResource    *resource_;
     AnchorTarget  target_;
     WString       altText_;
+
+    AnchorImpl() : resource_(0) { }
   };
 
-  bool              hole_;
-  AnchorImpl       *anchor_;
+  bool        hole_;
+  AnchorImpl *anchor_;
 
   void createAnchorImpl();
   void resourceChanged();

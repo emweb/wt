@@ -1,0 +1,72 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WCHARTGLOBAL_H_
+#define WCHARTGLOBAL_H_
+
+namespace Wt {
+  namespace Chart {
+/*! \brief Enumeration that specifies the type of a chart series.
+ *
+ * \sa WDataSeries::setType(SeriesType)
+ * \sa WCartesianChart
+ *
+ * \ingroup charts
+ */
+enum SeriesType {
+  PointSeries,  //!< Series rendered solely as point markers.
+  LineSeries,   //!< Series rendered as points connected by straight lines.
+  CurveSeries,  //!< Series rendered as points connected by curves.
+  BarSeries     //!< Series rendered as bars.
+};
+
+/*! \brief Enumeration that specifies a type of point marker.
+ *
+ * \sa WDataSeries::setMarker(MarkerType marker)
+ * \sa WCartesianChart
+ *
+ * \ingroup charts
+ */
+enum MarkerType {
+  NoMarker,       //!< Do not draw point markers.
+  SquareMarker,   //!< Mark points using a square.
+  CircleMarker,   //!< Mark points using a circle.
+  CrossMarker,    //!< Mark points using a cross (+).
+  XCrossMarker,   //!< Mark points using a cross (x).
+  TriangleMarker  //!< Mark points using a triangle.
+};
+
+/*! \brief Enumeration that specifies how an area should be filled.
+ *
+ * Data series of type LineSeries or CurveSerie may be filled under or
+ * above the line or curve. This enumeration specifies the other limit
+ * of this fill.
+ *
+ * \sa WDataSeries::setFillRange(FillRange range)
+ * \sa WCartesianChart
+ *
+ * \ingroup charts
+ */
+enum FillRangeType {
+  NoFill,           //!< Do not fill under the curve.
+  MinimumValueFill, //!< Fill from the curve to the chart bottom (min)
+  MaximumValueFill, //!< Fill from the curve to the chart top
+  ZeroValueFill     //!< Fill from the curve to the zero Y value.
+};
+
+/*! \brief Enumeration type that indicates a chart type for a cartesian
+ *         chart.
+ *
+ * \ingroup charts
+ */
+enum ChartType {
+  CategoryChart, //!< The X series are categories
+  ScatterPlot    //!< The X series must be interpreted as numerical data
+};
+  }
+}
+
+#endif // WCHARTGLOBAL_H_

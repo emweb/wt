@@ -9,21 +9,11 @@
 
 #include <Wt/WWebWidget>
 #include <Wt/Ext/ExtDllDefs.h>
+#include <Wt/Ext/WExtGlobal>
 #include <sstream>
 
 namespace Wt {
   namespace Ext {
-
-/*! \brief An enum for the location of data in data-intensive widgets.
- *
- * \sa ComboBox::setDataLocation(), TableView::setDataLocation()
- *
- * \ingroup ext
- */
-enum DataLocation {
-  ClientSide, //!< Download the whole data model to the client.
-  ServerSide  //!< Keep the data at the server, and transfer data on-demand.
-};
 
 class AbstractButton;
 class BorderLayout;

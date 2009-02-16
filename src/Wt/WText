@@ -12,21 +12,6 @@
 
 namespace Wt {
 
-/*! \brief Enumeration that indicates the text format.
- *
- * \sa WText::setTextFormat()
- */
-enum TextFormat {
-  XHTMLText,       //!< Format text as XSS-safe XHTML markup'ed text
-  XHTMLUnsafeText, //!< Format text as XHTML markup'ed text
-  PlainText        //!< Format text as plain text
-#ifndef DOXYGEN_ONLY
-  ,XHTMLFormatting = XHTMLText,
-  XHTMLUnsafeFormatting = XHTMLUnsafeText,
-  PlainFormatting = PlainText
-#endif
-};
-
 /*! \class WText Wt/WText Wt/WText
  *  \brief A widget that renders (XHTML) text.
  *
@@ -62,10 +47,12 @@ enum TextFormat {
 class WT_API WText : public WInteractWidget
 {
 public:
+#ifndef WT_DEPRECATE_2_2_0
   typedef Wt::TextFormat Formatting;
   static const Wt::TextFormat XHTMLFormatting = XHTMLText;
   static const Wt::TextFormat XHTMLUnsafeFormatting = XHTMLUnsafeText;
   static const Wt::TextFormat PlainFormatting = PlainText;
+#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Construct a text widget with an empty text.
    */
@@ -105,6 +92,7 @@ public:
   WText(const WString& text, TextFormat textFormat,
 	WContainerWidget *parent = 0);
 
+#ifndef WT_DEPRECATE_2_2_0
   /*! \brief Construct a text widget with a given text.
    *
    * \deprecated Not useful anymore. Let the widget autodetect using
@@ -136,6 +124,7 @@ public:
    *       longer as useful.
    */
   WText(bool inlined, const WString& text, WContainerWidget *parent = 0);
+#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Returns the text.
    *
@@ -188,17 +177,19 @@ public:
    */
   TextFormat textFormat() const { return textFormat_; }
 
+#ifndef WT_DEPRECATE_2_2_0
   /*! \brief Set the formatting (<b>deprecated</b>).
    *
    * \deprecated Has been renamed to setTextFormat().
    */
-  bool setFormatting(Formatting format);
+  bool setFormatting(TextFormat format);
 
   /*! \brief Returns the formatting (<b>deprecated</b>).
    *
    * \deprecated Has been renamed to textFormat()
    */
-  Formatting formatting() const { return textFormat_; }
+  TextFormat formatting() const { return textFormat_; }
+#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Configure word wrapping.
    *

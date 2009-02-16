@@ -206,12 +206,12 @@ void Composer::createUi()
   /*
    * Button events.
    */
-  topSendButton_->clicked.connect(SLOT(this, Composer::sendIt));
-  botSendButton_->clicked.connect(SLOT(this, Composer::sendIt));
-  topSaveNowButton_->clicked.connect(SLOT(this, Composer::saveNow));
-  botSaveNowButton_->clicked.connect(SLOT(this, Composer::saveNow));
-  topDiscardButton_->clicked.connect(SLOT(this, Composer::discardIt));
-  botDiscardButton_->clicked.connect(SLOT(this, Composer::discardIt));
+  topSendButton_->clicked().connect(SLOT(this, Composer::sendIt));
+  botSendButton_->clicked().connect(SLOT(this, Composer::sendIt));
+  topSaveNowButton_->clicked().connect(SLOT(this, Composer::saveNow));
+  botSaveNowButton_->clicked().connect(SLOT(this, Composer::saveNow));
+  topDiscardButton_->clicked().connect(SLOT(this, Composer::discardIt));
+  botDiscardButton_->clicked().connect(SLOT(this, Composer::discardIt));
 
   /*
    * Option events to show the cc or Bcc edit.
@@ -219,13 +219,13 @@ void Composer::createUi()
    * Clicking on the option should both show the corresponding edit, and
    * hide the option itself.
    */
-  addcc_->item()->clicked.connect(SLOT(ccEdit_, WWidget::show));
-  addcc_->item()->clicked.connect(SLOT(addcc_, WWidget::hide));
-  addcc_->item()->clicked.connect(SLOT(options_, OptionList::update));
+  addcc_->item()->clicked().connect(SLOT(ccEdit_, WWidget::show));
+  addcc_->item()->clicked().connect(SLOT(addcc_, WWidget::hide));
+  addcc_->item()->clicked().connect(SLOT(options_, OptionList::update));
 
-  addbcc_->item()->clicked.connect(SLOT(bccEdit_, WWidget::show));
-  addbcc_->item()->clicked.connect(SLOT(addbcc_, WWidget::hide));
-  addbcc_->item()->clicked.connect(SLOT(options_, OptionList::update));
+  addbcc_->item()->clicked().connect(SLOT(bccEdit_, WWidget::show));
+  addbcc_->item()->clicked().connect(SLOT(addbcc_, WWidget::hide));
+  addbcc_->item()->clicked().connect(SLOT(options_, OptionList::update));
 
   /*
    * Option event to attach the first attachment.
@@ -236,11 +236,12 @@ void Composer::createUi()
    * In addition, we need to show the 'attach More' option, and hide the
    * 'attach' option.
    */
-  attachFile_->item()->clicked.connect(SLOT(attachments_.back(),WWidget::show));
-  attachFile_->item()->clicked.connect(SLOT(attachOtherFile_, WWidget::show));
-  attachFile_->item()->clicked.connect(SLOT(attachFile_, WWidget::hide));
-  attachFile_->item()->clicked.connect(SLOT(this, Composer::attachMore));
-  attachOtherFile_->item()->clicked.connect(SLOT(this, Composer::attachMore));
+  attachFile_->item()->clicked().connect(SLOT(attachments_.back(),
+					      WWidget::show));
+  attachFile_->item()->clicked().connect(SLOT(attachOtherFile_, WWidget::show));
+  attachFile_->item()->clicked().connect(SLOT(attachFile_, WWidget::hide));
+  attachFile_->item()->clicked().connect(SLOT(this, Composer::attachMore));
+  attachOtherFile_->item()->clicked().connect(SLOT(this, Composer::attachMore));
 }
 
 void Composer::attachMore()
@@ -254,8 +255,8 @@ void Composer::attachMore()
   attachments_.back()->hide();
 
   // Connect the attachOtherFile_ option to show this attachment.
-  attachOtherFile_->item()->clicked.connect(SLOT(attachments_.back(),
-						 WWidget::show));
+  attachOtherFile_->item()->clicked().connect(SLOT(attachments_.back(),
+						   WWidget::show));
 }
 
 void Composer::removeAttachment(AttachmentEdit *attachment)
@@ -277,8 +278,8 @@ void Composer::removeAttachment(AttachmentEdit *attachment)
        */
       attachOtherFile_->hide();
       attachFile_->show();
-      attachFile_->item()->clicked.connect(SLOT(attachments_.back(),
-						WWidget::show));
+      attachFile_->item()->clicked().connect(SLOT(attachments_.back(),
+						  WWidget::show));
     }
   }
 }

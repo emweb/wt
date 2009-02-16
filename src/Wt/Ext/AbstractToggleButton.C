@@ -11,16 +11,24 @@
 namespace Wt {
   namespace Ext {
 
- AbstractToggleButton::AbstractToggleButton(WAbstractToggleButton *wtWidget,
-					    const WString& text,
-					    WContainerWidget *parent)
+AbstractToggleButton::AbstractToggleButton(WAbstractToggleButton *wtWidget,
+					   const WString& text,
+					   WContainerWidget *parent)
   : FormField(parent),
-    checked(&wtWidget->checked),
-    unChecked(&wtWidget->unChecked),
     wtWidget_(wtWidget),
     text_(text)
 {
   addOrphan(wtWidget_);
+}
+
+EventSignal<void>& AbstractToggleButton::checked()
+{
+  return wtWidget_->checked();
+}
+
+EventSignal<void>& AbstractToggleButton::unChecked()
+{
+  return wtWidget_->unChecked();
 }
 
 WFormWidget *AbstractToggleButton::formWidget() const

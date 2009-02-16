@@ -13,12 +13,12 @@ namespace Wt {
 
 WSocketNotifier::WSocketNotifier(int socket, Type type, WObject *parent)
   : WObject(parent),
-    activated(this),
     socket_(socket),
     type_(type),
     enabled_(false),
     beingNotified_(false),
-    sessionId_(WApplication::instance()->sessionId())
+    sessionId_(WApplication::instance()->sessionId()),
+    activated_(this)
 {
   setEnabled(true);
 }
@@ -43,7 +43,7 @@ void WSocketNotifier::setEnabled(bool enabled)
 void WSocketNotifier::notify()
 {
   beingNotified_ = true;
-  activated.emit(socket_);
+  activated_.emit(socket_);
   beingNotified_ = false;
 }
 

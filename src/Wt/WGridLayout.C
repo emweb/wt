@@ -20,7 +20,7 @@ Grid::Column::Column(int stretch)
   : stretch_(stretch)
 { }
 
-Grid::Item::Item(WLayoutItem *item, int alignment)
+Grid::Item::Item(WLayoutItem *item, WFlags<AlignmentFlag> alignment)
   : item_(item),
     rowSpan_(1),
     colSpan_(1),
@@ -81,7 +81,8 @@ int WGridLayout::count() const
 }
 
 void WGridLayout::addItem(WLayoutItem *item, int row, int column,
-			  int rowSpan, int columnSpan, int alignment)
+			  int rowSpan, int columnSpan,
+			  WFlags<AlignmentFlag> alignment)
 {
   columnSpan = std::max(1, columnSpan);
   rowSpan = std::max(1, rowSpan);
@@ -99,24 +100,28 @@ void WGridLayout::addItem(WLayoutItem *item, int row, int column,
   updateAddItem(item);
 }
 
-void WGridLayout::addLayout(WLayout *layout, int row, int column, int alignment)
+void WGridLayout::addLayout(WLayout *layout, int row, int column,
+			    WFlags<AlignmentFlag> alignment)
 {
   addItem(layout, row, column, 1, 1, alignment);
 }
 
 void WGridLayout::addLayout(WLayout *layout, int row, int column,
-			    int rowSpan, int columnSpan, int alignment)
+			    int rowSpan, int columnSpan,
+			    WFlags<AlignmentFlag> alignment)
 {
   addItem(layout, row, column, rowSpan, columnSpan, alignment);
 }
 
-void WGridLayout::addWidget(WWidget *widget, int row, int column, int alignment)
+void WGridLayout::addWidget(WWidget *widget, int row, int column,
+			    WFlags<AlignmentFlag> alignment)
 {
   addItem(new WWidgetItem(widget), row, column, 1, 1, alignment);
 }
 
 void WGridLayout::addWidget(WWidget *widget, int row, int column,
-			    int rowSpan, int columnSpan, int alignment)
+			    int rowSpan, int columnSpan,
+			    WFlags<AlignmentFlag> alignment)
 {
   addItem(new WWidgetItem(widget), row, column, rowSpan, columnSpan, alignment);
 }
@@ -180,16 +185,25 @@ void WGridLayout::expand(int row, int column, int rowSpan, int columnSpan)
   int extraColumns = newColumnCount - columnCount();
 
   if (extraColumns > 0) {
-    for (int row = 0; row < rowCount(); ++row)
-      grid_.items_[row].insert(grid_.items_[row].end(), extraColumns,
-			       Impl::Grid::Item());
+    for (int a_row = 0; a_row < rowCount(); ++a_row)
+      grid_.items_[a_row].insert(grid_.items_[a_row].end(), extraColumns,
+				 Impl::Grid::Item());
     grid_.columns_.insert(grid_.columns_.end(), extraColumns,
 			  Impl::Grid::Column());
   }
 
   if (extraRows > 0) {
+#ifndef WT_TARGET_JAVA
     grid_.items_.insert(grid_.items_.end(), extraRows,
 			std::vector<Impl::Grid::Item>(newColumnCount));
+#else
+    grid_.items_.insert(grid_.items_.end(), extraRows,
+			std::vector<Impl::Grid::Item>());
+    for (int i = 0; i < extraRows; ++i) {
+      std::vector<Impl::Grid::Item>& items = grid_.items_[i];
+      items.insert(items.end(), newColumnCount, Impl::Grid::Item());
+    }
+#endif // WT_TARGET_JAVA
     grid_.rows_.insert(grid_.rows_.end(), extraRows, Impl::Grid::Row());
   }
 }

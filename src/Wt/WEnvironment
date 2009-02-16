@@ -10,11 +10,11 @@
 #include <string>
 #include <map>
 #include <vector>
+
 #include <Wt/WDllDefs.h>
 
 namespace Wt {
 
-class CgiParser;
 class WebRequest;
 class WebSession;
 
@@ -43,14 +43,6 @@ public:
    * will result in both values "Hello" and "World" to be associated
    * with the argument "hello".
    */
-  typedef std::vector<std::string> ArgumentValues;
-
-  /*! \brief Argument/value map.
-   *
-   * A std::map which associates an argument name with its set of
-   * given values.
-   */
-  typedef std::map<std::string, ArgumentValues> ArgumentMap;
 
   /*! \brief Cookie map.
    *
@@ -58,20 +50,21 @@ public:
    */
   typedef std::map<std::string, std::string> CookieMap;
 
-  /*! \brief Arguments passed to the application.
+  /*! \brief Parameters passed to the application.
    *
    * Arguments passed to the application, either in the URL for a
    * http GET, or in both the URL and data submitted in a http POST.
    */
-  const ArgumentMap& arguments() const { return arguments_; }
+  const Http::ParameterMap& getParameterMap() const { return parameters_; }
 
-  /*! \brief Checks for existence and returns specified argument.
+  /*! \brief Returns values for a query parameter.
    *
-   * Throws a std::runtime_error("missing argument: argument_name")
-   * when the argument is missing or returns the vector of
-   * values otherwise.
+   * Returns an empty list if the parameter was not defined.
    */
-  const ArgumentValues& getArgument(const std::string& argument_name) const;
+  const Http::ParameterValues& getParameterValues(const std::string& name)
+    const;
+
+  const std::string *getParameter(const std::string& name) const;
 
   /*! \brief Cookies set in the initial call to the application.
    *
@@ -85,10 +78,10 @@ public:
 
   /*! \brief Checks for existence and returns specified argument.
    *
-   * Throws a std::runtime_error("missing cookie: cookie_name")
+   * Throws a std::runtime_error("Missing cookie: ...")
    * when the cookie is missing, or returns cookie value otherwise.
    */
-  const std::string getCookie(const std::string& cookie_name) const;
+  const std::string getCookie(const std::string& cookieNname) const;
 
   /*! \brief Returns whether the browser has enabled support for cookies.
    *
@@ -333,7 +326,7 @@ private:
   double      dpiScale_;
   ContentType contentType_;
 
-  ArgumentMap arguments_;
+  Http::ParameterMap parameters_;
   CookieMap   cookies_;
 
   std::string locale_;
@@ -349,18 +342,17 @@ private:
   std::string pathInfo_;
   std::string internalPath_;
  
-  WebRequest *request_;
-
-  void init(const CgiParser& cgi, const WebRequest& request);
+  void init(const WebRequest& request);
   void setInternalPath(const std::string& path);
 
+#ifndef WT_TARGET_JAVA
   WEnvironment(const WEnvironment&);
+#endif // WT_TARGET_JAVA
+
   WEnvironment(WebSession *session);
 
   std::string parsePreferredAcceptValue(const std::string& value);
   void        parseCookies(const std::string& value);
-
-  void        setRequest(WebRequest *request);
 
   friend class WebController;
   friend class WebSession;

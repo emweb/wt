@@ -92,7 +92,7 @@ WWidget *MvcWidgets::viewsCombo()
   extComboBox_->setEditable(true);
   WPushButton *pb = new WPushButton("Press here to add the edited value "
 				    "to the model", result);
-  pb->clicked.connect(SLOT(this, MvcWidgets::comboBoxAdd));
+  pb->clicked().connect(SLOT(this, MvcWidgets::comboBoxAdd));
   
   return result;
 }

@@ -9,85 +9,111 @@
 #include "Wt/WResource"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/Http/Request"
+#include "Wt/Http/Response"
 
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WtRandom.h"
 #include "WtException.h"
+#include "Utils.h"
+
+#ifdef WT_THREADED
+#include <boost/thread/recursive_mutex.hpp>
+#endif // WT_THREADED
 
 namespace Wt {
 
 WResource::WResource(WObject* parent)
   : WObject(parent),
-    dataChanged(this),
-    reentrant_(false),
-    webRequest_(0)
-{ }
+    dataChanged_(this),
+    beingDeleted_(false)
+{ 
+#ifdef WT_THREADED
+  mutex_.reset(new boost::recursive_mutex());
+#endif // WT_THREADED
+}
+
+void WResource::beingDeleted()
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(*mutex_);
+  beingDeleted_ = true;
+#endif // WT_THREADED
+}
 
 WResource::~WResource()
-{ 
+{
+  beingDeleted();
+
+  for (unsigned i = 0; i < continuations_.size(); ++i) {
+    continuations_[i]->stop();
+    delete continuations_[i];
+  }
+
   if (wApp)
     wApp->removeExposedResource(this);
 }
 
-void WResource::setArguments(const ArgumentMap&)
-{ 
-  if (!fileName_.empty())
-    addHeader("Content-Disposition", "attachment;filename=" + fileName_);
-
-  /*
-   * A resource may always be cached: a change is indicated by generating a
-   * new url
-   */
-  addHeader("Expires", "Sun, 14 Jun 2020 00:00:00 GMT");
-  if (WApplication::instance()->environment().agentIE())
-    addHeader("Cache-Control", "post-check=900,pre-check=3600");
-  else
-    addHeader("Cache-Control", "max-age=3600");
-}
-
-void WResource::flush()
+void WResource::doContinue(Http::ResponseContinuation *continuation)
 {
-  if (!webRequest_)
-    throw WtException("WResource::flush(): last streamData() did not indicate "
-		      "pending data");
+  WebResponse *webResponse = continuation->response();
+  WebRequest *webRequest = webResponse;
 
-  ArgumentMap arguments;
-  bool done = streamResourceData(webRequest_->out(), arguments);
-  webRequest_->setKeepConnectionOpen(!done);
-  webRequest_->flush();
-
-  if (done)
-    setRequest(0);
-}
-
-void WResource::setReentrant(bool how)
-{
-  reentrant_ = how;
-}
-
-void WResource::setRequest(WebRequest *request)
-{
-  if (webRequest_ && request) {
-    webRequest_->setKeepConnectionOpen(false);
-    webRequest_->flush();
+  try {
+    handle(webRequest, webResponse, continuation);
+  } catch (std::exception& e) {
+    std::cerr << "Exception while handling resource continuation: "
+	      << e.what() << std::endl;
+  } catch (...) {
+    std::cerr << "Exception while handling resource continuation." << std::endl;
   }
+}
 
-  webRequest_ = request;
+void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
+		       Http::ResponseContinuation *continuation)
+{
+#ifdef WT_THREADED
+  boost::shared_ptr<boost::recursive_mutex> mutex = mutex_;
+  boost::recursive_mutex::scoped_lock lock(*mutex);
+
+  if (beingDeleted_)
+    return;
+
+  if (!continuation)
+    WebSession::Handler::instance()->lock()->unlock();
+#endif // WT_THREADED
+
+  if (continuation)
+    continuation->resource_ = 0;
+
+  Http::Request  request(*webRequest, continuation);
+  Http::Response response(this, webResponse, continuation);
+
+  if (!suggestedFileName_.empty())
+    response.addHeader("Content-Disposition",
+		       "attachment;filename=" + suggestedFileName_);
+
+  handleRequest(request, response);
+
+  if (!response.continuation_ || !response.continuation_->resource_) {
+    if (response.continuation_) {
+      Utils::erase(continuations_, response.continuation_);
+      delete response.continuation_;
+    }
+    webResponse->flush(WebResponse::ResponseDone);
+  } else
+    if (response.continuation_->type() == Http::AsyncContinuation)
+      webResponse->flush(WebResponse::ResponseCallBack,
+			 Http::ResponseContinuation::callBack,
+			 response.continuation_);
+    else
+      webResponse->flush(WebResponse::ResponseWaitMore);
 }
 
 void WResource::suggestFileName(const std::string& name)
 {
-  fileName_ = name;
-}
-
-void WResource::addHeader(const std::string& name, const std::string& value)
-{
-  if (webRequest_) {
-    webRequest_->addHeader(name, value);
-  } else
-    throw WtException("WResource::setHeader() must be called from within "
-		      "setArguments()");
+  suggestedFileName_ = name;
 }
 
 const std::string WResource::generateUrl() const
@@ -97,10 +123,29 @@ const std::string WResource::generateUrl() const
   return app->addExposedResource(const_cast<WResource *>(this));
 }
 
-void WResource::write(std::ostream& out)
+void WResource::write(WT_BOSTREAM& out,
+		      const Http::ParameterMap& parameters,
+		      const Http::UploadedFileMap& files)
 {
-  ArgumentMap arguments;
-  streamResourceData(out, arguments);
+  Http::Request  request(parameters, files);
+  Http::Response response(this, out);
+
+  handleRequest(request, response);
+
+  // While the resource indicates more data to be sent, get it too.
+  while (response.continuation_	&& response.continuation_->resource_) {
+    if (response.continuation_->type() != Http::AsyncContinuation) {
+      WApplication::instance()->log("Error")
+	<< "WResource::write() on resource that waits for event";
+      break;
+    }
+    response.continuation_->resource_ = 0;
+    request.continuation_ = response.continuation_;
+
+    handleRequest(request, response);
+  }
+
+  delete response.continuation_;
 }
 
 }

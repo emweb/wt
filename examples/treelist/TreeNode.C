@@ -52,7 +52,7 @@ TreeNode::TreeNode(const std::string labelText,
   labelText_->setFormatting(labelFormatting);
   labelText_->setStyleClass("treenodelabel");
   childCountLabel_ = new Wt::WText();
-  childCountLabel_->setMargin(7, Left);
+  childCountLabel_->setMargin(7, Wt::Left);
   childCountLabel_->setStyleClass("treenodechildcount");
 
   layout_->elementAt(0, 0)->addWidget(expandIcon_);
@@ -60,15 +60,15 @@ TreeNode::TreeNode(const std::string labelText,
 
   if (labelIcon_) {
     layout_->elementAt(0, 1)->addWidget(labelIcon_);
-    labelIcon_->setVerticalAlignment(AlignMiddle);
+    labelIcon_->setVerticalAlignment(Wt::AlignMiddle);
   }
   layout_->elementAt(0, 1)->addWidget(labelText_);
   layout_->elementAt(0, 1)->addWidget(childCountLabel_);
 
   layout_->elementAt(1, 1)->addWidget(expandedContent_);
 
-  layout_->elementAt(0, 0)->setContentAlignment(AlignTop);
-  layout_->elementAt(0, 1)->setContentAlignment(AlignMiddle);
+  layout_->elementAt(0, 0)->setContentAlignment(Wt::AlignTop);
+  layout_->elementAt(0, 1)->setContentAlignment(Wt::AlignMiddle);
 
   expandIcon_->icon1Clicked.connect(SLOT(this, TreeNode::expand));
   expandIcon_->icon2Clicked.connect(SLOT(this, TreeNode::collapse));

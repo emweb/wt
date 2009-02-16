@@ -12,28 +12,32 @@
 
 #include "DomElement.h"
 #include "EscapeOStream.h"
+#include "WebRenderer.h"
+#include "WebSession.h"
 #include "WtException.h"
 
 namespace Wt {
 
-#ifndef WIN32
-/*
- * Why do we need these and not the others ?
- */
-const Side WWidget::Top;
-const Side WWidget::Left;
-#endif
-
 WWidget::WWidget(WContainerWidget* parent)
-  : WResource(0),
-    resourceTriggerUpdate_(false)
-{
-  implementStateless(&WWidget::hide, &WWidget::undoHideShow);
-  implementStateless(&WWidget::show, &WWidget::undoHideShow);
-}
+  : WObject(0),
+    needRerender_(true)
+{ }
 
 WWidget::~WWidget()
-{ }
+{
+  while (!eventSignals_.empty()) {
+    EventSignalBase *s = &eventSignals_.front();
+    eventSignals_.pop_front();
+#ifndef WT_TARGET_JAVA
+    delete s;
+#else
+    s->~EventSignalBase();
+#endif
+  }
+
+  if (needRerender_)
+    WApplication::instance()->session()->renderer().doneUpdate(this);
+}
 
 void WWidget::setParent(WWidget *p)
 {
@@ -43,9 +47,30 @@ void WWidget::setParent(WWidget *p)
     p->addChild(this);
 }
 
-void WWidget::setStyleClass(const char *value)
+void WWidget::render()
 {
-  setStyleClass(WString(value, UTF8));
+  renderOk();
+}
+
+void WWidget::renderOk()
+{
+  if (needRerender_) {
+    needRerender_ = false;
+    WApplication::instance()->session()->renderer().doneUpdate(this);
+  }
+}
+
+void WWidget::askRerender()
+{
+  if (!needRerender_) {
+    needRerender_ = true;
+    WApplication::instance()->session()->renderer().needUpdate(this);
+  }
+}
+
+void WWidget::setStyleClass(const char *styleClass)
+{
+  setStyleClass(WString::fromUTF8(styleClass));
 }
 
 void WWidget::hide()
@@ -60,24 +85,43 @@ void WWidget::show()
   setHidden(false);
 }
 
+#ifndef WT_TARGET_JAVA
+WStatelessSlot *WWidget::getStateless(Method method)
+{
+  if (method == static_cast<WObject::Method>(&WWidget::hide))
+    return implementStateless(&WWidget::hide, &WWidget::undoHideShow);
+  else if (method == static_cast<WObject::Method>(&WWidget::show))
+    return implementStateless(&WWidget::show, &WWidget::undoHideShow);
+  else
+    return WObject::getStateless(method);
+}
+#endif // WT_TARGET_JAVA
+
 void WWidget::undoHideShow()
 {
   setHidden(wasHidden_);
 }
 
-void WWidget::setOffset(int sides, const WLength& length)
+#ifdef WT_TARGET_JAVA
+void WWidget::resize(int widthPixels, int heightPixels)
 {
-  setOffsets(length, sides);
+  resize(WLength(widthPixels), WLength(heightPixels));
 }
+
+void WWidget::setMargin(int pixels, WFlags<Side> sides)
+{
+  setMargin(WLength(pixels), sides);
+}
+
+void WWidget::setOffsets(int pixels, WFlags<Side> sides)
+{
+  setOffsets(WLength(pixels), sides);
+}
+#endif // WT_TARGET_JAVA
 
 std::string WWidget::jsRef() const
 {
   return WT_CLASS ".getElement('" + formName() + "')";
-}
-
-const std::string WWidget::resourceMimeType() const
-{
-  return "text/html; charset=utf-8";
 }
 
 void WWidget::htmlText(std::ostream& out)
@@ -100,45 +144,10 @@ std::string WWidget::inlineCssStyle()
   return result;
 }
 
-void WWidget::setArguments(const ArgumentMap& arguments)
-{ }
-
-bool WWidget::streamResourceData(std::ostream& stream,
-				 const ArgumentMap& arguments)
-{
-  stream 
-    << "<!DOCTYPE html PUBLIC "
-       "\"-//W3C//DTD HTML 4.01 Transitional//EN\" "
-       "\"http://www.w3.org/TR/html4/loose.dtd\">"
-       "<html lang=\"en\" dir=\"ltr\">\n"
-       "<head><title></title>\n"
-       "<script type=\"text/javascript\">\n"
-       "function load() { ";
-
-  if (resourceTriggerUpdate_)
-    stream << "window.parent."
-	   << WApplication::instance()->javaScriptClass()
-	   << "._p_.update(null, 'res', null, true);";
-  stream
-    << "}\n"
-       "</script></head>"
-       "<body onload=\"load();\""
-    << " style=\"margin:0;padding:0;\">";
-
-  resourceTriggerUpdate_ = false;
-  htmlText(stream);
-
-  stream << "</body></html>"; 
-
-  return true;
-}
-
 WWidget *WWidget::adam()
 {
-  if (parent())
-    return parent()->adam();
-  else
-    return this;
+  WWidget *p = parent();
+  return p ? p->adam() : this;
 }
 
 WString WWidget::tr(const char *key)
@@ -147,7 +156,7 @@ WString WWidget::tr(const char *key)
 }
 
 void WWidget::acceptDrops(const std::string& mimeType,
-			  const WString& hoverStyleClass)
+			  const WT_USTRING& hoverStyleClass)
 {
   WWebWidget *thisWebWidget = webWidget();
 
@@ -203,6 +212,23 @@ WLayoutItemImpl *WWidget::createLayoutItemImpl(WLayoutItem *layoutItem)
 {
   throw WtException("WWidget::setLayout(): widget does not support "
 		    "layout managers");
+}
+
+void WWidget::addEventSignal(EventSignalBase& s)
+{
+  eventSignals_.push_back(s);
+}
+
+EventSignalBase *WWidget::getEventSignal(const char *name)
+{
+  for (EventSignalList::iterator i = eventSignals_.begin();
+       i != eventSignals_.end(); ++i) {
+    EventSignalBase& s = *i;
+    if (s.name() == name)
+      return &s;
+  }
+
+  return 0;
 }
 
 }

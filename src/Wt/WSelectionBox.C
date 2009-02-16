@@ -9,7 +9,6 @@
 #include "Wt/WLogger"
 #include "Wt/WSelectionBox"
 
-#include "CgiParser.h"
 #include "DomElement.h"
 #include "WtException.h"
 
@@ -71,9 +70,10 @@ void WSelectionBox::clearSelection()
 
 bool WSelectionBox::isSelected(int index) const
 {
-  if (selectionMode_ == ExtendedSelection)
-    return selection_.find(index) != selection_.end();
-  else
+  if (selectionMode_ == ExtendedSelection) {
+    std::set<int>::const_iterator i = selection_.find(index);
+    return i != selection_.end();
+  } else
     return WComboBox::isSelected(index);
 }
 
@@ -105,21 +105,22 @@ void WSelectionBox::updateDom(DomElement& element, bool all)
   WComboBox::updateDom(element, all);
 }
 
-void WSelectionBox::setFormData(CgiEntry *entry)
+void WSelectionBox::setFormData(const FormData& formData)
 {
   if (selectionMode_ == SingleSelection)
-    WComboBox::setFormData(entry);
+    WComboBox::setFormData(formData);
   else {
     selection_.clear();
 
-    for (CgiEntry *e = entry; e; e = e->next()) {
-      if (!e->value().empty()) {
+    for (unsigned j = 0; j < formData.values.size(); ++j) {
+      const std::string& v = formData.values[j];
+      if (!v.empty()) {
 	try {
-	  int i = boost::lexical_cast<int>(e->value());
+	  int i = boost::lexical_cast<int>(v);
 	  selection_.insert(i);
-	} catch (boost::bad_lexical_cast&) {
+	} catch (boost::bad_lexical_cast& error) {
 	  wApp->log("error") << "WSelectionBox received illegal form value: '"
-			     << entry->value() << "'";
+			     << v << "'";
 	}
       }
     }

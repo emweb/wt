@@ -28,17 +28,18 @@ const char *WTreeNode::imageMin_[] = { "nav-minus-line-middle.gif",
 
 WTreeNode::WTreeNode(const WString& labelText,
 		     WIconPair *labelIcon, WTreeNode *parent)
-  : expanded((EventSignalBase *)0),
-    collapsed((EventSignalBase *)0),
-    selected(this),
-    collapsed_(true),
+  : collapsed_(true),
     selectable_(true),
+    visible_(true),
+    childrenDecorated_(true),
     parentNode_(0),
     childCountPolicy_(Disabled),
     labelIcon_(labelIcon),
     labelText_(new WText(labelText)),
     childrenLoaded_(false),
-    populated_(false)
+    populated_(false),
+    interactive_(true),
+    selected_(this)
 {
   create();
 
@@ -47,22 +48,33 @@ WTreeNode::WTreeNode(const WString& labelText,
 }
 
 WTreeNode::WTreeNode(WTreeNode *parent)
-  : expanded((EventSignalBase *)0),
-    collapsed((EventSignalBase *)0),
-    selected(this),
-    collapsed_(true),
+  : collapsed_(true),
     selectable_(true),
+    visible_(true),
+    childrenDecorated_(true),
     parentNode_(0),
     childCountPolicy_(Disabled),
     labelIcon_(0),
     labelText_(0),
     childrenLoaded_(false),
-    populated_(false)
+    populated_(false),
+    interactive_(true),
+    selected_(this)
 {
   create();
 
   if (parent)
     parent->addChildNode(this);
+}
+
+EventSignal<WMouseEvent>& WTreeNode::expanded()
+{
+  return expandIcon_->icon1Clicked();
+}
+
+EventSignal<WMouseEvent>& WTreeNode::collapsed()
+{
+  return expandIcon_->icon2Clicked();
 }
 
 int WTreeNode::displayedChildCount() const
@@ -73,6 +85,11 @@ int WTreeNode::displayedChildCount() const
 void WTreeNode::setSelectable(bool selectable)
 {
   selectable_ = selectable;
+}
+
+void WTreeNode::setInteractive(bool interactive)
+{
+  interactive_ = interactive;
 }
 
 WTableCell *WTreeNode::labelArea()
@@ -107,9 +124,12 @@ bool WTreeNode::doPopulate()
 
 bool WTreeNode::expandable()
 {
-  doPopulate();
+  if (interactive_) {
+    doPopulate();
 
-  return !childNodes_.empty();
+    return !childNodes_.empty();
+  } else
+    return false;
 }
 
 void WTreeNode::setImagePack(const std::string& url)
@@ -131,13 +151,14 @@ std::string WTreeNode::imagePack() const
 
 void WTreeNode::setNodeVisible(bool visible)
 {
-  if (!visible)
-    labelArea()->setAttributeValue("style", "display: none");
-  else
-    labelArea()->setAttributeValue("style", "");
+  visible_ = visible;
+  updateChildren(false);
+}
 
-  if (expandIcon_)
-    expandIcon_->setHidden(!visible);
+void WTreeNode::setChildrenDecorated(bool decorated)
+{
+  childrenDecorated_ = decorated;
+  updateChildren(false);
 }
 
 void WTreeNode::create()
@@ -148,10 +169,6 @@ void WTreeNode::create()
   implementStateless(&WTreeNode::doCollapse, &WTreeNode::undoDoCollapse);
 
   expandIcon_ = new WIconPair(imagePlus_[Last], imageMin_[Last]);
-
-  expanded.setRelay(&expandIcon_->icon1Clicked);
-  collapsed.setRelay(&expandIcon_->icon2Clicked);
-
   noExpandIcon_ = new WImage(imageLine_[Last]);
 
   layout_->rowAt(1)->hide();
@@ -171,9 +188,10 @@ void WTreeNode::create()
   if (labelText_)
     layout_->elementAt(0, 1)->addWidget(labelText_);
 
-  layout_->elementAt(0, 0)->setContentAlignment(AlignLeft | AlignTop);
   if (WApplication::instance()->environment().agentIE())
     layout_->elementAt(0, 0)->resize(1, WLength());
+
+  layout_->elementAt(0, 0)->setContentAlignment(AlignLeft | AlignTop);
   layout_->elementAt(0, 1)->setContentAlignment(AlignLeft | AlignMiddle);
 
   childrenLoaded_ = false;
@@ -222,7 +240,7 @@ void WTreeNode::setLoadPolicy(LoadPolicy loadPolicy)
       if (parentNode_ && parentNode_->isExpanded())
 	loadChildren();
       expandIcon_
-	->icon1Clicked.connect(SLOT(this, WTreeNode::loadGrandChildren));
+	->icon1Clicked().connect(SLOT(this, WTreeNode::loadGrandChildren));
     }
     break;
   case LazyLoading:
@@ -233,7 +251,7 @@ void WTreeNode::setLoadPolicy(LoadPolicy loadPolicy)
 	  && parentNode_ && parentNode_->isExpanded())
 	doPopulate();
 
-      expandIcon_->icon1Clicked.connect(SLOT(this, WTreeNode::expand));
+      expandIcon_->icon1Clicked().connect(SLOT(this, WTreeNode::expand));
     }
   }
 
@@ -251,8 +269,8 @@ void WTreeNode::loadChildren()
     for (unsigned i = 0; i < childNodes_.size(); ++i)
       layout_->elementAt(1, 1)->addWidget(childNodes_[i]);
 
-    expandIcon_->icon1Clicked.connect(SLOT(this, WTreeNode::doExpand));
-    expandIcon_->icon2Clicked.connect(SLOT(this, WTreeNode::doCollapse));
+    expandIcon_->icon1Clicked().connect(SLOT(this, WTreeNode::doExpand));
+    expandIcon_->icon2Clicked().connect(SLOT(this, WTreeNode::doCollapse));
 
     resetLearnedSlots();
 
@@ -457,7 +475,7 @@ void WTreeNode::setLabelIcon(WIconPair *labelIcon)
 void WTreeNode::renderSelected(bool isSelected)
 {
   labelArea()->setStyleClass(isSelected ? "selected" : "");
-  selected.emit(isSelected);
+  selected().emit(isSelected);
 }
 
 void WTreeNode::update()
@@ -466,6 +484,16 @@ void WTreeNode::update()
 
   std::string img = imagePack();
 
+  if (!visible_) {
+    layout_->rowAt(0)->hide();
+    expandIcon_->hide();
+  }
+
+  if (parentNode_ && !parentNode_->childrenDecorated_) {
+    layout_->elementAt(0, 0)->hide();
+    layout_->elementAt(1, 0)->hide();
+  }
+
   if (expandIcon_->state() != (isExpanded() ? 1 : 0))
     expandIcon_->setState(isExpanded() ? 1 : 0);
   if (layout_->rowAt(1)->isHidden() != !isExpanded())
@@ -473,17 +501,12 @@ void WTreeNode::update()
   if (labelIcon_ && (labelIcon_->state() != (isExpanded() ? 1 : 0)))
     labelIcon_->setState(isExpanded() ? 1 : 0);
 
-  if (expandIcon_->isHidden())
-    expandIcon_->icon1()->setImageRef("");
-  else
+  if (!expandIcon_->isHidden()) {
     if (expandIcon_->icon1()->imageRef() != img + imagePlus_[index])
       expandIcon_->icon1()->setImageRef(img + imagePlus_[index]);
-
-  if (expandIcon_->isHidden())
-    expandIcon_->icon2()->setImageRef("");
-  else
     if (expandIcon_->icon2()->imageRef() != img + imageMin_[index])
       expandIcon_->icon2()->setImageRef(img + imageMin_[index]);
+  }
 
   if (noExpandIcon_->imageRef() != img + imageLine_[index])
     noExpandIcon_->setImageRef(img + imageLine_[index]);
@@ -519,10 +542,10 @@ void WTreeNode::update()
   if (childCountPolicy_ != Disabled && populated_ && childCountLabel_) {
     int n = displayedChildCount();
     if (n)
-      childCountLabel_->setText("(" + boost::lexical_cast<std::string>(n)
-				+ ")");
+      childCountLabel_->setText
+	(WString::fromUTF8("(" + boost::lexical_cast<std::string>(n) + ")"));
     else
-      childCountLabel_->setText("");
+      childCountLabel_->setText(WString());
   }
 }
 

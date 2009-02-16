@@ -11,7 +11,7 @@
 
 namespace Wt {
 
-struct WSortFilterProxyRegExp;
+class WRegExp;
 
 /*! \class WSortFilterProxyModel Wt/WSortFilterProxyModel
  *         Wt/WSortFilterProxyModel
@@ -92,13 +92,13 @@ public:
    *
    * \sa setFilterKeyColumn(), setFilterRole()
    */
-  void setFilterRegExp(const WString& pattern);
+  void setFilterRegExp(const WT_USTRING& pattern);
 
   /*! \brief Return the regular expression used for filtering.
    *
    * \sa setFilterRegExp()
    */
-  WString filterRegExp() const;
+  WT_USTRING filterRegExp() const;
 
   /*! \brief Specify the data role used for filtering.
    *
@@ -202,13 +202,13 @@ private:
     Item(const WModelIndex& sourceIndex) : sourceIndex_(sourceIndex) { }
   };
 
-  struct Compare {
+  struct Compare W_JAVA_COMPARATOR(int) {
     Compare(const WSortFilterProxyModel *aModel, Item *anItem)
       : model(aModel), item(anItem) { }
 
     bool operator()(int sourceRow1, int sourceRow2) const;
 
-    bool lessThan(int sourceRow1, int sourceRow2) const;
+    int compare(int sourceRow1, int sourceRow2) const;
 
     const WSortFilterProxyModel *model;
     Item *item;
@@ -217,7 +217,7 @@ private:
   // WModelIndex is one of source model
   typedef std::map<WModelIndex, Item *> ItemMap;
 
-  WSortFilterProxyRegExp *regex_;
+  WRegExp *regex_;
 
   int       filterKeyColumn_, filterRole_;
   int       sortKeyColumn_, sortRole_;
@@ -259,6 +259,7 @@ private:
   void rebuildSourceRowMap(Item *item) const;
 
   int changedMappedRow(int sourceRow, int currentMappedRow, Item *item) const;
+  int compare(const WModelIndex& lhs, const WModelIndex& rhs) const;
 };
 
 }

@@ -71,11 +71,11 @@ public:
 
   /*! \brief Signal emitted when ok pressed.
    */
-  JSignal<std::string> okPressed;
+  JSignal<std::string>& okPressed() { return okPressed_; }
 
   /*! \brief Signal emitted when cancel is pressed.
    */
-  JSignal<void>        cancelPressed;
+  JSignal<void>&        cancelPressed() { return cancelPressed_; }
 
 private:
   /*! \brief Popup type.
@@ -86,6 +86,9 @@ private:
    */
   Popup(Type t, const WString& message, const std::string defaultValue,
 	WObject *parent);
+
+  JSignal<std::string> okPressed_;
+  JSignal<void>        cancelPressed_;
 
   Type t_;
   WString message_;

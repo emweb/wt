@@ -15,7 +15,7 @@ using namespace Wt;
 
 WCssDecorationStyle::WCssDecorationStyle()
   : widget_(0),
-    cursor_(Auto),
+    cursor_(AutoCursor),
     backgroundImageRepeat_(RepeatXY),
     backgroundImageLocation_(0),
     textDecoration_(0),
@@ -53,7 +53,7 @@ void WCssDecorationStyle::setWebWidget(WWebWidget *w)
 
 void WCssDecorationStyle::changed()
 {
-  if (widget_) widget_->repaint(WWebWidget::RepaintPropertyAttribute);
+  if (widget_) widget_->repaint(RepaintPropertyAttribute);
 }
 
 void WCssDecorationStyle::setCursor(Cursor c)
@@ -78,7 +78,7 @@ void WCssDecorationStyle::setFont(const WFont& font)
 
 void WCssDecorationStyle::setBackgroundImage(const std::string& image,
 					     Repeat repeat,
-					     int sides)
+					     WFlags<Side> sides)
 {
   if (!WWebWidget::canOptimizeUpdates()
       || backgroundImage_ != image
@@ -112,7 +112,7 @@ void WCssDecorationStyle::setForegroundColor(WColor color)
   }
 }
 
-void WCssDecorationStyle::setBorder(WBorder border, int sides)
+void WCssDecorationStyle::setBorder(WBorder border, WFlags<Side> sides)
 {
   if (!WWebWidget::canOptimizeUpdates()
       || border_ != border
@@ -124,7 +124,7 @@ void WCssDecorationStyle::setBorder(WBorder border, int sides)
   }
 }
 
-void WCssDecorationStyle::setTextDecoration(int options)
+void WCssDecorationStyle::setTextDecoration(WFlags<TextDecoration> options)
 {
   if (!WWebWidget::canOptimizeUpdates()
       || textDecoration_ != options) {
@@ -141,23 +141,23 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
    */
   if (cursorChanged_ || all) {
     switch (cursor_) {
-    case Auto:
+    case AutoCursor:
       if (cursorChanged_)
 	element.setProperty(PropertyStyleCursor, "auto");
       break;
-    case Default:
+    case ArrowCursor:
       element.setProperty(PropertyStyleCursor, "default"); break;
-    case CrossHair:
+    case CrossCursor:
       element.setProperty(PropertyStyleCursor, "crosshair"); break;
-    case Pointer:
+    case PointingHandCursor:
       element.setProperty(PropertyStyleCursor, "pointer"); break;
-    case Move:
+    case OpenHandCursor:
       element.setProperty(PropertyStyleCursor, "move"); break;
-    case Wait:
+    case WaitCursor:
       element.setProperty(PropertyStyleCursor, "wait"); break;
-    case Text:
+    case IBeamCursor:
       element.setProperty(PropertyStyleCursor, "text"); break;
-    case Help:
+    case WhatsThisCursor:
       element.setProperty(PropertyStyleCursor, "help"); break;
     }
 
@@ -230,16 +230,16 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
 	//element.setProperty(PropertyStyleBackgroundAttachment, "fixed");
 
 	std::string location;
-	if (backgroundImageLocation_ & WWidget::CenterY)
+	if (backgroundImageLocation_ & CenterY)
 	  location += " center";
-	else if (backgroundImageLocation_ & WWidget::Bottom)
+	else if (backgroundImageLocation_ & Bottom)
 	  location += " bottom";
 	else
 	  location += " top";
 
-	if (backgroundImageLocation_ & WWidget::CenterX)
+	if (backgroundImageLocation_ & CenterX)
 	  location += " center";
-	else if (backgroundImageLocation_ & WWidget::Right)
+	else if (backgroundImageLocation_ & Right)
 	  location += " right";
 	else 
 	  location += " left";

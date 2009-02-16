@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <math.h>
+#include <cmath>
 #include <stdio.h>
 #include <float.h>
 #include <boost/lexical_cast.hpp>
@@ -40,7 +40,7 @@ private:
   std::string what_;
 };
 
-inline int myisnan(double d)
+inline bool myisnan(double d)
 {
   return !(d == d);
 }
@@ -64,6 +64,7 @@ WPieChart::WPieChart(WContainerWidget *parent)
     labelOptions_(0)
 {
   setPalette(new WStandardPalette(WStandardPalette::Neutral));
+  setPreferredMethod(InlineSvgVml);
   setPlotAreaPadding(5);
 }
 
@@ -123,7 +124,7 @@ void WPieChart::setStartAngle(double startAngle)
   }
 }
 
-void WPieChart::setDisplayLabels(int options)
+void WPieChart::setDisplayLabels(WFlags<LabelOption> options)
 {
   labelOptions_ = options;
 
@@ -161,7 +162,10 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   painter.translate(rect.left() + (rect.width() - side)/2,
 		    rect.top() + (rect.height() - side)/2);
 
-  double cx = floor(side/2) + 0.5;
+  if (!title().empty())
+    painter.translate(0, 15);
+
+  double cx = std::floor(side/2) + 0.5;
   double cy = cx;
   double r = (int)(side/2 + 0.5);
   double h = height_ * r;
@@ -208,7 +212,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	double py = cy + f * r * sin(-midAngle / 180.0 * M_PI)
 	  * (h > 0 ? 0.5 : 1);
 
-	int alignment;
+	WFlags<AlignmentFlag> alignment;
 
 	WColor c = painter.pen().color();
 	if (labelOptions_ & Outside) {
@@ -258,6 +262,14 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
     }
   }
 
+  if (!title().empty()) {
+    WFont oldFont = painter.font();
+    painter.setFont(titleFont());
+    painter.drawText(cx - 50, cy - r, 100, 50,
+		     AlignCenter | AlignTop, title());
+    painter.setFont(oldFont);
+  }
+
   painter.restore();
 }
 
@@ -268,16 +280,22 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
    * Draw sides where applicable
    */
   if (h > 0) {
-    if (total == 0) {
-      drawOuter(painter, cx, cy, r, 0, 180, h);
+    if (model()->rowCount() == 0) {
+      drawOuter(painter, cx, cy, r, 0, -180, h);
     } else {
       /*
        * Pre-processing: determine start and mid angles of each pie,
        * and get the index of the one that contains 90 degrees (which is
        * the one at the back
        */
+#ifndef WT_TARGET_JAVA
       std::vector<double> startAngles(model()->rowCount());
       std::vector<double> midAngles(model()->rowCount());
+#else
+      std::vector<double> startAngles, midAngles;
+      startAngles.insert(startAngles.end(), model()->rowCount(), 0.0);
+      midAngles.insert(startAngles.end(), model()->rowCount(), 0.0);
+#endif // WT_TARGET_JAVA
 
       int index90 = 0;
 
@@ -392,7 +410,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 	  spanAngle -= 360;
 
 	bool drawBorder = startAngle > 180 || endAngle > 180
-	  || spanAngle < -180;
+	  || spanAngle < -180 || model()->rowCount() == 1;
 
 	if (drawBorder) {
 	  painter.setBrush(darken(brush(i)));
@@ -487,6 +505,7 @@ void WPieChart::drawOuter(WPainter& painter, double pcx, double pcy, double r,
 void WPieChart::paintEvent(WPaintDevice *paintDevice)
 {
   WPainter painter(paintDevice);
+  painter.setRenderHint(WPainter::Antialiasing, true);
   paint(painter);
 }
 
@@ -520,6 +539,8 @@ void WPieChart::modelChanged()
 {
   pie_.clear();
   pie_.insert(pie_.begin(), model()->rowCount(), PieData());
+
+  update();
 }
 
 void WPieChart::modelColumnsInserted(const WModelIndex& parent,

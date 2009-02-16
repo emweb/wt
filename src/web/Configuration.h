@@ -28,7 +28,7 @@ namespace boost {
 
 namespace Wt {
 
-#ifndef JAVA
+#ifndef WT_TARGET_JAVA
 
 class WT_API EntryPoint {
  public:
@@ -49,7 +49,7 @@ class WT_API EntryPoint {
 
 typedef std::vector<EntryPoint> EntryPointList;
 
-#endif // JAVA
+#endif // WT_TARGET_JAVA
 
 class WT_API Configuration
 {
@@ -79,11 +79,11 @@ public:
    */
   void               setSessionIdPrefix(const std::string& prefix);
 
-#ifndef JAVA
+#ifndef WT_TARGET_JAVA
   void               addEntryPoint(const EntryPoint&);
   void               setDefaultEntryPoint(const std::string& path);
   const EntryPointList& entryPoints() const { return entryPoints_; }
-#endif // JAVA
+#endif // WT_TARGET_JAVA
 
   SessionPolicy      sessionPolicy() const { return sessionPolicy_; }
   int                numProcesses() const { return numProcesses_; }
@@ -120,9 +120,9 @@ public:
 private:
   std::string     applicationPath_;
 
-#ifndef JAVA
+#ifndef WT_TARGET_JAVA
   EntryPointList  entryPoints_;
-#endif // JAVA
+#endif // WT_TARGET_JAVA
 
   ServerType      serverType_;
   SessionPolicy   sessionPolicy_;

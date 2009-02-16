@@ -10,57 +10,10 @@
 #include <Wt/Chart/WAxis>
 #include <Wt/WBrush>
 #include <Wt/WPen>
+#include <Wt/Chart/WChartGlobal>
 
 namespace Wt {
   namespace Chart {
-
-/*! \brief Enumeration that specifies the type of a chart series.
- *
- * \sa WDataSeries::setType(SeriesType)
- * \sa WCartesianChart
- *
- * \ingroup charts
- */
-enum SeriesType {
-  PointSeries,  //!< Series rendered solely as point markers.
-  LineSeries,   //!< Series rendered as points connected by straight lines.
-  CurveSeries,  //!< Series rendered as points connected by curves.
-  BarSeries     //!< Series rendered as bars.
-};
-
-/*! \brief Enumeration that specifies a type of point marker.
- *
- * \sa WDataSeries::setMarker(MarkerType marker)
- * \sa WCartesianChart
- *
- * \ingroup charts
- */
-enum MarkerType {
-  NoMarker,       //!< Do not draw point markers.
-  SquareMarker,   //!< Mark points using a square.
-  CircleMarker,   //!< Mark points using a circle.
-  CrossMarker,    //!< Mark points using a cross (+).
-  XCrossMarker,   //!< Mark points using a cross (x).
-  TriangleMarker  //!< Mark points using a triangle.
-};
-
-/*! \brief Enumeration that specifies how an area should be filled.
- *
- * Data series of type LineSeries or CurveSerie may be filled under or
- * above the line or curve. This enumeration specifies the other limit
- * of this fill.
- *
- * \sa WDataSeries::setFillRange(FillRange range)
- * \sa WCartesianChart
- *
- * \ingroup charts
- */
-enum FillRangeType {
-  NoFill,           //!< Do not fill under the curve.
-  MinimumValueFill, //!< Fill from the curve to the chart bottom (min)
-  MaximumValueFill, //!< Fill from the curve to the chart top
-  ZeroValueFill     //!< Fill from the curve to the zero Y value.
-};
 
 /*! \class WDataSeries Wt/Chart/WDataSeries Wt/Chart/WDataSeries
  *  \brief A single data series in a cartesian chart.
@@ -201,13 +154,13 @@ public:
    *
    * The default value is 0 (nothing overridden).
    */
-  void setCustomFlags(int customFlags);
+  void setCustomFlags(WFlags<CustomFlag> customFlags);
 
   /*! \brief Returns which aspects of the look are overriden.
    *
    * \sa setCustomFlags(int)
    */
-  int curstomFlags() const { return customFlags_; }
+  WFlags<CustomFlag> curstomFlags() const { return customFlags_; }
 
   /*! \brief Override the pen used for drawing lines for this series.
    *
@@ -358,20 +311,20 @@ public:
   WColor labelColor() const;
 
 private:
-  WCartesianChart *chart_;
-  int              modelColumn_;
-  bool             stacked_;
-  SeriesType       type_;
-  Axis             axis_;
-  int              customFlags_;
-  WPen             pen_, markerPen_;
-  WBrush           brush_, markerBrush_;
-  WColor           labelColor_;
-  FillRangeType    fillRange_;
-  MarkerType       marker_;
-  bool             legend_;
-  bool             xLabel_;
-  bool             yLabel_;
+  WCartesianChart   *chart_;
+  int                modelColumn_;
+  bool               stacked_;
+  SeriesType         type_;
+  Axis               axis_;
+  WFlags<CustomFlag> customFlags_;
+  WPen               pen_, markerPen_;
+  WBrush             brush_, markerBrush_;
+  WColor             labelColor_;
+  FillRangeType      fillRange_;
+  MarkerType         marker_;
+  bool               legend_;
+  bool               xLabel_;
+  bool               yLabel_;
 
   template <typename T>
   bool set(T& m, const T& v);

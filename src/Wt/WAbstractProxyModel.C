@@ -29,7 +29,7 @@ bool WAbstractProxyModel::setData(const WModelIndex& index,
   return sourceModel_->setData(mapToSource(index), value, role);
 }
 
-int WAbstractProxyModel::flags(const WModelIndex& index) const
+WFlags<ItemFlag> WAbstractProxyModel::flags(const WModelIndex& index) const
 {
   return sourceModel_->flags(mapToSource(index));
 }

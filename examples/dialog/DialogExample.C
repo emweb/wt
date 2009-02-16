@@ -38,19 +38,19 @@ DialogExample::DialogExample(const WEnvironment& env)
   WPushButton *button;
 
   button = new WPushButton("One liner", buttons);
-  button->clicked.connect(SLOT(this, DialogExample::messageBox1));
+  button->clicked().connect(SLOT(this, DialogExample::messageBox1));
 
   button = new WPushButton("Comfortable ?", buttons);
-  button->clicked.connect(SLOT(this, DialogExample::messageBox2));
+  button->clicked().connect(SLOT(this, DialogExample::messageBox2));
 
   button = new WPushButton("Havoc!", buttons);
-  button->clicked.connect(SLOT(this, DialogExample::messageBox3));
+  button->clicked().connect(SLOT(this, DialogExample::messageBox3));
 
   button = new WPushButton("Discard", buttons);
-  button->clicked.connect(SLOT(this, DialogExample::messageBox4));
+  button->clicked().connect(SLOT(this, DialogExample::messageBox4));
 
   button = new WPushButton("Familiar", buttons);
-  button->clicked.connect(SLOT(this, DialogExample::custom));
+  button->clicked().connect(SLOT(this, DialogExample::custom));
 
   textdiv = new WContainerWidget(root());
   textdiv->setStyleClass("text");
@@ -83,7 +83,7 @@ void DialogExample::messageBox2()
 		      NoIcon, Yes | No | Cancel);
 
   messageBox_
-    ->buttonClicked.connect(SLOT(this, DialogExample::messageBoxDone));
+    ->buttonClicked().connect(SLOT(this, DialogExample::messageBoxDone));
 
   messageBox_->show();
 }
@@ -111,7 +111,7 @@ void DialogExample::messageBox4()
   messageBox_->addButton("Continue modifying work", Cancel);
 
   messageBox_
-    ->buttonClicked.connect(SLOT(this, DialogExample::messageBoxDone));
+    ->buttonClicked().connect(SLOT(this, DialogExample::messageBoxDone));
 
   messageBox_->show();
 }
@@ -146,8 +146,8 @@ void DialogExample::custom()
 
   edit.setFocus();
 
-  edit.enterPressed.connect(SLOT(&dialog, WDialog::accept));
-  ok.clicked.connect(SLOT(&dialog, WDialog::accept));
+  edit.enterPressed().connect(SLOT(&dialog, WDialog::accept));
+  ok.clicked().connect(SLOT(&dialog, WDialog::accept));
 
   if (dialog.exec() == WDialog::Accepted) {
     setStatus("Welcome, " + edit.text());

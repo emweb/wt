@@ -11,6 +11,8 @@
 #endif
 #include <boost/lexical_cast.hpp>
 
+#include <iostream>
+
 #include <Wt/WApplication>
 #include <Wt/WCheckBox>
 #include <Wt/WText>
@@ -24,6 +26,7 @@
 AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
   : WContainerWidget(parent),
     composer_(composer),
+    uploadDone_(this),
     uploadFailed_(false),
     taken_(false)
 {
@@ -39,8 +42,8 @@ AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
   remove_ = new Option(tr("msg.remove"), this);
   upload_->decorationStyle().font().setSize(WFont::Smaller);
   remove_->setMargin(5, Left);
-  remove_->item()->clicked.connect(SLOT(this, WWidget::hide));
-  remove_->item()->clicked.connect(SLOT(this, AttachmentEdit::remove));
+  remove_->item()->clicked().connect(SLOT(this, WWidget::hide));
+  remove_->item()->clicked().connect(SLOT(this, AttachmentEdit::remove));
 
   /*
    * Fields that will display the feedback.
@@ -66,20 +69,20 @@ AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
 
   // Try to catch the fileupload change signal to trigger an upload.
   // We could do like google and at a delay with a WTimer as well...
-  upload_->changed.connect(SLOT(upload_, WFileUpload::upload));
+  upload_->changed().connect(SLOT(upload_, WFileUpload::upload));
 
   // React to a succesfull upload.
-  upload_->uploaded.connect(SLOT(this, AttachmentEdit::uploaded));
+  upload_->uploaded().connect(SLOT(this, AttachmentEdit::uploaded));
 
   // React to a fileupload problem.
-  upload_->fileTooLarge.connect(SLOT(this, AttachmentEdit::fileTooLarge));
+  upload_->fileTooLarge().connect(SLOT(this, AttachmentEdit::fileTooLarge));
 
   /*
    * Connect the uploadDone signal to the Composer's attachmentDone,
    * so that the Composer can keep track of attachment upload progress,
    * if it wishes.
    */
-  uploadDone.connect(SLOT(composer, Composer::attachmentDone));
+  uploadDone_.connect(SLOT(composer, Composer::attachmentDone));
 }
 
 AttachmentEdit::~AttachmentEdit()
@@ -154,7 +157,7 @@ void AttachmentEdit::uploaded()
   /*
    * Signal to the Composer that a new asyncrhonous file upload was processed.
    */
-  uploadDone.emit();
+  uploadDone_.emit();
 }
 
 void AttachmentEdit::remove()
@@ -170,7 +173,7 @@ void AttachmentEdit::fileTooLarge(int size)
   /*
    * Signal to the Composer that a new asyncrhonous file upload was processed.
    */
-  uploadDone.emit();
+  uploadDone_.emit();
 }
 
 bool AttachmentEdit::include() const

@@ -15,15 +15,6 @@ namespace Wt {
 class WText;
 class WImage;
 
-/*! \brief Enumeration that specifies where the target of an anchor should
- *         be displayed. 
- */
-enum AnchorTarget {
-  TargetSelf,      //!< Show Instead of the application
-  TargetThisWindow,//!< Show in the top level frame of the application window
-  TargetNewWindow  //!< Show in a separate new tab or window
-};
-
 /*! \class WAnchor Wt/WAnchor Wt/WAnchor
  *  \brief A widget that represents an HTML anchor (to link to other documents)
  *
@@ -32,7 +23,11 @@ enum AnchorTarget {
  * Use an anchor to link to an internal path or another web page,
  * document or resource. The anchor may contain text, image, or any
  * other widget (since it inherits from WContainerWidget). A click
- * will activate the target link.
+ * will activate the target link. If you do not want the application
+ * to terminate when the user follows the anchor, you must
+ * setTarget(TargetNewWindow). Even for non-HTML documents, this may
+ * be important since pending AJAX requests will be cancelled even if
+ * documents are not served within the browser window.
  *
  * \note If you set a text or image using one of the API methods like
  * setText() or setImage() or a constructor, you should not attempt to

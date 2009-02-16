@@ -10,11 +10,9 @@
 #include <limits>
 #include <Wt/WValidator>
 
-#include <boost/regex.hpp>
-
 namespace Wt {
 
-struct WRegExpValidatorImpl;
+class WRegExp;
 
 /*! \class WRegExpValidator Wt/WRegExpValidator Wt/WRegExpValidator
  *  \brief A validator that checks user input against a regular expression.
@@ -42,19 +40,12 @@ public:
   WRegExpValidator(WObject *parent = 0);
 
   /*! \brief Create a new regular expression validator that accepts input
-   *         that matches the given regular expression (<b>deprecated</b>).
-   *
-   * \deprecated Use WRegExpValidator(const WString&, WObject *) instead.
-   */
-  WRegExpValidator(const boost::regex& rx);
-
-  /*! \brief Create a new regular expression validator that accepts input
    *         that matches the given regular expression.
    *
    * This constructs a validator that matches the perl regular
    * expression <i>expr</i>.
    */
-  WRegExpValidator(const WString& expr, WObject *parent = 0);
+  WRegExpValidator(const WT_USTRING& pattern, WObject *parent = 0);
 
   /*! \brief Delete the regexp validator.
    */
@@ -64,16 +55,16 @@ public:
    *
    * Sets the perl regular expression <i>expr</i>.
    */
-  void setRegExp(const WString& expr);
+  void setRegExp(const WT_USTRING& pattern);
 
-  const boost::regex& regExp() const;
+  WT_USTRING regExp() const;
 
   /*! \brief Validate the given input.
    *
    * The input is considered valid only when it is blank for a non-mandatory
    * field, or matches the regular expression.
    */
-  virtual State validate(WString& input, int& pos) const;
+  virtual State validate(WT_USTRING& input) const;
 
   virtual void createExtConfig(std::ostream& config) const;
 
@@ -90,12 +81,13 @@ public:
    * \sa setInvalidNoMatchText(const WString&)
    */
   WString invalidNoMatchText() const;
-  
+
 protected:
   std::string javaScriptValidate(const std::string& jsRef) const;
 
 private:
-  WRegExpValidatorImpl *impl_;
+  WRegExp *regexp_;
+  WString  noMatchText_;
 };
 
 }

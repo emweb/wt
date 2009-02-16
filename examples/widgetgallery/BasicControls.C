@@ -79,19 +79,19 @@ WWidget *BasicControls::wText()
 
   text = new WText("This WText reacts on clicked<br/>", result);
   text->setStyleClass("reactive");
-  ed_->mapConnect(text->clicked, "WText clicked");
+  ed_->mapConnect(text->clicked(), "WText clicked");
 
   text = new WText("This WText reacts on doubleClicked<br/>", result);
   text->setStyleClass("reactive");
-  ed_->mapConnect(text->doubleClicked, "WText doubleClicked");
+  ed_->mapConnect(text->doubleClicked(), "WText doubleClicked");
 
   text = new WText("This WText reacts on mouseWentOver<br/>", result);
   text->setStyleClass("reactive");
-  ed_->mapConnect(text->mouseWentOver, "WText mouseWentOver");
+  ed_->mapConnect(text->mouseWentOver(), "WText mouseWentOver");
 
   text = new WText("This WText reacts on mouseWentOut<br/>", result);
   text->setStyleClass("reactive");
-  ed_->mapConnect(text->mouseWentOut, "WText mouseWentOut");
+  ed_->mapConnect(text->mouseWentOut(), "WText mouseWentOut");
 
   return result;
 }

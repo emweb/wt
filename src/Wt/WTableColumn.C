@@ -31,15 +31,17 @@ int WTableColumn::columnNum() const
 
 void WTableColumn::setWidth(const WLength& width)
 {
+#ifndef WT_TARGET_JAVA
   if (!width_)
     width_ = new WLength(width);
   else
+#endif
     *width_ = width;
 
   table_->repaintColumn(this);
 }
 
-void WTableColumn::setStyleClass(const WString& style)
+void WTableColumn::setStyleClass(const WT_USTRING& style)
 {
   styleClass_ = style;
   table_->repaintColumn(this);

@@ -162,9 +162,10 @@ public:
    *
    * The index of the newly activated tab is passed as an argument.
    */
-  Signal<int> currentChanged;
+  Signal<int>& currentChanged() { return currentChanged_; }
 
 private:
+  Signal<int> currentChanged_;
   WContainerWidget *layout_;
   WMenu            *menu_;
   WStackedWidget   *contents_;

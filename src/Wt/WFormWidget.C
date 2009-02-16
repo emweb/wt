@@ -15,23 +15,35 @@
 
 namespace Wt {
 
+const char *WFormWidget::CHANGE_SIGNAL = "M_change";
+const char *WFormWidget::SELECT_SIGNAL = "select";
+const char *WFormWidget::FOCUS_SIGNAL = "focus";
+const char *WFormWidget::BLUR_SIGNAL = "blur";
+
 WFormWidget::WFormWidget(WContainerWidget *parent)
   : WInteractWidget(parent),
-    changed(this),
-    selected(this),
-    blurred(this),
-    focussed(this),
     label_(0),
     validator_(0),
     validate_(0),
     filterInput_(0)
 {
   flags_.set(BIT_ENABLED);
-
-  implementStateless(&WFormWidget::disable, &WFormWidget::undoDisable);
-  implementStateless(&WFormWidget::enable, &WFormWidget::undoEnable);
-  implementStateless(&WFormWidget::setFocus, &WFormWidget::undoSetFocus);
 }
+
+#ifndef WT_TARGET_JAVA
+WStatelessSlot *WFormWidget::getStateless(Method method)
+{
+  if (method == static_cast<WObject::Method>(&WFormWidget::disable))
+    return implementStateless(&WFormWidget::disable, &WFormWidget::undoDisable);
+  else if (method == static_cast<WObject::Method>(&WFormWidget::enable))
+    return implementStateless(&WFormWidget::enable, &WFormWidget::undoEnable);
+  else if (method == static_cast<WObject::Method>(&WFormWidget::setFocus))
+    return implementStateless(&WFormWidget::setFocus,
+			      &WFormWidget::undoSetFocus);
+  else
+    return WInteractWidget::getStateless(method);
+}
+#endif
 
 WFormWidget::~WFormWidget()
 {
@@ -43,6 +55,26 @@ WFormWidget::~WFormWidget()
 
   delete validate_;
   delete filterInput_;
+}
+
+EventSignal<void>& WFormWidget::changed()
+{
+  return *voidEventSignal(CHANGE_SIGNAL, true);
+}
+
+EventSignal<void>& WFormWidget::selected()
+{
+  return *voidEventSignal(SELECT_SIGNAL, true);
+}
+
+EventSignal<void>& WFormWidget::blurred()
+{
+  return *voidEventSignal(BLUR_SIGNAL, true);
+}
+
+EventSignal<void>& WFormWidget::focussed()
+{
+  return *voidEventSignal(FOCUS_SIGNAL, true);
 }
 
 void WFormWidget::enable()
@@ -96,9 +128,9 @@ void WFormWidget::validatorChanged()
     if (!validate_) {
       validate_ = new JSlot(this);
 
-      keyWentUp.connect(*validate_);
-      changed.connect(*validate_);
-      clicked.connect(*validate_);
+      keyWentUp().connect(*validate_);
+      changed().connect(*validate_);
+      clicked().connect(*validate_);
     }
 
     validate_->setJavaScript
@@ -117,7 +149,7 @@ void WFormWidget::validatorChanged()
     if (!filterInput_) {
       filterInput_ = new JSlot();
 
-      keyPressed.connect(*filterInput_);
+      keyPressed().connect(*filterInput_);
     }
 
     Wt::Utils::replace(inputFilter, '/', "\\/");
@@ -138,12 +170,11 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 {
   const WEnvironment& env = WApplication::instance()->environment();
 
-  if (!env.agentIE() || !dynamic_cast<WAbstractToggleButton *>(this))
-    updateSignalConnection(element, changed, "change", all);
-
-  updateSignalConnection(element, selected, "select", all);
-  updateSignalConnection(element, blurred, "blur", all);
-  updateSignalConnection(element, focussed, "focus", all);
+  if (!env.agentIE() || !dynamic_cast<WAbstractToggleButton *>(this)) {
+    EventSignal<void> *s = voidEventSignal(CHANGE_SIGNAL, false);
+    if (s)
+      updateSignalConnection(element, *s, "change", all);
+  }
 
   if (flags_.test(BIT_ENABLED_CHANGED) || all) {
     element.setProperty(Wt::PropertyDisabled, isEnabled() ? "false" : "true");
@@ -198,8 +229,10 @@ void WFormWidget::setValidator(WValidator *validator)
     filterInput_ = 0;
   }
 
+#ifndef WT_TARGET_JAVA
   if (!validator_->parent())
     WObject::addChild(validator_);
+#endif // WT_TARGET_JAVA
 }
 
 WValidator::State WFormWidget::validate()

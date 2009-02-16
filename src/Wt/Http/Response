@@ -1,0 +1,74 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef HTTP_RESPONSE_H_
+#define HTTP_RESPONSE_H_
+
+#include <Wt/WGlobal>
+#include <Wt/Http/ResponseContinuation>
+
+namespace Wt {
+
+  class WResource;
+  class WebSession;
+
+  namespace Http {
+
+/*! \class Response Wt/Http/Response Wt/Http/Response
+ *  \brief An HTTP response.
+ *
+ * \sa WResource::handleRequest()
+ */
+class WT_API Response
+{
+public:
+  /*! \brief Set the content mime type.
+   *
+   * The content mimetype is used by the browser to correctly interpret
+   * the resource.
+   */
+  void setMimeType(const std::string& mimeType);
+
+  /*! \brief Add an HTTP header.
+   *
+   * Headers may be added only before setting the content mime-type
+   * (setMimeType()), and before streaming any data to the out()
+   * stream.
+   */
+  void addHeader(const std::string& name, const std::string& value);
+
+  /*! \brief Create a continuation object for this response.
+   *
+   * By creating a continuation object, a new request will be made for
+   * the resource to retrieve more data, after the current data has
+   * been sent out.
+   */
+  ResponseContinuation *createContinuation(ContinuationType type);
+
+  /*! \brief Returns the stream for getting the response output.
+   */
+  std::ostream& out();
+
+  WT_BOSTREAM& bout() { return out(); }
+
+private:
+  WResource            *resource_;
+  WebResponse          *response_;
+  ResponseContinuation *continuation_;
+  WT_BOSTREAM          *out_;
+
+  Response(WResource *resource, WebResponse *response,
+	   ResponseContinuation *continuation);
+  Response(WResource *resource, WT_BOSTREAM& out);
+
+  friend class Wt::WResource;
+  friend class Wt::WebSession;
+};
+ 
+  } 
+}
+
+#endif // HTTP_RESPONSE_H_

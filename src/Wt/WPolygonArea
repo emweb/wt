@@ -41,6 +41,7 @@ public:
    */
   WPolygonArea(const std::vector<WPoint>& points);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Construct a polygon area with given vertices.
    *
    * The polygon is defined with vertices corresponding to
@@ -48,6 +49,7 @@ public:
    * with the first point.
    */
   WPolygonArea(const std::vector<WPointF>& points);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Add a point.
    */
@@ -57,9 +59,11 @@ public:
    */
   void addPoint(const WPoint& point);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Add a point.
    */
   void addPoint(const WPointF& point);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Set the polygon vertices. 
    *
@@ -69,6 +73,7 @@ public:
    */
   void setPoints(const std::vector<WPoint>& points);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Set the polygon vertices. 
    *
    * The polygon is defined with vertices corresponding to
@@ -76,6 +81,7 @@ public:
    * with the first point.
    */
   void setPoints(const std::vector<WPointF>& points);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns the polygon vertices.
    *

@@ -145,7 +145,7 @@ public:
    *
    * \sa expanded
    */
-  Signal<> collapsed;
+  Signal<>& collapsed() { return collapsed_; }
 
   /*! \brief %Signal emitted when the panel is expanded.
    *
@@ -155,10 +155,10 @@ public:
    *
    * \sa collapsed
    */
-  Signal<> expanded;
+  Signal<>& expanded() { return expanded_; }
 
-  Signal<bool> collapsedSS;
-  Signal<bool> expandedSS;
+  Signal<bool>& collapsedSS() { return collapsedSS_; }
+  Signal<bool>& expandedSS() { return expandedSS_; }
 
   WIconPair *collapseIcon() const { return collapseIcon_; }
 
@@ -169,6 +169,9 @@ private:
 
   WContainerWidget *impl_;
   WWidget          *centralWidget_;
+
+  Signal<> collapsed_, expanded_;
+  Signal<bool> collapsedSS_, expandedSS_;
 
   bool wasCollapsed_;
 

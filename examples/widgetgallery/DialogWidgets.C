@@ -43,7 +43,7 @@ WWidget *DialogWidgets::wDialog()
   topic("WDialog", result);
   new WText(tr("dialogs-WDialog"), result);
   WPushButton *button = new WPushButton("Familiar", result);
-  button->clicked.connect(SLOT(this, DialogWidgets::custom));
+  button->clicked().connect(SLOT(this, DialogWidgets::custom));
 
   return result;
 }
@@ -65,13 +65,13 @@ WWidget *DialogWidgets::wMessageBox()
 
   WPushButton *button;
   vLayout->addWidget(button = new WPushButton("One liner"));
-  button->clicked.connect(SLOT(this, DialogWidgets::messageBox1));
+  button->clicked().connect(SLOT(this, DialogWidgets::messageBox1));
   vLayout->addWidget(button = new WPushButton("Show some buttons"));
-  button->clicked.connect(SLOT(this, DialogWidgets::messageBox2));
+  button->clicked().connect(SLOT(this, DialogWidgets::messageBox2));
   vLayout->addWidget(button = new WPushButton("Need confirmation"));
-  button->clicked.connect(SLOT(this, DialogWidgets::messageBox3));
+  button->clicked().connect(SLOT(this, DialogWidgets::messageBox3));
   vLayout->addWidget(button = new WPushButton("Discard"));
-  button->clicked.connect(SLOT(this, DialogWidgets::messageBox4));
+  button->clicked().connect(SLOT(this, DialogWidgets::messageBox4));
 
   return result;
 }
@@ -93,11 +93,11 @@ WWidget *DialogWidgets::eDialogs()
   WPushButton *button;
   
   vLayout->addWidget(button = new WPushButton("Ext Message Box"));
-  button->clicked.connect(SLOT(this, DialogWidgets::createExtMessageBox));
+  button->clicked().connect(SLOT(this, DialogWidgets::createExtMessageBox));
   vLayout->addWidget(button = new WPushButton("Ext Dialog"));
-  button->clicked.connect(SLOT(this, DialogWidgets::createExtDialog));
+  button->clicked().connect(SLOT(this, DialogWidgets::createExtDialog));
   vLayout->addWidget(button = new WPushButton("Ext Progress Bar"));
-  button->clicked.connect(SLOT(this, DialogWidgets::createExtProgress));
+  button->clicked().connect(SLOT(this, DialogWidgets::createExtProgress));
 
   return result;
 }
@@ -117,7 +117,7 @@ void DialogWidgets::messageBox2()
 		      NoIcon, Yes | No | Cancel);
 
   messageBox_
-    ->buttonClicked.connect(SLOT(this, DialogWidgets::messageBoxDone));
+    ->buttonClicked().connect(SLOT(this, DialogWidgets::messageBoxDone));
 
   messageBox_->show();
 }
@@ -148,7 +148,7 @@ void DialogWidgets::messageBox4()
   messageBox_->addButton("Continue modifying work", Ok);
 
   messageBox_
-    ->buttonClicked.connect(SLOT(this, DialogWidgets::messageBoxDone));
+    ->buttonClicked().connect(SLOT(this, DialogWidgets::messageBoxDone));
 
   messageBox_->show();
 }
@@ -185,8 +185,8 @@ void DialogWidgets::custom()
   new WBreak(dialog.contents());
   WPushButton ok("Ok", dialog.contents());
 
-  edit.enterPressed.connect(SLOT(&dialog, WDialog::accept));
-  ok.clicked.connect(SLOT(&dialog, WDialog::accept));
+  edit.enterPressed().connect(SLOT(&dialog, WDialog::accept));
+  ok.clicked().connect(SLOT(&dialog, WDialog::accept));
 
   if (dialog.exec() == WDialog::Accepted) {
     ed_->setStatus("Welcome, " + edit.text());
@@ -201,7 +201,7 @@ void DialogWidgets::createExtMessageBox()
   mb->setText("Isn't Wt the ruler of them all?");
 
   mb->setButtons(Wt::Yes);
-  mb->finished.connect(SLOT(this, DialogWidgets::deleteExtDialog));
+  mb->finished().connect(SLOT(this, DialogWidgets::deleteExtDialog));
 
   mb->show();
 
@@ -216,12 +216,12 @@ void DialogWidgets::createExtDialog()
   d->setStyleClass("dialog");
 
   Ext::Button *okButton = new Ext::Button("Ok");
-  okButton->activated.connect(SLOT(d, Ext::Dialog::accept));
+  okButton->activated().connect(SLOT(d, Ext::Dialog::accept));
   d->addButton(okButton);
   okButton->setDefault(true);
 
   Ext::Button *cancelButton = new Ext::Button("Cancel");
-  cancelButton->activated.connect(SLOT(d, Ext::Dialog::reject));
+  cancelButton->activated().connect(SLOT(d, Ext::Dialog::reject));
   d->addButton(cancelButton);
 
   WBorderLayout *layout = new WBorderLayout();
@@ -260,7 +260,7 @@ void DialogWidgets::createExtDialog()
 
   d->show();
   extDialog_ = d;
-  extDialog_->finished.connect(SLOT(this, DialogWidgets::deleteExtDialog));
+  extDialog_->finished().connect(SLOT(this, DialogWidgets::deleteExtDialog));
 }
 
 void DialogWidgets::createExtProgress()

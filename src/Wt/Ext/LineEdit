@@ -99,21 +99,17 @@ public:
   void setEmptyDisplayText(const WString& text);
   void setGrowToContent(bool grow, int minWidth = 30, int maxWidth = 800);
 
-private:
-  WLineEdit    *lineEdit_;
-
-public:
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    */
-  EventSignal<WKeyEvent>& keyWentDown;
+  EventSignal<WKeyEvent>& keyWentDown();
 
    /*! \brief Event signal emitted when a keyboard key is pressed.
    */
-  EventSignal<WKeyEvent>& keyPressed;
+  EventSignal<WKeyEvent>& keyPressed();
     
   /*! \brief Event signal emitted when a keyboard key is released.
    */
-  EventSignal<WKeyEvent>& keyWentUp; 
+  EventSignal<WKeyEvent>& keyWentUp();
 
 protected:
   WLineEdit *lineEdit() const { return lineEdit_; }
@@ -121,6 +117,8 @@ protected:
   virtual void createConfig(std::ostream& config);
 
 private:
+  WLineEdit    *lineEdit_;
+
   virtual std::string createJS(DomElement *inContainer);
 
   virtual void useAsTableViewEditor();

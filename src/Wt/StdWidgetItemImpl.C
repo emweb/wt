@@ -46,11 +46,23 @@ void StdWidgetItemImpl::containerAddWidgets(WContainerWidget *container)
   container->addWidget(item_->widget());
 }
 
+int StdWidgetItemImpl::additionalVerticalPadding(bool fitWidth, bool fitHeight)
+  const
+{
+  WApplication *app = WApplication::instance();
+
+  if (   !app->environment().agentIE()
+      && !app->environment().agentOpera()
+      && fitHeight && isTextArea(item_->widget()))
+    return 5;
+  else
+    return 0;
+}
+
 DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
-						int& additionalVerticalPadding,
 						WApplication *app)
 {
-  DomElement *d = item_->widget()->webWidget()->createSDomElement(app);
+  DomElement *d = item_->widget()->createSDomElement(app);
   DomElement *result = d;
 
   // Safari does height properly (like Opera) ?
@@ -70,10 +82,8 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
     if (fitWidth)
       style += "margin-right:8px;";
 
-    if (fitHeight && d->type() == DomElement_TEXTAREA) {
+    if (fitHeight && d->type() == DomElement_TEXTAREA)
       style += "height:100%;";
-      additionalVerticalPadding = 5;
-    }
 
     result->setAttribute("style", style);
   }

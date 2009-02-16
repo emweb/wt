@@ -59,7 +59,7 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
      * whose DOM id was passed as a request argument.
      */
     top = new WContainerWidget();
-    bindWidget(top, env.getArgument("div")[0]);
+    bindWidget(top, *env.getParameter("div"));
   }
 
   if (!embedded)
@@ -76,7 +76,7 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
   nameEdit_->setFocus();
 
   WPushButton *b = new WPushButton("Greet me.", top);
-  b->setMargin(5, WWidget::Left); 
+  b->setMargin(5, Left); 
 
   top->addWidget(new WBreak());
 
@@ -85,8 +85,8 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
   /*
    * Connect signals with slots
    */
-  b->clicked.connect(SLOT(this, HelloApplication::greet));
-  nameEdit_->enterPressed.connect(SLOT(this, HelloApplication::greet));
+  b->clicked().connect(SLOT(this, HelloApplication::greet));
+  nameEdit_->enterPressed().connect(SLOT(this, HelloApplication::greet));
 }
 
 void HelloApplication::greet()

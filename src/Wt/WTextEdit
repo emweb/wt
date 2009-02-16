@@ -50,7 +50,7 @@ public:
    *
    * The <i>text</i> should be valid XHTML.
    */
-  WTextEdit(const WString& text, WContainerWidget *parent = 0);
+  WTextEdit(const WT_USTRING& text, WContainerWidget *parent = 0);
 
   /*! \brief Destructor.
    */
@@ -62,7 +62,7 @@ public:
    *
    * The default value is "".
    */
-  virtual void setText(const WString& text);
+  virtual void setText(const WT_USTRING& text);
 
   /*! \brief Set the stylesheet for displaying the content.
    *
@@ -137,15 +137,17 @@ public:
 
   virtual void load();
 
+protected:
+  virtual DomElement *renderRemove();
+  virtual void updateDom(DomElement& element, bool all);
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app);
+
 private:
   bool        rendered_, contentChanged_;
   std::string styleSheet_, extraPlugins_;
   std::string buttons_[4];
 
-  virtual DomElement *renderRemove();
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
 
   static void initTinyMCE();
 };

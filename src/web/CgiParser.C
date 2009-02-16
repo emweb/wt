@@ -32,11 +32,11 @@
 #include <fstream>
 #include <stdlib.h>
 
-#ifdef HAVE_GNU_REGEX
+#ifdef WT_HAVE_GNU_REGEX
 #include <regex.h>
 #else
 #include <boost/regex.hpp>
-#endif // HAVE_GNU_REGEX
+#endif // WT_HAVE_GNU_REGEX
 
 #include <boost/tokenizer.hpp>
 
@@ -49,7 +49,7 @@ using std::strcpy;
 using std::strtol;
 
 namespace {
-#ifndef HAVE_GNU_REGEX
+#ifndef WT_HAVE_GNU_REGEX
   const boost::regex boundary_e("\\bboundary=(?:(?:\"([^\"]+)\")|(\\S+))",
 			       boost::regex::perl|boost::regex::icase);
   const boost::regex name_e("\\bname=(?:(?:\"([^\"]+)\")|([^\\s:;]+))",
@@ -167,7 +167,7 @@ namespace Wt {
 
 void CgiParser::init()
 {
-#ifdef HAVE_GNU_REGEX
+#ifdef WT_HAVE_GNU_REGEX
   RegInitializer::setup();
 #endif
 }
@@ -180,32 +180,17 @@ char CgiParser::buf_[BUFSIZE + MAXBOUND];
 
 CgiParser::CgiParser(int maxPostData)
   : maxPostData_(maxPostData)
-{
-}
-
-CgiParser::~CgiParser()
-{
-  for (EntryMap::const_iterator i = entries_.begin();
-       i != entries_.end(); ++i)
-    delete i->second;
-}
-
-CgiEntry *CgiParser::getEntry(const std::string key) const
-{
-  EntryMap::const_iterator i = entries_.find(key);
-  if (i != entries_.end())
-    return i->second;
-  else
-    return 0;
-}
+{ }
 
 void CgiParser::parse(WebRequest& request)
 {
+  request_ = &request;
+
   unsigned len = request.contentLength();
   std::string type = request.contentType();
   std::string meth = request.requestMethod();
 
-  postDataExceeded_ = (len > maxPostData_ ? len : 0);
+  request.postDataExceeded_ = (len > maxPostData_ ? len : 0);
 
   std::string queryString = request.queryString();
 
@@ -261,8 +246,7 @@ void CgiParser::parse(WebRequest& request)
       std::cerr << key << ": \"" << value << "\"" << std::endl;
 #endif // DEBUG
 
-      CgiEntry *e = createEntry(key);
-      e->setValue(value);
+      request_->parameters_[key].push_back(value);
     }
   }
 
@@ -288,7 +272,7 @@ void CgiParser::readMultipartData(WebRequest& request,
   buflen_ = 0;
   left_ = len;
   spoolStream_ = 0;
-  entry_ = 0;
+  currentKey_.clear();
 
   parseBody(request, boundary);
   for (;;) {
@@ -403,10 +387,10 @@ bool CgiParser::parseHead(WebRequest& request)
 	    << " fn: " << fn << std::endl;
 #endif
 
-  entry_ = createEntry(name);
+  currentKey_ = name;
 
   if (!fn.empty()) {
-    if (!postDataExceeded_) {
+    if (!request.postDataExceeded_) {
       /*
        * It is not easy to create a std::ostream pointing to a
        * temporary file name.
@@ -426,7 +410,8 @@ bool CgiParser::parseHead(WebRequest& request)
 
       spoolStream_ = new std::ofstream(spool, std::ios::out | std::ios::binary);
 
-      entry_->setStream(spool, fn, ctype);
+      request_->files_.insert
+	(std::make_pair(name, Http::UploadedFile(spool, fn, ctype)));
     } else {
       spoolStream_ = 0;
     }
@@ -442,21 +427,21 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
   std::string value;
 
   readUntilBoundary(request, boundary, 2,
-		    spoolStream_ ? 0 : (entry_ ? &value : 0),
+		    spoolStream_ ? 0 : (!currentKey_.empty() ? &value : 0),
 		    spoolStream_);
 
   if (spoolStream_) {
     delete spoolStream_;
     spoolStream_ = 0;
   } else
-    if (entry_) {
+    if (!currentKey_.empty()) {
 #ifdef DEBUG
       std::cerr << "value: \"" << value << "\"" << std::endl;
 #endif
-      entry_->setValue(value);
+      request_->parameters_[currentKey_].push_back(value);
     }
 
-  entry_ = 0;
+  currentKey_.clear();
 
   if (std::string(buf_ + boundary.length(), 2) == "--")
     return false;
@@ -488,59 +473,6 @@ void CgiParser::replaceHexTokens(std::string& v)
       v.replace(i, 3, 1, (char)hval);
     }
   }
-}
-
-CgiEntry *CgiParser::createEntry(const std::string param)
-{
-  CgiEntry *result = new CgiEntry();
-
-  if (entries_.find(param) != entries_.end()) {
-    CgiEntry *l = entries_[param];
-
-    for (; l->next_; l = l->next_)
-      ;
-
-    l->next_ = result;
-  } else
-    entries_[param] = result;
-
-  return result;
-}
-
-CgiEntry::CgiEntry()
-  : isFile_(false),
-    fileIsStolen_(false),
-    next_(0)
-{ }
-
-CgiEntry::~CgiEntry()
-{
-  if (next_)
-    delete next_;
-
-  if (isFile_ && !fileIsStolen_)
-    unlink(value_.c_str());
-}
-
-void CgiEntry::stealFile()
-{
-  fileIsStolen_ = true;
-}
-
-void CgiEntry::setValue(const std::string value)
-{
-  value_ = value;
-  isFile_ = false;
-}
-
-void CgiEntry::setStream(const std::string spoolName,
-			 const std::string clientFilename,
-			 const std::string clientType)
-{
-  value_ = spoolName;
-  cfn_ = clientFilename;
-  ct_ = clientType;
-  isFile_ = true;
 }
 
 } // namespace Wt

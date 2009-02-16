@@ -1,0 +1,161 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef HTTP_REQUEST_H_
+#define HTTP_REQUEST_H_
+
+#include <map>
+#include <string>
+#include <vector>
+#include <boost/shared_ptr.hpp>
+
+#include <Wt/WDllDefs.h>
+
+namespace Wt {
+
+class WResource;
+
+class WebRequest;
+class WebSession;
+
+  namespace Http {
+
+class WT_API UploadedFile {
+public:
+  UploadedFile(const std::string& spoolFileName,
+	       const std::string& clientFileName,
+	       const std::string& contentType);
+
+  /*! \brief Return the spool file name.
+   *
+   * This is the location on the local (server) filesystem where the uploaded
+   * file is temporarily stored. Unless you call stealSpoolFile(), this file
+   * is deleted automatically.
+   *
+   * Only defined for a \link Parameter::File File\endlink type().
+   */
+  const std::string& spoolFileName() const;
+
+  /*! \brief Returns the client file name.
+   *
+   * This is the location that was indicated by the browser. Depending on
+   * the browser this is an absolute path or only the file name.
+   *
+   * Only defined for a \link Parameter::File File\endlink type().
+   */
+  const std::string& clientFileName() const;
+
+  /*! \brief Returns the file content type.
+   *
+   * Returns the content mime-type that was sent along with the uploaded
+   * file.
+   *
+   * Only defined for a \link Parameter::File File\endlink type().
+   */
+  const std::string& contentType() const;
+
+  /*! \brief Steals the uploaded spool file.
+   *
+   * By stealing the spooled file, it is no longer automatically deleted
+   * by Wt.
+   */
+  void stealSpoolFile() const;
+
+private:
+  struct Impl {
+    std::string spoolFileName, clientFileName, contentType;
+    bool        isStolen;
+
+    ~Impl();
+  };
+
+  boost::shared_ptr<Impl> fileInfo_;
+};
+
+/*! \brief A list of parameter values.
+ *
+ * This is the type used to aggregate all values for a single parameter.
+ */
+typedef std::vector<std::string> ParameterValues;
+
+/*! \brief A parameter value map.
+ *
+ * This is the type used aggregate all parameter values in a request.
+ */
+typedef std::map<std::string, ParameterValues> ParameterMap;
+
+typedef std::map<std::string, UploadedFile> UploadedFileMap;
+
+class ResponseContinuation;
+
+/*! \class Request Wt/Http/Request Wt/Http/Request
+ *  \brief An HTTP request.
+ *
+ * \sa WResource::handleRequest()
+ */
+class WT_API Request
+{
+public:
+  /*! \brief Returns the query parameters.
+   *
+   * Returns all parameters that were passed to the query, either inside
+   * the URL, or inside a POST request, including uploaded files.
+   */
+  const ParameterMap& getParameterMap() const { return parameters_; }
+
+  const UploadedFileMap& uploadedFiles() const { return files_; }
+
+  /*! \brief Returns all values for a query parameter.
+   *
+   * Returns all values defined for a parameter named <i>name</i>. A
+   * single parameter may have multiple values, e.g. in the query
+   * string '?param=value1&param=value2'.
+   *
+   * Returns an empty list if the query parameter does not exist.
+   */
+  const ParameterValues& getParameterValues(const std::string& name) const;
+
+  /*! \brief Returns a query parameter value.
+   *
+   * Returns the first value defined for a parameter named <i>name</i>
+   * or 0 if the paramter does not exist.
+   */
+  const std::string *getParameter(const std::string& name) const;
+
+  const UploadedFile *getUploadedFile(const std::string& name) const;
+
+  /*! \brief Returns a non-zero value that exceeded the maximum allowed request.
+   *
+   * \sa WApplication::requestTooLarge
+   */
+  int tooLarge() const;
+
+  /*! \brief Returns a continuation object.
+   *
+   * Returns a non-zero continuation object if the request is a continuation
+   * request for an earlier response for which a continuation was created.
+   *
+   * \sa Response::createContinuation()
+   */
+  ResponseContinuation *continuation() const { return continuation_; }
+
+private:
+  const WebRequest       *request_;
+  const ParameterMap&     parameters_;
+  const UploadedFileMap&  files_;
+  ResponseContinuation   *continuation_;
+
+  Request(const WebRequest& request, ResponseContinuation *continuation);
+  Request(const ParameterMap& parameters, const UploadedFileMap& files);
+
+  friend class Wt::WResource;
+  friend class Wt::WebSession;
+};
+
+  } 
+}
+
+#endif // HTTP_REQUEST_H_

@@ -7,10 +7,10 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WRadioButton"
-#include "DomElement.h"
 #include "Wt/WButtonGroup"
-#include "CgiParser.h"
+
 #include "Utils.h"
+#include "DomElement.h"
 
 namespace Wt {
 
@@ -79,20 +79,20 @@ void WRadioButton::setGroup(WButtonGroup *group)
   buttonGroup_ = group;
 }
 
-void WRadioButton::setFormData(CgiEntry *entry)
+void WRadioButton::setFormData(const FormData& formData)
 {
-  if (entry->value() == formName()) {
-    buttonGroup_->uncheckOthers(this);
-    checked_ = true;
+  if (!formData.values.empty()) {
+    const std::string& value = formData.values[0];
+
+    if (value == formName()) {
+      buttonGroup_->uncheckOthers(this);
+      checked_ = true;
+    } else
+      if (!buttonGroup_)
+	WAbstractToggleButton::setFormData(formData);
   } else
     if (!buttonGroup_)
-      WAbstractToggleButton::setFormData(entry);
-}
-
-void WRadioButton::setNoFormData()
-{
-  if (!buttonGroup_)
-    WAbstractToggleButton::setNoFormData();
+      WAbstractToggleButton::setFormData(formData);
 }
 
 }

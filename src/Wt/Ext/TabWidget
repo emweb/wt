@@ -162,7 +162,7 @@ public:
    *
    * The index of the newly activated tab is passed as an argument.
    */
-  Signal<int> currentChanged;
+  Signal<int>& currentChanged() { return currentChanged_; }
 
 protected:
   virtual void updateExt();
@@ -172,7 +172,8 @@ protected:
   virtual void removeChild(WWidget *child);
 
 private:
-  JSignal<int> currentChanged_;
+  Signal<int>  currentChanged_;
+  JSignal<int> jCurrentChanged_;
   std::vector<Panel *> panels_;
   int currentIndex_;
   

@@ -8,7 +8,7 @@
 #define WLENGTH_H_
 
 #include <string>
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 

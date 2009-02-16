@@ -46,13 +46,13 @@ WString WValidator::invalidBlankText() const
   if (!mandatoryText_.empty())
     return mandatoryText_;
   else
-    return "This field cannot be empty";
+    return WString::fromUTF8("This field cannot be empty");
 }
 
 void WValidator::fixup(WString& input) const
 { }
 
-WValidator::State WValidator::validate(WString& input, int& pos) const
+WValidator::State WValidator::validate(WT_USTRING& input) const
 {
   if (isMandatory()) {
     if (input.empty())

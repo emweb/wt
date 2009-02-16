@@ -23,7 +23,7 @@
 #include <boost/lexical_cast.hpp>
 
 #ifdef WIN32
-#ifdef THREADED
+#ifdef WT_THREADED
 #include <boost/thread/mutex.hpp>
 #endif
 #endif
@@ -135,7 +135,8 @@ Reply::Reply(const Request& request)
     closeConnection_(false),
     chunkedEncoding_(false),
     gzipEncoding_(false),
-    expectMoreData_(false),
+    waitMoreData_(false),
+    finishing_(false),
     contentSent_(0),
     contentOriginalSize_(0)
 {
@@ -152,6 +153,11 @@ std::string Reply::location()
   return std::string();
 }
 
+void Reply::setWaitMoreData(bool how)
+{
+  waitMoreData_ = how;
+}
+
 void Reply::addHeader(const std::string name, const std::string value)
 {
   headers_.push_back(std::make_pair(name, value));
@@ -159,8 +165,10 @@ void Reply::addHeader(const std::string name, const std::string value)
 
 bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 {
+  bufs_.clear();
+
   if (relay_.get())
-    return relay_->nextBuffers(result);
+    return finishing_ = relay_->nextBuffers(result);
   else {
     if (!transmitting_) {
       transmitting_ = true;
@@ -168,9 +176,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	&& (request_.http_version_minor == 0);
 
       closeConnection_
-	= closeConnection_
-	|| (responseStatus() >= 400)
-	|| request_.closeConnection();
+	= closeConnection_ || request_.closeConnection();
 
       /*
        * Status line.
@@ -241,8 +247,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	 * Content-Encoding: gzip ?
 	 */
 	gzipEncoding_ = 
-	  !haveContentEncoding
-	  && !expectMoreData_
+	     !haveContentEncoding
 	  && Configuration::instance().compression()
 	  && request_.acceptGzipEncoding()
 	  && (cl == -1)
@@ -267,7 +272,6 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	  contentSent_ = 0;
 	  std::vector<asio::const_buffer> contentBuffers;
 	  for (;;) {
-
 	    int originalSize;
 	    int encodedSize;
 	    encodeNextContentBuffer(contentBuffers, originalSize, encodedSize);
@@ -289,8 +293,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	  result.insert(result.end(),
 			contentBuffers.begin(), contentBuffers.end());
 
-
-	  return true;
+	  return finishing_ = true;
 	} else {
 	  /*
 	   * We do not need to determine the length of the response...
@@ -316,24 +319,27 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
 	  result.push_back(asio::buffer(misc_strings::crlf));
 
-	  return false;
+	  return finishing_ = false;
 	}
-      } else {
+      } else { // responseStatus() == not-modified
 	result.push_back(asio::buffer(misc_strings::crlf));
 
-	return true;
+	return finishing_ = true;
       }
     } else { // transmitting (data)
       std::vector<asio::const_buffer> contentBuffers;
       int originalSize;
       int encodedSize;
+
       encodeNextContentBuffer(contentBuffers, originalSize, encodedSize);
+
+      bool lastData = originalSize == 0;
 
       contentSent_ += encodedSize;
       contentOriginalSize_ += originalSize;
 
       if (chunkedEncoding_) {
-	if (encodedSize || (originalSize == 0)) {
+	if (encodedSize || lastData) {
 	  std::ostringstream length;
 	  length << std::hex << encodedSize;
 	  result.push_back(buf(length.str()));
@@ -353,11 +359,11 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	    result.push_back(asio::buffer(misc_strings::crlf));
 	}
 
-	return (originalSize == 0);
+	return finishing_ = lastData;
       } else {
 	result = contentBuffers;
 
-	return (originalSize == 0);
+	return finishing_ = lastData;
       }
     }
   }
@@ -365,9 +371,9 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
 void Reply::setConnection(Connection *connection)
 {
-#ifdef THREADED
-  boost::recursive_mutex::scoped_lock lock(connectionMutex_);
-#endif // THREADED
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
   connection_ = connection;
 
   if (relay_.get())
@@ -387,25 +393,18 @@ void Reply::setConnection(Connection *connection)
   }
 }
 
-void Reply::transmitMore()
+void Reply::send()
 {
   /*
    * FIXME: we need to support synchronous I/O as well, to be used
    * for server push.
    */
-#ifdef THREADED
-  boost::recursive_mutex::scoped_lock lock(connectionMutex_);
-#endif // THREADED
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
 
-  if (connection_)
+  if (!finishing_ && connection_)
     connection_->startWriteResponse();
-}
-
-void Reply::setExpectMoreData(bool how)
-{
-  expectMoreData_ = how;
-  if (expectMoreData_ && !closeConnection_)
-    closeConnection_ = true;
 }
 
 void Reply::setRelay(ReplyPtr reply)
@@ -469,12 +468,12 @@ std::string Reply::httpDate(time_t t)
 #ifdef WTHTTP_WITH_ZLIB
 void Reply::initGzip()
 {
-  gzipstrm_.zalloc = Z_NULL;
-  gzipstrm_.zfree = Z_NULL;
-  gzipstrm_.opaque = Z_NULL;
-  gzipstrm_.next_in = Z_NULL;
+  gzipStrm_.zalloc = Z_NULL;
+  gzipStrm_.zfree = Z_NULL;
+  gzipStrm_.opaque = Z_NULL;
+  gzipStrm_.next_in = Z_NULL;
   int r = 0;
-  r = deflateInit2(&gzipstrm_, Z_DEFAULT_COMPRESSION,
+  r = deflateInit2(&gzipStrm_, Z_DEFAULT_COMPRESSION,
 		   Z_DEFLATED, 15+16, 8, Z_DEFAULT_STRATEGY);
   assert(r == Z_OK);
 }
@@ -491,31 +490,34 @@ void Reply::encodeNextContentBuffer(
   if (gzipEncoding_) {
     encodedSize = 0;
 
-    gzipstrm_.avail_in = originalSize;
-    gzipstrm_.next_in
+    gzipStrm_.avail_in = originalSize;
+    gzipStrm_.next_in
       = (unsigned char *)asio::detail::buffer_cast_helper(b);
 
     unsigned char out[16*1024];
     do {
-      gzipstrm_.next_out = out;
-      gzipstrm_.avail_out = sizeof(out);
+      gzipStrm_.next_out = out;
+      gzipStrm_.avail_out = sizeof(out);
+
+      // do not attempt to flush gzip deflate when we are still expecting data
+      if (gzipStrm_.avail_in == 0 && originalSize != 0)
+	return;
 
       int r = 0;
-      r = deflate(&gzipstrm_,
-		  gzipstrm_.avail_in == 0 ? Z_FINISH : Z_NO_FLUSH);
+      r = deflate(&gzipStrm_, gzipStrm_.avail_in == 0 ? Z_FINISH : Z_NO_FLUSH);
 
       assert(r != Z_STREAM_ERROR);
     
-      unsigned have = sizeof(out) - gzipstrm_.avail_out;
+      unsigned have = sizeof(out) - gzipStrm_.avail_out;
 
       if (have) {
 	encodedSize += have;
 	result.push_back(buf(std::string((char *)out, have)));
       }
-    } while (gzipstrm_.avail_out == 0);
+    } while (gzipStrm_.avail_out == 0);
 
     if (originalSize == 0)
-      deflateEnd(&gzipstrm_);
+      deflateEnd(&gzipStrm_);
 
   } else {
 #endif

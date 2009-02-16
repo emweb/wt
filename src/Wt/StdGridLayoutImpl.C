@@ -67,8 +67,8 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
       (app->javaScriptClass() + ".layoutTableObjs=[];", false);
 
     if (jsHeights) {
-      app->doJavaScript
-	(WT_CLASS ".layoutAdjust=function(w,c,mh) {"
+      app->doJavaScript(std::string
+	(WT_CLASS ".layoutAdjust=function(w,c,mh){"
 	 "" "if (" WT_CLASS ".isHidden(w))"
 	 ""   "return;"
 	 ""
@@ -175,8 +175,8 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 	 ""             "ch.style.height = k+'px';"
 
 	 ""           "if (td.childNodes.length==1"
-	 ""               "&&ch.nodeName.toUpperCase()=='TEXTAREA') {"
-	 + std::string(app->environment().agentOpera() ?
+	 ""               "&&ch.nodeName.toUpperCase()=='TEXTAREA') {")
+	 + (app->environment().agentOpera() ?
 		       // Older opera:
 		       // "ch.style.height = (k-2) + 'px';"
 		       // "ch.style.marginLeft = '3px';"
@@ -353,8 +353,13 @@ void StdGridLayoutImpl::setHint(const std::string& name,
        << "WGridLayout: unrecognized hint '" << name << "'";
 }
 
+int StdGridLayoutImpl::additionalVerticalPadding(bool fitWidth, bool fitHeight)
+  const
+{
+  return 0;
+}
+
 DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
-						int& additionalVerticalPadding,
 						WApplication *app)
 {
   const unsigned colCount = grid_.columns_.size();
@@ -370,9 +375,17 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   int margin[] = { 0, 0, 0, 0};
 
-  if (layout()->parentLayout() == 0)
+  if (layout()->parentLayout() == 0) {
+#ifndef WT_TARGET_JAVA
     layout()->getContentsMargins(margin + 3, margin,
 				 margin + 1, margin + 2);
+#else // WT_TARGET_JAVA
+    margin[3] = layout()->getContentsMargin(Left);
+    margin[0] = layout()->getContentsMargin(Top);
+    margin[1] = layout()->getContentsMargin(Right);
+    margin[2] = layout()->getContentsMargin(Bottom);
+#endif // WT_TARGET_JAVA
+  }
 
   DomElement *div = DomElement::createNew(DomElement_DIV);
   div->setId(this);
@@ -447,6 +460,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
     for (unsigned col = 0; col < colCount; ++col) {
       DomElement *c = DomElement::createNew(DomElement_COL);
       int stretch = grid_.columns_[col].stretch_;
+
       if (stretch || (fitWidth && totalColStretch == 0)) {
 	int pct = totalColStretch == 0 ? 100 / colCount
 	  : 100 * stretch / totalColStretch;
@@ -456,7 +470,12 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       table->addChild(c);
     }
 
+#ifndef WT_TARGET_JAVA
   std::vector<bool> overSpanned(colCount * rowCount, false);
+#else
+  std::vector<bool> overSpanned;
+  overSpanned.insert(0, colCount * rowCount, false);
+#endif // WT_TARGET_JAVA
 
   for (unsigned row = 0; row < rowCount; ++row) {
     std::string heightPct;
@@ -468,9 +487,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       int pct = totalRowStretch == 0 ?
 	100 / rowCount :
 	100 * stretch / totalRowStretch;
-      std::stringstream style;
-      style << "height: " << pct << "%;";
-      heightPct = style.str();
+      std::stringstream style2;
+      style2 << "height: " << pct << "%;";
+      heightPct = style2.str();
       tr->setAttribute("style", heightPct);
     }
 
@@ -501,10 +520,8 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	// in height... Which is worse? I think the former?
 	itemFitHeight = true;
 
-	HorizontalAlignment hAlign
-	  = (HorizontalAlignment)(item.alignment_ & 0x0F);
-	VerticalAlignment vAlign
-	  = (VerticalAlignment)(item.alignment_ & 0xF0);
+	AlignmentFlag hAlign = item.alignment_ & AlignHorizontalMask;
+	AlignmentFlag vAlign = item.alignment_ & AlignVerticalMask;
 
 	if (hAlign != 0)
 	  itemFitWidth = false;
@@ -548,8 +565,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
 	if (item.item_) {
 	  DomElement *c = getImpl(item.item_)
-	    ->createDomElement(itemFitWidth, itemFitHeight,
-			       additionalVerticalPadding, app);
+	    ->createDomElement(itemFitWidth, itemFitHeight, app);
+	  additionalVerticalPadding = getImpl(item.item_)
+	    ->additionalVerticalPadding(itemFitWidth, itemFitHeight);
 
 	  switch (hAlign) {
 	  case AlignCenter: {
@@ -582,43 +600,56 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  td->addChild(c);
 	}
 
-	std::string style;
+	std::string style2;
 
-	if (!jsHeights && vAlign == 0) style += heightPct;
+	if (!jsHeights && vAlign == 0) style2 += heightPct;
 
-	style += "overflow:auto;";
+	style2 += "overflow:auto;";
 
 	int padding2 = padding[2] + additionalVerticalPadding;
 
 	if (padding[0] == padding[1] && padding[0] == padding2
 	    && padding[0] == padding[3]) {
 	  if (padding[0] != 0) {
+#ifndef WT_TARGET_JAVA
 	    char buf[100];
 	    snprintf(buf, 100, "padding:%dpx;", padding[0]);
-	    style += buf;
+	    style2 += buf;
+#else
+	    style2 += "padding:"
+	      + boost::lexical_cast<std::string>(padding[0]) + "px;";
+#endif
 	  }
 	} else {
+#ifndef WT_TARGET_JAVA
 	  char buf[100];
 	  snprintf(buf, 100, "padding:%dpx %dpx %dpx %dpx;",
 		   padding[0], padding[1], padding2, padding[3]);
-	  style += buf;
+	  style2 += buf;
+#else
+	  style2 += "padding:"
+	    + boost::lexical_cast<std::string>(padding[0]) + "px "
+	    + boost::lexical_cast<std::string>(padding[1]) + "px "
+	    + boost::lexical_cast<std::string>(padding[2]) + "px "
+	    + boost::lexical_cast<std::string>(padding[3]) + "px;";
+#endif
 	}
 
 	switch (vAlign) {
 	case AlignTop:
-	  style += "vertical-align:top;";
+	  style2 += "vertical-align:top;";
 	  break;
 	case AlignMiddle:
-	  style += "vertical-align:middle;";
+	  style2 += "vertical-align:middle;";
 	  break;
 	case AlignBottom:
-	  style += "vertical-align:bottom;";
+	  style2 += "vertical-align:bottom;";
 	default:
 	  break;
 	}
 
-	if (!style.empty())
-	  td->setAttribute("style", style);
+	if (!style2.empty())
+	  td->setAttribute("style", style2);
 
 	if (item.rowSpan_ != 1)
 	  td->setAttribute("rowspan",

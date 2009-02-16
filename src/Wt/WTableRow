@@ -61,13 +61,13 @@ public:
    *
    * \sa styleClass(), WWidget::setStyleClass(const WString& style)
    */
-  void setStyleClass(const WString& style);
+  void setStyleClass(const WT_USTRING& style);
 
   /*! \brief Get the CSS style class for this row.
    *
    * \sa styleClass(), WWidget::styleClass()
    */
-  const WString& styleClass() const { return styleClass_; }
+  const WT_USTRING& styleClass() const { return styleClass_; }
 
   /*! \brief Set whether the row must be hidden.
    *
@@ -115,7 +115,7 @@ private:
   std::vector<TableData> cells_;
 
   WLength *height_;
-  WString  styleClass_;
+  WT_USTRING styleClass_;
   bool     hidden_, hiddenChanged_, wasHidden_;
 
   void updateDom(DomElement& element, bool all);

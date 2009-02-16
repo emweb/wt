@@ -35,7 +35,7 @@ public:
 
   virtual void setPositionScheme(PositionScheme scheme);
   virtual PositionScheme positionScheme() const;
-  virtual void setOffsets(const WLength& offset, int sides = All);
+  virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All);
   virtual WLength offset(Side s) const;
   virtual void resize(const WLength& width, const WLength& height);
   virtual WLength width() const;
@@ -48,11 +48,13 @@ public:
   virtual WLength maximumHeight() const;
   virtual void setLineHeight(const WLength& height);
   virtual WLength lineHeight() const;
+#ifndef WT_TARGET_JAVA
   virtual void setFloatSide(Side s);
   virtual Side floatSide() const;
-  virtual void setClearSides(int sides);
-  virtual int clearSides() const;
-  virtual void setMargin(const WLength& margin, int sides = All);
+  virtual void setClearSides(WFlags<Side> sides);
+  virtual WFlags<Side> clearSides() const;
+#endif // WT_TARGET_JAVA
+  virtual void setMargin(const WLength& margin, WFlags<Side> sides = All);
   virtual WLength margin(Side side) const;
   virtual void setHidden(bool);
   virtual bool isHidden() const;
@@ -60,20 +62,21 @@ public:
   virtual bool isPopup() const;
   virtual void setInline(bool);
   virtual bool isInline() const;
+  virtual void setDecorationStyle(const WCssDecorationStyle& style);
   virtual WCssDecorationStyle& decorationStyle();
+  virtual void setStyleClass(const WT_USTRING& styleClass);
   void setStyleClass(const char *styleClass);
-  virtual void setStyleClass(const WString& styleClass);
-  virtual WString styleClass() const;
-  virtual void setVerticalAlignment(VerticalAlignment alignment,
+  virtual WT_USTRING styleClass() const;
+  virtual void setVerticalAlignment(AlignmentFlag alignment,
 				    const WLength& length = WLength());
-  virtual VerticalAlignment verticalAlignment() const;
+  virtual AlignmentFlag verticalAlignment() const;
   virtual WLength verticalAlignmentLength() const;
   virtual WWebWidget *webWidget();
   virtual void setToolTip(const WString& text);
   virtual WString toolTip() const;
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
-				 const WString& value);
+				 const WT_USTRING& value);
   virtual void load();
   virtual bool loaded() const;
   virtual void setId(const std::string& id);
@@ -92,6 +95,10 @@ protected:
    * of the widget is completely transferred (including deletion).
    */
   void setImplementation(WWidget *widget);
+
+  virtual DomElement *createSDomElement(WApplication *app);
+  virtual void getSDomChanges(std::vector<DomElement *>& result,
+			      WApplication *app);
 
 private:
   WWidget *impl_;

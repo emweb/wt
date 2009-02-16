@@ -7,7 +7,7 @@
 #ifndef WEB_STREAM_H_
 #define WEB_STREAM_H_
 
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 

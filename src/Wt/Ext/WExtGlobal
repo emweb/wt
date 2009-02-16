@@ -1,0 +1,28 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WEXTGLOBAL_H_
+#define WEXTGLOBAL_H_
+
+namespace Wt {
+  namespace Ext {
+/*! \brief An enum for the location of data in data-intensive widgets.
+ *
+ * \sa ComboBox::setDataLocation(), TableView::setDataLocation()
+ *
+ * \ingroup ext
+ */
+enum DataLocation {
+  ClientSide, //!< Download the whole data model to the client.
+  ServerSide  //!< Keep the data at the server, and transfer data on-demand.
+};
+
+
+  }
+
+}
+
+#endif // WEXTGLOBAL_H_

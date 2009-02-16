@@ -27,11 +27,16 @@
 #undef min
 #endif
 
+//#define WTDEBUG
+
 namespace Wt {
 
-//#define WTDEBUG
-//#define WTDEBUG_STATE(x) x
-#define WTDEBUG_STATE(x)
+WResponseEvent::WResponseEvent()
+{ }
+
+WResponseEvent::WResponseEvent(const JavaScriptEvent& jsEvent)
+  : jsEvent_(jsEvent)
+{ }
 
 WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
 					   const std::string& aSymbol)
@@ -48,14 +53,14 @@ bool WApplication::ScriptLibrary::operator== (const ScriptLibrary& other) const
   return uri == other.uri;
 }
 
-WApplication::State::State(const std::string& aScope, const std::string& aValue)
-  : scope(aScope), value(aValue)
-{ }
-
 WApplication::WApplication(const WEnvironment& env)
   : session_(env.session_),
     titleChanged_(false),
+    internalPathChanged_(this),
+#ifndef WT_TARGET_JAVA
     serverPush_(0),
+    eventSignalPool_(sizeof(EventSignal<void>)),
+#endif // WT_TARGET_JAVA
     shouldTriggerUpdate_(false),
     javaScriptClass_("Wt"),
     dialogCover_(0),
@@ -67,19 +72,19 @@ WApplication::WApplication(const WEnvironment& env)
     scriptLibrariesAdded_(0),
     styleSheetsAdded_(0),
     exposeSignals_(true),
-    autoJavaScriptChanged_(false),
-    javaScriptResponse_(this),
-    showLoadingIndicator_(this),
-    hideLoadingIndicator_(this)
+    autoJavaScriptChanged_(false)
 {
-  session_->app_ = this;
-
+  session_->setApplication(this);
   locale_ = environment().locale();
 
   newInternalPath_ = environment().internalPath();
-  useStates_ = internalPathChanged_ = false;
+  internalPathIsChanged_ = false;
 
+#ifndef WT_TARGET_JAVA
   localizedStrings_ = new WMessageResourceBundle();
+#else
+  localizedStrings_ = 0;
+#endif // WT_TARGET_JAVA
 
   domRoot_ = new WContainerWidget();
   domRoot_->load();
@@ -132,6 +137,11 @@ WApplication::WApplication(const WEnvironment& env)
    */
   styleSheet_.addRule("iframe.Wt-resource",
 		      "width: 0px; height: 0px; border: 0px;");
+  if (environment().agentIE())
+    styleSheet_.addRule("iframe.Wt-shim",
+			"position: absolute; top: -1; left: -1; z-index: -1;"
+			"opacity: 0; filter: alpha(opacity=0);"
+			"border: none; margin: 0; padding: 0;");
   styleSheet_.addRule("button.Wt-wrap",
 		      "border: 0px; text-align: left;"
 		      "background-color: transparent; "
@@ -146,8 +156,21 @@ WApplication::WApplication(const WEnvironment& env)
 		      "user-select: none;");
   styleSheet_.addRule(".Wt-sbspacer", "float: right; width: 16px; height: 1px;"
 		      "border: 0px; display: none;");
-  javaScriptResponse_.connect(SLOT(this,
-				   WApplication::handleJavaScriptResponse));
+
+
+#ifdef WT_TARGET_JAVA
+#define JARG(e) , e
+#else
+#define JARG(e)
+#endif
+
+  javaScriptResponse_
+    = new EventSignal<WResponseEvent>("response", this JARG(WResponseEvent()));
+  javaScriptResponse_->connect(SLOT(this,
+				    WApplication::handleJavaScriptResponse));
+
+  showLoadingIndicator_ = new EventSignal<void>("showload", this);
+  hideLoadingIndicator_ = new EventSignal<void>("hideload", this);
 
   setLoadingIndicator(new WDefaultLoadingIndicator());
 }
@@ -158,11 +181,11 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
   loadingIndicator_ = indicator;
 
   if (loadingIndicator_) {
-    WWidget *w = indicator->widget();
+    WWidget * const w = indicator->widget();
     domRoot_->addWidget(w);
 
-    showLoadingIndicator_.connect(SLOT(w, WWidget::show));
-    hideLoadingIndicator_.connect(SLOT(w, WWidget::hide));
+    showLoadingIndicator_->connect(SLOT(w, WWidget::show));
+    hideLoadingIndicator_->connect(SLOT(w, WWidget::hide));
 
     w->hide();
   }
@@ -174,10 +197,12 @@ void WApplication::initialize()
 void WApplication::finalize()
 { }
 
+#ifndef WT_TARGET_JAVA
 WMessageResourceBundle& WApplication::messageResourceBundle() const
 {
   return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings_));
 }
+#endif // WT_TARGET_JAVA
 
 std::string WApplication::onePixelGifUrl()
 {
@@ -200,6 +225,10 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
+  delete javaScriptResponse_;
+  delete showLoadingIndicator_;
+  delete hideLoadingIndicator_;
+
   dialogCover_ = 0;
   dialogWindow_ = 0;
 
@@ -211,18 +240,22 @@ WApplication::~WApplication()
   domRoot2_ = 0;
   delete tmp;
 
+#ifndef WT_TARGET_JAVA
   delete serverPush_;
+#endif // WT_TARGET_JAVA
   delete localizedStrings_;
 
   styleSheet_.clear();
 
-  session_->app_ = 0;
+  session_->setApplication(0);
 }
 
+#ifndef WT_TARGET_JAVA
 void WApplication::attachThread()
 {
   WebSession::Handler::attachThreadToSession(*session_);
 }
+#endif // WT_TARGET_JAVA
 
 void WApplication::setAjaxMethod(AjaxMethod method)
 {
@@ -279,8 +312,11 @@ bool WApplication::isExposed(WWidget *w) const
 WContainerWidget *WApplication::dialogWindow(bool create)
 {
   if (dialogWindow_ == 0 && create) {
+    dialogCover(true);
+
     dialogWindow_ = new WContainerWidget(domRoot_);
     dialogWindow_->setStyleClass("Wt-dialogwindow");
+    dialogWindow_->setPopup(true);
 
     addAutoJavaScript
       ("{"
@@ -388,22 +424,6 @@ std::string WApplication::url() const
   return fixRelativeUrl(session_->applicationUrl());
 }
 
-std::string WApplication::applicationName() const
-{
-  /*
-   * The old behaviour included the internal path
-   */
-  if (!environment().internalPath().empty()) {
-    std::string result = environment().internalPath();
-    std::string::size_type slashpos = result.find_last_of('/');
-    if (slashpos != std::string::npos)
-      result.erase(0, slashpos+1);
-
-    return result;
-  } else
-    return session_->applicationName();
-}
-
 std::string WApplication::fixRelativeUrl(const std::string& url) const
 {
   if (url.find("://") != std::string::npos)
@@ -414,7 +434,7 @@ std::string WApplication::fixRelativeUrl(const std::string& url) const
 
   if (ajaxMethod_ == XMLHttpRequest) {
     if (!environment().javaScript()
-	&& !environment().request_->pathInfo().empty())
+	&& !WebSession::Handler::instance()->request()->pathInfo().empty())
       // This will break reverse proxies:
       // We could do a '../path/' trick? we could do this to correct
       // for the current internal path: as many '../' as there are
@@ -559,7 +579,8 @@ void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
 
 void WApplication::refresh()
 {
-  localizedStrings_->refresh();
+  if (localizedStrings_)
+    localizedStrings_->refresh();
   widgetRoot_->refresh();
 
   if (title_.refresh())
@@ -592,7 +613,7 @@ WApplication *WApplication::instance()
 
 int WApplication::maximumRequestSize() const
 {
-  return WebController::conf().maxRequestSize() * 1024;
+  return session_->controller()->configuration().maxRequestSize() * 1024;
 }
 
 std::string WApplication::docType() const
@@ -625,12 +646,11 @@ bool WApplication::internalPathMatches(const std::string& path) const
 bool WApplication::pathMatches(const std::string& path,
 			       const std::string& query)
 {
-  if (!query.empty() &&
-      (query.length() > path.length()
-       || path.substr(0, query.length()) != query)) {
-    return false;
-  } else
+  if (query.length() <= path.length()
+      && path.substr(0, query.length()) == query)
     return true;
+  else
+    return false;
 }
 
 std::string WApplication::internalPathNextPart(const std::string& path) const
@@ -673,112 +693,15 @@ void WApplication::setInternalPath(const std::string& path, bool emitChange)
   else
     newInternalPath_ = path;
 
-  internalPathChanged_ = true;
-}
-
-void WApplication::setState(const std::string& scope, const std::string& value)
-{
-  useStates_ = true;
-
-  if (!session()->renderer().preLearning() && state(scope) == value)
-    return;
-
-  for (unsigned i = 0; i < states_.size(); ++i)
-    if (states_[i].scope == scope) {
-      states_[i].value = value;
-
-      if (i + 1 < states_.size())
-	states_.erase(states_.begin() + i + 1, states_.end());
-
-      setInternalPathFromStates();
-      return;
-    }
-
-  states_.push_back(State(scope, value));
-  setInternalPathFromStates();
-}
-
-std::string WApplication::state(const std::string& scope) const
-{
-  for (unsigned i = 0; i < states_.size(); ++i)
-    if (states_[i].scope == scope)
-      return states_[i].value;
-
-  return std::string();
-}
-
-void WApplication::setInternalPathFromStates()
-{
-  std::string p("/");
-
-  for (unsigned i = 0; i < states_.size(); ++i) {
-    p += states_[i].scope + '/' + states_[i].value + '/';
-  }
-
-  setInternalPath(p);
-}
-
-void WApplication::setStatesFromInternalPath()
-{
-  std::string scope;
-  std::string value;
-
-  enum { FindScope, FindValue } state = FindScope;
-
-  unsigned j = 0;
-
-  std::size_t i = newInternalPath_.empty()
-    ? 0
-    : newInternalPath_[0] == '/' ? 1 : 0;
-
-  for (;;) {
-    if (i >= newInternalPath_.length())
-      break;
-
-    std::size_t nextSlash = newInternalPath_.find('/', i);
-
-    std::string s;
-    s = newInternalPath_.substr(i, nextSlash - i);
-
-    if (state == FindScope) {
-      scope = s;
-      state = FindValue;
-    } else {
-      value = s;
-
-      if (j < states_.size()) {
-	if (scope != states_[j].scope) 
-	  log("error") << "Inconsistent state change?";
-	if (states_[j].value != value) {
-	  states_[j].value = value;
-	  if (j + 1 < states_.size())
-	    states_.erase(states_.begin() + j + 1, states_.end());
-	  stateChanged.emit(scope, value);
-	}
-      } else {
-	states_.push_back(State(scope, value));
-	stateChanged.emit(scope, value);
-      }
-
-      state = FindScope;
-      ++j;
-    }
-
-    i = nextSlash + 1;
-  }
-
-  if (j < states_.size()) {
-    // we lost some states at the end -- propagate "" to the first one
-    scope = states_[j].scope;
-    states_.erase(states_.begin() + j, states_.end());
-    stateChanged.emit(scope, std::string());
-  }
+  internalPathIsChanged_ = true;
 }
 
 void WApplication::changeInternalPath(const std::string& aPath)
 {
   std::string path = aPath;
 
+  // Java Branch had:
+  // if (path != newInternalPath_ && (path.empty() || path[0] == '/')) {
   if (path != newInternalPath_) {
     std::size_t fileStart = 0;
     std::size_t i = 0;
@@ -802,7 +725,7 @@ void WApplication::changeInternalPath(const std::string& aPath)
 
       if (!next.empty())
         newInternalPath_ = common + next;
-      internalPathChanged.emit(common);
+      internalPathChanged().emit(common);
 
       if (next.empty()) {
 	newInternalPath_ = path;
@@ -811,9 +734,6 @@ void WApplication::changeInternalPath(const std::string& aPath)
 
       common = newInternalPath_;
     }
-
-    if (useStates_)
-      setStatesFromInternalPath();
   }
 }
 
@@ -835,33 +755,19 @@ std::string WApplication::bookmarkUrl(const std::string& internalPath) const
     return session_->bookmarkUrl(internalPath);
 }
 
-std::string WApplication::bookmarkUrl(const std::string& scope,
-				      const std::string& newState)
-{
-  std::string currentPath = newInternalPath_;
-  StateList currentStates = states_;
-
-  setState(scope, newState);
-  std::string result = bookmarkUrl();
-
-  states_ = currentStates;
-  newInternalPath_ = currentPath;
-
-  return result;
-}
-
 WLogEntry WApplication::log(const std::string& type) const
 {
   return session_->log(type);
 }
 
+#ifndef WT_TARGET_JAVA
 void WApplication::enableUpdates()
 {
   if (!serverPush_) {
     serverPush_ = new WServerPushResource(this);
 
     require(resourcesUrl() + "orbited.js");
-    doJavaScript("setTimeout(\"Orbited.connect(eval,'none','"
+    doJavaScript("setTimeout(\"Orbited().connect(eval,'none','"
 		 + serverPush_->generateUrl() + "','0');\",1000);");
   }
 }
@@ -894,14 +800,14 @@ class UpdateLockImpl
 public:
   UpdateLockImpl(WApplication& app)
     : handler_(*(app.session()))
-#ifdef THREADED
-    ,sessionLock_(app.session()->mutex)
-#endif // THREADED
+#ifdef WT_THREADED
+    ,sessionLock_(app.session()->mutex())
+#endif // WT_THREADED
   { 
     app.shouldTriggerUpdate_ = true;
-#ifndef THREADED
+#ifndef WT_THREADED
     throw WtException("UpdateLock needs Wt with thread support");
-#endif // THREADED
+#endif // WT_THREADED
   }
 
   ~UpdateLockImpl()
@@ -912,9 +818,9 @@ public:
 private:
   WebSession::Handler handler_;
 
-#ifdef THREADED
+#ifdef WT_THREADED
   boost::mutex::scoped_lock sessionLock_;
-#endif // THREADED
+#endif // WT_THREADED
 };
 
 WApplication::UpdateLock::UpdateLock(WApplication& app)
@@ -938,6 +844,8 @@ WApplication::UpdateLock::~UpdateLock()
 {
   delete impl_;
 }
+
+#endif // WT_TARGET_JAVA
 
 void WApplication::doJavaScript(const std::string& javascript,
 				bool afterLoaded)
@@ -984,7 +892,7 @@ std::string WApplication::beforeLoadJavaScript()
 
 void WApplication::notify(const WEvent& e)
 {
-  WebController::instance()->notify(e);
+  WebSession::notify(e);
 }
 
 void WApplication::processEvents()
@@ -992,7 +900,7 @@ void WApplication::processEvents()
   /* set timeout to allow other events to be interleaved */
   session_->doRecursiveEventLoop
     ("setTimeout(\"" + javaScriptClass_
-     + "._p_.update(null,'" + javaScriptResponse_.encodeCmd()
+     + "._p_.update(null,'" + javaScriptResponse_->encodeCmd()
      + "',null,false);\",0);");
 }
 
@@ -1021,7 +929,7 @@ bool WApplication::readConfigurationProperty(const std::string& name,
 					     std::string& value)
 {
   const Configuration::PropertyMap& properties
-    = WebController::conf().properties();
+    = instance()->session_->controller()->configuration().properties();
 
   Configuration::PropertyMap::const_iterator i = properties.find(name);
 
@@ -1032,13 +940,13 @@ bool WApplication::readConfigurationProperty(const std::string& name,
     return false;
 }
 
-#ifndef JAVA
+#ifndef WT_TARGET_JAVA
 WServer::Exception::Exception(const std::string what)
   : what_(what)
 { }
 
 WServer::Exception::~Exception() throw()
 { }
-#endif // JAVA
+#endif // WT_TARGET_JAVA
 
 }

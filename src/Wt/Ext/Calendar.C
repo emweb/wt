@@ -17,9 +17,9 @@ namespace Wt {
 
 Calendar::Calendar(bool i18n, WContainerWidget *parent)
   : Component(parent),
-    selectionChanged(this),
-    selected(this),
-    i18n_(),
+    selectionChanged_(this),
+    selected_(this),
+    i18n_(i18n),
     extDateSelected_(this, "select", false)
 { }
 
@@ -41,8 +41,8 @@ void Calendar::onSelect(std::string date)
 
   if (d.isValid()) {
     selection_.insert(d);
-    selectionChanged.emit();
-    selected.emit();
+    selectionChanged_.emit();
+    selected_.emit();
   } else
     wApp->log("error") << "Calendar internal error: could not parse date: '"
 		       << date << "'";

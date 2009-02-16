@@ -27,8 +27,8 @@ public:
   virtual int minimumHeight() const;
 
   virtual DomElement *createDomElement(bool fitWidth, bool fitHeight,
-				       int& additionalVerticalPadding,
 				       WApplication *app);
+  virtual int additionalVerticalPadding(bool fitWidth, bool fitHeight) const;
 
   static bool useJavaScriptHeights(WApplication *app);
 

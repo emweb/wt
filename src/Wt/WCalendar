@@ -33,8 +33,7 @@ template <typename T, typename A1> class WSignalMapper;
  *
  * The calendar may be configured to allow selection of single or
  * multiple days, and you may listen for changes in the selection
- * using the \link WCalendar::selectionChanged selectionChanged
- * \endlink signal.
+ * using the selectionChanged() signal.
  *
  * Internationalization may be provided by indicating i18n == true in
  * the constructor, and providing the appropriate messages for months
@@ -155,14 +154,17 @@ public:
    *
    * Emitted after the user has changed the current selection.
    */
-  Signal<void> selectionChanged;
+  Signal<>& selectionChanged() { return selectionChanged_; }
 
   /*! \brief Signal emitted when the user has double clicked on a date.
    *
    * This signal indicates that he user has selected a new date, which 
    * is only available when in single selection mode.
    */
-  Signal<void> selected;
+  Signal<WDate>& selected() { return selected_; }
+
+protected:
+  virtual void render();
 
 private:
   bool              i18n_;
@@ -170,6 +172,10 @@ private:
   int               currentYear_;
   int               currentMonth_;
   std::set<WDate>   selection_;
+  bool              needRenderMonth_;
+
+  Signal<>          selectionChanged_;
+  Signal<WDate>     selected_;
 
   struct Coordinate {
     int i, j;

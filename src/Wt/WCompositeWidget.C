@@ -10,6 +10,8 @@
 
 #include "Wt/WCompositeWidget"
 #include "Wt/WContainerWidget"
+#include "Wt/WApplication"
+#include "Wt/WLogger"
 
 #include "WtException.h"
 
@@ -45,12 +47,12 @@ void WCompositeWidget::setPositionScheme(PositionScheme scheme)
   impl_->setPositionScheme(scheme);
 }
 
-WWidget::PositionScheme WCompositeWidget::positionScheme() const
+PositionScheme WCompositeWidget::positionScheme() const
 {
   return impl_->positionScheme();
 }
 
-void WCompositeWidget::setOffsets(const WLength& offset, int sides)
+void WCompositeWidget::setOffsets(const WLength& offset, WFlags<Side> sides)
 {
   impl_->setOffsets(offset, sides);
 }
@@ -115,27 +117,29 @@ WLength WCompositeWidget::lineHeight() const
   return impl_->lineHeight();
 }
 
+#ifndef WT_TARGET_JAVA
 void WCompositeWidget::setFloatSide(Side s)
 {
   impl_->setFloatSide(s);
 }
 
-WWidget::Side WCompositeWidget::floatSide() const
+Side WCompositeWidget::floatSide() const
 {
   return impl_->floatSide();
 }
 
-void WCompositeWidget::setClearSides(int sides)
+void WCompositeWidget::setClearSides(WFlags<Side> sides)
 {
   impl_->setClearSides(sides);
 }
 
-int WCompositeWidget::clearSides() const
+WFlags<Side> WCompositeWidget::clearSides() const
 {
   return impl_->clearSides();
 }
+#endif // WT_TARGET_JAVA
 
-void WCompositeWidget::setMargin(const WLength& margin, int sides)
+void WCompositeWidget::setMargin(const WLength& margin, WFlags<Side> sides)
 {
   impl_->setMargin(margin, sides);
 }
@@ -169,7 +173,7 @@ void WCompositeWidget::setInline(bool how)
 {
   resetLearnedSlot(&WWidget::show);
 
-  return impl_->setInline(how);
+  impl_->setInline(how);
 }
 
 bool WCompositeWidget::isInline() const
@@ -177,33 +181,46 @@ bool WCompositeWidget::isInline() const
   return impl_->isInline();
 }
 
+void WCompositeWidget::setDecorationStyle(const WCssDecorationStyle& style)
+{
+  impl_->setDecorationStyle(style);
+}
+
 WCssDecorationStyle& WCompositeWidget::decorationStyle()
 {
   return impl_->decorationStyle();
 }
 
-void WCompositeWidget::setStyleClass(const WString& styleClass)
+void WCompositeWidget::setStyleClass(const WT_USTRING& styleClass)
 {
   impl_->setStyleClass(styleClass);
 }
 
-void WCompositeWidget::setStyleClass(const char *value)
+void WCompositeWidget::setStyleClass(const char *styleClass)
 {
-  impl_->setStyleClass(WString(value, UTF8));
+  impl_->setStyleClass(WT_USTRING::fromUTF8(styleClass));
 }
 
-WString WCompositeWidget::styleClass() const
+WT_USTRING WCompositeWidget::styleClass() const
 {
   return impl_->styleClass();
 }
 
-void WCompositeWidget::setVerticalAlignment(VerticalAlignment alignment,
+void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
 					    const WLength& length)
 {
+#ifndef WT_TARGET_JAVA // fix this in cnor
+  if (alignment & AlignHorizontalMask) {
+    wApp->log("warning") << "WCompositeWidget::setVerticalAlignment: "
+      "alignment " << alignment << "is horizontal, expected vertical";
+    alignment = (AlignmentFlag)(alignment & AlignVerticalMask);
+    
+  }
+#endif // WT_TARGET_JAVA
   impl_->setVerticalAlignment(alignment, length);
 }
 
-WWidget::VerticalAlignment WCompositeWidget::verticalAlignment() const
+AlignmentFlag WCompositeWidget::verticalAlignment() const
 {
   return impl_->verticalAlignment();
 }
@@ -238,7 +255,7 @@ void WCompositeWidget::addChild(WWidget *child)
   if (child != impl_)
     impl_->addChild(child);
   else
-    impl_->WObject::setParent(this);
+    impl_->WObject::setParent((WObject *)this);
 }
 
 void WCompositeWidget::removeChild(WWidget *child)
@@ -246,7 +263,7 @@ void WCompositeWidget::removeChild(WWidget *child)
   if (child != impl_)
     impl_->removeChild(child);
   else
-    impl_->WObject::setParent(0);
+    impl_->WObject::setParent((WObject *)0);
 }
 
 void WCompositeWidget::setHideWithOffsets(bool how)
@@ -271,7 +288,7 @@ bool WCompositeWidget::isStubbed() const
 }
 
 void WCompositeWidget::setAttributeValue(const std::string& attribute,
-					 const WString& value)
+					 const WT_USTRING& value)
 {
   impl_->setAttributeValue(attribute, value);
 }
@@ -317,6 +334,19 @@ WLayout *WCompositeWidget::layout()
 WLayoutItemImpl *WCompositeWidget::createLayoutItemImpl(WLayoutItem *item)
 {
   return impl_->createLayoutItemImpl(item);
+}
+
+DomElement *WCompositeWidget::createSDomElement(WApplication *app)
+{
+  render();
+  return impl_->createSDomElement(app);
+}
+
+void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
+				      WApplication *app)
+{
+  render();
+  impl_->getSDomChanges(result, app);
 }
 
 }

@@ -4,8 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef HTTP_REQUEST_H_
-#define HTTP_REQUEST_H_
+#ifndef HTTP_HTTP_REQUEST_H_
+#define HTTP_HTTP_REQUEST_H_
 
 #include <sstream>
 
@@ -20,7 +20,8 @@ class HTTPRequest : public Wt::WebRequest
 public:
   HTTPRequest(WtReplyPtr wtReply);
 
-  virtual void flush();
+  virtual void flush(ResponseState state, CallbackFunction callback = 0,
+		     void *callbackData = 0);
 
   virtual std::istream& in() { return instream_; }
   virtual std::ostream& out() { return outstream_; }
@@ -50,4 +51,4 @@ private:
 }
 }
 
-#endif // HTTPRequest
+#endif // HTTP_HTTP_REQUEST_H_

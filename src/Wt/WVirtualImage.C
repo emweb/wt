@@ -8,6 +8,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WCssDecorationStyle"
 #include "Wt/WImage"
+#include "Wt/WResource"
 #include "Wt/WScrollArea"
 #include "Wt/WVirtualImage"
 
@@ -23,6 +24,7 @@ WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
 			     int gridImageSize,
 			     WContainerWidget *parent)
   : WCompositeWidget(parent),
+    viewPortChanged_(this),
     gridImageSize_(gridImageSize),
     viewPortWidth_(viewPortWidth),
     viewPortHeight_(viewPortHeight),
@@ -83,12 +85,12 @@ void WVirtualImage::enableDragging()
      + impl_->jsRef() + ".removeAttribute('dsx');"
      "}");
 
-  impl_->mouseWentDown.connect(mouseDownJS_);
-  impl_->mouseMoved.connect(mouseMovedJS_);
-  impl_->mouseWentUp.connect(mouseUpJS_);
+  impl_->mouseWentDown().connect(mouseDownJS_);
+  impl_->mouseMoved().connect(mouseMovedJS_);
+  impl_->mouseWentUp().connect(mouseUpJS_);
 
-  impl_->mouseWentUp.connect(SLOT(this, WVirtualImage::mouseUp));
-  impl_->decorationStyle().setCursor(WCssDecorationStyle::Move);
+  impl_->mouseWentUp().connect(SLOT(this, WVirtualImage::mouseUp));
+  impl_->decorationStyle().setCursor(OpenHandCursor);
 }
 
 WVirtualImage::~WVirtualImage()
@@ -147,7 +149,7 @@ void WVirtualImage::internalScrollTo(int64_t newX, int64_t newY,
 
   generateGridItems(newX, newY);
 
-  viewPortChanged.emit(currentX_, currentY_);
+  viewPortChanged_.emit(currentX_, currentY_);
 }
 
 void WVirtualImage::scroll(int64_t dx, int64_t dy)
@@ -257,9 +259,13 @@ void WVirtualImage::cleanGrid()
     if (i < i1 || i > i2 || j < j1 || j > j2) {
       delete it->second->resource();
       delete it->second;
+#ifndef WT_TARGET_JAVA
       GridMap::iterator eraseIt = it;
       ++it;
       grid_.erase(eraseIt);
+#else      
+      grid_.erase(it->first);
+#endif // WT_TARGET_JAVA
     } else
       ++it;
   }

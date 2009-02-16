@@ -11,14 +11,15 @@
 #include "Wt/WStandardItemModel"
 
 #include "WtException.h"
+#include "Utils.h"
+
+#define UNSPECIFIED_RESULT -1
 
 namespace {
 
-  const bool UNSPECIFIED_IS_SMALLER = true;
-
   using namespace Wt;
 
-  struct WStandardItemCompare
+  struct WStandardItemCompare W_JAVA_COMPARATOR(int)
   {
     WStandardItemCompare(WStandardItem *anItem, int aColumn, SortOrder anOrder)
       : item(anItem),
@@ -28,25 +29,29 @@ namespace {
 
     bool operator()(int r1, int r2) const {
       if (order == AscendingOrder)
-	return lessThan(r1, r2);
+	return compare(r1, r2) < 0;
       else
-	return lessThan(r2, r1);
+	return compare(r2, r1) < 0;
     }
 
-    bool lessThan(int r1, int r2) const {
+    int compare(int r1, int r2) const {
       WStandardItem *item1 = item->child(r1, column);
       WStandardItem *item2 = item->child(r2, column);
 
       if (item1)
 	if (item2)
-	  return (*item1) < (*item2);
+#ifndef WT_TARGET_JAVA
+	  return (*item1) < (*item2) ? -1 : 1;
+#else
+          return item1->compare(*item2);
+#endif
 	else
-	  return !UNSPECIFIED_IS_SMALLER;
+	  return -UNSPECIFIED_RESULT;
       else
 	if (item2)
-	  return UNSPECIFIED_IS_SMALLER;
+	  return UNSPECIFIED_RESULT;
 	else
-	  return false; // equal
+	  return 0;
     }
 
     WStandardItem *item;
@@ -105,8 +110,16 @@ WStandardItem::WStandardItem(int rows, int columns)
     columns = std::max(columns, 1);
 
   if (columns > 0) {
-    columns_ = new ColumnList;
+    columns_ = new ColumnList();
+#ifndef WT_TARGET_JAVA
     columns_->insert(columns_->end(), columns, Column(rows));
+#else // WT_TARGET_JAVA
+    for (int i = 0; i < columns; ++i) {
+      Column c;
+      c.insert(c.end(), rows, static_cast<WStandardItem *>(0));
+      columns_->push_back(c);
+    }
+#endif // WT_TARGET_JAVA
   }
 }
 
@@ -207,7 +220,7 @@ std::string WStandardItem::url() const
     return std::string();
 }
 
-void WStandardItem::setFlags(int flags)
+void WStandardItem::setFlags(WFlags<ItemFlag> flags)
 {
   if (flags_ != flags) {
     flags_ = flags;
@@ -215,7 +228,7 @@ void WStandardItem::setFlags(int flags)
   }
 }
 
-int WStandardItem::flags() const
+WFlags<ItemFlag> WStandardItem::flags() const
 {
   return flags_;
 }
@@ -252,11 +265,11 @@ WString WStandardItem::toolTip() const
 
 void WStandardItem::setCheckable(bool checkable)
 {
-  if (!isCheckable() & checkable) {
+  if (!isCheckable() && checkable) {
     flags_ |= ItemIsUserCheckable;
     signalModelDataChange();
-  } if (isCheckable() & !checkable) {
-    flags_ &= ~ItemIsUserCheckable;
+  } if (isCheckable() && !checkable) {
+    flags_.clear(ItemIsUserCheckable);
     signalModelDataChange();
   }
 }
@@ -334,13 +347,14 @@ void WStandardItem::appendColumn(const std::vector<WStandardItem *>& items)
 void WStandardItem::insertColumn(int column,
 				 const std::vector<WStandardItem *>& items)
 {
-  int rc = rowCount();
+  unsigned rc = rowCount();
 
   if (!columns_)
     columns_ = new ColumnList();
-  else
-    if ((unsigned)column < items.size())
+  else {
+    if (rc < items.size())
       setRowCount(items.size());
+  }
 
   if (model_)
     model_->beginInsertColumns(index(), column, column);
@@ -350,9 +364,9 @@ void WStandardItem::insertColumn(int column,
     if (items[i])
       adoptChild(i, column, items[i]);
 
-  if (items.size() < (unsigned)column) {
+  if (items.size() < rc) {
     std::vector<WStandardItem *>& inserted = (*columns_)[column];
-    inserted.insert(inserted.end(), rc - items.size(), 0);
+    inserted.resize(items.size());
   }
 
   renumberColumns(column + 1);
@@ -407,7 +421,15 @@ void WStandardItem::insertColumns(int column, int count)
     if (!columns_)
       columns_ = new ColumnList;
 
+#ifndef WT_TARGET_JAVA
     columns_->insert(columns_->begin() + column, count, Column(rc));
+#else
+    for (int i = 0; i < count; ++i) {
+      Column c;
+      c.insert(c.end(), rc, static_cast<WStandardItem *>(0));
+      columns_->insert(columns_->begin() + column + i, c);
+    }
+#endif
 
     renumberColumns(column + count);
 
@@ -429,7 +451,6 @@ void WStandardItem::insertRows(int row, int count)
 
     for (unsigned i = 0; i < cc; ++i) {
       Column& c = (*columns_)[i];
-
       c.insert(c.begin() + row, count, static_cast<WStandardItem *>(0));
     }
 
@@ -462,7 +483,12 @@ void WStandardItem::insertRows(int row,
 			       const std::vector<WStandardItem *>& items)
 {
   // FIXME, could be done smarter and more efficient
+#ifndef WT_TARGET_JAVA
   std::vector<WStandardItem *> r(1);
+#else
+  std::vector<WStandardItem *> r;
+  r.push_back(0);
+#endif
 
   for (unsigned i = 0; i < items.size(); ++i) {
     r[0] = items[i];
@@ -574,7 +600,12 @@ std::vector<WStandardItem *> WStandardItem::takeRow(int row)
   if (model_)
     model_->beginRemoveRows(index(), row, row);
 
+#ifndef WT_TARGET_JAVA
   std::vector<WStandardItem *> result(columnCount());
+#else
+  std::vector<WStandardItem *> result;
+  result.insert(result.end(), columnCount(), static_cast<WStandardItem *>(0));
+#endif
 
   for (unsigned i = 0; i < result.size(); ++i) {
     Column& c = (*columns_)[i];
@@ -685,36 +716,52 @@ WStandardItem *WStandardItem::clone() const
 void WStandardItem::sortChildren(int column, SortOrder order)
 {
   if (model_)
-    model_->layoutAboutToBeChanged();
+    model_->layoutAboutToBeChanged().emit();
 
   recursiveSortChildren(column, order);
 
   if (model_)
-    model_->layoutChanged();
+    model_->layoutChanged().emit();
 }
 
 bool WStandardItem::operator< (const WStandardItem& other) const
+{
+  return compare(other) < 0;
+}
+
+int WStandardItem::compare(const WStandardItem& other) const
 {
   int role = model_ ? model_->sortRole() : DisplayRole;
 
   boost::any d1 = data(role);
   boost::any d2 = other.data(role);
 
-  return lessThan(d1, d2);
+  return Wt::compare(d1, d2);
 }
 
 void WStandardItem::recursiveSortChildren(int column, SortOrder order)
 {
   if (column < columnCount()) {
+#ifndef WT_TARGET_JAVA
     std::vector<int> permutation(rowCount());
 
     for (unsigned i = 0; i < permutation.size(); ++i)
       permutation[i] = i;
+#else
+    std::vector<int> permutation;
+    for (unsigned i = 0; i < permutation.size(); ++i)
+      permutation.push_back(i);
+#endif // WT_TARGET_JAVA
+    
+    Utils::stable_sort(permutation, WStandardItemCompare(this, column, order));
 
-    std::stable_sort(permutation.begin(), permutation.end(),
-		     WStandardItemCompare(this, column, order));
-
+#ifndef WT_TARGET_JAVA
     Column temp(rowCount());
+#else
+    Column temp;
+    temp.insert(temp.end(), rowCount(), static_cast<WStandardItem *>(0));
+#endif
+
     for (int c = 0; c < columnCount(); ++c) {
       Column& cc = (*columns_)[c];
       for (int r = 0; r < rowCount(); ++r) {
@@ -738,7 +785,7 @@ void WStandardItem::signalModelDataChange()
 {
   if (model_) {
     WModelIndex self = index();
-    model_->dataChanged.emit(self, self);
+    model_->dataChanged().emit(self, self);
   }
 }
 

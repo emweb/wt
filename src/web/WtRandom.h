@@ -9,8 +9,10 @@
 #ifndef WTRANDOM_H_
 #define WTRANDOM_H_
 
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 #include <stdlib.h>
+
+namespace Wt {
 
 class WtRandom_Private;
 
@@ -35,5 +37,7 @@ private:
   class Private;
   WtRandom::Private *_p;
 };
+
+}
 
 #endif // IFNDEF WTRANDOM_H_

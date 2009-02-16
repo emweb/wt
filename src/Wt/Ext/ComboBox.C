@@ -17,7 +17,7 @@ namespace Wt {
 
 ComboBox::ComboBox(WContainerWidget *parent)
   : LineEdit(parent),
-    activated(this, "activated", true),
+    activated_(this, "activated", true),
     dataLocation_(ClientSide),
     editable_(false),
     queryDelay_(-1),
@@ -28,7 +28,7 @@ ComboBox::ComboBox(WContainerWidget *parent)
     dataStore_(0)
 {
   //extjs: combobox doesn't stand a parent with display: none
-  setHideWithOffsets();
+  setHideWithOffsets(true);
 
   setModel(new WStringListModel(this));
 }
@@ -70,16 +70,17 @@ void ComboBox::setModel(WAbstractItemModel *model)
   model_ = model;
 
   modelConnections_.push_back
-    (model_->columnsInserted.connect(SLOT(this,
-					  ComboBox::modelColumnsInserted)));
+    (model_->columnsInserted().connect(SLOT(this,
+					    ComboBox::modelColumnsInserted)));
   modelConnections_.push_back
-    (model_->columnsRemoved.connect(SLOT(this, ComboBox::modelColumnsRemoved)));
+    (model_->columnsRemoved().connect(SLOT(this,
+					   ComboBox::modelColumnsRemoved)));
   modelConnections_.push_back
-    (model_->rowsInserted.connect(SLOT(this, ComboBox::modelRowsInserted)));
+    (model_->rowsInserted().connect(SLOT(this, ComboBox::modelRowsInserted)));
   modelConnections_.push_back
-    (model_->rowsRemoved.connect(SLOT(this, ComboBox::modelRowsRemoved)));
+    (model_->rowsRemoved().connect(SLOT(this, ComboBox::modelRowsRemoved)));
   modelConnections_.push_back
-    (model_->dataChanged.connect(SLOT(this, ComboBox::modelDataChanged)));
+    (model_->dataChanged().connect(SLOT(this, ComboBox::modelDataChanged)));
 
   if (dataStore_) {
     dataStore_->setModel(model);
@@ -218,7 +219,8 @@ void ComboBox::updateExt()
 {
   addUpdateJS(elVar() + ".clearValue();");
   addUpdateJS(dataStore_->jsGetUpdates(elVar() + ".store"));
-  updateWtSignal(&activated, activated.name(), "", elVar() + ".selectedIndex");
+  updateWtSignal(&activated_, activated_.name(), "",
+		 elVar() + ".selectedIndex");
 }
 
 std::string ComboBox::createJS(DomElement *inContainer)
@@ -258,7 +260,7 @@ void ComboBox::createConfig(std::ostream& config)
   if (pageSize_ != 0)
     config << ",pageSize:" << pageSize_;
 
-  addWtSignalConfig("selectH", &activated, activated.name(),
+  addWtSignalConfig("selectH", &activated_, activated_.name(),
 		    "", elVar() + ".selectedIndex", config);  
 
   LineEdit::createConfig(config);

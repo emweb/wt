@@ -18,8 +18,6 @@
 #include "WtException.h"
 #include "Utils.h"
 
-using std::exit;
-
 namespace {
 
 const char *elementNames_[] =
@@ -32,8 +30,8 @@ const char *elementNames_[] =
     "ol",
 
     "option", "ul", "script", "select",
-    "span", "table", "tbody", "td",
-    "textarea",
+    "span", "table", "tbody", "thead",
+    "th", "td", "textarea",
 
     "tr", "p", "canvas",
     "map", "area"
@@ -50,11 +48,14 @@ bool defaultInline_[] =
 
     true, false, false, true,
     true, false, false, false,
-    true,
+    false, false, true,
 
     false, false, false,
     false, true
   };
+
+const std::string unsafeChars_ = "$&+,:;=?@'\"<>#%{}|\\^~[]`";
+
 }
 
 namespace Wt {
@@ -120,13 +121,16 @@ std::string DomElement::urlEncode(const std::string& url)
 {
   std::stringstream result;
 
-  static const std::string unsafeChars = "$&+,:;=?@'\"<>#%{}|\\^~[]`";
-
   for (unsigned i = 0; i < url.length(); ++i) {
     char c = url[i];
-    if (c < 31 || c >= 127 || unsafeChars.find(c) != std::string::npos)
-      result << '%' << std::hex << (int)c;
-    else
+    if (c < 31 || c >= 127 || unsafeChars_.find(c) != std::string::npos) {
+      result << '%';
+#ifndef WT_TARGET_JAVA
+      result << std::hex << (int)c;
+#else
+      result << Utils::toHexString(c);
+#endif // WT_TARGET_JAVA
+    } else
       result.put(c);
   }
 
@@ -220,7 +224,7 @@ void DomElement::setEvent(const char *eventName,
   WApplication *app = WApplication::instance();
 
   bool anchorClick = type() == DomElement_A
-    && (strcmp("click", eventName) == 0);
+    && eventName == WInteractWidget::CLICK_SIGNAL;
 
   bool nonEmpty = isExposed || anchorClick || !jsCode.empty();
 
@@ -230,7 +234,7 @@ void DomElement::setEvent(const char *eventName,
     if (app->environment().agentIEMobile())
       js << "var e=window.event;";
     else
-      js << "var e=event?event:window.event;";
+      js << "var e=event||window.event;";
 
   if (anchorClick)
     js << "if(e.ctrlKey||e.metaKey)return true;else{";
@@ -272,7 +276,7 @@ DomElement::EventAction::EventAction(const std::string& aJsCondition,
 void DomElement::setEvent(const char *eventName,
 			  const std::vector<EventAction>& actions)
 {
-  std::string code = "var s='';";
+  std::string code = "var s=false;";
 
   for (unsigned i = 0; i < actions.size(); ++i) {
     if (!actions[i].jsCondition.empty())
@@ -280,7 +284,7 @@ void DomElement::setEvent(const char *eventName,
     code += actions[i].jsCode;
     if (actions[i].exposed) {
       if (actions.size() > 1)
-	code += "if(s.length != 0){s += ',';} s +='";
+	code += "if(s)s+=',';s+='";
       else
 	code += "s='";
       code += actions[i].updateCmd + "';";
@@ -289,9 +293,9 @@ void DomElement::setEvent(const char *eventName,
       code += "}";
   }
 
-  code += "if(s.length!=0){"
+  code += "if(s){"
     + WApplication::instance()->javaScriptClass()
-    + "._p_.update(this, s, event, true);}";
+    + "._p_.update(this,s,e,true);}";
 
   setEvent(eventName, code, "");
 }
@@ -345,23 +349,27 @@ void DomElement::processEvents(WApplication *app) const
 
   DomElement *self = const_cast<DomElement *>(this);
 
-  EventHandlerMap::const_iterator mouseup = eventHandlers_.find("mouseup");
+  const char *S_mousedown = WInteractWidget::MOUSE_DOWN_SIGNAL;
+  const char *S_mouseup = WInteractWidget::MOUSE_UP_SIGNAL;
+  const char *S_keypress = WInteractWidget::KEYPRESS_SIGNAL;
+
+  EventHandlerMap::const_iterator mouseup = eventHandlers_.find(S_mouseup);
   if (mouseup != eventHandlers_.end() && !mouseup->second.jsCode.empty())
-    Utils::access(self->eventHandlers_, "mousedown").jsCode
+    Utils::access(self->eventHandlers_, S_mousedown).jsCode
       = app->javaScriptClass() + "._p_.saveDownPos(event);"
-      + Utils::access(self->eventHandlers_, "mousedown").jsCode;
+      + Utils::access(self->eventHandlers_, S_mousedown).jsCode;
 
-  EventHandlerMap::const_iterator mousedown = eventHandlers_.find("mousedown");
+  EventHandlerMap::const_iterator mousedown = eventHandlers_.find(S_mousedown);
   if (mousedown != eventHandlers_.end() && !mousedown->second.jsCode.empty())
-    Utils::access(self->eventHandlers_, "mousedown").jsCode
+    Utils::access(self->eventHandlers_, S_mousedown).jsCode
       = app->javaScriptClass() + "._p_.capture(this);"
-      + Utils::access(self->eventHandlers_, "mousedown").jsCode;
+      + Utils::access(self->eventHandlers_, S_mousedown).jsCode;
 
-  EventHandlerMap::const_iterator keypress = eventHandlers_.find("keypress");
+  EventHandlerMap::const_iterator keypress = eventHandlers_.find(S_keypress);
   if (keypress != eventHandlers_.end() && !keypress->second.jsCode.empty())
-    Utils::access(self->eventHandlers_, "keypress").jsCode
+    Utils::access(self->eventHandlers_, S_keypress).jsCode
       = "if (" WT_CLASS ".isKeyPress(event)){"
-      + Utils::access(self->eventHandlers_, "keypress").jsCode
+      + Utils::access(self->eventHandlers_, S_keypress).jsCode
       + '}';
 }
 
@@ -477,13 +485,11 @@ void DomElement::htmlAttributeValue(std::ostream& out, const std::string& s)
 }
 
 void DomElement::fastJsStringLiteral(EscapeOStream& outRaw,
-				     EscapeOStream& outEscaped,
+				     const EscapeOStream& outEscaped,
 				     const std::string& s)
 {
   outRaw << '\'';
-  outRaw.flush();
-  outEscaped << s;
-  outEscaped.flush();
+  outRaw.append(s, outEscaped);
   outRaw << '\'';
 }
 
@@ -502,13 +508,11 @@ void DomElement::jsStringLiteral(EscapeOStream& out, const std::string& s,
 }
 
 void DomElement::fastHtmlAttributeValue(EscapeOStream& outRaw,
-					EscapeOStream& outEscaped,
+					const EscapeOStream& outEscaped,
 					const std::string& s)
 {
   outRaw << '"';
-  outRaw.flush();
-  outEscaped << s;
-  outEscaped.flush();
+  outRaw.append(s, outEscaped);
   outRaw << '"';
 }
 
@@ -521,10 +525,10 @@ std::string DomElement::cssStyle() const
 
   std::stringstream style;
 
-  for (PropertyMap::const_iterator i = properties_.begin();
-       i != properties_.end(); ++i) {
-    if ((i->first >= Wt::PropertyStylePosition)
-	&& (i->first <= Wt::PropertyStyleDisplay)) {
+  for (PropertyMap::const_iterator j = properties_.begin();
+       j != properties_.end(); ++j) {
+    if ((j->first >= Wt::PropertyStylePosition)
+	&& (j->first <= Wt::PropertyStyleDisplay)) {
       static std::string cssNames[] =
 	{ "position",
 	  "z-index", "float", "clear",
@@ -546,11 +550,11 @@ std::string DomElement::cssStyle() const
 	  "text-decoration", "white-space", "table-layout", "border-spacing",
 	  "visibility", "display"};
 
-      if ((i->first == Wt::PropertyStyleCursor) && (i->second == "pointer")) {
+      if ((j->first == Wt::PropertyStyleCursor) && (j->second == "pointer")) {
 	style << "cursor:pointer;cursor:hand;";	    
       } else {
-	style << cssNames[i->first - Wt::PropertyStylePosition]
-	      << ':' << i->second << ';';
+	style << cssNames[j->first - Wt::PropertyStylePosition]
+	      << ':' << j->second << ';';
       }
     }
   }
@@ -571,7 +575,8 @@ void DomElement::asHTML(EscapeOStream& out,
   processEvents(app);
   processProperties(app);
 
-  EventHandlerMap::const_iterator clickEvent = eventHandlers_.find("click");
+  EventHandlerMap::const_iterator clickEvent
+    = eventHandlers_.find(WInteractWidget::CLICK_SIGNAL);
 
   bool needButtonWrap
     = (!(app->environment().ajax())
@@ -658,7 +663,11 @@ void DomElement::asHTML(EscapeOStream& out,
     self->setProperty(Wt::PropertyInnerHTML, "");
   }
 
+#ifndef WT_TARGET_JAVA
   EscapeOStream attributeValues(out);
+#else // WT_TARGET_JAVA
+  EscapeOStream attributeValues = out.push();
+#endif // WT_TARGET_JAVA
   attributeValues.pushEscape(EscapeOStream::HtmlAttribute);
 
   std::string style;
@@ -821,9 +830,7 @@ void DomElement::asHTML(EscapeOStream& out,
   if (timeOut_ != -1)
     timeouts.push_back(TimeoutEvent(timeOut_, id_));
 
-#ifndef JAVA
-  timeouts.insert(timeouts.end(), timeouts_.begin(), timeouts_.end());
-#endif // FIXME JAVA
+  Utils::insert(timeouts, timeouts_);
 }
 
 void DomElement::createReference(EscapeOStream& out) const
@@ -847,13 +854,13 @@ std::string DomElement::createReference() const
 void DomElement::declare(EscapeOStream& out) const
 {
   if (var_.empty()) {
-#ifndef JAVA
+#ifndef WT_TARGET_JAVA
     char buf[20];
     sprintf(buf, "j%d", nextId_++);
     var_ = buf;
-#else // !JAVA
+#else // !WT_TARGET_JAVA
     var_ = "j" + boost::lexical_cast<std::string>(nextId_++);
-#endif // !JAVA
+#endif // !WT_TARGET_JAVA
 
     out << "var " << var_ << "=";
     createReference(out);
@@ -887,9 +894,11 @@ bool DomElement::canWriteInnerHTML(WApplication *app) const
   if ((app->environment().agentIE()
        || app->environment().agentKonqueror())
       && (   type_ == DomElement_TBODY
+	  || type_ == DomElement_THEAD
 	  || type_ == DomElement_TABLE
-          || type_ == DomElement_TR
-	  || type_ == DomElement_SELECT))
+	  || type_ == DomElement_TR
+	  || type_ == DomElement_SELECT
+	  || type_ == DomElement_TD))
     return false;
 
   return true;
@@ -936,20 +945,20 @@ std::string DomElement::createAsJavaScript(EscapeOStream& out,
 					   const std::string& parentVar,
 					   int pos)
 {
-#ifndef WT_JAVA
+#ifndef WT_TARGET_JAVA
   char buf[20];
   sprintf(buf, "j%d", nextId_++);
   var_ = buf;
-#else // !WT_JAVA
+#else // !WT_TARGET_JAVA
   var_ = "j" + boost::lexical_cast<std::string>(nextId_++);
-#endif // !WT_JAVA
+#endif // !WT_TARGET_JAVA
 
   out << "var " << var_ << "=";
 
   if (type_ == DomElement_TD)
     out << parentVar << ".insertCell(" << pos << ");";
   else if (type_ == DomElement_TR)
-    out << parentVar << ".parentNode.insertRow(" << pos << ");";
+    out << parentVar << ".insertRow(" << pos << ");";
   else {
     out << "document.createElement('" << elementNames_[type_] << "');";
     if (pos != -1)
@@ -980,8 +989,6 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     }
 
     return var_;
-
-    break;
   case Create:
     if (mode_ == ModeCreate) {
       declare(out);
@@ -994,8 +1001,6 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     }
 
     return var_;
-
-    break;
   case Update:
   {
     if (deleted_)
@@ -1068,7 +1073,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	out << "function f" << fid
 	    << "(event){" << i->second.jsCode << "}";
 
-	if (i->first.substr(0, 3) == "key" && id_ == app->root()->formName())
+	// 'key' events on root container or handled at the whole document
+	if (Utils::startsWith(i->first, "key", 3)
+	    && id_ == app->root()->formName())
 	  out << "document";
 	else
 	  out << var_;
@@ -1084,7 +1091,8 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	out << WT_CLASS ".setHtml(" << var_ << ",'";
 
 	out.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-	out << childrenHtml_->str();
+	if (childrenHtml_)
+	  out << childrenHtml_->str();
 
 	TimeoutList timeouts;
 	for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
@@ -1093,9 +1101,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
 	out << "');";
 
-#ifndef JAVA
-	timeouts.insert(timeouts.end(), timeouts_.begin(), timeouts_.end());
-#endif // FIXME JAVA
+	Utils::insert(timeouts, timeouts_);
 
 	for (unsigned i = 0; i < timeouts.size(); ++i)
 	  out << app->javaScriptClass()
@@ -1143,7 +1149,11 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
 void DomElement::setJavaScriptProperties(EscapeOStream& out) const
 {
+#ifndef WT_TARGET_JAVA
   EscapeOStream escaped(out);
+#else
+  EscapeOStream escaped = out.push();
+#endif // WT_TARGET_JAVA
 
   bool pushed = false;
 

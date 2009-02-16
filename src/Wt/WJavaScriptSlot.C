@@ -15,11 +15,18 @@ namespace Wt {
 
 int JSlot::nextFid_ = 0;
 
+class WStatelessSlotImpl : public WStatelessSlot {
+public:
+  WStatelessSlotImpl(WObject *target, WObjectMethod method,
+		     const std::string& javaScript) :
+    WStatelessSlot(target, method, javaScript) { }
+};
+
 JSlot::JSlot(WWidget *parent)
   : widget_(parent),
     fid_(nextFid_++)
 {
-  imp_ = new WStatelessSlot
+  imp_ = new WStatelessSlotImpl
     (parent, 0, widget_
      ? WApplication::instance()->javaScriptClass()
      + '.' + jsFunctionName() + "(this, e);"

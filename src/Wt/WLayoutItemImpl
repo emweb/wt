@@ -41,18 +41,14 @@ public:
    */
   virtual void update(WLayoutItem *item) = 0;
 
-  /*! \brief Get the widget for which this layout item participates in layout management.
+  /*! \brief Get the widget for which this layout item participates in
+   *         layout management.
    */
   virtual WWidget *parent() const = 0;
 
   /*! \brief Provide a hint that can aid in layout strategy / algorithm.
    */
   virtual void setHint(const std::string& name, const std::string& value) = 0;
-
-protected:
-  /*! \brief Create a layout item implementation.
-   */
-  WLayoutItemImpl();
 };
 
 }

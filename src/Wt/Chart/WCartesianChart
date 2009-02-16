@@ -22,16 +22,6 @@ class WPainterPath;
 class WChart2DRenderer;
 class WChartPalette;
 
-/*! \brief Enumeration type that indicates a chart type for a cartesian
- *         chart.
- *
- * \ingroup charts
- */
-enum ChartType {
-  CategoryChart, //!< The X series are categories
-  ScatterPlot    //!< The X series must be interpreted as numerical data
-};
-
 /*! \class WCartesianChart Wt/Chart/WCartesianChart Wt/Chart/WCartesianChart
  *  \brief A cartesian chart.
  *

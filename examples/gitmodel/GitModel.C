@@ -26,7 +26,7 @@ void GitModel::loadRevision(const std::string& revName)
   // model indexes. Anyone listening for this event could temporarily
   // convert some model indexes to a raw index pointer, but this model
   // does not reimplement these methods.
-  layoutAboutToBeChanged.emit();
+  layoutAboutToBeChanged().emit();
 
   treeData_.clear();
   childPointer_.clear();
@@ -34,7 +34,7 @@ void GitModel::loadRevision(const std::string& revName)
   // Store the tree root as treeData_[0]
   treeData_.push_back(Tree(-1, -1, treeRoot));
 
-  layoutChanged.emit();
+  layoutChanged().emit();
 }
 
 WModelIndex GitModel::parent(const WModelIndex& index) const

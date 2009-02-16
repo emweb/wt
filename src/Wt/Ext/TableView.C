@@ -40,9 +40,9 @@ namespace Wt {
 
 TableView::TableView(WContainerWidget *parent)
   : Panel(parent),
-    cellClicked(this),
-    currentCellChanged(this),
-    itemSelectionChanged(this),
+    cellClicked_(this),
+    currentCellChanged_(this),
+    itemSelectionChanged_(this),
     dataLocation_(ClientSide),
     model_(0),
     selectionMode_(NoSelection),
@@ -79,17 +79,17 @@ void TableView::setModel(WAbstractItemModel *model)
 
   /* connect slots to new model */
   modelConnections_.push_back
-    (model_->columnsInserted.connect(SLOT(this,
-					  TableView::modelColumnsInserted)));
+    (model_->columnsInserted().connect(SLOT(this,
+					    TableView::modelColumnsInserted)));
   modelConnections_.push_back
-    (model_->columnsRemoved.connect(SLOT(this,
-					 TableView::modelColumnsRemoved)));
+    (model_->columnsRemoved().connect(SLOT(this,
+					   TableView::modelColumnsRemoved)));
   modelConnections_.push_back
-    (model_->rowsInserted.connect(SLOT(this, TableView::modelRowsInserted)));
+    (model_->rowsInserted().connect(SLOT(this, TableView::modelRowsInserted)));
   modelConnections_.push_back
-    (model_->rowsRemoved.connect(SLOT(this, TableView::modelRowsRemoved)));
+    (model_->rowsRemoved().connect(SLOT(this, TableView::modelRowsRemoved)));
   modelConnections_.push_back
-    (model_->dataChanged.connect(SLOT(this, TableView::modelDataChanged)));
+    (model_->dataChanged().connect(SLOT(this, TableView::modelDataChanged)));
 
   if (dataStore_) {
     dataStore_->setModel(model);
@@ -178,10 +178,10 @@ void TableView::onSelectionChange(const std::string selection)
     currentRow_ = dataStore_->rowFromId(numbers[0]);
     currentColumn_ = numbers[1];
 
-    currentCellChanged.emit(currentRow_, currentColumn_, pr, pc);
+    currentCellChanged_.emit(currentRow_, currentColumn_, pr, pc);
   }
 
-  itemSelectionChanged.emit();
+  itemSelectionChanged_.emit();
 }
 
 void TableView::setEditor(int column, FormField *editor)
@@ -237,12 +237,18 @@ void TableView::setColumnWidth(int column, int pixels)
 	      + boost::lexical_cast<std::string>(pixels) + ");");
 }
 
-void TableView::setColumnAlignment(int column, HorizontalAlignment alignment)
+void TableView::setColumnAlignment(int column, AlignmentFlag alignment)
 {
+  if (alignment & AlignVerticalMask) {
+    wApp->log("warning") << "TableView::setColumnAlignment(): alignment "
+      "(" << alignment << ") is vertical, expected horizontal "
+      "(column " << column << ")";
+    alignment = AlignmentFlag(alignment & AlignHorizontalMask);
+  }
   columnInfo_[column].alignment_ = alignment;
 }
 
-HorizontalAlignment TableView::columnAlignment(int column) const
+AlignmentFlag TableView::columnAlignment(int column) const
 {
   ColumnMap::const_iterator k = columnInfo_.find(column);
   if (k != columnInfo_.end())
@@ -368,7 +374,7 @@ void TableView::onCellClicked(std::string field, int rowId)
   int row = dataStore_->rowFromId(rowId);
   int col = boost::lexical_cast<int>(field.substr(1));
 
-  cellClicked.emit(row, col);
+  cellClicked_.emit(row, col);
 }
 
 void TableView::onEdit(std::string field, int rowId, std::string value)
@@ -385,7 +391,7 @@ void TableView::onEdit(std::string field, int rowId, std::string value)
   try {
     int col = boost::lexical_cast<int>(field.substr(1));
     model_->setData(row, col, updateFromJS(model_->data(row, col), value));
-  } catch (boost::bad_lexical_cast&) {
+  } catch (boost::bad_lexical_cast& e) {
     wApp->log("error") << "Internal error reading field name '" << field << "'";
   }
 
@@ -522,6 +528,8 @@ void TableView::createConfig(std::ostream& config)
 	config << ",align:'center'"; break;
       case AlignJustify:
 	config << ",align:'justify'"; break;
+      default:
+	break;
       }
       if (!ci.rendererJS_.empty())
 	config << ",renderer:" << ci.rendererJS_;

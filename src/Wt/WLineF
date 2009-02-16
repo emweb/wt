@@ -7,7 +7,7 @@
 #ifndef WLINEF_H_
 #define WLINEF_H_
 
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 

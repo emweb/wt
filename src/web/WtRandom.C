@@ -17,6 +17,13 @@
 #include <windows.h>
 #endif
 
+namespace{
+  // Random number generator instantiation for the static methods of WtRandom
+  Wt::WtRandom wtRandom;
+}
+
+namespace Wt {
+
 class WtRandom::Private
 {
 public:
@@ -47,11 +54,6 @@ unsigned int WtRandom::rand()
 #endif // __use_random_device__
 }
 
-namespace{
-  // Random number generator instantiation for the static methods of WtRandom
-  WtRandom wtRandom;
-}
-
 unsigned int WtRandom::getUnsigned()
 {
   return wtRandom.rand();
@@ -60,4 +62,6 @@ unsigned int WtRandom::getUnsigned()
 double WtRandom::getDouble()
 {
   return ((double)wtRandom.rand())/(RAND_MAX);
+}
+
 }

@@ -5,6 +5,7 @@
  */
 
 #include <Wt/WStringListModel>
+#include <Utils.h>
 
 #include <functional>
 
@@ -43,7 +44,7 @@ void WStringListModel::setStringList(const std::vector<WString>& strings)
   int numChanged = std::min(currentSize, newSize);
 
   if (numChanged)
-    dataChanged(index(0, 0), index(numChanged - 1, 0));
+    dataChanged().emit(index(0, 0), index(numChanged - 1, 0));
 }
 
 int WStringListModel::rowCount(const WModelIndex& parent) const
@@ -69,7 +70,7 @@ bool WStringListModel::setData(const WModelIndex& index,
     return false;
 }
 
-int WStringListModel::flags(const WModelIndex& index) const
+WFlags<ItemFlag> WStringListModel::flags(const WModelIndex& index) const
 {
   return ItemIsSelectable | ItemIsEditable;
 }
@@ -100,14 +101,14 @@ bool WStringListModel::removeRows(int row, int count, const WModelIndex& parent)
 
 void WStringListModel::sort(int column, SortOrder order)
 {
-  layoutAboutToBeChanged();
+  layoutAboutToBeChanged().emit();
 
   if (order == AscendingOrder)
-    std::sort(strings_.begin(), strings_.end());
+    Utils::sort(strings_);
   else
-    std::sort(strings_.begin(), strings_.end(), std::greater<WString>());
+    Utils::sort(strings_, std::greater<WString>());
 
-  layoutChanged();
+  layoutChanged().emit();
 }
 
 }

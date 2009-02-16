@@ -63,7 +63,7 @@ public:
    *
    * \sa format(), WDate::toString(const WString&) const
    */
-  void setFormat(const WString& format);
+  void setFormat(const WT_USTRING& format);
 
   /*! \brief Get the format.
    *
@@ -72,7 +72,7 @@ public:
    *
    * \sa setFormat()
    */
-  const WString& format() const { return format_; }
+  const WT_USTRING& format() const { return format_; }
 
   /*! \brief The calendar widget.
    *
@@ -116,7 +116,7 @@ public:
   void setDate(const WDate& date);
 
 private:
-  WString          format_;
+  WT_USTRING          format_;
   WInteractWidget  *displayWidget_;
   WLineEdit        *forEdit_;
 

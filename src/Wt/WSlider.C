@@ -10,8 +10,18 @@
 #include "Wt/WSlider"
 
 namespace Wt {
-  const int HANDLE_WIDTH = 17;
-  const int HANDLE_HEIGHT = 21;
+
+#ifndef WT_TARGET_JAVA
+const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks(0);
+#endif
+
+const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides(TicksAbove
+								| TicksBelow);
+
+  namespace {
+    const int HANDLE_WIDTH = 17;
+    const int HANDLE_HEIGHT = 21;
+  }
 
   class WSliderBackground : public WPaintedWidget
   {
@@ -54,32 +64,33 @@ namespace Wt {
     pen.setColor(WColor(0x89, 0x89, 0x89));
     painter.setPen(pen);
     
-    painter.drawLine(HANDLE_WIDTH/2,     h/2 - 2 + 0.5,
-		     w - HANDLE_WIDTH/2, h/2 - 2 + 0.5);
+    painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2 - 2 + 0.5,
+		     w - WSlider::HANDLE_WIDTH/2, h/2 - 2 + 0.5);
 
     pen.setColor(WColor(0xb7, 0xb7, 0xb7));
     painter.setPen(pen);
 
-    painter.drawLine(HANDLE_WIDTH/2,     h/2 + 1 + 0.5,
-		     w - HANDLE_WIDTH/2, h/2 + 1 + 0.5);
+    painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2 + 1 + 0.5,
+		     w - WSlider::HANDLE_WIDTH/2, h/2 + 1 + 0.5);
 
     pen.setColor(WColor(0xd7, 0xd7, 0xd7));
     pen.setWidth(2);
     painter.setPen(pen);
 
-    painter.drawLine(HANDLE_WIDTH/2,     h/2,
-		     w - HANDLE_WIDTH/2, h/2);
+    painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2,
+		     w - WSlider::HANDLE_WIDTH/2, h/2);
 
     /*
      * Draw ticks
      */
-    if (slider_->tickPosition() != WSlider::NoTicks) {
+    if (slider_->tickPosition() != 0) {
       int tickInterval = slider_->tickInterval();
       int range = slider_->maximum() - slider_->minimum();
       if (tickInterval == 0)
 	tickInterval = range / 2;
 
-      double tickStep = ((double)w - HANDLE_WIDTH) / (range / tickInterval);
+      double tickStep = ((double)w - WSlider::HANDLE_WIDTH)
+	/ (range / tickInterval);
 
       pen.setWidth(1);
       painter.setPen(pen);
@@ -90,9 +101,9 @@ namespace Wt {
       int y4 = h - h/4;
 
       for (unsigned i = 0; ; ++i) {
-	int x = HANDLE_WIDTH/2 + (int) (i * tickStep);
+	int x = WSlider::HANDLE_WIDTH/2 + (int) (i * tickStep);
 
-	if (x > w - HANDLE_WIDTH/2)
+	if (x > w - WSlider::HANDLE_WIDTH/2)
 	  break;
 
 	if (slider_->tickPosition() & WSlider::TicksAbove)
@@ -105,13 +116,13 @@ namespace Wt {
 
 WSlider::WSlider(WContainerWidget *parent)
   : WCompositeWidget(parent),
-    valueChanged(this),
     orientation_(Horizontal),
     tickInterval_(0),
-    tickPosition_(NoTicks),
+    tickPosition_(0),
     minimum_(0),
     maximum_(99),
-    value_(0)
+    value_(0),
+    valueChanged_(this)
 {
   setImplementation(impl_ = new WContainerWidget());
   create();
@@ -119,13 +130,13 @@ WSlider::WSlider(WContainerWidget *parent)
 
 WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
   : WCompositeWidget(parent),
-    valueChanged(this),
     orientation_(orientation),
     tickInterval_(0),
-    tickPosition_(NoTicks),
+    tickPosition_(0),
     minimum_(0),
     maximum_(99),
-    value_(0)
+    value_(0),
+    valueChanged_(this)
 {
   setImplementation(impl_ = new WContainerWidget());
   create();
@@ -156,11 +167,11 @@ void WSlider::create()
   else
     resize(50, 150);
 
-  handle_->mouseWentDown.connect(mouseDownJS_);
-  handle_->mouseMoved.connect(mouseMovedJS_);
-  handle_->mouseWentUp.connect(mouseUpJS_);
+  handle_->mouseWentDown().connect(mouseDownJS_);
+  handle_->mouseMoved().connect(mouseMovedJS_);
+  handle_->mouseWentUp().connect(mouseUpJS_);
 
-  background_->clicked.connect(SLOT(this, WSlider::onSliderClick));
+  background_->clicked().connect(SLOT(this, WSlider::onSliderClick));
 
   update();
 }
@@ -241,7 +252,7 @@ void WSlider::onSliderClick(const WMouseEvent& event)
   u -= HANDLE_WIDTH / 2;
 
   setValue(minimum_ + (int)(u / pixelsPerUnit + 0.5));
-  valueChanged.emit(value());
+  valueChanged_.emit(value());
 }
 
 void WSlider::updateSliderPosition()
@@ -260,7 +271,7 @@ void WSlider::setOrientation(Orientation orientation)
   update();
 }
 
-void WSlider::setTickPosition(TickPosition tickPosition)
+void WSlider::setTickPosition(WFlags<TickPosition> tickPosition)
 {
   tickPosition_ = tickPosition;
 

@@ -126,6 +126,12 @@ private:
   WCssTemplateWidget *widget_;
 };
 
+#ifndef WT_TARGET_JAVA
+#define WT_USTRING WString
+#else
+#define WT_USTRING std::string
+#endif // WT_TARGET_JAVA
+
 /*! \class WCssTextRule Wt/WCssStyleSheet Wt/WCssStyleSheet
  *  \brief A CSS rule specified directly using CSS declarations
  *
@@ -138,12 +144,12 @@ class WCssTextRule : public WCssRule
 public:
   /*! \brief Create a CSS rule with a given selector and declarations.
    */
-  WCssTextRule(const std::string& selector, const WString& declarations);
+  WCssTextRule(const std::string& selector, const WT_USTRING& declarations);
 
   const std::string declarations();
 
 private:
-  WString declarations_;
+  WT_USTRING declarations_;
 };
 
 /*! \class WCssStyleSheet Wt/WCssStyleSheet Wt/WCssStyleSheet
@@ -176,7 +182,7 @@ public:
    * \sa isDefined(const std::string& ruleName).
    */
   WCssTextRule *addRule(const std::string& selector,
-			const WString& declarations,
+			const WT_USTRING& declarations,
 			const std::string& ruleName = std::string());
 
   /*! \brief Add a CSS rule.

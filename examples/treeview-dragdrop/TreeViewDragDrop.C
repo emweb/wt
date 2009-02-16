@@ -25,6 +25,9 @@
 #include <Wt/WStandardItemModel>
 #include <Wt/WTreeView>
 #include <Wt/WText>
+#include <Wt/WVBoxLayout>
+
+#include <Wt/Chart/WPieChart>
 
 #include "CsvUtil.h"
 #include "FolderView.h"
@@ -67,50 +70,39 @@ public:
 WString FileModel::dateDisplayFormat("MMM dd, yyyy");
 WString FileModel::dateEditFormat("dd-MM-yyyy");
 
-/*! \class FileView
- *  \brief A specialized WTreeView that support editing using a WDialog box.
- *
- * \note Native inline editing support for WTreeView is planned early 2009.
+/*! \class FileEditDialog
+ *  \brief A dialog for editing a 'file'.
  */
-class FileView : public WTreeView
+class FileEditDialog : public WDialog
 {
 public:
-  /*! \brief Create a new file view.
-   */
-  FileView(WContainerWidget *parent = 0)
-    : WTreeView(parent)
+  FileEditDialog(WAbstractItemModel *model, const WModelIndex& item)
+    : WDialog("Edit..."),
+      model_(model),
+      item_(item)
   {
-    doubleClicked.connect(SLOT(this, FileView::edit));
-  }
+    int modelRow = item_.row();
 
-private:
-  /*! \brief Edit a particular row.
-   */
-  void edit(const WModelIndex& item) {
-    int modelRow = item.row();
-
-    WDialog d("Edit...");
-    d.resize(300, WLength());
+    resize(300, WLength());
 
     /*
      * Create the form widgets, and load them with data from the model.
      */
 
     // name
-    WLineEdit *nameEdit = new WLineEdit(asString(model()->data(modelRow, 1)));
+    nameEdit_ = new WLineEdit(asString(model_->data(modelRow, 1)));
 
     // type
-    WComboBox *typeEdit = new WComboBox();
-    typeEdit->addItem("Document");
-    typeEdit->addItem("Spreadsheet");
-    typeEdit->addItem("Presentation");
-    typeEdit->setCurrentIndex
-      (typeEdit->findText(asString(model()->data(modelRow, 2))));
+    typeEdit_ = new WComboBox();
+    typeEdit_->addItem("Document");
+    typeEdit_->addItem("Spreadsheet");
+    typeEdit_->addItem("Presentation");
+    typeEdit_->setCurrentIndex
+      (typeEdit_->findText(asString(model_->data(modelRow, 2))));
 
     // size
-    WLineEdit *sizeEdit
-      = new WLineEdit(asString(model()->data(modelRow, 3)));
-    sizeEdit->setValidator
+    sizeEdit_ = new WLineEdit(asString(model_->data(modelRow, 3)));
+    sizeEdit_->setValidator
       (new WIntValidator(0, std::numeric_limits<int>::max(), this));
 
     // created
@@ -119,10 +111,10 @@ private:
       (new WDateValidator(FileModel::dateEditFormat, this));
     createdEdit->validator()->setMandatory(true);
 
-    WDatePicker *createdPicker
-      = new WDatePicker(new WImage("icons/calendar_edit.png"), createdEdit);
-    createdPicker->setFormat(FileModel::dateEditFormat);
-    createdPicker->setDate(boost::any_cast<WDate>(model()->data(modelRow, 4)));
+    createdPicker_ = new WDatePicker(new WImage("icons/calendar_edit.png"),
+				     createdEdit);
+    createdPicker_->setFormat(FileModel::dateEditFormat);
+    createdPicker_->setDate(boost::any_cast<WDate>(model_->data(modelRow, 4)));
 
     // modified
     WLineEdit *modifiedEdit = new WLineEdit();
@@ -130,10 +122,10 @@ private:
       (new WDateValidator(FileModel::dateEditFormat, this));
     modifiedEdit->validator()->setMandatory(true);
 
-    WDatePicker *modifiedPicker
-      = new WDatePicker(new WImage("icons/calendar_edit.png"), modifiedEdit);
-    modifiedPicker->setFormat(FileModel::dateEditFormat);
-    modifiedPicker->setDate(boost::any_cast<WDate>(model()->data(modelRow, 5)));
+    modifiedPicker_ = new WDatePicker(new WImage("icons/calendar_edit.png"),
+				      modifiedEdit);
+    modifiedPicker_->setFormat(FileModel::dateEditFormat);
+    modifiedPicker_->setDate(boost::any_cast<WDate>(model_->data(modelRow, 5)));
 
     /*
      * Use a grid layout for the labels and fields
@@ -144,62 +136,77 @@ private:
     int row = 0;
 
     layout->addWidget(l = new WLabel("Name:"), row, 0);
-    layout->addWidget(nameEdit, row, 1);
-    l->setBuddy(nameEdit);
+    layout->addWidget(nameEdit_, row, 1);
+    l->setBuddy(nameEdit_);
     ++row;
 
     layout->addWidget(l = new WLabel("Type:"), row, 0);
-    layout->addWidget(typeEdit, row, 1, AlignTop);
-    l->setBuddy(typeEdit);
+    layout->addWidget(typeEdit_, row, 1, AlignTop);
+    l->setBuddy(typeEdit_);
     ++row;
 
     layout->addWidget(l = new WLabel("Size:"), row, 0);
-    layout->addWidget(sizeEdit, row, 1);
-    l->setBuddy(sizeEdit);
+    layout->addWidget(sizeEdit_, row, 1);
+    l->setBuddy(sizeEdit_);
     ++row;
 
     layout->addWidget(l = new WLabel("Created:"), row, 0);
     layout->addWidget(createdEdit, row, 1);
-    layout->addWidget(createdPicker, row, 2);
+    layout->addWidget(createdPicker_, row, 2);
     l->setBuddy(createdEdit);
     ++row;
 
     layout->addWidget(l = new WLabel("Modified:"), row, 0);
     layout->addWidget(modifiedEdit, row, 1);
-    layout->addWidget(modifiedPicker, row, 2);
+    layout->addWidget(modifiedPicker_, row, 2);
     l->setBuddy(modifiedEdit);
     ++row;
 
     WPushButton *b;
     WContainerWidget *buttons = new WContainerWidget();
     buttons->addWidget(b = new WPushButton("Save"));
-    b->clicked.connect(SLOT(&d, WDialog::accept));
-    d.contents()->enterPressed.connect(SLOT(&d, WDialog::accept));
+    b->clicked().connect(SLOT(this, WDialog::accept));
+    contents()->enterPressed().connect(SLOT(this, WDialog::accept));
     buttons->addWidget(b = new WPushButton("Cancel"));
-    b->clicked.connect(SLOT(&d, WDialog::reject));
+    b->clicked().connect(SLOT(this, WDialog::reject));
 
     /*
      * Focus the form widget that corresonds to the selected item.
      */
     switch (item.column()) {
     case 2:
-      typeEdit->setFocus(); break;
+      typeEdit_->setFocus(); break;
     case 3:
-      sizeEdit->setFocus(); break;
+      sizeEdit_->setFocus(); break;
     case 4:
       createdEdit->setFocus(); break;
     case 5:
       modifiedEdit->setFocus(); break;
     default:
-      nameEdit->setFocus(); break;
+      nameEdit_->setFocus(); break;
     }
 
-    layout->addWidget(buttons, row, 0, 0, 2, AlignCenter);
+    layout->addWidget(buttons, row, 0, 0, 3, AlignCenter);
     layout->setColumnStretch(1, 1);
 
-    d.contents()->setLayout(layout, AlignTop | AlignJustify);
+    contents()->setLayout(layout, AlignTop | AlignJustify);
 
-    if (d.exec() == WDialog::Accepted) {
+    finished().connect(SLOT(this, FileEditDialog::handleFinish));
+
+    show();
+  }
+
+private:
+  WAbstractItemModel *model_;
+  WModelIndex         item_;
+
+  WLineEdit *nameEdit_, *sizeEdit_;
+  WComboBox *typeEdit_;
+  WDatePicker *createdPicker_, *modifiedPicker_;
+
+  void handleFinish(DialogCode result)
+  {
+    if (result == WDialog::Accepted) {
       /*
        * Update the model with data from the edit widgets.
        *
@@ -210,22 +217,26 @@ private:
        * which reorders row numbers, and would cause us to switch to editing
        * the wrong data.
        */
-      WAbstractItemModel *m = model();
+      WAbstractItemModel *m = model_;
+      int modelRow = item_.row();
 
       WAbstractProxyModel *proxyModel = dynamic_cast<WAbstractProxyModel *>(m);
       if (proxyModel) {
 	m = proxyModel->sourceModel();
-	modelRow = proxyModel->mapToSource(item).row();
+	modelRow = proxyModel->mapToSource(item_).row();
       }
 
-      m->setData(modelRow, 1, boost::any(nameEdit->text()));
-      m->setData(modelRow, 2, boost::any(typeEdit->currentText()));
+      m->setData(modelRow, 1, boost::any(nameEdit_->text()));
+      m->setData(modelRow, 2, boost::any(typeEdit_->currentText()));
       m->setData(modelRow, 3, boost::any(boost::lexical_cast<int>
-					 (sizeEdit->text().toUTF8())));
-      m->setData(modelRow, 4, boost::any(createdPicker->date()));
-      m->setData(modelRow, 5, boost::any(modifiedPicker->date()));
+					 (sizeEdit_->text().toUTF8())));
+      m->setData(modelRow, 4, boost::any(createdPicker_->date()));
+      m->setData(modelRow, 5, boost::any(modifiedPicker_->date()));
     }
+
+    delete this;
   }
+
 };
 
 /*! \class TreeViewDragDrop
@@ -258,12 +269,6 @@ public:
      * Setup the user interface.
      */
     createUI();
-
-    /*
-     * Select the first folder
-     */
-    folderView_->select
-      (folderModel_->index(0, 0, folderModel_->index(0, 0)));
   }
 
 private:
@@ -298,7 +303,15 @@ private:
     layout->addWidget(createTitle("Folders"), 0, 0);
     layout->addWidget(createTitle("Files"), 0, 1);
     layout->addWidget(folderView(), 1, 0);
-    layout->addWidget(fileView(), 1, 1);
+
+    // select the first folder
+    folderView_->select(folderModel_->index(0, 0, folderModel_->index(0, 0)));
+
+    WVBoxLayout *vbox = new WVBoxLayout();
+    vbox->addWidget(fileView(), 1);
+    vbox->addWidget(pieChart(), 0);
+
+    layout->addLayout(vbox, 1, 1);
 
     layout->addWidget(aboutDisplay(), 2, 0, 1, 2, AlignTop);
 
@@ -340,10 +353,10 @@ private:
     treeView->resize(200, WLength::Auto);
     treeView->setSelectionMode(SingleSelection);
     treeView->expandToDepth(1);
-    treeView->selectionChanged.connect(SLOT(this,
-					    TreeViewDragDrop::folderChanged));
+    treeView->selectionChanged().connect(SLOT(this,
+					      TreeViewDragDrop::folderChanged));
 
-    treeView->mouseWentDown.connect(SLOT(this, TreeViewDragDrop::showPopup));
+    treeView->mouseWentDown().connect(SLOT(this, TreeViewDragDrop::showPopup));
 
     folderView_ = treeView;
 
@@ -353,7 +366,7 @@ private:
   /*! \brief Creates the file table view (also a WTreeView)
    */
   WTreeView *fileView() {
-    WTreeView *treeView = new FileView();
+    WTreeView *treeView = new WTreeView();
 
     // Hide the tree-like decoration on the first column, to make it
     // resemble a plain table
@@ -366,9 +379,9 @@ private:
     treeView->setColumnWidth(0, 100);
     treeView->setColumnWidth(1, 150);
     treeView->setColumnWidth(2, 100);
-    treeView->setColumnWidth(3, 80);
-    treeView->setColumnWidth(4, 120);
-    treeView->setColumnWidth(5, 120);
+    treeView->setColumnWidth(3, 60);
+    treeView->setColumnWidth(4, 100);
+    treeView->setColumnWidth(5, 100);
 
     treeView->setColumnFormat(4, FileModel::dateDisplayFormat);
     treeView->setColumnFormat(5, FileModel::dateDisplayFormat);
@@ -379,9 +392,41 @@ private:
 
     treeView->sortByColumn(1, AscendingOrder);
 
+    treeView->doubleClicked().connect(SLOT(this, TreeViewDragDrop::editFile));
+
     fileView_ = treeView;
 
     return treeView;
+  }
+
+  /*! \brief Edit a particular row.
+   */
+  void editFile(const WModelIndex& item) {
+    new FileEditDialog(fileView_->model(), item);
+  }
+
+  /*! \brief Creates the chart.
+   */
+  WWidget *pieChart() {
+    using namespace Chart;
+
+    WPieChart *chart = new WPieChart();
+    chart->resize(450, 200);
+    chart->setModel(fileFilterModel_);
+    chart->setTitle("File sizes");
+
+    chart->setLabelsColumn(1); // Name
+    chart->setDataColumn(3);   // Size
+
+    chart->setPerspectiveEnabled(true, 0.2);
+    chart->setDisplayLabels(Outside | TextLabel);
+
+    WContainerWidget *w = new WContainerWidget();
+    w->setContentAlignment(AlignCenter);
+    w->setStyleClass("about");
+    w->addWidget(chart);
+
+    return w;
   }
 
   /*! \brief Creates the hints text.
@@ -503,7 +548,7 @@ private:
     level1->appendRow(level2 = createFolderItem("Fellows", "sf-fellows"));
 
     folderModel_->appendRow(level1 = createFolderItem("Sophia Antipolis"));
-    level1->appendRow(level2 = createFolderItem("R&D", "sa-r_d"));
+    level1->appendRow(level2 = createFolderItem("R&amp;D", "sa-r_d"));
     level1->appendRow(level2 = createFolderItem("Services", "sa-services"));
     level1->appendRow(level2 = createFolderItem("Support", "sa-support"));
     level1->appendRow(level2 = createFolderItem("Billing", "sa-billing"));
@@ -535,7 +580,7 @@ private:
       result->setFlags(result->flags() | ItemIsDropEnabled);
       folderNameMap_[folderId] = location;
     } else
-      result->setFlags(result->flags() & ~ItemIsSelectable);
+      result->setFlags(result->flags().clear(ItemIsSelectable));
 
     result->setIcon("icons/folder.gif");
 
@@ -547,6 +592,7 @@ private:
 WApplication *createApplication(const WEnvironment& env)
 {
   WApplication *app = new TreeViewDragDrop(env);
+  app->setTwoPhaseRenderingThreshold(0);
   app->setTitle("WTreeView Drag & Drop");
   app->useStyleSheet("styles.css");
   app->messageResourceBundle().use("about");

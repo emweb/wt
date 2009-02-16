@@ -65,12 +65,14 @@ public:
    * from WValidator::Valid to WValidator::Invalid, or from
    * WValidator::Invalid to WValidator::Valid.
    */
-  Signal<bool> validated;
+  Signal<bool>& validated() { return validated_; }
 
 private slots:
   void inputChanged();
 
 private:
+  Signal<bool> validated_;
+
   WContainerWidget *impl_;
 
   WFormWidget *field_;

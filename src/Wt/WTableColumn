@@ -61,13 +61,13 @@ public:
    *
    * \sa styleClass(), WWidget::setStyleClass(const WString& style)
    */
-  void setStyleClass(const WString& style);
+  void setStyleClass(const WT_USTRING& style);
 
   /*! \brief Get the CSS style class for this column.
    *
    * \sa styleClass(), WWidget::styleClass()
    */
-  const WString& styleClass() const { return styleClass_; }
+  const WT_USTRING& styleClass() const { return styleClass_; }
 
 private:
   WTableColumn(WTable *table);
@@ -76,7 +76,7 @@ private:
   WTable *table_;
 
   WLength *width_;
-  WString  styleClass_;
+  WT_USTRING styleClass_;
 
   void updateDom(DomElement& element, bool all);
 

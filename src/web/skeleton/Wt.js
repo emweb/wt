@@ -813,6 +813,11 @@ var encodeEvent = function(event, i) {
   if (t.id)
     result += se + 'tid=' + t.id;
 
+  try {
+    result += se + 'type=' + e.type;
+  } catch (e) {
+  }
+
   if (e.clientX || e.clientY)
     result += se + 'clientX=' + e.clientX + se + 'clientY=' + e.clientY;
 
@@ -872,12 +877,16 @@ var encodePendingEvents = function() {
   if (currentHash != null)
     result += '&_=' + encodeURIComponent(unescape(currentHash));
 
-  for (var i = 0; i < pendingEvents.length; ++i)
+  feedback = false;
+
+  for (var i = 0; i < pendingEvents.length; ++i) {
+    feedback = feedback || pendingEvents[i].feedback;
     result += encodeEvent(pendingEvents[i], i);
+  }
 
   pendingEvents = [];
 
-  return result;
+  return {feedback: feedback, result: result};
 }
 
 var formObjects = _$_FORM_OBJECTS_$_;
@@ -951,7 +960,7 @@ var handleResponse = function(msg, timer) {
   --responsesPending;
 
   if (pendingEvents.length > 0)
-    sendUpdate(true);
+    sendUpdate();
 };
 
 var randomSeed = new Date().getTime();
@@ -972,21 +981,21 @@ var update = function(self, signalName, e, feedback) {
   pendingEvent.object = self;
   pendingEvent.signal = signalName;
   pendingEvent.event = WT.clone(e);
+  pendingEvent.feedback = feedback;
 
   pendingEvents[pendingEvents.length] = pendingEvent;
 
-  scheduleUpdate(feedback);
+  scheduleUpdate();
 }
 
-var scheduleUpdate = function(feedback) {
+var scheduleUpdate = function() {
   if (responsesPending == 0) {
     if (updateTimeout == null)
-      updateTimeout = setTimeout(function() { sendUpdate(feedback); },
-				 WT.updateDelay);
+      updateTimeout = setTimeout(function() { sendUpdate(); }, WT.updateDelay);
   }
 }
 
-var sendUpdate = function(feedback) {
+var sendUpdate = function() {
   updateTimeout = null;
   ++responsesPending;
 
@@ -1007,7 +1016,7 @@ var sendUpdate = function(feedback) {
 
   var query = '&rand=' + Math.round(Math.random(randomSeed) * 100000);
 
-  var querydata = encodePendingEvents();
+  var data = encodePendingEvents();
 
   for (var x = 0; x < formObjects.length; ++x) {
     var el = WT.getElement(formObjects[x]);
@@ -1017,18 +1026,19 @@ var sendUpdate = function(feedback) {
     if (el.type == 'select-multiple') {
       for (var i = 0; i < el.options.length; i++)
 	if (el.options[i].selected)
-	  querydata += '&' + formObjects[x]
+	  data.result += '&' + formObjects[x]
 	    + '=' + encodeURIComponent(el.options[i].value);
     } else if ((el.type != 'file')
 	       && (((el.type != 'checkbox') && (el.type != 'radio'))
 		   || el.checked))
-      querydata += '&' +formObjects[x]
+      data.result += '&' +formObjects[x]
 	+ '=' + encodeURIComponent(el.value);
   }
 
-  var tm = feedback ? setTimeout(waitFeedback, _$_INDICATOR_TIMEOUT_$_) : null;
+  var tm = data.feedback ? setTimeout(waitFeedback, _$_INDICATOR_TIMEOUT_$_)
+    : null;
 
-  _$_APP_CLASS_$_._p_.sendUpdate(url + query, querydata, tm);
+  _$_APP_CLASS_$_._p_.sendUpdate(url + query, data.result, tm);
 };
 
 var emit = function(object, config) {
@@ -1060,11 +1070,12 @@ var emit = function(object, config) {
     else
       userEvent.args[i-2] = arguments[i];
   }
+  userEvent.feedback = true;
 
   pendingEvents[pendingEvents.length] = userEvent;
 
   if (responsesPending == 0)
-    scheduleUpdate(true);
+    scheduleUpdate();
 };
 
 var addTimerEvent = function(timerid, msec) {

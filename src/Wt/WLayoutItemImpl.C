@@ -8,9 +8,6 @@
 
 namespace Wt {
 
-WLayoutItemImpl::WLayoutItemImpl()
-{ }
-
 WLayoutItemImpl::~WLayoutItemImpl()
 { }
 

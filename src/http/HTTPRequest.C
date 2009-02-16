@@ -18,15 +18,15 @@ HTTPRequest::HTTPRequest(WtReplyPtr reply)
     instream_(reply_->cin())
 { }
 
-void HTTPRequest::flush()
+void HTTPRequest::flush(ResponseState state, CallbackFunction callback,
+			void *callbackData)
 {
-  reply_->setCout(outstream_.str());
-  reply_->setExpectMoreData(keepConnectionOpen());
-  reply_->transmitMore();
-
+  reply_->setWaitMoreData(state == ResponseWaitMore);
+  reply_->send(outstream_.str(), callback, callbackData);
   outstream_.str("");
 
-  WebRequest::flush();
+  if (state == ResponseDone)
+    delete this; // also deletes the reply if the connection was already closed
 }
 
 void HTTPRequest::addHeader(const std::string& name, const std::string& value)

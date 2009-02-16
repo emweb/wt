@@ -110,8 +110,7 @@ std::string Container::createJS(DomElement *inContainer)
 
   if (widget_) {
     std::string s = widget_->styleClass().toUTF8() + " x-hidden";
-    DomElement *c = widget_->webWidget()
-      ->createSDomElement(WApplication::instance());
+    DomElement *c = widget_->createSDomElement(WApplication::instance());
     c->setAttribute("class", s);
     inContainer->addChild(c);
   }

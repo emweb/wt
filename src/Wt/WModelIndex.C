@@ -13,16 +13,8 @@ namespace Wt {
 WModelIndex::WModelIndex()
   : model_(0),
     row_(0),
-    column_(0)
-{
-  memset(internalId_.c_array(), 0, 20);
-}
-
-WModelIndex::WModelIndex(const WModelIndex& other)
-  : model_(other.model_),
-    row_(other.row_),
-    column_(other.column_),
-    internalId_(other.internalId_)
+    column_(0),
+    internalId_(0)
 { }
 
 boost::any WModelIndex::data(int role) const
@@ -30,7 +22,7 @@ boost::any WModelIndex::data(int role) const
   return model_->data(*this, role);
 }
 
-int WModelIndex::flags() const
+WFlags<ItemFlag> WModelIndex::flags() const
 {
   return model_->flags(*this);
 }
@@ -45,20 +37,25 @@ WModelIndex WModelIndex::parent() const
   return model_ ? model_->parent(*this) : WModelIndex();
 }
 
-void WModelIndex::getAncestors(std::vector<WModelIndex>& ancestors) const
+WModelIndex WModelIndex::ancestor(int depth) const
 {
-  if (isValid()) {
-    parent().getAncestors(ancestors);
-    ancestors.push_back(*this);
-  }
+  if (depth == 0)
+    return *this;
+  else
+    return parent().ancestor(depth - 1);
+}
+
+int WModelIndex::depth() const
+{
+  if (isValid())
+    return parent().depth() + 1;
+  else
+    return 0;
 }
 
 bool WModelIndex::operator== (const WModelIndex& other) const
 {
-  return (model_ == other.model_
-	  && row_ == other.row_
-	  && column_ == other.column_
-	  && internalId_ == other.internalId_);
+  return memcmp(this, &other, sizeof(WModelIndex)) == 0;
 }
 
 bool WModelIndex::operator!= (const WModelIndex& other) const
@@ -82,19 +79,21 @@ bool WModelIndex::operator< (const WModelIndex& i2) const
     return false;
   }
 
-  std::vector<WModelIndex> ancestors1;
-  std::vector<WModelIndex> ancestors2;
+  int i1Depth = i1.depth();
+  int i2Depth = i2.depth();
+  unsigned e = std::min(i1Depth, i2Depth);
 
-  i1.getAncestors(ancestors1);
-  i2.getAncestors(ancestors2);
+  WModelIndex a1 = i1.ancestor(i1Depth - e);
+  WModelIndex a2 = i2.ancestor(i2Depth - e);
 
-  unsigned e = std::min(ancestors1.size(), ancestors2.size());
+  if (a1 == a2)
+    return i1Depth < i2Depth;
 
-  for (unsigned i =0; i < e; ++i) {
-    WModelIndex a1 = ancestors1[i];
-    WModelIndex a2 = ancestors2[i];
+  for (unsigned i = e; i > 0; --i) {
+    WModelIndex p1 = a1.parent();
+    WModelIndex p2 = a2.parent();
 
-    if (a1 != a2) {
+    if (p1 == p2) {
       if (a1.row() < a2.row())
 	return true;
       else if (a1.row() > a2.row())
@@ -104,9 +103,12 @@ bool WModelIndex::operator< (const WModelIndex& i2) const
       else
 	return false;
     }
+
+    a1 = p1;
+    a2 = p2;
   }
 
-  return ancestors1.size() < ancestors2.size();
+  return false; // unreachable code
 }
 
 bool WModelIndex::UnorderedLess::operator() (const WModelIndex& i1,
@@ -138,24 +140,12 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
 			 void *ptr)
   : model_(model),
     row_(row),
-    column_(column)
-{
-  memset(internalId_.c_array(), 0, 20);
-  *reinterpret_cast<void **>(internalId_.c_array()) = ptr;
-}
+    column_(column),
+    internalId_(reinterpret_cast<uint64_t>(ptr))
+{ }
 
 WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
 			 uint64_t id)
-  : model_(model),
-    row_(row),
-    column_(column)
-{
-  memset(internalId_.c_array(), 0, 20);
- *reinterpret_cast<uint64_t *>(internalId_.c_array()) = id;
-}
-
-WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
-			 const Sha1::Digest& id)
   : model_(model),
     row_(row),
     column_(column),

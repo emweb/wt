@@ -65,10 +65,12 @@ public:
   /*! \brief Signal emitted when a new attachment has been uploaded (or failed
    *         to upload.
    */
-  Signal<void> uploadDone;
+  Signal<void>& uploadDone() { return uploadDone_; }
 
 private:
   Composer    *composer_;
+
+  Signal<void> uploadDone_;
 
   //! The WFileUpload control.
   WFileUpload *upload_;

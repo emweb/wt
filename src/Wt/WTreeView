@@ -208,7 +208,7 @@ public:
    *
    * \sa setHeaderAlignment()
    */
-  void setColumnAlignment(int column, HorizontalAlignment alignment);
+  void setColumnAlignment(int column, AlignmentFlag alignment);
 
   /*! \brief Set the header alignment for a column.
    *
@@ -216,19 +216,19 @@ public:
    *
    * \sa setColumnAlignment()
    */
-  void setHeaderAlignment(int column, HorizontalAlignment alignment);
+  void setHeaderAlignment(int column, AlignmentFlag alignment);
 
   /*! \brief Returns the content alignment for a column.
    *
    * \sa setColumnAlignment()
    */
-  HorizontalAlignment columnAlignment(int column) const;
+  AlignmentFlag columnAlignment(int column) const;
 
   /*! \brief Returns the header alignment for a column.
    *
    * \sa setHeaderAlignment()
    */
-  HorizontalAlignment headerAlignment(int column) const;
+  AlignmentFlag headerAlignment(int column) const;
 
   /*! \brief Sets the column border color
    *
@@ -502,37 +502,39 @@ public:
    *
    * \sa setExpanded(), expanded
    */
-  Signal<WModelIndex> collapsed;
+  Signal<WModelIndex>& collapsed() { return collapsed_; }
 
   /*! \brief %Signal emitted when a node is expanded.
    *
    * \sa setExpanded(), collapsed
    */
-  Signal<WModelIndex> expanded;
+  Signal<WModelIndex>& expanded() { return expanded_; }
 
   /*! \brief %Signal emitted when an item is clicked.
    *
    * \sa doubleClicked
    */
-  Signal<WModelIndex, WMouseEvent> clicked;
+  Signal<WModelIndex, WMouseEvent>& clicked() { return clicked_; }
 
   /*! \brief %Signal emitted when an item is double clicked.
    *
    * \sa doubleClicked
    */
-  Signal<WModelIndex, WMouseEvent> doubleClicked;
+  Signal<WModelIndex, WMouseEvent>& doubleClicked() { return doubleClicked_; }
 
   /*! \brief %Signal emitted when an item is double clicked.
    *
    * \sa doubleClicked
    */
-  Signal<WModelIndex, WMouseEvent> mouseWentDown;
+  Signal<WModelIndex, WMouseEvent>& mouseWentDown() { return mouseWentDown_; }
 
   /*! \brief %Signal emitted when the selection is changed.
    *
    * \sa select(), setSelectionMode(), setSelectionBehavior()
    */
-  Signal<void> selectionChanged;
+  Signal<void>& selectionChanged() { return selectionChanged_; }
+
+  virtual void refresh();
 
 protected:
   /*! \brief Handle a drop event (drag & drop).
@@ -554,15 +556,17 @@ protected:
    */
   virtual void dropEvent(const WDropEvent& event, const WModelIndex& target);
 
+  virtual void render();
+
 private:
   struct ColumnInfo {
-    WCssTemplateRule   *styleRule;
-    int                 id;
-    SortOrder           sortOrder;
-    HorizontalAlignment alignment;
-    HorizontalAlignment headerAlignment;
-    WLength             width;
-    WString             format;
+    WCssTemplateRule *styleRule;
+    int               id;
+    SortOrder         sortOrder;
+    AlignmentFlag     alignment;
+    AlignmentFlag     headerAlignment;
+    WLength           width;
+    WString           format;
 
     std::string styleClass() const;
 
@@ -585,7 +589,7 @@ private:
   WItemSelectionModel *selectionModel_;
   WModelIndex          rootIndex_;
   WLength              rowHeight_, headerHeight_;
-  WModelIndexSet       expanded_;
+  WModelIndexSet       expandedSet_;
   NodeMap              renderedNodes_;
   WTreeViewNode       *rootNode_;
   std::string          imagePack_;
@@ -605,9 +609,25 @@ private:
   mutable std::vector<ColumnInfo> columns_;
   mutable int nextColumnId_;
 
+  Signal<WModelIndex> collapsed_;
+  Signal<WModelIndex> expanded_;
+  Signal<WModelIndex, WMouseEvent> clicked_;
+  Signal<WModelIndex, WMouseEvent> doubleClicked_;
+  Signal<WModelIndex, WMouseEvent> mouseWentDown_;
+  Signal<void> selectionChanged_;
+
   WSignalMapper<CheckedInfo> *checkedChangeMapper_;
   WSignalMapper<int>         *clickedForSortMapper_;
   WSignalMapper<WModelIndex> *clickedMapper_;
+
+  enum RenderState { 
+    RenderOk = 0,
+    NeedAdjustViewPort = 1,
+    NeedRerenderTree = 2,
+    NeedRerender = 3
+  };
+
+  RenderState renderState_;
 
   // in rows, as indicated by the current position of the viewport:
   int viewportTop_;
@@ -648,7 +668,6 @@ private:
   WWidget *dragWidget_;
 
   void initLayoutJavaScript();
-  void rerender();
   void rerenderHeader();
   void rerenderTree();
 
@@ -681,10 +700,11 @@ private:
   void addRenderedNode(WTreeViewNode *node);
   void removeRenderedNode(WTreeViewNode *node);
 
+  void needAdjustToViewport();
   void adjustToViewport(WTreeViewNode *changed = 0);
 
-  void pruneNodes(WTreeViewNode *node, int& theNodeRow);
-  void adjustRenderedNode(WTreeViewNode *node, int& theNodeRow);
+  int pruneNodes(WTreeViewNode *node, int theNodeRow);
+  int adjustRenderedNode(WTreeViewNode *node, int theNodeRow);
 
   WWidget *widgetForIndex(const WModelIndex& index) const;
   int subTreeHeight(const WModelIndex& index,
@@ -715,7 +735,8 @@ private:
   WText   *headerTextWidget(int column);
   WImage  *headerSortIconWidget(int column);
 
-  void selectionHandleClick(const WModelIndex& index, int modifiers);
+  void selectionHandleClick(const WModelIndex& index,
+			    WFlags<KeyboardModifier> modifiers);
   void handleClick(const WModelIndex& index);
   bool internalSelect(const WModelIndex& index, SelectionFlag option);
   void selectRange(const WModelIndex& first, const WModelIndex& last);

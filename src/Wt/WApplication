@@ -11,6 +11,8 @@
 #include <string>
 #include <set>
 
+#include <boost/pool/pool.hpp>
+
 #include <Wt/WObject>
 #include <Wt/WCssStyleSheet>
 #include <Wt/WEvent>
@@ -41,7 +43,31 @@ namespace Ext {
 class WebSession;
 class UpdateLockImpl;
 
-#ifndef JAVA
+class WResponseEvent
+#ifdef WT_TARGET_JAVA
+                     : public WAbstractEvent
+#endif // WT_TARGET_JAVA
+{
+public:
+  WResponseEvent();
+  const std::string& response() { return jsEvent_.response; }
+
+#ifdef WT_TARGET_JAVA
+  virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
+  {
+    return new WResponseEvent(jsEvent);
+  }
+#endif // WT_TARGET_JAVA
+
+private:
+  JavaScriptEvent jsEvent_;
+
+  WResponseEvent(const JavaScriptEvent& jsEvent);
+
+  friend class EventSignal<WResponseEvent>;
+};
+
+#ifndef WT_TARGET_JAVA
 /*! \brief Typedef for a function that creates WApplication objects.
  *
  * \sa WRun()
@@ -49,7 +75,7 @@ class UpdateLockImpl;
  * \relates WApplication
  */
 typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
-#endif // !JAVA
+#endif // !WT_TARGET_JAVA
 
 /*! \class WApplication Wt/WApplication Wt/WApplication
  *  \brief A class that represents an instance of a %Wt Application,
@@ -127,13 +153,13 @@ public:
     DynamicScriptTag //!< Use dynamic script tags (for cross-domain AJAX)
   };
 
-#ifndef JAVA
+#ifndef WT_TARGET_JAVA
   /*! \brief Typedef for a function that creates WApplication objects.
    *
    * \sa WRun()
    */
   typedef Wt::ApplicationCreator ApplicationCreator;
-#endif
+#endif // WT_TARGET_JAVA
 
   /*! \brief Construct a WApplication
    */
@@ -250,6 +276,7 @@ public:
    */
   void setLocalizedStrings(WLocalizedStrings *translator);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Returns the message resource bundle.
    *
    * The message resource bundle defines the list of external XML
@@ -262,6 +289,7 @@ public:
    * \sa WString::tr(const char *key)
    */
   WMessageResourceBundle& messageResourceBundle() const;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Changes the locale.
    *
@@ -309,30 +337,6 @@ public:
    * \sa root(), \link WServer::WidgetSet WidgetSet mode\endlink.
    */
   void bindWidget(WWidget *widget, const std::string& domId);
-
-  /*! \brief Returns the application name (<b>deprecated</b>).
-   *
-   * \deprecated Use the internal path to read the last file from the
-   *             internal path.
-   *
-   * This name is the last file of the URL (including the initial
-   * internal path) that was used to access the application.
-   *
-   * For example, for an application deployed at <tt>"/stuff/app.wt"</tt>,
-   * When accessing the application using:
-   * \code
-   * http://www.mydomain.com/stuff/app.wt
-   * \endcode
-   * this method would return <tt>"app.wt"</tt>, but when accessing the
-   * application using:
-   * \code
-   * http://www.mydomain.com/stuff/app.wt/file
-   * \endcode
-   * this method would return <tt>"file"</tt>.
-   *
-   * \sa url(), bookmarkUrl()
-   */
-  std::string applicationName() const;
 
   /*! \brief Returns a URL for the current session
    *
@@ -458,19 +462,21 @@ public:
    *
    * When the internal path is changed, an entry is added to the
    * browser history. When the user navigates back and forward through
-   * this history (using the browser back/forward buttons), an \link
-   * WApplication::internalPathChanged internalPathChanged
-   * signal\endlink is emitted. You should listen to this signal to
-   * switch the application to the corresponding state. When
+   * this history (using the browser back/forward buttons), an
+   * internalPathChanged() event is emitted. You should listen to this
+   * signal to switch the application to the corresponding state. When
    * <i>emitChange</i> is true, this signal is also emitted by setting
    * the path.
    *
    * A url that includes the internal path may be obtained using
    * bookmarkUrl().
    *
-   * The <i>internalPath</i> must start and end with a '/'.
+   * The <i>internalPath</i> must start with a '/'. In this way, you
+   * can still use normal anchors in your HTML. Internal path changes
+   * initiated in the browser to paths that do not start with a '/'
+   * are ignored.
    *
-   * \sa bookmarkUrl(), internalPath(), internalPathChanged
+   * \sa bookmarkUrl(), internalPath(), internalPathChanged()
    */
   void setInternalPath(const std::string& internalPath,
 		       bool emitChange = false);
@@ -490,16 +496,15 @@ public:
    * internal path, after the given <i>path</i>.
    *
    * For example, when the current internal path is
-   * <tt>"/project/z3cbc/details/"</tt>, this method returns
+   * <tt>"/project/z3cbc/details"</tt>, this method returns
    * <tt>"details"</tt> when called with <tt>"/project/z3cbc/"</tt> as
    * <i>path</i> argument.
    *
-   * The <i>path</i> must start and end with a '/', and
-   * internalPathMatches() should evaluate to <i>true</i> for the
-   * given <i>path</i>. If not, an empty string is returned and an
-   * error message is logged.
+   * The <i>path</i> must start with a '/', and internalPathMatches()
+   * should evaluate to <i>true</i> for the given <i>path</i>. If not,
+   * an empty string is returned and an error message is logged.
    *
-   * \sa internalPath(), internalPathChanged
+   * \sa internalPath(), internalPathChanged()
    */
   std::string internalPathNextPart(const std::string& path) const;
 
@@ -511,7 +516,7 @@ public:
    * intend to remove sub paths when the current internal path already
    * matches <i>path</i>.
    *
-   * The <i>path</i> must start and end with a '/'.
+   * The <i>path</i> must start with a '/'.
    *
    * \sa setInternalPath(), internalPath()
    */
@@ -574,7 +579,7 @@ public:
    *
    * \sa setInternalPath()
    */
-  Signal<std::string> internalPathChanged;
+  Signal<std::string>& internalPathChanged() { return internalPathChanged_; }
 
   /*! \brief Redirects the application to another location.
    *
@@ -598,6 +603,7 @@ public:
 
   WebSession *session() { return session_; }
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Enable server-initiated updates.
    *
    * By default, updates to the user interface are possible only at
@@ -705,6 +711,7 @@ public:
    * \sa enableUpdates(), triggerUpdate()
    */
   UpdateLock getUpdateLock();
+#endif // WT_TARGET_JAVA
 
   /*! \brief Executes some JavaScript code.
    *
@@ -901,84 +908,6 @@ public:
 
   std::string docType() const;
 
-  /*! \brief Checkpoints the current application state with a key/value pair
-   *         (<b>deprecated</b>).
-   *
-   * \deprecated Use the new internal path system instead,
-   *             see setInternalPath().
-   *
-   * Provided for backwards compatibility with existing code, this method
-   * encodes the key/value pair within the new internal path system, as:
-   * \code
-   * .../key/value/...
-   * \endcode
-   *
-   * Multiple key/value pairs can be combined in the URL in the order
-   * that they are (first) set. When changing an "earlier"
-   * (higher-level) key/value pair, "later" (lower-level) pairs are
-   * pruned from the URL (Warning! this does not completely reflect
-   * the old behaviour, since there keys were never pruned away, but
-   * it is more in the spirit of the hierarchical internal path
-   * nature).
-   *
-   * An application object (such as a widget) that uses this deprecated
-   * system for internal application state works as follows:
-   * <ul>
-   *   <li>a <i>key</i> is chosen for each part of the application state;</li>
-   *   <li>use setState() to indicate a new state;</li>
-   *   <li>examine the current state using state();</li>
-   *   <li>respond to state changes by listening to the
-   *    \link WApplication::stateChanged stateChanged signal\endlink for
-   *    state related to its key.</li>
-   * </ul>
-   *
-   * \sa state(), stateChanged, bookmarkUrl()
-   * \sa setInternalPath()
-   */
-  void setState(const std::string& key, const std::string& value);
-
-  /*! \brief Returns the current application state value associated
-   *         with a specific key (<b>deprecated</b>).
-   *
-   * \deprecated Use the new internal path system instead,
-   *             see setInternalPath().
-   *
-   * \sa setState(), bookmarkUrl()
-   * \sa internalPath(), internalPathNextPart()
-   */
-  std::string state(const std::string& key) const;
-
-  /*! \brief Returns a bookmarkable URL that captures the application state
-   *         (<b>deprecated</b>).
-   *
-   * \deprecated Use the new internal path system instead,
-   *             see setInternalPath().
-   *
-   * Like bookmarkUrl(), this method returns the (relative) URL for
-   * this application, excluding session ID, but including the encoded
-   * state for bookmarking. This method however returns the URL when
-   * the state <i>state</i> would be set for the indicated
-   * <i>scope</i>. This is useful for generating URLs for anchors
-   * which a click event which generates that state.
-   *
-   * \sa url(), bookmarkUrl(), setState()
-   * \sa bookmarkUrl(const std::string&) const
-   */
-  std::string bookmarkUrl(const std::string& scope, const std::string& state);
-
-  /*! \brief %Signal which indicates a change in application state
-   *         (<b>deprecated</b>).
-   *
-   * \deprecated Use the new internal path system instead,
-   *             see setInternalPath().
-   *
-   * An application object that wishes to react to state changes should
-   * listen to this signal.
-   *
-   * \sa setState()
-   */
-  Signal<std::string, std::string> stateChanged;
-
 public slots:
   /*! \brief Quit the application.
    *
@@ -1043,14 +972,6 @@ private:
     bool operator== (const ScriptLibrary& other) const;
   };
 
-  struct State {
-    State(const std::string& scope, const std::string& value);
-
-    std::string scope;
-    std::string value;
-  };
-
-  typedef std::vector<State> StateList;
   typedef std::map<std::string, EventSignalBase *> SignalMap;
   typedef std::map<std::string, WResource *> ResourceMap;
   typedef std::map<std::string, WObject *> ObjectMap;
@@ -1069,10 +990,12 @@ private:
   WLocalizedStrings     *localizedStrings_;
   std::string            locale_;
   std::string            newInternalPath_;
-  bool                   internalPathChanged_;
-  StateList              states_;
-  bool                   useStates_;
+  Signal<std::string>    internalPathChanged_;
+  bool                   internalPathIsChanged_;
+#ifndef WT_TARGET_JAVA
   WServerPushResource   *serverPush_;
+  boost::pool<>          eventSignalPool_;
+#endif // WT_TARGET_JAVA
   bool			 shouldTriggerUpdate_;
   std::string            javaScriptClass_;
   AjaxMethod             ajaxMethod_;
@@ -1102,8 +1025,8 @@ private:
     newBeforeLoadJavaScript_, autoJavaScript_;
   bool autoJavaScriptChanged_;
 
-  EventSignal<WResponseEvent> javaScriptResponse_;
-  EventSignal<void> showLoadingIndicator_, hideLoadingIndicator_;
+  EventSignal<WResponseEvent> *javaScriptResponse_;
+  EventSignal<void> *showLoadingIndicator_, *hideLoadingIndicator_;
 
   bool              isQuited() const { return quited_; }
   WContainerWidget *timerRoot() const { return timerRoot_; }
@@ -1131,8 +1054,6 @@ private:
    * Methods for application state handling
    */
   bool              loadRsh();
-  void              setInternalPathFromStates();
-  void              setStatesFromInternalPath();
   void              changeInternalPath(const std::string& path);
 
   void handleJavaScriptResponse(WResponseEvent event);
@@ -1185,7 +1106,7 @@ private:
   #define WTCONNECTOR_API
 #endif
 
-#ifndef JAVA
+#ifndef WT_TARGET_JAVA
 #ifdef DOXYGEN_ONLY
 /*! \brief Runs the %Wt application server.
  *
@@ -1210,7 +1131,7 @@ extern int WTCONNECTOR_API WRun(int argc, char** argv,
 				ApplicationCreator createApplication = 0);
 
 #endif // DOXYGEN_ONLY
-#endif // JAVA
+#endif // WT_TARGET_JAVA
 
 /*! \def wApp
  *  \brief Global constant for accessing the application instance.

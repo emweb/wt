@@ -16,13 +16,13 @@ namespace Wt {
 
 Panel::Panel(WContainerWidget *parent)
   : Container(parent),
-    collapsed(this, "collapsed", true),
-    expanded(this, "expanded", true),
+    collapsed_(this, "collapsed", true),
+    expanded_(this, "expanded", true),
     titleBar_(false),
     animate_(false),
     autoScrollBars_(false),
     border_(true),
-    collapsed_(false),
+    isCollapsed_(false),
     collapsible_(false),
     split_(false),
     topToolBar_(0),
@@ -121,8 +121,8 @@ void Panel::setBorder(bool on)
 
 void Panel::setCollapsed(bool on)
 { 
-  if (collapsed_ != on) {
-    collapsed_ = on;
+  if (isCollapsed_ != on) {
+    isCollapsed_ = on;
     addUpdateJS(elVar() + "." + (on ? "collapse()" : "expand()") + ";");
   }
 }
@@ -149,12 +149,12 @@ void Panel::setResizable(bool on)
 
 void Panel::onCollapse()
 {
-  collapsed_ = true;
+  isCollapsed_ = true;
 }
 
 void Panel::onExpand()
 {
-  collapsed_ = false;
+  isCollapsed_ = false;
 }
 
 void Panel::refresh()
@@ -167,8 +167,8 @@ void Panel::refresh()
 
 void Panel::updateExt()
 {
-  updateWtSignal(&collapsed, collapsed.name(), "", "");
-  updateWtSignal(&expanded, expanded.name(), "", "");
+  updateWtSignal(&collapsed_, collapsed_.name(), "", "");
+  updateWtSignal(&expanded_, expanded_.name(), "", "");
 
   Container::updateExt();
 }
@@ -178,8 +178,8 @@ std::string Panel::createJS(DomElement *inContainer)
   std::stringstream result;
 
   if (!isRendered()) {
-    collapsed.connect(SLOT(this, Panel::onCollapse));
-    expanded.connect(SLOT(this, Panel::onExpand));
+    collapsed_.connect(SLOT(this, Panel::onCollapse));
+    expanded_.connect(SLOT(this, Panel::onExpand));
   }
 
   if (topToolBar_)
@@ -212,7 +212,7 @@ void Panel::createConfig(std::ostream& config)
   if (animate_ != false)        config << ",animate:true";
   if (autoScrollBars_ != false) config << ",autoScroll:true";
   if (border_ != true)          config << ",border:false";
-  if (collapsed_ != false)      config << ",collapsed:true";
+  if (isCollapsed_ != false)    config << ",collapsed:true";
   if (collapsible_ != false)    config << ",collapsible:true";
   if (split_ != false)          config << ",split:true";
   //config << ",hideMode:'offsets'";
@@ -240,9 +240,9 @@ void Panel::createConfig(std::ostream& config)
     config << ']';
   }
 
-  addWtSignalConfig("collapseH", &collapsed, collapsed.name(),
+  addWtSignalConfig("collapseH", &collapsed_, collapsed_.name(),
 		    "", "", config);
-  addWtSignalConfig("expandH", &expanded, expanded.name(),
+  addWtSignalConfig("expandH", &expanded_, expanded_.name(),
 		    "", "", config);
 
 }

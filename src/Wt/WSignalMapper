@@ -28,10 +28,10 @@ void Test::createWidgets()
 {
   WSignalMapper<WText*> *MyMap = new WSignalMapper<WText*>(this);
 
-  MyMap->mapped.connect(SLOT(this, Test::onClick));
-  MyMap->mapConnect(text1->clicked, text1);
-  MyMap->mapConnect(text2->clicked, text2);
-  MyMap->mapConnect(text3->clicked, text3);
+  MyMap->mapped().connect(SLOT(this, Test::onClick));
+  MyMap->mapConnect(text1->clicked(), text1);
+  MyMap->mapConnect(text2->clicked(), text2);
+  MyMap->mapConnect(text3->clicked(), text3);
 }
 
 void Test::onClick(WText* source)
@@ -43,9 +43,9 @@ void Test::onClick(WText* source)
  *
  * The type <i>T</i> may be any type that has proper copy semantics
  * and a default constructor. The mapper may pass one extra argument
- * (type <i>A1</i>) from the original signal to the \link
- * WSignalMapper::mapped mapped\endlink signal. In that case, you must
- * connect the original signal to the map1() slot, or use mapConnect1().
+ * (type <i>A1</i>) from the original signal to the mapped() signal.
+ * In that case, you must connect the original signal to the map1()
+ * slot, or use mapConnect1().
  *
  * \ingroup signalslot
  */
@@ -59,24 +59,30 @@ public:
 
   /*! \brief Associate data with a sender.
    *
-   * Associate data with a sender, which wel emitted by the \link
-   * WSignalMapper::mapped mapped\endlink signal, when the corresponding
-   * sender signal triggers map() or map1().
+   * Associate data with a sender, which wel emitted by the mapped()
+   * signal, when the corresponding sender signal triggers map() or
+   * map1().
    */
   void setMapping(WObject *sender, const T& data);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Map a signal without arguments.
    *
    * Connect the given signal with the slot, and associate the data
    * when it is triggered.
    */
   void mapConnect(SignalBase& signal, const T& data);
+#else
+  template<typename S>
+    void mapConnect(EventSignal<S>& signal, const T& data);
+    void mapConnect(EventSignal<void>& signal, const T& data);
+#endif
 
   /*! \brief Map a signal with one argument.
    *
    * Connect the given signal with the slot, and associate the data
    * when it is triggered. The signal argument will be passed to the
-   * \link WSignalMapper::mapped mapped\endlink signal.
+   * mapped() signal.
    */
   template<typename S>
     void mapConnect1(S& signal, const T& data);
@@ -87,15 +93,14 @@ public:
    * the specific sender, set in setMapping() or mapConnect(). The
    * second argument is an argument passed from the originating signal.
    */
-  Signal<T, A1> mapped;
+  Signal<T, A1>& mapped() { return mapped_; }
 
 public slots:
   /*! \brief Slot to which to connect the source signal.
    *
    * When a signal triggers the slot, the sender is identified and
    * used to find corresponding data set with setMapping(), which is
-   * then use to propagate further in the \link WSignalMapper::mapped
-   * mapped\endlink signal.
+   * then use to propagate further in the mapped() signal.
    */
   void map();
 
@@ -104,14 +109,15 @@ public slots:
    *
    * When a signal triggers the slot, the sender is identified and
    * used to find corresponding data set with setMapping(), which is
-   * then use to propagate further in the \link WSignalMapper::mapped
-   * mapped\endlink signal. The additional argument <i>a</i> is passed
-   * as the second argument to the \link WSignalMapper::mapped
-   * mapped\endlink signal.
+   * then use to propagate further in the mapped() signal. The
+   * additional argument <i>a</i> is passed as the second argument to
+   * the mapped() signal.
    */
   void map1(A1 a);
 
 private:
+  Signal<T, A1> mapped_;
+
   typedef std::map<WObject *, T> DataMap;
   DataMap mappings_;
 };
@@ -119,7 +125,7 @@ private:
 template <typename T, typename A1>
 WSignalMapper<T, A1>::WSignalMapper(WObject *parent)
   : WObject(parent),
-    mapped(this)
+    mapped_(this)
 { }
 
 template <typename T, typename A1>
@@ -128,6 +134,7 @@ void WSignalMapper<T, A1>::setMapping(WObject *sender, const T& data)
   mappings_[sender] = data;
 }
 
+#ifndef WT_TARGET_JAVA
 template <typename T, typename A1>
 void WSignalMapper<T, A1>::mapConnect(SignalBase& signal, const T& data)
 {
@@ -135,6 +142,7 @@ void WSignalMapper<T, A1>::mapConnect(SignalBase& signal, const T& data)
   signal.connectBase
     (this, static_cast<void (WObject::*)()>(&WSignalMapper<T, A1>::map));
 }
+#endif
 
 template <typename T, typename A1>
 template <typename S>
@@ -151,7 +159,7 @@ void WSignalMapper<T, A1>::map()
 
   typename DataMap::const_iterator i = mappings_.find(theSender);
   if (i != mappings_.end()) {
-    mapped.emit(i->second, A1());
+    mapped_.emit(i->second, A1());
   }
 }
 
@@ -162,7 +170,7 @@ void WSignalMapper<T, A1>::map1(A1 a1)
 
   typename DataMap::const_iterator i = mappings_.find(theSender);
   if (i != mappings_.end()) {
-    mapped.emit(i->second, a1);
+    mapped_.emit(i->second, a1);
   }
 }
 

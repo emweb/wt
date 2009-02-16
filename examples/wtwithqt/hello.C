@@ -54,14 +54,14 @@ void HelloApplication::create()
   nameEdit_->setFocus();
 
   WPushButton *b = new WPushButton("Greet me.", root());
-  b->setMargin(5, WWidget::Left);
+  b->setMargin(5, Left);
 
   root()->addWidget(new WBreak());
 
   greeting_ = new WText(root());
 
-  b->clicked.connect(this, &HelloApplication::propagateGreet);
-  nameEdit_->enterPressed.connect(this, &HelloApplication::propagateGreet);
+  b->clicked().connect(this, &HelloApplication::propagateGreet);
+  nameEdit_->enterPressed().connect(this, &HelloApplication::propagateGreet);
 
   qtSender_ = new QtObject(this);
   qtReceiver_ = new QtObject(this);

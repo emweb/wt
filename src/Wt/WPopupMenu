@@ -255,11 +255,13 @@ public:
    *
    * You can use result() to get the selected item.
    */
-  Signal<> aboutToHide;
+  Signal<>& aboutToHide() { return aboutToHide_; }
 
 private:
   WContainerWidget *impl_;
   WPopupMenuItem   *parentItem_, *result_;
+
+  Signal<> aboutToHide_;
 
   boost::signals::connection globalClickConnection_, globalEscapeConnection_;
   bool                       recursiveEventLoop_;
@@ -286,7 +288,7 @@ WPopupMenuItem *WPopupMenu::addItem(const std::string& iconPath,
 				    T *target, void (V::*method)())
 {
   WPopupMenuItem *item = addItem(iconPath, text);
-  item->triggered.connect(target, method);
+  item->triggered().connect(target, method);
   return item;
 }
 

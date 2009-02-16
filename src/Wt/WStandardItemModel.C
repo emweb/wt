@@ -17,14 +17,16 @@ namespace Wt {
 
 WStandardItemModel::WStandardItemModel(WObject *parent)
   : WAbstractItemModel(parent),
-    sortRole_(DisplayRole)
+    sortRole_(DisplayRole),
+    itemChanged_(this)
 {
   init();
 }
 
 WStandardItemModel::WStandardItemModel(int rows, int columns, WObject *parent)
   : WAbstractItemModel(parent),
-    sortRole_(DisplayRole)
+    sortRole_(DisplayRole),
+    itemChanged_(this)
 {
   init();
 
@@ -160,11 +162,11 @@ WStandardItem *WStandardItemModel::takeItem(int row, int column)
   return invisibleRootItem_->takeChild(row, column);
 }
 
-int WStandardItemModel::flags(const WModelIndex& index) const
+WFlags<ItemFlag> WStandardItemModel::flags(const WModelIndex& index) const
 {
   WStandardItem *item = itemFromIndex(index, false);
 
-  return item ? item->flags() : 0;
+  return item ? item->flags() : WFlags<ItemFlag>(0);
 }
 
 WModelIndex WStandardItemModel::parent(const WModelIndex& index) const
@@ -329,8 +331,8 @@ bool WStandardItemModel::setData(const WModelIndex& index,
 
   if (item) {
     item->setDataImpl(value, role);
-    dataChanged.emit(index, index);
-    itemChanged.emit(item);
+    dataChanged().emit(index, index);
+    itemChanged().emit(item);
   }
 
   return item;

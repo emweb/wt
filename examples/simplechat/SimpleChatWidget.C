@@ -56,8 +56,8 @@ void SimpleChatWidget::letLogin()
   hLayout->addWidget(b, 0, AlignMiddle);
   hLayout->addStretch(1);
 
-  b->clicked.connect(SLOT(this, SimpleChatWidget::login));
-  userNameEdit_->enterPressed.connect(SLOT(this, SimpleChatWidget::login));
+  b->clicked().connect(SLOT(this, SimpleChatWidget::login));
+  userNameEdit_->enterPressed().connect(SLOT(this, SimpleChatWidget::login));
 
   vLayout->addWidget(statusMsg_ = new WText());
   statusMsg_->setFormatting(WText::PlainFormatting);
@@ -85,7 +85,7 @@ bool SimpleChatWidget::startChat(const WString& user)
 {
   if (server_.login(user)) {
     eventConnection_
-      = server_.chatEvent.connect(SLOT(this,
+      = server_.chatEvent().connect(SLOT(this,
 				       SimpleChatWidget::processChatEvent));
     user_ = user;    
 
@@ -155,15 +155,18 @@ bool SimpleChatWidget::startChat(const WString& user)
     /*
      * Connect event handlers
      */
-    sendButton_->clicked.connect(SLOT(sendButton_, WPushButton::disable));
-    sendButton_->clicked.connect(SLOT(messageEdit_, WTextArea::disable));
-    sendButton_->clicked.connect(SLOT(this, SimpleChatWidget::send));
+    sendButton_->clicked().connect(SLOT(sendButton_, WPushButton::disable));
+    sendButton_->clicked().connect(SLOT(messageEdit_, WTextArea::disable));
+    sendButton_->clicked().connect(SLOT(this, SimpleChatWidget::send));
 
-    messageEdit_->enterPressed.connect(SLOT(sendButton_, WPushButton::disable));
-    messageEdit_->enterPressed.connect(SLOT(messageEdit_, WTextArea::disable));
-    messageEdit_->enterPressed.connect(SLOT(this, SimpleChatWidget::send));
+    messageEdit_->enterPressed().connect
+      (SLOT(sendButton_, WPushButton::disable));
+    messageEdit_->enterPressed().connect
+      (SLOT(messageEdit_, WTextArea::disable));
+    messageEdit_->enterPressed().connect
+      (SLOT(this, SimpleChatWidget::send));
 
-    b->clicked.connect(SLOT(this, SimpleChatWidget::logout));
+    b->clicked().connect(SLOT(this, SimpleChatWidget::logout));
 
     WText *msg
       = new WText(false,

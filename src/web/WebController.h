@@ -10,22 +10,24 @@
 #include <string>
 #include <vector>
 
-#ifdef THREADED
+#ifndef WT_TARGET_JAVA
+
+#ifdef WT_THREADED
 #include <boost/thread.hpp>
 #include "threadpool/threadpool.hpp"
 #endif
 
-#include "Wt/WEnvironment"
-
-#include "WebSession.h"
-#include "Configuration.h"
+#endif // WT_TARGET_JAVA
 
 namespace Wt {
 
 class CgiParser;
-class WebRequest;
-class WebStream;
 class Configuration;
+class EntryPoint;
+
+class WebRequest;
+class WebSession;
+class WebStream;
 
 class WApplication;
 class WWidget;
@@ -46,17 +48,18 @@ class WWebWidget;
  * There is a method forceShutDown() to quit the controller.
  *
  * It has the following tasks:
- *  - decode the request
- *  - propagate events
- *  - determine what needs to be served
- *    (a web page, a resource or a javascript update).
  *  - handle session life-cycle: create new sessions, delete quit()ed
  *    sessions, expire sessions on timeout
+ *  - forward the request to the proper session
  *  - manage concurrency
  */
 class WT_API WebController
 {
 public:
+  WApplication *doCreateApplication(WebSession *session);
+  Configuration& configuration();
+
+#ifndef WT_TARGET_JAVA
   /*
    * Construct the WebController and let it read requests from the given
    * streams.
@@ -69,13 +72,9 @@ public:
   void run();
   int sessionCount() const;
 
-#ifndef JAVA
   void handleRequest(WebRequest *request, const EntryPoint *entryPoint = 0);
-#endif // JAVA
 
   void forceShutdown();
-
-  static Configuration& conf();
 
   static std::string appSessionCookie(std::string url);
   static std::string sessionFromCookie(std::string cookies,
@@ -83,11 +82,6 @@ public:
 				       int sessionIdLength);
 
   static WebController *instance() { return instance_; }
-
-  void render(WebSession::Handler& handler,
-	      CgiParser *cgi, WebRenderer::ResponseType type);
-
-  void notify(const WEvent& e);
 
   typedef std::map<int, WSocketNotifier *> SocketNotifierMap;
 
@@ -113,7 +107,7 @@ private:
 
   bool shutdown_;
 
-#ifdef THREADED
+#ifdef WT_THREADED
   // mutex to protect access to the sessions map.
   boost::mutex            mutex_;
 
@@ -121,29 +115,16 @@ private:
 #endif
 
   bool expireSessions(std::vector<WebSession *>& toKill);
-  void removeSession(WebSession *session);
+  void removeSession(const std::string& sessionId);
   void handleRequestThreaded(WebRequest *request);
 
-#ifndef JAVA
-  const EntryPoint *getEntryPoint(WebRequest *request);
-#endif // JAVA
-
-  void checkTimers();
-
-  enum SignalKind { LearnedStateless = 0, AutoLearnStateless = 1,
-		    Dynamic = 2 };
-  void processSignal(EventSignalBase *s, const std::string& se,
-		     CgiParser& cgi, WebSession *session,
-		     SignalKind kind);
-
-  void notifySignal(const WEvent& e);
-  void propagateFormValues(const WEvent& e);
+  const EntryPoint *getEntryPoint(const std::string& deploymentPath);
 
   static void mxml_error_cb(const char *message);
 
   static WebController *instance_;
 
-  CgiEntry *getSignal(const CgiParser& cgi, const std::string& se);
+#endif // WT_TARGET_JAVA
 };
 
 extern void WebStreamAddSocketNotifier(WSocketNotifier *notifier);

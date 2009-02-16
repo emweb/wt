@@ -17,7 +17,7 @@
 namespace Wt {
 
 std::vector<std::string> WString::stArguments_;
-const WString WString::emptyString;
+const WString WString::Empty;
 
 WString::WString()
   : impl_(0)

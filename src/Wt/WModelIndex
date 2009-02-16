@@ -10,22 +10,11 @@
 #include <vector>
 #include <set>
 #include <boost/any.hpp>
-#include <boost/array.hpp>
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WFlags>
 
 namespace Wt {
-
-  /*! \brief Namespace for SHA-1 hashes.
-   */
-  namespace Sha1 {
-
-    /*! \brief A Sha-1 digest.
-     *
-     * \sa WModelIndex::internalHashId(), WAbstractItemModel::createIndex(int, int, const Sha1::Digest&) const
-     */
-    typedef boost::array<unsigned char, 20> Digest;
-  }
 
 class WAbstractItemModel;
 
@@ -68,6 +57,8 @@ enum ItemFlag {
   ItemIsDragEnabled = 0x8,   //!< Item can be dragged
   ItemIsDropEnabled = 0x10   //!< Item can be a drop target
 };
+
+W_DECLARE_OPERATORS_FOR_FLAGS(ItemFlag)
 
 /*! \brief Enumeration that indicates a sort order.
  *
@@ -125,10 +116,6 @@ public:
    */
   WModelIndex();
 
-  /*! \brief Copy constructor.
-   */
-  WModelIndex(const WModelIndex& other);
-
   /*! \brief Returns the column for this model index.
    *
    * \sa row()
@@ -151,10 +138,7 @@ public:
    *
    * \sa internalId(), WAbstractItemModel::createIndex(int, int, void *) const
    */
-  void *internalPointer() const { 
-    return *reinterpret_cast<void **>
-      (const_cast<WModelIndex *>(this)->internalId_.c_array()); 
-  }
+  void *internalPointer() const { return reinterpret_cast<void*>(internalId_); }
 
   /*! \brief Returns the internal id.
    *
@@ -166,19 +150,7 @@ public:
    *
    * \sa internalPointer(), WAbstractItemModel::createIndex(int, int, uint64_t) const
    */
-  uint64_t internalId() const {
-    return *reinterpret_cast<uint64_t*>
-      (const_cast<WModelIndex *>(this)->internalId_.c_array());
-  }
-
-  /*! \brief Returns a long internal id.
-   *
-   * A long internal id (20 bytes) may be used by models that do not keep
-   * data in memory.
-   *
-   * The 20 bytes length has been chosen to be able store SHA-1 hash ids.
-   */
-  Sha1::Digest internalHashId() const { return internalId_; }
+  uint64_t internalId() const { return internalId_; }
 
   /*! \brief Returns a model index for a child item.
    *
@@ -223,7 +195,7 @@ public:
    * \sa WAbstractItemModel::flags()
    * \sa ItemFlag
    */
-  int flags() const;
+  WFlags<ItemFlag> flags() const;
 
   /*! \brief Returns whether the index is a real valid index.
    *
@@ -267,22 +239,23 @@ public:
 private:
   const WAbstractItemModel *model_;
   int row_, column_;
-  Sha1::Digest internalId_;
+  uint64_t internalId_;
 
   WModelIndex(int row, int column, const WAbstractItemModel *model, void *ptr);
   WModelIndex(int row, int column, const WAbstractItemModel *model,
 	      uint64_t id);
-  WModelIndex(int row, int column, const WAbstractItemModel *model,
-	      const Sha1::Digest& id);
 
   friend class WAbstractItemModel;
 
-  void getAncestors(std::vector<WModelIndex>& ancestors) const;
+  WModelIndex ancestor(int depth) const;
+  int depth() const;
 };
 
+#ifndef WT_TARGET_JAVA
 typedef std::set<WModelIndex> WModelIndexSet;
-typedef std::set<WModelIndex, WModelIndex::UnorderedLess>
-  WModelIndexUnorderedSet;
+#else
+typedef std::treeset<WModelIndex> WModelIndexSet;
+#endif
 typedef std::vector<WModelIndex> WModelIndexList;
 
 }

@@ -11,11 +11,12 @@
 #include <Wt/WModelIndex>
 #include <Wt/WSignal>
 #include <Wt/WString>
-#include <Wt/WWidget>
-
+#include <Wt/WGlobal>
 #include <boost/any.hpp>
 
 namespace Wt {
+
+  class WDropEvent;
 
   /*! \brief Flags that specify how to match two values.
    *
@@ -25,16 +26,21 @@ namespace Wt {
    *
    * \ingroup modelview
    */
-  enum MatchFlags {
-    MatchExactly = 0,         //!< Same type and value
-    MatchStringExactly = 1,   //!< Lexical match
-    MatchStartsWith = 2,      //!< Match start with query
-    MatchEndsWith = 3,        //!< Match end with query
-    MatchRegExp = 4,          //!< Regular expression match
-    MatchWildCard = 5,        //!< Wildcard match
+  enum MatchFlag {
+    MatchExactly = 0x0,       //!< Same type and value
+    MatchStringExactly = 0x1, //!< Lexical match
+    MatchStartsWith = 0x2,    //!< Match start with query
+    MatchEndsWith = 0x3,      //!< Match end with query
+    MatchRegExp = 0x4,        //!< Regular expression match
+    MatchWildCard = 0x5,      //!< Wildcard match
     MatchCaseSensitive = 0x10,//!< Case sensitive
     MatchWrap = 0x20          //!< Wrap around whole model
   };
+  W_DECLARE_OPERATORS_FOR_FLAGS(MatchFlag)
+  W_DECLARE_MASK_FOR_FLAGS(MatchFlag, MatchTypeMask,
+			   MatchExactly | MatchStringExactly |
+			   MatchStartsWith | MatchEndsWith |
+			   MatchRegExp | MatchWildCard);
 
 /*! \class WAbstractItemModel Wt/WAbstractItemModel Wt/WAbstractItemModel
  *  \brief An abstract model for use with %Wt's view classes.
@@ -184,7 +190,7 @@ public:
    *
    * \sa Wt::ItemFlag
    */
-  virtual int flags(const WModelIndex& index) const;
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
 
   /*! \brief Returns if there are children at an index.
    *
@@ -261,8 +267,9 @@ public:
 				int role,
 				const boost::any& value,
 				int hits = -1,
-				MatchFlags flags
-				  = MatchFlags(MatchStartsWith | MatchWrap))
+				WFlags<MatchFlag> flags
+				  = WFlags<MatchFlag>(MatchStartsWith
+						      | MatchWrap))
     const;
 
   /*! \brief Returns the data item at the given column and row.
@@ -554,7 +561,8 @@ public:
    *
    * \sa columnsInserted, beginInsertColumns()
    */
-  Signal<WModelIndex, int, int> columnsAboutToBeInserted;
+  Signal<WModelIndex, int, int>& columnsAboutToBeInserted()
+    { return columnsAboutToBeInserted_; }
 
   /*! \brief %Signal emitted before a number of columns will be removed.
    *
@@ -564,7 +572,8 @@ public:
    *
    * \sa columnsRemoved, beginRemoveColumns()
    */
-  Signal<WModelIndex, int, int> columnsAboutToBeRemoved;
+  Signal<WModelIndex, int, int>& columnsAboutToBeRemoved()
+    { return columnsAboutToBeRemoved_; }
  
   /*! \brief %Signal emitted after a number of columns were inserted.
    *
@@ -574,7 +583,8 @@ public:
    *
    * \sa columnsAboutToInserted, endInsertColumns()
    */
-  Signal<WModelIndex, int, int> columnsInserted;
+  Signal<WModelIndex, int, int>& columnsInserted()
+    { return columnsInserted_; }
 
   /*! \brief %Signal emitted after a number of columns were removed.
    *
@@ -583,7 +593,8 @@ public:
    *
    * \sa columnsAboutToBeRemoved, endRemoveColumns()
    */
-  Signal<WModelIndex, int, int> columnsRemoved;
+  Signal<WModelIndex, int, int>& columnsRemoved()
+    { return columnsRemoved_; }
 
   /*! \brief %Signal emitted before a number of rows will be inserted.
    *
@@ -593,7 +604,8 @@ public:
    *
    * \sa rowsInserted, beginInsertRows()
    */
-  Signal<WModelIndex, int, int> rowsAboutToBeInserted;
+  Signal<WModelIndex, int, int>& rowsAboutToBeInserted()
+    { return rowsAboutToBeInserted_; }
 
   /*! \brief %Signal emitted before a number of rows will be removed.
    *
@@ -603,7 +615,8 @@ public:
    *
    * \sa rowsRemoved, beginRemoveRows()
    */
-  Signal<WModelIndex, int, int> rowsAboutToBeRemoved;
+  Signal<WModelIndex, int, int>& rowsAboutToBeRemoved()
+    { return rowsAboutToBeRemoved_; }
  
   /*! \brief %Signal emitted after a number of rows were inserted.
    *
@@ -612,7 +625,8 @@ public:
    *
    * \sa rowsAboutToBeInserted, endInsertRows()
    */
-  Signal<WModelIndex, int, int> rowsInserted;
+  Signal<WModelIndex, int, int>& rowsInserted()
+    { return rowsInserted_; }
 
   /*! \brief %Signal emitted after a number of rows were removed.
    *
@@ -621,7 +635,8 @@ public:
    *
    * \sa rowsAboutToBeRemoved, endRemoveRows()
    */
-  Signal<WModelIndex, int, int> rowsRemoved;
+  Signal<WModelIndex, int, int>& rowsRemoved()
+    { return rowsRemoved_; }
 
   /*! \brief %Signal emitted when some data was changed.
    *
@@ -630,7 +645,8 @@ public:
    *
    * \sa setData()
    */
-  Signal<WModelIndex, WModelIndex> dataChanged;
+  Signal<WModelIndex, WModelIndex>& dataChanged()
+    { return dataChanged_; }
 
   /*! \brief %Signal emitted when some header data was changed.
    *
@@ -640,7 +656,8 @@ public:
    *
    * \sa setHeaderData()
    */
-  Signal<Orientation, int, int> headerDataChanged;
+  Signal<Orientation, int, int>& headerDataChanged()
+    { return headerDataChanged_; }
 
   /*! \brief %Signal emitted when the layout is about to be changed.
    *
@@ -651,13 +668,15 @@ public:
    *
    * \sa layoutChanged, toRawIndex(), fromRawIndex()
    */
-  Signal<> layoutAboutToBeChanged;
+  Signal<>& layoutAboutToBeChanged()
+    { return layoutAboutToBeChanged_; }
 
   /*! \brief %Signal emitted when the layout is changed.
    *
    * \sa layoutAboutToBeChanged
    */
-  Signal<> layoutChanged;
+  Signal<>& layoutChanged()
+    { return layoutChanged_; }
 
 protected:
   /*! \brief Create a model index for the given row and column.
@@ -670,6 +689,7 @@ protected:
    */
   WModelIndex createIndex(int row, int column, void *ptr) const;
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Create a model index for the given row and column.
    *
    * Use this method to create a model index. <i>id</i> is an
@@ -680,20 +700,7 @@ protected:
    */
   WModelIndex createIndex(int row, int column, uint64_t id) const;
 
-  /*! \brief Create a model index for the given row and column.
-   *
-   * Use this method to create a model index. <i>hashId</i> is an
-   * internal id (of 20 bytes, long enough to hold a SHA-1 digest)
-   * that may be used to associate the index with particular model
-   * data.
-   *
-   * Using a long internal id may be useful for models that wish to keep
-   * all of their data on disk or in a database (but not in memory).
-   *
-   * \sa WModelIndex::internalHashId()
-   */
-  WModelIndex createIndex(int row, int column, const Sha1::Digest& hashId)
-    const;
+#endif // WT_TARGET_JAVA
 
   /*! \brief Method to be called before inserting columns.
    *
@@ -767,6 +774,19 @@ private:
   int first_, last_;
   WModelIndex parent_;
 
+  Signal<WModelIndex, int, int> columnsAboutToBeInserted_;
+  Signal<WModelIndex, int, int> columnsAboutToBeRemoved_;
+  Signal<WModelIndex, int, int> columnsInserted_;
+  Signal<WModelIndex, int, int> columnsRemoved_;
+  Signal<WModelIndex, int, int> rowsAboutToBeInserted_;
+  Signal<WModelIndex, int, int> rowsAboutToBeRemoved_;
+  Signal<WModelIndex, int, int> rowsInserted_;
+  Signal<WModelIndex, int, int> rowsRemoved_;
+  Signal<WModelIndex, WModelIndex> dataChanged_;
+  Signal<Orientation, int, int> headerDataChanged_;
+  Signal<> layoutAboutToBeChanged_;
+  Signal<> layoutChanged_;
+
   static void copyData(const WAbstractItemModel *source,
 		       const WModelIndex& sIndex,
 		       WAbstractItemModel *destination,
@@ -787,8 +807,7 @@ extern WT_API std::string asJSLiteral(const boost::any& v);
  * \relates WAbstractItemModel
  */
 extern WT_API WString asString(const boost::any& v,
-			       const WString& formatString
-			       = WString::emptyString);
+			       const WString& formatString = WString::Empty);
 
 /*! \brief Interpret a boost::any as a number value.
  *
@@ -801,7 +820,7 @@ extern WT_API WString asString(const boost::any& v,
  */
 extern WT_API double asNumber(const boost::any& v);
 
-extern WT_API bool lessThan(const boost::any& d1, const boost::any& d2);
+extern WT_API int compare(const boost::any& d1, const boost::any& d2);
 
 extern WT_API boost::any updateFromJS(const boost::any& v, std::string s);
 

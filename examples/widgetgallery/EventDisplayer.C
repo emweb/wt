@@ -11,8 +11,8 @@ EventDisplayer::EventDisplayer(WContainerWidget *parent):
 {
   setStyleClass("events");
 
-  map_->mapped.connect(SLOT(this, EventDisplayer::showSignal));
-  mapWString_->mapped.connect(SLOT(this, EventDisplayer::showWStringSignal));
+  map_->mapped().connect(SLOT(this, EventDisplayer::showSignal));
+  mapWString_->mapped().connect(SLOT(this, EventDisplayer::showWStringSignal));
 }
 
 void EventDisplayer::mapConnect(Wt::SignalBase &signal, const std::string& data)

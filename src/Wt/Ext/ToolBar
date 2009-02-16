@@ -96,6 +96,7 @@ private:
   friend class Panel;
 };
 
+#ifndef JAVA
 template<class T, class V>
 Button *ToolBar::addButton(const WString& text,
 			   T *target, void (V::*method)())
@@ -108,10 +109,10 @@ Button *ToolBar::addButton(const std::string& iconPath, const WString& text,
 			   T *target, void (V::*method)())
 {
   Button *button = addButton(iconPath, text);
-  button->activated.connect(target, method);
+  button->activated().connect(target, method);
   return button;
 }
-
+#endif // JAVA
 
   }
 }

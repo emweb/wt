@@ -26,13 +26,13 @@ TextEdit::TextEdit(WContainerWidget *parent)
     sourceEdit_(true)
 {
   //extjs: textedit doesn't stand a parent with display: none
-  setHideWithOffsets();
+  setHideWithOffsets(true);
 
   textArea_ = new WTextArea();
   addOrphan(textArea_);
 }
 
-TextEdit::TextEdit(const WString& text, WContainerWidget *parent)
+TextEdit::TextEdit(const WT_USTRING& text, WContainerWidget *parent)
   : FormField(parent),
     linkDefaultLocation_("http://"),
     alignments_(true),
@@ -44,7 +44,7 @@ TextEdit::TextEdit(const WString& text, WContainerWidget *parent)
     sourceEdit_(true)
 {
   //extjs: textedit doesn't stand a parent with display: none
-  setHideWithOffsets();
+  setHideWithOffsets(true);
 
   textArea_ = new WTextArea();
   addOrphan(textArea_);
@@ -98,14 +98,15 @@ void TextEdit::setEnableSourceEdit(bool enable)
   sourceEdit_ = enable;
 }
 
-void TextEdit::setText(const WString& text)
+void TextEdit::setText(const WT_USTRING& text)
 {
   textArea_->setText(text);
   if (isRendered())
-    addUpdateJS(elVar() + ".setValue(" + text.jsStringLiteral() + ");");
+    addUpdateJS(elVar() + ".setValue(" + WWebWidget::jsStringLiteral(text)
+		+ ");");
 }
 
-const WString& TextEdit::text() const
+const WT_USTRING& TextEdit::text() const
 {
   return textArea_->text();
 }
@@ -113,10 +114,8 @@ const WString& TextEdit::text() const
 WValidator::State TextEdit::validate()
 {
   if (validator()) {
-    int pos;
-
-    WString text = textArea_->text();
-    return validator()->validate(text, pos);
+    WT_USTRING text = textArea_->text();
+    return validator()->validate(text);
   } else
     return WValidator::Valid;
 }

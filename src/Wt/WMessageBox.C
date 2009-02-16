@@ -12,8 +12,6 @@
 #include "Wt/WSignalMapper"
 #include "Wt/WText"
 
-#include "WebController.h"
-
 namespace Wt {
 
 StandardButton WMessageBox::order_[] = { Ok, Yes, YesAll, Retry, No,
@@ -33,17 +31,19 @@ WMessageBox::WMessageBox(bool i18n)
   : buttons_(0),
     icon_(NoIcon),
     i18n_(i18n),
-    result_(NoButton)
+    result_(NoButton),
+    buttonClicked_(this)
 {
   create();
 }
 
 WMessageBox::WMessageBox(const WString& caption, const WString& text,
-			 Icon icon, int buttons, bool i18n)
+			 Icon icon, WFlags<StandardButton> buttons, bool i18n)
   : WDialog(caption),
     buttons_(0),
     icon_(NoIcon),
-    i18n_(i18n)
+    i18n_(i18n),
+    buttonClicked_(this)
 {
   create();
 
@@ -54,9 +54,8 @@ WMessageBox::WMessageBox(const WString& caption, const WString& text,
 
 WPushButton *WMessageBox::addButton(const WString& text, StandardButton result)
 {
-  WPushButton *b
-    = new WPushButton(text, buttonContainer_);
-  buttonMapper_->mapConnect(b->clicked, result);
+  WPushButton *b = new WPushButton(text, buttonContainer_);
+  buttonMapper_->mapConnect(b->clicked(), result);
 
   return b;
 }
@@ -70,7 +69,7 @@ void WMessageBox::create()
   buttons->setPadding(WLength(5), Left|Right);
   buttonContainer_ = new WContainerWidget(buttons);
   buttonMapper_ = new WSignalMapper<StandardButton>(this);
-  buttonMapper_->mapped.connect(SLOT(this, WMessageBox::onButtonClick));
+  buttonMapper_->mapped().connect(SLOT(this, WMessageBox::onButtonClick));
 
   //buttonMapper_->mapConnect(contents()->escapePressed, Cancel);
   //contents()->escapePressed.preventDefault();
@@ -108,7 +107,7 @@ void WMessageBox::setIcon(Icon icon)
   }
 }
 
-void WMessageBox::setButtons(int buttons)
+void WMessageBox::setButtons(WFlags<StandardButton> buttons)
 {
   buttons_ = buttons;
   buttonContainer_->clear();
@@ -118,7 +117,7 @@ void WMessageBox::setButtons(int buttons)
       WPushButton *b
 	= new WPushButton(i18n_ ? tr(buttonText_[i]) : buttonText_[i],
 			  buttonContainer_);
-      buttonMapper_->mapConnect(b->clicked, order_[i]);
+      buttonMapper_->mapConnect(b->clicked(), order_[i]);
 
       if (order_[i] == Ok || order_[i] == Yes)
 	b->setFocus();
@@ -142,19 +141,21 @@ WPushButton *WMessageBox::button(StandardButton b)
 void WMessageBox::onButtonClick(StandardButton b)
 {
   result_ = b;
-  buttonClicked.emit(b);
+  buttonClicked_.emit(b);
 }
 
+#ifndef WT_TARGET_JAVA
 StandardButton WMessageBox::show(const WString& caption,
 				 const WString& text,
-				 int buttons, bool i18n)
+				 WFlags<StandardButton> buttons, bool i18n)
 {
   WMessageBox box(caption, text, Information, buttons, i18n);
-  box.buttonClicked.connect(SLOT(&box, WMessageBox::accept));
+  box.buttonClicked().connect(SLOT(&box, WMessageBox::accept));
 
   box.exec();
 
-  return box.result();
+  return box.buttonResult();
 }
+#endif // WT_TARGET_JAVA
 
 }

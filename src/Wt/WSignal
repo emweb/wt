@@ -9,8 +9,10 @@
 
 #include <Wt/WObject>
 #include <bitset>
+
 #include <boost/signal.hpp>
 #include <boost/bind.hpp>
+#include <boost/intrusive/list.hpp>
 
 namespace Wt {
 
@@ -90,6 +92,8 @@ protected:
   void popSender();
 
 private:
+  SignalBase(const SignalBase& other);
+
   WObject *sender_;
   bool     blocked_;
 
@@ -281,8 +285,12 @@ public:
 						 WObject::Method method);
 
 private:
+  Signal(const Signal<A1, A2, A3, A4, A5, A6>&);
+
   boost::signal6<void, A1, A2, A3, A4, A5, A6> *impl_;
 };
+
+#ifndef WT_TARGET_JAVA
 
 /*
  * Normal signal -- specialization for void
@@ -291,16 +299,37 @@ template<>
 class WT_API Signal<void> : public Signal<>
 { 
 public:
-  Signal<void, NoClass, NoClass, NoClass, NoClass, NoClass>(WObject *sender = 0);
+  Signal<void, NoClass, NoClass, NoClass, NoClass, NoClass>
+    (WObject *sender = 0);
 };
+
+#else // WT_TARGET_JAVA
+
+class WT_API Signal0 : public Signal<NoClass>
+{
+public:
+  Signal0(WObject *sender = 0);
+
+  void emit();
+
+  template<class T, class V>
+    boost::signals::connection connect(T *target, void (V::*method)());
+};
+
+#endif // WT_TARGET_JAVA
 
 /*
  * Event signals do something in addition to boost signals
  */
 class WT_API EventSignalBase : public SignalBase
+#ifndef WT_TARGET_JAVA
+			     ,public boost::intrusive::list_base_hook<>
+#endif // WT_TARGET_JAVA
 {
 public:
   virtual ~EventSignalBase();
+
+  const char *name() const { return name_; }
 
   bool needUpdate() const;
   void updateOk();
@@ -332,14 +361,6 @@ public:
   void senderRepaint();
 
 protected:
-  EventSignalBase(WObject *sender)
-    : SignalBase(sender), impl_(0) { }
-
-  void prepareDestruct();
-  void exposeSignal();
-  void processLearnedStateless();
-  void processNonLearnedStateless();
-
   struct StatelessConnection {
     boost::signals::connection connection;
     WObject                   *target;
@@ -351,29 +372,34 @@ protected:
 			WObject *target, WStatelessSlot *slot);
   };
 
-  struct Impl {
-    std::vector<StatelessConnection> connections_;
-    static const int BIT_NEED_UPDATE = 0;
-    static const int BIT_EXPOSED = 1;
-    static const int BIT_NEEDS_AUTOLEARN = 2;
-    static const int BIT_PREVENT_DEFAULT = 3;
-    std::bitset<4> flags_;
-    mutable int id_;
-    static int nextId_;
+  static const int BIT_NEED_UPDATE = 0;
+  static const int BIT_EXPOSED = 1;
+  static const int BIT_NEEDS_AUTOLEARN = 2;
+  static const int BIT_PREVENT_DEFAULT = 3;
 
-    /*
-     * Dummy signal used for knowing if stateless connections are still
-     * connected.
-     */
-    boost::signal0<void>  dummy_;
-    void                 *dynamic_;
+  static int nextId_;
 
-    Impl();
-  };
+  const char                       *name_;
+  const int                         id_;
+  std::vector<StatelessConnection>  connections_;
+  std::bitset<4>                    flags_;
 
-  mutable Impl *impl_;
+  /*
+   * Dummy signal used for knowing if stateless connections are still
+   * connected.
+   */
+  boost::signal0<void>              dummy_;
 
-  void createImpl() const;
+  EventSignalBase(const char *name, WObject *sender)
+    : SignalBase(sender), name_(name), id_(nextId_++) { }
+
+  void prepareDestruct();
+  void exposeSignal();
+  void processLearnedStateless();
+  void processNonLearnedStateless();
+
+  static void *alloc();
+  static void free(void *s);
 
 private:
   /*
@@ -388,7 +414,7 @@ private:
 
   friend class WStatelessSlot;
   friend class WebRenderer;
-  friend class WebController;
+  friend class WebSession;
 };
 
 /*! \class EventSignal Wt/WSignal Wt/WSignal
@@ -415,8 +441,14 @@ template<typename E>
 class EventSignal : public EventSignalBase
 {
 public:
-  EventSignal(WObject *sender);
-  ~EventSignal();
+#ifndef WT_TARGET_JAVA
+  static void *operator new(std::size_t size);
+  static void operator delete(void *deletable, std::size_t size);
+
+  EventSignal(const char *name, WObject *sender);
+#else
+  EventSignal(const char *name, WObject *sender, const E& e);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Is this signal connected to at least one slot ?
    */
@@ -484,23 +516,21 @@ public:
 
 private:
   typedef boost::signal1<void, E> BoostSignalType;
+  BoostSignalType dynamic_;
 
   void processDynamic(const JavaScriptEvent& e);
 };
 
+#ifndef WT_TARGET_JAVA
+
 /*
  * Event signals -- specialization for void
  */
-
 template<>
 class WT_API EventSignal<void> : public EventSignalBase
 {
 public:
-  EventSignal(WObject *sender);
-  EventSignal(EventSignalBase *e); // proxy for other signal
-  ~EventSignal();
-
-  void setRelay(EventSignalBase *relay);
+  EventSignal(const char *name, WObject *sender);
 
   virtual bool isConnected() const;
 
@@ -520,10 +550,32 @@ private:
    * Signal used for dynamic connections.
    */
   typedef boost::signal0<void> BoostSignalType;
-  EventSignalBase      *relay_;
+  BoostSignalType dynamic_;
 
   void processDynamic(const JavaScriptEvent& e);
 };
+
+#else
+
+class WT_API EventSignal0 : public EventSignalBase
+{
+public:
+  EventSignal0(const char *name, WObject *sender);
+  ~EventSignal0();
+
+  virtual bool isConnected() const;
+
+  void connect(JSlot& slot);
+  template<class T, class V>
+    boost::signals::connection connect(T *target, void (V::*method)());
+
+  void emit();
+  void operator()();
+};
+
+#endif // WT_TARGET_JAVA
+
+#ifndef WT_TARGET_JAVA
 
 template <class T, class V>
 boost::signals::connection SignalBase::connectBase(T *target,
@@ -754,18 +806,19 @@ bool Signal<A1, A2, A3, A4, A5, A6>::isConnected() const
 }
 
 template <typename E>
-EventSignal<E>::EventSignal(WObject *sender)
-  : EventSignalBase(sender)
-{ }
+void *EventSignal<E>::operator new(std::size_t size) {
+  return EventSignalBase::alloc();
+}
+ 
+template <typename E>
+void EventSignal<E>::operator delete(void *deletable, std::size_t size) {
+  EventSignalBase::free(deletable);
+}
 
 template <typename E>
-EventSignal<E>::~EventSignal()
-{
-  if (impl_) {
-    BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-    delete dynamic;
-  }
-}
+EventSignal<E>::EventSignal(const char *name, WObject *sender)
+  : EventSignalBase(name, sender)
+{ }
 
 template <typename E>
 bool EventSignal<E>::isConnected() const
@@ -773,12 +826,7 @@ bool EventSignal<E>::isConnected() const
   if (EventSignalBase::isConnected())
     return true;
 
-  if (impl_) {
-    BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-
-    return dynamic && dynamic->num_slots() > 0;
-  } else
-    return false;
+  return dynamic_.num_slots() > 0;
 }
 
 template <typename E>
@@ -794,14 +842,9 @@ boost::signals::connection EventSignal<E>::connect(T *target,
 
   if (s)
     return EventSignalBase::connect(static_cast<WObject::Method>(method), o, s);
-  else {
-    createImpl();
-    BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-    if (!dynamic)
-      impl_->dynamic_ = dynamic = new BoostSignalType;
-    return dynamic->connect(boost::bind(method, target),
+  else
+    return dynamic_.connect(boost::bind(method, target),
 			    boost::signals::at_front);
-  }
 }
 
 template <typename E>
@@ -812,12 +855,7 @@ boost::signals::connection EventSignal<E>::connect(T *target,
   exposeSignal();
   assert(dynamic_cast<V *>(target));
 
-  createImpl();
-  BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-  if (!dynamic)
-    impl_->dynamic_ = dynamic = new BoostSignalType;
-
-  return dynamic->connect(boost::bind(method, target, ::_1),
+  return dynamic_.connect(boost::bind(method, target, ::_1),
 			  boost::signals::at_front);
 }
 
@@ -829,12 +867,7 @@ boost::signals::connection EventSignal<E>::connect(T *target,
   exposeSignal();
   assert(dynamic_cast<V *>(target));
 
-  createImpl();
-  BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-  if (!dynamic)
-    impl_->dynamic_ = dynamic = new BoostSignalType;
-
-  return dynamic->connect(boost::bind(method, target, ::_1),
+  return dynamic_.connect(boost::bind(method, target, ::_1),
 			  boost::signals::at_front);
 }
 
@@ -862,11 +895,7 @@ void EventSignal<E>::emit(E e)
   processLearnedStateless();
   processNonLearnedStateless();
 
-  if (impl_) {
-    BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-    if (dynamic)
-      (*dynamic)(e);
-  }
+  dynamic_(e);
 
   popSender();
 }
@@ -884,13 +913,10 @@ void EventSignal<E>::processDynamic(const JavaScriptEvent& jse)
 
   E event(jse);
 
-  if (impl_) {
-    BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-    if (dynamic) {
-      pushSender(sender());
-      (*dynamic)(event);
-      popSender();
-    }
+  if (dynamic_.num_slots()) {
+    pushSender(sender());
+    dynamic_(event);
+    popSender();
   }
 }
 
@@ -901,26 +927,20 @@ boost::signals::connection EventSignal<void>::connect(T *target,
   WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
   assert(o);
 
-  if (relay_)
-    return relay_->connectBase(o, static_cast<WObject::Method>(method));
+  exposeSignal();
+
+  WStatelessSlot *s = o->isStateless(static_cast<WObject::Method>(method));
+
+  if (s)
+    return EventSignalBase::connect(static_cast<WObject::Method>(method),
+				    o, s);
   else {
-    exposeSignal();
-
-    WStatelessSlot *s = o->isStateless(static_cast<WObject::Method>(method));
-
-    if (s)
-      return EventSignalBase::connect(static_cast<WObject::Method>(method),
-				      o, s);
-    else {
-      createImpl();
-      BoostSignalType *dynamic = (BoostSignalType *)impl_->dynamic_;
-      if (!dynamic)
-	impl_->dynamic_ = dynamic = new BoostSignalType;
-      return dynamic->connect(boost::bind(method, target),
-			      boost::signals::at_front);
-    }
+    return dynamic_.connect(boost::bind(method, target),
+			    boost::signals::at_front);
   }
 }
+
+#endif // WT_TARGET_JAVA
 
 }
 

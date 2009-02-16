@@ -40,6 +40,7 @@ const WString ChatEvent::formattedHTML(const WString& user) const
 
 
 SimpleChatServer::SimpleChatServer()
+  : chatEvent_(this)
 { }
 
 bool SimpleChatServer::login(const WString& user)
@@ -49,7 +50,7 @@ bool SimpleChatServer::login(const WString& user)
   if (users_.find(user) == users_.end()) {
     users_.insert(user);
 
-    chatEvent.emit(ChatEvent(ChatEvent::Login, user));
+    chatEvent_.emit(ChatEvent(ChatEvent::Login, user));
 
     return true;
   } else
@@ -65,7 +66,7 @@ void SimpleChatServer::logout(const WString& user)
   if (i != users_.end()) {
     users_.erase(i);
 
-    chatEvent.emit(ChatEvent(ChatEvent::Logout, user));
+    chatEvent_.emit(ChatEvent(ChatEvent::Logout, user));
   }
 }
 
@@ -86,7 +87,7 @@ void SimpleChatServer::sendMessage(const WString& user, const WString& message)
 {
   boost::mutex::scoped_lock lock(mutex_);
 
-  chatEvent.emit(ChatEvent(user, message));
+  chatEvent_.emit(ChatEvent(user, message));
 }
 
 SimpleChatServer::UserSet SimpleChatServer::users()

@@ -10,6 +10,7 @@
 #include <vector>
 #include <Wt/WLayout>
 #include <Wt/WLength>
+#include <Wt/WGlobal>
 
 namespace Wt {
 
@@ -34,9 +35,9 @@ struct Grid {
     WLayoutItem *item_;
     int rowSpan_;
     int colSpan_;
-    int alignment_;
+    WFlags<AlignmentFlag> alignment_;
 
-    Item(WLayoutItem *item = 0, int alignment = 0);
+    Item(WLayoutItem *item = 0, WFlags<AlignmentFlag> alignment = 0);
   };
 
   std::vector<Row>    rows_;
@@ -133,7 +134,8 @@ public:
    * \sa addLayout(WLayout *, int, int, int, int, int) 
    */
   void addItem(WLayoutItem *item, int row, int column,
-	       int rowSpan = 1, int columnSpan = 1, int alignment = 0);
+	       int rowSpan = 1, int columnSpan = 1,
+	       WFlags<AlignmentFlag> alignment = 0);
 
   /*! \brief Adds a nested layout item to the grid.
    *
@@ -151,7 +153,8 @@ public:
    *
    * \sa addLayout(WLayout *, int, int, int, int, int) 
    */
-  void addLayout(WLayout *layout, int row, int column, int alignment = 0);
+  void addLayout(WLayout *layout, int row, int column,
+		 WFlags<AlignmentFlag> alignment = 0);
 
   /*! \brief Adds a nested layout item to the grid.
    *
@@ -173,7 +176,8 @@ public:
    * \sa addLayout(WLayout *, int, int, int) 
    */
   void addLayout(WLayout *layout, int row, int column,
-		 int rowSpan, int columnSpan, int alignment = 0);
+		 int rowSpan, int columnSpan,
+		 WFlags<AlignmentFlag> alignment = 0);
 
   /*! \brief Adds a widget to the grid.
    *
@@ -191,7 +195,8 @@ public:
    *
    * \sa addWidget(WWidget *, int, int, int, int, int) 
    */
-  void addWidget(WWidget *widget, int row, int column, int alignment = 0);
+  void addWidget(WWidget *widget, int row, int column,
+		 WFlags<AlignmentFlag> alignment = 0);
 
   /*! \brief Adds a widget to the grid.
    *
@@ -213,7 +218,8 @@ public:
    * \sa addWidget(WWidget *, int, int, int) 
    */
   void addWidget(WWidget *widget, int row, int column,
-		 int rowSpan, int columnSpan, int alignment = 0);  
+		 int rowSpan, int columnSpan,
+		 WFlags<AlignmentFlag> alignment = 0);  
 
   /*! \brief Sets the horizontal spacing.
    *

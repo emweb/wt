@@ -91,14 +91,14 @@ void Connection::handleReadRequest0()
     request_.urlScheme = urlScheme();
     reply_ = request_handler_.handleRequest(request_);
     reply_->setConnection(this);
-    replyDone_ = false;
+    moreDataToSend_ = true;
 
     handleReadBody();
   } else if (!result) {
     reply_.reset(new StockReply(request_, StockReply::bad_request,"",
 				request_handler_.getErrorRoot()));
     reply_->setConnection(this);
-    replyDone_ = false;
+    moreDataToSend_ = true;
 
     startWriteResponse();
   } else {
@@ -153,7 +153,7 @@ void Connection::handleReadBody(const asio_error_code& e,
 void Connection::startWriteResponse()
 {
   std::vector<asio::const_buffer> buffers;
-  replyDone_ = reply_->nextBuffers(buffers);
+  moreDataToSend_ = !reply_->nextBuffers(buffers);
 
 #ifdef DEBUG
   for (unsigned i = 0; i < buffers.size(); ++i) {
@@ -164,9 +164,9 @@ void Connection::startWriteResponse()
   }
 #endif
 
-  if (!buffers.empty())
+  if (!buffers.empty()) {
     startAsyncWriteResponse(buffers, CONNECTION_TIMEOUT);
-  else {
+  } else {
     cancelTimer();
     handleWriteResponse();
   }
@@ -174,10 +174,10 @@ void Connection::startWriteResponse()
 
 void Connection::handleWriteResponse()
 {
-  if (!replyDone_) {
+  if (moreDataToSend_) {
     startWriteResponse();
   } else {
-    if (reply_->expectMoreData()) {
+    if (reply_->waitMoreData()) {
       /*
        * Keep connection open and wait for more data.
        */

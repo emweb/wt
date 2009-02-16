@@ -7,11 +7,11 @@
 #ifndef WEVENT_H_
 #define WEVENT_H_
 
-#include <Wt/WWidget>
+#include <Wt/WGlobal>
 
 namespace Wt {
 
-class CgiParser;
+class WebRequest;
 class WObject;
 class WString;
 
@@ -28,7 +28,8 @@ public:
 
   // for key events or mouse event modifiers
   bool right;
-  int  keyCode, charCode, modifiers;
+  int  keyCode, charCode;
+  WFlags<KeyboardModifier> modifiers;
 
   // for scroll events
   int  scrollX, scrollY, viewportWidth, viewportHeight;
@@ -43,24 +44,18 @@ public:
 
   std::vector<std::string> userEventArgs;
 
-  void get(const CgiParser& parser, const std::string& se);
+  void get(const WebRequest& request, const std::string& se);
 
   JavaScriptEvent();
 };
 
-/*! \brief Enumeration flags for keyboard modifiers
- *
- * \sa WMouseEvent::modifiers(), WKeyEvent::modifiers()
- *
- * \ingroup signalslot
- */
-enum KeyboardModifier {
-  NoModifier = 0,         //!< No modifiers
-  ShiftModifier = 0x1,    //!< Shift key pressed
-  ControlModifier = 0x2,  //!< Control key pressed
-  AltModifier = 0x4,      //!< Alt key pressed
-  MetaModifier = 0x8   //!< Meta key pressed ("Windows" or "Command" (Mac) key) 
+#ifdef WT_TARGET_JAVA
+class WAbstractEvent
+{ 
+public:
+  virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent) = 0;
 };
+#endif // WT_TARGET_JAVA
 
 /*! \class WMouseEvent Wt/WEvent Wt/WEvent
  *  \brief A class providing details for a mouse event.
@@ -70,6 +65,9 @@ enum KeyboardModifier {
  * \ingroup signalslot
  */
 class WT_API WMouseEvent
+#ifdef WT_TARGET_JAVA
+                         : public WAbstractEvent
+#endif // WT_TARGET_JAVA
 {
 public:
   /*! \brief Default constructor
@@ -102,7 +100,7 @@ public:
    * The result is a logical OR of \link Wt::KeyboardModifier
    * KeyboardModifier\endlink flags.
    */
-  int modifiers() const { return jsEvent_.modifiers; }
+  WFlags<KeyboardModifier> modifiers() const { return jsEvent_.modifiers; }
 
   /*! \brief Get the mouse position relative to the document.
    */
@@ -158,82 +156,19 @@ public:
    */
   bool shiftKey() const { return (jsEvent_.modifiers & ShiftModifier) != 0; }
 
+#ifdef WT_TARGET_JAVA
+  virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
+  {
+    return new WMouseEvent(jsEvent);
+  }
+
+  static WMouseEvent templateEvent;
+#endif // WT_TARGET_JAVA
+
   WMouseEvent(const JavaScriptEvent& jsEvent);
 
 protected:
   JavaScriptEvent jsEvent_;
-};
-
-/*! \brief Enumeration for key codes
- *
- * These are key codes that identify a key on a keyboard. All keys
- * listed here can be identified across all browsers and (Western)
- * keyboards. A %Key is returned by WKeyEvent::key(). If you want to
- * identify a character, you should use the WKeyEvent::charCode()
- * method instead.
- *
- * \sa WInteractWidget::keyWentDown, WInteractWidget::keyWentUp
- *
- * \ingroup signalslot
- */
-enum Key {
-  Key_unknown = 0,     //!< Unknown key.
-  Key_Enter = 13,      //!< Enter key.
-  Key_Tab = 9,         //!< Tab key.
-  Key_Backspace = 8,   //!< Backspace key.
-  Key_Shift = 16,      //!< Shift key.
-  Key_Control = 17,    //!< Control key.
-  Key_Alt = 18,        //!< Alt key.
-  Key_PageUp = 33,     //!< Page up key.
-  Key_PageDown = 34,   //!< Page down key.
-  Key_End = 35,        //!< End key.
-  Key_Home = 36,       //!< Home key.
-  Key_Left = 37,       //!< Left arrow key.
-  Key_Up = 38,         //!< Up arrow key.
-  Key_Right = 39,      //!< Right arrow key.
-  Key_Down = 40,       //!< Down arrow key.
-  Key_Insert = 45,     //!< Insert key.
-  Key_Delete = 46,     //!< Delete key.
-  Key_Escape = 27,     //!< Escape key.
-  Key_F1 = 112,        //!< F1 function key.
-  Key_F2 = 113,        //!< F2 function key.
-  Key_F3 = 114,        //!< F3 function key.
-  Key_F4 = 115,        //!< F4 function key.
-  Key_F5 = 116,        //!< F5 function key.
-  Key_F6 = 117,        //!< F6 function key.
-  Key_F7 = 118,        //!< F7 function key.
-  Key_F8 = 119,        //!< F8 function key.
-  Key_F9 = 120,        //!< F9 function key.
-  Key_F10 = 121,       //!< F10 function key.
-  Key_F11 = 122,       //!< F11 function key.
-  Key_F12 = 123,       //!< F12 function key.
-  Key_Space = ' ',     //!< Space
-  Key_A = 'A',         //!< 'A' key
-  Key_B = 'B',         //!< 'B' key
-  Key_C = 'C',         //!< 'C' key
-  Key_D = 'D',         //!< 'D' key
-  Key_E = 'E',         //!< 'E' key
-  Key_F = 'F',         //!< 'F' key
-  Key_G = 'G',         //!< 'G' key
-  Key_H = 'H',         //!< 'H' key
-  Key_I = 'I',         //!< 'I' key
-  Key_J = 'J',         //!< 'J' key
-  Key_K = 'K',         //!< 'K' key
-  Key_L = 'L',         //!< 'L' key
-  Key_M = 'M',         //!< 'M' key
-  Key_N = 'N',         //!< 'N' key
-  Key_O = 'O',         //!< 'O' key
-  Key_P = 'P',         //!< 'P' key
-  Key_Q = 'Q',         //!< 'Q' key
-  Key_R = 'R',         //!< 'R' key
-  Key_S = 'S',         //!< 'S' key
-  Key_T = 'T',         //!< 'T' key
-  Key_U = 'U',         //!< 'U' key
-  Key_V = 'V',         //!< 'V' key
-  Key_W = 'W',         //!< 'W' key
-  Key_X = 'X',         //!< 'X' key
-  Key_Y = 'Y',         //!< 'Y' key
-  Key_Z = 'Z'          //!< 'Z' key
 };
 
 /*! \class WKeyEvent Wt/WEvent Wt/WEvent
@@ -245,6 +180,9 @@ enum Key {
  * \ingroup signalslot
  */
 class WT_API WKeyEvent
+#ifdef WT_TARGET_JAVA
+                         : public WAbstractEvent
+#endif // WT_TARGET_JAVA
 {
 public:
   /*! \brief Default constructor
@@ -271,7 +209,7 @@ public:
    *
    * \sa key(), charCode()
    */
-  int modifiers() const { return jsEvent_.modifiers; }
+  WFlags<KeyboardModifier> modifiers() const { return jsEvent_.modifiers; }
 
   /*! \brief Returns the unicode character code.
    *
@@ -304,7 +242,7 @@ public:
    *
    * \sa charCode()
    */
-  WString text() const;
+  WT_USTRING text() const;
 
   /*! \brief Returns the raw key code (<b>deprecated</b>).
    *
@@ -338,6 +276,15 @@ public:
    * \deprecated Use modifiers() instead.
    */
   bool shiftKey() const { return (jsEvent_.modifiers & ShiftModifier) != 0; }
+
+#ifdef WT_TARGET_JAVA
+  virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
+  {
+    return new WKeyEvent(jsEvent);
+  }
+
+  static WKeyEvent templateEvent;
+#endif // WT_TARGET_JAVA
 
   WKeyEvent(const JavaScriptEvent& jsEvent);
 
@@ -387,6 +334,9 @@ private:
  * \ingroup signalslot
  */
 class WT_API WScrollEvent
+#ifdef WT_TARGET_JAVA
+                         : public WAbstractEvent
+#endif // WT_TARGET_JAVA
 {
 public:
   /*! \brief Default constructor
@@ -421,25 +371,21 @@ public:
    */
   int viewportHeight() const { return jsEvent_.viewportHeight; }
 
+#ifdef WT_TARGET_JAVA
+  virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
+  {
+    return new WScrollEvent(jsEvent);
+  }
+
+  static WScrollEvent templateEvent;
+#endif // WT_TARGET_JAVA
+
 private:
   JavaScriptEvent jsEvent_;
 
   WScrollEvent(const JavaScriptEvent& jsEvent);
 
   friend class EventSignal<WScrollEvent>;
-};
-
-class WT_API WResponseEvent
-{
-public:
-  const std::string& response() { return jsEvent_.response; }
-
-private:
-  JavaScriptEvent jsEvent_;
-
-  WResponseEvent(const JavaScriptEvent& jsEvent);
-
-  friend class EventSignal<WResponseEvent>;
 };
 
 }

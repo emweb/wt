@@ -45,7 +45,7 @@ public:
    * The syntax for <i>format</i> is as in WDate::fromString(const
    * WString&, const WString&)
    */
-  WDateValidator(const WString& format, WObject *parent = 0);
+  WDateValidator(const WT_USTRING& format, WObject *parent = 0);
 
   /*! \brief Construct a date validator.
    *
@@ -55,7 +55,7 @@ public:
    * The syntax for <i>format</i> is as in WDate::fromString(const
    * WString&, const WString&)
    */
-  WDateValidator(const WString& format,
+  WDateValidator(const WT_USTRING& format,
 		 const WDate& bottom,
 		 const WDate& top, WObject *parent = 0);
 
@@ -83,13 +83,17 @@ public:
    *
    * \sa WDate::fromString(const WString&, const WString&)
    */
-  void setFormat(const WString& format);
+  void setFormat(const WT_USTRING& format);
 
   /*! \brief Get the format string used to parse date strings
    *
    * \sa setFormat()
    */
-  const WString& format() const { return format_; }
+  const WT_USTRING& format() const { return formats_[0]; }
+
+  void setFormats(const std::vector<WT_USTRING>& formats);
+
+  const std::vector<WT_USTRING>& formats() const { return formats_; }
 
   /*! \brief Validate the given input.
    *
@@ -97,7 +101,7 @@ public:
    * non-mandatory field, or represents a date in the given format,
    * and within the valid range.
    */
-  virtual State validate(WString& input, int& pos) const;
+  virtual State validate(WT_USTRING& input) const;
 
   virtual void createExtConfig(std::ostream& config) const;
 
@@ -154,7 +158,7 @@ protected:
   std::string javaScriptValidate(const std::string& jsRef) const;
 
 private:
-  WString format_;
+  std::vector<WT_USTRING> formats_;
   WDate   bottom_, top_;
 
   WString tooEarlyText_;

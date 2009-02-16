@@ -33,13 +33,21 @@ public:
   /*! \brief Enumeration that specifies the location of ticks.
    */
   enum TickPosition {
-    NoTicks = 0x0,          //!< Do not render ticks.
-    TicksBothSides = 0x3,   //!< Render ticks on both sides.
-    TicksAbove = 0x1,       //!< Render ticks above (horizontal slider)
-    TicksBelow = 0x2,       //!< Render ticks below (horizontal slider)
-    TicksLeft = TicksAbove, //!< Render ticks on the left side (vertical slider)
-    TicksRight = TicksBelow //!< Render ticks on the right side (vertical slider)
+    TicksAbove = 0x1,     //!< Render ticks above (horizontal slider)
+    TicksBelow = 0x2     //!< Render ticks below (horizontal slider)
+#ifndef WT_TARGET_JAVA
+    ,TicksLeft = 0x1,      //!< Render ticks on the left side (vertical slider)
+    TicksRight = 0x2      //!< Render ticks on the right side (vertical slider)
+#endif // WT_TARGET_JAVA
   };
+
+#ifndef WT_TARGET_JAVA
+  //! Do not render ticks.
+  static const Wt::WFlags<TickPosition> NoTicks;
+#endif // WT_TARGET_JAVA
+
+  //! Render ticks on both sides.
+  static const Wt::WFlags<TickPosition> TicksBothSides;
 
   /*! \brief Create a default horizontal slider.
    *
@@ -99,13 +107,13 @@ public:
    *
    * \sa tickPosition(), setTickInterval()
    */
-  void setTickPosition(TickPosition tickPosition);
+  void setTickPosition(WFlags<TickPosition> tickPosition);
 
   /*! \brief Return the tick position.
    *
    * \sa setTickPosition(), setTickInterval()
    */
-  TickPosition tickPosition() const { return tickPosition_; }
+  WFlags<TickPosition> tickPosition() const { return tickPosition_; }
 
   /*! \brief Change the slider value.
    *
@@ -165,21 +173,23 @@ public:
    *
    * The new value is passed as the argument.
    */
-  Signal<int> valueChanged;
+  Signal<int>& valueChanged() { return valueChanged_; }
 
   virtual void resize(const WLength& width, const WLength& height);
 
 private:
-  Orientation        orientation_;
-  int                tickInterval_;
-  TickPosition       tickPosition_;
-  int                minimum_, maximum_;
+  Orientation          orientation_;
+  int                  tickInterval_;
+  WFlags<TickPosition> tickPosition_;
+  int                  minimum_, maximum_;
 
-  int                value_;
+  int                  value_;
 
-  WContainerWidget  *impl_;
-  WSliderBackground *background_;
-  WContainerWidget  *handle_;
+  Signal<int>          valueChanged_;
+
+  WContainerWidget    *impl_;
+  WSliderBackground   *background_;
+  WContainerWidget    *handle_;
 
   JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
 
@@ -188,8 +198,15 @@ private:
   void create();
   void update();
   void updateSliderPosition();
+
   void onSliderClick(const WMouseEvent& event);
+  static const int HANDLE_WIDTH = 17;
+  static const int HANDLE_HEIGHT = 21;
+
+  friend class WSliderBackground;
 };
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WSlider::TickPosition)
 
 }
 

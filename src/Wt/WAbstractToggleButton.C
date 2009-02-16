@@ -8,50 +8,37 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WLabel"
+
 #include "DomElement.h"
-#include "CgiParser.h"
 
 namespace Wt {
 
+const char *WAbstractToggleButton::CHECKED_SIGNAL = "M_checked";
+const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
+
 WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
-    checked(this),
-    unChecked(this),
     checked_(false),
     checkedChanged_(false)
 {
   WLabel *label = new WLabel(parent);
   label->setBuddy(this);
-
-  implementStateless(&WAbstractToggleButton::setChecked,
-		     &WAbstractToggleButton::undoSetChecked);
-  implementStateless(&WAbstractToggleButton::setUnChecked,
-		     &WAbstractToggleButton::undoSetUnChecked);
 }
 
 WAbstractToggleButton::WAbstractToggleButton(const WString& text,
 					     WContainerWidget *parent)
   : WFormWidget(parent),
-    checked(this),
-    unChecked(this),
     checked_(false),
     checkedChanged_(false)
 { 
   WLabel *label = new WLabel(text, parent);
   label->setBuddy(this);
-
-  implementStateless(&WAbstractToggleButton::setChecked,
-		     &WAbstractToggleButton::undoSetChecked);
-  implementStateless(&WAbstractToggleButton::setUnChecked,
-		     &WAbstractToggleButton::undoSetUnChecked);
 }
 
 WAbstractToggleButton::WAbstractToggleButton(bool withLabel,
 					     const WString& text,
 					     WContainerWidget *parent)
   : WFormWidget(parent),
-    checked(this),
-    unChecked(this),
     checked_(false),
     checkedChanged_(false)
 {
@@ -59,6 +46,32 @@ WAbstractToggleButton::WAbstractToggleButton(bool withLabel,
     WLabel *label = new WLabel(text, parent);
     label->setBuddy(this);
   }
+}
+
+#ifndef WT_TARGET_JAVA
+WStatelessSlot *WAbstractToggleButton::getStateless(Method method)
+{
+  void (WAbstractToggleButton::*setC)() = &WAbstractToggleButton::setChecked;
+
+  if (method == static_cast<WObject::Method>(setC))
+    return implementStateless(setC, &WAbstractToggleButton::undoSetChecked);
+  else if (method == static_cast<WObject::Method>
+	   (&WAbstractToggleButton::setUnChecked))
+    return implementStateless(&WAbstractToggleButton::setUnChecked,
+			      &WAbstractToggleButton::undoSetUnChecked);
+  else
+    return WFormWidget::getStateless(method);
+}
+#endif
+
+EventSignal<void>& WAbstractToggleButton::checked()
+{
+  return *voidEventSignal(CHECKED_SIGNAL, true);
+}
+
+EventSignal<void>& WAbstractToggleButton::unChecked()
+{
+  return *voidEventSignal(UNCHECKED_SIGNAL, true);
 }
 
 void WAbstractToggleButton::load()
@@ -99,9 +112,9 @@ void WAbstractToggleButton::setChecked(bool how)
 
   /*
   if (how)
-    checked.emit();
+    checked().emit();
   else
-    unChecked.emit();
+    unChecked().emit();
   */
 
   repaint(RepaintPropertyIEMobile);
@@ -138,11 +151,17 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
   const WEnvironment& env = WApplication::instance()->environment();
 
+  EventSignal<void> *check = voidEventSignal(CHECKED_SIGNAL, false);
+  EventSignal<void> *uncheck = voidEventSignal(UNCHECKED_SIGNAL, false);
+  EventSignal<void> *change = voidEventSignal(CHANGE_SIGNAL, false);
+  EventSignal<WMouseEvent> *click = mouseEventSignal(CLICK_SIGNAL, false);
+
   bool needUpdateClickedSignal =
-    (clicked.needUpdate()
-     || (env.agentIE() && changed.needUpdate()) // onchange does not work on IE
-     || checked.needUpdate()
-     || unChecked.needUpdate());
+    (click && click->needUpdate()
+     || (env.agentIE() && change && change->needUpdate())
+        // onchange does not work on IE
+     || (check && check->needUpdate())
+     || (uncheck && uncheck->needUpdate()));
 
   WFormWidget::updateDom(element, all);
 
@@ -151,55 +170,60 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
     std::vector<DomElement::EventAction> actions;
 
-    if (checked.isConnected())
-      actions.push_back
-	(DomElement::EventAction(e->createReference() + ".checked == true",
-				 checked.javaScript(),
-				 checked.encodeCmd(),
-				 checked.isExposedSignal()));
-    if (unChecked.isConnected())
-      actions.push_back
-	(DomElement::EventAction(e->createReference() + ".checked == false",
-				 unChecked.javaScript(),
-				 unChecked.encodeCmd(),
-				 unChecked.isExposedSignal()));
+    if (check) {
+      if (check->isConnected())
+	actions.push_back
+	  (DomElement::EventAction(e->createReference() + ".checked == true",
+				   check->javaScript(),
+				   check->encodeCmd(),
+				   check->isExposedSignal()));
+      check->updateOk();
+    }
 
-    if (env.agentIE() && changed.isConnected())
+    if (uncheck) {
+      if (uncheck->isConnected())
+	actions.push_back
+	  (DomElement::EventAction(e->createReference() + ".checked == false",
+				   uncheck->javaScript(),
+				   uncheck->encodeCmd(),
+				   uncheck->isExposedSignal()));
+      uncheck->updateOk();
+    }
+
+    if (change) {
+      if (env.agentIE() && change->isConnected())
 	actions.push_back
 	  (DomElement::EventAction(std::string(),
-				   changed.javaScript(),
-				   changed.encodeCmd(),
-				   changed.isExposedSignal()));
+				   change->javaScript(),
+				   change->encodeCmd(),
+				   change->isExposedSignal()));
+      change->updateOk();
+    }
 
-    if (clicked.isConnected())
-      actions.push_back
-	(DomElement::EventAction(std::string(),
-				 clicked.javaScript(),
-				 clicked.encodeCmd(),
-				 clicked.isExposedSignal()));
+    if (click) {
+      if (click->isConnected())
+	actions.push_back
+	  (DomElement::EventAction(std::string(),
+				   click->javaScript(),
+				   click->encodeCmd(),
+				   click->isExposedSignal()));
+      click->updateOk();
+    }
 
     if (!(all && actions.empty()))
       element.setEvent("click", actions);
-
-    clicked.updateOk();
-    checked.updateOk();
-    unChecked.updateOk();
-    changed.updateOk();
 
     delete e;
   }
 }
 
-void WAbstractToggleButton::setFormData(CgiEntry *entry)
+void WAbstractToggleButton::setFormData(const FormData& formData)
 {
-  checked_ = (entry->value() != "0");
-}
-
-void WAbstractToggleButton::setNoFormData()
-{
-  if (isEnabled() && isVisible()) {
-    checked_ = false;
-  }
+  if (!formData.values.empty())
+    checked_ = formData.values[0] != "0";
+  else
+    if (isEnabled() && isVisible())
+      checked_ = false;
 }
 
 }

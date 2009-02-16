@@ -35,10 +35,10 @@ class CornerImage : public WImage
 public:
   /*! \brief One of the four corners of a widget.
    */
-  enum Corner { TopLeft = Top | Left,         //!< Top left
-		TopRight = Top | Right,       //!< Top right
-		BottomLeft = Bottom | Left,   //!< Bottom left
-		BottomRight = Bottom | Right  //!< Bottom right
+  enum Corner { TopLeft = (int)Top | (int)Left,         //!< Top left
+		TopRight = (int)Top | (int)Right,       //!< Top right
+		BottomLeft = (int)Bottom | (int)Left,   //!< Bottom left
+		BottomRight = (int)Bottom | (int)Right  //!< Bottom right
   };
 
   /*! \brief Construct a new CornerImage.

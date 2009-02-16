@@ -7,49 +7,40 @@
 #include <boost/regex.hpp>
 
 #include "Wt/WRegExpValidator"
+#include "Wt/WRegExp"
 #include "Wt/WString"
 
 #include "Utils.h"
 
 namespace Wt {
 
-struct WRegExpValidatorImpl
-{
-  boost::regex rx;
-  WString      noMatchText_;
-
-  WRegExpValidatorImpl(const boost::regex& arx)
-    : rx(arx) { }
-};
-
 WRegExpValidator::WRegExpValidator(WObject *parent)
   : WValidator(parent),
-    impl_(new WRegExpValidatorImpl(boost::regex("")))
+    regexp_(0)
 { }
 
-WRegExpValidator::WRegExpValidator(const boost::regex& rx)
-  : impl_(new WRegExpValidatorImpl(rx))
-{ }
-
-WRegExpValidator::WRegExpValidator(const WString& s, WObject *parent)
+WRegExpValidator::WRegExpValidator(const WT_USTRING& pattern, WObject *parent)
   : WValidator(parent),
-    impl_(new WRegExpValidatorImpl(boost::regex(s.toUTF8().c_str())))
+    regexp_(new WRegExp(pattern))
 { }
 
 WRegExpValidator::~WRegExpValidator()
 {
-  delete impl_;
+  delete regexp_;
 }
 
-const boost::regex& WRegExpValidator::regExp() const
+void WRegExpValidator::setRegExp(const WT_USTRING& pattern)
 {
-  return impl_->rx;
-}
-
-void WRegExpValidator::setRegExp(const WString& s)
-{
-  impl_->rx = boost::regex(s.toUTF8().c_str());
+  if (!regexp_)
+    regexp_ = new WRegExp(pattern);
+  else
+    regexp_->setPattern(pattern);
   repaint();
+}
+
+WT_USTRING WRegExpValidator::regExp() const
+{
+  return regexp_ ? regexp_->pattern() : WT_USTRING();
 }
 
 void WRegExpValidator::setNoMatchText(const WString& text)
@@ -59,32 +50,29 @@ void WRegExpValidator::setNoMatchText(const WString& text)
 
 void WRegExpValidator::setInvalidNoMatchText(const WString& text)
 {
-  impl_->noMatchText_ = text;
+  noMatchText_ = text;
   repaint();
 }
 
 WString WRegExpValidator::invalidNoMatchText() const
 {
-  if (!impl_->noMatchText_.empty())
-    return impl_->noMatchText_;
+  if (!noMatchText_.empty())
+    return noMatchText_;
   else
     return WString::fromUTF8("Invalid input");
 }
 
-WValidator::State WRegExpValidator::validate(WString& input, int& pos)
-  const
+WValidator::State WRegExpValidator::validate(WT_USTRING& input) const
 {
-  std::string text = input.toUTF8();
-
   if (isMandatory()) {
-    if (text.empty())
+    if (input.empty())
       return InvalidEmpty;
   } else {
-    if (text.empty())
+    if (input.empty())
       return Valid;
   }
 
-  if (boost::regex_match(text, impl_->rx))
+  if (!regexp_ || regexp_->exactMatch(input))
     return Valid;
   else
     return Invalid;
@@ -99,11 +87,15 @@ std::string WRegExpValidator::javaScriptValidate(const std::string& jsRef) const
   else
     js += "return {valid:true};";
 
-  std::string s = impl_->rx.str();
-  Wt::Utils::replace(s, '/', "\\/");
+  if (regexp_) {
+    std::string s = regexp_->pattern().toUTF8();
+    Wt::Utils::replace(s, '/', "\\/");
 
-  js += "var r=/^" + s + "$/; return {valid:r.test(e.value),message:tn};}("
-    + jsRef + ',' + invalidBlankText().jsStringLiteral() + ','
+    js += "var r=/^" + s + "$/; return {valid:r.test(e.value),message:tn};";
+  } else
+    js += "return {valid:true};";
+
+  js += "}(" + jsRef + ',' + invalidBlankText().jsStringLiteral() + ','
     + invalidNoMatchText().jsStringLiteral() + ')';
 
   return js;
@@ -111,13 +103,13 @@ std::string WRegExpValidator::javaScriptValidate(const std::string& jsRef) const
 
 void WRegExpValidator::createExtConfig(std::ostream& config) const
 {
-  std::string s = impl_->rx.str();
+  std::string s = regexp_ ? regexp_->pattern().toUTF8() : "";
   Wt::Utils::replace(s, '/', "\\/");
 
   config << ",regex:/^" << s << "$/";
 
-  if (!impl_->noMatchText_.empty())
-    config << ",regexText:" << impl_->noMatchText_.jsStringLiteral();
+  if (!noMatchText_.empty())
+    config << ",regexText:" << noMatchText_.jsStringLiteral();
 
   WValidator::createExtConfig(config);
 }

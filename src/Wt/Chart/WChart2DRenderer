@@ -11,6 +11,7 @@
 
 #include <Wt/WPainterPath>
 #include <Wt/WRectF>
+#include <Wt/WGlobal>
 
 namespace Wt {
 
@@ -204,7 +205,8 @@ public:
    * horizontal text, regardless of the chart orientation.
    */
   void renderLabel(const WString& text, const WPointF& pos,
-		   const WColor& color, int flags, double angle, int margin);
+		   const WColor& color, WFlags<AlignmentFlag> flags,
+		   double angle, int margin);
 
   /*! \brief Conversion between chart and painter coordinates.
    *
@@ -235,11 +237,11 @@ public:
    */
   WRectF chartSegmentArea(WAxis yAxis, int xSegment, int ySegment) const;
 
-protected:
   /*! \brief Enumeration that specifies a property of the axes.
    */
   enum AxisProperty { Labels = 0x1, Grid = 0x2, Line = 0x4 };
 
+protected:
   /*! \brief Prepare the axes for rendering.
    *
    * Computes axis properties such as the range (if not manually
@@ -256,7 +258,7 @@ protected:
 
   /*! \brief Renders one or more properties of the axes.
    */
-  virtual void renderAxes(int properties);
+  virtual void renderAxes(WFlags<AxisProperty> properties);
 
   /*! \brief Renders all series data, including value labels.
    */
@@ -304,7 +306,7 @@ protected:
    * \sa renderAxes()
    */
   void renderAxis(const WAxis& axis, AxisLocation location,
-		  int properties);
+		  WFlags<AxisProperty> properties);
 
   /*! \brief Calculate the total number of bar groups.
    */
@@ -316,6 +318,8 @@ protected:
 
   friend class WAxis;
 };
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WChart2DRenderer::AxisProperty)
 
   }
 }

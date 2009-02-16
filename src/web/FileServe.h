@@ -18,8 +18,6 @@ class FileServe
 public:
   FileServe(const char *contents);
 
-  const char *contents() const { return template_; }
-
   void setVar(const std::string& name, const std::string& value);
   void setVar(const std::string& name, const char *value);
   void setVar(const std::string& name, bool value);

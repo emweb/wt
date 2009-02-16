@@ -6,12 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include "Wt/WColor"
 
-namespace {
-  double myround(double d)
-  {
-    return static_cast<int>(d * 100) / 100.;
-  }
-}
+#include "Utils.h"
 
 namespace Wt {
 
@@ -104,16 +99,25 @@ const std::string WColor::cssText(bool withAlpha) const
   else {
     if (!name_.empty())
       return name_.toUTF8();
-    else if (alpha_ != 255 && withAlpha)
-      return "rgba(" + boost::lexical_cast<std::string>(red_)
-	+ ',' + boost::lexical_cast<std::string>(green_)
-	+ ',' + boost::lexical_cast<std::string>(blue_)
-	+ ',' + boost::lexical_cast<std::string>(myround(alpha_ / 255.)) + ')';
-
-    else
-      return "rgb(" + boost::lexical_cast<std::string>(red_)
-	+ ',' + boost::lexical_cast<std::string>(green_)
-	+ ',' + boost::lexical_cast<std::string>(blue_) + ')';
+    else {
+      std::stringstream tmp;
+#ifndef WT_TARGET_JAVA
+      char buf[30];
+#else
+      char *buf;
+#endif
+      if (alpha_ != 255 && withAlpha) {
+	tmp << "rgba(" << Utils::itoa(red_, buf);
+	tmp << ',' << Utils::itoa(green_, buf);
+	tmp << ',' << Utils::itoa(blue_, buf);
+	tmp << ',' << Utils::round_str(alpha_ / 255., 2, buf) << ')';
+      }	else {
+	tmp << "rgb(" << Utils::itoa(red_, buf);
+	tmp << ',' << Utils::itoa(green_, buf);
+	tmp << ',' << Utils::itoa(blue_, buf) << ')';
+      }
+      return tmp.str();
+    }
   }
 }
 

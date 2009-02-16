@@ -84,7 +84,7 @@ public:
    *
    * \sa setCheckable(bool), isCheckable()
    */
-  JSignal<> activated;
+  JSignal<>& activated() { return activated_; }
 
   /*! \brief %Signal emitted when a item gets toggled.
    *
@@ -94,7 +94,7 @@ public:
    *
    * \sa setCheckable(bool), isCheckable()
    */
-  JSignal<bool> toggled;
+  JSignal<bool>& toggled() { return toggled_; }
 
   virtual void refresh();
 
@@ -105,6 +105,8 @@ protected:
   virtual void createConfig(std::ostream& js);
 
 private:
+  JSignal<>      activated_;
+  JSignal<bool>  toggled_;
   WString        text_;
   std::string    icon_;
   bool           checkable_;

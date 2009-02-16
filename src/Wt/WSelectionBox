@@ -96,7 +96,7 @@ private:
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
-  virtual void setFormData(CgiEntry *entry);
+  virtual void setFormData(const FormData& formData);
 
   virtual bool isSelected(int index) const;
 };

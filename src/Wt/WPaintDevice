@@ -9,6 +9,7 @@
 
 #include <Wt/WLength>
 #include <Wt/WString>
+#include <Wt/WGlobal>
 
 namespace Wt {
 
@@ -43,9 +44,9 @@ class WT_API WPaintDevice
 public:
   /*! \brief Enumeration to communicate painter state changes.
    *
-   * \sa setChanged(int)
+   * \sa setChanged(WFlags<ChangeFlag>)
    */
-  enum ChangeFlags {
+  enum ChangeFlag {
     Pen = 0x1,         //!< Properties of the pen have changed
     Brush = 0x2,       //!< Properties of the brush have changed
     Font = 0x4,        //!< Properties of the font have changed
@@ -60,19 +61,19 @@ public:
    */
   virtual ~WPaintDevice();
 
-  /*! \brief Return the device width.
+  /*! \brief Returns the device width.
    *
    * The device width, in pixels, establishes the width of the device
    * coordinate system.
    */
-  WLength width() const { return width_; }
+  virtual WLength width() const = 0;
 
-  /*! \brief Return the device height.
+  /*! \brief Returns the device height.
    *
    * The device height, in pixels, establishes the height of the device
    * coordinate system.
    */
-  WLength height() const { return height_; }
+  virtual WLength height() const = 0;
 
   /*! \brief Indicate changes in painter state.
    *
@@ -80,7 +81,7 @@ public:
    *
    * \sa ChangeFlags
    */
-  virtual void setChanged(int flags) = 0;
+  virtual void setChanged(WFlags<ChangeFlag> flags) = 0;
 
   /*! \brief Draw an arc.
    *
@@ -124,7 +125,8 @@ public:
    * The text must be rendered, stroked and transformed using the
    * current painter settings.
    */
-  virtual void drawText(const WRectF& rect, int flags, const WString& text) = 0;
+  virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+			const WString& text) = 0;
 
   /*! \brief Initialize the device for painting.
    *
@@ -146,32 +148,23 @@ public:
    *
    * \sa init(), painter()
    */
-  bool paintActive() const { return painter_ != 0; }
+  virtual bool paintActive() const = 0;
 
 protected:
-  /*! \brief Create a paint device with given dimensions.
-   *
-   * \sa width(), height()
-   */
-  WPaintDevice(const WLength& width, const WLength& height);
-
   /*! \brief Return the painter that is currently painting on the device.
    *
    * \sa init()
    */
-  WPainter *painter() const { return painter_; }
+  virtual WPainter *painter() const = 0;
 
-protected:
-  WLength normalizedPenWidth(const WLength& width, bool correctCosmetic) const;
-
-private:
-  WLength width_;
-  WLength height_;
-
-  WPainter *painter_;
+  /*! \brief Set the painter.
+   */
+  virtual void setPainter(WPainter *painter) = 0;
 
   friend class WPainter;
 };
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WPaintDevice::ChangeFlag)
 
 }
 

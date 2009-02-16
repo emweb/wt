@@ -12,6 +12,7 @@
 #include <Wt/WTransform>
 #include <Wt/WPainterPath>
 #include <Wt/WPen>
+#include <Wt/WGlobal>
 
 namespace Wt {
 
@@ -89,7 +90,7 @@ public:
   /*! \brief Enumeration for render hints
    */
   enum RenderHint {
-    Antialiasing = 0x01 //!< Antialiasing
+    Antialiasing = 0X1 //!< Antialiasing
   };
 
   /*! \brief Default constructor.
@@ -329,7 +330,7 @@ public:
    *
    * Draws the <i>lineCount</i> first lines from the given array of lines.
    */  
-  void drawLines(const WLineF *lines, int lineCount);
+  void drawLines(const WT_ARRAY WLineF *lines, int lineCount);
 
   /*! \brief Draws an array of lines.
    *
@@ -338,7 +339,7 @@ public:
    * <i>pointPairs</i> array must have at least 2*<i>lineCount</i>
    * points.
    */
-  void drawLines(const WPointF *pointPairs, int lineCount);
+  void drawLines(const WT_ARRAY WPointF *pointPairs, int lineCount);
 
   /*! \brief Draws an array of lines.
    *
@@ -411,7 +412,7 @@ public:
    *
    * \sa drawPoint(const WPointF&)
    */
-  void drawPoints(const WPointF *points, int pointCount);
+  void drawPoints(const WT_ARRAY WPointF *points, int pointCount);
 
   /*! \brief Draw a polygon.
    *
@@ -421,7 +422,7 @@ public:
    *
    * \sa drawPath(const WPainterPath&), drawPolyline(const WPointF *, int)
    */
-  void drawPolygon(const WPointF *points, int pointCount
+  void drawPolygon(const WT_ARRAY WPointF *points, int pointCount
 		   /*, FillRule fillRule */);
 
   /*! \brief Draw a polyline.
@@ -431,7 +432,7 @@ public:
    *
    * \sa drawPath(const WPainterPath&), drawPolygon(const WPointF *, int)
    */
-  void drawPolyline(const WPointF *points, int pointCount);
+  void drawPolyline(const WT_ARRAY WPointF *points, int pointCount);
 
   /*! \brief Draw a rectangle.
    *
@@ -456,7 +457,7 @@ public:
    *
    * \sa drawRect(const WRectF&)
    */
-  void drawRects(const WRectF *rectangles, int rectCount);
+  void drawRects(const WT_ARRAY WRectF *rectangles, int rectCount);
 
   /*! \brief Draw a number of rectangles.
    *
@@ -488,7 +489,8 @@ public:
    * (WPaintedWidget::inlineSvgVml) for the most accurate font
    * rendering.</i>
    */
-  void drawText(const WRectF& rectangle, int flags, const WString& text);
+  void drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
+		const WString& text);
 
   /*! \brief Draw text.
    *
@@ -497,7 +499,7 @@ public:
    * \sa drawText(const WRectF&, int, const WString&)
    */
   void drawText(double x, double y, double width, double height,
-		int flags, const WString& text);
+		WFlags<AlignmentFlag> flags, const WString& text);
 
   /*! \brief Fill a (complex) path.
    *
@@ -788,6 +790,9 @@ public:
 
   const WTransform& clipPathTransform() const;
 
+  WLength normalizedPenWidth(const WLength& penWidth, bool correctCosmetic)
+    const;
+
 private:
   WPaintDevice *device_;
   WRectF        viewPort_, window_;
@@ -804,6 +809,10 @@ private:
     bool          clipping_;
 
     State();
+
+#ifdef WT_TARGET_JAVA
+    State clone();
+#endif
   };
 
   std::vector<State> stateStack_;

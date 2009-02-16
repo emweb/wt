@@ -4,10 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WAbstractArea"
 #include "Wt/WApplication"
+#include "Wt/WResource"
 #include "Wt/WEnvironment"
 #include "Wt/WImage"
-#include "Wt/WAbstractArea"
 
 #include "DomElement.h"
 #include "WtException.h"
@@ -54,18 +55,6 @@ namespace Wt {
 
 WAbstractArea::WAbstractArea()
   : impl_(new Impl::AreaWidget(this)),
-    keyWentDown(impl_->keyWentDown),
-    keyPressed(impl_->keyPressed),
-    keyWentUp(impl_->keyWentUp),
-    enterPressed(impl_->enterPressed),
-    escapePressed(impl_->escapePressed),
-    clicked(impl_->clicked),
-    doubleClicked(impl_->doubleClicked),
-    mouseWentDown(impl_->mouseWentDown),
-    mouseWentUp(impl_->mouseWentUp),
-    mouseWentOut(impl_->mouseWentOut),
-    mouseWentOver(impl_->mouseWentOver),
-    mouseMoved(impl_->mouseMoved),
     hole_(false),
     anchor_(0)
 { }
@@ -79,6 +68,66 @@ WAbstractArea::~WAbstractArea()
 
   delete anchor_;
   delete impl_;
+}
+
+EventSignal<WKeyEvent>& WAbstractArea::keyWentDown()
+{
+  return impl_->keyWentDown();
+}
+
+EventSignal<WKeyEvent>& WAbstractArea::keyPressed()
+{
+  return impl_->keyPressed();
+}
+
+EventSignal<WKeyEvent>& WAbstractArea::keyWentUp()
+{
+  return impl_->keyWentUp();
+}
+
+EventSignal<void>& WAbstractArea::enterPressed()
+{
+  return impl_->enterPressed();
+}
+
+EventSignal<void>& WAbstractArea::escapePressed()
+{
+  return impl_->escapePressed();
+}
+
+EventSignal<WMouseEvent>& WAbstractArea::clicked()
+{
+  return impl_->clicked();
+}
+
+EventSignal<WMouseEvent>& WAbstractArea::doubleClicked()
+{
+  return impl_->doubleClicked();
+}
+
+EventSignal<WMouseEvent>& WAbstractArea::mouseWentDown()
+{
+  return impl_->mouseWentDown();
+}
+
+EventSignal<WMouseEvent>& WAbstractArea::mouseWentUp()
+{
+  return impl_->mouseWentUp();
+}
+
+EventSignal<WMouseEvent>& WAbstractArea::mouseWentOut()
+{
+  return impl_->mouseWentOut();
+}
+
+EventSignal<WMouseEvent>& WAbstractArea::mouseWentOver()
+{
+  return impl_->mouseWentOver();
+}
+
+EventSignal<WMouseEvent>& WAbstractArea::mouseMoved()
+{
+  return impl_->mouseMoved();
 }
 
 void WAbstractArea::setImage(WImage *image)
@@ -120,7 +169,7 @@ void WAbstractArea::setResource(WResource *resource)
   createAnchorImpl();
 
   anchor_->resource_ = resource;
-  anchor_->resource_->dataChanged.connect(SLOT(this,
+  anchor_->resource_->dataChanged().connect(SLOT(this,
 					       WAbstractArea::resourceChanged));
 
   setRef(resource->generateUrl());
@@ -178,17 +227,19 @@ WString WAbstractArea::toolTip() const
   return impl_->toolTip();
 }
 
-void WAbstractArea::setStyleClass(const WString& styleClass)
+void WAbstractArea::setStyleClass(const WT_USTRING& styleClass)
 {
   impl_->setStyleClass(styleClass);
 }
 
+#ifndef WT_TARGET_JAVA
 void WAbstractArea::setStyleClass(const char *styleClass)
 {
   impl_->setStyleClass(styleClass);
 }
+#endif // WT_TARGET_JAVA
 
-WString WAbstractArea::styleClass() const
+WT_USTRING WAbstractArea::styleClass() const
 {
   return impl_->styleClass();
 }

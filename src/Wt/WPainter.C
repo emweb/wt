@@ -5,12 +5,14 @@
  */
 
 #include <assert.h>
+#include <math.h>
 
 #include "Wt/WLineF"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
 #include "Wt/WPaintDevice"
 #include "Wt/WRectF"
+#include "Wt/WTransform"
 
 namespace Wt {
 
@@ -21,6 +23,24 @@ WPainter::State::State()
   currentFont_.setFamily(WFont::SansSerif);
   currentFont_.setSize(WFont::FixedSize, WLength(10, WLength::Point));
 }
+
+#ifdef WT_TARGET_JAVA
+WPainter::State WPainter::State::clone()
+{
+  State result;
+
+  result.worldTransform_ = worldTransform_.clone();
+  result.currentBrush_ = currentBrush_;
+  result.currentFont_ = currentFont_;
+  result.currentPen_ = currentPen_;
+  result.renderHints_ = renderHints_;
+  result.clipPath_ = clipPath_;
+  result.clipPathTransform_ = clipPathTransform_;
+  result.clipping_ = clipping_;
+
+  return result;
+}
+#endif // WT_TARGET_JAVA
 
 WPainter::Image::Image(const std::string& uri, int width, int height)
   : uri_(uri),
@@ -67,7 +87,7 @@ bool WPainter::begin(WPaintDevice *device)
   stateStack_.push_back(State());
 
   device_ = device;
-  device_->painter_ = this;
+  device_->setPainter(this);
 
   device_->init();
 
@@ -89,7 +109,7 @@ bool WPainter::end()
 
   device_->done();
 
-  device_->painter_ = 0;
+  device_->setPainter(0);
   device_ = 0;
 
   stateStack_.clear();
@@ -110,7 +130,7 @@ void WPainter::save()
 void WPainter::restore()
 {
   if (stateStack_.size() > 1) {
-    int flags = 0;
+    WFlags<WPaintDevice::ChangeFlag> flags = 0;
 
     State& last = stateStack_.back();
     State& next = stateStack_[stateStack_.size() - 2];
@@ -243,13 +263,13 @@ void WPainter::drawLine(double x1, double y1, double x2, double y2)
   device_->drawLine(x1, y1, x2, y2);
 }
 
-void WPainter::drawLines(const WLineF *lines, int lineCount)
+void WPainter::drawLines(const WT_ARRAY WLineF *lines, int lineCount)
 {
   for (int i = 0; i < lineCount; ++i)
     drawLine(lines[i]);
 }
 
-void WPainter::drawLines(const WPointF *pointPairs, int lineCount)
+void WPainter::drawLines(const WT_ARRAY WPointF *pointPairs, int lineCount)
 {
   for (int i = 0; i < lineCount; ++i)
     drawLine(pointPairs[i*2], pointPairs[i*2 + 1]);
@@ -305,13 +325,13 @@ void WPainter::drawPoint(const WPointF& point)
   drawPoint(point.x(), point.y());
 }
 
-void WPainter::drawPoints(const WPointF *points, int pointCount)
+void WPainter::drawPoints(const WT_ARRAY WPointF *points, int pointCount)
 {
   for (int i = 0; i < pointCount; ++i)
     drawPoint(points[i]);
 }
 
-void WPainter::drawPolygon(const WPointF *points, int pointCount
+void WPainter::drawPolygon(const WT_ARRAY WPointF *points, int pointCount
 			   /*, FillRule fillRule */)
 {
   if (pointCount < 2)
@@ -328,7 +348,7 @@ void WPainter::drawPolygon(const WPointF *points, int pointCount
   drawPath(path);
 }
 
-void WPainter::drawPolyline(const WPointF *points, int pointCount)
+void WPainter::drawPolyline(const WT_ARRAY WPointF *points, int pointCount)
 {
   if (pointCount < 2)
     return;
@@ -362,7 +382,7 @@ void WPainter::drawRect(double x, double y, double width, double height)
   drawPath(path);
 }
 
-void WPainter::drawRects(const WRectF *rectangles, int rectCount)
+void WPainter::drawRects(const WT_ARRAY WRectF *rectangles, int rectCount)
 {
   for (int i = 0; i < rectCount; ++i)
     drawRect(rectangles[i]);
@@ -374,13 +394,14 @@ void WPainter::drawRects(const std::vector<WRectF>& rectangles)
     drawRect(rectangles[i]);
 }
 
-void WPainter::drawText(const WRectF& rectangle, int flags, const WString& text)
+void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
+			const WString& text)
 {
   device_->drawText(rectangle.normalized(), flags, text);
 }
 
 void WPainter::drawText(double x, double y, double width, double height,
-			int flags, const WString& text)
+			WFlags<AlignmentFlag> flags, const WString& text)
 {
   device_->drawText(WRectF(x, y, width, height), flags, text);
 }
@@ -564,5 +585,38 @@ void WPainter::setClipPath(const WPainterPath& clipPath)
   if (s().clipping_)
     device_->setChanged(WPaintDevice::Clipping);
 }
+
+WLength WPainter::normalizedPenWidth(const WLength& penWidth,
+				     bool correctCosmetic) const
+{
+  double w = penWidth.value();
+
+  if (w == 0 && correctCosmetic) {
+    // cosmetic width -- must be untransformed 1 pixel
+    const WTransform& t = combinedTransform();
+    if (!t.isIdentity()) {
+      WTransform::TRSRDecomposition d;
+      t.decomposeTranslateRotateScaleRotate(d);
+
+      w = 2.0/(fabs(d.sx) + fabs(d.sy));
+    } else
+      w = 1.0;
+
+    return WLength(w, WLength::Pixel);
+  } else if (w != 0 && !correctCosmetic) {
+    // non-cosmetic width -- must be transformed
+    const WTransform& t = combinedTransform();
+    if (!t.isIdentity()) {
+      WTransform::TRSRDecomposition d;
+      t.decomposeTranslateRotateScaleRotate(d);
+
+      w *= (fabs(d.sx) + fabs(d.sy))/2.0;
+    }
+
+    return WLength(w, WLength::Pixel);
+  } else
+    return penWidth;
+}
+
 
 }
