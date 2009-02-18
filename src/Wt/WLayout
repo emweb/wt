@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <Wt/WLayoutItem>
+#include <Wt/WObject>
 
 namespace Wt {
 
@@ -39,7 +40,7 @@ class WLayoutItemImpl;
  * not define any padding for the container widget. Instead, use
  * setContentsMargins().
  */
-class WT_API WLayout : public WLayoutItem
+class WT_API WLayout : public WLayoutItem, public WObject
 {
 public:
   /*! \brief Destroy the layout.

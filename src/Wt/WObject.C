@@ -91,6 +91,16 @@ Signal<WObject *>& WObject::destroyed()
   return *destroyed_;
 }
 
+void WObject::setObjectName(const std::string& name)
+{
+  name_ = name;
+}
+
+std::string WObject::objectName() const
+{
+  return name_;
+}
+
 const std::string WObject::uniqueId() const
 {
   char buf[20];
@@ -100,7 +110,12 @@ const std::string WObject::uniqueId() const
 
 const std::string WObject::formName() const
 {
-  return uniqueId();
+  std::string result = objectName();
+
+  if (!result.empty())
+    return result + '-' + uniqueId();
+  else
+    return uniqueId();
 }
 
 void WObject::setFormData(CgiEntry *entry)

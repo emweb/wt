@@ -88,7 +88,6 @@ int main(int argc, char **argv)
    * support. The function should return a newly instantiated application
    * object.
    */
-
   return WRun(argc, argv, &createApplication);
 }
 
