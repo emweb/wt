@@ -27,6 +27,7 @@ public:
 
   virtual WWidget *widget() { return widget_; }
   virtual WLayout *layout() { return 0; }
+  virtual WLayout *parentLayout() const { return parentLayout_; }
 
   virtual WWidgetItem *findWidgetItem(WWidget *widget);
 
@@ -34,9 +35,11 @@ public:
 
 private:
   WWidget         *widget_;
+  WLayout         *parentLayout_;
   WLayoutItemImpl *impl_;
 
   virtual void setParent(WWidget *parent);
+  virtual void setParentLayout(WLayout *layout);
 };
 
 }

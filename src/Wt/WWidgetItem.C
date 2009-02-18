@@ -12,6 +12,7 @@ namespace Wt {
 
 WWidgetItem::WWidgetItem(WWidget *widget)
   : widget_(widget),
+    parentLayout_(0),
     impl_(0)
 { }
 
@@ -32,6 +33,11 @@ void WWidgetItem::setParent(WWidget *parent)
 { 
   assert(!impl_);
   impl_ = parent->createLayoutItemImpl(this);
+}
+
+void WWidgetItem::setParentLayout(WLayout *parentLayout)
+{
+  parentLayout_ = parentLayout;
 }
 
 }

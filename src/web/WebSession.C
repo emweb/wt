@@ -882,7 +882,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
       try {
 	if (request.postDataExceeded())
-	  app_->requestTooLarge.emit(request.postDataExceeded());
+	  app_->requestTooLarge().emit(request.postDataExceeded());
       } catch (std::exception& e) {
 	throw WtException("Exception in WApplication::requestTooLarge", e);
       } catch (...) {

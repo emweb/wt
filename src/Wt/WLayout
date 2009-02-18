@@ -130,6 +130,7 @@ public:
 
   virtual WWidget *widget() { return 0; }
   virtual WLayout *layout() { return this; }
+  virtual WLayout *parentLayout() const;
 
   WLayoutItemImpl *impl() const { return impl_; }
 
@@ -198,6 +199,7 @@ private:
   HintsList       *hints_;
 
   virtual void setParent(WWidget *parent);
+  virtual void setParentLayout(WLayout *parentLayout);
   friend class WWidget;
 };
 

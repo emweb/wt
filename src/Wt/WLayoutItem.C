@@ -9,10 +9,6 @@
 
 namespace Wt {
 
-WLayoutItem::WLayoutItem()
-  : layout_(0)
-{ }
-
 WLayoutItem::~WLayoutItem()
 { }
 

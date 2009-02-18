@@ -81,10 +81,14 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  *  \brief A class that represents an instance of a %Wt Application,
  *         corresponding to a single session.
  *
- * For every new session, an instance of WApplication must be
- * created, before creating widgets. For this purpose, the user passes
- * a function that creates applications to WRun(). A general
- * structure for starting a %Wt Application could be:
+ * Each user session of your application has a corresponding
+ * WApplication instance. This instance must be created, before
+ * creating widgets, and is returned as the result of the callback
+ * function passed to WRun().
+ *
+ * The recipe for a %Wt web application, which allocates new
+ * WApplication instances for every user visiting the application is
+ * thus:
  *
  * \code
  *   WApplication *createApplication(const WEnvironment WEnvironment& env) {
@@ -92,48 +96,52 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  *     // Optionally, check the environment and redirect to an error page.
  *     //
  *     bool valid = ...;
- *    
+ *
+ *     WApplication *app;
  *     if (!valid) {
- *       WApplication *app = new WApplication(env);
+ *       app = new WApplication(env);
  *       app->redirect("error.html");
  *       app->quit();
- *       return app;
+ *     } else {
+ *       // usually you will specialize your application class
+ *       app = new WApplication(env);
+ *
+ *       //
+ *       // Add widgets to app->root() and return the application object.
+ *       //
  *     }
  *
- *     WApplication *app = new WApplication(env);
- *
- *     //
- *     // Add widgets to app->root() and return the application object.
- *     //
  *     return app;
  *   }
  * \endcode
  *
  * Throughout the application, the instance is available through
  * WApplication::instance() (or through #wApp). The application may be
- * quited either by calling quit(), or because of a timeout (when the
- * user has closed the window, or crashed its computer or was eaten by
- * a virus). In either case, the application object is deleted,
- * allowing for cleanup of the entire widget tree, and any other
- * resources.
+ * quited either using the method quit(), or because of a timeout
+ * (when the user has closed the window, or crashed its computer or
+ * was eaten by a virus -- but not because the user does not interact:
+ * keep-alive messages in the background will keep the session around
+ * as long as the user has the page opened). In either case, the
+ * application object is deleted, allowing for cleanup of the entire
+ * widget tree, and any other resources.
  *
  * The %WApplication object provides access to:
  * <ul>
  *   <li>WEnvironment information through environment(), which gives
- *     details about the user and start-up
- *     arguments.</li>
+ *     details about the user, start-up arguments, and user agent
+ *     capabilities.</li>
  *   <li>inline and external style sheets using styleSheet() and
  *     useStyleSheet() respectively.</li>
- *   <li>the top-level widget, which is the root of the widget hierarchy,
- *     with root().</li>
+ *   <li>the top-level widget (using root() for a plain application) or
+ *     widgets (using bindWidget() for widget set mode), which contains
+ *     the widget hierarchy.</li>
  *   <li>localization information and message resources bundles, with
  *     setLocale(), locale() and messageResourceBundle().
  *   <li>the maximum configured request size (maximumRequestSize()) and
- *     a signal WApplication::requestTooLarge to react to too large
- *     requests.</li>
- *   <li>defining cookies using setCookie(). These cookies may provide
- *     context across sessions, and may be inspected using
- *     WEnvironment::getCookie() in a future session.</li>
+ *     a signal requestTooLarge() to react to too large requests.</li>
+ *   <li>defining cookies using setCookie() to persist information across
+ *     sessions. These cookies may provide context across sessions, and may
+ *     be inspected using WEnvironment::getCookie() in a future session.</li>
  *   <li>support for internal application paths that enable browser
  *     history (back and forward buttons), and bookmarks, using the
  *     setInternalPath() and related methods.</li>
@@ -194,10 +202,10 @@ public:
    * application. The user interface of your application is
    * represented by the content of this container.
    *
-   * \note In a \link WServer::WidgetSet WidgetSet\endlink mode, there
-   * is no root() container, and 0 is returned
-   *
-   * \sa bindWidget()
+   * \Note The root() is only defined in normal application mode. For
+   * \link WServer::WidgetSet WidgetSet\endlink mode, there is no
+   * root() container, and 0 is returned. Instead, use bindWidget() to
+   * bind root widgets to &lt;div&gt;'s on the page.
    */
   WContainerWidget *root() const { return widgetRoot_; }
 
@@ -792,15 +800,53 @@ public:
    */
   AjaxMethod ajaxMethod() const { return ajaxMethod_; }
 
+  /*
+   * The instance name of the JavaScript class that encapsulates all
+   * JavaScript methods specific to this application instance.
+   */
   std::string javaScriptClass() { return javaScriptClass_; }
 
+  /*
+   * The DOM root object. This contains not only the application root but
+   * also other invisible objects (timers, dialog covers, ...).
+   */
   WContainerWidget *domRoot() const { return domRoot_; }
+
+  /*
+   * A phony DOM root object, used to logically contain all widgets bound
+   * in widgetset mode.
+   */
   WContainerWidget *domRoot2() const { return domRoot2_; }
+
+  /*
+   * Encode an object to a string, to make it referencable from JavaScript.
+   * Currently only used to encode the drag object in drag & drop.
+   *
+   * FIXME: provide a way to remove the encoding!
+   *
+   * \see decodeObject()
+   */
   std::string       encodeObject(WObject *object);
+
+  /*
+   * Decode an object.
+   *
+   * \see encodeObject()
+   */
   WObject          *decodeObject(const std::string& objectId) const;
 
-  std::string fixRelativeUrl(const std::string& url) const;
-  static std::string resourcesUrl();
+  /*
+   * Check if the url needs to be modified when it should be a
+   * url relative to the application path, but the query info will make
+   * it point to some internal path.
+   */
+   std::string fixRelativeUrl(const std::string& url) const;
+
+   /*
+    * Returns the value of the 'resources' property set in the configuration
+    * file.
+    */
+   static std::string resourcesUrl();
 
   /*! \brief Initialize the application, post-construction.
    *
@@ -829,10 +875,10 @@ public:
    * have been rendered.
    *
    * The value is a trade-off: setting it smaller will always use
-   * two-phase rendering, increasing the total render time. Setting it
-   * too large will increase the latency to render the visible
-   * changes, since first all changes need to be received in the
-   * browser.
+   * two-phase rendering, increasing the total render time but
+   * reducing the latency for the visible changes. Setting it too
+   * large will increase the latency to render the visible changes,
+   * since first all changes need to be received in the browser.
    *
    * The initial value is read from the configuration file, see \ref
    * config_general.
@@ -863,7 +909,7 @@ public:
    * The maximum request size is configured in the configuration file,
    * see \ref config_general.
    *
-   * \sa requestTooLarge
+   * \sa requestTooLarge()
    */
   int maximumRequestSize() const;
 
@@ -904,8 +950,15 @@ public:
    */
   WLoadingIndicator *loadingIndicator() const { return loadingIndicator_; }
 
+  /*
+   * A url to a resource that provides a one pixel gif. This is sometimes
+   * useful for CSS hackery (IE).
+   */
   std::string onePixelGifUrl();
 
+  /*
+   * The doctype used to deliver the application.
+   */
   std::string docType() const;
 
 public slots:
@@ -916,12 +969,15 @@ public slots:
    * completed.
    *
    * The current widget tree (including any modifications still
-   * pending) is rendered, and the application is terminated.
+   * pending and applied during the current event handling) will still
+   * be rendered, after which the application is terminated.
    *
    * You might want to make sure no more events can be received from
    * the user, by not having anything clickable, for example by
-   * displaying only text. A better approach may be to also redirect()
-   * the user to another page.
+   * displaying only text. A better approach may be to redirect() the
+   * user to another page together with quit().
+   *
+   * \sa redirect()
    */
   void quit();
 
@@ -930,7 +986,7 @@ public:
    *
    * The integer parameter is the request that was received in bytes.
    */
-  Signal<int> requestTooLarge; 
+  Signal<int>& requestTooLarge() { return requestTooLarge_; } 
 
 protected:
   /*! \brief Notify an event to the application.
@@ -943,7 +999,7 @@ protected:
    * to have a single point for exception handling. In that case, you
    * should call the baseclass implementation WApplication::notify(),
    * and surround it in your own try - catch block for those
-   * exceptions you wish to handle.
+   * exceptions you wish to handle in a central place.
    *
    * Any uncaught exception will terminate the application.
    */
@@ -964,6 +1020,8 @@ protected:
   void exposeOnly(WWidget *w);
 
 private:
+  Signal<int> requestTooLarge_;
+
   struct ScriptLibrary {
     ScriptLibrary(const std::string& uri, const std::string& symbol);
 

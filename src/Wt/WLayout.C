@@ -104,10 +104,10 @@ void WLayout::removeWidget(WWidget *w)
 
 void WLayout::updateAddItem(WLayoutItem *item)
 {
-  if (item->layout_)
+  if (item->parentLayout())
     throw WtException("Cannot add item to two Layouts");
 
-  item->layout_ = this;
+  item->setParentLayout(this);
 
   if (impl_) {
     item->setParent(impl_->parent());
@@ -120,7 +120,7 @@ void WLayout::updateRemoveItem(WLayoutItem *item)
   if (impl_)
     impl_->updateRemoveItem(item);
 
-  item->layout_ = 0;
+  item->setParentLayout(0);
 }
 
 void WLayout::update(WLayoutItem *item)
@@ -170,6 +170,17 @@ void WLayout::setParent(WWidget *parent)
     delete hints_;
     hints_ = 0;
   }
+}
+
+void WLayout::setParentLayout(WLayout *layout)
+{
+  layout->addChild(this);
+  //WObject::setParent((WObject *)layout);
+}
+
+WLayout *WLayout::parentLayout() const
+{
+  return dynamic_cast<WLayout *>(parent());
 }
 
 void WLayout::setLayoutHint(const std::string& name, const std::string& value)

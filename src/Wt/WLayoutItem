@@ -48,7 +48,7 @@ public:
 
   /*! \brief Get the layout in which this item is contained.
    */
-  WLayout *parentLayout() const { return layout_; }
+  virtual WLayout *parentLayout() const = 0;
 
   /*! \brief Get the implementation for this layout item.
    *
@@ -57,15 +57,10 @@ public:
    */
   virtual WLayoutItemImpl *impl() const = 0;
 
-protected:
-  /*! \brief Create a new layout item.
-   */
-  WLayoutItem();
-
 private:
-  WLayout *layout_;
-
   virtual void setParent(WWidget *parent) = 0;
+
+  virtual void setParentLayout(WLayout *parentLayout) = 0;
 
   friend class WLayout;
 };
