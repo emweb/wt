@@ -96,9 +96,31 @@ public:
    * WCompositeWidget composite widget\endlink shares the same Id as
    * its implementation.
    *
+   * By default, the id is auto-generated, unless a custom id is set
+   * for a widget using WWidget::setId(). The default generated id is
+   * concatenates objectName() with a unique number. 
+   *
    * \sa WWidget::jsRef()
    */
   const std::string id() const { return formName(); }
+
+  /*! \brief Set an object name.
+   *
+   * The object name can be used to easily identify a type of object
+   * in the DOM, and does not need to be unique. It will usually reflect
+   * the widget type or role.
+   *
+   * The default object name is empty.
+   *
+   * \sa id()
+   */
+  void setObjectName(const std::string& name);
+
+  /*! \brief Returns a descriptive object name.
+   *
+   * \sa setObjectName()
+   */
+  virtual std::string objectName() const;
 
   /*
    * Formname: for widgets is the name of the equivalent web widget
@@ -278,7 +300,8 @@ private:
   std::vector<WStatelessSlot *> statelessSlots_;
 
   WObject(const WObject&);
-  unsigned id_;
+  unsigned    id_;
+  std::string name_;
 
   static unsigned nextObjId_;
 
