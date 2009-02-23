@@ -223,7 +223,7 @@ boost::any updateFromJS(const boost::any& v, std::string s)
     return boost::any(s);
   else if (v.type() == typeid(WDate))
     return boost::any(WDate::fromString(WString::fromUTF8(s),
-					"ddd MMM dd yyyy"));
+					"ddd MMM d yyyy"));
 #define ELSE_LEXICAL_ANY(TYPE) \
   else if (v.type() == typeid(TYPE)) \
     return boost::any(boost::lexical_cast<TYPE>(s))

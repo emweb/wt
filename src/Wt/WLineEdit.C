@@ -39,7 +39,8 @@ void WLineEdit::setText(const WT_USTRING& text)
     flags_.set(BIT_CONTENT_CHANGED);
     repaint(RepaintPropertyIEMobile);
 
-    setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
+    if (validator())
+      setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
   }
 }
 

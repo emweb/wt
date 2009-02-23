@@ -1063,12 +1063,16 @@ var emit = function(object, config) {
 
   userEvent.args = [];
   for (var i = 2; i < arguments.length; ++i) {
-    if (arguments[i] === false)
-      userEvent.args[i-2] = 0;
-    else if (arguments[i] === true)
-      userEvent.args[i-2] = 1;
+    var a = arguments[i], r;
+    if (a === false)
+      r = 0;
+    else if (a === true)
+      r = 1;
+    else if (a.toDateString)
+      r = a.toDateString();
     else
-      userEvent.args[i-2] = arguments[i];
+      r = a;
+    userEvent.args[i-2] = r;
   }
   userEvent.feedback = true;
 

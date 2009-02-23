@@ -125,10 +125,20 @@ private:
   SslConnectionPtr new_sslconnection_;
 #endif // HTTP_WITH_SSL
 
-#if defined(WT_THREADED) && BOOST_VERSION < 103600
+#ifdef WT_THREADED
+#if BOOST_VERSION < 103600
   /// Reactor that listens for selects() on auxiliary sockets. 
   asio::detail::select_reactor<false> select_reactor_;
-#endif // defined(WT_THREADED) && BOOST_VERSION < 103600
+#else
+  struct SelectInfo {
+    asio::ip::tcp::socket *readSocket, *writeSocket;
+
+    SelectInfo() : readSocket(0), writeSocket(0) { }
+  };
+  std::map<int, SelectInfo> notifyingSockets_;
+  boost::recursive_mutex    notifyingSocketsMutex_;
+#endif
+#endif
 
   /// The connection manager which owns all live connections.
   ConnectionManager connection_manager_;
@@ -139,9 +149,9 @@ private:
   /// The handler for all incoming requests.
   RequestHandler request_handler_;
 
+  enum SelectOp { Read, Write };
   bool socketSelected(int descriptor, const asio_error_code& e,
-		      std::size_t bytes_transferred,
-		      asio::ip::tcp::socket *s);
+		      std::size_t bytes_transferred, SelectOp op);
 
   static Server *instance_;
 };
