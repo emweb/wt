@@ -33,10 +33,11 @@ void WSocketNotifier::setEnabled(bool enabled)
   if (enabled != enabled_) {
     enabled_ = enabled;
 
-    if (enabled_)
-      WebController::instance()->addSocketNotifier(this);
-    else
-      WebController::instance()->removeSocketNotifier(this, beingNotified_);
+    if (!beingNotified_)
+      if (enabled_)
+	WebController::instance()->addSocketNotifier(this);
+      else
+	WebController::instance()->removeSocketNotifier(this);
   }
 }
 
@@ -45,6 +46,9 @@ void WSocketNotifier::notify()
   beingNotified_ = true;
   activated.emit(socket_);
   beingNotified_ = false;
+
+  if (enabled_)
+    WebController::instance()->addSocketNotifier(this);
 }
 
 }

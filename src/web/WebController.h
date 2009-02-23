@@ -92,8 +92,7 @@ public:
   typedef std::map<int, WSocketNotifier *> SocketNotifierMap;
 
   void addSocketNotifier(WSocketNotifier *notifier);
-  void removeSocketNotifier(WSocketNotifier *notifier,
-			    bool duringNotification);
+  void removeSocketNotifier(WSocketNotifier *notifier);
 
   // returns false if removeSocketNotifier was called while processing
   bool socketSelected(int descriptor);
@@ -115,7 +114,7 @@ private:
 
 #ifdef THREADED
   // mutex to protect access to the sessions map.
-  boost::mutex            mutex_;
+  boost::recursive_mutex mutex_;
 
   boost::threadpool::pool threadPool_;
 #endif

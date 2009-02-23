@@ -114,7 +114,7 @@ void WebController::mxml_error_cb(const char * message)
 void WebController::forceShutdown()
 {
 #ifdef THREADED
-  boost::mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // THREADED
 
   conf_.log("notice") << "Shutdown: stopping sessions.";
@@ -190,7 +190,7 @@ bool WebController::expireSessions(std::vector<WebSession *>& toKill)
   Time now;
 
 #ifdef THREADED
-  boost::mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // THREADED
 
   std::vector<SessionMap::iterator> toErase;
@@ -213,7 +213,7 @@ bool WebController::expireSessions(std::vector<WebSession *>& toKill)
 void WebController::removeSession(WebSession *session)
 {
 #ifdef THREADED
-  boost::mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // THREADED
 
   SessionMap::iterator i = sessions_.find(session->sessionId());
@@ -297,7 +297,7 @@ std::string WebController::sessionFromCookie(std::string cookies,
 bool WebController::socketSelected(int descriptor)
 {
 #ifdef THREADED
-  boost::mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // THREADED
 
   SocketNotifierMap::iterator k = socketNotifiers_.find(descriptor);
@@ -324,24 +324,27 @@ bool WebController::socketSelected(int descriptor)
     session = i->second;
   }
 
+  {
 #ifdef THREADED
-  WApplication *app = session->app();
+    WApplication *app = session->app();
 
-  /*
-   * Is correct, but now we are holding the sessionsLock too long: we
-   * should in principle make sure the session will not be deleted (like
-   * the handler does), and then release the sessionsLock before trying to
-   * access the session exclusively.
-   */
-  WApplication::UpdateLock l = app->getUpdateLock();
-  sessionsLock.unlock();
+    /*
+     * Is correct, but now we are holding the sessionsLock too long: we
+     * should in principle make sure the session will not be deleted (like
+     * the handler does), and then release the sessionsLock before trying to
+     * access the session exclusively.
+     */
+    WApplication::UpdateLock l = app->getUpdateLock();
+    sessionsLock.unlock();
 #endif // THREADED
 
-  notifier->notify();
+    notifier->notify();
+  }
 
 #ifdef THREADED
   sessionsLock.lock();
 #endif // THREADED
+
   if (socketNotifiers_.find(descriptor) == socketNotifiers_.end())
     return true;
   else
@@ -394,7 +397,7 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
   /*
    * -- Begin critical section to handle the session.
    */
-  boost::mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // THREADED
 
   SessionMap::iterator i = sessions_.find(sessionId);
@@ -493,7 +496,7 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
 	if ((signalE && !requestE)
 	    || (requestE && requestE->value() == "script")) {
 	  session->log("notice") << "Signal from dead session, sending reload.";
-	  
+
 	  CgiEntry *historyE = cgi.getEntry("historyKey");
           if (historyE)
 	    session->env().setInternalPath('/' + historyE->value());
@@ -1066,7 +1069,7 @@ void WebController::processSignal(EventSignalBase *s, const std::string& se,
 void WebController::addSocketNotifier(WSocketNotifier *notifier)
 {
 #ifdef THREADED
-  boost::mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // THREADED
 
   socketNotifiers_[notifier->socket()] = notifier;
@@ -1074,16 +1077,15 @@ void WebController::addSocketNotifier(WSocketNotifier *notifier)
   stream_.addSocketNotifier(notifier);
 }
 
-void WebController::removeSocketNotifier(WSocketNotifier *notifier,
-					 bool duringNotification)
+void WebController::removeSocketNotifier(WSocketNotifier *notifier)
 {
 #ifdef THREADED
-  boost::mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // THREADED
+
   socketNotifiers_.erase(socketNotifiers_.find(notifier->socket()));
 
-  if (!duringNotification)
-    stream_.removeSocketNotifier(notifier);
+  stream_.removeSocketNotifier(notifier);
 }
  
 }

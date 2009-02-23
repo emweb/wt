@@ -35,6 +35,25 @@
 
 #endif // HTTP_WITH_SSL
 
+#if defined(WIN32) && !defined(__MINGW32__)
+namespace {
+  SOCKET dup(SOCKET handle) {
+    WSAPROTOCOL_INFO ProtocolInfo;
+    if (WSADuplicateSocket(handle, GetCurrentProcessId(), &ProtocolInfo) == 0) {
+      SOCKET retval = WSASocket(ProtocolInfo.iAddressFamily,
+        ProtocolInfo.iSocketType, ProtocolInfo.iProtocol,
+        &ProtocolInfo, 0, WSA_FLAG_OVERLAPPED);
+      if (retval == INVALID_SOCKET) {
+        int error = WSAGetLastError();
+      }
+      return retval;
+    } else {
+      return INVALID_SOCKET;
+    }
+  }
+}
+#endif
+
 namespace http {
 namespace server {
 
@@ -215,15 +234,34 @@ void Server::handleStop()
 }
 
 bool Server::socketSelected(int descriptor, const asio_error_code& e,
-			    std::size_t bytes_transferred,
-			    asio::ip::tcp::socket *s)
+			    std::size_t bytes_transferred, SelectOp op)
 {
-  delete s;
+#ifdef THREADED
+#if BOOST_VERSION >= 103600
+  boost::recursive_mutex::scoped_lock l(notifyingSocketsMutex_);  
+  std::map<int, SelectInfo>::iterator i = notifyingSockets_.find(descriptor);
+
+  if (i != notifyingSockets_.end()) {
+    if (op == Read) {
+      delete i->second.readSocket;
+      i->second.readSocket = 0;
+    } else {
+      delete i->second.writeSocket;
+      i->second.writeSocket = 0;
+    }
+
+    if (!i->second.readSocket && !i->second.writeSocket)
+      notifyingSockets_.erase(i);
+  }
+#endif
 
   if (!e)
     return Wt::WebController::instance()->socketSelected(descriptor);
   else
     return false;
+#else
+  return false;
+#endif
 }
 
 void Server::select_read(int descriptor)
@@ -232,14 +270,26 @@ void Server::select_read(int descriptor)
 #if BOOST_VERSION < 103600
   select_reactor_.start_read_op(descriptor,
       boost::bind(&Server::socketSelected, this, descriptor,
-		  asio::placeholders::error, 0, (asio::ip::tcp::socket *)0));
+		  asio::placeholders::error, 0, Read));
 #else
-  asio::ip::tcp::socket *s
-    = new asio::ip::tcp::socket(io_service_, asio::ip::tcp::v4(), descriptor);
-  s->async_read_some(asio::null_buffers(),
-      boost::bind(&Server::socketSelected, this, descriptor,
+  try {
+    asio::ip::tcp::socket *s
+      = new asio::ip::tcp::socket(io_service_, asio::ip::tcp::v4(),
+				  dup(descriptor));
+
+    boost::recursive_mutex::scoped_lock l(notifyingSocketsMutex_);
+    notifyingSockets_[descriptor].readSocket = s;
+
+    s->async_read_some(asio::null_buffers(),
+		       boost::bind(&Server::socketSelected, this, descriptor,
 		  asio::placeholders::error,
-		  asio::placeholders::bytes_transferred, s));
+		  asio::placeholders::bytes_transferred, Read));
+
+  } catch (boost::system::system_error &e) {
+    std::cerr << e.what() << std::endl;
+  } catch (std::exception &e) {
+    std::cerr << "other error" << std::endl;
+  }
 #endif
 #else
   std::cerr << "WSocketNotifier requires threading support" << std::endl;
@@ -252,14 +302,18 @@ void Server::select_write(int descriptor)
 #if BOOST_VERSION < 103600
   select_reactor_.start_write_op(descriptor,
       boost::bind(&Server::socketSelected, this, descriptor,
-		  asio::placeholders::error, 0, (asio::ip::tcp::socket *)0));
+		  asio::placeholders::error, 0, Write));
 #else
   asio::ip::tcp::socket *s
-    = new asio::ip::tcp::socket(io_service_, asio::ip::tcp::v4(), descriptor);
+    = new asio::ip::tcp::socket(io_service_, asio::ip::tcp::v4(),
+				dup(descriptor));
+  boost::recursive_mutex::scoped_lock l(notifyingSocketsMutex_);
+  notifyingSockets_[descriptor].writeSocket = s;
+
   s->async_write_some(asio::null_buffers(),
       boost::bind(&Server::socketSelected, this, descriptor,
 		  asio::placeholders::error,
-		  asio::placeholders::bytes_transferred, s));
+		  asio::placeholders::bytes_transferred, Write));
 #endif // BOOST_VERSION < 103600
 #else
   std::cerr << "WSocketNotifier requires threading support" << std::endl;
@@ -272,9 +326,10 @@ void Server::select_except(int descriptor)
 #if BOOST_VERSION < 103600
   select_reactor_.start_except_op(descriptor,
       boost::bind(&Server::socketSelected, this, descriptor,
-		  asio::placeholders::error, 0, (asio::ip::tcp::socket *)0));
+		  asio::placeholders::error, 0, Read));
 #else
-  std::cerr << "Server::select_except not implemented for 103600" << std::endl;
+  std::cerr << "Server::select_except not implemented for >=103600"
+	    << std::endl;
 #endif // BOOST_VERSION < 103600
 #else
   std::cerr << "WSocketNotifier requires threading support" << std::endl;
@@ -287,7 +342,16 @@ void Server::stop_select(int descriptor)
 #if BOOST_VERSION < 103600
   select_reactor_.close_descriptor(descriptor);
 #else
-  std::cerr << "Server::stop_select not implemented for 103600" << std::endl;
+  boost::recursive_mutex::scoped_lock l(notifyingSocketsMutex_);  
+  std::map<int, SelectInfo>::iterator i = notifyingSockets_.find(descriptor);
+
+  if (i != notifyingSockets_.end()) {
+    asio::ip::tcp::socket *readSocket = i->second.readSocket;
+    asio::ip::tcp::socket *writeSocket = i->second.writeSocket;
+    notifyingSockets_.erase(i);
+    delete readSocket;
+    delete writeSocket;
+  }
 #endif // BOOST_VERSION < 103600
 #else
   std::cerr << "WSocketNotifier requires threading support" << std::endl;

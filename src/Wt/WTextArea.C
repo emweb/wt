@@ -41,7 +41,8 @@ void WTextArea::setText(const WString& text)
   contentChanged_ = true;
   repaint(RepaintInnerHtml);
 
-  setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
+  if (validator())
+    setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
 }
 
 void WTextArea::setColumns(int columns)
