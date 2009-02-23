@@ -4,7 +4,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WPOLYGON_AREA_H_
+#ifndef WPOlYGON_AREA_H_
 #define WPOLYGON_AREA_H_
 
 #include <Wt/WAbstractArea>

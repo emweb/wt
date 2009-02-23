@@ -48,7 +48,7 @@ namespace Wt {
  *
  * \note When set on a WContainerWidget, this layout manager accepts the
  *       following hints (see setLayoutHint()):
- *   <ul>
+ *  <ul>
  *     <li>"table-layout" with possible values "auto" (default) or "fixed".<br/>
  *       Use "fixed" to prevent nested tables from overflowing the layout.
  *       In that case, you will need to specify a width (in CSS or otherwise)

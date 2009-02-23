@@ -200,7 +200,8 @@ void WGridLayout::expand(int row, int column, int rowSpan, int columnSpan)
     grid_.items_.insert(grid_.items_.end(), extraRows,
 			std::vector<Impl::Grid::Item>());
     for (int i = 0; i < extraRows; ++i) {
-      std::vector<Impl::Grid::Item>& items = grid_.items_[i];
+      std::vector<Impl::Grid::Item>& items
+	= grid_.items_[grid_.items_.size() - extraRows + i];
       items.insert(items.end(), newColumnCount, Impl::Grid::Item());
     }
 #endif // WT_TARGET_JAVA

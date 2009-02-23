@@ -263,8 +263,8 @@ void WVirtualImage::cleanGrid()
       GridMap::iterator eraseIt = it;
       ++it;
       grid_.erase(eraseIt);
-#else      
-      grid_.erase(it->first);
+#else
+      it.remove();
 #endif // WT_TARGET_JAVA
     } else
       ++it;

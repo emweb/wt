@@ -149,7 +149,6 @@ public:
    */
   EventSignal<void>& changed();
 
-public slots:
   /*! \brief Start the file upload.
    *
    * The uploaded signal is emitted when a file is uploaded, or the

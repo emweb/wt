@@ -1,0 +1,229 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ *
+ * Contributed by: Richard Ulrich.
+ */
+#ifndef WGOOGLEMAP_H_
+#define WGOOGLEMAP_H_
+
+#include <Wt/WCompositeWidget>
+#include <Wt/WJavaScript>
+#include <Wt/WSignal>
+
+#include <vector>
+#include <string>
+
+namespace Wt
+{
+
+  class WColor;
+
+/*! \class WGoogleMap Wt/WGoogleMap Wt/WGoogleMap
+ *  \brief A widget that displays a google map.
+ */
+class WGoogleMap : public WCompositeWidget
+{
+public:
+  /* \class Coordinate
+   * \brief A geographical coordinate (latitude/longitude)
+   */
+  class Coordinate
+  {
+  public:
+    /*! \brief Default constructor
+     */
+    Coordinate();
+
+    /*! \brief Construct given a latitude and longitude.
+     */
+    Coordinate(double latitude, double longitude);
+
+    explicit Coordinate(const std::pair<double, double>& lat_long);
+
+    /*! \brief Set the latitude.
+     */
+    void setLatitude(double latitude);
+
+    /*! \brief Set the longitude.
+     */
+    void setLongitude(double longitude);
+
+    /*! \brief Returns the latitude.
+     */
+    double latitude() const { return lat_; }
+
+    /*! \brief Retursn the longitude.
+     */
+    double longitude() const { return lon_; }
+
+    /*! \brief Calculate the distance between two points in km (approximate).
+     *
+     * The calculation uses a sphere. Results can be out by 0.3%.
+     */
+    double distanceTo(const Coordinate &rhs) const;
+
+    /*! \brief Conversion operator to pair of double.
+     */
+    std::pair<double, double> operator ()() const;
+
+  private:
+    double lat_, lon_;
+  };
+
+  /*! \brief Create a map widget with optional parent.
+   */
+  WGoogleMap(WContainerWidget *parent = 0);
+
+  /*! \brief Destructor
+   */
+  virtual ~WGoogleMap();
+
+  virtual void refresh();
+
+  /*! \brief Add a marker overlay to the map.
+   */
+  void addMarker(const Coordinate &pos);
+
+  /*! \brief Add a polyline overlay to the map.
+   *
+   *  specify a vaue between 0.0 and 1.0 for the opacity.
+   */
+  void addPolyline(const std::vector<Coordinate> &points,
+		   const WColor& color = red, int width = 2,
+		   double opacity = 1.0);
+
+  /*! \brief Removes all overlays from the map.
+   */
+  void clearOverlays();
+
+  /*! \brief Opens a text bubble with html text at a specific location.
+   */
+  void openInfoWindow(const Coordinate&pos, const std::string& myHtml);
+
+  /*! \brief Sets the map view to the given center and zoom level.
+   */
+  void setCenter(const Coordinate& center, int zoom);
+
+  /*! \brief Changes the center point of the map to the given point. If the point is already visible
+   *   in the current map view, change the center in a smooth animation.
+   */
+  void panTo(const Coordinate& center);
+
+  /*! \brief Zoom the map to a region defined by a bounding box of lat/lon coordinates.
+   */
+  void zoomWindow(const std::pair<Coordinate, Coordinate>& bbox);
+
+  /*! \brief Sets the zoom level to the given new value.
+   */
+  void setZoom(int level);
+
+  /*! \brief Increments zoom level by one.
+   */
+  void zoomIn();
+
+  /*! \brief Decrements zoom level by one.
+   */
+  void zoomOut();
+
+  /*! \brief Stores the current map position and zoom level.
+   *
+   * You later restore this position using returnToSavedPosition().
+   */
+  void savePosition();
+
+  /*! \brief Restores the map view that was saved by savePosition().
+   */
+  void returnToSavedPosition();
+
+  /*! \brief Notifies the map of a change of the size of its container.
+   *
+   * Call this method after the size of the container DOM object has changed,
+   * so that the map can adjust itself to fit the new size.
+   */
+  void checkResize();
+
+  /*! \brief Enables the dragging of the map (enabled by default).
+   */
+  void enableDragging();
+
+  /*! \brief Disables the dragging of the map.
+   */
+  void disableDragging();
+
+  /*! \brief Enables double click to zoom in and out (enabled by default).
+   */
+  void enableDoubleClickZoom();
+
+  /*! \brief Disables double click to zoom in and out.
+   */
+  void disableDoubleClickZoom();
+
+  /*! \brief Enables the GoogleBar, an integrated search control, to the map. When enabled, this control
+   *  takes the place of the default Powered By Google  logo. Note that this control is not enabled by default.
+   */
+  void enableGoogleBar();
+
+  /*! \brief Disables the GoogleBar integrated search control. When disabled, the default Powered by Google logo
+   *   occupies the position formerly containing this control. Note that this control is already disabled by default.
+   */
+  void disableGoogleBar();
+
+  /*! \brief Enables zooming using a mouse's scroll wheel. Note: scroll wheel zoom is disabled by default.
+   */
+  void enableScrollWheelZoom();
+
+  /*! \brief Disables zooming using a mouse's scroll wheel. Note: scroll wheel zoom is disabled by default.
+   */
+  void disableScrollWheelZoom();
+
+  /*! \brief Adds a standard map type control for selecting and switching between supported map types via buttons.
+   */
+  void addMapTypeControl();
+
+  /*! \brief Adds a "nested" map type control for selecting and switching between supported map types via buttons and nested checkboxes.
+   */
+  void addHierarchicalMapTypeControl();
+
+  /*! \brief Adds a drop-down map type control for switching between supported map types.
+   */
+  void addMenuMapTypeControl();
+
+  /*! \brief Click event.
+   *
+   * This event is fired when the user clicks on the map with the mouse.
+   */
+  JSignal<Coordinate>& clicked() { return clicked_; }
+
+  /*! \brief Double click event.
+   *
+   * This event is fired when a double click is done on the map.
+   */
+  JSignal<Coordinate>& doubleClicked() { return doubleClicked_; }
+  
+  /*! \brief This event is fired when the user moves the mouse inside the map.
+   */
+  JSignal<Coordinate>& mouseMoved() { return mouseMoved_; }
+
+private:
+  JSignal<Coordinate> clicked_;
+  JSignal<Coordinate> doubleClicked_;
+  JSignal<Coordinate> mouseMoved_;
+
+protected:
+  virtual void render();
+  virtual void doGmJavaScript(const std::string& jscode, bool sepScope);
+
+private:
+  bool rendered_;
+  std::vector<std::string> additions_;
+};
+
+extern std::istream& operator>> (std::istream& i,
+				 WGoogleMap::Coordinate& coordinate);
+
+} //  namespace Wt
+
+#endif // WGOOGLEMAP_H_INCLUDED

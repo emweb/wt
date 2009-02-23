@@ -35,35 +35,32 @@ public:
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    *
    * The keyWentDown signal is the first signal emitted when a key is
-   * pressed (before the keyPressed signal). Unlike \link
-   * WInteractWidget::keyPressed keyPressed\endlink however it is also
-   * emitted for modifier keys (such as "shift", "control", ...) or
-   * keyboard navigation keys that do not have a corresponding
-   * character.
+   * pressed (before the keyPressed signal). Unlike keyPressed()
+   * however it is also emitted for modifier keys (such as "shift",
+   * "control", ...) or keyboard navigation keys that do not have a
+   * corresponding character.
    *
-   * \sa WInteractWidget::keyPressed, WInteractWidget::keyWentUp
+   * \sa keyPressed(), keyWentUp()
    */
   EventSignal<WKeyEvent>& keyWentDown();
 
   /*! \brief Event signal emitted when a "character" was entered.
    *
    * The keyPressed signal is emitted when a key is pressed, and a
-   * character is entered. Unlike \link
-   * WInteractWidget::keyWentDown\endlink, it is emitted only for key
-   * presses that result in a character being entered, and thus not
-   * for modifier keys or keyboard navigation keys.
+   * character is entered. Unlike keyWentDown(), it is emitted only
+   * for key presses that result in a character being entered, and
+   * thus not for modifier keys or keyboard navigation keys.
    *
-   * \sa WInteractWidget::keyWentDown
+   * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyPressed();
     
   /*! \brief Event signal emitted when a keyboard key is released.
    *
-   * This is the counter-part of the \link
-   * WInteractWidget::keyWentDown\endlink event. Every key-down has its
-   * corresponding key-up.
+   * This is the counter-part of the keyWentDown() event. Every
+   * key-down has its corresponding key-up.
    *
-   * \sa WInteractWidget::keyWentDown
+   * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyWentUp();
 
@@ -71,7 +68,7 @@ public:
    *
    * This signal is emitted when the Enter or Return key was pressed.
    *
-   * \sa keyPressed, Key_Enter
+   * \sa keyPressed(), Key_Enter
    */
   EventSignal<void>& enterPressed();
 
@@ -79,7 +76,7 @@ public:
    *
    * This signal is emitted when the Escape key was pressed.
    *
-   * \sa keyPressed, Key_Escape
+   * \sa keyPressed(), Key_Escape
    */
   EventSignal<void>& escapePressed();
 
@@ -94,7 +91,7 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
-   * @note When JavaScript is disabled, the event details contain
+   * \note When JavaScript is disabled, the event details contain
    * invalid information.
    */
   EventSignal<WMouseEvent>& clicked();
@@ -110,7 +107,7 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& doubleClicked();
 
@@ -125,7 +122,7 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentDown();
 
@@ -140,25 +137,25 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentUp();
 
   /*! \brief Event signal emitted when the mouse went out of this widget.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentOut();
     
   /*! \brief Event signal emitted when the mouse entered this widget.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentOver();
 
   /*! \brief Event signal emitted when the mouse moved over this widget.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseMoved();
 
@@ -176,7 +173,7 @@ public:
    *
    * \sa WWidget::dropEvent(), WWidget::acceptDrops(), WDropEvent
    *
-   * @note When JavaScript is disabled, drag&drop does not work.
+   * \note When JavaScript is disabled, drag&drop does not work.
    */
   void setDraggable(const std::string& mimeType, WWidget *dragWidget = 0,
 		    bool isDragWidgetOnly = false, WObject *sourceWidget = 0);

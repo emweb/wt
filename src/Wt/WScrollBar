@@ -50,7 +50,6 @@ public:
    */
   static void unTie(WScrollBar *one, WScrollBar *two);
 
-public slots:
   /*! \brief Set the scrollbar value.
    *
    * This will move the scrollbar to the given value.

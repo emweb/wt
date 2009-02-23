@@ -18,10 +18,10 @@ namespace Wt {
 /*! \class WAbstractArea Wt/WAbstractArea Wt/WAbstractArea
  *  \brief Abstract base class for interactive areas in a widget.
  *
- * Use an %WAbstractArea (or rather, one of the non-abstract
- * specialized classes), to define interactivity that applies on a
- * part of a WImage or WPaintedWidget. The area may be defined using
- * different shapes through WRectArea, WCircleArea or WPolygonArea.
+ * Use an %WAbstractArea (or rather, one of its concrete
+ * implementations), to define interactivity that applies on a part of
+ * a WImage or WPaintedWidget. The area may be defined using different
+ * shapes through WRectArea, WCircleArea or WPolygonArea.
  *
  * \sa WImage::addArea(), WPaintedWidget::addArea()
  */
@@ -166,10 +166,15 @@ public:
    */
   WString toolTip() const;
 
+  /*! \brief Define a style class.
+   */
   void setStyleClass(const WT_USTRING& styleClass);
-#ifndef WT_TARGET_JAVA
   void setStyleClass(const char *styleClass);
-#endif // WT_TARGET_JAVA
+
+  /*! \brief Returns the style class.
+   *
+   * \sa setStyleClass()
+   */
   WT_USTRING styleClass() const;
 
   /*! \brief Set the cursor.
@@ -197,35 +202,32 @@ public:
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    *
    * The keyWentDown signal is the first signal emitted when a key is
-   * pressed (before the keyPressed signal). Unlike \link
-   * WAbstractArea::keyPressed keyPressed\endlink however it is also
-   * emitted for modifier keys (such as "shift", "control", ...) or
-   * keyboard navigation keys that do not have a corresponding
-   * character.
+   * pressed (before the keyPressed() signal). Unlike keyPressed()
+   * however it is also emitted for modifier keys (such as "shift",
+   * "control", ...) or keyboard navigation keys that do not have a
+   * corresponding character.
    *
-   * \sa WAbstractArea::keyPressed, WAbstractArea::keyWentUp
+   * \sa keyPressed(), keyWentUp()
    */
   EventSignal<WKeyEvent>& keyWentDown();
 
   /*! \brief Event signal emitted when a "character" was entered.
    *
    * The keyPressed signal is emitted when a key is pressed, and a
-   * character is entered. Unlike \link
-   * WAbstractArea::keyWentDown\endlink, it is emitted only for key
-   * presses that result in a character being entered, and thus not
-   * for modifier keys or keyboard navigation keys.
+   * character is entered. Unlike keyWentDown(), it is emitted only
+   * for key presses that result in a character being entered, and
+   * thus not for modifier keys or keyboard navigation keys.
    *
-   * \sa WAbstractArea::keyWentDown
+   * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyPressed();
     
   /*! \brief Event signal emitted when a keyboard key is released.
    *
-   * This is the counter-part of the \link
-   * WAbstractArea::keyWentDown\endlink event. Every key-down has its
-   * corresponding key-up.
+   * This is the counter-part of the keyWentDown() event. Every
+   * key-down has its corresponding key-up.
    *
-   * \sa WAbstractArea::keyWentDown
+   * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyWentUp();
 
@@ -233,7 +235,7 @@ public:
    *
    * This signal is emitted when the Enter or Return key was pressed.
    *
-   * \sa keyPressed, Key_Enter
+   * \sa keyPressed(), Key_Enter
    */
   EventSignal<void>& enterPressed();
 
@@ -241,7 +243,7 @@ public:
    *
    * This signal is emitted when the Escape key was pressed.
    *
-   * \sa keyPressed, Key_Escape
+   * \sa keyPressed(), Key_Escape
    */
   EventSignal<void>& escapePressed();
 
@@ -256,7 +258,7 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
-   * @note When JavaScript is disabled, the event details contain
+   * \note When JavaScript is disabled, the event details contain
    * invalid information.
    */
   EventSignal<WMouseEvent>& clicked();
@@ -272,7 +274,7 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& doubleClicked();
 
@@ -287,7 +289,7 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentDown();
 
@@ -302,25 +304,25 @@ public:
    * window\endlink, or the \link WMouseEvent::document()
    * document\endlink.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentUp();
 
   /*! \brief Event signal emitted when the mouse went out of this widget.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentOut();
     
   /*! \brief Event signal emitted when the mouse entered this widget.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentOver();
 
   /*! \brief Event signal emitted when the mouse moved over this widget.
    *
-   * @note When JavaScript is disabled, the signal will never fire.
+   * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseMoved();
 

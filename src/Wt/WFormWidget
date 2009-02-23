@@ -24,8 +24,11 @@ class WLabel;
  * Form widgets also have built-in support for validation, using
  * setValidator(WValidator *). If the validator provide client-side
  * validation, then an invalid validation state is reflected using the
- * style class "Wt-invalid". On the server-side, you should run the
- * validator using validate().
+ * style class <tt>"Wt-invalid"</tt>. All native Wt validators provide
+ * client-side validation.
+ *
+ * On the server-side, use validate() method to validate the content
+ * using a validator previously set.
  */
 class WT_API WFormWidget : public WInteractWidget
 {
@@ -36,14 +39,14 @@ public:
 
   /*! \brief Destroy a WFormWidget.
    *
-   * If a label was associated with the widget, the label is updated
-   * as well to indicate the loss of the buddy.
+   * If a label was associated with the widget, its buddy is reset to 0.
    */
   ~WFormWidget();
 
-  /*! \brief Get the label associated with this widget.
+  /*! \brief Returns the label associated with this widget.
    *
-   * Returns the label (if there is one) that acts as a proxy for this widget.
+   * Returns the label (if there is one) that acts as a proxy for this
+   * widget.
    *
    * \sa WLabel::setBuddy(WFormWidget *)
    */
@@ -51,10 +54,10 @@ public:
 
   /*! \brief Set the hidden state of this widget.
    *
-   * If the widget has a label, it hidden or shown together with this
-   * widget.
+   * If the widget has a label, it is hidden and shown together with
+   * this widget.
    */
-  void setHidden(bool hidden);
+  virtual void setHidden(bool hidden);
 
   /*! \brief Return whether the widget is enabled.
    */
@@ -82,7 +85,6 @@ public:
    */
   virtual WValidator::State validate();
 
-public slots:
   /*! \brief Change the enabled state of the widget.
    *
    * A widget that is disabled cannot receive focus or user interaction.

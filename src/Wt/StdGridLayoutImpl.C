@@ -569,7 +569,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  additionalVerticalPadding = getImpl(item.item_)
 	    ->additionalVerticalPadding(itemFitWidth, itemFitHeight);
 
-	  switch (hAlign) {
+	  if (hAlign != 0) switch (hAlign) {
 	  case AlignCenter: {
 	    DomElement *itable = DomElement::createNew(DomElement_TABLE);
 	    itable->setAttribute("class", "Wt-hcenter");
@@ -635,7 +635,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 #endif
 	}
 
-	switch (vAlign) {
+	if (vAlign != 0) switch (vAlign) {
 	case AlignTop:
 	  style2 += "vertical-align:top;";
 	  break;

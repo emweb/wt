@@ -234,6 +234,24 @@ public:
   void setChildrenDecorated(bool decorated);
   void setInteractive(bool interactive);
 
+  /*! \brief Expand this node.
+   *
+   * Besides the actual expansion of the node, this may also trigger
+   * the loading and population of the node children, or of the children's
+   * children.
+   *
+   * \sa collapse()
+   * \sa doExpand()
+   */
+  void expand();
+
+  /*! \brief Collapse this node.
+   *
+   * \sa expand()
+   * \sa doCollapse()
+   */
+  void collapse();
+
   /*! \brief %Signal emitted when the node is expanded by the user.
    *
    * \sa \link collapsed collapsed\endlink
@@ -324,27 +342,7 @@ protected:
    */
   virtual void descendantAdded(WTreeNode *node);
 
-public slots:
-  /*! \brief Expand this node.
-   *
-   * Besides the actual expansion of the node, this may also trigger
-   * the loading and population of the node children, or of the children's
-   * children.
-   *
-   * \sa collapse()
-   * \sa doExpand()
-   */
-  void expand();
-
-  /*! \brief Collapse this node.
-   *
-   * \sa expand()
-   * \sa doCollapse()
-   */
-  void collapse();
-
-protected slots:
-
+protected:
   /*! \brief The actual expand.
    *
    * This method, which is implemented as a stateless slot, performs the
@@ -371,7 +369,6 @@ protected slots:
    */
   virtual void doCollapse();
 
-protected:
   /*! \brief Undo method for doCollapse() stateless implementation.
    *
    * \sa doCollapse()
@@ -385,10 +382,6 @@ protected:
   virtual void undoDoCollapse();
 
   WTable *impl() { return layout_; }
-
-private slots:
-  void loadChildren();
-  void loadGrandChildren();
 
 private:
   std::vector<WTreeNode *>  childNodes_;
@@ -412,6 +405,8 @@ private:
 
   Signal<bool>              selected_;
 
+  void loadChildren();
+  void loadGrandChildren();
   void create();
   void update();
   bool isLastChildNode() const;

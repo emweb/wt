@@ -232,12 +232,10 @@ void WAbstractArea::setStyleClass(const WT_USTRING& styleClass)
   impl_->setStyleClass(styleClass);
 }
 
-#ifndef WT_TARGET_JAVA
 void WAbstractArea::setStyleClass(const char *styleClass)
 {
   impl_->setStyleClass(styleClass);
 }
-#endif // WT_TARGET_JAVA
 
 WT_USTRING WAbstractArea::styleClass() const
 {

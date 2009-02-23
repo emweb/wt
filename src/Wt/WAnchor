@@ -101,18 +101,19 @@ public:
    *
    * Sets the anchor to point to the internal path <i>path</i>. When
    * the anchor is activated, the internal path is set to <i>path</i>,
-   * and the WApplication::internalPathChanged signal is emitted. The
-   * path change is handled within the current session.
+   * and the WApplication::internalPathChanged() signal is
+   * emitted. The path change is handled within the current session.
    *
    * This is the easiest way to let the application participate in
-   * browser history, and generate URLs that are bookmarkable.
+   * browser history, and generate URLs that are bookmarkable and search
+   * engine friendly.
    *
    * Internally, this method binds sets the destination URL using:
    * \code
    * setRef(wApp->bookmarkUrl(path))
    * \endcode
-   * The \link WAnchor::clicked clicked\endlink signal is connected
-   * to a slot that changes the internal path using
+   * The clicked() signal is connected to a slot that changes the internal
+   * path using
    * \code
    * wApp->setInternalPath(ref(), true);
    * \endcode

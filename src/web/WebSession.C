@@ -595,7 +595,8 @@ EventSignalBase *WebSession::decodeSignal(const std::string& objectId,
 
 WebSession *WebSession::instance()
 {
-  return Handler::instance()->session();
+  Handler *handler = Handler::instance();
+  return handler ? handler->session() : 0;
 }
 
 void WebSession::pushEmitStack(WObject *o)

@@ -95,7 +95,6 @@ public:
    */
   Signal<T, A1>& mapped() { return mapped_; }
 
-public slots:
   /*! \brief Slot to which to connect the source signal.
    *
    * When a signal triggers the slot, the sender is identified and

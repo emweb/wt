@@ -33,13 +33,6 @@ WTransform::WTransform(double m11, double m12, double m21, double m22,
   m_[M23] = dy;
 }
 
-#ifdef WT_TARGET_JAVA
-WTransform WTransform::clone()
-{
-  return WTransform(m_[M11], m_[M12], m_[M21], m_[M22], m_[M13], m_[M23]);
-}
-#endif
-
 WTransform& WTransform::operator= (const WTransform& rhs)
 {
   for (unsigned i = 0; i < 6; ++i)
@@ -395,7 +388,8 @@ WTransform& WTransform::operator*= (const WTransform& Y)
 
 WTransform operator* (const WTransform& lhs, const WTransform& rhs)
 {
-  WTransform result = lhs;
+  WTransform result;
+  result = lhs;
   return result *= rhs;
 }
 

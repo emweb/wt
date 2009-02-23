@@ -276,26 +276,18 @@ DomElement::EventAction::EventAction(const std::string& aJsCondition,
 void DomElement::setEvent(const char *eventName,
 			  const std::vector<EventAction>& actions)
 {
-  std::string code = "var s=false;";
+  std::string code;
 
   for (unsigned i = 0; i < actions.size(); ++i) {
     if (!actions[i].jsCondition.empty())
       code += "if(" + actions[i].jsCondition + "){";
     code += actions[i].jsCode;
-    if (actions[i].exposed) {
-      if (actions.size() > 1)
-	code += "if(s)s+=',';s+='";
-      else
-	code += "s='";
-      code += actions[i].updateCmd + "';";
-    }
+    if (actions[i].exposed)
+      code += WApplication::instance()->javaScriptClass()
+	+ "._p_.update(this,'" + actions[i].updateCmd + "',e,true);";
     if (!actions[i].jsCondition.empty())
       code += "}";
   }
-
-  code += "if(s){"
-    + WApplication::instance()->javaScriptClass()
-    + "._p_.update(this,s,e,true);}";
 
   setEvent(eventName, code, "");
 }

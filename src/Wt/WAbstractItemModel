@@ -49,12 +49,13 @@ namespace Wt {
  * WSelectionBox, WTreeView, Ext::ComboBox, and Ext::TableView) as
  * data models.
  *
- * In general, it organizes data in a hierarchical structure of
- * tables, where every item stores data and optionally a nested table
- * of data. Every data item is at a particular row and column of a
- * parent item, and items may be referenced using the helper class
- * WModelIndex. Top level data have an \link WModelIndex::isValid()
- * invalid\endlink parent WModelIndex.
+ * To provide data for both tree-like and table-like view widgets, it
+ * organizes data in a hierarchical structure of tables, where every
+ * item stores data and optionally a nested table of data. Every data
+ * item is at a particular row and column of a parent item, and items
+ * may be referenced using the helper class WModelIndex. Top level
+ * data have an \link WModelIndex::isValid() invalid\endlink parent
+ * WModelIndex.
  *
  * Column header data may also be specified, for each top-level
  * column.
@@ -117,7 +118,7 @@ namespace Wt {
  *  - optionally, headerData() to return row and column header data
  *  - optionally, flags() to indicate data options
  *
- * A crucial point in implementing a hierarchial model is to decide
+ * A crucial point in implementing a hierarchical model is to decide
  * how to reference an index in terms of an internal pointer
  * (WModelIndex::internalPointer()) or internal id
  * (WModelIndex::internalId()). Other than the top-level index, which
@@ -133,8 +134,8 @@ namespace Wt {
  *  - setData() and setHeaderData() to change data. View classes will use
  *    the \link Wt::EditRole EditRole\endlink to pass an edited value.
  *
- * After data was modified, the model must emit the \link
- * WAbstractItemModel::dataChanged dataChanged\endlink signal.
+ * After data was modified, the model must emit the dataChanged()
+ * signal.
  *
  * Finally, if you want to support insertion of new data or removal of
  * data (changing the geometry) by any of the view classes, then you
@@ -355,9 +356,8 @@ public:
    * Returns true if the operation was successful.
    *
    * The default implementation returns false. If you reimplement this
-   * method, you must emit the the \link
-   * WAbstractItemModel::dataChanged dataChanged\endlink signal after
-   * data was changed.
+   * method, you must emit the dataChanged() signal after data was
+   * changed.
    *
    * \sa data()
    */
@@ -395,13 +395,11 @@ public:
 
   /*! \brief Sort the model according to a particular column.
    *
-   * If the model supports sorting, then it should emit the \link
-   * WAbstractItemModel::layoutAboutToBeChanged layoutAboutToBeChanged
-   * \endlink signal, rearrange its items, and afterwards emit the
-   * \link WAbstractItemModel::layoutChanged layoutChanged
-   * \endlink signal.
+   * If the model supports sorting, then it should emit the
+   * layoutAboutToBeChanged() signal, rearrange its items, and
+   * afterwards emit the layoutChanged() signal.
    *
-   * \sa layoutAboutToBeChanged, layoutChanged
+   * \sa layoutAboutToBeChanged(), layoutChanged()
    */
   virtual void sort(int column, SortOrder order = AscendingOrder);
 
@@ -559,7 +557,7 @@ public:
    * are the column numbers that the first and last column will have when
    * inserted.
    *
-   * \sa columnsInserted, beginInsertColumns()
+   * \sa columnsInserted(), beginInsertColumns()
    */
   Signal<WModelIndex, int, int>& columnsAboutToBeInserted()
     { return columnsAboutToBeInserted_; }
@@ -570,7 +568,7 @@ public:
    * are the column numbers of the first and last column that will be
    * removed.
    *
-   * \sa columnsRemoved, beginRemoveColumns()
+   * \sa columnsRemoved(), beginRemoveColumns()
    */
   Signal<WModelIndex, int, int>& columnsAboutToBeRemoved()
     { return columnsAboutToBeRemoved_; }
@@ -581,7 +579,7 @@ public:
    * are the column numbers of the first and last column that were
    * inserted.
    *
-   * \sa columnsAboutToInserted, endInsertColumns()
+   * \sa columnsAboutToInserted(), endInsertColumns()
    */
   Signal<WModelIndex, int, int>& columnsInserted()
     { return columnsInserted_; }
@@ -591,7 +589,7 @@ public:
    * The first argument is the parent index. The two integer arguments
    * are the column numbers of the first and last column that were removed.
    *
-   * \sa columnsAboutToBeRemoved, endRemoveColumns()
+   * \sa columnsAboutToBeRemoved(), endRemoveColumns()
    */
   Signal<WModelIndex, int, int>& columnsRemoved()
     { return columnsRemoved_; }
@@ -602,7 +600,7 @@ public:
    * are the row numbers that the first and last row will have when
    * inserted.
    *
-   * \sa rowsInserted, beginInsertRows()
+   * \sa rowsInserted(), beginInsertRows()
    */
   Signal<WModelIndex, int, int>& rowsAboutToBeInserted()
     { return rowsAboutToBeInserted_; }
@@ -613,7 +611,7 @@ public:
    * are the row numbers of the first and last row that will be
    * removed.
    *
-   * \sa rowsRemoved, beginRemoveRows()
+   * \sa rowsRemoved(), beginRemoveRows()
    */
   Signal<WModelIndex, int, int>& rowsAboutToBeRemoved()
     { return rowsAboutToBeRemoved_; }
@@ -623,7 +621,7 @@ public:
    * The first argument is the parent index. The two integer arguments
    * are the row numbers of the first and last row that were inserted.
    *
-   * \sa rowsAboutToBeInserted, endInsertRows()
+   * \sa rowsAboutToBeInserted(), endInsertRows()
    */
   Signal<WModelIndex, int, int>& rowsInserted()
     { return rowsInserted_; }
@@ -633,7 +631,7 @@ public:
    * The first argument is the parent index. The two integer arguments
    * are the row numbers of the first and last row that were removed.
    *
-   * \sa rowsAboutToBeRemoved, endRemoveRows()
+   * \sa rowsAboutToBeRemoved(), endRemoveRows()
    */
   Signal<WModelIndex, int, int>& rowsRemoved()
     { return rowsRemoved_; }
@@ -666,14 +664,14 @@ public:
    * change, but indexes may be ported across a layout change by using
    * the toRawIndex() and fromRawIndex() methods.
    *
-   * \sa layoutChanged, toRawIndex(), fromRawIndex()
+   * \sa layoutChanged(), toRawIndex(), fromRawIndex()
    */
   Signal<>& layoutAboutToBeChanged()
     { return layoutAboutToBeChanged_; }
 
   /*! \brief %Signal emitted when the layout is changed.
    *
-   * \sa layoutAboutToBeChanged
+   * \sa layoutAboutToBeChanged()
    */
   Signal<>& layoutChanged()
     { return layoutChanged_; }

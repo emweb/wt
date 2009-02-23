@@ -147,10 +147,14 @@ public:
 #ifndef WT_TARGET_JAVA
   /*! \brief Returns the contents margins.
    *
-   * \sa getContentsMargins()
+   * \sa setContentsMargins()
    */
   void getContentsMargins(int *left, int *top, int *right, int *bottom) const;
 #else // WT_TARGET_JAVA
+  /*! \brief Returns a contents margin.
+   *
+   * \sa setContentsMargins()
+   */
   int getContentsMargin(Side side) const;
 #endif // WT_TARGET_JAVA
 

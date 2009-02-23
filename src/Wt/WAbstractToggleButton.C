@@ -173,7 +173,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     if (check) {
       if (check->isConnected())
 	actions.push_back
-	  (DomElement::EventAction(e->createReference() + ".checked == true",
+	  (DomElement::EventAction(e->createReference() + ".checked",
 				   check->javaScript(),
 				   check->encodeCmd(),
 				   check->isExposedSignal()));
@@ -183,7 +183,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     if (uncheck) {
       if (uncheck->isConnected())
 	actions.push_back
-	  (DomElement::EventAction(e->createReference() + ".checked == false",
+	  (DomElement::EventAction("!" + e->createReference() + ".checked",
 				   uncheck->javaScript(),
 				   uncheck->encodeCmd(),
 				   uncheck->isExposedSignal()));

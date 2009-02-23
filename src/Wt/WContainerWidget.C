@@ -150,12 +150,12 @@ void WContainerWidget::addWidget(WWidget *widget)
   widget->setParent(this);
 }
 
-void WContainerWidget::insertWidget(int index, WWidget *w)
+void WContainerWidget::insertWidget(int index, WWidget *widget)
 {
   if (index == (int)children_->size())
-    addWidget(w);
+    addWidget(widget);
   else
-    insertBefore(w, widget(index));
+    insertBefore(widget, children()[index]);
 }
 
 void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)

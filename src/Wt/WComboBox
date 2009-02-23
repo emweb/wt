@@ -147,7 +147,6 @@ public:
 
   virtual void refresh();
 
-public slots:
   /*! \brief Clear all items.
    *
    * Removes all items from the underlying model. This requires that the
@@ -155,7 +154,6 @@ public slots:
    */
   void clear();
 
-public:
   /*! \brief %Signal emitted when the selection changed.
    *
    * The newly selected item is passed as an argument.
@@ -171,9 +169,6 @@ public:
    * \sa activated, currentText()
    */
   Signal<WString>& sactivated() { return sactivated_; }
-
-private slots:
-  void propagateChange();
 
 private:
   WAbstractItemModel *model_;
@@ -191,6 +186,7 @@ private:
   Signal<WString> sactivated_;
 
   void itemsChanged();
+  void propagateChange();
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);

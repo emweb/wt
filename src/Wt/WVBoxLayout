@@ -17,7 +17,7 @@ namespace Wt {
  * This convenience class creates a vertical box layout, laying contained
  * widgets out from top to bottom. 
  *
- * See WBoxLayout for available member methods.
+ * See WBoxLayout for available member methods and more information.
  *
  * \note This layout manager is applicable only to WContainerWidget
  * container widgets. You may use it within an Ext::Container

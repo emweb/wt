@@ -69,7 +69,6 @@ public:
    */
   WWidget *widget(int index) const;
 
-public slots:
   /*! \brief Shows a particular widget.
    *
    * The widget with index <i>index</i> is made visible, while all other

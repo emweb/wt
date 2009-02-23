@@ -17,16 +17,7 @@ namespace Wt {
  * This convenience class creates a horizontal box layout, laying contained
  * widgets out from left to right. 
  *
- * See WBoxLayout for available member methods.
- *
- * \note This layout manager is applicable only to WContainerWidget
- * container widgets. You may use it within an Ext::Container
- * indirectly by first setting a WContainerWidget using a WFitLayout.
- *
- * \note When JavaScript support is not available, only Safari and
- * Firefox properly implement this box layout. For other browsers,
- * widgets are not stretched vertically to occupy the entire height of
- * the parent container.
+ * See WBoxLayout for available member methods and more information.
  */
 class WT_API WHBoxLayout : public WBoxLayout
 {

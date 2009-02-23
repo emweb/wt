@@ -99,6 +99,7 @@ Wt/WFileUpload.C
 Wt/WFitLayout.C
 Wt/WFont.C
 Wt/WFormWidget.C
+Wt/WGoogleMap.C
 Wt/WGridLayout.C
 Wt/WGroupBox.C
 Wt/WHBoxLayout.C

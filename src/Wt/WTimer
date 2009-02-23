@@ -85,10 +85,6 @@ public:
   static void singleShot(int msec, T *receiver, void (V::*method)());
 #endif // WT_TARGET_JAVA
 
-private:
-  WTimerWidget *timerWidget_;
-
-public slots:
   /*! \brief Start the timer.
    *
    * The timer will be isActive(), until either the interval has
@@ -101,15 +97,15 @@ public slots:
    */
   void stop();
 
-public:
   /*! \brief Signal emitted when the timer timeouts.
    */
   EventSignal<WMouseEvent>& timeout();
 
-private slots:
+private:
+  WTimerWidget *timerWidget_;
+
   void gotTimeout();
 
-private:
   void setSelfDestruct();
   int getRemainingInterval() const;
 

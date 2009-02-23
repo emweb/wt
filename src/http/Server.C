@@ -236,7 +236,7 @@ void Server::handleStop()
 bool Server::socketSelected(int descriptor, const asio_error_code& e,
 			    std::size_t bytes_transferred, SelectOp op)
 {
-#ifdef THREADED
+#ifdef WT_THREADED
 #if BOOST_VERSION >= 103600
   boost::recursive_mutex::scoped_lock l(notifyingSocketsMutex_);  
   std::map<int, SelectInfo>::iterator i = notifyingSockets_.find(descriptor);

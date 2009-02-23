@@ -19,9 +19,7 @@ class WLabel;
  * unchecked), and a text label.
  *
  * To act on a change of the state, either connect a slot to the changed()
- * signal, or connect a slot to the
- * \link WAbstractToggleButton::checked checked\endlink or
- * \link WAbstractToggleButton::unChecked unChecked\endlink signals.
+ * signal, or connect a slot to the checked() or unChecked() signals.
  *
  * The current state (checked or unchecked) may be inspected using the
  * isChecked() method.
@@ -60,9 +58,7 @@ public:
 
   /*! \brief Change the state of the button.
    *
-   * Does not emit one of the
-   * \link WAbstractToggleButton::checked checked\endlink or
-   * \link WAbstractToggleButton::unChecked unChecked \endlink signals.
+   * Does not emit one of the checked() or unChecked() signals.
    *
    * \sa setChecked(), setUnChecked()
    */
@@ -70,8 +66,7 @@ public:
 
   /*! \brief Set the button checked.
    *
-   * Does not emit the \link WAbstractToggleButton::checked checked\endlink
-   * signal.
+   * Does not emit the checked() signal.
    *
    * \sa setChecked(bool)
    */
@@ -79,8 +74,7 @@ public:
 
   /*! \brief Set the button unChecked.
    *
-   * Does not emit the
-   * \link WAbstractToggleButton::unChecked unChecked \endlink signal.
+   * Does not emit the unChecked() signal.
    *
    * \sa setChecked(bool)
    */

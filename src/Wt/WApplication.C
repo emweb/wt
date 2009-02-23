@@ -273,13 +273,13 @@ std::string WApplication::resourcesUrl()
   return instance()->fixRelativeUrl(result);
 }
 
-void WApplication::bindWidget(WWidget *widget, const std::string& divId)
+void WApplication::bindWidget(WWidget *widget, const std::string& domId)
 {
   if (session_->type() != WebSession::WidgetSet)
     throw WtException("WApplication::bind() can be used only "
 		      "in WidgetSet mode.");
 
-  widget->setId(divId);
+  widget->setId(domId);
   domRoot2_->addWidget(widget);
 }
 
@@ -347,17 +347,17 @@ void WApplication::useStyleSheet(const std::string& uri)
 }
 
 void WApplication::useStyleSheet(const std::string& uri,
-				 const std::string& cond)
+				 const std::string& condition)
 {
   if (environment().agentIE()) {
     bool display = false;
 
     int thisVersion = environment().agentIEMobile() ? 5 :
       environment().agentIE6() ? 6 : 7;
-    enum { lte, lt, eq, gt, gte } condition = eq;
+    enum { lte, lt, eq, gt, gte } cond = eq;
 
     bool invert = false;
-    std::string r = cond;
+    std::string r = condition;
 
     while (!r.empty()) {
       if (r.substr(0, 3) == "IE ") {
@@ -367,20 +367,20 @@ void WApplication::useStyleSheet(const std::string& uri,
 	invert = !invert;
       } else if (r.substr(0, 4) == "lte ") {
 	r = r.substr(4);
-	condition = lte;
+	cond = lte;
       } else if (r.substr(0, 3) == "lt ") {
 	r = r.substr(3);
-	condition = lt;
+	cond = lt;
       } else if (r.substr(0, 3) == "gt ") {
 	r = r.substr(3);
-	condition = gt;
+	cond = gt;
       } else if (r.substr(0, 3) == "gte ") {
 	r = r.substr(4);
-	condition = gte;
+	cond = gte;
       } else {
 	try {
 	  int version = boost::lexical_cast<int>(r);
-	  switch (condition) {
+	  switch (cond) {
 	  case eq:  display = thisVersion == version; break;
 	  case lte: display = thisVersion <= version; break;
 	  case lt:  display = thisVersion <  version; break;
@@ -390,7 +390,7 @@ void WApplication::useStyleSheet(const std::string& uri,
 	  if (invert)
 	    display = !display;
 	} catch (std::exception& e) {
-	  log("error") << "Could not parse condition: '" << cond << "'";
+	  log("error") << "Could not parse condition: '" << condition << "'";
 	}
 	r.clear();
       }

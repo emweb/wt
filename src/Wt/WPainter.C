@@ -29,7 +29,7 @@ WPainter::State WPainter::State::clone()
 {
   State result;
 
-  result.worldTransform_ = worldTransform_.clone();
+  result.worldTransform_ = worldTransform_;
   result.currentBrush_ = currentBrush_;
   result.currentFont_ = currentFont_;
   result.currentPen_ = currentPen_;

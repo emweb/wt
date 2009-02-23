@@ -151,7 +151,6 @@ public:
    */
   WWidget *itemWidget();
 
-public slots:
   /*! \brief Select this item.
    */
   void select();

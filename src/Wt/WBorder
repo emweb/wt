@@ -21,7 +21,7 @@ class WT_API WBorder
 {
 public:
 
-  /*! \brief The border width
+  /*! \brief Enumeration for border width
    */
   enum Width { Thin,    //!< Browser-dependent 'thin' border.
 	       Medium,  //!< Browser-dependent 'medium' border, default.
@@ -29,7 +29,7 @@ public:
 	       Explicit //!< Explicit width. See also explicitWidth()
   };
 
-  /*! \brief The border style
+  /*! \brief Enumeration for border style
    */
   enum Style { None,    //!< No border (width ignored), default.
 	       Hidden,  //!< Invisible border (of specified width). 
@@ -64,6 +64,9 @@ public:
   bool operator!=(const WBorder& other) const;
 
   /*! \brief Set the border width.
+   *
+   * If width == Explicit, then the width specified in
+   * <i>explicitWidth</i> is used.
    */
   void setWidth(Width width, const WLength& explicitWidth=WLength());
 
@@ -75,22 +78,32 @@ public:
    */
   void setStyle(Style style);
 
-  /*! \brief Get the border width.
+  /*! \brief Returns the border width.
+   *
+   * \sa setWidth()
    */
   Width width() const { return width_; }
 
-  /*! \brief Get the border width when set explicitly.
+  /*! \brief Returns the border width when set explicitly.
+   *
+   * \sa setWidth()
    */
   WLength explicitWidth() const { return explicitWidth_; }
 
-  /*! \brief Get the border color.
+  /*! \brief Returns the border color.
+   *
+   * \sa setColor()
    */
   WColor color() const { return color_; }
 
-  /*! \brief Get the border style.
+  /*! \brief Returns the border style.
+   *
+   * \sa setStyle()
    */
   Style style() const { return style_; }
 
+  /*! \brief Returns the CSS text for this border style.
+   */
   std::string cssText() const;
   
 private:

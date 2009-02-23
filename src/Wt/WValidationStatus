@@ -67,9 +67,6 @@ public:
    */
   Signal<bool>& validated() { return validated_; }
 
-private slots:
-  void inputChanged();
-
 private:
   Signal<bool> validated_;
 
@@ -81,6 +78,8 @@ private:
   WWidget     *invalidEmptyStateWidget_;
 
   WValidator::State state_;
+
+  void inputChanged();
 };
 
 }

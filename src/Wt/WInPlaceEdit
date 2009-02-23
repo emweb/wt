@@ -81,7 +81,7 @@ public:
    */
   Signal<WString> valueChanged_;
 
-private slots:
+private:
   void save();
 
 private:

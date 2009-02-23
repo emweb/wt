@@ -52,6 +52,11 @@ namespace Wt {
  *       In that case, you will need to specify a width (in CSS or otherwise)
  *       for at least one item in every column that has no stretch factor.</li>
  *  </ul>
+ *
+ * \warning You should specify AlignTop in the alignment flags of
+ *          WContainerWidget::setLayout() if the container does not have a
+ *          height that is constrained somehow. Otherwise the behavior is
+ *          undefined (the parent container will continue to increase in size) 
  */
 class WT_API WBoxLayout : public WLayout
 {

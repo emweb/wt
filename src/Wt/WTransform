@@ -45,10 +45,6 @@ public:
   WTransform(double m11, double m12, double m21, double m22,
 	     double dx, double dy);
 
-#ifdef WT_TARGET_JAVA
-  WTransform clone();
-#endif
-
   /*! \brief Assignment operator.
    *
    * Copies the transformation from the <i>rhs</i>.

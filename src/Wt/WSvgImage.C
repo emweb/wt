@@ -645,6 +645,8 @@ void WSvgImage::handleRequest(const Http::Request& request,
 
 void WSvgImage::streamResourceData(std::ostream& stream)
 {
+  finishPath();
+
   stream << "<"SVG"svg xmlns=\"http://www.w3.org/2000/svg\""
     " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
     " version=\"1.1\" baseProfile=\"full\""
