@@ -221,6 +221,7 @@ void ComboBox::updateExt()
   addUpdateJS(dataStore_->jsGetUpdates(elVar() + ".store"));
   updateWtSignal(&activated_, activated_.name(), "",
 		 elVar() + ".selectedIndex");
+  setCurrentIndex(currentIndex());
 }
 
 std::string ComboBox::createJS(DomElement *inContainer)
