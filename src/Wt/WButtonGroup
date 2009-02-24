@@ -40,7 +40,7 @@ public:
   /*! \brief Add a radio button to the group.
    */
   void addButton(WRadioButton *button);
-
+	
   /*! \brief Add a radio button to the group.
    */
   void addButton(Ext::RadioButton *button);

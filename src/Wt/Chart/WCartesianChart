@@ -337,6 +337,8 @@ private:
 				int start, int end);
   virtual void modelDataChanged(const WModelIndex& topLeft,
 			        const WModelIndex& bottomRight);
+
+  virtual void modelChanged();
 };
 
   }

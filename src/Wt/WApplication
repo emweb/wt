@@ -1076,8 +1076,8 @@ private:
 #ifndef WT_TARGET_JAVA
   WServerPushResource   *serverPush_;
   boost::pool<>          eventSignalPool_; // pool for event signals
-#endif // WT_TARGET_JAVA
   bool			 shouldTriggerUpdate_;
+#endif // WT_TARGET_JAVA
   std::string            javaScriptClass_;
   AjaxMethod             ajaxMethod_;
   WContainerWidget      *dialogCover_;

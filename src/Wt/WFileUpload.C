@@ -96,7 +96,6 @@ const char *WFileUpload::CHANGE_SIGNAL = "M_change";
 WFileUpload::WFileUpload(WContainerWidget *parent)
   : WWebWidget(parent),
     textSize_(20),
-    textSizeChanged_(false),
     isStolen_(false),
     doUpload_(false),
     uploaded_(this),
@@ -130,9 +129,6 @@ EventSignal<void>& WFileUpload::changed()
 void WFileUpload::setFileTextSize(int chars)
 {
   textSize_ = chars;
-  textSizeChanged_ = true;
-
-  repaint(RepaintPropertyAttribute);
 }
 
 void WFileUpload::stealSpooledFile()

@@ -137,7 +137,7 @@ void WPopupMenuItem::setPopupMenu(WPopupMenu *menu)
   delete subMenu_;
   subMenu_ = menu;
 
-  std::string resources = WApplication::instance()->resourcesUrl();
+  std::string resources = WApplication::resourcesUrl();
 
   if (subMenu_) {
     subMenu_->parentItem_ = this;

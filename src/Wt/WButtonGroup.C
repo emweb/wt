@@ -8,10 +8,6 @@
 #include "Wt/WButtonGroup"
 #include "Wt/WRadioButton"
 
-#ifdef WT_TARGET_JAVA
-#include "Wt/Ext/RadioButton"
-#endif // WT_TARGET_JAVA
-
 namespace Wt {
 
 WButtonGroup::WButtonGroup(WObject* parent)
@@ -93,17 +89,5 @@ int WButtonGroup::count() const
 {
   return buttons_.size();
 }
-
-#ifdef WT_TARGET_JAVA
-void WButtonGroup::addButton(Ext::RadioButton *button)
-{
-  addButton(button->wtRadioButton());
-}
-
-void WButtonGroup::removeButton(Ext::RadioButton *button)
-{
-  removeButton(button->wtRadioButton());
-}
-#endif // WT_TARGET_JAVA
 
 }

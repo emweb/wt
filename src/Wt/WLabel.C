@@ -11,10 +11,6 @@
 #include "Wt/WImage"
 #include "Wt/WFormWidget"
 
-#ifdef WT_TARGET_JAVA
-#include "Ext/FormField"
-#endif // WT_TARGET_JAVA
-
 #include "DomElement.h"
 
 namespace Wt {
@@ -173,12 +169,5 @@ void WLabel::getDomChanges(std::vector<DomElement *>& result,
   if (image_)
     ((WWebWidget *)image_)->getDomChanges(result, app);
 }
-
-#ifdef WT_TARGET_JAVA
-void WLabel::setBuddy(Ext::FormField *formField)
-{
-  setBuddy(formField->formWidget());
-}
-#endif // WT_TARGET_JAVA
 
 }

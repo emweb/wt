@@ -60,8 +60,8 @@ WApplication::WApplication(const WEnvironment& env)
 #ifndef WT_TARGET_JAVA
     serverPush_(0),
     eventSignalPool_(sizeof(EventSignal<void>)),
-#endif // WT_TARGET_JAVA
     shouldTriggerUpdate_(false),
+#endif // WT_TARGET_JAVA
     javaScriptClass_("Wt"),
     dialogCover_(0),
     dialogWindow_(0),
@@ -110,8 +110,6 @@ WApplication::WApplication(const WEnvironment& env)
     domRoot2_->load();
     widgetRoot_ = 0;
   }
-
-  std::string resourcesURL = resourcesUrl();
 
   /*
    * Subset of typical CSS "reset" styles

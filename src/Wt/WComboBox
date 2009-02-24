@@ -176,7 +176,6 @@ private:
   int currentIndex_;
 
   bool itemsChanged_;
-  bool maxVisibleItemsChanged_;
   bool selectionChanged_;
   bool currentlyConnected_;
 

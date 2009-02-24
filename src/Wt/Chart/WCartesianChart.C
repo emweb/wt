@@ -348,5 +348,14 @@ void WCartesianChart::modelDataChanged(const WModelIndex& topLeft,
     }
   }
 }
+
+void WCartesianChart::modelChanged()
+{
+  XSeriesColumn_ = -1;
+  series_.clear();
+
+  update();
+}
+
   }
 }

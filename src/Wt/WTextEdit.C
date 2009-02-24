@@ -15,7 +15,6 @@ namespace Wt {
 
 WTextEdit::WTextEdit(WContainerWidget *parent)
   : WTextArea(),
-    rendered_(false),
     contentChanged_(false)
 {
   setInline(false);
@@ -27,7 +26,6 @@ WTextEdit::WTextEdit(WContainerWidget *parent)
 
 WTextEdit::WTextEdit(const WT_USTRING& text, WContainerWidget *parent)
   : WTextArea(text),
-    rendered_(false),
     contentChanged_(false)
 {
   setInline(false);
@@ -198,8 +196,6 @@ void WTextEdit::updateDom(DomElement& element, bool all)
 			   + dummy.cssStyle() + "';"
 			   WT_CLASS ".tinyMCEAdjust(" + jsRef() + ");};");
     contentChanged_ = false;
-
-    rendered_ = true;
   }
 
   if (!all && contentChanged_) {

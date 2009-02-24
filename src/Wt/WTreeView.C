@@ -156,7 +156,6 @@ private:
   bool                childrenLoaded_;
   WIconPair          *expandIcon_;
   WImage             *noExpandIcon_;
-  WSignalMapper<int> *checkBoxChangeMapper_;
 
   void loadChildren();
 

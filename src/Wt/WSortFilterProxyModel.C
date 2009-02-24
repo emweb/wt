@@ -77,7 +77,7 @@ void WSortFilterProxyModel::setSourceModel(WAbstractItemModel *model)
      (SLOT(this, WSortFilterProxyModel::sourceColumnsInserted)));
 
   modelConnections_.push_back(sourceModel()->columnsAboutToBeRemoved().connect
-     (SLOT(this, WSortFilterProxyModel::sourceColumnsRemoved)));
+     (SLOT(this, WSortFilterProxyModel::sourceColumnsAboutToBeRemoved)));
   modelConnections_.push_back(sourceModel()->columnsRemoved().connect
      (SLOT(this, WSortFilterProxyModel::sourceColumnsRemoved)));
 

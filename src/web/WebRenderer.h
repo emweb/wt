@@ -86,7 +86,6 @@ private:
 
   std::vector<Cookie> cookiesToSet_;
 
-  std::set<WWebWidget *> rootWebWidgets_;
   std::vector<WObject *> currentFormObjects_;
   std::string		 currentFormObjectsList_;
   bool                   formObjectsChanged_;

@@ -144,7 +144,7 @@ protected:
 			     WApplication *app);
 
 private:
-  bool        rendered_, contentChanged_;
+  bool contentChanged_;
   std::string styleSheet_, extraPlugins_;
   std::string buttons_[4];
 

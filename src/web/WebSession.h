@@ -236,7 +236,6 @@ private:
 #endif // WT_THREADED
 #endif // WT_TARGET_JAVA
 
-  std::string   initialInternalPath_;
   WEnvironment  env_;
   WApplication *app_;
   bool          debug_;
@@ -267,7 +266,6 @@ private:
   const std::string *getSignal(const WebRequest& request,
 			       const std::string& se);
 
-  State state() const { return state_; }
   void setState(State state, int timeout);
 
   void init(const WebRequest& request);
