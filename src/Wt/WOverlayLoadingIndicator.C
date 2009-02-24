@@ -40,17 +40,21 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WString &styleClass, co
     app->styleSheet().addRule("body", "height: 100%; margin: 0;");
 
   if (backgroundStyleClass.empty())
-    app->styleSheet().addRule("div#" + cover_->id(),
+    app->styleSheet().addRule("div#" + cover_->id(), std::string() +
 			      "background: #DDDDDD;"
 			      "height: 100%; width: 100%;"
 			      "top: 0px; left: 0px;"
-			      "z-index: 10000;"
-			      "-moz-background-clip: -moz-initial;"
-			      "-moz-background-origin: -moz-initial;"
-			      "-moz-background-inline-policy: -moz-initial;"
 			      "opacity: 0.5; position: absolute;"
-			      "filter: alpha(opacity=50); -moz-opacity:0.5;"
-			      "-khtml-opacity: 0.5");
+			      "-khtml-opacity: 0.5;"
+			      "z-index: 10000;" +
+			      (app->environment().agentIE() ?
+			       "filter: alpha(opacity=50);"
+			       : 
+			       "-moz-opacity:0.5;"
+			       "-moz-background-clip: -moz-initial;"
+			       "-moz-background-origin: -moz-initial;"
+			       "-moz-background-inline-policy: -moz-initial;"
+			       ));
 
   if (styleClass.empty())
     app->styleSheet().addRule("div#" + center_->id(),
