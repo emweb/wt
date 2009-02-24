@@ -238,7 +238,7 @@ WString WDate::longDayName(int weekday)
 {
   static const char *v[]
     = {"Monday", "Tuesday", "Wednesday", "Thursday",
-       "Friday", "Saterday", "Sunday" };
+       "Friday", "Saturday", "Sunday" };
 
   return WString(v[weekday - 1], UTF8);
 }
