@@ -206,7 +206,6 @@ web/WebStream.C
 web/WebSession.C
 web/WebRenderer.C
 web/WebController.C
-web/WServerPushResource.C
 web/WtException.C
 web/WtRandom.C
 web/TimeUtil.C

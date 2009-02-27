@@ -23,8 +23,28 @@ namespace Wt {
  * Using this class you can completely hide the implementation of your
  * composite widget, and provide access to only the standard WWidget
  * methods.
+ *
+ * Usage example:
+ * \code
+ * class MyWidget : public Wt::WCompositeWidget
+ * {
+ * public:
+ *   MyWidget(WContainerWidget *parent = 0)
+ *     : WCompositeWidget(parent)
+ *       // initialize members ...
+ *   {
+ *     setImplementation(impl_ = new WContainerWidget());
+ *
+ *     // further initialization code ...
+ *   }
+ *
+ * private:
+ *   Wt::ContainerWidget *impl_;
+ * };
+ * \endcode
  */
-class WT_API WCompositeWidget : public WWidget {
+class WT_API WCompositeWidget : public WWidget
+{
 public:
   /*! \brief Create a WCompositeWidget.
    */

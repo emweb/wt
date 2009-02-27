@@ -24,9 +24,8 @@ namespace Wt {
  * When JavaScript is available, the file will not be uploaded until
  * upload() is called. This will start an asynchronous upload (and
  * thus return immediately). When the file has been uploaded, the
- * \link WFileUpload::uploaded uploaded \endlink signal is emitted, or
- * if the file was too large, the \link WFileUpload::fileTooLarge
- * fileTooLarge \endlink signal is emitted.
+ * uploaded() signal is emitted, or if the file was too large, the
+ * fileTooLarge() signal is emitted.
  *
  * When no JavaScript is available, the file will be uploaded with the
  * next click event. Thus, upload() is not useful -- the file will
@@ -37,26 +36,46 @@ namespace Wt {
  * Thus, to properly use the widget, one needs to follow these
  * rules:
  * <ul>
- *   <li>Be prepared to handle the \link WFileUpload::uploaded
- *       uploaded \endlink or \link WFileUpload::fileTooLarge
- *       fileTooLarge \endlink signal
+ *   <li>Be prepared to handle the uploaded() or fileTooLarge() signals
  *       also when upload() was not called.</li>
  *   <li>Check with isUploaded() if upload() will schedule a new
  *       upload. if (isUploaded()) then upload() will no have any
  *       effect. if (!isUploaded()), upload() will start and end
- *       when either of the two signals \link WFileUpload::uploaded
- *       uploaded \endlink or \link WFileUpload::fileTooLarge
- *       fileTooLarge \endlink signal is emitted.
+ *       when either of the two uploaded() or fileTooLarge()
+ *       signals gets emitted.
  *   </li>
  * </ul>
  *
  * The %WFileUpload widget must be hidden or deleted when a file is
  * received. In addition it is wise to prevent the user from uploading
- * the file twice.
+ * the file twice as in the example below.
  *
  * The uploaded file is automatically spooled to a local temporary
  * file which will be deleted together with the WFileUpload widget,
  * unless stealSpooledFile() is called.
+ *
+ * Usage example:
+ * \code
+ * Wt::WFileUpload *upload = new Wt::WFileUpload(this);
+ * upload->setFileTextSize(40);
+ *
+ * // Provide a button
+ * Wt::WPushButton *uploadButton = new Wt::WPushButton("Send", this);
+
+ * // Upload when the button is clicked.
+ * uploadButton->clicked().connect(SLOT(upload, Wt::WFileUpload::upload));
+ * uploadButton->clicked().connect(SLOT(uploadButton, Wt::WPushButton::disable));
+ *
+ * // Upload automatically when the user entered a file.
+ * upload->changed().connect(SLOT(upload, WFileUpload::upload));
+ * upload->changed().connect(SLOT(uploadButton, Wt::WPushButton::disable));
+ *
+ * // React to a succesfull upload.
+ * upload->uploaded().connect(SLOT(this, MyWidget::fileUploaded));
+ *
+ * // React to a fileupload problem.
+ * upload->fileTooLarge().connect(SLOT(this, MyWidget::fileTooLarge));
+ * \endcode
  */
 class WT_API WFileUpload : public WWebWidget 
 {
@@ -133,7 +152,7 @@ public:
    * The maximum file size is determined by the maximum request size,
    * which may be configured in the configuration file (<max-request-size>).
    *
-   * \sa uploaded
+   * \sa uploaded()
    * \sa WApplication::requestTooLarge()
    */
   Signal<int>& fileTooLarge() { return fileTooLarge_; }
@@ -152,8 +171,8 @@ public:
   /*! \brief Start the file upload.
    *
    * The uploaded signal is emitted when a file is uploaded, or the
-   * WFileUpload::fileTooLarge signal is emitted when the file size
-   * exceeded the maximum request size.
+   * fileTooLarge() signal is emitted when the file size exceeded the
+   * maximum request size.
    *
    * \sa uploaded
    * \sa isUploaded

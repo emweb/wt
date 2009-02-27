@@ -894,7 +894,8 @@ var url = _$_RELATIVE_URL_$_;
 var quited = false;
 var norestart = false;
 var loaded = false;
-var responsesPending = 0;
+var responsePending = null;
+var pollTimer = null;
 var keepAliveTimer = null;
 
 var doKeepAlive = function() {
@@ -942,6 +943,12 @@ var waitFeedback = function() {
   showLoadingIndicator();
 };
 
+var serverPush = false;
+
+var setServerPush = function(how) {
+  serverPush = how;
+}
+
 var handleResponse = function(msg, timer) {
   if (quited)
     return;
@@ -957,24 +964,35 @@ var handleResponse = function(msg, timer) {
   if (timer)
     cancelFeedback(timer);
 
-  --responsesPending;
+  if (pollTimer) {
+    clearTimeout(pollTimer);
+    pollTimer = null;
+  }
 
-  if (pendingEvents.length > 0)
-    sendUpdate();
+  responsePending = null;
+
+  if (serverPush || pendingEvents.length > 0)
+    sendUpdate();  
 };
 
 var randomSeed = new Date().getTime();
 
-var updateTimeout = null;
+var updateTimeout = null, captureElement = null;
 
-var captureElement = null;
+var doPollTimeout = function() {
+  responsePending.abort();
+  responsePending = null;
+  pollTimer = null;
+
+  sendUpdate();
+}
 
 var update = function(self, signalName, e, feedback) {
   if (captureElement && (self == captureElement) && e.type == "mouseup")
     captureElement = null;
   _$_APP_CLASS_$_._p_.autoJavaScript();
 
-  if (_$_STRICTLY_SERIALIZED_EVENTS_$_ && responsesPending)
+  if (_$_STRICTLY_SERIALIZED_EVENTS_$_ && responsePending)
     return;
 
   var pendingEvent = new Object();
@@ -989,7 +1007,13 @@ var update = function(self, signalName, e, feedback) {
 }
 
 var scheduleUpdate = function() {
-  if (responsesPending == 0) {
+  if (responsePending != null && pollTimer != null) {
+    clearTimeout(pollTimer);
+    responsePending.abort();
+    responsePending = null;
+  }
+
+  if (responsePending == null) {
     if (updateTimeout == null)
       updateTimeout = setTimeout(function() { sendUpdate(); }, WT.updateDelay);
   }
@@ -997,7 +1021,6 @@ var scheduleUpdate = function() {
 
 var sendUpdate = function() {
   updateTimeout = null;
-  ++responsesPending;
 
   if (WT.isIEMobile) feedback = false;
 
@@ -1014,31 +1037,41 @@ var sendUpdate = function() {
     }
   }
 
-  var query = '&rand=' + Math.round(Math.random(randomSeed) * 100000);
+  var data, tm, poll,
+    query = '&rand=' + Math.round(Math.random(randomSeed) * 100000);
 
-  var data = encodePendingEvents();
+  if (pendingEvents.length > 0) {
+    data = encodePendingEvents();
 
-  for (var x = 0; x < formObjects.length; ++x) {
-    var el = WT.getElement(formObjects[x]);
-    if (el == null)
-      continue;
+    for (var x = 0; x < formObjects.length; ++x) {
+      var el = WT.getElement(formObjects[x]);
+      if (el == null)
+	continue;
 
-    if (el.type == 'select-multiple') {
-      for (var i = 0; i < el.options.length; i++)
-	if (el.options[i].selected)
-	  data.result += '&' + formObjects[x]
-	    + '=' + encodeURIComponent(el.options[i].value);
-    } else if ((el.type != 'file')
-	       && (((el.type != 'checkbox') && (el.type != 'radio'))
-		   || el.checked))
-      data.result += '&' +formObjects[x]
-	+ '=' + encodeURIComponent(el.value);
+      if (el.type == 'select-multiple') {
+	for (var i = 0; i < el.options.length; i++)
+	  if (el.options[i].selected)
+	    data.result += '&' + formObjects[x]
+	      + '=' + encodeURIComponent(el.options[i].value);
+      } else if ((el.type != 'file')
+		 && (((el.type != 'checkbox') && (el.type != 'radio'))
+		     || el.checked))
+	data.result += '&' +formObjects[x]
+	  + '=' + encodeURIComponent(el.value);
+    }
+
+    tm = data.feedback ? setTimeout(waitFeedback, _$_INDICATOR_TIMEOUT_$_)
+      : null;
+    poll = false;
+  } else {
+    tm = null;
+    poll = true;
+    data = {result: 'e0signal=poll' };
   }
 
-  var tm = data.feedback ? setTimeout(waitFeedback, _$_INDICATOR_TIMEOUT_$_)
-    : null;
-
-  _$_APP_CLASS_$_._p_.sendUpdate(url + query, data.result, tm);
+  responsePending
+    = _$_APP_CLASS_$_._p_.sendUpdate(url + query, data.result, tm);
+  pollTimer = poll ? setTimeout(doPollTimeout, 50000) : null;
 };
 
 var emit = function(object, config) {
@@ -1078,7 +1111,7 @@ var emit = function(object, config) {
 
   pendingEvents[pendingEvents.length] = userEvent;
 
-  if (responsesPending == 0)
+  if (responsePending == null)
     scheduleUpdate();
 };
 
@@ -1179,6 +1212,7 @@ return {
     "addTimerEvent" : addTimerEvent,
     "load" : load,
     "handleResponse" : handleResponse,
+    "setServerPush" : setServerPush,
 
     "dragStart" : dragStart,
     "dragDrag" : dragDrag,

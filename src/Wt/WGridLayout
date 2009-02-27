@@ -79,6 +79,20 @@ struct Grid {
  * column and row is stretched using the stretch factor to fill the
  * remaining space.
  *
+ * Usage example:
+ * \code
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
+ * w->resize(WLength(), 600);
+ *
+ * Wt::WGridLayout *layout = new Wt::WGridLayout();
+ * layout->addWidget(new Wt::WText("Item 0 0"), 0, 0);
+ * layout->addWidget(new Wt::WText("Item 0 1"), 0, 1);
+ * layout->addWidget(new Wt::WText("Item 1 0"), 1, 0);
+ * layout->addWidget(new Wt::WText("Item 1 1"), 1, 1);
+ *
+ * w->setLayout(layout);
+ * \endcode
+ *
  * \note This layout manager is applicable only to WContainerWidget
  * container widgets. You may use it within an Ext::Container
  * indirectly by first setting a WContainerWidget using a WFitLayout.

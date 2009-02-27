@@ -15,7 +15,7 @@ namespace Wt {
 class WLabel;
 
 /*! \class WFormWidget Wt/WFormWidget Wt/WFormWidget
- *  \brief A widget that correspond to an HTML form element.
+ *  \brief An abstract widget that corresponds to an HTML form element.
  *
  * A %WFormWidget may receive focus, can be disabled, and can have a
  * label that acts as proxy for getting focus. It provides signals
@@ -24,8 +24,8 @@ class WLabel;
  * Form widgets also have built-in support for validation, using
  * setValidator(WValidator *). If the validator provide client-side
  * validation, then an invalid validation state is reflected using the
- * style class <tt>"Wt-invalid"</tt>. All native Wt validators provide
- * client-side validation.
+ * style class <tt>"Wt-invalid"</tt>. All validators provided by %Wt
+ * implement client-side validation.
  *
  * On the server-side, use validate() method to validate the content
  * using a validator previously set.

@@ -680,7 +680,7 @@ WTreeNode *Home::makeTreeMap(const std::string name, WTreeNode *parent)
 		    "icons/yellow-folder-open.png", false);
 
   WTreeNode *node = new WTreeNode(name, labelIcon, parent);
-  node->label()->setFormatting(WText::PlainFormatting);
+  node->label()->setTextFormat(PlainText);
 
   if (!parent) {
     node->setImagePack("icons/");

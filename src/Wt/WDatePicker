@@ -20,34 +20,56 @@ class WLineEdit;
 /*! \class WDatePicker Wt/WDatePicker Wt/WDatePicker
  *  \brief A date picker.
  *
- * A date picker works in conjunction with a WLineEdit to popup a
- * WCalendar for editing the date. The date picker itself is typically
- * displayed as a button next to the line edit. When the user clicks
- * the button, a calendar pops up which may be used to pick a new
- * date. Any date entered in the line edit is reflected in the calendar,
- * and vice-versa.
+ * A date picker shows a line edit and an icon which when clicked
+ * popups a WCalendar for editing the date. Any date entered in the
+ * line edit is reflected in the calendar, and vice-versa.
  *
  * Each of these widgets may be accessed individually (lineEdit(),
- * calendar(), and displayWidget()).
+ * calendar(), and displayWidget()) and there is a constructor that
+ * allows you to specify an existing line edit and display widget.
  * 
- * The date format used by default is 'dd/MM/yyyy', but can be changed
- * using setFormat(). At any time, the date set may be read using
- * date(), or can be changed using setDate().
+ * The date format used by default is <tt>"dd/MM/yyyy"</tt> and can be
+ * changed using setFormat(). At any time, the date set may be read
+ * using date(), or can be changed using setDate().
  *
- * \image html WDatePicker-1.png "WDatePicker using a WPushButton as displayWidget"
+ * Usage example:
+ * \code
+ * Wt::WDatePicker *picker = new Wt::WDatePicker(this);
+ * picker->setFormat("dd-MM-yyyy");
+ * picker->setDate(Wt::WDate(1976, 6, 14));
+ * \endcode
+ *
+ * \image html WDatePicker-1.png "Example of WDatePicker with visible calendar."
  */
 class WT_API WDatePicker : public WCompositeWidget
 {
 public:
   /*! \brief Create a new date picker.
    *
-   * The <i>displayWidget</i> represents the button or image which
-   * much be clicked to open the date picker. This widget may not yet
-   * have a parent, and becomes owned by the picker.
+   * This constructor creates a line edit with an icon that leads to a
+   * popup calendar. A WDateValidator is configured for the line edit.
+   */
+  WDatePicker(WContainerWidget *parent = 0);
+
+  /*! \brief Create a new date picker.
    *
-   * The <i>forEdit</i> argument is the lineEdit which works in
-   * conjunction with the date picker. This widget is not part of the
-   * date picker, and may be located anywhere else.
+   * This constructor creates a line edit with an icon that leads to a
+   * popup calendar. A WDateValidator is configured for the line edit.
+   *
+   * <i>i18n</i> is passed to the WCalendar constructor.
+   */
+  WDatePicker(bool i18n, WContainerWidget *parent = 0);
+
+  /*! \brief Create a new date picker for existing line edit and with custom
+   *         display widget.
+   *
+   * The <i>displayWidget</i> is a button or image which much be
+   * clicked to open the date picker. This widget will become owned by
+   * the picker.
+   *
+   * The <i>forEdit</i> argument is the lineEdit that works in
+   * conjunction with the date picker. This widget does not become
+   * part of the date picker, and may be located anywhere else.
    *
    * <i>i18n</i> is passed to the WCalendar constructor.
    */
@@ -58,17 +80,17 @@ public:
   /*! \brief Set the format used for parsing or writing the date in
    *         the line edit.
    *
-   * Sets the format used for parsing the value of the lineEdit, or
-   * for setting the value of the lineEdit.
+   * Sets the format used for representing the date in the line edit.
+   * If the line edit has a WDateValidator configured for it, then also
+   * there the format is updated.
+   *
+   * The default format is <tt>'dd/MM/yyyy'</tt>.
    *
    * \sa format(), WDate::toString(const WString&) const
    */
   void setFormat(const WT_USTRING& format);
 
-  /*! \brief Get the format.
-   *
-   * Get the current format used to parse dates from the lineEdit text, or
-   * to set the lineEdit text from a selected date in the calendar.
+  /*! \brief Returns the format.
    *
    * \sa setFormat()
    */
@@ -116,13 +138,16 @@ public:
   void setDate(const WDate& date);
 
 private:
-  WT_USTRING          format_;
+  WT_USTRING        format_;
   WInteractWidget  *displayWidget_;
   WLineEdit        *forEdit_;
 
   WContainerWidget *layout_;
   WContainerWidget *popup_;
   WCalendar        *calendar_;
+
+  void createDefault(bool i18n);
+  void create(WInteractWidget *displayWidget, WLineEdit *forEdit, bool i18n);
 
   void setFromCalendar();
   void setFromLineEdit();

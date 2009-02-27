@@ -106,24 +106,14 @@ public:
       (new WIntValidator(0, std::numeric_limits<int>::max(), this));
 
     // created
-    WLineEdit *createdEdit = new WLineEdit();
-    createdEdit->setValidator
-      (new WDateValidator(FileModel::dateEditFormat, this));
-    createdEdit->validator()->setMandatory(true);
-
-    createdPicker_ = new WDatePicker(new WImage("icons/calendar_edit.png"),
-				     createdEdit);
+    createdPicker_ = new WDatePicker();
+    createdPicker_->lineEdit()->validator()->setMandatory(true);
     createdPicker_->setFormat(FileModel::dateEditFormat);
     createdPicker_->setDate(boost::any_cast<WDate>(model_->data(modelRow, 4)));
 
     // modified
-    WLineEdit *modifiedEdit = new WLineEdit();
-    modifiedEdit->setValidator
-      (new WDateValidator(FileModel::dateEditFormat, this));
-    modifiedEdit->validator()->setMandatory(true);
-
-    modifiedPicker_ = new WDatePicker(new WImage("icons/calendar_edit.png"),
-				      modifiedEdit);
+    modifiedPicker_ = new WDatePicker();
+    modifiedPicker_->lineEdit()->validator()->setMandatory(true);
     modifiedPicker_->setFormat(FileModel::dateEditFormat);
     modifiedPicker_->setDate(boost::any_cast<WDate>(model_->data(modelRow, 5)));
 
@@ -151,15 +141,15 @@ public:
     ++row;
 
     layout->addWidget(l = new WLabel("Created:"), row, 0);
-    layout->addWidget(createdEdit, row, 1);
+    layout->addWidget(createdPicker_->lineEdit(), row, 1);
     layout->addWidget(createdPicker_, row, 2);
-    l->setBuddy(createdEdit);
+    l->setBuddy(createdPicker_->lineEdit());
     ++row;
 
     layout->addWidget(l = new WLabel("Modified:"), row, 0);
-    layout->addWidget(modifiedEdit, row, 1);
+    layout->addWidget(modifiedPicker_->lineEdit(), row, 1);
     layout->addWidget(modifiedPicker_, row, 2);
-    l->setBuddy(modifiedEdit);
+    l->setBuddy(modifiedPicker_->lineEdit());
     ++row;
 
     WPushButton *b;
@@ -179,9 +169,9 @@ public:
     case 3:
       sizeEdit_->setFocus(); break;
     case 4:
-      createdEdit->setFocus(); break;
+      createdPicker_->lineEdit()->setFocus(); break;
     case 5:
-      modifiedEdit->setFocus(); break;
+      modifiedPicker_->lineEdit()->setFocus(); break;
     default:
       nameEdit_->setFocus(); break;
     }

@@ -23,6 +23,26 @@ class WebSession;
  *
  * The environment provides information on the client, and gives access
  * to startup arguments.
+ *
+ * Usage example:
+ * \code
+ * const WEnvironment& env = WApplication::instance()->environment();
+ *
+ * // read an application startup argument (passed as argument in the URL or POST'ed to the application).
+ * if (!env.getParameterValues("login").empty()) {
+ *   std::string login = env.getParameterValues("login")[0];
+ *   ...
+ * }
+ *
+ * // Check for JavaScript/AJAX availability before using JavaScript-only
+ * // widgets
+ * Wt::WTextArea *textEdit;
+ * if (!env.ajax())
+ *   textEdit = new Wt::WTextEdit(); // provide an HTML text editor
+ * else
+ *   textEdit = new Wt::WTextArea(); // fall-back to a plain old text area.
+ *
+ * \endcode
  */
 class WT_API WEnvironment
 {
@@ -34,19 +54,11 @@ public:
     HTML4   //!< HTML4
   }; 
 
-  /*! \brief Values associated with an argument.
-   *
-   * One or more values may be associated with a single argument.
-   *
-   * For example a %Wt application 'foo.wt' started as 
-   * http://.../foo.wt?hello=Hello&hello=World 
-   * will result in both values "Hello" and "World" to be associated
-   * with the argument "hello".
-   */
-
   /*! \brief Cookie map.
    *
    * A std::map which associates a cookie name with a cookie value.
+   *
+   * \sa cookies()
    */
   typedef std::map<std::string, std::string> CookieMap;
 
@@ -54,16 +66,34 @@ public:
    *
    * Arguments passed to the application, either in the URL for a
    * http GET, or in both the URL and data submitted in a http POST.
+   *
+   * \sa getParameterValues()
    */
   const Http::ParameterMap& getParameterMap() const { return parameters_; }
 
   /*! \brief Returns values for a query parameter.
    *
    * Returns an empty list if the parameter was not defined.
+   *
+   * One or more values may be associated with a single argument.
+   *
+   * For example a %Wt application <tt>foo.wt</tt> started as
+   * <tt>http://.../foo.wt?hello=Hello&hello=World</tt> will result in
+   * both values <tt>"Hello"</tt> and <tt>"World"</tt> to be
+   * associated with the argument <tt>"hello"</tt>.
+   *
+   * \sa getParameterMap()
    */
   const Http::ParameterValues& getParameterValues(const std::string& name)
     const;
 
+  /*! \brief Returns a single value for a query parameter.
+   *
+   * Returns the first value for a parameter, or 0 if the parameter is
+   * not found.
+   *
+   * \sa getParameterValues()
+   */
   const std::string *getParameter(const std::string& name) const;
 
   /*! \brief Cookies set in the initial call to the application.
@@ -71,15 +101,16 @@ public:
    * Note that cookies set with WApplication::setCookie() are not made
    * available in the environment.
    *
-   * Not all clients may support cookies or have cookies enabled. See
-   * supportsCookies()
+   * Not all clients may support cookies or have cookies enabled.
+   *
+   * \sa supportsCookies(), getCookie()
    */
   const CookieMap& cookies() const { return cookies_; }
 
   /*! \brief Checks for existence and returns specified argument.
    *
-   * Throws a std::runtime_error("Missing cookie: ...")
-   * when the cookie is missing, or returns cookie value otherwise.
+   * Throws a <tt>std::runtime_error("Missing cookie: ...")</tt> when
+   * the cookie is missing, or returns cookie value otherwise.
    */
   const std::string getCookie(const std::string& cookieNname) const;
 
@@ -87,6 +118,8 @@ public:
    *
    * When the user disables cookies during the visit of the page, this
    * value is not updated.
+   *
+   * \sa cookies(), getCookie()
    */
   bool supportsCookies() const { return doesCookies_; }
 
@@ -94,18 +127,23 @@ public:
    *
    * Without support for JavaScript, %Wt will still be able to serve
    * the application, but with one considerable limitation: only the
-   * \link WTimer::timeout WTimer::timeout\endlink and \link
-   * WInteractWidget::clicked WInteractWidget::clicked\endlink signals
-   * will generate events. Every click will cause a complete page
-   * refresh.
+   * WTimer::timeout(), WInteractWidget::clicked(),
+   * WApplication::internalPathChanged(), and WAbstractArea::clicked()
+   * signals (and any derived signals) will generate events.
+   *
+   * Every event will cause the complete page to be rerendered.
+   *
+   * \sa ajax()
    */
   bool javaScript() const { return doesJavaScript_; }
 
   /*! \brief Returns whether the browser has enabled support for AJAX.
    *
-   * Without support for JavaScript, %Wt will still be able to serve
+   * Without support for AJAX, %Wt will still be able to serve
    * the application, but every event will cause the application to
    * retransmit the whole page, rendering many events inpractical.
+   *
+   * \sa javaScript()
    */
   bool ajax() const { return doesAjax_; }
 
@@ -116,20 +154,24 @@ public:
    * by the DPI setting of the display. If all goes well, you do not
    * have to worry about this scaling factor. Unfortunately, not
    * all elements are scaled appropriately. The scaling factor is
-   * supposed to be used only internally in Wt and is in this interface
+   * supposed to be used only internally in %Wt and is in this interface
    * for informational purposes.
+   *
+   * \sa WVmlImage
    */
   double dpiScale() const { return dpiScale_; }
 
   /*! \brief Returns the preferred language indicated in the request
    *         header.
    *
-   * The language is parsed from the HTTP Accept-Language field, if
-   * present. If not, the locale is empty.
+   * The language is parsed from the HTTP <tt>Accept-Language</tt>
+   * field, if present. If not, the locale is empty.
    *
    * If multiple languages are present, the one with the highest
    * "q"uality is assumed, and if a tie is present, the first one
    * is taken.
+   *
+   * \sa WApplication::setLocale()
    */
   const std::string& locale() const { return locale_; }
 
@@ -138,80 +180,86 @@ public:
    * The hostname is the unresolved host name with optional port number,
    * which the browser used to connect to the application.
    *
-   * e.g. www.mydomain.com
-   * e.g. localhost:8080
+   * Examples:
+   *   - <tt>www.mydomain.com</tt>
+   *   - <tt>localhost:8080</tt>
    *
-   * for HTTP 1.1 requests, this information is fetched from the HTTP
-   * Host header. If %Wt is configured behind a reverse proxy, then
-   * the last entry in the HTTP X-Forwarded-Host header field is used
-   * instead (to infer the name of the reverse proxy instead).
+   * For HTTP 1.1 requests, this information is fetched from the HTTP
+   * <tt>Host</tt> header. If %Wt is configured behind a reverse
+   * proxy, then the last entry in the HTTP <tt>X-Forwarded-Host</tt>
+   * header field is used instead (to infer the name of the reverse
+   * proxy instead).
    *
-   * For HTTP 1.0 requests, the HTTP Host header is not required. When
-   * not present, the server host name is inferred from the configured
-   * server name, which defaults to the DNS name.
+   * For HTTP 1.0 requests, the HTTP <tt>Host</tt> header is not
+   * required. When not present, the server host name is inferred from
+   * the configured server name, which defaults to the DNS name.
    */
   const std::string& hostName() const { return host_; }
 
   /*! \brief Returns the URL scheme used for the current request
-   * (http or https).
+   * (<tt>"http"</tt> or <tt>"https"</tt>).
    */
   const std::string& urlScheme() const { return urlScheme_; }
 
   /*! \brief Returns the user agent.
    *
-   * The user agent, as reported in the HTTP User-Agent field.
+   * The user agent, as reported in the HTTP <tt>User-Agent</tt> field.
    */
   const std::string& userAgent() const { return userAgent_; }
 
   /*! \brief Returns the referer.
    *
-   * The referer, as reported in the HTTP Referer field.
+   * The referer, as reported in the HTTP <tt>Referer</tt> field.
    */
   const std::string& referer() const { return referer_; }
 
   /*! \brief Returns the accept header.
    *
-   * The accept header, as reported in the HTTP Accept field.
+   * The accept header, as reported in the HTTP <tt>Accept</tt> field.
    */
   const std::string& accept() const { return accept_; }
 
-  /*! \brief Returns if it is a (known) indexing spider bot.
+  /*! \brief Returns if the user agent is a (known) indexing spider bot.
    *
    * Note: currently the list of know bots is quite small. This method
    * is used internally to render the web application for optimal
    * indexing by bots:
    * - there is no detection for JavaScript, instead the application is
-   *   directly served assuming no JavaScript support
-   * - session information is omitted from the Urls
+   *   directly served assuming no JavaScript support.
+   * - session information is omitted from the Urls.
    * - no sessions are created (they are immediately stopped after the request
-   *   has been handled)
-   * - id's and names are omitted from DOM nodes. In this way, the
-   *   generaed page is always exactly the same.
+   *   has been handled).
+   * - auto-generated <tt>id</tt> and <tt>name</tt> attributes are omitted
+   *   from DOM nodes. In this way, the generated page is always exactly the
+   *   same.
    */
   bool agentIsSpiderBot() const { return isSpiderBot_; }
 
-  /*! \brief Web server signature.
+  /*! \brief Returns the web server signature.
    *
-   * The value of the CGI variable SERVER_SIGNATURE.
-   * e.g. &lt;address&gt;Apache Server at localhost Port 80&lt;/address&gt;
+   * The value of the CGI variable <tt>SERVER_SIGNATURE</tt>.
+   *
+   * Example: <tt><address>Apache Server at localhost Port 80</address>"</tt>.
    */
   const std::string& serverSignature() const { return serverSignature_; }
 
-  /*! \brief Web server software.
+  /*! \brief Returns the web server software.
    *
-   * The value of the CGI variable SERVER_SOFTWARE.
-   * e.g. Apache
+   * The value of the CGI variable <tt>SERVER_SOFTWARE</tt>.
+   *
+   * Example: <tt>"Apache"</tt>
    */
   const std::string& serverSoftware() const { return serverSoftware_; }
 
-  /*! \brief Email address of the server admin.
+  /*! \brief Returns the email address of the server admin.
    *
-   * The value of the CGI variable SERVER_ADMIN.
-   * e.g. root\@localhost
+   * The value of the CGI variable <tt>SERVER_ADMIN</tt>.
+   *
+   * Example: <tt>"root@localhost"</tt>
    */
   const std::string& serverAdmin() const { return serverAdmin_; }
 
-  /*! \brief IP address of the client.
+  /*! \brief Returns the IP address of the client.
    *
    * The (most likely) IP address of the client that is connected to
    * this session.
@@ -226,7 +274,7 @@ public:
   /*! \brief Returns the path info of the original request (<b>deprecated</b>)
    *
    * \deprecated Use internalPath() instead, which is consistent with the
-   *             internal paths generated by Wt.
+   *             internal paths generated by %Wt.
    *
    * This is the equivalent of the CGI PATH_INFO environment variable.
    *
@@ -259,7 +307,7 @@ public:
    * http://www.mydomain.com/stuff/app.wt?_=this/there
    * \endcode
    *
-   * The last form is generated by Wt when the application ends with a
+   * The last form is generated by %Wt when the application ends with a
    * '/', as an alternative to the first form, which is then
    * impossible.
    *
@@ -267,32 +315,35 @@ public:
    */
   const std::string& internalPath() const { return internalPath_; }
 
-  /*! \brief Version of the %Wt library.
+  /*! \brief Returns the version of the %Wt library.
    *
-   * The version of the %Wt library.
-   * e.g. 1.99.2
+   * Example: <tt>"1.99.2"</tt>
    */
   static std::string libraryVersion();
 
-  /*! \brief Version of the %Wt library, broken down.
+  /*! \brief Returns the version of the %Wt library, broken down.
    *
    * The version of the %Wt library, broken down in its three numbers,
-   * e.g. series = 1, major = 99, minor = 2.
+   *
+   * Example: <i>series</i> = 1, <i>major</i> = 99, <i>minor</i> = 2.
    */
   void libraryVersion(int& series, int& major, int& minor) const;
 
-  /*! \brief Get the %Wt session id.
+  /*! \brief Returns the %Wt session id.
    *
-   * Retrieves the session Id for this session. This is an
+   * Retrieves the session id for this session. This is an
    * auto-generated random alpha-numerical id, whose length is
    * determined by settings in the configuration file.
    */
   std::string sessionId() const;
 
-  /*! \brief Get a raw CGI environment variable.
+  /*! \brief Returns a raw CGI environment variable.
    *
    * Retrieves the value for the given CGI environment variable (like
-   * SSL_CLIENT_S_DN_CN), if it is defined, otherwise an empty string.
+   * <tt>"SSL_CLIENT_S_DN_CN"</tt>), if it is defined, otherwise an
+   * empty string.
+   *
+   * \sa serverSignature(), serverSoftware(), serverAdmin(), 
    */
   std::string getCgiValue(const std::string& varName) const;
 

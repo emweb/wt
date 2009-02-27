@@ -143,7 +143,7 @@ void WAnchor::setRefInternalPath(const std::string& path)
       ("function(obj, event){"
        "window.location.hash='#" + DomElement::urlEncode(path) + "';"
        "}");
-  } else
+  }
 
   flags_.set(BIT_REF_CHANGED);
 

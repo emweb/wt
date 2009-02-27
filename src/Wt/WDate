@@ -30,7 +30,7 @@ public:
   InvalidDateException();
   ~InvalidDateException() throw();
 
-  /*! \brief Get a message describing the error.
+  /*! \brief Returns a message describing the error.
    */
   const char *what() const throw();
 };

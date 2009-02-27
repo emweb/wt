@@ -33,28 +33,22 @@ class WWebWidget;
 /*! \class WCssDecorationStyle Wt/WCssDecorationStyle Wt/WCssDecorationStyle
  *  \brief A style class for a single widget or style sheet rule.
  *
- * You can either access the decoration style using
- * WWidget::decorationStyle() or you may use a WCssDecorationStyle to
+ * You can manipulate the decoration style of a single widget using
+ * WWidget::decorationStyle() or you can use a WCssDecorationStyle to
  * add a rule to the inline style sheet using
  * WCssStyleSheet::addRule(const std::string&, const WCssDecorationStyle& style, const std::string&).
+ *
+ * Usage example:
+ * \code
+ * Wt::WWidget *widget = ...
+ * widget->decorationStyle().setCursor(PointingHandCursor);
+ * \endcode
  *
  * \ingroup style
  */
 class WT_API WCssDecorationStyle
 {
 public:
-#ifndef WT_DEPRECATE_2_2_0
-  typedef Wt::Cursor Cursor;
-  static const Cursor Default = Wt::ArrowCursor;
-  static const Cursor Auto = Wt::AutoCursor;
-  static const Cursor CrossHair = Wt::CrossCursor;
-  static const Cursor Pointer = Wt::PointingHandCursor;
-  static const Cursor Move = Wt::OpenHandCursor;
-  static const Cursor Wait = Wt::WaitCursor;
-  static const Cursor Text = Wt::IBeamCursor;
-  static const Cursor Help = Wt::WhatsThisCursor;
-#endif
-
   /*! \brief How a background image must be repeated.
    */
   enum Repeat { RepeatXY,  //!< Repeat horizontally and vertically, default

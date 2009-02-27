@@ -569,7 +569,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  additionalVerticalPadding = getImpl(item.item_)
 	    ->additionalVerticalPadding(itemFitWidth, itemFitHeight);
 
-	  if (hAlign != 0)
+	  if (hAlign == 0)
 	    hAlign = AlignJustify;
 
 	  switch (hAlign) {

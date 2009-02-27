@@ -12,6 +12,17 @@
 #define WFLAGS_USE_TYPESAFE_MASKS
 
 namespace Wt {
+
+/*! \class WFlags Wt/WFlags Wt/WFlags
+ *  \brief Utility class for type-safe combinations of enumeration flags.
+ *
+ * This type is used in %Wt API whenever one or more flag options are
+ * expected, instead of an <tt>int</tt>. The class provides type
+ * safety, in the sense that it checks that the correct combination of
+ * enum values is bound to the argument, and does not cost any
+ * run-time overhead (internally it uses only an <tt>int</tt> to
+ * represent the combination of flags.
+ */
 template<typename EnumType>
 class WT_API WFlags
 {
@@ -25,48 +36,125 @@ class WT_API WFlags
 public:
   typedef EnumType enum_type;
 
-  inline WFlags(const WFlags<EnumType>& other);
-
-  inline WFlags(EnumType flag);
-
+  /*! \brief Default constructor.
+   */
   inline WFlags(Zero zero = 0);
 
+  /*! \brief Construct from a single enum value.
+   */
+  inline WFlags(EnumType flag);
+
+  /*! \brief Copy constructor.
+   */
+  inline WFlags(const WFlags<EnumType>& other);
+
+  /*! \brief Assignment operator.
+   */
+  inline WFlags<EnumType>& operator=(const WFlags<EnumType>& other);
+
+  /*! \brief Assignment operator.
+   */
+  inline WFlags<EnumType>& operator=(const EnumType other);
+
+  /*! \brief Returns whether a flag is set.
+   */
   inline bool testFlag(EnumType flag) const;
 
+  /*! \brief Clears a flag.
+   */
   inline WFlags<EnumType>& clear(EnumType value);
 
+  /*! \brief Cast to the enum type.
+   *
+   * The internal <tt>int</tt> representation is simply cast to the
+   * enum type, without any additional checks.
+   */
   inline operator EnumType() const;
 
   inline int bitCount() const;
 
+  /*! \brief Negation operator.
+   *
+   * Returns whether different from 0.
+   */
   inline bool operator!() const;
 
+  /*! \brief Bitwise AND operator.
+   *
+   * Returns flags that are the bitwise AND of this and <i>mask</i>.
+   */
   inline WFlags<EnumType> operator&(EnumType mask) const;
   
+  /*! \brief Bitwise AND operator.
+   *
+   * Returns flags that are the bitwise AND of this and <i>mask</i>.
+   */
   inline WFlags<EnumType> operator&(MaskType mask) const;
 
+  /*! \brief Modifying bitwise AND operator.
+   *
+   * Sets as value the bitwise AND of this and <i>mask</i>.
+   */
+  inline WFlags<EnumType>& operator&=(EnumType mask);
+
+  /*! \brief Modifying bitwise AND operator.
+   *
+   * Sets as value the bitwise AND of this and <i>mask</i>.
+   */
   inline WFlags<EnumType>& operator&=(MaskType mask);
 
-  inline WFlags<EnumType>& operator=(const WFlags<EnumType>& other);
-
-  inline WFlags<EnumType>& operator=(const EnumType other);
-
+  /*! \brief Bitwise XOR operator.
+   *
+   * Returns flags that are the bitwise XOR of this and <i>other</i>.
+   */
   inline WFlags<EnumType> operator^(WFlags<EnumType> other) const;
 
-  inline WFlags<EnumType> operator^(EnumType other) const;
+   /*! \brief Bitwise XOR operator.
+   *
+   * Returns flags that are the bitwise XOR of this and <i>other</i>.
+   */
+ inline WFlags<EnumType> operator^(EnumType other) const;
 
+  /*! \brief Modifying bitwise XOR operator.
+   *
+   * Sets as value the bitwise XOR of this and <i>other</i>.
+   */
   inline WFlags<EnumType>& operator^=(WFlags<EnumType> other);
 
+  /*! \brief Modifying bitwise XOR operator.
+   *
+   * Sets as value the bitwise XOR of this and <i>other</i>.
+   */
   inline WFlags<EnumType>& operator^=(EnumType other);
 
+  /*! \brief Bitwise OR operator.
+   *
+   * Returns flags that are the bitwise OR of this and <i>other</i>.
+   */
   inline WFlags<EnumType> operator|(WFlags<EnumType> other) const;
 
+  /*! \brief Bitwise OR operator.
+   *
+   * Returns flags that are the bitwise OR of this and <i>other</i>.
+   */
   inline WFlags<EnumType> operator|(EnumType other) const;
 
+  /*! \brief Modifying bitwise OR operator.
+   *
+   * Sets as value the bitwise OR of this and <i>other</i>.
+   */
   inline WFlags<EnumType>& operator|=(WFlags<EnumType> other);
 
+  /*! \brief Modifying bitwise OR operator.
+   *
+   * Sets as value the bitwise OR of this and <i>other</i>.
+   */
   inline WFlags<EnumType>& operator|=(EnumType other);
 
+  /*! \brief Inversion operator.
+   *
+   * Returns flags that are the inverted of this.
+   */
   inline WFlags<EnumType> operator~() const;
 
 #ifdef WT_TARGET_JAVA
@@ -157,6 +245,13 @@ WFlags<EnumType> WFlags<EnumType>::operator&(MaskType mask) const
 
 template<typename EnumType>
 WFlags<EnumType> &WFlags<EnumType>::operator&=(MaskType mask)
+{
+  flags_ &= (unsigned)mask;
+  return *this;
+}
+
+template<typename EnumType>
+WFlags<EnumType> &WFlags<EnumType>::operator&=(EnumType mask)
 {
   flags_ &= (unsigned)mask;
   return *this;

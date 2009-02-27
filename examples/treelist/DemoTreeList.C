@@ -133,7 +133,7 @@ TreeNode *DemoTreeList::makeTreeMap(const std::string name, TreeNode *parent)
 		   "icons/yellow-folder-open.png",
 		   false);
 
-  TreeNode *node = new TreeNode(name, WText::PlainFormatting, labelIcon, 0);
+  TreeNode *node = new TreeNode(name, PlainText, labelIcon, 0);
   if (parent)
     parent->addChildNode(node);
 
@@ -147,7 +147,7 @@ TreeNode *DemoTreeList::makeTreeFile(const std::string name,
     = new IconPair("icons/document.png", "icons/yellow-folder-open.png",
 		   false);
 
-  TreeNode *node = new TreeNode(name, WText::XHTMLFormatting, labelIcon, 0);
+  TreeNode *node = new TreeNode(name, XHTMLText, labelIcon, 0);
   if (parent)
     parent->addChildNode(node);
 

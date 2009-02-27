@@ -4,16 +4,9 @@ _$_APP_CLASS_$_._p_.updateDone = function(updateId) {
 _$_APP_CLASS_$_._p_.recvCallback = function(request, userData) {
   if (request.readyState == 4) {
     if (request.status) {
-      if (request.status == 200) {
-	_$_APP_CLASS_$_._p_.handleResponse(request.responseText, userData);
-      } else {
-	_$_APP_CLASS_$_._p_.handleResponse("", userData);	
-      }
+      _$_APP_CLASS_$_._p_.handleResponse
+        (request.status == 200 ? request.responseText : "", userData);
     }
-  } else {
-    //debug("Callback readystate: " + requests.readyState);
-    //if (requests.readyState == 3 && requests.responseText)
-    //  debug("Got: " + requests.responseText.length);
   }
 };
 
@@ -40,4 +33,6 @@ _$_APP_CLASS_$_._p_.sendUpdate = function(url, data, userData) {
   xmlHttpReq.onreadystatechange
   = function() { _$_APP_CLASS_$_._p_.recvCallback(xmlHttpReq, userData); };
   xmlHttpReq.send(data);
+
+  return xmlHttpReq;
 };

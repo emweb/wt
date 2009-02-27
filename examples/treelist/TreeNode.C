@@ -23,7 +23,7 @@ std::string TreeNode::imageMin_[] = { "icons/nav-minus-line-middle.gif",
 				       "icons/nav-minus-line-last.gif" };
 
 TreeNode::TreeNode(const std::string labelText,
-		   Wt::WText::Formatting labelFormatting,
+		   Wt::TextFormat labelFormat,
 		   IconPair *labelIcon,
 		   Wt::WContainerWidget *parent)
   : Wt::WCompositeWidget(parent),
@@ -49,7 +49,7 @@ TreeNode::TreeNode(const std::string labelText,
   expandedContent_->hide();
 
   labelText_ = new Wt::WText(labelText);
-  labelText_->setFormatting(labelFormatting);
+  labelText_->setTextFormat(labelFormat);
   labelText_->setStyleClass("treenodelabel");
   childCountLabel_ = new Wt::WText();
   childCountLabel_->setMargin(7, Wt::Left);

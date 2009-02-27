@@ -8,10 +8,11 @@
 #define UTILS_H_
 
 #include <algorithm>
+#include <cstring>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace Wt {
 

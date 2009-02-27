@@ -38,11 +38,11 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
    // we use WText. WText inherits from WInteractWidget, and thus exposes
    // the click event.
    BackToGameText = new WText(L" Gaming Grounds ", elementAt(2, 0));
-   BackToGameText->decorationStyle().setCursor(WCssDecorationStyle::Pointer);
+   BackToGameText->decorationStyle().setCursor(PointingHandCursor);
    BackToGameText->clicked().connect(SLOT(this, HangmanGame::showGame));
 
    ScoresText = new WText(L" Highscores ", elementAt(2, 0));
-   ScoresText->decorationStyle().setCursor(WCssDecorationStyle::Pointer);
+   ScoresText->decorationStyle().setCursor(PointingHandCursor);
    ScoresText->clicked().connect(SLOT(this, HangmanGame::showHighScores));
    // Center the buttons horizontally.
    elementAt(2, 0)->setContentAlignment(AlignTop | AlignCenter);

@@ -16,9 +16,24 @@ namespace Wt {
  *  \brief A Resource which streams data from a local file
  *
  * To update the resource, either use setFileName() to point it to a
- * new file, or emit the \link WResource::dataChanged dataChanged
- * signal\endlink when only the file contents has changed, but not the
- * filename.
+ * new file, or emit the WResource::dataChanged() signal when only the
+ * file contents has changed, but not the filename.
+ *
+ * The resource makes use of continuations to transmit data piecewise,
+ * without blocking a thread or requiring the entire file to be read
+ * in memory. The size of the buffer can be changed using
+ * setBufferSize().
+ *
+ * Usage examples:
+ * \code
+ * Wt::WFileResource *csvFile = new Wt::WFileResource("text/csv", "/opt/files/afile.csv");
+ * csvFile->suggestFileName("data.csv");
+ * Wt::WAnchor *anchor = new Wt::WAnchor(csvFile, "CSV data");
+ *
+ * Wt::WFileResource *imageFile = new Wt::WFileResource("image/png", "/opt/files/image.png");
+ * imageFile->suggestFileName("data.png");
+ * Wt::WImage *image = new Wt::WAnchor(imageFile, "PNG version");
+ * \endcode
  *
  * \sa WMemoryResource
  */
@@ -28,7 +43,8 @@ public:
   /*! \brief Create a new resource with given mime-type and contents stored
    *         in filename.
    */
-  WFileResource(const std::string& mimeType, const std::string& fileName);
+  WFileResource(const std::string& mimeType, const std::string& fileName,
+		WObject *parent = 0);
 
   /*! \brief Destroy the resource.
    *

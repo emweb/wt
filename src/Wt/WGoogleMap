@@ -23,12 +23,22 @@ namespace Wt
 
 /*! \class WGoogleMap Wt/WGoogleMap Wt/WGoogleMap
  *  \brief A widget that displays a google map.
+ *
+ * This widget uses the online Google Maps server to display a map. It
+ * exposes a part of the google maps API.
+ *
+ * To use the map on a public server you will need to obtain a
+ * key. The widget will look for this key as the configuration
+ * property <tt>"google_api_key"</tt>. If this configuration property
+ * has not been set, it will use a key that is suitable for localhost.
+ *
+ * Contributed by: Richard Ulrich.
  */
 class WGoogleMap : public WCompositeWidget
 {
 public:
-  /* \class Coordinate
-   * \brief A geographical coordinate (latitude/longitude)
+  /*! \class Coordinate
+   *  \brief A geographical coordinate (latitude/longitude)
    */
   class Coordinate
   {
@@ -107,12 +117,14 @@ public:
    */
   void setCenter(const Coordinate& center, int zoom);
 
-  /*! \brief Changes the center point of the map to the given point. If the point is already visible
-   *   in the current map view, change the center in a smooth animation.
+  /*! \brief Change the center point of the map to the given point.
+   *
+   * If the point is already visible in the current map view, change
+   * the center in a smooth animation.
    */
   void panTo(const Coordinate& center);
 
-  /*! \brief Zoom the map to a region defined by a bounding box of lat/lon coordinates.
+  /*! \brief Zoom the map to a region defined by a bounding box.
    */
   void zoomWindow(const std::pair<Coordinate, Coordinate>& bbox);
 
@@ -130,7 +142,8 @@ public:
 
   /*! \brief Stores the current map position and zoom level.
    *
-   * You later restore this position using returnToSavedPosition().
+   * You can later restore this position using
+   * returnToSavedPosition().
    */
   void savePosition();
 
@@ -161,43 +174,62 @@ public:
    */
   void disableDoubleClickZoom();
 
-  /*! \brief Enables the GoogleBar, an integrated search control, to the map. When enabled, this control
-   *  takes the place of the default Powered By Google  logo. Note that this control is not enabled by default.
+  /*! \brief Enables the GoogleBar, an integrated search control, on the map.
+   *
+   * When enabled, this control takes the place of the default Powered
+   * By Google logo.
+   *
+   * This control is initially disabled.
    */
   void enableGoogleBar();
 
-  /*! \brief Disables the GoogleBar integrated search control. When disabled, the default Powered by Google logo
-   *   occupies the position formerly containing this control. Note that this control is already disabled by default.
+  /*! \brief Disables the GoogleBar integrated search control.
+   *
+   * When disabled, the default Powered by Google logo occupies the
+   * position formerly containing this control. Note that this control
+   * is already disabled by default.
    */
   void disableGoogleBar();
 
-  /*! \brief Enables zooming using a mouse's scroll wheel. Note: scroll wheel zoom is disabled by default.
+  /*! \brief Enables zooming using a mouse's scroll wheel.
+   *
+   * Scroll wheel zoom is disabled by default.
    */
   void enableScrollWheelZoom();
 
-  /*! \brief Disables zooming using a mouse's scroll wheel. Note: scroll wheel zoom is disabled by default.
+  /*! \brief Disables zooming using a mouse's scroll wheel.
+   *
+   * Scroll wheel zoom is disabled by default.
    */
   void disableScrollWheelZoom();
 
-  /*! \brief Adds a standard map type control for selecting and switching between supported map types via buttons.
+  /*! \brief Adds a standard map type control.
+   *
+   * The control allows selecting and switching between supported map types
+   * via buttons.
    */
   void addMapTypeControl();
 
-  /*! \brief Adds a "nested" map type control for selecting and switching between supported map types via buttons and nested checkboxes.
+  /*! \brief Adds a "nested" map type control.
+   *
+   * The control allows selecting and switching between supported map types
+   * via buttons and nested checkboxes.
    */
   void addHierarchicalMapTypeControl();
 
-  /*! \brief Adds a drop-down map type control for switching between supported map types.
+  /*! \brief Adds a drop-down map type control.
+   *
+   * The control allows for switching between supported map types.
    */
   void addMenuMapTypeControl();
 
-  /*! \brief Click event.
+  /*! \brief The click event.
    *
    * This event is fired when the user clicks on the map with the mouse.
    */
   JSignal<Coordinate>& clicked() { return clicked_; }
 
-  /*! \brief Double click event.
+  /*! \brief The double click event.
    *
    * This event is fired when a double click is done on the map.
    */

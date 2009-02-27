@@ -380,24 +380,6 @@ public:
    */
   void setSelectionMode(SelectionMode mode);
 
-  /*! \brief Get the current selection unit (<b>deprecated</b>).
-   *
-   * \deprecated Use selectionBehavior() instead.
-   *
-   * \sa setSelectionUnit(), selectionBehavior()
-   */
-  SelectionUnit selectionUnit() const;
-
-  // Oops: should have been SelectionBehaviour !!
-
-  /*! \brief Set the selection unit (<b>deprecated</b>).
-   *
-   * \deprecated Use setSelectionBehavior() instead
-   *
-   * \sa selectionUnit(), setSelectionBehavior()
-   */
-  void setSelectionUnit(SelectionUnit unit);
-
   /*! \brief Set the selection behaviour.
    *
    * The selection behavior defines the unit of selection. The selection

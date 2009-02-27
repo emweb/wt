@@ -43,7 +43,7 @@ public:
 	       Outset   //!< Relief border letting contents come out of the canvas
   };
 
-  /*! \brief Create a border that specifies 'no border'
+  /*! \brief Create a border indicating <i>no border</i>.
    */
   WBorder();
 

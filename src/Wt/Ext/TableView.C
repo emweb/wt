@@ -596,16 +596,6 @@ void TableView::setSelectionBehavior(SelectionBehavior behavior)
   selectionBehavior_ = behavior;
 }
 
-void TableView::setSelectionUnit(SelectionUnit unit)
-{
-  selectionBehavior_ = static_cast<SelectionBehavior>(unit);
-}
-
-SelectionUnit TableView::selectionUnit() const
-{
-  return static_cast<SelectionUnit>(selectionBehavior_);
-}
-
 TableView::ColumnModel::ColumnModel()
   : sortable_(false),
     hideable_(false),

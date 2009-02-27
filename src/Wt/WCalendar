@@ -33,7 +33,7 @@ template <typename T, typename A1> class WSignalMapper;
  *
  * The calendar may be configured to allow selection of single or
  * multiple days, and you may listen for changes in the selection
- * using the selectionChanged() signal.
+ * using the selectionChanged() or selected() signals.
  *
  * Internationalization may be provided by indicating i18n == true in
  * the constructor, and providing the appropriate messages for months
@@ -43,16 +43,26 @@ template <typename T, typename A1> class WSignalMapper;
  * The look can be overridden using the following style class selectors:
  *
  * \code
-TABLE.Wt-cal-table        : The table
+table.Wt-cal-table        : The table
 
-TD.Wt-cal-header          : Header cell (week day)
-TD.Wt-cal-header-weekend  : Header cell (weekend day)
+td.Wt-cal-header          : Header cell (week day)
+td.Wt-cal-header-weekend  : Header cell (weekend day)
 
-TABLE.Wt-cal-table TD     : In-month day cell
-TD.Wt-cal-oom             : Out-of-month day cell
-TD.Wt-cal-sel             : Selected day cell
-TD.Wt-cal-now             : Today day cell
+table.Wt-cal-table TD     : In-month day cell
+td.Wt-cal-oom             : Out-of-month day cell
+td.Wt-cal-sel             : Selected day cell
+td.Wt-cal-now             : Today day cell
 *
+ * \endcode
+ *
+ * Usage example:
+ * \code
+ * Wt::WDate today = Wt::WDate::currentDate();
+ *
+ * Wt::WCalendar *calendar = new Wt::WCalendar(this);
+ * calendar->browseTo(today.addMonths(1));
+ * calendar->select(today.addMonths(1).addDays(3));
+ * calendar->selected().connect(SLOT(this, MyWidget::daySelected));
  * \endcode
  *
  * Here is a snapshot of the default look, taken on 31/08/2007 (shown as
@@ -109,13 +119,13 @@ public:
    */
   void browseTo(const WDate& date);
 
-  /*! \brief Current month displayed
+  /*! \brief Returns the current month displayed
    *
    * Returns the month (1-12) that is currently displayed.
    */
   int currentMonth() const { return currentMonth_; }
 
-  /*! \brief Current year displayed
+  /*! \brief Returns the current year displayed
    *
    * Returns the year that is currently displayed.
    */
@@ -143,20 +153,20 @@ public:
    */
   void select(const std::set<WDate>& dates);
 
-  /*! \brief Get the current selection.
+  /*! \brief Returns the current selection.
    *
    * Returns the set of dates currently selected. In single selection mode,
    * this set contains 0 or 1 dates.
    */
   const std::set<WDate>& selection() const { return selection_; }
 
-  /*! \brief Signal emitted when the user changes the selection.
+  /*! \brief %Signal emitted when the user changes the selection.
    *
    * Emitted after the user has changed the current selection.
    */
   Signal<>& selectionChanged() { return selectionChanged_; }
 
-  /*! \brief Signal emitted when the user has double clicked on a date.
+  /*! \brief %Signal emitted when the user has double clicked on a date.
    *
    * This signal indicates that he user has selected a new date, which 
    * is only available when in single selection mode.

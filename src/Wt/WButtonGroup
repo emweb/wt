@@ -20,8 +20,37 @@ class WRadioButton;
 /*! \class WButtonGroup Wt/WButtonGroup Wt/WButtonGroup
  *  \brief A class for grouping radio buttons logically together.
  *
- * A button group manages a set of \link WRadioButton radio buttons
- * \endlink, making them exclusive of each other.
+ * A button group manages a set of \link WRadioButton radio
+ * buttons\endlink, making them exclusive of each other.
+ *
+ * It is not a widget, but instead provides only a logical
+ * grouping. Radio buttons are aware of the group in which they have
+ * been added, see WRadioButton::group(). When a button is deleted, it
+ * is automatically removed its button group.
+ *
+ * It allows you to associate id's with each button, which you may use
+ * to identify a particular button. The special value of -1 is
+ * reserved to indicate <i>no button</i>.
+ *
+ * Usage example:
+ * \code
+ * enum Vote { Republican = 1, Democrate = 2, NoVote = 10 };
+ *
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget();
+ * Wt::WButtonGroup *group = new Wt::WButtonGroup(this);
+ *
+ * Wt::WRadioButton *button;
+ * button = new Wt::WRadioButton("I voted Republican", w);
+ * group->addButton(button, Republican);
+ * button = new Wt::WRadioButton("I voted Democrat", w);
+ * group->addButton(button, Democrate);
+ * button = new Wt::WRadioButton("I didn't vote.", w);
+ * group->addButton(button, NoVote);
+ *
+ * group->setCheckedButton(group->button(NoVote));
+ * \endcode
+ *
+ * \sa WRadioButton, Ext::RadioButton
  */
 class WT_API WButtonGroup : public WObject
 {
@@ -38,50 +67,115 @@ public:
   ~WButtonGroup();
 
   /*! \brief Add a radio button to the group.
+   *
+   * You can assign an id to the button. If <i>id</i> is -1, then a
+   * unique id will be generated.
+   *
+   * \sa removeButton(WRadioButton *)
    */
-  void addButton(WRadioButton *button);
-	
+  void addButton(WRadioButton *button, int id = -1);
+
+#ifndef WT_TARGET_JAVA
   /*! \brief Add a radio button to the group.
+   *
+   * You can assign an id to the button. If <i>id</i> is -1, then a
+   * unique id will be generated.
+   *
+   * \sa removeButton(Ext::RadioButton *)
    */
-  void addButton(Ext::RadioButton *button);
+  void addButton(Ext::RadioButton *button, int id = -1);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Remove a radio button from the group.
+   *
+   * \sa addButton(WRadioButton *, int)
    */
   void removeButton(WRadioButton *button);
 
   /*! \brief Remove a radio button from the group.
+   *
+   * \sa addButton(Ext::RadioButton *, int)
    */
   void removeButton(Ext::RadioButton *button);
 
-  /*! \brief Sets the currently selected radiobutton
+  /*! \brief Returns the button for the given id.
    *
-   * Pass the index of the radiobutton to select. -1 will unselect
-   * all radiobuttons.
+   * \sa id(), addButton()
    */
-  void setSelectedButtonIndex(int idx);
+  WRadioButton *button(int id) const;
 
-  /*! \brief Returns the index of the selected radiobutton
+  /*! \brief Returns the id for the given button.
    *
-   * If there is no radiobutton selected this function returns -1.
+   * \sa button(), addButton()
    */
-  int selectedButtonIndex() const;
+  int id(WRadioButton *button) const;
 
-  /*! \brief Returns the selected radiobutton
-   *
-   * If there is no radiobutton selected this function returns 0.
+  /*! \brief Returns the buttons in this group.
    */
-  WRadioButton* selectedButton();
+  std::vector<WRadioButton *> buttons() const;
 
-  /*! \brief Returns the number of radiobuttons
-   *
+  /*! \brief Returns the number of radiobuttons in this group.
    */
   int count() const;
 
-private:    
-  std::vector<WRadioButton *> buttons_;
+  /*! \brief Returns the id of the checked button.
+   *
+   * Returns the id of the currently checked button, or -1 if no button
+   * is currently checked.
+   */
+  int checkedId() const;
+
+  /*! \brief Sets the currently checked radiobutton.
+   *
+   * The button <i>button</i> of this group is checked. A value of 0
+   * will uncheck all radiobuttons.
+   *
+   * Initially, no button is checked.
+   *
+   * \sa checkedId(), setCheckedId()
+   */
+  void setCheckedButton(WRadioButton *button);
+
+  /*! \brief Returns the checked radiobutton.
+   *
+   * If there is no radiobutton currently checked this function
+   * returns 0.
+   *
+   * \sa setCheckedButton(), checkedButtonIndex()
+   */
+  WRadioButton* checkedButton() const;
+  WRadioButton* selectedButton() const; // deprecated
+
+  /*! \brief Sets the currently checked radiobutton.
+   *
+   * Sets the <i>idx</i>'th radiobutton checked. A value of -1 will
+   * uncheck all radiobuttons.
+   *
+   * Initially, no button is checked.
+   */
+  void setSelectedButtonIndex(int idx);
+
+  /*! \brief Returns the index of the checked radiobutton.
+   *
+   * The index reflects the order in which the buttons have been added
+   * to the button group. Use checkedId() if you want to know the id
+   * of the button that is currently checked. If there is no
+   * radiobutton selected this function returns -1.
+   *
+   * \sa checkedId()
+   */
+  int selectedButtonIndex() const;
+
+private:
+  struct Button {
+    WRadioButton *button;
+    int           id;
+  };
+
+  std::vector<Button> buttons_;
 
   void uncheckOthers(WRadioButton *button);
-
+  int  generateId() const;
   virtual void setFormData(const FormData& formData);
 
   friend class WRadioButton;

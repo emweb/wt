@@ -34,7 +34,7 @@ IconPair::IconPair(const std::string icon1URI, const std::string icon2URI,
     icon2_->clicked().connect(SLOT(icon2_, Wt::WImage::hide));
     icon2_->clicked().connect(SLOT(icon1_, Wt::WImage::show)); //
 
-    decorationStyle().setCursor(Wt::WCssDecorationStyle::Pointer);
+    decorationStyle().setCursor(Wt::PointingHandCursor);
   }
 } //
 

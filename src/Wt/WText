@@ -47,13 +47,6 @@ namespace Wt {
 class WT_API WText : public WInteractWidget
 {
 public:
-#ifndef WT_DEPRECATE_2_2_0
-  typedef Wt::TextFormat Formatting;
-  static const Wt::TextFormat XHTMLFormatting = XHTMLText;
-  static const Wt::TextFormat XHTMLUnsafeFormatting = XHTMLUnsafeText;
-  static const Wt::TextFormat PlainFormatting = PlainText;
-#endif // WT_DEPRECATE_2_2_0
-
   /*! \brief Construct a text widget with an empty text.
    */
   WText(WContainerWidget *parent = 0);
@@ -91,40 +84,6 @@ public:
    */
   WText(const WString& text, TextFormat textFormat,
 	WContainerWidget *parent = 0);
-
-#ifndef WT_DEPRECATE_2_2_0
-  /*! \brief Construct a text widget with a given text.
-   *
-   * \deprecated Not useful anymore. Let the widget autodetect using
-   *             its heuristics, or call setInline() explicitly
-   *             after construction.
-   *
-   * This is an overloaded constructor provided for convience and
-   * equivalent to:
-   *
-   * \code
-   * WText *t = new WText(text, parent);
-   * t->setInline(inlined)
-   * \endcode
-   *
-   * The format is set to Wt::XHTMLText, unless the <i>text</i> is
-   * literal (not created using WString::tr()) and it could not be
-   * parsed as valid XML. In that case the textFormat is set to
-   * Wt::PlainText.
-   *
-   * The XML parser will silently discard malicious tags and
-   * attributes silently for literal text with Wt::XHTMLText.
-   *
-   * Therefore, if you wish to use Wt::XHTMLText, but cannot be sure
-   * about <i>text</i> being valid XML, you should verify that the
-   * textFormat() is Wt::XHTMLText after construction.
-   *
-   * \note Since 2.1.4, some heuristics are used to see if the text is
-   *       an HTML block-level element, so this constructor is no
-   *       longer as useful.
-   */
-  WText(bool inlined, const WString& text, WContainerWidget *parent = 0);
-#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Returns the text.
    *
@@ -176,20 +135,6 @@ public:
    * \sa setTextFormat()
    */
   TextFormat textFormat() const { return textFormat_; }
-
-#ifndef WT_DEPRECATE_2_2_0
-  /*! \brief Set the formatting (<b>deprecated</b>).
-   *
-   * \deprecated Has been renamed to setTextFormat().
-   */
-  bool setFormatting(TextFormat format);
-
-  /*! \brief Returns the formatting (<b>deprecated</b>).
-   *
-   * \deprecated Has been renamed to textFormat()
-   */
-  TextFormat formatting() const { return textFormat_; }
-#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Configure word wrapping.
    *

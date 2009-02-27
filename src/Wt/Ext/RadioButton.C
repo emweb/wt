@@ -30,9 +30,9 @@ WRadioButton *RadioButton::wtRadioButton() const
 
   }
 
-void WButtonGroup::addButton(Ext::RadioButton *button)
+void WButtonGroup::addButton(Ext::RadioButton *button, int id)
 {
-  addButton(button->wtRadioButton());
+  addButton(button->wtRadioButton(), id);
 }
 
 void WButtonGroup::removeButton(Ext::RadioButton *button)

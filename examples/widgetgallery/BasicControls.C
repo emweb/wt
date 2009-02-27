@@ -199,7 +199,7 @@ WWidget *BasicControls::wTree()
   WTreeNode *node = new WTreeNode("Tree root", folderIcon);
   node->setStyleClass("example-tree");
   tree->setTreeRoot(node);
-  node->label()->setFormatting(WText::PlainFormatting);
+  node->label()->setTextFormat(PlainText);
   node->setImagePack("resources/");
   node->setLoadPolicy(WTreeNode::NextLevelLoading);
   node->addChildNode(new WTreeNode("one"));

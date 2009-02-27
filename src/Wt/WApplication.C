@@ -15,7 +15,6 @@
 #include "Wt/WText"
 
 #include "WtException.h"
-#include "WServerPushResource.h"
 #include "WebSession.h"
 #include "DomElement.h"
 #include "Configuration.h"
@@ -58,7 +57,7 @@ WApplication::WApplication(const WEnvironment& env)
     titleChanged_(false),
     internalPathChanged_(this),
 #ifndef WT_TARGET_JAVA
-    serverPush_(0),
+    serverPush_(false),
     eventSignalPool_(sizeof(EventSignal<void>)),
     shouldTriggerUpdate_(false),
 #endif // WT_TARGET_JAVA
@@ -137,7 +136,8 @@ WApplication::WApplication(const WEnvironment& env)
 		      "width: 0px; height: 0px; border: 0px;");
   if (environment().agentIE())
     styleSheet_.addRule("iframe.Wt-shim",
-			"position: absolute; top: -1; left: -1; z-index: -1;"
+			"position: absolute; top: -1px; left: -1px; "
+			"z-index: -1;"
 			"opacity: 0; filter: alpha(opacity=0);"
 			"border: none; margin: 0; padding: 0;");
   styleSheet_.addRule("button.Wt-wrap",
@@ -238,9 +238,6 @@ WApplication::~WApplication()
   domRoot2_ = 0;
   delete tmp;
 
-#ifndef WT_TARGET_JAVA
-  delete serverPush_;
-#endif // WT_TARGET_JAVA
   delete localizedStrings_;
 
   styleSheet_.clear();
@@ -759,20 +756,14 @@ WLogEntry WApplication::log(const std::string& type) const
 }
 
 #ifndef WT_TARGET_JAVA
-void WApplication::enableUpdates()
+void WApplication::enableUpdates(bool enabled)
 {
-  if (!serverPush_) {
-    serverPush_ = new WServerPushResource(this);
+  if (serverPush_ != enabled) {
+    serverPush_ = enabled;
 
-    require(resourcesUrl() + "orbited.js");
-    doJavaScript("setTimeout(\"Orbited().connect(eval,'none','"
-		 + serverPush_->generateUrl() + "','0');\",1000);");
+    doJavaScript(javaScriptClass_ + "._p_.setServerPush("
+		 + (enabled ? "true" : "false") + ");");
   }
-}
-
-bool WApplication::updatesEnabled() const
-{
-  return serverPush_ != 0;
 }
 
 void WApplication::triggerUpdate()
@@ -781,7 +772,7 @@ void WApplication::triggerUpdate()
     return;
 
   if (serverPush_)
-    serverPush_->triggerUpdate();
+    session_->pushUpdates();
   else
     throw WtException("WApplication::update() called but server-triggered "
 		      "updates not enabled using "

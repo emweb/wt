@@ -69,7 +69,6 @@ namespace Wt {
   class WValidator;
   class WWebWidget;
   class WWidget;
-  typedef class WString WMessage;
 
 #ifndef WT_TARGET_JAVA
 #define WT_USTRING WString
@@ -86,13 +85,15 @@ enum Orientation { Horizontal = 0x1, //!< Horizontal
 };
 W_DECLARE_OPERATORS_FOR_FLAGS(Orientation)
 
-/*! \brief Enumeration that indicates a standard button for a message box.
+/*! \brief Enumeration that indicates a standard button.
  *
  * Multiple buttons may be specified by logically or'ing these values
  * together, e.g.
  * \code
  * Ok | Cancel
  * \endcode
+ *
+ * \sa WMessageBox
  */
 enum StandardButton {
   NoButton = 0x00,  //!< No button
@@ -108,7 +109,9 @@ enum StandardButton {
 };
 W_DECLARE_OPERATORS_FOR_FLAGS(StandardButton)
 
-/*! \brief Enumeration that indiciates a standard icon for a message box.
+/*! \brief Enumeration that indiciates a standard icon.
+ *
+ * \note Not used yet.
  */
 enum Icon {
   NoIcon = 0,       //!< No icon
@@ -119,6 +122,8 @@ enum Icon {
 };
 
 /*! \brief Enumeration that indicates how items may be selected.
+ *
+ * \sa WTreeView::setSelectionMode()
  */
 enum SelectionMode { NoSelection = 0,      //!< No selections
 		     SingleSelection = 1,  //!< Single selection only
@@ -126,37 +131,34 @@ enum SelectionMode { NoSelection = 0,      //!< No selections
 };
 
 /*! \brief Enumeration that indicates what is being selected.
+ *
+ * \sa WTreeView::setSelectionBehavior()
  */
 enum SelectionBehavior { SelectItems = 0,    //!< Select single items 
 			 SelectRows = 1      //!< Select only rows
 			 /*, SelectColumns */
 };
 
-/*! \brief Enumeration that indicates what is the selection unit
- *         (<b>deprecated</b>).
+/*! \brief Enumeration that indicates how to change a selection.
  *
- * \deprecated Use SelectionBehavior instead.
+ * \sa WTreeView::select()
  */
-enum SelectionUnit { CellSelection = 0,    //!< Select inividual cells 
-		     RowSelection = 1      //!< Select whole rows
-};
-
 enum SelectionFlag {
-  Select = 1,
-  Deselect = 2,
-  ToggleSelect = 3,
-  ClearAndSelect = 4
+  Select = 1,          //!< Add to selection
+  Deselect = 2,        //!< Remove from selection
+  ToggleSelect = 3,    //!< Toggle in selection
+  ClearAndSelect = 4   //!< Clear selection and add single item
 };
 
-/*! \brief Enumeration that designates a relative location.
+/*! \brief Enumeration that indicates a relative location.
  *
  * Values of CenterX, CenterY, and CenterXY are only valid for
  * WCssDecorationStyle::setBackgroundImage()
  *
- * \sa setMargin(const WLength& x, WFlags<Side> sides),
-       setOffsets(const WLength& x, WFlags<Side> sides)
- * \sa setFloatSide(Side s),
- *     setClearSides(WFlags<Side> sides)
+ * \sa WWidget::setMargin(const WLength& x, WFlags<Side> sides)
+ * \sa WWidget::setOffsets(const WLength& x, WFlags<Side> sides)
+ * \sa WWidget::setFloatSide(Side s)
+ * \sa WWidget::setClearSides(WFlags<Side> sides)
  * \sa WContainerWidget::setPadding(const WLength& x, WFlags<Side> sides)
  * \sa WCssDecorationStyle::setBackgroundImage()
  */
@@ -312,7 +314,7 @@ enum PositionScheme {
   Fixed
 };
 
-/*! \brief Cursor style
+/*! \brief Enumeration for a cursor style
  *
  * \sa WCssDecorationStyle::setCursor(), WImageArea::setCursor()
  */
@@ -395,7 +397,9 @@ enum WBrushStyle {
 };
 
 /*! \brief Enumeration that specifies where the target of an anchor should
- *         be displayed. 
+ *         be displayed.
+ *
+ * \sa WAnchor::setTarget()
  */
 enum AnchorTarget {
   TargetSelf,      //!< Show Instead of the application
@@ -411,16 +415,9 @@ enum TextFormat {
   XHTMLText,       //!< Format text as XSS-safe XHTML markup'ed text
   XHTMLUnsafeText, //!< Format text as XHTML markup'ed text
   PlainText        //!< Format text as plain text
-#ifndef DOXYGEN_ONLY
-#ifndef WT_DEPRECATE_2_2_0
-  ,XHTMLFormatting = XHTMLText,
-  XHTMLUnsafeFormatting = XHTMLUnsafeText,
-  PlainFormatting = PlainText
-#endif // WT_DEPRECATE_2_2_0
-#endif
 };
 
-/*! \brief Predefined colors
+/*! \brief Enumeration for predefined colors
  *
  * \ingroup style
  */
@@ -481,7 +478,7 @@ enum GlobalColor {
   transparent
 };
 
-/*! \brief Enumeration flags for keyboard modifiers
+/*! \brief Enumeration for keyboard modifiers
  *
  * \sa WMouseEvent::modifiers(), WKeyEvent::modifiers()
  *

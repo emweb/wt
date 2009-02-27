@@ -12,8 +12,9 @@
 
 namespace Wt {
 
-/*! \class WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator
- *  \brief The default loading indicator.
+/*! \class WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator
+ *         Wt/WDefaultLoadingIndicator
+ *  \brief A default loading indicator.
  *
  * The default loading indicator displays the text message <span
  * style="background-color: red; color: white; font-family:

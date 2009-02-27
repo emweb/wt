@@ -51,10 +51,15 @@ namespace {
 
     }
 
-    void flush() {
+    virtual void flush(ResponseState state,
+		       CallbackFunction callback,
+		       void *callbackData) {
       out_->flush();
 
-      WebRequest::flush();
+      if (state == ResponseCallBack)
+	(*callback)(callbackData);
+      else if (state == ResponseDone)
+	delete this;
     }
 
     virtual std::istream& in() { return *in_; }

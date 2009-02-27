@@ -1,3 +1,18 @@
+27-02-2009:
+	* WApplication.C, WebSession.C, Wt.js: finally a robust and simple
+	server-push implementation instead of orbited
+
+	* WCssDecorationStyle, WGlobal, WText, Ext/TableView: remove
+	deprecated enums and methods
+
+	* WButtonGroup: make API more complete
+
+	* WDatePicker: provide default constructor
+
+	* fcgi/FCGIStream.C: make FCGI connector work again in new branch
+
+	* lots of documentation updates
+
 23-01-2009:
 	* examples: misc improvements, update homepage
 

@@ -67,6 +67,7 @@ public:
 
   static void notify(const WEvent& e);
   bool handleRequest(WebRequest& request, WebResponse& response);
+  void pushUpdates();
 
   /*
    * Start a recursive event loop: finishes the request, rendering
@@ -228,6 +229,8 @@ private:
   std::string   bookmarkUrl_, baseUrl_, absoluteBaseUrl_;
   std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
+  WebResponse  *pollResponse_;
+  bool          updatesPending_;
 
 #ifndef WT_TARGET_JAVA
   Time             expire_;

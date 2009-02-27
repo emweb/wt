@@ -15,7 +15,8 @@ namespace Wt {
  *  \brief Class that defines the style for filling areas
  *
  * A brush defines the properties of how areas (the interior of
- * shapes) are filled.
+ * shapes) are filled. A brush is defined using a color and a fill
+ * type (currently only solid fills are supported).
  *
  * \sa WPainter::setBrush(), WPen
  *

@@ -18,10 +18,10 @@ class WButtonGroup;
  *
  * %WRadioButton is an \link WWidget::setInline(bool) inline \endlink widget.
  *
- * Add the radio button to a WButtonGroup to group together different
+ * Use a WButtonGroup to group together radio buttons that reflect
  * options that are mutually exclusive.
  *
- * \sa WAbstractToggleButton
+ * \sa WAbstractToggleButton, WButtonGroup
  */
 class WT_API WRadioButton : public WAbstractToggleButton
 {
@@ -43,7 +43,13 @@ public:
    */
   ~WRadioButton();
 
-  virtual void	      getFormObjects(std::vector<WObject *>& formObjects);
+  /*! \brief Return the button group.
+   *
+   * Returns the button group to which this button belongs.
+   *
+   * \sa WButtonGroup::addButton(WRadioButton *, int)
+   */
+  WButtonGroup *group() const { return buttonGroup_; }
 
 private:
   WButtonGroup *buttonGroup_;
@@ -52,8 +58,9 @@ private:
   friend class WButtonGroup;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
+  virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
+  virtual void getFormObjects(std::vector<WObject *>& formObjects);
 
   virtual void setFormData(const FormData& formData);
 };

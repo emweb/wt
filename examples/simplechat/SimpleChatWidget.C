@@ -60,7 +60,7 @@ void SimpleChatWidget::letLogin()
   userNameEdit_->enterPressed().connect(SLOT(this, SimpleChatWidget::login));
 
   vLayout->addWidget(statusMsg_ = new WText());
-  statusMsg_->setFormatting(WText::PlainFormatting);
+  statusMsg_->setTextFormat(PlainText);
 }
 
 void SimpleChatWidget::login()
@@ -142,7 +142,7 @@ bool SimpleChatWidget::startChat(const WString& user)
     WPushButton *b;
 
     // Add button to horizontal layout with stretch = 0
-    hLayout->addWidget(b = new WPushButton("Logout", this));
+    hLayout->addWidget(b = new WPushButton("Logout"));
 
     // Add stretching spacer to horizontal layout
     hLayout->addStretch(1);
@@ -168,10 +168,9 @@ bool SimpleChatWidget::startChat(const WString& user)
 
     b->clicked().connect(SLOT(this, SimpleChatWidget::logout));
 
-    WText *msg
-      = new WText(false,
-		  "<span class='chat-info'>You are joining the conversation as "
-		  + user_ + "</span>", messages_);
+    WText *msg = new WText
+      ("<div><span class='chat-info'>You are joining the conversation as "
+       + user_ + "</span></div>", messages_);
     msg->setStyleClass("chat-msg");
 
     updateUsers();
@@ -204,12 +203,12 @@ void SimpleChatWidget::updateUsers()
   for (SimpleChatServer::UserSet::iterator i = users.begin();
        i != users.end(); ++i) {
     if (*i == user_)
-      usersStr += "<span class='chat-self'>" + *i + "</span><br />";
+      usersStr += "<div><span class='chat-self'>" + *i + "</span></div>";
     else
-      usersStr += *i + "<br />";
+      usersStr += "<div>" + *i + "</div>";
   }
 
-  userList_->addWidget(new WText(false, usersStr));
+  userList_->addWidget(new WText(usersStr));
 }
 
 void SimpleChatWidget::processChatEvent(const ChatEvent& event)
@@ -225,7 +224,8 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
 
   WApplication::UpdateLock lock = app_->getUpdateLock();
 
-  WText *w = new WText(false, event.formattedHTML(user_), messages_);
+  WText *w = new WText(event.formattedHTML(user_), messages_);
+  w->setInline(false);
   w->setStyleClass("chat-msg");
 
   /* no more than 100 messages back-log */

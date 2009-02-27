@@ -60,7 +60,9 @@ public:
 /*! \class WMouseEvent Wt/WEvent Wt/WEvent
  *  \brief A class providing details for a mouse event.
  *
- * \sa WInteractWidget::clicked
+ * \sa WInteractWidget::clicked(), WInteractWidget::doubleClicked(),
+ *     WInteractWidget::mouseWentDown(), WInteractWidget::mouseWentUp(),
+ *     WInteractWidget::mouseWentOver(), WInteractWidget::mouseMoved()
  *
  * \ingroup signalslot
  */
@@ -91,7 +93,7 @@ public:
       : x(x_), y(y_) { }
   };
 
-  /*! \brief Get the button.
+  /*! \brief Returns the button.
    */
   Button button() const { return jsEvent_.right ? RightButton : LeftButton; }
 
@@ -102,12 +104,12 @@ public:
    */
   WFlags<KeyboardModifier> modifiers() const { return jsEvent_.modifiers; }
 
-  /*! \brief Get the mouse position relative to the document.
+  /*! \brief Returns the mouse position relative to the document.
    */
   Coordinates document() const
   { return Coordinates(jsEvent_.documentX, jsEvent_.documentY); }
 
-  /*! \brief Get the mouse position relative to the window.
+  /*! \brief Returns the mouse position relative to the window.
    *
    * This differs from documentX() only through scrolling
    * through the document.
@@ -115,19 +117,19 @@ public:
   Coordinates window() const
   { return Coordinates(jsEvent_.clientX, jsEvent_.clientY); }
 
-  /*! \brief Get the mouse position relative to the screen.
+  /*! \brief Returns the mouse position relative to the screen.
    */
   Coordinates screen() const
   { return Coordinates(jsEvent_.screenX, jsEvent_.screenY); }
 
-  /*! \brief Get the mouse position relative to the widget.
+  /*! \brief Returns the mouse position relative to the widget.
    */
   Coordinates widget() const
   { return Coordinates(jsEvent_.widgetX, jsEvent_.widgetY); }
 
-  /*! \brief Get the distance over which the mouse has been dragged.
+  /*! \brief Returns the distance over which the mouse has been dragged.
    *
-   * This is only defined for a mouseWentUp event.
+   * This is only defined for a WInteractWidget::mouseWentUp() event.
    */
   Coordinates dragDelta() const
   { return Coordinates(jsEvent_.dragDX, jsEvent_.dragDY); }
@@ -174,8 +176,9 @@ protected:
 /*! \class WKeyEvent Wt/WEvent Wt/WEvent
  *  \brief A class providing details for a keyboard event.
  *
- * A key event is associated with the WInteractWidget::keyWentDown,
- * WInteractWidget::keyWentUp and WInteractWidget::keyPressed signals.
+ * A key event is associated with the WInteractWidget::keyWentDown(),
+ * WInteractWidget::keyWentUp() and WInteractWidget::keyPressed()
+ * signals.
  *
  * \ingroup signalslot
  */
@@ -329,7 +332,7 @@ private:
 /*! \class WScrollEvent Wt/WEvent Wt/WEvent
  *  \brief A class providing details for a scroll event.
  *
- * \sa WContainerWidget::scrolled
+ * \sa WContainerWidget::scrolled()
  *
  * \ingroup signalslot
  */

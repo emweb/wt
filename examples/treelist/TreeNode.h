@@ -66,7 +66,7 @@ public:
    * any of the children nodes.
    */
   TreeNode(const std::string labelText,
-	   Wt::WText::Formatting labelFormatting,
+	   Wt::TextFormat labelFormat,
 	   IconPair *labelIcon, Wt::WContainerWidget *parent = 0);
 
   /*! \brief Add a child node.

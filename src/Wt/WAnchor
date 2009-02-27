@@ -20,14 +20,36 @@ class WImage;
  *
  * %WAnchor is an \link WWidget::setInline(bool) inline \endlink widget.
  *
- * Use an anchor to link to an internal path or another web page,
- * document or resource. The anchor may contain text, image, or any
- * other widget (since it inherits from WContainerWidget). A click
- * will activate the target link. If you do not want the application
- * to terminate when the user follows the anchor, you must
+ * Use an anchor to link to another web page, document, internal
+ * application path or a resource. The anchor may contain a label
+ * text, an image, or any other widget (as it inherits from
+ * WContainerWidget). If you do not want the application to terminate
+ * when the user follows the anchor, you must use
  * setTarget(TargetNewWindow). Even for non-HTML documents, this may
- * be important since pending AJAX requests will be cancelled even if
- * documents are not served within the browser window.
+ * be important since pending AJAX requests are cancelled even if
+ * documents are not served within the browser window in certain
+ * browsers.
+ *
+ * Usage example:
+ * \code
+ * WAnchor *a;
+ *
+ * // Create an anchor that references a URL
+ * a = new WAnchor("http://www.webtoolkit.eu/", "Wt web toolkit", this);
+ *
+ * // Create an anchor that references an internal path
+ * a = new WAnchor(this);
+ * a->setRefInternalPath("/docs/" + myDocName());
+ * //   and listen to the corresponding change in internal path
+ * WApplication::instance()->internalPathChanged().connect(SLOT(this, DocsListWidget::onInternalPathChange));
+ *
+ * // Create an anchor that references a resource
+ * WResource *r = new PdfResource(this); // serializes to a PDF file.
+ * a = new WAnchor(r, "PDF version", this);
+ * a->setTarget(TargetNewWindow);
+ * \endcode
+ *
+ * The widget corresponds to the HTML <tt>&lt;a&gt;</tt> tag.
  *
  * \note If you set a text or image using one of the API methods like
  * setText() or setImage() or a constructor, you should not attempt to
@@ -102,20 +124,19 @@ public:
    * Sets the anchor to point to the internal path <i>path</i>. When
    * the anchor is activated, the internal path is set to <i>path</i>,
    * and the WApplication::internalPathChanged() signal is
-   * emitted. The path change is handled within the current session.
+   * emitted.
    *
    * This is the easiest way to let the application participate in
    * browser history, and generate URLs that are bookmarkable and search
    * engine friendly.
    *
-   * Internally, this method binds sets the destination URL using:
-   * \code
-   * setRef(wApp->bookmarkUrl(path))
-   * \endcode
+   * Internally, this method sets the destination URL using: \code
+   * setRef(WApplication::instance()->bookmarkUrl(path)) \endcode
+   *
    * The clicked() signal is connected to a slot that changes the internal
-   * path using
+   * path by calling
    * \code
-   * wApp->setInternalPath(ref(), true);
+   * WApplication::instance()->setInternalPath(ref(), true);
    * \endcode
    *
    * \sa setRef(), setResource()

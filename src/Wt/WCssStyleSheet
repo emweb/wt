@@ -26,10 +26,10 @@ class WCssTemplateWidget;
  * A rule presents CSS style properties that are applied to a selected
  * set of elements.
  *
- * Use WCssTemplateRule if you would like to use a template widget for
- * specifying (and updating) the style through the WWidget API, or
- * WCssTextRule if you want to specify the CSS text declarations
- * directly.
+ * Use WCssTemplateRule if you would like to use a widget as a
+ * template for specifying (<i>and</i> updating) a style rule, using
+ * the widgets style properties, or WCssTextRule if you wish to
+ * directly specify the CSS declarations.
  *
  * \sa WCssStyleSheet
  *
@@ -51,9 +51,6 @@ public:
   WCssStyleSheet *sheet() const { return sheet_; }
 
   /*! \brief Indicate that the rule has changed and needs updating
-   *
-   * This will result in updateDomElement() to be called, to update the
-   * stylesheet rule.
    */
   void modified();
 
@@ -85,7 +82,16 @@ private:
  * widget, these changes are reflected on the CSS rule and thus all
  * widgets that have this CSS rule.
  *
- * \sa WCssStyleSheet
+ * Usage example:
+ * \code
+ * Wt::WCssTemplateRule *styleRule = new Wt::WCssTemplateRule("#" + formName() + " .item");
+ * Wt::WApplication::instance()->styleSheet().addRule(styleRule);
+ *
+ * styleRule->templateWidget()->resize(100, WLength());
+ * styleRule->templateWidget()->decorationStyle().setCursor(PointingHandCursor);
+ * \endcode
+ * 
+ * \sa Wt::WCssStyleSheet
  *
  * \ingroup style
  */
@@ -104,7 +110,7 @@ public:
 
   ~WCssTemplateRule();
 
-  /*! \brief Returns the widget used as a template.
+  /*! \brief Returns the widget that is used as a template.
    *
    * Various properties of the widget are reflected in the CSS style:
    * - size and dimensions: WWidget::resize(), WWidget::setMinimumSize(),
@@ -115,6 +121,9 @@ public:
    * - margins: WWidget::setMargin()
    * - line height: WWidget::setLineHeight()
    * - all decoration style properties: WWidget::decorationStyle()
+   *
+   * When modifying one of these properties of the returned widget, the
+   * rule will be updated accordingly.
    */
   WWidget *templateWidget();
 
@@ -135,6 +144,12 @@ private:
 /*! \class WCssTextRule Wt/WCssStyleSheet Wt/WCssStyleSheet
  *  \brief A CSS rule specified directly using CSS declarations
  *
+ * Usage example:
+ * \code
+ * Wt::WCssTextRule *styleRule = new Wt::WCssTextRule(".MyWidget .item", "width: 100px; cursor: pointer;");
+ * Wt::WApplication::instance()->styleSheet().addRule(styleRule);
+ * \endcode
+ *
  * \sa WCssStyleSheet
  *
  * \ingroup style
@@ -154,6 +169,11 @@ private:
 
 /*! \class WCssStyleSheet Wt/WCssStyleSheet Wt/WCssStyleSheet
  *  \brief A CSS style sheet.
+ *
+ * Usage example:
+ * \code
+ * Wt::WApplication::instance()->styleSheet().addRule(".MyWidget .item", "width: 100px; cursor: pointer;");
+ * \endcode
  *
  * \sa WApplication::styleSheet()
  *

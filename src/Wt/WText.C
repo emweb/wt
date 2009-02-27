@@ -29,19 +29,6 @@ WText::WText(const WString& text, WContainerWidget *parent)
   setText(text);
 }
 
-#ifndef WT_DEPRECATE_2_2_0
-WText::WText(bool inlined, const WString& text, WContainerWidget *parent)
-  : WInteractWidget(parent),
-    textFormat_(XHTMLText),
-    wordWrap_(true),
-    textChanged_(false),
-    wordWrapChanged_(false)
-{
-  setText(text);
-  setInline(inlined);
-}
-#endif // WT_DEPRECATE_2_2_0
-
 WText::WText(const WString& text, TextFormat format, WContainerWidget *parent)
   : WInteractWidget(parent),
     textFormat_(format),
@@ -130,13 +117,6 @@ bool WText::setTextFormat(TextFormat textFormat)
   } else
     return true;
 }
-
-#ifndef WT_DEPRECATE_2_2_0
-bool WText::setFormatting(TextFormat formatting)
-{
-  return setTextFormat(formatting);
-}
-#endif // WT_DEPRECATE_2_2_0
 
 bool WText::checkWellFormed()
 {

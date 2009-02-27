@@ -761,7 +761,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	element.setProperty(PropertyStyleZIndex,
 			    boost::lexical_cast<std::string>(zIndex()));
 	WApplication *app = WApplication::instance();
-	if (app->environment().agentIE6()) {
+	if (all && app->environment().agentIE6()) {
 	  DomElement *i = DomElement::createNew(DomElement_IFRAME);
 	  i->setId("sh" + id());
 	  i->setAttribute("class", "Wt-shim");

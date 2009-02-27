@@ -13,13 +13,23 @@
 
 namespace Wt {
 
-/*! \brief A validator for date strings.
+/*! \class WDateValidator Wt/WDateValidator Wt/WDateValidator
+ *  \brief A validator for date input.
  *
  * This validator accepts input in the given date format, and
  * optionally checks if the date is within a given range.
  *
  * The format string used for validating user input are the same as
  * those used by WDate::fromString(const WString&, const WString&).
+ *
+ * Usage example:
+ * \code
+ * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
+ * Wt::WDateValidator *validator = new Wt::WDateValidator();
+ * validator->setFormat("dd-MM-yyyy");
+ * lineEdit->setValidator(validator);
+ * lineEdit->setText("01-03-2008");
+ * \endcode
  */
 class WT_API WDateValidator : public WValidator
 {

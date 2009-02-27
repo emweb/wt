@@ -17,52 +17,104 @@ WButtonGroup::WButtonGroup(WObject* parent)
 WButtonGroup::~WButtonGroup()
 {
   for (unsigned i = 0; i < buttons_.size(); ++i) {
-    buttons_[i]->setGroup(0);
+    buttons_[i].button->setGroup(0);
   }
 }
 
-void WButtonGroup::addButton(WRadioButton *button)
+void WButtonGroup::addButton(WRadioButton *button, int id)
 {
-  buttons_.push_back(button);
+  Button b;
+  b.button = button;
+  b.id = id != -1 ? id : generateId();
+  buttons_.push_back(b);
+
   button->setGroup(this);
 }
 
 void WButtonGroup::removeButton(WRadioButton *button)
 {
-  Utils::erase(buttons_, button);
-  button->setGroup(0);
+  for (unsigned i = 0; i < buttons_.size(); ++i)
+    if (buttons_[i].button == button) {
+      buttons_.erase(buttons_.begin() + i);
+      button->setGroup(0);
+      return;
+    }
 }
 
-void WButtonGroup::uncheckOthers(WRadioButton *button)
+WRadioButton *WButtonGroup::button(int id) const
 {
   for (unsigned i = 0; i < buttons_.size(); ++i)
-    if (buttons_[i] != button)
-      buttons_[i]->checked_ = false;
+    if (buttons_[i].id == id)
+      return buttons_[i].button;
+
+  return 0;
+}
+
+int WButtonGroup::id(WRadioButton *button) const
+{
+  for (unsigned i = 0; i < buttons_.size(); ++i)
+    if (buttons_[i].button == button)
+      return buttons_[i].id;
+
+  return -1;
+}
+
+std::vector<WRadioButton *> WButtonGroup::buttons() const
+{
+  std::vector<WRadioButton *> buttons;
+
+  for (unsigned i = 0; i < buttons_.size(); ++i)
+    buttons.push_back(buttons_[i].button);
+
+  return buttons;
+}
+
+int WButtonGroup::count() const
+{
+  return buttons_.size();
+}
+
+int WButtonGroup::checkedId() const
+{
+  int idx = selectedButtonIndex();
+
+  return idx == -1 ? -1 : buttons_[idx].id;
+}
+
+void WButtonGroup::setCheckedButton(WRadioButton *button)
+{
+  for (unsigned i = 0; i < buttons_.size(); ++i) {
+    WRadioButton *b = buttons_[i].button;
+    if (b == button && !button->isChecked())
+      button->setChecked(true);
+    else if (b != button && button->isChecked())
+      button->setChecked(false);
+  }
+}
+
+WRadioButton *WButtonGroup::checkedButton() const
+{
+  int idx = selectedButtonIndex();
+
+  return idx != -1 ? buttons_[idx].button : 0;
 }
 
 void WButtonGroup::setSelectedButtonIndex(int idx)
 {
-  for (unsigned i = 0; i < buttons_.size(); ++i)
-    if (((int)i == idx) && !buttons_[i]->isChecked())
-      buttons_[i]->setChecked(true);
-    else if (((int)i != idx) && buttons_[i]->isChecked())
-      buttons_[i]->setChecked(false);
+  setCheckedButton(idx != -1 ? buttons_[idx].button : 0);
 }
 
 int WButtonGroup::selectedButtonIndex() const
 {
-  for (unsigned i = 0; i< buttons_.size(); ++i)
-    if (buttons_[i]->checked_)
+  for (unsigned i = 0; i < buttons_.size(); ++i)
+    if (buttons_[i].button->checked_)
       return i;
   return -1;
 }
 
-WRadioButton* WButtonGroup::selectedButton()
+WRadioButton* WButtonGroup::selectedButton() const
 {
-  for (unsigned int i = 0; i< buttons_.size(); ++i)
-    if (buttons_[i]->checked_)
-      return buttons_[i];
-  return 0;
+  return checkedButton();
 }
 
 void WButtonGroup::setFormData(const FormData& formData)
@@ -71,9 +123,9 @@ void WButtonGroup::setFormData(const FormData& formData)
     const std::string& value = formData.values[0];
 
     for (unsigned i = 0; i < buttons_.size(); ++i) {
-      if (value == buttons_[i]->formName()) {
-	uncheckOthers(buttons_[i]);
-	buttons_[i]->checked_ = true;
+      if (value == buttons_[i].button->formName()) {
+	uncheckOthers(buttons_[i].button);
+	buttons_[i].button->checked_ = true;
       }
     }
   } else {
@@ -85,9 +137,21 @@ void WButtonGroup::setFormData(const FormData& formData)
   }
 }
 
-int WButtonGroup::count() const
+void WButtonGroup::uncheckOthers(WRadioButton *button)
 {
-  return buttons_.size();
+  for (unsigned i = 0; i < buttons_.size(); ++i)
+    if (buttons_[i].button != button)
+      buttons_[i].button->checked_ = false;
+}
+
+int WButtonGroup::generateId() const
+{
+  int id = 0;
+
+  for (int i = 0; i < buttons_.size(); ++i)
+    id = std::max(buttons_[i].id + 1, id);
+
+  return id;
 }
 
 }

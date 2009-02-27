@@ -46,15 +46,31 @@ namespace Wt {
  *    overridden using WWidget::setMinimumSize(). You may not define any
  *    padding for the container widget. Instead, use setContentsMargins().
  *
- * \note When set on a WContainerWidget, this layout manager accepts the
+ * Usage example:
+ * \code
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
+ * Wt::WBorderLayout *layout = new Wt::WBorderLayout();
+ * layout->addWidget(new Wt::WText("West-side is best"), Wt::West);
+ * layout->addWidget(new Wt::WText("East-side is best"), Wt::East);
+ * layout->addWidget(contents, Wt::Center);
+ *
+ * // use layout but do not justify vertically
+ * w->setLayout(layout, Wt::AlignTop | Wt::AlignJustify);
+ * \endcode
+ *
+ * \note When used on a WContainerWidget, this layout manager accepts the
  *       following hints (see setLayoutHint()):
  *  <ul>
- *     <li>"table-layout" with possible values "auto" (default) or "fixed".<br/>
+ *     <li>"table-layout" with possible values "auto" (default) or "fixed".<br>
  *       Use "fixed" to prevent nested tables from overflowing the layout.
  *       In that case, you will need to specify a width (in CSS or otherwise)
  *       for at least one item in every column that has no stretch factor.</li>
  *  </ul>
  *
+ * \warning You should specify AlignTop in the alignment flags of
+ *          WContainerWidget::setLayout() if the container does not have a
+ *          height that is constrained somehow. Otherwise the behavior is
+ *          undefined (the parent container will continue to increase in size) 
  */
 class WT_API WBorderLayout : public WLayout
 {

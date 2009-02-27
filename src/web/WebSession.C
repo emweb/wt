@@ -80,6 +80,8 @@ WebSession::WebSession(WebController *controller,
     sessionPath_(sessionPath),
     controller_(controller),
     renderer_(*this),
+    pollResponse_(0),
+    updatesPending_(false),
     env_(this),
     app_(0),
     debug_(false)
@@ -947,10 +949,17 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	const std::string *hashE = request.getParameter("_");
 
 	if (signalE) {
-	  if (*signalE != "res") {
+	  if (pollResponse_) {
+	    pollResponse_->flush();
+	    pollResponse_ = 0;
+	  }
+
+	  if (*signalE != "res" && *signalE != "poll") {
 	    //std::cerr << "signal: " << *signalE << std::endl;
+
 	    /*
 	     * Special signal values:
+	     * 'poll' : long poll
 	     * 'none' : no event, but perhaps a synchronization
 	     * 'load' : load invisible content
 	     * 'res'  : after a resource received data
@@ -973,6 +982,11 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    } catch (...) {
 	      throw WtException("Error during event handling");	    
 	    }
+	  }
+
+	  if (*signalE == "poll" && !updatesPending_) {
+	    pollResponse_ = handler.response();
+	    handler.swapRequest(0, 0);
 	  }
 	} else {
 	  if (hashE)
@@ -1036,6 +1050,17 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
   }
 
   return !handler.sessionDead();
+}
+
+void WebSession::pushUpdates()
+{
+  updatesPending_ = true;
+
+  if (pollResponse_) {
+    renderer_.serveMainWidget(*pollResponse_, WebRenderer::UpdateResponse);
+    pollResponse_->flush();
+    pollResponse_ = 0;
+  }
 }
 
 const std::string *WebSession::getSignal(const WebRequest& request,
@@ -1106,6 +1131,8 @@ void WebSession::render(Handler& handler, WebRenderer::ResponseType type)
 
   renderer_.serveMainWidget(*handler.response(), type);
   setState(WebSession::Loaded, controller_->configuration().sessionTimeout());
+
+  updatesPending_ = false;
 }
 
 void WebSession::propagateFormValues(const WEvent& e)
@@ -1158,13 +1185,8 @@ void WebSession::notifySignal(const WEvent& e)
       if (hashE)
 	app_->changeInternalPath(*hashE);
     } else if (*signalE == "none") {
-#ifndef WT_TARGET_JAVA
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);
-      // not idle timeout timer
-      if (app_->updatesEnabled())
-	app_->triggerUpdate();
-#endif // WT_TARGET_JAVA
     } else {
       if (*signalE != "load" && *signalE != "res") {
 	handler.setEventLoop(true);

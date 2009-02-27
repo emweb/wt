@@ -20,6 +20,15 @@ namespace Wt {
  * The area may be added to a WImage or WPaintedWidget. The circle is
  * specified in pixel coordinates.
  *
+ * Usage example:
+ * \code
+ * Wt::WImage *image = new Wt::WImage("images/events.png", this);
+ * Wt::WCircleArea *area = new Wt::WCircleArea(20, 30, 15);
+ * image->addArea(area);
+ *
+ * area->clicked().connect(SLOT(this, MyWidget::areaClicked));
+ * \endcode
+ *
  * \sa WImage::addArea(), WPaintedWidget::addArea()
  * \sa WRectArea, WPolygonArea
  */

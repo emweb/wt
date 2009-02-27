@@ -32,7 +32,6 @@ class WEvent;
 class WLoadingIndicator;
 class WLogEntry;
 class WResource;
-class WServerPushResource;
 class WText;
 
 namespace Ext {
@@ -205,7 +204,7 @@ public:
    * corresponds to entire browser window. The user interface of your
    * application is represented by the content of this container.
    *
-   * \Note The root() is only defined in normal application mode. For
+   * \note The root() is only defined in normal application mode. For
    * \link WServer::WidgetSet WidgetSet\endlink mode, there is no
    * root() container, and 0 is returned. Instead, use bindWidget() to
    * bind root widgets to existing HTML &lt;div&gt; elements on the
@@ -638,22 +637,18 @@ public:
    * loop (from another thread), and are subsequently propagated by
    * calling triggerUpdate().
    *
-   * <i>This works only if JavaScript is available on the client, and
-   * is not considered a production quality feature (there are some
-   * unwanted side effects that have to do with typical browser
-   * limitations, such as the maximum number of simultaneous open
-   * connections to a single web server).</i>.
+   * <i>This works only if JavaScript is available on the client.</i>.
    *
    * \sa triggerUpdate()
    */
-  void enableUpdates();
+  void enableUpdates(bool enabled = true);
 
   /*! \brief Returns whether server-initiated updates are enabled.
    *
    * True if server-initiated updates were enabled by a previous call to
    * enableUpdates().
    */
-  bool updatesEnabled() const;
+  bool updatesEnabled() const { return serverPush_; }
 
   /*! \brief Propagate server-initiated updates.
    *
@@ -1074,7 +1069,7 @@ private:
   Signal<std::string>    internalPathChanged_;
   bool                   internalPathIsChanged_;
 #ifndef WT_TARGET_JAVA
-  WServerPushResource   *serverPush_;
+  bool                   serverPush_;
   boost::pool<>          eventSignalPool_; // pool for event signals
   bool			 shouldTriggerUpdate_;
 #endif // WT_TARGET_JAVA

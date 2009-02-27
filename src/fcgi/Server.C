@@ -552,7 +552,7 @@ static void doShutdown(const char *signal)
 {
   unlink(socketPath.c_str());
   if (theController) {
-    WebController::conf().log("notice") << "Caught " << signal;
+    theController->configuration().log("notice") << "Caught " << signal;
     theController->forceShutdown();
   }
 

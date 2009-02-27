@@ -81,11 +81,11 @@ textarea.chat-edit {
   padding: 2px;
 }
 
-.chat-users DIV {
+.chat-users div {
   margin: 3px 3px 3px 6px;
 }
 
-.chat-users DIV .chat-self {
+.chat-users div .chat-self {
   font-weight: bold;
 }
 

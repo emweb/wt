@@ -51,6 +51,39 @@ class StdLayoutImpl;
  * the container, and widgets and nested layout managers must be added
  * to the layout manager, instead of to the container directly.
  *
+ * Usage example:
+ * \code
+ *
+ * // Example 1:
+ * // Instantiate a container widget and add some children whose layout is governed based on HTML/CSS rules.
+ * Wt::WContainerWidget *container1 = new Wt::WContainerWidget();
+ * container1->addWidget(new Wt::WText("Some text"));
+ * container1->addWidget(new Wt::WImage("images/img.png"));
+ * Wt::WContainerWidget *child3 = new Wt::WContainerWidget(container1);
+ * 
+ * // Example 2:
+ * // Instantiate a container widget which uses a layout manager
+ * Wt::WContainerWidget *container2 = new Wt::WContainerWidget();
+ * container2->resize(WLength(), 600); // give the container a fixed height.
+ *
+ * Wt::WVBoxLayout *layout = new Wt::WVBoxLayout();
+ * layout->addWidget(new Wt::WText("Some text"));
+ * layout->addWidget(new Wt::WImage("images/img.png"));
+ *
+ * container2->setLayout(layout);      // set the layout to the container.
+ * \endcode
+ *
+ * Depending on its configuration and usage, the widget corresponds to the
+ * following HTML tags:
+ *  - By default, the widget corresponds to a <tt>&lt;div&gt;</tt> tag.
+ *  - When configured with setInline(false), the widget corresponds to a
+ *    <tt>&lt;span&gt;</tt>.
+ *  - When configured with setList(true), the widget corresponds to a
+ *    <tt>&lt;ul&gt;</tt>.
+ *  - When configured with setList(true, true), the widget corresponds to a
+ *    <tt>&lt;ol&gt;</tt>.
+ *  - When inserted into a container widget that isList(), the widget
+ *    corresponds to a <tt>&lt;li&gt;</tt>.
  */
 class WT_API WContainerWidget : public WInteractWidget
 {
@@ -80,10 +113,10 @@ public:
    *
    * The layout manager arranges children in the entire width and
    * height of the container. This is equivalent to \link
-   * setLayout(WLayout*, int) setLayout(<i>layout</i>,
+   * setLayout(WLayout*, WFlags<AlignmentFlag>) setLayout(<i>layout</i>,
    * AlignJustify)\endlink
    *
-   * \sa layout(), setLayout(WLayout *, int)
+   * \sa layout(), setLayout(WLayout *, WFlags<AlignmentFlag>)
    */
   void setLayout(WLayout *layout);  
 
@@ -97,17 +130,21 @@ public:
    * because it is managed by another layout manager, is the root
    * container widget, or has a height set).
    *
-   * In general, <i>alignment</i> is the logical OR of a horizontal and
-   * a vertical flag from \link Wt::AlignmentFlag Wt::AlignmentFlag\endlink
-   * Horizontal alignment options may be AlignLeft, AlignCenter, AlignRight,
-   * or AlignJustify. The only vertical alignment that is supported is
-   * '0' (corresponding to vertical justification to the full height),
-   * or AlignTop. When using a horizontal alingment different from
-   * AlignJustify, and a vertical alignment different from '0', the
-   * widget is sized in that direction to fit the contents. This is
-   * useful when the container does not have a specific size and when
-   * the layout manager does not contain any widgets that wish to
-   * consume all remaining space in that direction.
+   * In general, <i>alignment</i> is the logical OR of a horizontal
+   * and a vertical flag:
+   * - The horizontal alignment option may be one of Wt::AlignLeft,
+   *   Wt::AlignCenter, Wt::AlignRight, or Wt::AlignJustify.
+   * - The vertical alignment option may be '0' (corresponding to vertical
+   *   justification to the full height), or Wt::AlignTop.
+   *
+   * When using a horizontal alingment different from
+   * Wt::AlignJustify, and a vertical alignment different from '0',
+   * the widget is sized in that direction to fit the contents,
+   * instead of the contents being adjusted to the widget size. This
+   * is useful when the container does not have a specific size in
+   * that direction and when the layout manager does not contain any
+   * widgets that wish to consume all remaining space in that
+   * direction.
    *
    * Only a single layout manager may be set. If you want to replace
    * the current layout manager, you have to erase all contents first
@@ -244,17 +281,19 @@ public:
   /*! \brief Render the container as an HTML list.
    *
    * Setting <i>renderList</i> to true will cause the container to be
-   * using an HTML &lt;UL&gt; or &lt;OL&gt; type, depending on the
-   * value of <i>orderedList</i>. This must be set before the initial
-   * render of the container. When set, any contained WContainerWidget
-   * will be rendered as an HTML &lt;LI&gt;. Adding
-   * non-WContainerWidget children results in unspecified behaviour.
+   * using an HTML <tt>&lt;ul&gt;</tt> or <tt>&lt;ol&gt;</tt> type,
+   * depending on the value of <i>orderedList</i>. This must be set
+   * before the initial render of the container. When set, any
+   * contained WContainerWidget will be rendered as an HTML
+   * <tt>&lt;li&gt;</tt>. Adding non-WContainerWidget children results
+   * in unspecified behaviour.
    *
-   * Note that CSS default layout rules for &lt;UL&gt; and &lt;OL&gt;
-   * add margin and padding to the container, which may look odd if
-   * you do not use bullets.
+   * Note that CSS default layout rules for <tt>&lt;ul&gt;</tt> and
+   * <tt>&lt;ol&gt;</tt> add margin and padding to the container,
+   * which may look odd if you do not use bullets.
    *
-   * By default, a container is rendered using a &lt;DIV&gt; element.
+   * By default, a container is rendered using a <tt>&lt;div&gt;</tt>
+   * element.
    *
    * \sa isList(), isOrderedList(), isUnorderedList()
    */

@@ -47,28 +47,22 @@ class WText;
  * application. An attempt to instantiate a second dialog will result
  * in an exception that terminates the session.
  *
- * Example code for displaying a dialog and running it using the exec() method:
- *
+ * Usage example, using the exec() method:
  * \code
- *  // ...
- *
- *  WDialog dialog("Personalia");
+ * Wt::WDialog dialog("Personalia");
  *  
- *  new WText("Enter your name: ", dialog.contents());
- *  WLineEdit edit(dialog.contents());
- *  new WBreak(dialog.contents());
+ * new Wt::WText("Enter your name: ", dialog.contents());
+ * Wt::WLineEdit edit(dialog.contents());
+ * new Wt::WBreak(dialog.contents());
  *  
- *  WPushButton ok("Ok", dialog.contents());
+ * Wt::WPushButton ok("Ok", dialog.contents());
  *
- *  // these events will accept() the Dialog
- *  edit.enterPressed.connect(SLOT(&dialog, WDialog::accept));
- *  ok.clicked.connect(SLOT(&dialog, WDialog::accept));
+ * // these events will accept() the Dialog
+ * edit.enterPressed().connect(SLOT(&dialog, Wt::WDialog::accept));
+ * ok.clicked().connect(SLOT(&dialog, Wt::WDialog::accept));
  *  
- *  if (dialog.exec() == WDialog::Accepted) {
- *    setStatus("Welcome, " + edit.text());
- *  }
- *
- *  // ...
+ * if (dialog.exec() == Wt::WDialog::Accepted)
+ *   setStatus("Welcome, " + edit.text());
  * \endcode
  *
  * This dialog looks like this (using the standard look):

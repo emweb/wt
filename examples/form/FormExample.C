@@ -69,18 +69,18 @@ WApplication *createApplication(const WEnvironment& env)
 {
   WApplication *app = new WApplication(env);
   app->messageResourceBundle().use("form-example");
-  app->setTitle(L"Form example");
+  app->setTitle("Form example");
 
   app->root()->addWidget(new FormExample());
 
   WCssDecorationStyle langStyle;
   langStyle.font().setSize(WFont::Smaller);
-  langStyle.setCursor(WCssDecorationStyle::Pointer);
-  langStyle.setForegroundColor(Wt::blue);
+  langStyle.setCursor(PointingHandCursor);
+  langStyle.setForegroundColor(blue);
   langStyle.setTextDecoration(WCssDecorationStyle::Underline);
   app->styleSheet().addRule(".lang", langStyle);
 
-  langStyle.setCursor(WCssDecorationStyle::Default);
+  langStyle.setCursor(ArrowCursor);
   langStyle.font().setWeight(WFont::Bold);
   app->styleSheet().addRule(".langcurrent", langStyle);
 

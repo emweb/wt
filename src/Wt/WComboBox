@@ -16,27 +16,38 @@ namespace Wt {
 /*! \class WComboBox Wt/WComboBox Wt/WComboBox
  *  \brief A widget that provides a drop-down combo-box control.
  *
- * A combo box provides the user with a choice of options, from which
- * one option may be selected.
+ * A combo box provides the user with a set of options, from which one
+ * option may be selected.
  *
- * WComboBox is a MVC component, and uses a simple string list model
- * for convenience. Use addItem(const WString&) or insertItem(int,
- * const WString&) to populate the combo-box. All the content can be
- * cleared through clear(). The methods manipulate the underlying
- * model.
+ * WComboBox is an MVC component, using a simple string list model by
+ * default. The model may be populated using addItem(const WString&)
+ * or insertItem(int, const WString&) and the contents can be cleared
+ * through clear(). These methods manipulate the underlying model().
  *
  * To use the combo box with a custom model instead of the default
  * WStringListModel, use setModel().
  *
- * To act on a new selection, either connect a slot to the \link
- * WComboBox::changed changed\endlink, \link WComboBox::activated
- * activated<int>\endlink or \link WComboBox::sactivated
- * sactivated<WString>\endlink signals.
+ * To react to selection events, connect to the changed(), activated()
+ * or sactivated() signals.
  *
  * At all times, the current selection index is available through
- * currentIndex() or the text using currentText().
+ * currentIndex() and the current selection text using currentText().
+ *
+ * Usage example:
+ * \code
+ * Wt::WComboBox *combo = new Wt::WComboBox(this);
+ * combo->addItem("Clint Eastwood");
+ * combo->addItem("Mick Jagger");
+ * combo->addItem("Johnny Depp");
+ * combo->addItem("Kate Winslet");
+ *
+ * combo->setCurrentIndex(2); // Johnny Depp
+ * combo->activated().connect(SLOT, MyWidget::comboChanged);
+ * \endcode
  *
  * %WComboBox is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag.
  *
  * \ingroup modelview
  */
@@ -158,7 +169,7 @@ public:
    *
    * The newly selected item is passed as an argument.
    *
-   * \sa sactivated, currentIndex()
+   * \sa sactivated(), currentIndex()
    */
   Signal<int>& activated() { return activated_; }
 
@@ -166,7 +177,7 @@ public:
    *
    * The newly selected text is passed as an argument.
    *
-   * \sa activated, currentText()
+   * \sa activated(), currentText()
    */
   Signal<WString>& sactivated() { return sactivated_; }
 

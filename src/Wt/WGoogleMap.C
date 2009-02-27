@@ -85,7 +85,6 @@ std::istream& operator>> (std::istream& i, WGoogleMap::Coordinate& c)
 {
   double lat, lon;
   i >> lat >> std::ws >> lon;
-  std::cerr << lat << "," << lon << std::endl;
   c.setLatitude(lat);
   c.setLongitude(lon);
 
@@ -117,7 +116,7 @@ WGoogleMap::WGoogleMap(WContainerWidget *parent)
 
   // init the google javascript api
   const string gmuri = "http://www.google.com/jsapi?key=" + googlekey;
-  app->require(gmuri, "GoogleMapsJavaScriptAPI");
+  app->require(gmuri, "google.load");
 
   if (parent)
     parent->addWidget(this);
@@ -165,9 +164,9 @@ void WGoogleMap::render()
       ""  "}"
       """});";
 
-      // additional things
-      copy(additions_.begin(), additions_.end(),
-	   std::ostream_iterator<string>(strm));
+    // additional things
+    copy(additions_.begin(), additions_.end(),
+	 std::ostream_iterator<string>(strm));
 
     strm <<
       "}" // function initialize()

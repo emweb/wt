@@ -9,24 +9,57 @@
 #include "Wt/WDatePicker"
 
 #include "Wt/WApplication"
-#include "Wt/WDateValidator"
-#include "Wt/WInteractWidget"
-#include "Wt/WContainerWidget"
 #include "Wt/WCalendar"
+#include "Wt/WContainerWidget"
+#include "Wt/WDateValidator"
+#include "Wt/WImage"
+#include "Wt/WInteractWidget"
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
 
 namespace Wt {
 
+WDatePicker::WDatePicker(WContainerWidget *parent)
+  : WCompositeWidget(parent)
+{
+  createDefault(false);
+}
+
+WDatePicker::WDatePicker(bool i18n, WContainerWidget *parent)
+  : WCompositeWidget(parent)
+{
+  createDefault(i18n);
+}
+
 WDatePicker::WDatePicker(WInteractWidget *displayWidget,
 			 WLineEdit *forEdit,
 			 bool i18n, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    format_("dd/MM/yyyy"),
-    displayWidget_(displayWidget),
-    forEdit_(forEdit)
+  : WCompositeWidget(parent)
+{
+  create(displayWidget, forEdit, i18n);
+}
+
+
+void WDatePicker::createDefault(bool i18n)
+{
+  WImage *icon = new WImage(WApplication::resourcesUrl() + "calendar_edit.png");
+  WLineEdit *lineEdit = new WLineEdit();
+
+  create(icon, lineEdit, i18n);
+
+  layout_->insertWidget(0, lineEdit);
+
+  lineEdit->setValidator(new WDateValidator(format_, this));
+}
+
+void WDatePicker::create(WInteractWidget *displayWidget,
+			 WLineEdit *forEdit, bool i18n)
 {
   setImplementation(layout_ = new WContainerWidget());
+
+  displayWidget_ = displayWidget;
+  forEdit_ = forEdit;
+  format_ = "dd/MM/yyyy";
 
   const char *CSS_RULES_NAME = "Wt::WDatePicker";
 
@@ -43,7 +76,8 @@ WDatePicker::WDatePicker(WInteractWidget *displayWidget,
 
   calendar_ = new WCalendar(i18n, popup_);
   calendar_->selected().connect(SLOT(popup_, WWidget::hide));
-  calendar_->selectionChanged().connect(SLOT(this, WDatePicker::setFromCalendar));
+  calendar_->selectionChanged()
+    .connect(SLOT(this, WDatePicker::setFromCalendar));
 
   WContainerWidget *buttonContainer = new WContainerWidget(popup_);
   buttonContainer->setContentAlignment(AlignCenter);
@@ -64,6 +98,10 @@ WDatePicker::WDatePicker(WInteractWidget *displayWidget,
 void WDatePicker::setFormat(const WT_USTRING& format)
 {
   format_ = format;
+
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  if (dv)
+    dv->setFormat(format);
 }
 
 void WDatePicker::setFromCalendar()

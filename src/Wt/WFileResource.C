@@ -15,8 +15,8 @@
 namespace Wt {
 
 WFileResource::WFileResource(const std::string& mimeType,
-			     const std::string& fileName)
-  : WResource(),
+			     const std::string& fileName, WObject *parent)
+  : WResource(parent),
     mimeType_(mimeType),
     fileName_(fileName),
     bufferSize_(8192)

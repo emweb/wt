@@ -19,13 +19,18 @@ class WTransform;
  *  \brief A paint device for rendering using the HTML 5 &lt;canvas&gt; element.
  *
  * The %WCanvasPaintDevice is used by WPaintedWidget to render to the
- * browser using the HTML 5 &lt;canvas&gt; element.
+ * browser using the HTML 5 &lt;canvas&gt; element. You usually will
+ * not use the device directly, but rather rely on WPaintedWidget to
+ * use this device when appropriate.
  *
- * <i>Note: the current implementation has only limited support for
- * text, which is rendered in an overlayed DIV. As a consequence text
+ * \note Because of the lack for text support in the current HTML 5
+ * &lt;canvas&gt; specification, there is only limited support for
+ * text. Text is rendered in an overlayed DIV and a consequence text
  * is not subject to rotation and scaling components of the current
- * transformation. This will be fixed in the future (some way, some
- * how!).</i>
+ * transformation (but does take into account translation). This will
+ * be fixed in the future (some way, some how!). On most browser you
+ * can use the WSvgImage or WVmlImage paint devices which do support
+ * text natively.
  *
  * \ingroup painting
  */

@@ -133,7 +133,7 @@ WTreeNode *ExtKitchenApplication::createExampleNode(const WString& label,
     = new WIconPair("icons/document.png", "icons/document.png", false);
 
   WTreeNode *node = new WTreeNode(label, labelIcon, parentNode);
-  node->label()->setFormatting(PlainFormatting);
+  node->label()->setTextFormat(PlainText);
   node->label()->clicked().connect(this, f);
 
   return node;
@@ -150,7 +150,7 @@ void ExtKitchenApplication::menuAndToolBarExample()
 {
   WContainerWidget *ex = new WContainerWidget();
 
-  WText *wt = new WText(false, WString::tr("ex-menu-and-toolbar"), ex);
+  WText *wt = new WText(WString::tr("ex-menu-and-toolbar"), ex);
   wt->setMargin(5, Bottom);
 
   // Create a menu with some items
@@ -211,7 +211,7 @@ void ExtKitchenApplication::formWidgetsExample()
 {
   WContainerWidget *ex = new WContainerWidget();
 
-  WText *wt = new WText(false, WString::tr("ex-form-widgets"), ex);
+  WText *wt = new WText( WString::tr("ex-form-widgets"), ex);
   wt->setMargin(5, Bottom);
 
   WTable *table = new WTable(ex);
@@ -300,7 +300,7 @@ void ExtKitchenApplication::tableViewExample()
 {
   WContainerWidget *ex = new WContainerWidget();
 
-  WText *wt = new WText(false, WString::tr("ex-table-view"), ex);
+  WText *wt = new WText(WString::tr("ex-table-view"), ex);
   wt->setMargin(5, Bottom);
 
   /*
@@ -344,7 +344,7 @@ void ExtKitchenApplication::tableViewExample()
    * A second editable TableView for the same model inside a tab
    * widget.
    */
-  wt = new WText(false, WString::tr("ex-table-view2"), ex);
+  wt = new WText(WString::tr("ex-table-view2"), ex);
   wt->setMargin(5, Bottom);
 
   Ext::TabWidget *tb = new Ext::TabWidget(ex);
@@ -470,7 +470,7 @@ void ExtKitchenApplication::dialogExample()
   vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->setSpacing(3);
 
-  vLayout->addWidget(new WText(false, WString::tr("ex-dialogs")));
+  vLayout->addWidget(new WText(WString::tr("ex-dialogs")));
 
   Ext::Button *button;
 
@@ -658,7 +658,7 @@ void ExtKitchenApplication::tabWidgetExample()
 {
   WContainerWidget *ex = new WContainerWidget();
 
-  WText *wt = new WText(false, WString::tr("ex-tabwidget"), ex);
+  WText *wt = new WText(WString::tr("ex-tabwidget"), ex);
   wt->setMargin(5, Bottom);
 
   tb = new Ext::TabWidget(ex);
