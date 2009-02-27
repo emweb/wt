@@ -294,8 +294,7 @@ communication between browser and server.</p>
   </message>
   <message id="home.examples.hello">
 <div>
-<br />
-<h4>Hello world!</h4>
+<h4 class="example">Hello world!</h4>
 
 <p>The most ubiquitous of all examples:
 <a href="/wt/examples/hello/hello.wt" target="_blank">Hello world</a>.</p>
@@ -329,8 +328,7 @@ Venkman.</p>
   </message>
   <message id="home.examples.wt">
 <div>
-<br />
-<h4>Wt homepage</h4>
+<h4 class="example">Wt homepage</h4>
 <p>We eat our own dog food: this website itself is a Wt application. </p>
 
 <p>
@@ -395,8 +393,7 @@ Venkman.</p>
   </message>
   <message id="home.examples.treeview">
 <div>
-<br />
-<h4>Treeview</h4>
+<h4 class="example">Treeview</h4>
 <p>
   <a href="/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" target="_blank">
   This example</a> demonstrates the following features:
@@ -445,8 +442,7 @@ Venkman.</p>
   </message>
   <message id="home.examples.chart">
 <div>
-<br />
-<h4>Charts example</h4>
+<h4 class="example">Charts example</h4>
 
 <p><a href="/wt/examples/charts/charts.wt" target="_blank">This
 example</a> demonstrates the
@@ -483,8 +479,7 @@ browser and server.</p>
   </message>
   <message id="home.examples.git">
 <div>
-<br />
-<h4>Git explorer</h4>
+<h4 class="example">Git explorer</h4>
 <p>
   <a href="/wt/examples/gitmodel/gitview.wt" target="_blank">
   This example</a> shows how to implement a custom model for Wt's
@@ -509,8 +504,7 @@ browser and server.</p>
 
   <message id="home.examples.style">
 <div>
-<br />
-<h4>Style example</h4>
+<h4 class="example">Style example</h4>
 
 <p>
   HTML/CSS is especially convenient for adding style to your web page or
@@ -558,8 +552,7 @@ browser and server.</p>
   </message>
   <message id="home.examples.composer">
 <div>
-<br />
-<h4>Mail composer</h4>
+<h4 class="example">Mail composer</h4>
 
 <p>
   <a href="/wt/examples/composer/composer.wt" target="_blank">This
@@ -618,8 +611,7 @@ browser and server.</p>
   </message>
   <message id="home.examples.dragdrop">
 <div>
-<br />
-<h4>Drag &amp; Drop</h4>
+<h4 class="example">Drag &amp; Drop</h4>
 
 <p>
   <a href="/wt/examples/dragdrop/dragdrop.wt" target="_blank">This example</a>
@@ -659,8 +651,7 @@ browser and server.</p>
   </message>
   <message id="home.examples.chat">
 <div>
-<br />
-<h4>Simple Chat</h4>
+<h4 class="example">Simple Chat</h4>
 
 <p>
   <a href="http://www.webtoolkit.eu:1410/simplechat.wt" target="_blank">
@@ -694,8 +685,7 @@ browser and server.</p>
   </message>
   <message id="home.examples.fileexplorer">
 <div>
-<br />
-<h4>File explorer</h4>
+<h4 class="example">File explorer</h4>
 
 <p>
   You can <a href="/wt/examples/filetreetable/filetreetable.wt"
@@ -732,8 +722,7 @@ browser and server.</p>
   </message>
   <message id="home.examples.calendar">
 <div>
-<br />
-<h4>Calendar</h4>
+<h4 class="example">Calendar</h4>
 
 <p>
   An example of a self-contained composite widget, is
@@ -766,8 +755,7 @@ browser and server.</p>
 
   <message id="home.examples.widgetgallery">
 <div>
-<br />
-<h4>Widget gallery</h4>
+<h4 class="example">Widget gallery</h4>
 
 <p>
  <a href="/widgets" target="_blank">This example</a> demonstrates

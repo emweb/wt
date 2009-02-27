@@ -145,9 +145,6 @@ public:
        * We have JavaScript: We can use layout managers so everything will
        * always fit nicely in the window.
        */
-      if (!environment().agentWebKit())
-	sourceView_->resize(WLength(100, WLength::Percentage), WLength());
-
       WVBoxLayout *topLayout = new WVBoxLayout();
       topLayout->addLayout(grid, 0, AlignTop | AlignLeft);
 

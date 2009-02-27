@@ -55,6 +55,10 @@ h4 {
 	color: #528B12;
 	display: block;
 	}
+
+h4.example {
+	border-top: 0;
+	}
 	
 h2 {
 	background:#70BD1A url(main_page_banner_small.jpg) no-repeat left top;
