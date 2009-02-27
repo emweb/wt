@@ -1,3 +1,40 @@
+27-02-2009:
+	* WMenu.C, WTabWidget.C: simplify CSS (better IE workaround)
+
+24-02-2009:
+	* WOverlayLoadingIndicator.C: fixes for IE8 and opera
+
+23-02-2009:
+	* WAbstractItemModel.C, Wt.js: fix IE date propagation problem
+
+	* WLineEdit.C, WTextArea.C: do not set style classes when no validator
+	is configured
+
+	* WSocketNotifier.C: fixes for boost >= 1.36 (does not work yet
+	for win32)
+
+02-02-2009:
+	* fix konqueror show stopper bug
+
+28-01-2009:
+	* fix bug causing mouseup being called twice at end of drag (for
+	example confused mandlebrot example)
+
+	* WApplication.C: found cause for long standing IE6 mystery 19px
+	offset
+
+	* WDate.C: require 2 digits for 'dd' or 'MM' format entries
+
+	* WFormWidget.C: auto-validate when contents changes
+
+	* WebRenderer.C, Wt.js: fix several widgetset mode problems for
+	IE.
+
+	* Wt.js: do not block when getting an AJAX error
+
+26-01-2009:
+	* 2.2.3 released.
+
 23-01-2009:
 	* examples: misc improvements, update homepage
 
