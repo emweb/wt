@@ -551,6 +551,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    ->createDomElement(itemFitWidth, itemFitHeight,
 			       additionalVerticalPadding, app);
 
+	  if (!hAlign)
+	    hAlign = AlignJustify;
+
 	  switch (hAlign) {
 	  case AlignCenter: {
 	    DomElement *itable = DomElement::createNew(DomElement_TABLE);
@@ -574,6 +577,13 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    break;
 	  case AlignLeft:
 	    c->setProperty(PropertyStyleFloat, "left");
+	    break;
+	  case AlignJustify:
+	    if (c->getProperty(PropertyStyleWidth).empty()
+		&& useFixedLayout_
+		&& !app->environment().agentWebKit()
+		&& !c->isDefaultInline())
+	      c->setProperty(PropertyStyleWidth, "100%");
 	    break;
 	  default:
 	    break;

@@ -61,6 +61,7 @@ WTabWidget::WTabWidget(WContainerWidget *parent)
     currentChanged(this)
 {
   setImplementation(layout_ = new WContainerWidget());
+  layout_->setOverflow(WContainerWidget::OverflowAuto);
 
   const char *CSS_RULES_NAME = "Wt::WTabWidget";
 
@@ -73,7 +74,7 @@ WTabWidget::WTabWidget(WContainerWidget *parent)
 			      + resourcesURL + "tab_b.gif) "
 			      "repeat-x scroll center bottom;"
 			      "margin-bottom:4px;"
-			      "float:left;"
+			      "zoom: 1;"
 			      "width:100%", CSS_RULES_NAME);
     app->styleSheet().addRule(".Wt-tabs li",
 			      "display: inline;");
@@ -106,7 +107,6 @@ WTabWidget::WTabWidget(WContainerWidget *parent)
   }
 
   contents_ = new WStackedWidget();
-  contents_->setAttributeValue("style", "clear:both;");
   menu_ = new WMenu(contents_, Horizontal);
   menu_->setRenderAsList(true);
 

@@ -38,7 +38,6 @@ void WMenu::setRenderAsList(bool enable)
   if (enable) {
     WContainerWidget *c = new WContainerWidget();
     c->setOverflow(WContainerWidget::OverflowAuto);
-    c->setPositionScheme(Relative);
     c->setList(true);
 
     setImplementation(impl_ = c);
