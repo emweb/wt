@@ -64,7 +64,7 @@ class StdLayoutImpl;
  * // Example 2:
  * // Instantiate a container widget which uses a layout manager
  * Wt::WContainerWidget *container2 = new Wt::WContainerWidget();
- * container2->resize(WLength(), 600); // give the container a fixed height.
+ * container2->resize(WLength::Auto, 600); // give the container a fixed height.
  *
  * Wt::WVBoxLayout *layout = new Wt::WVBoxLayout();
  * layout->addWidget(new Wt::WText("Some text"));
@@ -76,7 +76,7 @@ class StdLayoutImpl;
  * Depending on its configuration and usage, the widget corresponds to the
  * following HTML tags:
  *  - By default, the widget corresponds to a <tt>&lt;div&gt;</tt> tag.
- *  - When configured with setInline(false), the widget corresponds to a
+ *  - When configured with setInline(true), the widget corresponds to a
  *    <tt>&lt;span&gt;</tt>.
  *  - When configured with setList(true), the widget corresponds to a
  *    <tt>&lt;ul&gt;</tt>.

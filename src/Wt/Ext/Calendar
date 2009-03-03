@@ -22,8 +22,8 @@ namespace Wt {
  * current day.
  *
  * The calendar only allows selection of a single day, and you may
- * listen for when the user selects a new date using the
- * \link Calendar::selected selected \endlink singal.
+ * listen for when the user selects a new date using the selected()
+ * signal.
  *
  * The API is a subset of the WCalendar API:
  * <ul>
@@ -71,8 +71,7 @@ public:
   /*! \brief %Signal emitted when the user changes the selection.
    *
    * Emitted after the user has changed the current selection, before
-   * the \link Calendar::selected selected \endlink signal is
-   * emitted.
+   * the selected() signal is emitted.
    */
   Signal<void>& selectionChanged() { return selectionChanged_; }
 

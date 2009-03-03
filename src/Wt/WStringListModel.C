@@ -65,6 +65,7 @@ bool WStringListModel::setData(const WModelIndex& index,
 
   if (role == DisplayRole) {
     strings_[index.row()] = asString(value);
+    dataChanged().emit(index, index);
     return true;
   } else
     return false;

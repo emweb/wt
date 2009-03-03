@@ -18,7 +18,7 @@
 HangmanGame::HangmanGame(WContainerWidget *parent):
    WTable(parent)
 {
-   resize(WLength(100, WLength::Percentage), WLength());
+   resize(WLength(100, WLength::Percentage), WLength::Auto);
 
    WText *title = new WText(L"A Witty game: Hangman", elementAt(0,0));
    title->decorationStyle().font().setSize(WFont::XXLarge);

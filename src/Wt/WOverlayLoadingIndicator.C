@@ -27,7 +27,7 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WString &styleClass, co
 
   text_ = new WText("Loading...", center_);
   text_->setInline(false);
-  text_->setMargin(WLength(), Left | Right);
+  text_->setMargin(WLength::Auto, Left | Right);
 
   if (!styleClass.empty())
     center_->setStyleClass(styleClass);

@@ -856,7 +856,7 @@ void DomElement::declare(EscapeOStream& out) const
 
     out << "var " << var_ << "=";
     createReference(out);
-    out << ';';
+    out << ';' << '\n';
   }
 }
 
@@ -915,7 +915,7 @@ void DomElement::asJavaScript(std::ostream& out)
   EscapeOStream eout(out);
 
   declare(eout);
-  eout << var_ << ".setAttribute('id', '" << id_ << "');";
+  eout << var_ << ".setAttribute('id', '" << id_ << "');\n";
 
   mode_ = ModeCreate;
 
@@ -930,7 +930,7 @@ void DomElement::createTimeoutJs(std::ostream& out, const TimeoutList& timeouts,
   for (unsigned i = 0; i < timeouts.size(); ++i)
     out << app->javaScriptClass()
 	<< "._p_.addTimerEvent('" << timeouts[i].event << "', " 
-	<< timeouts[i].msec << ");";
+	<< timeouts[i].msec << ");\n";
 }
 
 std::string DomElement::createAsJavaScript(EscapeOStream& out,
@@ -959,6 +959,7 @@ std::string DomElement::createAsJavaScript(EscapeOStream& out,
     else
       out << parentVar << ".appendChild(" << var_ << ");";
   }
+  out << '\n';
 
   return asJavaScript(out, Create);
 }
@@ -974,9 +975,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       if (deleted_) {
 	out << javaScriptEvenWhenDeleted_
 	    << var_ << ".parentNode.removeChild("
-	    << var_ << ");";
+	    << var_ << ");\n";
       } else  if (removeAllChildren_) {
-	out << var_ << ".innerHTML='';";
+	out << var_ << ".innerHTML='';\n";
       }
     }
 
@@ -986,7 +987,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       declare(out);
 
       if (!id_.empty())
-	out << var_ << ".setAttribute('id', '" << id_ << "');";
+	out << var_ << ".setAttribute('id', '" << id_ << "');\n";
 
       setJavaScriptProperties(out);
       setJavaScriptAttributes(out);
@@ -1007,16 +1008,16 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       if (properties_.find(Wt::PropertyStyleDisplay) != properties_.end()) {
 	std::string style = properties_.find(Wt::PropertyStyleDisplay)->second;
 	if (style == "none") {
-	  out << WT_CLASS ".hide('" << id_ << "');";
+	  out << WT_CLASS ".hide('" << id_ << "');\n";
 	  return var_;
 	} else if (style.empty()) {
-	  out << WT_CLASS ".show('" << id_ << "');";
+	  out << WT_CLASS ".show('" << id_ << "');\n";
 	  return var_;
 	} else if (style == "inline") {
-	  out << WT_CLASS ".inline('" + id_ + "');";
+	  out << WT_CLASS ".inline('" + id_ + "');\n";
 	  return var_;
 	} else if (style == "block") {
-	  out << WT_CLASS ".block('" + id_ + "');";
+	  out << WT_CLASS ".block('" + id_ + "');\n";
 	  return var_;
 	}
       }
@@ -1029,13 +1030,13 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
       std::string varr = replaced_->asJavaScript(out, Create);
       out << var_ << ".parentNode.replaceChild("
-	  << varr << ',' << var_ << ");";
+	  << varr << ',' << var_ << ");\n";
 
       replaced_->asJavaScript(out, Update);
       if (hideWithDisplay_)
-	out << varr << ".style.display = " << var_ << ".style.display;";
+	out << varr << ".style.display = " << var_ << ".style.display;\n";
       else
-	out << WT_CLASS ".copyhide(" << var_ << ',' << varr << ");";
+	out << WT_CLASS ".copyhide(" << var_ << ',' << varr << ");\n";
 
       return var_;
     } else if (insertBefore_) {
@@ -1043,7 +1044,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
       std::string varr = insertBefore_->asJavaScript(out, Create);
       out << var_ << ".parentNode.insertBefore(" << varr << ","
-	  << var_ + ");";
+	  << var_ + ");\n";
 
       insertBefore_->asJavaScript(out, Update);
 
@@ -1063,7 +1064,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	int fid = nextId_++;
 
 	out << "function f" << fid
-	    << "(event){" << i->second.jsCode << "}";
+	    << "(event){" << i->second.jsCode << "}\n";
 
 	// 'key' events on root container or handled at the whole document
 	if (Utils::startsWith(i->first, "key", 3)
@@ -1072,7 +1073,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	else
 	  out << var_;
 
-	out << ".on" << i->first << "=f" << fid << ";";
+	out << ".on" << i->first << "=f" << fid << ";\n";
       }
     }
 
@@ -1091,14 +1092,14 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	  childrenToAdd_[i].child->asHTML(out, timeouts);
 	out.popEscape();
 
-	out << "');";
+	out << "');\n";
 
 	Utils::insert(timeouts, timeouts_);
 
 	for (unsigned i = 0; i < timeouts.size(); ++i)
 	  out << app->javaScriptClass()
 	      << "._p_.addTimerEvent('" << timeouts[i].event << "', " 
-	      << timeouts[i].msec << ");";
+	      << timeouts[i].msec << ");\n";
       }
     } else {
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i) {
@@ -1115,22 +1116,22 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
     for (unsigned i = 0; i < methodCalls_.size(); ++i) {
       declare(out);
-      out << var_ << "." << methodCalls_[i] << ';';
+      out << var_ << "." << methodCalls_[i] << ';' << '\n';
     }
 
     if (!javaScriptEvenWhenDeleted_.empty()) {
       declare(out);
-      out << javaScriptEvenWhenDeleted_;
+      out << javaScriptEvenWhenDeleted_ << '\n';
     }
 
     if (!javaScript_.empty()) {
       declare(out);
-      out << javaScript_;
+      out << javaScript_ << '\n';
     }
 
     if (timeOut_ != -1)
       out << app->javaScriptClass() << "._p_.addTimerEvent('"
-	  << id_ << "', " << timeOut_ << ");";
+	  << id_ << "', " << timeOut_ << ");\n";
 
     return var_;
   }
@@ -1241,6 +1242,8 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out) const
 	    << "=\'" << i->second << "\';";
       }
     }
+
+    out << '\n';
   }
 }
 
@@ -1253,15 +1256,15 @@ void DomElement::setJavaScriptAttributes(EscapeOStream& out) const
     if (i->first == "class") {
       out << var_ << ".className = ";
       jsStringLiteral(out, i->second, '\'');
-      out << ";";
+      out << ';' << '\n';
     } else if (i->first == "style") {
       out << var_ << ".style.cssText = ";
       jsStringLiteral(out, i->second, '\'');
-      out << ";";
+      out << ';' << '\n';
     } else {
       out << var_ << ".setAttribute('" << i->first << "',";
       jsStringLiteral(out, i->second, '\'');
-      out << ");";
+      out << ");\n";
     }
   }
 }

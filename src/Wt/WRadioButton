@@ -16,10 +16,38 @@ class WButtonGroup;
 /*! \class WRadioButton Wt/WRadioButton Wt/WRadioButton
  *  \brief A user control that represents a radio button.
  *
- * %WRadioButton is an \link WWidget::setInline(bool) inline \endlink widget.
- *
  * Use a WButtonGroup to group together radio buttons that reflect
  * options that are mutually exclusive.
+ *
+ * Usage example:
+ * \code
+ * enum Vote { Republican = 1, Democrate = 2, NoVote = 10 };
+ *
+ * // use a group box as widget container for 3 radio buttons, with a title
+ * Wt::WGroupBox *container = new Wt::WGroupBox("USA elections vote");
+ *
+ * // use a button group to logically group the 3 options
+ * Wt::WButtonGroup *group = new Wt::WButtonGroup(this);
+ *
+ * Wt::WRadioButton *button;
+ * button = new Wt::WRadioButton("I voted Republican", container);
+ * new Wt::WBreak(container);
+ * group->addButton(button, Republican);
+
+ * button = new Wt::WRadioButton("I voted Democrat", container);
+ * new Wt::WBreak(container);
+ * group->addButton(button, Democrate);
+
+ * button = new Wt::WRadioButton("I didn't vote", container);
+ * new Wt::WBreak(container);
+ * group->addButton(button, NoVote);
+ *
+ * group->setCheckedButton(group->button(NoVote));
+ * \endcode
+ *
+ * The widget corresponds to the HTML <tt>&lt;input type="radio"&gt;</tt> tag.
+ *
+ * %WRadioButton is an \link WWidget::setInline(bool) inline \endlink widget.
  *
  * \sa WAbstractToggleButton, WButtonGroup
  */

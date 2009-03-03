@@ -19,15 +19,23 @@ namespace Wt {
  *
  * See WBoxLayout for available member methods and more information.
  *
- * \note This layout manager is applicable only to WContainerWidget
- * container widgets. You may use it within an Ext::Container
- * indirectly by first setting a WContainerWidget using a WFitLayout.
+ * Usage example:
+ * \code
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
+ * w->resize(WLength::Auto, 600);
  *
- * \note When JavaScript support is not available, only Safari and
- * Firefox properly implement this box layout. For other browsers,
- * widgets are not stretched vertically to occupy the entire height of
- * the parent container, instead all widgets are sized to their
- * minimum height.
+ * Wt::WVBoxLayout *layout = new Wt::WVBoxLayout();
+ * layout->addWidget(new Wt::WText("One"));
+ * layout->addWidget(new Wt::WText("Two"));
+ * layout->addWidget(new Wt::WText("Three"));
+ * layout->addWidget(new Wt::WText("Four"));
+ *
+ * w->setLayout(layout);
+ * \endcode
+ *
+ * \note First consider if you can achieve your layout using CSS !
+ *
+ * \sa WHBoxLayout
  */
 class WT_API WVBoxLayout : public WBoxLayout
 {

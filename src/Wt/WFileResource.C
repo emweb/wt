@@ -58,7 +58,7 @@ void WFileResource::handleRequest(const Http::Request& request,
   delete[] buf;
 
   if (r.good()) {
-    continuation = response.createContinuation(Http::AsyncContinuation);
+    continuation = response.createContinuation();
     continuation->setData(startByte + bufferSize_);
   }
 }

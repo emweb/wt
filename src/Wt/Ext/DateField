@@ -51,7 +51,7 @@ public:
    */
   void setFormat(const WString& format);
 
-  /*! \brief Get the date format.
+  /*! \brief Return the date format.
    *
    * \sa setFormat()
    */
@@ -61,7 +61,7 @@ public:
    */
   void setDate(const WDate& date);
 
-  /*! \brief Get the date value.
+  /*! \brief Return the date value.
    *
    * When the date could not be parsed, an invalid date is returned
    * (for which WDate::isValid() returns false).

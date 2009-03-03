@@ -88,7 +88,7 @@ public:
   void setStyleClass(const char *styleClass);
   virtual WT_USTRING styleClass() const;
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length = WLength());
+				    const WLength& length = WLength::Auto);
   virtual AlignmentFlag verticalAlignment() const;
   virtual WLength verticalAlignmentLength() const;
   virtual WWebWidget *webWidget();

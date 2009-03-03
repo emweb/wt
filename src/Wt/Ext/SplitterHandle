@@ -29,7 +29,7 @@ private:
 
 public:
 
-  /*! \brief Get the splitter which uses this handle.
+  /*! \brief Return the splitter which uses this handle.
    */
   Splitter *splitter() const { return splitter_; }
 

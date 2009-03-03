@@ -44,6 +44,25 @@ class WRegExp;
  * the original model changes. You can enable this behaviour using
  * setDynamicSortFilter().
  *
+ * Usage example:
+ * \code
+ * // model is the source model
+ * Wt::WAbstractItemModel *model = ...
+ *
+ * // we setup a proxy to filter the source model
+ * Wt::WSortFilterProxyModel *proxy = new Wt::WSortFilterProxyModel(this);
+ * proxy->setSourceModel(model);
+ * proxy->setDynamicSortFilter(true);
+ * proxy->setFilterKeyColumn(0);
+ * proxy->setFilterRole(Wt::UserRole);
+ * proxy->setFilterRegExp("Wt::.*");
+ *
+ * // configure a view to use the proxy model instead of the source model
+ * Wt::WTreeView *view = new Wt::WTreeView(this);
+ * view->setModel(proxy);
+ * ...
+ * \endcode
+ *
  * \note The implementation is not yet complete: the proxy model does
  *       not yet react properly to row insertions and row removals in the
  *       source model.

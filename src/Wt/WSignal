@@ -41,9 +41,9 @@ class JavaScriptEvent;
    JavaScript code (see below).
   
    A signal may be created by adding a \link Signal Signal<X,
-   ...>\endlink object. You may specify up to 6 arguments which may be
-   of arbitrary types that are Copyable, that may be passed through
-   the signal to connected slots.
+   ...>\endlink object to your class. You may specify up to 6
+   arguments which may be of arbitrary types that are <i>Copyable</i>,
+   that may be passed through the signal to connected slots.
   
    The library defines several user-event signals on various widgets,
    and it is easy and convenient to add signals and slots to widget
@@ -109,11 +109,12 @@ private:
 /*! \class Signal Wt/WSignal Wt/WSignal
  *  \brief A signal that propagates events to listeners.
  *
- * Use Signal/slots to let one object (A) listen to events caused by
- * another object (B). In this scenario, object B provides in its
- * public interface a signal, to which object A connects one of its
- * member function (which act as slot). Object A initiates the event
- * (and triggers the connected callback functions), by emitting the
+ * Use Signal/slots to let one object (<i>A</i>) listen to events
+ * caused by another object (<i>B</i>). In this scenario, object
+ * <i>B</i> provides in its public interface access to a signal, to
+ * which object <i>A</i> connects one of its member function (which
+ * act as slot). Object <i>A</i> can then signal an event (which
+ * triggers the connected callback functions), by emitting the
  * signal. Signal/slot is a generalization of the popular observer
  * pattern used in GUIs.
  *
@@ -125,13 +126,64 @@ private:
  *
  * The signal automatically disconnects from the slot when the
  * target is deleted. In addition, the signal may be deleted at any
- * time, in particular also while it is emitted.
+ * time, in particular also while it is being emitted.
  *
  * The %Signal objects integrate with WObject objects. A %Signal
  * requires that the target of a connection, i.e. the object that
- * listens for an event, is a WObject. In addition, every signal may
- * specify one WObject to be the owner of the signal, and a target may
- * find out the sender of a signal emission, using WObject::sender().
+ * listens for an event, is a %WObject. In addition, every signal may
+ * specify one %WObject to be the owner of the signal, and a target
+ * may find out the sender of a signal emission, using
+ * WObject::sender().
+ *
+ * \code
+ * class MyWidget : public Wt::WContainerWidget
+ * {
+ * public:
+ *   MyWidget(Wt::WContainerWidget *parent = 0)
+ *     : Wt::WContainerWidget(parent),
+ *       done_(this)
+ *   {
+ *      ...
+ *      Wt::WPushButton *button = new Wt::WPushButton("Okay");
+ *      button->clicked().connect(SLOT(this, MyWidget::process));
+ *   }
+ *
+ *   // provide an accessor for the signal
+ *   Wt::Signal<int, std::string>& done() { return done_; }
+ *
+ * private:
+ *   Wt::Signal<int, std::string> done_;
+ *
+ *   void process() {
+ *     ...
+ *     done_.emit(42, "Totally done"); // emit the signal
+ *   }
+ * };
+ * \endcode
+ *
+ * This widget could then be used from another class:
+ * \code
+ * class GUIClass : public Wt::WContainerWidget
+ * {
+ *   ...
+ *
+ * private:
+ *   void init() {
+ *     MyWidget *widget = new MyWidget(this);
+ *     widget->done().connect(SLOT(this, GUIClass::whenDone));
+ *   }
+ *
+ *   void whenDone(int result, const std::string& description) {
+ *     ...
+ *   }
+ * };
+ * \endcode
+ *
+ * The WSignalMapper is a utility class that helps in situations where
+ * you want to connect multiple signals to a single slot, and still be
+ * identify the sender using some property.
+ *
+ * \sa WSignalMapper
  *
  * \ingroup signalslot
  */
@@ -425,15 +477,17 @@ private:
  * change.  They are tightly integrated with the library (e.g. within
  * WInteractWidget), and should not be instantiated directly.
  *
- * In addition to the behaviour of Signal, they are capable of both
+ * In addition to the behaviour of %Signal, they are capable of both
  * executing client-side and server-side slot code. They may learn
  * JavaScript from C++ code, through stateless slot learning, when
  * connected to a slot that has a stateless implementation, using
  * WObject::implementStateless(). Or they may be connected to a JSlot
  * which provides manual JavaScript code.
  *
- * In addition, they relay UI event information. See WKeyEvent or
- * WMouseEvent.
+ * The typically relay UI event details, using event details objects
+ * like WKeyEvent or WMouseEvent.
+ *
+ * \sa Signal, JSignal
  *
  * \ingroup signalslot
  */
@@ -450,7 +504,7 @@ public:
   EventSignal(const char *name, WObject *sender, const E& e);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Is this signal connected to at least one slot ?
+  /*! \brief Returns whether the signal is connected.
    */
   virtual bool isConnected() const;
 

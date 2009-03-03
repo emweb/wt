@@ -17,7 +17,7 @@ class WFormWidget;
 /*! \class WValidationStatus Wt/WValidationStatus Wt/WValidationStatus
  *  \brief A widget that keeps track of the validation status of a form widget.
  *
- * <i>Since 2.1.3, all standard validators provide client-side
+ * <i>Since %Wt 2.1.3, all standard validators provide client-side
  * validation and this is reflected in the form widget using the style
  * class "Wt-invalid" when the validator returns not
  * WValidator::Valid. Therefore, it is unlikely you will need this

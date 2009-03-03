@@ -12,15 +12,15 @@
 
 namespace Wt {
 
+class WAbstractItemModel;
+class WModelIndex;
 class WFormWidget;
 
 /*! \class WSuggestionPopup Wt/WSuggestionPopup Wt/WSuggestionPopup
  *  \brief A widget which popups to assist in editing a textarea or lineedit.
  *
- * This widget is only available when JavaScript is enabled.
- *
- * This widget may be associated with one or more WFormWidget (typically a
- * WLineEdit or a WTextArea).
+ * This widget may be associated with one or more \link WFormWidget
+ * WFormWidgets\endlink (typically a WLineEdit or a WTextArea).
  *
  * When the user starts editing one of the associated widgets, this
  * popup will show just below it, offering a list of suggestions that
@@ -29,23 +29,27 @@ class WFormWidget;
  * separate JavaScript function. This function may also highlight part(s)
  * of the suggestions to provide feed-back on how they match.
  *
- * The class is initialized with two JavaScript functions, one for filtering
- * the suggestions, and one for editing the value of the textarea when a
- * suggestion is selected. Two static methods, generateMatcherJS() and
- * generateReplacerJS() may be used to generate these functions based on a
- * set of options (in the Options struct). If the flexibility provided
- * in this way is not sufficient, and writing JavaScript does not give you
- * an instant heart-attack, you may provide your own implementations.
+ * %WSuggestionPopup is an MVC view class, using a simple
+ * WStringListModel by default. You can set a custom model using
+ * setModel(). The member methods clearSuggestions() and
+ * addSuggestion() manipulate the model.
+ *
+ * The class is initialized with two JavaScript functions, one for
+ * filtering the suggestions, and one for editing the value of the
+ * textarea when a suggestion is selected. Two static methods,
+ * generateMatcherJS() and generateReplacerJS() may be used to
+ * generate these functions based on a set of options (in the Options
+ * struct). If the flexibility provided in this way is not sufficient,
+ * and writing JavaScript does not give you an instant heart-attack,
+ * you may provide your own implementations.
  *
  * The matcherJS function block must have the following JavaScript signature:
  * 
  * \code
  * function (editElement) {
- *   // fetch the location of cursor and current text in the editElement
- *   // and store pre-processed.
+ *   // fetch the location of cursor and current text in the editElement.
  *
- *   // return a function that matches a suggestion with the current value
- *   // of the editElement.
+ *   // return a function that matches a given suggestion with the current value of the editElement.
  *   return function(suggestion) {
  *
  *     // 1) remove markup from the suggestion
@@ -64,10 +68,11 @@ class WFormWidget;
  *
  * \code
  * function (editElement, suggestionText, suggestionValue) {
- *
  *   // editElement is the form element which must be edited.
- *   // suggestionText and suggestionValue are the displayed text
- *   // and stored value for the matched suggestion.
+ *   // suggestionText is the displayed text for the matched suggestion.
+ *   // suggestionValue is the stored value for the matched suggestion.
+ *
+ *   // computed modifiedEditValue and modifiedPos ...
  *
  *   editElement.value = modifiedEditValue;
  *   editElement.selectionStart = edit.selectionEnd = modifiedPos;
@@ -79,22 +84,21 @@ class WFormWidget;
  *
  * Usage example:
  * \code
- *
  * // options for email address suggestions
- * WSuggestionPopup::Options contactOptions
- * = { "<B>",         // highlightBeginTag
- *     "</B>",        // highlightEndTag
+ * Wt::WSuggestionPopup::Options contactOptions
+ * = { "<b>",         // highlightBeginTag
+ *     "</b>",        // highlightEndTag
  *     ',',           // listSeparator      (for multiple addresses)
  *     " \\n",        // whitespace
  *     "-., \"@\\n;", // wordSeparators     (within an address)
  *     ", "           // appendReplacedText (prepare next email address)
  *    };
  *
- * WSuggestionPopup *popup
- *   = new WSuggestionPopup(WSuggestionPopup::generateMatcherJS(contactOptions),
- *	                  WSuggestionPopup::generateReplacerJS(contactOptions),
- *                          parent);
- * WTextArea *textEdit = new WTextArea(parent);
+ * Wt::WSuggestionPopup *popup
+ *   = new Wt::WSuggestionPopup(Wt::WSuggestionPopup::generateMatcherJS(contactOptions),
+ *	                      Wt::WSuggestionPopup::generateReplacerJS(contactOptions),
+ *                              this);
+ * Wt::WTextArea *textEdit = new Wt::WTextArea(this);
  * popup->forEdit(textEdit);
  *
  * // load popup data
@@ -103,7 +107,6 @@ class WFormWidget;
  *
  * // set style
  * popup->setStyleClass("suggest");
- *
  * \endcode
  *
  * Example CSS:
@@ -130,6 +133,10 @@ class WFormWidget;
  *
  * A screenshot of this example:
  * \image html WSuggestionPopup-1.png "Example of WSuggestionPopup"
+ *
+ * \note This widget requires JavaScript support.
+ *
+ * \ingroup modelview
  */
 class WT_API WSuggestionPopup : public WCompositeWidget
 {
@@ -155,6 +162,43 @@ public:
    */
   void addSuggestion(const WString& suggestionText,
 		     const WString& suggestionValue);
+
+  /*! \brief Set the model to be used for the suggestions.
+   *
+   * The <i>model</i> may not be 0, and ownership of the model is not
+   * transferred.
+   *
+   * The default value is a WStringListModel that is owned by the
+   * suggestion popup.
+   *
+   * The Wt::DisplayRole is used for the suggestion text. The
+   * Wt::UserRole is used for the suggestion value, unless empty, in
+   * which case the suggestion text is used as value.
+   *
+   * Note that since the default %WStringListModel does not support
+   * UserRole data, you will want to change it to a more general model
+   * (e.g. WStandardItemModel) if you want suggestion values that are
+   * different from display values.
+   *
+   * \sa setModelColumn(int)
+   */
+  void setModel(WAbstractItemModel *model);
+
+  /*! \brief Set the column in the model to be used for the items.
+   *
+   * The column <i>index</i> in the model will be used to retrieve data.
+   *
+   * The default value is 0.
+   *
+   * \sa setModel()
+   */
+  void setModelColumn(int index);
+
+  /*! \brief Return the data model.
+   *
+   * \sa setModel()
+   */
+  WAbstractItemModel *model() const { return model_; }
 
   /*! \brief A configuration object to generate a matcher and replacer
    *         JavaScript function.
@@ -214,14 +258,25 @@ public:
   static std::string generateReplacerJS(const Options& options);
 
 private:
+  Wt::WAbstractItemModel *model_;
+  int modelColumn_;
+
   std::string       matcherJS_;
   std::string       replacerJS_;
   WContainerWidget *content_;
+
+  std::vector<boost::signals::connection> modelConnections_;
 
   JSlot editKeyDown_;
   JSlot editKeyUp_;
   JSlot suggestionClicked_;
   JSlot delayHide_;
+
+  void modelRowsInserted(const WModelIndex& parent, int start, int end);
+  void modelRowsRemoved(const WModelIndex& parent, int start, int end);
+  void modelDataChanged(const WModelIndex& topLeft,
+			const WModelIndex& bottomRight);
+  void modelLayoutChanged();
 };
 
 }

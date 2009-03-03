@@ -12,18 +12,6 @@ namespace Wt {
 WLocalizedStrings::~WLocalizedStrings()
 { }
 
-#ifndef WT_TARGET_JAVA
-std::string WLocalizedStrings::getUTF8Value(const WString& s)
-{
-  return s.toUTF8();
-}
-
-std::wstring WLocalizedStrings::getValue(const WString& s)
-{
-  return s.value();
-}
-#endif // WT_TARGET_JAVA
-
 void WLocalizedStrings::refresh()
 { }
 

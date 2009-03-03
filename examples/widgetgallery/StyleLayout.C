@@ -157,7 +157,7 @@ WWidget *StyleLayout::wGridLayout()
   WContainerWidget *container;
 
   container = new WContainerWidget(result);
-  container->resize(WLength(), 400);
+  container->resize(WLength::Auto, 400);
   container->setStyleClass("yellow-box");
   WGridLayout *grid = new WGridLayout();
   container->setLayout(grid);
@@ -190,7 +190,7 @@ WWidget *StyleLayout::wBorderLayout()
   WContainerWidget *container;
 
   container = new WContainerWidget(result);
-  container->resize(WLength(), 400);
+  container->resize(WLength::Auto, 400);
   container->setStyleClass("yellow-box");
   WBorderLayout *layout = new WBorderLayout();
   container->setLayout(layout);

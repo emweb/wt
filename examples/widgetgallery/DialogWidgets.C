@@ -231,7 +231,7 @@ void DialogWidgets::createExtDialog()
   west->setTitle("West");
   west->setResizable(true);
   west->setCollapsible(true);
-  west->resize(100, WLength());
+  west->resize(100, WLength::Auto);
   west->setLayout(new WFitLayout());
   west->layout()->addWidget(new WText("This is a resizable and collapsible "
 				      "panel"));
@@ -245,7 +245,7 @@ void DialogWidgets::createExtDialog()
 
   Ext::Panel *nestedNorth = new Ext::Panel();
   nestedLayout->addWidget(nestedNorth, WBorderLayout::North);
-  nestedNorth->resize(WLength(), 70);
+  nestedNorth->resize(WLength::Auto, 70);
   nestedNorth->layout()->addWidget(
     new WText("Ext Dialogs, like Wt Dialogs, can contain any widget. This "
 	      "is a dialog with a layout manager. The left pane can be "

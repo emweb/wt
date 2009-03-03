@@ -35,9 +35,9 @@ namespace Wt {
  * Besides the main page, other objects may be rendered as additional
  * resources, for example documents or images. Classes such as WAnchor
  * or WImage can use a resource instead of a URL to provide their
- * contents. Whenever the resource has changed, you can emit the \link
- * WResource::dataChanged dataChanged signal\endlink to make those that
- * refer to the resource aware that they should be updated.
+ * contents. Whenever the resource has changed, you can emit the
+ * dataChanged() signal to make those that refer to the resource aware
+ * that they should be updated.
  *
  * You can help the browser to start a suitable helper application to
  * handle the downloaded resource, or suggest to the user a suitable
@@ -46,6 +46,30 @@ namespace Wt {
  *
  * To serve resources that you create on the fly, you need to specialize
  * this class an implement handleRequest().
+ *
+ * Example for a custom resource implementation:
+ * \code
+ * class MyResource : public Wt::WResource
+ * {
+ * public:
+ *   MyResource(Wt::WObject *parent = 0)
+ *     : Wt::WResource(parent)
+ *   { 
+ *     suggestFileName("data.txt");
+ *   }
+ *
+ *   ~MyResource() {
+ *     beingDeleted(); // see "Concurrency issues" below.
+ *   }
+ *
+ * protected:
+ *   void handleRequest(const Wt::Http::Request& request,
+ *                      const Wt::Http::Response& response) {
+ *     response.setMimeType("plain/text");
+ *     response.out() << "I am a text file." << std::endl;
+ *   }
+ * };
+ * \endcode
  *
  * <h3>Concurrency issues</h3>
  *
@@ -58,9 +82,9 @@ namespace Wt {
  * application lock if you want to access or modify other widget state
  * from within the resource. When deleting a resource, any pending
  * request is cancelled first. For this mechanism to work you need to
- * specialize the destructor and call beingDeleted() the first
- * thing. This method may safely be called multiple times (i.e. from
- * within each destructor in the hierachy).
+ * specialize the destructor and call beingDeleted(). This method may
+ * safely be called multiple times (i.e. from within each destructor
+ * in the hierachy).
  *
  * <h3>Continuations for asynchronous I/O</h3>
  *
@@ -71,6 +95,50 @@ namespace Wt {
  * output at once, instead you can obtain a Http::ResponseContinuation
  * object for a response, construct the response piecewise. A new
  * request() will be made to continue the response.
+ *
+ * Example for a custom resource implementation using continuations:
+ * \code
+ * class MyResource : public Wt::WResource
+ * {
+ * public:
+ *   MyResource(int iterations, Wt::WObject *parent = 0)
+ *     : Wt::WResource(parent)
+ *     : iterations_(iterations)
+ *   { 
+ *     suggestFileName("data.txt");
+ *   }
+ *
+ *   ~MyResource() {
+ *     beingDeleted();
+ *   }
+ *
+ * protected:
+ *   void handleRequest(const Wt::Http::Request& request,
+ *                      const Wt::Http::Response& response) {
+ *     // see if this request is for a continuation:
+ *     Wt::Http::ResponseContinuation *continuation = request.continuation();
+ *
+ *     // calculate the current start
+ *     int iteration = continuation ? boost::any_cast<int>(continuation->data()) : 0;
+ *     if (iteration == 0)
+ *       response.setMimeType("plain/text");
+ *
+ *     int last = std::min(iterations_, iteration + 100);
+ *     for (int i = iteration; i < last; ++i)
+ *       response.out() << "Data item " << i << std::endl;
+ *
+ *     // if we have not yet finished, create a continuation to serve more
+ *     if (last < iterations_)
+ *       continuation = response.createContinuation();
+ *       // remember what to do next
+ *       continuation->setData(last);
+ *     }
+ *   }
+ *
+ * private:
+ *   int iterations_;
+ * };
+ * \endcode
  *
  * \sa WAnchor, WImage
  */
@@ -103,8 +171,7 @@ public:
    * Generates a new url that refers to this resource. The url is
    * unique to assure that it is not cached by the web browser, and
    * can thus be used to refer to a new "version" of the resource,
-   * which can be indicated by emitting the \link
-   * WResource::dataChanged dataChanged signal\endlink.
+   * which can be indicated by emitting the dataChanged() signal.
    */
   const std::string generateUrl() const;
 
@@ -132,7 +199,7 @@ public:
 	     const Http::UploadedFileMap& files = Http::UploadedFileMap());
 
 protected:
-  /*! \brief Prepare the resource for deleetion.
+  /*! \brief Prepare the resource for deletion.
    *
    * When specializing a resource, you MUST call beingDeleted() from
    * within the specialized destructor, in order to stop any further
@@ -149,11 +216,13 @@ protected:
    * set the mime type and stream the output data.
    *
    * A request may also concern a continuation, indicated in
-   * Http::Request::continuation().
+   * Http::Request::continuation(), in which case the next part for a
+   * previously created continuation should be served.
    *
    * While handling a request, which may happen at any time together
    * with event handling, the library makes sure that the resource is
-   * not being concurrently deleted.
+   * not being concurrently deleted, but multiple requests may happend
+   * simultaneously for a single resource.
    */
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) = 0;

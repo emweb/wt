@@ -81,7 +81,7 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
     WContainerWidget *w = new WContainerWidget(this);
     Ext::TableView *table = new Ext::TableView(w);
     table->setMargin(10, Top | Bottom);
-    table->setMargin(WLength(), Left | Right);
+    table->setMargin(WLength::Auto, Left | Right);
     table->resize(500, 175);
     table->setModel(model);
     table->setAutoExpandColumn(0);
@@ -118,8 +118,8 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
 
   chart->resize(800, 400); // WPaintedWidget must be given explicit size
 
-  chart->setMargin(10, Top | Bottom);        // add margin vertically
-  chart->setMargin(WLength(), Left | Right); // center horizontally
+  chart->setMargin(10, Top | Bottom);            // add margin vertically
+  chart->setMargin(WLength::Auto, Left | Right); // center horizontally
 
   new ChartConfig(chart, this);
 }
@@ -168,8 +168,8 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
 
   chart->resize(800, 400); // WPaintedWidget must be given explicit size
 
-  chart->setMargin(10, Top | Bottom);        // add margin vertically
-  chart->setMargin(WLength(), Left | Right); // center horizontally
+  chart->setMargin(10, Top | Bottom);            // add margin vertically
+  chart->setMargin(WLength::Auto, Left | Right); // center horizontally
 
   new ChartConfig(chart, this);
 }
@@ -214,8 +214,8 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
 
   chart->resize(800, 300); // WPaintedWidget must be given explicit size
 
-  chart->setMargin(10, Top | Bottom);        // add margin vertically
-  chart->setMargin(WLength(), Left | Right); // center horizontally
+  chart->setMargin(10, Top | Bottom);            // add margin vertically
+  chart->setMargin(WLength::Auto, Left | Right); // center horizontally
 
   ChartConfig *config = new ChartConfig(chart, this);
   config->setValueFill(ZeroValueFill);
@@ -239,7 +239,7 @@ PieExample::PieExample(WContainerWidget *parent):
     WContainerWidget *w = new WContainerWidget(this);
     Ext::TableView *table = new Ext::TableView(w);
     table->setMargin(10, Top | Bottom);
-    table->setMargin(WLength(), Left | Right);
+    table->setMargin(WLength::Auto, Left | Right);
     table->resize(300, 175);
     table->setModel(model);
     table->setAutoExpandColumn(0);
@@ -269,7 +269,7 @@ PieExample::PieExample(WContainerWidget *parent):
 
   chart->resize(800, 300); // WPaintedWidget must be given explicit size
 
-  chart->setMargin(10, Top | Bottom);        // add margin vertically
-  chart->setMargin(WLength(), Left | Right); // center horizontally
+  chart->setMargin(10, Top | Bottom);            // add margin vertically
+  chart->setMargin(WLength::Auto, Left | Right); // center horizontally
 }
 

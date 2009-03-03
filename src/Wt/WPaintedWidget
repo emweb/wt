@@ -19,7 +19,9 @@ class WWidgetPainter;
 /*! \class WPaintedWidget Wt/WPaintedWidget Wt/WPaintedWidget
  *  \brief A widget that is painted using vector graphics.
  *
- * Depending on the browser, different rendering methods are used:
+ * A painted widget is rendered from basic drawing
+ * primitives. Rendering is done not on the server but on the browser,
+ * using different rendering methods:
  *
  * <table>
  *   <tr><td><b>Browser</b></td><td><b>Methods</b></td>
@@ -36,22 +38,57 @@ class WWidgetPainter;
  * </table>
  * <i>* HtmlCanvas occasionally suffers from rendering artefacts in Opera.</i>
  *
+ * The different rendering methods correspond to different
+ * WPaintDevice implementations, from which this widget choses a
+ * suitable one depending on the browser capabilities and configuration.
+ *
  * If no JavaScript is available, the JavaScript-based HtmlCanvas will
  * not be used, and InlineSVG will be used instead. The method used
  * may be changed by using setPreferredMethod().
  *
  * InlineSVG requires that the document is rendered as XHTML. This
  * must be enabled in the configuration file using the
- * &lt;send-xhtml-mime-type&gt; option. By default, this option is
- * off.
+ * <tt>&lt;send-xhtml-mime-type&gt;</tt> option. By default, this
+ * option is off.
  *
  * To use a %WPaintedWidget, you must derive from it and reimplement
  * paintEvent(WPaintDevice *paintDevice). To paint on a WPaintDevice,
  * you will need to use a WPainter. Repainting is triggered by calling
  * the update() method.
  *
- * A %WPaintedWidget requires that its size is specified in pixel
- * units using resize().
+ * Usage example:
+ * \code
+ * class MyPaintedWidget : public Wt::WPaintedWidget
+ * {
+ * public:
+ *   MyPaintedWidget(Wt::WContainerWidget *parent = 0)
+ *     : Wt::WPaintedWidget(parent),
+ *       foo_(100)
+ *   {
+ *      resize(200, 200); // provide a default size
+ *   }
+ *
+ *   void setFoo(int foo) {
+ *      foo_ = foo;
+ *      update(); // trigger a repaint
+ *   }
+ *
+ * protected:
+ *   void paintEvent(Wt::WPaintedWidget *paintDevice) {
+ *     Wt::WPainter painter(paintDevice);
+ *     painter.drawLine(20, 20, foo_, foo_);
+ *     ...
+ *   }
+ *
+ * private:
+ *   int foo_;
+ * };
+ * \endcode
+ *
+ * \note A %WPaintedWidget requires that its size is specified in
+ *       pixel units using resize().
+ *
+ * \sa WImage
  *
  * \ingroup painting
  */

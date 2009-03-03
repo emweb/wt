@@ -36,7 +36,7 @@ MandelbrotExample::MandelbrotExample(WContainerWidget *parent)
 				    1.5, layout->elementAt(0, 0));
 
   WContainerWidget *buttons = new WContainerWidget(layout->elementAt(0, 0));
-  buttons->resize(400, WLength());
+  buttons->resize(400, WLength::Auto);
   buttons->setContentAlignment(AlignCenter);
 
   (new WPushButton("Left", buttons))

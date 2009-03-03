@@ -29,21 +29,6 @@ public:
    */
   virtual ~WLocalizedStrings();
 
-#ifndef WT_TARGET_JAVA
-  /*! \brief Returns the value for a particular string in the current locale.
-   *
-   * This is equivalent to \link WString::value() s.value()\endlink.
-   */
-  std::wstring getValue(const WString& s);
-
-  /*! \brief Returns the UTF8-encoded value for a particular string in the
-   *         current locale.
-   *
-   * This is equivalent to \link WString::toUTF8() s.toUTF8()\endlink.
-   */
-  std::string getUTF8Value(const WString& s);
-#endif // WT_TARGET_JAVA
-
   /*! \brief Reread the message resources.
    *
    * Purge any cached key/values, if applicable.

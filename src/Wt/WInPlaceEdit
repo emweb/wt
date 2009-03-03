@@ -22,24 +22,21 @@ class WPushButton;
  * the user by clicking on it. When clicked, the text turns into a
  * line edit with a save and cancel button.
  *
- * When the user saves the edit, the \link WInPlaceEdit::valueChanged
- * valueChanged \endlink signal is emitted.
+ * When the user saves the edit, the valueChanged() signal is emitted.
  *
- * Example:
+ * Usage example:
  * \code
- *   // ..
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget();
+ * new Wt::WText("Name: ", w);
+ * Wt::WInPlaceEdit *edit = new Wt::WInPlaceEdit("Bob Smith", w);
+ * edit->setStyleClass("inplace");
+ * \endcode
  *
- *   new WText("Name: ", app->root());
- *   WInPlaceEdit *edit = new WInPlaceEdit("Bob Smith", app->root());
- *   edit->setStyleClass("inplace");
- *
- *   // ...
- *
- *   // the corresponding style sheet, e.g. using an inline stylesheet
- *   app->styleSheet().addRule("*.inplace span:hover",
- *                             "background-color: gray");
- *
- *   // ...
+ * CSS stylesheet:
+ * \code
+ * .inplace span:hover {
+ *    background-color: gray;
+ * }
  * \endcode
  *
  * This code will produce an edit that looks like:
@@ -54,37 +51,47 @@ public:
    */
   WInPlaceEdit(const WString& text, WContainerWidget *parent = 0);
 
-  /*! \brief The current saved text value.
+  /*! \brief Returns the current text value.
+   *
+   * \sa setText()
    */
   const WString& text() const;
 
   /*! \brief Set the current text.
+   *
+   * \sa text()
    */
   void setText(const WString& text);
 
-  /*! \brief Access the line edit.
+  /*! \brief Returns the line edit.
+   *
+   * You may for example set a validator on the line edit.
    */
   WLineEdit *lineEdit() const { return edit_; }
 
-  /*! \brief Access the save button.
+  /*! \brief Returns the save button.
+   *
+   * \sa cancelButton()
    */
   WPushButton *saveButton() const { return save_; }
 
-  /*! \brief Access the cancel button.
+  /*! \brief Returns the cancel button.
+   *
+   * \sa saveButton()
    */
   WPushButton *cancelButton() const { return cancel_; }
 
-  Signal<WString>& valueChanged() { return valueChanged_; }
-
-public:
   /*! \brief %Signal emitted when the value has been changed.
+   *
+   * The signal argument provides the new value.
    */
-  Signal<WString> valueChanged_;
+  Signal<WString>& valueChanged() { return valueChanged_; }
 
 private:
   void save();
 
 private:
+  Signal<WString> valueChanged_;
   WContainerWidget *impl_;
   WText            *text_;
   WLineEdit        *edit_;

@@ -75,7 +75,7 @@ public:
    */
   void redrawAll();
 
-  /*! \brief Enable mouse dragging to scroll around the image.
+  /*! \brief Enables mouse dragging to scroll around the image.
    *
    * The cursor is changed to a 'move' symbol to indicate the interactivity.
    */
@@ -83,57 +83,86 @@ public:
 
   /*! \brief Scroll the viewport of the image over a distance.
    *
-   * Scroll the viewport over the image over an indicated distance.
+   * \sa scrollTo()
    */
   void scroll(int64_t dx, int64_t dy);
 
   /*! \brief Scroll the viewport of the image to a specific coordinate.
    *
    * Scroll the viewport so that its top left coordinate becomes (x, y).
+   *
+   * \sa scroll()
    */
   void scrollTo(int64_t x, int64_t y);
 
   /*! \brief Return the virtual image width.
+   *
+   * \sa imageHeight(), resizeImage()
    */
   int64_t imageWidth() const { return imageWidth_; }
 
   /*! \brief Return the virtual image height.
+   *
+   * \sa imageWidth(), resizeImage()
    */
   int64_t imageHeight() const { return imageHeight_; }
 
   /*! \brief Resize the virtual image.
+   *
+   * This sets a new virtual size for the image. The viewport size sets the
+   * visible portion of the image.
+   *
+   * \sa imageWidth(), imageHeight()
    */
   void resizeImage(int64_t w, int64_t h);
 
   /*! \brief Return the viewport width.
+   *
+   * \sa viewPortHeight()
    */
   int viewPortWidth() const { return viewPortWidth_; }
 
   /*! \brief Return the viewport height.
+   *
+   * \sa viewPortWidth()
    */
   int viewPortHeight() const { return viewPortHeight_; }
 
-  /*! \brief Returns the pieceSize
+  /*! \brief Returns the size of a single piece.
+   *
+   * This is the size of a side of the square pieces that is used to render
+   * the visible part of the image.
    */
   int gridImageSize() const { return gridImageSize_; }
 
   /*! \brief Returns the current top left X coordinate.
+   *
+   * \sa currentTopLeftY()
    */
   int64_t currentTopLeftX() const { return currentX_; }
 
   /*! \brief Returns the current top left Y coordinate.
+   *
+   * \sa currentTopLeftX()
    */
   int64_t currentTopLeftY() const { return currentY_; }
 
   /*! \brief Returns the current bottom right X coordinate.
+   *
+   * \sa currentBottomRightY()
    */
   int64_t currentBottomRightX() const { return currentX_ + viewPortWidth_; }
 
   /*! \brief Returns the current bottom right Y coordinate.
+   *
+   * \sa currentBottomRightX()
    */
   int64_t currentBottomRightY() const { return currentY_ + viewPortHeight_; }
 
-  /*! \brief Signal emitted whenever the viewport changes.
+  /*! \brief %Signal emitted whenever the viewport changes.
+   *
+   * The viewport can be changed by the user dragging the image or through
+   * the API methods scrollTo() and scroll().
    */
   Signal<int64_t, int64_t>& viewPortChanged() { return viewPortChanged_; }
 

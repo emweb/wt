@@ -65,19 +65,19 @@ public:
    */
   int count() const;
 
-  /*! \brief Get the panel at the given tab <i>index</i>.
+  /*! \brief Return t the panel at the given tab <i>index</i>.
    *
    * \sa widget(int)
    */
   Panel *panel(int index) const;
 
-  /*! \brief Get the content widget at the given tab <i>index</i>.
+  /*! \brief Return the content widget at the given tab <i>index</i>.
    *
    * \sa panel(int)
    */
   WWidget *widget(int index) const;
 
-  /*! \brief Get the index of the given widget/panel.
+  /*! \brief Return the index of the given widget/panel.
    *
    * If the widget was not added to this tab widget, then -1 is returned.
    */
@@ -86,11 +86,11 @@ public:
   /*! \brief Activate the tab at <i>index</i>.
    *
    * \sa setCurrentWidget(WWidget *), currentIndex()
-   * \sa \link currentChanged currentChanged\endlink signal
+   * \sa currentChanged() signal
    */
   void setCurrentIndex(int index);
 
-  /*! \brief Get the index of the activated tab.
+  /*! \brief Return the index of the activated tab.
    *
    * \sa setCurrentIndex(int)
    */
@@ -103,7 +103,7 @@ public:
    */
   void setCurrentWidget(WWidget *widget);
 
-  /*! \brief Get the widget of the activated tab.
+  /*! \brief Return the widget of the activated tab.
    *
    * \sa setCurrentWidget(WWidget *), currentIndex()
    */
@@ -138,7 +138,7 @@ public:
    */
   void setTabText(int index, const WString& label);
 
-  /*! \brief Get the label for a tab.
+  /*! \brief Return the label for a tab.
    *
    * \sa setTabText(int, const WString&)
    */
@@ -152,7 +152,7 @@ public:
    */
   void setTabToolTip(int index, const WString& tip);
 
-  /*! \brief Get the tooltip for a tab.
+  /*! \brief Return the tooltip for a tab.
    */
   const WString tabToolTip(int index) const;
 

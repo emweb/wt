@@ -83,7 +83,7 @@ public:
   {
     int modelRow = item_.row();
 
-    resize(300, WLength());
+    resize(300, WLength::Auto);
 
     /*
      * Create the form widgets, and load them with data from the model.

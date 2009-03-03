@@ -49,7 +49,7 @@ void WTableColumn::setStyleClass(const WT_USTRING& style)
 
 WLength WTableColumn::width() const
 {
-  return width_ ? *width_ : WLength();
+  return width_ ? *width_ : WLength::Auto;
 }
 
 void WTableColumn::updateDom(DomElement& element, bool all)

@@ -114,12 +114,12 @@ void WebRenderer::streamRedirectJS(std::ostream& out,
   if (session_.app())
     out << "if (window." << session_.app()->javaScriptClass() << ") "
 	<< session_.app()->javaScriptClass()
-	<< "._p_.setHash('" << session_.app()->internalPath() << ".');";
+	<< "._p_.setHash('" << session_.app()->internalPath() << ".');\n";
   out <<
     "if (window.location.replace)"
     " window.location.replace('" << redirect << "');"
     "else"
-    " window.location.href='" << redirect << "';"; 
+    " window.location.href='" << redirect << "';\n"; 
 }
 
 void WebRenderer::serveMainWidget(WebResponse& response,
@@ -376,6 +376,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
   currentFormObjectsList_ = createFormObjectsList(app);
 
   FileServe script(skeletons::Wt_js);
+  script.setVar("DEBUG", conf.debug());
   script.setVar("WT_CLASS", WT_CLASS);
   script.setVar("APP_CLASS", app->javaScriptClass());
   script.setVar("AUTO_JAVASCRIPT", app->autoJavaScript_);
@@ -429,14 +430,14 @@ void WebRenderer::serveMainscript(WebResponse& response)
   collectedChanges_.str("");
   preLearnStateless(app);
 
-  response.out() << "window.loadWidgetTree = function(){";
+  response.out() << "window.loadWidgetTree = function(){\n";
 
   std::string cvar;  
   {
     EscapeOStream sout(response.out()); 
     cvar = mainElement->asJavaScript(sout, DomElement::Create);
   }
-  response.out() << "document.body.appendChild(" << cvar << ");";
+  response.out() << "document.body.appendChild(" << cvar << ");\n";
   {
     EscapeOStream sout(response.out()); 
     mainElement->asJavaScript(sout, DomElement::Update);
@@ -447,10 +448,10 @@ void WebRenderer::serveMainscript(WebResponse& response)
   updateLoadIndicator(response.out(), app, true);
 
   response.out() << collectedChanges_.str() << app->afterLoadJavaScript()
-		 << "};";
+		 << "};\n";
   collectedChanges_.str("");
 
-  response.out() << "scriptLoaded = true; if (isLoaded) onLoad();";
+  response.out() << "scriptLoaded = true; if (isLoaded) onLoad();\n";
 
   loadScriptLibraries(response.out(), app, false);
 }
@@ -459,14 +460,14 @@ void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 				      bool all)
 {
   if (app->showLoadingIndicator_->needUpdate() || all) {
-    out << "showLoadingIndicator = function() {"
-	<< app->showLoadingIndicator_->javaScript() << "};";
+    out << "showLoadingIndicator = function() {\n"
+	<< app->showLoadingIndicator_->javaScript() << "};\n";
     app->showLoadingIndicator_->updateOk();
   }
 
   if (app->hideLoadingIndicator_->needUpdate() || all) {
-    out << "hideLoadingIndicator = function() {"
-	<< app->hideLoadingIndicator_->javaScript() << "};";
+    out << "hideLoadingIndicator = function() {\n"
+	<< app->hideLoadingIndicator_->javaScript() << "};\n";
     app->hideLoadingIndicator_->updateOk();
   }
 }
@@ -599,6 +600,7 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   currentFormObjectsList_ = createFormObjectsList(app);
 
   FileServe script(skeletons::Wt_js);
+  script.setVar("DEBUG", conf.debug());
   script.setVar("WT_CLASS", WT_CLASS);
   script.setVar("APP_CLASS", app->javaScriptClass());
   script.setVar("AUTO_JAVASCRIPT", app->autoJavaScript_);
@@ -662,17 +664,17 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   if (historyE) {
     response.out() << WT_CLASS << ".history.initialize('"
 		   << (*historyE)[0] << "-field', '"
-		   << (*historyE)[0] << "-iframe');";
+		   << (*historyE)[0] << "-iframe');\n";
   }
 
   response.out() << app->afterLoadJavaScript()
-		<< app->javaScriptClass() << "._p_.load();";
+		 << app->javaScriptClass() << "._p_.load();\n";
 
   if (!app->title().empty()) {
     response.out() << app->javaScriptClass()
 		  << "._p_.setTitle(";
     DomElement::jsStringLiteral(response.out(), app->title().toUTF8(), '\'');
-    response.out() << ");";
+    response.out() << ");\n";
   }
   app->titleChanged_ = false;
 
@@ -691,9 +693,9 @@ void WebRenderer::loadScriptLibraries(std::ostream& out,
       out << app->scriptLibraries_[i].beforeLoadJS
 	  << app->javaScriptClass() << "._p_.loadScript('" << uri << "',";
       DomElement::jsStringLiteral(out, app->scriptLibraries_[i].symbol, '\'');
-      out << ");"
-	  << app->javaScriptClass() << "._p_.onJsLoad(\""
-	  << uri << "\",function() {";
+      out << ");\n";
+      out << app->javaScriptClass() << "._p_.onJsLoad(\""
+	  << uri << "\",function() {\n";
     }
   } else {
     for (unsigned i = first; i < app->scriptLibraries_.size(); ++i) {
@@ -709,7 +711,7 @@ void WebRenderer::loadStyleSheets(std::ostream& out, WApplication *app)
 
   for (unsigned i = first; i < app->styleSheets_.size(); ++i) {
     out << WT_CLASS << ".addStyleSheet('"
-	<< app->fixRelativeUrl(app->styleSheets_[i]) << "');";
+	<< app->fixRelativeUrl(app->styleSheets_[i]) << "');\n";
   }
 
   app->styleSheetsAdded_ = 0;
@@ -906,12 +908,12 @@ void WebRenderer::collectJS(std::ostream* js)
       *js << app->javaScriptClass()
 	  << "._p_.setTitle(";
       DomElement::jsStringLiteral(*js, app->title().toUTF8(), '\'');
-      *js << ");";
+      *js << ");\n";
     }
 
     if (app->internalPathIsChanged_)
       *js << app->javaScriptClass()
-	  << "._p_.setHash('" << app->newInternalPath_ << "');";
+	  << "._p_.setHash('" << app->newInternalPath_ << "');\n";
 
     *js << app->afterLoadJavaScript();
   } else

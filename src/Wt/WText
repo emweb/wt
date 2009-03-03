@@ -26,20 +26,42 @@ namespace Wt {
  * avoid security risks exposed by JavaScript such as the common
  * web-based <a
  * href="http://en.wikipedia.org/wiki/Cross_site_scriptingCross-Site">
- * Cross-Site Scripting (XSS)</a> malicious attack.
+ * Cross-Site Scripting (XSS)</a> malicious attack. XSS is the
+ * situation where one user of your web application is able to execute
+ * a script in another user's browser while your application only
+ * intended to display a message entered by the mailicious user to the
+ * other user. To defeat this attack, %Wt assumes that content in a
+ * %WText is intended to be passive, and not contain any scripting
+ * elements.
  *
  * The Wt::PlainText format will display the text literally
  * (escaping any HTML special characters).
  *
- * In some situations, Wt::XHTMLUnsafeText is useful. Like
- * XHTMLText, it allows XHTML markup, but it also allows potentially
- * dangerous tags and attributes. Use this if you're sure that a user
- * cannot interfere with the text set, and XHTMLText is too limiting.
+ * In some situations, Wt::XHTMLUnsafeText may be useful to explicitly
+ * allow scripting content. Like XHTMLText, it allows XHTML markup,
+ * but it also allows potentially dangerous tags and attributes. Use
+ * this if you're sure that a user cannot interfere with the text set,
+ * and XHTMLText is too limiting.
  *
- * WText is by default an \link WWidget::setInline(bool) inline
- * \endlink widget, unless the XHTML contents starts with a
- * block-level element such as <tt>&lt;div&gt;</tt>,
- * <tt>&lt;h&gt;</tt> or <tt>&lt;p&gt;</tt>.
+ * The widget corresponds to an HTML <tt>&lt;span&gt;</tt> tag or an
+ * HTML <tt>&lt;div&gt;</tt> depending on whether the widget is \link
+ * WWidget::setInline() inline\endlink. %WText is by default inline,
+ * unless the XHTML contents starts with a block-level element such as
+ * <tt>&lt;div&gt;</tt>, <tt>&lt;h&gt;</tt> or <tt>&lt;p&gt;</tt>.
+ *
+ * Usage examples:
+ * \code
+ * Wt::WContainerWidget *container = new Wt::WContainerWidget();
+ *
+ * // display an XHTML text:
+ * container->addWidget(new Wt::WText("Hello <i>dear</i> visitor."));
+ *
+ * // display a plain text:
+ * container->addWidget(new Wt::WText("The <i> tag displays italic text.", Wt::PlainText));
+ *
+ * // display an XHTML fragment from a resource bundle:
+ * container->addWidget(new Wt::WText(tr("introduction")));
+ * \endcode
  *
  * \sa WApplication::setLocale()
  * \sa WApplication::messageResourceBundle()
@@ -63,7 +85,7 @@ public:
    * textFormat() is Wt::XHTMLText after construction.
    *
    * The XML parser will silently discard malicious tags and
-   * attributes silently for literal text with Wt::XHTMLText.
+   * attributes for literal Wt::XHTMLText text.
    */
   WText(const WString& text, WContainerWidget *parent = 0);
 
@@ -79,8 +101,7 @@ public:
    * textFormat() is Wt::XHTMLText after construction.
    *
    * The XML parser will silently discard malicious tags and
-   * attributes silently for literal text with <i>textFormat</i> of
-   * Wt::XHTMLText.
+   * attributes for literal Wt::XHTMLText text.
    */
   WText(const WString& text, TextFormat textFormat,
 	WContainerWidget *parent = 0);

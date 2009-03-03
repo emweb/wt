@@ -94,7 +94,7 @@ public:
   bool               reloadIsNewSession() const { return reloadIsNewSession_; }
   int                sessionTimeout() const { return sessionTimeout_; }
   std::string        valgrindPath() const { return valgrindPath_; }
-  bool               allowDebug() const { return allowDebug_; }
+  bool               debug() const { return debug_; }
   std::string        runDirectory() const { return runDirectory_; }
   int                sessionIdLength() const { return sessionIdLength_; }
   std::string        sessionIdPrefix() const { return sessionIdPrefix_; }
@@ -134,7 +134,7 @@ private:
   bool            reloadIsNewSession_;
   int             sessionTimeout_;
   std::string     valgrindPath_;
-  bool            allowDebug_;
+  bool            debug_;
   std::string     runDirectory_;
   int             sessionIdLength_;
   std::string     sessionIdPrefix_;

@@ -18,11 +18,14 @@ class WTable;
 /*! \class WTableColumn Wt/WTableColumn Wt/WTableColumn
  *  \brief A column in a WTable
  *
- * A table column is not a widget -- it only has a logistic function, for
- * managing various properties of a single column in a table.
+ * A %WTableColumn is returned by WTable::columnAt() and managing
+ * various properties of a single column in a table (it is however not
+ * a widget).
  *
  * You cannot access table cells through the column. Instead, to access
  * table cells, see WTable::elementAt().
+ *
+ * A table column corresponds to the HTML <tt>&lt;col&gt;</tt> tag.
  *
  * \sa WTable, WTableRow
  */
@@ -43,7 +46,7 @@ public:
 
    /*! \brief Set the column width.
    *
-   * The default column width is 'auto' (WLength()).
+   * The default column width is WLength::Auto.
    *
    * \sa width(), WWidget::resize()
    */

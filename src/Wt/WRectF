@@ -16,8 +16,7 @@ class WPointF;
 /*! \class WRectF Wt/WRectF Wt/WRectF
  *  \brief Utility class that defines a rectangle.
  *
- * The rectangle is defined by a top-left point and a width and
- * height.
+ * The rectangle is defined by a top-left point and a width and height.
  *
  * \ingroup painting
  */

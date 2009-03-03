@@ -21,15 +21,6 @@ namespace Wt {
 
     class Response;
 
-/*! \brief Enumeration that indicates a response continuation type.
- *
- * \sa Response::createContinuation()
- */
-enum ContinuationType {
-  AsyncContinuation,        //!< Asynchronous I/O continuation
-  ServerEventContinuation
-};
-
 /*! \class ResponseContinuation Wt/Http/ResponseContinuation Wt/Http/ResponseContinuation
  *  \brief A response continuation object.
  *
@@ -43,12 +34,6 @@ enum ContinuationType {
 class WT_API ResponseContinuation
 {
 public:
-  /*! \brief Return the continuation type.
-   *
-   * \sa Response::createContinuation()
-   */
-  ContinuationType type() { return type_; }
-
   /*! \brief Set data associated with the continuation.
    *
    * You could do this to keep track of the state of sending the data
@@ -72,13 +57,11 @@ public:
   void doContinue();
 
 private:
-  ContinuationType  type_;
   WResource        *resource_;
   WebResponse      *response_;
   boost::any        data_;
 
-  ResponseContinuation(ContinuationType type,
-		       WResource *resource, WebResponse *response);
+  ResponseContinuation(WResource *resource, WebResponse *response);
   ResponseContinuation(const ResponseContinuation&);
   ~ResponseContinuation();
 

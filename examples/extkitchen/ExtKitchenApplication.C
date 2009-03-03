@@ -66,7 +66,7 @@ ExtKitchenApplication::ExtKitchenApplication(const WEnvironment& env)
   head->setStyleClass("north");
   north->setLayout(new WFitLayout());
   north->layout()->addWidget(head);
-  north->resize(WLength(), 35);
+  north->resize(WLength::Auto, 35);
   layout->addWidget(north, WBorderLayout::North);
 
   /* West */
@@ -74,7 +74,7 @@ ExtKitchenApplication::ExtKitchenApplication(const WEnvironment& env)
   west->layout()->addWidget(createExampleTree());
 
   west->setTitle("Widgets");
-  west->resize(200, WLength());
+  west->resize(200, WLength::Auto);
   west->setResizable(true);
   west->setCollapsible(true);
   west->setAnimate(true);
@@ -269,29 +269,29 @@ void ExtKitchenApplication::formWidgetsExample()
   split->resize(400, 100);
 
   split->addWidget(new WText("Left"));
-  split->children().back()->resize(150, WLength());
-  split->children().back()->setMinimumSize(130, WLength());
-  split->children().back()->setMaximumSize(170, WLength());
+  split->children().back()->resize(150, WLength::Auto);
+  split->children().back()->setMinimumSize(130, WLength::Auto);
+  split->children().back()->setMaximumSize(170, WLength::Auto);
 
   split->addWidget(new WText("Center"));
-  split->children().back()->resize(100, WLength());
-  split->children().back()->setMinimumSize(50, WLength());
+  split->children().back()->resize(100, WLength::Auto);
+  split->children().back()->setMinimumSize(50, WLength::Auto);
 
   split->addWidget(new WText("Right"));
-  split->children().back()->resize(50, WLength());
-  split->children().back()->setMinimumSize(50, WLength());
+  split->children().back()->resize(50, WLength::Auto);
+  split->children().back()->setMinimumSize(50, WLength::Auto);
 
   // Vertical Splitter
   split = new Ext::Splitter(Vertical, ex);
   split->resize(100, 200);
 
   split->addWidget(new WText("Top"));
-  split->children().back()->resize(WLength(), 100);
-  split->children().back()->setMinimumSize(WLength(), 50);
-  split->children().back()->setMaximumSize(WLength(), 196);
+  split->children().back()->resize(WLength::Auto, 100);
+  split->children().back()->setMinimumSize(WLength::Auto, 50);
+  split->children().back()->setMaximumSize(WLength::Auto, 196);
 
   split->addWidget(new WText("Center"));
-  split->children().back()->resize(WLength(), 100);
+  split->children().back()->resize(WLength::Auto, 100);
 
   setExample(ex);
 }
@@ -555,7 +555,7 @@ void ExtKitchenApplication::createDialog3()
   Ext::Panel *west = new Ext::Panel();
   west->setTitle("West");
   west->setResizable(true);
-  west->resize(100, WLength());
+  west->resize(100, WLength::Auto);
   layout->addWidget(west, WBorderLayout::West);
 
   Ext::Panel *center = new Ext::Panel();
@@ -566,7 +566,7 @@ void ExtKitchenApplication::createDialog3()
 
   Ext::Panel *nestedNorth = new Ext::Panel();
   nestedLayout->addWidget(nestedNorth, WBorderLayout::North);
-  nestedNorth->resize(WLength(), 35);
+  nestedNorth->resize(WLength::Auto, 35);
   nestedNorth->layout()->addWidget(new WText(WString::tr("nested-header")));
 
   Ext::Panel *nestedCenter = new Ext::Panel();

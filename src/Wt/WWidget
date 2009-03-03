@@ -32,16 +32,18 @@ class DomElement;
 /*! \class WWidget Wt/WWidget Wt/WWidget
  *  \brief A %WWidget is the abstract base class for any %Wt widget.
  *
- * The user-interface is organized in a tree structure, in which all nodes
- * are widgets. When the parent widget is deleted, all children are deleted
- * likewise. All widgets, except for the application's root widget
+ * The user-interface is organized in a tree structure, in which all
+ * nodes are widgets. When a widget is deleted, it is also visually
+ * removed from the user-interface and all children are deleted
+ * recursively. All widgets, except for the application's root widget
  * have a parent, which is usually a WContainerWidget.
  *
  * %WWidget is abstract and cannot be instantiated. Implementations
  * either from WWebWidget (for basic widgets with a direct HTML
  * counter-part) or WCompositeWidget (for anything else). To add a
  * WWebWidget to a parent WContainerWidget, either specify the parent
- * in the constructor, or add the widget to the parent using
+ * in the constructor (which is conventionally the last constructor
+ * argument), or add the widget to the parent using
  * WContainerWidget::addWidget(WWidget *).
  *
  * A widget provides methods to manage its decorative style. It also
@@ -404,7 +406,7 @@ public:
    * This applies to CSS-based layout.
    */
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length = WLength()) = 0;
+				    const WLength& length = WLength::Auto) = 0;
 
   /*! \brief Returns the vertical alignment.
    *

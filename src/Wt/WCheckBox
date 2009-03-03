@@ -14,8 +14,6 @@ namespace Wt {
 /*! \class WCheckBox Wt/WCheckBox Wt/WCheckBox
  *  \brief A user control that represents a check box.
  *
- * %WCheckBox is an \link WWidget::setInline(bool) inline \endlink widget.
- *
  * A label is added as a sibling of the checkbox to the same parent.
  *
  * Usage example:
@@ -35,6 +33,8 @@ namespace Wt {
  *
  * The widget corresponds to the HTML <tt>&lt;input
  * type="checkbox"&gt;</tt> tag.
+ *
+ * %WCheckBox is an \link WWidget::setInline(bool) inline \endlink widget.
  *
  * \sa WAbstractToggleButton
  */

@@ -130,7 +130,7 @@ public:
     grid->addWidget(b, 2, 0, AlignLeft);
 
     gitView_ = new WTreeView();
-    gitView_->resize(300, WLength());
+    gitView_->resize(300, WLength::Auto);
     gitView_->setSortingEnabled(false);
     gitView_->setModel(gitModel_ = new GitModel(this));
     gitView_->setSelectionMode(SingleSelection);

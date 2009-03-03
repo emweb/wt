@@ -19,9 +19,25 @@ namespace Wt {
  * is suitable for relatively small resources, which still require some
  * computation.
  *
- * If you require little computation for creating the data, then
- * you may want to reimplement WResource and compute the data on the fly
- * while streaming.
+ * If creating the data requires computation which you would like to
+ * post-pone until the resource is served, then you may want to
+ * directly reimplement WResource instead and compute the data on the
+ * fly while streaming.
+ *
+ * Usage examples:
+ * \code
+ * Wt::WMemoryResource *imageResource = new Wt::WMemoryResource("image/gif", this);
+ *
+ * static const char gifData[]
+ *    = { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00,
+ *        0x80, 0x00, 0x00, 0xdb, 0xdf, 0xef, 0x00, 0x00, 0x00, 0x21,
+ *        0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00,
+ *        0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x44,
+ *        0x01, 0x00, 0x3b };
+ *
+ * imageResource->setData(gifData, 43);
+ * Wt::WImage *image = new Wt::WImage(imageResource, "1 transparent pixel");
+ * \endcode
  *
  * \sa WFileResource.
  */

@@ -88,7 +88,7 @@ void WFont::setSize(Size size, const WLength& fixedSize)
   if(size_ == FixedSize) {
     fixedSize_ = fixedSize;
   } else {
-    fixedSize_ = WLength();
+    fixedSize_ = WLength::Auto;
   }
   sizeChanged_ = true;
   if (widget_) widget_->repaint(RepaintPropertyAttribute);

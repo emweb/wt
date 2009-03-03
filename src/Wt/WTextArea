@@ -14,17 +14,26 @@ namespace Wt {
 /*! \class WTextArea Wt/WTextArea Wt/WTextArea
  *  \brief A widget that provides a multi-line edit.
  *
- * %WTextArea is an \link WWidget::setInline(bool) inline \endlink widget.
- *
  * To act upon text changes, connect a slot to the changed() signal.
  * This signal is emitted when the user changed the content, and
  * subsequently removes the focus from the line edit.
  *
- * To act upon editing, connect a slot to the
- * WInteractWidget::keyWentUp signal.
+ * To act upon editing, connect a slot to the keyWentUp() signal.
  *
  * At all times, the current content may be accessed with the text()
  * method.
+ *
+ * Usage example:
+ * \code
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget();
+ * Wt::WLabel *label = new Wt::WLabel("Comments:", w);
+ * Wt::WTextArea *edit = new Wt::WTextArea("", w);
+ * label->setBuddy(edit);
+ * \endcode
+ *
+ * The widget corresponds to an HTML <tt>&lt;textarea&gt;</tt> tag.
+ *
+ * %WTextArea is an \link WWidget::setInline(bool) inline \endlink widget.
  *
  * \sa WLineEdit
  */
@@ -39,23 +48,31 @@ public:
    */
   WTextArea(const WT_USTRING& content, WContainerWidget *parent = 0);
 
-  /*! \brief Specify the number of columns.
+  /*! \brief Set the number of columns.
+   *
+   * The default value is 20.
    */
   void setColumns(int cols);
 
-  /*! \brief Specify the number of rows.
+  /*! \brief Set the number of rows.
+   *
+   * The default value is 5.
    */
   void setRows(int rows);
 
-  /*! \brief Get the number of columns.
+  /*! \brief Returns the number of columns.
+   *
+   * \sa setColumns()
    */
   int  columns() const { return cols_; }
 
-  /*! \brief Get the number of rows.
+  /*! \brief Returns the number of rows.
+   *
+   * \sa setRows()
    */
   int  rows() const { return rows_; }
 
-  /*! \brief Get the current content.
+  /*! \brief Returns the current content.
    */
   const WT_USTRING& text() const { return content_; }
 

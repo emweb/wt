@@ -109,7 +109,7 @@ void WCalendar::create()
 			      "border: 1px solid #CCCCCC;");
   }
 
-  layout_->resize(WLength(18, WLength::FontEm), WLength());
+  layout_->resize(WLength(18, WLength::FontEm), WLength::Auto);
 
   /*
    * Navigation bar

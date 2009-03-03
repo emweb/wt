@@ -12,7 +12,7 @@ OptionList::OptionList(WContainerWidget *parent)
   : WContainerWidget(parent),
     optionNeedReset_(0)
 {
-  resize(WLength(), WLength(2.5, WLength::FontEx));
+  resize(WLength::Auto, WLength(2.5, WLength::FontEx));
 }
 
 void OptionList::add(Option *option)

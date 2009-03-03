@@ -175,7 +175,7 @@ void RowSpacer::setRows(int height, bool force)
 {
   if (force || height != height_) {
     height_ = height;
-    resize(Wt::WLength(), node_->view()->rowHeight() * height);
+    resize(Wt::WLength::Auto, node_->view()->rowHeight() * height);
   }
 }
 
@@ -232,7 +232,7 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
 
     selfHeight = 1;
   } else
-    elementAt(0, 0)->resize(1, WLength());
+    elementAt(0, 0)->resize(1, WLength::Auto);
 
   if (view_->selectionBehavior() == SelectRows && view_->isSelected(index_))
     renderSelected(true, 0);
@@ -964,7 +964,7 @@ WTreeView::ColumnInfo::ColumnInfo(const WTreeView *view, WApplication *app,
 				   + " ." + this->styleClass());
   if (column) {
     width = WLength(150);
-    styleRule->templateWidget()->resize(width, WLength());
+    styleRule->templateWidget()->resize(width, WLength::Auto);
   }
 
   app->styleSheet().addRule(styleRule);
@@ -1210,7 +1210,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
   app->styleSheet().addRule(rowContentsWidthRule_);
 
   c0WidthRule_ = new WCssTemplateRule("#" + formName() + " .c0w");
-  c0WidthRule_->templateWidget()->resize(150, WLength());
+  c0WidthRule_->templateWidget()->resize(150, WLength::Auto);
   app->styleSheet().addRule(c0WidthRule_);
 
   setRowHeight(rowHeight_);
@@ -1528,7 +1528,7 @@ void WTreeView::setColumn1Fixed(bool fixed)
     setStyleClass("Wt-treeview column1 unselectable");
     WContainerWidget *rootWrap
       = dynamic_cast<WContainerWidget *>(contents_->widget(0));
-    rootWrap->resize(WLength(100, WLength::Percentage), WLength());
+    rootWrap->resize(WLength(100, WLength::Percentage), WLength::Auto);
     rootWrap->setOverflow(WContainerWidget::OverflowHidden);
 
     // needed for IE, otherwise row expands automatically to content width
@@ -1538,7 +1538,7 @@ void WTreeView::setColumn1Fixed(bool fixed)
 
     WContainerWidget *scrollBarContainer = new WContainerWidget();
     scrollBarContainer->setStyleClass("cwidth");
-    scrollBarContainer->resize(WLength(), 16);
+    scrollBarContainer->resize(WLength::Auto, 16);
     WContainerWidget *scrollBarC = new WContainerWidget(scrollBarContainer);
     scrollBarC->setStyleClass("Wt-tv-row Wt-scroll");
     scrollBarC->scrolled().connect(tieRowsScrollJS_);
@@ -1592,10 +1592,11 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
   columnInfo(column).width = width;
 
   if (column != 0)
-    columnInfo(column).styleRule->templateWidget()->resize(width, WLength());
+    columnInfo(column).styleRule->templateWidget()
+      ->resize(width, WLength::Auto);
   else
-    c0WidthRule_->templateWidget()->resize(WLength(width.toPixels()),
-					   WLength());
+    c0WidthRule_->templateWidget()
+      ->resize(width.toPixels(), WLength::Auto);
 }
 
 WLength WTreeView::columnWidth(int column) const
@@ -1700,7 +1701,7 @@ void WTreeView::setRowHeight(const WLength& rowHeight)
 {
   rowHeight_ = rowHeight;
 
-  rowHeightRule_->templateWidget()->resize(WLength(), rowHeight_);
+  rowHeightRule_->templateWidget()->resize(WLength::Auto, rowHeight_);
   rowHeightRule_->templateWidget()->setLineHeight(rowHeight_);
 
   setRootNodeStyle();
@@ -1718,14 +1719,14 @@ void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
   headerHeight_ = height;
   multiLineHeader_ = multiLine;
 
-  headerHeightRule_->templateWidget()->resize(WLength(), headerHeight_);
+  headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight_);
   if (!multiLineHeader_)
     headerHeightRule_->templateWidget()->setLineHeight(headerHeight_);
   else
-    headerHeightRule_->templateWidget()->setLineHeight(WLength());
+    headerHeightRule_->templateWidget()->setLineHeight(WLength::Auto);
 
   headers_->resize(headers_->width(), headerHeight_);
-  headerContainer_->resize(WLength(), headerHeight_);
+  headerContainer_->resize(WLength::Auto, headerHeight_);
 
   if (renderState_ == NeedRerender)
     return;
@@ -1746,10 +1747,10 @@ void WTreeView::resize(const WLength& width, const WLength& height)
   }
 
   WLength w
-    = WApplication::instance()->environment().ajax() ? WLength() : width;
+    = WApplication::instance()->environment().ajax() ? WLength::Auto : width;
 
-  contentsContainer_->resize(w, WLength());
-  headerContainer_->resize(w, WLength());
+  contentsContainer_->resize(w, WLength::Auto);
+  headerContainer_->resize(w, WLength::Auto);
 
   WCompositeWidget::resize(width, height);
 }

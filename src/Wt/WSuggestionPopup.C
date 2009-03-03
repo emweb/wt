@@ -11,6 +11,7 @@
 #include "Wt/WFormWidget"
 
 #include "Wt/WSuggestionPopup"
+#include "Wt/WStringListModel"
 
 namespace Wt {
 
@@ -18,6 +19,8 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
 				   const std::string& replacerJS,
 				   WContainerWidget *parent)
   : WCompositeWidget(parent),
+    model_(0),
+    modelColumn_(0),
     matcherJS_(matcherJS),
     replacerJS_(replacerJS),
     editKeyDown_(parent), // should be this, but IE hack...
@@ -132,6 +135,108 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
       "}");
 
   hide();
+
+  setModel(new WStringListModel(this));
+}
+
+void WSuggestionPopup::setModel(WAbstractItemModel *model)
+{
+    if (model_) {
+    /* disconnect slots from previous model */
+    for (unsigned i = 0; i < modelConnections_.size(); ++i)
+      modelConnections_[i].disconnect();
+    modelConnections_.clear();
+  }
+
+  model_ = model;
+
+  /* connect slots to new model */
+  modelConnections_.push_back(model_->rowsInserted().connect
+     (SLOT(this, WSuggestionPopup::modelRowsInserted)));
+  modelConnections_.push_back(model_->rowsRemoved().connect
+     (SLOT(this, WSuggestionPopup::modelRowsRemoved)));
+  modelConnections_.push_back(model_->dataChanged().connect
+     (SLOT(this, WSuggestionPopup::modelDataChanged)));
+  modelConnections_.push_back(model_->layoutChanged().connect
+     (SLOT(this, WSuggestionPopup::modelLayoutChanged)));
+
+  setModelColumn(modelColumn_);
+}
+
+void WSuggestionPopup::setModelColumn(int modelColumn)
+{
+  modelColumn_ = modelColumn;
+
+  content_->clear();
+
+  modelRowsInserted(WModelIndex(), 0, model_->rowCount() - 1);
+}
+
+void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
+					 int start, int end)
+{
+  if (modelColumn_ >= model_->columnCount())
+    return;
+
+  if (parent.isValid())
+    return;
+
+  for (int i = start; i <= end; ++i) {
+    WContainerWidget *line = new WContainerWidget();
+    content_->insertWidget(i, line);
+
+    boost::any d = model_->data(i, modelColumn_);
+    WText *value = new WText(asString(d), PlainText);
+
+    boost::any d2 = model_->data(i, modelColumn_, UserRole);
+    if (d2.empty())
+      d2 = d;
+
+    line->addWidget(value);
+    value->setAttributeValue("sug", asString(d2));
+    value->clicked().connect(suggestionClicked_);
+  }
+}
+
+void WSuggestionPopup::modelRowsRemoved(const WModelIndex& parent,
+					int start, int end)
+{
+  if (parent.isValid())
+    return;
+
+  for (int i = start; i <= end; ++i)
+    delete content_->widget(i);
+}
+
+void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
+					const WModelIndex& bottomRight)
+{
+  if (topLeft.parent().isValid())
+    return;
+
+  if (modelColumn_ < topLeft.column() || modelColumn_ > bottomRight.column())
+    return;
+
+  for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
+    WContainerWidget *w = dynamic_cast<WContainerWidget *>(content_->widget(i));
+    WText *value = dynamic_cast<WText *>(w->widget(0));
+
+    boost::any d = model_->data(i, modelColumn_);
+    value->setText(asString(d));
+
+    boost::any d2 = model_->data(i, modelColumn_, UserRole);
+    if (d2.empty())
+      d2 = d;
+
+    value->setAttributeValue("sug", asString(d2));
+  }
+}
+
+void WSuggestionPopup::modelLayoutChanged()
+{
+  content_->clear();
+
+  setModelColumn(modelColumn_);
 }
 
 void WSuggestionPopup::forEdit(WFormWidget *edit)
@@ -144,18 +249,18 @@ void WSuggestionPopup::forEdit(WFormWidget *edit)
 
 void WSuggestionPopup::clearSuggestions()
 {
-  content_->clear();
+  model_->removeRows(0, model_->rowCount());
 }
 
 void WSuggestionPopup::addSuggestion(const WString& suggestionText,
 				     const WString& suggestionValue)
 {
-  WContainerWidget *line = new WContainerWidget(content_);
+  int row = model_->rowCount();
 
-  WText *value = new WText(suggestionText, PlainText);
-  line->addWidget(value);
-  value->setAttributeValue("sug", suggestionValue);
-  value->clicked().connect(suggestionClicked_);
+  if (model_->insertRow(row)) {
+    model_->setData(row, modelColumn_, boost::any(suggestionText), DisplayRole);
+    model_->setData(row, modelColumn_, boost::any(suggestionValue), UserRole);
+  }
 }
 
 namespace {

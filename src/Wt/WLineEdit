@@ -14,13 +14,11 @@ namespace Wt {
 /*! \class WLineEdit Wt/WLineEdit Wt/WLineEdit
  *  \brief A widget that provides a single line edit.
  *
- * To act upon text changes, connect a slot to the \link
- * WFormWidget::changed changed \endlink signal. This signal is
- * emitted when the user changed the content, and subsequently removes
- * the focus from the line edit.
+ * To act upon text changes, connect a slot to the changed()
+ * signal. This signal is emitted when the user changed the content,
+ * and subsequently removes the focus from the line edit.
  *
- * To act upon editing, connect a slot to the \link
- * WInteractWidget::keyWentUp keyWentUp<WKeyEvent>\endlink signal.
+ * To act upon editing, connect a slot to the keyWentUp() signal.
  *
  * At all times, the current content may be accessed with the text()
  * method.
@@ -31,6 +29,18 @@ namespace Wt {
  * setValidator(WValidator *) method. Validators provide, in general,
  * both client-side validation (as visual feed-back only) and
  * server-side validation when calling validate().
+ *
+ * Usage example:
+ * \code
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget();
+ * Wt::WLabel *label = new Wt::WLabel("Age:", w);
+ * Wt::WLineEdit *edit = new Wt::WLineEdit("13", w);
+ * edit->setValidator(new Wt::WIntValidator(0, 200));
+ * label->setBuddy(edit);
+ * \endcode
+ *
+ * The widget corresponds to the HTML <tt>&lt;input type="text"&gt;</tt> or
+ * <tt>&lt;input type="password"&gt;</tt> tag.
  *
  * %WLineEdit is an \link WWidget::setInline(bool) inline \endlink widget.
  *

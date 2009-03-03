@@ -92,7 +92,7 @@ public:
   }
 
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length = WLength()) {
+				    const WLength& length) {
     WWebWidget::setVerticalAlignment(alignment, length);
     rule_->modified();
   }

@@ -17,15 +17,30 @@ class WPointF;
  *  \brief A 2D affine transformation matrix.
  *
  * The matrix is encoded using 6 parameters:
- *  \verbatim
-    m11  m12   0
-    m21  m22   0
-    dx   dy    1
-    \endverbatim
+ * \code
+ * m11  m12   0
+ * m21  m22   0
+ * dx   dy    1
+ * \endcode
  * 
- * In this representation, dx (=m31) and dy (=m32) represent the
- * translation components, and m<i>xy</i> represent a 2D matrix that
- * contains the scale, rotation (and skew) components.
+ * In this representation, dx() (= m31()) and dy() (= m32()) represent
+ * the translation components, and m<i>xy</i> represent a 2D matrix
+ * that contains the scale, rotation (and skew) components.
+ *
+ * The transformation is used to represent a tansformed coordinate
+ * system, and provides methods to rotate(), scale(), shear() or
+ * translate() this coordinate system.
+ *
+ * There are also 2 methods to decompose an arbitrary matrix into
+ * elementary operations:
+ * - decomposeTranslateRotateScaleSkew() \htmlonly
+ * decomposes into a <i>T</i> &#x2218; <i>R</i> &#x2218; <i>Sxx</i>
+ * &#x2218; <i>Sxy</i>\endhtmlonly
+ * - decomposeTranslateRotateScaleRotate() \htmlonly
+ * decomposes into a <i>T</i> &#x2218; <i>R1</i> &#x2218; <i>Sxx</i>
+ * &#x2218; <i>R2</i>\endhtmlonly
+ *
+ * with <i>T</i> a translation, <i>R</i> a rotation, <i>Sxx</i> a scale, and <i>Sxy</i> a skew component.
  *
  * \ingroup painting
  */
@@ -134,7 +149,7 @@ public:
    * Sets the point (<i>tx</i>, <i>ty</i>) to the transformation of
    * the point (<i>x</i>, <i>y</i>).
    *
-   * \sa map(const WPointF&)
+   * \sa map(const WPointF&) const
    */
   void map(double x, double y, double *tx, double *ty) const;
 
@@ -149,7 +164,7 @@ public:
    * Applies a clock-wise rotation to the current transformation
    * matrix, over <i>angle</i> degrees.
    *
-   * \sa rotateRadians(double)
+   * \sa rotateRadians()
    */
   WTransform& rotate(double angle);
 
@@ -158,7 +173,7 @@ public:
    * Applies a clock-wise rotation to the current transformation
    * matrix, over <i>angle</i> radians.
    *
-   * \sa rotate(double)
+   * \sa rotate()
    */
   WTransform& rotateRadians(double angle);
 
@@ -167,35 +182,53 @@ public:
    * Applies a clock-wise rotation to the current transformation
    * matrix, over <i>angle</i> radians.
    *
-   * \sa shear(double, double)
+   * \sa shear()
    */
   WTransform& scale(double sx, double sy);
 
   /*! \brief Shear the transformation.
    *
-   * Shears the current transformation
+   * Shears the current transformation.
    *
-   * \sa scale(double, double), rotate(double, double)
+   * \sa scale(), rotate()
    */
   WTransform& shear(double sh, double sv);
 
   /*! \brief Translate the transformation.
    *
-   * Translates the current transformation
+   * Translates the current transformation.
    */
   WTransform& translate(double dx, double dy);
-
-  static double degreesToRadians(double angle);
 
   // adds a transform that is conceptually applied after this transform.
   WTransform& operator*= (const WTransform& rhs);
 
+  /*! \brief Return the determinant.
+   */
   double determinant() const;
+
+  /*! \brief Return the adjoint.
+   */
   WTransform adjoint() const;
+
+  /*! \brief Return the inverted transformation.
+   *
+   * Returns <i>this</i> if the transformation could not be inverted
+   * (determinant() == 0), and logs an error instead.
+   */
   WTransform inverted() const;
 
+  /*! \brief Result of a TRSS decomposition
+   *
+   * \sa decomposeTranslateRotateScaleSkew()
+   */
   struct TRSSDecomposition {
-    double dx, dy, alpha, sx, sy, sh;
+    double dx, //!< X component of translation
+      dy,      //!< Y component of translation
+      alpha,   //!< Rotation angle (radians)
+      sx,      //!< X component of scale
+      sy,      //!< Y component of scale
+      sh;      //!< Shear (in Y direction)
   };
 
   /*! \brief Decompose the transformation
@@ -206,12 +239,23 @@ public:
    * vertical shearing factor (<i>sh</i>). The angle is expressed in
    * radians.
    *
-   * This performs a Gram-Schmidt orthonormalization.
+   * This performs a <a
+   * href="http://en.wikipedia.org/wiki/Gram_schmidt">Gram-Schmidt
+   * orthonormalization</a>.
    */
   void decomposeTranslateRotateScaleSkew(TRSSDecomposition& result) const;
 
+  /*! \brief Result of a TRSR decomposition
+   *
+   * \sa decomposeTranslateRotateScaleRotate()
+   */
   struct TRSRDecomposition {
-    double dx, dy, alpha1, sx, sy, alpha2;
+    double dx, //!< X component of translation
+      dy,      //!< Y component of translation
+      alpha1,  //!< First rotation angle (radians)
+      sx,      //!< X component of scale
+      sy,      //!< Y component of scale
+      alpha2;  //!< Second rotation angle (radians)
   };
 
   /*! \brief Decompose the transformation
@@ -222,9 +266,15 @@ public:
    * again a rotation (<i>alpha2</i>). The angles are expressed in
    * radians.
    *
-   * This performs a Singular Value Decomposition.
+   * This performs a <a
+   * href="http://en.wikipedia.org/wiki/Singular_value_decomposition">Singular
+   * Value Decomposition (SVD)</a>.
    */
   void decomposeTranslateRotateScaleRotate(TRSRDecomposition& result) const;
+
+  /*! \brief Utility method to convert degrees to radians.
+   */
+  static double degreesToRadians(double angle);
 
 private:
   // we use row,column indices; prepend transformations to the left,

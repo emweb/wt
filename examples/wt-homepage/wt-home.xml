@@ -170,12 +170,17 @@ communication between browser and server.</p>
     rendered.</li>
   <li>Configurable session tracking options that include URL rewriting
     and cookies.</li>
-  <li>Supports timed events and server-initiated updates ("server push")</li>
+  <li>Supports timed events and built-in support for server-initiated
+  updates ("server push")</li>
   <li>Support for browser history navigation (back/forward buttons and
     bookmarks) through a flexible internal path API.</li>
   <li>High performance, allowing deployment on low-end embedded
     devices, or energy-, space- and budget-friendly deployment of
-    Internet or extranet web sites.</li> 
+    Internet or extranet web sites.</li>
+  <li>Completely based on async I/O: sessions are not tied to threads,
+    and neither do delayed responses (e.g. for server push) block
+    threads. Instead, threads are needed only to improve concurrent
+    request handling or for reentrant event loops.</li>
 </ul>
 
 <h4>Event handling</h4>
@@ -233,8 +238,8 @@ communication between browser and server.</p>
 
 <ul>
   <li>Kernel-level memory protection protects against privacy issues
-    arising from programming bugs, since sessions are completely isolated
-    (in dedicated-process mode).</li>
+    arising from programming bugs, since sessions can be completely
+    isolated from each other (in dedicated-process mode).</li>
   <li>Supports encryption and server authentication using Secure Sockets
     Layer (SSL) or Transport Layer Security (TLS) through HTTPS.</li>
   <li>Enables continuous use of HTTPS through low bandwidth
@@ -242,6 +247,10 @@ communication between browser and server.</p>
   <li>Built-in Cross-Site Scripting (XSS) prevention. Rendered text is
     always filtered against potentially malicious code, making XSS
     attacks against Wt applications (close to) impossible.</li>
+  <li>Not vulnerable to Cross-site Request Forgery (CSRF) because
+    cookies for session tracking are optional, and even when used, they
+    are never solely relied on for requests that trigger event handling
+    code.</li>
 </ul>
 
 <h4>Deployment</h4>
@@ -904,10 +913,6 @@ maintained by <a href="http://www.emweb.be/">Emweb bvba</a>.</p>
 href="http://asio.sourceforge.net/">asio C++
 library</a>, developed by Christopher M. Kohlhoff (<a
 href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>).</li>
-<li>Server-initiated updates are based on the JavaScript code of
-orbited (<a href="http://orbited.org/">Orbited
-0.2.0</a>; <a href="http://www.opensource.org/licenses/mit-license.php">MIT
-license</a>).</li>
 <li>Thread pool implementation from Philipp Henkel (<a
 href="http://threadpool.sourceforge.net/">threadpool</a>; <a
 href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>).</li>

@@ -45,6 +45,44 @@ class WStandardItem;
  * itemFromIndex() and indexFromItem() models to translate between
  * model indexes (that are used by the view class) and standard items.
  *
+ * Usage example for tabular data:
+ * \code
+ * int rows = 5;
+ * int columns = 4;
+ *
+ * Wt::WStandardItemModel *model = new Wt::WStandardItemModel(rows, columns, this);
+ *
+ * for (int row = 0; row < rows; ++row) {
+ *   for (int column = 0; column < columns; ++column) {
+ *     Wt::WStandardItem *item = new Wt::WStandardItem();
+ *     item->setText("Item " + boost::lexical_cast<int>(row)
+ *                   + ", " + boost::lexical_cast<int>(column));
+ *     model->setItem(row, column, item);
+ *   }
+ * }
+ * \endcode
+ *
+ * Usage example for tree-like data:
+ * \code
+ * int topLevelRows = 5;
+ * int secondLevelRows = 7;
+ *
+ * Wt::WStandardItemModel *model = new Wt::WStandardItemModel();
+ * Wt::WStandardItem *root = model->invisibleRootItem();
+ *
+ * for (int row = 0; row < topLevelRows; ++row) {
+ *   Wt::WStandardItem *topLevel = new Wt::WStandardItem();
+ *   topLevel->setText("Item " + boost::lexical_cast<int>(row));
+ *   for (int row2 = 0; row2 < secondLevelRows; ++row2) {
+ *     Wt::WStandardItem *item = new Wt::WStandardItem();
+ *     item->setText("Item " + boost::lexical_cast<int>(row)
+ *                   + ": " + boost::lexical_cast<int>(row2));
+ *     topLevel->appendRow(item);
+ *   }
+ *   root->appendRow(topLevel);
+ * }
+ * \endcode
+ *
  * \ingroup modelview
  */
 class WT_API WStandardItemModel : public WAbstractItemModel

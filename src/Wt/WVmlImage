@@ -25,10 +25,9 @@ class WColor;
  * using the Vector Markup Language (VML) (to support graphics on
  * Internet Explorer browsers).
  *
- * <i>Note: the current implementation has no support for clipping,
- * and only limited support for text, which is rendered in an
- * overlayed DIV. The latter problem will be solved in the future,
- * using VML textpath elements.</i>
+ * \note The current implementation has only limited support for
+ * clipping: only rectangular areas aligned with the X/Y axes can be used
+ * as clipping path.
  *
  * \ingroup painting
  */

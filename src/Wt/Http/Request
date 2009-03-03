@@ -23,6 +23,11 @@ class WebSession;
 
   namespace Http {
 
+/*! \class UploadedFile Wt/Http/Request Wt/Http/Request
+ *  \brief Details about a file uploaded with a (POST) request.
+ *
+ * \sa Request::uploadedFiles() 
+ */
 class WT_API UploadedFile {
 public:
   UploadedFile(const std::string& spoolFileName,
@@ -34,8 +39,6 @@ public:
    * This is the location on the local (server) filesystem where the uploaded
    * file is temporarily stored. Unless you call stealSpoolFile(), this file
    * is deleted automatically.
-   *
-   * Only defined for a \link Parameter::File File\endlink type().
    */
   const std::string& spoolFileName() const;
 
@@ -43,8 +46,6 @@ public:
    *
    * This is the location that was indicated by the browser. Depending on
    * the browser this is an absolute path or only the file name.
-   *
-   * Only defined for a \link Parameter::File File\endlink type().
    */
   const std::string& clientFileName() const;
 
@@ -52,8 +53,6 @@ public:
    *
    * Returns the content mime-type that was sent along with the uploaded
    * file.
-   *
-   * Only defined for a \link Parameter::File File\endlink type().
    */
   const std::string& contentType() const;
 
@@ -83,16 +82,23 @@ typedef std::vector<std::string> ParameterValues;
 
 /*! \brief A parameter value map.
  *
- * This is the type used aggregate all parameter values in a request.
+ * This is the type used aggregate plain parameter values in a request.
  */
 typedef std::map<std::string, ParameterValues> ParameterMap;
 
+/*! \brief A file parameter map.
+ *
+ * This is the type used aggregate file parameter values in a request.
+ */
 typedef std::map<std::string, UploadedFile> UploadedFileMap;
 
 class ResponseContinuation;
 
 /*! \class Request Wt/Http/Request Wt/Http/Request
  *  \brief An HTTP request.
+ *
+ * The request provides information of parameters, including uploaded
+ * files, that were present in a GET or POST request.
  *
  * \sa WResource::handleRequest()
  */
@@ -101,11 +107,17 @@ class WT_API Request
 public:
   /*! \brief Returns the query parameters.
    *
-   * Returns all parameters that were passed to the query, either inside
-   * the URL, or inside a POST request, including uploaded files.
+   * Returns parameters that were passed to the query, either inside
+   * the URL, or inside a POST request, excluding uploaded files.
+   *
+   * \sa uploadedFiles()
    */
   const ParameterMap& getParameterMap() const { return parameters_; }
 
+  /*! \brief Returns uploaded file parameters.
+   *
+   * \sa getParameterMap()
+   */
   const UploadedFileMap& uploadedFiles() const { return files_; }
 
   /*! \brief Returns all values for a query parameter.
@@ -125,6 +137,12 @@ public:
    */
   const std::string *getParameter(const std::string& name) const;
 
+  /*! \brief Returns an uploaded file
+   *
+   * Returns the file uploaded for a parameter named <i>name</i>
+   * or 0 if the parameter does not contain does not exist or was not
+   * associated with a file input field.
+   */
   const UploadedFile *getUploadedFile(const std::string& name) const;
 
   /*! \brief Returns a non-zero value that exceeded the maximum allowed request.

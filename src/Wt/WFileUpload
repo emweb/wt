@@ -76,6 +76,13 @@ namespace Wt {
  * // React to a fileupload problem.
  * upload->fileTooLarge().connect(SLOT(this, MyWidget::fileTooLarge));
  * \endcode
+ *
+ * The file upload itself corresponds to a <tt>&lt;input
+ * type="file"&gt;</tt> tag, but may be wrapped in a
+ * <tt>&lt;form&gt;</tt> tag.
+ *
+ * %WFileUpload is an \link WWidget::setInline(bool) inline \endlink widget.
+ * 
  */
 class WT_API WFileUpload : public WWebWidget 
 {
@@ -133,7 +140,7 @@ public:
    */
   bool isUploaded() const { return fileUploadTarget_ != 0; }
 
-  /*! \brief Signal emitted when a new file was uploaded.
+  /*! \brief %Signal emitted when a new file was uploaded.
    *
    * This signal is emitted when a new file has been received.
    * It is good practice to hide or delete the WFileUpload widget
@@ -142,9 +149,9 @@ public:
    * \sa upload()
    * \sa fileTooLarge()
    */
-  Signal<>& uploaded() { return uploaded_; }
+  EventSignal<void>& uploaded();
 
-  /*! \brief Signal emitted when the user tried to upload a too large file.
+  /*! \brief %Signal emitted when the user tried to upload a too large file.
    *
    * The parameter is the approximate size of the file the user tried
    * to upload.
@@ -157,7 +164,7 @@ public:
    */
   Signal<int>& fileTooLarge() { return fileTooLarge_; }
 
-  /*! \brief Signal emitted when the user selected a new file.
+  /*! \brief %Signal emitted when the user selected a new file.
    *
    * One could react on the user selecting a (new) file, by uploading
    * the file immediately.
@@ -181,6 +188,7 @@ public:
 
 private:
   static const char *CHANGE_SIGNAL;
+  static const char *UPLOADED_SIGNAL;
 
   int textSize_;
 
@@ -190,7 +198,6 @@ private:
   bool isStolen_;
   bool doUpload_;
 
-  Signal<>    uploaded_;
   Signal<int> fileTooLarge_;
 
   WResource *fileUploadTarget_;

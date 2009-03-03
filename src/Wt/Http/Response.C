@@ -25,10 +25,10 @@ void Response::addHeader(const std::string& name, const std::string& value)
 }
 
 ResponseContinuation *
-Response::createContinuation(ContinuationType type)
+Response::createContinuation()
 {
   if (!continuation_)
-    continuation_ = new ResponseContinuation(type, resource_, response_);
+    continuation_ = new ResponseContinuation(resource_, response_);
   else
     continuation_->resource_ = resource_;
 

@@ -30,58 +30,71 @@ namespace Wt {
  * may be specified in the JavaScript Wt.emit() (or the deprecated
  * global function WtSignalEmit()).
  *
- * To define a signal within a widget, consider the following example:
- *
+ * Example code:
  * \code
  * class MyWidget : public WCompositeWidget
  * {
  * public:
- *   // ...
- *   JSignal<std::string, int> doSome;
- *   // ...
+ *   MyWidget()
+ *     : doSome_(this, "doSome")
+ *   {
+ *     ...
+ *   }
+ *
+ *   JSignal<std::string, int>& doSome() { return doSome_; }
+ *
+ * private:
+ *   JSignal<std::string, int> doSome_;
+ *
+ *   ...
  * };
  *
- * MyWidget::MyWidget()
- *   : doSome(this, "dosome")
- * { 
- *   //...
- * }
  * \endcode
  *
- * The following JavaScript code will then emit the signal for a DOM
+ * The following JavaScript statement will emit the signal for a DOM
  * element <i>element</i> that corresponds to a widget of class
- * MyWidget:
+ * <tt>MyWidget</tt>:
  *
  * \code
  * Wt.emit(element, 'dosome', 'foo', 42);
  * \endcode
  *
- * The argument <i>element</i> is either a \link WWidget::jsRef() DOM
+ * The <i>element</i> can be a \link WWidget::jsRef() DOM
  * element\endlink, or the \link WObject::id() object ID\endlink of a
- * WObject. The conversion between the JavaScript argument (ax) and
- * the C++ type Ax uses boost::lexical_cast<Ax>(ax).
+ * WObject, or the constant 'Wt' which is an alias for
+ * 'Wt::WApplication::instance()->id()'. The conversion between the
+ * JavaScript arguments (ax) and the C++ type Ax uses
+ * <tt>boost::lexical_cast<Ax>(ax)</tt>.
  *
- * By adding a signal to your WApplication object, you define a
- * 'global' signal. In that case, the first argument to Wt.emit() may
- * also be the constant 'Wt':
- *
+ * You can use the methods createCall() to let the signal itself
+ * generate this JavaScript call for you:
  * \code
- * Wt.emit(Wt, 'dosome', 'foo', 42);
+ * doSome_.createCall("'foo'", "42");
  * \endcode
  *
- * You can use the methods createCall() or createEventCall() to let the
- * signal itself generate this JavaScript call for you. The latter variant
- * allows you to pass the original JavaScript event as a last argument of
- * type WMouseEvent or WKeyEvent.
+ * It is also possible to propagate an original JavaScript event as a
+ * last argument, of type WMouseEvent or WKeyEvent. In that case, the
+ * second argument in <tt>Wt.emit()</tt> must be an object which
+ * indicates also the JavaScript event and event target.
  *
- * For example, for a signal declaration:
+ * Consider a signal declaration:
  * \code
- * JSignal<std::string, int, WMouseEvent> doSome;
+ * JSignal<std::string, int, WMouseEvent> doSome();
  * \endcode
- * the following would be a suitable JavaScript call:
+ *
+ * Then, the following would be a suitable JavaScript call:
+ *
  * \code
  * Wt.emit(Wt, {name: 'dosome', event: event, eventObject: object}, 'foo', 42);
  * \endcode
+ *
+ * The method createEventCall() may be used this variation for the JavaScript
+ * method call.
+ *
+ * Since the conversion from JavaScript to C++ uses
+ * <tt>boost::lexical_cast<T>(arg)</tt>, you may provide support for
+ * custom types by implementing the c++ input stream operator
+ * <tt>operator<< (std::istream&, T& t)</tt> for your type.
  *
  * \sa WWidget::jsRef(), WObject::id()
  *

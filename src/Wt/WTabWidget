@@ -35,6 +35,19 @@ namespace Wt {
  * location where these files may be found, by configuring the
  * <i>resourcesURL</i> property in your %Wt configuration file.
  *
+ * Usage example:
+ * \code
+ * Wt::WTabWidget *examples = new Wt::WTabWidget(this);
+ *
+ * examples->addTab(helloWorldExample(), "Hello World");
+ * examples->addTab(chartExample(), "Charts");
+ * examples->addTab(new Wt::WText("A WText"), "WText");
+ *
+ * examples->currentChanged().connect(SLOT(this, MyClass::logInternalPath));
+ * examples->setInternalPathEnabled();
+ * examples->setInternalBasePath("/examples");
+ * \endcode
+ *
  * \image html WTabWidget-1.png "An example WTabWidget"
  */
 class WT_API WTabWidget : public WCompositeWidget

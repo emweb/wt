@@ -28,12 +28,13 @@ class WRectF;
  * future, additional information will be included to convert these pixel
  * units to lengths (using DPI information).
  *
- * You should reimplement this class if you wish to extend the %Wt paint
- * system to paint on other devices.
+ * You should reimplement this class if you wish to extend the %Wt
+ * paint system to paint on other devices than the ones provided by
+ * the library.
  *
- * <i>Note: this interface is subject to changes, which are likely to
- * happen to increase optimization possibilities for the painting
- * using different devices.</i>
+ * <i>Note: this interface is subject to changes to increase
+ * optimization possibilities for the painting using different
+ * devices.</i>
  *
  * \sa WPainter
  *

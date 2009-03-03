@@ -37,6 +37,14 @@ namespace Wt {
  * where the tiny_mce folder is located, by configuring the
  * <i>tinyMCEURL</i> property in your %Wt configuration file.
  *
+ * Usage example:
+ * \code
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget();
+ * Wt::WLabel *label = new Wt::WLabel("Comments:", w);
+ * Wt::WTextEdit *edit = new Wt::WTextEdit("", w);
+ * label->setBuddy(edit);
+ * \endcode
+ *
  * \image html WTextEdit-1.png "Default configuration of a WTextEdit"
  */
 class WT_API WTextEdit : public WTextArea

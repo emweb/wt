@@ -17,19 +17,22 @@ class WTableRow;
 /*! \class WTableCell Wt/WTableCell Wt/WTableCell
  *  \brief A container widget that represents a cell in a table.
  *
- * A WTable provides a grid of %WTableCell widgets. The contents of
- * each cell is accessed through a %WTableCell. A %WtableCell may
- * overspan more than one grid item, by specifying a \link
- * setRowSpan() rowSpan \endlink and \link setColumnSpan() columnSpan
- * \endlink. WTableCells at overspanned positions are hidden.
+ * A WTable provides a table of %WTableCell container widgets. A
+ * %WtableCell may overspan more than one grid location in the table,
+ * by specifying a \link setRowSpan() rowSpan \endlink and \link
+ * setColumnSpan() columnSpan \endlink. Table cells at overspanned
+ * positions are hidden. You cannot directly create a %WTableCell,
+ * instead, they are created automatically by a table.
  *
  * A %WTableCell acts as any other WContainerWidget, except that both
  * the vertical and horizontal alignment of contents may be specified
- * with setContentAlignment(int contentAlignment).
+ * by setContentAlignment().
  *
- * The inline property of a %WTableCell is not used.
+ * The widget corresponds to the HTML <tt>&lt;td&gt;</tt> or
+ * <tt>&lt;th&gt;</tt> tag, depending on whether the cell is a plain
+ * cell or a header cell.
  *
- * \sa WTable::elementAt(int row, int column)
+ * \sa WTable
  */
 class WT_API WTableCell : public WContainerWidget
 {
@@ -58,21 +61,21 @@ public:
    */
   void setColumnSpan(int colSpan);
 
-  /*! \brief Get the column span.
+  /*! \brief Returns the column span.
    *
    * \sa setColumnSpan(int colSpan)
    */
   int columnSpan() const { return columnSpan_; }
 
-  /*! \brief get the row index of this cell.
+  /*! \brief Returns the row index of this cell.
    */
   int row() const;
 
-  /*! \brief get the column index of this cell.
+  /*! \brief Returns the column index of this cell.
    */
   int column() const { return column_; }
 
-  /*! \brief get the table to which this cell belongs.
+  /*! \brief Returns the table to which this cell belongs.
    */
   WTable *table() const;
 

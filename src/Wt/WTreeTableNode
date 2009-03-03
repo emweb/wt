@@ -17,8 +17,7 @@ class WTreeTable;
  *  \brief A specialized tree node which allows additional data to be
  *         associated with each node.
  *
- * The additional data is displayed inside columns, in conjunction with
- * a WTreeTable.
+ * Additional data for each column can be set using setColumnWidget().
  *
  * \sa WTreeNode, WTreeTable
  */
@@ -40,10 +39,10 @@ public:
    */
   void setColumnWidget(int column, WWidget *item);
 
-  /*! \brief Get the widget to be displayed in the given column.
+  /*! \brief Returns the widget set for a column.
    *
-   * Returns the widget set previously using setColumnWidget, or 0 if no widget
-   * was previously set.
+   * Returns the widget set previously using setColumnWidget(), or 0
+   * if no widget was previously set.
    */
   WWidget *columnWidget(int column);
 

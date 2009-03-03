@@ -18,11 +18,13 @@ class WTableCell;
 /*! \class WTableRow Wt/WTableRow Wt/WTableRow
  *  \brief A row in a WTable
  *
- * A table row is not a widget -- it only has a logistic function, for
- * managing various properties of a single row in a table.
+ * A %WTableRow is returned by WTable::rowAt() and managing various
+ * properties of a single row in a table (it is however not a widget).
  *
  * You cannot access table cells through the row. Instead, to access
  * table cells, see WTable::elementAt().
+ *
+ * A table row corresponds to the HTML <tt>&lt;tr&gt;</tt> tag.
  *
  * \sa WTable, WTableColumn
  */
@@ -43,7 +45,7 @@ public:
 
   /*! \brief Set the row height.
    *
-   * The default row height is 'auto' (WLength()).
+   * The default row height is WLength::Auto.
    *
    * \sa height(), WWidget::resize()
    */

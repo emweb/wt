@@ -189,7 +189,7 @@ void WTreeNode::create()
     layout_->elementAt(0, 1)->addWidget(labelText_);
 
   if (WApplication::instance()->environment().agentIE())
-    layout_->elementAt(0, 0)->resize(1, WLength());
+    layout_->elementAt(0, 0)->resize(1, WLength::Auto);
 
   layout_->elementAt(0, 0)->setContentAlignment(AlignLeft | AlignTop);
   layout_->elementAt(0, 1)->setContentAlignment(AlignLeft | AlignMiddle);

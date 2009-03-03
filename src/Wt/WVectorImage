@@ -14,8 +14,7 @@ namespace Wt {
 /*! \class WVectorImage Wt/WVectorImage Wt/WVectorImage
  *  \brief An abstract paint device for rendering using native vector graphics.
  *
- * An intermediate abstract class for common functions for vector
- * graphics renderers.
+ * \ingroup painting
  */
 class WT_API WVectorImage : public WPaintDevice
 {

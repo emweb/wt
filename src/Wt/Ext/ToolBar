@@ -46,7 +46,7 @@ public:
    *         called when activated.
    *
    * The <i>target</i> and <i>method</i> are connected to the
-   * Button::activated signal.
+   * Button::activated() signal.
    */
   template<class T, class V>
     Button *addButton(const WString& text,
@@ -56,7 +56,7 @@ public:
    *         method to be called when activated.
    *
    * The <i>target</i> and <i>method</i> are connected to the
-   * Button::activated signal.
+   * Button::activated() signal.
    */
    template<class T, class V>
     Button *addButton(const std::string& iconPath, const WString& text,

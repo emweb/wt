@@ -130,7 +130,7 @@ public:
 
   /*! \brief Set the font size.
    */
-  void setSize(Size size, const WLength& fixedSize = WLength());
+  void setSize(Size size, const WLength& fixedSize = WLength::Auto);
 
   /*! \brief Get the font size.
    */

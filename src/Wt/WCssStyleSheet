@@ -87,7 +87,7 @@ private:
  * Wt::WCssTemplateRule *styleRule = new Wt::WCssTemplateRule("#" + formName() + " .item");
  * Wt::WApplication::instance()->styleSheet().addRule(styleRule);
  *
- * styleRule->templateWidget()->resize(100, WLength());
+ * styleRule->templateWidget()->resize(100, WLength::Auto);
  * styleRule->templateWidget()->decorationStyle().setCursor(PointingHandCursor);
  * \endcode
  * 

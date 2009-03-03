@@ -19,10 +19,12 @@ namespace Wt {
  * visible. The widget accomplishes this using setHidden(bool) on the
  * children.
  *
- * With currentIndex() and setCurrentIndex(int index) you can get
- * or set which widget needs to be visible.
+ * Using currentIndex() and setCurrentIndex(int index) you can
+ * retrieve or set the visible widget.
  *
  * %WStackedWidget, like WContainerWidget, is by default not inline.
+ *
+ * \sa WMenu
  */
 class WT_API WStackedWidget : public WContainerWidget
 {

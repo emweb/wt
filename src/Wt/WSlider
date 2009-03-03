@@ -20,12 +20,23 @@ class WSliderBackground;
  * A slider allows the user to specify an integer value within a particular
  * range using a visual slider.
  *
- * The slider must be sized explicitly using WWidget::resize(const WLength&,
- * const WLength&). The default size is 150 x 50 pixels for a horizontal slider,
- * and 50 x 150 pixels for a vertical sliders.
+ * The slider must be sized explicitly using WWidget::resize(). The
+ * default size is 150 x 50 pixels for a horizontal slider, and 50 x
+ * 150 pixels for a vertical slider.
+ *
+ * Usage example:
+ * \code
+ * Wt::WSlider *scaleSlider = new Wt::WSlider(Wt::Horizontal);
+ * scaleSlider->setMinimum(0);
+ * scaleSlider->setMaximum(20);
+ * scaleSlider->setValue(10);
+ * scaleSlider->setTickInterval(5);
+ * scaleSlider->setTickPosition(Wt::WSlider::TicksBothSides);
+ * scaleSlider->resize(300, 50);
+ * scaleSlider->valueChanged().connect(SLOT(this, ThisClass::scaleShape));
+ * \endcode
  *
  * \image html WSlider-1.png "Horizontal slider with ticks on both sides."
- *
  */
 class WT_API WSlider : public WCompositeWidget
 {

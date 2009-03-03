@@ -67,7 +67,8 @@ protected:
     if (triggerUpdate)
       o << "window.parent."
 	<< WApplication::instance()->javaScriptClass()
-	<< "._p_.update(null, 'res', null, true);";
+	<< "._p_.update(null, '"
+	<< fileUpload_->uploaded().encodeCmd() << "', null, true);";
 
     o << "}\n"
       "</script></head>"
@@ -92,13 +93,13 @@ private:
 };
 
 const char *WFileUpload::CHANGE_SIGNAL = "M_change";
+const char *WFileUpload::UPLOADED_SIGNAL = "M_uploaded";
 
 WFileUpload::WFileUpload(WContainerWidget *parent)
   : WWebWidget(parent),
     textSize_(20),
     isStolen_(false),
     doUpload_(false),
-    uploaded_(this),
     fileTooLarge_(this)
 {
   // NOTE: this is broken on konqueror: you cannot target a form anymore
@@ -119,6 +120,11 @@ WFileUpload::~WFileUpload()
 {
   if (!isStolen_)
     unlink(spoolFileName_.c_str());
+}
+
+EventSignal<void>& WFileUpload::uploaded()
+{
+  return *voidEventSignal(UPLOADED_SIGNAL, true);
 }
 
 EventSignal<void>& WFileUpload::changed()
@@ -219,7 +225,7 @@ void WFileUpload::setFormData(const Http::UploadedFile& file)
   file.stealSpoolFile();
   isStolen_ = false;
 
-  uploaded().emit();
+  //uploaded().emit();
 }
 
 void WFileUpload::requestTooLarge(int size)

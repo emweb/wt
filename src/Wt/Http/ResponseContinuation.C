@@ -38,11 +38,9 @@ void ResponseContinuation::callBack(void *callbackData)
   continuation->doContinue();
 }
 
-ResponseContinuation::ResponseContinuation(ContinuationType type,
-					   WResource *resource,
+ResponseContinuation::ResponseContinuation(WResource *resource,
 					   WebResponse *response)
-  : type_(type),
-    resource_(resource),
+  : resource_(resource),
     response_(response)
 { 
   resource_->continuations_.push_back(this);

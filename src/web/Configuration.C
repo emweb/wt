@@ -148,7 +148,7 @@ Configuration::Configuration(const std::string& applicationPath,
     reloadIsNewSession_(false),
     sessionTimeout_(600),
     valgrindPath_(""),
-    allowDebug_(false),
+    debug_(false),
     runDirectory_(RUNDIR),
     sessionIdLength_(16),
     xhtmlMimeType_(false),
@@ -261,11 +261,11 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
   if (!maxRequestStr.empty())
     maxRequestSize_ = boost::lexical_cast<int>(maxRequestStr);
 
+  setBoolean(app, "debug", debug_);
+
   mxml_node_t *fcgi = singleChildElement(app, "connector-fcgi");
   if (!fcgi)
     fcgi = app; // backward compatibility
-
-  setBoolean(fcgi, "enable-debug", allowDebug_);
 
   valgrindPath_ = singleChildElementValue(fcgi, "valgrind-path", valgrindPath_);
   runDirectory_ = singleChildElementValue(fcgi, "run-directory", runDirectory_);

@@ -19,22 +19,36 @@ class Time;
 /*! \class WTimer Wt/WTimer Wt/WTimer
  *  \brief A utility class which provides timer signals and single-shot timers.
  *
- * To use the WTimer class, create a WTimer instance, set the timer
+ * To use a timer, create a %WTimer instance, set the timer
  * interval using setInterval() and connect a slot to the timeout signal.
  * Then, start the timer using start(). An active timer may be cancelled
  * at any time using stop().
  *
- * By default, a timer will continue to generate events. To create a
- * timer that will fire only once, use setSingleShot(). There is also
- * a convience static method singleShot()
+ * By default, a timer will continue to generate events until you
+ * stop() it. To create a timer that will fire only once, use
+ * setSingleShot(). There is also a convience static method
+ * singleShot().
  *
- * When connecting stateless slot implementations to the timeout signal, these
- * stateless slot implementations will be used as for any other signal
- * (when Ajax is available).
+ * When connecting stateless slot implementations to the timeout
+ * signal, these stateless slot implementations will be used as for
+ * any other signal (when Ajax is available).
  *
  * In clients without (enabled) JavaScript support, the minimum
  * resolution of the timer is one second (1000 milli-seconds), and it
  * is probably wise to use timers sparingly.
+ *
+ * Timers are one way to provide updates of a web page without the
+ * user generating an event. Alternatively you may consider
+ * server-initiated updates, see WApplication::enableUpdates().
+ *
+ * Usage example:
+ * \code
+ * // setup a timer which calls MyClass::timeout() every 2 seconds, until timer->stop() is called.
+ * Wt::WTimer *timer = new Wt::WTimer();
+ * timer->setInterval(2000);
+ * timer->timeout().connect(SLOT(this, MyClass::timeout));
+ * timer->start();
+ * \endcode
  */
 class WT_API WTimer : public WObject
 {
@@ -94,10 +108,18 @@ public:
   void start();
 
   /*! \brief Stop the timer.
+   *
+   * You may stop the timer during its timeout(), or cancel a running timer
+   * at any other time.
+   *
+   * \sa start()
    */
   void stop();
 
-  /*! \brief Signal emitted when the timer timeouts.
+  /*! \brief %Signal emitted when the timer timeouts.
+   *
+   * The %WMouseEvent does not provide any meaningful information but is
+   * an implementation artefact.
    */
   EventSignal<WMouseEvent>& timeout();
 

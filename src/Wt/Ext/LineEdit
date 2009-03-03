@@ -16,14 +16,13 @@ namespace Wt {
   namespace Ext {
 
 /*! \class LineEdit Wt/Ext/LineEdit Wt/Ext/LineEdit
- *  \brief A single line edit.
+ *  \brief A line edit.
  *
  * To act upon text changes, connect a slot to the changed() signal.
  * This signal is emitted when the user changed the content, and
  * subsequently removes the focus from the line edit.
  *
- * To act upon editing, connect a slot to the
- * \link LineEdit::keyWentUp keyWentUp\endlink signal.
+ * To act upon editing, connect a slot to the keyWentUp() signal.
  *
  * At all times, the current content may be accessed with the text()
  * method.
@@ -56,7 +55,7 @@ public:
    */
   void setTextSize(int chars);
 
-  /*! \brief Get the current width of the line edit in number of characters.
+  /*! \brief Return the current width of the line edit in number of characters.
    *
    * \sa setTextSize(int)
    */  
@@ -64,9 +63,9 @@ public:
   
   /*! \brief Change the content of the line edit.
    */
-  void           setText(const WString& value);
+  void  setText(const WString& value);
  
-  /*! \brief Get the current content.
+  /*! \brief Return the current content.
    */
   const WString& text() const;
 
@@ -90,7 +89,7 @@ public:
    */
   void setEchoMode(EchoMode echoMode);
 
-  /*! \brief Get the echo mode.
+  /*! \brief Return the echo mode.
    */
   EchoMode echoMode() const;
  

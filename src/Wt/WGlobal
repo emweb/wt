@@ -9,6 +9,9 @@
 
 #include <Wt/WFlags>
 
+/*! \file WGlobal
+ */
+
 #ifdef WT_TARGET_JAVA
 #include <bostream>
 #endif // WT_TARGET_JAVA

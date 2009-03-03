@@ -68,7 +68,7 @@ public:
    * If width == Explicit, then the width specified in
    * <i>explicitWidth</i> is used.
    */
-  void setWidth(Width width, const WLength& explicitWidth=WLength());
+  void setWidth(Width width, const WLength& explicitWidth = WLength::Auto);
 
   /*! \brief Set the border color.
    */

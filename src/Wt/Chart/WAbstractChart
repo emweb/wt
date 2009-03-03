@@ -39,10 +39,12 @@ namespace Wt {
  * This is an abstract class and should not be used directly.
  *
  * As an abstract base for MVC-based charts, this class manages the
- * model and provides virtual methods that listen to model changes. In
- * addition, it gives access to generic chart properties such as the
- * title and title font, the chart palette, chart area padding, and
- * the background fill color.
+ * model setModel() and provides virtual methods that listen to
+ * model changes. In addition, it gives access to generic chart
+ * properties such as the title setTitle() and title font
+ * setTitleFont(), the chart palette setPalette(), plot area
+ * padding setPlotAreaPadding(), and the background fill color
+ * setBackground().
  *
  * \sa WCartesianChart, WPieChart
  *

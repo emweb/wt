@@ -47,7 +47,9 @@ class WRectF;
  * WPaintDevice. To start painting on a device, either pass the device
  * through the constructor WPainter(WPaintDevice *), or use
  * begin(WPaintDevice *). Typically, you will instantiate a %WPainter
- * from within the WPaintedWidget::paintEvent() method.
+ * from within the WPaintedWidget::paintEvent() method, but you can also
+ * use a painter to paint directly to a particular paint device, for
+ * example to create an SVG image.
  *
  * The painter maintains state such as the current \link setPen()
  * pen\endlink, \link setBrush() brush\endlink, \link setFont()
@@ -79,6 +81,35 @@ class WRectF;
  *
  * Although the painter has support for clipping using an arbitrary
  * \link WPainterPath path\endlink, not all devices support clipping.
+ *
+ * Usage example:
+ * \code
+ * class MyPaintedWidget : public Wt::WPaintedWidget
+ * {
+ * public:
+ *   MyPaintedWidget(Wt::WContainerWidget *parent = 0)
+ *     : Wt::WPaintedWidget(parent),
+ *       foo_(100)
+ *   {
+ *      resize(200, 200); // provide a default size
+ *   }
+ *
+ *   void setFoo(int foo) {
+ *      foo_ = foo;
+ *      update(); // trigger a repaint
+ *   }
+ *
+ * protected:
+ *   void paintEvent(Wt::WPaintedWidget *paintDevice) {
+ *     Wt::WPainter painter(paintDevice);
+ *     painter.drawLine(20, 20, foo_, foo_);
+ *     ...
+ *   }
+ *
+ * private:
+ *   int foo_;
+ * };
+ * \endcode
  *
  * \sa WPaintedWidget::paintEvent(WPaintDevice *)
  *

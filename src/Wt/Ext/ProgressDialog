@@ -20,36 +20,29 @@ namespace Wt {
  * A progress bar is shown to show progress from minimum() to
  * maximum(), with the current value within (this range) set using
  * setValue(). When the user cancels the dialog, the dialog is hidden
- * and the \link ProgressDialog::canceled canceled\endlink signal is
- * emitted.
+ * and the canceled() signal is emitted.
  *
  * The progress dialog may be used in two ways.
  *
  * The easiest way is using a code snippet like this:
  * \code
-  //...
-
-  Ext::ProgressDialog progress("Converting contact details...", "Cancel",
-                               0, contacts_.size());
-  progress.setWindowTitle("Import Contacts");
-
-  for (unsigned i = 0; i < contacts_.size(); ++i) {
-    progress.setValue(i);
-
-    WApplication::instance()->processEvents();
-
-    if (!progress.wasCanceled()) {
-      convertContactDetails(contacts_[i]);
-    } else {
-      Ext::MessageBox
-	::show("Operation cancelled",
-	       "You may import your contact details any time later.", Ok);
-      break;
-    }
-  }
-
-  //...
-  \endcode
+ * Wt::Ext::ProgressDialog progress("Converting contact details...", "Cancel", 0, contacts_.size());
+ * progress.setWindowTitle("Import Contacts");
+ *
+ * for (unsigned i = 0; i < contacts_.size(); ++i) {
+ *   progress.setValue(i);
+ *
+ *   Wt::WApplication::instance()->processEvents();
+ *
+ *   if (!progress.wasCanceled()) {
+ *     convertContactDetails(contacts_[i]);
+ *   } else {
+ *     Wt::Ext::MessageBox::show("Operation cancelled",
+ *	       "You may import your contact details any time later.", Ok);
+ *     break;
+ *   }
+ * }
+ * \endcode
  *
  * Using this approach, WApplication::processEvents() is used to
  * synchronize the server and client state. This approach has the
@@ -86,7 +79,7 @@ public:
    */
   void setMinimum(int minimum);
 
-  /*! \brief Get the minimum value.
+  /*! \brief Return the minimum value.
    */
   int minimum() const { return minimum_; }
 
@@ -94,7 +87,7 @@ public:
    */
   void setMaximum(int maximum);
 
-  /*! \brief Get the maximum value.
+  /*! \brief Return the maximum value.
    */
   int maximum() const { return maximum_; }
 
@@ -124,7 +117,7 @@ public:
    */
   void setValue(int progress);
 
-  /*! \brief Get the current value.
+  /*! \brief Return the current value.
    */
   int value() const { return value_; }
 

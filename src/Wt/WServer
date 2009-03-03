@@ -28,8 +28,9 @@ struct WServerImpl;
  *
  * As an example usage, consider the implementation of WRun(), which
  * starts the server until a Ctrl-C is pressed or a termination signal
- * has been received: \code
-
+ * has been received:
+ *
+ * \code
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {
@@ -59,10 +60,10 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
     return 1;
   }
 }
-   \endcode
-
-   \note Currently, only a single server instance may be created. We plan to
-         remove this limiation in the future.
+ * \endcode
+ *
+ * \note Currently, only a single server instance may be created. We plan to
+ *       remove this limiation in the future.
  */
 class WTCONNECTOR_API WServer
 {

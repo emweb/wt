@@ -38,11 +38,9 @@ template <typename T, typename A1> class WSignalMapper;
  *
  * Example code (using the exec() method):
  * \code
- * // ...
  * StandardButton
  *   result = WMessageBox::show("Confirm", "About to wreak havoc... Continue ?",
  *                              Ok | Cancel);
- * // ...
  * \endcode
  *
  * This will show a message box that looks like this:

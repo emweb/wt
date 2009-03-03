@@ -84,24 +84,24 @@ enum DropAction {
  *  \brief An index to a data item of a data model.
  *
  * Indexes are used to indicate a particular item in a
- * WAbstractItemModel. It points to the item at a given row and
- * column, within a parent model index.
+ * WAbstractItemModel. It points to the item by identifying its row
+ * and column location within a parent model index.
  *
- * An index is immutable. The default constructor creates an invalid
- * index, which by convention indicates the parent of top level
- * indexes.
+ * An index is immutable. The default constructor creates an
+ * <i>invalid index</i>, which by convention indicates the parent of
+ * top level indexes. Thus, a model that specifies only a list or
+ * table of data (but no hierarchical data) would have as valid
+ * indexes only indexes that specify the <i>invalid</i> model index as
+ * parent.
  *
  * Valid indexes are created by the model, within the protected
  * WAbstractItemModel::createIndex() methods. In this way, models can
- * define the internal pointer or id suitable for identifying items in
+ * define an internal pointer or id suitable for identifying items in
  * the model.
  *
  * Upon the model's choice, model indexes for hierarchical models may
  * have an internal Id represented by a int64_t (internalId()), a
- * pointer (internalPointer()), or an internal hash
- * (internalHashId()). The former are convenient for in-memory models,
- * while the latter is useful for models that keep data out of memory
- * (on disk or in a database).
+ * pointer (internalPointer()).
  *
  * \sa WAbstractItemModel
  *
@@ -136,7 +136,8 @@ public:
    * This is only defined when the model created the index using
    * WAbstractItemModel::createIndex(int, int, void *) const.
    *
-   * \sa internalId(), WAbstractItemModel::createIndex(int, int, void *) const
+   * \sa internalId(),
+   * \sa WAbstractItemModel::createIndex(int, int, void *) const
    */
   void *internalPointer() const { return reinterpret_cast<void*>(internalId_); }
 
@@ -148,7 +149,8 @@ public:
    * This is only defined when the model created the index using
    * WAbstractItemModel::createIndex(int, int, uint64_t) const.
    *
-   * \sa internalPointer(), WAbstractItemModel::createIndex(int, int, uint64_t) const
+   * \sa internalPointer()
+   * \sa WAbstractItemModel::createIndex(int, int, uint64_t) const
    */
   uint64_t internalId() const { return internalId_; }
 
@@ -178,10 +180,7 @@ public:
 
   /*! \brief Returns data in the model at this index.
    *
-   * This is a convenience method. It is less general than using
-   * WAbstractItemModel::data(), because the latter expression may
-   * also be used to retrieve top level children, i.e. when <i>index</i>
-   * is invalid.
+   * This is a convenience method for WAbstractItemModel::data().
    *
    * \sa WAbstractItemModel::data()
    * \sa ItemDataRole
@@ -210,6 +209,8 @@ public:
   bool isValid() const { return model_ != 0; }
 
   /*! \brief Returns the model to which this (valid) index is bound.
+   *
+   * This returns the model that created the model index.
    */
   const WAbstractItemModel *model() const { return model_; }
 
@@ -229,6 +230,10 @@ public:
   /*! \brief Comparison operator.
    *
    * Returns true if the index comes topologically before <i>other</i>.
+   *
+   * Topoligical order follows the order in which the indexes would be
+   * displayed in a tree table view, from top to bottom followed by
+   * left to right.
    */
   bool operator< (const WModelIndex& other) const;
 

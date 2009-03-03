@@ -298,7 +298,7 @@ void WContainerWidget::setPadding(const WLength& length, WFlags<Side> sides)
   if (!padding_) {
     padding_ = new WLength[4];
 #ifdef WT_TARGET_JAVA
-    padding_[0] = padding_[1] = padding_[2] = padding_[3] = WLength();
+    padding_[0] = padding_[1] = padding_[2] = padding_[3] = WLength::Auto;
 #endif // WT_TARGET_JAVA
   }
 
@@ -339,7 +339,7 @@ void WContainerWidget::setOverflow(Overflow value,
 WLength WContainerWidget::padding(Side side) const
 {
   if (!padding_)
-    return WLength();
+    return WLength::Auto;
 
   switch (side) {
   case Top:
@@ -398,13 +398,13 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       if (!child->isInline()) {
 	if (contentAlignment_ == AlignCenter) {
 	  if (!child->margin(Left).isAuto())
-	    child->setMargin(WLength(), Left);
+	    child->setMargin(WLength::Auto, Left);
 	  if (!child->margin(Right).isAuto())
-	    child->setMargin(WLength(), Right);
+	    child->setMargin(WLength::Auto, Right);
 	}
 	if (contentAlignment_ == AlignRight) {
 	  if (!child->margin(Left).isAuto())
-	    child->setMargin(WLength(), Left);
+	    child->setMargin(WLength::Auto, Left);
 	}
       }
     }

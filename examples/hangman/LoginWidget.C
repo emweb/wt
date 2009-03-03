@@ -37,7 +37,7 @@ LoginWidget::LoginWidget(WContainerWidget *parent):
 
    WTable *layout = new WTable(this);
    WLabel *usernameLabel = new WLabel("User name: ", layout->elementAt(0, 0));
-   layout->elementAt(0, 0)->resize(WLength(14, WLength::FontEx), WLength());
+   layout->elementAt(0, 0)->resize(WLength(14, WLength::FontEx), WLength::Auto);
    Username = new WLineEdit(layout->elementAt(0, 1));
    usernameLabel->setBuddy(Username);
 

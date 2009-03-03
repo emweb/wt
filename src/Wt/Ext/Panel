@@ -71,7 +71,7 @@ public:
    */
   void setTopToolBar(ToolBar *toolBar);
 
-  /*! \brief Get the top tool bar.
+  /*! \brief Return the top tool bar.
    *
    * \sa setTopToolBar(ToolBar *), bottomToolBar()
    */
@@ -85,7 +85,7 @@ public:
    */
   void setBottomToolBar(ToolBar *bottomBar);  
 
-  /*! \brief Get the top tool bar.
+  /*! \brief Return the top tool bar.
    *
    * \sa setBottomToolBar(ToolBar *), topToolBar()
    */
@@ -109,7 +109,7 @@ public:
    */
   void removeFooterButton(Button *button);
 
-  /*! \brief Get the list of footer buttons.
+  /*! \brief Retrn the list of footer buttons.
    *
    * \sa addFooterButton(Button *), removeFooterButton(Button *)
    */
@@ -218,8 +218,7 @@ public:
   /*! \brief Return if the panel is collapsed.
    *
    * \sa setCollapsed(bool)
-   * \sa \link collapsed collapsed\endlink and \link expanded
-   * expanded\endlink signals
+   * \sa collapsed() and expanded() signals
    */
   bool isCollapsed() const { return isCollapsed_; }
 

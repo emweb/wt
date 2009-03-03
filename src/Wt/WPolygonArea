@@ -17,9 +17,23 @@ class WPointF;
 /*! \class WPolygonArea Wt/WPolygonArea Wt/WPolygonArea
  *  \brief An interactive area in a widget, specified by a polygon.
  *
- * The area may be added to a WImage or WPaintedWidget. The polygon is
+ * The area may be added to a WImage or WPaintedWidget to provide
+ * interactivity on a polygon area of the image. The polygon is
  * specified in pixel coordinates, and uses an even-odd winding rule
  * (overlaps create holes).
+ *
+ * \code
+ * Wt::WImage *image = new Wt::WImage("images/family.jpg");
+ * Wt::WPolygonArea *face = new Wt::WPolygonArea();
+ * face->addPoint(100, 120);
+ * face->addPoint(300, 120);
+ * face->addPoint (200, 250);
+ * face->setToolTip("Uncle Frank");
+ * image->addArea(face);
+ * \endcode
+ *
+ * The polygon area corresponds to the HTML <tt>&lt;area shape="poly"&gt;</tt>
+ * tag.
  *
  * \sa WImage::addArea(), WPaintedWidget::addArea()
  * \sa WCircleArea, WRectArea

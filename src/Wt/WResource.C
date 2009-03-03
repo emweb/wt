@@ -103,12 +103,9 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
     }
     webResponse->flush(WebResponse::ResponseDone);
   } else
-    if (response.continuation_->type() == Http::AsyncContinuation)
-      webResponse->flush(WebResponse::ResponseCallBack,
-			 Http::ResponseContinuation::callBack,
-			 response.continuation_);
-    else
-      webResponse->flush(WebResponse::ResponseWaitMore);
+    webResponse->flush(WebResponse::ResponseCallBack,
+		       Http::ResponseContinuation::callBack,
+		       response.continuation_);
 }
 
 void WResource::suggestFileName(const std::string& name)
@@ -134,11 +131,6 @@ void WResource::write(WT_BOSTREAM& out,
 
   // While the resource indicates more data to be sent, get it too.
   while (response.continuation_	&& response.continuation_->resource_) {
-    if (response.continuation_->type() != Http::AsyncContinuation) {
-      WApplication::instance()->log("Error")
-	<< "WResource::write() on resource that waits for event";
-      break;
-    }
     response.continuation_->resource_ = 0;
     request.continuation_ = response.continuation_;
 

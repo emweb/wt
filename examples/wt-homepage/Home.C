@@ -621,7 +621,7 @@ void Home::readNews(WTable *newsTable, const std::string newsfile)
       newsTable->elementAt(row, 0)
 	->setContentAlignment(AlignCenter | AlignTop);
       newsTable->elementAt(row, 0)
-	->resize(WLength(16, WLength::FontEx), WLength());
+	->resize(WLength(16, WLength::FontEx), WLength::Auto);
       newsTable
 	->elementAt(row, 1)->addWidget(new WText("<p>" + *(++i) + "</p>"));
 
@@ -644,9 +644,9 @@ void Home::readReleases(WTable *releaseTable, const std::string releasefile)
     ->addWidget(new WText(tr("home.download.description")));
 
   releaseTable->elementAt(0, 0)->resize(WLength(10, WLength::FontEx),
-					WLength());
+					WLength::Auto);
   releaseTable->elementAt(0, 1)->resize(WLength(15, WLength::FontEx),
-					WLength());
+					WLength::Auto);
 
   int row = 1;
 

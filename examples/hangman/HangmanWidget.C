@@ -74,7 +74,7 @@ void HangmanWidget::createAlphabet(WContainerWidget *parent)
    LetterButtonLayout = new WTable(parent);
 
    // The default width of a table is 100%...
-   LetterButtonLayout->resize(13*30, WLength());
+   LetterButtonLayout->resize(13*30, WLength::Auto);
 
    WSignalMapper<WPushButton *> *mapper
      = new WSignalMapper<WPushButton *>(this);
@@ -84,7 +84,7 @@ void HangmanWidget::createAlphabet(WContainerWidget *parent)
       WPushButton *character =
 	 new WPushButton(c, LetterButtonLayout->elementAt(i / 13, i % 13));
       LetterButtons.push_back(character);
-      character->resize(30, WLength());
+      character->resize(30, WLength::Auto);
       mapper->mapConnect(character->clicked(), character);
    }
 
@@ -113,7 +113,7 @@ void HangmanWidget::newGame()
 
    // resize appropriately so that the border nooks nice.
    WordContainer->resize(WLength(Word.size() * 1.5, WLength::FontEx),
-			 WLength());
+			 WLength::Auto);
 
    StatusText->setText(L"");
 }

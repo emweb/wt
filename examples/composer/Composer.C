@@ -118,8 +118,9 @@ void Composer::createUi()
    */
   edits_ = new WTable(layout_);
   edits_->setStyleClass("lighter");
-  edits_->resize(WLength(100, WLength::Percentage), WLength());
-  edits_->elementAt(0, 0)->resize(WLength(1, WLength::Percentage), WLength());
+  edits_->resize(WLength(100, WLength::Percentage), WLength::Auto);
+  edits_->elementAt(0, 0)->resize(WLength(1, WLength::Percentage),
+				  WLength::Auto);
 
   /*
    * To, Cc, Bcc
@@ -161,7 +162,7 @@ void Composer::createUi()
    */
   new Label(tr("msg.subject"), edits_->elementAt(4, 0));
   subject_ = new WLineEdit(edits_->elementAt(4, 1));
-  subject_->resize(WLength(99, WLength::Percentage), WLength());
+  subject_->resize(WLength(99, WLength::Percentage), WLength::Auto);
 
   /*
    * Attachments

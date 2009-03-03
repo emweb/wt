@@ -957,8 +957,11 @@ var handleResponse = function(msg, timer) {
     eval(msg);
     _$_APP_CLASS_$_._p_.autoJavaScript();
   } catch (e) {
-    alert("Wt internal error: " + e + ", code: " +  e.code 
-    + ", description: " + e.description /* + ":" + msg */);
+    if (!_$_DEBUG_$_)
+      alert("Wt internal error: " + e + ", code: " +  e.code 
+	    + ", description: " + e.description /* + ":" + msg */);
+    else
+      throw e;
   }
 
   if (timer)

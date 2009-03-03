@@ -24,7 +24,7 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
 
   headers_ = new WContainerWidget(impl_);
   headers_->setStyleClass("header");
-  headers_->resize(WLength(100, WLength::Percentage), WLength());
+  headers_->resize(WLength(100, WLength::Percentage), WLength::Auto);
 
   /*
    * spacer for when a scroll bar is visible
@@ -38,7 +38,7 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
 #endif // WT_TARGET_JAVA
 
   headers_->addWidget(new WText());
-  columnWidths_.push_back(WLength());
+  columnWidths_.push_back(WLength::Auto);
 
   WContainerWidget *content = new WContainerWidget(impl_);
   content->resize(WLength(100, WLength::Percentage),
@@ -52,7 +52,7 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
   content->addWidget(tree_ = new WTree());
 
   tree_->setMargin(3, Top);
-  tree_->resize(WLength(100, WLength::Percentage), WLength());
+  tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
  
   /*
    * Ugly JavaScript hack to make headers stay on top of content when
@@ -102,7 +102,7 @@ void WTreeTable::setTree(WTree *root, const WString& h)
 
   header(0)->setText(h);
   impl_->addWidget(tree_ = new WTree());
-  tree_->resize(WLength(100, WLength::Percentage), WLength());
+  tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
 
   treeRoot()->setTable(this);
 }
@@ -110,7 +110,7 @@ void WTreeTable::setTree(WTree *root, const WString& h)
 void WTreeTable::addColumn(const WString& header, const WLength& width)
 {
   WText *t = new WText(header);
-  t->resize(width, WLength());
+  t->resize(width, WLength::Auto);
   t->setInline(false);
 #ifndef WT_TARGET_JAVA
   t->setFloatSide(Left);

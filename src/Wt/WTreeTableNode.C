@@ -50,7 +50,7 @@ void WTreeTableNode::setColumnWidget(int column, WWidget *widget)
 #ifndef WT_TARGET_JAVA
   widget->setFloatSide(Left);
 #endif // WT_TARGET_JAVA
-  widget->resize(columnWidth(column + 1), WLength());
+  widget->resize(columnWidth(column + 1), WLength::Auto);
   if (column == static_cast<int>(columnWidgets_.size()) - 1)
     row_->addWidget(widget);
   else
@@ -65,8 +65,9 @@ void WTreeTableNode::createExtraColumns(int numColumns)
 #ifndef WT_TARGET_JAVA
     row_->setFloatSide(Right);
 #endif // WT_TARGET_JAVA
-    labelArea()->resize(WLength(100, WLength::Percentage), WLength());
-    labelArea()->table()->resize(WLength(100, WLength::Percentage), WLength());
+    labelArea()->resize(WLength(100, WLength::Percentage), WLength::Auto);
+    labelArea()->table()->resize(WLength(100, WLength::Percentage),
+				 WLength::Auto);
   }
 
   while (static_cast<int>(columnWidgets_.size()) < numColumns) {
@@ -76,7 +77,7 @@ void WTreeTableNode::createExtraColumns(int numColumns)
 #ifndef WT_TARGET_JAVA
     w->setFloatSide(Left);
 #endif // WT_TARGET_JAVA
-    w->resize(columnWidth(columnWidgets_.size()), WLength());
+    w->resize(columnWidth(columnWidgets_.size()), WLength::Auto);
   }
 }
 
@@ -96,7 +97,7 @@ WLength WTreeTableNode::columnWidth(int column)
   if (table_)
     return table_->columnWidth(column);
   else
-    return WLength();
+    return WLength::Auto;
 }
 
 void WTreeTableNode::setTable(WTreeTable *table)
@@ -107,10 +108,10 @@ void WTreeTableNode::setTable(WTreeTable *table)
     for (unsigned i = 0; i < childNodes().size(); ++i)
       dynamic_cast<WTreeTableNode *>(childNodes()[i])->setTable(table);
 
-    createExtraColumns(table->numColumns() - 1);
+    createExtraColumns(table->columnCount() - 1);
 
     for (unsigned i = 0; i < columnWidgets_.size(); ++i)
-      columnWidgets_[i].widget->resize(columnWidth(i + 1), WLength());
+      columnWidgets_[i].widget->resize(columnWidth(i + 1), WLength::Auto);
   }
 }
 

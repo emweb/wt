@@ -15,9 +15,10 @@ namespace Wt {
   class WPoint;
 
 /*! \class WCircleArea Wt/WCircleArea Wt/WCircleArea
- *  \brief A circular interactive area in a widget.
+ *  \brief A interactive area in a widget, specified by a circle.
  *
- * The area may be added to a WImage or WPaintedWidget. The circle is
+ * The area may be added to a WImage or WPaintedWidget to provide
+ * interactivity on a circular area of the image. The circle is
  * specified in pixel coordinates.
  *
  * Usage example:

@@ -64,7 +64,7 @@ public:
    */
   void setOrientation(Orientation orientation);
 
-  /*! \brief Get the orientation.
+  /*! \brief Return the orientation.
    */
   Orientation orientation() const { return orientation_; }
 
@@ -76,7 +76,7 @@ public:
    */
   void setHandleWidth(int width);
 
-  /*! \brief Get the width of the resize handles.
+  /*! \brief Return the width of the resize handles.
    *
    * The default width is 4 pixels.
    *

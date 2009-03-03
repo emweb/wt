@@ -16,13 +16,24 @@ namespace Wt {
   class WText;
 
 /*! \class WPanel Wt/WPanel Wt/WPanel
- *  \brief A %WPanel provides a container which may be manipulated.
+ *  \brief A %WPanel provides a container with a title bar.
  *
- * This widget is in development. It will provide features similar to the
- * Ext::Panel.
+ * The panel provides a container with an optional title bar, and an
+ * optional collapse icon.
+ *
+ * Usage example:
+ * \code
+ * Wt::WPanel *panel = new Wt::WPanel();
+ * panel->setTitle("A panel");
+ * panel->setCentralWidget(new Wt::WText("This is the panel contents"));
+ * panel->setCollapsible(true);
+ * \endcode
  *
  * \image html WPanel-1.png "Two panels: the top panel is collapsed, and the bottom panel expanded"
- *
+ * 
+ * \note This widget is in development. It will provide features similar to the
+ *       Ext::Panel.
+ * 
  * \sa Ext::Panel
  */
 class WT_API WPanel : public WCompositeWidget

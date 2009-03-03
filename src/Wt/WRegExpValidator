@@ -29,8 +29,17 @@ class WRegExp;
  *   <li>No conditional expressions, i.e. the consturct (?ifthen|else).</li>
  * </ul>
  *
- * <i>This validator does not fully support unicode: it matches on the
- * UTF8-encoded representation of the string.</i>
+ * Usage example:
+ * \code
+ * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
+ * // an email address validator
+ * Wt::WRegExpValidator *validator = new Wt::WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}");
+ * lineEdit->setValidator(validator);
+ * lineEdit->setText("koen@emweb.be");
+ * \endcode
+ *
+ * \note This validator does not fully support unicode: it matches on the
+ * UTF8-encoded representation of the string.
  */
 class WT_API WRegExpValidator : public WValidator
 {

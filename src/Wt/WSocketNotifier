@@ -25,17 +25,42 @@ namespace Wt {
  * event\endlink).
  *
  * When an event on a socket is available, the notifier emits the
- * \link WSocketNotifier::activated activated\endlink signal. As in
- * the case of a user interface event (like for example
- * WInteractWidget::clicked), you will typically modify the widget
- * tree in response to the event. But, unless you use a timer (WTimer)
- * or use server-initiated updates (see
- * WApplication::triggerUpdates()), these changes are not propagated to
- * the user interface, until the next user interface event.
+ * activated() signal. As in the case of a user interface event (like
+ * for example WInteractWidget::clicked()), you will typically modify
+ * the widget tree in response to the event. But, unless you use a
+ * timer (WTimer) or use server-initiated updates (see
+ * WApplication::triggerUpdates()), these changes are not propagated
+ * to the user interface, until the next user interface event.
  *
  * Like other events, socket notification events are serial (not
  * simultaneous), and there are no thread safety issues (you don't
  * need to call WApplication::getUpdateLock() to get an update lock).
+ *
+ * \code
+ * Wt::WSocketNotifier *notifier_;
+ *
+ * void init() {
+ *   ...
+ *   int sock = ...
+ *   notifier_ = new Wt::WSocketNotifier(sock, Wt::WSocketNotifier::Read, this);
+ *   notifier_->activated().connect(SLOT(this, HelloApplication::readData));
+ * }
+ *
+ * void readData() {
+ *   // data is available on socket, or socket was closed by peer
+ *   char buf[100];
+ *   int s = read(notifier_->socket(), buf, 99);
+ *
+ *   if (s > 0) {
+ *     ...
+ *   } else {
+ *     // closed by peer
+ *     notifier_->setEnabled(false);
+ *     close(notifier_->socket());
+ *   }
+ * }
+ *
+ * \endcode
  * 
  * <i>Note: At present, WSocketNotifier works only in conjunction with
  * the wthttpd connector, and not when using the FastCGI connector.</i>

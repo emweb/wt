@@ -21,9 +21,10 @@ class WText;
  * darken the window contents, and centers a loading icon (with some
  * text).
  *
- * To use the overloading indicator:
+ * Usage example:
  * \code
- *   WApplication::instance()->setLoadingIndicator(new WOverlayLoadingIndicator());
+ * Wt::WApplication *app = Wt::WApplication::instance();
+ * app->setLoadingIndicator(new Wt::WOverlayLoadingIndicator());
  * \endcode
  *
  * \image html WOverlayLoadingIndicator.png "The overlay loading indicator" 

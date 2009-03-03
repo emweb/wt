@@ -44,7 +44,7 @@ WWebWidget::LayoutImpl::LayoutImpl()
 { 
   for (unsigned i = 0; i < 4; ++i) {
 #ifdef WT_TARGET_JAVA
-    offsets_[i] = WLength();
+    offsets_[i] = WLength::Auto;
 #endif // WT_TARGET_JAVA
     margin_[i] = WLength(0);
   }
@@ -315,12 +315,12 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
 
 WLength WWebWidget::width() const
 {
-  return width_ ? *width_ : WLength();
+  return width_ ? *width_ : WLength::Auto;
 }
 
 WLength WWebWidget::height() const
 {
-  return height_ ? *height_ : WLength();
+  return height_ ? *height_ : WLength::Auto;
 }
 
 void WWebWidget::setMinimumSize(const WLength& width, const WLength& height)
@@ -338,12 +338,12 @@ void WWebWidget::setMinimumSize(const WLength& width, const WLength& height)
 
 WLength WWebWidget::minimumWidth() const
 {
-  return layoutImpl_ ? layoutImpl_->minimumWidth_ : WLength();
+  return layoutImpl_ ? layoutImpl_->minimumWidth_ : WLength::Auto;
 }
 
 WLength WWebWidget::minimumHeight() const
 {
-  return layoutImpl_ ? layoutImpl_->minimumHeight_ : WLength();
+  return layoutImpl_ ? layoutImpl_->minimumHeight_ : WLength::Auto;
 }
 
 void WWebWidget::setMaximumSize(const WLength& width, const WLength& height)
@@ -361,12 +361,12 @@ void WWebWidget::setMaximumSize(const WLength& width, const WLength& height)
 
 WLength WWebWidget::maximumWidth() const
 {
-  return layoutImpl_ ? layoutImpl_->maximumWidth_ : WLength();
+  return layoutImpl_ ? layoutImpl_->maximumWidth_ : WLength::Auto;
 }
 
 WLength WWebWidget::maximumHeight() const
 {
-  return layoutImpl_ ? layoutImpl_->maximumHeight_ : WLength();
+  return layoutImpl_ ? layoutImpl_->maximumHeight_ : WLength::Auto;
 }
 
 void WWebWidget::setLineHeight(const WLength& height)
@@ -383,7 +383,7 @@ void WWebWidget::setLineHeight(const WLength& height)
 
 WLength WWebWidget::lineHeight() const
 {
-  return layoutImpl_ ? layoutImpl_->lineHeight_ : WLength();
+  return layoutImpl_ ? layoutImpl_->lineHeight_ : WLength::Auto;
 }
 
 #ifndef WT_TARGET_JAVA
@@ -456,7 +456,7 @@ AlignmentFlag WWebWidget::verticalAlignment() const
 
 WLength WWebWidget::verticalAlignmentLength() const
 {
-  return layoutImpl_ ? layoutImpl_->verticalAlignmentLength_ : WLength();
+  return layoutImpl_ ? layoutImpl_->verticalAlignmentLength_ : WLength::Auto;
 }
 
 void WWebWidget::setOffsets(const WLength& length, WFlags<Side> sides)
@@ -481,7 +481,7 @@ void WWebWidget::setOffsets(const WLength& length, WFlags<Side> sides)
 WLength WWebWidget::offset(Side s) const
 {
   if (!layoutImpl_)
-    return WLength();
+    return WLength::Auto;
 
   switch (s) {
   case Top:

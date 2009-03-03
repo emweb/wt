@@ -17,9 +17,17 @@ class Menu;
 class ToolTipConfig;
 
 /*! \class AbstractButton Wt/Ext/AbstractButton Wt/Ext/AbstractButton
- *  \brief Abstract base class for a button or menu item.
+ *  \brief Abstract base class for a (toolbar) button or menu item.
  *
- * \sa Button, MenuItem
+ * You may set the button text using setText() and icon use setIcon(),
+ * and configure whether the button/menu item can be checked or
+ * toggled using setCheckable().
+ *
+ * To respond to a click, you can connect to the activated() signal,
+ * and for a checkable button/item you may listen to the toggled()
+ * signal.
+ *
+ * \sa Button, MenuItem, AbstractToggleButton
  *
  * \ingroup ext
  */

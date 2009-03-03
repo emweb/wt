@@ -89,10 +89,10 @@ WApplication::WApplication(const WEnvironment& env)
   domRoot_->load();
 
   if (session_->type() == WebSession::Application)
-    domRoot_->resize(WLength(), WLength(100, WLength::Percentage));
+    domRoot_->resize(WLength::Auto, WLength(100, WLength::Percentage));
 
   timerRoot_ = new WContainerWidget(domRoot_);
-  timerRoot_->resize(WLength(), WLength(0));
+  timerRoot_->resize(WLength::Auto, 0);
   timerRoot_->setPositionScheme(Absolute);
 
   if (session_->type() == WebSession::Application) {
@@ -841,9 +841,12 @@ void WApplication::doJavaScript(const std::string& javascript,
 {
   if (afterLoaded) {
     afterLoadJavaScript_ += javascript;
+    afterLoadJavaScript_ += '\n';
   } else {
     beforeLoadJavaScript_ += javascript;
+    beforeLoadJavaScript_ += '\n';
     newBeforeLoadJavaScript_ += javascript;
+    newBeforeLoadJavaScript_ += '\n';
   }
 }
 

@@ -115,24 +115,10 @@ void WTable::expand(int row, int column, int rowSpan, int columnSpan)
   //printDebug();
 }
 
-#ifndef WT_DEPRECATE_2_2_0
-int WTable::numRows() const
-{
-  return rowCount();
-}
-#endif // WT_DEPRECATE_2_2_0
-
 int WTable::rowCount() const
 {
   return rows_.size();
 }
-
-#ifndef WT_DEPRECATE_2_2_0
-int WTable::numColumns() const
-{
-  return columnCount();
-}
-#endif // WT_DEPRECATE_2_2_0
 
 int WTable::columnCount() const
 {

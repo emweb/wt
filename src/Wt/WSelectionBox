@@ -14,8 +14,6 @@ namespace Wt {
 /*! \class WSelectionBox Wt/WSelectionBox Wt/WSelectionBox
  *  \brief A selection box allows selection from a list of options.
  *
- * %WSelectionBox is an \link WWidget::setInline(bool) inline \endlink widget.
- *
  * By default, a selection box may be used to let the user select one
  * item from a list. This may be changed to multiple selection mode
  * using setSelectionMode().
@@ -24,11 +22,34 @@ namespace Wt {
  * and currentIndex(), for \link Wt::SingleSelection
  * SingleSelection\endlink mode, or setSelectedIndexes() and
  * selectedIndexes() for \link Wt::ExtendedSelection
- * ExtendedSelection\endlink mode. The inherited signals
- * \link WComboBox::activated activated\endlink and
- * \link WComboBox::sactivated sactivated\endlink are not emited
- * in the ExtendedSelection mode, use the signal
- * \link WFormWidget::changed changed\endlink instead.
+ * ExtendedSelection\endlink mode. The activated() and sactivated()
+ * signals are not emited in the ExtendedSelection mode, use the
+ * changed() signal changed().
+ *
+ * %WSelectionBox is an MVC view class, using a simple string list
+ * model by default. The model may be populated using addItem(const
+ * WString&) or insertItem(int, const WString&) and the contents can
+ * be cleared through clear(). These methods manipulate the underlying
+ * model().
+ *
+ * To use the selectionbox with a custom model instead of the default
+ * WStringListModel, use setModel().
+ *
+ * Usage example:
+ * \code
+ * Wt::WSelectionBox *selectionBox = new Wt::WSelectionBox(this);
+ * selectionBox->addItem("Clint Eastwood");
+ * selectionBox->addItem("Mick Jagger");
+ * selectionBox->addItem("Johnny Depp");
+ * selectionBox->addItem("Kate Winslet");
+ *
+ * selectionBox->setCurrentIndex(2); // Johnny Depp
+ * selectionBox->activated().connect(SLOT(this, MyWidget::comboChanged));
+ * \endcode
+ *
+ * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag.
+ *
+ * %WSelectionBox is an \link WWidget::setInline(bool) inline \endlink widget.
  *
  * \ingroup modelview
  */

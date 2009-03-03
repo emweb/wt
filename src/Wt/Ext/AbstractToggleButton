@@ -15,20 +15,16 @@ namespace Wt {
 
 /*! \class AbstractToggleButton Ext/AbstractToggleButton
  *         Ext/AbstractToggleButton
- *  \brief Abstract base class for Radio button and Check boxes.
+ *  \brief Abstract base class for radio button and check box.
  *
  * A toggle button provides a button with a boolean state (checked or
  * unchecked), and a text label.
  *
- * To act on a change of the state, either connect a slot to the changed()
- * signal, or connect a slot to the
- * \link AbstractToggleButton::checked checked\endlink or
- * \link AbstractToggleButton::unChecked unChecked\endlink signals.
+ * To act on a change of the state, you can listen to the checked() or
+ * unChecked() signals.
  *
  * The current state (checked or unchecked) may be inspected using the
  * isChecked() method.
- *
- * FIXME: add image functionality for the label.
  *
  * The API is identical to the WAbstractToggleButton API.
  *
@@ -56,9 +52,7 @@ public:
 public slots:
   /*! \brief Change the state of the button.
    *
-   * Does not emit one of the
-   * \link AbstractToggleButton::checked checked\endlink or
-   * \link AbstractToggleButton::unChecked unChecked \endlink signals.
+   * Does not emit the checked() or unChecked() signals.
    *
    * \sa setChecked(), setUnChecked()
    */
@@ -66,8 +60,7 @@ public slots:
 
   /*! \brief Set the button checked.
    *
-   * Does not emit the \link AbstractToggleButton::checked checked\endlink
-   * signal.
+   * Does not emit the checked() signal.
    *
    * \sa setChecked(bool)
    */
@@ -75,8 +68,7 @@ public slots:
 
   /*! \brief Set the button unChecked.
    *
-   * Does not emit the
-   * \link WAbstractToggleButton::unChecked unChecked \endlink signal.
+   * Does not emit the unChecked() signal.
    *
    * \sa setChecked(bool)
    */
@@ -84,10 +76,14 @@ public slots:
 
 public:
   /*! \brief %Signal emitted when the button gets checked.
+   *
+   * \sa unChecked()
    */
   EventSignal<void>& checked();
 
   /*! \brief %Signal emitted when the button gets unChecked.
+   *
+   * \sa checked()
    */
   EventSignal<void>& unChecked();
 

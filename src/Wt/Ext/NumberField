@@ -32,11 +32,11 @@ public:
    */
   void setValue(double value);
 
-  /*! \brief Get the value.
+  /*! \brief Return the value.
    */
   double value() const;
 
-  /*! \brief Set the precision to be displayed.
+  /*! \brief Set the maximal decimal precision
    */
   void setDecimalPrecision(int decimals);
 

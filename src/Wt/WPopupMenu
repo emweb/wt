@@ -53,30 +53,30 @@ namespace Wt {
  *   WPopupMenuItem::triggered signal, and handle them in a single
  *   slot.
  *
- * Usage example using exec():
+ * Usage example:
  * \code
-  // Create a menu with some items
-  WPopupMenu popup;
-  popup.addItem("icons/item1.gif", "Item 1");
-  popup.addItem("Item 2")->setCheckable(true);
-  popup.addItem("Item 3");
-  popup.addSeparator();
-  popup.addItem("Item 4");
-  popup.addSeparator();
-  popup.addItem("Item 5");
-  popup.addItem("Item 6");
-  popup.addSeparator();
-
-  WPopupMenu *subMenu = new WPopupMenu();
-  subMenu->addItem("Sub Item 1");
-  subMenu->addItem("Sub Item 2");
-  popup.addMenu("Item 7", subMenu);
-
-  WPopupMenuItem *item = popup.exec(event);
-
-  if (item) {
-    // ... do associated action.
-  }
+ * // Create a menu with some items
+ * WPopupMenu popup;
+ * popup.addItem("icons/item1.gif", "Item 1");
+ * popup.addItem("Item 2")->setCheckable(true);
+ * popup.addItem("Item 3");
+ * popup.addSeparator();
+ * popup.addItem("Item 4");
+ * popup.addSeparator();
+ * popup.addItem("Item 5");
+ * popup.addItem("Item 6");
+ * popup.addSeparator();
+ *
+ * WPopupMenu *subMenu = new WPopupMenu();
+ * subMenu->addItem("Sub Item 1");
+ * subMenu->addItem("Sub Item 2");
+ * popup.addMenu("Item 7", subMenu);
+ *
+ * WPopupMenuItem *item = popup.exec(event);
+ *
+ * if (item) {
+ *   // ... do associated action.
+ * }
  * \endcode
  *
  * The menu implementation does not provide any style. You can style the
@@ -84,28 +84,28 @@ namespace Wt {
  *
  * For example:
  * \code
-div.Wt-popupmenu {
-    background: white;
-    color: black;
-    border: 1px solid #666666;
-    z-index: 200;
-    cursor: default;
-}
-
-div.Wt-popupmenu .notselected, div.Wt-popupmenu .selected {
-    padding: 2px 0px;
-}
-
-div.Wt-popupmenu .selected {
-    background: blue;
-    color: white;
-}
-
-div.Wt-popupmenu .separator {
-    border-top: 1px solid #CCCCCC;
-    border-bottom: 1px solid #DDDDDD;
-    margin: 0px 3px;
-}
+ * div.Wt-popupmenu {
+ *     background: white;
+ *     color: black;
+ *    border: 1px solid #666666;
+ *    z-index: 200;
+ *    cursor: default;
+ * }
+ *
+ * div.Wt-popupmenu .notselected, div.Wt-popupmenu .selected {
+ *     padding: 2px 0px;
+ * }
+ *
+ * div.Wt-popupmenu .selected {
+ *     background: blue;
+ *     color: white;
+ * }
+ * 
+ * div.Wt-popupmenu .separator {
+ *     border-top: 1px solid #CCCCCC;
+ *    border-bottom: 1px solid #DDDDDD;
+ *    margin: 0px 3px;
+ * }
  * \endcode
  *
  * \sa WPopupMenuItem

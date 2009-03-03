@@ -20,6 +20,19 @@ namespace Wt {
 /*! \class Response Wt/Http/Response Wt/Http/Response
  *  \brief An HTTP response.
  *
+ * Use the HTTP response to format a response to an HTTP request (see
+ * Request).
+ *
+ * More specifically you can:
+ * - set the content mime type using setMimeType()
+ * - add HTTP headers using addHeader()
+ * - stream content into out()
+ *
+ * You may chose to provide only a partial response. In that case, use
+ * createContinuation() to create a continuation object to which you
+ * can annotate information for the next request to process the
+ * response further.
+ *
  * \sa WResource::handleRequest()
  */
 class WT_API Response
@@ -46,7 +59,7 @@ public:
    * the resource to retrieve more data, after the current data has
    * been sent out.
    */
-  ResponseContinuation *createContinuation(ContinuationType type);
+  ResponseContinuation *createContinuation();
 
   /*! \brief Returns the stream for getting the response output.
    */

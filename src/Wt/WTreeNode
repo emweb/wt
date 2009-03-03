@@ -84,12 +84,13 @@ mytree * .treenodechildcount {
 }
  * \endcode
  *
- * The tree node uses an image-pack, which is a collection of images to
- * render the expand/collapse icons and lines. Use setImagePack() to
- * specify the location of these icons. This needs only be done on the
- * root of the tree, as child nodes will query their ancestors for the
- * location of these images, when they are not set explicitly.
- *
+ * The tree node uses an image-pack, which is a collection of images
+ * to render the expand/collapse icons and lines. Use setImagePack()
+ * to specify the location of these icons -- a suitable set of images
+ * are distributed in Wt's <tt>resources/</tt> folder. This needs only
+ * be done on the root of the tree, as child nodes will query their
+ * ancestors for the location of these images, when they are not set
+ * explicitly:
  * <ul>
  *   <li><b>nav-plus-line-middle.gif</b>: expand icon for all but the last
  *     child in a node.</li>
@@ -106,6 +107,10 @@ mytree * .treenodechildcount {
  *   <li><b>line-trunk.gif</b>: extension gif for the vertical line.
  *     </li>
  * </ul>
+ *
+ * See WTree for a usage example.
+ *
+ * \sa WTree, WTreeTableNode
  */
 class WT_API WTreeNode : public WCompositeWidget
 {

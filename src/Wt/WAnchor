@@ -18,8 +18,6 @@ class WImage;
 /*! \class WAnchor Wt/WAnchor Wt/WAnchor
  *  \brief A widget that represents an HTML anchor (to link to other documents)
  *
- * %WAnchor is an \link WWidget::setInline(bool) inline \endlink widget.
- *
  * Use an anchor to link to another web page, document, internal
  * application path or a resource. The anchor may contain a label
  * text, an image, or any other widget (as it inherits from
@@ -50,6 +48,8 @@ class WImage;
  * \endcode
  *
  * The widget corresponds to the HTML <tt>&lt;a&gt;</tt> tag.
+ *
+ * %WAnchor is an \link WWidget::setInline(bool) inline \endlink widget.
  *
  * \note If you set a text or image using one of the API methods like
  * setText() or setImage() or a constructor, you should not attempt to

@@ -90,7 +90,7 @@ void WTableRow::setStyleClass(const WT_USTRING& style)
 
 WLength WTableRow::height() const
 {
-  return height_ ? *height_ : WLength();
+  return height_ ? *height_ : WLength::Auto;
 }
 
 void WTableRow::hide()

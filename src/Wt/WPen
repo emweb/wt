@@ -18,8 +18,10 @@ namespace Wt {
  * A pen defines the properties of how lines (that may surround
  * shapes) are rendered.
  *
- * A pen of width 0 is a cosmetic pen, and is always rendered as 1 pixel
- * width.
+ * A pen with width 0 is a <i>cosmetic</i> pen, and is always rendered
+ * as 1 pixel width, regardless of transformations. Otherwized, the
+ * pen width is modified by the \link WPainter::worldTransform()
+ * transformation\endlink set on the painter.
  *
  * \sa WPainter::setPen(), WBrush
  *

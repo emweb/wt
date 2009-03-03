@@ -239,7 +239,7 @@ public:
    *
    * The value of the CGI variable <tt>SERVER_SIGNATURE</tt>.
    *
-   * Example: <tt><address>Apache Server at localhost Port 80</address>"</tt>.
+   * Example: <tt>&lt;address&gt;Apache Server at localhost Port 80&lt;/address&gt;</tt>.
    */
   const std::string& serverSignature() const { return serverSignature_; }
 

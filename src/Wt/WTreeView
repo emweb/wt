@@ -40,7 +40,7 @@ class WTreeViewNode;
  * By default, all but the first columns are given a width of 150px,
  * and the first column takes the remaining size. <b>Note that this
  * may have as consequence that the first column's size is reduced to
- * 0.</b>. Column widths of all columns, including the first column,
+ * 0.</b> Column widths of all columns, including the first column,
  * can be set through the API (setColumnWidth(), and also by the
  * user using handles provided in the header.
  *
@@ -56,8 +56,7 @@ class WTreeViewNode;
  * You can allow selection on row or item level (using
  * setSelectionBehavior()), and selection of single or multiple items
  * (using setSelectionMode()), and listen for changes in the selection
- * using the \link WTreeView::selectionChanged
- * selectionChanged\endlink signal.
+ * using the selectionChanged() signal.
  *
  * You may enable drag & drop support for this view, whith awareness
  * of the items in the model. When enabling dragging (see
@@ -72,8 +71,20 @@ class WTreeViewNode;
  * Wt::ItemIsDropEnabled ItemIsDropEnabled\endlink flag).
  *
  * You may also react to mouse click events on any item, by connecting
- * to one of the \link WTreeView::clicked clicked\endlink or \link
- * WTreeView::doubleClicked doubleClicked\endlink signals.
+ * to one of the clicked() or doubleClicked() signals.
+ *
+ * Usage example:
+ * \code
+ * // WTreeView will display the data of a model
+ * Wt::WAbstractItemModel *model = ...
+ *
+ * // Create the WTreeView
+ * Wt::WTreeView *gitView = new Wt::WTreeView();
+ * gitView->resize(300, Wt::WLength::Auto);
+ * gitView->setSortingEnabled(false);
+ * gitView->setModel(model);
+ * gitView->setSelectionMode(SingleSelection);
+ * \endcode
  *
  * \ingroup modelview
  */
@@ -500,31 +511,31 @@ public:
 
   /*! \brief %Signal emitted when a node is collapsed.
    *
-   * \sa setExpanded(), expanded
+   * \sa setExpanded(), expanded()
    */
   Signal<WModelIndex>& collapsed() { return collapsed_; }
 
   /*! \brief %Signal emitted when a node is expanded.
    *
-   * \sa setExpanded(), collapsed
+   * \sa setExpanded(), collapsed()
    */
   Signal<WModelIndex>& expanded() { return expanded_; }
 
   /*! \brief %Signal emitted when an item is clicked.
    *
-   * \sa doubleClicked
+   * \sa doubleClicked()
    */
   Signal<WModelIndex, WMouseEvent>& clicked() { return clicked_; }
 
   /*! \brief %Signal emitted when an item is double clicked.
    *
-   * \sa doubleClicked
+   * \sa doubleClicked()
    */
   Signal<WModelIndex, WMouseEvent>& doubleClicked() { return doubleClicked_; }
 
   /*! \brief %Signal emitted when an item is double clicked.
    *
-   * \sa doubleClicked
+   * \sa doubleClicked()
    */
   Signal<WModelIndex, WMouseEvent>& mouseWentDown() { return mouseWentDown_; }
 

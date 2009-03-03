@@ -23,47 +23,38 @@ namespace Wt {
  *
  * Usage example:
  * \code
-  // ...
-
-  // Create a menu with some items
-
-  Ext::Menu *menu = new Ext::Menu();
-  Ext::MenuItem *item;
-
-  item = menu->addItem("File open...");
-  item->setIcon("icons/yellow-folder-open.png");
-
-  item = menu->addItem("I dig Wt");
-  item->setCheckable(true);
-  item->setChecked(true);
-
-  item = menu->addItem("I dig Wt too");
-  item->setCheckable(true);
-
-  menu->addSeparator();
-  menu->addItem("Menu item");
-  menu->addSeparator();
-
-  // Add a sub menu
-
-  Ext::Menu *subMenu = new Ext::Menu();
-  subMenu->addItem("Do this");
-  subMenu->addItem("And that");
-
-  item = menu->addMenu("More ...", subMenu);
-  item->setIcon("icons/yellow-folder-open.png");
-
-  // Create a tool bar
-
-  Ext::ToolBar *toolBar = new Ext::ToolBar(ex);
-
-  // Associate the menu with a button
-
-  Ext::Button *b
-    = toolBar->addButton("Button w/Menu", menu);
-  b->setIcon("icons/yellow-folder-closed.png");
-
-  // ...
+ * // Create a menu with some items
+ * Wt::Ext::Menu *menu = new Wt::Ext::Menu();
+ * Wt::Ext::MenuItem *item;
+ *
+ * item = menu->addItem("File open...");
+ * item->setIcon("icons/yellow-folder-open.png");
+ *
+ * item = menu->addItem("I dig Wt");
+ * item->setCheckable(true);
+ * item->setChecked(true);
+ *
+ * item = menu->addItem("I dig Wt too");
+ * item->setCheckable(true);
+ *
+ * menu->addSeparator();
+ * menu->addItem("Menu item");
+ * menu->addSeparator();
+ *
+ * // Add a sub menu
+ * Wt::Ext::Menu *subMenu = new Wt::Ext::Menu();
+ * subMenu->addItem("Do this");
+ * subMenu->addItem("And that");
+ *
+ * item = menu->addMenu("More ...", subMenu);
+ * item->setIcon("icons/yellow-folder-open.png");
+ *
+ * // Create a tool bar
+ * Wt::Ext::ToolBar *toolBar = new Wt::Ext::ToolBar(ex);
+ *
+ * // Associate the menu with a button
+ * Wt::Ext::Button *b = toolBar->addButton("Button w/Menu", menu);
+ * b->setIcon("icons/yellow-folder-closed.png");
  * \endcode
  *
  * \image html ExtMenu-1.png "Example of a Menu"
@@ -96,7 +87,7 @@ public:
    *         called when activated.
    *
    * The <i>target</i> and <i>method</i> are connected to the
-   * MenuItem::activated signal.
+   * MenuItem::activated() signal.
    */
   template<class T, class V>
     MenuItem *addItem(const WString& text,
@@ -106,7 +97,7 @@ public:
    *         method to be called when activated.
    *
    * The <i>target</i> and <i>method</i> are connected to the
-   * MenuItem::activated signal.
+   * MenuItem::activated() signal.
    */
   template<class T, class V>
     MenuItem *addItem(const std::string& iconPath, const WString& text,

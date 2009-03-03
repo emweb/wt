@@ -102,7 +102,7 @@ void Server::execChild(bool debug, const std::string& extraArg)
 #endif // _GNU_SOURCE
 
   std::string prepend;
-  if (debug && conf_.allowDebug())
+  if (debug && conf_.debug())
     prepend = conf_.valgrindPath();
 
   std::vector<std::string > prependArgv;

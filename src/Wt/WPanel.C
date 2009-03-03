@@ -45,7 +45,7 @@ WPanel::WPanel(WContainerWidget *parent)
     app->styleSheet().addRule("div.Wt-panel .titlebar",
 			      "background: #888888; color: #FFFFFF;"
 			      "padding: 0px 6px 3px;"
-			      "height: 18px; font-size: 10pt;");
+			      "font-size: 10pt;");
     app->styleSheet().addRule("div.Wt-panel .body",
 			      "background: #FFFFFF;"
 			      "padding: 4px 6px 4px;");

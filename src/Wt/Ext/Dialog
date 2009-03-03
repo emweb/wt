@@ -93,22 +93,22 @@ public:
    */
   void setWindowTitle(const WString& windowTitle);
 
-  /*! \brief Get the dialog window title.
+  /*! \brief Return the dialog window title.
    *
    * Is the same as Panel::title()
    */
   const WString& windowTitle() const { return Panel::title(); }
 
-  /*! \brief Get the dialog contents container.
+  /*! \brief Return the dialog contents container.
    *
    * The first invocation to this method creates a single
    * WContainerWidget that is fitted in the panel content area, like
    * this:
    * \code
-      WContainerWidget *contents = new WContainerWidget();
-      dialog->setLayout(new WFitLayout());
-      dialog->layout()->addWidget(contents);
-     \endcode
+   * WContainerWidget *contents = new WContainerWidget();
+   * dialog->setLayout(new WFitLayout());
+   * dialog->layout()->addWidget(contents);
+   * \endcode
    */
   WContainerWidget *contents() const;
 
@@ -149,7 +149,7 @@ public:
    */
   Signal<DialogCode>& finished() { return finished_; }
 
-  /*! \brief Get the result that was set for this dialog.
+  /*! \brief Return the result that was set for this dialog.
    *
    * \sa done(DialogCode)
    */
@@ -170,7 +170,7 @@ public:
    */
   void removeButton(Button *button);
 
-  /*! \brief Get the list of buttons at the bottom of this dialog.
+  /*! \brief Return the list of buttons at the bottom of this dialog.
    *
    * Is the same as Panel::footerButtons()
    */
@@ -187,7 +187,7 @@ public:
    */
   void setDefaultButton(Button *button);
 
-  /*! \brief Get the default button for this dialog.
+  /*! \brief Return the default button for this dialog.
    *
    * \sa setDefaultButton(), Button::isDefault()
    */

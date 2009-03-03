@@ -13,7 +13,10 @@
 namespace Wt {
 
 /*! \class WLength Wt/WLength Wt/WLength
- *  \brief A class that specifies a length.
+ *  \brief A class that specifies a CSS length.
+ *
+ * The class combines a value with a unit. There is a special value
+ * <i>auto</i> which has a different meaning depending on the context.
  */
 class WT_API WLength
 {
@@ -31,37 +34,56 @@ public:
 	     Percentage  //!< Percentage (meaning context-sensitive)
   };
 
+  /*! \brief An 'auto' length.
+   *
+   * \sa WLength()
+   */
   static WLength Auto;
 
-  /*! \brief Automatic length
+  /*! \brief Creates an 'auto' length
    *
    * Specifies an 'auto' length.
+   *
+   * \sa Auto
    */
   WLength();
 
-  /*! \brief Length with value and unit.
+  /*! \brief Creates a length with value and unit.
+   *
+   * This constructor will also provide the implicit conversion between
+   * a double and WLength, using a pixel unit.
    */
   WLength(double value, Unit unit = Pixel);
 
-  /*! \brief Length is unspecified, hence automatic ?
+  /*! \brief Returns whether the ength is 'auto'.
+   *
+   * \sa WLength(), Auto
    */
   bool isAuto() const { return auto_; }
 
-  /*! \brief Get te value.
+  /*! \brief Returns the value.
+   *
+   * \sa unit()
    */
   double value() const { return value_; }
 
-  /*! \brief Get te unit.
+  /*! \brief Returns the unit.
+   *
+   * \sa value()
    */
   Unit unit() const { return unit_; }
 
+  /*! \brief Returns the CSS text.
+   */
   const std::string cssText() const;
 
+  /*! \brief Comparison operator.
+   */
   bool operator== (const WLength& other) const;
 
+  /*! \brief Comparison operator.
+   */
   bool operator!= (const WLength& other) const;
-
-  WLength operator*=(double s) { value_ *= s; return *this; }
 
   double toPixels() const;
   
@@ -73,9 +95,7 @@ private:
 
 inline Wt::WLength operator*(const Wt::WLength &l, double s)
 {
-  WLength retval(l);
-  retval *= s;
-  return retval;
+  return Wt::WLength(l.value() * s, l.unit());
 }
 
 inline Wt::WLength operator*(double s, const Wt::WLength &l)
@@ -90,4 +110,4 @@ inline Wt::WLength operator/(const Wt::WLength &l, double s)
 
 }
 
-#endif // WLENGTH
+#endif // WLENGTH_H_

@@ -18,6 +18,14 @@ namespace Wt {
  *
  * This validator checks whether user input is an integer number in a
  * pre-defined range.
+ *
+ * Usage example:
+ * \code
+ * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
+ * Wt::WIntValidator *validator = new Wt::WIntValidator(0, 100);
+ * lineEdit->setValidator(validator);
+ * lineEdit->setText("50");
+ * \endcode
  */
 class WT_API WIntValidator : public WValidator
 {

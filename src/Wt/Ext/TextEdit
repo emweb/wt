@@ -40,9 +40,9 @@ public:
 
   /*! \brief Set the text.
    */
-  void           setText(const WT_USTRING& value);
+  void setText(const WT_USTRING& value);
 
-  /*! \brief Get the text.
+  /*! \brief Return the text.
    */
   const WT_USTRING& text() const;
 

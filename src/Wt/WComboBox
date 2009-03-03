@@ -19,10 +19,11 @@ namespace Wt {
  * A combo box provides the user with a set of options, from which one
  * option may be selected.
  *
- * WComboBox is an MVC component, using a simple string list model by
- * default. The model may be populated using addItem(const WString&)
- * or insertItem(int, const WString&) and the contents can be cleared
- * through clear(). These methods manipulate the underlying model().
+ * %WComboBox is an MVC view class, using a simple string list model
+ * by default. The model may be populated using addItem(const
+ * WString&) or insertItem(int, const WString&) and the contents can
+ * be cleared through clear(). These methods manipulate the underlying
+ * model().
  *
  * To use the combo box with a custom model instead of the default
  * WStringListModel, use setModel().
@@ -42,12 +43,12 @@ namespace Wt {
  * combo->addItem("Kate Winslet");
  *
  * combo->setCurrentIndex(2); // Johnny Depp
- * combo->activated().connect(SLOT, MyWidget::comboChanged);
+ * combo->activated().connect(SLOT(this, MyWidget::comboChanged));
  * \endcode
  *
- * %WComboBox is an \link WWidget::setInline(bool) inline \endlink widget.
- *
  * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag.
+ *
+ * %WComboBox is an \link WWidget::setInline(bool) inline \endlink widget.
  *
  * \ingroup modelview
  */
@@ -126,8 +127,8 @@ public:
    * The <i>model</i> may not be 0, and ownership of the model is not
    * transferred.
    *
-   * The default value is a WStringListModel that is owned by the the
-   * combo box and which will be deleted together with the combo box.
+   * The default value is a WStringListModel that is owned by the
+   * combo box.
    *
    * \sa setModelColumn(int)
    */

@@ -277,7 +277,7 @@ public:
    * uses XML files to resolve localized strings, but you can set a
    * custom class using setLocalizedStrings().
    *
-   * \sa WString::tr(const char *key), messageResourceBundle()
+   * \sa WString::tr(), messageResourceBundle()
    */
   WLocalizedStrings *localizedStrings() { return localizedStrings_; }
 
@@ -287,7 +287,7 @@ public:
    * locale. The previous string translator is deleted, and ownership is
    * transferred to the application.
    *
-   * \sa stringTranslator(), WString::tr(const char *key)
+   * \sa localizedStrings(), WString::tr(const char *key)
    */
   void setLocalizedStrings(WLocalizedStrings *translator);
 
@@ -319,7 +319,7 @@ public:
    * (WEnvironment::locale()), and is the locale that was configured
    * by the user in his browser preferences.
    *
-   * \sa stringTranslator(), WString::tr()
+   * \sa localizedStrings(), WString::tr()
    */
   void setLocale(const std::string& locale);
 
@@ -632,12 +632,32 @@ public:
    * overheads associated which may be unnecessary, and which create a
    * trade-off with time resolution of the updates.
    *
-   * A call to this method starts a so-called "server push". Widgets
-   * may then be modified, created or deleted outside of the event
-   * loop (from another thread), and are subsequently propagated by
-   * calling triggerUpdate().
+   * When <i>enabled</i> is true, this enables "server push" (what is
+   * called 'comet' in AJAX terminology). Widgets may then be
+   * modified, created or deleted outside of the event loop (e.g. in
+   * response to execution of another thread), and these changes are
+   * propagated by calling triggerUpdate().
    *
-   * <i>This works only if JavaScript is available on the client.</i>.
+   * An example of how to modify the widget tree outside the event loop
+   * and propagate changes is:
+   * \code
+   * // You need to have a reference to the application whose state you are about to manipulate.
+   * // You should prevent the application from being deleted somehow, before you could grab the application lock.
+   * Wt::WApplication *app = ...;
+   *
+   * {
+   *   // Grab the application lock. It is a scoped lock.
+   *   Wt::WApplication::UpdateLock lock = app->getUpdateLock();
+   *
+   *   // We now have exclusive access to the application: we can safely modify the widget tree for example.
+   *   app->root()->addWidget(new Wt::WText("Something happened!"));
+   *
+   *   // Push the changes to the browser
+   *   app->triggerUpdate();
+   * }
+   * \endcode
+   *
+   * \note This works only if JavaScript is available on the client.
    *
    * \sa triggerUpdate()
    */
@@ -891,6 +911,11 @@ public:
 
   /*! \brief Set a new cookie.
    *
+   * Use cookies to transfer information across different sessions
+   * (e.g. a user name). In a subsequent session you will be able to
+   * read this cookie using WEnvironment::getCookie(). You cannot use
+   * a cookie to store information in the current session.
+   *
    * The name must be a valid cookie name (of type 'token': no special
    * characters or separators, see RFC2616 page 16). The value may be
    * anything. Specify the maximum age (in seconds) after which the
@@ -899,10 +924,11 @@ public:
    * By default the cookie only applies to the current path on the
    * current domain. To set a proper value for domain, see also RFC2109.
    *
-   * Use cookies to recognize the same user returning at some later
-   * time to your server or application.
+   * \note %Wt provides session tracking automatically (and may be configured
+   *       to use a cookie for this). You only need this method if you want
+   *       to remember information <i>across</i> sessions.
    *
-   * \sa WEnvironment::supportsCookies()
+   * \sa WEnvironment::supportsCookies(), WEnvironment::getCookie()
    */
   void setCookie(const std::string& name, const std::string& value,
 		 int maxAge, const std::string& domain = "",

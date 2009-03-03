@@ -31,6 +31,9 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   save_->hide();
   cancel_->hide();
 
+  /*
+   * This is stateless implementation heaven
+   */
   text_->clicked().connect(SLOT(text_,   WWidget::hide));
   text_->clicked().connect(SLOT(edit_,   WWidget::show));
   text_->clicked().connect(SLOT(save_,   WWidget::show));

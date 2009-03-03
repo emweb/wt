@@ -19,7 +19,7 @@ AddresseeEdit::AddresseeEdit(const WString& label, WContainerWidget *parent,
   label_ = new Label(label, labelParent);
 
   setRows(3); setColumns(55);
-  resize(WLength(99, WLength::Percentage), WLength());
+  resize(WLength(99, WLength::Percentage), WLength::Auto);
 
   setInline(false); // for IE to position the suggestions well
 }

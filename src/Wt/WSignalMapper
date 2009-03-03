@@ -16,29 +16,29 @@ namespace Wt {
 /*! \class WSignalMapper Wt/WSignalMapper Wt/WSignalMapper
  *  \brief A utility class to connect multiple senders to a single slot.
  *
- * This class is useful if you have to respond to the same signal of
- * many objects or widgets, but need to identify the sender through some
- * property.
+ * This class is useful if you would like to respond to signals of
+ * many objects or widgets within a single slot, but need to identify
+ * the particular sender through some property.
  *
- * Consider the following example, where you can check for the sender, by
- * adding it as a mapped argument:
- *
+ * Usage example:
  * \code
-void Test::createWidgets()
-{
-  WSignalMapper<WText*> *MyMap = new WSignalMapper<WText*>(this);
-
-  MyMap->mapped().connect(SLOT(this, Test::onClick));
-  MyMap->mapConnect(text1->clicked(), text1);
-  MyMap->mapConnect(text2->clicked(), text2);
-  MyMap->mapConnect(text3->clicked(), text3);
-}
-
-void Test::onClick(WText* source)
-{
-  // source is where it is coming from
-  // ...
-}
+ * void Test::createWidgets()
+ * {
+ *   Wt::WSignalMapper<WText *> *MyMap = new Wt::WSignalMapper<Wt::WText *>(this);
+ *   // connect mapped() to our target slot
+ *   MyMap->mapped().connect(SLOT(this, Test::onClick));
+ *
+ *   // connect and map every source signal to the mapper
+ *   MyMap->mapConnect(text1->clicked(), text1);
+ *   MyMap->mapConnect(text2->clicked(), text2);
+ *   MyMap->mapConnect(text3->clicked(), text3);
+ * }
+ *
+ * void Test::onClick(WText* source)
+ * {
+ *   // source is where it is coming from
+ *   // ...
+ * }
  * \endcode
  *
  * The type <i>T</i> may be any type that has proper copy semantics
@@ -70,6 +70,19 @@ public:
    *
    * Connect the given signal with the slot, and associate the data
    * when it is triggered.
+   *
+   * \code
+   * Wt::WSignalMapper<T> *mapper = ...
+   *
+   * mapper->mapConnect(widget->clicked(), data);
+   * \endcode
+   * is equivalent to:
+   * \code
+   * Wt::WSignalMapper<T> *mapper = ...
+   *
+   * widget->clicked().connect(SLOT(mapper, Wt::WSignalMapper<T>::map));
+   * mapper->setMapping(widget, data);
+   * \endcode
    */
   void mapConnect(SignalBase& signal, const T& data);
 #else
@@ -83,6 +96,19 @@ public:
    * Connect the given signal with the slot, and associate the data
    * when it is triggered. The signal argument will be passed to the
    * mapped() signal.
+   *
+   * \code
+   * Wt::WSignalMapper<T, Wt::WMouseEvent> *mapper = ...
+   *
+   * mapper->mapConnect(widget->clicked(), data);
+   * \endcode
+   * is equivalent to:
+   * \code
+   * Wt::WSignalMapper<T, Wt::WMouseEvent> *mapper = ...
+   *
+   * widget->clicked().connect(SLOT(mapper, Wt::WSignalMapper<T, Wt::WMouseEvent>::map1));
+   * mapper->setMapping(widget, data);
+   * \endcode
    */
   template<typename S>
     void mapConnect1(S& signal, const T& data);

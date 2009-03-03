@@ -58,11 +58,12 @@ template <typename A1, typename A2, typename A3, typename A4,
 /*! \class WWebWidget Wt/WWebWidget Wt/WWebWidget
  *  \brief A base class for widgets with an HTML counterpart.
  *
- * All descendants of %WWebWidget implement a particular HTML
- * control. While these widgets provide all (sensible) capabilities
- * exposed by the underlying rendering technology, they make no
- * attempt to do anything more. Therefore it makes sense to make more
- * sophisticated widget libraries on top of %Wt.
+ * All descendants of %WWebWidget implement a widget which corresponds
+ * almost one-on-one with an HTML element. These widgets provide most
+ * capabilities of these HTML elements, but rarely make no attempt to
+ * do anything more.
+ *
+ * \sa WCompositeWidget
  */
 class WT_API WWebWidget : public WWidget
 {

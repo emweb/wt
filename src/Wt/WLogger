@@ -18,7 +18,7 @@ namespace Wt {
 class WLogEntry;
 
 /*! \class WLogger Wt/WLogger Wt/WLogger
- *  \brief A text stream logging class.
+ *  \brief A simple logging class.
  *
  * This class logs events to a stream in a flexible way. It allows to
  * create log files using the commonly used <a
@@ -31,11 +31,29 @@ class WLogEntry;
  * It is used by %Wt to create the application log
  * (WApplication::log()), and built-in httpd access log.
  *
- * To use this class to create your own log files, you should
- * instantiate a logger, add one or more field definitions using
- * addField(), and set an output stream using setStream() or
- * setFile(). To stream data to the logger, use entry() to start
- * formatting a new entry.
+ * To use this class for custom logging, you should instantiate a
+ * logger, add one or more field definitions using addField(), and set
+ * an output stream using setStream() or setFile(). To stream data to
+ * the logger, use entry() to start formatting a new entry.
+ *
+ * Usage example:
+ * \code
+ * // Setup the logger
+ * Wt::WLogger logger;
+ * logger.addField("datetime", false);
+ * logger.addField("session", false);
+ * logger.addField("type", false);
+ * logger.addField("message", true);
+ *
+ * logger.setFile("/tmp/mylog.txt");
+ *
+ * // Add an entry
+ * Wt::WLogEntry entry = logger.entry();
+ * entry << Wt::WLogger::timestamp << Wt::WLogger::sep
+ *       << '[' << wApp->sessionId() << ']' << Wt::WLogger::sep
+ *       << '[' << "notice" << ']' << Wt::WLogger::sep
+ *       << "Succesfully started.";
+ * \endcode
  *
  * \sa WApplication::log()
  */
@@ -102,8 +120,6 @@ public:
 
   /*! \brief Set the output stream.
    *
-   * Ownership of the stream is not transferred to the logger.
-   *
    * \sa setFile()
    */
   void setStream(std::ostream& o);
@@ -117,6 +133,9 @@ public:
   void setFile(const std::string& path);
 
   /*! \brief Add a field.
+   *
+   * Add a field to the logger. When <i>isString</i> is true, values
+   * will be quoted.
    */
   void addField(const std::string& name, bool isString);
 
@@ -125,6 +144,9 @@ public:
   const std::vector<Field>& fields() const { return fields_; }
 
   /*! \brief Start a new log entry.
+   *
+   * Returns a new entry. The entry is logged in the destructor of
+   * the entry (i.e. when the entry goes out of scope).
    */
   WLogEntry entry() const;
 
@@ -139,7 +161,7 @@ private:
 };
 
 /*! \class WLogEntry Wt/WLogger Wt/WLogger
- *  \brief A stream-like object for creatin an entry in a log file.
+ *  \brief A stream-like object for creating an entry in a log file.
  *
  * This class is returned by WLogger::entry() and creates a log entry using
  * a stream-like interface.

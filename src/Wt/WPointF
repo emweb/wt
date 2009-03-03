@@ -27,19 +27,17 @@ public:
    */
   WPointF();
 
-	/*! \brief Explicit copy constructor.
-	*/
-	WPointF(const WPointF& other) {
-		x_ = other.x_;	
-		y_ = other.y_;	
-	}
-
   /*! \brief Construct a point.
    *
    * Constructs a point (<i>x</i>, <i>y</i>).
    */
   WPointF(double x, double y)
     : x_(x), y_(y) { }
+
+  /*! \brief Copy constructor.
+   */
+  WPointF(const WPointF& other)
+    : x_(other.x()), y_(other.y()) { }
 
   /*! \brief Check for a <i>null</i> point.
    *

@@ -65,7 +65,7 @@ void RoundedWidget::create()
    * a container widget with background image top right.
    */
   top_ = new WContainerWidget();
-  top_->resize(WLength(), radius_);
+  top_->resize(WLength::Auto, radius_);
   top_->setPositionScheme(Relative);
   if (images_[1])
     top_->decorationStyle().setBackgroundImage(images_[1]->imageRef(),
@@ -81,7 +81,7 @@ void RoundedWidget::create()
    */
   bottom_ = new WContainerWidget();
   bottom_->setPositionScheme(Relative);
-  bottom_->resize(WLength(), radius_);
+  bottom_->resize(WLength::Auto, radius_);
   if (images_[3])
     bottom_->decorationStyle().setBackgroundImage(images_[3]->imageRef(),
 						  WCssDecorationStyle::NoRepeat,
@@ -166,8 +166,8 @@ void RoundedWidget::adjust()
 						  WCssDecorationStyle::NoRepeat,
 						  Bottom | Right);
 
-  top_->resize(WLength(), radius_);
-  bottom_->resize(WLength(), radius_);
+  top_->resize(WLength::Auto, radius_);
+  bottom_->resize(WLength::Auto, radius_);
   contents_->setMargin(radius_, Left | Right);
 
   decorationStyle().setBackgroundColor(backgroundColor_);

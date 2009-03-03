@@ -22,13 +22,23 @@ namespace Wt {
   }
 
 /*! \class WLabel Wt/WLabel Wt/WLabel
- *  \brief A widget that may act as a label corresponding to a form field.
+ *  \brief A label for a form field.
  *
- * WLabel is an \link WWidget::setInline(bool) inline \endlink widget.
+ * The label may contain an image and/or text. It acts like a proxy
+ * for giving focus to a WFormWidget. When both an image and text are
+ * specified, the image is put at the left of the text.
  *
- * A WLabel may contain an image and/or text that acts like a proxy
- * for giving focus to a WFormWidget. When both an image and text
- * are specified, the image is put at the left of the text.
+ * Usage example:
+ * \code
+ * Wt::WContainerWidget *w = new Wt::WContainerWidget();
+ * Wt::WLabel *label = new Wt::WLabel("Favourite Actress: ", w);
+ * Wt::WLineEdit *edit = new Wt::WLineEdit("Renée Zellweger", w);
+ * label->setBuddy(edit);
+ * \endcode
+ *
+ * The widget corresponds to the HTML <tt>&lt;label&gt;</tt> tag.
+ *
+ * %WLabel is an \link WWidget::setInline(bool) inline \endlink widget.
  */
 class WT_API WLabel : public WInteractWidget
 {

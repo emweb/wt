@@ -40,10 +40,10 @@ namespace Wt {
  * For example, the following creates a top borderlayout that spans
  * the entire viewport:
  * \code
-   Wt::Ext::Container *rootContainer = new Wt::Ext::Container(app->root());
-   Wt::WBorderLayout *topLayout = new Wt::WBorderLayout()
-   rootContainer->setLayout(topLayout);
-   \endcode
+ * Wt::Ext::Container *rootContainer = new Wt::Ext::Container(app->root());
+ * Wt::WBorderLayout *topLayout = new Wt::WBorderLayout()
+ * rootContainer->setLayout(topLayout);
+ * \endcode
  */
 class WT_EXT_API Container : public Component
 {

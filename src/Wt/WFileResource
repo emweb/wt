@@ -32,7 +32,7 @@ namespace Wt {
  *
  * Wt::WFileResource *imageFile = new Wt::WFileResource("image/png", "/opt/files/image.png");
  * imageFile->suggestFileName("data.png");
- * Wt::WImage *image = new Wt::WAnchor(imageFile, "PNG version");
+ * Wt::WImage *image = new Wt::WImage(imageFile, "PNG version");
  * \endcode
  *
  * \sa WMemoryResource

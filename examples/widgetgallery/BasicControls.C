@@ -162,17 +162,17 @@ WWidget *BasicControls::wTable()
   new WText("First warning signal", table->elementAt(0, 0));
   new WText("09:25am", table->elementAt(0, 1));
   WImage *img = new WImage("icons/Pennant_One.png", table->elementAt(0, 2));
-  img->resize(WLength(), WLength(30, WLength::Pixel));
+  img->resize(WLength::Auto, WLength(30, WLength::Pixel));
   new WText("First perparatory signal", table->elementAt(1, 0));
   new WText("09:26am", table->elementAt(1, 1));
   img = new WImage("icons/Pennant_One.png", table->elementAt(1, 2));
-  img->resize(WLength(), WLength(30, WLength::Pixel));
+  img->resize(WLength::Auto, WLength(30, WLength::Pixel));
   img = new WImage("icons/Papa.png", table->elementAt(1, 2));
-  img->resize(WLength(), WLength(30, WLength::Pixel));
+  img->resize(WLength::Auto, WLength(30, WLength::Pixel));
   new WText("Second perparatory signal", table->elementAt(2, 0));
   new WText("09:29am", table->elementAt(2, 1));
   img = new WImage("icons/Pennant_One.png", table->elementAt(2, 2));
-  img->resize(WLength(), WLength(30, WLength::Pixel));
+  img->resize(WLength::Auto, WLength(30, WLength::Pixel));
   new WText("Start", table->elementAt(3, 0));
   new WText("09:30am", table->elementAt(3, 1));
 
@@ -290,7 +290,7 @@ WWidget *BasicControls::wPanel()
   panel->setCentralWidget(new WText("This is a default panel"));
   new WBreak(result);
   panel = new WPanel(result);
-  panel->setTitle("My second WPanel");
+  panel->setTitle("My second WPanel.");
   panel->setCentralWidget(new WText("This is a panel with a title"));
   new WBreak(result);
   panel = new WPanel(result);

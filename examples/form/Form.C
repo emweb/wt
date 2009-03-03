@@ -124,8 +124,8 @@ void Form::createUI()
   elementAt(row, 0)->setContentAlignment(AlignTop | AlignCenter);
 
   // Set column widths for label and validation icon
-  elementAt(2, 0)->resize(WLength(30, WLength::FontEx), WLength());
-  elementAt(2, 1)->resize(20, WLength());
+  elementAt(2, 0)->resize(WLength(30, WLength::FontEx), WLength::Auto);
+  elementAt(2, 1)->resize(20, WLength::Auto);
 }
 
 void Form::countryChanged()

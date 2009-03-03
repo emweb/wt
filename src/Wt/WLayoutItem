@@ -30,7 +30,7 @@ public:
 
   /*! \brief Find the widget item corresponding to the given <i>widget</i>
    *
-   * The widget is searched recursively inside nested layouts.
+   * The widget is searched for recursively inside nested layouts.
    */
   virtual WWidgetItem *findWidgetItem(WWidget *widget) = 0;
 

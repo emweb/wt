@@ -20,6 +20,30 @@ namespace Wt {
  * When the item is shown and hidden when the item is selected
  * respectively deselected.
  *
+ * Usage example:
+ * \code
+ * // create the stack where the contents will be located
+ * Wt::WStackedWidget *contents = new Wt::WStackedWidget();
+ *
+ * // create a top-level menu
+ * Wt::WMenu *menu = new Wt::WMenu(contents, Wt::Vertical);
+ *
+ * // add two plain items
+ * menu->addItem("Introduction", new Wt::WText(tr("intro"));
+ * menu->addItem("Download", new Wt::WText("Not yet available"));
+
+ * // add an item with a sub menu
+ * Wt::WSubMenuItem *examples = new Wt::WSubMenuItem("Examples", new Wt::WText(tr("examples")));
+ * Wt::WMenu *examplesMenu = new Wt::WMenu(contents, Wt::Vertical);
+ * examplesMenu->addItem("Hello world", new Wt::WText(tr("example.hello-world")));
+ * examplesMenu->addItem("Shopping cart", new Wt::WText(tr("example.shopping")));
+ * examples->setSubMenu(examplesMenu);
+ * menu->addItem(examples);
+ *
+ * addWidget(menu);
+ * addWidget(contents);
+ * \endcode
+ *
  * \sa WMenuItem, WMenu
  */
 class WT_API WSubMenuItem : public WMenuItem

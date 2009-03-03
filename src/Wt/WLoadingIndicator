@@ -18,10 +18,10 @@ class WWidget;
  * The loading indicator displays a message while a response from the
  * server is pending.
  *
- * You can reimplement this interface, and set an instance using
- * WApplication::setLoadingIndicator() if you would like to provide a
- * custom loading indicator instead of the default implementation
- * (WDefaultLoadingIndicator).
+ * By providing a custom implementation of this interface, you may use
+ * a custom loading indicator using
+ * WApplication::setLoadingIndicator(),instead of the default
+ * implementation (WDefaultLoadingIndicator).
  *
  * \sa WApplication::setLoadingIndicator()
  */
@@ -30,23 +30,23 @@ class WLoadingIndicator
 public:
   /*! \brief Destructor.
    *
-   * The destructor must be reimplemented to delete the widget().
+   * The destructor must delete the widget().
    */
   virtual ~WLoadingIndicator();
 
   /*! \brief Returns the widget that visually represents the indicator.
    *
-   * You should reimplement this method to return a widget that will be shown
-   * to indicate that a response is pending. You should position the widget
-   * on the screen using CSS.
+   * You should reimplement this method to return a widget that will
+   * be shown to indicate that a response is pending. The widget
+   * should be positioned using CSS.
    *
    * The widget will be shown and hidden using WWidget::show() and
    * WWidget::hide(). If you want to customize this behaviour, you
    * should reimplement the WWidget::setHidden() method. Note that
-   * these are stateless slots, and thus you need to make sure that
-   * your implementation comforms to that contract, so that it may be
-   * optimized to JavaScript (the server-side implementation will only be
-   * called during stateless slot prelearning).
+   * show() and hide() are stateless slots, and thus you need to make
+   * sure that your implementation comforms to that contract, so that
+   * it may be optimized to JavaScript (the server-side implementation
+   * will only be called during stateless slot prelearning).
    *
    * \note The widget will not be added to the WApplication::root() container.
    */

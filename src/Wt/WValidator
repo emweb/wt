@@ -25,7 +25,10 @@ class WFormWidget;
  * split implementation to provide both validation at the client-side
  * (which gives instant feed-back to the user while editing), and
  * server-side validation (to be sure that the client was not tampered
- * with).
+ * with). The feed-back given by (client-side and server-side)
+ * validation is reflected in the style class of the form field: a
+ * style class of <tt>Wt-invalid</tt> is set for a field that is
+ * invalid.
  *
  * This %WValidator only checks that mandatory fields are not empty.
  * This class is reimplemented in WDateValidator, WIntValidator,
@@ -106,9 +109,6 @@ public:
    * This function returns the current validation state of the
    * input. The default implementation only checks whether a mandatory
    * field is not left blank.
-   *
-   * The function can change both input and pos (the cursor position)
-   * if required (but none of the current implementations do so).
    */
   virtual State validate(WT_USTRING& input) const;
 

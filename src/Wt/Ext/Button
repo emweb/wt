@@ -28,8 +28,7 @@ class Panel;
  *   <li>the button may be configured as a toggle button
  *     (see AbstractButton::setCheckable();</li>
  *   <li>the button may be associated with a popup-menu
- *     (see AbstractButton::setMenu();
- *     </li>
+ *     (see AbstractButton::setMenu();</li>
  * </ul>
  *
  * \image html ExtButton-1.png Standalone button
@@ -77,8 +76,7 @@ public:
    */
   bool isDefault() const;
 
-  /*! \brief Alias for the \link AbstractButton::activated activated \endlink
-   *         signal.
+  /*! \brief Alias for the activated() signal.
    *
    * This signal is added for increased API compatibility with WPushButton.
    */

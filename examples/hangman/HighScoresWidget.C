@@ -70,7 +70,7 @@ void HighScoresWidget::update()
       new WText(top[i].lastseen, table->elementAt(i + 1, 4));
    }
 
-   table->resize(WLength(60, WLength::FontEx), WLength());
+   table->resize(WLength(60, WLength::FontEx), WLength::Auto);
    table->setMargin(20, Top | Bottom);
    table->decorationStyle().setBorder(WBorder(WBorder::Solid));
 

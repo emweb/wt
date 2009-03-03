@@ -31,7 +31,7 @@ using namespace Wt::Chart;
 
 namespace {
   void addHeader(WTable *t, const char *value) {
-    t->elementAt(0, t->numColumns())->addWidget(new WText(value));    
+    t->elementAt(0, t->columnCount())->addWidget(new WText(value));    
   }
 
   void addEntry(WAbstractItemModel *model, const char *value) {
@@ -72,7 +72,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   addEntry(orientation, "Horizontal");
 
   WTable *chartConfig = new WTable();
-  chartConfig->setMargin(WLength(), Left | Right);
+  chartConfig->setMargin(WLength::Auto, Left | Right);
 
   int row = 0;
   chartConfig->elementAt(row, 0)->addWidget(new WText("Title:"));
@@ -104,14 +104,14 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   connectSignals(chartOrientationEdit_);
   ++row;
 
-  for (int i = 0; i < chartConfig->numRows(); ++i) {
+  for (int i = 0; i < chartConfig->rowCount(); ++i) {
     chartConfig->elementAt(i, 0)->setStyleClass("tdhead");
     chartConfig->elementAt(i, 1)->setStyleClass("tddata");
   }
 
   WPanel *p = list->addWidget("Chart properties", chartConfig);
-  p->setMargin(WLength(), Left | Right);
-  p->resize(750, WLength());
+  p->setMargin(WLength::Auto, Left | Right);
+  p->resize(750, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   if (chart_->isLegendEnabled())
@@ -149,7 +149,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   addEntry(labels, "X: Y");
 
   WTable *seriesConfig = new WTable();
-  seriesConfig->setMargin(WLength(), Left | Right);
+  seriesConfig->setMargin(WLength::Auto, Left | Right);
 
   ::addHeader(seriesConfig, "Name");
   ::addHeader(seriesConfig, "Enabled");
@@ -218,8 +218,8 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
   p = list->addWidget("Series properties", seriesConfig);
   p->expand();
-  p->setMargin(WLength(), Left | Right);
-  p->resize(750, WLength());
+  p->setMargin(WLength::Auto, Left | Right);
+  p->resize(750, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   // ---- Axis properties ----
@@ -235,7 +235,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   addEntry(xScales, "Date scale");
 
   WTable *axisConfig = new WTable();
-  axisConfig->setMargin(WLength(), Left | Right);
+  axisConfig->setMargin(WLength::Auto, Left | Right);
 
   ::addHeader(axisConfig, "Axis");
   ::addHeader(axisConfig, "Visible");
@@ -313,8 +313,8 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   }
 
   p = list->addWidget("Axis properties", axisConfig);
-  p->setMargin(WLength(), Left | Right);
-  p->resize(750, WLength());
+  p->setMargin(WLength::Auto, Left | Right);
+  p->resize(750, WLength::Auto);
   p->setMargin(20, Top | Bottom);
 
   /*
@@ -325,7 +325,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     WPushButton *b = new WPushButton(this);
     b->setText("Update chart");
     b->setInline(false); // so we can add margin to center horizontally
-    b->setMargin(WLength(), Left | Right);
+    b->setMargin(WLength::Auto, Left | Right);
     b->clicked().connect(SLOT(this, ChartConfig::update));
   }
 }

@@ -27,7 +27,7 @@ PaintExample::PaintExample(WContainerWidget *root)
 	    this);
 
   WContainerWidget *emweb = new WContainerWidget(this);
-  emweb->setMargin(WLength(), Left | Right);
+  emweb->setMargin(WLength::Auto, Left | Right);
 
   WGridLayout *layout = new WGridLayout();
   emweb->setLayout(layout, AlignCenter | AlignTop);

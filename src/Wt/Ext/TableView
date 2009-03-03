@@ -24,7 +24,7 @@ namespace Wt {
 /*! \class TableView Wt/Ext/TableView Wt/Ext/TableView
  *  \brief A widget that displays data in a table.
  *
- * This class is a MVC view widget, which works in conjunction with a
+ * This class is an MVC view widget, which works in conjunction with a
  * WAbstractItemModel for the data. The model may be set (and changed)
  * using setModel().
  *
@@ -76,7 +76,7 @@ public:
    */
   void setModel(WAbstractItemModel *model);
 
-  /*! \brief Get the model.
+  /*! \brief Return the model.
    *
    * \sa setModel(WAbstractItemModel *)
    */
@@ -99,7 +99,7 @@ public:
    */
   void setAutoExpandColumn(int column, int minWidth = 50, int maxWidth = 1000);
 
-  /*! \brief Get the column index of the column that auto-expands.
+  /*! \brief Return the column index of the column that auto-expands.
    */
   int autoExpandColumn() const;
 
@@ -193,7 +193,7 @@ public:
    */
   void setColumnWidth(int column, int pixels);
 
-  /*! \brief Get the column width.
+  /*! \brief Return the column width.
    *
    * \sa setColumnWidth(int, int)
    */
@@ -206,7 +206,7 @@ public:
    */
   void setColumnAlignment(int column, AlignmentFlag alignment);
 
-  /*! \brief Get horizontal content alignment of a column.
+  /*! \brief Return the horizontal content alignment of a column.
    *
    * \sa setColumnAlignment(int, AlignmentFlag)
    */
@@ -263,15 +263,15 @@ public:
    * An example of rendererJS for numerical data, which renders positive
    * values in green and negative values in red could be:
    * \code
-     function change(val) {
-       if (val > 0){
-         return '\<span style="color:green;"\>' + val + '\</span\>';
-       } else if(val < 0) {
-         return '\<span style="color:red;"\>' + val + '\</span\>';
-       }
-       return val;
-     }
-     \endcode
+   * function change(val) {
+   *   if (val > 0){
+   *     return '\<span style="color:green;"\>' + val + '\</span\>';
+   *   } else if(val < 0) {
+   *     return '\<span style="color:red;"\>' + val + '\</span\>';
+   *   }
+   *   return val;
+   * }
+   * \endcode
    *
    * \sa dateRenderer()
    */
@@ -288,7 +288,7 @@ public:
    */
   void setPageSize(int pageSize);
 
-  /*! \brief Get the page size.
+  /*! \brief Return the page size.
    *
    * \sa setPageSize(int)
    */
@@ -328,20 +328,19 @@ public:
    * selection, and the result is that the given
    * <i>row</i>,<i>column</i> will be the only selected cell.
    *
-   * \sa currentRow(), currentColumn(),
-         \link currentCellChanged currentCellChanged\endlink signal
+   * \sa currentRow(), currentColumn(), currentCellChanged() signal
    * \sa setSelectionMode(SelectionMode),
    *     setSelectionBehavior(SelectionBehavior)
    */
   void setCurrentCell(int row, int column);
 
-  /*! \brief Get the index of the row currently selected
+  /*! \brief Return the index of the row currently selected
    *
    * \sa currentColumn(), setCurrentCell(int, int)
    */
   int currentRow() const { return currentRow_; }
 
-  /*! \brief Get the index of the column currently selected
+  /*! \brief Return the index of the column currently selected
    *
    * \sa currentRow(), setCurrentCell(int, int)
    */
@@ -363,7 +362,7 @@ public:
    */
   void clearSelection();
 
-  /*! \brief Get the current selection mode.
+  /*! \brief Return the current selection mode.
    *
    * \sa setSelectionMode(SelectionMode)
    */
@@ -397,21 +396,21 @@ public:
    */
   void setSelectionBehavior(SelectionBehavior behavior);
 
-  /*! \brief Get the current selection behaviour.
+  /*! \brief Return the current selection behaviour.
    *
    * \sa selectionBehavior()
    */
   SelectionBehavior selectionBehavior() const { return selectionBehavior_; }
 
-  /*! \brief Signal emitted when a cell is clicked.
+  /*! \brief %Signal emitted when a cell is clicked.
    *
    * The signal arguments are row and column of the cell that is clicked.
    *
-   * \sa currentCellChanged
+   * \sa currentCellChanged()
    */
   Signal<int, int>& cellClicked() { return cellClicked_; }
 
-  /*! \brief Signal emitted when a new cell received focus.
+  /*! \brief %Signal emitted when a new cell received focus.
    *
    * This signal is only emitted when selectionBehavior() is \link
    * Wt::SelectItems SelectItems\endlink.  The four arguments are
@@ -424,7 +423,7 @@ public:
   Signal<int, int, int, int>& currentCellChanged()
     { return currentCellChanged_; }
 
-  /*! \brief Signal emitted when the selection changes.
+  /*! \brief %Signal emitted when the selection changes.
    *
    * \sa currentRow(), currentColumn() when selectionBehavior() is
    * \link Wt::SelectItems SelectItems\endlink

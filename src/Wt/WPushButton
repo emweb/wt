@@ -14,10 +14,18 @@ namespace Wt {
 /*! \class WPushButton Wt/WPushButton Wt/WPushButton
  *  \brief A widget that represents a push button.
  *
- * %WPushButton is an \link WWidget::setInline(bool) inline \endlink widget.
+ * To act on a button click, connect a slot to the clicked() signal.
  *
- * To act on a button click, connect a slot to the
- * WInteractWidget::clicked signal.
+ * Usage example:
+ * \code
+ * Wt::WPushButton *ok = new Wt::WPushButton("Okay");
+ * ok->clicked().connect(SLOT(ok, Wt::WPushButton::disable));
+ * ok->clicked().connect(SLOT(this, MyClass::processData));
+ * \endcode
+ *
+ * The widget corresponds to the HTML <tt>&lt;button&gt;</tt> tag.
+ *
+ * %WPushButton is an \link WWidget::setInline(bool) inline \endlink widget.
  */
 class WT_API WPushButton : public WFormWidget
 {

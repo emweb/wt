@@ -17,20 +17,38 @@ namespace Wt {
 /*! \class WTable Wt/WTable Wt/WTable
  *  \brief A container widget which provides layout of children in a table grid.
  *
- * WTable is a \link WWidget::setInline(bool) stacked \endlink widget.
+ * A %WTable arranges its children in a table.
  *
- * A WTable provides a way to manage the lay-out of children differently
- * from the default inline or stacked layout of a WContainerWidget, by
- * using a grid.
- *
- * Access to the contents of a WTable happens through WTableCell
- * widgets. Use elementAt(int row, int column) to access the cell at a
- * particular position in the table. The WTable automatically resizes
- * when necessary.
+ * To insert or access contents, use elementAt(int row, int column) to
+ * access the \link WTableCell cell\endlink at a particular location
+ * in the table. The %WTable expands automatically to create the indexed
+ * (row, column) as necessary.
  *
  * It is possible to insert and delete entire rows or columns from the
  * table using the insertColumn(int column), insertRow(int row),
  * deleteColumn(int column), or deleteRow(int row) methods.
+ *
+ * You may indicate a number of rows and columns that act as headers
+ * using setHeaderCount(). Header cells are rendered as
+ * <tt>&lt;th&gt;</tt> instead of <tt>&lt;td&gt;</tt> elements. By
+ * default, no rows or columns are configured as headers.
+ *
+ * The widget corresponds to the HTML <tt>&lt;table&gt;</tt> tag.
+ *
+ * %WComboBox is a \link WWidget::setInline(bool) stacked \endlink widget.
+ *
+ * Usage example:
+ * \code
+ * Wt::WTable *table = new Wt::WTable(this);
+ * table->elementAt(0, 0)->addWidget(new Wt::WText("Item @ row 0, column 0"));
+ * table->elementAt(0, 1)->addWidget(new Wt::WText("Item @ row 0, column 1"));
+ * table->elementAt(1, 0)->addWidget(new Wt::WText("Item @ row 1, column 0"));
+ * table->elementAt(1, 1)->addWidget(new Wt::WText("Item @ row 1, column 1"));
+ *
+ * Wt::WTableCell *cell = table->elementAt(2, 0);
+ * cell->addWidget(new Wt::WText("Item @ row 2"));
+ * cell->setColumnSpan(2);
+ * \endcode
  *
  * \sa WTableCell, WTableRow, WTableColumn
  */
@@ -52,7 +70,7 @@ public:
    */
   WTableCell *elementAt(int row, int column);
 
-  /*! \brief Get the row object for the given row.
+  /*! \brief Returns the row object for the given row.
    *
    * Like with elementAt(), the table expands automatically when the row
    * is beyond the current table dimensions.
@@ -61,7 +79,7 @@ public:
    */
   WTableRow    *rowAt(int row);
 
-  /*! \brief Get the column object for the given column.
+  /*! \brief Returns the column object for the given column.
    *
    * Like with elementAt(), the table expands automatically when the
    * column is beyond the current table dimensions.
@@ -100,29 +118,16 @@ public:
    */
   void deleteColumn(int column);
 
-  /*! \brief Clear the entire table.
+  /*! \brief Clears the entire table.
+   *
+   * This method clears the entire table: all cells and their contents
+   * are deleted.
    */
   void clear();
-
-#ifndef WT_DEPRECATE_2_2_0
-  /*! \brief The number of rows in the table (<b>deprecated</b>).
-   *
-   * \deprecated Use rowCount() instead.
-   */
-  int numRows() const;
-#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Returns the number of rows in the table.
    */
   int rowCount() const;
-
-#ifndef WT_DEPRECATE_2_2_0
-  /*! \brief The number of columns in the table (<b>deprecated</b>).
-   *
-   * \deprecated Use columnCount() instead.
-   */
-  int numColumns() const;
-#endif // WT_DEPRECATE_2_2_0
 
   /*! \brief Returns the number of columns in the table.
    */

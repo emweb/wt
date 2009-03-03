@@ -223,9 +223,9 @@ WWidget *WBoxLayout::createSpacer(const WLength& size)
 {
   Spacer *spacer = new Spacer();
   if (direction_ == LeftToRight || direction_ == RightToLeft)
-    spacer->setMinimumSize(size, WLength());
+    spacer->setMinimumSize(size, WLength::Auto);
   else
-    spacer->setMinimumSize(WLength(), size);
+    spacer->setMinimumSize(WLength::Auto, size);
 
   return spacer;
 }
