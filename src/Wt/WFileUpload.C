@@ -129,12 +129,12 @@ void WFileUpload::setFormData(CgiEntry *entry)
     isStolen_ = false;
   }
 
-  resourceTriggerUpdate_ = true;
+  resourceTriggerUpdate_ = uploaded.encodeCmd();
 }
 
 void WFileUpload::formDataSet()
 {
-  uploaded.emit();
+  //uploaded.emit();
 }
 
 void WFileUpload::requestTooLarge(int size)

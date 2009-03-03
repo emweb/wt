@@ -804,7 +804,7 @@ protected:
    */
   WWidget(WContainerWidget* parent = 0);
 
-  bool     resourceTriggerUpdate_;
+  std::string resourceTriggerUpdate_;
 
   /*! \brief Handle a drop event.
    *

@@ -25,8 +25,7 @@ const Side WWidget::Left;
 #endif
 
 WWidget::WWidget(WContainerWidget* parent)
-  : WResource(0),
-    resourceTriggerUpdate_(false)
+  : WResource(0)
 {
   implementStateless(&WWidget::hide, &WWidget::undoHideShow);
   implementStateless(&WWidget::show, &WWidget::undoHideShow);
@@ -115,17 +114,18 @@ bool WWidget::streamResourceData(std::ostream& stream,
        "<script type=\"text/javascript\">\n"
        "function load() { ";
 
-  if (resourceTriggerUpdate_)
+  if (!resourceTriggerUpdate_.empty())
     stream << "window.parent."
 	   << WApplication::instance()->javaScriptClass()
-	   << "._p_.update(null, 'res', null, true);";
+	   << "._p_.update(null, '" << resourceTriggerUpdate_
+	   << "', null, true);";
   stream
     << "}\n"
        "</script></head>"
        "<body onload=\"load();\""
     << " style=\"margin:0;padding:0;\">";
 
-  resourceTriggerUpdate_ = false;
+  resourceTriggerUpdate_.clear();
   htmlText(stream);
 
   stream << "</body></html>"; 
