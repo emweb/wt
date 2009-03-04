@@ -682,6 +682,7 @@ var dragStart = function(obj, e) {
   ds.dropTarget = null;
   ds.mimeType = obj.getAttribute("dmt");
 
+  WT.cancelEvent(e);
   return false;
 };
 
