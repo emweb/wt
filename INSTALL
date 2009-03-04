@@ -37,9 +37,9 @@ Requirements
      * Compiler: gcc-3.3.4 or higher, or gcc-4.1.x or higher, or other
        Ansi C++ compiler that can deal with boost-like C++ code.
      * CMake cross-platform build system (www.cmake.org): cmake-2.4.
-     * C++ boost library (version 1.34.1 or higher), preferably with
-       thread support enabled. You can verify you have a thread-enabled
-       boost installation by locating the libboost_thread library. Thread
+     * C++ boost library (version 1.35 or higher), preferably with thread
+       support enabled. You can verify you have a thread-enabled boost
+       installation by locating the libboost_thread library. Thread
        support is not essential: Wt functionality is not affected except
        for exotic things like server push. Most importantly, even without
        thread support Wt can handle multiple concurrent sessions.
@@ -118,11 +118,11 @@ Building and installing the Wt library
 
    BOOST_COMPILER
           The boost compiler signature. For a library
-          libboost_regex-gcc41-mt-1_34_1.so, this is 'gcc41'
+          libboost_regex-gcc41-mt-1_37.so, this is 'gcc41'
 
    BOOST_VERSION
           The boost compiler signature. For a library
-          libboost_regex-gcc41-mt-1_34_1.so, this is '1_34_1'
+          libboost_regex-gcc41-mt-1_37.so, this is '1_37'
 
    BOOST_DIR
           The boost installation directory. This is the directory where
@@ -263,16 +263,24 @@ Trying the examples (or your own Wt application)
 
    These are all the command-line options that are available:
 General options:
-  -h [ --help ]              produce help message
-  -t [ --threads ] arg (=10) number of threads
-  --docroot arg              document root for static files
-  --errroot arg              root for error pages
-  --no-compression           do not compress dynamic text/html and text/plain
-                             responses
-  --deploy-path arg (=/)     location for deployment
-  --session-id-prefix arg    prefix for session-id's (overrides wt_config.xml
-                             setting)
-  -p [ --pid-file ] arg      path to pid file (may be empty)
+  -h [ --help ]                produce help message
+  -t [ --threads ] arg (=10)   number of threads
+  --servername arg (=vierwerf) servername (IP address or DNS name)
+  --docroot arg                document root for static files
+  --errroot arg                root for error pages
+  --accesslog arg              access log file (defaults to stdout)
+  --no-compression             do not compress dynamic text/html and text/plain
+                               responses
+  --deploy-path arg (=/)       location for deployment
+  --session-id-prefix arg      prefix for session-id's (overrides wt_config.xml
+                               setting)
+  -p [ --pid-file ] arg        path to pid file (optional)
+  -c [ --config ] arg          location of wt_config.xml. If unspecified,
+                               WT_CONFIG_XML is searched in the environment, if
+                               it does not exist then the compiled-in default
+                               (/etc/wt/wt_config.xml) is tried. If the default
+                               does not exist, we revert to default values for
+                               all parameters.
 
 HTTP server options:
   --http-address arg    IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
@@ -290,5 +298,5 @@ HTTPS server options:
 
 References
 
-   1. file://localhost/home/koen/project/wt/cvs/wt/INSTALL.win32.html
+   1. file://localhost/home/koen/project/wt/git/wt/INSTALL.win32.html
    2. http://127.0.0.1:8080/

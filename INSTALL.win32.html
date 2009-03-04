@@ -32,9 +32,7 @@ projects against libwt and libwthttp.</p>
       bugfixes. We have not tested Wt on older versions of MSVC.</li>
   <li>CMake cross-platform build system (www.cmake.org): cmake-2.4.x,
       Windows version.</li>
-  <li>Boost 1_33_1 (or later), plus boost_asio_0_3_7 (or later), until
-      boost_asio is officially part of boost. boost_asio_0_3_7 needs a
-      small patch to solve an initialization bug which is critical for Wt.</li>
+  <li>Boost 1.35 (or later).</li>
   <li>Xerces-C++ XML parser, version 2.7.0 or newer.</li>
   <li>OpenSSL, version 0.9.8d or newer.</li>
   <li>zlib 1.2.3</li>
@@ -62,7 +60,6 @@ DLLs at runtime, e.g. by adding the directories to PATH).
 USERLIB_ROOT (defaults to c:/libraries). Use the following directories:
 <ul>
   <li>Boost: During configuration of Boost, set the prefix to $USERLIB_ROOT/Boost</li>
-  <li>Boost asio: unpack boost asio to $USERLIB_ROOT/Boost/boost_asio_0_3_7</li>
   <li>Xerces-C++: TBD</li>
   <li>OpenSSL: TBD</li>
   <li>zlib: TBD</li>
