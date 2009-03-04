@@ -432,8 +432,8 @@ void WSvgImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   }
   tmp << '"';
 
-  WFlags<AlignmentFlag> horizontalAlign = flags & AlignHorizontalMask;
-  WFlags<AlignmentFlag> verticalAlign = flags & AlignVerticalMask;
+  AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
+  AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
   switch (horizontalAlign) {
   case AlignLeft:

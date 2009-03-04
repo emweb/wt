@@ -687,17 +687,17 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
 
   double u = 0;
   enum { Left = 0x1, Right = 0x2, Both = 0x3 } tickPos = Left;
-  WFlags<AlignmentFlag> labelHFlags = 0;
+  AlignmentFlag labelHFlag = AlignLeft;
 
   switch (l) {
   case MinimumValue:
     tickPos = Left;
 
     if (vertical) {
-      labelHFlags = AlignRight;
+      labelHFlag = AlignRight;
       u = chartArea_.left() - 0.5 - axis.margin();
     } else {
-      labelHFlags = AlignTop;
+      labelHFlag = AlignTop;
       u = chartArea_.bottom() + 0.5 + axis.margin();
     }
 
@@ -706,10 +706,10 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
     tickPos = Right;
 
     if (vertical) {
-      labelHFlags = AlignLeft;
+      labelHFlag = AlignLeft;
       u = chartArea_.right() + 0.5 + axis.margin();
     } else {
-      labelHFlags = AlignBottom;
+      labelHFlag = AlignBottom;
       u = chartArea_.top() - 0.5 - axis.margin();
     }
     break;
@@ -717,10 +717,10 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
     tickPos = Both;
 
     if (vertical) {
-      labelHFlags = AlignRight;
+      labelHFlag = AlignRight;
       u = std::floor(map(0, 0, YAxis).x()) + 0.5;
     } else {
-      labelHFlags = AlignTop;
+      labelHFlag = AlignTop;
       u = std::floor(map(0, 0, YAxis).y()) + 0.5;
     }
     break;
@@ -838,7 +838,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
 
       if ((properties & Labels) && !ticks[i].label.empty()
 	  && axis.isVisible()) {
-	WFlags<AlignmentFlag> labelFlags = labelHFlags;
+	WFlags<AlignmentFlag> labelFlags = labelHFlag;
 
 	if (vertical)
 	  if (axis.labelAngle() == 0)
@@ -876,15 +876,15 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
       if (vertical) {
 	if (chartVertical)
 	  renderLabel(axis.title(),
-		      WPointF(u + (labelHFlags == AlignRight ? 15 : -15),
+		      WPointF(u + (labelHFlag == AlignRight ? 15 : -15),
 			      chartArea_.top() - 8),
-		      black, labelHFlags | AlignBottom, 0, 0);
+		      black, labelHFlag | AlignBottom, 0, 0);
 	else
 	  renderLabel(axis.title(),
-		      WPointF(u + (labelHFlags == AlignRight ? -40 : +40),
+		      WPointF(u + (labelHFlag == AlignRight ? -40 : +40),
 			      chartArea_.center().y()),
 		      black,
-		      (labelHFlags == AlignRight ? AlignLeft : AlignRight) |
+		      (labelHFlag == AlignRight ? AlignLeft : AlignRight) |
 		      AlignMiddle, 0, 0);
       } else {
 	if (chartVertical)
@@ -1185,6 +1185,9 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
+  AlignmentFlag rHorizontalAlign = horizontalAlign;
+  AlignmentFlag rVerticalAlign = verticalAlign;
+
   double width = 100;
   double height = 20;
 
@@ -1196,28 +1199,28 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
   if (chart_->orientation() == Horizontal) {
     switch (horizontalAlign) {
     case AlignLeft:
-      verticalAlign = AlignTop; break;
+      rVerticalAlign = AlignTop; break;
     case AlignCenter:
-      verticalAlign = AlignMiddle; break;
+      rVerticalAlign = AlignMiddle; break;
     case AlignRight:
-      verticalAlign = AlignBottom; break;
+      rVerticalAlign = AlignBottom; break;
     default:
       break;
     }
 
     switch (verticalAlign) {
     case AlignTop:
-      horizontalAlign = AlignRight; break;
+      rHorizontalAlign = AlignRight; break;
     case AlignMiddle:
-      horizontalAlign = AlignCenter; break;
+      rHorizontalAlign = AlignCenter; break;
     case AlignBottom:
-      horizontalAlign = AlignLeft; break;
+      rHorizontalAlign = AlignLeft; break;
     default:
       break;
     }
   }
 
-  switch (horizontalAlign) {
+  switch (rHorizontalAlign) {
   case AlignLeft:
     left = pos.x() + margin; break;
   case AlignCenter:
@@ -1228,7 +1231,7 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
     break;
  }
 
-  switch (verticalAlign) {
+  switch (rVerticalAlign) {
   case AlignTop:
     top = pos.y() + margin; break;
   case AlignMiddle:
@@ -1245,13 +1248,13 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
 
   if (angle == 0)
     painter_.drawText(WRectF(left, top, width, height),
-		      horizontalAlign | verticalAlign, text);
+		      rHorizontalAlign | rVerticalAlign, text);
   else {
     painter_.save();
     painter_.translate(pos);
     painter_.rotate(-angle);
     painter_.drawText(WRectF(left - pos.x(), top - pos.y(), width, height),
-		      horizontalAlign | verticalAlign, text);
+		      rHorizontalAlign | rVerticalAlign, text);
     painter_.restore();
   }
 
