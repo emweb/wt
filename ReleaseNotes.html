@@ -1,12 +1,16 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
-<style>
+<!DOCTYPE html PUBLIC
+          "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+<style type="text/css">
   dt { font-weight: bold; }
   h3 { text-decoration: underline; }
+  dd p { margin-top: 0px; }
 </style>
-</head>
 <title>Wt Release notes</title>
+</head>
 <body>
 <h1>Wt Release notes</h1>
 
@@ -14,6 +18,163 @@ This file lists important notes on migrating existing applications to
 newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
+
+<h2>Release 2.99.0 (Mar 4, 2009)</h2>
+
+<p>
+This release is a preview for Wt 3.0.0. Many things have changed both
+in the internals and the API. This is the first release that provides
+several API changes which are not backward compatible (some of which
+were post-poned until now).
+
+Please read the following notes carefully, especially sections C) and
+D), to understand what changes to expect and how to adapt existing
+applications.
+</p>
+
+<p>
+Support for the C++ boost library &lt; 1.35 has been dropped: Wt now
+requires at least boost >= 1.35.0.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WFlags.html">WFlags</a></dt>
+  <dd><samp>WFlags</samp> is a utility class that provides a type-safe ORing of
+  enum flags. It is used everywhere in the Wt API where previously an
+  <samp>int</samp> was used to allow enums to be ORed together.</dd>
+  <dt><a href="classWt_1_1WGoogleMap.html">WGoogleMap</a></dt>
+  <dd>This is a widget, contributed by Richard Ulrich, that displays a
+  Google map.</dd>
+  <dt><a href="classWt_1_1Http_1_1Request.html">Http::Request</a>, <a href="classWt_1_1Http_1_1Response.html">Http::Response</a>, <a href="classWt_1_1Http_1_1ResponseContinuation.html">Http::ResponseContinuation</a> and <a href="classWt_1_1Http_1_1UploadedFile.html">Http::UploadedFile</a></dt>
+  <dd>These are utility classes which model an HTTP request and
+  response and that are used in the new <samp>WResource</samp> API.</dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WApplication.html#d9631ca64e68d30d40cb49c90e55223d">WApplication::enableUpdates()</a></dt>
+  <dd>Server-initiated updates (aka "server push") has been
+  reimplemented and now works reliably in all situations, including in
+  the presence of intermediate proxies. The dependency on the 3rd
+  party JS orbited library has been removed and replaced with a simple
+  XHR-based solution.</dd>
+  <dt><a href="classWt_1_1WButtonGroup.html">WButtonGroup</a></dt>
+  <dd>Various methods were added: id's may be associated with a specific
+  radio buttons, which may be used to identify a particular button.</dd>
+  <dt><a href="classWt_1_1WDatePicker.html">WDatePicker</a></dt>
+  <dd>Is now easier to use because of a sensible default constructor
+  that also creates the line edit using a <samp>WDateValidator</samp>,
+  and creates the icon which is associated with the popup.</dd>
+  <dt><a href="classWt_1_1WFileResource.html">WFileResource</a></dt>
+  <dd>Uses the continuation support in the new <samp>WResource</samp> API
+  to transmit the file in chunks.</dd>
+  <dt><a href="classWt_1_1WLength.html">WLength</a></dt>
+  <dd>WLength::Auto was added, is a synonym for WLength()</dd>
+  <dt><a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a></dt>
+  <dd>Is now also an MVC View widget, reading its data from a
+  <samp>WAbstractItemModel</samp></dd>
+  <dt><a href="classWt_1_1WTable.html">WTable</a></dt> <dd>New method
+  setHeaderCount() to specify the number of first rows or columns that
+  should be rendered as an HTML table header
+  (<samp>&lt;th&gt;</samp>).</dd>
+  <dt><a href="classWt_1_1WWidget.html">WWidget</a></dt>
+  <dd><p>New virtual method <samp>rerender()</samp> which allows a
+  widget to prepare itself before rendering (and defer internal
+  changes until that time). A widget may ask to be rerendered using
+  <samp>askRerender()</samp></p> <p><samp>Widget</samp> no longer
+  inherits from <samp>WResource</samp>, but instead inherits directly from
+  <samp>WObject</samp>. It was simply a bad idea, and not useful for
+  anything.</p></dd>
+</dl>
+
+<h3>C) Changes that break existing applications:</h3>
+
+<dl>
+  <dt>1) Signals are no longer public members</dt>
+  <dd><p>Instead, they are now accessor member functions:
+  e.g. <samp>WInteractWidget::clicked</samp> has been renamed to
+  <samp>WInteractWidget::clicked()</samp>. This has as major benefit
+  that signals can be created on-demand, which leads to drastically
+  lower memory usage and signifcant speedups especially on embedded
+  systems.</p> <p>The change requires that everywhere in your code
+  where you access a signal, you will need to change to add
+  parentheses. For consistency, you may also want to
+  use the same convention for your own widget classes that define
+  signals.</p></dd>
+  <dt>2) <a href="classWt_1_1WResource.html">WResource</a></dt>
+  <dd><p>The API has been redesigned and greatly simplified. If you are
+  implementing your own resources, then you will need to redesign your
+  implementation. The new API is simpler (requires only one virtual
+  method to be implemented) and more powerful, providing support for
+  <i>continuations</i> to serve large resources without blocking a
+  thread or requiring large memory usage.</p>
+  <p>In addition, resources have better thread-safety: they are now by
+  default reentrant (requests for a single resource may be handled
+  concurrently) and they are protected from concurrently being
+  destroyed by the main event loop.</p></dd>
+  <dt>3) <a href="classWt_1_1WValidator.html">WValidator</a></dt>
+  <dd><p>The signature for the virtual <samp>validate()</samp> method was
+  changed: parameter <samp>pos</samp> which was ignored anyway has
+  been removed.</p></dd>
+  <dt>4) <a href="classWt_1_1WEnvironment.html">WEnvironment</a></dt>
+  <dd><p>The methods <samp>getArgument()</samp> and
+  <samp>arguments()</samp> were renamed to respectively
+  <samp>getParameter()</samp> and <samp>getParameterMap()</samp>. The
+  signature for <samp>getParameter()</samp> is also different as it
+  returns a pointer to a string, which is 0 when the parameter is not
+  defined, instead of the olde behaviour of throwing an
+  exception. There is a new method that allows to read all values for
+  a parameter, <samp>getParameterValues()</samp></p></dd>
+  <dt>5) <a href="classWt_1_1ModelIndex.html">WModelIndex</a></dt>
+  <dd><p>The 20-byte SHA1 hash based internal pointer has been removed
+  again as the object increase and overhead could not be justified.</p></dd>
+</dl>
+
+<h3>D) Deprecated API that was removed:</h3>
+
+These are API calls that were deprecated in earlier releases, and have now
+been completely removed from the library:
+
+<dl>
+  <dt><samp>WApplication::applicationName()</samp></dt>
+  <dd>Use <a
+  href="classWt_1_1WApplication.html#ab6320ecdd0e8e4026e9ef1aca710ca5">
+  WApplication::internalPath()</a> instead.</dd>
+  <dt><samp>WApplication::setState()</samp></dt>
+  <dd>Use <a
+  href="classWt_1_1WApplication.html#2c1a10aadc0d7ed877b5715b42ca4911">WApplication::setInternalPath()</a>
+  instead.</dd>
+  <dt><samp>WApplication::state()</samp></dt>
+  <dd>Use <a
+  href="classWt_1_1WApplication.html#ab6320ecdd0e8e4026e9ef1aca710ca5">
+  WApplication::internalPath()</a> instead.</dd>
+  <dt><samp>WApplication::stateChanged</samp></dt>
+  <dd>Use <a
+  href="classWt_1_1WApplication.html#3e68c4b6bb387f27a614e7962e11967b">WApplication::internalPathChanged()</a>
+  instead.</dd>
+  <dt><samp>WRegExpValidator::WRegExpValidator(const boost::regex&amp;)
+  </samp></dt>
+  <dd>Use the <a
+  href="classWt_1_1WRegExpValidator.html#7536b67e2bedd2dfdb5b89c9dd56602b">WRegExpValidator(const
+  WString&amp;)</a> constructor instead.</dd>
+  <dt><samp>WPainterPath::drawArc(..., width, height, ...)</samp></dt>
+  <dd>An elliptical arc segment could not be support on all devices.</dd>
+  <dt><samp>WTable::numRows()</samp></dt>
+  <dd>Use <a href="classWt_1_1WTable.html#79d5dfe40ee5e67c5007ee370e8cd2f3">WTable::rowCount()</a>.</dd>
+  <dt><samp>WTable::numColumns()</samp></dt>
+  <dd>Use <a
+  href="classWt_1_1WTable.html#4d062330d1c9b3f202985b92dcb59d4f">WTable::columnCount()</a>
+  instead.</dd>
+  <dt><samp>WText::setFormatting()</samp> and
+  <samp>WText::formatting()</samp></dt>
+  <dd>Use <a href="classWt_1_1WText.html#f22c64c4c5fed3d2aef0915a7e5c5866">WText::setTextFormat()</a> and
+  <a href="classWt_1_1WText.html#c0976c36c5181a534f161ca3724d4296">WText::textFormat()</a> instead.</dd>
+</dl>
+
+<hr />
 
 <h2>Release 2.2.3 (Jan 26, 2009)</h2>
 
@@ -79,6 +240,8 @@ feature improvements.</p>
     reliably).</dd>
 </dl>
 
+<hr />
+
 <h2>Release 2.2.2 (Dec 1, 2008)</h2>
 
 <p><i>As of now, we will also be listing noteworthy new API features,
@@ -123,6 +286,8 @@ even if they are no concern for backwards compatibility.</i></p>
 <p>This release does not contain changes that break existing
 applications.</p>
 
+<hr />
+
 <h2>Release 2.2.1 (Nov 3, 2008)</h2>
 
 <p>This release is as usually a mix of bug fixes, improvements and new
@@ -149,6 +314,8 @@ The immediate benefit of the new <samp>WAbstracItemModel</samp>
 interface is that it allows us to implement View widgets like the new
 <samp>WTreeView</samp> widget.
 </p>
+
+<hr />
 
 <h2>Release 2.2.0 (Sept 12, 2008)</h2>
 
@@ -183,12 +350,15 @@ may break your application:</p>
 
 <p>
   The following methods have been deprecated (but are still supported):
+</p>
 <ul>
   <li><samp>WTable::numRows()</samp> has been renamed
   to <samp>WTable::rowCount()</samp>.</li>
   <li><samp>WTable::numColumns()</samp> has been renamed
   to <samp>WTable::columnCount()</samp>.</li>
 </ul>
+
+<hr />
 
 <h2>Release 2.1.5 (July 25, 2008)</h2>
 
@@ -221,6 +391,7 @@ application:</p>
 <p>
   The following methods and enumerations have been deprecated (but are
   still supported):
+</p>
 <ul>
   <li><samp>enum WText::Formatting</samp> has been renamed
   to <samp>Wt::TextFormat</samp>. The old values map as follows on new
@@ -233,9 +404,11 @@ application:</p>
   </li>
   <li><samp>WText::setFormatting()</samp> has been renamed
   to <samp>WText::setTextFormat()</samp> and
-  WText::formatting()</samp> has been renamed
+  <samp>WText::formatting()</samp> has been renamed
   to <samp>WText::textFormat()</samp>.</li>
 </ul>
+
+<hr />
 
 <h2>Release 2.1.4 (July 4, 2008)</h2>
 
@@ -248,7 +421,6 @@ application:</p>
   files.
   </li>
 </ul>
-</p>
 
 <p>The following has changed in the wt_config.xml file:</p>
 
@@ -256,15 +428,18 @@ application:</p>
   <li>The &lt;valgrind-path&gt; setting for the FCGI connector may now
     be a command-line including arguments</li>
 </ul>
-</p>
 
 <p>This release should not contain changes that may break your
 application.</p>
+
+<hr />
 
 <h2>Release 2.1.3 (May 20, 2008)</h2>
 
 <p>This release should not contain changes that may break your
 application.</p>
+
+<hr />
 
 <h2>Release 2.1.2 (April 14, 2008)</h2>
 
@@ -274,7 +449,8 @@ application.</p>
   <li><samp>WTreeNode::expanded()</samp> has been renamed
   to <samp>WTreeNode::isExpanded()</samp>.</li>
 </ul>
-</p>
+
+<hr />
 
 <h2>Release 2.1.1 (April 10, 2008)</h2>
 
@@ -285,6 +461,7 @@ application.</p>
 
 <p>
   The following methods and enumerations have been deprecated:
+</p>
 <ul>
   <li><samp>enum SelectionUnit</samp> has been renamed
   to <samp>SelectionBehavior</samp>. The old values map as follows on new
@@ -298,10 +475,10 @@ application.</p>
   <li><samp>WResource::suggestFilename()</samp> has been renamed to
   <samp>WResource::suggestFileName()</samp>.</li>
 </ul>
-</p>
 
 <p>
   The following changes affect run-time behaviour:
+</p>
 <ul>
   <li><samp>WTreeNode</samp> now supports a policy for when to show a child count
   indication. The old behaviour was to always show the child count.
@@ -309,7 +486,8 @@ application.</p>
   <samp>WTreeNode::setChildCountPolicy(Enabled)</samp> to get the old
   behaviour back, if you wish.</li>
 </ul>
-</p>
+
+<hr />
 
 <h2>Release 2.1.0</h2>
 
@@ -317,6 +495,7 @@ application.</p>
 
 <p>
 To build Wt 2.1.0, you need:
+</p>
 <ul>
   <li>CMake 2.4 or later</li>
   <li>boost 1.34.1 (boost 1.33.1 might should still work, but is
@@ -330,11 +509,11 @@ To build Wt 2.1.0, you need:
   <li>fcgi library, including C++ bindings (libfcgi++)<i>(only for the
       fcgi connector)</i></li>
 </ul>
-</p>
 <p>Furthermore, the Wt::Ext library has been upgraded and now wraps
 around the extjs 2.x library, instead of extjs 1.x.</p>
 
 <p>Some API changes may need a porting effort:
+</p>
   <ul>
     <li><samp>Ext::ProgressDialog</samp>: doesn't show by default, you
     need to call show() to show the dialog.</li>
@@ -348,11 +527,12 @@ around the extjs 2.x library, instead of extjs 1.x.</p>
       signal. Because of this, the signature of the class has been
       expanded with an extra template argument. If you have forward
       declarations to <samp>WSignalMapper</samp>, you will need to modify
-      these too (or simply include <samp>WSignalMapper</samp>).<li>
+      these too (or simply include <samp>WSignalMapper</samp>).</li>
     <li><samp>WAnchor</samp>: no longer uses a <samp>WLabel</samp> internally,
       and the label-releated methods have been removed.</li>
   </ul>
-</p>
+
+<hr />
 
 <h2>Release 2.0.5</h2>
 
@@ -376,6 +556,8 @@ around the extjs 2.x library, instead of extjs 1.x.</p>
   </li>
 </ul>
 
+<hr />
+
 <h2>Release 2.0.4</h2>
 
 <i>Important: 2.0.4a contains a fix for a bug introduced in 2.0.4 that
@@ -383,7 +565,7 @@ around the extjs 2.x library, instead of extjs 1.x.</p>
 
 <p>
   This release adds a few new features:
-  
+</p>
   <ul>
     <li><samp>WComboBox</samp> (and <samp>WSelectionBox</samp>) now use
       a <samp>WAbstractItemModel</samp> in a more flexible model/view
@@ -396,7 +578,8 @@ around the extjs 2.x library, instead of extjs 1.x.</p>
       <samp>streamResourceData()</samp> method has been changed to pass
       the arguments map as a second parameter.</li>
   </ul>
-</p>
+
+<hr />
 
 <h2>Release 2.0.1</h2>
 
@@ -425,6 +608,8 @@ around the extjs 2.x library, instead of extjs 1.x.</p>
   the main purpose to reduce session-state at the server).
 </p>
 
+<hr />
+
 <h2>Release 2.0.0</h2>
 
 <p>
@@ -433,9 +618,9 @@ around the extjs 2.x library, instead of extjs 1.x.</p>
 </p>
 
 <p>
-<emph>If you are upgrading from a 1.99.x release, you will notice that
+<b>If you are upgrading from a 1.99.x release, you will notice that
 some of these notes have actually evolved, especially with respect to
-WString and unicode support.</emp>
+WString and unicode support.</b>
 </p>
 
 <p>
@@ -448,13 +633,13 @@ WString and unicode support.</emp>
 <p>All Wt classes are now inside the namespace <samp>Wt</samp>.</p>
 
 <p>To handle this change, you will need to:
+</p>
   <ul>
     <li>Wrap forward declarations to Wt widgets in header files inside a
       Wt namespace, or <samp>#include &lt;WFwdDeclarations&gt;</samp></li>
     <li>and scope all Wt classes with <samp>Wt::</samp>, </li>
     <li>or import the Wt namespace: <samp>using namespace Wt;</samp></li>
   </ul>
-</p>
 
 <h4>2) WString</h4>
 
@@ -498,15 +683,15 @@ WString and unicode support.</emp>
 <p>
   Fortunately, there is a straightforward trick to handle most consequences
   of this change:
+</p>
   <ul>
    <li>Replace <samp>WMessage(...)</samp> with <samp>tr(...)</samp>,</li>
    <li>add <samp>.value()</samp> when using the result of functions such
-     as <samp>WText::text()</samp>,
+     as <samp>WText::text()</samp>,</li>
    <li>change your own classes to use <samp>WString</samp>
      wherever they expect some text that will be displayed, instead of
      std::string or WMessage.</li>
   </ul>
-</p>
 
 <h4>3) Wide string API</h4>
 
@@ -531,6 +716,7 @@ WString and unicode support.</emp>
   Wt 2.0.0 allows multiple applications to run within a single process.
   Therefore, the <samp>WApplication::exec()</samp> approach was no longer
   feasible. The new approach requires that:
+</p>
 
   <ul>
     <li>your main function should look like this:
@@ -545,7 +731,7 @@ int main(int argc, char **argv)
       signature:
 
 <pre>
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+Wt::WApplication *createApplication(const Wt::WEnvironment&amp; env)
 {
   // return a new application object.
 }
@@ -553,7 +739,6 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
     </li>
   </ul>
-</p>
 
 <h4>5) Configuration in /etc/wt/wt_config.xml</h4>
 
@@ -561,25 +746,21 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   Wt 2.0.0 uses a configuration file for a number of settings that 
   could previously be configured at build time of the library, or
   in the API. The latter functions are:
-
+</p>
 <ul>
   <li><samp>WApplication::setMaximumRquestSize()</samp></li>
   <li><samp>WApplication::setIdleTimeout()</samp></li>  
 </ul>
-
-</p>
 
 <h4>6) Removed obsolete classes</h4>
 
 <p>
   Wt 2.0.0 removed a number of classes that were still in the widget
   tree, but have been obsoleted by more flexible classes:
-
+</p>
 <ul>
   <li><samp>WAbstractTab</samp>, <samp>WButtonTab</samp>, and <samp>WTabWidget</samp> are obsoleted by the more flexible <samp>WMenu</samp>.</li>
 </ul>
-
-</p>
 
 <h4>7) Deprecate boost::regex from WRegExpValidator API</h4>
 
@@ -598,13 +779,12 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
   explicit emit method (recommended).</p>
 
 <p>
-  To adapt your code, you should: 
+  To adapt your code, you should:
+</p>
   <ul>
     <li>Replace all <samp>emit(MySignal(...))</samp> with <samp>MySignal(...)</samp> or <samp>MySignal.emit(...)</samp>
     </li>
   </ul>
-</p>
-
 
 <h4>9) WResource::streamResourceData() signature has changed.</h4>
 
@@ -622,10 +802,14 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
 <h4>10) Rename of WJavascriptSlot to JSlot.</h4>
 
+<hr />
+
 <h2>Release 1.1.7</h2>
 
 This release contains lots of additions and improvements, but should
 be completely backwards-compatible.
+
+<hr />
 
 <h2>Release 1.1.6</h2>
 
@@ -635,9 +819,13 @@ more good-bye message. This changes slightly when one needs to redirect()
 to a new location: not when WApplication::exec() returns, but during the
 same event handling as when calling WApplication::quit().
 
+<hr />
+
 <h2>Release 1.1.5</h2>
 
 Nothing special...
+
+<hr />
 
 <h2>Release 1.1.4</h2>
 
@@ -657,8 +845,8 @@ Changes to impact everybody, since the previous release:
   The signatures of wmain() and WApplication constructor have changed:
   new signatures are:
   <ul>
-    <li>int wmain(const WEnvironment& env)</li>
-    <li>WApplication::WApplication(const WEnvironment& env)</li>
+    <li><samp>int wmain(const WEnvironment&amp; env)</samp></li>
+    <li><samp>WApplication::WApplication(const WEnvironment&amp; env)</samp></li>
  </ul>
 </li>
 </ul>

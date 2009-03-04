@@ -29,10 +29,9 @@ namespace {
 	x_(x), y_(y), w_(w), h_(h)
     { }
 
-    const std::string resourceMimeType() const { return "image/png"; }
-
     void handleRequest(const Http::Request& request,
 		       Http::Response& response) {
+      response.setMimeType("image/png");
       img_->generate(x_, y_, w_, h_, response.out());
     }
 

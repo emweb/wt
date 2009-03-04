@@ -77,8 +77,8 @@ void HighScoresWidget::update()
    /*
     * Apply cell styles
     */
-   for (int row = 0; row < table->numRows(); ++row) {
-     for (int col = 0; col < table->numColumns(); ++col) {
+   for (int row = 0; row < table->rowCount(); ++row) {
+     for (int col = 0; col < table->columnCount(); ++col) {
        WTableCell *cell = table->elementAt(row, col);
        cell->setContentAlignment(AlignMiddle | AlignCenter);
 

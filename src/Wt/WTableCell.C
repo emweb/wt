@@ -64,11 +64,11 @@ DomElementType WTableCell::domElementType() const
 void WTableCell::updateDom(DomElement& element, bool all)
 {
   if ((all && rowSpan_ != 1) || spanChanged_)
-    element.setAttribute("rowSpan",
+    element.setAttribute("rowspan",
 			 boost::lexical_cast<std::string>(rowSpan_));
 
   if ((all && columnSpan_ != 1) || spanChanged_)
-    element.setAttribute("colSpan",
+    element.setAttribute("colspan",
 			 boost::lexical_cast<std::string>(columnSpan_));
 
   if (row() < table()->headerCount(Horizontal))

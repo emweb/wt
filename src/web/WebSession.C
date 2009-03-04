@@ -139,6 +139,9 @@ WebSession::~WebSession()
     app_->finalize();
   delete app_;
 
+  if (pollResponse_)
+    pollResponse_->flush();
+
 #ifndef WT_TARGET_JAVA
   unlink(sessionPath_.c_str());
 
@@ -147,6 +150,7 @@ WebSession::~WebSession()
 #else // WT_TARGET_JAVA
   log("notice") << "Session destroyed";
 #endif // WT_TARGET_JAVA
+
 }
 
 std::string WebSession::docType() const
