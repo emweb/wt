@@ -10,7 +10,6 @@
 #include "DomElement.h"
 #include "Wt/WLogger"
 #include "Wt/WMessageResources"
-#include "Wt/WMessage"
 #include "Wt/WString"
 #include "Wt/WApplication"
 

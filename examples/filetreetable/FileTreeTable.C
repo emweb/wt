@@ -8,7 +8,6 @@
 #include "FileTreeTable.h"
 #include "FileTreeTableNode.h"
 
-#include <Wt/WMessage>
 #include <Wt/WText>
 
 using namespace Wt;

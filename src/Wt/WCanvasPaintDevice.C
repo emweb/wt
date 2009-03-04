@@ -349,6 +349,8 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
     t->setProperty(PropertyStyleTextAlign, "right");
   else if (horizontalAlign == AlignCenter)
     t->setProperty(PropertyStyleTextAlign, "center");
+  else
+    t->setProperty(PropertyStyleTextAlign, "left");
 
   if (t != e)
     e->addChild(t);

@@ -9,7 +9,7 @@
 #define MANDELBROT_EXAMPLE_H_
 
 #include <Wt/WContainerWidget>
-#include <Wt/WFwdDeclarations>
+#include <Wt/WGlobal>
 
 using namespace Wt;
 

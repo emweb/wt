@@ -68,7 +68,6 @@ private:
 
   void updateTitle();
   void logInternalPath();
-  void changeLanguage(int language);
   void setLanguage(int language);
   void setLanguageFromPath(std::string prefix);
 

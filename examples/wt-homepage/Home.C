@@ -19,7 +19,6 @@
 #include <Wt/WLogger>
 #include <Wt/WMenu>
 #include <Wt/WPushButton>
-#include <Wt/WSignalMapper>
 #include <Wt/WStackedWidget>
 #include <Wt/WTabWidget>
 #include <Wt/WTable>
@@ -104,19 +103,14 @@ Home::Home(const WEnvironment& env)
 
   Div *languagesDiv = new Div(topContent, "top_languages");
 
-  WSignalMapper<int> *lmap = new WSignalMapper<int>(this);
-  lmap->mapped().connect(SLOT(this, Home::changeLanguage));
-
   for (unsigned i = 0; i < languages.size(); ++i) {
     if (i != 0)
       new WText("- ", languagesDiv);
 
     const Lang& l = languages[i];
 
-    WAnchor *a = new WAnchor(bookmarkUrl(l.path), l.longDescription,
-			     languagesDiv);
-
-    lmap->mapConnect(a->clicked(), i);
+    WAnchor *a = new WAnchor("", l.longDescription, languagesDiv);
+    a->setRefInternalPath(l.path);
   }
 
   WText *topWt = new WText(tr("top_wt"), topContent);
@@ -176,25 +170,6 @@ Home::Home(const WEnvironment& env)
   footerWrapper->setId("footer_wrapper");
 
   internalPathChanged().connect(SLOT(this, Home::setLanguageFromPath));
-}
-
-void Home::changeLanguage(int index)
-{
-  if (index == language_)
-    return;
-
-  int prevLanguage = language_;
-
-  setLanguage(index);
-
-  std::string langPath = languages[index].path;
-  if (internalPath().empty())
-    setInternalPath(langPath);
-  else {
-    std::string prevLangPath = languages[prevLanguage].path;
-    std::string path = internalPath().substr(prevLangPath.length());
-    setInternalPath(langPath + path);
-  }
 }
 
 void Home::setLanguage(int index)
