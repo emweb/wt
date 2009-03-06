@@ -108,7 +108,7 @@ public:
    */
   typedef void (WObject::*Method)();
 
-  /*! \brief Create a %WObject with a given parent object. 
+  /*! \brief Create a %WObject with a given parent object.
    * 
    * If the optional parent is specified, the parent object will destroy 
    * all child objects. Set parent to 0 to create an object with no parent. 

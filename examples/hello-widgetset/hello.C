@@ -76,7 +76,7 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
   nameEdit_->setFocus();
 
   WPushButton *b = new WPushButton("Greet me.", top);
-  b->setMargin(5, Left); 
+  b->setMargin(5, Left);
 
   top->addWidget(new WBreak());
 

@@ -147,7 +147,7 @@ public:
    * \sa setHeaderCount()
    */
   int headerCount(Orientation orientation = Horizontal);
- 
+
 private:
   static const int BIT_GRID_CHANGED = 0;
   static const int BIT_COLUMNS_CHANGED = 1;

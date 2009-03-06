@@ -45,7 +45,7 @@ protected:
 	triggerUpdate = true;
       }
     }
-  
+
     response.setMimeType("text/html; charset=utf-8");
     response.addHeader("Expires", "Sun, 14 Jun 2020 00:00:00 GMT");
     response.addHeader("Cache-Control", "max-age=315360000");

@@ -343,7 +343,7 @@ public:
    * <tt>"SSL_CLIENT_S_DN_CN"</tt>), if it is defined, otherwise an
    * empty string.
    *
-   * \sa serverSignature(), serverSoftware(), serverAdmin(), 
+   * \sa serverSignature(), serverSoftware(), serverAdmin(),
    */
   std::string getCgiValue(const std::string& varName) const;
 

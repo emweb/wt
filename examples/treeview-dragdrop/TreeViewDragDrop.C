@@ -361,6 +361,7 @@ private:
     // Hide the tree-like decoration on the first column, to make it
     // resemble a plain table
     treeView->setRootIsDecorated(false);
+    treeView->setAlternatingRowColors(true);
 
     treeView->setModel(fileFilterModel_);
     treeView->setSelectionMode(ExtendedSelection);

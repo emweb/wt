@@ -11,7 +11,13 @@
 #include <string>
 #include <set>
 
-#include <boost/pool/pool.hpp>
+// even boost/poolfwd.hpp includes <windows.h> ...
+namespace boost {
+  struct default_user_allocator_new_delete;
+
+  template <typename UserAllocator>
+  class pool;
+}
 
 #include <Wt/WObject>
 #include <Wt/WCssStyleSheet>
@@ -1014,7 +1020,7 @@ public:
    *
    * The integer parameter is the request that was received in bytes.
    */
-  Signal<int>& requestTooLarge() { return requestTooLarge_; } 
+  Signal<int>& requestTooLarge() { return requestTooLarge_; }
 
 protected:
   /*! \brief Notify an event to the application.
@@ -1096,7 +1102,7 @@ private:
   bool                   internalPathIsChanged_;
 #ifndef WT_TARGET_JAVA
   bool                   serverPush_;
-  boost::pool<>          eventSignalPool_; // pool for event signals
+  boost::pool<boost::default_user_allocator_new_delete> *eventSignalPool_;
   bool			 shouldTriggerUpdate_;
 #endif // WT_TARGET_JAVA
   std::string            javaScriptClass_;

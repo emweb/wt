@@ -959,7 +959,7 @@ var handleResponse = function(msg, timer) {
     _$_APP_CLASS_$_._p_.autoJavaScript();
   } catch (e) {
     if (!_$_DEBUG_$_)
-      alert("Wt internal error: " + e + ", code: " +  e.code 
+      alert("Wt internal error: " + e + ", code: " +  e.code
 	    + ", description: " + e.description /* + ":" + msg */);
     else
       throw e;
@@ -976,7 +976,7 @@ var handleResponse = function(msg, timer) {
   responsePending = null;
 
   if (serverPush || pendingEvents.length > 0)
-    sendUpdate();  
+    sendUpdate();
 };
 
 var randomSeed = new Date().getTime();

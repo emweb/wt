@@ -82,9 +82,9 @@ namespace Wt {
  * <tt>&lt;form&gt;</tt> tag.
  *
  * %WFileUpload is an \link WWidget::setInline(bool) inline \endlink widget.
- * 
+ *
  */
-class WT_API WFileUpload : public WWebWidget 
+class WT_API WFileUpload : public WWebWidget
 {
 public:
   /*! \brief Construct a file upload widget

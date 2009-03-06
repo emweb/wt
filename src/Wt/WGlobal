@@ -137,7 +137,7 @@ enum SelectionMode { NoSelection = 0,      //!< No selections
  *
  * \sa WTreeView::setSelectionBehavior()
  */
-enum SelectionBehavior { SelectItems = 0,    //!< Select single items 
+enum SelectionBehavior { SelectItems = 0,    //!< Select single items
 			 SelectRows = 1      //!< Select only rows
 			 /*, SelectColumns */
 };
@@ -244,7 +244,7 @@ enum AlignmentFlag {
   AlignTextTop=0x100,
   /*! \brief Align vertically the middle to the middle of the parent widget.
    */
-  AlignMiddle=0x200, 
+  AlignMiddle=0x200,
   /*! \brief Align bottom of widget to the bottom of the lowest sigling widget.
    */
   AlignBottom=0x400,
@@ -274,7 +274,7 @@ W_DECLARE_MASK_FOR_FLAGS(AlignmentFlag, AlignVerticalMask,
  */
 enum PositionScheme {
   /*! \brief Static position scheme.
-   * 
+   *
    *  The widget is layed-out with other \link Wt::Static
    *  Static \endlink and \link Wt::Relative Relative \endlink
    *  sibling widgets, one after another.
@@ -492,7 +492,7 @@ enum KeyboardModifier {
   ShiftModifier = 0x1,    //!< Shift key pressed
   ControlModifier = 0x2,  //!< Control key pressed
   AltModifier = 0x4,      //!< Alt key pressed
-  MetaModifier = 0x8      //!< Meta key pressed ("Windows" or "Command" (Mac) key) 
+  MetaModifier = 0x8      //!< Meta key pressed ("Windows" or "Command" (Mac) key)
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(KeyboardModifier)

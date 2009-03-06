@@ -214,7 +214,7 @@ void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
     wApp->log("warning") << "WCompositeWidget::setVerticalAlignment: "
       "alignment " << alignment << "is horizontal, expected vertical";
     alignment = (AlignmentFlag)(alignment & AlignVerticalMask);
-    
+
   }
 #endif // WT_TARGET_JAVA
   impl_->setVerticalAlignment(alignment, length);

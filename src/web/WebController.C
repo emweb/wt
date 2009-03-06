@@ -221,7 +221,7 @@ void WebController::handleRequestThreaded(WebRequest *request)
     handleRequest(request);
 #else
   handleRequest(request);
-#endif // WT_THREADED  
+#endif // WT_THREADED
 }
 
 std::string WebController::sessionFromCookie(std::string cookies,

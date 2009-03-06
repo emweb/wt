@@ -805,7 +805,7 @@ extern WT_API std::string asJSLiteral(const boost::any& v);
  * \relates WAbstractItemModel
  */
 extern WT_API WString asString(const boost::any& v,
-			       const WString& formatString = WString::Empty);
+			       const WT_USTRING& formatString = WT_USTRING());
 
 /*! \brief Interpret a boost::any as a number value.
  *

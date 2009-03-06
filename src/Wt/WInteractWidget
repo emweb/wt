@@ -178,7 +178,7 @@ public:
   void setDraggable(const std::string& mimeType, WWidget *dragWidget = 0,
 		    bool isDragWidgetOnly = false, WObject *sourceWidget = 0);
 protected:
-  void updateDom(DomElement& element, bool all);  
+  void updateDom(DomElement& element, bool all);
 
   JSlot *dragSlot_;
 

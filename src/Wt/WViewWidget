@@ -80,16 +80,16 @@ namespace Wt {
  *   virtual Wt::WWidget *renderView() {
  *     Wt::WText *result = new Wt::WText();
  *     result->setInline(false);
- * 
+ *
  *     if (!index_.isValid())
  *       return result;
- * 
+ *
  *     boost::any d = index_.data(role_);
  *     const std::string& t = boost::any_cast<const std::string&>(d);
- * 
+ *
  *     result->setTextFormat(Wt::PlainText);
  *     result->setText(t);
- * 
+ *
  *     return result;
  *   }
  * };

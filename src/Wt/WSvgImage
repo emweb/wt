@@ -62,7 +62,7 @@ public:
   virtual void done();
   virtual bool paintActive() const { return painter_; }
 
-  virtual std::string rendered();  
+  virtual std::string rendered();
 
   virtual WLength width() const { return width_; }
   virtual WLength height() const { return height_; }

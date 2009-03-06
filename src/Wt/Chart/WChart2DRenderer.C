@@ -1226,7 +1226,7 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
   case AlignCenter:
     left = pos.x() - width/2; break;
   case AlignRight:
-    left = pos.x() - width - margin; 
+    left = pos.x() - width - margin;
   default:
     break;
  }

@@ -49,7 +49,7 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WString &styleClass, co
 			      "z-index: 10000;" +
 			      (app->environment().agentIE() ?
 			       "filter: alpha(opacity=50);"
-			       : 
+			       :
 			       "-moz-opacity:0.5;"
 			       "-moz-background-clip: -moz-initial;"
 			       "-moz-background-origin: -moz-initial;"

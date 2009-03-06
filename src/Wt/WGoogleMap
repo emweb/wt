@@ -234,7 +234,7 @@ public:
    * This event is fired when a double click is done on the map.
    */
   JSignal<Coordinate>& doubleClicked() { return doubleClicked_; }
-  
+
   /*! \brief This event is fired when the user moves the mouse inside the map.
    */
   JSignal<Coordinate>& mouseMoved() { return mouseMoved_; }

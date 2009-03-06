@@ -19,7 +19,7 @@ namespace Wt {
  * Usage example:
  * \code
  * Wt::WGroupBox *box = new Wt::WGroupBox("In-flight options");
- * 
+ *
  * Wt::WCheckBox *w1 = new Wt::WCheckBox("Vegetarian diet", box);
  * box->addWidget(new WBreak());
  * Wt::WCheckBox *w2 = new Wt::WCheckBox("WIFI access", box);

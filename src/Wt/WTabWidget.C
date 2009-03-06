@@ -127,7 +127,7 @@ WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
   switch (loadPolicy) {
   case PreLoading: policy = WMenuItem::PreLoading; break;
   case LazyLoading: policy = WMenuItem::LazyLoading; break;
-  } 
+  }
 
   WMenuItem *result = new TabWidgetItem(label, child, policy);
 

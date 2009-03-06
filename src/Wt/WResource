@@ -54,7 +54,7 @@ namespace Wt {
  * public:
  *   MyResource(Wt::WObject *parent = 0)
  *     : Wt::WResource(parent)
- *   { 
+ *   {
  *     suggestFileName("data.txt");
  *   }
  *
@@ -104,7 +104,7 @@ namespace Wt {
  *   MyResource(int iterations, Wt::WObject *parent = 0)
  *     : Wt::WResource(parent)
  *     : iterations_(iterations)
- *   { 
+ *   {
  *     suggestFileName("data.txt");
  *   }
  *

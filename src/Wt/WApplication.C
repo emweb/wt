@@ -22,6 +22,8 @@
 #include "WebRequest.h"
 #include "Utils.h"
 
+#include <boost/pool/pool.hpp>
+
 #ifdef min
 #undef min
 #endif
@@ -58,7 +60,7 @@ WApplication::WApplication(const WEnvironment& env)
     internalPathChanged_(this),
 #ifndef WT_TARGET_JAVA
     serverPush_(false),
-    eventSignalPool_(sizeof(EventSignal<void>)),
+    eventSignalPool_(new boost::pool<>(sizeof(EventSignal<void>))),
     shouldTriggerUpdate_(false),
 #endif // WT_TARGET_JAVA
     javaScriptClass_("Wt"),
@@ -226,6 +228,10 @@ WApplication::~WApplication()
   delete javaScriptResponse_;
   delete showLoadingIndicator_;
   delete hideLoadingIndicator_;
+
+#ifndef WT_TARGET_JAVA
+  delete eventSignalPool_;
+#endif
 
   dialogCover_ = 0;
   dialogWindow_ = 0;

@@ -673,10 +673,10 @@ void ExtKitchenApplication::tabWidgetExample()
 
   Ext::Button *b;
   hLayout->addWidget(b = new Ext::Button("Hide"));
-  b->clicked().connect(SLOT(this, ExtKitchenApplication::hideTab));  
+  b->clicked().connect(SLOT(this, ExtKitchenApplication::hideTab));
 
   hLayout->addWidget(b = new Ext::Button("Show"));
-  b->clicked().connect(SLOT(this, ExtKitchenApplication::showTab));  
+  b->clicked().connect(SLOT(this, ExtKitchenApplication::showTab));
 
   hLayout->addWidget(b = new Ext::Button("Add tab"));
   b->clicked().connect(SLOT(this, ExtKitchenApplication::modifyTabWidget));

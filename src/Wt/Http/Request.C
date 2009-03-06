@@ -15,7 +15,7 @@ namespace Wt {
 UploadedFile::UploadedFile(const std::string& spoolName,
 			   const std::string& clientFileName,
 			   const std::string& contentType)
-{ 
+{
   fileInfo_.reset(new Impl());
 
   fileInfo_->spoolFileName = spoolName;

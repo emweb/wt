@@ -84,7 +84,7 @@ public:
    * Returns flags that are the bitwise AND of this and <i>mask</i>.
    */
   inline WFlags<EnumType> operator&(EnumType mask) const;
-  
+
   /*! \brief Bitwise AND operator.
    *
    * Returns flags that are the bitwise AND of this and <i>mask</i>.
@@ -189,7 +189,7 @@ WFlags<EnumType>::WFlags(enum_type flag):
 }
 
 template<typename EnumType>
-WFlags<EnumType>::WFlags(WFlags::Zero):
+WFlags<EnumType>::WFlags(typename WFlags<EnumType>::Zero):
   flags_(0)
 {
 }

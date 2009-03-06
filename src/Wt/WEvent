@@ -51,7 +51,7 @@ public:
 
 #ifdef WT_TARGET_JAVA
 class WAbstractEvent
-{ 
+{
 public:
   virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent) = 0;
 };

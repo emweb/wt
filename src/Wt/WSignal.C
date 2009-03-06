@@ -5,6 +5,7 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <boost/pool/pool.hpp>
 #include <stdio.h>
 
 #include "Wt/WSignal"
@@ -55,13 +56,13 @@ Signal<void>::Signal(WObject *sender)
 
 void *EventSignalBase::alloc()
 {
-  return WApplication::instance()->eventSignalPool_.malloc();
+  return WApplication::instance()->eventSignalPool_->malloc();
 }
 
 void EventSignalBase::free(void *s)
 {
   if (s)
-    WApplication::instance()->eventSignalPool_.free(s);
+    WApplication::instance()->eventSignalPool_->free(s);
 }
 
 EventSignalBase
@@ -209,7 +210,7 @@ void EventSignalBase::prepareDestruct()
   if (flags_.test(BIT_NEEDS_AUTOLEARN)) {
     WApplication *app = WApplication::instance();
     if (app)
-      app->removeExposedSignal(this);  
+      app->removeExposedSignal(this);
     flags_.reset(BIT_NEEDS_AUTOLEARN);
   }
 }

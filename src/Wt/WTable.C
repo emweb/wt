@@ -294,7 +294,7 @@ DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
     WTableRow::TableData& d = itemAt(row, col);
 
     if (!d.overSpanned) {
-      DomElement *td = d.cell->createSDomElement(app); 
+      DomElement *td = d.cell->createSDomElement(app);
 
       /*
        * So, IE gets confused when doing appendChild() for TH followed by

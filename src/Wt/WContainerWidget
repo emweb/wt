@@ -60,7 +60,7 @@ class StdLayoutImpl;
  * container1->addWidget(new Wt::WText("Some text"));
  * container1->addWidget(new Wt::WImage("images/img.png"));
  * Wt::WContainerWidget *child3 = new Wt::WContainerWidget(container1);
- * 
+ *
  * // Example 2:
  * // Instantiate a container widget which uses a layout manager
  * Wt::WContainerWidget *container2 = new Wt::WContainerWidget();
@@ -157,7 +157,7 @@ public:
    *
    * \sa layout()
    */
-  void setLayout(WLayout *layout, WFlags<AlignmentFlag> alignment);  
+  void setLayout(WLayout *layout, WFlags<AlignmentFlag> alignment);
 
   /*! \brief Get the layout manager that was set for the container.
    *

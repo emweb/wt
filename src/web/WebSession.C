@@ -640,7 +640,7 @@ void WebSession::doRecursiveEventLoop(const std::string& javascript)
     /*
      * Finish the request.
      */
-    handler->session()->render(*handler, app_->environment().ajax() 
+    handler->session()->render(*handler, app_->environment().ajax()
 			       ? WebRenderer::UpdateResponse
 			       : WebRenderer::FullResponse);
     handler->response()->out() << javascript;
@@ -753,7 +753,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	  init(request); // env, url/internalpath
 
 	  // Handle requests from dead sessions:
-	  // 
+	  //
 	  // We need to send JS to reload the page when we get:
 	  // - 'signal' and no 'request' arg: is an AJAX call.
 	  //   (with a 'request' arg it is from a non-AJAX POST)
@@ -984,7 +984,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    } catch (std::exception& e) {
 	      throw WtException("Error during event handling", e);
 	    } catch (...) {
-	      throw WtException("Error during event handling");	    
+	      throw WtException("Error during event handling");
 	    }
 	  }
 
@@ -1228,7 +1228,7 @@ void WebSession::processSignal(EventSignalBase *s, const std::string& se,
 
   switch (kind) {
   case LearnedStateless:
-    s->processLearnedStateless();    
+    s->processLearnedStateless();
     break;
   case AutoLearnStateless:
     s->processAutoLearnStateless(&renderer_);

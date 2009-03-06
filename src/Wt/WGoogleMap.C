@@ -27,6 +27,10 @@ using std::swap;
 using std::min;
 using std::max;
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace Wt {
 
 WGoogleMap::Coordinate::Coordinate()
@@ -279,7 +283,7 @@ void WGoogleMap::zoomOut()
 
 void WGoogleMap::savePosition()
 {
-  doGmJavaScript(jsRef() + ".map.savePosition();", false); 
+  doGmJavaScript(jsRef() + ".map.savePosition();", false);
 }
 
 void WGoogleMap::returnToSavedPosition()

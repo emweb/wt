@@ -160,7 +160,7 @@ private:
   WFlags<Side>              backgroundImageLocation_;
   WFont		            font_;
   WFlags<TextDecoration>    textDecoration_;
-  WFlags<Side>              borderPosition_;  
+  WFlags<Side>              borderPosition_;
 
   bool		            cursorChanged_;
   bool		            borderChanged_;

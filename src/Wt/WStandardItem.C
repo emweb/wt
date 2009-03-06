@@ -752,7 +752,7 @@ void WStandardItem::recursiveSortChildren(int column, SortOrder order)
     for (unsigned i = 0; i < permutation.size(); ++i)
       permutation.push_back(i);
 #endif // WT_TARGET_JAVA
-    
+
     Utils::stable_sort(permutation, WStandardItemCompare(this, column, order));
 
 #ifndef WT_TARGET_JAVA

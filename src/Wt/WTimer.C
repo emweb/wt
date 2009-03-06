@@ -27,7 +27,7 @@ WTimer::WTimer(WObject *parent)
 EventSignal<WMouseEvent>& WTimer::timeout()
 {
   return timerWidget_->clicked();
-}   
+}
 
 WTimer::~WTimer()
 {

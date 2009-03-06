@@ -146,7 +146,7 @@ public:
     WebRequest  *request() { return request_; }
     WebSession  *session() const { return &session_; }
     void killSession();
-    
+
   private:
     void init();
 
@@ -205,7 +205,7 @@ private:
     JustCreated,
     Bootstrap,
     Loaded,
-    Dead 
+    Dead
   };
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)

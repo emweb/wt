@@ -23,7 +23,7 @@ WFileResource::WFileResource(const std::string& mimeType,
 { }
 
 WFileResource::~WFileResource()
-{ 
+{
   beingDeleted();
 }
 

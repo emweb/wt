@@ -26,7 +26,7 @@ class WebSession;
 /*! \class UploadedFile Wt/Http/Request Wt/Http/Request
  *  \brief Details about a file uploaded with a (POST) request.
  *
- * \sa Request::uploadedFiles() 
+ * \sa Request::uploadedFiles()
  */
 class WT_API UploadedFile {
 public:
@@ -173,7 +173,7 @@ private:
   friend class Wt::WebSession;
 };
 
-  } 
+  }
 }
 
 #endif // HTTP_REQUEST_H_

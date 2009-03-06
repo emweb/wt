@@ -863,7 +863,7 @@ template <typename E>
 void *EventSignal<E>::operator new(std::size_t size) {
   return EventSignalBase::alloc();
 }
- 
+
 template <typename E>
 void EventSignal<E>::operator delete(void *deletable, std::size_t size) {
   EventSignalBase::free(deletable);

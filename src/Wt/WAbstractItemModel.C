@@ -118,7 +118,7 @@ std::string asJSLiteral(const boost::any& v)
 		      + v.type().name());
 }
 
-WString asString(const boost::any& v, const WString& format)
+WString asString(const boost::any& v, const WT_USTRING& format)
 {
   if (v.empty())
     return WString();

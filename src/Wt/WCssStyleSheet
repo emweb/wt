@@ -90,7 +90,7 @@ private:
  * styleRule->templateWidget()->resize(100, WLength::Auto);
  * styleRule->templateWidget()->decorationStyle().setCursor(PointingHandCursor);
  * \endcode
- * 
+ *
  * \sa Wt::WCssStyleSheet
  *
  * \ingroup style

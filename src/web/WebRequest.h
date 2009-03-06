@@ -138,7 +138,7 @@ private:
 };
 
 class WebResponse : public WebRequest
-{ 
+{
 };
 
 }

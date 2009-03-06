@@ -15,7 +15,7 @@ namespace Wt {
 
 WDateValidator::WDateValidator(WObject *parent)
   : WValidator(parent)
-{ 
+{
   setFormat("yyyy-MM-dd");
 }
 

@@ -45,7 +45,7 @@ HelloApplication::HelloApplication(const WEnvironment& env)
   nameEdit_->setFocus();                                 // give focus
 
   WPushButton *b = new WPushButton("Greet me.", root()); // create a button
-  b->setMargin(5, Left);                                 // add 5 pixels margin 
+  b->setMargin(5, Left);                                 // add 5 pixels margin
 
   root()->addWidget(new WBreak());                       // insert a line break
 

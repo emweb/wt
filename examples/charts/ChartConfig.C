@@ -31,7 +31,7 @@ using namespace Wt::Chart;
 
 namespace {
   void addHeader(WTable *t, const char *value) {
-    t->elementAt(0, t->columnCount())->addWidget(new WText(value));    
+    t->elementAt(0, t->columnCount())->addWidget(new WText(value));
   }
 
   void addEntry(WAbstractItemModel *model, const char *value) {

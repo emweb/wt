@@ -182,13 +182,13 @@ public:
    *
    * The default value is "".
    */
-  void setColumnFormat(int column, const WString& format);
+  void setColumnFormat(int column, const WT_USTRING& format);
 
   /*! \brief Returns the column format string.
    *
    * \sa setColumnFormat()
    */
-  WString columnFormat(int column) const;
+  WT_USTRING columnFormat(int column) const;
 
   /*! \brief Set the column width.
    *
@@ -352,13 +352,23 @@ public:
 
   /*! \brief Enable sorting.
    *
-   * Enable or disable sorting by the user.
+   * Enable or disable sorting by the user on all columns.
    *
    * Sorting is enabled by default.
    *
    * \sa WAbstractItemModel::sort()
    */
   void setSortingEnabled(bool enabled);
+
+  /*! \brief Enable sorting.
+   *
+   * Enable or disable sorting by the user for a specific column.
+   *
+   * Sorting is enabled by default.
+   *
+   * \sa WAbstractItemModel::sort()
+   */
+  void setSortingEnabled(int column, bool enabled);
 
   /*! \brief Returns whether sorting is enabled.
    *
@@ -567,7 +577,31 @@ protected:
    */
   virtual void dropEvent(const WDropEvent& event, const WModelIndex& target);
 
+  /*! \brief Create an extra widget in the header.
+   *
+   * You may reimplement this method to provide an extra widget to be placed
+   * below the header label. The extra widget will be visible only if
+   * a multi-line header is configured using setHeaderHeight().
+   *
+   * The widget is created only once, but this method may be called repeatedly
+   * for a column for which prior calls returned 0 (i.e. each time the header
+   * is rerendered).
+   *
+   * The default implementation returns 0.
+   *
+   * \sa setHeaderHeight(), extraHeaderWidget()
+   */
+  virtual WWidget *createExtraHeaderWidget(int column);
+
   virtual void render();
+
+  /*! \brief Returns the extra header widget.
+   *
+   * Returns the widget previously created using createExtraHeaderWidget()
+   *
+   * \sa setExtraHeaderWidget()
+   */
+  WWidget *extraHeaderWidget(int column);
 
 private:
   struct ColumnInfo {
@@ -577,7 +611,9 @@ private:
     AlignmentFlag     alignment;
     AlignmentFlag     headerAlignment;
     WLength           width;
-    WString           format;
+    WT_USTRING        format;
+    WWidget          *extraHeaderWidget;
+    bool              sorting;
 
     std::string styleClass() const;
 
@@ -631,7 +667,7 @@ private:
   WSignalMapper<int>         *clickedForSortMapper_;
   WSignalMapper<WModelIndex> *clickedMapper_;
 
-  enum RenderState { 
+  enum RenderState {
     RenderOk = 0,
     NeedAdjustViewPort = 1,
     NeedRerenderTree = 2,

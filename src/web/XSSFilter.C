@@ -126,7 +126,7 @@ void MyHandler::saxCallback(mxml_node_t *node, mxml_sax_event_t event)
       for (int i = 0; i < node->value.element.num_attrs; ++i) {
 	const char *aname = node->value.element.attrs[i].name;
 	char *v = node->value.element.attrs[i].value;
-	
+
 	if (isBadAttribute(aname) || isBadAttributeValue(aname, v)) {
 	  wApp->log("warn") << "(XSS) discarding invalid attribute: "
 			    << aname << ": " << v;

@@ -180,8 +180,8 @@ WDropEvent::WDropEvent(WObject *source, const std::string& mimeType,
     mouseEvent_(mouseEvent)
 { }
 
-WScrollEvent::WScrollEvent() 
-{ } 
+WScrollEvent::WScrollEvent()
+{ }
 
 WScrollEvent::WScrollEvent(const JavaScriptEvent& jsEvent)
   : jsEvent_(jsEvent)

@@ -100,7 +100,7 @@ namespace Wt {
  *     background: blue;
  *     color: white;
  * }
- * 
+ *
  * div.Wt-popupmenu .separator {
  *     border-top: 1px solid #CCCCCC;
  *    border-bottom: 1px solid #DDDDDD;

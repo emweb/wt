@@ -40,13 +40,9 @@ namespace {
   SOCKET dup(SOCKET handle) {
     WSAPROTOCOL_INFO ProtocolInfo;
     if (WSADuplicateSocket(handle, GetCurrentProcessId(), &ProtocolInfo) == 0) {
-      SOCKET retval = WSASocket(ProtocolInfo.iAddressFamily,
+      return WSASocket(ProtocolInfo.iAddressFamily,
         ProtocolInfo.iSocketType, ProtocolInfo.iProtocol,
-        &ProtocolInfo, 0, WSA_FLAG_OVERLAPPED);
-      if (retval == INVALID_SOCKET) {
-        int error = WSAGetLastError();
-      }
-      return retval;
+        &ProtocolInfo, 0, 0);
     } else {
       return INVALID_SOCKET;
     }

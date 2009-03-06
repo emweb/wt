@@ -195,7 +195,7 @@ private:
   double                 progressValue_;
   bool                   progressInfinite_;
 
-  bool                   firstDisplay_;       
+  bool                   firstDisplay_;
   bool                  *catchDelete_;
   StandardButton         result_;
   JSignal<std::string, std::string> extButtonClicked_;

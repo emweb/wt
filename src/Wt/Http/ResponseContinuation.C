@@ -42,7 +42,7 @@ ResponseContinuation::ResponseContinuation(WResource *resource,
 					   WebResponse *response)
   : resource_(resource),
     response_(response)
-{ 
+{
   resource_->continuations_.push_back(this);
 }
 

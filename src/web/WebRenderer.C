@@ -119,7 +119,7 @@ void WebRenderer::streamRedirectJS(std::ostream& out,
     "if (window.location.replace)"
     " window.location.replace('" << redirect << "');"
     "else"
-    " window.location.href='" << redirect << "';\n"; 
+    " window.location.href='" << redirect << "';\n";
 }
 
 void WebRenderer::serveMainWidget(WebResponse& response,
@@ -434,12 +434,12 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   std::string cvar;  
   {
-    EscapeOStream sout(response.out()); 
+    EscapeOStream sout(response.out());
     cvar = mainElement->asJavaScript(sout, DomElement::Create);
   }
   response.out() << "document.body.appendChild(" << cvar << ");\n";
   {
-    EscapeOStream sout(response.out()); 
+    EscapeOStream sout(response.out());
     mainElement->asJavaScript(sout, DomElement::Update);
   }
 
@@ -641,7 +641,7 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
   std::string cvar;
   {
-    EscapeOStream sout(response.out()); 
+    EscapeOStream sout(response.out());
     mainElement->asJavaScript(sout, DomElement::Create);
     cvar = mainElement->asJavaScript(sout, DomElement::Update);
   }
@@ -729,7 +729,7 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 
     WWidget *ww = *i;
     WWidget *w = ww;
-    for (; w->parent(); ++depth) 
+    for (; w->parent(); ++depth)
       w = w->parent();
 
     if (w != app->domRoot_ && w != app->domRoot2_) {

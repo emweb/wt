@@ -11,7 +11,7 @@
 #include <boost/any.hpp>
 
 namespace Wt {
-  
+
   class WResource;
   class WebResponse;
   class WebSession;

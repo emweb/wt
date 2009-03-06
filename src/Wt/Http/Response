@@ -9,6 +9,7 @@
 
 #include <Wt/WGlobal>
 #include <Wt/Http/ResponseContinuation>
+#include <string>
 
 namespace Wt {
 
@@ -80,8 +81,8 @@ private:
   friend class Wt::WResource;
   friend class Wt::WebSession;
 };
- 
-  } 
+
+  }
 }
 
 #endif // HTTP_RESPONSE_H_

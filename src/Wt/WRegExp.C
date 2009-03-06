@@ -9,7 +9,7 @@
 namespace Wt {
 
 WRegExp::WRegExp()
-{ 
+{
 #ifdef WT_HAVE_GNU_REGEX
   valid_ = false;
 #endif
