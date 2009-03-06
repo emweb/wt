@@ -80,14 +80,14 @@ void CornerImage::compute()
 
   /* and generate an in-memory png file */
   int size;
-  char *data;
-  data = (char *) gdImagePngPtr(im, &size);
+  unsigned char *data;
+  data = (unsigned char *) gdImagePngPtr(im, &size);
   if (!data) {
     return;
     /* Error */
   }
 
-  std::vector<char> vdata(data, data + size);
+  std::vector<unsigned char> vdata(data, data + size);
   if (resource_) {
     resource_->setData(vdata);
   } else {

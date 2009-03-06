@@ -28,7 +28,7 @@ namespace Wt {
  * \code
  * Wt::WMemoryResource *imageResource = new Wt::WMemoryResource("image/gif", this);
  *
- * static const char gifData[]
+ * static const unsigned char gifData[]
  *    = { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00,
  *        0x80, 0x00, 0x00, 0xdb, 0xdf, 0xef, 0x00, 0x00, 0x00, 0x21,
  *        0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00,
@@ -58,21 +58,22 @@ public:
 
   /*! \brief Create a new resource with given mime-type and data
    */
-  WMemoryResource(const std::string& mimeType, const std::vector<char> &data,
+  WMemoryResource(const std::string& mimeType,
+		  const std::vector<unsigned char> &data,
 		  WObject *parent = 0);
 
   ~WMemoryResource();
 
   /*! \brief Set new data for the resource to serve.
    */
-  void setData(const std::vector<char> &data);
+  void setData(const std::vector<unsigned char> &data);
 
   /*! \brief Set new data for the resource to serve.
    *
    * Sets the data from using the first <i>count</i> bytes from the
    * C-style <i>data</i> array.
    */
-  void setData(const char *data, int count);
+  void setData(const unsigned char *data, int count);
 
   /*! \brief Get the mime-type.
    */
@@ -84,7 +85,7 @@ public:
 
 private:
   std::string mimeType_;
-  std::vector<char> data_;
+  std::vector<unsigned char> data_;
 
 protected:
   virtual void handleRequest(const Http::Request& request,

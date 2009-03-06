@@ -143,6 +143,7 @@ void WAnchor::setRefInternalPath(const std::string& path)
       ("function(obj, event){"
        "window.location.hash='#" + DomElement::urlEncode(path) + "';"
        "}");
+    clicked().senderRepaint(); // XXX only for Java port necessary
   }
 
   flags_.set(BIT_REF_CHANGED);

@@ -1,5 +1,7 @@
-04-03-2009:
-	* Release 2.99.0
+06-03-2009:
+	* win32: fix build problems
+
+	* WMemoryResource: change API to unsigned char
 
 27-02-2009:
 	* WApplication.C, WebSession.C, Wt.js: finally a robust and simple

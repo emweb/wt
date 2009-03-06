@@ -21,7 +21,7 @@ WMemoryResource::WMemoryResource(const std::string& mimeType,
 { }
 
 WMemoryResource::WMemoryResource(const std::string& mimeType,
-				 const std::vector<char> &data,
+				 const std::vector<unsigned char> &data,
 				 WObject *parent)
   : WResource(parent),
     mimeType_(mimeType),
@@ -39,13 +39,13 @@ void WMemoryResource::setMimeType(const std::string& mimeType)
   dataChanged().emit();
 }
 
-void WMemoryResource::setData(const std::vector<char>& data)
+void WMemoryResource::setData(const std::vector<unsigned char>& data)
 {
   data_ = data;
   dataChanged().emit();
 }
 
-void WMemoryResource::setData(const char *data, int count)
+void WMemoryResource::setData(const unsigned char *data, int count)
 {
   data_.clear();
   data_.insert(data_.end(), data, data + count);

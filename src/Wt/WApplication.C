@@ -209,7 +209,7 @@ std::string WApplication::onePixelGifUrl()
   if (onePixelGifUrl_.empty()) {
     WMemoryResource *w = new WMemoryResource("image/gif", this);
 
-    static const char gifData[]
+    static const unsigned char gifData[]
       = { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00,
 	  0x80, 0x00, 0x00, 0xdb, 0xdf, 0xef, 0x00, 0x00, 0x00, 0x21,
 	  0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00,
@@ -229,10 +229,6 @@ WApplication::~WApplication()
   delete showLoadingIndicator_;
   delete hideLoadingIndicator_;
 
-#ifndef WT_TARGET_JAVA
-  delete eventSignalPool_;
-#endif
-
   dialogCover_ = 0;
   dialogWindow_ = 0;
 
@@ -249,6 +245,10 @@ WApplication::~WApplication()
   styleSheet_.clear();
 
   session_->setApplication(0);
+
+#ifndef WT_TARGET_JAVA
+  delete eventSignalPool_;
+#endif
 }
 
 #ifndef WT_TARGET_JAVA
@@ -442,7 +442,7 @@ std::string WApplication::fixRelativeUrl(const std::string& url) const
       // internal path folders. but why bother ? we need to fix URLs
       // in external resources anyway for reverse proxies
       if (!url.empty() && url[0] == '/')
-	return session_->baseUrl() + url.substr(1);
+	return /*session_->baseUrl() + url.substr(1) */ url;
       else
 	return session_->baseUrl() + url;
     else

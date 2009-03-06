@@ -86,7 +86,7 @@ IF(CONNECTOR_HTTP)
     SET_TARGET_PROPERTIES(
         wthttp
       PROPERTIES
-        COMPILE_FLAGS "/wd4251 /wd4275 /wd4355"
+        COMPILE_FLAGS "/wd4251 /wd4275 /wd4355 /wd4800 /wd4996 /wd4101"
     )
   ENDIF(WIN32)
 
