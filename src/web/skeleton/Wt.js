@@ -756,6 +756,8 @@ var dragDrag = function(e) {
 };
 
 var dragEnd = function(e) {
+  //alert("dragEnd: " + captureElement);
+
   if (captureElement != null) {
     if (!e) e = window.event;
     var el = captureElement;
@@ -954,16 +956,17 @@ var handleResponse = function(msg, timer) {
   if (quited)
     return;
 
-  try {
+  if (!_$_DEBUG_$_) {
     eval(msg);
     _$_APP_CLASS_$_._p_.autoJavaScript();
-  } catch (e) {
-    if (!_$_DEBUG_$_)
+  } else
+    try {
+      eval(msg);
+      _$_APP_CLASS_$_._p_.autoJavaScript();
+    } catch (e) {
       alert("Wt internal error: " + e + ", code: " +  e.code
-	    + ", description: " + e.description /* + ":" + msg */);
-    else
-      throw e;
-  }
+   	    + ", description: " + e.description /* + ":" + msg */);
+    }
 
   if (timer)
     cancelFeedback(timer);

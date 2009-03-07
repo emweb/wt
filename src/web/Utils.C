@@ -108,17 +108,18 @@ char *round_str(double d, int digits, char *buf) {
     ++num;
   int len = strlen(num);
 
-  if (len < digits) {
-    int shift = digits - len;
-    for (int i = digits; i >= 0; --i) {
+  if (len <= digits) {
+    int shift = digits + 1 - len;
+    for (int i = digits + 1; i >= 0; --i) {
       if (i >= shift)
 	num[i] = num[i - shift];
       else
 	num[i] = '0';
     }
+    len = digits + 1;
   }
   int dotPos = std::max(len - digits, 0);
-  for (int i = digits; i >= 0; --i)
+  for (int i = digits + 1; i >= 0; --i)
     num[dotPos + i + 1] = num[dotPos + i];
   num[dotPos] = '.';
 

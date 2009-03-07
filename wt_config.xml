@@ -92,13 +92,6 @@
 	   configure default options in /etc/wt/wthttpd
 	  -->
 	<connector-fcgi>
-            <!-- Enable debug
-
-	       Allow debugging by appending 'debug' to the initial query for
-	       starting the application.
-	      -->
-	    <enable-debug>true</enable-debug>
-
 	    <!-- Valgrind path
 
                If debugging is enabled and this path is not empty, then valgrind
@@ -137,6 +130,13 @@
 	    <num-threads>10</num-threads>
 
 	</connector-fcgi>
+
+        <!-- Enable debug
+
+	     When enabled,
+	     - JavaScript errors are not caught to display an error message.
+	  -->
+	<debug>true</debug>
 
 	<!-- Log file
 

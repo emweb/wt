@@ -18,7 +18,8 @@
 MandelbrotExample::MandelbrotExample(WContainerWidget *parent)
   : WContainerWidget(parent)
 {
-  new WText("<h2>Wt Mandelbrot example</h2>"
+  new WText("<div style=\"height:1px; width: 1px;\"/>"
+	    "<h2>Wt Mandelbrot example</h2>"
 	    "<p>The image below is a WVirtualImage that renders the "
 	    "classic Mandelbrot fractal.</p>"
 	    "<p>It is drawn as a grid of many smaller images, "
@@ -109,7 +110,12 @@ WApplication *createApplication(const WEnvironment& env)
   WApplication *app = new WApplication(env);
   app->setTitle("Wt Mandelbrot example");
 
-  app->root()->addWidget(new MandelbrotExample());
+  MandelbrotExample *mandelbrot = new MandelbrotExample();
+  mandelbrot->setPadding(8);
+  app->root()->addWidget(mandelbrot);
+
+  app->styleSheet().addRule("html, body",
+			    "border: 0px; margin: 0px; height: 100%;");
   return app;
 }
 
