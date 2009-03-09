@@ -986,9 +986,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    } catch (...) {
 	      throw WtException("Error during event handling");
 	    }
-	  }
-
-	  if (*signalE == "poll" && !updatesPending_) {
+	  } else if (*signalE == "poll" && !updatesPending_) {
 	    pollResponse_ = handler.response();
 	    handler.swapRequest(0, 0);
 	  }

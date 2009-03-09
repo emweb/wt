@@ -804,6 +804,10 @@ public:
    */
   static bool readConfigurationProperty(const std::string& name,
 					std::string& value);
+#ifdef WT_TARGET_JAVA
+  static std::string *readConfigurationProperty(const std::string& name,
+						const std::string& value);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Set the Ajax communication method.
    *

@@ -114,9 +114,8 @@ WGoogleMap::WGoogleMap(WContainerWidget *parent)
     = "ABQIAAAAWqrN5o4-ISwj0Up_depYvhTwM0brOpm-"
       "All5BF6PoaKBxRWWERS-S9gPtCri-B6BZeXV8KpT4F80DQ";
 
-  string googlekey;
-  if (!app->readConfigurationProperty("google_api_key", googlekey))
-    googlekey = localhost_key;
+  string googlekey = localhost_key;
+  Wt::WApplication::readConfigurationProperty("google_api_key", googlekey);
 
   // init the google javascript api
   const string gmuri = "http://www.google.com/jsapi?key=" + googlekey;

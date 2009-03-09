@@ -265,6 +265,7 @@ void WApplication::setAjaxMethod(AjaxMethod method)
 
 std::string WApplication::resourcesUrl()
 {
+#ifndef WT_TARGET_JAVA
   std::string result = "resources/";
   readConfigurationProperty("resourcesURL", result);
 
@@ -272,6 +273,11 @@ std::string WApplication::resourcesUrl()
     result += '/';
 
   return instance()->fixRelativeUrl(result);
+#else
+  std::string path = "/wt-resources/";
+  readConfigurationProperty("resourcesURL", path);
+  return WApplication::instance()->bookmarkUrl(path);
+#endif // WT_TARGET_JAVA
 }
 
 void WApplication::bindWidget(WWidget *widget, const std::string& domId)
@@ -923,6 +929,7 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
     return false;
 }
 
+#ifndef WT_TARGET_JAVA
 bool WApplication::readConfigurationProperty(const std::string& name,
 					     std::string& value)
 {
@@ -937,6 +944,21 @@ bool WApplication::readConfigurationProperty(const std::string& name,
   } else
     return false;
 }
+#else
+std::string *WApplication::readConfigurationProperty(const std::string& name,
+						     const std::string& value)
+{
+  const Configuration::PropertyMap& properties
+    = instance()->session_->controller()->configuration().properties();
+
+  Configuration::PropertyMap::const_iterator i = properties.find(name);
+
+  if (i != properties.end())
+    return &i->second;
+  else
+    return &value;
+}
+#endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
 WServer::Exception::Exception(const std::string what)
