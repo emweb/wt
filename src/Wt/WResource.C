@@ -81,7 +81,7 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
     return;
 
   if (!continuation)
-    WebSession::Handler::instance()->lock()->unlock();
+    WebSession::Handler::instance()->lock().unlock();
 #endif // WT_THREADED
 
   if (continuation)

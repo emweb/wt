@@ -775,7 +775,7 @@ wApp->log("error") << "Message";
    Now we add all widgets in the proper table cell, and set the correct
    alignment.
   
-   \until setContentAlignment(AlignMiddle)
+   \until setContentAlignment(Wt::AlignMiddle)
   
    Finally, we connect the click events of the expandIcon to the expand
    and collapse slots.

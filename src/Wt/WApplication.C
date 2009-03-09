@@ -801,9 +801,6 @@ class UpdateLockImpl
 public:
   UpdateLockImpl(WApplication& app)
     : handler_(*(app.session()))
-#ifdef WT_THREADED
-    ,sessionLock_(app.session()->mutex())
-#endif // WT_THREADED
   { 
     app.shouldTriggerUpdate_ = true;
 #ifndef WT_THREADED
@@ -818,10 +815,6 @@ public:
 
 private:
   WebSession::Handler handler_;
-
-#ifdef WT_THREADED
-  boost::mutex::scoped_lock sessionLock_;
-#endif // WT_THREADED
 };
 
 WApplication::UpdateLock::UpdateLock(WApplication& app)

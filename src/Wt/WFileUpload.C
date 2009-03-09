@@ -30,7 +30,7 @@ protected:
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) {
 #ifdef WT_THREADED
-    WebSession::Handler::instance()->lock()->lock();
+    WebSession::Handler::instance()->lock().lock();
 #endif // WT_THREADED
 
     bool triggerUpdate = false;
@@ -84,7 +84,7 @@ protected:
 	fileUpload_->setFormData(*p);
 
 #ifdef WT_THREADED
-    WebSession::Handler::instance()->lock()->unlock();
+    WebSession::Handler::instance()->lock().unlock();
 #endif // WT_THREADED
   }
 

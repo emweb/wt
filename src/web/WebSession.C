@@ -178,21 +178,16 @@ std::string WebSession::docType() const
 
 void WebSession::setState(State state, int timeout)
 {
-#ifdef WT_TARGET_JAVA
-  synchronized (stateMutex_)
-#endif
-  {
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock stateLock(stateMutex_);
+  assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
-    if (state_ != Dead) {
-      state_ = state;
+  if (state_ != Dead) {
+    state_ = state;
 
 #ifndef WT_TARGET_JAVA
-      expire_ = Time() + timeout*1000;
+    expire_ = Time() + timeout*1000;
 #endif // WT_TARGET_JAVA
-    }
   }
 }
 
@@ -358,33 +353,28 @@ std::string WebSession::getCgiValue(const std::string& varName) const
 
 void WebSession::kill()
 {
-#ifdef WT_TARGET_JAVA
-  synchronized(stateMutex_)
-#endif
-  {
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock stateLock(stateMutex_);
+  assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
-    state_ = Dead;
+  state_ = Dead;
 
-    /*
-     * Unlock the recursive eventloop that may be pending.
-     */
+  /*
+   * Unlock the recursive eventloop that may be pending.
+   */
 #ifdef WT_THREADED
-    recursiveEventDone_.notify_all();
+  recursiveEventDone_.notify_all();
 #endif // WT_THREADED
 
-    if (handlers_.empty()) {
+  if (handlers_.empty()) {
+    // we may delete because the session has already been removed
+    // from the sessions list, and thus, once the list is empty it is
+    // guaranteed to stay empty.
 #ifdef WT_THREADED
-      // we may unlock because the session has already been removed
-      // from the sessions list, and thus, once the list is empty it is
-      // guaranteed to stay empty.
-      stateLock.unlock();
+    WebSession::Handler::instance()->lock().unlock();
 #endif // WT_THREADED
 
-      delete this;
-    }
+    delete this;
   }
 }
 
@@ -429,7 +419,11 @@ std::string WebSession::getRedirect()
 }
 
 WebSession::Handler::Handler(WebSession& session)
-  : session_(session),
+  : 
+#ifdef WT_THREADED
+    lock_(session.mutex_),
+#endif // WT_THREADED
+    session_(session),
     request_(0),
     response_(0),
     eventLoop_(false),
@@ -440,7 +434,11 @@ WebSession::Handler::Handler(WebSession& session)
 
 WebSession::Handler::Handler(WebSession& session,
 			     WebRequest& request, WebResponse& response)
-  : session_(session),
+  :
+#ifdef WT_THREADED
+    lock_(session.mutex_),
+#endif // WT_THREADED
+    session_(session),
     request_(&request),
     response_(&response),
     eventLoop_(false),
@@ -468,8 +466,6 @@ void WebSession::Handler::init()
   threadHandler_.reset(this);
 #else
 #ifdef WT_THREADED
-  lock_ = 0;
-  boost::mutex::scoped_lock stateLock(session_.stateMutex_);
   session_.handlers_.push_back(this);
 
   if (threadHandler_.get())
@@ -498,15 +494,14 @@ void WebSession::Handler::attachThreadToSession(WebSession& session)
 
 WebSession::Handler::~Handler()
 {
+#ifdef WT_THREADED
+  assert(lock().owns_lock());
+#endif // WT_THREADED
+
 #ifdef WT_TARGET_JAVA
   threadHandler_.reset(0);
 #else
-  {
-#ifdef WT_THREADED
-    boost::mutex::scoped_lock stateLock(session_.stateMutex_);
-#endif // WT_THREADED
-    Utils::erase(session_.handlers_, this);
-  }
+  Utils::erase(session_.handlers_, this);
 
   if (session_.handlers_.size() == 0)
     session_.hibernate();
@@ -525,16 +520,13 @@ WebSession::Handler::~Handler()
 
 void WebSession::Handler::killSession()
 {
+#ifdef WT_THREADED
+  assert(lock().owns_lock());
+#endif // WT_THREADED
+
   killed_ = true;
   session_.state_ = Dead;
 }
-
-#ifdef WT_THREADED
-void WebSession::Handler::setLock(boost::mutex::scoped_lock *lock)
-{
-  lock_ = lock;
-}
-#endif // WT_THREADED
 
 void WebSession::Handler::swapRequest(WebRequest *request,
 				      WebResponse *response)
@@ -656,7 +648,7 @@ void WebSession::doRecursiveEventLoop(const std::string& javascript)
    * Release session mutex lock, wait for recursive event response,
    * and retake the session mutex lock.
    */
-  recursiveEventDone_.wait(*handler->lock());
+  recursiveEventDone_.wait(handler->lock());
 
   if (state_ == Dead)
     throw WtException("doRecursiveEventLoop(): session was killed");
@@ -686,9 +678,8 @@ void WebSession::unlockRecursiveEventLoop()
 WebSession::Handler *WebSession::findEventloopHandler(int index)
 {
 #ifndef WT_TARGET_JAVA
-
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock stateLock(stateMutex_);
+  assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
   for (int i = handlers_.size() - 1; i >= 0; --i) {
@@ -705,10 +696,6 @@ WebSession::Handler *WebSession::findEventloopHandler(int index)
 
 bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 {
-  Handler handler(*this, request, response);
-
-  bool flushed = false;
-
   /*
    * -- Start critical section exclusive access to session
    */
@@ -716,10 +703,9 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
   synchronized(mutex_)
 #endif
   {
-#ifdef WT_THREADED
-    boost::mutex::scoped_lock sessionLock(mutex_);
-    handler.setLock(&sessionLock);
-#endif // WT_THREADED
+  Handler handler(*this, request, response);
+
+  bool flushed = false;
 
   WebRenderer::ResponseType responseType = WebRenderer::FullResponse;
 
@@ -934,6 +920,10 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	if (resource) {
 	  try {
 	    resource->handle(&request, &response);
+#ifdef WT_THREADED
+	    if (!handler.lock().owns_lock())
+	      handler.lock().lock();
+#endif // WT_THREADED
 	    flushed = true;
 	  } catch (std::exception& e) {
 	    throw WtException("Exception while streaming resource", e);
@@ -1049,9 +1039,9 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
   handler.~Handler();
 #endif // WT_TARGET_JAVA
 
-  }
-
   return !handler.sessionDead();
+
+  }
 }
 
 void WebSession::pushUpdates()

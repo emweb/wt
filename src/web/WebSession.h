@@ -160,9 +160,8 @@ public:
     void swapRequest(WebRequest *request, WebResponse *response);
 
 #ifdef WT_THREADED
-    void setLock(boost::mutex::scoped_lock *lock);
-    boost::mutex::scoped_lock *lock() { return lock_; }
-    boost::mutex::scoped_lock *lock_;
+    boost::mutex::scoped_lock& lock() { return lock_; }
+    boost::mutex::scoped_lock lock_;
 
     Handler(const Handler&);
 
@@ -209,7 +208,6 @@ private:
   };
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
-  boost::mutex stateMutex_;
   boost::mutex mutex_;
 #endif
 
