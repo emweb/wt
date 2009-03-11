@@ -11,6 +11,8 @@
 #include <Wt/WGlobal>
 #include <Wt/WSignal>
 
+#include <iostream>
+
 namespace boost {
   class recursive_mutex;
 }

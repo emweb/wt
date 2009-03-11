@@ -1,4 +1,4 @@
-SUBDIRS(Ext Chart)
+SUBDIRS(Ext Chart Http)
 INSTALL_FILES(/include/Wt "^W.*[^C~]$")
 #INSTALL(
 #  FILES

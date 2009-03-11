@@ -169,10 +169,7 @@ WString WStandardItem::text() const
 {
   boost::any d = data(DisplayRole);
 
-  if (!d.empty() && d.type() == typeid(WString))
-    return boost::any_cast<WString>(d);
-  else
-    return WString();
+  return asString(d);
 }
 
 void WStandardItem::setIcon(const std::string& uri)
@@ -707,7 +704,7 @@ WStandardItem *WStandardItem::clone() const
 {
   WStandardItem *result = new WStandardItem();
 
-  result->data_ = data_;
+  result->data_ = DataMap(data_);
   result->flags_ = flags_;
 
   return result;
@@ -749,7 +746,7 @@ void WStandardItem::recursiveSortChildren(int column, SortOrder order)
       permutation[i] = i;
 #else
     std::vector<int> permutation;
-    for (unsigned i = 0; i < permutation.size(); ++i)
+    for (unsigned i = 0; i < rowCount(); ++i)
       permutation.push_back(i);
 #endif // WT_TARGET_JAVA
 
@@ -769,7 +766,7 @@ void WStandardItem::recursiveSortChildren(int column, SortOrder order)
 	if (temp[r])
 	  temp[r]->row_ = r;
       }
-      cc = temp;
+      (*columns_)[c] = temp;
     }
   }
 

@@ -210,6 +210,7 @@ web/WtException.C
 web/WtRandom.C
 web/TimeUtil.C
 web/XSSFilter.C
+web/XSSUtils.C
 web/random_device.cpp
 Plain_html.C
 JsNoAjax_html.C

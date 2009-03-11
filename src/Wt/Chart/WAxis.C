@@ -157,8 +157,13 @@ void WAxis::setMinimum(double minimum)
 {
   Segment& s = segments_[0];
 
+#ifndef WT_TARGET_JAVA
   if (set(s.minimum, minimum))
     s.maximum = std::max(s.minimum, s.maximum);
+#else
+  set(s.minimum, minimum);
+  set(s.maximum, std::max(s.minimum, s.maximum));
+#endif // WT_TARGET_JAVA
 }
 
 double WAxis::minimum() const
@@ -170,8 +175,13 @@ void WAxis::setMaximum(double maximum)
 {
   Segment& s = segments_[segments_.size() - 1];
 
+#ifndef WT_TARGET_JAVA
   if (set(s.maximum, maximum))
     s.minimum = std::min(s.minimum, s.maximum);
+#else
+  set(s.maximum, maximum);
+  set(s.minimum, std::min(s.minimum, s.maximum));
+#endif // WT_TARGET_JAVA
 }
 
     double WAxis::maximum() const

@@ -4,8 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/lexical_cast.hpp>
-#include "Wt/WColor"
+#include <sstream>
 
+#include "Wt/WColor"
 #include "Utils.h"
 
 namespace Wt {

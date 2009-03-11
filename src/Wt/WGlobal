@@ -12,10 +12,6 @@
 /*! \file WGlobal
  */
 
-#ifdef WT_TARGET_JAVA
-#include <bostream>
-#endif // WT_TARGET_JAVA
-
 namespace Wt {
   class JSlot;
   class WAbstractToggleButton;
@@ -72,14 +68,6 @@ namespace Wt {
   class WValidator;
   class WWebWidget;
   class WWidget;
-
-#ifndef WT_TARGET_JAVA
-#define WT_USTRING WString
-#define WT_BOSTREAM std::ostream
-#else
-#define WT_USTRING std::string
-#define WT_BOSTREAM std::bostream
-#endif // WT_TARGET_JAVA
 
 /*! \brief Enumeration that indicates a direction.
  */

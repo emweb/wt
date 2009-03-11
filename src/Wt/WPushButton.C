@@ -44,7 +44,7 @@ void WPushButton::updateDom(DomElement& element, bool all)
   if (textChanged_ || all) {
     element
       .setProperty(Wt::PropertyInnerHTML,
-		   text_.literal() ? escapeText(text_).toUTF8()
+		   text_.literal() ? escapeText(text_, true).toUTF8()
 		   : text_.toUTF8());
     textChanged_ = false;
   }

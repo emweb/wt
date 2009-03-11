@@ -9,6 +9,7 @@
 
 #include <Wt/WCompositeWidget>
 #include <Wt/WDate>
+#include <Wt/WSignalMapper>
 #include <set>
 
 namespace boost {
@@ -22,8 +23,6 @@ namespace Wt {
 class WTable;
 class WComboBox;
 class WInPlaceEdit;
-
-template <typename T, typename A1> class WSignalMapper;
 
 /*! \class WCalendar Wt/WCalendar Wt/WCalendar
  *  \brief A calendar.

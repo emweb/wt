@@ -7,6 +7,8 @@
 #ifndef WVALIDATOR_H_
 #define WVALIDATOR_H_
 
+#include <iostream>
+
 #include <Wt/WObject>
 #include <Wt/WString>
 

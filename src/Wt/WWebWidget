@@ -14,6 +14,10 @@
 #include <Wt/WWidget>
 #include <Wt/WEvent>
 
+#ifdef WT_TARGET_JAVA
+#include <Wt/WJavaScript>
+#endif // WT_TARGET_JAVA
+
 namespace Wt {
 
 class WApplication;
@@ -52,8 +56,11 @@ W_DECLARE_MASK_FOR_FLAGS(RepaintFlag, RepaintAll,
 class WCssDecorationStyle;
 class WContainerWidget;
 class DomElement;
+
+#ifndef WT_TARGET_JAVA
 template <typename A1, typename A2, typename A3, typename A4,
 	  typename A5, typename A6> class JSignal;
+#endif
 
 /*! \class WWebWidget Wt/WWebWidget Wt/WWebWidget
  *  \brief A base class for widgets with an HTML counterpart.

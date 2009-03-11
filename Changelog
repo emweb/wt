@@ -1,3 +1,17 @@
+11-03-2009:
+	* WPushButton: allow line breaks in text using ('\n')
+
+	* WebController: fix widget set mode (default entry path parsing)
+
+	* CMakeLists.txt: also install Http/ directory
+
+	* XSSFilter: refactored
+
+	* WAbstractTableModel: new abstract model class
+
+	* WebSession: simplify session locking (and fix reentrant event
+	loop memory corrouption)
+
 06-03-2009:
 	* win32: fix build problems
 

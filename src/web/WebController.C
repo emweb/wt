@@ -442,12 +442,19 @@ WebController::getEntryPoint(const std::string& sName)
     return &conf_.entryPoints()[0];
 
   // Multiple entry points.
+  int defaultEp = -1;
   for (unsigned i = 0; i < conf_.entryPoints().size(); ++i) {
     const Wt::EntryPoint& ep = conf_.entryPoints()[i];
 
-    if (boost::ends_with(sName, ep.path()))
-      return &ep;
+    if (ep.path().empty())
+      defaultEp = i;
+    else
+      if (boost::ends_with(sName, ep.path()))
+	return &ep;
   }
+
+  if (defaultEp != -1)
+    return &conf_.entryPoints()[defaultEp];
 
   conf_.log("error") << "No entry point configured for: '" << sName
 		     << "', using first entry point ('"

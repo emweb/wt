@@ -5,7 +5,7 @@
  */
 
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Wt/WModelIndex"
 #include "Wt/WAbstractItemModel"

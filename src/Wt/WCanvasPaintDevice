@@ -10,6 +10,8 @@
 #include <Wt/WPaintDevice>
 #include <Wt/WObject>
 
+#include <sstream>
+
 namespace Wt {
 
 class DomElement;

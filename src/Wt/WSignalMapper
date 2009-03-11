@@ -147,6 +147,8 @@ private:
   DataMap mappings_;
 };
 
+#ifndef WT_TARGET_JAVA
+
 template <typename T, typename A1>
 WSignalMapper<T, A1>::WSignalMapper(WObject *parent)
   : WObject(parent),
@@ -159,7 +161,6 @@ void WSignalMapper<T, A1>::setMapping(WObject *sender, const T& data)
   mappings_[sender] = data;
 }
 
-#ifndef WT_TARGET_JAVA
 template <typename T, typename A1>
 void WSignalMapper<T, A1>::mapConnect(SignalBase& signal, const T& data)
 {
@@ -167,7 +168,6 @@ void WSignalMapper<T, A1>::mapConnect(SignalBase& signal, const T& data)
   signal.connectBase
     (this, static_cast<void (WObject::*)()>(&WSignalMapper<T, A1>::map));
 }
-#endif
 
 template <typename T, typename A1>
 template <typename S>
@@ -198,6 +198,8 @@ void WSignalMapper<T, A1>::map1(A1 a1)
     mapped_.emit(i->second, a1);
   }
 }
+
+#endif
 
 }
 

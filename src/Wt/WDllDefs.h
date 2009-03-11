@@ -46,8 +46,17 @@
   #define WT_API
 #endif
 
+#ifndef WT_TARGET_JAVA
 #define WT_ARRAY
 #define W_JAVA_COMPARATOR(type)
+#define WT_USTRING WString
+#define WT_BOSTREAM std::ostream
+#else
+#define WT_ARRAY volatile
+#define W_JAVA_COMPARATOR(type) : public Comparator<type>
+#define WT_USTRING std::string
+#define WT_BOSTREAM std::bostream
+#endif
 
 #ifdef WIN32
 typedef __int64 int64_t;            /* 64 bit signed */

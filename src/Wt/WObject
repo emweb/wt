@@ -369,8 +369,10 @@ private:
   static std::vector<WObject *> emptyObjectList_;
 
   template <typename E> friend class EventSignal;
+#ifndef WT_TARGET_JAVA
   template <typename A1, typename A2, typename A3,
             typename A4, typename A5, typename A6> friend class JSignal;
+#endif // WT_TARGET_JAVA
 
   friend class EventSignalBase;
   friend class WebSession;

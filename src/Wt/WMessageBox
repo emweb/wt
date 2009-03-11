@@ -8,6 +8,7 @@
 #define WMESSAGEBOX_
 
 #include <Wt/WDialog>
+#include <Wt/WSignalMapper>
 
 namespace Wt {
 
@@ -15,8 +16,6 @@ class WContainerWidget;
 class WImage;
 class WPushButton;
 class WText;
-
-template <typename T, typename A1> class WSignalMapper;
 
 /*! \class WMessageBox Wt/WMessageBox Wt/WMessageBox
  *  \brief A standard dialog for confirmation or to get simple user input
