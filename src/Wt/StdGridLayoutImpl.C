@@ -168,6 +168,7 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
 	 ""           "if (ch.nodeName.toUpperCase()=='BUTTON'"
 	 ""               "|| ch.nodeName.toUpperCase()=='INPUT'"
+	 ""               "|| ch.nodeName.toUpperCase()=='SELECT'"
 	 ""               "|| ch.nodeName.toUpperCase()=='TABLE') "
 	 ""              "continue;"
 
