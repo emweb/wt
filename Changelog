@@ -17,6 +17,9 @@
 
 	* WMemoryResource: change API to unsigned char
 
+03-03-2009:
+	* WFileUpload.C: emit uploaded() signal in event loop.
+
 27-02-2009:
 	* WApplication.C, WebSession.C, Wt.js: finally a robust and simple
 	server-push implementation instead of orbited

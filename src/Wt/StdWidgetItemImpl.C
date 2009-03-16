@@ -92,13 +92,11 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
     if (   d->type() == DomElement_DIV
 	|| d->type() == DomElement_UL
 	|| d->type() == DomElement_TABLE
-	|| d->type() == DomElement_SELECT
 	|| d->type() == DomElement_TEXTAREA)
-      d->setProperty(PropertyStyleHeight, "100%"); // padding ok!
+      d->setProperty(PropertyStyleHeight, "100%");
 
   if (fitWidth && d->getProperty(PropertyStyleWidth).empty()) {
     if (d->type() == DomElement_BUTTON
-	|| d->type() == DomElement_SELECT
 	|| d->type() == DomElement_INPUT
 	|| d->type() == DomElement_TEXTAREA)
       d->setProperty(PropertyStyleWidth, "100%");
