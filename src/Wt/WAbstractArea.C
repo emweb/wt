@@ -24,7 +24,7 @@ namespace Wt {
 	: facade_(facade)
       { }
 
-      void repaint() {
+      void repaint(WFlags<RepaintFlag> flags = RepaintAll) {
 	WInteractWidget::repaint(RepaintPropertyAttribute);
       }
 
@@ -85,12 +85,12 @@ EventSignal<WKeyEvent>& WAbstractArea::keyWentUp()
   return impl_->keyWentUp();
 }
 
-EventSignal<void>& WAbstractArea::enterPressed()
+EventSignal<>& WAbstractArea::enterPressed()
 {
   return impl_->enterPressed();
 }
 
-EventSignal<void>& WAbstractArea::escapePressed()
+EventSignal<>& WAbstractArea::escapePressed()
 {
   return impl_->escapePressed();
 }

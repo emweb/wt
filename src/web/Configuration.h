@@ -104,6 +104,7 @@ public:
   bool               behindReverseProxy() const { return behindReverseProxy_; }
   std::string        redirectMessage() const { return redirectMsg_; }
   bool               serializedEvents() const { return serializedEvents_; }
+  bool               inlineCss() const { return inlineCss_; }
 
   WLogger&           logger() { return logger_; }
   WLogEntry          log(const std::string& type) const;
@@ -143,6 +144,7 @@ private:
   bool            behindReverseProxy_;
   std::string     redirectMsg_;
   bool            serializedEvents_;
+  bool            inlineCss_;
 
   int		  pid_;
   WtRandom        random_;

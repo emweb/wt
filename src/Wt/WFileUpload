@@ -149,7 +149,7 @@ public:
    * \sa upload()
    * \sa fileTooLarge()
    */
-  EventSignal<void>& uploaded();
+  EventSignal<>& uploaded();
 
   /*! \brief %Signal emitted when the user tried to upload a too large file.
    *
@@ -173,7 +173,7 @@ public:
    * other browsers. Thus, in the above scenario you should still provide
    * an alternative way to call the upload() method.
    */
-  EventSignal<void>& changed();
+  EventSignal<>& changed();
 
   /*! \brief Start the file upload.
    *

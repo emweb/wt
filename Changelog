@@ -1,3 +1,32 @@
+16-03-2009:
+	* fixed build errors and warnings on Sun Studio and Visual Studio
+
+	* WSignal: remove EventSignal<void> specialization, use
+	EventSignal<> everywhere
+
+	* add WT_NO_BOOST_INTRUSIVE compile option to use std::list instead
+	of boost::intrusive::list (needed for Sun Studio)
+
+	* WTableColumn, WTableRow: support for custom id's with setId()
+
+	* WViewWidget: fix interference problem with stateless slot learning
+
+	* WWebWidget: complement quickPropagateRenderOk() with a clean
+	rerender of itself
+
+	* Configuration.C: add option inline-css useful to disable inline
+	CSS stylesheets, in case you prefer all of them in an external style
+	sheet
+
+	* WTableCell, WDomElement: support colspan/rowspan as properties
+
+	* WTable.C: fix rendering problem for th/td reordering
+
+	* WebRenderer: WLoadingIndicator: fix rendering and stateless slot
+	learning interference
+
+	* WebSession: avoid superfluous 'none' request
+
 11-03-2009:
 	* WPushButton: allow line breaks in text using ('\n')
 

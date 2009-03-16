@@ -159,7 +159,7 @@ enum Side {
   Left = 0x4,                         //!< Left side
   Right = 0x8,                        //!< Right side
   CenterX = 0x10,                     //!< Center horiziontally
-  CenterY = 0x20,                     //!< Center vertically
+  CenterY = 0x20                      //!< Center vertically
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(Side)
@@ -239,7 +239,7 @@ enum AlignmentFlag {
   /*! \brief Align bottom of widget to the bottom of parent widget's font.
    */
   AlignTextBottom=0x800,
-  AlignLength=0x1000, // ?
+  AlignLength=0x1000  // ?
 };
 W_DECLARE_OPERATORS_FOR_FLAGS(AlignmentFlag)
 /*! \brief Combination of all horizontal alignment flags

@@ -14,21 +14,22 @@ WDefaultLoadingIndicator::WDefaultLoadingIndicator()
   : WText("Loading...")
 {
   setInline(false);
+  setStyleClass("Wt-loading");
 
   WApplication *app = WApplication::instance();
 
-  app->styleSheet().addRule("div#" + id(),
+  app->styleSheet().addRule("div.Wt-loading",
 			    "background-color: red; color: white;"
 			    "font-family: Arial,Helvetica,sans-serif;"
 			    "font-size: small;"
 			    "position: absolute; right: 0px; top: 0px;");
-  app->styleSheet().addRule("body > div#" + id(),
+  app->styleSheet().addRule("body > div.Wt-loading",
 			    "position: fixed;");
 
   if (app->environment().userAgent().find("MSIE 5.5") != std::string::npos
       || app->environment().userAgent().find("MSIE 6") != std::string::npos)
     app->styleSheet().addRule
-      ("div#" + id(),
+      ("div.Wt-loading",
        "right: expression((("
        "ignoreMe2 = document.documentElement.scrollLeft ? "
        "document.documentElement.scrollLeft : "
@@ -43,5 +44,5 @@ void WDefaultLoadingIndicator::setMessage(const WString& text)
 {
   setText(text);
 }
-  
+
 }

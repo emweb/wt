@@ -491,7 +491,7 @@ private:
  *
  * \ingroup signalslot
  */
-template<typename E>
+template<typename E = NoClass>
 class EventSignal : public EventSignalBase
 {
 public:
@@ -555,7 +555,7 @@ public:
    * This will cause all connected slots to be triggered, with the given
    * argument.
    */
-  void emit(E e);
+  void emit(E e = NoClass::none);
 
   /*! \brief Emit the signal.
    *
@@ -575,41 +575,7 @@ private:
   void processDynamic(const JavaScriptEvent& e);
 };
 
-#ifndef WT_TARGET_JAVA
-
-/*
- * Event signals -- specialization for void
- */
-template<>
-class WT_API EventSignal<void> : public EventSignalBase
-{
-public:
-  EventSignal(const char *name, WObject *sender);
-
-  virtual bool isConnected() const;
-
-  template<class T, class V>
-    boost::signals::connection connect(T *target, void (V::*method)());
-
-  void connect(JSlot& slot);
-
-  void emit();
-  void operator()();
-
-  virtual boost::signals::connection connectBase(WObject *target,
-						 WObject::Method method);
-
-private:
-  /*
-   * Signal used for dynamic connections.
-   */
-  typedef boost::signal0<void> BoostSignalType;
-  BoostSignalType dynamic_;
-
-  void processDynamic(const JavaScriptEvent& e);
-};
-
-#else
+#ifdef WT_TARGET_JAVA
 
 class WT_API EventSignal0 : public EventSignalBase
 {
@@ -971,26 +937,6 @@ void EventSignal<E>::processDynamic(const JavaScriptEvent& jse)
     pushSender(sender());
     dynamic_(event);
     popSender();
-  }
-}
-
-template <class T, class V>
-boost::signals::connection EventSignal<void>::connect(T *target,
-						      void (V::*method)())
-{
-  WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
-  assert(o);
-
-  exposeSignal();
-
-  WStatelessSlot *s = o->isStateless(static_cast<WObject::Method>(method));
-
-  if (s)
-    return EventSignalBase::connect(static_cast<WObject::Method>(method),
-				    o, s);
-  else {
-    return dynamic_.connect(boost::bind(method, target),
-			    boost::signals::at_front);
   }
 }
 

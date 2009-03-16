@@ -1744,7 +1744,7 @@ void WTreeView::resize(const WLength& width, const WLength& height)
 {
   if (!height.isAuto()) {
     viewportHeight_ = static_cast<int>
-      (ceil(height.toPixels() / rowHeight_.toPixels()));
+      (std::ceil(height.toPixels() / rowHeight_.toPixels()));
 
     needAdjustToViewport();
   }

@@ -6,8 +6,8 @@
 
 #include <limits>
 
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 #include "Wt/WPainterPath"
 
@@ -74,7 +74,7 @@ WPointF WPainterPath::getArcPosition(double cx, double cy,
    */
   double a = -degreesToRadians(angle);
 
-  return WPointF(cx + rx * cos(a), cy + ry * sin(a));
+  return WPointF(cx + rx * std::cos(a), cy + ry * std::sin(a));
 }
 
 WPointF WPainterPath::beginPosition() const

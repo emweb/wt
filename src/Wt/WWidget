@@ -581,7 +581,11 @@ protected:
 
   virtual void setLayout(WLayout *layout);
 
+#ifndef WT_NO_BOOST_INTRUSIVE
   typedef boost::intrusive::list<EventSignalBase> EventSignalList;
+#else
+  typedef std::list<EventSignalBase *> EventSignalList;
+#endif
 
   void addEventSignal(EventSignalBase& s);
   EventSignalBase *getEventSignal(const char *name);

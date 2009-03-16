@@ -64,12 +64,12 @@ WStatelessSlot *WAbstractToggleButton::getStateless(Method method)
 }
 #endif
 
-EventSignal<void>& WAbstractToggleButton::checked()
+EventSignal<>& WAbstractToggleButton::checked()
 {
   return *voidEventSignal(CHECKED_SIGNAL, true);
 }
 
-EventSignal<void>& WAbstractToggleButton::unChecked()
+EventSignal<>& WAbstractToggleButton::unChecked()
 {
   return *voidEventSignal(UNCHECKED_SIGNAL, true);
 }
@@ -151,9 +151,9 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
   const WEnvironment& env = WApplication::instance()->environment();
 
-  EventSignal<void> *check = voidEventSignal(CHECKED_SIGNAL, false);
-  EventSignal<void> *uncheck = voidEventSignal(UNCHECKED_SIGNAL, false);
-  EventSignal<void> *change = voidEventSignal(CHANGE_SIGNAL, false);
+  EventSignal<> *check = voidEventSignal(CHECKED_SIGNAL, false);
+  EventSignal<> *uncheck = voidEventSignal(UNCHECKED_SIGNAL, false);
+  EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
   EventSignal<WMouseEvent> *click = mouseEventSignal(CLICK_SIGNAL, false);
 
   bool needUpdateClickedSignal =

@@ -17,6 +17,7 @@ namespace Wt {
 WTableRow::WTableRow(WTable *table, int numCells)
   : table_(table),
     height_(0),
+    id_(0),
     hidden_(false),
     hiddenChanged_(false)
 { 
@@ -29,6 +30,7 @@ WTableRow::WTableRow(WTable *table, int numCells)
 WTableRow::~WTableRow()
 {
   delete height_;
+  delete id_;
 }
 
 WTableRow::TableData::TableData()
@@ -118,6 +120,22 @@ void WTableRow::setHidden(bool how)
   hiddenChanged_ = true;
 
   table_->repaintRow(this);
+}
+
+void WTableRow::setId(const std::string& id)
+{
+  if (!id_)
+    id_ = new std::string();
+
+  *id_ = id;
+}
+
+const std::string WTableRow::formName() const
+{
+  if (id_)
+    return *id_;
+  else
+    return WObject::formName();
 }
 
 void WTableRow::updateDom(DomElement& element, bool all)

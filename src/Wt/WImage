@@ -179,7 +179,7 @@ public:
 
   /*! \brief Event emitted when the image was loaded.
    */
-  EventSignal<void>& imageLoaded();
+  EventSignal<>& imageLoaded();
 
 private:
   static const char *LOAD_SIGNAL;

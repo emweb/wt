@@ -290,6 +290,9 @@ DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
     tr->setId(rows_[row]);
   rows_[row]->updateDom(*tr, true);
 
+  // because of the mix of addChild() and insertChildAt()
+  tr->setWasEmpty(false);
+
   for (int col = 0; col < columnCount(); ++col) {
     WTableRow::TableData& d = itemAt(row, col);
 

@@ -1118,6 +1118,7 @@ private:
   bool                   rshLoaded_;
   WWidget               *exposedOnly_;
   WLoadingIndicator     *loadingIndicator_;
+  WWidget               *loadingIndicatorWidget_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;
@@ -1138,7 +1139,7 @@ private:
   bool autoJavaScriptChanged_;
 
   EventSignal<WResponseEvent> *javaScriptResponse_;
-  EventSignal<void> *showLoadingIndicator_, *hideLoadingIndicator_;
+  EventSignal<> *showLoadingIndicator_, *hideLoadingIndicator_;
 
   bool              isQuited() const { return quited_; }
   WContainerWidget *timerRoot() const { return timerRoot_; }

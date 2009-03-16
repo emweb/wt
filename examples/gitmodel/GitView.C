@@ -5,6 +5,7 @@
  */
 
 #include <iostream>
+#include <stdlib.h>
 
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>

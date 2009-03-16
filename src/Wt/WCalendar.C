@@ -274,25 +274,25 @@ void WCalendar::clearSelection()
   renderMonth();
 }
 
-void WCalendar::select(const WDate& d)
+void WCalendar::select(const WDate& date)
 {
   selection_.clear();
 
-  selection_.insert(d);
+  selection_.insert(date);
   renderMonth();
 }
 
-void WCalendar::browseTo(const WDate& d)
+void WCalendar::browseTo(const WDate& date)
 {
   bool rerender = false;
 
-  if (currentYear_ != d.year()) {
-    currentYear_ = d.year();
+  if (currentYear_ != date.year()) {
+    currentYear_ = date.year();
     rerender = true;
   }
 
-  if (currentMonth_ != d.month()) {
-    currentMonth_ = d.month();
+  if (currentMonth_ != date.month()) {
+    currentMonth_ = date.month();
     rerender = true;
   }
 

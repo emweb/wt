@@ -112,19 +112,19 @@ public:
 public:
   /*! \brief Signal emitted when the value was changed.
    */
-  EventSignal<void>& changed();
+  EventSignal<>& changed();
 
   /*! \brief Signal emitted when ??
    */
-  EventSignal<void>& selected();
+  EventSignal<>& selected();
 
   /*! \brief Signal emitted when the widget lost focus.
    */
-  EventSignal<void>& blurred();
+  EventSignal<>& blurred();
 
   /*! \brief Signal emitted when the widget recieved focus.
    */
-  EventSignal<void>& focussed();
+  EventSignal<>& focussed();
 
 protected:
   WLabel     *label_;

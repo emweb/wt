@@ -13,7 +13,9 @@
 
 using namespace Wt;
 
-class WTableCell;
+namespace Wt {
+  class WTableCell;
+}
 
 class Label;
 

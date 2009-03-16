@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <boost/lexical_cast.hpp>
+#include <cstring>
 
 namespace Wt {
 
@@ -49,7 +50,7 @@ const std::string WLength::cssText() const
 #ifndef WT_TARGET_JAVA
     char buf[30];
     Utils::round_str(value_, 1, buf);
-    strcat(buf, unitText[unit_]);
+    std::strcat(buf, unitText[unit_]);
     return buf;
 #else
     return boost::lexical_cast<std::string>(value_) + unitText[unit_];

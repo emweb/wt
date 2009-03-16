@@ -26,7 +26,11 @@ WWidget::WWidget(WContainerWidget* parent)
 WWidget::~WWidget()
 {
   while (!eventSignals_.empty()) {
+#ifndef WT_NO_BOOST_INTRUSIVE
     EventSignalBase *s = &eventSignals_.front();
+#else
+    EventSignalBase *s = eventSignals_.front();
+#endif
     eventSignals_.pop_front();
 #ifndef WT_TARGET_JAVA
     delete s;
@@ -216,14 +220,22 @@ WLayoutItemImpl *WWidget::createLayoutItemImpl(WLayoutItem *layoutItem)
 
 void WWidget::addEventSignal(EventSignalBase& s)
 {
+#ifndef WT_NO_BOOST_INTRUSIVE
   eventSignals_.push_back(s);
+#else
+  eventSignals_.push_back(&s);
+#endif
 }
 
 EventSignalBase *WWidget::getEventSignal(const char *name)
 {
   for (EventSignalList::iterator i = eventSignals_.begin();
        i != eventSignals_.end(); ++i) {
+#ifndef WT_NO_BOOST_INTRUSIVE
     EventSignalBase& s = *i;
+#else
+    EventSignalBase& s = **i;
+#endif
     if (s.name() == name)
       return &s;
   }

@@ -39,7 +39,7 @@ extern char *itoa(int value, char *result, int base = 10);
 
 // fast (unsafe) comparison of first n characters
 inline bool startsWith(const char *a, const char *b, int n) {
-  return memcmp(a, b, n) == 0;
+  return std::memcmp(a, b, n) == 0;
 }
 
 // Finds an element in a vector. Returns the first reference to the

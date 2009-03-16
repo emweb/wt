@@ -18,6 +18,7 @@
 #include <sstream>
 #include <utility>
 #include <iostream>
+#include <cmath>
 
 using std::string;
 using std::vector;
@@ -72,10 +73,10 @@ double WGoogleMap::Coordinate::distanceTo(const Coordinate &rhs) const
   const double lat1 = lat_ * M_PI / 180.0;
   const double lat2 = rhs.latitude() * M_PI / 180.0;
   const double deltaLong = (rhs.longitude() - lon_) * M_PI / 180.0;
-  const double angle = sinl(lat1) * sinl(lat2)
-    + cosl(lat1) * cosl(lat2) * cosl(deltaLong);
+  const double angle = std::sin(lat1) * std::sin(lat2)
+    + std::cos(lat1) * std::cos(lat2) * std::cos(deltaLong);
   const double earthRadius = 6371.0; // km
-  const double dist = earthRadius * acosl(angle);
+  const double dist = earthRadius * std::acos(angle);
 
   return dist;
 }

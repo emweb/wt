@@ -237,7 +237,7 @@ public:
    *
    * \sa keyPressed(), Key_Enter
    */
-  EventSignal<void>& enterPressed();
+  EventSignal<>& enterPressed();
 
   /*! \brief Event signal emitted when escape was pressed.
    *
@@ -245,7 +245,7 @@ public:
    *
    * \sa keyPressed(), Key_Escape
    */
-  EventSignal<void>& escapePressed();
+  EventSignal<>& escapePressed();
 
   /*! \brief Event signal emitted when a mouse key was clicked on this
    *         widget.

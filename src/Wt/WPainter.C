@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 #include "Wt/WLineF"
 #include "Wt/WPainter"
@@ -598,7 +598,7 @@ WLength WPainter::normalizedPenWidth(const WLength& penWidth,
       WTransform::TRSRDecomposition d;
       t.decomposeTranslateRotateScaleRotate(d);
 
-      w = 2.0/(fabs(d.sx) + fabs(d.sy));
+      w = 2.0/(std::fabs(d.sx) + std::fabs(d.sy));
     } else
       w = 1.0;
 
@@ -610,7 +610,7 @@ WLength WPainter::normalizedPenWidth(const WLength& penWidth,
       WTransform::TRSRDecomposition d;
       t.decomposeTranslateRotateScaleRotate(d);
 
-      w *= (fabs(d.sx) + fabs(d.sy))/2.0;
+      w *= (std::fabs(d.sx) + std::fabs(d.sy))/2.0;
     }
 
     return WLength(w, WLength::Pixel);

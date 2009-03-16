@@ -10,7 +10,10 @@
 #include <Wt/WContainerWidget>
 
 class Composer;
-class WTreeNode;
+
+namespace Wt {
+  class WTreeNode;
+}
 
 /**
  * \defgroup composerexample Composer example

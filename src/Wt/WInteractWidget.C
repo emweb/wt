@@ -59,12 +59,12 @@ EventSignal<WKeyEvent>& WInteractWidget::keyWentUp()
   return *keyEventSignal(KEYUP_SIGNAL, true);
 }
 
-EventSignal<void>& WInteractWidget::enterPressed()
+EventSignal<>& WInteractWidget::enterPressed()
 {
   return *voidEventSignal(ENTER_PRESS_SIGNAL, true);
 }
 
-EventSignal<void>& WInteractWidget::escapePressed()
+EventSignal<>& WInteractWidget::escapePressed()
 {
   return *voidEventSignal(ESCAPE_PRESS_SIGNAL, true);
 }
@@ -108,8 +108,8 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 {
   bool updateKeyDown = false;
 
-  EventSignal<void> *enterPress = voidEventSignal(ENTER_PRESS_SIGNAL, false);
-  EventSignal<void> *escapePress = voidEventSignal(ESCAPE_PRESS_SIGNAL, false);
+  EventSignal<> *enterPress = voidEventSignal(ENTER_PRESS_SIGNAL, false);
+  EventSignal<> *escapePress = voidEventSignal(ESCAPE_PRESS_SIGNAL, false);
   EventSignal<WKeyEvent> *keyDown = keyEventSignal(KEYDOWN_SIGNAL, false);
 
   if (all)
@@ -179,7 +179,11 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
   EventSignalList& other = eventSignals();
 
   for (EventSignalList::iterator i = other.begin(); i != other.end(); ++i) {
+#ifndef WT_NO_BOOST_INTRUSIVE
     EventSignalBase& s = *i;
+#else
+    EventSignalBase& s = **i;
+#endif
     updateSignalConnection(element, s, s.name(), all);
   }
 

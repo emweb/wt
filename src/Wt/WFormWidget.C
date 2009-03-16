@@ -57,22 +57,22 @@ WFormWidget::~WFormWidget()
   delete filterInput_;
 }
 
-EventSignal<void>& WFormWidget::changed()
+EventSignal<>& WFormWidget::changed()
 {
   return *voidEventSignal(CHANGE_SIGNAL, true);
 }
 
-EventSignal<void>& WFormWidget::selected()
+EventSignal<>& WFormWidget::selected()
 {
   return *voidEventSignal(SELECT_SIGNAL, true);
 }
 
-EventSignal<void>& WFormWidget::blurred()
+EventSignal<>& WFormWidget::blurred()
 {
   return *voidEventSignal(BLUR_SIGNAL, true);
 }
 
-EventSignal<void>& WFormWidget::focussed()
+EventSignal<>& WFormWidget::focussed()
 {
   return *voidEventSignal(FOCUS_SIGNAL, true);
 }
@@ -171,7 +171,7 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   const WEnvironment& env = WApplication::instance()->environment();
 
   if (!env.agentIE() || !dynamic_cast<WAbstractToggleButton *>(this)) {
-    EventSignal<void> *s = voidEventSignal(CHANGE_SIGNAL, false);
+    EventSignal<> *s = voidEventSignal(CHANGE_SIGNAL, false);
     if (s)
       updateSignalConnection(element, *s, "change", all);
   }
@@ -201,6 +201,9 @@ void WFormWidget::setLabel(WLabel *label)
     l->setBuddy((WFormWidget *)0);
   }
   label_ = label;
+
+  if (label_)
+    label_->setHidden(isHidden());
 }
 
 void WFormWidget::setHidden(bool hidden)

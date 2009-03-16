@@ -15,6 +15,8 @@
 
 #include "WtException.h"
 
+#include <cctype>
+
 namespace Wt {
 
 WMenuItem::WMenuItem(const WString& text, WWidget *contents,
@@ -63,10 +65,10 @@ void WMenuItem::setText(const WString& text)
       result = text_.key();
 
     for (unsigned i = 0; i < result.length(); ++i) {
-      if (isspace((unsigned char)result[i]))
+      if (std::isspace((unsigned char)result[i]))
 	result[i] = '-';
-      else if (isalnum((unsigned char)result[i]))
-	result[i] = tolower((unsigned char)result[i]);
+      else if (std::isalnum((unsigned char)result[i]))
+	result[i] = std::tolower((unsigned char)result[i]);
       else
 	result[i] = '_';
     }

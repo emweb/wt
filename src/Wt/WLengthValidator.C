@@ -95,9 +95,13 @@ WString WLengthValidator::invalidTooLongText() const
 				 + " characters");
 }
 
-WValidator::State WLengthValidator::validate(WString& input, int& pos) const
+WValidator::State WLengthValidator::validate(WT_USTRING& input) const
 {
+#ifndef WT_TARGET_JAVA
   std::wstring text = input.value();
+#else
+  std::string text = input;
+#endif
 
   if (isMandatory()) {
     if (text.empty())

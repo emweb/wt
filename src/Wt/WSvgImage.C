@@ -14,7 +14,7 @@
 
 #include "Utils.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 
@@ -27,16 +27,16 @@
 
 namespace {
   double adjust360(double d) {
-    if (fabs(d - 360) < 0.01)
+    if (std::fabs(d - 360) < 0.01)
       return 359.5;
-    else if (fabs(d + 360) < 0.01)
+    else if (std::fabs(d + 360) < 0.01)
       return -359.5;
     else 
       return d;
   }
 
   bool fequal(double d1, double d2) {
-    return fabs(d1 - d2) < 1E-5;
+    return std::fabs(d1 - d2) < 1E-5;
   }
 }
 
@@ -73,7 +73,7 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
 {
   char buf[30];
 
-  if (fabs(spanAngle - 360.0) < 0.01) {
+  if (std::fabs(spanAngle - 360.0) < 0.01) {
     finishPath();
     makeNewGroup();
 
@@ -266,11 +266,11 @@ void WSvgImage::drawPlainPath(std::stringstream& out, const WPainterPath& path)
        * http://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
        * with phi = 0
        */
-      const double x1 = rx * cos(theta1) + cx;
-      const double y1 = ry * sin(theta1) + cy;
-      const double x2 = rx * cos(theta1 + deltaTheta) + cx;
-      const double y2 = ry * sin(theta1 + deltaTheta) + cy;
-      const int fa = (fabs(deltaTheta) > M_PI ? 1 : 0);
+      const double x1 = rx * std::cos(theta1) + cx;
+      const double y1 = ry * std::sin(theta1) + cy;
+      const double x2 = rx * std::cos(theta1 + deltaTheta) + cx;
+      const double y2 = ry * std::sin(theta1 + deltaTheta) + cy;
+      const int fa = (std::fabs(deltaTheta) > M_PI ? 1 : 0);
       const int fs = (deltaTheta > 0 ? 1 : 0);
 
       if (!fequal(current.x(), x1) || !fequal(current.y(), y1)) {

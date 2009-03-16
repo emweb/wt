@@ -71,6 +71,9 @@ DomElement *DomElement::createNew(DomElementType type)
 DomElement *DomElement::getForUpdate(const std::string& id,
 				     DomElementType type)
 {
+  if (id.empty())
+    throw WtException("Cannot update widget without id");
+
   DomElement *e = new DomElement(ModeUpdate, type);
   e->id_ = id;
 
@@ -777,6 +780,14 @@ void DomElement::asHTML(EscapeOStream& out,
       out << " src=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
+    case Wt::PropertyColSpan:
+      out << " colspan=";
+      fastHtmlAttributeValue(out, attributeValues, i->second);
+      break;
+    case Wt::PropertyRowSpan:
+      out << " rowspan=";
+      fastHtmlAttributeValue(out, attributeValues, i->second);
+      break;
     default:
       break;
     }
@@ -1203,6 +1214,12 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out) const
       break;
     case Wt::PropertySrc:
       out << var_ << ".src='" << i->second << "\';";
+      break;
+    case Wt::PropertyColSpan:
+      out << var_ << ".colSpan=" << i->second << ";";
+      break;
+    case Wt::PropertyRowSpan:
+      out << var_ << ".rowSpan=" << i->second << ";";
       break;
     case Wt::PropertyText:
       out << var_ << ".text=";

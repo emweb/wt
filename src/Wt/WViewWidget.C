@@ -55,28 +55,30 @@ void WViewWidget::render()
 
 void WViewWidget::updateDom(DomElement& element, bool all)
 {
-  if (all && !contents_) {
-    needContentsUpdate_ = true;
-    render();
-  }
+  WApplication *app = WApplication::instance();
+  
+  if (!app->session()->renderer().preLearning()) {
+    if (all && !contents_) {
+      needContentsUpdate_ = true;
+      render();
+    }
 
-  if (contents_) {
-    WApplication *app = WApplication::instance();
+    if (contents_) {
+      bool savedVisibleOnly = app->session()->renderer().visibleOnly();
 
-    bool savedVisibleOnly = app->session()->renderer().visibleOnly();
+      WApplication::instance()->session()->renderer().setVisibleOnly(false);
 
-    WApplication::instance()->session()->renderer().setVisibleOnly(false);
+      DomElement *e = contents_->createSDomElement(WApplication::instance());
 
-    DomElement *e = contents_->createSDomElement(WApplication::instance());
+      if (!all)
+	element.setWasEmpty(true); // removes previous content
+      element.addChild(e);
 
-    if (!all)
-      element.setWasEmpty(true); // removes previous content
-    element.addChild(e);
+      WApplication::instance()->session()->renderer()
+	.setVisibleOnly(savedVisibleOnly);
 
-    WApplication::instance()->session()->renderer()
-      .setVisibleOnly(savedVisibleOnly);
-
-    needContentsUpdate_ = false;
+      needContentsUpdate_ = false;
+    }
   }
 
   WWebWidget::updateDom(element, all);

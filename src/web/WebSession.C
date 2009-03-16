@@ -1176,7 +1176,7 @@ void WebSession::notifySignal(const WEvent& e)
       const std::string *hashE = request.getParameter("_");
       if (hashE)
 	app_->changeInternalPath(*hashE);
-    } else if (*signalE == "none") {
+    } else if (*signalE == "none" || *signalE == "load") {
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);
     } else {

@@ -342,7 +342,7 @@ protected:
   void setId(DomElement *element, WApplication *app);
   virtual WWebWidget *webWidget() { return this; }
 
-  EventSignal<void> *voidEventSignal(const char *name, bool create);
+  EventSignal<> *voidEventSignal(const char *name, bool create);
   EventSignal<WKeyEvent> *keyEventSignal(const char *name, bool create);
   EventSignal<WMouseEvent> *mouseEventSignal(const char *name, bool create);
   EventSignal<WScrollEvent> *scrollEventSignal(const char *name, bool create);

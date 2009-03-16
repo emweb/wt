@@ -16,12 +16,14 @@ namespace Wt {
 
 WTableColumn::WTableColumn(WTable *table)
   : table_(table),
-    width_(0)
+    width_(0),
+    id_(0)
 { }
 
 WTableColumn::~WTableColumn()
 {
   delete width_;
+  delete id_;
 }
 
 int WTableColumn::columnNum() const
@@ -50,6 +52,22 @@ void WTableColumn::setStyleClass(const WT_USTRING& style)
 WLength WTableColumn::width() const
 {
   return width_ ? *width_ : WLength::Auto;
+}
+
+void WTableColumn::setId(const std::string& id)
+{
+  if (!id_)
+    id_ = new std::string();
+
+  *id_ = id;
+}
+
+const std::string WTableColumn::formName() const
+{
+  if (id_)
+    return *id_;
+  else
+    return WObject::formName();
 }
 
 void WTableColumn::updateDom(DomElement& element, bool all)

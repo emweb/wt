@@ -122,12 +122,12 @@ WFileUpload::~WFileUpload()
     unlink(spoolFileName_.c_str());
 }
 
-EventSignal<void>& WFileUpload::uploaded()
+EventSignal<>& WFileUpload::uploaded()
 {
   return *voidEventSignal(UPLOADED_SIGNAL, true);
 }
 
-EventSignal<void>& WFileUpload::changed()
+EventSignal<>& WFileUpload::changed()
 {
   return *voidEventSignal(CHANGE_SIGNAL, true);
 }
@@ -162,7 +162,7 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
   DomElement *result = DomElement::createNew(domElementType());
   result->setId(this, true);
 
-  EventSignal<void> *change = voidEventSignal(CHANGE_SIGNAL, false);
+  EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
 
   if (fileUploadTarget_) {
     DomElement *form = result;

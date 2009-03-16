@@ -142,7 +142,7 @@ EscapeOStream& EscapeOStream::operator<< (char c)
 EscapeOStream& EscapeOStream::operator<< (const char *s)
 {
   if (c_special_ == 0)
-    sAppend(s, strlen(s));
+    sAppend(s, std::strlen(s));
   else
     put(s, *this);
 
@@ -183,7 +183,7 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
 
       s = f + 1;
     } else {
-      sAppend(s, strlen(s));
+      sAppend(s, std::strlen(s));
       s = 0;
     }
   }
@@ -218,7 +218,7 @@ void EscapeOStream::sAppend(const char *s, int length)
     }
   }
 
-  memcpy(s_ + slen_, s, length);
+  std::memcpy(s_ + slen_, s, length);
   slen_ += length;
 }
 

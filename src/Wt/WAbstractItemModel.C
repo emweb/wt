@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <stdio.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>

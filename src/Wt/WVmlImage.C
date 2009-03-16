@@ -38,7 +38,7 @@
 #include "Wt/WVmlImage"
 #include "Wt/WWebWidget"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 
@@ -52,11 +52,11 @@ namespace {
   }  
 
   bool fequal(double d1, double d2) {
-    return fabs(d1 - d2) < 1E-5;
+    return std::fabs(d1 - d2) < 1E-5;
   }
 
   double norm(const Wt::WPointF& p) {
-    return sqrt(p.x() * p.x() + p.y() * p.y());
+    return std::sqrt(p.x() * p.x() + p.y() * p.y());
   }
 }
 
@@ -262,10 +262,10 @@ void WVmlImage::drawPath(const WPainterPath& path)
 
       WPointF c = transform.map(WPointF(cx, cy));
 
-      WPointF p1(rx * cos(theta1) + cx,
-		 ry * sin(theta1) + cy);
-      WPointF p2(rx * cos(theta1 + deltaTheta) + cx,
-		 ry * sin(theta1 + deltaTheta) + cy);
+      WPointF p1(rx * std::cos(theta1) + cx,
+		 ry * std::sin(theta1) + cy);
+      WPointF p2(rx * std::cos(theta1 + deltaTheta) + cx,
+		 ry * std::sin(theta1 + deltaTheta) + cy);
 
       // XXX: VML can only have ellipses with axes parallel to the X/Y
       //      axis. So this will fail if there is a rotation + unequal
@@ -544,8 +544,10 @@ std::string WVmlImage::skewElement(const WTransform& t) const
       << ",0,0\""
       " origin=\"-0.5 -0.5\""
       " offset=\"";
-    s << Utils::round_str(t.dx() + fabs(t.m11()) * 0.5, 5, buf) << "px,";
-    s << Utils::round_str(t.dy() + fabs(t.m22()) * 0.5, 5, buf) << "px\"/>";
+    s << Utils::round_str(t.dx() + std::fabs(t.m11()) * 0.5, 5, buf)
+      << "px,";
+    s << Utils::round_str(t.dy() + std::fabs(t.m22()) * 0.5, 5, buf)
+      << "px\"/>";
 
     /*
      * Note adding negative t.m11() and t.m22() seems to correct a

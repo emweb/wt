@@ -155,6 +155,7 @@ Configuration::Configuration(const std::string& applicationPath,
     behindReverseProxy_(false),
     redirectMsg_("Load basic HTML"),
     serializedEvents_(false),
+    inlineCss_(true),
     pid_(getpid())
 {
   logger_.addField("datetime", false);
@@ -287,6 +288,7 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
 
   setBoolean(app, "behind-reverse-proxy", behindReverseProxy_);
   setBoolean(app, "strict-event-serialization", serializedEvents_);
+  setBoolean(app, "inline-css", inlineCss_);
 
   mxml_node_t *properties = singleChildElement(app, "properties");
 

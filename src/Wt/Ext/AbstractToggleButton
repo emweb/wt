@@ -79,13 +79,13 @@ public:
    *
    * \sa unChecked()
    */
-  EventSignal<void>& checked();
+  EventSignal<>& checked();
 
   /*! \brief %Signal emitted when the button gets unChecked.
    *
    * \sa checked()
    */
-  EventSignal<void>& unChecked();
+  EventSignal<>& unChecked();
 
 private:
   WAbstractToggleButton *wtWidget_;

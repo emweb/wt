@@ -21,12 +21,12 @@ AbstractToggleButton::AbstractToggleButton(WAbstractToggleButton *wtWidget,
   addOrphan(wtWidget_);
 }
 
-EventSignal<void>& AbstractToggleButton::checked()
+EventSignal<>& AbstractToggleButton::checked()
 {
   return wtWidget_->checked();
 }
 
-EventSignal<void>& AbstractToggleButton::unChecked()
+EventSignal<>& AbstractToggleButton::unChecked()
 {
   return wtWidget_->unChecked();
 }

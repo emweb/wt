@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include <iostream>
+#include <cstring>
 
 #include "Wt/WModelIndex"
 #include "Wt/WAbstractItemModel"
@@ -55,7 +56,7 @@ int WModelIndex::depth() const
 
 bool WModelIndex::operator== (const WModelIndex& other) const
 {
-  return memcmp(this, &other, sizeof(WModelIndex)) == 0;
+  return std::memcmp(this, &other, sizeof(WModelIndex)) == 0;
 }
 
 bool WModelIndex::operator!= (const WModelIndex& other) const

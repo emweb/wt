@@ -40,9 +40,9 @@ class WRegExp;
  * or reimplement the lessThan() method to provide a specialized
  * sorting method.
  *
- * By default, the proxy does automatically re-filter and re-sort when
- * the original model changes. You can enable this behaviour using
- * setDynamicSortFilter().
+ * By default, the proxy does not automatically re-filter and re-sort
+ * when the original model changes. You can enable this behaviour
+ * using setDynamicSortFilter().
  *
  * Usage example:
  * \code

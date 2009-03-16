@@ -85,11 +85,11 @@ public:
 public:
   /*! \brief %Signal emitted when the button gets checked.
    */
-  EventSignal<void>& checked();
+  EventSignal<>& checked();
 
   /*! \brief %Signal emitted when the button gets unChecked.
    */
-  EventSignal<void>& unChecked();
+  EventSignal<>& unChecked();
 
 protected:
   bool checked_;

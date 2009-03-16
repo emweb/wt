@@ -13,7 +13,7 @@
 #include "DomElement.h"
 #include "Utils.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 
@@ -31,9 +31,9 @@ namespace {
 
     double r1 = WTransform::degreesToRadians(angle);
 
-    if (fabs(sweep - 360) < 0.01)
+    if (std::fabs(sweep - 360) < 0.01)
       sweep = 359.9;
-    else if (fabs(sweep + 360) < 0.01)
+    else if (std::fabs(sweep + 360) < 0.01)
       sweep = -359.9;
 
     double a2 = angle - sweep;
@@ -373,34 +373,34 @@ void WCanvasPaintDevice::renderTransform(std::stringstream& s,
     t.decomposeTranslateRotateScaleRotate(d);
 
     if (!invert) {
-      if (fabs(d.dx) > EPSILON || fabs(d.dy) > EPSILON) {
+      if (std::fabs(d.dx) > EPSILON || std::fabs(d.dy) > EPSILON) {
 	s << "ctx.translate(" << Utils::round_str(d.dx, 3, buf) << ',';
 	s << Utils::round_str(d.dy, 3, buf) << ");";
       }
 
-      if (fabs(d.alpha1) > EPSILON)
+      if (std::fabs(d.alpha1) > EPSILON)
 	s << "ctx.rotate(" << d.alpha1 << ");";
 
-      if (fabs(d.sx - 1) > EPSILON || fabs(d.sy - 1) > EPSILON) {
+      if (std::fabs(d.sx - 1) > EPSILON || std::fabs(d.sy - 1) > EPSILON) {
 	s << "ctx.scale(" << Utils::round_str(d.sx, 3, buf) << ',';
 	s << Utils::round_str(d.sy, 3, buf) << ");";
       }
 
-      if (fabs(d.alpha2) > EPSILON)
+      if (std::fabs(d.alpha2) > EPSILON)
 	s << "ctx.rotate(" << d.alpha2 << ");";
     } else {
-      if (fabs(d.alpha2) > EPSILON)
+      if (std::fabs(d.alpha2) > EPSILON)
 	s << "ctx.rotate(" << -d.alpha2 << ");";
 
-      if (fabs(d.sx - 1) > EPSILON || fabs(d.sy - 1) > EPSILON) {
+      if (std::fabs(d.sx - 1) > EPSILON || std::fabs(d.sy - 1) > EPSILON) {
 	s << "ctx.scale(" << Utils::round_str(1/d.sx, 3, buf) << ',';
 	s << Utils::round_str(1/d.sy, 3, buf) << ");";
       }
 
-      if (fabs(d.alpha1) > EPSILON)
+      if (std::fabs(d.alpha1) > EPSILON)
 	s << "ctx.rotate(" << -d.alpha1 << ");";
 
-      if (fabs(d.dx) > EPSILON || fabs(d.dy) > EPSILON) {
+      if (std::fabs(d.dx) > EPSILON || std::fabs(d.dy) > EPSILON) {
 	s << "ctx.translate(" << Utils::round_str(-d.dx, 3, buf) << ',';
 	s << Utils::round_str(-d.dy, 3, buf) << ");";
       }

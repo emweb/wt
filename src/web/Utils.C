@@ -106,7 +106,7 @@ char *round_str(double d, int digits, char *buf) {
 
   if (num[0] == '-')
     ++num;
-  int len = strlen(num);
+  int len = std::strlen(num);
 
   if (len <= digits) {
     int shift = digits + 1 - len;

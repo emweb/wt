@@ -208,8 +208,8 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	else
 	  f = pie_[i].explode + 0.7;
 
-	double px = cx + f * r * cos(-midAngle / 180.0 * M_PI);
-	double py = cy + f * r * sin(-midAngle / 180.0 * M_PI)
+	double px = cx + f * r * std::cos(-midAngle / 180.0 * M_PI);
+	double py = cy + f * r * std::sin(-midAngle / 180.0 * M_PI)
 	  * (h > 0 ? 0.5 : 1);
 
 	WFlags<AlignmentFlag> alignment;
@@ -346,8 +346,8 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 	  && ((pie_[i].explode > 0.0) || (pie_[n].explode > 0.0));
 
 	if (drawS2) {
-	  double pcx = cx + r * pie_[i].explode * cos(-midAngle / 180.0 * M_PI);
-	  double pcy = cy + r * pie_[i].explode * sin(-midAngle / 180.0 * M_PI);
+	  double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
+	  double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
 	  painter.setBrush(darken(brush(i)));
 
@@ -379,8 +379,8 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 	  && ((pie_[i].explode > 0.0) || (pie_[p].explode > 0.0));
 
 	if (drawS1) {
-	  double pcx = cx + r * pie_[i].explode * cos(-midAngle / 180.0 * M_PI);
-	  double pcy = cy + r * pie_[i].explode * sin(-midAngle / 180.0 * M_PI);
+	  double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
+	  double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
 	  painter.setBrush(darken(brush(i)));
 	  drawSide(painter, pcx, pcy, r, startAngle, h);
@@ -415,8 +415,8 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 	if (drawBorder) {
 	  painter.setBrush(darken(brush(i)));
 
-	  double pcx = cx + r * pie_[i].explode * cos(-midAngle / 180.0 * M_PI);
-	  double pcy = cy + r * pie_[i].explode * sin(-midAngle / 180.0 * M_PI);
+	  double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
+	  double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
 	  double a1 = (startAngle < 180 ? 360 : startAngle);
 	  double a2 = (endAngle < 180 ? 180 : endAngle);
@@ -444,8 +444,8 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
     double spanAngle = -v / total * 360;
     double midAngle = currentAngle + spanAngle / 2.0;
 
-    double pcx = cx + r * pie_[i].explode * cos(-midAngle / 180.0 * M_PI);
-    double pcy = cy + r * pie_[i].explode * sin(-midAngle / 180.0 * M_PI);
+    double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
+    double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
     painter.setBrush(brush(i));
 

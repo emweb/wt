@@ -8,7 +8,7 @@
 #include <iostream>
 #endif // DEBUG_SVD
 
-#include <math.h>
+#include <cmath>
 
 #include "Wt/WApplication"
 #include "Wt/WLogger"
@@ -86,8 +86,8 @@ void WTransform::map(double x, double y, double *tx, double *ty) const
 
 WTransform& WTransform::rotateRadians(double angle)
 {
-  double r11 = cos(angle);
-  double r12 = -sin(angle);
+  double r11 = std::cos(angle);
+  double r12 = -std::sin(angle);
   double r21 = -r12;
   double r22 = r11;
 
@@ -127,7 +127,7 @@ WTransform& WTransform::translate(double dx, double dy)
 
 static double norm(double x1, double x2)
 {
-  return sqrt(x1 * x1 + x2 * x2);
+  return std::sqrt(x1 * x1 + x2 * x2);
 }
 
 double WTransform::determinant() const
@@ -180,7 +180,7 @@ void WTransform::decomposeTranslateRotateScaleSkew(TRSSDecomposition& result)
   q2[0] = (m_[M12] - r12 * q1[0])/r22;
   q2[1] = (m_[M22] - r12 * q1[1])/r22;
 
-  result.alpha = atan2(q1[1], q1[0]);
+  result.alpha = std::atan2(q1[1], q1[0]);
 
   result.sx = r11;
   result.sy = r22;
@@ -212,28 +212,28 @@ static void eigenValues(WT_ARRAY double *m, WT_ARRAY double* l,
   double C = a * d - b * c;
   double Dsqr = B*B - 4*C;
   if (Dsqr <= 0) Dsqr = 0;
-  double D = sqrt(Dsqr);
+  double D = std::sqrt(Dsqr);
 
   l[0] = -(B + (B < 0 ? -D : D)) / 2.0;
   l[1] = -B - l[0];
 
-  if (fabs(l[0] - l[1]) < 1E-5) {
+  if (std::fabs(l[0] - l[1]) < 1E-5) {
     v[0] = 1;
     v[2] = 0;
     v[1] = 0;
     v[3] = 1;
-  } else if (fabs(c) > 1E-5) {
+  } else if (std::fabs(c) > 1E-5) {
     v[0] = d - l[0];
     v[2] = -c;
     v[1] = d - l[1];
     v[3] = -c;
-  } else if (fabs(b) > 1E-5) {
+  } else if (std::fabs(b) > 1E-5) {
     v[0] = -b;
     v[2] = a - l[0];
     v[1] = -b;
     v[3] = a - l[1];
   } else {
-    if (fabs(l[0] - a) < 1E-5) {
+    if (std::fabs(l[0] - a) < 1E-5) {
       v[0] = 1;
       v[2] = 0;
       v[1] = 0;
@@ -246,11 +246,11 @@ static void eigenValues(WT_ARRAY double *m, WT_ARRAY double* l,
     }
   }
 
-  double v1l = sqrt(v[0]*v[0] + v[2]*v[2]);
+  double v1l = std::sqrt(v[0]*v[0] + v[2]*v[2]);
   v[0] /= v1l;
   v[2] /= v1l;
 
-  double v2l = sqrt(v[1]*v[1] + v[3]*v[3]);
+  double v2l = std::sqrt(v[1]*v[1] + v[3]*v[3]);
   v[1] /= v2l;
   v[3] /= v2l;
 }
@@ -278,8 +278,8 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
 
   eigenValues(mtm, e, V);
 
-  result.sx = sqrt(e[0]);
-  result.sy = sqrt(e[1]);
+  result.sx = std::sqrt(e[0]);
+  result.sy = std::sqrt(e[1]);
 
 #ifdef DEBUG_SVD
   std::cerr << "V: " << V[M11] << " " << V[M12] << std::endl
@@ -318,8 +318,8 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
     U[2] = -U[2];
   }
 
-  result.alpha1 = atan2(U[2], U[0]);
-  result.alpha2 = atan2(V[1], V[0]);
+  result.alpha1 = std::atan2(U[2], U[0]);
+  result.alpha2 = std::atan2(V[1], V[0]);
 
 #ifdef DEBUG_SVD
   std::cerr << "alpha1: " << result.alpha1 << ", alpha2: " << result.alpha2

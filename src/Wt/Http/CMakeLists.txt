@@ -1,0 +1,1 @@
+INSTALL_FILES(/include/Wt/Http "^W.*[^C~]$")

@@ -34,7 +34,7 @@ namespace {
   }
 
   double round125(double v) {
-    double n = pow(10, std::floor(log10(v)));
+    double n = std::pow(10, std::floor(std::log10(v)));
     double msd = v / n;
 
     if (msd < 1.5)
@@ -408,7 +408,7 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
     
     double diff = segment.renderMaximum - segment.renderMinimum;
 
-    if (fabs(diff) < std::numeric_limits<double>::epsilon()) {
+    if (std::fabs(diff) < std::numeric_limits<double>::epsilon()) {
       /*
        * When the two values or equal, there is no way of knowing what
        * is a plausible range. Take the surrounding integer values
@@ -416,10 +416,12 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
       if (scale_ == LogScale) {
 	if (findMinimum)
 	  segment.renderMinimum
-	    = pow(10, (std::floor(log10(segment.renderMinimum - 1E-4))));
+	    = std::pow(10,
+		       (std::floor(std::log10(segment.renderMinimum - 1E-4))));
 	if (findMaximum)
 	  segment.renderMaximum
-	    = pow(10, (std::ceil(log10(segment.renderMaximum + 1E-4))));
+	    = std::pow(10,
+		       (std::ceil(std::log10(segment.renderMaximum + 1E-4))));
       } else {
 	if (findMinimum)
 	  segment.renderMinimum = std::floor(segment.renderMinimum - 1E-4);
@@ -439,14 +441,14 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	  && (segment.renderMaximum + 0.50 * diff >= 0))
 	segment.renderMaximum = 0;
     } else if (scale_ == LogScale) {
-      double minLog10 = std::floor(log10(segment.renderMinimum));
-      double maxLog10 = std::ceil(log10(segment.renderMaximum));
+      double minLog10 = std::floor(std::log10(segment.renderMinimum));
+      double maxLog10 = std::ceil(std::log10(segment.renderMaximum));
 
       if (findMinimum)
-	segment.renderMinimum = pow(10, (minLog10));
+	segment.renderMinimum = std::pow(10, (minLog10));
 
       if (findMinimum)
-	segment.renderMaximum = pow(10, (maxLog10));
+	segment.renderMaximum = std::pow(10, (maxLog10));
     }
   }
 }
@@ -508,8 +510,8 @@ double WAxis::map(double u, AxisLocation otherLocation, int segment) const
       * remainLength;
   } else {
     u = std::max(s.renderMinimum, u);
-    d = (log(u) - log(s.renderMinimum))
-      / (log(s.renderMaximum) - log(s.renderMinimum))
+    d = (std::log(u) - std::log(s.renderMinimum))
+      / (std::log(s.renderMaximum) - std::log(s.renderMinimum))
       * s.renderLength;
   }
 

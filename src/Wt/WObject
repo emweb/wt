@@ -19,9 +19,13 @@
 
 namespace Wt {
 
+class JavaScriptEvent;
+
 struct WT_API NoClass
 {
   NoClass() { }
+  NoClass(const JavaScriptEvent&) { }
+
   static NoClass none;
 };
 

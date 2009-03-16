@@ -60,7 +60,7 @@ WApplication::WApplication(const WEnvironment& env)
     internalPathChanged_(this),
 #ifndef WT_TARGET_JAVA
     serverPush_(false),
-    eventSignalPool_(new boost::pool<>(sizeof(EventSignal<void>))),
+    eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
     shouldTriggerUpdate_(false),
 #endif // WT_TARGET_JAVA
     javaScriptClass_("Wt"),
@@ -88,12 +88,14 @@ WApplication::WApplication(const WEnvironment& env)
 #endif // WT_TARGET_JAVA
 
   domRoot_ = new WContainerWidget();
+  domRoot_->setObjectName("wt-dom-root");
   domRoot_->load();
 
   if (session_->type() == WebSession::Application)
     domRoot_->resize(WLength::Auto, WLength(100, WLength::Percentage));
 
   timerRoot_ = new WContainerWidget(domRoot_);
+  timerRoot_->setObjectName("wt-timer-root");
   timerRoot_->resize(WLength::Auto, 0);
   timerRoot_->setPositionScheme(Absolute);
 
@@ -102,6 +104,7 @@ WApplication::WApplication(const WEnvironment& env)
 
     domRoot2_ = 0;
     widgetRoot_ = new WContainerWidget(domRoot_);
+    widgetRoot_->setObjectName("wt-app-root");
     widgetRoot_->resize(WLength(100, WLength::Percentage),
 			WLength(100, WLength::Percentage));
   } else {
@@ -169,8 +172,8 @@ WApplication::WApplication(const WEnvironment& env)
   javaScriptResponse_->connect(SLOT(this,
 				    WApplication::handleJavaScriptResponse));
 
-  showLoadingIndicator_ = new EventSignal<void>("showload", this);
-  hideLoadingIndicator_ = new EventSignal<void>("hideload", this);
+  showLoadingIndicator_ = new EventSignal<>("showload", this);
+  hideLoadingIndicator_ = new EventSignal<>("hideload", this);
 
   setLoadingIndicator(new WDefaultLoadingIndicator());
 }
@@ -181,13 +184,32 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
   loadingIndicator_ = indicator;
 
   if (loadingIndicator_) {
-    WWidget * const w = indicator->widget();
-    domRoot_->addWidget(w);
+    loadingIndicatorWidget_ = indicator->widget();
+    domRoot_->addWidget(loadingIndicatorWidget_);
 
-    showLoadingIndicator_->connect(SLOT(w, WWidget::show));
-    hideLoadingIndicator_->connect(SLOT(w, WWidget::hide));
+#ifndef WT_TARGET_JAVA
+    showLoadingIndicator_->connect
+      (SLOT(loadingIndicatorWidget_, WWidget::show));
+    hideLoadingIndicator_->connect
+      (SLOT(loadingIndicatorWidget_, WWidget::hide));
+#else
+    // stateless learning does not yet work
+    JSlot *showLoadJS = new JSlot();
+    showLoadJS->setJavaScript
+      ("function(obj, e) {"
+       "" WT_CLASS ".inline('" + loadingIndicatorWidget_->formName() + "');"
+       "}");
+    showLoadingIndicator_->connect(*showLoadJS);
 
-    w->hide();
+    JSlot *hideLoadJS = new JSlot();
+    hideLoadJS->setJavaScript
+      ("function(obj, e) {"
+       "" WT_CLASS ".hide('" + loadingIndicatorWidget_->formName() + "');"
+       "}");
+    hideLoadingIndicator_->connect(*hideLoadJS);
+#endif
+
+    loadingIndicatorWidget_->hide();
   }
 }
 
@@ -367,21 +389,21 @@ void WApplication::useStyleSheet(const std::string& uri,
     std::string r = condition;
 
     while (!r.empty()) {
-      if (r.substr(0, 3) == "IE ") {
+      if (r.length() >= 3 && r.substr(0, 3) == "IE ") {
 	r = r.substr(3);
       } else if (r[0] == '!') {
 	r = r.substr(1);
 	invert = !invert;
-      } else if (r.substr(0, 4) == "lte ") {
+      } else if (r.length() >= 4 && r.substr(0, 4) == "lte ") {
 	r = r.substr(4);
 	cond = lte;
-      } else if (r.substr(0, 3) == "lt ") {
+      } else if (r.length() >= 3 && r.substr(0, 3) == "lt ") {
 	r = r.substr(3);
 	cond = lt;
-      } else if (r.substr(0, 3) == "gt ") {
+      } else if (r.length() >= 3 && r.substr(0, 3) == "gt ") {
 	r = r.substr(3);
 	cond = gt;
-      } else if (r.substr(0, 3) == "gte ") {
+      } else if (r.length() >= 3 && r.substr(0, 3) == "gte ") {
 	r = r.substr(4);
 	cond = gte;
       } else {

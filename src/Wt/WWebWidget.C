@@ -428,20 +428,20 @@ WFlags<Side> WWebWidget::clearSides() const
 }
 #endif
 
-void WWebWidget::setVerticalAlignment(AlignmentFlag va,
+void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
 				      const WLength& length)
 {
 #ifndef WT_TARGET_JAVA // cnor fix this
-  if (va & AlignHorizontalMask) {
+  if (alignment & AlignHorizontalMask) {
     wApp->log("warning") << "WWebWidget::setVerticalAlignment(): alignment "
-      "(" << va << ") is horizontal, expected vertical";
-    va = AlignmentFlag(va & AlignVerticalMask);
+      "(" << alignment << ") is horizontal, expected vertical";
+    alignment = AlignmentFlag(alignment & AlignVerticalMask);
   }
 #endif // WT_TARGET_JAVA
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
 
-  layoutImpl_->verticalAlignment_ = va;
+  layoutImpl_->verticalAlignment_ = alignment;
   layoutImpl_->verticalAlignmentLength_ = length;
 
   flags_.set(BIT_GEOMETRY_CHANGED);
@@ -459,19 +459,19 @@ WLength WWebWidget::verticalAlignmentLength() const
   return layoutImpl_ ? layoutImpl_->verticalAlignmentLength_ : WLength::Auto;
 }
 
-void WWebWidget::setOffsets(const WLength& length, WFlags<Side> sides)
+void WWebWidget::setOffsets(const WLength& offset, WFlags<Side> sides)
 {
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();  
 
   if (sides & Top)
-    layoutImpl_->offsets_[0] = length;
+    layoutImpl_->offsets_[0] = offset;
   if (sides & Right)
-    layoutImpl_->offsets_[1] = length;
+    layoutImpl_->offsets_[1] = offset;
   if (sides & Bottom)
-    layoutImpl_->offsets_[2] = length;
+    layoutImpl_->offsets_[2] = offset;
   if (sides & Left)
-    layoutImpl_->offsets_[3] = length;
+    layoutImpl_->offsets_[3] = offset;
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
@@ -539,19 +539,19 @@ bool WWebWidget::isPopup() const
 }
 
 
-void WWebWidget::setMargin(const WLength& length, WFlags<Side> sides)
+void WWebWidget::setMargin(const WLength& margin, WFlags<Side> sides)
 {
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();  
 
   if (sides & Top)
-    layoutImpl_->margin_[0] = length;
+    layoutImpl_->margin_[0] = margin;
   if (sides & Right)
-    layoutImpl_->margin_[1] = length;
+    layoutImpl_->margin_[1] = margin;
   if (sides & Bottom)
-    layoutImpl_->margin_[2] = length;
+    layoutImpl_->margin_[2] = margin;
   if (sides & Left)
-    layoutImpl_->margin_[3] = length;
+    layoutImpl_->margin_[3] = margin;
 
   layoutImpl_->marginsChanged_ = true;
 
@@ -1177,6 +1177,17 @@ DomElement *WWebWidget::createSDomElement(WApplication *app)
   if (!flags_.test(BIT_DONOT_STUB)
       && flags_.test(BIT_HIDDEN)
       && WApplication::instance()->session()->renderer().visibleOnly()) {
+
+    /*
+     * Make sure the object itself is clean, so that stateless slot
+     * learning is not confused.
+     *
+     * But what about stateless slot learning involving children?
+     */
+    DomElement *v = DomElement::createNew(DomElement_SPAN);
+    updateDom(*v, false);
+    delete v;
+    
     quickPropagateRenderOk();
 
     flags_.set(BIT_STUBBED);
@@ -1358,15 +1369,15 @@ EventSignal<WKeyEvent> *WWebWidget::keyEventSignal(const char *name,
   }
 }
 
-EventSignal<void> *WWebWidget::voidEventSignal(const char *name, bool create)
+EventSignal<> *WWebWidget::voidEventSignal(const char *name, bool create)
 {
   EventSignalBase *b = getEventSignal(name);
   if (b)
-    return static_cast<EventSignal<void> *>(b);
+    return static_cast<EventSignal<> *>(b);
   else if (!create)
     return 0;
   else {
-    EventSignal<void> *result = new EventSignal<void>(name, this);
+    EventSignal<> *result = new EventSignal<>(name, this);
     addEventSignal(*result);
     return result;
   }

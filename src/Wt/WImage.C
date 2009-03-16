@@ -84,7 +84,7 @@ WImage::~WImage()
   delete map_;
 }
 
-EventSignal<void>& WImage::imageLoaded()
+EventSignal<>& WImage::imageLoaded()
 {
   return *voidEventSignal(LOAD_SIGNAL, true);
 }

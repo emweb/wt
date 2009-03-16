@@ -10,6 +10,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/WLoadingIndicator"
 #include "Wt/WWebWidget"
 #include "Wt/WStringUtil"
 
@@ -279,7 +280,10 @@ void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
   out << collectedChanges_.str();
   collectedChanges_.str("");
 
-  app->styleSheet().javaScriptUpdate(app, out, false);
+  Configuration& conf = session_.controller()->configuration();
+  if (conf.inlineCss())
+    app->styleSheet().javaScriptUpdate(app, out, false);
+
   loadStyleSheets(out, app);
   loadScriptLibraries(out, app, true);
 
@@ -408,7 +412,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   streamCommJs(app, response.out());
 
-  app->styleSheet().javaScriptUpdate(app, response.out(), true);
+  if (conf.inlineCss())
+    app->styleSheet().javaScriptUpdate(app, response.out(), true);
   app->styleSheetsAdded_ = app->styleSheets_.size();
   loadStyleSheets(response.out(), app);
 
@@ -426,10 +431,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
    * invisible widgets, which is excellent for both JavaScript and
    * non-JavaScript versions.
    */
+  app->loadingIndicatorWidget_->show();
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
-
-  collectedChanges_.str("");
-  preLearnStateless(app);
+  app->loadingIndicatorWidget_->hide();
 
   response.out() << "window.loadWidgetTree = function(){\n";
 
@@ -446,9 +450,15 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   delete mainElement;
 
+  collectedChanges_.str("");
+  preLearnStateless(app);
+
   updateLoadIndicator(response.out(), app, true);
 
   response.out() << collectedChanges_.str() << app->afterLoadJavaScript()
+		 << "{var e=null; "
+		 << app->hideLoadingIndicator_->javaScript()
+		 << "}"
 		 << "};\n";
   collectedChanges_.str("");
 
@@ -461,13 +471,13 @@ void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 				      bool all)
 {
   if (app->showLoadingIndicator_->needUpdate() || all) {
-    out << "showLoadingIndicator = function() {\n"
+    out << "showLoadingIndicator = function() {var e = null;\n"
 	<< app->showLoadingIndicator_->javaScript() << "};\n";
     app->showLoadingIndicator_->updateOk();
   }
 
   if (app->hideLoadingIndicator_->needUpdate() || all) {
-    out << "hideLoadingIndicator = function() {\n"
+    out << "hideLoadingIndicator = function() {var e = null;\n"
 	<< app->hideLoadingIndicator_->javaScript() << "};\n";
     app->hideLoadingIndicator_->updateOk();
   }
@@ -548,7 +558,10 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   url = Wt::Utils::replace(url, '&', "&amp;");
   page.setVar("RELATIVE_URL", url);
-  page.setVar("STYLESHEET", app->styleSheet().cssText(true));
+  if (conf.inlineCss())
+    page.setVar("STYLESHEET", app->styleSheet().cssText(true));
+  else
+    page.setVar("STYLESHEET", "");
   page.setVar("STYLESHEETS", styleSheets);
 
   page.setVar("TITLE", WWebWidget::escapeText(app->title()).toUTF8());
@@ -622,7 +635,9 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
 
   streamCommJs(app, response.out());
 
-  app->styleSheet().javaScriptUpdate(app, response.out(), true);
+  if (conf.inlineCss())
+    app->styleSheet().javaScriptUpdate(app, response.out(), true);
+
   app->styleSheetsAdded_ = app->styleSheets_.size();
   loadStyleSheets(response.out(), app);
 
@@ -639,7 +654,10 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
    * Render Root widgets (domRoot_ and children of domRoot2_) as
    * JavaScript
    */
+  app->loadingIndicatorWidget_->show();
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
+  app->loadingIndicatorWidget_->hide();
+
   std::string cvar;
   {
     EscapeOStream sout(response.out());
@@ -649,7 +667,10 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   delete mainElement;
 
   response.out() << "document.body.insertBefore("
-		<< cvar << ",document.body.firstChild);" << std::endl;
+		 << cvar << ",document.body.firstChild);"
+		 << "{var e=null; "
+		 << app->hideLoadingIndicator_->javaScript()
+		 << "}" << std::endl;
 
   app->domRoot2_->rootAsJavaScript(app, response.out(), true);
 
@@ -935,6 +956,7 @@ void WebRenderer::preLearnStateless(WApplication *app)
 
   for (WApplication::SignalMap::const_iterator i = ss.begin();
        i != ss.end(); ++i) {
+
     if (i->second->sender() == app)
       i->second->processPreLearnStateless(this);
 
@@ -958,6 +980,7 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
   slot->trigger();
 
   std::stringstream js;
+
   collectJS(&js);
 
   std::string result = js.str();

@@ -99,6 +99,18 @@ public:
    */
   void show();
 
+  /*! \brief Set the CSS Id.
+   *
+   * Sets a custom Id. Note that the Id must be unique across the whole
+   * widget tree, can only be set right after construction and cannot
+   * be changed.
+   *
+   * \sa WObject::id()
+   */
+  void setId(const std::string& id);
+
+  virtual const std::string formName() const;
+
 private:
   WTableRow(WTable *table, int numCells);
   ~WTableRow();
@@ -117,8 +129,9 @@ private:
   std::vector<TableData> cells_;
 
   WLength *height_;
+  std::string *id_;
   WT_USTRING styleClass_;
-  bool     hidden_, hiddenChanged_, wasHidden_;
+  bool hidden_, hiddenChanged_, wasHidden_;
 
   void updateDom(DomElement& element, bool all);
 
