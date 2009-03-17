@@ -27,9 +27,7 @@ namespace Wt {
 
 class WEvent {
 public:
-  enum EventType { EmitSignal, Refresh, Render, HashChange,
-		   PropagateFormValues
-  };
+  enum EventType { EmitSignal, Refresh, Render, HashChange };
 
   WebSession::Handler& handler;
   EventType            type;
@@ -710,7 +708,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
   WebRenderer::ResponseType responseType = WebRenderer::FullResponse;
 
   const std::string *wtdE = request.getParameter("wtd");
-  const std::string *signalE = getSignal(request, "e0");
+  const std::string *signalE = getSignal(request, "");
   const std::string *resourceE = request.getParameter("resource");
 
   /*
@@ -900,12 +898,12 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	}
       }
 
-      const std::string *updateIdE = request.getParameter("updateId");
+      const std::string *ackIdE = request.getParameter("ackId");
       try {
-	if (updateIdE)
-	  handler.response()->setId(boost::lexical_cast<int>(*updateIdE));
+	if (ackIdE)
+	  renderer_.ackUpdate(boost::lexical_cast<int>(*ackIdE));
       } catch (const boost::bad_lexical_cast& e) {
-	log("error") << "Could not parse updateId: " << *updateIdE;
+	log("error") << "Could not parse ackId: " << *ackIdE;
       }
 
       env_.urlScheme_ = request.urlScheme();
@@ -937,7 +935,8 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    << "<html><body><h1>Session timeout.</h1></body></html>";
 	}
       } else {
-	if (responseType == WebRenderer::FullResponse && !env_.doesAjax_)
+	if (responseType == WebRenderer::FullResponse
+	    && !env_.doesAjax_ && !signalE)
 	  app_->notify(WEvent(handler, WEvent::HashChange, request.pathInfo()));
 
 	const std::string *hashE = request.getParameter("_");
@@ -958,16 +957,6 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	     * 'load' : load invisible content
 	     * 'res'  : after a resource received data
 	     */
-
-	    // First propagate form values -- they could be corrupted by
-	    // the hash change
-	    app_->notify(WEvent(handler, WEvent::PropagateFormValues));
-
-	    // Propagate change in hash. Do it after a phony reload
-	    // event, since the reload does not carry actual hash
-	    // information
-	    if (hashE)
-	      app_->notify(WEvent(handler, WEvent::HashChange, *hashE));
 
 	    try {
 	      app_->notify(WEvent(handler, WEvent::EmitSignal));
@@ -1101,9 +1090,6 @@ void WebSession::notify(const WEvent& e)
   case WEvent::HashChange:
     session->app_->changeInternalPath(e.hash);
     break;
-  case WEvent::PropagateFormValues:
-    session->propagateFormValues(e);
-    break;
   }
 }
 
@@ -1127,7 +1113,7 @@ void WebSession::render(Handler& handler, WebRenderer::ResponseType type)
   updatesPending_ = false;
 }
 
-void WebSession::propagateFormValues(const WEvent& e)
+void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
 {
   const WebRequest& request = *e.handler.request();
   std::vector<WObject *> formObjects = renderer_.formObjects();
@@ -1136,7 +1122,7 @@ void WebSession::propagateFormValues(const WEvent& e)
     WObject *obj = formObjects[i];
 
     if (!request.postDataExceeded())
-      obj->setFormData(getFormData(request, obj->formName()));
+      obj->setFormData(getFormData(request, se + obj->formName()));
     else
       obj->requestTooLarge(request.postDataExceeded());
   }
@@ -1166,21 +1152,24 @@ void WebSession::notifySignal(const WEvent& e)
 
     const WebRequest& request = *handler.request();
 
-    std::string se = 'e' + boost::lexical_cast<std::string>(i);
+    std::string se = i > 0 ? 'e' + boost::lexical_cast<std::string>(i)
+      : std::string();
     const std::string *signalE = getSignal(request, se);
 
     if (!signalE)
       return;
 
+    propagateFormValues(e, se);
+
     if (*signalE == "hash") {
-      const std::string *hashE = request.getParameter("_");
+      const std::string *hashE = request.getParameter(se + "_");
       if (hashE)
 	app_->changeInternalPath(*hashE);
     } else if (*signalE == "none" || *signalE == "load") {
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);
     } else {
-      if (*signalE != "load" && *signalE != "res") {
+      if (*signalE != "res") {
 	handler.setEventLoop(true);
 
 	for (unsigned k = 0; k < 3; ++k) {

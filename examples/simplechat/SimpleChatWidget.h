@@ -9,6 +9,7 @@
 #define SIMPLECHATWIDGET_H_
 
 #include <Wt/WContainerWidget>
+#include <Wt/WJavaScript>
 
 namespace Wt {
   class WApplication;
@@ -52,6 +53,8 @@ public:
 private:
   SimpleChatServer&     server_;
   Wt::WApplication     *app_;
+
+  Wt::JSlot             clearInput_;
 
   Wt::WString           user_;
 

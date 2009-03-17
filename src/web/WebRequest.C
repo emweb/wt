@@ -15,13 +15,7 @@ namespace Wt {
 Http::ParameterValues WebRequest::emptyValues_;
 
 WebRequest::WebRequest()
-  : id_(-1)
 { }
-
-void WebRequest::setId(int id)
-{
-  id_ = id;
-}
 
 WebRequest::~WebRequest()
 { }

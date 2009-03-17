@@ -262,7 +262,7 @@ private:
 		     const WebRequest& request, SignalKind kind);
 
   void notifySignal(const WEvent& e);
-  void propagateFormValues(const WEvent& e);
+  void propagateFormValues(const WEvent& e, const std::string& se);
 
   const std::string *getSignal(const WebRequest& request,
 			       const std::string& se);

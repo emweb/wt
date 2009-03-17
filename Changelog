@@ -1,3 +1,10 @@
+17-03-2009:
+	* Fixes for cookie parser
+
+	* Send along form values and hash in each 'update', and keep
+	JavaScript updates around until acknowledged by the browser
+	(avoids loss of updates especially for server push situations)
+
 16-03-2009:
 	* fixed build errors and warnings on Sun Studio and Visual Studio
 

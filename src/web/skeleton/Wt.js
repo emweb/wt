@@ -275,6 +275,11 @@ addCss: function(selector, style) {
 addCssText: function(cssText) {
   var s = document.getElementById('Wt-inline-css');
 
+  if (!s) {
+    s = document.createElement('style');
+    document.getElementsByTagName('head')[0].appendChild(s);
+  }
+
   if (!s.styleSheet) { // Konqueror
     var t = document.createTextNode(cssText);
     s.appendChild(t);
@@ -791,11 +796,13 @@ var dragEnd = function(e) {
   }
 };
 
+var formObjects = _$_FORM_OBJECTS_$_;
+
 var encodeEvent = function(event, i) {
   var se, result, e;
   
   e = event.event;
-  se = '&e' + i;
+  se = i > 0 ? '&e' + i : '&';
   result = se + 'signal=' + event.signal;
 
   if (event.id) {
@@ -807,8 +814,30 @@ var encodeEvent = function(event, i) {
       result += se + 'a' + j + '=' + encodeURIComponent(event.args[j]);
   }
 
-  if (!e)
-    return result;
+  for (var x = 0; x < formObjects.length; ++x) {
+    var el = WT.getElement(formObjects[x]);
+    if (el == null)
+      continue;
+
+    if (el.type == 'select-multiple') {
+      for (var i = 0; i < el.options.length; i++)
+	if (el.options[i].selected)
+	  result += se + formObjects[x]
+	    + '=' + encodeURIComponent(el.options[i].value);
+    } else if ((el.type != 'file')
+	       && (((el.type != 'checkbox') && (el.type != 'radio'))
+		   || el.checked))
+      result += se + formObjects[x]
+	+ '=' + encodeURIComponent(el.value);
+  }
+
+  if (currentHash != null)
+    result += se + '_=' + encodeURIComponent(unescape(currentHash));
+
+  if (!e) {
+    event.data = result;
+    return event;
+  }
 
   var t = e.target || e.srcElement;
   while (!t.id && t.parentNode)
@@ -869,7 +898,8 @@ var encodeEvent = function(event, i) {
   if (e.shiftKey)
     result += se + 'shiftKey=1';
 
-  return result;
+  event.data = result;
+  return event;
 };
 
 var pendingEvents = [];
@@ -877,14 +907,11 @@ var pendingEvents = [];
 var encodePendingEvents = function() {
   var result = "";
 
-  if (currentHash != null)
-    result += '&_=' + encodeURIComponent(unescape(currentHash));
-
   feedback = false;
 
   for (var i = 0; i < pendingEvents.length; ++i) {
     feedback = feedback || pendingEvents[i].feedback;
-    result += encodeEvent(pendingEvents[i], i);
+    result += pendingEvents[i].data;
   }
 
   pendingEvents = [];
@@ -892,7 +919,6 @@ var encodePendingEvents = function() {
   return {feedback: feedback, result: result};
 }
 
-var formObjects = _$_FORM_OBJECTS_$_;
 var url = _$_RELATIVE_URL_$_;
 var quited = false;
 var norestart = false;
@@ -956,7 +982,7 @@ var handleResponse = function(msg, timer) {
   if (quited)
     return;
 
-  if (!_$_DEBUG_$_) {
+  if (_$_DEBUG_$_) {
     eval(msg);
     _$_APP_CLASS_$_._p_.autoJavaScript();
   } else
@@ -1002,13 +1028,13 @@ var update = function(self, signalName, e, feedback) {
   if (_$_STRICTLY_SERIALIZED_EVENTS_$_ && responsePending)
     return;
 
-  var pendingEvent = new Object();
+  var pendingEvent = new Object(), i = pendingEvents.length;
   pendingEvent.object = self;
   pendingEvent.signal = signalName;
-  pendingEvent.event = WT.clone(e);
+  pendingEvent.event = e;
   pendingEvent.feedback = feedback;
 
-  pendingEvents[pendingEvents.length] = pendingEvent;
+  pendingEvents[i] = encodeEvent(pendingEvent, i);
 
   scheduleUpdate();
 }
@@ -1024,6 +1050,14 @@ var scheduleUpdate = function() {
     if (updateTimeout == null)
       updateTimeout = setTimeout(function() { sendUpdate(); }, WT.updateDelay);
   }
+}
+
+var ackUpdateId = 0;
+
+var responseReceived = function(updateId) {
+  ackUpdateId = updateId;
+
+   _$_APP_CLASS_$_._p_.commResponseReceived(updateId);
 }
 
 var sendUpdate = function() {
@@ -1049,40 +1083,23 @@ var sendUpdate = function() {
 
   if (pendingEvents.length > 0) {
     data = encodePendingEvents();
-
-    for (var x = 0; x < formObjects.length; ++x) {
-      var el = WT.getElement(formObjects[x]);
-      if (el == null)
-	continue;
-
-      if (el.type == 'select-multiple') {
-	for (var i = 0; i < el.options.length; i++)
-	  if (el.options[i].selected)
-	    data.result += '&' + formObjects[x]
-	      + '=' + encodeURIComponent(el.options[i].value);
-      } else if ((el.type != 'file')
-		 && (((el.type != 'checkbox') && (el.type != 'radio'))
-		     || el.checked))
-	data.result += '&' +formObjects[x]
-	  + '=' + encodeURIComponent(el.value);
-    }
-
     tm = data.feedback ? setTimeout(waitFeedback, _$_INDICATOR_TIMEOUT_$_)
       : null;
     poll = false;
   } else {
+    data = {result: 'signal=poll' };
     tm = null;
     poll = true;
-    data = {result: 'e0signal=poll' };
   }
 
   responsePending
-    = _$_APP_CLASS_$_._p_.sendUpdate(url + query, data.result, tm);
+    = _$_APP_CLASS_$_._p_.sendUpdate(url + query, data.result + '&ackId='
+				     + ackUpdateId, tm, ackUpdateId);
   pollTimer = poll ? setTimeout(doPollTimeout, 50000) : null;
 };
 
 var emit = function(object, config) {
-  var userEvent = new Object();
+  var userEvent = new Object(), ei = pendingEvents.length;
   userEvent.signal = "user";
 
   if (typeof(object) == "string")
@@ -1116,7 +1133,7 @@ var emit = function(object, config) {
   }
   userEvent.feedback = true;
 
-  pendingEvents[pendingEvents.length] = userEvent;
+  pendingEvents[ei] = encodeEvent(userEvent, ei);
 
   if (responsePending == null)
     scheduleUpdate();
@@ -1230,7 +1247,9 @@ return {
     "setHash" : setHash,
     "ImagePreloader" : ImagePreloader,
 
-    "autoJavaScript" : function() { _$_AUTO_JAVASCRIPT_$_ }
+    "autoJavaScript" : function() { _$_AUTO_JAVASCRIPT_$_ },
+
+    "response" : responseReceived
   },
 
   "emit" : emit

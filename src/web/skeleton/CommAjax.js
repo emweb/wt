@@ -1,6 +1,3 @@
-_$_APP_CLASS_$_._p_.updateDone = function(updateId) {
-};
-
 _$_APP_CLASS_$_._p_.recvCallback = function(request, userData) {
   if (request.readyState == 4) {
     if (request.status) {
@@ -10,7 +7,10 @@ _$_APP_CLASS_$_._p_.recvCallback = function(request, userData) {
   }
 };
 
-_$_APP_CLASS_$_._p_.sendUpdate = function(url, data, userData) {
+_$_APP_CLASS_$_._p_.commResponseReceived = function(updateId) {
+}
+
+_$_APP_CLASS_$_._p_.sendUpdate = function(url, data, userData, id) {
   var xmlHttpReq = false;
   if (window.XMLHttpRequest) {
     xmlHttpReq = new XMLHttpRequest();
@@ -24,7 +24,7 @@ _$_APP_CLASS_$_._p_.sendUpdate = function(url, data, userData) {
       }
     }
   }
-  
+
   xmlHttpReq.open('POST', url, true);
   xmlHttpReq.setRequestHeader("Content-type",
 			      "application/x-www-form-urlencoded;");

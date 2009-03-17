@@ -48,7 +48,8 @@ WebRenderer::WebRenderer(WebSession& session)
   : session_(session),
     visibleOnly_(true),
     twoPhaseThreshold_(5000),
-    learning_(false)
+    learning_(false),
+    expectedAckId_(0)
 { }
 
 void WebRenderer::setTwoPhaseThreshold(int bytes)
@@ -85,12 +86,20 @@ const std::vector<WObject *>& WebRenderer::formObjects() const
 
 void WebRenderer::saveChanges()
 {
-  collectJS(&collectedChanges_);
+  collectJS(&collectedJS1_);
 }
 
 void WebRenderer::discardChanges()
 {
   collectJS(0);
+}
+
+void WebRenderer::ackUpdate(int updateId)
+{
+  if (updateId == expectedAckId_)
+    setJSSynced(false);
+
+  ++expectedAckId_;
 }
 
 void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
@@ -221,10 +230,10 @@ void WebRenderer::serveError(WebResponse& response, const std::string& message,
       << WWebWidget::escapeText(WString(message), true).toUTF8()
       << std::endl;    
   } else {
-    collectedChanges_ << "alert(";
-    DomElement::jsStringLiteral(collectedChanges_,
+    collectedJS1_ << "alert(";
+    DomElement::jsStringLiteral(collectedJS1_,
 				"Error occurred:\n" + message, '\'');
-    collectedChanges_ << ");";
+    collectedJS1_ << ");";
   }
 }
 
@@ -262,37 +271,58 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
   setHeaders(response, "text/plain; charset=UTF-8");
-  streamJavaScriptUpdate(response.out(), response.id(), true);
+
+  collectJavaScript();
+
+  response.out()
+    << collectedJS1_.str()
+    << session_.app()->javaScriptClass() << "._p_.response(" << expectedAckId_ << ");"
+    << collectedJS2_.str();
 }
 
-void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
-					 bool doTwoPhaze)
+void WebRenderer::collectJavaScript()
 {
   WApplication *app = session_.app();
+  Configuration& conf = session_.controller()->configuration();
 
   std::string redirect = session_.getRedirect();
-
   if (!redirect.empty()) {
-    streamRedirectJS(out, redirect);
+    streamRedirectJS(collectedJS1_, redirect);
     return;
   }
 
-  out << collectedChanges_.str();
-  collectedChanges_.str("");
+  /*
+   * Pending invisible changes are also collected into JS1.
+   * This is also done in ackUpdate(), but just in case an update was not
+   * acknowledged:
+   */
+  collectedJS1_ << invisibleJS_.str();
+  invisibleJS_.str("");
 
-  Configuration& conf = session_.controller()->configuration();
   if (conf.inlineCss())
-    app->styleSheet().javaScriptUpdate(app, out, false);
+    app->styleSheet().javaScriptUpdate(app, collectedJS1_, false);
 
-  loadStyleSheets(out, app);
-  loadScriptLibraries(out, app, true);
+  loadStyleSheets(collectedJS1_, app);
 
-  out << app->newBeforeLoadJavaScript();
+  /*
+   * This opens scopes, waiting for new libraries to be loaded.
+   */
+  loadScriptLibraries(collectedJS1_, app, true);
+
+  /*
+   * This closes the same scopes.
+   */
+  loadScriptLibraries(collectedJS2_, app, false);
+
+  /*
+   * Everything else happens inside JS1: after libraries have been loaded.
+   */
+  collectedJS1_ << app->newBeforeLoadJavaScript();
 
   if (app->domRoot2_)
-    app->domRoot2_->rootAsJavaScript(app, out, false);
+    app->domRoot2_->rootAsJavaScript(app, collectedJS1_, false);
 
-  collectJavaScriptUpdate(out);
+  collectJavaScriptUpdate(collectedJS1_);
 
   if (visibleOnly_) {
     bool needFetchInvisible = false;
@@ -307,16 +337,16 @@ void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
 	 */
 	visibleOnly_ = false;
 
-	collectJavaScriptUpdate(collectedChanges_);
+	collectJavaScriptUpdate(invisibleJS_);
 
 #ifndef WT_TARGET_JAVA
-	int collectChangesLength = collectedChanges_.rdbuf()->in_avail();
+	int invisibleLength = invisibleJS_.rdbuf()->in_avail();
 #else // WT_TARGET_JAVA
-	int collectChangesLength = collectedChanges_.length();
+	int invisibleLength = invisibleJS_.length();
 #endif // WT_TARGET_JAVA
-	if (collectChangesLength < (int)twoPhaseThreshold_) {
-	  out << collectedChanges_.str();
-	  collectedChanges_.str("");
+	if (invisibleLength < (int)twoPhaseThreshold_) {
+	  collectedJS1_ << invisibleJS_.str();
+	  invisibleJS_.str("");
 	  needFetchInvisible = false;
 	}
 
@@ -325,13 +355,14 @@ void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
     }
 
     if (needFetchInvisible)
-      out << app->javaScriptClass()
-	  << "._p_.update(null, 'none', null, false);";
+      collectedJS1_ << app->javaScriptClass()
+		    << "._p_.update(null, 'none', null, false);";
   }
 
   if (app->autoJavaScriptChanged_) {
-    out << app->javaScriptClass() << "._p_.autoJavaScript=function(){"
-	<< app->autoJavaScript_ << "};";
+    collectedJS1_ << app->javaScriptClass()
+		  << "._p_.autoJavaScript=function(){"
+		  << app->autoJavaScript_ << "};";
     app->autoJavaScriptChanged_ = false;
   }
 
@@ -340,11 +371,6 @@ void WebRenderer::streamJavaScriptUpdate(std::ostream& out, int id,
   app->domRoot_->doneRerender();
   if (app->domRoot2_)
     app->domRoot2_->doneRerender();
-
-  if (app->ajaxMethod() == WApplication::DynamicScriptTag)
-    out << app->javaScriptClass() << "._p_.updateDone(" << id << ");";
-
-  loadScriptLibraries(out, app, false);
 }
 
 void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
@@ -450,21 +476,33 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   delete mainElement;
 
-  collectedChanges_.str("");
-  preLearnStateless(app);
+  setJSSynced(true);
+
+  preLearnStateless(app, collectedJS1_);
+  response.out() << collectedJS1_.str();
+  collectedJS1_.str("");  
 
   updateLoadIndicator(response.out(), app, true);
-
-  response.out() << collectedChanges_.str() << app->afterLoadJavaScript()
-		 << "{var e=null; "
+  response.out() << app->afterLoadJavaScript()
+		 << "{var e=null;"
 		 << app->hideLoadingIndicator_->javaScript()
 		 << "}"
 		 << "};\n";
-  collectedChanges_.str("");
 
   response.out() << "scriptLoaded = true; if (isLoaded) onLoad();\n";
 
   loadScriptLibraries(response.out(), app, false);
+}
+
+void WebRenderer::setJSSynced(bool invisibleToo)
+{
+  collectedJS1_.str("");
+  collectedJS2_.str("");
+
+  if (!invisibleToo)
+    collectedJS1_ << invisibleJS_.str();
+
+  invisibleJS_.str("");
 }
 
 void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
@@ -507,7 +545,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
    */
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
 
-  collectedChanges_.str("");
+  setJSSynced(true);
 
   const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
 
@@ -674,13 +712,13 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
 
   app->domRoot2_->rootAsJavaScript(app, response.out(), true);
 
-  collectedChanges_.str("");
-  preLearnStateless(app);
+  setJSSynced(true);
+
+  preLearnStateless(app, collectedJS1_);
+  response.out() << collectedJS1_.str();
+  collectedJS1_.str("");
 
   updateLoadIndicator(response.out(), app, true);
-
-  response.out() << collectedChanges_.str();
-  collectedChanges_.str("");
 
   const std::string *historyE = app->environment().getParameter("Wt-history");
   if (historyE) {
@@ -821,11 +859,6 @@ void WebRenderer::collectJavaScriptUpdate(std::ostream& out)
 {
   WApplication *app = session_.app();
 
-  if (&out != &collectedChanges_) {
-    out << collectedChanges_.str();
-    collectedChanges_.str("");
-  }
-
   out << '{';
 
   collectJS(&out);
@@ -836,14 +869,7 @@ void WebRenderer::collectJavaScriptUpdate(std::ostream& out)
    * changes that result.
    */
 
-  preLearnStateless(app);
-
-  if (&out != &collectedChanges_) {
-    out << collectedChanges_.str();
-    collectedChanges_.str("");
-  }
-
-  collectJS(&out);
+  preLearnStateless(app, out);
 
   if (formObjectsChanged_) {
     std::string formObjectsList = createFormObjectsList(app);
@@ -945,7 +971,7 @@ void WebRenderer::collectJS(std::ostream* js)
   app->titleChanged_ = false;
 }
 
-void WebRenderer::preLearnStateless(WApplication *app)
+void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 {
   bool isIEMobile = app->environment().agentIEMobile();
 
@@ -968,11 +994,14 @@ void WebRenderer::preLearnStateless(WApplication *app)
 	i->second->processPreLearnStateless(this);
     }
   }
+
+  out << statelessJS_.str();
+  statelessJS_.str("");
 }
 
 std::string WebRenderer::learn(WStatelessSlot* slot)
 {
-  collectJS(&collectedChanges_);
+  collectJS(&statelessJS_);
 
   if (slot->type() == WStatelessSlot::PreLearnStateless)
     learning_ = true;
@@ -991,7 +1020,7 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
 
     learning_ = false;
   } else { // AutoLearnStateless
-    collectedChanges_ << result;
+    statelessJS_ << result;
   }
 
   slot->setJavaScript(result);

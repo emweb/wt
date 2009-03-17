@@ -284,10 +284,10 @@ void DomElement::setEvent(const char *eventName,
   for (unsigned i = 0; i < actions.size(); ++i) {
     if (!actions[i].jsCondition.empty())
       code += "if(" + actions[i].jsCondition + "){";
-    code += actions[i].jsCode;
     if (actions[i].exposed)
       code += WApplication::instance()->javaScriptClass()
 	+ "._p_.update(this,'" + actions[i].updateCmd + "',e,true);";
+    code += actions[i].jsCode;
     if (!actions[i].jsCondition.empty())
       code += "}";
   }
@@ -599,7 +599,7 @@ void DomElement::asHTML(EscapeOStream& out,
        */
       DomElement *self = const_cast<DomElement *>(this);
       self->setAttribute("type", "submit");
-      self->setAttribute("name", "e0signal=" + clickEvent->second.signalName);
+      self->setAttribute("name", "signal=" + clickEvent->second.signalName);
 
       needButtonWrap = false;
     } else if (type_ == DomElement_IMG) {
@@ -611,7 +611,7 @@ void DomElement::asHTML(EscapeOStream& out,
 
       DomElement *self = const_cast<DomElement *>(this);
       self->setAttribute("type", "image");
-      self->setAttribute("name", "e0signal=" + clickEvent->second.signalName);
+      self->setAttribute("name", "signal=" + clickEvent->second.signalName);
       needButtonWrap = false;
     }
   }
@@ -669,7 +669,7 @@ void DomElement::asHTML(EscapeOStream& out,
 
   if (needButtonWrap) {
     if (supportButton) {
-      out << "<button type=\"submit\" name=\"e0signal\" value=";
+      out << "<button type=\"submit\" name=\"signal\" value=";
       fastHtmlAttributeValue(out, attributeValues,
 			     clickEvent->second.signalName);
       out << " class=\"Wt-wrap ";
@@ -697,7 +697,7 @@ void DomElement::asHTML(EscapeOStream& out,
 
       out << " name=";
       fastHtmlAttributeValue(out, attributeValues,
-			     "e0signal=" + clickEvent->second.signalName);
+			     "signal=" + clickEvent->second.signalName);
       out << " value=";
 
       PropertyMap::const_iterator i = properties_.find(Wt::PropertyInnerHTML);

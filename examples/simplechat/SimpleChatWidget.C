@@ -30,6 +30,9 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
   user_ = server_.suggestGuest();
   letLogin();
 
+  // this widget supports server-side updates its processChatEvent()
+  // method is connected to a slot that is triggered from outside this
+  // session's event loop (usually because another user enters text).
   app_->enableUpdates();
 }
 
@@ -153,18 +156,31 @@ bool SimpleChatWidget::startChat(const WString& user)
     setLayout(vLayout);
 
     /*
-     * Connect event handlers
+     * Connect event handlers:
+     *  - click on button
+     *  - enter in text area
+     *
+     * We will clear the input field using a small custom client-side
+     * JavaScript invocation.
      */
-    sendButton_->clicked().connect(SLOT(sendButton_, WPushButton::disable));
-    sendButton_->clicked().connect(SLOT(messageEdit_, WTextArea::disable));
-    sendButton_->clicked().connect(SLOT(this, SimpleChatWidget::send));
 
-    messageEdit_->enterPressed().connect
-      (SLOT(sendButton_, WPushButton::disable));
-    messageEdit_->enterPressed().connect
-      (SLOT(messageEdit_, WTextArea::disable));
-    messageEdit_->enterPressed().connect
-      (SLOT(this, SimpleChatWidget::send));
+    // Create a JavaScript 'slot' (JSlot). The JavaScript slot always takes
+    // 2 arguments: the originator of the event (in our case the
+    // button or text area), and the JavaScript event object.
+    clearInput_.setJavaScript
+      ("function(o, e) {"
+       "" + messageEdit_->jsRef() + ".value='';"
+       "}");
+
+    // Bind the C++ and JavaScript event handlers.
+    sendButton_->clicked().connect(SLOT(this, SimpleChatWidget::send));
+    messageEdit_->enterPressed().connect(SLOT(this, SimpleChatWidget::send));
+    sendButton_->clicked().connect(clearInput_);
+    messageEdit_->enterPressed().connect(clearInput_);
+
+    // Prevent the enter from generating a new line, which is its
+    // default function
+    messageEdit_->enterPressed().setPreventDefault(true);
 
     b->clicked().connect(SLOT(this, SimpleChatWidget::logout));
 
@@ -184,12 +200,10 @@ void SimpleChatWidget::send()
 {
   if (!messageEdit_->text().empty()) {
     server_.sendMessage(user_, messageEdit_->text());
-    messageEdit_->setText("");
+    messageEdit_->setText(WString::Empty);
   }
 
-  messageEdit_->enable();
   messageEdit_->setFocus();
-  sendButton_->enable();
 }
 
 void SimpleChatWidget::updateUsers()
@@ -217,26 +231,40 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
    * This is where the "server-push" happens. This method is called
    * when a new event or message needs to be notified to the user. In
    * general, it is called from another session.
-   *
-   * First, we take the lock to safely manipulate the UI outside of the
-   * normal event loop.
    */
 
+  /*
+   * First, take the lock to safely manipulate the UI outside of the
+   * normal event loop, by having exclusive access to the session.
+   */
   WApplication::UpdateLock lock = app_->getUpdateLock();
 
+  /*
+   * Format and append the line to the conversation.
+   *
+   * This is also the step where the automatic XSS filtering will kick in:
+   * - if another user tried to pass on some JavaScript, it is filtered away.
+   * - if another user did not provide valid XHTML, the text is automatically
+   *   interpreted as PlainText
+   */
   WText *w = new WText(event.formattedHTML(user_), messages_);
   w->setInline(false);
   w->setStyleClass("chat-msg");
 
-  /* no more than 100 messages back-log */
+  /*
+   * Leave not more than 100 messages in the back-log
+   */
   if (messages_->count() > 100)
     delete messages_->children()[0];
 
+  /*
+   * If it is not a normal message, also update the user list.
+   */
   if (event.type() != ChatEvent::Message)
     updateUsers();
 
   /*
-   * little javascript trick to make sure we scroll along with new content
+   * Little javascript trick to make sure we scroll along with new content
    */
   app_->doJavaScript(messages_->jsRef() + ".scrollTop += "
 		     + messages_->jsRef() + ".scrollHeight;");

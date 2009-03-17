@@ -110,9 +110,6 @@ public:
   std::string encodeURL(const std::string& url) const;
 #endif // WT_TARGET_JAVA
 
-  void setId(int id);
-  int id() const { return id_; }
-
   const std::string *getParameter(const std::string& name) const;
   const Http::ParameterValues& getParameterValues(const std::string& name)
     const;
@@ -124,8 +121,6 @@ protected:
   virtual ~WebRequest();
 
 private:
-  int id_;
-
   int postDataExceeded_;
   Http::ParameterMap    parameters_;
   Http::UploadedFileMap files_;

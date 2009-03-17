@@ -59,7 +59,13 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
      * whose DOM id was passed as a request argument.
      */
     top = new WContainerWidget();
-    bindWidget(top, *env.getParameter("div"));
+    const std::string *div = env.getParameter("div");
+    if (div)
+      bindWidget(top, *div);
+    else {
+      std::cerr << "Missing: parameter: 'div'" << std::endl;
+      return;
+    }
   }
 
   if (!embedded)

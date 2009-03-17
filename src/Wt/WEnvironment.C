@@ -382,7 +382,7 @@ namespace {
       definition(CookieParser const& self)
       {
 	token 
-	  = lexeme_d[+(alnum_p | ch_p('-') | chset_p("_.*$#|()="))]
+	  = lexeme_d[+(alnum_p | ch_p('-') | chset_p(":&+_.*$#|()"))]
 	  ;
 
 	quoted_string

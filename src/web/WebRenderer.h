@@ -51,8 +51,6 @@ public:
   void letReloadJS(WebResponse& request, bool newSession, bool embedded = false);
   void letReloadHTML(WebResponse& request, bool newSession);
 
-  void streamJavaScriptUpdate(std::ostream& out, int id, bool doTwoPhaze);
-
   void serveMainWidget(WebResponse& request, ResponseType responseType);
   void serveBootstrap(WebResponse& request);
   void serveError(WebResponse& request, const std::exception& error,
@@ -65,6 +63,8 @@ public:
 		 const std::string path);
 
   bool preLearning() const { return learning_; }
+
+  void ackUpdate(int updateId);
 
   void streamRedirectJS(std::ostream& out, const std::string& redirect);
 
@@ -83,6 +83,7 @@ private:
   WebSession& session_;
   bool        visibleOnly_;
   int         twoPhaseThreshold_;
+  int         expectedAckId_;
 
   std::vector<Cookie> cookiesToSet_;
 
@@ -97,6 +98,7 @@ private:
   void serveMainscript(WebResponse& request);
   void serveWidgetSet(WebResponse& request);
   void streamCommJs(WApplication *app, std::ostream& out);
+  void collectJavaScript();
 
   void collectChanges(std::vector<DomElement *>& changes);
 
@@ -104,11 +106,12 @@ private:
   void loadStyleSheets(std::ostream& out, WApplication *app);
   void loadScriptLibraries(std::ostream& out, WApplication *app, bool start);
   void updateLoadIndicator(std::ostream& out, WApplication *app, bool all);
+  void setJSSynced(bool invisibleToo);
 
   std::string createFormObjectsList(WApplication *app);
 
-  void              preLearnStateless(WApplication *app);
-  std::stringstream collectedChanges_;
+  void              preLearnStateless(WApplication *app, std::ostream& out);
+  std::stringstream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_;
   void              collectJS(std::ostream *js);
 
   typedef std::set<WWidget *> UpdateMap;
