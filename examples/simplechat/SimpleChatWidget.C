@@ -9,6 +9,7 @@
 
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>
+#include <Wt/WEnvironment>
 #include <Wt/WHBoxLayout>
 #include <Wt/WVBoxLayout>
 #include <Wt/WLabel>
