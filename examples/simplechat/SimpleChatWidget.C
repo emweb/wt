@@ -200,7 +200,8 @@ void SimpleChatWidget::send()
 {
   if (!messageEdit_->text().empty()) {
     server_.sendMessage(user_, messageEdit_->text());
-    messageEdit_->setText(WString::Empty);
+    if (!WApplication::instance()->environment().ajax())
+      messageEdit_->setText(WString::Empty);
   }
 
   messageEdit_->setFocus();

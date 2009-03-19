@@ -120,7 +120,7 @@ WGoogleMap::WGoogleMap(WContainerWidget *parent)
 
   // init the google javascript api
   const string gmuri = "http://www.google.com/jsapi?key=" + googlekey;
-  app->require(gmuri, "google.load");
+  app->require(gmuri, "google");
 
   if (parent)
     parent->addWidget(this);

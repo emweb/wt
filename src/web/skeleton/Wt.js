@@ -233,17 +233,6 @@ IEwidth: function(c, min, max) {
     return "auto";
 },
 
-clone: function(o) {
-  if (o == null || typeof(o) != 'object')
-    return o;
-  var temp = { };
-  for (var i in o) {
-    temp[i] = o[i];
-  }
-
-  return temp;
-},
-
 hide: function(o) { this.getElement(o).style.display = 'none'; },
 
 inline: function(o) { this.getElement(o).style.display = 'inline'; },
@@ -1102,7 +1091,7 @@ var emit = function(object, config) {
   var userEvent = new Object(), ei = pendingEvents.length;
   userEvent.signal = "user";
 
-  if (typeof(object) == "string")
+  if (typeof object == "string")
     userEvent.id = object;
   else if (object == _$_APP_CLASS_$_)
     userEvent.id = "app";
@@ -1112,7 +1101,7 @@ var emit = function(object, config) {
   if (typeof config == "object") {
     userEvent.name = config.name;
     userEvent.object = config.eventObject;
-    userEvent.event = WT.clone(config.event);
+    userEvent.event = config.event;
   } else {
     userEvent.name = config;
     userEvent.object = userEvent.event = null;
@@ -1171,8 +1160,13 @@ var jsLoaded = function(path)
 var loadScript = function(uri, symbol)
 {
   var loaded = false;
-  if (symbol != "")
-    loaded = !eval("typeof " + symbol + " == 'undefined'");
+  if (symbol != "") {
+    try {
+      loaded = !eval("typeof " + symbol + " == 'undefined'");
+    } catch (e) {
+      loaded = false;
+    }
+  }
 
   if (!loaded) {
     var s = document.createElement('script');

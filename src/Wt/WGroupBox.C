@@ -36,15 +36,27 @@ void WGroupBox::updateDom(DomElement& element, bool all)
     element.addChild(legend);
 
     titleChanged_ = false;
-  } else if (titleChanged_) {
+  }
+
+  WContainerWidget::updateDom(element, all);
+}
+
+void WGroupBox::getDomChanges(std::vector<DomElement *>& result,
+			      WApplication *app)
+{
+  DomElement *e = DomElement::getForUpdate(this, domElementType());
+  updateDom(*e, false);
+  result.push_back(e);
+
+  if (titleChanged_) {
     DomElement *legend
       = DomElement::getForUpdate(formName() + "l", DomElement_LEGEND);
     legend->setProperty(Wt::PropertyInnerHTML, escapeText(title_).toUTF8());
 
     titleChanged_ = false;
-  }
 
-  WContainerWidget::updateDom(element, all);
+    result.push_back(legend);
+  }
 }
 
 DomElementType WGroupBox::domElementType() const

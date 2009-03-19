@@ -1,3 +1,10 @@
+19-03-2009:
+	* WGoogleMap: fix require() to depend on google.load
+
+	* filetostring: removed in favor of a CMAke-only solution
+
+	* simplechat: improve its behaviour
+
 17-03-2009:
 	* Fixes for cookie parser
 

@@ -33,19 +33,16 @@ INCLUDE_DIRECTORIES(
 
 LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 
-ADD_EXECUTABLE(filetostring web/skeleton/FileToString.C)
-GET_TARGET_PROPERTY(FILE_TO_STRING_EXE filetostring LOCATION)
-
 MACRO (FILE_TO_STRING infile outfile var)
 ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${outfile}
-	           COMMAND ${FILE_TO_STRING_EXE}
-                   ARGS ${CMAKE_CURRENT_SOURCE_DIR}/web/skeleton/${infile}
-                        ${CMAKE_CURRENT_BINARY_DIR}/${outfile}
-                        ${var}
+	           COMMAND ${CMAKE_COMMAND}
+                   ARGS -Dinfile:FILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/web/skeleton/${infile}
+                        -Doutfile:FILEPATH=${CMAKE_CURRENT_BINARY_DIR}/${outfile}
+                        -Dvar:STRING=${var}
+                        -P ${CMAKE_CURRENT_SOURCE_DIR}/filetostring.cmake
 		   MAIN_DEPENDENCY
 		        ${CMAKE_CURRENT_SOURCE_DIR}/web/skeleton/${infile}
-                   DEPENDS
-		        filetostring)
+)
 ENDMACRO (FILE_TO_STRING)
 
 FILE_TO_STRING(Plain.html    Plain_html.C    Plain_html)
