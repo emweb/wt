@@ -404,6 +404,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
   WApplication *app = session_.app();
   const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
 
+  formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
 
   FileServe script(skeletons::Wt_js);
@@ -611,7 +612,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   setHeaders(response, contentType);
 
-  // Form objects, need in either case (Ajax or not)
+  formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
 
   page.streamUntil(response.out(), "HTML");
@@ -649,6 +650,7 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
   const bool innerHtml = !xhtml || app->environment().agentGecko();
 
+  formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
 
   FileServe script(skeletons::Wt_js);
@@ -904,13 +906,20 @@ void WebRenderer::updateFormObjects(WWebWidget *source, bool checkDescendants)
   formObjectsChanged_ = true;
 }
 
+void WebRenderer::updateFormObjectsList(WApplication *app)
+{
+  if (formObjectsChanged_) {
+    app->domRoot_->getFormObjects(currentFormObjects_);
+    if (app->domRoot2_)
+      app->domRoot2_->getFormObjects(currentFormObjects_);
+  }
+}
+
 std::string WebRenderer::createFormObjectsList(WApplication *app)
 {
   currentFormObjects_.clear();
 
-  app->domRoot_->getFormObjects(currentFormObjects_);
-  if (app->domRoot2_)
-    app->domRoot2_->getFormObjects(currentFormObjects_);
+  updateFormObjectsList(app);
 
   std::string result;
   for (unsigned i = 0; i < currentFormObjects_.size(); ++i) {

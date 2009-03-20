@@ -44,6 +44,7 @@ public:
 
   enum ResponseType { UpdateResponse, FullResponse };
 
+  void updateFormObjectsList(WApplication *app);
   const std::vector<WObject *>& formObjects() const;
 
   void saveChanges();

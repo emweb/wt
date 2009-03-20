@@ -1020,6 +1020,12 @@ public:
    */
   void quit();
 
+  /*! \brief Returns whether the application is quited.
+   *
+   * \sa quit()
+   */
+  bool isQuited() const { return quited_; }
+
   /*! \brief %Signal which indicates that too a large POST was received.
    *
    * The integer parameter is the request that was received in bytes.
@@ -1141,7 +1147,6 @@ private:
   EventSignal<WResponseEvent> *javaScriptResponse_;
   EventSignal<> *showLoadingIndicator_, *hideLoadingIndicator_;
 
-  bool              isQuited() const { return quited_; }
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WContainerWidget *dialogCover(bool create = true);
   WContainerWidget *dialogWindow(bool create = true);

@@ -1116,6 +1116,8 @@ void WebSession::render(Handler& handler, WebRenderer::ResponseType type)
 void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
 {
   const WebRequest& request = *e.handler.request();
+
+  renderer_.updateFormObjectsList(app_);
   std::vector<WObject *> formObjects = renderer_.formObjects();
 
   for (unsigned i = 0; i < formObjects.size(); ++i) {

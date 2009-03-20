@@ -5,6 +5,9 @@
 
 	* simplechat: improve its behaviour
 
+	* WebSession/WebRenderer: update the form object list after
+	each event since it may contain stale objects
+
 17-03-2009:
 	* Fixes for cookie parser
 
