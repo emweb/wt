@@ -190,6 +190,22 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
   WWebWidget::updateDom(element, all);
 }
 
+void WInteractWidget::propagateRenderOk(bool deep)
+{
+  EventSignalList& other = eventSignals();
+
+  for (EventSignalList::iterator i = other.begin(); i != other.end(); ++i) {
+#ifndef WT_NO_BOOST_INTRUSIVE
+    EventSignalBase& s = *i;
+#else
+    EventSignalBase& s = **i;
+#endif
+    s.updateOk();
+  }
+
+  WWebWidget::propagateRenderOk(deep);
+}
+
 void WInteractWidget::setDraggable(const std::string& mimeType,
 				   WWidget *dragWidget, bool isDragWidgetOnly,
 				   WObject *sourceObject)

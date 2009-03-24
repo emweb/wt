@@ -212,6 +212,13 @@ void WPaintedWidget::updateDom(DomElement& element, bool all)
   WInteractWidget::updateDom(element, all);
 }
 
+void WPaintedWidget::propagateRenderOk(bool deep)
+{
+  needRepaint_ = false;
+
+  WInteractWidget::propagateRenderOk(deep);
+}
+
 void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
 				   WApplication *app)
 {

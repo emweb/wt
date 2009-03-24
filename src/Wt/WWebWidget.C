@@ -23,6 +23,16 @@ using namespace Wt;
 
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
+#ifndef WT_TARGET_JAVA
+const std::bitset<18> WWebWidget::AllChangeFlags = std::bitset<18>()
+  .set(BIT_HIDDEN_CHANGED)
+  .set(BIT_GEOMETRY_CHANGED)
+  .set(BIT_FLOAT_SIDE_CHANGED)
+  .set(BIT_TOOLTIP_CHANGED)
+  .set(BIT_MARGINS_CHANGED)
+  .set(BIT_STYLECLASS_CHANGED);
+#endif // WT_TARGET_JAVA
+
 WWebWidget::TransientImpl::TransientImpl()
 { }
 
@@ -39,8 +49,7 @@ WWebWidget::LayoutImpl::LayoutImpl()
     clearSides_(0),
 #endif // WT_TARGET_JAVA
     popup_(false),
-    verticalAlignment_(AlignBaseline),
-    marginsChanged_(false)
+    verticalAlignment_(AlignBaseline)
 { 
   for (unsigned i = 0; i < 4; ++i) {
 #ifdef WT_TARGET_JAVA
@@ -52,9 +61,7 @@ WWebWidget::LayoutImpl::LayoutImpl()
 
 WWebWidget::LookImpl::LookImpl()
   : decorationStyle_(0),
-    toolTip_(0),
-    styleClassChanged_(false),
-    toolTipChanged_(false)
+    toolTip_(0)
 { }
 
 WWebWidget::LookImpl::~LookImpl()
@@ -553,7 +560,7 @@ void WWebWidget::setMargin(const WLength& margin, WFlags<Side> sides)
   if (sides & Left)
     layoutImpl_->margin_[3] = margin;
 
-  layoutImpl_->marginsChanged_ = true;
+  flags_.set(BIT_MARGINS_CHANGED);
 
   repaint(RepaintPropertyAttribute);
 }
@@ -583,7 +590,8 @@ void WWebWidget::setStyleClass(const WT_USTRING& styleClass)
     lookImpl_ = new LookImpl();
 
   lookImpl_->styleClass_ = styleClass;
-  lookImpl_->styleClassChanged_ = true;
+
+  flags_.set(BIT_STYLECLASS_CHANGED);
 
   repaint(RepaintPropertyAttribute);
 }
@@ -629,7 +637,7 @@ void WWebWidget::setToolTip(const WString& message)
 
   *lookImpl_->toolTip_ = message;
 
-  lookImpl_->toolTipChanged_ = true;
+  flags_.set(BIT_TOOLTIP_CHANGED);
 
   repaint(RepaintPropertyAttribute);
 }
@@ -900,46 +908,46 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 #endif // WT_TARGET_JAVA
 
   if (layoutImpl_) {
-    if (layoutImpl_->marginsChanged_ || all) {
-      if (layoutImpl_->marginsChanged_
+    if (flags_.test(BIT_MARGINS_CHANGED) || all) {
+      if (flags_.test(BIT_MARGINS_CHANGED)
 	  || (layoutImpl_->margin_[0].value() != 0))
 	element.setProperty(PropertyStyleMarginTop,
 			    layoutImpl_->margin_[0].cssText());
-      if (layoutImpl_->marginsChanged_
+      if (flags_.test(BIT_MARGINS_CHANGED)
 	  || (layoutImpl_->margin_[1].value() != 0))
 	element.setProperty(PropertyStyleMarginRight,
 			    layoutImpl_->margin_[1].cssText());
-      if (layoutImpl_->marginsChanged_
+      if (flags_.test(BIT_MARGINS_CHANGED)
 	  || (layoutImpl_->margin_[2].value() != 0))
 	element.setProperty(PropertyStyleMarginBottom,
 			    layoutImpl_->margin_[2].cssText());
-      if (layoutImpl_->marginsChanged_
+      if (flags_.test(BIT_MARGINS_CHANGED)
 	  || (layoutImpl_->margin_[3].value() != 0))
 	element.setProperty(PropertyStyleMarginLeft,
 			    layoutImpl_->margin_[3].cssText());
 
-      layoutImpl_->marginsChanged_ = false;
+      flags_.reset(BIT_MARGINS_CHANGED);
     }
   }
 
   if (lookImpl_) {
     if (lookImpl_->toolTip_
-	&& (lookImpl_->toolTipChanged_ || all)) {
+	&& (flags_.test(BIT_TOOLTIP_CHANGED) || all)) {
       if ((lookImpl_->toolTip_->value().length() > 0)
-	  || lookImpl_->toolTipChanged_)
+	  || flags_.test(BIT_TOOLTIP_CHANGED))
 	element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
 
-      lookImpl_->toolTipChanged_ = false;
+      flags_.reset(BIT_TOOLTIP_CHANGED);
     }
 
     if (lookImpl_->decorationStyle_)
       lookImpl_->decorationStyle_->updateDomElement(element, all);
 
-    if (((!all) && lookImpl_->styleClassChanged_)
+    if (((!all) && flags_.test(BIT_STYLECLASS_CHANGED))
 	|| (all && !lookImpl_->styleClass_.empty()))
       element.setAttribute("class", lookImpl_->styleClass_.toUTF8());
 
-    lookImpl_->styleClassChanged_ = false;
+    flags_.reset(BIT_STYLECLASS_CHANGED);
   }
 
   if (otherImpl_ && otherImpl_->attributes_) {
@@ -1011,6 +1019,17 @@ bool WWebWidget::isStubbed() const
     WWidget *p = parent();
     return p ? p->isStubbed() : false;
   }
+}
+
+bool WWebWidget::needsToBeRendered() const
+{
+  /*
+   * Returns whether this widget should be rendered. The only alternative
+   * is to be stubbed as an invisible widget.
+   */
+  return flags_.test(BIT_DONOT_STUB)
+    || !flags_.test(BIT_HIDDEN)
+    || !WApplication::instance()->session()->renderer().visibleOnly();
 }
 
 bool WWebWidget::isVisible() const
@@ -1124,14 +1143,18 @@ void WWebWidget::doneRerender()
 
 void WWebWidget::propagateRenderOk(bool deep)
 {
-  if (flags_.test(BIT_STUBBED))
-    return;
+#ifndef WT_TARGET_JAVA
+  flags_ &= ~AllChangeFlags;
+#else
+  flags_.reset(BIT_HIDDEN_CHANGED);
+  flags_.reset(BIT_GEOMETRY_CHANGED);
+  flags_.reset(BIT_FLOAT_SIDE_CHANGED);
+  flags_.reset(BIT_TOOLTIP_CHANGED);
+  flags_.reset(BIT_MARGINS_CHANGED);
+  flags_.reset(BIT_STYLECLASS_CHANGED);
+#endif
 
-  if (needRerender()) {
-    DomElement *v = DomElement::createNew(DomElement_SPAN);
-    updateDom(*v, false);
-    delete v;
-  }
+  renderOk();
 
   if (deep && children_)
     for (unsigned i = 0; i < children_->size(); ++i)
@@ -1174,22 +1197,13 @@ DomElement *WWebWidget::createDomElement(WApplication *app)
 
 DomElement *WWebWidget::createSDomElement(WApplication *app)
 {
-  if (!flags_.test(BIT_DONOT_STUB)
-      && flags_.test(BIT_HIDDEN)
-      && WApplication::instance()->session()->renderer().visibleOnly()) {
-
+  if (!needsToBeRendered()) {
     /*
      * Make sure the object itself is clean, so that stateless slot
      * learning is not confused.
-     *
-     * But what about stateless slot learning involving children?
      */
-    DomElement *v = DomElement::createNew(DomElement_SPAN);
-    updateDom(*v, false);
-    delete v;
-    
-    quickPropagateRenderOk();
-
+    propagateRenderOk();
+ 
     flags_.set(BIT_STUBBED);
 
     DomElement *stub = DomElement::createNew(DomElement_SPAN);
@@ -1224,7 +1238,7 @@ void WWebWidget::refresh()
 {
   if (lookImpl_ && lookImpl_->toolTip_)
     if (lookImpl_->toolTip_->refresh()) {
-      lookImpl_->toolTipChanged_ = true;
+      flags_.set(BIT_TOOLTIP_CHANGED);
       repaint(RepaintPropertyAttribute);
     }
 

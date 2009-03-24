@@ -181,16 +181,25 @@ void WFormWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_ENABLED_CHANGED);
   }
 
-  if (all && flags_.test(BIT_GOT_FOCUS))
-    flags_.set(BIT_INITIAL_FOCUS);
+  if (isEnabled()) {
+    if (all && flags_.test(BIT_GOT_FOCUS))
+      flags_.set(BIT_INITIAL_FOCUS);
   
-  if (flags_.test(BIT_GOT_FOCUS)
-      || (all && flags_.test(BIT_INITIAL_FOCUS))) {
-    element.callMethod("focus()");
-    flags_.reset(BIT_GOT_FOCUS);
+    if (flags_.test(BIT_GOT_FOCUS)
+	|| (all && flags_.test(BIT_INITIAL_FOCUS))) {
+      element.callMethod("focus()");
+      flags_.reset(BIT_GOT_FOCUS);
+    }
   }
 
   WInteractWidget::updateDom(element, all);
+}
+
+void WFormWidget::propagateRenderOk(bool deep)
+{
+  flags_.reset(BIT_ENABLED_CHANGED);
+
+  WInteractWidget::propagateRenderOk(deep);
 }
 
 void WFormWidget::setLabel(WLabel *label)

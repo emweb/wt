@@ -206,6 +206,7 @@ protected:
 
   virtual void doneRerender();
   virtual void updateDom(DomElement& element, bool all);
+  virtual void propagateRenderOk(bool deep = true);
   virtual DomElement *renderRemove();
 
   virtual bool isVisible() const;
@@ -232,15 +233,22 @@ private:
   static const int BIT_HIDE_WITH_OFFSETS = 8;
   static const int BIT_BEING_DELETED = 9;
   static const int BIT_DONOT_STUB = 10;
+  static const int BIT_FLOAT_SIDE_CHANGED = 11;
   static const int BIT_REPAINT_PROPERTY_IEMOBILE = 12;
   static const int BIT_REPAINT_PROPERTY_ATTRIBUTE = 13;
   static const int BIT_REPAINT_INNER_HTML = 14;
-  static const int BIT_FLOAT_SIDE_CHANGED = 15;
+  static const int BIT_TOOLTIP_CHANGED = 15;
+  static const int BIT_MARGINS_CHANGED = 16;
+  static const int BIT_STYLECLASS_CHANGED = 17;
+
+#ifndef WT_TARGET_JAVA
+  static const std::bitset<18> AllChangeFlags;
+#endif // WT_TARGET_JAVA
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<16> flags_;
+  std::bitset<18> flags_;
   WLength	 *width_;
   WLength	 *height_;
 
@@ -271,8 +279,6 @@ private:
     WLength		    margin_[4];
     WLength                 lineHeight_;
 
-    bool		    marginsChanged_;
-
     LayoutImpl();
   };
 
@@ -282,8 +288,6 @@ private:
     WCssDecorationStyle    *decorationStyle_;
     WT_USTRING              styleClass_;
     WString                *toolTip_;
-    bool		    styleClassChanged_;
-    bool                    toolTipChanged_;
 
     LookImpl();
     ~LookImpl();
@@ -321,9 +325,9 @@ private:
   virtual void signalConnectionsChanged();
 
   void renderOk();
-  void propagateRenderOk(bool deep = true);
   void quickPropagateRenderOk();
 
+  virtual bool needsToBeRendered() const;
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app);
   void         getSFormObjects(std::vector<WObject *>& formObjects);

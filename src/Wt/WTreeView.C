@@ -298,10 +298,10 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
     w->setToolTip(tooltip);
 
     if (i != 0) {
-      WString sc = asString(child.data(StyleClassRole));
+      WT_USTRING sc = asString(child.data(StyleClassRole));
 
       if (view_->selectionBehavior() == SelectItems && view_->isSelected(child))
-	sc += WString::fromUTF8(" selected");
+	sc += WT_USTRING::fromUTF8(" selected");
 
       if (!sc.empty()) {
 	w->setStyleClass(w->styleClass() + " " + sc);
@@ -1257,8 +1257,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   selectionChanged().connect(SLOT(this, WTreeView::checkDragSelection));
 
-  initLayoutJavaScript();
-
   app->declareJavaScriptFunction
     ("getItem",
      "function(event) {"
@@ -1324,6 +1322,72 @@ WTreeView::WTreeView(WContainerWidget *parent)
      """}"
      "}");
 
+  resizeHandleMDownJS_.setJavaScript
+    ("function(obj, event) {"
+     """var pc = " WT_CLASS ".pageCoordinates(event);"
+     """obj.setAttribute('dsx', pc.x);"
+     "}");
+
+  resizeHandleMMovedJS_.setJavaScript
+    ("function(obj, event) {"
+     """var WT = " WT_CLASS ","
+     ""    "lastx = obj.getAttribute('dsx'),"
+     ""    "t = " + contents_->jsRef() + ".firstChild,"
+     ""    "h=" + headers_->jsRef() + ","
+     ""    "hh=h.firstChild;"
+     """if (lastx != null && lastx != '') {"
+     ""  "nowxy = WT.pageCoordinates(event);"
+     ""  "var parent = obj.parentNode,"
+     ""      "diffx = Math.max(nowxy.x - lastx, -parent.offsetWidth),"
+     ""      "c = parent.className.split(' ')[2];"
+     ""  "if (c) {"
+     ""    "var r = WT.getCssRule('#" + formName() + " .' + c),"
+     ""        "tw = WT.pxself(r, 'width');"
+     ""    "if (tw == 0) tw = parent.offsetWidth;" 
+     ""    "r.style.width = (tw + diffx) + 'px';"
+     ""  "}"
+     + jsRef() + ".adjustHeaderWidth(c, diffx);"
+     ""  "obj.setAttribute('dsx', nowxy.x);"
+     ""  "WT.cancelEvent(event);"
+     "  }"
+     "}");
+
+  resizeHandleMUpJS_.setJavaScript
+    ("function(obj, event) {"
+     """obj.removeAttribute('dsx');"
+     "" WT_CLASS ".cancelEvent(event);"
+     "}");
+
+  tieContentsHeaderScrollJS_.setJavaScript
+    ("function(obj, event) {"
+     "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
+     /* the following is a workaround for IE7 */
+     """var t = " + contents_->jsRef() + ".firstChild;"
+     """var h = " + headers_->jsRef() + ";"
+     """h.style.width = (t.offsetWidth - 1) + 'px';"
+     """h.style.width = t.offsetWidth + 'px';"
+     "}");
+
+  if (app->environment().agentWebKit() || app->environment().agentOpera())
+    tieRowsScrollJS_.setJavaScript
+      ("function(obj, event) {"
+       "" WT_CLASS ".getCssRule('#" + formName() + " .Wt-tv-rowc').style.left"
+       ""  "= -obj.scrollLeft + 'px';"
+       "}");
+  else {
+    /* this is for some reason very very slow in webkit: */
+    tieRowsScrollJS_.setJavaScript
+      ("function(obj, event) {"
+       "var c =" WT_CLASS ".getElementsByClassName('Wt-tv-rowc', "
+       + jsRef() + ");"
+       "for (var i = 0, length = c.length; i < length; ++i) {"
+       """var cc=c[i];"
+       """if (cc.parentNode.scrollLeft != obj.scrollLeft)"
+       ""  "cc.parentNode.scrollLeft=obj.scrollLeft;"
+       "}"
+       "}");
+  }
+
   app->addAutoJavaScript
     ("{var e=" + contentsContainer_->jsRef() + ";"
      "var s=" + jsRef() + ";"
@@ -1332,7 +1396,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
      """var tw=s.offsetWidth-WT.px(s, 'borderLeftWidth')"
      ""       "-WT.px(s, 'borderRightWidth');"
      ""
-     """if (tw > 0) {"
+     """if (tw > 200) {" // XXX: IE's incremental rendering foobars completely
      ""  "var h= " + headers_->jsRef() + ", "
      ""      "hh= h.firstChild, "
      ""      "t= " + contents_->jsRef() + ".firstChild, "
@@ -1361,7 +1425,8 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""  "if (s.adjustHeaderWidth)"
      ""    "s.adjustHeaderWidth(1, 0);"
      """}"
-     "}}"
+     "}"
+     "}"
      );
 
   renderState_ = RenderOk;
@@ -1450,77 +1515,7 @@ void WTreeView::refresh()
 
 void WTreeView::initLayoutJavaScript()
 {
-  if (!loaded())
-    return;
-
   refresh();
-
-  resizeHandleMDownJS_.setJavaScript
-    ("function(obj, event) {"
-     """var pc = " WT_CLASS ".pageCoordinates(event);"
-     """obj.setAttribute('dsx', pc.x);"
-     "}");
-
-  resizeHandleMMovedJS_.setJavaScript
-    ("function(obj, event) {"
-     """var WT = " WT_CLASS ","
-     ""    "lastx = obj.getAttribute('dsx'),"
-     ""    "t = " + contents_->jsRef() + ".firstChild,"
-     ""    "h=" + headers_->jsRef() + ","
-     ""    "hh=h.firstChild;"
-     """if (lastx != null && lastx != '') {"
-     ""  "nowxy = WT.pageCoordinates(event);"
-     ""  "var parent = obj.parentNode,"
-     ""      "diffx = Math.max(nowxy.x - lastx, -parent.offsetWidth),"
-     ""      "c = parent.className.split(' ')[2];"
-     ""  "if (c) {"
-     ""    "var r = WT.getCssRule('#" + formName() + " .' + c),"
-     ""        "tw = WT.pxself(r, 'width');"
-     ""    "if (tw == 0) tw = parent.offsetWidth;" 
-     ""    "r.style.width = (tw + diffx) + 'px';"
-     ""  "}"
-     + jsRef() + ".adjustHeaderWidth(c, diffx);"
-     ""  "obj.setAttribute('dsx', nowxy.x);"
-     ""  "WT.cancelEvent(event);"
-     "  }"
-     "}");
-
-  resizeHandleMUpJS_.setJavaScript
-    ("function(obj, event) {"
-     """obj.removeAttribute('dsx');"
-     "" WT_CLASS ".cancelEvent(event);"
-     "}");
-
-  tieContentsHeaderScrollJS_.setJavaScript
-    ("function(obj, event) {"
-     "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
-     /* the following is a workaround for IE7 */
-     """var t = " + contents_->jsRef() + ".firstChild;"
-     """var h = " + headers_->jsRef() + ";"
-     """h.style.width = (t.offsetWidth - 1) + 'px';"
-     """h.style.width = t.offsetWidth + 'px';"
-     "}");
-
-  WApplication *app = WApplication::instance();
-  if (app->environment().agentWebKit() || app->environment().agentOpera())
-    tieRowsScrollJS_.setJavaScript
-      ("function(obj, event) {"
-       "" WT_CLASS ".getCssRule('#" + formName() + " .Wt-tv-rowc').style.left"
-       ""  "= -obj.scrollLeft + 'px';"
-       "}");
-  else {
-    /* this is for some reason very very slow in webkit: */
-    tieRowsScrollJS_.setJavaScript
-      ("function(obj, event) {"
-       "var c =" WT_CLASS ".getElementsByClassName('Wt-tv-rowc', "
-       + jsRef() + ");"
-       "for (var i = 0, length = c.length; i < length; ++i) {"
-       """var cc=c[i];"
-       """if (cc.parentNode.scrollLeft != obj.scrollLeft)"
-       ""  "cc.parentNode.scrollLeft=obj.scrollLeft;"
-       "}"
-       "}");
-  }
 }
 
 void WTreeView::setColumn1Fixed(bool fixed)
@@ -1536,8 +1531,6 @@ void WTreeView::setColumn1Fixed(bool fixed)
 
     // needed for IE, otherwise row expands automatically to content width
     rowWidthRule_->templateWidget()->resize(0, WLength::Auto);
-
-    initLayoutJavaScript();
 
     WContainerWidget *scrollBarContainer = new WContainerWidget();
     scrollBarContainer->setStyleClass("cwidth");
@@ -1557,8 +1550,6 @@ void WTreeView::setColumn1Fixed(bool fixed)
 void WTreeView::load()
 {
   WCompositeWidget::load();
-
-  initLayoutJavaScript();
 }
 
 WTreeView::~WTreeView()
@@ -1868,6 +1859,7 @@ void WTreeView::render()
 
     switch (s) {
     case NeedRerender:
+      initLayoutJavaScript();
       rerenderHeader();
     case NeedRerenderTree:
       rerenderTree();

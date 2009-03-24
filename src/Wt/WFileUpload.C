@@ -152,6 +152,12 @@ void WFileUpload::updateDom(DomElement& element, bool all)
   WWebWidget::updateDom(element, all);
 }
 
+void WFileUpload::propagateRenderOk(bool deep)
+{
+  // no need for anything not updated in updateDom()
+  WWebWidget::propagateRenderOk(deep);
+}
+
 DomElementType WFileUpload::domElementType() const
 {
   return fileUploadTarget_ ? DomElement_FORM : DomElement_INPUT;

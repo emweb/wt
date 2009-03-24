@@ -1264,7 +1264,7 @@ function onLoad() {
   var APP = _$_APP_CLASS_$_;
 
   WT.history.initialize("Wt-history-field", "Wt-history-iframe");
-  window.onresize=APP._p_.autoJavaScript;
+  window.onresize=function() { APP._p_.autoJavaScript(); }
   document.body.onmousemove=function(e) {
     if (!e) e = window.event;
     return APP._p_.dragDrag(e);

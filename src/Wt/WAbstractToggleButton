@@ -107,6 +107,7 @@ private:
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual void setFormData(const FormData& formData);
+  virtual void propagateRenderOk(bool deep);
 
   virtual WStatelessSlot *getStateless(Method method);
 };

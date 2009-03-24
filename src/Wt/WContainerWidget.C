@@ -452,13 +452,13 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       int insertCount = 0;
       for (unsigned i = 0; i < orderedInserts.size(); ++i) {
 	int pos = orderedInserts[i];
-
+	
 	DomElement *c = (*children_)[pos]->createSDomElement(app);
 
 	if (pos + (addedCount - insertCount) == totalCount)
 	  element.addChild(c);
 	else
-	  element.insertChildAt(c, pos);
+	  element.insertChildAt(c, pos + firstChildIndex());
 
 	++insertCount;
       }
@@ -482,12 +482,51 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
   }
 }
 
+int WContainerWidget::firstChildIndex() const
+{
+  return 0;
+}
+
+void WContainerWidget::propagateLayoutItemsOk(WLayoutItem *item)
+{
+  if (item->layout()) {
+    WLayout *layout = item->layout();
+    const int c = layout->count();
+    for (int i = 0; i < c; ++i)
+      propagateLayoutItemsOk(layout->itemAt(i));
+  } else if (item->widget()) {
+    WWidget *w = item->widget();
+    w->webWidget()->propagateRenderOk(true);
+  }
+}
+
+void WContainerWidget::propagateRenderOk(bool deep)
+{
+  flags_.reset(BIT_CONTENT_ALIGNMENT_CHANGED);
+  flags_.reset(BIT_PADDINGS_CHANGED);
+  flags_.reset(BIT_OVERFLOW_CHANGED);
+  flags_.reset(BIT_LAYOUT_CHANGED);
+
+  if (layout_ && deep)
+    propagateLayoutItemsOk(layout());
+  else
+    if (transientImpl_)
+      transientImpl_->addedChildren_.clear();
+
+  WInteractWidget::propagateRenderOk(deep);
+}
+
 bool WContainerWidget::wasEmpty() const
 {
-  /* on IE6, a popup widget has a shim child. */
-  return !isPopup()
-    && ((transientImpl_ ? transientImpl_->addedChildren_.size() : 0)
-	== children_->size());
+  /*
+   * First case: on IE6, a popup widget has a shim child.
+   * Second case: WGroupBox always has a legend
+   */
+  if (isPopup() || firstChildIndex() > 0)
+    return false;
+  else
+    return ((transientImpl_ ? transientImpl_->addedChildren_.size() : 0)
+	    == children_->size());
 }
 
 DomElementType WContainerWidget::domElementType() const
@@ -634,6 +673,7 @@ void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,
     }
   }
 
+  // FIXME
   propagateRenderOk(false);
 }
 

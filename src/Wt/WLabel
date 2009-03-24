@@ -128,6 +128,7 @@ protected:
   virtual DomElementType domElementType() const;
   virtual void           getDomChanges(std::vector<DomElement *>& result,
 				       WApplication *app);
+  virtual void           propagateRenderOk(bool deep);
 
   friend class WAnchor;
 };

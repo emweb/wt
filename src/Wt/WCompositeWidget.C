@@ -287,6 +287,11 @@ bool WCompositeWidget::isStubbed() const
     return false;
 }
 
+bool WCompositeWidget::needsToBeRendered() const
+{
+  return impl_->needsToBeRendered();
+}
+
 void WCompositeWidget::setAttributeValue(const std::string& attribute,
 					 const WT_USTRING& value)
 {
@@ -338,14 +343,18 @@ WLayoutItemImpl *WCompositeWidget::createLayoutItemImpl(WLayoutItem *item)
 
 DomElement *WCompositeWidget::createSDomElement(WApplication *app)
 {
-  render();
+  if (needsToBeRendered())
+    render();
+
   return impl_->createSDomElement(app);
 }
 
 void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
 				      WApplication *app)
 {
-  render();
+  if (needsToBeRendered())
+    render();
+
   impl_->getSDomChanges(result, app);
 }
 

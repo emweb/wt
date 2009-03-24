@@ -246,6 +246,14 @@ void WAnchor::updateDom(DomElement& element, bool all)
   WContainerWidget::updateDom(element, all);
 }
 
+void WAnchor::propagateRenderOk(bool deep)
+{
+  flags_.reset(BIT_REF_CHANGED);
+  flags_.reset(BIT_TARGET_CHANGED);
+
+  WContainerWidget::propagateRenderOk(deep);
+}
+
 DomElementType WAnchor::domElementType() const
 {
   return DomElement_A;

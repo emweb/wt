@@ -84,6 +84,13 @@ void WViewWidget::updateDom(DomElement& element, bool all)
   WWebWidget::updateDom(element, all);
 }
 
+void WViewWidget::propagateRenderOk(bool deep)
+{
+  needContentsUpdate_ = false;
+
+  WWebWidget::propagateRenderOk(deep);
+}
+
 void WViewWidget::doneRerender()
 {
   setIgnoreChildRemoves(true);

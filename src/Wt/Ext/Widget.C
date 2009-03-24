@@ -180,6 +180,13 @@ void Widget::updateDom(DomElement& element, bool all)
   element.removeAttribute("title");
 }
 
+void Widget::propagateRenderOk(bool deep)
+{
+  jsUpdates_.clear();
+
+  WWebWidget::propagateRenderOk(deep);
+}
+
 void Widget::updateExt()
 { }
 

@@ -101,6 +101,13 @@ void WLineEdit::updateDom(DomElement& element, bool all)
   WFormWidget::updateDom(element, all);
 }
 
+void WLineEdit::propagateRenderOk(bool deep)
+{
+  flags_.reset();
+
+  WFormWidget::propagateRenderOk(deep);
+}
+
 DomElementType WLineEdit::domElementType() const
 {
   return DomElement_INPUT;

@@ -41,6 +41,13 @@ void WGroupBox::updateDom(DomElement& element, bool all)
   WContainerWidget::updateDom(element, all);
 }
 
+void WGroupBox::propagateRenderOk(bool deep)
+{
+  titleChanged_ = false;
+
+  WContainerWidget::propagateRenderOk(deep);
+}
+
 void WGroupBox::getDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app)
 {
@@ -74,9 +81,9 @@ void WGroupBox::refresh()
   WContainerWidget::refresh();
 }
 
-bool WGroupBox::wasEmpty() const
+int WGroupBox::firstChildIndex() const
 {
-  return false; // LEGEND is always there
+  return 1; // Legend is before
 }
 
 }

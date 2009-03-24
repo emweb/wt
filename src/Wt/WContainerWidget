@@ -348,7 +348,7 @@ private:
   WLength	  *WT_ARRAY padding_;
   WLayout                  *layout_;
 
-  virtual bool              wasEmpty() const;
+  bool wasEmpty() const;
 
   void rootAsJavaScript(WApplication *app, std::ostream& out, bool all);
 
@@ -356,6 +356,7 @@ private:
 
 protected:
   virtual void removeChild(WWidget *child);
+  virtual int firstChildIndex() const;
 
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);
@@ -363,6 +364,7 @@ protected:
 
   virtual DomElementType domElementType() const;
   virtual void           updateDom(DomElement& element, bool all);
+  virtual void propagateRenderOk(bool deep);
   virtual DomElement    *createDomElement(WApplication *app);
 
   virtual WLayoutItemImpl *createLayoutItemImpl(WLayoutItem *item);
@@ -370,6 +372,9 @@ protected:
 
   friend class StdLayoutImpl;
   void layoutChanged(bool deleted = false);
+
+private:
+  void propagateLayoutItemsOk(WLayoutItem *item);
 };
 
 }

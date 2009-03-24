@@ -86,6 +86,14 @@ void WTextArea::updateDom(DomElement& element, bool all)
   WFormWidget::updateDom(element, all);
 }
 
+void WTextArea::propagateRenderOk(bool deep)
+{
+  colsRowsChanged_ = false;
+  contentChanged_ = false;
+  
+  WFormWidget::propagateRenderOk(deep);
+}
+
 DomElementType WTextArea::domElementType() const
 {
   return DomElement_TEXTAREA;

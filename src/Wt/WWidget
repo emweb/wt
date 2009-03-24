@@ -320,7 +320,7 @@ public:
    *
    * \sa hide(), show()
    */
-  virtual void setHidden(bool) = 0;
+  virtual void setHidden(bool hidden) = 0;
 
   /*! \brief Return whether this widget is set hidden.
    *
@@ -341,7 +341,7 @@ public:
    *
    * A widget that isPopup() will be rendered on top of the parent widget.
    */
-  virtual void setPopup(bool) = 0;
+  virtual void setPopup(bool popup) = 0;
 
   /*! \brief Returns whether this widget is overlayed.
    *
@@ -362,7 +362,7 @@ public:
    *
    * This applies to CSS-based layout.
    */
-  virtual void setInline(bool) = 0;
+  virtual void setInline(bool inlined) = 0;
 
   /*! \brief Returns whether this widget is inline or stacked.
    *
@@ -599,6 +599,7 @@ protected:
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app) = 0;
+  virtual bool needsToBeRendered() const = 0;
 
 private:
   EventSignalList eventSignals_;

@@ -195,6 +195,14 @@ void WImage::updateDom(DomElement& element, bool all)
   WInteractWidget::updateDom(element, all);
 }
 
+void WImage::propagateRenderOk(bool deep)
+{
+  flags_.reset(BIT_IMAGE_REF_CHANGED);
+  flags_.reset(BIT_ALT_TEXT_CHANGED);
+
+  WInteractWidget::propagateRenderOk(deep);
+}
+
 DomElementType WImage::domElementType() const
 {
   return DomElement_IMG;

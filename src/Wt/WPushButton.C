@@ -52,6 +52,12 @@ void WPushButton::updateDom(DomElement& element, bool all)
   WFormWidget::updateDom(element, all);
 }
 
+void WPushButton::propagateRenderOk(bool deep)
+{
+  textChanged_ = false;
+  WFormWidget::propagateRenderOk(deep);
+}
+
 void WPushButton::refresh()
 {
   if (text_.refresh()) {

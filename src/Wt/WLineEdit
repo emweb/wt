@@ -125,10 +125,10 @@ public:
   WValidator::State validate();
 
 private:
-  WT_USTRING     content_;
-  int          textSize_;
-  int          maxLength_;
-  EchoMode     echoMode_;
+  WT_USTRING content_;
+  int        textSize_;
+  int        maxLength_;
+  EchoMode   echoMode_;
 
   static const int BIT_CONTENT_CHANGED    = 0;
   static const int BIT_TEXT_SIZE_CHANGED  = 1;
@@ -140,6 +140,7 @@ private:
 protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
+  virtual void           propagateRenderOk(bool deep);
 
   virtual void setFormData(const FormData& formData);
 };

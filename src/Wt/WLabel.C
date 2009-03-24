@@ -147,6 +147,15 @@ void WLabel::updateDom(DomElement& element, bool all)
   WInteractWidget::updateDom(element, all);
 }
 
+void WLabel::propagateRenderOk(bool deep)
+{
+  newImage_ = false;
+  newText_ = false;
+  buddyChanged_ = false;
+
+  WInteractWidget::propagateRenderOk(deep);
+}
+
 DomElementType WLabel::domElementType() const
 {
   // The label in <a><label /></a> eats an onclick event in IE

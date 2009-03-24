@@ -214,6 +214,14 @@ void WComboBox::updateDom(DomElement& element, bool all)
   WFormWidget::updateDom(element, all);
 }
 
+void WComboBox::propagateRenderOk(bool deep)
+{
+  itemsChanged_ = false;
+  selectionChanged_ = false;
+
+  WFormWidget::propagateRenderOk(deep);
+}
+
 DomElementType WComboBox::domElementType() const
 {
   return DomElement_SELECT;

@@ -23,7 +23,7 @@ WDefaultLoadingIndicator::WDefaultLoadingIndicator()
 			    "font-family: Arial,Helvetica,sans-serif;"
 			    "font-size: small;"
 			    "position: absolute; right: 0px; top: 0px;");
-  app->styleSheet().addRule("body > div.Wt-loading",
+  app->styleSheet().addRule("body div > div.Wt-loading",
 			    "position: fixed;");
 
   if (app->environment().userAgent().find("MSIE 5.5") != std::string::npos

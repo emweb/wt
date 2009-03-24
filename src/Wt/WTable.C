@@ -222,6 +222,19 @@ void WTable::updateDom(DomElement& element, bool all)
   WInteractWidget::updateDom(element, all);
 }
 
+void WTable::propagateRenderOk(bool deep)
+{
+  flags_.reset();
+  if (rowsChanged_) {
+    delete rowsChanged_;
+    rowsChanged_ = 0;
+  }
+
+  rowsAdded_ = 0;
+
+  WInteractWidget::propagateRenderOk(deep);
+}
+
 DomElementType WTable::domElementType() const
 {
   return DomElement_TABLE;

@@ -126,6 +126,7 @@ protected:
   virtual WWidget *renderView() = 0;
 
   virtual void updateDom(DomElement& element, bool all);
+  virtual void propagateRenderOk(bool deep);
   virtual DomElementType domElementType() const;
 
   virtual void doneRerender();

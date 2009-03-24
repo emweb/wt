@@ -410,7 +410,7 @@ Venkman.</p>
 <ul>
   <li>
     Using a <a
-    href="/wt/doc/reference/html/classWt_1_1WTreeView" target="_blank">WTreeView</a>
+    href="/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">WTreeView</a>
     for rendering a model in a tree or a table. WTreeView displays
     tree-tables (i.e. a tree in the first column with a number of
     additional columns), and so a tree and table are two degenerate
@@ -418,7 +418,7 @@ Venkman.</p>
   </li>
   <li>
     The use of <a
-    href="/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel"
+    href="/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel.html"
     target="_blank">WSortFilterProxyModel</a>
     to implement sorting and filtering of another model.
   </li>
@@ -428,21 +428,21 @@ Venkman.</p>
   <li>
     Using nested layout managers (horizontal and
     vertical
-    <a href="/wt/doc/reference/html/classWt_1_1WBoxLayout" target="_blank">
+    <a href="/wt/doc/reference/html/classWt_1_1WBoxLayout.html" target="_blank">
       WBoxLayout</a>)
     for an automatic window-filling layout.
   </li>
   <li>
     Since WTreeView does not yet support inline editing, how to use a
-    modal <a href="/wt/doc/reference/html/classWt_1_1WDialog" target="_blank">
+    modal <a href="/wt/doc/reference/html/classWt_1_1WDialog.html" target="_blank">
       WDialog</a> to present a simple form, using a
-    <a href="/wt/doc/reference/html/classWt_1_1WGridLayout" target="_blank">
+    <a href="/wt/doc/reference/html/classWt_1_1WGridLayout.html" target="_blank">
       WGridLayout</a>
     for layout.
   </li>
   <li>
     How to show a context-sensitive
-    <a href="/wt/doc/reference/html/classWt_1_1WPopupMenu" target="_blank">
+    <a href="/wt/doc/reference/html/classWt_1_1WPopupMenu.html" target="_blank">
       WPopupMenu</a>.
   </li>
 </ul>
@@ -663,7 +663,7 @@ browser and server.</p>
 <h4 class="example">Simple Chat</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu:1410/simplechat.wt" target="_blank">
+  <a href="http://www.webtoolkit.eu/wt/examples/simplechat/simplechat.wt" target="_blank">
   This example</a> implements a simple chat client and server for a
   multi-user chat application. It illustrates how one can easily let
   multiple users interact, for example using <b>server-initiated
@@ -818,9 +818,11 @@ least the following two packages:
     The indispensable <a href="http://www.boost.org/">
     boost C++ library</a>: boost-1.35 or later.
 
-    <p>Wt requires the following boost libraries: boost_date_time,
-    boost_regex, boost_program_options, boost_signals, boost_system,
-    and optionally (but highly recommended) boost_thread.</p>
+    <p>Wt requires the following boost libraries (which are not headers
+      only: <tt>boost_date_time</tt>, <tt>boost_regex</tt>,
+      <tt>boost_program_options</tt>, <tt>boost_signals</tt>,
+      <tt>boost_system</tt>, and optionally (but highly recommended)
+      <tt>boost_thread</tt>.</p>
   </li>
 </ul>
 
@@ -852,7 +854,7 @@ the browser:</p>
 <ul>
   <li>The built-in httpd requires the
     <a href="http://asio.sourceforge.net/">asio C++ library</a>,
-    which is included in boost.
+    which is a header-only library included in boost.
   </li>
   <li>Optionally, libz (for compression-over-HTTP) and openssl (for
     HTTPS support).
@@ -867,14 +869,25 @@ href="/wt/wiki/index.php/Wt_Installation">platform specific
 installation instructions</a>.
   </message>
   <message id="home.download.cvs">
-<h4>CVS respository</h4>
+<h4>Git repository</h4>
 
 <p>If you want to keep track of the latest changes, or participate in
-Wt development, you may want to connect to the source repository. Wt's
-source repository can only be accessed using anonymous CVS.</p>
+Wt development, you may want to use the git repository.</p>
 
 <p>
-To checkout wt using CVS, do:
+To obtain a clone of wt:
+<div class="fragment">
+  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/wt.git</pre>
+</div>
+</p>
+
+<h4>CVS respository</h4>
+
+<p><b>Since 2.99.0, Wt switched to a public git repository. Using CVS you
+can only access ongoing maintenance to the 2.x series.</b></p>
+
+<p>
+To checkout Wt 2.x using CVS, do:
 <div class="fragment">
   <pre class="fragment">$ cvs -d :pserver:anonymous@cvs.webtoolkit.eu/opt/cvs login
   (just press 'Enter' at the password prompt)
@@ -959,7 +972,8 @@ organisations:</p>
       Eurofer</a>
     </td>
     <td class="sponsor-role">
-      Sponsored the development of the charting library
+      Sponsored the development of the charting library, WTreeView and
+      hierachical item models.
     </td>
   </tr>
 </table>

@@ -67,8 +67,8 @@ public:
   static WString dateEditFormat;
 };
 
-WString FileModel::dateDisplayFormat("MMM dd, yyyy");
-WString FileModel::dateEditFormat("dd-MM-yyyy");
+WString FileModel::dateDisplayFormat(WString::fromUTF8("MMM dd, yyyy"));
+WString FileModel::dateEditFormat(WString::fromUTF8("dd-MM-yyyy"));
 
 /*! \class FileEditDialog
  *  \brief A dialog for editing a 'file'.

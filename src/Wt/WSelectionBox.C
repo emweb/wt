@@ -105,6 +105,14 @@ void WSelectionBox::updateDom(DomElement& element, bool all)
   WComboBox::updateDom(element, all);
 }
 
+void WSelectionBox::propagateRenderOk(bool deep)
+{
+  configChanged_ = false;
+  selectionChanged_ = false;
+
+  WComboBox::propagateRenderOk(deep);
+}
+
 void WSelectionBox::setFormData(const FormData& formData)
 {
   if (selectionMode_ == SingleSelection)

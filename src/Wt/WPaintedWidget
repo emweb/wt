@@ -212,6 +212,7 @@ protected:
   virtual DomElement *createDomElement(WApplication *app);
   virtual void        getDomChanges(std::vector<DomElement *>& result,
 				    WApplication *app);
+  virtual void        propagateRenderOk(bool deep);
 
 private:
   Method          preferredMethod_;

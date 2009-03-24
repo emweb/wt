@@ -208,6 +208,7 @@ protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElement    *createDomElement(WApplication *app);
   virtual DomElementType domElementType() const;
+  virtual void           propagateRenderOk(bool deep);
 
   virtual void setFormData(const FormData& formData);
 

@@ -156,7 +156,8 @@ private:
   void validatorChanged();
 
 protected:
-  void updateDom(DomElement& element, bool all);
+  virtual void updateDom(DomElement& element, bool all);
+  virtual void propagateRenderOk(bool deep);
   virtual WStatelessSlot *getStateless(Method method);
 
   friend class WLabel;

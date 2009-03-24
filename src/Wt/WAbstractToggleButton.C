@@ -217,6 +217,21 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
   }
 }
 
+void WAbstractToggleButton::propagateRenderOk(bool deep)
+{
+  checkedChanged_ = false;
+
+  EventSignal<> *check = voidEventSignal(CHECKED_SIGNAL, false);
+  if (check)
+    check->updateOk();
+
+  EventSignal<> *uncheck = voidEventSignal(UNCHECKED_SIGNAL, false);
+  if (uncheck)
+    uncheck->updateOk();
+
+  WInteractWidget::propagateRenderOk(deep);
+}
+
 void WAbstractToggleButton::setFormData(const FormData& formData)
 {
   if (!formData.values.empty())

@@ -197,8 +197,9 @@ private:
   void resourceChanged();
 
 protected:
-  virtual void  updateDom(DomElement& element, bool all);
+  virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
+  virtual void propagateRenderOk(bool deep);
 
   friend class WLabel;
 

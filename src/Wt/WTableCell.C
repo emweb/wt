@@ -81,4 +81,11 @@ void WTableCell::updateDom(DomElement& element, bool all)
   WContainerWidget::updateDom(element, all);
 }
 
+void WTableCell::propagateRenderOk(bool deep)
+{
+  spanChanged_ = false;
+
+  WContainerWidget::propagateRenderOk(deep);
+}
+
 }

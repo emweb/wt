@@ -102,6 +102,14 @@ void WText::updateDom(DomElement& element, bool all)
   WInteractWidget::updateDom(element, all);
 }
 
+void WText::propagateRenderOk(bool deep)
+{
+  textChanged_ = false;
+  wordWrapChanged_ = false;
+
+  WInteractWidget::propagateRenderOk(deep);
+}
+
 bool WText::setTextFormat(TextFormat textFormat)
 {
   if (textFormat_ != textFormat) {

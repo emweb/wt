@@ -1,3 +1,17 @@
+24-02-2009:
+	* WWebWidget: implement a real propagateRenderOk() that does not
+	cause render() of children widgets of stubbed widgets
+
+	* WTreeView: move JavaScript around that assumes jsRef() exists
+
+	* WGoogleMap: fix require() dependency
+
+20-03-2009:
+	* WFormWidget: refuse to give focus to a disabled widget
+
+	* Wt.js: make sure updated autoJavaScript() is executed by onresize
+	handler
+
 19-03-2009:
 	* WGoogleMap: fix require() to depend on google.load
 
