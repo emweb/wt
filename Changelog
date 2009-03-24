@@ -6,6 +6,8 @@
 
 	* WGoogleMap: fix require() dependency
 
+	* install: do not overwrite existing configuration file wt_config.xml
+
 20-03-2009:
 	* WFormWidget: refuse to give focus to a disabled widget
 

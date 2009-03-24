@@ -136,7 +136,7 @@
 	     When enabled,
 	     - JavaScript errors are not caught to display an error message.
 	  -->
-	<debug>true</debug>
+	<debug>false</debug>
 
 	<!-- Log file
 

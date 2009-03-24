@@ -1,1 +1,1 @@
-INSTALL_FILES(/include/Wt/Http "^W.*[^C~]$")
+INSTALL_FILES(/include/Wt/Http "^R.*[^C~]$")
