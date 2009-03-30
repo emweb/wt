@@ -139,13 +139,13 @@ Configuration::Configuration(const std::string& applicationPath,
 			     const std::string& startupMessage)
   : applicationPath_(applicationPath),
     serverType_(serverType),
-    sessionPolicy_(DedicatedProcess),
-    numProcesses_(10),
+    sessionPolicy_(SharedProcess),
+    numProcesses_(1),
     numThreads_(10),
     maxNumSessions_(100),
     maxRequestSize_(128),
     sessionTracking_(URL),
-    reloadIsNewSession_(false),
+    reloadIsNewSession_(true),
     sessionTimeout_(600),
     valgrindPath_(""),
     debug_(false),
@@ -156,6 +156,7 @@ Configuration::Configuration(const std::string& applicationPath,
     redirectMsg_("Load basic HTML"),
     serializedEvents_(false),
     inlineCss_(true),
+    ajaxAgentWhiteList_(false),
     pid_(getpid())
 {
   logger_.addField("datetime", false);
@@ -289,6 +290,43 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
   setBoolean(app, "behind-reverse-proxy", behindReverseProxy_);
   setBoolean(app, "strict-event-serialization", serializedEvents_);
   setBoolean(app, "inline-css", inlineCss_);
+  
+  std::vector<mxml_node_t *> userAgents = childElements(app, "user-agents");
+
+  for (unsigned i = 0; i < userAgents.size(); ++i) {
+    mxml_node_t *userAgentsList = userAgents[i];
+
+    std::string type;
+    if (!attributeValue(userAgentsList, "type", type))
+      throw WServer::Exception("<user-agents> requires attribute 'type'");
+
+    std::string mode;
+    attributeValue(userAgentsList, "mode", mode);
+    
+    AgentList *list;
+    if (type == "ajax") {
+      list = &ajaxAgentList_;
+      if (mode == "black-list")
+	ajaxAgentWhiteList_ = false;
+      else if (mode == "white-list")
+	ajaxAgentWhiteList_ = true;
+      else
+	throw WServer::Exception
+	  ("<user-agents type=\"ajax\" requires attribute 'mode' with value "
+	   "\"white-list\" or \"black-list\"");
+    } else if (type == "bot")
+      list = &botList_;
+    else
+      throw WServer::Exception
+	("<user-agents> requires attribute 'type' with value "
+	 "\"ajax\" or \"bot\"");
+
+    std::vector<mxml_node_t *> agents
+      = childElements(userAgentsList, "user-agent");
+
+    for (unsigned j = 0; j < agents.size(); ++j)
+      list->push_back(elementValue(agents[j], "user-agent"));
+  }
 
   mxml_node_t *properties = singleChildElement(app, "properties");
 

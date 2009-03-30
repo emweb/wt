@@ -26,7 +26,7 @@ namespace Wt {
  *
  * The label may contain an image and/or text. It acts like a proxy
  * for giving focus to a WFormWidget. When both an image and text are
- * specified, the image is put at the left of the text.
+ * specified, the image is put to the left of the text.
  *
  * Usage example:
  * \code
@@ -90,7 +90,7 @@ public:
 
   /*! \brief Set the image.
    */
-  void setImage(WImage *image);
+  void setImage(WImage *image, Side side = Left);
 
   /*! \brief Get the image.
    */
@@ -120,6 +120,7 @@ private:
   WFormWidget *buddy_;
   WText  *text_;
   WImage *image_;
+  Side    imageSide_;
 
   bool buddyChanged_, newImage_, newText_;
 
@@ -129,6 +130,9 @@ protected:
   virtual void           getDomChanges(std::vector<DomElement *>& result,
 				       WApplication *app);
   virtual void           propagateRenderOk(bool deep);
+
+  void updateImage(DomElement& element, bool all, WApplication *app, int pos);
+  void updateText(DomElement& element, bool all, WApplication *app, int pos);
 
   friend class WAnchor;
 };

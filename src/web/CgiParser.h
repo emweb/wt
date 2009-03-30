@@ -59,9 +59,6 @@ private:
 
   int buflen_;
   static char buf_[BUFSIZE + MAXBOUND];
-
-  void replaceHexTokens(std::string& v);
-  void replaceAll(std::string& v, char from, char to);
 };
 
 }

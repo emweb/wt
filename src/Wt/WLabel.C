@@ -93,13 +93,15 @@ const WString& WLabel::text() const
     return empty;
 }
 
-void WLabel::setImage(WImage *image)
+void WLabel::setImage(WImage *image, Side side)
 {
   if (image_)
     delete image_;
   image_ = image;
-  if (image_)
+  if (image_) {
     image_->setParent(this);
+    imageSide_ = side;
+  }
 
   newImage_ = true;
   repaint(RepaintInnerHtml);
@@ -126,16 +128,17 @@ void WLabel::updateDom(DomElement& element, bool all)
 {
   WApplication *app = WApplication::instance();
 
-  if (newImage_ || all) {
-    if (image_)
-      element.insertChildAt(((WWebWidget *)image_)->createDomElement(app), 0);
-    newImage_ = false;
-  }
-
-  if (newText_ || all) {
-    if (text_)
-      element.addChild(((WWebWidget *)text_)->createDomElement(app));
-    newText_ = false;
+  if (image_ && text_)
+    if (imageSide_ == Left) {
+      updateImage(element, all, app, 0);
+      updateText(element, all, app, 1);
+    } else {
+      updateText(element, all, app, 0);
+      updateImage(element, all, app, 1);
+    }
+  else {
+    updateText(element, all, app, 0);
+    updateImage(element, all, app, 0);
   }
 
   if (buddyChanged_ || all) {
@@ -145,6 +148,26 @@ void WLabel::updateDom(DomElement& element, bool all)
   }
 
   WInteractWidget::updateDom(element, all);
+}
+
+void WLabel::updateImage(DomElement& element, bool all, WApplication *app,
+			 int pos)
+{
+  if (newImage_ || all) {
+    if (image_)
+      element.insertChildAt(((WWebWidget *)image_)->createDomElement(app), pos);
+    newImage_ = false;
+  }
+}
+
+void WLabel::updateText(DomElement& element, bool all, WApplication *app,
+			int pos)
+{
+  if (newText_ || all) {
+    if (text_)
+      element.insertChildAt(((WWebWidget *)text_)->createDomElement(app), pos);
+    newText_ = false;
+  }
 }
 
 void WLabel::propagateRenderOk(bool deep)

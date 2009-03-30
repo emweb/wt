@@ -445,14 +445,33 @@ namespace Wt {
       "Host" header, but from the <tt>X-Forwarded-For</tt> header, if
       present.</dd>
 
+    <dt><strong>user-agents</strong></dt>
+
+    <dd>%Wt considers three types of sessions:
+      <ul>
+        <li>AJAX sessions: use AJAX and JavaScript</li>
+	<li>plain HTML sessions: use plain old server POSTs</li>
+	<li>bots: have clean internal paths and no persistent sessions</li>
+      </ul>
+
+      <p>By default, %Wt does a browser detection to distinguish
+      between the first two: if a browser supports JavaScript (and has
+      it enabled), and has an AJAX DOM API, then AJAX sessions are
+      chosen, otherwise plain HTML sessions.  </p>
+
+      <p>Here, you may indicate which user agents should or should
+      not receive an AJAX session regardless of what they report as
+      capabilities, and which user agents should be treated as search bots.</p>
+      </dd>
+
     <dt><strong>properties</strong></dt>
 
     <dd>Application-specific properties which may be accessed using
       WApplication::readConfigurationProperty(). For example:
       \code
-      <properties>
-        <property name="extBaseURL">/ext/</property>
-      </properties>
+ <properties>
+    <property name="extBaseURL">/ext/</property>
+ </properties>
       \endcode
     </dd>
   </dl>

@@ -404,6 +404,7 @@ private:
 
   std::string parsePreferredAcceptValue(const std::string& value);
   void        parseCookies(const std::string& value);
+  bool        agentSupportsAjax() const;
 
   friend class WebController;
   friend class WebSession;

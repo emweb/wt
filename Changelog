@@ -1,3 +1,23 @@
+30-03-2009:
+	* WEnvironment.C, WebSession.C, wt_config.xml: allow configuration
+	of AJAX-capable user agents and bots in configuration file
+
+	* Configuration.C, wt_config.xml: synchronize configuration
+	defaults. WARNING: default settings have changed! (see
+	wt_config.xml what the default values are)
+
+	* WTabWidget.C: use a layout manager to manage vertical height
+
+	* WLabel.C: fix bug with placement of image and add option to place
+	image to left or right of label text
+
+	* WDatePicker.C: implement setEnabled()
+
+26-03-2009:
+	* Fixed cookie handling. Cookie parser is now less strict, and cookie
+	values are URL encoded, similar to PHP. Fixed setting multiple
+	cookies.
+
 24-02-2009:
 	* WWebWidget: implement a real propagateRenderOk() that does not
 	cause render() of children widgets of stubbed widgets

@@ -10,6 +10,7 @@
 #include "Wt/WMenu"
 #include "Wt/WMenuItem"
 #include "Wt/WStackedWidget"
+#include "Wt/WVBoxLayout"
 
 namespace Wt {
 
@@ -114,8 +115,13 @@ WTabWidget::WTabWidget(WContainerWidget *parent)
   menuDiv->setStyleClass("Wt-tabs");
   menuDiv->addWidget(menu_);
 
-  layout_->addWidget(menuDiv);
-  layout_->addWidget(contents_);
+  WVBoxLayout *box = new WVBoxLayout();
+  box->setSpacing(0);
+  box->setContentsMargins(0, 0, 0, 0);
+ 
+  box->addWidget(menuDiv);
+  box->addWidget(contents_, 1);
+  layout_->setLayout(box);
 
   menu_->itemSelected().connect(SLOT(this, WTabWidget::onItemSelected));
 }

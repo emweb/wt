@@ -39,7 +39,6 @@ WDatePicker::WDatePicker(WInteractWidget *displayWidget,
   create(displayWidget, forEdit, i18n);
 }
 
-
 void WDatePicker::createDefault(bool i18n)
 {
   WImage *icon = new WImage(WApplication::resourcesUrl() + "calendar_edit.png");
@@ -136,6 +135,22 @@ void WDatePicker::setFromLineEdit()
     calendar_->select(d);
     calendar_->browseTo(d);
   }
+}
+
+void WDatePicker::setEnabled(bool enabled)
+{
+  forEdit_->setEnabled(enabled);
+  displayWidget_->setHidden(!enabled);
+}
+
+void WDatePicker::enable()
+{
+  setEnabled(true);
+}
+
+void WDatePicker::disable()
+{
+  setEnabled(false);
 }
 
 }

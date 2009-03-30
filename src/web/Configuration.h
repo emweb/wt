@@ -68,6 +68,7 @@ public:
   };
 
   typedef std::map<std::string, std::string> PropertyMap;
+  typedef std::vector<std::string> AgentList;
 
   Configuration(const std::string& applicationPath,
 		const std::string& configurationFile,
@@ -105,6 +106,9 @@ public:
   std::string        redirectMessage() const { return redirectMsg_; }
   bool               serializedEvents() const { return serializedEvents_; }
   bool               inlineCss() const { return inlineCss_; }
+  bool               ajaxAgentWhiteList() const { return ajaxAgentWhiteList_; }
+  const AgentList&   ajaxAgentList() const { return ajaxAgentList_; }
+  const AgentList&   botList() const { return botList_; }
 
   WLogger&           logger() { return logger_; }
   WLogEntry          log(const std::string& type) const;
@@ -145,6 +149,8 @@ private:
   std::string     redirectMsg_;
   bool            serializedEvents_;
   bool            inlineCss_;
+  AgentList       ajaxAgentList_, botList_;
+  bool            ajaxAgentWhiteList_;
 
   int		  pid_;
   WtRandom        random_;

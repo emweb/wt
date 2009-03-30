@@ -759,43 +759,47 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    handler.response()->setContentType("text/html");
 	    handler.response()->out() << "<html><head></head><body></body></html>";
 	  } else {
-	    if (env_.agentIsSpiderBot()) {
+	    bool forcePlain = env_.agentIsSpiderBot()
+	      || !env_.agentSupportsAjax();
+
+	    if (forcePlain) {
 	      env_.doesJavaScript_ = false;
 	      env_.doesAjax_ = false;
 	      env_.doesCookies_ = false;
 
-	    if (!start())
-	      throw WtException("Could not start application.");
+	      if (!start())
+		throw WtException("Could not start application.");
 
-	    if (env_.internalPath() != "/") {
-	      app_->setInternalPath("/");
-	      app_->notify(WEvent(handler, WEvent::HashChange,
-				  env_.internalPath()));
+	      if (env_.internalPath() != "/") {
+		app_->setInternalPath("/");
+		app_->notify(WEvent(handler, WEvent::HashChange,
+				    env_.internalPath()));
+	      }
+
+	      app_->notify(WEvent(handler, WEvent::Render,
+				  WebRenderer::FullResponse));
+
+	      if (env_.agentIsSpiderBot())
+		handler.killSession();
+	    } else {
+	      setState(Bootstrap, 10);
+	      renderer_.serveBootstrap(*handler.response());
 	    }
-
-	    app_->notify(WEvent(handler, WEvent::Render,
-				WebRenderer::FullResponse));
-
-	    handler.killSession();
-	  } else {
-	    setState(Bootstrap, 10);
-	    renderer_.serveBootstrap(*handler.response());
 	  }
+	  break;
+	case WidgetSet:
+	  init(request); // env, url/internalpath
+	  env_.doesJavaScript_ = true;
+	  env_.doesAjax_ = true;
+
+	  if (!start())
+	    throw WtException("Could not start application.");
+
+	  app_->notify(WEvent(handler, WEvent::Render,
+			      WebRenderer::FullResponse));
 	}
 	break;
-      case WidgetSet:
-	init(request); // env, url/internalpath
-	env_.doesJavaScript_ = true;
-	env_.doesAjax_ = true;
-
-	if (!start())
-	  throw WtException("Could not start application.");
-
-	app_->notify(WEvent(handler, WEvent::Render,
-			    WebRenderer::FullResponse));
       }
-      break;
-    }
     case Bootstrap: {
       const std::string *jsE = request.getParameter("js");
 

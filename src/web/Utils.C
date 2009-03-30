@@ -126,5 +126,49 @@ char *round_str(double d, int digits, char *buf) {
   return buf;
 }
 
+std::vector<std::string> tokenizer(const std::string &in,
+    const std::string &seps)
+{
+  std::vector<std::string> retval;
+  std::string::size_type b = 0;
+
+  while((b < in.length()) &&
+      (std::string::npos != (b = in.find_first_not_of(seps, b)))) {
+    retval.push_back( in.substr(b,in.find_first_of(seps, b) - b));
+    b += retval.back().length();
+  }
+  return retval;
+}
+
+void replaceAll(std::string& v, char from, char to)
+{
+  for (std::string::size_type i = v.find(from);
+      i != std::string::npos;
+      i = v.find(from, i+1))
+    v[i] = to;
+}
+
+void unescapeHexTokens(std::string& v)
+{
+  for (unsigned i = 0; i < (unsigned)std::max(0, (int)v.length() - 2); ++i) {
+    if (v[i] == '%') {
+      std::string h = v.substr(i + 1, 2);
+      char *e = 0;
+      int hval = strtol(h.c_str(), &e, 16);
+
+      if (*e != 0)
+        continue; // not a proper %XX with XX hexadecimal format
+
+      v.replace(i, 3, 1, (char)hval);
+    }
+  }
+}
+
+void urlDecode(std::string &s)
+{
+  replaceAll(s, '+', ' ');
+  unescapeHexTokens(s);
+}
+
   }
 }

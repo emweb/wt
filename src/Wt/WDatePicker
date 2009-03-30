@@ -137,6 +137,24 @@ public:
    */
   void setDate(const WDate& date);
 
+  /*! \brief Change the enabled state of the widget.
+   *
+   * A widget that is disabled cannot receive focus or user interaction.
+   */
+  void setEnabled(bool enabled);
+
+  /*! \brief Enable the widget.
+   *
+   * \sa setEnabled(bool)
+   */
+  void enable();
+
+  /*! \brief Disable the widget.
+   *
+   * \sa setEnabled(bool)
+   */
+  void disable();
+
 private:
   WT_USTRING        format_;
   WInteractWidget  *displayWidget_;

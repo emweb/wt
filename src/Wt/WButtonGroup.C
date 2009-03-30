@@ -129,11 +129,11 @@ void WButtonGroup::setFormData(const FormData& formData)
       }
     }
   } else {
-  /*
-   * none checked (form submit) or aways for ajax. In any case
-   * we don't do anything, since none checked can only be if
-   * there were actually none checked to start with ?
-   */
+    /*
+     * none checked (form submit) or aways for ajax. In any case
+     * we don't do anything, since none checked can only be if
+     * there were actually none checked to start with ?
+     */
   }
 }
 
@@ -148,7 +148,7 @@ int WButtonGroup::generateId() const
 {
   int id = 0;
 
-  for (int i = 0; i < buttons_.size(); ++i)
+  for (unsigned i = 0; i < buttons_.size(); ++i)
     id = std::max(buttons_[i].id + 1, id);
 
   return id;

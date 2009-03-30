@@ -9,12 +9,19 @@
 
     The path should be as configured in the Wt build process, where it
     defaults to /etc/wt/wt_config.xml. It can be overridden in the environment
-    variable WT_CONFIG_XML, or with the --config startup option of wthttpd.
+    variable WT_CONFIG_XML, or with the -c startup option of wthttpd.
+
+    The values listed here are the default values, which are used when the
+    declaration is missing or no configuration file is used.
   -->
 
 <server>
 
-    <!-- Default application settings -->
+    <!-- Default application settings
+
+      The special location "*" always matches. See below for an example
+      of settings specific to a single application.
+      -->
     <application-settings location="*">
 
         <!-- Session management. -->
@@ -101,7 +108,7 @@
 	       The variable is slighly misnamed. Not only a path can be set,
 	       but also options, like for example:
 
-                 /usr/bin/valgrind --leak-check=full
+                 /usr/bin/valgrind -leak-check=full
              -->
 	    <valgrind-path></valgrind-path>
 
@@ -123,7 +130,7 @@
 
 	       For the built-in http connector, there is a similar config
 	       option that is specified in the whttpd config file or on the
-	       command line (--num-threads).
+	       command line (-t).
 
                The default value is 10.
 	      -->
@@ -176,7 +183,7 @@
 	   request/response is pending. This scheme has a quality that
 	   resembles TCP: on a low-latency link you allow the
 	   transmission of many smaller requests, while on a high
-	   latency link, the events be propagated less often, but in
+	   latency link, events will be propagated less often, but in
 	   batches.
 
 	   In any case, this scheme does not drop events, no matter
@@ -195,14 +202,14 @@
 	<!-- Redirect message shown for browsers without JavaScript support
 
 	   By default, Wt will use an automatic redirect to start the
-	   application when the browser does not support JavaScript. However,
-	   browsers are not required to follow the redirection, and in some
-           situations (when using XHTML), such automatic redirection is not
-           supported.
+	   application when the browser does not support
+	   JavaScript. However, browsers are not required to follow
+	   the redirection, and in some situations (when using XHTML),
+	   such automatic redirection is not supported.
 
 	   This configures the text that is shown in the anchor which
-	   the user may click to be redirected to a basic HTML version of
-           your application.
+	   the user may click to be redirected to a basic HTML version
+	   of your application.
           -->
 	<redirect-message>Load basic HTML</redirect-message>
 
@@ -213,6 +220,62 @@
 	   but from the X-Forwarded-For header, if present.
 	  -->
 	<behind-reverse-proxy>false</behind-reverse-proxy>
+
+	<!-- Whether inline CSS is allowed.
+
+           Some Wt widgets will insert CSS rules in the the inline
+           stylesheet when first used. This can be disabled using this
+	   configuration option.
+
+           Note: some widgets, such as WTreeView, dynamically
+           manipulate rules in this stylesheet, and will no longer
+           work properly when inline-css is disabled.
+	  -->
+	<inline-css>true</inline-css>
+
+	<!-- Ajax user agent list
+
+            Wt considers three types of sessions:
+	    - AJAX sessions: use AJAX and JavaScript
+	    - plain HTML sessions: use plain old server POSTs
+	    - bots: have clean internal paths and no persistent sessions
+
+            By default, Wt does a browser detection to distinguish between
+	    the first two: if a browser supports JavaScript (and has it
+	    enabled), and has an AJAX DOM API, then AJAX sessions are chosen,
+	    otherwise plain HTML sessions.
+
+            Here, you may indicate which user agents should or should
+            not receive an AJAX session regardless of what they report as
+	    capabilities.
+
+            Possible values for 'mode' or "white-list" or "black-list". A
+	    white-list will only treat the listed agents as supporting AJAX,
+	    all other agents will be served plain HTML sessions. A black-list
+	    will always server plain HTML sessions to listed agents and
+	    otherwise rely on browser capability detection.
+
+            Each <user-agent> is a regular expression.
+	  -->
+	<user-agents type="ajax" mode="black-list">
+	  <!-- <user-agent>.*Crappy browser.*</user-agent> -->
+	</user-agents>
+
+	<!-- Bot user agent list
+
+            Here, you can specify user agents that should be should be
+            treated as bots.
+
+            Each <user-agent> is a regular expression.
+	  -->
+	<user-agents type="bot">
+	  <user-agent>.*Googlebot.*</user-agent>
+	  <user-agent>.*msnbot.*</user-agent>
+	  <user-agent>.*Slurp.*</user-agent>
+	  <user-agent>.*Crawler.*</user-agent>
+	  <user-agent>.*Bot.*</user-agent>
+	  <user-agent>.*ia_archiver.*</user-agent>
+	</user-agents>
 
 	<!-- Runtime Properties
      
@@ -248,8 +311,9 @@
     <!-- Override settings for specific applications.
 
        Location refers to physical filesystem location of the
-       application. The application prints this location to the log
-       file on startup, and this should match exactly.
+       application. The application prints this location (which
+       corresponds to argv[0]) to the log file on startup, and this
+       should match exactly.
       -->
     <!--
     <application-settings

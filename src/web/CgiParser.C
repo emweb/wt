@@ -43,6 +43,7 @@
 #include "CgiParser.h"
 #include "WebRequest.h"
 #include "WtException.h"
+#include "Utils.h"
 
 using std::memmove;
 using std::strcpy;
@@ -230,17 +231,18 @@ void CgiParser::parse(WebRequest& request)
 #endif // DEBUG
 
       // convert plus to space
-      replaceAll(pair, '+', ' ');
+      Wt::Utils::replaceAll(pair, '+', ' ');
 
       // split into key and value
       std::string::size_type equalPos = pair.find('=');
       std::string key = pair.substr(0, equalPos);
-      std::string value  = (equalPos != std::string::npos) 
+      std::string value;
+      value = (equalPos != std::string::npos && pair.size() > equalPos + 1)
 	? pair.substr(equalPos + 1) : "";
 
       // convert %XX from hex numbers to alphanumeric
-      replaceHexTokens(key);
-      replaceHexTokens(value);
+      Wt::Utils::unescapeHexTokens(key);
+      Wt::Utils::unescapeHexTokens(value);
 
 #ifdef DEBUG
       std::cerr << key << ": \"" << value << "\"" << std::endl;
@@ -449,30 +451,6 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
   windBuffer(boundary.length() + 2);
 
   return true;
-}
-
-void CgiParser::replaceAll(std::string& v, char from, char to)
-{
-  for (std::string::size_type i = v.find(from);
-       i != std::string::npos;
-       i = v.find(from, i+1))
-    v[i] = to;
-}
-
-void CgiParser::replaceHexTokens(std::string& v)
-{
-  for (unsigned i = 0; i < (unsigned)std::max(0, (int)v.length() - 2); ++i) {
-    if (v[i] == '%') {
-      std::string h = v.substr(i + 1, 2);
-      char *e = 0;
-      int hval = strtol(h.c_str(), &e, 16);
-
-      if (*e != 0)
-	continue; // not a proper %XX with XX hexadecimal format
-
-      v.replace(i, 3, 1, (char)hval);
-    }
-  }
 }
 
 } // namespace Wt

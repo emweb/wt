@@ -48,8 +48,8 @@ WebRenderer::WebRenderer(WebSession& session)
   : session_(session),
     visibleOnly_(true),
     twoPhaseThreshold_(5000),
-    learning_(false),
-    expectedAckId_(0)
+    expectedAckId_(0),
+    learning_(false)
 { }
 
 void WebRenderer::setTwoPhaseThreshold(int bytes)
@@ -246,12 +246,13 @@ void WebRenderer::setCookie(const std::string name, const std::string value,
 
 void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 {
-  std::string cookies;
 
   for (unsigned i = 0; i < cookiesToSet_.size(); ++i) {
+    std::string cookies;
     std::string value = cookiesToSet_[i].value;
 
-    cookies += cookiesToSet_[i].name + "=" + value + "; Version=1;";
+    cookies += Wt::DomElement::urlEncode(cookiesToSet_[i].name) + "=" +
+      Wt::DomElement::urlEncode(value) + "; Version=1;";
     if (cookiesToSet_[i].maxAge != -1)
       cookies += " Max-Age="
 	+ boost::lexical_cast<std::string>(cookiesToSet_[i].maxAge) + ";";
@@ -259,11 +260,11 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
       cookies += " Domain=" + cookiesToSet_[i].domain + ";";
     if (!cookiesToSet_[i].path.empty())
       cookies += " Path=" + cookiesToSet_[i].path + ";";
+
+    if (!cookies.empty())
+      response.addHeader("Set-Cookie", cookies);
   }
   cookiesToSet_.clear();
-
-  if (!cookies.empty())
-    response.addHeader("Set-Cookie", cookies);
 
   response.setContentType(mimeType);
 }

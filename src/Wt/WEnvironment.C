@@ -7,6 +7,7 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
+#include "Wt/WRegExp"
 
 #include "WebRequest.h"
 #include "WebSession.h"
@@ -25,6 +26,21 @@
 #include <assert.h>
 
 namespace Wt {
+
+  namespace {
+    bool regexMatchAny(const std::string& agent,
+		       const std::vector<std::string>& regexList) {
+      WT_USTRING s = WT_USTRING::fromUTF8(agent);
+      for (unsigned i = 0; i < regexList.size(); ++i) {
+	WRegExp expr(WT_USTRING::fromUTF8(regexList[i]));
+
+	if (expr.exactMatch(s))
+	  return true;
+      }
+
+      return false;
+    }
+  }
 
 WEnvironment::WEnvironment(WebSession *session)
   : session_(session),
@@ -57,6 +73,8 @@ void WEnvironment::setInternalPath(const std::string& path)
 
 void WEnvironment::init(const WebRequest& request)
 {
+  Configuration& conf = session_->controller()->configuration();
+
   parameters_ = request.getParameterMap();
 
   urlScheme_       = request.urlScheme();
@@ -80,22 +98,12 @@ void WEnvironment::init(const WebRequest& request)
   isWebKit_ = userAgent_.find("WebKit") != std::string::npos;
   isKonqueror_ = userAgent_.find("Konqueror") != std::string::npos;
   isGecko_ = !isSafari_ && userAgent_.find("Gecko") != std::string::npos;
-
-  isSpiderBot_ = false;
-
-  static const char *bots[] =
-    { "Googlebot", "msnbot", "Slurp", "Crawler", "Bot", "ia_archiver" };
-
-  for (int i = 0; i < 6; ++i)
-    if (userAgent_.find(bots[i]) != std::string::npos) {
-      isSpiderBot_ = true;
-      break;
-    }
+  isSpiderBot_ = regexMatchAny(userAgent_, conf.botList());
 
   /*
    * Determine server host name
    */
-  if (session_->controller()->configuration().behindReverseProxy()) {
+  if (conf.behindReverseProxy()) {
     /*
      * Take the last entry in X-Forwarded-Host, assuming that we are only
      * behind 1 proxy
@@ -159,6 +167,17 @@ void WEnvironment::init(const WebRequest& request)
   if (session_->controller()->configuration().sendXHTMLMimeType()
       && (accept_.find("application/xhtml+xml") != std::string::npos))
     contentType_ = XHTML1;
+}
+
+bool WEnvironment::agentSupportsAjax() const
+{
+  Configuration& conf = session_->controller()->configuration();
+
+  bool matches = regexMatchAny(userAgent_, conf.ajaxAgentList());
+  if (conf.ajaxAgentWhiteList())
+    return matches;
+  else
+    return !matches;
 }
 
 std::string WEnvironment::libraryVersion()
@@ -322,133 +341,40 @@ std::string WEnvironment::parsePreferredAcceptValue(const std::string& str)
   }
 }
 
-namespace {
-  using namespace boost::spirit;
-  using namespace boost;
-
-  /*
-   * My second spirit parser -- spirit is still nifty !
-   *
-   * Parses Cookies set by the browser, as defined in RFC 2965
-   */
-  class CookieParser : public grammar<CookieParser>
-  {
-    struct ParseState
-    {
-      std::string lastName;
-    };
-
-  public:
-    CookieParser(std::map<std::string, std::string>& cookies)
-      : cookies_(cookies),
-	constParseState_(ParseState()),
-	parseState_(constParseState_)
-    { }
-
-  private:
-    std::map<std::string, std::string>& cookies_;
-    ParseState  constParseState_;
-    ParseState& parseState_;
-
-    void setName(char const* str, char const* end) const {
-      parseState_.lastName = std::string(str, end);
-      cookies_[parseState_.lastName] = "";
-    }
-
-    void setValue(char const* str, char const* end) const {
-      cookies_[parseState_.lastName] = std::string(str, end);
-    }
-
-    static std::string unescape(std::string value) {
-      std::string::size_type pos;
-
-      while ((pos = value.find('\\')) != std::string::npos) {
-	value.erase(pos, 1);
-      }
-
-      return value;
-    }
-
-    void setQuotedValue(char const* str, char const* end) const {
-      cookies_[parseState_.lastName] = unescape(std::string(str + 1, end - 1));
-    }
-
-    typedef CookieParser self_t;
-
-  public:
-    template <typename ScannerT>
-    struct definition
-    {
-      definition(CookieParser const& self)
-      {
-	token 
-	  = lexeme_d[+(alnum_p | ch_p('-') | chset_p(":&+_.*$#|()"))]
-	  ;
-
-	quoted_string
-	  = lexeme_d[ch_p('"')
-		     >> *(('\\' >> anychar_p) | ~ch_p('"')) >> ch_p('"')]
-	  ;
-
-	name
-	  = token
-	    [
-	      bind(&self_t::setName, self, _1, _2)
-	    ]
-	  ;
-
-	value
-	  = token
-	    [
-	      bind(&self_t::setValue, self, _1, _2)
-	    ]
-	  | quoted_string
-	    [
-	      bind(&self_t::setQuotedValue, self, _1, _2)
-	    ]
-	  ;
-
-	cookie
-	  = name >> !(ch_p('=') >> value)
-	  ;
-
-	cookielist
-	  = !(cookie >> *((ch_p(',') | ch_p(';')) >> cookie)) >> end_p
-	  ;
-      }
-
-      rule<ScannerT> token, quoted_string, name, value, cookie, cookielist;
-
-      rule<ScannerT> const&
-      start() const { return cookielist; }
-    };
-  };
-};
-
-void WEnvironment::parseCookies(const std::string& str)
-{
-  CookieParser cookieParser(cookies_);
-
-  using namespace boost::spirit;
-
-  parse_info<> info = parse(str.c_str(), cookieParser, space_p);
-
-  if (!info.full)
-    // wApp is not yet initialized here
-    std::cerr << "Could not parse 'Cookie: "
-	      << str << "', stopped at: '" << info.stop 
-	      << '\'' << std::endl;
-}
-
 #else
 std::string WEnvironment::parsePreferredAcceptValue(const std::string& str)
 {
   return std::string();
 }
+#endif // WT_NO_SPIRIT
 
 void WEnvironment::parseCookies(const std::string& str)
 {
+  // Cookie parsing strategy:
+  // - First, split the string on cookie separators (-> name-value pair).
+  //   ';' is cookie separator. ',' is not a cookie separator (as in PHP)
+  // - Then, split the name-value pairs on the first '='
+  // - URL decoding/encoding
+  // - Trim the name, trim the value
+  // - If a name-value pair does not contain an '=', the name-value pair
+  //   was the name of the cookie and the value is empty
+  std::vector<std::string> cookies = Wt::Utils::tokenizer(str, ";");
+  for (unsigned int i = 0; i < cookies.size(); ++i) {
+    std::string::size_type e = cookies[i].find('=');
+    std::string cookieName = cookies[i].substr(0, e);
+    std::string cookieValue =
+      (e != std::string::npos && cookies[i].size() > e + 1) ?
+        cookies[i].substr(e + 1) : "";
+
+    boost::trim(cookieName);
+    boost::trim(cookieValue);
+
+    Wt::Utils::urlDecode(cookieName);
+    Wt::Utils::urlDecode(cookieValue);
+    if (cookieName != "") {
+      cookies_[cookieName] = cookieValue;
+    }
+  }
 }
-#endif // WT_NO_SPIRIT
 
 }

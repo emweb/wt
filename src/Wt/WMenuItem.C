@@ -33,6 +33,7 @@ WMenuItem::WMenuItem(const WString& text, WWidget *contents,
     implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
   else {
     contentsContainer_ = new WContainerWidget();
+    contentsContainer_->resize(WLength::Auto, WLength(100, WLength::Percentage));
   }
 }
 
