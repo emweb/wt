@@ -409,7 +409,8 @@ void TableView::refresh()
 
 void TableView::updateExt()
 {
-  addUpdateJS(dataStore_->jsGetUpdates(elVar() + ".getStore()"));
+  if (dataStore_)
+    addUpdateJS(dataStore_->jsGetUpdates(elVar() + ".getStore()"));
 
   Panel::updateExt();
 }

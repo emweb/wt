@@ -4,17 +4,17 @@
 
 <h2><span>Wt Chat client</span></h2>
 
-<p>This is a simple multi-user chat client and server.</p>
+<p>This is a multi-user chat client and server.</p>
 
-<p>For simplicity, server and client all run in the same process, and
-therefore it is ideal for a deployment using wthttpd, when running all
-clients in the same process. (Because all I/O is asynchroneous, this
-probably could easily support thousands of simultaneous users as
-well).</p>
+<p>To keep the example simple, server and clients all run in the same
+process. Still, because all I/O in Wt is asynchronous even when using
+"server push" which requires an open connection with each client at
+all times, clients do not tie up threads, and as such the application
+could easily support thousands of simultaneous users as well.</p>
 
 <p>The client is contained in a widget (SimpleChatWidget), and can be
 instantiated as many times as you like, even in the same
-application. <br />
+application.<br />
 
 Because of the widget abstraction, it is straight forward to include a
 chat client in your own application, by linking both the client and
@@ -24,10 +24,11 @@ server classes into your application.</p>
   <message id="details">
 
 <p>The implementation uses server-initiated updates, a feature that is
-still under development in Wt. When a message is received, the user
-interface (i.e. widget tree) not only of the current session, but also
-of all other clients is updated simultaneously, as part of handling
-the event.</p>
+not much different from regular client-server communication in Wt, and
+allows updating a session from outside its regular event loop. When a
+message is received, the user interface (i.e. widget tree) not only of
+the current session, but also of all other sessions is updated and
+"pushed" to these clients simultanously.</p>
 
   </message>
 

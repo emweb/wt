@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <iomanip>
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/Ext/NumberField"
@@ -20,7 +21,9 @@ NumberField::NumberField(WContainerWidget *parent)
 
 void NumberField::setValue(double value)
 {
-  lineEdit()->setText(boost::lexical_cast<std::string>(value));
+  std::ostringstream oss;
+  oss << std::fixed << std::setprecision(decimals_) << value;
+  lineEdit()->setText(oss.str());
 }
 
 double NumberField::value() const
@@ -28,7 +31,9 @@ double NumberField::value() const
   try {
     return boost::lexical_cast<double>(lineEdit()->text());
   } catch (boost::bad_lexical_cast& e) {
-    return 0; // FIXME ?
+    // You wouldn't expect this to happen anless a user is tampering
+    // 0 with do in that case
+    return 0;
   }
 }
 

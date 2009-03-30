@@ -13,6 +13,11 @@
 
 	* WDatePicker.C: implement setEnabled()
 
+	* WT_SERIES, WT_MAJOR, WT_MINOR, WT_VERSION: change to hexadecimal
+	format for preprocessor defines
+
+	* Ext/TableView.C: fix access to null dataStore_
+
 26-03-2009:
 	* Fixed cookie handling. Cookie parser is now less strict, and cookie
 	values are URL encoded, similar to PHP. Fixed setting multiple
