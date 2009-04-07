@@ -54,8 +54,7 @@ bool defaultInline_[] =
     false, true
   };
 
-const std::string unsafeChars_ = "$&+,:;=?@'\"<>#%{}|\\^~[]`";
-
+  static const std::string unsafeChars_ = "$&+,:;=?@'\"<>#%{}|\\^~[]`";
 }
 
 namespace Wt {
@@ -120,7 +119,7 @@ DomElement::~DomElement()
   delete childrenHtml_;
 }
 
-std::string DomElement::urlEncode(const std::string& url)
+std::string DomElement::urlEncodeS(const std::string& url)
 {
   std::stringstream result;
 

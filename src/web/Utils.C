@@ -5,9 +5,13 @@
  */
 
 #include "Utils.h"
+#include "DomElement.h"
 #include "Wt/WString"
 
+#include <sstream>
+
 namespace Wt {
+
   namespace Utils {
 
 std::string terminate(const std::string& s, char c)
@@ -126,28 +130,6 @@ char *round_str(double d, int digits, char *buf) {
   return buf;
 }
 
-std::vector<std::string> tokenizer(const std::string &in,
-    const std::string &seps)
-{
-  std::vector<std::string> retval;
-  std::string::size_type b = 0;
-
-  while((b < in.length()) &&
-      (std::string::npos != (b = in.find_first_not_of(seps, b)))) {
-    retval.push_back( in.substr(b,in.find_first_of(seps, b) - b));
-    b += retval.back().length();
-  }
-  return retval;
-}
-
-void replaceAll(std::string& v, char from, char to)
-{
-  for (std::string::size_type i = v.find(from);
-      i != std::string::npos;
-      i = v.find(from, i+1))
-    v[i] = to;
-}
-
 void unescapeHexTokens(std::string& v)
 {
   for (unsigned i = 0; i < (unsigned)std::max(0, (int)v.length() - 2); ++i) {
@@ -166,9 +148,13 @@ void unescapeHexTokens(std::string& v)
 
 void urlDecode(std::string &s)
 {
-  replaceAll(s, '+', ' ');
+  replace(s, '+', " ");
   unescapeHexTokens(s);
 }
 
+std::string urlEncode(const std::string& url)
+{
+  return DomElement::urlEncodeS(url);
+}
   }
 }

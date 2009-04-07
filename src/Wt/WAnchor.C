@@ -11,7 +11,9 @@
 #include "Wt/WImage"
 #include "Wt/WResource"
 #include "Wt/WText"
+
 #include "DomElement.h"
+#include "Utils.h"
 
 namespace Wt {
 
@@ -141,7 +143,7 @@ void WAnchor::setRefInternalPath(const std::string& path)
     }
     changeInternalPathJS_->setJavaScript
       ("function(obj, event){"
-       "window.location.hash='#" + DomElement::urlEncode(path) + "';"
+       "window.location.hash='#" + Utils::urlEncode(path) + "';"
        "}");
     clicked().senderRepaint(); // XXX only for Java port necessary
   }

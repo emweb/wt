@@ -66,6 +66,8 @@ public:
   DomElement(Mode mode, DomElementType type);
   ~DomElement();
 
+  static std::string urlEncodeS(const std::string& url);
+
   Mode mode() const { return mode_; }
 
   void setType(DomElementType type);
@@ -177,8 +179,6 @@ public:
   static void htmlAttributeValue(std::ostream& out, const std::string& s);
   static bool isSelfClosingTag(const std::string& tag);
   static bool isSelfClosingTag(DomElementType element);
-
-  static std::string urlEncode(const std::string& url);
 
   const std::string& javaScript() const { return javaScript_; }
 

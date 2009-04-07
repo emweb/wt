@@ -275,6 +275,7 @@
 	  <user-agent>.*Crawler.*</user-agent>
 	  <user-agent>.*Bot.*</user-agent>
 	  <user-agent>.*ia_archiver.*</user-agent>
+	  <user-agent>.*Twiceler.*</user-agent>
 	</user-agents>
 
 	<!-- Runtime Properties

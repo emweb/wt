@@ -74,6 +74,10 @@ public:
    */
   WLabel *label() const;
 
+  /*! \brief Give focus to this widget.
+   */
+  void setFocus();
+
   virtual void refresh();
 
 protected:
@@ -84,9 +88,12 @@ protected:
 
   virtual WFormWidget *formWidget() const = 0;
 
+  virtual void render();
+
 private:
   MessageLocation  errorMessageLocation_;
   WValidator      *validator_;
+  bool             focusWhenRendered_;
 
   virtual void useAsTableViewEditor() = 0;
   friend class TableView;

@@ -1,8 +1,16 @@
+SET(BUILD_WTWITHQT true)
+IF (NOT BOOST_WT_MT_FOUND)
+  SET(BUILD_WTWITHQT false)
+ENDIF (NOT BOOST_WT_MT_FOUND)
 IF (NOT QT_FOUND)
+  SET(BUILD_WTWITHQT false)
+ENDIF (NOT QT_FOUND)
 
-  MESSAGE(STATUS "** Wt/Qt interopability example (wtwithqt) needs Qt4... Skipping.")
+IF (NOT BUILD_WTWITHQT)
 
-ELSE (NOT_QT_FOUND)
+  MESSAGE(STATUS "** Wt/Qt interopability example (wtwithqt) needs Qt4 and threading support... Skipping.")
+
+ELSE (NOT BUILD_WTWITHQT)
 
   SUBDIRS(lib)
 
@@ -45,4 +53,5 @@ ELSE (NOT_QT_FOUND)
     ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
   )
 
-ENDIF (NOT QT_FOUND)
+ENDIF (NOT BUILD_WTWITHQT)
+

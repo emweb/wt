@@ -19,7 +19,8 @@ namespace Wt {
 FormField::FormField(WContainerWidget *parent)
   : Component(parent),
     errorMessageLocation_(FancyToolTip),
-    validator_(0)
+    validator_(0),
+    focusWhenRendered_(false)
 { }
 
 void FormField::setErrorMessageLocation(MessageLocation location)
@@ -78,6 +79,24 @@ void FormField::createConfig(std::ostream& config)
 WLabel *FormField::label() const
 {
   return formWidget()->label();
+}
+
+void FormField::setFocus()
+{
+  if (isRendered())
+    addUpdateJS(elVar() + ".focus(true);");
+  else
+    focusWhenRendered_ = true;
+}
+
+void FormField::render()
+{
+  Component::render();
+
+  if (focusWhenRendered_) {
+    WApplication::instance()->doJavaScript(elVar() + ".focus(true);");
+    focusWhenRendered_ = false;
+  }
 }
 
   }

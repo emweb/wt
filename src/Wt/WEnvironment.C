@@ -358,7 +358,9 @@ void WEnvironment::parseCookies(const std::string& str)
   // - Trim the name, trim the value
   // - If a name-value pair does not contain an '=', the name-value pair
   //   was the name of the cookie and the value is empty
-  std::vector<std::string> cookies = Wt::Utils::tokenizer(str, ";");
+
+  std::vector<std::string> cookies;
+  boost::split(cookies, str, boost::is_any_of(";"));
   for (unsigned int i = 0; i < cookies.size(); ++i) {
     std::string::size_type e = cookies[i].find('=');
     std::string cookieName = cookies[i].substr(0, e);

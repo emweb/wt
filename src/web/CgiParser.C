@@ -231,7 +231,7 @@ void CgiParser::parse(WebRequest& request)
 #endif // DEBUG
 
       // convert plus to space
-      Wt::Utils::replaceAll(pair, '+', ' ');
+      Wt::Utils::replace(pair, '+', " ");
 
       // split into key and value
       std::string::size_type equalPos = pair.find('=');

@@ -1946,6 +1946,7 @@ void WTreeView::rerenderHeader()
 
   if (columnInfo(0).extraHeaderWidget) {
     WContainerWidget *c = new WContainerWidget(headers_);
+    c->setInline(true); // For IE7
     c->addWidget(t);
     c->addWidget(columnInfo(0).extraHeaderWidget);
   } else

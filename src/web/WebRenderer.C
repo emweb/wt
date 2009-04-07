@@ -221,8 +221,9 @@ void WebRenderer::serveError(WebResponse& response, const std::exception& e,
 void WebRenderer::serveError(WebResponse& response, const std::string& message,
 			     ResponseType responseType)
 {
-  if (responseType == FullResponse
-      && session_.type() == WebSession::Application) {
+  bool js = responseType != FullResponse || session_.env().ajax();
+
+  if (!js) {
     response.setContentType("text/html");
     response.out()
       << "<title>Error occurred.</title>"
@@ -230,10 +231,11 @@ void WebRenderer::serveError(WebResponse& response, const std::string& message,
       << WWebWidget::escapeText(WString(message), true).toUTF8()
       << std::endl;    
   } else {
-    collectedJS1_ << "alert(";
-    DomElement::jsStringLiteral(collectedJS1_,
-				"Error occurred:\n" + message, '\'');
-    collectedJS1_ << ");";
+    collectedJS1_ <<
+      "document.title = 'Error occurred.';"
+      "document.body.innerHtml='<h2>Error occurred.</h2>' +";
+    DomElement::jsStringLiteral(collectedJS1_, message, '\'');
+    collectedJS1_ << ";";
   }
 }
 
@@ -251,8 +253,8 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
     std::string cookies;
     std::string value = cookiesToSet_[i].value;
 
-    cookies += Wt::DomElement::urlEncode(cookiesToSet_[i].name) + "=" +
-      Wt::DomElement::urlEncode(value) + "; Version=1;";
+    cookies += Utils::urlEncode(cookiesToSet_[i].name)
+      + "=" + Utils::urlEncode(value) + "; Version=1;";
     if (cookiesToSet_[i].maxAge != -1)
       cookies += " Max-Age="
 	+ boost::lexical_cast<std::string>(cookiesToSet_[i].maxAge) + ";";

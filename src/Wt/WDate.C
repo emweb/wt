@@ -900,6 +900,8 @@ WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
   bool inQuote = false;
   bool gotQuoteInQuote = false;
 
+  static const std::string regexSpecial = "/[\\^$.|?*+()";
+
   int d = 0, M = 0, y = 0; 
 
   for (unsigned i = 0; i < f.length(); ++i) {
@@ -939,8 +941,8 @@ WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
 	if (f[i] == '\'') {
 	  inQuote = true;
 	  gotQuoteInQuote = false;
-	} else if (f[i] == '/')
-	  result.regexp += "\\/";
+	} else if (regexSpecial.find(f[i]) != std::string::npos)
+	  result.regexp += "\\" + f[i];
 	else
 	  result.regexp += f[i];
       }

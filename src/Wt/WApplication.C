@@ -555,7 +555,7 @@ std::string WApplication::addExposedResource(WResource *resource)
     fn = '/' + fn;
 
   return session_->mostRelativeUrl(fn)
-    + "&resource=" + DomElement::urlEncode(resource->formName())
+    + "&resource=" + Utils::urlEncode(resource->formName())
     + "&rand=" + boost::lexical_cast<std::string>(WtRandom::getUnsigned());
 }
 

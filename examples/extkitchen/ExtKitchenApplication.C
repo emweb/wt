@@ -221,6 +221,7 @@ void ExtKitchenApplication::formWidgetsExample()
   cb->addItem("One");
   cb->addItem("Two");
   cb->addItem("Three");
+  cb->setFocus();
 
   /*
     This is how you would keep the data on the server (for really big

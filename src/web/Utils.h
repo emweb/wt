@@ -123,27 +123,24 @@ inline const T& last(const std::set<T>& s)
   return *s.rbegin();
 }
 
-inline double round2(double d) {
-  return static_cast<int>(d * 100) / 100.;
-}
-
+// Fast round and format to string routine
 extern char *round_str(double d, int digits, char *buf);
 
+// Only for Java target
 extern std::string toHexString(int i);
 
 // Split a string in a vector of strings, on every given token
-std::vector<std::string> tokenizer(const std::string &in,
-        const std::string &sep);
+extern std::vector<std::string> tokenizer(const std::string &in,
+					  const std::string &sep);
 
 // Replace all occurences of the 'from' char to the 'to' char in 'v'
-void replaceAll(std::string& v, char from, char to);
+extern void replaceAll(std::string& v, char from, char to);
 
-// Unescape %XX tokens in v
-void unescapeHexTokens(std::string& v);
+extern void unescapeHexTokens(std::string& v);
 
-// 1. Replace '+' by ' '
-// 2. Unescape %XX sequences
-void urlDecode(std::string &s);
+extern void urlDecode(std::string &s);
+
+extern std::string urlEncode(const std::string& url);
 
   }
 }

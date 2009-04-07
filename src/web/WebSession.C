@@ -236,8 +236,7 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
 	  = app_ ? app_->internalPath() : env_.internalPath();
 
 	if (internalPath.length() > 1)
-	  return appendSessionQuery("?_="
-				    + DomElement::urlEncode(internalPath));
+	  return appendSessionQuery("?_=" + Utils::urlEncode(internalPath));
       }
 
       return appendSessionQuery("");
@@ -312,9 +311,9 @@ std::string WebSession::appendInternalPath(const std::string& baseUrl,
       return baseUrl;
   else {
     if (applicationName_.empty())
-      return baseUrl + "?_=" + DomElement::urlEncode(internalPath);
+      return baseUrl + "?_=" + Utils::urlEncode(internalPath);
     else
-      return baseUrl + DomElement::urlEncode(internalPath);
+      return baseUrl + Utils::urlEncode(internalPath);
   }
 }
 

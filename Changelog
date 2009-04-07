@@ -1,3 +1,6 @@
+07-04-2009:
+	* Ext/FormField: add setFocus() method
+
 30-03-2009:
 	* WEnvironment.C, WebSession.C, wt_config.xml: allow configuration
 	of AJAX-capable user agents and bots in configuration file
