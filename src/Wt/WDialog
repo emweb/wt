@@ -190,8 +190,18 @@ public:
    */
   DialogCode result() const { return result_; }
 
+  /*! \brief Set whether the dialog is modal.
+   *
+   * A modal dialog will block the underlying user interface.
+   *
+   * By default a dialog is modal.
+   */
   void setModal(bool modal);
 
+  /*! \brief Returns whether the dialog is modal.
+   *
+   * \sa setModal()
+   */
   bool isModal() const { return modal_; }
 
   virtual void setHidden(bool hidden);
