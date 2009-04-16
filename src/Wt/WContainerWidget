@@ -375,6 +375,8 @@ protected:
 
 private:
   void propagateLayoutItemsOk(WLayoutItem *item);
+
+  friend class WImage;
 };
 
 }

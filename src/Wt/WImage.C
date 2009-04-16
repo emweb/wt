@@ -136,7 +136,7 @@ void WImage::addArea(WAbstractArea *area)
 void WImage::insertArea(int index, WAbstractArea *area)
 {
   if (!map_) {
-    wApp->domRoot()->addWidget(map_ = new Impl::MapWidget());
+    addChild(map_ = new Impl::MapWidget());
     flags_.set(BIT_MAP_CREATED);
     repaint(RepaintPropertyAttribute);
   }
@@ -176,23 +176,49 @@ void WImage::removeArea(WAbstractArea *area)
 
 void WImage::updateDom(DomElement& element, bool all)
 {
+  DomElement *img = &element;
+  if (all && element.type() == DomElement_SPAN) {
+    DomElement *map = map_->createDomElement(WApplication::instance());
+    element.addChild(map);
+
+    img = DomElement::createNew(DomElement_IMG);
+    img->setId("i" + formName(), false);
+  }
+
   if (flags_.test(BIT_IMAGE_REF_CHANGED) || all) {
     if (!imageRef_.empty())
-      element.setProperty(Wt::PropertySrc, fixRelativeUrl(imageRef_));
+      img->setProperty(Wt::PropertySrc, fixRelativeUrl(imageRef_));
     flags_.reset(BIT_IMAGE_REF_CHANGED);
   }
 
   if (flags_.test(BIT_ALT_TEXT_CHANGED) || all) {
-    element.setAttribute("alt", altText_.toUTF8());
+    img->setAttribute("alt", altText_.toUTF8());
     flags_.reset(BIT_ALT_TEXT_CHANGED);
   }
 
   if (flags_.test(BIT_MAP_CREATED) || (all && map_)) {
-    element.setAttribute("usemap", '#' + map_->formName());
+    img->setAttribute("usemap", '#' + map_->formName());
     flags_.reset(BIT_MAP_CREATED);
   }
 
-  WInteractWidget::updateDom(element, all);
+  WInteractWidget::updateDom(*img, all);
+
+  if (&element != img)
+    element.addChild(img);
+}
+
+void WImage::getDomChanges(std::vector<DomElement *>& result,
+			   WApplication *app)
+{
+  if (map_) {
+    // TODO: check if BIT_MAP_CREATED: then need to replace the whole
+    // element with a <span><img/><map/></span>. Currently we document
+    // this as a limitation.
+    DomElement *e = DomElement::getForUpdate("i" + formName(), DomElement_IMG);
+    updateDom(*e, false);
+    result.push_back(e);
+  } else
+    WInteractWidget::getDomChanges(result, app);
 }
 
 void WImage::propagateRenderOk(bool deep)
@@ -205,7 +231,7 @@ void WImage::propagateRenderOk(bool deep)
 
 DomElementType WImage::domElementType() const
 {
-  return DomElement_IMG;
+  return map_ ? DomElement_SPAN : DomElement_IMG;
 }
 
 }

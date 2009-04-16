@@ -9,6 +9,7 @@
 
 #include <Wt/WCompositeWidget>
 #include <Wt/WContainerWidget>
+#include <Wt/WJavaScript>
 
 namespace Wt {
 
@@ -16,23 +17,24 @@ class WTable;
 class WText;
 
 /*! \class WDialog Wt/WDialog Wt/WDialog
- *  \brief A %WDialog emulates a modal window.
+ *  \brief A %WDialog shows a dialog.
  *
- * A modal window blocks the user interface, and does not allow the
- * user to interact with any other part of the user interface until
- * the dialog is closed.
+ * By default, the dialog is <i>modal</i>. A modal window blocks the
+ * user interface, and does not allow the user to interact with any
+ * other part of the user interface until the dialog is closed (this
+ * is enforced at the server side, so you may rely on this behavior).
  *
  * There are two distinct ways for using a %WDialog window.
  *
- * The easiest way is using the exec() method: after creating a
- * %WDialog window, call the exec() method which blocks until
- * the dialog window is closed, and returns the dialog
- * result. Typically, an OK button will be connected to the accept()
- * slot, and a Cancel button to the reject() slot. This solution has
- * the drawback that it is not scalable to many concurrent sessions,
- * since every recursive event loop (which is running durring the
- * exec() method) locks a thread. Therefore it is only suitable for
- * software to be deployed on an intranet.
+ * The easiest way to display a modal dialog is using the exec()
+ * method: after creating a %WDialog window, call the exec() method
+ * which blocks until the dialog window is closed, and returns the
+ * dialog result. Typically, an OK button will be connected to the
+ * accept() slot, and a Cancel button to the reject() slot. This
+ * solution has the drawback that it is not scalable to many
+ * concurrent sessions, since every recursive event loop (which is
+ * running durring the exec() method) locks a thread. Therefore it is
+ * only suitable for software to be deployed on an intranet.
  *
  * A second way is by treating the %WDialog as another widget. In this
  * case, the %WDialog is created with the proper content, and for
@@ -40,12 +42,13 @@ class WText;
  * dialog. Unlike other widgets, a dialog is hidden by default. You must
  * use the method show() or setHidden(true) to show the dialog.
  *
+ * Use setModal(false) to create a non-modal dialog. A non-modal dialog does
+ * not block the underlying user interface: the user must not first deal with
+ * the dialog before interacting with the rest of the user interface. Multiple
+ * non-modal dialogs may be open at the same time.
+ *
  * Widgets may be added to the dialog, by adding to the contents()
  * ContainerWidget.
- *
- * Only one %WDialog window may exist at any time in a single
- * application. An attempt to instantiate a second dialog will result
- * in an exception that terminates the session.
  *
  * Usage example, using the exec() method:
  * \code
@@ -68,6 +71,9 @@ class WText;
  * This dialog looks like this (using the standard look):
  *
  * \image html WDialog-1.png "A simple custom dialog" 
+ *
+ * \note Currently only one modal dialog can be shown at a time, but you can
+ *       show as many non-modal dialogs as you want.
  *
  * \note For the dialog to render properly in IE, the "body" margin is
  *       set to 0 (if it wasn't already).
@@ -184,6 +190,10 @@ public:
    */
   DialogCode result() const { return result_; }
 
+  void setModal(bool modal);
+
+  bool isModal() const { return modal_; }
+
   virtual void setHidden(bool hidden);
   virtual void resize(const WLength& width, const WLength& height);
 
@@ -192,12 +202,15 @@ private:
   WText            *caption_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
+  bool              modal_;
 
   Signal<DialogCode> finished_;
 
   DialogCode result_;
 
   bool recursiveEventLoop_;
+
+  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
 };
 
 }

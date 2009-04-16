@@ -18,7 +18,8 @@ namespace Wt {
 
 WDialog::WDialog(const WString& windowTitle)
   : finished_(this),
-    recursiveEventLoop_(false)
+    recursiveEventLoop_(false),
+    modal_(true)
 { 
   setImplementation(impl_ = new WContainerWidget);
   impl_->setStyleClass("Wt-dialog");
@@ -35,8 +36,7 @@ WDialog::WDialog(const WString& windowTitle)
 			      // IE: requres body.height=100%
 			      "height: 100%; width: 100%;"
 			      "top: 0px; left: 0px;"
-			      "opacity: 0.5; position: fixed;"
-			      "z-index: 200;" +
+			      "opacity: 0.5; position: fixed;" +
 			      (app->environment().agentIE() ?
 			       "filter: alpha(opacity=50);"
 			       :
@@ -46,8 +46,8 @@ WDialog::WDialog(const WString& windowTitle)
 			       "-moz-opacity:0.5;"
 			       "-khtml-opacity: 0.5"), CSS_RULES_NAME);
 
-    app->styleSheet().addRule("div.Wt-dialogwindow",
-			      "z-index: 201; visibility: visible;"
+    app->styleSheet().addRule("div.Wt-dialog",
+			      "visibility: visible;"
 			      "position: fixed; left: 50%; top: 50%;"
 			      "margin-left: -100px; margin-top: -50px;");
 
@@ -60,7 +60,7 @@ WDialog::WDialog(const WString& windowTitle)
 	 "top: expression("
 	 "(ignoreMe = document.documentElement.scrollTop) + 'px' );");
       app->styleSheet().addRule
-	("div.Wt-dialogwindow",
+	("div.Wt-dialog",
 	 "position: absolute;"
 	 "left: expression("
 	 "(ignoreMe2 = document.documentElement.scrollLeft + "
@@ -75,6 +75,7 @@ WDialog::WDialog(const WString& windowTitle)
 			      "background: #EEEEEE none repeat scroll 0%;");
     app->styleSheet().addRule("div.Wt-dialog .titlebar",
 			      "background: #888888; color: #FFFFFF;"
+			      "cursor: move;"
 			      "padding: 2px 6px 3px;");
     app->styleSheet().addRule("div.Wt-dialog .body",
 			      "background: #EEEEEE;"
@@ -84,10 +85,21 @@ WDialog::WDialog(const WString& windowTitle)
 			      "margin: 2px;");
   }
 
-  WContainerWidget *parent = app->dialogWindow();
-  if (!parent->children().empty())
-    throw WtException("Error: WDialog::WDialog(): only one dialog may exist"
-		      " at a time.");
+  WContainerWidget *parent = app->domRoot();
+
+  setPopup(true);
+
+  app->addAutoJavaScript
+    ("{"
+     "" "var d=" + jsRef() + ";"
+     "" "if (d && d.style.display != 'none' && !d.getAttribute('moved')) {"
+     ""   "var ws=" WT_CLASS ".windowSize();"
+     ""   "d.style.left=Math.round((ws.x - d.clientWidth)/2) + 'px';"
+     ""   "d.style.top=Math.round((ws.y - d.clientHeight)/2) + 'px';"
+     ""   "d.style.marginLeft='0px';"
+     ""   "d.style.marginTop='0px';"
+     "" "}"
+     "}");
 
   parent->addWidget(this);
 
@@ -106,6 +118,41 @@ WDialog::WDialog(const WString& windowTitle)
   layout->addWidget(contents_, 1);
 
   impl_->setLayout(layout, AlignLeft);
+
+  if (app->environment().agentIE())
+    impl_->setOverflow(WContainerWidget::OverflowVisible);
+
+  mouseDownJS_.setJavaScript
+    ("function(obj, event) {"
+     "  var pc = " WT_CLASS ".pageCoordinates(event);"
+     "  obj.setAttribute('dsx', pc.x);"
+     "  obj.setAttribute('dsy', pc.y);"
+     "}");
+
+  mouseMovedJS_.setJavaScript
+    ("function(obj, event) {"
+     """var WT= " WT_CLASS ";"
+     """var lastx = obj.getAttribute('dsx');"
+     """var lasty = obj.getAttribute('dsy');"
+     """if (lastx != null && lastx != '') {"
+     ""  "nowxy = WT.pageCoordinates(event);"
+     ""  "var d = " + jsRef() + ";"
+     ""  "d.setAttribute('moved', true);"
+     ""  "d.style.left = (WT.pxself(d, 'left')+nowxy.x-lastx) + 'px';"
+     ""  "d.style.top = (WT.pxself(d, 'top')+nowxy.y-lasty) + 'px';"
+     ""  "obj.setAttribute('dsx', nowxy.x);"
+     ""  "obj.setAttribute('dsy', nowxy.y);"
+     """}"
+     "}");
+
+  mouseUpJS_.setJavaScript
+    ("function(obj, event) {"
+     """obj.removeAttribute('dsx');"
+     "}");
+
+  titleBar_->mouseWentDown().connect(mouseDownJS_);
+  titleBar_->mouseMoved().connect(mouseMovedJS_);
+  titleBar_->mouseWentUp().connect(mouseUpJS_);
 
   hide();
 }
@@ -188,15 +235,26 @@ void WDialog::reject()
   done(Rejected);
 }
 
+void WDialog::setModal(bool modal)
+{
+  modal_ = modal;
+}
+
 void WDialog::setHidden(bool hidden)
 {
   WApplication *app = WApplication::instance();
 
-  WContainerWidget *cover = app->dialogCover(!hidden);
-  if (cover) cover->setHidden(hidden);
-  parent()->setHidden(hidden);
+  if (modal_) {
+    WContainerWidget *cover = app->dialogCover(!hidden);
+    if (cover) {
+      cover->setHidden(hidden);
+      if (!hidden)
+	cover->setAttributeValue("style", "z-index:"
+	  + boost::lexical_cast<std::string>(impl_->zIndex() - 1));
+    }
 
-  app->exposeOnly(hidden ? 0 : this);
+    app->exposeOnly(hidden ? 0 : this);
+  }
 }
 
 }

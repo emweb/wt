@@ -331,15 +331,17 @@ public:
    */
   virtual bool isHidden() const = 0;
 
-  /*! \brief Set whether this widget is overlayed on the parent widget.
+  /*! \brief Let the widget overlay other sibling widgets.
    *
-   * This option only applies to widgets with a \link
-   * Wt::Absolute Absolute \endlink or \link Wt::Fixed Fixed
-   * \endlink positionScheme().
+   * A widget that isPopup() will be rendered on top of any other
+   * sibling widget contained within the same parent (including other
+   * popup widgets previously added to the container).
+   *
+   * This will only have an effect when the widgetis either \link
+   * Wt::Absolute Absolute \endlink or \link Wt::Fixed Fixed \endlink
+   * positionScheme().
    *
    * This applies to CSS-based layout.
-   *
-   * A widget that isPopup() will be rendered on top of the parent widget.
    */
   virtual void setPopup(bool popup) = 0;
 

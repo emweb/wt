@@ -63,6 +63,12 @@ void WCartesianChart::init()
 {
   setPalette(new WStandardPalette(WStandardPalette::Muted));
   setPreferredMethod(InlineSvgVml);
+	
+#ifdef WT_TARGET_JAVA
+  for (int i = 0; i < 3; ++i)
+    axes_[i] = WAxis();
+#endif //WT_TARGET_JAVA
+	
   axes_[XAxis].init(this, XAxis);
   axes_[YAxis].init(this, YAxis);
   axes_[Y2Axis].init(this, Y2Axis);

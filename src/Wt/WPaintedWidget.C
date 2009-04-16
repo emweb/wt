@@ -285,6 +285,7 @@ void WPaintedWidget::createAreaImage()
       setPositionScheme(Relative);
     areaImage_->setPositionScheme(Absolute);
     areaImage_->setOffsets(0, Left | Top);
+    areaImage_->setMargin(0, Top);
     areaImage_->resize(width(), height());
     areaImage_->setPopup(true);
   }
@@ -374,8 +375,7 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
   DomElement *text = DomElement::createNew(DomElement_DIV);
   text->setId('t' + widget_->formName());
   text->setProperty(PropertyStylePosition, "absolute");
-  text->setProperty(PropertyStyleZIndex,
-		    boost::lexical_cast<std::string>(widget_->zIndex() + 1));
+  text->setProperty(PropertyStyleZIndex, "1");
   text->setProperty(PropertyStyleTop, "0px");
   text->setProperty(PropertyStyleLeft, "0px");
 

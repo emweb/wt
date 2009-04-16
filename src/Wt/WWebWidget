@@ -196,10 +196,9 @@ public:
 
   static std::string fixRelativeUrl(const std::string& url);
 
-  int  zIndex() const;
-
   void setFormObject(bool how);
   static bool canOptimizeUpdates();
+  int zIndex() const;
 
 protected:
   void repaint(WFlags<RepaintFlag> flags = RepaintAll);
@@ -273,7 +272,7 @@ private:
     WLength		    minimumHeight_;
     WLength		    maximumWidth_;
     WLength		    maximumHeight_;
-    bool		    popup_;
+    int			    zIndex_; // -1 = wants popup
     AlignmentFlag	    verticalAlignment_;
     WLength		    verticalAlignmentLength_;
     WLength		    margin_[4];
@@ -326,12 +325,15 @@ private:
 
   void renderOk();
   void quickPropagateRenderOk();
+  void calcZIndex();
 
   virtual bool needsToBeRendered() const;
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app);
   void         getSFormObjects(std::vector<WObject *>& formObjects);
   virtual void getFormObjects(std::vector<WObject *>& formObjects);
+
+  void gotParent();
 
   /*
    * Drag & drop stuff.

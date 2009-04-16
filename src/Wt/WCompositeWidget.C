@@ -232,7 +232,7 @@ WLength WCompositeWidget::verticalAlignmentLength() const
 
 WWebWidget *WCompositeWidget::webWidget()
 {
-  return impl_->webWidget();
+  return impl_ ? impl_->webWidget() : 0;
 }
 
 void WCompositeWidget::setToolTip(const WString& text)
@@ -320,8 +320,14 @@ void WCompositeWidget::setImplementation(WWidget *widget)
     delete impl_;
 
   impl_ = widget;
-  if (parent() && parent()->loaded())
-    impl_->load();
+  if (parent()) {
+    WWebWidget *ww = impl_->webWidget();
+    if (ww)
+      ww->gotParent();
+
+    if (parent()->loaded())
+      impl_->load();
+  }
 
   widget->setParent(this);
 }

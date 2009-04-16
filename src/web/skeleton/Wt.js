@@ -95,24 +95,29 @@ getElement: function(id) {
 
 // Get coordinates of element relative to page origin.
 widgetPageCoordinates: function(obj) {
-  var objX = objY = 0, op, lop = null;
+  var objX = objY = 0, op, lop = null, WT = _$_WT_CLASS_$_;
+
+  // bug in safari, according to W3C, offsetParent for an area element should
+  // be the map element, but safari returns null.
+  if (WT.hasTag(obj, "AREA"))
+    obj = obj.parentNode.nextSibling; // img after map
 
   while (obj) {
     objX += obj.offsetLeft;
     objY += obj.offsetTop;
 
     op = obj.offsetParent;
+
     if (op == null)
       obj = null;
     else {
-      lop = op;
       do {
-        obj = obj.parentNode;
-	if (_$_WT_CLASS_$_.hasTag(obj, "DIV")) {
+	obj = obj.parentNode;
+	if (WT.hasTag(obj, "DIV")) {
 	  objX -= obj.scrollLeft;
 	  objY -= obj.scrollTop;
 	}
-      } while (obj != op);
+      } while (obj != null && obj != op);
     }
   }
 

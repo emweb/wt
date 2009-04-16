@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WApplication"
+#include "Wt/WCompositeWidget"
 #include "Wt/WContainerWidget"
 #include "Wt/WLogger"
 #include "Wt/WWebWidget"
@@ -48,7 +49,7 @@ WWebWidget::LayoutImpl::LayoutImpl()
     floatSide_(static_cast<Side>(0)),
     clearSides_(0),
 #endif // WT_TARGET_JAVA
-    popup_(false),
+    zIndex_(0),
     verticalAlignment_(AlignBaseline)
 { 
   for (unsigned i = 0; i < 4; ++i) {
@@ -507,7 +508,7 @@ WLength WWebWidget::offset(Side s) const
 int WWebWidget::zIndex() const
 {
   if (layoutImpl_)
-    return layoutImpl_->popup_ ? 300 : 0;
+    return layoutImpl_->zIndex_;
   else
     return 0;
 }
@@ -533,18 +534,53 @@ void WWebWidget::setPopup(bool popup)
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
 
-  layoutImpl_->popup_ = popup;
+  layoutImpl_->zIndex_ = popup ? -1 : 0;
+
+  if (popup && parent())
+    calcZIndex();
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
   repaint(RepaintPropertyAttribute);
 }
 
-bool WWebWidget::isPopup() const
+void WWebWidget::gotParent()
 {
-  return layoutImpl_ ? layoutImpl_->popup_ : false;
+  if (isPopup())
+    calcZIndex();
 }
 
+void WWebWidget::calcZIndex()
+{
+  layoutImpl_->zIndex_ = -1;
+
+  // find parent webwidget, i.e. skipping composite widgets
+  WWidget *p = this;
+  do {
+    p = p->parent();
+  } while (p != 0 && dynamic_cast<WCompositeWidget *>(p) != 0);
+
+  if (p == 0)
+    return;
+
+  WWebWidget *ww = p->webWidget();
+  if (ww) {
+    const std::vector<WWidget *>& children = ww->children();
+
+    int maxZ = 0;
+    for (unsigned i = 0; i < children.size(); ++i) {
+      WWebWidget *wi = children[i]->webWidget();
+      maxZ = std::max(maxZ, wi->zIndex());
+    }
+
+    layoutImpl_->zIndex_ = maxZ + 5;
+  }
+}
+
+bool WWebWidget::isPopup() const
+{
+  return layoutImpl_ ? layoutImpl_->zIndex_ != 0 : false;
+}
 
 void WWebWidget::setMargin(const WLength& margin, WFlags<Side> sides)
 {
@@ -685,6 +721,10 @@ void WWebWidget::addChild(WWidget *child)
 
   child->WObject::setParent((WObject *)this);
 
+  WWebWidget *ww = child->webWidget();
+  if (ww)
+    ww->gotParent();
+
   if (flags_.test(BIT_LOADED))
     doLoad(child);
 
@@ -765,11 +805,12 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       /*
        * set z-index
        */
-      if (layoutImpl_->popup_) {
+      if (layoutImpl_->zIndex_ > 0) {
 	element.setProperty(PropertyStyleZIndex,
-			    boost::lexical_cast<std::string>(zIndex()));
+		    boost::lexical_cast<std::string>(layoutImpl_->zIndex_));
 	WApplication *app = WApplication::instance();
-	if (all && app->environment().agentIE6()) {
+	if (all && app->environment().agentIE6()
+	    && element.type() == DomElement_DIV) {
 	  DomElement *i = DomElement::createNew(DomElement_IFRAME);
 	  i->setId("sh" + id());
 	  i->setAttribute("class", "Wt-shim");

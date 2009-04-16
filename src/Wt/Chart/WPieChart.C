@@ -294,7 +294,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 #else
       std::vector<double> startAngles, midAngles;
       startAngles.insert(startAngles.end(), model()->rowCount(), 0.0);
-      midAngles.insert(startAngles.end(), model()->rowCount(), 0.0);
+      midAngles.insert(midAngles.end(), model()->rowCount(), 0.0);
 #endif // WT_TARGET_JAVA
 
       int index90 = 0;

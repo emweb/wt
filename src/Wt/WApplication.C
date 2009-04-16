@@ -65,7 +65,6 @@ WApplication::WApplication(const WEnvironment& env)
 #endif // WT_TARGET_JAVA
     javaScriptClass_("Wt"),
     dialogCover_(0),
-    dialogWindow_(0),
     quited_(false),
     rshLoaded_(false),
     exposedOnly_(0),
@@ -252,7 +251,6 @@ WApplication::~WApplication()
   delete hideLoadingIndicator_;
 
   dialogCover_ = 0;
-  dialogWindow_ = 0;
 
   WContainerWidget *tmp = domRoot_;
   domRoot_ = 0;
@@ -336,32 +334,6 @@ bool WApplication::isExposed(WWidget *w) const
     return false;
   } else
     return true;
-}
-
-WContainerWidget *WApplication::dialogWindow(bool create)
-{
-  if (dialogWindow_ == 0 && create) {
-    dialogCover(true);
-
-    dialogWindow_ = new WContainerWidget(domRoot_);
-    dialogWindow_->setStyleClass("Wt-dialogwindow");
-    dialogWindow_->setPopup(true);
-
-    addAutoJavaScript
-      ("{"
-       "" "var w=" + dialogWindow_->jsRef() + ";"
-       "" "if (w && w.style.display != 'none') {"
-       ""   "var ml='-' + Math.round(w.clientWidth/2) + 'px';"
-       ""   "if (w.style.marginLeft != ml)"
-       ""     "w.style.marginLeft=ml;"
-       ""   "var mt='-' + Math.round(w.clientHeight/2) + 'px';"
-       ""   "if (w.style.marginTop != mt)"
-       ""     "w.style.marginTop=mt;"
-       "" "}"
-       "}");
-  }
-
-  return dialogWindow_;
 }
 
 std::string WApplication::sessionId() const

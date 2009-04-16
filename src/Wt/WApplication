@@ -1118,7 +1118,6 @@ private:
   std::string            javaScriptClass_;
   AjaxMethod             ajaxMethod_;
   WContainerWidget      *dialogCover_;
-  WContainerWidget      *dialogWindow_;
   bool                   quited_;
   std::string            onePixelGifUrl_;
   bool                   rshLoaded_;
@@ -1149,7 +1148,6 @@ private:
 
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WContainerWidget *dialogCover(bool create = true);
-  WContainerWidget *dialogWindow(bool create = true);
 
   WEnvironment&     env();       // short-hand for session_->env()
 

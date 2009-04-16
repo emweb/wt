@@ -197,6 +197,8 @@ private:
   void resourceChanged();
 
 protected:
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app);
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void propagateRenderOk(bool deep);

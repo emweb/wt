@@ -1,3 +1,15 @@
+16-04-2009:
+	* WApplication, WDialog: simplify dialog rendering, allow
+	(multiple) non-modal dialogs (WDialog::setModal(false)), allow
+	dialogs to be moved around by dragging in the title bar
+
+	* WWebWidget: saner handling of z-index, only apply IE6 shim to DIVs
+
+	* WPaintedWidget: fix use of WImage for WAbstractArea's
+
+	* WImage, Wt.js: fix position reporting in mouse events from
+	WAbstractArea's in non-compliant browsers (all except for Firefox)
+
 07-04-2009:
 	* Ext/FormField: add setFocus() method
 
