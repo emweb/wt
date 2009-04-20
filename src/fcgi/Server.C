@@ -36,6 +36,38 @@ namespace {
 
 Wt::EntryPointList entryPoints;
 
+bool bindUDStoStdin(const std::string& socketPath, Wt::Configuration& conf)
+{
+  int s = socket(AF_UNIX, SOCK_STREAM, 0);
+  if (s == -1) {
+    conf.log("fatal") << "socket(): " << strerror(errno);
+    return false;
+  }
+
+  struct sockaddr_un local;
+  local.sun_family = AF_UNIX;
+  strcpy(local.sun_path, socketPath.c_str());
+  unlink(local.sun_path);
+  socklen_t len = strlen(local.sun_path) + sizeof(local.sun_family);
+
+  if (bind(s, (struct sockaddr *)& local, len) == -1) {
+    conf.log("fatal") << "bind(): " << strerror(errno);
+    return false;
+  }
+
+  if (listen(s, 5) == -1) {
+    conf.log("fatal") << "listen(): " << strerror(errno);
+    return false;
+  }
+
+  if (dup2(s, STDIN_FILENO) == -1) {
+    conf.log("fatal") << "dup2(): " << strerror(errno);
+    return false;
+  }
+
+  return true;
+}
+
 }
 
 namespace Wt {
@@ -315,6 +347,17 @@ int Server::main()
     conf_.log("error") << "Cannot catch SIGCHLD: signal(): "
 		       << strerror(errno);
 
+  int acceptSocket = STDIN_FILENO;
+  if (argc_ == 2 && boost::starts_with(argv_[1], "--socket=")) {
+    std::string socketName = std::string(argv_[1]).substr(9);
+    boost::trim(socketName);
+    if (!bindUDStoStdin(socketName, conf_))
+      return -1;
+    conf_.log("notice") << "Reading FastCGI stream from socket '"
+			<< socketName << '\'';
+  } else
+    conf_.log("notice") << "Reading FastCGI stream from stdin";
+
   for (;;) {
     int serverSocket = accept(STDIN_FILENO, (sockaddr *) &clientname,
 			      &socklen);
@@ -571,34 +614,8 @@ static void handleSigUsr1(int)
 
 void runSession(Configuration& conf, std::string sessionId)
 {
-  int s = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (s == -1) {
-    conf.log("fatal") << "socket(): " << strerror(errno);
+  if (!bindUDStoStdin(conf.runDirectory() + "/" + sessionId, conf))
     exit(1);
-  }
-
-  socketPath = conf.runDirectory() + "/" + sessionId;
-
-  struct sockaddr_un local;
-  local.sun_family = AF_UNIX;
-  strcpy(local.sun_path, socketPath.c_str());
-  unlink(local.sun_path);
-  socklen_t len = strlen(local.sun_path) + sizeof(local.sun_family);
-
-  if (bind(s, (struct sockaddr *)& local, len) == -1) {
-    conf.log("fatal") << "bind(): " << strerror(errno);
-    exit(1);
-  }
-
-  if (listen(s, 5) == -1) {
-    conf.log("fatal") << "listen(): " << strerror(errno);
-    exit(1);
-  }
-
-  if (dup2(s, STDIN_FILENO) == -1) {
-    conf.log("fatal") << "dup2(): " << strerror(errno);
-    exit(1);
-  }
 
   try {
     FCGIStream fcgiStream;
@@ -631,35 +648,10 @@ void runSession(Configuration& conf, std::string sessionId)
 
 void startSharedProcess(Configuration& conf)
 {
-  int s = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (s == -1) {
-    conf.log("fatal") << "socket(): " << strerror(errno);
+  if (!bindUDStoStdin(conf.runDirectory() + "/server-"
+		      + boost::lexical_cast<std::string>(getpid()),
+		      conf))
     exit(1);
-  }
-
-  socketPath = conf.runDirectory() + "/server-"
-    + boost::lexical_cast<std::string>(getpid());
-
-  struct sockaddr_un local;
-  local.sun_family = AF_UNIX;
-  strcpy(local.sun_path, socketPath.c_str());
-  unlink(local.sun_path);
-  socklen_t len = strlen(local.sun_path) + sizeof(local.sun_family);
-
-  if (bind(s, (struct sockaddr *)& local, len) == -1) {
-    conf.log("fatal") << "socket(): " << strerror(errno);
-    exit(1);
-  }
-
-  if (listen(s, 5) == -1) {
-    perror("listen");
-    exit(1);
-  }
-
-  if (dup2(s, STDIN_FILENO) == -1) {
-    perror("dup2");
-    exit(1);
-  }
 
   try {
     FCGIStream fcgiStream;
@@ -704,7 +696,9 @@ void AddWidgetSetEntryPoint(ApplicationCreator createApplication,
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
-  if (argc == 1) {
+  bool isServer = argc == 1 || strcmp(argv[1], "client") != 0; 
+
+  if (isServer) {
     Server webServer(argc, argv);
     return webServer.main();
   } else {
