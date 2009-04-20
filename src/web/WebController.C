@@ -160,19 +160,19 @@ bool WebController::expireSessions(std::vector<WebSession *>& toKill)
   boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // WT_THREADED
 
-  std::vector<SessionMap::iterator> toErase;
+  std::vector<WebSession *> toErase;
   for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
     int diff = i->second->expireTime() - now;
 
     if (diff < 1000) {
       i->second->log("notice") << "Timeout: expiring";
       toKill.push_back(i->second);
-      toErase.push_back(i);
+      toErase.push_back(i->second);
     }
   }
 
   for (unsigned i = 0; i < toErase.size(); ++i)
-    sessions_.erase(toErase[i]);
+    sessions_.erase(toErase[i]->sessionId());
 
   return !sessions_.empty();
 }
