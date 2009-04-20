@@ -523,14 +523,22 @@ double WAxis::map(double u, AxisLocation otherLocation, int segment) const
 
 WString WAxis::label(double u) const
 {
+#ifndef WT_TARGET_JAVA
+  char buf[30];
+#else
+  char *buf = 0;
+#endif // WT_TARGET_JAVA
+
   WString text;
 
   if (scale_ == CategoryScale) {
     if (chart_->XSeriesColumn() != -1) {
       text = asString(chart_->model()->data((int)u, chart_->XSeriesColumn()));
     } else {
-      char buf[10];
-      sprintf(buf, "%.4g", u+1);
+#ifdef WT_TARGET_JAVA
+      buf =
+#endif // WT_TARGET_JAVA
+	sprintf(buf, "%.4g", u+1);
       text = WString::fromUTF8(buf);
     }
   } else if (scale_ == DateScale) {
@@ -547,8 +555,11 @@ WString WAxis::label(double u) const
     if (format.empty())
       format = "%.4g";
 
-    char buf[10];
-    sprintf(buf, format.c_str(), u);
+#ifdef WT_TARGET_JAVA
+    buf =
+#endif // WT_TARGET_JAVA
+      sprintf(buf, format.c_str(), u);
+
     text = WString::fromUTF8(buf);
   }
 

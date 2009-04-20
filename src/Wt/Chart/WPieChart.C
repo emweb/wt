@@ -246,8 +246,13 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	    text = asString(model()->data(i, labelsColumn_));
 
 	if (labelOptions_ & TextPercentage) {
+#ifndef WT_TARGET_JAVA
 	  char buf[20];
-	  snprintf(buf, 20, "%.3g%%", v / total * 100);
+#else
+	  char *buf = 0;
+	  buf =
+#endif // WT_TARGET_JAVA
+	    snprintf(buf, 20, "%.3g%%", v / total * 100);
 	  if (!text.empty())
 	    text += ": ";
 	  text += buf;
