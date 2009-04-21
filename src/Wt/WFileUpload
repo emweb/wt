@@ -28,21 +28,21 @@ namespace Wt {
  * fileTooLarge() signal is emitted.
  *
  * When no JavaScript is available, the file will be uploaded with the
- * next click event. Thus, upload() is not useful -- the file will
+ * next click event. Thus, upload() has no effect -- the file will
  * already be uploaded, and the corresponding signals will already be
- * emitted. To test if upload() is needed, you may check using the
- * isUploaded() call.
+ * emitted. To test if upload() will start an upload, you may check
+ * using the canUpload() call.
  *
  * Thus, to properly use the widget, one needs to follow these
  * rules:
  * <ul>
  *   <li>Be prepared to handle the uploaded() or fileTooLarge() signals
  *       also when upload() was not called.</li>
- *   <li>Check with isUploaded() if upload() will schedule a new
- *       upload. if (isUploaded()) then upload() will no have any
- *       effect. if (!isUploaded()), upload() will start and end
- *       when either of the two uploaded() or fileTooLarge()
- *       signals gets emitted.
+ *   <li>Check using canUpload() if upload() will schedule a new
+ *       upload. if (!canUpload()) then upload() will not have any
+ *       effect. if (canUpload()), upload() will start a new file upload,
+ *       which completes succesfully using an uploaded() signal or a
+ *       fileTooLarge() signals gets emitted.
  *   </li>
  * </ul>
  *
@@ -135,10 +135,26 @@ public:
    */
   bool emptyFileName() const { return clientFileName_.empty(); }
 
-  /*! \brief Returns whether the upload() slot will trigger a new
-   *         upload.
+  /*! \brief Returns whether upload() will start a new file upload.
+   *
+   * A call to upload() will only start a new file upload if there is
+   * no JavaScript support. Otherwise, the most recent file will
+   * already be uploaded.
+   *
+   * \note This method was renamed, and its result inverted, from the
+   *       now deprecated method isUploaded()
    */
-  bool isUploaded() const { return fileUploadTarget_ != 0; }
+  bool canUpload() const { return fileUploadTarget_ != 0; }
+
+#ifndef WT_DEPRECATED
+  /*! \brief Returns whether the upload() slot will not start a new
+   *         upload. (<b>Deprecated</b>)
+   *
+   * \deprecated use canUpload() instead -- canUpload() == !isUploaded().
+   *             the name was confusing.
+   */
+  bool isUploaded() const { return !canUpload(); }
+#endif // WT_DEPRECATED
 
   /*! \brief %Signal emitted when a new file was uploaded.
    *
@@ -177,12 +193,12 @@ public:
 
   /*! \brief Start the file upload.
    *
-   * The uploaded signal is emitted when a file is uploaded, or the
+   * The uploaded() signal is emitted when a file is uploaded, or the
    * fileTooLarge() signal is emitted when the file size exceeded the
    * maximum request size.
    *
-   * \sa uploaded
-   * \sa isUploaded
+   * \sa uploaded()
+   * \sa canUpload()
    */
   void upload();
 

@@ -5,6 +5,8 @@
 	restarting, and use client-side repetition if the signal is not
 	exposed
 
+	* WFileUpload: deprecated isUploaded(), new method canUpload()
+
 16-04-2009:
 	* WApplication, WDialog: simplify dialog rendering, allow
 	(multiple) non-modal dialogs (WDialog::setModal(false)), allow

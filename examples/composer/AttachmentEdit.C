@@ -96,10 +96,10 @@ bool AttachmentEdit::uploadNow()
 {
   /*
    * See if this attachment still needs to be uploaded,
-   * and return if a new asyncrhonous upload is started.
+   * and return if a new asynchronous upload is started.
    */
   if (upload_) {
-    if (!upload_->isUploaded()) {
+    if (upload_->canUpload()) {
       upload_->upload();
       return true;
     } else
