@@ -23,9 +23,25 @@ WTimerWidget::~WTimerWidget()
   timer_->timerWidget_ = 0;
 }
 
-void WTimerWidget::timerStart()
+DomElement *WTimerWidget::renderRemove()
+{
+  DomElement *e = DomElement::getForUpdate(this, DomElement_DIV);
+  e->removeFromParent();
+  e->callJavaScript
+    ("{"
+     """var obj=" + jsRef() + ";"
+     """if (obj.timer) {"
+     ""  "clearTimeout(obj.timer);"
+     ""  "obj.timer = null;"
+     """}"
+     "}", true);
+  return e;
+}
+
+void WTimerWidget::timerStart(bool jsRepeat)
 {
   timerStarted_ = true;
+  jsRepeat_ = jsRepeat;
 
   repaint();
 }
@@ -37,10 +53,10 @@ bool WTimerWidget::timerExpired()
 
 void WTimerWidget::updateDom(DomElement& element, bool all)
 {
-  if (timerStarted_ 
+  if (timerStarted_
       || ((!WApplication::instance()->environment().javaScript() || all)
 	  && timer_->isActive())) {
-    element.setTimeout(timer_->getRemainingInterval());
+    element.setTimeout(timer_->getRemainingInterval(), jsRepeat_);
 
     timerStarted_ = false;
   }

@@ -19,10 +19,9 @@ WTimer::WTimer(WObject *parent)
     selfDestruct_(false),
     interval_(0),
     active_(false),
+    timeoutConnected_(false),
     timeout_(new Time())
-{
-  timeout().connect(SLOT(this, WTimer::gotTimeout));
-}
+{ }
 
 EventSignal<WMouseEvent>& WTimer::timeout()
 {
@@ -51,19 +50,29 @@ void WTimer::setSingleShot(bool singleShot)
 void WTimer::start()
 {
   if (!active_) {
-    if (WApplication::instance())
-      WApplication::instance()->timerRoot()->addWidget(timerWidget_);
+    WApplication *app = WApplication::instance();    
+    if (app && app->domRoot())
+      app->timerRoot()->addWidget(timerWidget_);
     active_ = true;
     *timeout_ = Time() + interval_;
-    timerWidget_->timerStart();
+
+    bool jsRepeat = !timeout().isExposedSignal() && !singleShot_;
+
+    timerWidget_->timerStart(jsRepeat);
+
+    if (timeout().isExposedSignal() && !timeoutConnected_) {
+      timeout().connect(SLOT(this, WTimer::gotTimeout));
+      timeoutConnected_ = true;
+    }
   }
 }
 
 void WTimer::stop()
 {
   if (active_) {
-    if (WApplication::instance() && WApplication::instance()->domRoot())
-      WApplication::instance()->timerRoot()->removeWidget(timerWidget_);
+    WApplication *app = WApplication::instance();
+    if (app && app->domRoot())
+      app->timerRoot()->removeWidget(timerWidget_);
     active_ = false;
   }
 }
@@ -78,7 +87,7 @@ void WTimer::gotTimeout()
   if (active_) {
     if (!singleShot_) {
       *timeout_ = Time() + interval_;
-      timerWidget_->timerStart();    
+      timerWidget_->timerStart(false);    
     } else
       stop();
   }

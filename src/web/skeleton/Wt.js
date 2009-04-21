@@ -1133,9 +1133,23 @@ var emit = function(object, config) {
     scheduleUpdate();
 };
 
-var addTimerEvent = function(timerid, msec) {
-  setTimeout('var obj=_$_WT_CLASS_$_.getElement("' + timerid + '"); '
-             + 'if (obj) { obj.onclick(); }', msec);
+var addTimerEvent = function(timerid, msec, repeat) {
+  var tm = function() {
+    var obj=_$_WT_CLASS_$_.getElement(timerid);
+    if (obj) {
+      if (repeat)
+	obj.timer = setTimeout(obj.tm, msec);
+      else {
+	obj.timer = null;
+	obj.tm = null;
+      }
+      obj.onclick();
+    }
+  };
+
+  var obj = _$_WT_CLASS_$_.getElement(timerid);
+  obj.timer = setTimeout(tm, msec);
+  obj.tm = tm;
 };
 
 var jsLibsLoaded = {};

@@ -126,19 +126,20 @@ public:
 private:
   WTimerWidget *timerWidget_;
 
+  bool singleShot_;
+  bool selfDestruct_;
+  int  interval_;
+  bool active_;
+  bool timeoutConnected_;
+
+  Time *timeout_;
+
   void gotTimeout();
 
   void setSelfDestruct();
   int getRemainingInterval() const;
 
   friend class WTimerWidget;
-
-  bool singleShot_;
-  bool selfDestruct_;
-  int  interval_;
-  bool active_;
-
-  Time *timeout_;
 };
 
 #ifndef WT_TARGET_JAVA

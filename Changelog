@@ -1,3 +1,10 @@
+21-04-2009:
+	* WFormWidget: add setReadOnly(), isReadOnly() methods
+
+	* WTimer.C: fix multiple signals firing when stopping and
+	restarting, and use client-side repetition if the signal is not
+	exposed
+
 16-04-2009:
 	* WApplication, WDialog: simplify dialog rendering, allow
 	(multiple) non-modal dialogs (WDialog::setModal(false)), allow

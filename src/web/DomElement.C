@@ -367,10 +367,11 @@ void DomElement::processEvents(WApplication *app) const
       + '}';
 }
 
-void DomElement::setTimeout(int msec)
+void DomElement::setTimeout(int msec, bool jsRepeat)
 {
   ++numManipulations_;
   timeOut_ = msec;
+  timeOutJSRepeat_ = jsRepeat;
 }
 
 void DomElement::callJavaScript(const std::string& jsCode,
@@ -753,6 +754,10 @@ void DomElement::asHTML(EscapeOStream& out,
 	//  (like konqueror)
 	out << " disabled=\"disabled\"";
       break;
+    case Wt::PropertyReadOnly:
+      if (i->second == "true")
+	out << " readonly=\"readonly\"";
+      break;
     case Wt::PropertyChecked:
       if (i->second == "true")
 	// out << " checked";
@@ -830,7 +835,7 @@ void DomElement::asHTML(EscapeOStream& out,
 		      + methodCalls_[i] + ';');
 
   if (timeOut_ != -1)
-    timeouts.push_back(TimeoutEvent(timeOut_, id_));
+    timeouts.push_back(TimeoutEvent(timeOut_, id_, timeOutJSRepeat_));
 
   Utils::insert(timeouts, timeouts_);
 }
@@ -940,7 +945,8 @@ void DomElement::createTimeoutJs(std::ostream& out, const TimeoutList& timeouts,
   for (unsigned i = 0; i < timeouts.size(); ++i)
     out << app->javaScriptClass()
 	<< "._p_.addTimerEvent('" << timeouts[i].event << "', " 
-	<< timeouts[i].msec << ");\n";
+	<< timeouts[i].msec << ","
+	<< (timeouts[i].repeat ? "true" : "false") << ");\n";
 }
 
 std::string DomElement::createAsJavaScript(EscapeOStream& out,
@@ -1109,7 +1115,8 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	for (unsigned i = 0; i < timeouts.size(); ++i)
 	  out << app->javaScriptClass()
 	      << "._p_.addTimerEvent('" << timeouts[i].event << "', " 
-	      << timeouts[i].msec << ");\n";
+	      << timeouts[i].msec << ","
+	      << (timeouts[i].repeat ? "true" : "false") << ");\n";
       }
     } else {
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i) {
@@ -1141,7 +1148,8 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
     if (timeOut_ != -1)
       out << app->javaScriptClass() << "._p_.addTimerEvent('"
-	  << id_ << "', " << timeOut_ << ");\n";
+	  << id_ << "', " << timeOut_ << ","
+	  << (timeOutJSRepeat_ ? "true" : "false") << ");\n";
 
     return var_;
   }
@@ -1198,6 +1206,9 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out) const
       break;
     case Wt::PropertyDisabled:
       out << var_ << ".disabled=" << i->second << ';';
+      break;
+    case Wt::PropertyReadOnly:
+      out << var_ << ".readOnly=" << i->second << ';';
       break;
     case Wt::PropertyChecked:
       out << var_ << ".checked=" << i->second << ';';

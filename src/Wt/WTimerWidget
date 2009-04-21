@@ -24,16 +24,18 @@ public:
   WTimerWidget(WTimer *timer);
   ~WTimerWidget();
 
-  void timerStart();
+  void timerStart(bool jsRepeat);
   bool timerExpired();
 
 private:
   WTimer *timer_;
   bool timerStarted_;
+  bool jsRepeat_;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all);
+  virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
+  virtual DomElement *renderRemove();
 
   friend class WebSession;
 };
