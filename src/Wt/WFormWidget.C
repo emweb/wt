@@ -118,7 +118,20 @@ void WFormWidget::setEnabled(bool enabled)
   flags_.set(BIT_ENABLED, enabled);
   flags_.set(BIT_ENABLED_CHANGED);
 
-  repaint();
+  repaint(RepaintPropertyAttribute);
+}
+
+void WFormWidget::setReadOnly(bool readOnly)
+{
+  flags_.set(BIT_READONLY, readOnly);
+  flags_.set(BIT_READONLY_CHANGED);
+
+  repaint(RepaintPropertyAttribute);
+}
+
+bool WFormWidget::isReadOnly() const
+{
+  return flags_.test(BIT_READONLY);
 }
 
 void WFormWidget::validatorChanged()
@@ -179,6 +192,11 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_ENABLED_CHANGED) || all) {
     element.setProperty(Wt::PropertyDisabled, isEnabled() ? "false" : "true");
     flags_.reset(BIT_ENABLED_CHANGED);
+  }
+
+  if (flags_.test(BIT_READONLY_CHANGED) || all) {
+    element.setProperty(Wt::PropertyReadOnly, isReadOnly() ? "true" : "false");
+    flags_.reset(BIT_READONLY_CHANGED);
   }
 
   if (isEnabled()) {

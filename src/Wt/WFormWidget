@@ -109,6 +109,23 @@ public:
    */
   void setFocus();
 
+  /*! \brief Set the element read-only.
+   *
+   * A read-only form element cannot be edited, but the contents can
+   * still be selected.
+   *
+   * By default, a form element area is not read-only.
+   *
+   * \sa setEnabled()
+   */
+  void setReadOnly(bool readOnly);
+
+  /*! \brief Returns whether the form element is read-only.
+   *
+   * \sa setReadOnly()
+   */
+  bool isReadOnly() const;
+
 public:
   /*! \brief Signal emitted when the value was changed.
    */
@@ -139,13 +156,15 @@ private:
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
-  static const int BIT_ENABLED         = 0;
-  static const int BIT_ENABLED_CHANGED = 1;
-  static const int BIT_WAS_ENABLED     = 2;
-  static const int BIT_GOT_FOCUS       = 3;
-  static const int BIT_INITIAL_FOCUS   = 4;
+  static const int BIT_ENABLED          = 0;
+  static const int BIT_ENABLED_CHANGED  = 1;
+  static const int BIT_WAS_ENABLED      = 2;
+  static const int BIT_GOT_FOCUS        = 3;
+  static const int BIT_INITIAL_FOCUS    = 4;
+  static const int BIT_READONLY         = 5;
+  static const int BIT_READONLY_CHANGED = 6;
 
-  std::bitset<5> flags_;
+  std::bitset<7> flags_;
 
   void undoEnable();
   void undoDisable();

@@ -89,7 +89,7 @@ private:
   int      cols_, rows_;
 
   bool contentChanged_;
-  bool colsRowsChanged_;
+  bool attributesChanged_;
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);

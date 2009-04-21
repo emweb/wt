@@ -16,7 +16,7 @@ WTextArea::WTextArea(WContainerWidget *parent)
     cols_(20),
     rows_(5),
     contentChanged_(false),
-    colsRowsChanged_(false)
+    attributesChanged_(false)
 { 
   setInline(true);
   setFormObject(true);
@@ -28,7 +28,7 @@ WTextArea::WTextArea(const WT_USTRING& text, WContainerWidget *parent)
     cols_(20),
     rows_(5),
     contentChanged_(false),
-    colsRowsChanged_(false)
+    attributesChanged_(false)
 { 
   setInline(true);
   setFormObject(true);
@@ -47,14 +47,14 @@ void WTextArea::setText(const WT_USTRING& text)
 void WTextArea::setColumns(int columns)
 {
   cols_ = columns;
-  colsRowsChanged_ = true;
+  attributesChanged_ = true;
   repaint(RepaintPropertyAttribute);
 }
 
 void WTextArea::setRows(int rows)
 {
   rows_ = rows;
-  colsRowsChanged_ = true;
+  attributesChanged_ = true;
   repaint(RepaintPropertyAttribute);
 }
 
@@ -75,12 +75,13 @@ void WTextArea::updateDom(DomElement& element, bool all)
       contentChanged_ = false;
     }
 
-  if (colsRowsChanged_ || all) {
+  if (attributesChanged_ || all) {
     element.setAttribute("cols",
 			 boost::lexical_cast<std::string>(cols_));
     element.setAttribute("rows",
 			 boost::lexical_cast<std::string>(rows_));
-    colsRowsChanged_ = false;
+
+    attributesChanged_ = false;
   }
 
   WFormWidget::updateDom(element, all);
@@ -88,7 +89,7 @@ void WTextArea::updateDom(DomElement& element, bool all)
 
 void WTextArea::propagateRenderOk(bool deep)
 {
-  colsRowsChanged_ = false;
+  attributesChanged_ = false;
   contentChanged_ = false;
   
   WFormWidget::propagateRenderOk(deep);
