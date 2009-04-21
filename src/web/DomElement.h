@@ -117,7 +117,7 @@ public:
 
   void setId(const std::string& id, bool andName = false);
   void setId(const WObject *object, bool andName = false);
-  void setTimeout(int msec);
+  void setTimeout(int msec, bool jsRepeat);
   void callMethod(const std::string& method);
   void callJavaScript(const std::string& javascript,
 		      bool evenWhenDeleted = false);
@@ -140,9 +140,11 @@ public:
   struct TimeoutEvent {
     int msec;
     std::string event;
+    bool repeat;
 
     TimeoutEvent() { }
-    TimeoutEvent(int m, const std::string& e) : msec(m), event(e) { }
+    TimeoutEvent(int m, const std::string& e, bool r)
+      : msec(m), event(e), repeat(repeat) { }
   };
 
   typedef std::vector<TimeoutEvent> TimeoutList;
@@ -206,6 +208,7 @@ private:
   int          numManipulations_;
   std::vector<std::string> methodCalls_;
   int          timeOut_;
+  bool         timeOutJSRepeat_;
   std::string  javaScript_;
   std::string  javaScriptEvenWhenDeleted_;
   mutable std::string  var_;

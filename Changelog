@@ -1,3 +1,19 @@
+21-04-2009:
+	* WTimer.C: fix multiple signals firing when stopping and
+	restarting, and use client-side repetition if the signal is not
+	exposed
+
+30-03-2009:
+	* WEnvironment.C, WebSession.C, wt_config.xml: allow configuration
+	of AJAX-capable user agents and bots in configuration file
+
+	* WTabWidget.C: use a layout manager to manage vertical height
+
+	* WLabel.C: fix bug with placement of image and add option to place
+	image to left or right of label text
+
+	* WDatePicker.C: implement setEnabled()
+
 03-03-2009:
 	* WFileUpload.C: emit uploaded() signal in event loop.
 

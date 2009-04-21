@@ -104,21 +104,21 @@ public:
    */
   EventSignal<void> timeout;
 
-private slots:
-  void gotTimeout();
-
 private:
-  void setSelfDestruct();
-  int getRemainingInterval() const;
-
-  friend class WTimerWidget;
-
   bool singleShot_;
   bool selfDestruct_;
   int  interval_;
   bool active_;
+  bool timeoutConnected_;
 
   Time *timeout_;
+
+  void gotTimeout();
+
+  void setSelfDestruct();
+  int getRemainingInterval() const;
+
+  friend class WTimerWidget;
 };
 
 template <class T, class V>
