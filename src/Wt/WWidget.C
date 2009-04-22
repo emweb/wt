@@ -64,11 +64,11 @@ void WWidget::renderOk()
   }
 }
 
-void WWidget::askRerender()
+void WWidget::askRerender(bool laterOnly)
 {
   if (!needRerender_) {
     needRerender_ = true;
-    WApplication::instance()->session()->renderer().needUpdate(this);
+    WApplication::instance()->session()->renderer().needUpdate(this, laterOnly);
   }
 }
 

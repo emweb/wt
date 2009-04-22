@@ -148,7 +148,7 @@ public:
 
     TimeoutEvent() { }
     TimeoutEvent(int m, const std::string& e, bool r)
-      : msec(m), event(e), repeat(repeat) { }
+      : msec(m), event(e), repeat(r) { }
   };
 
   typedef std::vector<TimeoutEvent> TimeoutList;

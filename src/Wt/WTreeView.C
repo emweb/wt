@@ -43,6 +43,8 @@
 namespace {
 // returns true if i2 is an ancestor of i1
   bool isAncestor(const Wt::WModelIndex& i1, const Wt::WModelIndex& i2) {
+    if (!i1.isValid())
+      return false;
 
     for (Wt::WModelIndex p = i1.parent(); p.isValid(); p = p.parent()) {
       if (p == i2)
@@ -283,7 +285,7 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
 
     WString label = asString(child.data(), view_->columnFormat(i));
     if (label.empty() && haveCheckBox)
-      label = "&nbsp;";
+      label = " ";
     t->setText(label);
 
     std::string iconUrl = asString(child.data(DecorationRole)).toUTF8();

@@ -1263,7 +1263,7 @@ DomElement *WWebWidget::createSDomElement(WApplication *app)
 	|| (otherImpl_ && otherImpl_->id_))
       stub->setId(this);
 
-    repaint();
+    WWidget::askRerender(true);
 
     return stub;
   } else {

@@ -28,30 +28,34 @@ namespace {
     { }
 
     bool operator()(int r1, int r2) const {
-      if (order == AscendingOrder)
-	return compare(r1, r2) < 0;
-      else
-	return compare(r2, r1) < 0;
+      return compare(r1, r2) < 0;
     }
 
     int compare(int r1, int r2) const {
       WStandardItem *item1 = item->child(r1, column);
       WStandardItem *item2 = item->child(r2, column);
 
+      int result;
+
       if (item1)
 	if (item2)
 #ifndef WT_TARGET_JAVA
-	  return (*item1) < (*item2) ? -1 : 1;
+	  result = (*item1) < (*item2) ? -1 : 1;
 #else
-          return item1->compare(*item2);
+          result = item1->compare(*item2);
 #endif
 	else
-	  return -UNSPECIFIED_RESULT;
+	  result = -UNSPECIFIED_RESULT;
       else
 	if (item2)
-	  return UNSPECIFIED_RESULT;
+	  result = UNSPECIFIED_RESULT;
 	else
-	  return 0;
+	  result = 0;
+
+      if (order == DescendingOrder)
+	result = -result;
+
+      return result;
     }
 
     WStandardItem *item;
@@ -754,15 +758,19 @@ void WStandardItem::recursiveSortChildren(int column, SortOrder order)
 
 #ifndef WT_TARGET_JAVA
     Column temp(rowCount());
-#else
-    Column temp;
-    temp.insert(temp.end(), rowCount(), static_cast<WStandardItem *>(0));
 #endif
 
     for (int c = 0; c < columnCount(); ++c) {
+#ifdef WT_TARGET_JAVA
+    Column temp;
+#endif // WT_TARGET_JAVA
       Column& cc = (*columns_)[c];
       for (int r = 0; r < rowCount(); ++r) {
+#ifndef WT_TARGET_JAVA
 	temp[r] = cc[permutation[r]];
+#else
+	temp.push_back(cc[permutation[r]]);
+#endif // WT_TARGET_JAVA
 	if (temp[r])
 	  temp[r]->row_ = r;
       }

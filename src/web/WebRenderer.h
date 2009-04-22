@@ -38,7 +38,7 @@ public:
   bool visibleOnly() const { return visibleOnly_; }
   void setVisibleOnly(bool how) { visibleOnly_ = how; }
 
-  void needUpdate(WWidget *w);
+  void needUpdate(WWidget *w, bool laterOnly);
   void doneUpdate(WWidget *w);
   void updateFormObjects(WWebWidget *w, bool checkDescendants);
 
@@ -118,6 +118,7 @@ private:
   typedef std::set<WWidget *> UpdateMap;
   UpdateMap updateMap_;
   bool      learning_;
+  bool      moreUpdates_;
 
 public:
   std::string       learn(WStatelessSlot* slot);

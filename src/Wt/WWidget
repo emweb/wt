@@ -596,7 +596,7 @@ protected:
   virtual WStatelessSlot *getStateless(Method method);
 
   void renderOk();
-  void askRerender();
+  void askRerender(bool laterOnly = false);
   bool needRerender() const { return needRerender_; }
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,

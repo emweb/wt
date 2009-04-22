@@ -59,7 +59,7 @@ void WebRenderer::setTwoPhaseThreshold(int bytes)
 
 //#define DEBUG_RENDER
 
-void WebRenderer::needUpdate(WWidget *w)
+void WebRenderer::needUpdate(WWidget *w, bool laterOnly)
 {
   if (session_.env().ajax()) {
 #ifdef DEBUG_RENDER
@@ -67,6 +67,9 @@ void WebRenderer::needUpdate(WWidget *w)
 		  << ")" << std::endl;
 #endif //DEBUG_RENDER
     updateMap_.insert(w);
+
+    if (!laterOnly)
+      moreUpdates_ = true;
   }
 }
 
@@ -786,78 +789,82 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 {
   WApplication *app = session_.app();
 
-  std::multimap<int, WWidget *> depthOrder;
+  do {
+    moreUpdates_ = false;
 
-  for (UpdateMap::const_iterator i = updateMap_.begin();
-       i != updateMap_.end(); ++i) {
-    int depth = 1;
+    std::multimap<int, WWidget *> depthOrder;
 
-    WWidget *ww = *i;
-    WWidget *w = ww;
-    for (; w->parent(); ++depth)
-      w = w->parent();
+    for (UpdateMap::const_iterator i = updateMap_.begin();
+	 i != updateMap_.end(); ++i) {
+      int depth = 1;
 
-    if (w != app->domRoot_ && w != app->domRoot2_) {
+      WWidget *ww = *i;
+      WWidget *w = ww;
+      for (; w->parent(); ++depth)
+	w = w->parent();
+
+      if (w != app->domRoot_ && w != app->domRoot2_) {
 #ifdef DEBUG_RENDER
-      std::cerr << "ignoring: " << (*i)->formName()
-                << " (" << typeid(**i).name()
-                << ") " << w->formName()
-                << " (" << typeid(*w).name()
-                << ")" << std::endl;
+	std::cerr << "ignoring: " << (*i)->formName()
+		  << " (" << typeid(**i).name()
+		  << ") " << w->formName()
+		  << " (" << typeid(*w).name()
+		  << ")" << std::endl;
 #endif // DEBUG_RENDER
-      // not in displayed widgets: will be removed from the update list
-      depth = 0;
-    }
-
-#ifndef WT_TARGET_JAVA
-    depthOrder.insert(std::make_pair(depth, ww));
-#else
-    depthOrder.insert(depth, ww);
-#endif // WT_TARGET_JAVA
-  }
-
-  for (std::multimap<int, WWidget *>::const_iterator i = depthOrder.begin();
-       i != depthOrder.end(); ++i) {
-    UpdateMap::iterator j = updateMap_.find(i->second);
-    if (j != updateMap_.end()) {
-      WWidget *w = i->second;
-
-      // depth == 0: remove it from the update list
-      if (i->first == 0) {
-	w->webWidget()->propagateRenderOk();
-	continue;
+	// not in displayed widgets: will be removed from the update list
+	depth = 0;
       }
 
-      //std::cerr << learning_ << " " << loading_ 
-      //          << " updating: " << w->formName() << std::endl;
+#ifndef WT_TARGET_JAVA
+      depthOrder.insert(std::make_pair(depth, ww));
+#else
+      depthOrder.insert(depth, ww);
+#endif // WT_TARGET_JAVA
+    }
+
+    for (std::multimap<int, WWidget *>::const_iterator i = depthOrder.begin();
+	 i != depthOrder.end(); ++i) {
+      UpdateMap::iterator j = updateMap_.find(i->second);
+      if (j != updateMap_.end()) {
+	WWidget *w = i->second;
+
+	// depth == 0: remove it from the update list
+	if (i->first == 0) {
+	  w->webWidget()->propagateRenderOk();
+	  continue;
+	}
+
+	//std::cerr << learning_ << " " << loading_ 
+	//          << " updating: " << w->formName() << std::endl;
 
 #ifdef DEBUG_RENDER
-      std::cerr << "updating: " << w->formName()
-		<< " (" << typeid(*w).name() << ")" << std::endl;
+	std::cerr << "updating: " << w->formName()
+		  << " (" << typeid(*w).name() << ")" << std::endl;
 #endif
 
-      if (!learning_ && visibleOnly_) {
-	if (!w->isStubbed()) {
-	  w->getSDomChanges(changes, app);
-
-	  /* if (!w->isVisible()) {
-	    // We should postpone rendering the changes -- but
-	    // at the same time need to propageRenderOk() now for stateless
-	    // slot learning to work properly.
+	if (!learning_ && visibleOnly_) {
+	  if (!w->isStubbed()) {
 	    w->getSDomChanges(changes, app);
+
+	    /* if (!w->isVisible()) {
+	      // We should postpone rendering the changes -- but
+	      // at the same time need to propageRenderOk() now for stateless
+	      // slot learning to work properly.
+	      w->getSDomChanges(changes, app);
+	    } else
+	      w->getSDomChanges(changes, app); */
 	  } else
-	  w->getSDomChanges(changes, app); */
-	} else
 #ifdef DEBUG_RENDER
-	  std::cerr << "Ignoring: " << w->formName() << std::endl;
+	    std::cerr << "Ignoring: " << w->formName() << std::endl;
 #else
 	  ;
 #endif // DEBUG_RENDER
-      } else {
-	w->getSDomChanges(changes, app);
+	} else {
+	  w->getSDomChanges(changes, app);
+	}
       }
     }
-  }
+  } while (!learning_ && moreUpdates_);
 }
 
 void WebRenderer::collectJavaScriptUpdate(std::ostream& out)
