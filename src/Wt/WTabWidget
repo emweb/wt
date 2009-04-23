@@ -63,6 +63,18 @@ public:
    */
   WTabWidget(WContainerWidget *parent = 0);
 
+  /*! \brief Create a new WTabWidget with custom layout alignment
+   *
+   * The default constructor will use a layout manager to fit the tab widget
+   * within a parent container, and show scrollbars inside a tab if needed.
+   *
+   * Here you can override the alignment option for the layout manager, e.g.
+   * use Wt::AlignTop | Wt::AlignJustify to not attempt to constrain the height
+   * of the tab widget. 
+   */
+  WTabWidget(WFlags<AlignmentFlag> layoutAlignment,
+	     WContainerWidget *parent = 0);
+
   /*! \brief Add a new tab, with <i>child</i> as content, and the given label.
    *
    * Returns the menu item that implements the tab item.
@@ -191,6 +203,7 @@ private:
 
   std::vector<TabItem> items_;
 
+  void create(WFlags<AlignmentFlag> layoutAlignment);
   void onItemSelected(WMenuItem *item);
 };
 

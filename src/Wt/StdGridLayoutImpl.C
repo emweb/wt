@@ -411,7 +411,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   table->setAttribute("style", style);
 
-  if (jsHeights) {
+  if (jsHeights && fitHeight) {
     std::stringstream layoutAdd;
 
     layoutAdd << app->javaScriptClass() << ".layoutTableObjs.push(['"

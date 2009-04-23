@@ -12,6 +12,7 @@
 #include <vector>
 
 #include <Wt/WDllDefs.h>
+#include <Wt/Http/Request>
 
 namespace Wt {
 

@@ -490,7 +490,7 @@ WWidget *Home::examples()
 
   result->addWidget(new WText(tr("home.examples")));
 
-  examplesMenu_ = new WTabWidget(result);
+  examplesMenu_ = new WTabWidget(AlignTop | AlignJustify, result);
 
   /*
    * The following code is functionally equivalent to:

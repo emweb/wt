@@ -61,8 +61,21 @@ WTabWidget::WTabWidget(WContainerWidget *parent)
   : WCompositeWidget(parent),
     currentChanged_(this)
 {
+  create(AlignJustify);
+}
+
+
+WTabWidget::WTabWidget(WFlags<AlignmentFlag> layoutAlignment,
+		       WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    currentChanged_(this)
+{
+  create(layoutAlignment);
+}
+
+void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
+{
   setImplementation(layout_ = new WContainerWidget());
-  layout_->setOverflow(WContainerWidget::OverflowAuto);
 
   const char *CSS_RULES_NAME = "Wt::WTabWidget";
 
@@ -118,10 +131,13 @@ WTabWidget::WTabWidget(WContainerWidget *parent)
   WVBoxLayout *box = new WVBoxLayout();
   box->setSpacing(0);
   box->setContentsMargins(0, 0, 0, 0);
- 
+
+  bool fitHeight = false;
+
   box->addWidget(menuDiv);
   box->addWidget(contents_, 1);
-  layout_->setLayout(box);
+
+  layout_->setLayout(box, layoutAlignment);
 
   menu_->itemSelected().connect(SLOT(this, WTabWidget::onItemSelected));
 }
