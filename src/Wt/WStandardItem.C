@@ -140,18 +140,19 @@ WStandardItem::~WStandardItem()
 
 void WStandardItem::setData(const boost::any& d, int role)
 {
-  if (model_)
-    model_->setData(index(), d, role);
-  else
-    setDataImpl(d, role);
-}
-
-void WStandardItem::setDataImpl(const boost::any& d, int role)
-{
   if (role == EditRole)
-    role = DisplayRole;
+    if (d.empty())
+      return;
+    else
+      role = DisplayRole;
 
   data_[role] = d;
+
+  if (model_) {
+    WModelIndex self = index();
+    model_->dataChanged().emit(self, self);
+    model_->itemChanged().emit(this);
+  }
 }
 
 boost::any WStandardItem::data(int role) const
@@ -282,17 +283,47 @@ bool WStandardItem::isCheckable() const
 
 void WStandardItem::setChecked(bool checked)
 {
-  setData(boost::any(checked), CheckStateRole);
+  if (isChecked() != checked)
+    setCheckState(Checked);
+}
+
+void WStandardItem::setCheckState(CheckState state)
+{
+  if (checkState() != state) {
+    if (isTristate())
+      setData(boost::any(state), CheckStateRole);
+    else
+      setData(boost::any(state == Checked), CheckStateRole);
+  }
 }
 
 bool WStandardItem::isChecked() const
 {
+  return checkState() == Checked;
+}
+
+CheckState WStandardItem::checkState() const
+{
   boost::any d = data(CheckStateRole);
 
-  if (!d.empty() && d.type() == typeid(bool))
-    return boost::any_cast<bool>(d);
+  if (d.empty())
+    return Unchecked;
+  else if (d.type() == typeid(bool))
+    return boost::any_cast<bool>(d) ? Checked : Unchecked;
+  else if (d.type() == typeid(CheckState))
+    return boost::any_cast<CheckState>(d);
   else
-    return false;
+    return Unchecked;
+}
+
+void WStandardItem::setTristate(bool tristate)
+{
+  flags_ |= ItemIsTristate;
+}
+
+bool WStandardItem::isTristate() const
+{
+  return flags_ & ItemIsTristate;
 }
 
 void WStandardItem::setEditable(bool editable)

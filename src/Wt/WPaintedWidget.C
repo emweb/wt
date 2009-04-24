@@ -119,7 +119,7 @@ bool WPaintedWidget::createPainter()
   /*
    * For IE: no choice. Use VML
    */
-  if (env.agentIE()) {
+  if (env.agentIsIE()) {
     painter_ = new WWidgetVectorPainter(this, VmlFormat);
     return true;
   }

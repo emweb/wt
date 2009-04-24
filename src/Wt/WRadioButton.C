@@ -28,9 +28,8 @@ WRadioButton::WRadioButton(const WString& text, WContainerWidget *parent)
   setFormObject(true);
 }
 
-WRadioButton::WRadioButton(bool withLabel, const WString& text,
-			   WContainerWidget *parent)
-  : WAbstractToggleButton(withLabel, text, parent),
+WRadioButton::WRadioButton(bool withLabel, WContainerWidget *parent)
+  : WAbstractToggleButton(withLabel, parent),
     buttonGroup_(0)
 {
   setFormObject(true);
@@ -69,11 +68,6 @@ void WRadioButton::getFormObjects(std::vector<WObject *>& formObjects)
   formObjects.push_back(this);
 }
 
-DomElementType WRadioButton::domElementType() const
-{
-  return DomElement_INPUT;
-}
-
 void WRadioButton::setGroup(WButtonGroup *group)
 {
   buttonGroup_ = group;
@@ -81,12 +75,15 @@ void WRadioButton::setGroup(WButtonGroup *group)
 
 void WRadioButton::setFormData(const FormData& formData)
 {
+  if (stateChanged_)
+    return;
+
   if (!formData.values.empty()) {
     const std::string& value = formData.values[0];
 
     if (value == formName()) {
       buttonGroup_->uncheckOthers(this);
-      checked_ = true;
+      state_ = Checked;
     } else
       if (!buttonGroup_)
 	WAbstractToggleButton::setFormData(formData);

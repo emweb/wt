@@ -229,6 +229,9 @@ DomElementType WComboBox::domElementType() const
 
 void WComboBox::setFormData(const FormData& formData)
 {
+  if (selectionChanged_)
+    return;
+
   if (!formData.values.empty()) {
     const std::string& value = formData.values[0];
 

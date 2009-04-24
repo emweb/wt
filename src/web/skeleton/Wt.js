@@ -809,20 +809,32 @@ var encodeEvent = function(event, i) {
   }
 
   for (var x = 0; x < formObjects.length; ++x) {
-    var el = WT.getElement(formObjects[x]);
+    var el = WT.getElement(formObjects[x]), v = null;
     if (el == null)
       continue;
 
     if (el.type == 'select-multiple') {
       for (var i = 0; i < el.options.length; i++)
 	if (el.options[i].selected)
-	  result += se + formObjects[x]
-	    + '=' + encodeURIComponent(el.options[i].value);
-    } else if ((el.type != 'file')
-	       && (((el.type != 'checkbox') && (el.type != 'radio'))
-		   || el.checked))
-      result += se + formObjects[x]
-	+ '=' + encodeURIComponent(el.value);
+	  v = el.options[i].value;
+    } else if (WT.hasTag(el, "SPAN")) {
+      var cb = el.lastChild;
+      if (cb.style.display == 'none')
+	v = 'indeterminate';
+      else
+	if (cb.checked)
+	  v = cb.value;
+    } else if (el.type == 'checkbox' || el.type == 'radio') {
+      if (el.indeterminate)
+	v = 'indeterminate';
+      else
+	if (el.checked)
+	  v = el.value;
+    } else if (el.type != 'file')
+      v = el.value;
+
+    if (v)
+      result += se + formObjects[x] + '=' + encodeURIComponent(v);
   }
 
   if (currentHash != null)

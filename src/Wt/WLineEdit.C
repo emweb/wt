@@ -115,6 +115,12 @@ DomElementType WLineEdit::domElementType() const
 
 void WLineEdit::setFormData(const FormData& formData)
 {
+  // if the value was updated through the API, then ignore the update from
+  // the browser, this happens when an action generated multiple events,
+  // and we do not want to revert the changes made through the API
+  if (flags_.test(BIT_CONTENT_CHANGED))
+    return;
+
   if (!formData.values.empty()) {
     const std::string& value = formData.values[0];
     content_ = WT_USTRING::fromUTF8(value);

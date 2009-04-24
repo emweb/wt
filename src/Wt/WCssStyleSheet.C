@@ -276,7 +276,8 @@ void WCssStyleSheet::javaScriptUpdate(WApplication *app,
     rulesModified_.clear();
   }
 
-  if (!app->environment().agentIE() && !app->environment().agentKonqueror()) {
+  if (!app->environment().agentIsIE()
+      && app->environment().agent() != WEnvironment::Konqueror) {
     RuleList& toProcess = all ? rules_ : rulesAdded_;
 
     for (unsigned i = 0; i < toProcess.size(); ++i) {

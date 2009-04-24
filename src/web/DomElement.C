@@ -233,7 +233,7 @@ void DomElement::setEvent(const char *eventName,
   std::stringstream js;
 
   if (nonEmpty)
-    if (app->environment().agentIEMobile())
+    if (app->environment().agentIsIEMobile())
       js << "var e=window.event;";
     else
       js << "var e=event||window.event;";
@@ -296,7 +296,7 @@ void DomElement::setEvent(const char *eventName,
 
 void DomElement::processProperties(WApplication *app) const
 {
-  if (minMaxSizeProperties_ && app->environment().agentIE()) {
+  if (minMaxSizeProperties_ && app->environment().agentIsIE()) {
     DomElement *self = const_cast<DomElement *>(this); 
 
     PropertyMap::iterator w = self->properties_.find(PropertyStyleWidth);
@@ -632,7 +632,7 @@ void DomElement::asHTML(EscapeOStream& out,
     }
   }
 
-  const bool isIEMobile = app->environment().agentIEMobile();
+  const bool isIEMobile = app->environment().agentIsIEMobile();
   const bool supportButton = !isIEMobile;
 
   bool needAnchorWrap = false;
@@ -684,8 +684,8 @@ void DomElement::asHTML(EscapeOStream& out,
       if ((i != properties_.end()) && (i->second=="true"))
 	out << " disabled=\"disabled\"";
 
-      if (!app->environment().agentKonqueror()
-	  && !app->environment().agentWebKit())
+      if (app->environment().agent() != WEnvironment::Konqueror
+	  && !app->environment().agentIsWebKit())
 	style = "margin: -1px -3px -2px -3px;";
 
       out << "><" << elementNames_[renderedType];
@@ -775,6 +775,12 @@ void DomElement::asHTML(EscapeOStream& out,
       break;
     case Wt::PropertyTarget:
       out << " target=\"" << i->second << "\"";
+      break;
+    case Wt::PropertyIndeterminate:
+      if (i->second == "true") {
+	DomElement *self = const_cast<DomElement *>(this);
+	self->methodCalls_.push_back("indeterminate=" + i->second);
+      }
       break;
     case Wt::PropertyValue:
       out << " value=";
@@ -877,7 +883,7 @@ void DomElement::declare(EscapeOStream& out) const
 
 bool DomElement::canWriteInnerHTML(WApplication *app) const
 {
-  if (app->environment().agentIEMobile())
+  if (app->environment().agentIsIEMobile())
     return true;
 
   /*
@@ -898,8 +904,8 @@ bool DomElement::canWriteInnerHTML(WApplication *app) const
    * BUG: Internet Explorer Fails to Set the innerHTML Property of the
    * Select Object. Seems to affect at least up to IE6.0
    */
-  if ((app->environment().agentIE()
-       || app->environment().agentKonqueror())
+  if ((app->environment().agentIsIE()
+       || app->environment().agent() == WEnvironment::Konqueror)
       && (   type_ == DomElement_TBODY
 	  || type_ == DomElement_THEAD
 	  || type_ == DomElement_TABLE
@@ -1203,6 +1209,9 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out) const
       break;
     case Wt::PropertyTarget:
       out << var_ << ".target='" << i->second << "';";
+      break;
+    case Wt::PropertyIndeterminate:
+      out << var_ << ".indeterminate=" << i->second << ";";
       break;
     case Wt::PropertyDisabled:
       out << var_ << ".disabled=" << i->second << ';';

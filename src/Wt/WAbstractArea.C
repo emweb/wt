@@ -41,7 +41,7 @@ namespace Wt {
 	WInteractWidget::updateDom(element, all);
 
 	if (!element.getProperty(PropertyStyleCursor).empty()
-	    && !wApp->environment().agentGecko()
+	    && !wApp->environment().agentIsGecko()
 	    && element.getAttribute("href").empty())
 	  element.setAttribute("href", "#");
       }

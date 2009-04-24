@@ -133,7 +133,12 @@ void WAnchor::setRef(const std::string& ref)
 void WAnchor::setRefInternalPath(const std::string& path)
 {
   WApplication *app = WApplication::instance();
-  ref_ = app->bookmarkUrl(path);
+  std::string r = app->bookmarkUrl(path);
+
+  if (r == ref_)
+    return;
+
+  ref_ = r;
 
   if (app->environment().ajax()) {
     if (!changeInternalPathJS_) {

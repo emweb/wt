@@ -650,6 +650,13 @@ void WWebWidget::setAttributeValue(const std::string& name,
 
   if (!otherImpl_->attributes_)
     otherImpl_->attributes_ = new std::map<std::string, WT_USTRING>;
+
+  std::map<std::string, WT_USTRING>::const_iterator i
+    = otherImpl_->attributes_->find(name);
+  
+  if (i != otherImpl_->attributes_->end() && i->second == value)
+    return;
+
   (*otherImpl_->attributes_)[name] = value;
 
   if (!otherImpl_->attributesSet_)
@@ -809,7 +816,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	element.setProperty(PropertyStyleZIndex,
 		    boost::lexical_cast<std::string>(layoutImpl_->zIndex_));
 	WApplication *app = WApplication::instance();
-	if (all && app->environment().agentIE6()
+	if (all && app->environment().agent() == WEnvironment::IE6
 	    && element.type() == DomElement_DIV) {
 	  DomElement *i = DomElement::createNew(DomElement_IFRAME);
 	  i->setId("sh" + id());
@@ -1111,7 +1118,7 @@ void WWebWidget::getDomChanges(std::vector<DomElement *>& result,
 void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 				WApplication *app)
 {
-  bool isIEMobile = app->environment().agentIEMobile();
+  bool isIEMobile = app->environment().agentIsIEMobile();
 
   if (flags_.test(BIT_STUBBED)) {
     /*

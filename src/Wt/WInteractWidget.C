@@ -134,8 +134,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	const WEnvironment& env = WApplication::instance()->environment();
 
 	if (dynamic_cast<WFormWidget *>(this)
-	    && env.userAgent().find("Opera") == std::string::npos
-	    && !env.agentIE())
+	    && !env.agentIsOpera() && !env.agentIsIE())
 	  extraJS = "var g=this.onchange;"
 	    ""      "this.onchange=function(){this.onchange=g;};";
 

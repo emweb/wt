@@ -28,7 +28,7 @@ WDialog::WDialog(const WString& windowTitle)
 
   WApplication *app = WApplication::instance();
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    if (app->environment().agentIE())
+    if (app->environment().agentIsIE())
       app->styleSheet().addRule("body", "height: 100%;");
 
     app->styleSheet().addRule("div.Wt-dialogcover", std::string() + 
@@ -37,7 +37,7 @@ WDialog::WDialog(const WString& windowTitle)
 			      "height: 100%; width: 100%;"
 			      "top: 0px; left: 0px;"
 			      "opacity: 0.5; position: fixed;" +
-			      (app->environment().agentIE() ?
+			      (app->environment().agentIsIE() ?
 			       "filter: alpha(opacity=50);"
 			       :
 			       "-moz-background-clip: -moz-initial;"
@@ -51,7 +51,7 @@ WDialog::WDialog(const WString& windowTitle)
 			      "position: fixed; left: 50%; top: 50%;"
 			      "margin-left: -100px; margin-top: -50px;");
 
-    if (app->environment().agentIE6()) {
+    if (app->environment().agent() == WEnvironment::IE6) {
       app->styleSheet().addRule
 	("div.Wt-dialogcover",
 	 "position: absolute;"
@@ -119,7 +119,7 @@ WDialog::WDialog(const WString& windowTitle)
 
   impl_->setLayout(layout, AlignLeft);
 
-  if (app->environment().agentIE())
+  if (app->environment().agentIsIE())
     impl_->setOverflow(WContainerWidget::OverflowVisible);
 
   mouseDownJS_.setJavaScript

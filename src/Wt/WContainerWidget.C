@@ -139,7 +139,7 @@ void WContainerWidget::addWidget(WWidget *widget)
 
     // IE cannot replace a TD node using DOM API
     if (domElementType() != DomElement_TD
-	|| !WApplication::instance()->environment().agentIE())
+	|| !WApplication::instance()->environment().agentIsIE())
       setLoadLaterWhenInvisible(true);
   }
 

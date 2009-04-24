@@ -41,10 +41,10 @@ bool StdGridLayoutImpl::useJavaScriptHeights(WApplication *app)
    */
 
   /*
-  return app->environment().agentIE()
-    ||  app->environment().agentOpera()
-    ||  app->environment().agentKonqueror()
-    || (app->environment().agentGecko() && app->environment().javaScript());
+  return app->environment().agentIsIE()
+    ||  app->environment().agentIsOpera()
+    ||  app->environment().agentIsKonqueror()
+    || (app->environment().agentIsGecko() && app->environment().javaScript());
   */
 }
 
@@ -177,7 +177,7 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
 	 ""           "if (td.childNodes.length==1"
 	 ""               "&&ch.nodeName.toUpperCase()=='TEXTAREA') {")
-	 + (app->environment().agentOpera() ?
+	 + (app->environment().agentIsOpera() ?
 		       // Older opera:
 		       // "ch.style.height = (k-2) + 'px';"
 		       // "ch.style.marginLeft = '3px';"
@@ -316,7 +316,7 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
        * automatic scrollbars.
        */
       if (app->environment().javaScript())
-	if (!app->environment().agentIE6())
+	if (!app->environment().agent() == WEnvironment::IE6)
 	  app->styleSheet().addRule("html, body", "overflow: hidden;");
 	else
 	  app->styleSheet().addRule("body", "overflow: hidden;");
@@ -332,7 +332,7 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
      * parent size should not be affected). Luckily, IE does not show the
      * scrollbars unless really needed
      */
-    if (app->environment().agentIE())
+    if (app->environment().agentIsIE())
       container->setOverflow(WContainerWidget::OverflowAuto);
   }
 }
@@ -392,7 +392,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   div->setId(this);
 
   std::string divStyle;
-  if (fitHeight && !app->environment().agentIE())
+  if (fitHeight && !app->environment().agentIsIE())
     divStyle += "height: 100%;";
   if (!divStyle.empty())
     div->setAttribute("style", divStyle);
@@ -600,7 +600,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  case AlignJustify:
 	    if (c->getProperty(PropertyStyleWidth).empty()
 		&& useFixedLayout_
-		&& !app->environment().agentWebKit()
+		&& !app->environment().agentIsWebKit()
 		&& !c->isDefaultInline())
 	      c->setProperty(PropertyStyleWidth, "100%");
 	    break;

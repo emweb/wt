@@ -23,8 +23,6 @@ class WLabel;
  *
  * The current state (checked or unchecked) may be inspected using the
  * isChecked() method.
- *
- * FIXME: add image functionality for the label.
  */
 class WT_API WAbstractToggleButton : public WFormWidget
 {
@@ -39,9 +37,7 @@ protected:
    */
   WAbstractToggleButton(const WString& text, WContainerWidget *parent = 0);
 
-  WAbstractToggleButton(bool withLabel, const WString& text,
-			WContainerWidget *parent = 0);
-
+  WAbstractToggleButton(bool withLabel, WContainerWidget *parent);
 
 public:
   /*! \brief Change the text of the label.
@@ -54,7 +50,7 @@ public:
 
   /*! \brief Returns the state of the button.
    */
-  bool isChecked() const { return checked_; }
+  bool isChecked() const { return state_ == Checked; }
 
   /*! \brief Change the state of the button.
    *
@@ -92,24 +88,33 @@ public:
   EventSignal<>& unChecked();
 
 protected:
-  bool checked_;
+  CheckState state_;
+
+  virtual DomElement *createDomElement(WApplication *app);
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app);
+  virtual void updateDom(DomElement& element, bool all);
+  virtual void setFormData(const FormData& formData);
+  virtual void propagateRenderOk(bool deep);
+  virtual DomElementType domElementType() const;
+
+  virtual WStatelessSlot *getStateless(Method method);
 
 private:
   static const char *CHECKED_SIGNAL;
   static const char *UNCHECKED_SIGNAL;
+  static const char *UNDETERMINATE_CLICK_SIGNAL;
 
-  bool checkedChanged_;
+  bool stateChanged_;
+  CheckState prevState_;
 
-  bool wasChecked_;
   void undoSetChecked();
   void undoSetUnChecked();
+  void setCheckState(CheckState state);
 
-protected:
-  virtual void updateDom(DomElement& element, bool all);
-  virtual void setFormData(const FormData& formData);
-  virtual void propagateRenderOk(bool deep);
-
-  virtual WStatelessSlot *getStateless(Method method);
+  friend class WCheckBox;
+  friend class WRadioButton;
+  friend class WButtonGroup;
 };
 
 }

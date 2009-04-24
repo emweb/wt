@@ -15,11 +15,12 @@ namespace Wt {
 
 const char *WAbstractToggleButton::CHECKED_SIGNAL = "M_checked";
 const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
+const char *WAbstractToggleButton::UNDETERMINATE_CLICK_SIGNAL = "M_click";
 
 WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
-    checked_(false),
-    checkedChanged_(false)
+    state_(Unchecked),
+    stateChanged_(false)
 {
   WLabel *label = new WLabel(parent);
   label->setBuddy(this);
@@ -28,22 +29,21 @@ WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
 WAbstractToggleButton::WAbstractToggleButton(const WString& text,
 					     WContainerWidget *parent)
   : WFormWidget(parent),
-    checked_(false),
-    checkedChanged_(false)
+    state_(Unchecked),
+    stateChanged_(false)
 { 
   WLabel *label = new WLabel(text, parent);
   label->setBuddy(this);
 }
 
 WAbstractToggleButton::WAbstractToggleButton(bool withLabel,
-					     const WString& text,
 					     WContainerWidget *parent)
   : WFormWidget(parent),
-    checked_(false),
-    checkedChanged_(false)
+    state_(Unchecked),
+    stateChanged_(false)
 {
   if (withLabel) {
-    WLabel *label = new WLabel(text, parent);
+    WLabel *label = new WLabel(parent);
     label->setBuddy(this);
   }
 }
@@ -104,37 +104,34 @@ const WString WAbstractToggleButton::text() const
 
 void WAbstractToggleButton::setChecked(bool how)
 {
-  if (canOptimizeUpdates() && checked_ == how)
+  setCheckState(how ? Checked : Unchecked);
+}
+
+void WAbstractToggleButton::setCheckState(CheckState state)
+{
+  if (canOptimizeUpdates() && state == state_)
     return;
 
-  checked_ = how;
-  checkedChanged_ = true;
-
-  /*
-  if (how)
-    checked().emit();
-  else
-    unChecked().emit();
-  */
-
+  state_ = state;
+  stateChanged_ = true;
   repaint(RepaintPropertyIEMobile);
 }
 
 void WAbstractToggleButton::setChecked()
 {
-  wasChecked_ = checked_;
+  prevState_ = state_;
   setChecked(true);
 }
 
 void WAbstractToggleButton::setUnChecked()
 {
-  wasChecked_ = checked_;
+  prevState_ = state_;
   setChecked(false);
 }
 
 void WAbstractToggleButton::undoSetChecked()
 {
-  setChecked(checked_);
+  setCheckState(prevState_);
 }
 
 void WAbstractToggleButton::undoSetUnChecked()
@@ -144,9 +141,13 @@ void WAbstractToggleButton::undoSetUnChecked()
 
 void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 {
-  if (checkedChanged_ || all) {
-    element.setProperty(Wt::PropertyChecked, checked_ ? "true" : "false");
-    checkedChanged_ = false;
+  if (stateChanged_ || all) {
+    element.setProperty(Wt::PropertyChecked,
+			state_ == Checked ? "true" : "false");
+    if (domElementType() == DomElement_INPUT)
+      element.setProperty(Wt::PropertyIndeterminate,
+			  state_ == PartiallyChecked ? "true" : "false");
+    stateChanged_ = false;
   }
 
   const WEnvironment& env = WApplication::instance()->environment();
@@ -158,22 +159,21 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
   bool needUpdateClickedSignal =
     (click && click->needUpdate()
-     || (env.agentIE() && change && change->needUpdate())
-        // onchange does not work on IE
+     // onchange does not work on IE
+     || (env.agentIsIE() && change && change->needUpdate())
      || (check && check->needUpdate())
      || (uncheck && uncheck->needUpdate()));
 
   WFormWidget::updateDom(element, all);
 
   if (needUpdateClickedSignal || all) {
-    DomElement *e = DomElement::getForUpdate(this, DomElement_INPUT);
-
+    std::string dom = WT_CLASS ".getElement('" + element.id() + "')";
     std::vector<DomElement::EventAction> actions;
 
     if (check) {
       if (check->isConnected())
 	actions.push_back
-	  (DomElement::EventAction(e->createReference() + ".checked",
+	  (DomElement::EventAction(dom + ".checked",
 				   check->javaScript(),
 				   check->encodeCmd(),
 				   check->isExposedSignal()));
@@ -183,7 +183,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     if (uncheck) {
       if (uncheck->isConnected())
 	actions.push_back
-	  (DomElement::EventAction("!" + e->createReference() + ".checked",
+	  (DomElement::EventAction("!" + dom + ".checked",
 				   uncheck->javaScript(),
 				   uncheck->encodeCmd(),
 				   uncheck->isExposedSignal()));
@@ -191,7 +191,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     }
 
     if (change) {
-      if (env.agentIE() && change->isConnected())
+      if (env.agentIsIE() && change->isConnected())
 	actions.push_back
 	  (DomElement::EventAction(std::string(),
 				   change->javaScript(),
@@ -212,14 +212,104 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
     if (!(all && actions.empty()))
       element.setEvent("click", actions);
+  }
+}
 
-    delete e;
+DomElementType WAbstractToggleButton::domElementType() const
+{
+  return DomElement_INPUT;
+}
+
+DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
+{
+  DomElement *result = DomElement::createNew(domElementType());
+  setId(result, app);
+
+  DomElement *input = result;
+  if (result->type() == DomElement_SPAN) {
+    DomElement *img = DomElement::createNew(DomElement_IMG);
+    img->setId("im" + formName());
+    input = DomElement::createNew(DomElement_INPUT);
+    input->setId("in" + formName());
+
+    std::string src = WApplication::resourcesUrl();
+
+    const WEnvironment& env = app->environment();
+
+    if (env.userAgent().find("Mac OS X") != std::string::npos)
+      src += "indeterminate-macosx.png";
+    else if (env.agentIsOpera())
+      src += "indeterminate-opera.png";
+    else if (env.userAgent().find("Windows") != std::string::npos)
+      src += "indeterminate-windows.png"; 
+    else
+      src += "indeterminate-linux.png";
+
+    img->setProperty(Wt::PropertySrc, fixRelativeUrl(src));
+    img->setAttribute("class", "Wt-indeterminate");
+
+    EventSignal<> *imgClick = voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, true);
+    img->setEventSignal("click", *imgClick);
+    imgClick->updateOk();
+
+    if (state_ == PartiallyChecked)
+      input->setProperty(Wt::PropertyStyleDisplay, "none");
+    else
+      img->setProperty(Wt::PropertyStyleDisplay, "none");   
+
+    result->addChild(img);
+  }
+
+  updateDom(*input, true);
+
+  if (result != input)
+    result->addChild(input);
+
+  return result;
+}
+
+void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
+					  WApplication *app)
+{
+  DomElementType type = domElementType();
+
+  if (type == DomElement_SPAN) {
+    DomElement *input
+      = DomElement::getForUpdate("in" + formName(), DomElement_INPUT);
+
+    EventSignal<> *imgClick = voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, true);
+
+    if (stateChanged_ || imgClick->needUpdate()) {
+      DomElement *img
+	= DomElement::getForUpdate("im" + formName(), DomElement_IMG);
+
+      if (stateChanged_) {
+	img->setProperty(Wt::PropertyStyleDisplay,
+			 state_ == PartiallyChecked ? "inline" : "none");
+	input->setProperty(Wt::PropertyStyleDisplay,
+			   state_ == PartiallyChecked ? "none" : "inline");
+      }
+
+      if (imgClick->needUpdate()) {
+	img->setEventSignal("click", *imgClick);
+	imgClick->updateOk();
+      }
+
+      result.push_back(img);
+    }
+
+    updateDom(*input, false);
+    result.push_back(input);
+  } else {
+    DomElement *e = DomElement::getForUpdate(this, type);
+    updateDom(*e, false);
+    result.push_back(e);
   }
 }
 
 void WAbstractToggleButton::propagateRenderOk(bool deep)
 {
-  checkedChanged_ = false;
+  stateChanged_ = false;
 
   EventSignal<> *check = voidEventSignal(CHECKED_SIGNAL, false);
   if (check)
@@ -234,11 +324,17 @@ void WAbstractToggleButton::propagateRenderOk(bool deep)
 
 void WAbstractToggleButton::setFormData(const FormData& formData)
 {
+  if (stateChanged_)
+    return;
+
   if (!formData.values.empty())
-    checked_ = formData.values[0] != "0";
+    if (formData.values[0] == "indeterminate")
+      state_ = PartiallyChecked;
+    else
+      state_ = formData.values[0] != "0" ? Checked : Unchecked;
   else
     if (isEnabled() && isVisible())
-      checked_ = false;
+      state_ = Unchecked;
 }
 
 }

@@ -162,24 +162,45 @@ public:
    */
   std::string url() const;
 
-  /*! \brief Set the check state.
+  /*! \brief Check or uncheck the item.
    *
    * The value is stored as \link Wt::CheckStateRole
    * CheckStateRole\endlink data.
    *
-   * The default value is <i>false</i>. The check state is not used
-   * unless you also set the item to be checkable using
-   * setCheckable().
+   * By default, an item is not checked.
    *
-   * \sa setCheckable(), setData()
+   * Note: this requires that the item is checkable (see setCheckable()).
+   *
+   * If the item is tri-state, you may consider using setCheckState() instead
+   * which supports also setting the third Wt::PartiallyChecked state.
+   *
+   * \sa setCheckable(), setCheckState()
    */
   void setChecked(bool checked);
 
-  /*! \brief Returns the check state.
+  /*! \brief Returns whether the item is checked.
    *
    * \sa setChecked()
    */
   bool isChecked() const;
+
+  /*! \brief Set the check state.
+   *
+   * Like setChecked(), this sets the check state, but allows also setting
+   * the Wt::PartiallyChecked state when the item is tri-state checkable.
+   *
+   * The value is stored as \link Wt::CheckStateRole CheckStateRole\endlink
+   * data.
+   *
+   * \sa setCheckable(), setData()
+   */
+  void setCheckState(CheckState checked);
+
+  /*! \brief Returns the item's check state.
+   *
+   * \sa setCheckState()
+   */
+  CheckState checkState() const;
 
   /*! \brief Set the flags.
    *
@@ -210,6 +231,23 @@ public:
    * \sa setCheckable()
    */
   bool isCheckable() const;
+
+  /*! \brief Make the item tri-state checkable.
+   *
+   * When <i>tristate</i> is true, the item is checkable with three
+   * states: Wt::Unchecked, Wt::Checked, and Wt::PartiallyChecked.
+   *
+   * This requires that the item is also checkable (see setCheckable())
+   *
+   * \sa setCheckable()
+   */
+  void setTristate(bool tristate);
+
+  /*! \brief Returns whether the item is tri-state checkable.
+   *
+   * \sa setTristate()
+   */
+  bool isTristate() const;
 
   void setEditable(bool editable);
   bool isEditable() const;
@@ -598,7 +636,6 @@ private:
   void recursiveSortChildren(int column, SortOrder order);
   void renumberColumns(int column);
   void renumberRows(int row);
-  void setDataImpl(const boost::any& data, int role);
 
   friend class WStandardItemModel;
 };

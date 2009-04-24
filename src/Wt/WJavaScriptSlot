@@ -77,6 +77,12 @@ public:
    */
   JSlot(WWidget *parent = 0);
 
+  /*! \brief Construct a JavaScript-only slot with given JavaScript.
+   *
+   * \sa JSlot(WWidget *), setJavaScript()
+   */
+  JSlot(const std::string& javaScript, WWidget *parent = 0);
+
   /*! \brief Destructor.
    */
   ~JSlot();
@@ -114,6 +120,7 @@ private:
 
   std::string jsFunctionName() const;
   WStatelessSlot* slotimp();
+  void create();
 
   int fid_;
   static int nextFid_;

@@ -88,19 +88,45 @@ void WEnvironment::init(const WebRequest& request)
   serverAdmin_     = request.envValue("SERVER_ADMIN");
   pathInfo_        = request.pathInfo();
 
-  isIEMobile_ =
-       userAgent_.find("MSIE 4") != std::string::npos
-    || userAgent_.find("MSIE 5") != std::string::npos
-    || userAgent_.find("IEMobile") != std::string::npos;
+  std::cerr << userAgent_ << std::endl;
 
-  isIE_ = userAgent_.find("MSIE") != std::string::npos;
-  isIE6_ = !isIEMobile_ && userAgent_.find("MSIE 6") != std::string::npos;
-  isOpera_ = userAgent_.find("Opera") != std::string::npos;
-  isSafari_ = userAgent_.find("Safari") != std::string::npos;
-  isWebKit_ = userAgent_.find("WebKit") != std::string::npos;
-  isKonqueror_ = userAgent_.find("Konqueror") != std::string::npos;
-  isGecko_ = !isSafari_ && userAgent_.find("Gecko") != std::string::npos;
-  isSpiderBot_ = regexMatchAny(userAgent_, conf.botList());
+  agent_ = Unknown;
+  if (userAgent_.find("MSIE 4") != std::string::npos
+      || userAgent_.find("MSIE 5") != std::string::npos
+      || userAgent_.find("IEMobile") != std::string::npos)
+    agent_ = IEMobile;
+  else if (userAgent_.find("MSIE 6") != std::string::npos)
+    agent_ = IE6;
+  else if (userAgent_.find("MSIE 7") != std::string::npos)
+    agent_ = IE7;
+  else if (userAgent_.find("MSIE 8") != std::string::npos)
+    agent_ = IE8;
+  else if (userAgent_.find("MSIE") != std::string::npos)
+    agent_ = IE;
+
+  if (userAgent_.find("Opera") != std::string::npos)
+    agent_ = Opera;
+
+  if (userAgent_.find("Chrome") != std::string::npos)
+    agent_ = Chrome;
+  else if (userAgent_.find("Safari") != std::string::npos)
+    agent_ = Safari;
+  else if (userAgent_.find("WebKit") != std::string::npos)
+    agent_ = WebKit;
+  else if (userAgent_.find("Konqueror") != std::string::npos)
+    agent_ = Konqueror;
+  else if (userAgent_.find("Gecko") != std::string::npos)
+    agent_ = Gecko;
+
+  if (userAgent_.find("Firefox/3.2.") != std::string::npos)
+    agent_ = Firefox3_2;
+  else if (userAgent_.find("Firefox/3.1.") != std::string::npos)
+    agent_ = Firefox3_1;
+  else if (userAgent_.find("Firefox/3.") != std::string::npos)
+    agent_ = Firefox3;
+
+  if (regexMatchAny(userAgent_, conf.botList()))
+    agent_ = BotAgent;
 
   /*
    * Determine server host name

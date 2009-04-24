@@ -36,7 +36,7 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WString &styleClass, co
   if (!backgroundStyleClass.empty())
     cover_->setStyleClass(backgroundStyleClass);
 
-  if (app->environment().agentIE())
+  if (app->environment().agentIsIE())
     app->styleSheet().addRule("body", "height: 100%; margin: 0;");
 
   if (backgroundStyleClass.empty())
@@ -47,7 +47,7 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WString &styleClass, co
 			      "opacity: 0.5; position: absolute;"
 			      "-khtml-opacity: 0.5;"
 			      "z-index: 10000;" +
-			      (app->environment().agentIE() ?
+			      (app->environment().agentIsIE() ?
 			       "filter: alpha(opacity=50);"
 			       :
 			       "-moz-opacity:0.5;"

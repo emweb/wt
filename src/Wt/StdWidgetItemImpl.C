@@ -51,8 +51,8 @@ int StdWidgetItemImpl::additionalVerticalPadding(bool fitWidth, bool fitHeight)
 {
   WApplication *app = WApplication::instance();
 
-  if (   !app->environment().agentIE()
-      && !app->environment().agentOpera()
+  if (   !app->environment().agentIsIE()
+      && !app->environment().agentIsOpera()
       && fitHeight && isTextArea(item_->widget()))
     return 5;
   else
@@ -66,12 +66,12 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
   DomElement *result = d;
 
   // Safari does height properly (like Opera) ?
-  if (   !app->environment().agentIE()
-      && !app->environment().agentOpera()
+  if (   !app->environment().agentIsIE()
+      && !app->environment().agentIsOpera()
       && (   (isTextArea(item_->widget()) && (fitWidth || fitHeight))
 	  || (d->type() == DomElement_INPUT && fitWidth)
 	  || (d->type() == DomElement_BUTTON && fitWidth
-	      && app->environment().agentKonqueror()))) {
+	      && app->environment().agent() == WEnvironment::Konqueror))) {
     /*
      * Browsers ignore the border so width/height 100% overflows the container.
      * Thus we wrap it in a container that is slightly less wide/high.

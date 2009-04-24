@@ -23,7 +23,7 @@ class WObject;
 
 enum Property { PropertyInnerHTML, PropertyValue, PropertyDisabled,
 		PropertyChecked, PropertySelected, PropertySelectedIndex,
-		PropertyMultiple, PropertyTarget,
+		PropertyMultiple, PropertyTarget, PropertyIndeterminate,
 		PropertySrc, PropertyText, PropertyScript,
 		PropertyColSpan, PropertyRowSpan, PropertyReadOnly,
 		PropertyStylePosition,
@@ -96,8 +96,7 @@ public:
   std::string getProperty(Wt::Property property) const;
   void removeProperty(Wt::Property property);
 
-  void setEventSignal(const char *eventName,
-		      const EventSignalBase& signal);
+  void setEventSignal(const char *eventName, const EventSignalBase& signal);
 
   void setEvent(const char *eventName,
 		const std::string& jsCode,

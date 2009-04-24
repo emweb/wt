@@ -179,7 +179,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
     boot.setVar("AUTO_REDIRECT", "");
     boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
   } else {
-    if (session_.env().agentIE())
+    if (session_.env().agentIsIE())
       boot.setVar("HTMLATTRIBUTES",
 		  "xmlns:v=\"urn:schemas-microsoft-com:vml\""
 		  " lang=\"en\" dir=\"ltr\"");
@@ -279,6 +279,8 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
   setHeaders(response, "text/plain; charset=UTF-8");
 
   collectJavaScript();
+
+  // std::cerr << collectedJS1_.str() << std::endl;
 
   response.out()
     << collectedJS1_.str()
@@ -425,7 +427,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
    * documents.  We could check for opera only since the workaround
    * innerHTML is substantially slower...
    */
-  bool innerHtml = !xhtml || app->environment().agentGecko();
+  bool innerHtml = !xhtml || app->environment().agentIsGecko();
 
   script.setVar("INNER_HTML", innerHtml);
   script.setVar("FORM_OBJECTS", '[' + currentFormObjectsList_ + ']');
@@ -584,7 +586,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 		/*" xmlns:svg=\"http://www.w3.org/2000/svg\""*/);
     page.setVar("METACLOSE", "/>");
   } else {
-    if (session_.env().agentIE())
+    if (session_.env().agentIsIE())
       page.setVar("HTMLATTRIBUTES",
 		  "xmlns:v=\"urn:schemas-microsoft-com:vml\""
 		  " lang=\"en\" dir=\"ltr\"");
@@ -654,7 +656,7 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   setHeaders(response, "text/javascript; charset=UTF-8");
 
   const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
-  const bool innerHtml = !xhtml || app->environment().agentGecko();
+  const bool innerHtml = !xhtml || app->environment().agentIsGecko();
 
   formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
@@ -992,7 +994,7 @@ void WebRenderer::collectJS(std::ostream* js)
 
 void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 {
-  bool isIEMobile = app->environment().agentIEMobile();
+  bool isIEMobile = app->environment().agentIsIEMobile();
 
   if (isIEMobile || !session_.env().ajax())
     return;

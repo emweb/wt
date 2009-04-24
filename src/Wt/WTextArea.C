@@ -102,6 +102,9 @@ DomElementType WTextArea::domElementType() const
 
 void WTextArea::setFormData(const FormData& formData)
 {
+  if (contentChanged_)
+    return;
+
   if (!formData.values.empty()) {
     const std::string& value = formData.values[0];
     content_ = WT_USTRING::fromUTF8(value);

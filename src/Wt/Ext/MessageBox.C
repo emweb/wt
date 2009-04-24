@@ -132,7 +132,7 @@ void MessageBox::setHidden(bool hidden)
 	var = elRef() + "=Ext.Msg";
 
 	/* fix cursor problem in FF 1.5, 2 */
-	if (!app->environment().agentIE())
+	if (!app->environment().agentIsIE())
 	  app->doJavaScript
 	  ("Ext.Msg.getDialog().on('show', function(d) {"
 	   "var div = Ext.get(d.el);"

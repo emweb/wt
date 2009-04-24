@@ -48,6 +48,25 @@ class WebSession;
 class WT_API WEnvironment
 {
 public:
+  enum UserAgent {
+    Unknown = 0,
+    IE = 1000,
+    IE6 = 1001,
+    IE7 = 1002,
+    IE8 = 1003,
+    IEMobile = 1100,
+    Opera = 3000,
+    WebKit = 4000,
+    Safari = 4100,
+    Chrome = 4200,
+    Konqueror = 5000,
+    Gecko = 6000,
+    Firefox3 = 6101,
+    Firefox3_1 = 6102,
+    Firefox3_2 = 6103,
+    BotAgent = 10000
+  };
+
   /*! \brief Enumeration for HTML content type.
    */
   enum ContentType {
@@ -234,7 +253,7 @@ public:
    *   from DOM nodes. In this way, the generated page is always exactly the
    *   same.
    */
-  bool agentIsSpiderBot() const { return isSpiderBot_; }
+  bool agentIsSpiderBot() const { return agent_ == BotAgent; }
 
   /*! \brief Returns the web server signature.
    *
@@ -359,22 +378,42 @@ public:
    */
   ContentType contentType() const { return contentType_; }
 
-  bool agentIEMobile() const { return isIEMobile_; }
-  bool agentIE() const { return isIE_; }
-  bool agentIE6() const { return isIE6_; }
-  bool agentOpera() const { return isOpera_; }
-  bool agentSafari() const { return isSafari_; }
-  bool agentWebKit() const { return isWebKit_; }
-  bool agentKonqueror() const { return isKonqueror_; }
-  bool agentGecko() const { return isGecko_; }
+  UserAgent agent() const { return agent_; }
+
+  bool agentIsIE() const {
+    return agent_ >= IE && agent_ < Opera;
+  }
+
+  bool agentIsIEMobile() const {
+    return agent_ >= IEMobile && agent_ < Opera;
+  }
+
+  bool agentIsOpera() const {
+    return agent_ >= Opera && agent_ < Safari;
+  }
+
+  bool agentIsWebKit() const {
+    return agent_ >= WebKit && agent_ < Konqueror;
+  }
+
+  bool agentIsSafari() const {
+    return agent_ >= Safari && agent_ < Chrome;
+  }
+
+  bool agentIsChrome() const {
+    return agent_ >= Chrome && agent_ < Konqueror;
+  }
+
+  bool agentIsGecko() const {
+    return agent_ >= Gecko && agent_ < BotAgent;
+  }
 
 private:
   WebSession *session_;
   bool        doesJavaScript_;
   bool        doesAjax_;
   bool        doesCookies_;
-  bool        isIEMobile_, isIE_, isIE6_, isSafari_, isWebKit_,
-    isOpera_, isKonqueror_, isGecko_, isSpiderBot_;
+  UserAgent   agent_;
   double      dpiScale_;
   ContentType contentType_;
 

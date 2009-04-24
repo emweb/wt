@@ -10,11 +10,11 @@ namespace Wt {
   namespace Ext {
 
 CheckBox::CheckBox(const WString& text, WContainerWidget *parent)
-  : AbstractToggleButton(new WCheckBox(false, ""), text, parent)
+  : AbstractToggleButton(new WCheckBox(false, 0), text, parent)
 { }
 
 CheckBox::CheckBox(WContainerWidget *parent)
-  : AbstractToggleButton(new WCheckBox(false, ""), WString(), parent)
+  : AbstractToggleButton(new WCheckBox(false, 0), WString(), parent)
 { }
 
 std::string CheckBox::getExtName() const

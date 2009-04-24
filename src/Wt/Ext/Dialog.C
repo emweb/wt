@@ -144,7 +144,7 @@ void Dialog::setHidden(bool hidden)
 
     Panel::setHidden(hidden);
     WApplication *app = WApplication::instance();
-    if (!app->environment().agentIE() && !hidden_)
+    if (!app->environment().agentIsIE() && !hidden_)
       app->doJavaScript
 	(WT_CLASS ".getElement('" + elVar() + "').style.position='fixed';");
 
@@ -170,7 +170,7 @@ std::string Dialog::createJS(DomElement *inContainer)
       "if (xy[0]< 0 || xy[1]<0) " + elVar()
       + ".setPosition(xy[0]>0?xy[0]:0, xy[1]>0?xy[1]:0);}";
     WApplication *app = WApplication::instance();
-    if (!app->environment().agentIE())
+    if (!app->environment().agentIsIE())
       result += WT_CLASS ".getElement('" + elVar()
 	+ "').style.position='fixed';";
   }

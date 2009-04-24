@@ -1,3 +1,9 @@
+23-04-2009:
+	* WCheckBox, WAbstractToggleButton: tri-state checkboxes
+
+	* WAbstractItemModel, WModelIndex, WStandardItem: support
+	tri-state checkboxes (ItemIsTriState ItemFlag)
+
 22-04-2009:
 	* WebRenderer: keep iterating the update map as long as render()
 	calls add new widgets to it

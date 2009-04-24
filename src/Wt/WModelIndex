@@ -28,7 +28,7 @@ class WAbstractItemModel;
  * to different roles. Each role may be used by the corresponding view
  * class in a different way.
  *
- * \sa WModelIndex::setData()
+ * \sa WModelIndex::data()
  *
  * \ingroup modelview
  */
@@ -37,7 +37,11 @@ enum ItemDataRole {
   DecorationRole = 1,   //!< Role for the url of an icon
   EditRole = 2,         //!< Role for the edited value
   StyleClassRole = 3,   //!< Role for the style class
-  CheckStateRole = 4,   //!< Role that indicates if the item is checked
+  /*! Role that indicates the check state. Is of type <tt>bool</tt>,
+   * unless the Wt::ItemIsTristate flag is set, then is of type
+   * Wt::CheckState.
+   */
+  CheckStateRole = 4,   
   ToolTipRole = 5,      //!< Role for a tooltip
   InternalPathRole = 6, //!< Role for an internal path activated when clicked
   UrlRole = 7,          //!< Role for a url activated when clicked
@@ -55,7 +59,11 @@ enum ItemFlag {
   ItemIsEditable = 0x2,      //!< Item can be edited
   ItemIsUserCheckable = 0x4, //!< Item can be checked
   ItemIsDragEnabled = 0x8,   //!< Item can be dragged
-  ItemIsDropEnabled = 0x10   //!< Item can be a drop target
+  ItemIsDropEnabled = 0x10,  //!< Item can be a drop target
+  /*! Item has tree states. When set, Wt::CheckStateRole data is of type
+   * Wt::CheckState
+   */
+  ItemIsTristate = 0x20,
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ItemFlag)

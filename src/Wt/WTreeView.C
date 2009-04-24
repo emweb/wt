@@ -164,7 +164,7 @@ private:
   WModelIndex childIndex(int column);
 
   WAnchor   *anchorWidget(int column);
-  WCheckBox *checkBox(int column, bool autoCreate = false);
+  WCheckBox *checkBox(int column, bool autoCreate, bool triState = false);
   WImage    *iconWidget(int column, bool autoCreate = false);
   WText     *textWidget(int column);
   WWidget   *widget(int column);
@@ -260,11 +260,12 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
 
     if (child.flags() & ItemIsUserCheckable) {
       boost::any checkedData = child.data(CheckStateRole);
-      bool checked =
-	  !checkedData.empty()
-	&& checkedData.type() == typeid(bool)
-	&& boost::any_cast<bool>(checkedData) == true;
-      checkBox(i, true)->setChecked(checked);
+      CheckState state = checkedData.empty() ? Unchecked
+	: (checkedData.type() == typeid(bool) ?
+	   (boost::any_cast<bool>(checkedData) ? Checked : Unchecked)
+	   : (checkedData.type() == typeid(CheckState) ?
+	      boost::any_cast<CheckState>(checkedData) : Unchecked));
+      checkBox(i, true, child.flags() & ItemIsTristate)->setCheckState(state);
       haveCheckBox = true;
     } else
       delete checkBox(i, false);
@@ -454,12 +455,13 @@ WImage *WTreeViewNode::iconWidget(int column, bool autoCreate)
       setWidget(column, wc, true);
 
       WImage *image = new WImage();
+      image->setStyleClass("icon");
       wc->addWidget(image);
 
       // IE does not want to center vertically without this:
-      if (wApp->environment().agentIE()) {
+      if (wApp->environment().agentIsIE()) {
 	WImage *inv = new WImage(wApp->onePixelGifUrl());
-	inv->setStyleClass("rh w0");
+	inv->setStyleClass("rh w0 icon");
 	wc->addWidget(inv);
       }
 
@@ -486,12 +488,13 @@ WImage *WTreeViewNode::iconWidget(int column, bool autoCreate)
 
   if (autoCreate) {
     WImage *image = new WImage();
+    image->setStyleClass("icon");
     wc->insertWidget(wc->count() - 1, image);
 
     // IE does not want to center vertically without this:
-    if (wApp->environment().agentIE()) {
+    if (wApp->environment().agentIsIE()) {
       WImage *inv = new WImage(wApp->onePixelGifUrl());
-      inv->setStyleClass("rh w0");
+      inv->setStyleClass("rh w0 icon");
       wc->insertWidget(wc->count() - 1, inv);
     }
 
@@ -556,7 +559,7 @@ WAnchor *WTreeViewNode::anchorWidget(int column)
   }
 }
 
-WCheckBox *WTreeViewNode::checkBox(int column, bool autoCreate)
+WCheckBox *WTreeViewNode::checkBox(int column, bool autoCreate, bool triState)
 {
   WWidget *w = widget(column);
 
@@ -578,12 +581,15 @@ WCheckBox *WTreeViewNode::checkBox(int column, bool autoCreate)
   WCheckBox *cb = dynamic_cast<WCheckBox *>(wc->widget(0));
 
   if (!cb && autoCreate) {
-    cb = new WCheckBox(false, WString());
+    cb = new WCheckBox(false, 0);
     wc->insertWidget(0, cb);
 
     view_->checkedChangeMapper_->mapConnect
       (cb->changed(), WTreeView::CheckedInfo(childIndex(column), cb));
   }
+
+  if (cb)
+    cb->setTristate(triState);
 
   return cb;
 }
@@ -1072,7 +1078,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
        std::string() + "white-space: normal;"
        "font-weight: bold;"
        "text-overflow: ellipsis;"
-       + (app->environment().agentIE() ? "zoom: 1;" : "") + 
+       + (app->environment().agentIsIE() ? "zoom: 1;" : "") + 
        "overflow: hidden;");
 
 
@@ -1107,7 +1113,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "white-space: nowrap;");
 
     app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-node img",
+      (".Wt-treeview img.icon",
        "margin-right: 3px; vertical-align: middle");
 
     app->styleSheet().addRule
@@ -1124,7 +1130,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "float: right; width: 4px; cursor: col-resize;"
        "padding-left: 0px;");
 
-    if (app->environment().agentIE())
+    if (app->environment().agentIsIE())
       app->styleSheet().addRule
 	(".Wt-treeview .header .Wt-tv-c",
 	 "padding: 0px;"
@@ -1178,11 +1184,11 @@ WTreeView::WTreeView(WContainerWidget *parent)
     setColumnBorder(white /* WColor(0xD0, 0xD0, 0xD0) */);
 
     /* bottom scrollbar */
-    if (app->environment().agentWebKit() || app->environment().agentOpera())
+    if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
       app->styleSheet().addRule
 	(".Wt-treeview .Wt-tv-rowc", "position: relative;");
 
-    if (app->environment().agentIE())
+    if (app->environment().agentIsIE())
       app->styleSheet().addRule
 	(".Wt-treeview .Wt-scroll", "overflow-x: scroll; height: 16px;");
     else
@@ -1250,7 +1256,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
   contentsContainer_->scrolled().connect(tieContentsHeaderScrollJS_);
   contents_->addWidget(new WContainerWidget()); // wrapRoot
 
-  if (app->environment().agentIE())
+  if (app->environment().agentIsIE())
     contents_->setAttributeValue("style", "zoom: 1"); // trigger hasLayout
 
   layout->addWidget(contentsContainer_, 1);
@@ -1370,7 +1376,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
      """h.style.width = t.offsetWidth + 'px';"
      "}");
 
-  if (app->environment().agentWebKit() || app->environment().agentOpera())
+  if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
     tieRowsScrollJS_.setJavaScript
       ("function(obj, event) {"
        "" WT_CLASS ".getCssRule('#" + formName() + " .Wt-tv-rowc').style.left"
@@ -1418,7 +1424,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""        "w=tw - WT.pxself(r, 'width') - (vscroll ? 17 : 0);"
      ""    "WT.getCssRule('#" + formName() + " .Wt-tv-row').style.width"
      ""       "= w + 'px';"
-     ""    "var extra = " WT_CLASS ".hasTag(hh.childNodes[1], 'IMG') ? 17 : 6;"
+     ""    "var extra = " WT_CLASS ".hasTag(hh.childNodes[1], 'IMG') ? 21 : 6;"
      ""    "hh.style.width= (w + extra) + 'px';"
      ""  "} else if (contentstoo) {"
      ""    "h.style.width=r.style.width;"
@@ -1470,7 +1476,7 @@ void WTreeView::refresh()
       "totalw += 'px';"
       "if (c) {"
       """r.style.width = totalw;"
-      + (app->environment().agentIE() ? 
+      + (app->environment().agentIsIE() ? 
 	 "var c =" WT_CLASS ".getElementsByClassName('Wt-tv-rowc', "
 	 + jsRef() + ");"
 	 "for (var i = 0, length = c.length; i < length; ++i) {"
@@ -1489,8 +1495,8 @@ void WTreeView::refresh()
      + columnsWidth + "}};");
 
   app->doJavaScript
-    (jsRef() + ".handleDragDrop = function(action, object, event, "
-     ""                                   "sourceId, mimeType) {"
+    (jsRef() + ".handleDragDrop=function(action, object, event, "
+     ""                                 "sourceId, mimeType) {"
      """var self=" + jsRef() + ";"
      """if (self.dropEl) {"
      ""  "self.dropEl.className = self.dropEl.classNameOrig;"
@@ -1543,7 +1549,7 @@ void WTreeView::setColumn1Fixed(bool fixed)
     WContainerWidget *scrollBar = new WContainerWidget(scrollBarC);
     scrollBar->setStyleClass("Wt-tv-rowc");
     WApplication *app = WApplication::instance();
-    if (app->environment().agentWebKit() || app->environment().agentOpera())
+    if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
       scrollBar->setAttributeValue("style", "left: 0px;");
     impl_->layout()->addWidget(scrollBarContainer);
   }
@@ -1728,7 +1734,7 @@ void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
     return;
 
   // XX: cannot do it for column 0!
-  if (!WApplication::instance()->environment().agentIE())
+  if (!WApplication::instance()->environment().agentIsIE())
     for (int i = 1; i < columnCount(); ++i)
       headerTextWidget(i)->setWordWrap(multiLine);
 }
@@ -1984,7 +1990,7 @@ WWidget *WTreeView::createHeaderWidget(WApplication *app, int column)
   t->setStyleClass("Wt-label");
   t->setInline(false);
   t->setAttributeValue("unselectable", "on");
-  if (multiLineHeader_ || app->environment().agentIE())
+  if (multiLineHeader_ || app->environment().agentIsIE())
     t->setWordWrap(true);
   else
     t->setWordWrap(false);
@@ -2011,7 +2017,8 @@ void WTreeView::rerenderTree()
   if (WApplication::instance()->environment().ajax()) {
     rootNode_->clicked().connect(itemClickedJS_);
     rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
-    rootNode_->mouseWentDown().connect(itemMouseDownJS_);
+    if (mouseWentDown_.isConnected())
+      rootNode_->mouseWentDown().connect(itemMouseDownJS_);
   }
   setRootNodeStyle();
 
@@ -2033,8 +2040,12 @@ void WTreeView::onViewportChange(WScrollEvent e)
 
 void WTreeView::onCheckedChange(CheckedInfo info)
 {
-  model_->setData(info.index, boost::any(info.checkBox->isChecked()),
-		  CheckStateRole);
+  if (info.checkBox->isTristate())
+    model_->setData(info.index, boost::any(info.checkBox->checkState()),
+		    CheckStateRole);
+  else
+    model_->setData(info.index, boost::any(info.checkBox->isChecked()),
+		    CheckStateRole);
 }
 
 void WTreeView::onItemEvent(std::string nodeId, int columnId, std::string type,

@@ -64,8 +64,7 @@ public:
    */
   WRadioButton(const WString& text, WContainerWidget *parent = 0);
 
-  WRadioButton(bool withLabel, const WString& text,
-	       WContainerWidget *parent = 0);
+  WRadioButton(bool withLabel, WContainerWidget *parent);
 
   /*! \brief Delete a radio button
    */
@@ -87,7 +86,6 @@ private:
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
   virtual void getFormObjects(std::vector<WObject *>& formObjects);
 
   virtual void setFormData(const FormData& formData);

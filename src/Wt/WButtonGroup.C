@@ -11,7 +11,7 @@
 namespace Wt {
 
 WButtonGroup::WButtonGroup(WObject* parent)
-    :WObject(parent)
+  : WObject(parent)
 { }
 
 WButtonGroup::~WButtonGroup()
@@ -107,7 +107,7 @@ void WButtonGroup::setSelectedButtonIndex(int idx)
 int WButtonGroup::selectedButtonIndex() const
 {
   for (unsigned i = 0; i < buttons_.size(); ++i)
-    if (buttons_[i].button->checked_)
+    if (buttons_[i].button->isChecked())
       return i;
   return -1;
 }
@@ -124,13 +124,18 @@ void WButtonGroup::setFormData(const FormData& formData)
 
     for (unsigned i = 0; i < buttons_.size(); ++i) {
       if (value == buttons_[i].button->formName()) {
+	if (buttons_[i].button->stateChanged_)
+	  return;
+
 	uncheckOthers(buttons_[i].button);
-	buttons_[i].button->checked_ = true;
+	buttons_[i].button->state_ = Checked;
+
+	return;
       }
     }
   } else {
     /*
-     * none checked (form submit) or aways for ajax. In any case
+     * none checked (form submit) or always for ajax. In any case
      * we don't do anything, since none checked can only be if
      * there were actually none checked to start with ?
      */
@@ -141,7 +146,7 @@ void WButtonGroup::uncheckOthers(WRadioButton *button)
 {
   for (unsigned i = 0; i < buttons_.size(); ++i)
     if (buttons_[i].button != button)
-      buttons_[i].button->checked_ = false;
+      buttons_[i].button->state_ = Unchecked;
 }
 
 int WButtonGroup::generateId() const

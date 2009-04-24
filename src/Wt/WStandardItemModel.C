@@ -329,11 +329,8 @@ bool WStandardItemModel::setData(const WModelIndex& index,
 {
   WStandardItem *item = itemFromIndex(index);
 
-  if (item) {
-    item->setDataImpl(value, role);
-    dataChanged().emit(index, index);
-    itemChanged().emit(item);
-  }
+  if (item)
+    item->setData(value, role);
 
   return item;
 }

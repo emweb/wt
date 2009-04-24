@@ -115,6 +115,9 @@ void WSelectionBox::propagateRenderOk(bool deep)
 
 void WSelectionBox::setFormData(const FormData& formData)
 {
+  if (selectionChanged_)
+    return;
+
   if (selectionMode_ == SingleSelection)
     WComboBox::setFormData(formData);
   else {

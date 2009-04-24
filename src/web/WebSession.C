@@ -1157,8 +1157,8 @@ void WebSession::notifySignal(const WEvent& e)
 
     const WebRequest& request = *handler.request();
 
-    std::string se = i > 0 ? 'e' + boost::lexical_cast<std::string>(i)
-      : std::string();
+    std::string se = i > 0
+      ? 'e' + boost::lexical_cast<std::string>(i) : std::string();
     const std::string *signalE = getSignal(request, se);
 
     if (!signalE)

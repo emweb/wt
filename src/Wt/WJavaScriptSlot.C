@@ -26,8 +26,21 @@ JSlot::JSlot(WWidget *parent)
   : widget_(parent),
     fid_(nextFid_++)
 {
+  create();
+}
+
+JSlot::JSlot(const std::string& javaScript, WWidget *parent)
+  : widget_(parent),
+    fid_(nextFid_++)
+{
+  create();
+  setJavaScript(javaScript);
+}
+
+void JSlot::create()
+{
   imp_ = new WStatelessSlotImpl
-    (parent, 0, widget_
+    (widget_, 0, widget_
      ? WApplication::instance()->javaScriptClass()
      + '.' + jsFunctionName() + "(this, e);"
      : "");
@@ -43,12 +56,12 @@ std::string JSlot::jsFunctionName() const
   return "sf" + boost::lexical_cast<std::string>(fid_);
 }
 
-void JSlot::setJavaScript(const std::string& imp)
+void JSlot::setJavaScript(const std::string& js)
 {
   if (widget_)
-    WApplication::instance()->declareJavaScriptFunction(jsFunctionName(), imp);
+    WApplication::instance()->declareJavaScriptFunction(jsFunctionName(), js);
   else
-    imp_->setJavaScript("{var f=" + imp	+ "; f(this, e);}");
+    imp_->setJavaScript("{var f=" + js + "; f(this, e);}");
 }
 
 WStatelessSlot* JSlot::slotimp()

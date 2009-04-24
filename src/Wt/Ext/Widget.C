@@ -75,14 +75,14 @@ void Widget::initExt()
      * fired when loading ExtJS on demand.
      */
     std::string bodyClass;
-    if (app->environment().agentIE()) {
+    if (app->environment().agentIsIE()) {
       bodyClass = "ext-ie ";
-      bodyClass += app->environment().agentIE6() ? "ext-ie6" : "ext-ie7 ";
-    } else if (app->environment().agentSafari())
+      bodyClass += app->environment().agent() == WEnvironment::IE6 ? "ext-ie6" : "ext-ie7 ";
+    } else if (app->environment().agentIsSafari())
       bodyClass = "ext-safari";
-    else if (app->environment().agentOpera())
+    else if (app->environment().agentIsOpera())
       bodyClass = "ext-opera";
-    else if (app->environment().agentGecko())
+    else if (app->environment().agentIsGecko())
       bodyClass = "ext-gecko";
 
     const std::string& ua = app->environment().userAgent();

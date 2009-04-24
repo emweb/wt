@@ -557,6 +557,16 @@ enum Key {
   Key_Z = 'Z'          //!< 'Z' key
 };
 
+/*! \brief Enumeration for the check state of a check box.
+ *
+ * \sa WCheckBox
+ */
+enum CheckState {
+  Unchecked,        //!< Unchecked
+  PartiallyChecked, //!< Partially checked (for a tri-state checkbox)
+  Checked           //!< Checked
+};
+
 }
 
 #endif // WGLOBALS_H_

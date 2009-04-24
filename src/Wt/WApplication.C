@@ -128,9 +128,9 @@ WApplication::WApplication(const WEnvironment& env)
     styleSheet_.addRule("button", "display: inline");
   }
 
-  if (environment().agentIE())
+  if (environment().agentIsIE())
     styleSheet_.addRule("html, body", "overflow: auto;");
-  else if (environment().agentGecko())
+  else if (environment().agentIsGecko())
     styleSheet_.addRule("html", "overflow: auto;");
 
   /*
@@ -138,7 +138,7 @@ WApplication::WApplication(const WEnvironment& env)
    */
   styleSheet_.addRule("iframe.Wt-resource",
 		      "width: 0px; height: 0px; border: 0px;");
-  if (environment().agentIE())
+  if (environment().agentIsIE())
     styleSheet_.addRule("iframe.Wt-shim",
 			"position: absolute; top: -1px; left: -1px; "
 			"z-index: -1;"
@@ -158,7 +158,16 @@ WApplication::WApplication(const WEnvironment& env)
 		      "user-select: none;");
   styleSheet_.addRule(".Wt-sbspacer", "float: right; width: 16px; height: 1px;"
 		      "border: 0px; display: none;");
-
+  if (environment().agentIsOpera())
+    if (environment().userAgent().find("Mac OS X") != std::string::npos)
+      styleSheet_.addRule("img.Wt-indeterminate", "margin: 4px 1px -3px 2px;");
+    else
+      styleSheet_.addRule("img.Wt-indeterminate", "margin: 4px 2px -3px 0px;");
+  else
+    if (environment().userAgent().find("Mac OS X") != std::string::npos)
+      styleSheet_.addRule("img.Wt-indeterminate", "margin: 4px 3px 0px 4px;");
+    else
+      styleSheet_.addRule("img.Wt-indeterminate", "margin: 3px 3px 0px 4px;");
 
 #ifdef WT_TARGET_JAVA
 #define JARG(e) , e
@@ -350,11 +359,20 @@ void WApplication::useStyleSheet(const std::string& uri)
 void WApplication::useStyleSheet(const std::string& uri,
 				 const std::string& condition)
 {
-  if (environment().agentIE()) {
+  if (environment().agentIsIE()) {
     bool display = false;
 
-    int thisVersion = environment().agentIEMobile() ? 5 :
-      environment().agentIE6() ? 6 : 7;
+    int thisVersion = 4;
+
+    switch (environment().agent()) {
+    case WEnvironment::IEMobile:
+      thisVersion = 5; break;
+    case WEnvironment::IE6:
+      thisVersion = 6; break;
+    default:
+      thisVersion = 7;
+    }
+
     enum { lte, lt, eq, gt, gte } cond = eq;
 
     bool invert = false;
