@@ -64,7 +64,7 @@ DialogExample::DialogExample(const WEnvironment& env)
 		       "margin-top: 4px; display: block");
   styleSheet().addRule(".text", "padding: 4px 8px");
 
-  if (environment().agentIE())
+  if (environment().agentIsIE())
     styleSheet().addRule("body", "margin: 0px;"); // avoid scrollbar problems
 }
 

@@ -27,6 +27,7 @@ WCalendar::WCalendar(bool i18n, WContainerWidget *parent)
   : WCompositeWidget(parent),
     i18n_(i18n),
     multipleSelection_(false),
+    singleClickSelect_(false),
     selectionChanged_(this),
     selected_(this),
     cellClickMapper_(0),
@@ -49,6 +50,11 @@ void WCalendar::setMultipleSelection(bool multiple)
     }
     multipleSelection_ = multiple;
   }
+}
+
+void WCalendar::setSingleClickSelect(bool single)
+{
+  singleClickSelect_ = single;
 }
 
 void WCalendar::create()
@@ -191,9 +197,11 @@ void WCalendar::render()
       cellClickMapper_ = new WSignalMapper<Coordinate>(this);
       cellClickMapper_->mapped().connect(SLOT(this, WCalendar::cellClicked));
 
-      cellDblClickMapper_ = new WSignalMapper<Coordinate>(this);
-      cellDblClickMapper_->mapped().connect(SLOT(this,
-						 WCalendar::cellDblClicked));
+      if (!singleClickSelect_) {
+	cellDblClickMapper_ = new WSignalMapper<Coordinate>(this);
+	cellDblClickMapper_->mapped().connect(SLOT(this,
+						   WCalendar::cellDblClicked));
+      }
 
       app = WApplication::instance();
     }
@@ -230,7 +238,9 @@ void WCalendar::render()
 	  WInteractWidget *w = app->environment().javaScript()
 	    ? static_cast<WInteractWidget *>(cell) : t;
 	  cellClickMapper_->mapConnect(w->clicked(), Coordinate(i, j));
-	  cellDblClickMapper_->mapConnect(w->doubleClicked(), Coordinate(i, j));
+	  if (cellDblClickMapper_)
+	    cellDblClickMapper_->mapConnect(w->doubleClicked(),
+					    Coordinate(i, j));
 	} else {
 	  WText *t = dynamic_cast<WText *>(cell->children()[0]);
 	  Utils::itoa(d.day(), buf);
@@ -315,6 +325,11 @@ void WCalendar::select(const std::set<WDate>& dates)
 
 void WCalendar::cellClicked(Coordinate weekday)
 {
+  if (!multipleSelection_ && singleClickSelect_) {
+    cellDblClicked(weekday);
+    return;
+  }
+
   date dt = dateForCell(weekday.i, weekday.j);
 
   selectInCurrentMonth(dt);

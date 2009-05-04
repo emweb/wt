@@ -384,6 +384,10 @@ void WTreeViewNode::insertColumns(int column, int count)
 
   for (int i = 0; i < view_->columnCount(); ++i) {
     WText *w = new WText();
+    WModelIndex child = childIndex(i);
+    if (!(child.flags() & ItemIsXHTMLText))
+      w->setTextFormat(PlainText);
+
     w->setWordWrap(true);
     setWidget(i, w, false);
   }
@@ -1152,11 +1156,13 @@ WTreeView::WTreeView(WContainerWidget *parent)
     /* sort handles */
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh",
-       "float: right; width: 16px; margin-top: 6px;");
+       "float: right; width: 16px; margin-top: 6px;"
+       "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh-nrh",
-       "float: right; width: 16px; margin-top: 6px; margin-right: 4px");
+       "float: right; width: 16px; margin-top: 6px; margin-right: 4px"
+       "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-shc0", "float: left;");
@@ -1959,6 +1965,13 @@ void WTreeView::rerenderHeader()
     c->addWidget(columnInfo(0).extraHeaderWidget);
   } else
     headers_->addWidget(t);
+
+  if (currentSortColumn_ != -1) {
+    SortOrder order = columnInfo(currentSortColumn_).sortOrder;
+    headerSortIconWidget(currentSortColumn_)
+      ->setImageRef(imagePack_ + (order == AscendingOrder ? "sort-arrow-up.gif"
+				  : "sort-arrow-down.gif"));
+  }
 
   if (model_)
     modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);

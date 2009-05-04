@@ -316,7 +316,7 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
        * automatic scrollbars.
        */
       if (app->environment().javaScript())
-	if (!app->environment().agent() == WEnvironment::IE6)
+	if (app->environment().agent() != WEnvironment::IE6)
 	  app->styleSheet().addRule("html, body", "overflow: hidden;");
 	else
 	  app->styleSheet().addRule("body", "overflow: hidden;");

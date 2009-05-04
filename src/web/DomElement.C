@@ -296,7 +296,8 @@ void DomElement::setEvent(const char *eventName,
 
 void DomElement::processProperties(WApplication *app) const
 {
-  if (minMaxSizeProperties_ && app->environment().agentIsIE()) {
+  if (minMaxSizeProperties_
+      && app->environment().agent() == WEnvironment::IE6) {
     DomElement *self = const_cast<DomElement *>(this); 
 
     PropertyMap::iterator w = self->properties_.find(PropertyStyleWidth);
@@ -1046,6 +1047,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     }
 
     processEvents(app);
+    processProperties(app);
 
     if (replaced_) {
       declare(out);

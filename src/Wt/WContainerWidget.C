@@ -575,8 +575,8 @@ DomElement *WContainerWidget::createDomElement(WApplication *app)
 void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
 {
   if (layout_) {
-    bool fitWidth = (contentAlignment_ & AlignHorizontalMask) == AlignJustify;
-    bool fitHeight = (contentAlignment_ & AlignVerticalMask) == 0;
+    bool fitWidth = contentAlignment_ & AlignJustify;
+    bool fitHeight = !(contentAlignment_ & AlignVerticalMask);
 
     DomElement *c
       = (layoutImpl()->createDomElement(fitWidth, fitHeight, app));

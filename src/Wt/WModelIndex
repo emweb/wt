@@ -64,6 +64,7 @@ enum ItemFlag {
    * Wt::CheckState
    */
   ItemIsTristate = 0x20,
+  ItemIsXHTMLText = 0x40     //!< Item's textual is HTML
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ItemFlag)

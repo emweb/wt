@@ -172,12 +172,21 @@ public:
    */
   Signal<WDate>& selected() { return selected_; }
 
+  /*! \brief Configure the calendar to use single click to select.
+   *
+   * This only applies to a single-selection calendar.
+   *
+   * \sa setMultipleSelection()
+   */
+  void setSingleClickSelect(bool single);
+
 protected:
   virtual void render();
 
 private:
   bool              i18n_;
   bool              multipleSelection_;
+  bool              singleClickSelect_;
   int               currentYear_;
   int               currentMonth_;
   std::set<WDate>   selection_;

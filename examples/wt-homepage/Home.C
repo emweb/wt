@@ -478,7 +478,7 @@ WWidget *Home::wrapViewOrDefer(WWidget *(Home::*createWidget)())
    * avoid unnecessary server-side resources when JavaScript is not
    * available is deferring creation until load time.
    */
-  if (!environment().agentIEMobile() && environment().javaScript())
+  if (!environment().agentIsIEMobile() && environment().javaScript())
     return makeStaticModel(boost::bind(createWidget, this));
   else
     return deferCreate(boost::bind(createWidget, this));

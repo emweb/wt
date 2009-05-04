@@ -1,3 +1,11 @@
+04-05-2009
+	* WString: do not assume a message resource bundle as localized
+	strings
+
+	* Wt.js: fix empty line edit regression
+
+	* WCalendar: setSingleClickSelect()
+
 23-04-2009:
 	* WCheckBox, WAbstractToggleButton: tri-state checkboxes
 

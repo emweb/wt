@@ -831,9 +831,9 @@ var encodeEvent = function(event, i) {
 	if (el.checked)
 	  v = el.value;
     } else if (el.type != 'file')
-      v = el.value;
+      v = '' + el.value;
 
-    if (v)
+    if (v != null)
       result += se + formObjects[x] + '=' + encodeURIComponent(v);
   }
 
