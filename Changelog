@@ -1,3 +1,7 @@
+05-05-2009
+	* WebSession: fix WApplication::attachThread(), simplify use of
+	thread specific storage
+
 04-05-2009
 	* WString: do not assume a message resource bundle as localized
 	strings
@@ -5,6 +9,8 @@
 	* Wt.js: fix empty line edit regression
 
 	* WCalendar: setSingleClickSelect()
+
+	* WEnvironment: getDeploymentPath()
 
 23-04-2009:
 	* WCheckBox, WAbstractToggleButton: tri-state checkboxes

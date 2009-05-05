@@ -140,6 +140,8 @@ void DispatchThread::destroy()
     myPropagateEvent();
 
   waitDone();
+
+  wait();
 }
 
 bool DispatchThread::doEvent()

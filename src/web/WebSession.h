@@ -137,7 +137,7 @@ public:
   class Handler {
   public:
     Handler(WebSession& session, WebRequest& request, WebResponse& response);
-    Handler(WebSession& session);
+    Handler(WebSession& session, bool locked = true);
     ~Handler();
 
     static Handler *instance();
@@ -165,12 +165,7 @@ public:
 
     Handler(const Handler&);
 
-    Handler *handlerPtr_, **prevHandlerPtr_;
-    static boost::thread_specific_ptr<Handler *> threadHandler_;
-#else
-#ifndef WT_TARGET_JAVA
-    static Handler *threadHandler_;
-#endif // WT_TARGET_JAVA
+    Handler *prevHandler_;
 #endif // WT_THREADED
 
     WebSession&  session_;
@@ -209,10 +204,9 @@ private:
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::mutex mutex_;
-#endif
-
-#ifdef WT_TARGET_JAVA
   static boost::thread_specific_ptr<Handler> threadHandler_;
+#else
+  static Handler *threadHandler_;
 #endif // WT_TARGET_JAVA
 
   Type          type_;

@@ -331,9 +331,17 @@ public:
    * '/', as an alternative to the first form, which is then
    * impossible.
    *
-   * \sa WApplication::setInternalPath()
+   * \sa WApplication::setInternalPath(), deploymentPath()
    */
   const std::string& internalPath() const { return internalPath_; }
+
+  /*! \brief Returns the deployment path.
+   *
+   * This is the path at which the application is deployed.
+   *
+   * \sa internalPath().
+   */
+  const std::string& deploymentPath() const;
 
   /*! \brief Returns the version of the %Wt library.
    *

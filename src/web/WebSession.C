@@ -56,17 +56,11 @@ public:
   { }
 };
 
-#ifdef WT_THREADED
-boost::thread_specific_ptr<WebSession::Handler *>
-  WebSession::Handler::threadHandler_;
-#else
-#ifdef WT_TARGET_JAVA
-boost::thread_specific_ptr<WebSession::Handler>
-  WebSession::threadHandler_;
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+boost::thread_specific_ptr<WebSession::Handler> WebSession::threadHandler_;
 #else
 WebSession::Handler * WebSession::Handler::threadHandler_;
-#endif // WT_TARGET_JAVA
-#endif // WT_THREADED
+#endif
 
 WebSession::WebSession(WebController *controller,
 		       const std::string& sessionId,
@@ -177,7 +171,7 @@ std::string WebSession::docType() const
 void WebSession::setState(State state, int timeout)
 {
 #ifdef WT_THREADED
-  assert(WebSession::Handler::instance()->lock().owns_lock());
+  //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
   if (state_ != Dead) {
@@ -351,7 +345,7 @@ std::string WebSession::getCgiValue(const std::string& varName) const
 void WebSession::kill()
 {
 #ifdef WT_THREADED
-  assert(WebSession::Handler::instance()->lock().owns_lock());
+  //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
   state_ = Dead;
@@ -415,10 +409,11 @@ std::string WebSession::getRedirect()
   return result;
 }
 
-WebSession::Handler::Handler(WebSession& session)
+WebSession::Handler::Handler(WebSession& session, bool locked)
   : 
 #ifdef WT_THREADED
-    lock_(session.mutex_),
+    lock_(session.mutex_, boost::defer_lock),
+    prevHandler_(0),
 #endif // WT_THREADED
     session_(session),
     request_(0),
@@ -426,7 +421,12 @@ WebSession::Handler::Handler(WebSession& session)
     eventLoop_(false),
     killed_(false)
 {
-  init();
+#ifdef WT_THREADED
+  if (locked) {
+    lock_.lock();
+    init();
+  }
+#endif
 }
 
 WebSession::Handler::Handler(WebSession& session,
@@ -434,6 +434,7 @@ WebSession::Handler::Handler(WebSession& session,
   :
 #ifdef WT_THREADED
     lock_(session.mutex_),
+    prevHandler_(0),
 #endif // WT_THREADED
     session_(session),
     request_(&request),
@@ -450,7 +451,7 @@ WebSession::Handler *WebSession::Handler::instance()
   return threadHandler_.get();
 #else
 #ifdef WT_THREADED
-  return threadHandler_.get() ? *threadHandler_ : 0;
+  return threadHandler_.get();
 #else
   return threadHandler_;
 #endif // WT_THREADED
@@ -464,14 +465,8 @@ void WebSession::Handler::init()
 #else
 #ifdef WT_THREADED
   session_.handlers_.push_back(this);
-
-  if (threadHandler_.get())
-    prevHandlerPtr_ = threadHandler_.release();
-  else
-    prevHandlerPtr_ = 0;
-
-  handlerPtr_ = this;
-  threadHandler_.reset(&handlerPtr_);
+  prevHandler_ = threadHandler_.release();
+  threadHandler_.reset(this);
 #else
   threadHandler_ = this;
 #endif // WT_THREADED
@@ -481,8 +476,7 @@ void WebSession::Handler::init()
 void WebSession::Handler::attachThreadToSession(WebSession& session)
 {
 #ifdef WT_THREADED
-  Handler *handler = instance();
-  threadHandler_.reset(&handler->handlerPtr_);
+  threadHandler_.reset(new Handler(session, false));
 #else
   session.log("error") <<
     "attachThreadToSession() requires that Wt is built with threading enabled";
@@ -492,7 +486,7 @@ void WebSession::Handler::attachThreadToSession(WebSession& session)
 WebSession::Handler::~Handler()
 {
 #ifdef WT_THREADED
-  assert(lock().owns_lock());
+  //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
 #ifdef WT_TARGET_JAVA
@@ -508,9 +502,8 @@ WebSession::Handler::~Handler()
 
 #ifdef WT_THREADED
   threadHandler_.release();
-
-  if (prevHandlerPtr_)
-    threadHandler_.reset(prevHandlerPtr_);
+  if (prevHandler_)
+    threadHandler_.reset(prevHandler_);
 #endif // WT_THREADED
 #endif // WT_TARGET_JAVA
 }
@@ -518,7 +511,7 @@ WebSession::Handler::~Handler()
 void WebSession::Handler::killSession()
 {
 #ifdef WT_THREADED
-  assert(lock().owns_lock());
+  //assert(lock().owns_lock());
 #endif // WT_THREADED
 
   killed_ = true;
@@ -676,7 +669,7 @@ WebSession::Handler *WebSession::findEventloopHandler(int index)
 {
 #ifndef WT_TARGET_JAVA
 #ifdef WT_THREADED
-  assert(WebSession::Handler::instance()->lock().owns_lock());
+  //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
   for (int i = handlers_.size() - 1; i >= 0; --i) {

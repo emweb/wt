@@ -163,7 +163,7 @@ void TableView::onSelectionChange(const std::string selection)
 {
   /* format: a b c with row ids or a pair of row column */
   std::vector<int> numbers;
-  
+
   parseNumberList(selection, numbers);
 
   if (selectionBehavior_ == SelectRows) {

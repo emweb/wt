@@ -73,6 +73,11 @@ void WEnvironment::setInternalPath(const std::string& path)
 #endif // WT_TARGET_JAVA
 }
 
+const std::string& WEnvironment::deploymentPath() const
+{
+  return session_->deploymentPath();
+}
+
 void WEnvironment::init(const WebRequest& request)
 {
   Configuration& conf = session_->controller()->configuration();
