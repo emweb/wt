@@ -164,6 +164,7 @@ std::string WDoubleValidator::javaScriptValidate(const std::string& jsRef) const
   return js;
 }
 
+#ifndef WT_TARGET_JAVA
 void WDoubleValidator::createExtConfig(std::ostream& config) const
 {
   if (bottom_ >= 0)
@@ -182,5 +183,6 @@ void WDoubleValidator::createExtConfig(std::ostream& config) const
 
   WValidator::createExtConfig(config);
 }
+#endif //WT_TARGET_JAVA
 
 }

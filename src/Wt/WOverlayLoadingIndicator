@@ -74,9 +74,9 @@ public:
    *             position: absolute;
    *        \endcode
    */
-  WOverlayLoadingIndicator(const WString &styleClass = WString(),
-			   const WString &backgroundStyleClass = WString(),
-			   const WString &textStyleClass = WString());
+  WOverlayLoadingIndicator(const WT_USTRING& styleClass = WT_USTRING(),
+			   const WT_USTRING& backgroundStyleClass = WT_USTRING(),
+			   const WT_USTRING& textStyleClass = WT_USTRING());
 
   virtual WWidget *widget() { return this; }
   virtual void setMessage(const WString& text);

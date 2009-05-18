@@ -41,8 +41,7 @@ class WT_API WebSession
 public:
   enum Type { Application, WidgetSet };
 
-  WebSession(WebController *controller,
-	     const std::string& sessionId, const std::string& sessionPath,
+  WebSession(WebController *controller, const std::string& sessionId,
 	     Type type, const WebRequest& request);
   ~WebSession();
 
@@ -88,6 +87,7 @@ public:
 
 #ifndef WT_TARGET_JAVA
   const Time& expireTime() const { return expire_; }
+  bool shouldDisconnect() const;
 #endif // WT_TARGET_JAVA
 
   bool done() { return state_ == Dead; }
@@ -99,7 +99,7 @@ public:
   const std::string& applicationName() const { return applicationName_; }
 
   // (http://www.bigapp.com) /myapp/app.wt?wtd=ABCD
-  const std::string& applicationUrl() const { return applicationUrl_; }
+  const std::string applicationUrl() const { return applicationUrl_ + sessionQuery(); }
 
   const std::string& deploymentPath() const { return deploymentPath_; }
 
@@ -213,11 +213,10 @@ private:
   State         state_;
 
   std::string   sessionId_;
-  std::string   sessionPath_;
 
   WebController *controller_;
   WebRenderer   renderer_;
-  std::string   applicationName_, sessionQuery_;
+  std::string   applicationName_;
   std::string   bookmarkUrl_, baseUrl_, absoluteBaseUrl_;
   std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
@@ -266,6 +265,9 @@ private:
   void init(const WebRequest& request);
   bool start();
   void kill();
+
+  void generateNewSessionId();
+  std::string sessionQuery() const;
 };
 
 }

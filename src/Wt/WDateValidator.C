@@ -228,6 +228,7 @@ std::string WDateValidator::javaScriptValidate(const std::string& jsRef) const
   return js.str();
 }
 
+#ifndef WT_TARGET_JAVA
 void WDateValidator::createExtConfig(std::ostream& config) const
 {
   config << ",format:"
@@ -253,5 +254,6 @@ void WDateValidator::createExtConfig(std::ostream& config) const
 
   WValidator::createExtConfig(config);
 }
+#endif //WT_TARGET_JAVA
 
 }

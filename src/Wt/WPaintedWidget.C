@@ -65,6 +65,8 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
     preferredMethod_(HtmlCanvas),
     painter_(0),
     needRepaint_(false),
+    sizeChanged_(false),
+    repaintFlags_(0),
     areaImage_(0)
 {
   if (WApplication::instance()) {
@@ -100,12 +102,15 @@ void WPaintedWidget::resize(const WLength& width, const WLength& height)
   if (areaImage_)
     areaImage_->resize(width, height);
 
+  sizeChanged_ = true;
   update();
 }
 
-void WPaintedWidget::update()
+void WPaintedWidget::update(WFlags<PaintFlag> flags)
 {
   needRepaint_ = true;
+  repaintFlags_ |= flags;
+
   WInteractWidget::repaint();
 }
 
@@ -230,6 +235,8 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
 
   if (needRepaint_) {
     WPaintDevice *device = painter_->createPaintDevice();
+    if (!createNew)
+      device->setPaintFlags(repaintFlags_ & PaintUpdate);
     paintEvent(device);
     if (createNew) {
       DomElement *canvas = DomElement::getForUpdate('p' + formName(),
@@ -237,12 +244,14 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
       canvas->removeAllChildren();
       painter_->createContents(canvas, device);
       result.push_back(canvas);
-    } else
+    } else {
       painter_->updateContents(result, device);
+    }
 
     delete device;
 
     needRepaint_ = false;
+    repaintFlags_ = 0;
   }
 }
 
@@ -331,16 +340,33 @@ void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
 					  WPaintDevice *device)
 {
   WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device);
-  DomElement *canvas = DomElement::getForUpdate('p' + widget_->formName(),
-						DomElement_DIV);
 
-  /*
-   * In fact, we should use another property, since we could be using
-   * document.importNode() instead of myImportNode() since the xml does not
-   * need to be interpreted as HTML...
-   */
-  canvas->setProperty(PropertyInnerHTML, vectorDevice->rendered());
-  result.push_back(canvas);
+  if (device->paintFlags() & PaintUpdate) {
+    DomElement *painter = DomElement::updateGiven
+      (WT_CLASS ".getElement('p" + widget_->formName()+ "').firstChild",
+       DomElement_DIV);
+
+    painter->setProperty(PropertyAddedInnerHTML, vectorDevice->rendered());
+
+    WApplication *app = WApplication::instance();
+    if (app->environment().agentIsOpera())
+      painter->callMethod("forceRedraw();");
+
+    result.push_back(painter);
+  } else {
+    DomElement *canvas = DomElement::getForUpdate
+      ('p' + widget_->formName(), DomElement_DIV);
+
+    /*
+     * In fact, we should use another property, since we could be using
+     * document.importNode() instead of myImportNode() since the xml does not
+     * need to be interpreted as HTML...
+     */
+    canvas->setProperty(PropertyInnerHTML, vectorDevice->rendered());
+    result.push_back(canvas);
+  }
+
+  widget_->sizeChanged_ = false;
 }
 
 /*
@@ -391,19 +417,23 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
 {
   WCanvasPaintDevice *canvasDevice = dynamic_cast<WCanvasPaintDevice *>(device);
 
-  DomElement *canvas = DomElement::getForUpdate('c' + widget_->formName(),
-						DomElement_CANVAS);
-  canvas->setAttribute("width",
+  if (widget_->sizeChanged_) {
+    DomElement *canvas = DomElement::getForUpdate('c' + widget_->formName(),
+						  DomElement_CANVAS);
+    canvas->setAttribute("width",
 		   boost::lexical_cast<std::string>(widget_->width().value()));
-  canvas->setAttribute("height",
+    canvas->setAttribute("height",
 		   boost::lexical_cast<std::string>(widget_->height().value()));
-  result.push_back(canvas);
+    result.push_back(canvas);
+
+    widget_->sizeChanged_ = false;
+  }
 
   DomElement *text = DomElement::getForUpdate('t' + widget_->formName(),
 					      DomElement_DIV);
   text->removeAllChildren();
 
-  canvasDevice->render("c" + widget_->formName(), text);
+  canvasDevice->render('c' + widget_->formName(), text);
 
   result.push_back(text);
 }

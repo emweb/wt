@@ -45,10 +45,13 @@ bool bindUDStoStdin(const std::string& socketPath, Wt::Configuration& conf)
   }
 
   struct sockaddr_un local;
-  local.sun_family = AF_UNIX;
-  strcpy(local.sun_path, socketPath.c_str());
+  local.sun_family = AF_LOCAL;
+  strncpy (local.sun_path, socketPath.c_str(), sizeof (local.sun_path));
+  local.sun_path[sizeof (local.sun_path) - 1] = '\0';
   unlink(local.sun_path);
-  socklen_t len = strlen(local.sun_path) + sizeof(local.sun_family);
+  //std::cerr << getpid() << ": " << local.sun_path << std::endl;
+  socklen_t len = offsetof (struct sockaddr_un, sun_path)
+    + strlen(local.sun_path) + 1;
 
   if (bind(s, (struct sockaddr *)& local, len) == -1) {
     conf.log("fatal") << "bind(): " << strerror(errno);

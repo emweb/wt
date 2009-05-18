@@ -616,6 +616,7 @@ private:
 
   friend class StdWidgetItemImpl;
   friend class WAbstractArea;
+  friend class WApplication;
   friend class WContainerWidget;
   friend class WCompositeWidget;
   friend class WebRenderer;

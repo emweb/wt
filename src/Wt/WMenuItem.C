@@ -60,7 +60,7 @@ void WMenuItem::setText(const WString& text)
 
   if (!customPathComponent_) {
     std::string result;
-    if (text.literal())
+    if (text_.literal())
       result = text_.narrow();
     else
       result = text_.key();

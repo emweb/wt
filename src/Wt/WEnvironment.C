@@ -20,7 +20,6 @@
 #include <boost/algorithm/string.hpp>
 #ifndef WT_NO_SPIRIT
 #include <boost/spirit/core.hpp>
-#include <boost/spirit/utility.hpp>
 #include <boost/bind.hpp>
 #endif // WT_NO_SPIRIT
 #include <assert.h>
@@ -218,12 +217,14 @@ std::string WEnvironment::libraryVersion()
   return WT_VERSION_STR;
 }
 
+#ifndef WT_TARGET_JAVA
 void WEnvironment::libraryVersion(int& series, int& major, int& minor) const
 {
   series = WT_SERIES;
   major = WT_MAJOR;
   minor = WT_MINOR;
 }
+#endif //WT_TARGET_JAVA
 
 std::string WEnvironment::sessionId() const
 {

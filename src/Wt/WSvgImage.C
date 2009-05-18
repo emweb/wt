@@ -50,6 +50,7 @@ WSvgImage::WSvgImage(const WLength& width, const WLength& height,
     width_(width),
     height_(height),
     painter_(0),
+    paintFlags_(0),
     newGroup_(true),
     newClipPath_(false),
     busyWithPath_(false),
@@ -59,6 +60,11 @@ WSvgImage::WSvgImage(const WLength& width, const WLength& height,
 WSvgImage::~WSvgImage()
 {
   beingDeleted();
+}
+
+void WSvgImage::setPaintFlags(WFlags<PaintFlag> paintFlags)
+{
+  paintFlags_ = paintFlags;
 }
 
 void WSvgImage::init()
@@ -647,13 +653,18 @@ void WSvgImage::streamResourceData(std::ostream& stream)
 {
   finishPath();
 
-  stream << "<"SVG"svg xmlns=\"http://www.w3.org/2000/svg\""
-    " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
-    " version=\"1.1\" baseProfile=\"full\""
-    " width=\"" << width().cssText() << "\""
-    " height=\"" << height().cssText() << "\">"
-	 << "<"SVG"g><"SVG"g>" << shapes_
-	 << "</"SVG"g></"SVG"g></"SVG"svg>";
+  if (paintFlags_ & PaintUpdate)
+    stream << "<"SVG"g xmlns=\"http://www.w3.org/2000/svg\""
+      " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><"SVG"g>" << shapes_
+	   << "</"SVG"g></"SVG"g>";
+  else
+    stream << "<"SVG"svg xmlns=\"http://www.w3.org/2000/svg\""
+      " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
+      " version=\"1.1\" baseProfile=\"full\""
+      " width=\"" << width().cssText() << "\""
+      " height=\"" << height().cssText() << "\">"
+	   << "<"SVG"g><"SVG"g>" << shapes_
+	   << "</"SVG"g></"SVG"g></"SVG"svg>";
 }
 
 }

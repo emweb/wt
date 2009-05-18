@@ -1182,13 +1182,15 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out) const
 
     switch(i->first) {
     case Wt::PropertyInnerHTML:
+    case Wt::PropertyAddedInnerHTML:
       out << WT_CLASS ".setHtml(" << var_ << ',';
       if (!pushed) {
 	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
 	pushed = true;
       }
       fastJsStringLiteral(out, escaped, i->second);
-      out << ");";
+      out << (i->first == Wt::PropertyInnerHTML ? ",false" : ",true")
+	  << ");";
       break;
     case Wt::PropertyScript:
       out << var_ << ".innerHTML=";

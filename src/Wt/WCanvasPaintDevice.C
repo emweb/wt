@@ -55,8 +55,14 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
   : WObject(parent),
     width_(width),
     height_(height),
-    painter_(0)
+    painter_(0),
+    paintFlags_(0)
 { }
+
+void WCanvasPaintDevice::setPaintFlags(WFlags<PaintFlag> paintFlags)
+{
+  paintFlags_ = paintFlags;
+}
 
 void WCanvasPaintDevice::render(const std::string& canvasId,
 				DomElement *text)
@@ -75,10 +81,15 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
     tmp << '\'' << images_[i] << '\'';
   }
 
-  tmp << "],function(images) {"
-    "var ctx=" << canvasVar << ".getContext('2d');"
-    "ctx.clearRect(0,0," << width().value() << "," << height().value() <<
-    ");ctx.save();ctx.save();" << js_ << "ctx.restore();ctx.restore();});}";
+  tmp <<
+    "],function(images) {"
+    "var ctx=" << canvasVar << ".getContext('2d');";
+
+  if (!(paintFlags_ & PaintUpdate))
+    tmp << "ctx.clearRect(0,0,"
+	<< width().value() << "," << height().value() << ");";
+
+  tmp << "ctx.save();ctx.save();" << js_ << "ctx.restore();ctx.restore();});}";
 
   text->callJavaScript(tmp.str());
 

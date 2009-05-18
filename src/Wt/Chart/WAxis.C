@@ -480,7 +480,7 @@ double WAxis::getDateValue(const boost::any& v)
     return std::numeric_limits<double>::signaling_NaN();
   else {
     WDate d = boost::any_cast<WDate>(v);
-    return static_cast<double>(d.modifiedJulianDay());
+    return static_cast<double>(d.toJulianDay());
   }
 }
 
@@ -542,7 +542,7 @@ WString WAxis::label(double u) const
       text = WString::fromUTF8(buf);
     }
   } else if (scale_ == DateScale) {
-    WDate d(static_cast<long>(u));
+    WDate d = WDate::fromJulianDay(static_cast<int>(u));
     WString format = labelFormat_;
 
     if (format.empty()) {
@@ -645,7 +645,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
     enum { Days, Months, Years } unit;
     int interval;
 
-    WDate d(static_cast<long>(s.renderMinimum));
+    WDate d = WDate::fromJulianDay(static_cast<int>(s.renderMinimum));
 
     if (days > 200) {
       unit = Years;
@@ -686,7 +686,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
     bool atTick = (interval > 1) || (unit == Days);
 
     for (;;) {
-      long dl = d.modifiedJulianDay();
+      long dl = d.toJulianDay();
       if (dl > s.renderMaximum)
 	break;
 
@@ -724,7 +724,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 				  atTick ? text : WString()));
 
       if (!atTick) {
-	double tl = (next.modifiedJulianDay() + dl)/2;
+	double tl = (next.toJulianDay() + dl)/2;
 
 	if (tl >= s.renderMinimum && tl <= s.renderMaximum) {
 	  ticks.push_back(TickLabel(static_cast<double>(tl), TickLabel::Zero,

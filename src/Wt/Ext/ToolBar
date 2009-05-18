@@ -83,6 +83,13 @@ public:
    */
   void addSeparator();
 
+  /*! \brief Adds stretch to the tool bar.
+   *
+   * This is an empty space that will stretch and push contents to the
+   * right of it away to the very right end.
+   */
+  void addStretch();
+
 protected:
   void removeChild(WWidget *child);
 

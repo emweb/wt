@@ -232,6 +232,7 @@ private:
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   void modelDataChanged(const WModelIndex& topLeft,
 			const WModelIndex& bottomRight);
+  void modelLayoutChanged();
 };
 
   }

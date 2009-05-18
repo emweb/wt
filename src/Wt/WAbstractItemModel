@@ -666,17 +666,30 @@ public:
    *
    * \sa layoutChanged(), toRawIndex(), fromRawIndex()
    */
-  Signal<>& layoutAboutToBeChanged()
-    { return layoutAboutToBeChanged_; }
+  Signal<>& layoutAboutToBeChanged() { return layoutAboutToBeChanged_; }
 
   /*! \brief %Signal emitted when the layout is changed.
    *
    * \sa layoutAboutToBeChanged()
    */
-  Signal<>& layoutChanged()
-    { return layoutChanged_; }
+  Signal<>& layoutChanged() { return layoutChanged_; }
+
+  /*! \brief %Signal emitted when the model was reset.
+   *
+   * \sa reset()
+   */
+  Signal<>& modelReset() { return modelReset_; }
 
 protected:
+  /*! \brief Resets the model and invalidate any data.
+   *
+   * Informs any attached view that all data in the model was invalidated,
+   * and the model's data should be reread.
+   *
+   * This causes the modelReset() signal to be emitted.
+   */
+  void reset();
+
   /*! \brief Create a model index for the given row and column.
    *
    * Use this method to create a model index. <i>ptr</i> is an
@@ -784,6 +797,7 @@ private:
   Signal<Orientation, int, int> headerDataChanged_;
   Signal<> layoutAboutToBeChanged_;
   Signal<> layoutChanged_;
+  Signal<> modelReset_;
 
   static void copyData(const WAbstractItemModel *source,
 		       const WModelIndex& sIndex,

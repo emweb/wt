@@ -40,13 +40,6 @@ WDate::WDate(int year, int month, int day)
   setDate(year, month, day);
 }
 
-WDate::WDate(long modifiedJulianDays)
-{
-  date d(1858, 11, 17);
-  d += date_duration(modifiedJulianDays);
-  setDate(d.year(), d.month(), d.day());
-}
-
 WDate WDate::addDays(int ndays) const
 {
   if (valid_) {
@@ -123,13 +116,13 @@ int WDate::daysTo(const WDate& other) const
   return dd.days();
 }
 
-long WDate::modifiedJulianDay() const
+int WDate::toJulianDay() const
 {
   if (!isValid())
     return -1;
   else {
     date dthis(year_, month_, day_);
-    return dthis.modjulian_day();
+    return dthis.julian_day();
   }
 }
 
@@ -388,6 +381,47 @@ WDate WDate::fromString(const WString& s, const WString& format)
 
   if (!parseLast(v, vi, d, M, y, day, month, year, format))
     return WDate();
+
+  return WDate(year, month, day);
+}
+
+WDate WDate::fromJulianDay(int jd)
+{
+  int julian = jd;
+  int day, month, year;
+
+  if (julian < 0) {
+    julian = 0;
+  }
+
+  int a = julian;
+
+  if (julian >= 2299161) {
+    int jadj = (int)(((float)(julian - 1867216) - 0.25) / 36524.25);
+    a += 1 + jadj - (int)(0.25 * jadj);
+  }
+
+  int b = a + 1524;
+  int c = (int)(6680.0 + ((float)(b - 2439870) - 122.1) / 365.25);
+  int d = (int)(365 * c + (0.25 * c));
+  int e = (int)((b - d) / 30.6001);
+
+  day = b - d - (int)(30.6001 * e);
+  month = e - 1;
+
+  if (month > 12) {
+    month -= 12;
+  }
+
+  year = c - 4715;
+
+  if (month > 2) {
+    --year;
+  }
+
+  if (year <= 0) {
+    --year;
+  }
 
   return WDate(year, month, day);
 }
@@ -941,9 +975,10 @@ WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
 	if (f[i] == '\'') {
 	  inQuote = true;
 	  gotQuoteInQuote = false;
-	} else if (regexSpecial.find(f[i]) != std::string::npos)
-	  result.regexp += "\\" + f[i];
-	else
+	} else if (regexSpecial.find(f[i]) != std::string::npos) {
+	  result.regexp += "\\";
+	  result.regexp += f[i];
+	} else
 	  result.regexp += f[i];
       }
     }

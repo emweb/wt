@@ -85,7 +85,7 @@ public:
    * a generic font will be used.
    */
   void setFamily(GenericFamily genericFamily,
-		 const WString specificFamilies = WString());
+		 const WString& specificFamilies = WString());
 
   /*! \brief Get the font generic family.
    */

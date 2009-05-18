@@ -82,6 +82,14 @@ void WebRenderer::doneUpdate(WWidget *w)
   updateMap_.erase(w);
 }
 
+bool WebRenderer::isDirty() const
+{
+  return !updateMap_.empty()
+    || Utils::length(collectedJS1_) > 0
+    || Utils::length(collectedJS2_) > 0
+    || Utils::length(invisibleJS_) > 0;
+}
+
 const std::vector<WObject *>& WebRenderer::formObjects() const
 {
   return currentFormObjects_;
@@ -210,7 +218,8 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 
   std::string contentType = xhtml ? "application/xhtml+xml" : "text/html";
   contentType += "; charset=UTF-8";
-  response.setContentType(contentType);
+
+  setHeaders(response, contentType);
 
   boot.stream(response.out());
 }
@@ -347,12 +356,7 @@ void WebRenderer::collectJavaScript()
 
 	collectJavaScriptUpdate(invisibleJS_);
 
-#ifndef WT_TARGET_JAVA
-	int invisibleLength = invisibleJS_.rdbuf()->in_avail();
-#else // WT_TARGET_JAVA
-	int invisibleLength = invisibleJS_.length();
-#endif // WT_TARGET_JAVA
-	if (invisibleLength < (int)twoPhaseThreshold_) {
+	if (Utils::length(invisibleJS_) < (int)twoPhaseThreshold_) {
 	  collectedJS1_ << invisibleJS_.str();
 	  invisibleJS_.str("");
 	  needFetchInvisible = false;
@@ -439,6 +443,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 		(conf.sessionTimeout() / 2));
   script.setVar("INITIAL_HASH", app->internalPath());
   script.setVar("INDICATOR_TIMEOUT", "500");
+  script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
   script.setVar("ONLOAD", "loadWidgetTree();");
   script.setVar("WT_HISTORY_PREFIX", "Wt-history");
   script.stream(response.out());
@@ -497,6 +502,12 @@ void WebRenderer::serveMainscript(WebResponse& response)
 		 << app->hideLoadingIndicator_->javaScript()
 		 << "}"
 		 << "};\n";
+
+#ifndef WT_TARGET_JAVA
+  response.out() << app->javaScriptClass_
+		 << "._p_.setServerPush("
+		 << (app->serverPush_ ? "true" : "false") << ");";
+#endif // WT_TARGET_JAVA
 
   response.out() << "scriptLoaded = true; if (isLoaded) onLoad();\n";
 
@@ -676,6 +687,7 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
 		boost::lexical_cast<std::string>(conf.sessionTimeout() / 2));
   script.setVar("INITIAL_HASH", app->internalPath());
   script.setVar("INDICATOR_TIMEOUT", "500");
+  script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
   script.setVar("ONLOAD", "");
   script.stream(response.out());
 

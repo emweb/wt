@@ -91,6 +91,17 @@
 	       cleaned up.
 	      -->
 	    <timeout>600</timeout>
+
+	    <!-- Server push timeout (seconds).
+
+               When using server-initiated updates, the client uses
+               long-polling requests. Proxies (including reverse
+               proxies) are notorious for silently closing idle
+               requests; the client therefore cancels the request
+               periodically and issues a new one. This timeout sets
+               the frequency.
+	      -->
+	    <server-push-timeout>50</server-push-timeout>
 	</session-management>
 
 	<!-- Settings that apply only to the FastCGI connector.

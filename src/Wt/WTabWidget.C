@@ -132,8 +132,6 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
   box->setSpacing(0);
   box->setContentsMargins(0, 0, 0, 0);
 
-  bool fitHeight = false;
-
   box->addWidget(menuDiv);
   box->addWidget(contents_, 1);
 

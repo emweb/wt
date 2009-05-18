@@ -91,7 +91,11 @@ public:
   // returns false if removeSocketNotifier was called while processing
   bool socketSelected(int descriptor);
 
+  std::string switchSession(WebSession *session, const std::string& newSessionId);
+
   const SocketNotifierMap& socketNotifiers() const { return socketNotifiers_; }
+
+  std::string generateNewSessionId(WebSession *session);
 
 private:
   Configuration& conf_;

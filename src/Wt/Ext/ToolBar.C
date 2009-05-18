@@ -24,6 +24,21 @@ private:
   }
 };
 
+class ToolBarStretch : public Widget
+{
+public:
+  ToolBarSeparator()
+    : Widget()
+  { }
+
+private:
+  virtual std::string createJS(DomElement *inContainer)
+  {
+    return elVar() + "=new Ext.Toolbar.Fill();";
+  }
+};
+
+
 ToolBar::ToolBar(WContainerWidget *parent)
   : Widget(parent)
 { }
@@ -71,6 +86,11 @@ void ToolBar::add(WWidget *item)
 void ToolBar::addSeparator()
 {
   add(new ToolBarSeparator());
+}
+
+void ToolBar::addStretch()
+{
+  add(new ToolBarStretch());
 }
 
 void ToolBar::removeChild(WWidget *child)

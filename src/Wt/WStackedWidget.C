@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WApplication"
 #include "Wt/WStackedWidget"
 #include "Utils.h"
 
@@ -87,6 +88,17 @@ void WStackedWidget::setCurrentWidget(WWidget *widget)
 DomElement *WStackedWidget::createDomElement(WApplication *app)
 {
   setCurrentIndex(currentIndex_);
+
+  Wt::WApplication::instance()->doJavaScript
+    (jsRef() + ".wtSetHeight = function(self, h){"
+     """var j,jl,c;"
+     """self.style.height=h+'px';"
+     """for (j=0, jl=self.childNodes.length; j<jl; ++j){"
+     ""   "c=self.childNodes[j];"
+     ""   "c.style.height = self.style.height;"
+     """}"
+     "}");
+
   return WContainerWidget::createDomElement(app);
 }
 

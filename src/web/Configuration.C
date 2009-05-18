@@ -147,6 +147,7 @@ Configuration::Configuration(const std::string& applicationPath,
     sessionTracking_(URL),
     reloadIsNewSession_(true),
     sessionTimeout_(600),
+    serverPushTimeout_(50),
     valgrindPath_(""),
     debug_(false),
     runDirectory_(RUNDIR),
@@ -157,6 +158,7 @@ Configuration::Configuration(const std::string& applicationPath,
     serializedEvents_(false),
     inlineCss_(true),
     ajaxAgentWhiteList_(false),
+    persistentSessions_(false),
     pid_(getpid())
 {
   logger_.addField("datetime", false);
@@ -215,6 +217,8 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
     mxml_node_t *shared = singleChildElement(sess, "shared-process");
     std::string tracking = singleChildElementValue(sess, "tracking", "");
     std::string timeoutStr = singleChildElementValue(sess, "timeout", "");
+    std::string serverPushTimeoutStr
+      = singleChildElementValue(sess, "server-push-timeout", "");
 
     if (dedicated && shared)
       throw WServer::Exception("<application-settings> requires either "
@@ -254,6 +258,9 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
     if (!timeoutStr.empty())
       sessionTimeout_ = boost::lexical_cast<int>(timeoutStr);
 
+    if (!serverPushTimeoutStr.empty())
+      serverPushTimeout_ = boost::lexical_cast<int>(serverPushTimeoutStr);
+
     setBoolean(sess, "reload-is-new-session", reloadIsNewSession_);
   }
 
@@ -290,6 +297,7 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
   setBoolean(app, "behind-reverse-proxy", behindReverseProxy_);
   setBoolean(app, "strict-event-serialization", serializedEvents_);
   setBoolean(app, "inline-css", inlineCss_);
+  setBoolean(app, "persistent-sessions", persistentSessions_);
   
   std::vector<mxml_node_t *> userAgents = childElements(app, "user-agents");
 
@@ -446,35 +454,33 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
 
 std::string Configuration::generateSessionId()
 {
-  std::string session_id = sessionIdPrefix();
+  std::string sessionId = sessionIdPrefix();
 
-  for (int i = session_id.length(); i < sessionIdLength(); ++i) {
+  for (int i = sessionId.length(); i < sessionIdLength(); ++i) {
     // use alphanumerical characters (big and small) and numbers
     int d = random_.rand() % (26 + 26 + 10);
 
     char c = (d < 10 ? ('0' + d)
 	      : (d < 36 ? ('A' + d - 10)
 		 : 'a' + d - 36));
-    session_id.push_back(c);
+    sessionId.push_back(c);
   }
 
   if (serverType_ == FcgiServer) {
-    std::string socketPath = runDirectory_ + "/" + session_id;
-  
+    std::string socketPath = sessionSocketPath(sessionId);
+
     struct stat finfo;
     if (stat(socketPath.c_str(), &finfo) != -1)
       // exists already -- try another one
       return generateSessionId();
-    else {
-      if (sessionPolicy_ == SharedProcess) {
-	std::ofstream f(socketPath.c_str());
-	f << pid_ << std::endl;
-	f.flush();
-      }
-    }
   }
 
-  return session_id;
+  return sessionId;
+}
+
+std::string Configuration::sessionSocketPath(const std::string& sessionId)
+{
+  return runDirectory_ + "/" + sessionId;
 }
 
 }

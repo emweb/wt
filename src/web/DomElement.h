@@ -21,7 +21,8 @@ class EscapeOStream;
 class EventSignalBase;
 class WObject;
 
-enum Property { PropertyInnerHTML, PropertyValue, PropertyDisabled,
+enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
+		PropertyValue, PropertyDisabled,
 		PropertyChecked, PropertySelected, PropertySelectedIndex,
 		PropertyMultiple, PropertyTarget, PropertyIndeterminate,
 		PropertySrc, PropertyText, PropertyScript,

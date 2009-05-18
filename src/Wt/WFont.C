@@ -52,7 +52,7 @@ bool WFont::operator!=(const WFont& other) const
 }
 
 void WFont::setFamily(GenericFamily genericFamily,
-		      const WString specificFamilies)
+		      const WString& specificFamilies)
 {
   genericFamily_ = genericFamily;
   specificFamilies_ = specificFamilies;

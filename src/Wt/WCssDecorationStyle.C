@@ -174,9 +174,15 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
    * set border
    */
   if (borderChanged_ || all) {
-    if (borderChanged_ || (element.type() == DomElement_IFRAME)
+    bool elementHasDefaultBorder
+      = element.type() == DomElement_IFRAME
+      || element.type() == DomElement_INPUT
+      || element.type() == DomElement_SELECT
+      || element.type() == DomElement_TEXTAREA;
+
+    if (borderChanged_
+	|| elementHasDefaultBorder
 	|| (border_.style() != WBorder::None)) {
-	
       if (borderPosition_ & Top)
 	  element.setProperty(PropertyStyleBorderTop, border_.cssText());
       if (borderPosition_ & Left)

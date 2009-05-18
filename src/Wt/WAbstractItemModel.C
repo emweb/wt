@@ -188,7 +188,7 @@ double asNumber(const boost::any& v)
       return std::numeric_limits<double>::signaling_NaN();
     }
   else if (v.type() == typeid(WDate))
-    return static_cast<double>(boost::any_cast<WDate>(v).modifiedJulianDay());
+    return static_cast<double>(boost::any_cast<WDate>(v).toJulianDay());
 
 #define ELSE_NUMERICAL_ANY(TYPE) \
   else if (v.type() == typeid(TYPE)) \
@@ -470,6 +470,11 @@ bool WAbstractItemModel::setData(int row, int column, const boost::any& value,
     return setData(i, value, role);
   else
     return false;
+}
+
+void WAbstractItemModel::reset()
+{
+  modelReset_.emit();
 }
 
 WModelIndex WAbstractItemModel::createIndex(int row, int column, void *ptr)

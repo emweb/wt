@@ -59,17 +59,15 @@ public:
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 boost::thread_specific_ptr<WebSession::Handler> WebSession::threadHandler_;
 #else
-WebSession::Handler * WebSession::Handler::threadHandler_;
+WebSession::Handler * WebSession::threadHandler_;
 #endif
 
 WebSession::WebSession(WebController *controller,
-		       const std::string& sessionId,
-		       const std::string& sessionPath, Type type,
+		       const std::string& sessionId, Type type,
 		       const WebRequest& request)
   : type_(type),
     state_(JustCreated),
     sessionId_(sessionId),
-    sessionPath_(sessionPath),
     controller_(controller),
     renderer_(*this),
     pollResponse_(0),
@@ -135,7 +133,7 @@ WebSession::~WebSession()
     pollResponse_->flush();
 
 #ifndef WT_TARGET_JAVA
-  unlink(sessionPath_.c_str());
+  unlink(controller_->configuration().sessionSocketPath(sessionId_).c_str());
 
   log("notice") << "Session destroyed (#sessions = "
 		<< controller_->sessionCount() << ")";
@@ -168,9 +166,19 @@ std::string WebSession::docType() const
       "\"http://www.w3.org/TR/html4/loose.dtd\">";
 }
 
+#ifndef WT_TARGET_JAVA
+bool WebSession::shouldDisconnect() const
+{
+  return state_ == Loaded && controller_->configuration().persistentSessions();
+}
+#endif // WT_TARGET_JAVA
+
 void WebSession::setState(State state, int timeout)
 {
 #ifdef WT_THREADED
+  // this assertion is not true for when we are working from an attached
+  // thread: that thread does not have an associated handler, but its contract
+  // dictates that it should work on behalf of a thread that has the lock.
   //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
@@ -183,17 +191,20 @@ void WebSession::setState(State state, int timeout)
   }
 }
 
+std::string WebSession::sessionQuery() const
+{
+  // the session query is used for all requests (except for reload if the
+  // session is not in the main url), to prevent CSRF.
+
+  return "?wtd=" + sessionId_;
+}
+
 void WebSession::init(const WebRequest& request)
 {
   env_.init(request);
 
   const std::string *hashE = request.getParameter("_");
 
-  // the session query is used for all requests (except for reload if the
-  // session is not in the main url), to prevent CSRF.
-  sessionQuery_ = "?wtd=" + sessionId_;
-
-  applicationUrl_ += sessionQuery_;
   absoluteBaseUrl_ = env_.urlScheme() + "://" + env_.hostName() + baseUrl_;
 
   bookmarkUrl_ = applicationName_;
@@ -263,11 +274,11 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
   std::size_t questionPos = result.find('?');
 
   if (questionPos == std::string::npos)
-    return result + sessionQuery_;
+    return result + sessionQuery();
   else if (questionPos == result.length() - 1)
-    return result + sessionQuery_.substr(1);
+    return result + sessionQuery().substr(1);
   else
-    return result + '&' + sessionQuery_.substr(1);
+    return result + '&' + sessionQuery().substr(1);
 }
 
 std::string WebSession::bookmarkUrl() const
@@ -345,6 +356,7 @@ std::string WebSession::getCgiValue(const std::string& varName) const
 void WebSession::kill()
 {
 #ifdef WT_THREADED
+  // see supra for why commented out
   //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
@@ -486,6 +498,7 @@ void WebSession::Handler::attachThreadToSession(WebSession& session)
 WebSession::Handler::~Handler()
 {
 #ifdef WT_THREADED
+  // see supra for why commented out
   //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
@@ -511,6 +524,7 @@ WebSession::Handler::~Handler()
 void WebSession::Handler::killSession()
 {
 #ifdef WT_THREADED
+  // see supra for why commented out
   //assert(lock().owns_lock());
 #endif // WT_THREADED
 
@@ -669,6 +683,7 @@ WebSession::Handler *WebSession::findEventloopHandler(int index)
 {
 #ifndef WT_TARGET_JAVA
 #ifdef WT_THREADED
+  // see supra for why commented out
   //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
@@ -814,7 +829,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
 	env_.doesJavaScript_= *jsE == "yes";
 	env_.doesAjax_ = env_.doesJavaScript_ && ajaxE && *ajaxE == "yes";
-	env_.doesCookies_ = request.headerValue("Cookie").empty();
+	env_.doesCookies_ = !request.headerValue("Cookie").empty();
 
 	if (env_.doesAjax_ && !request.pathInfo().empty()) {
 	  std::string url = baseUrl() + applicationName();
@@ -886,6 +901,16 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
       if (!resourceE && !signalE) {
 	log("notice") << "Refreshing session";
+
+	// if we are persisting sessions, then we should make sure we
+	// are listening to only one browser at a time: do this by
+	// generating a new session id when a new browser connects
+	if (controller_->configuration().persistentSessions()) {
+	  app_->connected_ = true;
+	  generateNewSessionId();
+	  env_.init(request);
+	}
+
 	app_->notify(WEvent(handler, WEvent::Refresh));
 	if (env_.doesAjax_) {
 	  setState(Bootstrap, 10);
@@ -1031,6 +1056,9 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
 void WebSession::pushUpdates()
 {
+  if (!renderer_.isDirty())
+    return;
+
   updatesPending_ = true;
 
   if (pollResponse_) {
@@ -1104,7 +1132,7 @@ void WebSession::render(Handler& handler, WebRenderer::ResponseType type)
     handler.killSession();
 
   renderer_.serveMainWidget(*handler.response(), type);
-  setState(WebSession::Loaded, controller_->configuration().sessionTimeout());
+  setState(Loaded, controller_->configuration().sessionTimeout());
 
   updatesPending_ = false;
 }
@@ -1217,6 +1245,19 @@ void WebSession::processSignal(EventSignalBase *s, const std::string& se,
     // ! recursive call.
     // ! what with other slots triggered after the one that
     // ! did the recursive call ? That's very bad ??
+  }
+}
+
+void WebSession::generateNewSessionId()
+{
+  std::string oldId = sessionId_;
+  sessionId_ = controller_->generateNewSessionId(this);
+  log("notice") << "New session id for " << oldId;
+
+  if (controller_->configuration().sessionTracking()
+      == Configuration::CookiesURL) {
+    std::string cookieName = env_.deploymentPath();
+    renderer().setCookie(cookieName, sessionId_, -1, "", "");
   }
 }
 

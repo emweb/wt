@@ -90,9 +90,18 @@ void TableView::setModel(WAbstractItemModel *model)
     (model_->rowsRemoved().connect(SLOT(this, TableView::modelRowsRemoved)));
   modelConnections_.push_back
     (model_->dataChanged().connect(SLOT(this, TableView::modelDataChanged)));
+  modelConnections_.push_back
+    (model_->layoutChanged().connect(SLOT(this,TableView::modelLayoutChanged)));
+  modelConnections_.push_back
+    (model_->modelReset().connect(SLOT(this, TableView::modelLayoutChanged)));
 
+  modelLayoutChanged();
+}
+
+void TableView::modelLayoutChanged()
+{
   if (dataStore_) {
-    dataStore_->setModel(model);
+    dataStore_->setModel(model_);
     repaint();
   }
 }
@@ -348,9 +357,15 @@ void TableView::modelRowsRemoved(const WModelIndex& parent,
 
 void TableView::shiftSelectedRows(int start, int count)
 {
-  if (count < 0)
+  if (count < 0) {
     for (int i = start; i < start - count; ++i)
       Utils::erase(selectedRows_, i);
+
+    if (currentRow_ >= start && currentRow_ < (start - count)) {
+      currentRow_ = -1;
+      currentColumn_ = -1;
+    }
+  }
 
   for (unsigned i = 0; i < selectedRows_.size(); ++i)
     if (selectedRows_[i] >= start)

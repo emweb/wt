@@ -21,6 +21,7 @@ public:
   void setVar(const std::string& name, const std::string& value);
   void setVar(const std::string& name, const char *value);
   void setVar(const std::string& name, bool value);
+  void setVar(const std::string& name, int value);
   void stream(std::ostream& out);
   void streamUntil(std::ostream& out, const std::string& until);
 

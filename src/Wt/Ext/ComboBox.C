@@ -81,9 +81,18 @@ void ComboBox::setModel(WAbstractItemModel *model)
     (model_->rowsRemoved().connect(SLOT(this, ComboBox::modelRowsRemoved)));
   modelConnections_.push_back
     (model_->dataChanged().connect(SLOT(this, ComboBox::modelDataChanged)));
+  modelConnections_.push_back
+    (model_->layoutChanged().connect(SLOT(this, ComboBox::modelLayoutChanged)));
+  modelConnections_.push_back
+    (model_->modelReset().connect(SLOT(this, ComboBox::modelLayoutChanged)));
 
+  modelLayoutChanged();
+}
+
+void ComboBox::modelLayoutChanged()
+{
   if (dataStore_) {
-    dataStore_->setModel(model);
+    dataStore_->setModel(model_);
     repaint();
   }
 }

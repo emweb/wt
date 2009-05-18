@@ -101,6 +101,7 @@ std::string WRegExpValidator::javaScriptValidate(const std::string& jsRef) const
   return js;
 }
 
+#ifndef WT_TARGET_JAVA
 void WRegExpValidator::createExtConfig(std::ostream& config) const
 {
   std::string s = regexp_ ? regexp_->pattern().toUTF8() : "";
@@ -113,6 +114,7 @@ void WRegExpValidator::createExtConfig(std::ostream& config) const
 
   WValidator::createExtConfig(config);
 }
+#endif //WT_TARGET_JAVA
 
 
 }

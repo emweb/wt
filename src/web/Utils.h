@@ -12,6 +12,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <sstream>
 #include <vector>
 
 namespace Wt {
@@ -40,6 +41,14 @@ extern char *itoa(int value, char *result, int base = 10);
 // fast (unsafe) comparison of first n characters
 inline bool startsWith(const char *a, const char *b, int n) {
   return std::memcmp(a, b, n) == 0;
+}
+
+inline int length(const std::stringstream& s) {
+#ifndef WT_TARGET_JAVA
+  return s.rdbuf()->in_avail();
+#else
+  return 0;
+#endif
 }
 
 // Finds an element in a vector. Returns the first reference to the

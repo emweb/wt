@@ -1,4 +1,4 @@
-IF (${EXAMPLES_CONNECTOR} MATCHES "wthttp")
+IF (EXAMPLES_CONNECTOR MATCHES "wthttp")
 
   ADD_EXECUTABLE(hello-widgetset.wt hello.C)
   TARGET_LINK_LIBRARIES(hello-widgetset.wt ${EXAMPLES_CONNECTOR})
@@ -22,8 +22,8 @@ IF (${EXAMPLES_CONNECTOR} MATCHES "wthttp")
     ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
     )
 
-ELSE (${EXAMPLES_CONNECTOR} MATCHES "wthttp")
+ELSE (EXAMPLES_CONNECTOR MATCHES "wthttp")
 
   MESSAGE(STATUS "** hello-widget set example requires the built-in http... Skipping.")
 
-ENDIF (${EXAMPLES_CONNECTOR} MATCHES "wthttp")
+ENDIF (EXAMPLES_CONNECTOR MATCHES "wthttp")

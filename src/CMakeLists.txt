@@ -189,6 +189,7 @@ Wt/WVirtualImage.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C
+Wt/Http/Client.C
 Wt/Http/Request.C
 Wt/Http/Response.C
 Wt/Http/ResponseContinuation.C

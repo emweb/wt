@@ -75,13 +75,6 @@ public:
    */
   WDate();
 
-  /*! \brief Create a representing a modified Julian Days count.
-   *
-   * The modified Julian day is the number of days since Wednesday
-   * November 17, 1858.
-   */
-  WDate(long modifiedJulianDays);
-
   /*! \brief Specify a date by year, month (1-12), and day (1-31)
    *
    * When the date is invalid, isValid() is set to false.
@@ -165,12 +158,11 @@ public:
    */
   int daysTo(const WDate& d) const;
 
-  /*! \brief Returns the modified Julian day corresponding to this date.
+  /*! \brief Converts the date to a Julian day. 
    *
-   * The modified Julian day is the number of days since Wednesday
-   * November 17, 1858.
+   * \sa fromJulianDay()
    */
-  long modifiedJulianDay() const;
+  int toJulianDay() const;
 
   /*! \brief Compare two dates.
    */
@@ -291,6 +283,12 @@ public:
    * \sa toString(const WString&) const
    */
   static WDate fromString(const WT_USTRING& s, const WT_USTRING& format);
+
+  /* \brief Converts a Julian Day <i>jd</i> to a \link Wt::WDate WDate \endlink.
+   *
+   * \sa toJulianDay() const
+   */
+  static WDate fromJulianDay(int jd);
 
   /*! \brief Construct a date for the current client date.
    *

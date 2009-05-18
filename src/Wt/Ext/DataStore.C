@@ -51,6 +51,9 @@ void DataStore::setFilterColumn(int columnIndex)
 
 int DataStore::rowFromId(int id) const
 {
+  if (id == -1)
+    return -1;
+
   if (id < (int)recordIds_.size() && recordIds_[id] == id)
     return id;
 

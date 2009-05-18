@@ -142,6 +142,7 @@ std::string WLengthValidator::javaScriptValidate(const std::string& jsRef) const
   return js;
 }
 
+#ifndef WT_TARGET_JAVA
 void WLengthValidator::createExtConfig(std::ostream& config) const
 {
   if (minLength_ != 0) {
@@ -158,5 +159,6 @@ void WLengthValidator::createExtConfig(std::ostream& config) const
 
   WValidator::createExtConfig(config);
 }
+#endif //WT_TARGET_JAVA
 
 }

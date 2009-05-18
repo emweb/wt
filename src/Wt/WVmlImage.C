@@ -73,8 +73,14 @@ WVmlImage::WVmlImage(const WLength& width, const WLength& height)
   : width_(width),
     height_(height),
     painter_(0),
+    paintFlags_(0),
     clippingChanged_(false)
 { }
+
+void WVmlImage::setPaintFlags(WFlags<PaintFlag> paintFlags)
+{
+  paintFlags_ = paintFlags;
+}
 
 void WVmlImage::init()
 { 
@@ -681,15 +687,17 @@ std::string WVmlImage::rendered()
 {
   stopClip();
 
-  std::stringstream s;
-
-  s << "<div style=\"position:relative;width:"
-    << width().cssText() << ";height:" << height().cssText()
-    << ";overflow:hidden;\">"
-    << rendered_
-    << "</div>";
-
-  return s.str();
+  if (paintFlags_ & PaintUpdate)
+    return rendered_;
+  else {
+    std::stringstream s;
+    s << "<div style=\"position:relative;width:"
+      << width().cssText() << ";height:" << height().cssText()
+      << ";overflow:hidden;\">"
+      << rendered_
+      << "</div>";
+    return s.str();
+  }
 }
 
 void WVmlImage::startClip(const WRectF& rect)

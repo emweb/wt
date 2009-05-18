@@ -55,6 +55,8 @@ void WStandardItemModel::clear()
 
   columnHeaderData_.clear();
   rowHeaderData_.clear();
+
+  reset();
 }
 
 WModelIndex WStandardItemModel::indexFromItem(const WStandardItem *item) const

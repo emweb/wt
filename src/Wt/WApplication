@@ -1032,6 +1032,17 @@ public:
    */
   Signal<int>& requestTooLarge() { return requestTooLarge_; }
 
+  /*
+   * For persistent sessions only: redirect to another session.
+   */
+  void redirectToSession(const std::string& sessionId);
+
+  /*
+   * For persistent sessions only: return whether the persistent session
+   * is connected to a browser.
+   */
+  bool isConnected() const { return connected_; }
+
 protected:
   /*! \brief Notify an event to the application.
    *
@@ -1124,6 +1135,7 @@ private:
   WWidget               *exposedOnly_;
   WLoadingIndicator     *loadingIndicator_;
   WWidget               *loadingIndicatorWidget_;
+  bool                   connected_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;

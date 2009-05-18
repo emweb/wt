@@ -19,7 +19,9 @@
 #include "WtException.h"
 #include "Utils.h"
 #include "XSSFilter.h"
-
+#ifdef max
+#undef max
+#endif
 using namespace Wt;
 
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;

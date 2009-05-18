@@ -17,9 +17,9 @@
 namespace Wt {
 
 WDialog::WDialog(const WString& windowTitle)
-  : finished_(this),
-    recursiveEventLoop_(false),
-    modal_(true)
+  : modal_(true),
+    finished_(this),
+    recursiveEventLoop_(false)
 { 
   setImplementation(impl_ = new WContainerWidget);
   impl_->setStyleClass("Wt-dialog");

@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <fstream>
 #include <sstream>
 #include <mxml.h>
 
@@ -162,12 +163,18 @@ bool WebController::expireSessions(std::vector<WebSession *>& toKill)
 
   std::vector<WebSession *> toErase;
   for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
-    int diff = i->second->expireTime() - now;
+    WebSession *session = i->second;
+    int diff = session->expireTime() - now;
 
     if (diff < 1000) {
-      i->second->log("notice") << "Timeout: expiring";
-      toKill.push_back(i->second);
-      toErase.push_back(i->second);
+      if (session->shouldDisconnect()) {
+	session->app()->connected_ = false;
+	session->log("notice") << "Timeout: disconnected";
+      } else {
+	i->second->log("notice") << "Timeout: expiring";
+	toKill.push_back(i->second);
+	toErase.push_back(i->second);
+      }
     }
   }
 
@@ -190,25 +197,7 @@ void WebController::removeSession(const std::string& sessionId)
 
 std::string WebController::appSessionCookie(std::string url)
 {
-  Wt::Utils::replace(url, '(', "#40");
-  Wt::Utils::replace(url, ')', "#41");
-  Wt::Utils::replace(url, '<', "#60");
-  Wt::Utils::replace(url, '>', "#62");
-  Wt::Utils::replace(url, '@', "#64");
-  Wt::Utils::replace(url, ',', "#44");
-  Wt::Utils::replace(url, ';', "#59");
-  Wt::Utils::replace(url, '\\', "#92");
-  Wt::Utils::replace(url, '"', "#34");
-  Wt::Utils::replace(url, '/', "#47");
-  Wt::Utils::replace(url, '[', "#91");
-  Wt::Utils::replace(url, ']', "#93");
-  Wt::Utils::replace(url, '?', "#63");
-  Wt::Utils::replace(url, '=', "#61");
-  Wt::Utils::replace(url, '{', "#123");
-  Wt::Utils::replace(url, '}', "#125");
-  Wt::Utils::replace(url, ' ', "#32");
-
-  return url;
+  return Utils::urlEncode(url);
 }
 
 void WebController::handleRequestThreaded(WebRequest *request)
@@ -371,20 +360,27 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
 
   if (i == sessions_.end() || i->second->done()) {
     try {
-      if (singleSessionId_.empty())
+      if (singleSessionId_.empty()) {
 	sessionId = conf_.generateSessionId();
+
+	if (conf_.serverType() == Configuration::FcgiServer
+	    && conf_.sessionPolicy() == Configuration::SharedProcess) {
+	  std::string socketPath = conf_.sessionSocketPath(sessionId);
+	  std::ofstream f(socketPath.c_str());
+	  f << conf_.pid() << std::endl;
+	  f.flush();
+	}
+      }
 
       if (!ep)
 	ep = getEntryPoint(request->scriptName());
 
-      session = new WebSession(this, sessionId,
-			       conf_.runDirectory() + "/" + sessionId,
-			       ep->type(), *request);
+      session = new WebSession(this, sessionId, ep->type(), *request);
 
       if (configuration().sessionTracking() == Configuration::CookiesURL)
-	  request->addHeader("Set-Cookie",
-			     appSessionCookie(request->scriptName())
-			     + "=" + sessionId + "; Version=1;");
+	request->addHeader("Set-Cookie",
+			   appSessionCookie(request->scriptName())
+			   + "=" + sessionId + "; Version=1;");
 
       sessions_[sessionId] = session;
     } catch (std::exception& e) {
@@ -484,5 +480,30 @@ void WebController::removeSocketNotifier(WSocketNotifier *notifier)
 
   stream_.removeSocketNotifier(notifier);
 }
- 
+
+std::string WebController::generateNewSessionId(WebSession *session)
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+#endif // WT_THREADED  
+
+  std::string newSessionId = conf_.generateSessionId();
+
+  if (conf_.serverType() == Configuration::FcgiServer) {
+    std::string oldSocketPath = conf_.sessionSocketPath(session->sessionId());
+    std::string newSocketPath = conf_.sessionSocketPath(newSessionId);
+
+    rename(oldSocketPath.c_str(), newSocketPath.c_str());
+  }
+
+  SessionMap::iterator i = sessions_.find(session->sessionId());
+  sessions_.erase(i);
+  sessions_[newSessionId] = session;
+
+  if (!singleSessionId_.empty())
+    singleSessionId_ = newSessionId;
+
+  return newSessionId;
+}
+
 }

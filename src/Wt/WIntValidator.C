@@ -168,6 +168,7 @@ std::string WIntValidator::inputFilter() const
   return "[0-9]";
 }
 
+#ifndef WT_TARGET_JAVA
 void WIntValidator::createExtConfig(std::ostream& config) const
 {
   config << ",allowDecimals:false";
@@ -188,5 +189,6 @@ void WIntValidator::createExtConfig(std::ostream& config) const
 
   WValidator::createExtConfig(config);
 }
+#endif //WT_TARGET_JAVA
 
 }

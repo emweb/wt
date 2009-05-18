@@ -1,0 +1,54 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef HTTP_CLIENT_H_
+#define HTTP_CLIENT_H_
+
+#include <Wt/WDllDefs.h>
+#include <Wt/WFlags>
+#include <string>
+
+namespace Wt {
+
+  namespace Http {
+
+/*! \class Client Wt/Http/Client Wt/Http/Client
+ *  \brief Collection of methods for dealing with a %Wt application from a
+ *         client perspective.
+ */
+class WT_API Client {
+public:
+  /*! \brief Enumeration for client user-agent options.
+   */
+  enum ClientOption {
+    SupportsAjax = 0x1 //!< Flag that indicates supports for AJAX
+  };
+
+  /*! \brief Start a Wt session.
+   *
+   * A %Wt application uses a bootstrap procedure during which it
+   * collects information on user agent capabilities. Therefore a
+   * session is not spawned after the first request, but only after
+   * these capabilities have been collected by a second request.
+   *
+   * This function starts a session on the specific <i>host</i>,
+   * <i>port</i>, <i>path</i>, and optional <i>query</i>. These
+   * correspond to the different parts of a url:
+   * <tt>http://</tt><i>host</i><tt>:</tt><i>port</i>/<i>path</i><tt>?</tt><i>query</i>.
+   */
+  static void startWtSession(const std::string& host,
+			     const std::string& port,
+			     const std::string& path,
+			     const std::string& query = std::string(),
+			     WFlags<ClientOption> flags = SupportsAjax);
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(Client::ClientOption)
+
+  }
+}
+
+#endif // HTTP_CLIENT_H_

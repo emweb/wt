@@ -95,6 +95,7 @@ void WValidator::removeFormWidget(WFormWidget *w)
   Utils::erase(formWidgets_, w);
 }
 
+#ifndef WT_TARGET_JAVA
 void WValidator::createExtConfig(std::ostream& config) const
 {
   if (mandatory_) {
@@ -103,5 +104,6 @@ void WValidator::createExtConfig(std::ostream& config) const
       config << ",blankText:" << mandatoryText_.jsStringLiteral();
   }
 }
+#endif //WT_TARGET_JAVA
 
 }

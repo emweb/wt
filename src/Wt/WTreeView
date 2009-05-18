@@ -41,7 +41,7 @@ class WTreeViewNode;
  * and the first column takes the remaining size. <b>Note that this
  * may have as consequence that the first column's size is reduced to
  * 0.</b> Column widths of all columns, including the first column,
- * can be set through the API (setColumnWidth(), and also by the
+ * can be set through the API method setColumnWidth(), and also by the
  * user using handles provided in the header.
  *
  * Optionally, the treeview may be configured so that the first column
@@ -512,7 +512,8 @@ public:
    * The default value is false.
    *
    * \note Currently, you must set this option before any other manipulation
-   *       of a newly created treeview.
+   *       of a newly created treeview, and only <i>enable</i> = <i>true</i>
+   *       is supported.
    */
   void setColumn1Fixed(bool enable);
 
@@ -671,7 +672,8 @@ private:
     RenderOk = 0,
     NeedAdjustViewPort = 1,
     NeedRerenderTree = 2,
-    NeedRerender = 3
+    NeedRerenderHeader = 3,
+    NeedRerender = 4
   };
 
   RenderState renderState_;
@@ -717,8 +719,11 @@ private:
   void initLayoutJavaScript();
   void rerenderHeader();
   void rerenderTree();
+  void scheduleRerender(RenderState what);
 
   void modelColumnsInserted(const WModelIndex& parent, int start, int end);
+  void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
+				    int start, int end);
   void modelColumnsRemoved(const WModelIndex& parent, int start, int end);
   void modelRowsInserted(const WModelIndex& parent, int start, int end);
   void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
@@ -728,6 +733,7 @@ private:
   void modelHeaderDataChanged(Orientation orientation, int start, int end);
   void modelLayoutAboutToBeChanged();
   void modelLayoutChanged();
+  void modelReset();
 
   void onViewportChange(WScrollEvent event);
   void onCheckedChange(CheckedInfo info);
@@ -747,7 +753,6 @@ private:
   void addRenderedNode(WTreeViewNode *node);
   void removeRenderedNode(WTreeViewNode *node);
 
-  void needAdjustToViewport();
   void adjustToViewport(WTreeViewNode *changed = 0);
 
   int pruneNodes(WTreeViewNode *node, int theNodeRow);

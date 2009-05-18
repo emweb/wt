@@ -52,6 +52,8 @@ public:
   void letReloadJS(WebResponse& request, bool newSession, bool embedded = false);
   void letReloadHTML(WebResponse& request, bool newSession);
 
+  bool isDirty() const;
+
   void serveMainWidget(WebResponse& request, ResponseType responseType);
   void serveBootstrap(WebResponse& request);
   void serveError(WebResponse& request, const std::exception& error,

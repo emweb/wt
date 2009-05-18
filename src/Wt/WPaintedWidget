@@ -134,7 +134,7 @@ public:
    * Repainting is not immediate, but happens after when the event loop
    * is exited.
    */
-  void update();
+  void update(WFlags<PaintFlag> flags = 0);
 
   virtual void resize(const WLength& width, const WLength& height);
 
@@ -215,13 +215,18 @@ protected:
   virtual void        propagateRenderOk(bool deep);
 
 private:
-  Method          preferredMethod_;
-  WWidgetPainter *painter_;
-  bool            needRepaint_;
-  WImage         *areaImage_;
+  Method            preferredMethod_;
+  WWidgetPainter   *painter_;
+  bool              needRepaint_;
+  bool              sizeChanged_;
+  WFlags<PaintFlag> repaintFlags_;
+  WImage           *areaImage_;
 
   bool createPainter();
   void createAreaImage();
+
+  friend class WWidgetVectorPainter;
+  friend class WWidgetCanvasPainter;
 };
 
 }

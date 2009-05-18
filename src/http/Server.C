@@ -281,7 +281,7 @@ void Server::select_read(int descriptor)
 		  asio::placeholders::error,
 		  asio::placeholders::bytes_transferred, Read));
 
-  } catch (boost::system::system_error &e) {
+  } catch (asio_system_error &e) {
     std::cerr << e.what() << std::endl;
   } catch (std::exception &e) {
     std::cerr << "other error" << std::endl;

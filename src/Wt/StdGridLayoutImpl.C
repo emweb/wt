@@ -108,7 +108,8 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
 	 /*
 	  *  Now, iterate over the whole table, and adjust the height
-	  *  for every row which has a strecth and for every cell.
+	  *  for every row which has a stretch and for every cell. Apply the
+	  *  same height to each cell's contents as well
 	  */
 	 "" "if (ts!=0 && r>0) {"
 	 ""   "var left=r, h;"                  // remaining space to be divided
@@ -148,7 +149,7 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 	 ""           "if (ch.className=='Wt-hcenter'){"
 	 ""              "ch.style.height= k+'px';"
 	 ""              "var itd=ch.firstChild.firstChild;"
-	 ""              "if (itd.nodeName.toUpperCase() != 'TD')"
+	 ""              "if (!WT.hasTag(itd, 'TD'))"
 	 ""                "itd=itd.firstChild;"
 	 ""              "if (itd.style.height!=k+'px')"
 	 ""                "itd.style.height=k+'px';"
@@ -166,17 +167,21 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 	 ""           "if (k <= 0) "
 	 ""             "k=0;"
 
-	 ""           "if (ch.nodeName.toUpperCase()=='BUTTON'"
-	 ""               "|| ch.nodeName.toUpperCase()=='INPUT'"
-	 ""               "|| ch.nodeName.toUpperCase()=='SELECT'"
-	 ""               "|| ch.nodeName.toUpperCase()=='TABLE') "
+	 ""           "if (WT.hasTag(ch, 'BUTTON')"
+	 ""               "|| WT.hasTag(ch, 'INPUT')"
+	 ""               "|| WT.hasTag(ch, 'SELECT')"
+	 ""               "|| WT.hasTag(ch, 'TABLE'))"
 	 ""              "continue;"
 
-	 ""           "if (ch.style.height != k+'px')"
-	 ""             "ch.style.height = k+'px';"
+	 ""           "if (ch.style.height != k+'px') {"
+	 ""             "if (ch.wtSetHeight) " // height managed by Wt JS
+	 ""               "ch.wtSetHeight(ch, k);"
+	 ""             "else "
+	 ""               "ch.style.height = k+'px';"
+	 ""           "}"
 
 	 ""           "if (td.childNodes.length==1"
-	 ""               "&&ch.nodeName.toUpperCase()=='TEXTAREA') {")
+	 ""               "&& WT.hasTag(ch, 'TEXTAREA')) {")
 	 + (app->environment().agentIsOpera() ?
 		       // Older opera:
 		       // "ch.style.height = (k-2) + 'px';"

@@ -159,6 +159,8 @@ void WSuggestionPopup::setModel(WAbstractItemModel *model)
      (SLOT(this, WSuggestionPopup::modelDataChanged)));
   modelConnections_.push_back(model_->layoutChanged().connect
      (SLOT(this, WSuggestionPopup::modelLayoutChanged)));
+  modelConnections_.push_back(model_->modelReset().connect
+     (SLOT(this, WSuggestionPopup::modelLayoutChanged)));
 
   setModelColumn(modelColumn_);
 }

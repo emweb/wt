@@ -567,6 +567,16 @@ enum CheckState {
   Checked           //!< Checked
 };
 
+/*! \brief Enumeration that indicates how to change a selection.
+ *
+ * \sa WPaintedWidget::update(), WPaintDevice::paintFlags()
+ */
+enum PaintFlag {
+  PaintUpdate = 0x1 //!< The canvas is not cleared, but further painted on.
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(PaintFlag);
+
 }
 
 #endif // WGLOBALS_H_

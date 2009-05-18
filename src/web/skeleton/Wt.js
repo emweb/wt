@@ -22,7 +22,7 @@ isIEMobile: navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
 
 updateDelay: this.isIE ? 10 : 51,
 
-setHtml: function (el, html) {
+setHtml: function (el, html, add) {
   function myImportNode(e, deep) {
     var newNode, i, il;
     switch (e.nodeType) {
@@ -48,8 +48,11 @@ setHtml: function (el, html) {
     }
   }
 
-  if (_$_INNER_HTML_$_) {
-    el.innerHTML = html;
+  if (_$_WT_CLASS_$_.isIE || (_$_INNER_HTML_$_ && !add)) {
+    if (add)
+      el.innerHTML += html;
+    else
+      el.innerHTML = html;
   } else {
     var d, b;
     d = new DOMParser();
@@ -58,7 +61,9 @@ setHtml: function (el, html) {
     if (d.nodeType != 1) // element
       d = d.nextSibling;
 
-    el.innerHTML = '';
+    if (!add)
+      el.innerHTML = '';
+
     for (var i = 0, il = d.childNodes.length; i < il;)
       el.appendChild(myImportNode(d.childNodes[i++], true));
   }
@@ -815,8 +820,10 @@ var encodeEvent = function(event, i) {
 
     if (el.type == 'select-multiple') {
       for (var i = 0; i < el.options.length; i++)
-	if (el.options[i].selected)
-	  v = el.options[i].value;
+	if (el.options[i].selected) {
+	  result += se + formObjects[x] + '='
+	    + encodeURIComponent(el.options[i].value);
+	}
     } else if (WT.hasTag(el, "SPAN")) {
       var cb = el.lastChild;
       if (cb.style.display == 'none')
@@ -1101,7 +1108,7 @@ var sendUpdate = function() {
   responsePending
     = _$_APP_CLASS_$_._p_.sendUpdate(url + query, data.result + '&ackId='
 				     + ackUpdateId, tm, ackUpdateId);
-  pollTimer = poll ? setTimeout(doPollTimeout, 50000) : null;
+  pollTimer = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;
 };
 
 var emit = function(object, config) {

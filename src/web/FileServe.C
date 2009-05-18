@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <boost/lexical_cast.hpp>
 
 #include "FileServe.h"
 #include "WtException.h"
@@ -30,6 +31,11 @@ void FileServe::setVar(const std::string& name, const char *value)
 void FileServe::setVar(const std::string& name, bool value)
 {
   setVar(name, value ? "true" : "false");
+}
+
+void FileServe::setVar(const std::string& name, int value)
+{
+  setVar(name, boost::lexical_cast<std::string>(value));
 }
 
 void FileServe::stream(std::ostream& out)

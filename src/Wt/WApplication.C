@@ -69,6 +69,7 @@ WApplication::WApplication(const WEnvironment& env)
     rshLoaded_(false),
     exposedOnly_(0),
     loadingIndicator_(0),
+    connected_(true),
     scriptLibrariesAdded_(0),
     styleSheetsAdded_(0),
     exposeSignals_(true),
@@ -341,8 +342,10 @@ bool WApplication::isExposed(WWidget *w) const
       if (p == exposedOnly_ || p == timerRoot_)
 	return true;
     return false;
-  } else
-    return true;
+  } else {
+    WWidget *p = w->adam();
+    return (p == domRoot_ || p == domRoot2_);
+  }
 }
 
 std::string WApplication::sessionId() const
@@ -611,6 +614,21 @@ void WApplication::redirect(const std::string& url)
   session_->redirect(url);
 }
 
+void WApplication::redirectToSession(const std::string& newSessionId)
+{
+  const Configuration& conf = session_->controller()->configuration();
+
+  std::string redirectUrl = bookmarkUrl();
+  if (conf.sessionTracking() == Configuration::CookiesURL
+      && environment().supportsCookies()) {
+    std::string cookieName = environment().deploymentPath();
+    setCookie(cookieName, newSessionId, -1);
+  } else
+    redirectUrl += "?wtd=" + newSessionId;
+
+  redirect(redirectUrl);
+}
+
 void WApplication::setTwoPhaseRenderingThreshold(int bytes)
 {
   session_->renderer().setTwoPhaseThreshold(bytes);
@@ -697,10 +715,7 @@ std::string WApplication::internalPathNextPart(const std::string& path) const
 
 std::string WApplication::internalPath() const
 {
-  //  if (session_->renderer().preLearning())
-  //  return std::string();
-  //else
-    return newInternalPath_;
+  return newInternalPath_;
 }
 
 void WApplication::setInternalPath(const std::string& path, bool emitChange)

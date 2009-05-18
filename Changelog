@@ -1,6 +1,35 @@
+18-05-2009:
+	* WAbstractItemModel: add reset() method and modelReset() signal, which
+	are used to invalidate the whole model. Adjusted the views to listen
+	to this signal, and make WStandardItemModel::clear() call reset()
+
+	* Ext/ToolBar: implement addStretch()
+
+	* WPaintedWidget, WPaintDevice: support PaintUpdate flag which does
+	not erase the painting but merely adds to it
+
+	* WTreeView: fix setColumnWidth() for column 0 bug,
+	setSortingEnabled() when no model yet set bug, column removal
+	behavior bug, JavaScript error when no column sort/resize handles
+
+	* StdGridLayoutImpl, WStackedWidget: make WStackedWidget manage
+	children height actively when in a layout manager
+
+	* WebSession: make server push survive refresh(), and fix cookie
+	support detection regression
+
+	* WApplication.C: fix expose logic for widgets removed from the
+	widget tree
+
+	* WCssDecorationStyle: WBorder::None is not always default
+
+11-05-2009
+	* WDate: refactor modifiedJulianDate() to toJulianDate(), replaced
+	modifiedJulianDate constructor to static fromJulianDate function
+
 05-05-2009
 	* WebSession: fix WApplication::attachThread(), simplify use of
-	thread specific storage 
+	thread specific storage
 
 04-05-2009
 	* WString: do not assume a message resource bundle as localized

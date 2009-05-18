@@ -137,7 +137,7 @@ public:
    */
   virtual void init() = 0;
 
-  /*! \brief Finish painting on the device.
+  /*! \brief Finishes painting on the device.
    *
    * This method is called when a WPainter stopped painting.
    *
@@ -145,24 +145,33 @@ public:
    */
   virtual void done() = 0;
 
-  /*! \brief Return whether painting is active.
+  /*! \brief Returns whether painting is active.
    *
    * \sa init(), painter()
    */
   virtual bool paintActive() const = 0;
 
+  /*! \brief Returns the paint flags.
+   */
+  virtual WFlags<PaintFlag> paintFlags() const = 0;
+
 protected:
-  /*! \brief Return the painter that is currently painting on the device.
+  /*! \brief Returns the painter that is currently painting on the device.
    *
    * \sa init()
    */
   virtual WPainter *painter() const = 0;
 
-  /*! \brief Set the painter.
+  /*! \brief Sets the painter.
    */
   virtual void setPainter(WPainter *painter) = 0;
 
+  /*! \brief Set paint flags.
+   */
+  virtual void setPaintFlags(WFlags<PaintFlag> paintFlags) = 0;
+
   friend class WPainter;
+  friend class WPaintedWidget;
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WPaintDevice::ChangeFlag)

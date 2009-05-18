@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WString &styleClass, const WString &backgroundStyleClass, const WString &textStyleClass)
+WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WT_USTRING& styleClass, const WT_USTRING& backgroundStyleClass, const WT_USTRING& textStyleClass)
 {
   setInline(false);
 

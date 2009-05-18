@@ -94,6 +94,7 @@ public:
   SessionTracking    sessionTracking() const { return sessionTracking_; }
   bool               reloadIsNewSession() const { return reloadIsNewSession_; }
   int                sessionTimeout() const { return sessionTimeout_; }
+  int                serverPushTimeout() const { return serverPushTimeout_; }
   std::string        valgrindPath() const { return valgrindPath_; }
   bool               debug() const { return debug_; }
   std::string        runDirectory() const { return runDirectory_; }
@@ -109,6 +110,7 @@ public:
   bool               ajaxAgentWhiteList() const { return ajaxAgentWhiteList_; }
   const AgentList&   ajaxAgentList() const { return ajaxAgentList_; }
   const AgentList&   botList() const { return botList_; }
+  bool               persistentSessions() const { return persistentSessions_; }
 
   WLogger&           logger() { return logger_; }
   WLogEntry          log(const std::string& type) const;
@@ -121,6 +123,8 @@ public:
    * For a FastCGI server, this also creates a session file.
    */
   std::string generateSessionId();
+
+  std::string sessionSocketPath(const std::string& sessionId);
 
 private:
   std::string     applicationPath_;
@@ -138,6 +142,7 @@ private:
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;
   int             sessionTimeout_;
+  int             serverPushTimeout_;
   std::string     valgrindPath_;
   bool            debug_;
   std::string     runDirectory_;
@@ -151,6 +156,7 @@ private:
   bool            inlineCss_;
   AgentList       ajaxAgentList_, botList_;
   bool            ajaxAgentWhiteList_;
+  bool            persistentSessions_;
 
   int		  pid_;
   WtRandom        random_;
