@@ -102,7 +102,7 @@ public:
    *
    * Only one widget per position is supported.
    *
-   * \sa addWidget(WLayoutItem *, Position)
+   * \sa add(WLayoutItem *, Position)
    */
   void addWidget(WWidget *widget, Position position);
 

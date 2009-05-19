@@ -307,10 +307,10 @@ public:
    * <tt>"http://www.mydomain.com/stuff/app.wt/this/there"</tt>, the
    * result would be <tt>"/this/there"</tt>.
    *
-   * Together with arguments(), this allows you to supply the
+   * Together with getParameter(), this allows you to supply the
    * application with initial information.
    *
-   * \sa getArgument(), internalPath()
+   * \sa getParameter(), internalPath()
    */
   const std::string& pathInfo() const { return pathInfo_; }
 

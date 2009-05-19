@@ -185,7 +185,7 @@ public:
    *
    * \sa setRef()
    */
-  void setCursor(Cursor);
+  void setCursor(Cursor cursor);
 
   /*! \brief Returns the cursor.
    *

@@ -62,7 +62,7 @@ public:
    *
    * The style is inherited by all table cells in this column.
    *
-   * \sa styleClass(), WWidget::setStyleClass(const WString& style)
+   * \sa styleClass(), WWidget::setStyleClass()
    */
   void setStyleClass(const WT_USTRING& style);
 

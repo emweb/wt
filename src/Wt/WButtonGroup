@@ -140,7 +140,7 @@ public:
    *
    * Initially, no button is checked.
    *
-   * \sa checkedId(), setCheckedId()
+   * \sa checkedId()
    */
   void setCheckedButton(WRadioButton *button);
 
@@ -149,10 +149,13 @@ public:
    * If there is no radiobutton currently checked this function
    * returns 0.
    *
-   * \sa setCheckedButton(), checkedButtonIndex()
+   * \sa setCheckedButton()
    */
   WRadioButton* checkedButton() const;
+
+#ifndef WT_TARGET_JAVA
   WRadioButton* selectedButton() const; // deprecated
+#endif // WT_TARGET_JAVA
 
   /*! \brief Sets the currently checked radiobutton.
    *

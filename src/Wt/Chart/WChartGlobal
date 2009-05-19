@@ -45,7 +45,7 @@ enum MarkerType {
  * above the line or curve. This enumeration specifies the other limit
  * of this fill.
  *
- * \sa WDataSeries::setFillRange(FillRange range)
+ * \sa WDataSeries::setFillRange(FillRangeType range)
  * \sa WCartesianChart
  *
  * \ingroup charts

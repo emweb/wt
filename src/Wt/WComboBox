@@ -62,16 +62,16 @@ public:
   /*! \brief Add an option item.
    *
    * Equivalent to
-   * \link insertItem(int, const WString&) insertItem \endlink (count(),
+   * \link insertItem(int, const WString&) insertItem\endlink (count(),
    * <i>text</i>).
    */
   void addItem(const WString& text);
 
-  /*! \brief Get the number of items
+  /*! \brief Returns the number of items
    */
   int count() const;
 
-  /*! \brief Get the currently selected item.
+  /*! \brief Returns the currently selected item.
    *
    * If no item is currently selected, the method returns -1.
    *
@@ -93,36 +93,36 @@ public:
    * The item is removed from the underlying model. This requires that
    * the model() is editable.
    *
-   * \sa insertItem(index, const WString&), clear()
+   * \sa insertItem(int, const WString&), clear()
    */
   void removeItem(int index);
 
-  /*! \brief Change the current selection.
+  /*! \brief Changes the current selection.
    *
    * Specify a value of -1 for <i>index</i> to clear the selection.
    */
   void setCurrentIndex(int index);
 
-  /*! \brief Change the text for a specified option.
+  /*! \brief Changes the text for a specified option.
    *
    * The text for the item at position <i>index</i> is changed. This requires
    * that the model() is editable.
    */
   void setItemText(int index, const WString& text);
 
-  /*! \brief Get the text of the currently selected item.
+  /*! \brief Returns the text of the currently selected item.
    *
-   * \sa currentIndex(), itemText(int)
+   * \sa currentIndex(), itemText(int) const
    */
   const WString currentText() const;
 
-  /*! \brief Get the text of a particular item.
+  /*! \brief Returns the text of a particular item.
    *
    * \sa setItemText(int, const WString&), currentText()
    */
   const WString itemText(int index) const;
 
-  /*! \brief Set the model to be used for the items.
+  /*! \brief Sets the model to be used for the items.
    *
    * The <i>model</i> may not be 0, and ownership of the model is not
    * transferred.
@@ -134,7 +134,7 @@ public:
    */
   void setModel(WAbstractItemModel *model);
 
-  /*! \brief Set the column in the model to be used for the items.
+  /*! \brief Sets the column in the model to be used for the items.
    *
    * The column <i>index</i> in the model will be used to retrieve data.
    *
@@ -144,7 +144,7 @@ public:
    */
   void setModelColumn(int index);
 
-  /*! \brief Return the data model.
+  /*! \brief Returns the data model.
    *
    * \sa setModel()
    */

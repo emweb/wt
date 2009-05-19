@@ -214,7 +214,7 @@ public:
    * invisibleRootItem()->insertRow(row, item);
    * \endcode
    *
-   * \sa WStandardItem::insertRow(int, WStandarditem *)
+   * \sa WStandardItem::insertRow(int, WStandardItem *)
    */
   void insertRow(int row, WStandardItem *item);
 
@@ -229,7 +229,7 @@ public:
    * invisibleRootItem()->child(row, column);
    * \endcode
    *
-   * \sa WStandardItem::child(int, int)
+   * \sa WStandardItem::child()
    */
   WStandardItem *item(int row, int column = 0) const;
 

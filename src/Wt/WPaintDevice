@@ -80,7 +80,7 @@ public:
    *
    * The <i>flags</i> argument is the logical OR of one or more change flags.
    *
-   * \sa ChangeFlags
+   * \sa ChangeFlag
    */
   virtual void setChanged(WFlags<ChangeFlag> flags) = 0;
 

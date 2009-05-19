@@ -22,7 +22,7 @@ namespace Wt {
 
 /*! \brief Enumeration that specifies options for the labels.
  *
- * \sa WPieChart::setDisplayLabels(int)
+ * \sa WPieChart::setDisplayLabels(WFlags<LabelOption>)
  *
  * \ingroup charts
  */

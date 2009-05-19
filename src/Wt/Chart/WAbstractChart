@@ -120,7 +120,7 @@ public:
 
   /*! \brief Returns the internal margin for the main plot area.
    *
-   * \sa setPlotAreaPadding(int, int)
+   * \sa setPlotAreaPadding(int, WFlags<Side>)
    */
   int plotAreaPadding(Side side) const;
 

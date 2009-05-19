@@ -112,10 +112,12 @@ int WButtonGroup::selectedButtonIndex() const
   return -1;
 }
 
+#ifndef WT_TARGET_JAVA
 WRadioButton* WButtonGroup::selectedButton() const
 {
   return checkedButton();
 }
+#endif // WT_TARGET_JAVA
 
 void WButtonGroup::setFormData(const FormData& formData)
 {

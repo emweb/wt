@@ -92,7 +92,7 @@ public:
 
   /*! \brief Get the current content.
    *
-   * \sa setText(const WString&)
+   * \sa setText()
    */
   const WT_USTRING& text() const { return content_; }
 

@@ -258,7 +258,7 @@ W_DECLARE_MASK_FOR_FLAGS(AlignmentFlag, AlignVerticalMask,
  * The layout mechanism determines how the widget positions itself relative
  * to the parent or sibling widgets.
  *
- * \sa setPositionScheme(PositionScheme scheme)
+ * \sa WWidget::setPositionScheme(PositionScheme scheme)
  */
 enum PositionScheme {
   /*! \brief Static position scheme.
@@ -307,7 +307,7 @@ enum PositionScheme {
 
 /*! \brief Enumeration for a cursor style
  *
- * \sa WCssDecorationStyle::setCursor(), WImageArea::setCursor()
+ * \sa WCssDecorationStyle::setCursor(), WAbstractArea::setCursor()
  */
 enum Cursor {
   ArrowCursor,        //!< Arrow, CSS 'default' cursor

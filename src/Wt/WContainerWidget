@@ -244,13 +244,13 @@ public:
 
   /*! \brief Get the padding set for the widget.
    *
-   * \sa setPadding(WLength padding, Side sides);
+   * \sa setPadding(const WLength&, WFlags<Side>)
    */
   WLength padding(Side side) const;
 
   /*! \brief Return the alignment of children
    *
-   * \sa setContentAlignment(AlignmentFlag)
+   * \sa setContentAlignment(WFlags<AlignmentFlag>)
    */
   WFlags<AlignmentFlag> contentAlignment() const { return contentAlignment_; }
 
@@ -313,7 +313,7 @@ public:
 
   /*! \brief Return if this container is rendered as an Ordered List
    *
-   * \sa setList(), isList(), isUnrderedList()
+   * \sa setList(), isList(), isUnorderedList()
    */  
   bool isOrderedList() const;
 

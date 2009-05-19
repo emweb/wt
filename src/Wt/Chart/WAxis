@@ -369,7 +369,7 @@ public:
 
   /*! \brief Returns the pen used for rendering the grid lines.
    *
-   * \sa setGidLinesPen(const WPen&)
+   * \sa setGridLinesPen(const WPen&)
    */
   const WPen& gridLinesPen() const { return gridLinesPen_; }
 
@@ -421,7 +421,7 @@ public:
 
   /*! \brief Returns the chart to which this axis belongs.
    *
-   * \sa axis()
+   * \sa WCartesianChart::axis()
    */
   WCartesianChart *chart() const { return chart_; }
 

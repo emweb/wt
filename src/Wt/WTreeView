@@ -600,7 +600,7 @@ protected:
    *
    * Returns the widget previously created using createExtraHeaderWidget()
    *
-   * \sa setExtraHeaderWidget()
+   * \sa createExtraHeaderWidget()
    */
   WWidget *extraHeaderWidget(int column);
 

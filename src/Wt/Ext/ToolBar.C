@@ -27,7 +27,7 @@ private:
 class ToolBarStretch : public Widget
 {
 public:
-  ToolBarSeparator()
+  ToolBarStretch()
     : Widget()
   { }
 

@@ -80,7 +80,7 @@ public:
    * When an item is checkable, a checkbox is displayed to the left of the
    * item text (instead of an icon).
    *
-   * \sa setChecked(), checked()
+   * \sa setChecked(), isChecked()
    */
   void setCheckable(bool how);
 
@@ -98,6 +98,12 @@ public:
    * \sa popupMenu()
    */
   void setPopupMenu(WPopupMenu *menu);
+
+  /*! \brief Returns the sub menu.
+   *
+   * \sa setPopupMenu()
+   */
+  WPopupMenu *popupMenu() const { return subMenu_; }
 
   /*! \brief Change the checked state.
    *

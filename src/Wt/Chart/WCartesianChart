@@ -106,7 +106,7 @@ public:
    *
    * The default chart type is a CategoryChart.
    *
-   * \sa chartType()
+   * \sa type()
    * \sa WAxis::setScale(), axis(Axis)
    */
   void setType(ChartType type);

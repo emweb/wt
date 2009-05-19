@@ -52,24 +52,24 @@ public:
    * Returns the pen for stroking borders around an area filled using the
    * brush at the same <i>index</i>.
    *
-   * \sa strokePen(int), brush(int)
+   * \sa strokePen(), brush()
    */
-  virtual WPen   borderPen(int index) const = 0;
+  virtual WPen borderPen(int index) const = 0;
 
   /*! \brief Returns a stroke pen from the palette.
    *
    * Returns the pen for stroking lines for the style with given <i>index</i>.
    *
-   * \sa strokePen(int)
+   * \sa strokePen()
    */
-  virtual WPen   strokePen(int index) const = 0;
+  virtual WPen strokePen(int index) const = 0;
 
   /*! \brief Returns a font color from the palette.
    *
    * Returns a font color suitable for rendering text in the area filled
    * with the brush at the same <i>index</i>.
    *
-   * \sa brush(int)
+   * \sa brush()
    */
   virtual WColor fontColor(int index) const = 0;
 };

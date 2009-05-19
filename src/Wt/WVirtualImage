@@ -191,7 +191,7 @@ protected:
    * rectangle which spans image coordinates with left upper corner
    * (x, y) and given width and height.
    *
-   * Width and height will not necesarilly equal gridImageSize(), if the
+   * Width and height will not necesarilly equal to gridImageSize(), if the
    * the image is not infinite sized.
    *
    * The default implementation throws an Exception. You must

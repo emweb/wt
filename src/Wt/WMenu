@@ -134,7 +134,7 @@ public:
    *
    * Removes the given item. The item and its contents is not deleted.
    *
-   * \sa addItem(), ~WMenuItem()
+   * \sa addItem()
    */
   void removeItem(WMenuItem *item);
 

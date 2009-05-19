@@ -137,7 +137,7 @@ public:
    *
    * The default value is the first Y axis.
    *
-   * \sa WAxis::setDisplayEnabled(bool)
+   * \sa WAxis::setVisible()
    */
   void bindToAxis(Axis axis);
 
@@ -158,7 +158,7 @@ public:
 
   /*! \brief Returns which aspects of the look are overriden.
    *
-   * \sa setCustomFlags(int)
+   * \sa setCustomFlags(WFlags<CustomFlags>)
    */
   WFlags<CustomFlag> curstomFlags() const { return customFlags_; }
 
@@ -169,7 +169,7 @@ public:
    *
    * The default value is a default WPen().
    *
-   * \sa WChartPalette:strokePen(int), WChartPalette::borderPen(int)
+   * \sa WChartPalette:strokePen(), WChartPalette::borderPen()
    */
   void setPen(const WPen& pen);
 
@@ -186,7 +186,7 @@ public:
    * brush used to fill the area under (or above) the line. Calling
    * this method automatically adds CustomBrush to the custom flags.
    *
-   * \sa WChartPalette::brush(int)
+   * \sa WChartPalette::brush()
    */
   void setBrush(const WBrush& brush);
 

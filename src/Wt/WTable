@@ -96,7 +96,7 @@ public:
 
   /*! \brief Delete the table cell at the given position.
    *
-   * \sa removeCell(WTableCell)
+   * \sa removeCell(WTableCell *)
    */
   void removeCell(int row, int column);
 

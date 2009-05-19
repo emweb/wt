@@ -199,7 +199,7 @@ public:
    * Optionally, you may give a <i>ruleName</i>, which may later be
    * used to check if the rule was already defined.
    *
-   * \sa isDefined(const std::string& ruleName).
+   * \sa isDefined()
    */
   WCssTextRule *addRule(const std::string& selector,
 			const WT_USTRING& declarations,
@@ -213,7 +213,7 @@ public:
    * Optionally, you may give a <i>ruleName</i>, which may later be
    * used to check if the rule was already defined.
    *
-   * \sa isDefined(const std::string& ruleName).
+   * \sa isDefined()
    */
   WCssTemplateRule *addRule(const std::string& selector,
 			    const WCssDecorationStyle& style,
@@ -224,7 +224,7 @@ public:
    * Optionally, you may give a <i>ruleName</i>, which may later be
    * used to check if the rule was already defined.
    *
-   * \sa isDefined(const std::string& ruleName).
+   * \sa isDefined()
    */
   WCssRule *addRule(WCssRule *rule,
 		    const std::string& ruleName = std::string());

@@ -296,7 +296,7 @@ public:
    *
    * This applies to CSS-based layout.
    *
-   * \sa margin(Side side);
+   * \sa margin();
    */
   virtual void setMargin(const WLength& margin, WFlags<Side> sides = All) = 0;
 
@@ -396,7 +396,7 @@ public:
 
   /*! \brief Returns the style class.
    *
-   * \sa setStyleClass(const WString&)
+   * \sa setStyleClass()
    */
   virtual WT_USTRING styleClass() const = 0;
 

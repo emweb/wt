@@ -259,13 +259,13 @@ public:
 
   /*! \brief %Signal emitted when the node is expanded by the user.
    *
-   * \sa \link collapsed collapsed\endlink
+   * \sa collapsed()
    */
   EventSignal<WMouseEvent>& expanded();
 
   /*! \brief %Signal emitted when the node is collapsed by the user.
    *
-   * \sa \link expanded expanded\endlink
+   * \sa expanded()
    */
   EventSignal<WMouseEvent>& collapsed();
 

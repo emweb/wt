@@ -902,6 +902,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
       if (!resourceE && !signalE) {
 	log("notice") << "Refreshing session";
 
+#ifndef WT_TARGET_JAVA
 	// if we are persisting sessions, then we should make sure we
 	// are listening to only one browser at a time: do this by
 	// generating a new session id when a new browser connects
@@ -910,6 +911,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	  generateNewSessionId();
 	  env_.init(request);
 	}
+#endif // WT_TARGET_JAVA
 
 	app_->notify(WEvent(handler, WEvent::Refresh));
 	if (env_.doesAjax_) {
@@ -1248,6 +1250,7 @@ void WebSession::processSignal(EventSignalBase *s, const std::string& se,
   }
 }
 
+#ifndef WT_TARGET_JAVA
 void WebSession::generateNewSessionId()
 {
   std::string oldId = sessionId_;
@@ -1260,5 +1263,6 @@ void WebSession::generateNewSessionId()
     renderer().setCookie(cookieName, sessionId_, -1, "", "");
   }
 }
+#endif // WT_TARGET_JAVA
 
 }

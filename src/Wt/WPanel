@@ -109,8 +109,7 @@ public:
   /*! \brief Returns if the panel is collapsed.
    *
    * \sa setCollapsed(bool)
-   * \sa \link collapsed collapsed\endlink and \link expanded
-   * expanded\endlink signals
+   * \sa collapsed() and expanded() signals
    */
   bool isCollapsed() const;
 
@@ -154,7 +153,7 @@ public:
    * collapse icon in the tible bar, not when calling
    * setCollapsed(bool).
    *
-   * \sa expanded
+   * \sa expanded()
    */
   Signal<>& collapsed() { return collapsed_; }
 
@@ -164,7 +163,7 @@ public:
    * emitted when the panel is expanded by the user using the expand
    * icon in the title bar, not when calling setCollapsed(bool).
    *
-   * \sa collapsed
+   * \sa collapsed()
    */
   Signal<>& expanded() { return expanded_; }
 

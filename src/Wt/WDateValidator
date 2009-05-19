@@ -20,7 +20,7 @@ namespace Wt {
  * optionally checks if the date is within a given range.
  *
  * The format string used for validating user input are the same as
- * those used by WDate::fromString(const WString&, const WString&).
+ * those used by WDate::fromString().
  *
  * Usage example:
  * \code
@@ -52,8 +52,7 @@ public:
    *
    * The validator will accept dates in the date format <i>format</i>.
    *
-   * The syntax for <i>format</i> is as in WDate::fromString(const
-   * WString&, const WString&)
+   * The syntax for <i>format</i> is as in WDate::fromString()
    */
   WDateValidator(const WT_USTRING& format, WObject *parent = 0);
 
@@ -62,8 +61,7 @@ public:
    * The validator will accept only dates within the indicated range
    * <i>bottom</i> to <i>top</i>, in the date format <i>format</i>.
    *
-   * The syntax for <i>format</i> is as in WDate::fromString(const
-   * WString&, const WString&)
+   * The syntax for <i>format</i> is as in WDate::fromString()
    */
   WDateValidator(const WT_USTRING& format,
 		 const WDate& bottom,
@@ -91,7 +89,7 @@ public:
 
   /*! \brief Set the date format used to parse date strings.
    *
-   * \sa WDate::fromString(const WString&, const WString&)
+   * \sa WDate::fromString()
    */
   void setFormat(const WT_USTRING& format);
 

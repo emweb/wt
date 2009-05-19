@@ -103,7 +103,7 @@ public:
    *
    * If there is no item at the <i>index</i>, 0 is returned.
    *
-   * \sa indexOf(WLayoutItem *), count()
+   * \sa indexOf(WLayoutItem *) const, count()
    */
   virtual WLayoutItem *itemAt(int index) const = 0;
 
@@ -112,7 +112,7 @@ public:
    * The default implementation loops over all items, and returns the
    * index for which itemAt(index) equals <i>item</i>.
    *
-   * \sa itemAt(int)
+   * \sa itemAt(int) const
    */
   virtual int indexOf(WLayoutItem *item) const;
 

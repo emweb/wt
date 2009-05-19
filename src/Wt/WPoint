@@ -14,7 +14,7 @@ namespace Wt {
 /*! \class WPoint Wt/WPoint Wt/WPoint
  *  \brief Utility class that defines a 2D point with integer coordinates.
  *
- * \sa WImagePolygonArea
+ * \sa WPolygonArea
  */
 class WT_API WPoint
 {

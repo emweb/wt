@@ -150,7 +150,7 @@ public:
    * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
    * Wt::AlignBottom).
    *
-   * \sa addLayout(WLayout *, int, int, int, int, int) 
+   * \sa addLayout(), addWidget() 
    */
   void addItem(WLayoutItem *item, int row, int column,
 	       int rowSpan = 1, int columnSpan = 1,
@@ -170,7 +170,7 @@ public:
    * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
    * Wt::AlignBottom).
    *
-   * \sa addLayout(WLayout *, int, int, int, int, int) 
+   * \sa addLayout(WLayout *, int, int, int, int, WFlags<AlignmentFlag>) 
    */
   void addLayout(WLayout *layout, int row, int column,
 		 WFlags<AlignmentFlag> alignment = 0);
@@ -192,7 +192,7 @@ public:
    * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
    * Wt::AlignBottom).
    *
-   * \sa addLayout(WLayout *, int, int, int) 
+   * \sa addLayout(WLayout *, int, int, WFlags<AlignmentFlag>) 
    */
   void addLayout(WLayout *layout, int row, int column,
 		 int rowSpan, int columnSpan,
@@ -212,7 +212,7 @@ public:
    * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
    * Wt::AlignBottom).
    *
-   * \sa addWidget(WWidget *, int, int, int, int, int) 
+   * \sa addWidget(WWidget *, int, int, int, int, WFlags<AlignmentFlag>) 
    */
   void addWidget(WWidget *widget, int row, int column,
 		 WFlags<AlignmentFlag> alignment = 0);
@@ -234,7 +234,7 @@ public:
    * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
    * Wt::AlignBottom).
    *
-   * \sa addWidget(WWidget *, int, int, int) 
+   * \sa addWidget(WWidget *, int, int, WFlags<AlignmentFlag>)
    */
   void addWidget(WWidget *widget, int row, int column,
 		 int rowSpan, int columnSpan,

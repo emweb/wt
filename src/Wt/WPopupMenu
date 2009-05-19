@@ -125,7 +125,7 @@ public:
    * Adds an item to the menu with given text, and returns the
    * corresponding item object.
    *
-   * \sa addItem(WPopupMenuItem *)
+   * \sa add(WPopupMenuItem *)
    */
   WPopupMenuItem *addItem(const WString& text);
 
@@ -136,7 +136,7 @@ public:
    *
    * \note The icon should have a width of 16 pixels.
    *
-   * \sa addItem(WPopupMenuItem *)
+   * \sa add(WPopupMenuItem *)
    */
   WPopupMenuItem *addItem(const std::string& iconPath, const WString& text);
 
@@ -146,7 +146,7 @@ public:
    * The <i>target</i> and <i>method</i> are connected to the
    * WPopupMenuItem::triggered signal.
    *
-   * \sa addItem(WPopupMenuItem *)
+   * \sa add(WPopupMenuItem *)
    */
   template<class T, class V>
     WPopupMenuItem *addItem(const WString& text,
@@ -160,7 +160,7 @@ public:
    *
    * \note The icon should have a width of 16 pixels.
    *
-   * \sa addItem(WPopupMenuItem *)
+   * \sa add(WPopupMenuItem *)
    */
   template<class T, class V>
     WPopupMenuItem *addItem(const std::string& iconPath, const WString& text,
@@ -171,7 +171,7 @@ public:
    * Adds an item with text <i>text</i>, that leads to a submenu
    * <i>menu</i>.
    *
-   * \sa addItem(WPopupMenuItem *)
+   * \sa add(WPopupMenuItem *)
    */
   WPopupMenuItem *addMenu(const WString& text, WPopupMenu *menu);
 
@@ -180,7 +180,7 @@ public:
    * Adds an item with given text and icon, that leads to a submenu
    * <i>menu</i>.
    *
-   * \sa addItem(WPopupMenuItem *)
+   * \sa add(WPopupMenuItem *)
    */
   WPopupMenuItem *addMenu(const std::string& iconPath, const WString& text,
 			  WPopupMenu *menu);

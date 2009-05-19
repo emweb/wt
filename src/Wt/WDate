@@ -45,8 +45,8 @@ public:
  * true).
  *
  * A valid date may be specified by year, month, and day of month
- * (using the \link WDate::WDate(int year, int month, int day)
- * WDate(int year, int month, int day) \endlink constructor,
+ * (using the \link WDate::WDate(int, int, int)
+ * WDate(year, month, day) \endlink constructor,
  * or the setDate() method). When attempting to specify an
  * invalid date (with an impossible combination of year/month/date),
  * isIvalid() will return false.

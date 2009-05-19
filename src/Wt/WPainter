@@ -343,7 +343,7 @@ public:
    *
    * Draws a line defined by two points.
    *
-   * \sa drawLine(const WLine&),
+   * \sa drawLine(const WLineF&),
    *     drawLine(double, double, double, double)
    */  
   void drawLine(const WPointF& p1, const WPointF& p2);
@@ -352,7 +352,7 @@ public:
    *
    * Draws a line defined by two points.
    *
-   * \sa drawLine(const WLine&),
+   * \sa drawLine(const WLineF&),
    *     drawLine(const WPointF&, const WPointF&)
    */  
   void drawLine(double x1, double y1, double x2, double y2);
@@ -451,7 +451,7 @@ public:
    * current pen. The polygon is closed by connecting the last point
    * with the first point, and filled using the current brush.
    *
-   * \sa drawPath(const WPainterPath&), drawPolyline(const WPointF *, int)
+   * \sa drawPath(const WPainterPath&), drawPolyline()
    */
   void drawPolygon(const WT_ARRAY WPointF *points, int pointCount
 		   /*, FillRule fillRule */);
@@ -461,7 +461,7 @@ public:
    * Draws a polyline that is specified by a list of points, using the
    * current pen.
    *
-   * \sa drawPath(const WPainterPath&), drawPolygon(const WPointF *, int)
+   * \sa drawPath(const WPainterPath&), drawPolygon()
    */
   void drawPolyline(const WT_ARRAY WPointF *points, int pointCount);
 
@@ -527,7 +527,7 @@ public:
    *
    * This is an overloaded method for convenience.
    *
-   * \sa drawText(const WRectF&, int, const WString&)
+   * \sa drawText(const WRectF&, WFlags<AlignmentFlag>, const WString&)
    */
   void drawText(double x, double y, double width, double height,
 		WFlags<AlignmentFlag> flags, const WString& text);
@@ -537,7 +537,7 @@ public:
    * Like drawPath(const WPainterPath&), but does not stroke the path,
    * and fills the path with the given <i>brush</i>.
    *
-   * \sa drawPath(const WPainterPath&), strokePath(const WPainterPath&)
+   * \sa drawPath(const WPainterPath&), strokePath(const WPainterPath&, const WPen&)
    */
   void fillPath(const WPainterPath& path, const WBrush& brush);
 
@@ -546,7 +546,7 @@ public:
    * Like drawRect(const WRectF&), but does not stroke the rect, and
    * fills the rect with the given <i>brush</i>.
    *
-   * \sa drawRect(const WPainterPath&)
+   * \sa drawRect(const WRectF&)
    */
   void fillRect(const WRectF& rectangle, const WBrush& brush);
 
@@ -564,7 +564,7 @@ public:
    * Like drawPath(const WPainterPath&), but does not fill the path,
    * and strokes the path with the given <i>pen</i>.
    *
-   * \sa drawPath(const WRectF&), fillPath(const WRectF&, const WBrush&)
+   * \sa drawPath(const WPainterPath&), fillPath(const WPainterPath&, const WBrush&)
    */
   void strokePath(const WPainterPath& path, const WPen& pen);
 

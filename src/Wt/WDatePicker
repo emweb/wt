@@ -86,7 +86,7 @@ public:
    *
    * The default format is <tt>'dd/MM/yyyy'</tt>.
    *
-   * \sa format(), WDate::toString(const WString&) const
+   * \sa format(), WDate::toString()
    */
   void setFormat(const WT_USTRING& format);
 
@@ -123,9 +123,7 @@ public:
    * false) if the date could not be parsed using the current
    * format(). <br>
    *
-   * \sa setDate()
-   * \sa WDate::fromString(const WString&, const WString&)
-   * \sa WLineEdit::text()
+   * \sa setDate(), WDate::fromString(), WLineEdit::text()
    */
   WDate date() const;
 

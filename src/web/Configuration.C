@@ -298,7 +298,7 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
   setBoolean(app, "strict-event-serialization", serializedEvents_);
   setBoolean(app, "inline-css", inlineCss_);
   setBoolean(app, "persistent-sessions", persistentSessions_);
-  
+
   std::vector<mxml_node_t *> userAgents = childElements(app, "user-agents");
 
   for (unsigned i = 0; i < userAgents.size(); ++i) {

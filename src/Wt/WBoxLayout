@@ -137,7 +137,7 @@ public:
    * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
    * Wt::AlignBottom).
    *
-   * \sa addLayout(WLayout *, int), insertWidget()
+   * \sa addLayout(WLayout *, int, WFlags<AlignmentFlag>), insertWidget()
    */
   void addWidget(WWidget *widget, int stretch = 0,
 		 WFlags<AlignmentFlag> alignment = 0);
@@ -146,7 +146,7 @@ public:
    *
    * Adds a nested layout, with given <i>stretch</i> factor.
    *
-   * \sa addWidget(WWidget *, int, int), insertLayout()
+   * \sa addWidget(WWidget *, int, WFlags<AlignmentFlag>), insertLayout()
    */
   void addLayout(WLayout *layout, int stretch = 0,
 		 WFlags<AlignmentFlag> alignment = 0);
@@ -181,7 +181,7 @@ public:
    * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
    * Wt::AlignBottom).
    *
-   * \sa insertLayout(), addWidget(WWidget *, int, int)
+   * \sa insertLayout(), addWidget(WWidget *, int, WFlags<AlignmentFlag>)
    */
   void insertWidget(int index, WWidget *widget, int stretch = 0,
 		    WFlags<AlignmentFlag> alignment = 0);
