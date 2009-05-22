@@ -119,7 +119,7 @@
 	       The variable is slighly misnamed. Not only a path can be set,
 	       but also options, like for example:
 
-                 /usr/bin/valgrind -leak-check=full
+                 /usr/bin/valgrind --leak-check=full
              -->
 	    <valgrind-path></valgrind-path>
 
