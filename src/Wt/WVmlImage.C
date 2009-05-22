@@ -45,7 +45,7 @@
 namespace {
   const int Z = 10;
 
-  double myzround(double a, bool doScale = true) {
+  int myzround(double a, bool doScale = true) {
     Wt::WApplication *app = Wt::WApplication::instance();
     double dpiScale = doScale ? app->environment().dpiScale() : 1.0;
     return static_cast<int>(dpiScale * ( (Z * a) - Z/2 + 0.5 ));

@@ -113,7 +113,7 @@ public:
 
   /*! \brief Returns the chart type.
    *
-   * \sa setChartType(ChartType type)
+   * \sa setType(ChartType type)
    */
   ChartType type() const { return type_; }
 

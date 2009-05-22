@@ -396,13 +396,13 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       WWidget *child = (*children_)[i];
 
       if (!child->isInline()) {
-	if (contentAlignment_ == AlignCenter) {
+	AlignmentFlag ha = contentAlignment_ & AlignHorizontalMask;
+	if (ha == AlignCenter) {
 	  if (!child->margin(Left).isAuto())
 	    child->setMargin(WLength::Auto, Left);
 	  if (!child->margin(Right).isAuto())
 	    child->setMargin(WLength::Auto, Right);
-	}
-	if (contentAlignment_ == AlignRight) {
+	} else if (ha == AlignRight) {
 	  if (!child->margin(Left).isAuto())
 	    child->setMargin(WLength::Auto, Left);
 	}

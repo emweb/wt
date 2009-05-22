@@ -10,6 +10,7 @@
 #include "Wt/WCanvasPaintDevice"
 #include "Wt/WEnvironment"
 #include "Wt/WImage"
+#include "Wt/WPainter"
 #include "Wt/WPaintedWidget"
 #include "Wt/WSvgImage"
 #include "Wt/WVmlImage"
@@ -196,6 +197,10 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 
   WPaintDevice *device = painter_->createPaintDevice();
   paintEvent(device);
+#ifdef WT_TARGET_JAVA
+  if (device->painter())
+    device->painter()->end();
+#endif // WT_TARGET_JAVA
   painter_->createContents(canvas, device);
   delete device;
 
@@ -238,6 +243,10 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
     if (!createNew)
       device->setPaintFlags(repaintFlags_ & PaintUpdate);
     paintEvent(device);
+#ifdef WT_TARGET_JAVA
+  if (device->painter())
+    device->painter()->end();
+#endif // WT_TARGET_JAVA
     if (createNew) {
       DomElement *canvas = DomElement::getForUpdate('p' + formName(),
 						    DomElement_DIV);

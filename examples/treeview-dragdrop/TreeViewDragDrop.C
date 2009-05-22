@@ -367,7 +367,7 @@ private:
     treeView->setSelectionMode(ExtendedSelection);
     treeView->setDragEnabled(true);
 
-    treeView->setColumnWidth(0, 100);
+    //treeView->setColumnWidth(0, 100);
     treeView->setColumnWidth(1, 150);
     treeView->setColumnWidth(2, 100);
     treeView->setColumnWidth(3, 60);
@@ -539,7 +539,7 @@ private:
     level1->appendRow(level2 = createFolderItem("Fellows", "sf-fellows"));
 
     folderModel_->appendRow(level1 = createFolderItem("Sophia Antipolis"));
-    level1->appendRow(level2 = createFolderItem("R&amp;D", "sa-r_d"));
+    level1->appendRow(level2 = createFolderItem("R&D", "sa-r_d"));
     level1->appendRow(level2 = createFolderItem("Services", "sa-services"));
     level1->appendRow(level2 = createFolderItem("Support", "sa-support"));
     level1->appendRow(level2 = createFolderItem("Billing", "sa-billing"));

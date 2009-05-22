@@ -320,6 +320,9 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
 
 void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
 {
+  if (index_ == view_->rootIndex())
+    return;
+
   if (index_.parent() == view_->rootIndex() && !view_->rootIsDecorated()) {
     delete expandIcon_;
     expandIcon_ = 0;
@@ -385,7 +388,7 @@ void WTreeViewNode::insertColumns(int column, int count)
   for (int i = 0; i < view_->columnCount(); ++i) {
     WText *w = new WText();
     WModelIndex child = childIndex(i);
-    if (!(child.flags() & ItemIsXHTMLText))
+    if (child.isValid() && !(child.flags() & ItemIsXHTMLText))
       w->setTextFormat(PlainText);
 
     w->setWordWrap(true);
@@ -402,7 +405,8 @@ void WTreeViewNode::removeColumns(int column, int count)
 
 bool WTreeViewNode::isLast() const
 {
-  return index_.row() == view_->model()->rowCount(index_.parent()) - 1;
+  return index_ == view_->rootIndex()
+    || (index_.row() == view_->model()->rowCount(index_.parent()) - 1);
 }
 
 WModelIndex WTreeViewNode::childIndex(int column)
@@ -1610,19 +1614,20 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
     if (column1Fixed_)
       c0WidthRule_->templateWidget()
 	->resize(width.toPixels(), WLength::Auto);
-    else {
-      // column 0 is sized implicitly by sizing the total table width
-      double total = 0;
-      for (int i = 0; i < columnCount(); ++i)
-	total += columnInfo(i).width.toPixels() + 7;
 
-      headers_->resize(total, headers_->height());
+  if (!column1Fixed_ && !columnInfo(0).width.isAuto()) {
+    // column 0 is sized implicitly by sizing the total table width
+    double total = 0;
+    for (int i = 0; i < columnCount(); ++i)
+      total += columnInfo(i).width.toPixels() + 7;
 
-      WContainerWidget *wrapRoot
-	= dynamic_cast<WContainerWidget *>(contents_->widget(0));
+    headers_->resize(total, headers_->height());
 
-      wrapRoot->resize(total, wrapRoot->height());
-    }
+    WContainerWidget *wrapRoot
+      = dynamic_cast<WContainerWidget *>(contents_->widget(0));
+
+    wrapRoot->resize(total, wrapRoot->height());
+  }
 }
 
 WLength WTreeView::columnWidth(int column) const
@@ -1632,15 +1637,19 @@ WLength WTreeView::columnWidth(int column) const
 
 void WTreeView::setColumnAlignment(int column, AlignmentFlag alignment)
 {
-  static const char *cssText[] = { "left", "right", "center", "justify" };
-  // in jwt branch we will be able to set alignment
-
   WWidget *w = columnInfo(column).styleRule->templateWidget();
 
-  if (column != 0)
-    w->setAttributeValue("style",
-			 std::string("text-align: ") + cssText[alignment - 1]);
-  else
+  if (column != 0) {
+    const char *align = 0;
+    switch (alignment) {
+    case AlignLeft: align = "left"; break;
+    case AlignCenter: align = "center"; break;
+    case AlignRight: align = "right"; break;
+    case AlignJustify: align = "justify"; break;
+    }
+    if (align)
+      w->setAttributeValue("style", std::string("text-align: ") + align);
+  } else
     if (alignment == AlignRight) {
 #ifndef WT_TARGET_JAVA
       w->setFloatSide(Right);
@@ -3153,6 +3162,7 @@ int WTreeView::shiftModelIndexes(const WModelIndex& parent,
    *    rows
    */
   std::vector<WModelIndex> toShift;
+  std::vector<WModelIndex> toErase;
 
   for (WModelIndexSet::iterator it
 	 = set.lower_bound(model->index(start, 0, parent)); it != set.end();) {
@@ -3169,7 +3179,7 @@ int WTreeView::shiftModelIndexes(const WModelIndex& parent,
 
     if (p == parent) {
       toShift.push_back(i);
-      set.erase(it);
+      toErase.push_back(i);
     } else if (count < 0) {
       // delete indexes that are about to be deleted, if they are within
       // the range of deleted indexes
@@ -3177,7 +3187,7 @@ int WTreeView::shiftModelIndexes(const WModelIndex& parent,
 	if (p.parent() == parent
 	    && p.row() >= start
 	    && p.row() < start - count) {
-	  set.erase(it);
+	  toErase.push_back(i);
 	  break;
 	} else
 	  p = p.parent();
@@ -3188,6 +3198,9 @@ int WTreeView::shiftModelIndexes(const WModelIndex& parent,
     it = n;
 #endif
   }
+
+  for (unsigned i = 0; i < toErase.size(); ++i)
+    set.erase(toErase[i]);
 
   int removed = 0;
   for (unsigned i = 0; i < toShift.size(); ++i) {
@@ -3339,10 +3352,10 @@ void WTreeView::removeRenderedNode(WTreeViewNode *node)
 
 void WTreeView::clearSelection()
 {
-  WModelIndexSet nodes = selectionModel_->selection_;
+  WModelIndexSet& nodes = selectionModel_->selection_;
 
-  for (WModelIndexSet::iterator i = nodes.begin(); i != nodes.end(); ++i)
-    internalSelect(*i, Deselect);
+  while (!nodes.empty())
+    internalSelect(*nodes.begin(), Deselect);
 }
 
 void WTreeView::setSelectedIndexes(const WModelIndexSet& indexes)

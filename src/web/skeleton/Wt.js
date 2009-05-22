@@ -308,7 +308,7 @@ getCssRule: function(selector, deleteFlag) {
 	  cssRule = styleSheet.cssRules[ii];
 	else
 	  cssRule = styleSheet.rules[ii];
-	if (cssRule) {
+	if (cssRule && cssRule.selectorText) {
 	  if (cssRule.selectorText.toLowerCase()==selector) {
 	    if (deleteFlag=='delete') {
 	      if (styleSheet.cssRules)

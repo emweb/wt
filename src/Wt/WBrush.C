@@ -28,6 +28,16 @@ WBrush::WBrush(GlobalColor color)
     color_(color)
 { }
 
+#ifdef WT_TARGET_JAVA
+WBrush WBrush::clone() const
+{
+  WBrush result;
+  result.color_ = color_;
+  result.style_ = style_;
+  return result;
+}
+#endif // WT_TARGET_JAVA
+
 void WBrush::setColor(const WColor& color)
 {
   color_ = color;

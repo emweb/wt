@@ -154,6 +154,14 @@ namespace Wt {
 class WT_API WAbstractItemModel : public WObject
 {
 public:
+  /*! \brief Data map.
+   */
+#ifndef WT_TARGET_JAVA
+  typedef std::map<int, boost::any> DataMap;
+#else
+  typedef std::treemap<int, boost::any> DataMap;
+#endif
+
   /*! \brief Create a new data model.
    */
   WAbstractItemModel(WObject *parent = 0);
@@ -226,8 +234,7 @@ public:
    *
    * \sa data()
    */
-  virtual std::map<int, boost::any> itemData(const WModelIndex& index)
-    const;
+  virtual DataMap itemData(const WModelIndex& index) const;
 
   /*! \brief Returns the row or column header data.
    *
@@ -370,8 +377,7 @@ public:
    *
    * \sa setData()
    */
-  virtual bool setItemData(const WModelIndex& index,
-			   const std::map<int, boost::any>& values);
+  virtual bool setItemData(const WModelIndex& index, const DataMap& values);
 
   /*! \brief Set header data for a column or row.
    *

@@ -614,7 +614,11 @@ public:
   virtual void sortChildren(int column, SortOrder order);
 
 private:
+#ifndef WT_TARGET_JAVA
   typedef std::map<int, boost::any> DataMap;
+#else
+  typedef std::treemap<int, boost::any> DataMap;
+#endif
   typedef std::vector<WStandardItem *> Column;
   typedef std::vector<Column> ColumnList;
 

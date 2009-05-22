@@ -255,6 +255,8 @@ void WDialog::setHidden(bool hidden)
 
     app->exposeOnly(hidden ? 0 : this);
   }
+
+  WCompositeWidget::setHidden(hidden);
 }
 
 }

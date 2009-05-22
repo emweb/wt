@@ -40,6 +40,19 @@ WPen::WPen(GlobalColor color)
     color_(color)
 { }
 
+#ifdef WT_TARGET_JAVA
+WPen WPen::clone() const
+{
+  WPen result;
+  result.penStyle_ = penStyle_;
+  result.penCapStyle_ = penCapStyle_;
+  result.penJoinStyle_ = penJoinStyle_;
+  result.width_ = width_;
+  result.color_ = color_;
+  return result;
+}
+#endif // WT_TARGET_JAVA
+
 void WPen::setStyle(PenStyle style)
 {
   penStyle_ = style;

@@ -68,6 +68,10 @@ public:
    */
   WPen(GlobalColor color);
 
+#ifdef WT_TARGET_JAVA
+  WPen clone() const;
+#endif
+
   /*! \brief Comparison operator.
    *
    * Returns true if the pens are exactly the same.

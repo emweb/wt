@@ -76,6 +76,8 @@ private:
   struct ActivePath {
     std::string path;
     WRectF      bbox;
+
+    ActivePath() { };
   };
 
   std::vector<ActivePath> activePaths_;

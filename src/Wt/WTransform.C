@@ -41,6 +41,15 @@ WTransform& WTransform::operator= (const WTransform& rhs)
   return *this;
 }
 
+#ifdef WT_TARGET_JAVA
+WTransform WTransform::clone() const
+{
+  WTransform result;
+  result = *this;
+  return result;
+}
+#endif
+
 bool WTransform::operator== (const WTransform& rhs) const
 {
   for (unsigned i = 0; i < 6; ++i)

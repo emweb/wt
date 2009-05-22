@@ -69,7 +69,7 @@ void WText::autoAdjustInline()
 	|| boost::istarts_with(t, "<h"))
       setInline(false);
 #else
-    t = t.substr(0, std::min(20, t.length())).toLowerCase();
+    t = t.trim().substr(0, std::min(20, t.length())).toLowerCase();
     if (t.startsWith("<div") || t.startsWith("<p") || t.startsWith("<h"))
       setInline(false);
 #endif // WT_TARGET_JAVA

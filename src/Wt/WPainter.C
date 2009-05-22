@@ -159,7 +159,7 @@ void WPainter::restore()
 
 void WPainter::drawArc(const WRectF& rectangle, int startAngle, int spanAngle)
 {
-  WBrush oldBrush = brush();
+  WBrush oldBrush = WBrush(brush());
 
   setBrush(NoBrush);
   device_->drawArc(rectangle.normalized(), startAngle / 16., spanAngle / 16.);
@@ -174,7 +174,7 @@ void WPainter::drawArc(double x, double y, double width, double height,
 
 void WPainter::drawChord(const WRectF& rectangle, int startAngle, int spanAngle)
 {
-  WTransform oldTransform = worldTransform();
+  WTransform oldTransform = WTransform(worldTransform());
 
   translate(rectangle.center().x(), rectangle.center().y());
   scale(1., rectangle.height() / rectangle.width());
@@ -294,7 +294,7 @@ void WPainter::drawPath(const WPainterPath& path)
 
 void WPainter::drawPie(const WRectF& rectangle, int startAngle, int spanAngle)
 {
-  WTransform oldTransform = worldTransform();
+  WTransform oldTransform = WTransform(worldTransform());
 
   translate(rectangle.center().x(), rectangle.center().y());
   scale(1., rectangle.height() / rectangle.width());
@@ -359,7 +359,7 @@ void WPainter::drawPolyline(const WT_ARRAY WPointF *points, int pointCount)
   for (int i = 1; i < pointCount; ++i)
     path.lineTo(points[i]);
 
-  WBrush oldBrush = brush();
+  WBrush oldBrush = WBrush(brush());
   setBrush(WBrush());
   drawPath(path);
   setBrush(oldBrush);
@@ -408,8 +408,8 @@ void WPainter::drawText(double x, double y, double width, double height,
 
 void WPainter::fillPath(const WPainterPath& path, const WBrush& b)
 {
-  WBrush oldBrush = brush();
-  WPen   oldPen = pen();
+  WBrush oldBrush = WBrush(brush());
+  WPen   oldPen = WPen(pen());
 
   setBrush(b);
   setPen(NoPen);
@@ -422,8 +422,8 @@ void WPainter::fillPath(const WPainterPath& path, const WBrush& b)
 
 void WPainter::fillRect(const WRectF& rectangle, const WBrush& b)
 {
-  WBrush oldBrush = brush();
-  WPen   oldPen = pen();
+  WBrush oldBrush = WBrush(brush());
+  WPen   oldPen = WPen(pen());
 
   setBrush(b);
   setPen(NoPen);
@@ -442,8 +442,8 @@ void WPainter::fillRect(double x, double y, double width, double height,
 
 void WPainter::strokePath(const WPainterPath& path, const WPen& p)
 {
-  WBrush oldBrush = brush();
-  WPen   oldPen = pen();
+  WBrush oldBrush = WBrush(brush());
+  WPen   oldPen = WPen(pen());
 
   setBrush(WBrush());
   setPen(p);

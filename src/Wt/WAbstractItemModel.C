@@ -42,8 +42,7 @@ bool matchValue(const boost::any& value,
   WFlags<MatchFlag> f = flags & MatchTypeMask;
 
   if ((f & 0x0F) == MatchExactly)
-    return (query.type() == value.type())
-      && asJSLiteral(query) == asJSLiteral(value);
+    return (query.type() == value.type()) && asString(query) == asString(value);
   else {
     std::string query_str = asString(query).toUTF8();
     std::string value_str = asString(value).toUTF8();
@@ -350,10 +349,10 @@ bool WAbstractItemModel::hasIndex(int row, int column,
 	  && column < columnCount(parent));
 }
 
-std::map<int, boost::any> WAbstractItemModel::itemData(const WModelIndex& index)
-  const
+WAbstractItemModel::DataMap
+WAbstractItemModel::itemData(const WModelIndex& index) const
 {
-  std::map<int, boost::any> result;
+  DataMap result;
 
   if (index.isValid()) {
     for (int i = 0; i <= UrlRole; ++i)
@@ -422,15 +421,14 @@ bool WAbstractItemModel::setHeaderData(int section, const boost::any& value)
 }
 
 bool WAbstractItemModel::setItemData(const WModelIndex& index,
-				     const std::map<int, boost::any>& values)
+				     const DataMap& values)
 {
   bool result = true;
 
   bool wasBlocked = dataChanged().isBlocked();
   dataChanged().setBlocked(true);
 
-  for (std::map<int, boost::any>::const_iterator i = values.begin();
-       i != values.end(); ++i)
+  for (DataMap::const_iterator i = values.begin(); i != values.end(); ++i)
     if (i->first != EditRole)
       if (!setData(index, i->second, i->first))
 	result = false;

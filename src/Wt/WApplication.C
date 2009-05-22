@@ -125,7 +125,7 @@ WApplication::WApplication(const WEnvironment& env)
   styleSheet_.addRule("button", "white-space: nowrap");
 
   if (environment().contentType() == WEnvironment::XHTML1) {
-    styleSheet_.addRule("img", "margin-top: -1px");
+    styleSheet_.addRule("img", "margin: -3px 0px;");
     styleSheet_.addRule("button", "display: inline");
   }
 

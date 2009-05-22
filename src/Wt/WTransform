@@ -66,6 +66,10 @@ public:
    */
   WTransform& operator=(const WTransform& rhs);
 
+#ifdef WT_TARGET_JAVA
+  WTransform clone() const;
+#endif
+
   /*! \brief Comparison operator.
    *
    * Returns true if the transforms are exactly the same.
