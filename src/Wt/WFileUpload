@@ -141,8 +141,10 @@ public:
    * no JavaScript support. Otherwise, the most recent file will
    * already be uploaded.
    *
+   * \if cpp
    * \note This method was renamed, and its result inverted, from the
    *       now deprecated method isUploaded()
+   * \endif
    */
   bool canUpload() const { return fileUploadTarget_ != 0; }
 

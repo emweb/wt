@@ -24,11 +24,13 @@ class WWidget;
  * security problems (see further), and ofcourse, the event handling will
  * not be available when JavaScript is disabled or not present at all.
  * 
+ * \if cpp
  * If you wish to add client side event handling, with automatic
  * fall-back to server-side event handling and without writing
  * JavaScript code with the associated risks and problems, consider
  * using stateless slot implementations instead (see
  * WObject::implementStateless())
+ * \endif 
  *
  * For some purposes, stateless slot implementations are not
  * sufficient, since they do not allow state inspection. At the same

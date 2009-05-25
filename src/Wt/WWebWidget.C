@@ -441,13 +441,10 @@ WFlags<Side> WWebWidget::clearSides() const
 void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
 				      const WLength& length)
 {
-#ifndef WT_TARGET_JAVA // cnor fix this
-  if (alignment & AlignHorizontalMask) {
+  if (AlignHorizontalMask & alignment) {
     wApp->log("warning") << "WWebWidget::setVerticalAlignment(): alignment "
       "(" << alignment << ") is horizontal, expected vertical";
-    alignment = AlignmentFlag(alignment & AlignVerticalMask);
   }
-#endif // WT_TARGET_JAVA
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
 

@@ -25,12 +25,14 @@ class WLayoutItemImpl;
  * This class is the abstract base class for any layout manager. A layout
  * manager is associated with a container widget, and manages the layout of
  * children inside the whole space available to the container widget.
- * 
+ *
+ * \if cpp
  * Layout managers may be used with WContainerWidget and
  * Ext::Container container widgets. A suitable implementation for all
  * layout classes is not yet available for both containers, and thus
  * you need to refer to the documentation of a layout manager to
  * see if it is applicable to your situation.
+ * \endif
  *
  * The implementation of the layout manager depends on the container widget
  * to which it is set, and is therefore deferred to WLayoutImpl.

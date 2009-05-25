@@ -66,8 +66,12 @@ public:
   /*! \brief Set the buddy of this label.
    *
    * Sets the buddy FormWidget for which this label acts as a proxy.
-   *
+   * 
+   * \if cpp
    * \sa WFormWidget::label(), setBuddy(Ext::FormField *), buddy()
+   * \elseif java
+   * \sa WFormWidget::label(), buddy()
+   * \endif 
    */
   void setBuddy(WFormWidget *buddy);
 

@@ -86,9 +86,15 @@ public:
 
   /*! \brief Change the model column that holds the data.
    *
+   * \if cpp 
    * The data column should contain data that can be converted to
    * a number, but should not necessarily be of a number type, see
    * also asNumber(const boost::any&).
+   * \elseif java
+   * The data column should contain data that can be converted to
+   * a number, but should not necessarily be of a number type, see
+   * also {javadoclink StringUtils#asNumber(Object)}.
+   * \endif
    *
    * The default value is -1 (not defined).
    *

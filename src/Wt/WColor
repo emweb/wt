@@ -32,7 +32,7 @@ class WT_API WColor
 public:
   /*! \brief Construct a default color.
    *
-   * The defualt color is depending on the context, another color (for
+   * The default color is depending on the context, another color (for
    * example from a hierarchical parent in a widget tree), or a
    * completely transparent color.
    */

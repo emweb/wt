@@ -177,8 +177,13 @@ public:
 
   /*! \brief Set the column format string.
    *
+   * \if cpp
    * The DisplayRole data for that column is converted to a string using
    * asString(), with the given format.
+   * \elseif java
+   * The DisplayRole data for that column is converted to a string using
+   * {javadoclink StringUtils#asString(Object)}, with the given format.
+   * \endif
    *
    * The default value is "".
    */
@@ -243,7 +248,11 @@ public:
 
   /*! \brief Sets the column border color
    *
+   * \if cpp
    * The default border color is \link Wt::white white\endlink.
+   * \elseif java
+   * The default border color is WColor.white. 
+   * \endif 
    */
   void setColumnBorder(const WColor& color);
 
@@ -259,7 +268,7 @@ public:
    * these files are located, by configuring the <i>resourcesURL</i>
    * property in your %Wt configuration file.
    */
-  void setImagePack(const std::string& uri);
+  void setImagePack(const std::string& uri) { }
 
   /*! \brief Returns the base url for icons.
    *
@@ -331,7 +340,9 @@ public:
    * By setting <i>show</i> to false, you can hide these decorations
    * for root nodes, and in this way mimic a plain list.
    *
+   * \if cpp
    * \sa Ext::TableView
+   * \endif 
    */
   void setRootIsDecorated(bool show);
 

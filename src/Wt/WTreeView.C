@@ -1449,8 +1449,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
      "}"
      );
 
-  renderState_ = RenderOk;
-
   if (parent)
     parent->addWidget(this);
 }
@@ -1668,7 +1666,7 @@ void WTreeView::setHeaderAlignment(int column, AlignmentFlag alignment)
 {
   columnInfo(column).headerAlignment = alignment;
 
-  if (renderState_ == NeedRerender)
+  if (renderState_ >= NeedRerenderHeader)
     return;
 
   WContainerWidget *wc;
@@ -1763,7 +1761,7 @@ void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
   headers_->resize(headers_->width(), headerHeight_);
   headerContainer_->resize(WLength::Auto, headerHeight_);
 
-  if (renderState_ == NeedRerender)
+  if (renderState_ >= NeedRerenderHeader)
     return;
 
   // XX: cannot do it for column 0!

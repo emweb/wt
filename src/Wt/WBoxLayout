@@ -49,9 +49,11 @@ namespace Wt {
  * w->setLayout(layout);
  * \endcode
  *
+ * \if cpp
  * \note This layout manager is applicable only to WContainerWidget
  * container widgets. You may use it within an Ext::Container
  * indirectly by first setting a WContainerWidget using a WFitLayout.
+ * \endif
  *
  * \note When JavaScript support is not available, only Safari and
  * Firefox properly implement this box layout. For other browsers,

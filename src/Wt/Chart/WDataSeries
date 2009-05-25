@@ -22,9 +22,15 @@ namespace Wt {
  * in a cartesian chart. A data series renders Y data from a single
  * model column against the X series configured for the chart.
  *
+ * \if cpp
  * The data column should contain data that can be converted to
  * a number, but should not necessarily be of a number type, see
  * also asNumber(const boost::any&).
+ * \elseif java
+ * The data column should contain data that can be converted to
+ * a number, but should not necessarily be of a number type, see
+ * also {javadoclink StringUtils#asNumber(Object)}.
+ * \endif
  *
  * Multiple series of different types may be combined on a single chart.
  *
@@ -99,8 +105,13 @@ public:
    *
    * The data column should contain data that can be converted to
    * a number (but should not necessarily be of a number type).
+   * \if java 
+   * See also {javadoclink StringUtils#asNumber(Object)}.
+   * \endif
    *
+   * \if cpp
    * \sa asNumber(const boost::any&)
+   * \endif
    */
   void setModelColumn(int modelColumn);
 

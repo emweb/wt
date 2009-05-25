@@ -26,8 +26,10 @@ class Time;
  *
  * By default, a timer will continue to generate events until you
  * stop() it. To create a timer that will fire only once, use
- * setSingleShot(). There is also a convience static method
- * singleShot().
+ * setSingleShot(). 
+ * \if cpp
+ * There is also a convience static method singleShot().
+ * \endif 
  *
  * When connecting stateless slot implementations to the timeout
  * signal, these stateless slot implementations will be used as for
@@ -36,10 +38,12 @@ class Time;
  * In clients without (enabled) JavaScript support, the minimum
  * resolution of the timer is one second (1000 milli-seconds), and it
  * is probably wise to use timers sparingly.
- *
+ * 
+ * \if cpp
  * Timers are one way to provide updates of a web page without the
  * user generating an event. Alternatively you may consider
  * server-initiated updates, see WApplication::enableUpdates().
+ * \endif
  *
  * Usage example:
  * \code
@@ -82,7 +86,9 @@ public:
    * A Timer is by default not single shot, and will fire continuously,
    * until it is stopped.
    *
+   * \if cpp
    * \sa singleShot()
+   * \endif
    */
   void setSingleShot(bool singleShot);
 

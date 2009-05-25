@@ -119,9 +119,14 @@ public:
    *
    * Reads the current date from the lineEdit().
    *
+   * \if cpp
    * Returns an invalid date (for which WDate::isValid() returns
    * false) if the date could not be parsed using the current
    * format(). <br>
+   * \elseif java
+   * Returns null if the date could not be parsed using the current
+   * format(). <br>
+   * \endif
    *
    * \sa setDate(), WDate::fromString(), WLineEdit::text()
    */

@@ -28,7 +28,11 @@ namespace Wt {
  * retrieve data using the setData() and data() methods, and add or
  * remove data using the insertRows() and removeRows() methods.
  *
+ * \if cpp
  * \sa WComboBox, WSelectionBox, Ext::ComboBox
+ * \elseif java
+ * \sa WComboBox, WSelectionBox
+ * \endif
  *
  * \ingroup modelview
  */

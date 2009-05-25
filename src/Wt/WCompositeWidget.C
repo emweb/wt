@@ -209,14 +209,10 @@ WT_USTRING WCompositeWidget::styleClass() const
 void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
 					    const WLength& length)
 {
-#ifndef WT_TARGET_JAVA // fix this in cnor
-  if (alignment & AlignHorizontalMask) {
+  if (AlignHorizontalMask & alignment) {
     wApp->log("warning") << "WCompositeWidget::setVerticalAlignment: "
       "alignment " << alignment << "is horizontal, expected vertical";
-    alignment = (AlignmentFlag)(alignment & AlignVerticalMask);
-
   }
-#endif // WT_TARGET_JAVA
   impl_->setVerticalAlignment(alignment, length);
 }
 

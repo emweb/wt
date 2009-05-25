@@ -93,7 +93,7 @@ public:
    * The item is removed from the underlying model. This requires that
    * the model() is editable.
    *
-   * \sa insertItem(int, const WString&), clear()
+   * \sa insertItem(int index, const WString&), clear()
    */
   void removeItem(int index);
 

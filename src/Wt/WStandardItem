@@ -34,7 +34,12 @@ class WString;
  *
  * It is possible to reimplement this class and specialize the methods
  * for data acess (setData() and data()), or provide custom sorting
- * functionality by reimplementing operator<().
+ * functionality by reimplementing 
+ * \if cpp
+ * operator<().
+ * \elseif java
+ * compare(compare(const WStandardItem& other)).
+ * \endif
  *
  * \ingroup modelview
  */
@@ -608,8 +613,12 @@ public:
    * WStandardItemModel::layoutChanged signals are emitted before and
    * after the operation so that you get a chance to invalidate or
    * update model indexes.
-   *
+   * 
+   * \if cpp
    * \sa operator<(), WStandardItemModel::setSortRole()
+   * \elseif java
+   * \sa compare(const WStandardItem& other), WStandardItemModel::setSortRole()
+   * \endif
    */
   virtual void sortChildren(int column, SortOrder order);
 

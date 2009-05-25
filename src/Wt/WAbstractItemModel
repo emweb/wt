@@ -45,28 +45,45 @@ namespace Wt {
 /*! \class WAbstractItemModel Wt/WAbstractItemModel Wt/WAbstractItemModel
  *  \brief An abstract model for use with %Wt's view classes.
  *
+ * \if cpp
  * This abstract model is used by several %Wt view widgets (WComboBox,
  * WSelectionBox, WTreeView, Ext::ComboBox, and Ext::TableView) as
  * data models.
+ * \elseif java
+ * This abstract model is used by several %Wt view widgets (WComboBox,
+ * WSelectionBox and WTreeView) as data models.
+ * \endif
  *
  * To provide data for both tree-like and table-like view widgets, it
  * organizes data in a hierarchical structure of tables, where every
  * item stores data and optionally a nested table of data. Every data
  * item is at a particular row and column of a parent item, and items
- * may be referenced using the helper class WModelIndex. Top level
- * data have an \link WModelIndex::isValid() invalid\endlink parent
- * WModelIndex.
+ * may be referenced using the helper class WModelIndex. 
+ * \if cpp
+ * Top level data have an \link WModelIndex::isValid() invalid\endlink 
+ * parent WModelIndex.
+ * \endif 
  *
  * Column header data may also be specified, for each top-level
  * column.
  *
+ * \if cpp
  * The data itself is of type boost::any, which can either be empty, or hold
  * any of the following type of data:
  *  - bool
  *  - numbers: standard C++ numeric types (int, double, etc...)
  *  - strings: WString or std::string
  *  - dates: WDate
- *
+ * \elseif java
+ * The data itself is of type Object, which can either be null, or hold
+ * any of the following type of data:
+ *  - Boolean
+ *  - numbers: Short, Integer, Long, Float, Double
+ *  - strings: WString or String
+ *  - dates: WDate
+ * \endif
+ * 
+ * \if cpp
  * Conversion between native types and boost::any is done like this:
  * <ul>
  *  <li>Conversion from <i>v</i> (of type <i>Type</i>) to boost::any <i>a</i>
@@ -109,6 +126,7 @@ namespace Wt {
  *
  * In addition, there are a number of utility functions that try to interpret
  * a boost::any value as a string (asString()) or number (asNumber()).
+ * \endif 
  *
  * To implement a custom model, you need to reimplement the following methods:
  *  - index() and parent() methods that allow one to navigate the model
@@ -118,6 +136,7 @@ namespace Wt {
  *  - optionally, headerData() to return row and column header data
  *  - optionally, flags() to indicate data options
  *
+ * \if cpp
  * A crucial point in implementing a hierarchical model is to decide
  * how to reference an index in terms of an internal pointer
  * (WModelIndex::internalPointer()) or internal id
@@ -128,6 +147,17 @@ namespace Wt {
  * example, in the WStandardItemModel, the internal pointer points to
  * the parent WStandardItem. For table models, the internal pointer
  * plays no role, since only the toplevel index has children.
+ * \elseif java
+ * A crucial point in implementing a hierarchical model is to decide
+ * how to reference an index in terms of an internal pointer
+ * (WModelIndex::internalPointer())
+ * Other than the top-level index, which is special since it is 
+ * referenced using an invalid index), every index with
+ * children must be identifiable using this object. For
+ * example, in the WStandardItemModel, the internal pointer points to
+ * the parent WStandardItem. For table models, the internal pointer
+ * plays no role, since only the toplevel index has children.
+ * \endif
  *
  * If you want to support editing of the model, then you also need to
  * reimplement:
@@ -389,7 +419,6 @@ public:
 			     const boost::any& value,
 			     int role = EditRole);
 
-
   /*! \brief Set column header data (<b>deprecated</b>).
    *
    * Returns true if the operation was successful.
@@ -585,7 +614,7 @@ public:
    * are the column numbers of the first and last column that were
    * inserted.
    *
-   * \sa columnsAboutToInserted(), endInsertColumns()
+   * \sa columnsAboutToBeInserted(), endInsertColumns()
    */
   Signal<WModelIndex, int, int>& columnsInserted()
     { return columnsInserted_; }

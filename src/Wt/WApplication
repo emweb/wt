@@ -86,17 +86,29 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  *  \brief A class that represents an instance of a %Wt Application,
  *         corresponding to a single session.
  *
+ * \if cpp
  * Each user session of your application has a corresponding
  * WApplication instance. This instance must be created, before
  * creating widgets, and is returned as the result of the callback
  * function passed to WRun(). The instance is the main entry point
  * into information pertaining to a single session, and holds
  * a reference to the root() of the widget tree.
+ * \elseif java
+ * Each user session of your application has a corresponding
+ * WApplication instance. This instance must be created, before
+ * creating widgets, and is returned by the function 
+ * {javadoclink WebController#createApplication()}. 
+ * The instance is the main entry point into information pertaining 
+ * to a single session, and holds a reference to the root() 
+ * of the widget tree.
+ * \endif
+ *
  *
  * The recipe for a %Wt web application, which allocates new
  * WApplication instances for every user visiting the application is
  * thus:
  *
+ * \if cpp
  * \code
  *   WApplication *createApplication(const WEnvironment WEnvironment& env)
  *   {
@@ -122,7 +134,9 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  *     return app;
  *   }
  * \endcode
+ * \endif
  *
+ * \if cpp
  * Throughout the application, the instance is available through
  * WApplication::instance() (or through #wApp). The application may be
  * quited either using the method quit(), or because of a timeout
@@ -132,6 +146,15 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  * as long as the user has the page opened). In either case, the
  * application object is deleted, allowing for cleanup of the entire
  * widget tree, and any other resources.
+ * \elseif java
+ * Throughout the application, the instance is available through
+ * WApplication::instance(). The application may be
+ * quited either using the method quit(), or because of a timeout
+ * (when the user has closed the window, or crashed its computer or
+ * was eaten by a virus -- but not because the user does not interact:
+ * keep-alive messages in the background will keep the session around
+ * as long as the user has the page opened). 
+ * \endif
  *
  * The %WApplication object provides access to:
  * <ul>
@@ -143,8 +166,13 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  *   <li>the top-level widget (using root() for a plain application) or
  *     widgets (using bindWidget() for widget set mode), which contains
  *     the widget hierarchy.</li>
+ *   \if cpp
  *   <li>localization information and message resources bundles, with
  *     setLocale(), locale() and messageResourceBundle().
+ *   \elseif java
+ *   <li>localization information and message resources bundles, with
+ *     setLocale(), locale() and setLocalizedStrings(WLocalizedStrings).
+ *   \endif
  *   <li>the maximum configured request size (maximumRequestSize()) and
  *     a signal requestTooLarge() to react to too large requests.</li>
  *   <li>defining cookies using setCookie() to persist information across
@@ -153,8 +181,10 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  *   <li>support for internal application paths that enable browser
  *     history (back and forward buttons), and bookmarks, using the
  *     setInternalPath() and related methods.</li>
+ *   \if cpp
  *   <li>support for server-initiated updates with enableUpdates(),
  *     triggerUpdate() and getUpdateLock().</li>
+ *   \endif
  * </ul>
  */
 class WT_API WApplication : public WObject
@@ -190,9 +220,14 @@ public:
 
   /*! \brief Returns the current application instance.
    *
+   * \if cpp
    * This is the same as the global variable #wApp. In a
    * multi-threaded server, it returns the thread-specific application
    * instance (using thread-specific storage).
+   * \elseif java
+   * In a multi-threaded server, it returns the thread-specific application
+   * instance (using thread-specific storage).
+   * \endif
    */
   static WApplication *instance();
 
@@ -279,11 +314,19 @@ public:
 
   /*! \brief Returns the object that provides localized strings.
    *
+   * \if cpp
    * The default value is a WMessageResourceBundle instance, which
    * uses XML files to resolve localized strings, but you can set a
    * custom class using setLocalizedStrings().
-   *
+   * \elseif java
+   * You can set a class implementing WLocalizedStrings using setLocalizedStrings().
+   * \endif
+   * 
+   * \if cpp
    * \sa WString::tr(), messageResourceBundle()
+   * \elseif java
+   * \sa WString::tr()
+   * \endif
    */
   WLocalizedStrings *localizedStrings() { return localizedStrings_; }
 

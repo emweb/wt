@@ -135,10 +135,14 @@ public:
   WString invalidNotADateText() const;
 
   /*! \brief Set message to display when the date is earlier than bottom
-   *
+   * \if cpp
    * Depending on whether bottom() and top() are \link WDate::isNull
    * defined\endlink, the default message is "The date must be
    * between {1} and {2}" or "The date must be after {1}".
+   * \elseif java
+   * The default message is "The date must be
+   * between {1} and {2}" or "The date must be after {1}".
+   * \endif
    */
   void setInvalidTooEarlyText(const WString& text);
 
@@ -150,9 +154,14 @@ public:
 
   /*! \brief Set message to display when the date is later than top.
    *
+   * \if cpp
    * Depending on whether bottom() and top() are \link WDate::isNull
    * defined\endlink, the default message is "The date must be
    * between {1} and {2}" or "The date must be before {2}".
+   * \elseif java
+   * Depending on whether bottom() and top() are defined, the default message is
+   * "The date must be between {1} and {2}" or "The date must be before {2}".
+   * \endif 
    */
   void setInvalidTooLateText(const WString& text);
 

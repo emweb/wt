@@ -31,10 +31,12 @@ namespace Wt {
  *
  * \image html WPanel-1.png "Two panels: the top panel is collapsed, and the bottom panel expanded"
  *
+ * \if cpp
  * \note This widget is in development. It will provide features similar to the
  *       Ext::Panel.
  *
  * \sa Ext::Panel
+ * \endif
  */
 class WT_API WPanel : public WCompositeWidget
 {

@@ -32,7 +32,8 @@ namespace Wt {
  *
  * Widgets in the North and South regions need to have  The
  * Center widget takes all available remaining space.
- *
+ * 
+ * \if cpp
  * This layout manager is applicable to WContainerWidget or
  * Ext::Container container widgets. They use different properties from
  * the widgets to determine the heights for the border panes:
@@ -45,6 +46,12 @@ namespace Wt {
  *    used for sizing the border widgets, whose default values may be
  *    overridden using WWidget::setMinimumSize(). You may not define any
  *    padding for the container widget. Instead, use setContentsMargins().
+ * \elseif java
+ * When used with a WContainerWidget, the widget minimum sizes are
+ * used for sizing the border widgets, whose default values may be
+ * overridden using WWidget::setMinimumSize(). You may not define any
+ * padding for the container widget. Instead, use setContentsMargins().
+ * \endif
  *
  * Usage example:
  * \code

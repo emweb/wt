@@ -25,7 +25,8 @@ class WText;
  * is enforced at the server side, so you may rely on this behavior).
  *
  * There are two distinct ways for using a %WDialog window.
- *
+ * 
+ * \if cpp
  * The easiest way to display a modal dialog is using the exec()
  * method: after creating a %WDialog window, call the exec() method
  * which blocks until the dialog window is closed, and returns the
@@ -35,6 +36,7 @@ class WText;
  * concurrent sessions, since every recursive event loop (which is
  * running durring the exec() method) locks a thread. Therefore it is
  * only suitable for software to be deployed on an intranet.
+ * \endif
  *
  * A second way is by treating the %WDialog as another widget. In this
  * case, the %WDialog is created with the proper content, and for
@@ -50,6 +52,7 @@ class WText;
  * Widgets may be added to the dialog, by adding to the contents()
  * ContainerWidget.
  *
+ * \if cpp
  * Usage example, using the exec() method:
  * \code
  * Wt::WDialog dialog("Personalia");
@@ -67,6 +70,7 @@ class WText;
  * if (dialog.exec() == Wt::WDialog::Accepted)
  *   setStatus("Welcome, " + edit.text());
  * \endcode
+ * \endif
  *
  * This dialog looks like this (using the standard look):
  *
@@ -159,8 +163,10 @@ public:
    *
    * Sets the dialog result, and emits the finished() signal.
    *
+   * \if cpp
    * If a recursive event loop was started using the exec() method, it
    * is ended.
+   * \endif
    *
    * \sa finished(), result()
    */

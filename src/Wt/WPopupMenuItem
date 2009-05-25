@@ -123,7 +123,7 @@ public:
 
   /*! \brief Associated additional data with the item.
    */
-  void setData(void *data);
+  void setData(void *data) { data_ = data; }
 
   /*! \brief Returns additional data of the item.
    */

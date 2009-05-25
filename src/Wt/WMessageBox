@@ -25,22 +25,26 @@ class WText;
  *
  * There are two distinct ways for using a %WMessageBox, which reflect
  * the two ways of dealing with a WDialog box.
- *
+ * 
+ * \if cpp
  * The easiest way is using the static show() method, which shows a
  * message box, blocks the current thread, and returns the button that
  * was pressed by the user. Since this uses the WDialog::exec(), it suffers
  * from the same scalability issues.
+ * \endif
  *
  * The more elaborate way is by creating a WMessageBox, and connecting
  * the buttonClicked signal to a method. This method then interpretes
  * the result and deletes the message box.
- *
+ * 
+ * \if cpp
  * Example code (using the exec() method):
  * \code
  * StandardButton
  *   result = WMessageBox::show("Confirm", "About to wreak havoc... Continue ?",
  *                              Ok | Cancel);
  * \endcode
+ * \endif
  *
  * This will show a message box that looks like this:
  *

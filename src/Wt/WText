@@ -64,7 +64,9 @@ namespace Wt {
  * \endcode
  *
  * \sa WApplication::setLocale()
+ * \if cpp
  * \sa WApplication::messageResourceBundle()
+ * \endif
  */
 class WT_API WText : public WInteractWidget
 {

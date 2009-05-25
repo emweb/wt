@@ -49,9 +49,11 @@ namespace Wt {
  *   WPopupMenuItem::setData().
  * - You can bind a separate method to each item's WPopupMenuItem::triggered
  *   signal.
+ * \if cpp
  * - You can use a WSignalMapper to bind extra data with an item's
  *   WPopupMenuItem::triggered signal, and handle them in a single
  *   slot.
+ * \endif
  *
  * Usage example:
  * \code
