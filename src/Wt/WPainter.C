@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstring>
 #include <fstream>
 
 #include "Wt/WLineF"
@@ -65,7 +66,7 @@ WPainter::Image::Image(const std::string& uri, const std::string& fileName)
     file.read((char*)header, 25);
     file.close();
 
-    if (memcmp(header, "\211PNG\r\n\032\n", 8) == 0) {
+    if (std::memcmp(header, "\211PNG\r\n\032\n", 8) == 0) {
       // PNG FILE
       width_ = ( ( ( int(header[16]) << 8
 		     | int(header[17])) << 8

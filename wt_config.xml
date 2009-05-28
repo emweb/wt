@@ -131,17 +131,18 @@
 
 	    <!-- Number of threads per process
 
-               This configures the size of the thread pool. You may want to
-	       change this value if you would like to support reentrant event
-	       loops, where you block one event loop using WDialog::exec() or
-	       related static methods. Everytime you enter such an event loop,
-	       one thread is blocked, and therefore the total number of
-	       sessions that reliably can do this is limited to the number
-	       of thread you have (minus one to unblock).
+               This configures the size of the thread pool. You may
+               want to change this value if you would like to support
+               reentrant event loops, where you block one event loop
+               using WDialog::exec() or related static
+               methods. Everytime you enter such an event loop, one
+               thread is blocked, and therefore the total number of
+               sessions that reliably can do this is limited to the
+               number of thread you have (minus one to unblock).
 
-	       For the built-in http connector, there is a similar config
-	       option that is specified in the whttpd config file or on the
-	       command line (-t).
+	       For the built-in http connector, there is a similar
+	       config option that is specified in the whttpd config
+	       file or on the command line (-t).
 
                The default value is 10.
 	      -->

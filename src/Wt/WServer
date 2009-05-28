@@ -20,11 +20,13 @@ struct WServerImpl;
  *
  * This server class represents an instance of an application server.
  *
- * It can only be used when linking against wthttpd (for the built-in
- * httpd), and it offers control over starting and stopping the
- * server. This may be used as an alternative to using WRun(), for
- * integrating a Wt server application in an existing application,
- * when you want to and start and stop the server as appropriate.
+ * It offers support for multiple application entry points and control
+ * over starting and stopping the server (the latter functionality is
+ * only for supported for the built-in httpd). This may be used as an
+ * alternative to using WRun() when you wish to support multiple
+ * application entry points, or for integrating a Wt (stand-alone
+ * httpd) server application into an existing application, when you want
+ * to and start and stop the server as appropriate.
  *
  * As an example usage, consider the implementation of WRun(), which
  * starts the server until a Ctrl-C is pressed or a termination signal
@@ -148,7 +150,7 @@ public:
    */
   ~WServer();
 
-  /*! \brief Configure the HTTP(S) server.
+  /*! \brief Configure the HTTP(S) server or FastCGI process.
    *
    * Configures the HTTP(S) server using command-line arguments, a
    * configuration file, or both. The valid options are described in
@@ -157,10 +159,19 @@ public:
    * The applications themselves are configured using the configuration
    * file passed to the constructor.
    *
+   * The server configuration must be set before any other
+   * functionality can be used.
+   *
+   * In case of FastCGI deployment, the <i>serverConfigurationFile</i>
+   * argument is ignored, and depending on the command-line arguments,
+   * this process may become a FastCGI protocol relay process which
+   * never returning from this call but directs the FastCGI stream to
+   * the correct session, rather than a Wt application server.
+   *
    * \throws Exception : indicates a configuration problem.
    */  
   void setServerConfiguration(int argc, char *argv[],
-			      const std::string& serverConfigurationFile);
+			      const std::string& serverConfigurationFile = std::string());
 
   /*! \brief Bind an entry-point to a callback function to create
    *         a new application.

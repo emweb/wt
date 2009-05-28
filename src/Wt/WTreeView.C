@@ -3345,8 +3345,10 @@ void WTreeView::clearSelection()
 {
   WModelIndexSet& nodes = selectionModel_->selection_;
 
-  while (!nodes.empty())
-    internalSelect(*nodes.begin(), Deselect);
+  while (!nodes.empty()) {
+    WModelIndex i = *nodes.begin();
+    internalSelect(i, Deselect);
+  }
 }
 
 void WTreeView::setSelectedIndexes(const WModelIndexSet& indexes)

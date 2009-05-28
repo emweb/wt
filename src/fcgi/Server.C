@@ -27,14 +27,15 @@
 #include "SessionInfo.h"
 #include "WebController.h"
 
+#include "Wt/WServer"
+#include "Wt/WLogger"
+
 using std::exit;
 using std::strcpy;
 using std::strlen;
 using std::memset;
 
 namespace {
-
-Wt::EntryPointList entryPoints;
 
 bool bindUDStoStdin(const std::string& socketPath, Wt::Configuration& conf)
 {
@@ -46,10 +47,10 @@ bool bindUDStoStdin(const std::string& socketPath, Wt::Configuration& conf)
 
   struct sockaddr_un local;
   local.sun_family = AF_LOCAL;
+
   strncpy (local.sun_path, socketPath.c_str(), sizeof (local.sun_path));
   local.sun_path[sizeof (local.sun_path) - 1] = '\0';
   unlink(local.sun_path);
-  //std::cerr << getpid() << ": " << local.sun_path << std::endl;
   socklen_t len = offsetof (struct sockaddr_un, sun_path)
     + strlen(local.sun_path) + 1;
 
@@ -292,7 +293,7 @@ int Server::connectToSession(const std::string& sessionId,
   struct sockaddr_un local;
   local.sun_family = AF_UNIX;
   strcpy(local.sun_path, socketPath.c_str());
-  socklen_t len = strlen(local.sun_path) + sizeof(local.sun_family);
+  socklen_t len = strlen(local.sun_path) + sizeof(local.sun_family) + 1;
 
   int tries = 0;
   for (tries = 0; tries < maxTries; ++tries) {
@@ -706,52 +707,142 @@ void startSharedProcess(Configuration& conf)
   }
 }
 
-void AddApplicationEntryPoint(ApplicationCreator createApplication,
-			      const std::string& path)
+struct WServerImpl {
+  WServerImpl(const std::string& applicationPath,
+	      const std::string& configurationFile)
+    : applicationPath_(applicationPath),
+      configurationFile_(configurationFile),
+      configuration_(0),
+      relayServer_(0),
+      running_(false)
+  { }
+
+  std::string applicationPath_;
+  std::string configurationFile_;
+
+  Configuration *configuration_;
+  Server        *relayServer_;
+  bool          running_;
+  std::string   sessionId_;
+};
+
+WServer::WServer(const std::string& applicationPath,
+		 const std::string& configurationFile)
+  : impl_(new WServerImpl(applicationPath, configurationFile))
+{ }
+
+WServer::~WServer()
 {
-  entryPoints.push_back
-    (EntryPoint(WebSession::Application, createApplication, path, std::string()));
+  delete impl_;
 }
 
-void AddWidgetSetEntryPoint(ApplicationCreator createApplication,
-			    const std::string& path)
+void WServer::setServerConfiguration(int argc, char *argv[],
+				     const std::string& serverConfigurationFile)
 {
-  entryPoints.push_back
-    (EntryPoint(WebSession::WidgetSet, createApplication, path, std::string()));  
+  bool isServer = argc < 2 || strcmp(argv[1], "client") != 0; 
+
+  if (isServer) {
+    Server webServer(argc, argv);
+    exit(webServer.main());
+  } else {
+    impl_->configuration_
+      = new Configuration(impl_->applicationPath_,
+			  impl_->configurationFile_,
+			  Configuration::FcgiServer,
+			  "Wt: initializing session process");
+
+    if (argc >= 3)
+      impl_->sessionId_ = argv[2];
+  }
+}
+
+void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
+			    const std::string& path, const std::string& favicon)
+{
+  if (!impl_->configuration_)
+    throw Exception("WServer::addEntryPoint(): call setServerConfiguration() first");
+
+  switch (type) {
+  case Application:
+    impl_->configuration_->addEntryPoint
+      (EntryPoint(WebSession::Application, callback, path, favicon));
+    break;
+  case WidgetSet:
+    impl_->configuration_->addEntryPoint
+      (EntryPoint(WebSession::WidgetSet, callback, path, favicon));
+    break;
+  }
+}
+
+bool WServer::start()
+{
+  if (!impl_->configuration_)
+    throw Exception("WServer::start(): call setServerConfiguration() first");
+
+  if (isRunning()) {
+    std::cerr << "WServer::start() error: server already started!" << std::endl;
+    return false;
+  }
+
+  if (signal(SIGTERM, Wt::handleSigTerm) == SIG_ERR)
+    impl_->configuration_->log("error") << "Cannot catch SIGTERM: signal(): "
+					<< strerror(errno);
+  if (signal(SIGUSR1, Wt::handleSigUsr1) == SIG_ERR) 
+    impl_->configuration_->log("error") << "Cannot catch SIGUSR1: signal(): "
+					<< strerror(errno);
+
+  impl_->running_ = true;
+
+  if (impl_->sessionId_.empty())
+    startSharedProcess(*impl_->configuration_);
+  else
+    runSession(*impl_->configuration_, impl_->sessionId_);
+
+  return false;
+}
+
+bool WServer::isRunning() const
+{
+  return impl_ && impl_->running_;
+}
+
+
+void WServer::stop()
+{
+  if (!isRunning()) {
+    std::cerr << "WServer::stop() error: server not yet started!" << std::endl;
+    return;
+  }
+}
+
+int WServer::waitForShutdown()
+{
+  for (;;)
+    sleep(10000);
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
-  bool isServer = argc == 1 || strcmp(argv[1], "client") != 0; 
+  try {
+    WServer server(argv[0], "");
 
-  if (isServer) {
-    Server webServer(argc, argv);
-    return webServer.main();
-  } else {
-    Configuration conf(argv[0], "", Configuration::FcgiServer,
-		       "Wt: initializing session process");
+    try {
+      server.setServerConfiguration(argc, argv);
+      server.addEntryPoint(WServer::Application, createApplication);
+      server.start();
 
-    if (signal(SIGTERM, Wt::handleSigTerm) == SIG_ERR)
-      conf.log("error") << "Cannot catch SIGTERM: signal(): "
-			<< strerror(errno);
-    if (signal(SIGUSR1, Wt::handleSigUsr1) == SIG_ERR) 
-      conf.log("error") << "Cannot catch SIGUSR1: signal(): "
-			<< strerror(errno);
-
-    if (createApplication)
-      entryPoints.push_back(EntryPoint(WebSession::Application,
-				       createApplication, std::string(), std::string()));
-    for (unsigned i = 0; i < entryPoints.size(); ++i)
-      conf.addEntryPoint(entryPoints[i]);
-
-    if (argc == 2) {
-      startSharedProcess(conf);
-    } else {
-      runSession(conf, argv[2]);
+      return 0;
+    } catch (std::exception& e) {
+      server.impl()->configuration_->log("fatal") << e.what();
+      return 1;
     }
+  } catch (Wt::WServer::Exception& e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
+  } catch (std::exception& e) {
+    std::cerr << "exception: " << e.what() << std::endl;
+    return 1;
   }
-
-  return 0;
 }
 
 }
