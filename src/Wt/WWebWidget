@@ -97,12 +97,10 @@ public:
   virtual WLength maximumHeight() const;
   virtual void setLineHeight(const WLength& height);
   virtual WLength lineHeight() const;
-#ifndef WT_TARGET_JAVA
   virtual void setFloatSide(Side s);
   virtual Side floatSide() const;
   virtual void setClearSides(WFlags<Side> sides);
   virtual WFlags<Side> clearSides() const;
-#endif
   virtual void setMargin(const WLength& margin, WFlags<Side> sides = All);
   virtual WLength margin(Side side) const;
   virtual void setHidden(bool);
@@ -263,10 +261,8 @@ private:
 
   struct LayoutImpl {
     PositionScheme	    positionScheme_;
-#ifndef WT_TARGET_JAVA
     Side		    floatSide_;
     WFlags<Side>	    clearSides_;
-#endif // WT_TARGET_JAVA
     WLength		    offsets_[4]; // left, right, top, bottom
     WLength		    minimumWidth_;
     WLength		    minimumHeight_;

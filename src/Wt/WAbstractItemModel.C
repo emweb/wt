@@ -41,7 +41,7 @@ bool matchValue(const boost::any& value,
 {
   WFlags<MatchFlag> f = flags & MatchTypeMask;
 
-  if ((f & 0x0F) == MatchExactly)
+  if ((f & MatchTypeMask) == MatchExactly)
     return (query.type() == value.type()) && asString(query) == asString(value);
   else {
     std::string query_str = asString(query).toUTF8();

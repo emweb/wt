@@ -29,49 +29,6 @@
 
 #include "Home.h"
 
-namespace {
-  struct Lang {
-    std::string code, path, shortDescription, longDescription;
-  };
-
-  Lang l[] = {
-    { "en", "/", "en", "English" },
-    { "cn", "/cn/", "汉语", "中文 (Chinese)" }
-  };
-
-  std::vector<Lang> languages(l, l + 2);
-}
-
-/*
- * A utility container widget which defers creation of its single
- * child widget until the container is loaded (which is done on-demand
- * by a WMenu). The constructor takes the create function for the
- * widget as a parameter.
- *
- * We use this to defer widget creation until needed.
- */
-template <typename Function>
-class DeferredWidget : public WContainerWidget
-{
-public:
-  DeferredWidget(Function f)
-    : f_(f) { }
-
-private:
-  void load() {
-    WContainerWidget::load();
-    addWidget(f_());
-  }
-
-  Function f_;
-};
-
-template <typename Function>
-DeferredWidget<Function> *deferCreate(Function f)
-{
-  return new DeferredWidget<Function>(f);
-}
-
 /* Shortcut for a <div id=""> */
 class Div : public WContainerWidget
 {
@@ -83,21 +40,29 @@ public:
   }
 };
 
-Home::Home(const WEnvironment& env)
+Home::~Home() 
+{
+}
+
+Home::Home(const WEnvironment& env, 
+    const std::string& resourceBundle, const std::string& cssPath)
   : WApplication(env),
     recentNews_(0),
     historicalNews_(0),
     releases_(0)
 {
-  messageResourceBundle().use("wt-home", false);
-  useStyleSheet("images/wt.css");
-  useStyleSheet("images/wt_ie.css", "lt IE 7");
+  messageResourceBundle().use(resourceBundle, false);
+  useStyleSheet(cssPath + "/wt.css");
+  useStyleSheet(cssPath + "/wt_ie.css", "lt IE 7");
   useStyleSheet("home.css");
   setTitle("Wt, C++ Web Toolkit");
 
   setLocale("");
   language_ = 0;
+}
 
+void Home::init()
+{
   Div *topWrapper = new Div(root(), "top_wrapper");
   Div *topContent = new Div(topWrapper, "top_content");
 
@@ -109,8 +74,8 @@ Home::Home(const WEnvironment& env)
 
     const Lang& l = languages[i];
 
-    WAnchor *a = new WAnchor("", l.longDescription, languagesDiv);
-    a->setRefInternalPath(l.path);
+    WAnchor *a = new WAnchor("", l.longDescription_, languagesDiv);
+    a->setRefInternalPath(l.path_);
   }
 
   WText *topWt = new WText(tr("top_wt"), topContent);
@@ -176,9 +141,9 @@ void Home::setLanguage(int index)
 {
   const Lang& l = languages[index];
 
-  setLocale(l.code);
+  setLocale(l.code_);
 
-  std::string langPath = l.path;
+  std::string langPath = l.path_;
   mainMenu_->setInternalBasePath(langPath);
   examplesMenu_->setInternalBasePath(langPath + "examples");
   updateTitle();
@@ -199,7 +164,7 @@ void Home::setLanguageFromPath(std::string prefix)
     int newLanguage = 0;
 
     for (unsigned i = 0; i < languages.size(); ++i) {
-      if (languages[i].path == langPath) {
+      if (languages[i].path_ == langPath) {
 	newLanguage = i;
 	break;
       }
@@ -274,199 +239,6 @@ WWidget *Home::documentation()
   return new WText(tr("home.documentation"));
 }
 
-WWidget *Home::helloWorldExample()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.hello"), result);
-
-  WTreeNode *tree = makeTreeMap("Hello world", 0);
-  makeTreeFile("hello.C", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
-}
-
-WWidget *Home::chartExample()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.chart"), result);
-
-  WTreeNode *tree = makeTreeMap("Chart example", 0);
-  WTreeNode *chartsExample = makeTreeMap("class ChartsExample", tree);
-  makeTreeFile("ChartsExample.h", chartsExample);
-  makeTreeFile("ChartsExample.C", chartsExample);
-  WTreeNode *chartConfig = makeTreeMap("class ChartConfig", tree);
-  makeTreeFile("ChartConfig.h", chartConfig);
-  makeTreeFile("ChartConfig.C", chartConfig);
-  WTreeNode *panelList = makeTreeMap("class PanelList", tree);
-  makeTreeFile("PanelList.h", panelList);
-  makeTreeFile("PanelList.C", panelList);
-  makeTreeFile("CsvUtil.C", tree);
-  makeTreeFile("charts.xml", tree);
-  makeTreeFile("charts.css", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
-}
-
-WWidget *Home::homepageExample()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.wt"), result);
-
-  WTreeNode *tree = makeTreeMap("Wt Homepage", 0);
-  WTreeNode *home = makeTreeMap("class Home", tree);
-  makeTreeFile("Home.h", home);
-  makeTreeFile("Home.C", home);
-  WTreeNode *treeexample = makeTreeMap("class TreeListExample", tree);
-  makeTreeFile("TreeListExample.h", treeexample);
-  makeTreeFile("TreeListExample.C", treeexample);
-  makeTreeFile("wt-home.xml", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
-}
-
-WWidget *Home::treeviewExample()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.treeview"), result);
-
-  WTreeNode *tree = makeTreeMap("Treeview example", 0);
-
-  WTreeNode *classMap;
-  classMap = makeTreeMap("class FolderView", tree);
-  makeTreeFile("FolderView.h", classMap);
-  makeTreeFile("FolderView.C", classMap);
-  makeTreeFile("TreeViewDragDrop.C", tree);
-  makeTreeFile("CsvUtil.C", tree);
-  makeTreeFile("about.xml", tree);
-  makeTreeFile("styles.css", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
-}
-
-WWidget *Home::gitExample()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.git"), result);
-
-  WTreeNode *tree = makeTreeMap("Git example", 0);
-
-  WTreeNode *classMap;
-  classMap = makeTreeMap("class GitModel", tree);
-  makeTreeFile("GitModel.h", classMap);
-  makeTreeFile("GitModel.C", classMap);
-  classMap = makeTreeMap("class Git", tree);
-  makeTreeFile("Git.h", classMap);
-  makeTreeFile("Git.C", classMap);
-  makeTreeFile("GitView.C", tree);
-  makeTreeFile("gitview.css", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
-}
-
-WWidget *Home::chatExample()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.chat"), result);
-
-  WTreeNode *tree = makeTreeMap("Chat example", 0);
-
-  WTreeNode *classMap;
-  classMap = makeTreeMap("class SimpleChatWidget", tree);
-  makeTreeFile("SimpleChatWidget.h", classMap);
-  makeTreeFile("SimpleChatWidget.C", classMap);
-  classMap = makeTreeMap("class SimpleChatServer", tree);
-  makeTreeFile("SimpleChatServer.h", classMap);
-  makeTreeFile("SimpleChatServer.C", classMap);
-  makeTreeFile("simpleChat.C", tree);
-  makeTreeFile("simplechat.css", tree);
-  makeTreeFile("simplechat.xml", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
-}
-
-WWidget *Home::composerExample()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.composer"), result);
-
-  WTreeNode *tree = makeTreeMap("Mail composer example", 0);
-
-  WTreeNode *classMap;
-  classMap = makeTreeMap("class AddresseeEdit", tree);
-  makeTreeFile("AddresseeEdit.h", classMap);
-  makeTreeFile("AddresseeEdit.C", classMap);
-  classMap = makeTreeMap("class AttachmentEdit", tree);
-  makeTreeFile("AttachmentEdit.h", classMap);
-  makeTreeFile("AttachmentEdit.C", classMap);
-  classMap = makeTreeMap("class ComposeExample", tree);
-  makeTreeFile("ComposeExample.h", classMap);
-  makeTreeFile("ComposeExample.C", classMap);
-  classMap = makeTreeMap("class Composer", tree);
-  makeTreeFile("Composer.h", classMap);
-  makeTreeFile("Composer.C", classMap);
-  classMap = makeTreeMap("class ContactSuggestions", tree);
-  makeTreeFile("ContactSuggestions.h", classMap);
-  makeTreeFile("ContactSuggestions.C", classMap);
-  classMap = makeTreeMap("class Label", tree);
-  makeTreeFile("Label.h", classMap);
-  makeTreeFile("Label.C", classMap);
-  classMap = makeTreeMap("class Option", tree);
-  makeTreeFile("Option.h", classMap);
-  makeTreeFile("Option.C", classMap);
-  classMap = makeTreeMap("class OptionList", tree);
-  makeTreeFile("OptionList.h", classMap);
-  makeTreeFile("OptionList.C", classMap);
-  makeTreeFile("Contact.h", tree);
-  makeTreeFile("Attachment.h", tree);
-  makeTreeFile("composer.xml", tree);
-  makeTreeFile("composer.css", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
-}
-
-WWidget *Home::widgetGalleryExample()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.widgetgallery"), result);
-
-  return result;
-}
 
 WWidget *Home::wrapViewOrDefer(WWidget *(Home::*createWidget)())
 {
@@ -482,84 +254,6 @@ WWidget *Home::wrapViewOrDefer(WWidget *(Home::*createWidget)())
     return makeStaticModel(boost::bind(createWidget, this));
   else
     return deferCreate(boost::bind(createWidget, this));
-}
-
-WWidget *Home::examples()
-{
-  WContainerWidget *result = new WContainerWidget();
-
-  result->addWidget(new WText(tr("home.examples")));
-
-  examplesMenu_ = new WTabWidget(AlignTop | AlignJustify, result);
-
-  /*
-   * The following code is functionally equivalent to:
-   *
-   *   examplesMenu_->addTab(helloWorldExample(), "Hello world");
-   *
-   * However, we optimize here for memory consumption (it is a homepage
-   * after all, and we hope to be slashdotted some day)
-   *
-   * Therefore, we wrap all the static content (including the tree
-   * widgets), into WViewWidgets with static models. In this way the
-   * widgets are not actually stored in memory on the server.
-   *
-   * For the tree list example (for which we cannot use a view with a
-   * static model, since we allow the tree to be manipulated) we use
-   * the defer utility function to defer its creation until it is
-   * loaded.
-   */
-
-  // The call ->setPathComponent() is to use "/examples" instead of
-  // "/examples/hello_world" as internal path
-  examplesMenu_->addTab(wrapViewOrDefer(&Home::helloWorldExample),
-			tr("hello-world"))->setPathComponent("");
-
-  examplesMenu_->addTab(wrapViewOrDefer(&Home::chartExample),
-			tr("charts"));
-  examplesMenu_->addTab(wrapViewOrDefer(&Home::homepageExample),
-			tr("wt-homepage"));
-  examplesMenu_->addTab(wrapViewOrDefer(&Home::treeviewExample),
-			tr("treeview"));
-  examplesMenu_->addTab(wrapViewOrDefer(&Home::gitExample),
-			tr("git"));
-  examplesMenu_->addTab(wrapViewOrDefer(&Home::chatExample),
-			tr("chat"));
-  examplesMenu_->addTab(wrapViewOrDefer(&Home::composerExample),
-			tr("mail-composer"));
-  examplesMenu_->addTab(wrapViewOrDefer(&Home::widgetGalleryExample),
-			tr("widget-gallery"));
-
-  examplesMenu_->currentChanged().connect(SLOT(this, Home::logInternalPath));
-
-  // Enable internal paths for the example menu
-  examplesMenu_->setInternalPathEnabled();
-  examplesMenu_->setInternalBasePath("/examples");
-
-  return result;
-}
-
-WWidget *Home::download()
-{
-  WContainerWidget *result = new WContainerWidget();
-  result->addWidget(new WText(tr("home.download")));
-  result->addWidget(new WText(tr("home.download.license")));
-  result->addWidget(new WText(tr("home.download.requirements")));
-  result->addWidget(new WText(tr("home.download.cvs")));
-  result->addWidget(new WText(tr("home.download.packages")));
-
-  releases_ = new WTable();
-  readReleases(releases_, "releases.txt");
-  result->addWidget(releases_);
-
-  result->addWidget
-    (new WText("<p>Older releases are still available at "
-	       + href("http://sourceforge.net/project/showfiles.php?"
-		      "group_id=153710#files",
-		      "sourceforge.net")
-	       + "</p>"));
-
-  return result;
 }
 
 std::string Home::href(const std::string url, const std::string description)
@@ -681,68 +375,3 @@ WString Home::tr(const char *key)
 {
   return WString::tr(key);
 }
-
-WApplication *createApplication(const WEnvironment& env)
-{
-  // support for old (< Wt-2.2) homepage URLS: redirect from "states"
-  // to "internal paths"
-  // this contains the initial "history state" in old Wt versions
-  const std::string *historyKey = env.getParameter("historyKey");
-
-  if (historyKey) {
-    const char *mainStr[]
-      = { "main:0", "/",
-	  "main:1", "/news",
-	  "main:2", "/features",
-	  "main:4", "/examples",
-	  "main:3", "/documentation",
-	  "main:5", "/download",
-	  "main:6", "/community" };
-
-    const char *exampleStr[]
-      = { "example:0", "/examples",
-	  "example:1", "/examples/charts",
-	  "example:2", "/examples/wt-homepage",
-	  "example:3", "/examples/treelist",
-	  "example:4", "/examples/hangman",
-	  "example:5", "/examples/chat",
-	  "example:6", "/examples/mail-composer",
-	  "example:7", "/examples/drag-and-drop",
-	  "example:8", "/examples/file-explorer",
-	  "example:9", "/examples/calendar" };
-
-    if (historyKey->find("main:4") != std::string::npos) {
-      for (unsigned i = 0; i < 10; ++i)
-	if (historyKey->find(exampleStr[i*2]) != std::string::npos) {
-	  WApplication *app = new WApplication(env);
-	  app->log("notice") << "redirecting old style URL '"
-			     << *historyKey << "' to internal path: '"
-			     << exampleStr[i*2+1] << "'";
-	  app->redirect(app->bookmarkUrl(exampleStr[i*2+1]));
-	  app->quit();
-	  return app;
-	}
-    } else
-      for (unsigned i = 0; i < 6; ++i)
-	if (historyKey->find(mainStr[i*2]) != std::string::npos) {
-	  WApplication *app = new WApplication(env);
-
-	  app->log("notice") << "redirecting old style URL '"
-			     << *historyKey << "' to internal path: '"
-			     << mainStr[i*2+1] << "'";
-	  app->redirect(app->bookmarkUrl(mainStr[i*2+1]));
-	  app->quit();
-	  return app;
-	}
-
-    // unknown history key, just continue
-  }
-
-  return new Home(env);
-}
-
-int main(int argc, char **argv)
-{
-  return WRun(argc, argv, &createApplication);
-}
-

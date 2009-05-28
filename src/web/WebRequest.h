@@ -117,10 +117,14 @@ public:
   const Http::UploadedFileMap& uploadedFiles() const { return files_; }
   int postDataExceeded() const { return postDataExceeded_; }
 
+  std::string parseLocale() const;
+
 protected:
   virtual ~WebRequest();
 
 private:
+  std::string parsePreferredAcceptValue(const std::string& value) const;
+
   int postDataExceeded_;
   Http::ParameterMap    parameters_;
   Http::UploadedFileMap files_;

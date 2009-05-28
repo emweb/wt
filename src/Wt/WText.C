@@ -62,17 +62,11 @@ void WText::autoAdjustInline()
 {
   if (textFormat_ != PlainText && isInline()) {
     std::string t = text_.toUTF8();
-#ifndef WT_TARGET_JAVA
     boost::trim_left(t);
     if (   boost::istarts_with(t, "<div")
 	|| boost::istarts_with(t, "<p")
 	|| boost::istarts_with(t, "<h"))
       setInline(false);
-#else
-    t = t.trim().substr(0, std::min(20, t.length())).toLowerCase();
-    if (t.startsWith("<div") || t.startsWith("<p") || t.startsWith("<h"))
-      setInline(false);
-#endif // WT_TARGET_JAVA
   }
 }
 

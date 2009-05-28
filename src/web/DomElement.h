@@ -191,7 +191,7 @@ private:
   bool containsElement(DomElementType type) const;
   void processEvents(WApplication *app) const;
   void processProperties(WApplication *app) const;
-  void setJavaScriptProperties(EscapeOStream& out) const;
+  void setJavaScriptProperties(EscapeOStream& out, WApplication *app) const;
   void setJavaScriptAttributes(EscapeOStream& out) const;
 
   std::string createAsJavaScript(EscapeOStream& out,

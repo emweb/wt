@@ -304,8 +304,9 @@ bool WSortFilterProxyModel::filterAcceptRow(int sourceRow,
   const
 {
   if (regex_) {
-    WString s = asString(sourceModel()->data(sourceRow, filterKeyColumn_,
-					     filterRole_, sourceParent));
+    WString s = asString(sourceModel()
+			 ->index(sourceRow, filterKeyColumn_, sourceParent)
+			 .data(filterRole_));
     bool result = regex_->exactMatch(s);
 
     return result;

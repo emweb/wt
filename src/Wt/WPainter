@@ -267,6 +267,14 @@ public:
      */
     Image(const std::string& uri, int width, int height);
 
+    /*! \brief Create an image.
+     *
+     * Create an image which is located at <i>uri</i> which is available on
+     * the local filesystem as <i>file</i>. The image dimensions are
+     * retrieved from the file.
+     */
+    Image(const std::string& uri, const std::string& file);
+
     /*! \brief Returns the uri.
      */
     std::string uri() const { return uri_; }

@@ -305,8 +305,8 @@ void DomElement::processProperties(WApplication *app) const
     PropertyMap::iterator maxw = self->properties_.find(PropertyStyleMaxWidth);
 
     if (minw != self->properties_.end() || maxw != self->properties_.end()) {
-      std::stringstream style;
       if (w == self->properties_.end()) {
+	std::stringstream style;
 	style << "expression(" WT_CLASS ".IEwidth(this,";
 	if (minw != self->properties_.end()) {
 	  style << '\'' << minw->second << '\'';
@@ -320,9 +320,9 @@ void DomElement::processProperties(WApplication *app) const
 	} else
 	  style << "'100000px'";
 	style << "));";
-      }
 
-      self->properties_[PropertyStyleWidth] = style.str();
+	self->properties_[PropertyStyleWidth] = style.str();
+      }
     }
 
     PropertyMap::iterator i = self->properties_.find(PropertyStyleMinHeight);
@@ -941,7 +941,7 @@ void DomElement::asJavaScript(std::ostream& out)
 
   mode_ = ModeCreate;
 
-  setJavaScriptProperties(eout);
+  setJavaScriptProperties(eout, WApplication::instance());
   setJavaScriptAttributes(eout);
   asJavaScript(eout, Update);
 }
@@ -1012,7 +1012,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       if (!id_.empty())
 	out << var_ << ".setAttribute('id', '" << id_ << "');\n";
 
-      setJavaScriptProperties(out);
+      setJavaScriptProperties(out, WApplication::instance());
       setJavaScriptAttributes(out);
     }
 
@@ -1053,14 +1053,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       declare(out);
 
       std::string varr = replaced_->asJavaScript(out, Create);
-      out << var_ << ".parentNode.replaceChild("
-	  << varr << ',' << var_ << ");\n";
-
       replaced_->asJavaScript(out, Update);
-      if (hideWithDisplay_)
-	out << varr << ".style.display = " << var_ << ".style.display;\n";
-      else
-	out << WT_CLASS ".copyhide(" << var_ << ',' << varr << ");\n";
+      out << WT_CLASS ".unstub(" << var_ << ',' << varr << ','
+	  << (hideWithDisplay_ ? 1 : 0) << ");\n";
 
       return var_;
     } else if (insertBefore_) {
@@ -1077,7 +1072,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
     if (mode_ != ModeCreate) {
       setJavaScriptAttributes(out);
-      setJavaScriptProperties(out);
+      setJavaScriptProperties(out, app);
     }
 
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
@@ -1166,7 +1161,8 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
   return var_;
 }
 
-void DomElement::setJavaScriptProperties(EscapeOStream& out) const
+void DomElement::setJavaScriptProperties(EscapeOStream& out,
+					 WApplication *app) const
 {
 #ifndef WT_TARGET_JAVA
   EscapeOStream escaped(out);
@@ -1253,12 +1249,17 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out) const
       fastJsStringLiteral(out, escaped, i->second);
       out << ';';
       break;
+    case Wt::PropertyStyleFloat:
+      out << var_ << ".style."
+	  << (app->environment().agentIsIE() ? "styleFloat" : "cssFloat")
+	  << "=\'" << i->second << "\';";
+      break;
     default:
       if ((i->first >= Wt::PropertyStylePosition)
 	  && (i->first <= Wt::PropertyStyleDisplay)) {
 	static std::string cssCamelNames[] =
 	  { "position",
-	    "zIndex", "float", "clear",
+	    "zIndex", "cssFloat", "clear",
 	    "width", "height", "lineHeight",
 	    "minWidth", "minHeight",
 	    "maxWidth", "maxHeight",

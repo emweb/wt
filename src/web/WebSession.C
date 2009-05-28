@@ -64,10 +64,12 @@ WebSession::Handler * WebSession::threadHandler_;
 
 WebSession::WebSession(WebController *controller,
 		       const std::string& sessionId, Type type,
-		       const WebRequest& request)
+		       const std::string& favicon,
+                       const WebRequest& request)
   : type_(type),
     state_(JustCreated),
     sessionId_(sessionId),
+    favicon_(favicon),
     controller_(controller),
     renderer_(*this),
     pollResponse_(0),

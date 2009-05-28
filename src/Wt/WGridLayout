@@ -77,7 +77,13 @@ struct Grid {
  * For each column or row, a stretch factor may be defined, which
  * controls how remaining horizontal or vertical space is used. Each
  * column and row is stretched using the stretch factor to fill the
- * remaining space.
+ * remaining space. When the stretch factor is 0, the height of the row
+ * and its contents is not actively managed. As a consequence, the contents
+ * of each cell will not fill the cell. You may use a special stretch factor
+ * of -1 to indicate that the height of the row should not stretch but the
+ * contents height should be actively managed. This has as draw-back that
+ * the height of the row will no longer reduce in size when any of the cell
+ * contents reduces in size.
  *
  * Usage example:
  * \code
@@ -304,7 +310,8 @@ public:
 
   /*! \brief Sets the row stretch.
    *
-   * Sets the <i>stretch</i> factor for row <i>row</i>.
+   * Sets the <i>stretch</i> factor for row <i>row</i>. See the
+   * description for the special value of -1.
    *
    * \sa rowStretch()
    */

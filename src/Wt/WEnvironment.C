@@ -18,10 +18,6 @@
 #include <stdexcept>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#ifndef WT_NO_SPIRIT
-#include <boost/spirit/core.hpp>
-#include <boost/bind.hpp>
-#endif // WT_NO_SPIRIT
 #include <assert.h>
 
 namespace Wt {
@@ -40,6 +36,10 @@ namespace Wt {
       return false;
     }
   }
+
+#ifdef WT_TARGET_JAVA
+  std::string WEnvironment::wt_class = WT_CLASS;
+#endif //WT_TARGET_JAVA
 
 WEnvironment::WEnvironment(WebSession *session)
   : session_(session),
@@ -194,7 +194,7 @@ void WEnvironment::init(const WebRequest& request)
   if (doesCookies_)
     parseCookies(cookie);
 
-  locale_ = parsePreferredAcceptValue(request.headerValue("Accept-Language"));
+  locale_ = request.parseLocale();
 
   if (session_->controller()->configuration().sendXHTMLMimeType()
       && (accept_.find("application/xhtml+xml") != std::string::npos))
@@ -265,122 +265,6 @@ std::string WEnvironment::getCgiValue(const std::string& varName) const
 {
   return session_->getCgiValue(varName);
 }
-
-#ifndef WT_NO_SPIRIT
-namespace {
-  using namespace boost::spirit;
-  using namespace boost;
-
-  /*
-   * My first spirit parser -- spirit is nifty !
-   *
-   * Parses things like:
-   *  nl-be,en-us;q=0.7,en;q=0.3
-   *  ISO-8859-1,utf-8;q=0.7,*;q=0.7
-   *
-   * And store the values with indicated qualities.
-   */
-  class ValueListParser : public grammar<ValueListParser>
-  {
-  public:
-    struct Value {
-      std::string value;
-      double quality;
-
-      Value(std::string v, double q) : value(v), quality(q) { }
-    };
-
-    ValueListParser(std::vector<Value>& values)
-      : values_(values)
-    { }
-
-  private:
-    std::vector<Value>& values_;
-
-    void setQuality(double v) const {
-      values_.back().quality = v;
-    }
-
-    void addValue(char const* str, char const* end) const {
-      values_.push_back(Value(std::string(str, end), 1.));
-    }
-
-    typedef ValueListParser self_t;
-
-  public:
-    template <typename ScannerT>
-    struct definition
-    {
-      definition(ValueListParser const& self)
-      {
-	option 
-	  = ((ch_p('q') | ch_p('Q'))
-	     >> '=' 
-	     >> ureal_p
-	        [
-		  bind(&self_t::setQuality, self, _1)
-		]
-	     )
-	  | (+alpha_p >> '=' >> +alnum_p)
-	  ;
-
-	value
-	  = lexeme_d[(alpha_p >> +(alpha_p | '-')) | '*']
-	    [
-	       bind(&self_t::addValue, self, _1, _2)
-	    ]
-	    >> !( ';' >> option )
-	  ;
-
-	valuelist
-	  = !(value  >> *(',' >> value )) >> end_p
-	  ;
-      }
-
-      rule<ScannerT> option, value, valuelist;
-
-      rule<ScannerT> const&
-      start() const { return valuelist; }
-    };
-  };
-};
-
-std::string WEnvironment::parsePreferredAcceptValue(const std::string& str)
-{
-  std::vector<ValueListParser::Value> values;
-
-  ValueListParser valueListParser(values);
-
-  using namespace boost::spirit;
-
-  parse_info<> info = parse(str.c_str(), valueListParser, space_p);
-
-  if (info.full) {
-    unsigned best = 0;
-    for (unsigned i = 1; i < values.size(); ++i) {
-      if (values[i].quality > values[best].quality)
-	best = i;
-    }
-
-    if (best < values.size())
-      return values[best].value;
-    else
-      return "";
-  } else {
-    // wApp is not yet initialized here
-    std::cerr << "Could not parse 'Accept-Language: "
-	      << str << "', stopped at: '" << info.stop 
-	      << '\'' << std::endl;
-    return "";
-  }
-}
-
-#else
-std::string WEnvironment::parsePreferredAcceptValue(const std::string& str)
-{
-  return std::string();
-}
-#endif // WT_NO_SPIRIT
 
 void WEnvironment::parseCookies(const std::string& str)
 {

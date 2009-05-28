@@ -51,7 +51,6 @@ public:
     rule_->modified();
   }
 
-#ifndef WT_TARGET_JAVA
   virtual void setFloatSide(Side s) {
     WWebWidget::setFloatSide(s);
     rule_->modified();
@@ -61,7 +60,6 @@ public:
     WWebWidget::setClearSides(sides);
     rule_->modified();
   }
-#endif // WT_TARGET_JAVA
 
   virtual void setMargin(const WLength& margin, WFlags<Side> sides = All) {
     WWebWidget::setMargin(margin, sides);

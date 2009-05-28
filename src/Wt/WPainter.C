@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <fstream>
 
 #include "Wt/WLineF"
 #include "Wt/WPainter"
@@ -13,6 +14,7 @@
 #include "Wt/WPaintDevice"
 #include "Wt/WRectF"
 #include "Wt/WTransform"
+#include "WtException.h"
 
 namespace Wt {
 
@@ -47,6 +49,44 @@ WPainter::Image::Image(const std::string& uri, int width, int height)
     width_(width),
     height_(height)
 { }
+
+WPainter::Image::Image(const std::string& uri, const std::string& fileName)
+  : uri_(uri)
+{
+  /*
+   * Contributed by Daniel Derr @ ArrowHead Electronics Health-Care
+   */
+  unsigned char header[25];
+  std::ifstream file;
+  file.open(fileName.c_str(), std::ios::binary | std::ios::in);
+
+  if (file.good()) {
+    file.seekg(0, std::ios::beg);
+    file.read((char*)header, 25);
+    file.close();
+
+    if (memcmp(header, "\211PNG\r\n\032\n", 8) == 0) {
+      // PNG FILE
+      width_ = ( ( ( int(header[16]) << 8
+		     | int(header[17])) << 8
+		   | int(header[18])) << 8
+		 | int(header[19]));
+      height_ = ( ( ( int(header[20]) << 8
+		      | int(header[21])) << 8
+		    | int(header[22])) << 8
+		  | int(header[23]));
+    } else if ((memcmp(header,"GIF8", 4) == 0)
+	       && ((header[4] == '9') || (header[4] == '7'))
+	       && (header[5] == 'a')) {
+      // GIF FILE
+      width_ = int(header[7]) << 8 | int(header[6]);
+      height_ = int(header[9]) << 8 | int(header[8]);
+    } else {
+      throw Wt::WtException("'" + fileName + "': unsupported file format");
+    }
+  } else
+    throw Wt::WtException("'" + fileName + "': could not read");
+}
 
 WPainter::WPainter()
   : device_(0)

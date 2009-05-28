@@ -47,9 +47,7 @@ void WTreeTableNode::setColumnWidget(int column, WWidget *widget)
   }
 
   widget->setInline(false);
-#ifndef WT_TARGET_JAVA
   widget->setFloatSide(Left);
-#endif // WT_TARGET_JAVA
   widget->resize(columnWidth(column + 1), WLength::Auto);
   if (column == static_cast<int>(columnWidgets_.size()) - 1)
     row_->addWidget(widget);
@@ -62,9 +60,7 @@ void WTreeTableNode::createExtraColumns(int numColumns)
   if (!row_) {
     row_ = new WContainerWidget();
     labelArea()->insertBefore(row_, labelArea()->children()[0]);
-#ifndef WT_TARGET_JAVA
     row_->setFloatSide(Right);
-#endif // WT_TARGET_JAVA
     labelArea()->resize(WLength(100, WLength::Percentage), WLength::Auto);
     labelArea()->table()->resize(WLength(100, WLength::Percentage),
 				 WLength::Auto);
@@ -74,9 +70,7 @@ void WTreeTableNode::createExtraColumns(int numColumns)
     WText *w = new WText(WString::fromUTF8("&nbsp;"), row_);
     w->setInline(false);
     columnWidgets_.push_back(ColumnWidget(w, false));
-#ifndef WT_TARGET_JAVA
     w->setFloatSide(Left);
-#endif // WT_TARGET_JAVA
     w->resize(columnWidth(columnWidgets_.size()), WLength::Auto);
   }
 }

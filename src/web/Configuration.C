@@ -122,10 +122,11 @@ childElements(mxml_node_t *element, const char *tagName)
 namespace Wt {
 
 EntryPoint::EntryPoint(WebSession::Type type, ApplicationCreator appCallback,
-		       const std::string& path)
+		       const std::string& path, const std::string& favicon)
   : type_(type),
     appCallback_(appCallback),
-    path_(path)
+    path_(path),
+    favicon_(favicon)
 { }
 
 void EntryPoint::setPath(const std::string& path)
@@ -481,6 +482,16 @@ std::string Configuration::generateSessionId()
 std::string Configuration::sessionSocketPath(const std::string& sessionId)
 {
   return runDirectory_ + "/" + sessionId;
+}
+
+const std::string* Configuration::property(const std::string& name) const 
+{
+  PropertyMap::const_iterator i = properties_.find(name);
+
+  if (i != properties_.end()) 
+    return &i->second;
+  else
+    return 0;
 }
 
 }

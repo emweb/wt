@@ -1249,7 +1249,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   layout->addWidget(headerContainer_ = new WContainerWidget());
   headerContainer_->setOverflow(WContainerWidget::OverflowHidden);
-  headerContainer_->setStyleClass("header cwidth");
+  headerContainer_->setStyleClass("header headerrh cwidth");
   headers_ = new WContainerWidget(headerContainer_);
   headers_->setStyleClass("header-div headerrh");
   headers_->setAttributeValue("unselectable", "on");
@@ -1649,11 +1649,8 @@ void WTreeView::setColumnAlignment(int column, AlignmentFlag alignment)
       w->setAttributeValue("style", std::string("text-align: ") + align);
   } else
     if (alignment == AlignRight) {
-#ifndef WT_TARGET_JAVA
       w->setFloatSide(Right);
-#else
-      w->setAttributeValue("style", "float: right;");
-#endif // WT_TARGET_JAVA
+      //w->setAttributeValue("style", "float: right;");
     }
 }
 
@@ -1945,11 +1942,7 @@ void WTreeView::rerenderHeader()
 
   /* cols 1.. */
   WContainerWidget *rowc = new WContainerWidget(headers_);
-#ifndef WT_TARGET_JAVA
   rowc->setFloatSide(Right);
-#else
-  rowc->setAttributeValue("style", "float: right;");
-#endif // WT_TARGET_JAVA
   WContainerWidget *row = new WContainerWidget(rowc);
   row->setStyleClass("Wt-tv-row headerrh");
   row->setAttributeValue("unselectable", "on");

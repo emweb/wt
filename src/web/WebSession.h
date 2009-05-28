@@ -42,12 +42,14 @@ public:
   enum Type { Application, WidgetSet };
 
   WebSession(WebController *controller, const std::string& sessionId,
-	     Type type, const WebRequest& request);
+	     Type type, const std::string& favicon,
+             const WebRequest& request);
   ~WebSession();
 
   static WebSession *instance();
 
   Type type() const { return type_; }
+  std::string favicon() const { return favicon_; }
   std::string docType() const;
 
   std::string sessionId() const { return sessionId_; }
@@ -210,6 +212,7 @@ private:
 #endif // WT_TARGET_JAVA
 
   Type          type_;
+  std::string   favicon_;
   State         state_;
 
   std::string   sessionId_;

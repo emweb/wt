@@ -92,9 +92,7 @@ void WPanel::setCollapsible(bool on)
     collapseIcon_ = new WIconPair(resources + "collapse.gif",
 				  resources + "expand.gif");
     collapseIcon_->setInline(false);
-#ifndef WT_TARGET_JAVA
     collapseIcon_->setFloatSide(Left);
-#endif // WT_TARGET_JAVA
     collapseIcon_->setMargin(2, Top);
     titleBar_->insertWidget(0, collapseIcon_);
 

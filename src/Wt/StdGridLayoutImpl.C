@@ -98,7 +98,7 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 	 ""     "row, tds, td;"
 	 "" "for (i=0, il=t.rows.length; i<il; i++) {"
 	 ""   "tmh += mh[i];"
-	 ""   "if (c[i]==0)"
+	 ""   "if (c[i] <= 0)"
 	 ""     "r -= t.rows[i].offsetHeight;" // reduce r
 	 ""   "else "
 	 ""     "ts += c[i];"
@@ -108,7 +108,7 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
 	 /*
 	  *  Now, iterate over the whole table, and adjust the height
-	  *  for every row which has a stretch and for every cell. Apply the
+	  *  for every row (which has a stretch) and for every cell. Apply the
 	  *  same height to each cell's contents as well
 	  */
 	 "" "if (ts!=0 && r>0) {"
@@ -123,11 +123,15 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 	  *       height
 	  */
 
-	 ""       "h=r*c[i]/ts;"
-	 ""       "h=left>h?h:left;"
-	 ""       "h=Math.round(mh[i]>h?mh[i]:h);"
-
-	 ""       "left -= h;"
+	 ""       "if (c[i] != -1) {"
+	 ""         "h=r*c[i]/ts;"
+	 ""         "h=left>h?h:left;"
+	 ""         "h=Math.round(mh[i]>h?mh[i]:h);"
+	 ""         "left -= h;"
+	 ""       "} else {"
+	 ""         "h=row.offsetHeight;"
+	 ""       "}"
+	 ""
 	 ""       "if (row.style.height!=h+'px'){"
 	 ""         "row.style.height=h+'px';"
 	 ""         "tds=row.childNodes;"
@@ -373,11 +377,11 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   int totalColStretch = 0;
   for (unsigned col = 0; col < colCount; ++col)
-    totalColStretch += grid_.columns_[col].stretch_;
+    totalColStretch += std::max(0, grid_.columns_[col].stretch_);
 
   int totalRowStretch = 0;
   for (unsigned row = 0; row < rowCount; ++row)
-    totalRowStretch += grid_.rows_[row].stretch_;
+    totalRowStretch += std::max(0, grid_.rows_[row].stretch_);
 
   int margin[] = { 0, 0, 0, 0};
 
@@ -425,10 +429,13 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       if (i != 0)
 	layoutAdd << ",";
 
-      if (totalRowStretch == 0)
-	layoutAdd << (fitHeight ? "1" : "0");
+      int stretch = 0;
+      if (totalRowStretch == 0 && fitHeight)
+	stretch = 1;
       else
-	layoutAdd << grid_.rows_[i].stretch_;
+	stretch = grid_.rows_[i].stretch_;
+
+      layoutAdd << stretch;
     }
 
     layoutAdd << "],[";
@@ -465,7 +472,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   if (fitWidth)
     for (unsigned col = 0; col < colCount; ++col) {
       DomElement *c = DomElement::createNew(DomElement_COL);
-      int stretch = grid_.columns_[col].stretch_;
+      int stretch = std::max(0, grid_.columns_[col].stretch_);
 
       if (stretch || (fitWidth && totalColStretch == 0)) {
 	int pct = totalColStretch == 0 ? 100 / colCount
@@ -488,7 +495,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
     DomElement *tr = DomElement::createNew(DomElement_TR);
 
-    int stretch = grid_.rows_[row].stretch_;
+    int stretch = std::max(0, grid_.rows_[row].stretch_);
     if (stretch || (!jsHeights && fitHeight && totalRowStretch == 0)) {
       int pct = totalRowStretch == 0 ?
 	100 / rowCount :
@@ -524,7 +531,10 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	// each cell to the full height alotted to by this grid. But
 	// if we do, this makes the row no longer react to reductions
 	// in height... Which is worse? I think the former?
-	itemFitHeight = true;
+	//
+	// Changed now: use stretch = -1 to force fitting height
+	//
+	// itemFitHeight = true;
 
 	AlignmentFlag hAlign = item.alignment_ & AlignHorizontalMask;
 	AlignmentFlag vAlign = item.alignment_ & AlignVerticalMask;

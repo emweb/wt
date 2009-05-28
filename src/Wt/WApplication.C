@@ -953,13 +953,11 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
 bool WApplication::readConfigurationProperty(const std::string& name,
 					     std::string& value)
 {
-  const Configuration::PropertyMap& properties
-    = instance()->session_->controller()->configuration().properties();
+  const std::string* property
+    = instance()->session_->controller()->configuration().property(name);
 
-  Configuration::PropertyMap::const_iterator i = properties.find(name);
-
-  if (i != properties.end()) {
-    value = i->second;
+  if (property) {
+    value = *property;
     return true;
   } else
     return false;
@@ -968,13 +966,11 @@ bool WApplication::readConfigurationProperty(const std::string& name,
 std::string *WApplication::readConfigurationProperty(const std::string& name,
 						     const std::string& value)
 {
-  const Configuration::PropertyMap& properties
-    = instance()->session_->controller()->configuration().properties();
+  std::string* property
+    = instance()->session_->controller()->configuration().property(name);
 
-  Configuration::PropertyMap::const_iterator i = properties.find(name);
-
-  if (i != properties.end())
-    return &i->second;
+  if (property)
+    return property;
   else
     return &value;
 }

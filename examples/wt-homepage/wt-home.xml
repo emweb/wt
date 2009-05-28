@@ -2,7 +2,7 @@
 <messages>
   <message id="top_wt">
       <a href="http://www.emweb.be/">
-	<img src="/images/emweb_powered.jpg" alt="Emweb" height="22" />
+	<img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
       </a> 
   </message>
 
@@ -16,7 +16,7 @@
     <div id="footer_content">
       <div id="footer_copyright"> 
 	<a href="http://www.emweb.be/">
-	  <img src="/images/emweb_large.jpg" height="25" width="101"
+	  <img src="/css/wt/emweb_large.jpg" height="25" width="101"
 	       alt="Emweb.be" title="emweb.be"/></a>
 	Solutions for web-based systems<br/>
 	<a href="http://www.emweb.be/">www.emweb.be</a>

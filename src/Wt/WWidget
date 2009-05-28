@@ -242,7 +242,6 @@ public:
    */
   virtual WLength lineHeight() const = 0;
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Specify a side to which the WWidget must float.
    *
    * This only applies to widgets with a \link Wt::Static Static
@@ -281,7 +280,6 @@ public:
    * \sa setClearSides(WFlags<Side>)
    */
   virtual WFlags<Side> clearSides() const = 0;
-#endif // WT_TARGET_JAVA
 
   /*! \brief Set margins around the widget.
    *

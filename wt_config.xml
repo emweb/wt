@@ -119,7 +119,7 @@
 	       The variable is slighly misnamed. Not only a path can be set,
 	       but also options, like for example:
 
-                 /usr/bin/valgrind --leak-check=full
+                 /usr/bin/valgrind - -leak-check=full
              -->
 	    <valgrind-path></valgrind-path>
 
@@ -314,6 +314,16 @@
 	       The default value is 'ext/'
               -->
 	    <property name="extBaseURL">ext/</property>
+
+	    <!-- favicon property
+
+	       By default, a browser will try to fetch a /favicon.ico icon
+	       from the root of your web server which is used as an icon
+	       for your application. You can specify an alternative location
+	       by setting this property, or for an individual application
+	       entry point by passing a location to WServer::addEntryPoint().
+	      -->
+	    <!-- <property name="favicon">images/favicon.ico</property> -->
 
 	</properties>
 

@@ -107,16 +107,16 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 }
 
 void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
-			    const std::string& path)
+			    const std::string& path, const std::string& favicon)
 {
   switch (type) {
   case Application:
     impl_->wtConfiguration_.addEntryPoint
-      (EntryPoint(WebSession::Application, callback, path));
+      (EntryPoint(WebSession::Application, callback, path, favicon));
     break;
   case WidgetSet:
     impl_->wtConfiguration_.addEntryPoint
-      (EntryPoint(WebSession::WidgetSet, callback, path));
+      (EntryPoint(WebSession::WidgetSet, callback, path, favicon));
     break;
   }
 }
@@ -137,7 +137,7 @@ bool WServer::start()
     impl_->wtConfiguration_.setSessionIdPrefix
       (impl_->serverConfiguration_.sessionIdPrefix());
 
-    // Set default entry point
+  // Set default entry point
   impl_->wtConfiguration_.setDefaultEntryPoint
     (impl_->serverConfiguration_.deployPath().substr(1));
 

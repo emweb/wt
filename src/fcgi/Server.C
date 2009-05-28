@@ -495,16 +495,39 @@ int Server::main()
 	  /*
 	   * For SharedProcess, connect to a random server.
 	   */
-	  int i = lrand48() % sessionProcessPids_.size();
 
-	  std::string path = conf_.runDirectory() + "/server-"
-	    + boost::lexical_cast<std::string>(sessionProcessPids_[i]);
+	  /*
+	   * Patch from Andrii Arsirii: it could be that the
+	   * sessionProcessPids_ vector is empty because concurrently a
+	   * shared process died: we need to wait until it is respawned.
+	   */
+	  for (;;) {
+	    int processCount = sessionProcessPids_.size();
+	    if (processCount == 0)
+	      sleep(1);
+	    else {
+	      int i = lrand48() % processCount;
 
-	  clientSocket = connectToSession("", path, 100);
+	      if (i >= sessionProcessPids_.size())
+		sleep(1);
+	      else {
+		// This is still not entirely okay: a race condition could
+		// still occur between checking the size and getting the
+		// element.
+		int pid = sessionProcessPids_[i];
+		std::string path = conf_.runDirectory() + "/server-"
+		  + boost::lexical_cast<std::string>(pid);
 
-	  if (clientSocket == -1)
-	    conf_.log("error") << "Session process " << sessionProcessPids_[i]
-			       << " not responding ?";
+		clientSocket = connectToSession("", path, 100);
+
+		if (clientSocket == -1)
+		  conf_.log("error") << "Session process " << pid
+				     << " not responding ?";
+
+		break;
+	      }
+	    }
+	  }
 	}
       }
 
@@ -687,14 +710,14 @@ void AddApplicationEntryPoint(ApplicationCreator createApplication,
 			      const std::string& path)
 {
   entryPoints.push_back
-    (EntryPoint(WebSession::Application, createApplication, path));
+    (EntryPoint(WebSession::Application, createApplication, path, std::string()));
 }
 
 void AddWidgetSetEntryPoint(ApplicationCreator createApplication,
 			    const std::string& path)
 {
   entryPoints.push_back
-    (EntryPoint(WebSession::WidgetSet, createApplication, path));  
+    (EntryPoint(WebSession::WidgetSet, createApplication, path, std::string()));  
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
@@ -717,7 +740,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
     if (createApplication)
       entryPoints.push_back(EntryPoint(WebSession::Application,
-				       createApplication, std::string()));
+				       createApplication, std::string(), std::string()));
     for (unsigned i = 0; i < entryPoints.size(); ++i)
       conf.addEntryPoint(entryPoints[i]);
 

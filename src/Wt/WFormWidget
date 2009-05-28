@@ -146,7 +146,7 @@ public:
 protected:
   WLabel     *label_;
   WValidator *validator_;
-  JSlot      *validate_, *filterInput_;
+  JSlot      *validateJs_, *filterInput_;
 
   // also used in WAbstractToggleButton
   static const char *CHANGE_SIGNAL;

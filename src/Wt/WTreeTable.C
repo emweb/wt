@@ -33,9 +33,7 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
   spacer->setStyleClass("Wt-sbspacer");
 
   headerContainer_ = new WContainerWidget(headers_);
-#ifndef WT_TARGET_JAVA
   headerContainer_->setFloatSide(Right);
-#endif // WT_TARGET_JAVA
 
   headers_->addWidget(new WText());
   columnWidths_.push_back(WLength::Auto);
@@ -112,9 +110,7 @@ void WTreeTable::addColumn(const WString& header, const WLength& width)
   WText *t = new WText(header);
   t->resize(width, WLength::Auto);
   t->setInline(false);
-#ifndef WT_TARGET_JAVA
   t->setFloatSide(Left);
-#endif // WT_TARGET_JAVA
   headerContainer_->addWidget(t);
 
   columnWidths_.push_back(width);

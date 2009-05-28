@@ -47,10 +47,8 @@ WWebWidget::TransientImpl::~TransientImpl()
 
 WWebWidget::LayoutImpl::LayoutImpl()
   : positionScheme_(Static),
-#ifndef WT_TARGET_JAVA
     floatSide_(static_cast<Side>(0)),
     clearSides_(0),
-#endif // WT_TARGET_JAVA
     zIndex_(0),
     verticalAlignment_(AlignBaseline)
 { 
@@ -396,7 +394,6 @@ WLength WWebWidget::lineHeight() const
   return layoutImpl_ ? layoutImpl_->lineHeight_ : WLength::Auto;
 }
 
-#ifndef WT_TARGET_JAVA
 void WWebWidget::setFloatSide(Side s)
 {
   if (!layoutImpl_)
@@ -436,7 +433,6 @@ WFlags<Side> WWebWidget::clearSides() const
   else
     return WFlags<Side>(None);
 }
-#endif
 
 void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
 				      const WLength& length)
@@ -837,7 +833,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	}
       }
 
-#ifndef WT_TARGET_JAVA
       /*
        * set clear: FIXME: multiple values
        */
@@ -848,7 +843,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       } else if (layoutImpl_->clearSides_ == Verticals) {
 	element.setProperty(PropertyStyleClear, "both");
       }
-#endif // WT_TARGET_JAVA
 
       if (!layoutImpl_->minimumWidth_.isAuto()
 	  && (layoutImpl_->minimumWidth_.value() != 0))
@@ -927,32 +921,32 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   }
 
 
-#ifndef WT_TARGET_JAVA
   if (flags_.test(BIT_FLOAT_SIDE_CHANGED) || all) {
     if (layoutImpl_) {
-      /*
-       * set float
-       */
-      switch (layoutImpl_->floatSide_) {
-      case 0:
+      if (layoutImpl_->floatSide_ == 0) { 
 	if (flags_.test(BIT_FLOAT_SIDE_CHANGED))
 	  element.setProperty(PropertyStyleFloat, "none");
-	break;
-      case Left:
-	element.setProperty(PropertyStyleFloat, "left");
-	break;
-      case Right:
-	element.setProperty(PropertyStyleFloat, "right");
-	break;
-      default:
-	/* illegal values */
-	;
+      }
+      else {
+        /*
+        * set float
+        */
+        switch (layoutImpl_->floatSide_) {
+        case Left:
+	  element.setProperty(PropertyStyleFloat, "left");
+	  break;
+        case Right:
+	  element.setProperty(PropertyStyleFloat, "right");
+	  break;
+        default:
+	  /* illegal values */
+	  ;
+        }
       }
     }
 
     flags_.reset(BIT_FLOAT_SIDE_CHANGED);
   }
-#endif // WT_TARGET_JAVA
 
   if (layoutImpl_) {
     if (flags_.test(BIT_MARGINS_CHANGED) || all) {

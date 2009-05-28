@@ -163,10 +163,8 @@ enum Side {
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(Side)
-#ifndef WT_TARGET_JAVA
 /** \brief No side */
 W_DECLARE_MASK_FOR_FLAGS(Side, None, 0);
-#endif
 /** \brief (CenterX | CenterY) */
 W_DECLARE_MASK_FOR_FLAGS(Side, CenterXY, CenterX | CenterY);
 /** \brief (Left | Right) */

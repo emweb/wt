@@ -213,6 +213,8 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   boot.setVar("USE_COOKIES",
 	      conf.sessionTracking() == Configuration::CookiesURL);
 
+  boot.setVar("HEADDECLARATIONS", headDeclarations());
+
   response.addHeader("Cache-Control", "no-cache, no-store");
   response.addHeader("Expires", "-1");
 
@@ -289,7 +291,7 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 
   collectJavaScript();
 
-  // std::cerr << collectedJS1_.str() << std::endl;
+  //std::cerr << collectedJS1_.str() << std::endl;
 
   response.out()
     << collectedJS1_.str()
@@ -623,6 +625,9 @@ void WebRenderer::serveMainpage(WebResponse& response)
   page.setVar("STYLESHEETS", styleSheets);
 
   page.setVar("TITLE", WWebWidget::escapeText(app->title()).toUTF8());
+
+  page.setVar("HEADDECLARATIONS", headDeclarations());
+  
   app->titleChanged_ = false;
 
   std::string contentType = xhtml ? "application/xhtml+xml" : "text/html";
@@ -1059,6 +1064,17 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
   slot->setJavaScript(result);
 
   return result;
+}
+
+std::string WebRenderer::headDeclarations() const
+{
+  if (!session_.favicon().empty()) {
+    const bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
+
+    return "<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" href=\""
+      + session_.favicon() + (xhtml ? "\"/>" : "\">");
+  } else
+    return std::string();
 }
 
 }

@@ -73,10 +73,20 @@ hasTag: function(e, s) {
   return e.tagName.toUpperCase() === s;
 },
 
-copyhide: function(from, to) {
-  to.style.position = from.style.position;
-  to.style.left = from.style.left;
-  to.style.visibility = from.style.visibility;
+unstub: function(from, to, methodDisplay) {
+  from.parentNode.replaceChild(to,from);
+  if (methodDisplay == 1)
+    to.style.display = from.style.display;
+  else {
+    to.style.position = from.style.position;
+    to.style.left = from.style.left;
+    to.style.visibility = from.style.visibility;
+  }
+
+  if (from.style.height)
+    to.style.height = from.style.height;
+  if (from.style.width)
+    to.style.width = from.style.width;
 },
 
 cancelEvent: function(e) {
@@ -225,11 +235,11 @@ IEwidth: function(c, min, max) {
    - self.px(c.parentNode, 'paddingLeft')
    - self.px(c.parentNode, 'paddingRight');
 
-  var m = /^\s*(\d+)\s*px\s*$/.exec(min);
+  var m = /^\s*(\d+)\.?\d*\s*px\s*$/.exec(min);
   var v = m && m.length == 2 ? m[1] : "0";
   min = v ? parseInt(v) : 0;
 
-  m = /^\s*(\d+)\s*px\s*$/.exec(max);
+  m = /^\s*(\d+)\.?\d*\s*px\s*$/.exec(max);
   v = m && m.length == 2 ? m[1] : "100000";
   max = v ? parseInt(v) : 100000;
 

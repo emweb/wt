@@ -375,7 +375,15 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
       if (!ep)
 	ep = getEntryPoint(request->scriptName());
 
-      session = new WebSession(this, sessionId, ep->type(), *request);
+      std::string favicon = ep->favicon();
+      if (favicon.empty()) {
+	const std::string *confFavicon = conf_.property("favicon");
+        if (confFavicon)
+	  favicon = *confFavicon;
+      }
+
+      session = new WebSession(this, sessionId,
+			       ep->type(), ep->favicon(), *request);
 
       if (configuration().sessionTracking() == Configuration::CookiesURL)
 	request->addHeader("Set-Cookie",

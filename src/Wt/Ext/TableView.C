@@ -396,21 +396,12 @@ void TableView::onEdit(std::string field, int rowId, std::string value)
 {
   int row = dataStore_->rowFromId(rowId);
 
-  /*
-   * Temporarily reset the data store so that we do not propagate the
-   * change back to the GUI, since that is where it is coming from
-   */
-  DataStore *thisDS = dataStore_;
-  dataStore_ = 0;
-
   try {
     int col = boost::lexical_cast<int>(field.substr(1));
     model_->setData(row, col, updateFromJS(model_->data(row, col), value));
   } catch (boost::bad_lexical_cast& e) {
     wApp->log("error") << "Internal error reading field name '" << field << "'";
   }
-
-  dataStore_ = thisDS;
 }
 
 void TableView::refresh()

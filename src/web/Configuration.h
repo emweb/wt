@@ -33,18 +33,21 @@ namespace Wt {
 class WT_API EntryPoint {
  public:
   EntryPoint(WebSession::Type type, ApplicationCreator appCallback,
-	     const std::string& path);
+	     const std::string& path, 
+             const std::string& favicon);
 
   void setPath(const std::string& path);
 
   WebSession::Type   type() const { return type_; }
   ApplicationCreator appCallback() const { return appCallback_; }
   const std::string& path() const { return path_; }
+  const std::string& favicon() const { return favicon_; }
 
  private:
   WebSession::Type   type_;
   ApplicationCreator appCallback_;
   std::string        path_;
+  std::string        favicon_;
 };
 
 typedef std::vector<EntryPoint> EntryPointList;
@@ -101,6 +104,7 @@ public:
   int                sessionIdLength() const { return sessionIdLength_; }
   std::string        sessionIdPrefix() const { return sessionIdPrefix_; }
   const PropertyMap& properties() const { return properties_; }
+  const std::string* property(const std::string& name) const; 
   ServerType         serverType() const { return serverType_; }
   bool               sendXHTMLMimeType() const { return xhtmlMimeType_; }
   bool               behindReverseProxy() const { return behindReverseProxy_; }

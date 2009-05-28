@@ -170,9 +170,19 @@ public:
    * called to create a new application. If empty, the URL is inferred
    * from the server configuration's deploy-path (see also \ref
    * config_wthttpd "Built-in httpd configuration").
+   *
+   * The path must start with a '/'.
+   *
+   * The optional <i>favicon</i> is a URL path (which should not
+   * contain the host part!) to a favicon, which is the icon displayed
+   * in the browser for your application. Alternatively, you may
+   * specify a favicon using the "favicon" property in the
+   * configuration file (see als \ref config_general "Application
+   * settings (wt_config.xml)").
    */
   void addEntryPoint(EntryPointType type, ApplicationCreator callback,
-		     const std::string& path = std::string());
+		     const std::string& path = std::string(),
+                     const std::string& favicon = std::string());
 
   /*! \brief Starts the server in the background.
    *

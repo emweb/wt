@@ -1,3 +1,25 @@
+28-05-2009:
+	* WMenu: show vertical scrollbar when needed
+
+	* WGridLayout: support row stretch value of -1, like 0, but
+	indicates that height of cell contents for that row still needs to
+	be managed
+
+	* DomElement.C: fix IE6 min/max-width workaround bugs
+
+	* WStackedWidget: make behave well in layout managers
+
+	* WPainter::Image: add constructor that fetches image dimensions
+	from file (from Daniel Derr)
+
+	* DomElement.C: fix style.float -> style.cssFloat or
+	style.styleFloat property
+
+26-05-2009:
+	* WebRenderer, Configuration, WebSession, http/WServer: add support
+	for a favicon per EntryPoint, and in general for a favicon not in
+	"/favicon.ico"
+
 18-05-2009:
 	* WAbstractItemModel: add reset() method and modelReset() signal, which
 	are used to invalidate the whole model. Adjusted the views to listen

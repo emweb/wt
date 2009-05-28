@@ -24,7 +24,7 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
   : WInteractWidget(parent),
     label_(0),
     validator_(0),
-    validate_(0),
+    validateJs_(0),
     filterInput_(0)
 {
   flags_.set(BIT_ENABLED);
@@ -53,7 +53,7 @@ WFormWidget::~WFormWidget()
   if (validator_)
     validator_->removeFormWidget(this);
 
-  delete validate_;
+  delete validateJs_;
   delete filterInput_;
 }
 
@@ -138,23 +138,23 @@ void WFormWidget::validatorChanged()
 {
   std::string validateJS = validator_->javaScriptValidate(jsRef());
   if (!validateJS.empty()) {
-    if (!validate_) {
-      validate_ = new JSlot(this);
+    if (!validateJs_) {
+      validateJs_ = new JSlot(this);
 
-      keyWentUp().connect(*validate_);
-      changed().connect(*validate_);
-      clicked().connect(*validate_);
+      keyWentUp().connect(*validateJs_);
+      changed().connect(*validateJs_);
+      clicked().connect(*validateJs_);
     }
 
-    validate_->setJavaScript
+    validateJs_->setJavaScript
       ("function(self, event){"
        "var v=" + validateJS + ";"
        "self.className= v.valid ? '' : 'Wt-invalid';"
        "if (v.valid) self.removeAttribute('title');"
        "else self.setAttribute('title', v.message);}"); 
   } else {
-    delete validate_;
-    validate_ = 0;
+    delete validateJs_;
+    validateJs_ = 0;
   }
 
   std::string inputFilter = validator_->inputFilter();
@@ -253,8 +253,8 @@ void WFormWidget::setValidator(WValidator *validator)
     validatorChanged();
     setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
   } else {
-    delete validate_;
-    validate_ = 0;
+    delete validateJs_;
+    validateJs_ = 0;
     delete filterInput_;
     filterInput_ = 0;
   }

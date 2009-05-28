@@ -199,6 +199,7 @@ void WBoxLayout::insertItem(int index, WLayoutItem *item, int stretch,
     if (grid_.items_.empty()) {
       grid_.items_.push_back(std::vector<Impl::Grid::Item>());
       grid_.rows_.push_back(Impl::Grid::Row());
+      // grid_.rows_[0].stretch_ = -1; // make height managed ?
     }
     grid_.items_[0].insert(grid_.items_[0].begin() + index,
 			   Impl::Grid::Item(item, alignment));

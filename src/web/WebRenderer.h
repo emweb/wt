@@ -117,6 +117,8 @@ private:
   std::stringstream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_;
   void              collectJS(std::ostream *js);
 
+  std::string headDeclarations() const;
+
   typedef std::set<WWidget *> UpdateMap;
   UpdateMap updateMap_;
   bool      learning_;

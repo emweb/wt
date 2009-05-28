@@ -117,7 +117,6 @@ WLength WCompositeWidget::lineHeight() const
   return impl_->lineHeight();
 }
 
-#ifndef WT_TARGET_JAVA
 void WCompositeWidget::setFloatSide(Side s)
 {
   impl_->setFloatSide(s);
@@ -137,7 +136,6 @@ WFlags<Side> WCompositeWidget::clearSides() const
 {
   return impl_->clearSides();
 }
-#endif // WT_TARGET_JAVA
 
 void WCompositeWidget::setMargin(const WLength& margin, WFlags<Side> sides)
 {

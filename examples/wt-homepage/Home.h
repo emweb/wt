@@ -8,6 +8,7 @@
 #define HOME_H_
 
 #include <Wt/WApplication>
+#include <Wt/WContainerWidget>
 
 namespace Wt {
   class WMenu;
@@ -19,12 +20,76 @@ namespace Wt {
 
 using namespace Wt;
 
+struct Lang {
+  Lang(std::string code, std::string path, std::string shortDescription, std::string longDescription) :
+    code_(code),
+    path_(path),
+    shortDescription_(shortDescription),
+    longDescription_(longDescription) {
+  }
+  std::string code_, path_, shortDescription_, longDescription_;
+};
+
+/*
+ * A utility container widget which defers creation of its single
+ * child widget until the container is loaded (which is done on-demand
+ * by a WMenu). The constructor takes the create function for the
+ * widget as a parameter.
+ *
+ * We use this to defer widget creation until needed.
+ */
+template <typename Function>
+class DeferredWidget : public WContainerWidget
+{
+public:
+  DeferredWidget(Function f)
+    : f_(f) { }
+
+private:
+  void load() {
+    WContainerWidget::load();
+    addWidget(f_());
+  }
+
+  Function f_;
+};
+
+template <typename Function>
+DeferredWidget<Function> *deferCreate(Function f)
+{
+  return new DeferredWidget<Function>(f);
+}
+
 class Home : public WApplication
 {
 public:
-  Home(const WEnvironment& env);
+  Home(const WEnvironment& env,
+      const std::string& resourceBundle, const std::string& cssPath);
+  
+  virtual ~Home();
 
   void refresh();
+  void logInternalPath();
+
+protected:
+  virtual WWidget *examples() = 0;
+  virtual WWidget *download() = 0;
+
+  void init();
+  
+  void addLanguage(const Lang& l) { languages.push_back(l); }
+  
+  WTreeNode *makeTreeMap(const std::string name, WTreeNode *parent);
+  WTreeNode *makeTreeFile(const std::string name, WTreeNode *parent);
+  
+  WTabWidget *examplesMenu_;
+  
+  WString tr(const char *key);
+  std::string href(const std::string url,
+			  const std::string description);
+
+  WTable *releases_;
+  void readReleases(WTable *releaseTable, const std::string releasefile);
 
 private:
   WStackedWidget *contents_;
@@ -34,46 +99,26 @@ private:
   WWidget *status();
   WWidget *features();
   WWidget *documentation();
-  WWidget *examples();
-  WWidget *download();
   WWidget *community();
 
   WTable *recentNews_;
   WTable *historicalNews_;
-  WTable *releases_;
 
   WMenu *mainMenu_;
-  WTabWidget *examplesMenu_;
 
   int language_;
 
   void readNews(WTable *newsTable, const std::string newsfile);
-  void readReleases(WTable *releaseTable, const std::string releasefile);
-  static std::string href(const std::string url,
-			  const std::string description);
-
-  WTreeNode *makeTreeMap(const std::string name, WTreeNode *parent);
-  WTreeNode *makeTreeFile(const std::string name, WTreeNode *parent);
-
-  WWidget *helloWorldExample();
-  WWidget *chartExample();
-  WWidget *homepageExample();
-  WWidget *treeviewExample();
-  WWidget *gitExample();
-  WWidget *chatExample();
-  WWidget *composerExample();
-  WWidget *widgetGalleryExample();
-
+  
   WWidget *wrapViewOrDefer(WWidget *(Home::*createFunction)());
 
   void updateTitle();
-  void logInternalPath();
   void setLanguage(int language);
   void setLanguageFromPath(std::string prefix);
 
-  static WString tr(const char *key);
-
   WContainerWidget *sideBarContent_;
+  
+  std::vector<Lang> languages;
 };
 
 #endif // HOME_H_
