@@ -46,7 +46,7 @@ bool bindUDStoStdin(const std::string& socketPath, Wt::Configuration& conf)
   }
 
   struct sockaddr_un local;
-  local.sun_family = AF_LOCAL;
+  local.sun_family = AF_UNIX;
 
   strncpy (local.sun_path, socketPath.c_str(), sizeof (local.sun_path));
   local.sun_path[sizeof (local.sun_path) - 1] = '\0';
@@ -819,6 +819,8 @@ int WServer::waitForShutdown()
 {
   for (;;)
     sleep(10000);
+
+  return 0;
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)

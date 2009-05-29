@@ -1,3 +1,8 @@
+29-05-2009:
+	* fcgi/Server.C: build fixes for FreeBSD and OpenSolaris
+
+	* fcgi/Server.C: implement a (mostly stub) WServer implementation
+
 28-05-2009:
 	* WMenu: show vertical scrollbar when needed
 

@@ -51,6 +51,7 @@ WPainter::Image::Image(const std::string& uri, int width, int height)
     height_(height)
 { }
 
+#ifndef WT_TARGET_JAVA
 WPainter::Image::Image(const std::string& uri, const std::string& fileName)
   : uri_(uri)
 {
@@ -76,7 +77,7 @@ WPainter::Image::Image(const std::string& uri, const std::string& fileName)
 		      | int(header[21])) << 8
 		    | int(header[22])) << 8
 		  | int(header[23]));
-    } else if ((memcmp(header,"GIF8", 4) == 0)
+    } else if ((std::memcmp(header,"GIF8", 4) == 0)
 	       && ((header[4] == '9') || (header[4] == '7'))
 	       && (header[5] == 'a')) {
       // GIF FILE
@@ -88,6 +89,7 @@ WPainter::Image::Image(const std::string& uri, const std::string& fileName)
   } else
     throw Wt::WtException("'" + fileName + "': could not read");
 }
+#endif // WT_TARGET_JAVA
 
 WPainter::WPainter()
   : device_(0)

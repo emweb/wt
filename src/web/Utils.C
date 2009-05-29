@@ -8,6 +8,7 @@
 #include "DomElement.h"
 #include "Wt/WString"
 
+#include <cstdlib>
 #include <sstream>
 
 namespace Wt {
@@ -136,7 +137,7 @@ void unescapeHexTokens(std::string& v)
     if (v[i] == '%') {
       std::string h = v.substr(i + 1, 2);
       char *e = 0;
-      int hval = strtol(h.c_str(), &e, 16);
+      int hval = std::strtol(h.c_str(), &e, 16);
 
       if (*e != 0)
         continue; // not a proper %XX with XX hexadecimal format
