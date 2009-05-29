@@ -144,9 +144,9 @@
 	       config option that is specified in the whttpd config
 	       file or on the command line (-t).
 
-               The default value is 10.
+               The default value is 1.
 	      -->
-	    <num-threads>10</num-threads>
+	    <num-threads>1</num-threads>
 
 	</connector-fcgi>
 

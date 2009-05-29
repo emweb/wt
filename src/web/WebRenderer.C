@@ -454,6 +454,22 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   streamCommJs(app, response.out());
 
+  WWebWidget *mainWebWidget = app->domRoot_;
+
+  visibleOnly_ = true;
+
+  /*
+   * The element to render. This automatically creates loading stubs for
+   * invisible widgets.
+   */
+  app->loadingIndicatorWidget_->show();
+  DomElement *mainElement = mainWebWidget->createSDomElement(app);
+  app->loadingIndicatorWidget_->hide();
+
+  /*
+   * Need to do this after createSDomElement, since additional CSS/JS
+   * may be made during rendering, e.g. from WViewWidget::render()
+   */
   if (conf.inlineCss())
     app->styleSheet().javaScriptUpdate(app, response.out(), true);
   app->styleSheetsAdded_ = app->styleSheets_.size();
@@ -463,19 +479,6 @@ void WebRenderer::serveMainscript(WebResponse& response)
   loadScriptLibraries(response.out(), app, true);
  
   response.out() << std::endl << app->beforeLoadJavaScript();
-
-  WWebWidget *mainWebWidget = app->domRoot_;
-
-  visibleOnly_ = true;
-
-  /*
-   * The element to render. This automatically creates loading stubs for
-   * invisible widgets, which is excellent for both JavaScript and
-   * non-JavaScript versions.
-   */
-  app->loadingIndicatorWidget_->show();
-  DomElement *mainElement = mainWebWidget->createSDomElement(app);
-  app->loadingIndicatorWidget_->hide();
 
   response.out() << "window.loadWidgetTree = function(){\n";
 
@@ -561,8 +564,8 @@ void WebRenderer::serveMainpage(WebResponse& response)
   visibleOnly_ = true;
 
   /*
-   * The element to render. This automatically creates loading stubs for
-   * invisible widgets, which is excellent for both JavaScript and
+   * The element to render. This automatically creates loading stubs
+   * for invisible widgets, which is also what we want for
    * non-JavaScript versions.
    */
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
@@ -700,17 +703,6 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
 
   streamCommJs(app, response.out());
 
-  if (conf.inlineCss())
-    app->styleSheet().javaScriptUpdate(app, response.out(), true);
-
-  app->styleSheetsAdded_ = app->styleSheets_.size();
-  loadStyleSheets(response.out(), app);
-
-  app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
-  loadScriptLibraries(response.out(), app, true);
- 
-  response.out() << std::endl << app->beforeLoadJavaScript();
-
   WWebWidget *mainWebWidget = app->domRoot_;
 
   visibleOnly_ = true;
@@ -722,6 +714,21 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   app->loadingIndicatorWidget_->show();
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
   app->loadingIndicatorWidget_->hide();
+
+  /*
+   * Need to do this after createSDomElement, since additional CSS/JS
+   * may be made during rendering, e.g. from WViewWidget::render()
+   */
+  if (conf.inlineCss())
+    app->styleSheet().javaScriptUpdate(app, response.out(), true);
+
+  app->styleSheetsAdded_ = app->styleSheets_.size();
+  loadStyleSheets(response.out(), app);
+
+  app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
+  loadScriptLibraries(response.out(), app, true);
+ 
+  response.out() << std::endl << app->beforeLoadJavaScript();
 
   std::string cvar;
   {

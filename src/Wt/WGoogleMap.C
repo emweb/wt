@@ -21,8 +21,6 @@
 #include <cmath>
 
 using std::string;
-using std::vector;
-using std::pair;
 using std::make_pair;
 using std::swap;
 using std::min;
@@ -216,7 +214,7 @@ void WGoogleMap::addMarker(const Coordinate& pos)
   doGmJavaScript(strm.str(), false);
 }
 
-void WGoogleMap::addPolyline(const vector<Coordinate>& points,
+void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
 			     const WColor& color, int width, double opacity)
 {
   // opacity has to be between 0.0 and 1.0
@@ -336,15 +334,15 @@ void WGoogleMap::disableScrollWheelZoom()
   doGmJavaScript(jsRef() + ".map.disableScrollWheelZoom();", false);
 }
 
-void WGoogleMap::zoomWindow(const pair<Coordinate, Coordinate>& bbox)
+void WGoogleMap::zoomWindow(const std::pair<Coordinate, Coordinate>& bbox)
 {
-  pair<Coordinate, Coordinate> bb = bbox;
+  std::pair<Coordinate, Coordinate> bb = bbox;
 
   const Coordinate center
     ((bb.first.latitude() + bb.second.latitude()) / 2.0,
      (bb.first.longitude() + bb.second.longitude()) / 2.0);
 
-  bb = make_pair
+  bb = std::make_pair
     (Coordinate(min(bb.first.latitude(), bb.second.latitude()),
 		min(bb.first.longitude(), bb.second.longitude())),
      Coordinate(max(bb.first.latitude(), bb.second.latitude()),

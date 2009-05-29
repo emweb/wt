@@ -176,6 +176,8 @@ private:
 
 };
 
+#ifndef DOXYGEN_ONLY
+
 template<typename EnumType>
 WFlags<EnumType>::WFlags(const WFlags<EnumType>& other):
   flags_(other.flags_)
@@ -356,6 +358,8 @@ bool operator==(EnumType l, int zero);
 #define W_DECLARE_MASK_FOR_FLAGS(EnumType, n, v) \
   static const unsigned n = (v)
 #endif
+
+#endif // DOXYGEN_ONLY
 
 #endif // WFLAGS_H_
 

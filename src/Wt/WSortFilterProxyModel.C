@@ -14,11 +14,34 @@
 
 namespace Wt {
 
+#ifndef DOXYGEN_ONLY
+#ifndef WT_TARGET_JAVA
 bool WSortFilterProxyModel::Compare::operator()(int sourceRow1,
 						int sourceRow2) const
 {
-  return compare(sourceRow1, sourceRow2) < 0;
+  if (model->sortOrder_ == AscendingOrder)
+    return lessThan(sourceRow1, sourceRow2);
+  else
+    return lessThan(sourceRow2, sourceRow1);
 }
+
+bool WSortFilterProxyModel::Compare::lessThan(int sourceRow1, int sourceRow2)
+  const
+{
+  if (model->sortKeyColumn_ == -1)
+    return sourceRow1 < sourceRow2;
+
+  WModelIndex lhs
+    = model->sourceModel()->index(sourceRow1, model->sortKeyColumn_,
+				  item->sourceIndex_);
+
+  WModelIndex rhs
+    = model->sourceModel()->index(sourceRow2, model->sortKeyColumn_,
+				  item->sourceIndex_);
+
+  return model->lessThan(lhs, rhs);
+}
+#endif // WT_TARGET_JAVA
 
 int WSortFilterProxyModel::Compare::compare(int sourceRow1, int sourceRow2)
   const
@@ -36,12 +59,10 @@ int WSortFilterProxyModel::Compare::compare(int sourceRow1, int sourceRow2)
     = model->sourceModel()->index(sourceRow2, model->sortKeyColumn_,
 				  item->sourceIndex_);
 
-#ifndef WT_TARGET_JAVA
-  return factor * (model->lessThan(lhs, rhs) ? -1 : 1);
-#else
   return factor * model->compare(lhs, rhs);
-#endif
 }
+
+#endif // DOXYGEN_ONLY
 
 WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
   : WAbstractProxyModel(parent),

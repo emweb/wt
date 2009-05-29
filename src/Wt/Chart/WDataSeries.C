@@ -45,7 +45,7 @@ void WDataSeries::bindToAxis(Axis axis)
   set(axis_, axis);
 }
 
-void WDataSeries::setCustomFlags(WFlags<WDataSeries::CustomFlag> flags)
+void WDataSeries::setCustomFlags(WFlags<CustomFlag> flags)
 {
   set(customFlags_, flags);
 }

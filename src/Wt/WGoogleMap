@@ -101,7 +101,7 @@ public:
    *
    *  specify a vaue between 0.0 and 1.0 for the opacity.
    */
-  void addPolyline(const std::vector<Coordinate> &points,
+  void addPolyline(const std::vector<Coordinate>& points,
 		   const WColor& color = red, int width = 2,
 		   double opacity = 1.0);
 

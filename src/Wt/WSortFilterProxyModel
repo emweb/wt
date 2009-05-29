@@ -225,7 +225,11 @@ private:
     Compare(const WSortFilterProxyModel *aModel, Item *anItem)
       : model(aModel), item(anItem) { }
 
+#ifndef WT_TARGET_JAVA
     bool operator()(int sourceRow1, int sourceRow2) const;
+
+    bool lessThan(int sourceRow1, int sourceRow2) const;
+#endif // WT_TARGET_JAVA
 
     int compare(int sourceRow1, int sourceRow2) const;
 

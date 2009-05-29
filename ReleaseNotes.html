@@ -19,11 +19,65 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 2.99.2 (May 29, 2009)</h2>
+
+<p>
+This release contains mostly build improvements, bug fixes, and API cleanups.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1Http_1_1Client.html">Http/Client</a></dt>
+  <dd><samp>Client</samp> is a utility class to bootstrap a new Wt
+  application.</dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1Ext_1_1FormField.html">Ext::FormField</a></dt>
+  <dd>Add setFocus() method.</dd>
+  <dt><a href="classWt_1_1Ext_1_1ToolBar.html">Ext::ToolBar</a></dt>
+  <dd>Added an addStretch() method (contributed by David Galicia).</dd>
+  <dt><a href="classWt_1_1Http_1_1Response.html">Http::Response</a></dt>
+  <dd>Added a continuation() method.</dd>
+  <dt><a href="classWt_1_1WCheckBox.html">WCheckBox</a></dt>
+  <dd>Add support for tri-state checkboxes. These are also supported
+  by item models and WTreeView.</dd>
+  <dt><a href="classWt_1_1WWDialog.html">WDialog</a></dt>
+  <dd>Support for non-modal dialogs and interactive moving.</dd>
+  <dt><a href="classWt_1_1WFormWidget.html">WFormWidget</a></dt>
+  <dd>New methods setReadOnly() and isReadOnly().</dd>
+  <dt><a href="classWt_1_1WGridLayout.html">WGridLayout</a></dt>
+  <dd>Support a row stretch value of -1, which is like 0 but will still
+  manage the height of cells (allowing their contents to fill the entire
+  cell).</dd>
+  <dt><a href="classWt_1_1WPaintDevice.html">WPaintDevice</a></dt>
+  <dd>Support update rendering (not erasing the current canvas) using
+  paint flags.</dd>
+</dl>
+
+<h3>C) API Changes:</h3>
+
+<dl>
+  <dt>WFileUpload::isUploaded() was deprecated</dt>
+  <dd>The name was not covering its actual behavior: instead of
+  checking whether a file has been uploaded, it returns whether true
+  when a call to upload() is not needed. You should replace any call
+  to isUploaded() with the new method
+  <a href="classWt_1_1WFileUpload.htm#66376fb4668a037760a91abad9f83f8al">!canUpload()</a> (<b>note the inversion!</b>.</dd>
+</dl>
+
+<hr />
+
 <h2>Release 2.99.1 (Mar 20, 2009)</h2>
 
 <p>
 This release contains only build improvements, bug fixes, and API cleanups.
 </p>
+
+<hr />
 
 <h2>Release 2.99.0 (Mar 4, 2009)</h2>
 

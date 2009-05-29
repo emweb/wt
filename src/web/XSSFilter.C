@@ -105,7 +105,7 @@ bool XSSFilterRemoveScript(WString& text)
 
   mxml_node_t *top = mxmlNewElement(MXML_NO_PARENT, "span");
   mxml_node_t *first
-    = mxmlSAXLoadString(top, result.c_str(), MXML_NO_CALLBACK,
+    = mxmlSAXLoadString(top, result.c_str(), MXML_OPAQUE_CALLBACK,
 			MyHandler::sax_cb, &handler);
 
   if (first) {
