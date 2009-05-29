@@ -24,8 +24,7 @@ void Response::addHeader(const std::string& name, const std::string& value)
     response_->addHeader(name, value);
 }
 
-ResponseContinuation *
-Response::createContinuation()
+ResponseContinuation *Response::createContinuation()
 {
   if (!continuation_)
     continuation_ = new ResponseContinuation(resource_, response_);
@@ -33,6 +32,14 @@ Response::createContinuation()
     continuation_->resource_ = resource_;
 
   return continuation_;
+}
+
+ResponseContinuation *Response::continuation() const
+{
+  if (continuation_ && continuation_->resource_)
+    return continuation_;
+  else
+    return 0;
 }
 
 WT_BOSTREAM& Response::out()

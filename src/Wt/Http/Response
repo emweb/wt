@@ -60,8 +60,19 @@ public:
    * By creating a continuation object, a new request will be made for
    * the resource to retrieve more data, after the current data has
    * been sent out.
+   *
+   * \sa continuation()
    */
   ResponseContinuation *createContinuation();
+
+  /*! \brief Return the continuation, if one was created for this response.
+   *
+   * Returns the continuation that was previously created using
+   * createContinuation(), or 0 if no continuation was created yet.
+   *
+   * \sa createContinuation()
+   */
+  ResponseContinuation *continuation() const;
 
   /*! \brief Returns the stream for getting the response output.
    */

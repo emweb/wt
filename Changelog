@@ -3,6 +3,9 @@
 
 	* fcgi/Server.C: implement a (mostly stub) WServer implementation
 
+	* Http/Response: add continuation() method to get a continuation
+	created for the response.
+
 28-05-2009:
 	* WMenu: show vertical scrollbar when needed
 
