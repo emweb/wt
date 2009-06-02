@@ -316,7 +316,8 @@ WAbstractItemModel::WAbstractItemModel(WObject *parent)
     dataChanged_(this),
     headerDataChanged_(this),
     layoutAboutToBeChanged_(this),
-    layoutChanged_(this)
+    layoutChanged_(this),
+    modelReset_(this)
 { }
 
 WAbstractItemModel::~WAbstractItemModel()

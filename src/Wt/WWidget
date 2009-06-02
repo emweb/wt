@@ -524,6 +524,17 @@ public:
    */
   virtual void htmlText(std::ostream& out);
 
+  /*! \brief Set as selectable.
+   *
+   * When a widget is made unselectable, a selection of text (or images)
+   * will not be visible (but may still be possible).
+   *
+   * By default, the widget inherits this property from its parent,
+   * and this property propagates to all children. The top level
+   * container (WApplication::root()) selectable by default.
+   */
+  virtual void setSelectable(bool selectable) = 0;
+
   std::string inlineCssStyle();
 
   std::string createJavaScript(std::stringstream& js,

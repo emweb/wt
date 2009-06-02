@@ -1,3 +1,13 @@
+02-06-2009:
+	* WAbstractItemDelegate, WItemDelegate: new classes to which the
+	rendering of a model item is delegated.
+
+	* WTreeView: use WAbstractItemDelegate and WItemDelegates, and
+	API to customize the used item delegate class.
+
+	* WWidget: add setSelectable() method which can enable or disable
+	the rendering of the browser's default text selection handling
+
 29-05-2009:
 	* fcgi/Server.C: build fixes for FreeBSD and OpenSolaris
 

@@ -1,0 +1,167 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WABSTRACTITEMDELEGATE_H_
+#define WABSTRACTITEMDELEGATE_H_
+
+#include <Wt/WObject>
+#include <Wt/WFlags>
+
+namespace Wt {
+
+/*! \brief Enumeration that specifies an option for rendering a view item.
+ *
+ * \sa WAbstractItemDelegate::update()
+ */
+enum ViewItemRenderFlag {
+  RenderSelected = 0x1,  //!< Render as selected
+  RenderEditing = 0x2    //!< Render in editing mode
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(ViewItemRenderFlag)
+
+class WWidget;
+class WModelIndex;
+
+/*! \class WAbstractItemDelegate Wt/WAbstractItemDelegate Wt/WAbstractItemDelegate
+ *  \brief Abstract delegate class for rendering a view item.
+ *
+ * Rendering of an item in a WTreeView is delegated to an
+ * implementation of this delegate class. The default implementation
+ * used by WTreeView is WItemDelegate. To provide specialized
+ * rendering support, you can reimplement this class, and indicate to
+ * the treeview to use this delegate for rendering items.
+ *
+ * As a delegate is used for rendering multiple items, the class should
+ * not keep state about one specific item.
+ *
+ * An example of a delegate that always renders the text in a line-edit,
+ * and saves the modified value back to the (editable) model.
+ * \code
+// A custom delegate that uses an EditItem
+class EditItemDelegate : public WAbstractItemDelegate
+{
+  class EditItem;
+
+public:
+  EditItemDelegate(WObject *parent = 0)
+    : WAbstractItemDelegate(parent)
+  { }
+
+  // Creates or updates an EditItem
+  WWidget *update(WWidget *widget, const WModelIndex& index,
+		  WFlags<ViewItemRenderFlag> flags)
+  {
+    EditItem *item;
+
+    if (widget) {
+      item = dynamic_cast<EditItem *>(widget);
+    } else {
+      item = new EditItem(index);
+      widget = item;
+    }
+
+    boost::any text = index.data(DisplayRole);
+    item->edit()->setText(asString(text));
+
+    return widget;
+  }
+
+  // Updates the model index of the EditItem
+  void updateModelIndex(WWidget *widget, const WModelIndex& index)
+  {
+    EditItem *item = dynamic_cast<EditItem *>(widget);
+    item->setIndex(index);
+  }
+
+private:
+
+  // A custom item widget that contains only a WLineEdit
+  class EditItem : public WContainerWidget
+  {
+  public:
+    EditItem(const WModelIndex& index)
+      : index_(index)
+    {
+      edit_ = new WLineEdit(this);
+      edit_->changed().connect(SLOT(this, EditItem::onEdit));
+
+      setAttributeValue("style", "line-height: 1em;"); // Otherwise the line edit overflows the cell
+      setSelectable(true);                             // WTreeView by default disables selection
+    }
+
+    // Updates the model index
+    void setIndex(const WModelIndex& index) { index_ = index; }
+
+    // Returns the editor
+    WLineEdit *edit() const { return edit_; }
+
+  private:
+    WLineEdit  *edit_;
+    WModelIndex index_;
+
+    // Updates the model with the edited value
+    void onEdit() {
+      WAbstractItemModel *model
+        = const_cast<WAbstractItemModel *>(index_.model());
+
+      model->setData(index_, edit_->text());
+    }
+  };
+};
+ * \endcode
+ *
+ *
+ * \sa WTreeView::setItemDelegate(), WTreeView::setItemDelegateForColumn()
+ *
+ * \ingroup modelview
+ */
+class WAbstractItemDelegate : public WObject
+{
+public:
+  /*! \brief Constructor.
+   */
+  WAbstractItemDelegate(WObject *parent = 0);
+
+  /*! \brief Desturctor.
+   */
+  virtual ~WAbstractItemDelegate();
+
+  /*! \brief Create or update a widget that renders an item.
+   *
+   * The item is specified by its model <i>index</i>, which also
+   * indicates the model. If an existing widget already renders the
+   * item, but needs to be updated, it is passed as the <i>widget</i>
+   * parameter. You may decide to create a new widget, in which case
+   * you are responsible to delete the previous <i>widget</i> if it is
+   * not reused.
+   *
+   * When <i>widget</i> is <tt>null</tt>, a new widget needs to be
+   * created.
+   *
+   * The <i>flags</i> parameter indicates options for rendering the
+   * item.
+   */
+  virtual WWidget *update(WWidget *widget, const WModelIndex& index,
+			  WFlags<ViewItemRenderFlag> flags) = 0;
+
+  /*! \brief Update the model index of a widget.
+   *
+   * This method is invoked by the view when due to row/column insertions or
+   * removals, an index was modified for a widget.
+   *
+   * You should reimplement this method if you are storing the model
+   * index (e.g. for editing purposes) in the <i>widget</i>, which
+   * you should update to the new <i>index</i>.
+   *
+   * The default implementation does nothing.
+   */
+  virtual void updateModelIndex(WWidget *widget, const WModelIndex& index);
+};
+
+}
+
+#endif // WABSTRACTITEMDELEGATE_H_

@@ -9,11 +9,10 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WAbstractItemModel"
-#include "Wt/WAnchor"
 #include "Wt/WApplication"
-#include "Wt/WCheckBox"
 #include "Wt/WEnvironment"
 #include "Wt/WIconPair"
+#include "Wt/WItemDelegate"
 #include "Wt/WItemSelectionModel"
 #include "Wt/WImage"
 #include "Wt/WTable"
@@ -32,10 +31,7 @@
    - stateless slot implementations
    - keyboard navigation ?
 
-  bugs:
-   - reconnect checkedChange signals when shifting rows in a node
-
-  editing
+  editing triggers
 */
 
 #ifndef DOXYGEN_ONLY
@@ -155,22 +151,16 @@ private:
   int            childrenHeight_;
   WTreeViewNode *parentNode_;
 
-  bool                childrenLoaded_;
-  WIconPair          *expandIcon_;
-  WImage             *noExpandIcon_;
+  bool           childrenLoaded_;
+  WIconPair     *expandIcon_;
+  WImage        *noExpandIcon_;
 
   void loadChildren();
 
   WModelIndex childIndex(int column);
 
-  WAnchor   *anchorWidget(int column);
-  WCheckBox *checkBox(int column, bool autoCreate, bool triState = false);
-  WImage    *iconWidget(int column, bool autoCreate = false);
-  WText     *textWidget(int column);
   WWidget   *widget(int column);
   void       setWidget(int column, WWidget *w, bool replace);
-
-  void checkChanged(int column);
 };
 
 void RowSpacer::setRows(int height, bool force)
@@ -256,65 +246,17 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
   for (int i = firstColumn; i <= lastColumn; ++i) {
     WModelIndex child = childIndex(i);
 
-    bool haveCheckBox = false;
+    WWidget *currentW = widget(i);
 
-    if (child.flags() & ItemIsUserCheckable) {
-      boost::any checkedData = child.data(CheckStateRole);
-      CheckState state = checkedData.empty() ? Unchecked
-	: (checkedData.type() == typeid(bool) ?
-	   (boost::any_cast<bool>(checkedData) ? Checked : Unchecked)
-	   : (checkedData.type() == typeid(CheckState) ?
-	      boost::any_cast<CheckState>(checkedData) : Unchecked));
-      checkBox(i, true, child.flags() & ItemIsTristate)->setCheckState(state);
-      haveCheckBox = true;
-    } else
-      delete checkBox(i, false);
+    WFlags<ViewItemRenderFlag> renderFlags = 0;
+    if (view_->selectionBehavior() == SelectItems && view_->isSelected(child))
+      renderFlags |= RenderSelected;
 
-    std::string internalPath = asString(child.data(InternalPathRole)).toUTF8();
-    std::string url = asString(child.data(UrlRole)).toUTF8();
+    WWidget *newW = view_->itemDelegate(child)->update(currentW, child,
+						       renderFlags);
 
-    if (!internalPath.empty() || !url.empty()) {
-      WAnchor *a = anchorWidget(i);
-
-      if (!internalPath.empty())
-	a->setRefInternalPath(internalPath);
-      else
-	a->setRef(url);
-    }
-
-    WText *t = textWidget(i);
-
-    WString label = asString(child.data(), view_->columnFormat(i));
-    if (label.empty() && haveCheckBox)
-      label = WString::fromUTF8(" ");
-    t->setText(label);
-
-    std::string iconUrl = asString(child.data(DecorationRole)).toUTF8();
-    if (!iconUrl.empty()) {
-      iconWidget(i, true)->setImageRef(iconUrl);
-    } else if (iconUrl.empty()) {
-      delete iconWidget(i, false);
-    }
-
-    WWidget *w = widget(i);
-    WString tooltip = asString(child.data(ToolTipRole));
-    w->setToolTip(tooltip);
-
-    if (i != 0) {
-      WT_USTRING sc = asString(child.data(StyleClassRole));
-
-      if (view_->selectionBehavior() == SelectItems && view_->isSelected(child))
-	sc += WT_USTRING::fromUTF8(" selected");
-
-      if (!sc.empty()) {
-	w->setStyleClass(w->styleClass() + " " + sc);
-      }
-    }
-
-    if (child.flags() & ItemIsDropEnabled)
-      w->setAttributeValue("drop", WString::fromUTF8("true"));
-    else
-      w->setAttributeValue("drop", WString::fromUTF8("false"));
+    if (newW != currentW)
+      setWidget(i, newW, currentW != 0);
   }
 }
 
@@ -385,16 +327,6 @@ void WTreeViewNode::insertColumns(int column, int count)
     tc->insertWidget(0, row);
   }
 
-  for (int i = 0; i < view_->columnCount(); ++i) {
-    WText *w = new WText();
-    WModelIndex child = childIndex(i);
-    if (child.isValid() && !(child.flags() & ItemIsXHTMLText))
-      w->setTextFormat(PlainText);
-
-    w->setWordWrap(true);
-    setWidget(i, w, false);
-  }
-
   update(0, view_->columnCount() - 1);
 }
 
@@ -414,194 +346,6 @@ WModelIndex WTreeViewNode::childIndex(int column)
   return view_->model()->index(index_.row(), column, index_.parent());
 }
 
-/*
- * Possible layouts:
- *  1) WText
- * or
- *  2) WContainerWidget ([WCheckbox] [WImage] [inv] WText)
- * or
- *  3) WAnchor ([WImage] [inv] WText)
- * or
- *  4) WContainerWidget ([WCheckbox] WAnchor ([Image] [inv] WText))
- */
-
-WText *WTreeViewNode::textWidget(int column)
-{
-  WWidget *w = widget(column);
-
-  /*
-   * Case 1
-   */
-  WText *result = dynamic_cast<WText *>(w);
-  if (result)
-    return result;
-
-  /* Cases 2-3 */
-  WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w);
-
-  result = dynamic_cast<WText *>(wc->widget(wc->count() - 1));
-  if (result)
-    return result;
-
-  /* Case 4 */
-  wc = dynamic_cast<WContainerWidget *>(wc->widget(wc->count() - 1));
-
-  return dynamic_cast<WText *>(wc->widget(wc->count() - 1));
-}
-
-WImage *WTreeViewNode::iconWidget(int column, bool autoCreate)
-{
-  WWidget *w = widget(column);
-
-  /*
-   * Case 1
-   */
-  WText *result = dynamic_cast<WText *>(w);
-  if (result)
-    if (autoCreate) {
-      WContainerWidget *wc = new WContainerWidget();
-      setWidget(column, wc, true);
-
-      WImage *image = new WImage();
-      image->setStyleClass("icon");
-      wc->addWidget(image);
-
-      // IE does not want to center vertically without this:
-      if (wApp->environment().agentIsIE()) {
-	WImage *inv = new WImage(wApp->onePixelGifUrl());
-	inv->setStyleClass("rh w0 icon");
-	wc->addWidget(inv);
-      }
-
-      wc->addWidget(w);
-
-      return image;
-    } else
-      return 0;
-
-  /* Cases 2-4 */
-  WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w);
-
-  for (int i = 0; i < wc->count(); ++i) {
-    WImage *image = dynamic_cast<WImage *>(wc->widget(i));
-    if (image)
-      return image;
-
-    WAnchor *anchor = dynamic_cast<WAnchor *>(wc->widget(i));
-    if (anchor) {
-      wc = anchor;
-      i = -1;
-    }
-  }
-
-  if (autoCreate) {
-    WImage *image = new WImage();
-    image->setStyleClass("icon");
-    wc->insertWidget(wc->count() - 1, image);
-
-    // IE does not want to center vertically without this:
-    if (wApp->environment().agentIsIE()) {
-      WImage *inv = new WImage(wApp->onePixelGifUrl());
-      inv->setStyleClass("rh w0 icon");
-      wc->insertWidget(wc->count() - 1, inv);
-    }
-
-    return image;
-  } else
-    return 0;
-}
-
-WAnchor *WTreeViewNode::anchorWidget(int column)
-{
-  WWidget *w = widget(column);
-  
-  /*
-   * Case 3
-   */
-  WAnchor *result = dynamic_cast<WAnchor *>(w);
-  if (result)
-    return result;
-  else {
-    /*
-     * Case 1
-     */
-    WText *text = dynamic_cast<WText *>(w);
-    if (text) {
-      WAnchor *a = new WAnchor();
-      setWidget(column, a, true);
-
-      a->addWidget(w);
-
-      return a;
-    }
-
-    /*
-     * Case 4
-     */
-    WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w);
-    WWidget *lw = wc->widget(wc->count() - 1);
-
-    WAnchor *a = dynamic_cast<WAnchor *>(lw);
-    if (a)
-      return a;
-
-    /*
-     * Case 2
-     */
-    a = new WAnchor();
-    int firstToMove = 0;
-
-    WCheckBox *cb = dynamic_cast<WCheckBox *>(wc->widget(0));
-    if (cb)
-      firstToMove = 1;
-
-    wc->insertWidget(firstToMove, a);
-
-    while (wc->count() > firstToMove + 1) { 
-      WWidget *c = wc->widget(firstToMove + 1);
-      wc->removeWidget(c);
-      a->addWidget(c);
-    }
-
-    return a;
-  }
-}
-
-WCheckBox *WTreeViewNode::checkBox(int column, bool autoCreate, bool triState)
-{
-  WWidget *w = widget(column);
-
-  WText *t = dynamic_cast<WText *>(w);
-  WAnchor *a = dynamic_cast<WAnchor *>(w);
-  WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w);
-
-  /*
-   * Case 1 or 3
-   */
-  if (t || a)
-    if (autoCreate) {
-      wc = new WContainerWidget();
-      setWidget(column, wc, true);
-      wc->addWidget(w);
-    } else
-      return 0;
-
-  WCheckBox *cb = dynamic_cast<WCheckBox *>(wc->widget(0));
-
-  if (!cb && autoCreate) {
-    cb = new WCheckBox(false, 0);
-    wc->insertWidget(0, cb);
-
-    view_->checkedChangeMapper_->mapConnect
-      (cb->changed(), WTreeView::CheckedInfo(childIndex(column), cb));
-  }
-
-  if (cb)
-    cb->setTristate(triState);
-
-  return cb;
-}
-
 void WTreeViewNode::setWidget(int column, WWidget *newW, bool replace)
 {
   WTableCell *tc = elementAt(0, 1);
@@ -612,7 +356,8 @@ void WTreeViewNode::setWidget(int column, WWidget *newW, bool replace)
     newW->setStyleClass(current->styleClass());
     current->setStyleClass("");
   } else
-    newW->setStyleClass("Wt-tv-c rh " + view_->columnStyleClass(column));
+    newW->setStyleClass("Wt-tv-c rh " + view_->columnStyleClass(column)
+			+ " " + newW->styleClass());
 
   if (column == 0) {
     if (current)
@@ -642,13 +387,13 @@ WWidget *WTreeViewNode::widget(int column)
   WTableCell *tc = elementAt(0, 1);
 
   if (column == 0)
-    return tc->widget(tc->count() - 1);
+    return tc->count() > 1 ? tc->widget(tc->count() - 1) : 0;
   else {
     WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
     if (view_->column1Fixed_)
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
-    return row->widget(column - 1);
+    return row->count() >= column ? row->widget(column - 1) : 0;
   }
 }
 
@@ -797,6 +542,15 @@ void WTreeViewNode::shiftModelIndexes(int start, int offset)
 
       n->index_ = view_->model()->index(n->modelIndex().row() + offset,
 					n->modelIndex().column(), index_);
+
+      // update items through delegate
+      int lastColumn = std::min(view_->columnCount() - 1,
+				view_->model()->columnCount(index_) - 1);
+
+      for (int j = 0; j <= lastColumn; ++j) {
+	WModelIndex child = n->childIndex(j);
+	view_->itemDelegate(child)->updateModelIndex(n->widget(j), child);
+      }
 
       view_->addRenderedNode(n);
     }
@@ -977,7 +731,8 @@ WTreeView::ColumnInfo::ColumnInfo(const WTreeView *view, WApplication *app,
     alignment(AlignLeft),
     headerAlignment(AlignLeft),
     extraHeaderWidget(0),
-    sorting(view->sorting_)
+    sorting(view->sorting_),
+    itemDelegate_(0)
 {
   styleRule = new WCssTemplateRule("#" + view->formName()
 				   + " ." + this->styleClass());
@@ -997,6 +752,7 @@ std::string WTreeView::ColumnInfo::styleClass() const
 WTreeView::WTreeView(WContainerWidget *parent)
   : WCompositeWidget(0),
     model_(0),
+    itemDelegate_(new WItemDelegate(this)),
     selectionModel_(new WItemSelectionModel(0, this)),
     rowHeight_(20),
     headerHeight_(20),
@@ -1039,9 +795,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   WApplication *app = WApplication::instance();
 
-  checkedChangeMapper_ = new WSignalMapper<CheckedInfo>(this);
-  checkedChangeMapper_->mapped().connect(SLOT(this, WTreeView::onCheckedChange));
-
   clickedForSortMapper_ = new WSignalMapper<int>(this);
   clickedForSortMapper_->mapped().connect(SLOT(this,
 					     WTreeView::toggleSortColumn));
@@ -1053,8 +806,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   itemEvent_.connect(SLOT(this, WTreeView::onItemEvent));
 
-  setStyleClass("Wt-treeview unselectable");
-  setAttributeValue("onselectstart", "return false;");
+  setStyleClass("Wt-treeview");
 
   imagePack_ = WApplication::resourcesUrl();
 
@@ -1076,8 +828,8 @@ WTreeView::WTreeView(WContainerWidget *parent)
       (".Wt-treeview .header-div",
        "-moz-user-select: none;"
        "-khtml-user-select: none;"
-       "background-color: #EEEEEE;"
        "user-select: none;"
+       "background-color: #EEEEEE;"
        "overflow: hidden;"
        "width: 100%;");
 
@@ -1252,7 +1004,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
   headerContainer_->setStyleClass("header headerrh cwidth");
   headers_ = new WContainerWidget(headerContainer_);
   headers_->setStyleClass("header-div headerrh");
-  headers_->setAttributeValue("unselectable", "on");
+  headers_->setSelectable(false);
 
   headerHeightRule_ = new WCssTemplateRule("#" + formName() + " .headerrh");
   app->styleSheet().addRule(headerHeightRule_);
@@ -1543,7 +1295,7 @@ void WTreeView::setColumn1Fixed(bool fixed)
   if (fixed && !column1Fixed_) {
     column1Fixed_ = fixed;
 
-    setStyleClass("Wt-treeview column1 unselectable");
+    setStyleClass("Wt-treeview column1");
     WContainerWidget *rootWrap
       = dynamic_cast<WContainerWidget *>(contents_->widget(0));
     rootWrap->resize(WLength(100, WLength::Percentage), WLength::Auto);
@@ -1593,12 +1345,26 @@ std::string WTreeView::columnStyleClass(int column) const
 
 void WTreeView::setColumnFormat(int column, const WT_USTRING& format)
 {
-  columnInfo(column).format = format;
+  ColumnInfo& info = columnInfo(column);
+
+  WItemDelegate *id;
+  if (info.itemDelegate_)
+    id = dynamic_cast<WItemDelegate *>(info.itemDelegate_);
+  else
+    info.itemDelegate_ = id = new WItemDelegate(this);
+
+  if (id)
+    id->setTextFormat(format);
 }
 
 WT_USTRING WTreeView::columnFormat(int column) const
 {
-  return columnInfo(column).format;
+  ColumnInfo& info = columnInfo(column);
+  if (info.itemDelegate_) {
+    WItemDelegate *id = dynamic_cast<WItemDelegate *>(info.itemDelegate_);
+    return id ? id->textFormat() : WT_USTRING();
+  } else
+    return WT_USTRING();
 }
 
 void WTreeView::setColumnWidth(int column, const WLength& width)
@@ -1888,6 +1654,29 @@ SelectionBehavior WTreeView::selectionBehavior() const
   return selectionModel_->selectionBehavior();
 }
 
+void WTreeView::setItemDelegate(WAbstractItemDelegate *delegate)
+{
+  itemDelegate_ = delegate;
+}
+
+void WTreeView::setItemDelegateForColumn(int column,
+					 WAbstractItemDelegate *delegate)
+{
+  columnInfo(column).itemDelegate_ = delegate;
+}
+
+WAbstractItemDelegate *WTreeView::itemDelegateForColumn(int column) const
+{
+  return columnInfo(column).itemDelegate_;
+}
+
+WAbstractItemDelegate *WTreeView::itemDelegate(const WModelIndex& index) const
+{
+  WAbstractItemDelegate *result = itemDelegateForColumn(index.column());
+
+  return result ? result : itemDelegate_;
+}
+
 void WTreeView::render()
 {
   while (renderState_ != RenderOk) {
@@ -1945,7 +1734,6 @@ void WTreeView::rerenderHeader()
   rowc->setFloatSide(Right);
   WContainerWidget *row = new WContainerWidget(rowc);
   row->setStyleClass("Wt-tv-row headerrh");
-  row->setAttributeValue("unselectable", "on");
 
   if (column1Fixed_) {
     row = new WContainerWidget(row);
@@ -1983,7 +1771,6 @@ void WTreeView::rerenderHeader()
     else
       t->setStyleClass(columnStyleClass(0) + " Wt-label");
   t->setInline(false);
-  t->setAttributeValue("unselectable", "on");
   t->setAttributeValue("style", "float: none; margin: 0px auto;"
 		       "padding-left: 6px;");
 
@@ -2031,7 +1818,6 @@ WWidget *WTreeView::createHeaderWidget(WApplication *app, int column)
   WText *t = new WText("&nbsp;", w);
   t->setStyleClass("Wt-label");
   t->setInline(false);
-  t->setAttributeValue("unselectable", "on");
   if (multiLineHeader_ || app->environment().agentIsIE())
     t->setWordWrap(true);
   else
@@ -2055,6 +1841,7 @@ void WTreeView::rerenderTree()
 
   rootNode_ = new WTreeViewNode(this, rootIndex_, -1, true, 0);
   rootNode_->resize(WLength(100, WLength::Percentage), 1);
+  rootNode_->setSelectable(false);
 
   if (WApplication::instance()->environment().ajax()) {
     rootNode_->clicked().connect(itemClickedJS_);
@@ -2078,16 +1865,6 @@ void WTreeView::onViewportChange(WScrollEvent e)
     (std::ceil(e.viewportHeight() / rowHeight_.toPixels()));
 
   scheduleRerender(NeedAdjustViewPort);
-}
-
-void WTreeView::onCheckedChange(CheckedInfo info)
-{
-  if (info.checkBox->isTristate())
-    model_->setData(info.index, boost::any(info.checkBox->checkState()),
-		    CheckStateRole);
-  else
-    model_->setData(info.index, boost::any(info.checkBox->isChecked()),
-		    CheckStateRole);
 }
 
 void WTreeView::onItemEvent(std::string nodeId, int columnId, std::string type,

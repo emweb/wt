@@ -59,6 +59,7 @@ Wt/StdLayoutImpl.C
 Wt/StdLayoutItemImpl.C
 Wt/StdWidgetItemImpl.C
 Wt/WAbstractArea.C
+Wt/WAbstractItemDelegate.C
 Wt/WAbstractItemModel.C
 Wt/WAbstractListModel.C
 Wt/WAbstractProxyModel.C
@@ -106,6 +107,7 @@ Wt/WImage.C
 Wt/WInPlaceEdit.C
 Wt/WIntValidator.C
 Wt/WInteractWidget.C
+Wt/WItemDelegate.C
 Wt/WItemSelectionModel.C
 Wt/WJavaScript.C
 Wt/WJavaScriptSlot.C

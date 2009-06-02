@@ -1,0 +1,78 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WITEMDELEGATE_H_
+#define WITEMDELEGATE_H_
+
+#include <Wt/WAbstractItemDelegate>
+#include <Wt/WSignalMapper>
+#include <Wt/WString>
+
+namespace Wt {
+
+  class WAnchor;
+  class WCheckBox;
+  class WContainerWidget;
+  class WImage;
+  class WText;
+
+  class ItemCheckBox;
+
+/*! \class WItemDelegate Wt/WItemDelegate Wt/WItemDelegate
+ *  \brief Standard delegate class for rendering a view item.
+ *
+ * This class provides the standard implementation for rendering an item
+ * in a WTreeView.
+ *
+ * \ingroup modelview
+ */
+class WItemDelegate : public WAbstractItemDelegate
+{
+public:
+  WItemDelegate(WObject *parent = 0);
+
+  virtual WWidget *update(WWidget *widget, const WModelIndex& index,
+			  WFlags<ViewItemRenderFlag> flags);
+
+  virtual void updateModelIndex(WWidget *widget, const WModelIndex& index);
+
+  /*! \brief Set the text format string.
+   *
+   * The DisplayRole data is converted to a string using asString() by passing
+   * the given format.
+   *
+   * The default value is "".
+   */
+  void setTextFormat(const WT_USTRING& format);
+
+  /*! \brief Returns the text format string.
+   *
+   * \sa setTextFormat()
+   */
+  const WT_USTRING& textFormat() const { return textFormat_; }
+
+private:
+  WT_USTRING textFormat_;
+  WSignalMapper<ItemCheckBox *> *checkedChangeMapper_;
+
+  struct WidgetRef {
+    WWidget *w;
+
+    WidgetRef(WWidget *widget) : w(widget) { }
+  };
+
+  ItemCheckBox *checkBox(WidgetRef& w, const WModelIndex& index,
+			 bool autoCreate, bool triState = false);
+  WText *textWidget(WidgetRef& w);
+  WImage *iconWidget(WidgetRef& w, bool autoCreate = false);
+  WAnchor *anchorWidget(WidgetRef& w);
+
+  void onCheckedChange(ItemCheckBox *cb);
+};
+
+}
+
+#endif // WITEMDELEGATE_H_

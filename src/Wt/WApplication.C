@@ -154,9 +154,13 @@ WApplication::WApplication(const WEnvironment& env)
   styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
   styleSheet_.addRule(".Wt-invalid", "background-color: #f79a9a;");
   styleSheet_.addRule(".unselectable",
-		      "-moz-user-select: none;"
+		      "-moz-user-select:-moz-none;"
 		      "-khtml-user-select: none;"
 		      "user-select: none;");
+  styleSheet_.addRule(".selectable",
+		      "-moz-user-select: text;"
+		      "-khtml-user-select: normal;"
+		      "user-select: text;");
   styleSheet_.addRule(".Wt-sbspacer", "float: right; width: 16px; height: 1px;"
 		      "border: 0px; display: none;");
   if (environment().agentIsOpera())

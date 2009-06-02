@@ -98,6 +98,7 @@ public:
   virtual void load();
   virtual bool loaded() const;
   virtual void setId(const std::string& id);
+  virtual void setSelectable(bool selectable);  
 
 protected:
   virtual void addChild(WWidget *child);

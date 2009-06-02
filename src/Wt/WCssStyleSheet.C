@@ -283,7 +283,7 @@ void WCssStyleSheet::javaScriptUpdate(WApplication *app,
       js << WT_CLASS ".addCss('"
 	 << rule->selector() << "',";
       DomElement::jsStringLiteral(js, rule->declarations(), '\'');
-      js << ");";
+      js << ");" << std::endl;
     }
 
     rulesAdded_.clear();
@@ -295,7 +295,7 @@ void WCssStyleSheet::javaScriptUpdate(WApplication *app,
     if (!text.empty()) {
       js << WT_CLASS ".addCssText(";
       DomElement::jsStringLiteral(js, text, '\'');
-      js << ");";
+      js << ");" << std::endl;
     }
   }
 }

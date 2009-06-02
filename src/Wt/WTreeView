@@ -17,6 +17,7 @@
 
 namespace Wt {
 
+class WAbstractItemDelegate;
 class WAbstractItemModel;
 class WApplication;
 class WCheckBox;
@@ -99,7 +100,7 @@ public:
    */
   ~WTreeView();
 
-  /*! \brief Set the model.
+  /*! \brief Sets the model.
    *
    * The view will render the data in the given <i>model</i>. Changes
    * to the model are reflected in the view.
@@ -123,7 +124,7 @@ public:
    */
   WAbstractItemModel *model() const { return model_; }
 
-  /*! \brief Set the root index.
+  /*! \brief Sets the root index.
    *
    * The root index is the model index that is considered the root
    * node. This node itself is not rendered, but all its children are
@@ -142,7 +143,7 @@ public:
    */
   const WModelIndex& rootIndex() const { return rootIndex_; }
 
-  /*! \brief Set the header height.
+  /*! \brief Sets the header height.
    *
    * Use this method to change the header height. You may also enable
    * the use of multi-line headers. By default, the header text is a 
@@ -152,13 +153,13 @@ public:
    */
   void setHeaderHeight(const WLength& height, bool multiLine = false);
 
-  /*! \brief Return the header height.
+  /*! \brief Returns the header height.
    *
    * \sa setHeaderHeight()
    */
   const WLength& headerHeight() const { return headerHeight_; }
 
-  /*! \brief Set the row height.
+  /*! \brief Sets the row height.
    *
    * The view assumes that all rows are of the same height. Use this
    * method to set the height.
@@ -171,11 +172,11 @@ public:
    */
   void setRowHeight(const WLength& rowHeight);
 
-  /*! \brief Return the row height.
+  /*! \brief Returns the row height.
    */
   const WLength& rowHeight() const { return rowHeight_; }
 
-  /*! \brief Set the column format string.
+  /*! \brief Sets the column format string (<b>deprecated</b>).
    *
    * \if cpp
    * The DisplayRole data for that column is converted to a string using
@@ -186,16 +187,24 @@ public:
    * \endif
    *
    * The default value is "".
+   *
+   * \deprecated use itemDelegateForColumn() to customize the formatting. This
+   *             method will create a new WItemDelegate for the
+   *             column, and configure its format.
    */
   void setColumnFormat(int column, const WT_USTRING& format);
 
-  /*! \brief Returns the column format string.
+  /*! \brief Returns the column format string (<b>deprecated</b>).
    *
    * \sa setColumnFormat()
+   *
+   * \deprecated use itemDelegateForColumn() to customize the formatting. This
+   *             method will try to cast the itemDelegateForColumn() to
+   *             a WItemDelegate and return the format.
    */
   WT_USTRING columnFormat(int column) const;
 
-  /*! \brief Set the column width.
+  /*! \brief Sets the column width.
    *
    * For a model with \link WAbstractItemModel::columnCount()
    * columnCount()\endlink == <i>N</i>, the initial width of columns
@@ -215,7 +224,7 @@ public:
    */
   WLength columnWidth(int column) const;
 
-  /*! \brief Set the content alignment for a column.
+  /*! \brief Sets the content alignment for a column.
    *
    * The default value is \link Wt::AlignLeft AlignLeft\endlink.
    *
@@ -226,7 +235,7 @@ public:
    */
   void setColumnAlignment(int column, AlignmentFlag alignment);
 
-  /*! \brief Set the header alignment for a column.
+  /*! \brief Sets the header alignment for a column.
    *
    * The default value is \link Wt::AlignLeft AlignLeft\endlink.
    *
@@ -246,7 +255,7 @@ public:
    */
   AlignmentFlag headerAlignment(int column) const;
 
-  /*! \brief Sets the column border color
+  /*! \brief Setss the column border color
    *
    * \if cpp
    * The default border color is \link Wt::white white\endlink.
@@ -256,7 +265,7 @@ public:
    */
   void setColumnBorder(const WColor& color);
 
-  /*! \brief Sets the base urls for icons.
+  /*! \brief Setss the base urls for icons.
    *
    * This widget relies on several icons that are distributed together
    * with %Wt for drawing icons, lines, and backgrounds.
@@ -309,7 +318,7 @@ public:
    */
   void expandToDepth(int depth);
 
-  /*! \brief Set if alternating row colors are to be used.
+  /*! \brief Sets if alternating row colors are to be used.
    *
    * Configure whether rows get an alternating background color. These
    * are implemented by using a background image on the root node, like:
@@ -332,7 +341,7 @@ public:
    */
   bool alternatingRowColors() const { return alternatingRowColors_; }
 
-  /*! \brief Set whether toplevel items are decorated.
+  /*! \brief Sets whether toplevel items are decorated.
    *
    * By default, top level nodes have expand/collapse and other lines
    * to display their linkage and offspring, like any node.
@@ -424,7 +433,7 @@ public:
    */
   SelectionBehavior selectionBehavior() const;
 
-  /*! \brief Set the selection mode.
+  /*! \brief Sets the selection mode.
    *
    * By default selection is disabled (\link Wt::NoSelection
    * NoSelection \endlink).
@@ -567,6 +576,43 @@ public:
    */
   Signal<void>& selectionChanged() { return selectionChanged_; }
 
+  void openPersistentEditor(const WModelIndex& index);
+  void closePersistentEditor(const WModelIndex& index);
+
+  /*! \brief Sets the default item delegate.
+   *
+   * The previous delegate is removed but not deleted.
+   *
+   * The default item delegate is a WItemDelegate.
+   */
+  void setItemDelegate(WAbstractItemDelegate *delegate);
+
+  /*! \brief Returns the default item delegate.
+   *
+   * \sa setItemDelegate()
+   */
+  WAbstractItemDelegate *itemDelegate() const { return itemDelegate_; }
+
+  /*! \brief Sets the delegate for a column.
+   *
+   * The previous delegate is removed but not deleted.
+   *
+   * \sa setItemDelegate()
+   */
+  void setItemDelegateForColumn(int column, WAbstractItemDelegate *delegate);
+
+  /*! \brief Returns the delegate for a column.
+   *
+   * \sa setItemDelegateForColumn()
+   */
+  WAbstractItemDelegate *itemDelegateForColumn(int column) const;
+
+  /*! \brief Returns the delegate for rendering an item.
+   *
+   * \sa setItemDelegateForColumn(), setItemDelegate()
+   */
+  WAbstractItemDelegate *itemDelegate(const WModelIndex& index) const;
+
   virtual void refresh();
 
 protected:
@@ -618,33 +664,24 @@ protected:
 private:
   struct ColumnInfo {
     WCssTemplateRule *styleRule;
-    int               id;
-    SortOrder         sortOrder;
-    AlignmentFlag     alignment;
-    AlignmentFlag     headerAlignment;
-    WLength           width;
-    WT_USTRING        format;
-    WWidget          *extraHeaderWidget;
-    bool              sorting;
+    int id;
+    SortOrder sortOrder;
+    AlignmentFlag alignment;
+    AlignmentFlag headerAlignment;
+    WLength width;
+    WWidget *extraHeaderWidget;
+    bool sorting;
+    WAbstractItemDelegate *itemDelegate_;
 
     std::string styleClass() const;
 
     ColumnInfo(const WTreeView *view, WApplication *app, int id, int column);
   };
 
-  struct CheckedInfo {
-    WModelIndex  index;
-    WCheckBox   *checkBox;
-
-    CheckedInfo(const WModelIndex& anIndex, WCheckBox *aCheckBox)
-      : index(anIndex), checkBox(aCheckBox) { }
-
-    CheckedInfo() { }
-  };
-
   typedef std::map<WModelIndex, WTreeViewNode *> NodeMap;
 
   WAbstractItemModel  *model_;
+  WAbstractItemDelegate *itemDelegate_;
   WItemSelectionModel *selectionModel_;
   WModelIndex          rootIndex_;
   WLength              rowHeight_, headerHeight_;
@@ -675,7 +712,6 @@ private:
   Signal<WModelIndex, WMouseEvent> mouseWentDown_;
   Signal<void> selectionChanged_;
 
-  WSignalMapper<CheckedInfo> *checkedChangeMapper_;
   WSignalMapper<int>         *clickedForSortMapper_;
   WSignalMapper<WModelIndex> *clickedMapper_;
 
@@ -747,7 +783,6 @@ private:
   void modelReset();
 
   void onViewportChange(WScrollEvent event);
-  void onCheckedChange(CheckedInfo info);
   void toggleSortColumn(int columnid);
   void onItemEvent(std::string nodeId, int columnId, std::string type,
 		   std::string extra1, std::string extra2, WMouseEvent event);

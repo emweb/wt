@@ -27,13 +27,14 @@ using namespace Wt;
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<18> WWebWidget::AllChangeFlags = std::bitset<18>()
+const std::bitset<21> WWebWidget::AllChangeFlags = std::bitset<21>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
   .set(BIT_TOOLTIP_CHANGED)
   .set(BIT_MARGINS_CHANGED)
-  .set(BIT_STYLECLASS_CHANGED);
+  .set(BIT_STYLECLASS_CHANGED)
+  .set(BIT_SELECTABLE_CHANGED);
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
@@ -121,6 +122,15 @@ void WWebWidget::setId(const std::string& id)
     otherImpl_->id_ = new std::string();
 
   *otherImpl_->id_ = id;
+}
+
+void WWebWidget::setSelectable(bool selectable)
+{
+  flags_.set(BIT_SET_SELECTABLE, selectable);
+  flags_.set(BIT_SET_UNSELECTABLE, !selectable);
+  flags_.set(BIT_SELECTABLE_CHANGED);
+
+  repaint(RepaintPropertyAttribute);
 }
 
 const std::string WWebWidget::formName() const
@@ -991,6 +1001,25 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_STYLECLASS_CHANGED);
   }
 
+  if (all || flags_.test(BIT_SELECTABLE_CHANGED)) {
+    if (flags_.test(BIT_SET_UNSELECTABLE)) {
+      element.setAttribute("class",
+			   Utils::addWord(element.getAttribute("class"),
+					  "unselectable"));
+      element.setAttribute("unselectable", "on");
+      element.setAttribute("onselectstart", "return false;");
+    } else if (flags_.test(BIT_SET_SELECTABLE)) {
+      element.setAttribute("class",
+			   Utils::addWord(element.getAttribute("class"),
+					  "selectable"));
+      element.setAttribute("unselectable", "off");
+      element.setAttribute("onselectstart",
+			   "event.cancelBubble=true;return true;");
+    }
+
+    flags_.reset(BIT_SELECTABLE_CHANGED);
+  }
+
   if (otherImpl_ && otherImpl_->attributes_) {
     if (all) {
       for (std::map<std::string, WT_USTRING>::const_iterator i
@@ -1193,6 +1222,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_TOOLTIP_CHANGED);
   flags_.reset(BIT_MARGINS_CHANGED);
   flags_.reset(BIT_STYLECLASS_CHANGED);
+  flags_.reset(BIT_SELECTABLE_CHANGED);
 #endif
 
   renderOk();

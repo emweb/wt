@@ -42,6 +42,11 @@ void WCompositeWidget::setId(const std::string& id)
   impl_->setId(id);
 }
 
+void WCompositeWidget::setSelectable(bool selectable)
+{
+  impl_->setSelectable(selectable);
+}
+
 void WCompositeWidget::setPositionScheme(PositionScheme scheme)
 {
   impl_->setPositionScheme(scheme);
