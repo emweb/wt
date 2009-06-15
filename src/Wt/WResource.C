@@ -90,7 +90,7 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   Http::Request  request(*webRequest, continuation);
   Http::Response response(this, webResponse, continuation);
 
-  if (!suggestedFileName_.empty())
+  if (!continuation && !suggestedFileName_.empty())
     response.addHeader("Content-Disposition",
 		       "attachment;filename=" + suggestedFileName_);
 

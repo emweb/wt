@@ -11,6 +11,9 @@
 
 	* http/Server.C: avoid http/https accept() to abort on Win32
 
+	* WResource, WFileResource: fix continuation + suggested filename
+	data corruption, and implement WFileResource::setBufferSize()
+
 10-06-2009:
 	* WRectF: added isEmpty() method, removed isNull() method
 

@@ -39,6 +39,11 @@ void WFileResource::setMimeType(const std::string& mimeType)
   dataChanged().emit();
 }
 
+void WFileResource::setBufferSize(int bufferSize)
+{
+  bufferSize_ = bufferSize;
+}
+
 void WFileResource::handleRequest(const Http::Request& request,
 				  Http::Response& response)
 {
