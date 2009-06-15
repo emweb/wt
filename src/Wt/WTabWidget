@@ -36,6 +36,7 @@ namespace Wt {
  * <i>resourcesURL</i> property in your %Wt configuration file.
  *
  * Usage example:
+ * \if cpp
  * \code
  * Wt::WTabWidget *examples = new Wt::WTabWidget(this);
  *
@@ -47,6 +48,23 @@ namespace Wt {
  * examples->setInternalPathEnabled();
  * examples->setInternalBasePath("/examples");
  * \endcode
+ * \elseif java
+ * \code
+ * WTabWidget examples = new WTabWidget(this);
+ *	 
+ * examples.addTab(helloWorldExample(), "Hello World");
+ * examples.addTab(chartExample(), "Charts");
+ * examples.addTab(new WText("A WText"), "WText");
+ *	 
+ * examples.currentChanged().addListener(this, new Signal.Listener(){
+ *	public void trigger() {
+ *		//custom code
+ *	}
+ *  });
+ * examples.setInternalPathEnabled();
+ * examples.setInternalBasePath("/examples");		
+ * \endcode
+ * \endif
  *
  * \image html WTabWidget-1.png "An example WTabWidget"
  */

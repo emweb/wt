@@ -19,7 +19,8 @@ namespace Wt {
  *
  * When the item is shown and hidden when the item is selected
  * respectively deselected.
- *
+ * 
+ * \if cpp
  * Usage example:
  * \code
  * // create the stack where the contents will be located
@@ -43,6 +44,7 @@ namespace Wt {
  * addWidget(menu);
  * addWidget(contents);
  * \endcode
+ * \endif
  *
  * \sa WMenuItem, WMenu
  */

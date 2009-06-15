@@ -45,6 +45,7 @@ class Time;
  * server-initiated updates, see WApplication::enableUpdates().
  * \endif
  *
+ * \if cpp
  * Usage example:
  * \code
  * // setup a timer which calls MyClass::timeout() every 2 seconds, until timer->stop() is called.
@@ -53,6 +54,7 @@ class Time;
  * timer->timeout().connect(SLOT(this, MyClass::timeout));
  * timer->start();
  * \endcode
+ * \endif
  */
 class WT_API WTimer : public WObject
 {

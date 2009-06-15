@@ -37,6 +37,7 @@ namespace Wt {
  *
  * %WComboBox is a \link WWidget::setInline(bool) stacked \endlink widget.
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WTable *table = new Wt::WTable(this);
@@ -49,6 +50,7 @@ namespace Wt {
  * cell->addWidget(new Wt::WText("Item @ row 2"));
  * cell->setColumnSpan(2);
  * \endcode
+ * \endif
  *
  * \sa WTableCell, WTableRow, WTableColumn
  */

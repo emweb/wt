@@ -21,9 +21,7 @@ class WT_API WPoint
 public:
   /*! \brief Default constructor.
    *
-   * Constructs a <i>null</i> point.
-   *
-   * \sa isNull()
+   * Constructs a point (<i>x=0</i>, <i>y=0</i>).
    */
   WPoint();
 
@@ -33,12 +31,6 @@ public:
    */
   WPoint(int x, int y)
     : x_(x), y_(y) { }
-
-  /*! \brief Check for a <i>null</i> point.
-   *
-   * \sa WPoint()
-   */
-  bool isNull() const;
 
   /*! \brief Changes the X coordinate.
    */

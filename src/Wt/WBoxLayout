@@ -35,6 +35,7 @@ namespace Wt {
  * remaining space is used. Each item is stretched using the stretch
  * factor to fill the remaining space.
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
@@ -48,6 +49,7 @@ namespace Wt {
  *
  * w->setLayout(layout);
  * \endcode
+ * \endif
  *
  * \if cpp
  * \note This layout manager is applicable only to WContainerWidget
@@ -218,7 +220,7 @@ public:
   /*! \brief Set the stretch factor for a nested layout.
    *
    * The <i>layout</i> must have previously been added to this layout
-   * using insertLayout() or addLayout().
+   * using insertLayout() or addLayout(WLayout *, int).
    *
    * Returns whether the <i>stretch</i> could be set.
    */

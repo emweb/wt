@@ -82,6 +82,7 @@ private:
  * widget, these changes are reflected on the CSS rule and thus all
  * widgets that have this CSS rule.
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WCssTemplateRule *styleRule = new Wt::WCssTemplateRule("#" + formName() + " .item");
@@ -90,6 +91,7 @@ private:
  * styleRule->templateWidget()->resize(100, WLength::Auto);
  * styleRule->templateWidget()->decorationStyle().setCursor(PointingHandCursor);
  * \endcode
+ * \endif
  *
  * \sa Wt::WCssStyleSheet
  *
@@ -144,11 +146,13 @@ private:
 /*! \class WCssTextRule Wt/WCssStyleSheet Wt/WCssStyleSheet
  *  \brief A CSS rule specified directly using CSS declarations
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WCssTextRule *styleRule = new Wt::WCssTextRule(".MyWidget .item", "width: 100px; cursor: pointer;");
  * Wt::WApplication::instance()->styleSheet().addRule(styleRule);
  * \endcode
+ * \endif
  *
  * \sa WCssStyleSheet
  *
@@ -170,10 +174,12 @@ private:
 /*! \class WCssStyleSheet Wt/WCssStyleSheet Wt/WCssStyleSheet
  *  \brief A CSS style sheet.
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WApplication::instance()->styleSheet().addRule(".MyWidget .item", "width: 100px; cursor: pointer;");
  * \endcode
+ * \endif
  *
  * \sa WApplication::styleSheet()
  *

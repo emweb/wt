@@ -945,6 +945,8 @@ void WebRenderer::updateFormObjects(WWebWidget *source, bool checkDescendants)
 void WebRenderer::updateFormObjectsList(WApplication *app)
 {
   if (formObjectsChanged_) {
+    currentFormObjects_.clear();
+
     app->domRoot_->getFormObjects(currentFormObjects_);
     if (app->domRoot2_)
       app->domRoot2_->getFormObjects(currentFormObjects_);
@@ -953,8 +955,6 @@ void WebRenderer::updateFormObjectsList(WApplication *app)
 
 std::string WebRenderer::createFormObjectsList(WApplication *app)
 {
-  currentFormObjects_.clear();
-
   updateFormObjectsList(app);
 
   std::string result;

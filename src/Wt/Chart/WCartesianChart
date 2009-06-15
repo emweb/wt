@@ -63,10 +63,12 @@ class WChartPalette;
  * The cartesian chart has support for dual Y axes. Each data series may
  * be bound to one of the two Y axes. By default, only the first Y axis
  * is displayed. To show the second Y axis you will need to call:
- *
+ * 
+ * \if cpp
  * \code
-   chart->axis(Y2Axis).setVisible(true);
-   \endcode
+ * chart->axis(Y2Axis).setVisible(true);
+ * \endcode
+ * \endif
  *
  * By default a chart has a horizontal X axis and a vertical Y axis,
  * which corresponds to a \link Wt::Vertical Vertical\endlink

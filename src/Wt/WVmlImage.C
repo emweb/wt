@@ -230,7 +230,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
       << "l" << myzround(bbox.right()) << "," << myzround(bbox.bottom())
       << std::endl;
 
-  if (!activePaths_[thisPath].bbox.isNull()) {
+  if (!activePaths_[thisPath].bbox.isEmpty()) {
     const WRectF& bbox = activePaths_[thisPath].bbox;
 
     tmp << "m" << myzround(bbox.left()) << "," << myzround(bbox.top())

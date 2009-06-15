@@ -195,7 +195,7 @@ void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 
   WRectF rect = rectangle;
 
-  if (rect.isNull())
+  if (rect.isEmpty())
     rect = painter.window();
 
   WChart2DRenderer *renderer = createRenderer(painter, rect);

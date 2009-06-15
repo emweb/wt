@@ -168,9 +168,13 @@ public:
   renderBackground();        // render the background
   renderAxes(Grid);          // render the grid
   renderSeries();            // render the data series
+  \if cpp
   renderAxes(Line | Labels); // render the axes (lines & labels)
+  \elseif java
+  renderAxes(AxisProperty.Line, AxisProperty.Labels); // render the axes (lines & labels)
+  \endif 
   renderLegend();            // render legend and titles
-     \endcode
+  \endcode
    *
    * You may want to reimplement this method to change the sequence of
    * steps for rendering the chart.

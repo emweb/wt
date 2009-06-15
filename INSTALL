@@ -1,6 +1,6 @@
                           Wt Installation instructions
 
-   This page lists the instructions for building and installing Wt 2.99.0.
+   This page lists the instructions for building and installing Wt 2.1.4.
    It is organized in 3 sections:
      * Requirements
      * Building and installing the library
@@ -57,8 +57,10 @@ Requirements
 
     1b Using wthttpd
 
-   When using the built-in webserver, two more libraries are necessary to
-   enable optional features (you can also build without them).
+   When using the built-in webserver, Wt only requires one additional C++
+   gem of a library for asynchronous I/O.
+     * Asio library: version 0.3.9 or higher, boost or non-boost version
+       (http://asio.sf.net).
      * (optionally) libz, for compression over HTTP.
      * (optionally) openssl, for supporting HTTPS.
 
@@ -296,5 +298,5 @@ HTTPS server options:
 
 References
 
-   1. file://localhost/home/koen/project/wt/public-git/wt/INSTALL.win32.html
+   1. file://localhost/home/koen/project/wt/git/wt/INSTALL.win32.html
    2. http://127.0.0.1:8080/

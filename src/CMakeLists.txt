@@ -96,6 +96,7 @@ Wt/WEvent.C
 Wt/WFileResource.C
 Wt/WFileUpload.C
 Wt/WFitLayout.C
+Wt/WFlashObject.C
 Wt/WFont.C
 Wt/WFormWidget.C
 Wt/WGoogleMap.C
@@ -156,6 +157,7 @@ Wt/WSignal.C
 Wt/WSlider.C
 Wt/WSocketNotifier.C
 Wt/WSortFilterProxyModel.C
+Wt/WSound.C
 Wt/WStackedWidget.C
 Wt/WStandardItem.C
 Wt/WStandardItemModel.C
@@ -201,6 +203,7 @@ web/Configuration.C
 web/DomElement.C
 web/EscapeOStream.C
 web/FileServe.C
+web/SoundManager.C
 web/Utils.C
 web/WebRequest.C
 web/WebStream.C

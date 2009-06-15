@@ -181,7 +181,7 @@ protected:
    * You should override this method if you wish to serve for example
    * static image content.
    *
-   * \sa render()
+   * \sa WVirtualImage::render()
    */
   virtual WImage *createImage(int64_t x, int64_t y, int width, int height);
 

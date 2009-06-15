@@ -38,6 +38,7 @@ void RoundedWidget::create()
     images_[0] = new CornerImage(CornerImage::TopLeft, backgroundColor_,
 				 surroundingColor_, radius_);
     images_[0]->setPositionScheme(Absolute);
+    images_[0]->setMargin(0);
   } else
     images_[0] = 0;
 
@@ -51,6 +52,7 @@ void RoundedWidget::create()
     images_[2] = new CornerImage(CornerImage::BottomLeft, backgroundColor_,
 				 surroundingColor_, radius_);
     images_[2]->setPositionScheme(Absolute);
+    images_[2]->setMargin(0);
   } else
     images_[2] = 0;
 

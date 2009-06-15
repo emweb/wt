@@ -291,12 +291,16 @@ bool WCompositeWidget::needsToBeRendered() const
   return impl_->needsToBeRendered();
 }
 
-void WCompositeWidget::setAttributeValue(const std::string& attribute,
+void WCompositeWidget::setAttributeValue(const std::string& name,
 					 const WT_USTRING& value)
 {
-  impl_->setAttributeValue(attribute, value);
+  impl_->setAttributeValue(name, value);
 }
 
+WT_USTRING WCompositeWidget::attributeValue(const std::string& name) const
+{
+  return impl_->attributeValue(name);
+}
 
 void WCompositeWidget::load()
 {

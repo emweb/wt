@@ -21,6 +21,7 @@ namespace Wt {
  * more information.
  *
  * Usage example:
+ * \if cpp
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
  *
@@ -32,6 +33,19 @@ namespace Wt {
  *
  * w->setLayout(layout, AlignTop | AlignJustify);
  * \endcode
+ * \elseif java
+ * \code
+ * WContainerWidget w = new WContainerWidget(this);
+ *		
+ * WHBoxLayout layout = new WHBoxLayout();
+ * layout.addWidget(new WText("One"));
+ * layout.addWidget(new WText("Two"));
+ * layout.addWidget(new WText("Three"));
+ * layout.addWidget(new WText("Four"));
+ *	 
+ * w.setLayout(layout, AlignmentFlag.AlignTop, AlignmentFlag.AlignJustify);
+ * \endcode
+ * \endif
  *
  * \note First consider if you can achieve your layout using CSS !
  *

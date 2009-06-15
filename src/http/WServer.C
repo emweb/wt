@@ -109,6 +109,9 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
 			    const std::string& path, const std::string& favicon)
 {
+  if (!path.empty() && !boost::starts_with(path, "/")) 
+    throw WServer::Exception("WServer::addEntryPoint() error: deployment path should start with \'/\'");
+
   switch (type) {
   case Application:
     impl_->wtConfiguration_.addEntryPoint
@@ -139,7 +142,7 @@ bool WServer::start()
 
   // Set default entry point
   impl_->wtConfiguration_.setDefaultEntryPoint
-    (impl_->serverConfiguration_.deployPath().substr(1));
+    (impl_->serverConfiguration_.deployPath());
 
   try {
     impl_->server_ = new http::server::Server(impl_->serverConfiguration_,

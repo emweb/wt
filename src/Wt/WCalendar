@@ -54,6 +54,7 @@ td.Wt-cal-now             : Today day cell
 *
  * \endcode
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WDate today = Wt::WDate::currentDate();
@@ -63,6 +64,7 @@ td.Wt-cal-now             : Today day cell
  * calendar->select(today.addMonths(1).addDays(3));
  * calendar->selected().connect(SLOT(this, MyWidget::daySelected));
  * \endcode
+ * \endif
  *
  * Here is a snapshot of the default look, taken on 31/08/2007 (shown as
  * today), and 11/08/2007 currently selected.

@@ -17,6 +17,7 @@
 #include "Wt/WPainter"
 
 #include "WtException.h"
+#include "Utils.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -39,11 +40,6 @@ public:
 private:
   std::string what_;
 };
-
-inline bool myisnan(double d)
-{
-  return !(d == d);
-}
 
 }
 
@@ -138,7 +134,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   if (dataColumn_ != -1)
     for (int i = 0; i < model()->rowCount(); ++i) {
       double v = asNumber(model()->data(i, dataColumn_));
-      if (!myisnan(v))
+      if (!Utils::isNaN(v))
 	total += v;
     }
 
@@ -147,7 +143,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 
   WRectF rect = rectangle;
 
-  if (rect.isNull())
+  if (rect.isEmpty())
     rect = painter.window();
 
   rect.setX(rect.x() + plotAreaPadding(Left));
@@ -186,7 +182,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 
       for (int i = 0; i < model()->rowCount(); ++i) {
 	double v = asNumber(model()->data(i, dataColumn_));
-	if (myisnan(v))
+	if (Utils::isNaN(v))
 	  continue;
 
 	double spanAngle = -v / total * 360;
@@ -309,7 +305,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 	startAngles[i] = currentAngle;
 
 	double v = asNumber(model()->data(i, dataColumn_));
-	if (myisnan(v))
+	if (Utils::isNaN(v))
 	  continue;
 
 	double spanAngle = -v / total * 360;
@@ -337,7 +333,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 	int i = (index90 + j) % model()->rowCount();
 
 	double v = asNumber(model()->data(i, dataColumn_));
-	if (myisnan(v))
+	if (Utils::isNaN(v))
 	  continue;
 
 	double midAngle = midAngles[i];
@@ -370,7 +366,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 	int i = (index90 + j) % model()->rowCount();
 
 	double v = asNumber(model()->data(i, dataColumn_));
-	if (myisnan(v))
+	if (Utils::isNaN(v))
 	  continue;
 
 	double startAngle = startAngles[i];
@@ -402,7 +398,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 	int i = (index90 + j) % model()->rowCount();
 
 	double v = asNumber(model()->data(i, dataColumn_));
-	if (myisnan(v))
+	if (Utils::isNaN(v))
 	  continue;
 
 	double startAngle = startAngles[i];
@@ -443,7 +439,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
   double currentAngle = startAngle_;
   for (int i = 0; i < model()->rowCount(); ++i) {
     double v = asNumber(model()->data(i, dataColumn_));
-    if (myisnan(v))
+    if (Utils::isNaN(v))
       continue;
 
     double spanAngle = -v / total * 360;
@@ -519,7 +515,7 @@ int WPieChart::nextIndex(int i) const
   int r = model()->rowCount();
   for (int n = (i + 1) % r; n != i; ++n) {
     double v = asNumber(model()->data(n, dataColumn_));
-    if (!myisnan(v))
+    if (!Utils::isNaN(v))
       return n;
   }
 
@@ -533,7 +529,7 @@ int WPieChart::prevIndex(int i) const
     if (p < 0)
       p += r;
     double v = asNumber(model()->data(p, dataColumn_));
-    if (!myisnan(v))
+    if (!Utils::isNaN(v))
       return p;
   }
 

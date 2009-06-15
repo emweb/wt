@@ -45,6 +45,7 @@ class WText;
  * The table cannot be given a height using CSS style rules, instead you
  * must use layout managers, or use resize().
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WTreeTable *treeTable = new Wt::WTreeTable();
@@ -75,6 +76,7 @@ class WText;
  *
  * root->expand();
  * \endcode
+ * \endif
  *
  * \sa WTreeTableNode
  * \sa WTreeView

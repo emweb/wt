@@ -52,6 +52,7 @@ namespace Wt {
  * implemented at server-side (but we are thinking about a solution for
  * this as well...).
  *
+ * \if cpp
  * Implementation example:
  * \code
  * // Shows the contents for a specific role of a model index in a WText widget
@@ -95,6 +96,7 @@ namespace Wt {
  * };
  * 
  * \endcode
+ * \endif
  */
 class WT_API WViewWidget : public WWebWidget
 {

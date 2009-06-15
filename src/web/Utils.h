@@ -151,6 +151,9 @@ extern void urlDecode(std::string &s);
 
 extern std::string urlEncode(const std::string& url);
 
+inline bool isNaN(double d) {
+  return !(d == d);  
+}
   }
 }
 

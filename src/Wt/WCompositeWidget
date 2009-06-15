@@ -24,6 +24,7 @@ namespace Wt {
  * composite widget, and provide access to only the standard WWidget
  * methods.
  *
+ * \if cpp
  * Usage example:
  * \code
  * class MyWidget : public Wt::WCompositeWidget
@@ -42,6 +43,7 @@ namespace Wt {
  *   Wt::ContainerWidget *impl_;
  * };
  * \endcode
+ * \endif
  */
 class WT_API WCompositeWidget : public WWidget
 {
@@ -95,6 +97,7 @@ public:
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value);
+  virtual WT_USTRING attributeValue(const std::string& name) const;
   virtual void load();
   virtual bool loaded() const;
   virtual void setId(const std::string& id);

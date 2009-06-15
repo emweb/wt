@@ -672,6 +672,19 @@ void WWebWidget::setAttributeValue(const std::string& name,
   repaint(RepaintPropertyAttribute);
 }
 
+WT_USTRING WWebWidget::attributeValue(const std::string& name) const
+{
+  if (otherImpl_) {
+    std::map<std::string, WT_USTRING>::const_iterator i
+      = otherImpl_->attributes_->find(name);
+
+    if (i != otherImpl_->attributes_->end())
+      return i->second;
+  }
+
+  return WT_USTRING();
+}
+
 void WWebWidget::setToolTip(const WString& message)
 {
   if (canOptimizeUpdates() && (toolTip() == message))
@@ -850,7 +863,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	element.setProperty(PropertyStyleClear, "left");
       } else if (layoutImpl_->clearSides_ == Right) {
 	element.setProperty(PropertyStyleClear, "right");
-      } else if (layoutImpl_->clearSides_ == Verticals) {
+      } else if (layoutImpl_->clearSides_ == Horizontals) {
 	element.setProperty(PropertyStyleClear, "both");
       }
 

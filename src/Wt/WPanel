@@ -21,6 +21,7 @@ namespace Wt {
  * The panel provides a container with an optional title bar, and an
  * optional collapse icon.
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WPanel *panel = new Wt::WPanel();
@@ -28,6 +29,7 @@ namespace Wt {
  * panel->setCentralWidget(new Wt::WText("This is the panel contents"));
  * panel->setCollapsible(true);
  * \endcode
+ * \endif
  *
  * \image html WPanel-1.png "Two panels: the top panel is collapsed, and the bottom panel expanded"
  *
@@ -111,7 +113,7 @@ public:
   /*! \brief Returns if the panel is collapsed.
    *
    * \sa setCollapsed(bool)
-   * \sa collapsed() and expanded() signals
+   * \sa collapsed(), expanded()
    */
   bool isCollapsed() const;
 

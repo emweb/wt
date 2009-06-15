@@ -38,7 +38,7 @@ class WString;
  * \if cpp
  * operator<().
  * \elseif java
- * compare(compare(const WStandardItem& other)).
+ * compare().
  * \endif
  *
  * \ingroup modelview
@@ -403,11 +403,19 @@ public:
    * example for tree nodes). This inserts a row with a single item,
    * and is equivalent to:
    *
+   * \if cpp
    * \code
    * std::vector<WStandardItem *> r;
    * r.push_back(item);
    * insertRow(row, r);
    * \endcode
+   * \elseif java
+   * \code 
+   * List<WStandardItem> r;
+   * r.add(item);
+   * insertRow(row, r);
+   * \endcode
+   * \endif
    * 
    * \sa insertRow(int, const std::vector<WStandardItem *>&)
    */
@@ -482,7 +490,7 @@ public:
    * and removes it (by setting 0 instead). Ownership of the item is
    * transferred to the caller.
    *
-   * \sa child(int, int), setChild(int, int, WStandardItem *)
+   * \sa WStandardItem::child(int), setChild(int, int, WStandardItem *)
    */
   WStandardItem *takeChild(int row, int column);
 
@@ -617,7 +625,7 @@ public:
    * \if cpp
    * \sa operator<(), WStandardItemModel::setSortRole()
    * \elseif java
-   * \sa compare(const WStandardItem& other), WStandardItemModel::setSortRole()
+   * \sa WStandardItemModel::compare(), WStandardItemModel::setSortRole()
    * \endif
    */
   virtual void sortChildren(int column, SortOrder order);

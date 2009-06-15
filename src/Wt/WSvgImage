@@ -23,6 +23,7 @@ namespace Wt {
  * The %WSvgImage is primarily used by WPaintedWidget to render to the
  * browser in Support Vector Graphics (SVG) format.
  *
+ * \if cpp
  * You may also use the %WSvgImage as an independent resource, for example
  * in conjunction with a WAnchor or WImage, or to make a hard copy of an
  * image in SVG format, using write():
@@ -36,6 +37,7 @@ namespace Wt {
  * std::ofstream f("chart.svg");
  * svgImage.write(f);
  * \endcode
+ * \endif
  *
  * \ingroup painting
  */
@@ -81,6 +83,7 @@ private:
   WLength     width_, height_;
   WPainter   *painter_;
   WFlags<PaintFlag> paintFlags_;
+  WFlags<ChangeFlag> changeFlags_;
 
   bool        newGroup_;
   bool        newClipPath_;
@@ -103,6 +106,8 @@ private:
   std::string strokeStyle() const;
   std::string fontStyle() const;
   std::string clipPath() const;
+
+  std::string fillStyle_, strokeStyle_, fontStyle_;
 
   static std::string quote(double s);
   static std::string quote(const std::string& s);

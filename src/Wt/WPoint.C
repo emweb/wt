@@ -12,11 +12,6 @@ WPoint::WPoint()
   : x_(0), y_(0)
 { }
 
-bool WPoint::isNull() const
-{
-  return x_ == 0 && y_ == 0;
-}
-
 bool WPoint::operator== (const WPoint& other) const
 {
   return (x_ == other.x_) && (y_ == other.y_);

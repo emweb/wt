@@ -37,9 +37,16 @@ bool WRectF::operator!=(const WRectF& rhs) const
   return !(*this == rhs);
 }
 
+#ifndef WT_TARGET_JAVA
 bool WRectF::isNull() const
 {
   return x_ == 0 && y_ == 0 && width_ == 0 && height_ == 0;
+}
+#endif //WT_TARGET_JAVA
+
+bool WRectF::isEmpty() const
+{
+  return width_ <= 0 || height_ <= 0;
 }
 
 void WRectF::setX(double x)
@@ -81,7 +88,7 @@ WPointF WRectF::bottomRight() const
 
 bool WRectF::intersects(const WRectF& other) const
 {
-  if (isNull() || other.isNull())
+  if (isEmpty() || other.isEmpty())
     return false;
   else {
     WRectF r1 = normalized();
@@ -99,9 +106,9 @@ bool WRectF::intersects(const WRectF& other) const
 
 WRectF WRectF::united(const WRectF& other) const
 {
-  if (isNull())
+  if (isEmpty())
     return other;
-  else if (other.isNull())
+  else if (other.isEmpty())
     return *this;
   else {
     WRectF r1 = normalized();

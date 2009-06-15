@@ -52,10 +52,12 @@ class StdLayoutImpl;
  * to the layout manager, instead of to the container directly.
  *
  * Usage example:
+ * \if cpp
  * \code
  *
  * // Example 1:
- * // Instantiate a container widget and add some children whose layout is governed based on HTML/CSS rules.
+ * // Instantiate a container widget and add some children whose layout 
+ * // is governed based on HTML/CSS rules.
  * Wt::WContainerWidget *container1 = new Wt::WContainerWidget();
  * container1->addWidget(new Wt::WText("Some text"));
  * container1->addWidget(new Wt::WImage("images/img.png"));
@@ -72,6 +74,29 @@ class StdLayoutImpl;
  *
  * container2->setLayout(layout);      // set the layout to the container.
  * \endcode
+ * \elseif java
+ * \code
+ * // Example 1:
+ * // Instantiate a container widget and add some children whose layout 
+ * // is governed based on HTML/CSS rules.
+ * WContainerWidget container1 = new WContainerWidget();
+ * container1.addWidget(new WText("Some text"));
+ * container1.addWidget(new WImage("images/img.png"));
+ * WContainerWidget child3 = new WContainerWidget(container1);
+		 
+ * // Example 2:
+ * // Instantiate a container widget which uses a layout manager
+ * WContainerWidget container2 = new WContainerWidget();
+ * // give the container a fixed height
+ * container2.resize(WLength.Auto, new WLength(600)); 
+ *
+ * WVBoxLayout layout = new WVBoxLayout();
+ * layout.addWidget(new WText("Some text"));
+ * layout.addWidget(new WImage("images/img.png"));
+		 
+ * container2.setLayout(layout);      // set the layout to the container.
+ * \endcode
+ * \endif
  *
  * Depending on its configuration and usage, the widget corresponds to the
  * following HTML tags:

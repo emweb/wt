@@ -93,6 +93,9 @@ public:
   static Server* instance() { return instance_; }
 
 private:
+  /// Starts accepting http/https connections
+  void startAccept();
+
   /// Handle completion of an asynchronous accept operation.
   void handleTcpAccept(const asio_error_code& e);
 

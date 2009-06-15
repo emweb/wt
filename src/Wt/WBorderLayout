@@ -52,7 +52,8 @@ namespace Wt {
  * overridden using WWidget::setMinimumSize(). You may not define any
  * padding for the container widget. Instead, use setContentsMargins().
  * \endif
- *
+ * 
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
@@ -64,6 +65,7 @@ namespace Wt {
  * // use layout but do not justify vertically
  * w->setLayout(layout, Wt::AlignTop | Wt::AlignJustify);
  * \endcode
+ * \endif
  *
  * \note When used on a WContainerWidget, this layout manager accepts the
  *       following hints (see setLayoutHint()):

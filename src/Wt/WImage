@@ -31,11 +31,13 @@ namespace Wt {
  * customized tool tips for certain image areas (using
  * WAbstractArea::setToolTip()).
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WImage *img = new Wt::WImage("images/jhonny_cash.png", this);
  * img->setAlternateText("Jhonny Cash sings a song");
  * \endcode
+ * \endif
  *
  * %WImage is an \link WWidget::setInline(bool) inline \endlink widget.
  *

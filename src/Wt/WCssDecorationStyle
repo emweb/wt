@@ -38,11 +38,13 @@ class WWebWidget;
  * add a rule to the inline style sheet using
  * WCssStyleSheet::addRule(const std::string&, const WCssDecorationStyle& style, const std::string&).
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WWidget *widget = ...
  * widget->decorationStyle().setCursor(PointingHandCursor);
  * \endcode
+ * \endif
  *
  * \ingroup style
  */

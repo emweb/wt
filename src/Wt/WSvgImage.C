@@ -13,6 +13,7 @@
 #include "Wt/Http/Response"
 
 #include "Utils.h"
+#include "EscapeOStream.h"
 
 #include <cmath>
 #include <sstream>
@@ -68,7 +69,15 @@ void WSvgImage::setPaintFlags(WFlags<PaintFlag> paintFlags)
 }
 
 void WSvgImage::init()
-{ }
+{ 
+  currentBrush_ = painter()->brush();
+  currentPen_ = painter()->pen();
+  currentFont_ = painter()->font();
+
+  strokeStyle_ = strokeStyle();
+  fillStyle_ = fillStyle();
+  fontStyle_ = fontStyle();  
+}
 
 void WSvgImage::done()
 {
@@ -111,6 +120,8 @@ void WSvgImage::setChanged(WFlags<ChangeFlag> flags)
 
   if (flags & Clipping)
     newClipPath_ = true;
+
+  changeFlags_ |= flags;
 }
 
 void WSvgImage::makeNewGroup()
@@ -118,10 +129,16 @@ void WSvgImage::makeNewGroup()
   if (!newGroup_)
     return;
 
-  if (!newClipPath_) {
-    if (currentBrush_ == painter()->brush()
-	&& currentPen_ == painter()->pen()) {
+  bool brushChanged
+    = (changeFlags_ & Brush) && (currentBrush_ != painter()->brush());
+  bool penChanged
+    = changeFlags_ & Hints
+    || ((changeFlags_ & Pen) && (currentPen_ != painter()->pen()));
+  bool fontChanged
+    = (changeFlags_ & Font) && (currentFont_ != painter()->font());
 
+  if (!newClipPath_) {
+    if (!brushChanged && !penChanged) {
       WTransform f = painter()->combinedTransform();
 
       if (busyWithPath_) {
@@ -154,12 +171,14 @@ void WSvgImage::makeNewGroup()
 
 	  pathTranslation_.setX(dx);
 	  pathTranslation_.setY(dy);
+
 	  return;
 	}
       } else {
-	if (currentFont_ == painter()->font()
-	    && currentTransform_ == f) {
+	if (!fontChanged && currentTransform_ == f) {
 	  newGroup_ = false;
+
+	  changeFlags_ = 0;
 
 	  return;
 	}
@@ -172,7 +191,7 @@ void WSvgImage::makeNewGroup()
   finishPath();
 
   char buf[30];
-  std::stringstream tmp;
+  EscapeOStream tmp;
 
   tmp << "</"SVG"g>";
 
@@ -183,7 +202,13 @@ void WSvgImage::makeNewGroup()
     if (painter()->hasClipping()) {
       currentClipId_ = nextClipId_++;
       tmp << "<"SVG"defs><"SVG"clipPath id=\"clip" << currentClipId_ << "\">";
-      drawPlainPath(tmp, painter()->clipPath());
+      shapes_ += tmp.c_str();
+      tmp.clear();
+
+      std::stringstream clip;
+      drawPlainPath(clip, painter()->clipPath());
+      shapes_ += clip.str();
+
       tmp << '"';
       busyWithPath_ = false;
 
@@ -209,12 +234,22 @@ void WSvgImage::makeNewGroup()
     tmp << '>';
   }
 
-  currentPen_ = painter()->pen();
-  currentBrush_ = painter()->brush();
-  currentFont_ = painter()->font();
+  if (penChanged) {
+    currentPen_ = painter()->pen();
+    strokeStyle_ = strokeStyle();
+  }
 
-  tmp << "<"SVG"g style="
-      << quote(fillStyle() + strokeStyle() + fontStyle());
+  if (brushChanged) {
+    currentBrush_ = painter()->brush();
+    fillStyle_ = fillStyle();
+  }
+
+  if (fontChanged) {
+    currentFont_ = painter()->font();
+    fontStyle_ = fontStyle();
+  }
+
+  tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
 
   currentTransform_ = painter()->combinedTransform();
 
@@ -230,8 +265,10 @@ void WSvgImage::makeNewGroup()
   }
 
   tmp << '>';
+  
+  shapes_ += tmp.c_str();
 
-  shapes_ += tmp.str();
+  changeFlags_ = 0;
 }
 
 void WSvgImage::drawPlainPath(std::stringstream& out, const WPainterPath& path)
@@ -561,43 +598,48 @@ std::string WSvgImage::clipPath() const
 
 std::string WSvgImage::strokeStyle() const
 {
-  std::string result;
+  EscapeOStream result;
+#ifndef WT_TARGET_JAVA
+  char buf[30];
+#else
+  char *buf;
+#endif
 
   const WPen& pen = painter()->pen();
 
   if (!(painter()->renderHints() & WPainter::Antialiasing))
-    result += "shape-rendering:optimizeSpeed;";
+    result << "shape-rendering:optimizeSpeed;";
 
   if (pen.style() != NoPen) {
     const WColor& color = pen.color();
 
-    result += "stroke:" + color.cssText() + ";";
+    result << "stroke:" << color.cssText() << ';';
     if (color.alpha() != 255)
-      result += "stroke-opacity:"
-	+ boost::lexical_cast<std::string>(color.alpha() / 255.) + ";";
+      result << "stroke-opacity:"
+	     << Utils::round_str(color.alpha() / 255., 2, buf) << ';';
 
     WLength w = painter()->normalizedPenWidth(pen.width(), true);
     if (w != WLength(1))
-      result += "stroke-width:" + w.cssText() + ";";
+      result << "stroke-width:" << w.cssText() << ";";
 
     switch (pen.capStyle()) {
     case FlatCap:
       break;
     case SquareCap:
-      result += "stroke-linecap:square;";
+      result << "stroke-linecap:square;";
       break;
     case RoundCap:
-      result += "stroke-linecap:round;";
+      result << "stroke-linecap:round;";
     }
 
     switch (pen.joinStyle()) {
     case MiterJoin:
       break;
     case BevelJoin:
-      result += "stroke-linejoin:bevel;";
+      result << "stroke-linejoin:bevel;";
       break;
     case RoundJoin:
-      result += "stroke-linejoin:round;";
+      result << "stroke-linejoin:round;";
     }
 
     switch (pen.style()) {
@@ -606,26 +648,26 @@ std::string WSvgImage::strokeStyle() const
     case SolidLine:
       break;
     case DashLine:
-      result += "stroke-dasharray:4,2;";
+      result << "stroke-dasharray:4,2;";
       break;
     case DotLine:
-      result += "stroke-dasharray:1,2;";
+      result << "stroke-dasharray:1,2;";
       break;
     case DashDotLine:
-      result += "stroke-dasharray:4,2,1,2;";
+      result << "stroke-dasharray:4,2,1,2;";
       break;
     case DashDotDotLine:
-      result += "stroke-dasharray:4,2,1,2,1,2;";
+      result << "stroke-dasharray:4,2,1,2,1,2;";
       break;
     }
   }
 
-  return result;
+  return result.c_str();
 }
 
 std::string WSvgImage::fontStyle() const
 {
-  return " " + painter()->font().cssText();
+  return painter()->font().cssText();
 }
 
 std::string WSvgImage::rendered()

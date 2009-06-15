@@ -44,7 +44,8 @@ class WStandardItem;
  * When using the model with a view class, you can use the
  * itemFromIndex() and indexFromItem() models to translate between
  * model indexes (that are used by the view class) and standard items.
- *
+ * 
+ * \if cpp
  * Usage example for tabular data:
  * \code
  * int rows = 5;
@@ -82,6 +83,7 @@ class WStandardItem;
  *   root->appendRow(topLevel);
  * }
  * \endcode
+ * \endif 
  *
  * \ingroup modelview
  */
@@ -201,7 +203,7 @@ public:
    * insertRow(rowCount(), item);
    * \endcode
    *
-   * \sa insertRow(int, WStandarditem *)
+   * \sa WStandardItem::insertRow(int, WStandarditem *)
    */
   void appendRow(WStandardItem *item);
 
@@ -243,10 +245,10 @@ public:
    *
    * Equivalent to:
    * \code
-   * invisibleRootItem()->setChild(row, column);
+   * invisibleRootItem()->setChild(row, column, item);
    * \endcode
    *
-   * \sa WStandardItem::setChild(int, int)
+   * \sa WStandardItem::setChild(int, int, WStandardItem *item)
    */
   void setItem(int row, int column, WStandardItem *item);
 
@@ -283,7 +285,7 @@ public:
    * invisibleRootItem()->takeColumn(column);
    * \endcode
    *
-   * \sa WStandardItem::takeColumn(), takeRow()
+   * \sa WStandardItem::takeColumn(), WStandardItem::takeRow()
    */
   std::vector<WStandardItem *> takeColumn(int column);
 
@@ -312,7 +314,7 @@ public:
    * invisibleRootItem()->takeItem(row, column);
    * \endcode
    *
-   * \sa WStandardItem::takeItem(), takeRow(), takeColumn()
+   * \sa takeItem(), WStandardItem::takeRow(), WStandardItem::takeColumn()
    */
   WStandardItem *takeItem(int row, int column = 0);
 

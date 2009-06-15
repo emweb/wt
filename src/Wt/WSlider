@@ -24,6 +24,7 @@ class WSliderBackground;
  * default size is 150 x 50 pixels for a horizontal slider, and 50 x
  * 150 pixels for a vertical slider.
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WSlider *scaleSlider = new Wt::WSlider(Wt::Horizontal);
@@ -35,6 +36,7 @@ class WSliderBackground;
  * scaleSlider->resize(300, 50);
  * scaleSlider->valueChanged().connect(SLOT(this, ThisClass::scaleShape));
  * \endcode
+ * \endif
  *
  * \image html WSlider-1.png "Horizontal slider with ticks on both sides."
  */
@@ -52,10 +54,8 @@ public:
 #endif // WT_TARGET_JAVA
   };
 
-#ifndef WT_TARGET_JAVA
   //! Do not render ticks.
   static const Wt::WFlags<TickPosition> NoTicks;
-#endif // WT_TARGET_JAVA
 
   //! Render ticks on both sides.
   static const Wt::WFlags<TickPosition> TicksBothSides;

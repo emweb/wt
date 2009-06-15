@@ -22,6 +22,7 @@ namespace Wt {
  * If you only want to limit the length on a line edit, you may also
  * use WLineEdit::setMaxLength().
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
@@ -29,6 +30,7 @@ namespace Wt {
  * lineEdit->setValidator(validator);
  * lineEdit->setText("abcdef");
  * \endcode
+ * \endif
  */
 class WT_API WLengthValidator : public WValidator
 {

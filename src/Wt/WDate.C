@@ -11,6 +11,7 @@
 #include "Wt/WLogger"
 
 #include "WtException.h"
+#include "Utils.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 using namespace boost::gregorian;
@@ -659,15 +660,19 @@ WString WDate::toString(const WString& format) const
 void WDate::writeLast(std::string& result, int& d, int& M, int& y,
 		      const WString& format) const
 {
+  char buf[30];
+
   if (d != 0) {
     switch (d) {
     case 1:
-      result += boost::lexical_cast<std::string>(day_);
+      Utils::itoa(day_, buf);
+      result += buf;
       break;
     case 2:
       if (day_ < 10)
 	result += "0";
-      result += boost::lexical_cast<std::string>(day_);
+      Utils::itoa(day_, buf);
+      result += buf;
       break;
     case 3:
       result += shortDayName(dayOfWeek()).toUTF8();
@@ -685,12 +690,17 @@ void WDate::writeLast(std::string& result, int& d, int& M, int& y,
   if (M != 0) {
     switch (M) {
     case 1:
-      result += boost::lexical_cast<std::string>(month_);
+      Utils::itoa(month_, buf);
+      result += buf;
       break;
     case 2:
-      if (month_ < 10)
-	result += "0";
-      result += boost::lexical_cast<std::string>(month_);
+      if (month_ < 10) {
+	buf[0] = '0';
+        Utils::itoa(month_, buf + 1);
+      } else
+	Utils::itoa(month_, buf);
+
+      result += buf;
       break;
     case 3:
       result += shortMonthName(month_).toUTF8();
@@ -709,13 +719,18 @@ void WDate::writeLast(std::string& result, int& d, int& M, int& y,
     switch (y) {
     case 2: {
       int yy = year_ % 100;
-      if (yy < 10)
-	result += '0';
-      result += boost::lexical_cast<std::string>(yy);
+      if (yy < 10) {
+	buf[0] = '0';
+	Utils::itoa(yy, buf + 1);
+      } else
+	Utils::itoa(yy, buf);
+
+      result += buf;
       break;
     }
     case 4:
-      result += boost::lexical_cast<std::string>(year_);
+      Utils::itoa(year_, buf);
+      result += buf;
       break;
     default:
       fatalFormatError(format, y, "y's");

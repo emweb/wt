@@ -306,7 +306,7 @@ public:
    *
    * This applies to CSS-based layout.
    *
-   * \sa setMargin(WLength margin, WFlags<Side> sides);
+   * \sa setMargin();
    */
   virtual WLength margin(Side side) const = 0;
 
@@ -460,6 +460,12 @@ public:
    */
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value) = 0;
+
+  /*! \brief Returns an attribute value.
+   *
+   * \sa setAttributeValue()
+   */
+  virtual WT_USTRING attributeValue(const std::string& name) const = 0;
 
   /*! \brief Short hand for WString::tr()
    *

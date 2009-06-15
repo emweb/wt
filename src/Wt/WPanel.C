@@ -55,8 +55,10 @@ WPanel::WPanel(WContainerWidget *parent)
 void WPanel::setTitle(const WString& title)
 {
   setTitleBar(true);
-  if (!title_)
-    title_ = new WText(titleBar_);
+  if (!title_) {
+    title_ = new WText();
+    titleBar_->insertWidget(titleBar_->count() - 1, title_);
+  }
 
   title_->setText(title);
 }
@@ -75,6 +77,9 @@ void WPanel::setTitleBar(bool enable)
     titleBar_ = new WContainerWidget();
     impl_->insertWidget(0, titleBar_);
     titleBar_->setStyleClass("titlebar");
+    WBreak *br;
+    titleBar_->addWidget(br = new WBreak());
+    br->setClearSides(Horizontals);
   } else if (!enable && titleBar_) {
     delete titleBar_;
     titleBar_ = 0;

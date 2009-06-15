@@ -19,6 +19,8 @@ public:
   enum RuleSet { Empty = 0, HtmlAttribute = 1,
 		 JsStringLiteralSQuote = 2, JsStringLiteralDQuote = 3 };
 
+  EscapeOStream(); // only for strings short than 1024 chars,
+                   // get using c_str() !
   EscapeOStream(std::ostream& sink);
   EscapeOStream(EscapeOStream& other);
   ~EscapeOStream();
@@ -37,6 +39,9 @@ public:
   EscapeOStream& operator<< (const std::string& s);
   EscapeOStream& operator<< (int);
   void flush();
+
+  const char *c_str();
+  void clear();
 
 private:
   static const int S_LEN = 1024;

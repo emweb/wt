@@ -351,14 +351,6 @@ bool operator==(EnumType l, int zero);
 #endif
 }
 
-#ifdef WFLAGS_USE_TYPESAFE_MASKS
-#define W_DECLARE_MASK_FOR_FLAGS(EnumType, n, v) \
-  static const Wt::WFlags<EnumType> n(v)
-#else
-#define W_DECLARE_MASK_FOR_FLAGS(EnumType, n, v) \
-  static const unsigned n = (v)
-#endif
-
 #endif // DOXYGEN_ONLY
 
 #endif // WFLAGS_H_

@@ -54,6 +54,7 @@ namespace Wt {
  * file which will be deleted together with the WFileUpload widget,
  * unless stealSpooledFile() is called.
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WFileUpload *upload = new Wt::WFileUpload(this);
@@ -76,6 +77,7 @@ namespace Wt {
  * // React to a fileupload problem.
  * upload->fileTooLarge().connect(SLOT(this, MyWidget::fileTooLarge));
  * \endcode
+ * \endif
  *
  * The file upload itself corresponds to a <tt>&lt;input
  * type="file"&gt;</tt> tag, but may be wrapped in a

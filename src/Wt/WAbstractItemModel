@@ -36,11 +36,13 @@ namespace Wt {
     MatchCaseSensitive = 0x10,//!< Case sensitive
     MatchWrap = 0x20          //!< Wrap around whole model
   };
+
   W_DECLARE_OPERATORS_FOR_FLAGS(MatchFlag)
-  W_DECLARE_MASK_FOR_FLAGS(MatchFlag, MatchTypeMask,
-			   MatchExactly | MatchStringExactly |
-			   MatchStartsWith | MatchEndsWith |
-			   MatchRegExp | MatchWildCard);
+
+  /*! \brief Type part of MatchFlags */
+  static const WFlags<MatchFlag> MatchTypeMask = 
+    MatchExactly | MatchStringExactly | MatchStartsWith | MatchEndsWith |
+    MatchRegExp | MatchWildCard;
 
 /*! \class WAbstractItemModel Wt/WAbstractItemModel Wt/WAbstractItemModel
  *  \brief An abstract model for use with %Wt's view classes.

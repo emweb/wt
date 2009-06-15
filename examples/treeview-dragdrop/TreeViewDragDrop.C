@@ -238,8 +238,10 @@ public:
   /*! \brief Constructor.
    */
   TreeViewDragDrop(const WEnvironment &env)
-    : WApplication(env) {
-
+    : WApplication(env),
+      popup_(0),
+      popupActionBox_(0)
+  {
     /*
      * Create the data models.
      */
@@ -261,6 +263,11 @@ public:
     createUI();
   }
 
+  virtual ~TreeViewDragDrop() {
+    delete popup_;
+    delete popupActionBox_;
+  }
+
 private:
   /// The folder model (used by folderView_)
   WStandardItemModel    *folderModel_;
@@ -279,6 +286,12 @@ private:
 
   /// The file view.
   WTreeView *fileView_;
+
+  /// Popup menu on the folder view
+  WPopupMenu *popup_;
+
+  /// Message box to confirm the poup menu action
+  WMessageBox *popupActionBox_;
 
   /*! \brief Setup the user interface.
    */
@@ -452,46 +465,66 @@ private:
    */
   void showPopup(const WModelIndex& item, const WMouseEvent& event) {
     if (event.button() == WMouseEvent::RightButton) {
-
       // Select the item, it was not yet selected.
-      folderView_->select(item);
+      if (!folderView_->isSelected(item))
+	folderView_->select(item);
 
-      WPopupMenu popup;
-      popup.addItem("icons/folder_new.gif", "Create a New Folder");
-      popup.addItem("Rename this Folder")->setCheckable(true);
-      popup.addItem("Delete this Folder");
-      popup.addSeparator();
-      popup.addItem("Folder Details");
-      popup.addSeparator();
-      popup.addItem("Application Inventory");
-      popup.addItem("Hardware Inventory");
-      popup.addSeparator();
+      popup_ = new WPopupMenu();
+      popup_->addItem("icons/folder_new.gif", "Create a New Folder");
+      popup_->addItem("Rename this Folder")->setCheckable(true);
+      popup_->addItem("Delete this Folder");
+      popup_->addSeparator();
+      popup_->addItem("Folder Details");
+      popup_->addSeparator();
+      popup_->addItem("Application Inventory");
+      popup_->addItem("Hardware Inventory");
+      popup_->addSeparator();
 
       WPopupMenu *subMenu = new WPopupMenu();
       subMenu->addItem("Sub Item 1");
       subMenu->addItem("Sub Item 2");
-      popup.addMenu("File Deployments", subMenu);
+      popup_->addMenu("File Deployments", subMenu);
 
       /*
-       * This is one method of executing a popup, i.e. by using a reentrant
-       * event loop (blocking the current thread).
+       * This is one method of executing a popup, which does not block a
+       * thread for a reentrant event loop, and thus scales.
        *
-       * Alternatively you could call WPopupMenu::popup(), listen for
-       * to the WPopupMenu::aboutToHide signal, and check the
-       * WPopupMenu::result()
-       */
-      WPopupMenuItem *item = popup.exec(event);
-
-      if (item) {
-	/*
-	 * You may bind extra data to an item using setData() and
-	 * check here for the action asked.
-	 */
-	WMessageBox::show("Sorry.",
-			  "Action '" + item->text() + "' is not implemented.",
-			  Ok);
-      }
+       * Alternatively you could call WPopupMenu::exec(), which returns
+       * the result, but while waiting for it, blocks the thread.
+       */      
+      popup_->aboutToHide().connect(SLOT(this, TreeViewDragDrop::popupAction));
+      popup_->popup(event);
     }
+  }
+
+  /** \brief Process the result of the popup menu
+   */
+  void popupAction() {
+    if (popup_->result()) {
+      /*
+       * You could also bind extra data to an item using setData() and
+       * check here for the action asked. For now, we just use the text.
+       */
+      WString text = popup_->result()->text();
+      delete popup_;
+      popup_ = 0;
+
+      popupActionBox_ = new WMessageBox("Sorry.","Action '" + text
+					+ "' is not implemented.", NoIcon, Ok);
+      popupActionBox_->buttonClicked()
+	.connect(SLOT(this, TreeViewDragDrop::dialogDone));
+      popupActionBox_->show();
+    } else {
+      delete popup_;
+      popup_ = 0;
+    }
+  }
+
+  /** \brief Process the result of the message box.
+   */
+  void dialogDone() {
+    delete popupActionBox_;
+    popupActionBox_ = 0;
   }
 
   /*! \brief Populate the files model.

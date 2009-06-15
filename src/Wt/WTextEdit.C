@@ -17,6 +17,11 @@ WTextEdit::WTextEdit(WContainerWidget *parent)
   : WTextArea(),
     contentChanged_(false)
 {
+#ifdef WT_TARGET_JAVA
+  for (unsigned i = 0; i < 4; ++i)
+    buttons_[i] = "";
+#endif // WT_TARGET_JAVA
+
   setInline(false);
   initTinyMCE();
 

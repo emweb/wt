@@ -22,19 +22,23 @@ class WText;
  * text).
  *
  * Usage example:
+ * \if cpp
  * \code
  * Wt::WApplication *app = Wt::WApplication::instance();
  * app->setLoadingIndicator(new Wt::WOverlayLoadingIndicator());
  * \endcode
+ * \endif
  *
  * \image html WOverlayLoadingIndicator.png "The overlay loading indicator" 
  *
  * \note For this loading indicator to render properly in IE, you need to
  *       reset the "body" margin to 0. Using the inline stylesheet, this could
  *       be done using:
+ * \if cpp
  * \code
  *   WApplication::instance()->styleSheet().addRule("body", "margin: 0px");
  * \endcode
+ * \endif
  *
  * \sa WApplication::setLoadingIndicator()
  */

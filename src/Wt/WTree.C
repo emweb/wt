@@ -148,10 +148,10 @@ void WTree::setSelectionMode(SelectionMode mode)
 
 void WTree::clearSelection()
 {
-  WTreeNodeSet nodes = selection_;
-
-  for (WTreeNodeSet::iterator i = nodes.begin(); i != nodes.end(); ++i)
-    select(*i, false);
+  while (!selection_.empty()) {
+    WTreeNode *n = *selection_.begin();
+    select(n, false);
+  }
 }
 
 void WTree::select(WTreeNode *node, bool selected)

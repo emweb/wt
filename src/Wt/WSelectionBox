@@ -35,6 +35,7 @@ namespace Wt {
  * To use the selectionbox with a custom model instead of the default
  * WStringListModel, use setModel().
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WSelectionBox *selectionBox = new Wt::WSelectionBox(this);
@@ -46,6 +47,7 @@ namespace Wt {
  * selectionBox->setCurrentIndex(2); // Johnny Depp
  * selectionBox->activated().connect(SLOT(this, MyWidget::comboChanged));
  * \endcode
+ * \endif
  *
  * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag.
  *

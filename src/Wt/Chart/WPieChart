@@ -187,7 +187,7 @@ public:
 
   /*! \brief Returns options set for displaying labels.
    *
-   * \sa setDisplayLabels(int)
+   * \sa WPieChart::setDisplayLabels()
    */
   WFlags<LabelOption> displayLabels() const { return labelOptions_; }
 

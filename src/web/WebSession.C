@@ -25,37 +25,6 @@
 
 namespace Wt {
 
-class WEvent {
-public:
-  enum EventType { EmitSignal, Refresh, Render, HashChange };
-
-  WebSession::Handler& handler;
-  EventType            type;
-
-  WebSession *session() const { return handler.session(); }
-
-  /* For Render type */
-  WebRenderer::ResponseType responseType;
-
-  /* For HashChange type */
-  std::string hash;
-
-  WEvent(WebSession::Handler& aHandler, EventType aType,
-	 WebRenderer::ResponseType aResponseType = WebRenderer::FullResponse)
-    : handler(aHandler),
-      type(aType),
-      responseType(aResponseType)
-  { }
-
-  WEvent(WebSession::Handler& aHandler, EventType aType,
-	 const std::string& aHash)
-    : handler(aHandler),
-      type(aType),
-      responseType(WebRenderer::FullResponse),
-      hash(aHash)
-  { }
-};
-
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 boost::thread_specific_ptr<WebSession::Handler> WebSession::threadHandler_;
 #else
@@ -267,7 +236,8 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
 #ifndef WT_TARGET_JAVA
   std::string result = url;
 #else
-  std::string result = Handler::instance()->response()->encodeURL(url);
+  std::string result = WebSession::Handler::instance()
+    ->response()->encodeURL(url);
 #endif // WT_TARGET_JAVA
 
   if (env_.agentIsSpiderBot())
@@ -348,9 +318,18 @@ bool WebSession::start()
 
 std::string WebSession::getCgiValue(const std::string& varName) const
 {
-  WebRequest *request = Handler::instance()->request();
+  WebRequest *request = WebSession::Handler::instance()->request();
   if (request)
     return request->envValue(varName);
+  else
+    return "";
+}
+
+std::string WebSession::getCgiHeader(const std::string& headerName) const
+{
+  WebRequest *request = WebSession::Handler::instance()->request();
+  if (request)
+    return request->headerValue(headerName);
   else
     return "";
 }
@@ -599,7 +578,7 @@ EventSignalBase *WebSession::decodeSignal(const std::string& objectId,
 
 WebSession *WebSession::instance()
 {
-  Handler *handler = Handler::instance();
+  Handler *handler = WebSession::Handler::instance();
   return handler ? handler->session() : 0;
 }
 
@@ -835,6 +814,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
 	if (env_.doesAjax_ && !request.pathInfo().empty()) {
 	  std::string url = baseUrl() + applicationName();
+
 	  url += '#' + env_.internalPath();
 	  redirect(url);
 	  renderer_.serveMainWidget(*handler.response(),

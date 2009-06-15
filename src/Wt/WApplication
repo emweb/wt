@@ -47,6 +47,7 @@ namespace Ext {
 
 class WebSession;
 class UpdateLockImpl;
+class SoundManager;
 
 class WResponseEvent
 #ifdef WT_TARGET_JAVA
@@ -97,7 +98,7 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  * Each user session of your application has a corresponding
  * WApplication instance. This instance must be created, before
  * creating widgets, and is returned by the function 
- * {javadoclink WebController#createApplication()}. 
+ * {javadoclink WtServlet#createApplication(WEnvironment)}. 
  * The instance is the main entry point into information pertaining 
  * to a single session, and holds a reference to the root() 
  * of the widget tree.
@@ -399,7 +400,7 @@ public:
    * should be a &lt;div&gt; for a WContainerWidget, or a
    * &lt;table&gt; for a WTable).
    *
-   * \sa root(), \link WServer::WidgetSet WidgetSet mode\endlink.
+   * \sa root(), WServer::WidgetSet
    */
   void bindWidget(WWidget *widget, const std::string& domId);
 
@@ -1001,7 +1002,8 @@ public:
    * Starts a new log entry of the given <i>type</i> in the %Wt
    * application log file. This method returns a stream-like object to
    * which the message may be streamed.
-   *
+   * 
+   * \if cpp
    * A typical usage would be:
    * \code
    *  wApp->log("notice") << "User " << userName << " logged in successfully.";
@@ -1010,6 +1012,7 @@ public:
    * This would create a log entry that looks like:
    * \verbatim
 [2008-Jul-13 14:01:17.817348] 16879 [/app.wt Z2gCmSxIGjLHD73L] [notice] "User bart logged in successfully." \endverbatim
+   * \endif
    *
    * \sa \ref config_general
    */
@@ -1093,6 +1096,7 @@ protected:
    * to the application. It provides a single point of entry for
    * events to the application.
    *
+   * \if cpp
    * You will rarely want to reimplement this method, unless you wish
    * to have a single point for exception handling. In that case, you
    * should call the baseclass implementation WApplication::notify(),
@@ -1112,6 +1116,7 @@ protected:
    *
    * Any uncaught exception throw during event handling terminates the
    * session.
+   * \endif
    */
   virtual void notify(const WEvent& e);
 
@@ -1245,6 +1250,12 @@ private:
 
   static bool pathMatches(const std::string& path, const std::string& query);
 
+  /*
+   * Methods for audio handling
+   */
+  SoundManager *getSoundManager();
+  SoundManager *soundManager_;
+
   friend class WebRenderer;
   friend class WebSession;
   friend class WebController;
@@ -1259,6 +1270,7 @@ private:
   friend class WServerPushResource;
   friend class WViewWidget;
   friend class WDialog;
+  friend class WSound;
   friend class Ext::Dialog;
   friend class Ext::MessageBox;
 };

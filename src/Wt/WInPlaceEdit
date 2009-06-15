@@ -25,12 +25,21 @@ class WPushButton;
  * When the user saves the edit, the valueChanged() signal is emitted.
  *
  * Usage example:
+ * \if cpp
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget();
  * new Wt::WText("Name: ", w);
  * Wt::WInPlaceEdit *edit = new Wt::WInPlaceEdit("Bob Smith", w);
  * edit->setStyleClass("inplace");
  * \endcode
+ * \elseif java
+ * \code 
+ * WContainerWidget w = new WContainerWidget();
+ * new WText("Name: ", w);
+ * WInPlaceEdit edit = new WInPlaceEdit("Bob Smith", w);
+ * edit.setStyleClass("inplace");
+ * \endcode
+ * \endif
  *
  * CSS stylesheet:
  * \code

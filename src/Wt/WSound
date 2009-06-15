@@ -1,0 +1,109 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSOUND_H_
+#define WSOUND_H_
+
+#include <Wt/WObject>
+
+namespace Wt {
+class SoundManager;
+
+/*! \class WSound Wt/WSound Wt/WSound
+ * \brief Utility class to play a sound.
+ *
+ * This class provides a way to play a sound asynchonously (if the
+ * browser supports this). It is intended as a simple way to play
+ * event sounds (not quite for a media center).
+ *
+ * The current implementation uses Adobe Flash to play sounds in the
+ * web browser. Future releases may use the HTML5 tags to play audio
+ * in the browser. The appropriate file formats depend on the Flash
+ * player or the browser support, but MP3 or WAV are most widely
+ * supported.
+ *
+ * This class uses <i>resourcesURL</i>"WtSoundManager.swf", a flash
+ * object, and <i>resourcesURL</i>"swfobject.js", a companion
+ * JavaScript library, which are both distributed with %Wt in the
+ * resources folder. <i>resourcesURL</i> is the configuration property
+ * that locates the %Wt resources/ folder inside your docroot.
+ *
+ * Usage example:
+ * \code
+ * WSound *s = new WSound("djing.mp3", parent);
+ * s->setLoops(3);
+ * s->play();
+ * playButton->clicked().connect(SLOT(s, WSound::play));
+ * stopButton->clicked().connect(SLOT(s, WSound::stop));
+ * \endcode
+ *
+ * \note The current implementation has occasional problems with playing
+ *       sound on Internet Explorer.
+ */
+class WT_API WSound : public WObject
+{
+public:
+  /*! \brief Constructs a sound object that will play the given URL.
+   */
+  WSound(const std::string &url, WObject *parent = 0);
+
+  //WSound(WResource *resource, WObject *parent = 0);
+
+  /*! \brief Destructor.
+   *
+   * The destructor calls stop() and unloads the sound object.
+   */
+  ~WSound();
+
+  /*! \brief Returns the url played by this class.
+   */
+  const std::string &url() const;
+
+  /*! \brief Returns the configured number of loops for this object.
+   *
+   * When play() is called, the sound will be played for this amount of loops.
+   */
+  int loops() const;
+  /*! \brief Sets the amount of times the sound has to be played for every
+   *         invocation of play()
+   *
+   * The behavior is undefined for negative loop numbers.
+   */
+  void setLoops(int number);
+
+  /*! \brief Start asynchronous playback of the sound.
+   *
+   * This method returns immediately. It will cause the song to be played for
+   * the configured amount of loops.
+   *
+   * The behavior of play() when a sound is already playing depends on the
+   * method to play songs in the browser (Flash/HTML5). It may be mixed with
+   * an already playing instance, or replace the previous instance. It is
+   * recommended to call stop() before play() if you want to avoid mixing
+   * multiple instances of a single WSound object.
+   */
+  void play();
+
+  /*! \brief Stops playback of the sound.
+   *
+   * This method returns immediately. It causes the playback of this
+   * WSound to be terminated.
+   */
+  void stop();
+
+  //static bool isAvailable();
+
+private:
+  std::string                url_;
+  //WResource                 *resource_;
+  int                        loops_;
+  SoundManager *sm_;
+};
+
+}
+
+#endif // WSOUND_H_
+

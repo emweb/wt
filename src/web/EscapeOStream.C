@@ -8,6 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include "EscapeOStream.h"
 #include "Utils.h"
+#include "WtException.h"
 
 namespace Wt {
 
@@ -50,6 +51,11 @@ const std::string EscapeOStream::standardSetsSpecial_[] = {
   std::string("\\\n\r\t\"")
 };
 
+EscapeOStream::EscapeOStream()
+  : sink_(0),
+    slen_(0),
+    c_special_(0)
+{ }
 
 EscapeOStream::EscapeOStream(std::ostream& sink)
   : sink_(&sink),
@@ -199,6 +205,8 @@ EscapeOStream& EscapeOStream::operator<< (int arg)
 void EscapeOStream::sAppend(char c)
 {
   if (slen_ == S_LEN) {
+    if (!sink_)
+      throw WtException("EscapeOStream buffer too short");
     sink_->write(s_, slen_);
     slen_ = 0;
   }
@@ -209,6 +217,8 @@ void EscapeOStream::sAppend(char c)
 void EscapeOStream::sAppend(const char *s, int length)
 {
   if (slen_ + length > S_LEN) {
+    if (!sink_)
+      throw WtException("EscapeOStream buffer too short");
     sink_->write(s_, slen_);
     slen_ = 0;
 
@@ -220,6 +230,17 @@ void EscapeOStream::sAppend(const char *s, int length)
 
   std::memcpy(s_ + slen_, s, length);
   slen_ += length;
+}
+
+const char *EscapeOStream::c_str()
+{
+  s_[slen_] = 0;
+  return s_;
+}
+
+void EscapeOStream::clear()
+{
+  slen_ = 0;
 }
 
 void EscapeOStream::sAppend(const std::string& s)

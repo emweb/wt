@@ -29,7 +29,7 @@ namespace Wt {
  * \elseif java
  * The data column should contain data that can be converted to
  * a number, but should not necessarily be of a number type, see
- * also {javadoclink StringUtils#asNumber(Object)}.
+ * also {javadoclink eu.webtoolkit.jwt.utils.StringUtils#asNumber(Object)}.
  * \endif
  *
  * Multiple series of different types may be combined on a single chart.
@@ -169,7 +169,7 @@ public:
 
   /*! \brief Returns which aspects of the look are overriden.
    *
-   * \sa setCustomFlags(WFlags<CustomFlags>)
+   * \sa WDataSeries::setCustomFlags(WFlags<CustomFlags>)
    */
   WFlags<CustomFlag> curstomFlags() const { return customFlags_; }
 
@@ -180,7 +180,7 @@ public:
    *
    * The default value is a default WPen().
    *
-   * \sa WChartPalette:strokePen(), WChartPalette::borderPen()
+   * \sa WChartPalette::strokePen(), WChartPalette::borderPen()
    */
   void setPen(const WPen& pen);
 

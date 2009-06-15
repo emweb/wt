@@ -8,6 +8,7 @@
 
 #include "Wt/WColor"
 #include "Utils.h"
+#include "EscapeOStream.h"
 
 namespace Wt {
 
@@ -101,23 +102,24 @@ const std::string WColor::cssText(bool withAlpha) const
     if (!name_.empty())
       return name_.toUTF8();
     else {
-      std::stringstream tmp;
+      EscapeOStream s;
 #ifndef WT_TARGET_JAVA
       char buf[30];
 #else
       char *buf;
 #endif
       if (alpha_ != 255 && withAlpha) {
-	tmp << "rgba(" << Utils::itoa(red_, buf);
-	tmp << ',' << Utils::itoa(green_, buf);
-	tmp << ',' << Utils::itoa(blue_, buf);
-	tmp << ',' << Utils::round_str(alpha_ / 255., 2, buf) << ')';
+	s << "rgba(" << Utils::itoa(red_, buf);
+	s << ',' << Utils::itoa(green_, buf);
+	s << ',' << Utils::itoa(blue_, buf);
+	s << ',' << Utils::round_str(alpha_ / 255., 2, buf) << ')';
       }	else {
-	tmp << "rgb(" << Utils::itoa(red_, buf);
-	tmp << ',' << Utils::itoa(green_, buf);
-	tmp << ',' << Utils::itoa(blue_, buf) << ')';
+	s << "rgb(" << Utils::itoa(red_, buf);
+	s << ',' << Utils::itoa(green_, buf);
+	s << ',' << Utils::itoa(blue_, buf) << ')';
       }
-      return tmp.str();
+
+      return s.c_str();
     }
   }
 }

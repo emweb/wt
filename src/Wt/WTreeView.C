@@ -22,6 +22,7 @@
 #include "Wt/WVBoxLayout"
 #include "Wt/WWebWidget"
 
+#include "EscapeOStream.h"
 #include "Utils.h"
 
 /*
@@ -354,10 +355,14 @@ void WTreeViewNode::setWidget(int column, WWidget *newW, bool replace)
 
   if (current) {
     newW->setStyleClass(current->styleClass());
-    current->setStyleClass("");
-  } else
-    newW->setStyleClass("Wt-tv-c rh " + view_->columnStyleClass(column)
-			+ " " + newW->styleClass());
+    current->setStyleClass(WString());
+  } else {
+    EscapeOStream s;
+    s << "Wt-tv-c rh " << view_->columnStyleClass(column) << ' '
+      << newW->styleClass().toUTF8();
+
+    newW->setStyleClass(WString::fromUTF8(s.c_str()));
+  }
 
   if (column == 0) {
     if (current)
@@ -746,7 +751,15 @@ WTreeView::ColumnInfo::ColumnInfo(const WTreeView *view, WApplication *app,
 
 std::string WTreeView::ColumnInfo::styleClass() const
 {
+#ifndef WT_TARGET_JAVA
+  char buf[40];
+  buf[0] = 0;
+  std::strcat(buf, "Wt-tv-c");
+  Utils::itoa(id, buf + 7, 10);
+  return buf;
+#else
   return "Wt-tv-c" + boost::lexical_cast<std::string>(id);
+#endif
 }
 
 WTreeView::WTreeView(WContainerWidget *parent)
@@ -2706,22 +2719,14 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
   if (index != rootIndex_)
     ++theNodeRow;
 
-  // if a node has children loaded but is not currently expanded, then still
-  // adjust it, but do not increase nodeRow
-  int dummyNodeRow = theNodeRow;
+  if (!isExpanded(index) && !node->childrenLoaded())
+    return theNodeRow;
 
-  int *nodeRow;
-  if (!isExpanded(index))
-    if (node->childrenLoaded())
-      nodeRow = &dummyNodeRow;
-    else
-      return theNodeRow;
-  else
-    nodeRow = &theNodeRow;
+  int nodeRow = theNodeRow;
 
   if (node->isAllSpacer()) {
-    if (*nodeRow + node->childrenHeight() > firstRenderedRow_
-	&& *nodeRow < firstRenderedRow_ + validRowCount_) {
+    if (nodeRow + node->childrenHeight() > firstRenderedRow_
+	&& nodeRow < firstRenderedRow_ + validRowCount_) {
       // replace spacer by some nodes
       int childCount = model_->rowCount(index);
 
@@ -2733,8 +2738,8 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 
 	int childHeight = subTreeHeight(childIndex);
 
-	if (*nodeRow <= firstRenderedRow_ + validRowCount_
-	    && *nodeRow + childHeight > firstRenderedRow_) {
+	if (nodeRow <= firstRenderedRow_ + validRowCount_
+	    && nodeRow + childHeight > firstRenderedRow_) {
 	  if (firstNode) {
 	    firstNode = false;
 	    node->setTopSpacerHeight(rowStubs);
@@ -2746,27 +2751,27 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 					       i == childCount - 1, node);
 	  node->childContainer()->addWidget(n);
 
-	  int nestedNodeRow = *nodeRow;
+	  int nestedNodeRow = nodeRow;
 	  nestedNodeRow = adjustRenderedNode(n, nestedNodeRow);
-	  assert(nestedNodeRow == *nodeRow + childHeight);
+	  assert(nestedNodeRow == nodeRow + childHeight);
 	} else {
 	  rowStubs += childHeight;
 	}
-	*nodeRow += childHeight;
+	nodeRow += childHeight;
       }
       node->setBottomSpacerHeight(rowStubs);
     } else
-      *nodeRow += node->childrenHeight();
+      nodeRow += node->childrenHeight();
   } else {
     // get a reference to the first existing child, which we'll recursively
     // adjust later
     int topSpacerHeight = node->topSpacerHeight();
-    int nestedNodeRow = *nodeRow + topSpacerHeight;
+    int nestedNodeRow = nodeRow + topSpacerHeight;
     WTreeViewNode *child = node->nextChildNode(0);
 
     int childCount = model_->rowCount(index);
     while (topSpacerHeight != 0
-	   && *nodeRow + topSpacerHeight > firstRenderedRow_) {
+	   && nodeRow + topSpacerHeight > firstRenderedRow_) {
       // eat from top spacer and replace with actual nodes
       WTreeViewNode *n
 	= dynamic_cast<WTreeViewNode *>(node->childContainer()->widget(1));
@@ -2782,9 +2787,9 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 			    childIndex.row() == childCount - 1, node);
       node->childContainer()->insertWidget(1, n);
 
-      nestedNodeRow = *nodeRow + topSpacerHeight - childHeight;
+      nestedNodeRow = nodeRow + topSpacerHeight - childHeight;
       nestedNodeRow = adjustRenderedNode(n, nestedNodeRow);
-      assert(nestedNodeRow == *nodeRow + topSpacerHeight);
+      assert(nestedNodeRow == nodeRow + topSpacerHeight);
 
       topSpacerHeight -= childHeight;
       node->addTopSpacerHeight(-childHeight);
@@ -2797,7 +2802,7 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
     int bottomSpacerStart = nch - node->bottomSpacerHeight();
 
     while (node->bottomSpacerHeight() != 0
-	   && *nodeRow + bottomSpacerStart
+	   && nodeRow + bottomSpacerStart
 	      <= firstRenderedRow_ + validRowCount_){
       // eat from bottom spacer and replace with actual nodes
       int lastNodeIndex = node->childContainer()->count() - 2;
@@ -2815,18 +2820,20 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 			    childIndex.row() == childCount - 1, node);
       node->childContainer()->insertWidget(lastNodeIndex + 1, n);
 
-      nestedNodeRow = *nodeRow + bottomSpacerStart;
+      nestedNodeRow = nodeRow + bottomSpacerStart;
       nestedNodeRow = adjustRenderedNode(n, nestedNodeRow);
-      assert(nestedNodeRow == *nodeRow + bottomSpacerStart + childHeight);
+      assert(nestedNodeRow == nodeRow + bottomSpacerStart + childHeight);
 
       node->addBottomSpacerHeight(-childHeight);
       bottomSpacerStart += childHeight;
     }
 
-    *nodeRow += nch;
+    nodeRow += nch;
   }
 
-  return theNodeRow;
+  // if a node has children loaded but is not currently expanded, then still
+  // adjust it, but do not return the calculated nodeRow for it.
+  return isExpanded(index) ? nodeRow : theNodeRow;
 }
 
 int WTreeView::pruneNodes(WTreeViewNode *node, int nodeRow)

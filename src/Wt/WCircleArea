@@ -21,6 +21,7 @@ namespace Wt {
  * interactivity on a circular area of the image. The circle is
  * specified in pixel coordinates.
  *
+ * \if
  * Usage example:
  * \code
  * Wt::WImage *image = new Wt::WImage("images/events.png", this);
@@ -29,6 +30,7 @@ namespace Wt {
  *
  * area->clicked().connect(SLOT(this, MyWidget::areaClicked));
  * \endcode
+ * \endif
  *
  * \sa WImage::addArea(), WPaintedWidget::addArea()
  * \sa WRectArea, WPolygonArea

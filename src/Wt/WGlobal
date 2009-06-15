@@ -163,16 +163,17 @@ enum Side {
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(Side)
+
 /** \brief No side */
-W_DECLARE_MASK_FOR_FLAGS(Side, None, 0);
+static const WFlags<Side> None = 0;
 /** \brief (CenterX | CenterY) */
-W_DECLARE_MASK_FOR_FLAGS(Side, CenterXY, CenterX | CenterY);
+static const WFlags<Side> CenterXY = CenterX | CenterY;
 /** \brief (Left | Right) */
-W_DECLARE_MASK_FOR_FLAGS(Side, Verticals, Left | Right);
+static const WFlags<Side> Horizontals = Left | Right;
 /** \brief (Top | Bottom) */
-W_DECLARE_MASK_FOR_FLAGS(Side, Horizontals, Top | Bottom);
+static const WFlags<Side> Verticals = Top | Bottom;
 /** \brief All sides */
-W_DECLARE_MASK_FOR_FLAGS(Side, All, Top | Bottom | Left | Right);
+static const WFlags<Side> All = Top | Bottom | Left | Right;
 
 /*! \brief Enumeration that specifies a horizontal or a vertical alignment.
  *
@@ -207,7 +208,7 @@ enum AlignmentFlag {
   /*! \brief Align to the right
    */
   AlignRight=0x2,
-  /*! \brief Align horizintally in the center
+  /*! \brief Align horizontally in the center
    */
   AlignCenter=0x4,
   /*! \brief Justify left and right
@@ -239,17 +240,16 @@ enum AlignmentFlag {
   AlignTextBottom=0x800,
   AlignLength=0x1000  // ?
 };
+
 W_DECLARE_OPERATORS_FOR_FLAGS(AlignmentFlag)
-/*! \brief Combination of all horizontal alignment flags
- */
-W_DECLARE_MASK_FOR_FLAGS(AlignmentFlag, AlignHorizontalMask,
-			 AlignLeft | AlignRight | AlignCenter | AlignJustify);
-/*! \brief Combination of all vertical alignment flags
- */
-W_DECLARE_MASK_FOR_FLAGS(AlignmentFlag, AlignVerticalMask,
-			 AlignBaseline | AlignSub | AlignSuper | AlignTop |
-			 AlignTextTop | AlignMiddle | AlignBottom |
-			 AlignTextBottom | AlignLength);
+
+/*! \brief Combination of all horizontal alignment flags */
+static const WFlags<AlignmentFlag> AlignHorizontalMask
+  = AlignLeft | AlignRight | AlignCenter | AlignJustify;
+
+/*! \brief Combination of all vertical alignment flags */
+static const WFlags<AlignmentFlag> AlignVerticalMask
+  = AlignBaseline | AlignSub | AlignSuper | AlignTop | AlignTextTop | AlignMiddle | AlignBottom | AlignTextBottom | AlignLength;
 
 /*! \brief Enumeration that specifies a layout mechanism for a widget.
  *

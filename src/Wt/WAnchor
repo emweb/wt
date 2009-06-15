@@ -28,6 +28,7 @@ class WImage;
  * documents are not served within the browser window in certain
  * browsers.
  *
+ * \if cpp
  * Usage example:
  * \code
  * WAnchor *a;
@@ -46,6 +47,7 @@ class WImage;
  * a = new WAnchor(r, "PDF version", this);
  * a->setTarget(TargetNewWindow);
  * \endcode
+ * \endif
  *
  * The widget corresponds to the HTML <tt>&lt;a&gt;</tt> tag.
  *

@@ -15,13 +15,15 @@ namespace Wt {
  *  \brief A widget that represents a push button.
  *
  * To act on a button click, connect a slot to the clicked() signal.
- *
+ * 
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WPushButton *ok = new Wt::WPushButton("Okay");
  * ok->clicked().connect(SLOT(ok, Wt::WPushButton::disable));
  * ok->clicked().connect(SLOT(this, MyClass::processData));
  * \endcode
+ * \endif
  *
  * The widget corresponds to the HTML <tt>&lt;button&gt;</tt> tag.
  *

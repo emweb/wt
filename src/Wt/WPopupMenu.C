@@ -96,8 +96,6 @@ void WPopupMenu::done(WPopupMenuItem *result)
 {
   result_ = result;
 
-  aboutToHide_.emit();
-
   hide();
 
   globalClickConnection_.disconnect();
@@ -106,9 +104,13 @@ void WPopupMenu::done(WPopupMenuItem *result)
   WApplication::instance()->root()->clicked().senderRepaint();
   WApplication::instance()->root()->escapePressed().senderRepaint();
 
-  if (recursiveEventLoop_) {
+  bool recursive = recursiveEventLoop_;
+  recursiveEventLoop_ = false;
+
+  aboutToHide_.emit();
+
+  if (recursive) {
     WebSession *session = WApplication::instance()->session();
-    recursiveEventLoop_ = false;
     session->unlockRecursiveEventLoop();
   }
 }

@@ -45,6 +45,7 @@ class WRegExp;
  * using setDynamicSortFilter().
  *
  * Usage example:
+ * \if cpp
  * \code
  * // model is the source model
  * Wt::WAbstractItemModel *model = ...
@@ -62,6 +63,25 @@ class WRegExp;
  * view->setModel(proxy);
  * ...
  * \endcode
+ * \elseif java
+ * \code
+ * // model is the source model
+ *  WAbstractItemModel model = ...
+ * 
+ * // we setup a proxy to filter the source model
+ * WSortFilterProxyModel proxy = new WSortFilterProxyModel(this);
+ * proxy.setSourceModel(model);
+ * proxy.setDynamicSortFilter(true);
+ * proxy.setFilterKeyColumn(0);
+ * proxy.setFilterRole(ItemDataRole.UserRole);
+ * proxy.setFilterRegExp(".*");
+ *		 
+ * // configure a view to use the proxy model instead of the source model
+ * WTreeView view = new WTreeView(this);
+ * view.setModel(proxy);
+ * ...
+ * \endcode
+ * \endif
  *
  * \note The implementation is not yet complete: the proxy model does
  *       not yet react properly to row insertions and row removals in the

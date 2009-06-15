@@ -25,9 +25,14 @@ class WT_API WRectF
 public:
   /*! \brief Default constructor.
    *
+   * \if cpp
    * Constructs a <i>null</i> rectangle.
-   *
+   * 
    * \sa isNull()
+   * \elseif java
+   * Constructs a rectangle from top left point (<i>x=0</i>, <i>y=0</i>)
+   * and size <i>width=0</i> x <i>height=0</i>.
+   * \endif
    */
   WRectF();
 
@@ -53,6 +58,12 @@ public:
    * \sa WRectF()
    */
   bool isNull() const;
+
+  /*! \brief Determines whether or not this rectangle is empty. 
+   * A rectangle is empty if its width or its height is less than 
+   * or equal to zero.
+   */
+  bool isEmpty() const;
 
   /*! \brief Changes the X-position of the left side.
    *

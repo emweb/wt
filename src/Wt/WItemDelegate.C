@@ -56,7 +56,10 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 {
   WidgetRef widgetRef(widget);
 
+  bool isNew = false;
+
   if (!widgetRef.w) {
+    isNew = true;
     WText *t = new WText();
     if (index.isValid() && !(index.flags() & ItemIsXHTMLText))
       t->setTextFormat(PlainText);
@@ -76,8 +79,8 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     checkBox(widgetRef, index, true, index.flags() & ItemIsTristate)
       ->setCheckState(state);
     haveCheckBox = true;
-  } else
-    delete checkBox(widgetRef, index, false);
+  } else if (!isNew)
+      delete checkBox(widgetRef, index, false);
 
   std::string internalPath = asString(index.data(InternalPathRole)).toUTF8();
   std::string url = asString(index.data(UrlRole)).toUTF8();
@@ -101,12 +104,12 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
   std::string iconUrl = asString(index.data(DecorationRole)).toUTF8();
   if (!iconUrl.empty()) {
     iconWidget(widgetRef, true)->setImageRef(iconUrl);
-  } else if (iconUrl.empty()) {
-    delete iconWidget(widgetRef, false);
-  }
+  } else if (!isNew)
+      delete iconWidget(widgetRef, false);
 
   WString tooltip = asString(index.data(ToolTipRole));
-  widgetRef.w->setToolTip(tooltip);
+  if (!tooltip.empty() || !isNew)
+    widgetRef.w->setToolTip(tooltip);
 
   if (index.column() != 0) {
     WT_USTRING sc = asString(index.data(StyleClassRole));
@@ -121,7 +124,8 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
   if (index.flags() & ItemIsDropEnabled)
     widgetRef.w->setAttributeValue("drop", WString::fromUTF8("true"));
   else
-    widgetRef.w->setAttributeValue("drop", WString::fromUTF8("false"));
+    if (!widgetRef.w->attributeValue("drop").empty())
+      widgetRef.w->setAttributeValue("drop", WString::fromUTF8("f"));
 
   return widgetRef.w;
 }

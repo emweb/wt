@@ -48,10 +48,8 @@ enum RepaintFlag {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag);
 
-W_DECLARE_MASK_FOR_FLAGS(RepaintFlag, RepaintAll,
-			 RepaintPropertyIEMobile | RepaintPropertyAttribute
-			 | RepaintInnerHtml);
-
+static const WFlags<RepaintFlag> RepaintAll
+  = RepaintPropertyIEMobile | RepaintPropertyAttribute | RepaintInnerHtml;
 
 class WCssDecorationStyle;
 class WContainerWidget;
@@ -123,6 +121,8 @@ public:
   virtual void refresh();
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value);
+  virtual WT_USTRING attributeValue(const std::string& name) const;
+
   virtual void load();
   virtual bool loaded() const;
   virtual void setId(const std::string& id);

@@ -67,11 +67,11 @@ void WTreeTableNode::createExtraColumns(int numColumns)
   }
 
   while (static_cast<int>(columnWidgets_.size()) < numColumns) {
-    WText *w = new WText(WString::fromUTF8("&nbsp;"), row_);
+    WText *w = new WText(WString::fromUTF8(" "), row_);
     w->setInline(false);
     columnWidgets_.push_back(ColumnWidget(w, false));
     w->setFloatSide(Left);
-    w->resize(columnWidth(columnWidgets_.size()), WLength::Auto);
+    w->resize(columnWidth(columnWidgets_.size()), 1);
   }
 }
 
@@ -104,8 +104,10 @@ void WTreeTableNode::setTable(WTreeTable *table)
 
     createExtraColumns(table->columnCount() - 1);
 
-    for (unsigned i = 0; i < columnWidgets_.size(); ++i)
-      columnWidgets_[i].widget->resize(columnWidth(i + 1), WLength::Auto);
+    for (unsigned i = 0; i < columnWidgets_.size(); ++i) {
+      WWidget *w = columnWidgets_[i].widget;
+      w->resize(columnWidth(i + 1), w->height());
+    }
   }
 }
 

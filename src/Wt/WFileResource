@@ -24,6 +24,7 @@ namespace Wt {
  * in memory. The size of the buffer can be changed using
  * setBufferSize().
  *
+ * \if cpp
  * Usage examples:
  * \code
  * Wt::WFileResource *csvFile = new Wt::WFileResource("text/csv", "/opt/files/afile.csv");
@@ -34,6 +35,7 @@ namespace Wt {
  * imageFile->suggestFileName("data.png");
  * Wt::WImage *image = new Wt::WImage(imageFile, "PNG version");
  * \endcode
+ * \endif
  *
  * \sa WMemoryResource
  */

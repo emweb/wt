@@ -86,6 +86,7 @@ struct Grid {
  * contents reduces in size.
  *
  * Usage example:
+ * \if cpp
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget(this);
  * w->resize(WLength::Auto, 600);
@@ -98,7 +99,21 @@ struct Grid {
  *
  * w->setLayout(layout);
  * \endcode
- * 
+ * \elseif java
+ * \code
+ * WContainerWidget w = new WContainerWidget(this);
+ * w.resize(WLength.Auto, new WLength(600));
+ *		 
+ * WGridLayout layout = new WGridLayout();
+ * layout.addWidget(new WText("Item 0 0"), 0, 0);
+ * layout.addWidget(new WText("Item 0 1"), 0, 1);
+ * layout.addWidget(new WText("Item 1 0"), 1, 0);
+ * layout.addWidget(new WText("Item 1 1"), 1, 1);
+ *		 
+ * w.setLayout(layout);
+ * \endcode
+ * \endif
+ *
  * \if cpp
  * \note This layout manager is applicable only to WContainerWidget
  * container widgets. You may use it within an Ext::Container

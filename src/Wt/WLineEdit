@@ -30,6 +30,7 @@ namespace Wt {
  * both client-side validation (as visual feed-back only) and
  * server-side validation when calling validate().
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget();
@@ -38,6 +39,7 @@ namespace Wt {
  * edit->setValidator(new Wt::WIntValidator(0, 200));
  * label->setBuddy(edit);
  * \endcode
+ * \endif
  *
  * The widget corresponds to the HTML <tt>&lt;input type="text"&gt;</tt> or
  * <tt>&lt;input type="password"&gt;</tt> tag.

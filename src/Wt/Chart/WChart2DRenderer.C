@@ -6,23 +6,21 @@
 
 #include <cmath>
 
-#include <Wt/Chart/WChart2DRenderer>
-#include <Wt/Chart/WCartesianChart>
+#include "Wt/Chart/WChart2DRenderer"
+#include "Wt/Chart/WCartesianChart"
 
-#include <Wt/WAbstractItemModel>
-#include <Wt/WDate>
-#include <Wt/WPainter>
+#include "Wt/WAbstractItemModel"
+#include "Wt/WDate"
+#include "Wt/WPainter"
+
+#include "Utils.h"
+
 #include <limits>
 #include <float.h>
 
 namespace {
   const int TICK_LENGTH = 5;
   const double CATEGORY_WIDTH = 0.8;
-
-  inline bool myisnan(double d)
-  {
-    return !(d == d);
-  }
 }
 
 namespace Wt {
@@ -117,10 +115,6 @@ public:
     : SeriesRenderer(renderer, series, it),
       curveLength_(0)
   { }
-
-  ~LineSeriesRenderer() {
-    paint();
-  }
 
   void addValue(double x, double y, double stacky) {
     WPointF p = renderer_.map(x, y, series_.axis(),
@@ -372,6 +366,7 @@ bool SeriesRenderIterator::startSeries(const WDataSeries& series,
 
 void SeriesRenderIterator::endSeries()
 {
+  seriesRenderer_->paint();
   delete seriesRenderer_;
   series_ = 0;
 }
@@ -380,7 +375,7 @@ void SeriesRenderIterator::newValue(const WDataSeries& series,
 				    double x, double y,
 				    double stackY)
 {
-  if (myisnan(x) || myisnan(y))
+  if (Utils::isNaN(x) || Utils::isNaN(y))
     seriesRenderer_->paint();
   else
     seriesRenderer_->addValue(x, y, stackY);
@@ -593,14 +588,11 @@ void WChart2DRenderer::prepareAxes()
 
   const WAxis& xAxis = chart_->axis(XAxis);
   const WAxis& yAxis = chart_->axis(YAxis);
-  AxisLocation& xAxisLocation = location_[XAxis];
-  AxisLocation& yAxisLocation = location_[YAxis];
 
   for (int i = 0; i < 2; ++i) {
-    AxisLocation& location = (i == 0 ? xAxisLocation : yAxisLocation);
-    location = (i == 0 ? xAxis.location() : yAxis.location());
-
-    WAxis other = (i == 0 ? yAxis : xAxis);
+    WAxis axis = i == 0 ? xAxis : yAxis;
+    WAxis other = i == 0 ? yAxis : xAxis;
+    AxisLocation location = axis.location();
 
     if (location == ZeroValue) {
       if (other.segments_[0].renderMaximum < 0)
@@ -613,6 +605,8 @@ void WChart2DRenderer::prepareAxes()
     } else
       if (other.segments_[0].renderMaximum == 0)
 	location = MaximumValue;
+
+    location_[axis.id()] = location;
   }
 
   // force Y axes to the sides when dual Y axes
@@ -969,7 +963,7 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 	      double y
 		= asNumber(model->data(row, series[g].modelColumn()));
 
-	      if (!myisnan(y))
+	      if (!Utils::isNaN(y))
 		stackedValuesInit[row] += y;
 	    }
 
@@ -1058,7 +1052,7 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 		prevStack = stackedValues[row];
 
 		double nextStack = stackedValues[row];
-		if (!myisnan(y))
+		if (!Utils::isNaN(y))
 		  if (reverseStacked)
 		    nextStack -= y;
 		  else

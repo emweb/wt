@@ -56,6 +56,7 @@ class WWidgetPainter;
  * you will need to use a WPainter. Repainting is triggered by calling
  * the update() method.
  *
+ * \if cpp
  * Usage example:
  * \code
  * class MyPaintedWidget : public Wt::WPaintedWidget
@@ -84,6 +85,7 @@ class WWidgetPainter;
  *   int foo_;
  * };
  * \endcode
+ * \endif
  *
  * \note A %WPaintedWidget requires that its size is specified in
  *       pixel units using resize().

@@ -11,12 +11,9 @@
 
 namespace Wt {
 
-#ifndef WT_TARGET_JAVA
-const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks(0);
-#endif
-
-const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides(TicksAbove
-								| TicksBelow);
+const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks = 0;
+const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
+  = TicksAbove | TicksBelow;
 
   namespace {
     const int HANDLE_WIDTH = 17;

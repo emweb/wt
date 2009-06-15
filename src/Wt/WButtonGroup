@@ -32,6 +32,7 @@ class WRadioButton;
  * to identify a particular button. The special value of -1 is
  * reserved to indicate <i>no button</i>.
  *
+ * \if cpp
  * Usage example:
  * \code
  * enum Vote { Republican = 1, Democrate = 2, NoVote = 10 };
@@ -57,6 +58,7 @@ class WRadioButton;
  *
  * group->setCheckedButton(group->button(NoVote));
  * \endcode
+ * \endif
  *
  * \if cpp
  * \sa WRadioButton, Ext::RadioButton

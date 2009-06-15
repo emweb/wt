@@ -82,11 +82,11 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
     std::string pathInfo;
     unsigned entryPathLength = ep.path().length();
 
-    if (boost::starts_with(req.request_path.substr(1), ep.path())) {
-      if (req.request_path.length() > 1 + entryPathLength) {
-	char next = req.request_path[entryPathLength + 1];
+    if (boost::starts_with(req.request_path, ep.path())) {
+      if (req.request_path.length() > entryPathLength) {
+	char next = req.request_path[entryPathLength];
 	if (next == '/') {
-	  pathInfo = req.request_path.substr(entryPathLength + 1);
+	  pathInfo = req.request_path.substr(entryPathLength);
 	  matchesApp = true;	  
 	}
       } else
@@ -96,7 +96,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
     if (matchesApp) {
       req.request_extra_path = pathInfo;
       if (!pathInfo.empty())
-	req.request_path = '/' + ep.path();
+	req.request_path = ep.path();
       return ReplyPtr(new WtReply(req, ep));
     }
   }

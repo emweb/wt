@@ -37,7 +37,8 @@ namespace Wt {
  * Selection is rendered by calling WTreeNode::renderSelected(bool). Only
  * tree nodes that are \link WTreeNode::setSelectable(bool) selectable\endlink
  * may participate in the selection.
- *
+ * 
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WIconPair *folderIcon = new Wt::WIconPair("icons/yellow-folder-closed.png",
@@ -62,6 +63,7 @@ namespace Wt {
  *
  * root->expand();
  * \endcode
+ * \endif
  *
  * \sa WTreeNode, WTreeTable, WTreeView
  */

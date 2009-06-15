@@ -48,7 +48,8 @@ namespace Wt {
  *
  * To serve resources that you create on the fly, you need to specialize
  * this class an implement handleRequest().
- *
+ * 
+ * \if cpp
  * Example for a custom resource implementation:
  * \code
  * class MyResource : public Wt::WResource
@@ -72,6 +73,7 @@ namespace Wt {
  *   }
  * };
  * \endcode
+ * \endif
  *
  * <h3>Concurrency issues</h3>
  *
@@ -98,6 +100,7 @@ namespace Wt {
  * object for a response, construct the response piecewise. A new
  * request() will be made to continue the response.
  *
+ * \if cpp
  * Example for a custom resource implementation using continuations:
  * \code
  * class MyResource : public Wt::WResource
@@ -141,6 +144,7 @@ namespace Wt {
  *   int iterations_;
  * };
  * \endcode
+ * \endif
  *
  * \sa WAnchor, WImage
  */

@@ -29,13 +29,21 @@ namespace Wt {
  * specified, the image is put to the left of the text.
  *
  * Usage example:
+ * \if cpp
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget();
  * Wt::WLabel *label = new Wt::WLabel("Favourite Actress: ", w);
  * Wt::WLineEdit *edit = new Wt::WLineEdit("Renée Zellweger", w);
  * label->setBuddy(edit);
  * \endcode
- *
+ * \elseif java
+ * \code
+ * WContainerWidget w = new WContainerWidget();
+ * WLabel label = new WLabel("Favourite Actress: ", w);
+ * WLineEdit edit = new WLineEdit("Renée Zellweger", w);
+ * label.setBuddy(edit);
+ * \endcode
+ * \endif
  * The widget corresponds to the HTML <tt>&lt;label&gt;</tt> tag.
  *
  * %WLabel is an \link WWidget::setInline(bool) inline \endlink widget.

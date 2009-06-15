@@ -82,6 +82,7 @@ class WRectF;
  * Although the painter has support for clipping using an arbitrary
  * \link WPainterPath path\endlink, not all devices support clipping.
  *
+ * \if cpp
  * Usage example:
  * \code
  * class MyPaintedWidget : public Wt::WPaintedWidget
@@ -110,6 +111,7 @@ class WRectF;
  *   int foo_;
  * };
  * \endcode
+ * \endif
  *
  * \sa WPaintedWidget::paintEvent(WPaintDevice *)
  *

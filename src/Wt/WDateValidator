@@ -22,6 +22,7 @@ namespace Wt {
  * The format string used for validating user input are the same as
  * those used by WDate::fromString().
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
@@ -30,6 +31,7 @@ namespace Wt {
  * lineEdit->setValidator(validator);
  * lineEdit->setText("01-03-2008");
  * \endcode
+ * \endif 
  */
 class WT_API WDateValidator : public WValidator
 {

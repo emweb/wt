@@ -1,3 +1,25 @@
+15-06-2009:
+	* WGlobal: fix Horizontals = Left | Right and Verticals = Top | Bottom
+
+	* WPanel: clear the title bar
+
+	* DomElement: fix an unstubbing regression with ExtJS widgets
+
+	* Wt.js: fix server push + JSignal.emit()
+
+	* WGlobal: fix doxygen for WFlags masks
+
+	* http/Server.C: avoid http/https accept() to abort on Win32
+
+10-06-2009:
+	* WRectF: added isEmpty() method, removed isNull() method
+
+09-06-2009:
+	* WEnvironment: added headerValue method
+
+08-06-2009:
+	* WPoint, WPointF, WLineF: removed obsolete isNull methods
+
 02-06-2009:
 	* WAbstractItemDelegate, WItemDelegate: new classes to which the
 	rendering of a model item is delegated.

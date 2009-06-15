@@ -22,11 +22,6 @@ WLineF::WLineF(double x1, double y1, double x2, double y2)
   : x1_(x1), y1_(y1), x2_(x2), y2_(y2)
 { }
 
-bool WLineF::isNull() const
-{
-  return x1_ == 0 && y1_ == 0 && x2_ == 0 && y2_ == 0;
-}
-
 WPointF WLineF::p1() const
 {
   return WPointF(x1_, y1_);

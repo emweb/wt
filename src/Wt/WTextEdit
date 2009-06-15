@@ -37,6 +37,7 @@ namespace Wt {
  * where the tiny_mce folder is located, by configuring the
  * <i>tinyMCEURL</i> property in your %Wt configuration file.
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget();
@@ -44,6 +45,7 @@ namespace Wt {
  * Wt::WTextEdit *edit = new Wt::WTextEdit("", w);
  * label->setBuddy(edit);
  * \endcode
+ * \endif
  *
  * \image html WTextEdit-1.png "Default configuration of a WTextEdit"
  */
@@ -155,7 +157,6 @@ private:
   bool contentChanged_;
   std::string styleSheet_, extraPlugins_;
   std::string buttons_[4];
-
 
   static void initTinyMCE();
 };

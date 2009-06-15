@@ -41,6 +41,7 @@ class WMessageResources;
  * </messages>
  * \endcode
  *
+ * \if cpp
  * Use this resource bundle in your program:
  * \code
  * // load the message resource bundle
@@ -50,6 +51,7 @@ class WMessageResources;
  * // resolve a string using the resource bundle
  * Wt::WText *welcome = new Wt::WText(tr("welcome-visitor").arg("Bart"));
  * \endcode
+ * \endif
  */
 class WT_API WMessageResourceBundle : public WLocalizedStrings
 {

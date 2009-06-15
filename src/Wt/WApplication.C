@@ -18,6 +18,7 @@
 #include "WebSession.h"
 #include "DomElement.h"
 #include "Configuration.h"
+#include "SoundManager.h"
 #include "WebController.h"
 #include "WebRequest.h"
 #include "Utils.h"
@@ -73,7 +74,8 @@ WApplication::WApplication(const WEnvironment& env)
     scriptLibrariesAdded_(0),
     styleSheetsAdded_(0),
     exposeSignals_(true),
-    autoJavaScriptChanged_(false)
+    autoJavaScriptChanged_(false),
+    soundManager_(0)
 {
   session_->setApplication(this);
   locale_ = environment().locale();
@@ -306,7 +308,7 @@ std::string WApplication::resourcesUrl()
   if (!result.empty() && result[result.length()-1] != '/')
     result += '/';
 
-  return instance()->fixRelativeUrl(result);
+  return WApplication::instance()->fixRelativeUrl(result);
 #else
   std::string path = "/wt-resources/";
   readConfigurationProperty("resourcesURL", path);
@@ -958,7 +960,8 @@ bool WApplication::readConfigurationProperty(const std::string& name,
 					     std::string& value)
 {
   const std::string* property
-    = instance()->session_->controller()->configuration().property(name);
+    = WApplication::instance()->session_->controller()
+    ->configuration().property(name);
 
   if (property) {
     value = *property;
@@ -971,7 +974,8 @@ std::string *WApplication::readConfigurationProperty(const std::string& name,
 						     const std::string& value)
 {
   std::string* property
-    = instance()->session_->controller()->configuration().property(name);
+    = WApplication::instance()->session_->controller()
+    ->configuration().property(name);
 
   if (property)
     return property;
@@ -979,6 +983,14 @@ std::string *WApplication::readConfigurationProperty(const std::string& name,
     return &value;
 }
 #endif // WT_TARGET_JAVA
+
+SoundManager *WApplication::getSoundManager()
+{
+  if (!soundManager_) {
+    soundManager_ = new SoundManager(this);
+  }
+  return soundManager_;
+}
 
 #ifndef WT_TARGET_JAVA
 WServer::Exception::Exception(const std::string what)

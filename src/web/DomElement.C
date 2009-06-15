@@ -1053,6 +1053,8 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       declare(out);
 
       std::string varr = replaced_->asJavaScript(out, Create);
+      out << var_ << ".parentNode.replaceChild("
+	  << varr << ',' << var_ << ");\n";
       replaced_->asJavaScript(out, Update);
       out << WT_CLASS ".unstub(" << var_ << ',' << varr << ','
 	  << (hideWithDisplay_ ? 1 : 0) << ");\n";

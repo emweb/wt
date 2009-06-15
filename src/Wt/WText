@@ -49,6 +49,7 @@ namespace Wt {
  * unless the XHTML contents starts with a block-level element such as
  * <tt>&lt;div&gt;</tt>, <tt>&lt;h&gt;</tt> or <tt>&lt;p&gt;</tt>.
  *
+ * \if cpp
  * Usage examples:
  * \code
  * Wt::WContainerWidget *container = new Wt::WContainerWidget();
@@ -62,6 +63,7 @@ namespace Wt {
  * // display an XHTML fragment from a resource bundle:
  * container->addWidget(new Wt::WText(tr("introduction")));
  * \endcode
+ * \endif
  *
  * \sa WApplication::setLocale()
  * \if cpp

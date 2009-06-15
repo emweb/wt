@@ -34,6 +34,7 @@ namespace Wt {
  * At all times, the current selection index is available through
  * currentIndex() and the current selection text using currentText().
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WComboBox *combo = new Wt::WComboBox(this);
@@ -45,6 +46,7 @@ namespace Wt {
  * combo->setCurrentIndex(2); // Johnny Depp
  * combo->activated().connect(SLOT(this, MyWidget::comboChanged));
  * \endcode
+ * \endif 
  *
  * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag.
  *

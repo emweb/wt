@@ -32,12 +32,14 @@ class WLineEdit;
  * changed using setFormat(). At any time, the date set may be read
  * using date(), or can be changed using setDate().
  *
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WDatePicker *picker = new Wt::WDatePicker(this);
  * picker->setFormat("dd-MM-yyyy");
  * picker->setDate(Wt::WDate(1976, 6, 14));
  * \endcode
+ * \endif
  *
  * \image html WDatePicker-1.png "Example of WDatePicker with visible calendar."
  */

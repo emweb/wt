@@ -9,12 +9,14 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <Wt/WAbstractItemModel>
-#include <Wt/WDate>
+#include "Wt/WAbstractItemModel"
+#include "Wt/WDate"
 
-#include <Wt/Chart/WAxis>
-#include <Wt/Chart/WCartesianChart>
-#include <Wt/Chart/WChart2DRenderer>
+#include "Wt/Chart/WAxis"
+#include "Wt/Chart/WCartesianChart"
+#include "Wt/Chart/WChart2DRenderer"
+
+#include "Utils.h"
 
 namespace {
   const int AXIS_MARGIN = 4;
@@ -27,11 +29,6 @@ namespace {
     return (int)(d + 0.5);
   }
 #endif
-
-  inline bool myisnan(double d)
-  {
-    return !(d == d);
-  }
 
   double round125(double v) {
     double n = std::pow(10, std::floor(std::log10(v)));
@@ -77,7 +74,7 @@ public:
   virtual void newValue(const WDataSeries& series, double x, double y,
 			double stackY)
   {
-    if (!myisnan(y)) {
+    if (!Utils::isNaN(y)) {
       maximum_ = std::max(y, maximum_);
       minimum_ = std::min(y, minimum_);
     }
@@ -368,7 +365,7 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	    else
 	      v = getDateValue(model->data(i, dataColumn));
 
-	    if (myisnan(v))
+	    if (Utils::isNaN(v))
 	      continue;
 
 	    if (findMaximum)
@@ -486,7 +483,7 @@ double WAxis::getDateValue(const boost::any& v)
 
 double WAxis::map(double u, AxisLocation otherLocation, int segment) const
 {
-  if (myisnan(u))
+  if (Utils::isNaN(u))
       return u;
 
   const Segment& s = segments_[segment];

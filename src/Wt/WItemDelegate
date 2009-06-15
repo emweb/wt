@@ -41,8 +41,13 @@ public:
 
   /*! \brief Set the text format string.
    *
+   * \if cpp
    * The DisplayRole data is converted to a string using asString() by passing
    * the given format.
+   * \elseif java
+   * The DisplayRole data is converted to a string using {javadoclink StringUtils#asString(Object)} by passing
+   * the given format.
+   * \endif 
    *
    * The default value is "".
    */

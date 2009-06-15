@@ -135,6 +135,7 @@ public:
   const std::string& baseUrl() const { return baseUrl_; }
 
   std::string getCgiValue(const std::string& varName) const;
+  std::string getCgiHeader(const std::string& headerName) const;
 
   class Handler {
   public:
@@ -271,6 +272,40 @@ private:
 
   void generateNewSessionId();
   std::string sessionQuery() const;
+};
+
+/*!
+ * WEvent. (dox FIXME)
+*/
+class WT_API WEvent {
+public:
+  enum EventType { EmitSignal, Refresh, Render, HashChange };
+
+  WebSession::Handler& handler;
+  EventType            type;
+
+  WebSession *session() const { return handler.session(); }
+
+  /* For Render type */
+  WebRenderer::ResponseType responseType;
+
+  /* For HashChange type */
+  std::string hash;
+
+  WEvent(WebSession::Handler& aHandler, EventType aType,
+	 WebRenderer::ResponseType aResponseType = WebRenderer::FullResponse)
+    : handler(aHandler),
+      type(aType),
+      responseType(aResponseType)
+  { }
+
+  WEvent(WebSession::Handler& aHandler, EventType aType,
+	 const std::string& aHash)
+    : handler(aHandler),
+      type(aType),
+      responseType(WebRenderer::FullResponse),
+      hash(aHash)
+  { }
 };
 
 }

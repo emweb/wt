@@ -107,19 +107,6 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig)
     new_tcpconnection_.reset
       (new TcpConnection(io_service_, connection_manager_, request_handler_));
 
-    /*
-     * For simplicity, we are using the same accept_strand_ for Tcp
-     * and Ssl, to prevent the close() from within handleStop() and
-     * async_accept() methods to be called simultaneously.
-     *
-     * While this also prevents simultaneously accepting a new Tcp and
-     * Ssl connection, this performance impact is negligible (and both
-     * need to access the ConnectionManager mutex in any case).
-     */
-    tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
-			accept_strand_.wrap(
-			       boost::bind(&Server::handleTcpAccept, this,
-					   asio::placeholders::error)));
   }
 
   // HTTPS
@@ -150,16 +137,45 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig)
       (new SslConnection(io_service_, ssl_context_, connection_manager_,
 			 request_handler_));
 
-    ssl_acceptor_.async_accept(new_sslconnection_->socket(),
-	                accept_strand_.wrap(
-			       boost::bind(&Server::handleSslAccept, this,
-					   asio::placeholders::error)));
 #else // HTTP_WITH_SSL
     config.log("error")
       << "Wthttpd was built without support for SSL: "
       "cannot start https server.";
 #endif // HTTP_WITH_SSL
   }
+
+  // Win32 cancels the non-blocking accept when the thread that called
+  // accept exits. To avoid that this happens when called within the
+  // WServer context, we post the action of calling accept to one of
+  // the threads in the threadpool.
+  io_service_.post(boost::bind(&Server::startAccept, this));
+}
+
+void Server::startAccept()
+{
+  /*
+   * For simplicity, we are using the same accept_strand_ for Tcp
+   * and Ssl, to prevent the close() from within handleStop() and
+   * async_accept() methods to be called simultaneously.
+   *
+   * While this also prevents simultaneously accepting a new Tcp and
+   * Ssl connection, this performance impact is negligible (and both
+   * need to access the ConnectionManager mutex in any case).
+   */
+  if (new_tcpconnection_) {
+    tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
+			accept_strand_.wrap(
+			       boost::bind(&Server::handleTcpAccept, this,
+					   asio::placeholders::error)));
+  }
+#ifdef HTTP_WITH_SSL
+  if (new_sslconnection_) {
+    ssl_acceptor_.async_accept(new_sslconnection_->socket(),
+	                accept_strand_.wrap(
+			       boost::bind(&Server::handleSslAccept, this,
+					   asio::placeholders::error)));
+  }
+#endif // HTTP_WITH_SSL
 }
 
 Server::~Server()

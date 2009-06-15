@@ -261,6 +261,11 @@ const std::string WEnvironment::getCookie(const std::string& cookieNname) const
     return i->second;
 }
 
+const std::string WEnvironment::headerValue(const std::string& name) const
+{
+  return session_->getCgiHeader(name); 
+}
+
 std::string WEnvironment::getCgiValue(const std::string& varName) const
 {
   return session_->getCgiValue(varName);

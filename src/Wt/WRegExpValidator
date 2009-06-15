@@ -30,6 +30,7 @@ class WRegExp;
  * </ul>
  *
  * Usage example:
+ * \if cpp
  * \code
  * Wt::WLineEdit *lineEdit = new Wt::WLineEdit(this);
  * // an email address validator
@@ -37,6 +38,15 @@ class WRegExp;
  * lineEdit->setValidator(validator);
  * lineEdit->setText("koen@emweb.be");
  * \endcode
+ * \elseif java
+ * \code
+ * WLineEdit lineEdit = new WLineEdit(this);
+ * // an email address validator
+ * WRegExpValidator validator = new WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}");
+ * lineEdit.setValidator(validator);
+ * lineEdit.setText("pieter@emweb.be");
+ * \endcode
+ * \endif
  *
  * \note This validator does not fully support unicode: it matches on the
  * UTF8-encoded representation of the string.
