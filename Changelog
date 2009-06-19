@@ -1,3 +1,13 @@
+19-06-2009:
+	* Chart/WAbstractChart: react well to modelReset() and
+	modelLayoutChanged()
+
+	* WCheckbox, WRadioButton: internal cleanup and simplifications
+
+	* WButtonGroup: added checkedChanged() signal
+
+	* WIntValidator: allow entry of +/- signs
+
 15-06-2009:
 	* WGlobal: fix Horizontals = Left | Right and Verticals = Top | Bottom
 

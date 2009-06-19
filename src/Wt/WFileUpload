@@ -150,7 +150,7 @@ public:
    */
   bool canUpload() const { return fileUploadTarget_ != 0; }
 
-#ifndef WT_NO_DEPRECATED
+#ifndef WT_DEPRECATED_3_0_0
   /*! \brief Returns whether the upload() slot will not start a new
    *         upload. (<b>Deprecated</b>)
    *
@@ -158,7 +158,7 @@ public:
    *             the name was confusing.
    */
   bool isUploaded() const { return !canUpload(); }
-#endif // WT_NO_DEPRECATED
+#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief %Signal emitted when a new file was uploaded.
    *

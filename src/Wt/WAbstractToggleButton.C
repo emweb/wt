@@ -21,10 +21,7 @@ WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
     state_(Unchecked),
     stateChanged_(false)
-{
-  WLabel *label = new WLabel(parent);
-  label->setBuddy(this);
-}
+{ }
 
 WAbstractToggleButton::WAbstractToggleButton(const WString& text,
 					     WContainerWidget *parent)
@@ -36,16 +33,9 @@ WAbstractToggleButton::WAbstractToggleButton(const WString& text,
   label->setBuddy(this);
 }
 
-WAbstractToggleButton::WAbstractToggleButton(bool withLabel,
-					     WContainerWidget *parent)
-  : WFormWidget(parent),
-    state_(Unchecked),
-    stateChanged_(false)
+WAbstractToggleButton::~WAbstractToggleButton()
 {
-  if (withLabel) {
-    WLabel *label = new WLabel(parent);
-    label->setBuddy(this);
-  }
+  delete label();
 }
 
 #ifndef WT_TARGET_JAVA
@@ -85,13 +75,24 @@ void WAbstractToggleButton::load()
 	p->insertWidget(p->indexOf(this) + 1, l);
     }
   }
+
   WFormWidget::load();
 }
 
 void WAbstractToggleButton::setText(const WString& text)
 {
-  if (label())
-    label()->setText(text);
+  WLabel *l = label();
+
+  if (!l) {
+    l = new WLabel(text);
+    l->setBuddy(this);
+
+    WContainerWidget *p = dynamic_cast<WContainerWidget *>(parent());
+    if (p)
+      p->insertWidget(p->indexOf(this) + 1, l);
+  }
+
+  l->setText(text);
 }
 
 const WString WAbstractToggleButton::text() const

@@ -27,19 +27,19 @@ class WLabel;
 class WT_API WAbstractToggleButton : public WFormWidget
 {
 protected:
-  /*! \brief Create an unchecked toggle button with empty label and optional
-   *         parent.
+  /*! \brief Create an unchecked toggle button without label.
    */
   WAbstractToggleButton(WContainerWidget *parent = 0);
 
-  /*! \brief Create an unchecked toggle button with given text and optional
-   *         parent.
+  /*! \brief Create an unchecked toggle button with given text label.
    */
   WAbstractToggleButton(const WString& text, WContainerWidget *parent = 0);
 
-  WAbstractToggleButton(bool withLabel, WContainerWidget *parent);
-
 public:
+  /*! \brief Destructor.
+   */
+  virtual ~WAbstractToggleButton();
+
   /*! \brief Change the text of the label.
    */
   void setText(const WString& text);

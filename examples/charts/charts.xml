@@ -60,9 +60,9 @@
   A cartesian chart provides automatic configuration of the axes, and
   support for a second Y axis. In addition, you may use a simple
   built-in legend, or extend the class to provide a specialized
-  legend. In the example below, we use a manual Y axis configuration,
+  legend. <!-- In the example below, we use a manual Y axis configuration,
   with a break as would be commonly used when your data has a few
-  outliers.
+  outliers.-->
 </p>
 
 <p class="p">

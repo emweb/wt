@@ -105,8 +105,8 @@ namespace Wt {
  * if (item) {
  *  // ... do associated action.
  * }
- * /endcode
- * /endif
+ * \endcode
+ * \endif
  *
  * The menu implementation does not provide any style. You can style the
  * menu using CSS.

@@ -106,7 +106,7 @@ public:
    * The data column should contain data that can be converted to
    * a number (but should not necessarily be of a number type).
    * \if java 
-   * See also {javadoclink StringUtils#asNumber(Object)}.
+   * See also {javadoclink eu.webtoolkit.jwt.utils.StringUtils#asNumber(Object)}.
    * \endif
    *
    * \if cpp
@@ -169,7 +169,7 @@ public:
 
   /*! \brief Returns which aspects of the look are overriden.
    *
-   * \sa WDataSeries::setCustomFlags(WFlags<CustomFlags>)
+   * \sa setCustomFlags(WFlags<CustomFlag>)
    */
   WFlags<CustomFlag> curstomFlags() const { return customFlags_; }
 

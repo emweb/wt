@@ -28,13 +28,6 @@ WRadioButton::WRadioButton(const WString& text, WContainerWidget *parent)
   setFormObject(true);
 }
 
-WRadioButton::WRadioButton(bool withLabel, WContainerWidget *parent)
-  : WAbstractToggleButton(withLabel, parent),
-    buttonGroup_(0)
-{
-  setFormObject(true);
-}
-
 WRadioButton::~WRadioButton()
 {
   if (buttonGroup_)

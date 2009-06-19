@@ -24,6 +24,7 @@ WFlashObject::WFlashObject(const std::string& url,
 
 WFlashObject::~WFlashObject()
 {
+  wApp->doJavaScript("swfobject.removeSWF(flash" + formName() + ");");
 
 }
 

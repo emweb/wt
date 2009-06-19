@@ -113,12 +113,17 @@ void WAbstractChart::setModel(WAbstractItemModel *model)
   modelConnections_.push_back(model_->dataChanged().connect
 		      (SLOT(this, WAbstractChart::modelDataChanged)));
   modelConnections_.push_back(model_->layoutChanged().connect
-		      (SLOT(this, WAbstractChart::modelChanged)));
+		      (SLOT(this, WAbstractChart::modelReset)));
+  modelConnections_.push_back(model_->modelReset().connect
+		      (SLOT(this, WAbstractChart::modelReset)));
 
   modelChanged();
 }
 
 void WAbstractChart::modelChanged()
+{ }
+
+void WAbstractChart::modelReset()
 { }
 
   }

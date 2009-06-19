@@ -11,11 +11,11 @@ namespace Wt {
   namespace Ext {
 
 RadioButton::RadioButton(const WString& text, WContainerWidget *parent)
-  : AbstractToggleButton(new WRadioButton(false, 0), text, parent)
+  : AbstractToggleButton(new WRadioButton(), text, parent)
 { }
 
 RadioButton::RadioButton(WContainerWidget *parent)
-  : AbstractToggleButton(new WRadioButton(false, 0), WString(), parent)
+  : AbstractToggleButton(new WRadioButton(), WString(), parent)
 { }
 
 std::string RadioButton::getExtName() const

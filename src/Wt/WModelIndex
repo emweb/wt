@@ -90,11 +90,11 @@ enum DropAction {
 };
 
 /*! \class WModelIndex Wt/WModelIndex Wt/WModelIndex
- *  \brief An index to a data item of a data model.
+ *  \brief An index to a data item in a data model.
  *
  * Indexes are used to indicate a particular item in a
- * WAbstractItemModel. It points to the item by identifying its row
- * and column location within a parent model index.
+ * WAbstractItemModel. An index points to the item by identifying its
+ * row and column location within a parent model index.
  *
  * An index is immutable. The default constructor creates an
  * <i>invalid index</i>, which by convention indicates the parent of
@@ -240,7 +240,7 @@ public:
    *
    * Returns true if the index comes topologically before <i>other</i>.
    *
-   * Topoligical order follows the order in which the indexes would be
+   * Topological order follows the order in which the indexes would be
    * displayed in a tree table view, from top to bottom followed by
    * left to right.
    */

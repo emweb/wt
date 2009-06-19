@@ -154,7 +154,7 @@ public:
    *
    * The object name can be used to easily identify a type of object
    * in the DOM, and does not need to be unique. It will usually
-   * reflect the widget type or role. The object name is preprended to
+   * reflect the widget type or role. The object name is prepended to
    * the auto-generated object id().
    *
    * The default object name is empty.

@@ -115,6 +115,7 @@ public:
 
   virtual void createExtConfig(std::ostream& config) const;
 
+#ifndef WT_DEPRECATED_3_0_0
   /*! \brief Parse a date from a string (<b>deprecated</b>).
    *
    * \deprecated see WDate::fromString() static methods.
@@ -122,6 +123,7 @@ public:
    * Equivalent to WDate::fromString(<i>input</i>, "yyyy-MM-dd");
    */
   static WDate parse(const WString& input);
+#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Set the message to display when the input is not a date.
    *

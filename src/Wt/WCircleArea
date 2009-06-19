@@ -21,7 +21,7 @@ namespace Wt {
  * interactivity on a circular area of the image. The circle is
  * specified in pixel coordinates.
  *
- * \if
+ * \if cpp
  * Usage example:
  * \code
  * Wt::WImage *image = new Wt::WImage("images/events.png", this);

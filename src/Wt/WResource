@@ -47,7 +47,7 @@ namespace Wt {
  * name using suggestFileName().
  *
  * To serve resources that you create on the fly, you need to specialize
- * this class an implement handleRequest().
+ * this class and implement handleRequest().
  * 
  * \if cpp
  * Example for a custom resource implementation:
@@ -151,11 +151,11 @@ namespace Wt {
 class WT_API WResource : public WObject
 {
 public:
-  /*! \brief Create a new resource.
+  /*! \brief Creates a new resource.
    */
   WResource(WObject* parent = 0);
 
-  /*! \brief Destroy the resource.
+  /*! \brief Destroys the resource.
    *
    * When specializing a resource, you MUST call beingDeleted() from
    * within the specialized destructor, in order to stop any further
@@ -163,7 +163,7 @@ public:
    */
   ~WResource();
 
-  /*! \brief Suggest a filename to the user for the data streamed by this
+  /*! \brief Suggests a filename to the user for the data streamed by this
    *         resource.
    *
    * For resources, intended to be downloaded by the user, suggest a
@@ -172,7 +172,7 @@ public:
    */
   void suggestFileName(const std::string& name);
 
-  /*! \brief Generate an URL for this resource.
+  /*! \brief Generates an URL for this resource.
    *
    * Generates a new url that refers to this resource. The url is
    * unique to assure that it is not cached by the web browser, and
@@ -181,7 +181,7 @@ public:
    */
   const std::string generateUrl() const;
 
-  /*! \brief Emit this signal if the data presented in this resource
+  /*! \brief Signal emitted when the data presented in this resource
    *         has changed.
    *
    * Widgets that reference the resource (such as anchors and images) will
@@ -205,7 +205,7 @@ public:
 	     const Http::UploadedFileMap& files = Http::UploadedFileMap());
 
 protected:
-  /*! \brief Prepare the resource for deletion.
+  /*! \brief Prepares the resource for deletion.
    *
    * When specializing a resource, you MUST call beingDeleted() from
    * within the specialized destructor, in order to stop any further
@@ -213,7 +213,7 @@ protected:
    */
   void beingDeleted();
 
-  /*! \brief Handle a request.
+  /*! \brief Handles a request.
    *
    * Reimplement this method so that a proper response is generated
    * for the given request. From the <i>request</i> object you can

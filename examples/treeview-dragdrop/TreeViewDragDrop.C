@@ -13,6 +13,7 @@
 #include <Wt/WDialog>
 #include <Wt/WImage>
 #include <Wt/WIntValidator>
+#include <Wt/WItemDelegate>
 #include <Wt/WLabel>
 #include <Wt/WLineEdit>
 #include <Wt/WMessageBox>
@@ -387,8 +388,14 @@ private:
     treeView->setColumnWidth(4, 100);
     treeView->setColumnWidth(5, 100);
 
-    treeView->setColumnFormat(4, FileModel::dateDisplayFormat);
-    treeView->setColumnFormat(5, FileModel::dateDisplayFormat);
+    WItemDelegate *delegate;
+    delegate = dynamic_cast<WItemDelegate *>
+      (treeView->itemDelegateForColumn(4));
+    delegate->setTextFormat(FileModel::dateDisplayFormat);
+
+    delegate = dynamic_cast<WItemDelegate *>
+      (treeView->itemDelegateForColumn(5));
+    delegate->setTextFormat(FileModel::dateDisplayFormat);
 
     treeView->setColumnAlignment(3, AlignRight);
     treeView->setColumnAlignment(4, AlignRight);

@@ -103,8 +103,6 @@ public:
    */
   CheckState checkState() { return state_; }
 
-  WCheckBox(bool withLabel, WContainerWidget *parent);
-
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;

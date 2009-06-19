@@ -103,17 +103,19 @@ public:
    */
   ~WDialog();
 
-  /*! \brief Set the dialog caption.
+#ifndef WT_DEPRECATED_3_0_0
+  /*! \brief Set the dialog caption (<b>deprecated</b>).
    *
-   * <i>deprecated: use setWindowTitle instead</i>
+   * \deprecated Use setWindowTitle() instead.
    */
   void setCaption(const WString& caption);
 
-  /*! \brief Get the dialog caption.
+  /*! \brief Get the dialog caption (<b>deprecated</b>).
    *
-   * <i>deprecated: use windowTitle instead</i>
+   * \deprecated Use windowTitle() instead.
    */
   const WString& caption() const;
+#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Set the dialog window title.
    *

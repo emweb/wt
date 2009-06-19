@@ -178,6 +178,7 @@ public:
    */
   const WLength& rowHeight() const { return rowHeight_; }
 
+#ifndef WT_DEPRECATED_3_0_0
   /*! \brief Sets the column format string (<b>deprecated</b>).
    *
    * \if cpp
@@ -205,6 +206,7 @@ public:
    *             a WItemDelegate and return the format.
    */
   WT_USTRING columnFormat(int column) const;
+#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Sets the column width.
    *

@@ -141,7 +141,7 @@ public:
    * vertical alignment (Wt::AlignTop, Wt::AlignMiddle, or
    * Wt::AlignBottom).
    *
-   * \sa addLayout(WLayout *, int, WFlags<AlignmentFlag>), insertWidget()
+   * \sa addLayout(), insertWidget()
    */
   void addWidget(WWidget *widget, int stretch = 0,
 		 WFlags<AlignmentFlag> alignment = 0);
@@ -195,7 +195,7 @@ public:
    * Inserts a nested layout in the layout at position<i>index</i>,
    * with given <i>stretch</i> factor.
    *
-   * \sa insertWidget(), addLayout(WLayout *, int)
+   * \sa insertWidget(), addLayout()
    */
   void insertLayout(int index, WLayout *layout, int stretch = 0,
 		    WFlags<AlignmentFlag> alignment = 0);
@@ -220,7 +220,7 @@ public:
   /*! \brief Set the stretch factor for a nested layout.
    *
    * The <i>layout</i> must have previously been added to this layout
-   * using insertLayout() or addLayout(WLayout *, int).
+   * using insertLayout() or addLayout().
    *
    * Returns whether the <i>stretch</i> could be set.
    */

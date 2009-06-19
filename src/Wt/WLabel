@@ -83,6 +83,7 @@ public:
    */
   void setBuddy(WFormWidget *buddy);
 
+  #ifndef WT_TARGET_JAVA
   /*! \brief Set the buddy of this label.
    *
    * Sets the buddy Ext::FormField for which this label acts as a proxy.
@@ -91,6 +92,7 @@ public:
    * \sa Ext::FormField::label(), setBuddy(WFormWidget *)
    */
   void setBuddy(Ext::FormField *buddy);
+  #endif //WT_TARGET_JAVA
 
   /*! \brief Set the label text.
    */

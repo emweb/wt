@@ -321,6 +321,7 @@ public:
    */
   const std::string& clientAddress() const { return clientAddress_; }
 
+#ifndef WT_DEPRECATED_3_0_0
   /*! \brief Returns the path info of the original request (<b>deprecated</b>)
    *
    * \deprecated Use internalPath() instead, which is consistent with the
@@ -343,6 +344,7 @@ public:
    * \sa getParameter(), internalPath()
    */
   const std::string& pathInfo() const { return pathInfo_; }
+#endif // WT_DEPRECATED_3_0_0
 
   /*! \brief Returns the initial internal path.
    *

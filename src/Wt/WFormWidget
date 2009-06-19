@@ -126,7 +126,6 @@ public:
    */
   bool isReadOnly() const;
 
-public:
   /*! \brief Signal emitted when the value was changed.
    */
   EventSignal<>& changed();

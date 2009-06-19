@@ -191,6 +191,13 @@ private:
    */
   virtual void modelChanged();
 
+  /*! \brief Method called whenever the entire model was reset.
+   *
+   * Bound to the WAbstractItemModel::modelReset() and
+   * WAbstractItemModel::layoutChanged() signals.
+   */
+  virtual void modelReset();
+
   /*! \brief Method called when colums have been inserted in the model.
    *
    * \sa WAbstractItemModel::columnsInserted

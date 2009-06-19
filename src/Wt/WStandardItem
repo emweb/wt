@@ -163,7 +163,7 @@ public:
 
   /*! \brief Returns the url referenced by this item.
    *
-   * \sa refUrl(), setData()
+   * \sa setUrl(), setData()
    */
   std::string url() const;
 
@@ -490,7 +490,7 @@ public:
    * and removes it (by setting 0 instead). Ownership of the item is
    * transferred to the caller.
    *
-   * \sa WStandardItem::child(int), setChild(int, int, WStandardItem *)
+   * \sa child(), setChild(int, int, WStandardItem *)
    */
   WStandardItem *takeChild(int row, int column);
 
@@ -625,7 +625,7 @@ public:
    * \if cpp
    * \sa operator<(), WStandardItemModel::setSortRole()
    * \elseif java
-   * \sa WStandardItemModel::compare(), WStandardItemModel::setSortRole()
+   * \sa compare(), WStandardItemModel::setSortRole()
    * \endif
    */
   virtual void sortChildren(int column, SortOrder order);
@@ -639,6 +639,16 @@ private:
   typedef std::vector<WStandardItem *> Column;
   typedef std::vector<Column> ColumnList;
 
+  /*! \brief Compares the item with another item.
+   *
+   * This is used during sorting (from sortChildren()), and returns
+   * which of the two items is the lesser, based on their data.
+   *
+   * The default implementation compares the data based on the value
+   * corresponding to the WStandardItemModel::sortRole().
+   *
+   * \sa sortChildren(), WStandardItemModel::setSortRole()
+   */
   int compare(const WStandardItem& other) const;
 
   WStandardItemModel *model_;

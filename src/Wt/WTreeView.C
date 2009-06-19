@@ -1356,6 +1356,7 @@ std::string WTreeView::columnStyleClass(int column) const
   return columnInfo(column).styleClass();
 }
 
+#ifndef WT_DEPRECATED_3_0_0
 void WTreeView::setColumnFormat(int column, const WT_USTRING& format)
 {
   ColumnInfo& info = columnInfo(column);
@@ -1379,6 +1380,7 @@ WT_USTRING WTreeView::columnFormat(int column) const
   } else
     return WT_USTRING();
 }
+#endif // WT_DEPRECATED_3_0_0
 
 void WTreeView::setColumnWidth(int column, const WLength& width)
 {

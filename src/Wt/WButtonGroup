@@ -8,6 +8,7 @@
 #define WBUTTONGROUP_H_
 
 #include <Wt/WObject>
+#include <Wt/WSignal>
 
 namespace Wt {
 
@@ -108,7 +109,9 @@ public:
 
   /*! \brief Remove a radio button from the group.
    *
+   * \if cpp
    * \sa addButton(Ext::RadioButton *, int)
+   * \endif
    */
   void removeButton(Ext::RadioButton *button);
 
@@ -183,6 +186,12 @@ public:
    */
   int selectedButtonIndex() const;
 
+  /*! \brief Signal emitted when a button was checked.
+   *
+   * The argument passed is the new checkedButton().
+   */
+  Signal<WRadioButton *>& checkedChanged();
+
 private:
   struct Button {
     WRadioButton *button;
@@ -190,9 +199,12 @@ private:
   };
 
   std::vector<Button> buttons_;
+  Signal<WRadioButton *> checkedChanged_;
+  bool                   checkedChangedConnected_;
 
   void uncheckOthers(WRadioButton *button);
   int  generateId() const;
+  void onButtonChange();
   virtual void setFormData(const FormData& formData);
 
   friend class WRadioButton;

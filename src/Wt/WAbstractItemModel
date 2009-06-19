@@ -421,12 +421,11 @@ public:
 			     const boost::any& value,
 			     int role = EditRole);
 
-  /*! \brief Set column header data (<b>deprecated</b>).
+  /*! \brief Set column header data.
    *
    * Returns true if the operation was successful.
    *
-   * \deprecated Use setHeaderData(int, Orientation, const boost::any&, int)
-   *             instead.
+   * \sa setHeaderData(int, Orientation, const boost::any&, int)
    */
   bool setHeaderData(int section, const boost::any& value);
 

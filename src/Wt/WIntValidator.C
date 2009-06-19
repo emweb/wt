@@ -165,7 +165,7 @@ std::string WIntValidator::javaScriptValidate(const std::string& jsRef) const
 
 std::string WIntValidator::inputFilter() const
 {
-  return "[0-9]";
+  return "[-+0-9]";
 }
 
 #ifndef WT_TARGET_JAVA

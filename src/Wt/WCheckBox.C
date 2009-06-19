@@ -34,14 +34,6 @@ WCheckBox::WCheckBox(const WString& text, WContainerWidget *parent)
   setFormObject(true);
 }
 
-WCheckBox::WCheckBox(bool withLabel, WContainerWidget *parent)
-  : WAbstractToggleButton(withLabel, parent),
-    triState_(false),
-    safariWorkaround_(false)
-{
-  setFormObject(true);
-}
-
 void WCheckBox::setTristate(bool tristate)
 {
   triState_ = tristate;

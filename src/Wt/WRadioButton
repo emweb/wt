@@ -90,8 +90,6 @@ public:
    */
   WRadioButton(const WString& text, WContainerWidget *parent = 0);
 
-  WRadioButton(bool withLabel, WContainerWidget *parent);
-
   /*! \brief Delete a radio button
    */
   ~WRadioButton();

@@ -56,7 +56,7 @@ public:
 
   /*! \brief Get the current message.
    */
-  const WMessage& message() const { return message_; }
+  const WString& message() const { return message_; }
 
   /*! \brief Get the default value for a prompt dialog.
    */

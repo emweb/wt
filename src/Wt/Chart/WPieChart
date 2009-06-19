@@ -215,6 +215,7 @@ private:
   std::vector<PieData> pie_;
 
   virtual void modelChanged();
+  virtual void modelReset();
   virtual void modelColumnsInserted(const WModelIndex& parent,
 				    int start, int end);
   virtual void modelColumnsRemoved(const WModelIndex& parent,

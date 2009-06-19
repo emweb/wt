@@ -203,7 +203,7 @@ public:
    * insertRow(rowCount(), item);
    * \endcode
    *
-   * \sa WStandardItem::insertRow(int, WStandarditem *)
+   * \sa WStandardItem::insertRow(int, WStandardItem *)
    */
   void appendRow(WStandardItem *item);
 

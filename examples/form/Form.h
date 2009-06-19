@@ -77,7 +77,7 @@ private:
    * Checks the given field, and appends the given text to the error
    * messages on problems.
    */
-  bool checkValid(WFormWidget *edit, const WMessage& text);
+  bool checkValid(WFormWidget *edit, const WString& text);
 };
 
 /*@}*/

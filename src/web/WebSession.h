@@ -274,9 +274,12 @@ private:
   std::string sessionQuery() const;
 };
 
-/*!
- * WEvent. (dox FIXME)
-*/
+/*! \class WEvent
+ *  \brief An internal session event.
+ *
+ * The request controller notifies the application to react to browser events,
+ * or to render itself, using WApplication::notify().
+ */
 class WT_API WEvent {
 public:
   enum EventType { EmitSignal, Refresh, Render, HashChange };

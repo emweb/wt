@@ -175,17 +175,16 @@
 	<!-- Send the XHTML mime type when appropriate
 
 	   Wt renders XHTML1 (XML variant of HTML) that is backward-compatible
-	   with HTML. In this way, Wt is capable of supporting XHTML-only
+	   with HTML. Using XHTML, Wt is capable of supporting XHTML-only
 	   features such as embedded SVG or MathML.
 
-	   The browser renders the document as XHTML or HTML depending on the
-	   mime-type that is set. By default Wt sets an XHTML mime-type
-	   (application/xhtml+xml) when the browser reports support for it. Most
-	   notably, Internet Explorer does not support it.  Because XHTML and
-	   HTML are slightly different with respect to default CSS rules, you
-	   may want to disable sending the XHTML mime-type alltogether, at least
-	   if you are not using SVG (used by the WPaintedWidget).
-	  -->
+	   When enabled, JWt sets an XHTML mime-type
+	   (application/xhtml+xml) when the browser reports support
+	   for it. Most notably, Internet Explorer does not support
+	   it.  Because XHTML and HTML are slightly different with
+	   respect to default CSS rules, you may want to disable
+	   sending the XHTML mime-type alltogether, at least if you
+	   are not using SVG (used by the WPaintedWidget).  -->
 	<send-xhtml-mime-type>false</send-xhtml-mime-type>
 
 	<!-- Do strict serialization of events.
@@ -249,7 +248,7 @@
 
             Wt considers three types of sessions:
 	    - AJAX sessions: use AJAX and JavaScript
-	    - plain HTML sessions: use plain old server POSTs
+	    - plain HTML sessions: use plain old server GETs and POSTs
 	    - bots: have clean internal paths and no persistent sessions
 
             By default, Wt does a browser detection to distinguish between

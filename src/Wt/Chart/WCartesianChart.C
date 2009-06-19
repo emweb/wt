@@ -363,5 +363,10 @@ void WCartesianChart::modelChanged()
   update();
 }
 
+void WCartesianChart::modelReset()
+{
+  update();
+}
+
   }
 }

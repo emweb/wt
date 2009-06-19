@@ -64,7 +64,7 @@ public:
    */
   virtual ~WWidget();
 
-  /*! \brief Return the parent widget.
+  /*! \brief Returns the parent widget.
    *
    * With few exceptions, the parent is a WContainerWidget, and has
    * been set implicitly when adding the widget to a container using
@@ -73,7 +73,7 @@ public:
    */
   WWidget *parent() const { return static_cast<WWidget *>(WObject::parent()); }
 
-  /*! \brief Set the widget position scheme.
+  /*! \brief Sets the widget position scheme.
    *
    * Establishes how the widget must be layed-out relative to its
    * siblings. The default position scheme is Static.
@@ -92,7 +92,7 @@ public:
    */
   virtual PositionScheme positionScheme() const = 0;
 
-  /*! \brief Apply offsets to a widget.
+  /*! \brief Applies offsets to a widget.
    *
    * The argument <i>sides</i> may be a logical concatenation of \link
    * Wt::Left Left\endlink, \link Wt::Right Right\endlink, \link
@@ -132,10 +132,16 @@ public:
   virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All) = 0;
 
 #ifdef WT_TARGET_JAVA
+  /*! \brief Applies offsets to a widget.
+   *
+   * This is a convenience method for applying offsets in pixel units.
+   *
+   * \sa setOffsets(const WLength&, WFlags<Side>)
+   */
   void setOffsets(int pixels, WFlags<Side> sides = All);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Retrieve the offset of the widget.
+  /*! \brief Retrieves the offset of the widget.
    *
    * This applies to CSS-based layout.
    *
@@ -143,7 +149,7 @@ public:
    */
   virtual WLength offset(Side side) const = 0;
 
-  /*! \brief Resize the widget.
+  /*! \brief Resizes the widget.
    *
    * Specify a new size for this widget, by specifying width and height.
    * By default a widget has automatic width and height, see WLength::isAuto().
@@ -155,12 +161,18 @@ public:
   virtual void resize(const WLength& width, const WLength& height) = 0;
 
 #ifdef WT_TARGET_JAVA
+  /*! \brief Resizes the widget.
+   *
+   * This is a convenience method for resizing a widget using pixel units.
+   *
+   * \sa resize(const WLength&, const WLength&)
+   */
   void resize(int widthPixels, int heightPixels);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns the widget width.
    *
-   * Return the width set for this widget. This is not a calculated width,
+   * Returns the width set for this widget. This is not a calculated width,
    * based on layout, but the width as specified with
    * resize(const WLength&, const WLength&).
    *
@@ -172,7 +184,7 @@ public:
 
   /*! \brief Returns the widget height.
    *
-   * Return the height set for this widget. This is not a calculated height,
+   * Returns the height set for this widget. This is not a calculated height,
    * based on layout, but the height as specified previously with
    * resize(const WLength& width, const WLength& height).
    *
@@ -182,7 +194,7 @@ public:
    */
   virtual WLength height() const = 0;
 
-  /*! \brief Set a minimum size.
+  /*! \brief Sets a minimum size.
    *
    * Specify a minimum size for this widget. When the widget is
    * managed using a layout manager, these sizes are also taken into
@@ -194,7 +206,7 @@ public:
 
   /*! \brief Returns the minimum width.
    *
-   * Return the minimum width set for this widget with setMinimumSize().
+   * Returns the minimum width set for this widget with setMinimumSize().
    *
    * \sa setMinimumSize(), minimumHeight()
    */
@@ -202,13 +214,13 @@ public:
 
   /*! \brief Returns the minimum height.
    *
-   * Return the minmum height set for this widget with setMinimumSize().
+   * Returns the minmum height set for this widget with setMinimumSize().
    *
    * \sa setMinimumSize(), minimumWidth()
    */
   virtual WLength minimumHeight() const = 0;
 
-  /*! \brief Set a maximum size.
+  /*! \brief Sets a maximum size.
    *
    * Specify a minimum size for this widget.
    *
@@ -218,7 +230,7 @@ public:
 
   /*! \brief Returns the maximum width.
    *
-   * Return the maximum width set for this widget with setMaximumSize().
+   * Returns the maximum width set for this widget with setMaximumSize().
    *
    * \sa setMaximumSize(), maximumHeight()
    */
@@ -226,17 +238,17 @@ public:
 
   /*! \brief Returns the maximum height.
    *
-   * Return the minmum height set for this widget with setMaximumSize().
+   * Returns the minmum height set for this widget with setMaximumSize().
    *
    * \sa setMaximumSize(), maximumWidth()
    */
   virtual WLength maximumHeight() const = 0;
 
-  /*! \brief Set the line height for contained text.
+  /*! \brief Sets the line height for contained text.
    */
   virtual void setLineHeight(const WLength& height) = 0;
 
-  /*! \brief Return the line height for contained text.
+  /*! \brief Returns the line height for contained text.
    *
    * sa setLineHeight()
    */
@@ -249,21 +261,26 @@ public:
    *
    * It specifies if the widget must be positioned on one of the sides
    * of the parent widget, at the current line. A typical use is to
-   * position images within text. Valid values for Side or \link
-   * Wt::None None \endlink, \link Wt::Left Left \endlink or \link
+   * position images within text. Valid values for Side or 
+   * \if cpp
+   * \link Wt::None None \endlink
+   * \elseif java
+   * {javadoclink Side#None None}
+   * \endif
+   * , \link Wt::Left Left \endlink or \link
    * Wt::Right Right \endlink.
    *
    * This applies to CSS-based layout.
    */
   virtual void setFloatSide(Side s) = 0;
 
-  /*! \brief Return the float side.
+  /*! \brief Returns the float side.
    *
    * \sa setFloatSide(Side)
    */
   virtual Side floatSide() const = 0;
 
-  /*! \brief Set the sides that should be cleared of floats.
+  /*! \brief Sets the sides that should be cleared of floats.
    *
    * This pushes the widget down until it is not surrounded by floats
    * at the <i>sides</i> (which may be a logical OR of \link Wt::Left
@@ -281,7 +298,7 @@ public:
    */
   virtual WFlags<Side> clearSides() const = 0;
 
-  /*! \brief Set margins around the widget.
+  /*! \brief Sets margins around the widget.
    *
    * Setting margin has the effect of adding a distance between the widget
    * and surrounding widgets. The default margin (with an automatic length)
@@ -299,6 +316,12 @@ public:
   virtual void setMargin(const WLength& margin, WFlags<Side> sides = All) = 0;
 
 #ifdef WT_TARGET_JAVA
+  /*! \brief Sets margins around the widget.
+   *
+   * This is a convenience method for setting margins in pixel units.
+   *
+   * \sa setMargin(const WLength&, WFlags<Side>)
+   */
   virtual void setMargin(int pixels, WFlags<Side> sides = All);
 #endif // WT_TARGET_JAVA
 
@@ -310,7 +333,7 @@ public:
    */
   virtual WLength margin(Side side) const = 0;
 
-  /*! \brief Set whether the widget must be hidden.
+  /*! \brief Sets whether the widget must be hidden.
    *
    * Hide or show the widget (including all its descendant widgets).
    * setHidden(false) will show this widget and all child widgets that
@@ -320,7 +343,7 @@ public:
    */
   virtual void setHidden(bool hidden) = 0;
 
-  /*! \brief Return whether this widget is set hidden.
+  /*! \brief Returns whether this widget is set hidden.
    *
    * A widget that is not hidden may still be not visible when one
    * of its ancestor widgets are hidden.
@@ -351,7 +374,7 @@ public:
    */
   virtual bool isPopup() const = 0;
 
-  /*! \brief Set whether this widget is inline or stacked.
+  /*! \brief Sets whether this widget is inline or stacked.
    *
    * This option changes whether this widget must be rendered in-line
    * with sibling widgets wrapping at the right edge of the parent
@@ -398,7 +421,7 @@ public:
    */
   virtual WT_USTRING styleClass() const = 0;
 
-  /*! \brief Set the vertical alignment of this (inline) widget.
+  /*! \brief Sets the vertical alignment of this (inline) widget.
    *
    * This only applies to inline widgets, and determines how to position
    * itself on the current line, with respect to sibling inline widgets.
@@ -450,7 +473,7 @@ public:
    */
   std::string jsRef() const;
 
-  /*! \brief Set an attribute value.
+  /*! \brief Sets an attribute value.
    *
    * Associate an extra attribute with this widget, with the given value.
    * This is only useful when processing dom nodes associated with widgets
@@ -486,13 +509,13 @@ public:
    */
   virtual void load() = 0;
 
-  /*! \brief Return if this widget has been loaded.
+  /*! \brief Returns if this widget has been loaded.
    *
    * \sa load()
    */
   virtual bool loaded() const = 0;
 
-  /*! \brief Set a mime type to be accepted for dropping.
+  /*! \brief Sets a mime type to be accepted for dropping.
    *
    * You may specify a style class that is applied to the widget when the
    * specified mimetype hovers on top of it.
@@ -502,13 +525,13 @@ public:
   virtual void acceptDrops(const std::string& mimeType,
 			   const WT_USTRING& hoverStyleClass = WT_USTRING());
 
-  /*! \brief No longer accept a mime type for dropping.
+  /*! \brief Indicates that a mime type is no longer accepted for dropping.
    *
    * \sa acceptDrops()
    */
   virtual void stopAcceptDrops(const std::string& mimeType);
 
-  /*! \brief Set the CSS Id.
+  /*! \brief Sets the CSS Id.
    *
    * Sets a custom Id. Note that the Id must be unique across the whole
    * widget tree, can only be set right after construction and cannot
@@ -518,7 +541,7 @@ public:
    */
   virtual void setId(const std::string& id) = 0;
 
-  /*! \brief Stream the (X)HTML representation.
+  /*! \brief Streams the (X)HTML representation.
    *
    * Streams the widget as UTF8-encoded (HTML-compatible) XHTML.
    *
@@ -530,7 +553,7 @@ public:
    */
   virtual void htmlText(std::ostream& out);
 
-  /*! \brief Set as selectable.
+  /*! \brief Sets as selectable.
    *
    * When a widget is made unselectable, a selection of text (or images)
    * will not be visible (but may still be possible).

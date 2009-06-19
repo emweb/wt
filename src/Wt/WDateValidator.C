@@ -140,10 +140,12 @@ WString WDateValidator::invalidTooLateText() const
 	  + " and " + top_.toString(formats_[0]);
 }
 
+#ifndef WT_DEPRECATED_3_0_0
 WDate WDateValidator::parse(const WString& input)
 {
   return WDate::fromString(input, "yyyy-MM-dd");
 }
+#endif // WT_DEPRECATED_3_0_0
 
 WValidator::State WDateValidator::validate(WT_USTRING& input) const
 {

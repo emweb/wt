@@ -65,11 +65,11 @@ void Form::createUI()
   // Country
   ++row;
   countryEdit_ = new WComboBox(elementAt(row, 2));
-  countryEdit_->addItem(L"");
-  countryEdit_->addItem(L"Belgium");
-  countryEdit_->addItem(L"Netherlands");
-  countryEdit_->addItem(L"United Kingdom");
-  countryEdit_->addItem(L"United States");
+  countryEdit_->addItem("");
+  countryEdit_->addItem("Belgium");
+  countryEdit_->addItem("Netherlands");
+  countryEdit_->addItem("United Kingdom");
+  countryEdit_->addItem("United States");
   label = new WLabel(tr("example.country"), elementAt(row, 0));
   label->setBuddy(countryEdit_);
   countryEdit_->setValidator(new WValidator(true));
@@ -99,7 +99,7 @@ void Form::createUI()
 
   // Child count
   ++row;
-  childCountEdit_ = new WLineEdit(L"0", elementAt(row, 2));
+  childCountEdit_ = new WLineEdit("0", elementAt(row, 2));
   label = new WLabel(tr("example.childcount"),
 		     elementAt(row, 0));
   label->setBuddy(childCountEdit_);
@@ -131,38 +131,38 @@ void Form::createUI()
 void Form::countryChanged()
 {
   cityEdit_->clear();
-  cityEdit_->addItem(L"");
+  cityEdit_->addItem("");
   cityEdit_->setCurrentIndex(-1);
 
   switch (countryEdit_->currentIndex()) {
   case 0:
     break;
   case 1:
-    cityEdit_->addItem(L"Antwerp");
-    cityEdit_->addItem(L"Brussels");
-    cityEdit_->addItem(L"Oekene");
+    cityEdit_->addItem("Antwerp");
+    cityEdit_->addItem("Brussels");
+    cityEdit_->addItem("Oekene");
     break;
   case 2:
-    cityEdit_->addItem(L"Amsterdam");
-    cityEdit_->addItem(L"Den Haag");
-    cityEdit_->addItem(L"Rotterdam");
+    cityEdit_->addItem("Amsterdam");
+    cityEdit_->addItem("Den Haag");
+    cityEdit_->addItem("Rotterdam");
     break;
   case 3:
-    cityEdit_->addItem(L"London");
-    cityEdit_->addItem(L"Bristol");
-    cityEdit_->addItem(L"Oxford");
-    cityEdit_->addItem(L"Stonehenge");
+    cityEdit_->addItem("London");
+    cityEdit_->addItem("Bristol");
+    cityEdit_->addItem("Oxford");
+    cityEdit_->addItem("Stonehenge");
     break;
   case 4:
-    cityEdit_->addItem(L"Boston");
-    cityEdit_->addItem(L"Chicago");
-    cityEdit_->addItem(L"Los Angelos");
-    cityEdit_->addItem(L"New York");
+    cityEdit_->addItem("Boston");
+    cityEdit_->addItem("Chicago");
+    cityEdit_->addItem("Los Angelos");
+    cityEdit_->addItem("New York");
     break;
   }    
 }
 
-bool Form::checkValid(WFormWidget *edit, const WMessage& text)
+bool Form::checkValid(WFormWidget *edit, const WString& text)
 {
   if (edit->validate() != WValidator::Valid) {
     feedbackMessages_->addWidget(new WText(text));
@@ -208,13 +208,12 @@ void Form::submit()
 
     clear();
 
-    // WMessage with arguments is not yet implemented...
-    new WText(L"<p>Thank you, "
-	      + name
-	      + L", for all this precious data.</p>", elementAt(0, 0));
+    new WText(WString::fromUTF8("<p>Thank you, {1}, "
+				"for all this precious data.</p>").arg(name),
+	      elementAt(0, 0));
     
     if (!remarks.empty())
-      new WText(L"<p>You had some remarks. Splendid !</p>", elementAt(0, 0));
+      new WText("<p>You had some remarks. Splendid !</p>", elementAt(0, 0));
 
     wApp->quit();
   }

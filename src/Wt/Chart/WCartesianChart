@@ -341,6 +341,7 @@ private:
 			        const WModelIndex& bottomRight);
 
   virtual void modelChanged();
+  virtual void modelReset();
 };
 
   }

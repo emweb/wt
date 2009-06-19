@@ -24,7 +24,7 @@ class ItemCheckBox : public WCheckBox
 {
 public:
   ItemCheckBox(const WModelIndex& index)
-    : WCheckBox(false, 0),
+    : WCheckBox(),
       index_(index)
   { }
 

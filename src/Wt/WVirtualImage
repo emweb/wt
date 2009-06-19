@@ -181,7 +181,7 @@ protected:
    * You should override this method if you wish to serve for example
    * static image content.
    *
-   * \sa WVirtualImage::render()
+   * \sa render(int64_t x, int64_t y, int width, int height)
    */
   virtual WImage *createImage(int64_t x, int64_t y, int width, int height);
 
@@ -197,7 +197,7 @@ protected:
    * The default implementation throws an Exception. You must
    * reimplement this method unless you reimplement createImage().
    *
-   * \sa createImage()
+   * \sa createImage(int64_t x, int64_t y, int width, int height)
    */
   virtual WResource *render(int64_t x, int64_t y, int width, int height);
 

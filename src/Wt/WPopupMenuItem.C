@@ -123,7 +123,7 @@ void WPopupMenuItem::setCheckable(bool how)
   if (isCheckable() != how) {
     if (how) {
       text_->setMargin(ICON_WIDTH - CHECKBOX_WIDTH, Left);
-      checkBox_ = new WCheckBox(false, 0);
+      checkBox_ = new WCheckBox();
       impl_->insertWidget(0, checkBox_);
     } else {
       delete checkBox_;

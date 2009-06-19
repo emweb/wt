@@ -11,14 +11,14 @@
 namespace Wt {
 
 WButtonGroup::WButtonGroup(WObject* parent)
-  : WObject(parent)
+  : WObject(parent),
+    checkedChangedConnected_(false)
 { }
 
 WButtonGroup::~WButtonGroup()
 {
-  for (unsigned i = 0; i < buttons_.size(); ++i) {
+  for (unsigned i = 0; i < buttons_.size(); ++i)
     buttons_[i].button->setGroup(0);
-  }
 }
 
 void WButtonGroup::addButton(WRadioButton *button, int id)
@@ -29,6 +29,9 @@ void WButtonGroup::addButton(WRadioButton *button, int id)
   buttons_.push_back(b);
 
   button->setGroup(this);
+
+  if (checkedChangedConnected_)
+    button->changed().connect(SLOT(this, WButtonGroup::onButtonChange));
 }
 
 void WButtonGroup::removeButton(WRadioButton *button)
@@ -159,6 +162,22 @@ int WButtonGroup::generateId() const
     id = std::max(buttons_[i].id + 1, id);
 
   return id;
+}
+
+Signal<WRadioButton *>& WButtonGroup::checkedChanged()
+{
+  checkedChangedConnected_ = true;
+
+  for (unsigned i = 0; i < buttons_.size(); ++i)
+    buttons_[i].button->changed()
+      .connect(SLOT(this, WButtonGroup::onButtonChange));
+
+  return checkedChanged_;
+}
+
+void WButtonGroup::onButtonChange()
+{
+  checkedChanged_.emit(checkedButton());
 }
 
 }

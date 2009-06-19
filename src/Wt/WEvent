@@ -134,6 +134,7 @@ public:
   Coordinates dragDelta() const
   { return Coordinates(jsEvent_.dragDX, jsEvent_.dragDY); }
 
+#ifndef WT_DEPRECATED_3_0_0
   /*! \brief Returns whether the alt key is pressed (<b>deprecated</b>).
    *
    * \deprecated Use modifiers() instead.
@@ -157,6 +158,7 @@ public:
    * \deprecated Use modifiers() instead.
    */
   bool shiftKey() const { return (jsEvent_.modifiers & ShiftModifier) != 0; }
+#endif // WT_DEPRECATED_3_0_0
 
 #ifdef WT_TARGET_JAVA
   virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
@@ -247,6 +249,7 @@ public:
    */
   WT_USTRING text() const;
 
+#ifndef WT_DEPRECATED_3_0_0
   /*! \brief Returns the raw key code (<b>deprecated</b>).
    *
    * \deprecated The value returned is somewhat browser-specific, and
@@ -279,6 +282,7 @@ public:
    * \deprecated Use modifiers() instead.
    */
   bool shiftKey() const { return (jsEvent_.modifiers & ShiftModifier) != 0; }
+#endif // WT_DEPRECATED_3_0_0
 
 #ifdef WT_TARGET_JAVA
   virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)

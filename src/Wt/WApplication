@@ -246,11 +246,18 @@ public:
    * corresponds to entire browser window. The user interface of your
    * application is represented by the content of this container.
    *
+   * \if cpp
    * \note The root() is only defined in normal application mode. For
    * \link WServer::WidgetSet WidgetSet\endlink mode, there is no
    * root() container, and 0 is returned. Instead, use bindWidget() to
    * bind root widgets to existing HTML &lt;div&gt; elements on the
    * page.
+   * \elseif java
+   * \note The root() is only defined in normal Application mode.
+   *  For WidgetSet mode there is no root() container, and null is 
+   *  returned. Instead, use bindWidget() to bind root widgets 
+   *  to existing HTML &lt;div&gt; elements on the page.
+   *  \endif
    */
   WContainerWidget *root() const { return widgetRoot_; }
 
@@ -400,7 +407,10 @@ public:
    * should be a &lt;div&gt; for a WContainerWidget, or a
    * &lt;table&gt; for a WTable).
    *
-   * \sa root(), WServer::WidgetSet
+   * \sa root()
+   * \if cpp
+   * \sa WServer::WidgetSet
+   * \endif
    */
   void bindWidget(WWidget *widget, const std::string& domId);
 
@@ -418,8 +428,12 @@ public:
    * this method would return <tt>"/stuff/app.wt?wtd=AbCdEf"</tt>,
    * when using URL rewriting for session-tracking or
    * <tt>"/stuff/app.wt?a=a"</tt> when using cookies for
-   * session-tracking (see also \ref config_session for configuring
-   * the session-tracking method). As in each case, a query is
+   * session-tracking 
+   * \if cpp
+   * (see also \ref config_session for configuring
+   * the session-tracking method)
+   * \endif
+   * . As in each case, a query is
    * appended at the end of the URL, additional query parameters can
    * be appended in the form of <tt>"&param1=value&param2=value"</tt>.
    *
@@ -459,8 +473,11 @@ public:
    *  - <tt>"app.wt/project/external/"</tt> when JavaScript is available, or
    *    the agent is a web spider, or
    *  - <tt>"app.wt/project/external/?wtd=AbCdEf"</tt> when no JavaScript
-   *    is available and URL rewriting is used for session-tracking (see
-   *    also \ref config_session for configuring the session-tracking method).
+   *    is available and URL rewriting is used for session-tracking
+   *    \if cpp
+   *    (see also \ref config_session for configuring the session-tracking 
+   *    method).
+   *    \endif
    *
    * When the application is deployed at a folder (ending with '/'),
    * this style of URLs is not possible, and URLs are of the form:
@@ -861,6 +878,7 @@ public:
    * The default method depends on your application deployment
    * type.
    *
+   * \if cpp
    * For \link WServer::Application plain\endlink applications, \link
    * WApplication::XMLHttpRequest XMLHttpRequest\endlink is used,
    * while for \link WServer::WidgetSet widget set\endlink
@@ -868,6 +886,14 @@ public:
    * DynamicScriptTag\endlink is used. The latter is less efficient,
    * but has the benefit to allow serving the application from a
    * different server than the page that hosts the embedded widgets.
+   * \elseif java
+   * For plain applications, \link WApplication::XMLHttpRequest 
+   * XMLHttpRequest\endlink is used, while for WidgetSet 
+   * applications, \link WApplication::DynamicScriptTag
+   * DynamicScriptTag\endlink is used. The latter is less efficient,
+   * but has the benefit to allow serving the application from a
+   * different server than the page that hosts the embedded widgets.
+   * \endif
    */
   void setAjaxMethod(AjaxMethod method);
 
@@ -958,8 +984,10 @@ public:
    * since first also all invisible changes need to be computed and
    * received in the browser.
    *
+   * \if cpp
    * The initial value is read from the configuration file, see \ref
    * config_general.
+   * \endif
    */
   void setTwoPhaseRenderingThreshold(int size);
 
@@ -990,8 +1018,10 @@ public:
 
   /*! \brief Returns the current maximum size of a request to the application.
    *
+   * \if cpp
    * The maximum request size is configured in the configuration file,
    * see \ref config_general.
+   * \endif
    *
    * \sa requestTooLarge()
    */
@@ -1014,7 +1044,9 @@ public:
 [2008-Jul-13 14:01:17.817348] 16879 [/app.wt Z2gCmSxIGjLHD73L] [notice] "User bart logged in successfully." \endverbatim
    * \endif
    *
+   * \if cpp
    * \sa \ref config_general
+   * \endif
    */
   WLogEntry log(const std::string& type) const;
 

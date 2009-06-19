@@ -72,13 +72,13 @@ namespace Wt {
 class WT_API WString
 {
 public:
-  /*! \brief Construct an empty string
+  /*! \brief Creates an empty string
    *
    * Create a literal string with empty contents ("").
    */
   WString();
 
-  /*! \brief Construct a %WString from a wide C string
+  /*! \brief Creates a %WString from a wide C string
    *
    * The wide string is implicitly converted to proper unicode. Note
    * that there are known issues with the portability of wchar_t since
@@ -90,7 +90,7 @@ public:
    */
   WString(const WString& other);
 
-  /*! \brief Construct a %WString from a wide C++ string
+  /*! \brief Creates a %WString from a wide C++ string
    *
    * The wide string is implicitly converted to proper unicode. Note
    * that there are known issues with the portability of wchar_t since
@@ -98,7 +98,7 @@ public:
    */
   WString(const std::wstring& value);
 
-  /*! \brief Construct a %WString from a C string.
+  /*! \brief Creates a %WString from a C string.
    *
    * The C string is implicitly converted to unicode. When
    * <i>encoding</i> is \link Wt::LocalEncoding LocalEncoding\endlink,
@@ -108,7 +108,7 @@ public:
    */
   WString(const char *value, CharEncoding encoding = LocalEncoding);
 
-  /*! \brief Construct a %WString from a C++ string.
+  /*! \brief Creates a %WString from a C++ string.
    *
    * The C++ string is implicitly converted to unicode. When
    * <i>encoding</i> is \link Wt::LocalEncoding LocalEncoding\endlink,
@@ -118,9 +118,7 @@ public:
    */
   WString(const std::string& value, CharEncoding encoding = LocalEncoding);
 
-  /*! \brief Delete a %WString
-   *
-   * Frees all resources associated with this string.
+  /*! \brief Destructor
    */
   ~WString();
 
@@ -196,25 +194,25 @@ public:
    */
   WString& operator+= (const char *rhs);
 
-  /*! \brief Is the string empty ?
+  /*! \brief Returns whether the string is empty.
    */
   bool empty() const;
 
-  /*! \brief Construct a %WString from a UTF8 unicode encoded string.
+  /*! \brief Creates a %WString from a UTF8 unicode encoded string.
    *
    * This is equivalent to using the constructor WString(<i>value</i>,
    * UTF8).
    */
   static WString fromUTF8(const std::string& value);
 
-  /*! \brief Construct a %WString from a UTF8 unicode encoded string.
+  /*! \brief Creates a %WString from a UTF8 unicode encoded string.
    *
    * This is equivalent to using the constructor WString(<i>value</i>,
    * UTF8).
    */
   static WString fromUTF8(const char *value);
 
-  /*! \brief Get the value as a UTF8 unicode encoded string.
+  /*! \brief Returns the value as a UTF8 unicode encoded string.
    *
    * For a localized string, returns the current localized value.
    *
@@ -222,7 +220,7 @@ public:
    */
   std::string toUTF8() const;
 
-  /*! \brief Construct a localized string with the specified key.
+  /*! \brief Creates a localized string from a key.
    *
    * Whenever the value of the string is needed, the key is used for a
    * lookup in the application message resource bundles taking into
@@ -233,21 +231,25 @@ public:
    */
   static WString tr(const char *key);
 
-  /*! \brief Construct a localized string with the specified key.
+  /*! \brief Creates a localized string with the specified key.
    *
    * \sa tr(const char *)
    */
   static WString tr(const std::string& key);
 
-  /*! \brief Get the value as a wide C++ string.
+  /*! \brief Returns the value as a wide C++ string.
    *
-   * For a localized string, returns the current localized value.
+   * A localized string is resolved using the WApplication::localizedStrings().
+   *
+   * Argument place holders are substitued with actual arguments.
    */
   std::wstring value() const;
 
-  /*! \brief Get the value as a narrow C++ string.
+  /*! \brief Returns the value as a narrow C++ string.
    *
-   * For a localized string, returns the current localized value.
+   * A localized string is resolved using the WApplication::localizedStrings().
+   *
+   * Argument place holders are substitued with actual arguments.
    *
    * Any wide character is narrowed, possibly losing information. If
    * you wish to keep all information, use toUTF8() instead, which
@@ -257,88 +259,99 @@ public:
    */
   std::string narrow() const;
 
-  /*! \brief Get the value as a wide C++ string.
+  /*! \brief Returns the value as a wide C++ string.
    *
-   * For a localized string, returns the current localized value.
+   * A localized string is resolved using the WApplication::localizedStrings().
+   *
+   * Argument place holders are substitued with actual arguments.
    */
   operator std::wstring() const;
 
-  /*! \brief Is this string literal or localized ?
+  /*! \brief Retuns whether the string is literal or localized.
    *
    * \sa tr()
    */
   bool literal() const { return !impl_ || impl_->key_.empty(); }
 
-  /*! \brief Get the key for this localized string.
+  /*! \brief Returns the key for a localized string.
    *
    * When the string is literal, the result is undefined.
    */
   const std::string key() const;
 
-  /*! \brief Add a value for the next positional string argument of this
-   *         localized string.
+  /*! \brief Substitutes the next positional argument with a string value.
    *
-   * In the resource, the <i>n</i>-th argument is reffered to as using
-   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
-   * apples in the shop.'  with first argument value 'Bart' and second
-   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   * In the string, the <i>n</i>-th argument is referred to as using
+   * {<i>n</i>}.
+   *
+   * For example: the string "<tt>{1} bought {2} apples in the
+   * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
+   * argument value <tt>5</tt> becomes: "<tt>Bart bought 5 apples in
+   * the shop.</tt>"
    */
   WString& arg(const std::wstring& value);
 
-  /*! \brief Add a value for the next positional string argument of this
-   *         localized string.
+  /*! \brief Substitutes the next positional argument with a string value.
    *
-   * In the resource, the <i>n</i>-th argument is reffered to as using
-   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
-   * apples in the shop.'  with first argument value 'Bart' and second
-   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   * In the string, the <i>n</i>-th argument is referred to as using
+   * {<i>n</i>}.
+   *
+   * For example: the string "<tt>{1} bought {2} apples in the
+   * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
+   * argument value <tt>5</tt> becomes: "<tt>Bart bought 5 apples in
+   * the shop.</tt>"
    */
   WString& arg(const std::string& value, CharEncoding = LocalEncoding);
 
   WString& arg(const char *value, CharEncoding = LocalEncoding);
 
-  /*! \brief Add a value for the next positional string argument of this
-   *         localized string.
+  /*! \brief Substitutes the next positional argument with a string value.
    *
-   * In the resource, the <i>n</i>-th argument is reffered to as using
-   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
-   * apples in the shop.'  with first argument value 'Bart' and second
-   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   * In the string, the <i>n</i>-th argument is referred to as using
+   * {<i>n</i>}.
+   *
+   * For example: the string "<tt>{1} bought {2} apples in the
+   * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
+   * argument value <tt>5</tt> becomes: "<tt>Bart bought 5 apples in
+   * the shop.</tt>"
    */
   WString& arg(const WString& value);
 
-  /*! \brief Add a value for the next positional integer argument of this
-   *         localized string.
+  /*! \brief Substitutes the next positional argument with an integer value.
    *
-   * In the resource, the <i>n</i>-th argument is reffered to as using
-   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
-   * apples in the shop.'  with first argument value 'Bart' and second
-   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   * In the string, the <i>n</i>-th argument is reffered to as using
+   * {<i>n</i>}.
+   *
+   * For example: the string "<tt>{1} bought {2} apples in the
+   * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
+   * argument value <tt>5</tt> becomes: "<tt>Bart bought 5 apples in
+   * the shop.</tt>"
    */
   WString& arg(int value);
 
-  /*! \brief Add a value for the next positional integer argument of this
-   *         localized string.
+  /*! \brief Substitutes the next positional argument with a double value.
    *
-   * In the resource, the <i>n</i>-th argument is reffered to as using
-   * '{<i>n</i>}'. For example: a resource message '{1} bought {2}
-   * apples in the shop.'  with first argument value 'Bart' and second
-   * argument value '5' becomes: 'Bart bought 5 apples in the shop.'.
+   * In the string, the <i>n</i>-th argument is reffered to as using
+   * {<i>n</i>}.
+   *
+   * For example: the string "<tt>{1} bought {2} apples in the
+   * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
+   * argument value <tt>5</tt> becomes: "<tt>Bart bought 5 apples in
+   * the shop.</tt>"
    */
   WString& arg(double value);
 
-  /*! \brief The list of arguments
+  /*! \brief Returns the list of arguments
    *
    * Each argument is UTF8 encoded.
    */
   const std::vector<std::string>& args() const;
 
-  /*! \brief Refresh the message.
+  /*! \brief Refreshes the string.
    *
-   * For a localized message, this rereads the value from the message
-   * resource bundle.
+   * For a localized string, its value is resolved again.
    *
-   * Returns whether the value has changed.
+   * Returns whether the value has (potentially) changed.
    */
   bool refresh();
 
@@ -356,6 +369,8 @@ public:
   bool operator!= (const WString& rhs) const;
 #endif
 
+  /** \brief An emtpy string.
+   */
   static const WString Empty;
 
 private:
@@ -506,6 +521,7 @@ extern WT_API std::wostream& operator<< (std::wostream& lhs, const WString& rhs)
 extern WT_API std::ostream& operator<< (std::ostream& lhs, const WString& rhs);
 #endif // WT_TARGET_JAVA
 
+#ifndef WT_DEPRECATED_3_0_0
 /*! \brief Alias for %WString (<b>deprecated</b>).
  *
  * \deprecated use WString instead.
@@ -516,6 +532,7 @@ extern WT_API std::ostream& operator<< (std::ostream& lhs, const WString& rhs);
  * \relates WString
  */
 typedef WString WMessage;
+#endif // WT_DEPRECATED_3_0_0
 
 }
 

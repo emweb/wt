@@ -169,19 +169,21 @@ void WDialog::resize(const WLength& width, const WLength& height)
   WCompositeWidget::resize(width, height);
 }
 
+#ifndef WT_DEPRECATED_3_0_0
 void WDialog::setCaption(const WString& caption)
 {
   setWindowTitle(caption);
 }
 
-void WDialog::setWindowTitle(const WString& windowTitle)
-{
-  caption_->setText(windowTitle);
-}
-
 const WString& WDialog::caption() const
 {
   return windowTitle();
+}
+#endif // WT_DEPRECATED_3_0_0
+
+void WDialog::setWindowTitle(const WString& windowTitle)
+{
+  caption_->setText(windowTitle);
 }
 
 const WString& WDialog::windowTitle() const
