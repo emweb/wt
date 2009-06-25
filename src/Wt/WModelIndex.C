@@ -56,7 +56,10 @@ int WModelIndex::depth() const
 
 bool WModelIndex::operator== (const WModelIndex& other) const
 {
-  return std::memcmp(this, &other, sizeof(WModelIndex)) == 0;
+  return model_ == other.model_ &&
+    row_ == other.row_ &&
+    column_ == other.column_ &&
+    internalId_ == other.internalId_;
 }
 
 bool WModelIndex::operator!= (const WModelIndex& other) const

@@ -92,16 +92,12 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
     finishPath();
     makeNewGroup();
 
-    std::stringstream tmp;
-
-    tmp << "<"SVG"ellipse "
-	<< " cx=\""<< Utils::round_str(rect.center().x(), 3, buf);
-    tmp << "\" cy=\"" << Utils::round_str(rect.center().y(), 3, buf);
-    tmp << "\" rx=\"" << Utils::round_str(rect.width() / 2, 3, buf);
-    tmp << "\" ry=\"" << Utils::round_str(rect.height() / 2, 3, buf)
-	<< "\" />";
-
-    shapes_ += tmp.str();
+    shapes_ << "<"SVG"ellipse "
+	    << " cx=\""<< Utils::round_str(rect.center().x(), 3, buf);
+    shapes_ << "\" cy=\"" << Utils::round_str(rect.center().y(), 3, buf);
+    shapes_ << "\" rx=\"" << Utils::round_str(rect.width() / 2, 3, buf);
+    shapes_ << "\" ry=\"" << Utils::round_str(rect.height() / 2, 3, buf)
+	    << "\" />";
   } else {
     WPainterPath path;
 
@@ -202,12 +198,10 @@ void WSvgImage::makeNewGroup()
     if (painter()->hasClipping()) {
       currentClipId_ = nextClipId_++;
       tmp << "<"SVG"defs><"SVG"clipPath id=\"clip" << currentClipId_ << "\">";
-      shapes_ += tmp.c_str();
+      shapes_ << tmp.c_str();
       tmp.clear();
 
-      std::stringstream clip;
-      drawPlainPath(clip, painter()->clipPath());
-      shapes_ += clip.str();
+      drawPlainPath(shapes_, painter()->clipPath());
 
       tmp << '"';
       busyWithPath_ = false;
@@ -266,7 +260,7 @@ void WSvgImage::makeNewGroup()
 
   tmp << '>';
   
-  shapes_ += tmp.c_str();
+  shapes_ << tmp.c_str();
 
   changeFlags_ = 0;
 }
@@ -362,7 +356,7 @@ void WSvgImage::finishPath()
   if (busyWithPath_) {
     busyWithPath_ = false;
 
-    shapes_ += "\" />";
+    shapes_ << "\" />";
   }
 }
 
@@ -370,9 +364,7 @@ void WSvgImage::drawPath(const WPainterPath& path)
 {
   makeNewGroup();
 
-  std::stringstream tmp;
-  drawPlainPath(tmp, path);
-  shapes_ += tmp.str();
+  drawPlainPath(shapes_, path);
 }
 
 void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
@@ -385,18 +377,18 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
   WRectF drect = rect;
 
   char buf[30];
-  std::stringstream tmp;
 
   bool transformed = false;
 
   if (drect.width() != srect.width()
       || drect.height() != srect.height()) {
-    tmp << "<"SVG"g transform=\"matrix("
-	<< Utils::round_str(drect.width() / srect.width(), 3, buf);
-    tmp << " 0 0 " << Utils::round_str(drect.height() / srect.height(), 3, buf);
-    tmp << ' ' << Utils::round_str(drect.x(), 3, buf)
-	<< ' ' << Utils::round_str(drect.y(), 3, buf)
-	<< ")\">";
+    shapes_ << "<"SVG"g transform=\"matrix("
+	    << Utils::round_str(drect.width() / srect.width(), 3, buf);
+    shapes_ << " 0 0 " 
+	    << Utils::round_str(drect.height() / srect.height(), 3, buf);
+    shapes_ << ' ' << Utils::round_str(drect.x(), 3, buf)
+	    << ' ' << Utils::round_str(drect.y(), 3, buf)
+	    << ")\">";
 
     drect = WRectF(0, 0, srect.width(), srect.height());
 
@@ -418,30 +410,28 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
   int imgClipId = nextClipId_++;
 
   if (WRectF(x, y, width, height) != drect) {
-    tmp << "<"SVG"clipPath id=\"imgClip" << imgClipId << "\">";
-    tmp << "<"SVG"rect x=\"" << Utils::round_str(drect.x(), 3, buf) << '"';
-    tmp << " y=\"" << Utils::round_str(drect.y(), 3, buf) << '"';
-    tmp << " width=\"" << Utils::round_str(drect.width(), 3, buf) << '"';
-    tmp << " height=\"" << Utils::round_str(drect.height(), 3, buf) << '"';
-    tmp << " /></"SVG"clipPath>";
+    shapes_ << "<"SVG"clipPath id=\"imgClip" << imgClipId << "\">";
+    shapes_ << "<"SVG"rect x=\"" << Utils::round_str(drect.x(), 3, buf) << '"';
+    shapes_ << " y=\"" << Utils::round_str(drect.y(), 3, buf) << '"';
+    shapes_ << " width=\"" << Utils::round_str(drect.width(), 3, buf) << '"';
+    shapes_ << " height=\"" << Utils::round_str(drect.height(), 3, buf) << '"';
+    shapes_ << " /></"SVG"clipPath>";
     useClipPath = true;
   }
 
-  tmp << "<"SVG"image xlink:href=\"" << imageUri << "\"";
-  tmp << " x=\"" << Utils::round_str(x, 3, buf) << '"';
-  tmp << " y=\"" << Utils::round_str(y, 3, buf) << '"';
-  tmp << " width=\"" << Utils::round_str(width, 3, buf) << '"';
-  tmp << " height=\"" << Utils::round_str(height, 3, buf) << '"';
+  shapes_ << "<"SVG"image xlink:href=\"" << imageUri << "\"";
+  shapes_ << " x=\"" << Utils::round_str(x, 3, buf) << '"';
+  shapes_ << " y=\"" << Utils::round_str(y, 3, buf) << '"';
+  shapes_ << " width=\"" << Utils::round_str(width, 3, buf) << '"';
+  shapes_ << " height=\"" << Utils::round_str(height, 3, buf) << '"';
 
   if (useClipPath)
-    tmp << " clip-path=\"url(#imgClip" << imgClipId << ")\"";
+    shapes_ << " clip-path=\"url(#imgClip" << imgClipId << ")\"";
 
-  tmp << "/>";
+  shapes_ << "/>";
 
   if (transformed)
-    tmp << "</"SVG"g>";
-
-  shapes_ += tmp.str();
+    shapes_ << "</"SVG"g>";
 }
 
 void WSvgImage::drawLine(double x1, double y1, double x2, double y2)
@@ -459,36 +449,35 @@ void WSvgImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   makeNewGroup();
 
   char buf[30];
-  std::stringstream tmp;
-
-  tmp << "<"SVG"text";
+  shapes_ << "<"SVG"text";
 
   // SVG uses fill color to fill text, but we want pen color.
-  tmp << " style=\"stroke:none;";
+  shapes_ << " style=\"stroke:none;";
   if (painter()->pen().color() != painter()->brush().color()
       || painter()->brush().style() == NoBrush) {
     const WColor& color = painter()->pen().color();
-    tmp << "fill:" + color.cssText() << ';';
+    shapes_ << "fill:" + color.cssText() << ';';
     if (color.alpha() != 255)
-      tmp << "fill-opacity:" << Utils::round_str(color.alpha() / 255., 3, buf)
-	  << ';';
+      shapes_ << "fill-opacity:" 
+	      << Utils::round_str(color.alpha() / 255., 3, buf)
+	      << ';';
   }
-  tmp << '"';
+  shapes_ << '"';
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
   switch (horizontalAlign) {
   case AlignLeft:
-    tmp << " x=" << quote(rect.left());
+    shapes_ << " x=" << quote(rect.left());
     break;
   case AlignRight:
-    tmp << " x=" << quote(rect.right())
-	<< " text-anchor=\"end\"";
+    shapes_ << " x=" << quote(rect.right())
+	    << " text-anchor=\"end\"";
     break;
   case AlignCenter:
-    tmp << " x=" << quote(rect.center().x())
-	<< " text-anchor=\"middle\"";
+    shapes_ << " x=" << quote(rect.center().x())
+	    << " text-anchor=\"middle\"";
     break;
   default:
     break;
@@ -500,22 +489,23 @@ void WSvgImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 #if 0
   switch (verticalAlign) {
   case AlignTop:
-    tmp << " y=" << quote(rect.top())
-	<< " dominant-baseline=\"text-before-edge\"";
+    shapes_ << " y=" << quote(rect.top())
+	    << " dominant-baseline=\"text-before-edge\"";
     break;
   case AlignBottom:
-    tmp << " y=" << quote(rect.bottom())
-	<< " dominant-baseline=\"text-after-edge\"";
+    shapes_ << " y=" << quote(rect.bottom())
+	    << " dominant-baseline=\"text-after-edge\"";
     break;
   case AlignMiddle:
-    tmp << " y=" << quote(rect.center().y())
-	<< " dominant-baseline=\"middle\"";
+    shapes_ << " y=" << quote(rect.center().y())
+	    << " dominant-baseline=\"middle\"";
     break;
   default:
     break;
   }
 
-  tmp << ">" << WWebWidget::escapeText(text, false).toUTF8() << "</"SVG"text>";
+  shapes << ">" << WWebWidget::escapeText(text, false).toUTF8() 
+	 << "</"SVG"text>";
 
 #else
 
@@ -544,12 +534,11 @@ void WSvgImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
     break;
   }
 
-  tmp << " y=" << quote(y);
+  shapes_ << " y=" << quote(y);
 
-  tmp << ">" << WWebWidget::escapeText(text, false).toUTF8() << "</"SVG"text>";
+  shapes_ << ">" << WWebWidget::escapeText(text, false).toUTF8() 
+	  << "</"SVG"text>";
 #endif
-
-  shapes_ += tmp.str();
 }
 
 std::string WSvgImage::quote(const std::string& s)
@@ -697,7 +686,7 @@ void WSvgImage::streamResourceData(std::ostream& stream)
 
   if (paintFlags_ & PaintUpdate)
     stream << "<"SVG"g xmlns=\"http://www.w3.org/2000/svg\""
-      " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><"SVG"g>" << shapes_
+      " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><"SVG"g>" << shapes_.str()
 	   << "</"SVG"g></"SVG"g>";
   else
     stream << "<"SVG"svg xmlns=\"http://www.w3.org/2000/svg\""
@@ -705,7 +694,7 @@ void WSvgImage::streamResourceData(std::ostream& stream)
       " version=\"1.1\" baseProfile=\"full\""
       " width=\"" << width().cssText() << "\""
       " height=\"" << height().cssText() << "\">"
-	   << "<"SVG"g><"SVG"g>" << shapes_
+	   << "<"SVG"g><"SVG"g>" << shapes_.str()
 	   << "</"SVG"g></"SVG"g></"SVG"svg>";
 }
 

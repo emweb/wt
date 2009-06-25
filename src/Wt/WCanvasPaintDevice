@@ -74,7 +74,7 @@ private:
   WFlags<ChangeFlag> changeFlags_;
   WFlags<PaintFlag> paintFlags_;
 
-  std::string js_;
+  std::stringstream js_;
   std::vector<DomElement *> textElements_;
   std::vector<std::string> images_;
 

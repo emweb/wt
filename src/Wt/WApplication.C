@@ -312,7 +312,15 @@ std::string WApplication::resourcesUrl()
 #else
   std::string path = "/wt-resources/";
   readConfigurationProperty("resourcesURL", path);
-  return WApplication::instance()->bookmarkUrl(path);
+  /*
+   * Arghll... we should in fact know when we need the absolute URL: only
+   * when we are having a request.pathInfo().
+   */
+  std::string result = WApplication::instance()->environment().deploymentPath();
+  if (!result.empty() && result[result.length() - 1] == '/')
+    return result + path.substr(1);
+  else
+    return result + path;
 #endif // WT_TARGET_JAVA
 }
 

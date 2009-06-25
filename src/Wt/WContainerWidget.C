@@ -379,6 +379,21 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     default:
       break;
     }
+
+    if (domElementType() == DomElement_TD)
+      switch (contentAlignment_ & AlignVerticalMask) {
+      case AlignTop:
+	if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
+	  element.setProperty(PropertyStyleVerticalAlign, "top");
+	break;
+      case AlignMiddle:
+	element.setProperty(PropertyStyleVerticalAlign, "middle");
+	break;
+      case AlignBottom:
+	element.setProperty(PropertyStyleVerticalAlign, "bottom");
+      default:
+	break;
+      }
   }
 
   if (flags_.test(BIT_ADJUST_CHILDREN_ALIGN)

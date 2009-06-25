@@ -126,13 +126,11 @@ void WVmlImage::drawImage(const WRectF& rect, const std::string& imgUri,
   finishPaths();
   processClipping();
 
-  std::stringstream tmp;
-
   WTransform t = painter()->combinedTransform();
   WPointF tl = t.map(rect.topLeft());
 
-  tmp << "<v:group style=\"width:" << Z * width().value() << "px;height:"
-      << Z * height().value() << "px;";
+  rendered_ << "<v:group style=\"width:" << Z * width().value() << "px;height:"
+	    << Z * height().value() << "px;";
 
   double cx = 1, cy = 1;
 
@@ -142,23 +140,21 @@ void WVmlImage::drawImage(const WRectF& rect, const std::string& imgUri,
 
     // FIXME: figure out padding ?
 
-    tmp << "filter:progid:DXImageTransform.Microsoft.Matrix(M11='"
-	<< t.m11() / cx << "',M12='" << t.m21() / cy << "',M21='"
-	<< t.m12() / cx << "',M22='" << t.m22() / cy << "',Dx='"
-	<< tl.x() << "',Dy='" << tl.y() << "',sizingmethod='clip');";
+    rendered_ << "filter:progid:DXImageTransform.Microsoft.Matrix(M11='"
+	      << t.m11() / cx << "',M12='" << t.m21() / cy << "',M21='"
+	      << t.m12() / cx << "',M22='" << t.m22() / cy << "',Dx='"
+	      << tl.x() << "',Dy='" << tl.y() << "',sizingmethod='clip');";
   } else
-    tmp << "top:" << Z * tl.y() << "px;left:" << Z * tl.x() << "px;";
+    rendered_ << "top:" << Z * tl.y() << "px;left:" << Z * tl.x() << "px;";
 
-  tmp << "\"><v:image src=\"" << imgUri
-      << "\" style=\"width:" << Z * rect.width() * cx
-      << "px;height:" << Z * rect.height() * cy
-      << "px\" cropleft=\"" << sourceRect.x() / imgWidth
-      << "\" croptop=\"" << sourceRect.y() / imgHeight
-      << "\" cropright=\"" << (imgWidth - sourceRect.right())/imgWidth
-      << "\" cropbottom=\"" << (imgHeight - sourceRect.bottom())/imgHeight
-      << "\"/></v:group>";
-
-  rendered_ += tmp.str();
+  rendered_ << "\"><v:image src=\"" << imgUri
+	    << "\" style=\"width:" << Z * rect.width() * cx
+	    << "px;height:" << Z * rect.height() * cy
+	    << "px\" cropleft=\"" << sourceRect.x() / imgWidth
+	    << "\" croptop=\"" << sourceRect.y() / imgHeight
+	    << "\" cropright=\"" << (imgWidth - sourceRect.right())/imgWidth
+	    << "\" cropbottom=\"" << (imgHeight - sourceRect.bottom())/imgHeight
+	    << "\"/></v:group>";
 }
 
 static WRectF transformBbox(const WTransform& t, const WRectF& r)
@@ -350,10 +346,11 @@ void WVmlImage::drawPath(const WPainterPath& path)
 void WVmlImage::finishPaths()
 {
   for (unsigned i = 0; i < activePaths_.size(); ++i) {
-    rendered_ += activePaths_[i].path + "e\">"
-      + strokeElement(currentPen_)
-      + fillElement(currentBrush_)
-      + "</v:shape>";
+    rendered_ << activePaths_[i].path
+	      << "e\">"
+	      << strokeElement(currentPen_)
+	      << fillElement(currentBrush_)
+	      << "</v:shape>";
   }
 
   activePaths_.clear();
@@ -438,19 +435,15 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   } else if (t != e)
     e->addChild(t);
 
-  std::stringstream tmp;
   {
-    EscapeOStream os(tmp);
+    EscapeOStream os(rendered_);
     DomElement::TimeoutList notused;
     e->asHTML(os, notused);
   }
 
   delete e;
-  rendered_ += tmp.str();
 
 #else
-
-  std::stringstream tmp;
 
   double fontSize;
   switch (painter()->font().size()) {
@@ -473,32 +466,32 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
     break;
   }
 
-  tmp << "<v:shape style=\"width:" << Z * currentRect_.width()
-      << "px;height:" << Z * currentRect_.height()
-      << "px;\"><v:path textpathok=\"True\" v=\"m"
-      << myzround(rect.left(), false) << ',' << myzround(y, false) << 'l'
-      << myzround(rect.right(), false) << ',' << myzround(y, false)
-      << "m0,0l0,0e\"/><v:fill on=\"True\" "
-      << colorAttributes(painter()->pen().color())
-      << "/><v:stroke on=\"False\"/>"
-      << skewElement(painter()->combinedTransform())
-      << "<v:textpath on=\"True\" string=\"";
+  rendered_ << "<v:shape style=\"width:" << Z * currentRect_.width()
+	    << "px;height:" << Z * currentRect_.height()
+	    << "px;\"><v:path textpathok=\"True\" v=\"m"
+	    << myzround(rect.left(), false) << ',' << myzround(y, false) << 'l'
+	    << myzround(rect.right(), false) << ',' << myzround(y, false)
+	    << "m0,0l0,0e\"/><v:fill on=\"True\" "
+	    << colorAttributes(painter()->pen().color())
+	    << "/><v:stroke on=\"False\"/>"
+	    << skewElement(painter()->combinedTransform())
+	    << "<v:textpath on=\"True\" string=\"";
 
   {
-    EscapeOStream attr(tmp);
+    EscapeOStream attr(rendered_);
     attr.pushEscape(EscapeOStream::HtmlAttribute);
     attr << text.toUTF8();
   }
 
-  tmp << "\" style=\"v-text-align:";
+  rendered_ << "\" style=\"v-text-align:";
 
   switch (horizontalAlign) {
   case AlignLeft:
-    tmp << "left"; break;
+    rendered_ << "left"; break;
   case AlignCenter:
-    tmp << "center"; break;
+    rendered_ << "center"; break;
   case AlignRight:
-    tmp << "right"; break;
+    rendered_ << "right"; break;
   default:
     break;
   }
@@ -508,9 +501,7 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   textFont.setSize(textFont.size(),
     textFont.fixedSize() * app->environment().dpiScale());
 
-  tmp << ';'<< textFont.cssText() << "\"/></v:shape>";
-
-  rendered_ += tmp.str();
+  rendered_ << ';'<< textFont.cssText() << "\"/></v:shape>";
 
 #endif
 }
@@ -688,13 +679,13 @@ std::string WVmlImage::rendered()
   stopClip();
 
   if (paintFlags_ & PaintUpdate)
-    return rendered_;
+    return rendered_.str();
   else {
     std::stringstream s;
     s << "<div style=\"position:relative;width:"
       << width().cssText() << ";height:" << height().cssText()
       << ";overflow:hidden;\">"
-      << rendered_
+      << rendered_.str()
       << "</div>";
     return s.str();
   }
@@ -702,25 +693,24 @@ std::string WVmlImage::rendered()
 
 void WVmlImage::startClip(const WRectF& rect)
 {
-  std::stringstream s;
-
-  s << "<div style=\"position:absolute;left:"
-    << rect.left() << "px;top:" << rect.top() << "px;width:"
-    << rect.width() << "px;height:" << rect.height() << "px;overflow:hidden;\""
-    << " onselectstart=\"return false;\">"
-    << "<v:group style=\"position:absolute;left:0px;top:0px;width:"
-    << rect.width() << "px;height:" << rect.height() << "px\" coordorigin=\""
-    << 0.5 * rect.left() * Z << "," << 0.5 * rect.top() * Z << "\" coordsize=\""
-    << rect.width() * Z << "," << rect.height() * Z << "\">";
-
-  rendered_ += s.str();
+  rendered_ << "<div style=\"position:absolute;left:"
+	    << rect.left() << "px;top:" << rect.top() << "px;width:"
+	    << rect.width() << "px;height:" << rect.height() 
+	    << "px;overflow:hidden;\""
+	    << " onselectstart=\"return false;\">"
+	    << "<v:group style=\"position:absolute;left:0px;top:0px;width:"
+	    << rect.width() << "px;height:" 
+	    << rect.height() << "px\" coordorigin=\""
+	    << 0.5 * rect.left() * Z 
+	    << "," << 0.5 * rect.top() * Z << "\" coordsize=\""
+	    << rect.width() * Z << "," << rect.height() * Z << "\">";
 
   currentRect_ = rect;
 }
 
 void WVmlImage::stopClip()
 {
-  rendered_ += "</v:group></div>";
+  rendered_ << "</v:group></div>";
 }
 
 }

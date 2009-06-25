@@ -1,3 +1,12 @@
+25-06-2009:
+	* WCanvasPaintDevice, WSvgImage, WVmlImage: string -> stringstream
+	optimizations
+
+	* WTableCell: fix vertical component of content alignment
+
+	* WModelIndex: fix operator== to not use memcmp() since this gets
+	into trouble with struct padding bytes
+
 19-06-2009:
 	* Chart/WAbstractChart: react well to modelReset() and
 	modelLayoutChanged()

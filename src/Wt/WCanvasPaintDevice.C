@@ -89,7 +89,8 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
     tmp << "ctx.clearRect(0,0,"
 	<< width().value() << "," << height().value() << ");";
 
-  tmp << "ctx.save();ctx.save();" << js_ << "ctx.restore();ctx.restore();});}";
+  tmp << "ctx.save();ctx.save();" << js_.str() 
+      << "ctx.restore();ctx.restore();});}";
 
   text->callJavaScript(tmp.str());
 
@@ -112,8 +113,6 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
     return;
 
   renderStateChanges();
-
-  std::stringstream tmp;
 
   WPointF ra = normalizedDegreesToRadians(startAngle, spanAngle);
 
@@ -138,7 +137,7 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
     lw = 0;
   r = std::max(0.005, r - lw/2);
 
-  tmp << "ctx.save();"
+  js_ << "ctx.save();"
       << "ctx.translate(" << rect.center().x() << "," << rect.center().y()
       << ");"
       << "ctx.scale(" << sx << "," << sy << ");"
@@ -147,16 +146,14 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
       << "ctx.arc(0,0," << r << ',' << ra.x() << "," << ra.y() << ",true);";
 
   if (painter()->brush().style() != NoBrush) {
-    tmp << "ctx.fill();";
+    js_ << "ctx.fill();";
   }
 
   if (painter()->pen().style() != NoPen) {
-    tmp << "ctx.stroke();";
+    js_ << "ctx.stroke();";
   }
 
-  tmp << "ctx.restore();";
-
-  js_ += tmp.str();
+  js_ << "ctx.restore();";
 }
 
 int WCanvasPaintDevice::createImage(const std::string& imgUri)
@@ -175,18 +172,15 @@ void WCanvasPaintDevice::drawImage(const WRectF& rect,
   int imageIndex = createImage(imgUri);
 
   char buf[30];
-  std::stringstream tmp;
-  tmp << "ctx.drawImage(images[" << imageIndex
+  js_ << "ctx.drawImage(images[" << imageIndex
       << "]," << Utils::round_str(sourceRect.x(), 3, buf);
-  tmp << ',' << Utils::round_str(sourceRect.y(), 3, buf);
-  tmp << ',' << Utils::round_str(sourceRect.width(), 3, buf);
-  tmp << ',' << Utils::round_str(sourceRect.height(), 3, buf);
-  tmp << ',' << Utils::round_str(rect.x(), 3, buf);
-  tmp << ',' << Utils::round_str(rect.y(), 3, buf);
-  tmp << ',' << Utils::round_str(rect.width(), 3, buf);
-  tmp << ',' << Utils::round_str(rect.height(), 3, buf) << ");";
-
-  js_ += tmp.str();
+  js_ << ',' << Utils::round_str(sourceRect.y(), 3, buf);
+  js_ << ',' << Utils::round_str(sourceRect.width(), 3, buf);
+  js_ << ',' << Utils::round_str(sourceRect.height(), 3, buf);
+  js_ << ',' << Utils::round_str(rect.x(), 3, buf);
+  js_ << ',' << Utils::round_str(rect.y(), 3, buf);
+  js_ << ',' << Utils::round_str(rect.width(), 3, buf);
+  js_ << ',' << Utils::round_str(rect.height(), 3, buf) << ");";
 }
 
 void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
@@ -276,19 +270,17 @@ void WCanvasPaintDevice::drawPath(const WPainterPath& path)
 {
   renderStateChanges();
 
-  std::stringstream tmp;
-
-  drawPlainPath(tmp, path);
+  drawPlainPath(js_, path);
 
   if (painter()->brush().style() != NoBrush) {
-    tmp << "ctx.fill();";
+    js_ << "ctx.fill();";
   }
 
   if (painter()->pen().style() != NoPen) {
-    tmp << "ctx.stroke();";
+    js_ << "ctx.stroke();";
   }
 
-  js_ += tmp.str() + '\n';
+  js_ << '\n';
 }
 
 void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
@@ -296,15 +288,12 @@ void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
   renderStateChanges();
 
   char buf[30];
-  std::stringstream tmp;
 
-  tmp << "ctx.beginPath();"
+  js_ << "ctx.beginPath();"
       << "ctx.moveTo(" << Utils::round_str(x1, 3, buf) << ',';
-  tmp << Utils::round_str(y1, 3, buf) << ");";
-  tmp << "ctx.lineTo(" << Utils::round_str(x2, 3, buf) << ',';
-  tmp << Utils::round_str(y2, 3, buf) << ");ctx.stroke();";
-
-  js_ += tmp.str();
+  js_ << Utils::round_str(y1, 3, buf) << ");";
+  js_ << "ctx.lineTo(" << Utils::round_str(x2, 3, buf) << ',';
+  js_ << Utils::round_str(y2, 3, buf) << ");ctx.stroke();";
 }
 
 void WCanvasPaintDevice::drawText(const WRectF& rect,
@@ -424,27 +413,25 @@ void WCanvasPaintDevice::renderStateChanges()
   if (changeFlags_ == 0)
     return;
 
-  std::stringstream s;
-
   if (changeFlags_ & (Transform | Clipping)) {
     if (changeFlags_ & Clipping) {
-      s << "ctx.restore();ctx.restore();ctx.save();";
+      js_ << "ctx.restore();ctx.restore();ctx.save();";
 
       const WTransform& t = painter()->clipPathTransform();
 
-      renderTransform(s, t);
+      renderTransform(js_, t);
       if (painter()->hasClipping()) {
-	drawPlainPath(s, painter()->clipPath());
-	s << "ctx.clip();";
+	drawPlainPath(js_, painter()->clipPath());
+	js_ << "ctx.clip();";
       }
-      renderTransform(s, t, true);
+      renderTransform(js_, t, true);
 
-      s << "ctx.save();";
+      js_ << "ctx.save();";
     } else
-      s << "ctx.restore();ctx.save();";
+      js_ << "ctx.restore();ctx.save();";
 
     const WTransform& t = painter()->combinedTransform();
-    renderTransform(s, t);
+    renderTransform(js_, t);
 
     changeFlags_ |= Pen | Brush;
   }
@@ -452,38 +439,37 @@ void WCanvasPaintDevice::renderStateChanges()
   if (changeFlags_ & Pen) {
     const WPen& pen = painter()->pen();
 
-    s << "ctx.strokeStyle=\"" + pen.color().cssText(true)
-      << "\";ctx.lineWidth="
-      << painter()->normalizedPenWidth(pen.width(), true).value()
-      << ';';
+    js_ << "ctx.strokeStyle=\"" + pen.color().cssText(true)
+	<< "\";ctx.lineWidth="
+	<< painter()->normalizedPenWidth(pen.width(), true).value()
+	<< ';';
 
     switch (pen.capStyle()) {
     case FlatCap:
-      s << "ctx.lineCap='butt';";
+      js_ << "ctx.lineCap='butt';";
       break;
     case SquareCap:
-      s << "ctx.lineCap='square';";
+      js_ << "ctx.lineCap='square';";
       break;
     case RoundCap:
-      s << "ctx.lineCap='round';";
+      js_ << "ctx.lineCap='round';";
     }
 
     switch (pen.joinStyle()) {
     case MiterJoin:
-      s << "ctx.lineJoin='miter';";
+      js_ << "ctx.lineJoin='miter';";
       break;
     case BevelJoin:
-      s << "ctx.lineJoin='bevel';";
+      js_ << "ctx.lineJoin='bevel';";
       break;
     case RoundJoin:
-      s << "ctx.lineJoin='round';";
+      js_ << "ctx.lineJoin='round';";
     }
   }
 
   if (changeFlags_ & Brush)
-    s << "ctx.fillStyle=\"" + painter()->brush().color().cssText(true) + "\";";
-
-  js_ += s.str();
+    js_ << "ctx.fillStyle=\"" 
+	<< painter()->brush().color().cssText(true) << "\";";
 
   changeFlags_ = 0;
 }

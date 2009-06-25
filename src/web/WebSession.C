@@ -812,7 +812,8 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	env_.doesAjax_ = env_.doesJavaScript_ && ajaxE && *ajaxE == "yes";
 	env_.doesCookies_ = !request.headerValue("Cookie").empty();
 
-	if (env_.doesAjax_ && !request.pathInfo().empty()) {
+	if (env_.doesAjax_
+	    && !request.pathInfo().empty() && request.pathInfo() != "/") {
 	  std::string url = baseUrl() + applicationName();
 
 	  url += '#' + env_.internalPath();

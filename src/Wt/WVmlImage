@@ -14,6 +14,8 @@
 #include <Wt/WVectorImage>
 #include <Wt/WResource>
 
+#include <sstream>
+
 namespace Wt {
 
 class WColor;
@@ -82,7 +84,7 @@ private:
 
   std::vector<ActivePath> activePaths_;
 
-  std::string rendered_;
+  std::stringstream rendered_;
 
   void        finishPaths();
   void        processClipping();
