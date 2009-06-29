@@ -9,11 +9,12 @@
 #include "WtException.h"
 
 namespace Wt {
-
+#ifndef WT_CNOR
 JSignal<void>::JSignal(WObject *object, const std::string& name,
 		       bool collectSlotJavaScript)
   : JSignal<>(object, name, collectSlotJavaScript)
 { }
+#endif
 
 void throwWtException(const std::string& msg)
 {

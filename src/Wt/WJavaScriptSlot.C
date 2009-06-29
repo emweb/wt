@@ -71,7 +71,8 @@ WStatelessSlot* JSlot::slotimp()
 
 void JSlot::exec()
 {
-  WApplication::instance()->doJavaScript(imp_->javaScript());
+  WApplication::instance()->doJavaScript
+    ("{var e=null;" + imp_->javaScript() + "}");
 }
 
 }

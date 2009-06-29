@@ -388,14 +388,10 @@ private:
     treeView->setColumnWidth(4, 100);
     treeView->setColumnWidth(5, 100);
 
-    WItemDelegate *delegate;
-    delegate = dynamic_cast<WItemDelegate *>
-      (treeView->itemDelegateForColumn(4));
+    WItemDelegate *delegate = new WItemDelegate(this);
     delegate->setTextFormat(FileModel::dateDisplayFormat);
-
-    delegate = dynamic_cast<WItemDelegate *>
-      (treeView->itemDelegateForColumn(5));
-    delegate->setTextFormat(FileModel::dateDisplayFormat);
+    treeView->setItemDelegateForColumn(4, delegate);
+    treeView->setItemDelegateForColumn(5, delegate);
 
     treeView->setColumnAlignment(3, AlignRight);
     treeView->setColumnAlignment(4, AlignRight);

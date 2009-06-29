@@ -49,19 +49,19 @@ bool matchValue(const boost::any& value,
 
     switch (f) {
     case MatchStringExactly:
-      return boost::algorithm::iequals(value_str, query_str);
+      return boost::iequals(value_str, query_str);
     case MatchStringExactly | (int)MatchCaseSensitive:
-      return boost::algorithm::equals(value_str, query_str);
+      return boost::equals(value_str, query_str);
 
     case MatchStartsWith:
-      return boost::algorithm::istarts_with(value_str, query_str);
+      return boost::istarts_with(value_str, query_str);
     case MatchStartsWith | (int)MatchCaseSensitive:
-      return boost::algorithm::starts_with(value_str, query_str);
+      return boost::starts_with(value_str, query_str);
 
     case MatchEndsWith:
-      return boost::algorithm::iends_with(value_str, query_str);
+      return boost::iends_with(value_str, query_str);
     case MatchEndsWith | (int)MatchCaseSensitive:
-      return boost::algorithm::ends_with(value_str, query_str);
+      return boost::ends_with(value_str, query_str);
 
     default:
       throw WtException("Not yet implemented: WAbstractItemModel::match with "

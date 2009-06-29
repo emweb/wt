@@ -44,7 +44,7 @@ inline bool startsWith(const char *a, const char *b, int n) {
 }
 
 inline int length(const std::stringstream& s) {
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
   return s.rdbuf()->in_avail();
 #else
   return 0;

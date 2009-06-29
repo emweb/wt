@@ -65,7 +65,7 @@ public:
    */
   void setMapping(WObject *sender, const T& data);
 
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
   /*! \brief Map a signal without arguments.
    *
    * Connect the given signal with the slot, and associate the data
@@ -86,6 +86,9 @@ public:
    */
   void mapConnect(SignalBase& signal, const T& data);
 #else
+#ifndef WT_TARGET_JAVA
+  void mapConnect(SignalBase& signal, const T& data);
+#endif
   template<typename S>
     void mapConnect(EventSignal<S>& signal, const T& data);
     void mapConnect(EventSignal<void>& signal, const T& data);

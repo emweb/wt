@@ -14,9 +14,9 @@
 #include <Wt/WWidget>
 #include <Wt/WEvent>
 
-#ifdef WT_TARGET_JAVA
+#ifdef WT_CNOR
 #include <Wt/WJavaScript>
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
 namespace Wt {
 
@@ -55,7 +55,7 @@ class WCssDecorationStyle;
 class WContainerWidget;
 class DomElement;
 
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
 template <typename A1, typename A2, typename A3, typename A4,
 	  typename A5, typename A6> class JSignal;
 #endif

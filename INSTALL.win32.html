@@ -24,53 +24,26 @@ projects against libwt and libwthttp.</p>
 
 <p>Requirements:
 <ul>
-  <li>Microsoft Visual Studio C++ 2005. Wt and all its dependencies also
-      build on the Express Edition, which is free (as in beer) to use. If you
-      use the Express Edition, you will also need to install the Platform
-      SDK, which can be downloaded from Microsoft. It is recommended to
-      upgrade your MSVC 2005 with Service Pack 1 as it contains important
-      bugfixes. We have not tested Wt on older versions of MSVC.</li>
-  <li>CMake cross-platform build system (www.cmake.org): cmake-2.4.x,
+  <li>Microsoft Visual Studio C++ 2008. Wt and its dependencies also
+      build on the Express Edition, which is free (as in beer) to use.
+  <li>CMake cross-platform build system (www.cmake.org): cmake-2.6.x,
       Windows version.</li>
   <li>Boost 1.35 (or later).</li>
-  <li>Xerces-C++ XML parser, version 2.7.0 or newer.</li>
-  <li>OpenSSL, version 0.9.8d or newer.</li>
-  <li>zlib 1.2.3</li>
 </ul>
 </p>
 
 <p>Additional and optional requirements for some of the examples
 <ul>
+<li>For https support: OpenSSL, version 0.9.8d or newer.</li>
+<li>To compress traffic: zlib 1.2.3</li>
 <li>libgd (style, wt-homepage, mandelbrot)</li>
 <li>libmysql and libmysql++-2.x (hangman)</li>
 </ul>
 </p>
 
-<p>On unix systems, libraries are usually installed in standard locations,
-with their header files in /usr/include (or variants) and the libraries in
-/usr/lib (or variants). Windows does not have such standard locations for
-storing header files and libraries. Therefore, you will have to point out
-where the libraries can be found. If you follow the recommendations below,
-the task of specifying these paths will be require minimal effort (but
-you'll still have to ensure that the executable will be able to locate the
-DLLs at runtime, e.g. by adding the directories to PATH).
-</p>
-
-<p>CMake will automatically locate your libraries in subdirectories of
-USERLIB_ROOT (defaults to c:/libraries). Use the following directories:
-<ul>
-  <li>Boost: During configuration of Boost, set the prefix to $USERLIB_ROOT/Boost</li>
-  <li>Xerces-C++: TBD</li>
-  <li>OpenSSL: TBD</li>
-  <li>zlib: TBD</li>
-  <li>libgd: TBD</li>
-  <li>libmysql: TBD</li>
-  <li>libmysql++: TBD</li>
-</ul>
-
 <p>
 We stronly recommend to use libraries which are all built using the same
-compiler (MSVC 2005 SP1) and the same runtime configuration (/MT, /MD, /MTd
+compiler and the same runtime configuration (/MT, /MD, /MTd
 or /MDd) to avoid incompatibilities with the C runtime libraries. Mixing
 CRTs is NOT recommended, the <a href="http://www.zlib.net/DLL_FAQ.txt">zlib
 DLL FAQ</a> clearly explains why and what you should do about it (in
@@ -80,68 +53,36 @@ the dependency libraries from the sources).
 
 <hr />
 
-<h2>Building and installing the Wt library</h2>
+<h2>Step by step instructions to build and install the Wt library</h2>
 
-<h4>1. Run CMake</h4>
+Up to date instructions are located on the Wt wiki page:
+<a href="http://www.webtoolkit.eu/wt/wiki/index.php/Installing_Wt_2.1_on_MS_Windows">Installing Wt on MS Windows</a>
 
-<p>In the CMake GUI, set the 'Where is your source code' to the location where
-you unpacked the source code. Set 'Where to build the binaries' to a build
-directory (can be the same as the location of the source code). Press
-'Configure' and choose 'Build For Visual Studio 8 2005'.</p>
+<h2>Trying the examples (or your own Wt application) using wthttpd</h3>
 
-<p>During configuration, you will see messages that confirm that fastcgi is
-disabled, and that wthttp is enabled. You will probably also receive
-notifications of dependencies that were not found. You can now manually
-adjust the paths to the dependencies and other configuration parameters,
-and press the 'Configure' button again. When your configuration is complete,
-press 'Ok' and a solution file will be generated.</p>
-
-
-<p>Some variables you may want to change are:</p>
-
-<dl>
-<dt><strong>CMAKE_INSTALL_PREFIX</strong></dt>
-<dd>Installation prefix for the library and include files)</dd>
-<dt><strong>CONFIGURATION</strong></dt>
-<dd>Location of the configuration file</dd>
-</dl>
-
-<h4>2. Build the library and the examples</h4>
-
-Start Microsoft Visual Studio, open the generated solution file, and
-select Build->Build Solution (or hit F7).
-
-<h4>3. Install the library:</h4>
-
-No installation is required for wt applications, as long as the application
-is able to locate its dependencies (.dll files). Add the directories to the
-dependencies to the PATH, copy them to the current directory, or to any other
-location where Windows looks for dll files.
-
-<hr />
-
-<h2>Trying the examples (or your own Wt application)</h2>
-
-<h3>Using wthttpd</h3>
-
-<h4>1. Run the example <i>X</i></h4> in the MSVC IDE
+<h4>1. Run the example in the MSVC IDE </h4>
 
 Right-click on the example project you want to run, and select 'Properties'.
 In Configuration Properties->Debugging, set the Command Arguments to
 <pre>
 --http-address=0.0.0.0 --http-port=8080 --deploy-path=/hello --docroot=.
 </pre>
-The easiest way to locate the dependency dlls, is to append their location
-to the PATH variable. In order to do so, change the Environment field to
-contain a PATH directive:
-<pre>
-PATH=c:/libraries/lib;c:/Boost/lib;&lt;path to wt.dll&gt;;&lt;path to wthttp.dll&gt;
-</pre>
 
 <p>
 This will start a httpd server listening on all local interfaces, on
 port 8080, and you may browse the example at <a
 href="http://127.0.0.1:8080/hello">http://127.0.0.1:8080/hello</a></p>
+
+<p>
+Examples that need extra files to run, should be executed from their source
+directory in order to find their dependency files (icons, css files, etc.
+Watch for 404 errors in Wt's output). To do so, set the 'Working directory'
+for the example to wt-2.x.x/examples/ExampleName. Some examples (e.g. the
+wt home page) need the 'resources' directory to work correctly. Copy
+the wt-2.x.x/resources to the example's source directory to solve this
+problem. Other examples (such as the Charts example) may require the
+installation of ExtJs. See the Wt reference manual for more information
+on how to obtain and install ExtJs. 
 
 <p>
 These are all the command-line options that are available:

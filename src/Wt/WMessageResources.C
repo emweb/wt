@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#ifndef WT_CNOR
 #include <fstream>
 
 #include <boost/lexical_cast.hpp>
@@ -221,3 +222,5 @@ bool WMessageResources::readResourceFile(const std::string& locale,
 }
 
 }
+#endif // WT_CNOR
+

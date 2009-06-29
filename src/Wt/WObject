@@ -29,11 +29,11 @@ struct WT_API NoClass
   static NoClass none;
 };
 
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
   class Signal;
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
 class WStatelessSlot;
 
@@ -305,9 +305,9 @@ public:
    */
   WObject *parent() const { return parent_; }
 
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
   Signal<WObject *, NoClass, NoClass, NoClass, NoClass, NoClass>& destroyed();
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
 protected:
   virtual void signalConnectionsChanged();
@@ -366,17 +366,17 @@ private:
   std::vector<WObject *> *children_;
   WObject                *parent_;
 
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
   Signal<WObject *, NoClass, NoClass, NoClass, NoClass, NoClass> *destroyed_;
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
   static std::vector<WObject *> emptyObjectList_;
 
+#ifndef WT_CNOR
   template <typename E> friend class EventSignal;
-#ifndef WT_TARGET_JAVA
   template <typename A1, typename A2, typename A3,
             typename A4, typename A5, typename A6> friend class JSignal;
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
   friend class EventSignalBase;
   friend class WebSession;

@@ -19,6 +19,7 @@ WTableCell::WTableCell(WTableRow *row, int column)
     columnSpan_(1),
     spanChanged_(false)
 {
+  contentAlignment_ = AlignLeft | AlignTop;
   setParent(row->table());
 }
 

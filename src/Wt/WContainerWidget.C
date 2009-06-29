@@ -267,6 +267,11 @@ void WContainerWidget::setContentAlignment(WFlags<AlignmentFlag> alignment)
 {
   contentAlignment_ = alignment;
 
+  /* Make sure vertical alignment is always specified */
+  AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
+  if (vAlign == 0)
+    contentAlignment_ |= AlignTop;
+
   flags_.set(BIT_CONTENT_ALIGNMENT_CHANGED);
 
   repaint(RepaintPropertyAttribute);
@@ -361,7 +366,8 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     element.setProperty(PropertyStyleDisplay, "inline");
 
   if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED) || all) {
-    switch (contentAlignment_ & AlignHorizontalMask) {
+    AlignmentFlag hAlign = contentAlignment_ & AlignHorizontalMask;
+    switch (hAlign) {
     case AlignLeft:
       if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
 	element.setProperty(PropertyStyleTextAlign, "left");
@@ -380,8 +386,9 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       break;
     }
 
-    if (domElementType() == DomElement_TD)
-      switch (contentAlignment_ & AlignVerticalMask) {
+    if (domElementType() == DomElement_TD) {
+      AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
+      switch (vAlign) {
       case AlignTop:
 	if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
 	  element.setProperty(PropertyStyleVerticalAlign, "top");
@@ -394,6 +401,7 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       default:
 	break;
       }
+    }
   }
 
   if (flags_.test(BIT_ADJUST_CHILDREN_ALIGN)

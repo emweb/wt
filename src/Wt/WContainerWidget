@@ -402,6 +402,7 @@ private:
   void propagateLayoutItemsOk(WLayoutItem *item);
 
   friend class WImage;
+  friend class WTableCell;
 };
 
 }

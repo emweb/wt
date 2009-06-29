@@ -14,6 +14,7 @@
 #include "WtException.h"
 #include "Utils.h"
 
+#ifndef WT_CNOR
 namespace Wt {
 
 std::vector<std::string> WString::stArguments_;
@@ -412,3 +413,6 @@ std::ostream& operator<< (std::ostream& lhs, const WString& rhs)
 }
 
 }
+
+#endif // WT_CNOR
+

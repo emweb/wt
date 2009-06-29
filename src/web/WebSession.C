@@ -202,25 +202,37 @@ void WebSession::init(const WebRequest& request)
 std::string WebSession::bootstrapUrl(const WebResponse& response,
 				     BootstrapOption option) const
 {
-  if (response.pathInfo().empty())
-    return mostRelativeUrl();
-  else {
-    switch (option) {
-    case KeepInternalPath:
-      if (applicationName_.empty()) {
-	std::string internalPath
-	  = app_ ? app_->internalPath() : env_.internalPath();
+  switch (option) {
+  case KeepInternalPath: {
+    std::string internalPath
+      = app_ ? app_->internalPath() : env_.internalPath();
 
-	if (internalPath.length() > 1)
-	  return appendSessionQuery("?_=" + Utils::urlEncode(internalPath));
-      }
+    if (applicationName_.empty()) {
+      if (internalPath.length() > 1)
+	return appendSessionQuery("?_=" + Utils::urlEncode(internalPath));
+      else
+	return appendSessionQuery("");
+    } else
+      /*
+       * Java application servers use ";jsessionid=..." which generates
+       * URLs relative to the current directory, not current filename
+       * (unlike '?=...')
+       *
+       * Therefore we start with the current 'filename', this does no harm
+       * for C++ well behaving servers either.
+       */
+      if (internalPath.length() > 1) {
+	std::string lastPart
+	  = internalPath.substr(internalPath.rfind('/') + 1);
 
-      return appendSessionQuery("");
-    case ClearInternalPath:
-      return appendSessionQuery(baseUrl_ + applicationName_);
-    default:
-      assert(false);
-    }
+	return appendSessionQuery(lastPart);
+      } else
+	return appendSessionQuery(applicationName_);
+  }
+  case ClearInternalPath:
+    return appendSessionQuery(baseUrl_ + applicationName_);
+  default:
+    assert(false);
   }
 
   return std::string();
@@ -269,7 +281,7 @@ std::string WebSession::bookmarkUrl(const std::string& internalPath) const
   // url that takes into account the internal path of the current request.
   //
   // For now, we make an absolute URL, and will fix this in Wt 3.0 since
-  // there we always know the current request
+  // there we always know the current request (?)
   if (!env_.ajax() && result.find("://") == std::string::npos
       && (env_.internalPath().length() > 1 || internalPath.length() > 1))
     result = baseUrl_ + applicationName_;
@@ -813,7 +825,9 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	env_.doesCookies_ = !request.headerValue("Cookie").empty();
 
 	if (env_.doesAjax_
-	    && !request.pathInfo().empty() && request.pathInfo() != "/") {
+	    && (!request.pathInfo().empty()
+		|| (applicationName_.empty()
+		    && env_.internalPath().length() > 1))) {
 	  std::string url = baseUrl() + applicationName();
 
 	  url += '#' + env_.internalPath();

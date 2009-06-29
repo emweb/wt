@@ -342,7 +342,7 @@ private:
   boost::signal6<void, A1, A2, A3, A4, A5, A6> *impl_;
 };
 
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
 
 /*
  * Normal signal -- specialization for void
@@ -355,7 +355,7 @@ public:
     (WObject *sender = 0);
 };
 
-#else // WT_TARGET_JAVA
+#else // WT_CNOR
 
 class WT_API Signal0 : public Signal<NoClass>
 {
@@ -368,7 +368,7 @@ public:
     boost::signals::connection connect(T *target, void (V::*method)());
 };
 
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
 /*
  * Event signals do something in addition to boost signals
@@ -575,7 +575,7 @@ private:
   void processDynamic(const JavaScriptEvent& e);
 };
 
-#ifdef WT_TARGET_JAVA
+#ifdef WT_CNOR
 
 class WT_API EventSignal0 : public EventSignalBase
 {
@@ -593,9 +593,9 @@ public:
   void operator()();
 };
 
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
 
 template <class T, class V>
 boost::signals::connection SignalBase::connectBase(T *target,
@@ -940,7 +940,7 @@ void EventSignal<E>::processDynamic(const JavaScriptEvent& jse)
   }
 }
 
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
 }
 

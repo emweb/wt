@@ -351,9 +351,9 @@ public:
   using WAbstractItemModel::setData;
   using WAbstractItemModel::data;
 
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
   using WAbstractItemModel::setHeaderData;
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
 
   virtual void *toRawIndex(const WModelIndex& index) const;
   virtual WModelIndex fromRawIndex(void *rawIndex) const;

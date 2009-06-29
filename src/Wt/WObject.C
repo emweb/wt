@@ -21,8 +21,10 @@ WObject::WObject(WObject* parent)
   : statelessSlots_(0),
     id_(nextObjId_++),
     children_(0),
-    parent_(parent),
-    destroyed_(0)
+    parent_(parent)
+#ifndef WT_CNOR
+    , destroyed_(0)
+#endif
 {
   if (parent) {
     if (!parent->children_)
@@ -60,8 +62,10 @@ void WObject::removeChild(WObject *child)
 
 WObject::~WObject()
 {
+#ifndef WT_CNOR
   if (destroyed_)
     destroyed_->emit(this);
+#endif
 
   for (unsigned i = 0; i < statelessSlots_.size(); ++i)
     delete statelessSlots_[i];
@@ -83,6 +87,7 @@ const std::vector<WObject *>& WObject::children() const
   return children_ ? *children_ : emptyObjectList_;
 }
 
+#ifndef WT_CNOR
 Signal<WObject *>& WObject::destroyed()
 {
   if (!destroyed_)
@@ -90,6 +95,7 @@ Signal<WObject *>& WObject::destroyed()
 
   return *destroyed_;
 }
+#endif
 
 void WObject::setObjectName(const std::string& name)
 {

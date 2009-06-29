@@ -50,9 +50,11 @@ WObject *SignalBase::currentSender()
   return sess->emitStackTop();
 }
 
+#ifndef WT_CNOR
 Signal<void>::Signal(WObject *sender)
   : Signal<>(sender)
 { }
+#endif // WT_CNOR
 
 void *EventSignalBase::alloc()
 {
@@ -225,6 +227,7 @@ EventSignalBase::~EventSignalBase()
   }
 }
 
+#ifndef WT_CNOR
 boost::signals::connection EventSignalBase::connect(WObject::Method method,
                                                     WObject *target,
                                                     WStatelessSlot *slot)
@@ -237,6 +240,7 @@ boost::signals::connection EventSignalBase::connect(WObject::Method method,
 
   return c;
 }
+#endif // WT_CNOR
 
 void EventSignalBase::connect(JSlot& slot)
 {
@@ -247,6 +251,7 @@ void EventSignalBase::connect(JSlot& slot)
   connections_.push_back(StatelessConnection(c, 0, s));
 }
 
+#ifndef WT_CNOR
 bool EventSignalBase::isConnected() const
 {
   bool result = dummy_.num_slots() > 0;
@@ -260,6 +265,7 @@ bool EventSignalBase::isConnected() const
 
   return result;
 }
+#endif // WT_CNOR
 
 void EventSignalBase::exposeSignal()
 {

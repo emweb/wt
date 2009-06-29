@@ -127,11 +127,11 @@ std::string DomElement::urlEncodeS(const std::string& url)
     char c = url[i];
     if (c < 31 || c >= 127 || unsafeChars_.find(c) != std::string::npos) {
       result << '%';
-#ifndef WT_TARGET_JAVA
+#ifndef WT_CNOR
       result << std::hex << (int)c;
 #else
       result << Utils::toHexString(c);
-#endif // WT_TARGET_JAVA
+#endif // WT_CNOR
     } else
       result.put(c);
   }

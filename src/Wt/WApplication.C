@@ -61,7 +61,9 @@ WApplication::WApplication(const WEnvironment& env)
     internalPathChanged_(this),
 #ifndef WT_TARGET_JAVA
     serverPush_(false),
+#ifndef WT_CNOR
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
+#endif
     shouldTriggerUpdate_(false),
 #endif // WT_TARGET_JAVA
     javaScriptClass_("Wt"),
