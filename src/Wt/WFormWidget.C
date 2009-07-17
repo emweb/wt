@@ -252,6 +252,10 @@ void WFormWidget::setValidator(WValidator *validator)
     validator_->addFormWidget(this);
     validatorChanged();
     setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
+#ifndef WT_TARGET_JAVA
+    if (!validator_->parent())
+      WObject::addChild(validator_);
+#endif // WT_TARGET_JAVA
   } else {
     delete validateJs_;
     validateJs_ = 0;
@@ -259,10 +263,6 @@ void WFormWidget::setValidator(WValidator *validator)
     filterInput_ = 0;
   }
 
-#ifndef WT_TARGET_JAVA
-  if (!validator_->parent())
-    WObject::addChild(validator_);
-#endif // WT_TARGET_JAVA
 }
 
 WValidator::State WFormWidget::validate()

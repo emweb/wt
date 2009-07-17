@@ -1137,7 +1137,7 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             = DOXYGEN_ONLY WT_USTRING=WString WT_BOSTREAM=std::ostream WT_ARRAY=
+PREDEFINED             = DOXYGEN_ONLY WT_USTRING=WString WT_LOCALE=std::string WT_BOSTREAM=std::ostream WT_ARRAY=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

@@ -77,6 +77,8 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
 {
   setImplementation(layout_ = new WContainerWidget());
 
+  WT_DEBUG( setObjectName("WTabWidget") );
+
   const char *CSS_RULES_NAME = "Wt::WTabWidget";
 
   WApplication *app = WApplication::instance();

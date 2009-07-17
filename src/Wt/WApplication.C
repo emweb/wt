@@ -92,23 +92,23 @@ WApplication::WApplication(const WEnvironment& env)
 #endif // WT_TARGET_JAVA
 
   domRoot_ = new WContainerWidget();
-  domRoot_->setObjectName("wt-dom-root");
+  WT_DEBUG(domRoot_->setObjectName("wt-dom-root"));
   domRoot_->load();
 
-  if (session_->type() == WebSession::Application)
+  if (session_->type() == Application)
     domRoot_->resize(WLength::Auto, WLength(100, WLength::Percentage));
 
   timerRoot_ = new WContainerWidget(domRoot_);
-  timerRoot_->setObjectName("wt-timer-root");
+  WT_DEBUG(timerRoot_->setObjectName("wt-timer-root"));
   timerRoot_->resize(WLength::Auto, 0);
   timerRoot_->setPositionScheme(Absolute);
 
-  if (session_->type() == WebSession::Application) {
+  if (session_->type() == Application) {
     ajaxMethod_ = XMLHttpRequest;
 
     domRoot2_ = 0;
     widgetRoot_ = new WContainerWidget(domRoot_);
-    widgetRoot_->setObjectName("wt-app-root");
+    WT_DEBUG(widgetRoot_->setObjectName("wt-app-root"));
     widgetRoot_->resize(WLength(100, WLength::Percentage),
 			WLength(100, WLength::Percentage));
   } else {
@@ -289,12 +289,10 @@ WApplication::~WApplication()
 #endif
 }
 
-#ifndef WT_TARGET_JAVA
 void WApplication::attachThread()
 {
   WebSession::Handler::attachThreadToSession(*session_);
 }
-#endif // WT_TARGET_JAVA
 
 void WApplication::setAjaxMethod(AjaxMethod method)
 {
@@ -328,7 +326,7 @@ std::string WApplication::resourcesUrl()
 
 void WApplication::bindWidget(WWidget *widget, const std::string& domId)
 {
-  if (session_->type() != WebSession::WidgetSet)
+  if (session_->type() != WidgetSet)
     throw WtException("WApplication::bind() can be used only "
 		      "in WidgetSet mode.");
 
@@ -603,7 +601,7 @@ WObject *WApplication::decodeObject(const std::string& objectId) const
     return 0;
 }
 
-void WApplication::setLocale(const std::string& locale)
+void WApplication::setLocale(const WT_LOCALE& locale)
 {
   locale_ = locale;
   refresh();
@@ -619,7 +617,12 @@ void WApplication::refresh()
 {
   if (localizedStrings_)
     localizedStrings_->refresh();
-  widgetRoot_->refresh();
+
+  if (domRoot2_) {
+    domRoot2_->refresh();
+  } else {
+    widgetRoot_->refresh();
+  }
 
   if (title_.refresh())
     titleChanged_ = true;
@@ -993,6 +996,11 @@ std::string *WApplication::readConfigurationProperty(const std::string& name,
     return &value;
 }
 #endif // WT_TARGET_JAVA
+
+bool WApplication::debug() const
+{
+  return session_->debug();
+}
 
 SoundManager *WApplication::getSoundManager()
 {

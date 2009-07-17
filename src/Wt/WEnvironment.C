@@ -41,6 +41,9 @@ namespace Wt {
   std::string WEnvironment::wt_class = WT_CLASS;
 #endif //WT_TARGET_JAVA
 
+WEnvironment::WEnvironment()
+{ }
+
 WEnvironment::WEnvironment(WebSession *session)
   : session_(session),
     doesJavaScript_(false),
@@ -84,7 +87,6 @@ void WEnvironment::init(const WebRequest& request)
   parameters_ = request.getParameterMap();
 
   urlScheme_       = request.urlScheme();
-  userAgent_       = request.headerValue("User-Agent");
   referer_         = request.headerValue("Referer");
   accept_          = request.headerValue("Accept");
   serverSignature_ = request.envValue("SERVER_SIGNATURE");
@@ -92,45 +94,9 @@ void WEnvironment::init(const WebRequest& request)
   serverAdmin_     = request.envValue("SERVER_ADMIN");
   pathInfo_        = request.pathInfo();
 
+  setUserAgent(request.headerValue("User-Agent"));
+
   std::cerr << userAgent_ << std::endl;
-
-  agent_ = Unknown;
-  if (userAgent_.find("MSIE 4") != std::string::npos
-      || userAgent_.find("MSIE 5") != std::string::npos
-      || userAgent_.find("IEMobile") != std::string::npos)
-    agent_ = IEMobile;
-  else if (userAgent_.find("MSIE 6") != std::string::npos)
-    agent_ = IE6;
-  else if (userAgent_.find("MSIE 7") != std::string::npos)
-    agent_ = IE7;
-  else if (userAgent_.find("MSIE 8") != std::string::npos)
-    agent_ = IE8;
-  else if (userAgent_.find("MSIE") != std::string::npos)
-    agent_ = IE;
-
-  if (userAgent_.find("Opera") != std::string::npos)
-    agent_ = Opera;
-
-  if (userAgent_.find("Chrome") != std::string::npos)
-    agent_ = Chrome;
-  else if (userAgent_.find("Safari") != std::string::npos)
-    agent_ = Safari;
-  else if (userAgent_.find("WebKit") != std::string::npos)
-    agent_ = WebKit;
-  else if (userAgent_.find("Konqueror") != std::string::npos)
-    agent_ = Konqueror;
-  else if (userAgent_.find("Gecko") != std::string::npos)
-    agent_ = Gecko;
-
-  if (userAgent_.find("Firefox/3.2.") != std::string::npos)
-    agent_ = Firefox3_2;
-  else if (userAgent_.find("Firefox/3.1.") != std::string::npos)
-    agent_ = Firefox3_1;
-  else if (userAgent_.find("Firefox/3.") != std::string::npos)
-    agent_ = Firefox3;
-
-  if (regexMatchAny(userAgent_, conf.botList()))
-    agent_ = BotAgent;
 
   /*
    * Determine server host name
@@ -199,6 +165,52 @@ void WEnvironment::init(const WebRequest& request)
   if (session_->controller()->configuration().sendXHTMLMimeType()
       && (accept_.find("application/xhtml+xml") != std::string::npos))
     contentType_ = XHTML1;
+}
+
+void WEnvironment::setUserAgent(const std::string& userAgent)
+{
+  userAgent_ = userAgent;
+
+  Configuration& conf = session_->controller()->configuration();
+
+  agent_ = Unknown;
+
+  if (userAgent_.find("MSIE 4") != std::string::npos
+      || userAgent_.find("MSIE 5") != std::string::npos
+      || userAgent_.find("IEMobile") != std::string::npos)
+    agent_ = IEMobile;
+  else if (userAgent_.find("MSIE 6") != std::string::npos)
+    agent_ = IE6;
+  else if (userAgent_.find("MSIE 7") != std::string::npos)
+    agent_ = IE7;
+  else if (userAgent_.find("MSIE 8") != std::string::npos)
+    agent_ = IE8;
+  else if (userAgent_.find("MSIE") != std::string::npos)
+    agent_ = IE;
+
+  if (userAgent_.find("Opera") != std::string::npos)
+    agent_ = Opera;
+
+  if (userAgent_.find("Chrome") != std::string::npos)
+    agent_ = Chrome;
+  else if (userAgent_.find("Safari") != std::string::npos)
+    agent_ = Safari;
+  else if (userAgent_.find("WebKit") != std::string::npos)
+    agent_ = WebKit;
+  else if (userAgent_.find("Konqueror") != std::string::npos)
+    agent_ = Konqueror;
+  else if (userAgent_.find("Gecko") != std::string::npos)
+    agent_ = Gecko;
+
+  if (userAgent_.find("Firefox/3.2.") != std::string::npos)
+    agent_ = Firefox3_2;
+  else if (userAgent_.find("Firefox/3.1.") != std::string::npos)
+    agent_ = Firefox3_1;
+  else if (userAgent_.find("Firefox/3.") != std::string::npos)
+    agent_ = Firefox3;
+
+  if (regexMatchAny(userAgent_, conf.botList()))
+    agent_ = BotAgent;
 }
 
 bool WEnvironment::agentSupportsAjax() const

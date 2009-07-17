@@ -14,7 +14,9 @@ namespace Wt {
 WStackedWidget::WStackedWidget(WContainerWidget *parent)
   : WContainerWidget(parent),
     currentIndex_(-1)
-{ }
+{
+  WT_DEBUG( setObjectName("WStackedWidget") );
+}
 
 void WStackedWidget::addWidget(WWidget *widget)
 {
@@ -96,6 +98,9 @@ DomElement *WStackedWidget::createDomElement(WApplication *app)
      """for (j=0, jl=self.childNodes.length; j<jl; ++j){"
      ""   "c=self.childNodes[j];"
      ""   "c.style.height = self.style.height;"
+     // The following turned out to be not needed for WMenu items
+     //""   "if (c.className=='Wt-holder' && c.childNodes.length == 1)"
+     //""     "c.childNodes[0].style.height = self.style.height;"
      """}"
      "}");
 

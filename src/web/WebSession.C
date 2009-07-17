@@ -32,9 +32,11 @@ WebSession::Handler * WebSession::threadHandler_;
 #endif
 
 WebSession::WebSession(WebController *controller,
-		       const std::string& sessionId, Type type,
+		       const std::string& sessionId,
+		       ApplicationType type,
 		       const std::string& favicon,
-                       const WebRequest& request)
+                       const WebRequest *request,
+		       WEnvironment *env)
   : type_(type),
     state_(JustCreated),
     sessionId_(sessionId),
@@ -43,14 +45,20 @@ WebSession::WebSession(WebController *controller,
     renderer_(*this),
     pollResponse_(0),
     updatesPending_(false),
-    env_(this),
+    embeddedEnv_(this),
     app_(0),
-    debug_(false)
+    debug_(controller_->configuration().debug())
 {
+  env_ = env ? env : &embeddedEnv_;
+
   /*
    * Obtain the applicationName_ as soon as possible for log().
    */
-  deploymentPath_ = request.scriptName();
+  if (request)
+    deploymentPath_ = request->scriptName();
+  else
+    deploymentPath_ = "/";
+
   applicationUrl_ = deploymentPath_;
 
   applicationName_ = applicationUrl_;
@@ -116,7 +124,7 @@ WebSession::~WebSession()
 
 std::string WebSession::docType() const
 {
-  const bool xhtml = env_.contentType() == WEnvironment::XHTML1;
+  const bool xhtml = env_->contentType() == WEnvironment::XHTML1;
 
   if (xhtml)
     /*
@@ -172,11 +180,11 @@ std::string WebSession::sessionQuery() const
 
 void WebSession::init(const WebRequest& request)
 {
-  env_.init(request);
+  env_->init(request);
 
   const std::string *hashE = request.getParameter("_");
 
-  absoluteBaseUrl_ = env_.urlScheme() + "://" + env_.hostName() + baseUrl_;
+  absoluteBaseUrl_ = env_->urlScheme() + "://" + env_->hostName() + baseUrl_;
 
   bookmarkUrl_ = applicationName_;
 
@@ -187,7 +195,7 @@ void WebSession::init(const WebRequest& request)
     /*
      * We are embedded in another website: we only use absolute URLs.
      */
-    applicationUrl_ = env_.urlScheme() + "://" + env_.hostName()
+    applicationUrl_ = env_->urlScheme() + "://" + env_->hostName()
       + applicationUrl_;
 
     bookmarkUrl_ = absoluteBaseUrl_ + bookmarkUrl_;
@@ -196,7 +204,7 @@ void WebSession::init(const WebRequest& request)
   std::string path = request.pathInfo();
   if (path.empty() && hashE)
     path = *hashE;
-  env_.setInternalPath(path);
+  env_->setInternalPath(path);
 }
 
 std::string WebSession::bootstrapUrl(const WebResponse& response,
@@ -205,7 +213,7 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
   switch (option) {
   case KeepInternalPath: {
     std::string internalPath
-      = app_ ? app_->internalPath() : env_.internalPath();
+      = app_ ? app_->internalPath() : env_->internalPath();
 
     if (applicationName_.empty()) {
       if (internalPath.length() > 1)
@@ -252,7 +260,7 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
     ->response()->encodeURL(url);
 #endif // WT_TARGET_JAVA
 
-  if (env_.agentIsSpiderBot())
+  if (env_->agentIsSpiderBot())
     return result;
 
   std::size_t questionPos = result.find('?');
@@ -270,7 +278,7 @@ std::string WebSession::bookmarkUrl() const
   if (app_)
     return bookmarkUrl(app_->internalPath());
   else
-    return bookmarkUrl(env_.internalPath());
+    return bookmarkUrl(env_->internalPath());
 }
 
 std::string WebSession::bookmarkUrl(const std::string& internalPath) const
@@ -282,8 +290,8 @@ std::string WebSession::bookmarkUrl(const std::string& internalPath) const
   //
   // For now, we make an absolute URL, and will fix this in Wt 3.0 since
   // there we always know the current request (?)
-  if (!env_.ajax() && result.find("://") == std::string::npos
-      && (env_.internalPath().length() > 1 || internalPath.length() > 1))
+  if (!env_->ajax() && result.find("://") == std::string::npos
+      && (env_->internalPath().length() > 1 || internalPath.length() > 1))
     result = baseUrl_ + applicationName_;
 
   return appendInternalPath(result, internalPath);
@@ -374,11 +382,6 @@ void WebSession::kill()
   }
 }
 
-void WebSession::setDebug(bool debug)
-{
-  debug_ = debug;
-}
-
 void WebSession::checkTimers()
 {
   WContainerWidget *timers = app_->timerRoot();
@@ -429,9 +432,10 @@ WebSession::Handler::Handler(WebSession& session, bool locked)
 #ifdef WT_THREADED
   if (locked) {
     lock_.lock();
-    init();
   }
 #endif
+
+  init();
 }
 
 WebSession::Handler::Handler(WebSession& session,
@@ -480,7 +484,7 @@ void WebSession::Handler::init()
 
 void WebSession::Handler::attachThreadToSession(WebSession& session)
 {
-#ifdef WT_THREADED
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   threadHandler_.reset(new Handler(session, false));
 #else
   session.log("error") <<
@@ -759,27 +763,27 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    handler.response()->setContentType("text/html");
 	    handler.response()->out() << "<html><head></head><body></body></html>";
 	  } else {
-	    bool forcePlain = env_.agentIsSpiderBot()
-	      || !env_.agentSupportsAjax();
+	    bool forcePlain = env_->agentIsSpiderBot()
+	      || !env_->agentSupportsAjax();
 
 	    if (forcePlain) {
-	      env_.doesJavaScript_ = false;
-	      env_.doesAjax_ = false;
-	      env_.doesCookies_ = false;
+	      env_->doesJavaScript_ = false;
+	      env_->doesAjax_ = false;
+	      env_->doesCookies_ = false;
 
 	      if (!start())
 		throw WtException("Could not start application.");
 
-	      if (env_.internalPath() != "/") {
+	      if (env_->internalPath() != "/") {
 		app_->setInternalPath("/");
 		app_->notify(WEvent(handler, WEvent::HashChange,
-				    env_.internalPath()));
+				    env_->internalPath()));
 	      }
 
 	      app_->notify(WEvent(handler, WEvent::Render,
 				  WebRenderer::FullResponse));
 
-	      if (env_.agentIsSpiderBot())
+	      if (env_->agentIsSpiderBot())
 		handler.killSession();
 	    } else {
 	      setState(Bootstrap, 10);
@@ -789,8 +793,8 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	  break;
 	case WidgetSet:
 	  init(request); // env, url/internalpath
-	  env_.doesJavaScript_ = true;
-	  env_.doesAjax_ = true;
+	  env_->doesJavaScript_ = true;
+	  env_->doesAjax_ = true;
 
 	  if (!start())
 	    throw WtException("Could not start application.");
@@ -820,17 +824,17 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	const std::string *hashE = request.getParameter("_");
 	const std::string *scaleE = request.getParameter("scale");
 
-	env_.doesJavaScript_= *jsE == "yes";
-	env_.doesAjax_ = env_.doesJavaScript_ && ajaxE && *ajaxE == "yes";
-	env_.doesCookies_ = !request.headerValue("Cookie").empty();
+	env_->doesJavaScript_= *jsE == "yes";
+	env_->doesAjax_ = env_->doesJavaScript_ && ajaxE && *ajaxE == "yes";
+	env_->doesCookies_ = !request.headerValue("Cookie").empty();
 
-	if (env_.doesAjax_
+	if (env_->doesAjax_
 	    && (!request.pathInfo().empty()
 		|| (applicationName_.empty()
-		    && env_.internalPath().length() > 1))) {
+		    && env_->internalPath().length() > 1))) {
 	  std::string url = baseUrl() + applicationName();
 
-	  url += '#' + env_.internalPath();
+	  url += '#' + env_->internalPath();
 	  redirect(url);
 	  renderer_.serveMainWidget(*handler.response(),
 				    WebRenderer::FullResponse);
@@ -841,30 +845,30 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	}
 
 	try {
-	  env_.dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
+	  env_->dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
 	} catch (boost::bad_lexical_cast &e) {
-	  env_.dpiScale_ = 1;
+	  env_->dpiScale_ = 1;
 	}
 
 	// the internal path, when present as an anchor (#), is only
 	// conveyed in the second request
 	if (hashE)
-	  env_.setInternalPath(*hashE);
+	  env_->setInternalPath(*hashE);
 
 	if (!start())
 	  throw WtException("Could not start application.");
 
-	if (env_.internalPath() != "/") {
+	if (env_->internalPath() != "/") {
 	  app_->setInternalPath("/");
 	  app_->notify(WEvent(handler, WEvent::HashChange,
-			      env_.internalPath()));
+			      env_->internalPath()));
 	}
-      } else if ((*jsE == "no") && env_.doesAjax_) {
+      } else if ((*jsE == "no") && env_->doesAjax_) {
 	// reload but disabled AJAX support: give user a new session
 	// FIX this: redirect using Redirect result.
 
 	handler.response()->setRedirect(baseUrl() + applicationName()
-				       + '#' + env_.internalPath());
+				       + '#' + env_->internalPath());
 	handler.killSession();
 	break;
       } else
@@ -875,7 +879,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
       break;
     }
     case Loaded: {
-      responseType = (signalE && !requestE && env_.doesAjax_)
+      responseType = (signalE && !requestE && env_->doesAjax_)
 	? WebRenderer::UpdateResponse
 	: WebRenderer::FullResponse;
 
@@ -906,12 +910,12 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	if (controller_->configuration().persistentSessions()) {
 	  app_->connected_ = true;
 	  generateNewSessionId();
-	  env_.init(request);
+	  env_->init(request);
 	}
 #endif // WT_TARGET_JAVA
 
 	app_->notify(WEvent(handler, WEvent::Refresh));
-	if (env_.doesAjax_) {
+	if (env_->doesAjax_) {
 	  setState(Bootstrap, 10);
 	  renderer_.serveBootstrap(*handler.response());
 	  break;
@@ -926,7 +930,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	log("error") << "Could not parse ackId: " << *ackIdE;
       }
 
-      env_.urlScheme_ = request.urlScheme();
+      env_->urlScheme_ = request.urlScheme();
 
       if (resourceE && *resourceE == "blank") {
 	handler.response()->setContentType("text/html");
@@ -956,7 +960,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	}
       } else {
 	if (responseType == WebRenderer::FullResponse
-	    && !env_.doesAjax_ && !signalE)
+	    && !env_->doesAjax_ && !signalE)
 	  app_->notify(WEvent(handler, WEvent::HashChange, request.pathInfo()));
 
 	const std::string *hashE = request.getParameter("_");
@@ -1119,7 +1123,7 @@ void WebSession::notify(const WEvent& e)
 void WebSession::render(Handler& handler, WebRenderer::ResponseType type)
 {
   try {
-    if (!env_.doesJavaScript_ && (type == WebRenderer::FullResponse))
+    if (!env_->doesJavaScript_ && (type == WebRenderer::FullResponse))
       checkTimers();
   } catch (std::exception& e) {
     throw WtException("Exception while triggering timers", e);
@@ -1256,7 +1260,7 @@ void WebSession::generateNewSessionId()
 
   if (controller_->configuration().sessionTracking()
       == Configuration::CookiesURL) {
-    std::string cookieName = env_.deploymentPath();
+    std::string cookieName = env_->deploymentPath();
     renderer().setCookie(cookieName, sessionId_, -1, "", "");
   }
 }

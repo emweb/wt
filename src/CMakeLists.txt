@@ -198,6 +198,7 @@ Wt/Http/Client.C
 Wt/Http/Request.C
 Wt/Http/Response.C
 Wt/Http/ResponseContinuation.C
+Wt/Test/WTestEnvironment.C
 web/CgiParser.C
 web/Configuration.C
 web/DomElement.C

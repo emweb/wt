@@ -363,8 +363,12 @@ int Server::main()
     conf_.log("notice") << "Reading FastCGI stream from stdin";
 
   for (;;) {
+    //std::cerr << "accepting()" << std::endl;
+
     int serverSocket = accept(STDIN_FILENO, (sockaddr *) &clientname,
 			      &socklen);
+
+    //std::cerr << "accept()" << std::endl;
 
     if (serverSocket < 0) {
       conf_.log("fatal") << "accept(): " << strerror(errno);
@@ -394,6 +398,8 @@ int Server::main()
 	d->read(serverSocket);
 	version = d->version();
 	requestId = d->requestId();
+
+	//std::cerr << "server read" << std::endl;
 
 	if (d->good()) {
 	  //std::cerr << *d << std::endl;
@@ -557,6 +563,7 @@ int Server::main()
 	FD_SET(serverSocket, &rfds);
 	FD_SET(clientSocket, &rfds);
 
+	//std::cerr << "select()" << std::endl;
 	if (select(FD_SETSIZE, &rfds, NULL, NULL, NULL) < 0) {
 	  if (errno != EINTR)
 	    conf_.log("fatal") << "select(): " << strerror(errno);
@@ -586,6 +593,7 @@ int Server::main()
 	  d.read(clientSocket);
 
 	  if (d.good()) {
+	    //std::cerr << "Got record from client: " << d << std::endl;
 	    write(serverSocket, d.plainText(), d.plainTextLength());
 	    if (d.type() == FCGI_END_REQUEST)
 	      break;
@@ -597,6 +605,9 @@ int Server::main()
 	}
       }
 
+      //std::cerr << "Request done." << std::endl;
+
+      shutdown(serverSocket, SHUT_RDWR);
       close(serverSocket);
       close(clientSocket);
     } catch (std::exception&) {
@@ -646,7 +657,7 @@ void runSession(Configuration& conf, std::string sessionId)
 
   try {
     FCGIStream fcgiStream;
-    WebController controller(conf, fcgiStream, sessionId);
+    WebController controller(conf, &fcgiStream, sessionId);
     theController = &controller;
 
     controller.run();
@@ -682,7 +693,7 @@ void startSharedProcess(Configuration& conf)
 
   try {
     FCGIStream fcgiStream;
-    WebController controller(conf, fcgiStream);
+    WebController controller(conf, &fcgiStream);
     theController = &controller;
 
     controller.run();
@@ -756,22 +767,14 @@ void WServer::setServerConfiguration(int argc, char *argv[],
   }
 }
 
-void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
+void WServer::addEntryPoint(ApplicationType type, ApplicationCreator callback,
 			    const std::string& path, const std::string& favicon)
 {
   if (!impl_->configuration_)
     throw Exception("WServer::addEntryPoint(): call setServerConfiguration() first");
 
-  switch (type) {
-  case Application:
-    impl_->configuration_->addEntryPoint
-      (EntryPoint(WebSession::Application, callback, path, favicon));
-    break;
-  case WidgetSet:
-    impl_->configuration_->addEntryPoint
-      (EntryPoint(WebSession::WidgetSet, callback, path, favicon));
-    break;
-  }
+  impl_->configuration_
+    ->addEntryPoint(EntryPoint(type, callback, path, favicon));
 }
 
 bool WServer::start()
@@ -830,7 +833,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
     try {
       server.setServerConfiguration(argc, argv);
-      server.addEntryPoint(WServer::Application, createApplication);
+      server.addEntryPoint(Application, createApplication);
       server.start();
 
       return 0;

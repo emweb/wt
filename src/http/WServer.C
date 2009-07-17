@@ -65,7 +65,7 @@ struct WServerImpl {
   : wtConfiguration_(wtApplicationPath, wtConfigurationFile,
 		     Wt::Configuration::WtHttpdServer,
 		     "Wt: initializing built-in httpd"),
-    webController_(wtConfiguration_, stream_),
+    webController_(wtConfiguration_, &stream_),
     serverConfiguration_(wtConfiguration_.logger()),
     server_(0)
   { }
@@ -106,22 +106,14 @@ void WServer::setServerConfiguration(int argc, char *argv[],
   impl_->serverConfiguration_.setOptions(argc, argv, serverConfigurationFile);
 }
 
-void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
+void WServer::addEntryPoint(ApplicationType type, ApplicationCreator callback,
 			    const std::string& path, const std::string& favicon)
 {
   if (!path.empty() && !boost::starts_with(path, "/")) 
     throw WServer::Exception("WServer::addEntryPoint() error: deployment path should start with \'/\'");
 
-  switch (type) {
-  case Application:
-    impl_->wtConfiguration_.addEntryPoint
-      (EntryPoint(WebSession::Application, callback, path, favicon));
-    break;
-  case WidgetSet:
-    impl_->wtConfiguration_.addEntryPoint
-      (EntryPoint(WebSession::WidgetSet, callback, path, favicon));
-    break;
-  }
+  impl_->wtConfiguration_
+    .addEntryPoint(EntryPoint(type, callback, path, favicon));
 }
 
 bool WServer::start()
@@ -305,7 +297,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
     WServer server(argv[0], getWtConfigXml(argc, argv));
     try {
       server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
-      server.addEntryPoint(WServer::Application, createApplication);
+      server.addEntryPoint(Application, createApplication);
       if (server.start()) {
 	int sig = WServer::waitForShutdown();
 	server.impl()->serverConfiguration_.log("notice")

@@ -66,15 +66,9 @@ void WCheckBox::setCheckState(CheckState state)
   WAbstractToggleButton::setCheckState(state);
 }
 
-DomElementType WCheckBox::domElementType() const
+bool WCheckBox::useImageWorkaround() const
 {
-  if (triState_) {
-    if (needTristateImageWorkaround())
-      return DomElement_SPAN;
-    else
-      return DomElement_INPUT;
-  } else
-    return DomElement_INPUT;
+  return triState_ && needTristateImageWorkaround();
 }
 
 bool WCheckBox::needTristateImageWorkaround() const

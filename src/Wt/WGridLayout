@@ -63,6 +63,12 @@ struct Grid {
  * layouts. The default minimum height and width may be overridden
  * using WWidget::setMinimumSize().
  *
+ * You can use WContainerWidget::setOverflow(OverflowAuto) to
+ * automatically show scrollbars on a container widget which you have
+ * set for a grid cell. In some cases, you will want to wrap another widget
+ * (like a WTable) into WContainerWidget to have the scrollbars, since not all
+ * widgets allow for scrollbars.
+ *
  * Columns and rows are separated using a constant spacing, which
  * defaults to 6 pixels by default, and can be changed using
  * setHorizontalSpacing() and setVerticalSpacing(). In addition, when

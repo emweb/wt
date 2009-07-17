@@ -21,6 +21,11 @@ namespace Wt {
  * This widget combines a horizontal WMenu with a WStackedWidget, and a
  * tab-like look.
  *
+ * A tab widget will place the tab bar on top of the contents. If you want
+ * an item to fill the contents (e.g. if it is a WContainerWidget whose
+ * contents is managed using a layout manager), you should resize the item to
+ * 100% height.
+ *
  * This widget uses the following resources:
  * <ul>
  *  <li><i>resourcesURL</i>/tab_b.gif</li>

@@ -121,7 +121,7 @@ childElements(mxml_node_t *element, const char *tagName)
 
 namespace Wt {
 
-EntryPoint::EntryPoint(WebSession::Type type, ApplicationCreator appCallback,
+EntryPoint::EntryPoint(ApplicationType type, ApplicationCreator appCallback,
 		       const std::string& path, const std::string& favicon)
   : type_(type),
     appCallback_(appCallback),

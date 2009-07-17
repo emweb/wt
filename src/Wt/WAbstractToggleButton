@@ -97,6 +97,7 @@ protected:
   virtual void setFormData(const FormData& formData);
   virtual void propagateRenderOk(bool deep);
   virtual DomElementType domElementType() const;
+  virtual bool useImageWorkaround() const;
 
   virtual WStatelessSlot *getStateless(Method method);
 

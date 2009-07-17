@@ -109,7 +109,7 @@ WWidget *ExtKitchenApplication::createExampleTree()
   rootNode->expand();
   rootNode->setLoadPolicy(WTreeNode::NextLevelLoading);
 
-  createExampleNode("Menu & ToolBar", rootNode,
+  createExampleNode("Menu and ToolBar", rootNode,
 		    &ExtKitchenApplication::menuAndToolBarExample);
   createExampleNode("Form widgets", rootNode,
 		    &ExtKitchenApplication::formWidgetsExample);

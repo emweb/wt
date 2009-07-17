@@ -128,11 +128,11 @@ int main(int argc, char **argv)
   // The following is the default entry point. It configures a
   // standalone Wt application at the deploy path configured in the
   // server configuration.
-  server.addEntryPoint(WServer::Application, createApplication);
+  server.addEntryPoint(Application, createApplication);
 
   // The following adds an entry point for a widget set. A widget set
   // must be loaded as a JavaScript from an HTML page.
-  server.addEntryPoint(WServer::WidgetSet, createWidgetSet, "hello.wtjs");
+  server.addEntryPoint(WidgetSet, createWidgetSet, "/hello.wtjs");
 
   // Start the server (in the background if there is threading support)
   // and wait for a shutdown signal (e.g. Ctrl C, SIGKILL)

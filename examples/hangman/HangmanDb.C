@@ -55,7 +55,7 @@ bool HangmanDb::validLogin(const std::wstring &user, const std::wstring &pass)
       q << "select user,pass from users where "
 	<< "user='" << Wt::toUTF8(user)
 	<< "' and pass=MD5('" << Wt::toUTF8(pass) << "')";
-      Result res = q.store();
+      StoreQueryResult res = q.store();
       return res.size() > 0;
    } catch(Exception &e) {
       std::cerr << "Database exception!\n";
@@ -72,7 +72,7 @@ void HangmanDb::addToScore(const std::wstring &user, int delta)
       q << "update users set score=(score+" << delta << "), "
 	<< "numgames=(numgames+1), lastseen=now() "
 	<< "where user='" << Wt::toUTF8(user) << "'";
-      Result res = q.store();
+      StoreQueryResult res = q.store();
    } catch(Exception &e) {
       std::cerr << "Database exception!\n";
       std::cerr << e.what() << std::endl;
@@ -88,7 +88,7 @@ std::vector<HangmanDb::Score> HangmanDb::getHighScores(int top)
       q << "select user, numgames, score, lastseen from users "
 	<< "order by score desc "
 	<< "limit " << top;
-      Result res = q.store();
+      StoreQueryResult res = q.store();
 
       for(unsigned int i = 0; i < res.size(); ++i) {
 	 struct Score s;
@@ -113,7 +113,7 @@ HangmanDb::Score HangmanDb::getUserPosition(const std::wstring &user)
       Query q = con.query();
       q << "select user, numgames, score, lastseen from users "
 	<< "order by score desc";
-      Result res = q.store();
+      StoreQueryResult res = q.store();
 
       // There MUST be a better way to do this...
       for(unsigned int i = 0; i < res.size(); ++i) {

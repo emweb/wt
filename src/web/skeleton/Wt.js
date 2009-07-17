@@ -659,6 +659,23 @@ var capture = function(obj) {
   captureElement = obj;
 }
 
+var initDragDrop = function() {
+  var APP = _$_APP_CLASS_$_;
+
+  window.onresize=function() { APP._p_.autoJavaScript(); }
+  document.body.onmousemove=function(e) {
+    if (!e) e = window.event;
+    return dragDrag(e);
+  }
+  document.body.onmouseup=function(e) {
+    if (!e) e = window.event;
+    return dragEnd(e);
+  }
+  document.body.ondragstart=function() {
+    return false;
+  };
+}
+
 var dragStart = function(obj, e) {
   captureElement = null;
 
@@ -834,12 +851,19 @@ var encodeEvent = function(event, i) {
 	    + encodeURIComponent(el.options[i].value);
 	}
     } else if (WT.hasTag(el, "SPAN")) {
-      var cb = el.lastChild;
-      if (cb.style.display == 'none')
-	v = 'indeterminate';
-      else
-	if (cb.checked)
-	  v = cb.value;
+      for (var i = 0; i < el.childNodes.length; i++) {
+	if (el.childNodes[i].type == 'checkbox') {
+	  var cb = el.childNodes[i];
+
+	  if (cb.style.display == 'none')
+	    v = 'indeterminate';
+	  else
+	    if (cb.checked)
+	      v = cb.value;
+
+	  break;
+	}
+      }
     } else if (el.type == 'checkbox' || el.type == 'radio') {
       if (el.indeterminate)
 	v = 'indeterminate';
@@ -965,6 +989,7 @@ var setTitle = function(title) {
 
 var load = function() {
   WT.history._initialize();
+  initDragDrop();
   if (!loaded) {
     loaded = true;
     _$_ONLOAD_$_;
@@ -1306,24 +1331,8 @@ function onLoad() {
     return;
   }
 
-  var WT = _$_WT_CLASS_$_;
-  var APP = _$_APP_CLASS_$_;
-
-  WT.history.initialize("Wt-history-field", "Wt-history-iframe");
-  window.onresize=function() { APP._p_.autoJavaScript(); }
-  document.body.onmousemove=function(e) {
-    if (!e) e = window.event;
-    return APP._p_.dragDrag(e);
-  }
-  document.body.onmouseup=function(e) {
-    if (!e) e = window.event;
-    return APP._p_.dragEnd(e);
-  }
-  document.body.ondragstart=function() {
-    return false;
-  };
-
-  APP._p_.load();
+  _$_WT_CLASS_$_.history.initialize("Wt-history-field", "Wt-history-iframe");
+  _$_APP_CLASS_$_._p_.load();
 }
 
 function loadWidgetTree() { }

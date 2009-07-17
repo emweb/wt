@@ -146,7 +146,7 @@ namespace {
   };
 };
 
-std::string WebRequest::parsePreferredAcceptValue(const std::string& str) const
+WT_LOCALE WebRequest::parsePreferredAcceptValue(const std::string& str) const
 {
   std::vector<ValueListParser::Value> values;
 
@@ -177,13 +177,13 @@ std::string WebRequest::parsePreferredAcceptValue(const std::string& str) const
 }
 
 #else
-std::string WebRequest::parsePreferredAcceptValue(const std::string& str) const
+WT_LOCALE WebRequest::parsePreferredAcceptValue(const std::string& str) const
 {
   return std::string();
 }
 #endif // WT_NO_SPIRIT
 
-std::string WebRequest::parseLocale() const
+WT_LOCALE WebRequest::parseLocale() const
 {
   return parsePreferredAcceptValue(headerValue("Accept-Language"));
 }

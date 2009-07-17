@@ -92,7 +92,7 @@ void WLineEdit::updateDom(DomElement& element, bool all)
 
   if (all || flags_.test(BIT_MAX_LENGTH_CHANGED)) {
     if (!all || maxLength_ > 0)
-      element.setAttribute("maxlength",
+      element.setAttribute("maxLength",
 			   boost::lexical_cast<std::string>(maxLength_));
 
     flags_.reset(BIT_MAX_LENGTH_CHANGED);

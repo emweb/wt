@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <Wt/WDllDefs.h>
 
 #ifndef WT_TARGET_JAVA
 
@@ -64,7 +65,7 @@ public:
    * Construct the WebController and let it read requests from the given
    * streams.
    */
-  WebController(Configuration& configuration, WebStream& stream,
+  WebController(Configuration& configuration, WebStream *stream,
 		std::string singleSessionId = std::string());
 
   ~WebController();
@@ -91,7 +92,8 @@ public:
   // returns false if removeSocketNotifier was called while processing
   bool socketSelected(int descriptor);
 
-  std::string switchSession(WebSession *session, const std::string& newSessionId);
+  std::string switchSession(WebSession *session,
+			    const std::string& newSessionId);
 
   const SocketNotifierMap& socketNotifiers() const { return socketNotifiers_; }
 
@@ -99,7 +101,7 @@ public:
 
 private:
   Configuration& conf_;
-  WebStream&     stream_;
+  WebStream     *stream_;
   std::string    singleSessionId_;
   bool           running_;
 

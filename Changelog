@@ -1,3 +1,17 @@
+17-07-2009:
+	* WServer, WGlobal: move WServer::Application and WServer::WidgetSet to
+	global enum
+
+	* WAbstractToggleButton.C: put label inside a <span> so that it works
+	as expected when used within a layout manager
+
+	* Test/WTestEnvironment: test environment, for instantiating
+	WApplication instances usable for (unit) tests
+
+06-07-2009:
+	* WGridLayout, WBoxLayout, WTabWidget: better documentation that
+	discusses how to set contents with 100% height.
+
 29-06-2009:
 	* JSlot: fix exec() call as suggested by Adrian Sutherland
 

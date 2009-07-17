@@ -42,7 +42,7 @@ namespace Wt {
 WebController *WebController::instance_ = 0;
 
 WebController::WebController(Configuration& configuration,
-			     WebStream& stream, std::string singleSessionId)
+			     WebStream *stream, std::string singleSessionId)
   : conf_(configuration),
     stream_(stream),
     singleSessionId_(singleSessionId),
@@ -111,7 +111,7 @@ void WebController::run()
 {
   running_ = true;
 
-  WebRequest *request = stream_.getNextRequest(10);
+  WebRequest *request = stream_->getNextRequest(10);
 
   if (request)
     handleRequest(request);
@@ -136,7 +136,7 @@ void WebController::run()
       break;
     }
 
-    WebRequest *request = stream_.getNextRequest(120);
+    WebRequest *request = stream_->getNextRequest(5);
 
     if (shutdown_) {
       conf_.log("notice") << "Shared session server exiting cleanly.";
@@ -203,7 +203,7 @@ std::string WebController::appSessionCookie(std::string url)
 void WebController::handleRequestThreaded(WebRequest *request)
 {
 #ifdef WT_THREADED
-  if (stream_.multiThreaded()) {
+  if (stream_->multiThreaded()) {
     threadPool_.schedule(boost::bind(&WebController::handleRequest,
 				     this, request, (const EntryPoint *)0));
   } else
@@ -382,8 +382,7 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
 	  favicon = *confFavicon;
       }
 
-      session = new WebSession(this, sessionId,
-			       ep->type(), ep->favicon(), *request);
+      session = new WebSession(this, sessionId, ep->type(), favicon, request);
 
       if (configuration().sessionTracking() == Configuration::CookiesURL)
 	request->addHeader("Set-Cookie",
@@ -468,7 +467,7 @@ void WebController::addSocketNotifier(WSocketNotifier *notifier)
 
   socketNotifiers_[notifier->socket()] = notifier;
 
-  stream_.addSocketNotifier(notifier);
+  stream_->addSocketNotifier(notifier);
 }
 
 void WebController::removeSocketNotifier(WSocketNotifier *notifier)
@@ -479,7 +478,7 @@ void WebController::removeSocketNotifier(WSocketNotifier *notifier)
 
   socketNotifiers_.erase(socketNotifiers_.find(notifier->socket()));
 
-  stream_.removeSocketNotifier(notifier);
+  stream_->removeSocketNotifier(notifier);
 }
 
 std::string WebController::generateNewSessionId(WebSession *session)

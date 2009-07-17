@@ -384,7 +384,7 @@ void Widget::bindEventHandler(const std::string& eventName,
  * are all contained within the Wt::Ext namespace. These widgets are
  * implemented using an open-source third-party JavaScript library,
  * extjs (http://extjs.com/), version 2.0, or 2.1 but not higher (does
- * not support Ext 2.2).
+ * not support Ext 2.2), e.g. http://stosha.net/ext-2.0.2.zip.
  *
  * Unlike plain %Wt widgets, these widgets require the availability of
  * JavaScript (and a sufficiently recent browser). They do, however,

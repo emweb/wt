@@ -117,7 +117,7 @@ public:
   const Http::UploadedFileMap& uploadedFiles() const { return files_; }
   int postDataExceeded() const { return postDataExceeded_; }
 
-  std::string parseLocale() const;
+  WT_LOCALE parseLocale() const;
 
 protected:
   virtual ~WebRequest();

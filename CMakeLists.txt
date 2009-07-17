@@ -54,6 +54,7 @@ IF(WIN32)
   SET(GD_DIR ${USERLIB_ROOT} CACHE PATH "Search path for libgd")
   OPTION(BOOST_DYNAMIC "Link to boost DLLs (OFF means static link)" OFF)
   OPTION(MXML_SUPPLIED "Force use of supplied mxml over installed mxml." ON)
+  OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 
 ELSE(WIN32)
 
@@ -69,7 +70,7 @@ ELSE(WIN32)
   SET(BOOST_VERSION "1_35" CACHE STRING "Boost libraries version signature")
   SET(GD_DIR "/usr/lib" CACHE PATH "Search path for libgd2")
   OPTION(MXML_SUPPLIED "Force use of supplied mxml over installed mxml." ON)
-
+  OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 ENDIF(WIN32)
 
 MARK_AS_ADVANCED( CONFIGDIR )
@@ -108,6 +109,12 @@ IF(NOT CMAKE_BUILD_TYPE)
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
+
+IF(DEBUG)
+  SET(WT_DEBUG_ENABLED 1)
+ELSE(DEBUG)
+  SET(WT_DEBUG_ENABLED 0)
+ENDIF(DEBUG)
 
 # Compile time constants & make sure our build finds it
 FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Wt)

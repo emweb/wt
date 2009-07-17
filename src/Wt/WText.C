@@ -6,6 +6,7 @@
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 
+#include "Wt/WApplication"
 #include "Wt/WText"
 #include "DomElement.h"
 
@@ -17,7 +18,9 @@ WText::WText(WContainerWidget *parent)
     wordWrap_(true),
     textChanged_(false),
     wordWrapChanged_(false)
-{ }
+{
+  WT_DEBUG(setObjectName("WText"));
+}
 
 WText::WText(const WString& text, WContainerWidget *parent)
   : WInteractWidget(parent),
@@ -26,6 +29,7 @@ WText::WText(const WString& text, WContainerWidget *parent)
     textChanged_(false),
     wordWrapChanged_(false)
 {
+  WT_DEBUG(setObjectName("WText"));
   setText(text);
 }
 
@@ -36,6 +40,7 @@ WText::WText(const WString& text, TextFormat format, WContainerWidget *parent)
     textChanged_(false),
     wordWrapChanged_(false)
 {
+  WT_DEBUG(setObjectName("WText"));
   setText(text);
 }
 

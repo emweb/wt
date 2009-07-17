@@ -21,6 +21,12 @@ namespace Wt {
  * height or width is used for sizing each widget, whose default
  * values may be overridden using WWidget::setMinimumSize().
  *
+ * You can use WContainerWidget::setOverflow(OverflowAuto) to
+ * automatically show scrollbars on a container widget which you
+ * inserted into the layout. In some cases, you will want to wrap
+ * another widget (like a WTable) into WContainerWidget to have the
+ * scrollbars, since not all widgets allow for scrollbars.
+ *
  * Each item is separated using a constant spacing, which defaults to
  * 6 pixels, and can be changed using setSpacing(). In addition, when
  * this layout is a top-level layout (i.e. is not nested inside

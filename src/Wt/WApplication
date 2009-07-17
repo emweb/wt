@@ -248,7 +248,7 @@ public:
    *
    * \if cpp
    * \note The root() is only defined in normal application mode. For
-   * \link WServer::WidgetSet WidgetSet\endlink mode, there is no
+   * \link Wt::WidgetSet WidgetSet\endlink mode, there is no
    * root() container, and 0 is returned. Instead, use bindWidget() to
    * bind root widgets to existing HTML &lt;div&gt; elements on the
    * page.
@@ -378,13 +378,13 @@ public:
    *
    * \sa localizedStrings(), WString::tr()
    */
-  void setLocale(const std::string& locale);
+  void setLocale(const WT_LOCALE& locale);
 
   /*! \brief Returns the currently used locale.
    *
    * \sa setLocale(const std::string&)
    */
-  std::string locale() const { return locale_; }
+  WT_LOCALE locale() const { return locale_; }
 
   /*! \brief Refresh the application.
    *
@@ -408,9 +408,7 @@ public:
    * &lt;table&gt; for a WTable).
    *
    * \sa root()
-   * \if cpp
-   * \sa WServer::WidgetSet
-   * \endif
+   * \sa Wt::WidgetSet
    */
   void bindWidget(WWidget *widget, const std::string& domId);
 
@@ -779,6 +777,18 @@ public:
     friend class WApplication;
   };
 
+  /*! \brief Grabs and returns the lock for manipulating widgets outside
+   *         the event loop.
+   *
+   * You need to keep this lock in scope while manipulating widgets
+   * outside of the event loop. In normal cases, inside the %Wt event loop,
+   * you do not need to care about it.
+   *
+   * \sa enableUpdates(), triggerUpdate()
+   */
+  UpdateLock getUpdateLock();
+#endif // WT_TARGET_JAVA
+
   /*! \brief Attach an auxiliary thread to this application.
    *
    * In a multi-threaded environment, WApplication::instance() uses
@@ -798,18 +808,6 @@ public:
    * thread without needing the update lock.
    */
   void attachThread();
-
-  /*! \brief Grabs and returns the lock for manipulating widgets outside
-   *         the event loop.
-   *
-   * You need to keep this lock in scope while manipulating widgets
-   * outside of the event loop. In normal cases, inside the %Wt event loop,
-   * you do not need to care about it.
-   *
-   * \sa enableUpdates(), triggerUpdate()
-   */
-  UpdateLock getUpdateLock();
-#endif // WT_TARGET_JAVA
 
   /*! \brief Executes some JavaScript code.
    *
@@ -881,7 +879,7 @@ public:
    * \if cpp
    * For \link WServer::Application plain\endlink applications, \link
    * WApplication::XMLHttpRequest XMLHttpRequest\endlink is used,
-   * while for \link WServer::WidgetSet widget set\endlink
+   * while for \link Wt::WidgetSet widget set\endlink
    * applications, \link WApplication::DynamicScriptTag
    * DynamicScriptTag\endlink is used. The latter is less efficient,
    * but has the benefit to allow serving the application from a
@@ -1121,6 +1119,8 @@ public:
    */
   bool isConnected() const { return connected_; }
 
+  bool debug() const;
+
 protected:
   /*! \brief Notify an event to the application.
    *
@@ -1197,7 +1197,7 @@ private:
   WContainerWidget      *timerRoot_;   // timers in main DOM root
   WCssStyleSheet         styleSheet_;  // internal style sheet
   WLocalizedStrings     *localizedStrings_;
-  std::string            locale_;
+  WT_LOCALE              locale_;
   std::string            newInternalPath_;
   Signal<std::string>    internalPathChanged_;
   bool                   internalPathIsChanged_;

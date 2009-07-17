@@ -32,19 +32,19 @@ namespace Wt {
 
 class WT_API EntryPoint {
  public:
-  EntryPoint(WebSession::Type type, ApplicationCreator appCallback,
+  EntryPoint(ApplicationType type, ApplicationCreator appCallback,
 	     const std::string& path, 
              const std::string& favicon);
 
   void setPath(const std::string& path);
 
-  WebSession::Type   type() const { return type_; }
+  ApplicationType    type() const { return type_; }
   ApplicationCreator appCallback() const { return appCallback_; }
   const std::string& path() const { return path_; }
   const std::string& favicon() const { return favicon_; }
 
  private:
-  WebSession::Type   type_;
+  ApplicationType    type_;
   ApplicationCreator appCallback_;
   std::string        path_;
   std::string        favicon_;

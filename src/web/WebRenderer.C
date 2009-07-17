@@ -153,13 +153,13 @@ void WebRenderer::serveMainWidget(WebResponse& response,
     break;
   case FullResponse:
     switch (session_.type()) {
-    case WebSession::Application:
+    case Application:
       if (session_.env().ajax())
 	serveMainscript(response);
       else
 	serveMainpage(response);
       break;
-    case WebSession::WidgetSet:
+    case WidgetSet:
       serveWidgetSet(response);
     }
   }
@@ -304,12 +304,6 @@ void WebRenderer::collectJavaScript()
   WApplication *app = session_.app();
   Configuration& conf = session_.controller()->configuration();
 
-  std::string redirect = session_.getRedirect();
-  if (!redirect.empty()) {
-    streamRedirectJS(collectedJS1_, redirect);
-    return;
-  }
-
   /*
    * Pending invisible changes are also collected into JS1.
    * This is also done in ackUpdate(), but just in case an update was not
@@ -385,6 +379,10 @@ void WebRenderer::collectJavaScript()
   app->domRoot_->doneRerender();
   if (app->domRoot2_)
     app->domRoot2_->doneRerender();
+
+  std::string redirect = session_.getRedirect();
+  if (!redirect.empty())
+    streamRedirectJS(collectedJS1_, redirect);
 }
 
 void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
@@ -990,7 +988,7 @@ void WebRenderer::collectJS(std::ostream* js)
       delete changes[i];
   }
 
-  if (session_.type() == WebSession::WidgetSet) {
+  if (session_.type() == WidgetSet) {
     return;
   }
 

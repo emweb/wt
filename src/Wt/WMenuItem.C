@@ -6,6 +6,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WAnchor"
+#include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WLabel"
@@ -33,7 +34,9 @@ WMenuItem::WMenuItem(const WString& text, WWidget *contents,
     implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
   else {
     contentsContainer_ = new WContainerWidget();
-    contentsContainer_->resize(WLength::Auto, WLength(100, WLength::Percentage));
+    WT_DEBUG( contentsContainer_->setObjectName("contents-container") );
+    contentsContainer_->resize(WLength::Auto,
+			       WLength(100, WLength::Percentage));
   }
 }
 
@@ -158,6 +161,9 @@ void WMenuItem::loadContents()
 {
   if (contentsContainer_ && contentsContainer_->count() == 0) {
     contentsContainer_->addWidget(contents_);
+
+    // A user should do the following himself, if he wants.
+    // contents_->resize(WLength::Auto, WLength(100, WLength::Percentage));
 
     // now prelearn the stateless slot
     implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);

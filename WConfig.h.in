@@ -24,5 +24,15 @@
 #cmakedefine WTHTTP_STATIC
 #cmakedefine WT_EXT_STATIC
 
+#if ${WT_DEBUG_ENABLED}
+#ifndef WT_TARGET_JAVA
+  #define WT_DEBUG(statement) do { if (Wt::WApplication::instance()->debug()) statement; } while(0)
+#else
+  #define WT_DEBUG(statement)
+#endif
+#else
+  #define WT_DEBUG(statement)
+#endif
+
 #endif
 

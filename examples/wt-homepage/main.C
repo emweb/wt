@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 
   server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
-  server.addEntryPoint(WServer::Application, createWtHomeApplication,
+  server.addEntryPoint(Application, createWtHomeApplication,
 		       "", "/css/wt/favicon.ico");
 
   if (server.start()) {
@@ -22,4 +22,3 @@ int main(int argc, char **argv)
     server.stop();
   }
 }
-

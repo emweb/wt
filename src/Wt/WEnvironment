@@ -223,7 +223,7 @@ public:
    *
    * \sa WApplication::setLocale()
    */
-  const std::string& locale() const { return locale_; }
+  const WT_LOCALE& locale() const { return locale_; }
 
   /*! \brief Returns the server host name that is used by the client.
    *
@@ -448,7 +448,7 @@ public:
     return agent_ >= Gecko && agent_ < BotAgent;
   }
 
-private:
+protected:
   WebSession *session_;
   bool        doesJavaScript_;
   bool        doesAjax_;
@@ -460,7 +460,7 @@ private:
   Http::ParameterMap parameters_;
   CookieMap   cookies_;
 
-  std::string locale_;
+  WT_LOCALE locale_;
   std::string host_;
   std::string userAgent_;
   std::string urlScheme_;
@@ -472,15 +472,19 @@ private:
   std::string clientAddress_;
   std::string pathInfo_;
   std::string internalPath_;
- 
-  void init(const WebRequest& request);
-  void setInternalPath(const std::string& path);
 
+  WEnvironment();
+  void setUserAgent(const std::string& agent);
+  void setInternalPath(const std::string& path);
+ 
+private:
 #ifndef WT_TARGET_JAVA
   WEnvironment(const WEnvironment&);
 #endif // WT_TARGET_JAVA
 
   WEnvironment(WebSession *session);
+
+  void init(const WebRequest& request);
 
   std::string parsePreferredAcceptValue(const std::string& value);
   void        parseCookies(const std::string& value);

@@ -39,25 +39,25 @@ class WApplication;
 class WT_API WebSession
 {
 public:
-  enum Type { Application, WidgetSet };
-
   WebSession(WebController *controller, const std::string& sessionId,
-	     Type type, const std::string& favicon,
-             const WebRequest& request);
+	     ApplicationType type, const std::string& favicon,
+	     const WebRequest *request, WEnvironment *env = 0);
   ~WebSession();
 
   static WebSession *instance();
 
-  Type type() const { return type_; }
+  ApplicationType type() const { return type_; }
   std::string favicon() const { return favicon_; }
   std::string docType() const;
 
   std::string sessionId() const { return sessionId_; }
 
   WebController *controller() const { return controller_; }
-  WEnvironment&  env() { return env_; }
+  WEnvironment&  env() { return *env_; }
   WApplication  *app() { return app_; }
   WebRenderer&   renderer() { return renderer_; }
+
+  bool debug() const { return debug_; }
 
   void redirect(const std::string& url);
   std::string getRedirect();
@@ -192,9 +192,6 @@ private:
    * Misc methods
    */
 
-  void setDebug(bool debug);
-  bool debug() const { return debug_; }
-
   void checkTimers();
   void hibernate();
 
@@ -212,9 +209,9 @@ private:
   static Handler *threadHandler_;
 #endif // WT_TARGET_JAVA
 
-  Type          type_;
-  std::string   favicon_;
-  State         state_;
+  ApplicationType type_;
+  std::string     favicon_;
+  State           state_;
 
   std::string   sessionId_;
 
@@ -234,7 +231,8 @@ private:
 #endif // WT_THREADED
 #endif // WT_TARGET_JAVA
 
-  WEnvironment  env_;
+  WEnvironment  embeddedEnv_;
+  WEnvironment *env_;
   WApplication *app_;
   bool          debug_;
 

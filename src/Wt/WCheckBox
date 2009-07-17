@@ -105,7 +105,7 @@ public:
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
-  virtual DomElementType domElementType() const;
+  virtual bool useImageWorkaround() const;
 
 private:
   bool triState_;
