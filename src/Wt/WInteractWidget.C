@@ -222,7 +222,7 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
   WApplication *app = WApplication::instance();
 
   setAttributeValue("dmt", mimeType);
-  setAttributeValue("dwid", dragWidget->formName());
+  setAttributeValue("dwid", dragWidget->id());
   setAttributeValue("dsid", app->encodeObject(sourceObject));
 
   if (!dragSlot_) {

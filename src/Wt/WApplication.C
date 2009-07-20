@@ -214,14 +214,14 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
     JSlot *showLoadJS = new JSlot();
     showLoadJS->setJavaScript
       ("function(obj, e) {"
-       "" WT_CLASS ".inline('" + loadingIndicatorWidget_->formName() + "');"
+       "" WT_CLASS ".inline('" + loadingIndicatorWidget_->id() + "');"
        "}");
     showLoadingIndicator_->connect(*showLoadJS);
 
     JSlot *hideLoadJS = new JSlot();
     hideLoadJS->setJavaScript
       ("function(obj, e) {"
-       "" WT_CLASS ".hide('" + loadingIndicatorWidget_->formName() + "');"
+       "" WT_CLASS ".hide('" + loadingIndicatorWidget_->id() + "');"
        "}");
     hideLoadingIndicator_->connect(*hideLoadJS);
 #endif
@@ -543,7 +543,7 @@ WApplication::decodeExposedSignal(const std::string& objectId,
 				  const std::string& name)
 {
   std::string signalName
-    = (objectId == "app" ? formName() : objectId) + '.' + name;
+    = (objectId == "app" ? id() : objectId) + '.' + name;
 
   return decodeExposedSignal(signalName);
 }
@@ -555,20 +555,20 @@ const WApplication::SignalMap& WApplication::exposedSignals() const
 
 std::string WApplication::addExposedResource(WResource *resource)
 {
-  exposedResources_[resource->formName()] = resource;
+  exposedResources_[resource->id()] = resource;
 
   std::string fn = resource->suggestedFileName();
   if (!fn.empty() && fn[0] != '/')
     fn = '/' + fn;
 
   return session_->mostRelativeUrl(fn)
-    + "&resource=" + Utils::urlEncode(resource->formName())
+    + "&resource=" + Utils::urlEncode(resource->id())
     + "&rand=" + boost::lexical_cast<std::string>(WtRandom::getUnsigned());
 }
 
 void WApplication::removeExposedResource(WResource *resource)
 {
-  exposedResources_.erase(resource->formName());
+  exposedResources_.erase(resource->id());
 }
 
 WResource *WApplication::decodeExposedResource(const std::string& resourceName) 

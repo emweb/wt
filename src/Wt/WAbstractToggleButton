@@ -76,9 +76,6 @@ public:
    */
   virtual void setUnChecked();
 
-  virtual void load();
-
-public:
   /*! \brief %Signal emitted when the button gets checked.
    */
   EventSignal<>& checked();
@@ -94,10 +91,12 @@ protected:
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);
   virtual void updateDom(DomElement& element, bool all);
+  virtual void getFormObjects(FormObjectsMap& formObjects);
   virtual void setFormData(const FormData& formData);
   virtual void propagateRenderOk(bool deep);
   virtual DomElementType domElementType() const;
   virtual bool useImageWorkaround() const;
+  virtual std::string formName() const;
 
   virtual WStatelessSlot *getStateless(Method method);
 

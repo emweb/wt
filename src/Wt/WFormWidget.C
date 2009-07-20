@@ -270,4 +270,9 @@ WValidator::State WFormWidget::validate()
   return WValidator::Valid;
 }
 
+std::string WFormWidget::formName() const
+{
+  return id();
+}
+
 }

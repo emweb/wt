@@ -29,7 +29,7 @@ LayoutImpl::~LayoutImpl()
   WApplication *app = WApplication::instance();
 
   app->doJavaScript(app->javaScriptClass()
-		    + ".deleteExtW('" + formName() + "');");
+		    + ".deleteExtW('" + id() + "');");
 }
 
 LayoutItemImpl *LayoutImpl::getImpl(WLayoutItem *item)
@@ -115,14 +115,14 @@ void LayoutImpl::createComponents(DomElement *parentContainer)
 void LayoutImpl::createComponent(DomElement *parentContainer)
 {
   DomElement *nested = DomElement::createNew(DomElement_DIV);
-  nested->setId("l" + formName());
+  nested->setId("l" + id());
   createComponents(nested);
   parentContainer->addChild(nested);
 
   std::stringstream js;
 
   js << "var " << elVar() << '=' << elRef() << "=new Ext.Panel({id:'"
-     << elVar() << "',border:false,contentEl:'l" << formName() << '\'';
+     << elVar() << "',border:false,contentEl:'l" << id() << '\'';
 
   addConfig(js);
   createConfig(js);
@@ -176,12 +176,12 @@ void LayoutImpl::addLayoutConfig(LayoutItemImpl *item, std::ostream& config)
 std::string LayoutImpl::elRef() const
 {
   return /* WApplication::instance()->javaScriptClass() + '.' + */
-    "ExtW['" + formName() + "']";
+    "ExtW['" + id() + "']";
 }
 
 std::string LayoutImpl::elVar() const
 {
-  return "el" + formName();
+  return "el" + id();
 }
 
 void LayoutImpl::addUpdateJS(const std::string& js)
@@ -222,7 +222,7 @@ void LayoutImpl::getLayoutChanges(const std::string& parentId,
   for (int i = 0; i < c; ++i) {
     WLayoutItem *item = layout_->itemAt(i);
     if (item)
-      getImpl(item)->getLayoutChanges("l" + formName(), result);
+      getImpl(item)->getLayoutChanges("l" + id(), result);
   }
 }
 

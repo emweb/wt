@@ -31,6 +31,8 @@ class WWidget;
 class WT_API WebRenderer : public Wt::SlotLearnerInterface
 {
 public:
+  typedef std::map<std::string, WObject *> FormObjectsMap;
+
   WebRenderer(WebSession& session);
 
   void setTwoPhaseThreshold(int bytes);
@@ -45,11 +47,12 @@ public:
   enum ResponseType { UpdateResponse, FullResponse };
 
   void updateFormObjectsList(WApplication *app);
-  const std::vector<WObject *>& formObjects() const;
+  const FormObjectsMap& formObjects() const;
 
   void saveChanges();
   void discardChanges();
-  void letReloadJS(WebResponse& request, bool newSession, bool embedded = false);
+  void letReloadJS(WebResponse& request, bool newSession,
+		   bool embedded = false);
   void letReloadHTML(WebResponse& request, bool newSession);
 
   bool isDirty() const;
@@ -90,9 +93,9 @@ private:
 
   std::vector<Cookie> cookiesToSet_;
 
-  std::vector<WObject *> currentFormObjects_;
-  std::string		 currentFormObjectsList_;
-  bool                   formObjectsChanged_;
+  FormObjectsMap currentFormObjects_;
+  std::string	 currentFormObjectsList_;
+  bool           formObjectsChanged_;
 
   void setHeaders(WebResponse& request, const std::string mimeType);
 

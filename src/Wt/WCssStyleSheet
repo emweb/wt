@@ -85,7 +85,7 @@ private:
  * \if cpp
  * Usage example:
  * \code
- * Wt::WCssTemplateRule *styleRule = new Wt::WCssTemplateRule("#" + formName() + " .item");
+ * Wt::WCssTemplateRule *styleRule = new Wt::WCssTemplateRule("#" + id() + " .item");
  * Wt::WApplication::instance()->styleSheet().addRule(styleRule);
  *
  * styleRule->templateWidget()->resize(100, WLength::Auto);

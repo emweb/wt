@@ -125,7 +125,7 @@ void WPopupMenu::popup(WWidget *location)
   show();
 
   WApplication::instance()->doJavaScript
-    (WT_CLASS ".positionAtWidget('" + formName() + "','" + location->formName()
+    (WT_CLASS ".positionAtWidget('" + id() + "','" + location->id()
      + "');");
 }
 
@@ -156,7 +156,7 @@ void WPopupMenu::popup(const WPoint& p)
   show();
 
   WApplication::instance()->doJavaScript
-    (WT_CLASS ".positionXY('" + formName() + "',"
+    (WT_CLASS ".positionXY('" + id() + "',"
      + boost::lexical_cast<std::string>(p.x()) + ","
      + boost::lexical_cast<std::string>(p.y()) + ");");
 }

@@ -131,7 +131,7 @@ std::string AbstractButton::createJSHelper(const std::string& extClassName,
     elVar() << "=new " << extClassName << "(" << buf.str() << ");";
 
   if (intoElement)
-    result << elVar() << ".render('" << formName() << "');";
+    result << elVar() << ".render('" << id() << "');";
 
   bindEventHandler(checkEventJS(), "toggleH", result);
 

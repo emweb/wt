@@ -739,7 +739,7 @@ WTreeView::ColumnInfo::ColumnInfo(const WTreeView *view, WApplication *app,
     sorting(view->sorting_),
     itemDelegate_(0)
 {
-  styleRule = new WCssTemplateRule("#" + view->formName()
+  styleRule = new WCssTemplateRule("#" + view->id()
 				   + " ." + this->styleClass());
   if (column != 0) {
     width = WLength(150);
@@ -973,29 +973,29 @@ WTreeView::WTreeView(WContainerWidget *parent)
       (".Wt-treeview .Wt-scroll div", "height: 1px;");
   }
 
-  app->styleSheet().addRule("#" + formName() + " .cwidth", "height: 1px;");
+  app->styleSheet().addRule("#" + id() + " .cwidth", "height: 1px;");
 
   /* item drag & drop */
   app->styleSheet().addRule
-    ("#" + formName() + "dw",
+    ("#" + id() + "dw",
      "width: 32px; height: 32px;"
      "background: url(" + imagePack_ + "items-not-ok.gif);");
 
   app->styleSheet().addRule
-    ("#" + formName() + "dw.valid-drop",
+    ("#" + id() + "dw.valid-drop",
      "width: 32px; height: 32px;"
      "background: url(" + imagePack_ + "items-ok.gif);");
 
-  rowHeightRule_ = new WCssTemplateRule("#" + formName() + " .rh");
+  rowHeightRule_ = new WCssTemplateRule("#" + id() + " .rh");
   app->styleSheet().addRule(rowHeightRule_);
 
-  rowWidthRule_ = new WCssTemplateRule("#" + formName() + " .Wt-tv-row");
+  rowWidthRule_ = new WCssTemplateRule("#" + id() + " .Wt-tv-row");
   app->styleSheet().addRule(rowWidthRule_);
 
-  rowContentsWidthRule_ = new WCssTemplateRule("#"+ formName() +" .Wt-tv-rowc");
+  rowContentsWidthRule_ = new WCssTemplateRule("#"+ id() +" .Wt-tv-rowc");
   app->styleSheet().addRule(rowContentsWidthRule_);
 
-  c0WidthRule_ = new WCssTemplateRule("#" + formName() + " .c0w");
+  c0WidthRule_ = new WCssTemplateRule("#" + id() + " .c0w");
   c0WidthRule_->templateWidget()->resize(150, WLength::Auto);
   app->styleSheet().addRule(c0WidthRule_);
 
@@ -1019,7 +1019,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
   headers_->setStyleClass("header-div headerrh");
   headers_->setSelectable(false);
 
-  headerHeightRule_ = new WCssTemplateRule("#" + formName() + " .headerrh");
+  headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh");
   app->styleSheet().addRule(headerHeightRule_);
   setHeaderHeight(headerHeight_);
 
@@ -1124,7 +1124,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""      "diffx = Math.max(nowxy.x - lastx, -parent.offsetWidth),"
      ""      "c = parent.className.split(' ')[2];"
      ""  "if (c) {"
-     ""    "var r = WT.getCssRule('#" + formName() + " .' + c),"
+     ""    "var r = WT.getCssRule('#" + id() + " .' + c),"
      ""        "tw = WT.pxself(r, 'width');"
      ""    "if (tw == 0) tw = parent.offsetWidth;" 
      ""    "r.style.width = (tw + diffx) + 'px';"
@@ -1154,7 +1154,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
   if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
     tieRowsScrollJS_.setJavaScript
       ("function(obj, event) {"
-       "" WT_CLASS ".getCssRule('#" + formName() + " .Wt-tv-rowc').style.left"
+       "" WT_CLASS ".getCssRule('#" + id() + " .Wt-tv-rowc').style.left"
        ""  "= -obj.scrollLeft + 'px';"
        "}");
   else {
@@ -1183,7 +1183,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""  "var h= " + headers_->jsRef() + ","
      ""      "hh=h.firstChild,"
      ""      "t=" + contents_->jsRef() + ".firstChild,"
-     ""      "r= WT.getCssRule('#" + formName() + " .cwidth'),"
+     ""      "r= WT.getCssRule('#" + id() + " .cwidth'),"
      ""      "vscroll=e.scrollHeight > e.offsetHeight,"
      ""      "contentstoo=(r.style.width == h.style.width);"
      ""  "if (vscroll) {"
@@ -1194,10 +1194,10 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""  "e.style.width=tw + 'px';"
      ""  "h.style.width=t.offsetWidth + 'px';"
      ""  "if (s.className.indexOf('column1') != -1) {"
-     ""    "var r=WT.getCssRule('#" + formName() + " .c0w'),"
+     ""    "var r=WT.getCssRule('#" + id() + " .c0w'),"
      ""        "hh=h.firstChild,"
      ""        "w=tw - WT.pxself(r, 'width') - (vscroll ? 17 : 0);"
-     ""    "WT.getCssRule('#" + formName() + " .Wt-tv-row').style.width"
+     ""    "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width"
      ""       "= w + 'px';"
      ""    "var extra = "
      ""      "hh.childNodes.length > 1"
@@ -1236,7 +1236,7 @@ void WTreeView::refresh()
     "if(" + jsRef() + ".offsetWidth == 0) return;"
     "for (var i=0, length=hc.childNodes.length; i < length; ++i) {"
     """var cl = hc.childNodes[i].className.split(' ')[2],"
-    ""    "r = WT.getCssRule('#" + formName() + " .' + cl);"
+    ""    "r = WT.getCssRule('#" + id() + " .' + cl);"
     """totalw += WT.pxself(r, 'width') + 7;" // 2 x 3px (padding) + 1px (border)
     "}"
     "var cw = WT.pxself(hh, 'width'),"
@@ -1248,7 +1248,7 @@ void WTreeView::refresh()
       "hh.style.width = (totalw + extra) + 'px';";
   else
     columnsWidth +=
-      "var r = WT.getCssRule('#" + formName() + " '"
+      "var r = WT.getCssRule('#" + id() + " '"
       ""                    "+ (c ? '.Wt-tv-rowc' : '.c0w'));"
       "totalw += 'px';"
       "if (c) {"
@@ -1899,7 +1899,7 @@ void WTreeView::onItemEvent(std::string nodeId, int columnId, std::string type,
   WModelIndex c0index;
   for (NodeMap::const_iterator i = renderedNodes_.begin();
        i != renderedNodes_.end(); ++i) {
-    if (i->second->formName() == nodeId) {
+    if (i->second->id() == nodeId) {
       c0index = i->second->modelIndex();
       break;
     }
@@ -1992,10 +1992,10 @@ void WTreeView::setDragEnabled(bool enable)
 
     if (enable) {
       dragWidget_ = new WText(headerContainer_);
-      dragWidget_->setId(formName() + "dw");
+      dragWidget_->setId(id() + "dw");
       dragWidget_->setInline(false);
       dragWidget_->hide();
-      setAttributeValue("dwid", dragWidget_->formName());
+      setAttributeValue("dwid", dragWidget_->id());
 
       configureModelDragDrop();
     } else {

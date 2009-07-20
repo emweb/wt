@@ -133,12 +133,12 @@ void WWebWidget::setSelectable(bool selectable)
   repaint(RepaintPropertyAttribute);
 }
 
-const std::string WWebWidget::formName() const
+const std::string WWebWidget::id() const
 {
   if (otherImpl_ && otherImpl_->id_)
     return *otherImpl_->id_;
   else
-    return WWidget::formName();
+    return WWidget::id();  
 }
 
 void WWebWidget::repaint(WFlags<RepaintFlag> flags)
@@ -1126,16 +1126,16 @@ bool WWebWidget::isVisible() const
       return true;
 }
 
-void WWebWidget::getSFormObjects(std::vector<WObject *>& result)
+void WWebWidget::getSFormObjects(FormObjectsMap& result)
 {
   if (!flags_.test(BIT_STUBBED) && !flags_.test(BIT_HIDDEN))
     getFormObjects(result);
 }
 
-void WWebWidget::getFormObjects(std::vector<WObject *>& formObjects)
+void WWebWidget::getFormObjects(FormObjectsMap& formObjects)
 {
   if (flags_.test(BIT_FORM_OBJECT))
-    formObjects.push_back(this);
+    formObjects[id()] = this;
 
   if (children_)
     for (unsigned i = 0; i < children_->size(); ++i)
@@ -1265,8 +1265,12 @@ void WWebWidget::setLoadLaterWhenInvisible(bool how)
 void WWebWidget::setId(DomElement *element, WApplication *app)
 {
   if (!app->environment().agentIsSpiderBot()
-      || (otherImpl_ && otherImpl_->id_))
-    element->setId(this, flags_.test(BIT_FORM_OBJECT));
+      || (otherImpl_ && otherImpl_->id_)) {
+    if (!flags_.test(BIT_FORM_OBJECT))
+      element->setId(id());
+    else
+      element->setName(id());
+  }
 }
 
 DomElement *WWebWidget::createDomElement(WApplication *app)
@@ -1304,7 +1308,7 @@ DomElement *WWebWidget::createSDomElement(WApplication *app)
 
     if (!app->environment().agentIsSpiderBot()
 	|| (otherImpl_ && otherImpl_->id_))
-      stub->setId(this);
+      stub->setId(id());
 
     WWidget::askRerender(true);
 

@@ -57,7 +57,7 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
    * scrollbars appear, and resize contents to fit in parent - header.
    */
   WApplication::instance()->doJavaScript
-    ("function sb" + formName() + "() {"
+    ("function sb" + id() + "() {"
      """var c=" + impl_->jsRef() + ";"
      """var h=" + headers_->jsRef() + ";"
      """var e=" + content->jsRef() + ";"
@@ -70,10 +70,10 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
      ""  "} else {"
      ""    "sp.style.display='none';"
      ""  "}"
-     ""  "setTimeout(sb" + formName() + ", 20);"
+     ""  "setTimeout(sb" + id() + ", 20);"
      """}"
      "}"
-     "sb" + formName() + "();");
+     "sb" + id() + "();");
 }
 
 WWidget *WTreeTable::headerWidget() const

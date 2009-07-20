@@ -110,7 +110,7 @@ std::string ToolBar::createJS(DomElement *inContainer)
   result << elVar() << "=new Ext.Toolbar([" << refs << "]);";
 
   if (inContainer) {
-    result << elVar() << ".render('" << formName() << "');";
+    result << elVar() << ".render('" << id() << "');";
     jsAfterPanelRendered(result);
   }
 

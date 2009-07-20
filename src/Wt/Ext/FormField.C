@@ -52,7 +52,7 @@ void FormField::applyToWidget(WWebWidget *widget,
 {
   if (inContainer) {
     inContainer->addChild(widget->createDomElement(WApplication::instance()));
-    js << elVar() << ".applyToMarkup('" << widget->formName() << "');";
+    js << elVar() << ".applyToMarkup('" << widget->id() << "');";
   }
 }
 

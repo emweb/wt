@@ -91,7 +91,7 @@ DomElement *DomElement::updateGiven(const std::string& var,
 DomElement *DomElement::getForUpdate(const WObject *object,
 				     DomElementType type)
 {
-  return getForUpdate(object->formName(), type);
+  return getForUpdate(object->id(), type);
 }
 
 DomElement::DomElement(Mode mode, DomElementType type)
@@ -409,17 +409,17 @@ void DomElement::removeProperty(Wt::Property property)
   properties_.erase(property);
 }
 
-void DomElement::setId(const std::string& id, bool andName)
+void DomElement::setId(const std::string& id)
 {
   ++numManipulations_;
   id_ = id;
-  if (andName)
-    setAttribute("name", id);
 }
 
-void DomElement::setId(const WObject *object, bool andName)
+void DomElement::setName(const std::string& name)
 {
-  setId(object->formName(), andName);
+  ++numManipulations_;
+  id_ = name;
+  setAttribute("name", name);
 }
 
 void DomElement::insertChildAt(DomElement *child, int pos)
@@ -1012,8 +1012,8 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       if (!id_.empty())
 	out << var_ << ".setAttribute('id', '" << id_ << "');\n";
 
-      setJavaScriptProperties(out, WApplication::instance());
       setJavaScriptAttributes(out);
+      setJavaScriptProperties(out, WApplication::instance());
     }
 
     return var_;
@@ -1089,7 +1089,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
 	// 'key' events on root container or handled at the whole document
 	if (Utils::startsWith(i->first, "key", 3)
-	    && id_ == app->root()->formName())
+	    && id_ == app->root()->id())
 	  out << "document";
 	else
 	  out << var_;

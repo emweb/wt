@@ -90,7 +90,7 @@ bool WebRenderer::isDirty() const
     || Utils::length(invisibleJS_) > 0;
 }
 
-const std::vector<WObject *>& WebRenderer::formObjects() const
+const WebRenderer::FormObjectsMap& WebRenderer::formObjects() const
 {
   return currentFormObjects_;
 }
@@ -956,10 +956,13 @@ std::string WebRenderer::createFormObjectsList(WApplication *app)
   updateFormObjectsList(app);
 
   std::string result;
-  for (unsigned i = 0; i < currentFormObjects_.size(); ++i) {
-    if (i != 0)
+
+  for (FormObjectsMap::const_iterator i = currentFormObjects_.begin();
+       i != currentFormObjects_.end(); ++i) {
+    if (!result.empty())
       result += ',';
-    result += "'" + currentFormObjects_[i]->formName() + "'";
+
+    result += "'" + i->first + "'";
   }
 
   formObjectsChanged_ = false;

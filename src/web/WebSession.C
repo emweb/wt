@@ -1145,13 +1145,15 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
   const WebRequest& request = *e.handler.request();
 
   renderer_.updateFormObjectsList(app_);
-  std::vector<WObject *> formObjects = renderer_.formObjects();
+  WebRenderer::FormObjectsMap formObjects = renderer_.formObjects();
 
-  for (unsigned i = 0; i < formObjects.size(); ++i) {
-    WObject *obj = formObjects[i];
+  for (WebRenderer::FormObjectsMap::const_iterator i = formObjects.begin();
+       i != formObjects.end(); ++i) {
+    std::string formName = i->first;
+    WObject *obj = i->second;
 
     if (!request.postDataExceeded())
-      obj->setFormData(getFormData(request, se + obj->formName()));
+      obj->setFormData(getFormData(request, se + formName));
     else
       obj->requestTooLarge(request.postDataExceeded());
   }

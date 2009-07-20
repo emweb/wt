@@ -26,7 +26,7 @@ WWidgetItemImpl::WWidgetItemImpl(WWidgetItem *item)
     var_ = c->elVar();
     id_ = c->extId();
   } else {
-    var_ = "wi" + item_->widget()->formName();
+    var_ = "wi" + item_->widget()->id();
     id_ = var_;
   }
 }
@@ -52,7 +52,7 @@ void WWidgetItemImpl::createComponent(DomElement *parentContainer)
     std::stringstream js;
 
     js << "var " << var_ << "=new Ext.BoxComponent({id:'"
-       << id_ << "',applyTo:'" << item_->widget()->formName() << "'";
+       << id_ << "',applyTo:'" << item_->widget()->id() << "'";
     addConfig(js);
     Container::setSizeConfig(js, item_->widget());
     js << "});{var s="

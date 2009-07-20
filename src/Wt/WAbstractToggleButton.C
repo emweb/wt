@@ -67,11 +67,6 @@ EventSignal<>& WAbstractToggleButton::unChecked()
   return *voidEventSignal(UNCHECKED_SIGNAL, true);
 }
 
-void WAbstractToggleButton::load()
-{
-  WFormWidget::load();
-}
-
 void WAbstractToggleButton::setText(const WString& text)
 {
   WLabel *l = label();
@@ -233,11 +228,11 @@ DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
 
   if (result->type() == DomElement_SPAN) {
     input = DomElement::createNew(DomElement_INPUT);
-    input->setId("in" + formName());
+    input->setName("in" + id());
 
     if (useImageWorkaround()) {
       DomElement *img = DomElement::createNew(DomElement_IMG);
-      img->setId("im" + formName());
+      img->setId("im" + id());
 
       std::string src = WApplication::resourcesUrl();
 
@@ -290,7 +285,7 @@ void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
 
   if (type == DomElement_SPAN) {
     DomElement *input
-      = DomElement::getForUpdate("in" + formName(), DomElement_INPUT);
+      = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
 
     if (useImageWorkaround()) {
       EventSignal<> *imgClick = voidEventSignal(UNDETERMINATE_CLICK_SIGNAL,
@@ -298,7 +293,7 @@ void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
 
       if (stateChanged_ || imgClick->needUpdate()) {
 	DomElement *img
-	  = DomElement::getForUpdate("im" + formName(), DomElement_IMG);
+	  = DomElement::getForUpdate("im" + id(), DomElement_IMG);
 
 	if (stateChanged_) {
 	  img->setProperty(Wt::PropertyStyleDisplay,
@@ -358,6 +353,19 @@ void WAbstractToggleButton::setFormData(const FormData& formData)
   else
     if (isEnabled() && isVisible())
       state_ = Unchecked;
+}
+
+void WAbstractToggleButton::getFormObjects(FormObjectsMap& formObjects)
+{
+  formObjects[formName()] = this;
+}
+
+std::string WAbstractToggleButton::formName() const
+{
+  if (domElementType() == DomElement_SPAN && !useImageWorkaround())
+    return "in" + id();
+  else
+    return WFormWidget::formName();
 }
 
 }

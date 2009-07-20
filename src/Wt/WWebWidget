@@ -127,7 +127,7 @@ public:
   virtual bool loaded() const;
   virtual void setId(const std::string& id);
   virtual void setSelectable(bool selectable);
-  virtual const std::string formName() const;
+  virtual const std::string id() const;
 
   virtual DomElement *createDomElement(WApplication *app);
   virtual void        getDomChanges(std::vector<DomElement *>& result,
@@ -200,8 +200,11 @@ public:
   int zIndex() const;
 
 protected:
+  typedef std::map<std::string, WObject *> FormObjectsMap;
+
   void repaint(WFlags<RepaintFlag> flags = RepaintAll);
 
+  virtual void getFormObjects(FormObjectsMap& formObjects);
   virtual void doneRerender();
   virtual void updateDom(DomElement& element, bool all);
   virtual void propagateRenderOk(bool deep = true);
@@ -330,8 +333,7 @@ private:
   virtual bool needsToBeRendered() const;
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app);
-  void         getSFormObjects(std::vector<WObject *>& formObjects);
-  virtual void getFormObjects(std::vector<WObject *>& formObjects);
+  void         getSFormObjects(FormObjectsMap& formObjects);
 
   void gotParent();
 

@@ -251,18 +251,18 @@ DomElement *WTable::createDomElement(WApplication *app)
   if (headerRowCount_ != 0) {
     thead = DomElement::createNew(DomElement_THEAD);
     if (withIds)
-      thead->setId(formName() + "th");
+      thead->setId(id() + "th");
   }
 
   DomElement *tbody = DomElement::createNew(DomElement_TBODY);
   if (withIds)
-    tbody->setId(formName() + "tb");
+    tbody->setId(id() + "tb");
 
   if (columns_) {
     for (unsigned col = 0; col < columns_->size(); ++col) {
       DomElement *c = DomElement::createNew(DomElement_COL);
       if (withIds)
-	c->setId((*columns_)[col]);
+	c->setId((*columns_)[col]->id());
       (*columns_)[col]->updateDom(*c, true);
       table->addChild(c);
     }
@@ -300,7 +300,7 @@ DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
 {
   DomElement *tr = DomElement::createNew(DomElement_TR);
   if (withIds)
-    tr->setId(rows_[row]);
+    tr->setId(rows_[row]->id());
   rows_[row]->updateDom(*tr, true);
 
   // because of the mix of addChild() and insertChildAt()
@@ -354,7 +354,7 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
     }
 
     if (rowsAdded_) {
-      DomElement *etb = DomElement::getForUpdate(formName() + "tb",
+      DomElement *etb = DomElement::getForUpdate(id() + "tb",
 						 DomElement_TBODY);
       for (unsigned i = 0; i < static_cast<unsigned>(rowsAdded_); ++i) {
 	DomElement *tr = createRow(rowCount() - rowsAdded_ + i, true, app);

@@ -130,12 +130,12 @@ void WTableRow::setId(const std::string& id)
   *id_ = id;
 }
 
-const std::string WTableRow::formName() const
+const std::string WTableRow::id() const
 {
   if (id_)
     return *id_;
   else
-    return WObject::formName();
+    return WObject::id();
 }
 
 void WTableRow::updateDom(DomElement& element, bool all)

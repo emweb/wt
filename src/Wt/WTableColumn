@@ -82,7 +82,7 @@ public:
    */
   void setId(const std::string& id);
 
-  virtual const std::string formName() const;
+  virtual const std::string id() const;
 
 private:
   WTableColumn(WTable *table);

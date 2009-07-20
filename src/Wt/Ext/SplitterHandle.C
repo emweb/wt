@@ -50,14 +50,14 @@ std::string SplitterHandle::createJS(DomElement *inContainer)
 
   std::string result = elVar() + "=new Ext.SplitBar("
     + "'" + inContainer->id() + "',"
-    + "'" + wb->formName() + "'";
+    + "'" + wb->id() + "'";
 
   if (splitter_->orientation() != Horizontal)
     result += ",Ext.SplitBar.VERTICAL";
   result += ");";
   result += elVar()
     + ".setAdapter(new Ext.SplitBar.AbsoluteLayoutAdapter('"
-    + parent()->formName() + "'));";
+    + parent()->id() + "'));";
 
   std::string Left, width, Width;
 
@@ -69,9 +69,9 @@ std::string SplitterHandle::createJS(DomElement *inContainer)
 
   result += elVar()
     + ".on('moved',function(){"
-    "var b=" WT_CLASS ".getElement('" + wb->formName() + "');"
-    "var a=" WT_CLASS ".getElement('" + wa->formName() + "');"
-    "var s=" WT_CLASS ".getElement('" + formName() + "');"
+    "var b=" WT_CLASS ".getElement('" + wb->id() + "');"
+    "var a=" WT_CLASS ".getElement('" + wa->id() + "');"
+    "var s=" WT_CLASS ".getElement('" + id() + "');"
     "var t=a.offset" + Left + "-(s.offset" + Left + "+s.offset" + Width + ");"
     "a.style.margin" + Left + "=s.offset" + Left + "+s.offset" + Width
     + "+'px';"
@@ -175,9 +175,9 @@ std::string SplitterHandle::adjustMinMaxJS() const
   WWidget *wa = splitter_->widgetAfter(this);
 
   return "{"
-    "var w=" WT_CLASS ".getElement('" + wb->formName() + "').client"
+    "var w=" WT_CLASS ".getElement('" + wb->id() + "').client"
     + Width + "+"
-    WT_CLASS ".getElement('" + wa->formName() + "').client" + Width + ";"
+    WT_CLASS ".getElement('" + wa->id() + "').client" + Width + ";"
     "var s=" + elVar() + ";"
     "s.minSize=Math.max(" + boost::lexical_cast<std::string>(minSizeB) +
     ",w+"

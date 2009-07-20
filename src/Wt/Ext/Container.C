@@ -164,7 +164,7 @@ void Container::getDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app)
 {
   if (layoutChanged_) {
-    layoutImpl()->getLayoutChanges(formName(), result);
+    layoutImpl()->getLayoutChanges(id(), result);
     layoutChanged_ = false;
   }
   Component::getDomChanges(result, app);
@@ -178,11 +178,10 @@ void Container::createConfig(std::ostream& config)
 
   if (!dynamic_cast<Container *>(parent())
       && parent() != app->root() && parent() != app->domRoot())
-    config << ",renderTo:'" << formName() << "'";
+    config << ",renderTo:'" << id() << "'";
 
   if (widget_)
-    config << ",contentEl:'" << widget_->formName()
-	   << "',autoShow:true";
+    config << ",contentEl:'" << widget_->id() << "',autoShow:true";
 
   setSizeConfig(config, this);
 

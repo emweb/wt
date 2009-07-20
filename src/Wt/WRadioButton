@@ -110,7 +110,7 @@ private:
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
-  virtual void getFormObjects(std::vector<WObject *>& formObjects);
+  virtual void getFormObjects(FormObjectsMap& formObjects);
 
   virtual void setFormData(const FormData& formData);
 };

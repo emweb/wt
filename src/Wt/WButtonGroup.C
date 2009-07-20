@@ -128,7 +128,7 @@ void WButtonGroup::setFormData(const FormData& formData)
     const std::string& value = formData.values[0];
 
     for (unsigned i = 0; i < buttons_.size(); ++i) {
-      if (value == buttons_[i].button->formName()) {
+      if (value == buttons_[i].button->id()) {
 	if (buttons_[i].button->stateChanged_)
 	  return;
 

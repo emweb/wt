@@ -32,9 +32,9 @@ WCompositeWidget::~WCompositeWidget()
   delete impl_;
 }
 
-const std::string WCompositeWidget::formName() const
+const std::string WCompositeWidget::id() const
 {
-  return impl_->formName();
+  return impl_->id();
 }
 
 void WCompositeWidget::setId(const std::string& id)

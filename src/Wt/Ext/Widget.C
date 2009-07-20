@@ -106,7 +106,7 @@ Widget::~Widget()
   // in any case, delete Ext classes:
   WApplication *app = WApplication::instance();
   app->doJavaScript(app->javaScriptClass()
-		    + ".deleteExtW('" + formName() + "');");
+		    + ".deleteExtW('" + id() + "');");
 }
 
 void Widget::setHidden(bool how)
@@ -172,7 +172,7 @@ const std::string Widget::elVar() const
 const std::string Widget::elRef() const
 {
   return /* WApplication::instance()->javaScriptClass() + '.' + */
-    "ExtW['" + formName() + "']";
+    "ExtW['" + id() + "']";
 }
 
 void Widget::updateDom(DomElement& element, bool all)

@@ -178,6 +178,8 @@ protected:
   virtual void propagateRenderOk(bool deep);
   virtual WStatelessSlot *getStateless(Method method);
 
+  virtual std::string formName() const;
+
   friend class WLabel;
   friend class WValidator;
 };

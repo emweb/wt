@@ -24,7 +24,7 @@ WFlashObject::WFlashObject(const std::string& url,
 
 WFlashObject::~WFlashObject()
 {
-  wApp->doJavaScript("swfobject.removeSWF(flash" + formName() + ");");
+  wApp->doJavaScript("swfobject.removeSWF(flash" + id() + ");");
 
 }
 
@@ -66,7 +66,7 @@ DomElement *WFlashObject::createDomElement(WApplication *app)
 {
   DomElement *result = WContainerWidget::createDomElement(app);
   DomElement *innerElement = DomElement::createNew(DomElement_DIV);
-  innerElement->setId("flash" + formName());
+  innerElement->setId("flash" + id());
   result->addChild(innerElement);
   std::string flashvars = mapToJsMap(variables_);
   std::string params = mapToJsMap(parameters_);
@@ -75,7 +75,7 @@ DomElement *WFlashObject::createDomElement(WApplication *app)
     attributes = "{ styleclass: " + jsStringLiteral(styleClass()) + " }";
   }
   wApp->doJavaScript("swfobject.embedSWF(\"" + url_ + "\", \"" +
-      "flash" + formName() + "\", \"" +
+      "flash" + id() + "\", \"" +
       boost::lexical_cast<std::string>((int)width().toPixels()) + "\", \"" +
       boost::lexical_cast<std::string>((int)height().toPixels()) +
       "\", \"8.0.0\", " +
@@ -89,7 +89,7 @@ DomElement *WFlashObject::createDomElement(WApplication *app)
 
 std::string WFlashObject::jsFlashRef() const
 {
-  return WT_CLASS ".getElement('flash" + formName() + "')";
+  return WT_CLASS ".getElement('flash" + id() + "')";
 }
 
 void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
@@ -100,7 +100,7 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
     // Note: innerElement is no longer a DomElement_DIV, but that is not
     // important now
     DomElement *innerElement =
-      DomElement::getForUpdate("flahs" + formName(), DomElement_DIV);
+      DomElement::getForUpdate("flash" + id(), DomElement_DIV);
     innerElement->setAttribute("width",
         boost::lexical_cast<std::string>((int)width().toPixels()));
     innerElement->setAttribute("height",

@@ -398,7 +398,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   }
 
   DomElement *div = DomElement::createNew(DomElement_DIV);
-  div->setId(this);
+  div->setId(id());
 
   std::string divStyle;
   if (fitHeight && !app->environment().agentIsIE())

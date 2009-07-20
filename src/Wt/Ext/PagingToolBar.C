@@ -26,7 +26,7 @@ std::string PagingToolBar::createJS(DomElement *inContainer)
 	 << "});";
 
   if (inContainer) {
-    result << elVar() << ".render('" << formName() << "');";
+    result << elVar() << ".render('" << id() << "');";
     jsAfterPanelRendered(result);
   }
 

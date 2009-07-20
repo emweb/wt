@@ -23,8 +23,8 @@ WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
   impl_->setLoadLaterWhenInvisible(false);
 
 #ifndef WT_TARGET_JAVA
-  std::string fic1 = icon1_->formName();
-  std::string fic2 = icon2_->formName();
+  std::string fic1 = icon1_->id();
+  std::string fic2 = icon2_->id();
   std::string hide_1 = WT_CLASS ".hide('" + fic1 +"');";
   std::string show_1 = WT_CLASS ".inline('" + fic1 +"');";
   std::string hide_2 = WT_CLASS ".hide('" + fic2 +"');";

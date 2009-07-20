@@ -119,8 +119,8 @@ public:
   void setEvent(const char * eventName,
 		const std::vector<EventAction>& actions);
 
-  void setId(const std::string& id, bool andName = false);
-  void setId(const WObject *object, bool andName = false);
+  void setId(const std::string& id);
+  void setName(const std::string& name);
   void setTimeout(int msec, bool jsRepeat);
   void callMethod(const std::string& method);
   void callJavaScript(const std::string& javascript,

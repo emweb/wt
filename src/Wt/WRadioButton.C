@@ -40,25 +40,20 @@ void WRadioButton::updateDom(DomElement& element, bool all)
     element.setAttribute("type", "radio");
 
     if (buttonGroup_) {
-      element.setAttribute("name", buttonGroup_->formName());
-      element.setAttribute("value", formName());
-    } else
-      element.setAttribute("name", formName());
+      element.setAttribute("name", buttonGroup_->id());
+      element.setAttribute("value", id());
+    }
   }
 
   WAbstractToggleButton::updateDom(element, all);
 }
 
-void WRadioButton::getFormObjects(std::vector<WObject *>& formObjects)
+void WRadioButton::getFormObjects(FormObjectsMap& formObjects)
 {
-  if (buttonGroup_) {
-    int i = Utils::indexOf<WObject *>(formObjects, buttonGroup_);
+  if (buttonGroup_)
+    formObjects[buttonGroup_->id()] = buttonGroup_;
 
-    if (i == -1)
-      formObjects.push_back(buttonGroup_);
-  }
-
-  formObjects.push_back(this);
+  WAbstractToggleButton::getFormObjects(formObjects);
 }
 
 void WRadioButton::setGroup(WButtonGroup *group)
@@ -74,9 +69,11 @@ void WRadioButton::setFormData(const FormData& formData)
   if (!formData.values.empty()) {
     const std::string& value = formData.values[0];
 
-    if (value == formName()) {
-      buttonGroup_->uncheckOthers(this);
-      state_ = Checked;
+    if (value == id()) {
+      if (buttonGroup_) {
+	buttonGroup_->uncheckOthers(this);
+	state_ = Checked;
+      }
     } else
       if (!buttonGroup_)
 	WAbstractToggleButton::setFormData(formData);

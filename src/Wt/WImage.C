@@ -24,7 +24,7 @@ namespace Wt {
       virtual void updateDom(DomElement& element, bool all)
       {
 	if (all)
-	  element.setAttribute("name", formName());
+	  element.setAttribute("name", id());
 
 	WContainerWidget::updateDom(element, all);
       }
@@ -182,7 +182,7 @@ void WImage::updateDom(DomElement& element, bool all)
     element.addChild(map);
 
     img = DomElement::createNew(DomElement_IMG);
-    img->setId("i" + formName(), false);
+    img->setId("i" + id());
   }
 
   if (flags_.test(BIT_IMAGE_REF_CHANGED) || all) {
@@ -197,7 +197,7 @@ void WImage::updateDom(DomElement& element, bool all)
   }
 
   if (flags_.test(BIT_MAP_CREATED) || (all && map_)) {
-    img->setAttribute("usemap", '#' + map_->formName());
+    img->setAttribute("usemap", '#' + map_->id());
     flags_.reset(BIT_MAP_CREATED);
   }
 
@@ -214,7 +214,7 @@ void WImage::getDomChanges(std::vector<DomElement *>& result,
     // TODO: check if BIT_MAP_CREATED: then need to replace the whole
     // element with a <span><img/><map/></span>. Currently we document
     // this as a limitation.
-    DomElement *e = DomElement::getForUpdate("i" + formName(), DomElement_IMG);
+    DomElement *e = DomElement::getForUpdate("i" + id(), DomElement_IMG);
     updateDom(*e, false);
     result.push_back(e);
   } else

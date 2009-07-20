@@ -31,7 +31,7 @@ void WGroupBox::updateDom(DomElement& element, bool all)
 {
   if (all) {
     DomElement *legend = DomElement::createNew(DomElement_LEGEND);
-    legend->setId(formName() + "l");
+    legend->setId(id() + "l");
     legend->setProperty(Wt::PropertyInnerHTML, escapeText(title_).toUTF8());
     element.addChild(legend);
 
@@ -57,7 +57,7 @@ void WGroupBox::getDomChanges(std::vector<DomElement *>& result,
 
   if (titleChanged_) {
     DomElement *legend
-      = DomElement::getForUpdate(formName() + "l", DomElement_LEGEND);
+      = DomElement::getForUpdate(id() + "l", DomElement_LEGEND);
     legend->setProperty(Wt::PropertyInnerHTML, escapeText(title_).toUTF8());
 
     titleChanged_ = false;

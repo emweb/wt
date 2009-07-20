@@ -166,7 +166,10 @@ DomElementType WFileUpload::domElementType() const
 DomElement *WFileUpload::createDomElement(WApplication *app)
 {
   DomElement *result = DomElement::createNew(domElementType());
-  result->setId(this, true);
+  if (result->type() == DomElement_FORM)
+    result->setId(id());
+  else
+    result->setName(id());
 
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
 
@@ -177,12 +180,12 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     form->setAttribute("action", fileUploadTarget_->generateUrl());
     form->setAttribute("enctype", "multipart/form-data");
     form->setAttribute("style", "margin:0;padding:0;display:inline");
-    form->setProperty(PropertyTarget, "if" + formName());
+    form->setProperty(PropertyTarget, "if" + id());
 
     DomElement *i = DomElement::createNew(DomElement_IFRAME);
     i->setAttribute("class", "Wt-resource");
     i->setAttribute("src", fileUploadTarget_->generateUrl());
-    i->setId("if" + formName(), true);
+    i->setName("if" + id());
 
     /*
      * wrap iframe in an extra span to work around bug in IE which does
@@ -197,7 +200,7 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     input->setAttribute("type", "file");
     input->setAttribute("name", "data");
     input->setAttribute("size", boost::lexical_cast<std::string>(textSize_));
-    input->setId("in" + formName());
+    input->setId("in" + id());
 
     if (change)
       updateSignalConnection(*input, *change, "change", true);

@@ -65,7 +65,7 @@ std::string Calendar::createJS(DomElement *inContainer)
 
   std::stringstream result;
   result << elVar() << " = new Ext.DatePicker(" << configStruct() << ");";
-  result << elVar() << ".render('" << formName() << "');";
+  result << elVar() << ".render('" << id() << "');";
 
   bindEventHandler("select", "selectH", result);
   

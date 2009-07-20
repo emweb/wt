@@ -193,7 +193,7 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
   DomElement *canvas = DomElement::createNew(DomElement_DIV);
 
   if (!app->environment().agentIsSpiderBot())
-    canvas->setId('p' + formName());
+    canvas->setId('p' + id());
 
   WPaintDevice *device = painter_->createPaintDevice();
   paintEvent(device);
@@ -248,8 +248,7 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
     device->painter()->end();
 #endif // WT_TARGET_JAVA
     if (createNew) {
-      DomElement *canvas = DomElement::getForUpdate('p' + formName(),
-						    DomElement_DIV);
+      DomElement *canvas = DomElement::getForUpdate('p' + id(), DomElement_DIV);
       canvas->removeAllChildren();
       painter_->createContents(canvas, device);
       result.push_back(canvas);
@@ -352,7 +351,7 @@ void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
 
   if (device->paintFlags() & PaintUpdate) {
     DomElement *painter = DomElement::updateGiven
-      (WT_CLASS ".getElement('p" + widget_->formName()+ "').firstChild",
+      (WT_CLASS ".getElement('p" + widget_->id()+ "').firstChild",
        DomElement_DIV);
 
     painter->setProperty(PropertyAddedInnerHTML, vectorDevice->rendered());
@@ -364,7 +363,7 @@ void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
     result.push_back(painter);
   } else {
     DomElement *canvas = DomElement::getForUpdate
-      ('p' + widget_->formName(), DomElement_DIV);
+      ('p' + widget_->id(), DomElement_DIV);
 
     /*
      * In fact, we should use another property, since we could be using
@@ -402,13 +401,13 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
   result->setProperty(PropertyStylePosition, "relative");
 
   DomElement *canvas = DomElement::createNew(DomElement_CANVAS);
-  canvas->setId('c' + widget_->formName());
+  canvas->setId('c' + widget_->id());
   canvas->setAttribute("width", wstr);
   canvas->setAttribute("height", hstr);
   result->addChild(canvas);
 
   DomElement *text = DomElement::createNew(DomElement_DIV);
-  text->setId('t' + widget_->formName());
+  text->setId('t' + widget_->id());
   text->setProperty(PropertyStylePosition, "absolute");
   text->setProperty(PropertyStyleZIndex, "1");
   text->setProperty(PropertyStyleTop, "0px");
@@ -416,7 +415,7 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
 
   WCanvasPaintDevice *canvasDevice = dynamic_cast<WCanvasPaintDevice *>(device);
 
-  canvasDevice->render("c" + widget_->formName(), text);
+  canvasDevice->render("c" + widget_->id(), text);
 
   result->addChild(text);
 }
@@ -427,7 +426,7 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
   WCanvasPaintDevice *canvasDevice = dynamic_cast<WCanvasPaintDevice *>(device);
 
   if (widget_->sizeChanged_) {
-    DomElement *canvas = DomElement::getForUpdate('c' + widget_->formName(),
+    DomElement *canvas = DomElement::getForUpdate('c' + widget_->id(),
 						  DomElement_CANVAS);
     canvas->setAttribute("width",
 		   boost::lexical_cast<std::string>(widget_->width().value()));
@@ -438,11 +437,11 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
     widget_->sizeChanged_ = false;
   }
 
-  DomElement *text = DomElement::getForUpdate('t' + widget_->formName(),
+  DomElement *text = DomElement::getForUpdate('t' + widget_->id(),
 					      DomElement_DIV);
   text->removeAllChildren();
 
-  canvasDevice->render('c' + widget_->formName(), text);
+  canvasDevice->render('c' + widget_->id(), text);
 
   result.push_back(text);
 }

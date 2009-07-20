@@ -127,6 +127,8 @@ public:
    */
   int id(WRadioButton *button) const;
 
+  virtual const std::string id() const { return WObject::id(); }
+
   /*! \brief Returns the buttons in this group.
    */
   std::vector<WRadioButton *> buttons() const;

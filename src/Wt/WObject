@@ -148,7 +148,7 @@ public:
    *
    * \sa WWidget::jsRef()
    */
-  const std::string id() const { return formName(); }
+  virtual const std::string id() const;
 
   /*! \brief Set an object name.
    *
@@ -168,15 +168,6 @@ public:
    * \sa setObjectName()
    */
   virtual std::string objectName() const;
-
-  /*
-   * Formname: for widgets is the name of the equivalent web widget
-   *           for resources is the id of the widget
-   *
-   * Note that it is not unique, some widgets will share the same
-   * formname. In particular this is true for web widgets.
-   */
-  virtual const std::string formName() const;
 
   /*! \brief Reset learned stateless slot implementations.
    *

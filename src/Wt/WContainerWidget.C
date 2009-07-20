@@ -628,7 +628,7 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
       itd->addChild(c);
       irow->addChild(itd);
       itable->addChild(irow);
-      itable->setId(formName() + "l");
+      itable->setId(id() + "l");
       c = itable;
 
       break;
@@ -707,7 +707,7 @@ void WContainerWidget::layoutChanged(bool deleted)
       transientImpl_ = new TransientImpl();
 
     std::string fn = (contentAlignment_ & AlignHorizontalMask) == AlignCenter ?
-      formName() + "l" : layoutImpl()->formName();
+      id() + "l" : layoutImpl()->id();
 
     DomElement *e = DomElement::getForUpdate(fn, DomElement_TABLE);
     e->removeFromParent();

@@ -99,7 +99,7 @@ Signal<WObject *>& WObject::destroyed()
 
 void WObject::setObjectName(const std::string& name)
 {
-  // We could optimize this so that formName() does not have to
+  // We could optimize this so that id() does not have to
   // concatenate on the fly by appending internally already the
   // uniqueId()
   name_ = name;
@@ -118,7 +118,7 @@ const std::string WObject::uniqueId() const
   return std::string(buf);
 }
 
-const std::string WObject::formName() const
+const std::string WObject::id() const
 {
   std::string result = objectName();
 
