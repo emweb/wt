@@ -59,8 +59,8 @@ namespace Wt {
 class ExtremesIterator : public SeriesIterator
 {
 public:
-  ExtremesIterator(Axis axis)
-    : axis_(axis),
+  ExtremesIterator(Axis axis, AxisScale scale)
+    : axis_(axis),scale_(scale),
       minimum_(WAxis::AUTO_MINIMUM),
       maximum_(WAxis::AUTO_MAXIMUM)
   { }
@@ -74,7 +74,7 @@ public:
   virtual void newValue(const WDataSeries& series, double x, double y,
 			double stackY)
   {
-    if (!Utils::isNaN(y)) {
+    if (!Utils::isNaN(y) && (scale_!=LogScale || y>0.0)) {
       maximum_ = std::max(y, maximum_);
       minimum_ = std::min(y, minimum_);
     }
@@ -85,6 +85,7 @@ public:
 
 private:
   Axis axis_;
+  AxisScale scale_;
   double minimum_, maximum_;
 };
 
@@ -375,7 +376,7 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	  }
 	}
       } else {
-	ExtremesIterator iterator(axis_);
+	ExtremesIterator iterator(axis_, scale_);
 	renderer.iterateSeries(&iterator);
 
 	minimum = iterator.minimum();
@@ -414,11 +415,11 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	if (findMinimum)
 	  segment.renderMinimum
 	    = std::pow(10,
-		       (std::floor(std::log10(segment.renderMinimum - 1E-4))));
+		       (std::floor(std::log10(segment.renderMinimum - 0.1))));
 	if (findMaximum)
 	  segment.renderMaximum
 	    = std::pow(10,
-		       (std::ceil(std::log10(segment.renderMaximum + 1E-4))));
+		       (std::ceil(std::log10(segment.renderMaximum + 0.1))));
       } else {
 	if (findMinimum)
 	  segment.renderMinimum = std::floor(segment.renderMinimum - 1E-4);
@@ -610,7 +611,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
     break;
   }
   case LogScale: {
-    double v = s.renderMinimum;
+    double v = s.renderMinimum > 0 ? s.renderMinimum : 0.0001;
     double p = v;
     int i = 0;
     for (;; ++i) {

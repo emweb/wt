@@ -278,7 +278,23 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 }
 
 StdGridLayoutImpl::~StdGridLayoutImpl()
-{ }
+{ 
+  WApplication *app = WApplication::instance();
+
+  /*
+   * If it is a top-level layout (as opposed to a nested layout),
+   * configure overflow of the container.
+   */
+  if (parentLayoutImpl() == 0) {
+    if (container() == app->root()) {
+      app->setBodyClass("");
+      app->setHtmlClass("");
+    }
+
+    if (app->environment().agentIsIE())
+      container()->setOverflow(WContainerWidget::OverflowVisible);
+  }
+}
 
 int StdGridLayoutImpl::minimumHeight() const
 {
@@ -316,19 +332,8 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
        * Reset body,html default paddings and so on if we are doing layout
        * in the entire document.
        */
-      app->styleSheet().addRule("body, html",
-				"height: 100%; width: 100%;"
-				"margin: 0px; padding: 0px; border: none;");
-
-      /*
-       * If we are doing layout in the entire document, also remove the
-       * automatic scrollbars.
-       */
-      if (app->environment().javaScript())
-	if (app->environment().agent() != WEnvironment::IE6)
-	  app->styleSheet().addRule("html, body", "overflow: hidden;");
-	else
-	  app->styleSheet().addRule("body", "overflow: hidden;");
+      app->setBodyClass("Wt-layout");
+      app->setHtmlClass("Wt-layout");
     }
 
     /*
@@ -616,6 +621,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    if (c->getProperty(PropertyStyleWidth).empty()
 		&& useFixedLayout_
 		&& !app->environment().agentIsWebKit()
+		&& !app->environment().agentIsGecko()
 		&& !c->isDefaultInline())
 	      c->setProperty(PropertyStyleWidth, "100%");
 	    break;

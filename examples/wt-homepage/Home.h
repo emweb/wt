@@ -21,12 +21,15 @@ namespace Wt {
 using namespace Wt;
 
 struct Lang {
-  Lang(std::string code, std::string path, std::string shortDescription, std::string longDescription) :
+  Lang(const std::string& code, const std::string& path,
+       const std::string& shortDescription,
+       const std::string& longDescription) :
     code_(code),
     path_(path),
     shortDescription_(shortDescription),
     longDescription_(longDescription) {
   }
+
   std::string code_, path_, shortDescription_, longDescription_;
 };
 
@@ -64,35 +67,37 @@ class Home : public WApplication
 {
 public:
   Home(const WEnvironment& env,
-      const std::string& resourceBundle, const std::string& cssPath);
+       const std::string& title,
+       const std::string& resourceBundle, const std::string& cssPath);
   
   virtual ~Home();
-
-  void refresh();
-  void logInternalPath();
 
 protected:
   virtual WWidget *examples() = 0;
   virtual WWidget *download() = 0;
+  virtual WWidget *sourceViewer(const std::string &deployPath) = 0;
+  virtual std::string filePrefix() const = 0;
 
   void init();
   
   void addLanguage(const Lang& l) { languages.push_back(l); }
-  
-  WTreeNode *makeTreeMap(const std::string name, WTreeNode *parent);
-  WTreeNode *makeTreeFile(const std::string name, WTreeNode *parent);
-  
+  WWidget *linkSourceBrowser(const std::string& examplePath);
+
   WTabWidget *examplesMenu_;
   
   WString tr(const char *key);
-  std::string href(const std::string url,
-			  const std::string description);
+  std::string href(const std::string& url, const std::string& description);
 
   WTable *releases_;
-  void readReleases(WTable *releaseTable, const std::string releasefile);
+  void readReleases(WTable *releaseTable);
 
 private:
+  WWidget *homePage_;
+  WWidget *sourceViewer_;
+
   WStackedWidget *contents_;
+
+  WWidget *initHome();
 
   WWidget *introduction();
   WWidget *news();
@@ -108,13 +113,15 @@ private:
 
   int language_;
 
-  void readNews(WTable *newsTable, const std::string newsfile);
+  void readNews(WTable *newsTable, const std::string& newsfile);
   
   WWidget *wrapViewOrDefer(WWidget *(Home::*createFunction)());
 
   void updateTitle();
   void setLanguage(int language);
-  void setLanguageFromPath(std::string prefix);
+  void setLanguageFromPath();
+  void setup();
+  void logInternalPath(const std::string& path);
 
   WContainerWidget *sideBarContent_;
   

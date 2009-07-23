@@ -887,7 +887,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
     app->styleSheet().addRule
       (".Wt-treeview img.icon",
-       "margin-right: 3px; vertical-align: middle");
+       "margin: -3px 3px -3px 0px; vertical-align: middle");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-node img.w0",
@@ -895,7 +895,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-node .c0 img",
-       "margin-right: 0px;");
+       "margin-right: 0px; margin: -3px 0px;");
 
     /* resize handles */
     app->styleSheet().addRule
@@ -930,7 +930,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh-nrh",
-       "float: right; width: 16px; margin-top: 6px; margin-right: 4px"
+       "float: right; width: 16px; margin-top: 6px; margin-right: 4px;"
        "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule

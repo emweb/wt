@@ -1,3 +1,11 @@
+23-07-2009
+	* WApplication: simplified the semantics of internal path API signal
+	internalPathChanged(). You may still use the old behavior by
+	defining the property oldInternalPathAPI.
+
+20-07-2009:
+	* WAxis: fix crash when dealing with negative values and a logscale axis
+
 17-07-2009:
 	* WServer, WGlobal: move WServer::Application and WServer::WidgetSet to
 	global enum

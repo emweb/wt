@@ -1,0 +1,383 @@
+/*
+ * Copyright (C) 2009 Emweb bvba
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include <iostream>
+#include <stdlib.h>
+#include <algorithm>
+
+#include <Wt/WApplication>
+#include <Wt/WContainerWidget>
+#include <Wt/WEnvironment>
+#include <Wt/WLineEdit>
+#include <Wt/WGridLayout>
+#include <Wt/WHBoxLayout>
+#include <Wt/WPushButton>
+#include <Wt/WTable>
+#include <Wt/WText>
+#include <Wt/WTreeView>
+#include <Wt/WVBoxLayout>
+#include <Wt/WViewWidget>
+
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/exception.hpp>
+#include <boost/filesystem/convenience.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include "ExampleSourceViewer.h"
+#include "FileItem.h"
+
+using namespace Wt; 
+namespace fs = boost::filesystem;
+
+// Same as p.filename() in latest boost::filesystem
+static std::string filename(const fs::path& p)
+{
+  return p.empty() ? std::string() : *--p.end();
+}
+
+// Same as p.stem() in latest boost::filesystem
+static std::string stem(const fs::path& p)
+{
+  std::string fn = filename(p);
+  std::size_t pos = fn.find('.');
+  if (pos == std::string::npos)
+    return fn;
+  else
+    return fn.substr(0, pos);
+}
+
+// Should be same as p.parent_path() in latest boost::filesystem
+// This is not entirely according to fs::path::parent_path() in 1.39.0
+fs::path parent_path(const fs::path& p)
+{
+  std::string fn = filename(p);
+  std::string path = p.string();
+
+  return path.substr(0, path.length() - fn.length() - 1);
+}
+
+static bool comparePaths(const fs::path& p1, const fs::path& p2)
+{
+  return filename(p1) > filename(p2);
+}
+
+ExampleSourceViewer::ExampleSourceViewer(const std::string& deployPath,
+					 const std::string& examplesRoot,
+					 const std::string& examplesType)
+  : deployPath_(deployPath),
+    examplesRoot_(examplesRoot),
+    examplesType_(examplesType)
+{
+  wApp->internalPathChanged().connect
+    (SLOT(this, ExampleSourceViewer::handlePathChange));
+
+  handlePathChange();
+}
+
+void ExampleSourceViewer::handlePathChange()
+{
+  WApplication *app = wApp;
+
+  if (app->internalPathMatches(deployPath_)) {
+    std::string example = app->internalPathNextPart(deployPath_);
+
+    if (example.find("..") != std::string::npos
+	|| example.find('/') != std::string::npos
+	|| example.find('\\') != std::string::npos)
+      setExample("INVALID_DIR", "INVALID");
+    else
+      setExample(examplesRoot_ + example, example);
+  }
+}
+
+void ExampleSourceViewer::setExample(const std::string& exampleDir,
+				     const std::string& example)
+{
+  clear();
+
+  bool exists = false;
+  try {
+    exists = fs::exists(exampleDir);
+  } catch (std::exception& e) {
+  }
+
+  if (!exists) {
+    addWidget(new WText("No such example: " + exampleDir));
+    return;
+  }
+
+  model_ = new WStandardItemModel(0, 1, this);
+  if (examplesType_ == "CPP") {
+    cppTraverseDir(model_->invisibleRootItem(), exampleDir);
+  } else if (examplesType_ == "JAVA") {
+    javaTraverseDir(model_->invisibleRootItem(), exampleDir);
+  }
+
+  WApplication::instance()->setTitle(tr("srcview.title." + example));
+  WText *title = 
+    new WText(tr("srcview.title." + examplesType_ + "." + example));
+
+  exampleView_ = new WTreeView();
+  exampleView_->setHeaderHeight(0);
+  exampleView_->resize(300, 300);
+  exampleView_->setSortingEnabled(false);
+  exampleView_->setModel(model_);
+  exampleView_->expandToDepth(1);
+  exampleView_->setSelectionMode(SingleSelection);
+  exampleView_->setAlternatingRowColors(false);
+  exampleView_->selectionChanged().connect
+    (SLOT(this, ExampleSourceViewer::showFile));
+
+  sourceView_ = new SourceView(FileItem::FileNameRole, 
+			       FileItem::ContentsRole,
+			       FileItem::FilePathRole);
+  sourceView_->setStyleClass("source-view");
+
+  /*
+   * Expand path to first file, to show something in the source viewer
+   */
+  WStandardItem *w = model_->item(0);
+  do {
+    exampleView_->setExpanded(w->index(), true);
+    if (w->rowCount() > 0)
+      w = w->child(0);
+    else {
+      exampleView_->select(w->index(), Select);
+      w = 0;
+    }
+  } while (w);
+
+  if (WApplication::instance()->environment().javaScript()) {
+    /*
+     * We have JavaScript: We can use layout managers so everything will
+     * always fit nicely in the window.
+     */
+    WVBoxLayout *topLayout = new WVBoxLayout();
+    topLayout->addWidget(title, 0, AlignTop | AlignJustify);
+
+    WHBoxLayout *gitLayout = new WHBoxLayout();
+    gitLayout->setLayoutHint("table-layout", "fixed");
+    gitLayout->addWidget(exampleView_, 0);
+    gitLayout->addWidget(sourceView_, 1);
+    topLayout->addLayout(gitLayout, 1);
+
+    setLayout(topLayout);
+    setStyleClass("maindiv");
+  } else {
+    /*
+     * No JavaScript: let's make the best of the situation using regular
+     * CSS-based layout
+     */
+    setStyleClass("maindiv");
+    addWidget(title);
+    addWidget(exampleView_);
+    exampleView_->setFloatSide(Left);
+    exampleView_->setMargin(6);
+    addWidget(sourceView_);
+    sourceView_->setMargin(6);
+  }
+}
+
+/*
+ * Return the companion implementation/header file for a C++ source file.
+ */
+static fs::path getCompanion(const fs::path& path) 
+{
+  std::string ext = fs::extension(path);
+
+  if (ext == ".h")
+    return parent_path(path) / (stem(path) + ".C");
+  else if (ext == ".C" || ext == ".cpp")
+    return parent_path(path) / (stem(path) + ".h");
+  else
+    return fs::path();
+}
+
+void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent, 
+					 const fs::path& path)
+{
+  static const char *supportedFiles[] = {
+    ".C", ".cpp", ".h", ".css", ".xml", ".png", ".gif", ".csv", ".ico", 0
+  };
+
+  FileItem* dir = new FileItem("icons/yellow-folder-open.png", filename(path),
+			       "");
+  parent->appendRow(dir);
+  parent = dir;
+  try {
+    std::set<fs::path> paths;
+
+    fs::directory_iterator end_itr;
+    for (fs::directory_iterator i(path); i != end_itr; ++i) 
+      paths.insert(*i);
+
+    std::vector<FileItem*> classes, files;
+    std::vector<fs::path> dirs;
+
+    while (!paths.empty()) {
+      fs::path p = *paths.begin();
+      paths.erase(p);
+
+      // skip symbolic links and other files
+      if (fs::is_symlink(p))
+	continue;
+
+      // skip files with an extension we do not want to handle
+      if (fs::is_regular(p)) {
+	std::string ext = fs::extension(p);
+	bool supported = false;
+	for (const char **s = supportedFiles; *s != 0; ++s)
+	  if (*s == ext) {
+	    supported = true;
+	    break;
+	  }
+	
+	if (!supported)
+	  continue;
+      }
+
+      // see if we have one file of a class (.C, .h)
+      fs::path companion = getCompanion(p);
+      if (!companion.empty()) {
+	std::set<fs::path>::iterator it_companion = paths.find(companion);
+ 
+	  if (it_companion != paths.end()) {
+	    std::string className = stem(p);
+	    escapeText(className);
+	    std::string label = "<i>class</i> " + className;
+
+	    FileItem *classItem = 
+	      new FileItem("icons/cppclass.png", label, std::string());
+	    classItem->setFlags(classItem->flags() | ItemIsXHTMLText);
+
+	    FileItem *header = new FileItem("icons/document.png", filename(p),
+					    p.string());
+	    FileItem *cpp = new FileItem("icons/document.png",
+					 filename(*it_companion),
+					 (*it_companion).string());
+	    classItem->appendRow(header);
+	    classItem->appendRow(cpp);
+	  
+	    classes.push_back(classItem);
+	    paths.erase(it_companion);
+	  } else {
+	    FileItem *file = new FileItem("icons/document.png", filename(p),
+					  p.string());
+	    files.push_back(file);
+	  }
+      } else if (fs::is_directory(p)) {
+	dirs.push_back(p);
+      } else {
+	FileItem *file = new FileItem("icons/document.png", filename(p),
+				      p.string());
+	files.push_back(file);
+      }
+    }
+
+    std::sort(dirs.begin(), dirs.end(), comparePaths);
+
+    for (unsigned int i = 0; i < classes.size(); i++)
+      parent->appendRow(classes[i]);
+
+    for (unsigned int i = 0; i < files.size(); i++)
+      parent->appendRow(files[i]);
+
+    for (unsigned int i = 0; i < dirs.size(); i++)
+      cppTraverseDir(parent, dirs[i]);
+  } catch (fs::filesystem_error& e) {
+    std::cerr << e.what() << std::endl;
+  }
+}
+
+void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
+					       const fs::path& srcPath,
+					       const std::string packageName)
+{
+  fs::directory_iterator end_itr;
+
+  FileItem *packageItem = 0;
+  for (fs::directory_iterator i(srcPath); i != end_itr; ++i) {
+    fs::path p = *i;
+    if (fs::is_regular(p)) {
+      if (!packageItem) {
+	packageItem = new FileItem("icons/package.png", packageName, "");
+	parent->appendRow(packageItem);
+      }
+
+      FileItem *file = new FileItem("icons/javaclass.png", filename(p),
+				    p.string());
+      packageItem->appendRow(file);
+    }
+  }
+
+  for (fs::directory_iterator i(srcPath); i != end_itr; ++i) {
+    fs::path p = *i;
+    if (fs::is_directory(p)) {  
+      std::string pn = packageName;
+      if (!pn.empty())
+	pn += ".";
+      pn += filename(p);
+
+      javaTraversePackages(parent, p, pn);
+    }
+  }
+}
+
+void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent, 
+					  const fs::path& path)
+{
+  FileItem* dir = new FileItem("icons/yellow-folder-open.png", filename(path),
+			       "");
+  parent->appendRow(dir);
+  parent = dir;
+
+  std::vector<fs::path> files, dirs;
+
+  fs::directory_iterator end_itr;
+  for (fs::directory_iterator i(path); i != end_itr; ++i) {
+    fs::path p = *i;
+    if (fs::is_directory(p)) {
+      if (filename(p) == "src") {
+	FileItem* dir = new FileItem("icons/package-folder-open.png",
+				     filename(p), "");
+	parent->appendRow(dir);
+	javaTraversePackages(dir, p, "");
+      } else
+	dirs.push_back(p);
+    } else {
+      files.push_back(p);
+    }
+  }
+
+  std::sort(dirs.begin(), dirs.end(), comparePaths);
+  std::sort(files.begin(), files.end(), comparePaths);
+
+  for (unsigned int i = 0; i < dirs.size(); i++)
+    javaTraverseDir(parent, dirs[i]);
+
+  for (unsigned int i = 0; i < files.size(); i++) {
+    FileItem *file = new FileItem("icons/document.png", filename(files[i]),
+				  files[i].string());
+    parent->appendRow(file);
+  }
+}
+
+/*! \brief Displayed the currently selected file.
+ */
+void ExampleSourceViewer::showFile() {
+  if (exampleView_->selectedIndexes().empty())
+    return;
+
+  WModelIndex selected = *exampleView_->selectedIndexes().begin();
+
+  // expand a folder when clicked
+  if (exampleView_->model()->rowCount(selected) > 0
+      && !exampleView_->isExpanded(selected))
+    exampleView_->setExpanded(selected, true);
+
+  // (for a file,) load data in source viewer
+  sourceView_->setIndex(selected);
+}

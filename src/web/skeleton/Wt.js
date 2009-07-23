@@ -162,6 +162,7 @@ pageCoordinates: function(e) {
 },
 
 isKeyPress: function(e) {
+  if (!e) e = window.event;
   if (e.altKey || e.ctrlKey || e.metaKey)
     return false;
 

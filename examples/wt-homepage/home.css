@@ -1,7 +1,3 @@
-.treenodechildcount {
-    color:blue;
-}
-
 .Wt-tabs {
     margin-top: 5px;
     margin-bottom: 0px;
@@ -48,6 +44,7 @@ td.sponsor-logo {
     text-align: center;
     vertical-align: middle;
     padding: 5px;
+    white-space: nowrap;
 }
 
 td.sponsor-role {

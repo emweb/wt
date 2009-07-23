@@ -159,6 +159,11 @@ WString WWidget::tr(const char *key)
   return WString::tr(key);
 }
 
+WString WWidget::tr(const std::string& key)
+{
+  return WString::tr(key);
+}
+
 void WWidget::acceptDrops(const std::string& mimeType,
 			  const WT_USTRING& hoverStyleClass)
 {

@@ -39,6 +39,7 @@ public:
   /*! \brief The role which may be used on a file to retrieve its contents.
    */
   static const int ContentsRole = Wt::UserRole;
+  static const int FilePathRole = Wt::UserRole + 1;
 
   /*! \brief Constructor.
    */

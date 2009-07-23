@@ -1,0 +1,10 @@
+/*
+ * threshold differs 80 (margins + border) + 18 (scrollbar)
+*/
+div#top_content, div#banner_content, div#main_content, div#footer_content {
+    width: expression(document.documentElement.offsetWidth > 848 ? (document.documentElement.offsetWidth < 1048 ? "auto" : "950px") : "750px");
+}
+
+html {
+  overflow-y: scroll !important;
+}

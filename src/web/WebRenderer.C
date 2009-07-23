@@ -181,8 +181,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 
   if (xhtml) {
     boot.setVar("HTMLATTRIBUTES",
-		"xmlns=\"http://www.w3.org/1999/xhtml\""
-		/*" xmlns:svg=\"http://www.w3.org/2000/svg\""*/);
+		"xmlns=\"http://www.w3.org/1999/xhtml\"");
     boot.setVar("METACLOSE", "/>");
     boot.setVar("AUTO_REDIRECT", "");
     boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
@@ -316,6 +315,13 @@ void WebRenderer::collectJavaScript()
     app->styleSheet().javaScriptUpdate(app, collectedJS1_, false);
 
   loadStyleSheets(collectedJS1_, app);
+
+  if (app->bodyHtmlClassChanged_) {
+    collectedJS1_ << "document.body.parentNode.className='"
+		  << app->htmlClass_ << "';"
+		  << "document.body.className='" << app->bodyClass_ << "';";
+    app->bodyHtmlClassChanged_ = false;
+  }
 
   /*
    * This opens scopes, waiting for new libraries to be loaded.
@@ -475,10 +481,17 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
   loadScriptLibraries(response.out(), app, true);
- 
+
   response.out() << std::endl << app->beforeLoadJavaScript();
 
   response.out() << "window.loadWidgetTree = function(){\n";
+
+  if (app->bodyHtmlClassChanged_) {
+    response.out() << "document.body.parentNode.className='"
+		   << app->htmlClass_ << "';"
+		   << "document.body.className='" << app->bodyClass_ << "';";
+    app->bodyHtmlClassChanged_ = false;
+  }
 
   std::string cvar;  
   {
@@ -594,20 +607,26 @@ void WebRenderer::serveMainpage(WebResponse& response)
 		"<input name='wtd' id='wtd' type='hidden' value='"
 		+ session_.sessionId() + "' />");
 
+  std::string htmlAttr = app->htmlClass_.empty()
+    ? "" : " class=\"" + app->htmlClass_ + "\"";
+
   if (xhtml) {
     page.setVar("HTMLATTRIBUTES",
 		"xmlns=\"http://www.w3.org/1999/xhtml\""
-		/*" xmlns:svg=\"http://www.w3.org/2000/svg\""*/);
+		+ htmlAttr);
     page.setVar("METACLOSE", "/>");
   } else {
     if (session_.env().agentIsIE())
       page.setVar("HTMLATTRIBUTES",
 		  "xmlns:v=\"urn:schemas-microsoft-com:vml\""
-		  " lang=\"en\" dir=\"ltr\"");
+		  " lang=\"en\" dir=\"ltr\"" + htmlAttr);
     else
-      page.setVar("HTMLATTRIBUTES", "lang=\"en\" dir=\"ltr\"");
+      page.setVar("HTMLATTRIBUTES", "lang=\"en\" dir=\"ltr\"" + htmlAttr);
     page.setVar("METACLOSE", ">");
   }
+
+  page.setVar("BODYATTRIBUTES", app->bodyClass_.empty()
+	      ? "" : " class=\"" + app->bodyClass_ + "\"");
 
   std::string url
     = (conf.sessionTracking() == Configuration::CookiesURL
@@ -726,6 +745,13 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
   loadScriptLibraries(response.out(), app, true);
  
+  if (app->bodyHtmlClassChanged_) {
+    response.out() << "document.body.parentNode.className='"
+		   << app->htmlClass_ << "';"
+		   << "document.body.className='" << app->bodyClass_ << "';";
+    app->bodyHtmlClassChanged_ = false;
+  }
+
   response.out() << std::endl << app->beforeLoadJavaScript();
 
   std::string cvar;

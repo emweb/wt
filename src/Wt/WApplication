@@ -591,10 +591,12 @@ public:
   /*! \brief Checks if the internal path matches a given path.
    *
    * Returns whether the current internalPath() starts with
-   * <i>path</i> (or is equal to <i>path</i>). This may be useful
-   * before changing <i>path</i> using setInternalPath() if you do not
-   * intend to remove sub paths when the current internal path already
-   * matches <i>path</i>.
+   * <i>path</i> (or is equal to <i>path</i>). You will typically use
+   * this method within a slot conneted to the internalPathChanged()
+   * signal, to check that an internal path change affects the
+   * widget. It may also be useful before changing <i>path</i> using
+   * setInternalPath() if you do not intend to remove sub paths when
+   * the current internal path already matches <i>path</i>.
    *
    * The <i>path</i> must start with a '/'.
    *
@@ -604,58 +606,11 @@ public:
 
   /*! \brief %Signal which indicates that the user changes the internal path.
    *
-   * This signal propagates changes to the internal path, which are
+   * This signal indicates a change to the internal path, which is
    * usually triggered by the user using the browser back/forward
    * buttons.
    *
-   * When the path changes, this signal is emitted for every prefix
-   * whose next path element has changed. The prefix is passed as the
-   * argument, and may be used by listening widgets to quickly
-   * determine if they need to respond to the path change. This also
-   * allows widgets to be created corresponding to each path element,
-   * and respond in their turn to further internal path changes.
-   *
-   * For example, when the path would change from
-   * <tt>"/mail/inbox/unread/5"</tt> to
-   * <tt>"/mail/addressbook/public/27"</tt>, this signal would be
-   * emitted three times, in the following sequence:
-   *
-   * <table style="margin: 0px auto;">
-   *   <tr>
-   *     <td><b>prefix</b></td>
-   *     <td><b>internalPath()</b></td>
-   *     <td><b>\link internalPathNextPart() internalPathNextPart(prefix)\endlink
-   *       </b></td>
-   *   </tr>
-   *   <tr>
-   *     <td><tt>"/mail/"</tt></td>
-   *     <td><tt>"/mail/addressbook"</tt></td>
-   *     <td><tt>"addressbook"</tt></td>
-   *   </tr>
-   *   <tr>
-   *     <td><tt>"/mail/addressbook/"</tt></td>
-   *     <td><tt>"/mail/addressbook/public"</tt></td>
-   *     <td><tt>"public"</tt></td>
-   *   </tr>
-   *   <tr>
-   *     <td><tt>"/mail/addressbook/public/"</tt></td>
-   *     <td><tt>"/mail/addressbook/public/27"</tt></td>
-   *     <td><tt>"27"</tt></td>
-   *   </tr>
-   * </table>
-   *
-   * When the application starts with a non-empty internal path, a
-   * patch switch is simulated from "/" to the initial path, after the
-   * application has been created.
-   * Therefore you have two options to deal with the initial internal path
-   * on application start up:
-   * - ignore the internal path when creating the application (perhaps even
-   *   using \link setInternalPath() setInternalPath("/")\endlink) and
-   *   respond to the initial change. This simplifies the initialization
-   *   of your application, at the potential cost of creating widgets that
-   *   were not necessary.
-   * - use the value of internalPath() to setup the application directly in
-   *   the state that corresponds to the internal path.
+   * The argument contains the new internal path.
    *
    * \sa setInternalPath()
    */
@@ -1119,6 +1074,22 @@ public:
    */
   bool isConnected() const { return connected_; }
 
+  /*
+   * Set a style class to the entire page &lt;body&gt;.
+   * (should be public API ?)
+   */
+  void setBodyClass(const std::string& styleClass);
+
+  /*
+   * Set a style class to the entire page.
+   * (should be public API ?)
+   */
+  void setHtmlClass(const std::string& styleClass);
+
+  /*
+   * Returns whether debug was configured.
+   * (should be public API ?)
+   */
   bool debug() const;
 
 protected:
@@ -1216,6 +1187,8 @@ private:
   WLoadingIndicator     *loadingIndicator_;
   WWidget               *loadingIndicatorWidget_;
   bool                   connected_;
+  std::string            htmlClass_, bodyClass_;
+  bool                   bodyHtmlClassChanged_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;
@@ -1261,8 +1234,12 @@ private:
   /*
    * Methods for application state handling
    */
-  bool              loadRsh();
-  void              changeInternalPath(const std::string& path);
+  bool loadRsh();
+  void changeInternalPath(const std::string& path);
+
+#ifdef WT_WITH_OLD_INTERNALPATH_API
+  bool oldInternalPathAPI() const;
+#endif // WT_WITH_OLD_INTERNALPATH_API
 
   void handleJavaScriptResponse(WResponseEvent event);
 
@@ -1295,6 +1272,7 @@ private:
   friend class JavaScriptEvent;
   friend class UpdateLockImpl;
   friend class WWidget;
+  friend class WMenu;
   friend class WTimer;
   friend class WResource;
   friend class WFileUpload;

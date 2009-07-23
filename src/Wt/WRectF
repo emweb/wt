@@ -50,6 +50,10 @@ public:
    */
   WRectF(const WPointF& topLeft, const WPointF& bottomRight);
 
+#ifdef WT_TARGET_JAVA
+  WRectF& operator= (const WRectF& rhs);
+#endif // WT_TARGET_JAVA
+
   bool operator== (const WRectF& rhs) const;
   bool operator!= (const WRectF& rhs) const;
 

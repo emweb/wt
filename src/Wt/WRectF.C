@@ -26,6 +26,18 @@ WRectF::WRectF(const WPointF& topLeft, const WPointF& topRight)
     height_(topRight.y() - topLeft.y())
 { }
 
+#ifdef WT_TARGET_JAVA
+WRectF& WRectF::operator=(const WRectF& rhs)
+{
+  x_ = rhs.x_;
+  y_ = rhs.y_;
+  width_ = rhs.width_;
+  height_ = rhs.height_;
+
+  return *this;
+}
+#endif // WT_TARGET_JAVA
+
 bool WRectF::operator==(const WRectF& rhs) const
 {
   return (x_ == rhs.x_ && y_ == rhs.y_

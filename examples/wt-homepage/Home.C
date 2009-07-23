@@ -9,6 +9,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <Wt/WAnchor>
 #include <Wt/WApplication>
@@ -20,14 +21,16 @@
 #include <Wt/WMenu>
 #include <Wt/WPushButton>
 #include <Wt/WStackedWidget>
+#include <Wt/WVBoxLayout>
 #include <Wt/WTabWidget>
 #include <Wt/WTable>
 #include <Wt/WTableCell>
 #include <Wt/WText>
-#include <Wt/WTreeNode>
 #include <Wt/WViewWidget>
 
 #include "Home.h"
+
+static const std::string SRC_INTERNAL_PATH = "src";
 
 /* Shortcut for a <div id=""> */
 class Div : public WContainerWidget
@@ -44,18 +47,21 @@ Home::~Home()
 {
 }
 
-Home::Home(const WEnvironment& env, 
-    const std::string& resourceBundle, const std::string& cssPath)
+Home::Home(const WEnvironment& env, const std::string& title,
+	   const std::string& resourceBundle, const std::string& cssPath)
   : WApplication(env),
     recentNews_(0),
     historicalNews_(0),
-    releases_(0)
+    releases_(0),
+    homePage_(0),
+    sourceViewer_(0)
 {
   messageResourceBundle().use(resourceBundle, false);
   useStyleSheet(cssPath + "/wt.css");
   useStyleSheet(cssPath + "/wt_ie.css", "lt IE 7");
   useStyleSheet("home.css");
-  setTitle("Wt, C++ Web Toolkit");
+  useStyleSheet("sourceview.css");
+  setTitle(title);
 
   setLocale("");
   language_ = 0;
@@ -63,7 +69,53 @@ Home::Home(const WEnvironment& env,
 
 void Home::init()
 {
-  Div *topWrapper = new Div(root(), "top_wrapper");
+  internalPathChanged().connect(SLOT(this, Home::setup));
+  internalPathChanged().connect(SLOT(this, Home::setLanguageFromPath));
+  internalPathChanged().connect(SLOT(this, Home::logInternalPath));
+
+  setup();
+}
+
+void Home::setup()
+{
+  /*
+   * This function switches between the two major components of the homepage,
+   * depending on the internal path:
+   * /src -> source viewer
+   * /... -> homepage
+   */
+  std::string base = internalPathNextPart("/");
+
+  if (base == SRC_INTERNAL_PATH) {
+    if (!sourceViewer_) {
+      delete homePage_;
+      homePage_ = 0;
+
+      root()->clear();
+
+      sourceViewer_ = sourceViewer("/" + SRC_INTERNAL_PATH + "/");
+      WVBoxLayout *layout = new WVBoxLayout();
+      layout->setContentsMargins(0, 0, 0, 0);
+      layout->addWidget(sourceViewer_);
+      root()->setLayout(layout);
+    }
+  } else {
+    if (!homePage_) {
+      delete sourceViewer_;
+      sourceViewer_ = 0;
+
+      root()->clear();
+
+      homePage_ = initHome();
+      root()->addWidget(homePage_);
+    }
+  }
+}
+
+WWidget *Home::initHome()
+{
+  WContainerWidget *result = new WContainerWidget(root());
+  Div *topWrapper = new Div(result, "top_wrapper");
   Div *topContent = new Div(topWrapper, "top_content");
 
   Div *languagesDiv = new Div(topContent, "top_languages");
@@ -82,10 +134,10 @@ void Home::init()
   topWt->setInline(false);
   topWt->setId("top_wt");
 
-  WText *bannerWt = new WText(tr("banner_wrapper"), root());
+  WText *bannerWt = new WText(tr("banner_wrapper"), result);
   bannerWt->setId("banner_wrapper");
 
-  Div *mainWrapper = new Div(root(), "main_wrapper");
+  Div *mainWrapper = new Div(result, "main_wrapper");
   Div *mainContent = new Div(mainWrapper, "main_content");
   Div *mainMenu = new Div(mainContent, "main_menu");
 
@@ -95,7 +147,6 @@ void Home::init()
   mainMenu_ = new WMenu(contents, Vertical, mainMenu);
   mainMenu_->setRenderAsList(true);
 
-  // Use "/" instead of "/introduction/" as internal path
   mainMenu_->addItem
     (tr("introduction"), introduction())->setPathComponent("");
   mainMenu_->addItem
@@ -109,7 +160,7 @@ void Home::init()
      WMenuItem::PreLoading);
   mainMenu_->addItem
     (tr("examples"), examples(),
-     WMenuItem::PreLoading);
+     WMenuItem::PreLoading)->setPathComponent("examples/");
   mainMenu_->addItem
     (tr("download"), deferCreate(boost::bind(&Home::download, this)),
      WMenuItem::PreLoading);
@@ -118,7 +169,6 @@ void Home::init()
      WMenuItem::PreLoading);
 
   mainMenu_->itemSelectRendered().connect(SLOT(this, Home::updateTitle));
-  mainMenu_->itemSelected().connect(SLOT(this, Home::logInternalPath));
   mainMenu_->select((int)0);
 
   // Make the menu be internal-path aware.
@@ -131,78 +181,72 @@ void Home::init()
   WContainerWidget *clearAll = new WContainerWidget(mainContent);
   clearAll->setStyleClass("clearall");
 
-  WText *footerWrapper = new WText(tr("footer_wrapper"), root());
+  WText *footerWrapper = new WText(tr("footer_wrapper"), result);
   footerWrapper->setId("footer_wrapper");
 
-  internalPathChanged().connect(SLOT(this, Home::setLanguageFromPath));
+  return result;
 }
 
 void Home::setLanguage(int index)
 {
-  const Lang& l = languages[index];
+  if (homePage_) {
+    const Lang& l = languages[index];
 
-  setLocale(l.code_);
+    setLocale(l.code_);
 
-  std::string langPath = l.path_;
-  mainMenu_->setInternalBasePath(langPath);
-  examplesMenu_->setInternalBasePath(langPath + "examples");
-  updateTitle();
+    std::string langPath = l.path_;
+    mainMenu_->setInternalBasePath(langPath);
+    examplesMenu_->setInternalBasePath(langPath + "examples");
+    updateTitle();
 
-  language_ = index;
+    language_ = index;
+  }
 }
 
-void Home::setLanguageFromPath(std::string prefix)
+WWidget *Home::linkSourceBrowser(const std::string& example)
 {
-  if (prefix == "/") {
-    std::string langPath = internalPathNextPart(prefix);
+  WAnchor *a = new WAnchor("", tr("source-browser"));
+  a->setRefInternalPath("/" + SRC_INTERNAL_PATH + "/" + example);
+  return a;
+}
 
-    if (langPath.empty())
-      langPath = '/';
-    else
-      langPath = '/' + langPath + '/';
+void Home::setLanguageFromPath()
+{
+  std::string langPath = internalPathNextPart("/");
 
-    int newLanguage = 0;
+  if (langPath.empty())
+    langPath = '/';
+  else
+    langPath = '/' + langPath + '/';
 
-    for (unsigned i = 0; i < languages.size(); ++i) {
-      if (languages[i].path_ == langPath) {
-	newLanguage = i;
-	break;
-      }
+  int newLanguage = 0;
+
+  for (unsigned i = 0; i < languages.size(); ++i) {
+    if (languages[i].path_ == langPath) {
+      newLanguage = i;
+      break;
     }
-
-    if (newLanguage != language_)
-      setLanguage(newLanguage);
   }
+
+  if (newLanguage != language_)
+    setLanguage(newLanguage);
 }
 
 void Home::updateTitle()
 {
-  setTitle(tr("wt") + " - " + mainMenu_->currentItem()->text());
+  if (mainMenu_->currentItem())
+    setTitle(tr("wt") + " - " + mainMenu_->currentItem()->text());
 }
 
-void Home::logInternalPath()
+void Home::logInternalPath(const std::string& path)
 {
   // simulate an access log for the interal paths
-  log("path") << internalPath();
+  log("path") << path;
 }
 
 WWidget *Home::introduction()
 {
   return new WText(tr("home.intro"));
-}
-
-void Home::refresh()
-{
-  if (recentNews_)
-    readNews(recentNews_, "latest-news.txt");
-
-  if (historicalNews_)
-    readNews(historicalNews_, "historical-news.txt");
-
-  if (releases_)
-    readReleases(releases_, "releases.txt");
-
-  WApplication::refresh();
 }
 
 WWidget *Home::news()
@@ -213,12 +257,12 @@ WWidget *Home::news()
 
   result->addWidget(new WText(tr("home.latest-news")));
   recentNews_ = new WTable();
-  readNews(recentNews_, "latest-news.txt");
+  readNews(recentNews_, filePrefix() + "latest-news.txt");
   result->addWidget(recentNews_);
 
   result->addWidget(new WText(tr("home.historical-news")));
   historicalNews_ = new WTable();
-  readNews(historicalNews_, "historical-news.txt");
+  readNews(historicalNews_, filePrefix() + "historical-news.txt");
   result->addWidget(historicalNews_);
 
   return result;
@@ -256,7 +300,7 @@ WWidget *Home::wrapViewOrDefer(WWidget *(Home::*createWidget)())
     return deferCreate(boost::bind(createWidget, this));
 }
 
-std::string Home::href(const std::string url, const std::string description)
+std::string Home::href(const std::string& url, const std::string& description)
 {
   return "<a href=\"" + url + "\" target=\"_blank\">" + description + "</a>";
 }
@@ -266,7 +310,7 @@ WWidget *Home::community()
   return new WText(tr("home.community"));
 }
 
-void Home::readNews(WTable *newsTable, const std::string newsfile)
+void Home::readNews(WTable *newsTable, const std::string& newsfile)
 {
   std::ifstream f(newsfile.c_str());
 
@@ -299,9 +343,9 @@ void Home::readNews(WTable *newsTable, const std::string newsfile)
   }
 }
 
-void Home::readReleases(WTable *releaseTable, const std::string releasefile)
+void Home::readReleases(WTable *releaseTable)
 {
-  std::ifstream f(releasefile.c_str());
+  std::ifstream f((filePrefix() + "releases.txt").c_str());
 
   releaseTable->clear();
 
@@ -312,7 +356,7 @@ void Home::readReleases(WTable *releaseTable, const std::string releasefile)
   releaseTable->elementAt(0, 2)
     ->addWidget(new WText(tr("home.download.description")));
 
-  releaseTable->elementAt(0, 0)->resize(WLength(10, WLength::FontEx),
+  releaseTable->elementAt(0, 0)->resize(WLength(15, WLength::FontEx),
 					WLength::Auto);
   releaseTable->elementAt(0, 1)->resize(WLength(15, WLength::FontEx),
 					WLength::Auto);
@@ -330,45 +374,17 @@ void Home::readReleases(WTable *releaseTable, const std::string releasefile)
 
       CsvTokenizer::iterator i=tok.begin();
 
-      std::string version = *i;
+      std::string fileName = *i;
+      std::string description = *(++i);
       releaseTable->elementAt(row, 0)->addWidget
-	(new WText(href("http://prdownloads.sourceforge.net/witty/wt-"
-			+ version + ".tar.gz?download", "Wt " + version)));
+	(new WText(href("http://prdownloads.sourceforge.net/witty/" 
+			+ fileName + "?download", description)));
       releaseTable->elementAt(row, 1)->addWidget(new WText(*(++i)));
       releaseTable->elementAt(row, 2)->addWidget(new WText(*(++i)));
 
       ++row;
     }
   }
-}
-
-WTreeNode *Home::makeTreeMap(const std::string name, WTreeNode *parent)
-{
-  WIconPair *labelIcon
-    = new WIconPair("icons/yellow-folder-closed.png",
-		    "icons/yellow-folder-open.png", false);
-
-  WTreeNode *node = new WTreeNode(name, labelIcon, parent);
-  node->label()->setTextFormat(PlainText);
-
-  if (!parent) {
-    node->setImagePack("icons/");
-    node->expand();
-    node->setLoadPolicy(WTreeNode::NextLevelLoading);
-  }
-
-  return node;
-}
-
-WTreeNode *Home::makeTreeFile(const std::string name, WTreeNode *parent)
-{
-  WIconPair *labelIcon
-    = new WIconPair("icons/document.png",
-		    "icons/yellow-folder-open.png", false);
-
-  return new WTreeNode("<a href=\"" + fixRelativeUrl("wt/src/" + name)
-		       + "\" target=\"_blank\">"
-		       + name + "</a>", labelIcon, parent);
 }
 
 WString Home::tr(const char *key)

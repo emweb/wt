@@ -6,217 +6,80 @@
 
 #include "WtHome.h"
 
-#include <Wt/WText>
-#include <Wt/WTreeNode>
-#include <Wt/WWidget>
-#include <Wt/WViewWidget>
-#include <Wt/WTabWidget>
-#include <Wt/WMenuItem>
-#include <Wt/WTable>
+#include <Wt/WAnchor>
 #include <Wt/WEnvironment>
 #include <Wt/WLogger>
+#include <Wt/WMenuItem>
+#include <Wt/WTable>
+#include <Wt/WTabWidget>
+#include <Wt/WText>
+#include <Wt/WTreeNode>
+#include <Wt/WViewWidget>
+#include <Wt/WWidget>
+
+#include "ExampleSourceViewer.h"
 
 WtHome::WtHome(const WEnvironment& env)
-  : Home(env, "wt-home", "css/wt")
+  : Home(env, "Wt, C++ Web Toolkit", "wt-home", "css/wt")
 {
   addLanguage(Lang("en", "/", "en", "English"));
   addLanguage(Lang("cn", "/cn/", "汉语", "中文 (Chinese)"));
 
+  char* wtExamplePath  = getenv("WT_EXAMPLE_PATH");
+  if (wtExamplePath)
+    wtExamplePath_ = wtExamplePath;
+  else
+    wtExamplePath_ = "../";
+
   init();
+}
+
+WWidget *WtHome::example(const char *textKey, const std::string& sourceDir)
+{
+  WContainerWidget *result = new WContainerWidget();
+  new WText(tr(textKey), result);
+  result->addWidget(linkSourceBrowser(sourceDir));
+  return result;
 }
 
 WWidget *WtHome::helloWorldExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.hello"), result);
-
-  WTreeNode *tree = makeTreeMap("Hello world", 0);
-  makeTreeFile("hello.C", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
+  return example("home.examples.hello", "hello");
 }
 
 WWidget *WtHome::chartExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.chart"), result);
-
-  WTreeNode *tree = makeTreeMap("Chart example", 0);
-  WTreeNode *chartsExample = makeTreeMap("class ChartsExample", tree);
-  makeTreeFile("ChartsExample.h", chartsExample);
-  makeTreeFile("ChartsExample.C", chartsExample);
-  WTreeNode *chartConfig = makeTreeMap("class ChartConfig", tree);
-  makeTreeFile("ChartConfig.h", chartConfig);
-  makeTreeFile("ChartConfig.C", chartConfig);
-  WTreeNode *panelList = makeTreeMap("class PanelList", tree);
-  makeTreeFile("PanelList.h", panelList);
-  makeTreeFile("PanelList.C", panelList);
-  makeTreeFile("CsvUtil.C", tree);
-  makeTreeFile("charts.xml", tree);
-  makeTreeFile("charts.css", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
+  return example("home.examples.chart", "charts");
 }
 
 WWidget *WtHome::homepageExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.wt"), result);
-
-  WTreeNode *tree = makeTreeMap("Wt Homepage", 0);
-  WTreeNode *home = makeTreeMap("class Home", tree);
-  makeTreeFile("Home.h", home);
-  makeTreeFile("Home.C", home);
-  WTreeNode *treeexample = makeTreeMap("class TreeListExample", tree);
-  makeTreeFile("TreeListExample.h", treeexample);
-  makeTreeFile("TreeListExample.C", treeexample);
-  makeTreeFile("wt-home.xml", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
+  return example("home.examples.wt", "wt-homepage");
 }
 
 WWidget *WtHome::treeviewExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.treeview"), result);
-
-  WTreeNode *tree = makeTreeMap("Treeview example", 0);
-
-  WTreeNode *classMap;
-  classMap = makeTreeMap("class FolderView", tree);
-  makeTreeFile("FolderView.h", classMap);
-  makeTreeFile("FolderView.C", classMap);
-  makeTreeFile("TreeViewDragDrop.C", tree);
-  makeTreeFile("CsvUtil.C", tree);
-  makeTreeFile("about.xml", tree);
-  makeTreeFile("styles.css", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
+  return example("home.examples.treeview", "treeview-dragdrop");
 }
 
 WWidget *WtHome::gitExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.git"), result);
-
-  WTreeNode *tree = makeTreeMap("Git example", 0);
-
-  WTreeNode *classMap;
-  classMap = makeTreeMap("class GitModel", tree);
-  makeTreeFile("GitModel.h", classMap);
-  makeTreeFile("GitModel.C", classMap);
-  classMap = makeTreeMap("class Git", tree);
-  makeTreeFile("Git.h", classMap);
-  makeTreeFile("Git.C", classMap);
-  makeTreeFile("GitView.C", tree);
-  makeTreeFile("gitview.css", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
+  return example("home.examples.git", "gitmodel");
 }
 
 WWidget *WtHome::chatExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.chat"), result);
-
-  WTreeNode *tree = makeTreeMap("Chat example", 0);
-
-  WTreeNode *classMap;
-  classMap = makeTreeMap("class SimpleChatWidget", tree);
-  makeTreeFile("SimpleChatWidget.h", classMap);
-  makeTreeFile("SimpleChatWidget.C", classMap);
-  classMap = makeTreeMap("class SimpleChatServer", tree);
-  makeTreeFile("SimpleChatServer.h", classMap);
-  makeTreeFile("SimpleChatServer.C", classMap);
-  makeTreeFile("simpleChat.C", tree);
-  makeTreeFile("simplechat.css", tree);
-  makeTreeFile("simplechat.xml", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
+  return example("home.examples.chat", "simplechat");
 }
 
 WWidget *WtHome::composerExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.composer"), result);
-
-  WTreeNode *tree = makeTreeMap("Mail composer example", 0);
-
-  WTreeNode *classMap;
-  classMap = makeTreeMap("class AddresseeEdit", tree);
-  makeTreeFile("AddresseeEdit.h", classMap);
-  makeTreeFile("AddresseeEdit.C", classMap);
-  classMap = makeTreeMap("class AttachmentEdit", tree);
-  makeTreeFile("AttachmentEdit.h", classMap);
-  makeTreeFile("AttachmentEdit.C", classMap);
-  classMap = makeTreeMap("class ComposeExample", tree);
-  makeTreeFile("ComposeExample.h", classMap);
-  makeTreeFile("ComposeExample.C", classMap);
-  classMap = makeTreeMap("class Composer", tree);
-  makeTreeFile("Composer.h", classMap);
-  makeTreeFile("Composer.C", classMap);
-  classMap = makeTreeMap("class ContactSuggestions", tree);
-  makeTreeFile("ContactSuggestions.h", classMap);
-  makeTreeFile("ContactSuggestions.C", classMap);
-  classMap = makeTreeMap("class Label", tree);
-  makeTreeFile("Label.h", classMap);
-  makeTreeFile("Label.C", classMap);
-  classMap = makeTreeMap("class Option", tree);
-  makeTreeFile("Option.h", classMap);
-  makeTreeFile("Option.C", classMap);
-  classMap = makeTreeMap("class OptionList", tree);
-  makeTreeFile("OptionList.h", classMap);
-  makeTreeFile("OptionList.C", classMap);
-  makeTreeFile("Contact.h", tree);
-  makeTreeFile("Attachment.h", tree);
-  makeTreeFile("composer.xml", tree);
-  makeTreeFile("composer.css", tree);
-
-  tree->expand();
-
-  result->addWidget(tree);
-
-  return result;
+  return example("home.examples.composer", "composer");
 }
 
 WWidget *WtHome::widgetGalleryExample()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  new WText(tr("home.examples.widgetgallery"), result);
-
-  return result;
+  return example("home.examples.widgetgallery", "widgetgallery");
 }
 
 WWidget *WtHome::examples()
@@ -245,13 +108,12 @@ WWidget *WtHome::examples()
    * loaded.
    */
 
-  // The call ->setPathComponent() is to use "/examples" instead of
+  // The call ->setPathComponent() is to use "/examples/" instead of
   // "/examples/hello_world" as internal path
   examplesMenu_->addTab(wrapViewOrDefer(&WtHome::helloWorldExample),
 			tr("hello-world"))->setPathComponent("");
-
   examplesMenu_->addTab(wrapViewOrDefer(&WtHome::chartExample),
-			tr("charts"));
+  			tr("charts"));
   examplesMenu_->addTab(wrapViewOrDefer(&WtHome::homepageExample),
 			tr("wt-homepage"));
   examplesMenu_->addTab(wrapViewOrDefer(&WtHome::treeviewExample),
@@ -264,8 +126,6 @@ WWidget *WtHome::examples()
 			tr("mail-composer"));
   examplesMenu_->addTab(wrapViewOrDefer(&WtHome::widgetGalleryExample),
 			tr("widget-gallery"));
-
-  examplesMenu_->currentChanged().connect(SLOT(this, Home::logInternalPath));
 
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled();
@@ -284,7 +144,7 @@ WWidget *WtHome::download()
   result->addWidget(new WText(tr("home.download.packages")));
 
   releases_ = new WTable();
-  readReleases(releases_, "releases.txt");
+  readReleases(releases_);
   result->addWidget(releases_);
 
   result->addWidget
@@ -295,6 +155,11 @@ WWidget *WtHome::download()
 	       + "</p>"));
 
   return result;
+}
+
+WWidget *WtHome::sourceViewer(const std::string& deployPath)
+{
+  return new ExampleSourceViewer(deployPath, wtExamplePath_ + "/", "CPP");
 }
 
 WWidget *WtHome::wrapViewOrDefer(WWidget *(WtHome::*createWidget)())

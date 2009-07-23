@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Wim Dumon, Koen Deforche
+ * Copyright (C) 2008 Emweb bvba, Heverlee, Belgium.
  *
  * See the LICENSE file for terms of use.
  */

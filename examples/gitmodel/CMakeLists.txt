@@ -2,6 +2,7 @@ IF(NOT WIN32)
   ADD_EXECUTABLE(gitview.wt
     Git.C
     GitModel.C
+    ../wt-homepage/SourceView.C
     GitView.C
   )
   TARGET_LINK_LIBRARIES(gitview.wt ${EXAMPLES_CONNECTOR})

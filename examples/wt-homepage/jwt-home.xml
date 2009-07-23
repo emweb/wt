@@ -1,0 +1,679 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="top_wt">
+      <a href="http://www.emweb.be/">
+	<img src="/css/jwt/emweb_powered.jpg" alt="Emweb" height="22" />
+      </a> 
+  </message>
+
+  <message id="banner_wrapper">
+    <div id="banner_content">
+      <div id="banner_end"> <div id="banner"><a href="#">JWt</a></div> </div>
+    </div>
+  </message>
+
+  <message id="footer_wrapper">
+    <div id="footer_content">
+      <div id="footer_copyright"> 
+	<a href="http://www.emweb.be/">
+	  <img src="/css/jwt/emweb_large.jpg" height="25" width="101"
+	       alt="Emweb.be" title="emweb.be"/></a>
+	Solutions for web-based systems<br/>
+	<a href="http://www.emweb.be/">www.emweb.be</a>
+      </div>
+
+      <div id="footer_menu"> 
+	<a href="http://www.webtoolkit.eu/wt/">Home</a>
+	| <a href="http://www.emweb.be/?page=contact">Contact</a>
+      </div>
+      <div class="clearall"></div>
+    </div>
+    <script src="http://www.google-analytics.com/ga.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var pageTracker = _gat._getTracker('UA-4345578-1');
+      pageTracker._initData();
+      pageTracker._trackPageview();
+    </script>
+  </message>
+
+  <message id="wt">JWt, Java Web Toolkit</message>
+
+  <message id="introduction">Introduction</message>
+  <message id="news">News</message>
+  <message id="features">Features</message>
+  <message id="documentation">Documentation</message>
+  <message id="examples">Examples</message>
+  <message id="download">Download</message>
+  <message id="community">Community</message>
+
+  <message id="hello-world">Hello world</message>
+  <message id="charts">Charts</message>
+  <message id="wt-homepage">Wt homepage</message>
+  <message id="treeview">Treeview</message>
+  <message id="git">Git explorer</message>
+  <message id="chat">Chat</message>
+  <message id="mail-composer">Mail composer</message>
+  <message id="widget-gallery">Widget gallery</message>
+
+  <message id="home.news">
+    <h3><span>News</span></h3>
+  </message>
+  <message id="home.latest-news">
+    <h4><span>Latest News</span></h4>
+  </message>
+  <message id="home.historical-news">
+    <h4><span>Historical News</span></h4>
+  </message>
+  
+  <message id="source-browser">
+    Browse the source code
+  </message>
+
+  <message id="src-title">
+    <div>
+    </div>
+  </message>
+
+
+  <message id="home.intro">
+
+<h3><span>JWt: an introduction</span></h3>
+
+<p>JWt is a Java library for developing web applications. The library
+uses the standard Java Servlet infrastructure, and therefore, a JWt
+web application may be easily deployed in existing servlet containers
+or JEE web application servers.</p>
+
+<p>The API is widget-centric, and inspired by existing Graphical User
+Interface (GUI) APIs: a widget is a self-contained class which
+encapsulates all rendering and event handling related to a user
+interface element. To the developer, the library offers complete
+abstraction of web-specific implementation details, including event
+handling and graphics support, while keeping web semantics of URLs,
+bookmarks, and forward/backword navigation and therefore also search
+engine interopability.</p>
+
+<p>JWt is not a modern web application framework that differs in many
+ways from the traditional page-based frameworks (such as those based
+on JSP or templates). These frameworks do not make abstraction of the
+peculiarities of the underlying technologies (HTML/XHTML, JavaScript,
+CSS, AJAX, Forms, DHTML, SVG/VML/Canvas) and therefore a developer
+must gain familiarity with all of these (evolving) technologies in
+order to take advantage of them. When committing to using any of these
+technologies (such the currently popular AJAX), the developer is also
+responsible for graceful degradation when AJAX or JavaScript are not
+available or disabled. Page-based frameworks also structure the
+application following the page-centric paradigm of early day HTML, and
+therefore as a developer you will need to design and maintain manually
+your client-server communication when using advanced AJAX
+techniques.</p>
+
+<p>Generating HTML code or filling HTML templates is prone to security
+problems such as XSS (Cross-Site-Scripting), by inadvertedly allowing
+that JavaScript code, injected by another user, is executed in a
+page. Template-based web application frameworks are in a poor position
+to avoid these problems because as a developer you do need to be able
+to insert self-written JavaScript.</p>
+
+<p>In contrast, a web application developed with JWt is written in
+only one compiled language (Java) from which the library generates the
+necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and AJAX
+code. The responsibility of writing secure and browser-portable web
+applications is handled by JWt. For example, if available, JWt will
+maximally use JavaScript and AJAX, but applications developed using
+JWt will also function correctly when AJAX is not available, or when
+JavaScript is disabled, reverting to a plain HTML/CGI mechanism for
+communication between browser and server. By default, JWt will protect
+against common web security problems such as XSS or CSRF.</p>
+
+<h4>Typical use scenarios:</h4>
+
+<ul>
+  <li>Web-based <b>enterprise applications</b> with a database backend
+    that require a responsive and dynamic user interface.</li>
+  <li>Web applications which maximally benefit from modern browser
+    capabilities but with <b>graceful degradation</b> to adhere to W3C
+    accessibility guidelines and be search engine friendly.</li>
+  <li>Porting of <b>Java desktop applications</b> to the web.</li>
+</ul>
+
+<h4>Some benefits of using JWt</h4>
+
+<ul>
+  <li>The library allows you to develop web applications much like you
+    develop Java desktop applications, using your favourite JVM
+    programming language, while benefitting fully from the powerful
+    tools available for (Java) development such as flexible debugging
+    and source code refactoring.</li>
+  <li>There are no fragile string-based bindings of parameters in
+    templates or XML files, nor do you need to implement tedious (and
+    security critical) request/response controller logic.</li>
+  <li>Just a library: no need for new conventions which imply behavior
+    or requirements for organizing your source code.</li>
+  <li>JWt applications have automatic fall-back for non-JavaScript
+    browsers where possible, allowing you to create fully accessible
+    applications, which benefit from AJAX where available.</li>
+  <li>The toolkit generates standards compliant HTML or XHTML code.</li>
+  <li>You can include dynamic graphics using a portable, anti-aliased
+    graphics API that uses inline VML, inline SVG or HTML 5 canvas.</li>
+  <li>The library provides sophisticated high-level widgets that allow
+    plotting of charts and visualising complex tree structures.</li>
+  <li>Avoid XSS security risks since JWt has complete control over the
+    presentation layer and proactively filters out <i>active</i> tags
+    and attributes. There is no exposure of business logic which stays
+    entirely at the server, and no need for exposing your data using a
+    REST API.</li>
+  <li>Highly optimized load time and low bandwidth usage, which are
+    affected only by screen complexity but not by application size or
+    bulky JavaScript libraries.</li>
+  <li>Integrates well with modern object relational mapping techniques such
+    as the Java Persistence API (e.g. Hibernate).</li>
+</ul>
+
+  </message>
+  <message id="home.features">
+
+<h3><span>Features</span></h3>
+
+<h4>Core library</h4>
+
+<ul>
+  <li>Supports all major browsers (Firefox/Gecko, Internet Explorer,
+    Safari, Konqueror, and Opera) but also browsers that do not support
+    JavaScript (tested with Links and Lynx).</li>
+  <li>Simple deployment in standard servlet containers and JEE
+    application servers. </li>
+  <li>Equal behavior with or without support for JavaScript or AJAX,
+    as far as possible.</li>
+  <li>Incremental rendering of changes to the web page, when AJAX
+    is available.</li>
+  <li>Two-phased rendering of changes to the web page, with first
+    visible, and in the background invisible changes (when AJAX is
+    available). When AJAX is not available, only visible contents is
+    rendered.</li>
+  <li>Support for browser history navigation (back/forward buttons and
+    bookmarks), pretty URLs, and search engine optimization through a
+    flexible internal path API.</li>
+  <li>Widget centric API that promotes component reuse and increases
+    productivity.</li>
+</ul>
+
+<h4>Event handling</h4>
+
+<ul>
+  <li>Uses an event listener system for server-side event handling, 
+    comparable to Java GUI frameworks (SWT, Swing).</li>
+  <li>Listen for keyboard, mouse, focus and scroll events, and get
+    event details (such as mouse position, modifier buttons, or
+    keyboard key).</li>
+  <li>Automatic synchronization of form field state.</li>
+  <li>Possibility to hook in custom JavaScript (e.g. for client-side
+    only event handling), and <i>emit</i> Java signals from this
+    custom JavaScript.</li>
+  <li>Flexible Drag&amp;Drop API.</li>
+</ul>
+
+<h4>Native painting system</h4>
+
+<ul>
+  <li>Unified painting API which uses the browsers native (vector)
+    graphics support (inline VML, inline SVG, or HTML 5 canvas).</li>
+  <li>Supports arbitrary painter paths, clipping, text, images,
+    transformations, and stroke and fill styling.</li>
+  <li>Uses the painting API in conjunction with a WPaintedWidget, or
+    directly using the SVGImage paint device.</li>
+</ul>
+
+<h4>GUI components</h4>
+
+<ul>
+  <li>Basic widgets: buttons, HTML anchors, checkboxes and radio
+    buttons, combo boxes, containers, file upload control, images,
+    labels, line edits, buttons, etc..</li>
+  <li>Form widgets have built-in support for client-side and
+    server-side validation using WValidator classes.</li>
+  <li>Composite widgets (that are built on top of basic widgets, and
+    use only the JWt public API): calendars, sliders, trees and tree
+    tables, (popup-)menus, in-place edits, virtual images, panels.</li>
+  <li>Modal and non-modal dialogs and message boxes.</li>
+  <li>Built-in internationalization using messages resource bundles.</li>
+  <li>CSS either inline, or using internal or external style sheets.</li>
+  <li>Flexible charting widgets (cartesian charts and pie charts)
+    based on the native painting API, and JWt's MVC infrastructure.</li>
+</ul>
+
+<h4>Built-in security</h4>
+
+<ul>
+  <li>Enables continuous use of HTTPS through low bandwidth
+    requirements.</li>
+  <li>Built-in Cross-Site Scripting (XSS) prevention. Rendered text is
+    always filtered against potentially malicious code, making XSS
+    attacks against JWt applications (close to) impossible.</li>
+  <li>Not vulnerable to Cross-site Request Forgery (CSRF) because
+    cookies for session tracking are optional, and even when used, they
+    are never solely relied on for requests that trigger event handling
+    code.</li>
+</ul>
+
+<h4>Deployment</h4>
+<ul>
+  <li>Integrates with servlet containers (Tomcat, Jetty) and application
+    servers (JBoss).</li>
+  <li>Consists out of (currently four) jar files that need to be
+    included in the IDE or used in war/ear archives.</li>
+  <li>No XML, except for JEE's web.xml or message resource bundles.</li>
+</ul>
+
+  </message>
+  <message id="home.examples">
+
+<h3><span>Examples</span></h3>
+
+<p>Explore some live examples of JWt below.</p>
+
+<p>
+  The source code of these examples is included in the JWt source
+  distribution. You may also browse through the source code of each
+  example in the tree widget.
+</p>
+
+  </message>
+
+  <message id="home.examples.hello">
+<div>
+<h4 class="example">Hello world!</h4>
+
+<p>The most ubiquitous of all examples:
+<a href="http://jwt.emweb.be/jwt-hello" target="_blank">Hello world</a>.</p>
+
+<p>This simple example illustrates basic JWt concepts:</p>
+<ul>
+  <li>
+    How to bootstrap a new JWt application.
+  </li>
+  <li>
+    <b>Creating widgets</b>, and adding it to <b>the widget tree</b>.
+  </li>
+  <li>
+    Reacting to events using <b>event listeners</b>.
+  </li>
+  <li>
+    Reading widget state (such as line edit text) and updating widgets.
+  </li>
+</ul>
+
+<p>Browse the source code:</p>
+</div>
+  </message>
+
+  <message id="home.examples.treeview">
+<div>
+<h4 class="example">Treeview</h4>
+<p>
+  <a href="http://jwt.emweb.be/jwt-treeviewdragdrop/treeviewdragdrop" target="_blank">
+  This example</a> demonstrates the following features:
+</p>
+<ul>
+  <li>
+    Using a WTreeView
+    for rendering a model in a tree or a table. WTreeView displays
+    tree-tables (i.e. a tree in the first column with a number of
+    additional columns), and so a tree and table are two degenerate
+    cases.
+  </li>
+  <li>
+    The use of WSortFilterProxyModel to implement sorting and
+    filtering of another model.
+  </li>
+  <li>
+    How to implement drag and drop from a selection of items.
+  </li>
+  <li>
+    Using nested layout managers (horizontal and vertical WBoxLayout)
+    for an automatic window-filling layout.
+  </li>
+  <li>
+    Since WTreeView does not yet support inline editing, how to use a
+    modal WDialog to present a simple form, using a WGridLayout for layout.
+  </li>
+  <li>
+    How to show a context-sensitive WPopupMenu.
+  </li>
+</ul>
+<p>Browse the source code:</p>
+</div>
+  </message>
+
+  <message id="home.examples.chart">
+<div>
+<h4 class="example">Charts example</h4>
+
+<p><a href="http://jwt.emweb.be/jwt-charts/charts" target="_blank">This
+example</a> demonstrates the JWt charting widgets that are implemented
+on top of JWt's cross-browser painting API. This painting API uses
+built-in browser support for generating high quality graphics (instead
+of the more common approach of rendering raster images on the server
+side), thereby off-loading CPU intensive computations to the browser
+and at the same time reducing bandwidth. Depending on the browser,
+inline VML, inline SVG, or the HTML 5 canvas is used to render painted
+contents in a WPaintedWidget.
+</p>
+
+<p>This example demonstrates JWt's MVC infrastructure. Both the table
+view and the charts implement Views on a single model. In this way,
+all changes in the model are automatically reflected in updated
+views. The models may contain strings, numbers or dates.</p>
+
+<p>The example also shows how one may easily use multiple input
+widgets, react to input changes, and set and read their contents, and
+use WComboBox in conjunction with MVC models.  Behind the scenes, the
+library makes sure that data is synchronized between browser and
+server.</p>
+
+<p>Browse the source code:</p>
+</div>
+  </message>
+<message id="home.examples.style">
+<div>
+<h4 class="example">Style example</h4>
+
+<p>
+  HTML/CSS is especially convenient for adding style to your web page or
+  web application, and Wt supports both inline and stylesheets for applying
+  style to your application.
+</p>
+<p>
+  In <a href="/wt/examples/style/styleexample.wt" target="_blank">this example
+  </a> we show how to create a widget class that has rounded
+  corners, <i>RoundedWidget</i>. Since rounded corners are not part of
+  CSS 2, the current accepted solution is to use some CSS tricks with
+  images. In this example, we <b>compute the corner images on the
+  fly</b> (with the specified colors and radius), using the graphics
+  library gd. Using the widget is completely straight forward (as also
+  demonstrated around the menus in the wt homepage itself), and the
+  contents is an ordinary WContainerWidget
+  into which widgets may be added.
+</p>
+
+<p>
+  This examples shows how to use a WMemoryResource, which is an
+  implementation of the abstract class WResource. A WResource may be
+  the target of a browser request, and may thus represent any kind of
+  file. In particular, a WImage may be defined using an image
+  resource, as in this example. A WMemoryResource streams the response
+  from a byte array in memory. Similarly, a WFileResource streams the
+  response from a temporary file. If you wish to compute data on the
+  fly, instead of precomputing and storing it in memory or in a file,
+  you can re-implement WResource. This is illustrated in the
+  mandelbrot example, which computes the mandelbrot images on the fly.
+</p>
+
+<p>Browse the source code:</p>
+</div>
+  </message>
+
+  <message id="home.examples.composer">
+<div>
+<h4 class="example">Mail composer</h4>
+
+<p>
+  <a href="http://jwt.emweb.be/jwt-composer/composer" target="_blank">This
+  example</a> implements a GMail-like mail composer and shows among
+  other things how you can easily upload files asynchronously.
+</p>
+
+<p>
+  Some notes about this example:
+</p>
+
+  <ul>
+    <li>
+      The example uses only <b>style sheets</b> and style classes for
+      accurate control over the look.
+    </li>
+    <li>
+      The <i>ContactSuggestions</i> class provides auto-completion of
+      the addressees in the To: Cc: and Bcc: fields. The widget
+      derives from the WSuggestionPopup class, which uses a number of
+      JSlot objects. These are slots for which the client-side
+      JavaScript event handling code is specified in custom
+      JavaScript. In this way, the sorting through available contacts
+      for suitable suggestions is done entirely client-side. Note that
+      the contacts for this suggestion box are automatically
+      transferred in the background after the page has been rendered,
+      simply because they are invisible and Wt does this for all
+      invisible contents.
+    </li>
+    <li>
+      The <i>AttachmentEdit</i> widget also demonstrates the use of
+      WFileUpload which allows for <b>asynchronous transfer of
+      files</b>, in this case for uploading the attachments while
+      editing the message.
+    </li>
+  </ul>
+
+<p>Browse the source code:</p>
+</div>
+  </message>
+  <message id="home.download">
+    <h3><span>Download</span></h3>
+  </message>
+  <message id="home.download.license">
+<h4>License</h4>
+
+<p>JWt may be used using either the GPL or a Commercial License.</p>
+
+<p>If you wish to use the library using the <b>GNU General Public
+License (GPL)</b>, you may build a web application with JWt, and
+deploy it to your own intranet or Internet web server, for any
+purpose, without the requirement to make the source code freely
+available.
+</p>
+
+<p>Note that if you are passing on your web application in binary
+form, be it selling or giving away for free, then you must include the
+source code, as per terms of the GPL. This also applies to
+redistribution of the JWt library, in original or modified form.</p>
+
+<p><b>The Commercial License</b> has no such limitations. Please visit
+our <a href="http://www.emweb.be/?page=license-wt">Licensing
+information</a> page for license terms, pricing and ordering.</p>
+
+<p>You may also obtain <a
+href="http://www.emweb.be/?page=services">support and training</a>
+options, directly from the library authors.</p>
+  </message>
+
+  <message id="home.download.cvs">
+<h4>Git repository</h4>
+
+<p>If you want to keep track of the latest changes, or participate in
+Wt development, you may want to use the git repository.</p>
+
+<p>
+To obtain a clone of JWt:
+<div class="fragment">
+  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/jwt.git</pre>
+</div>
+</p>
+  </message>
+
+  <message id="home.download.requirements">
+<h4>System requirements</h4>
+
+For building and using the latest version of JWt, you should follow the  <a
+href="/wt/doc/reference/html/Installation.html"> Getting started tutorial
+</a>, this tutorial explains on how to build JWt and run the examples.
+  </message>
+  <message id="home.download.packages">
+    <h4><span>Available packages</span></h4>
+  </message>
+  <message id="home.download.version"><b>Version</b></message>
+  <message id="home.download.date"><b>Date</b></message>
+  <message id="home.download.description"><b>Description</b></message>
+
+  <message id="home.community">
+<h3><span>Community</span></h3>
+
+<h4>Authors</h4>
+
+<p>
+JWt is mainted by <a href="http://www.emweb.be/">Emweb bvba</a>, and
+is derived from the latest version of its sibling C++ solution,
+<a href="http://www.webtoolkit.eu/wt">Wt</a>.
+</p>
+
+<h4>Wiki</h4>
+
+<p>
+There is a community-run <a
+href="http://redmine.webtoolkit.eu/wiki/jwt/Main">JWt Wiki</a> where
+you may share tips, notes and experiences using JWt.
+</p>
+
+<h4>Support</h4>
+
+<p>You can obtain <a href="http://www.emweb.be/?page=services">support
+and training</a> options directly from the library authors.</p>
+
+<p>In addition, there are public <a
+href="http://redmine.webtoolkit.eu/projects/jwt/boards">forums</a>
+where you may get community help.</p>
+
+<h4>Sponsors</h4>
+
+<p>Development of JWt is sponsored by the following companies and
+organisations:</p>
+
+<p>
+<table>
+  <tr>
+    <td class="sponsor-logo"><a href="http://www.emweb.be/">
+      Emweb bvba</a>
+    </td>
+    <td class="sponsor-role">
+      Creators, official maintainers, and support
+    </td>
+  </tr>
+</table>
+</p>
+
+<h4>Contributions</h4>
+
+<p>User contributions are welcomed, ranging from simple patches to
+widgets, widget sets, and core improvements.</p>
+
+<p>However, because JWt is dual-licensed under an Open Source and
+commercial license, and to legally protect the code base of JWt as a
+whole by one entity without having to worry about the copyrights for
+different pieces, we require a copyright assignment from contributors
+to <a href="http://www.emweb.be/">Emweb</a> before
+accepting the contribution.</p>
+  </message>
+  <message id="home.documentation">
+ 
+<h3><span>Documentation</span></h3>
+
+<h4>Build and install</h4>
+
+<h4>Introduction and tutorials</h4>
+<p>A <a href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html" target="_blank"> Getting started </a> tutorial is available (in a new window). There is a section both for command line and Eclipse-based development.</p>
+
+<h4>Reference manual</h4>
+
+<p>There is a <a href="http://www.webtoolkit.eu/jwt/latest/doc/javadoc/"
+target="_blank"> reference manual (in a new window)</a>, generated
+from the source code using javadoc. 
+</p>
+
+<h4>Wiki</h4>
+
+<p>
+There is a community-run <a
+href="http://redmine.webtoolkit.eu/wiki/jwt/Main">JWt Wiki</a> where
+you may share tips, notes and experiences using JWt.
+</p>
+  </message>
+
+  <message id="srcview.title.JAVA.hello">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Hello world</i> example</h2>
+
+      <p>
+	Browse below the source code for JWt's 
+	<a href="http://webtoolkit.eu/jwt/examples/hello_world">
+	  Hello world</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.hello">
+    Example: Hello world
+  </message>
+
+  <message id="srcview.title.JAVA.hello">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Hello world</i> example</h2>
+
+      <p>
+	Browse below the source code for JWt's 
+	<a href="http://webtoolkit.eu/jwt/examples/hello_world">
+	  Hello world</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.hello_world">
+    Example: Hello world
+  </message>
+
+  <message id="srcview.title.JAVA.charts">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Charts</i> example</h2>
+
+      <p>
+	Browse below the source code for JWt's 
+	<a href="http://webtoolkit.eu/jwt/examples/charts">
+	  Charts</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.charts">
+    Example: Charts
+  </message>
+
+  <message id="srcview.title.JAVA.treeviewdragdrop">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Treeview</i> example</h2>
+
+      <p>
+	Browse below the source code for JWt's 
+	<a href="http://webtoolkit.eu/jwt/examples/treeview">
+	  Treeview</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.treeviewdragdrop">
+    Example: Treeview
+  </message>
+
+  <message id="srcview.title.JAVA.composer">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Mail composer</i> example</h2>
+
+      <p>
+	Browse below the source code for JWt's 
+	<a href="http://webtoolkit.eu/jwt/examples/composer">
+	  Mail composer</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.composer">
+    Example: Mail composer
+  </message>
+</messages>

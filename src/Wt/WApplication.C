@@ -73,6 +73,7 @@ WApplication::WApplication(const WEnvironment& env)
     exposedOnly_(0),
     loadingIndicator_(0),
     connected_(true),
+    bodyHtmlClassChanged_(false),
     scriptLibrariesAdded_(0),
     styleSheetsAdded_(0),
     exposeSignals_(true),
@@ -129,7 +130,7 @@ WApplication::WApplication(const WEnvironment& env)
   styleSheet_.addRule("button", "white-space: nowrap");
 
   if (environment().contentType() == WEnvironment::XHTML1) {
-    styleSheet_.addRule("img", "margin: -3px 0px;");
+    //styleSheet_.addRule("img", "margin: -3px 0px;");
     styleSheet_.addRule("button", "display: inline");
   }
 
@@ -167,6 +168,17 @@ WApplication::WApplication(const WEnvironment& env)
 		      "user-select: text;");
   styleSheet_.addRule(".Wt-sbspacer", "float: right; width: 16px; height: 1px;"
 		      "border: 0px; display: none;");
+  styleSheet_.addRule("body.Wt-layout", std::string() +
+		      "height: 100%; width: 100%;"
+		      "margin: 0px; padding: 0px; border: none;"
+		      + (environment().javaScript() ? "overflow:hidden" : ""));
+  styleSheet_.addRule("html.Wt-layout", std::string() +
+		      "height: 100%; width: 100%;"
+		      "margin: 0px; padding: 0px; border: none;"
+		      + (environment().javaScript()
+			 && environment().agent() != WEnvironment::IE6
+			 ? "overflow:hidden" : ""));
+
   if (environment().agentIsOpera())
     if (environment().userAgent().find("Mac OS X") != std::string::npos)
       styleSheet_.addRule("img.Wt-indeterminate", "margin: 4px 1px -3px 2px;");
@@ -607,6 +619,18 @@ void WApplication::setLocale(const WT_LOCALE& locale)
   refresh();
 }
 
+void WApplication::setBodyClass(const std::string& styleClass)
+{
+  bodyClass_ = styleClass;
+  bodyHtmlClassChanged_ = true;
+}
+
+void WApplication::setHtmlClass(const std::string& styleClass)
+{
+  htmlClass_ = styleClass;
+  bodyHtmlClassChanged_ = true;
+}
+
 void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
 {
   delete localizedStrings_;
@@ -749,44 +773,62 @@ void WApplication::setInternalPath(const std::string& path, bool emitChange)
   internalPathIsChanged_ = true;
 }
 
+#ifdef WT_WITH_OLD_INTERNALPATH_API
+bool WApplication::oldInternalPathAPI() const
+{
+  std::string v;
+  return readConfigurationProperty("oldInternalPathAPI", v) && v == "true";
+}
+#endif // WT_WITH_OLD_INTERNALPATH_API
+
 void WApplication::changeInternalPath(const std::string& aPath)
 {
   std::string path = aPath;
 
-  // Java Branch had:
-  // if (path != newInternalPath_ && (path.empty() || path[0] == '/')) {
-  if (path != newInternalPath_) {
-    std::size_t fileStart = 0;
-    std::size_t i = 0;
-    std::size_t length = std::min(path.length(), newInternalPath_.length());
-    for (; i < length; ++i) {
-      if (path[i] == newInternalPath_[i]) {
-	if (path[i] == '/')
-	  fileStart = i+1;
-      } else {
-	i = fileStart;
-	break;
+  // internal paths start with a '/'; other anchor changes are not reacted on
+  if (path != newInternalPath_ && (path.empty() || path[0] == '/')) {
+    std::string v;
+
+#ifdef WT_WITH_OLD_INTERNALPATH_API
+    if (oldInternalPathAPI()) {
+      std::size_t fileStart = 0;
+      std::size_t i = 0;
+      std::size_t length = std::min(path.length(), newInternalPath_.length());
+      for (; i < length; ++i) {
+	if (path[i] == newInternalPath_[i]) {
+	  if (path[i] == '/')
+	    fileStart = i+1;
+	} else {
+	  i = fileStart;
+	  break;
+	}
       }
-    }
 
-    std::string common = path.substr(0, fileStart);
+      std::string common = path.substr(0, fileStart);
 
-    for (;;) {
-      common = Utils::terminate(common, '/');
-      newInternalPath_ = path;
-      std::string next = internalPathNextPart(common);
-
-      if (!next.empty())
-        newInternalPath_ = common + next;
-      internalPathChanged().emit(common);
-
-      if (next.empty()) {
+      for (;;) {
+	common = Utils::terminate(common, '/');
 	newInternalPath_ = path;
-	break;
+	std::string next = internalPathNextPart(common);
+
+	if (!next.empty())
+	  newInternalPath_ = common + next;
+	internalPathChanged().emit(common);
+
+	if (next.empty()) {
+	  newInternalPath_ = path;
+	  break;
+	}
+
+	common = newInternalPath_;
       }
 
-      common = newInternalPath_;
+      return;
     }
+#endif // WT_WITH_OLD_INTERNALPATH_API
+
+    newInternalPath_ = path;
+    internalPathChanged().emit(newInternalPath_);
   }
 }
 

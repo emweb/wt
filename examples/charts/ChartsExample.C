@@ -179,7 +179,7 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
 {
   new WText(WString::tr("scatter plot 2"), this);
 
-  WStandardItemModel *model = new WStandardItemModel(100, 2, this);
+  WStandardItemModel *model = new WStandardItemModel(40, 2, this);
   model->setHeaderData(0, boost::any(WString("X")));
   model->setHeaderData(1, boost::any(WString("Y = sin(X)")));
 

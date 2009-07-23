@@ -22,16 +22,15 @@ public:
      */
     aboutDrink_ = new WText("", root());
     
-    internalPathChanged().connect(SLOT(this,
-				       TreeViewApplication::handlePathChange));
+    internalPathChanged().connect
+      (SLOT(this, TreeViewApplication::handlePathChange));
   }
 private:
   WText *aboutDrink_;
 
-  void handlePathChange(const std::string& prefix) {
-    if (prefix == "/drinks/") {
-      std::string drink = internalPathNextPart(prefix);
-      
+  void handlePathChange() {
+    if (internalPathMatches("/drinks/")) {
+      std::string drink = internalPathNextPart("/drinks/");
       aboutDrink_->setText(WString::tr("drink-" + drink));
     }
   }

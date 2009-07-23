@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Wim Dumon, Koen Deforche
+ * Copyright (C) 2008 Emweb bvba, Heverlee, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -21,6 +21,7 @@
 #include <Wt/WViewWidget>
 
 #include "GitModel.h"
+#include "../wt-homepage/SourceView.h"
 
 using namespace Wt;
 
@@ -28,65 +29,6 @@ using namespace Wt;
  * \defgroup gitmodelexample Git model example
  */
 /*@{*/
-
-/*! \class SourceView
- *  \brief View class for source code.
- *
- * A view class is used so that no server-side memory is used while displaying
- * a potentially large file.
- */
-class SourceView : public WViewWidget
-{
-public:
-  /*! \brief Constructor.
-   *
-   * The <i>role</i> will be used to retrieve data from a model index to
-   * be displayed.
-   */
-  SourceView(int role)
-    : role_(role)
-  { }
-
-  /*! \brief Set model index.
-   *
-   * The view is rerendered if the index contains new data.
-   */
-  void setIndex(const WModelIndex& index) {
-    if (index != index_
-	&& (!index.isValid() || !index.data(role_).empty())) {
-      index_ = index;
-      update();
-    }
-  }
-
-  /*! \brief Return the widget that renders the view.
-   *
-   * Returns he view contents: renders the file to a WText widget.
-   * WViewWidget deletes this widget after every rendering step.
-   */
-  virtual WWidget *renderView() {
-    WText *result = new WText();
-    result->setInline(false);
-
-    if (!index_.isValid())
-      return result;
-
-    boost::any d = index_.data(role_);
-    const std::string& t = boost::any_cast<const std::string&>(d);
-
-    result->setTextFormat(PlainText);
-    result->setText(t);
-
-    return result;
-  }
-
-private:
-  /// The index that is currently displayed.
-  WModelIndex index_;
-
-  /// The role that is currently displayed.
-  int         role_;
-};
 
 /*! \class GitViewApplication
  *  \brief A simple application to navigate a git repository.
@@ -138,7 +80,9 @@ public:
     gitView_->selectionChanged().connect
       (SLOT(this, GitViewApplication::showFile));
 
-    sourceView_ = new SourceView(GitModel::ContentsRole);
+    sourceView_ = new SourceView(DisplayRole, 
+				 GitModel::ContentsRole, 
+				 GitModel::FilePathRole);
     sourceView_->setStyleClass("source-view");
 
     if (environment().javaScript()) {

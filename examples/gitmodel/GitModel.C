@@ -153,6 +153,8 @@ boost::any GitModel::data(const WModelIndex& index, int role) const
     } else if (role == ContentsRole) {
       if (object.type == Git::Blob)
 	return git_.catFile(object.id);
+    } else if (role == FilePathRole) {
+      return boost::any();
     }
   }
 

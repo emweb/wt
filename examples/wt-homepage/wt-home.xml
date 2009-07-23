@@ -66,6 +66,15 @@
     <h4><span>Historical News</span></h4>
   </message>
 
+  <message id="source-browser">
+    Browse the source code
+  </message>
+
+  <message id="src-title">
+    <div>
+    </div>
+  </message>
+
   <message id="home.intro">
 
 <h3><span>Wt: an introduction</span></h3>
@@ -291,7 +300,7 @@ communication between browser and server.</p>
 <p>
   The source code of these examples is included in the Wt source
   distribution. You may also browse through the source code of each
-  example in the tree widget.
+  example in the SourceView widget.
 </p>
 
 <p>
@@ -331,8 +340,6 @@ communication between browser and server.</p>
 <p>For a thorough explanation of the hello world example, see also the
 <a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/" target="_blank">nice introduction to Wt</a> written by Victor
 Venkman.</p>
-
-<p>Browse the source code:</p>
 </div>
   </message>
   <message id="home.examples.wt">
@@ -395,9 +402,6 @@ Venkman.</p>
   careful to minimize server state, by using
   the <a href="/wt/doc/reference/html/classWt_1_1WViewWidget.html" target="_blank">WViewWidget</a> where possible.
 </p>
-
-<p>Browse the source code:</p>
-
 </div>
   </message>
   <message id="home.examples.treeview">
@@ -446,7 +450,6 @@ Venkman.</p>
       WPopupMenu</a>.
   </li>
 </ul>
-<p>Browse the source code:</p>
 </div>
   </message>
   <message id="home.examples.chart">
@@ -482,8 +485,6 @@ use <a href="/wt/doc/reference/html/classWt_1_1WComboBox.html"
 target="_blank">WComboBox</a> in conjunction with MVC models.  Behind
 the scenes, the library makes sure that data is synchronized between
 browser and server.</p>
-
-<p>Browse the source code:</p>
 </div>
   </message>
   <message id="home.examples.git">
@@ -507,7 +508,6 @@ browser and server.</p>
   that retrieves data only when needed, and provides a trade-off between loading
   data in memory or keeping it elsewhere.
 </p>
-<p>Browse the source code:</p>
 </div>
   </message>
 
@@ -555,8 +555,6 @@ browser and server.</p>
   re-implement WResource. This is illustrated in the mandelbrot
   example, which computes the mandelbrot images on the fly.
 </p>
-
-<p>Browse the source code:</p>
 </div>
   </message>
   <message id="home.examples.composer">
@@ -614,8 +612,6 @@ browser and server.</p>
       client-side event handling performance!
     </li>
   </ul>
-
-<p>Browse the source code:</p>
 </div>
   </message>
   <message id="home.examples.dragdrop">
@@ -654,8 +650,6 @@ browser and server.</p>
       which is called when something was dropped, and provides details on the
       mime type and the sender.</li>
   </ul>
-
-<p>Browse the source code:</p>
 </div>
   </message>
   <message id="home.examples.chat">
@@ -688,8 +682,6 @@ browser and server.</p>
   that what is displayed is only passive text, discarding anything
   that is not strictly text.
 </p>
-
-<p>Browse the source code:</p>
 </div>
   </message>
   <message id="home.examples.fileexplorer">
@@ -725,8 +717,6 @@ browser and server.</p>
   (table). In this example, we configured extended selection, but only
   allow files to be selected (not directories).
 </p>
-
-<p>Browse the source code:</p>
 </div>
   </message>
   <message id="home.examples.calendar">
@@ -1059,5 +1049,134 @@ There is a community-run <a href="http://www.webtoolkit.eu/wt/wiki/">Wt Wiki</a>
 tips and tricks.
 </p>
 
+  </message>
+
+  <message id="srcview.title.CPP.hello">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Hello world</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://webtoolkit.eu/wt/examples/hello_world">
+	  Hello world</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.hello">
+    Example: Hello world
+  </message>
+
+  <message id="srcview.title.CPP.charts">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Charts</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://webtoolkit.eu/wt/examples/charts">
+	  Charts</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.charts">
+    Example: Charts
+  </message>
+
+  <message id="srcview.title.CPP.treeview-dragdrop">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Treeview</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://webtoolkit.eu/wt/examples/treeview">
+	  Treeview</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.treeview-dragdrop">
+    Example: Treeview
+  </message>
+
+  <message id="srcview.title.CPP.composer">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Mail composer</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://webtoolkit.eu/wt/examples/composer">
+	  Mail composer</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.composer">
+    Example: Mail composer
+  </message>
+
+  
+  <message id="srcview.title.CPP.wt-homepage">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Wt homepage</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://webtoolkit.eu/wt/examples/wt-homepage">
+	  Homepage </a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.wt-homepage">
+    Example: Wt Homepage
+  </message>
+
+  <message id="srcview.title.CPP.gitmodel">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Git explorer</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://webtoolkit.eu/wt/examples/gitmodel">
+	  Git explorer</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.gitmodel">
+    Example: Git explorer
+  </message>
+
+  <message id="srcview.title.CPP.simplechat">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Chat</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://webtoolkit.eu/wt/examples/simplechat">
+	  Chat</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.simplechat">
+    Example: Chat
+  </message>
+
+  <message id="srcview.title.CPP.widgetgallery">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Widget gallery</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://webtoolkit.eu/wt/examples/widgetgallery">
+	  Widget gallery</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.widgetgallery">
+    Example: Widget gallery
   </message>
 </messages>

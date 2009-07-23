@@ -1,0 +1,44 @@
+.maindiv {
+    background-color: #d6d6d6
+}
+
+.Wt-treeview {
+    background-color: white;
+    border: 1px solid #a0a0a0;
+}
+
+.source-view {
+    background-color: white;
+    overflow: auto;
+    white-space: pre;
+    font-family: 'Bitstream Vera Sans Mono','Courier',monospace;
+    font-size: 100%;
+    color: #444444;
+    border: 1px solid #a0a0a0;
+    zoom: 1;
+}
+
+.source-view div {
+    padding: 6px;
+    line-height: 1.3;
+    font-family: Verdana, Helvetica, sans-serif;
+    font-size: 9pt;
+    /* zoom: 1; */
+}
+
+.srcviewtitle {
+    background-color: #eeeeee;
+    /* border: 1px solid #a0a0a0; */
+    padding: 4px 9px;
+}
+
+.srcviewtitle h2 {
+    background: transparent;
+    color: black;
+    padding: 0px;
+    height: auto;
+}
+
+.srcviewtitle p {
+    margin-bottom: 0px;
+}

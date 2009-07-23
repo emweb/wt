@@ -238,7 +238,10 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
 	return appendSessionQuery(applicationName_);
   }
   case ClearInternalPath:
-    return appendSessionQuery(baseUrl_ + applicationName_);
+    if (WebSession::Handler::instance()->request()->pathInfo().length() > 1)
+      return appendSessionQuery(baseUrl_ + applicationName_);
+    else
+      return appendSessionQuery(applicationName_);
   default:
     assert(false);
   }
@@ -774,11 +777,13 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	      if (!start())
 		throw WtException("Could not start application.");
 
-	      if (env_->internalPath() != "/") {
+#ifdef WT_WITH_OLD_INTERNALPATH_API
+	      if (app_->oldInternalPathAPI() && env_->internalPath() != "/") {
 		app_->setInternalPath("/");
 		app_->notify(WEvent(handler, WEvent::HashChange,
 				    env_->internalPath()));
 	      }
+#endif // WT_WITH_OLD_INTERNALPATH_API
 
 	      app_->notify(WEvent(handler, WEvent::Render,
 				  WebRenderer::FullResponse));
@@ -832,7 +837,17 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    && (!request.pathInfo().empty()
 		|| (applicationName_.empty()
 		    && env_->internalPath().length() > 1))) {
-	  std::string url = baseUrl() + applicationName();
+
+	  std::string url;
+	  if (!request.pathInfo().empty()) {
+	    std::string pi = request.pathInfo();
+	    for (std::size_t t = pi.find('/'); t != std::string::npos;
+		 t = pi.find('/', t+1)) {
+	      url += "../";
+	    }
+	    url += applicationName();
+	  } else
+	    url = baseUrl() + applicationName();
 
 	  url += '#' + env_->internalPath();
 	  redirect(url);

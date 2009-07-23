@@ -219,6 +219,7 @@ void WContainerWidget::clear()
   // children _FIRST_, since deleting the layout automatically removes the
   // children too in the DOM.
   delete layout_;
+  layout_ = 0;
 }
 
 int WContainerWidget::indexOf(WWidget *widget) const

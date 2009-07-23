@@ -21,8 +21,14 @@ public:
 protected:
   virtual WWidget *examples();
   virtual WWidget *download();
+  virtual WWidget *sourceViewer(const std::string &internalPath);
+  virtual std::string filePrefix() const { return "wt-"; }
 
 private:
+  std::string wtExamplePath_;
+
+  WWidget *example(const char *textKey, const std::string& sourceDir);
+
   WWidget *helloWorldExample();
   WWidget *chartExample();
   WWidget *homepageExample();

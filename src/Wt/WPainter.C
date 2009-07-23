@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstring>
 #include <fstream>
+#include <string.h>
 
 #include "Wt/WLineF"
 #include "Wt/WPainter"

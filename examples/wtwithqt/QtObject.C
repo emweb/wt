@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Wim Dumon, Koen Deforche
+ * Copyright (C) 2008 Emweb bvba, Heverlee, Belgium.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

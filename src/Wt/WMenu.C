@@ -67,6 +67,13 @@ void WMenu::setInternalPathEnabled()
 
     app->internalPathChanged().connect(SLOT(this, WMenu::internalPathChanged));
 
+#ifdef WT_WITH_OLD_INTERNALPATH_API
+    if (app->oldInternalPathAPI())
+      internalPathChanged(basePath_);
+    else
+#endif // WT_WITH_OLD_INTERNALPATH_API
+      internalPathChanged(app->internalPath());
+
     updateItems();
   }
 }
@@ -77,7 +84,17 @@ void WMenu::setInternalBasePath(const std::string& basePath)
   if (basePath_ != bp) {
     basePath_ = bp;
 
-    updateItems();
+    if (internalPathEnabled_) {
+      WApplication *app = wApp;
+#ifdef WT_WITH_OLD_INTERNALPATH_API
+      if (app->oldInternalPathAPI())
+	internalPathChanged(basePath_);
+      else
+#endif // WT_WITH_OLD_INTERNALPATH_API
+	internalPathChanged(app->internalPath());
+
+      updateItems();
+    }
   }
 }
 
@@ -200,12 +217,18 @@ void WMenu::selectVisual(int index)
     WApplication *app = wApp;
 
     previousInternalPath_ = app->internalPath();
-    std::string newPath = basePath_ + items_[current_]->pathComponent();
+
+    std::string newPath = basePath_;
+    std::string pc = items_[current_]->pathComponent();
+    if (pc.empty()) {
+      if (newPath.length() > 1)
+	newPath = newPath.substr(0, newPath.length() - 1);
+    } else
+      newPath += pc;
 
     // unless we are resetting to basePath, we avoid removing a more
     // specific path
-    if (newPath == basePath_
-	|| !app->internalPathMatches(newPath))
+    if (newPath == basePath_ || !app->internalPathMatches(newPath))
       wApp->setInternalPath(newPath);
   }
 
@@ -214,8 +237,14 @@ void WMenu::selectVisual(int index)
 
 void WMenu::internalPathChanged(std::string path)
 {
-  if (path == basePath_)
-    setFromState(wApp->internalPathNextPart(basePath_));
+  WApplication *app = wApp;
+
+  if (
+#ifdef WT_WITH_OLD_INTERNALPATH_API
+      (app->oldInternalPathAPI() && path == basePath_) ||
+#endif // WT_WITH_OLD_INTERNALPATH_API 
+      app->internalPathMatches(basePath_))
+    setFromState(app->internalPathNextPart(basePath_));
 }
 
 void WMenu::setFromState(const std::string& value)
@@ -223,7 +252,8 @@ void WMenu::setFromState(const std::string& value)
   std::string v = value;
 
   for (unsigned i = 0; i < items_.size(); ++i) {
-    if (v == items_[i]->pathComponent()) {
+    if (items_[i]->pathComponent() == v
+	|| items_[i]->pathComponent() == (v + '/')) {
       if (contentsStack_->currentWidget() != items_[i]->contents())
 	select(i);
       return;

@@ -7,6 +7,7 @@
 #include <Wt/WServer>
 
 #include "WtHome.h"
+#include "JWtHome.h"
 
 int main(int argc, char **argv)
 {
@@ -16,6 +17,8 @@ int main(int argc, char **argv)
 
   server.addEntryPoint(Application, createWtHomeApplication,
 		       "", "/css/wt/favicon.ico");
+  server.addEntryPoint(Application, createJWtHomeApplication,
+		       "/jwt", "/css/jwt/favicon.ico");
 
   if (server.start()) {
     WServer::waitForShutdown();
