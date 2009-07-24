@@ -504,7 +504,7 @@ To obtain a clone of JWt:
 <h4>System requirements</h4>
 
 For building and using the latest version of JWt, you should follow the  <a
-href="/wt/doc/reference/html/Installation.html"> Getting started tutorial
+href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html"> Getting started tutorial
 </a>, this tutorial explains on how to build JWt and run the examples.
   </message>
   <message id="home.download.packages">

@@ -19,6 +19,54 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 2.99.3 (July 24, 2009)</h2>
+
+<p>
+This release contains mostly bug fixes and small feature
+improvements. The most notable change that might affect existing
+applications is a simplified internal path API behavior.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WAbstractItemDelegate.html">WAbstractItemDelegate</a>
+    and <a href="classWt_1_1WItemDelegate.html">WItemDelegate</a></dt>
+  <dd><samp>WAbstractItemDelegate</samp> is a helper class used
+    by <samp>WTreeView</samp> (and in the future perhaps other view
+    classes) to render contents. The standard
+    implementation, <samp>WItemDelegate</samp> maintains the default
+    implementation that was previously integrated
+    in <samp>WTreeView</samp>. The delegate will be responsible for
+    editing features in <samp>WTreeView</samp> in the future, and in
+    fact, you can already implement a custom item delegate that does
+    editing if you cannot wait for it!
+  </dd>
+  <dt><a href="classWt_1_1Test_1_1WTestEnvironment.html">Test/WTestEnvironment</a></dt>
+  <dd><samp>WTestEnvironment</samp> is an environment class which is useful for
+    (unit) test-cases: it allows the instantiation of a
+    <samp>WApplication</samp> so that you may include widgets in unit tests.
+  </dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<h3>C) API Changes:</h3>
+
+<dl>
+  <dt>change of WApplication::internalPathChanged() semantics.</dt>
+  <dd>The old behavior was that a single internal path change caused
+  by the user (e.g. by moving forward/backword through his browser
+  history) would cause repetitive invocations of internalPathChanged()
+  with different arguments. The underlying idea was that this would
+  make it easier to have the handling of internal path changes
+  distributed over different objects. It caused however more problems
+  than it solved. The new behavior is now that it is invoked exactly
+  one time, and the argument is simply the new internal path.</dd>
+</dl>
+
+<hr />
+
 <h2>Release 2.99.2 (May 29, 2009)</h2>
 
 <p>
