@@ -12,14 +12,14 @@
 # version of asio was detected. Otherwise, it remains empty.
 
 
-FIND_PATH(PLAIN_ASIO_INCLUDE
-  NAMES
-    asio.hpp
-  PATHS
-    ${BOOST_INCLUDE_DIRS}
-    /usr/include
-    /usr/local/include
-)
+#FIND_PATH(PLAIN_ASIO_INCLUDE
+#  NAMES
+#    asio.hpp
+#  PATHS
+#    ${BOOST_INCLUDE_DIRS}
+#    /usr/include
+#    /usr/local/include
+#)
 
 IF(BOOST_WTHTTP_FOUND)
   FIND_PATH(BOOST_ASIO_INCLUDE
