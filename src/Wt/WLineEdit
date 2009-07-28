@@ -143,7 +143,8 @@ protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void           propagateRenderOk(bool deep);
-
+  virtual void           getDomChanges(std::vector<DomElement *>& result,
+				       WApplication *app);
   virtual void setFormData(const FormData& formData);
 };
 

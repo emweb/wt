@@ -31,6 +31,9 @@
 #endif
 #endif
 
+//#define DEBUG_JS
+//#define DEBUG_RENDER
+
 namespace skeletons {
   extern const char *Boot_html;
   extern const char *Plain_html;
@@ -57,8 +60,6 @@ void WebRenderer::setTwoPhaseThreshold(int bytes)
   twoPhaseThreshold_ = bytes;
 }
 
-//#define DEBUG_RENDER
-
 void WebRenderer::needUpdate(WWidget *w, bool laterOnly)
 {
   if (session_.env().ajax()) {
@@ -76,8 +77,8 @@ void WebRenderer::needUpdate(WWidget *w, bool laterOnly)
 void WebRenderer::doneUpdate(WWidget *w)
 {
 #ifdef DEBUG_RENDER
-    std::cerr << "doneUpdate: " << w->formName() << " (" << typeid(*w).name()
-		  << ")" << std::endl;
+  std::cerr << "doneUpdate: " << w->formName() << " (" << typeid(*w).name()
+	    << ")" << std::endl;
 #endif //DEBUG_RENDER
   updateMap_.erase(w);
 }
@@ -290,7 +291,9 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 
   collectJavaScript();
 
-  //std::cerr << collectedJS1_.str() << std::endl;
+#ifdef DEBUG_JS
+  std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
+#endif // DEBUG_JS
 
   response.out()
     << collectedJS1_.str()
@@ -493,22 +496,28 @@ void WebRenderer::serveMainscript(WebResponse& response)
     app->bodyHtmlClassChanged_ = false;
   }
 
-  std::string cvar;  
-  {
-    EscapeOStream sout(response.out());
-    cvar = mainElement->asJavaScript(sout, DomElement::Create);
-  }
-  response.out() << "document.body.appendChild(" << cvar << ");\n";
-  {
-    EscapeOStream sout(response.out());
-    mainElement->asJavaScript(sout, DomElement::Update);
-  }
+#ifdef DEBUG_JS
+  std::stringstream s;
+#else
+  std::ostream& s = response.out();
+#endif // DEBUG_JS
 
+  mainElement->addToParent(s, "document.body", -1, app);
   delete mainElement;
+
+#ifdef DEBUG_JS
+  std::cerr << s.str();
+  response.out() << s.str();
+#endif // DEBUG_JS
 
   setJSSynced(true);
 
   preLearnStateless(app, collectedJS1_);
+
+#ifdef DEBUG_JS
+  std::cerr << collectedJS1_.str();
+#endif // DEBUG_JS
+
   response.out() << collectedJS1_.str();
   collectedJS1_.str("");  
 
@@ -753,18 +762,10 @@ void WebRenderer::serveWidgetSet(WebResponse& response)
   }
 
   response.out() << std::endl << app->beforeLoadJavaScript();
-
-  std::string cvar;
-  {
-    EscapeOStream sout(response.out());
-    mainElement->asJavaScript(sout, DomElement::Create);
-    cvar = mainElement->asJavaScript(sout, DomElement::Update);
-  }
+  mainElement->addToParent(response.out(), "document.body", 0, app);
   delete mainElement;
 
-  response.out() << "document.body.insertBefore("
-		 << cvar << ",document.body.firstChild);"
-		 << "{var e=null; "
+  response.out() << "{var e=null; "
 		 << app->hideLoadingIndicator_->javaScript()
 		 << "}" << std::endl;
 

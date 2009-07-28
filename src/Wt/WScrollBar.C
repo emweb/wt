@@ -59,19 +59,14 @@ void WScrollBar::updateDom(DomElement& element, bool all)
   if (tiesChanged_ || all) {
     std::string jsCode;
     for (unsigned i = 0; i < ties_.size(); ++i) {
-      DomElement *tieElement = DomElement::getForUpdate(ties_[i]->scrollArea_,
-							DomElement_DIV);
-      DomElement *scrollElement = DomElement::getForUpdate(scrollArea_,
-							   DomElement_DIV);
+      std::string tieElement
+	= WT_CLASS ".getElement('" + ties_[i]->scrollArea_->id() + "')";
+      std::string scrollElement
+	= WT_CLASS ".getElement('" + scrollArea_->id() + "')";
+      std::string side = (orientation_ == Horizontal ? "Left" : "Top");
 
-      jsCode +=
-	tieElement->createReference() + ".scroll"
-	+ (orientation_ == Horizontal ? "Left" : "Top")
-	+ "=" + scrollElement->createReference() + ".scroll"
-	+ (orientation_ == Horizontal ? "Left" : "Top") + ";";
-
-      delete tieElement;
-      delete scrollElement;
+      jsCode +=	tieElement + ".scroll" + side
+	+ "=" + scrollElement + ".scroll" + side + ";";
     }
 
     element.setEvent("scroll", jsCode, "");

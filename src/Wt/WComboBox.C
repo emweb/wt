@@ -58,7 +58,7 @@ void WComboBox::setModel(WAbstractItemModel *model)
 
 void WComboBox::setModelColumn(int index)
 {
-  modelColumn_ = 0;
+  modelColumn_ = index;
 }
 
 void WComboBox::addItem(const WString& text)

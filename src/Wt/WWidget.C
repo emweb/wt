@@ -195,13 +195,17 @@ void WWidget::dropEvent(WDropEvent event)
 { }
 
 std::string WWidget::createJavaScript(std::stringstream& js,
-				      const std::string& insertJS)
+				      std::string insertJS)
 {
-  DomElement *de = webWidget()->createSDomElement(WApplication::instance());
-  std::string var = de->asJavaScript(js, true);
+  WApplication *app = WApplication::instance();
+
+  DomElement *de = webWidget()->createSDomElement(app);
+
+  std::string var = de->createVar();
   if (!insertJS.empty())
-    js << insertJS << var << ");";
-  de->asJavaScript(js, false);
+    insertJS += var + ");";
+  de->createElement(js, app, insertJS);
+
   delete de;
 
   return var;

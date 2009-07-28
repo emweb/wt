@@ -38,7 +38,6 @@ public:
   EscapeOStream& operator<< (const char *s);
   EscapeOStream& operator<< (const std::string& s);
   EscapeOStream& operator<< (int);
-  void flush();
 
   const char *c_str();
   void clear();
@@ -64,6 +63,7 @@ private:
   void sAppend(char c);
   void sAppend(const char *s, int length);
   void sAppend(const std::string& s);
+  void flush();
 
   std::vector<RuleSet> ruleSets_;
 

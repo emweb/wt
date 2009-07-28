@@ -253,9 +253,9 @@ bool WTabWidget::internalPathEnabled() const
   return menu_->internalPathEnabled();
 }
 
-void WTabWidget::setInternalPathEnabled()
+void WTabWidget::setInternalPathEnabled(const std::string& basePath)
 {
-  menu_->setInternalPathEnabled();
+  menu_->setInternalPathEnabled(basePath);
 }
 
 const std::string& WTabWidget::internalBasePath() const

@@ -6,6 +6,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WLineEdit"
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
 
 #include "DomElement.h"
 
@@ -99,6 +101,18 @@ void WLineEdit::updateDom(DomElement& element, bool all)
   }
 
   WFormWidget::updateDom(element, all);
+}
+
+void WLineEdit::getDomChanges(std::vector<DomElement *>& result,
+			      WApplication *app)
+{
+  if (app->environment().agentIsIE() && flags_.test(BIT_ECHO_MODE_CHANGED)) {
+    DomElement *e = DomElement::getForUpdate(this, domElementType());
+    DomElement *d = createDomElement(app);
+    e->replaceWith(d, false);
+    result.push_back(e);
+  } else
+    WFormWidget::getDomChanges(result, app);
 }
 
 void WLineEdit::propagateRenderOk(bool deep)

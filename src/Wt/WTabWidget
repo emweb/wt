@@ -186,7 +186,7 @@ public:
    *
    * \copydetails WMenu::setInternalPathEnabled
    */
-  void setInternalPathEnabled();
+  void setInternalPathEnabled(const std::string& basePath = "");
 
   /*! \brief Returns whether internal paths are enabled.
    *

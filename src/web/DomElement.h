@@ -155,16 +155,14 @@ public:
 
   void asJavaScript(std::ostream& out);
   std::string asJavaScript(EscapeOStream& out, Priority priority) const;
-  std::string asJavaScript(std::stringstream& js, bool create) const;
 
-  void asHTML(EscapeOStream& out, TimeoutList& timeouts) const;
+  void asHTML(EscapeOStream& out, TimeoutList& timeouts,
+	      bool openingTagOnly = false) const;
   static void createTimeoutJs(std::ostream& out, const TimeoutList& timeouts,
 			      WApplication *app);
 
   bool isDefaultInline() const;
   void declare(EscapeOStream& out) const;
-  void createReference(EscapeOStream& out) const;
-  std::string createReference() const;
 
   std::string cssStyle() const;
 
@@ -186,6 +184,14 @@ public:
 
   void updateInnerHtmlOnly();
 
+  std::string addToParent(std::ostream& out, const std::string& parentVar,
+			  int pos, WApplication *app);
+
+  void createElement(std::ostream& out, WApplication *app,
+		     const std::string& domInsertJS);
+
+  std::string createVar() const;
+
 private:
   bool canWriteInnerHTML(WApplication *app) const;
   bool containsElement(DomElementType type) const;
@@ -193,9 +199,14 @@ private:
   void processProperties(WApplication *app) const;
   void setJavaScriptProperties(EscapeOStream& out, WApplication *app) const;
   void setJavaScriptAttributes(EscapeOStream& out) const;
-
+  void createElement(EscapeOStream& out, WApplication *app,
+		     const std::string& domInsertJS);
+  std::string addToParent(EscapeOStream& out, const std::string& parentVar,
+			  int pos, WApplication *app);
   std::string createAsJavaScript(EscapeOStream& out,
-				 const std::string& parentVar,  int pos);
+				 const std::string& parentVar, int pos,
+				 WApplication *app);
+  void renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const;
 
   Mode         mode_;
   bool         wasEmpty_;
@@ -213,7 +224,7 @@ private:
   bool         timeOutJSRepeat_;
   std::string  javaScript_;
   std::string  javaScriptEvenWhenDeleted_;
-  mutable std::string  var_;
+  mutable std::string var_;
 
   struct EventHandler {
     std::string jsCode;

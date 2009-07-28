@@ -172,8 +172,7 @@ WWidget *Home::initHome()
   mainMenu_->select((int)0);
 
   // Make the menu be internal-path aware.
-  mainMenu_->setInternalPathEnabled();
-  mainMenu_->setInternalBasePath("/");
+  mainMenu_->setInternalPathEnabled("/");
 
   sideBarContent_ = new WContainerWidget(mainMenu);
 

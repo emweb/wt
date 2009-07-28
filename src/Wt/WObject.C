@@ -123,7 +123,7 @@ const std::string WObject::id() const
   std::string result = objectName();
 
   if (!result.empty())
-    return result + '-' + uniqueId();
+    return result + '_' + uniqueId();
   else
     return uniqueId();
 }

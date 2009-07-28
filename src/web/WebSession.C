@@ -837,7 +837,6 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    && (!request.pathInfo().empty()
 		|| (applicationName_.empty()
 		    && env_->internalPath().length() > 1))) {
-
 	  std::string url;
 	  if (!request.pathInfo().empty()) {
 	    std::string pi = request.pathInfo();
@@ -873,11 +872,13 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	if (!start())
 	  throw WtException("Could not start application.");
 
-	if (env_->internalPath() != "/") {
+#ifdef WT_WITH_OLD_INTERNALPATH_API
+	if (app_->oldInternalPathAPI() && env_->internalPath() != "/") {
 	  app_->setInternalPath("/");
 	  app_->notify(WEvent(handler, WEvent::HashChange,
 			      env_->internalPath()));
 	}
+#endif // WT_WITH_OLD_INTERNALPATH_API
       } else if ((*jsE == "no") && env_->doesAjax_) {
 	// reload but disabled AJAX support: give user a new session
 	// FIX this: redirect using Redirect result.
@@ -975,7 +976,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	}
       } else {
 	if (responseType == WebRenderer::FullResponse
-	    && !env_->doesAjax_ && !signalE)
+	    && !env_->doesAjax_ && !signalE && !applicationName_.empty())
 	  app_->notify(WEvent(handler, WEvent::HashChange, request.pathInfo()));
 
 	const std::string *hashE = request.getParameter("_");

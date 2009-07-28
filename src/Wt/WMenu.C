@@ -56,14 +56,16 @@ WMenu::~WMenu()
   }
 }
 
-void WMenu::setInternalPathEnabled()
+void WMenu::setInternalPathEnabled(const std::string& basePath)
 {
   if (!internalPathEnabled_) {
     internalPathEnabled_ = true;
 
     WApplication *app = wApp;
 
-    basePath_ = Utils::terminate(app->internalPath(), '/');
+    basePath_
+      = Utils::terminate(basePath.empty() ? app->internalPath() : basePath,
+			 '/');
 
     app->internalPathChanged().connect(SLOT(this, WMenu::internalPathChanged));
 
@@ -229,7 +231,7 @@ void WMenu::selectVisual(int index)
     // unless we are resetting to basePath, we avoid removing a more
     // specific path
     if (newPath == basePath_ || !app->internalPathMatches(newPath))
-      wApp->setInternalPath(newPath);
+      app->setInternalPath(newPath);
   }
 
   itemSelectRendered_.emit(items_[current_]);

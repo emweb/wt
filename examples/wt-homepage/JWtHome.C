@@ -73,8 +73,7 @@ WWidget *JWtHome::examples()
 			tr("mail-composer"));
   
   // Enable internal paths for the example menu
-  examplesMenu_->setInternalPathEnabled();
-  examplesMenu_->setInternalBasePath("/examples");
+  examplesMenu_->setInternalPathEnabled("/examples");
 
   return result;
 }

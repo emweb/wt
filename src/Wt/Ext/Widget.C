@@ -10,6 +10,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "EscapeOStream.h"
 #include "DomElement.h"
 #include "Utils.h"
 
@@ -259,7 +260,10 @@ std::string Widget::createExtElement(std::stringstream& alljs,
       = DomElement::updateGiven(elVar() + ".getEl().dom", domElementType());
     updateDom(*e, true);
 
-    e->asJavaScript(alljs, false);
+    {
+      EscapeOStream out(alljs);
+      e->asJavaScript(out, DomElement::Update);
+    }
 
     delete e;
   }

@@ -765,6 +765,9 @@ void WApplication::setInternalPath(const std::string& path, bool emitChange)
 {
   loadRsh();
 
+  if (!environment().ajax() && path != newInternalPath_)
+    redirect(bookmarkUrl(path));
+
   if (!session_->renderer().preLearning() && emitChange)
     changeInternalPath(path);
   else

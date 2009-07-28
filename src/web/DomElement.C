@@ -477,7 +477,6 @@ void DomElement::htmlAttributeValue(std::ostream& out, const std::string& s)
   EscapeOStream sout(out);
   sout.pushEscape(EscapeOStream::HtmlAttribute);
   sout << s;
-  sout.flush();
 }
 
 void DomElement::fastJsStringLiteral(EscapeOStream& outRaw,
@@ -562,7 +561,8 @@ std::string DomElement::cssStyle() const
 }
 
 void DomElement::asHTML(EscapeOStream& out,
-			std::vector<TimeoutEvent>& timeouts) const
+			std::vector<TimeoutEvent>& timeouts,
+			bool openingTagOnly) const
 {
   if (mode_ != ModeCreate)
     throw WtException("DomElement::asHTML() called with ModeUpdate");
@@ -814,6 +814,17 @@ void DomElement::asHTML(EscapeOStream& out,
   if (needButtonWrap && !supportButton)
     out << " />";
   else {
+    if (openingTagOnly) {
+      out << ">";
+      if (!innerHTML.empty()) {
+	DomElement *self = const_cast<DomElement *>(this);
+	if (!self->childrenHtml_)
+	  self->childrenHtml_ = new std::stringstream();
+	*self->childrenHtml_ << innerHTML;
+      }
+      return;
+    }
+
     /*
      * http://www.w3.org/TR/html/#guidelines
      * XHTML recommendation, back-wards compatibility with HTML: C.2, C.3:
@@ -847,39 +858,24 @@ void DomElement::asHTML(EscapeOStream& out,
   Utils::insert(timeouts, timeouts_);
 }
 
-void DomElement::createReference(EscapeOStream& out) const
+std::string DomElement::createVar() const
 {
-  if (mode_ == ModeCreate)
-    out << "document.createElement('" << elementNames_[type_] << "')";
-  else
-    out << WT_CLASS ".getElement('" << id_ << "')";
-}
+#ifndef WT_TARGET_JAVA
+  char buf[20];
+  sprintf(buf, "j%d", nextId_++);
+  var_ = buf;
+#else // !WT_TARGET_JAVA
+  var_ = "j" + boost::lexical_cast<std::string>(nextId_++);
+#endif // !WT_TARGET_JAVA
 
-std::string DomElement::createReference() const
-{
-  static const std::string CREATE("document.createElement('"); 
-
-  if (mode_ == ModeCreate)
-    return CREATE + elementNames_[type_] + "')";
-  else
-    return WT_CLASS ".getElement('" + id_ + "')";
+  return var_;
 }
 
 void DomElement::declare(EscapeOStream& out) const
 {
-  if (var_.empty()) {
-#ifndef WT_TARGET_JAVA
-    char buf[20];
-    sprintf(buf, "j%d", nextId_++);
-    var_ = buf;
-#else // !WT_TARGET_JAVA
-    var_ = "j" + boost::lexical_cast<std::string>(nextId_++);
-#endif // !WT_TARGET_JAVA
-
-    out << "var " << var_ << "=";
-    createReference(out);
-    out << ';' << '\n';
-  }
+  if (var_.empty())
+    out << "var " << createVar() << "="
+	<< WT_CLASS ".getElement('" << id_ << "');\n";
 }
 
 bool DomElement::canWriteInnerHTML(WApplication *app) const
@@ -956,35 +952,80 @@ void DomElement::createTimeoutJs(std::ostream& out, const TimeoutList& timeouts,
 	<< (timeouts[i].repeat ? "true" : "false") << ");\n";
 }
 
-std::string DomElement::createAsJavaScript(EscapeOStream& out,
-					   const std::string& parentVar,
-					   int pos)
+void DomElement::createElement(std::ostream& out, WApplication *app,
+			       const std::string& domInsertJS)
 {
-#ifndef WT_TARGET_JAVA
-  char buf[20];
-  sprintf(buf, "j%d", nextId_++);
-  var_ = buf;
-#else // !WT_TARGET_JAVA
-  var_ = "j" + boost::lexical_cast<std::string>(nextId_++);
-#endif // !WT_TARGET_JAVA
+  EscapeOStream sout(out);
+  createElement(sout, app, domInsertJS);
+}
+
+void DomElement::createElement(EscapeOStream& out, WApplication *app,
+			       const std::string& domInsertJS)
+{
+  if (var_.empty())
+    createVar();
 
   out << "var " << var_ << "=";
 
-  if (type_ == DomElement_TD)
-    out << parentVar << ".insertCell(" << pos << ");";
-  else if (type_ == DomElement_TR)
-    out << parentVar << ".insertRow(" << pos << ");";
-  else {
+  if (app->environment().agentIsIE()) {
+    /*
+     * IE can do create the entire opening tag at once.
+     * This rocks because it results in fewer JavaScript statements.
+     * It also avoids problems with changing certain attributes not
+     * working in IE.
+     */
+    out << "document.createElement('";
+    out.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    TimeoutList timeouts;
+    asHTML(out, timeouts, true);
+    out.popEscape();
+    out << "');";
+    out << domInsertJS;
+    renderInnerHtmlJS(out, app);
+  } else {
     out << "document.createElement('" << elementNames_[type_] << "');";
-    if (pos != -1)
-      out << parentVar << ".insertBefore(" << var_ << ","
-	  << parentVar << ".childNodes[" << pos << "]);";
-    else
-      out << parentVar << ".appendChild(" << var_ << ");";
+    out << domInsertJS;
+    asJavaScript(out, Create);
+    asJavaScript(out, Update);
   }
-  out << '\n';
+}
 
-  return asJavaScript(out, Create);
+std::string DomElement::addToParent(std::ostream& out,
+				    const std::string& parentVar,
+				    int pos, WApplication *app)
+{
+  EscapeOStream sout(out);
+  return addToParent(sout, parentVar, pos, app);
+}
+
+std::string DomElement::addToParent(EscapeOStream& out,
+				    const std::string& parentVar,
+				    int pos, WApplication *app)
+{
+  createVar();
+
+  if (type_ == DomElement_TD || type_ == DomElement_TR) {
+    out << "var " << var_ << "=";
+
+    if (type_ == DomElement_TD)
+      out << parentVar << ".insertCell(" << pos << ");\n";
+    else
+      out << parentVar << ".insertRow(" << pos << ");\n";
+
+    asJavaScript(out, Create);
+    asJavaScript(out, Update);
+  } else {
+    std::stringstream insertJS;
+    if (pos != -1)
+      insertJS << parentVar << ".insertBefore(" << var_ << ","
+	       << parentVar << ".childNodes[" << pos << "]);\n";
+    else
+      insertJS << parentVar << ".appendChild(" << var_ << ");\n";
+
+    createElement(out, app, insertJS.str());
+  }
+
+  return var_;
 }
 
 std::string DomElement::asJavaScript(EscapeOStream& out,
@@ -1007,8 +1048,6 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     return var_;
   case Create:
     if (mode_ == ModeCreate) {
-      declare(out);
-
       if (!id_.empty())
 	out << var_ << ".setAttribute('id', '" << id_ << "');\n";
 
@@ -1052,10 +1091,11 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     if (replaced_) {
       declare(out);
 
-      std::string varr = replaced_->asJavaScript(out, Create);
-      out << var_ << ".parentNode.replaceChild("
-	  << varr << ',' << var_ << ");\n";
-      replaced_->asJavaScript(out, Update);
+      std::string varr = replaced_->createVar();
+      std::stringstream insertJs;
+      insertJs << var_ << ".parentNode.replaceChild("
+	       << varr << ',' << var_ << ");\n";
+      replaced_->createElement(out, app, insertJs.str());
       out << WT_CLASS ".unstub(" << var_ << ',' << varr << ','
 	  << (hideWithDisplay_ ? 1 : 0) << ");\n";
 
@@ -1063,11 +1103,11 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     } else if (insertBefore_) {
       declare(out);
 
-      std::string varr = insertBefore_->asJavaScript(out, Create);
-      out << var_ << ".parentNode.insertBefore(" << varr << ","
-	  << var_ + ");\n";
-
-      insertBefore_->asJavaScript(out, Update);
+      std::string varr = insertBefore_->createVar();
+      std::stringstream insertJs;
+      insertJs << var_ << ".parentNode.insertBefore(" << varr << ","
+	       << var_ + ");\n";
+      insertBefore_->createElement(out, app, insertJs.str());
 
       return var_;
     }
@@ -1098,69 +1138,70 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       }
     }
 
-    if (wasEmpty_ && canWriteInnerHTML(app)) {
-      if (!childrenToAdd_.empty() || childrenHtml_) {
-	declare(out);
-
-	out << WT_CLASS ".setHtml(" << var_ << ",'";
-
-	out.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-	if (childrenHtml_)
-	  out << childrenHtml_->str();
-
-	TimeoutList timeouts;
-	for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
-	  childrenToAdd_[i].child->asHTML(out, timeouts);
-	out.popEscape();
-
-	out << "');\n";
-
-	Utils::insert(timeouts, timeouts_);
-
-	for (unsigned i = 0; i < timeouts.size(); ++i)
-	  out << app->javaScriptClass()
-	      << "._p_.addTimerEvent('" << timeouts[i].event << "', " 
-	      << timeouts[i].msec << ","
-	      << (timeouts[i].repeat ? "true" : "false") << ");\n";
-      }
-    } else {
-      for (unsigned i = 0; i < childrenToAdd_.size(); ++i) {
-	declare(out);
-
-	DomElement *child = childrenToAdd_[i].child;
-
-	std::string cvar = child->createAsJavaScript(out, var_,
-						     childrenToAdd_[i].pos);
-
-	child->asJavaScript(out, Update);
-      }
-    }
-
-    for (unsigned i = 0; i < methodCalls_.size(); ++i) {
-      declare(out);
-      out << var_ << "." << methodCalls_[i] << ';' << '\n';
-    }
-
-    if (!javaScriptEvenWhenDeleted_.empty()) {
-      declare(out);
-      out << javaScriptEvenWhenDeleted_ << '\n';
-    }
-
-    if (!javaScript_.empty()) {
-      declare(out);
-      out << javaScript_ << '\n';
-    }
-
-    if (timeOut_ != -1)
-      out << app->javaScriptClass() << "._p_.addTimerEvent('"
-	  << id_ << "', " << timeOut_ << ","
-	  << (timeOutJSRepeat_ ? "true" : "false") << ");\n";
+    renderInnerHtmlJS(out, app);
 
     return var_;
   }
   }
 
   return var_;
+}
+
+void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
+{
+  if (wasEmpty_ && canWriteInnerHTML(app)) {
+    if (!childrenToAdd_.empty() || childrenHtml_) {
+      declare(out);
+
+      out << WT_CLASS ".setHtml(" << var_ << ",'";
+
+      out.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+      if (childrenHtml_)
+	out << childrenHtml_->str();
+
+      TimeoutList timeouts;
+      for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
+	childrenToAdd_[i].child->asHTML(out, timeouts);
+      out.popEscape();
+
+      out << "');\n";
+
+      Utils::insert(timeouts, timeouts_);
+
+      for (unsigned i = 0; i < timeouts.size(); ++i)
+	out << app->javaScriptClass()
+	    << "._p_.addTimerEvent('" << timeouts[i].event << "', " 
+	    << timeouts[i].msec << ","
+	    << (timeouts[i].repeat ? "true" : "false") << ");\n";
+    }
+  } else {
+    for (unsigned i = 0; i < childrenToAdd_.size(); ++i) {
+      declare(out);
+      DomElement *child = childrenToAdd_[i].child;
+      child->addToParent(out, var_, childrenToAdd_[i].pos, app);
+    }
+  }
+
+
+  for (unsigned i = 0; i < methodCalls_.size(); ++i) {
+    declare(out);
+    out << var_ << "." << methodCalls_[i] << ';' << '\n';
+  }
+
+  if (!javaScriptEvenWhenDeleted_.empty()) {
+    declare(out);
+    out << javaScriptEvenWhenDeleted_ << '\n';
+  }
+
+  if (!javaScript_.empty()) {
+    declare(out);
+    out << javaScript_ << '\n';
+  }
+
+  if (timeOut_ != -1)
+    out << app->javaScriptClass() << "._p_.addTimerEvent('"
+	<< id_ << "', " << timeOut_ << ","
+	<< (timeOutJSRepeat_ ? "true" : "false") << ");\n";
 }
 
 void DomElement::setJavaScriptProperties(EscapeOStream& out,
@@ -1310,18 +1351,6 @@ void DomElement::setJavaScriptAttributes(EscapeOStream& out) const
       out << ");\n";
     }
   }
-}
-
-std::string DomElement::asJavaScript(std::stringstream& js, bool create) const
-{
-  EscapeOStream sout(js);
-
-  if (create)
-    asJavaScript(sout, Create);
-  else
-    asJavaScript(sout, Update);
-
-  return var_;
 }
 
 bool DomElement::isDefaultInline() const
