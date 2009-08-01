@@ -838,6 +838,15 @@ void DomElement::asHTML(EscapeOStream& out,
 
       if (childrenHtml_)
 	out << childrenHtml_->str();
+
+      // IE6 will incorrectly set the height of empty divs
+      if (renderedType == DomElement_DIV
+	  && app->environment().agent() == WEnvironment::IE6
+	  && innerHTML.empty()
+	  && childrenToAdd_.empty()
+	  && !childrenHtml_)
+	out << "&nbsp;";
+
       out << "</" << elementNames_[renderedType] << ">";
     } else
       out << " />";
@@ -1150,7 +1159,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 {
   if (wasEmpty_ && canWriteInnerHTML(app)) {
-    if (!childrenToAdd_.empty() || childrenHtml_) {
+    if ((type_ == DomElement_DIV
+	 && app->environment().agent() == WEnvironment::IE6)
+	|| !childrenToAdd_.empty() || childrenHtml_) {
       declare(out);
 
       out << WT_CLASS ".setHtml(" << var_ << ",'";
@@ -1162,6 +1173,13 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
       TimeoutList timeouts;
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
 	childrenToAdd_[i].child->asHTML(out, timeouts);
+
+      if (type_ == DomElement_DIV
+	  && app->environment().agent() == WEnvironment::IE6
+	  && childrenToAdd_.empty()
+	  && !childrenHtml_)
+	out << "&nbsp;";
+
       out.popEscape();
 
       out << "');\n";
@@ -1219,7 +1237,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
        i != properties_.end(); ++i) {
     declare(out);
 
-    switch(i->first) {
+    switch (i->first) {
     case Wt::PropertyInnerHTML:
     case Wt::PropertyAddedInnerHTML:
       out << WT_CLASS ".setHtml(" << var_ << ',';

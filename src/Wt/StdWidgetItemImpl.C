@@ -66,6 +66,7 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
   DomElement *result = d;
 
   // Safari does height properly (like Opera) ?
+
   if (   !app->environment().agentIsIE()
       && !app->environment().agentIsOpera()
       && (   (isTextArea(item_->widget()) && (fitWidth || fitHeight))
@@ -96,9 +97,10 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
       d->setProperty(PropertyStyleHeight, "100%");
 
   if (fitWidth && d->getProperty(PropertyStyleWidth).empty()) {
-    if (d->type() == DomElement_BUTTON
-	|| d->type() == DomElement_INPUT
-	|| d->type() == DomElement_TEXTAREA)
+    if (!app->environment().agentIsIE()
+	&& (d->type() == DomElement_BUTTON
+	    || d->type() == DomElement_INPUT
+	    || d->type() == DomElement_TEXTAREA))
       d->setProperty(PropertyStyleWidth, "100%");
   }
 

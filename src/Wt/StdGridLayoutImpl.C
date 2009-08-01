@@ -544,7 +544,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	AlignmentFlag hAlign = item.alignment_ & AlignHorizontalMask;
 	AlignmentFlag vAlign = item.alignment_ & AlignVerticalMask;
 
-	if (hAlign != 0)
+	if (hAlign != 0 && hAlign != AlignJustify)
 	  itemFitWidth = false;
 	if (vAlign != 0)
 	  itemFitHeight = false;

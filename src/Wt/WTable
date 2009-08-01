@@ -104,7 +104,7 @@ public:
 
   /*! \brief Insert an empty row.
    */
-  void insertRow(int row);
+  WTableRow* insertRow(int row);
 
   /*! \brief Delete the given row and all its contents.
    *
@@ -114,7 +114,7 @@ public:
 
   /*! \brief Insert an empty column.
    */
-  void insertColumn(int column);
+  WTableColumn* insertColumn(int column);
 
   /*! \brief Delete the given column and all its contents.
    */

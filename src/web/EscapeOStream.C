@@ -68,7 +68,8 @@ EscapeOStream::EscapeOStream(EscapeOStream& other)
     slen_(0),
     mixed_(other.mixed_),
     special_(other.special_),
-    c_special_(special_.empty() ? 0 : special_.c_str())
+    c_special_(special_.empty() ? 0 : special_.c_str()),
+    ruleSets_(other.ruleSets_)
 { }
 
 EscapeOStream::~EscapeOStream()

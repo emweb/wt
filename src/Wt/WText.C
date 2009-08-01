@@ -87,7 +87,9 @@ void WText::setWordWrap(bool wordWrap)
 void WText::updateDom(DomElement& element, bool all)
 {
   if (textChanged_ || all) {
-    element.setProperty(Wt::PropertyInnerHTML, formattedText());
+    std::string text = formattedText();
+    if (textChanged_ || !text.empty())
+      element.setProperty(Wt::PropertyInnerHTML, formattedText());
     textChanged_ = false;
   }
 

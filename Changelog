@@ -1,3 +1,14 @@
+01-08-2009
+	* WLineEdit: work around IE's inability to change <input> type
+	attribute
+
+	* DomElement, WebRenderer, EscapeOStream: use IE alternative
+	createElement() which also sets all attribute values, and thus
+	saves JavaScript calls
+
+	* StdGridLayoutImpl, StdWidgetItemImpl: fix IE glitches in
+	layout managers
+
 23-07-2009
 	* WApplication: simplified the semantics of internal path API signal
 	internalPathChanged(). You may still use the old behavior by

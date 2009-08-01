@@ -125,23 +125,32 @@ int WTable::columnCount() const
   return rows_.size() > 0 ? rows_[0]->cells_.size() : 0;
 }
 
-void WTable::insertRow(int row)
+WTableRow* WTable::insertRow(int row)
 {
-  rows_.insert(rows_.begin() + row, new WTableRow(this, columnCount()));
+  WTableRow* tableRow = new WTableRow(this, columnCount());
+
+  rows_.insert(rows_.begin() + row, tableRow);
   flags_.set(BIT_GRID_CHANGED);
   repaint(RepaintInnerHtml);
+  
+  return tableRow;
 }
 
-void WTable::insertColumn(int column)
+WTableColumn* WTable::insertColumn(int column)
 {
   for (unsigned i = 0; i < rows_.size(); ++i)
     rows_[i]->insertColumn(column);
 
-  if (columns_ && (unsigned)column <= columns_->size())
-    columns_->insert(columns_->begin() + column, new WTableColumn(this));
+  WTableColumn* tableColumn = 0;
+  if (columns_ && (unsigned)column <= columns_->size()) {
+    tableColumn = new WTableColumn(this);
+    columns_->insert(columns_->begin() + column, tableColumn);
+  }
 
   flags_.set(BIT_GRID_CHANGED);
   repaint(RepaintInnerHtml);
+
+  return tableColumn;
 }
 
 void WTable::deleteRow(int row)
