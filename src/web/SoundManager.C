@@ -11,9 +11,13 @@
 namespace Wt {
 
 SoundManager::SoundManager(WApplication *app)
-  : wApp_(app)
+  : WObject(app),
+    wApp_(app)
 {
-  WFlashObject *player_ = new WFlashObject(WApplication::resourcesUrl() + "WtSoundManager.swf", wApp_->domRoot());
+  WFlashObject *player_
+    = new WFlashObject(WApplication::resourcesUrl() + "WtSoundManager.swf",
+		       wApp_->domRoot());
+
   player_->resize(100, 100);
   player_->setPositionScheme(Wt::Absolute);
   player_->setOffsets(-900, Wt::Left | Wt::Top);

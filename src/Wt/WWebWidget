@@ -244,15 +244,17 @@ private:
   static const int BIT_SET_UNSELECTABLE = 18;
   static const int BIT_SET_SELECTABLE = 19;
   static const int BIT_SELECTABLE_CHANGED = 20;
+  static const int BIT_WIDTH_CHANGED = 21;
+  static const int BIT_HEIGHT_CHANGED = 22;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<21> AllChangeFlags;
+  static const std::bitset<23> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<21> flags_;
+  std::bitset<23> flags_;
   WLength	 *width_;
   WLength	 *height_;
 

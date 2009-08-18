@@ -252,4 +252,14 @@ EventSignalBase *WWidget::getEventSignal(const char *name)
   return 0;
 }
 
+int WWidget::boxPadding(Orientation orientation) const
+{
+  return 0;
+}
+
+int WWidget::boxBorder(Orientation orientation) const
+{
+  return 0;
+}
+
 }

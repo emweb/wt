@@ -7,12 +7,14 @@
 #ifndef SOUNDMANAGER_H_
 #define SOUNDMANAGER_H_
 
+#include <Wt/WObject>
+
 namespace Wt {
 
 class WApplication;
 class WSound;
 
-class SoundManager
+class SoundManager : public WObject
 {
 public:
   SoundManager(WApplication *app);

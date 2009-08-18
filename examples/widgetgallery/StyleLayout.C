@@ -7,12 +7,21 @@
 #include "StyleLayout.h"
 #include "EventDisplayer.h"
 
+#include <Wt/WApplication>
+
 #include <Wt/WBorderLayout>
 #include <Wt/WGridLayout>
 #include <Wt/WHBoxLayout>
 #include <Wt/WVBoxLayout>
 
 #include <Wt/WText>
+#include <Wt/WComboBox>
+#include <Wt/WPushButton>
+
+#include <Wt/WDefaultLoadingIndicator>
+#include <Wt/WOverlayLoadingIndicator>
+
+#include "EmwebLoadingIndicator.h"
 
 using namespace Wt;
 
@@ -25,6 +34,7 @@ StyleLayout::StyleLayout(EventDisplayer *ed)
 void StyleLayout::populateSubMenu(WMenu *menu)
 {
   menu->addItem("CSS", css());
+  menu->addItem("WLoadingIndicator", wLoadingIndicator());
   menu->addItem("WBoxLayout", wBoxLayout());
   menu->addItem("WGridLayout", wGridLayout());
   menu->addItem("WBorderLayout", wBorderLayout());
@@ -33,6 +43,44 @@ void StyleLayout::populateSubMenu(WMenu *menu)
 WWidget *StyleLayout::css()
 {
   return new WText(tr("style-and-layout-css"));
+}
+
+WWidget *StyleLayout::wLoadingIndicator()
+{
+  WContainerWidget *result = new WContainerWidget();
+  topic("WLoadingIndicator", result);
+
+  new WText(tr("style-WLoadingIndicator"), result);
+
+  //fix for the WOverlayLoadingIndicator
+  WApplication::instance()->styleSheet().addRule("body", "margin: 0px");
+
+  new WText("Select a loading indicator:  ", result);
+  WComboBox *cb = new WComboBox(result);
+  cb->addItem("WDefaultLoadingIndicator");
+  cb->addItem("WOverlayLoadingIndicator");
+  cb->addItem("EmwebLoadingIndicator");
+  cb->setCurrentIndex(0);
+  cb->sactivated().connect(SLOT(this, StyleLayout::loadingIndicatorSelected));
+  new WBreak(result);
+  WPushButton *load = new WPushButton("Load!", result);
+  load->clicked().connect(SLOT(this, StyleLayout::load));
+
+  return result;
+}
+
+void StyleLayout::loadingIndicatorSelected(WString indicator)
+{
+  if (indicator.value() == "WDefaultLoadingIndicator") {
+    WApplication::instance()
+      ->setLoadingIndicator(new WDefaultLoadingIndicator());
+  } else if (indicator.value() == "WOverlayLoadingIndicator") {
+    WApplication::instance()
+      ->setLoadingIndicator(new WOverlayLoadingIndicator());
+  } else if (indicator.value() == "EmwebLoadingIndicator") {
+    WApplication::instance()
+      ->setLoadingIndicator(new EmwebLoadingIndicator());
+  }
 }
 
 WWidget *StyleLayout::wBoxLayout()

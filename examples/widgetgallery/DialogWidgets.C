@@ -4,8 +4,6 @@
 
 #include <Wt/WText>
 #include <Wt/WBreak>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
 #include <Wt/WVBoxLayout>
 #include <Wt/Ext/Button>
 #include <Wt/Ext/Dialog>
@@ -21,6 +19,26 @@
 #endif
 
 using namespace Wt;
+
+NonModalDialog::NonModalDialog(const WString& title, EventDisplayer *ed)
+  : WDialog(title)
+{  
+  setModal(false);
+
+  new WText("You can freely format the contents of a WDialog by "
+	    "adding any widget you want to it.<br/>Here, we added WText, "
+	    "WLineEdit and WPushButton to a dialog", contents());
+  new WBreak(contents());
+  new WText("Enter your name: ", contents());
+  edit_ = new WLineEdit(contents());
+  new WBreak(contents());
+  ok_ = new WPushButton("Ok", contents());
+
+  edit_->enterPressed().connect(SLOT(this, NonModalDialog::welcome));
+  ok_->clicked().connect(SLOT(this, NonModalDialog::welcome));
+
+  ed_ = ed;
+}
 
 DialogWidgets::DialogWidgets(EventDisplayer *ed)
   : ControlsWidget(ed, true)
@@ -42,8 +60,11 @@ WWidget *DialogWidgets::wDialog()
 
   topic("WDialog", result);
   new WText(tr("dialogs-WDialog"), result);
-  WPushButton *button = new WPushButton("Familiar", result);
-  button->clicked().connect(SLOT(this, DialogWidgets::custom));
+  WPushButton *button = new WPushButton("Modal dialog", result);
+  button->clicked().connect(SLOT(this, DialogWidgets::customModal));
+
+  button = new WPushButton("Non-modal dialog", result);
+  button->clicked().connect(SLOT(this, DialogWidgets::customNonModal));
 
   return result;
 }
@@ -172,9 +193,16 @@ void DialogWidgets::messageBoxDone(StandardButton result)
   messageBox_ = 0;
 }
 
-void DialogWidgets::custom()
+void DialogWidgets::customNonModal()
 {
-  WDialog dialog("Personalia");
+   NonModalDialog *dialog = new NonModalDialog("Personalia (non-modal)", ed_);
+   dialog->show();
+}
+
+void DialogWidgets::customModal()
+{
+  WDialog dialog("Personalia (modal)");
+  dialog.setModal(true);
 
   new WText("You can freely format the contents of a WDialog by "
 	    "adding any widget you want to it.<br/>Here, we added WText, "

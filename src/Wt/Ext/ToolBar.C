@@ -7,6 +7,8 @@
 #include "Wt/Ext/ToolBar"
 #include "Utils.h"
 
+#include <iostream>
+
 namespace Wt {
   namespace Ext {
 
@@ -81,6 +83,31 @@ void ToolBar::add(WWidget *item)
   addOrphan(item);
 
   Widget::renderExtAdd(item);
+}
+
+void ToolBar::insert(int index, WWidget *item)
+{
+  if (isRendered())
+    std::cerr
+      << "ToolBar::insert(): can only support plain widgets before "
+      "initial rendering" << std::endl;
+
+  items_.insert(items_.begin() + index, item);
+  addOrphan(item);
+}
+
+void ToolBar::insert(int index, Button *button)
+{
+  items_.insert(items_.begin() + index, button);
+  addOrphan(button);
+
+  if (!isRendered())
+    return;
+
+  std::stringstream js;
+  std::string var = button->createExtElement(js, 0);
+  js << elVar() << ".insertButton(" << index << "," << var << ");";
+  addUpdateJS(js.str());
 }
 
 void ToolBar::addSeparator()

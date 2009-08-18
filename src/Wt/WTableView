@@ -1,0 +1,126 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTABLEVIEW_H_
+#define WTABLEVIEW_H_
+
+#include <Wt/WTable>
+#include <Wt/WContainerWidget>
+#include <Wt/WAbstractItemModel>
+#include <Wt/WModelIndex>
+#include <Wt/WAbstractItemDelegate>
+#include <Wt/WApplication>
+#include <Wt/WCompositeWidget>
+
+namespace Wt {
+  /*! \class WTableView Wt/WTableView Wt/WTableView
+   * \brief A container widget which provides a view implementation of a 
+   * WTable. 
+   *
+   * The WTableView operates on a WAbstractItemModel provided via
+   * setModel(). Data in the model is rendered using an HTML
+   * <tt>&lt;table&gt;</tt>, and the model reacts to any model
+   * changes. You may use CSS stylesheets for <tt>&lt;table&gt;</tt>,
+   * <tt>&lt;tr&gt;</tt>, and <tt>&lt;td&gt;</tt> elements to provide style
+   * to the table.
+   *
+   * \note This view widget is a work-in-progress. Support for column resizing,
+   *       smart rendering, and proper vertical scroll bar support is still
+   *       lacking. When support for these features is added in the future,
+   *       an HTML <tt>&lt;table&gt;</tt> element will still be used.
+   */
+  class WT_API WTableView : public WCompositeWidget
+  {
+  public:
+    /*! \brief Constructor
+     */
+    WTableView(WContainerWidget *parent = 0);
+
+    /*! \brief Destructor.
+     */
+    ~WTableView();
+
+    /*! \brief Sets the model.
+     *
+     * If a previous model was set, it is not deleted.
+     */
+    void setModel(WAbstractItemModel* model);
+
+    /*! \brief Sets the default item delegate.
+     *
+     * The previous delegate is removed but not deleted.
+     *
+     * The default item delegate is a WItemDelegate.
+     */
+    void setItemDelegate(WAbstractItemDelegate *delegate);
+
+    /*! \brief Returns the default item delegate.
+     *
+     * \sa setItemDelegate()
+     */
+    WAbstractItemDelegate *itemDelegate() const { return itemDelegate_; }
+
+    /*! \brief Sets the delegate for a column.
+     *
+     * The previous delegate is removed but not deleted.
+     *
+     * \sa setItemDelegate()
+     */
+    void setItemDelegateForColumn(int column, WAbstractItemDelegate *delegate);
+
+    /*! \brief Returns the delegate for a column.
+     *
+     * \sa setItemDelegateForColumn()
+     */
+    WAbstractItemDelegate *itemDelegateForColumn(int column) const;
+
+    /*! \brief Returns the delegate for rendering an item.
+     *
+     * \sa setItemDelegateForColumn(), setItemDelegate()
+     */
+    WAbstractItemDelegate *itemDelegate(const WModelIndex& index) const;
+
+  protected:
+    WTable* table_;
+
+  private:
+    struct ColumnInfo {
+      WAbstractItemDelegate *itemDelegate_;
+      
+      ColumnInfo(const WTableView *view, WApplication *app, int column);
+    };
+
+    WAbstractItemDelegate *itemDelegate_;
+    mutable std::vector<ColumnInfo> columns_;
+
+    WAbstractItemModel* model_;
+    
+    void columnsInserted(const WModelIndex& index, 
+			 const int firstColumn, 
+			 const int lastColumn);
+    void columnsRemoved(const WModelIndex& index, 
+			const int firstColumn, 
+			const int lastColumn);
+
+    void rowsInserted(const WModelIndex& index, 
+		      const int firstRow, 
+		      const int lastRow);
+    void rowsRemoved(const WModelIndex& index, 
+		     const int firstRow, 
+		     const int lastRow);
+
+    void dataChanged(const WModelIndex& topLeft,
+		     const WModelIndex& bottomRight);
+
+    void headerDataChanged(const Orientation& orientation,
+			   const int first, 
+			   const int last);
+
+    ColumnInfo& columnInfo(int column) const;
+  };
+}
+
+#endif //WTABLEVIEW_H

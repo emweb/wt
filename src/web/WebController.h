@@ -9,6 +9,8 @@
 
 #include <string>
 #include <vector>
+#include <map>
+
 #include <Wt/WDllDefs.h>
 
 #ifndef WT_TARGET_JAVA

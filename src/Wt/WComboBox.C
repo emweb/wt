@@ -54,6 +54,8 @@ void WComboBox::setModel(WAbstractItemModel *model)
      (model_->dataChanged().connect(SLOT(this, WComboBox::itemsChanged)));
   modelConnections_.push_back
      (model_->modelReset().connect(SLOT(this, WComboBox::itemsChanged)));
+  modelConnections_.push_back
+    (model_->layoutChanged().connect(SLOT(this, WComboBox::itemsChanged)));
 }
 
 void WComboBox::setModelColumn(int index)

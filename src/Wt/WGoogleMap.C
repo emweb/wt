@@ -234,12 +234,21 @@ void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
 }
 
 void WGoogleMap::openInfoWindow(const Coordinate& pos,
-				const std::string& myHtml)
+				const WString& myHtml)
 {
   std::ostringstream strm;
   strm << jsRef() << ".map.openInfoWindow(new google.maps.LatLng("
        << pos.latitude() << ", " << pos.longitude() << "), "
-       << myHtml << ");";
+       << myHtml.jsStringLiteral() << ");";
+
+  doGmJavaScript(strm.str(), false);
+}
+
+void WGoogleMap::setCenter(const Coordinate& center)
+{
+  std::ostringstream strm;
+  strm << jsRef() << ".map.setCenter(new google.maps.LatLng("
+       << center.latitude() << ", " << center.longitude() << "));";
 
   doGmJavaScript(strm.str(), false);
 }

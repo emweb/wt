@@ -111,7 +111,11 @@ public:
 
   /*! \brief Opens a text bubble with html text at a specific location.
    */
-  void openInfoWindow(const Coordinate&pos, const std::string& myHtml);
+  void openInfoWindow(const Coordinate&pos, const Wt::WString& myHtml);
+
+  /*! \brief Sets the map view to the given center.
+   */
+  void setCenter(const Coordinate& center);
 
   /*! \brief Sets the map view to the given center and zoom level.
    */

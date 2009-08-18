@@ -123,6 +123,9 @@ protected:
 			      WApplication *app);
   virtual bool needsToBeRendered() const;
 
+  virtual int boxPadding(Orientation orientation) const;
+  virtual int boxBorder(Orientation orientation) const;
+
 private:
   WWidget *impl_;
 

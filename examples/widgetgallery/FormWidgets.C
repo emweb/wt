@@ -24,6 +24,10 @@
 #include <Wt/WText>
 #include <Wt/WTextArea>
 #include <Wt/WTextEdit>
+#include <Wt/WStandardItem>
+#include <Wt/WPopupMenu>
+#include <Wt/WPopupMenuItem>
+#include <Wt/WLabel>
 
 using namespace Wt;
 
@@ -49,6 +53,7 @@ void FormWidgets::populateSubMenu(WMenu *menu)
   menu->addItem("WTextEdit",
 		deferCreate(boost::bind(&FormWidgets::wTextEdit, this)));
   menu->addItem("WFileUpload", wFileUpload());
+  menu->addItem("WPopupMenu", wPopupMenu());
 }
 
 WWidget *FormWidgets::wPushButton()
@@ -79,6 +84,11 @@ WWidget *FormWidgets::wCheckBox()
   new WBreak(result);
   cb = new WCheckBox("Check me too!", result);
   ed_->mapConnect(cb->checked(), "'Check me too!' checked");
+  new WBreak(result);
+  cb = new WCheckBox("Check me, I'm tristate!", result);
+  cb->setTristate();
+  cb->setCheckState(PartiallyChecked);
+  ed_->mapConnect(cb->checked(), "'Check me, I'm tristate!' checked");
 
   return result;
 }
@@ -127,12 +137,33 @@ WWidget *FormWidgets::wComboBox()
   cb->addItem("Medium");
   cb->addItem("Light");
   cb->setCurrentIndex(1); // select 'Medium'
-  ed_->mapConnectWString(cb->sactivated(), "WComboBox activation: ");
+  ed_->mapConnectWString(cb->sactivated(), "WComboBox 1 activation: ");
 
   new WText(tr("formwidgets-WComboBox-model"), result);
+  
+  new WText(tr("formwidgets-WComboBox-style"), result);
+  WComboBox *colorCb = new WComboBox(result);
+  WStandardItemModel* model = new WStandardItemModel(colorCb);
+  model->insertColumns(0, 3);
+  addColorElement(model, "Red", "combo-red");
+  addColorElement(model, "Blue", "combo-blue");
+  addColorElement(model, "Green", "combo-green");
+  colorCb->setModel(model);
+  colorCb->setCurrentIndex(0); // select 'Red'
+  ed_->mapConnectWString(colorCb->sactivated(), "WComboBox 2 activation: ");
 
   return result;
 }
+
+void FormWidgets::addColorElement(WStandardItemModel* model,
+				  std::string name, 
+				  std::string style)
+{
+  WStandardItem* item = new WStandardItem(name);
+  item->setStyleClass(style);
+  model->appendRow(item);
+}
+
 
 WWidget *FormWidgets::wSelectionBox()
 {
@@ -232,21 +263,17 @@ WWidget *FormWidgets::wDatePicker()
   topic("WDatePicker", result);
   new WText("<p>The WDatePicker allows the entry of a date.</p>",
 	    result);
-  WLineEdit *le1 = new WLineEdit(result);
-  WPushButton *b1 = new WPushButton("...");
-  WDatePicker *dp = new WDatePicker(b1, le1, false, result);
-  ed_->mapConnect(le1->changed(), "WDatePicker 1 changed");
-  new WText("(format " + dp->format() + ")", result);
-  new WBreak(result);
-  WLineEdit *le2 = new WLineEdit(result);
-  WPushButton *b2 = new WPushButton("...");
-  WDatePicker *dp2 = new WDatePicker(b2, le2, false, result);
-  dp2->setFormat("dddd MMMM d yyyy");
-  new WText("(format " + dp2->format() + ")", result);
+
+  WDatePicker* dp1 = new WDatePicker(result);
+  ed_->mapConnect(dp1->lineEdit()->changed(), "WDatePicker 1 changed");
+  new WText("(format " + dp1->format() + ")", result);
   
-  le1->setTextSize(30);
-  le2->setTextSize(30);
-  ed_->mapConnect(le2->changed(), "WDatePicker 2 changed");
+  new WBreak(result);
+  
+  WDatePicker* dp2 = new WDatePicker(result);
+  ed_->mapConnect(dp2->lineEdit()->changed(), "WDatePicker 2 changed");
+  dp2->setFormat("dd MM yyyy");
+  new WText("(format " + dp2->format() + ")", result);
 
   return result;
 }
@@ -342,6 +369,31 @@ WWidget *FormWidgets::wFileUpload()
 	    "by connecting the WFfileUpload's changed() signal to it's own "
 	    "upload() slot.</p>", result);
 
+  return result;
+}
+
+WWidget *FormWidgets::wPopupMenu()
+{
+  WContainerWidget *result = new WContainerWidget();
+
+  topic("WPopupMenu", "WPopupMenuItem", result);
+  new WText(tr("formwidgets-WPopupMenu"), result);
+
+  WPopupMenu *popup = new WPopupMenu();
+  popup->addItem("icons/popupmenu.gif", "String item with image");
+  popup->addItem("Checkable string item")->setCheckable(true);
+  popup->addItem("Plain string item");
+  popup->addSeparator();
+  popup->addItem("Another plain string item");
+  WPopupMenu *subMenu = new WPopupMenu();
+  subMenu->addItem("Sub item");
+  popup->addMenu("Sub menu", subMenu);
+  
+  WLabel* clickMe = 
+    new WLabel("Click me and a WPopupMenu will appear!", result);
+  clickMe->setStyleClass("popupmenuLabel");
+  clickMe->clicked().connect(SLOT(popup, WPopupMenu::popup));
+  
   return result;
 }
 

@@ -605,6 +605,55 @@ protected:
    * \sa acceptDrops(), WInteractWidget::setDraggable()
    */
   virtual void dropEvent(WDropEvent dropEvent);
+
+  /*! \brief Returns the widget's built-in padding.
+   *
+   * This is used by the layout managers to correct for a built-in
+   * padding which interferes with setting a widget's width (or
+   * height) to 100%.
+   *
+   * A layout manager needs to set the width to 100% only for form
+   * widgets (WTextArea, WLineEdit, WComboBox, etc...). Therefore,
+   * only for those widgets this needs to return the padding (the
+   * default implementation returns 0).
+   *
+   * For form widgets, the padding depends on the specific
+   * browser/platform combination, unless an explicit padding is set
+   * for the widget.
+   *
+   * When setting an explicit padding for the widget using a style
+   * class, you will want to reimplement this method to return this
+   * padding in case you want to set the widget inside a layout
+   * manager.
+   *
+   * \sa boxBorder()
+   */
+  virtual int boxPadding(Orientation orientation) const;
+
+  /*! \brief Returns the widget's built-in border width.
+   *
+   * This is used by the layout managers to correct for a built-in
+   * border which interferes with setting a widget's width (or height)
+   * to 100%.
+   *
+   * A layout manager needs to set the width to 100% only for form
+   * widgets (WTextArea, WLineEdit, WComboBox, etc...). Therefore,
+   * only for those widgets this needs to return the border width (the
+   * default implementation returns 0).
+   *
+   * For form widgets, the border width depends on the specific
+   * browser/platform combination, unless an explicit border is set
+   * for the widget.
+   *
+   * When setting an explicit border for the widget using a style
+   * class, you will want to reimplement this method to return this
+   * border width, in case you want to set the widget inside a layout
+   * manager.
+   *
+   * \sa boxPadding()
+   */
+  virtual int boxBorder(Orientation orientation) const;
+
   void getDrop(const std::string sourceId, const std::string mimeType,
 	       WMouseEvent event);
 

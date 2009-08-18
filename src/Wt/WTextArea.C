@@ -5,6 +5,8 @@
  */
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
 #include "Wt/WTextArea"
 
 #include "DomElement.h"
@@ -118,5 +120,38 @@ WValidator::State WTextArea::validate()
   } else
     return WValidator::Valid;
 }
+
+int WTextArea::boxPadding(Orientation orientation) const
+{
+  const WEnvironment& env = WApplication::instance()->environment();
+
+  if (env.agentIsIE() || env.agentIsOpera())
+    return 1;
+  else if (env.agentIsChrome())
+    return 2;
+  else if (env.userAgent().find("Mac OS X") != std::string::npos)
+    return 0;
+  else if (env.userAgent().find("Windows") != std::string::npos)
+    return 0;
+  else
+    return 1;
+}
+
+int WTextArea::boxBorder(Orientation orientation) const
+{
+  const WEnvironment& env = WApplication::instance()->environment();
+
+  if (env.agentIsIE() || env.agentIsOpera())
+    return 2;
+  else if (env.agentIsChrome())
+    return 1;
+  else if (env.userAgent().find("Mac OS X") != std::string::npos)
+    return 1;
+  else if (env.userAgent().find("Windows") != std::string::npos)
+    return 2;
+  else
+    return 2;
+}
+
 
 }

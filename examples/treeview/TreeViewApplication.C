@@ -16,7 +16,11 @@ public:
   TreeViewApplication(const WEnvironment &env):
     WApplication(env)
   {
-    new TreeViewExample(true, root());
+    WStandardItemModel *model = TreeViewExample::createModel(true, this);
+
+    root()->addWidget
+      (new TreeViewExample(model, WString::tr("treeview-introduction"))); 
+
     /*
      * Stub for the drink info
      */

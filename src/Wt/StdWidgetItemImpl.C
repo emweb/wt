@@ -12,15 +12,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WLogger"
-#include "Wt/WTextEdit"
 #include "Wt/WWidgetItem"
-
-namespace {
-  bool isTextArea(Wt::WWidget *w) {
-    return dynamic_cast<Wt::WTextArea *>(w)
-      && !dynamic_cast<Wt::WTextEdit *>(w);
-  }
-}
 
 namespace Wt {
 
@@ -49,46 +41,53 @@ void StdWidgetItemImpl::containerAddWidgets(WContainerWidget *container)
 int StdWidgetItemImpl::additionalVerticalPadding(bool fitWidth, bool fitHeight)
   const
 {
-  WApplication *app = WApplication::instance();
-
-  if (   !app->environment().agentIsIE()
-      && !app->environment().agentIsOpera()
-      && fitHeight && isTextArea(item_->widget()))
-    return 5;
-  else
-    return 0;
+  return 0;
 }
 
 DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 						WApplication *app)
 {
-  DomElement *d = item_->widget()->createSDomElement(app);
+  WWidget *w = item_->widget();
+
+  DomElement *d = w->createSDomElement(app);
   DomElement *result = d;
 
-  // Safari does height properly (like Opera) ?
+  int marginRight = 0, marginBottom = 0;
 
-  if (   !app->environment().agentIsIE()
-      && !app->environment().agentIsOpera()
-      && (   (isTextArea(item_->widget()) && (fitWidth || fitHeight))
-	  || (d->type() == DomElement_INPUT && fitWidth)
-	  || (d->type() == DomElement_BUTTON && fitWidth
-	      && app->environment().agent() == WEnvironment::Konqueror))) {
-    /*
-     * Browsers ignore the border so width/height 100% overflows the container.
-     * Thus we wrap it in a container that is slightly less wide/high.
-     */
+  if (fitWidth)
+    marginRight = (w->boxPadding(Horizontal) + w->boxBorder(Horizontal)) * 2;
+
+  if (fitHeight)
+    marginBottom = (w->boxPadding(Vertical) + w->boxBorder(Horizontal)) * 2;
+
+  bool forceDiv
+    = (fitHeight && d->type() == DomElement_SELECT
+       && d->getAttribute("size").empty());
+
+  if (marginRight || marginBottom || forceDiv) {
     result = DomElement::createNew(DomElement_DIV);
-    std::string style = "height:100%;";
+    std::stringstream style;
 
-    if (fitWidth)
-      style += "margin-right:8px;";
+    if (app->environment().agentIsIE() && !forceDiv) {
+      style << "margin-top:-1px;";
+      marginBottom -= 1;
+    }
 
-    if (fitHeight && d->type() == DomElement_TEXTAREA)
-      style += "height:100%;";
+    if (marginRight)
+      style << "margin-right:" << marginRight << "px;";
 
-    result->setAttribute("style", style);
+    if (marginBottom)
+      style << "margin-bottom:" << marginBottom << "px;";
+
+    result->setAttribute("style", style.str());
   }
 
+  /*
+   * Known issues:
+   *  - textarea does not interpret height 100%, and thus it does not
+   *    work inside the wrapped div, on IE6/7
+   *  - select does not interpret height that is set on IE6/7
+   */
   if (fitHeight && d->getProperty(PropertyStyleHeight).empty())
     if (   d->type() == DomElement_DIV
 	|| d->type() == DomElement_UL
@@ -97,10 +96,10 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
       d->setProperty(PropertyStyleHeight, "100%");
 
   if (fitWidth && d->getProperty(PropertyStyleWidth).empty()) {
-    if (!app->environment().agentIsIE()
-	&& (d->type() == DomElement_BUTTON
-	    || d->type() == DomElement_INPUT
-	    || d->type() == DomElement_TEXTAREA))
+    if ((d->type() == DomElement_BUTTON
+	 || d->type() == DomElement_INPUT
+	 || d->type() == DomElement_SELECT
+	 || d->type() == DomElement_TEXTAREA))
       d->setProperty(PropertyStyleWidth, "100%");
   }
 

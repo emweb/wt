@@ -1049,9 +1049,9 @@ bool WApplication::debug() const
 
 SoundManager *WApplication::getSoundManager()
 {
-  if (!soundManager_) {
+  if (!soundManager_)
     soundManager_ = new SoundManager(this);
-  }
+
   return soundManager_;
 }
 

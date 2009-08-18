@@ -8,6 +8,7 @@
 #define TREEVIEWEXAMPLE_H_
 
 #include <Wt/WContainerWidget>
+#include <Wt/WString>
 #include <string>
 #include <vector>
 
@@ -30,22 +31,27 @@ namespace Wt {
 class TreeViewExample : public Wt::WContainerWidget
 {
 public:
-  TreeViewExample(bool useInternalPath, Wt::WContainerWidget* parent);
-  
+  TreeViewExample(Wt::WStandardItemModel *model,
+		  const Wt::WString& titleText);
+
+  Wt::WTreeView *treeView() const { return treeView_; }
+
+  static Wt::WStandardItemModel *createModel(bool useInternalPath,
+					     WObject *parent);
+
 private:
-  bool useInternalPath_;
   Wt::WStandardItem      *belgium_;
   Wt::WStandardItemModel *model_;
   Wt::WTreeView          *treeView_;
-  
-  Wt::WStandardItem *continentItem(const std::string& continent);
-  
-  Wt::WStandardItem *countryItem(const std::string& country,
-				 const std::string& code);
-  std::vector<Wt::WStandardItem *> cityItems(const std::string& city,
-					     WeatherIcon weather,
-					     const std::string& drink,
-					     bool visited);
+
+  static Wt::WStandardItem *continentItem(const std::string& continent);
+  static Wt::WStandardItem *countryItem(const std::string& country,
+					const std::string& code);
+  static std::vector<Wt::WStandardItem *> cityItems(const std::string& city,
+						    WeatherIcon weather,
+						    const std::string& drink,
+						    bool useInternalPath,
+						    bool visited);
   void toggleRowHeight();
   void toggleStripes();
   void toggleRoot();

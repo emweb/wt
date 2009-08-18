@@ -14,17 +14,27 @@
 
 using namespace Wt;
 
-PaintExample::PaintExample(WContainerWidget *root)
+PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
   : WContainerWidget(root)
 {
-  new WText("<h2>Paint example</h2>"
-	    "<p>A simple example demonstrating cross-browser vector graphics."
-	    "</p>"
-	    "<p>The emweb logo below is painted using the Wt WPainter API, and "
-	    "rendered to the browser using inline SVG, inline VML or the "
-	    "HTML 5 &lt;canvas&gt; element."
-	    "</p>",
-	    this);
+  std::string text;
+  if (showTitle)
+    text += "<h2>Paint example</h2>";
+  text += 
+    "<p>A simple example demonstrating cross-browser vector graphics."
+    "</p>"
+    "<p>The emweb logo below is painted using the Wt WPainter API, and "
+    "rendered to the browser using inline SVG, inline VML or the "
+    "HTML 5 &lt;canvas&gt; element."
+    "</p>"
+    "<p>"
+    "The example also demonstrates the horizontal and vertical "
+    "<a href=\"http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSlider.html\" target=\"_blank\">"
+    "WSlider</a> widgets. Here, the events of the WSlider"
+    "widgets are used to scale and rotate the emweb logo."
+    "</p>";
+
+  new WText(text, this);
 
   WContainerWidget *emweb = new WContainerWidget(this);
   emweb->setMargin(WLength::Auto, Left | Right);

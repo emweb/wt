@@ -66,6 +66,18 @@ void WCssDecorationStyle::setCursor(Cursor c)
   }
 }
 
+void WCssDecorationStyle::setCursor(std::string cursorImage, Cursor fallback)
+{
+  if (!WWebWidget::canOptimizeUpdates()
+      || cursorImage_ != cursorImage
+      || cursor_ != fallback) {
+    cursorImage_ = cursorImage;
+    cursor_ = fallback;
+    cursorChanged_ = true;
+    changed();
+  }
+}
+
 void WCssDecorationStyle::setFont(const WFont& font)
 {
   if (!WWebWidget::canOptimizeUpdates()
@@ -159,6 +171,12 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
       element.setProperty(PropertyStyleCursor, "text"); break;
     case WhatsThisCursor:
       element.setProperty(PropertyStyleCursor, "help"); break;
+    }
+
+    if (!cursorImage_.empty()) {
+      element.setProperty(PropertyStyleCursor, 
+			  "url(" + cursorImage_ + "),"
+			  + element.getProperty(PropertyStyleCursor));
     }
 
     cursorChanged_ = false;

@@ -23,6 +23,8 @@
 #include "DomElement.h"
 #include "Utils.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace Wt {
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
@@ -256,24 +258,28 @@ std::string WebSession::mostRelativeUrl(const std::string& internalPath) const
 
 std::string WebSession::appendSessionQuery(const std::string& url) const
 {
-#ifndef WT_TARGET_JAVA
   std::string result = url;
-#else
-  std::string result = WebSession::Handler::instance()
-    ->response()->encodeURL(url);
-#endif // WT_TARGET_JAVA
-
+  
   if (env_->agentIsSpiderBot())
     return result;
 
   std::size_t questionPos = result.find('?');
 
   if (questionPos == std::string::npos)
-    return result + sessionQuery();
+    result += sessionQuery();
   else if (questionPos == result.length() - 1)
-    return result + sessionQuery().substr(1);
+    result += sessionQuery().substr(1);
   else
-    return result + '&' + sessionQuery().substr(1);
+    result += '&' + sessionQuery().substr(1);
+
+#ifndef WT_TARGET_JAVA
+  return result;
+#else
+  if (boost::starts_with(result, "?"))
+    result = applicationUrl_ + result;
+
+  return WebSession::Handler::instance()->response()->encodeURL(result);
+#endif // WT_TARGET_JAVA
 }
 
 std::string WebSession::bookmarkUrl() const
@@ -1125,6 +1131,7 @@ void WebSession::notify(const WEvent& e)
     session->notifySignal(e);
     break;
   case WEvent::Refresh:
+    session->env_->parameters_ = e.handler.request()->getParameterMap();
     session->app_->refresh();
     break;
   case WEvent::Render:

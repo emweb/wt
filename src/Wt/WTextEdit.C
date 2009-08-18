@@ -228,4 +228,14 @@ void WTextEdit::getDomChanges(std::vector<DomElement *>& result,
   result.push_back(e);
 }
 
+int WTextEdit::boxPadding(Orientation orientation) const
+{
+  return 0;
+}
+
+int WTextEdit::boxBorder(Orientation orientation) const
+{
+  return 0;
+}
+
 }

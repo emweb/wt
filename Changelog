@@ -1,3 +1,14 @@
+18-08-2009
+	* WWidget: add boxPadding() and boxBorder() methods, which are
+	used by the layout managers to correct for built-in borders and
+	paddings of form widgets
+
+	* WComboBox: listen to layoutChanged()
+
+06-08-2009
+	* WGoogleMap: add setCenter() method without zoom argument, change
+	myHtml argument to WString
+
 01-08-2009
 	* WLineEdit: work around IE's inability to change <input> type
 	attribute
@@ -8,6 +19,9 @@
 
 	* StdGridLayoutImpl, StdWidgetItemImpl: fix IE glitches in
 	layout managers
+
+31-07-2009
+	* WCssDecorationStyle: add custom cursor image functionality
 
 23-07-2009
 	* WApplication: simplified the semantics of internal path API signal

@@ -10,9 +10,12 @@ ADD_EXECUTABLE(widgetgallery.wt
   ExtWidgets.C
   FormWidgets.C
   GraphicsWidgets.C
+  SpecialPurposeWidgets.C
   MvcWidgets.C
   Validators.C
   StyleLayout.C
+  PaintBrush.C
+  EmwebLoadingIndicator.C
   ../charts/ChartsExample.C
   ../charts/ChartConfig.C
   ../charts/CsvUtil.C

@@ -10,6 +10,7 @@
 #include "MvcWidgets.h"
 #include "Validators.h"
 #include "StyleLayout.h"
+#include "SpecialPurposeWidgets.h"
 
 #include <Wt/WMenu>
 #include <Wt/WSubMenuItem>
@@ -53,6 +54,7 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   addToMenu(menu, "Form Validators", new Validators(eventDisplayer));
   addToMenu(menu, "Ext Widgets", new ExtWidgets(eventDisplayer));
   addToMenu(menu, "Vector Graphics", new GraphicsWidgets(eventDisplayer));
+  addToMenu(menu, "Special Purpose", new SpecialPurposeWidgets(eventDisplayer));
   addToMenu(menu, "Dialogs", new DialogWidgets(eventDisplayer));
   addToMenu(menu, "Charts", new ChartWidgets(eventDisplayer));
   addToMenu(menu, "MVC Widgets", new MvcWidgets(eventDisplayer));
@@ -83,6 +85,8 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
    */
   useStyleSheet("everywidget.css");
   useStyleSheet("dragdrop.css");
+  useStyleSheet("combostyle.css");
+  useStyleSheet("popupmenu.css");
 }
 
 void WidgetGallery::addToMenu(WMenu *menu, const WString& name,

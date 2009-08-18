@@ -1537,7 +1537,7 @@ void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
     headerHeightRule_->templateWidget()->setLineHeight(WLength::Auto);
 
   headers_->resize(headers_->width(), headerHeight_);
-  headerContainer_->resize(WLength::Auto, headerHeight_);
+  headerContainer_->resize(headerContainer_->width(), headerHeight_);
 
   if (renderState_ >= NeedRerenderHeader)
     return;

@@ -9,14 +9,36 @@
 #define DIALOGWIDGETS_H_
 
 #include <Wt/WMessageBox>
+#include <Wt/WDialog>
+#include <Wt/WString>
+#include <Wt/WLineEdit>
+#include <Wt/WPushButton>
 
 #include "ControlsWidget.h"
+#include "EventDisplayer.h"
 
 namespace Wt {
   namespace Ext {
     class Dialog;
   }
 }
+
+class NonModalDialog : public Wt::WDialog
+{
+public:
+  NonModalDialog(const Wt::WString& title, EventDisplayer *ed);
+  
+private:
+  Wt::WLineEdit *edit_;
+  Wt::WPushButton *ok_;
+
+  EventDisplayer *ed_;
+
+  void welcome() {
+    ed_->setStatus("Welcome, " + edit_->text());
+    setHidden(true);
+  }
+};
 
 class DialogWidgets : public ControlsWidget
 {
@@ -34,7 +56,8 @@ private:
   void messageBox2();
   void messageBox3();
   void messageBox4();
-  void custom();
+  void customModal();
+  void customNonModal();
 
   void messageBoxDone(Wt::StandardButton result);
 

@@ -82,6 +82,7 @@ void WPieChart::setDataColumn(int modelColumn)
 
 void WPieChart::setBrush(int modelRow, const WBrush& brush)
 {
+  pie_[modelRow].customBrush = true;
   pie_[modelRow].brush = brush;
   update();
 }

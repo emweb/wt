@@ -27,14 +27,16 @@ using namespace Wt;
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<21> WWebWidget::AllChangeFlags = std::bitset<21>()
+const std::bitset<23> WWebWidget::AllChangeFlags = std::bitset<23>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
   .set(BIT_TOOLTIP_CHANGED)
   .set(BIT_MARGINS_CHANGED)
   .set(BIT_STYLECLASS_CHANGED)
-  .set(BIT_SELECTABLE_CHANGED);
+  .set(BIT_SELECTABLE_CHANGED)
+  .set(BIT_WIDTH_CHANGED)
+  .set(BIT_HEIGHT_CHANGED);
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
@@ -317,16 +319,18 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
   if (!width_ && !width.isAuto())
     width_ = new WLength();
 
-  if (width_)
+  if (width_ && *width_ != width) {
     *width_ = width;
+    flags_.set(BIT_WIDTH_CHANGED);
+  }
 
   if (!height_ && !height.isAuto())
     height_ = new WLength();
 
-  if (height_)
+  if (height_ && *height_ != height) {
     *height_ = height;
-
-  flags_.set(BIT_GEOMETRY_CHANGED);
+    flags_.set(BIT_HEIGHT_CHANGED);
+  }
 
   repaint(RepaintPropertyAttribute);
 }
@@ -932,17 +936,24 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
     }
 
-    /*
-     * set width & height
-     */
-    if (width_ && !width_->isAuto())
-      element.setProperty(PropertyStyleWidth, width_->cssText());
-    if (height_ && !height_->isAuto())
-      element.setProperty(PropertyStyleHeight, height_->cssText());
-
     flags_.reset(BIT_GEOMETRY_CHANGED);
   }
 
+
+  /*
+   * set width & height
+   */
+  if (width_ && (flags_.test(BIT_WIDTH_CHANGED) || all)) {
+    if (flags_.test(BIT_WIDTH_CHANGED) || !width_->isAuto())
+      element.setProperty(PropertyStyleWidth, width_->cssText());
+    flags_.reset(BIT_WIDTH_CHANGED);
+  }
+
+  if (height_ && (flags_.test(BIT_HEIGHT_CHANGED) || all)) {
+    if (flags_.test(BIT_HEIGHT_CHANGED) || !height_->isAuto())
+      element.setProperty(PropertyStyleHeight, height_->cssText());
+    flags_.reset(BIT_HEIGHT_CHANGED);
+  }
 
   if (flags_.test(BIT_FLOAT_SIDE_CHANGED) || all) {
     if (layoutImpl_) {
@@ -1236,6 +1247,8 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_MARGINS_CHANGED);
   flags_.reset(BIT_STYLECLASS_CHANGED);
   flags_.reset(BIT_SELECTABLE_CHANGED);
+  flags_.reset(BIT_WIDTH_CHANGED);
+  flags_.reset(BIT_HEIGHT_CHANGED);
 #endif
 
   renderOk();

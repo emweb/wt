@@ -17,7 +17,7 @@ class ShapesWidget;
 class PaintExample : public WContainerWidget
 {
 public:
-  PaintExample(WContainerWidget *root);
+  PaintExample(WContainerWidget *root, bool showTitle=true);
 
 private:
   ShapesWidget *shapes_;

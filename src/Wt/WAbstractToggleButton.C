@@ -129,9 +129,11 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
   if (stateChanged_ || all) {
     element.setProperty(Wt::PropertyChecked,
 			state_ == Checked ? "true" : "false");
-    if (domElementType() == DomElement_INPUT)
+
+    if (!useImageWorkaround())
       element.setProperty(Wt::PropertyIndeterminate,
 			  state_ == PartiallyChecked ? "true" : "false");
+
     stateChanged_ = false;
   }
 

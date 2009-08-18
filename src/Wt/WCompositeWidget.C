@@ -367,4 +367,14 @@ void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
   impl_->getSDomChanges(result, app);
 }
 
+int WCompositeWidget::boxPadding(Orientation orientation) const
+{
+  return impl_->boxPadding(orientation);
+}
+
+int WCompositeWidget::boxBorder(Orientation orientation) const
+{
+  return impl_->boxBorder(orientation);
+}
+
 }

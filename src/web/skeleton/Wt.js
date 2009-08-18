@@ -789,8 +789,8 @@ var dragDrag = function(e) {
 var dragEnd = function(e) {
   //alert("dragEnd: " + captureElement);
 
+  if (!e) e = window.event;
   if (captureElement != null) {
-    if (!e) e = window.event;
     var el = captureElement;
     captureElement = null;
     if (el.onmouseup)
@@ -808,7 +808,7 @@ var dragEnd = function(e) {
 	ds.dropTarget.handleDragDrop('drop', ds.object, e,
 				     ds.sourceId, ds.mimeType);
       else
-	emit(ds.dropTarget, "_drop", ds.sourceId, ds.mimeType);
+	emit(ds.dropTarget, {name: "_drop", eventObject: ds.dropTarget, event: e}, ds.sourceId, ds.mimeType);
     } else {
       // could not be dropped, animate it floating back ?
     }

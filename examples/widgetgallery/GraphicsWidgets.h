@@ -10,10 +10,26 @@
 
 #include "ControlsWidget.h"
 
+#include "Wt/WTable"
+#include "Wt/WColor"
+#include "Wt/WSignalMapper"
+
 class GraphicsWidgets : public ControlsWidget
 {
- public:
+public:
   GraphicsWidgets(EventDisplayer *ed);
+  virtual ~GraphicsWidgets();
+  virtual void populateSubMenu(Wt::WMenu *menu);
+  
+private:
+  Wt::WSignalMapper<Wt::WColor > * colorMapper_;
+
+  Wt::WWidget* emwebLogo();
+  Wt::WWidget* paintbrush();
+  void addColor(Wt::WTable* table, 
+		int row, 
+		int column, 
+		const Wt::WColor& color);
 };
 
 #endif

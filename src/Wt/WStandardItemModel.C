@@ -350,6 +350,8 @@ bool WStandardItemModel::setHeaderData(int section, Orientation orientation,
 
   d[role] = value;
 
+  headerDataChanged().emit(orientation, section, section);
+
   return true;
 }
 

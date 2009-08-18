@@ -1,0 +1,27 @@
+div.Wt-popupmenu {
+    background: white;
+    color: black;
+    border: 1px solid #666666;
+    z-index: 200;
+    cursor: default;
+}
+
+div.Wt-popupmenu .notselected, div.Wt-popupmenu .selected {
+    padding: 2px 0px;
+}
+
+div.Wt-popupmenu .selected {
+    background: blue;
+    color: white;
+}
+
+div.Wt-popupmenu .separator {
+    border-top: 1px solid #CCCCCC;
+    border-bottom: 1px solid #DDDDDD;
+    margin: 0px 3px;
+}
+
+.popupmenuLabel {
+    color: grey;
+    border: solid;
+}

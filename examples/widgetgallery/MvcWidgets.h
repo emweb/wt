@@ -10,6 +10,9 @@
 
 #include "ControlsWidget.h"
 
+#include <Wt/WSortFilterProxyModel>
+#include <Wt/WLineEdit>
+
 namespace Wt {
   class WStringListModel;
   namespace Ext {
@@ -25,7 +28,12 @@ public:
   void populateSubMenu(Wt::WMenu *menu);
 
 private:
+  Wt::WLineEdit *regexpFilter;
+  Wt::WSortFilterProxyModel *filteredCocktails;
+  Wt::WSortFilterProxyModel *filteredSortedCocktails;
+
   Wt::WWidget *models();
+  Wt::WWidget *proxyModels();
   Wt::WWidget *viewsCombo();
   Wt::WWidget *viewsExtTable();
   Wt::WWidget *viewsTree();
@@ -34,6 +42,10 @@ private:
   Wt::WStringListModel *stringList_;
   Wt::Ext::ComboBox *extComboBox_;
   void comboBoxAdd();
+  void changeRegexp() {
+    filteredCocktails->setFilterRegExp(regexpFilter->text());
+    filteredSortedCocktails->setFilterRegExp(regexpFilter->text());
+  }
 };
 
 #endif

@@ -9,6 +9,9 @@
 #define FORMWIDGETS_H_
 
 #include "ControlsWidget.h"
+
+#include "Wt/WStandardItemModel"
+
 class EventDisplayer;
 
 class FormWidgets: public ControlsWidget
@@ -32,7 +35,11 @@ private:
   Wt::WWidget *wSuggestionPopup();
   Wt::WWidget *wTextEdit();
   Wt::WWidget *wFileUpload();
+  Wt::WWidget *wPopupMenu();
 
+  void addColorElement(Wt::WStandardItemModel* model,
+		       std::string name, 
+		       std::string style);
 };
 
 #endif

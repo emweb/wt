@@ -67,8 +67,8 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
       (app->javaScriptClass() + ".layoutTableObjs=[];", false);
 
     if (jsHeights) {
-      app->doJavaScript(std::string
-	(WT_CLASS ".layoutAdjust=function(w,c,mh){"
+      app->doJavaScript(
+	WT_CLASS ".layoutAdjust=function(w,c,mh){"
 	 "" "if (" WT_CLASS ".isHidden(w))"
 	 ""   "return;"
 	 ""
@@ -162,7 +162,7 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
 	 ""           "if (td.childNodes.length==1)"
 	 ""             "k += -WT.px(ch, 'marginTop')"
-	 ""                  "-WT.px(ch, 'marginBottom')"
+	 ""		     "-WT.px(ch, 'marginBottom')" 
 	 ""                  "-WT.px(ch, 'borderTopWidth')"
 	 ""                  "-WT.px(ch, 'borderBottomWidth')"
 	 ""                  "-WT.px(ch, 'paddingTop')"
@@ -171,10 +171,7 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 	 ""           "if (k <= 0) "
 	 ""             "k=0;"
 
-	 ""           "if (WT.hasTag(ch, 'BUTTON')"
-	 ""               "|| WT.hasTag(ch, 'INPUT')"
-	 ""               "|| WT.hasTag(ch, 'SELECT')"
-	 ""               "|| WT.hasTag(ch, 'TABLE'))"
+	 ""           "if (WT.hasTag(ch, 'TABLE'))"
 	 ""              "continue;"
 
 	 ""           "if (ch.style.height != k+'px') {"
@@ -182,22 +179,6 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 	 ""               "ch.wtSetHeight(ch, k);"
 	 ""             "else "
 	 ""               "ch.style.height = k+'px';"
-	 ""           "}"
-
-	 ""           "if (td.childNodes.length==1"
-	 ""               "&& WT.hasTag(ch, 'TEXTAREA')) {")
-	 + (app->environment().agentIsOpera() ?
-		       // Older opera:
-		       // "ch.style.height = (k-2) + 'px';"
-		       // "ch.style.marginLeft = '3px';"
-		        "if (k <= 6) k=6;"
-		        "ch.style.height = (k-6) + 'px';"
-		        "td.style.marginLeft = '-1px';"
-		       :
-		        "if (k <= 8) k=8;"
-		        "ch.style.height = (k-8) + 'px';"
-		        "td.style.marginLeft = '-1px';"
-		        "td.style.marginTop = '-1px';") +
 	 ""           "}"
 	 ""         "}"
          ""       "}"
@@ -636,7 +617,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
 	if (!jsHeights && vAlign == 0) style2 += heightPct;
 
-	style2 += "overflow:auto;";
+	//style2 += "overflow:auto;";
 
 	int padding2 = padding[2] + additionalVerticalPadding;
 

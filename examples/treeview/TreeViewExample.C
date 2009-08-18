@@ -24,68 +24,21 @@ static const char *weatherIcons[] = {
   "snow.png"
 };
 
-TreeViewExample::TreeViewExample(bool useInternalPath,
-				 WContainerWidget *parent)
-  : WContainerWidget(parent),
-    useInternalPath_(useInternalPath)
-				 
+TreeViewExample::TreeViewExample(WStandardItemModel *model,
+				 const WString& titleText)
+  : model_(model)
 {
-  new WText(WString::tr("treeview-introduction"), this);
-  
-  /*
-   * Setup a model.
-   *
-   * We use the standard item model, which is a general model
-   * suitable for hierarchical (tree-like) data, but stores all data
-   * in memory.
-   */
-  model_ = new WStandardItemModel(0, 4, this);
+  belgium_ = model_->item(0, 0)->child(0, 0);
 
-  /*
-   * Headers ...
-   */
-  model_->setHeaderData(0, Horizontal, std::string("Places"));
-  model_->setHeaderData(1, Horizontal, std::string("Weather"));
-  model_->setHeaderData(2, Horizontal, std::string("Drink"));
-  model_->setHeaderData(3, Horizontal, std::string("Visited"));
-  
-  /*
-   * ... and data
-   */
-  WStandardItem *continent, *country;
-  
-  model_->appendRow(continent = continentItem("Europe"));
-  
-  continent->appendRow(country = countryItem("Belgium", "be"));
-  country->appendRow(cityItems("Brussels", Rain, "Beer", true));
-  country->appendRow(cityItems("Leuven", Rain, "Beer", true));
-  
-  belgium_ = country;
-  
-  continent->appendRow(country = countryItem("France", "fr"));
-  country->appendRow(cityItems("Paris", Cloud, "Wine", true));
-  country->appendRow(cityItems("Bordeaux", SunCloud, "Bordeaux wine", false));
-  
-  continent->appendRow(country = countryItem("Spain", "sp"));
-  country->appendRow(cityItems("Barcelona", Sun, "Cava", true));
-  country->appendRow(cityItems("Madrid", Sun, "San Miguel", false));
-  
-  model_->appendRow(continent = continentItem("Africa"));
-  
-  continent->appendRow(country = countryItem("Morocco (المغرب)", "ma"));
-  country->appendRow(cityItems("Casablanca", Sun, "Tea", false));
-  
+  new WText(titleText, this);
+
   /*
    * Now create the view
    */
   treeView_ = new WTreeView(this);
-  //treeView_->setColumn1Fixed(true);
   treeView_->setAlternatingRowColors(!treeView_->alternatingRowColors());
   treeView_->setRowHeight(30);
-  //treeView_->setHeaderHeight(40, true);
   treeView_->setModel(model_);
-  //treeView_->setSortingEnabled(false);
-  //treeView_->setColumnResizeEnabled(false);
   treeView_->setSelectionMode(NoSelection);
   treeView_->resize(600, 300);
 
@@ -97,7 +50,7 @@ TreeViewExample::TreeViewExample(bool useInternalPath,
   /*
    * Expand the first (and single) top level node
    */
-  treeView_->setExpanded(model_->index(0, 0), true);
+  treeView_->setExpanded(model->index(0, 0), true);
   
   /*
    * Setup some buttons to manipulate the view and the model.
@@ -116,11 +69,62 @@ TreeViewExample::TreeViewExample(bool useInternalPath,
   b = new WPushButton("Toggle root", wc);
   b->clicked().connect(SLOT(this, TreeViewExample::toggleRoot));
   b->setToolTip("Toggles root item between all and the first continent.");
-  
+
   b = new WPushButton("Add rows", wc);
   b->clicked().connect(SLOT(this, TreeViewExample::addRows));
   b->setToolTip("Adds some cities to Belgium");
+}
+
+WStandardItemModel *TreeViewExample::createModel(bool useInternalPath,
+						 WObject *parent)
+{
+  /*
+   * Setup a model.
+   *
+   * We use the standard item model, which is a general model
+   * suitable for hierarchical (tree-like) data, but stores all data
+   * in memory.
+   */
+  WStandardItemModel *result = new WStandardItemModel(0, 4, parent);
+
+  /*
+   * Headers ...
+   */
+  result->setHeaderData(0, Horizontal, std::string("Places"));
+  result->setHeaderData(1, Horizontal, std::string("Weather"));
+  result->setHeaderData(2, Horizontal, std::string("Drink"));
+  result->setHeaderData(3, Horizontal, std::string("Visited"));
   
+  /*
+   * ... and data
+   */
+  WStandardItem *continent, *country;
+  
+  result->appendRow(continent = continentItem("Europe"));
+  
+  continent->appendRow(country = countryItem("Belgium", "be"));
+  country->appendRow(cityItems("Brussels", Rain, "Beer", useInternalPath,
+			       true));
+  country->appendRow(cityItems("Leuven", Rain, "Beer", useInternalPath, true));
+  
+  continent->appendRow(country = countryItem("France", "fr"));
+  country->appendRow(cityItems("Paris", Cloud, "Wine", useInternalPath, true));
+  country->appendRow(cityItems("Bordeaux", SunCloud, "Bordeaux wine",
+			       useInternalPath, false));
+  
+  continent->appendRow(country = countryItem("Spain", "sp"));
+  country->appendRow(cityItems("Barcelona", Sun, "Cava", useInternalPath,
+			       true));
+  country->appendRow(cityItems("Madrid", Sun, "San Miguel", useInternalPath,
+			       false));
+  
+  result->appendRow(continent = continentItem("Africa"));
+  
+  continent->appendRow(country = countryItem("Morocco (المغرب)", "ma"));
+  country->appendRow(cityItems("Casablanca", Sun, "Tea", useInternalPath,
+			       false));
+
+  return result;
 }
 
 WStandardItem *TreeViewExample::continentItem(const std::string& continent)
@@ -129,7 +133,7 @@ WStandardItem *TreeViewExample::continentItem(const std::string& continent)
 }
 
 WStandardItem *TreeViewExample::countryItem(const std::string& country,
-			   const std::string& code)
+					    const std::string& code)
 {
   WStandardItem *result = new WStandardItem(country);
   result->setIcon("icons/flag_" + code + ".png");
@@ -137,10 +141,11 @@ WStandardItem *TreeViewExample::countryItem(const std::string& country,
   return result;
 }
 
-std::vector<WStandardItem *> TreeViewExample::cityItems(const std::string& city,
-				       WeatherIcon weather,
-				       const std::string& drink,
-				       bool visited)
+std::vector<WStandardItem *>
+TreeViewExample::cityItems(const std::string& city,
+			   WeatherIcon weather,
+			   const std::string& drink,
+			   bool useInternalPath, bool visited)
 {
   std::vector<WStandardItem *> result;
   WStandardItem *item;
@@ -156,9 +161,8 @@ std::vector<WStandardItem *> TreeViewExample::cityItems(const std::string& city,
   
   // column 2: drink
   item = new WStandardItem(drink);
-  if (useInternalPath_) {
+  if (useInternalPath)
     item->setInternalPath("/drinks/" + drink);
-  }
   result.push_back(item);
   
   // column 3: visited
@@ -197,6 +201,8 @@ void TreeViewExample::addRows()
     std::string cityName = "City "
       + boost::lexical_cast<std::string>(belgium_->rowCount() + 1);
     
-    belgium_->appendRow(cityItems(cityName, Storm, "Juice", false));
+    bool useInternalPath = false;
+    belgium_->appendRow(cityItems(cityName, Storm, "Juice", useInternalPath,
+				  false));
   }
 }

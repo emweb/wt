@@ -79,6 +79,16 @@ public:
    */
   void add(WWidget *item);
 
+  /*! \brief Insert a button in the tool bar.
+   */
+  void insert(int index, Button *item);
+
+  /*! \brief Insert a widget in the tool bar.
+   *
+   * \note A widget can ony be inserted before initial rendering.
+   */
+  void insert(int index, WWidget *item);
+
   /*! \brief Add a separator to the tool bar.
    */
   void addSeparator();

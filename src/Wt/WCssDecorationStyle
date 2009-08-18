@@ -83,6 +83,17 @@ public:
    */
   Cursor cursor() const { return cursor_; }
 
+  /*! \brief Set a custom cursor image URI, with optionally a fallback cursor.
+   * 
+   * The URI should point to a .cur file (this shoul be a real .cur file, 
+   * renaming an .ico is not enough for Internet Explorer.
+   */
+  void setCursor(std::string cursorImage, Cursor fallback = ArrowCursor);
+
+  /*! \brief Get the cursor image
+   */
+  std::string cursorImage() const { return cursorImage_; }
+
   /*! \brief Set the background color.
    */
   void setBackgroundColor(WColor color);
@@ -154,6 +165,7 @@ public:
 private:
   WWebWidget               *widget_;
   Cursor                    cursor_;
+  std::string               cursorImage_;
   WBorder                   border_;
   WColor                    backgroundColor_;
   WColor	            foregroundColor_;

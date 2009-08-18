@@ -494,6 +494,11 @@
       A WCheckBox corresponds to an HTML &lt;input
       type="checkbox"&gt; element.
     </p>
+    <p>
+      A checkbox may also provide a third state, Wt::PartiallyChecked, 
+      which is useful to indicate that it is neither checked or unchecked.
+      The third checkbox demonstrates this "tristate" behaviour 
+    </p>
   </message>
 
   <message id="formwidgets-WRadioButton">
@@ -522,6 +527,13 @@
       href="#/mvc-widgets/">Model-View-Controller</a>) which
       instantiates its own WStringListModel by default. You can use
       the widget also in conjunction with another model.
+    </p>
+  </message>
+
+  <message id="formwidgets-WComboBox-style">
+    <p>
+      WComboBox will use the StyleClassRole data role to provide combo items 
+      with a specific style (this is not supported on all browsers).
     </p>
   </message>
 
@@ -616,6 +628,12 @@ WTextArea has no formatting capabilities
 
     <p>
       Try to enter John's email address below:
+    </p>
+  </message>
+
+  <message id="formwidgets-WPopupMenu">
+    <p>
+      WPopupMenu consists of a context menu presented in a popup window.
     </p>
   </message>
 
@@ -754,19 +772,70 @@ WTextArea has no formatting capabilities
 
   <message id="graphics-intro">
     <p>
-      This example shows how Wt works with vector graphics.
-      Wt's WPaintedWidget renders as SVG, VML or HTML5 graphics
+      These examples show some capibilities of Wt's vector graphics
+      API.
+    </p>
+    <p>Wt's WPaintedWidget renders as SVG, VML or HTML5 graphics
       depending on the capabilities of the browser. The backend
-      decides how to render the graphics, the application
-      programmer has to draw his graphics using the available
-      methods in the WPainter API. The drawing primitives include
-      points, lines, arcs, cubic splines, text, etc.
+      decides how to render the graphics, the application programmer
+      has to draw his graphics using the available methods in the
+      WPainter API. The drawing primitives include points, lines,
+      arcs, cubic splines, text, etc.
+    </p>
+  </message>
+
+  <message id="graphics-paintbrush">
+    <p>
+      An example demonstrating the use of WPaintedWidget with the
+      PaintUpdate rendering flag.
     </p>
     <p>
-      The example also demonstrates the horizontal and
-      vertical <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSlider.html" target="_blank">
-      WSlider</a> widgets. Here, the events of the WSlider
-      widgets are used to scale and rotate the emweb logo.
+      In some cases, you would like to update the canvas without
+      clearing the previously painted contents (which is the default
+      behavior). You may do this by passing the PaintUpdate rendering
+      flag to the update() method.
+    </p>
+    <p>
+      This example demonstrates this by implementing a simple painting
+      device. The example is quite silly on its own: it sends every
+      mouse drag operation to the server, which in turn updates the
+      canvas. But you could imagine more interesting uses, such as a
+      multi-user white board, or interactive visualizations.
+    </p>
+    <p> 
+      The example uses a custom cursor image (pencil) for the WPaintWidget,
+      this is done by providing a cursor image to <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WCssDecorationStyle.html" target="_blank">
+      WCssDecorationStyle</a>.
+    </p>
+  </message>
+
+  <message id="specialpurposewidgets-intro">
+    <h1>
+      Special purpose widgets
+    </h1>
+    <p>
+      This section groups widgets with special functionality, such as
+      usage of Google maps, and Wt's integrated sound support.
+    </p>
+  </message>
+
+  <message id="specialpurposewidgets-WGoogleMap">
+    <p>
+      WGoogleMap implements a Wt wrapper around the Google Maps functionality.
+      <br/>
+      The example demonstrates multiple controls and shows a polyline 
+      representing a road description from the Emweb office to the old market
+      of Leuven.
+    </p>
+  </message>
+
+  <message id="specialpurposewidgets-WSound">
+    <p> WSound provides a way to play a sound asynchonously. It is
+      intended for auditive user interface feed-back.
+    </p>
+    <p>The current implementation uses a small Adobe Flash
+      application, but future releases are expected to use the native
+      HTML5 audio tags, as these are appearing in modern browsers.
     </p>
   </message>
 
@@ -816,10 +885,12 @@ WTextArea has no formatting capabilities
 
   <message id="dialogs-WDialog">
     <p>
-      WDialog implements the functionality of a modal dialog box.
+      WDialog implements the functionality of a dialog box.
       Any widget or combination of widgets can be displayed in a
       WDialog: it is a WContainerWidget displayed in a
-      dialog box.
+      dialog box. A WDialog's title bar can be disabled.
+      <br/>
+      Both modal and non-modal dialogs are supported. 
     </p>
   </message>
 
@@ -913,6 +984,21 @@ WTextArea has no formatting capabilities
     </p>
   </message>
 
+  <message id="mvc-proxymodels">
+    <p>
+      A proxy model does not store data, but presents data from a source model 
+      in another way. It may provide filtering, sorting, or other computed 
+      changes to the source model. A proxy model may be a fully functional 
+      model, that also allows modification of the underlying model.
+    </p>
+    <p>
+      The example demonstrates the use of a WSortFilterProxyModel by sorting
+      and/or filtering on a model containing different cocktails.
+      You can change the filtering regexp by editing the WLineEdit, and pressing
+      enter.
+    </p>
+  </message>
+
   <message id="mvc-stringlistviews">
     <p>
       WComboBox, WSelectionBox and Ext::ComboBox can either be filled by
@@ -936,7 +1022,40 @@ WTextArea has no formatting capabilities
   </message>
 
   <message id="mvc-WTreeView">
+    <h2>WTreeView example</h2>
+
+    <p>This example illustrates the WTreeView widget. This widget is
+    part of Wt's MVC widgets, and are an alternative to the WTree, and
+    WTreeTable widgets which are not MVC.</p>
+
+    <p>The widget supports very large models by loading only the
+    visible region (with some margin) in the browser. This results in
+    low memory consumption (on client and server) and fast load
+    times.</p>
+
+    <p>This example uses a WStandardItemModel to populate the tree
+    table. As is demonstrated, various roles may be used to indicate
+    text, icons, selectable items (through check boxes), and also URLs
+    or internal paths.</p>
+
+    <p>Many aspects of the tree view widget are not illustrated here,
+    such as the various supported selection behaviors and modes, and
+    reacting to item click events</p>
+
+    <p>Except for the selection of items, the view does not yet offer
+    the possibility to modify the model. Together with more fine
+    grained control of how to display the data through delegates,
+    support for editing will be added in the near future.</p>
+  </message>
+
+  <message id="mvc-WTreeView-column1Fixed">
     <p>
+      The following example uses the same data model, and demonstrates
+      how to keep the first column fixed while scrolling
+      horizontally. This is useful when the WTreeView contains a large
+      number of auxiliary columns which cannot all be displayed
+      simultaneously, and there is a need to keep the first column
+      visible while scrolling through the columns horizontally.
     </p>
   </message>
 
@@ -1083,6 +1202,15 @@ WTextArea has no formatting capabilities
     </p>
 
   </message>
+  
+  <message id="style-WLoadingIndicator">
+    <p>
+      The loading indicator displays a message while a response from the server
+      is pending. By implementing WLoadingIndicator a custom indicator can be 
+      provided.
+    </p>
+  </message>
+  
 
   <message id="layout-WBoxLayout">
     <p>
@@ -1173,5 +1301,4 @@ WTextArea has no formatting capabilities
       {1} item
     </div>
   </message>
-
 </messages>
