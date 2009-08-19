@@ -4,6 +4,7 @@ _$_APP_CLASS_$_._p_.recvCallback = function(request, userData) {
       _$_APP_CLASS_$_._p_.handleResponse
         (request.status == 200 ? request.responseText : "", userData);
     }
+    request.onreadystatechange = new Function;
   }
 };
 

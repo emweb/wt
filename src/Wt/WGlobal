@@ -267,7 +267,7 @@ enum PositionScheme {
    *
    *  Inline widgets are layed out in horizontal lines (like text),
    *  wrapping around at the end of the line to continue on the next
-   *  line. Stacked widgets are stacked vertically.
+   *  line. Block widgets are stacked vertically.
    *
    *  Static widgets may also float to the left or right border,
    *  using setFloatSide().

@@ -43,7 +43,8 @@ enum DomElementType {
 enum RepaintFlag {
   RepaintPropertyIEMobile = 0x1 << 12,  // pocket PC 2002 or later
   RepaintPropertyAttribute = 0x1 << 13, // any attribute or property
-  RepaintInnerHtml = 0x1 << 14
+  RepaintInnerHtml = 0x1 << 14,
+  RepaintToAjax = 0x1 << 15
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag);
@@ -212,6 +213,7 @@ protected:
 
   virtual bool isVisible() const;
   virtual bool isStubbed() const;
+  virtual void enableAjax();
 
   virtual void addChild(WWidget *child);
   virtual void removeChild(WWidget *child);
@@ -238,23 +240,24 @@ private:
   static const int BIT_REPAINT_PROPERTY_IEMOBILE = 12;
   static const int BIT_REPAINT_PROPERTY_ATTRIBUTE = 13;
   static const int BIT_REPAINT_INNER_HTML = 14;
-  static const int BIT_TOOLTIP_CHANGED = 15;
-  static const int BIT_MARGINS_CHANGED = 16;
-  static const int BIT_STYLECLASS_CHANGED = 17;
-  static const int BIT_SET_UNSELECTABLE = 18;
-  static const int BIT_SET_SELECTABLE = 19;
-  static const int BIT_SELECTABLE_CHANGED = 20;
-  static const int BIT_WIDTH_CHANGED = 21;
-  static const int BIT_HEIGHT_CHANGED = 22;
+  static const int BIT_REPAINT_TO_AJAX = 15;
+  static const int BIT_TOOLTIP_CHANGED = 16;
+  static const int BIT_MARGINS_CHANGED = 17;
+  static const int BIT_STYLECLASS_CHANGED = 18;
+  static const int BIT_SET_UNSELECTABLE = 19;
+  static const int BIT_SET_SELECTABLE = 20;
+  static const int BIT_SELECTABLE_CHANGED = 21;
+  static const int BIT_WIDTH_CHANGED = 22;
+  static const int BIT_HEIGHT_CHANGED = 23;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<23> AllChangeFlags;
+  static const std::bitset<24> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<23> flags_;
+  std::bitset<24> flags_;
   WLength	 *width_;
   WLength	 *height_;
 
@@ -372,6 +375,7 @@ protected:
   friend class WCssDecorationStyle;
   friend class WCssTemplateRule;
   friend class WFont;
+  friend class WInteractWidget;
   friend class JSlot;
   friend class WTable;
   friend class WViewWidget;

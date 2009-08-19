@@ -150,35 +150,16 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
     }
   } while (w);
 
-  if (WApplication::instance()->environment().javaScript()) {
-    /*
-     * We have JavaScript: We can use layout managers so everything will
-     * always fit nicely in the window.
-     */
-    WVBoxLayout *topLayout = new WVBoxLayout();
-    topLayout->addWidget(title, 0, AlignTop | AlignJustify);
+  WVBoxLayout *topLayout = new WVBoxLayout();
+  topLayout->addWidget(title, 0, AlignTop | AlignJustify);
 
-    WHBoxLayout *gitLayout = new WHBoxLayout();
-    gitLayout->setLayoutHint("table-layout", "fixed");
-    gitLayout->addWidget(exampleView_, 0);
-    gitLayout->addWidget(sourceView_, 1);
-    topLayout->addLayout(gitLayout, 1);
+  WHBoxLayout *gitLayout = new WHBoxLayout();
+  gitLayout->addWidget(exampleView_, 0);
+  gitLayout->addWidget(sourceView_, 1);
+  topLayout->addLayout(gitLayout, 1);
 
-    setLayout(topLayout);
-    setStyleClass("maindiv");
-  } else {
-    /*
-     * No JavaScript: let's make the best of the situation using regular
-     * CSS-based layout
-     */
-    setStyleClass("maindiv");
-    addWidget(title);
-    addWidget(exampleView_);
-    exampleView_->setFloatSide(Left);
-    exampleView_->setMargin(6);
-    addWidget(sourceView_);
-    sourceView_->setMargin(6);
-  }
+  setLayout(topLayout);
+  setStyleClass("maindiv");
 }
 
 /*

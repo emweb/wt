@@ -289,6 +289,16 @@
 	  <user-agent>.*Twiceler.*</user-agent>
 	</user-agents>
 
+	<!-- Whether the progressive bootstrap is used.
+
+	     The default bootstrap method first senses whether there is AJAX
+	     support, and only then creates the application.
+
+	     The progressive bootstrap method first renders a plain HTML
+	     version and later upgrades to an AJAX version.
+	  -->
+	<progressive-bootstrap>true</progressive-bootstrap>
+
 	<!-- Runtime Properties
      
            These properties may be used to adapt applications to their

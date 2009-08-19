@@ -110,6 +110,7 @@ protected:
 
   virtual bool isVisible() const;
   virtual bool isStubbed() const;
+  virtual void enableAjax();
 
   /*! \brief Set the implementation widget
    *

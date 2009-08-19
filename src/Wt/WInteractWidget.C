@@ -184,6 +184,11 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     EventSignalBase& s = **i;
 #endif
     updateSignalConnection(element, s, s.name(), all);
+
+    if (s.name() == WInteractWidget::CLICK_SIGNAL
+	&& flags_.test(BIT_REPAINT_TO_AJAX))
+      Wt::WApplication::instance()->doJavaScript
+	(WT_CLASS ".unwrap('" + id() + "');");
   }
 
   WWebWidget::updateDom(element, all);

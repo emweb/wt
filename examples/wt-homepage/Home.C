@@ -153,10 +153,10 @@ WWidget *Home::initHome()
     (tr("news"), deferCreate(boost::bind(&Home::news, this)),
      WMenuItem::PreLoading);
   mainMenu_->addItem
-    (tr("features"), wrapViewOrDefer(&Home::features),
+    (tr("features"), wrapView(&Home::features),
      WMenuItem::PreLoading);
   mainMenu_->addItem
-    (tr("documentation"), wrapViewOrDefer(&Home::documentation),
+    (tr("documentation"), wrapView(&Home::documentation),
      WMenuItem::PreLoading);
   mainMenu_->addItem
     (tr("examples"), examples(),
@@ -165,7 +165,7 @@ WWidget *Home::initHome()
     (tr("download"), deferCreate(boost::bind(&Home::download, this)),
      WMenuItem::PreLoading);
   mainMenu_->addItem
-    (tr("community"), wrapViewOrDefer(&Home::community),
+    (tr("community"), wrapView(&Home::community),
      WMenuItem::PreLoading);
 
   mainMenu_->itemSelectRendered().connect(SLOT(this, Home::updateTitle));
@@ -283,20 +283,9 @@ WWidget *Home::documentation()
 }
 
 
-WWidget *Home::wrapViewOrDefer(WWidget *(Home::*createWidget)())
+WWidget *Home::wrapView(WWidget *(Home::*createWidget)())
 {
-  /*
-   * We can only create a view if we have javascript for the
-   * client-side tree manipulation -- otherwise we require server-side
-   * event handling which is not possible with a view since the
-   * server-side widgets do not exist. Therefore, all we can do to
-   * avoid unnecessary server-side resources when JavaScript is not
-   * available is deferring creation until load time.
-   */
-  if (!environment().agentIsIEMobile() && environment().javaScript())
-    return makeStaticModel(boost::bind(createWidget, this));
-  else
-    return deferCreate(boost::bind(createWidget, this));
+  return makeStaticModel(boost::bind(createWidget, this));
 }
 
 std::string Home::href(const std::string& url, const std::string& description)

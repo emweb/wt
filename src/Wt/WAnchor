@@ -257,8 +257,9 @@ public:
   AnchorTarget target() const { return target_; }
 
 private:
-  static const int BIT_REF_CHANGED = 0;
-  static const int BIT_TARGET_CHANGED = 1;
+  static const int BIT_REF_INTERNAL_PATH = 0;
+  static const int BIT_REF_CHANGED = 1;
+  static const int BIT_TARGET_CHANGED = 2;
 
   std::string    ref_;
   WResource     *resource_;
@@ -275,6 +276,7 @@ protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void propagateRenderOk(bool deep);
+  virtual void enableAjax();
 };
 
 }

@@ -609,9 +609,7 @@ you may share tips, notes and experiences using JWt.
     </div>
   </message>
 
-  <message id="srcview.title.hello">
-    Example: Hello world
-  </message>
+  <message id="srcview.title.hello">Example: Hello world</message>
 
   <message id="srcview.title.JAVA.hello">
     <div class="srcviewtitle">
@@ -625,9 +623,7 @@ you may share tips, notes and experiences using JWt.
     </div>
   </message>
 
-  <message id="srcview.title.hello_world">
-    Example: Hello world
-  </message>
+  <message id="srcview.title.hello_world">Example: Hello world</message>
 
   <message id="srcview.title.JAVA.charts">
     <div class="srcviewtitle">
@@ -641,9 +637,7 @@ you may share tips, notes and experiences using JWt.
     </div>
   </message>
 
-  <message id="srcview.title.charts">
-    Example: Charts
-  </message>
+  <message id="srcview.title.charts">Example: Charts</message>
 
   <message id="srcview.title.JAVA.treeviewdragdrop">
     <div class="srcviewtitle">
@@ -657,9 +651,7 @@ you may share tips, notes and experiences using JWt.
     </div>
   </message>
 
-  <message id="srcview.title.treeviewdragdrop">
-    Example: Treeview
-  </message>
+  <message id="srcview.title.treeviewdragdrop">Example: Treeview</message>
 
   <message id="srcview.title.JAVA.composer">
     <div class="srcviewtitle">
@@ -673,7 +665,5 @@ you may share tips, notes and experiences using JWt.
     </div>
   </message>
 
-  <message id="srcview.title.composer">
-    Example: Mail composer
-  </message>
+  <message id="srcview.title.composer">Example: Mail composer</message>
 </messages>

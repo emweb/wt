@@ -130,7 +130,7 @@ WApplication::WApplication(const WEnvironment& env)
   styleSheet_.addRule("button", "white-space: nowrap");
 
   if (environment().contentType() == WEnvironment::XHTML1) {
-    //styleSheet_.addRule("img", "margin: -3px 0px;");
+    //styleSheet_.addRule("img", "margin: -5px 0px;");
     styleSheet_.addRule("button", "display: inline");
   }
 
@@ -151,10 +151,13 @@ WApplication::WApplication(const WEnvironment& env)
 			"opacity: 0; filter: alpha(opacity=0);"
 			"border: none; margin: 0; padding: 0;");
   styleSheet_.addRule("button.Wt-wrap",
-		      "border: 0px; text-align: left;"
-		      "background-color: transparent; "
-		      "margin: 0px; padding: 0px; font-size: inherit; "
-		      "pointer: hand; cursor: pointer; cursor: hand; "
+		      "border: 0px !important;"
+		      "text-align: left;"
+		      "margin: 0px !important;"
+		      "padding: 0px !important;"
+		      "font-size: inherit; "
+		      "pointer: hand; cursor: pointer; cursor: hand;"
+		      "background-color: transparent;"
 		      "color: inherit;");
   styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
   styleSheet_.addRule(".Wt-invalid", "background-color: #f79a9a;");
@@ -652,6 +655,14 @@ void WApplication::refresh()
     titleChanged_ = true;
 }
 
+void WApplication::enableAjax()
+{
+  domRoot_->enableAjax();
+
+  if (domRoot2_)
+    domRoot2_->enableAjax();
+}
+
 void WApplication::redirect(const std::string& url)
 {
   session_->redirect(url);
@@ -765,8 +776,8 @@ void WApplication::setInternalPath(const std::string& path, bool emitChange)
 {
   loadRsh();
 
-  if (!environment().ajax() && path != newInternalPath_)
-    redirect(bookmarkUrl(path));
+  if (!internalPathIsChanged_)
+    oldInternalPath_ = newInternalPath_;
 
   if (!session_->renderer().preLearning() && emitChange)
     changeInternalPath(path);

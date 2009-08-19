@@ -216,6 +216,8 @@ protected:
 				    WApplication *app);
   virtual void        propagateRenderOk(bool deep);
 
+  virtual void enableAjax();
+
 private:
   Method            preferredMethod_;
   WWidgetPainter   *painter_;

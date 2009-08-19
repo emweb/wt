@@ -101,30 +101,25 @@ WWidget *WtHome::examples()
    * Therefore, we wrap all the static content (including the tree
    * widgets), into WViewWidgets with static models. In this way the
    * widgets are not actually stored in memory on the server.
-   *
-   * For the tree list example (for which we cannot use a view with a
-   * static model, since we allow the tree to be manipulated) we use
-   * the defer utility function to defer its creation until it is
-   * loaded.
    */
 
   // The call ->setPathComponent() is to use "/examples/" instead of
   // "/examples/hello_world" as internal path
-  examplesMenu_->addTab(wrapViewOrDefer(&WtHome::helloWorldExample),
+  examplesMenu_->addTab(wrapView(&WtHome::helloWorldExample),
 			tr("hello-world"))->setPathComponent("");
-  examplesMenu_->addTab(wrapViewOrDefer(&WtHome::chartExample),
+  examplesMenu_->addTab(wrapView(&WtHome::chartExample),
   			tr("charts"));
-  examplesMenu_->addTab(wrapViewOrDefer(&WtHome::homepageExample),
+  examplesMenu_->addTab(wrapView(&WtHome::homepageExample),
 			tr("wt-homepage"));
-  examplesMenu_->addTab(wrapViewOrDefer(&WtHome::treeviewExample),
+  examplesMenu_->addTab(wrapView(&WtHome::treeviewExample),
 			tr("treeview"));
-  examplesMenu_->addTab(wrapViewOrDefer(&WtHome::gitExample),
+  examplesMenu_->addTab(wrapView(&WtHome::gitExample),
 			tr("git"));
-  examplesMenu_->addTab(wrapViewOrDefer(&WtHome::chatExample),
+  examplesMenu_->addTab(wrapView(&WtHome::chatExample),
 			tr("chat"));
-  examplesMenu_->addTab(wrapViewOrDefer(&WtHome::composerExample),
+  examplesMenu_->addTab(wrapView(&WtHome::composerExample),
 			tr("mail-composer"));
-  examplesMenu_->addTab(wrapViewOrDefer(&WtHome::widgetGalleryExample),
+  examplesMenu_->addTab(wrapView(&WtHome::widgetGalleryExample),
 			tr("widget-gallery"));
 
   // Enable internal paths for the example menu
@@ -161,20 +156,9 @@ WWidget *WtHome::sourceViewer(const std::string& deployPath)
   return new ExampleSourceViewer(deployPath, wtExamplePath_ + "/", "CPP");
 }
 
-WWidget *WtHome::wrapViewOrDefer(WWidget *(WtHome::*createWidget)())
+WWidget *WtHome::wrapView(WWidget *(WtHome::*createWidget)())
 {
-  /*
-   * We can only create a view if we have javascript for the
-   * client-side tree manipulation -- otherwise we require server-side
-   * event handling which is not possible with a view since the
-   * server-side widgets do not exist. Therefore, all we can do to
-   * avoid unnecessary server-side resources when JavaScript is not
-   * available is deferring creation until load time.
-   */
-  if (!environment().agentIsIEMobile() && environment().javaScript())
-    return makeStaticModel(boost::bind(createWidget, this));
-  else
-    return deferCreate(boost::bind(createWidget, this));
+  return makeStaticModel(boost::bind(createWidget, this));
 }
 
 WApplication *createWtHomeApplication(const WEnvironment& env)

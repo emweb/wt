@@ -886,16 +886,16 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "white-space: nowrap;");
 
     app->styleSheet().addRule
-      (".Wt-treeview img.icon",
-       "margin: -3px 3px -3px 0px; vertical-align: middle");
+      (".Wt-treeview img.icon, .Wt-treeview input.icon",
+       "margin: 0px 3px 2px 0px; vertical-align: middle");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-node img.w0",
        "width: 0px");
 
     app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-node .c0 img",
-       "margin-right: 0px; margin: -3px 0px;");
+      (".Wt-treeview .Wt-tv-node .c0 img, .Wt-treeview .Wt-tv-node .c0 input",
+       "margin-right: 0px; margin: -4px 0px;");
 
     /* resize handles */
     app->styleSheet().addRule
@@ -1233,12 +1233,18 @@ void WTreeView::refresh()
     ""     "+ (hh.childNodes.length > 1"
     ""        "? (WT.hasTag(hh.childNodes[1], 'IMG') ? 17 : 6)"
     ""        ": 0);"
+
     "if(" + jsRef() + ".offsetWidth == 0) return;"
+
     "for (var i=0, length=hc.childNodes.length; i < length; ++i) {"
-    """var cl = hc.childNodes[i].className.split(' ')[2],"
-    ""    "r = WT.getCssRule('#" + id() + " .' + cl);"
-    """totalw += WT.pxself(r, 'width') + 7;" // 2 x 3px (padding) + 1px (border)
+    """if (hc.childNodes[i].className) {" // IE may have only a text node
+    ""  "var cl = hc.childNodes[i].className.split(' ')[2],"
+    ""      "r = WT.getCssRule('#" + id() + " .' + cl);"
+         // 7 = 2 x 3px (padding) + 1px (border)
+    ""  "totalw += WT.pxself(r, 'width') + 7;"
+    """}"
     "}"
+
     "var cw = WT.pxself(hh, 'width'),"
     ""  "hdiff = c ? (cw == 0 ? 0 : (totalw - (cw - extra))) : diffx;";
   if (!column1Fixed_)
@@ -1844,6 +1850,16 @@ WWidget *WTreeView::createHeaderWidget(WApplication *app, int column)
   return w;
 }
 
+void WTreeView::enableAjax()
+{
+  rootNode_->clicked().connect(itemClickedJS_);
+  rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
+  if (mouseWentDown_.isConnected() || dragEnabled_)
+    rootNode_->mouseWentDown().connect(itemMouseDownJS_);
+
+  WCompositeWidget::enableAjax();
+}
+
 void WTreeView::rerenderTree()
 {
   WContainerWidget *wrapRoot
@@ -1864,6 +1880,7 @@ void WTreeView::rerenderTree()
     if (mouseWentDown_.isConnected() || dragEnabled_)
       rootNode_->mouseWentDown().connect(itemMouseDownJS_);
   }
+
   setRootNodeStyle();
 
   wrapRoot->addWidget(rootNode_);

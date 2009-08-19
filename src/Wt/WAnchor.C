@@ -122,36 +122,24 @@ WAnchor::~WAnchor()
 
 void WAnchor::setRef(const std::string& ref)
 {
-  if (ref_ != ref) {
-    ref_ = ref;
-    flags_.set(BIT_REF_CHANGED);
+  if (!flags_.test(BIT_REF_INTERNAL_PATH) && ref_ == ref)
+    return;
 
-    repaint(RepaintPropertyIEMobile);
-  }
+  flags_.reset(BIT_REF_INTERNAL_PATH);
+  ref_ = ref;
+
+  flags_.set(BIT_REF_CHANGED);
+
+  repaint(RepaintPropertyIEMobile);
 }
 
 void WAnchor::setRefInternalPath(const std::string& path)
 {
-  WApplication *app = WApplication::instance();
-  std::string r = app->bookmarkUrl(path);
-
-  if (r == ref_)
+  if (flags_.test(BIT_REF_INTERNAL_PATH) && path == ref_)
     return;
 
-  ref_ = r;
-
-  if (app->environment().ajax()) {
-    if (!changeInternalPathJS_) {
-      changeInternalPathJS_ = new JSlot();
-      clicked().connect(*changeInternalPathJS_);
-      clicked().setPreventDefault(true);
-    }
-    changeInternalPathJS_->setJavaScript
-      ("function(obj, event){"
-       "window.location.hash='#" + Utils::urlEncode(path) + "';"
-       "}");
-    clicked().senderRepaint(); // XXX only for Java port necessary
-  }
+  flags_.set(BIT_REF_INTERNAL_PATH);
+  ref_ = path;
 
   flags_.set(BIT_REF_CHANGED);
 
@@ -226,11 +214,45 @@ void WAnchor::resourceChanged()
   setRef(resource_->generateUrl());
 }
 
+void WAnchor::enableAjax()
+{
+  if (flags_.test(BIT_REF_INTERNAL_PATH)) {
+    flags_.set(BIT_REF_CHANGED);
+    repaint(RepaintPropertyIEMobile);
+  }
+
+  WContainerWidget::enableAjax();
+}
+
 void WAnchor::updateDom(DomElement& element, bool all)
 {
   if (flags_.test(BIT_REF_CHANGED) || all) {
-    std::string uri = ref_;
-    element.setAttribute("href", fixRelativeUrl(uri));
+    std::string url;
+    if (flags_.test(BIT_REF_INTERNAL_PATH)) {
+      WApplication *app = WApplication::instance();
+      url = app->bookmarkUrl(ref_);
+
+      if (app->environment().ajax()) {
+	if (!changeInternalPathJS_) {
+	  changeInternalPathJS_ = new JSlot();
+	  clicked().connect(*changeInternalPathJS_);
+	  clicked().setPreventDefault(true);
+	}
+
+	changeInternalPathJS_->setJavaScript
+	  ("function(obj, event){"
+	   "window.location.hash='#" + Utils::urlEncode(ref_) + "';"
+	   "}");
+	clicked().senderRepaint(); // XXX only for Java port necessary
+      }
+    } else {
+      url = ref_;
+
+      delete changeInternalPathJS_;
+      changeInternalPathJS_ = 0;
+    }
+
+    element.setAttribute("href", fixRelativeUrl(url));
 
     flags_.reset(BIT_REF_CHANGED);
   }

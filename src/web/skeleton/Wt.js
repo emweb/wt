@@ -1,10 +1,5 @@
 var _$_WT_CLASS_$_ = {
 
-DOCUMENT_ELEMENT_NODE: 1,
-DOCUMENT_TEXT_NODE: 3,
-DOCUMENT_CDATA_SECTION_NODE: 4,
-DOCUMENT_COMMENT_NODE: 8,
-
 // Array Remove - By John Resig (MIT Licensed)
 arrayRemove: function(a, from, to) {
   var rest = a.slice((to || from) + 1 || a.length);
@@ -36,8 +31,11 @@ setHtml: function (el, html, add) {
 	  newNode.setAttribute(e.attributes[i].nodeName,
 			       e.getAttribute(e.attributes[i++].nodeName));
       if (deep && e.childNodes.length > 0)
-	for (i = 0, il = e.childNodes.length; i < il;)
-	  newNode.appendChild(myImportNode(e.childNodes[i++], deep));
+	for (i = 0, il = e.childNodes.length; i < il;) {
+	  var c = myImportNode(e.childNodes[i++], deep);
+	  if (c)
+	    newNode.appendChild(c);
+	}
       return newNode;
       break;
     case 3: // text
@@ -74,9 +72,10 @@ hasTag: function(e, s) {
 },
 
 unstub: function(from, to, methodDisplay) {
-  if (methodDisplay == 1)
-    to.style.display = from.style.display;
-  else {
+  if (methodDisplay == 1) {
+    if (from.style.display != 'none')
+      to.style.display = from.style.display;
+  } else {
     to.style.position = from.style.position;
     to.style.left = from.style.left;
     to.style.visibility = from.style.visibility;
@@ -86,6 +85,39 @@ unstub: function(from, to, methodDisplay) {
     to.style.height = from.style.height;
   if (from.style.width)
     to.style.width = from.style.width;
+},
+
+unwrap: function(e) {
+  var WT = _$_WT_CLASS_$_;
+  e = WT.getElement(e);
+  if (e.parentNode.className.indexOf('Wt-wrap') == 0) {
+    wrapped = e;
+    e = e.parentNode;
+    wrapped.style.margin = e.style.margin;
+    e.parentNode.replaceChild(wrapped, e);
+  } else {
+    if (e.getAttribute('type') == 'submit') {
+      e.setAttribute('type', 'button');
+      e.removeAttribute('name');
+    } if (WT.hasTag(e, 'INPUT') && e.getAttribute('type') == 'image') {
+      // change <input> to <image>
+      var img = document.createElement('img');
+      if (img.mergeAttributes) {
+	img.mergeAttributes(e, false);
+	img.src = e.src;
+      } else {
+	if (e.attributes && e.attributes.length > 0) {
+	  var i, il;
+	  for (i = 0, il = e.attributes.length; i < il; i++) {
+	    var n = e.attributes[i].nodeName;
+	    if (n != 'type' && n != 'name')
+	      img.setAttribute(n, e.getAttribute(n));
+	  }
+	}
+      }
+      e.parentNode.replaceChild(img, e);
+    }      
+  }
 },
 
 cancelEvent: function(e) {
@@ -225,7 +257,7 @@ pctself: function(c, s) {
 },
 
 IEwidth: function(c, min, max) {
-  var self = _$_WT_CLASS_$_;
+  var WT = _$_WT_CLASS_$_;
 
   var r = c.parentNode.clientWidth
    - self.px(c, 'marginLeft')
@@ -1030,17 +1062,13 @@ var handleResponse = function(msg, timer) {
   if (quited)
     return;
 
-  if (_$_DEBUG_$_) {
-    eval(msg);
-    _$_APP_CLASS_$_._p_.autoJavaScript();
-  } else
-    try {
-      eval(msg);
-      _$_APP_CLASS_$_._p_.autoJavaScript();
-    } catch (e) {
-      alert("Wt internal error: " + e + ", code: " +  e.code
-   	    + ", description: " + e.description /* + ":" + msg */);
-    }
+  _$_$ifnot_DEBUG_$_; try { _$_$endif_$_;
+  eval(msg);
+  _$_APP_CLASS_$_._p_.autoJavaScript();
+  _$_$ifnot_DEBUG_$_; } catch (e) {
+    alert("Wt internal error: " + e + ", code: " +  e.code
+	  + ", description: " + e.description /* + ":" + msg */);
+  } _$_$endif_$_;
 
   if (timer)
     cancelFeedback(timer);
@@ -1073,8 +1101,10 @@ var update = function(self, signalName, e, feedback) {
     captureElement = null;
   _$_APP_CLASS_$_._p_.autoJavaScript();
 
-  if (_$_STRICTLY_SERIALIZED_EVENTS_$_ && responsePending)
+  _$_$if_STRICTLY_SERIALIZED_EVENTS_$_;
+  if (responsePending)
     return;
+  _$_$endif_$_;
 
   var pendingEvent = new Object(), i = pendingEvents.length;
   pendingEvent.object = self;
@@ -1324,11 +1354,11 @@ return {
 }();
 
 var WtSignalEmit = _$_APP_CLASS_$_.emit;
-var scriptLoaded = false;
+window.WtScriptLoaded = false;
 
 function onLoad() {
-  if (!scriptLoaded) {
-    isLoaded = true;
+  if (!window.WtScriptLoaded) {
+    window.isLoaded = true;
     return;
   }
 
@@ -1336,4 +1366,4 @@ function onLoad() {
   _$_APP_CLASS_$_._p_.load();
 }
 
-function loadWidgetTree() { }
+function loadWidgetTree() { alert('wrong loadWidgetTree()'); }

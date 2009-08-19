@@ -39,6 +39,14 @@ class WApplication;
 class WT_API WebSession
 {
 public:
+  enum State {
+    JustCreated,
+    Bootstrap,
+    ProgressiveBootstrap,
+    Loaded,
+    Dead
+  };
+
   WebSession(WebController *controller, const std::string& sessionId,
 	     ApplicationType type, const std::string& favicon,
 	     const WebRequest *request, WEnvironment *env = 0);
@@ -93,6 +101,7 @@ public:
 #endif // WT_TARGET_JAVA
 
   bool done() { return state_ == Dead; }
+  State state() const { return state_; }
 
   /*
    * URL stuff
@@ -114,6 +123,8 @@ public:
 				 const std::string& internalPath) const;
 
   std::string appendSessionQuery(const std::string& url) const;
+
+  std::string ajaxCanonicalUrl(const WebRequest& request) const;
 
   enum BootstrapOption {
     ClearInternalPath,
@@ -187,6 +198,8 @@ public:
   boost::mutex& mutex() { return mutex_; }
 #endif // WT_THREADED
 
+  void setLoaded();
+
 private:
   /*
    * Misc methods
@@ -194,13 +207,6 @@ private:
 
   void checkTimers();
   void hibernate();
-
-  enum State {
-    JustCreated,
-    Bootstrap,
-    Loaded,
-    Dead
-  };
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::mutex mutex_;
@@ -280,7 +286,7 @@ private:
  */
 class WT_API WEvent {
 public:
-  enum EventType { EmitSignal, Refresh, Render, HashChange };
+  enum EventType { EmitSignal, EnableAjax, Refresh, Render, HashChange };
 
   WebSession::Handler& handler;
   EventType            type;

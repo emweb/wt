@@ -45,6 +45,9 @@ void WTableColumn::setWidth(const WLength& width)
 
 void WTableColumn::setStyleClass(const WT_USTRING& style)
 {
+  if (WWebWidget::canOptimizeUpdates() && (style == styleClass_))
+    return;
+
   styleClass_ = style;
   table_->repaintColumn(this);
 }

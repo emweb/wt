@@ -249,6 +249,11 @@ void WCompositeWidget::refresh()
   impl_->refresh();
 }
 
+void WCompositeWidget::enableAjax()
+{
+  impl_->enableAjax();
+}
+
 void WCompositeWidget::addChild(WWidget *child)
 {
   if (child != impl_)

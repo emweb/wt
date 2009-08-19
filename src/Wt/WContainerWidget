@@ -23,12 +23,12 @@ class StdLayoutImpl;
  *
  * Use addWidget() or pass the container as constructor argument to a
  * widget to directly add children to the container, without using a
- * layout manager. In that case, CSS-based layout is used, which is
- * governed by properties of the children, and properties of the
- * container. By default, a %WContainerWidget is \link
- * WWidget::setInline() stacked \endlink and manages its children
+ * layout manager. In that case, CSS-based layout is used, and the
+ * resulting display is determined by properties of the children and
+ * the container. By default, a %WContainerWidget is displayed as a
+ * \link WWidget::setInline() block \endlink and manages its children
  * within a rectangle. Inline child widgets are layed out in lines,
- * wrapping around as needed, while stacked widgets are stacked
+ * wrapping around as needed, while block child widgets are stacked
  * vertically. The container may add padding at the container edges
  * using setPadding(), and provide alignment of contents using
  * setContentAlignment(). A container is rendered by default using a
@@ -43,7 +43,8 @@ class StdLayoutImpl;
  * offering a common style to its children. Inline children are still
  * layed out inline within the flow of the parent container of this
  * container, as if they were inserted directly into that parent
- * container.
+ * container. Block children are then not allowed (according to the
+ * HTML specification).
  *
  * To use a layout manager instead of CSS-based layout, use
  * setLayout() or pass the container as constructor argument to a
@@ -97,6 +98,12 @@ class StdLayoutImpl;
  * container2.setLayout(layout);      // set the layout to the container.
  * \endcode
  * \endif
+ *
+ * When using a layout manager, you need to carefully consider the
+ * alignment of the layout manager with respect to the container: when
+ * the container's height is unconstrained (not specified explicitly
+ * using resize() or a style class, and the container is not included
+ * in a layout manager), you should pass AlignTop to setLayout().
  *
  * Depending on its configuration and usage, the widget corresponds to the
  * following HTML tags:

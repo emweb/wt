@@ -45,8 +45,10 @@ namespace Wt {
  * The widget corresponds to an HTML <tt>&lt;span&gt;</tt> tag or an
  * HTML <tt>&lt;div&gt;</tt> depending on whether the widget is \link
  * WWidget::setInline() inline\endlink. %WText is by default inline,
- * unless the XHTML contents starts with a block-level element such as
- * <tt>&lt;div&gt;</tt>, <tt>&lt;h&gt;</tt> or <tt>&lt;p&gt;</tt>.
+ * unless the XHTML contents starts with an element such as
+ * <tt>&lt;div&gt;</tt>, <tt>&lt;h&gt;</tt> or <tt>&lt;p&gt;</tt> that
+ * is displayed as a block, in which case the widget will also display
+ * as a block.
  *
  * \if cpp
  * Usage examples:

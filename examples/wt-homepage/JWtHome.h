@@ -24,7 +24,7 @@ protected:
   virtual WWidget *sourceViewer(const std::string& deployPath);
   virtual std::string filePrefix() const { return "jwt-"; }
 
-  WWidget *wrapViewOrDefer(WWidget *(JWtHome::*createFunction)());
+  WWidget *wrapView(WWidget *(JWtHome::*createFunction)());
 
 private:
   WWidget *example(const char *textKey, const std::string& sourceDir);

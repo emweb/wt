@@ -1,3 +1,13 @@
+19-08-2009
+	* ProgressiveBoot.html, WebSession, WebRenderer: a new bootstrap
+	method has been added which implements the principle of
+	"progressive enhancement"
+
+	* WebSession, Boot.html: avoid one extra round-trip when
+	redirecting to the canonical URL.
+
+	* Plain.html: better SEO: do not render the form to a spider engine
+
 18-08-2009
 	* WWidget: add boxPadding() and boxBorder() methods, which are
 	used by the layout managers to correct for built-in borders and

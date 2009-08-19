@@ -38,7 +38,7 @@ private:
   WWidget *composerExample();
   WWidget *widgetGalleryExample();
 
-  WWidget *wrapViewOrDefer(WWidget *(WtHome::*createFunction)());
+  WWidget *wrapView(WWidget *(WtHome::*createFunction)());
 };
 
 WApplication *createWtHomeApplication(const WEnvironment& env);

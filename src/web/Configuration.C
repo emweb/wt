@@ -160,6 +160,7 @@ Configuration::Configuration(const std::string& applicationPath,
     inlineCss_(true),
     ajaxAgentWhiteList_(false),
     persistentSessions_(false),
+    progressiveBoot_(false),
     pid_(getpid())
 {
   logger_.addField("datetime", false);
@@ -299,6 +300,7 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
   setBoolean(app, "strict-event-serialization", serializedEvents_);
   setBoolean(app, "inline-css", inlineCss_);
   setBoolean(app, "persistent-sessions", persistentSessions_);
+  setBoolean(app, "progressive-bootstrap", progressiveBoot_);
 
   std::vector<mxml_node_t *> userAgents = childElements(app, "user-agents");
 

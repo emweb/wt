@@ -580,12 +580,6 @@ void DomElement::asHTML(EscapeOStream& out,
        && (!clickEvent->second.jsCode.empty())
        && (!app->environment().agentIsSpiderBot()));
 
-  if (needButtonWrap) {
-    PropertyMap::const_iterator i = properties_.find(Wt::PropertyStyleDisplay);
-    if (i != properties_.end() && i->second == "none")
-      return;
-  }
-
   bool isSubmit = needButtonWrap;
   DomElementType renderedType = type_;
 
@@ -615,6 +609,12 @@ void DomElement::asHTML(EscapeOStream& out,
       self->setAttribute("name", "signal=" + clickEvent->second.signalName);
       needButtonWrap = false;
     }
+  }
+
+  if (needButtonWrap) {
+    PropertyMap::const_iterator i = properties_.find(Wt::PropertyStyleDisplay);
+    if (i != properties_.end() && i->second == "none")
+      return;
   }
 
   /*

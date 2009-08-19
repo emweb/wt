@@ -665,6 +665,8 @@ protected:
    */
   WWidget *extraHeaderWidget(int column);
 
+  virtual void enableAjax();
+
 private:
   struct ColumnInfo {
     WCssTemplateRule *styleRule;

@@ -115,7 +115,7 @@ private:
 
   void readNews(WTable *newsTable, const std::string& newsfile);
   
-  WWidget *wrapViewOrDefer(WWidget *(Home::*createFunction)());
+  WWidget *wrapView(WWidget *(Home::*createFunction)());
 
   void updateTitle();
   void setLanguage(int language);

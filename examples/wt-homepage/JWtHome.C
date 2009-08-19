@@ -54,22 +54,17 @@ WWidget *JWtHome::examples()
    * Therefore, we wrap all the static content (including the tree
    * widgets), into WViewWidgets with static models. In this way the
    * widgets are not actually stored in memory on the server.
-   *
-   * For the tree list example (for which we cannot use a view with a
-   * static model, since we allow the tree to be manipulated) we use
-   * the defer utility function to defer its creation until it is
-   * loaded.
    */
 
   // The call ->setPathComponent() is to use "/examples/" instead of
   // "/examples/hello_world" as internal path
-  examplesMenu_->addTab(wrapViewOrDefer(&JWtHome::helloWorldExample),
+  examplesMenu_->addTab(wrapView(&JWtHome::helloWorldExample),
   			tr("hello-world"))->setPathComponent("");
-  examplesMenu_->addTab(wrapViewOrDefer(&JWtHome::chartExample),
+  examplesMenu_->addTab(wrapView(&JWtHome::chartExample),
   			tr("charts"));
-  examplesMenu_->addTab(wrapViewOrDefer(&JWtHome::treeviewExample),
+  examplesMenu_->addTab(wrapView(&JWtHome::treeviewExample),
 			tr("treeview"));
-  examplesMenu_->addTab(wrapViewOrDefer(&JWtHome::composerExample),
+  examplesMenu_->addTab(wrapView(&JWtHome::composerExample),
 			tr("mail-composer"));
   
   // Enable internal paths for the example menu
@@ -127,20 +122,9 @@ WWidget *JWtHome::composerExample()
   return example("home.examples.composer", "composer");
 }
 
-WWidget *JWtHome::wrapViewOrDefer(WWidget *(JWtHome::*createWidget)())
+WWidget *JWtHome::wrapView(WWidget *(JWtHome::*createWidget)())
 {
-  /*
-   * We can only create a view if we have javascript for the
-   * client-side tree manipulation -- otherwise we require server-side
-   * event handling which is not possible with a view since the
-   * server-side widgets do not exist. Therefore, all we can do to
-   * avoid unnecessary server-side resources when JavaScript is not
-   * available is deferring creation until load time.
-   */
-  if (!environment().agentIsIEMobile() && environment().javaScript())
-    return makeStaticModel(boost::bind(createWidget, this));
-  else
-    return deferCreate(boost::bind(createWidget, this));
+  return makeStaticModel(boost::bind(createWidget, this));
 }
 
 WApplication *createJWtHomeApplication(const WEnvironment& env)

@@ -27,7 +27,7 @@ using namespace Wt;
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<23> WWebWidget::AllChangeFlags = std::bitset<23>()
+const std::bitset<24> WWebWidget::AllChangeFlags = std::bitset<24>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -156,6 +156,8 @@ void WWebWidget::repaint(WFlags<RepaintFlag> flags)
     flags_.set(BIT_REPAINT_PROPERTY_ATTRIBUTE);
   if (flags & RepaintInnerHtml)
     flags_.set(BIT_REPAINT_INNER_HTML);
+  if (flags & RepaintToAjax)
+    flags_.set(BIT_REPAINT_TO_AJAX);
 #endif // WT_TARGET_JAVA
 }
 
@@ -164,11 +166,12 @@ void WWebWidget::renderOk()
   WWidget::renderOk();
 
 #ifndef WT_TARGET_JAVA
-  flags_ &= ~(int)RepaintAll;
+  flags_ &= ~(int)(RepaintAll | RepaintToAjax);
 #else // WT_TARGET_JAVA
   flags_.reset(BIT_REPAINT_PROPERTY_IEMOBILE);
   flags_.reset(BIT_REPAINT_PROPERTY_ATTRIBUTE);
   flags_.reset(BIT_REPAINT_INNER_HTML);
+  flags_.reset(BIT_REPAINT_TO_AJAX);
 #endif // WT_TARGET_JAVA
 }
 
@@ -631,6 +634,9 @@ WLength WWebWidget::margin(Side side) const
 
 void WWebWidget::setStyleClass(const WT_USTRING& styleClass)
 {
+  if (canOptimizeUpdates() && (styleClass == WWebWidget::styleClass()))
+    return;
+
   if (!lookImpl_)
     lookImpl_ = new LookImpl();
 
@@ -1346,6 +1352,32 @@ void WWebWidget::refresh()
   if (children_)
     for (unsigned i = 0; i < children_->size(); ++i)
       (*children_)[i]->refresh();
+}
+
+void WWebWidget::enableAjax()
+{
+  /*
+   * What needs to be done ? We want to get to the same state as the normal
+   * AJAX bootstrap: thus still leaving stubs as is.
+   */
+  if (!isStubbed()) {
+    for (EventSignalList::iterator i = eventSignals().begin();
+	 i != eventSignals().end(); ++i) {
+#ifndef WT_NO_BOOST_INTRUSIVE
+      EventSignalBase& s = *i;
+#else
+      EventSignalBase& s = **i;
+#endif
+      if (s.name() == WInteractWidget::CLICK_SIGNAL)
+	repaint(RepaintToAjax);
+
+      s.senderRepaint();
+    }
+  }
+
+  if (children_)
+    for (unsigned i = 0; i < children_->size(); ++i)
+      (*children_)[i]->enableAjax();
 }
 
 void WWebWidget::setIgnoreChildRemoves(bool how)

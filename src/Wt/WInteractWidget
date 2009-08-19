@@ -201,6 +201,7 @@ private:
   static const char *MOUSE_MOVE_SIGNAL;
 
   friend class DomElement;
+  friend class WWebWidget;
 };
 
 }

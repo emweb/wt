@@ -94,8 +94,9 @@ void Widget::initExt()
     if (ua.find("Macintosh") != std::string::npos
 	|| ua.find("Mac OS X") != std::string::npos)
       bodyClass += " ext-mac";
-
-    app->doJavaScript("document.body.className='" + bodyClass + "';", false);
+    
+    app->setBodyClass(bodyClass);
+    app->setHtmlClass("ext-strict");
   }
 }
 

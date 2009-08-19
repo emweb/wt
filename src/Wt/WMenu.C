@@ -80,6 +80,14 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
   }
 }
 
+void WMenu::enableAjax()
+{
+  if (internalPathEnabled_)
+    updateItems();
+
+  WCompositeWidget::enableAjax();
+}
+
 void WMenu::setInternalBasePath(const std::string& basePath)
 {
   std::string bp = Utils::terminate(basePath, '/');

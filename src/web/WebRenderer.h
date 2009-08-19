@@ -20,6 +20,7 @@ class WebRequest;
 class WebResponse;
 class WebStream;
 class DomElement;
+class FileServe;
 
 class WApplication;
 class WWidget;
@@ -58,6 +59,7 @@ public:
   bool isDirty() const;
 
   void serveMainWidget(WebResponse& request, ResponseType responseType);
+  void serveMainscript(WebResponse& response, bool upgradeToAjax);
   void serveBootstrap(WebResponse& request);
   void serveError(WebResponse& request, const std::exception& error,
 		  ResponseType responseType);
@@ -99,9 +101,9 @@ private:
 
   void setHeaders(WebResponse& request, const std::string mimeType);
 
-  void serveJavaScriptUpdate(WebResponse& request);
-  void serveMainpage(WebResponse& request);
-  void serveMainscript(WebResponse& request);
+  void serveJavaScriptUpdate(WebResponse& response);
+  void serveMainpage(WebResponse& response);
+  void serveMainAjax(WebResponse& response);
   void serveWidgetSet(WebResponse& request);
   void streamCommJs(WApplication *app, std::ostream& out);
   void collectJavaScript();
@@ -119,6 +121,9 @@ private:
   void              preLearnStateless(WApplication *app, std::ostream& out);
   std::stringstream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_;
   void              collectJS(std::ostream *js);
+
+  void setPageVars(FileServe& page);
+  void setBootVars(WebResponse& response, FileServe& boot);
 
   std::string headDeclarations() const;
 

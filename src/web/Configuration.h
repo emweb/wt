@@ -115,6 +115,7 @@ public:
   const AgentList&   ajaxAgentList() const { return ajaxAgentList_; }
   const AgentList&   botList() const { return botList_; }
   bool               persistentSessions() const { return persistentSessions_; }
+  bool               progressiveBoot() const { return progressiveBoot_; }
 
   WLogger&           logger() { return logger_; }
   WLogEntry          log(const std::string& type) const;
@@ -161,6 +162,7 @@ private:
   AgentList       ajaxAgentList_, botList_;
   bool            ajaxAgentWhiteList_;
   bool            persistentSessions_;
+  bool            progressiveBoot_;
 
   int		  pid_;
   WtRandom        random_;

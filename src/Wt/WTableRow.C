@@ -85,8 +85,10 @@ void WTableRow::setHeight(const WLength& height)
 
 void WTableRow::setStyleClass(const WT_USTRING& style)
 {
-  styleClass_ = style;
+  if (WWebWidget::canOptimizeUpdates() && (style == styleClass_))
+    return;
 
+  styleClass_ = style;
   table_->repaintRow(this);
 }
 

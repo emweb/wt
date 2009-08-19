@@ -73,7 +73,8 @@ namespace Wt {
  * The widget corresponds to the HTML <tt>&lt;fieldset&gt;</tt> tag,
  * and the title in a nested <tt>&lt;legend&gt;</tt> tag.
  *
- * Like WContainerWidget, %WGroupBox is by default a block level widget.
+ * Like WContainerWidget, %WGroupBox is by default displayed as a
+ * \link WWidget::setInline() block \endlink.
  *
  * \image html WGroupBox-1.png "WGroupBox example"
  */

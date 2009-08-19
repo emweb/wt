@@ -23,7 +23,7 @@ PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
   text += 
     "<p>A simple example demonstrating cross-browser vector graphics."
     "</p>"
-    "<p>The emweb logo below is painted using the Wt WPainter API, and "
+    "<p>The emweb logo below is painted using the Wt WPainter API from bezier paths, and "
     "rendered to the browser using inline SVG, inline VML or the "
     "HTML 5 &lt;canvas&gt; element."
     "</p>"

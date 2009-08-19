@@ -80,32 +80,42 @@
 <h3><span>Wt: an introduction</span></h3>
 
 <p>Wt (pronounced 'witty') is a C++ library and application server for
-developing and deploying web applications. It is not a 'framework',
-which enforces a way of programming, but a library.</p>
+developing and deploying web applications and accessible, interactive
+web sites. The API is <b>widget-centric</b>, and inspired by existing
+C++ Graphical User Interface (GUI) APIs. To the developer, it offers
+complete abstraction of any web-specific implementation details,
+including event handling, graphics support, and pretty URLs.</p>
 
-<p>The API is widget-centric, and inspired by existing C++ Graphical
-User Interface (GUI) APIs. To the developer, it offers complete
-abstraction of any web-specific implementation details, including
-event handling and graphics support.</p>
+<p>A Wt application supports <b>graceful degradation or progressive
+enhancement</b>, which makes the application accessible to older
+browsers or search engines, while using AJAX for an improved
+experience in modern browsers.</p>
 
-<p>Page-based frameworks (such as based on PHP or JSP/JSF (+ servlets
-+ struts)) for developing web application do not make abstraction of
-the peculiarities of the underlying technologies (HTML/XHTML,
-JavaScript, CSS, AJAX, Forms, DHTML, SVG/VML/Canvas). As a
-consequence, a developer must gain familiarity with all of these
-(evolving) technologies. Moreover, when choosing to use a technology
-(such the currently popular AJAX), the developer is responsible for
-graceful degradation when AJAX or JavaScript are not available or
-disabled. The structure of the application follows mostly the
-page-centric paradigm of early day HTML. This means that when using
-advanced AJAX techniques, as a developer you will need to design and
-maintain manually your client-server communication.</p>
+<h4>Interactive, secure and accessible</h4>
+
+<p>Page-based frameworks (based on PHP, JSP/JSF, Ruby on Rails,
+etc...) do not make abstraction of the underlying technologies
+(HTML/XHTML, JavaScript, CSS, AJAX, Forms, DHTML, SVG/VML/Canvas). As
+a consequence, a developer needs to be familiar with all of these
+evolving technologies and is also responsible for graceful degradation
+when support is browser lacking. The structure of the application
+follows mostly the page-centric paradigm of early day HTML. This means
+that not only will you need to implement a controller to indicate how
+a user moves from page to page, but when using advanced AJAX
+techniques you will need to design and maintain manually your
+client-server communication.</p>
 
 <p>Generating HTML code or filling HTML templates is prone to security
-problems such as XSS (Cross-Site-Scripting), by unwillingly allowing
-JavaScript to be inserted in the page. But this cannot be avoided by
-template frameworks, because as a developer you need to be able to
-insert self-written JavaScript to improve your web application.</p>
+problems such
+as <a href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS
+(Cross-Site-Scripting)</a> by unwillingly allowing JavaScript to be
+inserted in the page,
+and <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
+(Cross-Site Request Forgery)</a> by trusting cookies for
+authentication. These security problems are hard to avoid when as a
+developer you need to be able to insert self-written JavaScript to
+improve your web application and thus the framework cannot filter it
+out.</p>
 
 <p>In contrast, a web application developed with Wt is written in only
 one compiled language (C++), from which the library generates the
@@ -114,8 +124,8 @@ code. The responsibility of writing secure and browser-portable web
 applications is handled by Wt. For example, if available, Wt will
 maximally use JavaScript and AJAX, but applications developed using Wt
 will also function correctly when AJAX is not available, or when
-JavaScript is disabled, reverting to a plain HTML/CGI mechanism for
-communication between browser and server.</p>
+JavaScript is disabled, by progressively enhancing a plain HTML/CGI
+application to a rich AJAX application.</p>
 
 <h4>Typical use scenarios:</h4>
 
@@ -127,23 +137,24 @@ communication between browser and server.</p>
   applications.</li>
   <li>Creating a port of <b>existing C++ desktop applications</b> to
   the web.</li>
+  <li><b>High performance, complex</b> web applications with
+  many <i>logged in</i> users, that are entirely accessible and Search
+  Engine Optimized.</li>
 </ul>
 
-<h4>Some benefits of using Wt</h4>
+<h4>Other benefits of using Wt</h4>
 
 <ul>
   <li>Develop web applications like you develop C++ desktop
   applications.</li>
-  <li>Provides plain widgets, which work regardless of JavaScript
-  availability (but benefit from JavaScript availability), and Wt::Ext
-  widgets which are more polished, or provide advanced functionality,
-  but require JavaScript and a modern browser. As far as possible,
-  these widgets share the same API.</li>
+  <li>Provides an extensive set of widgets, which work regardless of
+  JavaScript availability (but benefit from JavaScript
+  availability).</li>
   <li>Use the built-in httpd for easy development and deployment, or
-  use the FastCGI connector to deploy as a FastCGI application.</li>
+  use the FastCGI connector to deploy as a FastCGI application in
+  existing web servers.</li>
   <li>A single specification for both client- and server-side
-  validation and event handling (when using stateless slot
-  implementations)</li>
+  validation and event handling.</li>
   <li>Generates standards compliant HTML or XHTML code.</li>
   <li>Portable, anti-aliased graphics (uses inline VML, inline SVG or
   the HTML 5 canvas).</li>
@@ -153,6 +164,8 @@ communication between browser and server.</p>
   server.</li>
   <li>Ultra-fast load time and low bandwidth usage, which are
   affected only by screen complexity, not application size.</li>
+  <li>A simple API for server-initiated events ala <i>server push</i>
+  or <i>comet</i>).</li>
 </ul>
 
   </message>
@@ -169,7 +182,8 @@ communication between browser and server.</p>
   <li>Develop and deploy on Unix/GNU Linux (gcc) or Microsoft Windows
     (Visual Studio).</li>
   <li>Equal behavior with or without support for JavaScript or AJAX,
-    as far as possible.</li>
+    as far as possible by using graceful degradation or progressive
+    enhancement (the latter using the progressive bootstrap method).</li>
   <li>Integrated Unicode support (UTF8/UTF16).</li>
   <li>Incremental rendering of changes to the web page (when AJAX
     is available).</li>
@@ -179,10 +193,9 @@ communication between browser and server.</p>
     rendered.</li>
   <li>Configurable session tracking options that include URL rewriting
     and cookies.</li>
-  <li>Supports timed events and built-in support for server-initiated
-  updates ("server push")</li>
   <li>Support for browser history navigation (back/forward buttons and
-    bookmarks) through a flexible internal path API.</li>
+    bookmarks) through a flexible internal path API, with a unified
+    behavior for plain HTML or AJAX sessions.</li>
   <li>High performance, allowing deployment on low-end embedded
     devices, or energy-, space- and budget-friendly deployment of
     Internet or extranet web sites.</li>
@@ -206,7 +219,9 @@ communication between browser and server.</p>
     at client-side and application state at server side.</li>
   <li>Possibility to hook in custom JavaScript (e.g. for client-side only event
     handling), and <i>emit</i> C++ signals from this custom JavaScript.</li>
-  <li>Easy Drag&amp;Drop API.</li> 
+  <li>Drag&amp;Drop API.</li> 
+  <li>Supports timed events and built-in support for server-initiated
+   updates ("server push")</li>
 </ul>
 
 <h4>Native painting system</h4>
@@ -222,6 +237,9 @@ communication between browser and server.</p>
 
 <h4>GUI components</h4>
 
+See also the <a href="http://www.webtoolkit.eu/widgets">Widget
+gallery</a> for an interactive overview of built-in functionality.
+
 <ul>
   <li>Basic widgets (buttons, HTML anchors, checkboxes and radio
     buttons, combo boxes, containers, file upload control, images,
@@ -231,7 +249,7 @@ communication between browser and server.</p>
   <li>Composite widgets (that are built on top of basic widgets, and
     use only the Wt public API): calendars, sliders, trees and tree
     tables, menus, in-place edits, virtual images, panels.</li>
-  <li>Modal windows (dialog and message boxes)</li>
+  <li>Modal and non-modal windows (dialog and message boxes)</li>
   <li>Built-in internationalization using messages resource bundles.</li>
   <li>CSS either inline, or using internal or external style sheets.</li>
   <li>Ext Wt widgets that internally
@@ -239,6 +257,7 @@ communication between browser and server.</p>
     widgets. A large subset of the ExtJS widgets have been wrapped as
     C++ widgets.
   </li>
+  <li>Supports sounds for event feedback.</li>
   <li>Flexible charting widgets (cartesian charts and pie charts)
     based on the native painting API, and Wt's MVC infrastructure.</li>
 </ul>
@@ -260,6 +279,9 @@ communication between browser and server.</p>
     cookies for session tracking are optional, and even when used, they
     are never solely relied on for requests that trigger event handling
     code.</li>
+  <li>Not vulnerable to breaking the application logic by skipping to
+    a particular URL, since only those events exposed in the interface
+    can be triggered.</li>
 </ul>
 
 <h4>Deployment</h4>
@@ -1014,6 +1036,11 @@ specific installation notes</a>.
 <li>Dr Dobbs Journal has a good <a href="http://www.ddj.com/cpp/206401952">
 introductary article on Wt</a> (February 2008).</li>
 
+<li>The reference manual contains
+a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html">library
+overview</a> which provides a good starting point to getting
+started.</li>
+
 <li>Software Developers Journal has a (slighly outdated) tutorial
 (April 2006). The tutorial uses the Hangman example code (see also in
 the examples section!). You can view a copy of the article <a
@@ -1063,9 +1090,7 @@ tips and tricks.
     </div>
   </message>
 
-  <message id="srcview.title.hello">
-    Example: Hello world
-  </message>
+  <message id="srcview.title.hello">Example: Hello world</message>
 
   <message id="srcview.title.CPP.charts">
     <div class="srcviewtitle">
@@ -1079,9 +1104,7 @@ tips and tricks.
     </div>
   </message>
 
-  <message id="srcview.title.charts">
-    Example: Charts
-  </message>
+  <message id="srcview.title.charts">Example: Charts</message>
 
   <message id="srcview.title.CPP.treeview-dragdrop">
     <div class="srcviewtitle">
@@ -1095,9 +1118,7 @@ tips and tricks.
     </div>
   </message>
 
-  <message id="srcview.title.treeview-dragdrop">
-    Example: Treeview
-  </message>
+  <message id="srcview.title.treeview-dragdrop">Example: Treeview</message>
 
   <message id="srcview.title.CPP.composer">
     <div class="srcviewtitle">
@@ -1111,10 +1132,7 @@ tips and tricks.
     </div>
   </message>
 
-  <message id="srcview.title.composer">
-    Example: Mail composer
-  </message>
-
+  <message id="srcview.title.composer">Example: Mail composer</message>
   
   <message id="srcview.title.CPP.wt-homepage">
     <div class="srcviewtitle">
@@ -1128,9 +1146,7 @@ tips and tricks.
     </div>
   </message>
 
-  <message id="srcview.title.wt-homepage">
-    Example: Wt Homepage
-  </message>
+  <message id="srcview.title.wt-homepage">Example: Wt Homepage</message>
 
   <message id="srcview.title.CPP.gitmodel">
     <div class="srcviewtitle">
@@ -1144,9 +1160,7 @@ tips and tricks.
     </div>
   </message>
 
-  <message id="srcview.title.gitmodel">
-    Example: Git explorer
-  </message>
+  <message id="srcview.title.gitmodel">Example: Git explorer</message>
 
   <message id="srcview.title.CPP.simplechat">
     <div class="srcviewtitle">
@@ -1160,9 +1174,7 @@ tips and tricks.
     </div>
   </message>
 
-  <message id="srcview.title.simplechat">
-    Example: Chat
-  </message>
+  <message id="srcview.title.simplechat">Example: Chat</message>
 
   <message id="srcview.title.CPP.widgetgallery">
     <div class="srcviewtitle">
@@ -1176,7 +1188,5 @@ tips and tricks.
     </div>
   </message>
 
-  <message id="srcview.title.widgetgallery">
-    Example: Widget gallery
-  </message>
+  <message id="srcview.title.widgetgallery">Example: Widget gallery</message>
 </messages>

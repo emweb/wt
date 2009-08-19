@@ -374,20 +374,22 @@ public:
    */
   virtual bool isPopup() const = 0;
 
-  /*! \brief Sets whether this widget is inline or stacked.
+  /*! \brief Sets whether this widget is displayed inline or as a block.
    *
    * This option changes whether this widget must be rendered in-line
    * with sibling widgets wrapping at the right edge of the parent
-   * container (like text), or whether this widget must be stacked
-   * vertically with sibling widgets. Depending on the widget type,
-   * the default value is inline (such as for example for WText, or
-   * WPushButton), or stacked (such as for example for WTable).
+   * container (like text), or whether this widget must be rendered as
+   * a rectangular block that stacks vertically with sibling widgets
+   * (unless a CSS float property is applied). Depending on the widget
+   * type, the default value is inline (such as for example for WText,
+   * or WPushButton), or block (such as for example for a
+   * WContainerWidget).
    *
    * This applies to CSS-based layout.
    */
   virtual void setInline(bool inlined) = 0;
 
-  /*! \brief Returns whether this widget is inline or stacked.
+  /*! \brief Returns whether this widget is displayed inline or as block.
    *
    * \sa setInline(bool)
    */
@@ -605,6 +607,21 @@ protected:
    * \sa acceptDrops(), WInteractWidget::setDraggable()
    */
   virtual void dropEvent(WDropEvent dropEvent);
+
+  /*! \brief Progress to an Ajax-enabled widget.
+   *
+   * This method is called when the progressive bootstrap method is used, and
+   * support for AJAX has been detected. The default behavior will upgrade
+   * the widget's event handling to use AJAX instead of full page reloads, and
+   * propagate the call to its children.
+   *
+   * You may want to reimplement this method if you want to make
+   * changes to widget when AJAX is enabled. You should always call
+   * the base implementation.
+   *
+   * \sa WApplication::enableAjax()
+   */
+  virtual void enableAjax() = 0;
 
   /*! \brief Returns the widget's built-in padding.
    *

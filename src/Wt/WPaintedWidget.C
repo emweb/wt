@@ -115,6 +115,14 @@ void WPaintedWidget::update(WFlags<PaintFlag> flags)
   WInteractWidget::repaint();
 }
 
+void WPaintedWidget::enableAjax()
+{
+  if (dynamic_cast<WWidgetCanvasPainter *>(painter_))
+    update();
+
+  WInteractWidget::enableAjax();
+}
+
 bool WPaintedWidget::createPainter()
 {
   if (painter_)
@@ -133,11 +141,11 @@ bool WPaintedWidget::createPainter()
   /* Otherwise, combined preferred method with actual capabilities */
   Method method;
 
-  if (!env.javaScript())
-    method = InlineSvgVml;
-  else
-    if (env.contentType() != WEnvironment::XHTML1)
-      method = HtmlCanvas;
+  if (env.contentType() != WEnvironment::XHTML1)
+    method = HtmlCanvas;
+  else 
+    if (!env.javaScript())
+      method = InlineSvgVml;
     else {
       /*
        * For Firefox pre 3.0 on Mac: SVG support is buggy (text filling

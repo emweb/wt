@@ -1135,6 +1135,20 @@ protected:
    */
   virtual bool isExposed(WWidget *w) const;
 
+  /*! \brief Progress to an Ajax-enabled user interface.
+   *
+   * This method is called when the progressive bootstrap method is used, and
+   * support for AJAX has been detected. The default behavior will propagate
+   * the WWidget::enableAjax() method through the widget hierarchy.
+   *
+   * You may want to reimplement this method if you want to make
+   * changes to the user-interface when AJAX is enabled. You should
+   * always call the base implementation.
+   *
+   * \sa WWidget::enableAjax()
+   */
+  virtual void enableAjax();
+
   void exposeOnly(WWidget *w);
 
 private:
@@ -1169,7 +1183,7 @@ private:
   WCssStyleSheet         styleSheet_;  // internal style sheet
   WLocalizedStrings     *localizedStrings_;
   WT_LOCALE              locale_;
-  std::string            newInternalPath_;
+  std::string            oldInternalPath_, newInternalPath_;
   Signal<std::string>    internalPathChanged_;
   bool                   internalPathIsChanged_;
 #ifndef WT_TARGET_JAVA

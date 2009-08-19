@@ -35,7 +35,7 @@ namespace Wt {
  *
  * The widget corresponds to the HTML <tt>&lt;table&gt;</tt> tag.
  *
- * %WComboBox is a \link WWidget::setInline(bool) stacked \endlink widget.
+ * %WTable is displayed as a \link WWidget::setInline(bool) block \endlink.
  *
  * \if cpp
  * Usage example:

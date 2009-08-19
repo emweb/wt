@@ -154,6 +154,11 @@ bool WebSession::shouldDisconnect() const
 }
 #endif // WT_TARGET_JAVA
 
+void WebSession::setLoaded()
+{
+  setState(Loaded, controller_->configuration().sessionTimeout());
+}
+
 void WebSession::setState(State state, int timeout)
 {
 #ifdef WT_THREADED
@@ -214,15 +219,17 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
 {
   switch (option) {
   case KeepInternalPath: {
-    std::string internalPath
-      = app_ ? app_->internalPath() : env_->internalPath();
+    std::string internalPath;
 
     if (applicationName_.empty()) {
+      internalPath = app_ ? app_->internalPath() : env_->internalPath();
+
       if (internalPath.length() > 1)
 	return appendSessionQuery("?_=" + Utils::urlEncode(internalPath));
       else
 	return appendSessionQuery("");
     } else
+      internalPath = WebSession::Handler::instance()->request()->pathInfo();
       /*
        * Java application servers use ";jsessionid=..." which generates
        * URLs relative to the current directory, not current filename
@@ -775,10 +782,19 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    bool forcePlain = env_->agentIsSpiderBot()
 	      || !env_->agentSupportsAjax();
 
-	    if (forcePlain) {
+	    bool progressiveBoot = !forcePlain
+	      && controller_->configuration().progressiveBoot();
+
+	    if (forcePlain || progressiveBoot) {
 	      env_->doesJavaScript_ = false;
 	      env_->doesAjax_ = false;
 	      env_->doesCookies_ = false;
+
+	      try {
+		std::string internalPath = env_->getCookie("WtInternalPath");
+		env_->setInternalPath(internalPath);
+	      } catch (...) {
+	      }
 
 	      if (!start())
 		throw WtException("Could not start application.");
@@ -791,8 +807,18 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	      }
 #endif // WT_WITH_OLD_INTERNALPATH_API
 
+	      // WebRenderer will read this state variable to use the
+	      // ProgressiveBoot skeleton instead of Plain
+	      if (progressiveBoot)
+		state_ = ProgressiveBootstrap;
+
 	      app_->notify(WEvent(handler, WEvent::Render,
 				  WebRenderer::FullResponse));
+
+	      // Render sets state_ to Loaded, which is not what we want for
+	      // a progressive bootstrap
+	      if (progressiveBoot)
+		state_ = ProgressiveBootstrap;
 
 	      if (env_->agentIsSpiderBot())
 		handler.killSession();
@@ -839,31 +865,6 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	env_->doesAjax_ = env_->doesJavaScript_ && ajaxE && *ajaxE == "yes";
 	env_->doesCookies_ = !request.headerValue("Cookie").empty();
 
-	if (env_->doesAjax_
-	    && (!request.pathInfo().empty()
-		|| (applicationName_.empty()
-		    && env_->internalPath().length() > 1))) {
-	  std::string url;
-	  if (!request.pathInfo().empty()) {
-	    std::string pi = request.pathInfo();
-	    for (std::size_t t = pi.find('/'); t != std::string::npos;
-		 t = pi.find('/', t+1)) {
-	      url += "../";
-	    }
-	    url += applicationName();
-	  } else
-	    url = baseUrl() + applicationName();
-
-	  url += '#' + env_->internalPath();
-	  redirect(url);
-	  renderer_.serveMainWidget(*handler.response(),
-				    WebRenderer::FullResponse);
-
-	  log("notice") << "Redirecting to canonical URL: " << url;
-	  handler.killSession();
-	  break;
-	}
-
 	try {
 	  env_->dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
 	} catch (boost::bad_lexical_cast &e) {
@@ -899,6 +900,48 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
       app_->notify(WEvent(handler, WEvent::Render, WebRenderer::FullResponse));
       break;
+    }
+    case ProgressiveBootstrap: {
+      /*
+       * Four cases possible:
+       *  - it is a 'script' request, and thus this indicates availability
+       *    of AJAX. We progress to the AJAX version
+       *  - it is a 'resource' request, fall through to Loaded handling
+       *  - it is a 'page' request, we are going plain HTML, set Loaded
+       *    and fall through to Loaded handling.
+       *  - it is a refresh (possibly at a different internal path), same
+       *    as previus
+       */
+      const std::string *requestE = request.getParameter("request");
+      const std::string *resourceE = request.getParameter("resource");
+
+      if (requestE && *requestE == "script") {
+	// upgrade to AJAX
+	const std::string *hashE = request.getParameter("_");
+	const std::string *scaleE = request.getParameter("scale");
+
+	env_->doesJavaScript_= true;
+	env_->doesAjax_ = true;
+	env_->doesCookies_ = !request.headerValue("Cookie").empty();
+
+	try {
+	  env_->dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
+	} catch (boost::bad_lexical_cast &e) {
+	  env_->dpiScale_ = 1;
+	}
+
+	if (hashE)
+	  env_->setInternalPath(*hashE);
+
+	app_->notify(WEvent(handler, WEvent::EnableAjax,
+			    WebRenderer::FullResponse));
+
+	break;
+      } else if (signalE) {
+	setLoaded();
+      }
+
+      // fall through to Loaded
     }
     case Loaded: {
       responseType = (signalE && !requestE && env_->doesAjax_)
@@ -1079,6 +1122,31 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
   }
 }
 
+std::string WebSession::ajaxCanonicalUrl(const WebRequest& request) const
+{
+  const std::string *hashE = 0;
+  if (applicationName_.empty())
+    hashE = request.getParameter("_");
+
+  if (!request.pathInfo().empty() || (hashE && hashE->length() > 1)) {
+    std::string url;
+    if (!request.pathInfo().empty()) {
+      std::string pi = request.pathInfo();
+      for (std::size_t t = pi.find('/'); t != std::string::npos;
+	   t = pi.find('/', t+1)) {
+	url += "../";
+      }
+      url += applicationName();
+    } else
+      url = baseUrl() + applicationName();
+
+    url += '#' + env_->internalPath();
+    
+    return url;
+  } else
+    return std::string();
+}
+
 void WebSession::pushUpdates()
 {
   if (!renderer_.isDirty())
@@ -1134,6 +1202,12 @@ void WebSession::notify(const WEvent& e)
     session->env_->parameters_ = e.handler.request()->getParameterMap();
     session->app_->refresh();
     break;
+  case WEvent::EnableAjax:
+    session->app_->enableAjax();
+    if (session->env_->internalPath().length() > 1)
+      session->app_->changeInternalPath(session->env_->internalPath());
+    session->renderer_.serveMainscript(*e.handler.response(), true);
+    break;
   case WEvent::Render:
     session->render(e.handler, e.responseType);
     break;
@@ -1158,7 +1232,6 @@ void WebSession::render(Handler& handler, WebRenderer::ResponseType type)
     handler.killSession();
 
   renderer_.serveMainWidget(*handler.response(), type);
-  setState(Loaded, controller_->configuration().sessionTimeout());
 
   updatesPending_ = false;
 }

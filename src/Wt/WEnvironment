@@ -37,7 +37,7 @@ class WebSession;
  *   ...
  * }
  *
- * // Check for JavaScript/AJAX availability before using JavaScript-only
+ * // Check for JavaScript/AJAX availability before using AJAX-only
  * // widgets
  * Wt::WTextArea *textEdit;
  * if (!env.ajax())
@@ -175,13 +175,8 @@ public:
 
   /*! \brief Returns whether the browser has enabled support for JavaScript.
    *
-   * Without support for JavaScript, %Wt will still be able to serve
-   * the application, but with one considerable limitation: only the
-   * WTimer::timeout(), WInteractWidget::clicked(),
-   * WApplication::internalPathChanged(), and WAbstractArea::clicked()
-   * signals (and any derived signals) will generate events.
-   *
-   * Every event will cause the complete page to be rerendered.
+   * This is the same as ajax(): %Wt only considers using JavaScript
+   * when it has detected AJAX support.
    *
    * \sa ajax()
    */
@@ -189,9 +184,13 @@ public:
 
   /*! \brief Returns whether the browser has enabled support for AJAX.
    *
-   * Without support for AJAX, %Wt will still be able to serve
-   * the application, but every event will cause the application to
-   * retransmit the whole page, rendering many events inpractical.
+   * Without support for JavaScript/AJAX, %Wt will still be able to
+   * serve the application, but with one considerable limitation: only
+   * the WTimer::timeout(), WInteractWidget::clicked(),
+   * WApplication::internalPathChanged(), and WAbstractArea::clicked()
+   * signals (and any derived signals) will generate events.
+   *
+   * Every event will cause the complete page to be rerendered.
    *
    * \sa javaScript()
    */

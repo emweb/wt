@@ -100,7 +100,15 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
     textSize_(20),
     isStolen_(false),
     doUpload_(false),
+    enableAjax_(false),
     fileTooLarge_(this)
+{
+  setInline(true);
+
+  create();
+}
+
+void WFileUpload::create()
 {
   // NOTE: this is broken on konqueror: you cannot target a form anymore
   bool methodIframe = WApplication::instance()->environment().ajax();
@@ -110,16 +118,21 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
   else
     fileUploadTarget_ = 0;
 
-  setInline(true);
-
-  if (!fileUploadTarget_)
-    setFormObject(true);
+  setFormObject(!fileUploadTarget_);
 }
 
 WFileUpload::~WFileUpload()
 {
   if (!isStolen_)
     unlink(spoolFileName_.c_str());
+}
+
+void WFileUpload::enableAjax()
+{
+  create();
+  enableAjax_ = true;
+  repaint();
+  WWebWidget::enableAjax();
 }
 
 EventSignal<>& WFileUpload::uploaded()
@@ -161,6 +174,18 @@ void WFileUpload::propagateRenderOk(bool deep)
 DomElementType WFileUpload::domElementType() const
 {
   return fileUploadTarget_ ? DomElement_FORM : DomElement_INPUT;
+}
+
+void WFileUpload::getDomChanges(std::vector<DomElement *>& result,
+				WApplication *app)
+{
+  if (enableAjax_) {
+    DomElement *plainE = DomElement::getForUpdate(this, DomElement_INPUT);
+    DomElement *ajaxE = createDomElement(app);
+    plainE->replaceWith(ajaxE, true);
+    result.push_back(ajaxE);
+  } else
+    WWebWidget::getDomChanges(result, app);
 }
 
 DomElement *WFileUpload::createDomElement(WApplication *app)
@@ -216,6 +241,8 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
   }
 
   updateDom(*result, true);
+
+  enableAjax_ = false;
 
   return result;
 }
