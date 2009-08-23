@@ -48,7 +48,6 @@ namespace {
 
       FCGX_Finish_r(request_);
       delete request_;
-
     }
 
     virtual void flush(ResponseState state,

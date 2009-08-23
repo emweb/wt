@@ -124,7 +124,7 @@ public:
 
   std::string appendSessionQuery(const std::string& url) const;
 
-  std::string ajaxCanonicalUrl(const WebRequest& request) const;
+  std::string ajaxCanonicalUrl(const WebResponse& request) const;
 
   enum BootstrapOption {
     ClearInternalPath,

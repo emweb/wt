@@ -102,6 +102,9 @@ Server::Server(int argc, char *argv[])
     argv_(argv),
     conf_(argv[0], "", Configuration::FcgiServer,
 	  "Wt: initializing FastCGI session process manager")
+#ifdef WT_THREADED
+  , threadPool_(conf_.numThreads())
+#endif // WT_THREADED
 {
   instance = this;
 
@@ -375,249 +378,268 @@ int Server::main()
       exit (1);
     }
 
-    int clientSocket = -1;
-    bool debug = false;
-
-    try {
-      /*
-       * handle a new request
-       */
-      std::vector<FCGIRecord *> consumedRecords_;
-
-      bool haveSessionId = false;
-      std::string sessionId = "";
-
-      std::string cookies;
-      std::string scriptName;
-
-      char version;
-      short requestId;
-
-      for (;;) {
-	FCGIRecord *d = new FCGIRecord();
-	d->read(serverSocket);
-	version = d->version();
-	requestId = d->requestId();
-
-	//std::cerr << "server read" << std::endl;
-
-	if (d->good()) {
-	  //std::cerr << *d << std::endl;
-	  consumedRecords_.push_back(d);
-
-	  if (d->type() == FCGI_PARAMS) {
-	    if (d->contentLength() == 0)
-	      break;
-	    else {
-	      std::string value;
-
-	      if (d->getParam("QUERY_STRING", value))
-		haveSessionId = getSessionFromQueryString(value, sessionId);
-	      if (d->getParam("HTTP_COOKIE", value))
-		cookies = value;
-	      if (d->getParam("SCRIPT_NAME", value))
-		scriptName = value;
-	    }
-	  }
-	}
-      }
-
-      /*
-       * Session tracking:
-       *   what should we give priority ? We should give priority to the
-       *   cookie, because in that case the URL may still contain an invalid
-       *   session id (when the user had for example bookmarked like that)
-       *
-       * But not when we want to get a new session when reloading, in that
-       * case we ignore the set cookie.
-       */
-      if ((conf_.sessionTracking() == Configuration::CookiesURL)
-	  && !cookies.empty() && !scriptName.empty()
-	  && !conf_.reloadIsNewSession()) {
-	std::string cookieSessionId
-	  = WebController::sessionFromCookie(cookies, scriptName,
-					     conf_.sessionIdLength());
-	if (!cookieSessionId.empty()) {
-	  sessionId = cookieSessionId;
-	  haveSessionId = true;
-	}
-      }
-
-      /*
-       * Forward the request to the session.
-       */
-      clientSocket = -1;
-
-      /*
-       * See if the session is alive.
-       */
-      if (haveSessionId) {
-	struct stat finfo;
-
-	// exists, try to connect (for 1 second)
-	std::string path = socketPath(sessionId);
-	if (stat(path.c_str(), &finfo) != -1)
-	  clientSocket = connectToSession(sessionId, path, 10);
-      }
-
-      while (clientSocket == -1) {
-	/*
-	 * New session
-	 */
-	if (conf_.sessionPolicy() == Configuration::DedicatedProcess) {
-	  /*
-	   * For dedicated process, create session at server, so that we
-	   * can keep track of process id for the session
-	   */
-	  sessionId = conf_.generateSessionId();
-	  std::string path = socketPath(sessionId);
-
-	  /*
-	   * Create and fork a new session.
-	   *
-	   * But not if we have already too many sessions running...
-	   */
-	  if ((int)sessions_.size() > conf_.maxNumSessions()) {
-	    conf_.log("error") << "Session limit reached ("
-			       << conf_.maxNumSessions() << ')';
-	    break;
-	  }
-
-	  pid_t pid = fork();
-	  if (pid == -1) {
-	    conf_.log("fatal") << "fork(): " << strerror(errno);
-	    exit(1);
-	  } else if (pid == 0) {
-	    /* the child process */
-	    execChild(debug, sessionId);
-	    exit(1);
-	  } else {
-	    conf_.log("notice") << "Spawned dedicated process for "
-				<< sessionId << ": pid=" << pid;
-	    sessions_[sessionId] = new SessionInfo(sessionId, pid);
-
-	    clientSocket = connectToSession(sessionId, path, 1000);
-	  }
-	} else {
-	  /*
-	   * For SharedProcess, connect to a random server.
-	   */
-
-	  /*
-	   * Patch from Andrii Arsirii: it could be that the
-	   * sessionProcessPids_ vector is empty because concurrently a
-	   * shared process died: we need to wait until it is respawned.
-	   */
-	  for (;;) {
-	    int processCount = sessionProcessPids_.size();
-	    if (processCount == 0)
-	      sleep(1);
-	    else {
-	      int i = lrand48() % processCount;
-
-	      if (i >= sessionProcessPids_.size())
-		sleep(1);
-	      else {
-		// This is still not entirely okay: a race condition could
-		// still occur between checking the size and getting the
-		// element.
-		int pid = sessionProcessPids_[i];
-		std::string path = conf_.runDirectory() + "/server-"
-		  + boost::lexical_cast<std::string>(pid);
-
-		clientSocket = connectToSession("", path, 100);
-
-		if (clientSocket == -1)
-		  conf_.log("error") << "Session process " << pid
-				     << " not responding ?";
-
-		break;
-	      }
-	    }
-	  }
-	}
-      }
-
-      if (clientSocket == -1) {
-	close(serverSocket);
-	continue;
-      }
-
-      /*
-       * Forward all data that was consumed to the application.
-       */
-      for (unsigned i = 0; i < consumedRecords_.size(); ++i) {
-	write(clientSocket, consumedRecords_[i]->plainText(),
-	      consumedRecords_[i]->plainTextLength());
-	delete consumedRecords_[i];
-      }
-
-      /*
-       * Now, we must copy data from both the server to the application,
-       * as well as from the application to the server, until the application
-       * sends the FCGI_END_REQUEST message.
-       */
-      for (;;) {
-	fd_set rfds;
-	FD_ZERO(&rfds);
-	FD_SET(serverSocket, &rfds);
-	FD_SET(clientSocket, &rfds);
-
-	//std::cerr << "select()" << std::endl;
-	if (select(FD_SETSIZE, &rfds, NULL, NULL, NULL) < 0) {
-	  if (errno != EINTR)
-	    conf_.log("fatal") << "select(): " << strerror(errno);
-
-	  break;
-	}
-
-	bool got = false;
-	if (FD_ISSET(serverSocket, &rfds)) {
-	  got = true;
-	  FCGIRecord d;
-	  d.read(serverSocket);
-    
-	  if (d.good()) {
-	    //std::cerr << "Got record from server: " << d << std::endl;
-	    write(clientSocket, d.plainText(), d.plainTextLength());
-	  } else {
-	    conf_.log("error") << "Error reading from web server";
-
-	    break;
-	  }
-	}
-
-	if (FD_ISSET(clientSocket, &rfds)) {
-	  got = true;
-	  FCGIRecord d;
-	  d.read(clientSocket);
-
-	  if (d.good()) {
-	    //std::cerr << "Got record from client: " << d << std::endl;
-	    write(serverSocket, d.plainText(), d.plainTextLength());
-	    if (d.type() == FCGI_END_REQUEST)
-	      break;
-	  } else {
-	    conf_.log("error") << "Error reading from application";
-
-	    break;
-	  }
-	}
-      }
-
-      //std::cerr << "Request done." << std::endl;
-
-      shutdown(serverSocket, SHUT_RDWR);
-      close(serverSocket);
-      close(clientSocket);
-    } catch (std::exception&) {
-      close(serverSocket);
-      if (clientSocket != -1)
-	close(clientSocket);
-    }
+    handleRequestThreaded(serverSocket);
   }
 
   return 0;
+}
+
+void Server::handleRequestThreaded(int serverSocket)
+{
+#ifdef WT_THREADED
+  threadPool_.schedule(boost::bind(&Server::handleRequest, this, serverSocket));
+#else
+  handleRequest(serverSocket);
+#endif // WT_THREADED
+}
+
+void Server::handleRequest(int serverSocket)
+{
+  int clientSocket = -1;
+  bool debug = false;
+
+  try {
+    /*
+     * handle a new request
+     */
+    std::vector<FCGIRecord *> consumedRecords_;
+
+    bool haveSessionId = false;
+    std::string sessionId = "";
+
+    std::string cookies;
+    std::string scriptName;
+
+    char version;
+    short requestId;
+
+    for (;;) {
+      FCGIRecord *d = new FCGIRecord();
+      d->read(serverSocket);
+      version = d->version();
+      requestId = d->requestId();
+
+      //std::cerr << "server read" << std::endl;
+
+      if (d->good()) {
+	//std::cerr << *d << std::endl;
+	consumedRecords_.push_back(d);
+
+	if (d->type() == FCGI_PARAMS) {
+	  if (d->contentLength() == 0)
+	    break;
+	  else {
+	    std::string value;
+
+	    if (d->getParam("QUERY_STRING", value))
+	      haveSessionId = getSessionFromQueryString(value, sessionId);
+	    if (d->getParam("HTTP_COOKIE", value))
+	      cookies = value;
+	    if (d->getParam("SCRIPT_NAME", value))
+	      scriptName = value;
+	  }
+	}
+      }
+    }
+
+    /*
+     * Session tracking:
+     *   what should we give priority ? We should give priority to the
+     *   cookie, because in that case the URL may still contain an invalid
+     *   session id (when the user had for example bookmarked like that)
+     *
+     * But not when we want to get a new session when reloading, in that
+     * case we ignore the set cookie.
+     */
+    if ((conf_.sessionTracking() == Configuration::CookiesURL)
+	&& !cookies.empty() && !scriptName.empty()
+	&& !conf_.reloadIsNewSession()) {
+      std::string cookieSessionId
+	= WebController::sessionFromCookie(cookies, scriptName,
+					   conf_.sessionIdLength());
+      if (!cookieSessionId.empty()) {
+	sessionId = cookieSessionId;
+	haveSessionId = true;
+      }
+    }
+
+    /*
+     * Forward the request to the session.
+     */
+    clientSocket = -1;
+
+    /*
+     * See if the session is alive.
+     */
+    if (haveSessionId) {
+      struct stat finfo;
+
+      // exists, try to connect (for 1 second)
+      std::string path = socketPath(sessionId);
+      if (stat(path.c_str(), &finfo) != -1)
+	clientSocket = connectToSession(sessionId, path, 10);
+    }
+
+    while (clientSocket == -1) {
+      /*
+       * New session
+       */
+      if (conf_.sessionPolicy() == Configuration::DedicatedProcess) {
+	/*
+	 * For dedicated process, create session at server, so that we
+	 * can keep track of process id for the session
+	 */
+	sessionId = conf_.generateSessionId();
+	std::string path = socketPath(sessionId);
+
+	/*
+	 * Create and fork a new session.
+	 *
+	 * But not if we have already too many sessions running...
+	 */
+	if ((int)sessions_.size() > conf_.maxNumSessions()) {
+	  conf_.log("error") << "Session limit reached ("
+			     << conf_.maxNumSessions() << ')';
+	  break;
+	}
+
+	pid_t pid = fork();
+	if (pid == -1) {
+	  conf_.log("fatal") << "fork(): " << strerror(errno);
+	  exit(1);
+	} else if (pid == 0) {
+	  /* the child process */
+	  execChild(debug, sessionId);
+	  exit(1);
+	} else {
+	  conf_.log("notice") << "Spawned dedicated process for "
+			      << sessionId << ": pid=" << pid;
+	  {
+#ifdef WT_THREADED
+	    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+#endif
+	    sessions_[sessionId] = new SessionInfo(sessionId, pid);
+	  }
+
+	  clientSocket = connectToSession(sessionId, path, 1000);
+	}
+      } else {
+	/*
+	 * For SharedProcess, connect to a random server.
+	 */
+
+	/*
+	 * Patch from Andrii Arsirii: it could be that the
+	 * sessionProcessPids_ vector is empty because concurrently a
+	 * shared process died: we need to wait until it is respawned.
+	 */
+	for (;;) {
+	  int processCount = sessionProcessPids_.size();
+	  if (processCount == 0)
+	    sleep(1);
+	  else {
+	    int i = lrand48() % processCount;
+
+	    if (i >= sessionProcessPids_.size())
+	      sleep(1);
+	    else {
+	      // This is still not entirely okay: a race condition could
+	      // still occur between checking the size and getting the
+	      // element.
+	      int pid = sessionProcessPids_[i];
+	      std::string path = conf_.runDirectory() + "/server-"
+		+ boost::lexical_cast<std::string>(pid);
+
+	      clientSocket = connectToSession("", path, 100);
+
+	      if (clientSocket == -1)
+		conf_.log("error") << "Session process " << pid
+				   << " not responding ?";
+
+	      break;
+	    }
+	  }
+	}
+      }
+    }
+
+    if (clientSocket == -1) {
+      close(serverSocket);
+      return;
+    }
+
+    /*
+     * Forward all data that was consumed to the application.
+     */
+    for (unsigned i = 0; i < consumedRecords_.size(); ++i) {
+      write(clientSocket, consumedRecords_[i]->plainText(),
+	    consumedRecords_[i]->plainTextLength());
+      delete consumedRecords_[i];
+    }
+
+    /*
+     * Now, we must copy data from both the server to the application,
+     * as well as from the application to the server, until the application
+     * sends the FCGI_END_REQUEST message.
+     */
+    for (;;) {
+      fd_set rfds;
+      FD_ZERO(&rfds);
+      FD_SET(serverSocket, &rfds);
+      FD_SET(clientSocket, &rfds);
+
+      //std::cerr << "select()" << std::endl;
+      if (select(FD_SETSIZE, &rfds, NULL, NULL, NULL) < 0) {
+	if (errno != EINTR)
+	  conf_.log("fatal") << "select(): " << strerror(errno);
+
+	break;
+      }
+
+      bool got = false;
+      if (FD_ISSET(serverSocket, &rfds)) {
+	got = true;
+	FCGIRecord d;
+	d.read(serverSocket);
+
+	if (d.good()) {
+	  //std::cerr << "Got record from server: " << d << std::endl;
+	  write(clientSocket, d.plainText(), d.plainTextLength());
+	} else {
+	  conf_.log("error") << "Error reading from web server";
+
+	  break;
+	}
+      }
+
+      if (FD_ISSET(clientSocket, &rfds)) {
+	got = true;
+	FCGIRecord d;
+	d.read(clientSocket);
+
+	if (d.good()) {
+	  //std::cerr << "Got record from client: " << d << std::endl;
+	  write(serverSocket, d.plainText(), d.plainTextLength());
+	  if (d.type() == FCGI_END_REQUEST)
+	    break;
+	} else {
+	  conf_.log("error") << "Error reading from application";
+
+	  break;
+	}
+      }
+    }
+
+    //std::cerr << "Request done." << std::endl;
+
+    shutdown(serverSocket, SHUT_RDWR);
+    close(serverSocket);
+    close(clientSocket);
+  } catch (std::exception&) {
+    close(serverSocket);
+    if (clientSocket != -1)
+      close(clientSocket);
+  }
 }
 
 /*

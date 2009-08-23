@@ -793,7 +793,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	      try {
 		std::string internalPath = env_->getCookie("WtInternalPath");
 		env_->setInternalPath(internalPath);
-	      } catch (...) {
+	      } catch (std::exception& e) {
 	      }
 
 	      if (!start())
@@ -912,9 +912,6 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
        *  - it is a refresh (possibly at a different internal path), same
        *    as previus
        */
-      const std::string *requestE = request.getParameter("request");
-      const std::string *resourceE = request.getParameter("resource");
-
       if (requestE && *requestE == "script") {
 	// upgrade to AJAX
 	const std::string *hashE = request.getParameter("_");
@@ -1122,7 +1119,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
   }
 }
 
-std::string WebSession::ajaxCanonicalUrl(const WebRequest& request) const
+std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
 {
   const std::string *hashE = 0;
   if (applicationName_.empty())

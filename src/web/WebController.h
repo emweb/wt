@@ -14,12 +14,10 @@
 #include <Wt/WDllDefs.h>
 
 #ifndef WT_TARGET_JAVA
-
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
 #include "threadpool/threadpool.hpp"
 #endif
-
 #endif // WT_TARGET_JAVA
 
 namespace Wt {

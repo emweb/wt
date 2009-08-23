@@ -1,3 +1,7 @@
+22-08-2009
+	* fcgi/Sever.C: make multi-threaded, using the <num-threads>
+	number of threads
+
 19-08-2009
 	* ProgressiveBoot.html, WebSession, WebRenderer: a new bootstrap
 	method has been added which implements the principle of

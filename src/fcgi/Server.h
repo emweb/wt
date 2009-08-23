@@ -10,6 +10,13 @@
 #include <string>
 #include <map>
 
+#ifndef WT_TARGET_JAVA
+#ifdef WT_THREADED
+#include <boost/thread.hpp>
+#include "threadpool/threadpool.hpp"
+#endif
+#endif // WT_TARGET_JAVA
+
 #include "Configuration.h"
 
 namespace Wt {
@@ -32,6 +39,13 @@ private:
   char **argv_;
   Configuration conf_;
 
+#ifdef WT_THREADED
+  // mutex to protect access to the sessions map
+  boost::recursive_mutex mutex_;
+
+  boost::threadpool::pool threadPool_;
+#endif
+
   void spawnSharedProcess();
   void execChild(bool debug, const std::string& extraArg);
 
@@ -47,6 +61,9 @@ private:
    */
   typedef std::map<std::string, SessionInfo *> SessionMap;
   SessionMap sessions_;
+
+  void handleRequestThreaded(int serverSocket);
+  void handleRequest(int serverSocket);
 
   /*
    * For SharedProcess session policy

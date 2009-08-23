@@ -843,7 +843,7 @@ WTextArea has no formatting capabilities
     <h1>Wt Dialog Widgets</h1>
 
     <p>
-      Wt supports modal dialogs. There are four classes involved in
+      Wt supports modal and non-modal dialogs. There are four classes involved in
       dialogs:
       <ul>
         <li>
@@ -864,7 +864,6 @@ WTextArea has no formatting capabilities
           Ext::MessageBox: ExtJs equivalent for WMessageBox.
         </li>
       </ul>
-      Wt has no support for non-modal dialogs.
     </p>
     <p>
       WDialogs have two methods to invoke them. The traditional

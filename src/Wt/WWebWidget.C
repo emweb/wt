@@ -634,7 +634,7 @@ WLength WWebWidget::margin(Side side) const
 
 void WWebWidget::setStyleClass(const WT_USTRING& styleClass)
 {
-  if (canOptimizeUpdates() && (styleClass == WWebWidget::styleClass()))
+  if (canOptimizeUpdates() && (styleClass == this->styleClass()))
     return;
 
   if (!lookImpl_)

@@ -29,10 +29,6 @@ public:
 protected:
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) {
-#ifdef WT_THREADED
-    WebSession::Handler::instance()->lock().lock();
-#endif // WT_THREADED
-
     bool triggerUpdate = false;
 
     const Http::UploadedFile *p = 0;
@@ -82,10 +78,6 @@ protected:
     else
       if (p)
 	fileUpload_->setFormData(*p);
-
-#ifdef WT_THREADED
-    WebSession::Handler::instance()->lock().unlock();
-#endif // WT_THREADED
   }
 
 private:
@@ -260,8 +252,6 @@ void WFileUpload::setFormData(const Http::UploadedFile& file)
   contentDescription_ = WString::fromUTF8(file.contentType());
   file.stealSpoolFile();
   isStolen_ = false;
-
-  //uploaded().emit();
 }
 
 void WFileUpload::requestTooLarge(int size)
