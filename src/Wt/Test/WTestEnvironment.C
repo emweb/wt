@@ -52,7 +52,6 @@ void WTestEnvironment::init(ApplicationType type)
 
   new WebSession::Handler(*session_, true);
 
-  doesJavaScript_ = true;
   doesAjax_ = true;
   doesCookies_ = true;
   dpiScale_ = 1;
@@ -100,11 +99,6 @@ void WTestEnvironment::setHeaderValue(const std::string& value)
 void WTestEnvironment::setSupportsCookies(bool enabled)
 {
   doesCookies_ = enabled;
-}
-
-void WTestEnvironment::setJavaScript(bool enabled)
-{
-  doesJavaScript_ = enabled;
 }
 
 void WTestEnvironment::setAjax(bool enabled)

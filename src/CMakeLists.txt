@@ -46,8 +46,7 @@ ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${outfile}
 ENDMACRO (FILE_TO_STRING)
 
 FILE_TO_STRING(Plain.html    Plain_html.C    Plain_html)
-FILE_TO_STRING(ProgressiveBoot.html
-	ProgressiveBoot_html.C ProgressiveBoot_html)
+FILE_TO_STRING(Hybrid.html Hybrid_html.C Hybrid_html)
 FILE_TO_STRING(Boot.html     Boot_html.C     Boot_html)
 FILE_TO_STRING(Wt.js         Wt_js.C         Wt_js)
 FILE_TO_STRING(CommAjax.js   CommAjax_js.C   CommAjax_js)
@@ -220,7 +219,7 @@ web/XSSUtils.C
 web/random_device.cpp
 Plain_html.C
 Boot_html.C
-ProgressiveBoot_html.C
+Hybrid_html.C
 Wt_js.C
 CommAjax_js.C
 CommScript_js.C

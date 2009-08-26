@@ -577,7 +577,7 @@ std::string WApplication::addExposedResource(WResource *resource)
     fn = '/' + fn;
 
   return session_->mostRelativeUrl(fn)
-    + "&resource=" + Utils::urlEncode(resource->id())
+    + "&request=resource&resource=" + Utils::urlEncode(resource->id())
     + "&rand=" + boost::lexical_cast<std::string>(WtRandom::getUnsigned());
 }
 
@@ -657,6 +657,8 @@ void WApplication::refresh()
 
 void WApplication::enableAjax()
 {
+  enableAjax_ = true;
+
   domRoot_->enableAjax();
 
   if (domRoot2_)
@@ -991,7 +993,7 @@ std::string WApplication::beforeLoadJavaScript()
 
 void WApplication::notify(const WEvent& e)
 {
-  WebSession::notify(e);
+  e.session()->notify(e);
 }
 
 void WApplication::processEvents()

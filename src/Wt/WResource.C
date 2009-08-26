@@ -80,6 +80,8 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   if (beingDeleted_)
     return;
 
+  // when we are handling a continuation, we do not have the session
+  // lock
   if (!continuation)
     WebSession::Handler::instance()->lock().unlock();
 #endif // WT_THREADED

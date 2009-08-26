@@ -41,8 +41,6 @@ class WT_API WebSession
 public:
   enum State {
     JustCreated,
-    Bootstrap,
-    ProgressiveBootstrap,
     Loaded,
     Dead
   };
@@ -74,7 +72,7 @@ public:
 
   WLogEntry log(const std::string& type);
 
-  static void notify(const WEvent& e);
+  void notify(const WEvent& e);
   bool handleRequest(WebRequest& request, WebResponse& response);
   void pushUpdates();
 
@@ -102,6 +100,8 @@ public:
 
   bool done() { return state_ == Dead; }
   State state() const { return state_; }
+
+  bool progressiveBoot() const { return progressiveBoot_; }
 
   /*
    * URL stuff
@@ -229,6 +229,7 @@ private:
   std::string   redirect_;
   WebResponse  *pollResponse_;
   bool          updatesPending_;
+  bool          progressiveBoot_;
 
 #ifndef WT_TARGET_JAVA
   Time             expire_;
@@ -281,38 +282,24 @@ private:
 /*! \class WEvent
  *  \brief An internal session event.
  *
- * The request controller notifies the application to react to browser events,
- * or to render itself, using WApplication::notify().
+ * The request controller notifies the application to react to a request
+ * using WApplication::notify().
  */
 class WT_API WEvent {
 public:
-  enum EventType { EmitSignal, EnableAjax, Refresh, Render, HashChange };
-
-  WebSession::Handler& handler;
-  EventType            type;
+  WEvent(WebSession::Handler& aHandler,
+	 WebRenderer::ResponseType aResponseType)
+    : handler(aHandler),
+      responseType(aResponseType)
+   { }
 
   WebSession *session() const { return handler.session(); }
 
-  /* For Render type */
+private:
+  WebSession::Handler& handler;
   WebRenderer::ResponseType responseType;
 
-  /* For HashChange type */
-  std::string hash;
-
-  WEvent(WebSession::Handler& aHandler, EventType aType,
-	 WebRenderer::ResponseType aResponseType = WebRenderer::FullResponse)
-    : handler(aHandler),
-      type(aType),
-      responseType(aResponseType)
-  { }
-
-  WEvent(WebSession::Handler& aHandler, EventType aType,
-	 const std::string& aHash)
-    : handler(aHandler),
-      type(aType),
-      responseType(WebRenderer::FullResponse),
-      hash(aHash)
-  { }
+  friend class WebSession;
 };
 
 }

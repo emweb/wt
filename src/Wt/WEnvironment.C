@@ -46,7 +46,6 @@ WEnvironment::WEnvironment()
 
 WEnvironment::WEnvironment(WebSession *session)
   : session_(session),
-    doesJavaScript_(false),
     doesAjax_(false),
     doesCookies_(false),
     dpiScale_(1),

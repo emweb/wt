@@ -696,14 +696,27 @@ var initDragDrop = function() {
   var APP = _$_APP_CLASS_$_;
 
   window.onresize=function() { APP._p_.autoJavaScript(); }
-  document.body.onmousemove=function(e) {
+
+  var mouseMove = function(e) {
     if (!e) e = window.event;
     return dragDrag(e);
   }
-  document.body.onmouseup=function(e) {
+
+  var mouseUp = function(e) {
     if (!e) e = window.event;
     return dragEnd(e);
   }
+
+  var db = document.body;
+  if (db.addEventListener) {
+    db.addEventListener('mousemove', mouseMove, true);
+    db.addEventListener('mouseup', mouseUp, true);
+  } else {
+    db.setCapture(true);
+    db.attachEvent('onmousemove', mouseMove);
+    db.attachEvent('onmouseup', mouseMove);
+  }
+
   document.body.ondragstart=function() {
     return false;
   };
@@ -819,8 +832,6 @@ var dragDrag = function(e) {
 };
 
 var dragEnd = function(e) {
-  //alert("dragEnd: " + captureElement);
-
   if (!e) e = window.event;
   if (captureElement != null) {
     var el = captureElement;
@@ -984,7 +995,7 @@ var encodeEvent = function(event, i) {
 var pendingEvents = [];
 
 var encodePendingEvents = function() {
-  var result = "";
+  var result = '';
 
   feedback = false;
 
@@ -1099,6 +1110,7 @@ var doPollTimeout = function() {
 var update = function(self, signalName, e, feedback) {
   if (captureElement && (self == captureElement) && e.type == "mouseup")
     captureElement = null;
+
   _$_APP_CLASS_$_._p_.autoJavaScript();
 
   _$_$if_STRICTLY_SERIALIZED_EVENTS_$_;
@@ -1170,10 +1182,12 @@ var sendUpdate = function() {
     poll = true;
   }
 
-  responsePending
-    = _$_APP_CLASS_$_._p_.sendUpdate(url + query, data.result + '&ackId='
-				     + ackUpdateId, tm, ackUpdateId);
-  pollTimer = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;
+  responsePending = _$_APP_CLASS_$_._p_.sendUpdate
+    (url + query, 'request=jsupdate&ackId=' + ackUpdateId + data.result,
+     tm, ackUpdateId);
+
+  pollTimer
+    = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;
 };
 
 var emit = function(object, config) {
@@ -1365,5 +1379,3 @@ function onLoad() {
   _$_WT_CLASS_$_.history.initialize("Wt-history-field", "Wt-history-iframe");
   _$_APP_CLASS_$_._p_.load();
 }
-
-function loadWidgetTree() { alert('wrong loadWidgetTree()'); }

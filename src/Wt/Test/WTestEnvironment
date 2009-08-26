@@ -99,14 +99,6 @@ public:
    */
   void setSupportsCookies(bool enabled);
 
-  /** \brief Sets whether JavaScript is supported.
-   *
-   * The default value is <i>true</i>.
-   *
-   * \sa javaScript()
-   */
-  void setJavaScript(bool enabled);
-
   /** \brief Sets whether AJAX is supported.
    *
    * The default value is <i>true</i>.

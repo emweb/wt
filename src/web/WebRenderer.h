@@ -45,7 +45,7 @@ public:
   void doneUpdate(WWidget *w);
   void updateFormObjects(WWebWidget *w, bool checkDescendants);
 
-  enum ResponseType { UpdateResponse, FullResponse };
+  enum ResponseType { Page, Script, Update };
 
   void updateFormObjectsList(WApplication *app);
   const FormObjectsMap& formObjects() const;
@@ -58,9 +58,7 @@ public:
 
   bool isDirty() const;
 
-  void serveMainWidget(WebResponse& request, ResponseType responseType);
-  void serveMainscript(WebResponse& response, bool upgradeToAjax);
-  void serveBootstrap(WebResponse& request);
+  void serveResponse(WebResponse& request, ResponseType responseType);
   void serveError(WebResponse& request, const std::exception& error,
 		  ResponseType responseType);
   void serveError(WebResponse& request, const std::string& message,
@@ -102,6 +100,8 @@ private:
   void setHeaders(WebResponse& request, const std::string mimeType);
 
   void serveJavaScriptUpdate(WebResponse& response);
+  void serveMainscript(WebResponse& response);
+  void serveBootstrap(WebResponse& request);
   void serveMainpage(WebResponse& response);
   void serveMainAjax(WebResponse& response);
   void serveWidgetSet(WebResponse& request);

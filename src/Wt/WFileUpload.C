@@ -241,8 +241,10 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
 void WFileUpload::setFormData(const FormData& formData)
 {
-  if (formData.file)
+  if (formData.file) {
     setFormData(*formData.file);
+    uploaded().emit();
+  }
 }
 
 void WFileUpload::setFormData(const Http::UploadedFile& file)

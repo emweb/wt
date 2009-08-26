@@ -112,8 +112,7 @@ if (needSessionInUrl) {
     if (hash.length > 1 && hash.charAt(0) == '/')
       selfUrl += '&_=' + encodeURIComponent(hash);
 
-    loadScript(selfUrl + '&js=yes&ajax=yes'
-	       + scaleInfo + '&request=script&rand=' + rand());
+    loadScript(selfUrl + scaleInfo + '&request=script&rand=' + rand());
   }
 }
 

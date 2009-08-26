@@ -1,3 +1,15 @@
+26-08-2009
+	* Wt.js: attach mouse grab events to body using DOM event
+	capture
+
+	* HybridBoot.html, WebSession, WebRenderer: assimilate new
+	bootstrap method with a refactoring, make it all a bit less
+	stateful
+
+	* WApplication: notify() can now be used as a generic request
+	handling point where you grab and free request-specific
+	resources
+
 22-08-2009
 	* fcgi/Sever.C: make multi-threaded, using the <num-threads>
 	number of threads

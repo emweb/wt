@@ -37,7 +37,7 @@
 namespace skeletons {
   extern const char *Boot_html;
   extern const char *Plain_html;
-  extern const char *ProgressiveBoot_html;
+  extern const char *Hybrid_html;
   extern const char *Wt_js;
   extern const char *CommAjax_js;
   extern const char *CommScript_js;
@@ -143,18 +143,22 @@ void WebRenderer::streamRedirectJS(std::ostream& out,
     " window.location.href='" << redirect << "';\n";
 }
 
-void WebRenderer::serveMainWidget(WebResponse& response,
-				  ResponseType responseType)
+void WebRenderer::serveResponse(WebResponse& response,
+				ResponseType responseType)
 {
   switch (responseType) {
-  case UpdateResponse:
+  case Update:
     serveJavaScriptUpdate(response);
     break;
-  case FullResponse:
-    if (session_.env().ajax())
-      serveMainscript(response, false);
-    else
+  case Page:
+    if (session_.app())
       serveMainpage(response);
+    else
+      serveBootstrap(response);
+    break;
+  case Script:
+    serveMainscript(response);
+    break;
   }
 }
 
@@ -189,7 +193,8 @@ void WebRenderer::setPageVars(FileServe& page)
 
   page.setVar("HEADDECLARATIONS", headDeclarations());
 
-  page.setCondition("AGENT_BOT", session_.env().agentIsSpiderBot());
+  page.setCondition("FORM", !session_.env().agentIsSpiderBot()
+		    && !session_.env().ajax());
 }
 
 void WebRenderer::setBootVars(WebResponse& response,
@@ -260,7 +265,7 @@ void WebRenderer::serveError(WebResponse& response, const std::exception& e,
 void WebRenderer::serveError(WebResponse& response, const std::string& message,
 			     ResponseType responseType)
 {
-  bool js = responseType != FullResponse || session_.env().ajax();
+  bool js = responseType == Update || responseType == Script;
 
   if (!js) {
     response.setContentType("text/html");
@@ -324,8 +329,6 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
     << collectedJS1_.str()
     << session_.app()->javaScriptClass() << "._p_.response(" << expectedAckId_ << ");"
     << collectedJS2_.str();
-
-  session_.setLoaded();
 }
 
 void WebRenderer::collectJavaScript()
@@ -442,7 +445,7 @@ void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
   js.stream(out);
 }
 
-void WebRenderer::serveMainscript(WebResponse& response, bool upgradeToAjax)
+void WebRenderer::serveMainscript(WebResponse& response)
 {
   Configuration& conf = session_.controller()->configuration();
   bool widgetset = session_.type() == WidgetSet;
@@ -494,17 +497,21 @@ void WebRenderer::serveMainscript(WebResponse& response, bool upgradeToAjax)
 
   streamCommJs(app, response.out());
 
-  if (!upgradeToAjax)
+  if (session_.state() == WebSession::JustCreated)
     serveMainAjax(response);
   else {
-    response.out()
-      << "window.loadWidgetTree = function(){\n"
-      << "var domRoot = " << app->domRoot_->jsRef() << ";"
-      "var form = " WT_CLASS ".getElement('Wt-form');"
-      "domRoot.style.display = form.style.display;"
-      "document.body.replaceChild(domRoot, form);";
+    response.out() << "window.loadWidgetTree = function(){\n";
+
+    if (app->enableAjax_) {
+      response.out()
+	<< "var domRoot = " << app->domRoot_->jsRef() << ";"
+	"var form = " WT_CLASS ".getElement('Wt-form');"
+	"domRoot.style.display = form.style.display;"
+	"document.body.replaceChild(domRoot, form);";
+    }
 
     visibleOnly_ = false;
+
     collectJavaScript();
 
 #ifdef DEBUG_JS
@@ -514,15 +521,19 @@ void WebRenderer::serveMainscript(WebResponse& response, bool upgradeToAjax)
     response.out()
       << collectedJS1_.str()
       << session_.app()->javaScriptClass()
-      << "._p_.response(" << expectedAckId_ << ");"
-      "domRoot.style.display = 'block';"
+      << "._p_.response(" << expectedAckId_ << ");";
+
+    if (app->enableAjax_)
+      response.out() << "domRoot.style.display = 'block';";
+
+    response.out()
       << collectedJS2_.str() <<
       "};"
       "window.WtScriptLoaded = true;"
       "if (window.isLoaded) onLoad();\n";
-  }
 
-  session_.setLoaded();
+    app->enableAjax_ = false;
+  }
 }
 
 void WebRenderer::serveMainAjax(WebResponse& response)
@@ -660,13 +671,11 @@ void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 }
 
 /*
- * Serves the main HTML page.
+ * Serves the Plain or Hybrid HTML page.
  *
- * This is used:
- * - in the default bootstrap procedure only for plain-HTML sessions.
- * - in the progressive bootstrap as the combined bootstrap and plain-HTML
- *   version.
- * - in the progressive bootstrap for plain-HTML pages
+ * Requires that the application has been started.
+ * The Hybrid page is served when a progressive bootstrap is indicated
+ * or when we are in an ajax session.
  */
 void WebRenderer::serveMainpage(WebResponse& response)
 {
@@ -719,16 +728,15 @@ void WebRenderer::serveMainpage(WebResponse& response)
   }
   app->scriptLibrariesAdded_ = 0;
 
-  const bool progressiveBoot
-    = session_.state() == WebSession::ProgressiveBootstrap;
+  app->newBeforeLoadJavaScript_ = app->beforeLoadJavaScript_;
 
-  FileServe page(progressiveBoot ? skeletons::ProgressiveBoot_html
-		 : skeletons::Plain_html);
+  bool hybridPage = session_.progressiveBoot() || session_.env().ajax();
+  FileServe page(hybridPage ? skeletons::Hybrid_html : skeletons::Plain_html);
 
   setPageVars(page);
   page.setVar("SESSION_ID", session_.sessionId());
 
-  if (progressiveBoot)
+  if (hybridPage)
     setBootVars(response, page);
 
   std::string url
@@ -754,7 +762,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   app->titleChanged_ = false;
 
-  if (progressiveBoot) {
+  if (hybridPage) {
     response.addHeader("Cache-Control", "no-cache, no-store");
     response.addHeader("Expires", "-1");
   }
@@ -790,9 +798,6 @@ void WebRenderer::serveMainpage(WebResponse& response)
   page.stream(response.out());
 
   app->internalPathIsChanged_ = false;
-
-  if (!progressiveBoot)
-    session_.setLoaded();
 }
 
 void WebRenderer::loadScriptLibraries(std::ostream& out,

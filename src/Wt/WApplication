@@ -1093,32 +1093,43 @@ public:
   bool debug() const;
 
 protected:
-  /*! \brief Notify an event to the application.
+  /*! \brief Notifies an event to the application.
    *
    * This method is called by the event loop for propagating an event
    * to the application. It provides a single point of entry for
    * events to the application.
    *
+   * You may want to reimplement this method for two reasons:
+   * - for having a single point for exception handling (you may want to catch
+   *   specialized exceptions at specific points, but general (fatal)
+   *   exceptions may be caught here.
+   * - you want to manage resource usage during requests. For example, at
+   *   the end of request handling, you want to return a database session
+   *   back to the pool.
+   *
+   * In either case, you will need to call the base class
+   * implementation WApplication::notify(), as otherwise no events
+   * will be delivered to your application.
+   *
    * \if cpp
-   * You will rarely want to reimplement this method, unless you wish
-   * to have a single point for exception handling. In that case, you
-   * should call the baseclass implementation WApplication::notify(),
-   * and surround it in your own try - catch block for those
-   * exceptions you wish to handle in a central place:
+   * For example, the following shows a generic template for reimplementhing
+   * this method.
    *
    * \code
    * MyApplication::notify(const WEvent& e)
    * {
+   *    // Grab resources for during request handling
    *    try {
    *      WApplication::notify(e);
    *    } catch (MyException& exception) {
    *      // handle this exception in a central place
    *    }
+   *    // Free resources used during request handling
    * }
    * \endcode
    *
-   * Any uncaught exception throw during event handling terminates the
-   * session.
+   * Note that any uncaught exception throw during event handling
+   * terminates the session.
    * \endif
    */
   virtual void notify(const WEvent& e);
@@ -1203,6 +1214,7 @@ private:
   bool                   connected_;
   std::string            htmlClass_, bodyClass_;
   bool                   bodyHtmlClassChanged_;
+  bool                   enableAjax_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;

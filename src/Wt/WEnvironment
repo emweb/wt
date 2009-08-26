@@ -180,7 +180,7 @@ public:
    *
    * \sa ajax()
    */
-  bool javaScript() const { return doesJavaScript_; }
+  bool javaScript() const { return doesAjax_; }
 
   /*! \brief Returns whether the browser has enabled support for AJAX.
    *
@@ -449,7 +449,6 @@ public:
 
 protected:
   WebSession *session_;
-  bool        doesJavaScript_;
   bool        doesAjax_;
   bool        doesCookies_;
   UserAgent   agent_;
