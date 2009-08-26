@@ -88,10 +88,10 @@ void WButtonGroup::setCheckedButton(WRadioButton *button)
 {
   for (unsigned i = 0; i < buttons_.size(); ++i) {
     WRadioButton *b = buttons_[i].button;
-    if (b == button && !button->isChecked())
-      button->setChecked(true);
-    else if (b != button && button->isChecked())
-      button->setChecked(false);
+    if (b == button && !b->isChecked())
+      b->setChecked(true);
+    else if (b != button && b->isChecked())
+      b->setChecked(false);
   }
 }
 
