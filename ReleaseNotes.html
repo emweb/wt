@@ -19,6 +19,60 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 2.99.4 (August 27, 2009)</h2>
+
+<p>
+This release contains mostly bug fixes and back-end improvements. The
+most exciting new feature is the addition of a new bootstrap method,
+which implements progressive enhancements (starting with a plain HTML
+page, and then upgrading it to an AJAX page if the browser has
+support), see
+also <a href="/wt/doc/reference/html/overview.html#progressive_bootstrap">the
+documentation</a>.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WTableView.html">WTableView</a></dt>
+  <dd>This is a simple MVC View class that renders tabular data
+    in the most straight forward way using an HTML table element
+  </dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1Ext_1_1ToolBar.html#931b9b3e5d4cbbdee5394a841752c849">Ext::ToolBar</a></dt>
+  <dd>Added insert() methods.</dd>
+  <dt><a href="classWt_1_1WApplication.html#78016406c4746c56b2c2ffce7c5e181f">WApplication</a></dt>
+  <dd>Added an enableAjax() method which notifies the application that
+    a session is being enhanced with AJAX capabilities when using the
+    progressive bootstrap method.</dd>
+  <dt><a href="classWt_1_1WWidget.html#919a4eaf68ff52f06f6a726d55dfb768">WWidget</a></dt>
+  <dd>Added an enableAjax() method which enhanced the widget with AJAX
+    capabilities when using the progressive bootstrap method.</dd>
+  <dt><a href="classWt_1_WCssDecorationStyle.html">WCssDecorationStyle</a></dt>
+  <dd>Add support for custom cursors.</dd>
+  <dt><a href="classWt_1_WWServer.html">WServer</a></dt>
+  <dd>For FastCGI deployments, the proxy process which directs FastCGI
+  requests to the correct session process is now also
+  multi-threaded.</dd>
+</dl>
+
+<h3>C) API Changes:</h3>
+
+<dl>
+  <dt>The <a href="classWt_1_1WApplication.html#4a6f167bea94aefa8ba24f914c2fbee5">WApplication::notify()</a> behavior changed.</dt>
+  <dd>Previously during a request, this method was called multiple
+  times during event propagation and rendering of the
+  application. Now, the method is called exactly once for each
+  request. In this way, it becomes a useful entry point to also manage
+  resource usage during (and inbetween) requests.</dd>
+</dl>
+
+<hr />
+
 <h2>Release 2.99.3 (July 24, 2009)</h2>
 
 <p>
