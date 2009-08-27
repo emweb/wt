@@ -46,6 +46,7 @@
   <message id="examples">Examples</message>
   <message id="download">Download</message>
   <message id="community">Community</message>
+  <message id="other-language">!C++</message>
 
   <message id="hello-world">Hello world</message>
   <message id="charts">Charts</message>
@@ -79,17 +80,22 @@
 
 <h3><span>Wt: an introduction</span></h3>
 
-<p>Wt (pronounced 'witty') is a C++ library and application server for
-developing and deploying web applications and accessible, interactive
-web sites. The API is <b>widget-centric</b>, and inspired by existing
-C++ Graphical User Interface (GUI) APIs. To the developer, it offers
-complete abstraction of any web-specific implementation details,
-including event handling, graphics support, and pretty URLs.</p>
+<p>Wt (pronounced 'witty') is a C++ library for developing interactive
+web applications.</p>
 
-<p>A Wt application supports <b>graceful degradation or progressive
-enhancement</b>, which makes the application accessible to older
-browsers or search engines, while using AJAX for an improved
-experience in modern browsers.</p>
+<p>The API is <b>widget-centric</b> and inspired by desktop GUI
+APIs. To the developer, it offers complete abstraction of any
+web-specific implementation details, including event handling,
+graphics support, and pretty URLs.</p>
+
+<p>Unlike many page-based frameworks, Wt was designed for creating
+stateful applications that are at the same time highly interactive
+(leveraging techinques such as AJAX to their fullest) and accessible
+(supporting plain HTML browsers), using automatic <b>graceful
+degradation or progressive enhancement</b>.</p>
+
+<p>It comes with an application server that acts as a stand-alone web
+server or integrates through FastCGI with other web servers.</p>
 
 <h4>Interactive, secure and accessible</h4>
 
@@ -98,7 +104,7 @@ etc...) do not make abstraction of the underlying technologies
 (HTML/XHTML, JavaScript, CSS, AJAX, Forms, DHTML, SVG/VML/Canvas). As
 a consequence, a developer needs to be familiar with all of these
 evolving technologies and is also responsible for graceful degradation
-when support is browser lacking. The structure of the application
+when browsr support is lacking. The structure of the application
 follows mostly the page-centric paradigm of early day HTML. This means
 that not only will you need to implement a controller to indicate how
 a user moves from page to page, but when using advanced AJAX
@@ -137,35 +143,35 @@ application to a rich AJAX application.</p>
   applications.</li>
   <li>Creating a port of <b>existing C++ desktop applications</b> to
   the web.</li>
-  <li><b>High performance, complex</b> web applications with
-  many <i>logged in</i> users, that are entirely accessible and Search
-  Engine Optimized.</li>
+  <li><b>High performance, complex</b> web applications which cannot
+  benefit from caching, fully AJAX enabled and at the same time
+  entirely accessible and Search Engine Optimized.</li>
 </ul>
 
 <h4>Other benefits of using Wt</h4>
 
 <ul>
-  <li>Develop web applications like you develop C++ desktop
+  <li>Develop web applications like you develop desktop
   applications.</li>
   <li>Provides an extensive set of widgets, which work regardless of
   JavaScript availability (but benefit from JavaScript
   availability).</li>
-  <li>Use the built-in httpd for easy development and deployment, or
-  use the FastCGI connector to deploy as a FastCGI application in
-  existing web servers.</li>
   <li>A single specification for both client- and server-side
   validation and event handling.</li>
   <li>Generates standards compliant HTML or XHTML code.</li>
   <li>Portable, anti-aliased graphics (uses inline VML, inline SVG or
   the HTML 5 canvas).</li>
-  <li>No XSS security risks since Wt has complete control over the
-  presentation layer and proactively filters out <i>active</i> tags
-  and attributes. No exposure of business logic, which stays at the
-  server.</li>
+  <li>Avoid common security problems since Wt has complete control
+  over the presentation layer and proactively filters out
+  <i>active</i> tags and attributes nor exposures business logic,
+  which stays at the server.</li>
   <li>Ultra-fast load time and low bandwidth usage, which are
   affected only by screen complexity, not application size.</li>
   <li>A simple API for server-initiated events ala <i>server push</i>
   or <i>comet</i>).</li>
+  <li>Use the built-in httpd for easy development and deployment, or
+  use the FastCGI connector to deploy as a FastCGI application in
+  existing web servers.</li>
 </ul>
 
   </message>
@@ -177,16 +183,15 @@ application to a rich AJAX application.</p>
 
 <ul>
   <li>Supports all major browsers (Firefox/Gecko, Internet Explorer,
-    Safari, Konqueror, and Opera) but also browsers that do not support
-    JavaScript (tested with Links and Lynx).</li>
+    Safari, Chrome, Konqueror, and Opera) but also plain HTML browsers
+    (tested with Links and Lynx).</li>
   <li>Develop and deploy on Unix/GNU Linux (gcc) or Microsoft Windows
     (Visual Studio).</li>
   <li>Equal behavior with or without support for JavaScript or AJAX,
-    as far as possible by using graceful degradation or progressive
+    as far as possible, by using graceful degradation or progressive
     enhancement (the latter using the progressive bootstrap method).</li>
   <li>Integrated Unicode support (UTF8/UTF16).</li>
-  <li>Incremental rendering of changes to the web page (when AJAX
-    is available).</li>
+  <li>When AJAX is available, only changes are rendered.</li>
   <li>Two-phased rendering of changes to the web page, with first
     visible, and in the background invisible changes (when AJAX is
     available). When AJAX is not available, only visible contents is
@@ -194,8 +199,8 @@ application to a rich AJAX application.</p>
   <li>Configurable session tracking options that include URL rewriting
     and cookies.</li>
   <li>Support for browser history navigation (back/forward buttons and
-    bookmarks) through a flexible internal path API, with a unified
-    behavior for plain HTML or AJAX sessions.</li>
+    bookmarks), pretty URLs, and search engine optimization with a
+    unified behavior for plain HTML or AJAX sessions.</li>
   <li>High performance, allowing deployment on low-end embedded
     devices, or energy-, space- and budget-friendly deployment of
     Internet or extranet web sites.</li>
@@ -208,11 +213,11 @@ application to a rich AJAX application.</p>
 <h4>Event handling</h4>
 
 <ul>
+  <li>Uses a typesafe signal/slot system for event handling.</li>
   <li>Listen for keyboard, mouse and focus events, and get event
     details (such as mouse position, modifier buttons, or keyboard
     key).</li>
-  <li>Uses a template-based signal/slot system for event handling.</li>
-  <li>By default, server-side event handling, in C++.</li>
+  <li>Automatic synchronization of form field data.</li>
   <li>Dynamic C++-to-JavaScript translation, by specifying
     <i>stateless slot</i> implementations. A single C++ slot implementation
     provides both client-side and server-side event handling: visual changes
@@ -249,9 +254,8 @@ gallery</a> for an interactive overview of built-in functionality.
   <li>Composite widgets (that are built on top of basic widgets, and
     use only the Wt public API): calendars, sliders, trees and tree
     tables, menus, in-place edits, virtual images, panels.</li>
-  <li>Modal and non-modal windows (dialog and message boxes)</li>
+  <li>Modal and non-modal windows (dialog and message boxes).</li>
   <li>Built-in internationalization using messages resource bundles.</li>
-  <li>CSS either inline, or using internal or external style sheets.</li>
   <li>Ext Wt widgets that internally
     use <a href="http://extjs.com/">Ext JS 2.0.1</a> JavaScript
     widgets. A large subset of the ExtJS widgets have been wrapped as
@@ -320,9 +324,10 @@ gallery</a> for an interactive overview of built-in functionality.
 <p>Explore some live examples of Wt below.</p>
 
 <p>
-  The source code of these examples is included in the Wt source
-  distribution. You may also browse through the source code of each
-  example in the SourceView widget.
+  The source code of these (and many more) examples is included in the
+  Wt source distribution. You may also browse through the source code
+  of each example using the <a href="#/src">source code viewer</a>,
+  following the link below each example.
 </p>
 
 <p>
@@ -349,13 +354,13 @@ gallery</a> for an interactive overview of built-in functionality.
     corresponding to a new session.
   </li>
   <li>
-    <b>Creating widgets</b>, and adding it to <b>the widget tree</b>.
+    <b>Creating widgets</b>, and adding them to <b>the widget tree</b>.
   </li>
   <li>
     Reacting to events using the <b>signal/slot</b> mechanism.
   </li>
   <li>
-    Reading widget state (such as line edit text) and updating widgets.
+    Reading user input and updating widgets.
   </li>
 </ul>
 
@@ -370,32 +375,32 @@ Venkman.</p>
 <p>We eat our own dog food: this website itself is a Wt application. </p>
 
 <p>
-  Not a very interactive application (and certainly not the
-  recommended use-case for using Wt), the wt-homepage illustrates use
-  of
-  the <a href="/wt/doc/reference/html/classWt_1_1WMenu.html" target="_blank">WMenu</a>
-  and <a href="/wt/doc/reference/html/classWt_1_1WTabWidget.html" target="_blank">WTabWidget</a>
-  widgets, and also uses several features to increase scalability (by
-  completely minimizing server-side memory usage).
+  Not a very interactive application, the wt-homepage illustrates how
+  Wt not only shines for highly interactive AJAX applications but may
+  also be used for content-driven websites. To that extent, Wt
+  supports pretty URLs all the same for both AJAX and plain HTML
+  sessions, which allows for browser history navigation and bookmarks,
+  and search engine optimization. The application also uses the <a
+  href="/wt/doc/reference/html/classWt_1_1WViewWidget.html">WViewWidget</a>
+  to increase scalability by minimizing server-side memory usage.
 </p>
 
 <p>
-  In addition, the homepage also uses several features of the WMenu
-  widget: a main menu, which is a plain vertical WMenu instantiation,
-  and the examples tab widget, which uses a WTabWidget which is itself
-  implemented as a horizontal WMenu (with a specific style).
-</p>
-
-<p>
-  The menu widget supports <b>pre-loading</b> versus <b>lazy
-  loading</b> the contents associated with each item. This can
-  be <a href="/wt/doc/reference/html/classWt_1_1WMenu.html#d7840197cc0caf0430792b9f4a0df60d" target="_blank">specified</a>
-  for each item separately. Note that pre-loading does not increase
-  the load time. This is because the Wt render engine optimizes the
-  response time by only transmitting visual widgets or changes
-  first. Everything invisible (such as the contents for other
-  pre-loaded menu items) is transmitted in the background, after
-  rendering the visible contents. Automatically.
+  Navigation is provided by the <a
+  href="/wt/doc/reference/html/classWt_1_1WMenu.html"
+  target="_blank">WMenu</a> and <a
+  href="/wt/doc/reference/html/classWt_1_1WTabWidget.html"
+  target="_blank">WTabWidget</a> widgets. These widgets share the same
+  feature set. For AJAX sessions, they supports <b>pre-loading</b> and
+  <b>lazy loading</b> of the contents associated with each item, which
+  may be <a
+  href="/wt/doc/reference/html/classWt_1_1WMenu.html#3e68c4b6bb387f27a614e7962e11967b"
+  target="_blank">specified</a> for each item separately. The
+  pre-loading of contents does not increase the load time because the
+  Wt rendering engine optimizes the response time by only transmitting
+  visual widgets or changes first. Everything invisible (such as the
+  contents for other pre-loaded menu items) is transmitted in the
+  background, after rendering the visible contents. Automatically.
 </p>
 
 <p>
@@ -403,29 +408,30 @@ Venkman.</p>
   therefore results in <b>client-side</b> event handling code.
 </p>
 <p>
-  The homepage needs to be search engine friendly and therefore it
-  uses the <b>internal path</b> features of WMenu, which participate
-  the browser history and allow bookmarking or referring to a
-  particular application state. When the user browses through the
-  history, the application reacts to these changes by
-  listening
-  to the <a href="/wt/doc/reference/html/classWt_1_1WApplication.html#41c9bda19b28526e47e70b1b6045e7cf" target="_blank">the
-  internalPathChanged signal</a> from the WApplication
-  object. Similarly, when a user bookmarks a URL, and later comes
-  back, this signal is emitted just after a new application is
-  started.
+  The <b>internal path</b> features of WMenu allow it to generate URLs
+  for each menu entry, and in this way participate in browser
+  navigation history and bookmarking. When the user browses through
+  the history, each menu listens for changes that affect their own
+  contents, by listening to the <a
+  href="/wt/doc/reference/html/classWt_1_1WApplication.html#3e68c4b6bb387f27a614e7962e11967b"
+  target="_blank">the internalPathChanged signal</a> of the
+  WApplication object. Similarly, when a user bookmarks a URL to
+  revisit it later, widgets read the initial internal path when
+  created to set the initial content accordingly.
 </p>
 
 <p>
-  Although Wt is lightweight in CPU time (at the server), it does
+  Although Wt is very lightweight in CPU usage at the server, it does
   require to keep some widget state at the server. This is not
   necessarily a problem, provided enough memory (and swap
   space). Since the Wt homepage is deployed on a VPS, we still were
-  careful to minimize server state, by using
-  the <a href="/wt/doc/reference/html/classWt_1_1WViewWidget.html" target="_blank">WViewWidget</a> where possible.
+  careful to minimize server state, by using the <a
+  href="/wt/doc/reference/html/classWt_1_1WViewWidget.html"
+  target="_blank">WViewWidget</a> where possible.
 </p>
 </div>
   </message>
+
   <message id="home.examples.treeview">
 <div>
 <h4 class="example">Treeview</h4>
@@ -439,7 +445,7 @@ Venkman.</p>
     href="/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">WTreeView</a>
     for rendering a model in a tree or a table. WTreeView displays
     tree-tables (i.e. a tree in the first column with a number of
-    additional columns), and so a tree and table are two degenerate
+    additional columns), and a tree and table are two degenerate
     cases.
   </li>
   <li>
@@ -479,25 +485,27 @@ Venkman.</p>
 <h4 class="example">Charts example</h4>
 
 <p><a href="/wt/examples/charts/charts.wt" target="_blank">This
-example</a> demonstrates the
-<a href="/wt/doc/reference/html/namespaceWt_1_1Chart.html" target="_blank">
-  Wt charting widgets</a> that are implemented on top of Wt's
-cross-browser painting API. This painting API, uses built-in browser
-support for generating high quality graphics (instead of the more
-common approach of rendering raster images on the server
+example</a> demonstrates the <a
+href="/wt/doc/reference/html/namespaceWt_1_1Chart.html"
+target="_blank">Wt charting widgets</a> that are implemented on top of
+Wt's cross-browser painting API. This painting API uses built-in
+browser support for generating high quality graphics (instead of the
+tradditional approach of rendering PNG/GIF images on the server
 side). Depending on the browser, inline VML, inline SVG, or the HTML 5
-canvas is used to render painted contents in
-a <a href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
-     target="_blank">WPaintedWidget</a>.
+canvas is used to render painted contents in a <a
+href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
+target="_blank">WPaintedWidget</a>.
 </p>
 
-<p>This example demonstrates Wt's MVC infrastructure. Both
-the <a href="/wt/doc/reference/html/classWt_1_1Ext_1_1TableView.html"
+<p>This example also demonstrates Wt's MVC infrastructure. Both the <a
+href="/wt/doc/reference/html/classWt_1_1Ext_1_1TableView.html"
 target="_blank">table view</a> and the charts implement Views on a
-single <a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+single <a
+href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
 target="_blank">model</a>. In this way, all changes in the model are
 automatically reflected in updated views. The model may contain
-strings, numbers or <a href="/wt/doc/reference/html/classWt_1_1WDate.html"
+strings, numbers or <a
+href="/wt/doc/reference/html/classWt_1_1WDate.html"
 target="_blank">dates</a>. You can see this in action by editing the
 data using the table view.</p>
 
@@ -594,10 +602,6 @@ browser and server.</p>
 </p>
 
   <ul>
-    <li>
-      Like the Wt homepage, it uses only <b>style sheets</b> and style
-      classes for accurate control over the look.
-    </li>
     <li>
       The <i>ContactSuggestions</i> class provides auto-completion of
       the addressees in the To: Cc: and Bcc: fields. The widget
@@ -942,10 +946,10 @@ href="http://www.minixml.org/documentation.php/license.html">Mini-XML license
 <h4>Wiki</h4>
 
 <p>
-There is a
-community-run <a href="http://www.webtoolkit.eu/wt/wiki/">Wt Wiki</a>
-with useful information, including installation notes for several
-Linux distributions.
+There is a community-run <a
+href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a> with useful
+information, including installation notes for several Linux
+distributions.
 </p>
 
 <h4>Support</h4>
@@ -953,17 +957,19 @@ Linux distributions.
 <p>You can obtain <a href="http://www.emweb.be/?page=services">support
 and training</a> options directly from the library authors.</p>
 
-<p>In addition, there is an active <a
-href="mailto:witty-interest@lists.sourceforge.net">the
-mailinglist</a>, where you are welcome to get community help (<a
-href="http://lists.sourceforge.net/lists/listinfo/witty-interest">info to
-join the mailinglist</a>).</p>
+<p>Community help is available in the <a
+href="http://redmine.webtoolkit.eu/projects/wt/boards">public
+forums</a>. Until September 2009, there was only a <a
+href="mailto:witty-interest@lists.sourceforge.net">mailing list</a>
+(<a
+href="http://lists.sourceforge.net/lists/listinfo/witty-interest">how
+to join</a>), and the old dogs haven't left yet. You may search or
+browse the mailing list archives using the <a
+href="http://gmane.org/info.php?group=gmane.comp.web.witty.general">Gmane
+gateway</a> (kudos to Pau Garcia i Quiles for setting this up).
+</p>
 
-<p>You may search or browse the mailing list archives using
-the <a href="http://gmane.org/info.php?group=gmane.comp.web.witty.general">Gmane
-gateway</a> (kudos to Pau Garcia i Quiles for setting this up).</p>
-
-<h4>Sponsors</h4>
+<h4>Contributions</h4>
 
 <p>Development of Wt is sponsored by the following companies and
 organisations:</p>
@@ -991,8 +997,6 @@ organisations:</p>
 </table>
 </p>
 
-<h4>Contributions</h4>
-
 <p>User contributions are welcomed, ranging from simple patches to
 widgets, widget sets, and core improvements.</p>
 
@@ -1012,7 +1016,62 @@ The Chinese translation of the homepage was provided by Zhimin Song.
 <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=153710&amp;type=1" style="vertical-align:middle" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
 The Wt project is hosted at sourceforge <a href="http://sourceforge.net/projects/witty/">here</a>.
   </message>
+  <message id="home.other-language">
 
+<h3><span>!C++ ?</span></h3>
+
+<p>You like the library functionality, but do not grock C++ for your
+project?</p>
+
+<p>Do not despair. Wt exists in a native variant or through bindings
+in other languages:
+
+<ul class="languages">
+<li>
+<div>
+<img class="java-language-icon" src="icons/java-logo.png" alt="Java"></img>
+
+You can use <a href="/jwt">JWt</a>, a native <b>Java</b> version of Wt
+developed and maintained together with the C++ version. It has, with
+few exceptions, the same features as Wt, but runs natively in the JVM
+and can be deployed into any Servlet container.
+</div>
+
+<br style="clear: both" />
+
+</li>
+<li>
+<div>
+<img class="language-icon" src="icons/ruby-logo-R.png" alt="Ruby"></img>
+
+Richard Dale is
+maintaining <a href="http://github.com/rdale/wtruby/tree/master">WtRuby</a>,
+<b>Ruby</b> bindings to Wt, using the same framework used for generating Ruby
+bindings to Qt and KDE.
+</div>
+
+
+<br style="clear: both" />
+
+</li>
+
+<li>
+<div>
+<img class="language-icon" src="icons/clojure-logo.png" alt="Clojure"></img>
+
+Leveraging the JVM's support for other languages, such as <b>Clojure</b>, a
+LISP variant, Raphael Bauduin is experimenting with <a
+href="http://www.nsa.be/index.php/eng/Blog/Using-Jwt-yes-it-s-a-J-with-Clojure">using JWt from within Clojure</a>, documenting his experience in his blog
+and eventually developing a small support library.
+</div>
+
+<br style="clear: both" />
+
+</li>
+</ul>
+</p>
+
+  </message>
   <message id="home.documentation">
  
 <h3><span>Documentation</span></h3>
@@ -1033,6 +1092,10 @@ specific installation notes</a>.
 <h4>Introduction and tutorials</h4>
 
 <ul>
+<li>Learn about the benefits of using Wt compared to traditional web
+application frameworks using our <a
+href="/doc/Wt-WhitePaper.pdf">white paper</a>.</li>
+
 <li>Dr Dobbs Journal has a good <a href="http://www.ddj.com/cpp/206401952">
 introductary article on Wt</a> (February 2008).</li>
 
@@ -1072,11 +1135,24 @@ target="_blank">here (in a new window)</a>.</p>
 <h4>Wiki</h4>
 
 <p>
-There is a community-run <a href="http://www.webtoolkit.eu/wt/wiki/">Wt Wiki</a> with useful information such as a FAQ and
+There is a community-run <a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a> with useful information such as a FAQ and
 tips and tricks.
 </p>
 
   </message>
+
+  <message id="srcview.title.CPP.">
+    <div class="srcviewtitle">
+      <h2>Source code for Wt examples</h2>
+
+      <p>
+	Browse below the source code for all examples included in 
+	<a href="http://webtoolkit.eu/wt">Wt</a>.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.">Wt examples</message>
 
   <message id="srcview.title.CPP.hello">
     <div class="srcviewtitle">

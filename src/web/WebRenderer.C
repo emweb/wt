@@ -507,7 +507,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< "var domRoot = " << app->domRoot_->jsRef() << ";"
 	"var form = " WT_CLASS ".getElement('Wt-form');"
 	"domRoot.style.display = form.style.display;"
-	"document.body.replaceChild(domRoot, form);";
+	"document.body.replaceChild(domRoot, form);"
+	<< app->afterLoadJavaScript();
     }
 
     visibleOnly_ = false;

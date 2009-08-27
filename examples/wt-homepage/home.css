@@ -51,3 +51,23 @@ td.sponsor-role {
     vertical-align: middle;
     padding: 5px;
 }
+
+ul.languages {
+    list-style: none;
+    padding-left: 0px;
+}
+
+ul.languages li {
+    margin: 40px 0px;
+}
+
+img.language-icon {
+    float: left;
+    margin-right: 30px;
+}
+
+img.java-language-icon {
+    float: left;
+    margin-right: 30px;
+    margin-left: 25px;
+}

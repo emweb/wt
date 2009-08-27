@@ -907,9 +907,9 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
 	  setLoaded();
 	  break;
-	  case Dead:
-	    throw WtException("Internal error: WebSession is dead?");
 	}
+	case Dead:
+	  throw WtException("Internal error: WebSession is dead?");
 	}
       } catch (WtException& e) {
 	log("fatal") << e.what();

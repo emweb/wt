@@ -105,6 +105,7 @@ private:
   WWidget *features();
   WWidget *documentation();
   WWidget *community();
+  WWidget *otherLanguage();
 
   WTable *recentNews_;
   WTable *historicalNews_;

@@ -149,23 +149,31 @@ WWidget *Home::initHome()
 
   mainMenu_->addItem
     (tr("introduction"), introduction())->setPathComponent("");
+
   mainMenu_->addItem
     (tr("news"), deferCreate(boost::bind(&Home::news, this)),
      WMenuItem::PreLoading);
+
   mainMenu_->addItem
-    (tr("features"), wrapView(&Home::features),
-     WMenuItem::PreLoading);
+    (tr("features"), wrapView(&Home::features),  WMenuItem::PreLoading);
+
   mainMenu_->addItem
     (tr("documentation"), wrapView(&Home::documentation),
      WMenuItem::PreLoading);
+
   mainMenu_->addItem
     (tr("examples"), examples(),
      WMenuItem::PreLoading)->setPathComponent("examples/");
+
   mainMenu_->addItem
     (tr("download"), deferCreate(boost::bind(&Home::download, this)),
      WMenuItem::PreLoading);
+
   mainMenu_->addItem
-    (tr("community"), wrapView(&Home::community),
+    (tr("community"), wrapView(&Home::community), WMenuItem::PreLoading);
+
+  mainMenu_->addItem
+    (tr("other-language"), wrapView(&Home::otherLanguage),
      WMenuItem::PreLoading);
 
   mainMenu_->itemSelectRendered().connect(SLOT(this, Home::updateTitle));
@@ -282,6 +290,10 @@ WWidget *Home::documentation()
   return new WText(tr("home.documentation"));
 }
 
+WWidget *Home::otherLanguage()
+{
+  return new WText(tr("home.other-language"));
+}
 
 WWidget *Home::wrapView(WWidget *(Home::*createWidget)())
 {
