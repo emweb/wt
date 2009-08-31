@@ -528,15 +528,17 @@ void WebRenderer::serveMainscript(WebResponse& response)
       << "._p_.response(" << expectedAckId_ << ");";
 
     if (app->enableAjax_)
-      response.out() << "domRoot.style.display = 'block';"
-		     << session_.app()->javaScriptClass()
-		     << "._p_.autoJavaScript();";
+      response.out()
+	<< "domRoot.style.display = 'block';"
+	<< session_.app()->javaScriptClass() << "._p_.autoJavaScript();";
 
     response.out()
-      << collectedJS2_.str() <<
-      "};"
-      "window.WtScriptLoaded = true;"
-      "if (window.isLoaded) onLoad();\n";
+	<< session_.app()->javaScriptClass()
+	<< "._p_.update(null, 'load', null, false);"
+	<< collectedJS2_.str() <<
+	"};"
+	"window.WtScriptLoaded = true;"
+	"if (window.isLoaded) onLoad();\n";
 
     app->enableAjax_ = false;
   }
@@ -632,7 +634,11 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 
   if (widgetset)
     response.out() << app->javaScriptClass() << "._p_.load();\n";
-  else {
+
+  response.out() << session_.app()->javaScriptClass()
+		 << "._p_.update(null, 'load', null, false);\n";
+
+  if (!widgetset) {
     response.out() << "};\n";
 
 #ifndef WT_TARGET_JAVA
@@ -641,9 +647,8 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		   << (app->serverPush_ ? "true" : "false") << ");";
 #endif // WT_TARGET_JAVA
 
-    response.out() <<
-      "window.WtScriptLoaded = true;"
-      "if (window.isLoaded) onLoad();\n";
+    response.out() << "window.WtScriptLoaded = true;"
+                      "if (window.isLoaded) onLoad();\n";
   }
 
   loadScriptLibraries(response.out(), app, false);

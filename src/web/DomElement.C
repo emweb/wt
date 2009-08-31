@@ -306,22 +306,23 @@ void DomElement::processProperties(WApplication *app) const
 
     if (minw != self->properties_.end() || maxw != self->properties_.end()) {
       if (w == self->properties_.end()) {
-	std::stringstream style;
-	style << "expression(" WT_CLASS ".IEwidth(this,";
+	std::stringstream expr;
+	expr << WT_CLASS ".IEwidth(this,";
 	if (minw != self->properties_.end()) {
-	  style << '\'' << minw->second << '\'';
+	  expr << '\'' << minw->second << '\'';
           self->properties_.erase(PropertyStyleMinWidth); // C++: could be minw
 	} else
-	  style << "'0px'";
-	style << ',';
+	  expr << "'0px'";
+	expr << ',';
 	if (maxw != self->properties_.end()) {
-	  style << '\''<< maxw->second << '\'';
+	  expr << '\''<< maxw->second << '\'';
 	  self->properties_.erase(PropertyStyleMaxWidth); // C++: could be maxw
 	} else
-	  style << "'100000px'";
-	style << "));";
+	  expr << "'100000px'";
+	expr << ")";
 
-	self->properties_[PropertyStyleWidth] = style.str();
+	self->properties_.erase(PropertyStyleWidth);
+	self->properties_[PropertyStyleWidthExpression] = expr.str();
       }
     }
 
@@ -551,6 +552,8 @@ std::string DomElement::cssStyle() const
 	style << cssNames[j->first - Wt::PropertyStylePosition]
 	      << ':' << j->second << ';';
       }
+    } else if (j->first == PropertyStyleWidthExpression) {
+      style << "width:expression(" << j->second << ");";
     }
   }
 
@@ -1315,6 +1318,15 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
 	  << (app->environment().agentIsIE() ? "styleFloat" : "cssFloat")
 	  << "=\'" << i->second << "\';";
       break;
+    case Wt::PropertyStyleWidthExpression:
+      out << var_ << ".style.setExpression('width',";
+      if (!pushed) {
+	escaped.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+	pushed = true;
+      }
+      fastJsStringLiteral(out, escaped, i->second);
+      out << ");";
+      break;
     default:
       if ((i->first >= Wt::PropertyStylePosition)
 	  && (i->first <= Wt::PropertyStyleDisplay)) {
@@ -1341,7 +1353,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
 	    "visibility", "display" };
 	out << var_ << ".style."
 	    << cssCamelNames[i->first - Wt::PropertyStylePosition]
-	    << "=\'" << i->second << "\';";
+	    << "='" << i->second << "';";
       }
     }
 

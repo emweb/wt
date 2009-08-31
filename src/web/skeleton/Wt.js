@@ -257,31 +257,34 @@ pctself: function(c, s) {
 },
 
 IEwidth: function(c, min, max) {
-  var WT = _$_WT_CLASS_$_;
+  if (c.parentNode) {
+    var WT = _$_WT_CLASS_$_;
 
-  var r = c.parentNode.clientWidth
-   - self.px(c, 'marginLeft')
-   - self.px(c, 'marginRight')
-   - self.px(c, 'borderLeftWidth')
-   - self.px(c, 'borderRightWidth')
-   - self.px(c.parentNode, 'paddingLeft')
-   - self.px(c.parentNode, 'paddingRight');
+    var r = c.parentNode.clientWidth
+    - WT.px(c, 'marginLeft')
+    - WT.px(c, 'marginRight')
+    - WT.px(c, 'borderLeftWidth')
+    - WT.px(c, 'borderRightWidth')
+    - WT.px(c.parentNode, 'paddingLeft')
+    - WT.px(c.parentNode, 'paddingRight');
 
-  var m = /^\s*(\d+)\.?\d*\s*px\s*$/.exec(min);
-  var v = m && m.length == 2 ? m[1] : "0";
-  min = v ? parseInt(v) : 0;
+    var m = /^\s*(\d+)\.?\d*\s*px\s*$/.exec(min);
+    var v = m && m.length == 2 ? m[1] : "0";
+    min = v ? parseInt(v) : 0;
 
-  m = /^\s*(\d+)\.?\d*\s*px\s*$/.exec(max);
-  v = m && m.length == 2 ? m[1] : "100000";
-  max = v ? parseInt(v) : 100000;
+    m = /^\s*(\d+)\.?\d*\s*px\s*$/.exec(max);
+    v = m && m.length == 2 ? m[1] : "100000";
+    max = v ? parseInt(v) : 100000;
 
-  if (r < min)
-    return min-1;
-  else if (r > max)
-    return max+1;
-  else if (c.style["styleFloat"] != "")
-    return min-1;
-  else
+    if (r < min)
+      return min-1;
+    else if (r > max)
+      return max+1;
+    else if (c.style["styleFloat"] != "")
+      return min-1;
+    else
+      return "auto";
+  } else
     return "auto";
 },
 
@@ -1048,7 +1051,6 @@ var load = function() {
   if (!loaded) {
     loaded = true;
     _$_ONLOAD_$_;
-    update(null, 'load', null, false);
     keepAliveTimer = setTimeout(doKeepAlive, _$_KEEP_ALIVE_$_000);
   }
 };
