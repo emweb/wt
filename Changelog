@@ -3,6 +3,9 @@
 
 	* WTreeView: fix autoJavaScript performance
 
+	* Wt.js: fix mouse capture on IE, fix mouse capture of mouse up when dragging
+	outside the window
+
 26-08-2009
 	* Wt.js: attach mouse grab events to body using DOM event
 	capture

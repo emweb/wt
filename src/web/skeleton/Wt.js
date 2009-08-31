@@ -690,6 +690,11 @@ var dragState = {
 
 var capture = function(obj) {
   captureElement = obj;
+  if (document.body.setCapture)
+    if (obj != null)
+      document.body.setCapture();
+    else
+      document.body.releaseCapture();
 }
 
 var initDragDrop = function() {
@@ -711,10 +716,16 @@ var initDragDrop = function() {
   if (db.addEventListener) {
     db.addEventListener('mousemove', mouseMove, true);
     db.addEventListener('mouseup', mouseUp, true);
+
+    if (WT.isGecko) {
+      window.addEventListener('mouseout', function(e) {
+	  if (!e.relatedTarget && WT.hasTag(e.target, "HTML"))
+	    mouseUp(e);
+	}, true);
+    }
   } else {
-    db.setCapture(true);
     db.attachEvent('onmousemove', mouseMove);
-    db.attachEvent('onmouseup', mouseMove);
+    db.attachEvent('onmouseup', mouseUp);
   }
 
   document.body.ondragstart=function() {
@@ -723,7 +734,7 @@ var initDragDrop = function() {
 }
 
 var dragStart = function(obj, e) {
-  captureElement = null;
+  capture(null);
 
   // drag element attributes:
   //   dwid = dragWidgetId
@@ -835,7 +846,7 @@ var dragEnd = function(e) {
   if (!e) e = window.event;
   if (captureElement != null) {
     var el = captureElement;
-    captureElement = null;
+    capture(null);
     if (el.onmouseup)
       el.onmouseup(e);
     return false;
@@ -1109,7 +1120,7 @@ var doPollTimeout = function() {
 
 var update = function(self, signalName, e, feedback) {
   if (captureElement && (self == captureElement) && e.type == "mouseup")
-    captureElement = null;
+    capture(null);
 
   _$_APP_CLASS_$_._p_.autoJavaScript();
 

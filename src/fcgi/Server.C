@@ -672,6 +672,11 @@ static void handleSigUsr1(int)
   doShutdown("SIGUSR1");
 }
 
+static void handleSigHup(int)
+{
+  doShutdown("SIGHUP");
+}
+
 void runSession(Configuration& conf, std::string sessionId)
 {
   if (!bindUDStoStdin(conf.runDirectory() + "/" + sessionId, conf))
@@ -814,6 +819,9 @@ bool WServer::start()
 					<< strerror(errno);
   if (signal(SIGUSR1, Wt::handleSigUsr1) == SIG_ERR) 
     impl_->configuration_->log("error") << "Cannot catch SIGUSR1: signal(): "
+					<< strerror(errno);
+  if (signal(SIGHUP, Wt::handleSigHup) == SIG_ERR) 
+    impl_->configuration_->log("error") << "Cannot catch SIGHUP: signal(): "
 					<< strerror(errno);
 
   impl_->running_ = true;

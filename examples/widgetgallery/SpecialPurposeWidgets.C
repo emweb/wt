@@ -6,6 +6,7 @@
 
 #include "SpecialPurposeWidgets.h"
 #include "EventDisplayer.h"
+#include "DeferredWidget.h"
 
 #include "Wt/WText"
 #include "Wt/WTable"
@@ -24,8 +25,11 @@ SpecialPurposeWidgets::SpecialPurposeWidgets(EventDisplayer *ed)
 
 void SpecialPurposeWidgets::populateSubMenu(WMenu *menu)
 {
-  menu->addItem("WGoogleMap", wGoogleMap());
-  menu->addItem("WSound", wSound());
+  menu->addItem("WGoogleMap",
+		deferCreate(boost::bind(&SpecialPurposeWidgets::wGoogleMap,
+					this)));
+  menu->addItem("WSound",
+		deferCreate(boost::bind(&SpecialPurposeWidgets::wSound, this)));
 }
 
 WWidget *SpecialPurposeWidgets::wGoogleMap()

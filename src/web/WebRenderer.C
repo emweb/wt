@@ -205,7 +205,7 @@ void WebRenderer::setBootVars(WebResponse& response,
 
   boot.setVar("BLANK_HTML",
 	      session_.bootstrapUrl(response, WebSession::ClearInternalPath)
-	      + "&amp;resource=blank");
+	      + "&amp;request=resource&amp;resource=blank");
   boot.setVar("SELF_URL",
 	      session_.bootstrapUrl(response, WebSession::KeepInternalPath));
   boot.setVar("SESSION_ID", session_.sessionId());
