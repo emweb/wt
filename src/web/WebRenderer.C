@@ -504,11 +504,14 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     if (app->enableAjax_) {
       response.out()
+	<< beforeLoadJS_.str()
 	<< "var domRoot = " << app->domRoot_->jsRef() << ";"
 	"var form = " WT_CLASS ".getElement('Wt-form');"
 	"domRoot.style.display = form.style.display;"
 	"document.body.replaceChild(domRoot, form);"
 	<< app->afterLoadJavaScript();
+
+      beforeLoadJS_.str("");
     }
 
     visibleOnly_ = false;
@@ -525,7 +528,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
       << "._p_.response(" << expectedAckId_ << ");";
 
     if (app->enableAjax_)
-      response.out() << "domRoot.style.display = 'block';";
+      response.out() << "domRoot.style.display = 'block';"
+		     << session_.app()->javaScriptClass()
+		     << "._p_.autoJavaScript();";
 
     response.out()
       << collectedJS2_.str() <<
@@ -720,12 +725,13 @@ void WebRenderer::serveMainpage(WebResponse& response)
   }
   app->styleSheetsAdded_ = 0;
 
+  beforeLoadJS_.str("");
   for (unsigned i = 0; i < app->scriptLibraries_.size(); ++i) {
     styleSheets += "<script src='"
       + app->fixRelativeUrl(app->scriptLibraries_[i].uri) 
       + "'></script>\n";
 
-    collectedJS1_ << app->scriptLibraries_[i].beforeLoadJS;
+    beforeLoadJS_ << app->scriptLibraries_[i].beforeLoadJS;
   }
   app->scriptLibrariesAdded_ = 0;
 

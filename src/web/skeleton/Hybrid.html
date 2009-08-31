@@ -158,8 +158,11 @@ _$_$endif_$_
 
 (function() {
 
-if (hideIt)
-  document.body.lastChild.style.display='none';
+if (hideIt) {
+  var f = document.getElementById('Wt-form');
+  if (f != null)
+    f.style.display='none';
+}
 
 function loadScript(uri) {
   var s = document.createElement('script');

@@ -1171,34 +1171,42 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "}");
   }
 
+  /*
+   * This continuously adjusts:
+   *  - changes to the total width (tw)
+   *  - whether scrollbars are needed (vscroll), and thus the actual
+   *    contents width
+   *  - when column1 is fixed: the width of the other columns
+   */
   app->addAutoJavaScript
     ("{var e=" + contentsContainer_->jsRef() + ";"
      "var s=" + jsRef() + ";"
      "var WT=" WT_CLASS ";"
      "if (e) {"
      """var tw=s.offsetWidth-WT.px(s, 'borderLeftWidth')"
-     ""       "-WT.px(s, 'borderRightWidth');"
+     ""       "-WT.px(s, 'borderRightWidth'),"
+     ""    "vscroll=e.scrollHeight > e.offsetHeight,"
+     ""    "c0w = (s.className.indexOf('column1') != -1"
+     ""            "? WT.pxself(WT.getCssRule('#" + id() + " .c0w'), 'width')"
+     ""            ": null);"
      ""
-     """if (tw > 200) {" // XXX: IE's incremental rendering foobars completely
+     """if (tw > 200 " // XXX: IE's incremental rendering foobars completely
+     ""    "&& (tw != e.tw || vscroll != e.vscroll || c0w != e.c0w)) {"
+     ""  "e.vscroll = vscroll;"
+     ""  "e.tw = tw;"
+     ""  "e.c0w = c0w;"
      ""  "var h= " + headers_->jsRef() + ","
      ""      "hh=h.firstChild,"
      ""      "t=" + contents_->jsRef() + ".firstChild,"
      ""      "r= WT.getCssRule('#" + id() + " .cwidth'),"
-     ""      "vscroll=e.scrollHeight > e.offsetHeight,"
      ""      "contentstoo=(r.style.width == h.style.width);"
-     ""  "if (vscroll) {"
-     ""    "r.style.width=(tw-17) + 'px';"
-     ""  "} else {"
-     ""    "r.style.width=tw + 'px';"
-     ""  "}"
+     ""  "r.style.width=(tw - (vscroll ? 17 : 0)) + 'px';"
      ""  "e.style.width=tw + 'px';"
      ""  "h.style.width=t.offsetWidth + 'px';"
-     ""  "if (s.className.indexOf('column1') != -1) {"
-     ""    "var r=WT.getCssRule('#" + id() + " .c0w'),"
-     ""        "hh=h.firstChild,"
-     ""        "w=tw - WT.pxself(r, 'width') - (vscroll ? 17 : 0);"
-     ""    "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width"
-     ""       "= w + 'px';"
+     ""  "if (c0w != null) {"
+     ""    "var hh=h.firstChild,"
+     ""        "w=tw - c0w - (vscroll ? 17 : 0);"
+     ""    "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width = w + 'px';"
      ""    "var extra = "
      ""      "hh.childNodes.length > 1"
      ""        "? (WT.hasTag(hh.childNodes[1], 'IMG') ? 21 : 6) : 0;"

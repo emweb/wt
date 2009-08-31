@@ -683,12 +683,16 @@ void WebSession::unlockRecursiveEventLoop()
   Handler *handler = findEventloopHandler(0);
   Handler *handlerPrevious = findEventloopHandler(1);
 
-  handlerPrevious->swapRequest(handler->request(), handler->response());
-  handler->swapRequest(0, 0);
+  // handlerPrevious can be 0 if the event loop was already unlocked by
+  // another event while doing WApplication::processEvents()
+  if (handlerPrevious) {
+    handlerPrevious->swapRequest(handler->request(), handler->response());
+    handler->swapRequest(0, 0);
 
 #ifdef WT_THREADED
-  recursiveEventDone_.notify_one();
+    recursiveEventDone_.notify_one();
 #endif // WT_THREADED
+  }
 
 #endif // WT_TARGET_JAVA
 }

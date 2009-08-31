@@ -119,7 +119,8 @@ private:
   std::string createFormObjectsList(WApplication *app);
 
   void              preLearnStateless(WApplication *app, std::ostream& out);
-  std::stringstream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_;
+  std::stringstream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_,
+                    beforeLoadJS_;
   void              collectJS(std::ostream *js);
 
   void setPageVars(FileServe& page);

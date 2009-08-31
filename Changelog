@@ -1,3 +1,8 @@
+31-08-2008
+	* Wt.js: fix server push mayhem
+
+	* WTreeView: fix autoJavaScript performance
+
 26-08-2009
 	* Wt.js: attach mouse grab events to body using DOM event
 	capture

@@ -659,6 +659,9 @@ void WApplication::enableAjax()
 {
   enableAjax_ = true;
 
+  afterLoadJavaScript_ = newBeforeLoadJavaScript_ + afterLoadJavaScript_;
+  newBeforeLoadJavaScript_.clear();
+
   domRoot_->enableAjax();
 
   if (domRoot2_)

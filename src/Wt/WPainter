@@ -61,8 +61,7 @@ class WRectF;
  * The painting system distinguishes between device coordinates,
  * logical coordinates, and local coordinates. The device coordinate
  * system ranges from (0, 0) in the top left corner of the device, to
- * (\link WPaintDevice::width device()->width()\endlink, \link
- * WPaintDevice::height device()->height()\endlink) for the bottom
+ * (WPaintDevice::width(), WPaintDevice::height()) for the bottom
  * right corner. The logical coordinate system defines a coordinate
  * system that may be chosen independent of the geometry of the
  * device, which is convenient to make abstraction of the actual

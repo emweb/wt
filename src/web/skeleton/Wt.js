@@ -1183,7 +1183,7 @@ var sendUpdate = function() {
   }
 
   responsePending = _$_APP_CLASS_$_._p_.sendUpdate
-    (url + query, 'request=jsupdate&ackId=' + ackUpdateId + data.result,
+    (url + query, 'request=jsupdate&' + data.result + '&ackId=' + ackUpdateId,
      tm, ackUpdateId);
 
   pollTimer
