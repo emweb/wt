@@ -425,7 +425,7 @@ void WApplication::useStyleSheet(const std::string& uri,
       } else if (r.length() >= 3 && r.substr(0, 3) == "gt ") {
 	r = r.substr(3);
 	cond = gt;
-      } else if (r.length() >= 3 && r.substr(0, 3) == "gte ") {
+      } else if (r.length() >= 4 && r.substr(0, 4) == "gte ") {
 	r = r.substr(4);
 	cond = gte;
       } else {

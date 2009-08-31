@@ -965,7 +965,8 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
     if (app->environment().agentIsIE())
       app->styleSheet().addRule
-	(".Wt-treeview .Wt-scroll", "overflow-x: scroll; height: 16px;");
+	(".Wt-treeview .Wt-scroll",
+	 "position: absolute; overflow-x: scroll; height: 16px;");
     else
       app->styleSheet().addRule
 	(".Wt-treeview .Wt-scroll", "overflow: scroll; height: 16px;");
@@ -992,7 +993,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
   rowWidthRule_ = new WCssTemplateRule("#" + id() + " .Wt-tv-row");
   app->styleSheet().addRule(rowWidthRule_);
 
-  rowContentsWidthRule_ = new WCssTemplateRule("#"+ id() +" .Wt-tv-rowc");
+  rowContentsWidthRule_ = new WCssTemplateRule("#" + id() +" .Wt-tv-rowc");
   app->styleSheet().addRule(rowContentsWidthRule_);
 
   c0WidthRule_ = new WCssTemplateRule("#" + id() + " .c0w");
@@ -1185,10 +1186,11 @@ WTreeView::WTreeView(WContainerWidget *parent)
      "if (e) {"
      """var tw=s.offsetWidth-WT.px(s, 'borderLeftWidth')"
      ""       "-WT.px(s, 'borderRightWidth'),"
-     ""    "vscroll=e.scrollHeight > e.offsetHeight,"
-     ""    "c0w = (s.className.indexOf('column1') != -1"
-     ""            "? WT.pxself(WT.getCssRule('#" + id() + " .c0w'), 'width')"
-     ""            ": null);"
+     ""    "vscroll=e.scrollHeight > e.offsetHeight;"
+     ""    "c0w = null;"
+     ""
+     """if (s.className.indexOf('column1') != -1)"
+     """  c0w = WT.pxself(WT.getCssRule('#" + id() + " .c0w'), 'width');"
      ""
      """if (tw > 200 " // XXX: IE's incremental rendering foobars completely
      ""    "&& (tw != e.tw || vscroll != e.vscroll || c0w != e.c0w)) {"
@@ -1206,11 +1208,14 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""  "if (c0w != null) {"
      ""    "var hh=h.firstChild,"
      ""        "w=tw - c0w - (vscroll ? 17 : 0);"
-     ""    "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width = w + 'px';"
-     ""    "var extra = "
-     ""      "hh.childNodes.length > 1"
-     ""        "? (WT.hasTag(hh.childNodes[1], 'IMG') ? 21 : 6) : 0;"
-     ""    "hh.style.width= (w + extra) + 'px';"
+     ""    "if (w > 0) {"
+     ""      "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width = w + 'px';"
+     ""      "var extra = "
+     ""        "hh.childNodes.length > 1"
+     // all browsers except for IE6 would do with 21 : 6
+     ""          "? (WT.hasTag(hh.childNodes[1], 'IMG') ? 22 : 7) : 0;"
+     ""      "hh.style.width= (w + extra) + 'px';"
+     ""    "}"
      ""  "} else if (contentstoo) {"
      ""    "h.style.width=r.style.width;"
      ""    "t.style.width=r.style.width;"
@@ -1239,7 +1244,8 @@ void WTreeView::refresh()
     ""  "totalw=0,"
     ""  "extra=" + (column1Fixed_ ? "1" : "4") + ""
     ""     "+ (hh.childNodes.length > 1"
-    ""        "? (WT.hasTag(hh.childNodes[1], 'IMG') ? 17 : 6)"
+    // all browsers except for IE6 would do with 17 : 6
+    ""        "? (WT.hasTag(hh.childNodes[1], 'IMG') ? 18 : 7)"
     ""        ": 0);"
 
     "if(" + jsRef() + ".offsetWidth == 0) return;"
@@ -1333,13 +1339,21 @@ void WTreeView::setColumn1Fixed(bool fixed)
 
     WContainerWidget *scrollBarContainer = new WContainerWidget();
     scrollBarContainer->setStyleClass("cwidth");
-    scrollBarContainer->resize(WLength::Auto, 16);
+    scrollBarContainer->resize(WLength::Auto, 17);
     WContainerWidget *scrollBarC = new WContainerWidget(scrollBarContainer);
     scrollBarC->setStyleClass("Wt-tv-row Wt-scroll");
     scrollBarC->scrolled().connect(tieRowsScrollJS_);
+
+    WApplication *app = WApplication::instance();
+
+    if (app->environment().agentIsIE()) {
+      scrollBarContainer->setPositionScheme(Relative);
+      scrollBarC->setAttributeValue("style", "right: 0px");
+      // and still it doesn't work properly...
+    }
+
     WContainerWidget *scrollBar = new WContainerWidget(scrollBarC);
     scrollBar->setStyleClass("Wt-tv-rowc");
-    WApplication *app = WApplication::instance();
     if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
       scrollBar->setAttributeValue("style", "left: 0px;");
     impl_->layout()->addWidget(scrollBarContainer);
