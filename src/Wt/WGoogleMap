@@ -37,6 +37,15 @@ namespace Wt
 class WGoogleMap : public WCompositeWidget
 {
 public:
+  /*! \brief MapTypeControl
+   */
+  enum MapTypeControl {
+    NoControl,          //!< Show no maptype control
+    DefaultControl,     //!< Show the default maptype control
+    MenuControl,        //!< Show the menu maptype control
+    HierarchicalControl //!< Show the hierarchical maptype control
+  };
+
   /*! \class Coordinate
    *  \brief A geographical coordinate (latitude/longitude)
    */
@@ -207,25 +216,12 @@ public:
    */
   void disableScrollWheelZoom();
 
-  /*! \brief Adds a standard map type control.
+  /*! \brief Sets the map type control.
    *
    * The control allows selecting and switching between supported map types
    * via buttons.
    */
-  void addMapTypeControl();
-
-  /*! \brief Adds a "nested" map type control.
-   *
-   * The control allows selecting and switching between supported map types
-   * via buttons and nested checkboxes.
-   */
-  void addHierarchicalMapTypeControl();
-
-  /*! \brief Adds a drop-down map type control.
-   *
-   * The control allows for switching between supported map types.
-   */
-  void addMenuMapTypeControl();
+  void setMapTypeControl(MapTypeControl type);
 
   /*! \brief The click event.
    *

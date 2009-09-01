@@ -43,6 +43,9 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
   WGoogleMap* map = new WGoogleMap(layout->elementAt(0,0));
   map->resize(700, 500);
 
+  map->setMapTypeControl(WGoogleMap::DefaultControl);
+  map->enableScrollWheelZoom();
+
   layout->elementAt(0,1)->setPadding(3);
 
   WContainerWidget* zoomContainer = 
@@ -53,16 +56,9 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
   WPushButton* zoomOut = new WPushButton("-", zoomContainer);
   zoomOut->clicked().connect(SLOT(map, WGoogleMap::zoomOut));
 
-  WCheckBox* enableToolbar = new WCheckBox("Enable Google bar",  
-					   layout->elementAt(0,1));
-  enableToolbar->setCheckState(Checked);
-  map->enableGoogleBar();
-  enableToolbar->checked().connect(SLOT(map, WGoogleMap::enableGoogleBar));
-  enableToolbar->unChecked().connect(SLOT(map, WGoogleMap::disableGoogleBar));
-
   std::vector<WGoogleMap::Coordinate> road;
   roadDescription(road);
-  map->addPolyline(road, WColor(238, 130, 238));
+  map->addPolyline(road, WColor(0, 191, 255));
 
   map->setCenter(road[road.size()-1]);
 

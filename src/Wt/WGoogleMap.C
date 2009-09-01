@@ -369,33 +369,31 @@ void WGoogleMap::zoomWindow(const std::pair<Coordinate, Coordinate>& bbox)
   doGmJavaScript(strm.str(), true);
 }
 
-void WGoogleMap::addMapTypeControl()
+void WGoogleMap::setMapTypeControl(MapTypeControl type)
 {
-  std::ostringstream strm;
-  strm << "var mtc = new google.maps.MapTypeControl();"
-       << jsRef() << ".map.removeControl(" << jsRef() << ".mtc);"
-       << jsRef() << ".mtc = mtc;"
-       << jsRef() << ".map.addControl(mtc);";
-  doGmJavaScript(strm.str(), false);
-}
+  std::string control;
+  switch (type) {
+  case DefaultControl:
+    control = "google.maps.MapTypeControl";
+    break;
+  case MenuControl:
+    control = "google.maps.MenuMapTypeControl";
+    break;
+  case HierarchicalControl:
+    control = "google.maps.HierarchicalMapTypeControl";
+    break;
+  default:
+    control = "";
+  }
 
-void WGoogleMap::addHierarchicalMapTypeControl()
-{
   std::ostringstream strm;
-  strm << "var mtc = new google.maps.HierarchicalMapTypeControl();"
-       << jsRef() << ".map.removeControl(" << jsRef() << ".mtc);"
-       << jsRef() << ".mtc = mtc;"
-       << jsRef() << ".map.addControl(mtc);";
-  doGmJavaScript(strm.str(), false);
-}
-
-void WGoogleMap::addMenuMapTypeControl()
-{
-  std::ostringstream strm;
-  strm << "var mtc = new google.maps.MenuMapTypeControl();"
-       << jsRef() << ".map.removeControl(" << jsRef() << ".mtc);"
-       << jsRef() << ".mtc = mtc;"
-       << jsRef() << ".map.addControl(mtc);";
+  strm << jsRef() << ".map.removeControl(" << jsRef() << ".mtc);";
+       
+  if(control != "")
+    strm << "var mtc = new " << control << "();"
+	 << jsRef() << ".mtc = mtc;"
+	 << jsRef() << ".map.addControl(mtc);";
+  
   doGmJavaScript(strm.str(), false);
 }
 

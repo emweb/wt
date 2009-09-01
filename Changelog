@@ -1,6 +1,6 @@
 01-09-2008
-	* WDatePicker: Use 'positionAtWidget' to make sure the widget is rendered visible
-	even if at bottom of page (folds up instead of down)
+	* WDatePicker: Use 'positionAtWidget' to make sure the widget
+	is rendered visible even if at bottom of page (folds up instead of down)
 
 	* WDialog: Fix JavaScript positioning for IE6
 
@@ -11,14 +11,17 @@
 
 	* WTreeView: fix autoJavaScript performance
 
-	* Wt.js: fix mouse capture on IE, fix mouse capture of mouse up when dragging
-	outside the window
+	* Wt.js: fix mouse capture on IE, fix mouse capture of mouse up when
+	dragging outside the window
 
-	* Wt.js: fix synchronisation issue with 'load' request and loading of JS libraries
+	* Wt.js: fix synchronisation issue with 'load' request and loading
+	of JS libraries
 
-	* Wt.js, DomElement: use setExpression() to set a CSS expression (for min/max-width)
+	* Wt.js, DomElement: use setExpression() to set a CSS expression
+	(for min/max-width)
 
-	* WApplication: fix conditional stylesheet condition parse error with 'gte' expression
+	* WApplication: fix conditional stylesheet condition parse error
+	with 'gte' expression
 
 26-08-2009
 	* Wt.js: attach mouse grab events to body using DOM event

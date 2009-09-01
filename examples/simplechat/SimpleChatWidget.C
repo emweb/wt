@@ -26,7 +26,8 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
 				   Wt::WContainerWidget *parent)
   : WContainerWidget(parent),
     server_(server),
-    app_(WApplication::instance())
+    app_(WApplication::instance()),
+    messageReceived_("sounds/message_received.mp3")
 {
   user_ = server_.suggestGuest();
   letLogin();
@@ -229,6 +230,11 @@ void SimpleChatWidget::updateUsers()
 
 void SimpleChatWidget::processChatEvent(const ChatEvent& event)
 {
+  /* If this message belongs to another user, play a received sound */
+  if (event.user() != user_) {
+    messageReceived_.play();
+  }
+
   /*
    * This is where the "server-push" happens. This method is called
    * when a new event or message needs to be notified to the user. In

@@ -10,6 +10,7 @@
 
 #include <Wt/WContainerWidget>
 #include <Wt/WJavaScript>
+#include <Wt/WSound>
 
 namespace Wt {
   class WApplication;
@@ -68,6 +69,8 @@ private:
   Wt::WContainerWidget *userList_;
 
   boost::signals::connection eventConnection_;
+
+  Wt::WSound messageReceived_;
 
   void login();
   void logout();
