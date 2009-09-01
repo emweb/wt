@@ -472,6 +472,8 @@ private:
       if (!folderView_->isSelected(item))
 	folderView_->select(item);
 
+      delete popup_;
+
       popup_ = new WPopupMenu();
       popup_->addItem("icons/folder_new.gif", "Create a New Folder");
       popup_->addItem("Rename this Folder")->setCheckable(true);

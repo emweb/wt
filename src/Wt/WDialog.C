@@ -94,8 +94,12 @@ WDialog::WDialog(const WString& windowTitle)
      "" "var d=" + jsRef() + ";"
      "" "if (d && d.style.display != 'none' && !d.getAttribute('moved')) {"
      ""   "var ws=" WT_CLASS ".windowSize();"
-     ""   "d.style.left=Math.round((ws.x - d.clientWidth)/2) + 'px';"
-     ""   "d.style.top=Math.round((ws.y - d.clientHeight)/2) + 'px';"
+     ""   "d.style.left=Math.round((ws.x - d.clientWidth)/2"
+     + (app->environment().agent() == WEnvironment::IE6
+	? "+ document.documentElement.scrollLeft" : "") + ") + 'px';"
+     ""   "d.style.top=Math.round((ws.y - d.clientHeight)/2"
+     + (app->environment().agent() == WEnvironment::IE6
+	? "+ document.documentElement.scrollTop" : "") + ") + 'px';"
      ""   "d.style.marginLeft='0px';"
      ""   "d.style.marginTop='0px';"
      "" "}"

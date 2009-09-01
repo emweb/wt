@@ -1,3 +1,11 @@
+01-09-2008
+	* WDatePicker: Use 'positionAtWidget' to make sure the widget is rendered visible
+	even if at bottom of page (folds up instead of down)
+
+	* WDialog: Fix JavaScript positioning for IE6
+
+	* WFileUpload: Fix empty file regression (#53)
+
 31-08-2008
 	* Wt.js: fix server push mayhem
 

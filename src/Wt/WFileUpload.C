@@ -39,6 +39,8 @@ protected:
       if (i != request.uploadedFiles().end()) {
 	p = &i->second;
 	triggerUpdate = true;
+      } else if (request.getParameter("data")) {
+	triggerUpdate = true;
       }
     }
 

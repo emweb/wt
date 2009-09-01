@@ -9,6 +9,7 @@
 
 #include <Wt/WCompositeWidget>
 #include <Wt/WDate>
+#include <Wt/WJavaScriptSlot>
 #include <set>
 
 namespace Wt {
@@ -168,6 +169,8 @@ private:
   WContainerWidget *layout_;
   WContainerWidget *popup_;
   WCalendar        *calendar_;
+
+  JSlot positionJS_;
 
   void createDefault(bool i18n);
   void create(WInteractWidget *displayWidget, WLineEdit *forEdit, bool i18n);

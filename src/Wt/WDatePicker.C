@@ -91,6 +91,11 @@ void WDatePicker::create(WInteractWidget *displayWidget,
 
   popup_->escapePressed().connect(SLOT(popup_, WWidget::hide));
   displayWidget->clicked().connect(SLOT(popup_, WWidget::show));
+
+  positionJS_.setJavaScript("function() { " WT_CLASS ".positionAtWidget('"
+			    + popup_->id()  + "','" + displayWidget->id()
+			    + "');}");
+  displayWidget->clicked().connect(positionJS_);
   displayWidget->clicked().connect(SLOT(this, WDatePicker::setFromLineEdit));
 }
 

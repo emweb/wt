@@ -392,11 +392,17 @@ addStyleSheet: function(uri) {
 },
 
 windowSize: function() {
-  if (typeof (window.innerWidth) == 'number')
-    return {x: window.innerWidth, y: window.innerHeight };
-  else
-    return {x: document.documentElement.clientWidth,
-	    y: document.documentElement.clientHeight };
+  var x, y;
+
+  if (typeof (window.innerWidth) == 'number') {
+    x = window.innerWidth;
+    y = window.innerHeight;
+  } else {
+    x = document.documentElement.clientWidth;
+    y = document.documentElement.clientHeight;
+  }
+
+  return { x: x, y: y};
 },
 
 fitToWindow: function(e, x, y, rightx, bottomy) {
@@ -435,6 +441,7 @@ positionAtWidget: function(id, atId) {
   var atw = WT.getElement(atId);
   var xy = WT.widgetPageCoordinates(atw);
 
+  w.style.display='block';
   WT.fitToWindow(w, xy.x + atw.offsetWidth, xy.y,
 		 xy.x, xy.y + atw.offsetHeight);
 },
