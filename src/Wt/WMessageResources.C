@@ -105,7 +105,8 @@ void WMessageHandler::saxCallback(mxml_node_t *node, mxml_sax_event_t event)
       mxmlRetain(node);
     else if (event == MXML_SAX_DIRECTIVE)
       mxmlRetain(node);
-    else if (event == MXML_SAX_DATA && node->parent->ref_count > 1) {
+    else if ((event == MXML_SAX_DATA || event == MXML_SAX_CDATA)
+	     && node->parent->ref_count > 1) {
       /*
        * If the parent was retained, then retain
        * this data node as well.
