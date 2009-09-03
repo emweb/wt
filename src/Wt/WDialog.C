@@ -158,6 +158,7 @@ WDialog::WDialog(const WString& windowTitle)
   titleBar_->mouseMoved().connect(mouseMovedJS_);
   titleBar_->mouseWentUp().connect(mouseUpJS_);
 
+  saveCoverState(app, app->dialogCover());
   hide();
 }
 
@@ -206,11 +207,13 @@ WDialog::DialogCode WDialog::exec()
   if (recursiveEventLoop_)
     throw WtException("WDialog::exec(): already in recursive event loop.");
 
-  WebSession *session = WApplication::instance()->session();
-  recursiveEventLoop_ = true;
-
   show();
-  session->doRecursiveEventLoop(std::string());
+
+  recursiveEventLoop_ = true;
+  do {
+    WApplication::instance()->session()->doRecursiveEventLoop();
+  } while (recursiveEventLoop_);
+
   hide();
 
   return result_;
@@ -222,9 +225,7 @@ void WDialog::done(DialogCode result)
   result_ = result;
 
   if (recursiveEventLoop_) {
-    WebSession *session = WApplication::instance()->session();
     recursiveEventLoop_ = false;
-    session->unlockRecursiveEventLoop();
   } else
     hide();
 
@@ -246,20 +247,37 @@ void WDialog::setModal(bool modal)
   modal_ = modal;
 }
 
+void WDialog::saveCoverState(WApplication *app, WContainerWidget *cover)
+{
+  coverWasHidden_ = cover->isHidden();
+  coverPreviousStyle_ = cover->attributeValue("style");
+  previousExposeConstraint_ = app->exposeConstraint();
+}
+
+void WDialog::restoreCoverState(WApplication *app, WContainerWidget *cover)
+{
+  cover->setHidden(coverWasHidden_);
+  cover->setAttributeValue("style", coverPreviousStyle_);
+  app->constrainExposed(previousExposeConstraint_);
+}
+
 void WDialog::setHidden(bool hidden)
 {
-  WApplication *app = WApplication::instance();
+  if (isHidden() != hidden) {
+    if (modal_) {
+      WApplication *app = WApplication::instance();
+      WContainerWidget *cover = app->dialogCover();
 
-  if (modal_) {
-    WContainerWidget *cover = app->dialogCover(!hidden);
-    if (cover) {
-      cover->setHidden(hidden);
-      if (!hidden)
+      if (!hidden) {
+	saveCoverState(app, cover);
+
+	cover->show();
 	cover->setAttributeValue("style", "z-index:"
 	  + boost::lexical_cast<std::string>(impl_->zIndex() - 1));
+	app->constrainExposed(this);
+      } else
+	restoreCoverState(app, cover);
     }
-
-    app->exposeOnly(hidden ? 0 : this);
   }
 
   WCompositeWidget::setHidden(hidden);

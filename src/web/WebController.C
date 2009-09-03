@@ -91,7 +91,7 @@ void WebController::forceShutdown()
 
   while (!sessions_.empty()) {
     SessionMap::iterator i = sessions_.begin();
-    WebSession::Handler handler(*i->second);
+    WebSession::Handler handler(*i->second, true);
     handler.killSession();
     sessions_.erase(i);
   }
@@ -127,7 +127,7 @@ void WebController::run()
     bool haveMoreSessions = expireSessions(sessionsToKill);
 
     for (unsigned i = 0; i < sessionsToKill.size(); ++i) {
-      WebSession::Handler handler(*sessionsToKill[i]);
+      WebSession::Handler handler(*sessionsToKill[i], true);
       handler.killSession();
     }
 
@@ -408,7 +408,7 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
     removeSession(sessionId);
 
   for (unsigned i = 0; i < sessionsToKill.size(); ++i) {
-    WebSession::Handler handler(*sessionsToKill[i]);
+    WebSession::Handler handler(*sessionsToKill[i], true);
     handler.killSession();
   }
 

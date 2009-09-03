@@ -1,3 +1,10 @@
+03-09-2008:
+	* WDialog, Ext::Dialog, and related: allow for multiple modal dialogs
+	and nested exec() calls.
+
+	* Boot.html, Hybrid.html: add a loadScript() method to defer loading of
+	user JavaScript
+
 01-09-2008
 	* WDatePicker: Use 'positionAtWidget' to make sure the widget
 	is rendered visible even if at bottom of page (folds up instead of down)

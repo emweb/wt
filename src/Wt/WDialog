@@ -26,31 +26,35 @@ class WText;
  *
  * There are two distinct ways for using a %WDialog window.
  * 
- * \if cpp
- * The easiest way to display a modal dialog is using the exec()
- * method: after creating a %WDialog window, call the exec() method
- * which blocks until the dialog window is closed, and returns the
- * dialog result. Typically, an OK button will be connected to the
- * accept() slot, and a Cancel button to the reject() slot. This
- * solution has the drawback that it is not scalable to many
- * concurrent sessions, since every recursive event loop (which is
- * running durring the exec() method) locks a thread. Therefore it is
- * only suitable for software to be deployed on an intranet.
- * \endif
- *
  * A %WDialog can be used as any other widget. In this case, the
  * %WDialog is created with the proper content, and for example an OK
  * button is connected to a method which deletes the dialog. Unlike
  * other widgets, a dialog is hidden by default. You must use the
  * method show() or setHidden(true) to show the dialog.
  *
- * Use setModal(false) to create a non-modal dialog. A non-modal dialog does
- * not block the underlying user interface: the user must not first deal with
- * the dialog before interacting with the rest of the user interface. Multiple
- * non-modal dialogs may be open at the same time.
+ * \if cpp
  *
- * Widgets may be added to the dialog, by adding to the contents()
- * ContainerWidget.
+ * The easiest way to display a modal dialog is using exec(): after
+ * creating a %WDialog window, a call to exec() will block (suspend
+ * the thread) until the dialog window is closed, and return the
+ * dialog result. Typically, an OK button will be connected to
+ * accept(), and in some cases a Cancel button to reject(). This
+ * solution has the drawback that it is not scalable to many
+ * concurrent sessions, since for every session with a recursive event
+ * loop (which is running durring the exec() method), a thread is
+ * locked. In practical terms, this means it is only suitable for
+ * software with restricted access or deployed on an intranet or
+ * extranet.
+ *
+ * \endif
+ *
+ * Use setModal(false) to create a non-modal dialog. A non-modal
+ * dialog does not block the underlying user interface: the user must
+ * not first deal with the dialog before interacting with the rest of
+ * the user interface.
+ *
+ * Contents for the dialog is defined by adding it to the contents()
+ * widget.
  *
  * \if cpp
  * Usage example, using the exec() method:
@@ -76,11 +80,8 @@ class WText;
  *
  * \image html WDialog-1.png "A simple custom dialog" 
  *
- * \note Currently only one modal dialog can be shown at a time, but you can
- *       show as many non-modal dialogs as you want.
- *
- * \note For the dialog to render properly in IE, the "body" margin is
- *       set to 0 (if it wasn't already).
+ * \note For the dialog to render properly in IE, the "html body"
+ *       margin is set to 0 (if it wasn't already).
  */
 class WT_API WDialog : public WCompositeWidget
 {
@@ -222,6 +223,10 @@ private:
   WContainerWidget *contents_;
   bool              modal_;
 
+  WWidget          *previousExposeConstraint_;
+  WT_USTRING        coverPreviousStyle_;
+  bool              coverWasHidden_;
+
   Signal<DialogCode> finished_;
 
   DialogCode result_;
@@ -229,6 +234,9 @@ private:
   bool recursiveEventLoop_;
 
   JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
+
+  void saveCoverState(WApplication *app, WContainerWidget *cover);
+  void restoreCoverState(WApplication *app, WContainerWidget *cover);
 };
 
 }

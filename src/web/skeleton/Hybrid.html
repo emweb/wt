@@ -22,6 +22,30 @@ _$_STYLESHEETS_$_
 
 var hideIt = false, scriptToLoad = null;
 
+function loadScript(url, callback) {
+  var s = document.createElement('script');
+
+  if (callback) {
+    if (s.readyState){  //IE
+      s.onreadystatechange = function() {
+        if (s.readyState == "loaded" ||
+            s.readyState == "complete"){
+          s.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else {  //Others
+      s.onload = function(){
+        callback();
+      };
+    }
+  }
+
+  s.setAttribute('src', url);
+  var h = document.getElementsByTagName('head')[0];
+  h.appendChild(s);
+}
+
 (function() {
 
 try {
@@ -119,7 +143,7 @@ if (needSessionInUrl) {
         hideIt = true;
     }
 
-    scriptToLoad = selfUrl + scaleInfo + '&request=script&rand=' + rand();
+    loadScript(selfUrl + scaleInfo + '&request=script&rand=' + rand(), null);
   }
 }
 
@@ -163,16 +187,6 @@ if (hideIt) {
   if (f != null)
     f.style.display='none';
 }
-
-function loadScript(uri) {
-  var s = document.createElement('script');
-  s.setAttribute('src', uri);
-  var h = document.getElementsByTagName('head')[0];
-  h.appendChild(s);
-}
-
-if (scriptToLoad != null)
-  loadScript(scriptToLoad);
 
 })();
 

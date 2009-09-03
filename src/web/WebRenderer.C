@@ -200,7 +200,6 @@ void WebRenderer::setPageVars(FileServe& page)
 void WebRenderer::setBootVars(WebResponse& response,
 			      FileServe& boot)
 {
-  bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
   Configuration& conf = session_.controller()->configuration();
 
   boot.setVar("BLANK_HTML",
@@ -217,7 +216,6 @@ void WebRenderer::setBootVars(WebResponse& response,
 	      conf.sessionTracking() == Configuration::CookiesURL);
 
   boot.setVar("AJAX_CANONICAL_URL", session_.ajaxCanonicalUrl(response));
-  boot.setVar("INTERNAL_PATH", session_.env().internalPath());
 }
 
 void WebRenderer::serveBootstrap(WebResponse& response)
@@ -254,12 +252,6 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   setHeaders(response, contentType);
 
   boot.stream(response.out());
-}
-
-void WebRenderer::serveError(WebResponse& response, const std::exception& e,
-			     ResponseType responseType)
-{
-  serveError(response, std::string(e.what()), responseType);
 }
 
 void WebRenderer::serveError(WebResponse& response, const std::string& message,
@@ -694,9 +686,14 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   WApplication *app = session_.app();
 
+  /*
+   * This implements the redirect for Post-Redirect-Get, or when the
+   * internal path changed.
+   */
   if (!app->environment().ajax()
-      && app->internalPathIsChanged_
-      && app->oldInternalPath_ != app->newInternalPath_)
+      && (response.requestMethod() == "POST"
+	  || (app->internalPathIsChanged_
+	      && app->oldInternalPath_ != app->newInternalPath_)))
     session_.redirect(app->bookmarkUrl(app->newInternalPath_));
 
   std::string redirect = session_.getRedirect();
@@ -748,8 +745,10 @@ void WebRenderer::serveMainpage(WebResponse& response)
   setPageVars(page);
   page.setVar("SESSION_ID", session_.sessionId());
 
-  if (hybridPage)
+  if (hybridPage) {
     setBootVars(response, page);
+    page.setVar("INTERNAL_PATH", app->internalPath());
+  }
 
   std::string url
     = (app->environment().agentIsSpiderBot()

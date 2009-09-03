@@ -193,17 +193,6 @@ WApplication::WApplication(const WEnvironment& env)
     else
       styleSheet_.addRule("img.Wt-indeterminate", "margin: 3px 3px 0px 4px;");
 
-#ifdef WT_TARGET_JAVA
-#define JARG(e) , e
-#else
-#define JARG(e)
-#endif
-
-  javaScriptResponse_
-    = new EventSignal<WResponseEvent>("response", this JARG(WResponseEvent()));
-  javaScriptResponse_->connect(SLOT(this,
-				    WApplication::handleJavaScriptResponse));
-
   showLoadingIndicator_ = new EventSignal<>("showload", this);
   hideLoadingIndicator_ = new EventSignal<>("hideload", this);
 
@@ -279,7 +268,6 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
-  delete javaScriptResponse_;
   delete showLoadingIndicator_;
   delete hideLoadingIndicator_;
 
@@ -354,12 +342,13 @@ WContainerWidget *WApplication::dialogCover(bool create)
   if (dialogCover_ == 0 && create) {
     dialogCover_ = new WContainerWidget(domRoot_);
     dialogCover_->setStyleClass("Wt-dialogcover");
+    dialogCover_->hide();
   }
 
   return dialogCover_;
 }
 
-void WApplication::exposeOnly(WWidget *w)
+void WApplication::constrainExposed(WWidget *w)
 {
   exposedOnly_ = w;
 }
@@ -907,7 +896,7 @@ class UpdateLockImpl
 {
 public:
   UpdateLockImpl(WApplication& app)
-    : handler_(*(app.session()))
+    : handler_(*(app.session()), true)
   { 
     app.shouldTriggerUpdate_ = true;
 #ifndef WT_THREADED
@@ -996,21 +985,16 @@ std::string WApplication::beforeLoadJavaScript()
 
 void WApplication::notify(const WEvent& e)
 {
-  e.session()->notify(e);
+  session_->notify(e);
 }
 
 void WApplication::processEvents()
 {
   /* set timeout to allow other events to be interleaved */
-  session_->doRecursiveEventLoop
-    ("setTimeout(\"" + javaScriptClass_
-     + "._p_.update(null,'" + javaScriptResponse_->encodeCmd()
-     + "',null,false);\",0);");
-}
+  doJavaScript("setTimeout(\"" + javaScriptClass_
+	       + "._p_.update(null,'none',null,false);\",0);");
 
-void WApplication::handleJavaScriptResponse(WResponseEvent event)
-{
-  session_->unlockRecursiveEventLoop();
+  session_->doRecursiveEventLoop();
 }
 
 bool WApplication::require(const std::string& uri, const std::string& symbol)

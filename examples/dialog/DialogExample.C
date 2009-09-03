@@ -149,6 +149,7 @@ void DialogExample::custom()
   edit.enterPressed().connect(SLOT(&dialog, WDialog::accept));
   ok.clicked().connect(SLOT(&dialog, WDialog::accept));
 
+
   if (dialog.exec() == WDialog::Accepted) {
     setStatus("Welcome, " + edit.text());
   }

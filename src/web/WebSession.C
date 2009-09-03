@@ -25,6 +25,12 @@
 
 #include <boost/algorithm/string.hpp>
 
+#ifdef WT_TARGET_JAVA
+#define RETHROW(e) throw e
+#else
+#define RETHROW(e) throw
+#endif
+
 namespace Wt {
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
@@ -49,7 +55,8 @@ WebSession::WebSession(WebController *controller,
     updatesPending_(false),
     embeddedEnv_(this),
     app_(0),
-    debug_(controller_->configuration().debug())
+    debug_(controller_->configuration().debug()),
+    recursiveEventLoop_(0)
 {
   env_ = env ? env : &embeddedEnv_;
 
@@ -338,7 +345,7 @@ bool WebSession::start()
     app_ = 0;
 
     kill();
-    throw e;
+    RETHROW(e);
   } catch (...) {
     app_ = 0;
 
@@ -382,9 +389,9 @@ void WebSession::kill()
   /*
    * Unlock the recursive eventloop that may be pending.
    */
-#ifdef WT_THREADED
-  recursiveEventDone_.notify_all();
-#endif // WT_THREADED
+#ifndef WT_TARGET_JAVA
+  unlockRecursiveEventLoop();
+#endif
 
   if (handlers_.empty()) {
     // we may delete because the session has already been removed
@@ -433,7 +440,7 @@ std::string WebSession::getRedirect()
   return result;
 }
 
-WebSession::Handler::Handler(WebSession& session, bool locked)
+WebSession::Handler::Handler(WebSession& session, bool takeLock)
   : 
 #ifdef WT_THREADED
     lock_(session.mutex_, boost::defer_lock),
@@ -442,13 +449,11 @@ WebSession::Handler::Handler(WebSession& session, bool locked)
     session_(session),
     request_(0),
     response_(0),
-    eventLoop_(false),
     killed_(false)
 {
 #ifdef WT_THREADED
-  if (locked) {
+  if (takeLock)
     lock_.lock();
-  }
 #endif
 
   init();
@@ -464,7 +469,6 @@ WebSession::Handler::Handler(WebSession& session,
     session_(session),
     request_(&request),
     response_(&response),
-    eventLoop_(false),
     killed_(false)
 {
   init();
@@ -489,7 +493,10 @@ void WebSession::Handler::init()
   threadHandler_.reset(this);
 #else
 #ifdef WT_THREADED
-  session_.handlers_.push_back(this);
+
+  if (request_)
+    session_.handlers_.push_back(this);
+
   prevHandler_ = threadHandler_.release();
   threadHandler_.reset(this);
 #else
@@ -545,16 +552,11 @@ void WebSession::Handler::killSession()
   session_.state_ = Dead;
 }
 
-void WebSession::Handler::swapRequest(WebRequest *request,
+void WebSession::Handler::setRequest(WebRequest *request,
 				      WebResponse *response)
 {
   request_ = request;
   response_ = response;
-}
-
-void WebSession::Handler::setEventLoop(bool how)
-{
-  eventLoop_ = how;
 }
 
 bool WebSession::Handler::sessionDead()
@@ -632,90 +634,71 @@ WObject *WebSession::emitStackTop()
     return 0;
 }
 
-void WebSession::doRecursiveEventLoop(const std::string& javascript)
+void WebSession::doRecursiveEventLoop()
 {
 #ifndef WT_THREADED
   log("error") << "Cannot do recursive event loop without threads";
 #else // WT_THREADED
+  
   /*
-   * Locate the handler, and steal its pending response.
+   * Finish the request that is being handled
    */
-  Handler *handler = findEventloopHandler(0);
-
-  if (handler == 0)
-    throw WtException("doRecursiveEventLoop(): inconsistent state");
-
-  if (handler->response()) {
-    /*
-     * Finish the request.
-     */
+  Handler *handler = WebSession::Handler::instance();
+  if (handler->response())
     handler->session()->render(*handler, app_->environment().ajax()
 			       ? WebRenderer::Update : WebRenderer::Page);
-    if (app_->environment().ajax())
-      handler->response()->out() << javascript;
 
-    handler->response()->flush(WebResponse::ResponseDone);
+  /*
+   * Register that we are doing a recursive event loop, this is used in
+   * handleRequest() to let the recursive event loop do the actual
+   * notification.
+   */
+  recursiveEventLoop_ = handler;
 
-    /*
-     * Remove the request from the handler.
-     */
-    handler->swapRequest(0, 0);
+  /*
+   * Release session mutex lock, wait for recursive event, and retake
+   * the session mutex lock.
+   */
+  recursiveEvent_.wait(handler->lock());
+
+  if (state_ == Dead) {
+    recursiveEventLoop_ = 0;
+    throw WtException("doRecursiveEventLoop(): session was killed");
   }
 
   /*
-   * Release session mutex lock, wait for recursive event response,
-   * and retake the session mutex lock.
+   * We use recursiveEventLoop_ != null to postpone rendering: we only want
+   * the event handling part.
    */
-  recursiveEventDone_.wait(handler->lock());
-
-  if (state_ == Dead)
-    throw WtException("doRecursiveEventLoop(): session was killed");
-  
+  app_->notify(WEvent(*handler, app_->environment().ajax() 
+		      ? WebRenderer::Update : WebRenderer::Page));
+  recursiveEventLoop_ = 0;
 #endif // WT_THREADED
 }
 
-void WebSession::unlockRecursiveEventLoop()
-{
 #ifndef WT_TARGET_JAVA
+bool WebSession::unlockRecursiveEventLoop()
+{
+  if (!recursiveEventLoop_)
+    return false;
+
   /*
    * Locate both the current and previous event loop handler.
    */
-  Handler *handler = findEventloopHandler(0);
-  Handler *handlerPrevious = findEventloopHandler(1);
-
+  Handler *handler = WebSession::Handler::instance();
+ 
   // handlerPrevious can be 0 if the event loop was already unlocked by
   // another event while doing WApplication::processEvents()
-  if (handlerPrevious) {
-    handlerPrevious->swapRequest(handler->request(), handler->response());
-    handler->swapRequest(0, 0);
+  recursiveEventLoop_->setRequest(handler->request(), handler->response());
+  handler->setRequest(0, 0);
 
 #ifdef WT_THREADED
-    recursiveEventDone_.notify_one();
-#endif // WT_THREADED
-  }
-
-#endif // WT_TARGET_JAVA
-}
-
-WebSession::Handler *WebSession::findEventloopHandler(int index)
-{
-#ifndef WT_TARGET_JAVA
-#ifdef WT_THREADED
-  // see supra for why commented out
-  //assert(WebSession::Handler::instance()->lock().owns_lock());
+  recursiveEvent_.notify_one();
 #endif // WT_THREADED
 
-  for (int i = handlers_.size() - 1; i >= 0; --i) {
-    if (handlers_[i]->eventLoop())
-      if (index == 0)
-	return handlers_[i];
-      else
-	--index;
-  }
-#endif // WT_TARGET_JAVA
-
-  return 0;
+  return true;
 }
+#endif // WT_TARGET_JAVA
 
 bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 {
@@ -832,7 +815,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	      /*
 	       * Delay application start
 	       */
-	      renderer_.serveResponse(*handler.response(), WebRenderer::Page);
+	      serveResponse(handler, WebRenderer::Page);
 	      setState(Loaded, 10);
 	    }
 	    break; }
@@ -891,8 +874,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 		// This could be because the session Id was not as
 		// expected. At least, it should be correct now.
 		if (!conf.reloadIsNewSession() && wtdE && *wtdE == sessionId_) {
-		  renderer_.serveResponse(*handler.response(),
-					  WebRenderer::Page);
+		  serveResponse(handler, WebRenderer::Page);
 		  setState(Loaded, 10);
 		} else {
 		  handler.response()->setContentType("text/html");
@@ -907,7 +889,18 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    state_ = JustCreated;
 	  }
 
-	  app_->notify(WEvent(handler, responseType));
+#ifndef WT_TARGET_JAVA
+	  if (!unlockRecursiveEventLoop())
+#endif // WT_TARGET_JAVA
+	    {
+	      app_->notify(WEvent(handler, responseType));
+	      if (handler.response())
+		/*
+		 * This may be when an error was thrown during event
+		 * propagation: then we want to render the error message.
+		 */
+		app_->notify(WEvent(handler, responseType, true));
+	    }
 
 	  setLoaded();
 	  break;
@@ -915,6 +908,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	case Dead:
 	  throw WtException("Internal error: WebSession is dead?");
 	}
+
       } catch (WtException& e) {
 	log("fatal") << e.what();
 
@@ -923,7 +917,9 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 #endif // WT_TARGET_JAVA
 
 	handler.killSession();
-	renderer_.serveError(*handler.response(), e, responseType);
+
+	if (handler.response())
+	  serveError(handler, e.what(), responseType);
 
       } catch (std::exception& e) {
 	log("fatal") << e.what();
@@ -933,14 +929,16 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 #endif // WT_TARGET_JAVA
 
 	handler.killSession();
-	renderer_.serveError(*handler.response(), e, responseType);
+
+	if (handler.response())
+	  serveError(handler, e.what(), responseType);
       } catch (...) {
 	log("fatal") << "Unknown exception.";
 
 	handler.killSession();
-	renderer_.serveError(*handler.response(),
-			     std::string("Unknown exception"),
-			     responseType);
+
+	if (handler.response())
+	  serveError(handler, "Unknown exception", responseType);
       }
 
     if (handler.response())
@@ -972,7 +970,7 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
     } else
       url = baseUrl() + applicationName();
 
-    url += '#' + env_->internalPath();
+    url += '#' + (app_ ? app_->internalPath() : env_->internalPath());
     
     return url;
   } else
@@ -1028,6 +1026,15 @@ void WebSession::notify(const WEvent& event)
   WebRequest& request = *handler.request();
   WebResponse& response = *handler.response();
 
+  if (WebSession::Handler::instance() != &handler)
+    // We will want to set these right before doing anything !
+    WebSession::Handler::instance()->setRequest(&request, &response);
+
+  if (event.renderOnly) {
+    render(handler, event.responseType);
+    return;
+  }
+
   const std::string *requestE = request.getParameter("request");
 
   switch (state_) {
@@ -1040,7 +1047,7 @@ void WebSession::notify(const WEvent& event)
     }
 #endif // WT_WITH_OLD_INTERNALPATH_API
 
-    render(event.handler, event.responseType);
+    render(handler, event.responseType);
 
     break;
   case WebSession::Loaded:
@@ -1068,16 +1075,19 @@ void WebSession::notify(const WEvent& event)
 	  app_->changeInternalPath(env_->internalPath());
       }
 
-      render(event.handler, event.responseType);
+      render(handler, event.responseType);
     } else {
       // a normal request to a loaded application
       try {
 	if (request.postDataExceeded())
 	  app_->requestTooLarge().emit(request.postDataExceeded());
       } catch (std::exception& e) {
-	throw WtException("Exception in WApplication::requestTooLarge", e);
+	log("error") << "Exception in WApplication::requestTooLarge"
+		     << e.what();
+	RETHROW(e);
       } catch (...) {
-	throw WtException("Exception in WApplication::requestTooLarge");
+	log("error") << "Exception in WApplication::requestTooLarge";
+	throw;
       }
 
       const std::string *resourceE = request.getParameter("resource");
@@ -1098,15 +1108,17 @@ void WebSession::notify(const WEvent& event)
 	  if (resource) {
 	    try {
 	      resource->handle(&request, &response);
-	      handler.swapRequest(0, 0);
+	      handler.setRequest(0, 0);
 #ifdef WT_THREADED
 	      if (!handler.lock().owns_lock())
 		handler.lock().lock();
 #endif // WT_THREADED
 	    } catch (std::exception& e) {
-	      throw WtException("Exception while streaming resource", e);
+	      log("error") << "Exception while streaming resource" << e.what();
+	      RETHROW(e);
 	    } catch (...) {
-	      throw WtException("Exception while streaming resource");
+	      log("error") << "Exception while streaming resource";
+	      throw;
 	    }
 	  } else {
 	    // ???
@@ -1146,13 +1158,15 @@ void WebSession::notify(const WEvent& event)
 	    try {
 	      notifySignal(event);
 	    } catch (std::exception& e) {
-	      throw WtException("Error during event handling", e);
+	      log("error") << "Error during event handling: " << e.what();
+	      RETHROW(e);
 	    } catch (...) {
-	      throw WtException("Error during event handling");
+	      log("error") << "Error during event handling: ";
+	      throw;
 	    }
 	  } else if (*signalE == "poll" && !updatesPending_) {
 	    pollResponse_ = handler.response();
-	    handler.swapRequest(0, 0);
+	    handler.setRequest(0, 0);
 	  }
 	} else {
 	  log("notice") << "Refreshing session";
@@ -1178,34 +1192,70 @@ void WebSession::notify(const WEvent& event)
 	  }
 #endif // WT_TARGET_JAVA
 
-	  env_->parameters_ = event.handler.request()->getParameterMap();
+	  env_->parameters_ = handler.request()->getParameterMap();
 	  app_->refresh();
 	}
 
-	if (handler.response())
-	  render(event.handler, event.responseType);
+	if (handler.response() && !recursiveEventLoop_)
+	  render(handler, event.responseType);
       }
     }
   }
 }
 
-void WebSession::render(Handler& handler, WebRenderer::ResponseType type)
+void WebSession::render(Handler& handler,
+			WebRenderer::ResponseType responseType)
 {
-  if (!env_->doesAjax_)
-    try {
-      checkTimers();
-    } catch (std::exception& e) {
-      throw WtException("Exception while triggering timers", e);
-    } catch (...) {
-      throw WtException("Exception while triggering timers");
-    }
+  /*
+   * In any case, render() will flush the response, even if an error
+   * occurred. Since we are already rendering the response, we can no longer
+   * show a nice error message.
+   */
+  try {
+    if (!env_->doesAjax_)
+      try {
+	checkTimers();
+      } catch (std::exception& e) {
+	log("error") << "Exception while triggering timers" << e.what();
+	RETHROW(e);
+      } catch (...) {
+	log("error") << "Exception while triggering timers";
+	throw;
+      }
 
-  if (app_->isQuited())
-    handler.killSession();
+    if (app_->isQuited())
+      handler.killSession();
 
-  renderer_.serveResponse(*handler.response(), type);
+    serveResponse(handler, responseType);
+  } catch (std::exception& e) {
+    handler.response()->flush();
+    handler.setRequest(0, 0);
+
+    RETHROW(e);
+  } catch (...) {
+    handler.response()->flush();
+    handler.setRequest(0, 0);
+
+    throw;
+  }
 
   updatesPending_ = false;
+}
+
+void WebSession::serveError(Handler& handler, const std::string& e,
+			    WebRenderer::ResponseType responseType)
+{
+  renderer_.serveError(*handler.response(), e, responseType);
+  handler.response()->flush();
+  handler.setRequest(0, 0);
+}
+
+void WebSession::serveResponse(Handler& handler,
+			       WebRenderer::ResponseType responseType)
+{
+  renderer_.serveResponse(*handler.response(), responseType);
+  handler.response()->flush();
+  handler.setRequest(0, 0);
 }
 
 void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
@@ -1269,8 +1319,6 @@ void WebSession::notifySignal(const WEvent& e)
       renderer_.setVisibleOnly(false);
     } else {
       if (*signalE != "res") {
-	handler.setEventLoop(true);
-
 	for (unsigned k = 0; k < 3; ++k) {
 	  SignalKind kind = (SignalKind)k;
 

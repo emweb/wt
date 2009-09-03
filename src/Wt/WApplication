@@ -1097,15 +1097,20 @@ protected:
    *
    * This method is called by the event loop for propagating an event
    * to the application. It provides a single point of entry for
-   * events to the application.
+   * events to the application, besides the application constructor.
    *
    * You may want to reimplement this method for two reasons:
-   * - for having a single point for exception handling (you may want to catch
-   *   specialized exceptions at specific points, but general (fatal)
-   *   exceptions may be caught here.
+   *
+   * - for having a single point for exception handling: while you may want
+   *   to catch recoverable exceptions in a more appropriate place, general
+   *   (usually fatal) exceptions may be caught here. You will in probably
+   *   also want to catch the same exceptions in the application constructor
+   *   in the same way.
    * - you want to manage resource usage during requests. For example, at
    *   the end of request handling, you want to return a database session
-   *   back to the pool.
+   *   back to the pool. Since notify() is also used for rendering right after
+   *   the application is created, this will also clean up resources after
+   *   application construction.
    *
    * In either case, you will need to call the base class
    * implementation WApplication::notify(), as otherwise no events
@@ -1159,8 +1164,6 @@ protected:
    * \sa WWidget::enableAjax()
    */
   virtual void enableAjax();
-
-  void exposeOnly(WWidget *w);
 
 private:
   Signal<int> requestTooLarge_;
@@ -1234,7 +1237,6 @@ private:
     newBeforeLoadJavaScript_, autoJavaScript_;
   bool autoJavaScriptChanged_;
 
-  EventSignal<WResponseEvent> *javaScriptResponse_;
   EventSignal<> *showLoadingIndicator_, *hideLoadingIndicator_;
 
   WContainerWidget *timerRoot() const { return timerRoot_; }
@@ -1282,6 +1284,9 @@ private:
    */
   void setExposeSignals(bool how) { exposeSignals_ = how; }
   bool exposeSignals() const { return exposeSignals_; }
+
+  void constrainExposed(WWidget *w);
+  WWidget *exposeConstraint() const { return exposedOnly_; }
 
   static bool pathMatches(const std::string& path, const std::string& query);
 

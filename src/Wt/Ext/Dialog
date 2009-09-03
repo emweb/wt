@@ -227,7 +227,14 @@ protected:
   class Bla { };
 
   Dialog(Bla);
+
+  void setExposeMask(WApplication *app);
+  void restoreExposeMask(WApplication *app);
+
   bool hidden_;
+
+private:
+  WWidget *previousExposeConstraint_;
 };
 
   }

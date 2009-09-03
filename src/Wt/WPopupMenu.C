@@ -104,15 +104,9 @@ void WPopupMenu::done(WPopupMenuItem *result)
   WApplication::instance()->root()->clicked().senderRepaint();
   WApplication::instance()->root()->escapePressed().senderRepaint();
 
-  bool recursive = recursiveEventLoop_;
   recursiveEventLoop_ = false;
 
   aboutToHide_.emit();
-
-  if (recursive) {
-    WebSession *session = WApplication::instance()->session();
-    session->unlockRecursiveEventLoop();
-  }
 }
 
 void WPopupMenu::done()
@@ -180,8 +174,10 @@ WPopupMenuItem *WPopupMenu::exec(const WPoint& p)
   recursiveEventLoop_ = true;
 
   popup(p);
-  session->doRecursiveEventLoop(std::string());
-
+  do {
+    session->doRecursiveEventLoop();
+  } while (recursiveEventLoop_);
+ 
   return result_;
 }
 

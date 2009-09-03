@@ -95,11 +95,13 @@ Dialog::DialogCode Dialog::exec()
   if (recursiveEventLoop_)
     throw WtException("Dialog::exec(): already in recursive event loop.");
 
-  WebSession *session = WApplication::instance()->session();
-  recursiveEventLoop_ = true;
-
   show();
-  session->doRecursiveEventLoop(std::string());
+
+  recursiveEventLoop_ = true;
+  do {
+    WApplication::instance()->session()->doRecursiveEventLoop();
+  } while (recursiveEventLoop_);
+
   hide();
 
   return result_;
@@ -109,9 +111,7 @@ void Dialog::done(DialogCode result)
 {
   result_ = result;
   if (recursiveEventLoop_) {
-    WebSession *session = WApplication::instance()->session();
     recursiveEventLoop_ = false;
-    session->unlockRecursiveEventLoop();
   } else
     hide();
 
@@ -132,24 +132,40 @@ void Dialog::wasHidden()
 {
   // hidden through the 'close' button in the right upper corner
   hidden_ = true;
-  WApplication::instance()->exposeOnly(0);
+
+  WApplication::instance()->constrainExposed(previousExposeConstraint_);
 
   reject();
 }
 
 void Dialog::setHidden(bool hidden)
 {
-  if (hidden != hidden_) {
+  if (hidden_ != hidden) {
     hidden_ = hidden;
 
     Panel::setHidden(hidden);
+
     WApplication *app = WApplication::instance();
     if (!app->environment().agentIsIE() && !hidden_)
       app->doJavaScript
 	(WT_CLASS ".getElement('" + elVar() + "').style.position='fixed';");
 
-    app->exposeOnly(hidden ? 0 : this);
+    if (!hidden)
+      setExposeMask(app);
+    else
+      restoreExposeMask(app);
   }
+}
+
+void Dialog::setExposeMask(WApplication *app)
+{
+  previousExposeConstraint_ = app->exposeConstraint();
+  app->constrainExposed(this);
+}
+
+void Dialog::restoreExposeMask(WApplication *app)
+{
+  app->constrainExposed(previousExposeConstraint_);
 }
 
 std::string Dialog::extClassName() const

@@ -406,7 +406,8 @@ windowSize: function() {
 },
 
 fitToWindow: function(e, x, y, rightx, bottomy) {
-  var ws = _$_WT_CLASS_$_.windowSize();
+  var WT = _$_WT_CLASS_$_;
+  var ws = WT.windowSize();
 
   var wx = document.body.scrollLeft + document.documentElement.scrollLeft;
   var wy = document.body.scrollTop + document.documentElement.scrollTop;
@@ -424,8 +425,10 @@ fitToWindow: function(e, x, y, rightx, bottomy) {
   if (y < wy)
     y = wy + ws.y - e.offsetHeight - 3;
 
-  e.style.left = x + 'px';
-  e.style.top = y + 'px';  
+  var ow = WT.widgetPageCoordinates(e.offsetParent);
+
+  e.style.left = (x - ow.x) + 'px';
+  e.style.top = (y - ow.y) + 'px';
 },
 
 positionXY: function(id, x, y) {

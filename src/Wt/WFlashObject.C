@@ -24,7 +24,7 @@ WFlashObject::WFlashObject(const std::string& url,
 
 WFlashObject::~WFlashObject()
 {
-  wApp->doJavaScript("swfobject.removeSWF(flash" + id() + ");");
+  wApp->doJavaScript("if (swfobject) {swfobject.removeSWF(flash" + id() + "); }");
 
 }
 
@@ -74,7 +74,7 @@ DomElement *WFlashObject::createDomElement(WApplication *app)
   if (styleClass() != "") {
     attributes = "{ styleclass: " + jsStringLiteral(styleClass()) + " }";
   }
-  wApp->doJavaScript("swfobject.embedSWF(\"" + url_ + "\", \"" +
+  wApp->doJavaScript("if (swfobject) {swfobject.embedSWF(\"" + url_ + "\", \"" +
       "flash" + id() + "\", \"" +
       boost::lexical_cast<std::string>((int)width().toPixels()) + "\", \"" +
       boost::lexical_cast<std::string>((int)height().toPixels()) +
@@ -82,7 +82,7 @@ DomElement *WFlashObject::createDomElement(WApplication *app)
       "false, " + //expressinstall
       flashvars + ", " +
       params + ", " +
-      attributes + ");");
+      attributes + ");}");
   isRendered_ = true;
   return result;
 }

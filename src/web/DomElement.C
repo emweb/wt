@@ -926,6 +926,7 @@ bool DomElement::canWriteInnerHTML(WApplication *app) const
   return true;
 }
 
+#if 0
 bool DomElement::containsElement(DomElementType type) const
 {
   for (unsigned i = 0; i < childrenToAdd_.size(); ++i) {
@@ -937,6 +938,7 @@ bool DomElement::containsElement(DomElementType type) const
 
   return false;
 }
+#endif
 
 void DomElement::asJavaScript(std::ostream& out)
 {

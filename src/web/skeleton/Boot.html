@@ -16,18 +16,34 @@ v\:* { behavior: url(#default#VML);position:absolute }
 <script type="text/javascript">
 /*<![CDATA[*/
 
+function loadScript(url, callback) {
+  var s = document.createElement('script');
+
+  if (callback) {
+    if (s.readyState) {
+      s.onreadystatechange = function() {
+        if (s.readyState == "loaded" || s.readyState == "complete") {
+          s.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else {
+      s.onload = function() {
+        callback();
+      };
+    }
+  }
+
+  s.setAttribute('src', url);
+  var h = document.getElementsByTagName('head')[0];
+  h.appendChild(s);
+}
+
 (function() {
 
 try {
   document.execCommand("BackgroundImageCache", false, true);
 } catch (err) { }
-
-function loadScript(uri) {
-  var s = document.createElement('script');
-  s.setAttribute('src', uri);
-  var h = document.getElementsByTagName('head')[0];
-  h.appendChild(s);
-}
 
 function rand() {
   return Math.round(Math.random()*1000000) + _$_RANDOMSEED_$_;
@@ -112,7 +128,7 @@ if (needSessionInUrl) {
     if (hash.length > 1 && hash.charAt(0) == '/')
       selfUrl += '&_=' + encodeURIComponent(hash);
 
-    loadScript(selfUrl + scaleInfo + '&request=script&rand=' + rand());
+    loadScript(selfUrl + scaleInfo + '&request=script&rand=' + rand(), null);
   }
 }
 

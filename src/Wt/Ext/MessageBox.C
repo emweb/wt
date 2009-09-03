@@ -117,8 +117,12 @@ void MessageBox::setHidden(bool hidden)
     hidden_ = hidden;
 
     WApplication *app = WApplication::instance();
-    app->exposeOnly(hidden ? 0 : this);
 
+    if (!hidden)
+      setExposeMask(app);
+    else
+      restoreExposeMask(app);
+ 
     if (hidden)
       app->doJavaScript(elRef() + ".hide();");
     else {
@@ -246,7 +250,7 @@ StandardButton MessageBox::prompt(const WString& caption,
 void MessageBox::onClick(std::string buttonId, std::string value)
 {
   hidden_ = true;
-  WApplication::instance()->exposeOnly(0);
+  restoreExposeMask(WApplication::instance());
 
   StandardButton b = NoButton;
 

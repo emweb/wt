@@ -76,18 +76,11 @@ public:
   bool handleRequest(WebRequest& request, WebResponse& response);
   void pushUpdates();
 
-  /*
-   * Start a recursive event loop: finishes the request, rendering
-   * everything, and suspending the thread until someone calls
-   * unlockRecursiveEventLoop();
-   */
-  void doRecursiveEventLoop(const std::string& javascript);
+  void doRecursiveEventLoop();
 
-  /*
-   * Immediately returns, but lets the last pending recursive event loop
-   * resume and finish the current request, by swapping the request.
-   */
-  void unlockRecursiveEventLoop();
+#ifndef WT_TARGET_JAVA
+  bool unlockRecursiveEventLoop();
+#endif // WT_TARGET_JAVA
 
   void pushEmitStack(WObject *obj);
   void popEmitStack();
@@ -151,7 +144,7 @@ public:
   class Handler {
   public:
     Handler(WebSession& session, WebRequest& request, WebResponse& response);
-    Handler(WebSession& session, bool locked = true);
+    Handler(WebSession& session, bool takeLock);
     ~Handler();
 
     static Handler *instance();
@@ -164,14 +157,11 @@ public:
   private:
     void init();
 
-    void setEventLoop(bool how);
-
     static void attachThreadToSession(WebSession& session);
 
     bool sessionDead(); // killed or quited()
-    bool eventLoop() const { return eventLoop_; }
 
-    void swapRequest(WebRequest *request, WebResponse *response);
+    void setRequest(WebRequest *request, WebResponse *response);
 
 #ifdef WT_THREADED
     boost::mutex::scoped_lock& lock() { return lock_; }
@@ -185,7 +175,6 @@ public:
     WebSession&  session_;
     WebRequest  *request_;
     WebResponse *response_;
-    bool         eventLoop_;
     bool         killed_;
 
     friend class WApplication;
@@ -234,7 +223,7 @@ private:
 #ifndef WT_TARGET_JAVA
   Time             expire_;
 #ifdef WT_THREADED
-  boost::condition recursiveEventDone_;
+  boost::condition recursiveEvent_;
 #endif // WT_THREADED
 #endif // WT_TARGET_JAVA
 
@@ -246,7 +235,7 @@ private:
   std::vector<Handler *> handlers_;
   std::vector<WObject *> emitStack_;
 
-  Handler *findEventloopHandler(int index);
+  Handler *recursiveEventLoop_;
 
   WResource *decodeResource(const std::string& resourceId);
   EventSignalBase *decodeSignal(const std::string& signalId);
@@ -256,7 +245,10 @@ private:
   static WObject::FormData getFormData(const WebRequest& request,
 				       const std::string& name);
 
-  void render(Handler& handler, WebRenderer::ResponseType type);
+  void render(Handler& handler, WebRenderer::ResponseType responseType);
+  void serveError(Handler& handler, const std::string& exception,
+		  WebRenderer::ResponseType responseType);
+  void serveResponse(Handler& handler, WebRenderer::ResponseType responseType);
 
   enum SignalKind { LearnedStateless = 0, AutoLearnStateless = 1,
 		    Dynamic = 2 };
@@ -286,18 +278,25 @@ private:
  * using WApplication::notify().
  */
 class WT_API WEvent {
-public:
+private:
+  WEvent(WebSession::Handler& aHandler,
+	 WebRenderer::ResponseType aResponseType,
+	 bool doRenderOnly)
+    : handler(aHandler),
+      responseType(aResponseType),
+      renderOnly(doRenderOnly)
+  { }
+
   WEvent(WebSession::Handler& aHandler,
 	 WebRenderer::ResponseType aResponseType)
     : handler(aHandler),
-      responseType(aResponseType)
-   { }
+      responseType(aResponseType),
+      renderOnly(false)
+  { }
 
-  WebSession *session() const { return handler.session(); }
-
-private:
   WebSession::Handler& handler;
   WebRenderer::ResponseType responseType;
+  bool renderOnly;
 
   friend class WebSession;
 };

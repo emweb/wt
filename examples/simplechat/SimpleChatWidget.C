@@ -230,11 +230,6 @@ void SimpleChatWidget::updateUsers()
 
 void SimpleChatWidget::processChatEvent(const ChatEvent& event)
 {
-  /* If this message belongs to another user, play a received sound */
-  if (event.user() != user_) {
-    messageReceived_.play();
-  }
-
   /*
    * This is where the "server-push" happens. This method is called
    * when a new event or message needs to be notified to the user. In
@@ -276,6 +271,10 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
    */
   app_->doJavaScript(messages_->jsRef() + ".scrollTop += "
 		     + messages_->jsRef() + ".scrollHeight;");
+
+  /* If this message belongs to another user, play a received sound */
+  if (event.user() != user_)
+    messageReceived_.play();
 
   app_->triggerUpdate();
 }
