@@ -27,7 +27,7 @@ using namespace Wt;
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<24> WWebWidget::AllChangeFlags = std::bitset<24>()
+const std::bitset<27> WWebWidget::AllChangeFlags = std::bitset<27>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -36,7 +36,8 @@ const std::bitset<24> WWebWidget::AllChangeFlags = std::bitset<24>()
   .set(BIT_STYLECLASS_CHANGED)
   .set(BIT_SELECTABLE_CHANGED)
   .set(BIT_WIDTH_CHANGED)
-  .set(BIT_HEIGHT_CHANGED);
+  .set(BIT_HEIGHT_CHANGED)
+  .set(BIT_DISABLED_CHANGED);
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
@@ -719,16 +720,25 @@ WString WWebWidget::toolTip() const
     : WString();
 }
 
+void WWebWidget::setHiddenKeepsGeometry(bool enabled)
+{
+  flags_.set(BIT_DONOT_STUB);
+  flags_.set(BIT_HIDE_WITH_VISIBILITY, enabled);
+  flags_.set(BIT_HIDDEN_CHANGED);
+}
+
+bool WWebWidget::hiddenKeepsGeometry() const
+{
+  return flags_.test(BIT_HIDE_WITH_VISIBILITY)
+    && !flags_.test(BIT_HIDE_WITH_OFFSETS);
+}
+
 void WWebWidget::setHidden(bool hidden)
 {
   if (canOptimizeUpdates() && (hidden == isHidden()))
     return;
 
-  if (hidden)
-    flags_.set(BIT_HIDDEN);
-  else
-    flags_.reset(BIT_HIDDEN);
-
+  flags_.set(BIT_HIDDEN, hidden);
   flags_.set(BIT_HIDDEN_CHANGED);
 
   WApplication::instance()
@@ -740,6 +750,59 @@ void WWebWidget::setHidden(bool hidden)
 bool WWebWidget::isHidden() const
 {
   return flags_.test(BIT_HIDDEN);
+}
+
+bool WWebWidget::isVisible() const
+{
+  if (flags_.test(BIT_STUBBED) || flags_.test(BIT_HIDDEN))
+    return false;
+  else
+    if (parent())
+      return parent()->isVisible();
+    else
+      return true;
+}
+
+void WWebWidget::setDisabled(bool disabled)
+{
+  if (canOptimizeUpdates() && (disabled == isDisabled()))
+    return;
+
+  flags_.set(BIT_DISABLED, disabled);
+  flags_.set(BIT_DISABLED_CHANGED);
+
+  propagateSetEnabled(!disabled);
+
+  WApplication::instance()
+    ->session()->renderer().updateFormObjects(this, true);
+
+  repaint(RepaintPropertyAttribute);
+}
+
+void WWebWidget::propagateSetEnabled(bool enabled)
+{
+  if (children_)
+    for (unsigned i = 0; i < children_->size(); ++i) {
+      WWidget *c = (*children_)[i];
+      if (!c->isDisabled())
+	c->webWidget()->propagateSetEnabled(enabled);
+    }
+}
+
+bool WWebWidget::isDisabled() const
+{
+  return flags_.test(BIT_DISABLED);
+}
+
+bool WWebWidget::isEnabled() const
+{
+  if (flags_.test(BIT_DISABLED))
+    return false;
+  else
+    if (parent())
+      return parent()->isEnabled();
+    else
+      return true;
 }
 
 void WWebWidget::addChild(WWidget *child)
@@ -776,6 +839,7 @@ void WWebWidget::setHideWithOffsets(bool how)
 {
   if (how) {
     if (!flags_.test(BIT_HIDE_WITH_OFFSETS)) {
+      flags_.set(BIT_HIDE_WITH_VISIBILITY);
       flags_.set(BIT_HIDE_WITH_OFFSETS);
 
       resetLearnedSlot(&WWidget::show);
@@ -793,10 +857,10 @@ void WWebWidget::updateDom(DomElement& element, bool all)
    * determine display
    */
   if (flags_.test(BIT_GEOMETRY_CHANGED)
-      || (!flags_.test(BIT_HIDE_WITH_OFFSETS)
+      || (!flags_.test(BIT_HIDE_WITH_VISIBILITY)
 	  && flags_.test(BIT_HIDDEN_CHANGED))
       || all) {
-    if (flags_.test(BIT_HIDE_WITH_OFFSETS) || !flags_.test(BIT_HIDDEN)) {
+    if (flags_.test(BIT_HIDE_WITH_VISIBILITY) || !flags_.test(BIT_HIDDEN)) {
       if (element.isDefaultInline() != flags_.test(BIT_INLINE)) {
 	if (flags_.test(BIT_INLINE)) {
 	  if (element.type() == DomElement_TABLE)
@@ -817,7 +881,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     } else
       element.setProperty(PropertyStyleDisplay, "none");
 
-    if (!flags_.test(BIT_HIDE_WITH_OFFSETS))
+    if (!flags_.test(BIT_HIDE_WITH_VISIBILITY))
       flags_.reset(BIT_HIDDEN_CHANGED);
   }
 
@@ -1067,37 +1131,42 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     otherImpl_->attributesSet_ = 0;
   }
 
-  if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
+  if (flags_.test(BIT_HIDE_WITH_VISIBILITY)) {
     if (flags_.test(BIT_HIDDEN_CHANGED)
 	|| (all && flags_.test(BIT_HIDDEN))) {
 
       if (flags_.test(BIT_HIDDEN)) {
-	element.setProperty(PropertyStylePosition, "absolute");
-	element.setProperty(PropertyStyleLeft, "-10000px");
-	element.setProperty(PropertyStyleTop, "-10000px");
 	element.setProperty(PropertyStyleVisibility, "hidden");
+	if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
+	  element.setProperty(PropertyStylePosition, "absolute");
+	  element.setProperty(PropertyStyleTop, "-10000px");
+	  element.setProperty(PropertyStyleLeft, "-10000px");
+	}
       } else {
-	if (layoutImpl_) {
-	  switch (layoutImpl_->positionScheme_) {
-	  case Static:
-	    element.setProperty(PropertyStylePosition, "static"); break;
-	  case Relative:
-	    element.setProperty(PropertyStylePosition, "relative"); break;
-	  case Absolute:
-	    element.setProperty(PropertyStylePosition, "absolute"); break;
-	  case Fixed:
-	    element.setProperty(PropertyStylePosition, "fixed"); break;
+	if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
+	  if (layoutImpl_) {
+	    switch (layoutImpl_->positionScheme_) {
+	    case Static:
+	      element.setProperty(PropertyStylePosition, "static"); break;
+	    case Relative:
+	      element.setProperty(PropertyStylePosition, "relative"); break;
+	    case Absolute:
+	      element.setProperty(PropertyStylePosition, "absolute"); break;
+	    case Fixed:
+	      element.setProperty(PropertyStylePosition, "fixed"); break;
+	    }
+	    element.setProperty(PropertyStyleTop,
+				layoutImpl_->offsets_[0].cssText());
+	    element.setProperty(PropertyStyleLeft,
+				layoutImpl_->offsets_[3].cssText());
+	  } else {
+	    element.setProperty(PropertyStylePosition, "static");
 	  }
-	  element.setProperty(PropertyStyleTop,
-			      layoutImpl_->offsets_[0].cssText());
-	  element.setProperty(PropertyStyleLeft,
-			      layoutImpl_->offsets_[3].cssText());
-	} else {
-	  element.setProperty(PropertyStylePosition, "static");
+
+	  element.setProperty(PropertyStyleTop, "0px");
+	  element.setProperty(PropertyStyleLeft, "0px");
 	}
 	element.setProperty(PropertyStyleVisibility, "visible");
-	element.setProperty(PropertyStyleTop, "0px");
-	element.setProperty(PropertyStyleLeft, "0px");
 	element.setProperty(PropertyStyleDisplay, ""); // XXX
       }
 
@@ -1130,17 +1199,6 @@ bool WWebWidget::needsToBeRendered() const
   return flags_.test(BIT_DONOT_STUB)
     || !flags_.test(BIT_HIDDEN)
     || !WApplication::instance()->session()->renderer().visibleOnly();
-}
-
-bool WWebWidget::isVisible() const
-{
-  if (flags_.test(BIT_STUBBED) || flags_.test(BIT_HIDDEN))
-    return false;
-  else
-    if (parent())
-      return parent()->isVisible();
-    else
-      return true;
 }
 
 void WWebWidget::getSFormObjects(FormObjectsMap& result)
@@ -1255,6 +1313,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_SELECTABLE_CHANGED);
   flags_.reset(BIT_WIDTH_CHANGED);
   flags_.reset(BIT_HEIGHT_CHANGED);
+  flags_.reset(BIT_DISABLED_CHANGED);
 #endif
 
   renderOk();

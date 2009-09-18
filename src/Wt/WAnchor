@@ -154,7 +154,7 @@ public:
    * internal path is returned. Otherwise, the URL is returned that
    * was set using setRef().
    *
-   * \sa setRef(), WResource::generateUrl()
+   * \sa setRef(), WResource::url()
    */
   const std::string& ref() const { return ref_; }
 

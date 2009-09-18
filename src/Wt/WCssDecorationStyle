@@ -49,6 +49,9 @@ class WWebWidget;
  * \ingroup style
  */
 class WT_API WCssDecorationStyle
+#ifdef WT_TARGET_JAVA
+  : WObject
+#endif
 {
 public:
   /*! \brief How a background image must be repeated.
@@ -106,8 +109,21 @@ public:
    *
    * The image may be placed in a particular location by specifying
    * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
+   *
+   * \sa setBackgroundImage()
    */
   void setBackgroundImage(const std::string& imageHRef,
+			  Repeat repeat = RepeatXY,
+			  WFlags<Side> sides = 0);
+
+  /*! \brief Set a background image URL.
+   *
+   * The image may be placed in a particular location by specifying
+   * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
+   *
+   * \sa setBackgroundImage()
+   */
+  void setBackgroundImage(WResource *resource,
 			  Repeat repeat = RepeatXY,
 			  WFlags<Side> sides = 0);
 
@@ -170,6 +186,7 @@ private:
   WColor                    backgroundColor_;
   WColor	            foregroundColor_;
   std::string	            backgroundImage_;
+  WResource                *backgroundImageResource_;
   Repeat	            backgroundImageRepeat_;
   WFlags<Side>              backgroundImageLocation_;
   WFont		            font_;
@@ -185,6 +202,7 @@ private:
   bool                      textDecorationChanged_;
 
   void changed();
+  void backgroundImageResourceChanged();
 
   void setWebWidget(WWebWidget *widget);
   friend class WWebWidget;

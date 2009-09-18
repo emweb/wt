@@ -33,7 +33,7 @@ public:
   void setNotLearned();
   void setJavaScript(const std::string& javaScript);
 
-  void addConnection(EventSignalBase *);
+  bool addConnection(EventSignalBase *);
   void removeConnection(EventSignalBase *);	
 
   const std::string& javaScript() const { return jscript_; }

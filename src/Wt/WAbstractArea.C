@@ -172,7 +172,7 @@ void WAbstractArea::setResource(WResource *resource)
   anchor_->resource_->dataChanged().connect(SLOT(this,
 					       WAbstractArea::resourceChanged));
 
-  setRef(resource->generateUrl());
+  setRef(resource->url());
 }
 
 WResource *WAbstractArea::resource() const
@@ -263,7 +263,7 @@ void WAbstractArea::createAnchorImpl()
 
 void WAbstractArea::resourceChanged()
 {
-  setRef(anchor_->resource_->generateUrl());
+  setRef(anchor_->resource_->url());
 }
 
 void WAbstractArea::repaint()

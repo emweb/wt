@@ -59,10 +59,6 @@ public:
    */
   virtual void setHidden(bool hidden);
 
-  /*! \brief Return whether the widget is enabled.
-   */
-  bool isEnabled() const;
-
   /*! \brief Set a validator for this field.
    *
    * The validator is used to validate the current input.
@@ -85,23 +81,13 @@ public:
    */
   virtual WValidator::State validate();
 
-  /*! \brief Change the enabled state of the widget.
+  /*! \brief Sets whether the widget is enabled.
    *
    * A widget that is disabled cannot receive focus or user interaction.
+   *
+   * This is the opposite of setDisabled().
    */
   void setEnabled(bool enabled);
-
-  /*! \brief Enable the widget.
-   *
-   * \sa setEnabled(bool)
-   */
-  void enable();
-
-  /*! \brief Disable the widget.
-   *
-   * \sa setEnabled(bool)
-   */
-  void disable();
 
   /*! \brief Give focus to this widget.
    *
@@ -155,18 +141,14 @@ private:
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
-  static const int BIT_ENABLED          = 0;
-  static const int BIT_ENABLED_CHANGED  = 1;
-  static const int BIT_WAS_ENABLED      = 2;
-  static const int BIT_GOT_FOCUS        = 3;
-  static const int BIT_INITIAL_FOCUS    = 4;
-  static const int BIT_READONLY         = 5;
-  static const int BIT_READONLY_CHANGED = 6;
+  static const int BIT_ENABLED_CHANGED  = 0;
+  static const int BIT_GOT_FOCUS        = 1;
+  static const int BIT_INITIAL_FOCUS    = 2;
+  static const int BIT_READONLY         = 3;
+  static const int BIT_READONLY_CHANGED = 4;
 
-  std::bitset<7> flags_;
+  std::bitset<5> flags_;
 
-  void undoEnable();
-  void undoDisable();
   void undoSetFocus();
 
   void setLabel(WLabel *label);
@@ -178,10 +160,13 @@ protected:
   virtual void propagateRenderOk(bool deep);
   virtual WStatelessSlot *getStateless(Method method);
 
+  virtual void propagateSetEnabled(bool enabled);
+
   virtual std::string formName() const;
 
   friend class WLabel;
   friend class WValidator;
+  friend class WebSession;
 };
 
 }

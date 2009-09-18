@@ -29,6 +29,7 @@ WResource::WResource(WObject* parent)
     dataChanged_(this),
     beingDeleted_(false)
 { 
+  generateUrl();
 #ifdef WT_THREADED
   mutex_.reset(new boost::recursive_mutex());
 #endif // WT_THREADED
@@ -115,11 +116,23 @@ void WResource::suggestFileName(const std::string& name)
   suggestedFileName_ = name;
 }
 
-const std::string WResource::generateUrl() const
+void WResource::setChanged()
+{
+  generateUrl();
+  dataChanged_.emit();
+}
+
+const std::string &WResource::url() const
+{
+  return currentUrl_;
+}
+
+const std::string &WResource::generateUrl()
 {
   WApplication *app = WApplication::instance();
 
-  return app->addExposedResource(const_cast<WResource *>(this));
+  currentUrl_ = app->addExposedResource(const_cast<WResource *>(this));
+  return currentUrl_;
 }
 
 void WResource::write(WT_BOSTREAM& out,

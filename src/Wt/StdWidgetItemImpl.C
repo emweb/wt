@@ -38,12 +38,6 @@ void StdWidgetItemImpl::containerAddWidgets(WContainerWidget *container)
   container->addWidget(item_->widget());
 }
 
-int StdWidgetItemImpl::additionalVerticalPadding(bool fitWidth, bool fitHeight)
-  const
-{
-  return 0;
-}
-
 DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 						WApplication *app)
 {
@@ -95,10 +89,15 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 	|| d->type() == DomElement_TEXTAREA)
       d->setProperty(PropertyStyleHeight, "100%");
 
+  // on IE, a select is reduced to width 0 when setting width: 100% when nothing
+  // else in that column takes up space: that is a very bad thing...
   if (fitWidth && d->getProperty(PropertyStyleWidth).empty()) {
     if ((d->type() == DomElement_BUTTON
-	 || d->type() == DomElement_INPUT
-	 || d->type() == DomElement_SELECT
+	 || (d->type() == DomElement_INPUT
+	     && d->getAttribute("type") != "radio"
+	     && d->getAttribute("type") != "checkbox")
+	 || (d->type() == DomElement_SELECT
+	     && !app->environment().agentIsIE())
 	 || d->type() == DomElement_TEXTAREA))
       d->setProperty(PropertyStyleWidth, "100%");
   }

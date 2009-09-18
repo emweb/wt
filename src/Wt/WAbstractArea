@@ -78,7 +78,7 @@ public:
    * When the area refers to a resource, the current resource URL is
    * returned.
    *
-   * \sa setRef(), WResource::generateUrl()
+   * \sa setRef(), WResource::url()
    */
   const std::string ref() const;
 

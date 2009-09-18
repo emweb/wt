@@ -245,10 +245,11 @@ boost::signals::connection EventSignalBase::connect(WObject::Method method,
 void EventSignalBase::connect(JSlot& slot)
 {
   WStatelessSlot *s = slot.slotimp();
-  s->addConnection(this);
 
-  boost::signals::connection c;
-  connections_.push_back(StatelessConnection(c, 0, s));
+  if (s->addConnection(this)) {
+    boost::signals::connection c;
+    connections_.push_back(StatelessConnection(c, 0, s));
+  }
 }
 
 #ifndef WT_CNOR

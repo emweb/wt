@@ -6,6 +6,7 @@
 #include "Wt/WGroupBox"
 
 #include "DomElement.h"
+#include "Utils.h"
 
 namespace Wt {
 
@@ -39,6 +40,16 @@ void WGroupBox::updateDom(DomElement& element, bool all)
   }
 
   WContainerWidget::updateDom(element, all);
+}
+
+void WGroupBox::propagateSetEnabled(bool enabled)
+{
+  if (enabled)
+    setStyleClass(WString::fromUTF8(Utils::eraseWord(styleClass().toUTF8(), "Wt-disabled")));
+  else
+    setStyleClass(WString::fromUTF8(Utils::addWord(styleClass().toUTF8(), "Wt-disabled")));
+
+  WInteractWidget::propagateSetEnabled(enabled);
 }
 
 void WGroupBox::propagateRenderOk(bool deep)

@@ -170,6 +170,14 @@ void WLabel::updateText(DomElement& element, bool all, WApplication *app,
   }
 }
 
+void WLabel::propagateSetEnabled(bool enabled)
+{
+  if (text_)
+    text_->setStyleClass(enabled ? "" : "Wt-disabled");
+
+  WInteractWidget::propagateSetEnabled(enabled);
+}
+
 void WLabel::propagateRenderOk(bool deep)
 {
   newImage_ = false;

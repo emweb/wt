@@ -74,7 +74,7 @@ WImage::WImage(WResource *resource, const WString& altText,
     map_(0)
 {
   resource_->dataChanged().connect(SLOT(this, WImage::resourceChanged));
-  imageRef_ = resource_->generateUrl();
+  imageRef_ = resource_->url();
 
   setLoadLaterWhenInvisible(false);
 }
@@ -93,7 +93,7 @@ void WImage::setResource(WResource *resource)
 {
   resource_ = resource;
   resource_->dataChanged().connect(SLOT(this, WImage::resourceChanged));
-  setImageRef(resource_->generateUrl());
+  setImageRef(resource_->url());
 }
 
 void WImage::setAlternateText(const WString& text)
@@ -125,7 +125,7 @@ const std::string WImage::imageRef() const
 
 void WImage::resourceChanged()
 {
-  setImageRef(resource_->generateUrl());
+  setImageRef(resource_->url());
 }
 
 void WImage::addArea(WAbstractArea *area)

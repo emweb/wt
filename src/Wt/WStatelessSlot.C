@@ -103,11 +103,14 @@ void WStatelessSlot::undoTrigger()
     (target_->*(undoMethod_))();
 }
 
-void WStatelessSlot::addConnection(EventSignalBase* s)
+bool WStatelessSlot::addConnection(EventSignalBase* s)
 {
   int f = Utils::indexOf(connectingSignals_, s);
-  if (f == -1)
+  if (f == -1) {
     connectingSignals_.push_back(s);
+    return true;
+  } else
+    return false;
 }	
 
 void WStatelessSlot::removeConnection(EventSignalBase* s)	

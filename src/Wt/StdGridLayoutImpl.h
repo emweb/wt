@@ -28,7 +28,6 @@ public:
 
   virtual DomElement *createDomElement(bool fitWidth, bool fitHeight,
 				       WApplication *app);
-  virtual int additionalVerticalPadding(bool fitWidth, bool fitHeight) const;
 
   static bool useJavaScriptHeights(WApplication *app);
 

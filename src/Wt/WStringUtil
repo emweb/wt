@@ -37,7 +37,7 @@ namespace Wt {
    *
    * \relates WString
    */
-  extern WT_API std::string  narrow(const std::wstring& s);
+  extern WT_API std::string narrow(const std::wstring& s);
 
   /*! \brief Decode a UTF8 string a wide string.
    *

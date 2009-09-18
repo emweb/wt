@@ -152,6 +152,16 @@ WLength WCompositeWidget::margin(Side side) const
   return impl_->margin(side);
 }
 
+void WCompositeWidget::setHiddenKeepsGeometry(bool enabled)
+{
+  impl_->setHiddenKeepsGeometry(enabled);
+}
+
+bool WCompositeWidget::hiddenKeepsGeometry() const
+{
+  return impl_->hiddenKeepsGeometry();
+}
+
 void WCompositeWidget::setHidden(bool how)
 {
   impl_->setHidden(how);
@@ -160,6 +170,32 @@ void WCompositeWidget::setHidden(bool how)
 bool WCompositeWidget::isHidden() const
 {
   return impl_->isHidden();
+}
+
+bool WCompositeWidget::isVisible() const
+{
+  if (parent())
+    return parent()->isVisible();
+  else
+    return true;
+}
+
+void WCompositeWidget::setDisabled(bool disabled)
+{
+  impl_->setDisabled(disabled);
+}
+
+bool WCompositeWidget::isDisabled() const
+{
+  return impl_->isDisabled();
+}
+
+bool WCompositeWidget::isEnabled() const
+{
+  if (parent())
+    return parent()->isEnabled();
+  else
+    return true;
 }
 
 void WCompositeWidget::setPopup(bool how)
@@ -273,14 +309,6 @@ void WCompositeWidget::removeChild(WWidget *child)
 void WCompositeWidget::setHideWithOffsets(bool how)
 {
   impl_->setHideWithOffsets(how);
-}
-
-bool WCompositeWidget::isVisible() const
-{
-  if (parent())
-    return parent()->isVisible();
-  else
-    return true;
 }
 
 bool WCompositeWidget::isStubbed() const

@@ -30,13 +30,13 @@ WFileResource::~WFileResource()
 void WFileResource::setFileName(const std::string& fileName)
 {
   fileName_ = fileName;
-  dataChanged().emit();
+  setChanged();
 }
 
 void WFileResource::setMimeType(const std::string& mimeType)
 {
   mimeType_ = mimeType;
-  dataChanged().emit();
+  setChanged();
 }
 
 void WFileResource::setBufferSize(int bufferSize)

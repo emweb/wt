@@ -26,18 +26,12 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
     validator_(0),
     validateJs_(0),
     filterInput_(0)
-{
-  flags_.set(BIT_ENABLED);
-}
+{ }
 
 #ifndef WT_TARGET_JAVA
 WStatelessSlot *WFormWidget::getStateless(Method method)
 {
-  if (method == static_cast<WObject::Method>(&WFormWidget::disable))
-    return implementStateless(&WFormWidget::disable, &WFormWidget::undoDisable);
-  else if (method == static_cast<WObject::Method>(&WFormWidget::enable))
-    return implementStateless(&WFormWidget::enable, &WFormWidget::undoEnable);
-  else if (method == static_cast<WObject::Method>(&WFormWidget::setFocus))
+  if (method == static_cast<WObject::Method>(&WFormWidget::setFocus))
     return implementStateless(&WFormWidget::setFocus,
 			      &WFormWidget::undoSetFocus);
   else
@@ -77,21 +71,6 @@ EventSignal<>& WFormWidget::focussed()
   return *voidEventSignal(FOCUS_SIGNAL, true);
 }
 
-void WFormWidget::enable()
-{
-  setEnabled(true);
-}
-
-void WFormWidget::disable()
-{
-  setEnabled(false);
-}
-
-bool WFormWidget::isEnabled() const
-{
-  return flags_.test(BIT_ENABLED);
-}
-
 void WFormWidget::setFocus()
 {
   flags_.set(BIT_GOT_FOCUS);
@@ -102,23 +81,17 @@ void WFormWidget::undoSetFocus()
 {
 }
 
-void WFormWidget::undoEnable()
-{
-  setEnabled(flags_.test(BIT_WAS_ENABLED));
-}
-
-void WFormWidget::undoDisable()
-{
-  undoEnable();
-}
-
 void WFormWidget::setEnabled(bool enabled)
 {
-  flags_.set(BIT_WAS_ENABLED, flags_.test(BIT_ENABLED));
-  flags_.set(BIT_ENABLED, enabled);
-  flags_.set(BIT_ENABLED_CHANGED);
+  setDisabled(!enabled);
+}
 
+void WFormWidget::propagateSetEnabled(bool enabled)
+{
+  flags_.set(BIT_ENABLED_CHANGED);
   repaint(RepaintPropertyAttribute);
+  
+  WInteractWidget::propagateSetEnabled(enabled);
 }
 
 void WFormWidget::setReadOnly(bool readOnly)

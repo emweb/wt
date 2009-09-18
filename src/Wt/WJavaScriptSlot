@@ -113,8 +113,14 @@ public:
    * Execute the JavaScript code, in the same way as when triggered
    * by a EventSignal. This function returns immediately, and execution of
    * the JavaScript code is deferred until after the event handling.
+   *
+   * The arguments are the "<tt>object, event</tt>" arguments of the
+   * JavaScript event callback function.
+   *
+   * \sa setJavaScript()
    */
-  void exec();
+  void exec(const std::string& object = "null",
+	    const std::string& event = "null");
 
 private:
   WWidget *widget_;

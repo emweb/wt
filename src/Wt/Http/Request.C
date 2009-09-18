@@ -24,10 +24,15 @@ UploadedFile::UploadedFile(const std::string& spoolName,
   fileInfo_->isStolen = false;
 }
 
-UploadedFile::Impl::~Impl()
+void UploadedFile::Impl::cleanup()
 {
   if (!isStolen)
     unlink(spoolFileName.c_str());
+}
+
+UploadedFile::Impl::~Impl()
+{
+  cleanup();
 }
 
 const std::string& UploadedFile::spoolFileName() const

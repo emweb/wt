@@ -13,8 +13,6 @@
 #include <Wt/WString>
 #include <Wt/WEvent>
 
-#include <unistd.h>
-
 class StyleLayout : public ControlsWidget
 {
 public:
@@ -26,9 +24,7 @@ private:
   WWidget *css();
   WWidget *wLoadingIndicator();
   void loadingIndicatorSelected(Wt::WString indicator);
-  void load(Wt::WMouseEvent) {
-    sleep(2);
-  }
+  void load(Wt::WMouseEvent);
   WWidget *wBoxLayout();
   WWidget *wGridLayout();
   WWidget *wBorderLayout();

@@ -152,7 +152,7 @@ void WAnchor::setResource(WResource *resource)
 
   if (resource_) {
     resource_->dataChanged().connect(SLOT(this, WAnchor::resourceChanged));
-    setRef(resource_->generateUrl());
+    setRef(resource_->url());
   }
 }
 
@@ -211,7 +211,7 @@ void WAnchor::setImage(WImage *image)
 
 void WAnchor::resourceChanged()
 {
-  setRef(resource_->generateUrl());
+  setRef(resource_->url());
 }
 
 void WAnchor::enableAjax()

@@ -349,12 +349,6 @@ void StdGridLayoutImpl::setHint(const std::string& name,
        << "WGridLayout: unrecognized hint '" << name << "'";
 }
 
-int StdGridLayoutImpl::additionalVerticalPadding(bool fitWidth, bool fitHeight)
-  const
-{
-  return 0;
-}
-
 DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 						WApplication *app)
 {
@@ -502,9 +496,19 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  || (totalRowStretch == 0);
 
 	for (int i = 0; i < item.rowSpan_; ++i) {
+	  // FIXME: if we span multiple rows, it is not clear what we should
+	  // do ?
+	  //
+	  // if stretch == -1 or >0, then we should fit height
+	  // if stretch == 0, then we should not fit height if no row
+	  // stretch is set (in which case JavaScript will actively take
+	  // over anyway)
 	  if (grid_.rows_[row + i].stretch_)
 	    itemFitHeight = true;
+	  else if (!stretch)
+	    itemFitHeight = false;
 	  for (int j = 0; j < item.colSpan_; ++j) {
+	    // there is no special meaning for column stretches
 	    if (grid_.columns_[col + j].stretch_)
 	      itemFitWidth = true;
 	    if (i + j > 0)
@@ -518,9 +522,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	// if we do, this makes the row no longer react to reductions
 	// in height... Which is worse? I think the former?
 	//
-	// Changed now: use stretch = -1 to force fitting height
-	//
-	// itemFitHeight = true;
+	// Solved now: use stretch = -1 to force fitting height
 
 	AlignmentFlag hAlign = item.alignment_ & AlignHorizontalMask;
 	AlignmentFlag vAlign = item.alignment_ & AlignVerticalMask;
@@ -563,13 +565,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	if (!jsHeights)
 	  td->setAttribute("class", "Wt-grtd");
 
-	int additionalVerticalPadding = 0;
-
 	if (item.item_) {
 	  DomElement *c = getImpl(item.item_)
 	    ->createDomElement(itemFitWidth, itemFitHeight, app);
-	  additionalVerticalPadding = getImpl(item.item_)
-	    ->additionalVerticalPadding(itemFitWidth, itemFitHeight);
 
 	  if (hAlign == 0)
 	    hAlign = AlignJustify;
@@ -619,7 +617,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
 	//style2 += "overflow:auto;";
 
-	int padding2 = padding[2] + additionalVerticalPadding;
+	int padding2 = padding[2];
 
 	if (padding[0] == padding[1] && padding[0] == padding2
 	    && padding[0] == padding[3]) {

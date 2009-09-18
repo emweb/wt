@@ -8,6 +8,7 @@
 #define WEBSESSION_H_
 
 #include <string>
+#include <vector>
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 #include <boost/thread.hpp>
@@ -255,6 +256,7 @@ private:
   void processSignal(EventSignalBase *s, const std::string& se,
 		     const WebRequest& request, SignalKind kind);
 
+  std::vector<unsigned int> getSignalProcessingOrder(const WEvent& e);
   void notifySignal(const WEvent& e);
   void propagateFormValues(const WEvent& e, const std::string& se);
 

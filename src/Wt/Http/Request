@@ -71,6 +71,7 @@ private:
     bool        isStolen;
 
     ~Impl();
+    void cleanup();
   };
 
   boost::shared_ptr<Impl> fileInfo_;

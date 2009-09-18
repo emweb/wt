@@ -47,6 +47,17 @@ void WStringListModel::setStringList(const std::vector<WString>& strings)
     dataChanged().emit(index(0, 0), index(numChanged - 1, 0));
 }
 
+void WStringListModel::addString(const WString& string)
+{
+  insertString(rowCount(), string);
+}
+
+void WStringListModel::insertString(int row, const WString& string)
+{
+  insertRows(row, 1);
+  setData(row, 0, string);
+}
+
 int WStringListModel::rowCount(const WModelIndex& parent) const
 {
   return parent.isValid() ? 0 : strings_.size();

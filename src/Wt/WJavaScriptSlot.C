@@ -42,7 +42,7 @@ void JSlot::create()
   imp_ = new WStatelessSlotImpl
     (widget_, 0, widget_
      ? WApplication::instance()->javaScriptClass()
-     + '.' + jsFunctionName() + "(this, e);"
+     + '.' + jsFunctionName() + "(o,e);"
      : "");
 }
 
@@ -61,7 +61,7 @@ void JSlot::setJavaScript(const std::string& js)
   if (widget_)
     WApplication::instance()->declareJavaScriptFunction(jsFunctionName(), js);
   else
-    imp_->setJavaScript("{var f=" + js + "; f(this, e);}");
+    imp_->setJavaScript("{var f=" + js + ";f(o,e);}");
 }
 
 WStatelessSlot* JSlot::slotimp()
@@ -69,10 +69,10 @@ WStatelessSlot* JSlot::slotimp()
   return imp_;
 }
 
-void JSlot::exec()
+void JSlot::exec(const std::string& object, const std::string& event)
 {
   WApplication::instance()->doJavaScript
-    ("{var e=null;" + imp_->javaScript() + "}");
+    ("{var o=" + object + ", e=" + event + ";" + imp_->javaScript() + "}");
 }
 
 }

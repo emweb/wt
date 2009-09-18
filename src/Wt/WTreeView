@@ -755,6 +755,7 @@ private:
   WContainerWidget *impl_;
   WContainerWidget *headers_, *headerContainer_;
   WContainerWidget *contents_, *contentsContainer_;
+  WContainerWidget *scrollBarC_;
 
   int firstRemovedRow_, removedHeight_;
 

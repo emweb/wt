@@ -23,6 +23,11 @@
 
 #include "EmwebLoadingIndicator.h"
 
+#ifdef WIN32
+#include <windows.h> // for Sleep()
+#else
+#include <unistd.h>
+#endif
 using namespace Wt;
 
 StyleLayout::StyleLayout(EventDisplayer *ed)
@@ -81,6 +86,14 @@ void StyleLayout::loadingIndicatorSelected(WString indicator)
     WApplication::instance()
       ->setLoadingIndicator(new EmwebLoadingIndicator());
   }
+}
+
+void StyleLayout::load(Wt::WMouseEvent) {
+#ifdef WIN32
+  Sleep(2000);
+#else
+  sleep(2);
+#endif
 }
 
 WWidget *StyleLayout::wBoxLayout()

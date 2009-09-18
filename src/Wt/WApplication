@@ -49,30 +49,6 @@ class WebSession;
 class UpdateLockImpl;
 class SoundManager;
 
-class WResponseEvent
-#ifdef WT_TARGET_JAVA
-                     : public WAbstractEvent
-#endif // WT_TARGET_JAVA
-{
-public:
-  WResponseEvent();
-  const std::string& response() { return jsEvent_.response; }
-
-#ifdef WT_TARGET_JAVA
-  virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
-  {
-    return new WResponseEvent(jsEvent);
-  }
-#endif // WT_TARGET_JAVA
-
-private:
-  JavaScriptEvent jsEvent_;
-
-  WResponseEvent(const JavaScriptEvent& jsEvent);
-
-  friend class EventSignal<WResponseEvent>;
-};
-
 #ifndef WT_TARGET_JAVA
 /*! \brief Typedef for a function that creates WApplication objects.
  *
@@ -84,26 +60,25 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
 #endif // !WT_TARGET_JAVA
 
 /*! \class WApplication Wt/WApplication Wt/WApplication
- *  \brief A class that represents an instance of a %Wt Application,
- *         corresponding to a single session.
+ *  \brief Represents an application instance for a single session.
  *
  * \if cpp
- * Each user session of your application has a corresponding
- * WApplication instance. This instance must be created, before
- * creating widgets, and is returned as the result of the callback
- * function passed to WRun(). The instance is the main entry point
- * into information pertaining to a single session, and holds
- * a reference to the root() of the widget tree.
- * \elseif java
- * Each user session of your application has a corresponding
- * WApplication instance. This instance must be created, before
- * creating widgets, and is returned by the function 
- * {javadoclink WtServlet#createApplication(WEnvironment)}. 
- * The instance is the main entry point into information pertaining 
- * to a single session, and holds a reference to the root() 
- * of the widget tree.
- * \endif
  *
+ * Each user session of your application has a corresponding
+ * %WApplication instance. You need to create a new instance and return
+ * it as the result of the callback function passed to WRun(). The
+ * instance is the main entry point to session information, and holds
+ * a reference to the root() of the widget tree.
+ *
+ * \elseif java
+ *
+ * Each user session of your application has a corresponding
+ * %WApplication instance. You need to create a new instance and return
+ * it as the result of {javadoclink WtServlet#createApplication(WEnvironment)}. 
+ * The instance is the main entry point to session information,
+ * and holds a reference to the root() of the widget tree.
+ *
+ * \endif
  *
  * The recipe for a %Wt web application, which allocates new
  * WApplication instances for every user visiting the application is
@@ -111,93 +86,108 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  *
  * \if cpp
  * \code
- *   WApplication *createApplication(const WEnvironment WEnvironment& env)
- *   {
+ * WApplication *createApplication(const WEnvironment WEnvironment& env)
+ * {
+ *   //
+ *   // Optionally, check the environment and redirect to an error page.
+ *   //
+ *   bool valid = ...;
+ *
+ *   WApplication *app;
+ *   if (!valid) {
+ *     app = new WApplication(env);
+ *     app->redirect("error.html");
+ *     app->quit();
+ *   } else {
+ *     // usually you will specialize your application class
+ *     app = new WApplication(env);
+ *
  *     //
- *     // Optionally, check the environment and redirect to an error page.
+ *     // Add widgets to app->root() and return the application object.
  *     //
- *     bool valid = ...;
- *
- *     WApplication *app;
- *     if (!valid) {
- *       app = new WApplication(env);
- *       app->redirect("error.html");
- *       app->quit();
- *     } else {
- *       // usually you will specialize your application class
- *       app = new WApplication(env);
- *
- *       //
- *       // Add widgets to app->root() and return the application object.
- *       //
- *     }
- *
- *     return app;
  *   }
+ *
+ *   return app;
+ * }
+ * \endcode
+ * \elseif java
+ * \code
+ * public class HelloServlet extends WtServlet {
+ *  public HelloServlet() {
+ *      super();
+ *  }
+ *
+ *  public WApplication createApplication(WEnvironment env) {
+ *      // In practice, you will specialize WApplication and simply
+ *      // return a new instance.
+ *      WApplication app = new WApplication(env);
+ *      app.getRoot().addWidget(new WText("Hello world."));
+ *      return app;
+ *  }
+ * }
  * \endcode
  * \endif
  *
  * \if cpp
- * Throughout the application, the instance is available through
+ *
+ * Throughout the session, the instance is available through
  * WApplication::instance() (or through #wApp). The application may be
  * quited either using the method quit(), or because of a timeout
- * (when the user has closed the window, or crashed its computer or
- * was eaten by a virus -- but not because the user does not interact:
- * keep-alive messages in the background will keep the session around
- * as long as the user has the page opened). In either case, the
- * application object is deleted, allowing for cleanup of the entire
- * widget tree, and any other resources.
+ * after the user has closed the window, but not because the user does
+ * not interact: keep-alive messages in the background will keep the
+ * session around as long as the user has the page opened. In either
+ * case, the application object is deleted, allowing for cleanup of
+ * the entire widget tree, and any other resources.
+ *
  * \elseif java
- * Throughout the application, the instance is available through
- * WApplication::instance(). The application may be
- * quited either using the method quit(), or because of a timeout
- * (when the user has closed the window, or crashed its computer or
- * was eaten by a virus -- but not because the user does not interact:
- * keep-alive messages in the background will keep the session around
- * as long as the user has the page opened). 
+ *
+ * Throughout the session, the instance is available through the
+ * static method WApplication::instance(), which uses thread-specific
+ * storage to keep track of the current session. The application may
+ * be quited either using the method quit(), or because of a timeout
+ * after the user has closed the window, but not because the user does
+ * not interact: keep-alive messages in the background will keep the
+ * session around as long as the user has the page opened.
+ *
  * \endif
  *
- * The %WApplication object provides access to:
- * <ul>
- *   <li>WEnvironment information through environment(), which gives
- *     details about the user, start-up arguments, and user agent
- *     capabilities.</li>
- *   <li>inline and external style sheets using styleSheet() and
- *     useStyleSheet() respectively.</li>
- *   <li>the top-level widget (using root() for a plain application) or
- *     widgets (using bindWidget() for widget set mode), which contains
- *     the widget hierarchy.</li>
- *   \if cpp
- *   <li>localization information and message resources bundles, with
- *     setLocale(), locale() and messageResourceBundle().
- *   \elseif java
- *   <li>localization information and message resources bundles, with
- *     setLocale(), locale() and setLocalizedStrings(WLocalizedStrings).
- *   \endif
- *   <li>the maximum configured request size (maximumRequestSize()) and
- *     a signal requestTooLarge() to react to too large requests.</li>
- *   <li>defining cookies using setCookie() to persist information across
- *     sessions. These cookies may provide context across sessions, and may
- *     be inspected using WEnvironment::getCookie() in a future session.</li>
- *   <li>support for internal application paths that enable browser
- *     history (back and forward buttons), and bookmarks, using the
- *     setInternalPath() and related methods.</li>
- *   \if cpp
- *   <li>support for server-initiated updates with enableUpdates(),
- *     triggerUpdate() and getUpdateLock().</li>
- *   \endif
- * </ul>
+ * The %WApplication object provides access to session-wide settings, including:
+ *
+ * - circumstancial information through environment(), which gives
+ *   details about the user, start-up arguments, and user agent
+ *   capabilities.
+ * - the application title with setTitle().
+ * - inline and external style sheets using styleSheet() and
+ *   useStyleSheet().
+ * - inline and external JavaScript using doJavaScript() and require().
+ * - the top-level widget in root(), representing the entire browser window,
+ *   or multiple top-level widgets using bindWidget() when deployed in
+ *   %WidgetSet mode to manage a number of widgets within a 3rd party page.
+ * - definition of cookies using setCookie() to persist information across
+ *   sessions, which may be read using WEnvironment::getCookie() in a future
+ *   session.
+ * - management of the internal path (that enables browser history and
+ *   bookmarks) using setInternalPath() and related methods.
+ * \if cpp
+ * - localization information and message resources bundles using setLocale()
+ *   and messageResourceBundle().
+ * - support for server-initiated updates with enableUpdates()
+ * \elseif java
+ * - localization information and message resources bundles, with
+ *   setLocale() and setLocalizedStrings()
+ * \endif
  */
 class WT_API WApplication : public WObject
 {
 public:
-  /*! \brief Enumeration that indicates the Ajax communication method.
+  /*! \brief Enumeration that indicates the method for dynamic (AJAX-alike)
+   *         updates.
    *
    * \sa setAjaxMethod()
    */
   enum AjaxMethod {
-    XMLHttpRequest,  //!< Use the XMLHttpRequest object (real AJAX)
-    DynamicScriptTag //!< Use dynamic script tags (for cross-domain AJAX)
+    XMLHttpRequest,  //!< Using the XMLHttpRequest object (real AJAX)
+    DynamicScriptTag //!< Using dynamic script tags (for cross-domain AJAX)
   };
 
 #ifndef WT_TARGET_JAVA
@@ -208,35 +198,41 @@ public:
   typedef Wt::ApplicationCreator ApplicationCreator;
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Construct a WApplication
+  /*! \brief Creates a new application instance.
+   *
+   * The environment provides information on the initial request, user
+   * agent, and deployment-related information.
    */
   WApplication(const WEnvironment& environment);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Destructor.
    *
    * The destructor deletes the root() container, and as a consequence
    * the entire widget tree.
    */
   ~WApplication();
+#endif // WT_TARGET_JAVA
 
   /*! \brief Returns the current application instance.
    *
    * \if cpp
-   * This is the same as the global variable #wApp. In a
-   * multi-threaded server, it returns the thread-specific application
-   * instance (using thread-specific storage).
+   * This is the same as the global define #wApp. In a multi-threaded server,
+   * this method uses thread-specific storage to fetch the current session.
    * \elseif java
-   * In a multi-threaded server, it returns the thread-specific application
-   * instance (using thread-specific storage).
+   * This method uses thread-specific storage to fetch the current session.
    * \endif
    */
   static WApplication *instance();
 
-  /*! \brief Returns the application environment.
+  /*! \brief Returns the environment information.
    *
-   * This is the environment that was used when constructing the
-   * application. The environment contains all settings that constrain
-   * the application from outside.
+   * This method returns the environment object that was used when
+   * constructing the application. The environment provides
+   * information on the initial request, user agent, and
+   * deployment-related information.
+   *
+   * \sa url(), sessionId()
    */
   const WEnvironment& environment() const;
 
@@ -247,17 +243,24 @@ public:
    * application is represented by the content of this container.
    *
    * \if cpp
-   * \note The root() is only defined in normal application mode. For
-   * \link Wt::WidgetSet WidgetSet\endlink mode, there is no
-   * root() container, and 0 is returned. Instead, use bindWidget() to
-   * bind root widgets to existing HTML &lt;div&gt; elements on the
-   * page.
+   *
+   * The %root() widget is only defined when the application manages
+   * the entire window. When deployed as a \link Wt::WidgetSet
+   * WidgetSet\endlink application, there is no %root() container, and
+   * 0 is returned.  Instead, use bindWidget() to bind one or more
+   * root widgets to existing HTML &lt;div&gt; (or other) elements on
+   * the page.
+   *
    * \elseif java
-   * \note The root() is only defined in normal Application mode.
-   *  For WidgetSet mode there is no root() container, and null is 
-   *  returned. Instead, use bindWidget() to bind root widgets 
-   *  to existing HTML &lt;div&gt; elements on the page.
-   *  \endif
+   *
+   * The root() widget is only defined when the application manages
+   * the entire window. When deployed as a \link Wt::WidgetSet
+   * WidgetSet\endlink application, there is no %root() container, and
+   * <code>null</code> is returned. Instead, use bindWidget() to bind
+   * one or more root widgets to existing HTML &lt;div&gt; (or other)
+   * elements on the page.
+   *
+   * \endif
    */
   WContainerWidget *root() const { return widgetRoot_; }
 
@@ -267,7 +270,13 @@ public:
    * style classes. These may be defined in this inline stylesheet, or
    * in external style sheets.
    *
+   * It is usually preferable to use external stylesheets (and
+   * consider more accessible). Still, the internal stylesheet has as
+   * benefit that style rules may be dynamically updated, and it is
+   * easier to manage logistically.
+   *
    * \sa useStyleSheet()
+   * \sa WWidget::setStyleClass()
    */
   WCssStyleSheet& styleSheet() { return styleSheet_; }
 
@@ -277,7 +286,7 @@ public:
    * style classes. These may be defined in an inline stylesheet,
    * or in external style sheets.
    *
-   * The <i>uri</i> indicates a relative or absolute URL to the
+   * The <i>url</i> indicates a relative or absolute URL to the
    * stylesheet.
    *
    * External stylesheets are inserted after the internal style sheet,
@@ -285,28 +294,31 @@ public:
    * internal style sheet.
    *
    * \sa styleSheet(), useStyleSheet(const std::string&, const std::string&)
+   * \sa WWidget::setStyleClass()
    */
-  void useStyleSheet(const std::string& uri);
+  void useStyleSheet(const std::string& url);
 
-  /*! \brief Adds an external style sheet, conditional for IE
+  /*! \brief Adds an external style sheet, conditional to specific Internet
+   *         Explorer browser.
    *
    * <i>condition</i> is a string that is used to apply the stylesheet
    * to specific versions of IE. Only a limited subset of the IE
-   * conditional comments syntax is supported. Examples are:
+   * conditional comments syntax is supported (since these are in fact
+   * interpreted server-side instead of client-side). Examples are:
    * - "IE gte 6": only for IE version 6 or later. 
    * - "!IE gte 6": only for IE versions prior to IE6.
    * - "IE lte 7": only for IE versions prior to IE7.
    *
-   * The <i>uri</i> indicates a relative or absolute URL to the
+   * The <i>url</i> indicates a relative or absolute URL to the
    * stylesheet.
    *
-   * \sa useStyleSheet(const std::string&)
+   * \sa useStyleSheet()
    */
-  void useStyleSheet(const std::string& uri, const std::string& condition);
+  void useStyleSheet(const std::string& url, const std::string& condition);
 
- /*! \brief Set the title.
+ /*! \brief Sets the window title.
    *
-   * Set the title that appears as the browser window title.
+   * Sets the title that appears as the browser window title.
    *
    * The default title is "".
    *
@@ -314,21 +326,25 @@ public:
    */
   void setTitle(const WString& title);
 
-  /*! \brief Returns the title.
+  /*! \brief Returns the window title.
    *
    * \sa setTitle(const WString&)
    */
   const WString& title() const { return title_; }
 
-  /*! \brief Returns the object that provides localized strings.
+  /*! \brief Returns the resource object that provides localized strings.
    *
    * \if cpp
    * The default value is a WMessageResourceBundle instance, which
    * uses XML files to resolve localized strings, but you can set a
    * custom class using setLocalizedStrings().
    * \elseif java
-   * You can set a class implementing WLocalizedStrings using setLocalizedStrings().
+   * This returns the object previously set using setLocalizedStrings().
    * \endif
+   *
+   * WString::tr() is used to create localized strings, whose
+   * localized translation is looked up through this object, using a
+   * key.
    * 
    * \if cpp
    * \sa WString::tr(), messageResourceBundle()
@@ -338,11 +354,15 @@ public:
    */
   WLocalizedStrings *localizedStrings() { return localizedStrings_; }
 
-  /*! \brief Set the string translator.
+  /*! \brief Sets the resource object that provides localized strings.
    *
-   * The string translator resolves localized strings in the current
-   * locale. The previous string translator is deleted, and ownership is
-   * transferred to the application.
+   * This resource resolves localized strings within the current
+   * application locale.
+   *
+   * \if cpp
+   * The previous resource is deleted, and ownership of the new resource
+   * passes to the application.
+   * \endif
    *
    * \sa localizedStrings(), WString::tr(const char *key)
    */
@@ -365,36 +385,54 @@ public:
 
   /*! \brief Changes the locale.
    *
-   * By passing a <i>locale</i> that is an empty string, the default
-   * locale is chosen. The locale is used by the string translator to
-   * resolve internationalized strings.
+   * The locale is used by the localized strings resource to resolve
+   * localized strings.
    *
-   * When the locale gets changed, refresh() is called, which will
-   * resolve the strings in the new locale.
+   * By passing an empty <i>locale</i>, the default locale is
+   * chosen.
+   *
+   * When the locale is changed, refresh() is called, which will
+   * resolve the strings of the current user-interface in the new
+   * locale.
    *
    * The default locale is copied from the environment
-   * (WEnvironment::locale()), and is the locale that was configured
-   * by the user in his browser preferences.
+   * (WEnvironment::locale()), and this is the locale that was
+   * configured by the user in his browser preferences, and passed
+   * using an HTTP request header.
    *
    * \sa localizedStrings(), WString::tr()
    */
   void setLocale(const WT_LOCALE& locale);
 
-  /*! \brief Returns the currently used locale.
+  /*! \brief Returns the current locale.
    *
    * \sa setLocale(const std::string&)
    */
   WT_LOCALE locale() const { return locale_; }
 
-  /*! \brief Refresh the application.
+  /*! \brief Refreshes the application.
    *
-   * Causes the application to refresh its data, including messages
+   * This lets the application to refresh its data, including messages
    * from message-resource bundles. This done by propagating
    * WWidget::refresh() through the widget hierarchy.
    *
    * This method is also called when the user hits the refresh (or
-   * reload) button, in case the application is configured to not
-   * create a new session in response.
+   * reload) button, if this may be caught within the current session.
+   *
+   * \if cpp
+   *
+   * The reload button may only be caught when %Wt is configured so that
+   * reload should not spawn a new session. When URL rewriting is used for
+   * session tracking, this will cause an ugly session ID to be added to the
+   * URL. See \ref config_session for configuring the reload
+   * behavior ("&lt;reload-is-new-session&gt;").
+   *
+   * \elseif java
+   *
+   * The reload button may only be caught when cookies for session
+   * tracking are configured in the servlet container.
+   *
+   * \endif
    *
    * \sa WWidget::refresh()
    */
@@ -444,7 +482,7 @@ public:
    */
   std::string url() const;
 
-  /*! \brief Returns a bookmarkable URL, including the internal path.
+  /*! \brief Returns a bookmarkable URL for the current internal path.
    *
    * Is equivalent to <tt>bookmarkUrl(internalPath())</tt>, see
    * bookmarkUrl(const std::string&) const.
@@ -515,12 +553,12 @@ public:
    * for which an <i>internalPath</i> <tt>"/project/z3cbc/details/"</tt> is
    * set, the two forms for the application URL are:
    * <ul>
-   * <li> in a browser with AJAX:
+   * <li> in an AJAX session:
    * \code
    * http://www.mydomain.com/stuff/app.wt#/project/z3cbc/details/
    * \endcode
    * </li><li>
-   * or in other situations (no JavaScript):
+   * in a plain HTML session:
    * \code
    * http://www.mydomain.com/stuff/app.wt/project/z3cbc/details/
    * \endcode
@@ -570,10 +608,10 @@ public:
    */
   std::string internalPath() const;
 
-  /*! \brief Returns part of the current internal path.
+  /*! \brief Returns a part of the current internal path.
    *
-   * This is a convenience method which returns the next folder in the
-   * internal path, after the given <i>path</i>.
+   * This is a convenience method which returns the next <i>folder</i>
+   * in the internal path, after the given <i>path</i>.
    *
    * For example, when the current internal path is
    * <tt>"/project/z3cbc/details"</tt>, this method returns
@@ -581,7 +619,7 @@ public:
    * <i>path</i> argument.
    *
    * The <i>path</i> must start with a '/', and internalPathMatches()
-   * should evaluate to <i>true</i> for the given <i>path</i>. If not,
+   * should evaluate to <tt>true</tt> for the given <i>path</i>. If not,
    * an empty string is returned and an error message is logged.
    *
    * \sa internalPath(), internalPathChanged()
@@ -622,7 +660,7 @@ public:
    * conjunction with quit() if you want to the application to be
    * terminated as well.
    *
-   * Calling redirect() does not imply quit() since it may be useful
+   * Calling %redirect() does not imply %quit() since it may be useful
    * to switch between a non-secure and secure (SSL) transport
    * connection.
    */
@@ -652,7 +690,7 @@ public:
    * overheads associated which may be unnecessary, and which create a
    * trade-off with time resolution of the updates.
    *
-   * When <i>enabled</i> is true, this enables "server push" (what is
+   * When <i>enabled</i> is <tt>true</tt>, this enables "server push" (what is
    * called 'comet' in AJAX terminology). Widgets may then be
    * modified, created or deleted outside of the event loop (e.g. in
    * response to execution of another thread), and these changes are
@@ -685,8 +723,7 @@ public:
 
   /*! \brief Returns whether server-initiated updates are enabled.
    *
-   * True if server-initiated updates were enabled by a previous call to
-   * enableUpdates().
+   * \sa enableUpdates()
    */
   bool updatesEnabled() const { return serverPush_; }
 
@@ -772,45 +809,64 @@ public:
    * This function does not wait until the JavaScript is run, but
    * returns immediately. The JavaScript will be run after the normal
    * event handling, unless <i>afterLoaded</i> is set to false.
+   *
+   * \sa addAutoJavaScript(), declareJavaScriptFunction()
    */
   void doJavaScript(const std::string& javascript, bool afterLoaded = true);
 
+  /*! \brief Adds JavaScript statements that should be run continuously.
+   *
+   * This is an internal method.
+   *
+   * It is used by for example layout managers to adjust the layout
+   * whenever the DOM tree is manipulated.
+   *
+   * \sa doJavaScript()
+   */
   void addAutoJavaScript(const std::string& javascript);
 
+  /*! \brief Declares an application-wide JavaScript function.
+   *
+   * This is an internal method.
+   */
   void declareJavaScriptFunction(const std::string& name,
 				 const std::string& function);
 
-  /*! \brief Load a JavaScript library.
+  /*! \brief Loads a JavaScript library.
    *
-   * Attempt to load a JavaScript library. When <i>symbol</i> is not
-   * empty, the library is only inserted in the page if the given
-   * symbol is not yet defined.
+   * Loads a JavaScript library. %Wt keeps track of libraries (with
+   * the same URL) that already have been loaded, and will load a
+   * library only once. In addition, you may provide a <i>symbol</i>
+   * which if already defined will also indicate that the library was
+   * already loaded (possibly outside of %Wt when in WidgetSet mode).
    *
-   * Returns true when the library was not yet loaded for this
-   * application.
+   * This method returns <tt>true</tt> only when the library is loaded
+   * for the first time.
    *
-   * JavaScript libraries may be loaded at any point in time. They
-   * will be loaded before evaluating the normal event handling code,
-   * but after javaScript that has been executed using
-   * doJavaScript(..., false).
+   * JavaScript libraries may be loaded at any point in time. Any
+   * JavaScript code is deferred until the library is loaded, except
+   * for JavaScript that was defined to load before, passing false as
+   * second parameter to doJavaScript().
    */
-  bool require(const std::string& uri,
+  bool require(const std::string& url,
 	       const std::string& symbol = std::string());
 
-  /*! \brief Process UI events.
+  /*! \brief Processes UI events.
    *
    * You may call this method during a long operation to:
-   * <ul>
-   *   <li>Propagate widget changes to the client.</li>
-   *   <li>Process UI events.</li>
-   * </ul>
+   *   - propagate widget changes to the client.
+   *   - rocess UI events.
    *
    * This method starts a recursive event loop, blocking the current
-   * thread, and resumes when all events have been processed.
+   * thread, and resumes when all pending user interface events have been
+   * processed.
+   *
+   * Because a thread is blocked, this may affect your application
+   * scalability.
    */
   void processEvents();
 
-  /*! \brief Read a configuration property.
+  /*! \brief Reads a configuration property.
    *
    * Tries to read a configured value for the property
    * <i>name</i>. The method returns whether a value is defined for
@@ -819,11 +875,17 @@ public:
   static bool readConfigurationProperty(const std::string& name,
 					std::string& value);
 #ifdef WT_TARGET_JAVA
+  /*! \brief Reads a configuration property.
+   *
+   * Tries to read a configured value for the property
+   * <i>name</i>. If no value was configured, the default <i>value</i>
+   * is returned.
+   */
   static std::string *readConfigurationProperty(const std::string& name,
 						const std::string& value);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Set the Ajax communication method.
+  /*! \brief Sets the Ajax communication method.
    *
    * You may change the communication method only from within the
    * application constructor.
@@ -856,9 +918,12 @@ public:
    */
   AjaxMethod ajaxMethod() const { return ajaxMethod_; }
 
-  /*
-   * The instance name of the JavaScript class that encapsulates all
-   * JavaScript methods specific to this application instance.
+  /*! \brief Returns the name of the application JavaScript class.
+   *
+   * This JavaScript class encapsulates all JavaScript methods
+   * specific to this application instance. The method is foreseen to
+   * allow multiple applications to run simultaneously on the same
+   * page in WidgtSet mode, without interfering.
    */
   std::string javaScriptClass() { return javaScriptClass_; }
 
@@ -898,13 +963,16 @@ public:
    */
   std::string fixRelativeUrl(const std::string& url) const;
 
-  /*
-   * Returns the value of the 'resources' property set in the configuration
+  /*! \brief Returns the URL at which the resources are deployed.
+   *
+   * \if cpp
+   * This returns the value of the 'resources' property set in the configuration
    * file.
+   * \endif
    */
   static std::string resourcesUrl();
 
-  /*! \brief Initialize the application, post-construction.
+  /*! \brief Initializes the application, post-construction.
    *
    * This method is invoked by the %Wt library after construction of a
    * new application. You may reimplement this method to do additional
@@ -913,7 +981,7 @@ public:
    */
   virtual void initialize();
 
-  /*! \brief Finalize the application, pre-destruction.
+  /*! \brief Finalizes the application, pre-destruction.
    *
    * This method is invoked by the %Wt library before destruction of a
    * new application. You may reimplement this method to do additional
@@ -922,7 +990,7 @@ public:
    */
   virtual void finalize();
 
-  /*! \brief Change the threshold for two-phase rendering.
+  /*! \brief Changes the threshold for two-phase rendering.
    *
    * This changes the threshold for the communication size (in bytes) to
    * render invisible changes in one go. If the bandwidth for
@@ -944,7 +1012,7 @@ public:
    */
   void setTwoPhaseRenderingThreshold(int size);
 
-  /*! \brief Set a new cookie.
+  /*! \brief Sets a new cookie.
    *
    * Use cookies to transfer information across different sessions
    * (e.g. a user name). In a subsequent session you will be able to
@@ -959,9 +1027,11 @@ public:
    * By default the cookie only applies to the current path on the
    * current domain. To set a proper value for domain, see also RFC2109.
    *
-   * \note %Wt provides session tracking automatically (and may be configured
-   *       to use a cookie for this). You only need this method if you want
-   *       to remember information <i>across</i> sessions.
+   * \if cpp
+   * \note %Wt provides session tracking automatically, and may be configured
+   *       to use a cookie for this. You only need to use cookies yourself
+   *       if you want to remember information <i>across</i> sessions.
+   * \endif
    *
    * \sa WEnvironment::supportsCookies(), WEnvironment::getCookie()
    */
@@ -980,7 +1050,7 @@ public:
    */
   int maximumRequestSize() const;
 
-  /*! \brief Add an entry to the application log.
+  /*! \brief Adds an entry to the application log.
    *
    * Starts a new log entry of the given <i>type</i> in the %Wt
    * application log file. This method returns a stream-like object to
@@ -1003,7 +1073,7 @@ public:
    */
   WLogEntry log(const std::string& type) const;
 
-  /*! \brief Set the loading indicator.
+  /*! \brief Sets the loading indicator.
    *
    * The loading indicator is shown to indicate that a response from
    * the server is pending or JavaScript is being evaluated.
@@ -1032,7 +1102,7 @@ public:
    */
   std::string docType() const;
 
-  /*! \brief Quit the application.
+  /*! \brief Quits the application.
    *
    * The method returns immediately, but has as effect that the
    * application will be terminated after the current event is
@@ -1045,7 +1115,7 @@ public:
    * You might want to make sure no more events can be received from
    * the user, by not having anything clickable, for example by
    * displaying only text. Even better is to redirect() the user to
-   * another, static, page in conjunction with quit().
+   * another, static, page in conjunction with %quit().
    *
    * \sa redirect()
    */
@@ -1057,9 +1127,9 @@ public:
    */
   bool isQuited() const { return quited_; }
 
-  /*! \brief %Signal which indicates that too a large POST was received.
+  /*! \brief %Signal which indicates that too a large request was received.
    *
-   * The integer parameter is the request that was received in bytes.
+   * The integer parameter is the request size that was received in bytes.
    */
   Signal<int>& requestTooLarge() { return requestTooLarge_; }
 
@@ -1074,15 +1144,15 @@ public:
    */
   bool isConnected() const { return connected_; }
 
-  /*
-   * Set a style class to the entire page &lt;body&gt;.
-   * (should be public API ?)
+  /*! \brief Sets a style class to the entire page &lt;body&gt;.
+   *
+   * \sa setHtmlClass()
    */
   void setBodyClass(const std::string& styleClass);
 
-  /*
-   * Set a style class to the entire page.
-   * (should be public API ?)
+  /*! \brief Sets a style class to the entire page &lt;html&gt;.
+   *
+   * \sa setBodyClass()
    */
   void setHtmlClass(const std::string& styleClass);
 
@@ -1108,30 +1178,44 @@ protected:
    *   in the same way.
    * - you want to manage resource usage during requests. For example, at
    *   the end of request handling, you want to return a database session
-   *   back to the pool. Since notify() is also used for rendering right after
+   *   back to the pool. Since %notify() is also used for rendering right after
    *   the application is created, this will also clean up resources after
    *   application construction.
    *
    * In either case, you will need to call the base class
-   * implementation WApplication::notify(), as otherwise no events
-   * will be delivered to your application.
+   * implementation of %notify(), as otherwise no events will be
+   * delivered to your application.
+   *
+   * The following shows a generic template for reimplementhing this
+   * method for both managing request resources and generic exception
+   * handling.
    *
    * \if cpp
-   * For example, the following shows a generic template for reimplementhing
-   * this method.
-   *
    * \code
-   * MyApplication::notify(const WEvent& e)
+   * MyApplication::notify(const WEvent& event)
    * {
    *    // Grab resources for during request handling
    *    try {
-   *      WApplication::notify(e);
+   *      WApplication::notify(event);
    *    } catch (MyException& exception) {
    *      // handle this exception in a central place
    *    }
    *    // Free resources used during request handling
    * }
    * \endcode
+   * \elseif java
+   * \code
+   * void notify(WEvent event) {
+   *     // Grab resources for during request handling
+   *     try {
+   *       super.notify(event);
+   *     }  catch (MyException exception) {
+   *       // handle this exception in a central place
+   *     }
+   *     // Free resources used during request handling
+   * }
+   * \endcode
+   * \endif
    *
    * Note that any uncaught exception throw during event handling
    * terminates the session.
@@ -1151,7 +1235,7 @@ protected:
    */
   virtual bool isExposed(WWidget *w) const;
 
-  /*! \brief Progress to an Ajax-enabled user interface.
+  /*! \brief Progresses to an Ajax-enabled user interface.
    *
    * This method is called when the progressive bootstrap method is used, and
    * support for AJAX has been detected. The default behavior will propagate
@@ -1268,8 +1352,6 @@ private:
 #ifdef WT_WITH_OLD_INTERNALPATH_API
   bool oldInternalPathAPI() const;
 #endif // WT_WITH_OLD_INTERNALPATH_API
-
-  void handleJavaScriptResponse(WResponseEvent event);
 
   /*
    * Methods for accessing javaScript, which may have erase-on-read

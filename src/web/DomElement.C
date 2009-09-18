@@ -232,17 +232,19 @@ void DomElement::setEvent(const char *eventName,
 
   std::stringstream js;
 
-  if (nonEmpty)
+  if (nonEmpty) {
     if (app->environment().agentIsIEMobile())
-      js << "var e=window.event;";
+      js << "var e=window.event,";
     else
-      js << "var e=event||window.event;";
+      js << "var e=event||window.event,";
+    js << "o=this;";
+  }
 
   if (anchorClick)
     js << "if(e.ctrlKey||e.metaKey)return true;else{";
 
   if (isExposed)
-    js << app->javaScriptClass() << "._p_.update(this,'"
+    js << app->javaScriptClass() << "._p_.update(o,'"
        << signalName << "',e,true);";
 
   js << jsCode;

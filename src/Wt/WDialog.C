@@ -31,6 +31,22 @@ WDialog::WDialog(const WString& windowTitle)
     if (app->environment().agentIsIE())
       app->styleSheet().addRule("body", "height: 100%;");
 
+
+    app->doJavaScript(std::string() +
+      WT_CLASS ".centerDialog = function(d){"
+      "" "if (d && d.style.display != 'none' && !d.getAttribute('moved')) {"
+      ""   "var ws=" WT_CLASS ".windowSize();"
+      ""   "d.style.left=Math.round((ws.x - d.clientWidth)/2"
+     + (app->environment().agent() == WEnvironment::IE6
+	? "+ document.documentElement.scrollLeft" : "") + ") + 'px';"
+      ""   "d.style.top=Math.round((ws.y - d.clientHeight)/2"
+     + (app->environment().agent() == WEnvironment::IE6
+	? "+ document.documentElement.scrollTop" : "") + ") + 'px';"
+      ""   "d.style.marginLeft='0px';"
+      ""   "d.style.marginTop='0px';"
+      "" "}"
+      "};", false);
+
     app->styleSheet().addRule("div.Wt-dialogcover", std::string() + 
 			      "background: white;"
 			      // IE: requres body.height=100%
@@ -46,10 +62,18 @@ WDialog::WDialog(const WString& windowTitle)
 			       "-moz-opacity:0.5;"
 			       "-khtml-opacity: 0.5"), CSS_RULES_NAME);
 
-    app->styleSheet().addRule("div.Wt-dialog",
+    std::string position
+      = app->environment().agent() == WEnvironment::IE6 ? "absolute" : "fixed";
+
+    // we use left: 50%, top: 50%, margin hack when JavaScript is not available
+    // see below for an IE workaround
+    app->styleSheet().addRule("div.Wt-dialog", std::string() +
 			      "visibility: visible;"
-			      "position: fixed; left: 50%; top: 50%;"
-			      "margin-left: -100px; margin-top: -50px;");
+			      "position: " + position + ';'
+			      + (!app->environment().ajax() ?
+				 "left: 50%; top: 50%;"
+				 "margin-left: -100px; margin-top: -50px;" :
+				 "left: 0px; top: 0px;"));
 
     if (app->environment().agent() == WEnvironment::IE6) {
       app->styleSheet().addRule
@@ -59,15 +83,18 @@ WDialog::WDialog(const WString& windowTitle)
 	 "(ignoreMe2 = document.documentElement.scrollLeft) + 'px' );"
 	 "top: expression("
 	 "(ignoreMe = document.documentElement.scrollTop) + 'px' );");
-      app->styleSheet().addRule
-	("div.Wt-dialog",
-	 "position: absolute;"
-	 "left: expression("
-	 "(ignoreMe2 = document.documentElement.scrollLeft + "
-	 "document.documentElement.clientWidth/2) + 'px' );"
-	 "top: expression("
-	 "(ignoreMe = document.documentElement.scrollTop + "
-	 "document.documentElement.clientHeight/2) + 'px' );");
+
+      // simulate position: fixed left: 50%; top 50%
+      if (!app->environment().ajax())
+	app->styleSheet().addRule
+	  ("div.Wt-dialog",
+	   "position: absolute;"
+	   "left: expression("
+	   "(ignoreMe2 = document.documentElement.scrollLeft + "
+	   "document.documentElement.clientWidth/2) + 'px' );"
+	   "top: expression("
+	   "(ignoreMe = document.documentElement.scrollTop + "
+	   "document.documentElement.clientHeight/2) + 'px' );");
     }
 
     app->styleSheet().addRule("div.Wt-dialog",
@@ -89,21 +116,7 @@ WDialog::WDialog(const WString& windowTitle)
 
   setPopup(true);
 
-  app->addAutoJavaScript
-    ("{"
-     "" "var d=" + jsRef() + ";"
-     "" "if (d && d.style.display != 'none' && !d.getAttribute('moved')) {"
-     ""   "var ws=" WT_CLASS ".windowSize();"
-     ""   "d.style.left=Math.round((ws.x - d.clientWidth)/2"
-     + (app->environment().agent() == WEnvironment::IE6
-	? "+ document.documentElement.scrollLeft" : "") + ") + 'px';"
-     ""   "d.style.top=Math.round((ws.y - d.clientHeight)/2"
-     + (app->environment().agent() == WEnvironment::IE6
-	? "+ document.documentElement.scrollTop" : "") + ") + 'px';"
-     ""   "d.style.marginLeft='0px';"
-     ""   "d.style.marginTop='0px';"
-     "" "}"
-     "}");
+  app->addAutoJavaScript(WT_CLASS ".centerDialog(" + jsRef() + ");");
 
   parent->addWidget(this);
 
@@ -159,6 +172,7 @@ WDialog::WDialog(const WString& windowTitle)
   titleBar_->mouseWentUp().connect(mouseUpJS_);
 
   saveCoverState(app, app->dialogCover());
+
   hide();
 }
 

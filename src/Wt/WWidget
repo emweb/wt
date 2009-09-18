@@ -30,32 +30,37 @@ class WWebWidget;
 class DomElement;
 
 /*! \class WWidget Wt/WWidget Wt/WWidget
- *  \brief A %WWidget is the abstract base class for any %Wt widget.
+ *  \brief The abstract base class for a user-interface component.
  *
- * The user-interface is organized in a tree structure, in which all
- * nodes are widgets. When a widget is deleted, it is also visually
- * removed from the user-interface and all children are deleted
- * recursively. All widgets, except for the application's root widget
- * have a parent, which is usually a WContainerWidget.
+ * The user-interface is organized in a tree structure, in which each
+ * nodes is a widgets. All widgets, except for the application's root
+ * widget and dialogs, have a parent which is usually a
+ * WContainerWidget.
  *
- * %WWidget is abstract and cannot be instantiated. Implementations
- * either from WWebWidget (for basic widgets with a direct HTML
- * counter-part) or WCompositeWidget (for anything else). To add a
- * WWebWidget to a parent WContainerWidget, either specify the parent
- * in the constructor (which is conventionally the last constructor
- * argument), or add the widget to the parent using
- * WContainerWidget::addWidget(WWidget *).
+ * \if cpp
  *
- * A widget provides methods to manage its decorative style. It also
- * provides access to CSS-based layout. Alternatively, you may use
- * layout managers (see WContainerWidget::setLayout()) to manage
- * layout of widgets, in which case you should not use methods that
- * are marked as being involved in CSS-based layout only.
+ * When a widget is deleted, it is also visually removed from the
+ * user-interface and all children are deleted recursively.
+ *
+ * \endif
+ *
+ * This is an abstract base class. Implementations derive either from
+ * the abstract WWebWidget (for basic widgets with a direct HTML
+ * counter-part) or from the abstract WCompositeWidget (for anything
+ * else). To add a %WWebWidget directly to a parent container, either
+ * specify the parent in the constructor (which is conventionally the
+ * last constructor argument), or add the widget to the parent using
+ * WContainerWidget::addWidget(). Alternatively, you may add the widget
+ * to a layout manager set for a %WContainerWidget.
+ *
+ * A widget provides methods to manage its decorative style base on
+ * CSS. It also provides access to CSS-based layout, which you may not
+ * use when the widget is not inserted into a layout manager.
  */
 class WT_API WWidget : public WObject
 {
 public:
-  /*! \brief Delete a widget.
+  /*! \brief Destructor.
    *
    * Deletes a widget and all children (recursively). If the widget is
    * contained in another widget, it is removed first.
@@ -66,14 +71,15 @@ public:
 
   /*! \brief Returns the parent widget.
    *
-   * With few exceptions, the parent is a WContainerWidget, and has
+   * With a few exceptions, the parent is a WContainerWidget, and has
    * been set implicitly when adding the widget to a container using
-   * WContainerWidget::addWidget() or by passing a container as a
-   * parent to the constructor.
+   * WContainerWidget::addWidget(), by passing a container as a parent
+   * to the constructor, or by inserting the widget into a layout
+   * manager.
    */
   WWidget *parent() const { return static_cast<WWidget *>(WObject::parent()); }
 
-  /*! \brief Sets the widget position scheme.
+  /*! \brief Sets the CSS position scheme.
    *
    * Establishes how the widget must be layed-out relative to its
    * siblings. The default position scheme is Static.
@@ -84,7 +90,7 @@ public:
    */
   virtual void setPositionScheme(PositionScheme scheme) = 0;
 
-  /*! \brief Returns the widget position scheme.
+  /*! \brief Returns the CSS position scheme.
    *
    * This applies to CSS-based layout.
    *
@@ -92,9 +98,9 @@ public:
    */
   virtual PositionScheme positionScheme() const = 0;
 
-  /*! \brief Applies offsets to a widget.
+  /*! \brief Sets CSS offsets for a non-statically positioned widget.
    *
-   * The argument <i>sides</i> may be a logical concatenation of \link
+   * The argument <i>sides</i> may be a combination of \link
    * Wt::Left Left\endlink, \link Wt::Right Right\endlink, \link
    * Wt::Top Top\endlink, and \link Wt::Bottom Bottom\endlink.
    *
@@ -132,7 +138,7 @@ public:
   virtual void setOffsets(const WLength& offset, WFlags<Side> sides = All) = 0;
 
 #ifdef WT_TARGET_JAVA
-  /*! \brief Applies offsets to a widget.
+  /*! \brief Sets CSS offsets for a non-statically positioned widget.
    *
    * This is a convenience method for applying offsets in pixel units.
    *
@@ -141,7 +147,7 @@ public:
   void setOffsets(int pixels, WFlags<Side> sides = All);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Retrieves the offset of the widget.
+  /*! \brief Returns a CSS offset.
    *
    * This applies to CSS-based layout.
    *
@@ -154,7 +160,8 @@ public:
    * Specify a new size for this widget, by specifying width and height.
    * By default a widget has automatic width and height, see WLength::isAuto().
    *
-   * This applies to CSS-based layout.
+   * This applies to CSS-based layout, and only \link setInline()
+   * block\endlink widgets can be given a size reliably.
    *
    * \sa width(), height()
    */
@@ -170,10 +177,10 @@ public:
   void resize(int widthPixels, int heightPixels);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Returns the widget width.
+  /*! \brief Returns the width.
    *
-   * Returns the width set for this widget. This is not a calculated width,
-   * based on layout, but the width as specified with
+   * Returns the width set for this widget. This is not a calculated
+   * width, based on layout, but the width as specified with
    * resize(const WLength&, const WLength&).
    *
    * This applies to CSS-based layout.
@@ -182,11 +189,11 @@ public:
    */
   virtual WLength width() const = 0;
 
-  /*! \brief Returns the widget height.
+  /*! \brief Returns the height.
    *
-   * Returns the height set for this widget. This is not a calculated height,
-   * based on layout, but the height as specified previously with
-   * resize(const WLength& width, const WLength& height).
+   * Returns the height set for this widget. This is not a calculated
+   * height, based on layout, but the height as specified previously
+   * with resize(const WLength& width, const WLength& height).
    *
    * This applies to CSS-based layout.
    *
@@ -244,37 +251,32 @@ public:
    */
   virtual WLength maximumHeight() const = 0;
 
-  /*! \brief Sets the line height for contained text.
+  /*! \brief Sets the CSS line height for contained text.
    */
   virtual void setLineHeight(const WLength& height) = 0;
 
-  /*! \brief Returns the line height for contained text.
+  /*! \brief Returns the CSS line height for contained text.
    *
    * sa setLineHeight()
    */
   virtual WLength lineHeight() const = 0;
 
-  /*! \brief Specify a side to which the WWidget must float.
+  /*! \brief Specifies a CSS float side.
    *
    * This only applies to widgets with a \link Wt::Static Static
    * \endlink positionScheme().
    *
-   * It specifies if the widget must be positioned on one of the sides
-   * of the parent widget, at the current line. A typical use is to
-   * position images within text. Valid values for Side or 
-   * \if cpp
-   * \link Wt::None None \endlink
-   * \elseif java
-   * {javadoclink Side#None None}
-   * \endif
-   * , \link Wt::Left Left \endlink or \link
-   * Wt::Right Right \endlink.
+   * This lets the widget float to one of the sides of the parent
+   * widget, at the current line. A typical use is to position images
+   * within text. Valid values for Side or \if cpp \link Wt::None None
+   * \endlink \elseif java {javadoclink Side#None None} \endif , \link
+   * Wt::Left Left \endlink or \link Wt::Right Right \endlink.
    *
    * This applies to CSS-based layout.
    */
   virtual void setFloatSide(Side s) = 0;
 
-  /*! \brief Returns the float side.
+  /*! \brief Returns the CSS float side.
    *
    * \sa setFloatSide(Side)
    */
@@ -283,7 +285,7 @@ public:
   /*! \brief Sets the sides that should be cleared of floats.
    *
    * This pushes the widget down until it is not surrounded by floats
-   * at the <i>sides</i> (which may be a logical OR of \link Wt::Left
+   * at the <i>sides</i> (which may be a combination of \link Wt::Left
    * Left\endlink and \link Wt::Right Right\endlink.
    * 
    * This applies to CSS-based layout.
@@ -298,7 +300,7 @@ public:
    */
   virtual WFlags<Side> clearSides() const = 0;
 
-  /*! \brief Sets margins around the widget.
+  /*! \brief Sets CSS margins around the widget.
    *
    * Setting margin has the effect of adding a distance between the widget
    * and surrounding widgets. The default margin (with an automatic length)
@@ -316,7 +318,7 @@ public:
   virtual void setMargin(const WLength& margin, WFlags<Side> sides = All) = 0;
 
 #ifdef WT_TARGET_JAVA
-  /*! \brief Sets margins around the widget.
+  /*! \brief Sets CSS margins around the widget.
    *
    * This is a convenience method for setting margins in pixel units.
    *
@@ -325,7 +327,7 @@ public:
   virtual void setMargin(int pixels, WFlags<Side> sides = All);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Returns the margin set for that side.
+  /*! \brief Returns a CSS margin set.
    *
    * This applies to CSS-based layout.
    *
@@ -333,26 +335,97 @@ public:
    */
   virtual WLength margin(Side side) const = 0;
 
-  /*! \brief Sets whether the widget must be hidden.
+  /*! \brief Sets whether the widget keeps its geometry when hidden.
    *
-   * Hide or show the widget (including all its descendant widgets).
-   * setHidden(false) will show this widget and all child widgets that
-   * are not hidden.
+   * Normally, a widget that is hidden will no longer occupy space,
+   * causing a reflow of sibling widgets. Using this method you may
+   * change this behavior to keep an (open) space when hidden.
+   *
+   * \note Currently you can only set this before initial rendering.
+   *
+   * \sa setHidden()
+   */
+  virtual void setHiddenKeepsGeometry(bool enabled) = 0;
+
+  /*! \brief Returns whether the widget keeps its geometry when hidden.
+   *
+   * \sa setHiddenKeepsGeometry()
+   */
+  virtual bool hiddenKeepsGeometry() const = 0;
+
+  /*! \brief Sets whether the widget is hidden.
+   *
+   * Hides or show the widget (including all its descendant widgets).
+   * setHidden(false) will show this widget and all descendant widgets
+   * that are not hidden. A widget is only visible if it and all its
+   * ancestors in the widget tree are visible, which may be checked
+   * using isVisible().
    *
    * \sa hide(), show()
    */
   virtual void setHidden(bool hidden) = 0;
 
-  /*! \brief Returns whether this widget is set hidden.
+  /*! \brief Returns whether the widget is set hidden.
    *
-   * A widget that is not hidden may still be not visible when one
-   * of its ancestor widgets are hidden.
+   * A widget that is not hidden may still be not visible when one of
+   * its ancestor widgets is hidden. Use isVisible() to check the
+   * visibility of a widget.
    *
-   * \sa setHidden()
+   * \sa setHidden(), isVisible()
    */
   virtual bool isHidden() const = 0;
 
-  /*! \brief Let the widget overlay other sibling widgets.
+  /*! \brief Returns whether the widget is visible.
+   *
+   * A widget is visible if it is not hidden, and none of its
+   * ancestors are hidden. This method returns the true visibility,
+   * while isHidden() returns whether a widget has been explicitly
+   * hidden.
+   *
+   * Note that a widget may be at the same time not hidden, and not
+   * visible, in case one of its ancestors was hidden.
+   *
+   * \sa isHidden()
+   */
+  virtual bool isVisible() const = 0;
+
+  /*! \brief Sets whether the widget is disabled.
+   *
+   * Enables or disables the widget (including all its descendant
+   * widgets). setDisabled(false) will enable this widget and all
+   * descendant widgets that are not disabled. A widget is only
+   * enabled if it and all its ancestors in the widget tree are
+   * disabled.
+   *
+   * \sa disable(), enable()
+   */
+  virtual void setDisabled(bool disabled) = 0;
+
+  /*! \brief Returns whether the widget is set disabled.
+   *
+   * A widget that is not set disabled may still be disabled when one
+   * of its ancestor widgets is set disabled. Use isEnabled() to find
+   * out whether a widget is enabled.
+   *
+   * \sa setDisabled(), isEnabled()
+   */
+  virtual bool isDisabled() const = 0;
+
+  /*! \brief Returns whether the widget is enabled.
+   *
+   * A widget is enabled if it is not disabled, and none of its
+   * ancestors are disabled. This method returns whether the widget is
+   * rendered as enabled, while isDisabled() returns whether a widget
+   * has been explicitly disabled.
+   *
+   * Note that a widget may be at the same time not enabled, and not
+   * disabled, in case one of its ancestors was disabled.
+   *
+   * \sa isDisabled()
+   */
+  virtual bool isEnabled() const = 0;
+
+  /*! \brief Lets the widget overlay over other sibling widgets.
    *
    * A widget that isPopup() will be rendered on top of any other
    * sibling widget contained within the same parent (including other
@@ -362,11 +435,12 @@ public:
    * Wt::Absolute Absolute \endlink or \link Wt::Fixed Fixed \endlink
    * positionScheme().
    *
-   * This applies to CSS-based layout.
+   * This applies to CSS-based layout, and configures the z-index
+   * property.
    */
   virtual void setPopup(bool popup) = 0;
 
-  /*! \brief Returns whether this widget is overlayed.
+  /*! \brief Returns whether the widget is overlayed.
    *
    * This applies to CSS-based layout.
    *
@@ -374,9 +448,9 @@ public:
    */
   virtual bool isPopup() const = 0;
 
-  /*! \brief Sets whether this widget is displayed inline or as a block.
+  /*! \brief Sets whether the widget is displayed inline or as a block.
    *
-   * This option changes whether this widget must be rendered in-line
+   * This option changes whether this widget must be rendered in line
    * with sibling widgets wrapping at the right edge of the parent
    * container (like text), or whether this widget must be rendered as
    * a rectangular block that stacks vertically with sibling widgets
@@ -389,12 +463,16 @@ public:
    */
   virtual void setInline(bool inlined) = 0;
 
-  /*! \brief Returns whether this widget is displayed inline or as block.
+  /*! \brief Returns whether the widget is displayed inline or as block.
    *
    * \sa setInline(bool)
    */
   virtual bool isInline() const = 0;
 
+  /*! \brief Sets a CSS decoration style.
+   *
+   * This copies the style over its current decorationStyle()
+   */
   virtual void setDecorationStyle(const WCssDecorationStyle& style) = 0;
 
   /*! \brief Returns the decoration style of this widget.
@@ -402,28 +480,35 @@ public:
    * This groups all decorative aspects of the widget, which do not
    * affect the widget layout (except for the border properties which
    * may behave like extra margin around the widget).
+   *
+   * When a decoration style has not been previously set, it returns a
+   * default decoration style object.
+   *
+   * \sa setDecorationStyle()
    */
   virtual WCssDecorationStyle& decorationStyle() = 0;
 
-  /*! \brief Sets a style class.
+  /*! \brief Sets (one or more) CSS style classes.
    *
-   * The CSS style class works in conjunction with style sheet, and
-   * provides a flexible way to provide many widgets the same markup.
+   * You may set one or more space separated style classes. CSS style
+   * class works in conjunction with style sheet, and provides a
+   * flexible way to provide many widgets the same markup.
    *
-   * Setting an empty string removes the style class.
+   * Setting an empty string removes the style class(es).
    * 
    * \sa WApplication::styleSheet()
    */
   virtual void setStyleClass(const WT_USTRING& styleClass) = 0;
+
   void setStyleClass(const char *styleClass);
 
-  /*! \brief Returns the style class.
+  /*! \brief Returns the CSS style class.
    *
    * \sa setStyleClass()
    */
   virtual WT_USTRING styleClass() const = 0;
 
-  /*! \brief Sets the vertical alignment of this (inline) widget.
+  /*! \brief Sets the vertical alignment.
    *
    * This only applies to inline widgets, and determines how to position
    * itself on the current line, with respect to sibling inline widgets.
@@ -455,7 +540,7 @@ public:
    */
   virtual void setToolTip(const WString& text) = 0;
 
-  /*! \brief Returns the tooltip text.
+  /*! \brief Returns the tooltip.
    */
   virtual WString toolTip() const = 0;
 
@@ -468,7 +553,7 @@ public:
    */
   virtual void refresh() = 0;
 
-  /*! \brief A JavaScript expression that returns the corresponding DOM node.
+  /*! \brief Returns a JavaScript expression to the corresponding DOM node.
    *
    * You may want to use this in conjunction with JSlot or
    * WApplication::doJavaScript() in custom JavaScript code.
@@ -494,25 +579,27 @@ public:
 
   /*! \brief Short hand for WString::tr()
    *
-   * Create a message with the given key.
+   * Creates a localized string with the given key.
    */
   static WString tr(const char *key);
   static WString tr(const std::string& key);
 
-  /*! \brief Load content just before the widget's content is rendered.
+  /*! \brief Loads content just before the widget is used.
    *
-   * As soon as a widget is inserted into the widget hierarchy, it is
-   * rendered. Visible widgets are rendered immediately, and invisible
-   * widgets in the back-ground. This method is called when the widget
-   * is directly or indirectly inserted into the widget tree.
+   * When the widget is inserted in the widget hierarchy, this method
+   * is called. Widgets that get inserted in the widget hierarchy will
+   * be rendered. Visible widgets are rendered immediately, and
+   * invisible widgets in the back-ground (or not for a plain HTML
+   * session). This method is called when the widget is directly or
+   * indirectly inserted into the widget tree.
    *
-   * The default implementation simply propagates the load signal to its
-   * children. You may want to override this method to load resource-intensive
-   * content only when the widget is loaded into the browser.
+   * The default implementation simply propagates the load signal to
+   * its children. You may want to override this method to delay loading
+   * of resource-intensive contents.
    */
   virtual void load() = 0;
 
-  /*! \brief Returns if this widget has been loaded.
+  /*! \brief Returns whether this widget has been loaded.
    *
    * \sa load()
    */
@@ -538,7 +625,10 @@ public:
    *
    * Sets a custom Id. Note that the Id must be unique across the whole
    * widget tree, can only be set right after construction and cannot
-   * be changed.
+   * be changed. This is mostly useful for in tests using a test plan that
+   * manipulates DOM elements by Id.
+   *
+   * By default, auto-generated id's are used.
    *
    * \sa WObject::id()
    */
@@ -572,31 +662,45 @@ public:
   std::string createJavaScript(std::stringstream& js,
 			       const std::string insertJS);
 
+#ifndef WT_TARGET_JAVA
   Signal<WWidget *> destroyed;
+#endif // WT_TARGET_JAVA
 
-  /*! \brief Hide this WWidget.
+  /*! \brief Hides the widget.
    *
-   * \sa setHidden(bool)
+   * This calls \link setHidden() setHidden(true)\endlink.
    */
   void hide();
 
-  /*! \brief Show this WWidget.
+  /*! \brief Shows the widget.
    *
-   * \sa setHidden(bool)
+   * This calls \link setHidden() setHidden(false)\endlink.
    */
   void show();
+
+  /*! \brief Enables the widget.
+   *
+   * This calls \link setDisabled() setDisabled(false)\endlink.
+   */
+  void enable();
+
+  /*! \brief Disable thes widget.
+   *
+   * This calls \link setDisabled() setDisabled(true)\endlink.
+   */
+  void disable();
 
   virtual DomElement *createSDomElement(WApplication *app) = 0;
 
 protected:
-  /*! \brief Create a widget with a given parent.
+  /*! \brief Creates a widget.
    *
-   * If a parent container is specified, the widget is added to the
+   * When a parent container is specified, the widget is added to the
    * container, using WContainerWidget::addWidget().
    */
   WWidget(WContainerWidget* parent = 0);
 
-  /*! \brief Handle a drop event.
+  /*! \brief Handles a drop event.
    *
    * Reimplement this method to handle a drop events for mime types you
    * declared to accept using acceptDrops.
@@ -608,12 +712,13 @@ protected:
    */
   virtual void dropEvent(WDropEvent dropEvent);
 
-  /*! \brief Progress to an Ajax-enabled widget.
+  /*! \brief Progresses to an Ajax-enabled widget.
    *
-   * This method is called when the progressive bootstrap method is used, and
-   * support for AJAX has been detected. The default behavior will upgrade
-   * the widget's event handling to use AJAX instead of full page reloads, and
-   * propagate the call to its children.
+   * This method is called when the progressive bootstrap method is
+   * used, and support for AJAX has been detected. The default
+   * behavior will upgrade the widget's event handling to use AJAX
+   * instead of full page reloads, and propagate the call to its
+   * children.
    *
    * You may want to reimplement this method if you want to make
    * changes to widget when AJAX is enabled. You should always call
@@ -680,7 +785,6 @@ protected:
 
   virtual void setParent(WWidget *parent);
 
-  virtual bool isVisible() const = 0;
   virtual bool isStubbed() const = 0;
   virtual void render();
 
@@ -702,18 +806,25 @@ protected:
 
   void renderOk();
   void askRerender(bool laterOnly = false);
-  bool needRerender() const { return needRerender_; }
+  bool needRerender() const { return flags_.test(BIT_NEED_RERENDER); }
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app) = 0;
   virtual bool needsToBeRendered() const = 0;
 
 private:
+  /*
+   * Booleans packed in a bitset.
+   */
+  static const int BIT_WAS_HIDDEN = 0;
+  static const int BIT_WAS_DISABLED = 1;
+  static const int BIT_NEED_RERENDER = 2;
+  std::bitset<3> flags_;
+
   EventSignalList eventSignals_;
-  bool wasHidden_;
-  bool needRerender_;
 
   void undoHideShow();
+  void undoDisableEnable();
   virtual WWebWidget *webWidget() = 0;
 
   virtual WLayoutItemImpl  *createLayoutItemImpl(WLayoutItem *layout);

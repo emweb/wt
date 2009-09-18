@@ -37,9 +37,11 @@ namespace Wt {
  * Besides the main page, other objects may be rendered as additional
  * resources, for example documents or images. Classes such as WAnchor
  * or WImage can use a resource instead of a URL to provide their
- * contents. Whenever the resource has changed, you can emit the
+ * contents. Whenever the resource has changed, you should call the
+ * setChanged() method. setChanged() will make sure that the browser will
+ * use a new version of the resource by generating a new URL, and emits the
  * dataChanged() signal to make those that refer to the resource aware
- * that they should be updated.
+ * that they should update their references to the new URL.
  *
  * You can help the browser to start a suitable helper application to
  * handle the downloaded resource, or suggest to the user a suitable
@@ -172,20 +174,36 @@ public:
    */
   void suggestFileName(const std::string& name);
 
+  /*! \brief Generates a new URL for this resource and emits the changed signal
+   */
+  void setChanged();
+
   /*! \brief Generates an URL for this resource.
    *
    * Generates a new url that refers to this resource. The url is
    * unique to assure that it is not cached by the web browser, and
    * can thus be used to refer to a new "version" of the resource,
    * which can be indicated by emitting the dataChanged() signal.
+   *
+   * The old urls are not invalidated by calling this method.
    */
-  const std::string generateUrl() const;
+  const std::string &generateUrl();
+
+  /*! \brief Returns the current URL for this resource.
+   *
+   * Returns the url that refers to this resource.
+   */
+  const std::string &url() const;
 
   /*! \brief Signal emitted when the data presented in this resource
    *         has changed.
    *
    * Widgets that reference the resource (such as anchors and images) will
    * make sure the new data is rendered.
+   *
+   * It is better to call setChanged() than to emit this signal. setChanged
+   * generates a new URL for this resource to avoid caching problems and then
+   * emits this signal.
    */
   Signal<void>& dataChanged() { return dataChanged_; }
 
@@ -249,6 +267,7 @@ private:
 	      Http::ResponseContinuation *continuation = 0);
 
   std::string suggestedFileName_;
+  std::string currentUrl_;
 
   friend class Http::ResponseContinuation;
   friend class WebSession;

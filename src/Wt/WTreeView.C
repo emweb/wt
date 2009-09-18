@@ -790,6 +790,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
     nodeLoad_(0),
     currentSortColumn_(-1),
     contentsContainer_(0),
+    scrollBarC_(0),
     resizeHandleMDownJS_(this),
     resizeHandleMMovedJS_(this),
     resizeHandleMUpJS_(this),
@@ -1340,19 +1341,19 @@ void WTreeView::setColumn1Fixed(bool fixed)
     WContainerWidget *scrollBarContainer = new WContainerWidget();
     scrollBarContainer->setStyleClass("cwidth");
     scrollBarContainer->resize(WLength::Auto, 17);
-    WContainerWidget *scrollBarC = new WContainerWidget(scrollBarContainer);
-    scrollBarC->setStyleClass("Wt-tv-row Wt-scroll");
-    scrollBarC->scrolled().connect(tieRowsScrollJS_);
+    scrollBarC_ = new WContainerWidget(scrollBarContainer);
+    scrollBarC_->setStyleClass("Wt-tv-row Wt-scroll");
+    scrollBarC_->scrolled().connect(tieRowsScrollJS_);
 
     WApplication *app = WApplication::instance();
 
     if (app->environment().agentIsIE()) {
       scrollBarContainer->setPositionScheme(Relative);
-      scrollBarC->setAttributeValue("style", "right: 0px");
+      scrollBarC_->setAttributeValue("style", "right: 0px");
       // and still it doesn't work properly...
     }
 
-    WContainerWidget *scrollBar = new WContainerWidget(scrollBarC);
+    WContainerWidget *scrollBar = new WContainerWidget(scrollBarC_);
     scrollBar->setStyleClass("Wt-tv-rowc");
     if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
       scrollBar->setAttributeValue("style", "left: 0px;");
@@ -2751,6 +2752,9 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
       adjustRenderedNode(rootNode_, 0);
     } 
   }
+
+  if (column1Fixed_)
+    tieRowsScrollJS_.exec(scrollBarC_->jsRef());
 }
 
 int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)

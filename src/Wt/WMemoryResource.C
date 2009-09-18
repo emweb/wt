@@ -36,13 +36,13 @@ WMemoryResource::~WMemoryResource()
 void WMemoryResource::setMimeType(const std::string& mimeType)
 {
   mimeType_ = mimeType;
-  dataChanged().emit();
+  setChanged();
 }
 
 void WMemoryResource::setData(const std::vector<unsigned char>& data)
 {
   data_ = data;
-  dataChanged().emit();
+  setChanged();
 }
 
 void WMemoryResource::setData(const unsigned char *data, int count)
@@ -50,7 +50,7 @@ void WMemoryResource::setData(const unsigned char *data, int count)
   data_.clear();
   data_.insert(data_.end(), data, data + count);
 
-  dataChanged().emit();
+  setChanged();
 }
 
 void WMemoryResource::handleRequest(const Http::Request& request,

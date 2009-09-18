@@ -33,13 +33,6 @@
 
 namespace Wt {
 
-WResponseEvent::WResponseEvent()
-{ }
-
-WResponseEvent::WResponseEvent(const JavaScriptEvent& jsEvent)
-  : jsEvent_(jsEvent)
-{ }
-
 WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
 					   const std::string& aSymbol)
   : uri(anUri), symbol(aSymbol)
@@ -161,6 +154,8 @@ WApplication::WApplication(const WEnvironment& env)
 		      "color: inherit;");
   styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
   styleSheet_.addRule(".Wt-invalid", "background-color: #f79a9a;");
+  styleSheet_.addRule("span.Wt-disabled", "color: gray;");
+  styleSheet_.addRule("fieldset.Wt-disabled legend", "color: gray;");
   styleSheet_.addRule(".unselectable",
 		      "-moz-user-select:-moz-none;"
 		      "-khtml-user-select: none;"
@@ -260,7 +255,7 @@ std::string WApplication::onePixelGifUrl()
 	  0x01, 0x00, 0x3b };
 
     w->setData(gifData, 43);
-    onePixelGifUrl_ = w->generateUrl();
+    onePixelGifUrl_ = w->url();
   }
 
   return onePixelGifUrl_;

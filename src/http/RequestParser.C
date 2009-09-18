@@ -28,6 +28,9 @@
  * Any header field value over 80k.
  * Any header field name over 256 bytes.
  * Any request URI greater than 512 bytes.
+ *
+ * We added:
+ * Any request body greater than 40MB
  */
 
 static std::size_t MAX_REQUEST_HEADER_SIZE = 112*1024;
@@ -35,6 +38,7 @@ static int MAX_URI_SIZE = 512;
 static int MAX_FIELD_VALUE_SIZE = 80*1024;
 static int MAX_FIELD_NAME_SIZE = 256;
 static int MAX_METHOD_SIZE = 16;
+static int MAX_POST_SIZE = 40*1024*1024;
 
 namespace http {
 namespace server {
@@ -112,9 +116,9 @@ bool RequestParser::parseBody(Request& req, ReplyPtr reply,
 
   begin = thisEnd;
 
-  reply->consumeRequestBody(thisBegin, thisEnd, bodyRemainder_ == 0);
-
-  return bodyRemainder_ == 0;
+  bool endOfRequest = bodyRemainder_ == 0;
+  reply->consumeRequestBody(thisBegin, thisEnd, endOfRequest);
+  return endOfRequest;
 }
 
 boost::tribool& RequestParser::consume(Request& req, char input)
@@ -475,8 +479,9 @@ bool RequestParser::is_digit(int c)
 
 bool RequestParser::validate(Request& req)
 {
-  Request::HeaderMap::const_iterator i = req.headerMap.find("Content-Length");
+  req.contentLength = 0;
 
+  Request::HeaderMap::const_iterator i = req.headerMap.find("Content-Length");
   if (i != req.headerMap.end()) {
     try {
       req.contentLength = boost::lexical_cast<unsigned int>(i->second);
@@ -485,10 +490,11 @@ bool RequestParser::validate(Request& req)
     }
   }
 
-  if (req.contentLength >= 0)
+  if (req.contentLength >= 0 && req.contentLength <= MAX_POST_SIZE)
     bodyRemainder_ = req.contentLength;
-  else
-    bodyRemainder_ = 0;
+  else {
+    return false;
+  }
 
   /*
    * HTTP 1.1 (RFC 2616) and HTTP 1.0 (RFC 1945) validation

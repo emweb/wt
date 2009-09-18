@@ -10,6 +10,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/WFormWidget"
 #include "Wt/WResource"
 #include "Wt/WTimerWidget"
 #include "Wt/Http/Request"
@@ -889,12 +890,14 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    state_ = JustCreated;
 	  }
 
+	  bool requestForResource = requestE && *requestE == "resource";
+
 #ifndef WT_TARGET_JAVA
-	  if (!unlockRecursiveEventLoop())
+	  if (requestForResource || !unlockRecursiveEventLoop())
 #endif // WT_TARGET_JAVA
 	    {
 	      app_->notify(WEvent(handler, responseType));
-	      if (handler.response())
+	      if (handler.response() && !requestForResource)
 		/*
 		 * This may be when an error was thrown during event
 		 * propagation: then we want to render the error message.
@@ -1102,6 +1105,8 @@ void WebSession::notify(const WEvent& event)
 	  handler.response()->out() <<
 	    "<html><head><title>bhm</title></head>"
 	    "<body>&#160;</body></html>";
+	  handler.response()->flush();
+	  handler.setRequest(0, 0);
 	} else {
 	  WResource *resource = decodeResource(*resourceE);
 
@@ -1125,6 +1130,8 @@ void WebSession::notify(const WEvent& event)
 	    handler.response()->setContentType("text/html");
 	    handler.response()->out() <<
 	      "<html><body><h1>Refusing to respond.</h1></body></html>";
+	    handler.response()->flush();
+	    handler.setRequest(0, 0);
 	  }
 	}
       } else {
@@ -1288,6 +1295,53 @@ WObject::FormData WebSession::getFormData(const WebRequest& request,
 			   ? &file->second : 0);
 }
 
+std::vector<unsigned int> WebSession::getSignalProcessingOrder(const WEvent& e)
+{
+  // Rush 'onChange' events. Reason: if a user edits a text area and
+  // a subsequent click on another element deletes the text area, we
+  // have seen situations (at least on firefox) where the clicked event
+  // is processed before the changed event, causing the changed event
+  // to fail because the event target was deleted.
+  WebSession::Handler& handler = e.handler;
+
+  std::vector<unsigned int> highPriority;
+  std::vector<unsigned int> normalPriority;
+
+  for (unsigned i = 0;; ++i) {
+    const WebRequest& request = *handler.request();
+
+    std::string se = i > 0
+      ? 'e' + boost::lexical_cast<std::string>(i) : std::string();
+    const std::string *signalE = getSignal(request, se);
+    if (!signalE) {
+      break;
+    }
+    if (*signalE != "user" &&
+        *signalE != "hash" &&
+        *signalE != "res" &&
+        *signalE != "none" &&
+        *signalE != "load") {
+      EventSignalBase *signal = decodeSignal(*signalE);
+      if (!signal) {
+        // Signal was not exposed, do nothing
+      } else if (signal->name() == WFormWidget::CHANGE_SIGNAL) {
+        // compare by pointer in the condition above is ok
+        highPriority.push_back(i);
+      } else {
+        normalPriority.push_back(i);
+      }
+    } else {
+      normalPriority.push_back(i);
+    }
+  }
+
+  // Concatenate vectors and return
+  highPriority.insert(highPriority.end(), normalPriority.begin(),
+                        normalPriority.end());
+  return highPriority;
+
+}
+
 void WebSession::notifySignal(const WEvent& e)
 {
   WebSession::Handler& handler = e.handler;
@@ -1295,7 +1349,9 @@ void WebSession::notifySignal(const WEvent& e)
   // Save pending changes (e.g. from resource completion)
   renderer_.saveChanges();
 
-  for (unsigned i = 0;; ++i) {
+  // Reorder signals, as browsers sometimes generate them in a strange order
+  std::vector<unsigned int> order = getSignalProcessingOrder(e);
+  for (unsigned i = 0; i < order.size(); ++i) {
     if (!handler.request())
       return;
 

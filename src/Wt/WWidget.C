@@ -19,9 +19,10 @@
 namespace Wt {
 
 WWidget::WWidget(WContainerWidget* parent)
-  : WObject(0),
-    needRerender_(true)
-{ }
+  : WObject(0)
+{ 
+  flags_.set(BIT_NEED_RERENDER);
+}
 
 WWidget::~WWidget()
 {
@@ -39,8 +40,7 @@ WWidget::~WWidget()
 #endif
   }
 
-  if (needRerender_)
-    WApplication::instance()->session()->renderer().doneUpdate(this);
+  renderOk();
 }
 
 void WWidget::setParent(WWidget *p)
@@ -58,16 +58,16 @@ void WWidget::render()
 
 void WWidget::renderOk()
 {
-  if (needRerender_) {
-    needRerender_ = false;
+  if (flags_.test(BIT_NEED_RERENDER)) {
+    flags_.reset(BIT_NEED_RERENDER);
     WApplication::instance()->session()->renderer().doneUpdate(this);
   }
 }
 
 void WWidget::askRerender(bool laterOnly)
 {
-  if (!needRerender_) {
-    needRerender_ = true;
+  if (!flags_.test(BIT_NEED_RERENDER)) {
+    flags_.set(BIT_NEED_RERENDER);
     WApplication::instance()->session()->renderer().needUpdate(this, laterOnly);
   }
 }
@@ -79,14 +79,26 @@ void WWidget::setStyleClass(const char *styleClass)
 
 void WWidget::hide()
 {
-  wasHidden_ = isHidden();
+  flags_.set(BIT_WAS_HIDDEN, isHidden());
   setHidden(true);
 }
 
 void WWidget::show()
 { 
-  wasHidden_ = isHidden();
+  flags_.set(BIT_WAS_HIDDEN, isHidden());
   setHidden(false);
+}
+
+void WWidget::disable()
+{
+  flags_.set(BIT_WAS_DISABLED, isDisabled());
+  setDisabled(true);
+}
+
+void WWidget::enable()
+{ 
+  flags_.set(BIT_WAS_DISABLED, isDisabled());
+  setDisabled(false);
 }
 
 #ifndef WT_TARGET_JAVA
@@ -96,6 +108,10 @@ WStatelessSlot *WWidget::getStateless(Method method)
     return implementStateless(&WWidget::hide, &WWidget::undoHideShow);
   else if (method == static_cast<WObject::Method>(&WWidget::show))
     return implementStateless(&WWidget::show, &WWidget::undoHideShow);
+  else if (method == static_cast<WObject::Method>(&WWidget::enable))
+    return implementStateless(&WWidget::enable, &WWidget::undoDisableEnable);
+  else if (method == static_cast<WObject::Method>(&WWidget::disable))
+    return implementStateless(&WWidget::disable, &WWidget::undoDisableEnable);
   else
     return WObject::getStateless(method);
 }
@@ -103,7 +119,12 @@ WStatelessSlot *WWidget::getStateless(Method method)
 
 void WWidget::undoHideShow()
 {
-  setHidden(wasHidden_);
+  setHidden(flags_.test(BIT_WAS_HIDDEN));
+}
+
+void WWidget::undoDisableEnable()
+{
+  setDisabled(flags_.test(BIT_WAS_DISABLED));
 }
 
 #ifdef WT_TARGET_JAVA

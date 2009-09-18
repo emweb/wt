@@ -33,14 +33,14 @@ namespace Wt {
  * \code
  * Wt::WContainerWidget *w = new Wt::WContainerWidget();
  * Wt::WLabel *label = new Wt::WLabel("Favourite Actress: ", w);
- * Wt::WLineEdit *edit = new Wt::WLineEdit("Renée Zellweger", w);
+ * Wt::WLineEdit *edit = new Wt::WLineEdit("Renee Zellweger", w);
  * label->setBuddy(edit);
  * \endcode
  * \elseif java
  * \code
  * WContainerWidget w = new WContainerWidget();
  * WLabel label = new WLabel("Favourite Actress: ", w);
- * WLineEdit edit = new WLineEdit("Renée Zellweger", w);
+ * WLineEdit edit = new WLineEdit("Renee Zellweger", w);
  * label.setBuddy(edit);
  * \endcode
  * \endif
@@ -144,6 +144,7 @@ protected:
   virtual void           getDomChanges(std::vector<DomElement *>& result,
 				       WApplication *app);
   virtual void           propagateRenderOk(bool deep);
+  virtual void           propagateSetEnabled(bool enabled);
 
   void updateImage(DomElement& element, bool all, WApplication *app, int pos);
   void updateText(DomElement& element, bool all, WApplication *app, int pos);

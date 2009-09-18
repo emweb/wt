@@ -102,8 +102,14 @@ public:
   virtual WFlags<Side> clearSides() const;
   virtual void setMargin(const WLength& margin, WFlags<Side> sides = All);
   virtual WLength margin(Side side) const;
+  virtual void setHiddenKeepsGeometry(bool enabled);
+  virtual bool hiddenKeepsGeometry() const;
   virtual void setHidden(bool);
   virtual bool isHidden() const;
+  virtual bool isVisible() const;
+  virtual void setDisabled(bool);
+  virtual bool isDisabled() const;
+  virtual bool isEnabled() const;
   virtual void setPopup(bool);
   virtual bool isPopup() const;
   virtual void setInline(bool);
@@ -211,7 +217,7 @@ protected:
   virtual void propagateRenderOk(bool deep = true);
   virtual DomElement *renderRemove();
 
-  virtual bool isVisible() const;
+  virtual void propagateSetEnabled(bool enabled);
   virtual bool isStubbed() const;
   virtual void enableAjax();
 
@@ -223,7 +229,7 @@ protected:
 
 private:
   /*
-   * Boolean packeds in a bitset.
+   * Booleans packed in a bitset.
    */
   static const int BIT_INLINE = 0;
   static const int BIT_HIDDEN = 1;
@@ -249,15 +255,18 @@ private:
   static const int BIT_SELECTABLE_CHANGED = 21;
   static const int BIT_WIDTH_CHANGED = 22;
   static const int BIT_HEIGHT_CHANGED = 23;
+  static const int BIT_DISABLED = 24;
+  static const int BIT_DISABLED_CHANGED = 25;
+  static const int BIT_HIDE_WITH_VISIBILITY = 26;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<24> AllChangeFlags;
+  static const std::bitset<27> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<24> flags_;
+  std::bitset<27> flags_;
   WLength	 *width_;
   WLength	 *height_;
 

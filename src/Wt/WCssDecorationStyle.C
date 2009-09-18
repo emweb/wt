@@ -8,6 +8,7 @@
 #include "Wt/WApplication"
 #include "Wt/WWidget"
 #include "Wt/WWebWidget"
+#include "Wt/WResource"
 
 #include "DomElement.h"
 
@@ -97,10 +98,29 @@ void WCssDecorationStyle::setBackgroundImage(const std::string& image,
       || backgroundImageRepeat_ != repeat
       || backgroundImageLocation_ != sides) {
     backgroundImage_ = image;
+    backgroundImageResource_ = 0;
     backgroundImageRepeat_ = repeat;
     backgroundImageLocation_ = sides;
     backgroundImageChanged_ = true;
     changed();
+  }
+}
+
+void WCssDecorationStyle::setBackgroundImage(WResource *resource,
+					     Repeat repeat,
+					     WFlags<Side> sides)
+{
+  backgroundImageResource_ = resource;
+  resource->dataChanged().
+    connect(SLOT(this, WCssDecorationStyle::backgroundImageResourceChanged));
+  setBackgroundImage(resource->url(), repeat, sides);
+}
+
+void WCssDecorationStyle::backgroundImageResourceChanged()
+{
+  if (backgroundImageResource_) {
+    setBackgroundImage(backgroundImageResource_->url(),
+                       backgroundImageRepeat_, backgroundImageLocation_);
   }
 }
 
