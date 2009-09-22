@@ -25,7 +25,7 @@ class WScrollBar;
  *
  * In many cases, it might be easier to use the CSS overflow property
  */
-class WScrollArea : public WWebWidget
+class WT_API WScrollArea : public WWebWidget
 {
 public:
   /*! brief Policy for showing a scrollbar.

@@ -10,12 +10,13 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 
 class WString;
 
-class WMessageResources
+class WT_API WMessageResources
 {
 public:
   WMessageResources(const std::string& path, bool loadInMemory = true);

@@ -70,7 +70,7 @@ public:
   /*! \brief Specify the width of the line edit in number of characters.
    *
    * This specifies the width of the line edit that is roughly
-   * equivalent with <i>chars</i> characters. This does not limit the
+   * equivalent with \p chars characters. This does not limit the
    * maximum length of a string that may be entered, which may be set
    * using setMaxLength(int).
    *

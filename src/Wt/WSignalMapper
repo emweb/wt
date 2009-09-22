@@ -138,7 +138,7 @@ public:
    * When a signal triggers the slot, the sender is identified and
    * used to find corresponding data set with setMapping(), which is
    * then use to propagate further in the mapped() signal. The
-   * additional argument <i>a</i> is passed as the second argument to
+   * additional argument \p a is passed as the second argument to
    * the mapped() signal.
    */
   void map1(A1 a);

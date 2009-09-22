@@ -20,7 +20,7 @@ namespace Wt {
  * \note This layout manager is applicable only to Ext::Container
  * container widgets.
 */
-class WAccordionLayout : public WDefaultLayout
+class WT_API WAccordionLayout : public WDefaultLayout
 {
 public:
   /*! \brief Create a new accordion layout.

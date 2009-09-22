@@ -62,7 +62,7 @@ public:
    *         that matches the given regular expression.
    *
    * This constructs a validator that matches the perl regular
-   * expression <i>expr</i>.
+   * expression \p expr.
    */
   WRegExpValidator(const WT_USTRING& pattern, WObject *parent = 0);
 
@@ -72,7 +72,7 @@ public:
 
   /*! \brief Set the regular expression for valid input.
    *
-   * Sets the perl regular expression <i>expr</i>.
+   * Sets the perl regular expression \p expr.
    */
   void setRegExp(const WT_USTRING& pattern);
 

@@ -58,7 +58,7 @@ public:
 
   /*! \brief Create a new text editor and initialize with given text.
    *
-   * The <i>text</i> should be valid XHTML.
+   * The \p text should be valid XHTML.
    */
   WTextEdit(const WT_USTRING& text, WContainerWidget *parent = 0);
 
@@ -68,7 +68,7 @@ public:
 
   /*! \brief Set the content.
    *
-   * The <i>text</i> should be valid XHTML.
+   * The \p text should be valid XHTML.
    *
    * The default value is "".
    */
@@ -115,19 +115,19 @@ public:
 
   /*! \brief Configure a tool bar.
    *
-   * This configures the buttons for the <i>i'th</i> tool bar (with 0
-   * <= <i>i</i> <= 3).
+   * This configures the buttons for the \p i'th tool bar (with 0
+   * <= \p i <= 3).
    *
    * The syntax and available buttons is documented in the <a
    * href="http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/theme_advanced_buttons_1_n">TinyMCE
    * documentation</a>.
    *
-   * The default <i>config</i> for the first tool bar (<i>i</i> = 0)
+   * The default <i>config</i> for the first tool bar (\p i = 0)
     is: "fontselect, |, bold, italic, underline, |, fontsizeselect, |,
     forecolor, backcolor, |, justifyleft, justifycenter, justifyright,
     justifyfull, |, anchor, |, numlist, bullist".
    *
-   * By default, the other three tool bars are disabled (<i>config</i> = "").
+   * By default, the other three tool bars are disabled (\p config = "").
    *
    * Note that some buttons are only available after loading extra
    * plugins using setExtraPlugins().

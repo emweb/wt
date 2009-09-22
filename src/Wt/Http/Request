@@ -125,7 +125,7 @@ public:
 
   /*! \brief Returns all values for a query parameter.
    *
-   * Returns all values defined for a parameter named <i>name</i>. A
+   * Returns all values defined for a parameter named \p name. A
    * single parameter may have multiple values, e.g. in the query
    * string '?param=value1&param=value2'.
    *
@@ -135,15 +135,15 @@ public:
 
   /*! \brief Returns a query parameter value.
    *
-   * Returns the first value defined for a parameter named <i>name</i>
-   * or 0 if the paramter does not exist.
+   * Returns the first value defined for a parameter named \p name
+   * or \c 0 if the paramter does not exist.
    */
   const std::string *getParameter(const std::string& name) const;
 
   /*! \brief Returns an uploaded file
    *
-   * Returns the file uploaded for a parameter named <i>name</i>
-   * or 0 if the parameter does not contain does not exist or was not
+   * Returns the file uploaded for a parameter named \p name
+   * or \c 0 if the parameter does not contain does not exist or was not
    * associated with a file input field.
    */
   const UploadedFile *getUploadedFile(const std::string& name) const;

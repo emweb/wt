@@ -24,7 +24,7 @@ class DomElement;
  *
  * \sa WScrollArea
  */
-class WScrollBar : public WObject
+class WT_API WScrollBar : public WObject
 {
 public:
   /*! \brief Get the orientation of this scrollbar.

@@ -56,8 +56,9 @@ class WT_API WHBoxLayout : public WBoxLayout
 public:
   /*! \brief Create a new horizontal box layout.
    *
-   * Use <i>parent</i>=0 to created a layout manager that can be
-   * nested inside other layout managers.
+   * Use \p parent = \c 0 to create a layout manager that can be
+   * nested inside other layout managers, or to specify a specific alignment
+   * when setting the layout to a WContainerWidget.
    */
   WHBoxLayout(WWidget *parent = 0);
 };

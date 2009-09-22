@@ -122,7 +122,7 @@ protected:
   /*! \brief Creates a Javascript expression that validates the input.
    *
    * The JavaScript expression should evaluate to an object with two
-   * fields: a boolean <i>valid</i>, and a <i>message</i> that
+   * fields: a boolean <i>valid</i>, and a \p message that
    * indicates the problem if not valid.
    *
    * Return an empty string if you are not provide the client-side

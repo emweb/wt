@@ -23,7 +23,7 @@ namespace Wt {
  *
  * \sa WApplication::setLoadingIndicator()
  */
-class WDefaultLoadingIndicator : public WText, public WLoadingIndicator
+class WT_API WDefaultLoadingIndicator : public WText, public WLoadingIndicator
 {
 public:
   WDefaultLoadingIndicator();

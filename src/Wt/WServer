@@ -99,13 +99,13 @@ public:
 
   /*! \brief Create a new server instance.
    *
-   * The <i>wtApplicationPath</i> is used to match specific
+   * The \p wtApplicationPath is used to match specific
    * application-settings in the %Wt configuration file. If no
    * specific match could be found, the general settings are used
    * (corresponding to the '*' selector).
    *
    * The %Wt application configuration is read from the
-   * <i>wtConfigurationFile</i>. If empty, this defaults to the value
+   * \p wtConfigurationFile. If empty, this defaults to the value
    * configured at build time.
    *
    * For more information on configuring %Wt applications, see \ref
@@ -140,7 +140,7 @@ public:
    * The server configuration must be set before any other
    * functionality can be used.
    *
-   * In case of FastCGI deployment, the <i>serverConfigurationFile</i>
+   * In case of FastCGI deployment, the \p serverConfigurationFile
    * argument is ignored, and depending on the command-line arguments,
    * this process may become a FastCGI protocol relay process which
    * never returning from this call but directs the FastCGI stream to
@@ -154,7 +154,7 @@ public:
   /*! \brief Bind an entry-point to a callback function to create
    *         a new application.
    *
-   * The <i>path</i> is the local URL at which the application is
+   * The \p path is the local URL at which the application is
    * deployed: when a user visits this URL, the callback will be
    * called to create a new application. If empty, the URL is inferred
    * from the server configuration's deploy-path (see also \ref
@@ -162,7 +162,7 @@ public:
    *
    * The path must start with a '/'.
    *
-   * The optional <i>favicon</i> is a URL path (which should not
+   * The optional \p favicon is a URL path (which should not
    * contain the host part!) to a favicon, which is the icon displayed
    * in the browser for your application. Alternatively, you may
    * specify a favicon using the "favicon" property in the

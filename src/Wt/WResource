@@ -234,9 +234,9 @@ protected:
   /*! \brief Handles a request.
    *
    * Reimplement this method so that a proper response is generated
-   * for the given request. From the <i>request</i> object you can
+   * for the given request. From the \p request object you can
    * access request parameters and whether the request is a
-   * continuation request. In the <i>response</i> object, you should
+   * continuation request. In the \p response object, you should
    * set the mime type and stream the output data.
    *
    * A request may also concern a continuation, indicated in

@@ -18,7 +18,7 @@
 
 namespace Wt {
 
-class WRegExp {
+class WT_API WRegExp {
 public:
   WRegExp();
   WRegExp(const WT_USTRING& pattern);

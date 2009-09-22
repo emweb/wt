@@ -7,6 +7,8 @@
 #ifndef WLOADING_INDICATOR_H_
 #define WLOADING_INDICATOR_H_
 
+#include <Wt/WDllDefs.h>
+
 namespace Wt {
 
 class WString;
@@ -25,7 +27,7 @@ class WWidget;
  *
  * \sa WApplication::setLoadingIndicator()
  */
-class WLoadingIndicator
+class WT_API WLoadingIndicator
 {
 public:
   /*! \brief Destructor.

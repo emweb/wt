@@ -145,7 +145,7 @@ public:
 
   /*! \brief Enable or disable a tab.
    *
-   * Enables or disables the tab at <i>index</i>. A disabled tab cannot be
+   * Enables or disables the tab at \p index. A disabled tab cannot be
    * activated.
    */
   void setTabEnabled(int index, bool enable);
@@ -156,7 +156,7 @@ public:
 
   /*! \brief Hide or show a tab.
    *
-   * Hides are shows the tab at <i>index</i>.
+   * Hides are shows the tab at \p index.
    */
   void setTabHidden(int index, bool hidden);
 

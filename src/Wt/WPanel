@@ -68,7 +68,7 @@ public:
    *
    * The title bar appears at the top of the panel.
    *
-   * The default value is false: the title bar is not shown unless a
+   * The default value is \c false: the title bar is not shown unless a
    * title is set or the panel is made collapsible.
    *
    * \sa setTitle(const WString&), setCollapsible(bool)
@@ -83,11 +83,11 @@ public:
 
   /*! \brief Make the panel collapsible.
    *
-   * When <i>on</i> is true, a collapse/expand icon is added to the
+   * When \p on is \c true, a collapse/expand icon is added to the
    * title bar. This also calls setTitleBar(true) to enable the
    * title bar.
    *
-   * The default value is false.
+   * The default value is \c false.
    *
    * \sa setTitleBar(bool), setCollapsed(bool), isCollapsed()
    */
@@ -101,10 +101,10 @@ public:
 
   /*! \brief Set the panel expanded or collapsed.
    *
-   * When <i>on</i> is true, equivalent to collapse(), otherwise to
+   * When \p on is \c true, equivalent to collapse(), otherwise to
    * expand().
    *
-   * The default value is false.
+   * The default value is \c false.
    *
    * \sa setCollapsible(bool)
    */
@@ -140,7 +140,7 @@ public:
    * Sets the widget that is the contents of the panel. When a widget was
    * previously set, the old widget is deleted first.
    *
-   * The default value is 0 (no widget set).
+   * The default value is \c 0 (no widget set).
    */
   void setCentralWidget(WWidget *);
 

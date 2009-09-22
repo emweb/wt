@@ -86,7 +86,7 @@ class WT_API WTreeTable : public WCompositeWidget
 public:
   /*! \brief Construct a new WTreeTable.
    *
-   * The treeRoot() is 0. The table should first be properly dimensioned
+   * The treeRoot() is \c 0. The table should first be properly dimensioned
    * using addColumn() calls, and then data using setTreeRoot().
    */
   WTreeTable(WContainerWidget *parent = 0);

@@ -81,73 +81,73 @@ public:
 
   /*! \brief Bitwise AND operator.
    *
-   * Returns flags that are the bitwise AND of this and <i>mask</i>.
+   * Returns flags that are the bitwise AND of this and \p mask.
    */
   inline WFlags<EnumType> operator&(EnumType mask) const;
 
   /*! \brief Bitwise AND operator.
    *
-   * Returns flags that are the bitwise AND of this and <i>mask</i>.
+   * Returns flags that are the bitwise AND of this and \p mask.
    */
   inline WFlags<EnumType> operator&(MaskType mask) const;
 
   /*! \brief Modifying bitwise AND operator.
    *
-   * Sets as value the bitwise AND of this and <i>mask</i>.
+   * Sets as value the bitwise AND of this and \p mask.
    */
   inline WFlags<EnumType>& operator&=(EnumType mask);
 
   /*! \brief Modifying bitwise AND operator.
    *
-   * Sets as value the bitwise AND of this and <i>mask</i>.
+   * Sets as value the bitwise AND of this and \p mask.
    */
   inline WFlags<EnumType>& operator&=(MaskType mask);
 
   /*! \brief Bitwise XOR operator.
    *
-   * Returns flags that are the bitwise XOR of this and <i>other</i>.
+   * Returns flags that are the bitwise XOR of this and \p other.
    */
   inline WFlags<EnumType> operator^(WFlags<EnumType> other) const;
 
    /*! \brief Bitwise XOR operator.
    *
-   * Returns flags that are the bitwise XOR of this and <i>other</i>.
+   * Returns flags that are the bitwise XOR of this and \p other.
    */
  inline WFlags<EnumType> operator^(EnumType other) const;
 
   /*! \brief Modifying bitwise XOR operator.
    *
-   * Sets as value the bitwise XOR of this and <i>other</i>.
+   * Sets as value the bitwise XOR of this and \p other.
    */
   inline WFlags<EnumType>& operator^=(WFlags<EnumType> other);
 
   /*! \brief Modifying bitwise XOR operator.
    *
-   * Sets as value the bitwise XOR of this and <i>other</i>.
+   * Sets as value the bitwise XOR of this and \p other.
    */
   inline WFlags<EnumType>& operator^=(EnumType other);
 
   /*! \brief Bitwise OR operator.
    *
-   * Returns flags that are the bitwise OR of this and <i>other</i>.
+   * Returns flags that are the bitwise OR of this and \p other.
    */
   inline WFlags<EnumType> operator|(WFlags<EnumType> other) const;
 
   /*! \brief Bitwise OR operator.
    *
-   * Returns flags that are the bitwise OR of this and <i>other</i>.
+   * Returns flags that are the bitwise OR of this and \p other.
    */
   inline WFlags<EnumType> operator|(EnumType other) const;
 
   /*! \brief Modifying bitwise OR operator.
    *
-   * Sets as value the bitwise OR of this and <i>other</i>.
+   * Sets as value the bitwise OR of this and \p other.
    */
   inline WFlags<EnumType>& operator|=(WFlags<EnumType> other);
 
   /*! \brief Modifying bitwise OR operator.
    *
-   * Sets as value the bitwise OR of this and <i>other</i>.
+   * Sets as value the bitwise OR of this and \p other.
    */
   inline WFlags<EnumType>& operator|=(EnumType other);
 

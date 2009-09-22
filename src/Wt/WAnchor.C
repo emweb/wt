@@ -186,12 +186,12 @@ void WAnchor::setText(const WString& text)
     }
 }
 
-void WAnchor::setWordWrap(bool on)
+void WAnchor::setWordWrap(bool wordWrap)
 {
   if (!text_)
     text_ = new WText(this);
 
-  text_->setWordWrap(on);
+  text_->setWordWrap(wordWrap);
 }
 
 bool WAnchor::wordWrap() const

@@ -68,7 +68,7 @@ class WT_API WDate
 public:
   /*! \brief Construct a <i>Null</i> date.
    *
-   * A date for which isNull() returns true. A <i>Null</i> date is also
+   * A date for which isNull() returns \c true. A \p Null date is also
    * invalid.
    *
    * \sa isValid(), isNull()
@@ -77,7 +77,7 @@ public:
 
   /*! \brief Specify a date by year, month (1-12), and day (1-31)
    *
-   * When the date is invalid, isValid() is set to false.
+   * When the date is invalid, isValid() is set to \c false.
    *
    * \sa setDate(), year(), month(), day()
    */
@@ -85,7 +85,7 @@ public:
 
   /*! \brief Set a date by year, month (1-12), and day (1-31)
    *
-   * When the new date is invalid, isValid() is set to false.
+   * When the new date is invalid, isValid() is set to \c false.
    *
    * \sa WDate(int year, int month, int day), year(), month(), day()
    */
@@ -93,8 +93,8 @@ public:
 
   /*! \brief Add days to a date.
    *
-   * Returns a date that is <i>ndays</i> later than this
-   * date. Negative values for <i>ndays</i> will result in a date that
+   * Returns a date that is \p ndays later than this
+   * date. Negative values for \p ndays will result in a date that
    * is as many days earlier.
    *
    * \sa addMonths(), addYears()
@@ -104,8 +104,8 @@ public:
   /*! \brief Add months to a date.
    *
    * Returns a date that is the same day of the month, but
-   * <i>nmonths</i> later than this date. Negative values for
-   * <i>nmonths</i> will result in a date that is as many months
+   * \p nmonths later than this date. Negative values for
+   * \p nmonths will result in a date that is as many months
    * earlier.
    *
    * \sa addDays(), addYears()
@@ -114,8 +114,8 @@ public:
 
   /*! \brief Add years to a date.
    *
-   * Returns a date that is <i>nyears</i> later than this
-   * date. Negative values for <i>nyears</i> will result in a date
+   * Returns a date that is \p nyears later than this
+   * date. Negative values for \p nyears will result in a date
    * that is as many years earlier.
    *
    * \sa addDays(), addMonths()
@@ -192,7 +192,7 @@ public:
 
   /*! \brief Format this date to a WString using a default format.
    *
-   * The default <i>format</i> is "ddd MMM d yyyy".
+   * The default \p format is "ddd MMM d yyyy".
    * For example, a date constructed as:
    * \code
    *   WDate d(2007,8,29);
@@ -208,7 +208,7 @@ public:
 
   /*! \brief Format this date to a WString using a specified format.
    *
-   * The <i>format</i> is a string in which the following contents has
+   * The \p format is a string in which the following contents has
    * a special meaning.
    *
    * <table>
@@ -255,7 +255,7 @@ public:
 
   /*! \brief Parse a WString to a date using a default format.
    *
-   * The default <i>format</i> is "ddd MMM d yyyy".
+   * The default \p format is "ddd MMM d yyyy".
    * For example, a date specified as:
    * \code
    *   "Wed Aug 29 2007"
@@ -274,7 +274,7 @@ public:
 
   /*! \brief Parse a WString to a date using a specified format.
    *
-   * The <i>format</i> follows the same syntax as used by
+   * The \p format follows the same syntax as used by
    * \link toString(const WString& format) const toString(const WString& format)\endlink.
    *
    * When the date could not be parsed or is not valid, an invalid
@@ -309,7 +309,7 @@ public:
 
   /*! \brief Returns the short day name.
    *
-   * Results (for given <i>weekDay</i>) are:<br>
+   * Results (for given \p weekDay) are:<br>
    * "Mon" (1),<br> "Tue" (2),<br> "Wed" (3),<br>
    * "Thu" (4),<br> "Fri" (5),<br> "Sat" (6),<br> "Sun" (7).
    *
@@ -319,7 +319,7 @@ public:
 
   /*! \brief Returns the short month name.
    *
-   * Results (for given <i>month</i>) are:<br>
+   * Results (for given \p month) are:<br>
    * "Jan" (1),<br> "Feb" (2),<br> "Mar" (3),<br>
    * "Apr" (4),<br> "May" (5),<br> "Jun" (6),<br>
    * "Jul" (7),<br> "Aug" (8),<br> "Sep" (9),<br>
@@ -331,7 +331,7 @@ public:
 
   /*! \brief Returns the long day name.
    *
-   * Results (for given <i>weekDay</i>) are:<br>
+   * Results (for given \p weekDay) are:<br>
    * "Monday" (1),<br> "Tuesday" (2),<br> "Wednesday" (3),<br>
    * "Thursday" (4),<br> "Friday" (5),<br> "Saturday" (6),<br> "Sunday" (7).
    *
@@ -341,7 +341,7 @@ public:
 
   /*! \brief Returns the long month name.
    *
-   * Results (for given <i>month</i>) are:<br>
+   * Results (for given \p month) are:<br>
    * "January" (1),<br> "February" (2),<br> "March" (3),<br>
    * "April" (4),<br> "May" (5),<br> "June" (6),<br> "July" (7),<br>
    * "August" (8),<br> "September" (9),<br> "October" (10),<br>

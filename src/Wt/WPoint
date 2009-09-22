@@ -21,13 +21,13 @@ class WT_API WPoint
 public:
   /*! \brief Default constructor.
    *
-   * Constructs a point (<i>x=0</i>, <i>y=0</i>).
+   * Constructs a point (<i>x=0</i>, \p y=0).
    */
   WPoint();
 
   /*! \brief Construct a point.
    *
-   * Constructs a point (<i>x</i>, <i>y</i>).
+   * Constructs a point (<i>x</i>, \p y).
    */
   WPoint(int x, int y)
     : x_(x), y_(y) { }

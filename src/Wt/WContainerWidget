@@ -145,7 +145,7 @@ public:
    *
    * The layout manager arranges children in the entire width and
    * height of the container. This is equivalent to \link
-   * setLayout(WLayout*, WFlags<AlignmentFlag>) setLayout(<i>layout</i>,
+   * setLayout(WLayout*, WFlags<AlignmentFlag>) setLayout(\p layout,
    * AlignJustify)\endlink
    *
    * \sa layout(), setLayout(WLayout *, WFlags<AlignmentFlag>)
@@ -154,7 +154,7 @@ public:
 
   /*! \brief Set a layout manager for the container.
    *
-   * The <i>alignment</i> argument determines how the layout is
+   * The \p alignment argument determines how the layout is
    * aligned inside the container. By default, the layout manager
    * arranges children over the entire width and height of the
    * container, corresponding to a value of AlignJustify. This
@@ -162,7 +162,7 @@ public:
    * because it is managed by another layout manager, is the root
    * container widget, or has a height set).
    *
-   * In general, <i>alignment</i> is the logical OR of a horizontal
+   * In general, \p alignment is the logical OR of a horizontal
    * and a vertical flag:
    * - The horizontal alignment option may be one of Wt::AlignLeft,
    *   Wt::AlignCenter, Wt::AlignRight, or Wt::AlignJustify.
@@ -185,7 +185,7 @@ public:
    * Note that you can nest layout managers inside each other, to
    * create a complex layout hierarchy.
    *
-   * The widget will take ownership of <i>layout</i>.
+   * The widget will take ownership of \p layout.
    *
    * \sa layout()
    */
@@ -211,7 +211,7 @@ public:
   /*! \brief insert a child widget in this container, before another
    *         widget.
    *
-   * The <i>widget</i> is inserted at the place of the <i>before</i>
+   * The <i>widget</i> is inserted at the place of the \p before
    * widget, and subsequent widgets are shifted.
    *
    * \sa insertWidget(int index, WWidget *widget);
@@ -220,7 +220,7 @@ public:
 
   /*! \brief insert a child widget in this container at given index.
    *
-   * The <i>widget</i> is inserted at the given <i>index</i>, and
+   * The <i>widget</i> is inserted at the given \p index, and
    * subsequent widgets are shifted.
    *
    * \sa insertBefore(WWidget *widget, WWidget *before);
@@ -312,9 +312,9 @@ public:
 
   /*! \brief Render the container as an HTML list.
    *
-   * Setting <i>renderList</i> to true will cause the container to be
+   * Setting \p renderList to \c true will cause the container to be
    * using an HTML <tt>&lt;ul&gt;</tt> or <tt>&lt;ol&gt;</tt> type,
-   * depending on the value of <i>orderedList</i>. This must be set
+   * depending on the value of \p orderedList. This must be set
    * before the initial render of the container. When set, any
    * contained WContainerWidget will be rendered as an HTML
    * <tt>&lt;li&gt;</tt>. Adding non-WContainerWidget children results

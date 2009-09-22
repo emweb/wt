@@ -112,17 +112,17 @@ public:
 
   /*! \brief Configure word wrapping.
    *
-   * When <i>on</i> is true, the widget may break lines, creating a
-   * multi-line text. When <i>on</i> is false, the text will displayed
+   * When \p wordWrap is \c true, the widget may break lines, creating a
+   * multi-line text. When \p wordWrap is \c false, the text will displayed
    * on a single line, unless the text contains end-of-lines (for
    * Wt::PlainText) or &lt;br /&gt; tags or other block-level tags
    * (for Wt::XHTMLText).
    *
-   * The default value is false.
+   * The default value is \c false.
    *
    * \sa wordWrap()
    */
-  void setWordWrap(bool on);
+  void setWordWrap(bool wordWrap);
 
   /*! \brief Returns whether word wrapping is on.
    *

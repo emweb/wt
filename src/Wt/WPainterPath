@@ -79,7 +79,7 @@ public:
   /*! \brief Construct a new path, and set the initial position.
    *
    * Creates an empty path, and sets the current position to
-   * <i>startPoint</i>.
+   * \p startPoint.
    */
   WPainterPath(const WPointF& startPoint);
 
@@ -101,19 +101,19 @@ public:
 
   /*! \brief Returns whether the path is empty.
    *
-   * Returns true if the path contains no drawing operations.
+   * Returns \c true if the path contains no drawing operations.
    */
   bool isEmpty() const;
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the paths are exactly the same.
+   * Returns \c true if the paths are exactly the same.
    */
   bool operator== (const WPainterPath& path) const;  
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the paths are different.
+   * Returns \c true if the paths are different.
    */
   bool operator!= (const WPainterPath& path) const;
 
@@ -145,7 +145,7 @@ public:
   
   /*! \brief Draws a straight line.
    *
-   * Draws a straight line from the current position to <i>point</i>,
+   * Draws a straight line from the current position to \p point,
    * which becomes the new current position.
    *
    * \sa lineTo(double, double)
@@ -154,8 +154,8 @@ public:
   
   /*! \brief Draws a straight line.
    *
-   * Draws a straight line from the current position to (<i>x</i>,
-   * <i>y</i>), which becomes the new current position.
+   * Draws a straight line from the current position to (\p x,
+   * \p y), which becomes the new current position.
    *
    * \sa lineTo(const WPointF&)
    */
@@ -164,8 +164,8 @@ public:
   /*! \brief Draws a cubic bezier curve.
    *
    * Draws a cubic bezier curve from the current position to
-   * <i>endPoint</i>, which becomes the new current position. The
-   * bezier curve uses the two control points <i>c1</i> and <i>c2</i>.
+   * \p endPoint, which becomes the new current position. The
+   * bezier curve uses the two control points <i>c1</i> and \p c2.
    *
    * \sa cubicTo(double c1x, double c1y, double c2x, double c2y, double endPointx, double endPointy)
    */
@@ -183,9 +183,9 @@ public:
   /*! \brief Draws an arc.
    *
    * Draws an arc which is a segment of a circle. The circle is
-   * defined with center (<i>cx</i>, <i>cy</i>) and <i>radius</i>. The
-   * segment starts at <i>startAngle</i>, and spans an angle given by
-   * <i>spanAngle</i>. These angles are expressed in degrees, and are
+   * defined with center (<i>cx</i>, <i>cy</i>) and \p radius. The
+   * segment starts at \p startAngle, and spans an angle given by
+   * \p spanAngle. These angles are expressed in degrees, and are
    * measured counter-clockwise starting from the 3 o'clock position.
    *
    * Implicitly draws a line from the current position to the start of
@@ -199,8 +199,8 @@ public:
   /*! \brief Move to a point on an arc.
    *
    * Moves to a point on a circle. The circle is defined with center
-   * (<i>cx</i>, <i>cy</i>) and <i>radius</i>, and the point is at
-   * <i>angle</i> degrees measured counter-clockwise starting from the
+   * (<i>cx</i>, <i>cy</i>) and \p radius, and the point is at
+   * \p angle degrees measured counter-clockwise starting from the
    * 3 o'clock position.
    *
    * \sa arcTo(double cx, double cy, double radius, double startAngle, double sweepLength)
@@ -210,9 +210,9 @@ public:
   /*! \brief Move to a point on an arc.
    *
    * Moves to a point on an ellipse. The ellipse fits in the
-   * rectangle defined by top left position (<i>x</i>,
-   * <i>y</i>), and size <i>width</i> x <i>height</i>, and the point is at
-   * <i>angle</i> degrees measured counter-clockwise starting from the
+   * rectangle defined by top left position (\p x,
+   * <i>y</i>), and size <i>width</i> x \p height, and the point is at
+   * \p angle degrees measured counter-clockwise starting from the
    * 3 o'clock position.
    *
    * \sa arcTo()
@@ -222,8 +222,8 @@ public:
   /*! \brief Draw a quadratic bezier curve
    *
    * Draws a quadratic bezier curve from the current position to
-   * <i>endPoint</i>, which becomes the new current position. The
-   * bezier curve uses the single control point <i>c</i>.
+   * \p endPoint, which becomes the new current position. The
+   * bezier curve uses the single control point \p c.
    *
    * \sa quadTo(double cx, double cy, double endPointx, double endPointy)
    */
@@ -240,9 +240,9 @@ public:
   /*! \brief Draw an ellipse.
    *
    * This method closes the current sub path, and adds an ellipse that is
-   * bounded by the rectangle <i>boundingRectangle</i>.
+   * bounded by the rectangle \p boundingRectangle.
    *
-   * <i>Note: some renderers only support circles (width == height)</i>
+   * \p Note: some renderers only support circles (width == height)
    *
    * \sa addEllipse(double x, double y, double width, double height), arcTo()
    */
@@ -251,10 +251,10 @@ public:
   /*! \brief Draw an ellipse.
    *
    * This method closes the current sub path, and adds an ellipse that is
-   * bounded by the rectangle defined by top left position (<i>x</i>,
-   * <i>y</i>), and size <i>width</i> x <i>height</i>.
+   * bounded by the rectangle defined by top left position (\p x,
+   * <i>y</i>), and size <i>width</i> x \p height.
    *
-   * <i>Note: some renderers only support circles (width == height)</i>
+   * \p Note: some renderers only support circles (width == height)
    *
    * \sa addEllipse(const WRectF&), arcTo()
    */
@@ -263,7 +263,7 @@ public:
   /*! \brief Draw a rectangle.
    *
    * This method closes the current sub path, and adds a rectangle
-   * that is defined by <i>rectangle</i>.
+   * that is defined by \p rectangle.
    *
    * \sa addRect(double x, double y, double width, double height)
    */
@@ -272,8 +272,8 @@ public:
   /*! \brief Draw a rectangle.
    *
    * This method closes the current sub path, and adds a rectangle
-   * that is defined by top left position (<i>x</i>, <i>y</i>), and
-   * size <i>width</i> x <i>height</i>.
+   * that is defined by top left position (<i>x</i>, \p y), and
+   * size <i>width</i> x \p height.
    *
    * \sa addRect(const WRectF&)
    */
@@ -281,7 +281,7 @@ public:
 
   /*! \brief Add a path.
    *
-   * Adds an entire <i>path</i> to the current path. If the path's
+   * Adds an entire \p path to the current path. If the path's
    * begin position is different from the current position, the last
    * sub path is first closed, otherwise the last sub path is extended
    * with the path's first sub path.
@@ -292,7 +292,7 @@ public:
 
   /*! \brief Add a path, connecting.
    *
-   * Adds an entire <i>path</i> to the current path. If the path's
+   * Adds an entire \p path to the current path. If the path's
    * begin position is different from the current position, the last
    * sub path is first closed, otherwise the last sub path is extended
    * with the path's first sub path.
@@ -355,10 +355,10 @@ private:
    * Deprecated: use arcTo(double cx, double cy, double radius, double startAngle, double sweepLength) instead since not all renderers support elliptical segments (width != height).
    *
    * Draws an arc which is a segment of an ellipse, which fits in the
-   * rectangle defined by top left position (<i>x</i>,
-   * <i>y</i>), and size <i>width</i> x <i>height</i>. The segment starts at
-   * <i>startAngle</i>, and spans an angle given by
-   * <i>spanAngle</i>. These angles are expressed in degrees, and are
+   * rectangle defined by top left position (\p x,
+   * <i>y</i>), and size <i>width</i> x \p height. The segment starts at
+   * \p startAngle, and spans an angle given by
+   * \p spanAngle. These angles are expressed in degrees, and are
    * measured counter-clockwise starting from the 3 o'clock position.
    *
    * \sa arcMoveTo(double cx, double cy, double radius, double startAngle, double sweepLength)

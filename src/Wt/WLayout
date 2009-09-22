@@ -103,7 +103,7 @@ public:
 
   /*! \brief Return the layout item at a specific <i>index</i>.
    *
-   * If there is no item at the <i>index</i>, 0 is returned.
+   * If there is no item at the \p index, \c 0 is returned.
    *
    * \sa indexOf(WLayoutItem *) const, count()
    */
@@ -112,7 +112,7 @@ public:
   /*! \brief Return the index of a given <i>item</i>.
    *
    * The default implementation loops over all items, and returns the
-   * index for which itemAt(index) equals <i>item</i>.
+   * index for which itemAt(index) equals \p item.
    *
    * \sa itemAt(int) const
    */

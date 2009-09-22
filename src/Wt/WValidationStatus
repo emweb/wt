@@ -44,7 +44,7 @@ public:
    *
    * Constructs a validation status widget for the given field.
    *
-   * The validation stateWidgets (if not 0) will be managed by this
+   * The validation stateWidgets (if not \c 0) will be managed by this
    * widget, and shown and hidden to reflect the current validation
    * state.
    */

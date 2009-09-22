@@ -172,7 +172,7 @@ public:
   /*! \brief Add an item with given text, and specify a slot method to be
    *         called when the item is triggered.
    *
-   * The <i>target</i> and <i>method</i> are connected to the
+   * The <i>target</i> and \p method are connected to the
    * WPopupMenuItem::triggered signal.
    *
    * \sa add(WPopupMenuItem *)
@@ -184,7 +184,7 @@ public:
   /*! \brief Add an item with given text and icon, and specify a slot
    *         method to be called when activated.
    *
-   * The <i>target</i> and <i>method</i> are connected to the
+   * The <i>target</i> and \p method are connected to the
    * WPopupMenuItem::triggered signal.
    *
    * \note The icon should have a width of 16 pixels.
@@ -197,8 +197,8 @@ public:
 
   /*! \brief Add a submenu, with given text.
    *
-   * Adds an item with text <i>text</i>, that leads to a submenu
-   * <i>menu</i>.
+   * Adds an item with text \p text, that leads to a submenu
+   * \p menu.
    *
    * \sa add(WPopupMenuItem *)
    */
@@ -207,7 +207,7 @@ public:
   /*! \brief Add a submenu, with given icon and text.
    *
    * Adds an item with given text and icon, that leads to a submenu
-   * <i>menu</i>.
+   * \p menu.
    *
    * \sa add(WPopupMenuItem *)
    */
@@ -230,7 +230,7 @@ public:
   /*! \brief Show the the popup at a position.
    *
    * Displays the popup at a point with document coordinates
-   * <i>point</i>. The positions intelligent, and will chose one of
+   * \p point. The positions intelligent, and will chose one of
    * the four menu corners to correspond to this point so that the
    * popup menu is completely visible within the window.
    *
@@ -249,12 +249,12 @@ public:
 
   /*! \brief Execute the the popup at a position.
    *
-   * Displays the popup at a point with document coordinates <i>p</i>,
+   * Displays the popup at a point with document coordinates \p p,
    * using popup(), and the waits until a menu item is selected, or
    * the menu is cancelled.
    *
-   * Returns the selected menu (or sub-menu) item, or 0 if the user cancelled
-   * the menu.
+   * Returns the selected menu (or sub-menu) item, or \c 0 if the user
+   * cancelled the menu.
    *
    * \sa popup()
    */
@@ -271,7 +271,7 @@ public:
 
   /*! \brief Returns the last triggered menu item.
    *
-   * The result is 0 when the user cancelled the popup menu.
+   * The result is \c 0 when the user cancelled the popup menu.
    */
   WPopupMenuItem *result() const { return result_; }
 

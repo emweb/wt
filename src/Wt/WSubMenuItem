@@ -60,11 +60,11 @@ public:
 
   /*! \brief Set a sub menu.
    *
-   * Ownership of the <i>subMenu</i> is transferred to the item. In
+   * Ownership of the \p subMenu is transferred to the item. In
    * most cases, the sub menu would use the same contents stack as the
    * parent menu.
    *
-   * The default submenu is 0, in which case the item behaves as a
+   * The default submenu is \c 0, in which case the item behaves as a
    * plain WMenuItem.
    *
    * \note A sub menu can only be set before the item is added to a menu.

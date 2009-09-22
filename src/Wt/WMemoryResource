@@ -70,8 +70,8 @@ public:
 
   /*! \brief Set new data for the resource to serve.
    *
-   * Sets the data from using the first <i>count</i> bytes from the
-   * C-style <i>data</i> array.
+   * Sets the data from using the first \p count bytes from the
+   * C-style \p data array.
    */
   void setData(const unsigned char *data, int count);
 

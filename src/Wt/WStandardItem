@@ -240,7 +240,7 @@ public:
 
   /*! \brief Make the item tri-state checkable.
    *
-   * When <i>tristate</i> is true, the item is checkable with three
+   * When \p tristate is \c true, the item is checkable with three
    * states: Wt::Unchecked, Wt::Checked, and Wt::PartiallyChecked.
    *
    * This requires that the item is also checkable (see setCheckable())
@@ -285,13 +285,13 @@ public:
 
   /*! \brief Change the row count.
    *
-   * If <i>rows</i> is bigger than the current row count, empty rows
+   * If \p rows is bigger than the current row count, empty rows
    * are appended.
    *
-   * If <i>rows</i> is smaller than the current row count, rows are
+   * If \p rows is smaller than the current row count, rows are
    * deleted at the end.
    *
-   * <i>Note, if <i>rows</i> > 0, and columnCount() == 0, columnCount
+   * <i>Note, if \p rows > 0, and columnCount() == 0, columnCount
    * is first increased to 1 using setColumnCount(1).</i>.
    *
    * \sa setColumnCount(), rowCount()
@@ -306,10 +306,10 @@ public:
 
   /*! \brief Change the column count.
    *
-   * If <i>columns</i> is bigger than the current column count, empty
+   * If \p columns is bigger than the current column count, empty
    * columns are appended.
    *
-   * If <i>columns</i> is smaller than the current column count,
+   * If \p columns is smaller than the current column count,
    * columns are deleted at the end.
    *
    * \sa setRowCount(), columnCount()
@@ -324,7 +324,7 @@ public:
 
   /*! \brief Add a single column of items.
    *
-   * Appends a single column of <i>items</i>. If necessary,
+   * Appends a single column of \p items. If necessary,
    * the row count is increased.
    *
    * Equivalent to:
@@ -338,8 +338,8 @@ public:
 
   /*! \brief Insert a single column of items.
    *
-   * Inserts a single column of <i>items</i> at column
-   * <i>column</i>. If necessary, the row count is increased.
+   * Inserts a single column of \p items at column
+   * \p column. If necessary, the row count is increased.
    * 
    * \sa WStandardItem::insertRow()
    */
@@ -347,7 +347,7 @@ public:
 
   /*! \brief Add a single row of items.
    *
-   * Appends a single row of <i>items</i>. If necessary,
+   * Appends a single row of \p items. If necessary,
    * the column count is increased.
    *
    * Equivalent to:
@@ -361,7 +361,7 @@ public:
 
   /*! \brief Insert a single row of items.
    *
-   * Inserts a single row of <i>items</i> at row <i>row</i>. If
+   * Inserts a single row of <i>items</i> at row \p row. If
    * necessary, the column count is increased.
    * 
    * \sa insertColumn()
@@ -370,7 +370,7 @@ public:
 
   /*! \brief Insert a number of empty columns.
    *
-   * Inserts <i>count</i> empty columns at position <i>column</i>.
+   * Inserts <i>count</i> empty columns at position \p column.
    * 
    * \sa insertRows()
    */
@@ -378,7 +378,7 @@ public:
 
   /*! \brief Insert a number of empty rows.
    *
-   * Inserts <i>count</i> empty rows at position <i>row</i>.
+   * Inserts <i>count</i> empty rows at position \p row.
    * 
    * \sa insertColumns()
    */
@@ -440,7 +440,7 @@ public:
    *
    * This is a convenience method for nodes with a single column (for
    * example for tree nodes). This inserts a number of rows at row
-   * <i>row</i>, each containing a single item, and is equivalent to:
+   * \p row, each containing a single item, and is equivalent to:
    *
    * \code
    * for (unsigned i = 0; i < items.size(); ++i)
@@ -453,8 +453,8 @@ public:
 
   /*! \brief Set a child item.
    *
-   * Sets a child item <i>item</i> at position (<i>row</i>,
-   * <i>column</i>). If an item was previously set, it is deleted
+   * Sets a child item <i>item</i> at position (\p row,
+   * \p column). If an item was previously set, it is deleted
    * first.
    *
    * If necessary, the rowCount() and/or the columnCount() is increased.
@@ -477,8 +477,8 @@ public:
 
   /*! \brief Returns a child item.
    *
-   * Returns the child item at position (<i>row</i>, <i>column</i>).
-   * This may be 0 if an item was not previously set, or if the
+   * Returns the child item at position (<i>row</i>, \p column).
+   * This may be \c 0 if an item was not previously set, or if the
    * position is out of bounds.
    *
    * \sa setChild(int, int, WStandardItem *).
@@ -487,8 +487,8 @@ public:
 
   /*! \brief Takes a child out of the item.
    *
-   * Returns the child item at position (<i>row</i>, <i>column</i>),
-   * and removes it (by setting 0 instead). Ownership of the item is
+   * Returns the child item at position (<i>row</i>, \p column),
+   * and removes it (by setting \c 0 instead). Ownership of the item is
    * transferred to the caller.
    *
    * \sa child(), setChild(int, int, WStandardItem *)
@@ -497,7 +497,7 @@ public:
 
   /*! \brief Takes a column of children out of the item.
    *
-   * Returns the column <i>column</i>, and removes the
+   * Returns the column \p column, and removes the
    * column from the model (reducing the column count by
    * one). Ownership of all items is transferred to the caller.
    *
@@ -507,7 +507,7 @@ public:
 
   /*! \brief Takes a row of children out of the item.
    *
-   * Returns the row <i>row</i>, and removes the row from the
+   * Returns the row \p row, and removes the row from the
    * model (reducing the row count by one). Ownership of all items is
    * transferred to the caller.
    *
@@ -517,7 +517,7 @@ public:
 
   /*! \brief Remove a single column.
    *
-   * Removes the column <i>column</i> from the model (reducing the
+   * Removes the column \p column from the model (reducing the
    * column count by one). Is equivalent to:
    * \code
    * removeColumns(column, 1);
@@ -529,8 +529,8 @@ public:
 
   /*! \brief Remove a number of columns.
    *
-   * Removes <i>count</i> columns from the model (reducing the
-   * column count by <i>count</i>).
+   * Removes \p count columns from the model (reducing the
+   * column count by \p count).
    *
    * \sa removeColumn(), removeRows()
    */
@@ -538,7 +538,7 @@ public:
 
   /*! \brief Remove a single row.
    *
-   * Removes the row <i>row</i> from the model (reducing the
+   * Removes the row \p row from the model (reducing the
    * row count by one). Is equivalent to:
    * \code
    * removeRows(row, 1);
@@ -550,8 +550,8 @@ public:
 
   /*! \brief Remove a number of rows.
    *
-   * Removes <i>count</i> rows from the model (reducing the
-   * row count by <i>count</i>).
+   * Removes \p count rows from the model (reducing the
+   * row count by \p count).
    *
    * \sa removeRow(), removeColumns()
    */

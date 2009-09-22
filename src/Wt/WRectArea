@@ -49,7 +49,7 @@ public:
 
   /*! \brief Construct a rectangular area with given geometry.
    *
-   * The <i>rect</i> argument is in pixel units.
+   * The \p rect argument is in pixel units.
    */  
   WRectArea(const WRectF& rect);
 

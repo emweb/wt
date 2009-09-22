@@ -59,22 +59,22 @@ public:
    * This constructor creates a line edit with an icon that leads to a
    * popup calendar. A WDateValidator is configured for the line edit.
    *
-   * <i>i18n</i> is passed to the WCalendar constructor.
+   * \p i18n is passed to the WCalendar constructor.
    */
   WDatePicker(bool i18n, WContainerWidget *parent = 0);
 
   /*! \brief Create a new date picker for existing line edit and with custom
    *         display widget.
    *
-   * The <i>displayWidget</i> is a button or image which much be
+   * The \p displayWidget is a button or image which much be
    * clicked to open the date picker. This widget will become owned by
    * the picker.
    *
-   * The <i>forEdit</i> argument is the lineEdit that works in
+   * The \p forEdit argument is the lineEdit that works in
    * conjunction with the date picker. This widget does not become
    * part of the date picker, and may be located anywhere else.
    *
-   * <i>i18n</i> is passed to the WCalendar constructor.
+   * \p i18n is passed to the WCalendar constructor.
    */
   WDatePicker(WInteractWidget *displayWidget,
 	      WLineEdit *forEdit,
@@ -124,10 +124,10 @@ public:
    *
    * \if cpp
    * Returns an invalid date (for which WDate::isValid() returns
-   * false) if the date could not be parsed using the current
+   * \c false) if the date could not be parsed using the current
    * format(). <br>
    * \elseif java
-   * Returns null if the date could not be parsed using the current
+   * Returns \c null if the date could not be parsed using the current
    * format(). <br>
    * \endif
    *
@@ -137,7 +137,7 @@ public:
 
   /*! \brief Set the current date.
    *
-   * Does nothing if the current date is <i>Null</i>.
+   * Does nothing if the current date is \p Null.
    *
    * \sa date()
    */

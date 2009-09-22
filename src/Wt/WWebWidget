@@ -180,14 +180,14 @@ public:
    * text set in WText, but it may also be useful outside the library
    * to sanitize user content when direcly using JavaScript.
    *
-   * Modifies the <i>text</i> if needed. When the text is not proper
-   * XML, returns false.
+   * Modifies the \p text if needed. When the text is not proper
+   * XML, returns \c false.
    */
   static bool removeScript(WString& text);
 
   /*! \brief Turn a UTF8 encoded string into a JavaScript string literal
    *
-   * The <i>delimiter</i> may be a single or double quote.
+   * The \p delimiter may be a single or double quote.
    */
   static std::string jsStringLiteral(const std::string& v,
 				     char delimiter = '\'');

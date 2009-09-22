@@ -126,7 +126,7 @@ public:
 
   /*! \brief Set the output file.
    *
-   * Opens a file output stream for <i>path</i>.
+   * Opens a file output stream for \p path.
    *
    * \sa setStream()
    */
@@ -134,7 +134,7 @@ public:
 
   /*! \brief Add a field.
    *
-   * Add a field to the logger. When <i>isString</i> is true, values
+   * Add a field to the logger. When \p isString is \p true, values
    * will be quoted.
    */
   void addField(const std::string& name, bool isString);

@@ -35,7 +35,7 @@ class WCssTemplateWidget;
  *
  * \ingroup style
  */
-class WCssRule
+class WT_API WCssRule
 {
 public:
   /*! \brief Delete a CSS rule.
@@ -97,7 +97,7 @@ private:
  *
  * \ingroup style
  */
-class WCssTemplateRule : public WCssRule
+class WT_API WCssTemplateRule : public WCssRule
 {
 public:
   /*! \brief Create a CSS rule with a given selector.
@@ -158,7 +158,7 @@ private:
  *
  * \ingroup style
  */
-class WCssTextRule : public WCssRule
+class WT_API WCssTextRule : public WCssRule
 {
 public:
   /*! \brief Create a CSS rule with a given selector and declarations.
@@ -198,11 +198,11 @@ public:
 
   /*! \brief Add a CSS rule.
    *
-   * Add a rule using the CSS selector <i>selector</i>, with CSS
-   * declarations in <i>declarations</i>. These declarations must be a
+   * Add a rule using the CSS selector \p selector, with CSS
+   * declarations in \p declarations. These declarations must be a
    * list separated by semi-colons (;).
    *
-   * Optionally, you may give a <i>ruleName</i>, which may later be
+   * Optionally, you may give a \p ruleName, which may later be
    * used to check if the rule was already defined.
    *
    * \sa isDefined()
@@ -213,10 +213,10 @@ public:
 
   /*! \brief Add a CSS rule.
    *
-   * Add a rule using the CSS selector <i>selector</i>, with styles specified
-   * in <i>style</i>.
+   * Add a rule using the CSS selector \p selector, with styles specified
+   * in \p style.
    *
-   * Optionally, you may give a <i>ruleName</i>, which may later be
+   * Optionally, you may give a \p ruleName, which may later be
    * used to check if the rule was already defined.
    *
    * \sa isDefined()
@@ -227,7 +227,7 @@ public:
 
   /*! \brief Add a CSS rule.
    *
-   * Optionally, you may give a <i>ruleName</i>, which may later be
+   * Optionally, you may give a \p ruleName, which may later be
    * used to check if the rule was already defined.
    *
    * \sa isDefined()
@@ -237,7 +237,7 @@ public:
 
   /*! \brief Returns if a rule was already defined in this style sheet.
    *
-   * Returns whether a rule was added with the given <i>ruleName</i>.
+   * Returns whether a rule was added with the given \p ruleName.
    *
    * \sa addRule()
    */

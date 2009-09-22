@@ -70,29 +70,29 @@ namespace Wt {
 class WT_API WTree : public WCompositeWidget
 {
 public:
-  /*! \brief Create a new tree.
+  /*! \brief Creates a new tree.
    */
   WTree(WContainerWidget *parent = 0);
 
-  /*! \brief Set the tree root node.
+  /*! \brief Sets the tree root node.
    *
    * \sa treeRoot()
    */
   void setTreeRoot(WTreeNode *root);
 
-  /*! \brief Get the root node.
+  /*! \brief Returns the root node.
    *
    * \sa setTreeRoot(WTreeNode *)
    */
   WTreeNode *treeRoot() const { return treeRoot_; }
 
-  /*! \brief Set the selection mode.
+  /*! \brief Sets the selection mode.
    *
    * The default selection mode is Wt::NoSelection.
    */
   void setSelectionMode(SelectionMode mode);
 
-  /*! \brief Get the selection mode.
+  /*! \brief Returns the selection mode.
    */
   SelectionMode selectionMode() const { return selectionMode_; } 
 
@@ -100,23 +100,23 @@ public:
    */
   typedef std::set<WTreeNode *> WTreeNodeSet;
 
-  /*! \brief Get the set of selected tree nodes.
+  /*! \brief Returns the set of selected tree nodes.
    */
   const WTreeNodeSet& selectedNodes() const { return selection_; }
 
-  /*! \brief Set a selection of tree nodes.
+  /*! \brief Sets a selection of tree nodes.
    */
   void select(const WTreeNodeSet& nodes);
 
-  /*! \brief Select or unselect the given <i>node</i>.
+  /*! \brief Selects or unselect the given <i>node</i>.
    */
   void select(WTreeNode *node, bool selected = true);
 
-  /*! \brief Return if the given <i>node</i> is currently selected.
+  /*! \brief Returns if the given <i>node</i> is currently selected.
    */
   bool isSelected(WTreeNode *node) const;
 
-  /*! \brief Clear the current selection.
+  /*! \brief Clears the current selection.
    */
   void clearSelection();
 

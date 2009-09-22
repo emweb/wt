@@ -37,7 +37,7 @@ class WTreeView;
  *
  * \sa WTreeView, WAbstractItemModel
  */
-class WItemSelectionModel : public WObject
+class WT_API WItemSelectionModel : public WObject
 {
 public:
   WAbstractItemModel *model() const { return model_; }

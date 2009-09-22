@@ -34,7 +34,7 @@ namespace Wt
  *
  * Contributed by: Richard Ulrich.
  */
-class WGoogleMap : public WCompositeWidget
+class WT_API WGoogleMap : public WCompositeWidget
 {
 public:
   /*! \brief MapTypeControl
@@ -49,7 +49,7 @@ public:
   /*! \class Coordinate
    *  \brief A geographical coordinate (latitude/longitude)
    */
-  class Coordinate
+  class WT_API Coordinate
   {
   public:
     /*! \brief Default constructor

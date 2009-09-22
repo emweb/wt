@@ -52,7 +52,7 @@ public:
   /*! \brief Construct a polygon area with given vertices.
    *
    * The polygon is defined with vertices corresponding to
-   * <i>points</i>. The polygon is closed by connecting the last point
+   * \p points. The polygon is closed by connecting the last point
    * with the first point.
    */
   WPolygonArea(const std::vector<WPoint>& points);
@@ -61,7 +61,7 @@ public:
   /*! \brief Construct a polygon area with given vertices.
    *
    * The polygon is defined with vertices corresponding to
-   * <i>points</i>. The polygon is closed by connecting the last point
+   * \p points. The polygon is closed by connecting the last point
    * with the first point.
    */
   WPolygonArea(const std::vector<WPointF>& points);
@@ -84,7 +84,7 @@ public:
   /*! \brief Set the polygon vertices. 
    *
    * The polygon is defined with vertices corresponding to
-   * <i>points</i>. The polygon is closed by connecting the last point
+   * \p points. The polygon is closed by connecting the last point
    * with the first point.
    */
   void setPoints(const std::vector<WPoint>& points);
@@ -93,7 +93,7 @@ public:
   /*! \brief Set the polygon vertices. 
    *
    * The polygon is defined with vertices corresponding to
-   * <i>points</i>. The polygon is closed by connecting the last point
+   * \p points. The polygon is closed by connecting the last point
    * with the first point.
    */
   void setPoints(const std::vector<WPointF>& points);

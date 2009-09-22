@@ -80,13 +80,13 @@ public:
 
   /*! \brief Construct a text widget with given text.
    *
-   * The textFormat is set to Wt::XHTMLText, unless the <i>text</i> is
+   * The textFormat is set to Wt::XHTMLText, unless the \p text is
    * literal (not created using WString::tr()) and it could not be
    * parsed as valid XML. In that case the textFormat is set to
    * Wt::PlainText.
    *
    * Therefore, if you wish to use Wt::XHTMLText, but cannot be sure
-   * about <i>text</i> being valid XML, you should verify that the
+   * about \p text being valid XML, you should verify that the
    * textFormat() is Wt::XHTMLText after construction.
    *
    * The XML parser will silently discard malicious tags and
@@ -96,13 +96,13 @@ public:
 
   /*! \brief Construct a text widget with given text and format
    *
-   * If <i>textFormat</i> is Wt::XHTMLText and <i>text</i> is not
+   * If <i>textFormat</i> is Wt::XHTMLText and \p text is not
    * literal (not created using WString::tr()), then if the
-   * <i>text</i> could not be parsed as valid XML, the textFormat is
+   * \p text could not be parsed as valid XML, the textFormat is
    * changed to Wt::PlainText.
    *
    * Therefore, if you wish to use Wt::XHTMLText, but cannot be sure
-   * about <i>text</i> being valid XML, you should verify that the
+   * about \p text being valid XML, you should verify that the
    * textFormat() is Wt::XHTMLText after construction.
    *
    * The XML parser will silently discard malicious tags and
@@ -124,13 +124,13 @@ public:
   /*! \brief Set the text.
    *
    * When the current format is Wt::XHTMLText, and
-   * <i>text</i> is literal (not created using WString::tr()), it is
+   * \p text is literal (not created using WString::tr()), it is
    * parsed using an XML parser which discards malicious tags and
    * attributes silently. When the parser encounters an XML parse
    * error, the textFormat is changed to Wt::PlainText.
    *
    * Returns whether the text could be set using the current
-   * textFormat. A return value of false indicates that the textFormat
+   * textFormat. A return value of \c false indicates that the textFormat
    * was changed in order to be able to accept the new text.
    *
    * \sa text(), setText()
@@ -164,17 +164,17 @@ public:
 
   /*! \brief Configure word wrapping.
    *
-   * When <i>on</i> is true, the widget may break lines, creating a
-   * multi-line text. When <i>on</i> is false, the text will displayed
+   * When \p wordWrap is \c true, the widget may break lines, creating a
+   * multi-line text. When \p wordWrap is \c false, the text will displayed
    * on a single line, unless the text contains end-of-lines (for
    * Wt::PlainText) or &lt;br /&gt; tags or other block-level tags
    * (for Wt::XHTMLText).
    *
-   * The default value is true.
+   * The default value is \c true.
    *
    * \sa wordWrap()
    */
-  void setWordWrap(bool on);
+  void setWordWrap(bool wordWrap);
 
   /*! \brief Returns whether the widget may break lines.
    *

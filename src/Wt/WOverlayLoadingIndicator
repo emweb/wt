@@ -42,7 +42,7 @@ class WText;
  *
  * \sa WApplication::setLoadingIndicator()
  */
-class WOverlayLoadingIndicator : public WContainerWidget,
+class WT_API WOverlayLoadingIndicator : public WContainerWidget,
 				 public WLoadingIndicator
 {
 public:

@@ -51,7 +51,7 @@ public:
 
   /*! \brief Construct a color from a CSS name.
    *
-   * The <i>name</i> may be any valid CSS color name, including names
+   * The \p name may be any valid CSS color name, including names
    * colors such as "aqua", or colors defined as RGB components.
    *
    * In either case, the result of the methods red(), green() and
@@ -78,7 +78,7 @@ public:
 
   /*! \brief Set the CSS name.
    *
-   * The <i>name</i> may be any valid CSS color name, including names
+   * The \p name may be any valid CSS color name, including names
    * colors such as "aqua", or colors defined as RGB components.
    *
    * In either case, the result of the methods red(), green() and
@@ -135,8 +135,8 @@ public:
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the two colors were defined in exactly the same way.
-   * It may return false although they actually represent the same color.
+   * Returns \c true if the two colors were defined in exactly the same way.
+   * It may return \c false although they actually represent the same color.
    */
   bool operator== (const WColor& other) const;
 

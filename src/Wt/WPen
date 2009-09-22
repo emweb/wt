@@ -44,7 +44,7 @@ public:
    * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
    * line join style.
    *
-   * The line style is set to <i>style</i>.
+   * The line style is set to \p style.
    */
   WPen(PenStyle style);
 
@@ -54,7 +54,7 @@ public:
    * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
    * line join style.
    *
-   * The pen color is set to <i>color</i>.
+   * The pen color is set to \p color.
    */
   WPen(const WColor& color);
 
@@ -64,7 +64,7 @@ public:
    * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
    * line join style.
    *
-   * The pen color is set to <i>color</i>.
+   * The pen color is set to \p color.
    */
   WPen(GlobalColor color);
 
@@ -74,13 +74,13 @@ public:
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the pens are exactly the same.
+   * Returns \c true if the pens are exactly the same.
    */
   bool operator==(const WPen& other) const;
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the pens are different.
+   * Returns \c true if the pens are different.
    */
   bool operator!=(const WPen& other) const;
 
@@ -122,7 +122,7 @@ public:
 
   /*! \brief Change the pen width.
    *
-   * A pen width <i>must</i> be specified using WLength::Pixel units.
+   * A pen width \p must be specified using WLength::Pixel units.
    *
    * \sa width()
    */

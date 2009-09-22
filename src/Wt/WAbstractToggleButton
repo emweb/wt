@@ -27,11 +27,13 @@ class WLabel;
 class WT_API WAbstractToggleButton : public WFormWidget
 {
 protected:
-  /*! \brief Create an unchecked toggle button without label.
+  /*! \brief Creates an unchecked toggle button without label.
    */
   WAbstractToggleButton(WContainerWidget *parent = 0);
 
-  /*! \brief Create an unchecked toggle button with given text label.
+  /*! \brief Creates an unchecked toggle button with given text label.
+   *
+   * The text label is rendered to the right side of the button.
    */
   WAbstractToggleButton(const WString& text, WContainerWidget *parent = 0);
 
@@ -40,27 +42,34 @@ public:
    */
   virtual ~WAbstractToggleButton();
 
-  /*! \brief Change the text of the label.
+  /*! \brief Sets the label text.
+   *
+   * The label is rendered to the right fo the button.
    */
   void setText(const WString& text);
 
-  /*! \brief Get the text of the label.
+  /*! \brief Returns the label text.
+   *
+   * \sa setText()
    */
   const WString text() const;
 
-  /*! \brief Returns the state of the button.
+  /*! \brief Returns the button state.
+   *
+   * \sa setChecked()
    */
   bool isChecked() const { return state_ == Checked; }
 
-  /*! \brief Change the state of the button.
+  /*! \brief Sets the button state.
    *
-   * Does not emit one of the checked() or unChecked() signals.
+   * This method does not emit one of the checked() or unChecked()
+   * signals.
    *
    * \sa setChecked(), setUnChecked()
    */
-  void setChecked(bool);
+  void setChecked(bool checked);
 
-  /*! \brief Set the button checked.
+  /*! \brief Checks the button.
    *
    * Does not emit the checked() signal.
    *
@@ -68,7 +77,7 @@ public:
    */
   virtual void setChecked();
 
-  /*! \brief Set the button unChecked.
+  /*! \brief Unchecks the button.
    *
    * Does not emit the unChecked() signal.
    *
@@ -77,10 +86,20 @@ public:
   virtual void setUnChecked();
 
   /*! \brief %Signal emitted when the button gets checked.
+   *
+   * This signal is emitted when the user checks the button.
+   *
+   * You can use the changed() signal to react to any change of the
+   * button state.
    */
   EventSignal<>& checked();
 
   /*! \brief %Signal emitted when the button gets unChecked.
+   *
+   * This signal is emitted when the user unchecks the button.
+   *
+   * You can use the changed() signal to react to any change of the
+   * button state.
    */
   EventSignal<>& unChecked();
 

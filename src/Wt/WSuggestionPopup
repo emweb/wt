@@ -193,7 +193,7 @@ public:
 
   /*! \brief Set the model to be used for the suggestions.
    *
-   * The <i>model</i> may not be 0, and ownership of the model is not
+   * The \p model may not be \c 0, and ownership of the model is not
    * transferred.
    *
    * The default value is a WStringListModel that is owned by the
@@ -214,7 +214,7 @@ public:
 
   /*! \brief Set the column in the model to be used for the items.
    *
-   * The column <i>index</i> in the model will be used to retrieve data.
+   * The column \p index in the model will be used to retrieve data.
    *
    * The default value is 0.
    *

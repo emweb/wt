@@ -123,13 +123,13 @@ public:
 
   /*! \brief Return the widget at a position.
    *
-   * Returns 0 if no widget was set for that position.
+   * Returns \c 0 if no widget was set for that position.
    */
   WWidget *widgetAt(Position position) const;
 
   /*! \brief Return the item at a position.
    *
-   * Returns 0 if no item was set for that position.
+   * Returns \c 0 if no item was set for that position.
    */
   WLayoutItem *itemAt(Position position) const;
 

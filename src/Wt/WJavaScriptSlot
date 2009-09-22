@@ -69,17 +69,18 @@ class WWidget;
 class WT_API JSlot
 {
 public:
-  /*! \brief Construct a JavaScript-only slot within the parent scope.
+  /*! \brief Constructs a JavaScript-only slot within the parent scope.
    *
-   * The JavaScript will reside within the scope of the given widget.
-   * By picking a long-lived parent, one may reuse a single block of
-   * JavasCript code for multiple widgets.
+   * The JavaScript code block will reside within the scope of the
+   * given widget.  By picking a long-lived parent, one may reuse a
+   * single block of JavasCript code for multiple widgets.
    *
-   * If parent = 0, then the JavaScript will be inline.
+   * When \p parent = \c 0, then the JavaScript will be inlined in
+   * each caller (possibly replicating the same JavaScript).
    */
   JSlot(WWidget *parent = 0);
 
-  /*! \brief Construct a JavaScript-only slot with given JavaScript.
+  /*! \brief Constructs a JavaScript-only and sets the JavaScript code.
    *
    * \sa JSlot(WWidget *), setJavaScript()
    */
@@ -89,9 +90,10 @@ public:
    */
   ~JSlot();
 
-  /*! \brief Set or modify the JavaScript code associated with the slot.
+  /*! \brief Sets or modify the JavaScript code associated with the slot.
    *
-   * When the slot is triggered, the corresponding JavaScript is executed.
+   * When the slot is triggered, the corresponding function defined by
+   * \p javaScript is executed.
    *
    * The JavaScript function takes two parameters and thus should look like:
    * \code
@@ -100,21 +102,22 @@ public:
      }
      \endcode
    * 
-   * The first parameter <i>obj</i> is a reference to the DOM element
-   * that generates the event. The <i>event</i> refers to the
+   * The first parameter \p obj is a reference to the DOM element
+   * that generates the event. The \p event refers to the
    * JavaScript event object.
    *
    * \sa WWidget::jsRef()
    */
-  void setJavaScript(const std::string& js);
+  void setJavaScript(const std::string& javaScript);
 
-  /*! \brief Execute the JavaScript code.
+  /*! \brief Executes the JavaScript code.
    *
-   * Execute the JavaScript code, in the same way as when triggered
-   * by a EventSignal. This function returns immediately, and execution of
-   * the JavaScript code is deferred until after the event handling.
+   * This executes the JavaScript code in the same way as when
+   * triggered by a EventSignal. This function returns immediately,
+   * and execution of the JavaScript code is deferred until after the
+   * event handling.
    *
-   * The arguments are the "<tt>object, event</tt>" arguments of the
+   * The arguments are the <tt>"object, event"</tt> arguments of the
    * JavaScript event callback function.
    *
    * \sa setJavaScript()

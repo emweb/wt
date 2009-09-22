@@ -114,9 +114,9 @@ public:
    * A resource specifies application-dependent content, which may be
    * used to generate an image on demand.
    *
-   * This sets <i>resource</i> as the contents for the image, as an
+   * This sets \p resource as the contents for the image, as an
    * alternative to setImageRef(). The resource may be cleared by
-   * passing <i>resource</i> = 0.
+   * passing \p resource = \c 0.
    *
    * The image does not assume ownership of the resource.
    *
@@ -126,18 +126,18 @@ public:
 
   /*! \brief Returns the image resource.
    *
-   * Returns 0 if no image resource was set.
+   * Returns \c 0 if no image resource was set.
    */
   WResource *resource() const { return resource_; }
 
   /*! \brief Add an interactive area.
    *
-   * Adds the <i>area</i> which listens to events in a specific region
+   * Adds the \p area which listens to events in a specific region
    * of the image. Areas are organized in an indexed list, to which
-   * the given <i>area</i> is appended. When areas overlap, the area
+   * the given \p area is appended. When areas overlap, the area
    * with the lowest index receives the event.
    *
-   * Ownership of the <i>area</i> is transferred to the image.
+   * Ownership of the \p area is transferred to the image.
    *
    * \sa insertArea(int, WAbstractArea *)
    */
@@ -145,12 +145,12 @@ public:
 
   /*! \brief Insert an interactive area.
    *
-   * Inserts the <i>area</i> which listens to events in the
+   * Inserts the \p area which listens to events in the
    * coresponding area of the image. Areas are organized in a list,
-   * and the <i>area</i> is inserted at index <i>index</i>. When areas
+   * and the <i>area</i> is inserted at index \p index. When areas
    * overlap, the area with the lowest index receives the event.
    *
-   * Ownership of the <i>Area</i> is transferred to the image.
+   * Ownership of the \p Area is transferred to the image.
    *
    * \sa addArea(WAbstractArea *)
    */
@@ -158,7 +158,7 @@ public:
 
   /*! \brief Removes an interactive area.
    *
-   * Removes the <i>area</i> from this widget, and also returns the
+   * Removes the \p area from this widget, and also returns the
    * ownership.
    *
    * \sa addArea(WAbstractArea *)
@@ -167,7 +167,7 @@ public:
 
   /*! \brief Returns the interactive area at the given index.
    *
-   * Returns 0 if <i>index</i> was invalid.
+   * Returns \c 0 if \p index was invalid.
    *
    * \sa insertArea(int, WAbstractArea *)
    */

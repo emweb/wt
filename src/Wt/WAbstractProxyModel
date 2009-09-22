@@ -28,7 +28,7 @@ namespace Wt {
  *
  * \ingroup modelview
  */
-class WAbstractProxyModel : public WAbstractItemModel
+class WT_API WAbstractProxyModel : public WAbstractItemModel
 {
 public:
   /*! \brief Constructor.
@@ -38,7 +38,7 @@ public:
   /*! \brief Map a source model index to the proxy model.
    *
    * This method returns a model index in the proxy model that
-   * corresponds to the model index <i>sourceIndex</i> in the source
+   * corresponds to the model index \p sourceIndex in the source
    * model. This method must only be implemented for source model
    * indexes that are mapped and thus are the result of mapToSource().
    *
@@ -49,7 +49,7 @@ public:
   /*! \brief Map a proxy model index to the source model.
    *
    * This method returns a model index in the source model that
-   * corresponds to the proxy model index <i>proxyIndex</i>.
+   * corresponds to the proxy model index \p proxyIndex.
    *
    * \sa mapFromSource()
    */

@@ -89,7 +89,7 @@ class WRegExp;
  *
  * \ingroup modelview
  */
-class WSortFilterProxyModel : public WAbstractProxyModel
+class WT_API WSortFilterProxyModel : public WAbstractProxyModel
 {
 public:
   /*! \brief Constructor.
@@ -175,7 +175,7 @@ public:
   /*! \brief Configure the proxy to dynamically track changes in the
    *         source model.
    *
-   * When <i>enable</i> is true, the proxy will re-filter and re-sort
+   * When \p enable is \c true, the proxy will re-filter and re-sort
    * the model when changes happen to the source model.
    *
    * \note This may be ackward when editing through the proxy model,

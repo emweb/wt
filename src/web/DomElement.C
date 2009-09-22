@@ -633,7 +633,7 @@ void DomElement::asHTML(EscapeOStream& out,
 
     if (type_ == DomElement_A) {
       std::string href = getAttribute("href");
-      if (href != "#")
+      if (app->environment().agentIsIE() || href != "#")
 	needButtonWrap = false;
     }
   }

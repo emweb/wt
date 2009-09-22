@@ -33,19 +33,19 @@ public:
 
   /*! \brief Construct a brush with a particular style.
    *
-   * Constructs a black brush with the indicated <i>style</i>.
+   * Constructs a black brush with the indicated \p style.
    */
   WBrush(WBrushStyle style);
 
   /*! \brief Construct a solid brush of a particular color.
    *
-   * Constructs a solid brush with the indicated <i>color</i>.
+   * Constructs a solid brush with the indicated \p color.
    */
   WBrush(const WColor& color);
 
   /*! \brief Construct a solid brush with a particular standard color.
    *
-   * Constructs a solid brush with the indicated <i>color</i>.
+   * Constructs a solid brush with the indicated \p color.
    */
   WBrush(GlobalColor color);
 
@@ -55,13 +55,13 @@ public:
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the brushes are exactly the same.
+   * Returns \c true if the brushes are exactly the same.
    */
   bool operator==(const WBrush& other) const;
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the brushes are different.
+   * Returns \c true if the brushes are different.
    */
   bool operator!=(const WBrush& other) const;
 

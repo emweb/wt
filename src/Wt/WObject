@@ -114,8 +114,9 @@ public:
 
   /*! \brief Create a %WObject with a given parent object.
    * 
-   * If the optional parent is specified, the parent object will destroy 
-   * all child objects. Set parent to 0 to create an object with no parent. 
+   * If the optional parent is specified, the parent object will
+   * destroy all child objects. Set parent to \c 0 to create an object
+   * with no parent.
    *
    * \sa addChild()
    */
@@ -263,7 +264,7 @@ public:
    * This is very similar to an auto-learned stateless slot, but here the
    * learning is avoided by directly setting the JavaScript implementation.
    *
-   * The <i>jsCode</i> should be one or more valid JavaScript statements.
+   * The \p jsCode should be one or more valid JavaScript statements.
    *
    * \sa \link implementStateless() implementStateless(void (T::*method)())\endlink
    */
@@ -306,7 +307,7 @@ protected:
   /*! \brief Get the sender of the current slot call.
    *
    * Use this function to know who emitted the signal that triggered this
-   * slot call. It may be 0 if the signal has now owner information, or
+   * slot call. It may be \c 0 if the signal has no owner information, or
    * if there is no signal triggering the current slot, but instead the slot
    * method is called directly.
    */
@@ -329,13 +330,13 @@ protected:
   /*! \brief On-demand stateless slot implementation.
    *
    * This method returns a stateless slot implementation for the given
-   * <i>method</i>. To avoid the cost of declaring methods to be
+   * \p method. To avoid the cost of declaring methods to be
    * stateless when they are not used, you may reimplement this method
    * to provide a stateless implementation for a method only when the
    * method is involved in a slot connection.
    *
    * Use implementStateless() to provide a stateless implementation of the
-   * given <i>method</i>, or return the base class implementation otherwise.
+   * given \p method, or return the base class implementation otherwise.
    */
   virtual WStatelessSlot *getStateless(Method method);
 

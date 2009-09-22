@@ -29,7 +29,7 @@ namespace Wt {
  *
  * \ingroup modelview
  */
-class WItemDelegate : public WAbstractItemDelegate
+class WT_API WItemDelegate : public WAbstractItemDelegate
 {
 public:
   WItemDelegate(WObject *parent = 0);

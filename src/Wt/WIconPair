@@ -28,8 +28,9 @@ class WT_API WIconPair : public WCompositeWidget
 public:
   /*! \brief Construct an icon pair from the two icons.
    *
-   * The constructor takes the URL of the two icons. When clickIsSwitch
-   * is set true, clicking on the icon will switch state.
+   * The constructor takes the URL of the two icons. When
+   * \p clickIsSwitch is set \c true, clicking on the icon will
+   * switch state.
    */
   WIconPair(const std::string& icon1URL, const std::string& icon2URL,
 	    bool clickIsSwitch = true, WContainerWidget *parent = 0);

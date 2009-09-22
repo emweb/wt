@@ -53,7 +53,7 @@ public:
 
   /*! \brief Returns the index of the given widget.
    *
-   * Returns -1 if the <i>widget</i> was not added.
+   * Returns -1 if the \p widget was not added.
    *
    * \sa widget()
    */
@@ -73,7 +73,7 @@ public:
 
   /*! \brief Shows a particular widget.
    *
-   * The widget with index <i>index</i> is made visible, while all other
+   * The widget with index \p index is made visible, while all other
    * widgets are invisible.
    *
    * \sa currentIndex(), setCurrentWidget()
@@ -82,7 +82,7 @@ public:
 
   /*! \brief Shows a particular widget.
    *
-   * The widget <i>widget</i>, which must have been added before, is
+   * The widget \p widget, which must have been added before, is
    * made visible, while all other widgets are invisible.
    *
    * \sa currentWidget(), setCurrentIndex()

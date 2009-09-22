@@ -10,6 +10,14 @@
 #include <Wt/WObject>
 #include <bitset>
 
+#if defined(WIN32) && defined(wt_EXPORTS)
+// boost intrusive compilation fails with static asserts when Wt is compiled
+// as a DLL on windows. This hack makes all static asserts succeed.
+namespace boost {
+  template<bool x> struct STATIC_ASSERTION_FAILURE { enum { value = 1 }; };
+}
+#endif
+
 #include <boost/signal.hpp>
 #include <boost/bind.hpp>
 #include <boost/intrusive/list.hpp>
@@ -195,8 +203,12 @@ class Signal : public SignalBase
 public:
   /*! \brief Create a WSignal.
    *
-   * The object that will be identified as sender() when executing
-   * connected slots may be passed as an argument.
+   * The \p sender is the object that will be identified as
+   * WObject::sender() when executing connected slots may be passed as
+   * an argument.
+   *
+   * The \p sender should not be \c 0 when you want to map the signal
+   * using the WSignalMapper.
    */
   Signal(WObject *sender = 0);
 
@@ -209,17 +221,17 @@ public:
    * This is always possible (even when the signal specifies a number
    * of arguments).
    *
-   * The slot is specified as a method of class V, which is equal to
-   * class V, or a base class of class V. Thus, the following statement
-   * must return a non-null pointer:
+   * The slot is as a \p method of an object \target of class \p T,
+   * which equals class \p V, or is a base class of class \p V. Thus,
+   * the following statement must return a non-null pointer:
    *
    * \code
    * V *v = dynamic_cast<V *>(target);
    * \endcode
    *
-   * In practice, to facilitate automatic disconnects on deletion of the
-   * target, class T must be also be a descendant of WObject, but this
-   * is not enforced by the interface.
+   * In practice, to facilitate automatic disconnects on deletion of
+   * the \p target, class \p T must be also be a descendant of WObject,
+   * but this is not enforced by the interface.
    */
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
@@ -472,10 +484,10 @@ private:
 /*! \class EventSignal Wt/WSignal Wt/WSignal
  *  \brief A signal that conveys user-interface events.
  *
- * An EventSignal is a special kind of Signal that is triggered by
- * user interface events such as a mouse click, key press, or focus
- * change.  They are tightly integrated with the library (e.g. within
- * WInteractWidget), and should not be instantiated directly.
+ * An %EventSignal is a special %Signal that may be triggered by user
+ * interface events such as a mouse click, key press, or focus change.
+ * They are made available through the library in widgets like
+ * WInteractWidget, and should not be instantiated directly.
  *
  * In addition to the behaviour of %Signal, they are capable of both
  * executing client-side and server-side slot code. They may learn
@@ -508,17 +520,18 @@ public:
    */
   virtual bool isConnected() const;
 
-  /*! \brief Connect a slot that takes no arguments.
+  /*! \brief Connects a slot that takes no arguments.
    *
    * If a stateless implementation is specified for the slot, then
    * the visual behaviour will be learned in terms of JavaScript, and
    * will be cached on the client side for instant feed-back, in
    * addition running the slot on the server.
    *
-   * The slot is specified as a method of class V, which is equal to
-   * class V, or a base class of class V. In addition, to check for
-   * stateless implementations, class T must be also be a descendant of
-   * WObject. Thus, the following statement must return a non-null pointer:
+   * The slot is as a \p method of an object \target of class \p T,
+   * which equals class \p V, or is a base class of class \p V. In
+   * addition, to check for stateless implementations, class \p T must
+   * be also be a descendant of WObject. Thus, the following statement
+   * must return a non-null pointer:
    *
    * \code
    * WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
@@ -527,37 +540,38 @@ public:
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
 
-  /*! \brief Connect a slot that takes one argument.
+  /*! \brief Connects a slot that takes one argument.
    *
    * This is only possible for signals that take at least one argument.
    */
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)(E));
 
-  /*! \brief Connect a slot that takes a 'const argument&'.
+  /*! \brief Connects a slot that takes a 'const argument&'.
    *
    * This is only possible for signals that take at least one argument.
    */
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)(const E&));
 
-  /*! \brief Connect a slot that is specified as JavaScript only.
+  /*! \brief Connects a slot that is specified as JavaScript only.
    *
    * This will provide a client-side connection between the event and
-   * some JavaScript code as implemented by the slot. Unlike other connects,
-   * this does not cause the event to propagated to the application, and thus
-   * the state may not be tracked.
+   * some JavaScript code as implemented by the slot. Unlike other
+   * connects, this does not cause the event to propagated to the
+   * application, and thus the state changes caused by the JavaScript
+   * slot are not tracked client-side.
    */
   void connect(JSlot& slot);
 
-  /*! \brief Emit the signal.
+  /*! \brief Emits the signal.
    *
    * This will cause all connected slots to be triggered, with the given
    * argument.
    */
   void emit(E e = NoClass::none);
 
-  /*! \brief Emit the signal.
+  /*! \brief Emits the signal.
    *
    * This is equivalent to emit().
    *

@@ -39,7 +39,7 @@ public:
 
   /*! \brief Destroy a WFormWidget.
    *
-   * If a label was associated with the widget, its buddy is reset to 0.
+   * If a label was associated with the widget, its buddy is reset to \c 0.
    */
   ~WFormWidget();
 
@@ -67,7 +67,7 @@ public:
    * to the form field, and thus the validator will be deleted
    * together with the form field.
    *
-   * The default value is 0.
+   * The default value is \c 0.
    *
    * \sa validate()
    */

@@ -18,7 +18,7 @@ class WTimer;
  * WTimer widget. It's clicked signal serves as the event signal
  * that will be activated when the event expires.
  */
-class WTimerWidget : public WInteractWidget
+class WT_API WTimerWidget : public WInteractWidget
 {
 public:
   WTimerWidget(WTimer *timer);

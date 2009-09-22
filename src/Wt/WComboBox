@@ -65,7 +65,7 @@ public:
    *
    * Equivalent to
    * \link insertItem(int, const WString&) insertItem\endlink (count(),
-   * <i>text</i>).
+   * \p text).
    */
   void addItem(const WString& text);
 
@@ -84,7 +84,7 @@ public:
   /*! \brief Insert an item at the specified position.
    *
    * The item is inserted in the underlying model at position
-   * <i>index</i>. This requires that the model() is editable.
+   * \p index. This requires that the model() is editable.
    *
    * \sa addItem(const WString&), removeItem(int)
    */
@@ -101,13 +101,13 @@ public:
 
   /*! \brief Changes the current selection.
    *
-   * Specify a value of -1 for <i>index</i> to clear the selection.
+   * Specify a value of -1 for \p index to clear the selection.
    */
   void setCurrentIndex(int index);
 
   /*! \brief Changes the text for a specified option.
    *
-   * The text for the item at position <i>index</i> is changed. This requires
+   * The text for the item at position \p index is changed. This requires
    * that the model() is editable.
    */
   void setItemText(int index, const WString& text);
@@ -126,7 +126,7 @@ public:
 
   /*! \brief Sets the model to be used for the items.
    *
-   * The <i>model</i> may not be 0, and ownership of the model is not
+   * The \p model may not be 0, and ownership of the model is not
    * transferred.
    *
    * The default value is a WStringListModel that is owned by the
@@ -138,7 +138,7 @@ public:
 
   /*! \brief Sets the column in the model to be used for the items.
    *
-   * The column <i>index</i> in the model will be used to retrieve data.
+   * The column \p index in the model will be used to retrieve data.
    *
    * The default value is 0.
    *

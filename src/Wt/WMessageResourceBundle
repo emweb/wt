@@ -64,11 +64,11 @@ public:
 
   /*! \brief Add a (series) of message resource files to be used.
    *
-   * The <i>path</i> is not a URI, and relative paths will be resolved
+   * The \p path is not a URI, and relative paths will be resolved
    * with respect to the working directory of the server. The XML
    * files do not need to be deployed in the web server's docroot.
    *
-   * When you give as <i>path</i>: /path/to/name, then the following message
+   * When you give as \p path: /path/to/name, then the following message
    * resource files will be used:
    *  - /path/to/name.xml (default, English)
    *  - /path/to/name_nl.xml (for Dutch)

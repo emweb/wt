@@ -1335,11 +1335,9 @@ std::vector<unsigned int> WebSession::getSignalProcessingOrder(const WEvent& e)
     }
   }
 
-  // Concatenate vectors and return
-  highPriority.insert(highPriority.end(), normalPriority.begin(),
-                        normalPriority.end());
-  return highPriority;
+  Utils::insert(highPriority, normalPriority);
 
+  return highPriority;
 }
 
 void WebSession::notifySignal(const WEvent& e)

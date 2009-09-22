@@ -208,7 +208,7 @@ public:
 
   /*! \brief Returns the number of columns.
    *
-   * This returns the number of columns at index <i>parent</i>.
+   * This returns the number of columns at index \p parent.
    *
    * \sa rowCount()
    */
@@ -216,7 +216,7 @@ public:
 
   /*! \brief Returns the number of rows.
    *
-   * This returns the number of rows at index <i>parent</i>.
+   * This returns the number of rows at index \p parent.
    *
    * \sa columnCount()
    */
@@ -239,7 +239,7 @@ public:
 
   /*! \brief Returns if there are children at an index.
    *
-   * Returns true when rowCount(index) > 0 and columnCount(index) > 0.
+   * Returns \c true when rowCount(index) > 0 and columnCount(index) > 0.
    *
    * \sa rowCount(), columnCount()
    */
@@ -274,10 +274,10 @@ public:
 
   /*! \brief Returns the row or column header data.
    *
-   * When <i>orientation</i> is \link Wt::Horizontal
-   * Horizontal\endlink, <i>section</i> is a column number, when
-   * <i>orientation</i> is \link Wt::Vertical Vertical\endlink,
-   * <i>section</i> is a row number.
+   * When \p orientation is \link Wt::Horizontal
+   * Horizontal\endlink, \p section is a column number, when
+   * \p orientation is \link Wt::Vertical Vertical\endlink,
+   * \p section is a row number.
    *
    * \sa data(), setHeaderData()
    */
@@ -288,8 +288,8 @@ public:
   /*! \brief Returns the child index for the given row and column.
    *
    * When implementing this method, you can use createIndex() to
-   * create an index that corresponds to the item at <i>row</i> and
-   * <i>column</i> within <i>parent</i>.
+   * create an index that corresponds to the item at \p row and
+   * \p column within \p parent.
    *
    * If the location is invalid (out of bounds at the parent), then an
    * invalid index must be returned.
@@ -344,9 +344,9 @@ public:
 
   /*! \brief Insert one or more columns.
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
-   * The default implementation returns false. If you reimplement this
+   * The default implementation returns \c false. If you reimplement this
    * method, then you must call beginInsertColumns() and
    * endInsertColumns() before and after the operation.
    *
@@ -357,11 +357,11 @@ public:
 
   /*! \brief Insert one or more rows.
    *
-   * Returns true if the operation was successful. If you reimplement this
+   * Returns \c true if the operation was successful. If you reimplement this
    * method, then you must call beginInsertRows() and
    * endInsertRows() before and after the operation.
    *
-   * The default implementation returns false.
+   * The default implementation returns \c false.
    *
    * \sa insertColumns(), removeRows(), beginInsertRows(), endInsertRows()
    */
@@ -370,9 +370,9 @@ public:
 
   /*! \brief Remove columns.
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
-   * The default implementation returns false. If you reimplement this
+   * The default implementation returns \c false. If you reimplement this
    * method, then you must call beginRemoveColumns() and
    * endRemoveColumns() before and after the operation.
    *
@@ -383,9 +383,9 @@ public:
 
   /*! \brief Remove rows.
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
-   * The default implementation returns false. If you reimplement this
+   * The default implementation returns \c false. If you reimplement this
    * method, then you must call beginRemoveRows() and endRemoveRows()
    * before and after the operation.
    *
@@ -396,9 +396,9 @@ public:
 
   /*! \brief Set data at the given model index.
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
-   * The default implementation returns false. If you reimplement this
+   * The default implementation returns \c false. If you reimplement this
    * method, you must emit the dataChanged() signal after data was
    * changed.
    *
@@ -417,7 +417,7 @@ public:
 
   /*! \brief Set header data for a column or row.
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
    * \sa headerData()
    */
@@ -427,7 +427,7 @@ public:
 
   /*! \brief Set column header data.
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
    * \sa setHeaderData(int, Orientation, const boost::any&, int)
    */
@@ -449,7 +449,7 @@ public:
    * Use this method to temporarily save model indexes while the model's
    * layout is changed by for example a sorting operation.
    *
-   * The default implementation returns 0, which indicates that the
+   * The default implementation returns \c 0, which indicates that the
    * index cannot be converted to a raw pointer. If you reimplement
    * this method, you also need to reimplemnt fromRawIndex().
    *
@@ -501,11 +501,11 @@ public:
    * abstract item models. Source item data is copied (but not the
    * source item's flags).
    *
-   * The location in the model is indicated by the <i>row</i> and
-   * <i>column</i> within the <i>parent</i> index. If <i>row</i> is
-   * -1, then the item is appended to the <i>parent</i>. Otherwise,
+   * The location in the model is indicated by the \p row and
+   * \p column within the \p parent index. If \p row is
+   * -1, then the item is appended to the \p parent. Otherwise,
    * the item is inserted at or copied over the indicated item (and
-   * subsequent rows). When <i>action</i> is a \link Wt::MoveAction
+   * subsequent rows). When \p action is a \link Wt::MoveAction
    * MoveAction\endlink, the original items are deleted from the
    * source model.
    *
@@ -529,7 +529,7 @@ public:
    * insertColumns(column, 1, parent);
    * \endcode
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
    * \sa insertColumns()
    */
@@ -543,7 +543,7 @@ public:
    * insertRows(row, 1, parent);
    * \endcode
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
    * \sa insertRows()
    */
@@ -557,7 +557,7 @@ public:
    * removeColumns(column, 1, parent);
    * \endcode
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
    * \sa removeColumns()
    */
@@ -571,7 +571,7 @@ public:
    * removeRows(row, 1, parent);
    * \endcode
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
    * \sa removeRows()
    */
@@ -584,7 +584,7 @@ public:
    * setData(index(row, column, parent), value, role);
    * \endcode
    *
-   * Returns true if the operation was successful.
+   * Returns \c true if the operation was successful.
    *
    * \sa setData(), index()
    */
@@ -732,7 +732,7 @@ protected:
 
   /*! \brief Create a model index for the given row and column.
    *
-   * Use this method to create a model index. <i>ptr</i> is an
+   * Use this method to create a model index. \p ptr is an
    * internal pointer that may be used to associate the index with
    * particular model data.
    *
@@ -743,7 +743,7 @@ protected:
 #ifndef WT_TARGET_JAVA
   /*! \brief Create a model index for the given row and column.
    *
-   * Use this method to create a model index. <i>id</i> is an
+   * Use this method to create a model index. \p id is an
    * internal id that may be used to associate the index with
    * particular model data.
    *

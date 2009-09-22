@@ -65,7 +65,7 @@ namespace Wt {
  * <i>Note: At present, WSocketNotifier works only in conjunction with
  * the wthttpd connector, and not when using the FastCGI connector.</i>
  */
-class WSocketNotifier : public WObject
+class WT_API WSocketNotifier : public WObject
 {
 public:
   /*! \brief Enumeration that event type.
@@ -77,8 +77,8 @@ public:
 
   /*! \brief Create a new socket notifier.
    *
-   * Create a new socket listener to listen for events of given <i>type</i>
-   * on a socket with file descriptor <i>socket</i>.
+   * Create a new socket listener to listen for events of given \p type
+   * on a socket with file descriptor \p socket.
    */
   WSocketNotifier(int socket, Type type, WObject *parent = 0);
 

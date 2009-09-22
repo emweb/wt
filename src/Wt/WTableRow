@@ -75,7 +75,7 @@ public:
    *
    * Hide or show the row.
    *
-   * The default value is false (row is not hidden).
+   * The default value is \c false (row is not hidden).
    *
    * \sa hide(), show()
    */

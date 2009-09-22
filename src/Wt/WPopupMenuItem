@@ -107,7 +107,7 @@ public:
 
   /*! \brief Change the checked state.
    *
-   * This is only used when isCheckable() == true.
+   * This is only used when isCheckable() == \c true.
    *
    * \sa setCheckable(bool), isCheckable()
    */
@@ -115,7 +115,7 @@ public:
 
   /*! \brief Return the checked state.
    *
-   * This is only used when isCheckable() == true.
+   * This is only used when isCheckable() == \c true.
    *
    * \sa setChecked(bool), isCheckable()
    */

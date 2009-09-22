@@ -1,4 +1,25 @@
-15-09-2008:
+18-09-2009
+	* Wt.js: cancelEvent() includes an option to only include cancelling
+	propagation or the default action
+
+	* WResource: add setChanged() and url() methods which are more
+	useful than the generateUrl() method
+
+	* http/RequestParser: fix possible shared_ptr corruption issue
+	reported by David Galicia
+
+	* WCssDecorationStyle: add method for WResource as background
+	image
+
+	* JSlot: fix internal consistency problem when connecting same
+	JSlot to same signal twice
+
+	* JSlot::exec() now takes parameters for object and event
+
+	* WTreeView: fix vertical scrolling showing mis-aligned columns
+	when column 1 is fixed
+
+15-09-2009:
 	* WWidget: move WFormWidget::setEnabled() to WWidget::setDisabled(),
 	allowing all widgets to be set enabled or disabled.
 
@@ -8,14 +29,14 @@
 	* WWidget: added setHiddenKeepsGeometry(), which uses css visibility
 	for setHidden()
 
-03-09-2008:
+03-09-2009:
 	* WDialog, Ext::Dialog, and related: allow for multiple modal dialogs
 	and nested exec() calls.
 
 	* Boot.html, Hybrid.html: add a loadScript() method to defer loading of
 	user JavaScript
 
-01-09-2008
+01-09-2009
 	* WDatePicker: Use 'positionAtWidget' to make sure the widget
 	is rendered visible even if at bottom of page (folds up instead of down)
 
@@ -23,7 +44,7 @@
 
 	* WFileUpload: Fix empty file regression (#53)
 
-31-08-2008
+31-08-2009
 	* Wt.js: fix server push mayhem
 
 	* WTreeView: fix autoJavaScript performance

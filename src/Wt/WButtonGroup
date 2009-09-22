@@ -83,7 +83,7 @@ public:
 
   /*! \brief Add a radio button to the group.
    *
-   * You can assign an id to the button. If <i>id</i> is -1, then a
+   * You can assign an id to the button. If \p id is -1, then a
    * unique id will be generated.
    *
    * \sa removeButton(WRadioButton *)
@@ -93,7 +93,7 @@ public:
 #ifndef WT_TARGET_JAVA
   /*! \brief Add a radio button to the group.
    *
-   * You can assign an id to the button. If <i>id</i> is -1, then a
+   * You can assign an id to the button. If \p id is -1, then a
    * unique id will be generated.
    *
    * \sa removeButton(Ext::RadioButton *)
@@ -146,7 +146,7 @@ public:
 
   /*! \brief Sets the currently checked radiobutton.
    *
-   * The button <i>button</i> of this group is checked. A value of 0
+   * The button \p button of this group is checked. A value of \c 0
    * will uncheck all radiobuttons.
    *
    * Initially, no button is checked.
@@ -158,7 +158,7 @@ public:
   /*! \brief Returns the checked radiobutton.
    *
    * If there is no radiobutton currently checked this function
-   * returns 0.
+   * returns \c 0.
    *
    * \sa setCheckedButton(), selectedButtonIndex()
    */
@@ -170,7 +170,7 @@ public:
 
   /*! \brief Sets the currently checked radiobutton.
    *
-   * Sets the <i>idx</i>'th radiobutton checked. A value of -1 will
+   * Sets the \p idx'th radiobutton checked. A value of -1 will
    * uncheck all radiobuttons.
    *
    * Initially, no button is checked.

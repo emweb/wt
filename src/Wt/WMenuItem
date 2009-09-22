@@ -63,10 +63,10 @@ public:
    * only when it the item is activated for the first time (LazyLoading)
    * or transmitted prior to first rendering.
    *
-   * The pathComponent() is derived from <i>text</i>, and can be
+   * The pathComponent() is derived from \p text, and can be
    * customized using setPathComponent().
    *
-   * <i>contents</i> may be 0, in which case no contents is associated with
+   * \p contents may be 0, in which case no contents is associated with
    * the item in the contents stack.
    */
   WMenuItem(const WString& text, WWidget *contents,
@@ -105,7 +105,7 @@ public:
    * internal paths are enabled (see WMenu::setInternalPathEnabled())
    * for the menu.
    *
-   * You may specify an empty <i>path</i> to let a menu item be the
+   * You may specify an empty \p path to let a menu item be the
    * "default" menu option.
    *
    * For example, if WMenu::internalBasePath() is
@@ -169,7 +169,7 @@ protected:
 
   /*! \brief Update the widget that represents the item.
    *
-   * The default implementation will cast the <i>itemWidget</i> to a
+   * The default implementation will cast the \p itemWidget to a
    * WAnchor, and set the anchor's text and destination according to
    * text() and pathComponent().
    *

@@ -2252,15 +2252,20 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
       columns_.insert(columns_.begin() + i,
 		      ColumnInfo(this, app, ++nextColumnId_, i));
 
-    if (start == 0)
-      scheduleRerender(NeedRerenderHeader);
-    else {
-      WContainerWidget *row = headerRow();
+    if (renderState_ < NeedRerenderHeader) {
+      if (start == 0)
+	scheduleRerender(NeedRerenderHeader);
+      else {
+	WContainerWidget *row = headerRow();
 
-      for (int i = start; i < start + count; ++i)
-	row->insertWidget(i - 1, createHeaderWidget(app, i));
+	for (int i = start; i < start + count; ++i)
+	  row->insertWidget(i - 1, createHeaderWidget(app, i));
+      }
     }
   }
+
+  if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
+    return;
 
   if (start == 0)
     scheduleRerender(NeedRerenderTree);
@@ -2284,11 +2289,13 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
   if (!parent.isValid()) {
     columns_.erase(columns_.begin() + start, columns_.begin() + start + count);
 
-    if (start == 0)
-      scheduleRerender(NeedRerenderHeader);
-    else {
-      for (int i = start; i < start + count; ++i)
-	delete headerWidget(start);
+    if (renderState_ < NeedRerenderHeader) {
+      if (start == 0)
+	scheduleRerender(NeedRerenderHeader);
+      else {
+	for (int i = start; i < start + count; ++i)
+	  delete headerWidget(start);
+      }
     }
   }
 
@@ -2299,6 +2306,9 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 void WTreeView::modelColumnsRemoved(const WModelIndex& parent,
 					     int start, int end)
 {
+  if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
+    return;
+
   int count = end - start + 1;
 
   if (start != 0) {
@@ -2319,6 +2329,9 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 {
   int count = end - start + 1;
   shiftModelIndexes(parent, start, count);
+
+  if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
+    return;
 
   WWidget *parentWidget = widgetForIndex(parent);
 
@@ -2444,82 +2457,84 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 					  int start, int end)
 {
   int count = end - start + 1;
-  firstRemovedRow_ = -1;
-  removedHeight_ = 0;
 
-  WWidget *parentWidget = widgetForIndex(parent);
+  if (renderState_ != NeedRerender || renderState_ != NeedRerenderTree) {
+    firstRemovedRow_ = -1;
+    removedHeight_ = 0;
 
-  if (parentWidget) {
-    WTreeViewNode *parentNode = dynamic_cast<WTreeViewNode *>(parentWidget);
+    WWidget *parentWidget = widgetForIndex(parent);
 
-    if (parentNode) {
-      if (parentNode->childrenLoaded()) {
-	for (int i = end; i >= start; --i) {
-	  WWidget *w = parentNode->widgetForModelRow(i);
-	  assert(w);
+    if (parentWidget) {
+      WTreeViewNode *parentNode = dynamic_cast<WTreeViewNode *>(parentWidget);
 
-	  RowSpacer *s = dynamic_cast<RowSpacer *>(w);
-	  if (s) {
-	    WModelIndex childIndex = model_->index(i, 0, parent);
+      if (parentNode) {
+	if (parentNode->childrenLoaded()) {
+	  for (int i = end; i >= start; --i) {
+	    WWidget *w = parentNode->widgetForModelRow(i);
+	    assert(w);
 
-	    if (i == start)
-	      firstRemovedRow_ = renderedRow(childIndex, w);
+	    RowSpacer *s = dynamic_cast<RowSpacer *>(w);
+	    if (s) {
+	      WModelIndex childIndex = model_->index(i, 0, parent);
 
-	    int childHeight = subTreeHeight(childIndex);
-	    removedHeight_ += childHeight;
+	      if (i == start)
+		firstRemovedRow_ = renderedRow(childIndex, w);
 
-	    s->setRows(s->rows() - childHeight);
+	      int childHeight = subTreeHeight(childIndex);
+	      removedHeight_ += childHeight;
 
-	  } else {
-	    WTreeViewNode *node = dynamic_cast<WTreeViewNode *>(w);
+	      s->setRows(s->rows() - childHeight);
+	    } else {
+	      WTreeViewNode *node = dynamic_cast<WTreeViewNode *>(w);
 
-	    if (i == start)
-	      firstRemovedRow_ = node->renderedRow();
+	      if (i == start)
+		firstRemovedRow_ = node->renderedRow();
 
-	    removedHeight_ += node->renderedHeight();
-	    delete w;
+	      removedHeight_ += node->renderedHeight();
+	      delete w;
+	    }
 	  }
+
+	  parentNode->normalizeSpacers();
+
+	  parentNode->adjustChildrenHeight(-removedHeight_);
+	  parentNode->shiftModelIndexes(start, -count);
+
+	  // Update graphics for last node in parent, if we are removing rows
+	  // at the back
+	  if (end == model_->rowCount(parent) - 1 && start >= 1) {
+	    WTreeViewNode *n = dynamic_cast<WTreeViewNode *>
+	      (parentNode->widgetForModelRow(start - 1));
+
+	    if (n)
+	      n->updateGraphics(true, model_->rowCount(n->modelIndex()) == 0);
+	  }
+	} /* else:
+	     children not loaded -- so we do not need to bother
+	  */
+
+	// Update graphics for parent when all rows have been removed
+	if (model_->rowCount(parent) == count)
+	  parentNode->updateGraphics(parentNode->isLast(), true);
+      } else {
+	RowSpacer *s = dynamic_cast<RowSpacer *>(parentWidget);
+
+	for (int i = start; i <= end; ++i) {
+	  WModelIndex childIndex = model_->index(i, 0, parent);
+	  int childHeight = subTreeHeight(childIndex);
+	  removedHeight_ += childHeight;
+
+	  if (i == start)
+	    firstRemovedRow_ = renderedRow(childIndex, s);
 	}
 
-	parentNode->normalizeSpacers();
-
-	parentNode->adjustChildrenHeight(-removedHeight_);
-	parentNode->shiftModelIndexes(start, -count);
-
-	// Update graphics for last node in parent, if we are removing rows
-	// at the back
-	if (end == model_->rowCount(parent) - 1 && start >= 1) {
-	  WTreeViewNode *n = dynamic_cast<WTreeViewNode *>
-	    (parentNode->widgetForModelRow(start - 1));
-
-	  if (n)
-	    n->updateGraphics(true, model_->rowCount(n->modelIndex()) == 0);
-	}
-      } /* else:
-	   children not loaded -- so we do not need to bother
-	 */
-
-      // Update graphics for parent when all rows have been removed
-      if (model_->rowCount(parent) == count)
-	parentNode->updateGraphics(parentNode->isLast(), true);
-    } else {
-      RowSpacer *s = dynamic_cast<RowSpacer *>(parentWidget);
-
-      for (int i = start; i <= end; ++i) {
-	WModelIndex childIndex = model_->index(i, 0, parent);
-	int childHeight = subTreeHeight(childIndex);
-	removedHeight_ += childHeight;
-
-	if (i == start)
-	  firstRemovedRow_ = renderedRow(childIndex, s);
+	s->setRows(s->rows() - removedHeight_);
+	s->node()->adjustChildrenHeight(-removedHeight_);
       }
-
-      s->setRows(s->rows() - removedHeight_);
-      s->node()->adjustChildrenHeight(-removedHeight_);
-    }
-  } /* else:
+    } /* else:
        parentWidget is 0: it means it is not even part of any spacer.
      */
+  }
 
   shiftModelIndexes(parent, start, -count);
 }
@@ -2533,6 +2548,9 @@ void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 void WTreeView::modelDataChanged(const WModelIndex& topLeft,
 				 const WModelIndex& bottomRight)
 {
+  if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
+    return;
+  
   WModelIndex parent = topLeft.parent();  
   WWidget *parentWidget = widgetForIndex(parent);
 
@@ -2564,10 +2582,12 @@ void WTreeView::modelDataChanged(const WModelIndex& topLeft,
 void WTreeView::modelHeaderDataChanged(Orientation orientation,
 				       int start, int end)
 {
-  if (orientation == Horizontal) {
-    for (int i = start; i <= end; ++i) {
-      WString label = asString(model_->headerData(i));
-      headerTextWidget(i)->setText(label);
+  if (renderState_ < NeedRerenderHeader) {
+    if (orientation == Horizontal) {
+      for (int i = start; i <= end; ++i) {
+	WString label = asString(model_->headerData(i));
+	headerTextWidget(i)->setText(label);
+      }
     }
   }
 }

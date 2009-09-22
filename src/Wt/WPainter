@@ -188,8 +188,8 @@ public:
    * Draws an arc using the current pen, and fills using the current brush.
    *
    * The arc is defined as a segment from an ellipse, which fits in
-   * the <i>rectangle</i>. The segment starts at <i>startAngle</i>, and
-   * spans an angle given by <i>spanAngle</i>. These angles have as
+   * the <i>rectangle</i>. The segment starts at \p startAngle, and
+   * spans an angle given by \p spanAngle. These angles have as
    * unit 1/16th of a degree, and are measured counter-clockwise
    * starting from the 3 o'clock position.
    *
@@ -213,8 +213,8 @@ public:
    * point with a line. The area is filled using the current brush.
    *
    * The arc is defined as a segment from an ellipse, which fits in
-   * the <i>rectangle</i>. The segment starts at <i>startAngle</i>, and
-   * spans an angle given by <i>spanAngle</i>. These angles have as
+   * the <i>rectangle</i>. The segment starts at \p startAngle, and
+   * spans an angle given by \p spanAngle. These angles have as
    * unit 1/16th of a degree, and are measured counter-clockwise
    * starting at 3 o'clock.
    *
@@ -237,7 +237,7 @@ public:
    * Draws an ellipse using the current pen and fills it using the
    * current brush.
    *
-   * The ellipse is defined as being bounded by the <i>rectangle</i>.
+   * The ellipse is defined as being bounded by the \p rectangle.
    *
    * \sa drawArc(const WRectF&, int, int)
    * \sa drawEllipse(double, double, double, double)
@@ -295,8 +295,8 @@ public:
 
   /*! \brief Draw an image.
    *
-   * Draws the <i>image</i> so that the top left corner corresponds to
-   * <i>point</i>.
+   * Draws the \p image so that the top left corner corresponds to
+   * \p point.
    *
    * This is an overloaded method provided for convenience.
    */
@@ -304,8 +304,8 @@ public:
 
   /*! \brief Draw part of an image.
    *
-   * Draws the <i>sourceRect</i> rectangle from an image to the
-   * location <i>point</i>.
+   * Draws the \p sourceRect rectangle from an image to the
+   * location \p point.
    *
    * This is an overloaded method provided for convenience.
    */
@@ -314,7 +314,7 @@ public:
 
   /*! \brief Draw an image inside a rectangle.
    *
-   * Draw the <i>image</i> inside <i>rect</i> (If necessary, the image
+   * Draw the <i>image</i> inside \p rect (If necessary, the image
    * is scaled to fit into the rectangle).
    *
    * This is an overloaded method provided for convenience.
@@ -323,8 +323,8 @@ public:
 
   /*! \brief Draw part of an image inside a rectangle.
    *
-   * Draws the <i>sourceRect</i> rectangle from an image inside
-   * <i>rect</i> (If necessary, the image is scaled to fit into the
+   * Draws the \p sourceRect rectangle from an image inside
+   * \p rect (If necessary, the image is scaled to fit into the
    * rectangle).
    */
   void drawImage(const WRectF& rect, const Image& image,
@@ -332,9 +332,9 @@ public:
 
   /*! \brief Draw part of an image.
    *
-   * Draws the <i>sourceRect</i> rectangle with top left corner
-   * (<i>sx</i>, <i>sy</i>) and size <i>sw</i> x <i>sh</i> from an
-   * image to the location (<i>x</i>, <i>y</i>).
+   * Draws the \p sourceRect rectangle with top left corner
+   * (<i>sx</i>, <i>sy</i>) and size <i>sw</i> x \p sh from an
+   * image to the location (<i>x</i>, \p y).
    */
   void drawImage(double x, double y, const Image& image,
 		 double sx = 0, double sy = 0, double sw = -1, double sh = -1);
@@ -368,15 +368,15 @@ public:
 
   /*! \brief Draws an array of lines.
    *
-   * Draws the <i>lineCount</i> first lines from the given array of lines.
+   * Draws the \p lineCount first lines from the given array of lines.
    */  
   void drawLines(const WT_ARRAY WLineF *lines, int lineCount);
 
   /*! \brief Draws an array of lines.
    *
-   * Draws <i>lineCount</i> lines, where each line is specified using
+   * Draws \p lineCount lines, where each line is specified using
    * a begin and end point that are read from an array. Thus, the
-   * <i>pointPairs</i> array must have at least 2*<i>lineCount</i>
+   * <i>pointPairs</i> array must have at least 2*\p lineCount
    * points.
    */
   void drawLines(const WT_ARRAY WPointF *pointPairs, int lineCount);
@@ -411,8 +411,8 @@ public:
    * filled using the current brush.
    *
    * The arc is defined as a segment from an ellipse, which fits in
-   * the <i>rectangle</i>. The segment starts at <i>startAngle</i>, and
-   * spans an angle given by <i>spanAngle</i>. These angles have as
+   * the <i>rectangle</i>. The segment starts at \p startAngle, and
+   * spans an angle given by \p spanAngle. These angles have as
    * unit 1/16th of a degree, and are measured counter-clockwise
    * starting at 3 o'clock.
    *
@@ -448,7 +448,7 @@ public:
 
   /*! \brief Draw a number of points.
    *
-   * Draws the <i>pointCount</i> first points from the given array of points.
+   * Draws the \p pointCount first points from the given array of points.
    *
    * \sa drawPoint(const WPointF&)
    */
@@ -492,7 +492,7 @@ public:
 
   /*! \brief Draw a number of rectangles.
    *
-   * Draws and fills the <i>rectCount</i> first rectangles from the
+   * Draws and fills the \p rectCount first rectangles from the
    * given array, using the current pen and brush.
    *
    * \sa drawRect(const WRectF&)
@@ -512,7 +512,7 @@ public:
    *
    * Draw text using inside the rectangle, using the current font. The
    * text is aligned inside the rectangle following alignment
-   * indications given in <i>flags</i>. The text is drawn using the
+   * indications given in \p flags. The text is drawn using the
    * current transformation, pen color (pen()) and font settings
    * (font()).
    *
@@ -544,7 +544,7 @@ public:
   /*! \brief Fill a (complex) path.
    *
    * Like drawPath(const WPainterPath&), but does not stroke the path,
-   * and fills the path with the given <i>brush</i>.
+   * and fills the path with the given \p brush.
    *
    * \sa drawPath(const WPainterPath&), strokePath(const WPainterPath&, const WPen&)
    */
@@ -553,7 +553,7 @@ public:
   /*! \brief Fill a rectangle.
    *
    * Like drawRect(const WRectF&), but does not stroke the rect, and
-   * fills the rect with the given <i>brush</i>.
+   * fills the rect with the given \p brush.
    *
    * \sa drawRect(const WRectF&)
    */
@@ -571,7 +571,7 @@ public:
   /*! \brief Stroke a path.
    *
    * Like drawPath(const WPainterPath&), but does not fill the path,
-   * and strokes the path with the given <i>pen</i>.
+   * and strokes the path with the given \p pen.
    *
    * \sa drawPath(const WPainterPath&), fillPath(const WPainterPath&, const WBrush&)
    */
@@ -634,7 +634,7 @@ public:
    * Enables are disables clipping for subsequent operations using the
    * current clip path set using setClipPath().
    *
-   * <i>Note: Clipping is not supported for the VML renderer.</i>
+   * \p Note: Clipping is not supported for the VML renderer.
    *
    * \sa hasClipping(), setClipPath(const WPainterPath&)
    */
@@ -642,7 +642,7 @@ public:
 
   /*! \brief Return whether clipping is enabled.
    *
-   * <i>Note: Clipping is not supported for the VML renderer.</i>
+   * \p Note: Clipping is not supported for the VML renderer.
    *
    * \sa setClipping(bool), setClipPath(const WPainterPath&)
    */
@@ -684,7 +684,7 @@ public:
   /*! \brief Rotate the logical coordinate system.
    *
    * Rotates the logical coordinate system around its origin. The
-   * <i>angle</i> is specified in degrees, and positive values are
+   * \p angle is specified in degrees, and positive values are
    * clock-wise.
    *
    * \sa scale(double, double), translate(double, double), resetTransform()
@@ -723,7 +723,7 @@ public:
   /*! \brief Set a transformation for the logical coordinate system.
    *
    * Sets a new transformation which transforms logical coordinates to
-   * device coordinates. When <i>combine</i> is true, the
+   * device coordinates. When \p combine is \c true, the
    * transformation is combined with the current world transformation
    * matrix.
    *

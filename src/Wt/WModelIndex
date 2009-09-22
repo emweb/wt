@@ -121,7 +121,7 @@ class WT_API WModelIndex
 public:
   /*! \brief Create an invalid WModelIndex.
    *
-   * Returns a model index for which isValid() return false.
+   * Returns a model index for which isValid() return \c false.
    */
   WModelIndex();
 
@@ -170,7 +170,7 @@ public:
    *
    * It has the same function as WAbstractItemModel::index() but is
    * less general because the latter expression may also be used to
-   * retrieve top level children, i.e. when <i>index</i> is invalid.
+   * retrieve top level children, i.e. when \p index is invalid.
    *
    * \sa WAbstractItemModel::index(), isValid()
    */
@@ -207,8 +207,8 @@ public:
 
   /*! \brief Returns whether the index is a real valid index.
    *
-   * Returns true when the index points to a valid data item, i.e. at
-   * a valid row() and column().
+   * Returns \c true when the index points to a valid data item,
+   * i.e. at a valid row() and column().
    *
    * An index may be invalid for two reasons:
    *  - an operation requested an index that was out of model bounds,
@@ -225,7 +225,7 @@ public:
 
   /*! \brief Comparison operator.
    *
-   * Returns true only if the indexes point at the same data, in the
+   * Returns \c true only if the indexes point at the same data, in the
    * same model.
    */
   bool operator== (const WModelIndex& other) const;
@@ -238,7 +238,7 @@ public:
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the index comes topologically before <i>other</i>.
+   * Returns \c true if the index comes topologically before \p other.
    *
    * Topological order follows the order in which the indexes would be
    * displayed in a tree table view, from top to bottom followed by

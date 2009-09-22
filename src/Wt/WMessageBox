@@ -57,18 +57,21 @@ public:
 
   /*! \brief Create an empty message box.
    *
-   * The button labels may be set fixed English (if i18n = false), or fetched
-   * from a resource bundle if i18n = true. In that case, the key for each
-   * button is exactly the same as the English text.
+   * The button labels may be set fixed English (if \p i18n = \c
+   * false), or fetched from a resource bundle if \p i18n = \c
+   * true. In that case, the key for each button is exactly the same
+   * as the English text.
    */
   WMessageBox(bool i18n = false);
 
   /*! \brief Create a message box with given caption, text, icon, and
    *         buttons.
    *
-   * The button labels may be set fixed English (if i18n = false), or fetched
-   * from a resource bundle if i18n = true. In that case, the key for each
-   * button is exactly the same as the English text.
+   * The button labels may be set fixed English (if \p i18n = \c false),
+   * or fetched from a resource bundle if \p i18n = \c true.
+   *
+   * In that case, the key for each button is exactly the same as the
+   * English text.
    */
   WMessageBox(const WString& caption, const WString& text, Icon icon,
 	      WFlags<StandardButton> buttons, bool i18n = false);
@@ -99,7 +102,7 @@ public:
   /* !\brief Get the icon image.
    *
    * This may be useful to customize the style or layout of the displayed
-   * icon. If icon() == NoIcon, then this method returns 0.
+   * icon. If icon() == NoIcon, then this method returns \c 0.
    */
   WImage *iconImage() const { return iconImage_; }
 

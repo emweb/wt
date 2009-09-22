@@ -52,18 +52,18 @@ public:
 
   /*! \brief Construct a date validator.
    *
-   * The validator will accept dates in the date format <i>format</i>.
+   * The validator will accept dates in the date format \p format.
    *
-   * The syntax for <i>format</i> is as in WDate::fromString()
+   * The syntax for \p format is as in WDate::fromString()
    */
   WDateValidator(const WT_USTRING& format, WObject *parent = 0);
 
   /*! \brief Construct a date validator.
    *
    * The validator will accept only dates within the indicated range
-   * <i>bottom</i> to <i>top</i>, in the date format <i>format</i>.
+   * <i>bottom</i> to <i>top</i>, in the date format \p format.
    *
-   * The syntax for <i>format</i> is as in WDate::fromString()
+   * The syntax for \p format is as in WDate::fromString()
    */
   WDateValidator(const WT_USTRING& format,
 		 const WDate& bottom,
@@ -120,7 +120,7 @@ public:
    *
    * \deprecated see WDate::fromString() static methods.
    *
-   * Equivalent to WDate::fromString(<i>input</i>, "yyyy-MM-dd");
+   * Equivalent to WDate::fromString(\p input, "yyyy-MM-dd");
    */
   static WDate parse(const WString& input);
 #endif // WT_DEPRECATED_3_0_0

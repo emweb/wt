@@ -97,7 +97,7 @@ public:
   /*! \brief Create a new standard item model with an initial toplevel geometry.
    *
    * Creates a standard item model with a geometry of
-   * <i>rows</i> x <i>columns</i>. All items are set to 0.
+   * <i>rows</i> x \p columns. All items are set to \c 0.
    */
   WStandardItemModel(int rows, int columns, WObject *parent = 0);
 
@@ -120,7 +120,7 @@ public:
 
   /*! \brief Returns the model index for a particular item.
    *
-   * If the <i>item</i> is the invisibleRootItem(), then an invalid
+   * If the \p item is the invisibleRootItem(), then an invalid
    * index is returned.
    *
    * \sa itemFromIndex()
@@ -138,7 +138,7 @@ public:
 
   /*! \brief Add a single column of top level items.
    *
-   * Appends a single column of top level <i>items</i>. If necessary,
+   * Appends a single column of top level \p items. If necessary,
    * the row count is increased.
    *
    * Equivalent to:
@@ -152,8 +152,8 @@ public:
 
   /*! \brief Insert a single column of top level items.
    *
-   * Inserts a single column of top level <i>items</i> at column
-   * <i>column</i>. If necessary, the row count is increased.
+   * Inserts a single column of top level \p items at column
+   * \p column. If necessary, the row count is increased.
    *
    * Equivalent to:
    * \code
@@ -166,7 +166,7 @@ public:
 
   /*! \brief Add a single row of top level items.
    *
-   * Appends a single row of top level <i>items</i>. If necessary,
+   * Appends a single row of top level \p items. If necessary,
    * the column count is increased.
    *
    * Equivalent to:
@@ -180,8 +180,8 @@ public:
 
   /*! \brief Insert a single row of top level items.
    *
-   * Inserts a single row of top level <i>items</i> at row
-   * <i>row</i>. If necessary, the column count is increased.
+   * Inserts a single row of top level \p items at row
+   * \p row. If necessary, the column count is increased.
    *
    * Equivalent to:
    * \code
@@ -222,7 +222,7 @@ public:
 
   /*! \brief Returns a toplevel item.
    *
-   * Returns the top level at at (<i>row</i>, <i>column</i>). This may
+   * Returns the top level at at (<i>row</i>, \p column). This may
    * be 0 if no item was set previously at that position, or if the
    * indicated position is out of bounds.
    *
@@ -237,7 +237,7 @@ public:
 
   /*! \brief Sets a toplevel item.
    *
-   * Sets the top level at at (<i>row</i>, <i>column</i>). If
+   * Sets the top level at at (<i>row</i>, \p column). If
    * necessary, the number of rows or columns is increased.
    *
    * If an item was previously set for that position, it is deleted

@@ -62,7 +62,7 @@ public:
 
   /*! \brief Assignment operator.
    *
-   * Copies the transformation from the <i>rhs</i>.
+   * Copies the transformation from the \p rhs.
    */
   WTransform& operator=(const WTransform& rhs);
 
@@ -72,13 +72,13 @@ public:
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the transforms are exactly the same.
+   * Returns \c true if the transforms are exactly the same.
    */
   bool operator==(const WTransform& rhs) const;
 
   /*! \brief Comparison operator.
    *
-   * Returns true if the transforms are different.
+   * Returns \c true if the transforms are different.
    */
   bool operator!=(const WTransform& rhs) const;
 
@@ -150,8 +150,8 @@ public:
 
   /*! \brief Apply the transformation to a point.
    *
-   * Sets the point (<i>tx</i>, <i>ty</i>) to the transformation of
-   * the point (<i>x</i>, <i>y</i>).
+   * Sets the point (<i>tx</i>, \p ty) to the transformation of
+   * the point (<i>x</i>, \p y).
    *
    * \sa map(const WPointF&) const
    */
@@ -166,7 +166,7 @@ public:
   /*! \brief Rotate the transformation.
    *
    * Applies a clock-wise rotation to the current transformation
-   * matrix, over <i>angle</i> degrees.
+   * matrix, over \p angle degrees.
    *
    * \sa rotateRadians()
    */
@@ -175,7 +175,7 @@ public:
   /*! \brief Rotate the transformation.
    *
    * Applies a clock-wise rotation to the current transformation
-   * matrix, over <i>angle</i> radians.
+   * matrix, over \p angle radians.
    *
    * \sa rotate()
    */
@@ -184,7 +184,7 @@ public:
   /*! \brief Scale the transformation.
    *
    * Applies a clock-wise rotation to the current transformation
-   * matrix, over <i>angle</i> radians.
+   * matrix, over \p angle radians.
    *
    * \sa shear()
    */
@@ -217,7 +217,7 @@ public:
 
   /*! \brief Return the inverted transformation.
    *
-   * Returns <i>this</i> if the transformation could not be inverted
+   * Returns \p this if the transformation could not be inverted
    * (determinant() == 0), and logs an error instead.
    */
   WTransform inverted() const;
@@ -238,9 +238,9 @@ public:
   /*! \brief Decompose the transformation
    *
    * Decomposes the transformation into elementary operations:
-   * translation (<i>dx</i>, <i>dy</i>), followed by rotation
-   * (<i>alpha</i>), followed by scale (<i>sx</i>, <i>sy</i>) and
-   * vertical shearing factor (<i>sh</i>). The angle is expressed in
+   * translation (<i>dx</i>, \p dy), followed by rotation
+   * (<i>alpha</i>), followed by scale (<i>sx</i>, \p sy) and
+   * vertical shearing factor (\p sh). The angle is expressed in
    * radians.
    *
    * This performs a <a
@@ -265,9 +265,9 @@ public:
   /*! \brief Decompose the transformation
    *
    * Decomposes the transformation into elementary operations:
-   * translation (<i>dx</i>, <i>dy</i>), followed by rotation
-   * (<i>alpha2</i>), followed by scale (<i>sx</i>, <i>sy</i>) and
-   * again a rotation (<i>alpha2</i>). The angles are expressed in
+   * translation (<i>dx</i>, \p dy), followed by rotation
+   * (<i>alpha2</i>), followed by scale (<i>sx</i>, \p sy) and
+   * again a rotation (\p alpha2). The angles are expressed in
    * radians.
    *
    * This performs a <a

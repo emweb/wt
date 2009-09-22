@@ -101,7 +101,7 @@ public:
   /*! \brief Creates a %WString from a C string.
    *
    * The C string is implicitly converted to unicode. When
-   * <i>encoding</i> is \link Wt::LocalEncoding LocalEncoding\endlink,
+   * \p encoding is \link Wt::LocalEncoding LocalEncoding\endlink,
    * the current locale is used to interpret the C string. When
    * encoding is \link Wt::UTF8 UTF8\endlink, the C string is
    * interpreted as a UTF8 encoded unicode string.
@@ -111,7 +111,7 @@ public:
   /*! \brief Creates a %WString from a C++ string.
    *
    * The C++ string is implicitly converted to unicode. When
-   * <i>encoding</i> is \link Wt::LocalEncoding LocalEncoding\endlink,
+   * \p encoding is \link Wt::LocalEncoding LocalEncoding\endlink,
    * the current locale is used to interpret the C++ string. When
    * encoding is \link Wt::UTF8 UTF8\endlink, the C++ string is
    * interpreted as a UTF8 encoded unicode string.
@@ -130,7 +130,7 @@ public:
 
   /*! \brief Comparison operator
    *
-   * Compares to strings and returns true if the strings are exactly
+   * Compares to strings and returns \c true if the strings are exactly
    * the same. This may require evaluating a localized string in the
    * current locale.
    */
@@ -200,14 +200,14 @@ public:
 
   /*! \brief Creates a %WString from a UTF8 unicode encoded string.
    *
-   * This is equivalent to using the constructor WString(<i>value</i>,
+   * This is equivalent to using the constructor WString(\p value,
    * UTF8).
    */
   static WString fromUTF8(const std::string& value);
 
   /*! \brief Creates a %WString from a UTF8 unicode encoded string.
    *
-   * This is equivalent to using the constructor WString(<i>value</i>,
+   * This is equivalent to using the constructor WString(\p value,
    * UTF8).
    */
   static WString fromUTF8(const char *value);
@@ -281,8 +281,8 @@ public:
 
   /*! \brief Substitutes the next positional argument with a string value.
    *
-   * In the string, the <i>n</i>-th argument is referred to as using
-   * {<i>n</i>}.
+   * In the string, the \p n-th argument is referred to as using
+   * {\p n}.
    *
    * For example: the string "<tt>{1} bought {2} apples in the
    * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
@@ -293,8 +293,8 @@ public:
 
   /*! \brief Substitutes the next positional argument with a string value.
    *
-   * In the string, the <i>n</i>-th argument is referred to as using
-   * {<i>n</i>}.
+   * In the string, the \p n-th argument is referred to as using
+   * {\p n}.
    *
    * For example: the string "<tt>{1} bought {2} apples in the
    * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
@@ -307,8 +307,8 @@ public:
 
   /*! \brief Substitutes the next positional argument with a string value.
    *
-   * In the string, the <i>n</i>-th argument is referred to as using
-   * {<i>n</i>}.
+   * In the string, the \p n-th argument is referred to as using
+   * {\p n}.
    *
    * For example: the string "<tt>{1} bought {2} apples in the
    * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
@@ -319,8 +319,8 @@ public:
 
   /*! \brief Substitutes the next positional argument with an integer value.
    *
-   * In the string, the <i>n</i>-th argument is reffered to as using
-   * {<i>n</i>}.
+   * In the string, the \p n-th argument is reffered to as using
+   * {\p n}.
    *
    * For example: the string "<tt>{1} bought {2} apples in the
    * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
@@ -331,8 +331,8 @@ public:
 
   /*! \brief Substitutes the next positional argument with a double value.
    *
-   * In the string, the <i>n</i>-th argument is reffered to as using
-   * {<i>n</i>}.
+   * In the string, the \p n-th argument is reffered to as using
+   * {\p n}.
    *
    * For example: the string "<tt>{1} bought {2} apples in the
    * shop.</tt>" with first argument value "<tt>Bart</tt>" and second
@@ -357,7 +357,7 @@ public:
 
   /*! \brief Returns the string as a JavaScript literal
    *
-   * The <i>delimiter</i> may be a single or double quote.
+   * The \p delimiter may be a single or double quote.
    *
    * \sa WWebWidget::jsStringLiteral()
    */

@@ -99,7 +99,7 @@ public:
    * This constructor is rarely used. Instead, use the convenient
    * constructors of the specialized WHBoxLayout or WVBoxLayout classes.
    *
-   * Use <i>parent</i>=0 to created a layout manager that can be
+   * Use \p parent = \c 0 to created a layout manager that can be
    * nested inside other layout managers.
    */
   WBoxLayout(Direction dir, WWidget *parent = 0);
@@ -135,11 +135,11 @@ public:
 
   /*! \brief Adds a widget to the layout.
    *
-   * Adds a widget to the layout, with given <i>stretch</i> factor.
-   * The <i>alignemnt</i> parameter is a combination of a horizontal
+   * Adds a widget to the layout, with given \p stretch factor.
+   * The \p alignemnt parameter is a combination of a horizontal
    * and/or a vertical AlignmentFlag OR'ed together.
    *
-   * The <i>alignment</i> specifies the vertical and horizontal
+   * The \p alignment specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire column or row. The alignment can
    * be specified as a logical combination of a horizontal alignment
@@ -154,7 +154,7 @@ public:
 
   /*! \brief Adds a nested layout to the layout.
    *
-   * Adds a nested layout, with given <i>stretch</i> factor.
+   * Adds a nested layout, with given \p stretch factor.
    *
    * \sa addWidget(WWidget *, int, WFlags<AlignmentFlag>), insertLayout()
    */
@@ -180,10 +180,10 @@ public:
 
   /*! \brief Inserts a widget in the layout.
    *
-   * Inserts a widget in the layout at position <i>index</i>,
-   * with given <i>stretch</i> factor.
+   * Inserts a widget in the layout at position \p index,
+   * with given \p stretch factor.
    *
-   * The <i>alignment</i> specifies the vertical and horizontal
+   * The \p alignment specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire column or row. The alignment can
    * be specified as a logical combination of a horizontal alignment
@@ -198,8 +198,8 @@ public:
 
   /*! \brief Inserts a nested layout in the layout.
    *
-   * Inserts a nested layout in the layout at position<i>index</i>,
-   * with given <i>stretch</i> factor.
+   * Inserts a nested layout in the layout at position\p index,
+   * with given \p stretch factor.
    *
    * \sa insertWidget(), addLayout()
    */
@@ -208,7 +208,7 @@ public:
 
   /*! \brief Inserts extra spacing in the layout.
    *
-   * Inserts extra spacing in the layout at position <i>index</i>.
+   * Inserts extra spacing in the layout at position \p index.
    *
    * \sa insertStretch(), addSpacing()
    */
@@ -217,7 +217,7 @@ public:
   /*! \brief Inserts a stretch element in the layout.
    *
    * Inserts a stretch element in the layout at position
-   * <i>index</i>. This adds an empty space that stretches as needed.
+   * \p index. This adds an empty space that stretches as needed.
    *
    * \sa insertSpacing(), addStretch()
    */
@@ -225,19 +225,19 @@ public:
 
   /*! \brief Set the stretch factor for a nested layout.
    *
-   * The <i>layout</i> must have previously been added to this layout
+   * The \p layout must have previously been added to this layout
    * using insertLayout() or addLayout().
    *
-   * Returns whether the <i>stretch</i> could be set.
+   * Returns whether the \p stretch could be set.
    */
   bool setStretchFactor(WLayout *layout, int stretch);
 
   /*! \brief Set the stretch factor for a nested layout.
    *
-   * The <i>widget</i> must have previously been added to this layout
+   * The \p widget must have previously been added to this layout
    * using insertWidget() or addWidget().
    *
-   * Returns whether the <i>stretch</i> could be set.
+   * Returns whether the \p stretch could be set.
    */
   bool setStretchFactor(WWidget *widget, int stretch);
 

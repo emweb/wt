@@ -120,7 +120,7 @@ public:
 
   /*! \brief Set the preferred rendering method.
    *
-   * When <i>method</i> is supported by the browser, then it is chosen
+   * When \p method is supported by the browser, then it is chosen
    * for rendering.
    */
   void setPreferredMethod(Method method);
@@ -142,12 +142,12 @@ public:
 
   /*! \brief Add an interactive area.
    *
-   * Adds the <i>area</i> which listens to events in a specific region
+   * Adds the \p area which listens to events in a specific region
    * of the widget. Areas are organized in a list, to which the given
-   * <i>area</i> is appended. When areas overlap, the area with the
+   * \p area is appended. When areas overlap, the area with the
    * lowest index receives the event.
    *
-   * Ownership of the <i>area</i> is transferred to the widget.
+   * Ownership of the \p area is transferred to the widget.
    *
    * \sa insertArea(int, WAbstractArea *)
    *
@@ -161,12 +161,12 @@ public:
 
   /*! \brief Insert an interactive area.
    *
-   * Inserts the <i>area</i> which listens to events in the
+   * Inserts the \p area which listens to events in the
    * coresponding area of the widget. Areas are organized in a list,
-   * and the <i>area</i> is inserted at index <i>index</i>. When areas
+   * and the <i>area</i> is inserted at index \p index. When areas
    * overlap, the area with the lowest index receives the event.
    *
-   * Ownership of the <i>Area</i> is transferred to the widget.
+   * Ownership of the \p Area is transferred to the widget.
    *
    * \sa addArea(WAbstractArea *)
    *
@@ -180,7 +180,7 @@ public:
 
   /*! \brief Removes an interactive area.
    *
-   * Removes the <i>area</i> from this widget, returning the
+   * Removes the \p area from this widget, returning the
    * ownership.
    *
    * \sa addArea(WAbstractArea *)
@@ -189,7 +189,7 @@ public:
 
   /*! \brief Returns the interactive area at the given index.
    *
-   * Returns 0 if <i>index</i> was invalid.
+   * Returns \c 0 if \p index was invalid.
    *
    * \sa insertArea(int, WAbstractArea *)
    */

@@ -108,16 +108,20 @@ class JSignal : public EventSignalBase
 public:
   /*! \brief Construct a signal for the given object, and name.
    *
-   * The given <i>name</i> must be unique for all user signals
-   * specified for the object <i>object</i>. Ownership of the signal
+   * The given \p name must be unique for all user signals
+   * specified for the object \p object. Ownership of the signal
    * is not transferred to the object.
    *
-   * If <i>collectSlotJavaScript</i> is true, then javascript
-   * specified for connected slots (using JSlot) or learned by
-   * \link WObject::implementStateless() stateless slot
-   * learning\endlink, is collected to client-side
-   * JavaScript. Therefore the signal must be called from client-side
-   * JavaScript by using createCall() or createEventCall().
+   * If \p collectSlotJavaScript is \c true, then javascript specified
+   * for connected slots (using JSlot) or learned by stateless slot
+   * learning, is collected to client-side JavaScript.
+   *
+   * Use the utility methods createCall() or createEventCall() to
+   * create the appropriate JavaScript statements that invoke the
+   * signal, which take into account possible other client-side
+   * JavaScript handling associated with the signal.
+   *
+   * \sa \link WObject::implementStateless() stateless slot learning\endlink
    */
   JSignal(WObject *object, const std::string& name,
 	  bool collectSlotJavaScript = false);
@@ -139,9 +143,9 @@ public:
      Wt.emit([element], [name], arg1, ...);
    * \endcode
    *
-   * When the signal was constructed with collectSlotJavaScript ==
-   * true, the inline JavaScript from slots defined as JavaScript or
-   * from learned stateless slots is included as well.
+   * When the signal was constructed with \p collectSlotJavaScript ==
+   * \c true, the inline JavaScript from slots defined as JavaScript
+   * or from learned stateless slots is included as well.
    *
    * \sa createEventCall()
    */
@@ -161,8 +165,8 @@ public:
              arg1, ...);
    * \endcode
    *
-   * In addition to information identifying the signal (<i>element</i>
-   * and <i>name</i>) and the arguments, also information on the original
+   * In addition to information identifying the signal (\p element
+   * and \p name) and the arguments, also information on the original
    * JavaScript event is transferred. In this way, you can propagate the
    * corresponding event class (WMouseEvent or WKeyEvent) as an additional
    * last argument in the slot.
@@ -182,10 +186,11 @@ public:
 
   /*! \brief Connect a slot that takes no arguments.
    *
-   * The slot is specified as a method of class V, which is equal to
-   * class V, or a base class of class V. In addition, to check for
-   * stateless implementations, class T must be also be a descendant of
-   * WObject. Thus, the following statement must return a non-null pointer:
+   * The slot is specified as a method of an object \target of class
+   * \p T, which equals class \p V, or is a base class of class \p
+   * V. In addition, to check for stateless implementations, class \p
+   * T must be also be a descendant of WObject. Thus, the following
+   * statement must return a non-null pointer:
    *
    * \code
    * WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
@@ -263,7 +268,7 @@ public:
    * some JavaScript code as implemented by the slot. Unlike other
    * connects, this does not cause the event to propagated to the
    * application, and thus the state changes induced by the
-   * <i>slot</i> are invisible to the server-side.
+   * \p slot are invisible to the server-side.
    */
   void connect(JSlot& slot);
 

@@ -135,7 +135,7 @@ public:
 
   /*! \brief Returns a single value for a query parameter.
    *
-   * Returns the first value for a parameter, or 0 if the parameter is
+   * Returns the first value for a parameter, or \c 0 if the parameter is
    * not found.
    *
    * \sa getParameterValues()
@@ -384,7 +384,7 @@ public:
    *
    * The version of the %Wt library, broken down in its three numbers,
    *
-   * Example: <i>series</i> = 1, <i>major</i> = 99, <i>minor</i> = 2.
+   * Example: <i>series</i> = 1, <i>major</i> = 99, \p minor = 2.
    */
   void libraryVersion(int& series, int& major, int& minor) const;
 

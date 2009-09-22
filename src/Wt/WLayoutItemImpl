@@ -29,7 +29,7 @@ public:
 
   /*! \brief Add a layout <i>item</i>.
    *
-   * The <i>item</i> already has an implementation set.
+   * The \p item already has an implementation set.
    */
   virtual void updateAddItem(WLayoutItem *item) = 0;
 

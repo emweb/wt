@@ -152,8 +152,9 @@ public:
    *
    * The grid will grow dynamically as items are added.
    *
-   * Use <i>parent</i>=0 to created a layout manager that can be
-   * nested inside other layout managers.
+   * Use \p parent = \c 0 to create a layout manager that can be
+   * nested inside other layout managers or to specify a specific alignment
+   * when setting the layout to a WContainerWidget.
    */
   WGridLayout(WWidget *parent = 0);
 
@@ -164,14 +165,14 @@ public:
 
   /*! \brief Adds a layout item to the grid.
    *
-   * Adds the <i>item</i> at (<i>row</i>, <i>column</i>). If an item
+   * Adds the <i>item</i> at (<i>row</i>, \p column). If an item
    * was already added to that location, it is replaced (but not
    * deleted).
    *
    * An item may span several more rows or columns, which is
-   * controlled by <i>rowSpan</i> and <i>columnSpan</i>.
+   * controlled by <i>rowSpan</i> and \p columnSpan.
    *
-   * The <i>alignment</i> specifies the vertical and horizontal
+   * The \p alignment specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
@@ -187,11 +188,11 @@ public:
 
   /*! \brief Adds a nested layout item to the grid.
    *
-   * Adds the <i>layout</i> at (<i>row</i>, <i>column</i>). If an item
+   * Adds the <i>layout</i> at (<i>row</i>, \p column). If an item
    * was already added to that location, it is replaced (but not
    * deleted).
    *
-   * The <i>alignment</i> specifies the vertical and horizontal
+   * The \p alignment specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
@@ -206,14 +207,14 @@ public:
 
   /*! \brief Adds a nested layout item to the grid.
    *
-   * Adds the <i>layout</i> at (<i>row</i>, <i>column</i>). If an item
+   * Adds the <i>layout</i> at (<i>row</i>, \p column). If an item
    * was already added to that location, it is replaced (but not
    * deleted).
    *
    * An item may span several more rows or columns, which is
-   * controlled by <i>rowSpan</i> and <i>columnSpan</i>.
+   * controlled by <i>rowSpan</i> and \p columnSpan.
    *
-   * The <i>alignment</i> specifies the vertical and horizontal
+   * The \p alignment specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
@@ -229,11 +230,11 @@ public:
 
   /*! \brief Adds a widget to the grid.
    *
-   * Adds the <i>widget</i> at (<i>row</i>, <i>column</i>). If an item
+   * Adds the <i>widget</i> at (<i>row</i>, \p column). If an item
    * was already added to that location, it is replaced (but not
    * deleted).
    *
-   * The <i>alignment</i> specifies the vertical and horizontal
+   * The \p alignment specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
@@ -248,14 +249,14 @@ public:
 
   /*! \brief Adds a widget to the grid.
    *
-   * Adds the <i>widget</i> at (<i>row</i>, <i>column</i>). If an item
+   * Adds the <i>widget</i> at (<i>row</i>, \p column). If an item
    * was already added to that location, it is replaced (but not
    * deleted).
    *
    * The widget may span several more rows or columns, which is
-   * controlled by <i>rowSpan</i> and <i>columnSpan</i>.
+   * controlled by <i>rowSpan</i> and \p columnSpan.
    *
-   * The <i>alignment</i> specifies the vertical and horizontal
+   * The \p alignment specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
    * item is stretched to fill the entire grid cell. The alignment can
    * be specified as a logical combination of a horizontal alignment
@@ -317,7 +318,7 @@ public:
 
   /*! \brief Sets the column stretch.
    *
-   * Sets the <i>stretch</i> factor for column <i>column</i>.
+   * Sets the <i>stretch</i> factor for column \p column.
    *
    * \sa columnStretch()
    */
@@ -331,7 +332,7 @@ public:
 
   /*! \brief Sets the row stretch.
    *
-   * Sets the <i>stretch</i> factor for row <i>row</i>. See the
+   * Sets the <i>stretch</i> factor for row \p row. See the
    * description for the special value of -1.
    *
    * \sa rowStretch()

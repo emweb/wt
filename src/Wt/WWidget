@@ -100,7 +100,7 @@ public:
 
   /*! \brief Sets CSS offsets for a non-statically positioned widget.
    *
-   * The argument <i>sides</i> may be a combination of \link
+   * The argument \p sides may be a combination of \link
    * Wt::Left Left\endlink, \link Wt::Right Right\endlink, \link
    * Wt::Top Top\endlink, and \link Wt::Bottom Bottom\endlink.
    *
@@ -285,7 +285,7 @@ public:
   /*! \brief Sets the sides that should be cleared of floats.
    *
    * This pushes the widget down until it is not surrounded by floats
-   * at the <i>sides</i> (which may be a combination of \link Wt::Left
+   * at the \p sides (which may be a combination of \link Wt::Left
    * Left\endlink and \link Wt::Right Right\endlink.
    * 
    * This applies to CSS-based layout.

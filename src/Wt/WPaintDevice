@@ -78,7 +78,7 @@ public:
 
   /*! \brief Indicate changes in painter state.
    *
-   * The <i>flags</i> argument is the logical OR of one or more change flags.
+   * The \p flags argument is the logical OR of one or more change flags.
    *
    * \sa ChangeFlag
    */
@@ -97,9 +97,9 @@ public:
 
   /*! \brief Draw an image.
    *
-   * Draws <i>sourceRect</i> from the image with URL <i>imageUri</i>
-   * and original dimensions <i>imgWidth</i> and <i>imgHeight</i> to
-   * the location, into the rectangle defined by <i>rect</i>.
+   * Draws <i>sourceRect</i> from the image with URL \p imageUri
+   * and original dimensions <i>imgWidth</i> and \p imgHeight to
+   * the location, into the rectangle defined by \p rect.
    *
    * The image is transformed using the current painter settings.
    */

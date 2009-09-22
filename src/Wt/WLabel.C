@@ -107,7 +107,7 @@ void WLabel::setImage(WImage *image, Side side)
   repaint(RepaintInnerHtml);
 }
 
-void WLabel::setWordWrap(bool how)
+void WLabel::setWordWrap(bool wordWrap)
 {
   if (!text_) {
     text_ = new WText();
@@ -116,7 +116,7 @@ void WLabel::setWordWrap(bool how)
     repaint(RepaintInnerHtml);
   }
 
-  text_->setWordWrap(how);
+  text_->setWordWrap(wordWrap);
 }
 
 bool WLabel::wordWrap() const

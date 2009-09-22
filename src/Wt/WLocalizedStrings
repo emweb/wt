@@ -8,7 +8,7 @@
 #define WLOCALIZED_STRINGS_
 
 #include <string>
-#include "Wt/WDllDefs.h"
+#include <Wt/WDllDefs.h>
 
 namespace Wt {
 
@@ -52,8 +52,8 @@ public:
    * This method is used by WString to obtain the UTF8 value corresponding
    * to a key in the current locale.
    *
-   * Returns true if the key could be resolved. The value is written
-   * in <i>result</i>, encoded using UTF8.
+   * Returns \c true if the key could be resolved. The value is written
+   * in \p result, encoded using UTF8.
    *
    * \sa WApplication::locale()
    */

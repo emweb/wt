@@ -121,7 +121,7 @@ private:
  *
  * \ingroup modelview
  */
-class WAbstractItemDelegate : public WObject
+class WT_API WAbstractItemDelegate : public WObject
 {
 public:
   /*! \brief Constructor.
@@ -134,17 +134,16 @@ public:
 
   /*! \brief Create or update a widget that renders an item.
    *
-   * The item is specified by its model <i>index</i>, which also
+   * The item is specified by its model \p index, which also
    * indicates the model. If an existing widget already renders the
-   * item, but needs to be updated, it is passed as the <i>widget</i>
+   * item, but needs to be updated, it is passed as the \p widget
    * parameter. You may decide to create a new widget, in which case
-   * you are responsible to delete the previous <i>widget</i> if it is
+   * you are responsible to delete the previous \p widget if it is
    * not reused.
    *
-   * When <i>widget</i> is <tt>null</tt>, a new widget needs to be
-   * created.
+   * When \p widget is \c 0, a new widget needs to be created.
    *
-   * The <i>flags</i> parameter indicates options for rendering the
+   * The \p flags parameter indicates options for rendering the
    * item.
    */
   virtual WWidget *update(WWidget *widget, const WModelIndex& index,
@@ -156,8 +155,8 @@ public:
    * removals, an index was modified for a widget.
    *
    * You should reimplement this method if you are storing the model
-   * index (e.g. for editing purposes) in the <i>widget</i>, which
-   * you should update to the new <i>index</i>.
+   * index (e.g. for editing purposes) in the \p widget, which
+   * you should update to the new \p index.
    *
    * The default implementation does nothing.
    */

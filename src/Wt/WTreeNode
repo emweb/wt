@@ -231,7 +231,7 @@ public:
 
   /*! \brief Set the visibility of the node itself
    *
-   * If false, then the node itself is not displayed, but only its children.
+   * If \c false, then the node itself is not displayed, but only its children.
    * This is typically used to hide the root node of a tree.
    */
   void setNodeVisible(bool visible);

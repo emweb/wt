@@ -104,14 +104,14 @@ public:
 
   /*! \brief Sets the model.
    *
-   * The view will render the data in the given <i>model</i>. Changes
+   * The view will render the data in the given \p model. Changes
    * to the model are reflected in the view.
    *
    * When resetting a model, all nodes are initially collapsed, the
    * selection is cleared, and the root index corresponds to the
    * model's top level node (see setRootIndex()).
    *
-   * The initial model is 0.
+   * The initial model is \c 0.
    *
    * Ownership of the model is not transferred (and thus the
    * previously set model is not deleted).
@@ -211,8 +211,8 @@ public:
   /*! \brief Sets the column width.
    *
    * For a model with \link WAbstractItemModel::columnCount()
-   * columnCount()\endlink == <i>N</i>, the initial width of columns
-   * 1..<i>N</i> is set to 150 pixels, and column 0 will take all
+   * columnCount()\endlink == \p N, the initial width of columns
+   * 1..\p N is set to 150 pixels, and column 0 will take all
    * remaining space.
    *
    * \note The actual space occupied by each column is the column width
@@ -274,11 +274,11 @@ public:
    * This widget relies on several icons that are distributed together
    * with %Wt for drawing icons, lines, and backgrounds.
    *
-   * The default location for the image pack is <i>resourcesURL</i>.
+   * The default location for the image pack is \p resourcesURL.
    *
-   * The default value for <i>resourcesURL</i> is "resources/". This
+   * The default value for \c resourcesURL is "resources/". This
    * value may be overridden with a URL that points to a folder where
-   * these files are located, by configuring the <i>resourcesURL</i>
+   * these files are located, by configuring the \p resourcesURL
    * property in your %Wt configuration file.
    */
   void setImagePack(const std::string& uri) { }
@@ -315,7 +315,7 @@ public:
 
   /*! \brief Expand all nodes to a depth.
    *
-   * Expands all nodes to the given <i>depth</i>. A depth of 1 corresponds
+   * Expands all nodes to the given \p depth. A depth of 1 corresponds
    * to the top level nodes.
    *
    * \sa expand()
@@ -329,11 +329,11 @@ public:
    * \image html stripe-30px.gif "Sample image use for alternating row colors"
    *
    * The image that is used is
-   * imagePack() + "/stripes/stripe-<i>n</i>px.gif", where <i>n</i> is the
+   * imagePack() + "/stripes/stripe-<i>n</i>px.gif", where \p n is the
    * row height. In the resource folder are images pregenerated for
    * one color and row sizes from 10 to 30px.
    *
-   * The default value is false.
+   * The default value is \c false.
    *
    * \sa setImagePack()
    */
@@ -350,7 +350,7 @@ public:
    * By default, top level nodes have expand/collapse and other lines
    * to display their linkage and offspring, like any node.
    *
-   * By setting <i>show</i> to false, you can hide these decorations
+   * By setting \p show to \c false, you can hide these decorations
    * for root nodes, and in this way mimic a plain list.
    *
    * \if cpp
@@ -367,8 +367,8 @@ public:
 
   /*! \brief Sort the data according to a column.
    *
-   * Sorts the data according to data in column <i>column</i> and sort
-   * order <i>order</i>.
+   * Sorts the data according to data in column \p column and sort
+   * order \p order.
    *
    * \sa WAbstractItemModel::sort()
    */
@@ -422,7 +422,7 @@ public:
    *
    * By default, selection operates on rows (\link Wt::SelectRows
    * SelectRows\endlink), in which case model indexes will always be
-   * in the first column (column 0).
+   * in the first column (column \c 0).
    *
    * Alternatively, you can allow selection for individual items
    * (\link Wt::SelectItems SelectItems\endlink).
@@ -460,7 +460,7 @@ public:
 
   /*! \brief Sets the selected items
    *
-   * Replaces the current selection with <i>indexes</i>.
+   * Replaces the current selection with \p indexes.
    *
    * \sa select(), selectionModel()
    */
@@ -533,10 +533,10 @@ public:
    * keep the first column fixed while scrolling through the other
    * columns of the model.
    *
-   * The default value is false.
+   * The default value is \c false.
    *
    * \note Currently, you must set this option before any other manipulation
-   *       of a newly created treeview, and only <i>enable</i> = <i>true</i>
+   *       of a newly created treeview, and only \p enable = \c true
    *       is supported.
    */
   void setColumn1Fixed(bool enable);
@@ -622,10 +622,10 @@ public:
 protected:
   /*! \brief Handle a drop event (drag & drop).
    *
-   * The <i>event</i> object contains details about the drop
+   * The \p event object contains details about the drop
    * operation, identifying the source (which provides the data) and
    * the mime-type of the data. The drop was received on the
-   * <i>target</i> item.
+   * \p target item.
    *
    * The drop event can be handled either by the view itself, or by
    * the model. The default implementation checks if the mime-type is
@@ -645,11 +645,11 @@ protected:
    * below the header label. The extra widget will be visible only if
    * a multi-line header is configured using setHeaderHeight().
    *
-   * The widget is created only once, but this method may be called repeatedly
-   * for a column for which prior calls returned 0 (i.e. each time the header
-   * is rerendered).
+   * The widget is created only once, but this method may be called
+   * repeatedly for a column for which prior calls returned \c 0
+   * (i.e. each time the header is rerendered).
    *
-   * The default implementation returns 0.
+   * The default implementation returns \c 0.
    *
    * \sa setHeaderHeight(), extraHeaderWidget()
    */

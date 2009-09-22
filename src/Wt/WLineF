@@ -23,19 +23,19 @@ class WT_API WLineF
 public:
   /*! \brief Default constructor.
    *
-   * Constructs a line from (<i>x1=0</i>,<i>y1=0</i>) to (<i>x2=0</i>,<i>y2=0</i>).
+   * Constructs a line from (<i>x1=0</i>,<i>y1=0</i>) to (<i>x2=0</i>,\p y2=0).
    */
   WLineF();
 
   /*! \brief Construct a line connecting two points.
    *
-   * Constructs a line from <i>p1</i> to <i>p2</i>.
+   * Constructs a line from <i>p1</i> to \p p2.
    */
   WLineF(const WPointF& p1, const WPointF& p2);
 
   /*! \brief Construct a line connecting two points.
    *
-   * Constructs a line from (<i>x1</i>,<i>y1</i>) to (<i>x2</i>,<i>y2</i>).
+   * Constructs a line from (<i>x1</i>,<i>y1</i>) to (<i>x2</i>,\p y2).
    */
   WLineF(double x1, double y1, double x2, double y2);
 
