@@ -172,9 +172,9 @@ public:
    * The widget to be identified as source in the dropEvent may be given
    * explicitly, and will default to this widget otherwise.
    *
-   * \sa WWidget::dropEvent(), WWidget::acceptDrops(), WDropEvent
-   *
    * \note When JavaScript is disabled, drag&drop does not work.
+   *
+   * \sa WWidget::dropEvent(), WWidget::acceptDrops(), WDropEvent
    */
   void setDraggable(const std::string& mimeType, WWidget *dragWidget = 0,
 		    bool isDragWidgetOnly = false, WObject *sourceWidget = 0);

@@ -47,7 +47,7 @@ public:
 
   /*! \brief Set the bottom of the valid integer range.
    *
-   * The default value is std::numeric_limits<int>::min().
+   * The default value is the minimum integer value.
    */
   void setBottom(int bottom);
 
@@ -57,7 +57,7 @@ public:
 
   /*! \brief Set the top of the valid integer range.
    *
-   * The default value is std::numeric_limits<int>::max().
+   * The default value is the maximum integer value.
    */
   void setTop(int top);
 

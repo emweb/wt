@@ -76,11 +76,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * \if cpp
    * icon1()->clicked()
-   * \elseif java
-   * icon1().clicked()
-   * \endif
    * \endcode
    */
   EventSignal<WMouseEvent>& icon1Clicked();
@@ -90,11 +86,7 @@ public:
    *
    * Equivalent to:
    * \code
-   * \if cpp
    * icon2()->clicked()
-   * \elseif java
-   * icon2().clicked()
-   * \elseif
    * \endcode
    */
   EventSignal<WMouseEvent>& icon2Clicked();

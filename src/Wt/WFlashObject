@@ -21,6 +21,7 @@ namespace Wt {
  * content that is shown when a Flash player is not available on the
  * system or when JavaScript is disabled.
  *
+ * \if cpp
  * Usage example:
  * \code
  * WFlash *player = new WFlash("dummy.swf", parent);
@@ -30,6 +31,7 @@ namespace Wt {
  * player->setFlashParameter("bgcolor", "#aaaaaa");
  * player->setFlashVariable("someVar", "foo");
  * \endcode
+ * \endif
  *
  * This class uses <i>resourcesURL</i>"swfobject.js", a companion
  * JavaScript library, which is distributed with %Wt in the resources

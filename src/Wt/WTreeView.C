@@ -37,6 +37,10 @@
 
 #ifndef DOXYGEN_ONLY
 
+// Widest scrollbar found ? My Gnome Firefox has this
+#define SCROLLBAR_WIDTH_TEXT "19"
+#define SCROLLBAR_WIDTH      19
+
 namespace {
 // returns true if i2 is an ancestor of i1
   bool isAncestor(const Wt::WModelIndex& i1, const Wt::WModelIndex& i2) {
@@ -926,13 +930,13 @@ WTreeView::WTreeView(WContainerWidget *parent)
     /* sort handles */
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh",
-       "float: right; width: 16px; margin-top: 6px;"
-       "cursor: pointer; cursor:hand;");
+       "float: right; width: 16px; "
+       "margin-top: 6px; cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh-nrh",
-       "float: right; width: 16px; margin-top: 6px; margin-right: 4px;"
-       "cursor: pointer; cursor:hand;");
+       "float: right; width: 16px; "
+       "margin-top: 6px; margin-right: 4px; cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-shc0", "float: left;");
@@ -967,10 +971,10 @@ WTreeView::WTreeView(WContainerWidget *parent)
     if (app->environment().agentIsIE())
       app->styleSheet().addRule
 	(".Wt-treeview .Wt-scroll",
-	 "position: absolute; overflow-x: scroll; height: 16px;");
+	 "position: absolute; overflow-x: scroll; height: " SCROLLBAR_WIDTH_TEXT "px;");
     else
       app->styleSheet().addRule
-	(".Wt-treeview .Wt-scroll", "overflow: scroll; height: 16px;");
+	(".Wt-treeview .Wt-scroll", "overflow: scroll; height: " SCROLLBAR_WIDTH_TEXT "px;");
     app->styleSheet().addRule
       (".Wt-treeview .Wt-scroll div", "height: 1px;");
   }
@@ -1203,12 +1207,12 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""      "t=" + contents_->jsRef() + ".firstChild,"
      ""      "r= WT.getCssRule('#" + id() + " .cwidth'),"
      ""      "contentstoo=(r.style.width == h.style.width);"
-     ""  "r.style.width=(tw - (vscroll ? 17 : 0)) + 'px';"
+     ""  "r.style.width=(tw - (vscroll ? " SCROLLBAR_WIDTH_TEXT " : 0)) + 'px';"
      ""  "e.style.width=tw + 'px';"
      ""  "h.style.width=t.offsetWidth + 'px';"
      ""  "if (c0w != null) {"
      ""    "var hh=h.firstChild,"
-     ""        "w=tw - c0w - (vscroll ? 17 : 0);"
+     ""        "w=tw - c0w - (vscroll ? " SCROLLBAR_WIDTH_TEXT " : 0);"
      ""    "if (w > 0) {"
      ""      "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width = w + 'px';"
      ""      "var extra = "
@@ -1234,6 +1238,8 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
 void WTreeView::refresh()
 {
+  needDefineJS_ = false;
+
   WApplication *app = WApplication::instance();
 
   std::string columnsWidth = std::string() +
@@ -1340,7 +1346,7 @@ void WTreeView::setColumn1Fixed(bool fixed)
 
     WContainerWidget *scrollBarContainer = new WContainerWidget();
     scrollBarContainer->setStyleClass("cwidth");
-    scrollBarContainer->resize(WLength::Auto, 17);
+    scrollBarContainer->resize(WLength::Auto, SCROLLBAR_WIDTH);
     scrollBarC_ = new WContainerWidget(scrollBarContainer);
     scrollBarC_->setStyleClass("Wt-tv-row Wt-scroll");
     scrollBarC_->scrolled().connect(tieRowsScrollJS_);
@@ -1363,6 +1369,8 @@ void WTreeView::setColumn1Fixed(bool fixed)
 
 void WTreeView::load()
 {
+  needDefineJS_ = true;
+
   WCompositeWidget::load();
 }
 
@@ -1746,6 +1754,9 @@ void WTreeView::render()
       break;
     }
   }
+
+  if (needDefineJS_)
+    initLayoutJavaScript();
 
   WCompositeWidget::render();
 }

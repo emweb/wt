@@ -116,7 +116,7 @@ public:
    */
   void setButtons(WFlags<StandardButton> buttons);
 
-  /*! \brief returns the standard buttons.
+  /*! \brief Returns the standard buttons.
    */
   WFlags<StandardButton> buttons() const { return buttons_; }
 

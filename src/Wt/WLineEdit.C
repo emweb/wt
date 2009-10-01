@@ -109,7 +109,7 @@ void WLineEdit::getDomChanges(std::vector<DomElement *>& result,
   if (app->environment().agentIsIE() && flags_.test(BIT_ECHO_MODE_CHANGED)) {
     DomElement *e = DomElement::getForUpdate(this, domElementType());
     DomElement *d = createDomElement(app);
-    e->replaceWith(d, false);
+    e->replaceWith(d);
     result.push_back(e);
   } else
     WFormWidget::getDomChanges(result, app);

@@ -35,11 +35,12 @@ class Button;
  * software that doesn't need to scale (to thousands of users).
  *
  * A second way is by treating the %Dialog as another widget. The
- * %Dialog is created with the proper content, and for example an OK
- * button is connected to a method which deletes the dialog. Unlike
+ * dialog may be closed by calling accept(), reject() or done() (or
+ * connecting a signal to one of these methods). This will hide the
+ * dialog and emit the finished() signal, which you then can listen
+ * for to process the dialog result and delete the dialog. Unlike
  * other widgets, a dialog is hidden by default. You must use the
- * method show() or setHidden(true) to show the dialog. Using %Dialog
- * in this way doesn't lock up a thread.
+ * method show() or setHidden(true) to show the dialog.
  *
  * Since %Dialog is a Panel, the dialog contents may be layed out
  * inside the dialog using layout managers. To be compatible with

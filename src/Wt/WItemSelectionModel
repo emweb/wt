@@ -40,6 +40,8 @@ class WTreeView;
 class WT_API WItemSelectionModel : public WObject
 {
 public:
+  /*! \brief Returns the WAbstractItemModel.
+   */
   WAbstractItemModel *model() const { return model_; }
 
   /*! \brief Returns the set of selected items.

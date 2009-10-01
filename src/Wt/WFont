@@ -26,11 +26,11 @@ public:
   /*! \brief The generic font family.
    */
   enum GenericFamily { Default,   //!< Browser-dependent default
-		       Serif,     //!< e.g. Times
-		       SansSerif, //!< e.g. Helvetica
-		       Cursive,   //!< e.g. Zapf-Chancery
-		       Fantasy,   //!< e.g. Western
-		       Monospace  //!< e.g. Courier
+		       Serif,     //!< for example: Times
+		       SansSerif, //!< for example: Helvetica
+		       Cursive,   //!< for example: Zapf-Chancery
+		       Fantasy,   //!< for example: Western
+		       Monospace  //!< for example: Courier
   };
 
   /*! \brief The font style.
@@ -73,6 +73,8 @@ public:
    */
   WFont();
 
+  /*! \brief Comparison operator.
+   */
   bool operator==(const WFont& other) const;
   bool operator!=(const WFont& other) const;
 

@@ -176,7 +176,7 @@ void WFileUpload::getDomChanges(std::vector<DomElement *>& result,
   if (enableAjax_) {
     DomElement *plainE = DomElement::getForUpdate(this, DomElement_INPUT);
     DomElement *ajaxE = createDomElement(app);
-    plainE->replaceWith(ajaxE, true);
+    plainE->replaceWith(ajaxE);
     result.push_back(plainE);
   } else
     WWebWidget::getDomChanges(result, app);

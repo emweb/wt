@@ -223,9 +223,9 @@ public:
    */
   WFlags<ItemFlag> flags() const;
 
-  /*! \brief Make the item checkable.
+  /*! \brief Makes the item checkable.
    *
-   * Adds \link Wt::ItemIsUserCheckable Wt::ItemIsUserCheckable
+   * Adds \link Wt::ItemIsUserCheckable ItemIsUserCheckable
    * \endlink to the item's flags.
    *
    * \sa setFlags(), setChecked()
@@ -291,8 +291,8 @@ public:
    * If \p rows is smaller than the current row count, rows are
    * deleted at the end.
    *
-   * <i>Note, if \p rows > 0, and columnCount() == 0, columnCount
-   * is first increased to 1 using setColumnCount(1).</i>.
+   * \note If \p rows > 0, and columnCount() == 0, columnCount
+   * is first increased to 1 using setColumnCount(1).
    *
    * \sa setColumnCount(), rowCount()
    */
@@ -442,10 +442,12 @@ public:
    * example for tree nodes). This inserts a number of rows at row
    * \p row, each containing a single item, and is equivalent to:
    *
+   * \if cpp
    * \code
    * for (unsigned i = 0; i < items.size(); ++i)
    *   insertRow(row + i, items[i]);
    * \endcode
+   * \endif
    * 
    * \sa insertRow(int, WStandardItem *)
    */

@@ -212,14 +212,14 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
     // stateless learning does not yet work
     JSlot *showLoadJS = new JSlot();
     showLoadJS->setJavaScript
-      ("function(obj, e) {"
+      ("function(o,e) {"
        "" WT_CLASS ".inline('" + loadingIndicatorWidget_->id() + "');"
        "}");
     showLoadingIndicator_->connect(*showLoadJS);
 
     JSlot *hideLoadJS = new JSlot();
     hideLoadJS->setJavaScript
-      ("function(obj, e) {"
+      ("function(o,e) {"
        "" WT_CLASS ".hide('" + loadingIndicatorWidget_->id() + "');"
        "}");
     hideLoadingIndicator_->connect(*hideLoadJS);
@@ -232,8 +232,10 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
 void WApplication::initialize()
 { }
 
+#ifndef WT_TARGET_JAVA
 void WApplication::finalize()
 { }
+#endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
 WMessageResourceBundle& WApplication::messageResourceBundle() const

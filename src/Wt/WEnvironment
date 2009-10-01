@@ -155,8 +155,13 @@ public:
 
   /*! \brief Checks for existence and returns specified argument.
    *
+   * \if cpp
    * Throws a <tt>std::runtime_error("Missing cookie: ...")</tt> when
    * the cookie is missing, or returns cookie value otherwise.
+   * \elseif java
+   * Throws a <tt>RuntimeException("Missing cookie: ...")</tt> when
+   * the cookie is missing, or returns cookie value otherwise.
+   * \endif
    */
   const std::string getCookie(const std::string& cookieNname) const;
 

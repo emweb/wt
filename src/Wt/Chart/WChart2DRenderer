@@ -150,7 +150,7 @@ public:
   /*! \brief Calculates the main plotting area rectangle.
    *
    * This method calculates the main plotting area, and stores it in
-   * the memeber chartArea_. The default implementation simply removes
+   * the member chartArea_. The default implementation simply removes
    * the plot area padding from the entire painting rectangle.
    *
    * \sa WCartesianChart::plotAreaPadding().
@@ -161,20 +161,29 @@ public:
    *
    * This method renders the chart. The default implementation does
    * the following:
+   * \if cpp
    * \code
-  calcChartArea();           // sets chartArea_
-  prepareAxes();             // provides logical dimensions to the axes
-
-  renderBackground();        // render the background
-  renderAxes(Grid);          // render the grid
-  renderSeries();            // render the data series
-  \if cpp
-  renderAxes(Line | Labels); // render the axes (lines & labels)
-  \elseif java
-  renderAxes(AxisProperty.Line, AxisProperty.Labels); // render the axes (lines & labels)
-  \endif 
-  renderLegend();            // render legend and titles
-  \endcode
+   * calcChartArea();           // sets chartArea_
+   * prepareAxes();             // provides logical dimensions to the axes
+   *
+   * renderBackground();        // render the background
+   * renderAxes(Grid);          // render the grid
+   * renderSeries();            // render the data series
+   * renderAxes(Line | Labels); // render the axes (lines & labels)
+   * renderLegend();            // render legend and titles
+   * \endcode
+   * \elseif java
+   * \code
+   * calcChartArea();           // sets chartArea_
+   * prepareAxes();             // provides logical dimensions to the axes
+   * 
+   * renderBackground();        // render the background
+   * renderAxes(Grid);          // render the grid
+   * renderSeries();            // render the data series
+   * renderAxes(AxisProperty.Line, AxisProperty.Labels); // render the axes (lines & labels) 
+   * renderLegend();            // render legend and titles
+   * \endcode
+   * \endif
    *
    * You may want to reimplement this method to change the sequence of
    * steps for rendering the chart.
@@ -243,7 +252,11 @@ public:
 
   /*! \brief Enumeration that specifies a property of the axes.
    */
-  enum AxisProperty { Labels = 0x1, Grid = 0x2, Line = 0x4 };
+  enum AxisProperty {
+    Labels = 0x1,  //! Labels property. 
+    Grid = 0x2,    //! Grid property.
+    Line = 0x4     //! Line property.
+  };
 
 protected:
   /*! \brief Prepare the axes for rendering.

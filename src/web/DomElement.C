@@ -100,6 +100,7 @@ DomElement::DomElement(Mode mode, DomElementType type)
     deleted_(false),
     removeAllChildren_(false),
     minMaxSizeProperties_(false),
+    unstubbed_(false),
     replaced_(0),
     insertBefore_(0),
     type_(type),
@@ -455,10 +456,16 @@ void DomElement::removeAllChildren()
   wasEmpty_ = true;
 }
 
-void DomElement::replaceWith(DomElement *newElement, bool hideWithDisplay)
+void DomElement::replaceWith(DomElement *newElement)
 {
   ++numManipulations_;
   replaced_ = newElement;
+}
+
+void DomElement::unstubWith(DomElement *newElement, bool hideWithDisplay)
+{
+  replaceWith(newElement);
+  unstubbed_ = true;
   hideWithDisplay_ = hideWithDisplay;
 }
 
@@ -1033,8 +1040,8 @@ std::string DomElement::addToParent(EscapeOStream& out,
   } else {
     std::stringstream insertJS;
     if (pos != -1)
-      insertJS << parentVar << ".insertBefore(" << var_ << ","
-	       << parentVar << ".childNodes[" << pos << "]);\n";
+      insertJS << WT_CLASS ".insertAt(" << parentVar << "," << var_
+	       << "," << pos << ");";
     else
       insertJS << parentVar << ".appendChild(" << var_ << ");\n";
 
@@ -1112,8 +1119,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       insertJs << var_ << ".parentNode.replaceChild("
 	       << varr << ',' << var_ << ");\n";
       replaced_->createElement(out, app, insertJs.str());
-      out << WT_CLASS ".unstub(" << var_ << ',' << varr << ','
-	  << (hideWithDisplay_ ? 1 : 0) << ");\n";
+      if (unstubbed_)
+	out << WT_CLASS ".unstub(" << var_ << ',' << varr << ','
+	    << (hideWithDisplay_ ? 1 : 0) << ");\n";
 
       return var_;
     } else if (insertBefore_) {

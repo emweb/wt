@@ -157,8 +157,9 @@ public:
   bool isActive() const;
 
   /*! \brief End painting.
-   *
+   * \if cpp
    * This method is called automatically from the destructor.
+   * \endif
    */
   bool end();
 
@@ -521,13 +522,13 @@ public:
    * AlignCenter, or AlignRight. Vertical alignment is one of
    * AlignTop, AlignMiddle or AlignBottom.
    *
-   * <i>Note: HtmlCanvas will always render the text horizontally
+   * \note HtmlCanvas will always render the text horizontally
    * (unaffected by rotation), and unaffected by the scaling component
    * of the transformation matrix. Also, text is overlayed on top of
    * painted shapes, and is not covered by shapes that are painted
    * after the text. Use the SVG and VML renderers
    * (WPaintedWidget::inlineSvgVml) for the most accurate font
-   * rendering.</i>
+   * rendering.
    */
   void drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
 		const WString& text);

@@ -4,18 +4,15 @@
 </head>
 <title>Wt Installation</title>
 <body>
-<h1>Wt Installation instructions</h1>
+<h1>Wt Installation instructions on Unix-like systems</h1>
 
-This page lists the instructions for building and installing Wt 2.99.0.
+This page lists the instructions for building and installing Wt 2.99.5.
 It is organized in 3 sections:
 <ul>
 <li>Requirements</li>
 <li>Building and installing the library</li>
 <li>Trying the examples (or your own Wt application)</li>
 </ul>
-
-Instructions for installing Wt on a Win32 platform are provided in
-a seperate file (INSTALL.win32.html).
 
 <a name="requirements"></a><h2>Requirements</h2>
 
@@ -27,7 +24,7 @@ but you can have both of them.</p>
 
 <p>
 The built-in web server is more convenient during development and is
-easier to setup. It is also the only option available for Win32.</p>
+easier to setup.</p>
 
 <p>
 The FastCGI based solution provides more flexibility for deployment of
@@ -47,7 +44,7 @@ link against libwt and libwthttp. To build a Wt library which acts as
 a FastCGI process, you need to link against libwt and libfcgi.
 </p>
 
-<h3>1 Unix-like</h3>
+<h3>1 Wt requirements</h3>
 
 <ul>
 <li>Compiler: gcc-3.3.4 or higher, or gcc-4.1.x or higher, or other
@@ -84,17 +81,7 @@ enable optional features (you can also build without them).
 <li>(optionally) openssl, for supporting HTTPS.</li>
 </ul>
 
-<h3>2 Win32</h3>
-
-Wt for Windows has its own <a href="INSTALL.win32.html">installation
-instructions</a>.
-
-<ul>
-  <li>Microsoft Visual Studio C++.</li>
-  <li>CMake cross-platform build system (www.cmake.org): cmake-2.4.</li>
-</ul>  
-
-<h3>3 Additional and optional requirements for some of the examples</h3>
+<h3>2 Additional and optional requirements for some of the examples</h3>
 <ul>
 <li>libgd2 (style, wt-homepage, mandelbrot)</li>
 <li>libmysql++-2.x (hangman)</li>

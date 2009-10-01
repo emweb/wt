@@ -57,7 +57,7 @@ public:
 
   /*! \brief Set the maximum length.
    *
-   * The default value is std::numeric_limits<int>::max()
+   * The default value is the maximum integer value. 
    */
   void setMaximumLength(int maximum);
 

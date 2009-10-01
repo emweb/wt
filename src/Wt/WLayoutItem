@@ -58,8 +58,12 @@ public:
   virtual WLayoutItemImpl *impl() const = 0;
 
 private:
+  /*! \brief Internal method.
+   */
   virtual void setParent(WWidget *parent) = 0;
-
+  
+  /*! \brief Internal method.
+   */
   virtual void setParentLayout(WLayout *parentLayout) = 0;
 
   friend class WLayout;

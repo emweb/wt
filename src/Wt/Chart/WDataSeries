@@ -29,7 +29,7 @@ namespace Wt {
  * \elseif java
  * The data column should contain data that can be converted to
  * a number, but should not necessarily be of a number type, see
- * also {javadoclink eu.webtoolkit.jwt.utils.StringUtils#asNumber(Object)}.
+ * also {javadoclink eu.webtoolkit.jwt.StringUtils#asNumber(Object)}.
  * \endif
  *
  * Multiple series of different types may be combined on a single chart.
@@ -106,7 +106,7 @@ public:
    * The data column should contain data that can be converted to
    * a number (but should not necessarily be of a number type).
    * \if java 
-   * See also {javadoclink eu.webtoolkit.jwt.utils.StringUtils#asNumber(Object)}.
+   * See also {javadoclink eu.webtoolkit.jwt.StringUtils#asNumber(Object)}.
    * \endif
    *
    * \if cpp

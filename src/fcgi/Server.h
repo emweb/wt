@@ -32,7 +32,7 @@ public:
   static Server *instance;
 
   void handleSigChld();
-  void handleSigTerm();
+  void handleSignal(const char *signal);
 
 private:
   int argc_;

@@ -20,8 +20,6 @@ _$_STYLESHEETS_$_
 <script type="text/javascript">
 /*<![CDATA[*/
 
-var hideIt = false, scriptToLoad = null;
-
 function loadScript(url, callback) {
   var s = document.createElement('script');
 
@@ -61,6 +59,14 @@ function setUrl(url) {
     window.location.replace(url);
   else
     window.location.href=url;
+}
+
+function hideForm() {
+  var f = document.getElementById('Wt-form');
+  if (f != null)
+    f.style.display='none';
+  else
+    setTimeout(hideForm, 10);
 }
 
 if (window.opera)
@@ -140,7 +146,7 @@ if (needSessionInUrl) {
     if (hash.length > 1 && hash.charAt(0) == '/') {
       selfUrl += '&_=' + encodeURIComponent(hash);
       if (hash != '_$_INTERNAL_PATH_$_')
-        hideIt = true;
+        setTimeout(hideForm, 10);
     }
 
     loadScript(selfUrl + scaleInfo + '&request=script&rand=' + rand(), null);
@@ -177,20 +183,5 @@ _$_$endif_$_
 _$_$if_FORM_$_
 </form>
 _$_$endif_$_
-<script type="text/javascript">
-/*<![CDATA[*/
-
-(function() {
-
-if (hideIt) {
-  var f = document.getElementById('Wt-form');
-  if (f != null)
-    f.style.display='none';
-}
-
-})();
-
-/* ]]> */
-</script>
 </body>
 </html>

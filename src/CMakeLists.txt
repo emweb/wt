@@ -173,6 +173,7 @@ Wt/WTable.C
 Wt/WTableCell.C
 Wt/WTableColumn.C
 Wt/WTableRow.C
+Wt/WTableView.C
 Wt/WText.C
 Wt/WTextArea.C
 Wt/WTextEdit.C

@@ -13,8 +13,7 @@ namespace Wt {
 
 class WRegExp;
 
-/*! \class WSortFilterProxyModel Wt/WSortFilterProxyModel
- *         Wt/WSortFilterProxyModel
+/*! \class WSortFilterProxyModel Wt/WSortFilterProxyModel Wt/WSortFilterProxyModel
  *  \brief A proxy model for %Wt's item models that provides filtering
  *         and/or sorting.
  *
@@ -216,9 +215,9 @@ protected:
 
   /*! \brief Compares two indexes.
    *
-   * The default implementation uses sortRole() and an order operator
-   * that tries to use the operator< when the data is of the same type, or
-   * lexicographical ordering otherwise.
+   * The default implementation uses sortRole() and an ordering using
+   * the operator< when the data is of the same type or compares
+   * lexicographically otherwise.
    *
    * You may want to reimplement this method to provide specialized
    * sorting.

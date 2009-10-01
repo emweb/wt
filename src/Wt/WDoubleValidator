@@ -42,12 +42,12 @@ public:
   WDoubleValidator(double minimum, double maximum, WObject *parent = 0);
 
   /*! \brief Return the bottom of the valid double range.
-   *
-   * The default value is -std::numeric_limits<int>::max().
    */
   double bottom() const { return bottom_; }
 
   /*! \brief Set the bottom of the valid double range.
+   *
+   * The default value is the minimum double value.
    */
   void setBottom(double bottom);
 
@@ -57,7 +57,7 @@ public:
 
   /*! \brief Set the top of the valid double range.
    *
-   * The default value is std::numeric_limits<int>::max().
+   * The default value is the maximum double value.
    */
   void setTop(double top);
 

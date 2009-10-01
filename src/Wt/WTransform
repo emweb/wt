@@ -67,6 +67,10 @@ public:
   WTransform& operator=(const WTransform& rhs);
 
 #ifdef WT_TARGET_JAVA
+  /*! \brief Clone method.
+   *
+   * Clones this WTransform object.
+   */
   WTransform clone() const;
 #endif
 
@@ -298,6 +302,8 @@ private:
   double m_[6];
 };
 
+/*! \brief Multiply 2 transform objects.
+ */
 extern WTransform operator* (const WTransform& lhs, const WTransform& rhs);
 
 }

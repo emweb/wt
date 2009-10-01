@@ -31,6 +31,7 @@ class SoundManager;
  * resources folder. <i>resourcesURL</i> is the configuration property
  * that locates the %Wt resources/ folder inside your docroot.
  *
+ * \if cpp
  * Usage example:
  * \code
  * WSound *s = new WSound("djing.mp3", parent);
@@ -39,6 +40,7 @@ class SoundManager;
  * playButton->clicked().connect(SLOT(s, WSound::play));
  * stopButton->clicked().connect(SLOT(s, WSound::stop));
  * \endcode
+ * \endif
  *
  * \note The current implementation has occasional problems with playing
  *       sound on Internet Explorer.

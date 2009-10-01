@@ -254,7 +254,7 @@ public:
    * bounded by the rectangle defined by top left position (\p x,
    * <i>y</i>), and size <i>width</i> x \p height.
    *
-   * \p Note: some renderers only support circles (width == height)
+   * \note Some renderers only support circles (width == height)
    *
    * \sa addEllipse(const WRectF&), arcTo()
    */

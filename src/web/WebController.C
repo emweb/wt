@@ -123,13 +123,7 @@ void WebController::run()
     }
 
   for (;;) {
-    std::vector<WebSession *> sessionsToKill;
-    bool haveMoreSessions = expireSessions(sessionsToKill);
-
-    for (unsigned i = 0; i < sessionsToKill.size(); ++i) {
-      WebSession::Handler handler(*sessionsToKill[i], true);
-      handler.killSession();
-    }
+    bool haveMoreSessions = expireSessions();
 
     if (!haveMoreSessions && !singleSessionId_.empty()) {
       conf_.log("notice") << "Dedicated session process exiting cleanly.";
@@ -153,7 +147,7 @@ void WebController::run()
   running_ = false;  
 }
 
-bool WebController::expireSessions(std::vector<WebSession *>& toKill)
+bool WebController::expireSessions()
 {
   Time now;
 
@@ -161,25 +155,31 @@ bool WebController::expireSessions(std::vector<WebSession *>& toKill)
   boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // WT_THREADED
 
-  std::vector<WebSession *> toErase;
+  std::vector<WebSession *> toKill;
   for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
     WebSession *session = i->second;
-    int diff = session->expireTime() - now;
 
-    if (diff < 1000) {
-      if (session->shouldDisconnect()) {
-	session->app()->connected_ = false;
-	session->log("notice") << "Timeout: disconnected";
-      } else {
-	i->second->log("notice") << "Timeout: expiring";
-	toKill.push_back(i->second);
-	toErase.push_back(i->second);
+    if (!session->done()) {
+      int diff = session->expireTime() - now;
+
+      if (diff < 1000) {
+	if (session->shouldDisconnect()) {
+	  session->app()->connected_ = false;
+	  session->log("notice") << "Timeout: disconnected";
+	} else {
+	  i->second->log("notice") << "Timeout: expiring";
+	  toKill.push_back(i->second);
+	}
       }
     }
   }
 
-  for (unsigned i = 0; i < toErase.size(); ++i)
-    sessions_.erase(toErase[i]->sessionId());
+  for (unsigned i = 0; i < toKill.size(); ++i) {
+    WebSession *session = toKill[i];
+    sessions_.erase(session->sessionId());
+    WebSession::Handler handler(*session, true);
+    handler.killSession();
+  }
 
   return !sessions_.empty();
 }
@@ -309,11 +309,6 @@ bool WebController::socketSelected(int descriptor)
 
 void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
 {
-  std::vector<WebSession *> sessionsToKill;
-
-  if (!running_)
-    expireSessions(sessionsToKill);
-
   CgiParser cgi(conf_.maxRequestSize() * 1024);
 
   try {
@@ -407,14 +402,13 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
   if (!session->handleRequest(*request, *(WebResponse *)request))
     removeSession(sessionId);
 
-  for (unsigned i = 0; i < sessionsToKill.size(); ++i) {
-    WebSession::Handler handler(*sessionsToKill[i], true);
-    handler.killSession();
-  }
+  if (!running_)
+    expireSessions();
 
 #ifdef WT_THREADED
 #ifdef NOTHREADPOOL
   if (running_) {
+
     boost::thread self;
     boost::mutex::scoped_lock l(threadsMutex_);
 

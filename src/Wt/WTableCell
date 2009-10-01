@@ -18,7 +18,7 @@ class WTableRow;
  *  \brief A container widget that represents a cell in a table.
  *
  * A WTable provides a table of %WTableCell container widgets. A
- * %WtableCell may overspan more than one grid location in the table,
+ * %WTableCell may overspan more than one grid location in the table,
  * by specifying a \link setRowSpan() rowSpan \endlink and \link
  * setColumnSpan() columnSpan \endlink. Table cells at overspanned
  * positions are hidden. You cannot directly create a %WTableCell,

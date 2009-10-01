@@ -71,6 +71,13 @@ hasTag: function(e, s) {
   return e.tagName.toUpperCase() === s;
 },
 
+insertAt: function(p, c, i) {
+  if (p.childNodes.length == 0)
+    p.appendChild(c);
+  else
+    p.insertBefore(c, p.childNodes[i]);
+},
+
 unstub: function(from, to, methodDisplay) {
   if (methodDisplay == 1) {
     if (from.style.display != 'none')

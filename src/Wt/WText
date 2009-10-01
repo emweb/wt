@@ -20,7 +20,7 @@ namespace Wt {
  * locale dependent XML files (see WString::tr()).
  *
  * Use setTextFormat() to configure the textFormat of the text. The
- * default textFormat is Wt::XHMTLText, which allows XHMTL markup to
+ * default textFormat is Wt::XHTMLText, which allows XHMTL markup to
  * be included in the text. Tags and attributes that indicate "active"
  * content are not allowed and stripped out, to avoid security risks
  * exposed by JavaScript such as the common web-based <a
@@ -85,9 +85,10 @@ public:
    * parsed as valid XML. In that case the textFormat is set to
    * Wt::PlainText.
    *
-   * Therefore, if you wish to use Wt::XHTMLText, but cannot be sure
-   * about \p text being valid XML, you should verify that the
-   * textFormat() is Wt::XHTMLText after construction.
+   * Therefore, if you wish to use Wt::XHTMLText, 
+   * but cannot be sure about \p text being valid XML, 
+   * you should verify that the textFormat() is Wt::XHTMLText
+   * after construction.
    *
    * The XML parser will silently discard malicious tags and
    * attributes for literal Wt::XHTMLText text.

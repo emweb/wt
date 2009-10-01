@@ -52,7 +52,7 @@ class WT_API WTestEnvironment : public WEnvironment
 {
 public:
 #ifndef WT_TARGET_JAVA
-  /** \brief Default constructor.
+  /*! \brief Default constructor.
    *
    * Constructs a test environment that resembles FireFox 3.0 with default
    * settings.
@@ -69,6 +69,15 @@ public:
 		   const std::string& configurationFile = WT_CONFIG_XML,
 		   ApplicationType type = Application);
 #else
+  /*! \brief Default constructor.
+   *
+   * Constructs a test environment that resembles FireFox 3.0 with default
+   * settings.
+   *
+   * After construction, but before passing it to the constructor of a
+   * WApplication, you can change any of the environment properties using
+   * the setter methods.
+   */
   WTestEnvironment(Configuration *configuration,
 		   ApplicationType type = Application);
 #endif // WT_TARGET_JAVA

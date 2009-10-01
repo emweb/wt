@@ -21,6 +21,8 @@ class WT_API WVectorImage : public WPaintDevice
 public:
   ~WVectorImage();
 
+  /*! \brief Internal method.
+   */
   virtual std::string rendered() = 0;
 };
 

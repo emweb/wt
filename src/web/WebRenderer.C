@@ -516,16 +516,18 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     response.out()
       << collectedJS1_.str()
-      << session_.app()->javaScriptClass()
+      << app->javaScriptClass()
       << "._p_.response(" << expectedAckId_ << ");";
+
+    updateLoadIndicator(response.out(), app, true);
 
     if (app->enableAjax_)
       response.out()
 	<< "domRoot.style.display = 'block';"
-	<< session_.app()->javaScriptClass() << "._p_.autoJavaScript();";
+	<< app->javaScriptClass() << "._p_.autoJavaScript();";
 
     response.out()
-	<< session_.app()->javaScriptClass()
+	<< app->javaScriptClass()
 	<< "._p_.update(null, 'load', null, false);"
 	<< collectedJS2_.str() <<
 	"};"
@@ -620,7 +622,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   }
 
   response.out() << app->afterLoadJavaScript()
-		 << "{var e=null;"
+		 << "{var o=null,e=null;"
 		 << app->hideLoadingIndicator_->javaScript()
 		 << "}";
 
@@ -661,13 +663,13 @@ void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 				      bool all)
 {
   if (app->showLoadingIndicator_->needUpdate() || all) {
-    out << "showLoadingIndicator = function() {var e = null;\n"
+    out << "showLoadingIndicator = function() {var o=null,e=null;\n"
 	<< app->showLoadingIndicator_->javaScript() << "};\n";
     app->showLoadingIndicator_->updateOk();
   }
 
   if (app->hideLoadingIndicator_->needUpdate() || all) {
-    out << "hideLoadingIndicator = function() {var e = null;\n"
+    out << "hideLoadingIndicator = function() {var o=null,e=null;\n"
 	<< app->hideLoadingIndicator_->javaScript() << "};\n";
     app->hideLoadingIndicator_->updateOk();
   }

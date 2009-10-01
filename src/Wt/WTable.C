@@ -348,7 +348,7 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
 
   if (!isStubbed() && flags_.test(BIT_GRID_CHANGED)) {
     DomElement *newE = createDomElement(app);
-    e->replaceWith(newE, true);
+    e->replaceWith(newE);
   } else {
     if (rowsChanged_) {
       for (std::set<WTableRow *>::iterator i = rowsChanged_->begin();

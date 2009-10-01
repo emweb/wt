@@ -238,17 +238,17 @@ DomElement *WWebWidget::renderRemove()
   return e;
 }
 
-void WWebWidget::removeChild(WWidget *w)
+void WWebWidget::removeChild(WWidget *child)
 {
   assert(children_ != 0);
 
-  int i = Utils::indexOf(*children_, w);
+  int i = Utils::indexOf(*children_, child);
 
   assert (i != -1);
     
   if (!flags_.test(BIT_IGNORE_CHILD_REMOVES)
       && !flags_.test(BIT_BEING_DELETED)) {
-    DomElement *e = w->webWidget()->renderRemove();
+    DomElement *e = child->webWidget()->renderRemove();
 
     if (e) {
       if (!transientImpl_)
@@ -283,20 +283,20 @@ void WWebWidget::removeChild(WWidget *w)
     }
     */
 
-  w->WObject::setParent((WObject *)0);
+  child->WObject::setParent((WObject *)0);
     
   /*
    * When the child is about to be deleted, all of its descendants
    * properly removes itself from the renderer "dirty" list. If not,
    * we here force this propagation.
    */
-  if (!w->webWidget()->flags_.test(BIT_BEING_DELETED))
-    w->webWidget()->quickPropagateRenderOk();
+  if (!child->webWidget()->flags_.test(BIT_BEING_DELETED))
+    child->webWidget()->quickPropagateRenderOk();
 
   children_->erase(children_->begin() + i);
 
   WApplication::instance()
-    ->session()->renderer().updateFormObjects(w->webWidget(), true);
+    ->session()->renderer().updateFormObjects(child->webWidget(), true);
 }
 
 void WWebWidget::setPositionScheme(PositionScheme scheme)
@@ -1250,7 +1250,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
 	render();
 	DomElement *realElement = createDomElement(app);
-	stub->replaceWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
+	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
 	result.push_back(stub);
       } else
 	propagateRenderOk();

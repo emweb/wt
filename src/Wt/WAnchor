@@ -22,7 +22,7 @@ class WImage;
  * application path or a resource. The anchor may contain a label
  * text, an image, or any other widget (as it inherits from
  * WContainerWidget). If you do not want the application to terminate
- * when the user follows the anchor, you must use \link setTarget()
+ * when the user follows the anchor, you must use \link setTarget(AnchorTarget)
  * setTarget(TargetNewWindow)\endlink. Even for non-HTML documents,
  * this may be important since pending AJAX requests are cancelled if
  * documents are not served within the browser window in certain

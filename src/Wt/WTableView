@@ -41,7 +41,7 @@ namespace Wt {
 
     /*! \brief Destructor.
      */
-    ~WTableView();
+    virtual ~WTableView();
 
     /*! \brief Sets the model.
      *
@@ -84,9 +84,13 @@ namespace Wt {
     WAbstractItemDelegate *itemDelegate(const WModelIndex& index) const;
 
   protected:
-    WTable* table_;
+    /*! \brief Returns the table used for rendering the model.
+     */
+    WTable* table();
 
   private:
+    WTable* table_;
+    
     struct ColumnInfo {
       WAbstractItemDelegate *itemDelegate_;
       
@@ -120,6 +124,8 @@ namespace Wt {
 			   const int last);
 
     ColumnInfo& columnInfo(int column) const;
+
+    WWidget* getWidget(const int row, const int column);
   };
 }
 

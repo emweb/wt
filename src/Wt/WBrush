@@ -50,6 +50,10 @@ public:
   WBrush(GlobalColor color);
 
 #ifdef WT_TARGET_JAVA
+  /*! \brief Clone method.
+   *
+   * Clones this WBrush object.
+   */
   WBrush clone() const;
 #endif
 

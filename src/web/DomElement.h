@@ -134,7 +134,8 @@ public:
    */
   void removeAllChildren();
   void removeFromParent();
-  void replaceWith(DomElement *newElement, bool hideWithDisplay);
+  void replaceWith(DomElement *newElement);
+  void unstubWith(DomElement *newElement, bool hideWithDisplay);
   void insertBefore(DomElement *sibling);
 
   void setDiscardWithParent(bool discard);
@@ -215,6 +216,7 @@ private:
   bool	       removeAllChildren_;
   bool         hideWithDisplay_;
   bool         minMaxSizeProperties_;
+  bool         unstubbed_;
   DomElement  *replaced_;        // when replaceWith() is called
   DomElement  *insertBefore_;
   DomElementType type_;

@@ -189,8 +189,6 @@ public:
    */
   void setSeries(const std::vector<WDataSeries>& series);
 
-  int seriesIndexOf(int modelColumn) const;
-
   /*! \brief Returns a data series corresponding to a data column.
    *
    * Returns a reference to the first data series that plots data
@@ -254,7 +252,7 @@ public:
    *
    * To have more control over the legend, you could reimplement the
    * renderLegendItem() method to customize how one item in the legend
-   * is rendered, or, alternatively you could reimplement the paint(WPainter& painter, const WRectF&) method in which you use the
+   * is rendered, or, alternatively you could reimplement the paint() method in which you use the
    * renderLegendItem() method repeatedly to render a legend at an arbitrary position.
    *
    * The default value is false.
@@ -286,7 +284,7 @@ public:
 
   /*! \brief Renders the legend item for a given data series.
    *
-   * Renders the legend item for the indicated <i>series</i> in the <i>paintert</i> at position <i>pos</i>. The default implementation draws the marker, and the
+   * Renders the legend item for the indicated <i>series</i> in the <i>painter</i> at position <i>pos</i>. The default implementation draws the marker, and the
    * series description to the right. The series description is taken
    * from the model's header data for that series' data column.
    *
@@ -342,6 +340,10 @@ private:
 
   virtual void modelChanged();
   virtual void modelReset();
+
+  int seriesIndexOf(int modelColumn) const;
+  
+  friend class WDataSeries;
 };
 
   }

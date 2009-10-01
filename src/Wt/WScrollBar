@@ -18,7 +18,7 @@ class DomElement;
  *  \brief A scrollbar attached to a scroll area.
  *
  * A WScrollArea always has two scrollbars (even if they are not visible,
- * for example when the policy is WSCrollArea::ScrollBarAlwaysOff). Using the
+ * for example when the policy is WScrollArea::ScrollBarAlwaysOff). Using the
  * tie(WScrollBar *one, WScrollBar *two) functions, it is possible to tie to
  * scrollbars together, so that they will scroll together.
  *

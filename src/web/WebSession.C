@@ -114,9 +114,11 @@ WLogEntry WebSession::log(const std::string& type)
 
 WebSession::~WebSession()
 {
+#ifndef WT_TARGET_JAVA
   if (app_)
     app_->finalize();
   delete app_;
+#endif // WT_TARGET_JAVA
 
   if (pollResponse_)
     pollResponse_->flush();

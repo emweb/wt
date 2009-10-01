@@ -12,8 +12,7 @@
 
 namespace Wt {
 
-/*! \class WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator
- *         Wt/WDefaultLoadingIndicator
+/*! \class WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator Wt/WDefaultLoadingIndicator
  *  \brief A default loading indicator.
  *
  * The default loading indicator displays the text message <span
@@ -26,6 +25,8 @@ namespace Wt {
 class WT_API WDefaultLoadingIndicator : public WText, public WLoadingIndicator
 {
 public:
+  /*! \brief Constructor.
+   */
   WDefaultLoadingIndicator();
 
   virtual WWidget *widget() { return this; }

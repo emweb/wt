@@ -150,7 +150,7 @@ public:
    *
    * Select multiple dates. In multiple selection mode, this results
    * in a selection() that contains exactly the given dates. In single
-   * selection mode, at most one date is set (*dates.begin())
+   * selection mode, at most one date is set.
    */
   void select(const std::set<WDate>& dates);
 

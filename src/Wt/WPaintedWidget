@@ -149,13 +149,13 @@ public:
    *
    * Ownership of the \p area is transferred to the widget.
    *
-   * \sa insertArea(int, WAbstractArea *)
-   *
    * \note When defining at least one area, no more events will
    * propagate to the widget itself. As a work-around, you can emulate
    * this by listening for events on a WRectArea that corresponds to
    * the whole widget, and which is added as the last area (catching
    * all events that were not caught by preceding areas).
+   *
+   * \sa insertArea(int, WAbstractArea *)
    */
   void addArea(WAbstractArea *area);
 
@@ -168,13 +168,13 @@ public:
    *
    * Ownership of the \p Area is transferred to the widget.
    *
-   * \sa addArea(WAbstractArea *)
-   *
    * \note When defining at least one area, no more events will
    * propagate to the widget itself. As a work-around, you can emulate
    * this by listening for events on a WRectArea that corresponds to
    * the whole widget, and which is added as the last area (catching
    * all events that were not caught by preceding areas).
+   *
+   * \sa addArea(WAbstractArea *)
    */
   void insertArea(int index, WAbstractArea *area);
 

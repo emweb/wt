@@ -1,3 +1,12 @@
+28-09-2009:
+	* WCartesianChart: seriesIndexOf() is now private
+
+	* WebRenderer: several small fixes for the hybrid bootstrap
+
+23-09-2009:
+	* WTableView: table_ is now private and a protected getter table() was
+	added
+
 18-09-2009
 	* Wt.js: cancelEvent() includes an option to only include cancelling
 	propagation or the default action

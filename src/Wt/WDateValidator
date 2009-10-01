@@ -101,8 +101,12 @@ public:
    */
   const WT_USTRING& format() const { return formats_[0]; }
 
+  /*! \brief Set the date formats used to parse date strings.
+   */
   void setFormats(const std::vector<WT_USTRING>& formats);
 
+  /*! \brief Get the date formats used to parse date strings.
+   */
   const std::vector<WT_USTRING>& formats() const { return formats_; }
 
   /*! \brief Validate the given input.

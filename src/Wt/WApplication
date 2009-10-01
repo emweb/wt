@@ -982,6 +982,7 @@ public:
    */
   virtual void initialize();
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Finalizes the application, pre-destruction.
    *
    * This method is invoked by the %Wt library before destruction of a
@@ -990,6 +991,7 @@ public:
    * uses virtual methods).
    */
   virtual void finalize();
+#endif //WT_TARGET_JAVA
 
   /*! \brief Changes the threshold for two-phase rendering.
    *
@@ -1220,7 +1222,6 @@ protected:
    *
    * Note that any uncaught exception throw during event handling
    * terminates the session.
-   * \endif
    */
   virtual void notify(const WEvent& e);
 

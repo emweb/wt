@@ -513,6 +513,9 @@ int WContainerWidget::firstChildIndex() const
 
 void WContainerWidget::propagateLayoutItemsOk(WLayoutItem *item)
 {
+  if (!item)
+    return;
+
   if (item->layout()) {
     WLayout *layout = item->layout();
     const int c = layout->count();

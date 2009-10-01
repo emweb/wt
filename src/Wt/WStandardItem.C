@@ -541,6 +541,12 @@ void WStandardItem::setChild(int row, int column, WStandardItem *item)
   (*columns_)[column][row] = item;
 
   adoptChild(row, column, item);
+
+  if (model_) {
+    WModelIndex self = item->index();
+    model_->dataChanged().emit(self, self);
+    model_->itemChanged().emit(this);
+  }
 }
 
 void WStandardItem::adoptChild(int row, int column, WStandardItem *item)

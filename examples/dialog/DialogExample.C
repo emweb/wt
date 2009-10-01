@@ -24,11 +24,11 @@ DialogExample::DialogExample(const WEnvironment& env)
 {
   setTitle("Dialog example");
 
-  new WText("<h2>Wt dialogs example</h2>", root());
 
   WContainerWidget *textdiv = new WContainerWidget(root());
   textdiv->setStyleClass("text");
 
+  new WText("<h2>Wt dialogs example</h2>", textdiv);
   new WText("You can use WMessageBox for simple modal dialog boxes. <br />",
 	    textdiv);
 
@@ -62,10 +62,10 @@ DialogExample::DialogExample(const WEnvironment& env)
   styleSheet().addRule(".buttons BUTTON",
 		       "padding-left: 4px; padding-right: 4px;"
 		       "margin-top: 4px; display: block");
-  styleSheet().addRule(".text", "padding: 4px 8px");
 
-  if (environment().agentIsIE())
-    styleSheet().addRule("body", "margin: 0px;"); // avoid scrollbar problems
+  // avoid scrollbar problems
+  styleSheet().addRule(".text", "padding: 4px 8px");
+  styleSheet().addRule("body", "margin: 0px;");
 }
 
 void DialogExample::messageBox1()

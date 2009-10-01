@@ -242,7 +242,7 @@ WLayout *WWidget::layout()
   return 0;
 }
 
-WLayoutItemImpl *WWidget::createLayoutItemImpl(WLayoutItem *layoutItem)
+WLayoutItemImpl *WWidget::createLayoutItemImpl(WLayoutItem *item)
 {
   throw WtException("WWidget::setLayout(): widget does not support "
 		    "layout managers");

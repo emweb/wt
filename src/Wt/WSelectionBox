@@ -21,14 +21,14 @@ namespace Wt {
  * The current selection may be set and read using setCurrentIndex()
  * and currentIndex(), for \link Wt::SingleSelection
  * SingleSelection\endlink mode, or setSelectedIndexes() and
- * selectedIndexes() for \link Wt::ExtendedSelection
- * ExtendedSelection\endlink mode. The activated() and sactivated()
- * signals are not emited in the ExtendedSelection mode, use the
+ * selectedIndexes() for Wt::ExtendedSelection mode. 
+ * The activated() and sactivated()
+ * signals are not emited in the Wt::ExtendedSelection mode, use the
  * changed() signal changed().
  *
  * %WSelectionBox is an MVC view class, using a simple string list
- * model by default. The model may be populated using addItem(const
- * WString&) or insertItem(int, const WString&) and the contents can
+ * model by default. The model may be populated using WComboBox::addItem() 
+ * or WComboBox::insertItem() and the contents can 
  * be cleared through clear(). These methods manipulate the underlying
  * model().
  *
@@ -58,51 +58,53 @@ namespace Wt {
 class WT_API WSelectionBox : public WComboBox
 {
 public:
+  /*! \brief Constructor.
+   */
   WSelectionBox(WContainerWidget *parent = 0);
 
-  /*! \brief Set the number of items that are visible.
+  /*! \brief Sets the number of items that are visible.
    *
    * If more items are available, a scroll-bar is provided.
    */
   int verticalSize() const { return verticalSize_; }
 
-  /*! \brief Get the number of items that are visible.
+  /*! \brief Returns the number of items that are visible.
    */
   void setVerticalSize(int items);
 
-  /*! \brief Set the selection mode.
+  /*! \brief Sets the selection mode.
    *
    * The default selection mode is SingleSelection. You can change to
-   * ExtendedSelection to allow selection of multiple items.
+   * Wt::ExtendedSelection to allow selection of multiple items.
    */
   void setSelectionMode(SelectionMode mode);
 
-  /*! \brief Get the selection mode.
+  /*! \brief Returns the selection mode.
    *
    * \sa setSelectionMode(SelectionMode)
    */
   SelectionMode selectionMode() const { return selectionMode_; }   
 
-  /*! \brief Get the current selection (in ExtendedSelection mode).
+  /*! \brief Returns the current selection (in Wt::ExtendedSelection mode).
    *
    * Get the list of currently selected items. This method is only defined
-   * when selectionMode() is ExtendedSelection. Otherwise, you should use
+   * when selectionMode() is Wt::ExtendedSelection. Otherwise, you should use
    * currentIndex() to get item currently selected.
    *
    * \sa currentIndex()
    */
   const std::set<int>& selectedIndexes() const { return selection_; }
 
-  /*! \brief Set the selection (in ExtendedSelection mode).
+  /*! \brief Sets the selection (in Wt::ExtendedSelection mode).
    *
-   * For an ExtendedSelection mode, set the list of currently selected
+   * For an Wt::ExtendedSelection mode, set the list of currently selected
    * items.
    *
    * \sa selectedIndexes()
    */
   void setSelectedIndexes(const std::set<int>& selection);
 
-  /*! \brief Clear the current selection.
+  /*! \brief Clears the current selection.
    *
    * Clears the current selection.
    *

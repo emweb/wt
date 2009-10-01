@@ -55,7 +55,7 @@ public:
    * You must specify the size of the viewport, and the size of the
    * virtual image. The latter dimensions may be the special value
    * Infinite, indicating that in one or more dimensions, the image
-   * size is infinite (in practice limited by MAXINT).
+   * size is infinite (in practice limited by the maximum integer value).
    *
    * In addition, you must specify the size of each square grid
    * item. The default is 256 by 256.

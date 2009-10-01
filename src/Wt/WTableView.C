@@ -12,6 +12,14 @@ namespace Wt {
     model_ = 0;
   }
 
+  WTableView::~WTableView()
+  { }
+
+  WTable* WTableView::table()
+  {
+    return table_;
+  }
+
   void WTableView::setModel(WAbstractItemModel* model)
   {
     if (!model)
@@ -36,10 +44,9 @@ namespace Wt {
 
     for (int r = 0; r < model->rowCount(); r++) {
       for (int c = 0; c < model->columnCount(); c++) {
-	WWidget* w = itemDelegate_->update(0, model->index(r,c), 0);
+	WWidget* w = getWidget(r, c);
 	if (w)
-	  table_->elementAt(r + table_->headerCount(), c)
-	    ->addWidget(w);
+	  table_->elementAt(r + table_->headerCount(), c)->addWidget(w);
       }
     }
 
@@ -97,9 +104,10 @@ namespace Wt {
 	 i <= bottomRight.row(); 
 	 i++) {
       for (int j = topLeft.column(); j <= bottomRight.column(); j++) {
-	WWidget* w = itemDelegate_->update(0, model_->index(i,j), 0);
 	table_->elementAt(i + table_->headerCount(),j)->clear();
-	table_->elementAt(i + table_->headerCount(),j)->addWidget(w);
+	WWidget* w = getWidget(i, j);
+	if (w)
+	  table_->elementAt(i + table_->headerCount(),j)->addWidget(w);
       }
     }
   }
@@ -156,5 +164,14 @@ namespace Wt {
 				    column));
 
     return columns_[column];
+  }
+
+  WWidget* WTableView::getWidget(const int row, const int column) 
+  {
+    WAbstractItemDelegate *itemDelegate = itemDelegateForColumn(column);
+    if (!itemDelegate)
+      itemDelegate = itemDelegate_;
+    
+    return itemDelegate->update(0, model_->index(row, column), 0);
   }
 }

@@ -259,13 +259,9 @@ public:
    */
   AlignmentFlag headerAlignment(int column) const;
 
-  /*! \brief Setss the column border color
+  /*! \brief Sets the column border color
    *
-   * \if cpp
-   * The default border color is \link Wt::white white\endlink.
-   * \elseif java
-   * The default border color is WColor.white. 
-   * \endif 
+   * The default border color is white. 
    */
   void setColumnBorder(const WColor& color);
 
@@ -730,6 +726,7 @@ private:
   };
 
   RenderState renderState_;
+  bool needDefineJS_;
 
   // in rows, as indicated by the current position of the viewport:
   int viewportTop_;

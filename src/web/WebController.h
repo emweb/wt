@@ -119,7 +119,7 @@ private:
   boost::threadpool::pool threadPool_;
 #endif
 
-  bool expireSessions(std::vector<WebSession *>& toKill);
+  bool expireSessions();
   void removeSession(const std::string& sessionId);
   void handleRequestThreaded(WebRequest *request);
 

@@ -50,6 +50,9 @@ public:
 };
 
 #ifdef WT_TARGET_JAVA
+/*! \class WAbstractEvent Wt/WEvent Wt/WEvent
+ *  \brief Internal class WAbstractEvent.
+ */
 class WAbstractEvent
 {
 public:
@@ -89,6 +92,8 @@ public:
     int x; //!< X coordinate
     int y; //!< Y coordinate
 
+    /*! \brief Constructor.
+     */
     Coordinates(int x_, int y_)
       : x(x_), y(y_) { }
   };
@@ -309,6 +314,8 @@ private:
 class WT_API WDropEvent
 {
 public:
+  /*! \brief Constructor.
+   */
   WDropEvent(WObject *source, const std::string& mimeType,
 	     const WMouseEvent& mouseEvent);
 

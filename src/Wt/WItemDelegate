@@ -32,6 +32,8 @@ namespace Wt {
 class WT_API WItemDelegate : public WAbstractItemDelegate
 {
 public:
+  /*! \brief Constructor.
+   */
   WItemDelegate(WObject *parent = 0);
 
   virtual WWidget *update(WWidget *widget, const WModelIndex& index,

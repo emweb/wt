@@ -124,7 +124,7 @@ public:
 
   /*! \brief Provide a hint to the layout implementation.
    *
-   * In some caes, a layout implementation may require some hints for
+   * In some cases, a layout implementation may require some hints for
    * rendering its contents. Possible hints are indicated in the
    * reference documentation for each layout manager.
    */

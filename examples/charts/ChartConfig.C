@@ -47,6 +47,14 @@ namespace {
       return false;
     }
   }
+
+  int seriesIndexOf(WCartesianChart* chart, int modelColumn) {
+    for (unsigned i = 0; i < chart->series().size(); ++i)
+      if (chart->series()[i].modelColumn() == modelColumn)
+	return i;
+    
+    return -1;
+  }
 }
 
 ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
@@ -189,7 +197,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     sc.labelsEdit->setModel(labels);
     connectSignals(sc.labelsEdit);
 
-    int si = chart->seriesIndexOf(j);
+    int si = seriesIndexOf(chart, j);
 
     if (si != -1) {
       sc.enabledEdit->setChecked();

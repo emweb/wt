@@ -212,12 +212,27 @@ void handleSigChld(int)
 
 void handleServerSigTerm(int)
 {
-  Server::instance->handleSigTerm();
+  Server::instance->handleSignal("SIGTERM");
 }
 
-void Server::handleSigTerm()
+void handleServerSigUsr1(int)
 {
-  conf_.log("notice") << "Shutdown (caught SIGTERM).";
+  Server::instance->handleSignal("SIGUSR1");
+}
+
+void handleServerSigHup(int)
+{
+  Server::instance->handleSignal("SIGHUP");
+}
+
+void Server::handleSignal(const char *signal)
+{
+  conf_.log("notice") << "Shutdown (caught " << signal << ")";
+
+  /* We need to kill all children */
+  for (unsigned i = 0; i < sessionProcessPids_.size(); ++i)
+    kill(sessionProcessPids_[i], SIGTERM); 
+
   exit(0);
 }
 
@@ -352,6 +367,15 @@ int Server::main()
 
   if (signal(SIGCHLD, Wt::handleSigChld) == SIG_ERR) 
     conf_.log("error") << "Cannot catch SIGCHLD: signal(): "
+		       << strerror(errno);
+  if (signal(SIGTERM, Wt::handleServerSigTerm) == SIG_ERR)
+    conf_.log("error") << "Cannot catch SIGTERM: signal(): "
+		       << strerror(errno);
+  if (signal(SIGUSR1, Wt::handleServerSigUsr1) == SIG_ERR) 
+    conf_.log("error") << "Cannot catch SIGUSR1: signal(): "
+		       << strerror(errno);
+  if (signal(SIGHUP, Wt::handleServerSigHup) == SIG_ERR) 
+    conf_.log("error") << "Cannot catch SIGHUP: signal(): "
 		       << strerror(errno);
 
   int acceptSocket = STDIN_FILENO;
