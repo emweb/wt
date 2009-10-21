@@ -1,3 +1,6 @@
+21-10-2009:
+	* WMenu: set correct internal path before loading a menu item
+
 28-09-2009:
 	* WCartesianChart: seriesIndexOf() is now private
 

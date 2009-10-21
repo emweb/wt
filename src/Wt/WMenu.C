@@ -213,17 +213,7 @@ void WMenu::selectVisual(int index)
 
   current_ = index;
 
-  for (unsigned i = 0; i < items_.size(); ++i)
-    items_[i]->renderSelected((int)i == current_);
-
-  if (index == -1)
-    return;
-
-  WWidget *contents = items_[current_]->contents();
-  if (contents)
-    contentsStack_->setCurrentWidget(contents);
-
-  if (internalPathEnabled_) {
+  if (internalPathEnabled_ && current_ != -1) {
     WApplication *app = wApp;
 
     previousInternalPath_ = app->internalPath();
@@ -241,6 +231,16 @@ void WMenu::selectVisual(int index)
     if (newPath == basePath_ || !app->internalPathMatches(newPath))
       app->setInternalPath(newPath);
   }
+
+  for (unsigned i = 0; i < items_.size(); ++i)
+    items_[i]->renderSelected((int)i == current_);
+
+  if (index == -1)
+    return;
+
+  WWidget *contents = items_[current_]->contents();
+  if (contents)
+    contentsStack_->setCurrentWidget(contents);
 
   itemSelectRendered_.emit(items_[current_]);
 }

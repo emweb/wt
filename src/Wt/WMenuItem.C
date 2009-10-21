@@ -114,7 +114,7 @@ void WMenuItem::connectActivate()
   SignalBase& as = activateSignal();
   if (contentsContainer_ && contentsContainer_->count() == 0)
     // load contents (will only do something on the first activation).
-    as.connectBase(SLOT(this, WMenuItem::loadContents));
+    as.connectBase(SLOT(this, WMenuItem::selectNotLoaded));
   else {
     as.connectBase(SLOT(this, WMenuItem::selectVisual));
     as.connectBase(SLOT(this, WMenuItem::select));
@@ -157,6 +157,12 @@ void WMenuItem::renderSelected(bool selected)
   itemWidget()->setStyleClass(selected ? "itemselected" : "item");
 }
 
+void WMenuItem::selectNotLoaded()
+{
+  if (contentsContainer_ && contentsContainer_->count() == 0)
+    select();
+}
+
 void WMenuItem::loadContents()
 {
   if (contentsContainer_ && contentsContainer_->count() == 0) {
@@ -169,7 +175,6 @@ void WMenuItem::loadContents()
     implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
 
     connectActivate();
-    select();
   }
 }
 
