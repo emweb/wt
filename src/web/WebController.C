@@ -399,8 +399,7 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
   sessionsLock.unlock();
 #endif // WT_THREADED
 
-  if (!session->handleRequest(*request, *(WebResponse *)request))
-    removeSession(sessionId);
+  session->handleRequest(*request, *(WebResponse *)request);
 
   if (!running_)
     expireSessions();

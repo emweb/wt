@@ -949,6 +949,9 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
     if (handler.response())
       handler.response()->flush();
 
+    if (handler.sessionDead())
+      controller_->removeSession(sessionId_);
+
 #ifdef WT_TARGET_JAVA
     handler.~Handler();
 #endif // WT_TARGET_JAVA

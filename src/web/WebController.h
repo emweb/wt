@@ -60,6 +60,8 @@ public:
   WApplication *doCreateApplication(WebSession *session);
   Configuration& configuration();
 
+  void removeSession(const std::string& sessionId);
+
 #ifndef WT_TARGET_JAVA
   /*
    * Construct the WebController and let it read requests from the given
@@ -120,7 +122,6 @@ private:
 #endif
 
   bool expireSessions();
-  void removeSession(const std::string& sessionId);
   void handleRequestThreaded(WebRequest *request);
 
   const EntryPoint *getEntryPoint(const std::string& deploymentPath);
