@@ -248,9 +248,9 @@ px: function(c, s) {
   }
   if (v == 'auto' || v == null)
     return 0;
-  var m = /^\s*(\d+)\s*px\s*$/.exec(v);
+  var m = /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/.exec(v);
   var v = m && m.length == 2 ? m[1] : "0";
-  return v ? parseInt(v) : 0;
+  return v ? parseFloat(v) : 0;
 },
 
 // Return if an element (or one of its ancestors) is hidden
@@ -271,16 +271,16 @@ pxself: function(c, s) {
   var v = c.style[s];
   if (v == 'auto' || v == null)
     return 0;
-  var m = /^\s*(-?\d+)\s*px\s*$/.exec(v);
+  var m = /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/.exec(v);
   var v = m && m.length == 2 ? m[1] : "0";
-  return v ? parseInt(v) : 0;
+  return v ? parseFloat(v) : 0;
 },
 
 pctself: function(c, s) {
   var v = c.style[s];
   if (v == 'auto' || v == null)
     return 0;
-  var m = /^\s*(\d+)\s*\%\s*$/.exec(v);
+  var m = /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/.exec(v);
   var v = m && m.length == 2 ? m[1] : "0";
   return v ? parseFloat(v) : 0;
 },
@@ -297,13 +297,13 @@ IEwidth: function(c, min, max) {
     - WT.px(c.parentNode, 'paddingLeft')
     - WT.px(c.parentNode, 'paddingRight');
 
-    var m = /^\s*(\d+)\.?\d*\s*px\s*$/.exec(min);
+    var m = /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/.exec(min);
     var v = m && m.length == 2 ? m[1] : "0";
-    min = v ? parseInt(v) : 0;
+    min = v ? parseFloat(v) : 0;
 
-    m = /^\s*(\d+)\.?\d*\s*px\s*$/.exec(max);
+    m = /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/.exec(max);
     v = m && m.length == 2 ? m[1] : "100000";
-    max = v ? parseInt(v) : 100000;
+    max = v ? parseFloat(v) : 100000;
 
     if (r < min)
       return min-1;
