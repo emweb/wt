@@ -27,10 +27,33 @@ namespace {
 	order(anOrder)
     { }
 
+#ifndef WT_TARGET_JAVA
     bool operator()(int r1, int r2) const {
-      return compare(r1, r2) < 0;
+
+      if (order == AscendingOrder)
+	return compare(r1, r2);
+      else
+	return compare(r2, r1);
     }
 
+    bool compare(int r1, int r2) const {
+      WStandardItem *item1 = item->child(r1, column);
+      WStandardItem *item2 = item->child(r2, column);
+
+      if (item1)
+	if (item2)
+	  return (*item1) < (*item2);
+	else
+	  return UNSPECIFIED_RESULT == -1;
+      else
+	if (item2)
+	  return UNSPECIFIED_RESULT != -1;
+	else
+	  return false;
+    }
+#endif // WT_TARGET_JAVA
+
+#ifdef WT_TARGET_JAVA
     int compare(int r1, int r2) const {
       WStandardItem *item1 = item->child(r1, column);
       WStandardItem *item2 = item->child(r2, column);
@@ -39,11 +62,7 @@ namespace {
 
       if (item1)
 	if (item2)
-#ifndef WT_TARGET_JAVA
-	  result = (*item1) < (*item2) ? -1 : 1;
-#else
           result = item1->compare(*item2);
-#endif
 	else
 	  result = -UNSPECIFIED_RESULT;
       else
@@ -57,6 +76,7 @@ namespace {
 
       return result;
     }
+#endif // WT_TARGET_JAVA
 
     WStandardItem *item;
     int            column;

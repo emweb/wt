@@ -19,11 +19,7 @@
 
 #ifdef HTTP_WITH_SSL
 
-#ifdef BOOST_ASIO
 #include <boost/asio/ssl.hpp>
-#else
-#include <asio/ssl.hpp>
-#endif
 
 #include <boost/array.hpp>
 #include <boost/noncopyable.hpp>

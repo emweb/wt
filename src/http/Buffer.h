@@ -8,11 +8,7 @@
 #ifndef HTTP_BUFFER_HPP
 #define HTTP_BUFFER_HPP
 
-#ifdef BOOST_ASIO
 #include <boost/asio.hpp>
-#else
-#include <asio.hpp>
-#endif
 
 #include <boost/array.hpp>
 

@@ -124,6 +124,7 @@ WWidget *WtHome::examples()
 
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled("/examples");
+  examplesMenu_->currentChanged().connect(SLOT(this, Home::googleAnalyticsLogger));
 
   return result;
 }

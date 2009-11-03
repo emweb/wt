@@ -38,10 +38,6 @@ IF(CONNECTOR_HTTP)
   IF(NOT BOOST_WTHTTP_FOUND)
     MESSAGE(FATAL "Could not find all boost libraries required to build the httpe connector (thread, fs, po, dt)")
   ENDIF(NOT BOOST_WTHTTP_FOUND)
-  IF(NOT ASIO_FOUND)
-    MESSAGE("** Error finding Wthttpd required library: ")
-    MESSAGE(FATAL_ERROR "** Wthttpd requires the asio library (http://asio.sf.net), the boost or non-boost version 0.3.9 or later.")
-  ENDIF(NOT ASIO_FOUND)
   IF(HTTP_WITH_ZLIB)
     ADD_DEFINITIONS(-DWTHTTP_WITH_ZLIB ${ZLIB_DEFINITIONS})
     SET(MY_ZLIB_LIBS ${ZLIB_LIBRARIES})
@@ -51,14 +47,13 @@ IF(CONNECTOR_HTTP)
   ENDIF(HTTP_WITH_ZLIB)
 
   INCLUDE_DIRECTORIES(
-    ${ASIO_INCLUDE_DIRS}
     ${BOOST_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../web
     ${CMAKE_CURRENT_SOURCE_DIR}/../wt
     ${CMAKE_CURRENT_BINARY_DIR}/
   )
 
-  ADD_DEFINITIONS(${ZLIB_DEFINITIONS} ${ASIO_DEFINITIONS})
+  ADD_DEFINITIONS(${ZLIB_DEFINITIONS})
   ADD_LIBRARY(wthttp ${libhttpsources})
 
   TARGET_LINK_LIBRARIES(wthttp
@@ -66,8 +61,11 @@ IF(CONNECTOR_HTTP)
     ${MY_ZLIB_LIBS}
     ${MY_SSL_LIBS}
     ${BOOST_WTHTTP_LIBRARIES}
-    ${ASIO_LIBRARIES}
   )
+
+  IF(BOOST_WT_MT_FOUND)
+    TARGET_LINK_LIBRARIES(wthttp ${CMAKE_THREAD_LIBS_INIT})
+  ENDIF(BOOST_WT_MT_FOUND)
 
   INSTALL(TARGETS wthttp
     RUNTIME DESTINATION bin

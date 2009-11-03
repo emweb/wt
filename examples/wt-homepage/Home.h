@@ -72,6 +72,8 @@ public:
   
   virtual ~Home();
 
+  void googleAnalyticsLogger();
+
 protected:
   virtual WWidget *examples() = 0;
   virtual WWidget *download() = 0;

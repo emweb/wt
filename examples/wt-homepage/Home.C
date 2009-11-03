@@ -177,6 +177,7 @@ WWidget *Home::initHome()
      WMenuItem::PreLoading);
 
   mainMenu_->itemSelectRendered().connect(SLOT(this, Home::updateTitle));
+  mainMenu_->itemSelected().connect(SLOT(this, Home::googleAnalyticsLogger));
   mainMenu_->select((int)0);
 
   // Make the menu be internal-path aware.
@@ -241,14 +242,19 @@ void Home::setLanguageFromPath()
 
 void Home::updateTitle()
 {
-  if (mainMenu_->currentItem())
+  if (mainMenu_->currentItem()) {
     setTitle(tr("wt") + " - " + mainMenu_->currentItem()->text());
+  }
 }
 
 void Home::logInternalPath(const std::string& path)
 {
   // simulate an access log for the interal paths
   log("path") << path;
+  // If this goes to /src, we need to invoke google analytics method too
+  if (path.size() >= 4 && path.substr(0, 4) == "/src") {
+    googleAnalyticsLogger();
+  }
 }
 
 WWidget *Home::introduction()
@@ -391,3 +397,14 @@ WString Home::tr(const char *key)
 {
   return WString::tr(key);
 }
+
+void Home::googleAnalyticsLogger()
+{
+  std::string googleCmd = 
+    "if (pageTracker)"
+    "  pageTracker._trackPageview(\"" + environment().deploymentPath() +
+    internalPath() + "\");";
+
+  doJavaScript(googleCmd);
+}
+

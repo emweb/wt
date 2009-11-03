@@ -462,13 +462,10 @@ void ChartConfig::update()
 	  if (min <= 0)
 	    min = 0.0001;
 
-	max = std::max(min, max);
-
 	axis.setRange(min, max);
       }
 
     }
-
 
     if (validate(sc.labelAngleEdit)) {
       double angle;

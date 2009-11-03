@@ -659,8 +659,7 @@ public:
 
   std::string inlineCssStyle();
 
-  std::string createJavaScript(std::stringstream& js,
-			       const std::string insertJS);
+  std::string createJavaScript(std::stringstream& js, std::string insertJS);
 
 #ifndef WT_TARGET_JAVA
   Signal<WWidget *> destroyed;

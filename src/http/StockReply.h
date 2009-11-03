@@ -19,12 +19,8 @@
 
 #include <string>
 #include <vector>
-#ifdef BOOST_ASIO
 #include <boost/asio.hpp>
 namespace asio = boost::asio;
-#else
-#include <asio.hpp>
-#endif
 
 #include "Reply.h"
 #include "WHttpDllDefs.h"

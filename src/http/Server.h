@@ -18,26 +18,13 @@
 #define HTTP_SERVER_HPP
 
 #ifdef HTTP_WITH_SSL
-
-#ifdef BOOST_ASIO
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 namespace asio = boost::asio;
-#else // !BOOST_ASIO
-#include <asio.hpp>
-#include <asio/ssl.hpp>
-#endif // BOOST_ASIO
-
 #endif // HTTP_WITH_SSL
 
 #if defined(WT_THREADED) && BOOST_VERSION < 103600
-
-#ifdef BOOST_ASIO
 #include <boost/asio/detail/select_reactor.hpp>
-#else // !BOOST_ASIO
-#include <asio/detail/select_reactor.hpp>
-#endif // BOOST_ASIO
-
 #endif // defined(WT_THREADED) && BOOST_VERSION < 103600
 
 #include <string>

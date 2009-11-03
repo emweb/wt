@@ -6,7 +6,7 @@
 <body>
 <h1>Wt Installation instructions on Unix-like systems</h1>
 
-This page lists the instructions for building and installing Wt 2.99.5.
+This page lists the instructions for building and installing Wt 3.0.0.
 It is organized in 3 sections:
 <ul>
 <li>Requirements</li>
@@ -33,10 +33,10 @@ process, while the FastCGI based solution allows different deployment
 schemes including dedicated processes per sessions.</p>
 
 <p>
-Each of these two choices correspond to a library. Below it is
-outlined how to configure the build process of Wt to include either or
-both options, which result in building the libraries libwthttp and
-libfcgi.</p>
+Each of these two choices correspond to a library, a
+so-called <i>connectory</i> library. Below it is outlined how to
+configure the build process of Wt to build either or both libraries
+(libwthttp and libfcgi).</p>
 
 <p>
 Thus, to build a Wt library with built-in web server you need to
@@ -49,32 +49,40 @@ a FastCGI process, you need to link against libwt and libfcgi.
 <ul>
 <li>Compiler: gcc-3.3.4 or higher, or gcc-4.1.x or higher, or other
   Ansi C++ compiler that can deal with boost-like C++ code.</li>
-<li>CMake cross-platform build system (www.cmake.org): cmake-2.4.</li>
+<li>CMake cross-platform build system (www.cmake.org):
+  <div>Preferably CMake 2.6, which comes with a usable script for
+    finding boost libraries, but CMake 2.4 is still supported using
+    Wt's own boost find script.
+  </div>
+</li>
 <li>C++ boost library (version 1.35 or higher), preferably with thread
   support enabled. You can verify you have a thread-enabled boost
   installation by locating the libboost_thread library. Thread support
   is not essential: Wt functionality is not affected except for exotic
-  things like server push. Most importantly, even without thread
-  support Wt can handle multiple concurrent sessions.</li>
+  things like server push and reentrant event loops. Most importantly,
+  even without thread support Wt can handle multiple concurrent
+  sessions.</li>
 </ul>
 
 <h4>1a Using FastCGI</h4>
 
-When using FastCGI, Wt requires a webserver (like apache) which
-supports FastCGI protocol.
+<p>When using FastCGI, Wt requires a webserver (like apache, lighttpd or
+nginx) which supports the FastCGI protocol.</p>
+
+<p>Given that Apache is still the most popular webserver, below are
+the requirements for apache, for other web servers the list is
+similar:</p>
 
 <ul>
 <li>FCGI library, including C++ bindings (libfcgi++)</li>
-<li>Fastcgi or mod_fcgi plugin for apache</li>
-<li>Apache (1 or 2)<br />
-    should work for other web servers as well, but the default configuration
-    assumes apache when installing the library or deploying examples</li>
+<li>Fastcgi or mod_fcgi plugin for Apache.</li>
 </ul>
 
 <h4>1b Using wthttpd</h4>
 
-When using the built-in webserver, two more libraries are necessary to
-enable optional features (you can also build without them).
+When using the built-in webserver, two more libraries may be installed
+to enable optional features (you can also build without them), but
+otherwise no extra dependencies are required.
 
 <ul>
 <li>(optionally) libz, for compression over HTTP.</li>
@@ -83,7 +91,7 @@ enable optional features (you can also build without them).
 
 <h3>2 Additional and optional requirements for some of the examples</h3>
 <ul>
-<li>libgd2 (style, wt-homepage, mandelbrot)</li>
+<li>libgd2 (style, mandelbrot)</li>
 <li>libmysql++-2.x (hangman)</li>
 </ul>
 
@@ -93,8 +101,8 @@ enable optional features (you can also build without them).
 
 <h4>1. Create a build directory</h4>
 
-<p>The easiest way to build the library is in a seperate build directory,
-  for example within the top-level of the Wt package:</p>
+<p>The recommended way to build the library is in a seperate build
+  directory, for example within the top-level of the Wt package:</p>
 
 <pre>
     $ cd wt-x.xx
@@ -118,8 +126,9 @@ is OK, then this should end with something like:
 
 <p>To build a multi-threaded version of Wt, which uses multiple
 threads for handling concurrent requests, you need a thread-enabled
-boost library (with -mt versions of the boost libraries). Otherwise,
-the cmake will report:
+boost library. By default, CMake 2.6 will only search for a
+thread-enabled boost installation, while CMake 2.4 will fall-back to a
+non-multithreaded boost library, reporting:
 
 <pre>
   ...
@@ -128,9 +137,8 @@ the cmake will report:
   ...
 </pre></p>
 
-<p>Most linux distributions do not provide thread enabled boost
-libraries by default. In gentoo, you need the -threads or -threadsonly
-USE flag when emerging boost.</p>
+<p>Most linux distributions provide multi-threaded boost libraries by
+default now.</p>
 
 <p>If CMake fails, because it cannot resolve all dependencies, then you
 may help CMake by setting some variables to help CMake locate the libraries.
@@ -141,7 +149,8 @@ using the interactive program:
     $ ccmake .
 </pre>
 
-<p>Variables that affect the location of dependencies are:</p>
+<p>Variables that you may set to configure Wt's built-in boost finding
+method:</p>
 
 <dl>
 <dt><strong>BOOST_COMPILER</strong></dt>
@@ -243,6 +252,24 @@ built-in web server (wthttpd).</p>
 <p>The examples that come with the library use the connector specified
 by the build option EXAMPLES_CONNECTOR (see supra).</p>
 
+<p>Some examples need third-party JavaScript libraries (ExtJS or TinyMCE).
+<ul>
+  <li>Download ExtJS
+  from <a href="http://yogurtearl.com/ext-2.0.2.zip">http://yogurtearl.com/ext-2.0.2.zip</a>,
+  and install it according to these instructions:
+  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/group__ext.html">http://www.webtoolkit.eu/wt/doc/reference/html/group__ext.html</a>
+  </li>
+  <li>Download TinyMCE
+  from <a href="http://tinymce.moxiecode.com/">http://tinymce.moxiecode.com/</a>
+  and install its <tt>tiny_mce</tt> folder into the resources/ folder.
+  </li>
+</ul>
+
+You will notice 404 File not Found errors for <tt>ext/</tt> or
+<tt>resources/tiny_mce/</tt> if you are missing these JavaScript
+libraries.
+</p>
+
 <a name="examples-fastcgi"></a></a><h3>A. Using FastCGI and apache</h3>
 
 <h4>1. Build the examples</h4>
@@ -281,11 +308,14 @@ Treat the example as a mod_fastcgi application, by adding a line to
 
 <h4>2. Run the example <i>X</i></h4>
 
-Some examples use additional files, such as message resource bundles, which
-are not indicated with absolute path names. Therefore the working directory
-should be the source directory for the example (unless you use the ./deploy.sh
-script to deploy everything in a permenant directory). A similar argument
-goes for icons and the setting of the --docroot variable.
+<p>
+Most examples use additional files, such as message resource bundles,
+which are not indicated with absolute path names. Therefore the
+working directory should be the source directory for the example
+(unless you use the ./deploy.sh script to deploy everything in a
+dedicated deployment directory). A similar argument goes for icons and
+the setting of the --docroot variable.
+</p>
 
 <pre>
     $ cd ../examples/<i>X</i> # source directory for example <i>X</i>
@@ -303,6 +333,11 @@ To make sure the web server has all auxiliary files (like images, CSS
 style sheets, and perhaps other things) in place for the web
 application, you could use the ./deploy.sh script to copy everything
 into a directory (see the cmake DEPLOYROOT variable)</p>
+
+<p>
+You will notice 404 File not Found errors for resources/ files if you are
+missing the resources files.
+</p>
 
 <p>
 These are all the command-line options that are available:

@@ -9,8 +9,17 @@
 #include <cstdlib>
 
 #ifndef WT_NO_SPIRIT
+
+#include <boost/version.hpp>
+
+#if BOOST_VERSION < 103600
 #include <boost/spirit.hpp>
+#else
+#include <boost/spirit/include/classic.hpp>
+#endif
+
 #include <boost/bind.hpp>
+
 #endif // WT_NO_SPIRIT
 
 using std::atoi;
@@ -69,7 +78,12 @@ WebRequest::getParameterValues(const std::string& name) const
 
 #ifndef WT_NO_SPIRIT
 namespace {
+#if BOOST_VERSION < 103600
   using namespace boost::spirit;
+#else
+  using namespace boost::spirit::classic;
+#endif
+
   using namespace boost;
 
   /*
@@ -151,8 +165,6 @@ WT_LOCALE WebRequest::parsePreferredAcceptValue(const std::string& str) const
   std::vector<ValueListParser::Value> values;
 
   ValueListParser valueListParser(values);
-
-  using namespace boost::spirit;
 
   parse_info<> info = parse(str.c_str(), valueListParser, space_p);
 

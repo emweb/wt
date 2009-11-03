@@ -56,6 +56,10 @@ void WComboBox::setModel(WAbstractItemModel *model)
      (model_->modelReset().connect(SLOT(this, WComboBox::itemsChanged)));
   modelConnections_.push_back
     (model_->layoutChanged().connect(SLOT(this, WComboBox::itemsChanged)));
+
+  /* Redraw contents of the combo box to match the contents of the new model.
+   */
+  refresh();
 }
 
 void WComboBox::setModelColumn(int index)

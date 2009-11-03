@@ -22,6 +22,11 @@ namespace Wt {
 
   void WTableView::setModel(WAbstractItemModel* model)
   {
+    /* Allow the view to be attached to another model by clearing the internal
+     * WTable, which was filled by the previous model.
+     */
+    table_->clear();
+
     if (!model)
       return;
 
@@ -50,49 +55,41 @@ namespace Wt {
       }
     }
 
-    model->columnsInserted().connect(SLOT(this, WTableView::columnsInserted));
-    model->columnsRemoved().connect(SLOT(this, WTableView::columnsRemoved));
+    model_->columnsInserted().connect(SLOT(this, WTableView::columnsInserted));
+    model_->columnsRemoved().connect(SLOT(this, WTableView::columnsRemoved));
 
-    model->rowsInserted().connect(SLOT(this, WTableView::rowsInserted));
-    model->rowsRemoved().connect(SLOT(this, WTableView::rowsRemoved));
+    model_->rowsInserted().connect(SLOT(this, WTableView::rowsInserted));
+    model_->rowsRemoved().connect(SLOT(this, WTableView::rowsRemoved));
 
     model_->dataChanged().connect(SLOT(this, WTableView::dataChanged));
     model_->headerDataChanged()
       .connect(SLOT(this, WTableView::headerDataChanged));  
   }
 
-  void WTableView::columnsInserted(const WModelIndex& index, 
-				   const int firstColumn, 
-				   const int lastColumn) 
+  void WTableView::columnsInserted(const WModelIndex& index, int firstColumn, int lastColumn) 
   {
     for (int i = firstColumn; i <= lastColumn; i++) {
       table_->insertColumn(i);
     }
   }
 
-  void WTableView::columnsRemoved(const WModelIndex& index, 
-				  const int firstColumn, 
-				  const int lastColumn) 
+  void WTableView::columnsRemoved(const WModelIndex& index, int firstColumn, int lastColumn) 
   {
     for (int i = lastColumn; i >= firstColumn; i--) {
       table_->deleteColumn(i);
     }
   }
 
-  void WTableView::rowsInserted(const WModelIndex& index, 
-				const int firstRow, 
-				const int lastRow)
+  void WTableView::rowsInserted(const WModelIndex& index, int firstRow, int lastRow)
   {
     for (int i = firstRow; i <= lastRow; i++) {
       table_->insertRow(i + table_->headerCount());
     }
   }
   
-  void WTableView::rowsRemoved(const WModelIndex& index, 
-			       const int firstRow, 
-			       const int lastRow) 
+  void WTableView::rowsRemoved(const WModelIndex& index, int firstRow, int lastRow) 
   {
-    for (int i = lastRow; i >= lastRow; i--) {
+    for (int i = lastRow; i >= firstRow; i--) {
       table_->deleteRow(i - table_->headerCount());
     }
   }
@@ -112,9 +109,7 @@ namespace Wt {
     }
   }
 
-  void WTableView::headerDataChanged(const Orientation& orientation,
-				     const int first, 
-				     const int last) 
+  void WTableView::headerDataChanged(Orientation orientation, int first, int last) 
   {
     for (int c = first; c <= last; c++) {
       boost::any header = model_->headerData(c);

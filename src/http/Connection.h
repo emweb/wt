@@ -17,20 +17,10 @@
 #ifndef HTTP_CONNECTION_HPP
 #define HTTP_CONNECTION_HPP
 
-#ifdef BOOST_ASIO
-
 #include <boost/asio.hpp>
 namespace asio = boost::asio;
 typedef boost::system::error_code asio_error_code;
 typedef boost::system::system_error asio_system_error;
-
-#else
-
-#include <asio.hpp>
-typedef asio::error_code asio_error_code;
-typedef asio::system_error asio_system_error;
-
-#endif
 
 #include <boost/array.hpp>
 #include <boost/noncopyable.hpp>

@@ -26,7 +26,6 @@ ELSE (NOT BUILD_WTWITHQT)
   TARGET_LINK_LIBRARIES(helloqt.wt
     ${EXAMPLES_CONNECTOR}
     wtwithqt
-    QtCore
     ${QT_LIBRARIES}
   )
 

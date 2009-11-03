@@ -215,8 +215,7 @@ void WWidget::getDrop(const std::string sourceId, const std::string mimeType,
 void WWidget::dropEvent(WDropEvent event)
 { }
 
-std::string WWidget::createJavaScript(std::stringstream& js,
-				      std::string insertJS)
+std::string WWidget::createJavaScript(std::stringstream& js, std::string insertJS)
 {
   WApplication *app = WApplication::instance();
 

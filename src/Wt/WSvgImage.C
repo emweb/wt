@@ -386,9 +386,8 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imageUri,
 	    << Utils::round_str(drect.width() / srect.width(), 3, buf);
     shapes_ << " 0 0 " 
 	    << Utils::round_str(drect.height() / srect.height(), 3, buf);
-    shapes_ << ' ' << Utils::round_str(drect.x(), 3, buf)
-	    << ' ' << Utils::round_str(drect.y(), 3, buf)
-	    << ")\">";
+    shapes_ << ' ' << Utils::round_str(drect.x(), 3, buf);
+    shapes_ << ' ' << Utils::round_str(drect.y(), 3, buf) << ")\">";
 
     drect = WRectF(0, 0, srect.width(), srect.height());
 

@@ -19,6 +19,60 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.0.0 (November 3, 2009)</h2>
+
+<p>
+This release contains mostly bug fixes, build improvements and
+documentation improvements compared to the latest pre-release
+(2.99.5).
+</p>
+
+<p>
+Most build improvements are related to finding the boost
+libraries. Previously, Wt used a custom script, since CMake versions <
+2.6 did not provide a good enough script for finding boost. Starting
+with this release, when using CMake 2.6 or later, Wt will use the
+script that comes with CMake. You can still fall back to the script
+that comes with Wt, which is still used for older versions of CMake,
+by defining one of the BOOST_COMPILER or BOOST_VERSION variables.
+</p>
+
+<h3>A) New classes:</h3>
+
+<i>No new classes</i>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WDialog.html">WDialog</a></dt>
+  <dd>It is now possible to have multiple modal dialogs, and nested
+  recursive event loops.</dd>
+  <dt><a href="classWt_1_1WWidget.html#e29fe35b633ec166f922419cd3ca9d96">
+      WWidget</a></dt>
+  <dd>The <samp>setDisabled()</samp> method moved up
+  from <samp>WFormWidget</samp> to <samp>WWidget</samp>.</dd>
+  <dt><a href="classWt_1_1JSlot.html#3d65b00a8015e556580527b52750ef87">
+      JSlot</a></dt>
+  <dd>The <samp>exec()</samp> method now passes object and event to the
+    JavaScript event handler.</dd>
+</dl>
+
+<h3>C) API Changes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WResource.html">WResource</a></dt>
+  <dd>The handling of changes to the resource has been sanitized. A
+  new method, <samp>setChanged()</samp> was added which must be called
+  to notify users of the resource that the resource was changed. In
+  addition to the existing <samp>generateUrl()</samp> which generates
+  a new URL, a method was added which merely returns the existing
+  URL: <samp>url()</samp>. With these improvements, a resource can
+  effictively be shared by many view widgets and updated with the
+  minimum of bandwidth usage.</dd>
+</dl>
+
+<hr />
+
 <h2>Release 2.99.5 (September 1, 2009)</h2>
 
 <p>

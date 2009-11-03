@@ -102,26 +102,16 @@ namespace Wt {
 
     WAbstractItemModel* model_;
     
-    void columnsInserted(const WModelIndex& index, 
-			 const int firstColumn, 
-			 const int lastColumn);
-    void columnsRemoved(const WModelIndex& index, 
-			const int firstColumn, 
-			const int lastColumn);
+    void columnsInserted(const WModelIndex& index, int firstColumn, int lastColumn);
+    void columnsRemoved(const WModelIndex& index, int firstColumn, int lastColumn);
 
-    void rowsInserted(const WModelIndex& index, 
-		      const int firstRow, 
-		      const int lastRow);
-    void rowsRemoved(const WModelIndex& index, 
-		     const int firstRow, 
-		     const int lastRow);
+    void rowsInserted(const WModelIndex& index, int firstRow, int lastRow);
+    void rowsRemoved(const WModelIndex& index, int firstRow, int lastRow);
 
     void dataChanged(const WModelIndex& topLeft,
 		     const WModelIndex& bottomRight);
 
-    void headerDataChanged(const Orientation& orientation,
-			   const int first, 
-			   const int last);
+    void headerDataChanged(Orientation orientation, int first, int last);
 
     ColumnInfo& columnInfo(int column) const;
 

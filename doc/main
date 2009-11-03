@@ -66,10 +66,10 @@ namespace Wt {
   
    \section wwidget_sec 1. Widgets
   
-   The WWidget class represents a widget, which provides abstraction
-   of a visual entity. The entire user-interface is specified by
-   creating a hierarchical structure of WWidgets, rooted at
-   WApplication::root(). By reacting to events related to these
+   The WWidget class represents a widget, which provides an
+   abstraction of a visual entity. The entire user-interface is
+   specified by creating a hierarchical structure of WWidgets, rooted
+   at WApplication::root(). By reacting to events related to these
    widgets, you can perform business logic, and manipulate the widget
    hierarchy to update the user interface.
   
@@ -83,95 +83,96 @@ namespace Wt {
   
    Any descendent class of WWidget is a self-contained (reusable)
    class that encapsulates both the look and behaviour, enabling the
-   design of the user interface in am orthogonal way.
+   design of the user interface in an orthogonal way.
 
    \subsection layout 1.1 Layout
   
    Widgets are layed out (with a few exceptions) following this
    hierarchical structure. You have two main options for lay-out of
-   children within a container. Either you use directly HTML/CSS, in
-   which case the layout is determined by properties of the container
-   and children: each child manages its layout with respect to its
-   sibling following a (rather complex) set of rules. Alternatively,
-   %Wt provides layout managers that may be used for layout.
+   children within a container. Either you use a CSS based layout, in
+   which case the CSS style properties of the container and children
+   together determine the result: each child manages its layout with
+   respect to its sibling following a (rather complex) set of
+   rules. Alternatively, %Wt provides layout managers that may be used
+   for layout.
 
    CSS layout considers two important categories of layout. Text-like
-   layout (\link WWidget::setInline(bool) inline\endlink) flow with
-   sibling \link WWidget::setInline(bool) inline\endlink widgets in
-   lines, wrapping at the right edge of the parent container. In
-   contrast, widgets displayed as a \link WWidget::setInline(bool)
-   block \endlink stack vertically with respect to sibling widgets.
-  
-   Layout managers are implemented in WLayout and descendant
-   classes. They can be used in conjunction with WContainerWidget or
+   widgets (\link WWidget::setInline(bool) inline\endlink) flow with
+   sibling inline widgets in lines, wrapping at the right edge of the
+   parent container. In contrast, widgets displayed as a \link
+   WWidget::setInline(bool) block \endlink stack vertically with
+   respect to sibling widgets. Block widgets allow more control over
+   their position and size than inline widgets, and may also float to
+   the left or right border of the parent container.
+
+   Layout managers are implemented by classes that derive from
+   WLayout. They can be used in conjunction with WContainerWidget or
    Ext::Container container classes. Note that some layout managers
    are applicable only to a WContainerWidget and some only to an
    Ext::Container. Due to limitations in CSS (and pedantic browser
    implementations), vertical layout is not possible without
    JavaScript.
-  
+
    \subsection style 1.2 Style
-  
-   For visual markup of widgets, the recommended way is to use CSS style
-   sheets. These allow the visual look to be defined seperately from the
-   the rest of the application. The location of the stylesheet may be
-   configured using WApplication::useStyleSheet().
-  
-   CSS Style selectors may be used in conjunction with widget style
-   classes that may be set for any widget using
-   WWidget::setStyleClass(). The recommended way for visual
-   response to events is by changing the style class for the widget.
-  
-   In addition to configuration using style sheets, %Wt also supports
-   the direct manipulation of a widget's style, using
-   WWidget::decorationStyle().
-  
+
+   For visual markup of widgets, the recommended way is to use CSS
+   style sheets. These allow the visual look to be defined seperately
+   from the the rest of the application. External stylesheets may be
+   loaded using WApplication::useStyleSheet(), and the internal
+   stylesheet may be manipulated using WApplication::styleSheet().
+
+   In the stylesheets, you describe rules that are prefixed by CSS
+   selectors. By setting matching style classes for your widgets using
+   WWidget::setStyleClass(), these rules will be applied to your
+   widgets. The recommended way for visual response to events is by
+   changing the style class for the widget.
+
+   In addition to style sheets, %Wt also supports the direct
+   manipulation of a widget's style, using WWidget::decorationStyle().
+
    \subsection containers 1.3 Widget containers
   
    With a few exceptions, all widgets are child of (and contained in)
-   a container widget such as WContainerWidget or
-   WTableCell. A widget is inserted into a WContainerWidget by
-   adding the widget to the container using
-   WContainerWidget::addWidget(), or by passing the parent
-   container as an argument to the constructor.
-  
-   Widgets may also be added to an Ext::Container, through a choice of
-   layout manager, (see Ext::Container::setLayout()).
+   a container widget such as WContainerWidget or WTableCell. A widget
+   may be inserted into a WContainerWidget by adding the widget to the
+   container using WContainerWidget::addWidget(), or by passing the
+   parent container as an argument to its constructor. You may also
+   add a widget to a container using a layout manager.
 
    \section urls_sec 2. Application URL(s)
 
    A %Wt application, like any other CGI application, is deployed at a
-   specific location (URL) within your web server. Still, an
-   application may manage multiple URLs that correspond to internal
-   paths. These are URLs that are created by appending an internal
-   path to the application URL (this works only if the application was
-   not deployed at a location ending with a '/'). The internal path
-   may be manipulated through WApplication::setInternalPath(). Each
-   time the internal path is changed, this is reflected in the browser
-   URL and an entry is added to the browser history, allowing the user
-   to use the back and forward buttons to navigate through your
-   application.
+   single location (URL) within your web server. In this mode, a %Wt
+   application is a single page web application: the URL does not
+   change. Still, an application may manage multiple URLs that
+   correspond to internal paths. These are URLs that are created by
+   appending an internal path to the application URL (this works only
+   if the application was not deployed at a location ending with a
+   '/'). The internal path may be manipulated through
+   WApplication::setInternalPath().  When the internal path changes,
+   this is reflected in the browser URL and an entry is added to the
+   browser history, allowing the user to use the back and forward
+   buttons to navigate through your application.
+
+   To avoid rerendering the entire widget tree for each internal path
+   change, when AJAX is available, the internal path is indicated
+   using a name anchor (#) after the deployment URL. For a plain HTML
+   session, the session ID is appended to the URL to avoid the session
+   from reloading when the user navigates using a WAnchor to a new
+   internal URL.
 
    To effectively change the internal path and obtain consistent
    behaviour with or without JavaScript, you should use a WAnchor to
-   let the user switch to a new internal path. The easiest way to do
+   let the user navigate to a new internal path. The easiest way to do
    this is by using the WAnchor::setRefInternalPath(). This refers the
    WAnchor to a URL generated by WApplication::bookmarkUrl() for the
    new internal path (handling the plain HTML case), and binds a
-   JavaScrit slot to its WAnchor::clicked() signal, which changes the
+   JavaScript slot to its WAnchor::clicked() signal, which changes the
    internal path (handling the AJAX case).
 
    Finally, you can listen for path changes using the
    WApplication::internalPathChanged() event to react to the user
-   navigating through his history or opening a bookmarked internal
-   page.
-
-   To avoid reloading the application (and spawning a new session)
-   each time the internal path is changed, when AJAX is available, the
-   internal path is indicated using a name anchor (#) after the
-   deployment URL. For a plain HTML session, the session ID is
-   appended to the URL to avoid the session from reloading when the
-   user navigates using a WAnchor to a new internal URLs.
+   navigating through his history.
 
    When your applications uses internal URLs, this has consequences
    for relative URLs to external resources (style sheets, images,
@@ -179,10 +180,11 @@ namespace Wt {
    account the current relative URL. All relative URLs that are known
    to the application (e.g. those set in WAnchor::setRef(),
    WImage::setImageRef(), WApplication::useStyleSheet(), etc...) are
-   automatically replace by %Wt with an absolute URL that resolves
+   automatically replaced by %Wt with an absolute URL that resolves
    these directly within the deployment location. You should use
-   absolute URLs in CSS or XHTML for them to work within each internal
-   path, since these cannot be fixed by %Wt.
+   absolute URLs in your own CSS or XHTML snippets when you wish these
+   snippets to work regardless of the internal path in a plain
+   session, since these cannot be fixed by %Wt.
 
    \section application_sec 3. Startup and session management
   
@@ -190,12 +192,12 @@ namespace Wt {
    WRun() to start the %Wt application server. This method will return
    only when shutdown is signaled by the environment, and after the
    application server (and all remaining active sessions) has been
-   properly shutd down. One parameter to the WRun() function is a
+   properly shutd down. One parameter to the WRun() function is a \em
    createApplication function object. Alternatively, if you wish to
    have more control over the application server, you may also
    instantiate and configure a WServer instance directly.
 
-   For every new session (which corresponds to a new user surfing to
+   For every new session (which corresponds to a new user accessing
    your web application), the library calls your createApplication
    callback function to create a new WApplication object for that
    session. The request arguments (as part of the WEnvironment object)
@@ -205,11 +207,12 @@ namespace Wt {
   
    At all times, the WApplication instance is accessible using the
    static method WApplication::instance(), and is useful to inspect
-   startup arguments and settings (using
-   WApplication::environment()), to set or change the application
-   title (WApplication::setTitle()), to specify a locale
-   (WApplication::setLocale()) for rendering, and many other
-   application-wide settings.
+   startup arguments and settings (using WApplication::environment()),
+   to set or change the application title (WApplication::setTitle()),
+   to specify a locale (WApplication::setLocale()) for rendering, and
+   many other application-wide settings. In a multi-threaded
+   environment, access to this instance is implemented using thread
+   local storage.
   
    A session exits when the user browses away from the application,
    when WApplication::quit() is called, or when the application server
@@ -230,7 +233,7 @@ namespace Wt {
    but requires more careful programming as memory corruption affects
    all sessions in a single process, and sessions are not isolated by
    any other mechanism but correct programming.
-  
+
    \section signal_slot 4. Signal/slot event handling
   
    To respond to user-interactivity events, or in general to communicate
@@ -258,17 +261,17 @@ namespace Wt {
   
    Event signals (\link EventSignal EventSignal<E>\endlink)
    are signals that may be triggered internally by the library to
-   respond to user interactivity events.  The abstract base classes
+   respond to user interactivity events. The abstract base classes
    WInteractWidget and WFormWidget define most of these event
    signals. To react to one of these events, the programmer connects a
    self-defined or already existing slot to such a signal.
   
    \section eventhandling 5. Optimizing client-side event handling
   
-   By default, %Wt performs all event processing server-side. Every connected
-   event signal will cause the web browser to communicate with the web server
-   in order to perform the call-back code, and visual changes will be updated
-   in the web page.
+   By default, %Wt performs all event processing server-side. Every
+   connected event signal will cause the web browser to communicate
+   with the web server in order to invoke the call-back code, and
+   visual changes will be updated in the web page.
   
    However, %Wt offers several options for incorporating client-side event
    handling. This may in general increase responsiveness of the application
@@ -377,19 +380,20 @@ namespace Wt {
   happens in the back-ground, unnoticed to the user.
 
   This mitigates disadvantages associated with the default bootstrap,
-  but has the draw-backs of being new, and it requires more
-  server-side processing.
+  but has the draw-backs of being a recent development in %Wt, and it
+  requires slightly more server-side processing.
 
   \section sec_painting 7. Painting
 
-  %Wt provides a vector graphics painting system, which depending on
-  the browser support, uses one of three different methods to paint
-  the graphics (inline SVG, inline VML or HTML 5 &lt;canvas&gt;
+  %Wt provides a vector graphics painting system which depending on
+  the browser support uses one of three different methods to paint the
+  graphics (inline SVG, inline VML or HTML 5 &lt;canvas&gt;
   element). Vector graphics has as benefit a lower bandwidth usage,
-  which is indepedent of the image size and inline transport, avoiding
-  an additional round-trip. To use the paint system, you need to
-  specialize WPaintedWidget and use a WPainter to paint the contents
-  of the widget inside its WPaintedWidget::paintEvent().
+  which is indepedent of the image size and quality, and can be
+  embedded within the HTML, avoiding an additional round-trip. To use
+  the paint system, you need to specialize WPaintedWidget and use a
+  WPainter to paint the contents of the widget inside its
+  WPaintedWidget::paintEvent().
 
   \section deployment 8. Deployment
 
@@ -993,16 +997,16 @@ wApp->log("error") << "Message";
    You can now proceed to \ref InstallationUnix or \ref InstallationWindows
 
 */
-/*! \page InstallationUnix
+/*! \page InstallationUnix Installation: Unix-like platforms
   
    \htmlinclude INSTALL.html
 */
-/*! \page InstallationWindows
+/*! \page InstallationWindows Installation: Windows
   
    \htmlinclude INSTALL.win32.html
 */
 
-/*! \page Releasenotes
+/*! \page Releasenotes Release notes
   
    \htmlinclude ReleaseNotes.html
  */

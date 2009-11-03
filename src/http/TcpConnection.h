@@ -17,12 +17,8 @@
 #ifndef HTTP_TCP_CONNECTION_HPP
 #define HTTP_TCP_CONNECTION_HPP
 
-#ifdef BOOST_ASIO
 #include <boost/asio.hpp>
 namespace asio = boost::asio;
-#else
-#include <asio.hpp>
-#endif
 
 #include <boost/array.hpp>
 #include <boost/noncopyable.hpp>

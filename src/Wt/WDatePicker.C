@@ -144,18 +144,13 @@ void WDatePicker::setFromLineEdit()
 
 void WDatePicker::setEnabled(bool enabled)
 {
-  forEdit_->setEnabled(enabled);
-  displayWidget_->setHidden(!enabled);
+  setDisabled(false);
 }
 
-void WDatePicker::enable()
+void WDatePicker::setDisabled(bool disabled)
 {
-  setEnabled(true);
-}
-
-void WDatePicker::disable()
-{
-  setEnabled(false);
+  forEdit_->setDisabled(disabled);
+  displayWidget_->setHidden(disabled);
 }
 
 void WDatePicker::setHidden(bool hidden)

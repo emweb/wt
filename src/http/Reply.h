@@ -22,12 +22,8 @@
 #include <string>
 #include <vector>
 
-#ifdef BOOST_ASIO
 #include <boost/asio.hpp>
 namespace asio = boost::asio;
-#else
-#include <asio.hpp>
-#endif
 
 #ifdef WT_THREADED
 #include <boost/thread/recursive_mutex.hpp>

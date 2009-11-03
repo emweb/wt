@@ -31,7 +31,7 @@
     <script type="text/javascript">
       /*<![CDATA[*/
       loadScript("http://www.google-analytics.com/ga.js", function() {
-        var pageTracker = _gat._getTracker('UA-4345578-1');
+        pageTracker = _gat._getTracker('UA-4345578-1');
         pageTracker._initData();
         pageTracker._trackPageview();
       });

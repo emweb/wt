@@ -18,12 +18,8 @@
 #endif // !_WIN32
 
 #ifdef WT_THREADED
-#ifdef BOOST_ASIO
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#else  // BOOST_ASIO
-#include <asio/thread.hpp>
-#endif // BOOST_ASIO
 #endif // WT_THREADED
 
 #include <boost/bind.hpp>
@@ -36,11 +32,7 @@
 #include "HTTPStream.h"
 
 #ifdef WT_THREADED
-#ifdef BOOST_ASIO
 typedef boost::thread thread_t;
-#else
-typedef asio::thread thread_t;
-#endif
 #endif
 namespace {
   static std::string getWtConfigXml(int argc, char *argv[])

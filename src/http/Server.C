@@ -17,21 +17,13 @@
 #include "Configuration.h"
 #include "WebController.h"
 
-#ifdef BOOST_ASIO
 #include <boost/asio/buffer.hpp>
-#else // !BOOST_ASIO
-#include <asio/buffer.hpp>
-#endif // BOOST_ASIO
 
 #include <boost/bind.hpp>
 
 #ifdef HTTP_WITH_SSL
 
-#ifdef BOOST_ASIO
 #include <boost/asio/ssl.hpp>
-#else
-#include <asio/ssl.hpp>
-#endif
 
 #endif // HTTP_WITH_SSL
 

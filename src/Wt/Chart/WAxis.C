@@ -189,10 +189,12 @@ void WAxis::setMaximum(double maximum)
 
 void WAxis::setRange(double minimum, double maximum)
 {
-  segments_[0].minimum = minimum;
-  segments_[segments_.size() - 1].maximum = maximum;
+  if (maximum > minimum) {
+    segments_[0].minimum = minimum;
+    segments_[segments_.size() - 1].maximum = maximum;
 
-  update();
+    update();
+  }
 }
 
 void WAxis::setBreak(double minimum, double maximum)
