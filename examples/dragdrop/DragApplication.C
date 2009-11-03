@@ -10,6 +10,8 @@ WApplication *createApplication(const WEnvironment& env)
   WApplication *app = new WApplication(env);
   app->setTitle("Drag & drop");
 
+  app->root()->setStyleClass("root");
+
   new WText("<h1>Wt Drag &amp; drop example.</h1>", app->root());
 
   new DragExample(app->root());
