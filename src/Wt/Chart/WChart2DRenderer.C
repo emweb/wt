@@ -1018,7 +1018,8 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 	       currentYSegment < chart_->axis(series[i].axis()).segmentCount();
 	       ++currentYSegment) {
 
-	    stackedValues = stackedValuesInit;
+	    stackedValues.clear();
+	    Utils::insert(stackedValues, stackedValuesInit);
 
 	    WRectF csa = chartSegmentArea(chart_->axis(series[i].axis()),
 					  currentXSegment, currentYSegment);
@@ -1072,7 +1073,8 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 	  }
 	}
 
-	stackedValuesInit = stackedValues;
+	stackedValuesInit.clear();
+	Utils::insert(stackedValuesInit, stackedValues);
       }
 
       if (doSeries)
