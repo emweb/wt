@@ -1,3 +1,9 @@
+03-11-2009:
+	* WTreeView: fix for adding a first row to an otherwise empty model (from Guy)
+
+03-11-2009:
+	* 3.0.0: released!
+
 21-10-2009:
 	* WMenu: set correct internal path before loading a menu item
 

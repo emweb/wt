@@ -30,10 +30,11 @@
     </div>
     <script type="text/javascript">
       /*<![CDATA[*/
+      window.pageTracker = null;
       loadScript("http://www.google-analytics.com/ga.js", function() {
-        pageTracker = _gat._getTracker('UA-4345578-1');
-        pageTracker._initData();
-        pageTracker._trackPageview();
+        window.pageTracker = _gat._getTracker('UA-4345578-1');
+        window.pageTracker._initData();
+        window.pageTracker._trackPageview();
       });
       /* ]]> */
     </script>

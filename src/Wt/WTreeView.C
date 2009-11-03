@@ -2378,7 +2378,7 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 			      count);
 	} else {
 	  int maxRenderHeight
-	    = firstRenderedRow_ + validRowCount_
+	    = firstRenderedRow_ + std::max(validRowCount_, viewportHeight_)
 	    - parentNode->renderedRow() - parentNode->topSpacerHeight();
 
 	  int containerIndex = startWidget ? parentNode->childContainer()

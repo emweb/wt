@@ -401,8 +401,8 @@ WString Home::tr(const char *key)
 void Home::googleAnalyticsLogger()
 {
   std::string googleCmd = 
-    "if (pageTracker)"
-    "  pageTracker._trackPageview(\"" + environment().deploymentPath() +
+    "if (window.pageTracker)"
+    "  window.pageTracker._trackPageview(\"" + environment().deploymentPath() +
     internalPath() + "\");";
 
   doJavaScript(googleCmd);

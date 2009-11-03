@@ -30,10 +30,11 @@
     </div>
     <script type="text/javascript">
       /*<![CDATA[*/
+      window.pageTracker = null;
       loadScript("http://www.google-analytics.com/ga.js", function() {
-        pageTracker = _gat._getTracker('UA-4345578-1');
-        pageTracker._initData();
-        pageTracker._trackPageview();
+        window.pageTracker = _gat._getTracker('UA-4345578-1');
+        window.pageTracker._initData();
+        window.pageTracker._trackPageview();
       });
       /* ]]> */
     </script>
@@ -817,7 +818,7 @@ href="/wt/examples/form/formexample.wt">表单示例</a>
 你可以依照<a
 href="/wt/doc/reference/html/Installation.html">安装指南</a>建立Wt并运行相关示例，
 或者如果你的运行平台在<a
-href="/wt/wiki/index.php/Wt_Installation">平台相关安装指南</a>中，也可以参照执行。
+href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">平台相关安装指南</a>中，也可以参照执行。
   </message>
   <message id="home.download.cvs">
 
@@ -878,7 +879,7 @@ href="http://www.minixml.org/documentation.php/license.html">Mini-XML license
 <h4>Wiki</h4>
 
 <p>
-<a href="http://www.webtoolkit.eu/wt/wiki/">Wt Wiki</a>
+<a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a>
 由社区维护，包括很多有用信息，如针对不同Linux发行版的安装说明等。
 </p>
 
@@ -955,8 +956,8 @@ Wt在Sourceforge的主页请点击<a href="http://sourceforge.net/projects/witty
 在源文件包中找到，分别为INSTALL或INSTALL.html文件。</p>
 <p>
 
-另外，<a href="http://www.webtoolkit.eu/wt/wiki/">Wt Wiki</a> 还有一部分涉及到
-<a href="http://www.webtoolkit.eu/wt/wiki/index.php/Wt_Installation">平台相关安装说明</a>。
+另外，<a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a> 还有一部分涉及到
+<a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">平台相关安装说明</a>。
 </p>
 
 <h4>介绍和入门</h4>
@@ -993,7 +994,7 @@ target="_blank">在此查看(新窗口中打开)</a>。</p>
 
 <h4>Wiki</h4>
 
-<p>由社区维护的<a href="http://www.webtoolkit.eu/wt/wiki/">Wt Wiki</a>也可以查看，里面有
+<p>由社区维护的<a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a>也可以查看，里面有
    很多有用信息，比如FAQ和一些技巧等。
 </p>
 
