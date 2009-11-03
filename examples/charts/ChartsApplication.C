@@ -18,6 +18,7 @@ public:
   messageResourceBundle().use("charts");
 
   root()->setPadding(10);
+  root()->resize(WLength::Auto, WLength::Auto);
 
   new ChartsExample(root());
 

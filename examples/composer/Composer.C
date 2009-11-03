@@ -223,10 +223,12 @@ void Composer::createUi()
   addcc_->item()->clicked().connect(SLOT(ccEdit_, WWidget::show));
   addcc_->item()->clicked().connect(SLOT(addcc_, WWidget::hide));
   addcc_->item()->clicked().connect(SLOT(options_, OptionList::update));
+  addcc_->item()->clicked().connect(SLOT(ccEdit_, WFormWidget::setFocus));
 
   addbcc_->item()->clicked().connect(SLOT(bccEdit_, WWidget::show));
   addbcc_->item()->clicked().connect(SLOT(addbcc_, WWidget::hide));
   addbcc_->item()->clicked().connect(SLOT(options_, OptionList::update));
+  addbcc_->item()->clicked().connect(SLOT(bccEdit_, WFormWidget::setFocus));
 
   /*
    * Option event to attach the first attachment.

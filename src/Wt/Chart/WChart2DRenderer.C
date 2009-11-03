@@ -487,8 +487,8 @@ public:
 
   virtual void newValue(const WDataSeries& series, double x, double y,
 			double stackY)
-  {
-    if (!marker_.isEmpty()) {
+  {    
+    if (!Utils::isNaN(x) && !Utils::isNaN(y) && !marker_.isEmpty()) {
       WPointF p = renderer_.map(x, y, series.axis(),
 				currentXSegment(), currentYSegment());
 

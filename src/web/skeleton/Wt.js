@@ -844,7 +844,7 @@ var dragDrag = function(e) {
 	break;
       }
       t = t.parentNode;
-      if (WT.hasTag(t, "HTML"))
+      if (!t.tagName || WT.hasTag(t, "HTML"))
 	break;
     }
 

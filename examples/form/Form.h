@@ -19,6 +19,7 @@ namespace Wt {
   class WLineEdit;
   class WComboBox;
   class WFormWidget;
+  class WDatePicker;
 }
 
 /**
@@ -58,7 +59,7 @@ private:
   WComboBox *countryEdit_;
   WComboBox *cityEdit_;
 
-  WLineEdit *birthDateEdit_;
+  WDatePicker *birthDateEdit_;
   WLineEdit *childCountEdit_;
   WLineEdit *weightEdit_;
 

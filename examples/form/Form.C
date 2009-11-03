@@ -85,17 +85,12 @@ void Form::createUI()
   // Birth date
   ++row;
 
-
-  birthDateEdit_ = new WLineEdit(elementAt(row, 2));
+  birthDateEdit_ = new WDatePicker(elementAt(row, 2));
   label = new WLabel(tr("example.birthdate"), elementAt(row, 0));
-  label->setBuddy(birthDateEdit_);
-  birthDateEdit_->setValidator(new DateValidator(date(1900,Jan,1),
+  label->setBuddy(birthDateEdit_->lineEdit());
+  birthDateEdit_->lineEdit()->setValidator(new DateValidator(date(1900,Jan,1),
 						 day_clock::local_day()));
-  birthDateEdit_->validator()->setMandatory(true);
-
-  WDatePicker *picker = new WDatePicker(new WText("..."),
-					birthDateEdit_, true,
-					elementAt(row, 2));
+  birthDateEdit_->lineEdit()->validator()->setMandatory(true);
 
   // Child count
   ++row;
@@ -188,7 +183,7 @@ bool Form::validate()
     valid = false;
   if (!checkValid(countryEdit_, tr("error.country")))
     valid = false;
-  if (!checkValid(birthDateEdit_, tr("error.birthdate")))
+  if (!checkValid(birthDateEdit_->lineEdit(), tr("error.birthdate")))
     valid = false;
   if (!checkValid(childCountEdit_, tr("error.childcount")))
     valid = false;
