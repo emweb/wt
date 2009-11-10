@@ -425,6 +425,10 @@ public:
    */
   WCartesianChart *chart() const { return chart_; }
 
+  double mapFromDevice(double d) const;
+  double mapToDevice(const boost::any& value, int segment = 0) const;
+  double mapToDevice(double value, int segment = 0) const;
+
   int segmentCount() const { return segments_.size(); }
 
 private:
@@ -463,6 +467,7 @@ private:
 
   void prepareRender(WChart2DRenderer& renderer) const;
   void computeRange(WChart2DRenderer& renderer, const Segment& segment) const;
+  void setOtherAxisLocation(AxisLocation otherLocation) const;
 
   struct TickLabel {
     enum TickLength { Zero, Short, Long };
@@ -477,11 +482,6 @@ private:
   void getLabelTicks(WChart2DRenderer& renderer, std::vector<TickLabel>& ticks,
 		     int segment) const;
 
-  double map(double u, AxisLocation otherLocation, int segment) const;
-  double map(const boost::any& value, AxisLocation otherLocation, int segment)
-    const;
-  double map(int rowIndex, int columnIndex, AxisLocation otherLocation,
-	     int segment) const;
   static double getDateValue(const boost::any& value);
   double calcAutoNumLabels(const Segment& s) const;
 

@@ -20,7 +20,6 @@
 
 namespace {
   const int TICK_LENGTH = 5;
-  const double CATEGORY_WIDTH = 0.8;
 }
 
 namespace Wt {
@@ -545,6 +544,12 @@ WChart2DRenderer::~WChart2DRenderer()
   painter_.restore();
 }
 
+void WChart2DRenderer::initLayout()
+{
+  calcChartArea();           // sets chartArea_
+  prepareAxes();             // provides logical dimensions to the axes
+}
+
 void WChart2DRenderer::render()
 {
   tildeStartMarker_ = WPainterPath();
@@ -559,8 +564,7 @@ void WChart2DRenderer::render()
   tildeEndMarker_.moveTo(-15, -(segmentMargin_ - 20));
   tildeEndMarker_.lineTo(15, -(segmentMargin_ - 10));
 
-  calcChartArea();           // sets chartArea_
-  prepareAxes();             // provides logical dimensions to the axes
+  initLayout();
 
   renderBackground();        // render the background
   renderAxes(Grid);          // render the grid
@@ -575,8 +579,12 @@ void WChart2DRenderer::prepareAxes()
   chart_->axis(Y1Axis).prepareRender(*this);
   chart_->axis(Y2Axis).prepareRender(*this);
 
-  if (chart_->axis(XAxis).scale() == CategoryScale) {
-    switch (chart_->axis(XAxis).location()) {
+  const WAxis& xAxis = chart_->axis(XAxis);
+  const WAxis& yAxis = chart_->axis(YAxis);
+  const WAxis& y2Axis = chart_->axis(Y2Axis);
+
+  if (xAxis.scale() == CategoryScale) {
+    switch (xAxis.location()) {
     case MinimumValue:
     case ZeroValue:
       location_[XAxis] = MinimumValue;
@@ -585,9 +593,6 @@ void WChart2DRenderer::prepareAxes()
       location_[XAxis] = MaximumValue;
     }
   }
-
-  const WAxis& xAxis = chart_->axis(XAxis);
-  const WAxis& yAxis = chart_->axis(YAxis);
 
   for (int i = 0; i < 2; ++i) {
     WAxis axis = i == 0 ? xAxis : yAxis;
@@ -610,24 +615,30 @@ void WChart2DRenderer::prepareAxes()
   }
 
   // force Y axes to the sides when dual Y axes
-  if (chart_->axis(Y2Axis).isVisible()) {
+  if (y2Axis.isVisible()) {
     if (!(location_[Y1Axis] == ZeroValue
-	  && (chart_->axis(XAxis).segments_[0].renderMinimum == 0)))
+	  && (xAxis.segments_[0].renderMinimum == 0)))
       location_[Y1Axis] = MinimumValue;
 
     location_[Y2Axis] = MaximumValue;
   } else
     location_[Y2Axis] = MaximumValue;
+
+  // adjust axis borders to make them look neat and polished
+  xAxis.setOtherAxisLocation(location_[YAxis]);
+  yAxis.setOtherAxisLocation(location_[XAxis]);
+  y2Axis.setOtherAxisLocation(location_[XAxis]);
 }
 
 WPointF WChart2DRenderer::map(double xValue, double yValue,
 			      Axis axis, int currentXSegment,
 			      int currentYSegment) const
 {
-  return WPointF(chart_->axis(XAxis).map(xValue, location_[YAxis],
-					 currentXSegment),
-		 chart_->axis(axis).map(yValue, location_[XAxis],
-					currentYSegment));
+  const WAxis& xAxis = chart_->axis(XAxis);
+  const WAxis& yAxis = chart_->axis(axis);
+
+  return WPointF(xAxis.mapToDevice(xValue, currentXSegment),
+		 yAxis.mapToDevice(yValue, currentYSegment));
 }
 
 void WChart2DRenderer::calcChartArea()
@@ -674,7 +685,7 @@ void WChart2DRenderer::renderBackground()
     painter_.fillRect(hv(chartArea_), chart_->background());
 }
 
-void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
+void WChart2DRenderer::renderAxis(const WAxis& axis,
 				  WFlags<AxisProperty> properties)
 {
   bool vertical = axis.id() != XAxis;
@@ -683,7 +694,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
   enum { Left = 0x1, Right = 0x2, Both = 0x3 } tickPos = Left;
   AlignmentFlag labelHFlag = AlignLeft;
 
-  switch (l) {
+  switch (location_[axis.id()]) {
   case MinimumValue:
     tickPos = Left;
 
@@ -768,8 +779,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
     for (unsigned i = 0; i < ticks.size(); ++i) {
       double d = ticks[i].u;
 
-      double dd = axis.map(d, axis.id() == XAxis ?
-			   location_[YAxis] : location_[XAxis], segment);
+      double dd = axis.mapToDevice(d, segment);
 
       dd = std::floor(dd) + 0.5;
 
@@ -778,7 +788,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
 
       WPointF labelPos;
 
-      switch (l) {
+      switch (location_[axis.id()]) {
       case MinimumValue:
 	if (vertical)
 	  labelPos = WPointF(u - tickLength, dd);
@@ -898,9 +908,9 @@ void WChart2DRenderer::renderAxis(const WAxis& axis, AxisLocation l,
 
 void WChart2DRenderer::renderAxes(WFlags<AxisProperty> properties)
 {
-  renderAxis(chart_->axis(XAxis), location_[0], properties);
-  renderAxis(chart_->axis(Y1Axis), location_[1], properties);
-  renderAxis(chart_->axis(Y2Axis), location_[2], properties);
+  renderAxis(chart_->axis(XAxis), properties);
+  renderAxis(chart_->axis(Y1Axis), properties);
+  renderAxis(chart_->axis(Y2Axis), properties);
 }
 
 void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
@@ -924,17 +934,17 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
   const bool scatterPlot = chart_->type() == ScatterPlot;
 
   if (scatterPlot) {
-    groupWidth = CATEGORY_WIDTH * (map(2, 0).x() - map(1, 0).x());
     numBarGroups = 1;
     currentBarGroup = 0;
   } else {
-    groupWidth = CATEGORY_WIDTH * (map(2, 0).x() - map(1, 0).x());
     numBarGroups = calcNumBarGroups();
     currentBarGroup = 0;
   }
 
   bool containsBars = false;
   for (unsigned g = 0; g < series.size(); ++g) {
+    groupWidth = series[g].barWidth() * (map(2, 0).x() - map(1, 0).x());
+
     if (containsBars)
       ++currentBarGroup;
     containsBars = false;
@@ -1264,10 +1274,7 @@ WPointF WChart2DRenderer::hv(const WPointF& p) const
 
 WPointF WChart2DRenderer::hv(double x, double y) const
 {
-  if (chart_->orientation() == Vertical)
-    return WPointF(x, y);
-  else
-    return WPointF(height_ - y, /*width_ - */x);
+  return chart_->hv(x, y, height_);
 }
 
 WRectF WChart2DRenderer::hv(const WRectF& r) const
@@ -1275,7 +1282,7 @@ WRectF WChart2DRenderer::hv(const WRectF& r) const
   if (chart_->orientation() == Vertical)
     return r;
   else {
-    WPointF tl = hv(/*r.bottomRight()*/r.bottomLeft());
+    WPointF tl = hv(r.bottomLeft());
     return WRectF(tl.x(), tl.y(), r.height(), r.width());
   }
 }

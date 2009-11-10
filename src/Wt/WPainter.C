@@ -94,7 +94,9 @@ WPainter::Image::Image(const std::string& uri, const std::string& fileName)
 
 WPainter::WPainter()
   : device_(0)
-{ }
+{
+  stateStack_.push_back(State());
+}
 
 WPainter::WPainter(WPaintDevice *device)
   : device_(0)
@@ -128,6 +130,7 @@ bool WPainter::begin(WPaintDevice *device)
   if (device->paintActive())
     return false;
 
+  stateStack_.clear();
   stateStack_.push_back(State());
 
   device_ = device;
@@ -526,28 +529,32 @@ void WPainter::resetTransform()
 {
   s().worldTransform_.reset();
 
-  device_->setChanged(WPaintDevice::Transform);
+  if (device_)
+    device_->setChanged(WPaintDevice::Transform);
 }
 
 void WPainter::rotate(double angle)
 {
   s().worldTransform_.rotate(angle);
 
-  device_->setChanged(WPaintDevice::Transform);
+  if (device_)
+    device_->setChanged(WPaintDevice::Transform);
 }
 
 void WPainter::scale(double sx, double sy)
 {
   s().worldTransform_.scale(sx, sy);
 
-  device_->setChanged(WPaintDevice::Transform);
+  if (device_)
+    device_->setChanged(WPaintDevice::Transform);
 }
 
 void WPainter::translate(double dx, double dy)
 {
   s().worldTransform_.translate(dx, dy);
 
-  device_->setChanged(WPaintDevice::Transform);
+  if (device_)
+    device_->setChanged(WPaintDevice::Transform);
 }
 
 void WPainter::translate(const WPointF& p)
@@ -562,7 +569,8 @@ void WPainter::setWorldTransform(const WTransform& matrix, bool combine)
   else
     s().worldTransform_ = matrix;
 
-  device_->setChanged(WPaintDevice::Transform);
+  if (device_)
+    device_->setChanged(WPaintDevice::Transform);
 }
 
 void WPainter::setViewPort(const WRectF& viewPort)
@@ -600,7 +608,8 @@ void WPainter::recalculateViewTransform()
 			   viewPort_.y() - window_.y() * scaleY);
   viewTransform_.scale(scaleX, scaleY);
 
-  device_->setChanged(WPaintDevice::Transform);
+  if (device_)
+    device_->setChanged(WPaintDevice::Transform);
 }
 
 WTransform WPainter::combinedTransform() const
@@ -617,7 +626,8 @@ void WPainter::setClipping(bool enable)
 {
   if (s().clipping_ != enable) {
     s().clipping_ = enable;
-    device_->setChanged(WPaintDevice::Clipping);
+    if (device_)
+      device_->setChanged(WPaintDevice::Clipping);
   }
 }
 
@@ -626,7 +636,7 @@ void WPainter::setClipPath(const WPainterPath& clipPath)
   s().clipPath_ = clipPath;
   s().clipPathTransform_ = combinedTransform();
 
-  if (s().clipping_)
+  if (s().clipping_ && device_)
     device_->setChanged(WPaintDevice::Clipping);
 }
 

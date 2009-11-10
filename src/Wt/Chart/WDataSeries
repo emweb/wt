@@ -13,6 +13,9 @@
 #include <Wt/Chart/WChartGlobal>
 
 namespace Wt {
+
+  class WPointF;
+
   namespace Chart {
 
 /*! \class WDataSeries Wt/Chart/WDataSeries Wt/Chart/WDataSeries
@@ -84,6 +87,16 @@ public:
    */
   WDataSeries(int modelColumn, SeriesType seriesType = PointSeries,
 	      Axis axis = Y1Axis);
+
+  /* \brief Change the bar width.
+   */
+  void setBarWidth(const double width);
+
+  /*! \brief Returns the bar width.
+   *
+   * \sa setBarWidth(double) 
+   */
+  double barWidth() const;
 
   /*! \brief Change the series type.
    *
@@ -321,6 +334,40 @@ public:
    */
   WColor labelColor() const;
 
+  /*! \brief Maps from device coordinates to model coordinates.
+   *
+   * Maps a position in the chart back to model coordinates, for data
+   * in this data series.
+   *
+   * This uses WChart::mapFromDevice() passing the axis() to which this
+   * series is bound.
+   *
+   * This method uses the axis dimensions that are based on the latest
+   * chart rendering. If you have not yet rendered the chart, or wish
+   * to already the mapping reflect model changes since the last
+   * rendering, you should call WCartesianChart::initLayout() first.
+   *
+   * \sa mapToDevice()
+   */ 
+  WPointF mapFromDevice(const WPointF& deviceCoordinates) const;
+
+  /*! \brief Maps from model values to device coordinates.
+   *
+   * Maps model values to device coordinates, for data in this data series.
+   *
+   * This uses WChart::mapToDevice() passing the axis() to which this
+   * series is bound.
+   *
+   * This method uses the axis dimensions that are based on the latest
+   * chart rendering. If you have not yet rendered the chart, or wish
+   * to already the mapping reflect model changes since the last
+   * rendering, you should call WCartesianChart::initLayout() first.
+   *
+   * \sa mapFromDevice()
+   */ 
+  WPointF mapToDevice(const boost::any& xValue, const boost::any& yValue,
+		      int segment = 0) const;
+
 private:
   WCartesianChart   *chart_;
   int                modelColumn_;
@@ -336,6 +383,7 @@ private:
   bool               legend_;
   bool               xLabel_;
   bool               yLabel_;
+  double             barWidth_;
 
   template <typename T>
   bool set(T& m, const T& v);

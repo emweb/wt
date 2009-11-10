@@ -337,6 +337,33 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
   }
 }
 
+void WAxis::setOtherAxisLocation(AxisLocation otherLocation) const
+{
+  if (scale_ != LogScale) {
+    for (unsigned i = 0; i < segments_.size(); ++i) {
+      const Segment& s = segments_[i];
+
+      int borderMin, borderMax;
+
+      if (scale_ == CategoryScale)
+	borderMin = borderMax = 5;
+      else {
+	borderMin = (s.renderMinimum == 0 && otherLocation == ZeroValue)
+	  ? 0 : 5;
+	borderMax = (s.renderMinimum == 0 && otherLocation == ZeroValue)
+	  ? 0 : 5;
+      }
+
+      s.renderLength -= (borderMin + borderMax);
+
+      if (axis_ == XAxis)
+	s.renderStart += borderMin;
+      else
+	s.renderStart -= borderMin;
+    }
+  }
+}
+
 void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
   const
 {
@@ -453,25 +480,14 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
   }
 }
 
-double WAxis::map(int rowIndex, int columnIndex, AxisLocation otherLocation,
-		  int segment) const
-{
-  if (scale_ == CategoryScale)
-    return map(static_cast<double>(rowIndex), otherLocation, segment);
-  else
-    return map(chart_->model()->data(rowIndex, columnIndex), otherLocation,
-	       segment);
-}
-
-double WAxis::map(const boost::any& value, AxisLocation otherLocation,
-		  int segment) const
+double WAxis::mapToDevice(const boost::any& value, int segment) const
 {
   assert (scale_ != CategoryScale);
 
   if ((scale_ == LinearScale) || (scale_ == LogScale)) {
-    return map(asNumber(value), otherLocation, segment);
+    return mapToDevice(asNumber(value), segment);
   } else
-    return map(getDateValue(value), otherLocation, segment);
+    return mapToDevice(getDateValue(value), segment);
 }
 
 double WAxis::getDateValue(const boost::any& v)
@@ -484,7 +500,7 @@ double WAxis::getDateValue(const boost::any& v)
   }
 }
 
-double WAxis::map(double u, AxisLocation otherLocation, int segment) const
+double WAxis::mapToDevice(double u, int segment) const
 {
   if (Utils::isNaN(u))
       return u;
@@ -493,21 +509,9 @@ double WAxis::map(double u, AxisLocation otherLocation, int segment) const
 
   double d;
   if (scale_ != LogScale) {
-    int borderMin, borderMax;
-
-    if (scale_ == CategoryScale)
-      borderMin = borderMax = 5;
-    else {
-      borderMin = (s.renderMinimum == 0 && otherLocation == ZeroValue) ? 0 : 5;
-      borderMax = (s.renderMinimum == 0 && otherLocation == ZeroValue) ? 0 : 5;
-    }
-
-    int remainLength = static_cast<int>(s.renderLength) - borderMin - borderMax;
-
-    d = borderMin
-      + (u - s.renderMinimum)
+    d = (u - s.renderMinimum)
       / (s.renderMaximum - s.renderMinimum)
-      * remainLength;
+      * s.renderLength;
   } else {
     u = std::max(s.renderMinimum, u);
     d = (std::log(u) - std::log(s.renderMinimum))
@@ -519,6 +523,31 @@ double WAxis::map(double u, AxisLocation otherLocation, int segment) const
     return s.renderStart + d;
   else
     return s.renderStart - d;
+}
+
+double WAxis::mapFromDevice(double d) const
+{
+  for (unsigned i = 0; i < segments_.size(); ++i) {
+    const Segment& s = segments_[i];
+
+    bool lastSegment = (i == segments_.size() - 1);
+
+    if (lastSegment || d < mapToDevice(s.renderMaximum, i)) {
+      if (axis_ == XAxis)
+	d = d - s.renderStart;
+      else
+	d = s.renderStart - d;
+
+      if (scale_ != LogScale) {
+	return s.renderMinimum + d * (s.renderMaximum - s.renderMinimum)
+	  / s.renderLength;
+      } else {
+	return exp(std::log(s.renderMinimum)
+		   + d * (std::log(s.renderMaximum)
+			  - std::log(s.renderMinimum)) / s.renderLength);
+      }
+    }
+  }
 }
 
 WString WAxis::label(double u) const

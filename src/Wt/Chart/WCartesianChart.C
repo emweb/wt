@@ -297,6 +297,60 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
 		   asString(model()->headerData(series.modelColumn())));
 }
 
+void WCartesianChart::initLayout(const WRectF& rectangle)
+{
+  WRectF rect = rectangle;
+
+  if (rect.isEmpty())
+    rect = WRectF(0, 0, width().toPixels(), height().toPixels());
+
+  WPainter painter;
+  WChart2DRenderer *renderer = createRenderer(painter, rect);
+  renderer->initLayout();
+  delete renderer;
+}
+
+WPointF WCartesianChart::mapFromDevice(const WPointF& point, Axis ordinateAxis)
+  const
+{
+  const WAxis& xAxis = axis(XAxis);
+  const WAxis& yAxis = axis(ordinateAxis);
+
+  WPointF p = inverseHv(point.x(), point.y(), width().toPixels());
+
+  return WPointF(xAxis.mapFromDevice(p.x()), yAxis.mapFromDevice(p.y()));
+}
+
+WPointF WCartesianChart::mapToDevice(const boost::any& xValue,
+				     const boost::any& yValue,
+				     Axis ordinateAxis, int xSegment,
+				     int ySegment) const
+{
+  const WAxis& xAxis = axis(XAxis);
+  const WAxis& yAxis = axis(ordinateAxis);
+  
+  return hv(xAxis.mapToDevice(xValue, xSegment),
+	    yAxis.mapToDevice(yValue, ySegment),
+	    width().toPixels());
+}
+
+WPointF WCartesianChart::hv(double x, double y,
+			    double width) const
+{
+  if (orientation_ == Vertical)
+    return WPointF(x, y);
+  else
+    return WPointF(width - y, x);
+}
+
+WPointF WCartesianChart::inverseHv(double x, double y, double width) const
+{
+   if (orientation_ == Vertical)
+    return WPointF(x, y);
+  else
+    return WPointF(y, width - x); 
+}
+
 void WCartesianChart::modelColumnsInserted(const WModelIndex& parent,
 					   int start, int end)
 {

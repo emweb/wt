@@ -1,5 +1,10 @@
+10-11-2009:
+	* WCartesianChart, WDataSeries: add mapFromDevice() and
+	mapToDevice() methods.
+
 03-11-2009:
-	* WTreeView: fix for adding a first row to an otherwise empty model (from Guy)
+	* WTreeView: fix for adding a first row to an otherwise empty model
+	(from Guy De Leeuw)
 
 03-11-2009:
 	* 3.0.0: released!

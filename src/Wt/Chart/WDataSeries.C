@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WPointF>
 #include <Wt/Chart/WChartPalette>
 #include <Wt/Chart/WDataSeries>
 #include <Wt/Chart/WCartesianChart>
@@ -22,8 +23,19 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     marker_(type == PointSeries ? CircleMarker : NoMarker),
     legend_(true),
     xLabel_(false),
-    yLabel_(false)
+    yLabel_(false),
+    barWidth_(0.8)
 { }
+
+void WDataSeries::setBarWidth(const double width) 
+{
+  barWidth_ = width;
+}
+
+double WDataSeries::barWidth() const 
+{
+  return barWidth_;
+}
 
 void WDataSeries::setType(SeriesType type)
 {
@@ -176,6 +188,24 @@ void WDataSeries::update()
 {
   if (chart_)
     chart_->update();
+}
+
+WPointF WDataSeries::mapFromDevice(const WPointF& deviceCoordinates) const
+{
+  if (chart_)
+    return chart_->mapFromDevice(deviceCoordinates, axis_);
+  else
+    return WPointF();
+}
+
+WPointF WDataSeries::mapToDevice(const boost::any& xValue,
+				 const boost::any& yValue,
+				 int segment) const
+{
+  if (chart_)
+    return chart_->mapToDevice(xValue, yValue, axis_, segment);
+  else
+    return WPointF();
 }
 
   }

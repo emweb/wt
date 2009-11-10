@@ -157,6 +157,8 @@ public:
    */
   virtual void calcChartArea();
 
+  void initLayout();
+
   /*! \brief Renders the chart.
    *
    * This method renders the chart. The default implementation does
@@ -322,8 +324,7 @@ protected:
    *
    * \sa renderAxes()
    */
-  void renderAxis(const WAxis& axis, AxisLocation location,
-		  WFlags<AxisProperty> properties);
+  void renderAxis(const WAxis& axis, WFlags<AxisProperty> properties);
 
   /*! \brief Calculate the total number of bar groups.
    */

@@ -8,6 +8,8 @@
 #define WEVENT_H_
 
 #include <Wt/WGlobal>
+#include <string>
+#include <vector>
 
 namespace Wt {
 

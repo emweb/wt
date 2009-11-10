@@ -56,9 +56,15 @@ class WChartPalette;
  * series contains dates (of type WDate) to create a time series
  * chart, or to a \link Chart::LogScale LogScale\endlink. A
  * ScatterPlot supports the same types of data series as a
- * CategoryChart, but does not support stacking.
+ * CategoryChart, but does not support stacking. In a scatter plot, the
+ * X series do not need to be ordered in increasing values.
  *
  * \image html ChartWCartesianChart-2.png "A time series scatter plot with line series"
+ *
+ * Missing data in a model series Y values is interpreted as a
+ * <i>break</i>. For curve-like series, this breaks the curve (or
+ * line). This may also be used to use different X series per Y series
+ * in a scatter plot.
  *
  * The cartesian chart has support for dual Y axes. Each data series may
  * be bound to one of the two Y axes. By default, only the first Y axis
@@ -252,8 +258,9 @@ public:
    *
    * To have more control over the legend, you could reimplement the
    * renderLegendItem() method to customize how one item in the legend
-   * is rendered, or, alternatively you could reimplement the paint() method in which you use the
-   * renderLegendItem() method repeatedly to render a legend at an arbitrary position.
+   * is rendered, or, alternatively you could reimplement the paint()
+   * method in which you use the renderLegendItem() method repeatedly
+   * to render a legend at an arbitrary position.
    *
    * The default value is false.
    *
@@ -284,9 +291,11 @@ public:
 
   /*! \brief Renders the legend item for a given data series.
    *
-   * Renders the legend item for the indicated <i>series</i> in the <i>painter</i> at position <i>pos</i>. The default implementation draws the marker, and the
-   * series description to the right. The series description is taken
-   * from the model's header data for that series' data column.
+   * Renders the legend item for the indicated <i>series</i> in the
+   * <i>painter</i> at position <i>pos</i>. The default implementation
+   * draws the marker, and the series description to the right. The
+   * series description is taken from the model's header data for that
+   * series' data column.
    *
    * This method is called while painting the chart, and you may
    * want to reimplement this method if you wish to provide a custom
@@ -296,6 +305,57 @@ public:
    */
   virtual void renderLegendItem(WPainter& painter, const WPointF& pos,
 				const WDataSeries& series) const;
+
+  /*! \brief Maps from device coordinates to model coordinates.
+   *
+   * Maps a position in the chart back to model coordinates.
+   *
+   * This uses the axis dimensions that are based on the latest chart
+   * rendering. If you have not yet rendered the chart, or wish to already
+   * the mapping reflect model changes since the last rendering, you should
+   * call initLayout() first.
+   *
+   * \sa mapToDevice()
+   */
+  WPointF mapFromDevice(const WPointF& point,
+			Axis ordinateAxis = OrdinateAxis) const;
+
+  /*! \brief Maps model values onto chart coordinates.
+   *
+   * This returns the chart device coordinates for a (x,y) pair of model
+   * values.
+   *
+   * This uses the axis dimensions that are based on the latest chart
+   * rendering. If you have not yet rendered the chart, or wish to already
+   * the mapping reflect model changes since the last rendering, you should
+   * call initLayout() first.
+   *
+   * The \p xSegment and \p ySegment arguments are relevant only when
+   * the corresponding axis is broken using WAxis::setBreak(). Then,
+   * its possible values may be 0 (below the break) or 1 (above the
+   * break).
+   *
+   * \sa mapFromDevice()
+   */
+  WPointF mapToDevice(const boost::any& xValue, const boost::any& yValue,
+		      Axis axis = OrdinateAxis, int xSegment = 0,
+		      int ySegment = 0) const;
+
+  /*! \brief Initializes the chart layout.
+   *
+   * A cartesian chart delegates the rendering and layout of the chart
+   * and its axes to a WChart2DRenderer. As a consequence, the mapping
+   * between model and device coordinates is also established by this
+   * class, which is only created on-demand when painging.
+   *
+   * If you wish to establish the layout, in order to use the
+   * mapFromDevice() and mapToDevice() methods before the chart has
+   * been rendered, you should call this method.
+   *
+   * Unless a specific chart rectangle is specified, the entire widget
+   * area is assumed.
+   */
+  void initLayout(const WRectF& rectangle = WRectF());
 
 protected:
   void paintEvent(WPaintDevice *paintDevice);
@@ -342,8 +402,12 @@ private:
   virtual void modelReset();
 
   int seriesIndexOf(int modelColumn) const;
-  
+
+  WPointF hv(double x, double y, double width) const;
+  WPointF inverseHv(double x, double y, double width) const;
+
   friend class WDataSeries;
+  friend class WChart2DRenderer;
 };
 
   }

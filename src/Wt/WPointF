@@ -8,6 +8,7 @@
 #define WPOINTF_H_
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WEvent>
 
 namespace Wt {
 
@@ -36,6 +37,11 @@ public:
    */
   WPointF(const WPointF& other)
     : x_(other.x()), y_(other.y()) { }
+
+  /*! \brief Construct a point from mouse coordinates.
+   */
+  WPointF(const WMouseEvent::Coordinates& other)
+    : x_(other.x), y_(other.y) { }
 
   /*! \brief Changes the X coordinate.
    */
