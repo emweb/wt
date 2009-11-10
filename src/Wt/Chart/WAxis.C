@@ -542,12 +542,14 @@ double WAxis::mapFromDevice(double d) const
 	return s.renderMinimum + d * (s.renderMaximum - s.renderMinimum)
 	  / s.renderLength;
       } else {
-	return exp(std::log(s.renderMinimum)
-		   + d * (std::log(s.renderMaximum)
-			  - std::log(s.renderMinimum)) / s.renderLength);
+	return std::exp(std::log(s.renderMinimum)
+			+ d * (std::log(s.renderMaximum)
+			       - std::log(s.renderMinimum)) / s.renderLength);
       }
     }
   }
+
+  return 0;
 }
 
 WString WAxis::label(double u) const

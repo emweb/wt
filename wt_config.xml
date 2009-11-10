@@ -297,7 +297,7 @@
 	     The progressive bootstrap method first renders a plain HTML
 	     version and later upgrades to an AJAX version.
 	  -->
-	<progressive-bootstrap>true</progressive-bootstrap>
+	<progressive-bootstrap>false</progressive-bootstrap>
 
 	<!-- Runtime Properties
      
