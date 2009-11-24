@@ -28,11 +28,15 @@ namespace Wt {
 SeriesIterator::~SeriesIterator()
 { }
 
-void SeriesIterator::setSegment(int currentXSegment, int currentYSegment,
-				const WRectF& currentSegmentArea)
+void SeriesIterator::startSegment(int currentXSegment, int currentYSegment,
+				  const WRectF& currentSegmentArea)
 {
   currentXSegment_ = currentXSegment;
   currentYSegment_ = currentYSegment;
+}
+
+void SeriesIterator::endSegment()
+{
 }
 
 bool SeriesIterator::startSeries(const WDataSeries& series, double groupWidth,
@@ -55,8 +59,10 @@ class SeriesRenderIterator : public SeriesIterator
 public:
   SeriesRenderIterator(WChart2DRenderer& renderer);
 
-  virtual void setSegment(int currentXSegment, int currentYSegment,
-			  const WRectF& currentSegmentArea);
+  virtual void startSegment(int currentXSegment, int currentYSegment,
+			    const WRectF& currentSegmentArea);
+  virtual void endSegment();
+
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
 			   int numBarGroups, int currentBarGroup);
   virtual void endSeries();
@@ -320,11 +326,12 @@ SeriesRenderIterator::SeriesRenderIterator(WChart2DRenderer& renderer)
     series_(0)
 { }
 
-void SeriesRenderIterator::setSegment(int currentXSegment, int currentYSegment,
-				      const WRectF& currentSegmentArea)
+void SeriesRenderIterator::startSegment(int currentXSegment,
+					int currentYSegment,
+					const WRectF& currentSegmentArea)
 {
-  SeriesIterator::setSegment(currentXSegment, currentYSegment,
-			     currentSegmentArea);
+  SeriesIterator::startSegment(currentXSegment, currentYSegment,
+			       currentSegmentArea);
 
   const WAxis& yAxis = renderer_.chart()->axis(series_->axis());
 
@@ -337,6 +344,13 @@ void SeriesRenderIterator::setSegment(int currentXSegment, int currentYSegment,
     minY_ = -DBL_MAX;
   else
     minY_ = currentSegmentArea.top();
+}
+
+void SeriesRenderIterator::endSegment()
+{
+  SeriesIterator::endSegment();
+
+  seriesRenderer_->paint();
 }
 
 bool SeriesRenderIterator::startSeries(const WDataSeries& series,
@@ -1034,7 +1048,7 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 	    WRectF csa = chartSegmentArea(chart_->axis(series[i].axis()),
 					  currentXSegment, currentYSegment);
 
-	    iterator->setSegment(currentXSegment, currentYSegment, csa);
+	    iterator->startSegment(currentXSegment, currentYSegment, csa);
 
 	    painter_.save();
 	    painter_.setClipping(true);
@@ -1078,6 +1092,8 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 		    iterator->newValue(series[i], x, nextStack, prevStack);
 	      }
 	    }
+
+	    iterator->endSegment();
 
 	    painter_.restore();
 	  }

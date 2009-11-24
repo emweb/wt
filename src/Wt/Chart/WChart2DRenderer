@@ -51,8 +51,10 @@ public:
    *
    * The <i>currentSegmentArea</i> specifies the clipping area.
    */
-  virtual void setSegment(int currentXSegment, int currentYSegment,
-			  const WRectF& currentSegmentArea);
+  virtual void startSegment(int currentXSegment, int currentYSegment,
+			    const WRectF& currentSegmentArea);
+
+  virtual void endSegment();
 
   /*! \brief Start iterating a particular series.
    *
