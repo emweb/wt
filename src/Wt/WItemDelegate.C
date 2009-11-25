@@ -115,7 +115,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     WT_USTRING sc = asString(index.data(StyleClassRole));
 
     if (flags & RenderSelected)
-      sc += WT_USTRING::fromUTF8(" selected");
+      sc += WT_USTRING::fromUTF8(" Wt-selected");
 
     if (!sc.empty())
       widgetRef.w->setStyleClass(widgetRef.w->styleClass() + " " + sc);
@@ -212,6 +212,7 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w, bool autoCreate)
       if (wApp->environment().agentIsIE()) {
 	WImage *inv = new WImage(wApp->onePixelGifUrl());
 	inv->setStyleClass("rh w0 icon");
+	inv->resize(0, WLength::Auto);
 	wc->addWidget(inv);
       }
 

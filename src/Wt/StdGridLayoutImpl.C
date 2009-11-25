@@ -384,7 +384,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   if (fitHeight && !app->environment().agentIsIE())
     divStyle += "height: 100%;";
   if (!divStyle.empty())
-    div->setAttribute("style", divStyle);
+    div->setProperty(PropertyStyle, divStyle);
 
   DomElement *table = DomElement::createNew(DomElement_TABLE);
   const bool jsHeights = useJavaScriptHeights(app);
@@ -398,7 +398,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   if (!jsHeights && fitHeight)
     style += "height: 100%;";
 
-  table->setAttribute("style", style);
+  table->setProperty(PropertyStyle, style);
 
   if (jsHeights && fitHeight) {
     std::stringstream layoutAdd;
@@ -457,8 +457,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       if (stretch || (fitWidth && totalColStretch == 0)) {
 	int pct = totalColStretch == 0 ? 100 / colCount
 	  : 100 * stretch / totalColStretch;
-	c->setAttribute
-	  ("style", "width:" + boost::lexical_cast<std::string>(pct) + "%;");
+	c->setProperty
+	  (PropertyStyle,
+	   "width:" + boost::lexical_cast<std::string>(pct) + "%;");
       }
       table->addChild(c);
     }
@@ -483,7 +484,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       std::stringstream style2;
       style2 << "height: " << pct << "%;";
       heightPct = style2.str();
-      tr->setAttribute("style", heightPct);
+      tr->setProperty(PropertyStyle, heightPct);
     }
 
     for (unsigned col = 0; col < colCount; ++col) {
@@ -563,7 +564,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	 * the TEXTAREA is not sized in pixels.
 	 */
 	if (!jsHeights)
-	  td->setAttribute("class", "Wt-grtd");
+	  td->setProperty(PropertyClass, "Wt-grtd");
 
 	if (item.item_) {
 	  DomElement *c = getImpl(item.item_)
@@ -575,15 +576,15 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  switch (hAlign) {
 	  case AlignCenter: {
 	    DomElement *itable = DomElement::createNew(DomElement_TABLE);
-	    itable->setAttribute("class", "Wt-hcenter");
+	    itable->setProperty(PropertyClass, "Wt-hcenter");
 	    if (vAlign == 0 && !jsHeights)
-	      itable->setAttribute("style", "height:100%;");
+	      itable->setProperty(PropertyStyle, "height:100%;");
 	    DomElement *irow = DomElement::createNew(DomElement_TR);
 	    DomElement *itd = DomElement::createNew(DomElement_TD);
 	    if (!jsHeights)
-	      itd->setAttribute("class", "Wt-grtd");
+	      itd->setProperty(PropertyClass, "Wt-grtd");
 	    if (vAlign == 0)
-	      itd->setAttribute("style", "height:100%;");
+	      itd->setProperty(PropertyStyle, "height:100%;");
 	    itd->addChild(c);
 	    irow->addChild(itd);
 	    itable->addChild(irow);
@@ -660,14 +661,14 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	}
 
 	if (!style2.empty())
-	  td->setAttribute("style", style2);
+	  td->setProperty(PropertyStyle, style2);
 
 	if (item.rowSpan_ != 1)
-	  td->setAttribute("rowspan",
-			   boost::lexical_cast<std::string>(item.rowSpan_));
+	  td->setProperty(PropertyRowSpan,
+			  boost::lexical_cast<std::string>(item.rowSpan_));
 	if (item.colSpan_ != 1)
-	  td->setAttribute("colspan",
-			   boost::lexical_cast<std::string>(item.colSpan_));
+	  td->setProperty(PropertyColSpan,
+			  boost::lexical_cast<std::string>(item.colSpan_));
 
 	tr->addChild(td);
       }

@@ -38,14 +38,13 @@ namespace {
 
     double a2 = angle - sweep;
 
-    // the code below broke rendering on chrome, seems to be not needed
-    // for other browsers ?
-    //i = (int)a2 / 360;
-    //a2 -= (i * 360);
-
     double r2 = WTransform::degreesToRadians(a2);
 
     return WPointF(r1, r2);
+  }
+
+  bool fequal(double d1, double d2) {
+    return std::fabs(d1 - d2) < 1E-5;
   }
 }
 
@@ -56,7 +55,8 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
     width_(width),
     height_(height),
     painter_(0),
-    paintFlags_(0)
+    paintFlags_(0),
+    busyWithPath_(false)
 { }
 
 void WCanvasPaintDevice::setPaintFlags(WFlags<PaintFlag> paintFlags)
@@ -100,11 +100,16 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
 
 void WCanvasPaintDevice::init()
 { 
-  changeFlags_ = Pen | Brush;
+  currentBrush_ = painter()->brush();
+  currentPen_ = painter()->pen();
+
+  changeFlags_ = Transform | Pen | Brush;
 }
 
 void WCanvasPaintDevice::done()
-{ }
+{ 
+  finishPath();
+}
 
 void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
 				 double spanAngle)
@@ -137,19 +142,25 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
     lw = 0;
   r = std::max(0.005, r - lw/2);
 
-  js_ << "ctx.save();"
-      << "ctx.translate(" << rect.center().x() << "," << rect.center().y()
-      << ");"
-      << "ctx.scale(" << sx << "," << sy << ");"
-      << "ctx.lineWidth = " << lw << ";"
-      << "ctx.beginPath();"
-      << "ctx.arc(0,0," << r << ',' << ra.x() << "," << ra.y() << ",true);";
+  char buf[30];
 
-  if (painter()->brush().style() != NoBrush) {
+  js_ << "ctx.save();"
+      << "ctx.translate(" << Utils::round_str(rect.center().x(), 3, buf);
+  js_ << "," << Utils::round_str(rect.center().y(), 3, buf);
+  js_ << ");"
+      << "ctx.scale(" << Utils::round_str(sx, 3, buf);
+  js_ << "," << Utils::round_str(sy, 3, buf) << ");";
+  js_ << "ctx.lineWidth = " << Utils::round_str(lw, 3, buf) << ";"
+      << "ctx.beginPath();";
+  js_ << "ctx.arc(0,0," << Utils::round_str(r, 3, buf);
+  js_ << ',' << Utils::round_str(ra.x(), 3, buf);
+  js_ << "," << Utils::round_str(ra.y(), 3, buf) << ",true);";
+
+  if (currentBrush_.style() != NoBrush) {
     js_ << "ctx.fill();";
   }
 
-  if (painter()->pen().style() != NoPen) {
+  if (currentPen_.style() != NoPen) {
     js_ << "ctx.stroke();";
   }
 
@@ -187,9 +198,13 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 				       const WPainterPath& path)
 {
   char buf[30];
-  const std::vector<WPainterPath::Segment>& segments = path.segments();
 
-  out << "ctx.beginPath();";
+  if (!busyWithPath_) {
+    out << "ctx.beginPath();";
+    busyWithPath_ = true;
+  }
+
+  const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (segments.size() > 0
       && segments[0].type() != WPainterPath::Segment::MoveTo)
@@ -200,28 +215,36 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 
     switch (s.type()) {
     case WPainterPath::Segment::MoveTo:
-      out << "ctx.moveTo(" << Utils::round_str(s.x(), 3, buf);
-      out << ',' << Utils::round_str(s.y(), 3, buf) << ");";
+      out << "ctx.moveTo(" << Utils::round_str(s.x() + pathTranslation_.x(),
+					       3, buf);
+      out << ',' << Utils::round_str(s.y() + pathTranslation_.y(),
+				     3, buf) << ");";
       break;
     case WPainterPath::Segment::LineTo:
-      out << "ctx.lineTo(" << Utils::round_str(s.x(), 3, buf);
-      out << ',' << Utils::round_str(s.y(), 3, buf) << ");";
+      out << "ctx.lineTo(" << Utils::round_str(s.x() + pathTranslation_.x(),
+					       3, buf);
+      out << ',' << Utils::round_str(s.y() + pathTranslation_.y(),
+				     3, buf) << ");";
       break;
     case WPainterPath::Segment::CubicC1:
-      out << "ctx.bezierCurveTo(" << Utils::round_str(s.x(), 3, buf);
-      out << ',' << Utils::round_str(s.y(), 3, buf);
+      out << "ctx.bezierCurveTo("
+	  << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf);
+      out << ',' << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case WPainterPath::Segment::CubicC2:
-      out << ',' << Utils::round_str(s.x(), 3, buf) << ',';
-      out << Utils::round_str(s.y(), 3, buf);
+      out << ',' << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf)
+	  << ',';
+      out << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case WPainterPath::Segment::CubicEnd:
-      out << ',' << Utils::round_str(s.x(), 3, buf) << ',';
-      out << Utils::round_str(s.y(), 3, buf) << ");";
+      out << ',' << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf)
+	  << ',';
+      out << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
       break;
     case WPainterPath::Segment::ArcC:
-      out << "ctx.arc(" << Utils::round_str(s.x(), 3, buf) << ',';
-      out << Utils::round_str(s.y(), 3, buf);
+      out << "ctx.arc(" << Utils::round_str(s.x() + pathTranslation_.x(), 3,
+					    buf) << ',';
+      out << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case WPainterPath::Segment::ArcR:
       out << ',' << Utils::round_str(s.x(), 3, buf);
@@ -230,9 +253,9 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
       {
 	WPointF r = normalizedDegreesToRadians(s.x(), s.y());
 
-	out << ',' << r.x() << ',' << r.y() << ','
-	    << (s.y() > 0 ? "true" : "false")
-	    << ");";
+	out << ',' << Utils::round_str(r.x(), 3, buf);
+	out << ',' << Utils::round_str(r.y(), 3, buf);
+	out << ',' << (s.y() > 0 ? "true" : "false") << ");";
       }
       break;
     case WPainterPath::Segment::QuadC: {
@@ -252,17 +275,36 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
       const double cp2y = cp1y + (y - current.y())/3.0;
 
       // and now call cubic Bezier curve to function 
-      out << "ctx.bezierCurveTo(" << Utils::round_str(cp1x, 3, buf) << ',';
-      out << Utils::round_str(cp1y, 3, buf) << ',';
-      out << Utils::round_str(cp2x, 3, buf) << ',';
-      out << Utils::round_str(cp2y, 3, buf);
+      out << "ctx.bezierCurveTo("
+	  << Utils::round_str(cp1x + pathTranslation_.x(), 3, buf) << ',';
+      out << Utils::round_str(cp1y + pathTranslation_.y(), 3, buf) << ',';
+      out << Utils::round_str(cp2x + pathTranslation_.x(), 3, buf) << ',';
+      out << Utils::round_str(cp2y + pathTranslation_.y(), 3, buf);
 
       break;
     }
     case WPainterPath::Segment::QuadEnd:
-      out << ',' << Utils::round_str(s.x(), 3, buf) << ',';
-      out << Utils::round_str(s.y(), 3, buf) << ");";
+      out << ','
+	  << Utils::round_str(s.x() + pathTranslation_.x(), 3, buf) << ',';
+      out << Utils::round_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
     }
+  }
+}
+
+void WCanvasPaintDevice::finishPath()
+{
+  if (busyWithPath_) {
+    if (currentBrush_.style() != NoBrush) {
+      js_ << "ctx.fill();";
+    }
+
+    if (currentPen_.style() != NoPen) {
+      js_ << "ctx.stroke();";
+    }
+
+    js_ << '\n';
+
+    busyWithPath_ = false;
   }
 }
 
@@ -271,29 +313,14 @@ void WCanvasPaintDevice::drawPath(const WPainterPath& path)
   renderStateChanges();
 
   drawPlainPath(js_, path);
-
-  if (painter()->brush().style() != NoBrush) {
-    js_ << "ctx.fill();";
-  }
-
-  if (painter()->pen().style() != NoPen) {
-    js_ << "ctx.stroke();";
-  }
-
-  js_ << '\n';
 }
 
 void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
 {
-  renderStateChanges();
-
-  char buf[30];
-
-  js_ << "ctx.beginPath();"
-      << "ctx.moveTo(" << Utils::round_str(x1, 3, buf) << ',';
-  js_ << Utils::round_str(y1, 3, buf) << ");";
-  js_ << "ctx.lineTo(" << Utils::round_str(x2, 3, buf) << ',';
-  js_ << Utils::round_str(y2, 3, buf) << ");ctx.stroke();";
+  WPainterPath path;
+  path.moveTo(x1, y1);
+  path.lineTo(x2, y2);
+  drawPath(path);
 }
 
 void WCanvasPaintDevice::drawText(const WRectF& rect,
@@ -413,8 +440,17 @@ void WCanvasPaintDevice::renderStateChanges()
   if (changeFlags_ == 0)
     return;
 
+  bool brushChanged
+    = (changeFlags_ & Brush) && (currentBrush_ != painter()->brush());
+  bool penChanged
+    = (changeFlags_ & Pen) && (currentPen_ != painter()->pen());
+
   if (changeFlags_ & (Transform | Clipping)) {
+    bool resetTransform = false;
+
     if (changeFlags_ & Clipping) {
+      finishPath();
+
       js_ << "ctx.restore();ctx.restore();ctx.save();";
 
       const WTransform& t = painter()->clipPathTransform();
@@ -423,53 +459,115 @@ void WCanvasPaintDevice::renderStateChanges()
       if (painter()->hasClipping()) {
 	drawPlainPath(js_, painter()->clipPath());
 	js_ << "ctx.clip();";
+	busyWithPath_ = false;
       }
       renderTransform(js_, t, true);
 
       js_ << "ctx.save();";
-    } else
-      js_ << "ctx.restore();ctx.save();";
 
-    const WTransform& t = painter()->combinedTransform();
-    renderTransform(js_, t);
+      resetTransform = true;
+    } else if (changeFlags_ & Transform) {
+      WTransform f = painter()->combinedTransform();
 
-    changeFlags_ |= Pen | Brush;
+      resetTransform = currentTransform_ != f;
+
+      if (busyWithPath_) {
+	if (   fequal(f.m11(), currentTransform_.m11())
+	    && fequal(f.m12(), currentTransform_.m12())
+	    && fequal(f.m21(), currentTransform_.m21())
+	    && fequal(f.m22(), currentTransform_.m22())) {
+	  /*
+	   * Invert scale/rotate to compute the delta needed
+	   * before applying these transformations to get the
+	   * same as the global translation.
+	   */
+	  double det = f.m11() * f.m22() - f.m12() * f.m21();
+	  double a11 = f.m22() / det;
+	  double a12 = -f.m12() / det;
+	  double a21 = -f.m21() / det;
+	  double a22 = f.m11() / det;
+
+	  double fdx = f.dx() * a11 + f.dy() * a21;
+	  double fdy = f.dx() * a12 + f.dy() * a22;
+
+	  const WTransform& g = currentTransform_;
+
+	  double gdx = g.dx() * a11 + g.dy() * a21;
+	  double gdy = g.dx() * a12 + g.dy() * a22;
+
+	  double dx = fdx - gdx;
+	  double dy = fdy - gdy;
+
+	  pathTranslation_.setX(dx);
+	  pathTranslation_.setY(dy);
+
+	  changeFlags_ = 0;
+
+	  resetTransform = false;
+	}
+      }
+
+      if (resetTransform) {
+	finishPath();
+	js_ << "ctx.restore();ctx.save();";
+      }
+    }
+
+    if (resetTransform) {
+      currentTransform_ = painter()->combinedTransform();
+      renderTransform(js_, currentTransform_);
+      pathTranslation_.setX(0);
+      pathTranslation_.setY(0);
+
+      penChanged = true;
+      brushChanged = true;
+    }
   }
 
-  if (changeFlags_ & Pen) {
-    const WPen& pen = painter()->pen();
+  if (penChanged || brushChanged)
+    finishPath();
 
-    js_ << "ctx.strokeStyle=\"" + pen.color().cssText(true)
-	<< "\";ctx.lineWidth="
-	<< painter()->normalizedPenWidth(pen.width(), true).value()
+  if (penChanged) {
+    if (currentPen_.color() != painter()->pen().color())
+      js_ << "ctx.strokeStyle=\"" << painter()->pen().color().cssText(true)
+	  << "\";";
+
+    js_ << "ctx.lineWidth="
+	<< painter()->normalizedPenWidth(painter()->pen().width(), true).value()
 	<< ';';
 
-    switch (pen.capStyle()) {
-    case FlatCap:
-      js_ << "ctx.lineCap='butt';";
-      break;
-    case SquareCap:
-      js_ << "ctx.lineCap='square';";
-      break;
-    case RoundCap:
-      js_ << "ctx.lineCap='round';";
-    }
+    if (currentPen_.capStyle() != painter()->pen().capStyle())
+      switch (painter()->pen().capStyle()) {
+      case FlatCap:
+	js_ << "ctx.lineCap='butt';";
+	break;
+      case SquareCap:
+	js_ << "ctx.lineCap='square';";
+	break;
+      case RoundCap:
+	js_ << "ctx.lineCap='round';";
+      }
 
-    switch (pen.joinStyle()) {
-    case MiterJoin:
-      js_ << "ctx.lineJoin='miter';";
-      break;
-    case BevelJoin:
-      js_ << "ctx.lineJoin='bevel';";
-      break;
-    case RoundJoin:
-      js_ << "ctx.lineJoin='round';";
-    }
+    if (currentPen_.joinStyle() != painter()->pen().joinStyle())
+      switch (painter()->pen().joinStyle()) {
+      case MiterJoin:
+	js_ << "ctx.lineJoin='miter';";
+	break;
+      case BevelJoin:
+	js_ << "ctx.lineJoin='bevel';";
+	break;
+      case RoundJoin:
+	js_ << "ctx.lineJoin='round';";
+      }
+
+    currentPen_ = painter()->pen();
   }
 
-  if (changeFlags_ & Brush)
+  if (brushChanged) {
+    currentBrush_ = painter_->brush();
     js_ << "ctx.fillStyle=\"" 
-	<< painter()->brush().color().cssText(true) << "\";";
+	<< currentBrush_.color().cssText(true) << "\";";
+  }
 
   changeFlags_ = 0;
 }

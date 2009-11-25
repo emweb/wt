@@ -80,13 +80,17 @@ public:
 
   /*! \brief Returns the save button.
    *
-   * \sa cancelButton()
+   * This method returns a null pointer if the buttons were disabled.
+   *
+   * \sa cancelButton(), setButtonsEnabled()
    */
   WPushButton *saveButton() const { return save_; }
 
   /*! \brief Returns the cancel button.
    *
-   * \sa saveButton()
+   * This method returns a null pointer if the buttons were disabled.
+   *
+   * \sa saveButton(), setButtonsEnabled()
    */
   WPushButton *cancelButton() const { return cancel_; }
 
@@ -96,8 +100,18 @@ public:
    */
   Signal<WString>& valueChanged() { return valueChanged_; }
 
+  /*! \brief Display the Save and 'Cancel' button during editing
+   *
+   * By default, the Save and Cancel buttons are shown. Call this function
+   * with a false parameter to only show a line edit. In this mode, the
+   * enter key has the effect of the save button and the escape key has
+   * the effect of the cancel button.
+   */
+  void setButtonsEnabled(bool enabled = true);
+
 private:
   void save();
+  void cancel();
 
 private:
   Signal<WString> valueChanged_;
@@ -106,6 +120,8 @@ private:
   WLineEdit        *edit_;
   WPushButton      *save_;
   WPushButton      *cancel_;
+  boost::signals::connection c1_;
+  boost::signals::connection c2_;
 };
 
 }

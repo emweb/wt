@@ -634,6 +634,12 @@ public:
    */
   virtual void setId(const std::string& id) = 0;
 
+  /*! \brief Finds a descendend widget by name.
+   *
+   * \sa setObjectName()
+   */
+  virtual WWidget *find(const std::string& name) = 0;
+
   /*! \brief Streams the (X)HTML representation.
    *
    * Streams the widget as UTF8-encoded (HTML-compatible) XHTML.

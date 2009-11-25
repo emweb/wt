@@ -11,7 +11,6 @@
 #include <Wt/WDatePicker>
 #include <Wt/WDateValidator>
 #include <Wt/WDialog>
-#include <Wt/WImage>
 #include <Wt/WIntValidator>
 #include <Wt/WItemDelegate>
 #include <Wt/WLabel>
@@ -243,6 +242,8 @@ public:
       popup_(0),
       popupActionBox_(0)
   {
+    setCssTheme("polished");
+
     /*
      * Create the data models.
      */
@@ -313,7 +314,7 @@ private:
 
     WVBoxLayout *vbox = new WVBoxLayout();
     vbox->addWidget(fileView(), 1);
-    vbox->addWidget(pieChart(), 0);
+    vbox->addWidget(pieChart(), 1);
 
     layout->addLayout(vbox, 1, 1);
 
@@ -381,7 +382,7 @@ private:
     treeView->setSelectionMode(ExtendedSelection);
     treeView->setDragEnabled(true);
 
-    //treeView->setColumnWidth(0, 100);
+    treeView->setColumnWidth(0, 100);
     treeView->setColumnWidth(1, 150);
     treeView->setColumnWidth(2, 100);
     treeView->setColumnWidth(3, 60);
@@ -418,7 +419,6 @@ private:
     using namespace Chart;
 
     WPieChart *chart = new WPieChart();
-    chart->resize(450, 200);
     chart->setModel(fileFilterModel_);
     chart->setTitle("File sizes");
 
@@ -427,13 +427,9 @@ private:
 
     chart->setPerspectiveEnabled(true, 0.2);
     chart->setDisplayLabels(Outside | TextLabel);
+    chart->setStyleClass("about");
 
-    WContainerWidget *w = new WContainerWidget();
-    w->setContentAlignment(AlignCenter);
-    w->setStyleClass("about");
-    w->addWidget(chart);
-
-    return w;
+    return chart;
   }
 
   /*! \brief Creates the hints text.

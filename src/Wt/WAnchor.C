@@ -261,13 +261,13 @@ void WAnchor::updateDom(DomElement& element, bool all)
     switch (target_) {
     case TargetSelf:
       if (!all)
-	element.setAttribute("target", "_self");
+	element.setProperty(PropertyTarget, "_self");
       break;
     case TargetThisWindow:
-      element.setAttribute("target", "_top");
+      element.setProperty(PropertyTarget, "_top");
       break;
     case TargetNewWindow:
-      element.setAttribute("target", "_blank");
+      element.setProperty(PropertyTarget, "_blank");
     }
     flags_.reset(BIT_TARGET_CHANGED);
   }

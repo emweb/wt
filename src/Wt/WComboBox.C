@@ -190,16 +190,16 @@ void WComboBox::updateDom(DomElement& element, bool all)
 
     for (int i = 0; i < count(); ++i) {
       DomElement *item = DomElement::createNew(DomElement_OPTION);
-      item->setAttribute("value", boost::lexical_cast<std::string>(i));
-      item->setProperty(Wt::PropertyInnerHTML,
+      item->setProperty(PropertyValue, boost::lexical_cast<std::string>(i));
+      item->setProperty(PropertyInnerHTML,
 			escapeText(asString(model_->data(i, modelColumn_)))
 			.toUTF8());
       if (isSelected(i))
-	item->setProperty(Wt::PropertySelected, "true");
+	item->setProperty(PropertySelected, "true");
 
       WString sc = asString(model_->data(i, modelColumn_, StyleClassRole));
       if (!sc.empty())
-	item->setAttribute("class", sc.toUTF8());
+	item->setProperty(PropertyClass, sc.toUTF8());
 
       element.addChild(item);
     }
@@ -208,7 +208,7 @@ void WComboBox::updateDom(DomElement& element, bool all)
   }
 
   if (selectionChanged_) {
-    element.setProperty(Wt::PropertySelectedIndex,
+    element.setProperty(PropertySelectedIndex,
 			boost::lexical_cast<std::string>(currentIndex_));
     selectionChanged_ = false;
   }

@@ -25,6 +25,7 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   : WApplication(env)
 {
   setTitle("Wt widgets demo");
+  setCssTheme("polished");
   // load text bundles (for the tr() function)
   messageResourceBundle().use("text");
   messageResourceBundle().use("charts");

@@ -58,6 +58,90 @@ namespace {
 
 namespace Wt {
 
+class ToggleButtonConfig
+{
+public:
+  ToggleButtonConfig(WWidget *parent) : toggleJS_(0)
+  {
+    toggleJS_ = new JSlot(parent);
+  }
+
+  ~ToggleButtonConfig() {
+    delete toggleJS_;
+  }
+
+  void addState(const std::string& className) {
+    states_.push_back(className);
+  }
+
+  void generate() {
+    WApplication *app = WApplication::instance();
+
+    std::stringstream js;
+    js << 
+      "function(s, e) {"
+      """var states = new Array(";
+
+    for (unsigned i = 0; i < states_.size(); ++i) {
+      if (i != 0)
+	js << ',';
+      js << '\'' << states_[i] << '\'';
+    }
+
+    js <<
+      """), i, il;"
+      """for (i=0; i<" << states_.size() << "; ++i) {"
+      ""  "if (s.className == states[i]) {"
+      "" << app->javaScriptClass() << ".emit(s, 't-'+s.className);"
+      ""    "s.className = states[(i+1) % " << states_.size() << "];"
+      ""    "break;"
+      ""  "}"
+      """}"
+      "}";
+    
+    toggleJS_->setJavaScript(js.str());
+  }
+
+  const std::vector<std::string>& states() const { return states_; }
+
+private:
+  std::vector<std::string> states_;
+  JSlot *toggleJS_;
+
+  friend class ToggleButton;
+};
+
+class ToggleButton : public Wt::WText
+{
+public:
+  ToggleButton(ToggleButtonConfig *config, WContainerWidget *parent = 0) 
+    : WText(parent),
+      config_(config)
+  {
+    setInline(false);
+    clicked().connect(*config_->toggleJS_);
+
+    for (unsigned i = 0; i < config_->states().size(); ++i)
+      signals_.push_back(new JSignal<>(this, "t-" + config_->states()[i]));
+  }
+
+  virtual ~ToggleButton() {
+    for (unsigned i = 0; i < signals_.size(); ++i)
+      delete signals_[i];
+  }
+
+  JSignal<>& signal(int i) { return *signals_[i]; }
+
+  void setState(int i)
+  {
+    setStyleClass(config_->states()[i]);
+  }
+
+private:
+  std::vector<JSignal<> *> signals_;
+  ToggleButtonConfig      *config_;
+};
+
 class RowSpacer : public Wt::WWebWidget
 {
 public:
@@ -67,7 +151,7 @@ public:
   {
     setRows(height);
     setInline(false);
-    setStyleClass("spacer");
+    setStyleClass("Wt-spacer");
   }
 
   void setRows(int height, bool force = false);
@@ -157,8 +241,8 @@ private:
   WTreeViewNode *parentNode_;
 
   bool           childrenLoaded_;
-  WIconPair     *expandIcon_;
-  WImage        *noExpandIcon_;
+  ToggleButton  *expandButton_;
+  WText         *noExpandIcon_;
 
   void loadChildren();
 
@@ -199,7 +283,7 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
     childrenHeight_(childrenHeight),
     parentNode_(parent),
     childrenLoaded_(false),
-    expandIcon_(0),
+    expandButton_(0),
     noExpandIcon_(0)
 {
   setStyleClass("Wt-tv-node");
@@ -222,7 +306,9 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
     childrenHeight_ = 0;
 
   if (index_ != view_->rootIndex()) {
-    elementAt(0, 1)->setStyleClass("c1 rh");
+    elementAt(0, 1)->setStyleClass("c1");
+    WContainerWidget *w = new WContainerWidget(elementAt(0, 1));
+    w->setStyleClass("rh c1div");
 
     updateGraphics(isLast, view_->model()->rowCount(index_) == 0);
     insertColumns(0, view_->columnCount());
@@ -233,7 +319,8 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
       renderSelected(true, 0);
 
   } else
-    elementAt(0, 0)->resize(1, WLength::Auto);
+    if (WApplication::instance()->environment().agentIsIE())
+      elementAt(0, 0)->resize(1, WLength::Auto); 
 
   view_->addRenderedNode(this);
 }
@@ -271,8 +358,8 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
     return;
 
   if (index_.parent() == view_->rootIndex() && !view_->rootIsDecorated()) {
-    delete expandIcon_;
-    expandIcon_ = 0;
+    delete expandButton_;
+    expandButton_ = 0;
     delete noExpandIcon_;
     noExpandIcon_ = 0;
     elementAt(0, 0)->setStyleClass("c0");
@@ -282,24 +369,28 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
   }
 
   if (!isEmpty) {
-    if (!expandIcon_) {
+    if (!expandButton_) {
       delete noExpandIcon_;
       noExpandIcon_ = 0;
-      expandIcon_ = new WIconPair(view_->imagePack() + "nav-plus.gif",
-				  view_->imagePack() + "nav-minus.gif");
-      elementAt(0, 0)->addWidget(expandIcon_);
+      expandButton_ = new ToggleButton(view_->expandConfig_);
+      if (WApplication::instance()->environment().agentIsIE())
+	expandButton_->resize(19, WLength::Auto);
+      elementAt(0, 0)->addWidget(expandButton_);
 
-      expandIcon_->icon1Clicked().connect(SLOT(this, WTreeViewNode::doExpand));
-      expandIcon_->icon2Clicked().connect(SLOT(this, WTreeViewNode::doCollapse));
+      expandButton_->signal(0).connect(SLOT(this, WTreeViewNode::doExpand));
+      expandButton_->signal(1).connect(SLOT(this, WTreeViewNode::doCollapse));
 
-      if (isExpanded())
-	expandIcon_->setState(1);
+      expandButton_->setState(isExpanded() ? 1 : 0);
     }
   } else {
     if (!noExpandIcon_) {
-      delete expandIcon_;
-      expandIcon_ = 0;
-      noExpandIcon_ = new WImage(view_->imagePack() + "line-middle.gif");
+      delete expandButton_;
+      expandButton_ = 0;
+      noExpandIcon_ = new WText();
+      noExpandIcon_->setInline(false);
+      noExpandIcon_->setStyleClass("Wt-noexpand");
+      if (WApplication::instance()->environment().agentIsIE())
+	noExpandIcon_->resize(19, WLength::Auto);
       elementAt(0, 0)->addWidget(noExpandIcon_);
     }
   }
@@ -316,7 +407,8 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
 void WTreeViewNode::insertColumns(int column, int count)
 {
   WTableCell *tc = elementAt(0, 1);
-  tc->clear();
+  WContainerWidget *w = dynamic_cast<WContainerWidget *>(tc->widget(0));
+  w->clear();
 
   if (view_->columnCount() > 1) {
     WContainerWidget *row = new WContainerWidget();
@@ -329,7 +421,7 @@ void WTreeViewNode::insertColumns(int column, int count)
     }
 
     row->setStyleClass("Wt-tv-row rh");
-    tc->insertWidget(0, row);
+    w->insertWidget(0, row);
   }
 
   update(0, view_->columnCount() - 1);
@@ -354,6 +446,7 @@ WModelIndex WTreeViewNode::childIndex(int column)
 void WTreeViewNode::setWidget(int column, WWidget *newW, bool replace)
 {
   WTableCell *tc = elementAt(0, 1);
+  WContainerWidget *w = dynamic_cast<WContainerWidget *>(tc->widget(0));
 
   WWidget *current = replace ? widget(column) : 0;
 
@@ -370,11 +463,11 @@ void WTreeViewNode::setWidget(int column, WWidget *newW, bool replace)
 
   if (column == 0) {
     if (current)
-      tc->removeWidget(current);
+      w->removeWidget(current);
 
-    tc->addWidget(newW);
+    w->addWidget(newW);
   } else {
-    WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
+    WContainerWidget *row = dynamic_cast<WContainerWidget *>(w->widget(0));
     if (view_->column1Fixed_)
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
@@ -394,11 +487,12 @@ void WTreeViewNode::setWidget(int column, WWidget *newW, bool replace)
 WWidget *WTreeViewNode::widget(int column)
 {
   WTableCell *tc = elementAt(0, 1);
+  WContainerWidget *w = dynamic_cast<WContainerWidget *>(tc->widget(0));
 
   if (column == 0)
-    return tc->count() > 1 ? tc->widget(tc->count() - 1) : 0;
+    return w->count() > 1 ? w->widget(w->count() - 1) : 0;
   else {
-    WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
+    WContainerWidget *row = dynamic_cast<WContainerWidget *>(w->widget(0));
     if (view_->column1Fixed_)
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
@@ -413,8 +507,8 @@ void WTreeViewNode::doExpand()
 
   loadChildren();
 
-  if (expandIcon_)
-    expandIcon_->setState(1);
+  if (expandButton_)
+    expandButton_->setState(1);
 
   view_->expandedSet_.insert(index_);
 
@@ -433,8 +527,8 @@ void WTreeViewNode::doCollapse()
   if (!isExpanded())
     return;
 
-  if (expandIcon_)
-    expandIcon_->setState(0);
+  if (expandButton_)
+    expandButton_->setState(0);
 
   view_->setCollapsed(index_);
 
@@ -704,13 +798,13 @@ int WTreeViewNode::renderedRow(WTreeViewNode *node,
 void WTreeViewNode::renderSelected(bool selected, int column)
 {
   if (view_->selectionBehavior() == SelectRows)
-    rowAt(0)->setStyleClass(selected ? "selected" : "");
+    rowAt(0)->setStyleClass(selected ? "Wt-selected" : "");
   else {
     WWidget *w = widget(column);
     if (selected)
-      w->setStyleClass(Utils::addWord(w->styleClass().toUTF8(), "selected"));
+      w->setStyleClass(Utils::addWord(w->styleClass().toUTF8(), "Wt-selected"));
     else
-      w->setStyleClass(Utils::eraseWord(w->styleClass().toUTF8(), "selected"));
+      w->setStyleClass(Utils::eraseWord(w->styleClass().toUTF8(), "Wt-selected"));
   }
 }
 
@@ -772,7 +866,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
     itemDelegate_(new WItemDelegate(this)),
     selectionModel_(new WItemSelectionModel(0, this)),
     rowHeight_(20),
-    headerHeight_(20),
+    headerLineHeight_(20),
     rootNode_(0),
     borderColorRule_(0),
     alternatingRowColors_(false),
@@ -817,6 +911,14 @@ WTreeView::WTreeView(WContainerWidget *parent)
   clickedForSortMapper_->mapped().connect(SLOT(this,
 					     WTreeView::toggleSortColumn));
 
+  clickedForCollapseMapper_ = new WSignalMapper<int>(this);
+  clickedForCollapseMapper_->mapped().connect(SLOT(this,
+						   WTreeView::collapseColumn));
+
+  clickedForExpandMapper_ = new WSignalMapper<int>(this);
+  clickedForExpandMapper_->mapped().connect(SLOT(this,
+						 WTreeView::expandColumn));
+
   if (!app->environment().ajax()) {
     clickedMapper_ = new WSignalMapper<WModelIndex>(this);
     clickedMapper_->mapped().connect(SLOT(this, WTreeView::handleClick));
@@ -826,64 +928,47 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   setStyleClass("Wt-treeview");
 
-  imagePack_ = WApplication::resourcesUrl();
-
   const char *CSS_RULES_NAME = "Wt::WTreeView";
 
+  expandConfig_ = new ToggleButtonConfig(this);
+  expandConfig_->addState("Wt-expand");
+  expandConfig_->addState("Wt-collapse");
+  expandConfig_->generate();
+
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    app->styleSheet().addRule
-      (".Wt-treeview",
-       "font-family: verdana,helvetica,tahoma,sans-serif;"
-       "font-size: 10pt;"
-       "cursor: default;", CSS_RULES_NAME);
-
-    app->styleSheet().addRule
-      (".Wt-treeview .spacer",
-       "background: url(" + imagePack_ + "loading.png);");
-
     /* header */
     app->styleSheet().addRule
-      (".Wt-treeview .header-div",
+      (".Wt-treeview .Wt-headerdiv",
        "-moz-user-select: none;"
        "-khtml-user-select: none;"
        "user-select: none;"
        "background-color: #EEEEEE;"
        "overflow: hidden;"
-       "width: 100%;");
+       "width: 100%;", CSS_RULES_NAME);
 
-    app->styleSheet().addRule
-      (".Wt-treeview .header .Wt-label",
-       std::string() + "white-space: normal;"
-       "font-weight: bold;"
-       "text-overflow: ellipsis;"
-       + (app->environment().agentIsIE() ? "zoom: 1;" : "") + 
-       "overflow: hidden;");
-
-
-    /* nodes */
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-trunk",
-       "background: url(" + imagePack_ + "line-trunk.gif) repeat-y;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-end",
-       "background: url(" + imagePack_ + "tv-line-last.gif) no-repeat 0 center;");
+    if (app->environment().agentIsIE())
+      app->styleSheet().addRule
+	(".Wt-treeview .Wt-header .Wt-label",
+	 "zoom: 1;");
 
     app->styleSheet().addRule
       (".Wt-treeview table", "width: 100%");
 
     app->styleSheet().addRule
-      (".Wt-treeview td.c1", "width: 100%");
+      (".Wt-treeview .c1", "width: 100%");
 
     app->styleSheet().addRule
-      (".Wt-treeview td.c0",
-       "width: 1px; vertical-align: middle");
+      (".Wt-treeview .c1div", "overflow: hidden; width: 100%");
+
+    app->styleSheet().addRule
+      (".Wt-treeview .c0",
+       "width: 19px; vertical-align: middle");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-row", "float: right; overflow: hidden;");
 
     app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-c",
+      (".Wt-treeview .Wt-tv-row .Wt-tv-c",
        "display: block; float: left;"
        "padding: 0px 3px;"
        "text-overflow: ellipsis;"
@@ -908,16 +993,16 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "float: right; width: 4px; cursor: col-resize;"
        "padding-left: 0px;");
 
-    if (app->environment().agentIsIE())
+    if (app->environment().agentIsIE()) {
       app->styleSheet().addRule
-	(".Wt-treeview .header .Wt-tv-c",
+	(".Wt-treeview .Wt-header .Wt-tv-c",
 	 "padding: 0px;"
-	 "padding-left: 6px;");
-    else
+	 "padding-left: 7px;");
+    } else
       app->styleSheet().addRule
-	(".Wt-treeview .header .Wt-tv-c",
+	(".Wt-treeview .Wt-header .Wt-tv-c",
 	 "padding: 0px;"
-	 "margin-left: 6px;");
+	 "margin-left: 7px;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-rh:hover",
@@ -927,7 +1012,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
       (".Wt-treeview div.Wt-tv-rhc0",
        "float: left; width: 4px;");
 
-    /* sort handles */
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh",
        "float: right; width: 16px; "
@@ -938,30 +1022,34 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "float: right; width: 16px; "
        "margin-top: 6px; margin-right: 4px; cursor: pointer; cursor:hand;");
 
+    /* borders: needed here for IE */
+    app->styleSheet().addRule
+      (".Wt-treeview .Wt-tv-br, "                     // header columns 1-n
+       ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c", // data columns 1-n
+       "border-right: 1px solid #FFFFFF;");
+    app->styleSheet().addRule
+      (".Wt-treeview .header .Wt-tv-row, "    // header column 0
+       ".Wt-treeview .Wt-tv-node .Wt-tv-row", // data column 0
+       "border-left: 1px solid #FFFFFF;");
+
+    /* sort handles */
+    app->styleSheet().addRule
+      (".Wt-treeview .Wt-tv-sh", std::string() +
+       "float: right; width: 16px; height: 10px;"
+       + (app->environment().agent() != WEnvironment::IE6 ?
+	  "margin-top: 6px;" : "") +
+       "cursor: pointer; cursor:hand;");
+
+    app->styleSheet().addRule
+      (".Wt-treeview .Wt-tv-sh-nrh", std::string() + 
+       "float: right; width: 16px; height: 10px;"
+       + (app->environment().agent() != WEnvironment::IE6 ?
+	  "margin-top: 6px;" : "") +
+       "margin-right: 4px;"
+       "cursor: pointer; cursor:hand;");
+
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-shc0", "float: left;");
-
-    /* selection */
-    app->styleSheet().addRule
-      (".Wt-treeview .selected",
-       "background-color: #FFFFAA;");
-
-    /* item drag & drop */
-    app->styleSheet().addRule
-      (".Wt-treeview .drop-site",
-       "background-color: #EEEEEE;"
-       "outline: 1px dotted black;");
-
-    /* borders */
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-row .Wt-tv-c",
-       "border-right: 1px solid;");
-    app->styleSheet().addRule
-      (".Wt-treeview .header .Wt-tv-row, "
-       ".Wt-treeview .Wt-tv-node .Wt-tv-row",
-       "border-left: 1px solid;");
-
-    setColumnBorder(white /* WColor(0xD0, 0xD0, 0xD0) */);
 
     /* bottom scrollbar */
     if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
@@ -971,13 +1059,17 @@ WTreeView::WTreeView(WContainerWidget *parent)
     if (app->environment().agentIsIE())
       app->styleSheet().addRule
 	(".Wt-treeview .Wt-scroll",
-	 "position: absolute; overflow-x: scroll; height: " SCROLLBAR_WIDTH_TEXT "px;");
+	 "position: absolute; overflow-x: scroll;"
+	 "height: " SCROLLBAR_WIDTH_TEXT "px;");
     else
       app->styleSheet().addRule
-	(".Wt-treeview .Wt-scroll", "overflow: scroll; height: " SCROLLBAR_WIDTH_TEXT "px;");
+	(".Wt-treeview .Wt-scroll", "overflow: scroll;"
+	 "height: " SCROLLBAR_WIDTH_TEXT "px;");
     app->styleSheet().addRule
       (".Wt-treeview .Wt-scroll div", "height: 1px;");
   }
+
+  setColumnBorder(white);
 
   app->styleSheet().addRule("#" + id() + " .cwidth", "height: 1px;");
 
@@ -985,12 +1077,12 @@ WTreeView::WTreeView(WContainerWidget *parent)
   app->styleSheet().addRule
     ("#" + id() + "dw",
      "width: 32px; height: 32px;"
-     "background: url(" + imagePack_ + "items-not-ok.gif);");
+     "background: url(" + WApplication::resourcesUrl() + "items-not-ok.gif);");
 
   app->styleSheet().addRule
-    ("#" + id() + "dw.valid-drop",
+    ("#" + id() + "dw.Wt-valid-drop",
      "width: 32px; height: 32px;"
-     "background: url(" + imagePack_ + "items-ok.gif);");
+     "background: url(" + WApplication::resourcesUrl() + "items-ok.gif);");
 
   rowHeightRule_ = new WCssTemplateRule("#" + id() + " .rh");
   app->styleSheet().addRule(rowHeightRule_);
@@ -1020,14 +1112,14 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   layout->addWidget(headerContainer_ = new WContainerWidget());
   headerContainer_->setOverflow(WContainerWidget::OverflowHidden);
-  headerContainer_->setStyleClass("header headerrh cwidth");
+  headerContainer_->setStyleClass("Wt-header headerrh cwidth");
   headers_ = new WContainerWidget(headerContainer_);
-  headers_->setStyleClass("header-div headerrh");
+  headers_->setStyleClass("Wt-headerdiv headerrh");
   headers_->setSelectable(false);
 
   headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh");
   app->styleSheet().addRule(headerHeightRule_);
-  setHeaderHeight(headerHeight_);
+  setHeaderHeight(headerLineHeight_);
 
   contentsContainer_ = new WContainerWidget();
   contentsContainer_->setStyleClass("cwidth");
@@ -1068,7 +1160,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""    "nodeId = t.id;"
      ""    "break;"
      ""  "}"
-     ""  "if (t.className === 'selected')"
+     ""  "if (t.className === 'Wt-selected')"
      ""    "selected = true;"
      ""  "t = t.parentNode;"
      ""  "if (" WT_CLASS ".hasTag(t, 'BODY'))"
@@ -1126,14 +1218,16 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""    "hh=h.firstChild;"
      """if (lastx != null && lastx != '') {"
      ""  "nowxy = WT.pageCoordinates(event);"
-     ""  "var parent = obj.parentNode,"
+     ""  "var parent = obj.parentNode.parentNode,"
      ""      "diffx = Math.max(nowxy.x - lastx, -parent.offsetWidth),"
      ""      "c = parent.className.split(' ')[2];"
+     ""  "if (c == 'unselectable')"
+     ""    "c = null;"
      ""  "if (c) {"
      ""    "var r = WT.getCssRule('#" + id() + " .' + c),"
      ""        "tw = WT.pxself(r, 'width');"
      ""    "if (tw == 0) tw = parent.offsetWidth;" 
-     ""    "r.style.width = (tw + diffx) + 'px';"
+     ""    "r.style.width = Math.max(0, tw + diffx) + 'px';"
      ""  "}"
      + jsRef() + ".adjustHeaderWidth(c, diffx);"
      ""  "obj.setAttribute('dsx', nowxy.x);"
@@ -1216,9 +1310,9 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""    "if (w > 0) {"
      ""      "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width = w + 'px';"
      ""      "var extra = "
-     ""        "hh.childNodes.length > 1"
+     ""      "hh.childNodes.length > 1"
      // all browsers except for IE6 would do with 21 : 6
-     ""          "? (WT.hasTag(hh.childNodes[1], 'IMG') ? 22 : 7) : 0;"
+     ""        "? (hh.childNodes[1].className.indexOf('Wt-tv-sh') != -1 ? 22 : 7) : 0;"
      ""      "hh.style.width= (w + extra) + 'px';"
      ""    "}"
      ""  "} else if (contentstoo) {"
@@ -1252,8 +1346,8 @@ void WTreeView::refresh()
     ""  "extra=" + (column1Fixed_ ? "1" : "4") + ""
     ""     "+ (hh.childNodes.length > 1"
     // all browsers except for IE6 would do with 17 : 6
-    ""        "? (WT.hasTag(hh.childNodes[1], 'IMG') ? 18 : 7)"
-    ""        ": 0);"
+    ""       "? (hh.childNodes[1].className.indexOf('Wt-tv-sh') != -1 ? 18 : 7)"
+    ""       ": 0);"
 
     "if(" + jsRef() + ".offsetWidth == 0) return;"
 
@@ -1261,13 +1355,14 @@ void WTreeView::refresh()
     """if (hc.childNodes[i].className) {" // IE may have only a text node
     ""  "var cl = hc.childNodes[i].className.split(' ')[2],"
     ""      "r = WT.getCssRule('#" + id() + " .' + cl);"
-         // 7 = 2 x 3px (padding) + 1px (border)
+         // 7 = 2 * 3px (padding) + 1px border
     ""  "totalw += WT.pxself(r, 'width') + 7;"
     """}"
     "}"
 
     "var cw = WT.pxself(hh, 'width'),"
-    ""  "hdiff = c ? (cw == 0 ? 0 : (totalw - (cw - extra))) : diffx;";
+    ""  "hdiff = c ? (cw == 0 ? 0 : (totalw - (cw - extra))) : diffx;\n";
+    //"alert(hh + ' ' + cw + ' ' + totalw + ' -> ' + hdiff);";
   if (!column1Fixed_)
     columnsWidth +=
       "t.style.width = (t.offsetWidth + hdiff) + 'px';"
@@ -1314,10 +1409,10 @@ void WTreeView::refresh()
      ""    + itemEvent_.createCall("item.nodeId", "item.columnId", "'drop'",
 				   "sourceId", "mimeType") + ";"
      ""  "} else {"
-     ""    "object.className = 'valid-drop';"
+     ""    "object.className = 'Wt-valid-drop';"
      ""    "self.dropEl = item.el;"
      ""    "self.dropEl.classNameOrig = self.dropEl.className;"
-     ""    "self.dropEl.className = self.dropEl.className + ' drop-site';"
+     ""    "self.dropEl.className = self.dropEl.className + ' Wt-drop-site';"
      ""  "}"
      """} else {"
      ""  "object.className = '';"
@@ -1376,6 +1471,8 @@ void WTreeView::load()
 
 WTreeView::~WTreeView()
 { 
+  delete expandConfig_;
+
   impl_->clear();
   delete rowHeightRule_;
 
@@ -1466,10 +1563,8 @@ void WTreeView::setColumnAlignment(int column, AlignmentFlag alignment)
     if (align)
       w->setAttributeValue("style", std::string("text-align: ") + align);
   } else
-    if (alignment == AlignRight) {
+    if (alignment == AlignRight)
       w->setFloatSide(Right);
-      //w->setAttributeValue("style", "float: right;");
-    }
 }
 
 AlignmentFlag WTreeView::columnAlignment(int column) const
@@ -1502,10 +1597,12 @@ void WTreeView::setColumnBorder(const WColor& color)
 {
   delete borderColorRule_;
   borderColorRule_
-    = new WCssTextRule(".Wt-treeview .Wt-tv-row .Wt-tv-c, "
-		       ".Wt-treeview .header .Wt-tv-row, "
-		       ".Wt-treeview .Wt-tv-node .Wt-tv-row",
-		       "border-color: " + color.cssText());
+    = new WCssTextRule
+    (".Wt-treeview .Wt-tv-br, "             // header columns 1-n
+     ".Wt-treeview .header .Wt-tv-row, "    // header column 0
+     ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c, "   // data columns 1-n
+     ".Wt-treeview .Wt-tv-node .Wt-tv-row", // data column 0
+     "border-color: " + color.cssText());
   WApplication::instance()->styleSheet().addRule(borderColorRule_);
 }
 
@@ -1537,7 +1634,7 @@ void WTreeView::setRootNodeStyle()
 
   if (alternatingRowColors_)
     rootNode_->decorationStyle().setBackgroundImage
-      (imagePack_ + "stripes/stripe-"
+      (WApplication::resourcesUrl() + "stripes/stripe-"
        + boost::lexical_cast<std::string>
          (static_cast<int>(rowHeight_.toPixels()))
        + "px.gif");
@@ -1564,17 +1661,20 @@ void WTreeView::setRowHeight(const WLength& rowHeight)
 
 void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
 {
-  headerHeight_ = height;
+  headerLineHeight_ = height;
   multiLineHeader_ = multiLine;
 
-  headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight_);
+  int lineCount = headerLevelCount();
+  WLength headerHeight = headerLineHeight_ * lineCount;
+
+  headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);
   if (!multiLineHeader_)
-    headerHeightRule_->templateWidget()->setLineHeight(headerHeight_);
+    headerHeightRule_->templateWidget()->setLineHeight(headerLineHeight_);
   else
     headerHeightRule_->templateWidget()->setLineHeight(WLength::Auto);
 
-  headers_->resize(headers_->width(), headerHeight_);
-  headerContainer_->resize(headerContainer_->width(), headerHeight_);
+  headers_->resize(headers_->width(), headerHeight);
+  headerContainer_->resize(headerContainer_->width(), headerHeight);
 
   if (renderState_ >= NeedRerenderHeader)
     return;
@@ -1583,6 +1683,20 @@ void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
   if (!WApplication::instance()->environment().agentIsIE())
     for (int i = 1; i < columnCount(); ++i)
       headerTextWidget(i)->setWordWrap(multiLine);
+}
+
+int WTreeView::headerLevelCount() const
+{
+  int result = 0;
+
+  if (model_)
+    for (int i = 0; i < columns_.size(); ++i) {
+      int l = static_cast<int>(asNumber(model_->headerData(i, Horizontal,
+							   LevelRole)));
+      result = std::max(result, l);			
+    }
+
+  return result + 1;
 }
 
 void WTreeView::resize(const WLength& width, const WLength& height)
@@ -1673,6 +1787,7 @@ void WTreeView::setModel(WAbstractItemModel *model)
   configureModelDragDrop();
 
   scheduleRerender(NeedRerender);
+  setHeaderHeight(headerLineHeight_, multiLineHeader_);
 }
 
 void WTreeView::setRootIndex(const WModelIndex& rootIndex)
@@ -1774,6 +1889,8 @@ void WTreeView::scheduleRerender(RenderState what)
 
 void WTreeView::rerenderHeader()
 {
+  WApplication *app = WApplication::instance();
+
   for (int i = 0; i < columnCount(); ++i) {
     WWidget *w = columnInfo(i).extraHeaderWidget;
     if (!w)
@@ -1784,7 +1901,6 @@ void WTreeView::rerenderHeader()
 
   headers_->clear();
 
-  /* cols 1.. */
   WContainerWidget *rowc = new WContainerWidget(headers_);
   rowc->setFloatSide(Right);
   WContainerWidget *row = new WContainerWidget(rowc);
@@ -1797,10 +1913,15 @@ void WTreeView::rerenderHeader()
 
   /* sort and resize handles for col 0 */
   if (columnInfo(0).sorting) {
-    WImage *sortIcon = new WImage(rowc);
-      sortIcon->setStyleClass(columnResize_ ? "Wt-tv-sh Wt-tv-shc0"
-			      : "Wt-tv-sh-nrh Wt-tv-shc0");
-    sortIcon->setImageRef(imagePack_ + "sort-arrow-none.gif");
+    WText *sortIcon = new WText(rowc);
+    sortIcon->setObjectName("sort");
+    sortIcon->setInline(false);
+    if (!columnResize_)
+      sortIcon->setMargin(4, Right);
+    if (!app->environment().agentIsIE())
+      sortIcon->setMargin(6, Top);
+    sortIcon->setFloatSide(Left);
+    sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
     clickedForSortMapper_->mapConnect(sortIcon->clicked(), 0);
   }
 
@@ -1812,7 +1933,7 @@ void WTreeView::rerenderHeader()
     resizeHandle->mouseMoved().connect(resizeHandleMMovedJS_);
   }
 
-  WApplication *app = WApplication::instance();
+  /* cols 1.. */
   for (int i = 1; i < columnCount(); ++i) {
     WWidget *w = createHeaderWidget(app, i);
     row->addWidget(w);
@@ -1820,6 +1941,7 @@ void WTreeView::rerenderHeader()
 
   /* col 0 */
   WText *t = new WText("&nbsp;");
+  t->setObjectName("text");
   if (columnCount() > 0)
     if (!multiLineHeader_)
       t->setStyleClass(columnStyleClass(0) + " headerrh Wt-label");
@@ -1840,37 +1962,78 @@ void WTreeView::rerenderHeader()
   if (currentSortColumn_ != -1) {
     SortOrder order = columnInfo(currentSortColumn_).sortOrder;
     headerSortIconWidget(currentSortColumn_)
-      ->setImageRef(imagePack_ + (order == AscendingOrder ? "sort-arrow-up.gif"
-				  : "sort-arrow-down.gif"));
+      ->setStyleClass(order == AscendingOrder
+		      ? "Wt-tv-sh Wt-tv-sh-up" : "Wt-tv-sh Wt-tv-sh-down");
   }
 
   if (model_)
     modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
 }
 
+std::string repeat(const std::string& s, int times)
+{
+  std::string result;
+  for (int i = 0; i < times; ++i) {
+    result += s;
+  }
+  return result;
+}
+
 WWidget *WTreeView::createHeaderWidget(WApplication *app, int column)
 {
-  ColumnInfo& info = columnInfo(column);
-  WContainerWidget *w = new WContainerWidget();
-  w->setStyleClass("Wt-tv-c headerrh " + info.styleClass());
-  w->setContentAlignment(info.headerAlignment);
+  static const char *OneLine = "<div>&nbsp;</div>";
 
-  if (columnResize_) {
-    WContainerWidget *resizeHandle = new WContainerWidget(w);
-    resizeHandle->setStyleClass("Wt-tv-rh headerrh");
-    resizeHandle->mouseWentDown().connect(resizeHandleMDownJS_);
-    resizeHandle->mouseWentUp().connect(resizeHandleMUpJS_);
-    resizeHandle->mouseMoved().connect(resizeHandleMMovedJS_);
+  int headerLevel
+    = model_ 
+    ? static_cast<int>(asNumber(model_->headerData(column, Horizontal,
+						   LevelRole))) : 0;
+
+  int rightBorderLevel = headerLevel;
+  if (model_ && column + 1 < columnCount()) {
+    WFlags<HeaderFlag> flagsLeft = model_->headerFlags(column);
+    WFlags<HeaderFlag> flagsRight = model_->headerFlags(column + 1);
+
+    int rightHeaderLevel 
+      = static_cast<int>(asNumber(model_->headerData(column + 1, Horizontal,
+						     LevelRole)));
+
+    if (flagsLeft & ColumnIsExpandedRight)
+      rightBorderLevel = headerLevel + 1;
+    else if (flagsRight & ColumnIsExpandedLeft)
+      rightBorderLevel = rightHeaderLevel + 1;
+    else
+      rightBorderLevel = std::min(headerLevel, rightHeaderLevel);
   }
 
+  ColumnInfo& info = columnInfo(column);
+  WContainerWidget *w = new WContainerWidget();
+  w->setObjectName("contents");
+
   if (info.sorting) {
-    WImage *sortIcon = new WImage(w);
-    sortIcon->setStyleClass(columnResize_ ? "Wt-tv-sh" : "Wt-tv-sh-nrh");
-    sortIcon->setImageRef(imagePack_ + "sort-arrow-none.gif");
+    WText *sortIcon = new WText(w);
+    sortIcon->setObjectName("sort");
+    sortIcon->setInline(false);
+    if (!columnResize_)
+      sortIcon->setMargin(4, Right);
+    sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
     clickedForSortMapper_->mapConnect(sortIcon->clicked(), info.id);
   }
 
+  if (model_->headerFlags(column)
+      & (ColumnIsExpandedLeft | ColumnIsExpandedRight)) {
+    WImage *collapseIcon = new WImage(w);
+    collapseIcon->setFloatSide(Left);
+    collapseIcon->setImageRef(WApplication::resourcesUrl() + "minus.gif");
+    clickedForCollapseMapper_->mapConnect(collapseIcon->clicked(), info.id);
+  } else if (model_->headerFlags(column) & ColumnIsCollapsed) {
+    WImage *expandIcon = new WImage(w);
+    expandIcon->setFloatSide(Left);
+    expandIcon->setImageRef(WApplication::resourcesUrl() + "plus.gif");
+    clickedForExpandMapper_->mapConnect(expandIcon->clicked(), info.id);
+  }    
+
   WText *t = new WText("&nbsp;", w);
+  t->setObjectName("text");
   t->setStyleClass("Wt-label");
   t->setInline(false);
   if (multiLineHeader_ || app->environment().agentIsIE())
@@ -1881,7 +2044,59 @@ WWidget *WTreeView::createHeaderWidget(WApplication *app, int column)
   if (columnInfo(column).extraHeaderWidget)
     w->addWidget(columnInfo(column).extraHeaderWidget);
 
-  return w;
+  WContainerWidget *result = new WContainerWidget();
+  result->setFloatSide(Left);
+
+  if (headerLevel) {
+    WContainerWidget *spacer = new WContainerWidget(result);
+    t = new WText(spacer);
+    t->setInline(false);
+
+    if (rightBorderLevel < headerLevel) {
+      if (rightBorderLevel) {
+	t->setText(repeat(OneLine, rightBorderLevel));
+	spacer = new WContainerWidget(result);
+	t = new WText(spacer);
+	t->setInline(false);
+      }
+      t->setText(repeat(OneLine, headerLevel - rightBorderLevel));
+      spacer->setStyleClass("Wt-tv-br");
+    } else {
+      t->setText(repeat(OneLine, headerLevel));
+    }
+  }
+
+  w->setStyleClass(w->styleClass()
+		   + (rightBorderLevel <= headerLevel ? " Wt-tv-br" : ""));
+
+  result->addWidget(w);
+  result->setStyleClass("Wt-tv-c headerrh " + info.styleClass());
+  result->setContentAlignment(info.headerAlignment);
+
+  if (columnResize_) {
+    WContainerWidget *resizeHandle = new WContainerWidget();
+    resizeHandle->setStyleClass("Wt-tv-rh headerrh");
+    resizeHandle->mouseWentDown().connect(resizeHandleMDownJS_);
+    resizeHandle->mouseWentUp().connect(resizeHandleMUpJS_);
+    resizeHandle->mouseMoved().connect(resizeHandleMMovedJS_);
+
+    bool ie = wApp->environment().agentIsIE();
+    WContainerWidget *parent = ie ? w
+      : dynamic_cast<WContainerWidget *>(result->widget(0));
+    parent->insertWidget(0, resizeHandle);
+
+    if (ie) {
+      parent->setAttributeValue("style", "zoom: 1");
+      parent->resize(WLength::Auto, headerLineHeight_);
+    }
+  }
+
+  WText *spacer = new WText();
+  spacer->setInline(false);
+  spacer->setStyleClass("Wt-tv-br headerrh");
+  result->addWidget(spacer);
+
+  return result;
 }
 
 void WTreeView::enableAjax()
@@ -2031,7 +2246,7 @@ void WTreeView::configureModelDragDrop()
 
   for (unsigned i = 0; i < acceptMimeTypes.size(); ++i)
     if (dropsEnabled_)
-      acceptDrops(acceptMimeTypes[i], "drop-site");
+      acceptDrops(acceptMimeTypes[i], "Wt-drop-site");
     else
       stopAcceptDrops(acceptMimeTypes[i]);
 }
@@ -2267,6 +2482,13 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
       if (start == 0)
 	scheduleRerender(NeedRerenderHeader);
       else {
+	double newWidth = 0;
+	for (int i = start; i < start + count; ++i)
+	  newWidth += columns_[i].width.toPixels() + 7;
+
+	app->doJavaScript(jsRef() + ".adjustHeaderWidth(null, " +
+			  boost::lexical_cast<std::string>(newWidth) + ");");
+
 	WContainerWidget *row = headerRow();
 
 	for (int i = start; i < start + count; ++i)
@@ -2298,6 +2520,16 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 {
   int count = end - start + 1;
   if (!parent.isValid()) {
+    if (renderState_ < NeedRerenderHeader) {
+      WApplication *app = wApp;
+      for (int i = start; i < start + count; ++i) {
+	std::string c = columns_[i].styleClass();
+	app->doJavaScript(jsRef() + ".adjustHeaderWidth(null ,"
+			  "-WT.pxself(WT.getCssRule('#"
+			  + id() + " ." + c + "'), 'width') - 7);");
+      }
+    }
+
     columns_.erase(columns_.begin() + start, columns_.begin() + start + count);
 
     if (renderState_ < NeedRerenderHeader) {
@@ -2305,7 +2537,7 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 	scheduleRerender(NeedRerenderHeader);
       else {
 	for (int i = start; i < start + count; ++i)
-	  delete headerWidget(start);
+	  delete headerWidget(start, false);
       }
     }
   }
@@ -2315,7 +2547,7 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 }
 
 void WTreeView::modelColumnsRemoved(const WModelIndex& parent,
-					     int start, int end)
+				    int start, int end)
 {
   if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
     return;
@@ -2603,7 +2835,7 @@ void WTreeView::modelHeaderDataChanged(Orientation orientation,
   }
 }
 
-WImage *WTreeView::headerSortIconWidget(int column)
+WText *WTreeView::headerSortIconWidget(int column)
 {
   if (!columnInfo(column).sorting)
     return 0;
@@ -2612,37 +2844,29 @@ WImage *WTreeView::headerSortIconWidget(int column)
     WContainerWidget *row
       = dynamic_cast<WContainerWidget *>(headers_->widget(0));
 
-    return dynamic_cast<WImage *>(row->widget(1));
-  } else {
-    WContainerWidget *w
-      = dynamic_cast<WContainerWidget *>(headerWidget(column));
-
-    return dynamic_cast<WImage *>(w->widget(columnResize_ ? 1 : 0));
-  }
+    return dynamic_cast<WText *>(row->widget(1));
+  } else
+    return dynamic_cast<WText *>(headerWidget(column)->find("sort"));
 }
 
 WText *WTreeView::headerTextWidget(int column)
 {
-  WWidget *w = headerWidget(column);
-
-  WText *result = dynamic_cast<WText *>(w); // for column 0 without extra
-  if (result)
-    return result;
-  else {
-    // for columns 1 - n or column 0 with extra widget
-    WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w);
-    int fromLast = columnInfo(column).extraHeaderWidget ? 1 : 0;
-    return dynamic_cast<WText *>(wc->widget(wc->count() - 1 - fromLast));
-  }
+  return dynamic_cast<WText *>(headerWidget(column)->find("text"));
 }
 
-WWidget *WTreeView::headerWidget(int column)
+WWidget *WTreeView::headerWidget(int column, bool contentsOnly)
 {
+  WWidget *result = 0;
+
   if (column == 0)
-    return headers_->widget(headers_->count() - 1);
-  else {
-    return headerRow()->widget(column - 1);
-  }
+    result = headers_->widget(headers_->count() - 1);
+  else
+    result = headerRow()->widget(column - 1);
+
+  if (contentsOnly && column != 0)
+    return result->find("contents");
+  else
+    return result;
 }
 
 WWidget *WTreeView::createExtraHeaderWidget(int column)
@@ -3090,6 +3314,20 @@ WTreeView::ColumnInfo& WTreeView::columnInfo(int column) const
   return columns_[column];
 }
 
+void WTreeView::collapseColumn(int columnid)
+{
+  model_->collapseColumn(columnById(columnid));
+  scheduleRerender(NeedRerenderHeader);
+  setHeaderHeight(headerLineHeight_, multiLineHeader_);
+}
+
+void WTreeView::expandColumn(int columnid)
+{
+  model_->expandColumn(columnById(columnid));
+  scheduleRerender(NeedRerenderHeader);
+  setHeaderHeight(headerLineHeight_, multiLineHeader_);
+}
+
 void WTreeView::toggleSortColumn(int columnid)
 {
   int column = columnById(columnid);
@@ -3114,15 +3352,15 @@ void WTreeView::sortByColumn(int column, SortOrder order)
 {
   if (currentSortColumn_ != -1)
     headerSortIconWidget(currentSortColumn_)
-      ->setImageRef(imagePack_ + "sort-arrow-none.gif");
+      ->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
 
   currentSortColumn_ = column;
   columnInfo(column).sortOrder = order;
 
   if (renderState_ != NeedRerender)
     headerSortIconWidget(currentSortColumn_)
-      ->setImageRef(imagePack_ + (order == AscendingOrder ? "sort-arrow-up.gif"
-				  : "sort-arrow-down.gif"));
+      ->setStyleClass(order == AscendingOrder
+		      ? "Wt-tv-sh Wt-tv-sh-up" : "Wt-tv-sh Wt-tv-sh-down");
 
   model_->sort(column, order);
 }

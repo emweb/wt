@@ -8,6 +8,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WCanvasPaintDevice"
+#include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WImage"
 #include "Wt/WPainter"
@@ -68,7 +69,9 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
     needRepaint_(false),
     sizeChanged_(false),
     repaintFlags_(0),
-    areaImage_(0)
+    areaImage_(0),
+    renderWidth_(10), renderHeight_(10),
+    resized_(this, "resized")
 {
   if (WApplication::instance()) {
     const WEnvironment& env = WApplication::instance()->environment();
@@ -78,6 +81,8 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   }
 
   setInline(false);
+
+  resized_.connect(SLOT(this, WPaintedWidget::onResize));
 }
 
 WPaintedWidget::~WPaintedWidget()
@@ -98,13 +103,29 @@ void WPaintedWidget::setPreferredMethod(Method method)
 void WPaintedWidget::resize(const WLength& width, const WLength& height)
 {
   WInteractWidget::resize(width, height);
-  setMinimumSize(width, height);
+
+  if (!width.isAuto() && !height.isAuto())
+    resizeCanvas(static_cast<int>(this->width().toPixels()),
+		 static_cast<int>(this->height().toPixels()));
+}
+
+void WPaintedWidget::resizeCanvas(int width, int height)
+{
+  renderWidth_ = width;
+  renderHeight_ = height;
 
   if (areaImage_)
-    areaImage_->resize(width, height);
+    areaImage_->resize(renderWidth_, renderHeight_);
 
   sizeChanged_ = true;
   update();
+}
+
+void WPaintedWidget::onResize(int width, int height)
+{
+  resize(WLength::Auto, WLength::Auto);
+
+  resizeCanvas(width, height);
 }
 
 void WPaintedWidget::update(WFlags<PaintFlag> flags)
@@ -196,7 +217,16 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
   DomElement *result = DomElement::createNew(DomElement_DIV);
   setId(result, app);
 
-  result->setProperty(PropertyStyleOverflowX, "hidden");
+  DomElement *wrap = result;
+
+  if (width().isAuto() && height().isAuto()) {
+    result->setProperty(PropertyStylePosition, "relative");
+
+    wrap = DomElement::createNew(DomElement_DIV);
+    wrap->setProperty(PropertyStylePosition, "absolute");
+    wrap->setProperty(PropertyStyleLeft, "0");
+    wrap->setProperty(PropertyStyleRight, "0");
+  }
 
   DomElement *canvas = DomElement::createNew(DomElement_DIV);
 
@@ -214,9 +244,22 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 
   needRepaint_ = false;
 
-  result->addChild(canvas);
+  wrap->addChild(canvas);
+  if (wrap != result)
+    result->addChild(wrap);
 
   updateDom(*result, true);
+
+  Wt::WApplication::instance()->doJavaScript
+    (jsRef() + ".wtSetHeight = function(self, h) {"
+     "var p=self.parentNode,"
+     ""  "WT=" WT_CLASS ","
+     ""  "w=p.offsetWidth - WT.px(self, 'marginLeft')"
+     ""                  "+WT.px(self, 'marginRight')"
+     ""                  "+WT.px(p, 'paddingLeft')"
+     ""                  "+WT.px(p, 'paddingRight');"
+     + resized_.createCall("w - 4", "h") +
+     "};");
 
   return result;
 }
@@ -311,7 +354,7 @@ void WPaintedWidget::createAreaImage()
     areaImage_->setPositionScheme(Absolute);
     areaImage_->setOffsets(0, Left | Top);
     areaImage_->setMargin(0, Top);
-    areaImage_->resize(width(), height());
+    areaImage_->resize(renderWidth_, renderHeight_);
     areaImage_->setPopup(true);
   }
 }
@@ -340,9 +383,9 @@ WWidgetVectorPainter::WWidgetVectorPainter(WPaintedWidget *widget,
 WPaintDevice *WWidgetVectorPainter::createPaintDevice()
 {
   if (format_ == SvgFormat)
-    return new WSvgImage(widget_->width(), widget_->height());
+    return new WSvgImage(widget_->renderWidth_, widget_->renderHeight_);
   else
-    return new WVmlImage(widget_->width(), widget_->height());
+    return new WVmlImage(widget_->renderWidth_, widget_->renderHeight_);
 }
 
 void WWidgetVectorPainter::createContents(DomElement *canvas,
@@ -350,6 +393,7 @@ void WWidgetVectorPainter::createContents(DomElement *canvas,
 {
   WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device);
   canvas->setProperty(PropertyInnerHTML, vectorDevice->rendered());
+  //canvas->setProperty(PropertyStylePosition, "relative");
 }
 
 void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
@@ -395,18 +439,17 @@ WWidgetCanvasPainter::WWidgetCanvasPainter(WPaintedWidget *widget)
 
 WPaintDevice *WWidgetCanvasPainter::createPaintDevice()
 {
-  return new WCanvasPaintDevice(widget_->width(), widget_->height());
+  return new WCanvasPaintDevice(widget_->renderWidth_, widget_->renderHeight_);
 }
 
 void WWidgetCanvasPainter::createContents(DomElement *result,
 					  WPaintDevice *device)
 {
-  std::string wstr
-    = boost::lexical_cast<std::string>(widget_->width().value());
-  std::string hstr
-    = boost::lexical_cast<std::string>(widget_->height().value());
+  std::string wstr = boost::lexical_cast<std::string>(widget_->renderWidth_);
+  std::string hstr = boost::lexical_cast<std::string>(widget_->renderHeight_);
 
   result->setProperty(PropertyStylePosition, "relative");
+  result->setProperty(PropertyStyleOverflowX, "hidden");
 
   DomElement *canvas = DomElement::createNew(DomElement_CANVAS);
   canvas->setId('c' + widget_->id());
@@ -437,9 +480,9 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
     DomElement *canvas = DomElement::getForUpdate('c' + widget_->id(),
 						  DomElement_CANVAS);
     canvas->setAttribute("width",
-		   boost::lexical_cast<std::string>(widget_->width().value()));
+		 boost::lexical_cast<std::string>(widget_->renderWidth_));
     canvas->setAttribute("height",
-		   boost::lexical_cast<std::string>(widget_->height().value()));
+		 boost::lexical_cast<std::string>(widget_->renderHeight_));
     result.push_back(canvas);
 
     widget_->sizeChanged_ = false;

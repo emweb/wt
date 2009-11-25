@@ -42,15 +42,20 @@ enum Axis {
  *
  * The location is dependent on the values of the other axis.
  *
- * \sa WAxis::setLocation(AxisLocation)
+ * \sa WAxis::setLocation(AxisValue)
  *
  * \ingroup charts
  */
-enum AxisLocation {
-  MinimumValue,  //!< At the minimum value.
-  MaximumValue,  //!< At the maximum value.
-  ZeroValue      //!< At the zero value (if displayed).
+enum AxisValue {
+  MinimumValue = 0x1,  //!< At the minimum value.
+  MaximumValue = 0x2,  //!< At the maximum value.
+  ZeroValue = 0x4      //!< At the zero value (if displayed).
 };
+
+// for < 3.0.1 compatibility
+typedef AxisValue AxisLocation;
+
+W_DECLARE_OPERATORS_FOR_FLAGS(AxisValue)
 
 /*! \brief Enumeration that indicates a scale for an axis.
  *
@@ -175,13 +180,13 @@ public:
    *
    * \sa location()
    */
-  void setLocation(AxisLocation location);
+  void setLocation(AxisValue value);
 
   /*! \brief Returns the axis location.
    *
-   * \sa setLocation(AxisLocation)
+   * \sa setLocation(AxisValue)
    */
-  AxisLocation location() const { return location_; }
+  AxisValue location() const { return location_; }
 
   /*! \brief Set the scale of the axis.
    *
@@ -212,16 +217,16 @@ public:
    * default, the minimum and maximum values are determined
    * automatically so that all the data can be displayed.
    *
-   * The default value is \link WAxis::AUTO_MINIMUM AUTO_MINIMUM\endlink,
-   * which indicates that the value must be determined automatically.
-   *
    * \sa minimum(), setMaximum(double)
    */
   void setMinimum(double min);
 
   /*! \brief Returns the minimum value displayed on the axis.
    *
-   * \sa maximum(), setMinimum(double)
+   * This returned the minimum value that was set using setMinimum(),
+   * or otherwise the automatically calculated minimum.
+   *
+   * \sa maximum(), setMinimum(double), setAutoLimits()
    */
   double minimum() const;
 
@@ -231,27 +236,51 @@ public:
    * default, the minimum and maximum values are determined
    * automatically so that all the data can be displayed.
    *
-   * The default value is \link WAxis::AUTO_MAXIMUM
-   * AUTO_MAXIMUM\endlink, which indicates that the value must be
-   * determined automatically.
-   *
    * \sa minimum(), setMinimum(double)
    */
   void setMaximum(double max);
 
   /*! \brief Returns the maximum value displayed on the axis.
    *
+   * This returned the maximum value that was set using setMaximum(),
+   * or otherwise the automatically calculated maximum.
+   *
    * \sa minimum(), setMaximum(double)
    */
   double maximum() const;
 
-  /*! \brief Set the axis range (minimum and maximum values).
+  /*! \brief Set the axis range (minimum and maximum values) manually.
    *
-   * Specify both minimum and maximum value for the axis.
+   * Specifies both minimum and maximum value for the axis.
+   * This automatically disables automatic range calculation.
    *
-   * \sa setMinimum(double), setMaximum(double).
+   * \sa setMinimum(double), setMaximum(double)
    */
   void setRange(double min, double max);
+
+  /*! \brief Let the minimum and/or maximum be calculated from the
+   *         data.
+   *
+   * Using this method, you can indicate that you want to have
+   * automatic limits, rather than limits set manually using
+   * setMinimum() or setMaximum().
+   *
+   * \p locations can be Chart::MinimumValue and/or Chart::MaximumValue.
+   *
+   * The default value is Chart::MinimumValue | Chart::MaximumValue.
+   */
+  void setAutoLimits(WFlags<AxisValue> locations);
+
+  /*! \brief Returns the limits that are calculated automatically.
+   *
+   * This returns the limits (Chart::MinimumValue and/or
+   * Chart::MaximumValue) that are calculated automatically from the
+   * data, rather than being specified manually using setMinimum()
+   * and/or setMaximum().
+   *
+   * \sa setAutoLimits()
+   */
+  WFlags<AxisValue> autoLimits() const;
 
   /*! \brief Specify a range that needs to be omitted from the axis.
    *
@@ -425,17 +454,13 @@ public:
    */
   WCartesianChart *chart() const { return chart_; }
 
-  double mapFromDevice(double d) const;
-  double mapToDevice(const boost::any& value, int segment = 0) const;
-  double mapToDevice(double value, int segment = 0) const;
-
   int segmentCount() const { return segments_.size(); }
 
 private:
   WCartesianChart *chart_;
   Axis             axis_;
   bool             visible_;
-  AxisLocation     location_;
+  AxisValue        location_;
   AxisScale        scale_;
   double           labelInterval_;
   WString          labelFormat_;
@@ -467,7 +492,7 @@ private:
 
   void prepareRender(WChart2DRenderer& renderer) const;
   void computeRange(WChart2DRenderer& renderer, const Segment& segment) const;
-  void setOtherAxisLocation(AxisLocation otherLocation) const;
+  void setOtherAxisLocation(AxisValue otherLocation) const;
 
   struct TickLabel {
     enum TickLength { Zero, Short, Long };
@@ -484,6 +509,10 @@ private:
 
   static double getDateValue(const boost::any& value);
   double calcAutoNumLabels(const Segment& s) const;
+
+  double mapFromDevice(double d) const;
+  double mapToDevice(const boost::any& value, int segment = 0) const;
+  double mapToDevice(double value, int segment = 0) const;
 
   friend class WCartesianChart;
   friend class WChart2DRenderer;

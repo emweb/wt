@@ -21,6 +21,7 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
     customFlags_(0),
     fillRange_(NoFill),
     marker_(type == PointSeries ? CircleMarker : NoMarker),
+    markerSize_(6),
     legend_(true),
     xLabel_(false),
     yLabel_(false),
@@ -127,6 +128,11 @@ void WDataSeries::setFillRange(FillRangeType fillRange)
 void WDataSeries::setMarker(MarkerType marker)
 {
   set(marker_, marker);
+}
+
+void WDataSeries::setMarkerSize(double size)
+{
+  set(markerSize_, size);
 }
 
 void WDataSeries::setMarkerPen(const WPen& pen)

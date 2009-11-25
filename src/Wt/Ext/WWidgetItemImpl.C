@@ -43,7 +43,7 @@ void WWidgetItemImpl::createComponent(DomElement *parentContainer)
 {
   DomElement *e = item_->widget()->createSDomElement(WApplication::instance());
 
-  e->setAttribute("style", e->getAttribute("style")
+  e->setProperty(PropertyStyle, e->getProperty(PropertyStyle)
 		  + "position:absolute;left:-10000px;top:-10000px;"
 		  "visibility:hidden;");
   Container *c = dynamic_cast<Container *>(item_->widget());

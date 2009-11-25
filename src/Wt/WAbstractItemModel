@@ -44,6 +44,34 @@ namespace Wt {
     MatchExactly | MatchStringExactly | MatchStartsWith | MatchEndsWith |
     MatchRegExp | MatchWildCard;
 
+  /*! \brief Flags that indicate header options
+   *
+   * \sa WAbstractItemModel::headerFlags()
+   *
+   * \ingroup modelview
+   */
+  enum HeaderFlag {
+    /*! \brief Flag that indicates that the column can be expanded.
+     *
+     * \sa WAbstractItemModel::expandColumn()
+     */
+    ColumnIsCollapsed = 0x1,
+
+    /*! \brief Flag that indicates that the column was expanded to the left.
+     *
+     * \sa WAbstractItemModel::collapseColumn()
+     */
+    ColumnIsExpandedLeft = 0x2,
+
+    /*! \brief Flag that indicates that the column was expanded to the right.
+     *
+     * \sa WAbstractItemModel::collapseColumn()
+     */
+    ColumnIsExpandedRight = 0x4
+  };
+
+  W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)
+
 /*! \class WAbstractItemModel Wt/WAbstractItemModel Wt/WAbstractItemModel
  *  \brief An abstract model for use with %Wt's view classes.
  *
@@ -236,6 +264,16 @@ public:
    * \sa Wt::ItemFlag
    */
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
+
+  /*! \brief Returns the flags for a header.
+   *
+   * The default implementation returns no flags set.
+   *
+   * \sa Wt::HeaderFlag
+   */
+  virtual WFlags<HeaderFlag> headerFlags(int section,
+					 Orientation orientation = Horizontal)
+    const;
 
   /*! \brief Returns if there are children at an index.
    *
@@ -442,6 +480,28 @@ public:
    * \sa layoutAboutToBeChanged(), layoutChanged()
    */
   virtual void sort(int column, SortOrder order = AscendingOrder);
+
+  /*! \brief Expands a column.
+   *
+   * Expands a column. This may only be called by a view when the
+   * Wt::ColumnIsCollapsed flag is set.
+   *
+   * The default implementation does nothing.
+   *
+   * \sa WAggregateProxyModel
+   */
+  virtual void expandColumn(int column);
+
+  /*! \brief Collapses a column.
+   *
+   * Collapses a column. This may only be called by a view when the
+   * Wt::ColumnIsExpandedLeft or Wt::ColumnIsExpandedRight flag is set.
+   *
+   * The default implementation does nothing.
+   *
+   * \sa WAggregateProxyModel
+   */
+  virtual void collapseColumn(int column);
 
   /*! \brief Convert a model index to a raw pointer that remains valid
    *         while the model's layout is changed. 
@@ -783,7 +843,7 @@ protected:
    * signals to allow view classes to update themselves.
    *
    * \sa endRemoveColumns(), removeColumns(), columnsAboutToBeRemoved
-   */  
+   */
   void beginRemoveColumns(const WModelIndex& parent, int first, int last);
 
   /*! \brief Method to be called before removing rows.
@@ -843,6 +903,8 @@ private:
 		       const WModelIndex& sIndex,
 		       WAbstractItemModel *destination,
 		       const WModelIndex& dIndex);
+
+  friend class WAbstractProxyModel;
 };
 
 extern WT_API std::string asJSLiteral(const boost::any& v);

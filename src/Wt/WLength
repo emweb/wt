@@ -85,6 +85,11 @@ public:
    */
   bool operator!= (const WLength& other) const;
 
+  /*! \brief Returns the (approximate) length in pixels.
+   *
+   * When the length isAuto(), 0 is returned, otherwise the approximate
+   * length in pixels.
+   */
   double toPixels() const;
   
 private:

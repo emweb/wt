@@ -76,7 +76,7 @@ public:
     CustomLabelColor = 0x10  //!< A custom label color is set.
   };
 
-  /*! \brief Construct a new data series.
+  /*! \brief Constructs a new data series.
    *
    * Creates a new data series which plots the Y values from the
    * model column <i>modelColumn</i>, with the indicated
@@ -88,7 +88,21 @@ public:
   WDataSeries(int modelColumn, SeriesType seriesType = PointSeries,
 	      Axis axis = Y1Axis);
 
-  /* \brief Change the bar width.
+  /*! \brief Sets the bar width.
+   *
+   * The bar width specifies the bar width (in axis dimensions).  For
+   * category plots, which may have several bars for different series
+   * next to each other, you will want to specify the same bar width
+   * for each series.
+   *
+   * For scatter plots, you may want to set the bar width to a natural
+   * size. E.g. if you are plotting weekly measurements, you could set
+   * the width to correspond to a week (=7).
+   *
+   * The default value is 0.8 (which leaves a 20% margin between bars
+   * for different categories in a category chart.
+   *
+   * \sa WCartesianChart::setBarMargin()
    */
   void setBarWidth(const double width);
 
@@ -98,7 +112,7 @@ public:
    */
   double barWidth() const;
 
-  /*! \brief Change the series type.
+  /*! \brief Sets the series type.
    *
    * The series type specifies how the data is plotted, i.e. using
    * mere point markers, lines, curves, or bars.
@@ -111,7 +125,7 @@ public:
    */
   SeriesType type() const { return type_; }
 
-  /*! \brief Change the model column.
+  /*! \brief Sets the model column.
    *
    * This specifies the model column from which the Y data is retrieved
    * that is plotted by this series.
@@ -154,7 +168,7 @@ public:
    */
   bool isStacked() const { return stacked_; }
 
-  /*! \brief Bind this series to a chart axis.
+  /*! \brief Binds this series to a chart axis.
    *
    * A data series may be bound to either the first or second Y axis.
    * Note that the second Y axis is by default not displayed.
@@ -171,10 +185,10 @@ public:
    */
   Axis axis() const { return axis_; }
 
-  /*! \brief Set which aspects of the look are overriden.
+  /*! \brief Sets which aspects of the look are overriden.
    *
    * Set which aspects of the look, that are by default based on the
-   * chart palette, or overridden by custom settings.
+   * chart palette, are overridden by custom settings.
    *
    * The default value is 0 (nothing overridden).
    */
@@ -186,7 +200,7 @@ public:
    */
   WFlags<CustomFlag> curstomFlags() const { return customFlags_; }
 
-  /*! \brief Override the pen used for drawing lines for this series.
+  /*! \brief Overrides the pen used for drawing lines for this series.
    *
    * Overrides the pen that is used to draw this series. Calling this
    * method automatically adds CustomPen to the custom flags.
@@ -203,7 +217,7 @@ public:
    */
   WPen pen() const;
 
-  /*! \brief Override the brush used for filling areas for this series.
+  /*! \brief Overrides the brush used for filling areas for this series.
    *
    * Overrides the brush that is used to draw this series. For a bar plot,
    * this is the brush used to fill the bars. For a line chart, this is the
@@ -251,6 +265,18 @@ public:
    */
   MarkerType marker() const { return marker_; }
 
+  /*! \brief Sets the marker size.
+   *
+   * The default marker size is 6 pixels.
+   */
+  void setMarkerSize(double size);
+
+  /*! \brief Returns the marker size.
+   *
+   * \sa setMarkerSize()
+   */
+  double markerSize() const { return markerSize_; }
+
   /*! \brief Sets the marker pen.
    *
    * Overrides the pen used for stroking the marker. By default the
@@ -283,7 +309,7 @@ public:
    */
   WBrush markerBrush() const;
 
-  /*! \brief Enable the entry for this series in the legend.
+  /*! \brief Enables the entry for this series in the legend.
    *
    * When <i>enabled</i>, this series is added to the chart
    * legend.
@@ -300,7 +326,7 @@ public:
    */
   bool isLegendEnabled() const { return legend_; }
 
-  /*! \brief Enable a label that is shown at the series data points.
+  /*! \brief Enables a label that is shown at the series data points.
    *
    * You may enable labels for the XAxis, YAxis or both axes. The
    * label that is displayed is the corresponding value on that
@@ -319,7 +345,7 @@ public:
    */
   bool isLabelsEnabled(Axis axis) const;
 
-  /*! \brief Set the label color.
+  /*! \brief Sets the label color.
    *
    * Specify the color used for the rendering labels at the data
    * points.
@@ -380,6 +406,7 @@ private:
   WColor             labelColor_;
   FillRangeType      fillRange_;
   MarkerType         marker_;
+  double             markerSize_;
   bool               legend_;
   bool               xLabel_;
   bool               yLabel_;

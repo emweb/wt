@@ -62,6 +62,8 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     chart_(chart),
     fill_(MinimumValueFill)
 {
+  chart->initLayout();
+
   PanelList *list = new PanelList(this);
 
   WIntValidator *sizeValidator = new WIntValidator(200, 2000, this);
@@ -283,9 +285,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     }
     connectSignals(sc.scaleEdit);
 
-    bool autoValues
-      =    axis.minimum() == WAxis::AUTO_MINIMUM
-        && axis.maximum() == WAxis::AUTO_MAXIMUM;
+    bool autoValues = axis.autoLimits() == (MinimumValue | MaximumValue);
 
     sc.minimumEdit = new WLineEdit(axisConfig->elementAt(j, 4));
     sc.minimumEdit->setText(boost::lexical_cast<std::string>(axis.minimum()));
@@ -451,7 +451,7 @@ void ChartConfig::update()
     }
 
     if (sc.autoEdit->isChecked())
-      axis.setRange(WAxis::AUTO_MINIMUM, WAxis::AUTO_MAXIMUM);
+      axis.setAutoLimits(MinimumValue | MaximumValue);
     else {
       if (validate(sc.minimumEdit) && validate(sc.maximumEdit)) {
 	double min, max;

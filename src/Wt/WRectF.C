@@ -19,11 +19,11 @@ WRectF::WRectF(double x, double y, double width, double height)
   : x_(x), y_(y), width_(width), height_(height)
 { }
 
-WRectF::WRectF(const WPointF& topLeft, const WPointF& topRight)
+WRectF::WRectF(const WPointF& topLeft, const WPointF& bottomRight)
   : x_(topLeft.x()),
     y_(topLeft.y()),
-    width_(topRight.x() - topLeft.x()),
-    height_(topRight.y() - topLeft.y())
+    width_(bottomRight.x() - topLeft.x()),
+    height_(bottomRight.y() - topLeft.y())
 { }
 
 #ifdef WT_TARGET_JAVA
@@ -96,6 +96,16 @@ WPointF WRectF::bottomLeft() const
 WPointF WRectF::bottomRight() const
 {
   return WPointF(x_ + width_, y_ + height_);
+}
+
+bool WRectF::contains(double x, double y) const
+{
+  return x >= x_ && x <= (x_ + width_) && y >= y_ && y <= (y_ + height_);
+}
+
+bool WRectF::contains(const WPointF& p) const
+{
+  return contains(p.x(), p.y());
 }
 
 bool WRectF::intersects(const WRectF& other) const

@@ -7,8 +7,12 @@
 #ifndef WCANVAS_PAINT_DEVICE_H_
 #define WCANVAS_PAINT_DEVICE_H_
 
-#include <Wt/WPaintDevice>
+#include <Wt/WBrush>
 #include <Wt/WObject>
+#include <Wt/WPaintDevice>
+#include <Wt/WPen>
+#include <Wt/WPointF>
+#include <Wt/WTransform>
 
 #include <sstream>
 
@@ -74,10 +78,18 @@ private:
   WFlags<ChangeFlag> changeFlags_;
   WFlags<PaintFlag> paintFlags_;
 
+  bool        busyWithPath_;
+
+  WTransform  currentTransform_;
+  WBrush      currentBrush_;
+  WPen        currentPen_;
+  WPointF     pathTranslation_;
+
   std::stringstream js_;
   std::vector<DomElement *> textElements_;
   std::vector<std::string> images_;
 
+  void finishPath();
   void renderTransform(std::stringstream& s, const WTransform& t,
 		       bool invert = false);
   void renderStateChanges();

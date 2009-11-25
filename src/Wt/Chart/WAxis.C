@@ -72,7 +72,8 @@ public:
   }
 
   virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY)
+			double stackY, const WModelIndex& xIndex,
+			const WModelIndex& yIndex)
   {
     if (!Utils::isNaN(y) && (scale_!=LogScale || y>0.0)) {
       maximum_ = std::max(y, maximum_);
@@ -146,7 +147,7 @@ void WAxis::setScale(AxisScale scale)
   set(scale_, scale);
 }
 
-void WAxis::setLocation(AxisLocation location)
+void WAxis::setLocation(AxisValue location)
 {
   set(location_, location);
 }
@@ -166,12 +167,13 @@ void WAxis::setMinimum(double minimum)
 
 double WAxis::minimum() const
 {
-  return segments_[0].minimum;
+  return autoLimits() & MinimumValue ? segments_[0].renderMinimum
+    : segments_[0].minimum;
 }
 
 void WAxis::setMaximum(double maximum)
 {
-  Segment& s = segments_[segments_.size() - 1];
+  Segment& s = segments_.back();
 
 #ifndef WT_TARGET_JAVA
   if (set(s.maximum, maximum))
@@ -182,19 +184,43 @@ void WAxis::setMaximum(double maximum)
 #endif // WT_TARGET_JAVA
 }
 
-    double WAxis::maximum() const
+double WAxis::maximum() const
 {
-  return segments_[segments_.size() - 1].maximum;
+  const Segment& s = segments_.back();
+
+  return autoLimits() & MaximumValue ? s.renderMaximum
+    : s.maximum;
 }
 
 void WAxis::setRange(double minimum, double maximum)
 {
   if (maximum > minimum) {
     segments_[0].minimum = minimum;
-    segments_[segments_.size() - 1].maximum = maximum;
+    segments_.back().maximum = maximum;
 
     update();
   }
+}
+
+void WAxis::setAutoLimits(WFlags<AxisValue> locations)
+{
+  if (locations & MinimumValue)
+    set(segments_[0].minimum, AUTO_MINIMUM);
+  else if (locations & MaximumValue)
+    set(segments_.back().maximum, AUTO_MAXIMUM);
+}
+
+WFlags<AxisValue> WAxis::autoLimits() const
+{
+  WFlags<AxisValue> result = 0;
+
+  if (segments_[0].minimum == AUTO_MINIMUM)
+    result |= MinimumValue;
+
+  if (segments_.back().maximum == AUTO_MAXIMUM)
+    result |= MaximumValue;
+
+  return result;
 }
 
 void WAxis::setBreak(double minimum, double maximum)
@@ -337,7 +363,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
   }
 }
 
-void WAxis::setOtherAxisLocation(AxisLocation otherLocation) const
+void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
 {
   if (scale_ != LogScale) {
     for (unsigned i = 0; i < segments_.size(); ++i) {

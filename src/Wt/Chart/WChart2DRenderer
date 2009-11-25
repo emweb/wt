@@ -16,6 +16,7 @@
 namespace Wt {
 
 class WColor;
+class WModelIndex;
 class WPointF;
 class WPainter;
 class WString;
@@ -41,9 +42,9 @@ public:
    */
   virtual ~SeriesIterator();
 
-  /*! \brief Set the current axis segments.
+  /*! \brief Start handling a new segment.
    *
-   * Because of a 'break' specified in an axis, the axis is divided in
+   * Because of a 'break' specified in an axis, axes may be divided in
    * one or two segments (in fact only the API limits this now to
    * two). The iterator will iterate all segments seperately, but each time
    * with a different clipping region specified in the painter, corresponding
@@ -54,6 +55,10 @@ public:
   virtual void startSegment(int currentXSegment, int currentYSegment,
 			    const WRectF& currentSegmentArea);
 
+  /*! \brief End handling a particular segment.
+   *
+   * \sa startSegment()
+   */
   virtual void endSegment();
 
   /*! \brief Start iterating a particular series.
@@ -82,7 +87,8 @@ public:
    * stacked.
    */
   virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY);
+			double stackY, const WModelIndex& xIndex,
+			const WModelIndex& yIndex);
 
   /*! \brief Returns the current X segment.
    */
@@ -159,6 +165,12 @@ public:
    */
   virtual void calcChartArea();
 
+  /*! \brief Initializes the layout.
+   *
+   * This computes the chart plotting area dimensions, and intializes
+   * the axes so that they provide a suitable mapping from logical
+   * coordinates to device coordinates.
+   */
   void initLayout();
 
   /*! \brief Renders the chart.
@@ -320,7 +332,7 @@ protected:
    *
    * \sa prepareAxes()
    */
-  AxisLocation location_[3];
+  AxisValue location_[3];
 
   /*! \brief Render properties of one axis.
    *

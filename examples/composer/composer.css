@@ -2,7 +2,7 @@ body, td, button {
   font-family:arial,sans-serif;
 }
 
-button {
+.Wt-btn {
   margin-left: 10px;
   margin-right: 10px;
   padding-left: 5px;

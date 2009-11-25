@@ -199,6 +199,13 @@ public:
   virtual WModelIndex index(int row, int column,
 			    const WModelIndex& parent = WModelIndex()) const;
 
+  virtual bool setHeaderData(int section, Orientation orientation,
+			     const boost::any& value,
+			     int role = EditRole);
+  virtual boost::any headerData(int section,
+				Orientation orientation = Horizontal,
+				int role = DisplayRole) const;
+
   virtual void sort(int column, SortOrder order = AscendingOrder);
 
 protected:

@@ -33,11 +33,9 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * This class uses <i>resourcesURL</i>"swfobject.js", a companion
+ * This class uses <i>resourcesURL</i>"/swfobject.js", a companion
  * JavaScript library, which is distributed with %Wt in the resources
- * folder. <i>resourcesURL</i> is the configuration property that
- * locates the %Wt resources/ folder inside your docroot.* This class
- * requires swfobject.js in the resources folder.
+ * folder, see also \ref deployment "deployment and resources".
  */
 class WT_API WFlashObject : public WContainerWidget
 {

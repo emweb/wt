@@ -1,0 +1,22 @@
+/* additional style rules for ie */
+
+/*
+ * WCalendar
+ */
+td.Wt-cal-oom, .Wt-cal-table td.Wt-cal-oom:hover {
+    border: 0px;
+}
+
+/*
+ * WTreeView
+ */
+/* nodes */
+.Wt-treeview .Wt-expand {
+    background: url(nav-plus.gif) no-repeat 0 center;
+}
+
+.Wt-treeview .Wt-collapse {
+    width: 19px;
+    height: 18px;
+    background: url(nav-minus.gif) no-repeat 0 center;
+}

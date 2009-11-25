@@ -75,7 +75,7 @@ void WPopupMenuItem::create()
   implementStateless(&WPopupMenuItem::renderOver, &WPopupMenuItem::renderOut);
   impl_->mouseWentUp().connect(SLOT(this, WPopupMenuItem::onMouseUp));
 
-  setStyleClass("notselected");
+  setStyleClass("Wt-item");
 }
 
 void WPopupMenuItem::load()
@@ -173,7 +173,7 @@ void WPopupMenuItem::renderSelected(bool selected)
   if (separator_)
     return;
 
-  setStyleClass(selected ? "selected" : "notselected");
+  setStyleClass(selected ? "Wt-selected" : "Wt-item");
 
   if (subMenu_)
     if (selected)

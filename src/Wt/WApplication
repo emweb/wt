@@ -316,7 +316,24 @@ public:
    */
   void useStyleSheet(const std::string& url, const std::string& condition);
 
- /*! \brief Sets the window title.
+  /*! \brief Sets the theme.
+   *
+   * The theme provides the look and feel of several built-in widgets,
+   * using CSS style rules. Rules for each theme are defined in the
+   * <tt>resources/themes/</tt><i>theme</i><tt>/</tt> folder.
+   *
+   * The default theme is "default". When setting "", the external style
+   * sheets related to the theme are not loaded.
+   */
+  void setCssTheme(const std::string& theme);
+
+  /*! \brief Returns the theme.
+   *
+   * \sa setCssTheme()
+   */
+  std::string cssTheme() const { return theme_; }
+
+  /*! \brief Sets the window title.
    *
    * Sets the browser window title to \p title.
    *
@@ -438,7 +455,7 @@ public:
    */
   virtual void refresh();
 
-  /*! \brief Bind a top-level widget for a WidgetSet deployment.
+  /*! \brief Binds a top-level widget for a WidgetSet deployment.
    *
    * This method binds a \p widget to an existing element with DOM id
    * \p domId on the page. The element type should correspond with
@@ -1308,6 +1325,7 @@ private:
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;
 
+  std::string              theme_;
   std::vector<std::string> styleSheets_;
   int                      styleSheetsAdded_;
 

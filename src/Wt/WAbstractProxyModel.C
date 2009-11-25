@@ -34,30 +34,6 @@ WFlags<ItemFlag> WAbstractProxyModel::flags(const WModelIndex& index) const
   return sourceModel_->flags(mapToSource(index));
 }
 
-bool WAbstractProxyModel::setHeaderData(int section, Orientation orientation,
-					  const boost::any& value, int role)
-{
-  if (rowCount() > 0)
-    if (orientation == Vertical)
-      section = mapToSource(index(section, 0)).row();
-    else
-      section = mapToSource(index(0, section)).column();
-
-  return sourceModel_->setHeaderData(section, orientation, value, role);
-}
-
-boost::any WAbstractProxyModel::headerData(int section,
-					   Orientation orientation, int role)
-  const
-{
-  if (rowCount() > 0)
-    if (orientation == Vertical)
-      section = mapToSource(index(section, 0)).row();
-    else
-      section = mapToSource(index(0, section)).column();
-
-  return sourceModel_->headerData(section, orientation, role);
-}
 
 bool WAbstractProxyModel::insertColumns(int column, int count,
 					  const WModelIndex& parent)
@@ -122,5 +98,10 @@ WModelIndex WAbstractProxyModel::fromRawIndex(void *rawIndex) const
   return mapFromSource(sourceModel_->fromRawIndex(rawIndex));
 }
 
+WModelIndex WAbstractProxyModel::createSourceIndex(int row, int column,
+						   void *ptr) const
+{
+  return sourceModel_->createIndex(row, column, ptr);
+}
 
 }

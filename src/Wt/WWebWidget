@@ -133,6 +133,7 @@ public:
   virtual void load();
   virtual bool loaded() const;
   virtual void setId(const std::string& id);
+  virtual WWidget *find(const std::string& name);
   virtual void setSelectable(bool selectable);
   virtual const std::string id() const;
 
@@ -205,6 +206,7 @@ public:
   void setFormObject(bool how);
   static bool canOptimizeUpdates();
   int zIndex() const;
+  void setZIndex(int zIndex);
 
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
@@ -217,6 +219,16 @@ protected:
   virtual void propagateRenderOk(bool deep = true);
   virtual DomElement *renderRemove();
 
+  /*! \brief Propagates that a widget was enabled or disabled through children.
+   *
+   * When enabling or disabling a widget, you usually also want to disable
+   * contained children. This method is called by setDisabled() to propagate
+   * its state to all children.
+   *
+   * You may want to reimplement this method if they wish to render
+   * differently when a widget is disabled. The default implementation will
+   * propagate the signal to all children.
+   */
   virtual void propagateSetEnabled(bool enabled);
   virtual bool isStubbed() const;
   virtual void enableAjax();

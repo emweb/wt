@@ -73,7 +73,7 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
     if (marginBottom)
       style << "margin-bottom:" << marginBottom << "px;";
 
-    result->setAttribute("style", style.str());
+    result->setProperty(PropertyStyle, style.str());
   }
 
   /*

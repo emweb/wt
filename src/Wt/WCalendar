@@ -39,21 +39,6 @@ class WInPlaceEdit;
  * (with keys from WDate::longMonthName()) and days (with keys from
  * WDate::shortDayName()) in your message resource bundle.
  *
- * The look can be overridden using the following style class selectors:
- *
- * \code
-table.Wt-cal-table        : The table
-
-td.Wt-cal-header          : Header cell (week day)
-td.Wt-cal-header-weekend  : Header cell (weekend day)
-
-table.Wt-cal-table TD     : In-month day cell
-td.Wt-cal-oom             : Out-of-month day cell
-td.Wt-cal-sel             : Selected day cell
-td.Wt-cal-now             : Today day cell
-*
- * \endcode
- *
  * \if cpp
  * Usage example:
  * \code
@@ -69,6 +54,22 @@ td.Wt-cal-now             : Today day cell
  * Here is a snapshot of the default look, taken on 31/08/2007 (shown as
  * today), and 11/08/2007 currently selected.
  * \image html WCalendar-1.png "WCalendar with default look"
+ *
+ * <h3>CSS</h3>
+ * The look can be overridden using the following style class selectors:
+ *
+ * \verbatim
+.Wt-cal-table           : The table
+
+.Wt-cal-header          : Header cell (week day)
+.Wt-cal-header-weekend  : Header cell (weekend day)
+
+.Wt-cal-table td        : In-month day cell
+.Wt-cal-oom             : Out-of-month day cell
+.Wt-cal-sel             : Selected day cell
+.Wt-cal-now             : Today day cell
+\endverbatim
+ *
  */
 class WT_API WCalendar : public WCompositeWidget
 {

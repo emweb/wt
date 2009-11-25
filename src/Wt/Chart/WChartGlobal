@@ -66,6 +66,7 @@ enum ChartType {
   CategoryChart, //!< The X series are categories
   ScatterPlot    //!< The X series must be interpreted as numerical data
 };
+
   }
 }
 

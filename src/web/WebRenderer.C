@@ -564,6 +564,16 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   if (conf.inlineCss())
     app->styleSheet().javaScriptUpdate(app, response.out(), true);
 
+  if (!app->cssTheme().empty()) {
+    response.out() << WT_CLASS << ".addStyleSheet('"
+		   << WApplication::resourcesUrl() << "/themes/"
+		   << app->cssTheme() << "/wt.css');";
+    if (app->environment().agentIsIE())
+      response.out() << WT_CLASS << ".addStyleSheet('"
+		     << WApplication::resourcesUrl() << "/themes/"
+		     << app->cssTheme() << "/wt_ie.css');";
+  }
+
   app->styleSheetsAdded_ = app->styleSheets_.size();
   loadStyleSheets(response.out(), app);
 
@@ -722,10 +732,25 @@ void WebRenderer::serveMainpage(WebResponse& response)
   const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
 
   std::string styleSheets;
+
+  if (!app->cssTheme().empty()) {
+    styleSheets += "<link href=\""
+      + WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
+      + "/wt.css\" rel=\"stylesheet\" type=\"text/css\""
+      + (xhtml ? "/>" : ">");
+
+    if (app->environment().agentIsIE())
+      styleSheets += "<link href=\""
+	+ WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
+	+ "/wt_ie.css\" rel=\"stylesheet\" type=\"text/css\""
+	+ (xhtml ? "/>" : ">");
+  }
+
   for (unsigned i = 0; i < app->styleSheets_.size(); ++i) {
-    styleSheets += "<link href='"
+    styleSheets += "<link href=\""
       + app->fixRelativeUrl(app->styleSheets_[i]) 
-      + "' rel='stylesheet' type='text/css'" + (xhtml ? "/>" : ">") + '\n';
+      + "\" rel=\"stylesheet\" type=\"text/css\"" + (xhtml ? "/>" : ">")
+      + '\n';
   }
   app->styleSheetsAdded_ = 0;
 

@@ -42,6 +42,11 @@ void WCompositeWidget::setId(const std::string& id)
   impl_->setId(id);
 }
 
+WWidget *WCompositeWidget::find(const std::string& name)
+{
+  return impl_->find(name);
+}
+
 void WCompositeWidget::setSelectable(bool selectable)
 {
   impl_->setSelectable(selectable);
@@ -174,7 +179,9 @@ bool WCompositeWidget::isHidden() const
 
 bool WCompositeWidget::isVisible() const
 {
-  if (parent())
+  if (isHidden())
+    return false;
+  else if (parent())
     return parent()->isVisible();
   else
     return true;
@@ -192,7 +199,9 @@ bool WCompositeWidget::isDisabled() const
 
 bool WCompositeWidget::isEnabled() const
 {
-  if (parent())
+  if (isDisabled())
+    return false;
+  else if (parent())
     return parent()->isEnabled();
   else
     return true;

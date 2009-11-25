@@ -62,11 +62,17 @@ protected:
       "<script type=\"text/javascript\">\n"
       "function load() { ";
 
-    if (triggerUpdate)
+    if (triggerUpdate) {
       o << "window.parent."
 	<< WApplication::instance()->javaScriptClass()
 	<< "._p_.update(null, '"
 	<< fileUpload_->uploaded().encodeCmd() << "', null, true);";
+    } else if (request.tooLarge()) {
+      o << "window.parent."
+	<< WApplication::instance()->javaScriptClass()
+	<< "._p_.update(null, '"
+	<< fileUpload_->fileTooLargeImpl().encodeCmd() << "', null, true);";
+    }
 
     o << "}\n"
       "</script></head>"
@@ -76,7 +82,7 @@ protected:
     o << "</body></html>";
 
     if (request.tooLarge())
-      fileUpload_->requestTooLarge(request.tooLarge());
+      fileUpload_->tooLargeSize_ = request.tooLarge();
     else
       if (p)
 	fileUpload_->setFormData(*p);
@@ -88,6 +94,7 @@ private:
 
 const char *WFileUpload::CHANGE_SIGNAL = "M_change";
 const char *WFileUpload::UPLOADED_SIGNAL = "M_uploaded";
+const char *WFileUpload::FILETOOLARGE_SIGNAL = "M_filetoolarge";
 
 WFileUpload::WFileUpload(WContainerWidget *parent)
   : WWebWidget(parent),
@@ -95,10 +102,11 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
     isStolen_(false),
     doUpload_(false),
     enableAjax_(false),
-    fileTooLarge_(this)
+    fileTooLarge_(this),
+    tooLargeSize_(0)
 {
   setInline(true);
-
+  fileTooLargeImpl().connect(SLOT(this, WFileUpload::handleFileTooLargeImpl));
   create();
 }
 
@@ -137,6 +145,16 @@ EventSignal<>& WFileUpload::uploaded()
 EventSignal<>& WFileUpload::changed()
 {
   return *voidEventSignal(CHANGE_SIGNAL, true);
+}
+
+EventSignal<>& WFileUpload::fileTooLargeImpl()
+{
+  return *voidEventSignal(FILETOOLARGE_SIGNAL, true);
+}
+
+void WFileUpload::handleFileTooLargeImpl()
+{
+  fileTooLarge().emit(tooLargeSize_);
 }
 
 void WFileUpload::setFileTextSize(int chars)
@@ -198,12 +216,12 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     form->setAttribute("method", "post");
     form->setAttribute("action", fileUploadTarget_->generateUrl());
     form->setAttribute("enctype", "multipart/form-data");
-    form->setAttribute("style", "margin:0;padding:0;display:inline");
+    form->setProperty(PropertyStyle, "margin:0;padding:0;display:inline");
     form->setProperty(PropertyTarget, "if" + id());
 
     DomElement *i = DomElement::createNew(DomElement_IFRAME);
-    i->setAttribute("class", "Wt-resource");
-    i->setAttribute("src", fileUploadTarget_->generateUrl());
+    i->setProperty(PropertyClass, "Wt-resource");
+    i->setProperty(PropertySrc, fileUploadTarget_->generateUrl());
     i->setName("if" + id());
 
     /*

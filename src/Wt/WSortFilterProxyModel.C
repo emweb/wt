@@ -359,10 +359,29 @@ int WSortFilterProxyModel::rowCount(const WModelIndex& parent) const
   return item->proxyRowMap_.size();
 }
 
+bool WSortFilterProxyModel::setHeaderData(int section, Orientation orientation,
+					  const boost::any& value, int role)
+{
+  if (orientation == Vertical)
+    section = mapToSource(index(section, 0)).row();
+
+  return sourceModel()->setHeaderData(section, orientation, value, role);
+}
+
+boost::any WSortFilterProxyModel::headerData(int section,
+					     Orientation orientation, int role)
+  const
+{
+  if (orientation == Vertical)
+    section = mapToSource(index(section, 0)).row();
+
+  return sourceModel()->headerData(section, orientation, role);
+}
+
 void WSortFilterProxyModel::sourceColumnsAboutToBeInserted
   (const WModelIndex& parent, int start, int end)
-{ 
-  beginInsertColumns(parent, start, end);
+{
+  beginInsertColumns(mapFromSource(parent), start, end);
 }
 
 void WSortFilterProxyModel::sourceColumnsInserted(const WModelIndex& parent,
@@ -374,7 +393,7 @@ void WSortFilterProxyModel::sourceColumnsInserted(const WModelIndex& parent,
 void WSortFilterProxyModel::sourceColumnsAboutToBeRemoved
   (const WModelIndex& parent, int start, int end)
 { 
-  beginRemoveColumns(parent, start, end);
+  beginRemoveColumns(mapFromSource(parent), start, end);
 }
 
 void WSortFilterProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
@@ -385,27 +404,34 @@ void WSortFilterProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
 
 void WSortFilterProxyModel::sourceRowsAboutToBeInserted
   (const WModelIndex& parent, int start, int end)
-{ 
-  // TODO
-}
+{ }
 
 void WSortFilterProxyModel::sourceRowsInserted(const WModelIndex& parent,
 					       int start, int end)
-{ 
+{
   // TODO
+  //  this will result in arbitrary rows to be inserted within the mapped
+  //  parent
+  //  for each inserted row:
+  //   - we need to determine whether it is not filtered,
+  //   - where it should be inserted
+  //   - emit rowsToBeInserted, insert row, emit rowsInserted()
 }
 
 void WSortFilterProxyModel::sourceRowsAboutToBeRemoved
 (const WModelIndex& parent, int start, int end)
 {
   // TODO
+  //  this will result in arbitrary rows to be removed within the mapped
+  //  parent
+  //  for each removed row:
+  //   - we need to determine whether it is was not filtered
+  //   - emit rowsToBeRemoved, remove row, emit rowsRemoved()
 }
 
 void WSortFilterProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 					      int start, int end)
-{ 
-  // TODO
-}
+{ }
 
 void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 					      const WModelIndex& bottomRight)

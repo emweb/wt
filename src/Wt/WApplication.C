@@ -68,6 +68,7 @@ WApplication::WApplication(const WEnvironment& env)
     connected_(true),
     bodyHtmlClassChanged_(false),
     scriptLibrariesAdded_(0),
+    theme_("default"),
     styleSheetsAdded_(0),
     exposeSignals_(true),
     autoJavaScriptChanged_(false),
@@ -366,6 +367,12 @@ bool WApplication::isExposed(WWidget *w) const
 std::string WApplication::sessionId() const
 {
   return session_->sessionId();
+}
+
+void WApplication::setCssTheme(const std::string& theme)
+{
+  // TODO: allow modifying the theme
+  theme_ = theme;
 }
 
 void WApplication::useStyleSheet(const std::string& uri)

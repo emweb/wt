@@ -119,7 +119,8 @@ WSlider::WSlider(WContainerWidget *parent)
     minimum_(0),
     maximum_(99),
     value_(0),
-    valueChanged_(this)
+    valueChanged_(this),
+    sliderMoved_(this, "moved")
 {
   setImplementation(impl_ = new WContainerWidget());
   create();
@@ -133,7 +134,8 @@ WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
     minimum_(0),
     maximum_(99),
     value_(0),
-    valueChanged_(this)
+    valueChanged_(this),
+    sliderMoved_(this, "moved")
 {
   setImplementation(impl_ = new WContainerWidget());
   create();
@@ -199,30 +201,36 @@ void WSlider::update()
   std::string u = (orientation_ == Horizontal ? "x" : "y");
   std::string maxS = boost::lexical_cast<std::string>(l - HANDLE_WIDTH);
   std::string ppU = boost::lexical_cast<std::string>(pixelsPerUnit);
+  std::string minimumS = boost::lexical_cast<std::string>(minimum_);
 
   /*
    * Note: cancelling the mouseDown event prevents the selection behaviour
    */
   mouseDownJS_.setJavaScript
     ("function(obj, event) {"
-     "  obj.setAttribute('down', " WT_CLASS ".widgetCoordinates(obj, event)."
+     """obj.setAttribute('down', " WT_CLASS ".widgetCoordinates(obj, event)."
      + u + "); "
         WT_CLASS ".cancelEvent(event);"
      "}");
 
   mouseMovedJS_.setJavaScript
     ("function(obj, event) {"
-     "  var down = obj.getAttribute('down');"
-     "  if (down != null && down != '') {"
-     "    var objh = " + handle_->jsRef() + ";"
-     "    var objb = " + background_->jsRef() + ";"
-     "    var u = " WT_CLASS ".pageCoordinates(event)." + u + " - down;"
-     "    var w = " WT_CLASS ".widgetPageCoordinates(objb)." + u + ";"
-     "    var d = u-w;"
-     "    d = (d<0?0:(d>" + maxS + "?" + maxS + ":d));"
-     "    d = Math.round(d/" + ppU + ")*" + ppU + ";"
-     "    objh.style." + dir + " = d + 'px';"
-     "  }"
+     """var down = obj.getAttribute('down');"
+     """var WT = " WT_CLASS ";"
+     """if (down != null && down != '') {"
+     ""  "var objh = " + handle_->jsRef() + ";"
+     ""  "var objb = " + background_->jsRef() + ";"
+     ""  "var u = WT.pageCoordinates(event)." + u + " - down;"
+     ""  "var w = WT.widgetPageCoordinates(objb)." + u + ";"
+     ""  "var d = u-w;"
+     ""  "d = (d<0?0:(d>" + maxS + "?" + maxS + ":d));"
+     ""  "var v = Math.round(d/" + ppU + ");"
+     ""  "d = v*" + ppU + ";"
+     ""  "if (Math.abs(WT.pxself(objh, '" + dir + "') - d) > 1) {"
+     ""    "objh.style." + dir + " = d + 'px';"
+     ""   + sliderMoved_.createCall("v + " + minimumS) + 
+     ""  "}"
+     """}"
      "}");
 
   mouseUpJS_.setJavaScript
@@ -247,8 +255,13 @@ void WSlider::onSliderClick(const WMouseEvent& event)
     ((orientation_ == Horizontal) ? event.widget().x : event.widget().y);
   
   u -= HANDLE_WIDTH / 2;
+  double v = std::max(minimum_,
+		      std::min(maximum_,
+			       minimum_ + (int)(u / pixelsPerUnit + 0.5)));
 
-  setValue(minimum_ + (int)(u / pixelsPerUnit + 0.5));
+  sliderMoved_.emit(static_cast<int>(v));
+
+  setValue(static_cast<int>(v));
   valueChanged_.emit(value());
 }
 
@@ -313,6 +326,13 @@ void WSlider::setValue(int value)
 {
   value_ = std::min(maximum_, std::max(minimum_, value));
   updateSliderPosition();
+}
+
+void WSlider::signalConnectionsChanged()
+{
+  WCompositeWidget::signalConnectionsChanged();
+
+  update();
 }
 
 }

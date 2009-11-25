@@ -38,16 +38,13 @@ WPanel::WPanel(WContainerWidget *parent)
 
   WApplication *app = WApplication::instance();
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    app->styleSheet().addRule("div.Wt-panel",
-			      "border: 3px solid #888888;"
-			      "background: #EEEEEE none repeat scroll 0%;",
+    app->styleSheet().addRule(".Wt-panel",
+			      "border: 3px solid #888888;",
 			      CSS_RULES_NAME);
-    app->styleSheet().addRule("div.Wt-panel .titlebar",
-			      "background: #888888; color: #FFFFFF;"
+    app->styleSheet().addRule(".Wt-panel .titlebar",
 			      "padding: 0px 6px 3px;"
 			      "font-size: 10pt;");
-    app->styleSheet().addRule("div.Wt-panel .body",
-			      "background: #FFFFFF;"
+    app->styleSheet().addRule(".Wt-panel .body",
 			      "padding: 4px 6px 4px;");
   }
 }

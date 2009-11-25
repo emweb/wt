@@ -108,34 +108,16 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * The menu implementation does not provide any style. You can style the
- * menu using CSS.
+ * <h3>CSS</h3>
  *
- * For example:
- * \code
- * div.Wt-popupmenu {
- *     background: white;
- *     color: black;
- *    border: 1px solid #666666;
- *    z-index: 200;
- *    cursor: default;
- * }
+ * You may customize the look of a treeview using the
+ * <tt>Wt-popupmenu</tt> CSS class.
  *
- * div.Wt-popupmenu .notselected, div.Wt-popupmenu .selected {
- *     padding: 2px 0px;
- * }
- *
- * div.Wt-popupmenu .selected {
- *     background: blue;
- *     color: white;
- * }
- *
- * div.Wt-popupmenu .separator {
- *     border-top: 1px solid #CCCCCC;
- *    border-bottom: 1px solid #DDDDDD;
- *    margin: 0px 3px;
- * }
- * \endcode
+ * \verbatim
+.Wt-popupmenu .Wt-item, .Wt-popupmenu .Wt-selected : item
+.Wt-popupmenu .Wt-selected                         : selected item
+.Wt-popupmenu .Wt-separator                        : separator
+\endverbatim
  *
  * \sa WPopupMenuItem
  */

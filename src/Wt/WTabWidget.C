@@ -79,49 +79,6 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
 
   WT_DEBUG( setObjectName("WTabWidget") );
 
-  const char *CSS_RULES_NAME = "Wt::WTabWidget";
-
-  WApplication *app = WApplication::instance();
-  if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    std::string resourcesURL = WApplication::resourcesUrl();
-
-    app->styleSheet().addRule(".Wt-tabs",
-			      "background: transparent url("
-			      + resourcesURL + "tab_b.gif) "
-			      "repeat-x scroll center bottom;"
-			      "margin-bottom:4px;"
-			      "zoom: 1;"
-			      "width:100%", CSS_RULES_NAME);
-    app->styleSheet().addRule(".Wt-tabs li",
-			      "display: inline;");
-    app->styleSheet().addRule(".Wt-tabs ul",
-			      "margin: 0px;"
-			      "padding-left: 10px;"
-			      "list-style-type: none;"
-			      "list-style-position: outside;");
-    app->styleSheet().addRule(".Wt-tabs span",
-			      "background: transparent url("
-			      + resourcesURL + "tab_r.gif) "
-			      "no-repeat scroll right top;"
-			      "border-bottom:1px solid #84B0C7;"
-			      "float:left; display:block;"
-			      "cursor:pointer;cursor:hand;"
-			      "font-size: small; font-weight: bold;");
-    app->styleSheet().addRule(".Wt-tabs span.itemselected",
-			      "background-position:100% -150px;"
-                              );
-    app->styleSheet().addRule(".Wt-tabs span span",
-			      "background: transparent url("
-			      + resourcesURL + "tab_l.gif) "
-			      "no-repeat scroll left top;"
-			      "border-bottom: 0px;"
-			      "white-space: nowrap;"
-			      "padding:5px 9px;color:#1A419D;");
-    app->styleSheet().addRule(".Wt-tabs span.itemselected span",
-			      "background-position:0% -150px;"
-                              ); 
-  }
-
   contents_ = new WStackedWidget();
   menu_ = new WMenu(contents_, Horizontal);
   menu_->setRenderAsList(true);

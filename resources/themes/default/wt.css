@@ -1,0 +1,273 @@
+/*
+ * WCalendar
+ */
+.Wt-cal {
+    width: 16em;
+}
+
+.Wt-cal-table {
+    border-collapse:separate;
+    border-spacing:0pt;
+    width: 16em;
+}
+
+.Wt-cal-table td {
+    color: #003DB8;
+    border: 1px solid #E0E0E0;
+    cursor: pointer; cursor: hand;
+    text-align: center;
+    padding: 0.1em 0.2em;
+}
+
+.Wt-cal-table td:hover {
+    color: #FFFFFF;
+    border:1px solid #FF9900;
+    background-color: #FF9900;
+}
+
+td.Wt-cal-header, td.Wt-cal-header:hover
+{
+    color: #666666;
+    border: 0px;
+    width: 2em;
+    background-color: transparent;
+}
+
+td.Wt-cal-header-weekend, .Wt-cal-table td.Wt-cal-header-weekend:hover {
+    color: #777777;
+    border: 0px;
+    width: 2em;
+    background-color: transparent;
+}
+
+td.Wt-cal-oom, .Wt-cal-table td.Wt-cal-oom:hover {
+    color: #999999;
+    cursor: default;
+    border: 1px solid transparent;
+    background-color: transparent;
+}
+
+td.Wt-cal-sel {
+    background-color:#FFF19F;
+    border:1px solid #FF9900;
+}
+
+td.Wt-cal-now {
+    border:1px solid #000000;
+}
+
+.Wt-cal-navbutton {
+    color: #FFFFFF;
+    background-color:#6699CC;
+    cursor: pointer; cursor: hand;
+    margin: 0px 3px;
+}
+
+.Wt-cal-year span {
+    border: 1px solid transparent;
+}
+
+.Wt-cal-year span:hover {
+    background-color:#FFFFCC;
+    border: 1px solid #CCCCCC;
+}
+
+/*
+ * WDialog
+ */
+.Wt-dialog {
+    border: 1px solid #888888;
+    background: #EEEEEE none repeat scroll 0%;
+}
+
+.Wt-dialog .titlebar {
+    background: #888888; color: #FFFFFF;
+    cursor: move;
+    padding: 2px 6px 3px;
+}
+
+.Wt-dialog .body {
+    background: #EEEEEE;
+    padding: 4px 6px 4px;
+}
+
+.Wt-msgbox-buttons button {
+    padding: 1px 4px 1px;
+    margin: 2px;
+}
+
+/*
+ * WPanel
+ */
+.Wt-panel {
+  border: 3px solid #888888;
+  background: #EEEEEE none repeat scroll 0%;
+}
+.Wt-panel .titlebar {
+  background: #888888; color: #FFFFFF;
+  font-size: 10pt;
+}
+
+.Wt-panel .body {
+  background: #FFFFFF;
+}
+
+/*
+ * WPopupMenu
+ */
+.Wt-popupmenu {
+    background: white;
+    color: black;
+    border: 1px solid #666666;
+    z-index: 200;
+    cursor: default;
+}
+
+.Wt-popupmenu .Wt-item, .Wt-popupmenu .Wt-selected {
+    padding: 2px 0px;
+}
+
+.Wt-popupmenu .Wt-selected {
+    background: blue;
+    color: white;
+}
+
+.Wt-popupmenu .Wt-separator {
+    border-top: 1px solid #CCCCCC;
+    border-bottom: 1px solid #DDDDDD;
+    margin: 0px 3px;
+}
+
+/*
+ * WTabWidget
+ */
+.Wt-tabs {
+    background: transparent url(../../tab_b.gif) repeat-x scroll center bottom;
+    margin-bottom: 4px;
+    zoom: 1;
+    width: 100%;
+}
+
+.Wt-tabs li {
+    display: inline;
+}
+
+.Wt-tabs ul {
+    margin: 0px;
+    padding-left: 10px;
+    list-style-type: none;
+    list-style-position: outside;
+}
+
+.Wt-tabs span {
+    background: transparent url(../../tab_r.gif) no-repeat scroll right top;
+    border-bottom:1px solid #84B0C7;
+    float:left; display:block;
+    cursor:pointer;cursor:hand;
+    font-size: small; font-weight: bold;
+}
+
+.Wt-tabs span.itemselected {
+    background-position:100% -150px;
+}
+
+.Wt-tabs span span {
+    background: transparent url(../../tab_l.gif) no-repeat scroll left top;
+    border-bottom: 0px;
+    white-space: nowrap;
+    padding:5px 9px;color:#1A419D;
+}
+
+.Wt-tabs span.itemselected span {
+    background-position:0% -150px;
+}
+
+/*
+ * WTreeView
+ */
+.Wt-treeview {
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 10pt;
+    cursor: default;
+}
+
+.Wt-treeview .Wt-spacer {
+    background: url(../../loading.png);
+}
+
+/* header */
+.Wt-treeview .Wt-headerdiv {
+    background-color: #EEEEEE;
+}
+
+.Wt-treeview .Wt-header .Wt-label {
+    white-space: normal;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.Wt-treeview .Wt-tv-rh:hover {
+    background-color: #DDDDDD;
+}
+
+.Wt-treeview .Wt-tv-sh-none {
+    background: url(../../sort-arrow-none.gif) no-repeat 0 center;
+}
+
+.Wt-treeview .Wt-tv-sh-up {
+    background: url(../../sort-arrow-up.gif) no-repeat 0 center;
+}
+
+.Wt-treeview .Wt-tv-sh-down {
+    background: url(../../sort-arrow-down.gif) no-repeat 0 center;
+}
+
+/* nodes */
+.Wt-treeview .Wt-trunk {
+    background: url(../../line-trunk.gif) repeat-y;
+}
+
+.Wt-treeview .Wt-end {
+    background: url(../../tv-line-last.gif) no-repeat 0 center;
+}
+
+.Wt-treeview .Wt-expand {
+    width: 19px;
+    height: 18px;
+    background: url(../../nav-plus.gif) no-repeat 0 center;
+}
+
+.Wt-treeview .Wt-collapse {
+    width: 19px;
+    height: 18px;
+    background: url(../../nav-minus.gif) no-repeat 0 center;
+}
+
+.Wt-treeview .Wt-noexpand {
+    width: 19px;
+    height: 18px;
+    background: url(../../line-middle.gif) no-repeat 0 center;
+}
+
+/* selection */
+.Wt-treeview .Wt-selected {
+    background-color: #FFFFAA;
+}
+
+/* item drag & drop */
+.Wt-treeview .Wt-drop-site {
+    background-color: #EEEEEE;
+    outline: 1px dotted black;
+}
+
+/* borders */
+.Wt-treeview .Wt-tv-br,
+.Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
+    border-right: 1px solid #FFFFFF;
+}
+
+.Wt-treeview .Wt-header .Wt-tv-row,
+.Wt-treeview .Wt-tv-node .Wt-tv-row {
+    border-left: 1px solid #FFFFFF;
+}

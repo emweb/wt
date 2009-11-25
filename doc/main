@@ -1,3 +1,4 @@
+
 namespace Wt {
 
 /*!
@@ -397,12 +398,18 @@ namespace Wt {
 
   \section deployment 8. Deployment
 
-  The library is designed so that, besides the application binary, no
-  other files are needed to deploy the application. However, some
-  widgets require the resources located in the <tt>resources/</tt>
-  folder. In addition, any auxiliary files you use, such as message
+  The library is designed so that, besides the application binary,
+  only files from the <tt>resources/</tt> folder are needed to deploy
+  the application. The resources folder contains icons, style sheets
+  associated with themes, and other resources specific for special
+  widgets. In addition, any auxiliary files you use, such as message
   resource files, graphics, static pages, or anything else, will also
   need to be deployed.
+
+  The URL at which the <tt>resources/</tt> folder is deployed is based
+  on the <i>resourcesURL</i> configuration property (see see \ref
+  config_general "configuration properties"), which defaults to
+  "/resources".
 
   \subsection fastcgi 8.1 FastCGI
 
@@ -570,6 +577,7 @@ namespace Wt {
       \code
  <properties>
     <property name="extBaseURL">/ext/</property>
+    <property name="resourcesURL">/resources</property>
  </properties>
       \endcode
     </dd>

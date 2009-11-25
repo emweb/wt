@@ -49,7 +49,9 @@ void SeriesIterator::endSeries()
 { }
 
 void SeriesIterator::newValue(const WDataSeries& series,
-			      double x, double y, double stackY)
+			      double x, double y, double stackY,
+			      const WModelIndex& xIndex,
+			      const WModelIndex& yIndex)
 { }
 
 class SeriesRenderer;
@@ -68,7 +70,9 @@ public:
   virtual void endSeries();
 
   virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY);
+			double stackY,
+			const WModelIndex& xIndex,
+			const WModelIndex& yIndex);
 
   double breakY(double y);
 
@@ -386,7 +390,9 @@ void SeriesRenderIterator::endSeries()
 
 void SeriesRenderIterator::newValue(const WDataSeries& series,
 				    double x, double y,
-				    double stackY)
+				    double stackY,
+				    const WModelIndex& xIndex,
+				    const WModelIndex& yIndex)
 {
   if (Utils::isNaN(x) || Utils::isNaN(y))
     seriesRenderer_->paint();
@@ -425,7 +431,9 @@ public:
   }
 
   virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY)
+			double stackY,
+			const WModelIndex& xIndex,
+			const WModelIndex& yIndex)
   {
     WString text;
 
@@ -499,7 +507,9 @@ public:
   }
 
   virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY)
+			double stackY,
+			const WModelIndex& xIndex,
+			const WModelIndex& yIndex)
   {    
     if (!Utils::isNaN(x) && !Utils::isNaN(y) && !marker_.isEmpty()) {
       WPointF p = renderer_.map(x, y, series.axis(),
@@ -508,8 +518,37 @@ public:
       WPainter& painter = renderer_.painter();
       painter.save();
       painter.translate(hv(p));
-      painter.setPen(series.markerPen());
-      painter.setBrush(series.markerBrush());
+
+#ifndef WT_TARGET_JAVA
+      WPen pen = series.markerPen();
+#else
+      WPen pen = series.markerPen().clone();
+#endif // WT_TARGET_JAVA
+
+      boost::any penColor = yIndex.data(MarkerPenColorRole);
+      if (penColor.empty() && xIndex.isValid())
+	penColor = xIndex.data(MarkerPenColorRole);
+
+      if (!penColor.empty())
+	pen.setColor(boost::any_cast<WColor>(penColor));
+
+      painter.setPen(pen);
+
+#ifndef WT_TARGET_JAVA
+      WBrush brush = series.markerBrush();
+#else
+      WBrush brush = series.markerBrush().clone();
+#endif
+
+      boost::any brushColor = yIndex.data(MarkerBrushColorRole);
+      if (brushColor.empty() && xIndex.isValid())
+	brushColor = xIndex.data(MarkerBrushColorRole);
+
+      if (!brushColor.empty())
+	brush.setColor(boost::any_cast<WColor>(brushColor));
+
+      painter.setBrush(brush);
+
       painter.drawPath(marker_);
       painter.restore();
     }
@@ -611,7 +650,7 @@ void WChart2DRenderer::prepareAxes()
   for (int i = 0; i < 2; ++i) {
     WAxis axis = i == 0 ? xAxis : yAxis;
     WAxis other = i == 0 ? yAxis : xAxis;
-    AxisLocation location = axis.location();
+    AxisValue location = axis.location();
 
     if (location == ZeroValue) {
       if (other.segments_[0].renderMaximum < 0)
@@ -660,17 +699,17 @@ void WChart2DRenderer::calcChartArea()
   if (chart_->orientation() == Vertical)
     chartArea_ = WRectF(chart_->plotAreaPadding(Left),
 			chart_->plotAreaPadding(Top),
-			width_ - chart_->plotAreaPadding(Left)
-			- chart_->plotAreaPadding(Right),
-			height_ - chart_->plotAreaPadding(Top)
-			- chart_->plotAreaPadding(Bottom));
+			std::max(1, width_ - chart_->plotAreaPadding(Left)
+				 - chart_->plotAreaPadding(Right)),
+			std::max(1, height_ - chart_->plotAreaPadding(Top)
+				 - chart_->plotAreaPadding(Bottom)));
   else
     chartArea_ = WRectF(chart_->plotAreaPadding(Top),
 			chart_->plotAreaPadding(Right),
-			width_ - chart_->plotAreaPadding(Top)
-			- chart_->plotAreaPadding(Bottom),
-			height_ - chart_->plotAreaPadding(Right)
-			- chart_->plotAreaPadding(Left));
+			std::max(1, width_ - chart_->plotAreaPadding(Top)
+				 - chart_->plotAreaPadding(Bottom)),
+			std::max(1, height_ - chart_->plotAreaPadding(Right)
+				 - chart_->plotAreaPadding(Left)));
 }
 
 WRectF WChart2DRenderer::chartSegmentArea(WAxis yAxis, int xSegment,
@@ -1058,21 +1097,25 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 	    painter_.setClipPath(clipPath);
 
 	    for (unsigned row = 0; row < rows; ++row) {
+	      WModelIndex xIndex, yIndex;
+
 	      double x;
 	      if (scatterPlot)
-		if (chart_->XSeriesColumn() != -1)
-		  x = asNumber(model->data(row, chart_->XSeriesColumn()));
-		else
+		if (chart_->XSeriesColumn() != -1) {
+		  xIndex = model->index(row, chart_->XSeriesColumn());
+		  x = asNumber(model->data(xIndex));
+		} else
 		  x = row;
 	      else
 		x = row;
 
-	      double y = asNumber(model->data(row, series[i].modelColumn()));
+	      yIndex = model->index(row, series[i].modelColumn());
+	      double y = asNumber(model->data(yIndex));
 
 	      double prevStack;
 
 	      if (scatterPlot)
-		iterator->newValue(series[i], x, y, 0);
+		iterator->newValue(series[i], x, y, 0, xIndex, yIndex);
 	      else {
 		prevStack = stackedValues[row];
 
@@ -1087,9 +1130,11 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 
 		if (doSeries)
 		  if (reverseStacked)
-		    iterator->newValue(series[i], x, prevStack, nextStack);
+		    iterator->newValue(series[i], x, prevStack, nextStack,
+				       xIndex, yIndex);
 		  else
-		    iterator->newValue(series[i], x, nextStack, prevStack);
+		    iterator->newValue(series[i], x, nextStack, prevStack,
+				       xIndex, yIndex);
 	      }
 	    }
 

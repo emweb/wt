@@ -96,20 +96,6 @@ WDialog::WDialog(const WString& windowTitle)
 	   "(ignoreMe = document.documentElement.scrollTop + "
 	   "document.documentElement.clientHeight/2) + 'px' );");
     }
-
-    app->styleSheet().addRule("div.Wt-dialog",
-			      "border: 1px solid #888888;"
-			      "background: #EEEEEE none repeat scroll 0%;");
-    app->styleSheet().addRule("div.Wt-dialog .titlebar",
-			      "background: #888888; color: #FFFFFF;"
-			      "cursor: move;"
-			      "padding: 2px 6px 3px;");
-    app->styleSheet().addRule("div.Wt-dialog .body",
-			      "background: #EEEEEE;"
-			      "padding: 4px 6px 4px;");
-    app->styleSheet().addRule("div.Wt-msgbox-buttons button",
-			      "padding: 1px 4px 1px;"
-			      "margin: 2px;");
   }
 
   WContainerWidget *parent = app->domRoot();
@@ -264,14 +250,14 @@ void WDialog::setModal(bool modal)
 void WDialog::saveCoverState(WApplication *app, WContainerWidget *cover)
 {
   coverWasHidden_ = cover->isHidden();
-  coverPreviousStyle_ = cover->attributeValue("style");
+  coverPreviousZIndex_ = cover->zIndex();
   previousExposeConstraint_ = app->exposeConstraint();
 }
 
 void WDialog::restoreCoverState(WApplication *app, WContainerWidget *cover)
 {
   cover->setHidden(coverWasHidden_);
-  cover->setAttributeValue("style", coverPreviousStyle_);
+  cover->setZIndex(coverPreviousZIndex_);
   app->constrainExposed(previousExposeConstraint_);
 }
 
@@ -286,8 +272,7 @@ void WDialog::setHidden(bool hidden)
 	saveCoverState(app, cover);
 
 	cover->show();
-	cover->setAttributeValue("style", "z-index:"
-	  + boost::lexical_cast<std::string>(impl_->zIndex() - 1));
+	cover->setZIndex(impl_->zIndex() - 1);
 	app->constrainExposed(this);
       } else
 	restoreCoverState(app, cover);

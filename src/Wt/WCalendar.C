@@ -61,67 +61,14 @@ void WCalendar::create()
 {
   setImplementation(layout_ = new WContainerWidget());
 
-  const char *CSS_RULES_NAME = "Wt::WCalendar";
-
   WApplication *app = WApplication::instance();
-  if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    app->styleSheet().addRule("table.Wt-cal-table ",
-			      "border-collapse:separate;"
-			      "border-spacing:0pt;"
-			      "width: 18em;", CSS_RULES_NAME);
-    app->styleSheet().addRule("*.Wt-cal-table td",
-			      "color: #003DB8;"
-			      "border: 1px solid #E0E0E0;"
-			      "cursor: pointer; cursor: hand;"
-			      "text-align: center;"
-			      "padding: 0.1em 0.2em;");
-    app->styleSheet().addRule("*.Wt-cal-table td:hover",
-			      "color: #FFFFFF;"
-			      "border:1px solid #FF9900;"
-			      "background-color: #FF9900;");
-    app->styleSheet().addRule("td.Wt-cal-header, "
-			      "td.Wt-cal-header:hover",
-			      "color: #666666;"
-			      "border: 0px;"
-			      "width: 2em;"
-			      "background-color: transparent;");
-    app->styleSheet().addRule("td.Wt-cal-header-weekend, "
-			      "td.Wt-cal-header-weekend:hover",
-			      "color: #777777;"
-			      "border: 0px;"
-			      "width: 2em;"
-			      "background-color: transparent;");
-    app->styleSheet().addRule("td.Wt-cal-oom, "
-			      "td.Wt-cal-oom:hover",
-			      "color: #999999;"
-			      "cursor: default;"
-			//"border: 1px solid transparent;" doesn't work on IE6
-			      "border: 0px;"
-			      "background-color: transparent;");
-    app->styleSheet().addRule("td.Wt-cal-sel",
-			      "background-color:#FFF19F;"
-			      "border:1px solid #FF9900;");
-    app->styleSheet().addRule("td.Wt-cal-now",
-			      "border:1px solid #000000;");
-    app->styleSheet().addRule("*.Wt-cal-navbutton",
-			      "color: #FFFFFF;"
-			      "background-color:#6699CC;"
-			      "cursor: pointer; cursor: hand;"
-			      "margin: 0px 3px;");
-    app->styleSheet().addRule("*.Wt-cal-year span",
-			      "border: 1px solid transparent;");
-    app->styleSheet().addRule("*.Wt-cal-year span:hover",
-			      "background-color:#FFFFCC;"
-			      "border: 1px solid #CCCCCC;");
-  }
-
-  layout_->resize(WLength(18, WLength::FontEm), WLength::Auto);
+  layout_->setStyleClass("Wt-cal");
 
   /*
    * Navigation bar
    */
   WContainerWidget *navigation = new WContainerWidget(layout_);
-  navigation->setContentAlignment(AlignCenter);
+  navigation->setStyleClass("Wt-cal-navigation");
 
   WText *prevYear = new WText("<<", PlainText, navigation);
   prevYear->setStyleClass("Wt-cal-navbutton");

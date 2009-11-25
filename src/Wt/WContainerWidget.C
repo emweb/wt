@@ -622,13 +622,13 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
     switch (contentAlignment_ & AlignHorizontalMask) {
     case AlignCenter: {
       DomElement *itable = DomElement::createNew(DomElement_TABLE);
-      itable->setAttribute("class", "Wt-hcenter");
+      itable->setProperty(PropertyClass, "Wt-hcenter");
       if (fitHeight)
-	itable->setAttribute("style", "height:100%;");
+	itable->setProperty(PropertyStyle, "height:100%;");
       DomElement *irow = DomElement::createNew(DomElement_TR);
       DomElement *itd = DomElement::createNew(DomElement_TD);
       if (fitHeight)
-	itd->setAttribute("style", "height:100%;");
+	itd->setProperty(PropertyStyle, "height:100%;");
       itd->addChild(c);
       irow->addChild(itd);
       itable->addChild(irow);

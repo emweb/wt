@@ -28,39 +28,65 @@ namespace Wt {
  * The widget corresponds to the HTML <tt>&lt;button&gt;</tt> tag.
  *
  * %WPushButton is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * <h3>CSS</h3>
+ *
+ * You may customize the look of a push button using the
+ * <tt>Wt-btn</tt> CSS class.
  */
 class WT_API WPushButton : public WFormWidget
 {
 public:
-  /*! \brief Create a push button with empty label.
+  /*! \brief Creates a push button.
    */
   WPushButton(WContainerWidget *parent = 0);
 
-  /*! \brief Create a push button with given label.
+  /*! \brief Creates a push button with given label text.
    */
   WPushButton(const WString& text, WContainerWidget *parent = 0);
 
-  /*! \brief Set the button text.
+  /*! \brief Sets the button text.
    */
   void setText(const WString& text);
 
-  /*! \brief Get the button text.
+  /*! \brief Returns the button text.
+   *
+   * \sa setText()
    */
   const WString& text() const { return text_; }
+
+  /*! \brief Sets an icon.
+   *
+   * The icon is placed to the left of the text.
+   */
+  void setIcon(const std::string& url);
+
+  /*! \brief Returns the icon.
+   *
+   * \sa setIcon()
+   */
+  const std::string& icon() const { return icon_; }
 
   virtual void refresh();
 
 private:
-  WString text_;
+  static const int BIT_TEXT_CHANGED = 0;
+  static const int BIT_ICON_CHANGED = 1;
+  static const int BIT_ICON_RENDERED = 2;
 
-  bool textChanged_;
+  WString     text_;
+  std::string icon_;
+
+  std::bitset<3> flags_;
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void           propagateRenderOk(bool deep);
+  virtual void           getDomChanges(std::vector<DomElement *>& result,
+				       WApplication *app);
 };
 
 }
 
-#endif // WTEXT_H_
+#endif // WPUSHBUTTON_H_

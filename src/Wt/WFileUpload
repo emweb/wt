@@ -211,6 +211,7 @@ public:
 private:
   static const char *CHANGE_SIGNAL;
   static const char *UPLOADED_SIGNAL;
+  static const char *FILETOOLARGE_SIGNAL;
 
   int textSize_;
 
@@ -235,6 +236,11 @@ protected:
   virtual void           propagateRenderOk(bool deep);
   virtual void           getDomChanges(std::vector<DomElement *>& result,
 				       WApplication *app);
+
+private:
+  EventSignal<>&         fileTooLargeImpl();
+  void                   handleFileTooLargeImpl();
+  int                    tooLargeSize_;
 
   virtual void setFormData(const FormData& formData);
 

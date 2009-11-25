@@ -336,6 +336,13 @@ WFlags<ItemFlag> WAbstractItemModel::flags(const WModelIndex& index) const
   return ItemIsSelectable;
 }
 
+WFlags<HeaderFlag> WAbstractItemModel::headerFlags(int section,
+						   Orientation orientation)
+  const
+{
+  return 0;
+}
+
 bool WAbstractItemModel::hasChildren(const WModelIndex& index) const
 {
   return rowCount(index) > 0 && columnCount(index) > 0;
@@ -374,10 +381,19 @@ boost::any WAbstractItemModel::headerData(int section,
 					  Orientation orientation,
 					  int role) const
 {
-  return boost::any();
+  if (role == LevelRole)
+    return 0;
+  else
+    return boost::any();
 }
 
 void WAbstractItemModel::sort(int column, SortOrder order)
+{ }
+
+void WAbstractItemModel::expandColumn(int column)
+{ }
+
+void WAbstractItemModel::collapseColumn(int column)
 { }
 
 bool WAbstractItemModel::insertColumns(int column, int count,

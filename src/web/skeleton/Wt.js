@@ -874,7 +874,7 @@ var dragDrag = function(e) {
       if (ds.dropTarget.handleDragDrop)
 	ds.dropTarget.handleDragDrop('drag', ds.object, e, '', mimeType);
       else
-	ds.object.className = 'valid-drop';
+	ds.object.className = 'Wt-valid-drop';
     }
 
     WT.cancelEvent(e);
@@ -1163,8 +1163,6 @@ var update = function(self, signalName, e, feedback) {
   if (captureElement && (self == captureElement) && e.type == "mouseup")
     capture(null);
 
-  _$_APP_CLASS_$_._p_.autoJavaScript();
-
   _$_$if_STRICTLY_SERIALIZED_EVENTS_$_;
   if (responsePending)
     return;
@@ -1179,6 +1177,8 @@ var update = function(self, signalName, e, feedback) {
   pendingEvents[i] = encodeEvent(pendingEvent, i);
 
   scheduleUpdate();
+
+  _$_APP_CLASS_$_._p_.autoJavaScript();
 }
 
 var scheduleUpdate = function() {

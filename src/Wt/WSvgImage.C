@@ -168,6 +168,8 @@ void WSvgImage::makeNewGroup()
 	  pathTranslation_.setX(dx);
 	  pathTranslation_.setY(dy);
 
+	  changeFlags_ = 0;
+
 	  return;
 	}
       } else {
@@ -244,8 +246,6 @@ void WSvgImage::makeNewGroup()
   }
 
   tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
-
-  currentTransform_ = painter()->combinedTransform();
 
   if (!currentTransform_.isIdentity()) {
     tmp << " transform=\"matrix("

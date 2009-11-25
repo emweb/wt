@@ -191,6 +191,9 @@ boost::any WStandardItemModel::data(const WModelIndex& index, int role) const
 boost::any WStandardItemModel::headerData(int section, Orientation orientation,
 					  int role) const
 {
+  if (role == LevelRole)
+    return 0;
+
   const HeaderData& d = (orientation == Horizontal)
     ? columnHeaderData_[section]
     : rowHeaderData_[section];

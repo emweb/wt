@@ -216,32 +216,36 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
   paint(painter);
 }
 
-void WCartesianChart::drawMarker(const WDataSeries& series, WPainterPath& result)
+void WCartesianChart::drawMarker(const WDataSeries& series,
+				 WPainterPath& result)
   const
 {
+  const double size = series.markerSize();
+  const double hsize = size/2;
+
   switch (series.marker()) {
   case CircleMarker:
-    result.addEllipse(-3, -3, 6, 6);
+    result.addEllipse(-hsize, -hsize, size, size);
     break;
   case SquareMarker:
-    result.addRect(WRectF(-3, -3, 6, 6));
+    result.addRect(WRectF(-hsize, -hsize, size, size));
     break;
   case CrossMarker:
-    result.moveTo(-4, 0);
-    result.lineTo(4, 0);
-    result.moveTo(0, -4);
-    result.lineTo(0, 4);
+    result.moveTo(-1.3 * hsize, 0);
+    result.lineTo(1.3 * hsize, 0);
+    result.moveTo(0, -1.3 * hsize);
+    result.lineTo(0, 1.3 * hsize);
     break;
   case XCrossMarker:
-    result.moveTo(-3, -3);
-    result.lineTo(3, 3);
-    result.moveTo(-3, 3);
-    result.lineTo(3, -3);
+    result.moveTo(-hsize, -hsize);
+    result.lineTo(hsize, hsize);
+    result.moveTo(-hsize, hsize);
+    result.lineTo(hsize, -hsize);
     break;
   case TriangleMarker:
-    result.moveTo(0, -3);
-    result.lineTo(3, 2);
-    result.lineTo(-3, 2);
+    result.moveTo(0, -hsize);
+    result.lineTo(hsize, 0.6 * hsize);
+    result.lineTo(-hsize, 0.6 * hsize);
     result.closeSubPath();
     break;
   default:

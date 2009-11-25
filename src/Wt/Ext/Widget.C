@@ -67,7 +67,7 @@ void Widget::initExt()
 				   "" "function(id){"
 				   ""   "var w=ExtW[id];"
 				   ""   "if(w){"
-				   ""      "if (w.destroy) w.destroy();"
+				   ""      "if (w.el && w.destroy) w.destroy();"
 				   ""      "delete ExtW[id];"
 				   ""   "}"
 				   "" "}");

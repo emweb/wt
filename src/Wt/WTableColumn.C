@@ -79,7 +79,7 @@ void WTableColumn::updateDom(DomElement& element, bool all)
     element.setProperty(PropertyStyleWidth, width_->cssText());
 
   if (!all || !styleClass_.empty())
-    element.setAttribute("class", styleClass_.toUTF8());
+    element.setProperty(PropertyClass, styleClass_.toUTF8());
 }
 
 }

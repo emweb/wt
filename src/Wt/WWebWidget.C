@@ -557,6 +557,18 @@ void WWebWidget::setPopup(bool popup)
   repaint(RepaintPropertyAttribute);
 }
 
+void WWebWidget::setZIndex(int zIndex)
+{
+  if (!layoutImpl_)
+    layoutImpl_ = new LayoutImpl();
+
+  layoutImpl_->zIndex_ = zIndex;
+
+  flags_.set(BIT_GEOMETRY_CHANGED);
+
+  repaint(RepaintPropertyAttribute);
+}
+
 void WWebWidget::gotParent()
 {
   if (isPopup())
@@ -912,8 +924,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	    && element.type() == DomElement_DIV) {
 	  DomElement *i = DomElement::createNew(DomElement_IFRAME);
 	  i->setId("sh" + id());
-	  i->setAttribute("class", "Wt-shim");
-	  i->setAttribute("src", "javascript:false;");
+	  i->setProperty(PropertyClass, "Wt-shim");
+	  i->setProperty(PropertySrc, "javascript:false;");
 	  i->setAttribute("title", "Popup Shim");
 	  i->setAttribute("tabindex", "-1");
 	  i->setAttribute("frameborder", "0");
@@ -1090,22 +1102,24 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
     if (((!all) && flags_.test(BIT_STYLECLASS_CHANGED))
 	|| (all && !lookImpl_->styleClass_.empty()))
-      element.setAttribute("class", lookImpl_->styleClass_.toUTF8());
+      element.setProperty(PropertyClass,
+			  Utils::addWord(element.getProperty(PropertyClass),
+					 lookImpl_->styleClass_.toUTF8()));
 
     flags_.reset(BIT_STYLECLASS_CHANGED);
   }
 
   if (all || flags_.test(BIT_SELECTABLE_CHANGED)) {
     if (flags_.test(BIT_SET_UNSELECTABLE)) {
-      element.setAttribute("class",
-			   Utils::addWord(element.getAttribute("class"),
-					  "unselectable"));
+      element.setProperty(PropertyClass,
+			  Utils::addWord(element.getProperty(PropertyClass),
+					 "unselectable"));
       element.setAttribute("unselectable", "on");
       element.setAttribute("onselectstart", "return false;");
     } else if (flags_.test(BIT_SET_SELECTABLE)) {
-      element.setAttribute("class",
-			   Utils::addWord(element.getAttribute("class"),
-					  "selectable"));
+      element.setProperty(PropertyClass,
+			  Utils::addWord(element.getProperty(PropertyClass),
+					 "selectable"));
       element.setAttribute("unselectable", "off");
       element.setAttribute("onselectstart",
 			   "event.cancelBubble=true;return true;");
@@ -1119,10 +1133,17 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       for (std::map<std::string, WT_USTRING>::const_iterator i
 	     = otherImpl_->attributes_->begin();
 	   i != otherImpl_->attributes_->end(); ++i)
-	element.setAttribute(i->first, i->second.toUTF8());
+	if (i->first == "style")
+	  element.setProperty(PropertyStyle, i->second.toUTF8());
+	else
+	  element.setAttribute(i->first, i->second.toUTF8());
     } else if (otherImpl_->attributesSet_) {
       for (unsigned i = 0; i < otherImpl_->attributesSet_->size(); ++i) {
 	std::string attr = (*otherImpl_->attributesSet_)[i];
+	if (attr == "style")
+	  element.setProperty(PropertyStyle,
+			      (*otherImpl_->attributes_)[attr].toUTF8());
+	else
 	element.setAttribute(attr, (*otherImpl_->attributes_)[attr].toUTF8());
       }
     }
@@ -1349,6 +1370,22 @@ void WWebWidget::setId(DomElement *element, WApplication *app)
     else
       element->setName(id());
   }
+}
+
+WWidget *WWebWidget::find(const std::string& name)
+{
+  if (objectName() == name)
+    return this;
+  else {
+    if (children_)
+      for (unsigned i = 0; i < children_->size(); ++i) {
+	WWidget *result = (*children_)[i]->find(name);
+	if (result)
+	  return result;
+      }
+  }
+
+  return 0;
 }
 
 DomElement *WWebWidget::createDomElement(WApplication *app)

@@ -87,6 +87,7 @@ Wt/WAbstractProxyModel.C
 Wt/WAbstractTableModel.C
 Wt/WAbstractToggleButton.C
 Wt/WAccordionLayout.C
+Wt/WAggregateProxyModel.C
 Wt/WAnchor.C
 Wt/WApplication.C
 Wt/WBorder.C

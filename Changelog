@@ -1,5 +1,28 @@
+25-11-2008:
+	* all: added support for CSS-based themes.
+
+	* WAbstractItemModel, WAggregateProxyModel, WTreeView: addded support
+	for drilling down through treeview columns
+
+	* WSlider: added sliderMoved() signal
+
+	* Chart/WAxis: added setAutoLimits() and autoLimits() methods, and have
+	maximum() and minimum() return computed values
+
+	* Chart/WCartesianChart: use MarkerPenColorRole and
+	MarkerBrushColorRole to override colors for markers per data point
+
+	* WCanvasPaintDevice: several improvements for outputting more
+	concise JavaScript rendering statements
+
+	* WWidget: add find() method to find a widget with a particular
+	objectName()
+
+	* WFileUpload: fileTooLarge() signal now propagates within the
+	event loop
+
 10-11-2009:
-	* WCartesianChart, WDataSeries: add mapFromDevice() and
+	* Chart/WCartesianChart, Chart/WDataSeries: added mapFromDevice() and
 	mapToDevice() methods.
 
 03-11-2009:

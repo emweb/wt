@@ -10,14 +10,12 @@
 namespace Wt {
 
 WPushButton::WPushButton(WContainerWidget *parent)
-  : WFormWidget(parent),
-    textChanged_(false)
+  : WFormWidget(parent)
 { }
 
 WPushButton::WPushButton(const WString& text, WContainerWidget *parent)
   : WFormWidget(parent),
-    text_(text),
-    textChanged_(false)
+    text_(text)
 { }
 
 void WPushButton::setText(const WString& text)
@@ -26,7 +24,18 @@ void WPushButton::setText(const WString& text)
     return;
 
   text_ = text;
-  textChanged_ = true;
+  flags_.set(BIT_TEXT_CHANGED);
+
+  repaint(RepaintInnerHtml);
+}
+
+void WPushButton::setIcon(const std::string& url)
+{
+  if (canOptimizeUpdates() && (url == icon_))
+    return;
+
+  icon_ = url;
+  flags_.set(BIT_ICON_CHANGED);
 
   repaint(RepaintInnerHtml);
 }
@@ -38,30 +47,61 @@ DomElementType WPushButton::domElementType() const
 
 void WPushButton::updateDom(DomElement& element, bool all)
 {
-  if (all)
+  if (all) {
     element.setAttribute("type", "button");
+    element.setProperty(PropertyClass, "Wt-btn");
+  }
 
-  if (textChanged_ || all) {
+  if (flags_.test(BIT_ICON_CHANGED) || (all && !icon_.empty())) {
+    DomElement *image = DomElement::createNew(DomElement_IMG);
+    image->setProperty(PropertySrc, icon_);
+    image->setId("im" + formName());
+    element.insertChildAt(image, 0);
+    flags_.set(BIT_ICON_RENDERED);
+  }
+
+  if (flags_.test(BIT_TEXT_CHANGED) || all) {
     element
       .setProperty(Wt::PropertyInnerHTML,
 		   text_.literal() ? escapeText(text_, true).toUTF8()
 		   : text_.toUTF8());
-    textChanged_ = false;
+    flags_.reset(BIT_TEXT_CHANGED);
   }
 
   WFormWidget::updateDom(element, all);
 }
 
+void WPushButton::getDomChanges(std::vector<DomElement *>& result,
+				WApplication *app)
+{
+  if (flags_.test(BIT_ICON_CHANGED) && flags_.test(BIT_ICON_RENDERED)) {
+    DomElement *image = DomElement::getForUpdate("im" + formName(),
+						 DomElement_IMG);
+    if (icon_.empty()) {
+      image->removeFromParent();
+      flags_.reset(BIT_ICON_RENDERED);
+    } else
+      image->setProperty(PropertySrc, icon_);
+
+    result.push_back(image);
+
+    flags_.reset(BIT_ICON_CHANGED);
+  }
+
+  WFormWidget::getDomChanges(result, app);
+}
+
 void WPushButton::propagateRenderOk(bool deep)
 {
-  textChanged_ = false;
+  flags_.reset();
+
   WFormWidget::propagateRenderOk(deep);
 }
 
 void WPushButton::refresh()
 {
   if (text_.refresh()) {
-    textChanged_ = true;
+    flags_.set(BIT_TEXT_CHANGED);
     repaint(RepaintInnerHtml);
   }
 

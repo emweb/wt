@@ -47,13 +47,17 @@ public:
    *
    * Constructs a rectangle from the two points \p topLeft and
    * \p bottomRight.
+   *
+   * If you want to create a rectangle from two arbitrary corner points,
+   * you can use this constructor too, but should call normalized()
+   * afterwords.
    */
   WRectF(const WPointF& topLeft, const WPointF& bottomRight);
 
 #ifdef WT_TARGET_JAVA
-    /*! \brief Internal assign method. 
-     */
-    WRectF& operator= (const WRectF& rhs);
+  /*! \brief Internal assign method. 
+   */
+  WRectF& operator= (const WRectF& rhs);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Comparison operator.
@@ -68,6 +72,7 @@ public:
   bool isNull() const;
 
   /*! \brief Determines whether or not this rectangle is empty. 
+   *
    * A rectangle is empty if its width or its height is less than 
    * or equal to zero.
    */
@@ -180,6 +185,14 @@ public:
    * \sa right(), bottom()
    */
   WPointF bottomRight() const;
+
+  /*! \brief Tests if a rectangle contains a point.
+   */
+  bool contains(const WPointF& p) const;
+
+  /*! \brief Tests if a rectangle contains a point.
+   */
+  bool contains(double x, double y) const;
 
   /*! \brief Tests if two rectangles intersect.
    */

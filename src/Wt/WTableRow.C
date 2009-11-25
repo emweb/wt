@@ -146,7 +146,7 @@ void WTableRow::updateDom(DomElement& element, bool all)
     element.setProperty(PropertyStyleHeight, height_->cssText());
 
   if (!all || !styleClass_.empty())
-    element.setAttribute("class", styleClass_.toUTF8());
+    element.setProperty(PropertyClass, styleClass_.toUTF8());
 
   if ((all && hidden_) || (!all && hiddenChanged_)) {
     element.setProperty(PropertyStyleDisplay, hidden_ ? "none" : "");

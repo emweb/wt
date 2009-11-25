@@ -33,12 +33,8 @@ namespace Wt {
  *  <li><i>resourcesURL</i>/tab_r.gif</li>
  * </ul>
  *
- * These files may be found in the resources/ folder of the %Wt distribution. 
- *
- * The default value for <i>resourcesURL</i> is "resources/". This
- * value may be overridden with any valid URL which points to the
- * location where these files may be found, by configuring the
- * <i>resourcesURL</i> property in your %Wt configuration file.
+ * These files may be found in the resources/ folder of the %Wt distribution,
+ * see also \ref deployment "deployment and resources".
  *
  * Usage example:
  * \if cpp
@@ -72,6 +68,19 @@ namespace Wt {
  * \endif
  *
  * \image html WTabWidget-1.png "An example WTabWidget"
+ *
+ * <h3>CSS</h3>
+ *
+ * You may customize the look of the tabs handles using the
+ * <tt>Wt-tabs</tt> CSS class.
+ *
+ * The following rules may be used to style the header:
+ * \verbatim
+.Wt-tabs ul        : the list
+.Wt-tabs li        : a list item
+.Wt-tabs span      : outer span of a list item
+.Wt-span span span : inner span of a list item
+\endverbatim
  */
 class WT_API WTabWidget : public WCompositeWidget
 {

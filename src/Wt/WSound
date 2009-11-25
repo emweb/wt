@@ -28,8 +28,7 @@ class SoundManager;
  * This class uses <i>resourcesURL</i>"WtSoundManager.swf", a flash
  * object, and <i>resourcesURL</i>"swfobject.js", a companion
  * JavaScript library, which are both distributed with %Wt in the
- * resources folder. <i>resourcesURL</i> is the configuration property
- * that locates the %Wt resources/ folder inside your docroot.
+ * resources folder, see \ref deployment "deployment and resources".
  *
  * \if cpp
  * Usage example:

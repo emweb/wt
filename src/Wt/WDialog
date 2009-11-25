@@ -228,7 +228,7 @@ private:
   bool              modal_;
 
   WWidget          *previousExposeConstraint_;
-  WT_USTRING        coverPreviousStyle_;
+  int               coverPreviousZIndex_;
   bool              coverWasHidden_;
 
   Signal<DialogCode> finished_;

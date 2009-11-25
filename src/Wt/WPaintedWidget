@@ -7,7 +7,8 @@
 #ifndef WPAINTED_WIDGET_H_
 #define WPAINTED_WIDGET_H_
 
-#include "Wt/WInteractWidget"
+#include <Wt/WInteractWidget>
+#include <Wt/WJavaScript>
 
 namespace Wt {
 
@@ -225,7 +226,12 @@ private:
   bool              sizeChanged_;
   WFlags<PaintFlag> repaintFlags_;
   WImage           *areaImage_;
+  int               renderWidth_, renderHeight_;
 
+  JSignal<int, int> resized_;
+
+  void resizeCanvas(int width, int height);
+  void onResize(int width, int height);
   bool createPainter();
   void createAreaImage();
 

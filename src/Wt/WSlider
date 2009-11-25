@@ -183,10 +183,25 @@ public:
    *         slider.
    *
    * The new value is passed as the argument.
+   *
+   * \sa sliderMoved()
    */
   Signal<int>& valueChanged() { return valueChanged_; }
 
+  /*! \brief %Signal emitted while the user drags the slider.
+   *
+   * The current dragged position is passed as the argument. Note that the
+   * slider value is not changed while dragging the slider, but only after
+   * the slider has been released.
+   *
+   * \sa valueChanged()
+   */
+  JSignal<int>& sliderMoved() { return sliderMoved_; }
+
   virtual void resize(const WLength& width, const WLength& height);
+
+protected:
+  virtual void signalConnectionsChanged();
 
 private:
   Orientation          orientation_;
@@ -197,6 +212,7 @@ private:
   int                  value_;
 
   Signal<int>          valueChanged_;
+  JSignal<int>         sliderMoved_;
 
   WContainerWidget    *impl_;
   WSliderBackground   *background_;

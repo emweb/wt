@@ -23,8 +23,6 @@ WAbstractChart::WAbstractChart(WContainerWidget *parent)
 
   setPlotAreaPadding(5, Left | Right);
   setPlotAreaPadding(5, Top | Bottom);
-
-  resize(600, 400);
 }
 
 WAbstractChart::~WAbstractChart()

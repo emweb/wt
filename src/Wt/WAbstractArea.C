@@ -280,10 +280,10 @@ void WAbstractArea::updateDom(DomElement& element, bool all)
     case TargetSelf:
       break;
     case TargetThisWindow:
-      element.setAttribute("target", "_top");
+      element.setProperty(PropertyTarget, "_top");
       break;
     case TargetNewWindow:
-      element.setAttribute("target", "_blank");
+      element.setProperty(PropertyTarget, "_blank");
     }
     element.setAttribute("alt", anchor_->altText_.toUTF8());
   } else {

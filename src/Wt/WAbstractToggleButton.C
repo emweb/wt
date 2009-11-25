@@ -31,15 +31,11 @@ WAbstractToggleButton::WAbstractToggleButton(const WString& text,
 { 
   WLabel *label = new WLabel(text);
   label->setBuddy(this);
+  addChild(label);
 }
 
 WAbstractToggleButton::~WAbstractToggleButton()
-{
-  WLabel *l = label();
-
-  if (l && !l->parent())
-    delete l;
-}
+{ }
 
 #ifndef WT_TARGET_JAVA
 WStatelessSlot *WAbstractToggleButton::getStateless(Method method)
@@ -74,6 +70,7 @@ void WAbstractToggleButton::setText(const WString& text)
   if (!l) {
     l = new WLabel(text);
     l->setBuddy(this);
+    addChild(l);
   }
 
   l->setText(text);
@@ -214,7 +211,7 @@ DomElementType WAbstractToggleButton::domElementType() const
   else {
     WLabel *l = label();
 
-    if (l && !l->parent())
+    if (l && l->parent() == this)
       return DomElement_SPAN;
     else
       return DomElement_INPUT;
@@ -250,7 +247,7 @@ DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
 	src += "indeterminate-linux.png";
 
       img->setProperty(Wt::PropertySrc, fixRelativeUrl(src));
-      img->setAttribute("class", "Wt-indeterminate");
+      img->setProperty(Wt::PropertyClass, "Wt-indeterminate");
 
       EventSignal<> *imgClick
 	= voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, true);
@@ -273,7 +270,7 @@ DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
 
     WLabel *l = label();
   
-    if (l && !l->parent())
+    if (l && l->parent() == this)
       result->addChild(((WWebWidget *)l)->createDomElement(app));
   }
 
@@ -315,11 +312,6 @@ void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
 
     updateDom(*input, false);
     result.push_back(input);
-    
-    WLabel *l = label();
-
-    if (l && !l->parent())
-      ((WWebWidget *)l)->getDomChanges(result, app);
   } else {
     DomElement *e = DomElement::getForUpdate(this, domElementType());
     updateDom(*e, false);

@@ -34,7 +34,7 @@ WPopupMenu::WPopupMenu()
 
   if (!app->styleSheet().isDefined(CSS_RULES_NAME))
     app->styleSheet().addRule
-      (".notselected .Wt-popupmenu", "visibility: hidden;", CSS_RULES_NAME);
+      (".Wt-notselected .Wt-popupmenu", "visibility: hidden;", CSS_RULES_NAME);
 
   app->domRoot()->addWidget(this);
 
