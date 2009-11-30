@@ -1,5 +1,5 @@
 /*
- * "$Id: mxml-private.h,v 1.1 2007/12/01 15:17:47 jozef Exp $"
+ * "$Id: mxml-private.h 309 2007-09-21 04:46:02Z mike $"
  *
  * Private definitions for Mini-XML, a small XML-like file parsing library.
  *
@@ -48,5 +48,5 @@ extern int		_mxml_entity_cb(const char *name);
 
 
 /*
- * End of "$Id: mxml-private.h,v 1.1 2007/12/01 15:17:47 jozef Exp $".
+ * End of "$Id: mxml-private.h 309 2007-09-21 04:46:02Z mike $".
  */

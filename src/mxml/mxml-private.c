@@ -1,5 +1,5 @@
 /*
- * "$Id: mxml-private.c,v 1.2 2007/12/01 15:17:47 jozef Exp $"
+ * "$Id: mxml-private.c 315 2007-11-22 18:01:52Z mike $"
  *
  * Private functions for Mini-XML, a small XML-like file parsing library.
  *
@@ -281,5 +281,5 @@ _mxml_global(void)
 
 
 /*
- * End of "$Id: mxml-private.c,v 1.2 2007/12/01 15:17:47 jozef Exp $".
+ * End of "$Id: mxml-private.c 315 2007-11-22 18:01:52Z mike $".
  */

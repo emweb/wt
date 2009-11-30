@@ -1,5 +1,45 @@
-CHANGES - 2007-11-22
+CHANGES - 2009-05-17
 --------------------
+
+CHANGES IN Mini-XML 2.6
+
+	- Documentation fixes (STR #91, STR #92)
+	- The mxmldoc program did not handle typedef comments properly (STR #72)
+	- Added support for "long long" printf formats.
+	- The XML parser now ignores BOMs in UTF-8 XML files (STR #89)
+	- The mxmldoc program now supports generating Xcode documentation sets.
+	- mxmlSave*() did not output UTF-8 correctly on some platforms.
+	- mxmlNewXML() now adds encoding="utf-8" in the ?xml directive to avoid
+	  problems with non-conformant XML parsers that assume something other
+	  than UTF-8 as the default encoding.
+	- Wrapping was not disabled when mxmlSetWrapMargin(0) was called, and
+	  "<?xml ... ?>" was always followed by a newline (STR #76)
+	- The mxml.pc.in file was broken (STR #79)
+	- The mxmldoc program now handles "typedef enum name {} name" correctly
+	  (STR #72)
+
+
+CHANGES IN Mini-XML 2.5
+
+	- The mxmldoc program now makes greater use of CSS and
+	  supports a --css option to embed an alternate stylesheet.
+	- The mxmldoc program now supports --header and --footer
+	  options to insert documentation content before and
+	  after the generated content.
+	- The mxmldoc program now supports a --framed option to
+	  generate framed HTML output.
+	- The mxmldoc program now creates a table of contents
+	  including any headings in the --intro file when
+	  generating HTML output.
+	- The man pages and man page output from mxmldoc did
+	  not use "\-" for dashes (STR #68)
+	- The debug version of the Mini-XML DLL could not be
+	  built (STR #65)
+	- Processing instructions and directives did not work
+	  when not at the top level of a document (STR #67)
+	- Spaces around the "=" in attributes were not supported
+	  (STR #67)
+
 
 CHANGES IN Mini-XML 2.4
 

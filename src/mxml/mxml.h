@@ -1,9 +1,9 @@
 /*
- * "$Id: mxml.h,v 1.2 2007/12/01 15:17:47 jozef Exp $"
+ * "$Id: mxml.h 385 2009-03-19 05:38:52Z mike $"
  *
  * Header file for Mini-XML, a small XML-like file parsing library.
  *
- * Copyright 2003-2007 by Michael Sweet.
+ * Copyright 2003-2009 by Michael Sweet.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -161,6 +161,9 @@ typedef int (*mxml_custom_load_cb_t)(mxml_node_t *, const char *);
 typedef char *(*mxml_custom_save_cb_t)(mxml_node_t *);  
 					/**** Custom data save callback function ****/
 
+typedef int (*mxml_entity_cb_t)(const char *);
+					/**** Entity callback function */
+
 typedef mxml_type_t (*mxml_load_cb_t)(mxml_node_t *);
 					/**** Load callback function ****/
 
@@ -197,10 +200,10 @@ extern void		mxmlElementSetAttrf(mxml_node_t *node, const char *name,
 __attribute__ ((__format__ (__printf__, 3, 4)))
 #    endif /* __GNUC__ */
 ;
-extern int		mxmlEntityAddCallback(int (*cb)(const char *name));
+extern int		mxmlEntityAddCallback(mxml_entity_cb_t cb);
 extern const char	*mxmlEntityGetName(int val);
 extern int		mxmlEntityGetValue(const char *name);
-extern void		mxmlEntityRemoveCallback(int (*cb)(const char *name));
+extern void		mxmlEntityRemoveCallback(mxml_entity_cb_t cb);
 extern mxml_node_t	*mxmlFindElement(mxml_node_t *node, mxml_node_t *top,
 			                 const char *name, const char *attr,
 					 const char *value, int descend);
@@ -301,5 +304,5 @@ extern mxml_type_t	mxml_real_cb(mxml_node_t *node);
 
 
 /*
- * End of "$Id: mxml.h,v 1.2 2007/12/01 15:17:47 jozef Exp $".
+ * End of "$Id: mxml.h 385 2009-03-19 05:38:52Z mike $".
  */

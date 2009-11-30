@@ -1,4 +1,8 @@
-25-11-2008:
+30-11-2009:
+	* src/mxml: updated to an unmodified mxml-2.6 (which includes are bug
+	UTF-8 bug fixes)
+
+25-11-2009:
 	* all: added support for CSS-based themes.
 
 	* WAbstractItemModel, WAggregateProxyModel, WTreeView: addded support

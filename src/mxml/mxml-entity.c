@@ -1,10 +1,10 @@
 /*
- * "$Id: mxml-entity.c,v 1.2 2007/12/01 15:17:47 jozef Exp $"
+ * "$Id: mxml-entity.c 385 2009-03-19 05:38:52Z mike $"
  *
  * Character entity support code for Mini-XML, a small XML-like
  * file parsing library.
  *
- * Copyright 2003-2007 by Michael Sweet.
+ * Copyright 2003-2009 by Michael Sweet.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -41,7 +41,7 @@
 
 int					/* O - 0 on success, -1 on failure */
 mxmlEntityAddCallback(
-    int (*cb)(const char *name))	/* I - Callback function to add */
+    mxml_entity_cb_t cb)		/* I - Callback function to add */
 {
   _mxml_global_t *global = _mxml_global();
 					/* Global data */
@@ -121,8 +121,8 @@ mxmlEntityGetValue(const char *name)	/* I - Entity name */
  */
 
 void
-mxmlEntityRemoveCallback(int (*cb)(const char *name))
-					/* I - Callback function to remove */
+mxmlEntityRemoveCallback(
+    mxml_entity_cb_t cb)		/* I - Callback function to remove */
 {
   int		i;			/* Looping var */
   _mxml_global_t *global = _mxml_global();
@@ -458,5 +458,5 @@ _mxml_entity_cb(const char *name)	/* I - Entity name */
 
 
 /*
- * End of "$Id: mxml-entity.c,v 1.2 2007/12/01 15:17:47 jozef Exp $".
+ * End of "$Id: mxml-entity.c 385 2009-03-19 05:38:52Z mike $".
  */

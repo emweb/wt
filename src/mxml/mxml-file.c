@@ -1,9 +1,9 @@
 /*
- * "$Id: mxml-file.c,v 1.4 2008/03/13 09:38:39 jozef Exp $"
+ * "$Id: mxml-file.c 391 2009-05-17 05:20:52Z mike $"
  *
  * File loading code for Mini-XML, a small XML-like file parsing library.
  *
- * Copyright 2003-2007 by Michael Sweet.
+ * Copyright 2003-2009 by Michael Sweet.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -55,12 +55,10 @@
  * Include necessary headers...
  */
 
-#include "mxml-private.h"
-#ifdef WIN32
-#  include <io.h>
-#else
+#ifndef WIN32
 #  include <unistd.h>
-#endif /* WIN32 */
+#endif /* !WIN32 */
+#include "mxml-private.h"
 
 
 /*
@@ -84,7 +82,7 @@
  */
 
 typedef int (*_mxml_getc_cb_t)(void *, int *);
-typedef int (*_mxml_putc_cb_t)(unsigned char, void *);
+typedef int (*_mxml_putc_cb_t)(int, void *);
 
 typedef struct _mxml_fdbuf_s		/**** File descriptor buffer ****/
 {
@@ -102,17 +100,14 @@ typedef struct _mxml_fdbuf_s		/**** File descriptor buffer ****/
 static int		mxml_add_char(int ch, char **ptr, char **buffer,
 			              int *bufsize);
 static int		mxml_fd_getc(void *p, int *encoding);
-static int		mxml_fd_putc(unsigned char ch, void *p);
+static int		mxml_fd_putc(int ch, void *p);
 static int		mxml_fd_read(_mxml_fdbuf_t *buf);
 static int		mxml_fd_write(_mxml_fdbuf_t *buf);
 static int		mxml_file_getc(void *p, int *encoding);
-static int		mxml_file_putc(unsigned char ch, void *p);
+static int		mxml_file_putc(int ch, void *p);
 static int		mxml_get_entity(mxml_node_t *parent, void *p,
 			                int *encoding,
 					_mxml_getc_cb_t getc_cb);
-#ifdef WIN32
-#define inline __inline
-#endif
 static inline int	mxml_isspace(int ch)
 			{
 			  return (ch == ' ' || ch == '\t' || ch == '\r' ||
@@ -126,7 +121,7 @@ static int		mxml_parse_element(mxml_node_t *node, void *p,
 			                   int *encoding,
 					   _mxml_getc_cb_t getc_cb);
 static int		mxml_string_getc(void *p, int *encoding);
-static int		mxml_string_putc(unsigned char ch, void *p);
+static int		mxml_string_putc(int ch, void *p);
 static int		mxml_write_name(const char *s, void *p,
 					_mxml_putc_cb_t putc_cb);
 static int		mxml_write_node(mxml_node_t *node, void *p,
@@ -326,7 +321,7 @@ mxmlSaveFd(mxml_node_t    *node,	/* I - Node to write */
 
   buf.fd      = fd;
   buf.current = buf.buffer;
-  buf.end     = buf.buffer + sizeof(buf.buffer) - 4;
+  buf.end     = buf.buffer + sizeof(buf.buffer);
 
  /*
   * Write the node...
@@ -609,22 +604,19 @@ mxmlSetErrorCallback(mxml_error_cb_t cb)/* I - Error callback function */
 /*
  * 'mxmlSetWrapMargin()' - Set the the wrap margin when saving XML data.
  *
- * Wrapping is disabled when "column" is <= 0.
+ * Wrapping is disabled when "column" is 0.
  *
  * @since Mini-XML 2.3@
  */
 
 void
-mxmlSetWrapMargin(int column)		/* I - Column for wrapping */
+mxmlSetWrapMargin(int column)		/* I - Column for wrapping, 0 to disable wrapping */
 {
   _mxml_global_t *global = _mxml_global();
 					/* Global data */
 
 
-  if (column <= 0)
-    global->wrap = 2147483647;
-  else
-    global->wrap = column;
+  global->wrap = column;
 }
 
 
@@ -811,7 +803,10 @@ mxml_fd_getc(void *p,			/* I  - File descriptor buffer */
 	  ch = ((ch & 0x1f) << 6) | (temp & 0x3f);
 
 	  if (ch < 0x80)
+	  {
+	    mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	    return (EOF);
+	  }
 	}
 	else if ((ch & 0xf0) == 0xe0)
 	{
@@ -842,7 +837,17 @@ mxml_fd_getc(void *p,			/* I  - File descriptor buffer */
 	  ch = (ch << 6) | (temp & 0x3f);
 
 	  if (ch < 0x800)
+	  {
+	    mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	    return (EOF);
+	  }
+
+         /*
+	  * Ignore (strip) Byte Order Mark (BOM)...
+	  */
+
+	  if (ch == 0xfeff)
+	    return (mxml_fd_getc(p, encoding));
 	}
 	else if ((ch & 0xf8) == 0xf0)
 	{
@@ -884,7 +889,10 @@ mxml_fd_getc(void *p,			/* I  - File descriptor buffer */
 	  ch = (ch << 6) | (temp & 0x3f);
 
 	  if (ch < 0x10000)
+	  {
+	    mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	    return (EOF);
+	  }
 	}
 	else
 	  return (EOF);
@@ -1000,15 +1008,14 @@ mxml_fd_getc(void *p,			/* I  - File descriptor buffer */
  */
 
 static int				/* O - 0 on success, -1 on error */
-mxml_fd_putc(unsigned char ch,		/* I - Character */
+mxml_fd_putc(int  ch,			/* I - Character */
              void *p)			/* I - File descriptor buffer */
 {
   _mxml_fdbuf_t	*buf;			/* File descriptor buffer */
 
 
  /*
-  * Flush the write buffer as needed - note above that "end" still leaves
-  * 4 characters at the end so that we can avoid a lot of extra tests...
+  * Flush the write buffer as needed...
   */
 
   buf = (_mxml_fdbuf_t *)p;
@@ -1017,11 +1024,11 @@ mxml_fd_putc(unsigned char ch,		/* I - Character */
     if (mxml_fd_write(buf) < 0)
       return (-1);
 
-  /*
-   * Write ASCII character directly...
-   */
-
   *(buf->current)++ = ch;
+
+ /*
+  * Return successfully...
+  */
 
   return (0);
 }
@@ -1198,7 +1205,10 @@ mxml_file_getc(void *p,			/* I  - Pointer to file */
 	  ch = ((ch & 0x1f) << 6) | (temp & 0x3f);
 
 	  if (ch < 0x80)
+	  {
+	    mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	    return (EOF);
+	  }
 	}
 	else if ((ch & 0xf0) == 0xe0)
 	{
@@ -1217,7 +1227,17 @@ mxml_file_getc(void *p,			/* I  - Pointer to file */
 	  ch = (ch << 6) | (temp & 0x3f);
 
 	  if (ch < 0x800)
+	  {
+	    mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	    return (EOF);
+	  }
+
+         /*
+	  * Ignore (strip) Byte Order Mark (BOM)...
+	  */
+
+	  if (ch == 0xfeff)
+	    return (mxml_file_getc(p, encoding));
 	}
 	else if ((ch & 0xf8) == 0xf0)
 	{
@@ -1241,7 +1261,10 @@ mxml_file_getc(void *p,			/* I  - Pointer to file */
 	  ch = (ch << 6) | (temp & 0x3f);
 
 	  if (ch < 0x10000)
+	  {
+	    mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	    return (EOF);
+	  }
 	}
 	else
 	  return (EOF);
@@ -1317,7 +1340,7 @@ mxml_file_getc(void *p,			/* I  - Pointer to file */
  */
 
 static int				/* O - 0 on success, -1 on failure */
-mxml_file_putc(unsigned char ch,	/* I - Character to write */
+mxml_file_putc(int  ch,			/* I - Character to write */
                void *p)			/* I - Pointer to file */
 {
   return (putc(ch, (FILE *)p) == EOF ? -1 : 0);
@@ -1764,7 +1787,7 @@ mxml_load_data(
         if (node)
 	{
 	  if (!first)
-	    first = node;
+            first = node;
 
 	  if (!parent)
 	  {
@@ -1773,7 +1796,7 @@ mxml_load_data(
 	    if (cb)
 	      type = (*cb)(parent);
 	  }
-        }
+	}
       }
       else if (buffer[0] == '!')
       {
@@ -2048,8 +2071,6 @@ mxml_parse_element(
 	valsize;			/* Size of value string */
 
 
-
-
  /*
   * Initialize the name and value buffers...
   */
@@ -2307,10 +2328,10 @@ mxml_string_getc(void *p,		/* I  - Pointer to file */
                  int  *encoding)	/* IO - Encoding */
 {
   int		ch;			/* Character */
-  const unsigned char	**s;			/* Pointer to string pointer */
+  const char	**s;			/* Pointer to string pointer */
 
 
-  s = (const unsigned char **)p;
+  s = (const char **)p;
 
   if ((ch = (*s)[0] & 255) != 0 || *encoding == ENCODE_UTF16LE)
   {
@@ -2380,7 +2401,10 @@ mxml_string_getc(void *p,		/* I  - Pointer to file */
 	    (*s)++;
 
 	    if (ch < 0x80)
+	    {
+	      mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	      return (EOF);
+	    }
 
 #if DEBUG > 1
             printf("mxml_string_getc: %c (0x%04x)\n", ch < ' ' ? '.' : ch, ch);
@@ -2403,7 +2427,17 @@ mxml_string_getc(void *p,		/* I  - Pointer to file */
 	    (*s) += 2;
 
 	    if (ch < 0x800)
+	    {
+	      mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	      return (EOF);
+	    }
+
+	   /*
+	    * Ignore (strip) Byte Order Mark (BOM)...
+	    */
+
+	    if (ch == 0xfeff)
+	      return (mxml_string_getc(p, encoding));
 
 #if DEBUG > 1
             printf("mxml_string_getc: %c (0x%04x)\n", ch < ' ' ? '.' : ch, ch);
@@ -2428,7 +2462,10 @@ mxml_string_getc(void *p,		/* I  - Pointer to file */
 	    (*s) += 3;
 
 	    if (ch < 0x10000)
+	    {
+	      mxml_error("Invalid UTF-8 sequence for character 0x%04x!", ch);
 	      return (EOF);
+	    }
 
 #if DEBUG > 1
             printf("mxml_string_getc: %c (0x%04x)\n", ch < ' ' ? '.' : ch, ch);
@@ -2539,7 +2576,7 @@ mxml_string_getc(void *p,		/* I  - Pointer to file */
  */
 
 static int				/* O - 0 on success, -1 on failure */
-mxml_string_putc(unsigned char ch,	/* I - Character to write */
+mxml_string_putc(int  ch,		/* I - Character to write */
                  void *p)		/* I - Pointer to string pointers */
 {
   char	**pp;				/* Pointer to string pointers */
@@ -2552,7 +2589,7 @@ mxml_string_putc(unsigned char ch,	/* I - Character to write */
 
   pp[0] ++;
 
-  return 0;
+  return (0);
 }
 
 
@@ -2563,7 +2600,7 @@ mxml_string_putc(unsigned char ch,	/* I - Character to write */
 static int				/* O - 0 on success, -1 on failure */
 mxml_write_name(const char *s,		/* I - Name to write */
                 void       *p,		/* I - Write pointer */
-		int        (*putc_cb)(unsigned char, void *))
+		int        (*putc_cb)(int, void *))
 					/* I - Write callback */
 {
   char		quote;			/* Quote character */
@@ -2677,13 +2714,6 @@ mxml_write_node(mxml_node_t     *node,	/* I - Node to write */
 	    for (ptr = node->value.element.name; *ptr; ptr ++)
 	      if ((*putc_cb)(*ptr, p) < 0)
 	        return (-1);
-
-           /*
-	    * Prefer a newline for whitespace after ?xml...
-	    */
-
-            if (!strncmp(node->value.element.name, "?xml", 4))
-              col = global->wrap;
 	  }
 	  else if (mxml_write_name(node->value.element.name, p, putc_cb) < 0)
 	    return (-1);
@@ -2699,7 +2729,7 @@ mxml_write_node(mxml_node_t     *node,	/* I - Node to write */
 	    if (attr->value)
 	      width += strlen(attr->value) + 3;
 
-	    if ((col + width) > global->wrap)
+	    if (global->wrap > 0 && (col + width) > global->wrap)
 	    {
 	      if ((*putc_cb)('\n', p) < 0)
 	        return (-1);
@@ -2804,7 +2834,7 @@ mxml_write_node(mxml_node_t     *node,	/* I - Node to write */
       case MXML_INTEGER :
 	  if (node->prev)
 	  {
-	    if (col > global->wrap)
+	    if (global->wrap > 0 && col > global->wrap)
 	    {
 	      if ((*putc_cb)('\n', p) < 0)
 	        return (-1);
@@ -2834,7 +2864,7 @@ mxml_write_node(mxml_node_t     *node,	/* I - Node to write */
       case MXML_REAL :
 	  if (node->prev)
 	  {
-	    if (col > global->wrap)
+	    if (global->wrap > 0 && col > global->wrap)
 	    {
 	      if ((*putc_cb)('\n', p) < 0)
 	        return (-1);
@@ -2857,7 +2887,7 @@ mxml_write_node(mxml_node_t     *node,	/* I - Node to write */
       case MXML_TEXT :
 	  if (node->value.text.whitespace && col > 0)
 	  {
-	    if (col > global->wrap)
+	    if (global->wrap > 0 && col > global->wrap)
 	    {
 	      if ((*putc_cb)('\n', p) < 0)
 	        return (-1);
@@ -2993,5 +3023,5 @@ mxml_write_ws(mxml_node_t     *node,	/* I - Current node */
 
 
 /*
- * End of "$Id: mxml-file.c,v 1.4 2008/03/13 09:38:39 jozef Exp $".
+ * End of "$Id: mxml-file.c 391 2009-05-17 05:20:52Z mike $".
  */

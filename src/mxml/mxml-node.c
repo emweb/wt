@@ -1,5 +1,5 @@
 /*
- * "$Id: mxml-node.c,v 1.2 2007/12/01 15:17:47 jozef Exp $"
+ * "$Id: mxml-node.c 363 2008-10-26 18:28:05Z mike $"
  *
  * Node support code for Mini-XML, a small XML-like file parsing library.
  *
@@ -671,7 +671,7 @@ mxmlNewXML(const char *version)		/* I - Version number to use */
   char	element[1024];			/* Element text */
 
 
-  snprintf(element, sizeof(element), "?xml version=\"%s\"?",
+  snprintf(element, sizeof(element), "?xml version=\"%s\" encoding=\"utf-8\"?",
            version ? version : "1.0");
 
   return (mxmlNewElement(NULL, element));
@@ -776,5 +776,5 @@ mxml_new(mxml_node_t *parent,		/* I - Parent node */
 
 
 /*
- * End of "$Id: mxml-node.c,v 1.2 2007/12/01 15:17:47 jozef Exp $".
+ * End of "$Id: mxml-node.c 363 2008-10-26 18:28:05Z mike $".
  */

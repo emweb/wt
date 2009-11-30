@@ -94,7 +94,7 @@ void TreeNode::addChildNode(TreeNode *node)
 
 void TreeNode::removeChildNode(TreeNode *node)
 {
-  childNodes_.erase(find(childNodes_.begin(), childNodes_.end(), node));
+  childNodes_.erase(std::find(childNodes_.begin(), childNodes_.end(), node));
 
   node->parentNode_ = 0;
 
