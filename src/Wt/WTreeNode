@@ -227,7 +227,7 @@ public:
    *
    * \sa childNodes()
    */
-  WTreeNode *parentNode() const { return parentNode_; }
+  WTreeNode *parentNode() const;
 
   /*! \brief Set the visibility of the node itself
    *

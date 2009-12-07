@@ -189,6 +189,22 @@ public:
    */
   virtual bool isConnected() const;
 
+  /*! \brief Connect to a function.
+   *
+   * This variant of the overloaded connect() method supports a
+   * template function object (which supports operator ()).
+   *
+   * When the receiver function is an object method, the signal will
+   * automatically be disconnected when the object is deleted, as long as the
+   * object inherits from WObject or boost::signals::trackable.
+   *
+   * The function may leave 1 parameters unbound (e.g. using
+   * boost::bind placeholders _1) that may be bound to the event
+   * detail object passed by the signal.
+   */
+  template<class F>
+    boost::signals::connection connect(const F& function);
+
   /*! \brief Connect a slot that takes no arguments.
    *
    * The slot is specified as a method of an object \target of class
@@ -396,16 +412,25 @@ const std::string JSignal<A1, A2, A3, A4, A5, A6>
 
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
+template <class F>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(const F& function)
+{
+  exposeSignal();
+  if (!impl_)
+    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
+  return impl_->connect(function);
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
 template <class T, class V>
 boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 ::connect(T *target, void (V::*method)(A1, A2, A3, A4, A5, A6))
 {
-  exposeSignal();
   assert(dynamic_cast<V *>(target));
-  if (!impl_)
-    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
-  return impl_->connect(boost::bind(method, target, ::_1, ::_2,
-				    ::_3, ::_4, ::_5, ::_6));
+  return
+    connect(boost::bind(method, target, ::_1, ::_2, ::_3, ::_4, ::_5, ::_6));
 }
 
 template <typename A1, typename A2, typename A3,
@@ -414,12 +439,8 @@ template <class T, class V>
 boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 ::connect(T *target, void (V::*method)(A1, A2, A3, A4, A5))
 {
-  exposeSignal();
   assert(dynamic_cast<V *>(target));
-  if (!impl_)
-    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
-  return impl_->connect(boost::bind(method, target, ::_1, ::_2,
-				    ::_3, ::_4, ::_5));
+  return connect(boost::bind(method, target, ::_1, ::_2, ::_3, ::_4, ::_5));
 }
 
 template <typename A1, typename A2, typename A3,
@@ -428,11 +449,8 @@ template <class T, class V>
 boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 ::connect(T *target, void (V::*method)(A1, A2, A3, A4))
 {
-  exposeSignal();
   assert(dynamic_cast<V *>(target));
-  if (!impl_)
-    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
-  return impl_->connect(boost::bind(method, target, ::_1, ::_2, ::_3, ::_4));
+  return connect(boost::bind(method, target, ::_1, ::_2, ::_3, ::_4));
 }
 
 template <typename A1, typename A2, typename A3,
@@ -441,11 +459,8 @@ template <class T, class V>
 boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 ::connect(T *target, void (V::*method)(A1, A2, A3))
 {
-  exposeSignal();
   assert(dynamic_cast<V *>(target));
-  if (!impl_)
-    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
-  return impl_->connect(boost::bind(method, target, ::_1, ::_2, ::_3));
+  return connect(boost::bind(method, target, ::_1, ::_2, ::_3));
 }
 
 template <typename A1, typename A2, typename A3,
@@ -454,11 +469,8 @@ template <class T, class V>
 boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 ::connect(T *target, void (V::*method)(A1, A2))
 {
-  exposeSignal();
   assert(dynamic_cast<V *>(target));
-  if (!impl_)
-    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
-  return impl_->connect(boost::bind(method, target, ::_1, ::_2));
+  return connect(boost::bind(method, target, ::_1, ::_2));
 }
 
 template <typename A1, typename A2, typename A3,
@@ -467,11 +479,8 @@ template <class T, class V>
 boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 ::connect(T *target, void (V::*method)(A1))
 {
-  exposeSignal();
   assert(dynamic_cast<V *>(target));
-  if (!impl_)
-    impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
-  return impl_->connect(boost::bind(method, target, ::_1));
+  return connect(boost::bind(method, target, ::_1));
 }
 
 template <typename A1, typename A2, typename A3,
@@ -488,11 +497,8 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 
   if (collectSlotJavaScript_ && s)
     return EventSignalBase::connect(static_cast<WObject::Method>(method), o, s);
-  else {
-    if (!impl_)
-      impl_ = new boost::signal6<void, A1, A2, A3, A4, A5, A6>;
-    return impl_->connect(boost::bind(method, target));
-  }
+  else
+    return connect(boost::bind(method, target));
 }
 
 extern void WT_API throwWtException(const std::string& msg);

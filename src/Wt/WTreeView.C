@@ -1878,6 +1878,9 @@ void WTreeView::render()
 
 void WTreeView::scheduleRerender(RenderState what)
 {
+  if (!isRendered())
+    return;
+
   if ((what == NeedRerenderHeader && renderState_ == NeedRerenderTree)
       || (what == NeedRerenderTree && renderState_ == NeedRerenderHeader))
     renderState_ = NeedRerender;

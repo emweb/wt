@@ -205,12 +205,13 @@ private:
   std::string       pathComponent_;
   bool              customPathComponent_;
 
-  void     loadContents();
-  void     setMenu(WMenu *menu);
-  void     selectNotLoaded();
-  void     selectVisual();
-  void     undoSelectVisual();
-  void     connectActivate();
+  bool contentsLoaded() const;
+  void loadContents();
+  void setMenu(WMenu *menu);
+  void selectNotLoaded();
+  void selectVisual();
+  void undoSelectVisual();
+  void connectActivate();
 
   friend class WMenu;
 };

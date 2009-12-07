@@ -32,7 +32,6 @@ WTreeNode::WTreeNode(const WString& labelText,
     selectable_(true),
     visible_(true),
     childrenDecorated_(true),
-    parentNode_(0),
     childCountPolicy_(Disabled),
     labelIcon_(labelIcon),
     labelText_(new WText(labelText)),
@@ -52,7 +51,6 @@ WTreeNode::WTreeNode(WTreeNode *parent)
     selectable_(true),
     visible_(true),
     childrenDecorated_(true),
-    parentNode_(0),
     childCountPolicy_(Disabled),
     labelIcon_(0),
     labelText_(0),
@@ -142,11 +140,13 @@ std::string WTreeNode::imagePack() const
 {
   if (!imagePackUrl_.empty())
     return imagePackUrl_;
-  else
-    if (parentNode_)
-      return parentNode_->imagePack();
+  else {
+    WTreeNode *parent = parentNode();
+    if (parent)
+      return parent->imagePack();
     else
       return "";
+  }
 }
 
 void WTreeNode::setNodeVisible(bool visible)
@@ -211,10 +211,12 @@ void WTreeNode::setChildCountPolicy(ChildCountPolicy policy)
 
   childCountPolicy_ = policy;
 
-  if (childCountPolicy_ == Enabled
-      && parentNode() && parentNode()->isExpanded()) {
-    if (doPopulate())
-      update();
+  if (childCountPolicy_ == Enabled) {
+    WTreeNode *parent = parentNode();
+ 
+    if (parent && parent->isExpanded())
+      if (doPopulate())
+	update();
   }
 
   if (childCountPolicy_ != Disabled) {
@@ -237,8 +239,10 @@ void WTreeNode::setLoadPolicy(LoadPolicy loadPolicy)
       loadChildren();
       loadGrandChildren();
     } else {
-      if (parentNode_ && parentNode_->isExpanded())
+      WTreeNode *parent = parentNode();
+      if (parent && parent->isExpanded())
 	loadChildren();
+
       expandIcon_
 	->icon1Clicked().connect(SLOT(this, WTreeNode::loadGrandChildren));
     }
@@ -247,9 +251,11 @@ void WTreeNode::setLoadPolicy(LoadPolicy loadPolicy)
     if (isExpanded())
       loadChildren();
     else {
-      if (childCountPolicy_ == Enabled
-	  && parentNode_ && parentNode_->isExpanded())
-	doPopulate();
+      if (childCountPolicy_ == Enabled) {
+	WTreeNode *parent = parentNode();
+	if (parent && parent->isExpanded())
+	  doPopulate();
+      }
 
       expandIcon_->icon1Clicked().connect(SLOT(this, WTreeNode::expand));
     }
@@ -266,8 +272,10 @@ void WTreeNode::loadChildren()
   if (!childrenLoaded_) {
     doPopulate();
 
-    for (unsigned i = 0; i < childNodes_.size(); ++i)
+    for (unsigned i = 0; i < childNodes_.size(); ++i) {
+      removeChild(childNodes_[i]);
       layout_->elementAt(1, 1)->addWidget(childNodes_[i]);
+    }
 
     expandIcon_->icon1Clicked().connect(SLOT(this, WTreeNode::doExpand));
     expandIcon_->icon2Clicked().connect(SLOT(this, WTreeNode::doCollapse));
@@ -286,28 +294,52 @@ void WTreeNode::loadGrandChildren()
 
 bool WTreeNode::isLastChildNode() const
 {
-  if (parentNode_) {
-    return parentNode_->childNodes_.back() == this;
-  } else
+  WTreeNode *parent = parentNode();
+
+  if (parent)
+    return parent->childNodes_.back() == this;
+  else
     return true;
 }
 
 void WTreeNode::descendantAdded(WTreeNode *node)
 {
-  if (parentNode_)
-    parentNode_->descendantAdded(node);  
+  WTreeNode *parent = parentNode();
+
+  if (parent)
+    parent->descendantAdded(node);  
 }
 
 void WTreeNode::descendantRemoved(WTreeNode *node)
 {
-  if (parentNode_)
-    parentNode_->descendantRemoved(node);
+  WTreeNode *parent = parentNode();
+
+  if (parent)
+    parent->descendantRemoved(node);
+}
+
+WTreeNode *WTreeNode::parentNode() const
+{
+  WWidget *p = parent();
+
+  for (; p; p = p->parent()) {
+    WTreeNode *tn = dynamic_cast<WTreeNode *>(p);
+    if (tn)
+      return tn;
+  }
+   
+  return 0;
 }
 
 void WTreeNode::addChildNode(WTreeNode *node)
 {
   childNodes_.push_back(node);
-  node->parentNode_ = this;
+
+  if (childrenLoaded_)
+    layout_->elementAt(1, 1)->addWidget(node);
+  else
+    // this is not entirely kosjer as the widget is not rendered?
+    addChild(node);
 
   descendantAdded(node);
 
@@ -316,9 +348,6 @@ void WTreeNode::addChildNode(WTreeNode *node)
 
   if (childCountPolicy_ != node->childCountPolicy_)
     node->setChildCountPolicy(childCountPolicy_);
-
-  if (childrenLoaded_)
-    layout_->elementAt(1, 1)->addWidget(node);
 
   if (childNodes_.size() > 1)
     childNodes_[childNodes_.size() - 2]->update();
@@ -332,10 +361,10 @@ void WTreeNode::removeChildNode(WTreeNode *node)
 {
   Utils::erase(childNodes_, node);
 
-  node->parentNode_ = 0;
-
   if (childrenLoaded_)
     layout_->elementAt(1, 1)->removeWidget(node);
+  else
+    removeChild(node);
 
   descendantRemoved(node);
 
@@ -489,7 +518,8 @@ void WTreeNode::update()
     expandIcon_->hide();
   }
 
-  if (parentNode_ && !parentNode_->childrenDecorated_) {
+  WTreeNode *parent = parentNode();
+  if (parent && !parent->childrenDecorated_) {
     layout_->elementAt(0, 0)->hide();
     layout_->elementAt(1, 0)->hide();
   }

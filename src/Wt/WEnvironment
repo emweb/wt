@@ -70,10 +70,6 @@ class WebSession;
 class WT_API WEnvironment
 {
 public:
-#ifdef WT_TARGET_JAVA
-  static std::string wt_class; 
-#endif //WT_TARGET_JAVA
-
   enum UserAgent {
     Unknown = 0,
     IE = 1000,
@@ -107,6 +103,12 @@ public:
    * \sa cookies()
    */
   typedef std::map<std::string, std::string> CookieMap;
+
+#ifdef WT_TARGET_JAVA
+  /*! \brief Wt's JavaScript scope.
+   */
+  static std::string javaScriptWtScope() { return WT_CLASS; } 
+#endif //WT_TARGET_JAVA
 
   /*! \brief Parameters passed to the application.
    *

@@ -125,7 +125,9 @@ void WCalendar::create()
 void WCalendar::renderMonth(bool create)
 {
   needRenderMonth_ = true;
-  askRerender();
+
+  if (isRendered())
+    askRerender();
 }
 
 void WCalendar::render()

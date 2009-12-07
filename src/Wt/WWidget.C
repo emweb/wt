@@ -56,6 +56,13 @@ void WWidget::render()
   renderOk();
 }
 
+bool WWidget::isRendered() const
+{
+  WWidget *self = const_cast<WWidget *>(this);
+
+  return self->webWidget()->isRendered();
+}
+
 void WWidget::renderOk()
 {
   if (flags_.test(BIT_NEED_RERENDER)) {

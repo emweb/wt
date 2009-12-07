@@ -46,8 +46,6 @@ public:
 
   std::string extId() const;
 
-  bool isRendered() const { return rendered_; }
-
 private:
   virtual std::string createJS(DomElement *inContainer) = 0;
 
@@ -87,7 +85,6 @@ protected:
   void renderExtAdd(WWidget *item);
 
 private:
-  bool        rendered_;
   std::string jsUpdates_;
 
   static void initExt();

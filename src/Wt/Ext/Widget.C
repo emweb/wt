@@ -25,8 +25,7 @@ namespace Wt {
   namespace Ext {
 
 Widget::Widget(WContainerWidget *parent)
-  : WWebWidget(parent),
-    rendered_(false)
+  : WWebWidget(parent)
 {
   setInline(false);
   initExt();
@@ -269,7 +268,7 @@ std::string Widget::createExtElement(std::stringstream& alljs,
     delete e;
   }
 
-  rendered_ = true;
+  setRendered(true);
 
   return elVar();
 }

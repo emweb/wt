@@ -239,6 +239,8 @@ protected:
 
   void doLoad(WWidget *w);
 
+  bool isRendered() const;
+
 private:
   /*
    * Booleans packed in a bitset.
@@ -246,7 +248,7 @@ private:
   static const int BIT_INLINE = 0;
   static const int BIT_HIDDEN = 1;
   static const int BIT_LOADED = 2;
-  static const int BIT_HIDDEN_CHANGED = 3;
+  static const int BIT_RENDERED = 3;
   static const int BIT_STUBBED = 4;
   static const int BIT_FORM_OBJECT = 5;
   static const int BIT_IGNORE_CHILD_REMOVES = 6;
@@ -270,15 +272,16 @@ private:
   static const int BIT_DISABLED = 24;
   static const int BIT_DISABLED_CHANGED = 25;
   static const int BIT_HIDE_WITH_VISIBILITY = 26;
+  static const int BIT_HIDDEN_CHANGED = 27;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<27> AllChangeFlags;
+  static const std::bitset<28> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<27> flags_;
+  std::bitset<28> flags_;
   WLength	 *width_;
   WLength	 *height_;
 
@@ -353,7 +356,6 @@ private:
   virtual void signalConnectionsChanged();
 
   void renderOk();
-  void quickPropagateRenderOk();
   void calcZIndex();
 
   virtual bool needsToBeRendered() const;
@@ -373,6 +375,8 @@ private:
   void setIgnoreChildRemoves(bool how);
 
 protected:
+  void setRendered(bool rendered);
+
   void setId(DomElement *element, WApplication *app);
   virtual WWebWidget *webWidget() { return this; }
 

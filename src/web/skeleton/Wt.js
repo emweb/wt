@@ -166,7 +166,7 @@ getElement: function(id) {
       }
     }
   return el;
-},
+}, 
 
 // Get coordinates of element relative to page origin.
 widgetPageCoordinates: function(obj) {
@@ -220,6 +220,32 @@ pageCoordinates: function(e) {
   }
 
   return { x: posX, y: posY };
+},
+
+getSelectionRange: function(e) {
+  if (document.selection) {
+    var range = document.selection.createRange();
+    var stored_range = range.duplicate();
+    stored_range.moveToElementText(e);
+    stored_range.setEndPoint('EndToEnd', range);
+    var selectionStart = stored_range.text.length - range.text.length;
+
+    return { start: selectionStart, end: (selectionStart + range.text.length) };
+  } else
+    return { start: e.selectionStart, end: e.selectionEnd };
+},
+
+setSelectionRange: function(e, start, end) {
+  if (e.createTextRange) {
+    var range = e.createTextRange();
+    range.collapse(true);
+    range.moveEnd('character', end);
+    range.moveStart('character', start);
+    range.select();
+  } else if (e.setSelectionRange) {
+    e.focus();
+    e.setSelectionRange(start, end);
+  }
 },
 
 isKeyPress: function(e) {

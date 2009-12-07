@@ -37,10 +37,6 @@ namespace Wt {
     }
   }
 
-#ifdef WT_TARGET_JAVA
-  std::string WEnvironment::wt_class = WT_CLASS;
-#endif //WT_TARGET_JAVA
-
 WEnvironment::WEnvironment()
 { }
 

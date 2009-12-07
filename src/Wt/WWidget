@@ -557,6 +557,8 @@ public:
    *
    * You may want to use this in conjunction with JSlot or
    * WApplication::doJavaScript() in custom JavaScript code.
+   *
+   * \sa isRendered()
    */
   std::string jsRef() const;
 
@@ -662,6 +664,12 @@ public:
    * container (WApplication::root()) selectable by default.
    */
   virtual void setSelectable(bool selectable) = 0;
+
+  /*! \brief Returns whether the widget is rendered.
+   *
+   * \sa jsRef()
+   */
+  bool isRendered() const;
 
   std::string inlineCssStyle();
 

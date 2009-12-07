@@ -34,6 +34,7 @@ WMenuItem::WMenuItem(const WString& text, WWidget *contents,
     implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
   else {
     contentsContainer_ = new WContainerWidget();
+    addChild(contents_);
     WT_DEBUG( contentsContainer_->setObjectName("contents-container") );
     contentsContainer_->resize(WLength::Auto,
 			       WLength(100, WLength::Percentage));
@@ -44,9 +45,6 @@ WMenuItem::~WMenuItem()
 {
   if (menu_)
     menu_->removeItem(this);
-
-  if (contents_ && contents_->parent() == 0)
-    delete contents_;
 }
 
 WWidget *WMenuItem::createItemWidget()
@@ -159,13 +157,19 @@ void WMenuItem::renderSelected(bool selected)
 
 void WMenuItem::selectNotLoaded()
 {
-  if (contentsContainer_ && contentsContainer_->count() == 0)
+  if (!contentsLoaded())
     select();
+}
+
+bool WMenuItem::contentsLoaded() const
+{
+  return !contentsContainer_ || contentsContainer_->count() == 1;
 }
 
 void WMenuItem::loadContents()
 {
-  if (contentsContainer_ && contentsContainer_->count() == 0) {
+  if (!contentsLoaded()) {
+    removeChild(contents_);
     contentsContainer_->addWidget(contents_);
 
     // A user should do the following himself, if he wants.
@@ -194,6 +198,10 @@ WWidget *WMenuItem::contents() const
 WWidget *WMenuItem::takeContents()
 {
   WWidget *result = contents_;
+
+  if (!contentsLoaded())
+    removeChild(contents_);
+
   contents_ = 0;
 
   return result;

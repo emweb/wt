@@ -26,7 +26,8 @@ void WViewWidget::load()
 void WViewWidget::update()
 {
   needContentsUpdate_ = true;
-  askRerender();
+  if (isRendered())
+    askRerender();
 }
 
 void WViewWidget::refresh()

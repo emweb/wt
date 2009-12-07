@@ -27,7 +27,7 @@ using namespace Wt;
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<27> WWebWidget::AllChangeFlags = std::bitset<27>()
+const std::bitset<28> WWebWidget::AllChangeFlags = std::bitset<28>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -146,6 +146,9 @@ const std::string WWebWidget::id() const
 
 void WWebWidget::repaint(WFlags<RepaintFlag> flags)
 {
+  if (!flags_.test(BIT_RENDERED))
+    return;
+
   WWidget::askRerender();
 
 #ifndef WT_TARGET_JAVA
@@ -183,11 +186,15 @@ void WWebWidget::signalConnectionsChanged()
 
 WWebWidget::~WWebWidget()
 {
+  // flag that we are being deleted, this allows some optimalizations
   flags_.set(BIT_BEING_DELETED);
 
+  // should be handled by removeChild() ?
+  /*
   if (flags_.test(BIT_FORM_OBJECT))
     WApplication::instance()
       ->session()->renderer().updateFormObjects(this, false);
+  */
 
   setParent(0);
 
@@ -291,7 +298,7 @@ void WWebWidget::removeChild(WWidget *child)
    * we here force this propagation.
    */
   if (!child->webWidget()->flags_.test(BIT_BEING_DELETED))
-    child->webWidget()->quickPropagateRenderOk();
+    child->webWidget()->setRendered(false);
 
   children_->erase(children_->begin() + i);
 
@@ -1347,13 +1354,19 @@ void WWebWidget::propagateRenderOk(bool deep)
   transientImpl_ = 0;
 }
 
-void WWebWidget::quickPropagateRenderOk()
+void WWebWidget::setRendered(bool rendered)
 {
-  renderOk();
+  if (rendered)
+    flags_.set(BIT_RENDERED);
+  else {
+    flags_.reset(BIT_RENDERED);
 
-  if (children_)
-    for (unsigned i = 0; i < children_->size(); ++i)
-      (*children_)[i]->webWidget()->quickPropagateRenderOk();
+    renderOk();
+
+    if (children_)
+      for (unsigned i = 0; i < children_->size(); ++i)
+	(*children_)[i]->webWidget()->setRendered(false);
+  }
 }
 
 void WWebWidget::setLoadLaterWhenInvisible(bool how)
@@ -1398,8 +1411,15 @@ DomElement *WWebWidget::createDomElement(WApplication *app)
   return result;
 }
 
+bool WWebWidget::isRendered() const
+{
+  return flags_.test(WWebWidget::BIT_RENDERED);
+}
+
 DomElement *WWebWidget::createSDomElement(WApplication *app)
 {
+  setRendered(true);
+
   if (!needsToBeRendered()) {
     /*
      * Make sure the object itself is clean, so that stateless slot
