@@ -289,6 +289,21 @@ public:
   virtual void drawMarker(const WDataSeries& series, WPainterPath& result)
     const;
 
+
+  /*! \brief Renders the legend icon for a given data series.
+   *
+   * Renders the legend icon for the indicated <i>series</i> in the
+   * <i>painter</i> at position <i>pos</i>.
+   *
+   * This method is called while rendering a legend item, and you may
+   * want to reimplement this method if you wish to provide a custom
+   * legend icon for a particular data series.
+   *
+   * \sa renderLegendItem()
+   */
+  virtual void renderLegendIcon(WPainter& painter, const WPointF& pos,
+				const WDataSeries& series) const;
+
   /*! \brief Renders the legend item for a given data series.
    *
    * Renders the legend item for the indicated <i>series</i> in the

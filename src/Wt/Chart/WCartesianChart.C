@@ -253,12 +253,10 @@ void WCartesianChart::drawMarker(const WDataSeries& series,
   }
 }
 
-void WCartesianChart::renderLegendItem(WPainter& painter,
-				      const WPointF& pos,
-				      const WDataSeries& series) const
+void WCartesianChart::renderLegendIcon(WPainter& painter,
+				       const WPointF& pos,
+				       const WDataSeries& series) const
 {
-  WPen fontPen = painter.pen();
-
   switch (series.type()) {
   case BarSeries: {
     WPainterPath path;
@@ -294,6 +292,15 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
     break;
   }
   }
+}
+
+void WCartesianChart::renderLegendItem(WPainter& painter,
+				      const WPointF& pos,
+				      const WDataSeries& series) const
+{
+  WPen fontPen = painter.pen();
+
+  renderLegendIcon(painter, pos, series);
 
   painter.setPen(fontPen);
   painter.drawText(pos.x() + 17, pos.y() - 10, 100, 20,

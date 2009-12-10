@@ -932,7 +932,7 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 #endif
 
 	if (!learning_ && visibleOnly_) {
-	  if (!w->isStubbed()) {
+	  if (w->isRendered()) {
 	    w->getSDomChanges(changes, app);
 
 	    /* if (!w->isVisible()) {
@@ -1100,11 +1100,8 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 
     WWidget *ww = dynamic_cast<WWidget *>(i->second->sender());
 
-    if (ww && !ww->isStubbed()) {
-      WWidget *a = ww->adam();
-      if (a == app->domRoot_ || a == app->domRoot2_)
-	i->second->processPreLearnStateless(this);
-    }
+    if (ww && ww->isRendered())
+      i->second->processPreLearnStateless(this);
   }
 
   out << statelessJS_.str();

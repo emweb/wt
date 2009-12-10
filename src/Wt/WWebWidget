@@ -208,6 +208,8 @@ public:
   int zIndex() const;
   void setZIndex(int zIndex);
 
+  bool isRendered() const;
+
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
 
@@ -238,8 +240,6 @@ protected:
   virtual void setHideWithOffsets(bool how = true);
 
   void doLoad(WWidget *w);
-
-  bool isRendered() const;
 
 private:
   /*

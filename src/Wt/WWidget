@@ -77,7 +77,7 @@ public:
    * to the constructor, or by inserting the widget into a layout
    * manager.
    */
-  WWidget *parent() const { return static_cast<WWidget *>(WObject::parent()); }
+  WWidget *parent() const { return dynamic_cast<WWidget *>(WObject::parent()); }
 
   /*! \brief Sets the CSS position scheme.
    *

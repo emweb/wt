@@ -324,7 +324,7 @@ public:
    *
    * \sa setLegendEnabled(bool)
    */
-  bool isLegendEnabled() const { return legend_; }
+  bool isLegendEnabled() const;
 
   /*! \brief Enables a label that is shown at the series data points.
    *
@@ -359,6 +359,18 @@ public:
    * \sa setLabelColor(const WColor&)
    */
   WColor labelColor() const;
+
+  /*! \brief Hide/unhide this series.
+   *
+   * A hidden series will not be show in the chart and legend.
+   */
+  void setHidden(bool hidden);
+
+  /*! \brief Return whether the series is hidden.
+   *
+   * /sa setHidden()
+   */
+  bool isHidden() const;
 
   /*! \brief Maps from device coordinates to model coordinates.
    *
@@ -411,6 +423,7 @@ private:
   bool               xLabel_;
   bool               yLabel_;
   double             barWidth_;
+  bool               hidden_;
 
   template <typename T>
   bool set(T& m, const T& v);

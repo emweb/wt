@@ -978,8 +978,12 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
     } else
       url = baseUrl() + applicationName();
 
+    std::string s = request.queryString();
+    if (!s.empty())
+      url += "?" + s;
+
     url += '#' + (app_ ? app_->internalPath() : env_->internalPath());
-    
+
     return url;
   } else
     return std::string();

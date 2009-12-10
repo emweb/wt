@@ -996,6 +996,9 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 
   bool containsBars = false;
   for (unsigned g = 0; g < series.size(); ++g) {
+    if (series[g].isHidden())
+      continue;
+
     groupWidth = series[g].barWidth() * (map(2, 0).x() - map(1, 0).x());
 
     if (containsBars)

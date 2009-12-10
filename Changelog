@@ -1,3 +1,10 @@
+09-12-2009:
+	* WDataSeries: added setHidden(bool) and isHidden()
+
+	* WCartesianChart: added renderLegendIcon()
+
+	* WTextEdit: fix updating of contents
+
 07-12-2009:
 	* WWidget: added isRendered(), let widgets keep track of being rendered
 

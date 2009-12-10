@@ -50,7 +50,6 @@ void WTextEdit::load()
 {
   wApp->addAutoJavaScript("{var e=" + jsRef() + ";"
 			  "if(e && e.ed){"
-			  "" "e.ed.save();"
 			  "" WT_CLASS ".tinyMCEAdjust(e);"
 			  "}}");
 
@@ -189,7 +188,9 @@ void WTextEdit::updateDom(DomElement& element, bool all)
 
     element.callJavaScript("{var e=" + jsRef() + ";e.ed=new tinymce.Editor('"
 			   + formName() + "'," + config.str() + ");"
-			   "e.ed.render();}");
+			   "e.ed.render();"
+			   "e.ed.onChange.add(function(ed) { ed.save(); });"
+			   "}");
 
     /*
      * When initialized, we apply the inline style to the table element

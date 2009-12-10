@@ -170,6 +170,14 @@ void WDataSeries::setLegendEnabled(bool enabled)
   set(legend_, enabled);
 }
 
+bool WDataSeries::isLegendEnabled() const
+{
+  if (!isHidden())
+    return legend_;
+  else
+    return false;
+}
+
 void WDataSeries::setLabelsEnabled(Axis axis, bool enabled)
 {
   if (axis == XAxis)
@@ -183,6 +191,16 @@ void WDataSeries::setLabelsEnabled(Axis axis, bool enabled)
 bool WDataSeries::isLabelsEnabled(Axis axis) const
 {
   return axis == XAxis ? xLabel_ : yLabel_;
+}
+
+void WDataSeries::setHidden(bool hidden)
+{
+  hidden_ = hidden;
+}
+
+bool WDataSeries::isHidden() const 
+{
+  return hidden_;
 }
 
 void WDataSeries::setChart(WCartesianChart *chart)
