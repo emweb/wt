@@ -251,14 +251,12 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
   updateDom(*result, true);
 
   Wt::WApplication::instance()->doJavaScript
-    (jsRef() + ".wtSetHeight = function(self, h) {"
-     "var p=self.parentNode,"
-     ""  "WT=" WT_CLASS ","
-     ""  "w=p.offsetWidth - WT.px(self, 'marginLeft')"
-     ""                  "+WT.px(self, 'marginRight')"
-     ""                  "+WT.px(p, 'paddingLeft')"
-     ""                  "+WT.px(p, 'paddingRight');"
-     + resized_.createCall("w - 4", "h") +
+    (jsRef() + ".wtResize = function(self, w, h) {"
+     ""  "if (!self.wtWidth || self.wtWidth!=w "
+     ""      "|| !self.wtHeight || self.wtHeight!=h) {"
+     ""    "self.wtWidth=w; self.wtHeight=h;"
+     + resized_.createCall("w", "h") +
+     ""  "}"
      "};");
 
   return result;
@@ -393,7 +391,6 @@ void WWidgetVectorPainter::createContents(DomElement *canvas,
 {
   WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device);
   canvas->setProperty(PropertyInnerHTML, vectorDevice->rendered());
-  //canvas->setProperty(PropertyStylePosition, "relative");
 }
 
 void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,

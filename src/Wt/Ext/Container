@@ -22,10 +22,11 @@ namespace Wt {
  * manages other widgets. Unlike %WContainerWidget, %Container can
  * only use layout managers to manage its content.
  *
- * Typically, panels will be added directly into a layout, and are
+ * Typically, panels will be added directly into a layout (which may
+ * be part of an Ext::Container or a WContainerWidget), and are
  * components to organize your user interface. You may also add a
- * container inside a plain WContainerWidget, but then you should
- * set a size for the container (using WWidget::resize()), in pixels.
+ * container inside a plain WContainerWidget, but then you should set
+ * a size for the container (using WWidget::resize()), in pixels.
  *
  * In most cases, using a Panel is more convenient than a Container,
  * since a Panel also manages standard GUI components (such as

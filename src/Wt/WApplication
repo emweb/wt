@@ -1170,11 +1170,23 @@ public:
    */
   void setBodyClass(const std::string& styleClass);
 
+  /*! \brief Returns the style class set for the entire page &lt;body&gt;.
+   *
+   * \sa setBodyClass()
+   */
+  std::string bodyClass() const { return bodyClass_; }
+
   /*! \brief Sets a style class to the entire page &lt;html&gt;.
    *
    * \sa setBodyClass()
    */
   void setHtmlClass(const std::string& styleClass);
+
+  /*! \brief Returns the style class set for the entire page &lt;html&gt;.
+   *
+   * \sa setHtmlClass()
+   */
+  std::string htmlClass() const { return htmlClass_; }
 
   /*
    * Returns whether debug was configured.

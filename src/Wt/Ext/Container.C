@@ -177,8 +177,14 @@ void Container::createConfig(std::ostream& config)
   WApplication *app = WApplication::instance();
 
   if (!dynamic_cast<Container *>(parent())
-      && parent() != app->root() && parent() != app->domRoot())
+      && parent() != app->root() && parent() != app->domRoot()) {
     config << ",renderTo:'" << id() << "'";
+    app->doJavaScript
+      (parent()->jsRef() + ".wtResize ="
+       "function(self, w, h){" + elVar() + ".setSize(w, h); };");
+    parent()->setPositionScheme(Relative);
+    setPositionScheme(Absolute);
+  }
 
   if (widget_)
     config << ",contentEl:'" << widget_->id() << "',autoShow:true";

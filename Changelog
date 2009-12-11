@@ -1,3 +1,10 @@
+11-12-2009:
+	* WPaintedWidget, Ext::Container: properly react to resizes within
+	a Wt layout manager, both width and height
+
+	* StdGridLayoutItem.C, Ext::Widget: concatenate html and body style
+	classes to not have interference
+
 09-12-2009:
 	* WDataSeries: added setHidden(bool) and isHidden()
 

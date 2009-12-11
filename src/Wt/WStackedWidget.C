@@ -92,7 +92,7 @@ DomElement *WStackedWidget::createDomElement(WApplication *app)
   setCurrentIndex(currentIndex_);
 
   Wt::WApplication::instance()->doJavaScript
-    (jsRef() + ".wtSetHeight = function(self, h){"
+    (jsRef() + ".wtResize = function(self, w, h){"
      """var j,jl,c;"
      """self.style.height=h+'px';"
      """for (j=0, jl=self.childNodes.length; j<jl; ++j){"

@@ -77,14 +77,15 @@ void Widget::initExt()
      */
     std::string bodyClass;
     if (app->environment().agentIsIE()) {
-      bodyClass = "ext-ie ";
-      bodyClass += app->environment().agent() == WEnvironment::IE6 ? "ext-ie6" : "ext-ie7 ";
+      bodyClass = " ext-ie ";
+      bodyClass += app->environment().agent() == WEnvironment::IE6
+	? "ext-ie6" : "ext-ie7 ";
     } else if (app->environment().agentIsSafari())
-      bodyClass = "ext-safari";
+      bodyClass = " ext-safari";
     else if (app->environment().agentIsOpera())
-      bodyClass = "ext-opera";
+      bodyClass = " ext-opera";
     else if (app->environment().agentIsGecko())
-      bodyClass = "ext-gecko";
+      bodyClass = " ext-gecko";
 
     const std::string& ua = app->environment().userAgent();
 
@@ -94,8 +95,8 @@ void Widget::initExt()
 	|| ua.find("Mac OS X") != std::string::npos)
       bodyClass += " ext-mac";
     
-    app->setBodyClass(bodyClass);
-    app->setHtmlClass("ext-strict");
+    app->setBodyClass(app->bodyClass() + bodyClass);
+    app->setHtmlClass(app->htmlClass() + " ext-strict");
   }
 }
 

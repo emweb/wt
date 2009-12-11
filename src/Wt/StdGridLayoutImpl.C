@@ -132,55 +132,57 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 	 ""         "h=row.offsetHeight;"
 	 ""       "}"
 	 ""
-	 ""       "if (row.style.height!=h+'px'){"
+	 ""       "if (row.style.height!=h+'px') "
 	 ""         "row.style.height=h+'px';"
-	 ""         "tds=row.childNodes;"
+	 ""       "tds=row.childNodes;"
 
-	 ""         "for (j=0, jl=tds.length; j<jl; ++j){"
-	 ""           "td=tds[j];"
-	 ""           "var k=h-WT.pxself(td, 'paddingTop')"
-	 ""                "-WT.pxself(td, 'paddingBottom');"
-	 ""           "if (k <= 0) "
-	 ""             "k=0;"
+	 ""       "for (j=0, jl=tds.length; j<jl; ++j){"
+	 ""         "td=tds[j];"
+	 ""         "var k=h-WT.pxself(td, 'paddingTop')"
+	 ""              "-WT.pxself(td, 'paddingBottom');"
+	 ""         "if (k <= 0) "
+	 ""           "k=0;"
 
-	 ""           "td.style.height= k+'px';"
-	 ""           "if (td.style['verticalAlign']"
-	 ""               "|| td.childNodes.length == 0) continue;"
-         ""           "var ch=td.childNodes[0];"   // 'ch' is cell contents
-	 ""           "if (k <= 0) "
-	 ""             "k=0;"
+	 ""         "td.style.height= k+'px';"
+	 ""         "if (td.style['verticalAlign']"
+	 ""             "|| td.childNodes.length == 0) continue;"
+         ""         "var ch=td.childNodes[0];"   // 'ch' is cell contents
+	 ""         "if (k <= 0) "
+	 ""           "k=0;"
 
-	 ""           "if (ch.className=='Wt-hcenter'){"
-	 ""              "ch.style.height= k+'px';"
-	 ""              "var itd=ch.firstChild.firstChild;"
-	 ""              "if (!WT.hasTag(itd, 'TD'))"
-	 ""                "itd=itd.firstChild;"
-	 ""              "if (itd.style.height!=k+'px')"
-	 ""                "itd.style.height=k+'px';"
-	 ""              "ch=itd.firstChild;"
-	 ""           "}"
-
-	 ""           "if (td.childNodes.length==1)"
-	 ""             "k += -WT.px(ch, 'marginTop')"
-	 ""		     "-WT.px(ch, 'marginBottom')" 
-	 ""                  "-WT.px(ch, 'borderTopWidth')"
-	 ""                  "-WT.px(ch, 'borderBottomWidth')"
-	 ""                  "-WT.px(ch, 'paddingTop')"
-	 ""                  "-WT.px(ch, 'paddingBottom');"
-
-	 ""           "if (k <= 0) "
-	 ""             "k=0;"
-
-	 ""           "if (WT.hasTag(ch, 'TABLE'))"
-	 ""              "continue;"
-
-	 ""           "if (ch.style.height != k+'px') {"
-	 ""             "if (ch.wtSetHeight) " // height managed by Wt JS
-	 ""               "ch.wtSetHeight(ch, k);"
-	 ""             "else "
-	 ""               "ch.style.height = k+'px';"
-	 ""           "}"
+	 ""         "if (ch.className=='Wt-hcenter'){"
+	 ""            "ch.style.height= k+'px';"
+	 ""            "var itd=ch.firstChild.firstChild;"
+	 ""            "if (!WT.hasTag(itd, 'TD'))"
+	 ""              "itd=itd.firstChild;"
+	 ""            "if (itd.style.height!=k+'px')"
+	 ""              "itd.style.height=k+'px';"
+	 ""            "ch=itd.firstChild;"
 	 ""         "}"
+
+	 ""         "if (td.childNodes.length==1)"
+	 ""           "k += -WT.px(ch, 'marginTop')"
+	 ""	           "-WT.px(ch, 'marginBottom')" 
+	 ""                "-WT.px(ch, 'borderTopWidth')"
+	 ""                "-WT.px(ch, 'borderBottomWidth')"
+	 ""                "-WT.px(ch, 'paddingTop')"
+	 ""                "-WT.px(ch, 'paddingBottom');"
+
+	 ""         "if (k <= 0) "
+	 ""           "k=0;"
+
+	 ""         "if (WT.hasTag(ch, 'TABLE'))"
+	 ""            "continue;"
+
+	 ""         "if (ch.wtResize) {"
+	 ""           "var p=ch.parentNode;"
+	 ""           "var w=p.offsetWidth - WT.px(w, 'marginLeft')"
+	 ""             "-WT.px(w, 'marginRight')"
+	 ""             "-WT.px(p, 'paddingLeft')"
+	 ""             "-WT.px(p, 'paddingRight');"
+	 ""           "ch.wtResize(ch, w, k);"
+	 ""         "} else if (ch.style.height != k+'px')"
+	 ""             "ch.style.height = k+'px';"
          ""       "}"
 	 ""     "}"
 	 ""   "}"
@@ -313,8 +315,8 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
        * Reset body,html default paddings and so on if we are doing layout
        * in the entire document.
        */
-      app->setBodyClass("Wt-layout");
-      app->setHtmlClass("Wt-layout");
+      app->setBodyClass(app->bodyClass() + " Wt-layout");
+      app->setHtmlClass(app->htmlClass() + " Wt-layout");
     }
 
     /*
