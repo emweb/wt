@@ -6,7 +6,10 @@
 
 #include <fstream>
 #include <sstream>
+
+#ifndef WT_NO_XML
 #include <mxml.h>
+#endif
 
 #ifdef WT_HAVE_GNU_REGEX
 #include <regex.h>
@@ -56,11 +59,13 @@ WebController::WebController(Configuration& configuration,
   instance_ = this;
   CgiParser::init();
 
+#ifndef WT_NO_XML
   /*
    * mxml errors should not be fatal, and mxml is only used within the
    * scope of an application. Thus, simply log them.
    */
   mxmlSetErrorCallback(WebController::mxml_error_cb);
+#endif
 }
 
 WebController::~WebController()
@@ -68,6 +73,7 @@ WebController::~WebController()
   instance_ = 0;
 }
 
+#ifndef WT_NO_XML
 void WebController::mxml_error_cb(const char * message)
 {
   WApplication *app = wApp;
@@ -78,6 +84,7 @@ void WebController::mxml_error_cb(const char * message)
     WebController::instance()->configuration().log("error")
       << "XML error: " << message;
 }
+#endif // WT_NO_XML
 
 void WebController::forceShutdown()
 {

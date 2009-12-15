@@ -16,8 +16,11 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <mxml.h>
 #include <stdlib.h>
+
+#ifndef WT_NO_XML
+#include <mxml.h>
+#endif
 
 #ifdef WIN32
 #include <io.h>
@@ -28,6 +31,7 @@ namespace {
 
 using namespace Wt;
 
+#ifndef WT_NO_XML
 mxml_node_t *singleChildElement(mxml_node_t *element, const char* tagName)
 {
   mxml_node_t *result = mxmlFindElement(element, element, tagName,
@@ -116,6 +120,7 @@ childElements(mxml_node_t *element, const char *tagName)
   
   return result;
 }
+#endif // WT_NO_XML
 
 }
 
@@ -210,6 +215,7 @@ static void error_cb(const char *message)
   throw WServer::Exception(message);
 }
 
+#ifndef WT_NO_XML
 void Configuration::readApplicationSettings(mxml_node_t *app)
 {
   mxml_node_t *sess = singleChildElement(app, "session-management");
@@ -356,10 +362,12 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
     }
   }
 }
+#endif // WT_NO_XML
 
 void Configuration::readConfiguration(const std::string& configurationFile,
 				      const std::string& startupMessage)
 {
+#ifndef WT_NO_XML
   try {
     FILE *fp = fopen(configurationFile.c_str(), "r");
     if (!fp) {
@@ -428,6 +436,10 @@ void Configuration::readConfiguration(const std::string& configurationFile,
   } catch (...) {
     throw WServer::Exception("Exception of unknown type!\n");
   }
+#else // WT_NO_XML
+  throw WServer::Exception("Cannot read " + configurationFile
+			   + " since Wt was built without XML support");
+#endif // WT_NO_XML
 }
 
 void Configuration::setupLogger(const std::string& logFile)

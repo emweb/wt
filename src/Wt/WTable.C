@@ -16,7 +16,6 @@ namespace Wt {
 
 WTable::WTable(WContainerWidget *parent)
   : WInteractWidget(parent),
-    columns_(0),
     rowsChanged_(0),
     rowsAdded_(0),
     headerRowCount_(0),
@@ -31,12 +30,9 @@ WTable::~WTable()
   for (unsigned i = 0; i < rows_.size(); ++i)
     delete rows_[i];
 
-  if (columns_) {
-    for (unsigned i = 0; i < columns_->size(); ++i)
-      delete (*columns_)[i];
+  for (unsigned i = 0; i < columns_.size(); ++i)
+    delete columns_[i];
 
-    delete columns_;
-  }
   delete rowsChanged_;
   rowsChanged_ = 0;
 }
@@ -61,15 +57,12 @@ WTableColumn *WTable::columnAt(int column)
 {
   expand(0, column, 0, 1);
 
-  if (!columns_)
-    columns_ = new std::vector<WTableColumn *>();
-
-  if (columns_->size() <= (unsigned)column) {
-    for (unsigned col = columns_->size(); col <= (unsigned)column; ++col)
-      columns_->push_back(new WTableColumn(this));
+  if (columns_.size() <= (unsigned)column) {
+    for (unsigned col = columns_.size(); col <= (unsigned)column; ++col)
+      columns_.push_back(new WTableColumn(this));
   }
 
-  return (*columns_)[column];
+  return columns_[column];
 }
 
 void WTable::removeCell(WTableCell *item)
@@ -142,9 +135,9 @@ WTableColumn* WTable::insertColumn(int column)
     rows_[i]->insertColumn(column);
 
   WTableColumn* tableColumn = 0;
-  if (columns_ && (unsigned)column <= columns_->size()) {
+  if ((unsigned)column <= columns_.size()) {
     tableColumn = new WTableColumn(this);
-    columns_->insert(columns_->begin() + column, tableColumn);
+    columns_.insert(columns_.begin() + column, tableColumn);
   }
 
   flags_.set(BIT_GRID_CHANGED);
@@ -180,10 +173,8 @@ void WTable::deleteColumn(int column)
   for (int i = 0; i < rowCount(); ++i)
     rows_[i]->deleteColumn(column);
 
-  if (columns_ && (unsigned)column <= columns_->size()) {
-    delete (*columns_)[column];
-    columns_->erase(columns_->begin() + column);
-  }
+  if ((unsigned)column <= columns_.size())
+    columns_.erase(columns_.begin() + column);
 
   flags_.set(BIT_GRID_CHANGED);
   repaint(RepaintInnerHtml);
@@ -267,17 +258,15 @@ DomElement *WTable::createDomElement(WApplication *app)
   if (withIds)
     tbody->setId(id() + "tb");
 
-  if (columns_) {
-    for (unsigned col = 0; col < columns_->size(); ++col) {
-      DomElement *c = DomElement::createNew(DomElement_COL);
-      if (withIds)
-	c->setId((*columns_)[col]->id());
-      (*columns_)[col]->updateDom(*c, true);
-      table->addChild(c);
-    }
-
-    flags_.reset(BIT_COLUMNS_CHANGED);
+  for (unsigned col = 0; col < columns_.size(); ++col) {
+    DomElement *c = DomElement::createNew(DomElement_COL);
+    if (withIds)
+      c->setId(columns_[col]->id());
+    columns_[col]->updateDom(*c, true);
+    table->addChild(c);
   }
+  
+  flags_.reset(BIT_COLUMNS_CHANGED);
 
   for (unsigned row = 0; row < (unsigned)rowCount(); ++row)
     for (unsigned col = 0; col < (unsigned)columnCount(); ++col)
@@ -376,14 +365,12 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
     }
 
     if (flags_.test(BIT_COLUMNS_CHANGED)) {
-      if (columns_) {
-	for (unsigned i = 0; i < columns_->size(); ++i) {
+	for (unsigned i = 0; i < columns_.size(); ++i) {
 	  DomElement *e2
-	    = DomElement::getForUpdate((*columns_)[i], DomElement_COL);
-	  (*columns_)[i]->updateDom(*e2, false);
+	    = DomElement::getForUpdate(columns_[i], DomElement_COL);
+	  columns_[i]->updateDom(*e2, false);
 	  result.push_back(e2);
 	}
-      }
 
       flags_.reset(BIT_COLUMNS_CHANGED);
     }

@@ -1,3 +1,7 @@
+15-12-2009:
+	* CMakeLists.txt: add XML_FEATURES option which can be used to disable
+	the (mini-)XML library
+
 11-12-2009:
 	* WPaintedWidget, Ext::Container: properly react to resizes within
 	a Wt layout manager, both width and height

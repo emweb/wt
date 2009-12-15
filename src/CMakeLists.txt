@@ -149,8 +149,6 @@ Wt/WMemoryResource.C
 Wt/WMenu.C
 Wt/WMenuItem.C
 Wt/WMessageBox.C
-Wt/WMessageResourceBundle.C
-Wt/WMessageResources.C
 Wt/WModelIndex.C
 Wt/WObject.C
 Wt/WOverlayLoadingIndicator.C
@@ -237,8 +235,6 @@ web/WebController.C
 web/WtException.C
 web/WtRandom.C
 web/TimeUtil.C
-web/XSSFilter.C
-web/XSSUtils.C
 web/random_device.cpp
 Plain_html.C
 Boot_html.C
@@ -256,7 +252,18 @@ Wt/Chart/WChartPalette.C
 Wt/Chart/WStandardPalette.C
 )
 
-ADD_LIBRARY(wt ${libsources})
+IF(XML_FEATURES)
+SET (libsources_xml
+  Wt/WMessageResourceBundle.C
+  Wt/WMessageResources.C
+  web/XSSFilter.C
+  web/XSSUtils.C
+)
+ELSE(XML_FEATURES)
+  ADD_DEFINITIONS(-DWT_NO_XML -DWT_NO_XSS_FILTER)
+ENDIF(XML_FEATURES)
+
+ADD_LIBRARY(wt ${libsources} ${libsources_xml})
 TARGET_LINK_LIBRARIES(wt ${BOOST_WT_LIBRARIES} ${MXML_LIBRARIES})
 
 # If using Wt's MiniXML and building thread-safe, link to the threads

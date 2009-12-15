@@ -2044,9 +2044,6 @@ WWidget *WTreeView::createHeaderWidget(WApplication *app, int column)
   else
     t->setWordWrap(false);
 
-  if (columnInfo(column).extraHeaderWidget)
-    w->addWidget(columnInfo(column).extraHeaderWidget);
-
   WContainerWidget *result = new WContainerWidget();
   result->setFloatSide(Left);
 
@@ -2075,6 +2072,12 @@ WWidget *WTreeView::createHeaderWidget(WApplication *app, int column)
   result->addWidget(w);
   result->setStyleClass("Wt-tv-c headerrh " + info.styleClass());
   result->setContentAlignment(info.headerAlignment);
+
+  WWidget *extraW = columnInfo(column).extraHeaderWidget;
+  if (extraW) {
+    result->addWidget(extraW);
+    extraW->setStyleClass(extraW->styleClass() + " Wt-tv-br");
+  }
 
   if (columnResize_) {
     WContainerWidget *resizeHandle = new WContainerWidget();

@@ -80,7 +80,7 @@ WApplication::WApplication(const WEnvironment& env)
   newInternalPath_ = environment().internalPath();
   internalPathIsChanged_ = false;
 
-#ifndef WT_TARGET_JAVA
+#if !defined(WT_TARGET_JAVA) && !defined(WT_NO_XML)
   localizedStrings_ = new WMessageResourceBundle();
 #else
   localizedStrings_ = 0;
@@ -238,12 +238,12 @@ void WApplication::finalize()
 { }
 #endif // WT_TARGET_JAVA
 
-#ifndef WT_TARGET_JAVA
+#if !defined(WT_TARGET_JAVA) && !defined(WT_NO_XML)
 WMessageResourceBundle& WApplication::messageResourceBundle() const
 {
   return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings_));
 }
-#endif // WT_TARGET_JAVA
+#endif // !WT_TARGET_JAVA && !WT_NO_XML
 
 std::string WApplication::onePixelGifUrl()
 {

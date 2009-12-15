@@ -28,7 +28,11 @@ WTableColumn::~WTableColumn()
 
 int WTableColumn::columnNum() const
 {
-  return Utils::indexOf(*table_->columns_, const_cast<WTableColumn *>(this));
+  for (unsigned i =0; i < table_->columns_.size(); i++) 
+    if (table_->columns_[i] == this)
+      return i;
+
+  return -1;
 }
 
 void WTableColumn::setWidth(const WLength& width)

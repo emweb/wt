@@ -385,7 +385,7 @@ public:
    */
   void setLocalizedStrings(WLocalizedStrings *translator);
 
-#ifndef WT_TARGET_JAVA
+#if !defined(WT_TARGET_JAVA) && !defined(WT_NO_XML)
   /*! \brief Returns the message resource bundle.
    *
    * The message resource bundle defines the list of external XML

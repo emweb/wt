@@ -157,7 +157,7 @@ private:
   std::bitset<3>               flags_;
 
   std::vector<WTableRow *>     rows_;
-  std::vector<WTableColumn *> *columns_;
+  std::vector<WTableColumn *>  columns_;
   std::set<WTableRow *>       *rowsChanged_;
   unsigned                     rowsAdded_;
   int                          headerRowCount_, headerColumnCount_;
