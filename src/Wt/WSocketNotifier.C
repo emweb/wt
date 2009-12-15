@@ -8,6 +8,7 @@
 #include "Wt/WApplication"
 
 #include "WebController.h"
+#include "WebSession.h"
 
 namespace Wt {
 
@@ -35,9 +36,9 @@ void WSocketNotifier::setEnabled(bool enabled)
 
     if (!beingNotified_)
       if (enabled_)
-	WebController::instance()->addSocketNotifier(this);
+        WApplication::instance()->session()->controller()->addSocketNotifier(this);
       else
-	WebController::instance()->removeSocketNotifier(this);
+	WApplication::instance()->session()->controller()->removeSocketNotifier(this);
   }
 }
 
@@ -48,7 +49,7 @@ void WSocketNotifier::notify()
   beingNotified_ = false;
 
   if (enabled_)
-    WebController::instance()->addSocketNotifier(this);
+    WApplication::instance()->session()->controller()->addSocketNotifier(this);
 }
 
 }

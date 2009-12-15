@@ -539,7 +539,7 @@ int WPieChart::prevIndex(int i) const
 
 void WPieChart::modelReset()
 {
-  if (model()->rowCount() != pie_.size())
+  if (model()->rowCount() != (int)pie_.size())
     modelChanged();
   else
     update();

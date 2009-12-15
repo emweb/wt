@@ -165,7 +165,6 @@ void WebRenderer::serveResponse(WebResponse& response,
 void WebRenderer::setPageVars(FileServe& page)
 {
   bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
-  Configuration& conf = session_.controller()->configuration();
   WApplication *app = session_.app();
 
   page.setVar("DOCTYPE", session_.docType());
@@ -701,10 +700,13 @@ void WebRenderer::serveMainpage(WebResponse& response)
   /*
    * This implements the redirect for Post-Redirect-Get, or when the
    * internal path changed.
+   *
+   * Post-Redirect-Get does not work properly though: refresh() may misbehave
+   * and have unintended side effects ?
    */
   if (!app->environment().ajax()
-      && (response.requestMethod() == "POST"
-	  || (app->internalPathIsChanged_
+      && (/*response.requestMethod() == "POST"
+	  || */(app->internalPathIsChanged_
 	      && app->oldInternalPath_ != app->newInternalPath_)))
     session_.redirect(app->bookmarkUrl(app->newInternalPath_));
 

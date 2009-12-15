@@ -1,0 +1,304 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_COLLECTION_H_
+#define WT_DBO_COLLECTION_H_
+
+#include <cstddef>
+#include <iterator>
+#include <set>
+
+namespace Wt {
+  namespace Dbo {
+    class SqlStatement;
+
+  /*! \class collection Wt/Dbo/collection Wt/Dbo/collection
+   *  \brief An STL container for iterating query results.
+   *
+   * This is an STL-compatible container that is backed by an SQL
+   * query for fetching data. Its iterators implement the
+   * InputIterator requirements, which mean that you can only iterate
+   * its results once.
+   *
+   * The container is read only, unless it is being used as a member
+   * of a dbo to manage a Many-to-Many relation. In that case, you may
+   * also insert() and erase() may also be used.
+   *
+   * The %collection should be used only for storing \link ptr
+   * ptr\endlink<<i>C</i>> values: collection< \link ptr
+   * ptr\endlink<<i>C</i>> >.
+   *
+   * You will typically iterate the container results for local
+   * processing, or copy the results into a standard STL container for
+   * extended processing. The reason is that the container uses a
+   * non-reentrant sql statement: only one %collection, which is
+   * backed by the same SQL statement may be used at once per session.
+   * Thus, the following will fail:
+   *
+   * \code
+   * void iterateChildren(Wt::Dbo::ptr<Comment> comment)
+   * {
+   *     typedef Wt::Dbo::collection<Wt::Dbo::ptr<Comment> > Comments;
+   *     Comments children = comment->children;
+   *
+   *     for (Comments::const_iterator i = children.begin(); i != children.end(); ++i) {
+   *        std::cerr << "Comment: " << i->text << std::endl;
+   *        iterateChildren(*i); // Illegal since will result in nested use of the same query.
+   *     }
+   * }
+   * \endcode
+   *
+   * If you cannot gaurantee that during its iteration the same query
+   * will be reused, you should copy the results in a standard
+   * container. Note that this is no big overhead since dbo pointers
+   * are lightweight.
+   *
+   * \code
+   * void iterateChildren(Wt::Dbo::ptr<Comment> comment)
+   * {
+   *     typedef std::vector<Wt::Dbo::ptr<Comment> > Comments;
+   *
+   *     Comments children(comment->children.begin(), comment->children.end()); // copy into an STL container, freeing the underlying query for reuse 
+   *
+   *     for (Comments::const_iterator i = children.begin(); i != children.end(); ++i) {
+   *        std::cerr << "Comment: " << i->text << std::endl;
+   *        iterateChildren(*i); // Okay now.
+   *     }
+   * }
+   * \endcode
+   *
+   * Before iterating a %collection, the session is flushed. In this
+   * way, the %collection will reflect any pending dirty changes.
+   *
+   * \ingroup dbo
+   */
+  template <class C>
+  class collection
+  {
+    struct Activity {
+      std::set<C> inserted, erased;
+      std::set<C> transactionInserted, transactionErased;
+    };
+
+  public:
+    /*! \brief Value type.
+     */
+    typedef                   C value_type;
+
+    typedef          value_type key_type;
+    typedef   const value_type& const_reference;
+    typedef         std::size_t size_type;
+    typedef      std::ptrdiff_t difference_type;
+    typedef         value_type *pointer;
+    typedef   const value_type *const_pointer;
+
+    class const_iterator;
+
+    /*! \brief Iterator.
+     */
+    class iterator : public std::iterator<std::input_iterator_tag, C>
+    {
+    public:
+      /*! \brief Copy constructor.
+       */
+      iterator(const iterator& other);
+
+      /*! \brief Destructor.
+       */
+      ~iterator();
+
+      /*! \brief Assignment operator.
+       */
+      iterator& operator= (const iterator& other);
+
+      /*! \brief Dereference operator.
+       */
+      C& operator*();
+
+      /*! \brief Dereference operator.
+       */
+      C *operator->();
+
+      /*! \brief Comparison operator.
+       *
+       * Returns true if two iterators point to the same value in the
+       * same %collection.
+       */
+      bool operator== (const iterator& other) const;
+
+      /*! \brief Comparison operator.
+       */
+      bool operator!= (const iterator& other) const;
+
+      /*! \brief Pre increment operator.
+       */
+      iterator& operator++ ();
+
+      /*! \brief Post increment operator.
+       */
+      iterator  operator++ (int);
+
+    private:
+      struct shared_impl {
+	const collection<C>& self_;
+	value_type current_;
+	int useCount_;
+	bool ended_;
+
+	shared_impl(const collection<C>& self);
+	~shared_impl();
+
+	void fetchNextRow();
+      };
+
+      shared_impl *impl_;
+
+      iterator();
+      iterator(const collection<C>& self);
+
+      void takeImpl();
+      void releaseImpl();
+
+      friend class collection<C>;
+      friend class const_iterator;
+    };
+
+    /*! \brief Const Iterator.
+     */
+    class const_iterator : public std::iterator<std::input_iterator_tag, C>
+    {
+    public:
+      /*! \brief Copy constructor.
+       */
+      const_iterator(const const_iterator& other);
+
+      /*! \brief Copy constructor.
+       */
+      const_iterator(const typename collection<C>::iterator& other);
+
+      /*! \brief Assignment operator.
+       */
+      const_iterator& operator= (const const_iterator& other);
+
+      /*! \brief Assignment operator.
+       */
+      const_iterator& operator= (const iterator& other);
+
+      /*! \brief Dereference operator.
+       */
+      const C& operator*();
+
+      /*! \brief Dereference operator.
+       */
+      const C *operator->();
+
+      /*! \brief Comparison operator.
+       *
+       * Returns true if two iterators point to the same value in the
+       * same %collection.
+       */
+      bool operator== (const const_iterator& other) const;
+
+      /*! \brief Comparison operator.
+       */
+      bool operator!= (const const_iterator& other) const;
+
+       /*! \brief Pre increment operator.
+       */
+      const_iterator& operator++ ();
+
+      /*! \brief Post increment operator.
+       */
+      const_iterator  operator++ (int);
+
+    private:
+      typename collection<C>::iterator impl_;
+
+      const_iterator();
+      const_iterator(const collection<C>& self);
+
+      friend class collection<C>;
+    };
+
+    /*! \brief Default constructor.
+     *
+     * Constructs an empty %collection that is not bound to a database
+     * session or query.
+     */
+    collection();
+
+    /*! \brief Destructor.
+     */
+    ~collection();
+
+    /*! \brief Returns an iterator to the begin of the %collection.
+     */
+    iterator begin();
+
+    /*! \brief Returns an iterator to the end of the %collection.
+     */
+    iterator end();
+
+    /*! \brief Returns a const iterator to the begin of the %collection.
+     */
+    const_iterator begin() const;
+
+    /*! \brief Returns a const iterator to the end of the %collection.
+     */
+    const_iterator end() const;
+
+    /*! \brief Returns the size.
+     *
+     * This will execute an SQL <tt>count(*)</tt> statement to fetch the
+     * size of the %collection without fetching all results.
+     */
+    size_type size() const;
+
+    /*! \brief Inserts an object.
+     *
+     * This is only useful for a %collection that implements one side
+     * of a ManyToMany relation.
+     */
+    void insert(C c);
+
+    /*! \brief Removes an object.
+     *
+     * This is only useful for a %collection that implements one side
+     * of a ManyToMany relation.
+     */
+    void erase(C c);
+
+    void setStatement(SqlStatement *selectStatement,
+		      SqlStatement *countStatement, Session *session);
+    void setArg(long long arg);
+    void clearStatement();
+
+    Activity *activity() { return activity_; }
+    void resetActivity();
+
+    /*! \brief Returns the session to which this %collection is bound.
+     */
+    Session *session() const { return session_; }
+
+    long long arg() const { return arg_; }
+
+  private:
+    mutable SqlStatement *statement_, *countStatement_;
+    long long arg_;
+    Session *session_;
+    Activity *activity_; // only for ManyToMany %collections
+
+    C loadNext() const;
+
+    friend class LoadDbAction;
+    friend class SaveDbAction;
+    friend class TransactionDoneAction;
+  };
+
+  }
+}
+
+#endif // WT_DBO_COLLECTION_H_

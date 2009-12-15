@@ -14,12 +14,8 @@
 #include <Wt/WAnchor>
 #include <Wt/WApplication>
 #include <Wt/WEnvironment>
-#include <Wt/WIconPair>
-#include <Wt/WImage>
-#include <Wt/WLineEdit>
 #include <Wt/WLogger>
 #include <Wt/WMenu>
-#include <Wt/WPushButton>
 #include <Wt/WStackedWidget>
 #include <Wt/WVBoxLayout>
 #include <Wt/WTabWidget>
@@ -29,6 +25,7 @@
 #include <Wt/WViewWidget>
 
 #include "Home.h"
+#include "view/BlogView.h"
 
 static const std::string SRC_INTERNAL_PATH = "src";
 
@@ -50,8 +47,6 @@ Home::~Home()
 Home::Home(const WEnvironment& env, const std::string& title,
 	   const std::string& resourceBundle, const std::string& cssPath)
   : WApplication(env),
-    recentNews_(0),
-    historicalNews_(0),
     releases_(0),
     homePage_(0),
     sourceViewer_(0)
@@ -59,8 +54,8 @@ Home::Home(const WEnvironment& env, const std::string& title,
   messageResourceBundle().use(resourceBundle, false);
   useStyleSheet(cssPath + "/wt.css");
   useStyleSheet(cssPath + "/wt_ie.css", "lt IE 7");
-  useStyleSheet("home.css");
-  useStyleSheet("sourceview.css");
+  useStyleSheet("css/home.css");
+  useStyleSheet("css/sourceview.css");
   setTitle(title);
 
   setLocale("");
@@ -151,8 +146,7 @@ WWidget *Home::initHome()
     (tr("introduction"), introduction())->setPathComponent("");
 
   mainMenu_->addItem
-    (tr("news"), deferCreate(boost::bind(&Home::news, this)),
-     WMenuItem::PreLoading);
+    (tr("blog"), deferCreate(boost::bind(&Home::blog, this)));
 
   mainMenu_->addItem
     (tr("features"), wrapView(&Home::features),  WMenuItem::PreLoading);
@@ -262,23 +256,9 @@ WWidget *Home::introduction()
   return new WText(tr("home.intro"));
 }
 
-WWidget *Home::news()
+WWidget *Home::blog()
 {
-  WContainerWidget *result = new WContainerWidget();
-
-  result->addWidget(new WText(tr("home.news")));
-
-  result->addWidget(new WText(tr("home.latest-news")));
-  recentNews_ = new WTable();
-  readNews(recentNews_, filePrefix() + "latest-news.txt");
-  result->addWidget(recentNews_);
-
-  result->addWidget(new WText(tr("home.historical-news")));
-  historicalNews_ = new WTable();
-  readNews(historicalNews_, filePrefix() + "historical-news.txt");
-  result->addWidget(historicalNews_);
-
-  return result;
+  return new BlogView("/blog/", "blog.db", "/wt/blog/feed/");
 }
 
 WWidget *Home::status()
@@ -314,39 +294,6 @@ std::string Home::href(const std::string& url, const std::string& description)
 WWidget *Home::community()
 {
   return new WText(tr("home.community"));
-}
-
-void Home::readNews(WTable *newsTable, const std::string& newsfile)
-{
-  std::ifstream f(newsfile.c_str());
-
-  newsTable->clear();
-
-  int row = 0;
-
-  while (f) {
-    std::string line;
-    getline(f, line);
-
-    if (f) {
-      typedef boost::tokenizer<boost::escaped_list_separator<char> >
-	CsvTokenizer;
-      CsvTokenizer tok(line);
-
-      CsvTokenizer::iterator i=tok.begin();
-
-      newsTable->elementAt(row, 0)->
-	addWidget(new WText("<p><b>" + *i + "</b></p>"));
-      newsTable->elementAt(row, 0)
-	->setContentAlignment(AlignCenter | AlignTop);
-      newsTable->elementAt(row, 0)
-	->resize(WLength(16, WLength::FontEx), WLength::Auto);
-      newsTable
-	->elementAt(row, 1)->addWidget(new WText("<p>" + *(++i) + "</p>"));
-
-      ++row;
-    }
-  }
 }
 
 void Home::readReleases(WTable *releaseTable)

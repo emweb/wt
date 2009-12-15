@@ -108,7 +108,7 @@ static int		mxml_file_putc(int ch, void *p);
 static int		mxml_get_entity(mxml_node_t *parent, void *p,
 			                int *encoding,
 					_mxml_getc_cb_t getc_cb);
-static inline int	mxml_isspace(int ch)
+static int	mxml_isspace(int ch)
 			{
 			  return (ch == ' ' || ch == '\t' || ch == '\r' ||
 			          ch == '\n');

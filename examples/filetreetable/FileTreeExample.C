@@ -20,7 +20,7 @@ WApplication *createApplication(const WEnvironment& env)
   app->useStyleSheet("filetree.css");
 
 #ifndef WIN32
-  FileTreeTable *treeTable = new FileTreeTable("/home/koen/project/wt");
+  FileTreeTable *treeTable = new FileTreeTable("/Users/koen/project/wt");
 #else
   FileTreeTable *treeTable = new FileTreeTable("/tmp");
 #endif

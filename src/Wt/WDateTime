@@ -1,0 +1,293 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WDATE_TIME_H_
+#define WDATE_TIME_H_
+
+#include <Wt/WDllDefs.h>
+#include <Wt/WString>
+#include <exception>
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+namespace Wt {
+
+/*! \class InvalidDateTimeException Wt/WDateTime Wt/WDateTime
+ *  \brief Exception thrown when calculating with an invalid date.
+ *
+ * \sa WDateTime
+ */
+class WT_API InvalidDateTimeException : public std::exception
+{
+public:
+  InvalidDateTimeException();
+  ~InvalidDateTimeException() throw();
+
+  /*! \brief Returns a message describing the error.
+   */
+  const char *what() const throw();
+};
+
+class WDate;
+class WTime;
+
+/*! \class WDateTime Wt/WDateTime Wt/WDateTime
+ *  \brief A calendar date and clock time.
+ *
+ * The date time class combines the functionality of a WDate (for a
+ * calendar date) and WTime (for clock time) into a single class.
+ *
+ * Conventionally date time is assumed in UTC, which affects the behaviour
+ * of the following methods:
+ * - toTime_t(), setTime_t()
+ * - currentDateTime()
+ */
+class WT_API WDateTime
+{
+public:
+  /*! \brief Constructs a <i>Null</i> datetime.
+   *
+   * A time for which isNull() returns \c true. A <i>Null</i> datetime
+   * is also invalid.
+   *
+   * \sa isValid(), isNull()
+   */
+  WDateTime();
+
+  /*! \brief Constructs a datetime given a date.
+   *
+   * The time is set to midnight (00:00). The datetime is valid if the
+   * \p date is valid.
+   */
+  explicit WDateTime(const WDate& date);
+
+  /*! \brief Constructs a datetime given a date and time.
+   *
+   * The datetime is valid if both \p date and \p time are valid.
+   */
+  WDateTime(const WDate& date, const WTime& time);
+
+  /*! \brief Sets the time in seconds from the Epoch.
+   *
+   * The \p time is the number of seconds since the Epoch (00:00:00
+   * UTC, January 1, 1970).
+   *
+   * \sa toTime_t()
+   */
+  void setTime_t(std::time_t time);
+
+  /*! \brief Adds milliseconds.
+   *
+   * Returns a datetime that is \p ms milliseconds later than this
+   * datetime. Negative values for \p ms will result in a datetime that
+   * is as many milliseconds earlier.
+   */
+  WDateTime addMSecs(int ms) const;
+
+  /*! \brief Adds seconds.
+   *
+   * Returns a datetime that is \p s seconds later than this
+   * datetime. Negative values for \p s will result in a datetime that
+   * is as many seconds earlier.
+   */
+  WDateTime addSecs(int s) const;
+
+  /*! \brief Adds days.
+   *
+   * Returns a datetime that is \p ndays later than this
+   * datetime. Negative values for \p ndays will result in a datetime
+   * that is as many days earlier.
+   *
+   * \sa addMonths(), addYears()
+   */
+  WDateTime addDays(int ndays) const;
+
+  /*! \brief Adds months.
+   *
+   * Returns a datetime that is the same day of the month, but \p
+   * nmonths later than this date. Negative values for \p nmonths will
+   * result in a datetime that is as many months earlier.
+   *
+   * \sa addDays(), addYears()
+   */
+  WDateTime addMonths(int nmonths) const;
+
+  /*! \brief Adds years.
+   *
+   * Returns a datetime that is \p nyears later than this
+   * datetime. Negative values for \p nyears will result in a datetime
+   * that is as many years earlier.
+   *
+   * \sa addDays(), addMonths()
+   */
+  WDateTime addYears(int nyears) const;
+
+  /*! \brief Returns if this datetime is <i>Null</i>.
+   *
+   * A null time is also invalid.
+   *
+   * \sa isValid(), WDateTime()
+   */
+  bool isNull() const;
+
+  /*! \brief Returns if this datetime is valid.
+   *
+   * A date time is only valid if its date and time parts are valid.
+   */
+  bool isValid() const;
+
+  /*! \brief Sets the date part.
+   *
+   * Changes the date part part, leaving the time unmodified. If no time
+   * was set, it is set to 00:00.
+   *
+   * \sa setTime()
+   */
+  void setDate(const WDate& date);
+
+  /*! \brief Returns the date part.
+   *
+   * Returns the date part.
+   *
+   * \sa time()
+   */
+  WDate date() const;
+
+  /*! \brief Sets the time part.
+   *
+   * If no valid date is set, the time is not set either.
+   *
+   * \sa setDate()
+   */
+  void setTime(const WTime& time);
+
+  /*! \brief Returns the time part.
+   *
+   * \sa setTime()
+   */
+  WTime time() const;
+
+  /*! \brief Returns the number of seconds since the Epoch.
+   *
+   * This returns the number of seconds since the Epoch (00:00:00 UTC,
+   * January 1, 1970) represented by this datetime.
+   */
+  std::time_t toTime_t() const;
+
+  /*! \brief Returns the difference between to datetime values (in seconds).
+   *
+   * \sa daysTo()
+   */
+  int secsTo(const WDateTime& other) const;
+
+  /*! \brief Returns the difference between two datetime values (in days).
+   *
+   * \sa secsTo()
+   */
+  int daysTo(const WDateTime& other) const;
+
+  /*! \brief Returns the difference between two datetime values (as text).
+   *
+   * This returns a textual representation of the approximate
+   * difference between this time and \p other. The textual
+   * representation returns the difference as a number of seconds,
+   * minutes, hours, days, weeks, months, or years, using the coarsest
+   * unit that is more than \p minValue.
+   *
+   * \sa daysTo(), secsTo()
+   */
+  WString timeTo(const WDateTime& other, int minValue = 1) const;
+
+  /*! \brief Compares two datetime values.
+   */
+  bool operator< (const WDateTime& other) const;
+
+  /*! \brief Compares two datetime values.
+   */
+  bool operator<= (const WDateTime& other) const;
+
+  /*! \brief Compares two datetime values.
+   */
+  bool operator> (const WDateTime& other) const;
+
+  /*! \brief Compares two datetime values.
+   */
+  bool operator>= (const WDateTime& other) const;
+
+  /*! \brief Compares two datetime values.
+   */
+  bool operator== (const WDateTime& other) const;
+
+  /*! \brief Compares two datetime values.
+   */
+  bool operator!= (const WDateTime& other) const;
+
+  static WT_USTRING defaultFormat();
+
+  /*! \brief Format this datetime to a string using a default format.
+   *
+   * The default format is "ddd MMM d hh:mm:ss yyyy".
+   */
+  WT_USTRING toString() const;
+
+  /*! \brief Format this time to a string using a specified format.
+   *
+   * The \p format is a string which mixes the format for WDate and
+   * WTime.
+   *
+   * \sa WDate::toString(), WTime::toString()
+   */
+  WT_USTRING toString(const WT_USTRING& format) const;
+
+  /*! \brief Parses a string to a time using a default format.
+   *
+   * The default format is "ddd MMM d hh:mm:ss yyyy".
+   *
+   * \sa WDate::fromString(), WTime::fromString().
+   */
+  static WDateTime fromString(const WT_USTRING& s);
+
+  /*! \brief Parses a string to a time using a specified format.
+   *
+   * The \p format is a string which mixes the format for WDate and
+   * WTime.
+   *
+   * \sa WDate::fromString(), WTime::toString().
+   */
+  static WDateTime fromString(const WT_USTRING& s, const WT_USTRING& format);
+
+  /*! \brief Reports the current UTC datetime.
+   *
+   * This method returns the datetime as indicated by the system clock
+   * of the server, in the UTC timezone.
+   */
+  static WDateTime currentDateTime();
+
+  /*! \brief Creates a WDateTime based on a number of seconds since the Epoch.
+   *
+   * \sa setTime_t()
+   */
+  static WDateTime fromTime_t(std::time_t seconds);
+
+private:
+  boost::posix_time::ptime datetime_;
+
+  enum CharState { CharUnhandled, CharHandled, CharInvalid };
+
+  WDateTime(boost::posix_time::ptime datetime);
+
+  static void fromString(WDate *date, WTime *time, const WString& s,
+			 const WString& format);
+  static WString toString(const WDate *date, const WTime *time,
+			  const WString& format);
+
+  friend class WDate;
+  friend class WTime;
+};
+
+}
+
+#endif // WDATE_TIME_H_

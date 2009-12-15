@@ -47,7 +47,8 @@ namespace server {
 
 Server *Server::instance_ = 0;
 
-Server::Server(const Configuration& config, const Wt::Configuration& wtConfig)
+Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
+               Wt::WebController& controller)
   : io_service_(),
     accept_strand_(io_service_),
     tcp_acceptor_(io_service_),
@@ -60,7 +61,8 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig)
 #endif // defined(WT_THREADED) && BOOST_VERSION < 103600
     connection_manager_(),
     request_handler_(config.docRoot(), config.errRoot(), wtConfig.entryPoints(),
-		     accessLogger_)   
+		     accessLogger_),
+    controller_(&controller)
 {
   assert(instance_ == 0);
   instance_ = this;
@@ -97,7 +99,7 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig)
     tcp_acceptor_.listen();
 
     new_tcpconnection_.reset
-      (new TcpConnection(io_service_, connection_manager_, request_handler_));
+      (new TcpConnection(io_service_, this, connection_manager_, request_handler_));
 
   }
 
@@ -126,7 +128,7 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig)
     ssl_acceptor_.listen();
 
     new_sslconnection_.reset
-      (new SslConnection(io_service_, ssl_context_, connection_manager_,
+      (new SslConnection(io_service_, this, ssl_context_, connection_manager_,
 			 request_handler_));
 
 #else // HTTP_WITH_SSL
@@ -198,7 +200,7 @@ void Server::handleTcpAccept(const asio_error_code& e)
   if (!e)
   {
     connection_manager_.start(new_tcpconnection_);
-    new_tcpconnection_.reset(new TcpConnection(io_service_,
+    new_tcpconnection_.reset(new TcpConnection(io_service_, this,
           connection_manager_, request_handler_));
     tcp_acceptor_.async_accept(new_tcpconnection_->socket(),
 	                accept_strand_.wrap(
@@ -213,7 +215,7 @@ void Server::handleSslAccept(const asio_error_code& e)
   if (!e)
   {
     connection_manager_.start(new_sslconnection_);
-    new_sslconnection_.reset(new SslConnection(io_service_,
+    new_sslconnection_.reset(new SslConnection(io_service_, this,
           ssl_context_, connection_manager_, request_handler_));
     ssl_acceptor_.async_accept(new_sslconnection_->socket(),
 	                accept_strand_.wrap(
@@ -260,7 +262,7 @@ bool Server::socketSelected(int descriptor, const asio_error_code& e,
 #endif
 
   if (!e)
-    return Wt::WebController::instance()->socketSelected(descriptor);
+    return controller()->socketSelected(descriptor);
   else
     return false;
 #else

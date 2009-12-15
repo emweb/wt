@@ -1,0 +1,340 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_DBO_PTR_H_
+#define WT_DBO_DBO_PTR_H_
+
+#include <string>
+#include <Wt/Dbo/SqlTraits>
+
+namespace Wt {
+
+  /*! \brief Namespace for the \ref dbo
+   */
+  namespace Dbo {
+
+class Session;
+class SqlStatement;
+
+class DboBase
+{
+public:
+  enum State {
+    // dbo state (also works with bitwise or)
+    New = 0x000,
+    Persisted = 0x001,
+
+    // flags
+    NeedsDelete = 0x010,
+    NeedsSave = 0x020,
+
+    DeletedInTransaction = 0x100,
+    SavedInTransaction = 0x200,
+
+    TransactionState = (SavedInTransaction | DeletedInTransaction)
+  };
+
+  DboBase(long long id, int version, int state, Session *session)
+    : session_(session), id_(id), version_(version), state_(state),
+      refCount_(0)
+  { }
+
+  virtual ~DboBase();
+
+  virtual void flush() = 0;
+
+  void setId(long long id) { id_ = id; }
+  long long id() const { return id_; }
+
+  void setVersion(int version) { version_ = version; }
+  int version() const { return version_; }
+
+  void setSession(Session *session) { session_ = session; }
+  Session *session() { return session_; }
+
+  bool isNew() const { return version_ == -1; }
+  bool isPersisted() const
+    { return 0 != (state_ & (Persisted | SavedInTransaction)); }
+  bool isDeleted() const
+    { return 0 != (state_ & (NeedsDelete | DeletedInTransaction)); }
+
+  bool isDirty() const { return 0 != (state_ & NeedsSave); }
+  bool inTransaction() const { return 0 != (state_ & 0xF00); }
+
+  bool savedInTransaction() const
+    { return 0 != (state_ & SavedInTransaction); }
+  bool deletedInTransaction() const
+    { return 0 != (state_ & DeletedInTransaction); }
+
+  void setState(State state);
+
+  void setDirty();
+  void remove();
+
+  void setTransactionState(State state);
+  void resetTransactionState();
+
+  void incRef();
+  void decRef();
+
+private:
+  Session *session_;
+  long long id_;
+  int version_;
+
+protected:
+  int state_;
+  int refCount_;
+};
+
+/*
+  Manages a single object.
+ */
+template <class C>
+class Dbo : public DboBase
+{
+public:
+  Dbo(C *obj);
+  virtual ~Dbo();
+
+  virtual void flush();
+
+  void purge();
+  void reread();
+  void transactionDone(bool success);
+
+  C *obj();
+  void setObj(C *obj);
+
+private:
+  C   *obj_;
+
+  Dbo(long long id, int version, int state, Session& session, C *obj);
+
+  void doLoad();
+  void prune();
+
+  friend class Session;
+};
+
+class ptr_base
+{
+public:
+  ptr_base() { }
+  virtual ~ptr_base();
+
+  virtual void transactionDone(bool success) = 0;
+};
+
+/*! \defgroup dbo Database Objects library (Dbo)
+ *  \brief An implemenation of an Object Relational Mapping layer.
+ */
+
+/*! \class ptr Wt/Dbo/ptr Wt/Dbo/ptr
+ *  \brief A smart pointer for database objects.
+ *
+ * This smart pointer class implements a reference counted shared
+ * pointer for database objects, which also keeps tracking of
+ * synchronization between the in-memory copy and the database
+ * copy. You should always use this pointer class to reference a database
+ * object.
+ *
+ * Unlike typical C++ data structures, classes mapped to database
+ * tables do not have clear ownership relationships. Therefore, the
+ * conventional ownership-based memory allocation/deallocation does
+ * not work naturally for database classes.
+ *
+ * A pointer may point to a <i>transient</i> object or a
+ * <i>persisted</i> object. A persisted object has a corresponding
+ * copy in the database while a transient object is only present in
+ * memory. To persist a new object, use Session::add(). To make a
+ * persisted object transient, use remove().
+ *
+ * Unlike a typical smart pointer, this pointer only allows read
+ * access to the underlying object by default. To modify the object,
+ * you should explicitly use modify(). This is used to mark the
+ * underyling object as <i>dirty</i> to add it to the queue of objects
+ * to be synchronized with the database.
+ *
+ * The pointer class provides a number of methods to deal with the
+ * persistence state of the object:
+ * - id(): returns the database id
+ * - flush(): forces the object to be synchronized to the database
+ * - remove(): deletes the object in the underlying database
+ * - reread(): rereads the database copy of the object
+ * - purge(): purges the transient version of a non-dirty object.
+ *
+ * \ingroup dbo
+ */
+template <class C>
+class ptr : public ptr_base
+{
+public:
+  typedef C pointed;
+
+  /*! \brief Creates a new pointer.
+   *
+   * When \p obj is not 0, the pointer points to the new unpersisted
+   * object. Use Session::add() to persist the newly created object.
+   */
+  ptr(C *obj = 0);
+
+  /*! \brief Copy constructor.
+   */
+  ptr(const ptr<C>& other);
+
+  /*! \brief Destructor.
+   *
+   * This method will delete the transient copy of the database object if
+   * it is not referenced by any other pointer.
+   */
+  virtual ~ptr();
+
+  /*! \brief Resets the pointer.
+   *
+   * This is equivalent to:
+   * \code
+   * p = ptr<C>(obj);
+   * \endcode
+   */
+  void reset(C *obj = 0);
+
+  /*! \brief Assignment operator.
+   */
+  ptr<C>& operator= (const ptr<C>& other);
+
+  /*! \brief Dereference operator.
+   *
+   * Note that this operator returns a const copy of the referenced
+   * object. Use modify() to get a non-const reference.
+   *
+   * Since this may lazy-load the underlying database object, you
+   * should have an active transaction.
+   */
+  const C *operator->() const;
+
+  /*! \brief Dereference operator.
+   *
+   * Note that this operator returns a const copy of the referenced
+   * object. Use modify() to get a non-const reference.
+   *
+   * Since this may lazy-load the underlying database object, you
+   * should have an active transaction.
+   */
+  const C& operator*() const;
+
+  /*! \brief Dereference operator, for writing.
+   *
+   * Returns the underlying object with the intention to modify it. It
+   * marks the underlying object as dirty.
+   *
+   * Since this may lazy-load the underlying database object, you
+   * should have an active transaction.
+   */
+  C *modify() const;
+
+  /*! \brief Comparison operator.
+   *
+   * Two pointers are equal if and only if they reference the same
+   * databse object.
+   */
+  bool operator== (const ptr<C>& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * This operator is implemented to be able to store pointers in
+   * std::set or std::map containers.
+   */
+  bool operator< (const ptr<C>& other) const;
+
+  /*! \brief Checks for null.
+   *
+   * Returns true if the pointer is pointing to a non-null object.
+   */
+  operator bool() const;
+
+  /*! \brief Flushes the object.
+   *
+   * If dirty, the object is synchronized to the database. This will
+   * automatically also flush objects that are referenced by this
+   * object if needed. The object is not actually committed to the
+   * database before the active transaction has been committed.
+   *
+   * Since this may persist object to the database, you should have an
+   * active transaction.
+   */
+  void flush() const;
+
+  /*! \brief Removes an object from the database.
+   *
+   * The object is removed from the database, and becomes transient again.
+   *
+   * Note that the object is not deleted in memory: you can still
+   * continue to read and modify the object, but there will no longer
+   * be a database copy of the object, and the object will effectively
+   * be treated as a new object (which may be re-added to the database
+   * at a later point).
+   *
+   * This is the opposite operation of Session::add().
+   */
+  void remove();
+
+  /*! \brief Rereads the database version.
+   *
+   * Rereads a persisted object from the database, discarding any
+   * possible changes and updating to the latest database version.
+   *
+   * This does not actually load the database version, since loading is
+   * lazy.
+   */
+  void reread();
+
+  /*! \brief Purges an object from memory.
+   *
+   * When the object is not dirty, the memory copy of the object is deleted,
+   * and the object will be reread from the database on the next access.
+   *
+   * Purging an object can be useful to conserve memory, but you should never
+   * purge an object while the user is editing if you wish to rely on the
+   * optimistick locking for detecting concurrent modifications.
+   */
+  void purge();
+
+  /*! \brief Returns the object id.
+   *
+   * This returns -1 for a transient object.
+   */
+  long long id() const;
+
+protected:
+  Dbo<C> *obj() const { return obj_; }
+
+private:
+  Dbo<C> *obj_;
+
+  ptr(Dbo<C> *obj);
+
+  void takeObj();
+  void freeObj();
+
+  virtual void transactionDone(bool success);
+  
+  friend class Session;
+};
+
+template <class C>
+struct sql_result_traits< ptr<C> >
+{
+  static std::string getColumns(Session& session,
+				std::vector<std::string> *aliases);
+  static ptr<C> loadValues(Session& session, SqlStatement& statement,
+			   int& column);
+};
+
+  }
+}
+
+#endif // WT_DBO_DBO_PTR_H_

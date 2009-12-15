@@ -1,0 +1,40 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_TYPES_H_
+#define WT_DBO_TYPES_H_
+
+#include <Wt/Dbo/ptr>
+#include <Wt/Dbo/collection>
+#include <Wt/Dbo/DbAction>
+#include <Wt/Dbo/Field>
+#include <Wt/Dbo/Query>
+#include <Wt/Dbo/Session>
+#include <Wt/Dbo/StdSqlTraits>
+
+#include <Wt/Dbo/Query_impl.h>
+
+#ifndef _MSC_VER
+#define DBO_EXTERN_TEMPLATES(C)						\
+  extern template class Wt::Dbo::ptr<C>;				\
+  extern template class Wt::Dbo::Dbo<C>;				\
+  extern template class Wt::Dbo::collection< Wt::Dbo::ptr<C> >;		\
+  extern template class Wt::Dbo::Query< Wt::Dbo::ptr<C> >;		\
+  extern template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(ptr<C>&);	\
+  extern template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(C *);	\
+  extern template Wt::Dbo::ptr<C> Wt::Dbo::Session::load<C>(long long); \
+  extern template void Wt::Dbo::Session::mapClass<C>(const char *);	\
+  extern template struct Wt::Dbo::Session::ClassMapping<C>;		\
+  extern template Wt::Dbo::Query< Wt::Dbo::ptr<C> >			\
+      Wt::Dbo::Session::find<C>(const std::string&)
+#else
+// Broken on MSVC 2005 and 2008 (cannot redeclare extern declared template
+// methods to be defined after all)
+#define DBO_EXTERN_TEMPLATES(C)
+#include <Wt/Dbo/Impl>
+#endif
+
+#endif // WT_DBO_TYPES_H_

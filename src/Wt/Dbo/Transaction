@@ -1,0 +1,131 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_TRANSACTION_H_
+#define WT_DBO_TRANSACTION_H_
+
+#include <vector>
+
+namespace Wt {
+  namespace Dbo {
+
+class Session;
+class SqlConnection;
+
+class ptr_base;
+
+/*! \class Transaction Wt/Dbo/Transaction Wt/Dbo/Transaction
+ *  \brief A database transaction.
+ * 
+ * This class implements a RAII transaction. Most dbo manipulations
+ * require that a transaction is active, and database changes will not
+ * be committed to the database until the active transaction is
+ * committed using commit().
+ *
+ * A transaction is active until it is either committed or rolled
+ * back.
+ *
+ * In most occasions you will want to guard a single method with a
+ * transaction object on the stack. Unless the object is committed
+ * before returning from the method, the transaction will be rolled
+ * back.
+ *
+ * You may create multiple (nested) transaction objects at the same
+ * time: in this way you can guard a method with a transaction object
+ * even if it is called from another method which also defines a
+ * transaction with a wider scope. Nested transactions act in concert
+ * and reference the same logical transaction: the logical transaction
+ * will fail if at least one transaction fails, and will be committed only
+ * if all transactions are committed.
+ *
+ * Usage example:
+ * \code
+ * void doSomething(Wt::Dbo::Session& session)
+ * {
+ *   Wt::Dbo::Transaction transaction(session);
+ *
+ *   Wt::Dbo::ptr<Account> a = session.load<Account>(42);
+ *   ...
+ *
+ *   transaction.commit();
+ * }
+ * \endcode
+ *
+ * \ingroup dbo
+ */
+class Transaction
+{
+public:
+  /*! \brief Constructor.
+   *
+   * Opens a transaction for the given \p session. If a transaction is
+   * already open for the session, this transaction is added. All open
+   * transaction must commit succesfully for the entire transaction to
+   * succeed.
+   */
+  explicit Transaction(Session& session);
+
+  /*! \brief Destructor.
+   *
+   * If the transaction is still active, it is rolled back.
+   */
+  ~Transaction();
+
+  /*! \brief Returns whether the transaction is still active.
+   *
+   * A transaction is active unless it has been committed or rolled
+   * back.
+   *
+   * While a transaction is active, new transactions for the same
+   * session are treated as nested transactions.
+   */
+  bool isActive() const;
+
+  /*! \brief Commits the transaction.
+   *
+   * If this is the last open transaction for the session, the session
+   * is flushed and pending changes are committed to the database.
+   *
+   * Returns whether the transaction was flushed to the database
+   * (i.e. whether this was indeed the last open transaction).
+   *
+   * \sa rollback()
+   */
+  bool commit();
+
+  /*! \brief Rolls back the transaction.
+   *
+   * \sa commit(), ~Transaction()
+   */
+  void rollback();
+
+private:
+  struct Impl {
+    Session& session_;
+    bool active_;
+
+    int transactionCount_;
+    std::vector<ptr_base *> objects_;
+
+    SqlConnection *connection_;
+
+    void commit();
+    void rollback();
+
+    Impl(Session& session_);
+  };
+
+  bool committed_;
+  Session& session_;
+  Impl *impl_;
+
+  friend class Session;
+};
+
+  }
+}
+
+#endif // WT_DBO_TRANSACTION_H_

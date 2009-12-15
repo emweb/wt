@@ -19,7 +19,7 @@ namespace Wt {
 class WAbstractItemModel;
 
 /*! \defgroup modelview Model/view system
- *  \brief Classes that participate implement %Wt's model/view system.
+ *  \brief Classes that implement %Wt's model/view system.
  */
 
 /*! \brief Enumeration that indicates a role for a data item.

@@ -21,9 +21,9 @@
 namespace http {
 namespace server {
 
-TcpConnection::TcpConnection(asio::io_service& io_service,
+TcpConnection::TcpConnection(asio::io_service& io_service, Server *server,
     ConnectionManager& manager, RequestHandler& handler)
-  : Connection(io_service, manager, handler),
+  : Connection(io_service, server, manager, handler),
     socket_(io_service)
 { }
 

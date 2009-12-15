@@ -122,6 +122,7 @@ protected:
   boost::recursive_mutex mutex_;
 #endif // WT_THREADED
 
+  Connection *connection() { return connection_; }
 private:
   std::vector<std::pair<std::string, std::string> > headers_;
 

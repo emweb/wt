@@ -17,6 +17,7 @@ WLength WLength::Auto;
 
 WLength::WLength()
   : auto_(true),
+    unit_(Pixel),
     value_(-1)
 { }
 

@@ -76,7 +76,7 @@ std::string getLanguageFromFileExtension(const std::string &fileName)
     return std::string();
 } 
 
-std::string readFileToString(const std::string &fileName) 
+std::string readFileToString(const std::string& fileName) 
 {
   std::size_t outputFileSize = fs::file_size(fileName);
   std::fstream file (fileName.c_str(), std::ios::in | std::ios::binary);

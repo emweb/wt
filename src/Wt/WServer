@@ -87,16 +87,6 @@ public:
     std::string what_;
   };
 
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Enumeration that indicates the type of an entrypoint.
-   *
-   * \sa addEntryPoint()
-   */
-  typedef Wt::ApplicationType EntryPointType;
-  static const EntryPointType Application = Wt::Application;
-  static const EntryPointType WidgetSet = Wt::WidgetSet;
-#endif // WT_DEPRECATED_3_0_0
-
   /*! \brief Create a new server instance.
    *
    * The \p wtApplicationPath is used to match specific
@@ -149,7 +139,8 @@ public:
    * \throws Exception : indicates a configuration problem.
    */  
   void setServerConfiguration(int argc, char *argv[],
-			      const std::string& serverConfigurationFile = std::string());
+			      const std::string& serverConfigurationFile
+			      = std::string());
 
   /*! \brief Bind an entry-point to a callback function to create
    *         a new application.
@@ -169,9 +160,17 @@ public:
    * configuration file (see als \ref config_general "Application
    * settings (wt_config.xml)").
    */
-  void addEntryPoint(ApplicationType type, ApplicationCreator callback,
+  void addEntryPoint(EntryPointType type, ApplicationCreator callback,
 		     const std::string& path = std::string(),
                      const std::string& favicon = std::string());
+
+  /*! \brief Bind a resource to a fixed path.
+   *
+   * Resources may either be private to a single session or
+   * public. Use this method to add a public resource with a fixed
+   * path.
+   */
+  void addResource(WResource *resource, const std::string& path);
 
   /*! \brief Starts the server in the background.
    *

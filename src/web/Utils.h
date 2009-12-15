@@ -35,10 +35,13 @@ extern const std::string& escapeText(std::string& s, bool newLinesToo);
 extern std::string eraseWord(const std::string& s, const std::string& w);
 extern std::string addWord(const std::string& s, const std::string& w);
 
-// fast integer to string in given buffer
+// Fast integer to string in given buffer
 extern char *itoa(int value, char *result, int base = 10);
 
-// fast (unsafe) comparison of first n characters
+// Fast integer to string in given buffer, zero padded to length
+extern char *pad_itoa(int value, int length, char *result);
+
+// Fast (unsafe) comparison of first n characters
 inline bool startsWith(const char *a, const char *b, int n) {
   return std::memcmp(a, b, n) == 0;
 }

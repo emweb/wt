@@ -84,8 +84,6 @@ public:
 				       std::string scriptName,
 				       int sessionIdLength);
 
-  static WebController *instance() { return instance_; }
-
   typedef std::map<int, WSocketNotifier *> SocketNotifierMap;
 
   void addSocketNotifier(WSocketNotifier *notifier);
@@ -127,8 +125,6 @@ private:
   const EntryPoint *getEntryPoint(const std::string& deploymentPath);
 
   static void mxml_error_cb(const char *message);
-
-  static WebController *instance_;
 
 #endif // WT_TARGET_JAVA
 };

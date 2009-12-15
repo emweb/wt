@@ -414,12 +414,7 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	  WAbstractItemModel *model = chart_->model();
 
 	  for (int i = 0; i < model->rowCount(); ++i) {
-	    double v;
-
-	    if (scale_ != DateScale)
-	      v = asNumber(model->data(i, dataColumn));
-	    else
-	      v = getDateValue(model->data(i, dataColumn));
+	    double v = getValue(model->data(i, dataColumn));
 
 	    if (Utils::isNaN(v))
 	      continue;
@@ -510,19 +505,46 @@ double WAxis::mapToDevice(const boost::any& value, int segment) const
 {
   assert (scale_ != CategoryScale);
 
-  if ((scale_ == LinearScale) || (scale_ == LogScale)) {
-    return mapToDevice(asNumber(value), segment);
-  } else
-    return mapToDevice(getDateValue(value), segment);
+  return mapToDevice(getValue(value), segment);
 }
 
-double WAxis::getDateValue(const boost::any& v)
-{
-  if (v.type() != typeid(WDate))
-    return std::numeric_limits<double>::signaling_NaN();
-  else {
-    WDate d = boost::any_cast<WDate>(v);
-    return static_cast<double>(d.toJulianDay());
+double WAxis::getValue(const boost::any& v) const {
+  switch (scale_) {
+  case LinearScale:
+  case LogScale:
+    return asNumber(v);
+  case DateScale:
+    if (v.type() == typeid(WDate)) {
+      WDate d = boost::any_cast<WDate>(v);
+      return static_cast<double>(d.toJulianDay());
+    } 
+    #ifndef WT_TARGET_JAVA
+    else if (v.type() == typeid(WDateTime)) {
+      WDateTime dt = boost::any_cast<WDateTime>(v);
+      return static_cast<double>(dt.date().toJulianDay());
+    } 
+    #endif
+    else {
+      return std::numeric_limits<double>::signaling_NaN();
+    }
+  case DateTimeScale:
+    if (v.type() == typeid(WDate)) {
+      WDate d = boost::any_cast<WDate>(v);
+      WDateTime dt;
+      dt.setDate(d);
+      return dt.toTime_t();
+    }
+    #ifndef WT_TARGET_JAVA
+    else if (v.type() == typeid(WDateTime)) {
+      WDateTime dt = boost::any_cast<WDateTime>(v);
+      return static_cast<double>(dt.toTime_t());
+    }
+    #endif
+    else {
+      return std::numeric_limits<double>::signaling_NaN();
+    }
+  default:
+    return -1.0;
   }
 }
 
@@ -692,24 +714,35 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 
     break;
   }
+  case DateTimeScale:
   case DateScale: {
-    long daysRange = static_cast<long>(s.renderMaximum - s.renderMinimum);
+    double daysRange = 0.0;
+    WDateTime dt;
+    switch (scale_) {
+    case DateScale:
+      daysRange = static_cast<double>(s.renderMaximum - s.renderMinimum);
+      dt.setDate(WDate::fromJulianDay(static_cast<int>(s.renderMinimum)));
+      break;
+    case DateTimeScale:
+      daysRange = static_cast<double>((s.renderMaximum - s.renderMinimum) 
+				    / (60.0 * 60.0 * 24));
+      dt = WDateTime::fromTime_t(s.renderMinimum);
+      break;
+    }
 
     double numLabels = calcAutoNumLabels(s);
 
     double days = daysRange / numLabels;
 
-    enum { Days, Months, Years } unit;
+    enum { Days, Months, Years, Hours, Minutes } unit;
     int interval;
-
-    WDate d = WDate::fromJulianDay(static_cast<int>(s.renderMinimum));
 
     if (days > 200) {
       unit = Years;
       interval = std::max(1, static_cast<int>(round125(days / 365)));
-
-      if (d.day() != 1 && d.month() != 1)
-	d.setDate(d.year(), 1, 1);
+	
+      if (dt.date().day() != 1 && dt.date().month() != 1)
+	dt.date().setDate(dt.date().year(), 1, 1);
     } else if (days > 20) {
       unit = Months;
       double i = days / 30;
@@ -723,53 +756,107 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 	interval = 4;
       else
 	interval = 6;
-
-      if (d.day() != 1) {
-	d.setDate(d.year(), d.month(), 1);
+	
+      if (dt.date().day() != 1) {
+	dt.date().setDate(dt.date().year(), dt.date().month(), 1);
       }
-
-      if ((d.month() - 1) % interval != 0) {
-	int m = (((d.month() - 1) / interval) * interval) + 1;
-	d.setDate(d.year(), m, 1);
+	
+      if ((dt.date().month() - 1) % interval != 0) {
+	int m = (((dt.date().month() - 1) / interval) * interval) + 1;
+	dt.date().setDate(dt.date().year(), m, 1);
       }
-    } else {
+    } else if (days > 0.6) {
       unit = Days;
       if (days < 1.3)
 	interval = 1;
       else
 	interval = 7 * std::max(1, static_cast<int>((days + 5) / 7));
+    } else {
+      double minutes = days * 24 * 60;
+      if (minutes > 40) {
+	unit = Hours;
+	double i = minutes / 60;
+	if (i < 1.3)
+	  interval = 1;
+	else if (i < 2.3)
+	  interval = 2;
+	else if (i < 3.3)
+	  interval = 3;
+	else if (i < 4.3)
+	  interval = 4;
+	else if (i < 6.3)
+	  interval = 6;
+	else
+	  interval = 12;
+      } else {
+	unit = Minutes;
+	  if (minutes < 1.3)
+	    interval = 1;
+	  else if (minutes < 2.3)
+	    interval = 2;
+	  else if (minutes < 5.3)
+	    interval = 5;
+	  else if (minutes < 10.3)
+	    interval = 10;
+	  else if (minutes < 15.3)
+	    interval = 15;
+	  else if (minutes < 20.3)
+	    interval = 20;
+	  else
+	    interval = 30;
+      }
     }
 
-    bool atTick = (interval > 1) || (unit == Days);
+    bool atTick = (interval > 1) || (unit <= Days);
 
     for (;;) {
-      long dl = d.toJulianDay();
+      long dl = getDateNumber(dt);
+      
       if (dl > s.renderMaximum)
 	break;
 
-      WDate next;
+      WDateTime next;
       switch (unit) {
       case Years:
-	next = d.addYears(interval); break;
+	next = dt.addYears(interval); break;
       case Months:
-	next = d.addMonths(interval); break;
+	next = dt.addMonths(interval); break;
       case Days:
-	next = d.addDays(interval);
+	next = dt.addDays(interval); break;
+      case Hours:
+	next = dt.addSecs(interval * 60 * 60); break;
+      case Minutes:
+	next = dt.addSecs(interval * 60); break;
       }
 
       WString text;
 
       if (!labelFormat_.empty())
-	text = d.toString(labelFormat_);
+	text = dt.toString(labelFormat_);
       else {
-	if (atTick)
-	  text = d.toString("dd/MM/yy");
+	if (atTick) 
+	  switch (unit) {
+	  case Months:
+	  case Years:
+	  case Days:
+	    text = dt.toString("dd/MM/yy"); break;
+	  case Hours:
+	    text = dt.toString("h'h' dd/MM"); break;
+	  case Minutes:
+	    text = dt.toString("hh:mm"); break;
+	  default:
+	    break;
+	  }
 	else
 	  switch (unit) {
 	  case Months:
-	    text = d.toString("MMM yy"); break;
+	    text = dt.toString("MMM yy"); break;
 	  case Years:
-	    text = d.toString("yyyy"); break;
+	    text = dt.toString("yyyy"); break;
+	  case Hours:
+	    text = dt.toString("h'h' dd/MM"); break;
+	  case Minutes:
+	    text = dt.toString("hh:mm"); break;
 	  default:
 	    break;
 	  }
@@ -781,7 +868,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 				  atTick ? text : WString()));
 
       if (!atTick) {
-	double tl = (next.toJulianDay() + dl)/2;
+	double tl = (getDateNumber(next) + dl)/2;
 
 	if (tl >= s.renderMinimum && tl <= s.renderMaximum) {
 	  ticks.push_back(TickLabel(static_cast<double>(tl), TickLabel::Zero,
@@ -789,11 +876,23 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 	}
       }
 
-      d = next;
+      dt = next;
     }
 
     break;
   }
+  }
+}
+
+long WAxis::getDateNumber(WDateTime dt) const
+{
+  switch (scale_) {
+  case DateScale:
+    return static_cast<long>(dt.date().toJulianDay());
+  case DateTimeScale:
+    return static_cast<long>(dt.toTime_t());
+  default:
+    return 1;
   }
 }
 

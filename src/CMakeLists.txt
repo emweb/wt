@@ -50,6 +50,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR} # for WConfig.h
   ${MXML_INCLUDE_DIRS}
   ${BOOST_INCLUDE_DIRS}
+  Wt/Dbo/backend/amalgamation # for sqlite3.h
 )
 
 LINK_DIRECTORIES(${BOOST_LIB_DIRS})
@@ -108,6 +109,7 @@ Wt/WCssDecorationStyle.C
 Wt/WCssStyleSheet.C
 Wt/WDate.C
 Wt/WDatePicker.C
+Wt/WDateTime.C
 Wt/WDateValidator.C
 Wt/WDefaultLayout.C
 Wt/WDefaultLoadingIndicator.C
@@ -193,10 +195,12 @@ Wt/WTable.C
 Wt/WTableCell.C
 Wt/WTableColumn.C
 Wt/WTableRow.C
+Wt/WTemplate.C
 Wt/WTableView.C
 Wt/WText.C
 Wt/WTextArea.C
 Wt/WTextEdit.C
+Wt/WTime.C
 Wt/WTimer.C
 Wt/WTimerWidget.C
 Wt/WTransform.C
@@ -296,61 +300,3 @@ IF(WIN32)
 ENDIF(WIN32)
 
 SUBDIRS(fcgi http)
-
-ADD_LIBRARY(wtext
-  Wt/Ext/AbstractButton.C
-  Wt/Ext/AbstractToggleButton.C
-  Wt/Ext/AccordionLayoutImpl.C
-  Wt/Ext/BorderLayoutImpl.C
-  Wt/Ext/Button.C
-  Wt/Ext/Calendar.C
-  Wt/Ext/CheckBox.C
-  Wt/Ext/ComboBox.C
-  Wt/Ext/Component.C
-  Wt/Ext/Container.C
-  Wt/Ext/DataStore.C
-  Wt/Ext/DateField.C
-  Wt/Ext/DefaultLayoutImpl.C
-  Wt/Ext/Dialog.C
-  Wt/Ext/FitLayoutImpl.C
-  Wt/Ext/FormField.C
-  Wt/Ext/LayoutImpl.C
-  Wt/Ext/LayoutItemImpl.C
-  Wt/Ext/LineEdit.C
-  Wt/Ext/Menu.C
-  Wt/Ext/MenuItem.C
-  Wt/Ext/MessageBox.C
-  Wt/Ext/NumberField.C
-  Wt/Ext/PagingToolBar.C
-  Wt/Ext/Panel.C
-  Wt/Ext/ProgressDialog.C
-  Wt/Ext/RadioButton.C
-  Wt/Ext/Splitter.C
-  Wt/Ext/SplitterHandle.C
-  Wt/Ext/TableView.C
-  Wt/Ext/TabWidget.C
-  Wt/Ext/TextEdit.C
-  Wt/Ext/ToolBar.C
-  Wt/Ext/ToolTipConfig.C
-  Wt/Ext/Widget.C
-  Wt/Ext/WWidgetItemImpl.C
-)
-
-TARGET_LINK_LIBRARIES(wtext wt ${BOOST_WT_LIBRARIES})
-INSTALL(TARGETS wtext
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
-
-IF(WIN32)
-  SET_TARGET_PROPERTIES(wtext PROPERTIES COMPILE_FLAGS "/wd4251 /wd4275 /wd4355 /wd4800 /wd4996 /wd4101")
-ENDIF(WIN32)
-
-SET_TARGET_PROPERTIES(
-  wtext
-PROPERTIES
-  VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
-  SOVERSION ${WTEXT_SOVERSION}
-  DEBUG_POSTFIX "d"
-)
-

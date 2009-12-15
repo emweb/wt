@@ -128,6 +128,8 @@ WApplication::WApplication(const WEnvironment& env)
     styleSheet_.addRule("button", "display: inline");
   }
 
+  // body overflow:auto causes problems with IE8 and zoom: 105%: showing
+  // occasional scrollbars
   if (environment().agentIsIE())
     styleSheet_.addRule("html, body", "overflow: auto;");
   else if (environment().agentIsGecko())

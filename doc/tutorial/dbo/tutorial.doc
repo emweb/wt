@@ -1,0 +1,707 @@
+Wt::Dbo Tutorial
+================
+
+Koen Deforche <koen@emweb.be>
+
+:wt-version:	3.0.1
+:wt-src-path:	wt-{jwt-version}
+:wt-dbo-doxygen: http://localhost/wt/latest/doc/
+
+== Introduction
+
++Wt::Dbo+ is a C++ ORM (Object-Relational-Mapping) library.
+
+The library is distributed as part of http://www.webtoolkit.eu/wt[Wt]
+for building database-driven web applications, but may be equally well
+used independently from it.
+
+The library provides a class-based view on database tables which keeps
+an object-hiearchy of database object automatically synchronized with
+a database by inserting, updating and deleting database records. C++
+classes map to database tables, class fields to table columns, and
+pointers and collections of pointers to database relations. An object
+from a mapped class is called a *database object* (dbo). Query results
+may be defined in terms of database objects, primitives, or tuples of
+these.
+
+A modern C\++ approach is used to solving the mapping problem. Rather
+than resorting to XML-based descriptions of how C\++ classes and
+fields should map onto tables and columns, or using obscure macros,
+the mapping is defined entirely in C++ code.
+
+In this tutorial, we will work our way through a blogging example,
+similar to the one that is distributed with the library.
+
+== Mapping a single class
+
+We will start off with using +Wt::Dbo+ for mapping a single class +User+
+to a corresponding table +user+.
+
+[WARNING]
+===============================
+In this tutorial and the examples, we alias the namespace +Wt::Dbo+ to
++dbo+, and in our explanation we will refer to types and methods
+available in that namespace directly.
+===============================
+
+.Blog.h: Mapping a single class
+[source,cpp]
+----
+#include <Wt/Dbo/Dbo>
+#include <string>
+
+namespace dbo = Wt::Dbo;
+
+class User {
+public:
+  enum Role {
+    Visitor = 0,
+    Admin = 1,
+    Alien = 42
+  };
+
+  std::string name;
+  std::string password;
+  Role        role;
+  int         karma;
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    dbo::field(a, name,     "name");
+    dbo::field(a, password, "password");
+    dbo::field(a, role,     "role");
+    dbo::field(a, karma,    "karma");
+  }
+};
+----
+
+This example shows how persistence support is defined for a C++
+class. A template member method +persist()+ is defined which serves as
+a persistence definition for the class. For each member in the class,
+a call to +Wt::Dbo::field()+ is used to map the field to a table
+column name.
+
+As you may see, standard C++ types such as +int+, +std::string+ and
++enum+ types are readily supported by the library. Support for other
+types can be added by specializing +Wt::Dbo::sql_value_traits<_T_>+.
+
+The library defines a number of actions which will be applied to a
+database object using its +persist()+ method, which applies it in turn
+to all its members. These actions will then read, update or insert
+database objects, create the schema, or propagate transaction
+outcomes.
+
+[NOTE]
+===============================
+For brevity, our example uses public members. There is no nothing that
+prevents you to encapsulate your state in private members and provide
+accessor methods. You may even define the persistence method in terms of
+accessor methods by differentiating between read and write actions.
+===============================
+
+== A first session
+
+Now that we have a mapping definition for our +User+ class, we can
+start a database session, create our schema (if necessary) and add a
+user to the database.
+
+Let us walk through the code for doing this.
+
+.A first session
+[source,cpp]
+----
+#include "Blog.h"
+
+void test()
+{
+  /*
+   * Setup a session, would typically be done once at application startup.
+   */
+  dbo::backend::Sqlite3 sqlite3("blog.db");
+  dbo::Session session;
+  session.setConnection(sqlite3);
+
+  ...
+----
+
+The +Session+ object is a long living object that provides access to
+our database objects. You will typically create a Session object
+during the entire lifetime of an application session, and one per
+user. None of the +Wt::Dbo+ classes are thread safe, and session
+objects are (currently) not shared between sessions.
+
+The lack of thread-safety is not simply a consequence of laziness on
+our part. It coincides with the promises made by transactional
+integrity on the database: you will not want to see the changes made
+by one session in another session while its transaction has not been
+committed (Read-Committed transaction isolation level). It might make
+sense however to implement a copy-on-write strategy in the future, to
+allow sharing of the bulk of database objects between sessions.
+
+The session is given a connection which it may use to communicate with
+the database. A session will use a connection only during a
+transaction, and thus does not really need a dedicated connection. It
+therefore makes alot of sense to use a connection pool. Although
++Wt::Dbo+ does not yet provide a connection pool implementation, support
+for it has been foreseen. +Wt::Dbo+ uses an abstraction layer for
+database access, but currently only an SQLite3 backend has been
+implemented.
+
+.(example continued)
+[source,cpp]
+----
+  ...
+
+  session.mapClass<User>("user");
+
+  /*
+   * Try to create the schema (will fail if already exists).
+   */
+  try {
+    session.createTables();
+  } catch (...) { }
+
+  ...
+----
+
+Next, we use +mapClass()+ to register each database class with the
+session, indicating the database table onto which the class must be
+mapped.
+
+Certainly during development, but also for initial deployment, it is
+convenient to let +Wt::Dbo+ generate itself the database tables.
+
+This generates the following SQL:
+[source,sql]
+----
+begin transaction
+create table user(
+  id integer primary key autoincrement,
+  version integer not null,
+  name text not null,
+  password text not null,
+  role integer not null,
+  karma integer not null
+)
+commit transaction
+----
+
+As you can see, next to the four columns that map to C++ fields,
+Wt::Dbo adds another two columns: +id+ and +version+. The id is a
+surrogate primary key, and version is used for version-based
+optimistic locking.
+
+Finally, we can add a user to the database. All database operations
+happen within a transaction.
+
+.(example continued)
+[source,cpp]
+----
+  ...
+  /*
+   * A unit of work happens always within a transaction.
+   */
+  dbo::Transaction transaction(session);
+
+  User *user = new User();
+  user->name = "Joe";
+  user->password = "Secret";
+  user->role = User::Visitor;
+  user->karma = 13;
+
+  dbo::ptr<User> userPtr = session.add(user);
+
+  transaction.commit();
+}
+----
+
+A call to +Session::add()+ adds an object to the database. This call
+returns a +ptr<_Dbo_>+ to reference a database object of type
++_Dbo_+. This is a shared pointer which also keeps track of the
+persistence state of the referenced object. Within each session, a
+database object will be loaded at most once: the session keeps track
+of loaded database objects and returns an existing object whenever a
+query to the database requires this. When the last pointer to a
+database object goes out of scope, the _transient_ (in-memory) copy of
+the database object is also deleted (unless it was modified, in which
+case the transient copy will only be be deleted after changes have
+been successfully committed to the database).
+
+The session also keeps track of objects that have been modified and
+which need to be flushed (using SQL statements) to the
+database. Flushing happens automatically when committing the
+transaction, or whenever needed to maintain consistency between the
+transient objects and the database copy (e.g. before doing a query).
+
+This generates the following SQL:
+
+[source,sql]
+----
+begin transaction
+insert into user(version, name, password, role, karma) values (?, ?, ?, ?, ?)
+commit transaction
+----
+
+All SQL statements are prepared once and reused later, which have the
+benefit of avoiding SQL injection problems, and allows potentially
+better performance.
+
+== Querying objects
+
+There are two ways of querying the database. Database objects of a
+single +_Dbo_+ class can be queried using
++Session::find<Dbo>(_condition_)+:
+
+[source,cpp]
+----
+dbo::ptr<User> joe = session.find<User>
+    ("where name = ?")
+    .bind("Joe");
+
+std::cerr << "Joe has karma: " << joe->karma << std::endl;
+----
+
+All queries use prepared statements with positional argument
+binding. The +Session::find<T>()+ method returns a +Query+ object,
+which allows binding of parameters using +Query::bind()+. In this case
+the query should expect a single result and is casted directly to a
+database object pointer.
+
+The query formulated to the database is:
+
+[source,sql]
+----
+select id, version, name, password, role, karma
+    from user
+    where name = ?
+----
+
+The more general way for querying uses +Session::query<Result>(_sql_)+,
+which supports not only database objects as results. The query of
+above is equivalent to:
+
+[source,cpp]
+----
+dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >
+    ("select u from user u where name = ?")
+    .bind("Joe");
+----
+
+And this generates similar SQL:
+
+[source,sql]
+----
+select u.id, u.version, u.name, u.password, u.role, u.karma
+    from user u
+    where name = ?
+----
+
+The +_sql_+ statement passed to the method may be arbitrary sql which
+returns results that are compatible with the +_Result_+ type. The
++_select_+ part of the SQL query may be rewritten (as in the example
+above) to return the individual fields of a queried database object.
+
+To illustrate that +Session::query<Result>()+ may be used to return
+other types, consider the query below where an +int+ result is
+returned.
+
+[source,cpp]
+----
+int count = session.query<int>
+    ("select count(*) from user where name = ?")
+    .bind("Joe");
+----
+
+The queries above were expecting unique results, but queries can also
+have multiple results. A +Session::query<_Result_>()+ may therefore
+return a +collection<_Result_>+ (for multiple results) or a unique
++_Result_+ as in the examples above for convenience. Similarly,
++Session::find<_Dbo_>()+ may return a +collection< ptr<_Dbo_> >+ or a
+unique +_ptr<_Dbo_>+. If a unique result is asked, but the query found
+multiple results, a +NoUniqueResultException+ will be thrown.
+
++dbo::collection< _T_ >+ is an STL-compatible collection which has
+iterators that implement the +InputIterator+ requirements. Thus, you
+can only iterate the results of a collection once. After the results
+have been iterated both the +Query+ object and the +collection+ can no
+longer be used.
+
+The following code shows how you may multiple results of a query may
+be iterated:
+
+[source,cpp]
+----
+typedef dbo::collection< dbo::ptr<User> > Users;
+
+Users users = session.find<User>();
+
+std::cerr << "We have " << users.size() << " users:" << std::endl;
+
+for (Users::const_iterator i = users.begin(); i != users.end(); ++i)
+    std::cerr << " user " << (*i)->name
+              << " with karma of " << (*i)->karma << std::endl;
+----
+
+This code will perform two database queries: one for the call to
++collection::size()+ and one for iterating the results:
+
+[source,sql]
+----
+select count(*) from user;
+select id, version, name, password, role, karma from user
+----
+
+[WARNING]
+===============================
+A query uses a prepared statement to execute, and prepares a new
+statement if no statement was yet prepared for that query. Because a
+prepared statement is usually not reentrant and at the same time a
+query will use an existing statement if one exists, you need to be
+careful to not have two collections with the same statement busy at
+the same time. Thus while iterating the results of a query you cannot
+use that same query again. Therefore it may be necessary to copy the
+results into a standard container (such as +std::vector+) before
+iterating them.
+===============================
+
+== Updating objects
+
+Unlike most other smart pointers, +ptr<_Dbo_>+ is read-only by
+default: it returns a +const _Dbo_*+. To modify a database object, you
+need to call the +ptr::modify()+ method, which returns a non-const
+object. This mark the object as dirty and the modifications will later
+be synchronized to the database.
+
+[source,cpp]
+----
+dbo::ptr<User> joe = session.find<User>("where name = ?").bind("Joe");    
+
+joe.modify()->karma++;
+joe.modify()->password = "public";
+----
+
+Database synchronization does not happen instantaneously, instead,
+they are delayed until explicitly asked, using +ptr<_Dbo_>::flush()+
+or +Session::flush()+, until a query is executed whose results may be
+affected by the changes made, or until the transaction is committed.
+
+The previous code will generate the following SQL:
+
+[source,sql]
+----
+select id, version, name, password, role, karma
+    from user
+    where name = ?;
+update user
+    set version = ?, name = ?, password = ?, role = ?, karma = ?
+    where id = ? and version = ?
+----
+
+We already saw how using +Session::add(ptr<_Dbo_>)+, we added a new
+object to the database. The opposite operation is
++ptr<_Dbo_>::remove()+: it deletes the object in the database.
+
+[source,cpp]
+----
+dbo::ptr<User> joe = session.find<User>("where name = ?").bind("Joe");    
+
+joe.remove();
+----
+
+After removing an object, the transient object can still be used, and
+can even be re-added to the database.
+
+[NOTE]
+===============================
+
+Like +modify()+, also the +add()+ and +remove()+ operations defer
+synchronization with the database, and therefore the following code
+does not actually have any effect on the database:
+
+[source,cpp]
+----
+dbo::ptr<User> silly = session.add(new User());
+silly.modify()->name = "Silly";
+silly.remove();
+----
+===============================
+
+== Mapping relations
+
+=== _Many-to-One_ relations
+
+Let's add posts to our blogging example, and define a Man-to-One
+relation between posts and users. In the code below, we limit
+ourselves to the statements important for defining the relationship.
+
+[source,cpp]
+----
+#include <Wt/Dbo/Dbo>
+#include <string>
+
+namespace dbo = Wt::Dbo;
+
+class User;
+
+class Post {
+public:
+  ...
+
+  dbo::ptr<User> user;
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    ... 
+
+    dbo::belongsTo(a, user, "user");
+  }
+};
+
+class User {
+public:
+  ...
+
+  dbo::collection< dbo::ptr<Post> > posts;
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    ...
+
+    dbo::hasMany(a, posts, dbo::ManyToOne, "user");
+  }
+};
+----
+
+At the _Many_-side, we add a reference to a user, and in the +persist()+
+method we call +belongsTo()+. This allows us to reference the user to
+which this post belongs. The last argument will correspond to the name
+of the database column which defines the relationship.
+
+At the _One_-side, we add a collection of posts, and in the +persist()+
+method we call +hasMany()+. The join field must be the same name as in
+reciproce belongsTo() method call.
+
+If we add the Post class too to our session using
++Session::mapClass()+, and create the schema, the following SQL is
+generated:
+
+[source,sql]
+----
+create table user(
+  ...
+
+  -- table user is unaffected by the relationship
+);
+
+create table post(
+  ...
+
+  user_id integer references user(id)
+)
+----
+
+Note the +user_id+ field which corresponds to the join name ``user''.
+
+At the _Many_-side, you may read or write the +ptr+ to set a user to
+which this post belongs.
+
+The collection at the _One_-side allows us to retrieve all associated
+elements, but is read-only: inserting elements will not have any
+effect: to add a _post_ to a _user_, you need to set the _user_ for
+the _post_, rather than adding the post to the collection in
+user.
+
+Example:
+
+[source,cpp]
+----
+dbo::ptr<Post> post = session.add(new Post());
+post.modify()->user = joe;
+
+// will print 'Joe has 1 post(s).'
+std::cerr << "Joe has " << joe->posts.size() << " post(s)." << std::endl;
+----
+
+As you can see, as soon as _joe_ is set as _user_ for the new post, the
+post is reflected in the _posts_ collection of _joe_.
+
+[WARNING]
+===============================
+The collection uses a prepared statement to execute. Collections will
+try to share a single prepared statement, but prepared statements are
+usually not reentrant. As a result, you need to be careful to not have
+two collections with the same statement busy at the same time. Thus
+while iterating a collection, you need to be sure you will not
+reentrantly iterate the same collection (of the same or another
+object). Therefore it may be necessary to copy the results into a
+standard container (such as +std::vector+) before iterating them.
+===============================
+
+=== _Many-to-Many_ relations
+
+To illustrate _Many-to-Many_ relations, we will add tags to our
+blogging example, and define an _Many-to-Many_ relation between posts
+and tags. In the code below, we again limit ourselves to the
+statements important for defining the relationship.
+
+[source,cpp]
+----
+#include <Wt/Dbo/Dbo>
+#include <string>
+
+namespace dbo = Wt::Dbo;
+
+class Tag;
+
+class Post {
+public:
+  ...
+
+  dbo::collection< dbo::ptr<Tag> > tags;
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    ...
+
+    dbo::hasMany(a, tags, dbo::ManyToMany, "post_tags");
+  }
+};
+
+class Tag {
+public:
+  ...
+
+  dbo::collection< dbo::ptr<Post> > posts;
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    ...
+
+    dbo::hasMany(a, posts, dbo::ManyToMany, "post_tags");
+  }
+};
+----
+
+As expected, the relationship is reflected in almost the same way in
+both classes: they both have a +collection+ of database objects of the
+related class, and in the +persist()+ method we call +hasMany()+. The
+join field in this case will correspond to the name of a join-table
+used to persist the relation.
+
+Adding the Post class to our session using +Session::mapClass()+, we
+now get the following SQL for creating the schema:
+
+[source,sql]
+----
+create table post(
+  ...
+
+  -- table post is unaffected by the relationship
+)
+
+create table tag(
+  ...
+
+  -- table tag is unaffected by the relationship
+)
+
+create table post_tags(
+  post_id integer references post(id),
+  tag_id integer references tag(id),
+  primary key(post_id, tag_id)
+)
+----
+
+The collection at either side of the _Many-to-Many_ relation allows us
+to retrieve all associated elements. Unlike a collection in a
+_Many-to-One_ relation however, we may now also +insert()+ and
++remove()+ items from the collection. To define a relation between a
+post and a tag, you need to add the post to the tag's _posts_
+collection, or the tag to the post's _tags_ collection. You may not do
+both! The change will automatically be reflected in the reciproce
+collection. Likewise, to undo the relation between a post and a tag,
+you should remove the tag from the post's _tags_ collection, or the
+post from the tag's _posts_ collection, but not both.
+
+Example:
+
+[source,cpp]
+----
+dbo::ptr<Post> post = ...
+dbo::ptr<Tag> cooking = session.add(new Tag());
+cooking.modify()->name = "Cooking";
+
+post.modify()->tags.insert(cooking);
+
+// will print '1 post(s) tagged with Cooking.'
+std::cerr << cooking->posts.size() << " post(s) tagged with Cooking." << std::endl;
+----
+
+[WARNING]
+===============================
+The same warning as above applies here as well.
+===============================
+
+=== _One-to-One_ relations
+
+_One-to-One_ relations are currently not supported, but can be
+simulated using _Many-to-One_ relations as they have the same database
+schema structure.
+
+== Transactions and concurrency
+
+Reading data from the database or flushing changes to the database
+require an active transaction. A +Transaction+ is a RIIA
+(Resource-Initialization-is-Acquisition) class which at the same time
+provides isolation between concurrent sessions and atomicity for
+persisting changes to the database.
+
+The library implements optimistic locking, which allows detection
+(rather than avoidance) of concurrent modifications. It is a
+recommended and widely used strategy for dealing with concurrency
+issues in a scalable manner as no write locks are needed on the
+database. To detect a concurrent modification, a +version+ field is
+added to each table which is incremented on each modification. When
+performing a modification (such as updating or removing an object), it
+is checked that the version of the record in the database is the same
+as the version of the object that was originally read from the
+database.
+
+.Transaction isolation levels
+[NOTE]
+The minimum level of isolation which is required for the library's
+_optimistic locking_ strategy is _Read Committed_: modifications in a
+transaction are only visible to other sessions as soon as they are
+committed. This is usually the lowest level of isolation supported by
+a database (SQLite3 is currently the only backend and provides this
+isolation level by default).
+
+The +Transaction+ class is a light-weight proxy that references a
+_logical_ transaction: multiple (usually nested) Transaction objects
+may be instantiated simultaneously, which each need to be committed
+for the logical transaction to be committed. In this way you can
+easily protect individual methods which require database access with
+such a transaction object, which will automatically participate in a
+wider transaction if that is available.
+
+Transactions may fail and dealing with failing transactions is an
+integral aspect of their usage. When the library detects a concurrent
+modification, a +StaleObjectException+ is thrown. Other exceptions may
+be thrown, including exceptions in the backend driver when for example
+the database schema is not compatible with the mapping. There may also
+be problems detected by the business logic which may raise an
+exception and cause the transaction to be rolled back. When a
+transaction is rolled back, the modified database objects are not
+successfully synchronized with the database, but may possibly be
+synchronized later in a new transaction.
+
+Obviously, many exceptions will be fatal. One notable exception is the
++StaleObjectException+ however. Different strategies are possible to
+deal with this exception. Regardless of the approach, you will at
+least need to +reread()+ the stale database object(s) before being
+able to commit changes made in a new transaction.

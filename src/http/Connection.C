@@ -29,11 +29,12 @@ namespace server {
 static const int CONNECTION_TIMEOUT = 120; // 2 minutes
 static const int KEEPALIVE_TIMEOUT  = 10;  // 10 seconds
 
-Connection::Connection(asio::io_service& io_service,
+Connection::Connection(asio::io_service& io_service, Server *server,
     ConnectionManager& manager, RequestHandler& handler)
   : ConnectionManager_(manager),
     request_handler_(handler),
-    timer_(io_service)
+    timer_(io_service),
+    server_(server)
 { }
 
 Connection::~Connection()

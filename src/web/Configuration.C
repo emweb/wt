@@ -5,6 +5,7 @@
  */
 
 #include <Wt/WServer>
+#include <Wt/WResource>
 
 #include "Configuration.h"
 
@@ -126,13 +127,25 @@ childElements(mxml_node_t *element, const char *tagName)
 
 namespace Wt {
 
-EntryPoint::EntryPoint(ApplicationType type, ApplicationCreator appCallback,
+EntryPoint::EntryPoint(EntryPointType type, ApplicationCreator appCallback,
 		       const std::string& path, const std::string& favicon)
   : type_(type),
     appCallback_(appCallback),
+    resource_(0),
     path_(path),
     favicon_(favicon)
 { }
+
+EntryPoint::EntryPoint(WResource *resource, const std::string& path)
+  : type_(StaticResource),
+    appCallback_(0),
+    resource_(resource),
+    path_(path)
+{ }
+
+EntryPoint::~EntryPoint()
+{
+}
 
 void EntryPoint::setPath(const std::string& path)
 {
@@ -176,6 +189,7 @@ Configuration::Configuration(const std::string& applicationPath,
 
   setupLogger(std::string());
 
+#ifndef WT_NO_XML
   std::string configFile = configurationFile;
 
   // If no config file was given as startup option, see if there is
@@ -196,6 +210,7 @@ Configuration::Configuration(const std::string& applicationPath,
   }
 
   readConfiguration(configFile, startupMessage);
+#endif // WT_NO_XML
 }
 
 void Configuration::setSessionIdPrefix(const std::string& prefix)
@@ -464,6 +479,9 @@ WLogEntry Configuration::log(const std::string& type) const
 
 void Configuration::addEntryPoint(const EntryPoint& ep)
 {
+  if (ep.type() == StaticResource)
+    ep.resource()->currentUrl_ = ep.path();
+
   entryPoints_.push_back(ep);
 }
 

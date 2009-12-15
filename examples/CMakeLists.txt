@@ -11,6 +11,7 @@ ENDIF(BOOST_WT_MT_FOUND)
 ADD_DEFINITIONS(-DWT_DEPRECATED_3_0_0)
 
 SUBDIRS(
+  blog
   bobsmith
   charts
   composer
@@ -20,6 +21,7 @@ SUBDIRS(
   filetreetable
   form
   gitmodel
+  hangman
   hello
   hello-widgetset
   javascript
@@ -32,7 +34,6 @@ SUBDIRS(
   treeview
   treeview-dragdrop
   wt-homepage
-  hangman
-  wtwithqt
+ wtwithqt
   widgetgallery
 )

@@ -66,6 +66,9 @@
 21-10-2009:
 	* WMenu: set correct internal path before loading a menu item
 
+09-10-2009:
+	* WAxis: add TimeDateScale to AxisScale enum
+
 28-09-2009:
 	* WCartesianChart: seriesIndexOf() is now private
 

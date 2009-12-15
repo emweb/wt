@@ -1,0 +1,105 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_STD_SQL_TRAITS_H_
+#define WT_DBO_STD_SQL_TRAITS_H_
+
+#include <string>
+#include <Wt/Dbo/SqlTraits>
+
+#include <boost/optional.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_enum.hpp>
+
+namespace Wt {
+  namespace Dbo {
+
+template<>
+struct sql_value_traits<std::string, void>
+{
+  static const bool specialized = true;
+
+  static const char *type();
+  static void bind(const std::string& v, SqlStatement *statement, int column);
+  static bool read(std::string& v, SqlStatement *statement, int column);
+};
+
+template<>
+struct sql_value_traits<char const *, void>
+{
+  static const bool specialized = true;
+
+  static void bind(char const *v, SqlStatement *statement, int column);
+};
+
+template<>
+struct sql_value_traits<long long, void>
+{
+  static const bool specialized = true;
+
+  static const char *type();
+  static void bind(long long v, SqlStatement *statement, int column);
+  static bool read(long long& v, SqlStatement *statement, int column);
+};
+
+template<>
+struct sql_value_traits<int, void>
+{
+  static const bool specialized = true;
+
+  static const char *type();
+  static void bind(int v, SqlStatement *statement, int column);
+  static bool read(int& v, SqlStatement *statement, int column);
+};
+
+template <typename Enum>
+struct sql_value_traits<Enum,
+			typename boost::enable_if<boost::is_enum<Enum> >::type> 
+: public sql_value_traits<int>
+{
+  static void bind(Enum v, SqlStatement *statement, int column) {
+    sql_value_traits<int>::bind(static_cast<int>(v), statement, column);
+  }
+
+  static bool read(Enum& v, SqlStatement *statement, int column) {
+    return sql_value_traits<int>::read(reinterpret_cast<int&>(v), statement,
+				       column);
+  }
+};
+
+template<typename T>
+struct sql_value_traits<boost::optional<T>, void>
+{
+  static const bool specialized = true;
+
+  static std::string type() {
+    std::string nested = sql_value_traits<T>::type();
+    if (nested.length() > 8 && nested.substr(nested.length() - 8) == "not null")
+      return nested.substr(0, nested.length() - 8);
+  }
+
+  static void bind(const boost::optional<T>& v,
+		   SqlStatement *statement, int column) {
+    if (v)
+      sql_value_traits<T>::bind(v.get(), statement, column);
+  }
+
+  static bool read(boost::optional<T>& v, SqlStatement *statement, int column) {
+    T result;
+    if (sql_value_traits<T>::read(result, statement, column)) {
+      v = result;
+      return true;
+    } else {
+      v = boost::optional<T>();
+      return false;
+    }
+  }
+};
+
+  }
+}
+
+#endif // WT_DBO_STD_SQL_TRAITS_H_

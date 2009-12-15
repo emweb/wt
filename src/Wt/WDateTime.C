@@ -1,0 +1,452 @@
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include <stdlib.h>
+
+#include "Wt/WDateTime"
+#include "Wt/WDate"
+#include "Wt/WTime"
+
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/local_time_adjustor.hpp>
+#include <boost/date_time/c_local_time_adjustor.hpp>
+
+namespace posix = boost::posix_time;
+namespace gregorian = boost::gregorian;
+
+/*
+ * TODO: -fix AM/PM detection in format string
+ *       -isValid() versus !isNull()
+ */
+
+namespace Wt {
+
+  namespace {
+    std::string multiple(int value, std::string s) {
+      if (abs(value) == 1)
+	return std::string();
+      else
+	return s;
+    }
+  }
+
+InvalidDateTimeException::InvalidDateTimeException()
+{ }
+
+InvalidDateTimeException::~InvalidDateTimeException() throw()
+{ }
+
+const char *InvalidDateTimeException::what() const throw()
+{ 
+  return "Error: Attempted operation on an invalid WDateTime";
+}
+
+WDateTime::WDateTime()
+{ }
+
+WDateTime::WDateTime(const WDate& date)
+{
+  if (date.isValid()) {
+    gregorian::date d(date.year(), date.month(), date.day());
+    posix::time_duration t(0, 0, 0, 0);
+
+    datetime_ = posix::ptime(d, t);
+  }
+}
+
+WDateTime::WDateTime(const WDate& date, const WTime& time)
+{
+  if (date.isValid() && time.isValid()) {
+    gregorian::date d(date.year(), date.month(), date.day());
+    posix::time_duration::fractional_seconds_type ticks_per_msec =
+      posix::time_duration::ticks_per_second() / 1000;
+    posix::time_duration t(time.hour(), time.minute(),
+      time.second(), time.msec() * ticks_per_msec);
+
+    datetime_ = posix::ptime(d, t);
+  }
+}
+
+WDateTime::WDateTime(posix::ptime dt)
+  : datetime_(dt)
+{ }
+
+void WDateTime::setTime_t(std::time_t t)
+{
+  datetime_ = posix::from_time_t(t);
+}
+
+void WDateTime::setDate(const WDate& date)
+{
+  if (isValid()) {
+    *this = WDateTime(date, time());
+  } else {
+    *this = WDateTime(date, WTime(0, 0));
+  }
+}
+
+WDate WDateTime::date() const
+{
+  if (isValid()) {
+    gregorian::date d = datetime_.date();
+    return WDate(d.year(), d.month(), d.day());
+  } else
+    return WDate();
+}
+
+void WDateTime::setTime(const WTime& time)
+{
+  if (isValid()) {
+    *this = WDateTime(date(), time);
+  } else {
+    // FIXME: without a valid date, what to do ??
+  }
+}
+
+WTime WDateTime::time() const
+{
+  if (isValid()) {
+    posix::time_duration d = datetime_.time_of_day();
+    posix::time_duration::fractional_seconds_type ticks_per_msec =
+      posix::time_duration::ticks_per_second() / 1000;
+    posix::time_duration::fractional_seconds_type msec =
+      d.fractional_seconds();
+    msec = msec / ticks_per_msec;
+    return WTime(d.hours(), d.minutes(), d.seconds(), (int)msec);
+  } else
+    return WTime();
+}
+
+WDateTime WDateTime::addMSecs(int ms) const
+{
+  if (isValid()) {
+    posix::time_duration::fractional_seconds_type ticks_per_msec =
+      posix::time_duration::ticks_per_second() / 1000;
+    posix::ptime dt = datetime_ + posix::time_duration(0, 0, 0, ms * ticks_per_msec);
+    return WDateTime(dt);
+  } else
+    return *this;
+}
+
+WDateTime WDateTime::addSecs(int s) const
+{
+  if (isValid()) {
+    posix::ptime dt = datetime_ + posix::time_duration(0, 0, s, 0);
+    return WDateTime(dt);
+  } else
+    return *this;
+}
+
+WDateTime WDateTime::addDays(int ndays) const
+{
+  if (isValid()) {
+    posix::ptime dt = datetime_ + gregorian::days(ndays);
+    return WDateTime(dt);
+  } else
+    return *this;
+}
+
+WDateTime WDateTime::addMonths(int nmonths) const
+{
+  if (isValid()) {
+    WDate d = date().addMonths(nmonths);
+    WTime t = time();
+    return WDateTime(d, t);
+  } else
+    return *this;
+}
+
+WDateTime WDateTime::addYears(int nyears) const
+{
+  if (isValid()) {
+    WDate d = date().addYears(nyears);
+    WTime t = time();
+    return WDateTime(d, t);
+  } else
+    return *this;
+}
+
+bool WDateTime::isNull() const
+{
+  return !isValid();
+}
+
+bool WDateTime::isValid() const
+{
+  return !datetime_.is_not_a_date_time();
+}
+
+std::time_t WDateTime::toTime_t() const
+{
+  return (datetime_ - posix::ptime(gregorian::date(1970, 1, 1)))
+    .total_seconds();
+}
+
+int WDateTime::secsTo(const WDateTime& other) const
+{
+  if (!isValid() || !other.isValid())
+    throw InvalidDateTimeException();
+
+  return (int)other.toTime_t() - (int)toTime_t();
+}
+
+int WDateTime::daysTo(const WDateTime& other) const
+{
+  return date().daysTo(other.date());
+}
+
+WString WDateTime::timeTo(const WDateTime& other, int minValue) const
+{
+  int secs = secsTo(other);
+
+  if (abs(secs) < 1)
+    return "less than a second";
+  else if (abs(secs) < 60 * minValue)
+    return boost::lexical_cast<std::string>(secs) + " second"
+      + multiple(secs, "s");
+  else {
+    int minutes = secs / 60;
+    if (abs(minutes) < 60 * minValue)
+      return boost::lexical_cast<std::string>(minutes) + " minute"
+	+ multiple(minutes, "s");
+    else {
+      int hours = minutes / 60;
+      if (abs(hours) < 24 * minValue)
+	return boost::lexical_cast<std::string>(hours) + " hour"
+	  + multiple(hours, "s");
+      else {
+	int days = hours / 24;
+	if (abs(days) < 7 * minValue)
+	  return boost::lexical_cast<std::string>(days) + " day"
+	  + multiple(days, "s");
+	else {
+	  if (abs(days) < 31 * minValue) {
+	    int weeks = days / 7;
+	    return boost::lexical_cast<std::string>(weeks) + " week"
+	      + multiple(weeks, "s");
+	  } else {
+	    if (abs(days) < 365 * minValue) {
+	      int months = days / 30;
+	      return boost::lexical_cast<std::string>(months) + " month"
+		+ multiple(months, "s");
+	    } else {
+	      int years = days / 365;
+	      return boost::lexical_cast<std::string>(years) + " year"
+		+ multiple(years, "s");
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+
+bool WDateTime::operator<(const WDateTime& other) const
+{
+  return datetime_ < other.datetime_;
+}
+
+bool WDateTime::operator<=(const WDateTime& other) const
+{
+  return datetime_ <= other.datetime_;
+}
+
+bool WDateTime::operator>(const WDateTime& other) const
+{
+  return datetime_ > other.datetime_;
+}
+
+bool WDateTime::operator>=(const WDateTime& other) const
+{
+  return datetime_ >= other.datetime_;
+}
+
+bool WDateTime::operator==(const WDateTime& other) const
+{
+  return datetime_ == other.datetime_;
+}
+
+bool WDateTime::operator!=(const WDateTime& other) const
+{
+  return datetime_ != other.datetime_;
+}
+
+WDateTime WDateTime::currentDateTime()
+{
+  return WDateTime(posix::microsec_clock::universal_time());
+}
+
+WString WDateTime::defaultFormat()
+{
+  return WString::fromUTF8("ddd MMM d HH:mm:ss yyyy"); 
+}
+
+WDateTime WDateTime::fromString(const WString& s)
+{
+  return fromString(s, defaultFormat());
+}
+
+WDateTime WDateTime::fromString(const WString& s, const WString& format)
+{
+  WDate date;
+  WTime time;
+
+  fromString(&date, &time, s, format);
+
+  return WDateTime(date, time);
+}
+
+void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
+			   const WString& format)
+{
+  std::string v = s.toUTF8();
+  std::string f = format.toUTF8();
+
+  bool inQuote = false;
+  bool gotQuoteInQuote = false;
+
+  unsigned vi = 0;
+
+  WDate::ParseState dateParse;
+  WTime::ParseState timeParse;
+
+  for (unsigned fi = 0; fi <= f.length(); ++fi) {
+    bool finished = fi == f.length();
+    char c = !finished ? f[fi] : 0;
+
+    if (finished && inQuote)
+      return;
+
+    if (inQuote)
+      if (c != '\'')
+	if (gotQuoteInQuote) {
+	  gotQuoteInQuote = false;
+	  inQuote = false;
+	} else {
+	  if (vi >= v.length() || (v[vi++] != c))
+	    return;
+	}
+      else
+	if (gotQuoteInQuote) {
+	  gotQuoteInQuote = false;
+	  if (vi >= v.length() || (v[vi++] != c))
+	    return;
+	} else
+	  gotQuoteInQuote = true;
+
+    if (!inQuote) {
+      CharState state = CharUnhandled;
+
+      if (date) {
+	CharState dateState = WDate::handleSpecial(c, v, vi, dateParse, format);
+	if (dateState == CharInvalid)
+	  return;
+	else if (dateState == CharHandled)
+	  state = CharHandled;
+      }
+
+      if (time) {
+	CharState timeState = WTime::handleSpecial(c, v, vi, timeParse, format);
+	if (timeState == CharInvalid)
+	  return;
+	else if (timeState == CharHandled)
+	  state = CharHandled;
+      }
+
+      if (!finished && state == CharUnhandled) {
+	if (c == '\'') {
+	  inQuote = true;
+	  gotQuoteInQuote = false;
+	} else
+	  if (vi >= v.length() || (v[vi++] != c))
+	    return;
+      }
+    }
+  }
+
+  if (date)
+    *date = WDate(dateParse.year, dateParse.month, dateParse.day);
+
+  if (time) {
+    if (!timeParse.ignoreAMPM && timeParse.hour != -1) {
+      if (timeParse.pm)
+	timeParse.hour = (timeParse.hour % 12) + 12;
+      else
+	timeParse.hour = timeParse.hour % 12;
+    }
+
+    *time = WTime(timeParse.hour, timeParse.minute, timeParse.sec,
+		  timeParse.msec);
+  }
+}
+
+WString WDateTime::toString() const
+{
+  return toString(defaultFormat());
+}
+
+WString WDateTime::toString(const WString& format) const
+{
+  WDate d = date();
+  WTime t = time();
+
+  return toString(&d, &t, format);
+}
+
+WString WDateTime::toString(const WDate *date, const WTime *time,
+			    const WString& format)
+{
+  if (date && !date->isValid() || time && !time->isValid())
+    return WString::fromUTF8("Null");
+
+  std::stringstream result;
+  std::string f = format.toUTF8() + std::string(3, 0);
+
+  bool inQuote = false;
+  bool gotQuoteInQuote = false;
+
+  for (unsigned i = 0; i < f.length() - 3; ++i) {
+    if (inQuote)
+      if (f[i] != '\'')
+	if (gotQuoteInQuote) {
+	  gotQuoteInQuote = false;
+	  inQuote = false;
+	} else
+	  result.put(f[i]);
+      else
+	if (gotQuoteInQuote) {
+	  gotQuoteInQuote = false;
+	  result.put(f[i]);
+	} else
+	  gotQuoteInQuote = true;
+
+    if (!inQuote) {
+      bool handled = false;
+      if (date)
+	handled = date->writeSpecial(f, i, result);
+      if (!handled && time)
+	handled = time->writeSpecial(f, i, result);
+
+      if (!handled)
+	if (f[i] == '\'') {
+	  inQuote = true;
+	  gotQuoteInQuote = false;
+	} else
+	  result.put(f[i]);
+    }
+  }
+
+  return WString::fromUTF8(result.str());
+}
+
+WDateTime WDateTime::fromTime_t(std::time_t t) {
+  WDateTime dt;
+  dt.setTime_t(t);
+  
+  return dt;
+}
+
+}

@@ -42,8 +42,6 @@
 
 namespace Wt {
 
-WebController *WebController::instance_ = 0;
-
 WebController::WebController(Configuration& configuration,
 			     WebStream *stream, std::string singleSessionId)
   : conf_(configuration),
@@ -56,7 +54,6 @@ WebController::WebController(Configuration& configuration,
 		? 0 : conf_.numThreads())
 #endif // WT_THREADED
 {
-  instance_ = this;
   CgiParser::init();
 
 #ifndef WT_NO_XML
@@ -70,7 +67,6 @@ WebController::WebController(Configuration& configuration,
 
 WebController::~WebController()
 {
-  instance_ = 0;
 }
 
 #ifndef WT_NO_XML
@@ -80,9 +76,8 @@ void WebController::mxml_error_cb(const char * message)
 
   if (app)
     app->log("error") << "XML error: " << message;
-  else if (WebController::instance())
-    WebController::instance()->configuration().log("error")
-      << "XML error: " << message;
+  else
+    std::cerr << "XML error: " << message;
 }
 #endif // WT_NO_XML
 
@@ -316,6 +311,9 @@ bool WebController::socketSelected(int descriptor)
 
 void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
 {
+  if (!ep)
+    ep = getEntryPoint(request->scriptName());
+
   CgiParser cgi(conf_.maxRequestSize() * 1024);
 
   try {
@@ -330,6 +328,11 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
          "Error parsing CGI request: " << e.what() << std::endl;
 
     request->flush(WebResponse::ResponseDone);
+    return;
+  }
+
+  if (ep->type() == StaticResource) {
+    ep->resource()->handle(request, (WebResponse *)request);
     return;
   }
 
@@ -373,9 +376,6 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
 	  f.flush();
 	}
       }
-
-      if (!ep)
-	ep = getEntryPoint(request->scriptName());
 
       std::string favicon = ep->favicon();
       if (favicon.empty()) {

@@ -11,6 +11,7 @@
 #include "StockReply.h"
 #include "HTTPRequest.h"
 #include "WebController.h"
+#include "Server.h"
 
 namespace http {
   namespace server {
@@ -38,7 +39,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
     responseSent_ = false;
     HTTPRequest *r = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
 				     (shared_from_this()));
-    Wt::WebController::instance()->handleRequest(r, &entryPoint_);
+    connection()->server()->controller()->handleRequest(r, &entryPoint_);
   }
 }
 

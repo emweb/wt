@@ -75,7 +75,7 @@ bool WAggregateProxyModel::Aggregate::contains(const Aggregate& other) const
 WAggregateProxyModel::Aggregate *
 WAggregateProxyModel::Aggregate::add(const Aggregate& toAdd)
 {
-  for (int i = 0; i < nestedAggregates_.size(); ++i) {
+  for (unsigned int i = 0; i < nestedAggregates_.size(); ++i) {
     Aggregate& a = nestedAggregates_[i];
 
     if (a.contains(toAdd))
@@ -101,7 +101,7 @@ WAggregateProxyModel::Aggregate::findAggregate(int parentColumn)
   else if (parentSrc_ != -1 && parentColumn > lastChildSrc_)
     return 0;
   else {
-    for (int i = 0; i < nestedAggregates_.size(); ++i) {
+    for (unsigned int i = 0; i < nestedAggregates_.size(); ++i) {
       Aggregate& a = nestedAggregates_[i];
 
       Aggregate *result = a.findAggregate(parentColumn);
@@ -122,7 +122,7 @@ WAggregateProxyModel::Aggregate::findAggregate(int parentColumn) const
 const WAggregateProxyModel::Aggregate *
 WAggregateProxyModel::Aggregate::findEnclosingAggregate(int column) const
 {
-  for (int i = 0; i < nestedAggregates_.size(); ++i) {
+  for (unsigned int i = 0; i < nestedAggregates_.size(); ++i) {
     const Aggregate& a = nestedAggregates_[i];
 
     if (a.after(column))
@@ -318,7 +318,7 @@ void WAggregateProxyModel::propagateBeginRemove(const WModelIndex& proxyIndex,
   // be nested
   columnsAboutToBeRemoved().emit(proxyIndex, start, end);
 
-  int rc = rowCount(proxyIndex);
+  unsigned int rc = rowCount(proxyIndex);
   for (unsigned i = 0; i < rc; ++i)
     propagateBeginRemove(index(i, 0, proxyIndex), start, end);
 }
@@ -330,7 +330,7 @@ void WAggregateProxyModel::propagateEndRemove(const WModelIndex& proxyIndex,
   // be nested
   columnsRemoved().emit(proxyIndex, start, end);
 
-  int rc = rowCount(proxyIndex);
+  unsigned int rc = rowCount(proxyIndex);
   for (unsigned i = 0; i < rc; ++i)
     propagateEndRemove(index(i, 0, proxyIndex), start, end);
 }
@@ -342,7 +342,7 @@ void WAggregateProxyModel::propagateBeginInsert(const WModelIndex& proxyIndex,
   // be nested
   columnsAboutToBeInserted().emit(proxyIndex, start, end);
 
-  int rc = rowCount(proxyIndex);
+  unsigned int rc = rowCount(proxyIndex);
   for (unsigned i = 0; i < rc; ++i)
     propagateBeginInsert(index(i, 0, proxyIndex), start, end);
 }
@@ -354,7 +354,7 @@ void WAggregateProxyModel::propagateEndInsert(const WModelIndex& proxyIndex,
   // be nested
   columnsInserted().emit(proxyIndex, start, end);
 
-  int rc = rowCount(proxyIndex);
+  unsigned int rc = rowCount(proxyIndex);
   for (unsigned i = 0; i < rc; ++i)
     propagateEndInsert(index(i, 0, proxyIndex), start, end);
 }

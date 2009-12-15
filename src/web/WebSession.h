@@ -47,13 +47,13 @@ public:
   };
 
   WebSession(WebController *controller, const std::string& sessionId,
-	     ApplicationType type, const std::string& favicon,
+	     EntryPointType type, const std::string& favicon,
 	     const WebRequest *request, WEnvironment *env = 0);
   ~WebSession();
 
   static WebSession *instance();
 
-  ApplicationType type() const { return type_; }
+  EntryPointType type() const { return type_; }
   std::string favicon() const { return favicon_; }
   std::string docType() const;
 
@@ -205,9 +205,9 @@ private:
   static Handler *threadHandler_;
 #endif // WT_TARGET_JAVA
 
-  ApplicationType type_;
-  std::string     favicon_;
-  State           state_;
+  EntryPointType type_;
+  std::string    favicon_;
+  State          state_;
 
   std::string   sessionId_;
 

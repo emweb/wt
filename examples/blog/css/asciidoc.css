@@ -1,0 +1,294 @@
+.asciidoc em {
+  font-style: italic;
+  color: #111111;
+}
+
+.asciidoc strong {
+  font-weight: bold;
+  color: #111111;
+}
+
+.asciidoc tt {
+  color: #111111;
+}
+
+.asciidoc h1, .asciidoc h2, .asciidoc h3, .asciidoc h4, .asciidoc h5, .asciidoc h6 {
+  color: #111111;
+  font-family: sans-serif;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.asciidoc h1, .asciidoc h2, .asciidoc h3 {
+  border-bottom: 2px solid silver;
+}
+
+.asciidoc h2 {
+  padding-top: 0.5em;
+}
+
+.asciidoc h3 {
+  float: left;
+}
+
+.asciidoc h3 + * {
+  clear: left;
+}
+
+.asciidoc div.sectionbody {
+  font-family: serif;
+  margin-left: 0;
+}
+
+.asciidoc hr {
+  border: 1px solid silver;
+}
+
+.asciidoc p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.asciidoc ul, .asciidoc ol, .asciidoc li > p {
+  margin-top: 0;
+}
+
+.asciidoc pre {
+  padding: 0;
+  margin: 0;
+  line-height: 13px;
+}
+
+.asciidoc div.tableblock, .asciidoc div.imageblock, .asciidoc div.exampleblock,
+.asciidoc div.verseblock, .asciidoc div.quoteblock, .asciidoc div.literalblock,
+.asciidoc div.listingblock, .asciidoc div.sidebarblock,
+.asciidoc div.admonitionblock {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.asciidoc div.admonitionblock {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+}
+
+.asciidoc div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+.asciidoc div.title, .asciidoc caption.title, .asciidoc div.sidebar-title {
+  color: #111111;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+.asciidoc div.title + * {
+  margin-top: 0;
+}
+
+.asciidoc td div.title:first-child {
+  margin-top: 0.0em;
+}
+.asciidoc div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+.asciidoc div.content + div.title {
+  margin-top: 0.0em;
+}
+
+.asciidoc div.sidebarblock > div.sidebar-content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+
+.asciidoc div.listingblock > div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+.asciidoc div.quoteblock {
+  padding-left: 2.0em;
+  margin-right: 10%;
+}
+.asciidoc div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+.asciidoc div.verseblock {
+  padding-left: 2.0em;
+  margin-right: 10%;
+}
+.asciidoc div.verseblock > div.content {
+  white-space: pre;
+}
+.asciidoc div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+.asciidoc div.verseblock + div.attribution {
+  text-align: left;
+}
+
+.asciidoc div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #111111;
+  padding-right: 0.5em;
+}
+.asciidoc div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 2px solid silver;
+}
+
+.asciidoc div.exampleblock > div.content {
+  border-left: 2px solid silver;
+  padding: 0.5em;
+}
+
+.asciidoc div.imageblock div.content { padding-left: 0; }
+.asciidoc span.image img { border-style: none; }
+.asciidoc a.image:visited { color: white; }
+
+.asciidoc dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+.asciidoc dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: #111111;
+}
+.asciidoc dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+.asciidoc ul, ol {
+    list-style-position: outside;
+}
+.asciidoc ol.arabic {
+  list-style-type: decimal;
+}
+.asciidoc ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+.asciidoc ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+.asciidoc ol.lowerroman {
+  list-style-type: lower-roman;
+}
+.asciidoc ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+.asciidoc div.compact ul, .asciidoc div.compact ol,
+.asciidoc div.compact p, .asciidoc div.compact p,
+.asciidoc div.compact div, .asciidoc div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.asciidoc div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+.asciidoc thead {
+  font-family: sans-serif;
+  font-weight: bold;
+}
+.asciidoc tfoot {
+  font-weight: bold;
+}
+.asciidoc td > div.verse {
+  white-space: pre;
+}
+.asciidoc p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+.asciidoc div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+.asciidoc div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+.asciidoc div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+.asciidoc div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+.asciidoc div.hdlist tr {
+  padding-bottom: 15px;
+}
+.asciidoc dt.hdlist1.strong, .asciidoc td.hdlist1.strong {
+  font-weight: bold;
+}
+.asciidoc td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: #111111;
+}
+.asciidoc td.hdlist2 {
+  vertical-align: top;
+}
+.asciidoc div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.asciidoc .comment {
+  background: yellow;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+.asciidoc div#toctitle {
+  color: #111111;
+  font-family: sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+.asciidoc div.toclevel1,
+.asciidoc div.toclevel2, 
+.asciidoc div.toclevel3, 
+.asciidoc div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.asciidoc div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+
+.asciidoc div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+
+.asciidoc div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}

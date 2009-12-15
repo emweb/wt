@@ -1,0 +1,125 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_QUERY_H_
+#define WT_DBO_QUERY_H_
+
+#include <vector>
+
+#include <Wt/Dbo/SqlTraits>
+#include <Wt/Dbo/ptr>
+
+namespace Wt {
+  namespace Dbo {
+
+class Session;
+class SqlConnection;
+
+/*! \class Query Wt/Dbo/Query Wt/DboQuery
+ *  \brief A database query.
+ *
+ * A query will be used to fetch objects of class \p Result.
+ *
+ * Simple queries can be done using Session::find(), while more elaborate
+ * queries (with arbitrary result types) using Session::query().
+ *
+ * You may insert positional holders for parameters using '?', using
+ * bind().
+ *
+ * The query result may be fetched using resultValue() or resultList().
+ *
+ * Usage example:
+ * \code
+ * typedef dbo::collection<dbo::ptr<Account> > Accounts;
+ *
+ * Query query = session.find<Account>("where balance > ?").bind(100000);
+ * Accounts accounts = query.resultList();
+ *
+ * for (Accounts::const_iterator i = accounts.begin(); i != accounts.end(); ++i)
+ *   std::cerr << "Name: " << i->name << std::end;
+ * \endcode
+ *
+ * <b>Caveat warning!</b>
+ *
+ * A query object should be used transiently: a query can be used only
+ * once (one call to resultValue() or resultList()), after which it
+ * becomes unusable. You should not try to keep a query object
+ * around. This behavior was chosen because in this way, we do not
+ * need to store bound arguments and they are immediately passed on to
+ * the underlying prepared statement.
+ *
+ * \ingroup dbo
+ */
+template <class Result>
+class Query
+{
+public:
+  /*! \brief Destructor.
+   */
+  ~Query();
+
+  /*! \brief Binds a value to the next positional marker.
+   *
+   * This binds the \p value to the next positional marker. When this is the
+   * first bind() call, the statement is first prepared.
+   *
+   * You should only bind arguments after the query is complete.
+   */
+  template<typename T> Query<Result>& bind(const T& value);
+
+  /*! \brief Returns a unique result value.
+   *
+   * You can use this method if you are expecting the query to return
+   * at most one result. If the query returns more than one result a
+   * NoUniqueResultException is thrown.
+   *
+   * After a result has been fetched, the query can no longer be used.
+   */
+  Result resultValue() const;
+
+  /*! \brief Returns a result list.
+   *
+   * This returns a collection which is backed by the underlying query.
+   * The query is not executed until this collection is traversed.
+   *
+   * After a result has been fetched, the query can no longer be used.
+   */
+  collection< Result > resultList() const;
+
+  /*! \brief Returns a unique result value.
+   *
+   * This is a convenience conversion operator that calls resultValue().
+   */
+  operator Result () const;
+
+  /*! \brief Returns a result list.
+   *
+   * This is a convenience conversion operator that calls resultList().
+   */
+  operator collection< Result > () const;
+
+private:
+  Query(Session& session, const std::string& select, const std::string& from);
+
+  enum StatementKind { Select, Count };
+
+  Session& session_;
+  std::string select_, from_;
+
+  mutable SqlStatement *statement_, *countStatement_;
+  mutable int column_;
+
+  void prepareStatements() const;
+
+  std::string createSql(StatementKind kind) const;
+
+  friend class Session;
+};
+
+  }
+}
+
+#endif // WT_DBO_QUERY

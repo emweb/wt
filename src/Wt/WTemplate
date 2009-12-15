@@ -1,0 +1,218 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTEMPLATE_H_
+#define WTEMPLATE_H_
+
+#include <Wt/WInteractWidget>
+#include <Wt/WString>
+
+namespace Wt {
+
+/*! \class WTemplate Wt/WTemplate Wt/WTemplate
+ *  \brief A widget that renders an XHTML template.
+ *
+ * The XHTML template may contain references to variables which
+ * replaced by strings are widgets.
+ *
+ * Since the template text may be supplied by a WString, you can
+ * conveniently store the string in a message resource bundle, and
+ * make it localized by using WString::tr().
+ *
+ * The template may contain variable references using a
+ * <tt>${<i>varName</i>}</tt> syntax to reference the variable
+ * "<tt>varName</tt>". To use a literal '${', use "$${".
+ *
+ * Usage example:
+ * \code
+ * WString userName = ...;
+ *
+ * WTemplate *t = new WTemplate();
+ * t->setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
+ * t->bindString("friend", userName);
+ * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
+ * \endcode
+ */
+class WT_API WTemplate : public WInteractWidget
+{
+public:
+  /*! \brief Creates a template widget.
+   */
+  WTemplate(WContainerWidget *parent = 0);
+
+  /*! \brief Creates a template widget with given template.
+   *
+   * The \p templateText must be proper XHTML, and this is checked
+   * unless the XHTML is resolved from a message resource bundle. This
+   * behavior is similar to a WText when configured with the
+   * Wt::XHTMLText textformat.
+   */
+  WTemplate(const WString& text, WContainerWidget *parent = 0);
+
+  /*! \brief Returns the template.
+   *
+   * \sa setTemplateText(const WString&)
+   */
+  const WString& templateText() const { return text_; }
+
+  /*! \brief Sets the template text.
+   *
+   * The \p text must be proper XHTML, and this is checked unless the
+   * XHTML is resolved from a message resource bundle. This
+   * behavior is similar to a WText when configured with the
+   * Wt::XHTMLText textformat.
+   *
+   * Changing the template text does not clear() bound widgets or
+   * values.
+   *
+   * \sa clear()
+   */
+  void setTemplateText(const WString& text);
+
+  /*! \brief Binds a widget to a variable name.
+   *
+   * The corresponding variable reference within the template will be
+   * replaced with the widget (rendered as XHTML). Since a single
+   * widget may be instantiated only once in a template, the variable
+   * \p varName may occur at most once in the template.
+   *
+   * \sa bindString()
+   * \sa resolveWidget()
+   */
+  void bindWidget(const std::string& varName, WWidget *widget);
+
+  /*! \brief Binds a string value to a variable name.
+   *
+   * Each occurrence of the variable within the template will be
+   * substituted by its value.
+   *
+   * Depending on the \p textFormat, the \p value is validated according
+   * as for a WText.
+   *
+   * \sa bindWidget(), bindInt()
+   * \sa resolveStringValue()
+   */
+  void bindString(const std::string& varName, const WString& value,
+		  TextFormat textFormat = XHTMLText);
+
+  /*! \brief Binds an integer value to a variable name.
+   *
+   * \sa bindString()
+   */
+  void bindInt(const std::string& varName, int value);
+
+  /*! \brief Resolves the string value for a variable name.
+   *
+   * This is the main method used to resolve variables in the template
+   * text, during rendering.
+   *
+   * The default implementation considers first whether a string was
+   * bound using bindString(). If so, that string is returned. If
+   * not, it will attempt to resolve a widget with that variable name
+   * using resolveWidget(), and render it as XHTML. If that fails too,
+   * "??"  + varName + "??"  is appended to the result.
+   *
+   * You may want to reimplement this method to provide on-demand
+   * loading of strings for your template.
+   *
+   * The result stream expects a UTF-8 encoded string value.
+   *
+   * \warning When specializing this class, you need to make sure that
+   * you append proper XHTML to the \p result, without unsafe active
+   * contents. The format() methods may be used for this purpose.
+   *
+   * \sa renderTemplate()
+   */
+  virtual void resolveString(const std::string& varName,
+			     const std::vector<WString>& args,
+			     std::ostream& result);
+
+  /*! \brief Resolves a widget for a variable name.
+   *
+   * The default implementation returns a widget that was bound using
+   * bindWidget().
+   *
+   * You may want to reimplement this method to create widgets
+   * on-demand.
+   */
+  virtual WWidget *resolveWidget(const std::string& varName);
+
+  /*! \brief Returns a widget for a variable name.
+   *
+   * This is a convience method, which calls resolveWidget() and casts
+   * the result to type \p T. You may use this method to fetch widgets
+   * that have previously been bound using bindWidget().
+   */
+  template <typename T> T resolve(const std::string& varName);
+
+  /*! \brief Erases all variable bindings.
+   *
+   * Removes all strings and deletes all widgets that were previously
+   * bound using bindString() and bindWidget().
+   */
+  void clear();
+
+  /*! \brief Refreshes the template.
+   *
+   * This rerenders the template.
+   */
+  virtual void refresh();
+
+protected:
+  /*! \brief Renders the template into the given result stream.
+   *
+   * The default implementation will parse the template, and resolve variables
+   * by calling resolveString().
+   *
+   * You may want to reimplement this method to manage resources that are
+   * needed to load content on-demand (e.g. database objects), or support
+   * a custom template language.
+   */
+  virtual void renderTemplate(std::ostream& result);
+
+  virtual void           updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+  virtual void           propagateRenderOk(bool deep);
+
+  /*! \brief Utility method to safely format an XHTML string.
+   *
+   * The string is formatted according to the indicated \p
+   * textFormat. It is recommended to use this method when
+   * specializing resolveString() to avoid security risks.
+   */
+  void format(std::ostream& result, const std::string& s,
+	      TextFormat textFormat = PlainText);
+
+  /*! \brief Utility method to safely format an XHTML string.
+   *
+   * The string is formatted according to the indicated \p
+   * textFormat. It is recommended to use this method when
+   * specializing resolveString() to avoid security risks.
+   */
+  void format(std::ostream& result, const WString& s,
+	      TextFormat textFormat = PlainText);
+
+private:
+  typedef std::map<std::string, WWidget *> WidgetMap;
+  typedef std::map<std::string, std::string> StringMap;
+
+  WidgetMap widgets_;
+  StringMap strings_;
+  WString   text_;
+
+  bool      changed_;
+};
+
+template <typename T> T WTemplate::resolve(const std::string& varName)
+{
+  WWidget *w = resolveWidget(varName);
+  return dynamic_cast<T>(w);
+}
+
+
+}
+
+#endif // WTEMPLATE_H_

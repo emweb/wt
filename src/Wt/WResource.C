@@ -30,6 +30,7 @@ WResource::WResource(WObject* parent)
     beingDeleted_(false)
 { 
   generateUrl();
+
 #ifdef WT_THREADED
   mutex_.reset(new boost::recursive_mutex());
 #endif // WT_THREADED
@@ -83,8 +84,11 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 
   // when we are handling a continuation, we do not have the session
   // lock
-  if (!continuation)
-    WebSession::Handler::instance()->lock().unlock();
+  if (!continuation) {
+    WebSession::Handler *h = WebSession::Handler::instance();
+    if (h)
+      h->lock().unlock();
+  }
 #endif // WT_THREADED
 
   if (continuation)
@@ -122,16 +126,18 @@ void WResource::setChanged()
   dataChanged_.emit();
 }
 
-const std::string &WResource::url() const
+const std::string& WResource::url() const
 {
   return currentUrl_;
 }
 
-const std::string &WResource::generateUrl()
+const std::string& WResource::generateUrl()
 {
   WApplication *app = WApplication::instance();
 
-  currentUrl_ = app->addExposedResource(const_cast<WResource *>(this));
+  if (app)
+    currentUrl_ = app->addExposedResource(const_cast<WResource *>(this));
+
   return currentUrl_;
 }
 

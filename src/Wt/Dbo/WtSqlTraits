@@ -1,0 +1,145 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_WT_TYPE_TRAITS_H_
+#define WT_DBO_WT_TYPE_TRAITS_H_
+
+#include <Wt/WDate>
+#include <Wt/WDateTime>
+#include <Wt/WString>
+
+#include <Wt/Dbo/SqlTraits>
+#include <Wt/Dbo/SqlStatement>
+
+namespace Wt {
+  namespace Dbo {
+
+template<>
+struct sql_value_traits<WDate, void>
+{
+  static const bool specialized = true;
+
+  static const char *format;
+
+  static const char *type();
+  static void bind(const WDate& v, SqlStatement *statement, int column);
+  static bool read(WDate& v, SqlStatement *statement, int column);
+};
+
+template<>
+struct sql_value_traits<WDateTime, void>
+{
+  static const bool specialized = true;
+
+  static const char *format;
+
+  static const char *type();
+  static void bind(const WDateTime& v, SqlStatement *statement, int column);
+  static bool read(WDateTime& v, SqlStatement *statement, int column);
+};
+
+template<>
+struct sql_value_traits<WString, void>
+{
+  static const bool specialized = true;
+
+  static const char *type();
+  static void bind(const WString& v, SqlStatement *statement, int column);
+  static bool read(WString& v, SqlStatement *statement, int column);
+};
+
+    /*
+     * WDate
+     */
+
+inline const char *sql_value_traits<WDate, void>::type()
+{
+  return "text";
+}
+
+inline void sql_value_traits<WDate, void>
+::bind(const WDate& v, SqlStatement *statement, int column)
+{
+  if (!v.isNull())
+    statement->bind(column, v.toString(WString::fromUTF8(format)).toUTF8());
+}
+
+inline bool sql_value_traits<WDate, void>
+::read(WDate& v, SqlStatement *statement, int column)
+{
+  std::string d;
+
+  if (statement->getResult(column, &d)) {
+    v = WDate::fromString(WString::fromUTF8(d), WString::fromUTF8(format));
+    return true;
+  } else {
+    v = WDate();
+    return false;
+  }
+}
+
+    /*
+     * WDateTime
+     */
+
+inline const char *sql_value_traits<WDateTime, void>::type()
+{
+  return "text";
+}
+
+inline void sql_value_traits<WDateTime, void>
+::bind(const WDateTime& v, SqlStatement *statement, int column)
+{
+  if (!v.isNull())
+    statement->bind(column, v.toString(WString::fromUTF8(format)).toUTF8());
+}
+
+inline bool sql_value_traits<WDateTime, void>
+::read(WDateTime& v, SqlStatement *statement, int column)
+{
+  std::string d;
+
+  if (statement->getResult(column, &d)) {
+    v = WDateTime::fromString(WString::fromUTF8(d), WString::fromUTF8(format));
+    return true;
+  } else {
+    v = WDateTime();
+    return false;
+  }
+}
+
+    /*
+     * WString
+     */
+
+inline const char *sql_value_traits<WString, void>::type()
+{
+  return "text not null";
+}
+
+inline void sql_value_traits<WString, void>
+::bind(const WString& v, SqlStatement *statement, int column)
+{
+  statement->bind(column, v.toUTF8());
+}
+
+inline bool sql_value_traits<WString, void>
+::read(WString& v, SqlStatement *statement, int column)
+{
+  std::string d;
+  if (statement->getResult(column, &d)) {
+    v = WString::fromUTF8(d);
+    return true;
+  } else {
+    v = WString::Empty;
+    return false;
+  }
+}
+
+  }
+}
+
+#endif // WT_DBO_WT_TYPE_TRAITS_H_

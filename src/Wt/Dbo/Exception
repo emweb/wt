@@ -1,0 +1,82 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_EXCEPTION_H_
+#define WT_DBO_EXCEPTION_H_
+
+#include <string>
+#include <stdexcept>
+
+namespace Wt {
+  namespace Dbo {
+
+/*! \class Exception Wt/Dbo/Exception Wt/Dbo/Exception
+ *  \brief %Exception base class for %Wt::Dbo.
+ *
+ * \ingroup dbo
+ */
+class Exception : public std::runtime_error
+{
+public:
+  /*! \brief Constructor.
+   */
+  Exception(const std::string& error);
+};
+
+/*! \class StaleObjectException Wt/Dbo/Exception Wt/Dbo/Exception
+ *  \brief %Exception thrown when %Wt::Dbo detects a concurrent modification
+ *
+ * Wt::Dbo uses optimistic locking for detecting and preventing
+ * concurrent modification of database objects. When trying to save an
+ * object that has been modified concurrently by another session, since
+ * it was read from the database, this exception is thrown.
+ *
+ * \ingroup dbo
+ */
+class StaleObjectException : public Exception
+{
+public:
+  /*! \brief Constructor.
+   */
+  StaleObjectException(long long id, int version);
+};
+
+/*! \class ObjectNotFoundException Wt/Dbo/Exception Wt/Dbo/Exception
+ *  \brief %Exception thrown when trying to load a non-existing object.
+ *
+ * %Exception thrown when attempting to load an object that does not exist,
+ * by Session::load().
+ *
+ * \ingroup dbo
+ */
+class ObjectNotFoundException : public Exception
+{
+public:
+  /*! \brief Constructor.
+   */
+  ObjectNotFoundException(long long id);
+};
+
+/*! \class NoUniqueResultException Wt/Dbo/Exception Wt/Dbo/Exception
+ *  \brief %Exception thrown when a query unexpectedly finds a non-unique result.
+ *
+ * %Exception thrown when a call to Query::resultValue() finds more than
+ * one result.
+ *
+ * \ingroup dbo
+ */
+class NoUniqueResultException : public Exception
+{
+public:
+  /*! \brief Constructor.
+   */
+  NoUniqueResultException();
+};
+
+  }
+}
+
+#endif // WT_DBO_EXCEPTION_H_

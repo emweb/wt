@@ -1,0 +1,53 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_BACKEND_SQLITE3_H_
+#define WT_DBO_BACKEND_SQLITE3_H_
+
+#include <Wt/Dbo/SqlConnection>
+#include <Wt/Dbo/SqlStatement>
+
+extern "C" {
+  struct sqlite3;
+}
+
+namespace Wt {
+  namespace Dbo {
+    namespace backend {
+
+/*! \class Sqlite3 Wt/Dbo/backend/Sqlite3 Wt/Dbo/backend/Sqlite3
+ *  \brief An SQLite3 connection
+ *
+ * This class provides the backend implementation for SQLite3 databases.
+ *
+ * \ingroup dbo
+ */
+class Sqlite3 : public SqlConnection
+{
+public:
+  /*! \brief Opens a new SQLite3 backend connection.
+   *
+   * The \p db may be any of the values supported by sqlite3_open().
+   */
+  Sqlite3(const std::string& db);
+
+  /*! \brief Destructor.
+   *
+   * Closes the connection.
+   */
+  ~Sqlite3();
+
+  virtual SqlStatement *prepareStatement(const std::string& sql);
+
+private:
+  sqlite3 *db_;
+};
+
+    }
+  }
+}
+
+#endif // WT_DBO_BACKEND_SQLITE3_H_

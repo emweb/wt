@@ -857,6 +857,7 @@ private:
   friend class WViewWidget;
   friend class WWebWidget;
   friend class WWidgetItem;
+  friend class WTemplate;
 };
 
 }

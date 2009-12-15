@@ -1,0 +1,178 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_TUPLE_PTR_H_
+#define WT_DBO_TUPLE_PTR_H_
+
+#include <boost/tuple/tuple.hpp>
+#include <Wt/Dbo/Query>
+
+namespace Wt {
+  namespace Dbo {
+
+template <class A>
+void persist(boost::tuples::null_type& obj, A& action)
+{ }
+
+namespace Impl {
+  template <class T>
+  struct ptr_type
+  {
+    typedef ptr<T> type;
+  };
+
+  template <>
+  struct ptr_type< boost::tuples::null_type >
+  {
+    typedef boost::tuples::null_type type;
+  };
+
+  template <int N, class T>
+  struct helper
+  {
+    typedef typename boost::tuples::element<N, T>::type ElementType;
+
+    static std::string getColumns(Session& session,
+				  std::vector<std::string> *aliases)
+    {
+      std::string result = helper<N-1, T>::getColumns(session, aliases);
+
+      if (!result.empty())
+	result += " ,";
+
+      result += sql_result_traits<ElementType>::getColumns(session, aliases);
+
+      return result;
+    };
+
+    static void loadValues(Session& session, SqlStatement& statement,
+			   int& column, T& result)
+    {
+      helper<N-1, T>::loadValues(session, statement, column, result);
+
+      boost::get<N>(result)
+	= sql_result_traits<ElementType>::loadValues(session, statement,
+						     column);
+    }
+  };
+
+  template <class T>
+  struct helper<-1, T>
+  {
+    static std::string getColumns(Session& session,
+				  std::vector<std::string> *aliases)
+    {
+      return std::string();
+    };
+
+    static void loadValues(Session& session, SqlStatement& statement,
+			   int& column, T& result)
+    { };
+  };
+
+}
+
+/*! \brief A utility class for defining a tuple of database objects.
+ *
+ * Since C++ (at least prior to C++0x) does not support template
+ * typedefs, this class provides a nested \p type that is a typedef
+ * for a Boost.Tuple containing one or more Wt::Dbo::ptr.
+ *
+ * Thus:
+ * \code
+ * namespace dbo = Wt::Dbo;
+ * typedef dbo::ptr_tuple<A, B, C>::type ABC;
+ * \endcode
+ * Is equivalent to:
+ * \code
+ * namespace dbo = Wt::Dbo;
+ * typedef boost::tuple<dbo::ptr<A>, dbo::ptr<B>, dbo::ptr<C> > ABC;
+ * \endcode
+ *
+ * \note Boost.Tuple (in its general form) is supported as a result for a
+ *       Session::query() by a partial template specialization of
+ *       sql_result_traits.
+ *
+ * \ingroup dbo
+ */
+#ifdef DOXYGEN_ONLY
+template <class T0 = boost::tuples::null_type,
+	  class T1 = boost::tuples::null_type,
+	  ...,
+	  class T9 = boost::tuples::null_type>
+#else
+template <class T0 = boost::tuples::null_type,
+	  class T1 = boost::tuples::null_type,
+	  class T2 = boost::tuples::null_type,
+	  class T3 = boost::tuples::null_type,
+	  class T4 = boost::tuples::null_type,
+	  class T5 = boost::tuples::null_type,
+	  class T6 = boost::tuples::null_type,
+	  class T7 = boost::tuples::null_type,
+	  class T8 = boost::tuples::null_type,
+	  class T9 = boost::tuples::null_type>
+#endif
+struct ptr_tuple
+{
+  /*! \brief A typedef for a Boost.Tuple for ptrs.
+   */
+#ifdef DOXYGEN_ONLY
+  typedef boost::tuple< ptr<T0>, ptr<T1>, ..., ptr<T9> > type;
+#else
+  typedef boost::tuple< typename Impl::ptr_type<T0>::type,
+			typename Impl::ptr_type<T1>::type,
+			typename Impl::ptr_type<T2>::type,
+			typename Impl::ptr_type<T3>::type,
+			typename Impl::ptr_type<T4>::type,
+			typename Impl::ptr_type<T5>::type,
+			typename Impl::ptr_type<T6>::type,
+			typename Impl::ptr_type<T7>::type,
+			typename Impl::ptr_type<T8>::type,
+			typename Impl::ptr_type<T9>::type > type;
+#endif // DOXYGEN_ONLY
+};
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+struct sql_result_traits< boost::tuple<T0, T1, T2, T3, T4,
+				       T5, T6, T7, T8, T9> >
+{
+  typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
+  typedef Impl::helper<boost::tuples::length<tuple_type>::value - 1, tuple_type>
+    helper;
+
+  static std::string getColumns(Session& session,
+				std::vector<std::string> *aliases);
+  static tuple_type loadValues(Session& session, SqlStatement& statement,
+			       int& column);
+};
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+std::string sql_result_traits< boost::tuple<T0, T1, T2, T3, T4,
+					    T5, T6, T7, T8, T9> >
+::getColumns(Session& session, std::vector<std::string> *aliases)
+{
+  return helper::getColumns(session, aliases);
+}
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+sql_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::loadValues(Session& session, SqlStatement& statement, int& column)
+{
+  tuple_type result;
+
+  helper::loadValues(session, statement, column, result);
+
+  return result;
+}
+
+  }
+}
+
+#endif // WT_DBO_DBO_PTR_H_

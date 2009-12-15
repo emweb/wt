@@ -98,14 +98,24 @@ void WServer::setServerConfiguration(int argc, char *argv[],
   impl_->serverConfiguration_.setOptions(argc, argv, serverConfigurationFile);
 }
 
-void WServer::addEntryPoint(ApplicationType type, ApplicationCreator callback,
+void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
 			    const std::string& path, const std::string& favicon)
 {
   if (!path.empty() && !boost::starts_with(path, "/")) 
-    throw WServer::Exception("WServer::addEntryPoint() error: deployment path should start with \'/\'");
+    throw WServer::Exception("WServer::addEntryPoint() error: "
+			     "deployment path should start with \'/\'");
 
   impl_->wtConfiguration_
     .addEntryPoint(EntryPoint(type, callback, path, favicon));
+}
+
+void WServer::addResource(WResource *resource, const std::string& path)
+{
+  if (!boost::starts_with(path, "/")) 
+    throw WServer::Exception("WServer::addResource() error: "
+			     "static resource path should start with \'/\'");
+
+  impl_->wtConfiguration_.addEntryPoint(EntryPoint(resource, path));
 }
 
 bool WServer::start()
@@ -130,7 +140,8 @@ bool WServer::start()
 
   try {
     impl_->server_ = new http::server::Server(impl_->serverConfiguration_,
-					      impl_->wtConfiguration_);
+					      impl_->wtConfiguration_,
+                                              impl_->webController_);
 #ifndef WT_THREADED
     impl_->serverConfiguration_.log("warn")
       << "No boost thread support, running in main thread.";

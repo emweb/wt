@@ -97,13 +97,29 @@ char *itoa(int value, char *result, int base) {
   } while (quotient);
 
   if (value < 0 && base == 10) *out++ = '-';
-  std::reverse( result, out );
+  std::reverse(result, out);
   *out = 0;
   return result;
 }
 
+char *pad_itoa(int value, int length, char *result) {
+  static const int exp[] = { 1, 10, 100, 1000, 10000, 100000, 100000 };
+
+  result[length] = 0;
+
+  for (int i = 0; i < length; ++i) {
+    int b = exp[length - i - 1];
+    if (value >= b)
+      result[i] = '0' + (value / b) % 10;
+    else
+      result[i] = '0';
+  }
+
+  return result;
+}
+
 char *round_str(double d, int digits, char *buf) {
-  static int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
+  static const int exp[] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
 
   int i = static_cast<int>(d * exp[digits] + (d > 0 ? 0.49 : -0.49));
   itoa(i, buf);

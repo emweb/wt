@@ -7,7 +7,7 @@
 #ifndef WDATE_H_
 #define WDATE_H_
 
-#include <Wt/WDllDefs.h>
+#include <Wt/WDateTime>
 #include <Wt/WString>
 #include <exception>
 
@@ -35,21 +35,22 @@ public:
   const char *what() const throw();
 };
 
-/*! \brief A gregorian calendar date.
+/*! \class WDate Wt/WDate Wt/WDate
+ *  \brief A gregorian calendar date.
  *
  * Class which holds a date on the gregorian calendar, specified as
  * day/month/year.
  *
  * A %WDate may either specify a valid date, or be a <i>Null</i> date
- * (using the default constructor WDate::WDate(), for which isNull() returns
- * true).
+ * (using the default constructor WDate::WDate(), for which isNull()
+ * returns \c true).
  *
  * A valid date may be specified by year, month, and day of month
  * (using the \link WDate::WDate(int, int, int)
  * WDate(year, month, day) \endlink constructor,
  * or the setDate() method). When attempting to specify an
  * invalid date (with an impossible combination of year/month/date),
- * isIvalid() will return false.
+ * isIvalid() will return \c false.
  *
  * The class provides a flexible way for converting between strings
  * and dates. Use toString() to convert to strings, and fromString()
@@ -75,23 +76,25 @@ public:
    */
   WDate();
 
-  /*! \brief Specify a date by year, month (1-12), and day (1-31)
+  /*! \brief Specify a date by year, month, and day.
    *
+   * The \p month has range 1-12 and the \p day has range 1-31.
    * When the date is invalid, isValid() is set to \c false.
    *
    * \sa setDate(), year(), month(), day()
    */
   WDate(int year, int month, int day);
 
-  /*! \brief Set a date by year, month (1-12), and day (1-31)
+  /*! \brief Sets the date by year, month, and day.
    *
+   * The \p month has range 1-12 and the \p day has range 1-31.
    * When the new date is invalid, isValid() is set to \c false.
    *
    * \sa WDate(int year, int month, int day), year(), month(), day()
    */
   void setDate(int year, int month, int day);
 
-  /*! \brief Add days to a date.
+  /*! \brief Adds days.
    *
    * Returns a date that is \p ndays later than this
    * date. Negative values for \p ndays will result in a date that
@@ -101,7 +104,7 @@ public:
    */
   WDate addDays(int ndays) const;
 
-  /*! \brief Add months to a date.
+  /*! \brief Adds months.
    *
    * Returns a date that is the same day of the month, but
    * \p nmonths later than this date. Negative values for
@@ -112,7 +115,7 @@ public:
    */
   WDate addMonths(int nmonths) const;
 
-  /*! \brief Add years to a date.
+  /*! \brief Adds years.
    *
    * Returns a date that is \p nyears later than this
    * date. Negative values for \p nyears will result in a date
@@ -136,27 +139,27 @@ public:
    */
   bool isValid() const { return valid_; }
 
-  /*! \brief Year
+  /*! \brief Returns the year.
    */
   int year() const { return year_; }
 
-  /*! \brief Month (1-12)
+  /*! \brief Returns the month (1-12).
    */
   int month() const { return month_; }
 
-  /*! \brief Day of month (1-31)
+  /*! \brief Returns the day of month (1-31).
    */
   int day() const { return day_; }
 
-  /*! \brief Day of week (1-7)
+  /*! \brief Returns the day of week (1-7).
    *
    * Returns the day of week, from Monday (=1) to Sunday (=7).
    */
   int dayOfWeek() const;
 
-  /*! \brief Returns the number of days from this date to <i>d</i>.
+  /*! \brief Returns the difference between two dates (in days).
    */
-  int daysTo(const WDate& d) const;
+  int daysTo(const WDate& date) const;
 
   /*! \brief Converts the date to a Julian day. 
    *
@@ -164,33 +167,33 @@ public:
    */
   int toJulianDay() const;
 
-  /*! \brief Compare two dates.
+  /*! \brief Compares two dates.
    */
   bool operator< (const WDate& other) const;
 
-  /*! \brief Compare two dates.
+  /*! \brief Compares two dates.
    */
   bool operator<= (const WDate& other) const;
 
-  /*! \brief Compare two dates.
+  /*! \brief Compares two dates.
    */
   bool operator> (const WDate& other) const;
 
-  /*! \brief Compare two dates.
+  /*! \brief Compares two dates.
    */
   bool operator>= (const WDate& other) const;
 
-  /*! \brief Compare two dates.
+  /*! \brief Compares two dates.
    */
   bool operator== (const WDate& other) const;
 
-  /*! \brief Compare two dates.
+  /*! \brief Compares two dates.
    */
   bool operator!= (const WDate& other) const;
 
   static WT_USTRING defaultFormat();
 
-  /*! \brief Format this date to a WString using a default format.
+  /*! \brief Formats this date to a string using a default format.
    *
    * The default \p format is "ddd MMM d yyyy".
    * For example, a date constructed as:
@@ -206,7 +209,7 @@ public:
    */
   WT_USTRING toString() const;
 
-  /*! \brief Format this date to a WString using a specified format.
+  /*! \brief Formats this date to a string using a specified format.
    *
    * The \p format is a string in which the following contents has
    * a special meaning.
@@ -214,25 +217,25 @@ public:
    * <table>
    *  <tr><td><b>Code</b></td><td><b>Meaning</b></td>
    *      <td><b>Example (for Mon Aug 3 2007)</b></td></tr>
-   *  <tr><td>d</td><td>The day as a one or two-digit number</td>
+   *  <tr><td>d</td><td>The day without leading zero (1-31)</td>
           <td>3</td></tr>
-   *  <tr><td>dd</td><td>The day as a two-digit number (with leading 0)</td>
+   *  <tr><td>dd</td><td>The day with leading zero (01-31)</td>
           <td>03</td></tr>
    *  <tr><td>ddd</td><td>The day abbreviated using shortDayName()</td>
           <td>Mon</td></tr>
    *  <tr><td>dddd</td><td>The day abbreviated using longDayName()</td>
           <td>Monday</td></tr>
-   *  <tr><td>M</td><td>The month as a one or two-digit number</td>
+   *  <tr><td>M</td><td>The month without leading zero (1-12)</td>
           <td>8</td></tr>
-   *  <tr><td>MM</td><td>The month as a two-digit number (with leading 0)</td>
+   *  <tr><td>MM</td><td>The month with leading zero (01-12)</td>
           <td>08</td></tr>
    *  <tr><td>MMM</td><td>The month abbreviated using shortMonthName()</td>
           <td>Aug</td></tr>
    *  <tr><td>MMMM</td><td>The month abbreviated using longMonthName()</td>
           <td>August</td></tr>
-   *  <tr><td>yy</td><td>The year as a two-digit number</td>
+   *  <tr><td>yy</td><td>The year as a two-digit number (00-99)</td>
           <td>07</td></tr>
-   *  <tr><td>yyyy</td><td>The year as a four-digit number</td>
+   *  <tr><td>yyyy</td><td>The year as a four-digit number (-9999-9999)</td>
           <td>2007</td></tr>
    * </table>
    *
@@ -240,7 +243,7 @@ public:
    * quotes (') are not interpreted as special codes. Inside a string, a literal
    * quote may be specifed using a double quote ('').
    *
-   * Example of format and result:
+   * Examples of format and result:
    * <table>
    *  <tr><td><b>Format</b></td><td><b>Result (for Mon Aug 3 2007)</b></td></tr>
    *  <tr><td>ddd MMM d yyyy</td><td>Mon Aug 3 2007</td></tr>
@@ -253,7 +256,7 @@ public:
    */
   WT_USTRING toString(const WT_USTRING& format) const;
 
-  /*! \brief Parse a WString to a date using a default format.
+  /*! \brief Parses a string to a date using a default format.
    *
    * The default \p format is "ddd MMM d yyyy".
    * For example, a date specified as:
@@ -272,7 +275,7 @@ public:
    */
   static WDate fromString(const WT_USTRING& s);
 
-  /*! \brief Parse a WString to a date using a specified format.
+  /*! \brief Parses a string to a date using a specified format.
    *
    * The \p format follows the same syntax as used by
    * \link toString(const WString& format) const toString(const WString& format)\endlink.
@@ -290,14 +293,16 @@ public:
    */
   static WDate fromJulianDay(int jd);
 
-  /*! \brief Construct a date for the current client date.
+  /*! \brief Reports the current client date.
    *
    * This method uses browser information to retrieve the date that is
    * configured in the client.
+   *
+   * \note Not Yet Implemented !
    */
   static WDate currentDate();
 
-  /*! \brief Construct a date for the current server date.
+  /*! \brief Reports the current server date.
    *
    * This method returns the date as indicated by the system clock of
    * the server.
@@ -368,17 +373,29 @@ private:
   int  month_;
   int  day_;
 
-  void writeLast(std::string& result, int& d, int& M, int& yr,
-		 const WString& format) const;
+  struct ParseState {
+    int d, M, y;
+    int day, month, year;
+
+    ParseState();
+  };
+
   static bool parseLast(const std::string& v, unsigned& vi,
-			int& d, int& M, int& y,
-			int& day, int& month, int& year,
-			const WString& format);
+			ParseState& state, const WString& format);
+
+  static WDateTime::CharState handleSpecial(char c, const std::string& v,
+					    unsigned& vi, ParseState& parse,
+					    const WString& format);
+
+  bool writeSpecial(const std::string& f, unsigned& i, std::stringstream& result)
+    const;
 
   static int parseShortMonthName(const std::string& v, unsigned& pos);
   static int parseLongMonthName(const std::string& v, unsigned& pos);
   static int parseShortDayName(const std::string& v, unsigned& pos);
   static int parseLongDayName(const std::string& v, unsigned& pos);
+
+  friend class WDateTime;
 };
 
 }

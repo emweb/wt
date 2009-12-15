@@ -1,0 +1,165 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_FIELD_H_
+#define WT_DBO_FIELD_H_
+
+#include <string>
+
+#include <Wt/Dbo/ptr>
+#include <Wt/Dbo/collection>
+
+namespace Wt {
+  namespace Dbo {
+
+class Session;
+class SqlStatement;
+
+template <typename V>
+class FieldRef
+{
+public:
+  FieldRef(V& value, const std::string& name);
+
+  const std::string& name() const;
+
+  std::string sqlType(Session& session) const;
+
+  void bindValue(SqlStatement *statement, int column) const;
+  void setValue(Session& session, SqlStatement *statement, int column) const;
+
+  template <typename A> void descend(A& action) const;
+
+private:
+  V& value_;
+  std::string name_;
+};
+
+/*! \brief Type of an SQL relation.
+ *
+ * \ingroup dbo
+ */
+enum RelationType {
+  ManyToOne,  //!< Many-to-One relationship
+  ManyToMany  //!< Many-to-Many relationship
+};
+
+template <class C>
+class CollectionRef
+{
+public:
+  CollectionRef(collection< ptr<C> >& value, RelationType type,
+		const std::string& joinName);
+
+  collection< ptr<C> >& value() const { return value_; }
+  const std::string& joinName() const { return joinName_; }
+  RelationType type() const { return type_; }
+
+private:
+  collection< ptr<C> >& value_;
+  std::string joinName_;
+  RelationType type_;
+};
+
+template <class C>
+class FieldRef< ptr<C> >
+{
+public:
+  FieldRef(ptr<C>& value, const std::string& name);
+
+  const std::string& name() const;
+
+  std::string sqlType(Session& session) const;
+
+  void bindValue(SqlStatement *statement, int column) const;
+  void setValue(Session& session, SqlStatement *statement, int column) const;
+
+  template <typename A> void descend(A& action) const;
+
+private:
+  ptr<C>& value_;
+  std::string name_;
+};
+
+/*! \brief Maps a database object field.
+ *
+ * This function binds the field \p value to the database field \p name.
+ *
+ * You may want to specialize this method for a particular value type, if it
+ * is for example a composite type which should be persisted in multiple
+ * database fields.
+ *
+ * For example:
+ * \code
+ * struct Coordinate {
+ *   int x, y;
+ * };
+ *
+ * namespace Wt {
+ *     namespace Dbo {
+ *
+ *         template <class Action>
+ *         void field(Action& action, Coordinate& coordinate, const std::string& name)
+ *         {
+ *             field(action, coordinate.x, name + "_x");
+ *             field(action, coordinate.y, name + "_y");
+ *         }
+ *
+ *     }
+ * }
+ * \endcode
+ *
+ * \ingroup dbo
+ */
+template <class Action, typename V>
+void field(Action& action, V& value, const std::string& name);
+
+/*! \brief Maps the "One"-side of a ManyToOne relation.
+ *
+ * This function binds the pointer field \p value to the database
+ * field \p name <tt>+ "_id"</tt>.
+ *
+ * A belongsTo() will usually have a counter-part hasMany() declaration
+ * in the referenced class \p C.
+ *
+ * \sa hasMany()
+ *
+ * \ingroup dbo
+ */
+template <class Action, class C>
+void belongsTo(Action& action, ptr<C>& value, const std::string& name);
+
+/*! \brief Maps the "Many"-side of a ManyToOne or ManyToMany relation.
+ *
+ * This function binds the collection field \p value to contain objects
+ * (of type \p C).
+ *
+ * For a \link Wt::Dbo::ManyToOne ManyToOne\endlink relation, the
+ * query is defined by the database field \p joinName <tt>+ "_id"</tt>
+ * in the table that matches \p C. This should be the same name as
+ * passed to the matching belongsTo() method for the other side of the
+ * relation.
+ *
+ * For a \link Wt::Dbo::ManyToMany ManyToMany\endlink relation, the \p
+ * joinName is the name of a linker table.  Thus, also for a
+ * ManyToMany relation, both sides of the relationship will have the
+ * same joinName passed to them.
+ *
+ * A hasMany() must have a counter-part belongsTo() or hasMany()
+ * declaration in the referenced class \p C.
+ *
+ * \sa belongsTo()
+ *
+ * \ingroup dbo
+ */
+template <class Action, class C>
+void hasMany(Action& action, collection< ptr<C> >& value,
+	     RelationType type, const std::string& joinName);
+
+  }
+}
+
+#endif // WT_DBO_FIELD

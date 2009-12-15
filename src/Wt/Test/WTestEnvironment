@@ -66,8 +66,8 @@ public:
    * the setter methods.
    */
   WTestEnvironment(const std::string& applicationPath = "/",
-		   const std::string& configurationFile = WT_CONFIG_XML,
-		   ApplicationType type = Application);
+		   const std::string& configurationFile = "",
+		   EntryPointType type = Application);
 #else
   /*! \brief Default constructor.
    *
@@ -79,7 +79,7 @@ public:
    * the setter methods.
    */
   WTestEnvironment(Configuration *configuration,
-		   ApplicationType type = Application);
+		   EntryPointType type = Application);
 #endif // WT_TARGET_JAVA
 
   /**! \brief Destructor.
@@ -236,7 +236,7 @@ private:
   WebSession    *session;
   WebController *controller_;
 
-  void init(ApplicationType type);
+  void init(EntryPointType type);
 };
 
 }

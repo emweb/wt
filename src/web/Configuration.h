@@ -32,19 +32,23 @@ namespace Wt {
 
 class WT_API EntryPoint {
  public:
-  EntryPoint(ApplicationType type, ApplicationCreator appCallback,
+  EntryPoint(EntryPointType type, ApplicationCreator appCallback,
 	     const std::string& path, 
              const std::string& favicon);
+  EntryPoint(WResource *resource, const std::string& path);
+  ~EntryPoint();
 
   void setPath(const std::string& path);
 
-  ApplicationType    type() const { return type_; }
+  EntryPointType     type() const { return type_; }
+  WResource         *resource() const { return resource_; }
   ApplicationCreator appCallback() const { return appCallback_; }
   const std::string& path() const { return path_; }
   const std::string& favicon() const { return favicon_; }
 
  private:
-  ApplicationType    type_;
+  EntryPointType     type_;
+  WResource         *resource_;
   ApplicationCreator appCallback_;
   std::string        path_;
   std::string        favicon_;
@@ -84,7 +88,7 @@ public:
   void               setSessionIdPrefix(const std::string& prefix);
 
 #ifndef WT_TARGET_JAVA
-  void               addEntryPoint(const EntryPoint&);
+  void               addEntryPoint(const EntryPoint& entryPoint);
   void               setDefaultEntryPoint(const std::string& path);
   const EntryPointList& entryPoints() const { return entryPoints_; }
 #endif // WT_TARGET_JAVA
@@ -135,7 +139,7 @@ private:
   std::string     applicationPath_;
 
 #ifndef WT_TARGET_JAVA
-  EntryPointList  entryPoints_;
+  EntryPointList     entryPoints_;
 #endif // WT_TARGET_JAVA
 
   ServerType      serverType_;

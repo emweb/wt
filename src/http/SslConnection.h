@@ -32,6 +32,7 @@ namespace http {
 namespace server {
 
 class RequestHandler;
+class Server;
 
 typedef asio::ssl::stream<asio::ip::tcp::socket> ssl_socket;
 
@@ -40,7 +41,7 @@ class SslConnection : public Connection
 {
 public:
   /// Construct a connection with the given io_service.
-  explicit SslConnection(asio::io_service& io_service,
+  explicit SslConnection(asio::io_service& io_service, Server *server,
       asio::ssl::context& context,
       ConnectionManager& manager, RequestHandler& handler);
 

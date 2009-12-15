@@ -16,7 +16,7 @@ namespace Wt {
 #ifndef WT_TARGET_JAVA
 WTestEnvironment::WTestEnvironment(const std::string& applicationPath,
 				   const std::string& configurationFile,
-				   ApplicationType type)
+				   EntryPointType type)
 {
   configuration_ = new Configuration(applicationPath, configurationFile,
 				     Configuration::WtHttpdServer,
@@ -35,7 +35,7 @@ public:
 };
 
 WTestEnvironment::WTestEnvironment(Configuration *configuration,
-				   ApplicationType type)
+				   EntryPointType type)
 {
   std::vector<std::string> dummy;
 
@@ -46,7 +46,7 @@ WTestEnvironment::WTestEnvironment(Configuration *configuration,
 }
 #endif
 
-void WTestEnvironment::init(ApplicationType type)
+void WTestEnvironment::init(EntryPointType type)
 {
   session_ = new WebSession(controller_, "testwtd", type, "", 0, this);
 

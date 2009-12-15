@@ -1,0 +1,203 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_DBACTION_H_
+#define WT_DBO_DBACTION_H_
+
+#include <set>
+#include <string>
+#include <sstream>
+#include <vector>
+
+#include <Wt/Dbo/ptr>
+#include <Wt/Dbo/collection>
+
+#include <Wt/Dbo/Field>
+
+namespace Wt {
+  namespace Dbo {
+
+template <class C, class A> void persist(C& obj, A& action);
+
+class SqlStatement;
+
+class PrepareStatements
+{
+public:
+  PrepareStatements(Session& session, const char *tableName);
+
+  template<class C> void visitSelf(C& obj);
+  template<class C> void visitCollections(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  std::vector<std::string> getSelfSql() const;
+  void addCollectionsSql(std::vector<std::string>& statements) const;
+  int columnCount() const;
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+private:
+  struct SetInfo {
+    const char *tableName;
+    std::string joinName;
+    RelationType type;
+
+    SetInfo(const char *aTableName, RelationType type,
+	    const std::string& aJoinName);
+  };
+
+  Session& session_;
+  const char* tableName_;
+
+  enum { Self, Collections } pass_;
+
+  std::vector<std::string> fields_;
+  std::vector<SetInfo> sets_;
+};
+
+class CreateSchema
+{
+public:
+  CreateSchema(Session& session, const char *tableName,
+	       std::set<std::string>& tablesCreated);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+private:
+  Session& session_;
+  const char *tableName_;
+  std::set<std::string>& tablesCreated_;
+
+  enum { Self, Sets } pass_;
+  bool needSetsPass_;
+  std::stringstream sql_;
+
+  void exec();
+  void createJoinTable(const std::string& joinName,
+		       const char *table1, const char *table2);
+};
+
+class LoadDbAction
+{
+public:
+  LoadDbAction(DboBase& dbo, SqlStatement *statement, int& column);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+  void setTableName(const char *tableName);
+
+  int setStatementIdx() const { return setStatementIdx_; }
+  
+private:
+  DboBase& dbo_;
+  const char *tableName_;
+  SqlStatement *statement_;
+  int& column_, setStatementIdx_;
+
+  void start();
+  void exec();
+  void done();
+};
+
+class SaveDbAction
+{
+public:
+  SaveDbAction(DboBase& dbo);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+private:
+  int dummy_;
+  LoadDbAction loadSets_;
+  DboBase& dbo_;
+  SqlStatement *statement_;
+  bool isInsert_;
+  int column_;
+  const char *tableName_;
+
+  enum { Dependencies, Self, Sets } pass_;
+  bool needSetsPass_;
+
+  void startDependencyPass();
+  void startSelfPass();
+  void exec();
+
+  void startSetsPass();
+};
+
+class TransactionDoneAction
+{
+public:
+  TransactionDoneAction(DboBase& dbo, bool success);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+private:
+  bool success_;
+  int dummy_;
+  LoadDbAction undoLoadSets_;
+};
+
+class SessionAddAction
+{
+public:
+  SessionAddAction(Session *session);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+private:
+  Session *session_;
+};
+
+  }
+}
+
+#endif // WT_DBO_DBACTION_H_

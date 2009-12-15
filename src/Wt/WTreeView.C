@@ -1559,6 +1559,8 @@ void WTreeView::setColumnAlignment(int column, AlignmentFlag alignment)
     case AlignCenter: align = "center"; break;
     case AlignRight: align = "right"; break;
     case AlignJustify: align = "justify"; break;
+    default:
+      break;
     }
     if (align)
       w->setAttributeValue("style", std::string("text-align: ") + align);
@@ -1690,7 +1692,7 @@ int WTreeView::headerLevelCount() const
   int result = 0;
 
   if (model_)
-    for (int i = 0; i < columns_.size(); ++i) {
+    for (unsigned int i = 0; i < columns_.size(); ++i) {
       int l = static_cast<int>(asNumber(model_->headerData(i, Horizontal,
 							   LevelRole)));
       result = std::max(result, l);			

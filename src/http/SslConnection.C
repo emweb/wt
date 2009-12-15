@@ -24,10 +24,10 @@
 namespace http {
 namespace server {
 
-SslConnection::SslConnection(asio::io_service& io_service,
+SslConnection::SslConnection(asio::io_service& io_service, Server *server,
     asio::ssl::context& context,
     ConnectionManager& manager, RequestHandler& handler)
-  : Connection(io_service, manager, handler),
+  : Connection(io_service, server, manager, handler),
     socket_(io_service, context)
 { }
 

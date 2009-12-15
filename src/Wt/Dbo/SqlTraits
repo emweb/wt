@@ -1,0 +1,116 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_SQL_TRAITS_H_
+#define WT_DBO_SQL_TRAITS_H_
+
+#include <vector>
+
+namespace Wt {
+  namespace Dbo {
+
+class Session;
+class SqlStatement;
+
+/*! \class sql_value_traits Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits
+ *  \brief Traits class for value types.
+ *
+ * This traits class may be specialized for a custom type \p V, to add
+ * dbo support for custom types. A value type has a one-to-one mapping
+ * to a single database column.
+ *
+ * The library has built-in support for:
+ *  - std::string
+ *  - char const * (only as a parameters)
+ *  - long long
+ *  - enum types
+ *  - boost::optional<T>
+ *  - WDate
+ *  - WDateTime
+ *  - WString
+ *
+ * \sa sql_result_traits
+ *
+ * \ingroup dbo
+ */
+template <typename V, class Enable = void>
+struct sql_value_traits
+{
+  static const bool not_specialized = true;
+
+#ifdef DOXYGEN_ONLY
+  /*! \brief Returns the SQL type name.
+   *
+   * \note This is currently an SQLite3 type.
+   */
+  static const char *type();
+
+  /*! \brief Binds a value to a statement parameter.
+   *
+   * The value \p v must be bound to parameter with index \p index in the
+   * \p statement.
+   *
+   * \sa SqlStatement::bind()
+   */
+  static void bind(const V& v, SqlStatement *statement, int index);
+
+  /*! \brief Reads a result from an executed query.
+   *
+   * The value \p v must be read from result column \p column in the \p
+   * statement.
+   *
+   * \sa SqlStatement::getResult()
+   */
+  static void read(V& v, SqlStatement *statement, int column);
+#endif // DOXYGEN_ONLY
+
+  static void bind(const char *v, SqlStatement *statement, int column);
+};
+
+/*! \class sql_result_traits Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits
+ *  \brief Traits class for result types.
+ *
+ * This traits class may be used to add support for using classes or structs
+ * as a result for a Session::query().
+ *
+ * The library provides by default support for primitive types, using
+ * sql_value_traits, mapped objects held by ptr types, and
+ * Boost.Tuples of any combination of these.
+ *
+ * \sa sql_value_traits, ptr
+ *
+ * \ingroup dbo
+ */
+template <typename Result>
+struct sql_result_traits
+{
+  /*! \brief Returns a string that contains the result columns.
+   *
+   * This should return a fragment for an SQL SELECT statement that
+   * returns the columns corresponding to this result type.
+   *
+   * It may consume any number of the given \p aliases (popping values
+   * from the front of this vector), and should throw an exception if
+   * not enough aliases were provided by the user.
+   */
+  static std::string getColumns(Session& session,
+				std::vector<std::string> *aliases);
+
+  /*! \brief Reads a result from an executed query.
+   *
+   * This should read the value from the \p statement, starting at
+   * column \p column, and advancing the column pointer for as many
+   * columns as needed (and according to the number of columns
+   * returned by getColumns().
+   */
+  static Result loadValues(Session& session, SqlStatement& statement,
+                           int& column);
+};
+
+  }
+}
+
+#endif // WT_DBO_SQL_TRAITS

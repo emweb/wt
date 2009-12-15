@@ -26,9 +26,6 @@ namespace boost {
 #include <Wt/WSignal>
 #include <Wt/WString>
 
-/*! \file WApplication
- */
-
 namespace Wt {
 
 class WApplication;

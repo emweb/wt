@@ -12,6 +12,8 @@
 #include "Wt/WAbstractItemModel"
 #include "Wt/WItemSelectionModel"
 #include "Wt/WDate"
+#include "Wt/WDateTime"
+#include "Wt/WTime"
 #include "Wt/WWebWidget"
 
 #include "WtException.h"
@@ -90,10 +92,23 @@ std::string asJSLiteral(const boost::any& v)
   else if (v.type() == typeid(WDate)) {
     const WDate& d = boost::any_cast<WDate>(v);
 
-    return "new Date('" + boost::lexical_cast<std::string>(d.month())
-      + "/" + boost::lexical_cast<std::string>(d.day())
-      + "/" + boost::lexical_cast<std::string>(d.year())
-      + "')";
+    return "new Date(" + boost::lexical_cast<std::string>(d.year())
+      + ',' + boost::lexical_cast<std::string>(d.month())
+      + "," + boost::lexical_cast<std::string>(d.day())
+      + ")";
+  } else if (v.type() == typeid(WDateTime)) {
+    const WDateTime& dt = boost::any_cast<WDateTime>(v);
+    const WDate& d = dt.date();
+    const WTime& t = dt.time();
+
+    return "new Date(" + boost::lexical_cast<std::string>(d.year())
+      + ',' + boost::lexical_cast<std::string>(d.month())
+      + "," + boost::lexical_cast<std::string>(d.day())
+      + ',' + boost::lexical_cast<std::string>(t.hour())
+      + "," + boost::lexical_cast<std::string>(t.minute())
+      + ',' + boost::lexical_cast<std::string>(t.second())
+      + "," + boost::lexical_cast<std::string>(t.msec())
+      + ")";
   }
 
 #define ELSE_LEXICAL_ANY(TYPE) \
@@ -130,8 +145,13 @@ WString asString(const boost::any& v, const WT_USTRING& format)
     return WString::fromUTF8(boost::any_cast<const char *>(v));
   else if (v.type() == typeid(WDate)) {
     const WDate& d = boost::any_cast<WDate>(v);
-
     return d.toString(format.empty() ? "dd/MM/yy" : format);
+  } else if (v.type() == typeid(WDateTime)) {
+    const WDateTime& dt = boost::any_cast<WDateTime>(v);
+    return dt.toString(format.empty() ? "dd/MM/yy HH:mm:ss" : format);
+  } else if (v.type() == typeid(WTime)) {
+    const WTime& t = boost::any_cast<WTime>(v);
+    return t.toString(format.empty() ? "HH:mm:ss" : format);
   }
 
 #define ELSE_LEXICAL_ANY(TYPE)						\
@@ -188,6 +208,13 @@ double asNumber(const boost::any& v)
     }
   else if (v.type() == typeid(WDate))
     return static_cast<double>(boost::any_cast<WDate>(v).toJulianDay());
+  else if (v.type() == typeid(WDateTime)) {
+    const WDateTime& dt = boost::any_cast<WDateTime>(v);
+    return static_cast<double>(dt.toTime_t());
+  } else if (v.type() == typeid(WTime)) {
+    const WTime& t = boost::any_cast<WTime>(v);
+    return static_cast<double>(WTime(0, 0).msecsTo(t));
+  }
 
 #define ELSE_NUMERICAL_ANY(TYPE) \
   else if (v.type() == typeid(TYPE)) \
@@ -224,6 +251,9 @@ boost::any updateFromJS(const boost::any& v, std::string s)
   else if (v.type() == typeid(WDate))
     return boost::any(WDate::fromString(WString::fromUTF8(s),
 					"ddd MMM d yyyy"));
+  else if (v.type() == typeid(WDateTime))
+    return boost::any(WDateTime::fromString(WString::fromUTF8(s),
+					    "ddd MMM d yyyy HH:mm:ss"));
 #define ELSE_LEXICAL_ANY(TYPE) \
   else if (v.type() == typeid(TYPE)) \
     return boost::any(boost::lexical_cast<TYPE>(s))
@@ -271,6 +301,8 @@ int compare(const boost::any& d1, const boost::any& d2)
 	ELSE_COMPARE_ANY(WString)
 	ELSE_COMPARE_ANY(std::string)
 	ELSE_COMPARE_ANY(WDate)
+	ELSE_COMPARE_ANY(WDateTime)
+	ELSE_COMPARE_ANY(WTime)
 	ELSE_COMPARE_ANY(short)
 	ELSE_COMPARE_ANY(unsigned short)
 	ELSE_COMPARE_ANY(int)

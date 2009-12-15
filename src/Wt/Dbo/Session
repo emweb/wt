@@ -1,0 +1,311 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_SESSION_H_
+#define WT_DBO_SESSION_H_
+
+#include <map>
+#include <set>
+#include <string>
+#include <typeinfo>
+
+#include <Wt/Dbo/ptr>
+#include <Wt/Dbo/collection>
+#include <Wt/Dbo/Transaction>
+
+namespace Wt {
+  namespace Dbo {
+
+struct NullType {
+  static NullType null_;
+};
+
+class SqlStatement;
+template <typename Result> class Query;
+
+/*! \class Session Wt/Dbo/Session Wt/DboSession
+ *  \brief A database session.
+ *
+ * A database session manages meta data about the mapping of C++
+ * classes to database tables, and keeps track of a collection of
+ * in-memory objects.
+ *
+ * It also manages transactions that you need to create when accessing
+ * database objects.
+ *
+ * In its current form, the session uses a dedicated database
+ * connection that must be set using setConnection(), but its
+ * implementation is ready to use a connection pool in a later
+ * version.
+ *
+ * A session will typically be a long-lived object in your
+ * application.
+ *
+ * \ingroup dbo
+ */
+class Session
+{
+public:
+  /*! \brief Creates a database session.
+   */
+  Session();
+
+  /*! \brief Destructor.
+   *
+   * A session must survive all database objects that have been loaded
+   * through it, and will warning during this destructor if there are
+   * still database objects that are being referenced from a ptr.
+   */
+  ~Session();
+
+  /*! \brief Sets a connection.
+   *
+   * The connection will be used exclusively by this session.
+   *
+   * \note Currently, a session uses a dedicated connection. Support for
+   *       a connection pool will be added later.
+   */
+  void setConnection(SqlConnection& connection);
+
+  /*! \brief Maps a class to a database table.
+   *
+   * The class \p C is mapped to table with name \p tableName. You
+   * need to map classes to tables.
+   */
+  template <class C> void mapClass(const char *tableName);
+
+  /*! \brief Returns the mapped table name for a class.
+   */
+  template <class C> const char *tableName() const;
+
+  /*! \brief Persists a transient object.
+   *
+   * The transient object pointed to by \p ptr is added to the
+   * session, and will be persisted when the session is flushed.
+   *
+   * A transient object is usually a newly created object which want
+   * to add to the database.
+   *
+   * The method returns \p ptr.
+   */
+  template <class C> ptr<C> add(ptr<C>& ptr);
+
+  /*! \brief Persists a transient object.
+   *
+   * This is an overloaded method for convenience, and is implemented as:
+   * \code
+   * return add(ptr<C>(obj));
+   * \endcode
+   *
+   * The method returns a database pointer to the object.
+   */
+  template <class C> ptr<C> add(C *obj);
+
+  /*! \brief Loads a persisted object.
+   *
+   * This method returns a database object with the given object
+   * id. If the object was already loaded in the session, the loaded
+   * object is returned, otherwise the object is loaded from the
+   * database.
+   *
+   * Throws an ObjectNotFoundException when the object was not found.
+   *
+   * \sa ptr::id()
+   */
+  template <class C> ptr<C> load(long long id);
+
+  /*! \brief Creates a query for finding database objects.
+   *
+   * This method creates a query for finding objects of type \p C.
+   *
+   * When passing an empty \p where parameter, it will return all
+   * objects of type \p C. You may narrow down the search (using SQL
+   * WHERE), add ordering (using ORDER BY) or limits (using LIMIT) by
+   * sepecifying the SQL that should come after the 'select ... from
+   * ..."
+   *
+   * This method is convenient when you are querying only results from a
+   * single table. For more generic query support, see query().
+   *
+   * \sa query()
+   */
+  template <class C> Query< ptr<C> >
+    find(const std::string& where = std::string());
+
+  /*! \brief Creates a query for finding objects of type \p Result.
+   *
+   * The sql statement should be a complete SQL statement, however the
+   * columns listed (in the SELECT part) will be edited depending on
+   * the \p Result type.
+   *
+   * For example, the following query (where class A is mapped onto table
+   * 'table_a'):
+   * \code
+   * return session.query<ptr<A> >("select A from table_a A where A.name = ?");
+   * \endcode
+   * is the more general version of:
+   * \code
+   * return session.find<A>("where A.name = ?");
+   * \endcode
+   *
+   * The power of %query() versus find() is however that it may support other 
+   * result types.
+   *
+   * Thus, it may return plain values:
+   * \code
+   * return session.query<int>("select count(*) from ...");
+   * \endcode
+   *
+   * Or Boost.Tuple for an arbitrary combination of result values:
+   *
+   * \code
+   * return session.query< boost::tuple<int, int> >("select A.id, B.id from table_a A, table_b B where ...");
+   * \endcode
+   *
+   * A tuple may combine any kind of object that is supported as a result,
+   * including database objects (see also ptr_tuple):
+   * \code
+   * return session.query< boost::tuple<ptr<A>, ptr<B> >("select A, B from table_a A, table_b B where ...");
+   * \endcode
+   *
+   * This method uses sql_result_traits to unmarshal the query result
+   * into the \p Result type.
+   */
+  template <class Result> Query<Result> query(const std::string& sql);
+
+  /*! \brief Creates the database schema.
+   *
+   * This will create the database schema of the mapped tables.
+   *
+   * \sa mapClass()
+   */
+  void createTables();
+
+  /*! \brief Flushes the session.
+   *
+   * This flushes all modified objects to the database. This does not
+   * commit the transaction.
+   *
+   * Normally, you need not to call this method as the session is
+   * flushed automatically before committing a transaction, or before
+   * running a query (to be sure to take into account pending
+   * modifications).
+   */
+  void flush();
+
+  std::string getColumns(const char *tableName,
+			 std::vector<std::string> *aliases);
+  
+private:
+  struct DboKey {
+    const char *table;
+    long long id;
+
+    bool operator<(const DboKey& other) const {
+      return id < other.id ? true
+	: (id > other.id ? false : table < other.table);
+    }
+
+    DboKey(const char *aTable, long long anId)
+      : table(aTable),
+	id(anId)
+    { }
+
+    DboKey()
+      : table(0), id(0)
+    { }
+  };
+
+  typedef std::map<DboKey, DboBase *> Registry;
+  typedef std::set<DboBase *> DboBaseSet;
+
+  static const int SqlInsert,
+		  SqlUpdate,
+		  SqlDelete,
+		  SqlDeleteVersioned,
+		  SqlSelectById,
+		  FirstSqlSelectSet;
+
+  struct ClassMappingInfo {
+    const char *tableName;
+    int columnCount;
+    std::vector<std::string> statements;
+
+    virtual ~ClassMappingInfo();
+    virtual void createTable(Session& session,
+			     std::set<std::string>& tablesCreated) = 0;
+    virtual void prepareStatements(Session& session) = 0;
+  };
+
+  template <class C>
+  struct ClassMapping : public ClassMappingInfo
+  {
+    virtual void createTable(Session& session,
+			     std::set<std::string>& tablesCreated);
+    virtual void prepareStatements(Session& session);
+  };
+
+  typedef std::map<const std::type_info *, ClassMappingInfo *> ClassRegistry;
+  
+  ClassRegistry      classRegistry_;
+  Registry           registry_;
+  DboBaseSet         dirtyObjects_;
+  SqlConnection     *connection_;
+  Transaction::Impl *transaction_;
+
+  void needsFlush(DboBase *dbo);
+
+  template <class C> ptr<C> load(long long id, SqlStatement *statement,
+				 int& column);
+
+  void prune(DboBase *obj);
+  template <class C> void prune(Dbo<C> *obj);
+
+  template<class C> void implSave(Dbo<C>& dbo);
+  template<class C> void implDelete(Dbo<C>& dbo);
+  template<class C> void implTransactionDone(Dbo<C>& dbo, bool success);
+  template<class C> C *implLoad(DboBase& dbo, SqlStatement *statement,
+				int& column);
+
+  static std::string statementId(const char *table, int statementIdx);
+
+  template <class C> SqlStatement *getStatement(int statementIdx);
+  SqlStatement *getStatement(const std::string& id);
+  SqlStatement *getStatement(const char *tableName, int statementIdx);
+  std::string getStatementSql(const char *tableName, int statementIdx);
+
+  SqlStatement *prepareStatement(const std::string& id, const std::string& sql);
+  SqlStatement *getOrPrepareStatement(const std::string& sql);
+  void parseSql(const std::string& sql, std::vector<std::string>& aliases,
+		std::string& rest);
+
+  template <class C> void prepareStatements();
+
+  void doDelete(SqlStatement *statement, long long id, bool withVersion,
+		int version);
+
+  SqlConnection *useConnection();
+  void returnConnection(SqlConnection *connection);
+
+  template <class C> friend class Dbo;
+  template <class C> friend class collection;
+  template <class C> friend class Query;
+  template <typename V> friend class FieldRef;
+  template <class C> friend struct sql_result_traits;
+
+  friend class Transaction;
+  friend struct Transaction::Impl;
+  friend class PrepareStatements;
+  friend class SaveDbAction;
+  friend class LoadDbAction;
+  friend class CreateSchema;
+  friend class DboBase;
+};
+
+  }
+}
+
+#endif // WT_SESSION_H_

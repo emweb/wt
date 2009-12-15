@@ -170,7 +170,7 @@ getElement: function(id) {
 
 // Get coordinates of element relative to page origin.
 widgetPageCoordinates: function(obj) {
-  var objX = objY = 0, op, lop = null, WT = _$_WT_CLASS_$_;
+  var objX = objY = 0, op, WT = _$_WT_CLASS_$_;
 
   // bug in safari, according to W3C, offsetParent for an area element should
   // be the map element, but safari returns null.
@@ -220,6 +220,12 @@ pageCoordinates: function(e) {
   }
 
   return { x: posX, y: posY };
+},
+
+scrollIntoView: function(id) {
+  var obj = document.getElementById(id);
+  if (obj && obj.scrollIntoView)
+    obj.scrollIntoView(true);
 },
 
 getSelectionRange: function(e) {

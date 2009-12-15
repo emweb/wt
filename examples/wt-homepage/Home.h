@@ -102,15 +102,12 @@ private:
   WWidget *initHome();
 
   WWidget *introduction();
-  WWidget *news();
+  WWidget *blog();
   WWidget *status();
   WWidget *features();
   WWidget *documentation();
   WWidget *community();
   WWidget *otherLanguage();
-
-  WTable *recentNews_;
-  WTable *historicalNews_;
 
   WMenu *mainMenu_;
 

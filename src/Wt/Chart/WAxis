@@ -10,6 +10,7 @@
 #include <Wt/WFont>
 #include <Wt/WPen>
 #include <Wt/WString>
+#include <Wt/WDateTime>
 #include <boost/any.hpp>
 #include <cfloat>
 
@@ -88,7 +89,13 @@ enum AxisScale {
    * X axis in a ScatterPlot, when the X series contain dates (of type
    * WDate).
    */
-  DateScale = 3
+  DateScale = 3,
+
+  /*! A datetime scale is a special linear scale, which is useful for the
+   * X axis in a ScatterPlot, when the X series contain timedates (of type
+   * WDateTime).
+   */
+  DateTimeScale = 4
 };
 
 /*! \class WAxis Wt/Chart/WAxis Wt/Chart/WAxis
@@ -507,12 +514,16 @@ private:
   void getLabelTicks(WChart2DRenderer& renderer, std::vector<TickLabel>& ticks,
 		     int segment) const;
 
+  double getValue(const boost::any& v) const;
   static double getDateValue(const boost::any& value);
+
   double calcAutoNumLabels(const Segment& s) const;
 
   double mapFromDevice(double d) const;
   double mapToDevice(const boost::any& value, int segment = 0) const;
   double mapToDevice(double value, int segment = 0) const;
+
+  long getDateNumber(Wt::WDateTime dt) const;
 
   friend class WCartesianChart;
   friend class WChart2DRenderer;

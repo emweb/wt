@@ -55,7 +55,8 @@ public:
   /// Construct the server to listen on the specified TCP address and port, and
   /// serve up files from the given directory.
   explicit Server(const Configuration& config,
-		  const Wt::Configuration& wtConfig);
+		  const Wt::Configuration& wtConfig,
+                  Wt::WebController& controller);
 
   ~Server();
 
@@ -78,6 +79,8 @@ public:
   void stop_select(int descriptor);
 
   static Server* instance() { return instance_; }
+
+  Wt::WebController *controller() { return controller_; }
 
 private:
   /// Starts accepting http/https connections
@@ -142,6 +145,8 @@ private:
   enum SelectOp { Read, Write };
   bool socketSelected(int descriptor, const asio_error_code& e,
 		      std::size_t bytes_transferred, SelectOp op);
+
+  Wt::WebController *controller_;
 
   static Server *instance_;
 };

@@ -43,7 +43,7 @@
   <message id="wt">Wt, C++ Web Toolkit</message>
 
   <message id="introduction">Introduction</message>
-  <message id="news">News</message>
+  <message id="blog">Blog</message>
   <message id="features">Features</message>
   <message id="documentation">Documentation</message>
   <message id="examples">Examples</message>
@@ -884,7 +884,7 @@ Follow the <a
 href="/wt/doc/reference/html/Installation.html">Installation
 instructions</a> to build Wt and run the examples, or see if your
 platform is listed in the <a
-href="/wt/wiki/index.php/Wt_Installation">platform specific
+href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">platform specific
 installation instructions</a>.
   </message>
   <message id="home.download.cvs">
@@ -1086,9 +1086,9 @@ Generic installation instructions (UNIX)
 are <a href="/wt/doc/reference/html/Installation.html">here</a>, which
 is also included in the source package (INSTALL or INSTALL.html).</p>
 <p>
-In addition, the <a href="http://www.webtoolkit.eu/wt/wiki/">Wt
+In addition, the <a href="http://redmine.webtoolkit.eu/wiki/wt">Wt
 Wiki</a> has a section dedicated
-to <a href="http://www.webtoolkit.eu/wt/wiki/index.php/Wt_Installation">platform
+to <a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">platform
 specific installation notes</a>.
 </p>
 

@@ -1,0 +1,37 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_IMPL_H_
+#define WT_DBO_IMPL_H_
+
+#include <Wt/Dbo/Types>
+
+#include <Wt/Dbo/collection_impl.h>
+#include <Wt/Dbo/ptr_impl.h>
+#include <Wt/Dbo/DbAction_impl.h>
+#include <Wt/Dbo/Query_impl.h>
+#include <Wt/Dbo/Field_impl.h>
+#include <Wt/Dbo/SqlTraits_impl.h>
+#include <Wt/Dbo/Session_impl.h>
+
+#ifndef _MSC_VER
+#define DBO_INSTANTIATE_TEMPLATES(C)					\
+  template class Wt::Dbo::ptr<C>;					\
+  template class Wt::Dbo::Dbo<C>;					\
+  template class Wt::Dbo::collection< Wt::Dbo::ptr<C> >;		\
+  template class Wt::Dbo::Query< Wt::Dbo::ptr<C> >;			\
+  template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(ptr<C>&);		\
+  template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(C *);		\
+  template Wt::Dbo::ptr<C> Wt::Dbo::Session::load<C>(long long);	\
+  template void Wt::Dbo::Session::mapClass<C>(const char *);		\
+  template struct Wt::Dbo::Session::ClassMapping<C>;			\
+  template Wt::Dbo::Query< Wt::Dbo::ptr<C> > Wt::Dbo::Session::find<C>(const std::string&)
+#else
+// Functionality is broken on MSVC 2005 and 2008
+#define DBO_INSTANTIATE_TEMPLATES(C)
+#endif
+
+#endif // WT_DBO_IMPL_H_

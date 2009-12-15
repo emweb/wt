@@ -31,13 +31,14 @@ namespace http {
 namespace server {
 
 class RequestHandler;
+class Server;
 
 /// Represents a single connection from a client.
 class TcpConnection : public Connection
 {
 public:
   /// Construct a connection with the given io_service.
-  explicit TcpConnection(asio::io_service& io_service,
+  explicit TcpConnection(asio::io_service& io_service, Server *server,
       ConnectionManager& manager, RequestHandler& handler);
 
   /// Get the socket associated with the connection.

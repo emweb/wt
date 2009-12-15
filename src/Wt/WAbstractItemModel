@@ -101,15 +101,15 @@ namespace Wt {
  * The data itself is of type boost::any, which can either be empty, or hold
  * any of the following type of data:
  *  - bool
- *  - numbers: standard C++ numeric types (int, double, etc...)
- *  - strings: WString or std::string
- *  - dates: WDate
+ *  - number: standard C++ numeric types (int, double, etc...)
+ *  - string: WString or std::string
+ *  - date and time: WDate, WTime, WDateTime
  * \elseif java
  * The data itself is of type Object, which can either be null, or hold
  * any of the following type of data:
  *  - Boolean
- *  - numbers: Short, Integer, Long, Float, Double
- *  - strings: WString or String
+ *  - number: Short, Integer, Long, Float, Double
+ *  - string: WString or String
  *  - dates: WDate
  * \endif
  * 
@@ -917,6 +917,10 @@ extern WT_API std::string asJSLiteral(const boost::any& v);
  *    formatString using snprintf, or if omitted, are lexically casted.
  *  - WDate is converted with WDate::toString() using the indicated
  *    format string, or otherwise "dd/MM/yy" notation.
+ *  - WTime is converted with WTime::toString() using the indicated
+ *    format string, or otherwise "HH:mm:ss" notation.
+ *  - WDateTime is converted with WDateTime::toString() using the indicated
+ *    format string, or otherwise "dd/MM/yy HH:mm:ss" notation.
  *
  * \relates WAbstractItemModel
  */
@@ -927,8 +931,16 @@ extern WT_API WString asString(const boost::any& v,
  *
  * A boost::any without a value, or a string that does not represent a
  * number, is converted to a "NaN". You can check for this value using
- * the libc function isnan(). A WDate is converted to an integer
- * number using the WDate::modifiedJulianDay() method.
+ * the libc function isnan().
+ *
+ * A WDate is converted to an integer number using the
+ * WDate::modifiedJulianDay() method.
+ *
+ * A WDateTime is converted to an integer number using the
+ * WDateTime::toTime_t() method.
+ *
+ * A WTime is converted to an integer number using the number of milliseconds
+ * since midnight.
  *
  * \relates WAbstractItemModel
  */

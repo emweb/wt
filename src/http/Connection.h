@@ -37,6 +37,7 @@ namespace http {
 namespace server {
 
 class ConnectionManager;
+class Server;
 
 /// Represents a single connection from a client.
 class Connection
@@ -45,7 +46,7 @@ class Connection
 {
 public:
   /// Construct a connection with the given io_service.
-  explicit Connection(asio::io_service& io_service,
+  explicit Connection(asio::io_service& io_service, Server *server,
       ConnectionManager& manager, RequestHandler& handler);
 
   /// Get the socket associated with the connection.
@@ -61,6 +62,8 @@ public:
   virtual std::string urlScheme() = 0;
 
   virtual ~Connection();
+
+  Server *server() const { return server_; }
 
 public: // huh?
   void handleWriteResponse(const asio_error_code& e);
@@ -128,6 +131,9 @@ private:
 
   /// We close the connection.
   bool forceClose_;
+
+  /// The server that owns this connection
+  Server *server_;
 };
 
 typedef boost::shared_ptr<Connection> ConnectionPtr;

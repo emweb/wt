@@ -405,6 +405,7 @@ protected:
   friend class WTable;
   friend class WViewWidget;
   friend class WWidget;
+  friend class WTemplate;
 };
 
 }

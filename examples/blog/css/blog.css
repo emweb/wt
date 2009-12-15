@@ -1,0 +1,81 @@
+.login-box {
+    text-align: right;
+    margin-bottom: -10px;
+    height: 25px;
+}
+
+.link {
+    text-decoration: underline;
+    cursor: pointer; cursor: hand;
+}
+
+.invalid {
+    background-color: #EE9999;
+}
+
+.comment-icon {
+    float: left;
+    margin-top: 3px;
+    width: 20px;
+    height: 20px;
+    background-image: url(comment.png);
+    background-repeat: no-repeat;
+}
+
+.comment-edit-icon {
+    float: left;
+    margin-top: 3px;
+    width: 20px;
+    height: 20px;
+    background-image: url(comment_edit.png);
+    background-repeat: no-repeat;
+}
+
+.comment-info {
+    color: rgb(136,136,136);
+}
+
+.poster {
+    color: rgb(51, 102, 53);
+    font-weight: bold;
+}
+
+.author-panel {
+    margin-top: 10px;
+    border: 1px #528B12 dashed;
+    padding: 5px;
+}
+
+.comment-body {
+    overflow: hidden;
+    margin-left: 3px;
+}
+
+.comment-edit {
+    width: 400px;
+}
+
+.comment-edit textarea {
+    width: 396px;
+}
+
+.comment-links {
+    margin-bottom: 3px;
+}
+
+.blogpost-edit {
+    width: 500px;
+    margin: 10x;
+}
+
+.blogpost-edit div {
+    margin: 5px 0px;
+}
+.blogpost-edit input {
+    width: 450px;
+}
+
+.blogpost-edit textarea {
+    width: 496px;
+    height: 150px;
+}

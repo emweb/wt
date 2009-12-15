@@ -1,0 +1,77 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_SQL_CONNECTION_H_
+#define WT_DBO_SQL_CONNECTION_H_
+
+#include <map>
+#include <string>
+
+namespace Wt {
+  namespace Dbo {
+
+class SqlStatement;
+
+/*! \class SqlConnection Wt/Dbo/SqlConnection Wt/Dbo/SqlConnection
+ *  \brief Abstract base class for an SQL connection.
+ *
+ * An sql connection manages a single connection to a database. It
+ * also manages a map of previously prepared statements indexed by
+ * id's.
+ *
+ * This class is part of Wt::Dbo's backend API, and should not be used
+ * directly.
+ *
+ * \ingroup dbo
+ */
+class SqlConnection
+{
+public:
+  /*! \brief Destructor.
+   */
+  virtual ~SqlConnection();
+
+  /*! \brief Executes an SQL statement.
+   *
+   * This is a convenience method for preparing a statement, executing
+   * it, and deleting it.
+   */
+  virtual void executeSql(const std::string& sql);
+
+  /*! \brief Returns the statement with the given id.
+   *
+   * Returns 0 if no such statement was already added.
+   *
+   * \sa saveStatement()
+   */
+  virtual SqlStatement *getStatement(const std::string& id) const;
+
+  /*! \brief Saves a statement with the given id.
+   *
+   * Saves the statement for future reuse using getStatement()
+   */
+  virtual void saveStatement(const std::string& id,
+			     SqlStatement *statement);
+
+  /*! \brief Prepares a statement.
+   *
+   * Returns the prepared statement.
+   */
+  virtual SqlStatement *prepareStatement(const std::string& sql) = 0;
+
+protected:
+  void clearStatementCache();
+
+private:
+  typedef std::map<std::string, SqlStatement *> StatementMap;
+
+  StatementMap statementCache_;
+};
+
+  }
+}
+
+#endif // WT_DBO_SQL_STATEMENT_H_

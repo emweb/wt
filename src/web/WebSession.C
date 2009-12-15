@@ -42,14 +42,14 @@ WebSession::Handler * WebSession::threadHandler_;
 
 WebSession::WebSession(WebController *controller,
 		       const std::string& sessionId,
-		       ApplicationType type,
+		       EntryPointType type,
 		       const std::string& favicon,
                        const WebRequest *request,
 		       WEnvironment *env)
   : type_(type),
+    favicon_(favicon),
     state_(JustCreated),
     sessionId_(sessionId),
-    favicon_(favicon),
     controller_(controller),
     renderer_(*this),
     pollResponse_(0),
@@ -1216,6 +1216,8 @@ void WebSession::notify(const WEvent& event)
 	  render(handler, event.responseType);
       }
     }
+  case Dead:
+    break;
   }
 }
 
@@ -1375,8 +1377,10 @@ void WebSession::notifySignal(const WEvent& e)
 
     if (*signalE == "hash") {
       const std::string *hashE = request.getParameter(se + "_");
-      if (hashE)
+      if (hashE) {
 	app_->changeInternalPath(*hashE);
+	app_->doJavaScript(WT_CLASS ".scrollIntoView('" + *hashE + "');");
+      }
     } else if (*signalE == "none" || *signalE == "load") {
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);

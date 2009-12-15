@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="blog-login">
+    <div class="login-box">
+      ${name} ${passwd} ${login-button} ${login-link} ${register-link}
+      <a href="${feed-url}">
+	<img src="css/rss.png" alt="Rss Feed"
+	     style="margin-left: 6px; vertical-align: top;"/>
+      </a>
+    </div>
+  </message>
+
+  <message id="blog-register">
+    <h4>Register</h4>
+    <p>
+      To register as a user to post comments with your own login,
+      please fill out the following form.
+    </p>
+    <table style="margin: 5px auto;">
+      <tr>
+	<td>Login:</td>
+	<td>${name}</td>
+      </tr>
+
+      <tr>
+	<td>Password:</td>
+	<td>${passwd}</td>
+      </tr>
+
+      <tr>
+	<td>Repeat password:</td>
+	<td>${passwd2}</td>
+      </tr>
+
+      <tr>
+	<td colspan="2" style="text-align: center">
+	  ${ok-button}
+	  ${cancel-button}
+	</td>
+      </tr>
+
+      <tr>
+	<td colspan="2" class="login-error">
+	  ${error}
+	</td>
+      </tr>
+
+    </table>
+  </message>
+
+  <message id="blog-author-panel">
+    <div class="author-panel">
+      <h4>Author panel for <span class="poster">${user}</span></h4>
+      Statistics:
+      <ul>
+	<li>${unpublished-count} unpublished post(s)</li>
+	<li>${published-count} published post(s)</li>
+      </ul>
+      ${new-post}
+      ${unpublished-posts}
+    </div>
+  </message>
+
+  <message id="blog-logout">
+    <div class="login-box">
+      <b>${user}</b> ${logout-link}
+      <a href="/wt/blog/feed/">
+	<img src="icons/rss.png" alt="Rss Feed"
+	     style="margin-left: 6px; vertical-align: top;"/>
+      </a>
+    </div>
+  </message>
+
+  <message id="blog-post">
+    <h4>${title}</h4>
+    <div>by ${author} on ${date}</div>
+    <div class="asciidoc">
+      ${brief+body}
+    </div>
+    <div style="margin-top: 10px;">${comment-count}</div>
+    <div>
+      ${publish} ${edit} ${delete}
+    </div>
+    ${comments}
+  </message>
+
+  <message id="blog-post-brief">
+    <h4>${title}</h4>
+    <div>by ${author} on ${date}</div>
+    <div class="asciidoc">
+      ${brief}
+    </div>
+    <div>${read-more}</div>
+    <div style="margin-top: 10px">
+      ${publish} ${edit} ${delete}
+    </div>
+    <div style="margin-top: 10px;">${comment-count}</div>
+  </message>
+
+  <message id="blog-post-edit">
+    <h4></h4>
+    <div class="blogpost-edit">
+      <div>Title: ${title-edit}</div>
+      <div>${brief-edit}</div>
+      <div>${body-edit}</div>
+      <div>
+	${save} ${cancel}
+      </div>
+    </div>
+  </message>
+
+  <message id="blog-comment">
+    <div class="comment-icon" />
+    <div class="comment-body">
+      <div class="comment-info">
+	<span class="poster">${author}</span>
+	${date} ${collapse-expand}
+      </div>
+      ${contents}
+      <div class="comment-links">
+	${reply} ${edit} ${delete}
+      </div>
+      ${children}
+    </div>
+  </message>
+
+  <message id="blog-root-comment">
+    <div class="comment-links">
+      ${reply}
+    </div>
+    ${children}
+  </message>
+
+  <message id="blog-edit-comment">
+    <div class="comment-edit-icon" />
+    <div class="comment-body comment-edit">
+      <div>${area}</div>
+      <!-- <div style="float: right">formatting help</div> -->
+      ${save}
+      ${cancel}
+    </div>
+  </message>
+
+  <message id="blog-no-post">
+    <h4>No posts found</h4>
+    Sorry, no blog posts found that match your selection.
+  </message>
+
+  <message id="blog-no-author">
+    <h4>No author</h4>
+    Sorry, {1} is not a registered blog author.
+  </message>
+
+  <message id="login">Login</message>
+  <message id="login-tooshort">Login too short (must be at least {1} characters)</message>
+  <message id="register">Register</message>
+  <message id="logout">Logout</message>
+  <message id="comment-add">Add comment</message>
+  <message id="comment-reply">Reply</message>
+  <message id="comment-edit">Edit</message>
+  <message id="comment-delete">Delete</message>
+  <message id="comment-deleted"><i>[[Comment deleted]]</i></message>
+  <message id="blog-read-more">Read the rest of this post &gt;&gt;</message>
+  <message id="new-post">New post</message>
+  <message id="publish">Publish</message>
+  <message id="retract">Retract</message>
+  <message id="delete">Delete</message>
+  <message id="edit">Edit</message>
+  <message id="save">Save</message>
+  <message id="cancel">Cancel</message>
+</messages>
