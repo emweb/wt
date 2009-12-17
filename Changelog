@@ -1,3 +1,7 @@
+17-12-2009:
+	* WSlider: correct upside down behavior of WSlider, use more accurate
+	position handling
+
 15-12-2009:
 	* Wt/Dbo: new C++ ORM layer
 

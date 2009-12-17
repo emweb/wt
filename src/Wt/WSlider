@@ -213,6 +213,7 @@ private:
 
   Signal<int>          valueChanged_;
   JSignal<int>         sliderMoved_;
+  JSignal<int>         sliderReleased_;
 
   WContainerWidget    *impl_;
   WSliderBackground   *background_;
@@ -227,6 +228,8 @@ private:
   void updateSliderPosition();
 
   void onSliderClick(const WMouseEvent& event);
+  void onSliderReleased(int u);
+
   static const int HANDLE_WIDTH = 17;
   static const int HANDLE_HEIGHT = 21;
 

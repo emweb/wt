@@ -60,7 +60,7 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
      */
     pen.setColor(WColor(0x89, 0x89, 0x89));
     painter.setPen(pen);
-    
+
     painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2 - 2 + 0.5,
 		     w - WSlider::HANDLE_WIDTH/2, h/2 - 2 + 0.5);
 
@@ -120,7 +120,8 @@ WSlider::WSlider(WContainerWidget *parent)
     maximum_(99),
     value_(0),
     valueChanged_(this),
-    sliderMoved_(this, "moved")
+    sliderMoved_(this, "moved"),
+    sliderReleased_(this, "released")
 {
   setImplementation(impl_ = new WContainerWidget());
   create();
@@ -135,7 +136,8 @@ WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
     maximum_(99),
     value_(0),
     valueChanged_(this),
-    sliderMoved_(this, "moved")
+    sliderMoved_(this, "moved"),
+    sliderReleased_(this, "released")
 {
   setImplementation(impl_ = new WContainerWidget());
   create();
@@ -171,6 +173,7 @@ void WSlider::create()
   handle_->mouseWentUp().connect(mouseUpJS_);
 
   background_->clicked().connect(SLOT(this, WSlider::onSliderClick));
+  sliderReleased_.connect(SLOT(this, WSlider::onSliderReleased));
 
   update();
 }
@@ -199,9 +202,11 @@ void WSlider::update()
 
   std::string dir = (orientation_ == Horizontal ? "left" : "top");
   std::string u = (orientation_ == Horizontal ? "x" : "y");
+  std::string U = (orientation_ == Horizontal ? "X" : "Y");
   std::string maxS = boost::lexical_cast<std::string>(l - HANDLE_WIDTH);
   std::string ppU = boost::lexical_cast<std::string>(pixelsPerUnit);
   std::string minimumS = boost::lexical_cast<std::string>(minimum_);
+  std::string maximumS = boost::lexical_cast<std::string>(maximum_);
 
   /*
    * Note: cancelling the mouseDown event prevents the selection behaviour
@@ -213,34 +218,42 @@ void WSlider::update()
         WT_CLASS ".cancelEvent(event);"
      "}");
 
+  // = 'u' position relative to background, corrected for slider
+  std::string computeD =
+    ""  "var objh = " + handle_->jsRef() + ","
+    ""      "objb = " + background_->jsRef() + ","
+    ""      "u = WT.pageCoordinates(event)." + u + " - down,"
+    ""      "w = WT.widgetPageCoordinates(objb)." + u + ","
+    ""      "d = u-w;";
+
   mouseMovedJS_.setJavaScript
     ("function(obj, event) {"
      """var down = obj.getAttribute('down');"
      """var WT = " WT_CLASS ";"
      """if (down != null && down != '') {"
-     ""  "var objh = " + handle_->jsRef() + ";"
-     ""  "var objb = " + background_->jsRef() + ";"
-     ""  "var u = WT.pageCoordinates(event)." + u + " - down;"
-     ""  "var w = WT.widgetPageCoordinates(objb)." + u + ";"
-     ""  "var d = u-w;"
-     ""  "d = (d<0?0:(d>" + maxS + "?" + maxS + ":d));"
+     + computeD +
+     ""  "d = Math.max(0, Math.min(d, " + maxS + "));"
      ""  "var v = Math.round(d/" + ppU + ");"
-     ""  "d = v*" + ppU + ";"
-     ""  "if (Math.abs(WT.pxself(objh, '" + dir + "') - d) > 1) {"
-     ""    "objh.style." + dir + " = d + 'px';"
-     ""   + sliderMoved_.createCall("v + " + minimumS) + 
+     ""  "var intd = v*" + ppU + ";"
+     ""  "if (Math.abs(WT.pxself(objh, '" + dir + "') - intd) > 1) {"
+     ""    "objh.style." + dir + " = intd + 'px';" +
+     sliderMoved_.createCall(orientation_ == Horizontal ?
+			     "v + " + minimumS
+			     : maximumS + " - v") + 
      ""  "}"
      """}"
      "}");
 
   mouseUpJS_.setJavaScript
     ("function(obj, event) {"
-     "  var down = obj.getAttribute('down');"
-     "  if (down != null && down != '') {"
-     "    obj.removeAttribute('down');"
-     "    var objb = " + background_->jsRef() + ";"
-     "    objb.onclick(event);"
-     "  }"
+     """var down = obj.getAttribute('down');"
+     """var WT = " WT_CLASS ";"
+     """if (down != null && down != '') {"
+     + computeD +
+     """d += " + boost::lexical_cast<std::string>(HANDLE_WIDTH / 2) + ";" +
+     sliderReleased_.createCall("d") + 
+     ""  "obj.removeAttribute('down');"
+     """}"
      "}");
 
   updateSliderPosition();
@@ -248,21 +261,29 @@ void WSlider::update()
 
 void WSlider::onSliderClick(const WMouseEvent& event)
 {
+  onSliderReleased(orientation_ == Horizontal
+		   ? event.widget().x : event.widget().y);
+}
+
+void WSlider::onSliderReleased(int u)
+{
+  if (orientation_ == Horizontal)
+    u -= HANDLE_WIDTH / 2;
+  else
+    u = height().value() - (u + HANDLE_WIDTH / 2);
+
   double l = (orientation_ == Horizontal ? width().value() : height().value());
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
-  double u =
-    ((orientation_ == Horizontal) ? event.widget().x : event.widget().y);
-  
-  u -= HANDLE_WIDTH / 2;
   double v = std::max(minimum_,
 		      std::min(maximum_,
-			       minimum_ + (int)(u / pixelsPerUnit + 0.5)));
+			       minimum_ + (int)((double)u / pixelsPerUnit
+						+ 0.5)));
 
   sliderMoved_.emit(static_cast<int>(v));
 
   setValue(static_cast<int>(v));
-  valueChanged_.emit(value());
+  valueChanged_.emit(value());  
 }
 
 void WSlider::updateSliderPosition()
@@ -271,7 +292,11 @@ void WSlider::updateSliderPosition()
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
   double u = ((double)value_ - minimum_) * pixelsPerUnit;
-  handle_->setOffsets(u, orientation_ == Horizontal ? Left : Top);
+
+  if (orientation_ == Horizontal)
+    handle_->setOffsets(u, Left);
+  else
+    handle_->setOffsets(height().value() - HANDLE_WIDTH - u, Top);
 }
 
 void WSlider::setOrientation(Orientation orientation)
