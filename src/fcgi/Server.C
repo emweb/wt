@@ -818,11 +818,12 @@ void WServer::setServerConfiguration(int argc, char *argv[],
   }
 }
 
-void WServer::addEntryPoint(ApplicationType type, ApplicationCreator callback,
+void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
 			    const std::string& path, const std::string& favicon)
 {
   if (!impl_->configuration_)
-    throw Exception("WServer::addEntryPoint(): call setServerConfiguration() first");
+    throw Exception("WServer::addEntryPoint(): "
+		    "call setServerConfiguration() first");
 
   impl_->configuration_
     ->addEntryPoint(EntryPoint(type, callback, path, favicon));
