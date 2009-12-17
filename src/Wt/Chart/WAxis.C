@@ -508,7 +508,8 @@ double WAxis::mapToDevice(const boost::any& value, int segment) const
   return mapToDevice(getValue(value), segment);
 }
 
-double WAxis::getValue(const boost::any& v) const {
+double WAxis::getValue(const boost::any& v) const
+{
   switch (scale_) {
   case LinearScale:
   case LogScale:
@@ -518,12 +519,14 @@ double WAxis::getValue(const boost::any& v) const {
       WDate d = boost::any_cast<WDate>(v);
       return static_cast<double>(d.toJulianDay());
     } 
-    #ifndef WT_TARGET_JAVA
+
+#ifndef WT_TARGET_JAVA
     else if (v.type() == typeid(WDateTime)) {
       WDateTime dt = boost::any_cast<WDateTime>(v);
       return static_cast<double>(dt.date().toJulianDay());
     } 
-    #endif
+#endif
+
     else {
       return std::numeric_limits<double>::signaling_NaN();
     }
@@ -534,12 +537,14 @@ double WAxis::getValue(const boost::any& v) const {
       dt.setDate(d);
       return dt.toTime_t();
     }
-    #ifndef WT_TARGET_JAVA
+
+#ifndef WT_TARGET_JAVA
     else if (v.type() == typeid(WDateTime)) {
       WDateTime dt = boost::any_cast<WDateTime>(v);
       return static_cast<double>(dt.toTime_t());
     }
-    #endif
+#endif
+
     else {
       return std::numeric_limits<double>::signaling_NaN();
     }

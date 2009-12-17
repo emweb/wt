@@ -1,4 +1,16 @@
 15-12-2009:
+	* Wt/Dbo: new C++ ORM layer
+
+	* test/: automated test suite (for non-GUI features)
+
+	* src/Wt/WTemplate: new XHTML template-based widget
+
+	* examples/blog: new example that implements a blog using Wt and
+	Wt::Dbo
+
+	* src/Wt/WDateTime, src/Wt/WTime: date time and time classes
+
+15-12-2009:
 	* CMakeLists.txt: add XML_FEATURES option which can be used to disable
 	the (mini-)XML library
 
