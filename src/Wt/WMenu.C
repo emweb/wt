@@ -164,6 +164,10 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
   } else
     item->renderSelected(false);
 
+  if (internalPathEnabled_
+      && wApp->internalPathMatches(basePath_ + item->pathComponent()))
+    select(items_.size() - 1);
+
   return item;
 }
 

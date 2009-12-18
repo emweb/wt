@@ -46,11 +46,10 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   WMenu *menu = new WMenu(contentsStack_, Vertical, 0);
   menu->setRenderAsList(true);
   menu->setStyleClass("menu");
-
-  std::string initialInternalPath = internalPath();
+  menu->setInternalPathEnabled();
+  menu->setInternalBasePath("/");
 
   addToMenu(menu, "Basics", new BasicControls(eventDisplayer));
-
   addToMenu(menu, "Form Widgets", new FormWidgets(eventDisplayer));
   addToMenu(menu, "Form Validators", new Validators(eventDisplayer));
   addToMenu(menu, "Ext Widgets", new ExtWidgets(eventDisplayer));
@@ -61,14 +60,6 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   addToMenu(menu, "MVC Widgets", new MvcWidgets(eventDisplayer));
   addToMenu(menu, "Events", new EventsDemo(eventDisplayer));
   addToMenu(menu, "Style and Layout", new StyleLayout(eventDisplayer));
-
-  menu->select(0);
-
-  menu->setInternalPathEnabled();
-  menu->setInternalBasePath("/");
-
-  // Propagate the initial internal path
-  setInternalPath(initialInternalPath, true);
 
   /*
    * Add it all inside a layout
@@ -97,12 +88,15 @@ void WidgetGallery::addToMenu(WMenu *menu, const WString& name,
     WSubMenuItem *smi = new WSubMenuItem(name, controls);
     WMenu *subMenu = new WMenu(contentsStack_, Vertical, 0);
     subMenu->setRenderAsList(true);
-    subMenu->setStyleClass("menu submenu");
+
+    smi->setSubMenu(subMenu);
+    menu->addItem(smi);
+
     subMenu->setInternalPathEnabled();
     subMenu->setInternalBasePath("/" + smi->pathComponent());
-    smi->setSubMenu(subMenu);
+    subMenu->setStyleClass("menu submenu");
+
     controls->populateSubMenu(subMenu);
-    menu->addItem(smi);
   } else
     menu->addItem(name, controls);
 }
