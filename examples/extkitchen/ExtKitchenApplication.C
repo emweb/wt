@@ -398,7 +398,7 @@ void ExtKitchenApplication::tableViewExample()
   treeView_->setDragEnabled(true);
   treeView_->setDropsEnabled(true);
   treeView_->setAlternatingRowColors(true);
-  for (unsigned i = 1; i < model_->columnCount(); ++i)
+  for (i = 1; i < model_->columnCount(); ++i)
     treeView_->setColumnWidth(i, 100);
 
   Ext::Panel *p = new Ext::Panel();

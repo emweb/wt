@@ -156,7 +156,7 @@ bool WTime::operator>= (const WTime& other) const
 
 WTime WTime::currentServerTime()
 {
-  return WTime(boost::posix_time::microsec_clock::local_time()
+  return WTime((long)boost::posix_time::microsec_clock::local_time()
 	       .time_of_day().total_milliseconds());
 }
 

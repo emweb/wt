@@ -1,3 +1,6 @@
+18-12-2009:
+	* WTreeView: fix treeview column add/remove glitches with column 1 fixed
+
 17-12-2009:
 	* WSlider: correct upside down behavior of WSlider, use more accurate
 	position handling

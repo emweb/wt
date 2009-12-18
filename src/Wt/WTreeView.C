@@ -2495,7 +2495,10 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
 	  newWidth += columns_[i].width.toPixels() + 7;
 
 	app->doJavaScript(jsRef() + ".adjustHeaderWidth(null, " +
-			  boost::lexical_cast<std::string>(newWidth) + ");");
+			  (column1Fixed_
+			   ? "1"
+			   : boost::lexical_cast<std::string>(newWidth))
+			  + ");");
 
 	WContainerWidget *row = headerRow();
 
@@ -2532,10 +2535,14 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
       WApplication *app = wApp;
       for (int i = start; i < start + count; ++i) {
 	std::string c = columns_[i].styleClass();
-	app->doJavaScript(jsRef() + ".adjustHeaderWidth(null ,"
-			  "-WT.pxself(WT.getCssRule('#"
-			  + id() + " ." + c + "'), 'width') - 7);");
+	if (!column1Fixed_)
+	  app->doJavaScript(jsRef() + ".adjustHeaderWidth(null ,"
+			    "-WT.pxself(WT.getCssRule('#"
+			    + id() + " ." + c + "'), 'width') - 7);");
       }
+
+      if (column1Fixed_)
+	app->doJavaScript(jsRef() + ".adjustHeaderWidth(1, 0);");
     }
 
     columns_.erase(columns_.begin() + start, columns_.begin() + start + count);

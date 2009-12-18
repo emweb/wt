@@ -45,11 +45,11 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
     int w, h;
 
     if (slider_->orientation() == Horizontal) {
-      w = (int)width().value();
-      h = (int)height().value();
+      w = (int)width().toPixels();
+      h = (int)height().toPixels();
     } else {
-      w = (int)height().value();
-      h = (int)width().value();
+      w = (int)height().toPixels();
+      h = (int)width().toPixels();
 
       painter.translate(0, w);
       painter.rotate(-90);
@@ -191,13 +191,13 @@ void WSlider::update()
 
   if (orientation_ == Horizontal) {
     handle_->resize(HANDLE_WIDTH, HANDLE_HEIGHT);
-    handle_->setOffsets(height().value() / 2 + 2, Top);
+    handle_->setOffsets(height().toPixels() / 2 + 2, Top);
   } else {
     handle_->resize(HANDLE_HEIGHT, HANDLE_WIDTH);
-    handle_->setOffsets(width().value() / 2 - HANDLE_HEIGHT - 2, Left);
+    handle_->setOffsets(width().toPixels() / 2 - HANDLE_HEIGHT - 2, Left);
   }
 
-  double l = (orientation_ == Horizontal ? width().value() : height().value());
+  double l = (orientation_ == Horizontal ? width() : height()).toPixels();
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
   std::string dir = (orientation_ == Horizontal ? "left" : "top");
@@ -270,9 +270,9 @@ void WSlider::onSliderReleased(int u)
   if (orientation_ == Horizontal)
     u -= HANDLE_WIDTH / 2;
   else
-    u = height().value() - (u + HANDLE_WIDTH / 2);
+    u = (int)height().toPixels() - (u + HANDLE_WIDTH / 2);
 
-  double l = (orientation_ == Horizontal ? width().value() : height().value());
+  double l = (orientation_ == Horizontal ? width() : height()).toPixels();
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
   double v = std::max(minimum_,
@@ -288,7 +288,7 @@ void WSlider::onSliderReleased(int u)
 
 void WSlider::updateSliderPosition()
 {
-  double l = (orientation_ == Horizontal ? width().value() : height().value());
+  double l = (orientation_ == Horizontal ? width() : height()).toPixels();
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
   double u = ((double)value_ - minimum_) * pixelsPerUnit;
@@ -296,7 +296,7 @@ void WSlider::updateSliderPosition()
   if (orientation_ == Horizontal)
     handle_->setOffsets(u, Left);
   else
-    handle_->setOffsets(height().value() - HANDLE_WIDTH - u, Top);
+    handle_->setOffsets(height().toPixels() - HANDLE_WIDTH - u, Top);
 }
 
 void WSlider::setOrientation(Orientation orientation)

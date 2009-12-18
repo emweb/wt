@@ -88,7 +88,7 @@ public:
    *
    * \sa setCheckable()
    */
-  bool isCheckable() const { return checkBox_; }
+  bool isCheckable() const { return checkBox_ != 0; }
 
   /*! \brief Set a sub menu for the item.
    *

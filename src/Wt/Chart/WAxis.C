@@ -535,7 +535,7 @@ double WAxis::getValue(const boost::any& v) const
       WDate d = boost::any_cast<WDate>(v);
       WDateTime dt;
       dt.setDate(d);
-      return dt.toTime_t();
+      return (double)dt.toTime_t();
     }
 
 #ifndef WT_TARGET_JAVA
@@ -731,7 +731,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
     case DateTimeScale:
       daysRange = static_cast<double>((s.renderMaximum - s.renderMinimum) 
 				    / (60.0 * 60.0 * 24));
-      dt = WDateTime::fromTime_t(s.renderMinimum);
+      dt = WDateTime::fromTime_t((time_t)s.renderMinimum);
       break;
     }
 
