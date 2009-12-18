@@ -608,14 +608,26 @@ WWidget *WTreeViewNode::widgetForModelRow(int modelRow)
   if (!childrenLoaded_)
     return 0;
 
-  for (WTreeViewNode *c = nextChildNode(0); c; c = nextChildNode(c)) {
-    if (c->index_.row() > modelRow)
-      return topSpacer();
-    else if (c->index_.row() == modelRow)
-      return c;
-  }
+  WContainerWidget *c = childContainer();
 
-  return bottomSpacer();
+  int first = topSpacer() ? 1 : 0;
+
+  if (first < c->count()) {
+    WTreeViewNode *n = dynamic_cast<WTreeViewNode *>(c->widget(first));
+    if (n) {
+      int row = n->index_.row();
+      int index = first + (modelRow - row);
+
+      if (index < first)
+	return topSpacer();
+      else if (index < c->count())
+	return c->widget(index);
+      else
+	return bottomSpacer();
+    } else
+      return bottomSpacer();
+  } else
+    return topSpacer();
 }
 
 void WTreeViewNode::shiftModelIndexes(int start, int offset)

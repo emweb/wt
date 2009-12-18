@@ -9,6 +9,7 @@
 
 #include <set>
 #include <vector>
+#include <boost/unordered_map.hpp>
 
 #include <Wt/WCompositeWidget>
 #include <Wt/WJavaScript>
@@ -696,7 +697,7 @@ private:
     ColumnInfo(const WTreeView *view, WApplication *app, int id, int column);
   };
 
-  typedef std::map<WModelIndex, WTreeViewNode *> NodeMap;
+  typedef boost::unordered_map<WModelIndex, WTreeViewNode *> NodeMap;
 
   WAbstractItemModel  *model_;
   WAbstractItemDelegate *itemDelegate_;

@@ -44,6 +44,9 @@ In this tutorial and the examples, we alias the namespace +Wt::Dbo+ to
 available in that namespace directly.
 ===============================
 
+To build the following example, you need to link against the +wtdbo+
+and +wtdbosqlite3+ libraries.
+
 .Blog.h: Mapping a single class
 [source,cpp]
 ----
