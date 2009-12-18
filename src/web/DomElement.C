@@ -1157,7 +1157,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
 	 i != eventHandlers_.end(); ++i) {
-      if (!i->second.jsCode.empty()) {
+      if ((mode_ == ModeUpdate) || !i->second.jsCode.empty()) {
 	declare(out);
 
 	int fid = nextId_++;

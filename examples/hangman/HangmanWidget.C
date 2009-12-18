@@ -123,8 +123,7 @@ void HangmanWidget::processButton(WPushButton *button)
    if (!button->isEnabled())
      return;
 
-   const wchar_t *txt = button->text().value().c_str();
-   wchar_t c = txt[0];
+   wchar_t c = button->text().value().c_str()[0];
    if(std::find(Word.begin(), Word.end(), c) != Word.end())
       registerCorrectGuess(c);
    else

@@ -66,6 +66,8 @@ void LoginWidget::checkCredentials()
    
    if (HangmanDb::validLogin(User, pass)) {
       confirmLogin(L"<p>Welcome back, " + User + L".</p>");
+   } else if (User == L"guest" && pass == L"guest") {
+      confirmLogin(L"<p>Welcome guest, good luck.</p>");
    } else if (HangmanDb::addUser(User, pass)) {
       confirmLogin(L"<p>Welcome, "
 		   + User + L". Good luck with your first game!</p>");
