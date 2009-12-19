@@ -176,8 +176,8 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
 	 ""         "if (ch.wtResize) {"
 	 ""           "var p=ch.parentNode;"
-	 ""           "var w=p.offsetWidth - WT.px(w, 'marginLeft')"
-	 ""             "-WT.px(w, 'marginRight')"
+	 ""           "var w=p.offsetWidth - WT.px(ch, 'marginLeft')"
+	 ""             "-WT.px(ch, 'marginRight')"
 	 ""             "-WT.px(p, 'paddingLeft')"
 	 ""             "-WT.px(p, 'paddingRight');"
 	 ""           "ch.wtResize(ch, w, k);"

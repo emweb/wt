@@ -70,7 +70,7 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
     sizeChanged_(false),
     repaintFlags_(0),
     areaImage_(0),
-    renderWidth_(10), renderHeight_(10),
+    renderWidth_(0), renderHeight_(0),
     resized_(this, "resized")
 {
   if (WApplication::instance()) {
@@ -234,11 +234,15 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
     canvas->setId('p' + id());
 
   WPaintDevice *device = painter_->createPaintDevice();
-  paintEvent(device);
+
+  if (renderWidth_ != 0 && renderHeight_ != 0) {
+    paintEvent(device);
 #ifdef WT_TARGET_JAVA
-  if (device->painter())
-    device->painter()->end();
+    if (device->painter())
+      device->painter()->end();
 #endif // WT_TARGET_JAVA
+  }
+
   painter_->createContents(canvas, device);
   delete device;
 
