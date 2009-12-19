@@ -62,9 +62,26 @@ SignalBase& WSubMenuItem::activateSignal()
       (contents->widget(0)->webWidget());
 
     return wi->clicked();
-  } else {
+  } else
     return WMenuItem::activateSignal();
-  }
+}
+
+std::string WSubMenuItem::pathComponent() const
+{
+  return WMenuItem::pathComponent() + "/";
+}
+
+bool WSubMenuItem::handleInternalPathChange(const std::string& path)
+{
+  if (subMenu_) {
+    if (subMenu_->internalPathEnabled()
+	&& path == subMenu_->internalBasePath()) {
+      subMenu_->select(-1);
+      return false;
+    } else
+      return true;
+  } else
+    return WMenuItem::handleInternalPathChange(path);
 }
 
 }

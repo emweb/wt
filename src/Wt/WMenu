@@ -320,7 +320,6 @@ private:
   friend class WMenuItem;
 
   void internalPathChanged(std::string path);
-  void setFromState(const std::string& value);
   void updateItems();
 };
 

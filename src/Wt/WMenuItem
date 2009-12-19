@@ -196,6 +196,8 @@ protected:
    */
   virtual SignalBase& activateSignal();
 
+  virtual bool handleInternalPathChange(const std::string& path);
+
 private:
   WWidget          *itemWidget_;
   WContainerWidget *contentsContainer_;

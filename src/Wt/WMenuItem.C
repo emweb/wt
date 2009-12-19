@@ -207,6 +207,11 @@ WWidget *WMenuItem::takeContents()
   return result;
 }
 
+bool WMenuItem::handleInternalPathChange(const std::string& path)
+{
+  return false;
+}
+
 void WMenuItem::select()
 {
   menu_->select(this);

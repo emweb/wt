@@ -172,7 +172,6 @@ WWidget *Home::initHome()
 
   mainMenu_->itemSelectRendered().connect(SLOT(this, Home::updateTitle));
   mainMenu_->itemSelected().connect(SLOT(this, Home::googleAnalyticsLogger));
-  mainMenu_->select((int)0);
 
   // Make the menu be internal-path aware.
   mainMenu_->setInternalPathEnabled("/");

@@ -77,11 +77,14 @@ public:
    */
   WMenu *subMenu() { return subMenu_; }
 
+  virtual std::string pathComponent() const;
+
 protected:
   virtual WWidget *createItemWidget();
   virtual void updateItemWidget(WWidget *itemWidget);
   virtual void renderSelected(bool selected);
   virtual SignalBase& activateSignal();
+  virtual bool handleInternalPathChange(const std::string& path);
 
 private:
   WMenu *subMenu_;

@@ -69,6 +69,8 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
 
     app->internalPathChanged().connect(SLOT(this, WMenu::internalPathChanged));
 
+    previousInternalPath_ = app->internalPath();
+
 #ifdef WT_WITH_OLD_INTERNALPATH_API
     if (app->oldInternalPathAPI())
       internalPathChanged(basePath_);
@@ -96,6 +98,7 @@ void WMenu::setInternalBasePath(const std::string& basePath)
 
     if (internalPathEnabled_) {
       WApplication *app = wApp;
+      previousInternalPath_ = app->internalPath();
 #ifdef WT_WITH_OLD_INTERNALPATH_API
       if (app->oldInternalPathAPI())
 	internalPathChanged(basePath_);
@@ -164,9 +167,15 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
   } else
     item->renderSelected(false);
 
-  if (internalPathEnabled_
-      && wApp->internalPathMatches(basePath_ + item->pathComponent()))
-    select(items_.size() - 1);
+  if (internalPathEnabled_) {
+    WApplication *app = wApp;
+
+    if (app->internalPathMatches(basePath_ + item->pathComponent())) {
+      std::string path = app->internalPath();
+      select(items_.size() - 1);
+      app->setInternalPath(path);
+    }
+  }
 
   return item;
 }
@@ -202,11 +211,22 @@ void WMenu::removeItem(WMenuItem *item)
 
 void WMenu::select(int index)
 {
+  bool emitPathChange = false;
+  WApplication *app = 0;
+
+  if (internalPathEnabled_) {
+    app = wApp;
+    emitPathChange = previousInternalPath_ != app->internalPath();
+  }
+
   selectVisual(index);
 
   if (index != -1) {
     items_[index]->loadContents();
     itemSelected_.emit(items_[current_]);
+
+    if (emitPathChange)
+      app->internalPathChanged().emit(app->internalPath());
   }
 }
 
@@ -221,19 +241,10 @@ void WMenu::selectVisual(int index)
     WApplication *app = wApp;
 
     previousInternalPath_ = app->internalPath();
+    std::string newPath = basePath_ + items_[current_]->pathComponent();
 
-    std::string newPath = basePath_;
-    std::string pc = items_[current_]->pathComponent();
-    if (pc.empty()) {
-      if (newPath.length() > 1)
-	newPath = newPath.substr(0, newPath.length() - 1);
-    } else
-      newPath += pc;
-
-    // unless we are resetting to basePath, we avoid removing a more
-    // specific path
-    if (newPath == basePath_ || !app->internalPathMatches(newPath))
-      app->setInternalPath(newPath);
+    // The change is emitted in select()
+    app->setInternalPath(newPath);
   }
 
   for (unsigned i = 0; i < items_.size(); ++i)
@@ -257,27 +268,27 @@ void WMenu::internalPathChanged(std::string path)
 #ifdef WT_WITH_OLD_INTERNALPATH_API
       (app->oldInternalPathAPI() && path == basePath_) ||
 #endif // WT_WITH_OLD_INTERNALPATH_API 
-      app->internalPathMatches(basePath_))
-    setFromState(app->internalPathNextPart(basePath_));
-}
+      app->internalPathMatches(basePath_)) {
 
-void WMenu::setFromState(const std::string& value)
-{
-  std::string v = value;
+    std::string value = app->internalPathNextPart(basePath_);
 
-  for (unsigned i = 0; i < items_.size(); ++i) {
-    if (items_[i]->pathComponent() == v
-	|| items_[i]->pathComponent() == (v + '/')) {
-      if (contentsStack_->currentWidget() != items_[i]->contents())
-	select(i);
-      return;
+    for (unsigned i = 0; i < items_.size(); ++i) {
+      if (items_[i]->pathComponent() == value
+	  || items_[i]->pathComponent() == (value + '/')) {
+	if (i == current_)
+	  if (items_[current_]->handleInternalPathChange(path))
+	    return;
+
+	if (contentsStack_->currentWidget() != items_[i]->contents())
+	  select(i);
+
+	return;
+      }
     }
+
+    if (!value.empty())
+      wApp->log("error") << "WMenu: unknown path: '"<< value << "'";
   }
-
-  if (!value.empty())
-    wApp->log("error") << "WMenu: unknown path: '"<< value << "'";
-
-  select(-1);
 }
 
 void WMenu::select(WMenuItem *item)
