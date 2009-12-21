@@ -113,7 +113,7 @@ public:
    * bound using bindString(). If so, that string is returned. If
    * not, it will attempt to resolve a widget with that variable name
    * using resolveWidget(), and render it as XHTML. If that fails too,
-   * "??"  + varName + "??"  is appended to the result.
+   * handleUnresolvedVariable() is called, passing the initial arguments.
    *
    * You may want to reimplement this method to provide on-demand
    * loading of strings for your template.
@@ -129,6 +129,26 @@ public:
   virtual void resolveString(const std::string& varName,
 			     const std::vector<WString>& args,
 			     std::ostream& result);
+
+  /*! \brief Handles a variable that could not be resolved.
+   *
+   * This method is called from resolveString() for variables that could
+   * not be resolved.
+   *
+   * The default implementation implementation writes 
+   * "??" + varName + "??"  to the result stream.
+   *
+   * The result stream expects a UTF-8 encoded string value.
+   *
+   * \warning When specializing this class, you need to make sure that
+   * you append proper XHTML to the \p result, without unsafe active
+   * contents. The format() methods may be used for this purpose.
+   *
+   * \sa resolveString()
+   */
+   virtual void handleUnresolvedVariable(const std::string& varName,
+                                         const std::vector<WString>& args,
+                                         std::ostream& result);
 
   /*! \brief Resolves a widget for a variable name.
    *

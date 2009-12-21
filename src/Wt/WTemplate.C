@@ -88,8 +88,15 @@ void WTemplate::resolveString(const std::string& varName,
     if (w)
       w->htmlText(result);
     else
-      result << "??" << varName << "??";
+      handleUnresolvedVariable(varName, args, result);
   }
+}
+
+void WTemplate::handleUnresolvedVariable(const std::string& varName,
+                                         const std::vector<WString>& args,
+                                         std::ostream& result)
+{
+  result << "??" << varName << "??";
 }
 
 WWidget *WTemplate::resolveWidget(const std::string& varName)

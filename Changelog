@@ -1,3 +1,8 @@
+21-12-2009:
+	* WTemplate: add handleUnresolvedVariable() from Maurice Gittens
+
+	* WMenu: sanitize internal path handling
+
 18-12-2009:
 	* WTreeView: fix treeview column add/remove glitches with column 1 fixed
 

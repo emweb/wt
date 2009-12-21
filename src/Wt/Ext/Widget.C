@@ -247,6 +247,8 @@ std::string Widget::createExtElement(std::stringstream& alljs,
     inContainer->removeProperty(PropertyStyleDisplay);
   }
 
+  setRendered(false);
+
   alljs << "var " << elVar() << ";"
 	<< createJS(inContainer)
 	<< elRef() << "=" << elVar() << ";";

@@ -435,7 +435,7 @@ std::string TableView::createJS(DomElement *inContainer)
 {
   assert(inContainer);
 
-  if (!isRendered()) {
+  if (!edited_.isConnected()) {
     edited_.connect(SLOT(this, TableView::onEdit));
     selectionChanged_.connect(SLOT(this, TableView::onSelectionChange));
   }

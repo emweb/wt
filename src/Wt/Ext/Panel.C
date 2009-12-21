@@ -28,7 +28,10 @@ Panel::Panel(WContainerWidget *parent)
     topToolBar_(0),
     bottomToolBar_(0),
     defaultButton_(0)
-{ }
+{ 
+  collapsed_.connect(SLOT(this, Panel::onCollapse));
+  expanded_.connect(SLOT(this, Panel::onExpand));
+}
 
 Panel::~Panel()
 {
@@ -176,11 +179,6 @@ void Panel::updateExt()
 std::string Panel::createJS(DomElement *inContainer)
 {
   std::stringstream result;
-
-  if (!isRendered()) {
-    collapsed_.connect(SLOT(this, Panel::onCollapse));
-    expanded_.connect(SLOT(this, Panel::onExpand));
-  }
 
   if (topToolBar_)
     topToolBar_->createExtElement(result, 0);

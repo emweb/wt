@@ -46,7 +46,6 @@ void Calendar::onSelect(std::string date)
   } else
     wApp->log("error") << "Calendar internal error: could not parse date: '"
 		       << date << "'";
-
 }
 
 void Calendar::updateExt()
@@ -60,7 +59,7 @@ std::string Calendar::createJS(DomElement *inContainer)
 {
   assert(inContainer);
 
-  if (!isRendered())
+  if (!extDateSelected_.isConnected())
     extDateSelected_.connect(SLOT(this, Calendar::onSelect));
 
   std::stringstream result;
