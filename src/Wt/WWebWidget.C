@@ -1403,6 +1403,8 @@ WWidget *WWebWidget::find(const std::string& name)
 
 DomElement *WWebWidget::createDomElement(WApplication *app)
 {
+  setRendered(true);
+
   DomElement *result = DomElement::createNew(domElementType());
   setId(result, app);
 
