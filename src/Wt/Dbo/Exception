@@ -14,7 +14,7 @@ namespace Wt {
   namespace Dbo {
 
 /*! \class Exception Wt/Dbo/Exception Wt/Dbo/Exception
- *  \brief %Exception base class for %Wt::Dbo.
+ *  \brief %Exception base class for %Wt::%Dbo.
  *
  * \ingroup dbo
  */
@@ -27,12 +27,21 @@ public:
 };
 
 /*! \class StaleObjectException Wt/Dbo/Exception Wt/Dbo/Exception
- *  \brief %Exception thrown when %Wt::Dbo detects a concurrent modification
+ *  \brief %Exception thrown when %Wt::%Dbo detects a concurrent modification
  *
- * Wt::Dbo uses optimistic locking for detecting and preventing
+ * %Wt::%Dbo uses optimistic locking for detecting and preventing
  * concurrent modification of database objects. When trying to save an
  * object that has been modified concurrently by another session, since
  * it was read from the database, this exception is thrown.
+ *
+ * This exception is thrown during flushing from Session::flush() or
+ * ptr::flush(). Since flushing will also be done automatically when
+ * needed (e.g. before running a query or before committing a
+ * transaction), you should be prepared to catch this exception from most
+ * library API calls.
+ *
+ * \note We should perhaps also have a ptr::isStale() method to find out
+ *       what database object is stale ?
  *
  * \ingroup dbo
  */
@@ -47,8 +56,8 @@ public:
 /*! \class ObjectNotFoundException Wt/Dbo/Exception Wt/Dbo/Exception
  *  \brief %Exception thrown when trying to load a non-existing object.
  *
- * %Exception thrown when attempting to load an object that does not exist,
- * by Session::load().
+ * This %Exception is thrown by Session::load() when trying to load an object
+ * that does not exist.
  *
  * \ingroup dbo
  */
@@ -63,8 +72,8 @@ public:
 /*! \class NoUniqueResultException Wt/Dbo/Exception Wt/Dbo/Exception
  *  \brief %Exception thrown when a query unexpectedly finds a non-unique result.
  *
- * %Exception thrown when a call to Query::resultValue() finds more than
- * one result.
+ * This %Exception is thrown by Query::resultValue() when the query has
+ * more than one result.
  *
  * \ingroup dbo
  */

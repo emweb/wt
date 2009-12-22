@@ -5,7 +5,7 @@ Koen Deforche <koen@emweb.be>
 
 :wt-version:	3.0.1
 :wt-src-path:	wt-{jwt-version}
-:wt-dbo-doxygen: http://localhost/wt/latest/doc/
+:doc:           link:../../reference/html/
 
 == Introduction
 
@@ -82,12 +82,13 @@ public:
 This example shows how persistence support is defined for a C++
 class. A template member method +persist()+ is defined which serves as
 a persistence definition for the class. For each member in the class,
-a call to +Wt::Dbo::field()+ is used to map the field to a table
+a call to +{doc}group__dbo.html#g7d270dd99aa29c13ebdc5e1c394ed8b1[Wt::Dbo::field()]+ is used to map the field to a table
 column name.
 
 As you may see, standard C++ types such as +int+, +std::string+ and
 +enum+ types are readily supported by the library. Support for other
-types can be added by specializing +Wt::Dbo::sql_value_traits<_T_>+.
+types can be added by specializing
++{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<_T_>]+.
 
 The library defines a number of actions which will be applied to a
 database object using its +persist()+ method, which applies it in turn
@@ -128,10 +129,11 @@ void test()
   ...
 ----
 
-The +Session+ object is a long living object that provides access to
-our database objects. You will typically create a Session object
-during the entire lifetime of an application session, and one per
-user. None of the +Wt::Dbo+ classes are thread safe, and session
+The +{doc}classWt_1_1Dbo_1_1Session.html[Session]+ object is a long
+living object that provides access to our database objects. You will
+typically create a Session object during the entire lifetime of an
+application session, and one per user. None of the
++{doc}group__dbo.html[Wt::Dbo]+ classes are thread safe, and session
 objects are (currently) not shared between sessions.
 
 The lack of thread-safety is not simply a consequence of laziness on
@@ -168,9 +170,10 @@ implemented.
   ...
 ----
 
-Next, we use +mapClass()+ to register each database class with the
-session, indicating the database table onto which the class must be
-mapped.
+Next, we use
++{doc}classWt_1_1Dbo_1_1Session.html#5886d450c052ae0ee15ab3c91e439229[mapClass()]+
+to register each database class with the session, indicating the
+database table onto which the class must be mapped.
 
 Certainly during development, but also for initial deployment, it is
 convenient to let +Wt::Dbo+ generate itself the database tables.
@@ -219,17 +222,19 @@ happen within a transaction.
 }
 ----
 
-A call to +Session::add()+ adds an object to the database. This call
-returns a +ptr<_Dbo_>+ to reference a database object of type
-+_Dbo_+. This is a shared pointer which also keeps track of the
-persistence state of the referenced object. Within each session, a
-database object will be loaded at most once: the session keeps track
-of loaded database objects and returns an existing object whenever a
-query to the database requires this. When the last pointer to a
-database object goes out of scope, the _transient_ (in-memory) copy of
-the database object is also deleted (unless it was modified, in which
-case the transient copy will only be be deleted after changes have
-been successfully committed to the database).
+A call to
+{doc}classWt_1_1Dbo_1_1Session.html#e255e99ca81e9642f52f20adc6fb752c[Session::add()]
+adds an object to the database. This call returns a
++{doc}classWt_1_1Dbo_1_1ptr.html[ptr<_Dbo_>]+ to reference a database
+object of type +_Dbo_+. This is a shared pointer which also keeps
+track of the persistence state of the referenced object. Within each
+session, a database object will be loaded at most once: the session
+keeps track of loaded database objects and returns an existing object
+whenever a query to the database requires this. When the last pointer
+to a database object goes out of scope, the _transient_ (in-memory)
+copy of the database object is also deleted (unless it was modified,
+in which case the transient copy will only be be deleted after changes
+have been successfully committed to the database).
 
 The session also keeps track of objects that have been modified and
 which need to be flushed (using SQL statements) to the
@@ -254,7 +259,7 @@ better performance.
 
 There are two ways of querying the database. Database objects of a
 single +_Dbo_+ class can be queried using
-+Session::find<Dbo>(_condition_)+:
++{doc}classWt_1_1Dbo_1_1Session.html#5587d7d9b1708f123d158bb615b6f199[Session::find<Dbo>(_condition_)]+:
 
 [source,cpp]
 ----
@@ -266,10 +271,12 @@ std::cerr << "Joe has karma: " << joe->karma << std::endl;
 ----
 
 All queries use prepared statements with positional argument
-binding. The +Session::find<T>()+ method returns a +Query+ object,
-which allows binding of parameters using +Query::bind()+. In this case
-the query should expect a single result and is casted directly to a
-database object pointer.
+binding. The +Session::find<T>()+ method returns a
++{doc}classWt_1_1Dbo_1_1Query.html[Query]+ object, which allows binding
+of parameters using
++{doc}classWt_1_1Dbo_1_1Query.html#8470965879eb9d0d7d64913e3239d710[Query::bind()]+. In
+this case the query should expect a single result and is casted
+directly to a database object pointer.
 
 The query formulated to the database is:
 
@@ -280,7 +287,8 @@ select id, version, name, password, role, karma
     where name = ?
 ----
 
-The more general way for querying uses +Session::query<Result>(_sql_)+,
+The more general way for querying uses
++{doc}classWt_1_1Dbo_1_1Session.html#d39e953ef521eaa58c4c7e6ca1a6c19e[Session::query<Result>(_sql_)]+,
 which supports not only database objects as results. The query of
 above is equivalent to:
 
@@ -318,17 +326,19 @@ int count = session.query<int>
 
 The queries above were expecting unique results, but queries can also
 have multiple results. A +Session::query<_Result_>()+ may therefore
-return a +collection<_Result_>+ (for multiple results) or a unique
-+_Result_+ as in the examples above for convenience. Similarly,
+return a +dbo::collection< _Result_ >+ (for multiple results) or a
+unique +_Result_+ as in the examples above for convenience. Similarly,
 +Session::find<_Dbo_>()+ may return a +collection< ptr<_Dbo_> >+ or a
 unique +_ptr<_Dbo_>+. If a unique result is asked, but the query found
-multiple results, a +NoUniqueResultException+ will be thrown.
+multiple results, a
++{doc}classWt_1_1Dbo_1_1NoUniqueResultException.html[NoUniqueResultException]+
+will be thrown.
 
-+dbo::collection< _T_ >+ is an STL-compatible collection which has
-iterators that implement the +InputIterator+ requirements. Thus, you
-can only iterate the results of a collection once. After the results
-have been iterated both the +Query+ object and the +collection+ can no
-longer be used.
++{doc}classWt_1_1Dbo_1_1collection.html[collection<_T_>]+ is an
+STL-compatible collection which has iterators that implement the
++InputIterator+ requirements. Thus, you can only iterate the results
+of a collection once. After the results have been iterated both the
++Query+ object and the +collection+ can no longer be used.
 
 The following code shows how you may multiple results of a query may
 be iterated:
@@ -372,7 +382,7 @@ iterating them.
 
 Unlike most other smart pointers, +ptr<_Dbo_>+ is read-only by
 default: it returns a +const _Dbo_*+. To modify a database object, you
-need to call the +ptr::modify()+ method, which returns a non-const
+need to call the +{doc}classWt_1_1Dbo_1_1ptr.html#8f9f4ec6ed2bd8febe8b62525c9576da[ptr::modify()]+ method, which returns a non-const
 object. This mark the object as dirty and the modifications will later
 be synchronized to the database.
 
@@ -385,9 +395,12 @@ joe.modify()->password = "public";
 ----
 
 Database synchronization does not happen instantaneously, instead,
-they are delayed until explicitly asked, using +ptr<_Dbo_>::flush()+
-or +Session::flush()+, until a query is executed whose results may be
-affected by the changes made, or until the transaction is committed.
+they are delayed until explicitly asked, using
++{doc}classWt_1_1Dbo_1_1ptr.html#af91f5ef8bcdabfafcd9abb4182625bd[ptr<_Dbo_>::flush()]+
+or
++{doc}classWt_1_1Dbo_1_1Session.html#b896d119f1e0fb79adffe2282b92ef17[Session::flush()]+,
+until a query is executed whose results may be affected by the changes
+made, or until the transaction is committed.
 
 The previous code will generate the following SQL:
 
@@ -403,7 +416,7 @@ update user
 
 We already saw how using +Session::add(ptr<_Dbo_>)+, we added a new
 object to the database. The opposite operation is
-+ptr<_Dbo_>::remove()+: it deletes the object in the database.
++{doc}classWt_1_1Dbo_1_1ptr.html#f4b26afebd56abc42005ef9f954d8fee[ptr<_Dbo_>::remove()]+: it deletes the object in the database.
 
 [source,cpp]
 ----
@@ -478,14 +491,18 @@ public:
 };
 ----
 
-At the _Many_-side, we add a reference to a user, and in the +persist()+
-method we call +belongsTo()+. This allows us to reference the user to
-which this post belongs. The last argument will correspond to the name
-of the database column which defines the relationship.
+At the _Many_-side, we add a reference to a user, and in the
++persist()+ method we call
++{doc}group__dbo.html#gb4d8cd501e0e5bcb7e590315758f05d8[belongsTo()]+. This
+allows us to reference the user to which this post belongs. The last
+argument will correspond to the name of the database column which
+defines the relationship.
 
-At the _One_-side, we add a collection of posts, and in the +persist()+
-method we call +hasMany()+. The join field must be the same name as in
-reciproce belongsTo() method call.
+At the _One_-side, we add a collection of posts, and in the
++persist()+ method we call
++{doc}group__dbo.html#gac5c7ca40abd8040451dfb0e93bca9b5[hasMany()]+. The
+join field must be the same name as in reciproce belongsTo() method
+call.
 
 If we add the Post class too to our session using
 +Session::mapClass()+, and create the schema, the following SQL is
@@ -622,14 +639,17 @@ create table post_tags(
 
 The collection at either side of the _Many-to-Many_ relation allows us
 to retrieve all associated elements. Unlike a collection in a
-_Many-to-One_ relation however, we may now also +insert()+ and
-+remove()+ items from the collection. To define a relation between a
-post and a tag, you need to add the post to the tag's _posts_
-collection, or the tag to the post's _tags_ collection. You may not do
-both! The change will automatically be reflected in the reciproce
-collection. Likewise, to undo the relation between a post and a tag,
-you should remove the tag from the post's _tags_ collection, or the
-post from the tag's _posts_ collection, but not both.
+_Many-to-One_ relation however, we may now also
++{doc}classWt_1_1Dbo_1_1collection.html#7b497add0d6ac2b1e098820f9ee64c93[insert()]+
+and
++{doc}classWt_1_1Dbo_1_1collection.html#35d046e991b3fec59af85d501fd49e51[erase()]+
+items from the collection. To define a relation between a post and a
+tag, you need to add the post to the tag's _posts_ collection, or the
+tag to the post's _tags_ collection. You may not do both! The change
+will automatically be reflected in the reciproce collection. Likewise,
+to undo the relation between a post and a tag, you should remove the
+tag from the post's _tags_ collection, or the post from the tag's
+_posts_ collection, but not both.
 
 Example:
 
@@ -659,7 +679,8 @@ schema structure.
 == Transactions and concurrency
 
 Reading data from the database or flushing changes to the database
-require an active transaction. A +Transaction+ is a RIIA
+require an active transaction. A
++{doc}classWt_1_1Dbo_1_1Transaction.html[Transaction]+ is a RIIA
 (Resource-Initialization-is-Acquisition) class which at the same time
 provides isolation between concurrent sessions and atomicity for
 persisting changes to the database.
@@ -694,17 +715,20 @@ wider transaction if that is available.
 
 Transactions may fail and dealing with failing transactions is an
 integral aspect of their usage. When the library detects a concurrent
-modification, a +StaleObjectException+ is thrown. Other exceptions may
-be thrown, including exceptions in the backend driver when for example
-the database schema is not compatible with the mapping. There may also
-be problems detected by the business logic which may raise an
-exception and cause the transaction to be rolled back. When a
-transaction is rolled back, the modified database objects are not
-successfully synchronized with the database, but may possibly be
-synchronized later in a new transaction.
+modification, a
++{doc}classWt_1_1Dbo_1_1StaleObjectException.html[StaleObjectException]+
+is thrown. Other exceptions may be thrown, including exceptions in the
+backend driver when for example the database schema is not compatible
+with the mapping. There may also be problems detected by the business
+logic which may raise an exception and cause the transaction to be
+rolled back. When a transaction is rolled back, the modified database
+objects are not successfully synchronized with the database, but may
+possibly be synchronized later in a new transaction.
 
 Obviously, many exceptions will be fatal. One notable exception is the
 +StaleObjectException+ however. Different strategies are possible to
 deal with this exception. Regardless of the approach, you will at
-least need to +reread()+ the stale database object(s) before being
-able to commit changes made in a new transaction.
+least need to
++{doc}classWt_1_1Dbo_1_1ptr.html#bb1db71ef910748437d69bf11a04eb6e[reread()]+
+the stale database object(s) before being able to commit changes made
+in a new transaction.

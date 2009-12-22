@@ -80,6 +80,18 @@ public:
 
   virtual void refresh();
 
+  /*! \brief Signal emitted when the value was changed.
+   */
+  EventSignal<>& changed();
+
+  /*! \brief Signal emitted when the widget lost focus.
+   */
+  EventSignal<>& blurred();
+
+  /*! \brief Signal emitted when the widget recieved focus.
+   */
+  EventSignal<>& focussed();
+
 protected:
   void applyToWidget(WWebWidget *widget, std::stringstream& js,
 		     DomElement *inContainer);

@@ -63,7 +63,7 @@ public:
    *
    * Opens a transaction for the given \p session. If a transaction is
    * already open for the session, this transaction is added. All open
-   * transaction must commit succesfully for the entire transaction to
+   * transactions must commit successfully for the entire transaction to
    * succeed.
    */
   explicit Transaction(Session& session);

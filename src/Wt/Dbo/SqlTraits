@@ -25,9 +25,12 @@ class SqlStatement;
  * The library has built-in support for:
  *  - std::string
  *  - char const * (only as a parameters)
+ *  - int
  *  - long long
  *  - enum types
  *  - boost::optional<T>
+ *
+ * In <Wt/Dbo/WtSqlTraits>, traits classes are also provided for:
  *  - WDate
  *  - WDateTime
  *  - WString
@@ -44,7 +47,8 @@ struct sql_value_traits
 #ifdef DOXYGEN_ONLY
   /*! \brief Returns the SQL type name.
    *
-   * \note This is currently an SQLite3 type.
+   * \note This is currently an SQLite3 type. We probably need to add an
+   *       extra argument (an SqlConnection *) to make this backend-specific.
    */
   static const char *type();
 
@@ -78,7 +82,7 @@ struct sql_value_traits
  *
  * The library provides by default support for primitive types, using
  * sql_value_traits, mapped objects held by ptr types, and
- * Boost.Tuples of any combination of these.
+ * boost::tuple<> of any combination of these.
  *
  * \sa sql_value_traits, ptr
  *

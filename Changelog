@@ -1,7 +1,13 @@
+22-12-2009:
+	* Ext/FormWidget: add changed(), blurred() and focussed() signals
+
 21-12-2009:
 	* WTemplate: add handleUnresolvedVariable() from Maurice Gittens
 
 	* WMenu: sanitize internal path handling
+
+	* documentation: integrate asciidoc and doxygen in CMake (target
+	'doc'), and improve Wt::Dbo documentation
 
 18-12-2009:
 	* WTreeView: fix treeview column add/remove glitches with column 1 fixed

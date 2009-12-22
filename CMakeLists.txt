@@ -113,6 +113,7 @@ INCLUDE(cmake/WtFindFcgi.txt)
 INCLUDE(cmake/WtFindZlib.txt)
 INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysqlpp.txt)
+INCLUDE(cmake/WtFindAsciidoc.txt)
 
 IF(XML_FEATURES)
   INCLUDE(cmake/WtFindMxml.txt)
@@ -126,6 +127,8 @@ FIND_PACKAGE(Qt4)
 IF(QT_FOUND)
   INCLUDE(${QT_USE_FILE})
 ENDIF(QT_FOUND)
+
+FIND_PACKAGE(Doxygen)
 
 # Boost is used nearly everywhere, so we can put these here
 INCLUDE_DIRECTORIES(${BOOST_INCLUDE_DIRS})
@@ -162,6 +165,30 @@ CONFIGURE_FILE(
 )
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
+
+IF (ASCIIDOC_FOUND)
+  MACRO (ASCIIDOC_FILE target infile outfile)
+    ADD_CUSTOM_TARGET(${target}
+       ${ASCIIDOC_EXECUTABLE} -a toc -a numbered -o ${outfile} ${infile}
+       COMMENT "Asciidoc ${infile}")
+    ADD_DEPENDENCIES(doc ${target})
+  ENDMACRO (ASCIIDOC_FILE)
+ENDIF (ASCIIDOC_FOUND)
+
+ADD_CUSTOM_TARGET(doc)
+
+IF (DOXYGEN_FOUND)
+  ADD_CUSTOM_TARGET(doxygen
+    ${DOXYGEN_EXECUTABLE}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMENT "Doxygen ...")
+  ADD_DEPENDENCIES(doc doxygen)
+  ADD_CUSTOM_TARGET(doxygen-examples
+    ${DOXYGEN_EXECUTABLE}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/examples
+    COMMENT "Doxygen for examples ...")
+  ADD_DEPENDENCIES(doc doxygen-examples)
+ ENDIF (DOXYGEN_FOUND)
 
 IF(WIN32)
   SUBDIRS(src examples)

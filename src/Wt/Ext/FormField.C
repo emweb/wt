@@ -99,6 +99,21 @@ void FormField::render()
   }
 }
 
+EventSignal<>& FormField::changed()
+{
+  return formWidget()->changed();
+}
+
+EventSignal<>& FormField::blurred()
+{
+  return formWidget()->blurred();
+}
+
+EventSignal<>& FormField::focussed()
+{
+  return formWidget()->focussed();
+}
+
   }
 
 void WLabel::setBuddy(Ext::FormField *formField)
