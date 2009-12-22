@@ -909,16 +909,17 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       /*
        * set position
        */
-      switch (layoutImpl_->positionScheme_) {
-      case Static:
-	break;
-      case Relative:
-	element.setProperty(PropertyStylePosition, "relative"); break;
-      case Absolute:
-	element.setProperty(PropertyStylePosition, "absolute"); break;
-      case Fixed:
-	element.setProperty(PropertyStylePosition, "fixed"); break;
-      }
+      if (!(flags_.test(BIT_HIDE_WITH_VISIBILITY) && flags_.test(BIT_HIDDEN)))
+	switch (layoutImpl_->positionScheme_) {
+	case Static:
+	  break;
+	case Relative:
+	  element.setProperty(PropertyStylePosition, "relative"); break;
+	case Absolute:
+	  element.setProperty(PropertyStylePosition, "absolute"); break;
+	case Fixed:
+	  element.setProperty(PropertyStylePosition, "fixed"); break;
+	}
 
       /*
        * set z-index
