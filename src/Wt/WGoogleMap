@@ -60,7 +60,9 @@ public:
      */
     Coordinate(double latitude, double longitude);
 
+    #ifndef WT_TARGET_JAVA
     explicit Coordinate(const std::pair<double, double>& lat_long);
+    #endif
 
     /*! \brief Set the latitude.
      */
@@ -74,7 +76,7 @@ public:
      */
     double latitude() const { return lat_; }
 
-    /*! \brief Retursn the longitude.
+    /*! \brief Returns the longitude.
      */
     double longitude() const { return lon_; }
 
@@ -84,9 +86,11 @@ public:
      */
     double distanceTo(const Coordinate &rhs) const;
 
+    #ifndef WT_TARGET_JAVA
     /*! \brief Conversion operator to pair of double.
      */
     std::pair<double, double> operator ()() const;
+    #endif
 
   private:
     double lat_, lon_;
@@ -108,7 +112,7 @@ public:
 
   /*! \brief Add a polyline overlay to the map.
    *
-   *  specify a vaue between 0.0 and 1.0 for the opacity.
+   *  specify a value between 0.0 and 1.0 for the opacity.
    */
   void addPolyline(const std::vector<Coordinate>& points,
 		   const WColor& color = red, int width = 2,
@@ -137,9 +141,15 @@ public:
    */
   void panTo(const Coordinate& center);
 
+  #ifndef WT_TARGET_JAVA
   /*! \brief Zoom the map to a region defined by a bounding box.
    */
   void zoomWindow(const std::pair<Coordinate, Coordinate>& bbox);
+  #endif
+
+  /*! \brief Zoom the map to a region defined by a bounding box.
+   */
+  void zoomWindow(const Coordinate& topLeft, const Coordinate& bottomRight);
 
   /*! \brief Sets the zoom level to the given new value.
    */
@@ -253,8 +263,10 @@ private:
   std::vector<std::string> additions_;
 };
 
+#ifndef WT_TARGET_JAVA
 extern std::istream& operator>> (std::istream& i,
 				 WGoogleMap::Coordinate& coordinate);
+#endif
 
 } //  namespace Wt
 

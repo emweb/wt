@@ -6,6 +6,8 @@
 
 #include "Wt/Dbo/WtSqlTraits"
 
+#ifndef DOXYGEN_ONLY
+
 namespace Wt {
   namespace Dbo {
 
@@ -14,3 +16,5 @@ const char *sql_value_traits<WDateTime>::format = "yyyy-MM-dd HH:mm:ss.zzz";
 
   }
 }
+
+#endif // DOXYGEN_ONLY

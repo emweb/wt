@@ -102,6 +102,7 @@ Wt/WCanvasPaintDevice.C
 Wt/WCheckBox.C
 Wt/WCircleArea.C
 Wt/WColor.C
+Wt/WCombinedLocalizedStrings.C
 Wt/WComboBox.C
 Wt/WCompositeWidget.C
 Wt/WContainerWidget.C

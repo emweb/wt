@@ -380,7 +380,7 @@ public:
    *
    * \sa localizedStrings(), WString::tr(const char *key)
    */
-  void setLocalizedStrings(WLocalizedStrings *translator);
+  void setLocalizedStrings(WLocalizedStrings *stringResolver);
 
 #if !defined(WT_TARGET_JAVA) && !defined(WT_NO_XML)
   /*! \brief Returns the message resource bundle.

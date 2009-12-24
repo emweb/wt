@@ -7,6 +7,8 @@
 #include "Wt/Dbo/StdSqlTraits"
 #include "Wt/Dbo/SqlStatement"
 
+#ifndef DOXYGEN_ONLY
+
 namespace Wt {
   namespace Dbo {
 
@@ -71,3 +73,5 @@ bool sql_value_traits<int>::read(int& v, SqlStatement *statement, int column)
 
   }
 }
+
+#endif

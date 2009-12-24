@@ -131,6 +131,9 @@ public:
 
 /*! \defgroup dbo Database Objects library (Dbo)
  *  \brief An implemenation of an Object Relational Mapping layer.
+ *
+ * For an introduction, see the <a
+ * href="../../tutorial/dbo/tutorial.html">tutorial</a>.
  */
 
 /*! \class ptr Wt/Dbo/ptr Wt/Dbo/ptr

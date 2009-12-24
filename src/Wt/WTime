@@ -32,7 +32,10 @@ public:
 /*! \class WTime Wt/WTime Wt/WTime
  *  \brief A clock time.
  *
- * 
+ * A clock time represents the time of day (0 to 24 hour), up to
+ * millisecond precision.
+ *
+ * \sa WDate, WDateTime
  */
 class WT_API WTime
 {

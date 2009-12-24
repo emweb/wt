@@ -22,9 +22,13 @@ namespace Wt {
  * conveniently store the string in a message resource bundle, and
  * make it localized by using WString::tr().
  *
- * The template may contain variable references using a
- * <tt>${<i>varName</i>}</tt> syntax to reference the variable
- * "<tt>varName</tt>". To use a literal '${', use "$${".
+ * Variable references use a <tt>${<i>varName</i>}</tt> syntax to
+ * reference the variable <tt>"varName"</tt>. To use a literal
+ * <tt>"${"</tt>, use <tt>"$${"</tt>.
+ *
+ * You can bind widgets and values to variables using bindWidget(),
+ * bindString() or bindInt() or by reimplementing the resolveString()
+ * and resolveWidget() methods.
  *
  * Usage example:
  * \code
@@ -32,9 +36,13 @@ namespace Wt {
  *
  * WTemplate *t = new WTemplate();
  * t->setTemplateText("<div> How old are you, ${friend} ? ${age-input} </div>");
+ *
  * t->bindString("friend", userName);
  * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
  * \endcode
+ *
+ * The template can return a bound widget using resolve(), which already
+ * tries to cast the widget to the proper type.
  */
 class WT_API WTemplate : public WInteractWidget
 {
@@ -93,7 +101,7 @@ public:
    * as for a WText.
    *
    * \sa bindWidget(), bindInt()
-   * \sa resolveStringValue()
+   * \sa resolveString()
    */
   void bindString(const std::string& varName, const WString& value,
 		  TextFormat textFormat = XHTMLText);

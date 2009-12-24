@@ -19,6 +19,110 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.0 (December 24, 2009)</h2>
+
+<p>This release contains several new features and classes, after a long period of stabilization that happened before the 3.0.0 release.</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WAggregateProxyModel.html">WAggregateProxyModel</a></dt>
+  <dd>A model that provides support for drilling down through columns, supported
+  by WTreeView.</dd>
+  <dt><a href="classWt_1_1WCombinedLocalizedStrings.html">WCombinedLocalizedStrings</a></dt>
+  <dd>Combines different localized strings implementations.</dd>
+  <dt><a href="classWt_1_1WDateTime.html">WDateTime</a></dt>
+  <dd>Combines a calendar date (WDate) and a clock time (WTime).</dd>
+  <dt><a href="classWt_1_1WTemplate.html">WTemplate</a></dt>
+  <dd>Use an XHTML fragment as a template, with variables that are place
+  holders for strings or other widgets. See the blog example of how this
+  class can be used to simplify HTML/CSS based layout of widgets and
+  contents.</dd>
+  <dt><a href="classWt_1_1WTime.html">WTime</a></dt>
+  <dd>Represents a clock time (0-24 hours).</dd>
+  <dt><a href="group__dbo.html">Wt::Dbo</a></dt>
+  <dd>An Object Relational Mapping library. See the <a href="../../tutorial/dbo/tutorial.html">tutorial here</a>.</dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+Most inline CSS styles have been pushed out to an external style
+sheet, which may be themed. The "default" theme provides the old look,
+while a new "polished" theme provides a less boring (?) look for
+several widgets (work in progress). The theme can be set using <a
+href="classWt_1_1WApplication.html">WApplication::setCssTheme()</a>.
+
+As a result, you will need to deploy Wt's <tt>"resources/"</tt>
+folder, which contains the themes in <tt>"resources/themes/"</tt>, for
+all but the most trivial applications.
+
+<dl>
+  <dt><a href="classWt_1_1Signal.html">Signal</a></dt>
+  <dd>Added a template connect() method which may be given any function
+  object, providing also support for the (future) c++1x lambda functions.</dd>
+  <dt><a href="classWt_1_1WCanvasDevice.html">WCanvasDevice</a></dt>
+  <dd>Several optimizations to output more concise JavaScript.</dd>
+  <dt><a href="classWt_1_1WPaintedWidget.html">WPaintedWidget</a></dt>
+  <dd>When width and/or height is not set using resize(), the widget
+  will now properly react to layout management when put into a layout
+  manager, triggering a server-side rerendering when needed.</dd>
+  <dt><a href="classWt_1_1WSlider.html">WSlider</a></dt>
+  <dd>A sliderMoved() signal was added which is fired whenever the slider is
+  moved (but not yet released).</dd>
+  <dt><a href="classWt_1_1WWidget.html">WWidget</a></dt>
+  <dd>Added a find() method which searches the widget hierachy for a widget
+  with a particular objectName().</dd>
+  <dt><a href="classWt_1_1WServer.html">WServer</a></dt>
+  <dd>Added an addResource() method to bind static resources to particular
+  URLs (i.e. resources that are not bound to a specific session).</dd>
+  <dt><a href="classWt_1_1Ext_1_1Container.html">Ext::Container</a></dt>
+  <dd>Will now properly react to layout management from a layout that
+  is set for a WContainerWidget.</dd>
+  <dt><a href="classWt_1_1Ext_1_1FormField.html">Ext::FormField</a></dt>
+  <dd>Added changed(), blurred() and focussed() signals.</dd>
+  <dt><a href="classWt_1_1Chart_1_1WAxis.html">Chart::WAxis</a></dt>
+  <dd>Added setAutoLimits() and autoLimits() methods to configure which limits
+  are to be determined based on the data, and which are explicitly set.</dd>
+  <dt><a href="classWt_1_1Chart_1_1WDataSeries.html">Chart::WDataSeries</a></dt>
+  <dd>Added the setHidden() and hidden() methods to enable or disable
+  a data series. Added setBarWidth() and barWidth() methods to set the
+  width of a bar (useful mostly for scatter plots). Added
+  setMarkerSize() and markerSize() methos.</dd>
+  <dt><a
+  href="classWt_1_1Chart_1_1WCartesianChart.html">Chart::WCartesianChart</a></dt>
+  <dd>Use MarkerPenColorRole and MarkerBrushColorRole to override
+  colors for makers on a per data point basis. Added mapFromDevice()
+  and mapToDevice() methods for mapping device coordinates to chart
+  coordinates and vice-versa</dd>
+  </dl>
+
+<h3>C) API Changes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WSlider.html">WSlider</a></dt>
+  <dd>Not really an API change, but the vertical slider is now showing
+  the maximum value at its top side, not its bottom side.</dd>
+  <dt><a href="classWt_1_1Chart_1_1WAxis.html">Chart::WAxis</a></dt>
+  <dd>The minimum() and maximum() methods will now return the calculated
+  minimum and maximum value when they are to be automatically calculated based
+  on the data, configured using setAutoLimits()</dd>
+</dl>
+
+<h3>D) Build changes:</h3>
+
+<dl>
+  <dt>XML_FEATURES</dt>
+  <dd>A new configuration option, XML_FEATURES, was added which allows the library to be built without MiniXML (and disabling fatures that require Mini-XML support). This configuration option is likely to be removed again in future versions.</dd>
+  <dt>Documentation</dt>
+  <dd>A <tt>doc</tt> directive was added, which uses doxygen and asciidoc tools
+  to generate the reference documentation and tutorial.</dd>
+  <dt>Tests</dt>
+  <dd>Automated tests were added for non-interactive functionality,
+  and are built by default.</dd>
+</dl>
+
+<hr />
+
 <h2>Release 3.0.0 (November 3, 2009)</h2>
 
 <p>

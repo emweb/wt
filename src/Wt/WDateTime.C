@@ -14,6 +14,8 @@
 #include <boost/date_time/local_time_adjustor.hpp>
 #include <boost/date_time/c_local_time_adjustor.hpp>
 
+#ifndef DOXYGEN_ONLY
+
 namespace posix = boost::posix_time;
 namespace gregorian = boost::gregorian;
 
@@ -23,7 +25,6 @@ namespace gregorian = boost::gregorian;
  */
 
 namespace Wt {
-
   namespace {
     std::string multiple(int value, std::string s) {
       if (abs(value) == 1)
@@ -450,3 +451,5 @@ WDateTime WDateTime::fromTime_t(std::time_t t) {
 }
 
 }
+
+#endif // DOXYGEN_ONLY
