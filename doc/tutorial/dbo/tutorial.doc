@@ -3,8 +3,6 @@ Wt::Dbo Tutorial
 
 Koen Deforche <koen@emweb.be>
 
-:wt-version:	3.0.1
-:wt-src-path:	wt-{jwt-version}
 :doc:           link:../../reference/html/
 
 == Introduction
@@ -24,8 +22,8 @@ from a mapped class is called a *database object* (dbo). Query results
 may be defined in terms of database objects, primitives, or tuples of
 these.
 
-A modern C\++ approach is used to solving the mapping problem. Rather
-than resorting to XML-based descriptions of how C\++ classes and
+A modern C\+\+ approach is used to solving the mapping problem. Rather
+than resorting to XML-based descriptions of how C\+\+ classes and
 fields should map onto tables and columns, or using obscure macros,
 the mapping is defined entirely in C++ code.
 
@@ -79,13 +77,13 @@ public:
 };
 ----
 
-This example shows how persistence support is defined for a C++
+This example shows how persistence support is defined for a C\+\+
 class. A template member method +persist()+ is defined which serves as
 a persistence definition for the class. For each member in the class,
 a call to +{doc}group__dbo.html#g7d270dd99aa29c13ebdc5e1c394ed8b1[Wt::Dbo::field()]+ is used to map the field to a table
 column name.
 
-As you may see, standard C++ types such as +int+, +std::string+ and
+As you may see, standard C\+\+ types such as +int+, +std::string+ and
 +enum+ types are readily supported by the library. Support for other
 types can be added by specializing
 +{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<_T_>]+.
@@ -179,6 +177,7 @@ Certainly during development, but also for initial deployment, it is
 convenient to let +Wt::Dbo+ generate itself the database tables.
 
 This generates the following SQL:
+
 [source,sql]
 ----
 begin transaction
@@ -193,7 +192,7 @@ create table user(
 commit transaction
 ----
 
-As you can see, next to the four columns that map to C++ fields,
+As you can see, next to the four columns that map to C\+\+ fields,
 Wt::Dbo adds another two columns: +id+ and +version+. The id is a
 surrogate primary key, and version is used for version-based
 optimistic locking.

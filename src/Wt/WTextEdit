@@ -149,8 +149,6 @@ public:
 
   virtual void resize(const WLength& width, const WLength& height);
 
-  virtual void load();
-
 protected:
   virtual DomElement *renderRemove();
   virtual void updateDom(DomElement& element, bool all);
@@ -165,6 +163,7 @@ private:
   std::string styleSheet_, extraPlugins_;
   std::string buttons_[4];
 
+  void init();
   static void initTinyMCE();
 };
 

@@ -338,16 +338,16 @@ int Server::connectToSession(const std::string& sessionId,
 void Server::checkConfig()
 {
   /*
-   * Check obvious configuration problem: the RUNDIR must exist and
-   * we must have proper read/write permissions.
+   * Create the run directory if it does not yet exist.
    */
   FILE *test = fopen((conf_.runDirectory() + "/test").c_str(), "w+");
 
   if (test == NULL) {
-    conf_.log("fatal") << "Cannot create files in run-directory ("
-		       << conf_.runDirectory()
-		       << "), please create dir and set permissions..";
-    exit(1);
+    if (mkdir(conf_.runDirectory().c_str(), 777) != 0) {
+      conf_.log("fatal") << "Cannot create run directory '"
+			 << conf_.runDirectory() << "'";
+      exit(1);
+    }
   } else
     unlink((conf_.runDirectory() + "/test").c_str());
 }

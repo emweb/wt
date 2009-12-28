@@ -75,9 +75,9 @@ Impl::Grid::Item& WBorderLayout::itemAtPosition(Position position)
 {
   switch (position) {
   case North: return grid_.items_[0][0];
-  case East: return grid_.items_[1][0];
+  case East: return grid_.items_[1][2];
   case South: return grid_.items_[2][0];
-  case West: return grid_.items_[1][2];
+  case West: return grid_.items_[1][0];
   case Center: return grid_.items_[1][1];
   default:
     throw WtException("WBorderLayout::itemAtPosition(): invalid position");
@@ -88,9 +88,9 @@ const Impl::Grid::Item& WBorderLayout::itemAtPosition(Position position) const
 {
   switch (position) {
   case North: return grid_.items_[0][0];
-  case East: return grid_.items_[1][0];
+  case East: return grid_.items_[1][2];
   case South: return grid_.items_[2][0];
-  case West: return grid_.items_[1][2];
+  case West: return grid_.items_[1][0];
   case Center: return grid_.items_[1][1];
   default:
     throw WtException("WBorderLayout::itemAtPosition(): invalid position");

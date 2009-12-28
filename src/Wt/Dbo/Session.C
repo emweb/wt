@@ -196,7 +196,7 @@ void Session::parseSql(const std::string& sql,
 		       std::string& rest)
 {
   std::size_t selectPos = sql.find("select ");
-  if (selectPos == std::string::npos)
+  if (selectPos != 0)
     throw std::logic_error("Session::query(): query should start with 'select '"
 			   " (sql='" + sql + "'");
 

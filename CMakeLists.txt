@@ -82,7 +82,7 @@ IF(WIN32)
 ELSE(WIN32)
   SET(USERLIB_ROOT /usr CACHE PATH "Other installation prefix for dependent libraries")
   SET(LIB_INSTALL_DIR "lib" CACHE STRING "Default path for libraries within ${CMAKE_INSTALL_PREFIX}")
-  SET(RUNDIR "/usr/wt/run" CACHE PATH "Default path for wt session management (only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
+  SET(RUNDIR "/var/run/wt" CACHE PATH "Default path for wt session management (only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
   IF( NOT DEFINED CONFIGDIR )
     SET(CONFIGDIR "/etc/wt" CACHE STRING "Path for the configuration files")
   ENDIF( NOT DEFINED CONFIGDIR )
@@ -94,6 +94,7 @@ ENDIF(WIN32)
 OPTION(XML_FEATURES "Use XML for configuration, XSSFilter and message resources." ON)
 OPTION(MXML_SUPPLIED "Force use of supplied mxml over installed mxml." ON)
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
+OPTION(BUILD_TESTS "Build Wt tests" ON)
 
 ADD_DEFINITIONS(-DWT_WITH_OLD_INTERNALPATH_API)
 
@@ -166,22 +167,28 @@ CONFIGURE_FILE(
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
 
+# Generate wt_config.xml from wt_config.xml.in
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/wt_config.xml.in
+  ${WT_SOURCE_DIR}/wt_config.xml
+)
+
 IF (ASCIIDOC_FOUND)
   MACRO (ASCIIDOC_FILE target infile outfile)
     ADD_CUSTOM_TARGET(${target}
        ${ASCIIDOC_EXECUTABLE} -a toc -a numbered -o ${outfile} ${infile}
        COMMENT "Asciidoc ${infile}")
+    ADD_CUSTOM_TARGET(doc)
     ADD_DEPENDENCIES(doc ${target})
   ENDMACRO (ASCIIDOC_FILE)
 ENDIF (ASCIIDOC_FOUND)
-
-ADD_CUSTOM_TARGET(doc)
 
 IF (DOXYGEN_FOUND)
   ADD_CUSTOM_TARGET(doxygen
     ${DOXYGEN_EXECUTABLE}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Doxygen ...")
+  ADD_CUSTOM_TARGET(doc)
   ADD_DEPENDENCIES(doc doxygen)
   ADD_CUSTOM_TARGET(doxygen-examples
     ${DOXYGEN_EXECUTABLE}
@@ -196,7 +203,9 @@ ELSE(WIN32)
   SUBDIRS(src EXCLUDE_FROM_ALL examples)
 ENDIF(WIN32)
 
-SUBDIRS(test)
+IF(BUILD_TESTS)
+  SUBDIRS(test)
+ENDIF(BUILD_TESTS)
 
 IF( NOT DEFINED WT_CMAKE_FINDER_INSTALL_DIR )
   SET( WT_CMAKE_FINDER_INSTALL_DIR "share/cmake-2.4/Modules" )

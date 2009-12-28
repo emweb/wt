@@ -1,6 +1,6 @@
 # Includes the appropriate boost finder
 IF(WT_BOOST_DISCOVERY)
-  INCLUDE(cmake/WtFindBoost-vintage.txt)
+  INCLUDE(${WT_SOURCE_DIR}/cmake/WtFindBoost-vintage.txt)
 ELSE(WT_BOOST_DISCOVERY)
-  INCLUDE(cmake/WtFindBoost-cmake.txt)
+  INCLUDE(${WT_SOURCE_DIR}/cmake/WtFindBoost-cmake.txt)
 ENDIF(WT_BOOST_DISCOVERY)

@@ -127,7 +127,7 @@
 
                Path used by Wt to do session management.
 	      -->
-	    <run-directory>/usr/wt/run</run-directory>
+	    <run-directory>${RUNDIR}</run-directory>
 
 	    <!-- Number of threads per process
 

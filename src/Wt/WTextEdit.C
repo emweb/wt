@@ -14,8 +14,20 @@
 namespace Wt {
 
 WTextEdit::WTextEdit(WContainerWidget *parent)
-  : WTextArea(),
+  : WTextArea(parent),
     contentChanged_(false)
+{
+  init();
+}
+
+WTextEdit::WTextEdit(const WT_USTRING& text, WContainerWidget *parent)
+  : WTextArea(text, parent),
+    contentChanged_(false)
+{
+  init();
+}
+
+void WTextEdit::init()
 {
 #ifdef WT_TARGET_JAVA
   for (unsigned i = 0; i < 4; ++i)
@@ -23,42 +35,18 @@ WTextEdit::WTextEdit(WContainerWidget *parent)
 #endif // WT_TARGET_JAVA
 
   setInline(false);
+  buttons_[0] = "fontselect,|,bold,italic,underline,|,fontsizeselect,|"
+    ",forecolor,backcolor,|"
+    ",justifyleft,justifycenter,justifyright,justifyfull,|,anchor,|"
+    ",numlist,bullist";
+
   initTinyMCE();
-
-  if (parent)
-    parent->addWidget(this);
-}
-
-WTextEdit::WTextEdit(const WT_USTRING& text, WContainerWidget *parent)
-  : WTextArea(text),
-    contentChanged_(false)
-{
-  setInline(false);
-  initTinyMCE();
-
-  if (parent)
-    parent->addWidget(this);
 }
 
 WTextEdit::~WTextEdit()
 {
   // to have virtual renderRemove():
   setParent(0);
-}
-
-void WTextEdit::load()
-{
-  wApp->addAutoJavaScript("{var e=" + jsRef() + ";"
-			  "if(e && e.ed){"
-			  "" WT_CLASS ".tinyMCEAdjust(e);"
-			  "}}");
-
-  buttons_[0] = "fontselect,|,bold,italic,underline,|,fontsizeselect,|"
-    ",forecolor,backcolor,|"
-    ",justifyleft,justifycenter,justifyright,justifyfull,|,anchor,|"
-    ",numlist,bullist";
-
-  WTextArea::load();
 }
 
 void WTextEdit::setStyleSheet(const std::string& uri)
@@ -110,24 +98,25 @@ void WTextEdit::initTinyMCE()
 
     // Adjust the height: this can only be done by adjusting the iframe height.
     app->doJavaScript
-      (WT_CLASS ".tinyMCEAdjust=function(e){"
-       "if (!e.ed.contentAreaContainer) return;"
-       "var tbl=" WT_CLASS ".getElement(e.id + '_tbl');"
-       "var iframe = e.ed.contentAreaContainer.firstChild;"
-       "var th=" WT_CLASS ".pxself(tbl, 'height');"
-       "if (th==0)"                                 // no height set in pixels
-       """if (e.parentNode.className=='Wt-grtd') {" // are we in a layout?
-       ""  "iframe.style.height='0px';"             // momentarily set height to 0
-       ""  "th=e.parentNode.offsetHeight"
-       ""    "-" WT_CLASS ".pxself(e.parentNode, 'paddingTop')"
-       ""    "-" WT_CLASS ".pxself(e.parentNode, 'paddingBottom');"
-       """} else "
-       ""  "return;"                                // no specific height wanted
-       "th -= iframe.parentNode.offsetTop + 2;"
-       "if (th <= 0)"
-       """return;"
-       "var nh=th+'px';"
-       "if (iframe.style.height != nh) iframe.style.height=nh;"
+      (WT_CLASS ".tinyMCEResize=function(e, w, h){"
+       """e.style.height = (h - 2) + 'px';"
+       ""
+       """var iframe = " WT_CLASS ".getElement(e.id + '_ifr');"
+       """if (iframe) {"
+       ""  "var row=iframe.parentNode.parentNode,"
+       ""      "tbl=row.parentNode.parentNode,"
+       ""      "i, il;"
+       ""
+       // deduct height of toolbars
+       ""  "for (i=0, il=tbl.rows.length; i<il; i++) {"
+       ""    "if (tbl.rows[i] != row)"
+       ""      "h -= Math.max(28, tbl.rows[i].offsetHeight);"
+       ""  "}"
+       ""
+       ""  "h = (h - 2) + 'px';"
+       ""
+       ""  "if (iframe.style.height != h) iframe.style.height=h;"
+       """}"
        "};", false);
   }
 }
@@ -193,14 +182,15 @@ void WTextEdit::updateDom(DomElement& element, bool all)
 			   "}");
 
     /*
-     * When initialized, we apply the inline style to the table element
-     * and adjust the element height.
+     * When initialized, we apply the inline style.
      */
     element.callJavaScript(init_cb + "=function(){"
 			   "var d=" WT_CLASS ".getElement('" + formName()
 			   + "_tbl'); d.style.cssText='width:100%;"
-			   + dummy.cssStyle() + "';"
-			   WT_CLASS ".tinyMCEAdjust(" + jsRef() + ");};");
+			   + dummy.cssStyle() + "'; };");
+    element.callJavaScript(jsRef() + ".wtResize = function(e, w, h){"
+			   WT_CLASS ".tinyMCEResize(e, w, h); };");
+
     contentChanged_ = false;
   }
 
