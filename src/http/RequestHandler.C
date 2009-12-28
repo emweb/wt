@@ -64,6 +64,13 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
 				   "", err_root_));
   }
 
+  std::size_t anchor = req.request_path.find("/#");
+  if (anchor != std::string::npos) {
+    // IE6 bug: it sends an anchor at the end of an URL '/' in AJAX requests.
+    // We should therefore make sure we truncate here the path.
+    req.request_path.erase(anchor + 1);
+  }
+
   // Request path must be absolute and not contain "..".
   if (req.request_path.empty() || req.request_path[0] != '/'
       || req.request_path.find("..") != std::string::npos) {

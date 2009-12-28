@@ -117,8 +117,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     if (flags & RenderSelected)
       sc += WT_USTRING::fromUTF8(" Wt-selected");
 
-    if (!sc.empty())
-      widgetRef.w->setStyleClass(widgetRef.w->styleClass() + " " + sc);
+    widgetRef.w->setStyleClass(sc);
   }
 
   if (index.flags() & ItemIsDropEnabled)
