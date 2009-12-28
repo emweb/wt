@@ -48,6 +48,7 @@ public:
   std::string uri;
   std::string urlScheme;
   std::string remoteIP;
+  short port;
   int http_version_major;
   int http_version_minor;
 

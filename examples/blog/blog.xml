@@ -64,8 +64,8 @@
   <message id="blog-logout">
     <div class="login-box">
       <b>${user}</b> ${logout-link}
-      <a href="/wt/blog/feed/">
-	<img src="icons/rss.png" alt="Rss Feed"
+      <a href="${feed-url}">
+	<img src="css/rss.png" alt="Rss Feed"
 	     style="margin-left: 6px; vertical-align: top;"/>
       </a>
     </div>

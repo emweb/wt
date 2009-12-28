@@ -12,7 +12,8 @@
 
 using namespace Wt;
 
-static const char *FeedUrl = "/feed/";
+static const char *FeedUrl = "/blog/feed/";
+static const char *BlogUrl = "/blog";
 
 class BlogApplication : public WApplication
 {
@@ -37,11 +38,13 @@ int main(int argc, char **argv)
   server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
   BlogRSSFeed rssFeed("blog.db", "Wt blog example",
-		      "http://localhost:8080/",
-		      "It's just an example.");
+		      "", "It's just an example.");
 
   server.addResource(&rssFeed, FeedUrl);
-  server.addEntryPoint(Application, createApplication);
+  server.addEntryPoint(Application, createApplication, BlogUrl);
+
+  std::cerr << "\n\n -- Warning: Example is deployed at '"
+	    << BlogUrl << "'\n\n";
 
   if (server.start()) {
     WServer::waitForShutdown();

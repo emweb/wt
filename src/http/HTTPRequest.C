@@ -84,7 +84,7 @@ std::string HTTPRequest::serverName() const
 
 std::string HTTPRequest::serverPort() const
 {
-  return std::string(); // FIXME
+  return boost::lexical_cast<std::string>(reply_->request().port);
 }
 
 std::string HTTPRequest::scriptName() const

@@ -163,6 +163,52 @@ public:
    */
   ResponseContinuation *continuation() const { return continuation_; }
 
+  /*! \brief Returns the (public) server name.
+   *
+   * Returns the public server name. This is the server name that is
+   * advertised to outside, which is determined in a OS specific
+   * way.
+   *
+   * \sa serverPort()
+   */
+  std::string serverName() const;
+
+  /*! \brief Returns the server port.
+   *
+   * Returns the server port number through which this request was received.
+   *
+   * \sa serverName()
+   */
+  std::string serverPort() const;
+
+  /*! \brief Returns the request path.
+   *
+   * Returns the path at which this request was received (excluding internal
+   * path information): it is the path at which the application or resource
+   * is deployed. 
+   *
+   * \sa pathInfo()
+   */
+  std::string path() const;
+
+  /*! \brief Returns the request path info.
+   *
+   * Returns additional path information internal to the path().
+   *
+   * \sa pathInfo()
+   */
+  std::string pathInfo() const;
+
+  /*! \brief Returns the request query string.
+   */
+  std::string queryString() const;
+
+  /*! \brief Returns the url scheme used.
+   *
+   * This is either <tt>"http"</tt> or <tt>"https"</tt>
+   */
+  std::string urlScheme() const;
+
 private:
   const WebRequest       *request_;
   const ParameterMap&     parameters_;

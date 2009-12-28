@@ -21,8 +21,8 @@ BlogRSSFeed::BlogRSSFeed(const std::string& sqliteDb,
 			 const std::string& url,
 			 const std::string& description)
   : session_(new BlogSession(sqliteDb)),
-    title_(title),
     url_(url),
+    title_(title),
     description_(description)
 { }
 
@@ -36,12 +36,24 @@ void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
 {
   response.setMimeType("text/xml");
 
+  std::string url = url_;
+
+  if (url.empty()) {
+    url = request.urlScheme() + "://" + request.serverName();
+    if (!request.serverPort().empty() && request.serverPort() != "80")
+      url += ":" + request.serverPort();
+    url += request.path();
+
+    // remove '/feed/'
+    url.erase(url.length() - 6);
+  }
+
   response.out() <<
     "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
     "<rss version=\"2.0\">\n"
     "  <channel>\n"
     "    <title>" << title_ << "</title>\n"
-    "    <link>" << url_ << "</link>\n"
+    "    <link>" << url << "</link>\n"
     "    <description>" << description_ << "</description>\n";
 
   dbo::Transaction t(*session_);
@@ -54,7 +66,7 @@ void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
   for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i) {
     dbo::ptr<Post> post = *i;
 
-    std::string permaLink = url_ + "/" + post->permaLink();
+    std::string permaLink = url + "/" + post->permaLink();
 
     response.out() <<
       "    <item>\n"

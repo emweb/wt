@@ -90,6 +90,7 @@ void Connection::handleReadRequest0()
 
   if (result) {
     request_.urlScheme = urlScheme();
+    request_.port = socket().local_endpoint().port();
     reply_ = request_handler_.handleRequest(request_);
     reply_->setConnection(this);
     moreDataToSend_ = true;

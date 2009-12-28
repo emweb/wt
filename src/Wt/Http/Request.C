@@ -74,12 +74,39 @@ const std::string *Request::getParameter(const std::string& name) const
     return 0;
 }
 
+std::string Request::serverName() const
+{
+  return request_ ? request_->serverName() : std::string();
+}
+
+std::string Request::serverPort() const
+{
+  return request_ ? request_->serverPort() : std::string();
+}
+
+std::string Request::path() const
+{
+  return request_ ? request_->scriptName() : std::string();
+}
+
+std::string Request::pathInfo() const
+{
+  return request_ ? request_->pathInfo() : std::string();
+}
+
+std::string Request::queryString() const
+{
+  return request_ ? request_->queryString() : std::string();
+}
+
+std::string Request::urlScheme() const
+{
+  return request_ ? request_->urlScheme() : std::string();
+}
+
 int Request::tooLarge() const
 {
-  if (request_)
-    return request_->postDataExceeded();
-  else
-    return 0;
+  return request_ ? request_->postDataExceeded() : 0;
 }
 
 Request::Request(const WebRequest& request, ResponseContinuation *continuation)

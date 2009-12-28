@@ -146,6 +146,7 @@ private:
     logoutLink->setStyleClass("link");
     logoutLink->clicked().connect(SLOT(this, BlogImpl::logout));
 
+    login_->bindString("feed-url", rssFeedUrl_);
     login_->bindString("user", user->name);
     login_->bindWidget("logout-link", logoutLink);
   }
