@@ -1,3 +1,6 @@
+29-12-2009:
+	* Release 3.1.0, after some more bug fixes
+
 22-12-2009:
 	* Ext/FormWidget: add changed(), blurred() and focussed() signals
 
