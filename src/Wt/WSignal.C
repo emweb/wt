@@ -249,6 +249,8 @@ void EventSignalBase::connect(JSlot& slot)
   if (s->addConnection(this)) {
     boost::signals::connection c;
     connections_.push_back(StatelessConnection(c, 0, s));
+
+    senderRepaint();
   }
 }
 

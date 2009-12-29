@@ -178,7 +178,9 @@ void Container::createConfig(std::ostream& config)
 
   WWidget *p = parent();
 
-  if (!dynamic_cast<Container *>(p) && p != app->root()) {
+  if (!dynamic_cast<Container *>(p)
+      && p != app->root() && p != app->domRoot()) {
+
     config << ",renderTo:'" << id() << "'";
 
     WContainerWidget *wc = dynamic_cast<WContainerWidget *>(p->parent());
