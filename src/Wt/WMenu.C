@@ -279,8 +279,10 @@ void WMenu::internalPathChanged(std::string path)
 	  if (items_[current_]->handleInternalPathChange(path))
 	    return;
 
-	if (contentsStack_->currentWidget() != items_[i]->contents())
+	if (contentsStack_->currentWidget() != items_[i]->contents()) {
 	  select(i);
+	  app->setInternalPath(previousInternalPath_);
+	}
 
 	return;
       }

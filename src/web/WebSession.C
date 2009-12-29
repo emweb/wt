@@ -978,9 +978,17 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
     } else
       url = baseUrl() + applicationName();
 
-    std::string s = request.queryString();
-    if (!s.empty())
-      url += "?" + s;
+    bool firstParameter = true;
+    for (Http::ParameterMap::const_iterator i
+	   = request.getParameterMap().begin();
+	 i != request.getParameterMap().end(); ++i) {
+      if (i->first != "_") {
+	url += (firstParameter ? '?' : '&')
+	  + Utils::urlEncode(i->first) + '='
+	  + Utils::urlEncode(i->second[0]);
+	firstParameter = false;
+      }
+    }
 
     url += '#' + (app_ ? app_->internalPath() : env_->internalPath());
 
