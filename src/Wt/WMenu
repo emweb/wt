@@ -308,6 +308,8 @@ private:
 
   std::vector<WMenuItem *> items_;
 
+  void select(int index, bool changePath);
+
   int current_;
   int previousCurrent_;
   int previousStackIndex_;
@@ -315,7 +317,7 @@ private:
   int indexOf(WMenuItem *item);
 
   void selectVisual(WMenuItem *item);
-  void selectVisual(int item);
+  void selectVisual(int item, bool changePath);
   void undoSelectVisual();
   friend class WMenuItem;
 

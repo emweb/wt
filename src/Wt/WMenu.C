@@ -170,11 +170,8 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
   if (internalPathEnabled_) {
     WApplication *app = wApp;
 
-    if (app->internalPathMatches(basePath_ + item->pathComponent())) {
-      std::string path = app->internalPath();
-      select(items_.size() - 1);
-      app->setInternalPath(path);
-    }
+    if (app->internalPathMatches(basePath_ + item->pathComponent()))
+      select(items_.size() - 1, false);
   }
 
   return item;
@@ -205,32 +202,38 @@ void WMenu::removeItem(WMenuItem *item)
     for (unsigned i = 0; i < items_.size(); ++i)
       items_[i]->resetLearnedSlots();
 
-    select(current_);
+    select(current_, true);
   }
 }
 
 void WMenu::select(int index)
 {
+  select(index, true);
+}
+
+void WMenu::select(int index, bool changePath)
+{
   bool emitPathChange = false;
+
   WApplication *app = 0;
 
-  if (internalPathEnabled_) {
+  if (changePath && internalPathEnabled_) {
     app = wApp;
     emitPathChange = previousInternalPath_ != app->internalPath();
   }
 
-  selectVisual(index);
+  selectVisual(index, changePath);
 
   if (index != -1) {
     items_[index]->loadContents();
     itemSelected_.emit(items_[current_]);
 
-    if (emitPathChange)
+    if (changePath && emitPathChange)
       app->internalPathChanged().emit(app->internalPath());
   }
 }
 
-void WMenu::selectVisual(int index)
+void WMenu::selectVisual(int index, bool changePath)
 {
   previousCurrent_ = current_;
   previousStackIndex_ = contentsStack_->currentIndex();
@@ -243,8 +246,9 @@ void WMenu::selectVisual(int index)
     previousInternalPath_ = app->internalPath();
     std::string newPath = basePath_ + items_[current_]->pathComponent();
 
-    // The change is emitted in select()
-    app->setInternalPath(newPath);
+    if (changePath)
+      // The change is emitted in select()
+      app->setInternalPath(newPath);
   }
 
   for (unsigned i = 0; i < items_.size(); ++i)
@@ -279,10 +283,8 @@ void WMenu::internalPathChanged(std::string path)
 	  if (items_[current_]->handleInternalPathChange(path))
 	    return;
 
-	if (contentsStack_->currentWidget() != items_[i]->contents()) {
-	  select(i);
-	  app->setInternalPath(previousInternalPath_);
-	}
+	if (contentsStack_->currentWidget() != items_[i]->contents())
+	  select(i, false);
 
 	return;
       }
@@ -295,12 +297,12 @@ void WMenu::internalPathChanged(std::string path)
 
 void WMenu::select(WMenuItem *item)
 {
-  select(indexOf(item));
+  select(indexOf(item), true);
 }
 
 void WMenu::selectVisual(WMenuItem *item)
 {
-  selectVisual(indexOf(item));
+  selectVisual(indexOf(item), true);
 }
 
 int WMenu::indexOf(WMenuItem *item)
@@ -313,7 +315,7 @@ void WMenu::undoSelectVisual()
   std::string prevPath = previousInternalPath_;
   int prevStackIndex = previousStackIndex_;
 
-  selectVisual(previousCurrent_);
+  selectVisual(previousCurrent_, true);
 
   if (internalPathEnabled_)
     wApp->setInternalPath(prevPath);
