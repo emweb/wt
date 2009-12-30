@@ -264,7 +264,7 @@ void WMenu::selectVisual(int index, bool changePath)
   itemSelectRendered_.emit(items_[current_]);
 }
 
-void WMenu::internalPathChanged(std::string path)
+void WMenu::internalPathChanged(const std::string& path)
 {
   WApplication *app = wApp;
 
@@ -279,19 +279,15 @@ void WMenu::internalPathChanged(std::string path)
     for (unsigned i = 0; i < items_.size(); ++i) {
       if (items_[i]->pathComponent() == value
 	  || items_[i]->pathComponent() == (value + '/')) {
-	if (i == current_)
-	  if (items_[current_]->handleInternalPathChange(path))
-	    return;
-
-	if (contentsStack_->currentWidget() != items_[i]->contents())
-	  select(i, false);
-
+	items_[i]->setFromInternalPath(path);
 	return;
       }
     }
 
     if (!value.empty())
       wApp->log("error") << "WMenu: unknown path: '"<< value << "'";
+    else
+      select(-1, false);
   }
 }
 

@@ -74,7 +74,7 @@ const std::string& FieldRef< ptr<C> >::name() const
 template <class C>
 std::string FieldRef< ptr<C> >::sqlType(Session& session) const
 {
-  return std::string("integer references ") + session.tableName<C>() + "(id)";
+  return std::string("integer references \"") + session.tableName<C>() + "\"(\"id\")";
 }
 
 template <class C>

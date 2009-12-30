@@ -83,7 +83,7 @@ void CreateSchema::act(const FieldRef<V>& field)
   switch (pass_) {
   case Self:
     if (!field.name().empty()) {
-      sql_ << ",\n  " << field.name() << " " << field.sqlType(session_);
+      sql_ << ",\n  \"" << field.name() << "\" " << field.sqlType(session_);
       field.descend(*this);
     } else
       needSetsPass_ = true;

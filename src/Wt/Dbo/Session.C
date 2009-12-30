@@ -219,7 +219,7 @@ std::string Session::getColumns(const char *tableName,
   columns.erase(f);
 
   // 'select version' -> 'id, version'
-  columns.insert(7, "id, ");
+  columns.insert(7, "\"id\", ");
   columns.erase(0, 7);
 
   if (aliases) {

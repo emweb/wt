@@ -71,18 +71,12 @@ std::string WSubMenuItem::pathComponent() const
   return WMenuItem::pathComponent() + "/";
 }
 
-bool WSubMenuItem::handleInternalPathChange(const std::string& path)
+void WSubMenuItem::setFromInternalPath(const std::string& path)
 {
-  // FIXME this is broken in progressive bootstrap
-  if (subMenu_) {
-    if (subMenu_->internalPathEnabled()
-	&& path == subMenu_->internalBasePath()) {
-      subMenu_->select(-1);
-      return false;
-    } else
-      return true;
-  } else
-    return WMenuItem::handleInternalPathChange(path);
+  WMenuItem::setFromInternalPath(path);
+
+  if (subMenu_ && subMenu_->internalPathEnabled())
+    subMenu_->internalPathChanged(path);
 }
 
 }

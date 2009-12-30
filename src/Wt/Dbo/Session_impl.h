@@ -130,7 +130,7 @@ Query< ptr<C> > Session::find(const std::string& where)
     throw std::logic_error("Dbo find(): no active transaction");
 
   std::string columns = sql_result_traits< ptr<C> >::getColumns(*this, 0);
-  std::string from = std::string("from ") + tableName<C>() + " " + where;
+  std::string from = std::string("from \"") + tableName<C>() + "\" " + where;
 
   return Query< ptr<C> >(*this, "select " + columns, from);
 }

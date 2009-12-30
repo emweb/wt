@@ -196,7 +196,7 @@ protected:
    */
   virtual SignalBase& activateSignal();
 
-  virtual bool handleInternalPathChange(const std::string& path);
+  virtual void setFromInternalPath(const std::string& path);
 
 private:
   WWidget          *itemWidget_;

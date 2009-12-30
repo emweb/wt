@@ -84,7 +84,7 @@ protected:
   virtual void updateItemWidget(WWidget *itemWidget);
   virtual void renderSelected(bool selected);
   virtual SignalBase& activateSignal();
-  virtual bool handleInternalPathChange(const std::string& path);
+  virtual void setFromInternalPath(const std::string& path);
 
 private:
   WMenu *subMenu_;

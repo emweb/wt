@@ -12,6 +12,7 @@
 #include "Wt/WLabel"
 #include "Wt/WMenuItem"
 #include "Wt/WMenu"
+#include "Wt/WStackedWidget"
 #include "Wt/WTableCell"
 
 #include "WtException.h"
@@ -207,9 +208,10 @@ WWidget *WMenuItem::takeContents()
   return result;
 }
 
-bool WMenuItem::handleInternalPathChange(const std::string& path)
+void WMenuItem::setFromInternalPath(const std::string& path)
 {
-  return false;
+  if (menu_->contentsStack_->currentWidget() != contents())
+    menu_->select(menu_->indexOf(this), false);
 }
 
 void WMenuItem::select()

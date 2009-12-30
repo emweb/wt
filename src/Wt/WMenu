@@ -320,8 +320,9 @@ private:
   void selectVisual(int item, bool changePath);
   void undoSelectVisual();
   friend class WMenuItem;
+  friend class WSubMenuItem;
 
-  void internalPathChanged(std::string path);
+  void internalPathChanged(const std::string& path);
   void updateItems();
 };
 
