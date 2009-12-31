@@ -1,3 +1,8 @@
+31-12-2009:
+	* Dbo: quote all identifiers
+
+	* WContainerWidget: support resetting a layout manager
+
 29-12-2009:
 	* Release 3.1.0, after some more bug fixes
 

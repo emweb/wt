@@ -230,6 +230,7 @@ void WFormWidget::setValidator(WValidator *validator)
       WObject::addChild(validator_);
 #endif // WT_TARGET_JAVA
   } else {
+    setStyleClass("");
     delete validateJs_;
     validateJs_ = 0;
     delete filterInput_;

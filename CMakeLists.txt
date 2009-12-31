@@ -170,7 +170,7 @@ INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
 # Generate wt_config.xml from wt_config.xml.in
 CONFIGURE_FILE(
   ${WT_SOURCE_DIR}/wt_config.xml.in
-  ${WT_SOURCE_DIR}/wt_config.xml
+  ${WT_BINARY_DIR}/wt_config.xml
 )
 
 IF (ASCIIDOC_FOUND)
@@ -218,5 +218,5 @@ INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION
     ${CMAKE_INSTALL_PREFIX}/share/Wt/)
 
 IF(NOT EXISTS ${CONFIGDIR}/wt_config.xml)
-  INSTALL(FILES ${PROJECT_SOURCE_DIR}/wt_config.xml DESTINATION ${CONFIGDIR})
+  INSTALL(FILES ${WT_BINARY_DIR}/wt_config.xml DESTINATION ${CONFIGDIR})
 ENDIF (NOT EXISTS ${CONFIGDIR}/wt_config.xml)

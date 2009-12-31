@@ -48,6 +48,9 @@ class WT_API WLayout : public WLayoutItem, public WObject
 {
 public:
   /*! \brief Destroy the layout.
+   *
+   * This will delete the layout (and nested layouts), but not the
+   * contained widgets.
    */
   virtual ~WLayout();
 

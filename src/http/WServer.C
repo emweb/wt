@@ -266,13 +266,15 @@ int WServer::waitForShutdown()
 
   sigset_t wait_mask;
   sigemptyset(&wait_mask);
+
+  /*
+   * uncomment the following signal to avoid gdb interference
+   */
   sigaddset(&wait_mask, SIGINT);
   sigaddset(&wait_mask, SIGQUIT);
   sigaddset(&wait_mask, SIGTERM);
-  //sigaddset(&wait_mask, SIGCHLD);
   pthread_sigmask(SIG_BLOCK, &wait_mask, 0);
   int sig = 0;
-  //sigdelset(&wait_mask, SIGCHLD);
     
   int err;
   do {

@@ -139,9 +139,13 @@ public:
 
   /*! \brief Set a layout manager for the container.
    *
-   * Only a single layout manager may be set. Note that you can nest
-   * layout managers inside each other, to create a complex layout
-   * hierarchy.
+   * Note that you can nest layout managers inside each other, to
+   * create a complex layout hierarchy.
+   *
+   * If a previous layout manager was already set, it is first deleted.
+   * In that case, you will need to make sure that you either readd all
+   * widgets that were part of the previous layout to the new layout, or
+   * delete them, to avoid memory leaks.
    *
    * The layout manager arranges children in the entire width and
    * height of the container. This is equivalent to \link

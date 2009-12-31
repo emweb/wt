@@ -303,6 +303,9 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
 {
   StdLayoutImpl::containerAddWidgets(container);
 
+  if (!container)
+    return;
+
   WApplication *app = WApplication::instance();
 
   /*

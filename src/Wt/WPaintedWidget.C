@@ -138,7 +138,8 @@ void WPaintedWidget::update(WFlags<PaintFlag> flags)
 
 void WPaintedWidget::enableAjax()
 {
-  if (dynamic_cast<WWidgetCanvasPainter *>(painter_))
+  if (dynamic_cast<WWidgetCanvasPainter *>(painter_)
+      && renderWidth_ != 0 && renderHeight_ != 0)
     update();
 
   WInteractWidget::enableAjax();

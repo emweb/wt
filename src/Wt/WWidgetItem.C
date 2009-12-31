@@ -17,7 +17,7 @@ WWidgetItem::WWidgetItem(WWidget *widget)
 { }
 
 WWidgetItem::~WWidgetItem()
-{ 
+{
   delete impl_;
 }
 

@@ -21,7 +21,9 @@ StdWidgetItemImpl::StdWidgetItemImpl(WWidgetItem *item)
 { }
 
 StdWidgetItemImpl::~StdWidgetItemImpl()
-{ }
+{ 
+  containerAddWidgets(0);
+}
 
 WLayoutItem *StdWidgetItemImpl::layoutItem() const
 {
@@ -35,7 +37,16 @@ int StdWidgetItemImpl::minimumHeight() const
 
 void StdWidgetItemImpl::containerAddWidgets(WContainerWidget *container)
 {
-  container->addWidget(item_->widget());
+  if (container)
+    container->addWidget(item_->widget());
+  else {
+    WContainerWidget *wc
+      = dynamic_cast<WContainerWidget *>(item_->widget()->parent());
+    if (wc) {
+      wc->removeWidget(item_->widget());
+      wc->addWidget(item_->widget());
+    }
+  }
 }
 
 DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,

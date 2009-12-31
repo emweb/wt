@@ -75,14 +75,12 @@ void WContainerWidget::setLayout(WLayout *layout)
 void WContainerWidget::setLayout(WLayout *layout,
 				 WFlags<AlignmentFlag> alignment)
 {
-  if (layout_ && layout != layout_) {
-    wApp->log("error") << "WContainerWidget::setLayout: already have a layout.";
-    return;
-  }
+  if (layout_)
+    delete layout_;
 
   contentAlignment_ = alignment;
 
-  if (!layout_) {
+  if (layout) {
     layout_ = layout;
     flags_.set(BIT_LAYOUT_CHANGED);
 
@@ -209,17 +207,14 @@ void WContainerWidget::removeWidget(WWidget *widget)
 
 void WContainerWidget::clear()
 {
+  delete layout_;
+  layout_ = 0;
+
   while (!children().empty()) {
     WWidget *w = children().back();
     removeWidget(w);
     delete w;
   }
-
-  // FIXME: we do not support deleting the layout_ without deleting all
-  // children _FIRST_, since deleting the layout automatically removes the
-  // children too in the DOM.
-  delete layout_;
-  layout_ = 0;
 }
 
 int WContainerWidget::indexOf(WWidget *widget) const
@@ -251,8 +246,11 @@ void WContainerWidget::removeChild(WWidget *child)
     }
   }
 
+  if (layout_)
+    ignoreThisChildRemove = true; // will be re-rendered by layout
+
   if (ignoreThisChildRemove)
-    if (WWebWidget::flags_.test(BIT_IGNORE_CHILD_REMOVES))
+    if (ignoreChildRemoves())
       ignoreThisChildRemove = false; // was already ignoring them
 
   if (ignoreThisChildRemove)
@@ -577,14 +575,18 @@ void WContainerWidget::getDomChanges(std::vector<DomElement *>& result,
 
   if (!app->session()->renderer().preLearning()) {
     if (flags_.test(BIT_LAYOUT_CHANGED)) {
-      if (layout_)
-	createDomChildren(*e, app);
-      else
-	flags_.reset(BIT_LAYOUT_CHANGED);
+      DomElement *newE = createDomElement(app);
+      e->replaceWith(newE);
+      result.push_back(e);
+
+      flags_.reset(BIT_LAYOUT_CHANGED);
+
+      return;
     }
   }
 
   updateDom(*e, false);
+
   result.push_back(e);
 }
 
@@ -605,8 +607,7 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
     bool fitWidth = contentAlignment_ & AlignJustify;
     bool fitHeight = !(contentAlignment_ & AlignVerticalMask);
 
-    DomElement *c
-      = (layoutImpl()->createDomElement(fitWidth, fitHeight, app));
+    DomElement *c = layoutImpl()->createDomElement(fitWidth, fitHeight, app);
 
     /*
      * Take the hint: if the container is relative, then we can use an absolute
@@ -648,15 +649,15 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
     }
 
     parent.addChild(c);
-    
+
     flags_.reset(BIT_LAYOUT_CHANGED);
   } else {
     for (unsigned i = 0; i < children_->size(); ++i)
       parent.addChild((*children_)[i]->createSDomElement(app));
-
-    if (transientImpl_)
-      transientImpl_->addedChildren_.clear();
   }
+
+  if (transientImpl_)
+    transientImpl_->addedChildren_.clear();
 }
 
 void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,
@@ -706,21 +707,9 @@ void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,
 
 void WContainerWidget::layoutChanged(bool deleted)
 {
-  if (!flags_.test(BIT_LAYOUT_CHANGED)) {
-    if (!transientImpl_)
-      transientImpl_ = new TransientImpl();
+  flags_.set(BIT_LAYOUT_CHANGED);
 
-    std::string fn = (contentAlignment_ & AlignHorizontalMask) == AlignCenter ?
-      id() + "l" : layoutImpl()->id();
-
-    DomElement *e = DomElement::getForUpdate(fn, DomElement_TABLE);
-    e->removeFromParent();
-    transientImpl_->childRemoveChanges_.push_back(e);
-
-    flags_.set(BIT_LAYOUT_CHANGED);
-
-    repaint(RepaintInnerHtml);
-  }
+  repaint(RepaintInnerHtml);
 
   if (deleted)
     layout_ = 0;

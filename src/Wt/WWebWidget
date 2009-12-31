@@ -373,6 +373,8 @@ private:
 				   const WT_USTRING& hoverStyleClass);
 
   void setIgnoreChildRemoves(bool how);
+  bool ignoreChildRemoves() const;
+  void beingDeleted();
 
 protected:
   void setRendered(bool rendered);

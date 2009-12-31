@@ -184,17 +184,16 @@ void WWebWidget::signalConnectionsChanged()
   repaint(RepaintPropertyAttribute);
 }
 
-WWebWidget::~WWebWidget()
+void WWebWidget::beingDeleted()
 {
   // flag that we are being deleted, this allows some optimalizations
   flags_.set(BIT_BEING_DELETED);
+  flags_.set(BIT_IGNORE_CHILD_REMOVES);  
+}
 
-  // should be handled by removeChild() ?
-  /*
-  if (flags_.test(BIT_FORM_OBJECT))
-    WApplication::instance()
-      ->session()->renderer().updateFormObjects(this, false);
-  */
+WWebWidget::~WWebWidget()
+{
+  beingDeleted();
 
   setParent(0);
 
@@ -252,9 +251,8 @@ void WWebWidget::removeChild(WWidget *child)
   int i = Utils::indexOf(*children_, child);
 
   assert (i != -1);
-    
-  if (!flags_.test(BIT_IGNORE_CHILD_REMOVES)
-      && !flags_.test(BIT_BEING_DELETED)) {
+
+  if (!flags_.test(BIT_IGNORE_CHILD_REMOVES)) {
     DomElement *e = child->webWidget()->renderRemove();
 
     if (e) {
@@ -1408,7 +1406,6 @@ DomElement *WWebWidget::createDomElement(WApplication *app)
 
   DomElement *result = DomElement::createNew(domElementType());
   setId(result, app);
-
   updateDom(*result, true);
 
   return result;
@@ -1505,6 +1502,11 @@ void WWebWidget::setIgnoreChildRemoves(bool how)
     flags_.set(BIT_IGNORE_CHILD_REMOVES);
   else
     flags_.reset(BIT_IGNORE_CHILD_REMOVES);
+}
+
+bool WWebWidget::ignoreChildRemoves() const
+{
+  return flags_.test(BIT_IGNORE_CHILD_REMOVES);
 }
 
 WString WWebWidget::escapeText(const WString& text, bool newlinestoo)

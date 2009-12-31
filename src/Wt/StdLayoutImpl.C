@@ -44,18 +44,22 @@ void StdLayoutImpl::updateAddItem(WLayoutItem *item)
 
 void StdLayoutImpl::updateRemoveItem(WLayoutItem *item)
 {
-  update(item);
+  WContainerWidget *c = container();
+
+  if (c) {
+    update(item);
+
+    getImpl(item)->containerAddWidgets(0);
+  }
 }
 
 void StdLayoutImpl::setContainer(WContainerWidget *c)
 {
   if (c->count()) {
-    wApp->log("warn") << "WContainerWidget: applying Layout manager to "
-      "non-empty WContainerWidget. Container is cleared.";
-    while(c->count()) {
+    while (c->count())
       c->removeWidget(c->widget(0));
-    }
   }
+
   container_ = c;
   containerAddWidgets(container_);
 }
