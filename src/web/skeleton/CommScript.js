@@ -1,27 +1,47 @@
-_$_APP_CLASS_$_._p_.lastId = 0;
-_$_APP_CLASS_$_._p_.userData = new Array();
-_$_APP_CLASS_$_._p_.userCallback = new Array();
+_$_APP_CLASS_$_._p_.comm = new (function(handleResponse) {
+    var Wt = _$_WT_CLASS_$_;
 
-_$_APP_CLASS_$_._p_.commResponseReceived = function(updateId) {
-  var _Wt_ = _$_APP_CLASS_$_._p_;
-  for (i = _Wt_.lastId; i < updateId; ++i) {
-    _Wt_.handleResponse("", _Wt_.userData[i]);
-    _Wt_.userData[i] = null;
-    var s = document.getElementById("script" + i);
-    if (s != null)
-      s.parentNode.removeChild(s);
-  }
-  _Wt_.lastId = updateId - 1;
-}
+    var handler = handleResponse;
+    var lastId = 0;
+    var requests = new Array();
 
-_$_APP_CLASS_$_._p_.sendUpdate = function(url, data, userdata, updateId)
-{
-  var _Wt_ = _$_APP_CLASS_$_._p_;
-  var s = document.createElement('SCRIPT');
-  _Wt_.userData[updateId] = userdata;
-  s.id = "script" + updateId;
-  s.src = url + '&' + data;
-  s.type = 'text/javascript';
-  var h = document.getElementsByTagName('HEAD')[0];
-  h.appendChild(s);
-}
+    function Request(url, data, userData, id, timeout) {
+      var self = this;
+
+      this.script = document.createElement('SCRIPT');
+      this.script.id = "script" + id;
+      this.script.src = url + '&' + data;
+      this.script.type = 'text/javascript';
+
+      var h = document.getElementsByTagName('HEAD')[0];
+      h.appendChild(this.script);
+
+      this.userData = userData;
+
+      this.abort = function() {
+	self.script.parentNode.removeChild(script);
+      }
+    }
+
+    this.responseReceived = function(updateId) {
+      for (i = lastId; i < updateId; ++i) {
+	var request = requests[i];
+
+	if (request) {
+	  handler(0, "", request.userData);
+	  request.script.parentNode.removeChild(request.script);
+	}
+
+	Wt.arrayRemove(requests, i);
+      }
+
+      lastId = updateId;
+    };
+
+    this.sendUpdate = function(url, data, userData, id, timeout) {
+      var request = new Request(url, data, userData, id, timeout);
+      requests[id] = request;
+      return request;
+    };
+
+  })(_$_APP_CLASS_$_._p_.handleResponse);

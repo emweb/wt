@@ -424,6 +424,7 @@ void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
 	       : skeletons::CommScript_js);
 
   js.setVar("APP_CLASS", app->javaScriptClass());
+  js.setVar("WT_CLASS", WT_CLASS);
 
   /*
    * Mozilla Bugzilla #246651

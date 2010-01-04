@@ -75,18 +75,19 @@ void WContainerWidget::setLayout(WLayout *layout)
 void WContainerWidget::setLayout(WLayout *layout,
 				 WFlags<AlignmentFlag> alignment)
 {
-  if (layout_)
+  if (layout_ && layout != layout_)
     delete layout_;
 
   contentAlignment_ = alignment;
 
-  if (layout) {
+  if (layout != layout_) {
     layout_ = layout;
     flags_.set(BIT_LAYOUT_CHANGED);
 
-    WWidget::setLayout(layout);
-
-    layoutImpl()->setContainer(this);
+    if (layout) {
+      WWidget::setLayout(layout);
+      layoutImpl()->setContainer(this);
+    }
   }
 }
 

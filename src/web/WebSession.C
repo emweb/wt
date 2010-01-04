@@ -1190,6 +1190,8 @@ void WebSession::notify(const WEvent& event)
 	    }
 	  } else if (*signalE == "poll" && !updatesPending_) {
 	    pollResponse_ = handler.response();
+	    //pollResponse_->setContentType("text/plain; charset=UTF-8");
+	    //pollResponse_->flush(WebResponse::ResponseWaitMore);
 	    handler.setRequest(0, 0);
 	  }
 	} else {

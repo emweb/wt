@@ -39,7 +39,7 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
    * only work if your application is hosted on the same domain as the
    * web page in which it is embedded.
    */
-  setAjaxMethod(XMLHttpRequest);
+  //setAjaxMethod(XMLHttpRequest);
 
   WContainerWidget *top;
 

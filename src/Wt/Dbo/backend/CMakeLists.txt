@@ -1,9 +1,17 @@
+OPTION( USE_SYSTEM_SQLITE3 "Use system-wide Sqlite3 instead of Wt's version" OFF)
+
+IF(USE_SYSTEM_SQLITE3)
+  FIND_PACKAGE( Sqlite3 REQUIRED)
+ELSE(USE_SYSTEM_SQLITE3)
+  SET(Sqlite3_SRCS amalgamation/sqlite3.c)
+ENDIF(USE_SYSTEM_SQLITE3)
+
 ADD_LIBRARY(wtdbosqlite3
   Sqlite3.C
-  amalgamation/sqlite3.c
+  ${Sqlite3_SRCS}
 )
 
-TARGET_LINK_LIBRARIES(wtdbosqlite3 wtdbo)
+TARGET_LINK_LIBRARIES(wtdbosqlite3 wtdbo ${SQLITE3_LIBRARIES})
 
 IF(NOT WIN32)
   TARGET_LINK_LIBRARIES(wtdbosqlite3 dl)

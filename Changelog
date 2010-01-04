@@ -1,3 +1,7 @@
+04-12-2010:
+	* Wt.js, CommAjax.js, CommScript.js: support communication problems
+	by retrying with exponential back-off
+
 31-12-2009:
 	* Dbo: quote all identifiers
 

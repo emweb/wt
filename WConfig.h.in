@@ -18,8 +18,6 @@
 #define WT_CONFIG_XML "${CONFIGURATION}"
 #define WTHTTP_CONFIGURATION "${WTHTTP_CONFIGURATION}"
 
-#cmakedefine WTHTTP_WITH_ZLIB
-
 #cmakedefine WT_STATIC
 #cmakedefine WTHTTP_STATIC
 #cmakedefine WT_EXT_STATIC
