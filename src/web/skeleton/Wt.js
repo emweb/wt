@@ -351,7 +351,7 @@ this.show = function(o) { self.getElement(o).style.display = ''; };
 
 this.getElementsByClassName = function(className, parentElement) {
   if (document.getElementsByClassName) {
-    return document.getElementsByClassName(className, parentElement);
+    return parentElement.getElementsByClassName(className);
   } else {
     var cc = parentElement.getElementsByTagName('*');
     var els = [], c;
