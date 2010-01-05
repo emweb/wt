@@ -88,7 +88,7 @@ else
   scaleInfo = "";
 
 // determine url
-var selfUrl='_$_SELF_URL_$_';
+var selfUrl=_$_SELF_URL_$_;
 
 var needSessionInUrl = !no_replace || !ajax;
 
@@ -121,7 +121,7 @@ if (needSessionInUrl) {
     selfUrl += '#' + hash;
   setUrl(selfUrl);
 } else if (ajax) {
-  var canonicalUrl = '_$_AJAX_CANONICAL_URL_$_';
+  var canonicalUrl = _$_AJAX_CANONICAL_URL_$_;
   if (canonicalUrl.length > 1)
     setUrl(canonicalUrl);
   else {

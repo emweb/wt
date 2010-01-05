@@ -133,6 +133,8 @@ private:
   bool      learning_;
   bool      moreUpdates_;
 
+  std::string safeJsStringLiteral(const std::string& value);
+
 public:
   std::string       learn(WStatelessSlot* slot);
 };

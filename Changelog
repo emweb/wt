@@ -3,6 +3,9 @@
 
 	* WTreeNode: fix selection handling when removing and readding a node
 
+	* Boot.html, Hybrid.html: fix an XSS vulnerability arising from the
+	internal path
+
 04-12-2010:
 	* Wt.js, CommAjax.js, CommScript.js: support communication problems
 	by retrying with exponential back-off

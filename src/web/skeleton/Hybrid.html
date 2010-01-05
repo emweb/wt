@@ -101,7 +101,7 @@ else
   scaleInfo = "";
 
 // determine url
-var selfUrl='_$_SELF_URL_$_';
+var selfUrl=_$_SELF_URL_$_;
 
 var needSessionInUrl = !no_replace || !ajax;
 
@@ -134,18 +134,18 @@ if (needSessionInUrl) {
     selfUrl += '#' + hash;
   setUrl(selfUrl);
 } else if (ajax) {
-  var canonicalUrl = '_$_AJAX_CANONICAL_URL_$_';
+  var canonicalUrl = _$_AJAX_CANONICAL_URL_$_;
   if (canonicalUrl.length > 1) {
     var inOneSecond = new Date();
     inOneSecond.setTime(inOneSecond.getTime() + 1000);
-    var pathcookie='WtInternalPath=' + escape('_$_INTERNAL_PATH_$_')
+    var pathcookie='WtInternalPath=' + escape(_$_INTERNAL_PATH_$_)
       + ';path=/;expires=' + inOneSecond.toGMTString();
     document.cookie=pathcookie;
     setUrl(canonicalUrl);
   } else {
     if (hash.length > 1 && hash.charAt(0) == '/') {
       selfUrl += '&_=' + encodeURIComponent(hash);
-      if (hash != '_$_INTERNAL_PATH_$_')
+      if (hash != _$_INTERNAL_PATH_$_)
         setTimeout(hideForm, 10);
     }
 

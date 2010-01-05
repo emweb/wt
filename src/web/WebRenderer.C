@@ -205,7 +205,8 @@ void WebRenderer::setBootVars(WebResponse& response,
 	      session_.bootstrapUrl(response, WebSession::ClearInternalPath)
 	      + "&amp;request=resource&amp;resource=blank");
   boot.setVar("SELF_URL",
-	      session_.bootstrapUrl(response, WebSession::KeepInternalPath));
+	      safeJsStringLiteral
+	      (session_.bootstrapUrl(response, WebSession::KeepInternalPath)));
   boot.setVar("SESSION_ID", session_.sessionId());
   boot.setVar("RANDOMSEED",
 	      boost::lexical_cast<std::string>(WtRandom::getUnsigned()
@@ -214,7 +215,8 @@ void WebRenderer::setBootVars(WebResponse& response,
   boot.setVar("USE_COOKIES",
 	      conf.sessionTracking() == Configuration::CookiesURL);
 
-  boot.setVar("AJAX_CANONICAL_URL", session_.ajaxCanonicalUrl(response));
+  boot.setVar("AJAX_CANONICAL_URL",
+	      safeJsStringLiteral(session_.ajaxCanonicalUrl(response)));
 }
 
 void WebRenderer::serveBootstrap(WebResponse& response)
@@ -474,12 +476,13 @@ void WebRenderer::serveMainscript(WebResponse& response)
   script.setVar("INNER_HTML", innerHtml);
   script.setVar("FORM_OBJECTS", '[' + currentFormObjectsList_ + ']');
 
-  script.setVar("RELATIVE_URL", '"'
-		+ session_.bootstrapUrl(response, WebSession::ClearInternalPath)
-		+ '"');
+  script.setVar("RELATIVE_URL", WWebWidget::jsStringLiteral
+		(session_.bootstrapUrl(response,
+				       WebSession::ClearInternalPath)));
   script.setVar("KEEP_ALIVE",
 		boost::lexical_cast<std::string>(conf.sessionTimeout() / 2));
-  script.setVar("INITIAL_HASH", app->internalPath());
+  script.setVar("INITIAL_HASH",
+		WWebWidget::jsStringLiteral(app->internalPath()));
   script.setVar("INDICATOR_TIMEOUT", "500");
   script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
   script.setVar("ONLOAD", widgetset ? "" : "window.loadWidgetTree();");
@@ -669,6 +672,12 @@ void WebRenderer::setJSSynced(bool invisibleToo)
   invisibleJS_.str("");
 }
 
+std::string WebRenderer::safeJsStringLiteral(const std::string& value)
+{
+  std::string s = WWebWidget::jsStringLiteral(value);
+  return Wt::Utils::replace(s, "</script>", "</'+'script>");
+}
+
 void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 				      bool all)
 {
@@ -777,7 +786,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   if (hybridPage) {
     setBootVars(response, page);
-    page.setVar("INTERNAL_PATH", app->internalPath());
+    page.setVar("INTERNAL_PATH", safeJsStringLiteral(app->internalPath()));
   }
 
   std::string url

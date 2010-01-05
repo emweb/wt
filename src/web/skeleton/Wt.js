@@ -1440,7 +1440,7 @@ ImagePreloader.prototype.onload = function() {
     preloader.callback(preloader.images);
 };
 
-WT.history.register('_$_INITIAL_HASH_$_', onHashChange);
+WT.history.register(_$_INITIAL_HASH_$_, onHashChange);
 
 this._p_ = {
  loadScript : loadScript,
