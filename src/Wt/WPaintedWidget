@@ -24,6 +24,7 @@ class WWidgetPainter;
  * primitives. Rendering is done not on the server but on the browser,
  * using different rendering methods:
  *
+ * \if cpp
  * <table>
  *   <tr><td><b>Browser</b></td><td><b>Methods</b></td>
  *       <td><b>Default method</b></td></tr>
@@ -37,6 +38,22 @@ class WWidgetPainter;
  *       <td>InlineSVG</td></tr>
  *   <tr><td>other</td><td>?</td><td>HtmlCanvas</td></tr>
  * </table>
+ * \elseif java
+ * <table>
+ *   <tr><td><b>Browser</b></td><td><b>Methods</b></td>
+ *       <td><b>Default method</b></td></tr>
+ *   <tr><td>Firefox 1.5+</td><td>HtmlCanvas, InlineSVG, PngImage</td>
+ *       <td>HtmlCanvas</td></tr>
+ *   <tr><td>Internet Explorer 6.0+</td><td>InlineVML, PngImage</td>
+ *       <td>InlineVML</td></tr>
+ *   <tr><td>Safari</td><td>HtmlCanvas, InlineSVG, PngImage</td>
+ *       <td>HtmlCanvas</td></tr>
+ *   <tr><td>Opera</td><td>InlineSVG, HtmlCanvas*, PngImage</td>
+ *       <td>InlineSVG</td></tr>
+ *   <tr><td>other</td><td>?</td><td>HtmlCanvas, PngImage</td></tr>
+ * </table>
+ * \endif
+ *
  * <i>* HtmlCanvas occasionally suffers from rendering artefacts in Opera.</i>
  *
  * The different rendering methods correspond to different
@@ -51,6 +68,12 @@ class WWidgetPainter;
  * must be enabled in the configuration file using the
  * <tt>&lt;send-xhtml-mime-type&gt;</tt> option. By default, this
  * option is off.
+ *
+ * \if java
+ * The PngImage is the most portable rendering method, and may be the fastest
+ * if the painting is of high complexity and/or the image is fairly small.
+ * This method uses the standard library Graphics2D to paint on a BufferedImage.
+ * \endif
  *
  * To use a %WPaintedWidget, you must derive from it and reimplement
  * paintEvent(WPaintDevice *paintDevice). To paint on a WPaintDevice,
@@ -109,6 +132,14 @@ public:
     /*! \brief The WHATWG HTML 5 canvas element.
      */
     HtmlCanvas
+
+#ifdef WT_TARGET_JAVA
+    ,
+
+    /*! \brief Using a PNG image resource.
+     */
+    PngImage
+#endif // WT_TARGET_JAVA
   };
 
   /*! \brief Create a new painted widget.

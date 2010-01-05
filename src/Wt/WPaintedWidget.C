@@ -62,6 +62,18 @@ public:
 			      WPaintDevice *device); 
 };
 
+#ifdef WT_TARGET_JAVA
+class WWidgetRasterPainter : public WWidgetPainter
+{
+public:
+  WWidgetRasterPainter(WPaintedWidget *widget);
+  virtual WPaintDevice *createPaintDevice();
+  virtual void createContents(DomElement *element, WPaintDevice *device);
+  virtual void updateContents(std::vector<DomElement *>& result,
+			      WPaintDevice *device); 
+};
+#endif // WT_TARGET_JAVA
+
 WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   : WInteractWidget(parent),
     preferredMethod_(HtmlCanvas),
@@ -149,6 +161,13 @@ bool WPaintedWidget::createPainter()
 {
   if (painter_)
     return false;
+
+#ifdef WT_TARGET_JAVA
+  if (preferredMethod_ == PngImage) {
+    painter_ = new WWidgetRasterPainter(this);
+    return true;
+  }
+#endif // WT_TARGET_JAVA
 
   const WEnvironment& env = WApplication::instance()->environment();
 
@@ -498,5 +517,69 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
 
   result.push_back(text);
 }
+
+#ifdef WT_TARGET_JAVA
+
+class WRasterPaintDevice : public WPaintDevice, WResource
+{
+  enum Format { PngFormat };
+
+  WRasterPaintDevice(Format format, WLength width, WLength height) { };
+};
+
+/*
+ * WWidgetRasterPainter
+ */
+
+WWidgetRasterPainter::WWidgetRasterPainter(WPaintedWidget *widget)
+  : WWidgetPainter(widget)
+{ }
+
+WPaintDevice *WWidgetRasterPainter::createPaintDevice()
+{
+  return new WRasterPaintDevice(WRasterPaintDevice::PngFormat,
+				widget_->renderWidth_, widget_->renderHeight_);
+}
+
+void WWidgetRasterPainter::createContents(DomElement *result,
+					  WPaintDevice *device)
+{
+  std::string wstr = boost::lexical_cast<std::string>(widget_->renderWidth_);
+  std::string hstr = boost::lexical_cast<std::string>(widget_->renderHeight_);
+
+  DomElement *img = DomElement::createNew(DomElement_IMG);
+  img->setId('i' + widget_->id());
+  img->setAttribute("width", wstr);
+  img->setAttribute("height", hstr);
+
+  WRasterPaintDevice *rasterDevice = dynamic_cast<WRasterPaintDevice *>(device);
+
+  img->setAttribute("src", rasterDevice->generateUrl());
+
+  result->addChild(img);
+}
+
+void WWidgetRasterPainter::updateContents(std::vector<DomElement *>& result,
+					  WPaintDevice *device)
+{
+  WRasterPaintDevice *rasterDevice = dynamic_cast<WRasterPaintDevice *>(device);
+
+  DomElement *img
+    = DomElement::getForUpdate('i' + widget_->id(), DomElement_IMG);
+
+  if (widget_->sizeChanged_) {
+    img->setAttribute("width",
+		      boost::lexical_cast<std::string>(widget_->renderWidth_));
+    img->setAttribute("height",
+		      boost::lexical_cast<std::string>(widget_->renderHeight_));
+    widget_->sizeChanged_ = false;
+  }
+
+  img->setAttribute("src", rasterDevice->generateUrl());
+
+  result.push_back(img);
+}
+
+#endif // WT_TARGET_JAVA
 
 }

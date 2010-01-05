@@ -1345,7 +1345,7 @@ function emit(object, config) {
 
 function addTimerEvent(timerid, msec, repeat) {
   var tm = function() {
-    var obj = Wt.getElement(timerid);
+    var obj = WT.getElement(timerid);
     if (obj) {
       if (repeat)
 	obj.timer = setTimeout(obj.tm, msec);
@@ -1357,7 +1357,7 @@ function addTimerEvent(timerid, msec, repeat) {
     }
   };
 
-  var obj = Wt.getElement(timerid);
+  var obj = WT.getElement(timerid);
   obj.timer = setTimeout(tm, msec);
   obj.tm = tm;
 }
