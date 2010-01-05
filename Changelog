@@ -1,3 +1,8 @@
+05-12-2010:
+	* Chart/WAxis: added setLabelFont(), labelFont() methods
+
+	* WTreeNode: fix selection handling when removing and readding a node
+
 04-12-2010:
 	* Wt.js, CommAjax.js, CommScript.js: support communication problems
 	by retrying with exponential back-off

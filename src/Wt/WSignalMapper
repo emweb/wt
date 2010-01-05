@@ -84,14 +84,14 @@ public:
    * mapper->setMapping(widget, data);
    * \endcode
    */
-  void mapConnect(SignalBase& signal, const T& data);
+  boost::signals::connection mapConnect(SignalBase& signal, const T& data);
 #else
 #ifndef WT_TARGET_JAVA
-  void mapConnect(SignalBase& signal, const T& data);
+  boost::signals::connection mapConnect(SignalBase& signal, const T& data);
 #endif
   template<typename S>
-    void mapConnect(EventSignal<S>& signal, const T& data);
-    void mapConnect(EventSignal<void>& signal, const T& data);
+    boost::signals::connection mapConnect(EventSignal<S>& signal, const T& data);
+    boost::signals::connection mapConnect(EventSignal<void>& signal, const T& data);
 #endif
 
   /*! \brief Map a signal with one argument.
@@ -114,7 +114,7 @@ public:
    * \endcode
    */
   template<typename S>
-    void mapConnect1(S& signal, const T& data);
+    boost::signals::connection mapConnect1(S& signal, const T& data);
 
   /*! \brief %Signal emitted in response to a signal sent to map() or map1().
    *
@@ -143,6 +143,14 @@ public:
    */
   void map1(A1 a);
 
+  /*! \brief Remove the mapping of an object
+   *
+   * This method does not disconnect any signals; that is the responsability of
+   * the user of WSignalMapper. If no mapping of for an object exits,
+   * the mapper will ignore the signal, and not emit the mapped signal.
+   */
+   void removeMapping(WObject *sender);
+
 private:
   Signal<T, A1> mapped_;
 
@@ -165,19 +173,19 @@ void WSignalMapper<T, A1>::setMapping(WObject *sender, const T& data)
 }
 
 template <typename T, typename A1>
-void WSignalMapper<T, A1>::mapConnect(SignalBase& signal, const T& data)
+boost::signals::connection WSignalMapper<T, A1>::mapConnect(SignalBase& signal, const T& data)
 {
   mappings_[signal.sender()] = data;
-  signal.connectBase
+  return signal.connectBase
     (this, static_cast<void (WObject::*)()>(&WSignalMapper<T, A1>::map));
 }
 
 template <typename T, typename A1>
 template <typename S>
-void WSignalMapper<T, A1>::mapConnect1(S& signal, const T& data)
+boost::signals::connection WSignalMapper<T, A1>::mapConnect1(S& signal, const T& data)
 {
   mappings_[signal.sender()] = data;
-  signal.connect(this, &WSignalMapper<T, A1>::map1);
+  return signal.connect(this, &WSignalMapper<T, A1>::map1);
 }
 
 template <typename T, typename A1>
@@ -200,6 +208,16 @@ void WSignalMapper<T, A1>::map1(A1 a1)
   if (i != mappings_.end()) {
     mapped_.emit(i->second, a1);
   }
+}
+
+template <typename T, typename A1>
+void WSignalMapper<T, A1>::removeMapping(WObject *sender)
+{
+  typename DataMap::iterator i = mappings_.find(sender);
+  if (i != mappings_.end()) {
+    mappings_.erase(i);
+  }
+
 }
 
 #endif

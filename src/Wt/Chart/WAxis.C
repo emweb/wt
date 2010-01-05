@@ -118,6 +118,8 @@ WAxis::WAxis()
 {
   titleFont_.setFamily(WFont::SansSerif);
   titleFont_.setSize(WFont::FixedSize, WLength(12, WLength::Point));
+  labelFont_.setFamily(WFont::SansSerif);
+  labelFont_.setSize(WFont::FixedSize, WLength(10, WLength::Point));
 
   segments_.push_back(Segment());
 }
@@ -279,6 +281,11 @@ void WAxis::setTitle(const WString& title)
 void WAxis::setTitleFont(const WFont& titleFont)
 {
   set(titleFont_, titleFont);
+}
+
+void WAxis::setLabelFont(const WFont& labelFont)
+{
+  set(labelFont_, labelFont);
 }
 
 void WAxis::update()

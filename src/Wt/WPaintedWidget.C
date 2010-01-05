@@ -551,6 +551,10 @@ void WWidgetRasterPainter::createContents(DomElement *result,
   img->setId('i' + widget_->id());
   img->setAttribute("width", wstr);
   img->setAttribute("height", hstr);
+  img->setAttribute("class", "unselectable");
+  img->setAttribute("unselectable", "on");
+  img->setAttribute("onselectstart", "return false;");
+  img->setAttribute("onmousedown", "return false;");
 
   WRasterPaintDevice *rasterDevice = dynamic_cast<WRasterPaintDevice *>(device);
 

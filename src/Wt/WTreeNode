@@ -425,6 +425,7 @@ private:
   static const char* imagePlus_[];
   static const char* imageMin_[];
 
+  boost::signals::connection clickedConnection_;
   friend class WTree;
 };
 

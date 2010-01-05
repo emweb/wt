@@ -156,6 +156,10 @@ void WTree::clearSelection()
 
 void WTree::select(WTreeNode *node, bool selected)
 {
+  if (selectionMode_ == SingleSelection && selected && 
+      selection_.size() == 1 && Utils::first(selection_) == node)
+      return; // node was already selected, avoid re-emission of signals
+
   if (selectionMode_ == SingleSelection && selected)
     clearSelection();
 
@@ -187,6 +191,8 @@ void WTree::select(const WTreeNodeSet& nodes)
 void WTree::nodeRemoved(WTreeNode *node)
 {
   select(node, false);
+  node->clickedConnection_.disconnect();
+  onClickMapper_.removeMapping(node);
 
   for (unsigned i = 0; i < node->childNodes().size(); ++i)
     nodeRemoved(node->childNodes()[i]);
@@ -201,7 +207,8 @@ void WTree::nodeAdded(WTreeNode *node)
     if (!w)
       w = node->labelArea();
 
-    onClickMapper_.mapConnect1(w->clicked(), node);
+    node->clickedConnection_ = 
+      onClickMapper_.mapConnect1(w->clicked(), node);
     //w->clicked.setPreventDefault(true);
 
     for (unsigned i = 0; i < node->childNodes().size(); ++i)

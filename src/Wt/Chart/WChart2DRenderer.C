@@ -743,6 +743,10 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 {
   bool vertical = axis.id() != XAxis;
 
+  WFont oldFont1 = painter_.font();
+  WFont labelFont = axis.labelFont();
+  painter_.setFont(labelFont);
+
   double u = 0;
   enum { Left = 0x1, Right = 0x2, Both = 0x3 } tickPos = Left;
   AlignmentFlag labelHFlag = AlignLeft;
@@ -924,7 +928,7 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
       painter_.strokePath(ticksPath, axis.pen());
 
     if (segment == 0 && (properties & Labels) && !axis.title().empty()) {
-      WFont oldFont = painter_.font();
+      WFont oldFont2 = painter_.font();
       WFont titleFont = axis.titleFont();
       painter_.setFont(titleFont);
 
@@ -954,9 +958,11 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 		      black, AlignTop | AlignLeft, 0, 8);
       }
 
-      painter_.setFont(oldFont);
+      painter_.setFont(oldFont2);
     }
   }
+
+  painter_.setFont(oldFont1);
 }
 
 void WChart2DRenderer::renderAxes(WFlags<AxisProperty> properties)

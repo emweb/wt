@@ -449,9 +449,23 @@ public:
 
   /*! \brief Returns the axis title font.
    *
-   * \sa setTitle()
+   * \sa setTitleFont()
    */
   const WFont& titleFont() const { return titleFont_; }
+
+  /*! \brief Sets the axis label font.
+   *
+   * The default label font is a 10 point Sans Serif font.
+   *
+   * \sa labelFont()
+   */
+  void setLabelFont(const WFont& labelFont);
+
+  /*! \brief Returns the axis label font.
+   *
+   * \sa setLabelFont()
+   */
+  const WFont& labelFont() const { return labelFont_; }
 
   WString label(double u) const;
 
@@ -476,7 +490,7 @@ private:
   int              margin_;
   double           labelAngle_;
   WString          title_;
-  WFont            titleFont_;
+  WFont            titleFont_, labelFont_;
 
   struct Segment {
     double minimum, maximum;
