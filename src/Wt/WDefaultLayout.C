@@ -35,8 +35,8 @@ void WDefaultLayout::removeItem(WLayoutItem *item)
   int i = indexOf(item);
 
   if (i != -1) {
-    updateRemoveItem(item);
     items_.erase(items_.begin() + i);
+    updateRemoveItem(item);
   }
 }
 

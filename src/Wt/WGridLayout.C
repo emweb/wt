@@ -58,12 +58,12 @@ void WGridLayout::removeItem(WLayoutItem *item)
   int index = indexOf(item);
 
   if (index != -1) {
-    updateRemoveItem(item);
-
     int row = index / columnCount();
     int col = index % columnCount();
 
     grid_.items_[row][col].item_ = 0;
+
+    updateRemoveItem(item);
   }
 }
 

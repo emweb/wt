@@ -248,8 +248,9 @@ private:
 
   WModelIndex childIndex(int column);
 
-  WWidget   *widget(int column);
-  void       setWidget(int column, WWidget *w, bool replace);
+  WWidget *widget(int column);
+  void setWidget(int column, WWidget *w);
+  void addColumnStyleClass(int column, WWidget *w);
 };
 
 void RowSpacer::setRows(int height, bool force)
@@ -348,7 +349,9 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
 						       renderFlags);
 
     if (newW != currentW)
-      setWidget(i, newW, currentW != 0);
+      setWidget(i, newW);
+    else
+      addColumnStyleClass(i, currentW);
   }
 }
 
@@ -443,23 +446,25 @@ WModelIndex WTreeViewNode::childIndex(int column)
   return view_->model()->index(index_.row(), column, index_.parent());
 }
 
-void WTreeViewNode::setWidget(int column, WWidget *newW, bool replace)
+void WTreeViewNode::addColumnStyleClass(int column, WWidget *w)
+{
+  EscapeOStream s;
+  s << "Wt-tv-c rh " << view_->columnStyleClass(column) << ' '
+    << w->styleClass().toUTF8();
+  w->setStyleClass(WString::fromUTF8(s.c_str()));
+}
+
+void WTreeViewNode::setWidget(int column, WWidget *newW)
 {
   WTableCell *tc = elementAt(0, 1);
   WContainerWidget *w = dynamic_cast<WContainerWidget *>(tc->widget(0));
 
-  WWidget *current = replace ? widget(column) : 0;
+  WWidget *current = widget(column);
 
-  if (current) {
-    newW->setStyleClass(current->styleClass());
-    current->setStyleClass(WString());
-  } else {
-    EscapeOStream s;
-    s << "Wt-tv-c rh " << view_->columnStyleClass(column) << ' '
-      << newW->styleClass().toUTF8();
+  addColumnStyleClass(column, newW);
 
-    newW->setStyleClass(WString::fromUTF8(s.c_str()));
-  }
+  if (current)
+    current->setStyleClass(WString::Empty);
 
   if (column == 0) {
     if (current)

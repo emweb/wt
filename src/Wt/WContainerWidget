@@ -412,6 +412,9 @@ protected:
 private:
   void propagateLayoutItemsOk(WLayoutItem *item);
 
+  void removeFromLayout(WWidget *w);
+
+  friend class StdWidgetItemImpl;
   friend class WImage;
   friend class WTableCell;
 };

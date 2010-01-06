@@ -43,14 +43,12 @@ void WBoxLayout::removeItem(WLayoutItem *item)
   int index = indexOf(item);
 
   if (index != -1) {
-    updateRemoveItem(item);
-
     switch (direction_) {
     case RightToLeft:
       index = grid_.columns_.size() - 1 - index;
     case LeftToRight:
       grid_.columns_.erase(grid_.columns_.begin() + index);
-      grid_.items_[0].erase(grid_.items_[index].begin() + index);
+      grid_.items_[0].erase(grid_.items_[0].begin() + index);
       break;
     case BottomToTop:
       index = grid_.rows_.size() - 1 - index;
@@ -58,6 +56,8 @@ void WBoxLayout::removeItem(WLayoutItem *item)
       grid_.rows_.erase(grid_.rows_.begin() + index);
       grid_.items_.erase(grid_.items_.begin() + index);
     }
+
+    updateRemoveItem(item);
   }
 }
 

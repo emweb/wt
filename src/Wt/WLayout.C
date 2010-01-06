@@ -92,14 +92,16 @@ void WLayout::addWidget(WWidget *w)
   addItem(new WWidgetItem(w));
 }
 
-void WLayout::removeWidget(WWidget *w)
+bool WLayout::removeWidget(WWidget *w)
 {
   WWidgetItem *widgetItem = findWidgetItem(w);
 
   if (widgetItem) {
     widgetItem->parentLayout()->removeItem(widgetItem);
     delete widgetItem;
-  }
+    return true;
+  } else
+    return false;
 }
 
 void WLayout::updateAddItem(WLayoutItem *item)

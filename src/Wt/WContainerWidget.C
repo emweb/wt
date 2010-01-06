@@ -57,7 +57,9 @@ EventSignal<WScrollEvent>& WContainerWidget::scrolled()
 
 WContainerWidget::~WContainerWidget()
 {
-  delete layout_;
+  WLayout *layout = layout_;
+  layout_ = 0;
+  delete layout;
   delete[] padding_;
   delete[] overflow_;
 }
@@ -199,6 +201,12 @@ void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
     ->session()->renderer().updateFormObjects(this, false);
 }
 
+void WContainerWidget::removeFromLayout(WWidget *widget)
+{
+  if (layout_)
+    removeWidget(widget);
+}
+
 void WContainerWidget::removeWidget(WWidget *widget)
 {
   widget->setParent((WWidget *)0);
@@ -208,14 +216,16 @@ void WContainerWidget::removeWidget(WWidget *widget)
 
 void WContainerWidget::clear()
 {
-  delete layout_;
-  layout_ = 0;
-
+  // first delete the widgets, this will also remove them from
+  // the layout
   while (!children().empty()) {
     WWidget *w = children().back();
-    removeWidget(w);
+    //removeWidget(w);
     delete w;
   }
+
+  delete layout_;
+  layout_ = 0;
 }
 
 int WContainerWidget::indexOf(WWidget *widget) const
@@ -247,8 +257,11 @@ void WContainerWidget::removeChild(WWidget *child)
     }
   }
 
-  if (layout_)
+  if (layout_) {
     ignoreThisChildRemove = true; // will be re-rendered by layout
+    if (layout_->removeWidget(child))
+      return;
+  }
 
   if (ignoreThisChildRemove)
     if (ignoreChildRemoves())

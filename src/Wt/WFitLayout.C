@@ -36,8 +36,8 @@ void WFitLayout::addItem(WLayoutItem *item)
 void WFitLayout::removeItem(WLayoutItem *item)
 {
   if (item == item_) {
-    updateRemoveItem(item);
     item_ = 0;
+    updateRemoveItem(item);
   }
 }
 

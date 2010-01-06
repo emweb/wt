@@ -42,10 +42,9 @@ void StdWidgetItemImpl::containerAddWidgets(WContainerWidget *container)
   else {
     WContainerWidget *wc
       = dynamic_cast<WContainerWidget *>(item_->widget()->parent());
-    if (wc) {
-      wc->removeWidget(item_->widget());
-      wc->addWidget(item_->widget());
-    }
+
+    if (wc)
+      wc->removeFromLayout(item_->widget());
   }
 }
 

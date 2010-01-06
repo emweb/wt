@@ -92,9 +92,11 @@ public:
    * This method finds the corresponding WWidgetItem and calls
    * removeItem(WLayoutItem *). The widget itself is not destroyed.
    *
+   * Returns \c true if succesful.
+   *
    * \sa addWidget(WWidget *), removeItem(WLayoutItem *)
    */
-  void removeWidget(WWidget *widget);
+  bool removeWidget(WWidget *widget);
 
   /*! \brief Return the number of items in this layout.
    *

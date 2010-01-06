@@ -675,7 +675,7 @@ void WebRenderer::setJSSynced(bool invisibleToo)
 std::string WebRenderer::safeJsStringLiteral(const std::string& value)
 {
   std::string s = WWebWidget::jsStringLiteral(value);
-  return Wt::Utils::replace(s, "</script>", "</'+'script>");
+  return Wt::Utils::replace(s, "<", "<'+'");
 }
 
 void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,

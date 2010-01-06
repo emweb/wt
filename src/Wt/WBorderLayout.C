@@ -133,8 +133,9 @@ void WBorderLayout::removeItem(WLayoutItem *item)
   for (int i = 0; i < 5; ++i) {
     Impl::Grid::Item& gridItem = itemAtPosition((Position)i);
     if (gridItem.item_ == item) {
-      updateRemoveItem(item);
       gridItem.item_ = 0;
+
+      updateRemoveItem(item);
 
       break;
     }
