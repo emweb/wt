@@ -283,8 +283,10 @@ WWidget *FormWidgets::wInPlaceEdit()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WInPlaceEdit", result);
-  new WText("<p>This widget allows you to edit a string by clicking "
-	    "on it. The text changes in a WLineEdit while editing.</p>",
+  new WText("<p>This widget allows you to edit a text in-place by clicking "
+	    "on it. You can enable the save/cancel buttons (like here below) "
+	    "or disable them (as used in the WCalendar widget to edit the "
+	    "year).</p>",
 	    result);
   new WText("Try it here: ", result);
   WInPlaceEdit *ipe = new WInPlaceEdit("This is editable text", result);
@@ -380,17 +382,17 @@ WWidget *FormWidgets::wPopupMenu()
   new WText(tr("formwidgets-WPopupMenu"), result);
 
   WPopupMenu *popup = new WPopupMenu();
-  popup->addItem("icons/popupmenu.gif", "String item with image");
-  popup->addItem("Checkable string item")->setCheckable(true);
-  popup->addItem("Plain string item");
+  popup->addItem("icons/house.png", "Build a house");
+  popup->addItem("Roof included")->setCheckable(true);
+  popup->addItem("Add a door");
   popup->addSeparator();
-  popup->addItem("Another plain string item");
+  popup->addItem("Add a window");
   WPopupMenu *subMenu = new WPopupMenu();
-  subMenu->addItem("Sub item");
-  popup->addMenu("Sub menu", subMenu);
+  subMenu->addItem("Add a chair");
+  subMenu->addItem("Add a table");
+  popup->addMenu("Add furniture", subMenu);
   
-  WLabel* clickMe = 
-    new WLabel("Click me and a WPopupMenu will appear!", result);
+  WLabel* clickMe = new WLabel("Clicking here will show a popup menu.", result);
   clickMe->setStyleClass("popupmenuLabel");
   clickMe->clicked().connect(SLOT(popup, WPopupMenu::popup));
   

@@ -22,7 +22,7 @@ namespace dbo = Wt::Dbo;
 typedef dbo::collection< dbo::ptr<Comment> > Comments;
 typedef dbo::collection< dbo::ptr<Tag> > Tags;
 
-class Post {
+class Post : public dbo::Dbo {
 public:
   enum State {
     Unpublished = 0,

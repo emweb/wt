@@ -119,6 +119,7 @@ ul.menu {
     list-style:none;
     width:200px;
     border-right: 3px solid #EEEEEE;
+    overflow: auto;
 }
 
 ul.menu li {
@@ -208,7 +209,7 @@ div.contents {
 }
 
 .tabwidget {
-    border-bottom: 1px solid #84b0c7;
+    border-bottom: 1px solid gray;
     padding-bottom: 3px;
     height: 100px;
 }
@@ -267,4 +268,10 @@ div.contents {
 .events {
     border: 4px solid #528B12;
     padding: 5px;
+}
+
+.popupmenuLabel {
+    padding: 5px;
+    background-color: #e3dbde;
+    cursor: default;   
 }

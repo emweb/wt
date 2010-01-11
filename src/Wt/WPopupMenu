@@ -14,6 +14,7 @@
 namespace Wt {
 
   class WApplication;
+  class WTemplate;
   class WMouseEvent;
   class WPoint;
   class WPopupMenuItem;
@@ -124,14 +125,14 @@ namespace Wt {
 class WT_API WPopupMenu : public WCompositeWidget
 {
 public:
-  /*! \brief Create a new popup menu.
+  /*! \brief Creates a new popup menu.
    *
    * The menu is hidden, by default, and must be shown using popup()
    * or exec().
    */
   WPopupMenu();
 
-  /*! \brief Add an item with given text.
+  /*! \brief Adds an item with given text.
    *
    * Adds an item to the menu with given text, and returns the
    * corresponding item object.
@@ -140,7 +141,7 @@ public:
    */
   WPopupMenuItem *addItem(const WString& text);
 
-  /*! \brief Add an item with given icon and text.
+  /*! \brief Adds an item with given icon and text.
    *
    * Adds an item to the menu with given text and icon, and returns
    * the corresponding item object.
@@ -151,7 +152,7 @@ public:
    */
   WPopupMenuItem *addItem(const std::string& iconPath, const WString& text);
 
-  /*! \brief Add an item with given text, and specify a slot method to be
+  /*! \brief Adds an item with given text, and specify a slot method to be
    *         called when the item is triggered.
    *
    * The <i>target</i> and \p method are connected to the
@@ -163,7 +164,7 @@ public:
     WPopupMenuItem *addItem(const WString& text,
 			    T *target, void (V::*method)());
     
-  /*! \brief Add an item with given text and icon, and specify a slot
+  /*! \brief Adds an item with given text and icon, and specify a slot
    *         method to be called when activated.
    *
    * The <i>target</i> and \p method are connected to the
@@ -177,7 +178,7 @@ public:
     WPopupMenuItem *addItem(const std::string& iconPath, const WString& text,
 			    T *target, void (V::*method)());
 
-  /*! \brief Add a submenu, with given text.
+  /*! \brief Adds a submenu, with given text.
    *
    * Adds an item with text \p text, that leads to a submenu
    * \p menu.
@@ -186,7 +187,7 @@ public:
    */
   WPopupMenuItem *addMenu(const WString& text, WPopupMenu *menu);
 
-  /*! \brief Add a submenu, with given icon and text.
+  /*! \brief Adds a submenu, with given icon and text.
    *
    * Adds an item with given text and icon, that leads to a submenu
    * \p menu.
@@ -196,20 +197,20 @@ public:
   WPopupMenuItem *addMenu(const std::string& iconPath, const WString& text,
 			  WPopupMenu *menu);
 
-  /*! \brief Add a menu item.
+  /*! \brief Adds a menu item.
    *
    * Adds an item to the popup menu.
    */
   void add(WPopupMenuItem *item);
 
-  /*! \brief Add a separator to the menu.
+  /*! \brief Adds a separator to the menu.
    *
    * Adds a separator the popup menu. The separator is an empty div with
    * style-class "separator".
    */
   void addSeparator();
 
-  /*! \brief Show the the popup at a position.
+  /*! \brief Shows the the popup at a position.
    *
    * Displays the popup at a point with document coordinates
    * \p point. The positions intelligent, and will chose one of
@@ -220,7 +221,7 @@ public:
    */
   void popup(const WPoint& point);
 
-  /*! \brief Show the the popup at the location of a mouse event.
+  /*! \brief Shows the the popup at the location of a mouse event.
    *
    * This is a convenience method for popup(const WPoint&) that uses the
    * event's document coordinates.
@@ -229,7 +230,13 @@ public:
    */
   void popup(const WMouseEvent& event);
 
-  /*! \brief Execute the the popup at a position.
+  /*! \brief Shows the popup besides a widget.
+   *
+   * \sa positionAt(), popup(const WPointF&)
+   */
+  void popup(WWidget *location, Orientation orientation = Vertical);
+
+  /*! \brief Executes the the popup at a position.
    *
    * Displays the popup at a point with document coordinates \p p,
    * using popup(), and the waits until a menu item is selected, or
@@ -242,7 +249,7 @@ public:
    */
   WPopupMenuItem *exec(const WPoint& point);
 
-  /*! \brief Execute the the popup at the location of a mouse event.
+  /*! \brief Executes the the popup at the location of a mouse event.
    *
    * This is a convenience method for exec(const WPoint& p) that uses the
    * event's document coordinates.
@@ -250,6 +257,12 @@ public:
    * \sa exec(const WPoint&)
    */
   WPopupMenuItem *exec(const WMouseEvent& event);
+
+  /*! \brief Executes the popup besides a widget.
+   *
+   * \sa positionAt(), popup(const WPointF&)
+   */
+  WPopupMenuItem *exec(WWidget *location, Orientation orientation = Vertical);
 
   /*! \brief Returns the last triggered menu item.
    *
@@ -269,18 +282,20 @@ public:
   Signal<>& aboutToHide() { return aboutToHide_; }
 
 private:
-  WContainerWidget *impl_;
-  WPopupMenuItem   *parentItem_, *result_;
+  WTemplate      *impl_;
+  WPopupMenuItem *parentItem_, *result_;
 
   Signal<> aboutToHide_;
 
   boost::signals::connection globalClickConnection_, globalEscapeConnection_;
   bool                       recursiveEventLoop_;
 
+  WContainerWidget *contents();
   WPopupMenu *topLevelMenu();
   void        done();
   void        done(WPopupMenuItem *result);
-  void        popup(WWidget *location);
+  void        popupImpl();
+  void        popupToo(WWidget *location);
   void        prepareRender(WApplication *app);
 
   friend class WPopupMenuItem;

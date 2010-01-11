@@ -36,15 +36,15 @@ Session::~Session()
     std::cerr << "Warning: Wt::Dbo::Session exiting with "
 	      << dirtyObjects_.size() << " dirty objects" << std::endl;
 
-  for (DboBaseSet::iterator i = dirtyObjects_.begin(); i != dirtyObjects_.end();
-       ++i)
+  for (MetaDboBaseSet::iterator i = dirtyObjects_.begin(); 
+       i != dirtyObjects_.end(); ++i)
     (*i)->decRef();
 
   dirtyObjects_.clear();
 
-  if (!registry_.empty())
-    std::cerr << "Warning: Wt::Dbo::Session exiting with " << registry_.size()
-	      << " dangling objects" << std::endl;
+  for (Registry::iterator i = registry_.begin(); i != registry_.end(); ++i) {
+    i->second->setState(MetaDboBase::Orphaned);
+  }
 
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
@@ -65,7 +65,7 @@ void Session::returnConnection(SqlConnection *connection)
 {
 }
 
-void Session::prune(DboBase *obj)
+void Session::prune(MetaDboBase *obj)
 {
   if (dirtyObjects_.erase(obj) > 0)
     obj->decRef();
@@ -84,7 +84,7 @@ void Session::createTables()
   t.commit();
 }
 
-void Session::needsFlush(DboBase *obj)
+void Session::needsFlush(MetaDboBase *obj)
 {
   if (dirtyObjects_.insert(obj).second)
     obj->incRef();
@@ -92,8 +92,8 @@ void Session::needsFlush(DboBase *obj)
 
 void Session::flush()
 {
-  for (DboBaseSet::iterator i = dirtyObjects_.begin(); i != dirtyObjects_.end();
-       ++i) {
+  for (MetaDboBaseSet::iterator i = dirtyObjects_.begin();
+       i != dirtyObjects_.end(); ++i) {
     (*i)->flush();
     (*i)->decRef();
   }

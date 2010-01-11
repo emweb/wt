@@ -189,7 +189,7 @@ bool CreateSchema::isReading() const { return false; }
 bool CreateSchema::isWriting() const { return false; }
 bool CreateSchema::isSchema() const { return true; }
 
-SaveDbAction::SaveDbAction(DboBase& dbo)
+SaveDbAction::SaveDbAction(MetaDboBase& dbo)
   : dummy_(0),
     loadSets_(dbo, 0, dummy_),
     dbo_(dbo),
@@ -241,7 +241,7 @@ bool SaveDbAction::isReading() const { return false; }
 bool SaveDbAction::isWriting() const { return true; }
 bool SaveDbAction::isSchema() const { return false; }
 
-LoadDbAction::LoadDbAction(DboBase& dbo, SqlStatement *statement,
+LoadDbAction::LoadDbAction(MetaDboBase& dbo, SqlStatement *statement,
 			   int& column)
   : dbo_(dbo),
     statement_(statement),
@@ -283,7 +283,7 @@ bool LoadDbAction::isReading() const { return true; }
 bool LoadDbAction::isWriting() const { return false; }
 bool LoadDbAction::isSchema() const { return false; }
 
-TransactionDoneAction::TransactionDoneAction(DboBase& dbo, bool success)
+TransactionDoneAction::TransactionDoneAction(MetaDboBase& dbo, bool success)
   : success_(success),
     dummy_(0),
     undoLoadSets_(dbo, 0, dummy_)

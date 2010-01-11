@@ -344,6 +344,18 @@ WT_USTRING WCompositeWidget::attributeValue(const std::string& name) const
   return impl_->attributeValue(name);
 }
 
+void WCompositeWidget::setJavaScriptMember(const std::string& name,
+					   const std::string& value)
+{
+  impl_->setJavaScriptMember(name, value);
+}
+
+void WCompositeWidget::callJavaScriptMember(const std::string& name,
+					    const std::string& args)
+{
+  impl_->callJavaScriptMember(name, args);
+}
+
 void WCompositeWidget::load()
 {
   if (impl_)
@@ -407,6 +419,11 @@ void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
     render();
 
   impl_->getSDomChanges(result, app);
+}
+
+void WCompositeWidget::render()
+{
+  renderOk();
 }
 
 int WCompositeWidget::boxPadding(Orientation orientation) const

@@ -65,6 +65,8 @@ void FileServe::streamUntil(std::ostream& out, const std::string& until)
 	  std::size_t _pos = currentVar.find('_');
 	  std::string fname = currentVar.substr(1, _pos - 1);
 
+	  currentPos_ += 2; // skip ()
+
 	  if (fname == "endif") {
 	    if (noMatchConditions)
 	      --noMatchConditions;

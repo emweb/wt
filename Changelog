@@ -1,4 +1,11 @@
-05-12-2010:
+11-01-2010:
+	* themes/polished: several improvements
+
+	* WPanel, WCalendar, WDatePicker, WDialog: improved theme support
+
+	* WTreeView: several bug fixes and improved IE bug workaround support
+
+05-01-2010:
 	* Chart/WAxis: added setLabelFont(), labelFont() methods
 
 	* WTreeNode: fix selection handling when removing and readding a node
@@ -6,7 +13,7 @@
 	* Boot.html, Hybrid.html: fix an XSS vulnerability arising from the
 	internal path
 
-04-12-2010:
+04-01-2010:
 	* Wt.js, CommAjax.js, CommScript.js: support communication problems
 	by retrying with exponential back-off
 

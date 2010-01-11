@@ -13,20 +13,21 @@ namespace Wt {
   namespace Dbo {
 
 template <class C>
-Dbo<C>::~Dbo()
+MetaDbo<C>::~MetaDbo()
 {
   if (refCount_)
     throw std::logic_error("Dbo: refCount > 0");
 
-  if (session())
+  if ((!isOrphaned()) && session())
     session()->prune(this);
 
   delete obj_;
 }
 
 template <class C>
-void Dbo<C>::flush()
+void MetaDbo<C>::flush()
 {
+  checkNotOrphaned();
   if (state_ & NeedsDelete) {
     state_ &= ~NeedsDelete;
 
@@ -48,8 +49,9 @@ void Dbo<C>::flush()
 }
 
 template <class C>
-void Dbo<C>::prune()
+void MetaDbo<C>::prune()
 {
+  checkNotOrphaned();
   session()->prune(this);
   setId(-1);
   setVersion(-1);
@@ -57,7 +59,7 @@ void Dbo<C>::prune()
 }
 
 template <class C>
-void Dbo<C>::transactionDone(bool success)
+void MetaDbo<C>::transactionDone(bool success)
 {
   Session *s = session();
 
@@ -90,8 +92,9 @@ void Dbo<C>::transactionDone(bool success)
 }
 
 template <class C>
-void Dbo<C>::purge()
+void MetaDbo<C>::purge()
 {
+  checkNotOrphaned();
   if (isPersisted() && !isDirty() && !inTransaction()) {
     delete obj_;
     obj_ = 0;
@@ -100,8 +103,9 @@ void Dbo<C>::purge()
 }
 
 template <class C>
-void Dbo<C>::reread()
+void MetaDbo<C>::reread()
 {
+  checkNotOrphaned();
   if (isPersisted()) {
     session()->prune(this);
 
@@ -114,14 +118,17 @@ void Dbo<C>::reread()
 }
 
 template <class C>
-void Dbo<C>::setObj(C *obj)
+void MetaDbo<C>::setObj(C *obj)
 {
+  checkNotOrphaned();
   obj_ = obj;
+  DboHelper<C>::setMeta(*obj, this);
 }
 
 template <class C>
-C *Dbo<C>::obj()
+C *MetaDbo<C>::obj()
 {
+  checkNotOrphaned();
   if (!obj_ && !isDeleted())
     doLoad();
 
@@ -129,19 +136,22 @@ C *Dbo<C>::obj()
 }
 
 template <class C>
-Dbo<C>::Dbo(C *obj)
-  : DboBase(-1, -1, New | NeedsSave, 0),
+MetaDbo<C>::MetaDbo(C *obj)
+  : MetaDboBase(-1, -1, New | NeedsSave, 0),
+    obj_(obj)
+{ 
+  DboHelper<C>::setMeta(*obj, this);
+}
+
+template <class C>
+MetaDbo<C>::MetaDbo(long long id, int version, int state, Session& session,
+		    C *obj)
+  : MetaDboBase(id, version, state, &session),
     obj_(obj)
 { }
 
 template <class C>
-Dbo<C>::Dbo(long long id, int version, int state, Session& session, C *obj)
-  : DboBase(id, version, state, &session),
-    obj_(obj)
-{ }
-
-template <class C>
-void Dbo<C>::doLoad()
+void MetaDbo<C>::doLoad()
 {
   int column = 0;
   obj_ = session()->template implLoad<C>(*this, 0, column);
@@ -152,7 +162,7 @@ ptr<C>::ptr(C *obj)
   : obj_(0)
 {
   if (obj) {
-    obj_ = new Dbo<C>(obj);
+    obj_ = new MetaDbo<C>(obj);
     takeObj();
   }
 }
@@ -174,7 +184,7 @@ template <class C>
 void ptr<C>::reset(C *obj)
 {
   freeObj();
-  obj_ = new Dbo<C>(obj);
+  obj_ = new MetaDbo<C>(obj);
   takeObj();
 }
 
@@ -274,7 +284,7 @@ long long ptr<C>::id() const
 }
 
 template <class C>
-ptr<C>::ptr(Dbo<C> *obj)
+ptr<C>::ptr(MetaDbo<C> *obj)
   : obj_(obj)
 {
   takeObj();

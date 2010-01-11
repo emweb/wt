@@ -20,9 +20,9 @@ namespace boost {
 
 namespace Wt {
 
-class WTable;
 class WComboBox;
 class WInPlaceEdit;
+class WTemplate;
 
 /*! \class WCalendar Wt/WCalendar Wt/WCalendar
  *  \brief A calendar.
@@ -56,65 +56,78 @@ class WInPlaceEdit;
  * \image html WCalendar-1.png "WCalendar with default look"
  *
  * <h3>CSS</h3>
- * The look can be overridden using the following style class selectors:
+ *
+ * A calendar has the <tt>Wt-calendar</tt> style class. The look can
+ * be overridden using the following style class selectors:
  *
  * \verbatim
-.Wt-cal-table           : The table
+.Wt-cal table           : The table
+.Wt-cal table.d1        : The table (single letter day headers)
+.Wt-cal table.d3        : The table (three letter day headers)
 
-.Wt-cal-header          : Header cell (week day)
-.Wt-cal-header-weekend  : Header cell (weekend day)
+.Wt-cal caption		: The caption (containing the navigation buttons)
+.Wt-cal-year		: The caption year in-place-edit
 
-.Wt-cal-table td        : In-month day cell
-.Wt-cal-oom             : Out-of-month day cell
-.Wt-cal-sel             : Selected day cell
-.Wt-cal-now             : Today day cell
+.Wt-cal th              : Header cell (week day)
+
+.Wt-cal td              : Day cell
+.Wt-cal-oom             : Out-of-month day
+.Wt-cal-sel             : Selected day
+.Wt-cal-now             : Today day
 \endverbatim
  *
  */
 class WT_API WCalendar : public WCompositeWidget
 {
 public:
-  /*! \brief Create a new calendar.
+  /*! \brief Creates a new calendar.
+   *
+   * Constructs a new calendar with English day/month names.  The
+   * calendar shows the current day, and has an empty selection.
+   */
+  WCalendar(WContainerWidget *parent = 0);
+
+  /*! \brief Creates a new calendar.
    *
    * Constructs a new calendar, with optional support for internationalization.
    * The calendar shows the current day, and has an empty selection.
    */
-  WCalendar(bool i18n = false, WContainerWidget *parent = 0);
+  WCalendar(bool i18n, WContainerWidget *parent = 0);
 
-  /*! \brief Configure single or multiple selection mode.
+  /*! \brief Configures single or multiple selection mode.
    *
    * In single selection mode, only one date may be selected: the selection()
    * will be empty or contain exactly one item. 
    */
   void setMultipleSelection(bool multiple);
 
-  /*! \brief Browse to the same month in the previous year.
+  /*! \brief Browses to the same month in the previous year.
    *
    * Displays the same month in the previous year. This does not change
    * the current selection.
    */
   void browseToPreviousYear();
 
-  /*! \brief Browse to the previous month.
+  /*! \brief Browses to the previous month.
    *
    * Displays the previous month. This does not change the current selection.
    */
   void browseToPreviousMonth();
 
-  /*! \brief Browse to the same month in the next year.
+  /*! \brief Browses to the same month in the next year.
    *
    * Displays the same month in the next year. This does not change
    * the current selection.
    */
   void browseToNextYear();
 
-  /*! \brief Browse to the next month.
+  /*! \brief Browses to the next month.
    *
    * Displays the next month. This does not change the current selection.
    */
   void browseToNextMonth();
 
-  /*! \brief Browse to a date.
+  /*! \brief Browses to a date.
    *
    * Displays the month which contains the given date. This does not change
    * the current selection.
@@ -133,21 +146,21 @@ public:
    */
   int currentYear() const { return currentYear_; }
 
-  /*! \brief Clear the current selection.
+  /*! \brief Clears the current selection.
    *
    * Clears the current selection. Will result in a selection() that is
    * empty().
    */
   void clearSelection();
 
-  /*! \brief Select a date.
+  /*! \brief Selects a date.
    *
    * Select one date. Both in single or multiple selection mode, this results
    * in a selection() that contains exactly one date.
    */
   void select(const WDate& date);
 
-  /*! \brief Select multiple dates.
+  /*! \brief Selects multiple dates.
    *
    * Select multiple dates. In multiple selection mode, this results
    * in a selection() that contains exactly the given dates. In single
@@ -175,13 +188,30 @@ public:
    */
   Signal<WDate>& selected() { return selected_; }
 
-  /*! \brief Configure the calendar to use single click to select.
+  /*! \brief Configures the calendar to use single click to select.
    *
    * This only applies to a single-selection calendar.
    *
    * \sa setMultipleSelection()
    */
   void setSingleClickSelect(bool single);
+
+  /*! \brief Sets the length for the abbreviated day of week.
+   *
+   * The \p chars may be 1 or 3, which render "Monday" as
+   * respectively "M" or "Mon".
+   *
+   * The default length is 3.
+   */
+  void setDayOfWeekLength(int chars);
+
+  /*! \brief Sets the first day of the week.
+   *
+   * Possible values or 1 to 7, as accepted by WDate::shortDayName().
+   *
+   * The default value is 1 ("Monday").
+   */
+  void setFirstDayOfWeek(int dayOfWeek);
 
 protected:
   virtual void render();
@@ -192,6 +222,8 @@ private:
   bool              singleClickSelect_;
   int               currentYear_;
   int               currentMonth_;
+  int               dayOfWeekChars_;
+  int               firstDayOfWeek_;
   std::set<WDate>   selection_;
   bool              needRenderMonth_;
 
@@ -205,15 +237,15 @@ private:
     Coordinate(int x, int y) { i = x; j = y; }
   };
 
-  WContainerWidget                    *layout_;
+  WTemplate			      *impl_;
   WComboBox                           *monthEdit_;
   WInPlaceEdit                        *yearEdit_;
-  WTable                              *calendar_;
+
   WSignalMapper<Coordinate, NoClass>  *cellClickMapper_;
   WSignalMapper<Coordinate, NoClass>  *cellDblClickMapper_;
 
   void create();
-  void renderMonth(bool create = false);
+  void renderMonth();
 
   void monthChanged(int newMonth);
   void yearChanged(WString newYear);

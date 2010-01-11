@@ -17,27 +17,36 @@ using namespace boost::gregorian;
 #include "Wt/WLineEdit"
 #include "Wt/WSignalMapper"
 #include "Wt/WTable"
+#include "Wt/WTemplate"
 #include "Wt/WText"
 
 #include "Utils.h"
 
 namespace Wt {
 
+// Because WDate returns days and weeks as WT_USTRING, we need this:
+#ifndef WT_TARGET_JAVA
+#define DATE_NAME_STR(e) e
+#else
+#define DATE_NAME_STR(e) WString::fromUTF8(e)
+#endif
+
+WCalendar::WCalendar(WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    i18n_(false),
+    selectionChanged_(this),
+    selected_(this)
+{
+  create();
+}
+
+
 WCalendar::WCalendar(bool i18n, WContainerWidget *parent)
   : WCompositeWidget(parent),
     i18n_(i18n),
-    multipleSelection_(false),
-    singleClickSelect_(false),
     selectionChanged_(this),
-    selected_(this),
-    cellClickMapper_(0),
-    cellDblClickMapper_(0)
+    selected_(this)
 {
-  WDate currentDay = WDate::currentDate();
-
-  currentYear_ = currentDay.year();
-  currentMonth_ = currentDay.month();
-
   create();
 }
 
@@ -59,70 +68,111 @@ void WCalendar::setSingleClickSelect(bool single)
 
 void WCalendar::create()
 {
-  setImplementation(layout_ = new WContainerWidget());
+  multipleSelection_ = false;
+  singleClickSelect_ = false;
+  dayOfWeekChars_ = 3;
+  firstDayOfWeek_ = 1;
+  cellClickMapper_ = 0;
+  cellDblClickMapper_ = 0;
 
-  WApplication *app = WApplication::instance();
-  layout_->setStyleClass("Wt-cal");
+  WDate currentDay = WDate::currentDate();
 
-  /*
-   * Navigation bar
-   */
-  WContainerWidget *navigation = new WContainerWidget(layout_);
-  navigation->setStyleClass("Wt-cal-navigation");
+  currentYear_ = currentDay.year();
+  currentMonth_ = currentDay.month();
 
-  WText *prevYear = new WText("<<", PlainText, navigation);
-  prevYear->setStyleClass("Wt-cal-navbutton");
-  prevYear->clicked().connect(SLOT(this, WCalendar::browseToPreviousYear));
+  std::stringstream text;
 
-  WText *prevMonth = new WText("<", PlainText, navigation);
+  text <<
+    "<table class=${table-class} cellspacing=\"0\" cellpadding=\"0\">"
+    """<caption>"
+    ""  "${nav-prev} ${month} ${year} ${nav-next}"
+    """</caption>"
+    """<tr>";
+
+  for (int j = 0; j < 7; ++j)
+    text <<
+      "<th title=\"${t" << j << "}\" scope=\"col\">${d" << j << "}</th>";
+
+  text << "</tr>";
+
+  for (int i = 0; i < 6; ++i) {
+    text << "<tr>";
+    for (int j = 0; j < 7; ++j)
+      text << "<td>${c" << (i * 7 + j) << "}</td>";
+    text << "</tr>";
+  }
+
+  text << "</table>";
+
+  setImplementation(impl_ = new WTemplate(WString::fromUTF8(text.str())));
+  impl_->setStyleClass("Wt-cal");
+
+  setSelectable(false);
+
+  WText *prevMonth = new WText("«", PlainText);
   prevMonth->setStyleClass("Wt-cal-navbutton");
   prevMonth->clicked().connect(SLOT(this, WCalendar::browseToPreviousMonth));
 
-#ifndef WT_TARGET_JAVA
-#define DATE_NAME_STR(e) e
-#else
-#define DATE_NAME_STR(e) WString::fromUTF8(e)
-#endif
+  WText *nextMonth = new WText("»", PlainText);
+  nextMonth->setStyleClass("Wt-cal-navbutton");
+  nextMonth->clicked().connect(SLOT(this, WCalendar::browseToNextMonth));
 
-  monthEdit_ = new WComboBox(navigation);
+  monthEdit_ = new WComboBox();
   for (unsigned i = 0; i < 12; ++i)
     monthEdit_->addItem(i18n_
 			? tr(WDate::longMonthName(i+1).toUTF8().c_str())
 			: DATE_NAME_STR(WDate::longMonthName(i+1)));
   monthEdit_->activated().connect(SLOT(this, WCalendar::monthChanged));
 
-  yearEdit_ = new WInPlaceEdit("", navigation);
+  yearEdit_ = new WInPlaceEdit("");
+  yearEdit_->setButtonsEnabled(false);
   yearEdit_->lineEdit()->setTextSize(4);
   yearEdit_->setStyleClass("Wt-cal-year");
   yearEdit_->valueChanged().connect(SLOT(this, WCalendar::yearChanged));
- 
-  WText *nextMonth = new WText(">", PlainText, navigation);
-  nextMonth->setStyleClass("Wt-cal-navbutton");
-  nextMonth->clicked().connect(SLOT(this, WCalendar::browseToNextMonth));
 
-  WText *nextYear = new WText(">>", PlainText, navigation);
-  nextYear->setStyleClass("Wt-cal-navbutton");
-  nextYear->clicked().connect(SLOT(this, WCalendar::browseToNextYear));
+  impl_->bindWidget("nav-prev", prevMonth);
+  impl_->bindWidget("nav-next", nextMonth);
+  impl_->bindWidget("month", monthEdit_);
+  impl_->bindWidget("year", yearEdit_);
 
-  /*
-   * Calendar table
-   */
-  calendar_ = new WTable(layout_);
-  calendar_->setStyleClass("Wt-cal-table");
-
-  for (unsigned i = 0; i < 7; ++i) {
-    new WText(i18n_ 
-	      ? tr(WDate::shortDayName(i+1).toUTF8().c_str())
-	      : DATE_NAME_STR(WDate::shortDayName(i+1)),
-	      calendar_->elementAt(0, i));
-    calendar_->elementAt(0, i)
-      ->setStyleClass(i < 5 ? "Wt-cal-header" : "Wt-cal-header-weekend");
-  }
-
-  renderMonth(true);
+  setDayOfWeekLength(dayOfWeekChars_);
+  setFirstDayOfWeek(firstDayOfWeek_);
 }
 
-void WCalendar::renderMonth(bool create)
+void WCalendar::setFirstDayOfWeek(int dayOfWeek)
+{
+  firstDayOfWeek_ = dayOfWeek;
+
+  for (unsigned i = 0; i < 7; ++i) {
+    int day = (i + firstDayOfWeek_ - 1) % 7 + 1;
+
+    WString title = i18n_ ? tr(WDate::longDayName(day).toUTF8())
+      : DATE_NAME_STR(WDate::longDayName(day));
+    impl_->bindString("t" + boost::lexical_cast<std::string>(i), title);
+
+    WString abbr = i18n_ ? tr(WDate::shortDayName(day).toUTF8())
+      : DATE_NAME_STR(WDate::shortDayName(day));
+
+    if (dayOfWeekChars_ != 3)
+      abbr = WString::fromUTF8(abbr.toUTF8().substr(0, 1));
+
+    impl_->bindString("d" + boost::lexical_cast<std::string>(i), abbr);
+  }
+
+  renderMonth();
+}
+
+void WCalendar::setDayOfWeekLength(int chars)
+{
+  dayOfWeekChars_ = chars == 3 ? 3 : 1;
+
+  impl_->bindString("table-class",
+		    "d" + boost::lexical_cast<std::string>(dayOfWeekChars_));
+
+  setFirstDayOfWeek(firstDayOfWeek_);
+}
+
+void WCalendar::renderMonth()
 {
   needRenderMonth_ = true;
 
@@ -140,7 +190,6 @@ void WCalendar::render()
 #else
     char *buf;
 #endif // WT_TARGET_JAVA
-    WApplication *app = 0;
 
     if (create) {
       cellClickMapper_ = new WSignalMapper<Coordinate>(this);
@@ -151,8 +200,6 @@ void WCalendar::render()
 	cellDblClickMapper_->mapped().connect(SLOT(this,
 						   WCalendar::cellDblClicked));
       }
-
-      app = WApplication::instance();
     }
 
     int m = currentMonth_ - 1;
@@ -164,52 +211,56 @@ void WCalendar::render()
     if (yearEdit_->text().toUTF8() != buf)
       yearEdit_->setText(WString::fromUTF8(buf));
 
-    WDate nowd = WDate::currentDate();
-    date now(nowd.year(), nowd.month(), nowd.day());
+    WDate todayd = WDate::currentDate();
+    date today(todayd.year(), todayd.month(), todayd.day());
 
     // The first line contains the last day of the previous month.
     date d(currentYear_, currentMonth_, 1);
     d -= date_duration(1);
-    greg_weekday gw(Monday);
+ 
+    greg_weekday gw = firstDayOfWeek_ % 7;
     d = previous_weekday(d, gw);
 
     for (unsigned i = 0; i < 6; ++i) {
       for (unsigned j = 0; j < 7; ++j) {
-	WTableCell *cell = calendar_->elementAt(i+1, j);
+	Utils::itoa(i * 7 + j, buf);
+	std::string cell = std::string("c") + buf;
 
-	if (create) {
-	  WText *t = new WText(cell);
+	WText *t = dynamic_cast<WText *>(impl_->resolveWidget(cell));
+
+	if (!t) {
+	  t = new WText();
+	  t->setInline(false);
 	  t->setTextFormat(PlainText);
-	  Utils::itoa(d.day(), buf);
-	  t->setText(WString::fromUTF8(buf));
+	  impl_->bindWidget(cell, t);
 
-	  // we cannot wrap a TD in a button !
-	  WInteractWidget *w = app->environment().javaScript()
-	    ? static_cast<WInteractWidget *>(cell) : t;
-	  cellClickMapper_->mapConnect(w->clicked(), Coordinate(i, j));
+	  cellClickMapper_->mapConnect(t->clicked(), Coordinate(i, j));
 	  if (cellDblClickMapper_)
-	    cellDblClickMapper_->mapConnect(w->doubleClicked(),
+	    cellDblClickMapper_->mapConnect(t->doubleClicked(),
 					    Coordinate(i, j));
-	} else {
-	  WText *t = dynamic_cast<WText *>(cell->children()[0]);
-	  Utils::itoa(d.day(), buf);
-	  t->setText(WString::fromUTF8(buf));
 	}
+
+	Utils::itoa(d.day(), buf);
+	t->setText(WString::fromUTF8(buf));
 
 	WDate date(d.year(), d.month(), d.day());
 
 	std::string styleClass;
 
-	if (isSelected(date))
-	  styleClass += " Wt-cal-sel";
-
 	if (d.month() != currentMonth_)
 	  styleClass += " Wt-cal-oom";
 
-	if (d == now)
-	  styleClass += " Wt-cal-now";
+	if (isSelected(date))
+	  styleClass += " Wt-cal-sel";
 
-	cell->setStyleClass(styleClass.c_str());
+	if (d == today) {
+	  if (!isSelected(date))
+	    styleClass += " Wt-cal-now";
+	  t->setToolTip("Today");
+	} else
+	  t->setToolTip("");
+
+	t->setStyleClass(styleClass.c_str());
 
 	d += date_duration(1);
       }
@@ -324,7 +375,7 @@ date WCalendar::dateForCell(int week, int dayOfWeek)
 {
   date d(currentYear_, currentMonth_, 1);
   d -= date_duration(1);
-  greg_weekday gw(Monday);
+  greg_weekday gw = firstDayOfWeek_ % 7;
   d = previous_weekday(d, gw);
 
   d += date_duration(week * 7 + dayOfWeek);

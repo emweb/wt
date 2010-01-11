@@ -251,6 +251,26 @@ public:
    */
   virtual WLength maximumHeight() const = 0;
 
+  /*! \brief Positions a widget next to another widget.
+   *
+   * Positions this absolutely positioned widget next to another \p
+   * widget. Both widgets must be visible.
+   *
+   * When \p orientation = Vertical, the widget is displayed below the
+   * other widget (or above in case there is not enough room
+   * below). It is aligned so that the left edges align (or the right
+   * edges if there is not enough room to the right).
+   *
+   * Conversely, when \p orientation = Horizontal, the widget is
+   * displayed to the right of the other widget (or to the left in
+   * case there is not enough room to the right). It is aligned so
+   * that the top edges align (or the bottom edges if there is not
+   * enough room below).
+   *
+   * \note This only works if JavaScript is available.
+   */
+  void positionAt(const WWidget *widget, Orientation orientation = Vertical);
+
   /*! \brief Sets the CSS line height for contained text.
    */
   virtual void setLineHeight(const WLength& height) = 0;
@@ -578,6 +598,24 @@ public:
    * \sa setAttributeValue()
    */
   virtual WT_USTRING attributeValue(const std::string& name) const = 0;
+
+  /*! \brief Sets a JavaScript member.
+   *
+   * This binds a JavaScript member, which is set as a JavaScript property
+   * to the DOM object that implements this widget. The value may be any
+   * JavaScript expression, including a function.
+   */
+  virtual void setJavaScriptMember(const std::string& name,
+				   const std::string& value) = 0;
+
+  /*! \brief Calls a JavaScript member.
+   *
+   * This calls a JavaScript member.
+   *
+   * \sa setJavaScriptMember()
+   */
+  virtual void callJavaScriptMember(const std::string& name,
+				    const std::string& args) = 0;
 
   /*! \brief Short hand for WString::tr()
    *

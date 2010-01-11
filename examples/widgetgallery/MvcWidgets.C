@@ -8,17 +8,18 @@
 #include "TreeViewExample.h"
 #include "DeferredWidget.h"
 
+#include <Wt/WBreak>
 #include <Wt/WComboBox>
+#include <Wt/WPanel>
 #include <Wt/WPushButton>
 #include <Wt/WSelectionBox>
+#include <Wt/WStandardItem>
+#include <Wt/WStandardItemModel>
 #include <Wt/WStringListModel>
 #include <Wt/WText>
-#include <Wt/Ext/ComboBox>
 #include <Wt/WTreeView>
 #include <Wt/WTable>
-#include <Wt/WBreak>
-#include <Wt/WStandardItemModel>
-#include <Wt/WStandardItem>
+#include <Wt/Ext/ComboBox>
 #include <iostream>
 using namespace Wt;
 
@@ -60,11 +61,7 @@ void MvcWidgets::comboBoxAdd()
   if (extComboBox_->currentIndex() == -1) {
     std::vector<WString> sl = stringList_->stringList();
     sl.push_back(extComboBox_->currentText());
-    //std::cout << "combobox text: " << extComboBox_->currentText() << std::endl;
-    //sl.push_back("Blabla");
     stringList_->setStringList(sl);
-    //stringList_->insertRows(0, 1);
-    //stringList_->setData(0, 0, WString("Blabla"));
   }
 }
 
@@ -222,7 +219,6 @@ WWidget *MvcWidgets::viewsTree()
   result->addWidget(tv2);
 
   tv2->treeView()->setColumn1Fixed(true);
-  tv2->treeView()->resize(300, 150);
 
   return result;
 }

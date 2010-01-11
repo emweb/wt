@@ -333,7 +333,7 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
      * scrollbars unless really needed
      */
     if (app->environment().agentIsIE())
-      container->setOverflow(WContainerWidget::OverflowAuto);
+      container->setOverflow(WContainerWidget::OverflowHidden);
   }
 }
 

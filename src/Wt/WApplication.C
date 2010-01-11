@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
@@ -128,11 +129,7 @@ WApplication::WApplication(const WEnvironment& env)
     styleSheet_.addRule("button", "display: inline");
   }
 
-  // body overflow:auto causes problems with IE8 and zoom: 105%: showing
-  // occasional scrollbars
-  if (environment().agentIsIE())
-    styleSheet_.addRule("html, body", "overflow: auto;");
-  else if (environment().agentIsGecko())
+  if (environment().agentIsGecko())
     styleSheet_.addRule("html", "overflow: auto;");
 
   /*
@@ -176,9 +173,7 @@ WApplication::WApplication(const WEnvironment& env)
   styleSheet_.addRule("html.Wt-layout", std::string() +
 		      "height: 100%; width: 100%;"
 		      "margin: 0px; padding: 0px; border: none;"
-		      + (environment().javaScript()
-			 && environment().agent() != WEnvironment::IE6
-			 ? "overflow:hidden" : ""));
+		      + (environment().javaScript() ? "overflow:hidden" : ""));
 
   if (environment().agentIsOpera())
     if (environment().userAgent().find("Mac OS X") != std::string::npos)
@@ -540,7 +535,7 @@ WApplication::decodeExposedSignal(const std::string& signalName) const
 
   if (i != exposedSignals_.end()) {
     WWidget *w = dynamic_cast<WWidget *>(i->second->sender());
-    if (!w || isExposed(w))
+    if (!w || isExposed(w) || boost::ends_with(signalName, ".resized"))
       return i->second;
     else
       return 0;

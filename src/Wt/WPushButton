@@ -31,8 +31,7 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * You may customize the look of a push button using the
- * <tt>Wt-btn</tt> CSS class.
+ * A button has the <tt>Wt-btn</tt> style.
  */
 class WT_API WPushButton : public WFormWidget
 {

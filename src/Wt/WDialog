@@ -14,6 +14,7 @@
 namespace Wt {
 
 class WTable;
+class WTemplate;
 class WText;
 
 /*! \class WDialog Wt/WDialog Wt/WDialog
@@ -86,6 +87,18 @@ class WText;
  *
  * \note For the dialog to render properly in IE, the "html body"
  *       margin is set to 0 (if it wasn't already).
+ *
+ * <h3>CSS</h3>
+ *
+ * A dialog has the <tt>Wt-dialog</tt> and <tt>Wt-outset</tt> style
+ * classes. The look can be overridden using the following style class
+ * selectors:
+ *
+ * \verbatim
+ .Wt-dialog .titlebar : The title bar
+ .Wt-dialog .body     : The body (requires vertical padding 4px).
+ \endverbatim
+ *
  */
 class WT_API WDialog : public WCompositeWidget
 {
@@ -218,10 +231,9 @@ public:
   bool isModal() const { return modal_; }
 
   virtual void setHidden(bool hidden);
-  virtual void resize(const WLength& width, const WLength& height);
 
 private:
-  WContainerWidget *impl_;
+  WTemplate        *impl_;
   WText            *caption_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;

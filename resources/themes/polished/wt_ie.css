@@ -3,8 +3,9 @@
 /*
  * WCalendar
  */
-td.Wt-cal-oom, .Wt-cal-table td.Wt-cal-oom:hover {
-    border: 0px;
+
+.Wt-cal td div {
+    zoom: 1;
 }
 
 /*
@@ -16,7 +17,5 @@ td.Wt-cal-oom, .Wt-cal-table td.Wt-cal-oom:hover {
 }
 
 .Wt-treeview .Wt-collapse {
-    width: 19px;
-    height: 18px;
     background: url(nav-minus.gif) no-repeat 0 center;
 }

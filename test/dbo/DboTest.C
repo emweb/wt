@@ -27,7 +27,7 @@ typedef dbo::collection<dbo::ptr<A> > As;
 typedef dbo::collection<dbo::ptr<B> > Bs;
 typedef dbo::collection<dbo::ptr<C> > Cs;
 
-class A {
+class A : public dbo::Dbo {
 public:
   dbo::ptr<B> b;
   dbo::ptr<A> parent;
@@ -156,7 +156,9 @@ void DboTest::test1()
   /* Create an A, check that it is found during the same transaction  */
   {
     dbo::Transaction t(*session_);
-    session_->add(new A(a1));
+    dbo::ptr<A> ptrA = session_->add(new A(a1));
+
+    BOOST_REQUIRE(ptrA->session() == session_);
 
     As allAs = session_->find<A>();
     BOOST_REQUIRE(allAs.size() == 1);
@@ -164,6 +166,7 @@ void DboTest::test1()
     BOOST_REQUIRE(*a2 == a1);
 
     t.commit();
+
   }
 
   /* Check that A is found during other transaction */

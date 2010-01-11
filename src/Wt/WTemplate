@@ -87,6 +87,13 @@ public:
    * widget may be instantiated only once in a template, the variable
    * \p varName may occur at most once in the template.
    *
+   * If a widget was already bound to the variable, it is deleted
+   * first. If previously a string or other value was bound to the
+   * variable, it is removed.
+   *
+   * You may also pass a \c 0 \p widget, which will resolve to an empty
+   * string.
+   *
    * \sa bindString()
    * \sa resolveWidget()
    */
@@ -164,7 +171,26 @@ public:
    * bindWidget().
    *
    * You may want to reimplement this method to create widgets
-   * on-demand.
+   * on-demand. All widgets that are returned by this method are
+   * reparented to the WTemplate, so they will be deleted when the
+   * template is destroyed, but they are not deleted by clear() (unless
+   * bind was called on them as in the example below).
+   *
+   * This method is typically used for delayed binding of widgets.
+   * Usage example:
+   * \code
+   * {
+   *   if (Widget *known = WTemplate::resolveWidget(varName)) {
+   *     return known;
+   *   } else {
+   *     if (varName == "age-input") {
+   *       WWidget *w = new WLineEdit(); // widget only created when used
+   *       bind(varName, w);
+   *       return w;
+   *     }
+   *   }
+   * }
+   * \endcode
    */
   virtual WWidget *resolveWidget(const std::string& varName);
 

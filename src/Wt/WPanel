@@ -13,6 +13,7 @@ namespace Wt {
 
   class WContainerWidget;
   class WIconPair;
+  class WTemplate;
   class WText;
 
 /*! \class WPanel Wt/WPanel Wt/WPanel
@@ -39,6 +40,18 @@ namespace Wt {
  *
  * \sa Ext::Panel
  * \endif
+ *
+ * <h3>CSS</h3>
+ *
+ * A panel has the <tt>Wt-panel</tt> and <tt>Wt-outset</tt> style
+ * classes. The look can be overridden using the following style class
+ * selectors:
+ *
+ * \verbatim
+ .Wt-panel .titlebar : The title bar
+ .Wt-panel .body     : The body (requires vertical padding 4px).
+ \endverbatim
+ *
  */
 class WT_API WPanel : public WCompositeWidget
 {
@@ -79,7 +92,7 @@ public:
    *
    * \sa setTitleBar(bool)
    */
-  bool titleBar() const { return titleBar_ != 0; }
+  bool titleBar() const;
 
   /*! \brief Make the panel collapsible.
    *
@@ -171,17 +184,19 @@ public:
    */
   Signal<>& expanded() { return expanded_; }
 
+  virtual void refresh();
+  virtual void resize(const WLength& width, const WLength& height);
+
   Signal<bool>& collapsedSS() { return collapsedSS_; }
   Signal<bool>& expandedSS() { return expandedSS_; }
 
   WIconPair *collapseIcon() const { return collapseIcon_; }
 
 private:
-  WContainerWidget *titleBar_;
   WIconPair        *collapseIcon_;
   WText            *title_;
 
-  WContainerWidget *impl_;
+  WTemplate        *impl_;
   WWidget          *centralWidget_;
 
   Signal<> collapsed_, expanded_;
@@ -189,6 +204,7 @@ private:
 
   bool wasCollapsed_;
 
+  void setJsSize();
   void doExpand();
   void doCollapse();
   void undoExpand();
@@ -198,6 +214,7 @@ private:
   virtual void onCollapse();
 
   WContainerWidget *centralArea() const;
+  WContainerWidget *titleBarWidget() const;
 };
 
 }

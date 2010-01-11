@@ -18,7 +18,7 @@ namespace dbo = Wt::Dbo;
 typedef dbo::collection< dbo::ptr<Comment> > Comments;
 typedef dbo::collection< dbo::ptr<Post> > Posts;
 
-class User {
+class User : public dbo::Dbo {
 public:
   enum Role {
     Visitor = 0,

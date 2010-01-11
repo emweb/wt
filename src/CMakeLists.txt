@@ -68,11 +68,12 @@ ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${outfile}
 ENDMACRO (FILE_TO_STRING)
 
 FILE_TO_STRING(Plain.html    Plain_html.C    Plain_html)
-FILE_TO_STRING(Hybrid.html Hybrid_html.C Hybrid_html)
+FILE_TO_STRING(Hybrid.html   Hybrid_html.C   Hybrid_html)
 FILE_TO_STRING(Boot.html     Boot_html.C     Boot_html)
-FILE_TO_STRING(Wt.js         Wt_js.C         Wt_js)
+FILE_TO_STRING(Wt.min.js     Wt_js.C         Wt_js)
 FILE_TO_STRING(CommAjax.js   CommAjax_js.C   CommAjax_js)
 FILE_TO_STRING(CommScript.js CommScript_js.C CommScript_js)
+FILE_TO_STRING(jquery.min.js JQuery_js.C     JQuery_js)
 
 SET(libsources
 ${MXML_SOURCES}
@@ -247,6 +248,7 @@ Hybrid_html.C
 Wt_js.C
 CommAjax_js.C
 CommScript_js.C
+JQuery_js.C
 Wt/Chart/WAbstractChart.C
 Wt/Chart/WAxis.C
 Wt/Chart/WDataSeries.C

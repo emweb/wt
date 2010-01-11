@@ -17,6 +17,7 @@ namespace Wt {
 class WCalendar;
 class WInteractWidget;
 class WLineEdit;
+class WTemplate;
 
 /*! \class WDatePicker Wt/WDatePicker Wt/WDatePicker
  *  \brief A date picker.
@@ -161,7 +162,7 @@ private:
   WLineEdit        *forEdit_;
 
   WContainerWidget *layout_;
-  WContainerWidget *popup_;
+  WTemplate        *popup_;
   WCalendar        *calendar_;
 
   JSlot positionJS_;

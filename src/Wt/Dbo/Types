@@ -20,7 +20,7 @@
 #ifndef _MSC_VER
 #define DBO_EXTERN_TEMPLATES(C)						\
   extern template class Wt::Dbo::ptr<C>;				\
-  extern template class Wt::Dbo::Dbo<C>;				\
+  extern template class Wt::Dbo::MetaDbo<C>;				\
   extern template class Wt::Dbo::collection< Wt::Dbo::ptr<C> >;		\
   extern template class Wt::Dbo::Query< Wt::Dbo::ptr<C> >;		\
   extern template Wt::Dbo::ptr<C> Wt::Dbo::Session::add<C>(ptr<C>&);	\

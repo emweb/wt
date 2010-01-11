@@ -166,30 +166,26 @@ void WTextEdit::updateDom(DomElement& element, bool all)
     if (!styleSheet_.empty())
       config << ",content_css: '" << styleSheet_ << '\''; 
 
-    std::string init_cb = wApp->javaScriptClass() + ".tmce" + formName();
-
     config <<
-      ",init_instance_callback: '" << init_cb << "'"
+      ",init_instance_callback: " << jsRef() << ".init" << ""
       "}";
 
     DomElement dummy(DomElement::ModeUpdate, DomElement_TABLE);
     updateDom(dummy, true);
 
-    element.callJavaScript("{var e=" + jsRef() + ";e.ed=new tinymce.Editor('"
-			   + formName() + "'," + config.str() + ");"
-			   "e.ed.render();"
-			   "e.ed.onChange.add(function(ed) { ed.save(); });"
-			   "}");
-
     /*
      * When initialized, we apply the inline style.
      */
-    element.callJavaScript(init_cb + "=function(){"
-			   "var d=" WT_CLASS ".getElement('" + formName()
-			   + "_tbl'); d.style.cssText='width:100%;"
-			   + dummy.cssStyle() + "'; };");
-    element.callJavaScript(jsRef() + ".wtResize = function(e, w, h){"
-			   WT_CLASS ".tinyMCEResize(e, w, h); };");
+    element.callMethod("wtResize=function(e, w, h){"
+		       WT_CLASS ".tinyMCEResize(e, w, h); };");
+    element.callMethod("init=function(){"
+		       "var d=" WT_CLASS ".getElement('" + id() + "_tbl');"
+		       "d.style.cssText='width:100%;" + dummy.cssStyle() + "';"
+		       "};");
+    element.callMethod("ed=new tinymce.Editor('" + id() + "',"
+		       + config.str() + ");");
+    element.callMethod("ed.render();");
+    element.callMethod("ed.onChange.add(function(ed) { ed.save(); });");
 
     contentChanged_ = false;
   }

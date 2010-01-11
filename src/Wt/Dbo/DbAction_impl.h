@@ -10,7 +10,9 @@
 namespace Wt {
   namespace Dbo {
 
-template <class C, class A> void persist(C& obj, A& action)
+template <class C, class Enable>
+template <class A>
+void persist<C, Enable>::apply(C& obj, A& action)
 {
   obj.persist(action);
 }
@@ -24,7 +26,7 @@ void PrepareStatements::visitSelf(C& obj)
 {
   pass_ = Self;
 
-  persist(obj, *this);
+  persist<C>::apply(obj, *this);
 }
 
 template<class C>
@@ -32,7 +34,7 @@ void PrepareStatements::visitCollections(C& obj)
 {
   pass_ = Collections;
 
-  persist(obj, *this);
+  persist<C>::apply(obj, *this);
 }
 
 template<typename V>
@@ -68,12 +70,12 @@ template<class C>
 void CreateSchema::visit(C& obj)
 {
   pass_ = Self;
-  persist(obj, *this);
+  persist<C>::apply(obj, *this);
   exec();
 
   if (needSetsPass_) {
     pass_ = Sets;
-    persist(obj, *this);
+    persist<C>::apply(obj, *this);
   }
 }
 
@@ -136,7 +138,7 @@ void SaveDbAction::visit(C& obj)
    * (1) Dependencies
    */
   startDependencyPass();
-  persist(obj, *this);
+  persist<C>::apply(obj, *this);
 
   /*
    * (2) Self
@@ -151,7 +153,7 @@ void SaveDbAction::visit(C& obj)
   }
 
   startSelfPass();
-  persist(obj, *this);
+  persist<C>::apply(obj, *this);
   exec();
 
   /*
@@ -164,7 +166,7 @@ void SaveDbAction::visit(C& obj)
     loadSets_.setTableName(tableName_);
 
     startSetsPass();
-    persist(obj, *this);
+    persist<C>::apply(obj, *this);
   }
 }
 
@@ -280,7 +282,7 @@ void LoadDbAction::visit(C& obj)
   setTableName(session->template tableName<C>());
 
   start();
-  persist(obj, *this);
+  persist<C>::apply(obj, *this);
 
   if (!continueStatement)
     done();
@@ -326,7 +328,7 @@ void LoadDbAction::descend(ptr<C>& obj)
 template<class C>
 void TransactionDoneAction::visit(C& obj)
 {
-  persist(obj, *this);
+  persist<C>::apply(obj, *this);
 }
 
 template<typename V>
@@ -367,7 +369,7 @@ void TransactionDoneAction::descend(ptr<C>& obj)
 template<class C>
 void SessionAddAction::visit(C& obj)
 {
-  persist(obj, *this);
+  persist<C>::apply(obj, *this);
 }
 
 template<typename V>

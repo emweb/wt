@@ -7,6 +7,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
+#include "Wt/WTemplate"
 #include "Wt/WText"
 #include "Wt/WDialog"
 #include "Wt/WVBoxLayout"
@@ -21,8 +22,17 @@ WDialog::WDialog(const WString& windowTitle)
     finished_(this),
     recursiveEventLoop_(false)
 { 
-  setImplementation(impl_ = new WContainerWidget);
-  impl_->setStyleClass("Wt-dialog");
+  const char *TEMPLATE =
+      "<span class=\"Wt-x1\">"
+      """<span class=\"Wt-x1a\" />"
+      "</span>"
+      "<span class=\"Wt-x2\">"
+      """<span class=\"Wt-x2a\" />"
+      "</span>"
+      "${titlebar}"
+      "${contents}";
+
+  setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
 
   const char *CSS_RULES_NAME = "Wt::WDialog";
 
@@ -31,24 +41,26 @@ WDialog::WDialog(const WString& windowTitle)
     if (app->environment().agentIsIE())
       app->styleSheet().addRule("body", "height: 100%;");
 
-
     app->doJavaScript(std::string() +
       WT_CLASS ".centerDialog = function(d){"
-      "" "if (d && d.style.display != 'none' && !d.getAttribute('moved')) {"
-      ""   "var ws=" WT_CLASS ".windowSize();"
-      ""   "d.style.left=Math.round((ws.x - d.clientWidth)/2"
+      "" "if (d && d.style.display != 'none') {"
+      ""   "d.style.visibility = 'visible';"
+      ""   "if (!d.getAttribute('moved')) {"
+      ""     "var ws=" WT_CLASS ".windowSize();"
+      ""     "d.style.left=Math.round((ws.x - d.clientWidth)/2"
      + (app->environment().agent() == WEnvironment::IE6
-	? "+ document.documentElement.scrollLeft" : "") + ") + 'px';"
-      ""   "d.style.top=Math.round((ws.y - d.clientHeight)/2"
+	?   "+ document.documentElement.scrollLeft" : "") + ") + 'px';"
+      ""     "d.style.top=Math.round((ws.y - d.clientHeight)/2"
      + (app->environment().agent() == WEnvironment::IE6
-	? "+ document.documentElement.scrollTop" : "") + ") + 'px';"
-      ""   "d.style.marginLeft='0px';"
-      ""   "d.style.marginTop='0px';"
+	?   "+ document.documentElement.scrollTop" : "") + ") + 'px';"
+      ""     "d.style.marginLeft='0px';"
+      ""     "d.style.marginTop='0px';"
+      ""   "}"
+      ""   "d.wtResize(d, d.offsetWidth, d.offsetHeight);"
       "" "}"
       "};", false);
 
     app->styleSheet().addRule("div.Wt-dialogcover", std::string() + 
-			      "background: white;"
 			      // IE: requres body.height=100%
 			      "height: 100%; width: 100%;"
 			      "top: 0px; left: 0px;"
@@ -68,7 +80,9 @@ WDialog::WDialog(const WString& windowTitle)
     // we use left: 50%, top: 50%, margin hack when JavaScript is not available
     // see below for an IE workaround
     app->styleSheet().addRule("div.Wt-dialog", std::string() +
-			      "visibility: visible;"
+			      (app->environment().ajax()
+			       && !app->environment().agentIsIE() ?
+			       "visibility: hidden;" : "") +
 			      "position: " + position + ';'
 			      + (!app->environment().ajax() ?
 				 "left: 50%; top: 50%;"
@@ -98,6 +112,8 @@ WDialog::WDialog(const WString& windowTitle)
     }
   }
 
+  impl_->setStyleClass("Wt-dialog Wt-outset");
+
   WContainerWidget *parent = app->domRoot();
 
   setPopup(true);
@@ -106,24 +122,16 @@ WDialog::WDialog(const WString& windowTitle)
 
   parent->addWidget(this);
 
-  WVBoxLayout *layout = new WVBoxLayout();
-  layout->setSpacing(0);
-  layout->setContentsMargins(0, 0, 0, 0);
-
   titleBar_ = new WContainerWidget();
   titleBar_->setStyleClass("titlebar");
   caption_ = new WText(windowTitle, titleBar_);
-  layout->addWidget(titleBar_);
+
+  impl_->bindWidget("titlebar", titleBar_);
 
   contents_ = new WContainerWidget();
   contents_->setStyleClass("body");
 
-  layout->addWidget(contents_, 1);
-
-  impl_->setLayout(layout, AlignLeft);
-
-  if (app->environment().agentIsIE())
-    impl_->setOverflow(WContainerWidget::OverflowVisible);
+  impl_->bindWidget("contents", contents_);
 
   mouseDownJS_.setJavaScript
     ("function(obj, event) {"
@@ -159,19 +167,25 @@ WDialog::WDialog(const WString& windowTitle)
 
   saveCoverState(app, app->dialogCover());
 
+  setJavaScriptMember
+    ("wtResize",
+     "function(self, w, h) {"
+     """h -= 2; w -= 2;" // 2 = dialog border
+     """self.style.height= h + 'px';"
+     """self.style.width= w + 'px';"
+     """var c = self.lastChild;"
+     """var t = c.previousSibling;"
+     """h -= t.offsetHeight + 8;" // 8 = body padding
+     """if (h > 0)"
+     ""  "c.style.height = h + 'px';"
+     "};");
+
   hide();
 }
 
 WDialog::~WDialog()
 {
   hide();
-}
-
-void WDialog::resize(const WLength& width, const WLength& height)
-{
-  impl_->setLayout(impl_->layout());
-
-  WCompositeWidget::resize(width, height);
 }
 
 #ifndef WT_DEPRECATED_3_0_0

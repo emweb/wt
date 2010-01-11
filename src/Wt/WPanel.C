@@ -4,17 +4,19 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <boost/lexical_cast.hpp>
+
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>
 #include <Wt/WIconPair>
 #include <Wt/WPanel>
+#include <Wt/WTemplate>
 #include <Wt/WText>
 
 namespace Wt {
 
 WPanel::WPanel(WContainerWidget *parent)
   : WCompositeWidget(parent),
-    titleBar_(0),
     collapseIcon_(0),
     title_(0),
     centralWidget_(0),
@@ -23,30 +25,66 @@ WPanel::WPanel(WContainerWidget *parent)
     collapsedSS_(this),
     expandedSS_(this)
 {
-  setImplementation(impl_ = new WContainerWidget());
+  const char *TEMPLATE =
+      "<span class=\"Wt-x1\">"
+      """<span class=\"Wt-x1a\" />"
+      "</span>"
+      "<span class=\"Wt-x2\">"
+      """<span class=\"Wt-x2a\" />"
+      "</span>"
+      "${titlebar}"
+      "${contents}";
+
+  setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
+  impl_->setStyleClass("Wt-panel Wt-outset");
 
   implementStateless(&WPanel::doExpand, &WPanel::undoExpand);
   implementStateless(&WPanel::doCollapse, &WPanel::undoCollapse);
 
-  impl_->setStyleClass("Wt-panel");
-
   WContainerWidget *centralArea = new WContainerWidget();
   centralArea->setStyleClass("body");
-  impl_->addWidget(centralArea);
 
-  const char *CSS_RULES_NAME = "Wt::WPanel";
+  impl_->bindWidget("titlebar", 0);
+  impl_->bindWidget("contents", centralArea);
 
-  WApplication *app = WApplication::instance();
-  if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    app->styleSheet().addRule(".Wt-panel",
-			      "border: 3px solid #888888;",
-			      CSS_RULES_NAME);
-    app->styleSheet().addRule(".Wt-panel .titlebar",
-			      "padding: 0px 6px 3px;"
-			      "font-size: 10pt;");
-    app->styleSheet().addRule(".Wt-panel .body",
-			      "padding: 4px 6px 4px;");
+  setJavaScriptMember
+    ("wtResize",
+     "function(self, w, h) {"
+     """self.style.height= h + 'px';"
+     """var c = self.lastChild;"
+     """var t = c.previousSibling;"
+     """if (t.className == 'titlebar')"
+     ""  "h -= t.offsetHeight;"
+     """h -= 8;"
+     """if (h > 0) {"
+     ""  "c.style.height = h + 'px';"
+     ""  "$(c).children().css('height', h + 'px');"
+     """}"
+     "};");
+}
+
+void WPanel::refresh()
+{
+  WCompositeWidget::refresh();
+
+  setJsSize();
+}
+
+void WPanel::setJsSize()
+{
+  if (!height().isAuto()) {
+    callJavaScriptMember
+      ("wtResize", jsRef() + ","
+       + boost::lexical_cast<std::string>(width().toPixels()) + ","
+       + boost::lexical_cast<std::string>(height().toPixels()));    
   }
+}
+
+void WPanel::resize(const WLength& width, const WLength& height)
+{
+  WCompositeWidget::resize(width, height);
+
+  setJsSize();
 }
 
 void WPanel::setTitle(const WString& title)
@@ -54,7 +92,7 @@ void WPanel::setTitle(const WString& title)
   setTitleBar(true);
   if (!title_) {
     title_ = new WText();
-    titleBar_->insertWidget(titleBar_->count() - 1, title_);
+    titleBarWidget()->insertWidget(titleBarWidget()->count() - 1, title_);
   }
 
   title_->setText(title);
@@ -68,18 +106,28 @@ WString WPanel::title() const
     return WString();
 }
 
+bool WPanel::titleBar() const
+{
+  return titleBarWidget() != 0;
+}
+
+WContainerWidget *WPanel::titleBarWidget() const
+{
+  return dynamic_cast<WContainerWidget *>(impl_->resolveWidget("titlebar"));
+}
+
 void WPanel::setTitleBar(bool enable)
 {
-  if (enable && !titleBar_) {
-    titleBar_ = new WContainerWidget();
-    impl_->insertWidget(0, titleBar_);
-    titleBar_->setStyleClass("titlebar");
+  if (enable && !titleBarWidget()) {
+    WContainerWidget *titleBar = new WContainerWidget();
+    impl_->bindWidget("titlebar", titleBar);
+    titleBar->setStyleClass("titlebar");
+
     WBreak *br;
-    titleBar_->addWidget(br = new WBreak());
+    titleBar->addWidget(br = new WBreak());
     br->setClearSides(Horizontals);
-  } else if (!enable && titleBar_) {
-    delete titleBar_;
-    titleBar_ = 0;
+  } else if (!enable && titleBar()) {
+    impl_->bindWidget("titlebar", 0);
     title_ = 0;
     collapseIcon_ = 0;
   }
@@ -95,8 +143,7 @@ void WPanel::setCollapsible(bool on)
 				  resources + "expand.gif");
     collapseIcon_->setInline(false);
     collapseIcon_->setFloatSide(Left);
-    collapseIcon_->setMargin(2, Top);
-    titleBar_->insertWidget(0, collapseIcon_);
+    titleBarWidget()->insertWidget(0, collapseIcon_);
 
     collapseIcon_->icon1Clicked().connect(SLOT(this, WPanel::doCollapse));
     collapseIcon_->icon1Clicked().connect(SLOT(this, WPanel::onCollapse));
@@ -193,7 +240,7 @@ void WPanel::setCentralWidget(WWidget * w)
 
 WContainerWidget *WPanel::centralArea() const
 {
-  return dynamic_cast<WContainerWidget *>(impl_->children().back());
+  return dynamic_cast<WContainerWidget *>(impl_->resolveWidget("contents"));
 }
 
 }

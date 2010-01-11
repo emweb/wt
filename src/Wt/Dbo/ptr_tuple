@@ -13,9 +13,13 @@
 namespace Wt {
   namespace Dbo {
 
-template <class A>
-void persist(boost::tuples::null_type& obj, A& action)
-{ }
+template <>
+struct persist<boost::tuples::null_type, void>
+{
+  template <class A>
+  static void apply(boost::tuples::null_type& obj, A& action)
+  { }
+};
 
 namespace Impl {
   template <class T>

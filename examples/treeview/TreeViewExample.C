@@ -4,9 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 #include "TreeViewExample.h"
+
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+
 #include <Wt/WContainerWidget>
+#include <Wt/WPanel>
 #include <Wt/WPushButton>
 #include <Wt/WStandardItem>
 #include <Wt/WStandardItemModel>
@@ -35,12 +38,13 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   /*
    * Now create the view
    */
-  treeView_ = new WTreeView(this);
+  WPanel *panel = new WPanel(this);
+  panel->resize(600, 300);
+  panel->setCentralWidget(treeView_ = new WTreeView());
   treeView_->setAlternatingRowColors(!treeView_->alternatingRowColors());
   treeView_->setRowHeight(30);
   treeView_->setModel(model_);
   treeView_->setSelectionMode(NoSelection);
-  treeView_->resize(600, 300);
 
   treeView_->setColumnWidth(1, WLength(100));
   treeView_->setColumnAlignment(1, AlignCenter);

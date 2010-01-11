@@ -65,20 +65,26 @@ bool User::authenticate(const std::string& password) const
 
 Posts User::latestPosts(int count) const
 {
-  return posts.session()->find<Post>
-    ("where author_id = ? and state = ? "
-     "order by date desc "
-     "limit ?")
-    .bind(posts.arg())
-    .bind(Post::Published)
-    .bind(count);
+  if (session())
+    return session()->find<Post>
+      ("where author_id = ? and state = ? "
+       "order by date desc "
+       "limit ?")
+      .bind(id())
+      .bind(Post::Published)
+      .bind(count);
+  else
+    return Posts();
 }
 
 Posts User::allPosts(Post::State state) const
 {
-  return posts.session()->find<Post>
-    ("where author_id = ? and state = ? "
-     "order by date desc")
-    .bind(posts.arg())
-    .bind(state);
+  if (session())
+    return session()->find<Post>
+      ("where author_id = ? and state = ? "
+       "order by date desc")
+      .bind(id())
+      .bind(state);
+  else
+    return Posts();
 }

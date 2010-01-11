@@ -633,7 +633,10 @@ WTextArea has no formatting capabilities
 
   <message id="formwidgets-WPopupMenu">
     <p>
-      WPopupMenu consists of a context menu presented in a popup window.
+      The WPopupMenu shows a popup menu, with possible sub menus. A
+      popup menu can be shown at a coordinate (typically the position
+      of a mouse event), or bordering a particular widget. The latter
+      may be used to create a drop down menu.
     </p>
   </message>
 

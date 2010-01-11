@@ -104,6 +104,10 @@ public:
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value);
   virtual WT_USTRING attributeValue(const std::string& name) const;
+  virtual void setJavaScriptMember(const std::string& name,
+				   const std::string& value);
+  virtual void callJavaScriptMember(const std::string& name,
+				    const std::string& args);
   virtual void load();
   virtual bool loaded() const;
   virtual void setId(const std::string& id);
@@ -132,6 +136,7 @@ protected:
 
   virtual int boxPadding(Orientation orientation) const;
   virtual int boxBorder(Orientation orientation) const;
+  virtual void render();
 
 private:
   WWidget *impl_;

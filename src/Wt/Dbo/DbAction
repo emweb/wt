@@ -17,10 +17,17 @@
 
 #include <Wt/Dbo/Field>
 
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+
 namespace Wt {
   namespace Dbo {
 
-template <class C, class A> void persist(C& obj, A& action);
+template <class C, class Enable = void>
+struct persist
+{
+  template <class A> static void apply(C& obj, A& action);
+};
 
 class SqlStatement;
 
@@ -96,7 +103,7 @@ private:
 class LoadDbAction
 {
 public:
-  LoadDbAction(DboBase& dbo, SqlStatement *statement, int& column);
+  LoadDbAction(MetaDboBase& dbo, SqlStatement *statement, int& column);
 
   template<class C> void visit(C& obj);
 
@@ -113,7 +120,7 @@ public:
   int setStatementIdx() const { return setStatementIdx_; }
   
 private:
-  DboBase& dbo_;
+  MetaDboBase& dbo_;
   const char *tableName_;
   SqlStatement *statement_;
   int& column_, setStatementIdx_;
@@ -126,7 +133,7 @@ private:
 class SaveDbAction
 {
 public:
-  SaveDbAction(DboBase& dbo);
+  SaveDbAction(MetaDboBase& dbo);
 
   template<class C> void visit(C& obj);
 
@@ -141,7 +148,7 @@ public:
 private:
   int dummy_;
   LoadDbAction loadSets_;
-  DboBase& dbo_;
+  MetaDboBase& dbo_;
   SqlStatement *statement_;
   bool isInsert_;
   int column_;
@@ -160,7 +167,7 @@ private:
 class TransactionDoneAction
 {
 public:
-  TransactionDoneAction(DboBase& dbo, bool success);
+  TransactionDoneAction(MetaDboBase& dbo, bool success);
 
   template<class C> void visit(C& obj);
 

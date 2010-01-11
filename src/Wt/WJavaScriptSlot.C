@@ -69,10 +69,14 @@ WStatelessSlot* JSlot::slotimp()
   return imp_;
 }
 
+std::string JSlot::execJs(const std::string& object, const std::string& event)
+{
+  return "{var o=" + object + ", e=" + event + ";" + imp_->javaScript() + "}";
+}
+
 void JSlot::exec(const std::string& object, const std::string& event)
 {
-  WApplication::instance()->doJavaScript
-    ("{var o=" + object + ", e=" + event + ";" + imp_->javaScript() + "}");
+  WApplication::instance()->doJavaScript(execJs(object, event));
 }
 
 }

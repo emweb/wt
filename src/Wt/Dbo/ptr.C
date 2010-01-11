@@ -8,19 +8,20 @@
 #include <Wt/Dbo/ptr>
 #include <Wt/Dbo/Session>
 #include <iostream>
+#include <stdexcept>
 
 namespace Wt {
   namespace Dbo {
 
-DboBase::~DboBase()
+MetaDboBase::~MetaDboBase()
 { }
 
-void DboBase::incRef()
+void MetaDboBase::incRef()
 {
   ++refCount_;
 }
 
-void DboBase::decRef()
+void MetaDboBase::decRef()
 {
   --refCount_;
 
@@ -28,14 +29,15 @@ void DboBase::decRef()
     delete this;
 }
 
-void DboBase::setState(State state)
+void MetaDboBase::setState(State state)
 {
   state_ &= ~0xF;
   state_ |= state;
 }
 
-void DboBase::setDirty()
+void MetaDboBase::setDirty()
 {
+  checkNotOrphaned();
   if (isDeleted()) {
     return;
   }
@@ -47,8 +49,9 @@ void DboBase::setDirty()
   }
 }
 
-void DboBase::remove()
+void MetaDboBase::remove()
 {
+  checkNotOrphaned();
   if (isDeleted()) {
     // is already removed or being removed in this transaction
   } else if (isPersisted()) {
@@ -64,14 +67,35 @@ void DboBase::remove()
   }
 }
 
-void DboBase::setTransactionState(State state)
+void MetaDboBase::setTransactionState(State state)
 {
   state_ |= state;
 }
 
-void DboBase::resetTransactionState()
+void MetaDboBase::resetTransactionState()
 {
   state_ &= ~TransactionState;
+}
+
+void MetaDboBase::checkNotOrphaned()
+{
+  if (isOrphaned()) {
+    throw std::logic_error("using orphaned dbo ptr");
+  }
+}
+
+Dbo::Dbo()
+  : meta_(0)
+{ }
+
+long long Dbo::id() const
+{
+  return meta_ ? meta_->id() : -1;
+}
+
+Session *Dbo::session() const
+{
+  return meta_ ? meta_->session() : 0;
 }
 
 ptr_base::~ptr_base()

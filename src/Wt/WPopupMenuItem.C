@@ -31,7 +31,7 @@ WPopupMenuItem::WPopupMenuItem(bool)
     triggered_(this)
 {
   setImplementation(impl_ = new WContainerWidget());
-  setStyleClass("separator");
+  setStyleClass("Wt-separator");
 }
 
 WPopupMenuItem::WPopupMenuItem(const WString& text)
@@ -91,8 +91,9 @@ void WPopupMenuItem::setText(const WString& text)
 {
   if (!text_) {
     text_ = new WText(impl_);
-    //text_->setInline(false);
+    text_->setInline(false);
     text_->setMargin(ICON_WIDTH, Left);
+    text_->setMargin(3, Right);
     text_->setAttributeValue
       ("style", "padding-right: "
        + boost::lexical_cast<std::string>(SUBMENU_ARROW_WIDTH) + "px");
@@ -125,9 +126,11 @@ void WPopupMenuItem::setCheckable(bool how)
       text_->setMargin(ICON_WIDTH - CHECKBOX_WIDTH, Left);
       checkBox_ = new WCheckBox();
       impl_->insertWidget(0, checkBox_);
+      text_->setInline(true);
     } else {
       delete checkBox_;
       text_->setMargin(ICON_WIDTH, Left);
+      text_->setInline(false);
     }
   }
 }
@@ -177,7 +180,7 @@ void WPopupMenuItem::renderSelected(bool selected)
 
   if (subMenu_)
     if (selected)
-      subMenu_->popup(this);
+      subMenu_->popupToo(this);
     else {
       subMenu_->show();
       subMenu_->hide();
@@ -199,7 +202,7 @@ void WPopupMenuItem::onMouseUp()
 
 WPopupMenu *WPopupMenuItem::parentMenu()
 {
-  return dynamic_cast<WPopupMenu *>(parent()->parent());
+  return dynamic_cast<WPopupMenu *>(parent()->parent()->parent());
 }
 
 WPopupMenu *WPopupMenuItem::topLevelMenu()

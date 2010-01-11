@@ -219,8 +219,8 @@ private:
     { }
   };
 
-  typedef std::map<DboKey, DboBase *> Registry;
-  typedef std::set<DboBase *> DboBaseSet;
+  typedef std::map<DboKey, MetaDboBase *> Registry;
+  typedef std::set<MetaDboBase *> MetaDboBaseSet;
 
   static const int SqlInsert,
 		  SqlUpdate,
@@ -252,22 +252,22 @@ private:
   
   ClassRegistry      classRegistry_;
   Registry           registry_;
-  DboBaseSet         dirtyObjects_;
+  MetaDboBaseSet     dirtyObjects_;
   SqlConnection     *connection_;
   Transaction::Impl *transaction_;
 
-  void needsFlush(DboBase *dbo);
+  void needsFlush(MetaDboBase *dbo);
 
   template <class C> ptr<C> load(long long id, SqlStatement *statement,
 				 int& column);
 
-  void prune(DboBase *obj);
-  template <class C> void prune(Dbo<C> *obj);
+  void prune(MetaDboBase *obj);
+  template <class C> void prune(MetaDbo<C> *obj);
 
-  template<class C> void implSave(Dbo<C>& dbo);
-  template<class C> void implDelete(Dbo<C>& dbo);
-  template<class C> void implTransactionDone(Dbo<C>& dbo, bool success);
-  template<class C> C *implLoad(DboBase& dbo, SqlStatement *statement,
+  template<class C> void implSave(MetaDbo<C>& dbo);
+  template<class C> void implDelete(MetaDbo<C>& dbo);
+  template<class C> void implTransactionDone(MetaDbo<C>& dbo, bool success);
+  template<class C> C *implLoad(MetaDboBase& dbo, SqlStatement *statement,
 				int& column);
 
   static std::string statementId(const char *table, int statementIdx);
@@ -290,7 +290,7 @@ private:
   SqlConnection *useConnection();
   void returnConnection(SqlConnection *connection);
 
-  template <class C> friend class Dbo;
+  template <class C> friend class MetaDbo;
   template <class C> friend class collection;
   template <class C> friend class Query;
   template <typename V> friend class FieldRef;
@@ -302,7 +302,7 @@ private:
   friend class SaveDbAction;
   friend class LoadDbAction;
   friend class CreateSchema;
-  friend class DboBase;
+  friend class MetaDboBase;
 };
 
   }

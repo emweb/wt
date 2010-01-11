@@ -31,8 +31,11 @@ std::string Post::commentCount() const
 
 dbo::ptr<Comment> Post::rootComment() const
 {
-  return comments.session()->find<Comment>
-    ("where post_id = ? and parent_id is null").bind(comments.arg());
+  if (session())
+    return session()->find<Comment>
+      ("where post_id = ? and parent_id is null").bind(id());
+  else
+    return dbo::ptr<Comment>();
 }
 
 std::string Post::titleToUrl() const

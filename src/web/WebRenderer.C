@@ -41,6 +41,7 @@ namespace skeletons {
   extern const char *Wt_js;
   extern const char *CommAjax_js;
   extern const char *CommScript_js;
+  extern const char *JQuery_js;
 }
 
 namespace Wt {
@@ -466,11 +467,14 @@ void WebRenderer::serveMainscript(WebResponse& response)
   formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
 
+  FileServe jquery(skeletons::JQuery_js);
+  jquery.stream(response.out());
+
   FileServe script(skeletons::Wt_js);
   script.setCondition("DEBUG", conf.debug());
   script.setVar("WT_CLASS", WT_CLASS);
   script.setVar("APP_CLASS", app->javaScriptClass());
-  script.setVar("AUTO_JAVASCRIPT", app->autoJavaScript_);
+  script.setVar("AUTO_JAVASCRIPT", "(function() {" + app->autoJavaScript_ + "})");
 
   script.setCondition("STRICTLY_SERIALIZED_EVENTS", conf.serializedEvents());
   script.setVar("INNER_HTML", innerHtml);
@@ -485,7 +489,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
 		WWebWidget::jsStringLiteral(app->internalPath()));
   script.setVar("INDICATOR_TIMEOUT", "500");
   script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
-  script.setVar("ONLOAD", widgetset ? "" : "window.loadWidgetTree();");
+  script.setVar("ONLOAD",
+		std::string("(function() {")
+		+ (widgetset ? "" : "window.loadWidgetTree();") + "})");
   script.stream(response.out());
 
   app->autoJavaScriptChanged_ = false;
@@ -575,6 +581,10 @@ void WebRenderer::serveMainAjax(WebResponse& response)
       response.out() << WT_CLASS << ".addStyleSheet('"
 		     << WApplication::resourcesUrl() << "/themes/"
 		     << app->cssTheme() << "/wt_ie.css');";
+    if (app->environment().agent() == WEnvironment::IE6)
+      response.out() << WT_CLASS << ".addStyleSheet('"
+		     << WApplication::resourcesUrl() << "/themes/"
+		     << app->cssTheme() << "/wt_ie6.css');";
   }
 
   app->styleSheetsAdded_ = app->styleSheets_.size();
@@ -755,6 +765,12 @@ void WebRenderer::serveMainpage(WebResponse& response)
       styleSheets += "<link href=\""
 	+ WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
 	+ "/wt_ie.css\" rel=\"stylesheet\" type=\"text/css\""
+	+ (xhtml ? "/>" : ">");
+
+    if (app->environment().agent() == WEnvironment::IE6)
+      styleSheets += "<link href=\""
+	+ WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
+	+ "/wt_ie6.css\" rel=\"stylesheet\" type=\"text/css\""
 	+ (xhtml ? "/>" : ">");
   }
 

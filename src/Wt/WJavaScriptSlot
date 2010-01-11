@@ -125,6 +125,18 @@ public:
   void exec(const std::string& object = "null",
 	    const std::string& event = "null");
 
+  /*! \brief Returns a JavaScript statement that executes the slot.
+   *
+   * This returns the JavaScript code to execute the slot.
+   *
+   * The arguments are the <tt>"object, event"</tt> arguments of the
+   * JavaScript event callback function.
+   *
+   * \sa exec()
+   */
+   std::string execJs(const std::string& object = "null",
+		      const std::string& event = "null");
+
 private:
   WWidget *widget_;
   WStatelessSlot* imp_;

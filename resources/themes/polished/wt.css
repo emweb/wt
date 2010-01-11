@@ -1,103 +1,188 @@
 /*
+ * Effects
+ */
+
+/*
+ * Outset using a dropshadow
+ */
+.Wt-outset {
+    border: 1px solid white;
+    position: relative;
+    margin: 6px;
+}
+
+.Wt-outset .Wt-x1, .Wt-outset .Wt-x1a,
+.Wt-outset .Wt-x2, .Wt-outset .Wt-x2a {
+    background:transparent url(dropshadow.png) no-repeat scroll 0 0;
+    position:absolute;
+    height:100%;
+    width:100%;
+}
+
+.Wt-outset .Wt-x1 {
+    background-position:0 0;
+    bottom:0;
+    left:-7px;
+    padding:0 0 2px 0;
+    top:-7px;
+    z-index:-2;
+}
+
+.Wt-outset .Wt-x1 .Wt-x1a {
+    background-position:100% 0;
+    height: 12px;
+    right:-14px;
+    top:0;
+    width:14px;
+}
+
+.Wt-outset .Wt-x2 {
+    background-position:100% 100%;
+    bottom:-7px;
+    padding:2px 0 0 0;
+    right:-7px;
+    z-index:-1;
+}
+
+.Wt-outset .Wt-x2 .Wt-x2a {
+    background-position:0 100%;
+    bottom:0;
+    height:12px;
+    left:-14px;
+    width:14px;
+}
+
+/*
+ * Silk screen
+ */
+.Wt-dialogcover {
+    background: #CCCCCC;
+}
+
+/*
  * WCalendar
  */
 .Wt-cal {
-    width: 16em;
+    padding: 0px;
 }
 
-.Wt-cal-navigation {
+.Wt-cal table {
+    border-left: 1px solid #727D9C;
+    font: normal 13px/22px "Trebuchet MS", Verdana, Arial, Helvetica,
+      sans-serif;
+    color: #515B66;
     text-align: center;
+    background-color: #fff;
+    border-collapse: separate;
 }
 
-.Wt-cal-navigation select {
-    margin: 0px 2px;
+.Wt-cal table.d1 {
+    width: 150px;
 }
 
-.Wt-cal-table {
-    border-collapse:separate;
-    border-spacing:0pt;
-    width: 16em;
+.Wt-cal table.d1 td {
+    width: 20px;
 }
 
-.Wt-cal-table td {
-    color: #003DB8;
-    border: 1px solid #E0E0E0;
-    cursor: pointer; cursor: hand;
+.Wt-cal table.d3 {
+    width: 220px;
+}
+
+.Wt-cal table.d3 td {
+    width: 30px;
+}
+
+.Wt-cal caption {
+    margin: 0;
+    padding: 0;
+    background: #727D9C url(title-gradient.png) repeat-x scroll 0 -20px;
+    color: #fff;
+    font: bold 13px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
     text-align: center;
-    padding: 0.1em 0.2em;
-}
-
-.Wt-cal-table td:hover {
-    color: #FFFFFF;
-    border:1px solid #FF9900;
-    background-color: #FF9900;
-}
-
-td.Wt-cal-header, td.Wt-cal-header:hover
-{
-    color: #666666;
-    border: 0px;
-    width: 2em;
-    background-color: transparent;
-}
-
-td.Wt-cal-header-weekend, .Wt-cal-table td.Wt-cal-header-weekend:hover {
-    color: #777777;
-    border: 0px;
-    width: 2em;
-    background-color: transparent;
-}
-
-td.Wt-cal-oom, .Wt-cal-table td.Wt-cal-oom:hover {
-    color: #999999;
-    cursor: default;
-    border: 1px solid transparent;
-    background-color: transparent;
-}
-
-td.Wt-cal-sel {
-    background-color:#FFF19F;
-    border:1px solid #FF9900;
-}
-
-td.Wt-cal-now {
-    border:1px solid #000000;
 }
 
 .Wt-cal-navbutton {
-    color: #FFFFFF;
-    background-color:#6699CC;
     cursor: pointer; cursor: hand;
-    margin: 0px 3px;
+    font: bold 20px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+    vertical-align: middle;
+}
+
+.Wt-cal caption select {
+    cursor: pointer; cursor: hand;
+    font: 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+    margin: 2px 0px;
+    vertical-align: middle;
+}
+
+.Wt-cal-year {
+    vertical-align: middle;
 }
 
 .Wt-cal-year span {
-    border: 1px solid transparent;
+    padding: 1px 2px;
 }
 
 .Wt-cal-year span:hover {
-    background-color:#FFFFCC;
-    border: 1px solid #CCCCCC;
+    color: #727D9C;
+    background-color: #F0F0F0;
+}
+
+.Wt-cal th {
+    font: bold 12px/22px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+    color: #515B66;
+    background: #D9E2E1;
+    border-right: 1px solid #727D9C;
+    border-bottom: 1px solid #727D9C;
+    border-top: 1px solid #727D9C;
+    cursor: default;
+}
+
+.Wt-cal td {
+    border-right: 1px solid #727D9C;
+    border-bottom: 1px solid #727D9C;
+    text-align: center;
+    background: url(images/bg_calendar.gif) no-repeat right bottom;
+    cursor: default;
+}
+
+.Wt-cal-oom {
+    color: #CCCCCC;
+}
+
+.Wt-cal-sel {
+    background-color:#FFF19F;
+}
+
+.Wt-cal-now {
+    color: #F6F4DA;
+    font-weight: bold;
+    background: #AAAAAA;
+}
+
+/*
+ * WDatePicker
+ */
+.Wt-popup {
+    background-color: white;
 }
 
 /*
  * WDialog
  */
 .Wt-dialog {
-    border: 1px solid #888888;
-    background: #EEEEEE none repeat scroll 0%;
+    background-color: white;
 }
 
 .Wt-dialog .titlebar {
-    background: transparent url(border-dialog.png) repeat-x scroll 0 0;    
     color: #FFFFFF;
+    background: #727D9C url(title-gradient.png) repeat-x scroll 0 -20px;
     cursor: move;
-    padding: 2px 6px 3px;
+    font: bold 12px Verdana;
+    padding: 3px 6px;
 }
 
 .Wt-dialog .body {
-    background: #EEEEEE;
-    padding: 4px 6px 4px;
+    padding: 4px 6px;
 }
 
 .Wt-msgbox-buttons button {
@@ -109,27 +194,31 @@ td.Wt-cal-now {
  * WPanel
  */
 .Wt-panel {
-  border: 3px solid #888888;
-  background: #EEEEEE none repeat scroll 0%;
 }
+
 .Wt-panel .titlebar {
-  background: #888888; color: #FFFFFF;
-  font-size: 10pt;
+    color: #FFFFFF;
+    background: #727D9C url(title-gradient.png) repeat-x scroll 0 -20px;
+    font: bold 12px Verdana;
+    padding: 3px 6px;
+    cursor: default;
 }
 
 .Wt-panel .body {
-  background: #FFFFFF;
+    padding: 4px 6px;
 }
 
 /*
  * WPopupMenu
  */
 .Wt-popupmenu {
-    background: white;
-    color: black;
-    border: 1px solid #666666;
+    background: #FAFAFA;
+    font: normal 13px/22px "Trebuchet MS", Verdana, Arial, Helvetica,
+      sans-serif;
+    color: #515B66;
     z-index: 200;
     cursor: default;
+    white-space: nowrap;
 }
 
 .Wt-popupmenu .Wt-item, .Wt-popupmenu .Wt-selected {
@@ -137,7 +226,7 @@ td.Wt-cal-now {
 }
 
 .Wt-popupmenu .Wt-selected {
-    background: blue;
+    background: #727D9C;
     color: white;
 }
 
@@ -145,6 +234,7 @@ td.Wt-cal-now {
     border-top: 1px solid #CCCCCC;
     border-bottom: 1px solid #DDDDDD;
     margin: 0px 3px;
+    line-height: 0px;
 }
 
 /*
@@ -155,7 +245,7 @@ td.Wt-cal-now {
 }
 
 .Wt-btn {
-    background: transparent url(border.png) repeat-x scroll 0 0;
+    background: transparent url(gradient.png) repeat-x scroll 0 0;
     border: 1px outset #CCCCCC;
     cursor: pointer;
     font-size: small;
@@ -171,45 +261,40 @@ td.Wt-cal-now {
 /*
  * WTabWidget
  */
-.Wt-tabs {
-    background: transparent url(../../tab_b.gif) repeat-x scroll center bottom;
-    margin-bottom: 4px;
-    zoom: 1;
-    width: 100%;
+.Wt-tabs ul {
+    padding: 3px 3px;
+    font: bold 12px Verdana;
+    border-bottom: 1px solid gray;
+    list-style-type: none;
 }
 
 .Wt-tabs li {
     display: inline;
+    margin: 0;
 }
 
-.Wt-tabs ul {
-    margin: 0px;
-    padding-left: 10px;
-    list-style-type: none;
-    list-style-position: outside;
+.Wt-tabs li a {
+    text-decoration: none;
+    padding: 2px 7px 3px;
+    margin-right: 3px;
+    border: 1px solid gray;
+    border-bottom: none;
+    color: #FFFFFF;
+    background-color: #727D9C;
+    background: url(title-gradient.png) repeat-x scroll 0 -20px;
 }
 
-.Wt-tabs span {
-    background: transparent url(../../tab_r.gif) no-repeat scroll right top;
-    border-bottom:1px solid #84B0C7;
-    float:left; display:block;
-    cursor:pointer;cursor:hand;
-    font-size: small; font-weight: bold;
+.Wt-tabs li a:hover{
+    background: white; /* #DBFF6C; */
+    color: black;
 }
 
-.Wt-tabs span.itemselected {
-    background-position:100% -150px;
-}
-
-.Wt-tabs span span {
-    background: transparent url(../../tab_l.gif) no-repeat scroll left top;
-    border-bottom: 0px;
-    white-space: nowrap;
-    padding:5px 9px;color:#1A419D;
-}
-
-.Wt-tabs span.itemselected span {
-    background-position:0% -150px;
+.Wt-tabs li span.itemselected a {
+    position: relative;
+    top: 1px;
+    padding-top: 3px;
+    background: white;
+    color: black;
 }
 
 /*
@@ -226,13 +311,17 @@ td.Wt-cal-now {
 }
 
 /* header */
-.Wt-treeview .Wt-headerdiv {
-    background: transparent url(border.png) repeat-x scroll 0 0;
+.Wt-treeview .Wt-headerdiv, .Wt-treeview .Wt-headerdiv .Wt-tv-rowc {
+    background: #727D9C url(title-gradient.png) repeat-x scroll 0 -20px;
+    color: white;
+}
+
+.Wt-treeview .Wt-headerdiv .background {
+    background-color: #FFFFFF;
 }
 
 .Wt-treeview .Wt-header .Wt-label {
     white-space: normal;
-    font-weight: bold;
     text-overflow: ellipsis;
     overflow: hidden;
 }
@@ -242,15 +331,15 @@ td.Wt-cal-now {
 }
 
 .Wt-treeview .Wt-tv-sh-none {
-    background: url(../../sort-arrow-none.gif) no-repeat 0 center;
+    background: url(sort-arrow-none.gif) no-repeat 0 6px;
 }
 
 .Wt-treeview .Wt-tv-sh-up {
-    background: url(../../sort-arrow-up.gif) no-repeat 0 center;
+    background: url(sort-arrow-up.gif) no-repeat 0 6px;
 }
 
 .Wt-treeview .Wt-tv-sh-down {
-    background: url(../../sort-arrow-down.gif) no-repeat 0 center;
+    background: url(sort-arrow-down.gif) no-repeat 0 6px;
 }
 
 /* nodes */
@@ -290,12 +379,21 @@ td.Wt-cal-now {
 }
 
 /* borders */
-.Wt-treeview .Wt-tv-br,
-.Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
-    border-right: 1px solid transparent;
+.Wt-treeview .Wt-tv-br {
+    border-right: 1px solid #525D9C;
 }
 
-.Wt-treeview .Wt-header .Wt-tv-row,
+.Wt-treeview .Wt-header .Wt-tv-row {
+    border-left: 1px solid #525D9C;
+}
+
+/* borders */
+.Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
+    border-right: 0px solid black;
+    margin-right: 1px;
+}
+
 .Wt-treeview .Wt-tv-node .Wt-tv-row {
-    border-left: 1px solid transparent;
+    border-left: 0px solid black;
+    margin-left: 1px;
 }

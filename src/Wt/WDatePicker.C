@@ -14,6 +14,7 @@
 #include "Wt/WDateValidator"
 #include "Wt/WImage"
 #include "Wt/WInteractWidget"
+#include "Wt/WTemplate"
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
 
@@ -42,6 +43,7 @@ WDatePicker::WDatePicker(WInteractWidget *displayWidget,
 void WDatePicker::createDefault(bool i18n)
 {
   WImage *icon = new WImage(WApplication::resourcesUrl() + "calendar_edit.png");
+  icon->setVerticalAlignment(AlignMiddle);
   WLineEdit *lineEdit = new WLineEdit();
 
   create(icon, lineEdit, i18n);
@@ -58,43 +60,46 @@ void WDatePicker::create(WInteractWidget *displayWidget,
 
   displayWidget_ = displayWidget;
   forEdit_ = forEdit;
+  forEdit_->setVerticalAlignment(AlignMiddle);
   format_ = "dd/MM/yyyy";
-
-  const char *CSS_RULES_NAME = "Wt::WDatePicker";
-
-  WApplication *app = WApplication::instance();
-  if (!app->styleSheet().isDefined(CSS_RULES_NAME))
-    app->styleSheet().addRule(".Wt-popup",
-			      "background-color: #EEEEEE;"
-			      "border: 1px solid #000000;"
-			      "padding: 2px;", CSS_RULES_NAME);
 
   layout_->setInline(true);
   layout_->addWidget(displayWidget);
-  layout_->addWidget(popup_ = new WContainerWidget());
 
-  calendar_ = new WCalendar(i18n, popup_);
+  const char *TEMPLATE =
+    "<span class=\"Wt-x1\">"
+    """<span class=\"Wt-x1a\" />"
+    "</span>"
+    "<span class=\"Wt-x2\">"
+    """<span class=\"Wt-x2a\" />"
+    "</span>"
+    "${calendar}"
+    "<div style=\"text-align:center; margin-top:3px\">${close}</div>";
+
+  layout_->addWidget(popup_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
+
+  calendar_ = new WCalendar(i18n);
   calendar_->selected().connect(SLOT(popup_, WWidget::hide));
   calendar_->selectionChanged()
     .connect(SLOT(this, WDatePicker::setFromCalendar));
 
-  WContainerWidget *buttonContainer = new WContainerWidget(popup_);
-  buttonContainer->setContentAlignment(AlignCenter);
-  WPushButton *closeButton
-    = new WPushButton(i18n ? tr("Close") : "Close", buttonContainer);
+  WPushButton *closeButton = new WPushButton(i18n ? tr("Close") : "Close");
   closeButton->clicked().connect(SLOT(popup_, WWidget::hide));
+
+  popup_->bindWidget("calendar", calendar_);
+  popup_->bindWidget("close", closeButton);
 
   popup_->hide();
   popup_->setPopup(true);
   popup_->setPositionScheme(Absolute);
-  popup_->setStyleClass("Wt-popup");
+  popup_->setStyleClass("Wt-outset Wt-popup");
 
   popup_->escapePressed().connect(SLOT(popup_, WWidget::hide));
   displayWidget->clicked().connect(SLOT(popup_, WWidget::show));
 
   positionJS_.setJavaScript("function() { " WT_CLASS ".positionAtWidget('"
 			    + popup_->id()  + "','" + displayWidget->id()
-			    + "');}");
+			    + "', " WT_CLASS ".Horizontal);}");
   displayWidget->clicked().connect(positionJS_);
   displayWidget->clicked().connect(SLOT(this, WDatePicker::setFromLineEdit));
 }

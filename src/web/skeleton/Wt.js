@@ -447,7 +447,7 @@ this.addStyleSheet = function(uri) {
 this.windowSize = function() {
   var x, y;
 
-  if (typeof (window.innerWidth) == 'number') {
+  if (typeof (window.innerWidth) === 'number') {
     x = window.innerWidth;
     y = window.innerHeight;
   } else {
@@ -458,6 +458,10 @@ this.windowSize = function() {
   return { x: x, y: y};
 };
 
+/*
+ * position right to (x) or left from (rightx) and
+ * bottom of (y) or top from (bottomy)
+ */
 this.fitToWindow = function(e, x, y, rightx, bottomy) {
   var ws = self.windowSize();
 
@@ -465,12 +469,16 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
   var wy = document.body.scrollTop + document.documentElement.scrollTop;
 
   if (x + e.offsetWidth > wx + ws.x)
-    x = rightx - e.offsetWidth;
+    x = rightx - e.offsetWidth - self.px(e, 'marginRight');
+  else
+    x -= self.px(e, 'marginLeft');
+
   if (y + e.offsetHeight > wy + ws.y) {
     if (bottomy > wy + ws.y)
       bottomy = wy + ws.y;
-    y = bottomy - e.offsetHeight;
-  }
+    y = bottomy - e.offsetHeight - self.px(e, 'marginBottom');
+  } else
+    y -= self.px(e, 'marginTop');
 
   if (x < wx)
     x = wx + ws.x - e.offsetWidth - 3;
@@ -485,17 +493,34 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
 
 this.positionXY = function(id, x, y) {
   var w = self.getElement(id);
-  self.fitToWindow(w, x, y, x, y);
+  if (!self.isHidden(w))
+    self.fitToWindow(w, x, y, x, y);
 };
 
-this.positionAtWidget = function(id, atId) {
-  var w = self.getElement(id);
-  var atw = self.getElement(atId);
-  var xy = self.widgetPageCoordinates(atw);
+this.Horizontal = 0x1;
+this.Vertical = 0x2;
+
+this.positionAtWidget = function(id, atId, orientation) {
+  var w = self.getElement(id),
+    atw = self.getElement(atId),
+    xy = self.widgetPageCoordinates(atw),
+    x, y, rightx, bottomy;
 
   w.style.display='block';
-  self.fitToWindow(w, xy.x + atw.offsetWidth, xy.y,
-		 xy.x, xy.y + atw.offsetHeight);
+
+  if (orientation == self.Horizontal) {
+    x = xy.x + atw.offsetWidth;
+    y = xy.y;
+    rightx = xy.x,
+    bottomy = xy.y + atw.offsetHeight;
+  } else {
+    x = xy.x;
+    y = xy.y + atw.offsetHeight;
+    rightx = xy.x + atw.offsetWidth;
+    bottomy = xy.y;
+  }
+
+  self.fitToWindow(w, x, y, rightx, bottomy);
 };
 
 this.history = (function() {
@@ -780,7 +805,7 @@ function capture(obj) {
 };
 
 function initDragDrop() {
-  window.onresize=function() { self._p_.autoJavaScript(); }
+  window.onresize=function() { doJavaScript(); }
 
   var mouseMove = function(e) {
     if (!e) e = window.event;
@@ -1134,7 +1159,7 @@ function load() {
   initDragDrop();
   if (!loaded) {
     loaded = true;
-    _$_ONLOAD_$_;
+    _$_ONLOAD_$_();
     keepAliveTimer = setTimeout(doKeepAlive, _$_KEEP_ALIVE_$_000);
   }
 };
@@ -1164,18 +1189,29 @@ function setServerPush(how) {
   serverPush = how;
 }
 
+function doJavaScript(js) {
+  with (window) {
+    if (js)
+      eval(js);
+    _$_APP_CLASS_$_._p_.autoJavaScript();
+  }
+}
+
 function handleResponse(status, msg, timer) {
   if (quited)
     return;
 
   if (status == 0) {
-    _$_$ifnot_DEBUG_$_; try { _$_$endif_$_;
-    eval(msg);
-    _$_APP_CLASS_$_._p_.autoJavaScript();
-    _$_$ifnot_DEBUG_$_; } catch (e) {
+_$_$if_DEBUG_$_();
+    try {
+_$_$endif_$_();
+      doJavaScript(msg);
+_$_$if_DEBUG_$_(); 
+    } catch (e) {
       alert("Wt internal error: " + e + ", code: " +  e.code
 	    + ", description: " + e.description /* + ":" + msg */);
-    } _$_$endif_$_;
+    }
+_$_$endif_$_();
 
     if (timer)
       cancelFeedback(timer);
@@ -1198,7 +1234,7 @@ function handleResponse(status, msg, timer) {
     commErrors = 0;
 
   if (serverPush || pendingEvents.length > 0) {
-    if (status == 1) {
+    if (status == 1) { 
       var ms = Math.min(120000, Math.exp(commErrors) * 500);
       updateTimeout = setTimeout(function() { sendUpdate(); }, ms);
     } else
@@ -1221,10 +1257,9 @@ function update(el, signalName, e, feedback) {
   if (captureElement && (el == captureElement) && e.type == "mouseup")
     capture(null);
 
-  _$_$if_STRICTLY_SERIALIZED_EVENTS_$_;
-  if (responsePending)
-    return;
-  _$_$endif_$_;
+  _$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
+  if (!responsePending) {
+  _$_$endif_$_();
 
   var pendingEvent = new Object(), i = pendingEvents.length;
   pendingEvent.object = el;
@@ -1236,7 +1271,11 @@ function update(el, signalName, e, feedback) {
 
   scheduleUpdate();
 
-  self._p_.autoJavaScript();
+  doJavaScript();
+
+  _$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
+  }
+  _$_$endif_$_();
 }
 
 function scheduleUpdate() {
@@ -1307,14 +1346,14 @@ function emit(object, config) {
   var userEvent = new Object(), ei = pendingEvents.length;
   userEvent.signal = "user";
 
-  if (typeof object == "string")
+  if (typeof object === "string")
     userEvent.id = object;
   else if (object == _$_APP_CLASS_$_)
     userEvent.id = "app";
   else
     userEvent.id = object.id;
 
-  if (typeof config == "object") {
+  if (typeof config === "object") {
     userEvent.name = config.name;
     userEvent.object = config.eventObject;
     userEvent.event = config.event;
@@ -1390,7 +1429,7 @@ function loadScript(uri, symbol)
   var loaded = false;
   if (symbol != "") {
     try {
-      loaded = !eval("typeof " + symbol + " == 'undefined'");
+      loaded = !eval("typeof " + symbol + " === 'undefined'");
     } catch (e) {
       loaded = false;
     }
@@ -1464,7 +1503,7 @@ this._p_ = {
  setHash : setHash,
  ImagePreloader : ImagePreloader,
 
- autoJavaScript : function() { _$_AUTO_JAVASCRIPT_$_ },
+ autoJavaScript : function() { with (window) { _$_AUTO_JAVASCRIPT_$_(); } },
 
  response : responseReceived
 };

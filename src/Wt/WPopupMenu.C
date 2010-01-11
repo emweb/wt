@@ -11,6 +11,7 @@
 #include "Wt/WPoint"
 #include "Wt/WPopupMenu"
 #include "Wt/WPopupMenuItem"
+#include "Wt/WTemplate"
 
 #include "WebSession.h"
 #include "WtException.h"
@@ -24,9 +25,20 @@ WPopupMenu::WPopupMenu()
     aboutToHide_(this),
     recursiveEventLoop_(false)
 {
-  setImplementation(impl_ = new WContainerWidget());
+  const char *TEMPLATE =
+      "<span class=\"Wt-x1\">"
+      """<span class=\"Wt-x1a\" />"
+      "</span>"
+      "<span class=\"Wt-x2\">"
+      """<span class=\"Wt-x2a\" />"
+      "</span>"
+      "${contents}";
+
+  setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
   setPositionScheme(Absolute);
-  setStyleClass("Wt-popupmenu");
+  setStyleClass("Wt-popupmenu Wt-outset");
+
+  impl_->bindWidget("contents", new WContainerWidget());
 
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";
 
@@ -39,6 +51,11 @@ WPopupMenu::WPopupMenu()
   app->domRoot()->addWidget(this);
 
   hide();
+}
+
+WContainerWidget *WPopupMenu::contents()
+{
+  return dynamic_cast<WContainerWidget *>(impl_->resolveWidget("contents"));
 }
 
 WPopupMenuItem *WPopupMenu::addItem(const WString& text)
@@ -69,7 +86,7 @@ WPopupMenuItem *WPopupMenu::addMenu(const std::string& iconPath,
 
 void WPopupMenu::add(WPopupMenuItem *item)
 {
-  impl_->addWidget(item);
+  contents()->addWidget(item);
 }
 
 void WPopupMenu::addSeparator()
@@ -86,8 +103,9 @@ void WPopupMenu::setHidden(bool hidden)
 {
   WCompositeWidget::setHidden(hidden);
 
-  for (int i = 0; i < impl_->count(); ++i) {
-    WPopupMenuItem *item = dynamic_cast<WPopupMenuItem *>(impl_->widget(i));
+  WContainerWidget *c = contents();
+  for (int i = 0; i < c->count(); ++i) {
+    WPopupMenuItem *item = dynamic_cast<WPopupMenuItem *>(c->widget(i));
     item->renderOut();
   }
 }
@@ -114,13 +132,16 @@ void WPopupMenu::done()
   done(0);
 }
 
-void WPopupMenu::popup(WWidget *location)
+void WPopupMenu::popup(WWidget *location, Orientation orientation)
+{
+  popupImpl();
+  positionAt(location, orientation);
+}
+
+void WPopupMenu::popupToo(WWidget *location)
 {
   show();
-
-  WApplication::instance()->doJavaScript
-    (WT_CLASS ".positionAtWidget('" + id() + "','" + location->id()
-     + "');");
+  positionAt(location, Horizontal);
 }
 
 void WPopupMenu::popup(const WMouseEvent& e)
@@ -128,7 +149,7 @@ void WPopupMenu::popup(const WMouseEvent& e)
   popup(WPoint(e.document().x, e.document().y));
 }
 
-void WPopupMenu::popup(const WPoint& p)
+void WPopupMenu::popupImpl()
 {
   result_ = 0;
 
@@ -148,6 +169,11 @@ void WPopupMenu::popup(const WPoint& p)
   prepareRender(app);
 
   show();
+}
+
+void WPopupMenu::popup(const WPoint& p)
+{
+  popupImpl();
 
   WApplication::instance()->doJavaScript
     (WT_CLASS ".positionXY('" + id() + "',"
@@ -158,8 +184,8 @@ void WPopupMenu::popup(const WPoint& p)
 void WPopupMenu::prepareRender(WApplication *app)
 {
   if (app->environment().agentIsIE()) {
-    app->doJavaScript(jsRef() + ".firstChild.style.width="
-		      + jsRef() + ".firstChild.offsetWidth+'px';");
+    app->doJavaScript(jsRef() + ".lastChild.style.width="
+		      + jsRef() + ".lastChild.offsetWidth+'px';");
   }
 
   // FIXME: we should really also prepareRender() of submenus when shown...
@@ -185,5 +211,22 @@ WPopupMenuItem *WPopupMenu::exec(const WMouseEvent& e)
 {
   return exec(WPoint(e.document().x, e.document().y));
 }
+
+WPopupMenuItem *WPopupMenu::exec(WWidget *location, Orientation orientation)
+{
+  if (recursiveEventLoop_)
+    throw WtException("WPopupMenu::exec(): already in recursive event loop.");
+
+  WebSession *session = WApplication::instance()->session();
+  recursiveEventLoop_ = true;
+
+  popup(location, orientation);
+  do {
+    session->doRecursiveEventLoop();
+  } while (recursiveEventLoop_);
+ 
+  return result_;
+}
+
 
 }

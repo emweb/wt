@@ -95,6 +95,17 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   setInline(false);
 
   resized_.connect(SLOT(this, WPaintedWidget::onResize));
+
+  setJavaScriptMember
+    ("wtResize",
+     "function(self, w, h) {"
+     ""  "if (!self.wtWidth || self.wtWidth!=w "
+     ""      "|| !self.wtHeight || self.wtHeight!=h) {"
+     ""    "self.wtWidth=w; self.wtHeight=h;"
+     ""    "self.style.height=h + 'px';"
+     + resized_.createCall("w", "h") +
+     ""  "}"
+     "};");
 }
 
 WPaintedWidget::~WPaintedWidget()
@@ -137,7 +148,7 @@ void WPaintedWidget::onResize(int width, int height)
 {
   resize(WLength::Auto, WLength::Auto);
 
-  resizeCanvas(width, height);
+  resizeCanvas(width, height-5);
 }
 
 void WPaintedWidget::update(WFlags<PaintFlag> flags)
@@ -273,15 +284,6 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
     result->addChild(wrap);
 
   updateDom(*result, true);
-
-  Wt::WApplication::instance()->doJavaScript
-    (jsRef() + ".wtResize = function(self, w, h) {"
-     ""  "if (!self.wtWidth || self.wtWidth!=w "
-     ""      "|| !self.wtHeight || self.wtHeight!=h) {"
-     ""    "self.wtWidth=w; self.wtHeight=h;"
-     + resized_.createCall("w", "h") +
-     ""  "}"
-     "};");
 
   return result;
 }

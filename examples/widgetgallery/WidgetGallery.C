@@ -78,7 +78,6 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   useStyleSheet("everywidget.css");
   useStyleSheet("dragdrop.css");
   useStyleSheet("combostyle.css");
-  useStyleSheet("popupmenu.css");
 }
 
 void WidgetGallery::addToMenu(WMenu *menu, const WString& name,

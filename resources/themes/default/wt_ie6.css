@@ -1,0 +1,10 @@
+/* additional style rules for ie */
+
+/*
+ * WCalendar
+ */
+
+.Wt-cal td div {
+    zoom: 1;
+}
+

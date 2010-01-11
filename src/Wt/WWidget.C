@@ -45,6 +45,9 @@ WWidget::~WWidget()
 
 void WWidget::setParent(WWidget *p)
 {
+  if (p == parent())
+    return;
+
   if (parent())
     parent()->removeChild(this);
   if (p)
@@ -52,9 +55,7 @@ void WWidget::setParent(WWidget *p)
 }
 
 void WWidget::render()
-{
-  renderOk();
-}
+{ }
 
 bool WWidget::isRendered() const
 {
@@ -153,11 +154,13 @@ void WWidget::setOffsets(int pixels, WFlags<Side> sides)
 
 std::string WWidget::jsRef() const
 {
-  return WT_CLASS ".getElement('" + id() + "')";
+  return "$('#" + id() + "').get(0)";
 }
 
 void WWidget::htmlText(std::ostream& out)
 {
+  render();
+
   DomElement *element
     = webWidget()->createSDomElement(WApplication::instance());
   DomElement::TimeoutList timeouts;
@@ -222,10 +225,12 @@ void WWidget::getDrop(const std::string sourceId, const std::string mimeType,
 void WWidget::dropEvent(WDropEvent event)
 { }
 
-std::string WWidget::createJavaScript(std::stringstream& js, std::string insertJS)
+std::string WWidget::createJavaScript(std::stringstream& js,
+				      std::string insertJS)
 {
   WApplication *app = WApplication::instance();
 
+  render();
   DomElement *de = webWidget()->createSDomElement(app);
 
   std::string var = de->createVar();
@@ -287,6 +292,17 @@ int WWidget::boxPadding(Orientation orientation) const
 int WWidget::boxBorder(Orientation orientation) const
 {
   return 0;
+}
+
+void WWidget::positionAt(const WWidget *widget, Orientation orientation)
+{
+  WApplication::instance()->doJavaScript
+    (WT_CLASS ".positionAtWidget('"
+     + id() + "','"
+     + widget->id() + "',"
+     WT_CLASS
+     + std::string(orientation == Horizontal ? ".Horizontal" : ".Vertical")
+     + ");");
 }
 
 }

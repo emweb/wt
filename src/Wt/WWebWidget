@@ -129,6 +129,10 @@ public:
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value);
   virtual WT_USTRING attributeValue(const std::string& name) const;
+  virtual void setJavaScriptMember(const std::string& name,
+				   const std::string& value);
+  virtual void callJavaScriptMember(const std::string& name,
+				    const std::string& args);
 
   virtual void load();
   virtual bool loaded() const;
@@ -138,11 +142,9 @@ public:
   virtual const std::string id() const;
 
   virtual DomElement *createDomElement(WApplication *app);
-  virtual void        getDomChanges(std::vector<DomElement *>& result,
-				    WApplication *app);
-
+  virtual void getDomChanges(std::vector<DomElement *>& result,
+			     WApplication *app);
   virtual DomElement *createSDomElement(WApplication *app);
-
   virtual DomElementType domElementType() const = 0;
 
   /*! \brief Change the way the widget is loaded when invisible.
@@ -334,9 +336,13 @@ private:
   };
 
   struct OtherImpl {
-    std::map<std::string, WT_USTRING>     *attributes_;
-    std::vector<std::string>            *attributesSet_;
     std::string                         *id_;
+
+    std::map<std::string, WT_USTRING>   *attributes_;
+    std::vector<std::string>            *attributesSet_;
+    std::map<std::string, std::string>  *jsMembers_;
+    std::vector<std::string>            *jsMembersSet_;
+    std::vector<std::string>            *jsMemberCalls_;
 
     // drag source id, drag mime type
     JSignal<std::string, std::string, WMouseEvent,

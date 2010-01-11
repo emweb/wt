@@ -16,6 +16,20 @@ WStackedWidget::WStackedWidget(WContainerWidget *parent)
     currentIndex_(-1)
 {
   WT_DEBUG( setObjectName("WStackedWidget") );
+
+  setJavaScriptMember
+    ("wtResize",
+     "function(self, w, h){"
+     """var j,jl,c;"
+     """self.style.height=h+'px';"
+     """for (j=0, jl=self.childNodes.length; j<jl; ++j){"
+     ""   "c=self.childNodes[j];"
+     ""   "c.style.height = self.style.height;"
+     // The following turned out to be not needed for WMenu items
+     //""   "if (c.className=='Wt-holder' && c.childNodes.length == 1)"
+     //""     "c.childNodes[0].style.height = self.style.height;"
+     """}"
+     "}");
 }
 
 void WStackedWidget::addWidget(WWidget *widget)
@@ -90,19 +104,6 @@ void WStackedWidget::setCurrentWidget(WWidget *widget)
 DomElement *WStackedWidget::createDomElement(WApplication *app)
 {
   setCurrentIndex(currentIndex_);
-
-  Wt::WApplication::instance()->doJavaScript
-    (jsRef() + ".wtResize = function(self, w, h){"
-     """var j,jl,c;"
-     """self.style.height=h+'px';"
-     """for (j=0, jl=self.childNodes.length; j<jl; ++j){"
-     ""   "c=self.childNodes[j];"
-     ""   "c.style.height = self.style.height;"
-     // The following turned out to be not needed for WMenu items
-     //""   "if (c.className=='Wt-holder' && c.childNodes.length == 1)"
-     //""     "c.childNodes[0].style.height = self.style.height;"
-     """}"
-     "}");
 
   return WContainerWidget::createDomElement(app);
 }

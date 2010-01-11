@@ -74,7 +74,7 @@ ptr<C> Session::load(long long id, SqlStatement *statement, int& column)
   Registry::iterator i = registry_.find(key);
 
   if (i == registry_.end()) {
-    Dbo<C> *dbo = new Dbo<C>(id, -1, DboBase::Persisted, *this, 0);
+    MetaDbo<C> *dbo = new MetaDbo<C>(id, -1, MetaDboBase::Persisted, *this, 0);
 
     if (statement) {
       C *obj = implLoad<C>(*dbo, statement, column);
@@ -89,14 +89,14 @@ ptr<C> Session::load(long long id, SqlStatement *statement, int& column)
     ClassMappingInfo *mapping = cc->second;
     column += mapping->columnCount - 1;
 
-    return ptr<C>(dynamic_cast< Dbo<C> *>(i->second));
+    return ptr<C>(dynamic_cast< MetaDbo<C> *>(i->second));
   }
 }
 
 template <class C>
 ptr<C> Session::add(ptr<C>& obj)
 {
-  Dbo<C> *dbo = obj.obj();
+  MetaDbo<C> *dbo = obj.obj();
   if (dbo && !dbo->session()) {
     dbo->setSession(this);
     dirtyObjects_.insert(dbo);
@@ -155,16 +155,16 @@ Query<Result> Session::query(const std::string& sql)
 }
 
 template<class C>
-void Session::prune(Dbo<C> *obj)
+void Session::prune(MetaDbo<C> *obj)
 {
   DboKey key(tableName<C>(), obj->id());
   registry_.erase(key);
 
-  prune(static_cast<DboBase *>(obj));
+  prune(static_cast<MetaDboBase *>(obj));
 }
 
 template<class C>
-void Session::implSave(Dbo<C>& dbo)
+void Session::implSave(MetaDbo<C>& dbo)
 {
   if (!transaction_)
     throw std::logic_error("Dbo save(): no active transaction");
@@ -177,7 +177,7 @@ void Session::implSave(Dbo<C>& dbo)
 }
 
 template<class C>
-void Session::implDelete(Dbo<C>& dbo)
+void Session::implDelete(MetaDbo<C>& dbo)
 {
   if (!transaction_)
     throw std::logic_error("Dbo save(): no active transaction");
@@ -195,14 +195,14 @@ void Session::implDelete(Dbo<C>& dbo)
 }
 
 template<class C>
-void Session::implTransactionDone(Dbo<C>& dbo, bool success)
+void Session::implTransactionDone(MetaDbo<C>& dbo, bool success)
 {
   TransactionDoneAction action(dbo, success);
   action.visit(*dbo.obj());
 }
 
 template <class C>
-C *Session::implLoad(DboBase& dbo, SqlStatement *statement, int& column)
+C *Session::implLoad(MetaDboBase& dbo, SqlStatement *statement, int& column)
 {
   if (!transaction_)
     throw std::logic_error("Dbo load(): no active transaction");

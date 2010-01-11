@@ -10,6 +10,9 @@
 #include <string>
 #include <Wt/Dbo/SqlTraits>
 
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+
 namespace Wt {
 
   /*! \brief Namespace for the \ref dbo
@@ -19,13 +22,14 @@ namespace Wt {
 class Session;
 class SqlStatement;
 
-class DboBase
+class MetaDboBase
 {
 public:
   enum State {
     // dbo state (also works with bitwise or)
     New = 0x000,
     Persisted = 0x001,
+    Orphaned = 0x002,
 
     // flags
     NeedsDelete = 0x010,
@@ -37,12 +41,12 @@ public:
     TransactionState = (SavedInTransaction | DeletedInTransaction)
   };
 
-  DboBase(long long id, int version, int state, Session *session)
+  MetaDboBase(long long id, int version, int state, Session *session)
     : session_(session), id_(id), version_(version), state_(state),
       refCount_(0)
   { }
 
-  virtual ~DboBase();
+  virtual ~MetaDboBase();
 
   virtual void flush() = 0;
 
@@ -58,6 +62,7 @@ public:
   bool isNew() const { return version_ == -1; }
   bool isPersisted() const
     { return 0 != (state_ & (Persisted | SavedInTransaction)); }
+  bool isOrphaned() const { return 0 != (state_ & Orphaned); }
   bool isDeleted() const
     { return 0 != (state_ & (NeedsDelete | DeletedInTransaction)); }
 
@@ -88,17 +93,19 @@ private:
 protected:
   int state_;
   int refCount_;
+
+  void checkNotOrphaned();
 };
 
 /*
   Manages a single object.
  */
 template <class C>
-class Dbo : public DboBase
+class MetaDbo : public MetaDboBase
 {
 public:
-  Dbo(C *obj);
-  virtual ~Dbo();
+  MetaDbo(C *obj);
+  virtual ~MetaDbo();
 
   virtual void flush();
 
@@ -112,12 +119,86 @@ public:
 private:
   C   *obj_;
 
-  Dbo(long long id, int version, int state, Session& session, C *obj);
+  MetaDbo(long long id, int version, int state, Session& session, C *obj);
 
   void doLoad();
   void prune();
 
   friend class Session;
+};
+
+template <class C, class Enable = void>
+struct DboHelper
+{
+  static void setMeta(C& c, MetaDboBase *m) { }
+};
+
+/*! \class Dbo Wt/Dbo/Dbo Wt/Dbo/Dbo
+ *  \brief A base class for database objects.
+ *
+ * The only requirement for a class to be be persisted is to have a \c
+ * persist() method. In some cases however, it may be convenient to be
+ * able to access database information of an object, such as its
+ * database id and its session, from the object itself.
+ *
+ * By deriving your database class directly or indirectly from this
+ * class, you can have access to its id() and session(). This will increase
+ * the size of your object with one pointer.
+ *
+ * The following example shows a skeleton for a database object
+ * which has access to its own id and session information:
+ *
+ * \code
+ * class Cat : public dbo::Dbo {
+ * public:
+ *   template <class Action>
+ *   void persist(Action& a) { }
+ * };
+ * \endcode
+ *
+ * Compared to the skeletong for a minimum valid database class:
+ *
+ * \code
+ * class Cat {
+ * public:
+ *   template <class Action>
+ *   void persist(Action& a) { }
+ * };
+ * \endcode
+ *
+ * \ingroup dbo
+ */
+class Dbo
+{
+public:
+  /*! \brief Constructor.
+   */
+  Dbo();
+
+  /*! \brief Returns the database id.
+   *
+   * Returns the database id of this object, or -1 if the object is 
+   * associated with a session or not yet stored in the database.
+   */
+  long long id() const;
+
+  /*! \brief Returns the session.
+   *
+   * Returns the session to which this object belongs, or 0 if the object
+   * is not associated with a session.
+   */
+  Session *session() const;
+
+private:
+  MetaDboBase *meta_;
+
+  template <class C, class Enable> friend struct DboHelper;
+};
+
+template <class C>
+struct DboHelper<C, typename boost::enable_if<boost::is_base_of<Dbo, C> >::type>
+{
+  static void setMeta(C& obj, MetaDboBase *m) { obj.meta_ = m; }
 };
 
 class ptr_base
@@ -313,12 +394,12 @@ public:
   long long id() const;
 
 protected:
-  Dbo<C> *obj() const { return obj_; }
+  MetaDbo<C> *obj() const { return obj_; }
 
 private:
-  Dbo<C> *obj_;
+  MetaDbo<C> *obj_;
 
-  ptr(Dbo<C> *obj);
+  ptr(MetaDbo<C> *obj);
 
   void takeObj();
   void freeObj();

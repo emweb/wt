@@ -76,20 +76,26 @@ WWebWidget::LookImpl::~LookImpl()
 }
 
 WWebWidget::OtherImpl::OtherImpl()
-  : attributes_(0),
+  : id_(0),
+    attributes_(0),
     attributesSet_(0),
-    id_(0),
+    jsMembers_(0),
+    jsMembersSet_(0),
+    jsMemberCalls_(0),
     dropSignal_(0),
     acceptedDropMimeTypes_(0)
 { }
 
 WWebWidget::OtherImpl::~OtherImpl()
 {
+  delete id_;
   delete attributes_;
   delete attributesSet_;
+  delete jsMembers_;
+  delete jsMembersSet_;
+  delete jsMemberCalls_;
   delete dropSignal_;
   delete acceptedDropMimeTypes_;
-  delete id_;
 }
 
 WWebWidget::WWebWidget(WContainerWidget *parent)
@@ -713,6 +719,45 @@ WT_USTRING WWebWidget::attributeValue(const std::string& name) const
   return WT_USTRING();
 }
 
+void WWebWidget::setJavaScriptMember(const std::string& name,
+				     const std::string& value)
+{
+  if (!otherImpl_)
+    otherImpl_ = new OtherImpl();
+
+  if (!otherImpl_->jsMembers_)
+    otherImpl_->jsMembers_ = new std::map<std::string, std::string>;
+
+  std::map<std::string, std::string>::const_iterator i
+    = otherImpl_->jsMembers_->find(name);
+  
+  if (i != otherImpl_->jsMembers_->end() && i->second == value)
+    return;
+
+  (*otherImpl_->jsMembers_)[name] = value;
+
+  if (!otherImpl_->jsMembersSet_)
+    otherImpl_->jsMembersSet_ = new std::vector<std::string>;
+
+  otherImpl_->jsMembersSet_->push_back(name);
+
+  repaint(RepaintPropertyAttribute);
+}
+
+void WWebWidget::callJavaScriptMember(const std::string& name,
+				      const std::string& args)
+{
+  if (!otherImpl_)
+    otherImpl_ = new OtherImpl();
+
+  if (!otherImpl_->jsMemberCalls_)
+    otherImpl_->jsMemberCalls_ = new std::vector<std::string>;
+
+  otherImpl_->jsMemberCalls_->push_back(name + "(" + args + ");");
+
+  repaint(RepaintPropertyAttribute);
+}
+
 void WWebWidget::setToolTip(const WString& message)
 {
   if (canOptimizeUpdates() && (toolTip() == message))
@@ -824,6 +869,9 @@ bool WWebWidget::isEnabled() const
 
 void WWebWidget::addChild(WWidget *child)
 {
+  if (child->parent() == this)
+    return;
+
   if (child->parent() != 0) {
     child->setParent(0);
     wApp->log("warn") << "WWebWidget::addChild(): reparenting child";
@@ -1134,28 +1182,58 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_SELECTABLE_CHANGED);
   }
 
-  if (otherImpl_ && otherImpl_->attributes_) {
-    if (all) {
-      for (std::map<std::string, WT_USTRING>::const_iterator i
-	     = otherImpl_->attributes_->begin();
-	   i != otherImpl_->attributes_->end(); ++i)
-	if (i->first == "style")
-	  element.setProperty(PropertyStyle, i->second.toUTF8());
-	else
-	  element.setAttribute(i->first, i->second.toUTF8());
-    } else if (otherImpl_->attributesSet_) {
-      for (unsigned i = 0; i < otherImpl_->attributesSet_->size(); ++i) {
-	std::string attr = (*otherImpl_->attributesSet_)[i];
-	if (attr == "style")
-	  element.setProperty(PropertyStyle,
-			      (*otherImpl_->attributes_)[attr].toUTF8());
-	else
-	element.setAttribute(attr, (*otherImpl_->attributes_)[attr].toUTF8());
+  if (otherImpl_) {
+    if (otherImpl_->attributes_) {
+      if (all) {
+	for (std::map<std::string, WT_USTRING>::const_iterator i
+	       = otherImpl_->attributes_->begin();
+	     i != otherImpl_->attributes_->end(); ++i)
+	  if (i->first == "style")
+	    element.setProperty(PropertyStyle, i->second.toUTF8());
+	  else
+	    element.setAttribute(i->first, i->second.toUTF8());
+      } else if (otherImpl_->attributesSet_) {
+	for (unsigned i = 0; i < otherImpl_->attributesSet_->size(); ++i) {
+	  std::string attr = (*otherImpl_->attributesSet_)[i];
+	  if (attr == "style")
+	    element.setProperty(PropertyStyle,
+				(*otherImpl_->attributes_)[attr].toUTF8());
+	  else
+	    element.setAttribute(attr,
+				 (*otherImpl_->attributes_)[attr].toUTF8());
+	}
       }
+
+      delete otherImpl_->attributesSet_;
+      otherImpl_->attributesSet_ = 0;
     }
 
-    delete otherImpl_->attributesSet_;
-    otherImpl_->attributesSet_ = 0;
+    if (otherImpl_->jsMembers_) {
+      if (all) {
+	for (std::map<std::string, std::string>::const_iterator i
+	       = otherImpl_->jsMembers_->begin();
+	     i != otherImpl_->jsMembers_->end(); ++i)
+	  element.callMethod(i->first + "=" + i->second);
+      } else if (otherImpl_->jsMembersSet_) {
+	for (unsigned i = 0; i < otherImpl_->jsMembersSet_->size(); ++i) {
+	  std::string m = (*otherImpl_->jsMembersSet_)[i];
+	  element.callMethod(m + "=" + (*otherImpl_->jsMembers_)[m]);
+	}
+      }
+
+      delete otherImpl_->jsMembersSet_;
+      otherImpl_->jsMembersSet_ = 0;
+    }
+
+    if (otherImpl_->jsMemberCalls_) {
+      for (unsigned i = 0; i < otherImpl_->jsMemberCalls_->size(); ++i) {
+	std::string m = (*otherImpl_->jsMemberCalls_)[i];
+	element.callMethod(m);
+      }
+
+      delete otherImpl_->jsMemberCalls_;
+      otherImpl_->jsMemberCalls_ = 0;
+    }
   }
 
   if (flags_.test(BIT_HIDE_WITH_VISIBILITY)) {

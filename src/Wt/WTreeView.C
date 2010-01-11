@@ -291,7 +291,7 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
 
   int selfHeight = 0;
 
-  if (!view->isExpanded(index_))
+  if (index_ != view_->rootIndex() && !view->isExpanded(index_))
     rowAt(1)->hide();
 
   bool needLoad = view_->isExpanded(index_);
@@ -318,7 +318,6 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
 
     if (view_->selectionBehavior() == SelectRows && view_->isSelected(index_))
       renderSelected(true, 0);
-
   } else
     if (WApplication::instance()->environment().agentIsIE())
       elementAt(0, 0)->resize(1, WLength::Auto); 
@@ -548,7 +547,7 @@ void WTreeViewNode::doCollapse()
 
 bool WTreeViewNode::isExpanded()
 {
-  return !rowAt(1)->isHidden();
+  return index_ == view_->rootIndex() || !rowAt(1)->isHidden();
 }
 
 void WTreeViewNode::normalizeSpacers()
@@ -679,8 +678,8 @@ void WTreeViewNode::shiftModelIndexes(int start, int offset)
 
 int WTreeViewNode::renderedHeight()
 {
-  return (index_ != view_->rootIndex() ? 1 : 0)
-    + (isExpanded() ? childrenHeight_ : 0);
+  return index_ == view_->rootIndex() ? childrenHeight_ :
+    (1 + (isExpanded() ? childrenHeight_ : 0));
 }
 
 int WTreeViewNode::topSpacerHeight()
@@ -959,7 +958,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "-moz-user-select: none;"
        "-khtml-user-select: none;"
        "user-select: none;"
-       "background-color: #EEEEEE;"
        "overflow: hidden;"
        "width: 100%;", CSS_RULES_NAME);
 
@@ -1031,13 +1029,13 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh",
-       "float: right; width: 16px; "
-       "margin-top: 6px; cursor: pointer; cursor:hand;");
+       "float: right; width: 16px; padding-bottom: 6px;"
+       "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh-nrh",
        "float: right; width: 16px; "
-       "margin-top: 6px; margin-right: 4px; cursor: pointer; cursor:hand;");
+       "cursor: pointer; cursor:hand;");
 
     /* borders: needed here for IE */
     app->styleSheet().addRule
@@ -1053,16 +1051,11 @@ WTreeView::WTreeView(WContainerWidget *parent)
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh", std::string() +
        "float: right; width: 16px; height: 10px;"
-       + (app->environment().agent() != WEnvironment::IE6 ?
-	  "margin-top: 6px;" : "") +
        "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh-nrh", std::string() + 
        "float: right; width: 16px; height: 10px;"
-       + (app->environment().agent() != WEnvironment::IE6 ?
-	  "margin-top: 6px;" : "") +
-       "margin-right: 4px;"
        "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
@@ -1076,11 +1069,11 @@ WTreeView::WTreeView(WContainerWidget *parent)
     if (app->environment().agentIsIE())
       app->styleSheet().addRule
 	(".Wt-treeview .Wt-scroll",
-	 "position: absolute; overflow-x: scroll;"
+	 "position: absolute; overflow-x: auto;"
 	 "height: " SCROLLBAR_WIDTH_TEXT "px;");
     else
       app->styleSheet().addRule
-	(".Wt-treeview .Wt-scroll", "overflow: scroll;"
+	(".Wt-treeview .Wt-scroll", "overflow: auto;"
 	 "height: " SCROLLBAR_WIDTH_TEXT "px;");
     app->styleSheet().addRule
       (".Wt-treeview .Wt-scroll div", "height: 1px;");
@@ -1278,13 +1271,9 @@ WTreeView::WTreeView(WContainerWidget *parent)
     /* this is for some reason very very slow in webkit: */
     tieRowsScrollJS_.setJavaScript
       ("function(obj, event) {"
-       "var c =" WT_CLASS ".getElementsByClassName('Wt-tv-rowc', "
-       + jsRef() + ");"
-       "for (var i = 0, length = c.length; i < length; ++i) {"
-       """var cc=c[i];"
-       """if (cc.parentNode.scrollLeft != obj.scrollLeft)"
-       ""  "cc.parentNode.scrollLeft=obj.scrollLeft;"
-       "}"
+       "obj.parentNode.style.width = "
+       "" WT_CLASS ".getCssRule('#" + id() + " .cwidth').style.width;"
+       "$('#" + id() + " .Wt-tv-rowc').parent().scrollLeft(obj.scrollLeft);"
        "}");
   }
 
@@ -1309,7 +1298,9 @@ WTreeView::WTreeView(WContainerWidget *parent)
      """  c0w = WT.pxself(WT.getCssRule('#" + id() + " .c0w'), 'width');"
      ""
      """if (tw > 200 " // XXX: IE's incremental rendering foobars completely
-     ""    "&& (tw != e.tw || vscroll != e.vscroll || c0w != e.c0w)) {"
+     ""    "&& (tw != e.tw || vscroll != e.vscroll || c0w != e.c0w"
+     ""        "|| s.changed)) {"
+     ""  "s.changed = false;"
      ""  "e.vscroll = vscroll;"
      ""  "e.tw = tw;"
      ""  "e.c0w = c0w;"
@@ -1325,11 +1316,13 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""    "var hh=h.firstChild,"
      ""        "w=tw - c0w - (vscroll ? " SCROLLBAR_WIDTH_TEXT " : 0);"
      ""    "if (w > 0) {"
-     ""      "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width = w + 'px';"
+     ""      "var sel = '#" + id() + " .Wt-tv-row';"
+     ""      "WT.getCssRule(sel).style.width = w + 'px';"
+     ""      "$(sel).css('width', w + 'px').css('width', null);"
      ""      "var extra = "
      ""      "hh.childNodes.length > 1"
-     // all browsers except for IE6 would do with 21 : 6
-     ""        "? (hh.childNodes[1].className.indexOf('Wt-tv-sh') != -1 ? 22 : 7) : 0;"
+     ""        "? (hh.childNodes[1].className.indexOf('Wt-tv-sh') != -1 ? 21 : 6) : 0;"
+     + (app->environment().agent() == WEnvironment::IE6 ? "extra += 1;" : "") +
      ""      "hh.style.width= (w + extra) + 'px';"
      ""    "}"
      ""  "} else if (contentstoo) {"
@@ -1339,8 +1332,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""  "if (s.adjustHeaderWidth)"
      ""    "s.adjustHeaderWidth(1, 0);"
      """}"
-     "}"
-     "}"
+     "}}"
      );
 
   if (parent)
@@ -1392,14 +1384,7 @@ void WTreeView::refresh()
       "totalw += 'px';"
       "if (c) {"
       """r.style.width = totalw;"
-      + (app->environment().agentIsIE() ? 
-	 "var c =" WT_CLASS ".getElementsByClassName('Wt-tv-rowc', "
-	 + jsRef() + ");"
-	 "for (var i = 0, length = c.length; i < length; ++i) {"
-	 """var cc=c[i];"
-	 """cc.style.width = totalw;"
-	 "}"
-	 : "") +
+      """$('#" + id() + " .Wt-tv-rowc').css('width', totalw).css('width', null);"
       "} else {"
       """r.style.width = (WT.pxself(r, 'width') + diffx) + 'px';"
       +  app->javaScriptClass() + "._p_.autoJavaScript();"
@@ -1407,6 +1392,9 @@ void WTreeView::refresh()
 
   app->doJavaScript
     (jsRef() + ".adjustHeaderWidth=function(c, diffx) {"
+     "if (c === undefined) {"
+     + jsRef() + ".changed=true; c=1; diffx=0;"
+     "}"
      "if (" + contentsContainer_->jsRef() + ") {"
      + columnsWidth + "}};");
 
@@ -1476,6 +1464,11 @@ void WTreeView::setColumn1Fixed(bool fixed)
     if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
       scrollBar->setAttributeValue("style", "left: 0px;");
     impl_->layout()->addWidget(scrollBarContainer);
+
+    app->addAutoJavaScript
+      ("{var s=" + scrollBarC_->jsRef() + ";"
+       """if (s) " + tieRowsScrollJS_.execJs("s") +
+       "}");
   }
 }
 
@@ -1653,13 +1646,13 @@ void WTreeView::setRootNodeStyle()
 
   if (alternatingRowColors_)
     rootNode_->decorationStyle().setBackgroundImage
-      (WApplication::resourcesUrl() + "stripes/stripe-"
-       + boost::lexical_cast<std::string>
-         (static_cast<int>(rowHeight_.toPixels()))
-       + "px.gif");
-  else
-    rootNode_->decorationStyle().setBackgroundImage("");
-}
+      (WApplication::resourcesUrl()
+       + "themes/" + WApplication::instance()->cssTheme()
+       + "/stripes/stripe-" + boost::lexical_cast<std::string>
+       (static_cast<int>(rowHeight_.toPixels())) + "px.gif");
+   else
+     rootNode_->decorationStyle().setBackgroundImage("");
+ }
 
 void WTreeView::setRowHeight(const WLength& rowHeight)
 {
@@ -1926,12 +1919,13 @@ void WTreeView::rerenderHeader()
   WContainerWidget *rowc = new WContainerWidget(headers_);
   rowc->setFloatSide(Right);
   WContainerWidget *row = new WContainerWidget(rowc);
-  row->setStyleClass("Wt-tv-row headerrh");
-
   if (column1Fixed_) {
+    row->setStyleClass("Wt-tv-row headerrh background");
     row = new WContainerWidget(row);
-    row->setStyleClass("Wt-tv-rowc");
-  }
+    row->setStyleClass("Wt-tv-rowc headerrh");
+  } else
+    row->setStyleClass("Wt-tv-row");
+
 
   /* sort and resize handles for col 0 */
   if (columnInfo(0).sorting) {
@@ -1940,8 +1934,6 @@ void WTreeView::rerenderHeader()
     sortIcon->setInline(false);
     if (!columnResize_)
       sortIcon->setMargin(4, Right);
-    if (!app->environment().agentIsIE())
-      sortIcon->setMargin(6, Top);
     sortIcon->setFloatSide(Left);
     sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
     clickedForSortMapper_->mapConnect(sortIcon->clicked(), 0);
@@ -1985,8 +1977,11 @@ void WTreeView::rerenderHeader()
     SortOrder order = columnInfo(currentSortColumn_).sortOrder;
     headerSortIconWidget(currentSortColumn_)
       ->setStyleClass(order == AscendingOrder
-		      ? "Wt-tv-sh Wt-tv-sh-up" : "Wt-tv-sh Wt-tv-sh-down");
+		      ? "Wt-tv-sh Wt-tv-sh-up"
+		      : "Wt-tv-sh Wt-tv-sh-down");
   }
+
+  app->doJavaScript(jsRef() + ".adjustHeaderWidth();");
 
   if (model_)
     modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
@@ -2511,11 +2506,12 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
 	for (int i = start; i < start + count; ++i)
 	  newWidth += columns_[i].width.toPixels() + 7;
 
-	app->doJavaScript(jsRef() + ".adjustHeaderWidth(null, " +
-			  (column1Fixed_
-			   ? "1"
-			   : boost::lexical_cast<std::string>(newWidth))
-			  + ");");
+	if (column1Fixed_)
+	  app->doJavaScript(jsRef() + ".adjustHeaderWidth();");
+	else
+	  app->doJavaScript(jsRef() + ".adjustHeaderWidth(null, " +
+			    (boost::lexical_cast<std::string>(newWidth))
+			    + ");");
 
 	WContainerWidget *row = headerRow();
 
@@ -2559,7 +2555,7 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
       }
 
       if (column1Fixed_)
-	app->doJavaScript(jsRef() + ".adjustHeaderWidth(1, 0);");
+	app->doJavaScript(jsRef() + ".adjustHeaderWidth();");
     }
 
     columns_.erase(columns_.begin() + start, columns_.begin() + start + count);
@@ -2597,6 +2593,9 @@ void WTreeView::modelColumnsRemoved(const WModelIndex& parent,
       }
     }
   }
+
+  if (start <= currentSortColumn_ && currentSortColumn_ <= end)
+    currentSortColumn_ = -1;
 }
 
 void WTreeView::modelRowsInserted(const WModelIndex& parent,
@@ -2990,6 +2989,8 @@ void WTreeView::renderedRowsChanged(int row, int count)
 
 void WTreeView::adjustToViewport(WTreeViewNode *changed)
 {
+  assert(rootNode_->rowCount() == 1);
+
   firstRenderedRow_ = std::max(0, firstRenderedRow_);
   validRowCount_
     = std::max(0, std::min(validRowCount_,
@@ -3004,6 +3005,8 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
 
   bool pruneFirst = false;
 
+  assert(rootNode_->rowCount() == 1);
+
   if (renderMore) {
     int newFirstRenderedRow = std::min(firstRenderedRow_,
 				       calcOptimalFirstRenderedRow());
@@ -3011,6 +3014,7 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
 				   std::min(rootNode_->renderedHeight(),
 					    calcOptimalFirstRenderedRow()
 					    + calcOptimalRenderedRowCount()));
+    assert(rootNode_->rowCount() == 1);
 
     int newValidRowCount = newLastValidRow - newFirstRenderedRow;
 
@@ -3040,12 +3044,13 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
     } 
   }
 
-  if (column1Fixed_)
-    tieRowsScrollJS_.exec(scrollBarC_->jsRef());
+  assert(rootNode_->rowCount() == 1);
 }
 
 int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 {
+  assert(rootNode_->rowCount() == 1);
+
   WModelIndex index = node->modelIndex();
 
   if (index != rootIndex_)
@@ -3078,9 +3083,14 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 	    rowStubs = 0;
 	  }
 
+	  assert(rootNode_->rowCount() == 1);
+
 	  WTreeViewNode *n = new WTreeViewNode(this, childIndex,
 					       childHeight - 1,
 					       i == childCount - 1, node);
+
+	  assert(rootNode_->rowCount() == 1);
+
 	  node->childContainer()->addWidget(n);
 
 	  int nestedNodeRow = nodeRow;
@@ -3162,6 +3172,8 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 
     nodeRow += nch;
   }
+
+  assert(rootNode_->rowCount() == 1);
 
   // if a node has children loaded but is not currently expanded, then still
   // adjust it, but do not return the calculated nodeRow for it.
@@ -3392,7 +3404,8 @@ void WTreeView::sortByColumn(int column, SortOrder order)
   if (renderState_ != NeedRerender)
     headerSortIconWidget(currentSortColumn_)
       ->setStyleClass(order == AscendingOrder
-		      ? "Wt-tv-sh Wt-tv-sh-up" : "Wt-tv-sh Wt-tv-sh-down");
+		      ? "Wt-tv-sh Wt-tv-sh-up"
+		      : "Wt-tv-sh Wt-tv-sh-down");
 
   model_->sort(column, order);
 }

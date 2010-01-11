@@ -32,22 +32,27 @@ void SignalBase::setBlocked(bool blocked)
 void SignalBase::pushSender(WObject *sender)
 {
   WebSession *sess = WebSession::instance();
-
-  sess->pushEmitStack(sender);
+  if (sess) {
+    sess->pushEmitStack(sender);
+  }
 }
 
 void SignalBase::popSender()
 {
   WebSession *sess = WebSession::instance();
-
-  sess->popEmitStack();
+  if (sess) {
+    sess->popEmitStack();
+  }
 }
 
 WObject *SignalBase::currentSender()
 {
   WebSession *sess = WebSession::instance();
-
-  return sess->emitStackTop();
+  if (sess) {
+    return sess->emitStackTop();
+  } else {
+    return 0;
+  }
 }
 
 #ifndef WT_CNOR

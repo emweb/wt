@@ -884,8 +884,7 @@ void DomElement::asHTML(EscapeOStream& out,
   }
 
   for (unsigned i = 0; i < methodCalls_.size(); ++i)
-    app->doJavaScript(WT_CLASS ".getElement('" + id_ + "')."
-		      + methodCalls_[i] + ';');
+    app->doJavaScript("$('#" + id_ + "').get(0)." + methodCalls_[i] + ';');
 
   if (timeOut_ != -1)
     timeouts.push_back(TimeoutEvent(timeOut_, id_, timeOutJSRepeat_));
@@ -909,8 +908,7 @@ std::string DomElement::createVar() const
 void DomElement::declare(EscapeOStream& out) const
 {
   if (var_.empty())
-    out << "var " << createVar() << "="
-	<< WT_CLASS ".getElement('" << id_ << "');\n";
+    out << "var " << createVar() << "=$('#" << id_ << "').get(0);\n";
 }
 
 bool DomElement::canWriteInnerHTML(WApplication *app) const

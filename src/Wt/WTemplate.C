@@ -35,6 +35,9 @@ void WTemplate::clear()
 
   widgets_.clear();
   strings_.clear();
+
+  changed_ = true;
+  repaint(RepaintInnerHtml);  
 }
 
 void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
@@ -43,9 +46,12 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
   if (i != widgets_.end())
     delete i->second;
 
-  if (widget)
+  if (widget) {
     widget->setParent(this);
-  widgets_[varName] = widget;
+    widgets_[varName] = widget;
+    strings_.erase(varName);
+  } else
+    strings_[varName] = std::string();
 
   changed_ = true;
   repaint(RepaintInnerHtml);  
@@ -63,11 +69,14 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
     v = escapeText(v, true);
 
   strings_[varName] = v.toUTF8();
+
+  changed_ = true;
+  repaint(RepaintInnerHtml);  
 }
 
 void WTemplate::bindInt(const std::string& varName, int value)
 {
-  strings_[varName] = boost::lexical_cast<std::string>(value);
+  bindString(varName, boost::lexical_cast<std::string>(value), XHTMLUnsafeText);
 }
 
 void WTemplate::resolveString(const std::string& varName,
@@ -85,9 +94,10 @@ void WTemplate::resolveString(const std::string& varName,
     result << i->second;
   else {
     WWidget *w = resolveWidget(varName);
-    if (w)
+    if (w) {
+      w->setParent(this);
       w->htmlText(result);
-    else
+    } else
       handleUnresolvedVariable(varName, args, result);
   }
 }
