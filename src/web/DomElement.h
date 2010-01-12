@@ -90,6 +90,7 @@ public:
   void setWasEmpty(bool how); // allows optimisation of addChild()
   void addChild(DomElement *child);
   void insertChildAt(DomElement *child, int pos);
+  void saveChild(const std::string& id);
 
   void setAttribute(const std::string& attribute, const std::string& value);
 
@@ -257,6 +258,7 @@ private:
   };
 
   std::vector<ChildInsertion> childrenToAdd_;
+  std::vector<std::string> childrenToSave_;
   std::stringstream *childrenHtml_;
   TimeoutList timeouts_;
 

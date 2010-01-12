@@ -191,6 +191,11 @@ void DomElement::addChild(DomElement *child)
   }
 }
 
+void DomElement::saveChild(const std::string& id)
+{
+  childrenToSave_.push_back(id);
+}
+
 void DomElement::setAttribute(const std::string& attribute,
 			      const std::string& value)
 {
@@ -1148,6 +1153,15 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       return var_;
     }
 
+    // FIXME optimize with subselect
+
+    for (unsigned i = 0; i < childrenToSave_.size(); ++i) {
+      declare(out);
+
+      out << "var c" << var_ << (int)i << '='
+	  << "$('#" << childrenToSave_[i] << "');";
+    }
+
     if (mode_ != ModeCreate) {
       setJavaScriptProperties(out, app);
       setJavaScriptAttributes(out);
@@ -1175,6 +1189,10 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     }
 
     renderInnerHtmlJS(out, app);
+
+    for (unsigned i = 0; i < childrenToSave_.size(); ++i)
+      out << "$('#" << childrenToSave_[i] << "').replaceWith(c"
+	  << var_ << (int)i << ");";
 
     return var_;
   }

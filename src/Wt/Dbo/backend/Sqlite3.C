@@ -8,6 +8,7 @@
 #include "Wt/Dbo/Exception"
 
 #include <sqlite3.h>
+
 #include <iostream>
 
 //#define DEBUG(x) x
@@ -155,7 +156,8 @@ public:
 
     *value = (const char *)sqlite3_column_text(st_, column);
 
-    DEBUG(std::cerr << this << " result string " << column << " " << *value << std::endl);
+    DEBUG(std::cerr << this 
+	  << " result string " << column << " " << *value << std::endl);
 
     return true;
   }
@@ -168,7 +170,8 @@ public:
     *value = 42;
     *value = sqlite3_column_int(st_, column);
 
-    DEBUG(std::cerr << this << " result int " << column << " " << *value << std::endl);
+    DEBUG(std::cerr << this 
+	  << " result int " << column << " " << *value << std::endl);
 
     return true;
   }
@@ -180,7 +183,8 @@ public:
 
     *value = sqlite3_column_int64(st_, column);
 
-    DEBUG(std::cerr << this << " result long long " << column << " " << *value << std::endl);
+    DEBUG(std::cerr << this 
+	  << " result long long " << column << " " << *value << std::endl);
 
     return true;
   }
@@ -222,6 +226,25 @@ SqlStatement *Sqlite3::prepareStatement(const std::string& sql)
   return new Sqlite3Statement(db_, sql);
 }
 
+std::string Sqlite3::autoincrementSql() 
+{
+  return "autoincrement";
+}
+
+void Sqlite3::startTransaction() 
+{
+  executeSql("begin transaction");
+}
+
+void Sqlite3::commitTransaction() 
+{
+  executeSql("commit transaction");
+}
+
+void Sqlite3::rollbackTransaction() 
+{
+  executeSql("rollback transaction");
+}
     }
   }
 }

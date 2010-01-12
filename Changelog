@@ -1,3 +1,7 @@
+12-01-2010:
+	* WTemplate: do not rerender bound widgets when rerendering the
+	template if the widget was already rendered
+
 11-01-2010:
 	* themes/polished: several improvements
 

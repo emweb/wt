@@ -69,14 +69,14 @@ Transaction::Impl::Impl(Session& session)
     transactionCount_(0)
 { 
   connection_ = session_.useConnection();
-  connection_->executeSql("begin transaction");
+  connection_->startTransaction();
 }
 
 void Transaction::Impl::commit()
 {
   session_.flush();
 
-  connection_->executeSql("commit transaction");
+  connection_->commitTransaction();
   session_.returnConnection(connection_);
   session_.transaction_ = 0;
   active_ = false;
@@ -91,7 +91,7 @@ void Transaction::Impl::commit()
 
 void Transaction::Impl::rollback()
 {
-  connection_->executeSql("rollback transaction");
+  connection_->rollbackTransaction();
   session_.returnConnection(connection_);
   session_.transaction_ = 0;
   active_ = false;

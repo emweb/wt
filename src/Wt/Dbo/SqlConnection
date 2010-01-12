@@ -40,7 +40,29 @@ public:
    * it, and deleting it.
    */
   virtual void executeSql(const std::string& sql);
-
+  
+  /*! \brief Returns the 'autoincrement' SQL string.
+   */
+  virtual std::string autoincrementSql() = 0;
+  
+  /*! \brief Starts a transaction
+   *
+   * This function starts a transaction. 
+   */
+  virtual void startTransaction() = 0;
+  
+  /*! \brief Commits a transaction
+   *
+   * This function commits a transaction.
+   */
+  virtual void commitTransaction() = 0;
+  
+  /*! \brief Rolls back a transaction
+   *
+   * This function rolls back a transaction.
+   */
+  virtual void rollbackTransaction() = 0;
+  
   /*! \brief Returns the statement with the given id.
    *
    * Returns 0 if no such statement was already added.

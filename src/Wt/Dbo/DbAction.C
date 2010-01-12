@@ -155,15 +155,15 @@ CreateSchema::CreateSchema(Session& session, const char *tableName,
 {
   tablesCreated_.insert(tableName);
 
-  sql_ << "create table \"" << tableName << "\" (\n"
-       << "  \"id\" integer primary key autoincrement,\n"
-       << "  \"version\" integer not null";
+  sql_ << "create table " << tableName << "(\n"
+       << "  id integer primary key " 
+       << session.connection_->autoincrementSql() << ",\n"
+       << "  version integer not null";
 }
 
 void CreateSchema::exec()
 {
   sql_ << "\n)";
-
   session_.connection_->executeSql(sql_.str());
 }
 

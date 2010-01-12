@@ -296,13 +296,13 @@ int WWidget::boxBorder(Orientation orientation) const
 
 void WWidget::positionAt(const WWidget *widget, Orientation orientation)
 {
+  std::string side = (orientation == Horizontal ? ".Horizontal" : ".Vertical");
+
   WApplication::instance()->doJavaScript
     (WT_CLASS ".positionAtWidget('"
      + id() + "','"
      + widget->id() + "',"
-     WT_CLASS
-     + std::string(orientation == Horizontal ? ".Horizontal" : ".Vertical")
-     + ");");
+     WT_CLASS + side + ");");
 }
 
 }

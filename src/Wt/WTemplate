@@ -253,6 +253,9 @@ private:
   typedef std::map<std::string, WWidget *> WidgetMap;
   typedef std::map<std::string, std::string> StringMap;
 
+  std::set<WWidget *> *previouslyRendered_;
+  std::vector<WWidget *> *newlyRendered_;
+
   WidgetMap widgets_;
   StringMap strings_;
   WString   text_;

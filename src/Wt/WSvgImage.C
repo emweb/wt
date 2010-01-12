@@ -76,7 +76,11 @@ void WSvgImage::init()
 
   strokeStyle_ = strokeStyle();
   fillStyle_ = fillStyle();
-  fontStyle_ = fontStyle();  
+  fontStyle_ = fontStyle();
+
+  //this is not for clipping, but for settings the initial pen stroke
+  //in makeNewGroup()
+  newClipPath_ = true;
 }
 
 void WSvgImage::done()

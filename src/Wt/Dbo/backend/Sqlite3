@@ -41,6 +41,12 @@ public:
   ~Sqlite3();
 
   virtual SqlStatement *prepareStatement(const std::string& sql);
+  
+  virtual std::string autoincrementSql();
+  
+  virtual void startTransaction();
+  virtual void commitTransaction();
+  virtual void rollbackTransaction();
 
 private:
   sqlite3 *db_;

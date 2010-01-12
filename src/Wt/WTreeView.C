@@ -2991,7 +2991,7 @@ void WTreeView::renderedRowsChanged(int row, int count)
 
 void WTreeView::adjustToViewport(WTreeViewNode *changed)
 {
-  assert(rootNode_->rowCount() == 1);
+  //assert(rootNode_->rowCount() == 1);
 
   firstRenderedRow_ = std::max(0, firstRenderedRow_);
   validRowCount_
@@ -3007,7 +3007,7 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
 
   bool pruneFirst = false;
 
-  assert(rootNode_->rowCount() == 1);
+  //assert(rootNode_->rowCount() == 1);
 
   if (renderMore) {
     int newFirstRenderedRow = std::min(firstRenderedRow_,
@@ -3016,7 +3016,7 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
 				   std::min(rootNode_->renderedHeight(),
 					    calcOptimalFirstRenderedRow()
 					    + calcOptimalRenderedRowCount()));
-    assert(rootNode_->rowCount() == 1);
+    //assert(rootNode_->rowCount() == 1);
 
     int newValidRowCount = newLastValidRow - newFirstRenderedRow;
 
@@ -3046,12 +3046,12 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
     } 
   }
 
-  assert(rootNode_->rowCount() == 1);
+  //assert(rootNode_->rowCount() == 1);
 }
 
 int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 {
-  assert(rootNode_->rowCount() == 1);
+  //assert(rootNode_->rowCount() == 1);
 
   WModelIndex index = node->modelIndex();
 

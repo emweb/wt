@@ -74,7 +74,7 @@ WebSession::WebSession(WebController *controller,
   applicationName_ = applicationUrl_;
   baseUrl_ = applicationUrl_;
 
-  std::string::size_type slashpos = applicationName_.find_last_of('/');
+  std::string::size_type slashpos = applicationName_.rfind('/');
   if (slashpos != std::string::npos) {
     applicationName_ = applicationName_.substr(slashpos + 1);
     baseUrl_ = baseUrl_.substr(0, slashpos+1);

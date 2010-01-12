@@ -96,7 +96,14 @@ void WTemplate::resolveString(const std::string& varName,
     WWidget *w = resolveWidget(varName);
     if (w) {
       w->setParent(this);
-      w->htmlText(result);
+
+      if (previouslyRendered_
+	  && previouslyRendered_->find(w) != previouslyRendered_->end()) {
+	result << "<span id=\"" << w->id() << "\"></span>";
+      } else
+	w->htmlText(result);
+
+      newlyRendered_->push_back(w);
     } else
       handleUnresolvedVariable(varName, args, result);
   }
@@ -133,12 +140,44 @@ void WTemplate::setTemplateText(const WString& text)
 void WTemplate::updateDom(DomElement& element, bool all)
 {
   if (changed_ || all) {
-    std::stringstream resolved;
-    
-    renderTemplate(resolved);
+    std::set<WWidget *> previouslyRendered;
+    std::vector<WWidget *> newlyRendered;
 
-    element.setProperty(Wt::PropertyInnerHTML, resolved.str());
+    for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
+	 ++i) {
+      WWidget *w = i->second;
+      if (w->isRendered())
+	previouslyRendered.insert(w);
+    }
+
+    bool saveWidgets = element.mode() == DomElement::ModeUpdate;
+
+    previouslyRendered_ = saveWidgets ? &previouslyRendered : 0;
+    newlyRendered_ = &newlyRendered;
+
+    std::stringstream html;
+    renderTemplate(html);
+
+    previouslyRendered_ = 0;
+    newlyRendered_ = 0;
+
+    for (unsigned i = 0; i < newlyRendered.size(); ++i) {
+      WWidget *w = newlyRendered[i];
+      if (previouslyRendered.find(w) != previouslyRendered.end()) {
+	if (saveWidgets)
+	  element.saveChild(w->id());
+	previouslyRendered.erase(w);
+      }
+    }
+
+    element.setProperty(Wt::PropertyInnerHTML, html.str());
     changed_ = false;
+
+    for (std::set<WWidget *>::const_iterator i = previouslyRendered.begin();
+	 i != previouslyRendered.end(); ++i) {
+      WWidget *w = *i;
+      w->webWidget()->setRendered(false);
+    }
   }
 
   WInteractWidget::updateDom(element, all);

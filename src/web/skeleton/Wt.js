@@ -1202,11 +1202,11 @@ function handleResponse(status, msg, timer) {
     return;
 
   if (status == 0) {
-_$_$if_DEBUG_$_();
+_$_$ifnot_DEBUG_$_();
     try {
 _$_$endif_$_();
       doJavaScript(msg);
-_$_$if_DEBUG_$_(); 
+_$_$ifnot_DEBUG_$_(); 
     } catch (e) {
       alert("Wt internal error: " + e + ", code: " +  e.code
 	    + ", description: " + e.description /* + ":" + msg */);
