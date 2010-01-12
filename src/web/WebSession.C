@@ -1204,6 +1204,8 @@ void WebSession::notify(const WEvent& event)
 	      const std::string *hashE = request.getParameter("_");
 	      if (hashE)
 		app_->changeInternalPath(*hashE);
+	      else
+		app_->changeInternalPath("");
 	    }
 	  }
 

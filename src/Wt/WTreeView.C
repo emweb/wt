@@ -123,6 +123,8 @@ public:
 
     for (unsigned i = 0; i < config_->states().size(); ++i)
       signals_.push_back(new JSignal<>(this, "t-" + config_->states()[i]));
+
+    // FIXME: handle non-JavaScript case using a WSignalMapper ?
   }
 
   virtual ~ToggleButton() {
