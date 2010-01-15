@@ -14,7 +14,7 @@
 namespace Wt {
 
 class WAbstractItemModel;
-class WTreeView;
+class WAbstractItemView;
 
 /*! \class WItemSelectionModel Wt/WItemSelectionModel Wt/WItemSelectionModel
  *  \brief A class that represents a selection for a WAbstractItemView.
@@ -83,6 +83,7 @@ private:
 
   // temporary make the owning view a friend, until we have a better solution
   // for editable selection models.
+  friend class WAbstractItemView;
   friend class WTreeView;
 };
 

@@ -5,9 +5,14 @@
  */
 
 #include <stdexcept>
+#include <sstream>
 
 #include "Wt/Http/Request"
 #include "WebRequest.h"
+
+namespace {
+  std::stringstream emptyStream;
+}
 
 namespace Wt {
   namespace Http {
@@ -107,6 +112,36 @@ std::string Request::urlScheme() const
 int Request::tooLarge() const
 {
   return request_ ? request_->postDataExceeded() : 0;
+}
+
+std::istream& Request::in() const
+{
+  if (request_) {
+    WebRequest *web = const_cast<WebRequest *>(request_);
+    return web->in();
+  } else {
+    return emptyStream;
+  }
+}
+
+std::string Request::contentType() const
+{
+  return request_ ? request_->contentType() : std::string();
+}
+
+int Request::contentLength() const
+{
+  return request_ ? request_->contentLength() : 0;
+}
+
+std::string Request::userAgent() const
+{
+  return request_ ? request_->userAgent() : std::string();
+}
+
+std::string Request::clientAddress() const
+{
+  return request_ ? request_->remoteAddr() : std::string();
 }
 
 Request::Request(const WebRequest& request, ResponseContinuation *continuation)

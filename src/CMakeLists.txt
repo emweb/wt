@@ -85,6 +85,7 @@ Wt/StdWidgetItemImpl.C
 Wt/WAbstractArea.C
 Wt/WAbstractItemDelegate.C
 Wt/WAbstractItemModel.C
+Wt/WAbstractItemView.C
 Wt/WAbstractListModel.C
 Wt/WAbstractProxyModel.C
 Wt/WAbstractTableModel.C

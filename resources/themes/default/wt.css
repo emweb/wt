@@ -235,6 +235,7 @@
     font-family: verdana,helvetica,tahoma,sans-serif;
     font-size: 10pt;
     cursor: default;
+    whitespace: nowrap;
 }
 
 .Wt-treeview .Wt-spacer {

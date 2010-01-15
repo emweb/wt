@@ -845,89 +845,27 @@ void WTreeViewNode::selfCheck()
   }
 }
 
-WTreeView::ColumnInfo::ColumnInfo(const WTreeView *view, WApplication *app,
-				  int anId, int column)
-  : id(anId),
-    sortOrder(AscendingOrder),
-    alignment(AlignLeft),
-    headerAlignment(AlignLeft),
-    extraHeaderWidget(0),
-    sorting(view->sorting_),
-    itemDelegate_(0)
-{
-  styleRule = new WCssTemplateRule("#" + view->id()
-				   + " ." + this->styleClass());
-  if (column != 0) {
-    width = WLength(150);
-    styleRule->templateWidget()->resize(width, WLength::Auto);
-  }
-
-  app->styleSheet().addRule(styleRule);
-}
-
-std::string WTreeView::ColumnInfo::styleClass() const
-{
-#ifndef WT_TARGET_JAVA
-  char buf[40];
-  buf[0] = 0;
-  std::strcat(buf, "Wt-tv-c");
-  Utils::itoa(id, buf + 7, 10);
-  return buf;
-#else
-  return "Wt-tv-c" + boost::lexical_cast<std::string>(id);
-#endif
-}
-
 WTreeView::WTreeView(WContainerWidget *parent)
-  : WCompositeWidget(0),
-    model_(0),
-    itemDelegate_(new WItemDelegate(this)),
-    selectionModel_(new WItemSelectionModel(0, this)),
-    rowHeight_(20),
-    headerLineHeight_(20),
+  : WAbstractItemView(parent),
     rootNode_(0),
     borderColorRule_(0),
-    alternatingRowColors_(false),
     rootIsDecorated_(true),
-    selectionMode_(NoSelection),
-    sorting_(true),
-    columnResize_(true),
-    multiLineHeader_(false),
     column1Fixed_(false),
-    nextColumnId_(1),
+    alternatingRowColors_(false),
     collapsed_(this),
     expanded_(this),
-    clicked_(this),
-    doubleClicked_(this),
-    mouseWentDown_(this),
-    selectionChanged_(this),
     viewportTop_(0),
     viewportHeight_(30),
     nodeLoad_(0),
-    currentSortColumn_(-1),
     contentsContainer_(0),
     scrollBarC_(0),
-    resizeHandleMDownJS_(this),
-    resizeHandleMMovedJS_(this),
-    resizeHandleMUpJS_(this),
-    tieContentsHeaderScrollJS_(this),
-    tieRowsScrollJS_(this),
-    itemClickedJS_(this),
-    itemDoubleClickedJS_(this),
-    itemMouseDownJS_(this),
-    itemEvent_(this, "itemEvent"),
-    dragEnabled_(false),
-    dropsEnabled_(false)
+    itemEvent_(this, "itemEvent")
 {
   setImplementation(impl_ = new WContainerWidget());
 
   renderState_ = NeedRerender;
 
   WApplication *app = WApplication::instance();
-
-  clickedForSortMapper_ = new WSignalMapper<int>(this);
-  clickedForSortMapper_->mapped().connect(SLOT(this,
-					     WTreeView::toggleSortColumn));
 
   clickedForCollapseMapper_ = new WSignalMapper<int>(this);
   clickedForCollapseMapper_->mapped().connect(SLOT(this,
@@ -1492,11 +1430,6 @@ WTreeView::~WTreeView()
     delete columns_[i].styleRule;
 }
 
-int WTreeView::columnCount() const
-{
-  return columns_.size();
-}
-
 std::string WTreeView::columnStyleClass(int column) const
 {
   return columnInfo(column).styleClass();
@@ -1620,12 +1553,9 @@ void WTreeView::setColumnBorder(const WColor& color)
   WApplication::instance()->styleSheet().addRule(borderColorRule_);
 }
 
-void WTreeView::setColumnResizeEnabled(bool enabled)
+void WTreeView::setRootIsDecorated(bool show)
 {
-  if (enabled != columnResize_) {
-    columnResize_ = enabled;
-    scheduleRerender(NeedRerenderHeader);
-  }
+  rootIsDecorated_ = show;
 }
 
 void WTreeView::setAlternatingRowColors(bool enable)
@@ -1634,11 +1564,6 @@ void WTreeView::setAlternatingRowColors(bool enable)
     alternatingRowColors_ = enable;
     setRootNodeStyle();
   }
-}
-
-void WTreeView::setRootIsDecorated(bool show)
-{
-  rootIsDecorated_ = show;
 }
 
 void WTreeView::setRootNodeStyle()
@@ -1699,20 +1624,6 @@ void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
       headerTextWidget(i)->setWordWrap(multiLine);
 }
 
-int WTreeView::headerLevelCount() const
-{
-  int result = 0;
-
-  if (model_)
-    for (unsigned int i = 0; i < columns_.size(); ++i) {
-      int l = static_cast<int>(asNumber(model_->headerData(i, Horizontal,
-							   LevelRole)));
-      result = std::max(result, l);			
-    }
-
-  return result + 1;
-}
-
 void WTreeView::resize(const WLength& width, const WLength& height)
 {
   if (!height.isAuto()) {
@@ -1749,14 +1660,7 @@ int WTreeView::calcOptimalRenderedRowCount() const
 
 void WTreeView::setModel(WAbstractItemModel *model)
 {
-  if (model_) {
-    /* disconnect slots from previous model */
-    for (unsigned i = 0; i < modelConnections_.size(); ++i)
-      modelConnections_[i].disconnect();
-    modelConnections_.clear();
-  }
-
-  model_ = model;
+  WAbstractItemView::setModel(model);
 
   rootIndex_ = WModelIndex();
 
@@ -1784,24 +1688,12 @@ void WTreeView::setModel(WAbstractItemModel *model)
   modelConnections_.push_back(model_->modelReset().connect
      (SLOT(this, WTreeView::modelReset)));
 
-  WItemSelectionModel *oldSelectionModel = selectionModel_;
-  selectionModel_ = new WItemSelectionModel(model, this);
-  selectionModel_->setSelectionBehavior(oldSelectionModel->selectionBehavior());
-
   expandedSet_.clear();
-
-  for (int i = columns_.size(); i < model_->columnCount(); ++i)
-    columnInfo(i);
 
   while (static_cast<int>(columns_.size()) > model->columnCount()) {
     delete columns_.back().styleRule;
     columns_.erase(columns_.begin() + columns_.size() - 1);
   }
-
-  configureModelDragDrop();
-
-  scheduleRerender(NeedRerender);
-  setHeaderHeight(headerLineHeight_, multiLineHeader_);
 }
 
 void WTreeView::setRootIndex(const WModelIndex& rootIndex)
@@ -1810,52 +1702,8 @@ void WTreeView::setRootIndex(const WModelIndex& rootIndex)
     rootIndex_ = rootIndex;
 
     if (model_)
-      scheduleRerender(NeedRerenderTree);
+      scheduleRerender(NeedRerenderData);
   }
-}
-
-void WTreeView::setSelectionMode(SelectionMode mode)
-{
-  if (mode != selectionMode_) {
-    clearSelection();
-    selectionMode_ = mode;
-  }
-}
-
-void WTreeView::setSelectionBehavior(SelectionBehavior behavior)
-{
-  if (behavior != selectionBehavior()) {
-    clearSelection();
-    selectionModel_->setSelectionBehavior(behavior);
-  }
-}
-
-SelectionBehavior WTreeView::selectionBehavior() const
-{
-  return selectionModel_->selectionBehavior();
-}
-
-void WTreeView::setItemDelegate(WAbstractItemDelegate *delegate)
-{
-  itemDelegate_ = delegate;
-}
-
-void WTreeView::setItemDelegateForColumn(int column,
-					 WAbstractItemDelegate *delegate)
-{
-  columnInfo(column).itemDelegate_ = delegate;
-}
-
-WAbstractItemDelegate *WTreeView::itemDelegateForColumn(int column) const
-{
-  return columnInfo(column).itemDelegate_;
-}
-
-WAbstractItemDelegate *WTreeView::itemDelegate(const WModelIndex& index) const
-{
-  WAbstractItemDelegate *result = itemDelegateForColumn(index.column());
-
-  return result ? result : itemDelegate_;
 }
 
 void WTreeView::render()
@@ -1873,7 +1721,7 @@ void WTreeView::render()
     case NeedRerenderHeader:
       rerenderHeader();
       break;
-    case NeedRerenderTree:
+    case NeedRerenderData:
       rerenderTree();
       break;
     case NeedAdjustViewPort:
@@ -1887,21 +1735,7 @@ void WTreeView::render()
   if (needDefineJS_)
     initLayoutJavaScript();
 
-  WCompositeWidget::render();
-}
-
-void WTreeView::scheduleRerender(RenderState what)
-{
-  if (!isRendered())
-    return;
-
-  if ((what == NeedRerenderHeader && renderState_ == NeedRerenderTree)
-      || (what == NeedRerenderTree && renderState_ == NeedRerenderHeader))
-    renderState_ = NeedRerender;
-  else
-    renderState_ = std::max(what, renderState_);
-
-  askRerender();
+  WAbstractItemView::render();
 }
 
 void WTreeView::rerenderHeader()
@@ -1952,6 +1786,7 @@ void WTreeView::rerenderHeader()
   /* cols 1.. */
   for (int i = 1; i < columnCount(); ++i) {
     WWidget *w = createHeaderWidget(app, i);
+    w->setFloatSide(Left);
     row->addWidget(w);
   }
 
@@ -1987,138 +1822,6 @@ void WTreeView::rerenderHeader()
 
   if (model_)
     modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
-}
-
-std::string repeat(const std::string& s, int times)
-{
-  std::string result;
-  for (int i = 0; i < times; ++i) {
-    result += s;
-  }
-  return result;
-}
-
-WWidget *WTreeView::createHeaderWidget(WApplication *app, int column)
-{
-  static const char *OneLine = "<div>&nbsp;</div>";
-
-  int headerLevel
-    = model_ 
-    ? static_cast<int>(asNumber(model_->headerData(column, Horizontal,
-						   LevelRole))) : 0;
-
-  int rightBorderLevel = headerLevel;
-  if (model_ && column + 1 < columnCount()) {
-    WFlags<HeaderFlag> flagsLeft = model_->headerFlags(column);
-    WFlags<HeaderFlag> flagsRight = model_->headerFlags(column + 1);
-
-    int rightHeaderLevel 
-      = static_cast<int>(asNumber(model_->headerData(column + 1, Horizontal,
-						     LevelRole)));
-
-    if (flagsLeft & ColumnIsExpandedRight)
-      rightBorderLevel = headerLevel + 1;
-    else if (flagsRight & ColumnIsExpandedLeft)
-      rightBorderLevel = rightHeaderLevel + 1;
-    else
-      rightBorderLevel = std::min(headerLevel, rightHeaderLevel);
-  }
-
-  ColumnInfo& info = columnInfo(column);
-  WContainerWidget *w = new WContainerWidget();
-  w->setObjectName("contents");
-
-  if (info.sorting) {
-    WText *sortIcon = new WText(w);
-    sortIcon->setObjectName("sort");
-    sortIcon->setInline(false);
-    if (!columnResize_)
-      sortIcon->setMargin(4, Right);
-    sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
-    clickedForSortMapper_->mapConnect(sortIcon->clicked(), info.id);
-  }
-
-  if (model_->headerFlags(column)
-      & (ColumnIsExpandedLeft | ColumnIsExpandedRight)) {
-    WImage *collapseIcon = new WImage(w);
-    collapseIcon->setFloatSide(Left);
-    collapseIcon->setImageRef(WApplication::resourcesUrl() + "minus.gif");
-    clickedForCollapseMapper_->mapConnect(collapseIcon->clicked(), info.id);
-  } else if (model_->headerFlags(column) & ColumnIsCollapsed) {
-    WImage *expandIcon = new WImage(w);
-    expandIcon->setFloatSide(Left);
-    expandIcon->setImageRef(WApplication::resourcesUrl() + "plus.gif");
-    clickedForExpandMapper_->mapConnect(expandIcon->clicked(), info.id);
-  }    
-
-  WText *t = new WText("&nbsp;", w);
-  t->setObjectName("text");
-  t->setStyleClass("Wt-label");
-  t->setInline(false);
-  if (multiLineHeader_ || app->environment().agentIsIE())
-    t->setWordWrap(true);
-  else
-    t->setWordWrap(false);
-
-  WContainerWidget *result = new WContainerWidget();
-  result->setFloatSide(Left);
-
-  if (headerLevel) {
-    WContainerWidget *spacer = new WContainerWidget(result);
-    t = new WText(spacer);
-    t->setInline(false);
-
-    if (rightBorderLevel < headerLevel) {
-      if (rightBorderLevel) {
-	t->setText(repeat(OneLine, rightBorderLevel));
-	spacer = new WContainerWidget(result);
-	t = new WText(spacer);
-	t->setInline(false);
-      }
-      t->setText(repeat(OneLine, headerLevel - rightBorderLevel));
-      spacer->setStyleClass("Wt-tv-br");
-    } else {
-      t->setText(repeat(OneLine, headerLevel));
-    }
-  }
-
-  w->setStyleClass(w->styleClass()
-		   + (rightBorderLevel <= headerLevel ? " Wt-tv-br" : ""));
-
-  result->addWidget(w);
-  result->setStyleClass("Wt-tv-c headerrh " + info.styleClass());
-  result->setContentAlignment(info.headerAlignment);
-
-  WWidget *extraW = columnInfo(column).extraHeaderWidget;
-  if (extraW) {
-    result->addWidget(extraW);
-    extraW->setStyleClass(extraW->styleClass() + " Wt-tv-br");
-  }
-
-  if (columnResize_) {
-    WContainerWidget *resizeHandle = new WContainerWidget();
-    resizeHandle->setStyleClass("Wt-tv-rh headerrh");
-    resizeHandle->mouseWentDown().connect(resizeHandleMDownJS_);
-    resizeHandle->mouseWentUp().connect(resizeHandleMUpJS_);
-    resizeHandle->mouseMoved().connect(resizeHandleMMovedJS_);
-
-    bool ie = wApp->environment().agentIsIE();
-    WContainerWidget *parent = ie ? w
-      : dynamic_cast<WContainerWidget *>(result->widget(0));
-    parent->insertWidget(0, resizeHandle);
-
-    if (ie) {
-      parent->setAttributeValue("style", "zoom: 1");
-      parent->resize(WLength::Auto, headerLineHeight_);
-    }
-  }
-
-  WText *spacer = new WText();
-  spacer->setInline(false);
-  spacer->setStyleClass("Wt-tv-br headerrh");
-  result->addWidget(spacer);
-
-  return result;
 }
 
 void WTreeView::enableAjax()
@@ -2218,113 +1921,6 @@ void WTreeView::handleClick(const WModelIndex& index)
 {
   selectionHandleClick(index, 0);
   clicked_.emit(index, WMouseEvent());
-}
-
-void WTreeView::dropEvent(const WDropEvent& e, const WModelIndex& index)
-{
-  /*
-   * Here, we only handle standard drag&drop actions between abstract
-   * item models.
-   */
-  if (dropsEnabled_) {
-    std::vector<std::string> acceptMimeTypes = model_->acceptDropMimeTypes();
-
-    for (unsigned i = 0; i < acceptMimeTypes.size(); ++i)
-      if (acceptMimeTypes[i] == e.mimeType()) {
-	// we define internal by sharing the same selection model...
-	// currently selection models cannot be shared
-	bool internal = e.source() == selectionModel_;
-
-	DropAction action = internal ? MoveAction : CopyAction;
-
-	// TODO: (later) we need to interpret the event location
-	// (e.mouseEvent().widget().y) For now we will implement to
-	// add as a sibling before the index
-	model_->dropEvent(e, action,
-			  index.row(), index.column(), index.parent());
-
-	setSelectedIndexes(WModelIndexSet());
-	return;
-      }
-  }
-
-  WCompositeWidget::dropEvent(e);
-}
-
-void WTreeView::configureModelDragDrop()
-{
-  if (!model_)
-    return;
-
-  if (dragEnabled_) {
-    setAttributeValue("dmt", model_->mimeType());
-    setAttributeValue("dsid",
-		      WApplication::instance()->encodeObject(selectionModel_));
-
-    checkDragSelection();
-  }
-
-  std::vector<std::string> acceptMimeTypes = model_->acceptDropMimeTypes();
-
-  for (unsigned i = 0; i < acceptMimeTypes.size(); ++i)
-    if (dropsEnabled_)
-      acceptDrops(acceptMimeTypes[i], "Wt-drop-site");
-    else
-      stopAcceptDrops(acceptMimeTypes[i]);
-}
-
-void WTreeView::setDragEnabled(bool enable)
-{
-  if (dragEnabled_ != enable) {
-    dragEnabled_ = enable;
-
-    if (enable) {
-      dragWidget_ = new WText(headerContainer_);
-      dragWidget_->setId(id() + "dw");
-      dragWidget_->setInline(false);
-      dragWidget_->hide();
-      setAttributeValue("dwid", dragWidget_->id());
-
-      configureModelDragDrop();
-    } else {
-      // TODO disable
-    }
-  }
-}
-
-void WTreeView::setDropsEnabled(bool enable)
-{
-  if (dropsEnabled_ != enable) {
-    dropsEnabled_ = enable;
-
-    configureModelDragDrop();
-  }
-}
-
-void WTreeView::checkDragSelection()
-{
-  /*
-   * Check whether the current selection can be drag and dropped
-   */
-  std::string dragMimeType = model_->mimeType();
-
-  if (!dragMimeType.empty()) {
-    const WModelIndexSet& selection = selectionModel_->selectedIndexes();
-
-    bool dragOk = !selection.empty();
-
-    for (WModelIndexSet::const_iterator i = selection.begin();
-	 i != selection.end(); ++i)
-      if (!((*i).flags() & ItemIsDragEnabled)) {
-	dragOk = false;
-	break;
-      }
-
-    if (dragOk)
-      setAttributeValue("drag", "true");
-    else
-      setAttributeValue("drag", "false");
-  }
 }
 
 int WTreeView::subTreeHeight(const WModelIndex& index,
@@ -2498,7 +2094,7 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
     WApplication *app = WApplication::instance();
     for (int i = start; i < start + count; ++i)
       columns_.insert(columns_.begin() + i,
-		      ColumnInfo(this, app, ++nextColumnId_, i));
+		      createColumnInfo(i));
 
     if (renderState_ < NeedRerenderHeader) {
       if (start == 0)
@@ -2517,17 +2113,20 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
 
 	WContainerWidget *row = headerRow();
 
-	for (int i = start; i < start + count; ++i)
-	  row->insertWidget(i - 1, createHeaderWidget(app, i));
+	for (int i = start; i < start + count; ++i) {
+	  WWidget* w = createHeaderWidget(app, i);
+	  w->setFloatSide(Left);
+	  row->insertWidget(i - 1, w);
+	}
       }
     }
   }
 
-  if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
+  if (renderState_ == NeedRerender || renderState_ == NeedRerenderData)
     return;
 
   if (start == 0)
-    scheduleRerender(NeedRerenderTree);
+    scheduleRerender(NeedRerenderData);
   else {
     WWidget *parentWidget = widgetForIndex(parent);
     if (parentWidget) {
@@ -2573,13 +2172,13 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
   }
 
   if (start == 0)
-    scheduleRerender(NeedRerenderTree);
+    scheduleRerender(NeedRerenderData);
 }
 
 void WTreeView::modelColumnsRemoved(const WModelIndex& parent,
 				    int start, int end)
 {
-  if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
+  if (renderState_ == NeedRerender || renderState_ == NeedRerenderData)
     return;
 
   int count = end - start + 1;
@@ -2606,7 +2205,7 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
   int count = end - start + 1;
   shiftModelIndexes(parent, start, count);
 
-  if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
+  if (renderState_ == NeedRerender || renderState_ == NeedRerenderData)
     return;
 
   WWidget *parentWidget = widgetForIndex(parent);
@@ -2734,7 +2333,7 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 {
   int count = end - start + 1;
 
-  if (renderState_ != NeedRerender || renderState_ != NeedRerenderTree) {
+  if (renderState_ != NeedRerender || renderState_ != NeedRerenderData) {
     firstRemovedRow_ = -1;
     removedHeight_ = 0;
 
@@ -2824,7 +2423,7 @@ void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 void WTreeView::modelDataChanged(const WModelIndex& topLeft,
 				 const WModelIndex& bottomRight)
 {
-  if (renderState_ == NeedRerender || renderState_ == NeedRerenderTree)
+  if (renderState_ == NeedRerender || renderState_ == NeedRerenderData)
     return;
   
   WModelIndex parent = topLeft.parent();  
@@ -2882,11 +2481,6 @@ WText *WTreeView::headerSortIconWidget(int column)
     return dynamic_cast<WText *>(headerWidget(column)->find("sort"));
 }
 
-WText *WTreeView::headerTextWidget(int column)
-{
-  return dynamic_cast<WText *>(headerWidget(column)->find("text"));
-}
-
 WWidget *WTreeView::headerWidget(int column, bool contentsOnly)
 {
   WWidget *result = 0;
@@ -2900,16 +2494,6 @@ WWidget *WTreeView::headerWidget(int column, bool contentsOnly)
     return result->find("contents");
   else
     return result;
-}
-
-WWidget *WTreeView::createExtraHeaderWidget(int column)
-{
-  return 0;
-}
-
-WWidget *WTreeView::extraHeaderWidget(int column)
-{
-  return columnInfo(column).extraHeaderWidget;
 }
 
 WContainerWidget *WTreeView::headerRow()
@@ -3350,16 +2934,6 @@ void WTreeView::shiftModelIndexes(const WModelIndex& parent,
     selectionChanged_.emit();
 }
 
-WTreeView::ColumnInfo& WTreeView::columnInfo(int column) const
-{
-  while (column >= (int)columns_.size())
-    columns_.push_back(ColumnInfo(this, WApplication::instance(),
-				  ++nextColumnId_,
-				  column));
-
-  return columns_[column];
-}
-
 void WTreeView::collapseColumn(int columnid)
 {
   model_->collapseColumn(columnById(columnid));
@@ -3372,60 +2946,6 @@ void WTreeView::expandColumn(int columnid)
   model_->expandColumn(columnById(columnid));
   scheduleRerender(NeedRerenderHeader);
   setHeaderHeight(headerLineHeight_, multiLineHeader_);
-}
-
-void WTreeView::toggleSortColumn(int columnid)
-{
-  int column = columnById(columnid);
-
-  if (column != currentSortColumn_)
-    sortByColumn(column, columnInfo(column).sortOrder);
-  else
-    sortByColumn(column, columnInfo(column).sortOrder == AscendingOrder
-		 ? DescendingOrder : AscendingOrder);
-}
-
-int WTreeView::columnById(int columnid) const
-{
-  for (int i = 0; i < columnCount(); ++i)
-    if (columnInfo(i).id == columnid)
-      return i;
-
-  return 0;
-}
-
-void WTreeView::sortByColumn(int column, SortOrder order)
-{
-  if (currentSortColumn_ != -1)
-    headerSortIconWidget(currentSortColumn_)
-      ->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
-
-  currentSortColumn_ = column;
-  columnInfo(column).sortOrder = order;
-
-  if (renderState_ != NeedRerender)
-    headerSortIconWidget(currentSortColumn_)
-      ->setStyleClass(order == AscendingOrder
-		      ? "Wt-tv-sh Wt-tv-sh-up"
-		      : "Wt-tv-sh Wt-tv-sh-down");
-
-  model_->sort(column, order);
-}
-
-void WTreeView::setSortingEnabled(bool enabled)
-{
-  sorting_ = enabled;
-  for (int i = 0; i < columnCount(); ++i)
-    columnInfo(i).sorting = enabled;
-
-  scheduleRerender(NeedRerenderHeader);
-}
-
-void WTreeView::setSortingEnabled(int column, bool enabled)
-{
-  columnInfo(column).sorting = enabled;
-
-  scheduleRerender(NeedRerenderHeader);
 }
 
 void WTreeView::convertToRaw(WModelIndexSet& set, std::vector<void *>& result)
@@ -3466,12 +2986,7 @@ void WTreeView::modelLayoutChanged()
 
   renderedNodes_.clear();
 
-  scheduleRerender(NeedRerenderTree);
-}
-
-void WTreeView::modelReset()
-{
-  setModel(model_);
+  scheduleRerender(NeedRerenderData);
 }
 
 void WTreeView::addRenderedNode(WTreeViewNode *node)
@@ -3484,46 +2999,6 @@ void WTreeView::removeRenderedNode(WTreeViewNode *node)
 {
   renderedNodes_.erase(node->modelIndex());
   --nodeLoad_;
-}
-
-void WTreeView::clearSelection()
-{
-  WModelIndexSet& nodes = selectionModel_->selection_;
-
-  while (!nodes.empty()) {
-    WModelIndex i = *nodes.begin();
-    internalSelect(i, Deselect);
-  }
-}
-
-void WTreeView::setSelectedIndexes(const WModelIndexSet& indexes)
-{
-  if (indexes.empty() && selectionModel_->selection_.empty())
-    return;
-
-  clearSelection();
-
-  for (WModelIndexSet::const_iterator i = indexes.begin();
-       i != indexes.end(); ++i)
-    internalSelect(*i, Select);
-
-  selectionChanged_.emit();
-}
-
-WModelIndexSet WTreeView::selectedIndexes() const
-{
-  return selectionModel_->selection_;
-}
-
-bool WTreeView::isSelected(const WModelIndex& index) const
-{
-  return selectionModel_->isSelected(index);
-}
-
-void WTreeView::select(const WModelIndex& index, SelectionFlag option)
-{
-  if (internalSelect(index, option))
-    selectionChanged_.emit();
 }
 
 bool WTreeView::internalSelect(const WModelIndex& index, SelectionFlag option)
@@ -3652,6 +3127,32 @@ void WTreeView::selectionHandleClick(const WModelIndex& index,
     }
   } else
     select(index, Select);
+}
+
+WAbstractItemView::ColumnInfo& WTreeView::columnInfo(int column) const
+{
+  while (column >= (int)columns_.size()) {
+    ColumnInfo ci = createColumnInfo(column);
+    columns_.push_back(ci);
+  }
+
+  return columns_[column];
+}
+
+WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(const int column) const
+{
+    ColumnInfo ci = ColumnInfo(this,
+			       ++nextColumnId_,
+			       column);
+    ci.styleRule = new WCssTemplateRule("#" + this->id()
+					+ " ." + ci.styleClass());
+    if (column != 0) {
+      ci.width = WLength(150);
+      ci.styleRule->templateWidget()->resize(ci.width, WLength::Auto);
+    }
+
+    WApplication::instance()->styleSheet().addRule(ci.styleRule);
+    return ci;
 }
 
 }

@@ -58,7 +58,13 @@ WPanel::WPanel(WContainerWidget *parent)
      """h -= 8;"
      """if (h > 0) {"
      ""  "c.style.height = h + 'px';"
-     ""  "$(c).children().css('height', h + 'px');"
+     // this seems golden, but, JQuery docs say it doesn't work when
+     // the panel is indirectly hidden: will this back-fire ?
+     ""  "$(c).children().each(function() { "
+     ""      "var self = $(this), "
+     ""          "padding = self.outerHeight() - self.height();"
+     ""      "self.height(h - padding);"
+     ""  "});"
      """}"
      "};");
 }

@@ -9,6 +9,8 @@
 
 #include <map>
 #include <string>
+#include <istream>
+#include <sstream>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
@@ -208,6 +210,45 @@ public:
    * This is either <tt>"http"</tt> or <tt>"https"</tt>
    */
   std::string urlScheme() const;
+
+  /*! \brief Returns the input stream for parsing the body.
+   *
+   * If the request was a POST with as contentType()
+   * "application/x-www-form-urlencoded" or "multipart/form-data", the
+   * input stream will already have been consumed by Wt's CGI parser,
+   * and made available as parameters in the request.
+   */
+  std::istream &in() const;
+
+  /*! \brief Returns the "Content Type" of the request body.
+   *
+   * \sa in()
+   */
+  std::string contentType() const;
+
+  /*! \brief Returns the "Content Length" of the request body.
+   *
+   * \sa in()
+   */
+  int contentLength() const;
+
+  /*! \brief Returns the user agent.
+   *
+   * The user agent, as reported in the HTTP <tt>User-Agent</tt> field.
+   */
+  std::string userAgent() const;
+
+  /*! \brief Returns the IP address of the client.
+   *
+   * The (most likely) IP address of the client that is connected to
+   * this session.
+   *
+   * This is taken to be the first public address that is given in the
+   * Client-IP header, or in the X-Forwarded-For header (in case the
+   * client is behind a proxy). If none of these headers is present,
+   * the remote socket IP address is used. 
+   */
+  std::string clientAddress() const;
 
 private:
   const WebRequest       *request_;

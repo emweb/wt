@@ -1166,6 +1166,11 @@ void WebSession::notify(const WEvent& event)
 	  if (pollResponse_) {
 	    pollResponse_->flush();
 	    pollResponse_ = 0;
+
+	    if (*signalE == "poll") {
+	      log("notice") << "Concurrent poll requests: sending reload.";
+	      renderer_.letReloadJS(*handler.response(), true);
+	    }
 	  }
 
 	  if (*signalE != "res" && *signalE != "poll") {

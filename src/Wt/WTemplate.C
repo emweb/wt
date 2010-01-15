@@ -99,7 +99,7 @@ void WTemplate::resolveString(const std::string& varName,
 
       if (previouslyRendered_
 	  && previouslyRendered_->find(w) != previouslyRendered_->end()) {
-	result << "<span id=\"" << w->id() << "\"></span>";
+	result << "<span id=\"" << w->id() << "\"> </span>";
       } else
 	w->htmlText(result);
 
