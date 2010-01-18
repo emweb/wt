@@ -283,6 +283,8 @@ private:
 		std::string& rest);
 
   template <class C> void prepareStatements();
+  template <class C> std::string manyToManyJoinId(const std::string& joinName,
+						  const std::string& notId);
 
   void doDelete(SqlStatement *statement, long long id, bool withVersion,
 		int version);

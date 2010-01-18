@@ -174,7 +174,7 @@ WTime::ParseState::ParseState()
 {
   h = m = s = z = a = 0;
   hour = minute = sec = msec = 0;
-  pm = ignoreAMPM = false;
+  pm = parseAMPM = haveAMPM = false;
 }
 
 WTime WTime::fromString(const WString& s, const WString& format)
@@ -193,7 +193,7 @@ WDateTime::CharState WTime::handleSpecial(char c, const std::string& v,
   switch (c) {
   case 'H':
   case 'h':
-    parse.ignoreAMPM = c == 'H';
+    parse.parseAMPM = c == 'h';
 
     if (parse.h == 0)
       if (!parseLast(v, vi, parse, format))
@@ -314,8 +314,7 @@ bool WTime::parseLast(const std::string& v, unsigned& vi,
 	} catch (boost::bad_lexical_cast&) {
 	  return false;
 	}
-      
-	break;
+
       } else if (*count == maxCount) {
 	if (vi + (maxCount - 1) >= v.length())
 	  return false;
@@ -341,6 +340,8 @@ bool WTime::parseLast(const std::string& v, unsigned& vi,
 
     std::string str = v.substr(vi, 2);
     vi += 2;
+
+    parse.haveAMPM = true;
 
     if (str == "am" || str == "AM") {
       parse.pm = false;

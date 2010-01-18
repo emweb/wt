@@ -50,7 +50,12 @@ void PrepareStatements::actCollection(const CollectionRef<C>& field)
 {
   if (pass_ == Self) {
     const char *joinTableName = session_.tableName<C>();
-    sets_.push_back(SetInfo(joinTableName, field.type(), field.joinName()));
+    std::string joinOtherId = field.type() == ManyToMany
+      ? session_.manyToManyJoinId<C>(field.joinName(), field.joinId())
+      : std::string();
+
+    sets_.push_back(SetInfo(joinTableName, field.type(), field.joinName(),
+			    field.joinId(), joinOtherId));
   }
 
   if (pass_ == Collections)
@@ -108,8 +113,14 @@ void CreateSchema::actCollection(const CollectionRef<C>& field)
   case Sets:
     if (field.type() == ManyToMany) {
       const char *tableName = session_.tableName<C>();
-      if (tablesCreated_.count(tableName) != 0)
-	createJoinTable(field.joinName(), tableName, tableName_);
+      
+      if (tablesCreated_.count(tableName) != 0) {
+	std::string joinOtherId
+	  = session_.manyToManyJoinId<C>(field.joinName(), field.joinId());
+
+	createJoinTable(field.joinName(), tableName, tableName_,
+			field.joinId(), joinOtherId);
+      }
     }
   }
 }
@@ -390,6 +401,41 @@ void SessionAddAction::descend(ptr<C>& obj)
 { 
   // FIXME: cascade add ?
 }
+
+    /*
+     * GetManyToManyJoinIdAction
+     */
+
+template<class C>
+void GetManyToManyJoinIdAction::visit(C& obj)
+{
+  persist<C>::apply(obj, *this);
+}
+
+template<typename V>
+void GetManyToManyJoinIdAction::act(const FieldRef<V>& field)
+{ }
+
+template<class C>
+void GetManyToManyJoinIdAction::actCollection(const CollectionRef<C>& field)
+{
+  if (found_)
+    return;
+
+  if (field.type() == ManyToMany) {
+    // second check make sure we find the other id if Many-To-Many between
+    // same table
+    if (field.joinName() == joinName_
+	&& (result_.empty() || field.joinId() != result_)) {
+      result_ = field.joinId();
+      found_ = true;
+    }
+  }
+}
+
+template<class C>
+void GetManyToManyJoinIdAction::descend(ptr<C>& obj)
+{ }
 
   }
 }

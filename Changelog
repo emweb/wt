@@ -1,3 +1,10 @@
+18-01-2010:
+	* Dbo: additional optional parameter to hasMany() allows the
+	definition of the joinId in the joinTable (you need this if you
+	are doing Many-to-Many between the same table).
+
+	* WDateTime, WTime: fix AM/PM parsing problem
+
 12-01-2010:
 	* WTemplate: do not rerender bound widgets when rerendering the
 	template if the widget was already rendered

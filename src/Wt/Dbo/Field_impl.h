@@ -55,8 +55,9 @@ void FieldRef<V>::descend(A& action) const
 template <class C>
 CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
 				RelationType type,
-				const std::string& joinName)
-  : value_(value), joinName_(joinName), type_(type)
+				const std::string& joinName,
+				const std::string& joinId)
+  : value_(value), joinName_(joinName), joinId_(joinId), type_(type)
 { }
 
 template <class C>
@@ -74,7 +75,8 @@ const std::string& FieldRef< ptr<C> >::name() const
 template <class C>
 std::string FieldRef< ptr<C> >::sqlType(Session& session) const
 {
-  return std::string("integer references \"") + session.tableName<C>() + "\"(\"id\")";
+  return std::string("integer references \"")
+    + session.tableName<C>() + "\"(\"id\")";
 }
 
 template <class C>
@@ -119,9 +121,10 @@ void belongsTo(A& action, ptr<C>& value, const std::string& name)
 
 template <class A, class C>
 void hasMany(A& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& joinName)
+	     RelationType type, const std::string& joinName,
+	     const std::string& joinId)
 {
-  action.actCollection(CollectionRef<C>(value, type, joinName));
+  action.actCollection(CollectionRef<C>(value, type, joinName, joinId));
 }
 
   }

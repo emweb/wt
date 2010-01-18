@@ -23,6 +23,86 @@ void WDateTimeTest::test_WTime()
 {
   Wt::WTime wt(12, 11, 31);
   BOOST_REQUIRE(wt.toString() == "12:11:31");
+
+  Wt::WDateTime d = Wt::WDateTime::fromString("2000-06-14 13:05:12",
+					      "yyyy-MM-dd hh:mm:ss");
+
+  BOOST_REQUIRE(d.date().year() == 2000);
+  BOOST_REQUIRE(d.date().month() == 6);
+  BOOST_REQUIRE(d.date().day() == 14);
+  BOOST_REQUIRE(d.time().hour() == 13);
+  BOOST_REQUIRE(d.time().minute() == 05);
+  BOOST_REQUIRE(d.time().second() == 12);
+
+  d = Wt::WDateTime::fromString("2000-06-14 13:05:12",
+				"yyyy-MM-dd HH:mm:ss");
+
+  BOOST_REQUIRE(d.date().year() == 2000);
+  BOOST_REQUIRE(d.date().month() == 6);
+  BOOST_REQUIRE(d.date().day() == 14);
+  BOOST_REQUIRE(d.time().hour() == 13);
+  BOOST_REQUIRE(d.time().minute() == 05);
+  BOOST_REQUIRE(d.time().second() == 12);
+
+  d = Wt::WDateTime::fromString("2000-06-14 1:05:12 AM",
+				"yyyy-MM-dd h:mm:ss AP");
+
+  BOOST_REQUIRE(d.date().year() == 2000);
+  BOOST_REQUIRE(d.date().month() == 6);
+  BOOST_REQUIRE(d.date().day() == 14);
+  BOOST_REQUIRE(d.time().hour() == 1);
+  BOOST_REQUIRE(d.time().minute() == 05);
+  BOOST_REQUIRE(d.time().second() == 12);
+
+  d = Wt::WDateTime::fromString("2000-06-14 1:05:12 pm",
+				"yyyy-MM-dd h:mm:ss ap");
+
+  BOOST_REQUIRE(d.date().year() == 2000);
+  BOOST_REQUIRE(d.date().month() == 6);
+  BOOST_REQUIRE(d.date().day() == 14);
+  BOOST_REQUIRE(d.time().hour() == 13);
+  BOOST_REQUIRE(d.time().minute() == 05);
+  BOOST_REQUIRE(d.time().second() == 12);
+
+  d = Wt::WDateTime::fromString("2000-06-14 1:05:12 PM",
+				"yyyy-MM-dd h:mm:ss a");
+
+  BOOST_REQUIRE(d.date().year() == 2000);
+  BOOST_REQUIRE(d.date().month() == 6);
+  BOOST_REQUIRE(d.date().day() == 14);
+  BOOST_REQUIRE(d.time().hour() == 13);
+  BOOST_REQUIRE(d.time().minute() == 05);
+  BOOST_REQUIRE(d.time().second() == 12);
+
+  d = Wt::WDateTime::fromString("2000-06-14 1:05:12 AM",
+				"yyyy-MM-dd h:mm:ss a");
+
+  BOOST_REQUIRE(d.date().year() == 2000);
+  BOOST_REQUIRE(d.date().month() == 6);
+  BOOST_REQUIRE(d.date().day() == 14);
+  BOOST_REQUIRE(d.time().hour() == 1);
+  BOOST_REQUIRE(d.time().minute() == 05);
+  BOOST_REQUIRE(d.time().second() == 12);
+
+  d = Wt::WDateTime::fromString("2000-06-14 1:05:12",
+				"yyyy-MM-dd h:mm:ss");
+
+  BOOST_REQUIRE(d.date().year() == 2000);
+  BOOST_REQUIRE(d.date().month() == 6);
+  BOOST_REQUIRE(d.date().day() == 14);
+  BOOST_REQUIRE(d.time().hour() == 1);
+  BOOST_REQUIRE(d.time().minute() == 05);
+  BOOST_REQUIRE(d.time().second() == 12);
+
+  d = Wt::WDateTime::fromString("2000-06-14 13:05:12",
+				"yyyy-MM-dd h:mm:ss");
+
+  BOOST_REQUIRE(d.date().year() == 2000);
+  BOOST_REQUIRE(d.date().month() == 6);
+  BOOST_REQUIRE(d.date().day() == 14);
+  BOOST_REQUIRE(d.time().hour() == 13);
+  BOOST_REQUIRE(d.time().minute() == 05);
+  BOOST_REQUIRE(d.time().second() == 12);
 }
 
 void WDateTimeTest::test_WDateTime()

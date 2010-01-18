@@ -267,7 +267,7 @@ private:
   struct ParseState {
     int h, m, s, z, a;
     int hour, minute, sec, msec;
-    bool pm, ignoreAMPM;
+    bool pm, parseAMPM, haveAMPM;
 
     ParseState();
   };

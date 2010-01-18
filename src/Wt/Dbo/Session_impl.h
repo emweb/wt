@@ -57,6 +57,22 @@ void Session::prepareStatements()
 }
 
 template <class C>
+std::string Session::manyToManyJoinId(const std::string& joinName,
+				      const std::string& notId)
+{
+  GetManyToManyJoinIdAction action(joinName, notId);
+
+  C dummy;
+  action.visit(dummy);
+
+  if (action.found())
+    return action.result();
+  else
+    throw std::logic_error("No reverse mapping found for "
+			   "many-to-many relation '" + joinName + '\'');
+}
+
+template <class C>
 const char *Session::tableName() const
 {
   ClassRegistry::const_iterator i = classRegistry_.find(&typeid(C));

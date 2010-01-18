@@ -55,10 +55,13 @@ private:
   struct SetInfo {
     const char *tableName;
     std::string joinName;
+    std::string joinSelfId, joinOtherId;
     RelationType type;
 
     SetInfo(const char *aTableName, RelationType type,
-	    const std::string& aJoinName);
+	    const std::string& aJoinName,
+	    const std::string& aJoinSelfId,
+	    const std::string& aJoinOtherId);
   };
 
   Session& session_;
@@ -97,7 +100,9 @@ private:
 
   void exec();
   void createJoinTable(const std::string& joinName,
-		       const char *table1, const char *table2);
+		       const char *table1, const char *table2,
+		       const std::string& joinId1,
+		       const std::string& joinId2);
 };
 
 class LoadDbAction
@@ -202,6 +207,31 @@ public:
 
 private:
   Session *session_;
+};
+
+class GetManyToManyJoinIdAction
+{
+public:
+  GetManyToManyJoinIdAction(const std::string& joinName,
+			    const std::string& joinId);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+  bool found() const { return found_; }
+  std::string result() const { return result_; }
+
+private:
+  std::string joinName_;
+  std::string result_;
+  bool found_;
 };
 
   }

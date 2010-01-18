@@ -19,9 +19,13 @@ namespace Wt {
 
 PrepareStatements::SetInfo::SetInfo(const char *aTableName,
 				    RelationType aType,
-				    const std::string& aJoinName)
+				    const std::string& aJoinName,
+				    const std::string& aJoinSelfId,
+				    const std::string& aJoinOtherId)
   : tableName(aTableName),
     joinName(aJoinName),
+    joinSelfId(aJoinSelfId),
+    joinOtherId(aJoinOtherId),
     type(aType)
 { }
 
@@ -105,17 +109,23 @@ void PrepareStatements::addCollectionsSql(std::vector<std::string>& statements)
     case ManyToMany:
       // (1) select for collection
 
-      // ' where "id" = ?' -> ' join "joinName" on "joinName"."tableName_id" = "other"."id"'
+      std::string join_self_id = info.joinSelfId.empty()
+	? std::string(tableName_) + "_id" : info.joinSelfId;
+      std::string join_other_id = info.joinOtherId.empty()
+	? std::string(info.tableName) + "_id" : info.joinOtherId;
+
+      // ' where "id" = ?'
+      //   -> ' join "joinName" on "joinName"."tableName_id" = "this"."id"'
       ssql.erase(ssql.length() - 15);
 
       // 'select version' -> 'select id, version'
       ssql.insert(7, "\"id\", ");
 
       sql << ssql << " join \"" << info.joinName
-	  << "\" on \"" << info.joinName << "\".\"" << info.tableName
-	  << "_id\" = \"" << info.tableName << "\".\"id\" "
+	  << "\" on \"" << info.joinName << "\".\"" << join_other_id
+	  << "\" = \"" << info.tableName << "\".\"id\" "
 	  << "where \"" << info.joinName << "\".\""
-	  << tableName_ << "_id\" = ?";
+	  << join_self_id << "\" = ?";
 
       statements.push_back(sql.str());
 
@@ -124,8 +134,8 @@ void PrepareStatements::addCollectionsSql(std::vector<std::string>& statements)
       sql.str("");
 
       sql << "insert into \"" << info.joinName
-	  << "\" (\"" << tableName_ << "_id\", \"" << info.tableName
-	  << "_id\") values (?, ?)";
+	  << "\" (\"" << join_self_id << "\", \"" << join_other_id
+	  << "\") values (?, ?)";
 
       statements.push_back(sql.str());
 
@@ -134,8 +144,8 @@ void PrepareStatements::addCollectionsSql(std::vector<std::string>& statements)
       sql.str("");
 
       sql << "delete from \"" << info.joinName
-	  << "\" where \"" << tableName_ << "_id\" = ? and \""
-	  << info.tableName << "_id\" = ?";
+	  << "\" where \"" << join_self_id << "\" = ? and \""
+	  << join_other_id << "\" = ?";
 
       statements.push_back(sql.str());
     }
@@ -168,19 +178,26 @@ void CreateSchema::exec()
 }
 
 void CreateSchema::createJoinTable(const std::string& joinName,
-				   const char *table1,
-				   const char *table2)
+				   const char *table1, const char *table2,
+				   const std::string& joinId1,
+				   const std::string& joinId2)
 {
   sql_.str("");
 
   tablesCreated_.insert(joinName);
 
+  std::string table1_id = joinId1.empty()
+    ? std::string(table1) + "_id" : joinId1;
+  std::string table2_id = joinId2.empty()
+    ? std::string(table2) + "_id" : joinId2;
+
+
   sql_ << "create table \"" << joinName << "\" (\n"
-       << "  \"" << table1 << "_id\" integer references \"" << table1
+       << "  \"" << table1_id << "\" integer references \"" << table1
        << "\"(\"id\"),\n"
-       << "  \"" << table2 << "_id\" integer references \"" << table2
+       << "  \"" << table2_id << "\" integer references \"" << table2
        << "\"(\"id\"),\n"
-       << "  primary key(\"" << table1 << "_id\", \"" << table2 << "_id\")\n)";
+       << "  primary key(\"" << table1_id << "\", \"" << table2_id << "\")\n)";
 
   session_.connection_->executeSql(sql_.str());
 }
@@ -300,6 +317,18 @@ SessionAddAction::SessionAddAction(Session *session)
 bool SessionAddAction::isReading() const { return true; }
 bool SessionAddAction::isWriting() const { return false; }
 bool SessionAddAction::isSchema() const { return false; }
+
+GetManyToManyJoinIdAction
+::GetManyToManyJoinIdAction(const std::string& joinName,
+			    const std::string& notId)
+  : joinName_(joinName),
+    result_(notId),
+    found_(false)
+{ }
+
+bool GetManyToManyJoinIdAction::isReading() const { return false; }
+bool GetManyToManyJoinIdAction::isWriting() const { return false; }
+bool GetManyToManyJoinIdAction::isSchema() const { return true; }
 
   }
 }

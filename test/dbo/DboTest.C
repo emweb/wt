@@ -94,7 +94,7 @@ public:
     dbo::field(a, name, "name");
 
     dbo::hasMany(a, asManyToOne, dbo::ManyToOne,  "b");
-    dbo::hasMany(a, csManyToMany, dbo::ManyToMany, "b_c");
+    dbo::hasMany(a, csManyToMany, dbo::ManyToMany, "b_c", "the_b");
   }
 };
 
@@ -119,7 +119,7 @@ public:
   {
     dbo::field(a, name, "name");
 
-    dbo::hasMany(a, bsManyToMany, dbo::ManyToMany, "b_c");
+    dbo::hasMany(a, bsManyToMany, dbo::ManyToMany, "b_c", "the_c");
   }
 };
 

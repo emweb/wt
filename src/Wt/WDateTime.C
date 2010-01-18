@@ -20,8 +20,7 @@ namespace posix = boost::posix_time;
 namespace gregorian = boost::gregorian;
 
 /*
- * TODO: -fix AM/PM detection in format string
- *       -isValid() versus !isNull()
+ * TODO: -isValid() versus !isNull()
  */
 
 namespace Wt {
@@ -372,7 +371,7 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
     *date = WDate(dateParse.year, dateParse.month, dateParse.day);
 
   if (time) {
-    if (!timeParse.ignoreAMPM && timeParse.hour != -1) {
+    if (timeParse.parseAMPM && timeParse.haveAMPM) {
       if (timeParse.pm)
 	timeParse.hour = (timeParse.hour % 12) + 12;
       else

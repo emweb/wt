@@ -52,15 +52,16 @@ class CollectionRef
 {
 public:
   CollectionRef(collection< ptr<C> >& value, RelationType type,
-		const std::string& joinName);
+		const std::string& joinName, const std::string& joinId);
 
   collection< ptr<C> >& value() const { return value_; }
   const std::string& joinName() const { return joinName_; }
+  const std::string& joinId() const { return joinId_; }
   RelationType type() const { return type_; }
 
 private:
   collection< ptr<C> >& value_;
-  std::string joinName_;
+  std::string joinName_, joinId_;
   RelationType type_;
 };
 
@@ -144,9 +145,11 @@ void belongsTo(Action& action, ptr<C>& value, const std::string& name);
  * relation.
  *
  * For a \link Wt::Dbo::ManyToMany ManyToMany\endlink relation, the \p
- * joinName is the name of a linker table.  Thus, also for a
+ * joinName is the name of a linker table. Thus, also for a
  * ManyToMany relation, both sides of the relationship will have the
- * same joinName passed to them.
+ * same joinName passed to them. You may optionally specify the \p joinId
+ * which is used to reference this side of the relationship in the join
+ * table. If \p joinId is left blank, the value will be tableName + "_id".
  *
  * A hasMany() must have a counter-part belongsTo() or hasMany()
  * declaration in the referenced class \p C.
@@ -157,7 +160,8 @@ void belongsTo(Action& action, ptr<C>& value, const std::string& name);
  */
 template <class Action, class C>
 void hasMany(Action& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& joinName);
+	     RelationType type, const std::string& joinName,
+	     const std::string& joinId = "");
 
   }
 }
