@@ -161,8 +161,8 @@ public:
   void asJavaScript(std::ostream& out);
   std::string asJavaScript(EscapeOStream& out, Priority priority) const;
 
-  void asHTML(EscapeOStream& out, TimeoutList& timeouts,
-	      bool openingTagOnly = false) const;
+  void asHTML(EscapeOStream& out, std::ostream& javaScript,
+	      TimeoutList& timeouts, bool openingTagOnly = false) const;
   static void createTimeoutJs(std::ostream& out, const TimeoutList& timeouts,
 			      WApplication *app);
 

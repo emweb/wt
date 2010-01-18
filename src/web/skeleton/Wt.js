@@ -1278,6 +1278,8 @@ function update(el, signalName, e, feedback) {
   _$_$endif_$_();
 }
 
+var updateTimeoutStart;
+
 function scheduleUpdate() {
   if (responsePending != null && pollTimer != null) {
     clearTimeout(pollTimer);
@@ -1286,11 +1288,18 @@ function scheduleUpdate() {
   }
 
   if (responsePending == null) {
-    if (updateTimeout == null)
+    if (updateTimeout == null) {
       updateTimeout = setTimeout(function() { sendUpdate(); }, WT.updateDelay);
-    else if (commErrors) {
+      updateTimeoutStart = (new Date).getTime();
+    } else if (commErrors) {
       clearTimeout(updateTimeout);
       sendUpdate();
+    } else {
+      var diff = (new Date).getTime() - updateTimeoutStart;
+      if (diff > WT.updateDelay) {
+	clearTimeout(updateTimeout);
+	sendUpdate();
+      }
     }
   }
 }

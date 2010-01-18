@@ -401,3 +401,11 @@
     border-left: 0px solid black;
     margin-left: 1px;
 }
+
+/*
+ * For Ext::TableView
+ */
+
+table.x-grid3-row-table {
+    table-layout: fixed;
+}

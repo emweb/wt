@@ -57,11 +57,6 @@ WTableColumn *WTable::columnAt(int column)
 {
   expand(0, column, 0, 1);
 
-  if (columns_.size() <= (unsigned)column) {
-    for (unsigned col = columns_.size(); col <= (unsigned)column; ++col)
-      columns_.push_back(new WTableColumn(this));
-  }
-
   return columns_[column];
 }
 
@@ -102,6 +97,9 @@ void WTable::expand(int row, int column, int rowSpan, int columnSpan)
 	WTableRow *tr = rows_[r];
 	tr->expand(newNumColumns);
       }
+
+      for (int c = curNumColumns; c <= column; ++c)
+	  columns_.push_back(new WTableColumn(this));
     }
   }
 
@@ -115,7 +113,7 @@ int WTable::rowCount() const
 
 int WTable::columnCount() const
 {
-  return rows_.size() > 0 ? rows_[0]->cells_.size() : 0;
+  return columns_.size();
 }
 
 WTableRow* WTable::insertRow(int row)
@@ -199,6 +197,9 @@ void WTable::clear()
 {
   while (rowCount() > 0)
     deleteRow(rowCount() - 1);
+
+  while (columnCount() > 0)
+    deleteColumn(columnCount() - 1);
 }
 
 void WTable::setHeaderCount(int count, Orientation orientation)

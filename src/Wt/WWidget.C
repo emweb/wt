@@ -163,9 +163,14 @@ void WWidget::htmlText(std::ostream& out)
 
   DomElement *element
     = webWidget()->createSDomElement(WApplication::instance());
+
   DomElement::TimeoutList timeouts;
   EscapeOStream sout(out);
-  element->asHTML(sout, timeouts);
+  std::stringstream js;
+  element->asHTML(sout, js, timeouts);
+
+  WApplication::instance()->doJavaScript(js.str());
+
   delete element;
 }
 

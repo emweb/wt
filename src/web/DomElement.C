@@ -175,15 +175,14 @@ void DomElement::addChild(DomElement *child)
 {
   ++numManipulations_;
 
-  javaScript_ += child->javaScriptEvenWhenDeleted_ + child->javaScript_;
-  child->javaScriptEvenWhenDeleted_.clear();
-  child->javaScript_.clear();
-
   if (wasEmpty_ && canWriteInnerHTML(WApplication::instance())) {
     if (!childrenHtml_)
       childrenHtml_ = new std::stringstream();
+
+    std::stringstream js;
     EscapeOStream sout(*childrenHtml_);
-    child->asHTML(sout, timeouts_);
+    child->asHTML(sout, js, timeouts_);
+    javaScript_ += js.str();
 
     delete child;
   } else {
@@ -435,10 +434,6 @@ void DomElement::insertChildAt(DomElement *child, int pos)
 {
   ++numManipulations_;
 
-  javaScript_ += child->javaScriptEvenWhenDeleted_ + child->javaScript_;
-  child->javaScriptEvenWhenDeleted_.clear();
-  child->javaScript_.clear();
-
   childrenToAdd_.push_back(ChildInsertion(pos, child));
 }
 
@@ -579,6 +574,7 @@ std::string DomElement::cssStyle() const
 }
 
 void DomElement::asHTML(EscapeOStream& out,
+			std::ostream& javaScript,
 			std::vector<TimeoutEvent>& timeouts,
 			bool openingTagOnly) const
 {
@@ -750,10 +746,8 @@ void DomElement::asHTML(EscapeOStream& out,
       if (!i->second.jsCode.empty()) {
 	if (Utils::startsWith(i->first, "key", 3) &&
 	    app->root() && id_ == app->root()->id()) {
-	  std::stringstream ss;
-	  ss << "document.on" << i->first << "="
-	     << "function (event){" + i->second.jsCode << "}\n";
-	  app->doJavaScript(ss.str());
+	  javaScript << "document.on" << i->first << "="
+		     << "function (event){" + i->second.jsCode << "}\n";
 	} else {
 	  out << " on" << i->first << "=";
 	  fastHtmlAttributeValue(out, attributeValues, i->second.jsCode);
@@ -863,7 +857,7 @@ void DomElement::asHTML(EscapeOStream& out,
     if (!isSelfClosingTag(renderedType)) {
       out << ">";
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
-	childrenToAdd_[i].child->asHTML(out, timeouts);
+	childrenToAdd_[i].child->asHTML(out, javaScript, timeouts);
 
       out << innerHTML; // for WPushButton must be after childrenToAdd_
 
@@ -889,7 +883,8 @@ void DomElement::asHTML(EscapeOStream& out,
   }
 
   for (unsigned i = 0; i < methodCalls_.size(); ++i)
-    app->doJavaScript("$('#" + id_ + "').get(0)." + methodCalls_[i] + ';');
+    javaScript << "$('#" << id_ << "').get(0)." << methodCalls_[i] << ';';
+  javaScript << javaScriptEvenWhenDeleted_ << javaScript_;
 
   if (timeOut_ != -1)
     timeouts.push_back(TimeoutEvent(timeOut_, id_, timeOutJSRepeat_));
@@ -1014,10 +1009,11 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
      * It also avoids problems with changing certain attributes not
      * working in IE.
      */
+    std::stringstream dummy;
     out << "document.createElement('";
     out.pushEscape(EscapeOStream::JsStringLiteralSQuote);
     TimeoutList timeouts;
-    asHTML(out, timeouts, true);
+    asHTML(out, dummy, timeouts, true);
     out.popEscape();
     out << "');";
     out << domInsertJS;
@@ -1220,8 +1216,10 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 	out << childrenHtml_->str();
 
       TimeoutList timeouts;
+      std::stringstream js;
+
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
-	childrenToAdd_[i].child->asHTML(out, timeouts);
+	childrenToAdd_[i].child->asHTML(out, js, timeouts);
 
       if (type_ == DomElement_DIV
 	  && app->environment().agent() == WEnvironment::IE6
@@ -1240,6 +1238,8 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 	    << "._p_.addTimerEvent('" << timeouts[i].event << "', " 
 	    << timeouts[i].msec << ","
 	    << (timeouts[i].repeat ? "true" : "false") << ");\n";
+
+      out << js.str();
     }
   } else {
     for (unsigned i = 0; i < childrenToAdd_.size(); ++i) {
@@ -1248,7 +1248,6 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
       child->addToParent(out, var_, childrenToAdd_[i].pos, app);
     }
   }
-
 
   for (unsigned i = 0; i < methodCalls_.size(); ++i) {
     declare(out);

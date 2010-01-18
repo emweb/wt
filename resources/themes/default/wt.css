@@ -322,3 +322,11 @@
 .Wt-treeview .Wt-tv-node .Wt-tv-row {
     border-left: 1px solid #FFFFFF;
 }
+
+/*
+ * For Ext::TableView
+ */
+
+table.x-grid3-row-table {
+    table-layout: fixed;
+}
