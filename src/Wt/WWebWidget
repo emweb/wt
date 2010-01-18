@@ -131,6 +131,7 @@ public:
   virtual WT_USTRING attributeValue(const std::string& name) const;
   virtual void setJavaScriptMember(const std::string& name,
 				   const std::string& value);
+  virtual std::string javaScriptMember(const std::string& name) const;
   virtual void callJavaScriptMember(const std::string& name,
 				    const std::string& args);
 

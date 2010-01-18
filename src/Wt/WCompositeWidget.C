@@ -75,6 +75,8 @@ WLength WCompositeWidget::offset(Side s) const
 void WCompositeWidget::resize(const WLength& width, const WLength& height)
 {
   impl_->resize(width, height);
+
+  WWidget::resize(width, height);
 }
 
 WLength WCompositeWidget::width() const
@@ -292,6 +294,8 @@ WString WCompositeWidget::toolTip() const
 void WCompositeWidget::refresh()
 {
   impl_->refresh();
+
+  WWidget::refresh();
 }
 
 void WCompositeWidget::enableAjax()
@@ -348,6 +352,11 @@ void WCompositeWidget::setJavaScriptMember(const std::string& name,
 					   const std::string& value)
 {
   impl_->setJavaScriptMember(name, value);
+}
+
+std::string WCompositeWidget::javaScriptMember(const std::string& name) const
+{
+  return impl_->javaScriptMember(name);
 }
 
 void WCompositeWidget::callJavaScriptMember(const std::string& name,

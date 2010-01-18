@@ -882,9 +882,10 @@ void DomElement::asHTML(EscapeOStream& out,
       out << "</a>";
   }
 
+  javaScript << javaScriptEvenWhenDeleted_ << javaScript_;
+
   for (unsigned i = 0; i < methodCalls_.size(); ++i)
     javaScript << "$('#" << id_ << "').get(0)." << methodCalls_[i] << ';';
-  javaScript << javaScriptEvenWhenDeleted_ << javaScript_;
 
   if (timeOut_ != -1)
     timeouts.push_back(TimeoutEvent(timeOut_, id_, timeOutJSRepeat_));

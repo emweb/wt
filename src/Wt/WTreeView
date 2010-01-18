@@ -372,9 +372,6 @@ private:
   JSignal<std::string, int, std::string, std::string,
           std::string, WMouseEvent> itemEvent_;
 
-  bool     dragEnabled_, dropsEnabled_;
-  WWidget *dragWidget_;
-
   ToggleButtonConfig *expandConfig_;
   
   virtual ColumnInfo& columnInfo(int column) const;

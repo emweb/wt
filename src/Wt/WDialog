@@ -90,9 +90,9 @@ class WText;
  *
  * <h3>CSS</h3>
  *
- * A dialog has the <tt>Wt-dialog</tt> and <tt>Wt-outset</tt> style
- * classes. The look can be overridden using the following style class
- * selectors:
+ * The calendar is styled by the current CSS theme. A dialog has the
+ * <tt>Wt-dialog</tt> and <tt>Wt-outset</tt> style classes. The look
+ * can be overridden using the following style class selectors:
  *
  * \verbatim
  .Wt-dialog .titlebar : The title bar

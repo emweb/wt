@@ -21,20 +21,8 @@ namespace Wt {
  * This widget combines a horizontal WMenu with a WStackedWidget, and a
  * tab-like look.
  *
- * A tab widget will place the tab bar on top of the contents. If you want
- * an item to fill the contents (e.g. if it is a WContainerWidget whose
- * contents is managed using a layout manager), you should resize the item to
- * 100% height.
- *
- * This widget uses the following resources:
- * <ul>
- *  <li><i>resourcesURL</i>/tab_b.gif</li>
- *  <li><i>resourcesURL</i>/tab_l.gif</li>
- *  <li><i>resourcesURL</i>/tab_r.gif</li>
- * </ul>
- *
- * These files may be found in the resources/ folder of the %Wt distribution,
- * see also \ref deployment "deployment and resources".
+ * A tab widget will place the tab bar on top of the contents, and fit the
+ * contents below it.
  *
  * Usage example:
  * \if cpp
@@ -71,10 +59,10 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * You may customize the look of the tabs handles using the
- * <tt>Wt-tabs</tt> CSS class.
+ * The tab widget is styled by the current CSS theme. The look (of the
+ * header) can be overridden using the <tt>Wt-tabs</tt> CSS class and
+ * the following selectors:
  *
- * The following rules may be used to style the header:
  * \verbatim
 .Wt-tabs ul        : the list
 .Wt-tabs li        : a list item
@@ -91,18 +79,14 @@ public:
 		    PreLoading       //!< Pre-loading: before first use
   };
 
-  /*! \brief Create a new WTabWidget
+  /*! \brief Creates a new WTabWidget
    */
   WTabWidget(WContainerWidget *parent = 0);
 
-  /*! \brief Create a new WTabWidget with custom layout alignment
+  /*! \brief Creates a new WTabWidget with custom layout alignment (<b>deprecated</b>).
    *
-   * The default constructor will use a layout manager to fit the tab widget
-   * within a parent container, and show scrollbars inside a tab if needed.
-   *
-   * Here you can override the alignment option for the layout manager, e.g.
-   * use Wt::AlignTop | Wt::AlignJustify to not attempt to constrain the height
-   * of the tab widget. 
+   * \deprecated Since Wt 3.1.1, the \p layoutAlignment is no longer needed and
+   *             its value is ignored
    */
   WTabWidget(WFlags<AlignmentFlag> layoutAlignment,
 	     WContainerWidget *parent = 0);
@@ -215,7 +199,7 @@ public:
    */
   const std::string& internalBasePath() const;
 
- /*! \brief %Signal emitted when the user activates a tab.
+  /*! \brief %Signal emitted when the user activates a tab.
    *
    * The index of the newly activated tab is passed as an argument.
    */
@@ -237,6 +221,8 @@ private:
 
   void create(WFlags<AlignmentFlag> layoutAlignment);
   void onItemSelected(WMenuItem *item);
+
+  void setJsSize();
 };
 
 }

@@ -184,9 +184,6 @@ public:
    */
   Signal<>& expanded() { return expanded_; }
 
-  virtual void refresh();
-  virtual void resize(const WLength& width, const WLength& height);
-
   Signal<bool>& collapsedSS() { return collapsedSS_; }
   Signal<bool>& expandedSS() { return expandedSS_; }
 

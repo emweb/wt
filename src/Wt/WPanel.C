@@ -69,30 +69,6 @@ WPanel::WPanel(WContainerWidget *parent)
      "};");
 }
 
-void WPanel::refresh()
-{
-  WCompositeWidget::refresh();
-
-  setJsSize();
-}
-
-void WPanel::setJsSize()
-{
-  if (!height().isAuto()) {
-    callJavaScriptMember
-      ("wtResize", jsRef() + ","
-       + boost::lexical_cast<std::string>(width().toPixels()) + ","
-       + boost::lexical_cast<std::string>(height().toPixels()));    
-  }
-}
-
-void WPanel::resize(const WLength& width, const WLength& height)
-{
-  WCompositeWidget::resize(width, height);
-
-  setJsSize();
-}
-
 void WPanel::setTitle(const WString& title)
 {
   setTitleBar(true);

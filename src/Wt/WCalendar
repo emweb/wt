@@ -57,8 +57,9 @@ class WTemplate;
  *
  * <h3>CSS</h3>
  *
- * A calendar has the <tt>Wt-calendar</tt> style class. The look can
- * be overridden using the following style class selectors:
+ * The calendar is styled by the current CSS theme. The look can be
+ * overridden using the <tt>Wt-calendar</tt> CSS class and the following
+ * selectors:
  *
  * \verbatim
 .Wt-cal table           : The table

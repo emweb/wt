@@ -348,6 +348,8 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
   }
 
   repaint(RepaintPropertyAttribute);
+
+  WWidget::resize(width, height);
 }
 
 WLength WWebWidget::width() const
@@ -742,6 +744,17 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
   otherImpl_->jsMembersSet_->push_back(name);
 
   repaint(RepaintPropertyAttribute);
+}
+
+std::string WWebWidget::javaScriptMember(const std::string& name) const
+{
+  if (otherImpl_ && otherImpl_->jsMembers_) {
+    std::map<std::string, std::string>::const_iterator i
+      = otherImpl_->jsMembers_->find(name);
+  
+    return i != otherImpl_->jsMembers_->end() ? i->second : std::string();
+  } else
+    return std::string();
 }
 
 void WWebWidget::callJavaScriptMember(const std::string& name,
@@ -1546,6 +1559,8 @@ void WWebWidget::refresh()
   if (children_)
     for (unsigned i = 0; i < children_->size(); ++i)
       (*children_)[i]->refresh();
+
+  WWidget::refresh();
 }
 
 void WWebWidget::enableAjax()

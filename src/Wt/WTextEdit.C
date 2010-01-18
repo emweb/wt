@@ -41,6 +41,10 @@ void WTextEdit::init()
     ",numlist,bullist";
 
   initTinyMCE();
+  
+  setJavaScriptMember
+    ("wtResize",
+     "function(e,w,h){" WT_CLASS ".tinyMCEResize(e, w, h); };");
 }
 
 WTextEdit::~WTextEdit()
@@ -98,7 +102,7 @@ void WTextEdit::initTinyMCE()
 
     // Adjust the height: this can only be done by adjusting the iframe height.
     app->doJavaScript
-      (WT_CLASS ".tinyMCEResize=function(e, w, h){"
+      (WT_CLASS ".tinyMCEResize=function(e,w,h){"
        """e.style.height = (h - 2) + 'px';"
        ""
        """var iframe = " WT_CLASS ".getElement(e.id + '_ifr');"
@@ -176,8 +180,6 @@ void WTextEdit::updateDom(DomElement& element, bool all)
     /*
      * When initialized, we apply the inline style.
      */
-    element.callMethod("wtResize=function(e, w, h){"
-		       WT_CLASS ".tinyMCEResize(e, w, h); };");
     element.callMethod("init=function(){"
 		       "var d=" WT_CLASS ".getElement('" + id() + "_tbl');"
 		       "d.style.cssText='width:100%;" + dummy.cssStyle() + "';"

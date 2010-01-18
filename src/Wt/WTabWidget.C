@@ -87,14 +87,19 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
   menuDiv->setStyleClass("Wt-tabs");
   menuDiv->addWidget(menu_);
 
-  WVBoxLayout *box = new WVBoxLayout();
-  box->setSpacing(0);
-  box->setContentsMargins(0, 0, 0, 0);
+  layout_->addWidget(menuDiv);
+  layout_->addWidget(contents_);
 
-  box->addWidget(menuDiv);
-  box->addWidget(contents_, 1);
-
-  layout_->setLayout(box, layoutAlignment);
+  setJavaScriptMember
+    ("wtResize",
+     "function(self, w, h) {"
+     """self.style.height= h + 'px';"
+     """var c = self.firstChild;"
+     """var t = self.lastChild;"
+     """h -= c.offsetHeight;"
+     """if (h > 0)"
+     ""  "t.wtResize(t, w, h);"
+     "};");
 
   menu_->itemSelected().connect(SLOT(this, WTabWidget::onItemSelected));
 }

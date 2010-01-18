@@ -163,9 +163,13 @@ public:
    * This applies to CSS-based layout, and only \link setInline()
    * block\endlink widgets can be given a size reliably.
    *
+   * See als setJavaScriptMember() for defining a "wtResize" method
+   * which allows a widget to actively manage its size using
+   * client-side JavaScript.
+   *
    * \sa width(), height()
    */
-  virtual void resize(const WLength& width, const WLength& height) = 0;
+  virtual void resize(const WLength& width, const WLength& height);
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Resizes the widget.
@@ -571,7 +575,7 @@ public:
    *
    * The widget must actualize its contents in response.
    */
-  virtual void refresh() = 0;
+  virtual void refresh();
 
   /*! \brief Returns a JavaScript expression to the corresponding DOM node.
    *
@@ -604,9 +608,22 @@ public:
    * This binds a JavaScript member, which is set as a JavaScript property
    * to the DOM object that implements this widget. The value may be any
    * JavaScript expression, including a function.
+   *
+   * Members that start with "wt" are reserved for internal use. You
+   * may define a member "wtResize(self, width, height)" method if
+   * your widget needs active layout management. If defined, this
+   * method will be used by layout managers and when doing resize() to
+   * set the size of the widget, instead of setting the CSS width and height
+   * properties.
    */
   virtual void setJavaScriptMember(const std::string& name,
 				   const std::string& value) = 0;
+
+  /*! \brief Returns the value of a JavaScript member.
+   *
+   * \sa setJavaScriptMember()
+   */
+  virtual std::string javaScriptMember(const std::string& name) const = 0;
 
   /*! \brief Calls a JavaScript member.
    *
@@ -874,6 +891,7 @@ private:
 
   EventSignalList eventSignals_;
 
+  void setJsSize();
   void undoHideShow();
   void undoDisableEnable();
   virtual WWebWidget *webWidget() = 0;

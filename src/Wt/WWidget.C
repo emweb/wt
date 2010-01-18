@@ -54,6 +54,25 @@ void WWidget::setParent(WWidget *p)
     p->addChild(this);
 }
 
+void WWidget::refresh()
+{
+  setJsSize();
+}
+
+void WWidget::resize(const WLength& width, const WLength& height)
+{
+  setJsSize();
+}
+
+void WWidget::setJsSize()
+{
+  if (!height().isAuto() && !javaScriptMember("wtResize").empty())
+    callJavaScriptMember
+      ("wtResize", jsRef() + ","
+       + boost::lexical_cast<std::string>(width().toPixels()) + ","
+       + boost::lexical_cast<std::string>(height().toPixels()));
+}
+
 void WWidget::render()
 { }
 
