@@ -93,22 +93,22 @@ std::string asJSLiteral(const boost::any& v)
     const WDate& d = boost::any_cast<WDate>(v);
 
     return "new Date(" + boost::lexical_cast<std::string>(d.year())
-      + ',' + boost::lexical_cast<std::string>(d.month())
-      + "," + boost::lexical_cast<std::string>(d.day())
-      + ")";
+      + ',' + boost::lexical_cast<std::string>(d.month() - 1)
+      + ',' + boost::lexical_cast<std::string>(d.day())
+      + ')';
   } else if (v.type() == typeid(WDateTime)) {
     const WDateTime& dt = boost::any_cast<WDateTime>(v);
     const WDate& d = dt.date();
     const WTime& t = dt.time();
 
     return "new Date(" + boost::lexical_cast<std::string>(d.year())
-      + ',' + boost::lexical_cast<std::string>(d.month())
-      + "," + boost::lexical_cast<std::string>(d.day())
+      + ',' + boost::lexical_cast<std::string>(d.month() - 1)
+      + ',' + boost::lexical_cast<std::string>(d.day())
       + ',' + boost::lexical_cast<std::string>(t.hour())
-      + "," + boost::lexical_cast<std::string>(t.minute())
+      + ',' + boost::lexical_cast<std::string>(t.minute())
       + ',' + boost::lexical_cast<std::string>(t.second())
-      + "," + boost::lexical_cast<std::string>(t.msec())
-      + ")";
+      + ',' + boost::lexical_cast<std::string>(t.msec())
+      + ')';
   }
 
 #define ELSE_LEXICAL_ANY(TYPE) \
