@@ -85,7 +85,7 @@ public:
 
   /*! \brief Creates a new WTabWidget with custom layout alignment (<b>deprecated</b>).
    *
-   * \deprecated Since Wt 3.1.1, the \p layoutAlignment is no longer needed and
+   * \deprecated Since %Wt 3.1.1, the \p layoutAlignment is no longer needed and
    *             its value is ignored
    */
   WTabWidget(WFlags<AlignmentFlag> layoutAlignment,

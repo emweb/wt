@@ -179,7 +179,7 @@ void Container::createConfig(std::ostream& config)
   WWidget *p = parent();
 
   if (!dynamic_cast<Container *>(p)
-      && p != app->root() && p != app->domRoot()) {
+      && extClassName() != "Ext.Viewport" && p != app->domRoot()) {
 
     config << ",renderTo:'" << id() << "'";
 

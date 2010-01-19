@@ -41,8 +41,10 @@ namespace Wt {
  * t->bindWidget("age-input", ageEdit_ = new WLineEdit());
  * \endcode
  *
+#ifndef WT_TARGET_JAVA
  * The template can return a bound widget using resolve(), which already
  * tries to cast the widget to the proper type.
+#endif
  */
 class WT_API WTemplate : public WInteractWidget
 {
