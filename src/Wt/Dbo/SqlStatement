@@ -37,22 +37,20 @@ public:
   virtual void reset() = 0;
 
   /*! \brief Binds a value to a column.
-   *
-   * \note Unbound columns are assumed to be 'null'
    */
   virtual void bind(int column, const std::string& value) = 0;
 
   /*! \brief Binds a value to a column.
-   *
-   * \note Unbound columns are assumed to be 'null'
    */
   virtual void bind(int column, int value) = 0;
 
   /*! \brief Binds a value to a column.
-   *
-   * \note Unbound columns are assumed to be 'null'
    */
   virtual void bind(int column, long long value) = 0;
+
+  /*! \brief Binds 'null' to a column.
+   */
+  virtual void bindNull(int column) = 0;
 
   /*! \brief Executes the statement.
    */

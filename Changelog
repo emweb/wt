@@ -5,6 +5,11 @@
 
 	* WDateTime, WTime: fix AM/PM parsing problem
 
+	* Dbo/SqlStatement: explicit null binding, since SQLite3 does not
+	reset bindings on reset()
+
+	* WTreeView: fix ite column 0 changing
+
 12-01-2010:
 	* WTemplate: do not rerender bound widgets when rerendering the
 	template if the widget was already rendered

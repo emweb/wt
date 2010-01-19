@@ -85,11 +85,13 @@ void FieldRef< ptr<C> >::bindValue(SqlStatement *statement, int column)
 {
   if (value_)
     statement->bind(column, value_.id());
+  else
+    statement->bindNull(column);
 }
 
 template <class C>
 void FieldRef< ptr<C> >::setValue(Session& session,
-				      SqlStatement *statement, int column)
+				  SqlStatement *statement, int column)
   const
 {
   long long id;

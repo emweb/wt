@@ -90,6 +90,15 @@ public:
     handleErr(err);
   }
 
+  virtual void bindNull(int column)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
+
+    int err = sqlite3_bind_null(st_, column + 1);
+
+    handleErr(err);
+  }
+
   virtual void execute()
   {
     if (showQueries)

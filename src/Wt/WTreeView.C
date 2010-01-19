@@ -309,9 +309,7 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
     childrenHeight_ = 0;
 
   if (index_ != view_->rootIndex()) {
-    elementAt(0, 1)->setStyleClass("c1");
-    WContainerWidget *w = new WContainerWidget(elementAt(0, 1));
-    w->setStyleClass("rh c1div");
+    elementAt(0, 1)->setStyleClass("c1 rh");
 
     updateGraphics(isLast, view_->model()->rowCount(index_) == 0);
     insertColumns(0, view_->columnCount());
@@ -411,8 +409,7 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
 void WTreeViewNode::insertColumns(int column, int count)
 {
   WTableCell *tc = elementAt(0, 1);
-  WContainerWidget *w = dynamic_cast<WContainerWidget *>(tc->widget(0));
-  w->clear();
+  tc->clear();
 
   if (view_->columnCount() > 1) {
     WContainerWidget *row = new WContainerWidget();
@@ -424,8 +421,9 @@ void WTreeViewNode::insertColumns(int column, int count)
       row = rowWrap;
     }
 
+    row->setObjectName("row");
     row->setStyleClass("Wt-tv-row rh");
-    w->insertWidget(0, row);
+    tc->insertWidget(0, row);
   }
 
   update(0, view_->columnCount() - 1);
@@ -458,7 +456,6 @@ void WTreeViewNode::addColumnStyleClass(int column, WWidget *w)
 void WTreeViewNode::setWidget(int column, WWidget *newW)
 {
   WTableCell *tc = elementAt(0, 1);
-  WContainerWidget *w = dynamic_cast<WContainerWidget *>(tc->widget(0));
 
   WWidget *current = widget(column);
 
@@ -469,11 +466,11 @@ void WTreeViewNode::setWidget(int column, WWidget *newW)
 
   if (column == 0) {
     if (current)
-      w->removeWidget(current);
+      tc->removeWidget(current);
 
-    w->addWidget(newW);
+    tc->addWidget(newW);
   } else {
-    WContainerWidget *row = dynamic_cast<WContainerWidget *>(w->widget(0));
+    WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
     if (view_->column1Fixed_)
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
@@ -493,12 +490,14 @@ void WTreeViewNode::setWidget(int column, WWidget *newW)
 WWidget *WTreeViewNode::widget(int column)
 {
   WTableCell *tc = elementAt(0, 1);
-  WContainerWidget *w = dynamic_cast<WContainerWidget *>(tc->widget(0));
+  WContainerWidget *row = tc->count() > 0
+    ? dynamic_cast<WContainerWidget *>(tc->widget(0)) : 0;
 
-  if (column == 0)
-    return w->count() > 1 ? w->widget(w->count() - 1) : 0;
-  else {
-    WContainerWidget *row = dynamic_cast<WContainerWidget *>(w->widget(0));
+  if (column == 0) {
+    return tc->count() > 1
+      ? tc->widget(tc->count() - 1)
+      : ((row && row->objectName() == "row") ? 0 : row);
+  } else {
     if (view_->column1Fixed_)
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
@@ -910,10 +909,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
       (".Wt-treeview table", "width: 100%");
 
     app->styleSheet().addRule
-      (".Wt-treeview .c1", "width: 100%");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .c1div", "overflow: hidden; width: 100%");
+      (".Wt-treeview .c1", "width: 100%; overflow: hidden;");
 
     app->styleSheet().addRule
       (".Wt-treeview .c0",
@@ -1258,7 +1254,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
      ""    "if (w > 0) {"
      ""      "var sel = '#" + id() + " .Wt-tv-row';"
      ""      "WT.getCssRule(sel).style.width = w + 'px';"
-     ""      "$(sel).css('width', w + 'px').css('width', null);"
+     ""      "$(sel).css('width', w + 'px').css('width', '');"
      ""      "var extra = "
      ""      "hh.childNodes.length > 1"
      ""        "? (hh.childNodes[1].className.indexOf('Wt-tv-sh') != -1 ? 21 : 6) : 0;"
@@ -1324,7 +1320,7 @@ void WTreeView::refresh()
       "totalw += 'px';"
       "if (c) {"
       """r.style.width = totalw;"
-      """$('#" + id() + " .Wt-tv-rowc').css('width', totalw).css('width', null);"
+      """$('#" + id() + " .Wt-tv-rowc').css('width', totalw).css('width', '');"
       "} else {"
       """r.style.width = (WT.pxself(r, 'width') + diffx) + 'px';"
       +  app->javaScriptClass() + "._p_.autoJavaScript();"

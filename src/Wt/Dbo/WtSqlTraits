@@ -63,7 +63,9 @@ inline const char *sql_value_traits<WDate, void>::type()
 inline void sql_value_traits<WDate, void>
 ::bind(const WDate& v, SqlStatement *statement, int column)
 {
-  if (!v.isNull())
+  if (v.isNull())
+    statement->bindNull(column);
+  else
     statement->bind(column, v.toString(WString::fromUTF8(format)).toUTF8());
 }
 
@@ -93,7 +95,9 @@ inline const char *sql_value_traits<WDateTime, void>::type()
 inline void sql_value_traits<WDateTime, void>
 ::bind(const WDateTime& v, SqlStatement *statement, int column)
 {
-  if (!v.isNull())
+  if (v.isNull())
+    statement->bindNull(column);
+  else
     statement->bind(column, v.toString(WString::fromUTF8(format)).toUTF8());
 }
 

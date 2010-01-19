@@ -9,6 +9,7 @@
 
 #include <string>
 #include <Wt/Dbo/SqlTraits>
+#include <Wt/Dbo/SqlStatement>
 
 #include <boost/optional.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -85,6 +86,8 @@ struct sql_value_traits<boost::optional<T>, void>
 		   SqlStatement *statement, int column) {
     if (v)
       sql_value_traits<T>::bind(v.get(), statement, column);
+    else
+      statement->bindNull(column);
   }
 
   static bool read(boost::optional<T>& v, SqlStatement *statement, int column) {

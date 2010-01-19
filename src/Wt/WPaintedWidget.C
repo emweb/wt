@@ -125,11 +125,13 @@ void WPaintedWidget::setPreferredMethod(Method method)
 
 void WPaintedWidget::resize(const WLength& width, const WLength& height)
 {
-  WInteractWidget::resize(width, height);
+  if (!width.isAuto() && !height.isAuto()) {
+    setJavaScriptMember("wtResize", "");
+    resizeCanvas(static_cast<int>(width.toPixels()),
+		 static_cast<int>(height.toPixels()));
+  }
 
-  if (!width.isAuto() && !height.isAuto())
-    resizeCanvas(static_cast<int>(this->width().toPixels()),
-		 static_cast<int>(this->height().toPixels()));
+  WInteractWidget::resize(width, height);
 }
 
 void WPaintedWidget::resizeCanvas(int width, int height)
