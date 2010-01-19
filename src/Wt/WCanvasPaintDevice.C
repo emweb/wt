@@ -114,6 +114,8 @@ void WCanvasPaintDevice::done()
 void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
 				 double spanAngle)
 {
+  finishPath();
+  
   if (rect.width() < EPSILON || rect.height() < EPSILON)
     return;
 
@@ -178,6 +180,8 @@ void WCanvasPaintDevice::drawImage(const WRectF& rect,
 				   int imgWidth, int imgHeight,
 				   const WRectF& sourceRect)
 {
+  finishPath();
+
   renderStateChanges();
 
   int imageIndex = createImage(imgUri);

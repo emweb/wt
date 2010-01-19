@@ -182,6 +182,9 @@ void CreateSchema::createJoinTable(const std::string& joinName,
 				   const std::string& joinId1,
 				   const std::string& joinId2)
 {
+  if (tablesCreated_.count(joinName) > 0)
+    return;
+
   sql_.str("");
 
   tablesCreated_.insert(joinName);
