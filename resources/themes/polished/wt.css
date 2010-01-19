@@ -347,6 +347,10 @@
 }
 
 /* nodes */
+.Wt-treeview .Wt-tv-node {
+    /* table-layout: fixed; could be done if we improve our CSS !*/
+}
+
 .Wt-treeview .Wt-trunk {
 }
 

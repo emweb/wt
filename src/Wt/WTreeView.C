@@ -490,14 +490,16 @@ void WTreeViewNode::setWidget(int column, WWidget *newW)
 WWidget *WTreeViewNode::widget(int column)
 {
   WTableCell *tc = elementAt(0, 1);
-  WContainerWidget *row = tc->count() > 0
-    ? dynamic_cast<WContainerWidget *>(tc->widget(0)) : 0;
 
   if (column == 0) {
-    return tc->count() > 1
-      ? tc->widget(tc->count() - 1)
-      : ((row && row->objectName() == "row") ? 0 : row);
+    if (tc->count() > 0) {
+      WWidget *result = tc->widget(tc->count() - 1);
+      return (tc->count() > 1 || result->objectName() != "row") ? result : 0;
+    } else
+      return 0;
   } else {
+    WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
+
     if (view_->column1Fixed_)
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
