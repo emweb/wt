@@ -59,25 +59,31 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * The widget corresponds to the HTML <tt>&lt;input
- * type="checkbox"&gt;</tt> tag.
- *
  * %WCheckBox is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * <h3>CSS</h3>
+ *
+ * This widget corresponds to the HTML <tt>&lt;input
+ * type="checkbox"&gt;</tt> tag. Depending on whether a text is
+ * included, it may be nested in a <tt>&lt;span&gt;</tt> tag which
+ * also includes a rendered WLabel. This widget does not provide
+ * styling, and can be styled using inline or external CSS as
+ * appropriate.
  *
  * \sa WAbstractToggleButton
  */
 class WT_API WCheckBox : public WAbstractToggleButton
 {
 public:
-  /*! \brief Create a checkbox with empty label.
+  /*! \brief Creates a checkbox with empty label.
    */
   WCheckBox(WContainerWidget *parent = 0);
 
-  /*! \brief Create a checkbox with given label.
+  /*! \brief Creates a checkbox with given label.
    */
   WCheckBox(const WString& text, WContainerWidget *parent = 0);
 
-  /*! \brief Make a tristate checkbox.
+  /*! \brief Makes a tristate checkbox.
    *
    * \note You should enable tristate functionality right after construction
    *       and this cannot be modified later.
@@ -90,7 +96,7 @@ public:
    */
   bool isTristate() const { return triState_; }
 
-  /*! \brief Set the check state.
+  /*! \brief Sets the check state.
    *
    * Unless it is a tri-state checkbox, only Wt::Checked and Wt::Unchecked are
    * valid states.

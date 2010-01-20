@@ -78,7 +78,7 @@ public:
   bool operator==(const WFont& other) const;
   bool operator!=(const WFont& other) const;
 
-  /*! \brief Set the font family.
+  /*! \brief Sets the font family.
    *
    * The font family is specified using a generic family name,
    * in addition to a comma-seperated list of specific font choices.
@@ -89,31 +89,31 @@ public:
   void setFamily(GenericFamily genericFamily,
 		 const WString& specificFamilies = WString());
 
-  /*! \brief Get the font generic family.
+  /*! \brief Returns the font generic family.
    */
   GenericFamily genericFamily() const { return genericFamily_; }
 
-  /*! \brief Get the font specific family names.
+  /*! \brief Returns the font specific family names.
    */
   const WString& specificFamilies() const { return specificFamilies_; }
 
-  /*! \brief Set the font style.
+  /*! \brief Sets the font style.
    */
   void setStyle(Style style);
 
-  /*! \brief Get the font style.
+  /*! \brief Returns the font style.
    */
   Style style() const { return style_; }
 
-  /*! \brief Set the font variant.
+  /*! \brief Sets the font variant.
    */
   void setVariant(Variant variant);
 
-  /*! \brief Get the font variant.
+  /*! \brief Returns the font variant.
    */
   Variant variant() const { return variant_; }
 
-  /*! \brief Set the font weight.
+  /*! \brief Sets the font weight.
    *
    * When setting weight == Value, you may specify a value.
    *
@@ -122,23 +122,23 @@ public:
    */
   void setWeight(Weight weight, int value = 400);
 
-  /*! \brief Get the font weight.
+  /*! \brief Returns the font weight.
    */
   Weight weight() const { return weight_; }
 
-  /*! \brief Get the font weight value.
+  /*! \brief Returns the font weight value.
    */
   int weightValue() const { return weightValue_; }
 
-  /*! \brief Set the font size.
+  /*! \brief Sets the font size.
    */
   void setSize(Size size, const WLength& fixedSize = WLength::Auto);
 
-  /*! \brief Get the font size.
+  /*! \brief Returns the font size.
    */
   Size size() const { return size_; }
 
-  /*! \brief Get the fixed font size for \link WFont::FixedSize FixedSize \endlink.
+  /*! \brief Returns the fixed font size for \link WFont::FixedSize FixedSize \endlink.
    */
   WLength fixedSize() const { return fixedSize_; }
 

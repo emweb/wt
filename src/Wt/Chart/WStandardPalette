@@ -102,7 +102,7 @@ public:
     GrayScale = 255  //!< Grayscale palette
   };
 
-  /*! \brief Create a standard palette of a particular flavour.
+  /*! \brief Creates a standard palette of a particular flavour.
    */
   WStandardPalette(Flavour flavour);
 

@@ -39,11 +39,11 @@ namespace Wt {
 class WT_API WStringListModel : public WAbstractListModel
 {
 public:
-  /*! \brief Create a new empty string list model.
+  /*! \brief Creates a new empty string list model.
    */
   WStringListModel(WObject *parent = 0);
 
-  /*! \brief Create a new string list model.
+  /*! \brief Creates a new string list model.
    */
   WStringListModel(const std::vector<WString>& strings, WObject *parent = 0);
 
@@ -51,7 +51,7 @@ public:
    */
   ~WStringListModel();
 
-  /*! \brief Set a new string list.
+  /*! \brief Sets a new string list.
    *
    * Replaces the current string list with a new list.
    *

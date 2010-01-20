@@ -75,26 +75,26 @@ public:
 	      Exception  //!< Exception
   };
 
-  /*! \brief Create a new socket notifier.
+  /*! \brief Creates a new socket notifier.
    *
    * Create a new socket listener to listen for events of given \p type
    * on a socket with file descriptor \p socket.
    */
   WSocketNotifier(int socket, Type type, WObject *parent = 0);
 
-  /*! \brief Delete a socket notifier.
+  /*! \brief Destructor.
    */
   ~WSocketNotifier();
 
-  /*! \brief Return the socket.
+  /*! \brief Returns the socket.
    */
   int socket() const { return socket_; }
 
-  /*! \brief Return the event type.
+  /*! \brief Returns the event type.
    */
   Type type() const { return type_; }
 
-  /*! \brief Enable or disable the notifier.
+  /*! \brief Enables or disable the notifier.
    *
    * By default, the socket notifier is enabled to receive
    * events. When disabled, no events will be notified (as if the
@@ -102,7 +102,7 @@ public:
    */
   void setEnabled(bool enabled);
 
-  /*! \brief Return if the notifier is enabled.
+  /*! \brief Returns if the notifier is enabled.
    */
   bool isEnabled() const { return enabled_; }
 

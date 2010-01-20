@@ -30,39 +30,39 @@ namespace Wt {
 class WT_API WPen
 {
 public:
-  /*! \brief Default constructor.
+  /*! \brief Creates a black cosmetic pen.
    *
-   * Constructs a black solid pen of 0 width, with \link
-   * Wt::SquareCap SquareCap\endlink line ends and \link Wt::BevelJoin
-   * BevelJoin\endlink line join style.
+   * Constructs a black solid pen of 0 width (i.e. cosmetic single
+   * pixel width), with \link Wt::SquareCap SquareCap\endlink line
+   * ends and \link Wt::BevelJoin BevelJoin\endlink line join style.
    */
   WPen();
 
-  /*! \brief Construct a black pen with a particular style.
+  /*! \brief Creates a black pen with a particular style.
    *
-   * Constructs a black pen of 0 width, with \link Wt::SquareCap
-   * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
-   * line join style.
+   * Constructs a black pen of 0 width (i.e. cosmetic single pixel
+   * width), with \link Wt::SquareCap SquareCap\endlink line ends and
+   * \link Wt::BevelJoin BevelJoin\endlink line join style.
    *
    * The line style is set to \p style.
    */
   WPen(PenStyle style);
 
-  /*! \brief Construct a solid pen of a particular color.
+  /*! \brief Creates a solid pen of a particular color.
    *
-   * Constructs a solid pen of 0 width, with \link Wt::SquareCap
-   * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
-   * line join style.
+   * Constructs a solid pen of 0 width (i.e. cosmetic single pixel
+   * width), with \link Wt::SquareCap SquareCap\endlink line ends and
+   * \link Wt::BevelJoin BevelJoin\endlink line join style.
    *
    * The pen color is set to \p color.
    */
   WPen(const WColor& color);
 
-  /*! \brief Construct a solid pen of a particular standard color.
+  /*! \brief Creates a solid pen of a particular standard color.
    *
-   * Constructs a solid pen of 0 width, with \link Wt::SquareCap
-   * SquareCap\endlink line ends and \link Wt::BevelJoin BevelJoin\endlink
-   * line join style.
+   * Constructs a solid pen of 0 width (i.e. cosmetic single pixel
+   * width), with \link Wt::SquareCap SquareCap\endlink line ends and
+   * \link Wt::BevelJoin BevelJoin\endlink line join style.
    *
    * The pen color is set to \p color.
    */
@@ -88,19 +88,19 @@ public:
    */
   bool operator!=(const WPen& other) const;
 
-  /*! \brief Change the pen style.
+  /*! \brief Sets the pen style.
    *
    * \sa style()
    */
   void setStyle(PenStyle style);
 
-  /*! \brief Return the pen style.
+  /*! \brief Returns the pen style.
    *
    * \sa setStyle(PenStyle)
    */
   PenStyle style() const { return penStyle_; }
 
-  /*! \brief Change the style for rendering line ends.
+  /*! \brief Sets the style for rendering line ends.
    *
    * \sa capStyle()
    */
@@ -112,7 +112,7 @@ public:
    */
   PenCapStyle capStyle() const { return penCapStyle_; }
 
-  /*! \brief Change the style for rendering line joins.
+  /*! \brief Sets the style for rendering line joins.
    *
    * \sa joinStyle()
    */
@@ -124,7 +124,7 @@ public:
    */
   PenJoinStyle joinStyle() const { return penJoinStyle_; }
 
-  /*! \brief Change the pen width.
+  /*! \brief Sets the pen width.
    *
    * A pen width \p must be specified using WLength::Pixel units.
    *
@@ -138,7 +138,7 @@ public:
    */
   const WLength& width() const { return width_; }
 
-  /*! \brief Change the pen color.
+  /*! \brief Sets the pen color.
    *
    * \sa color()
    */

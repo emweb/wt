@@ -29,7 +29,7 @@ public:
    */
   virtual ~WLocalizedStrings();
 
-  /*! \brief Reread the message resources.
+  /*! \brief Rereads the message resources.
    *
    * Purge any cached key/values, if applicable.
    *
@@ -37,7 +37,7 @@ public:
    */
   virtual void refresh();
 
-  /*! \brief Purge memory resources, if possible.
+  /*! \brief Purges memory resources, if possible.
    * 
    * This is called afer event handling, and is an opportunity to
    * conserve memory inbetween events, by freeing memory used for
@@ -47,7 +47,7 @@ public:
    */
   virtual void hibernate();
 
-  /*! \brief Resolve a key in the current locale.
+  /*! \brief Resolves a key in the current locale.
    * 
    * This method is used by WString to obtain the UTF8 value corresponding
    * to a key in the current locale.

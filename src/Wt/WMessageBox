@@ -48,14 +48,25 @@ class WText;
  *
  * This will show a message box that looks like this:
  *
- * \image html WMessageBox-1.png "Example of a WMessageBox"
+ * <TABLE border="0" align="center"> <TR> <TD> 
+ * \image html WMessageBox-default-1.png "Example of a WMessageBox (default)"
+ * </TD> <TD>
+ * \image html WMessageBox-polished-1.png "Example of a WMessageBox (polished)"
+ * </TD> </TR> </TABLE>
+ *
+ * <h3>CSS</h3>
+ *
+ * A WMessageBox can be styled using the <tt>Wt-dialog</tt> and 
+ * <tt>Wt-outset</tt> style classes from it's superclass WDialog. 
+ * The messagebox' buttons can be styled using <tt>Wt-msgbox-buttons</tt>
+ * style class.
  */
 class WT_API WMessageBox : public WDialog
 {
 public:
   using WDialog::show;
 
-  /*! \brief Create an empty message box.
+  /*! \brief Creates an empty message box.
    *
    * The button labels may be set fixed English (if \p i18n = \c
    * false), or fetched from a resource bundle if \p i18n = \c
@@ -64,7 +75,7 @@ public:
    */
   WMessageBox(bool i18n = false);
 
-  /*! \brief Create a message box with given caption, text, icon, and
+  /*! \brief Creates a message box with given caption, text, icon, and
    *         buttons.
    *
    * The button labels may be set fixed English (if \p i18n = \c false),
@@ -76,30 +87,30 @@ public:
   WMessageBox(const WString& caption, const WString& text, Icon icon,
 	      WFlags<StandardButton> buttons, bool i18n = false);
 
-  /*! \brief Set the text for the message box.
+  /*! \brief Sets the text for the message box.
    */
   void setText(const WString& text);
 
-  /*! \brief Get the message box text.
+  /*! \brief Returns the message box text.
    */
   const WString& text() const;
 
-  /*! \brief Get the text widget.
+  /*! \brief Returns the text widget.
    *
    * This may be useful to customize the style or layout of the displayed
    * text.
    */
   WText *textWidget() const { return text_; }
 
-  /*! \brief Set the icon.
+  /*! \brief Sets the icon.
    */
   void setIcon(Icon icon);
 
-  /*! \brief Get the icon.
+  /*! \brief Returns the icon.
    */
   Icon icon() const { return icon_; }
 
-  /* !\brief Get the icon image.
+  /* !\brief Returns the icon image.
    *
    * This may be useful to customize the style or layout of the displayed
    * icon. If icon() == NoIcon, then this method returns \c 0.
@@ -112,7 +123,7 @@ public:
    */
   WPushButton *addButton(const WString& text, StandardButton result);
 
-  /*! \brief Set standard buttons for the message box.
+  /*! \brief Sets standard buttons for the message box.
    */
   void setButtons(WFlags<StandardButton> buttons);
 

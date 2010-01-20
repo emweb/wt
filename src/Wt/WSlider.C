@@ -155,6 +155,8 @@ void WSlider::resize(const WLength& width, const WLength& height)
 
 void WSlider::create()
 {
+  impl_->setStyleClass("Wt-slider");
+
   setPositionScheme(Relative);
 
   impl_->addWidget(background_ = new WSliderBackground(this));
@@ -184,10 +186,8 @@ void WSlider::update()
 
   background_->update();
 
-  handle_->decorationStyle()
-    .setBackgroundImage(resourcesURL + "slider-thumb-"
-			+ (orientation_ == Horizontal ? 'h': 'v')
-			+ ".gif");
+  handle_->setStyleClass(std::string("handle-")
+			 + (orientation_ == Horizontal ? 'h': 'v'));
 
   if (orientation_ == Horizontal) {
     handle_->resize(HANDLE_WIDTH, HANDLE_HEIGHT);

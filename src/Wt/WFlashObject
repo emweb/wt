@@ -36,6 +36,10 @@ namespace Wt {
  * This class uses <i>resourcesURL</i>"/swfobject.js", a companion
  * JavaScript library, which is distributed with %Wt in the resources
  * folder, see also \ref deployment "deployment and resources".
+ *
+ * <h3>CSS</h3>
+ *
+ * Styling through CSS is not applicable.
  */
 class WT_API WFlashObject : public WContainerWidget
 {

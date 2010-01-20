@@ -43,7 +43,18 @@ class WTemplate;
  * \endcode
  * \endif
  *
- * \image html WDatePicker-1.png "Example of WDatePicker with visible calendar."
+ * <h3>CSS</h3>
+ *
+ * The date picker is styled by the current CSS theme. The look can be
+ * overridden using the <tt>Wt-datepicker</tt> and <tt>Wt-outset</tt>
+ * CSS class; the calendar itself can be styled as documented in
+ * WCalendar.
+ *
+ * <TABLE border="0" align="center"> <TR> <TD> 
+ * \image html WDatePicker-default-1.png "Example of a WDatePicker (default theme) 
+ * </TD> <TD> 
+ * \image html WDatePicker-polished-1.png "Example of a WDatePicker (polished theme) 
+ * </TD> </TR> </TABLE>
  */
 class WT_API WDatePicker : public WCompositeWidget
 {
@@ -81,7 +92,7 @@ public:
 	      WLineEdit *forEdit,
 	      bool i18n = false, WContainerWidget *parent = 0);
 
-  /*! \brief Set the format used for parsing or writing the date in
+  /*! \brief Sets the format used for parsing or writing the date in
    *         the line edit.
    *
    * Sets the format used for representing the date in the line edit.
@@ -136,7 +147,7 @@ public:
    */
   WDate date() const;
 
-  /*! \brief Set the current date.
+  /*! \brief Sets the current date.
    *
    * Does nothing if the current date is \p Null.
    *
@@ -144,7 +155,7 @@ public:
    */
   void setDate(const WDate& date);
 
-  /*! \brief Sets enabled.
+  /*! \brief Sets whether the widget is enabled.
    *
    * This is the oppositie of setDisabled().
    */

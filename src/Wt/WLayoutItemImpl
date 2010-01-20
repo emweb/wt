@@ -23,30 +23,30 @@ class WWidget;
 class WT_API WLayoutItemImpl
 {
 public:
-  /*! \brief Destroy a layout item implementation.
+  /*! \brief Destructor.
    */
   virtual ~WLayoutItemImpl();
 
-  /*! \brief Add a layout <i>item</i>.
+  /*! \brief Adds a layout <i>item</i>.
    *
    * The \p item already has an implementation set.
    */
   virtual void updateAddItem(WLayoutItem *item) = 0;
 
-  /*! \brief Remove a layout <i>item</i>.
+  /*! \brief Removes a layout <i>item</i>.
    */
   virtual void updateRemoveItem(WLayoutItem *item) = 0;
 
-  /*! \brief Update the layout.
+  /*! \brief Updates the layout.
    */
   virtual void update(WLayoutItem *item) = 0;
 
-  /*! \brief Get the widget for which this layout item participates in
+  /*! \brief Returns the widget for which this layout item participates in
    *         layout management.
    */
   virtual WWidget *parent() const = 0;
 
-  /*! \brief Provide a hint that can aid in layout strategy / algorithm.
+  /*! \brief Provides a hint that can aid in layout strategy / algorithm.
    */
   virtual void setHint(const std::string& name, const std::string& value) = 0;
 };

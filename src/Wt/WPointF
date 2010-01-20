@@ -20,15 +20,11 @@ namespace Wt {
 class WT_API WPointF
 {
 public:
-  /*! \brief Default constructor.
-   *
-   * Constructs a point (<i>x=0</i>, \p y=0).
+  /*! \brief Creates point (0, 0).
    */
   WPointF();
 
-  /*! \brief Construct a point.
-   *
-   * Constructs a point (<i>x</i>, \p y).
+  /*! \brief Creates a point (x, y).
    */
   WPointF(double x, double y)
     : x_(x), y_(y) { }
@@ -38,16 +34,16 @@ public:
   WPointF(const WPointF& other)
     : x_(other.x()), y_(other.y()) { }
 
-  /*! \brief Construct a point from mouse coordinates.
+  /*! \brief Creates a point from mouse coordinates.
    */
   WPointF(const WMouseEvent::Coordinates& other)
     : x_(other.x), y_(other.y) { }
 
-  /*! \brief Changes the X coordinate.
+  /*! \brief Sets the X coordinate.
    */
   void setX(double x) { x_ = x; }
 
-  /*! \brief Changes the Y coordinate.
+  /*! \brief Sets the Y coordinate.
    */
   void setY(double y) { y_ = y; }
 

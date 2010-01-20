@@ -42,13 +42,11 @@ namespace Wt {
  * this if you're sure that a user cannot interfere with the text set,
  * and XHTMLText is too limiting.
  *
- * The widget corresponds to an HTML <tt>&lt;span&gt;</tt> tag or an
- * HTML <tt>&lt;div&gt;</tt> depending on whether the widget is \link
- * WWidget::setInline() inline\endlink. %WText is by default inline,
- * unless the XHTML contents starts with an element such as
- * <tt>&lt;div&gt;</tt>, <tt>&lt;h&gt;</tt> or <tt>&lt;p&gt;</tt> that
- * is displayed as a block, in which case the widget will also display
- * as a block.
+ * %WText is by default \link WWidget::setInline()
+ * inline\endlink, unless the XHTML contents starts with an
+ * element such as <tt>&lt;div&gt;</tt>, <tt>&lt;h&gt;</tt> or
+ * <tt>&lt;p&gt;</tt> that is displayed as a block, in which case the
+ * widget will also display as a block.
  *
  * \if cpp
  * Usage examples:
@@ -66,6 +64,14 @@ namespace Wt {
  * \endcode
  * \endif
  *
+ * <h3>CSS</h3>
+ *
+ * The widget corresponds to an HTML <tt>&lt;span&gt;</tt> tag or an
+ * HTML <tt>&lt;div&gt;</tt> depending on whether the widget is inline.
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ *
  * \sa WApplication::setLocale()
  * \if cpp
  * \sa WApplication::messageResourceBundle()
@@ -74,11 +80,11 @@ namespace Wt {
 class WT_API WText : public WInteractWidget
 {
 public:
-  /*! \brief Construct a text widget with an empty text.
+  /*! \brief Creates a text widget with an empty text.
    */
   WText(WContainerWidget *parent = 0);
 
-  /*! \brief Construct a text widget with given text.
+  /*! \brief Creates a text widget with given text.
    *
    * The textFormat is set to Wt::XHTMLText, unless the \p text is
    * literal (not created using WString::tr()) and it could not be
@@ -95,7 +101,7 @@ public:
    */
   WText(const WString& text, WContainerWidget *parent = 0);
 
-  /*! \brief Construct a text widget with given text and format
+  /*! \brief Creates a text widget with given text and format
    *
    * If <i>textFormat</i> is Wt::XHTMLText and \p text is not
    * literal (not created using WString::tr()), then if the
@@ -122,7 +128,7 @@ public:
    */
   const WString& text() const { return text_; }
 
-  /*! \brief Set the text.
+  /*! \brief Sets the text.
    *
    * When the current format is Wt::XHTMLText, and
    * \p text is literal (not created using WString::tr()), it is
@@ -138,7 +144,7 @@ public:
    */
   bool setText(const WString& text);
 
-  /*! \brief Set the textFormat.
+  /*! \brief Sets the text format.
    *
    * The textFormat controls how the string should be interpreted:
    * either as plain text, which is displayed literally, or as
@@ -157,13 +163,13 @@ public:
    */
   bool setTextFormat(TextFormat format);
 
-  /*! \brief Returns the textFormat.
+  /*! \brief Returns the text format.
    *
    * \sa setTextFormat()
    */
   TextFormat textFormat() const { return textFormat_; }
 
-  /*! \brief Configure word wrapping.
+  /*! \brief Configures word wrapping.
    *
    * When \p wordWrap is \c true, the widget may break lines, creating a
    * multi-line text. When \p wordWrap is \c false, the text will displayed

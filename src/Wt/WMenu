@@ -75,17 +75,22 @@ class WTable;
  * setInternalPathEnabled().
  *
  * The layout of the menu may be Horizontal or Vertical. The look of
- * the items may be defined through style sheets. The default WMenuItem
- * implementation uses two style classes to distinguish between activated
- * and inactivated menu items: "item" and "itemselected". By using
- * CSS nested selectors, a different style may be defined for items in a
- * different menu.
+ * the items may be defined through style sheets. The default
+ * WMenuItem implementation uses two style classes to distinguish
+ * between activated and inactivated menu items: <tt>item</tt> and
+ * <tt>itemselected</tt>. By using CSS nested selectors, a different
+ * style may be defined for items in a different menu.
  *
- * \if cpp
- * For example, the (old) %Wt homepage used the following CSS rules to
- * style the two menu (which both are assigned the style class .menu):
- * \endif
+ * You may customize the rendering and behaviour of menu entries by
+ * specializing WMenuItem.
  *
+ * <h3>CSS</h3>
+ *
+ * Styling a menu will be different depending of the rendering mode
+ * (table, list). Conventionally, menus like this are styled as a list.
+ *
+ * You will want to differentiate between unselected and selected items
+ * based on the <tt>item</tt> and <tt>itemselected</tt> style classes.
  * \code
 .menu * .item {
   cursor: pointer; cursor: hand;
@@ -100,15 +105,12 @@ class WTable;
 }
  * \endcode
  *
- * You may customize the rendering and behaviour of menu entries by
- * specializing WMenuItem.
- *
  * \sa WMenuItem
  */
 class WT_API WMenu : public WCompositeWidget
 {
 public:
-  /*! \brief Construct a new menu.
+  /*! \brief Creates a new menu.
    *
    * Construct a menu to manage the widgets in \p contentsStack,
    * and sets the menu \p orientation.
@@ -124,7 +126,7 @@ public:
    */
   ~WMenu();
 
-  /*! \brief Add an item.
+  /*! \brief Adds an item.
    *
    * Adds a menu item with given \p contents, which is added to
    * the menu's associated contents stack.
@@ -139,7 +141,7 @@ public:
   WMenuItem *addItem(const WString& name, WWidget *contents,
 		     WMenuItem::LoadPolicy policy = WMenuItem::LazyLoading);
 
-  /*! \brief Add an item.
+  /*! \brief Adds an item.
    *
    * Adds a menu item. Use this form to add specialized WMenuItem
    * implementations.
@@ -148,7 +150,7 @@ public:
    */
   WMenuItem *addItem(WMenuItem *item);
 
-  /*! \brief Remove an item.
+  /*! \brief Removes an item.
    *
    * Removes the given item. The item and its contents is not deleted.
    *
@@ -156,7 +158,7 @@ public:
    */
   void removeItem(WMenuItem *item);
 
-  /*! \brief Select an item.
+  /*! \brief Selects an item.
    *
    * Select the menu item \p item.
    *
@@ -164,7 +166,7 @@ public:
    */
   void select(WMenuItem *item);
 
-  /*! \brief Select an item.
+  /*! \brief Selects an item.
    *
    * Menu items in a menu with \p N items are numbered from 0 to
    * \p N - 1.
@@ -223,7 +225,7 @@ public:
    */
   Orientation orientation() const { return orientation_; }
 
-  /*! \brief Render using an HTML list.
+  /*! \brief Renders using an HTML list.
    *
    * By default, the the menu is rendered using an HTML &lt;table&gt;
    * element for layout. Setting this option enables rendering using
@@ -235,13 +237,13 @@ public:
    */
   void setRenderAsList(bool enable);
 
-  /*! \brief Return whether the menu is rendered as an HTML list.
+  /*! \brief Returns whether the menu is rendered as an HTML list.
    *
    * \sa setRenderAsList(bool)
    */
   bool renderAsList() const { return renderAsList_; }
 
-  /*! \brief Enable internal paths for items.
+  /*! \brief Enables internal paths for items.
    *
    * The menu participates in the internal path by changing the
    * internal path when an item has been selected, and listening for
@@ -269,7 +271,7 @@ public:
    */
   bool internalPathEnabled() const { return internalPathEnabled_; }
 
-  /*! \brief Set the internal base path.
+  /*! \brief Sets the internal base path.
    *
    * A '/' is appended to turn it into a folder, if needed.
    *

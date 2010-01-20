@@ -24,33 +24,33 @@ namespace Wt {
 class WT_API WLayoutItem
 {
 public:
-  /*! \brief Destroy a layout item.
+  /*! \brief Destructor.
    */
   virtual ~WLayoutItem();
 
-  /*! \brief Find the widget item corresponding to the given <i>widget</i>
+  /*! \brief Finds the widget item corresponding to the given <i>widget</i>
    *
    * The widget is searched for recursively inside nested layouts.
    */
   virtual WWidgetItem *findWidgetItem(WWidget *widget) = 0;
 
-  /*! \brief Get the layout that implements this WLayoutItem.
+  /*! \brief Returns the layout that implements this WLayoutItem.
    *
    * This implements a type-safe upcasting mechanism to a WLayout.
    */
   virtual WLayout *layout() = 0;
 
-  /*! \brief Get the widget that is held by this WLayoutItem.
+  /*! \brief Returns the widget that is held by this WLayoutItem.
    *
    * This implements a type-safe upcasting mechanism to a WWidgetItem.
    */
   virtual WWidget *widget() = 0;
 
-  /*! \brief Get the layout in which this item is contained.
+  /*! \brief Returns the layout in which this item is contained.
    */
   virtual WLayout *parentLayout() const = 0;
 
-  /*! \brief Get the implementation for this layout item.
+  /*! \brief Returns the implementation for this layout item.
    *
    * The implementation of a layout item depends on the kind of
    * container for which the layout does layout management.

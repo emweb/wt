@@ -87,7 +87,7 @@ public:
     std::string what_;
   };
 
-  /*! \brief Create a new server instance.
+  /*! \brief Creates a new server instance.
    *
    * The \p wtApplicationPath is used to match specific
    * application-settings in the %Wt configuration file. If no
@@ -118,7 +118,7 @@ public:
    */
   ~WServer();
 
-  /*! \brief Configure the HTTP(S) server or FastCGI process.
+  /*! \brief Configures the HTTP(S) server or FastCGI process.
    *
    * Configures the HTTP(S) server using command-line arguments, a
    * configuration file, or both. The valid options are described in
@@ -142,7 +142,7 @@ public:
 			      const std::string& serverConfigurationFile
 			      = std::string());
 
-  /*! \brief Bind an entry-point to a callback function to create
+  /*! \brief Binds an entry-point to a callback function to create
    *         a new application.
    *
    * The \p path is the local URL at which the application is
@@ -164,7 +164,7 @@ public:
 		     const std::string& path = std::string(),
                      const std::string& favicon = std::string());
 
-  /*! \brief Bind a resource to a fixed path.
+  /*! \brief Binds a resource to a fixed path.
    *
    * Resources may either be private to a single session or
    * public. Use this method to add a public resource with a fixed
@@ -193,7 +193,7 @@ public:
    */
   void stop();
 
-  /*! \brief Wait for a shutdown signal.
+  /*! \brief Waits for a shutdown signal.
    *
    * This static method blocks the current thread, waiting for a
    * shutdown signal. The implementation and details are platform

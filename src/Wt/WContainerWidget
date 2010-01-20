@@ -105,6 +105,8 @@ class StdLayoutImpl;
  * using resize() or a style class, and the container is not included
  * in a layout manager), you should pass AlignTop to setLayout().
  *
+ * <h3>CSS</h3>
+ *
  * Depending on its configuration and usage, the widget corresponds to the
  * following HTML tags:
  *  - By default, the widget corresponds to a <tt>&lt;div&gt;</tt> tag.
@@ -116,6 +118,9 @@ class StdLayoutImpl;
  *    <tt>&lt;ol&gt;</tt>.
  *  - When inserted into a container widget that isList(), the widget
  *    corresponds to a <tt>&lt;li&gt;</tt>.
+ *
+ * This widget does not provide styling, and can be styled using
+ * inline or external CSS as appropriate.
  */
 class WT_API WContainerWidget : public WInteractWidget
 {
@@ -129,15 +134,15 @@ public:
     OverflowScroll=0x3  //!< Always show scroll bars.
   };
 
-  /*! \brief Create a container with optional parent.
+  /*! \brief Creates a container with optional parent.
    */
   WContainerWidget(WContainerWidget *parent = 0);
 
-  /*! \brief Destruct a %WContainerWidget
+  /*! \brief Destructor.
    */
   ~WContainerWidget();
 
-  /*! \brief Set a layout manager for the container.
+  /*! \brief Sets a layout manager for the container.
    *
    * Note that you can nest layout managers inside each other, to
    * create a complex layout hierarchy.
@@ -156,7 +161,7 @@ public:
    */
   void setLayout(WLayout *layout);  
 
-  /*! \brief Set a layout manager for the container.
+  /*! \brief Sets a layout manager for the container.
    *
    * The \p alignment argument determines how the layout is
    * aligned inside the container. By default, the layout manager
@@ -195,7 +200,7 @@ public:
    */
   void setLayout(WLayout *layout, WFlags<AlignmentFlag> alignment);
 
-  /*! \brief Get the layout manager that was set for the container.
+  /*! \brief Returns the layout manager that was set for the container.
    *
    * If no layout manager was previously set using setLayout(WLayout
    * *), 0 is returned.
@@ -204,7 +209,7 @@ public:
    */
   WLayout *layout() { return layout_; }
 
-  /*! \brief Add a child widget to this container.
+  /*! \brief Adds a child widget to this container.
    *
    * This is equivalent to passing this container as the parent when
    * constructing the child. The widget is appended to the list of
@@ -212,7 +217,7 @@ public:
    */
   virtual void addWidget(WWidget *widget);
 
-  /*! \brief insert a child widget in this container, before another
+  /*! \brief Inserts a child widget in this container, before another
    *         widget.
    *
    * The <i>widget</i> is inserted at the place of the \p before
@@ -222,7 +227,7 @@ public:
    */
   virtual void insertBefore(WWidget *widget, WWidget *before);
 
-  /*! \brief insert a child widget in this container at given index.
+  /*! \brief Inserts a child widget in this container at given index.
    *
    * The <i>widget</i> is inserted at the given \p index, and
    * subsequent widgets are shifted.
@@ -231,14 +236,14 @@ public:
    */
   virtual void insertWidget(int index, WWidget *widget);
 
-  /*! \brief Remove a child widget from this container.
+  /*! \brief Removes a child widget from this container.
    *
    * This removes the widget from this container, but does not delete
    * the widget !
    */
   virtual void removeWidget(WWidget *widget);
 
-  /*! \brief Remove and delete all child widgets.
+  /*! \brief Removes and deletes all child widgets.
    *
    * This deletes all children that have been added to this container.
    *
@@ -246,19 +251,19 @@ public:
    */
   virtual void clear();
 
-  /*! \brief Return the index of a widget.
+  /*! \brief Returns the index of a widget.
    */
   virtual int indexOf(WWidget *widget) const;
 
-  /*! \brief Return the widget at <i>index</i>
+  /*! \brief Returns the widget at <i>index</i>
    */
   virtual WWidget *widget(int index) const;
 
-  /*! \brief Get the number of widgets in this container.
+  /*! \brief Returns the number of widgets in this container.
    */
   virtual int count() const;
 
-  /*! \brief Specify how child widgets must be aligned within the container
+  /*! \brief Specifies how child widgets must be aligned within the container
    *
    * For a WContainerWidget, only specifes the horizontal alignment of
    * child widgets. Note that there is no way to specify vertical
@@ -271,26 +276,26 @@ public:
    */
   void setContentAlignment(WFlags<AlignmentFlag> contentAlignment);
 
-  /*! \brief Set padding inside the widget
+  /*! \brief Sets padding inside the widget
    *
    * Setting padding has the effect of adding distance between the
    * widget children and the border.
    */
   void setPadding(const WLength& padding, WFlags<Side> sides = All);
 
-  /*! \brief Get the padding set for the widget.
+  /*! \brief Returns the padding set for the widget.
    *
    * \sa setPadding(const WLength&, WFlags<Side>)
    */
   WLength padding(Side side) const;
 
-  /*! \brief Return the alignment of children
+  /*! \brief Returns the alignment of children
    *
    * \sa setContentAlignment(WFlags<AlignmentFlag>)
    */
   WFlags<AlignmentFlag> contentAlignment() const { return contentAlignment_; }
 
-  /*! \brief Set how overflow of contained children must be handled.
+  /*! \brief Sets how overflow of contained children must be handled.
    *
    * This is an alternative (CSS-ish) way to provide scroll bars on a
    * container widget, compared to wrapping inside a WScrollArea.
@@ -314,7 +319,7 @@ public:
   void setOverflow(Overflow overflow,
 		   WFlags<Orientation> orientation = (Horizontal | Vertical));
 
-  /*! \brief Render the container as an HTML list.
+  /*! \brief Renders the container as an HTML list.
    *
    * Setting \p renderList to \c true will cause the container to be
    * using an HTML <tt>&lt;ul&gt;</tt> or <tt>&lt;ol&gt;</tt> type,
@@ -335,19 +340,19 @@ public:
    */
   void setList(bool list, bool ordered = false);
 
-  /*! \brief Return if this container is rendered as a List
+  /*! \brief Returns if this container is rendered as a List
    *
    * \sa setList(), isOrderedList(), isUnorderedList()
    */  
   bool isList() const;
 
-  /*! \brief Return if this container is rendered as an Unordered List
+  /*! \brief Returns if this container is rendered as an Unordered List
    *
    * \sa setList(), isList(), isOrderedList()
    */  
   bool isUnorderedList() const;
 
-  /*! \brief Return if this container is rendered as an Ordered List
+  /*! \brief Returns if this container is rendered as an Ordered List
    *
    * \sa setList(), isList(), isUnorderedList()
    */  

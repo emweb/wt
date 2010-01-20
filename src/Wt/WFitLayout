@@ -24,7 +24,7 @@ namespace Wt {
 class WT_API WFitLayout : public WLayout
 {
 public:
-  /*! \brief Create a new fit layout.
+  /*! \brief Creates a new fit layout.
    */
   WFitLayout(WWidget *parent = 0);
   ~WFitLayout();

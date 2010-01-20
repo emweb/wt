@@ -97,15 +97,20 @@ namespace Wt {
  * 
  * \endcode
  * \endif
+ *
+ * <h3>CSS</h3>
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
  */
 class WT_API WViewWidget : public WWebWidget
 {
 public:
-  /*! \brief Create a new view widget.
+  /*! \brief Creates a new view widget.
    */
   WViewWidget(WContainerWidget *parent = 0);
 
-  /*! \brief Update the view.
+  /*! \brief Updates the view.
    *
    * Typically, the model will want to update the view when the model
    * has changed.
@@ -120,7 +125,7 @@ public:
   virtual void refresh();
 
 protected:
-  /*! \brief Create a widget that renders the View.
+  /*! \brief Creates a widget that renders the View.
    *
    * This method must be reimplemented to return a widget that renders the
    * view. The returned widget will be deleted by %WViewWidget.
@@ -151,7 +156,7 @@ template <typename Renderer>
 class WStaticModelView : public WViewWidget
 {
 public:
-  /*! \brief Construct a new static model view, given a function
+  /*! \brief Creates a new static model view, given a function
    *         object to render the View widget.
    */
   WStaticModelView(Renderer f, WContainerWidget *parent = 0)
@@ -166,7 +171,7 @@ protected:
   Renderer f_;
 };
 
-/*! \brief Wrap a widget into a view with a non-changing model.
+/*! \brief Wraps a widget into a view with a non-changing model.
  *
  * The ViewRenderer is called without arguments and must return a
  * newly created widget (WWidget *).

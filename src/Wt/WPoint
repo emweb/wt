@@ -19,24 +19,20 @@ namespace Wt {
 class WT_API WPoint
 {
 public:
-  /*! \brief Default constructor.
-   *
-   * Constructs a point (<i>x=0</i>, \p y=0).
+  /*! \brief Creates a point (0, 0).
    */
   WPoint();
 
-  /*! \brief Construct a point.
-   *
-   * Constructs a point (<i>x</i>, \p y).
+  /*! \brief Creates a point (x, y).
    */
   WPoint(int x, int y)
     : x_(x), y_(y) { }
 
-  /*! \brief Changes the X coordinate.
+  /*! \brief Sets the X coordinate.
    */
   void setX(int x) { x_ = x; }
 
-  /*! \brief Changes the Y coordinate.
+  /*! \brief Sets the Y coordinate.
    */
   void setY(int y) { y_ = y; }
 
@@ -64,4 +60,4 @@ private:
 
 };
 
-#endif // WPOINTF_H_
+#endif // WPOINT_H_

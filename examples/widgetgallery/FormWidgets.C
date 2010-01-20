@@ -329,7 +329,6 @@ WWidget *FormWidgets::wSuggestionPopup()
 		    "John Rambo <rambo@mycompany.com>");
   sp->addSuggestion("Johanna Tree <johanna@mycompany.com>",
 		    "Johanna Tree <johanna@mycompany.com>");
-  sp->setStyleClass("suggest");
   
   return result;
 }

@@ -112,7 +112,7 @@
 /*
  * WDatePicker
  */
-.Wt-popup {
+.Wt-datepicker {
     background-color: #EEEEEE;
 }
 
@@ -134,6 +134,9 @@
     padding: 4px 6px 4px;
 }
 
+/* 
+ * WMessageBox
+ */
 .Wt-msgbox-buttons button {
     padding: 1px 4px 1px;
     margin: 2px;
@@ -181,6 +184,38 @@
     border-top: 1px solid #CCCCCC;
     border-bottom: 1px solid #DDDDDD;
     margin: 0px 3px;
+}
+
+/* 
+ * WSuggestionPopup
+*/
+.Wt-suggest {
+    background-color: #e0ecff;
+    color: #1010cc;
+    border: 1px solid #666666;
+    cursor: default;
+    font-size: smaller;
+    padding: 2px;
+}
+
+.Wt-suggest span {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.Wt-suggest .sel {
+    background-color: #C3D9FF;
+}
+
+/*
+ * WSlider
+ */
+.Wt-slider .handle-h {
+    background: url(slider-thumb-h.gif) no-repeat
+}
+
+.Wt-slider .handle-v {
+    background: url(slider-thumb-v.gif) no-repeat
 }
 
 /*

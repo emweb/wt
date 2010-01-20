@@ -94,7 +94,7 @@ public:
     Center  //!< Center
   };
 
-  /*! \brief Create a new border layout.
+  /*! \brief Creates a new border layout.
    */
   WBorderLayout(WWidget *parent = 0);
 
@@ -107,7 +107,7 @@ public:
   virtual WLayoutItem *itemAt(int index) const;
   virtual int count() const;
 
-  /*! \brief Add a widget to the given position.
+  /*! \brief Adds a widget to the given position.
    *
    * Only one widget per position is supported.
    *
@@ -115,25 +115,25 @@ public:
    */
   void addWidget(WWidget *widget, Position position);
 
-  /*! \brief Add a layout item to the given position.
+  /*! \brief Adds a layout item to the given position.
    *
    * Only one widget per position is supported.
    */
   void add(WLayoutItem *item, Position position);
 
-  /*! \brief Return the widget at a position.
+  /*! \brief Returns the widget at a position.
    *
    * Returns \c 0 if no widget was set for that position.
    */
   WWidget *widgetAt(Position position) const;
 
-  /*! \brief Return the item at a position.
+  /*! \brief Returns the item at a position.
    *
    * Returns \c 0 if no item was set for that position.
    */
   WLayoutItem *itemAt(Position position) const;
 
-  /*! \brief Return the position at which the given layout item is set.
+  /*! \brief Returns the position at which the given layout item is set.
    */
   Position position(WLayoutItem *item) const;
 

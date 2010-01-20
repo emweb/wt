@@ -56,13 +56,13 @@ class WMessageResources;
 class WT_API WMessageResourceBundle : public WLocalizedStrings
 {
 public:
-  /*! \brief Create a message resource bundle.
+  /*! \brief Creates a message resource bundle.
    */
   WMessageResourceBundle();
 
   virtual ~WMessageResourceBundle();
 
-  /*! \brief Add a (series) of message resource files to be used.
+  /*! \brief Adds a (series) of message resource files to be used.
    *
    * The \p path is not a URI, and relative paths will be resolved
    * with respect to the working directory of the server. The XML

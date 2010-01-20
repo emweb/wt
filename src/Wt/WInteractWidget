@@ -22,6 +22,10 @@ class JSlot;
  *
  * When JavaScript is disabled, only the clicked() event will
  * propagate (but without event details information).
+ *
+ * <h3>CSS</h3>
+ *
+ * Styling through CSS is not applicable.
  */
 class WT_API WInteractWidget : public WWebWidget
 {

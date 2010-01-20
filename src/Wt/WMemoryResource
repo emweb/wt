@@ -44,19 +44,19 @@ namespace Wt {
 class WT_API WMemoryResource : public WResource
 {
 public:
-  /*! \brief Create a new resource.
+  /*! \brief Creates a new resource.
    *
    * You must call setMimeType() and setData() before using the resource.
    */
   WMemoryResource(WObject *parent = 0);
 
-  /*! \brief Create a new resource with given mime-type.
+  /*! \brief Creates a new resource with given mime-type.
    *
    * You must call setData() before using the resource.
    */
   WMemoryResource(const std::string& mimeType, WObject *parent = 0);
 
-  /*! \brief Create a new resource with given mime-type and data
+  /*! \brief Creates a new resource with given mime-type and data
    */
   WMemoryResource(const std::string& mimeType,
 		  const std::vector<unsigned char> &data,
@@ -64,22 +64,22 @@ public:
 
   ~WMemoryResource();
 
-  /*! \brief Set new data for the resource to serve.
+  /*! \brief Sets new data for the resource to serve.
    */
   void setData(const std::vector<unsigned char> &data);
 
-  /*! \brief Set new data for the resource to serve.
+  /*! \brief Sets new data for the resource to serve.
    *
    * Sets the data from using the first \p count bytes from the
    * C-style \p data array.
    */
   void setData(const unsigned char *data, int count);
 
-  /*! \brief Get the mime-type.
+  /*! \brief Returns the mime-type.
    */
   const std::string mimeType() const { return mimeType_; }
 
-  /*! \brief Set the mime-type.
+  /*! \brief Sets the mime-type.
    */
   void setMimeType(const std::string& mimeType);
 

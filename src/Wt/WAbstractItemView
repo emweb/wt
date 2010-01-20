@@ -86,7 +86,7 @@ public:
    */
   virtual bool alternatingRowColors() const = 0;
   
-  /*! \brief Sort the data according to a column.
+  /*! \brief Sorts the data according to a column.
    *
    * Sorts the data according to data in column \p column and sort
    * order \p order.
@@ -95,7 +95,7 @@ public:
    */
   void sortByColumn(int column, SortOrder order);
 
-  /*! \brief Enable sorting.
+  /*! \brief Enables or disables sorting for all columns.
    *
    * Enable or disable sorting by the user on all columns.
    *
@@ -105,7 +105,7 @@ public:
    */
   void setSortingEnabled(bool enabled);
 
-  /*! \brief Enable sorting.
+  /*! \brief Enables or disables sorting for a single column.
    *
    * Enable or disable sorting by the user for a specific column.
    *
@@ -121,7 +121,7 @@ public:
    */
   bool isSortingEnabled() const { return sorting_; }
 
-  /*! \brief Enable interactive column resizing
+  /*! \brief Enables interactive column resizing
    *
    * Enable or disable column resize handles for interactive resizing of
    * the columns.
@@ -136,7 +136,7 @@ public:
    */
   bool isColumnResizeEnabled() const { return columnResize_; }
 
-  /*! \brief Change the selection behaviour.
+  /*! \brief Changes the selection behaviour.
    *
    * The selection behavior indicates whether whole rows or individual
    * items can be selected. It is a property of the selectionModel().
@@ -187,7 +187,7 @@ public:
    */
   void setSelectedIndexes(const WModelIndexSet& indexes);
 
-  /*! \brief Select a single item.
+  /*! \brief Selects a single item.
    *
    * \sa setSelectedIndexes(), selectionModel()
    */
@@ -218,7 +218,7 @@ public:
    */
   WModelIndexSet selectedIndexes() const;
   
-  /*! \brief Enable the selection to be dragged (drag & drop).
+  /*! \brief Enables the selection to be dragged (drag & drop).
    *
    * To enable dragging of the selection, you first need to enable
    * selection using setSelectionMode().
@@ -232,7 +232,7 @@ public:
    */
   void setDragEnabled(bool enable);
 
-  /*! \brief Enable drop operations (drag & drop).
+  /*! \brief Enables drop operations (drag & drop).
    *
    * When drop is enabled, the tree view will indicate that something
    * may be dropped when the mime-type of the dragged object is
@@ -294,7 +294,9 @@ public:
    */
   void setItemDelegateForColumn(int column, WAbstractItemDelegate *delegate);
 
-  /*! \brief Returns the delegate for a column.
+  /*! \brief Returns the delegate that was set for a column.
+   *
+   * Returns \c 0 if no delegate was set for the column.
    *
    * \sa setItemDelegateForColumn()
    */
@@ -305,6 +307,13 @@ public:
    * \sa setItemDelegateForColumn(), setItemDelegate()
    */
   WAbstractItemDelegate *itemDelegate(const WModelIndex& index) const;
+
+  /*! \brief Returns the delegate for a column.
+   *
+   * Returns either the delegate that was set for the column, or the default
+   * delegate.
+   */
+  WAbstractItemDelegate *itemDelegate(int column) const;
 
   /*! \brief Sets the row height.
    *
@@ -344,7 +353,7 @@ protected:
    */
   WAbstractItemView(WContainerWidget *parent = 0);
 
-  /*! \brief Handle a drop event (drag & drop).
+  /*! \brief Handles a drop event (drag & drop).
    *
    * The \p event object contains details about the drop
    * operation, identifying the source (which provides the data) and

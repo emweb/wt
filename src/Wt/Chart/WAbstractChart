@@ -46,6 +46,10 @@ namespace Wt {
  * padding setPlotAreaPadding(), and the background fill color
  * setBackground().
  *
+ * <h3>CSS</h3>
+ *
+ * Styling through CSS is not applicable.
+ *
  * \sa WCartesianChart, WPieChart
  *
  * \ingroup charts

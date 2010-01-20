@@ -25,27 +25,27 @@ namespace Wt {
 class WT_API WBrush
 {
 public:
-  /*! \brief Default constructor.
+  /*! \brief Creates a brush.
    *
-   * Constructs a brush with a \link Wt::NoBrush NoBrush\endlink fill style.
+   * Creates a brush with a \link Wt::NoBrush NoBrush\endlink fill style.
    */
   WBrush();
 
-  /*! \brief Construct a brush with a particular style.
+  /*! \brief Creates a black brush with given style.
    *
-   * Constructs a black brush with the indicated \p style.
+   * Creates a black brush with the indicated \p style.
    */
   WBrush(WBrushStyle style);
 
-  /*! \brief Construct a solid brush of a particular color.
+  /*! \brief Creates a solid brush of a given color.
    *
-   * Constructs a solid brush with the indicated \p color.
+   * Creates a solid brush with the indicated \p color.
    */
   WBrush(const WColor& color);
 
-  /*! \brief Construct a solid brush with a particular standard color.
+  /*! \brief Creates a solid brush with a particular standard color.
    *
-   * Constructs a solid brush with the indicated \p color.
+   * Creates a solid brush with the indicated \p color.
    */
   WBrush(GlobalColor color);
 
@@ -69,7 +69,7 @@ public:
    */
   bool operator!=(const WBrush& other) const;
 
-  /*! \brief Change the brush style.
+  /*! \brief Sets the brush style.
    *
    * \sa style()
    */
@@ -81,7 +81,7 @@ public:
    */
   WBrushStyle style() const { return style_; }
 
-  /*! \brief Change the brush color.
+  /*! \brief Sets the brush color.
    *
    * \sa color()
    */

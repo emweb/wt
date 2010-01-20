@@ -201,7 +201,7 @@ template <typename A1 = NoClass, typename A2 = NoClass,
 class Signal : public SignalBase
 {
 public:
-  /*! \brief Create a WSignal.
+  /*! \brief Creates a signal.
    *
    * The \p sender is the object that will be identified as
    * WObject::sender() when executing connected slots may be passed as
@@ -212,11 +212,11 @@ public:
    */
   Signal(WObject *sender = 0);
 
-  /*! \brief Delete a WSignal.
+  /*! \brief Destructor.
    */
   ~Signal();
 
-  /*! \brief Connect to a function.
+  /*! \brief Connects to a function.
    *
    * This variant of the overloaded connect() method supports a
    * template function object (which supports operator ()).
@@ -231,7 +231,7 @@ public:
    */
   template <class F> boost::signals::connection connect(const F& f);
 
-  /*! \brief Connect a slot that takes no arguments.
+  /*! \brief Connects a slot that takes no arguments.
    *
    * This is always possible (even when the signal specifies a number
    * of arguments).
@@ -251,7 +251,7 @@ public:
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
 
-  /*! \brief Connect a slot that takes one argument.
+  /*! \brief Connects a slot that takes one argument.
    *
    * This is only possible for signals that take at least one argument.
    *
@@ -263,7 +263,7 @@ public:
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)(const A1&));
 
-  /*! \brief Connect a slot that takes two arguments.
+  /*! \brief Connects a slot that takes two arguments.
    *
    * This is only possible for signals that take at least two arguments.
    *
@@ -284,7 +284,7 @@ public:
     boost::signals::connection connect(T *target, void (V::*method)(const A1&,
 								    const A2&));
 
-  /*! \brief Connect a slot that takes three arguments.
+  /*! \brief Connects a slot that takes three arguments.
    *
    * This is only possible for signals that take at least three arguments.
    *
@@ -308,7 +308,7 @@ public:
 								    const A2&,
 								    const A3&));
 
-  /*! \brief Connect a slot that takes four arguments.
+  /*! \brief Connects a slot that takes four arguments.
    *
    * This is only possible for signals that take at least four arguments.
    *
@@ -318,7 +318,7 @@ public:
     boost::signals::connection connect(T *target,
 				       void (V::*method)(A1,A2,A3,A4));
 
-  /*! \brief Connect a slot that takes five arguments.
+  /*! \brief Connects a slot that takes five arguments.
    *
    * This is only possible for signals that take at least five arguments.
    *
@@ -328,7 +328,7 @@ public:
     boost::signals::connection connect(T *target,
 				       void (V::*method)(A1,A2,A3,A4,A5));
 
-  /*! \brief Connect a slot that takes six arguments.
+  /*! \brief Connects a slot that takes six arguments.
    *
    * This is only possible for signals that take at least six arguments.
    *
@@ -338,7 +338,7 @@ public:
     boost::signals::connection connect(T *target,
 				       void (V::*method)(A1,A2,A3,A4,A5,A6));
 
-  /*! \brief Emit the signal.
+  /*! \brief Emits the signal.
    *
    * The arguments must exactly match the arguments of the target
    * function.
@@ -350,7 +350,7 @@ public:
 	    A3 a3 = NoClass::none, A4 a4 = NoClass::none,
 	    A5 a5 = NoClass::none, A6 a6 = NoClass::none);
 
-  /*! \brief Emit the signal.
+  /*! \brief Emits the signal.
    *
    * This is equivalent to emit().
    *
@@ -539,7 +539,7 @@ public:
    */
   virtual bool isConnected() const;
 
-  /*! \brief Connect to a function.
+  /*! \brief Connects to a function.
    *
    * This variant of the overloaded connect() method supports a
    * template function object (which supports operator ()).

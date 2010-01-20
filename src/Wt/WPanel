@@ -32,7 +32,8 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * \image html WPanel-1.png "Two panels: the top panel is collapsed, and the bottom panel expanded"
+ * \image html WPanel-default-1.png "Two panels: one collapsed and one expanded (default theme)"
+ * \image html WPanel-polished-1.png "Two panels: one collapsed and one expanded (polished theme)"
  *
  * \if cpp
  * \note This widget is in development. It will provide features similar to the
@@ -50,17 +51,17 @@ namespace Wt {
  * \verbatim
  .Wt-panel .titlebar : The title bar
  .Wt-panel .body     : The body (requires vertical padding 4px).
- \endverbatim
+\endverbatim
  *
  */
 class WT_API WPanel : public WCompositeWidget
 {
 public:
-  /*! \brief Construct a panel.
+  /*! \brief Creates a panel.
    */
   WPanel(WContainerWidget *parent = 0);
 
-  /*! \brief Set a title.
+  /*! \brief Sets a title.
    *
    * The panel title is set in the title bar. This method also makes
    * the title bar visible by calling setTitleBar(true).
@@ -71,13 +72,13 @@ public:
    */
   void setTitle(const WString& title);
 
-  /*! \brief Get the title.
+  /*! \brief Returns the title.
    *
    * \sa setTitle(const WString&)
    */
   WString title() const;
 
-  /*! \brief Show or hide a title bar for the panel.
+  /*! \brief Shows or hides the title bar for the panel.
    *
    * The title bar appears at the top of the panel.
    *
@@ -94,7 +95,7 @@ public:
    */
   bool titleBar() const;
 
-  /*! \brief Make the panel collapsible.
+  /*! \brief Makes the panel collapsible.
    *
    * When \p on is \c true, a collapse/expand icon is added to the
    * title bar. This also calls setTitleBar(true) to enable the
@@ -112,7 +113,7 @@ public:
    */
   bool isCollapsible() const { return collapseIcon_ != 0; } 
 
-  /*! \brief Set the panel expanded or collapsed.
+  /*! \brief Sets the panel expanded or collapsed.
    *
    * When \p on is \c true, equivalent to collapse(), otherwise to
    * expand().
@@ -130,7 +131,7 @@ public:
    */
   bool isCollapsed() const;
 
-  /*! \brief Collapse the panel.
+  /*! \brief Collapses the panel.
    *
    * When isCollapsible() is true, the panel is collapsed to minimize
    * screen real-estate.
@@ -139,7 +140,7 @@ public:
    */
   void collapse();
 
-  /*! \brief Collapse the panel.
+  /*! \brief Collapses the panel.
    *
    * When isCollapsible() is true, the panel is expanded to its original
    * state.
@@ -148,7 +149,7 @@ public:
    */
   void expand();
 
-  /*! \brief Set the central widget.
+  /*! \brief Sets the central widget.
    *
    * Sets the widget that is the contents of the panel. When a widget was
    * previously set, the old widget is deleted first.
@@ -157,7 +158,7 @@ public:
    */
   void setCentralWidget(WWidget *);
 
-  /*! \brief Return the central widget.
+  /*! \brief Returns the central widget.
    *
    * \sa setCentralWidget()
    */

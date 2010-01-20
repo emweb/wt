@@ -70,18 +70,18 @@ class WRadioButton;
 class WT_API WButtonGroup : public WObject
 {
 public:
-  /*! \brief Create a new empty button group.
+  /*! \brief Creates a new empty button group.
    */
   WButtonGroup(WObject* parent = 0);
 
-  /*! \brief Delete a button group.
+  /*! \brief Destructor.
    *
    * This does not delete the radio buttons, but simply removes them
    * from the group.
    */
   ~WButtonGroup();
 
-  /*! \brief Add a radio button to the group.
+  /*! \brief Adds a radio button to the group.
    *
    * You can assign an id to the button. If \p id is -1, then a
    * unique id will be generated.
@@ -91,7 +91,7 @@ public:
   void addButton(WRadioButton *button, int id = -1);
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Add a radio button to the group.
+  /*! \brief Adds a radio button to the group.
    *
    * You can assign an id to the button. If \p id is -1, then a
    * unique id will be generated.
@@ -101,13 +101,13 @@ public:
   void addButton(Ext::RadioButton *button, int id = -1);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Remove a radio button from the group.
+  /*! \brief Removes a radio button from the group.
    *
    * \sa addButton(WRadioButton *, int)
    */
   void removeButton(WRadioButton *button);
 
-  /*! \brief Remove a radio button from the group.
+  /*! \brief Removes a radio button from the group.
    *
    * \if cpp
    * \sa addButton(Ext::RadioButton *, int)
@@ -188,7 +188,7 @@ public:
    */
   int selectedButtonIndex() const;
 
-  /*! \brief Signal emitted when a button was checked.
+  /*! \brief %Signal emitted when a button was checked.
    *
    * The argument passed is the new checkedButton().
    */

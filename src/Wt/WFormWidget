@@ -33,11 +33,11 @@ class WLabel;
 class WT_API WFormWidget : public WInteractWidget
 {
 public:
-  /*! \brief Construct a WFormWidget with an optional parent.
+  /*! \brief Creates a %WFormWidget with an optional parent.
    */
   WFormWidget(WContainerWidget *parent = 0);
 
-  /*! \brief Destroy a WFormWidget.
+  /*! \brief Destructor.
    *
    * If a label was associated with the widget, its buddy is reset to \c 0.
    */
@@ -52,14 +52,14 @@ public:
    */
   WLabel *label() const { return label_; }
 
-  /*! \brief Set the hidden state of this widget.
+  /*! \brief Sets the hidden state of this widget.
    *
    * If the widget has a label, it is hidden and shown together with
    * this widget.
    */
   virtual void setHidden(bool hidden);
 
-  /*! \brief Set a validator for this field.
+  /*! \brief Sets a validator for this field.
    *
    * The validator is used to validate the current input.
    *
@@ -73,11 +73,11 @@ public:
    */
   void setValidator(WValidator *validator);
 
-  /*! \brief Get the validator.
+  /*! \brief Returns the validator.
    */
   WValidator *validator() const { return validator_; }
 
-  /*! \brief Validate the field.
+  /*! \brief Validates the field.
    */
   virtual WValidator::State validate();
 
@@ -89,13 +89,13 @@ public:
    */
   void setEnabled(bool enabled);
 
-  /*! \brief Give focus to this widget.
+  /*! \brief Gives focus to this widget.
    *
    * Giving focus to an input element only works when JavaScript is enabled.
    */
   void setFocus();
 
-  /*! \brief Set the element read-only.
+  /*! \brief Sets the element read-only.
    *
    * A read-only form element cannot be edited, but the contents can
    * still be selected.
@@ -112,19 +112,19 @@ public:
    */
   bool isReadOnly() const;
 
-  /*! \brief Signal emitted when the value was changed.
+  /*! \brief %Signal emitted when the value was changed.
    */
   EventSignal<>& changed();
 
-  /*! \brief Signal emitted when ??
+  /*! \brief %Signal emitted when ??
    */
   EventSignal<>& selected();
 
-  /*! \brief Signal emitted when the widget lost focus.
+  /*! \brief %Signal emitted when the widget lost focus.
    */
   EventSignal<>& blurred();
 
-  /*! \brief Signal emitted when the widget recieved focus.
+  /*! \brief %Signal emitted when the widget recieved focus.
    */
   EventSignal<>& focussed();
 

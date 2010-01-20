@@ -91,7 +91,7 @@ public:
    */
   WPainterPath& operator= (const WPainterPath& path);
 
-  /*! \brief Return the current position.
+  /*! \brief Returns the current position.
    *
    * Returns the current position, which is the end point of the last
    * move or draw operation, and which well be the start point of the
@@ -117,7 +117,7 @@ public:
    */
   bool operator!= (const WPainterPath& path) const;
 
-  /*! \brief Close the last sub path.
+  /*! \brief Closes the last sub path.
    *
    * Draws a line from the current position to the start position of
    * the last sub path (which is the end point of the last move
@@ -196,7 +196,7 @@ public:
   void arcTo(double cx, double cy, double radius,
 	     double startAngle, double sweepLength);
 
-  /*! \brief Move to a point on an arc.
+  /*! \brief Moves to a point on an arc.
    *
    * Moves to a point on a circle. The circle is defined with center
    * (<i>cx</i>, <i>cy</i>) and \p radius, and the point is at
@@ -219,7 +219,7 @@ public:
    */
   void arcMoveTo(double x, double y, double width, double height, double angle);
 
-  /*! \brief Draw a quadratic bezier curve
+  /*! \brief Draws a quadratic bezier curve
    *
    * Draws a quadratic bezier curve from the current position to
    * \p endPoint, which becomes the new current position. The
@@ -229,7 +229,7 @@ public:
    */
   void quadTo(const WPointF& c, const WPointF& endPoint);
 
-  /*! \brief Draw a quadratic bezier curve.
+  /*! \brief Draws a quadratic bezier curve.
    *
    * This is an overloaded method provided for convenience.
    *
@@ -237,7 +237,7 @@ public:
    */
   void quadTo(double cx, double cy, double endPointx, double endPointy);
 
-  /*! \brief Draw an ellipse.
+  /*! \brief Draws an ellipse.
    *
    * This method closes the current sub path, and adds an ellipse that is
    * bounded by the rectangle \p boundingRectangle.
@@ -248,7 +248,7 @@ public:
    */
   void addEllipse(const WRectF& boundingRectangle);
 
-  /*! \brief Draw an ellipse.
+  /*! \brief Draws an ellipse.
    *
    * This method closes the current sub path, and adds an ellipse that is
    * bounded by the rectangle defined by top left position (\p x,
@@ -260,7 +260,7 @@ public:
    */
   void addEllipse(double x, double y, double width, double height);
 
-  /*! \brief Draw a rectangle.
+  /*! \brief Draws a rectangle.
    *
    * This method closes the current sub path, and adds a rectangle
    * that is defined by \p rectangle.
@@ -269,7 +269,7 @@ public:
    */
   void addRect(const WRectF& rectangle);
 
-  /*! \brief Draw a rectangle.
+  /*! \brief Draws a rectangle.
    *
    * This method closes the current sub path, and adds a rectangle
    * that is defined by top left position (<i>x</i>, \p y), and
@@ -279,7 +279,7 @@ public:
    */
   void addRect(double x, double y, double width, double height);
 
-  /*! \brief Add a path.
+  /*! \brief Adds a path.
    *
    * Adds an entire \p path to the current path. If the path's
    * begin position is different from the current position, the last
@@ -290,7 +290,7 @@ public:
    */
   void addPath(const WPainterPath& path);
 
-  /*! \brief Add a path, connecting.
+  /*! \brief Adds a path, connecting.
    *
    * Adds an entire \p path to the current path. If the path's
    * begin position is different from the current position, the last

@@ -55,11 +55,11 @@ public:
 	       Valid	     //!< The input is valid.
   };
 
-  /*! \brief Create a new validator.
+  /*! \brief Creates a new validator.
    */
   WValidator(WObject *parent = 0);
 
-  /*! \brief Create a new validator.
+  /*! \brief Creates a new validator.
    *
    * Indicate whether input is mandatory.
    *
@@ -74,7 +74,7 @@ public:
    */
   ~WValidator();
 
-  /*! \brief Set if input is mandatory
+  /*! \brief Sets if input is mandatory
    *
    * When an input is not mandatory, then an empty field is always
    * valid.
@@ -85,7 +85,7 @@ public:
    */
   bool isMandatory() const { return mandatory_; }
 
-  /*! \brief Set message to display when a mandatory field is left blank
+  /*! \brief Sets the message to display when a mandatory field is left blank
    *
    * The default value is "This field cannot be empty".
    */
@@ -106,7 +106,7 @@ public:
    */
   virtual void fixup(WString& input) const;
 
-  /*! \brief Validate the given input.
+  /*! \brief Validates the given input.
    *
    * This function returns the current validation state of the
    * input. The default implementation only checks whether a mandatory
@@ -114,7 +114,7 @@ public:
    */
   virtual State validate(WT_USTRING& input) const;
 
-  /*! \brief Provide Ext-compatible config options for client-side validation.
+  /*! \brief Provides Ext-compatible config options for client-side validation.
    */
   virtual void createExtConfig(std::ostream& config) const;
 

@@ -32,7 +32,7 @@ namespace Wt {
 class WT_API WItemDelegate : public WAbstractItemDelegate
 {
 public:
-  /*! \brief Constructor.
+  /*! \brief Create an item delegate.
    */
   WItemDelegate(WObject *parent = 0);
 
@@ -41,7 +41,7 @@ public:
 
   virtual void updateModelIndex(WWidget *widget, const WModelIndex& index);
 
-  /*! \brief Set the text format string.
+  /*! \brief Sets the text format string.
    *
    * \if cpp
    * The DisplayRole data is converted to a string using asString() by passing

@@ -226,7 +226,7 @@ public:
   typedef std::treemap<int, boost::any> DataMap;
 #endif
 
-  /*! \brief Create a new data model.
+  /*! \brief Creates a new data model.
    */
   WAbstractItemModel(WObject *parent = 0);
 
@@ -380,7 +380,7 @@ public:
   virtual bool hasIndex(int row, int column,
 			const WModelIndex& parent = WModelIndex()) const;
 
-  /*! \brief Insert one or more columns.
+  /*! \brief Inserts one or more columns.
    *
    * Returns \c true if the operation was successful.
    *
@@ -393,7 +393,7 @@ public:
   virtual bool insertColumns(int column, int count,
 			     const WModelIndex& parent = WModelIndex());
 
-  /*! \brief Insert one or more rows.
+  /*! \brief Inserts one or more rows.
    *
    * Returns \c true if the operation was successful. If you reimplement this
    * method, then you must call beginInsertRows() and
@@ -406,7 +406,7 @@ public:
   virtual bool insertRows(int row, int count,
 			  const WModelIndex& parent = WModelIndex());
 
-  /*! \brief Remove columns.
+  /*! \brief Removes columns.
    *
    * Returns \c true if the operation was successful.
    *
@@ -419,7 +419,7 @@ public:
   virtual bool removeColumns(int column, int count,
 			     const WModelIndex& parent = WModelIndex());
 
-  /*! \brief Remove rows.
+  /*! \brief Removes rows.
    *
    * Returns \c true if the operation was successful.
    *
@@ -432,7 +432,7 @@ public:
   virtual bool removeRows(int row, int count,
 			  const WModelIndex& parent = WModelIndex());
 
-  /*! \brief Set data at the given model index.
+  /*! \brief Sets data at the given model index.
    *
    * Returns \c true if the operation was successful.
    *
@@ -445,7 +445,7 @@ public:
   virtual bool setData(const WModelIndex& index, const boost::any& value,
 		       int role = EditRole);
 
-  /*! \brief Set data at the given model index.
+  /*! \brief Sets data at the given model index.
    *
    * This is a convenience function that sets data for all roles at once.
    *
@@ -453,7 +453,7 @@ public:
    */
   virtual bool setItemData(const WModelIndex& index, const DataMap& values);
 
-  /*! \brief Set header data for a column or row.
+  /*! \brief Sets header data for a column or row.
    *
    * Returns \c true if the operation was successful.
    *
@@ -463,7 +463,7 @@ public:
 			     const boost::any& value,
 			     int role = EditRole);
 
-  /*! \brief Set column header data.
+  /*! \brief Sets column header data.
    *
    * Returns \c true if the operation was successful.
    *
@@ -471,7 +471,7 @@ public:
    */
   bool setHeaderData(int section, const boost::any& value);
 
-  /*! \brief Sort the model according to a particular column.
+  /*! \brief Sorts the model according to a particular column.
    *
    * If the model supports sorting, then it should emit the
    * layoutAboutToBeChanged() signal, rearrange its items, and
@@ -503,7 +503,7 @@ public:
    */
   virtual void collapseColumn(int column);
 
-  /*! \brief Convert a model index to a raw pointer that remains valid
+  /*! \brief Converts a model index to a raw pointer that remains valid
    *         while the model's layout is changed. 
    *
    * Use this method to temporarily save model indexes while the model's
@@ -517,7 +517,7 @@ public:
    */
   virtual void *toRawIndex(const WModelIndex& index) const;
 
-  /*! \brief Convert a raw pointer to a model index. 
+  /*! \brief Converts a raw pointer to a model index. 
    *
    * Use this method to create model index from temporary raw
    * pointers. It is the reciproce method of toRawIndex().
@@ -555,7 +555,7 @@ public:
    */
   virtual std::vector<std::string> acceptDropMimeTypes() const;
 
-  /*! \brief Handle a drop event.
+  /*! \brief Handles a drop event.
    *
    * The default implementation only handles generic drag&drop between
    * abstract item models. Source item data is copied (but not the
@@ -581,7 +581,7 @@ public:
   virtual void dropEvent(const WDropEvent& e, DropAction action,
 			 int row, int column, const WModelIndex& parent);
 
-  /*! \brief Insert one column.
+  /*! \brief Inserts one column.
    *
    * This is a convenience method that adds a single column, and is
    * equivalent to:
@@ -595,7 +595,7 @@ public:
    */
   bool insertColumn(int column, const WModelIndex& parent = WModelIndex());
 
-  /*! \brief Insert one row.
+  /*! \brief Inserts one row.
    *
    * This is a convenience method that adds a single row, and is
    * equivalent to:
@@ -609,7 +609,7 @@ public:
    */
   bool insertRow(int row, const WModelIndex& parent = WModelIndex());
 
-  /*! \brief Remove one column.
+  /*! \brief Removes one column.
    *
    * This is a convenience method that removes a single column, and is
    * equivalent to:
@@ -623,7 +623,7 @@ public:
    */
   bool removeColumn(int column, const WModelIndex& parent = WModelIndex());
 
-  /*! \brief Remove one row.
+  /*! \brief Removes one row.
    *
    * This is a convenience method that removes a single row, and is
    * equivalent to:
@@ -637,7 +637,7 @@ public:
    */
   bool removeRow(int row, const WModelIndex& parent = WModelIndex());
 
-  /*! \brief Set data at the given row and column.
+  /*! \brief Sets data at the given row and column.
    *
    * This is a convience method, and is equivalent to:
    * \code
@@ -790,7 +790,7 @@ protected:
    */
   void reset();
 
-  /*! \brief Create a model index for the given row and column.
+  /*! \brief Creates a model index for the given row and column.
    *
    * Use this method to create a model index. \p ptr is an
    * internal pointer that may be used to associate the index with
@@ -801,7 +801,7 @@ protected:
   WModelIndex createIndex(int row, int column, void *ptr) const;
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Create a model index for the given row and column.
+  /*! \brief Creates a model index for the given row and column.
    *
    * Use this method to create a model index. \p id is an
    * internal id that may be used to associate the index with

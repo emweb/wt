@@ -20,6 +20,11 @@ namespace Wt {
  * Arial,Helvetica,sans-serif; font-size: small;">Loading...</span> in
  * the right top corner of the window.
  *
+ * <h3>CSS</h3>
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ *
  * \sa WApplication::setLoadingIndicator()
  */
 class WT_API WDefaultLoadingIndicator : public WText, public WLoadingIndicator

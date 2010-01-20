@@ -25,7 +25,7 @@ namespace Wt {
 class WT_API WAbstractTableModel : public WAbstractItemModel
 {
 public:
-  /*! \brief Create a new abstract list model.
+  /*! \brief Creates a new abstract list model.
    */
   WAbstractTableModel(WObject *parent = 0);
 

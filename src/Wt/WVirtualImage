@@ -42,6 +42,10 @@ class WMouseEvent;
  * The total image dimensions are (0, 0) to (imageWidth, imageHeight)
  * for a finite image, and become unbounded (including negative numbers)
  * for each dimension which is Infinite.
+ * 
+ * <h3>CSS</h3>
+ *
+ * Styling through CSS is not applicable.
  */
 class WT_API WVirtualImage : public WCompositeWidget
 {
@@ -50,7 +54,7 @@ public:
    */
   static const int64_t Infinite;
 
-  /*! \brief Construct a viewport for a virtual image.
+  /*! \brief Creates a viewport for a virtual image.
    *
    * You must specify the size of the viewport, and the size of the
    * virtual image. The latter dimensions may be the special value
@@ -64,11 +68,11 @@ public:
 		int64_t imageWidth, int64_t imageHeight,
 		int gridImageSize = 256, WContainerWidget *parent = 0);
 
-  /*! \brief Destructor
+  /*! \brief Destructor.
    */
   ~WVirtualImage();
 
-  /*! \brief Regenerate and redraw the image pieces.
+  /*! \brief Regenerates and redraws the image pieces.
    *
    * This method invalidates all current grid images, and recreates
    * them.
@@ -81,13 +85,13 @@ public:
    */
   void enableDragging();
 
-  /*! \brief Scroll the viewport of the image over a distance.
+  /*! \brief Scrolls the viewport of the image over a distance.
    *
    * \sa scrollTo()
    */
   void scroll(int64_t dx, int64_t dy);
 
-  /*! \brief Scroll the viewport of the image to a specific coordinate.
+  /*! \brief Scrolls the viewport of the image to a specific coordinate.
    *
    * Scroll the viewport so that its top left coordinate becomes (x, y).
    *
@@ -95,19 +99,19 @@ public:
    */
   void scrollTo(int64_t x, int64_t y);
 
-  /*! \brief Return the virtual image width.
+  /*! \brief Returns the virtual image width.
    *
    * \sa imageHeight(), resizeImage()
    */
   int64_t imageWidth() const { return imageWidth_; }
 
-  /*! \brief Return the virtual image height.
+  /*! \brief Returns the virtual image height.
    *
    * \sa imageWidth(), resizeImage()
    */
   int64_t imageHeight() const { return imageHeight_; }
 
-  /*! \brief Resize the virtual image.
+  /*! \brief Resizes the virtual image.
    *
    * This sets a new virtual size for the image. The viewport size sets the
    * visible portion of the image.
@@ -116,13 +120,13 @@ public:
    */
   void resizeImage(int64_t w, int64_t h);
 
-  /*! \brief Return the viewport width.
+  /*! \brief Returns the viewport width.
    *
    * \sa viewPortHeight()
    */
   int viewPortWidth() const { return viewPortWidth_; }
 
-  /*! \brief Return the viewport height.
+  /*! \brief Returns the viewport height.
    *
    * \sa viewPortWidth()
    */
@@ -167,7 +171,7 @@ public:
   Signal<int64_t, int64_t>& viewPortChanged() { return viewPortChanged_; }
 
 protected:
-  /*! \brief Create a grid image for the given rectangle.
+  /*! \brief Creates a grid image for the given rectangle.
    *
    * Create the image which spans image coordinates with left upper
    * corner (x, y) and given width and height.

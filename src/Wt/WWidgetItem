@@ -19,7 +19,7 @@ namespace Wt {
 class WT_API WWidgetItem : public WLayoutItem
 {
 public:
-  /*! \brief Create a new item for the given <i>widget</i>.
+  /*! \brief Creates a new item for the given <i>widget</i>.
    */
   WWidgetItem(WWidget *widget);
 

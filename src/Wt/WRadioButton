@@ -71,30 +71,37 @@ class WButtonGroup;
  * \endcode
  * \endif
  *
- * The widget corresponds to the HTML <tt>&lt;input type="radio"&gt;</tt> tag.
- *
  * %WRadioButton is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * <h3>CSS</h3>
+ *
+ * This widget corresponds to the HTML <tt>&lt;input
+ * type="radio"&gt;</tt> tag. Depending on whether a text is
+ * included, it may be nested in a <tt>&lt;span&gt;</tt> tag which
+ * also includes a rendered WLabel. This widget does not provide
+ * styling, and can be styled using inline or external CSS as
+ * appropriate.
  *
  * \sa WAbstractToggleButton, WButtonGroup
  */
 class WT_API WRadioButton : public WAbstractToggleButton
 {
 public:
-  /*! \brief Create an unchecked radio button with empty label and optional
+  /*! \brief Creates an unchecked radio button with empty label and optional
    *         parent.
    */
   WRadioButton(WContainerWidget *parent = 0);
 
-  /*! \brief Create an unchecked radio button with given text and optional
+  /*! \brief Creates an unchecked radio button with given text and optional
    *         parent.
    */
   WRadioButton(const WString& text, WContainerWidget *parent = 0);
 
-  /*! \brief Delete a radio button
+  /*! \brief Destructor.
    */
   ~WRadioButton();
 
-  /*! \brief Return the button group.
+  /*! \brief Returns the button group.
    *
    * Returns the button group to which this button belongs.
    *

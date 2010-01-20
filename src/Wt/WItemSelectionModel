@@ -57,7 +57,7 @@ public:
    */
   bool isSelected(const WModelIndex& index) const;
 
-  /*! \brief Change the selection behaviour.
+  /*! \brief Sets the selection behaviour.
    *
    * By default, the selection contains rows (\link Wt::SelectRows
    * SelectRows\endlink), in which case model indexes will always be

@@ -44,21 +44,21 @@ public:
    */
   WCircleArea();
 
-  /*! \brief Construct a circular area with given geometry. 
+  /*! \brief Creates a circular area with given geometry. 
    *
    * The arguments are in pixel units.
    */
   WCircleArea(int x, int y, int radius);
 
-  /*! \brief Set the center.
+  /*! \brief Sets the center.
    */
   void setCenter(const WPoint& point);
 
-  /*! \brief Set the center.
+  /*! \brief Sets the center.
    */
   void setCenter(const WPointF& point);
 
-  /*! \brief Set the center.
+  /*! \brief Sets the center.
    */
   void setCenter(int x, int y);
 
@@ -70,7 +70,7 @@ public:
    */
   int centerY() const { return y_; }
 
-  /*! \brief Set the radius. 
+  /*! \brief Sets the radius. 
    */
   void setRadius(int radius);
 

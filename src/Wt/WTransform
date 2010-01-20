@@ -144,7 +144,7 @@ public:
    */
   double dy() const { return m_[DY]; }
 
-  /*! \brief Apply the transformation to a point.
+  /*! \brief Applys the transformation to a point.
    *
    * Returns the transformed point.
    *
@@ -152,7 +152,7 @@ public:
    */
   WPointF map(const WPointF& p) const;
 
-  /*! \brief Apply the transformation to a point.
+  /*! \brief Applys the transformation to a point.
    *
    * Sets the point (<i>tx</i>, \p ty) to the transformation of
    * the point (<i>x</i>, \p y).
@@ -167,7 +167,7 @@ public:
    */
   void reset();
 
-  /*! \brief Rotate the transformation.
+  /*! \brief Rotates the transformation.
    *
    * Applies a clock-wise rotation to the current transformation
    * matrix, over \p angle degrees.
@@ -176,7 +176,7 @@ public:
    */
   WTransform& rotate(double angle);
 
-  /*! \brief Rotate the transformation.
+  /*! \brief Rotates the transformation.
    *
    * Applies a clock-wise rotation to the current transformation
    * matrix, over \p angle radians.
@@ -185,7 +185,7 @@ public:
    */
   WTransform& rotateRadians(double angle);
 
-  /*! \brief Scale the transformation.
+  /*! \brief Scales the transformation.
    *
    * Applies a clock-wise rotation to the current transformation
    * matrix, over \p angle radians.
@@ -194,7 +194,7 @@ public:
    */
   WTransform& scale(double sx, double sy);
 
-  /*! \brief Shear the transformation.
+  /*! \brief Shears the transformation.
    *
    * Shears the current transformation.
    *
@@ -202,7 +202,7 @@ public:
    */
   WTransform& shear(double sh, double sv);
 
-  /*! \brief Translate the transformation.
+  /*! \brief Translates the transformation.
    *
    * Translates the current transformation.
    */
@@ -211,15 +211,15 @@ public:
   // adds a transform that is conceptually applied after this transform.
   WTransform& operator*= (const WTransform& rhs);
 
-  /*! \brief Return the determinant.
+  /*! \brief Returns the determinant.
    */
   double determinant() const;
 
-  /*! \brief Return the adjoint.
+  /*! \brief Returns the adjoint.
    */
   WTransform adjoint() const;
 
-  /*! \brief Return the inverted transformation.
+  /*! \brief Returns the inverted transformation.
    *
    * Returns \p this if the transformation could not be inverted
    * (determinant() == 0), and logs an error instead.
@@ -239,7 +239,7 @@ public:
       sh;      //!< Shear (in Y direction)
   };
 
-  /*! \brief Decompose the transformation
+  /*! \brief Decomposes the transformation
    *
    * Decomposes the transformation into elementary operations:
    * translation (<i>dx</i>, \p dy), followed by rotation
@@ -266,7 +266,7 @@ public:
       alpha2;  //!< Second rotation angle (radians)
   };
 
-  /*! \brief Decompose the transformation
+  /*! \brief Decomposes the transformation
    *
    * Decomposes the transformation into elementary operations:
    * translation (<i>dx</i>, \p dy), followed by rotation

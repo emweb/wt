@@ -55,9 +55,7 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * \image html WTabWidget-1.png "An example WTabWidget"
- *
- * <h3>CSS</h3>
+  * <h3>CSS</h3>
  *
  * The tab widget is styled by the current CSS theme. The look (of the
  * header) can be overridden using the <tt>Wt-tabs</tt> CSS class and
@@ -69,6 +67,12 @@ namespace Wt {
 .Wt-tabs span      : outer span of a list item
 .Wt-span span span : inner span of a list item
 \endverbatim
+* 
+* <TABLE border="0" align="center"> <TR> <TD> 
+* \image html WTabWidget-default-1.png "An example WTabWidget (default)"
+* </TD> <TD>
+* \image html WTabWidget-polished-1.png "An example WTabWidget (polished)"
+* </TD> </TR> </TABLE>
  */
 class WT_API WTabWidget : public WCompositeWidget
 {
@@ -79,11 +83,11 @@ public:
 		    PreLoading       //!< Pre-loading: before first use
   };
 
-  /*! \brief Creates a new WTabWidget
+  /*! \brief Creates a new tab widget
    */
   WTabWidget(WContainerWidget *parent = 0);
 
-  /*! \brief Creates a new WTabWidget with custom layout alignment (<b>deprecated</b>).
+  /*! \brief Creates a new tab widget (indicating layout alignment) (<b>deprecated</b>).
    *
    * \deprecated Since %Wt 3.1.1, the \p layoutAlignment is no longer needed and
    *             its value is ignored
@@ -91,7 +95,7 @@ public:
   WTabWidget(WFlags<AlignmentFlag> layoutAlignment,
 	     WContainerWidget *parent = 0);
 
-  /*! \brief Add a new tab, with <i>child</i> as content, and the given label.
+  /*! \brief Adds a new tab, with <i>child</i> as content, and the given label.
    *
    * Returns the menu item that implements the tab item.
    */
@@ -106,37 +110,37 @@ public:
    */
   void removeTab(WWidget *widget);
 
-  /*! \brief Return the number of tabs.
+  /*! \brief Returns the number of tabs.
    */
   int count() const;
 
-  /*! \brief Get the content widget at the given tab <i>index</i>.
+  /*! \brief Returns the content widget at the given tab <i>index</i>.
    */
   WWidget *widget(int index) const;
 
-  /*! \brief Get the index of the given widget.
+  /*! \brief Returns the index of the given widget.
    *
    * If the widget is not in this tab widget, then -1 is returned.
    */
   int indexOf(WWidget *widget) const;
 
-  /*! \brief Activate the tab at <i>index</i>.
+  /*! \brief Activates the tab at <i>index</i>.
    */
   void setCurrentIndex(int index);
 
-  /*! \brief Get the index of the activated tab.
+  /*! \brief Returns the index of the activated tab.
    */
   int currentIndex() const;
 
-  /*! \brief Activate the tab showing the given <i>widget</i>
+  /*! \brief Activates the tab showing the given <i>widget</i>
    */
   void setCurrentWidget(WWidget *widget);
 
-  /*! \brief Get the widget of the activated tab.
+  /*! \brief Returns the widget of the activated tab.
    */
   WWidget *currentWidget() const;
 
-  /*! \brief Enable or disable a tab.
+  /*! \brief Enables or disables a tab.
    *
    * Enables or disables the tab at \p index. A disabled tab cannot be
    * activated.
@@ -147,35 +151,35 @@ public:
    */
   bool isTabEnabled(int index) const;
 
-  /*! \brief Hide or show a tab.
+  /*! \brief Hides or shows a tab.
    *
    * Hides are shows the tab at \p index.
    */
   void setTabHidden(int index, bool hidden);
 
-  /*! \brief Return if a tab is hidden.
+  /*! \brief Returns if a tab is hidden.
    */
   bool isTabHidden(int index) const;
 
-  /*! \brief Change the label for a tab.
+  /*! \brief Changes the label for a tab.
    */
   void setTabText(int index, const WString& label);
 
-  /*! \brief Get the label for a tab.
+  /*! \brief Returns the label for a tab.
    */
   const WString& tabText(int index) const;
 
-  /*! \brief Set the tooltip for a tab.
+  /*! \brief Sets the tooltip for a tab.
    *
    * The tooltip is shown when the user hovers over the label.
    */
   void setTabToolTip(int index, const WString& tip);
 
-  /*! \brief Get the tooltip for a tab.
+  /*! \brief Returns the tooltip for a tab.
    */
   const WString& tabToolTip(int index) const;
 
-  /*! \brief Enable internal paths for items.
+  /*! \brief Enables internal paths for items.
    *
    * \copydetails WMenu::setInternalPathEnabled
    */
@@ -187,7 +191,7 @@ public:
    */
   bool internalPathEnabled() const;
 
-  /*! \brief Set the internal base path.
+  /*! \brief Sets the internal base path.
    *
    * \copydetails WMenu::setInternalBasePath
    */

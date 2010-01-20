@@ -22,20 +22,20 @@ class WText;
  * submenu.
  *
  * When the mouse hovers over the item, its class is changed from
- * "unselected" to "selected".
+ * "Wt-item" to "Wt-selected".
  *
  * \sa WPopupMenu
  */
 class WT_API WPopupMenuItem : public WCompositeWidget
 {
 public:
-  /*! \brief Create a new item with given text.
+  /*! \brief Creates a new item with given text.
    *
    * \sa WPopupMenu::addItem(const WString& text)
    */
   WPopupMenuItem(const WString& text);
 
-  /*! \brief Create a new item with given icon and text.
+  /*! \brief Creates a new item with given icon and text.
    *
    * The icon is displayed left to the text.
    *
@@ -49,7 +49,7 @@ public:
    */
   ~WPopupMenuItem();
 
-  /*! \brief Set the item text.
+  /*! \brief Sets the item text.
    *
    * \sa setIcon()
    */
@@ -61,7 +61,7 @@ public:
    */
   const WString& text() const;
 
-  /*! \brief Set the item icon path.
+  /*! \brief Sets the item icon path.
    *
    * The icon should have a width of 16 pixels.
    *
@@ -75,7 +75,7 @@ public:
    */
   const std::string& icon();
 
-  /*! \brief Set if the item is checkable.
+  /*! \brief Sets if the item is checkable.
    *
    * When an item is checkable, a checkbox is displayed to the left of the
    * item text (instead of an icon).
@@ -90,7 +90,7 @@ public:
    */
   bool isCheckable() const { return checkBox_ != 0; }
 
-  /*! \brief Set a sub menu for the item.
+  /*! \brief Sets a sub menu for the item.
    *
    * Sets a submenu for the item. Ownership of the submenu is transferred
    * to the item.
@@ -105,7 +105,7 @@ public:
    */
   WPopupMenu *popupMenu() const { return subMenu_; }
 
-  /*! \brief Change the checked state.
+  /*! \brief Sets the checked state.
    *
    * This is only used when isCheckable() == \c true.
    *
@@ -113,7 +113,7 @@ public:
    */
   void setChecked(bool how);
 
-  /*! \brief Return the checked state.
+  /*! \brief Returns the checked state.
    *
    * This is only used when isCheckable() == \c true.
    *
@@ -121,7 +121,7 @@ public:
    */
   bool isChecked() const;
 
-  /*! \brief Associated additional data with the item.
+  /*! \brief Sets associated additional data with the item.
    */
   void setData(void *data) { data_ = data; }
 

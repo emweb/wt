@@ -54,7 +54,7 @@ public:
    */
   virtual WWidget *widget() = 0;
 
-  /*! \brief Change the message that you want to be displayed.
+  /*! \brief Sets the message that you want to be displayed.
    *
    * If the indicator is capable of displaying a text message, then
    * you should reimplement this method to allow this message to be

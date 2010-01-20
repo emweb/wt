@@ -54,7 +54,7 @@ public:
     PreLoading   //!< Pre-loading: before first use
   };
 
-  /*! \brief Create a new item.
+  /*! \brief Creates a new item.
    *
    * The text specifies the item text. The contents is the widget that must
    * be shown in the WMenu contents stack when the item is selected.
@@ -81,7 +81,7 @@ public:
    */
   ~WMenuItem();
 
-  /*! \brief Set the text for this item.
+  /*! \brief Sets the text for this item.
    *
    * Unless a custom path component was defined, the pathComponent()
    * is also updated based on the new text.
@@ -92,13 +92,13 @@ public:
    */
   void setText(const WString& text);
 
-  /*! \brief Return the text for this item.
+  /*! \brief Returns the text for this item.
    *
    * \sa setText();
    */
   const WString& text() const { return text_; }
 
-  /*! \brief Set the path component for this item.
+  /*! \brief Sets the path component for this item.
    *
    * The path component is used by the menu item in the application
    * internal path (see WApplication::setInternalPath()), when
@@ -136,7 +136,7 @@ public:
    */
   WMenu *menu() const { return menu_; }
 
-  /*! \brief Returs the contents widget for this item.
+  /*! \brief Returns the contents widget for this item.
    *
    * The contents widget is the widget in the WStackedWidget associated with
    * this item.
@@ -151,12 +151,12 @@ public:
    */
   WWidget *itemWidget();
 
-  /*! \brief Select this item.
+  /*! \brief Selects this item.
    */
   void select();
 
 protected:
-  /*! \brief Create the widget that represents the item.
+  /*! \brief Creates the widget that represents the item.
    *
    * The default implementation will simply return a WAnchor. A call
    * to createItemWidget() is immediately followed by
@@ -167,7 +167,7 @@ protected:
    */
   virtual WWidget *createItemWidget();
 
-  /*! \brief Update the widget that represents the item.
+  /*! \brief Updates the widget that represents the item.
    *
    * The default implementation will cast the \p itemWidget to a
    * WAnchor, and set the anchor's text and destination according to
@@ -177,7 +177,7 @@ protected:
    */
   virtual void updateItemWidget(WWidget *itemWidget);
 
-  /*! \brief Render the item as selected or unselected.
+  /*! \brief Renders the item as selected or unselected.
    *
    * The default implementation sets the styleclass for itemWidget()
    * to 'item' for an unselected, and 'itemselected' for a selected

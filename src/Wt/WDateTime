@@ -48,7 +48,7 @@ class WTime;
 class WT_API WDateTime
 {
 public:
-  /*! \brief Constructs a <i>Null</i> datetime.
+  /*! \brief Creates a <i>Null</i> datetime.
    *
    * A time for which isNull() returns \c true. A <i>Null</i> datetime
    * is also invalid.
@@ -57,14 +57,14 @@ public:
    */
   WDateTime();
 
-  /*! \brief Constructs a datetime given a date.
+  /*! \brief Creates a datetime given a date.
    *
    * The time is set to midnight (00:00). The datetime is valid if the
    * \p date is valid.
    */
   explicit WDateTime(const WDate& date);
 
-  /*! \brief Constructs a datetime given a date and time.
+  /*! \brief Creates a datetime given a date and time.
    *
    * The datetime is valid if both \p date and \p time are valid.
    */
@@ -227,13 +227,13 @@ public:
 
   static WT_USTRING defaultFormat();
 
-  /*! \brief Format this datetime to a string using a default format.
+  /*! \brief Formats this datetime to a string using a default format.
    *
    * The default format is "ddd MMM d hh:mm:ss yyyy".
    */
   WT_USTRING toString() const;
 
-  /*! \brief Format this time to a string using a specified format.
+  /*! \brief Formats this time to a string using a specified format.
    *
    * The \p format is a string which mixes the format for WDate and
    * WTime.

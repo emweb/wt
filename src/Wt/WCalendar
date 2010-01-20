@@ -51,9 +51,13 @@ class WTemplate;
  * \endcode
  * \endif
  *
- * Here is a snapshot of the default look, taken on 31/08/2007 (shown as
- * today), and 11/08/2007 currently selected.
- * \image html WCalendar-1.png "WCalendar with default look"
+ * Here is a snapshot, taken on 19/01/2010 (shown as
+ * today), and 14/01/2010 currently selected.
+ * <TABLE border="0" align="center"> <TR> <TD> 
+ * \image html WCalendar-default-1.png "WCalendar with default look" 
+ * </TD> <TD> 
+ * \image html WCalendar-polished-1.png "WCalendar with polished look" 
+ * </TD> </TR> </TABLE>
  *
  * <h3>CSS</h3>
  *
@@ -62,19 +66,19 @@ class WTemplate;
  * selectors:
  *
  * \verbatim
-.Wt-cal table           : The table
-.Wt-cal table.d1        : The table (single letter day headers)
-.Wt-cal table.d3        : The table (three letter day headers)
+.Wt-cal table    : The table
+.Wt-cal table.d1 : The table (single letter day headers)
+.Wt-cal table.d3 : The table (three letter day headers)
 
-.Wt-cal caption		: The caption (containing the navigation buttons)
-.Wt-cal-year		: The caption year in-place-edit
+.Wt-cal caption	 : The caption (containing the navigation buttons)
+.Wt-cal-year	 : The caption year in-place-edit
 
-.Wt-cal th              : Header cell (week day)
+.Wt-cal th       : Header cell (week day)
 
-.Wt-cal td              : Day cell
-.Wt-cal-oom             : Out-of-month day
-.Wt-cal-sel             : Selected day
-.Wt-cal-now             : Today day
+.Wt-cal td       : Day cell
+.Wt-cal-oom      : Out-of-month day
+.Wt-cal-sel      : Selected day
+.Wt-cal-now      : Today day
 \endverbatim
  *
  */

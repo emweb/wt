@@ -42,7 +42,7 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   panel->resize(600, 300);
   panel->setCentralWidget(treeView_ = new WTreeView());
   treeView_->setAlternatingRowColors(!treeView_->alternatingRowColors());
-  treeView_->setRowHeight(30);
+  treeView_->setRowHeight(31);
   treeView_->setModel(model_);
   treeView_->setSelectionMode(NoSelection);
 
@@ -64,7 +64,7 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   
   b = new WPushButton("Toggle row height", wc);
   b->clicked().connect(SLOT(this, TreeViewExample::toggleRowHeight));
-  b->setToolTip("Toggles row height between 30px and 25px");
+  b->setToolTip("Toggles row height between 31px and 25px");
   
   b = new WPushButton("Toggle stripes", wc);
   b->clicked().connect(SLOT(this, TreeViewExample::toggleStripes));
@@ -180,10 +180,10 @@ TreeViewExample::cityItems(const std::string& city,
 
 void TreeViewExample::toggleRowHeight()
 {
-  if (treeView_->rowHeight() == WLength(30))
+  if (treeView_->rowHeight() == WLength(31))
     treeView_->setRowHeight(25);
   else
-    treeView_->setRowHeight(30);
+    treeView_->setRowHeight(31);
 }
 
 void TreeViewExample::toggleStripes()

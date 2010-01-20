@@ -881,8 +881,7 @@ function dragStart(obj, e) {
 function dragDrag(e) {
   if (captureElement != null) {
     if (!e) e = window.event;
-    if (captureElement.onmousemove)
-      captureElement.onmousemove(e);
+    captureElement.onmousemove(e);
     return false;
   }
 
@@ -952,8 +951,7 @@ function dragEnd(e) {
   if (captureElement != null) {
     var el = captureElement;
     capture(null);
-    if (el.onmouseup)
-      el.onmouseup(e);
+    el.onmouseup(e);
     return false;
   }
 

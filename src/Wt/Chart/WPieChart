@@ -54,6 +54,10 @@ W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption);
  * The segments may be labeled in various ways using
  * setDisplayLabels().
  *
+ * <h3>CSS</h3>
+ *
+ * Styling through CSS is not applicable.
+ *
  * \image html ChartWPieChart-1.png "Example of a pie chart" 
  *
  * \sa WCartesianChart
@@ -63,11 +67,11 @@ W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption);
 class WT_API WPieChart : public WAbstractChart
 {
 public:
-  /*! \brief Create a new pie chart.
+  /*! \brief Creates a new pie chart.
    */
   WPieChart(WContainerWidget *parent = 0);
 
-  /*! \brief Change the model column that holds the labels.
+  /*! \brief Sets the model column that holds the labels.
    *
    * The labels are used only when setDisplayLabels() is called with
    * the \link Chart::TextLabel TextLabel\endlink option.
@@ -84,7 +88,7 @@ public:
    */
   int labelsColumn() const { return labelsColumn_; }
 
-  /*! \brief Change the model column that holds the data.
+  /*! \brief Sets the model column that holds the data.
    *
    * \if cpp 
    * The data column should contain data that can be converted to
@@ -124,7 +128,7 @@ public:
    */
   WBrush brush(int modelRow) const;
 
-  /*! \brief Change the explosion factor for a pie segment.
+  /*! \brief Sets the explosion factor for a pie segment.
    *
    * Separates the segment corresponding to model row <i>modelRow</i>
    * from the rest of the pie. The <i>factor</i> is a positive number
@@ -159,7 +163,7 @@ public:
    */
   bool isPerspectiveEnabled() const { return height_ > 0.0; }
 
-  /*! \brief Change the angle of the first segment.
+  /*! \brief Sets the angle of the first segment.
    *
    * The default value is 45 degrees.
    */
@@ -171,7 +175,7 @@ public:
    */
   double startAngle() const { return startAngle_; }
 
-  /*! \brief Configure if and how labels should be displayed
+  /*! \brief Configures if and how labels should be displayed
    *
    * The <i>options</i> must be the logical OR of a placement option
    * (\link Chart::Inside Inside\endlink or \link

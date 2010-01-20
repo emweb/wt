@@ -145,7 +145,12 @@ WAbstractItemDelegate *WAbstractItemView::itemDelegateForColumn(int column) cons
 
 WAbstractItemDelegate *WAbstractItemView::itemDelegate(const WModelIndex& index) const
 {
-  WAbstractItemDelegate *result = itemDelegateForColumn(index.column());
+  return itemDelegate(index.column());
+}
+
+WAbstractItemDelegate *WAbstractItemView::itemDelegate(int column) const
+{
+  WAbstractItemDelegate *result = itemDelegateForColumn(column);
 
   return result ? result : itemDelegate_;
 }

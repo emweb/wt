@@ -22,6 +22,12 @@ class WImage;
  * 'state'.
  *
  * The widget may react to click events, by changing state.
+ *
+ * <h3>CSS</h3>
+ * 
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ * The image may be styled via the <tt>&lt;img&gt;</tt> elements.
  */
 class WT_API WIconPair : public WCompositeWidget
 {
@@ -35,7 +41,7 @@ public:
   WIconPair(const std::string& icon1URL, const std::string& icon2URL,
 	    bool clickIsSwitch = true, WContainerWidget *parent = 0);
 
-  /*! \brief Set the state, which determines the visible icon.
+  /*! \brief Sets the state, which determines the visible icon.
    *
    * The first icon has number 0, and the second icon has number 1.
    *

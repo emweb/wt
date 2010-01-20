@@ -28,16 +28,19 @@ class WTableRow;
  * the vertical and horizontal alignment of contents may be specified
  * by setContentAlignment().
  *
+ * <h3>CSS</h3>
+ *
  * The widget corresponds to the HTML <tt>&lt;td&gt;</tt> or
  * <tt>&lt;th&gt;</tt> tag, depending on whether the cell is a plain
- * cell or a header cell.
+ * cell or a header cell. The widget does not provide styling, and can
+ * be styled using inline or external CSS as appropriate.
  *
  * \sa WTable
  */
 class WT_API WTableCell : public WContainerWidget
 {
 public:
-  /*! \brief Set the row span.
+  /*! \brief Sets the row span.
    *
    * The row span indicates how many table rows this WTableCell
    * overspans. By default, a WTableCell has a row span of 1, only
@@ -46,13 +49,13 @@ public:
    */
   void setRowSpan(int rowSpan);
   
-  /*! \brief Get the row span.
+  /*! \brief Returns the row span.
    *
    * \sa setRowSpan(int rowSpan)
    */
   int rowSpan() const { return rowSpan_; }
 
-  /*! \brief Set the column span.
+  /*! \brief Sets the column span.
    *
    * The column span indicates how many table columns this WTableCell
    * overspans. By default, a WTableCell has a column span of 1, only

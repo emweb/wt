@@ -47,14 +47,14 @@ class WLayoutItemImpl;
 class WT_API WLayout : public WLayoutItem, public WObject
 {
 public:
-  /*! \brief Destroy the layout.
+  /*! \brief Destructor.
    *
    * This will delete the layout (and nested layouts), but not the
    * contained widgets.
    */
   virtual ~WLayout();
 
-  /*! \brief Add a layout <i>item</i>.
+  /*! \brief Adds a layout <i>item</i>.
    *
    * The item may be a widget or nested layout.
    *
@@ -67,7 +67,7 @@ public:
    */
   virtual void addItem(WLayoutItem *item) = 0;
 
-  /*! \brief Add the given <i>widget</i> to the layout.
+  /*! \brief Adds the given <i>widget</i> to the layout.
    *
    * This method wraps the widget in a WWidgetItem and calls
    * addItem(WLayoutItem *).
@@ -81,13 +81,13 @@ public:
    */
   void addWidget(WWidget *widget);
 
-  /*! \brief Remove a layout <i>item</i> (widget or nested layout).
+  /*! \brief Removes a layout <i>item</i> (widget or nested layout).
    *
    * \sa addItem(WLayoutItem *), removeWidget(WWidget *)
    */
   virtual void removeItem(WLayoutItem *item) = 0;
 
-  /*! \brief Remove the given <i>widget</i> from the layout.
+  /*! \brief Removes the given <i>widget</i> from the layout.
    *
    * This method finds the corresponding WWidgetItem and calls
    * removeItem(WLayoutItem *). The widget itself is not destroyed.
@@ -98,7 +98,7 @@ public:
    */
   bool removeWidget(WWidget *widget);
 
-  /*! \brief Return the number of items in this layout.
+  /*! \brief Returns the number of items in this layout.
    *
    * This may be a theoretical number, which is greater than the
    * actual number of items. It can be used to iterate over the items
@@ -106,7 +106,7 @@ public:
    */
   virtual int count() const = 0;
 
-  /*! \brief Return the layout item at a specific <i>index</i>.
+  /*! \brief Returns the layout item at a specific <i>index</i>.
    *
    * If there is no item at the \p index, \c 0 is returned.
    *
@@ -114,7 +114,7 @@ public:
    */
   virtual WLayoutItem *itemAt(int index) const = 0;
 
-  /*! \brief Return the index of a given <i>item</i>.
+  /*! \brief Returns the index of a given <i>item</i>.
    *
    * The default implementation loops over all items, and returns the
    * index for which itemAt(index) equals \p item.
@@ -127,7 +127,7 @@ public:
    */
   virtual WWidgetItem *findWidgetItem(WWidget *widget);
 
-  /*! \brief Provide a hint to the layout implementation.
+  /*! \brief Provides a hint to the layout implementation.
    *
    * In some cases, a layout implementation may require some hints for
    * rendering its contents. Possible hints are indicated in the

@@ -79,31 +79,33 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * The file upload itself corresponds to a <tt>&lt;input
- * type="file"&gt;</tt> tag, but may be wrapped in a
- * <tt>&lt;form&gt;</tt> tag.
- *
  * %WFileUpload is an \link WWidget::setInline(bool) inline \endlink widget.
  *
+ * <h3>CSS</h3>
+ *
+ * The file upload itself corresponds to a <tt>&lt;input
+ * type="file"&gt;</tt> tag, but may be wrapped in a
+ * <tt>&lt;form&gt;</tt> tag. This widget does not provide styling, 
+ * and styling through CSS is not well supported across browsers.
  */
 class WT_API WFileUpload : public WWebWidget
 {
 public:
-  /*! \brief Construct a file upload widget
+  /*! \brief Creates a file upload widget
    */
   WFileUpload(WContainerWidget *parent = 0);
 
   ~WFileUpload();
 
-  /*! \brief Set the size of the file input.
+  /*! \brief Sets the size of the file input.
    */
   void setFileTextSize(int chars);
 
-  /*! \brief Get the size of the file input.
+  /*! \brief Returns the size of the file input.
    */
   int fileTextSize() const { return textSize_; }
 
-  /*! \brief Get the spooled location of the uploaded file.
+  /*! \brief Returns the spooled location of the uploaded file.
    *
    * Returns the temporary filename in which the uploaded file
    * was spooled. The file is guaranteed to exist as long as
@@ -115,15 +117,15 @@ public:
    */
   const std::string& spoolFileName() const { return spoolFileName_; }
 
-  /*! \brief Get the client filename.
+  /*! \brief Returns the client filename.
    */
   const WT_USTRING& clientFileName() const { return clientFileName_; }
 
-  /*! \brief Get the client content description.
+  /*! \brief Returns the client content description.
    */
   const WT_USTRING& contentDescription() const { return contentDescription_; }
 
-  /*! \brief Steal the spooled file.
+  /*! \brief Steals the spooled file.
    *
    * By stealing the file, the spooled file will no longer be deleted
    * together with this widget, which means you need to take care of
@@ -131,7 +133,7 @@ public:
    */
   void stealSpooledFile();
 
-  /*! \brief Check if no filename was given and thus no file uploaded.
+  /*! \brief Checks if no filename was given and thus no file uploaded.
    *
    * Return whether a non-empty filename was given.
    */
@@ -195,7 +197,7 @@ public:
    */
   EventSignal<>& changed();
 
-  /*! \brief Start the file upload.
+  /*! \brief Starts the file upload.
    *
    * The uploaded() signal is emitted when a file is uploaded, or the
    * fileTooLarge() signal is emitted when the file size exceeded the

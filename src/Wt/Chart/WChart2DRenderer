@@ -129,7 +129,7 @@ private:
 class WT_API WChart2DRenderer
 {
 public:
-  /*! \brief Create a renderer.
+  /*! \brief Creates a renderer.
    *
    * Creates a renderer for the cartesian chart <i>chart</i>, for rendering
    * in the specified <i>rectangle</i> of the <i>painter</i>.
@@ -206,7 +206,7 @@ public:
    */
   virtual void render();
 
-  /*! \brief Map a (X, Y) point to chart coordinates.
+  /*! \brief Maps a (X, Y) point to chart coordinates.
    *
    * This method maps the point with given (<i>xValue</i>,
    * <i>yValue</i>) to chart coordinates. The y value is mapped by one
@@ -275,7 +275,7 @@ public:
   };
 
 protected:
-  /*! \brief Prepare the axes for rendering.
+  /*! \brief Prepares the axes for rendering.
    *
    * Computes axis properties such as the range (if not manually
    * specified), label interval (if not manually specified) and axis
@@ -334,17 +334,17 @@ protected:
    */
   AxisValue location_[3];
 
-  /*! \brief Render properties of one axis.
+  /*! \brief Renders properties of one axis.
    *
    * \sa renderAxes()
    */
   void renderAxis(const WAxis& axis, WFlags<AxisProperty> properties);
 
-  /*! \brief Calculate the total number of bar groups.
+  /*! \brief Calculates the total number of bar groups.
    */
   int calcNumBarGroups();
 
-  /*! \brief Iterate over the series using an iterator.
+  /*! \brief Iterates over the series using an iterator.
    */
   void iterateSeries(SeriesIterator *iterator, bool reverseStacked = false);
 

@@ -162,7 +162,7 @@
 /*
  * WDatePicker
  */
-.Wt-popup {
+.Wt-datepicker {
     background-color: white;
 }
 
@@ -185,6 +185,9 @@
     padding: 4px 6px;
 }
 
+/*
+ * WMessageBox
+ */
 .Wt-msgbox-buttons button {
     padding: 1px 4px 1px;
     margin: 2px;
@@ -260,6 +263,38 @@
 
 .Wt-btn:active {
     border: 1px inset #CCCCCC;
+}
+
+/*
+ * WSlider
+ */
+.Wt-slider .handle-h {
+    background: url(slider-thumb-h.gif) no-repeat
+}
+
+.Wt-slider .handle-v {
+    background: url(slider-thumb-v.gif) no-repeat
+}
+
+/* 
+ * WSuggestionPopup
+ */
+.Wt-suggest {
+    background-color: #e0ecff;
+    color: #1010cc;
+    border: 1px solid #666666;
+    cursor: default;
+    font-size: smaller;
+    padding: 2px;
+}
+
+.Wt-suggest span {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.Wt-suggest .sel {
+    background-color: #C3D9FF;
 }
 
 /*
@@ -388,22 +423,22 @@
 
 /* borders */
 .Wt-treeview .Wt-tv-br {
-    border-right: 1px solid #525D9C;
+    border-right: 1px solid #dcdfe8;
 }
 
 .Wt-treeview .Wt-header .Wt-tv-row {
-    border-left: 1px solid #525D9C;
+    border-left: 1px solid #dcdfe8;
 }
 
 /* borders */
 .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
-    border-right: 0px solid black;
-    margin-right: 1px;
+    border-right: 1px solid #dcdfe8;
+    margin-right: 0px;
 }
 
 .Wt-treeview .Wt-tv-node .Wt-tv-row {
-    border-left: 0px solid black;
-    margin-left: 1px;
+    border-left: 1px solid #dcdfe8;
+    margin-left: 0px;
 }
 
 /*

@@ -321,18 +321,18 @@ public:
   WDropEvent(WObject *source, const std::string& mimeType,
 	     const WMouseEvent& mouseEvent);
 
-  /*! \brief The source of the drag&drop operation.
+  /*! \brief Returns the source of the drag&drop operation.
    *
    * The source is the widget that was set draggable using
    * WInteractWidget::setDraggable().
    */
   WObject *source() const { return dropSource_; }
 
-  /*! \brief The mime type of this drop event.
+  /*! \brief Returns the mime type of this drop event.
    */
   const std::string& mimeType() const { return dropMimeType_; }
 
-  /*! \brief Return the original mouse event.
+  /*! \brief Returns the original mouse event.
    */
   const WMouseEvent& mouseEvent() const { return mouseEvent_; }
 

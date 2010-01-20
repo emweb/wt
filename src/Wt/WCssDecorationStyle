@@ -70,7 +70,7 @@ public:
 			Blink       = 0x8  //!< Blink
   };
 
-  /*! \brief Create a default style
+  /*! \brief Creates a default style.
    */
   WCssDecorationStyle();
 
@@ -78,34 +78,34 @@ public:
    */
   WCssDecorationStyle& operator= (const WCssDecorationStyle& other);
 
-  /*! \brief Set the cursor style
+  /*! \brief Sets the cursor style.
    */
   void setCursor(Cursor c);
 
-  /*! \brief Get the cursor style
+  /*! \brief Returns the cursor style.
    */
   Cursor cursor() const { return cursor_; }
 
-  /*! \brief Set a custom cursor image URI, with optionally a fallback cursor.
+  /*! \brief Sets a custom cursor image URI, with optionally a fallback cursor.
    * 
    * The URI should point to a .cur file (this shoul be a real .cur file, 
    * renaming an .ico is not enough for Internet Explorer).
    */
   void setCursor(std::string cursorImage, Cursor fallback = ArrowCursor);
 
-  /*! \brief Get the cursor image
+  /*! \brief Returns the cursor image.
    */
   std::string cursorImage() const { return cursorImage_; }
 
-  /*! \brief Set the background color.
+  /*! \brief Sets the background color.
    */
   void setBackgroundColor(WColor color);
 
-  /*! \brief Get the background color.
+  /*! \brief Returns the background color.
    */
   WColor backgroundColor() const { return backgroundColor_; }
 
-  /*! \brief Set a background image URL.
+  /*! \brief Sets a background image URL.
    *
    * The image may be placed in a particular location by specifying
    * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
@@ -116,7 +116,7 @@ public:
 			  Repeat repeat = RepeatXY,
 			  WFlags<Side> sides = 0);
 
-  /*! \brief Set a background image URL.
+  /*! \brief Sets a background image URL.
    *
    * The image may be placed in a particular location by specifying
    * sides by OR'ing Wt::Side values together, e.g. (Right | Top).
@@ -127,42 +127,42 @@ public:
 			  Repeat repeat = RepeatXY,
 			  WFlags<Side> sides = 0);
 
-  /*! \brief Get the background image URL.
+  /*! \brief Returns the background image URL.
    */
   const std::string& backgroundImage() const { return backgroundImage_; }
 
-  /*! \brief Get the background image repeat.
+  /*! \brief Returns the background image repeat.
    */
   Repeat backgroundImageRepeat() const { return backgroundImageRepeat_; }
 
-  /*! \brief Set the foreground color.
+  /*! \brief Sets the foreground color.
    */
   void setForegroundColor(WColor color);
 
-  /*! \brief Get the foreground color.
+  /*! \brief Returns the foreground color.
    */
   WColor foregroundColor() const { return foregroundColor_; }
 
-  /*! \brief Set the border style.
+  /*! \brief Sets the border style.
    *  
    * A border may be placed in a particular location by specifying
    * sides by OR'ing WWidget::Side values together, e.g. (Right | Top).
    */
   void setBorder(WBorder border, WFlags<Side> sides = All);
 
-  /*! \brief Get the border style.
+  /*! \brief Returns the border style.
    */
   WBorder border() const { return border_; }
 
-  /*! \brief Change the font.
+  /*! \brief Sets the font.
    */
   void setFont(const WFont& font);
 
-  /*! \brief Get a reference to the font.
+  /*! \brief Returns a reference to the font.
    */
   WFont& font() { return font_; }
 
-  /*! \brief Set the text decoration options.
+  /*! \brief Sets the text decoration options.
    *
    * You may logically or together any of the options of the
    * TextDecoration enumeration.
@@ -171,7 +171,7 @@ public:
    */
   void setTextDecoration(WFlags<TextDecoration> decoration);
 
-  /*! \brief Get the text decoration options.
+  /*! \brief Returns the text decoration options.
    */
   WFlags<TextDecoration> textDecoration() const { return textDecoration_; }
 

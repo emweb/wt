@@ -76,7 +76,7 @@ public:
    */
   virtual WLength height() const = 0;
 
-  /*! \brief Indicate changes in painter state.
+  /*! \brief Indicates changes in painter state.
    *
    * The \p flags argument is the logical OR of one or more change flags.
    *
@@ -84,7 +84,7 @@ public:
    */
   virtual void setChanged(WFlags<ChangeFlag> flags) = 0;
 
-  /*! \brief Draw an arc.
+  /*! \brief Draws an arc.
    *
    * The arc is defined as in WPainter::drawArc(const WRectF&,
    * startAngle, spanAngle), but the angle is expressed in degrees.
@@ -95,7 +95,7 @@ public:
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle)
     = 0;
 
-  /*! \brief Draw an image.
+  /*! \brief Draws an image.
    *
    * Draws <i>sourceRect</i> from the image with URL \p imageUri
    * and original dimensions <i>imgWidth</i> and \p imgHeight to
@@ -107,21 +107,21 @@ public:
 			 int imgWidth, int imgHeight,
 			 const WRectF& sourceRect) = 0;
 
-  /*! \brief Draw a line.
+  /*! \brief Draws a line.
    *
    * The line must be stroked and transformed using the current
    * painter settings.
    */
   virtual void drawLine(double x1, double y1, double x2, double y2) = 0;
 
-  /*! \brief Draw a path.
+  /*! \brief Draws a path.
    *
    * The path must be stroked, filled, and transformed using the
    * current painter settings.
    */
   virtual void drawPath(const WPainterPath& path) = 0;
 
-  /*! \brief Draw text.
+  /*! \brief Draws text.
    *
    * The text must be rendered, stroked and transformed using the
    * current painter settings.
@@ -129,7 +129,7 @@ public:
   virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 			const WString& text) = 0;
 
-  /*! \brief Initialize the device for painting.
+  /*! \brief Initializes the device for painting.
    *
    * This method is called when a WPainter starts painting.
    *
@@ -166,7 +166,7 @@ protected:
    */
   virtual void setPainter(WPainter *painter) = 0;
 
-  /*! \brief Set paint flags.
+  /*! \brief Sets paint flags.
    */
   virtual void setPaintFlags(WFlags<PaintFlag> paintFlags) = 0;
 

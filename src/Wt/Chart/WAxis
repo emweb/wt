@@ -158,7 +158,7 @@ public:
    */
   Axis id() const { return axis_; }
 
-  /*! \brief Set whether this axis is visible.
+  /*! \brief Sets whether this axis is visible.
    *
    * Changes whether the axis is displayed, including ticks and
    * labels. The rendering of the grid lines is controlled seperately
@@ -177,7 +177,7 @@ public:
    */
   bool isVisible() const { return visible_; }
 
-  /*! \brief Set the axis location.
+  /*! \brief Sets the axis location.
    *
    * Configures the location of the axis, relative to values on the
    * other values (i.e. Y values for the X axis, and X values for the
@@ -195,7 +195,7 @@ public:
    */
   AxisValue location() const { return location_; }
 
-  /*! \brief Set the scale of the axis.
+  /*! \brief Sets the scale of the axis.
    *
    * For the X scale in a \link Chart::CategoryChart
    * CategoryChart\endlink, the scale should be left unchanged to
@@ -218,7 +218,7 @@ public:
    */
   AxisScale scale() const { return scale_; }
 
-  /*! \brief Set the minimum value displayed on the axis.
+  /*! \brief Sets the minimum value displayed on the axis.
    *
    * Specify the minimum value to be displayed on the axis. By
    * default, the minimum and maximum values are determined
@@ -237,7 +237,7 @@ public:
    */
   double minimum() const;
 
-  /*! \brief Set the maximum value for the axis displayed on the axis.
+  /*! \brief Sets the maximum value for the axis displayed on the axis.
    *
    * Specify the maximum value to be displayed on the axis. By
    * default, the minimum and maximum values are determined
@@ -256,7 +256,7 @@ public:
    */
   double maximum() const;
 
-  /*! \brief Set the axis range (minimum and maximum values) manually.
+  /*! \brief Sets the axis range (minimum and maximum values) manually.
    *
    * Specifies both minimum and maximum value for the axis.
    * This automatically disables automatic range calculation.
@@ -299,7 +299,7 @@ public:
    */
   void setBreak(double min, double max);
 
-  /*! \brief Set the label interval.
+  /*! \brief Sets the label interval.
    *
    * Specifies the interval for displaying labels (and ticks) on the axis.
    * The default value is 0.0, and indicates that the interval should be
@@ -315,9 +315,9 @@ public:
    */
   double labelInterval() const { return labelInterval_; }
 
-  /*! \brief Set the label format.
+  /*! \brief Sets the label format.
    *
-   * Set a format string which is used to format values, both for the
+   * Sets a format string which is used to format values, both for the
    * axis labels as well as data series values (see
    * WDataSeries::setLabelsEnabled(Axis, bool)).
    *
@@ -425,7 +425,7 @@ public:
    */
   int margin() const { return margin_; }
 
-  /*! \brief Set the axis title.
+  /*! \brief Sets the axis title.
    *
    * The default title is empty.
    *
@@ -439,7 +439,7 @@ public:
    */
   const WString& title() const { return title_; }
 
-  /*! \brief Set the axis title font.
+  /*! \brief Sets the axis title font.
    *
    * The default title font is a 12 point Sans Serif font.
    *

@@ -111,8 +111,9 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * You may customize the look of a treeview using the
- * <tt>Wt-popupmenu</tt> CSS class.
+ * A WPopupMenu has the <tt>Wt-popupmenu</tt> style class. 
+ * The look can be overridden using the following style class
+ * selectors:
  *
  * \verbatim
 .Wt-popupmenu .Wt-item, .Wt-popupmenu .Wt-selected : item
@@ -120,6 +121,9 @@ namespace Wt {
 .Wt-popupmenu .Wt-separator                        : separator
 \endverbatim
  *
+ * A snapshot of the WPopupMenu: 
+ * \image html WPopupMenu-default-1.png "WPopupMenu example (default)"
+ * \image html WPopupMenu-polished-1.png "WPopupMenu example (polished)"
  * \sa WPopupMenuItem
  */
 class WT_API WPopupMenu : public WCompositeWidget

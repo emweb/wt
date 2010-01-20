@@ -17,7 +17,10 @@ namespace Wt {
  * This is an \link WWidget::setInline(bool) inline \endlink widget
  * that provides a line break inbetween its sibling widgets (such as WText).
  *
- * The widget corresponds to the HTML <tt>&lt;br /&gt;</tt> tag.
+ * <h3>CSS</h3>
+ *
+ * The widget corresponds to the HTML <tt>&lt;br /&gt;</tt> tag and
+ * does not provide styling. Styling through CSS is not applicable.
  */
 class WT_API WBreak : public WWebWidget
 {

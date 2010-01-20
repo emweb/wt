@@ -54,7 +54,7 @@ namespace Wt {
 class WT_API WHBoxLayout : public WBoxLayout
 {
 public:
-  /*! \brief Create a new horizontal box layout.
+  /*! \brief Creates a new horizontal box layout.
    *
    * Use \p parent = \c 0 to create a layout manager that can be
    * nested inside other layout managers, or to specify a specific alignment

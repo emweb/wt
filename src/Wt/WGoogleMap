@@ -32,6 +32,10 @@ namespace Wt
  * property <tt>"google_api_key"</tt>. If this configuration property
  * has not been set, it will use a key that is suitable for localhost.
  *
+ * <h3>CSS</h3>
+ *
+ * Styling through CSS is not applicable.
+ *
  * Contributed by: Richard Ulrich.
  */
 class WT_API WGoogleMap : public WCompositeWidget
@@ -56,7 +60,7 @@ public:
      */
     Coordinate();
 
-    /*! \brief Construct given a latitude and longitude.
+    /*! \brief Creates with given latitude and longitude.
      */
     Coordinate(double latitude, double longitude);
 
@@ -64,11 +68,11 @@ public:
     explicit Coordinate(const std::pair<double, double>& lat_long);
     #endif
 
-    /*! \brief Set the latitude.
+    /*! \brief Sets the latitude.
      */
     void setLatitude(double latitude);
 
-    /*! \brief Set the longitude.
+    /*! \brief Sets the longitude.
      */
     void setLongitude(double longitude);
 
@@ -80,7 +84,7 @@ public:
      */
     double longitude() const { return lon_; }
 
-    /*! \brief Calculate the distance between two points in km (approximate).
+    /*! \brief Calculates the distance between two points in km (approximate).
      *
      * The calculation uses a sphere. Results can be out by 0.3%.
      */
@@ -96,21 +100,21 @@ public:
     double lat_, lon_;
   };
 
-  /*! \brief Create a map widget with optional parent.
+  /*! \brief Creates a map widget with optional parent.
    */
   WGoogleMap(WContainerWidget *parent = 0);
 
-  /*! \brief Destructor
+  /*! \brief Destructor.
    */
   virtual ~WGoogleMap();
 
   virtual void refresh();
 
-  /*! \brief Add a marker overlay to the map.
+  /*! \brief Adds a marker overlay to the map.
    */
   void addMarker(const Coordinate &pos);
 
-  /*! \brief Add a polyline overlay to the map.
+  /*! \brief Adds a polyline overlay to the map.
    *
    *  specify a value between 0.0 and 1.0 for the opacity.
    */
@@ -134,7 +138,7 @@ public:
    */
   void setCenter(const Coordinate& center, int zoom);
 
-  /*! \brief Change the center point of the map to the given point.
+  /*! \brief Changes the center point of the map to the given point.
    *
    * If the point is already visible in the current map view, change
    * the center in a smooth animation.
@@ -142,12 +146,12 @@ public:
   void panTo(const Coordinate& center);
 
   #ifndef WT_TARGET_JAVA
-  /*! \brief Zoom the map to a region defined by a bounding box.
+  /*! \brief Zooms the map to a region defined by a bounding box.
    */
   void zoomWindow(const std::pair<Coordinate, Coordinate>& bbox);
   #endif
 
-  /*! \brief Zoom the map to a region defined by a bounding box.
+  /*! \brief Zooms the map to a region defined by a bounding box.
    */
   void zoomWindow(const Coordinate& topLeft, const Coordinate& bottomRight);
 

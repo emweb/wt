@@ -40,6 +40,11 @@ class WText;
  * \endcode
  * \endif
  *
+ * <h3>CSS</h3>
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ *
  * \sa WApplication::setLoadingIndicator()
  */
 class WT_API WOverlayLoadingIndicator : public WContainerWidget,

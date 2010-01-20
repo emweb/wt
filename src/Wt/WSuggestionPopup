@@ -105,9 +105,6 @@ class WFormWidget;
  * // load popup data
  * for (unsigned i = 0; i < contacts.size(); ++i)
  *   popup->addSuggestion(contacts[i].formatted(), contacts[i].formatted());
- *
- * // set style
- * popup->setStyleClass("suggest");
  * \endcode
  * \elseif java
  * \code
@@ -131,36 +128,22 @@ class WFormWidget;
  * // load popup data
  * for (int i = 0; i < contacts.size(); ++i)
  * popup.addSuggestion(contacts.get(i).formatted(), contacts.get(i).formatted());
- *		 
- * // set style
- * popup.setStyleClass("suggest");
  * \endcode
  * \endif
  *
- * Example CSS:
- *
- * \code
-.suggest {
-  background-color: #e0ecff;
-  color: #1010cc;
-  border: 1px solid #666666;
-  cursor: default;
-  font-size: smaller;
-  padding: 2px;
-}
-
-.suggest span {
-  padding-left: 0.5em;
-  padding-right: 0.5em;  
-}
-
-.suggest .sel {
-  background-color: #C3D9FF;
-}
- * \endcode
- *
  * A screenshot of this example:
  * \image html WSuggestionPopup-1.png "Example of WSuggestionPopup"
+ *
+ * <h3>CSS</h3>
+ *
+ * The suggestion popup is styled by the current CSS theme. The look can be
+ * overridden using the <tt>Wt-suggest</tt> CSS class and the following
+ * selectors:
+ *
+ * \verbatim
+.Wt-suggest span : A suggestion element
+.Wt-suggest .sel : A selected suggestion element
+\endverbatim
  *
  * \note This widget requires JavaScript support.
  *
@@ -169,29 +152,29 @@ class WFormWidget;
 class WT_API WSuggestionPopup : public WCompositeWidget
 {
 public:
-  /*! \brief Construct a WSuggestionPopup with given matcherJS and replacerJS.
+  /*! \brief Creates a suggestion popup with given matcherJS and replacerJS.
    */
   WSuggestionPopup(const std::string& matcherJS,
 		   const std::string& replacerJS,
 		   WContainerWidget *parent = 0);
 
-  /*! \brief Let this suggestion popup assist in editing the given edit field.
+  /*! \brief Lets this suggestion popup assist in editing the given edit field.
    *
    * A single suggestion popup may assist in several edits by repeated calls
    * of this method.
    */
   void forEdit(WFormWidget *edit);
 
-  /*! \brief Clear the list of suggestions.
+  /*! \brief Clears the list of suggestions.
    */
   void clearSuggestions();
 
-  /*! \brief Add a new suggestion.
+  /*! \brief Adds a new suggestion.
    */
   void addSuggestion(const WString& suggestionText,
 		     const WString& suggestionValue);
 
-  /*! \brief Set the model to be used for the suggestions.
+  /*! \brief Sets the model to be used for the suggestions.
    *
    * The \p model may not be \c 0, and ownership of the model is not
    * transferred.
@@ -212,7 +195,7 @@ public:
    */
   void setModel(WAbstractItemModel *model);
 
-  /*! \brief Set the column in the model to be used for the items.
+  /*! \brief Sets the column in the model to be used for the items.
    *
    * The column \p index in the model will be used to retrieve data.
    *
@@ -222,7 +205,7 @@ public:
    */
   void setModelColumn(int index);
 
-  /*! \brief Return the data model.
+  /*! \brief Returns the data model.
    *
    * \sa setModel()
    */
@@ -275,12 +258,12 @@ public:
     std::string appendReplacedText;
   };
 
-  /*! \brief Create a matcher JavaScript function based on some
+  /*! \brief Creates a matcher JavaScript function based on some
    *         generic options.
    */
   static std::string generateMatcherJS(const Options& options);
 
-  /*! \brief Create a replacer JavaScript function based on some
+  /*! \brief Creates a replacer JavaScript function based on some
    *         generic options.
    */
   static std::string generateReplacerJS(const Options& options);

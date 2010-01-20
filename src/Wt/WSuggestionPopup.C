@@ -29,6 +29,7 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
     delayHide_(parent)
 {
   setImplementation(content_ = new WContainerWidget());
+  content_->setStyleClass("Wt-suggest");
 
   setPopup(true);
   setPositionScheme(Absolute);

@@ -67,6 +67,9 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     widgetRef.w = t;
   }
 
+  if (!index.isValid())
+    return widgetRef.w;
+
   bool haveCheckBox = false;
 
   if (index.flags() & ItemIsUserCheckable) {

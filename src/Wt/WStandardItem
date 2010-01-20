@@ -47,23 +47,23 @@ class WString;
 class WT_API WStandardItem
 {
 public:
-  /*! \brief Create an empty standard item.
+  /*! \brief Creates an empty standard item.
    */
   WStandardItem();
 
-  /*! \brief Create an item with a text.
+  /*! \brief Creates an item with a text.
    *
    * \sa setText()
    */
   WStandardItem(const WString& text);
 
-  /*! \brief Create an item with an icon and a text.
+  /*! \brief Creates an item with an icon and a text.
    *
    * \sa setText(), setIcon()
    */
   WStandardItem(const std::string& iconUri, const WString& text);
 
-  /*! \brief Create an item with an initial geometry.
+  /*! \brief Creates an item with an initial geometry.
    *
    * \sa setRowCount(), setColumnCount()
    */
@@ -73,7 +73,7 @@ public:
    */
   virtual ~WStandardItem();
 
-  /*! \brief Set the text.
+  /*! \brief Sets the text.
    *
    * The text is stored as \link Wt::DisplayRole DisplayRole\endlink data.
    *
@@ -89,7 +89,7 @@ public:
    */
   WString text() const;
 
-  /*! \brief Set the icon url.
+  /*! \brief Sets the icon url.
    *
    * The icon is stored as \link Wt::DecorationRole
    * DecorationRole\endlink data.
@@ -106,7 +106,7 @@ public:
    */
   std::string icon() const;
 
-  /*! \brief Set the CSS style class.
+  /*! \brief Sets the CSS style class.
    *
    * The style class is stored as \link Wt::StyleClassRole
    * StyleClassRole\endlink data.
@@ -123,7 +123,7 @@ public:
    */
   WString styleClass() const;
 
-  /*! \brief Set a tool tip.
+  /*! \brief Sets a tool tip.
    *
    * The tool tip is stored as \link Wt::ToolTipRole ToolTipRole\endlink data.
    *
@@ -139,7 +139,7 @@ public:
    */
   WString toolTip() const;
 
-  /*! \brief Set an anchor to an internal path.
+  /*! \brief Sets an anchor to an internal path.
    *
    * The internal path is stored as \link Wt::InternalPathRole
    * InternalPathRole\endlink data.
@@ -154,7 +154,7 @@ public:
    */
   std::string internalPath() const;
 
-  /*! \brief Set an anchor to an external URL.
+  /*! \brief Sets an anchor to an external URL.
    *
    * The anchor Url is stored as \link Wt::UrlRole UrlRole\endlink data.
    *
@@ -168,7 +168,7 @@ public:
    */
   std::string url() const;
 
-  /*! \brief Check or uncheck the item.
+  /*! \brief Checks or unchecks the item.
    *
    * The value is stored as \link Wt::CheckStateRole
    * CheckStateRole\endlink data.
@@ -190,7 +190,7 @@ public:
    */
   bool isChecked() const;
 
-  /*! \brief Set the check state.
+  /*! \brief Sets the check state.
    *
    * Like setChecked(), this sets the check state, but allows also setting
    * the Wt::PartiallyChecked state when the item is tri-state checkable.
@@ -208,7 +208,7 @@ public:
    */
   CheckState checkState() const;
 
-  /*! \brief Set the flags.
+  /*! \brief Sets the flags.
    *
    * The default flag value is \link Wt::ItemIsSelectable
    * ItemIsSelectable\endlink.
@@ -238,7 +238,7 @@ public:
    */
   bool isCheckable() const;
 
-  /*! \brief Make the item tri-state checkable.
+  /*! \brief Makes the item tri-state checkable.
    *
    * When \p tristate is \c true, the item is checkable with three
    * states: Wt::Unchecked, Wt::Checked, and Wt::PartiallyChecked.
@@ -258,7 +258,7 @@ public:
   void setEditable(bool editable);
   bool isEditable() const;
 
-  /*! \brief Set item data.
+  /*! \brief Sets item data.
    *
    * Sets item data for the given role.
    *
@@ -283,7 +283,7 @@ public:
    */
   bool hasChildren() const;
 
-  /*! \brief Change the row count.
+  /*! \brief Sets the row count.
    *
    * If \p rows is bigger than the current row count, empty rows
    * are appended.
@@ -304,7 +304,7 @@ public:
    */
   int rowCount() const;
 
-  /*! \brief Change the column count.
+  /*! \brief Sets the column count.
    *
    * If \p columns is bigger than the current column count, empty
    * columns are appended.
@@ -336,7 +336,7 @@ public:
    */
   void appendColumn(const std::vector<WStandardItem *>& items);
 
-  /*! \brief Insert a single column of items.
+  /*! \brief Inserts a single column of items.
    *
    * Inserts a single column of \p items at column
    * \p column. If necessary, the row count is increased.
@@ -359,7 +359,7 @@ public:
    */
   void appendRow(const std::vector<WStandardItem *>& items);
 
-  /*! \brief Insert a single row of items.
+  /*! \brief Inserts a single row of items.
    *
    * Inserts a single row of <i>items</i> at row \p row. If
    * necessary, the column count is increased.
@@ -368,7 +368,7 @@ public:
    */
   void insertRow(int row, const std::vector<WStandardItem *>& items);
 
-  /*! \brief Insert a number of empty columns.
+  /*! \brief Inserts a number of empty columns.
    *
    * Inserts <i>count</i> empty columns at position \p column.
    * 
@@ -376,7 +376,7 @@ public:
    */
   void insertColumns(int column, int count);
 
-  /*! \brief Insert a number of empty rows.
+  /*! \brief Inserts a number of empty rows.
    *
    * Inserts <i>count</i> empty rows at position \p row.
    * 
@@ -453,7 +453,7 @@ public:
    */
   void insertRows(int row, const std::vector<WStandardItem *>& items);
 
-  /*! \brief Set a child item.
+  /*! \brief Sets a child item.
    *
    * Sets a child item <i>item</i> at position (\p row,
    * \p column). If an item was previously set, it is deleted
@@ -465,7 +465,7 @@ public:
    */
   void setChild(int row, int column, WStandardItem *item);
 
-  /*! \brief Set a child item.
+  /*! \brief Sets a child item.
    *
    * This is a convenience method for nodes with a single column
    * (e.g. tree nodes), and is equivalent to:
@@ -517,7 +517,7 @@ public:
    */
   std::vector<WStandardItem *> takeRow(int row);
 
-  /*! \brief Remove a single column.
+  /*! \brief Removes a single column.
    *
    * Removes the column \p column from the model (reducing the
    * column count by one). Is equivalent to:
@@ -529,7 +529,7 @@ public:
    */
   void removeColumn(int column);
 
-  /*! \brief Remove a number of columns.
+  /*! \brief Removes a number of columns.
    *
    * Removes \p count columns from the model (reducing the
    * column count by \p count).
@@ -538,7 +538,7 @@ public:
    */
   void removeColumns(int column, int count);
 
-  /*! \brief Remove a single row.
+  /*! \brief Removes a single row.
    *
    * Removes the row \p row from the model (reducing the
    * row count by one). Is equivalent to:
@@ -550,7 +550,7 @@ public:
    */
   void removeRow(int row);
 
-  /*! \brief Remove a number of rows.
+  /*! \brief Removes a number of rows.
    *
    * Removes \p count rows from the model (reducing the
    * row count by \p count).

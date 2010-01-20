@@ -43,13 +43,13 @@ class WPointF;
 class WT_API WPolygonArea : public WAbstractArea
 {
 public:
-  /*! \brief Default constructor.
+  /*! \brief Creates an empty polygon.
    *
    * Defines an empty polygon. 
    */
   WPolygonArea();
 
-  /*! \brief Construct a polygon area with given vertices.
+  /*! \brief Creates a polygon area with given vertices.
    *
    * The polygon is defined with vertices corresponding to
    * \p points. The polygon is closed by connecting the last point
@@ -58,7 +58,7 @@ public:
   WPolygonArea(const std::vector<WPoint>& points);
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Construct a polygon area with given vertices.
+  /*! \brief Creates a polygon area with given vertices.
    *
    * The polygon is defined with vertices corresponding to
    * \p points. The polygon is closed by connecting the last point
@@ -67,21 +67,21 @@ public:
   WPolygonArea(const std::vector<WPointF>& points);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Add a point.
+  /*! \brief Adds a point.
    */
   void addPoint(int x, int y);
 
-  /*! \brief Add a point.
+  /*! \brief Adds a point.
    */
   void addPoint(const WPoint& point);
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Add a point.
+  /*! \brief Adds a point.
    */
   void addPoint(const WPointF& point);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Set the polygon vertices. 
+  /*! \brief Sets the polygon vertices. 
    *
    * The polygon is defined with vertices corresponding to
    * \p points. The polygon is closed by connecting the last point
@@ -90,7 +90,7 @@ public:
   void setPoints(const std::vector<WPoint>& points);
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Set the polygon vertices. 
+  /*! \brief Sets the polygon vertices. 
    *
    * The polygon is defined with vertices corresponding to
    * \p points. The polygon is closed by connecting the last point

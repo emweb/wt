@@ -53,6 +53,10 @@ namespace Wt {
  * \image html ExtTableView-1.png "Example of a TableView"
  * \image html ExtTableView-2.png "Example of a editing in a TableView using a ComboBox"
  *
+ * <h3>CSS</h3>
+ *
+ * A TableView has the <tt>table.x-grid3-row-table</tt> style
+ * classes.
  * \ingroup ext
  */
 class WT_EXT_API TableView : public Panel

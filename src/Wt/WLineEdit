@@ -46,6 +46,11 @@ namespace Wt {
  *
  * %WLineEdit is an \link WWidget::setInline(bool) inline \endlink widget.
  *
+ * <h3>CSS</h3>
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ *
  * \sa WTextArea
  */
 class WT_API WLineEdit : public WFormWidget
@@ -59,15 +64,15 @@ public:
 		  Password  //!< Hide the contents as for a password.
   };
 
-  /*! \brief Construct a line edit with empty content and optional parent.
+  /*! \brief Creates a line edit with empty content and optional parent.
    */
   WLineEdit(WContainerWidget *parent = 0);
 
-  /*! \brief Construct a line edit with given content and optional parent.
+  /*! \brief Creates a line edit with given content and optional parent.
    */
   WLineEdit(const WT_USTRING& content, WContainerWidget *parent = 0);
 
-  /*! \brief Specify the width of the line edit in number of characters.
+  /*! \brief Specifies the width of the line edit in number of characters.
    *
    * This specifies the width of the line edit that is roughly
    * equivalent with \p chars characters. This does not limit the
@@ -78,13 +83,13 @@ public:
    */
   void setTextSize(int chars);
 
-  /*! \brief Get the current width of the line edit in number of characters.
+  /*! \brief Returns the current width of the line edit in number of characters.
    *
    * \sa setTextSize(int)
    */
   int textSize() const { return textSize_; }
 
-  /*! \brief Change the content of the line edit.
+  /*! \brief Sets the content of the line edit.
    *
    * The default value is "".
    *
@@ -92,13 +97,13 @@ public:
    */
   void setText(const WT_USTRING& text);
 
-  /*! \brief Get the current content.
+  /*! \brief Returns the current content.
    *
    * \sa setText()
    */
   const WT_USTRING& text() const { return content_; }
 
-  /*! \brief Specify the maximum length of text that can be entered.
+  /*! \brief Specifies the maximum length of text that can be entered.
    *
    * A value <= 0 indicates that there is no limit.
    *
@@ -112,13 +117,13 @@ public:
    */
   int maxLength() const { return maxLength_; }
 
-  /*! \brief Set the echo mode.
+  /*! \brief Sets the echo mode.
    *
    * The default echo mode is Normal.
    */
   void setEchoMode(EchoMode echoMode);
 
-  /*! \brief Get the echo mode.
+  /*! \brief Returns the echo mode.
    *
    * \sa setEchoMode(EchoMode)
    */

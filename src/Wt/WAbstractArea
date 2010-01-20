@@ -37,7 +37,7 @@ public:
    */
   virtual ~WAbstractArea();
 
-  /*! \brief Specify that this area specifies a hole for another area.
+  /*! \brief Specifies that this area specifies a hole for another area.
    *
    * When set to \c true, this area will define an area that does not
    * provide interactivity. When it preceeds other, overlapping,
@@ -55,7 +55,7 @@ public:
    */
   bool isHole() const { return hole_; }
 
-  /*! \brief Set the destination URL.
+  /*! \brief Sets the destination URL.
    *
    * By setting a destination URL, the area behaves like a
    * WAnchor.
@@ -105,7 +105,7 @@ public:
    */
   WResource *resource() const;
 
-  /*! \brief Specify the location where the referred content should be
+  /*! \brief Specifies the location where the referred content should be
    *         displayed.
    *
    * This configures the location where referred content should be
@@ -132,7 +132,7 @@ public:
    */
   AnchorTarget target() const;
 
-  /*! \brief Set an alternate text.
+  /*! \brief Sets an alternate text.
    *
    * The alternate text should provide a fallback for browsers that do
    * not display an image. If no sensible fallback text can be
@@ -154,7 +154,7 @@ public:
    */
   const WString alternateText() const;
 
-  /*! \brief Set the tooltip.
+  /*! \brief Sets the tooltip.
    *
    * The tooltip is displayed when the cursor hovers over the area.
    */
@@ -166,7 +166,7 @@ public:
    */
   WString toolTip() const;
 
-  /*! \brief Define a style class.
+  /*! \brief Defines a style class.
    */
   void setStyleClass(const WT_USTRING& styleClass);
   void setStyleClass(const char *styleClass);
@@ -177,7 +177,7 @@ public:
    */
   WT_USTRING styleClass() const;
 
-  /*! \brief Set the cursor.
+  /*! \brief Sets the cursor.
    *
    * This sets the mouse cursor that is shown when the mouse pointer
    * is over the area. Most browsers only support PointingHandCursor,

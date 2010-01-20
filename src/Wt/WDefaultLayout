@@ -27,18 +27,15 @@ namespace Wt {
 class WT_API WDefaultLayout : public WLayout
 {
 public:
-  /*! \brief Create a new WDefaultLayout
+  /*! \brief Creates a new %WDefaultLayout
    */
   WDefaultLayout(WWidget *parent = 0);
 
-  /*! \brief Delete the layout.
-   *
-   * Note: once assigned to a container, the container gets ownership, and so
-   * you should not delete the layout yourself.
+  /*! \brief Destructor.
    */
   ~WDefaultLayout();
 
-  /*! \brief Add a layout <i>item</i>.
+  /*! \brief Adds a layout <i>item</i>.
    *
    * The item may be a widget or nested layout, and is added below the last
    * added item.

@@ -54,11 +54,11 @@ class WRegExp;
 class WT_API WRegExpValidator : public WValidator
 {
 public:
-  /*! \brief Create a new regular expression validator.
+  /*! \brief Sets a new regular expression validator.
    */
   WRegExpValidator(WObject *parent = 0);
 
-  /*! \brief Create a new regular expression validator that accepts input
+  /*! \brief Sets a new regular expression validator that accepts input
    *         that matches the given regular expression.
    *
    * This constructs a validator that matches the perl regular
@@ -66,23 +66,23 @@ public:
    */
   WRegExpValidator(const WT_USTRING& pattern, WObject *parent = 0);
 
-  /*! \brief Delete the regexp validator.
+  /*! \brief Destructor.
    */
   ~WRegExpValidator();
 
-  /*! \brief Set the regular expression for valid input.
+  /*! \brief Sets the regular expression for valid input.
    *
    * Sets the perl regular expression \p expr.
    */
   void setRegExp(const WT_USTRING& pattern);
 
-  /*! \brief Return the regular expression for valid input.
+  /*! \brief Returns the regular expression for valid input.
    *
    * Returns the perl regular expression.
    */
   WT_USTRING regExp() const;
 
-  /*! \brief Validate the given input.
+  /*! \brief Validates the given input.
    *
    * The input is considered valid only when it is blank for a non-mandatory
    * field, or matches the regular expression.
@@ -91,13 +91,13 @@ public:
 
   virtual void createExtConfig(std::ostream& config) const;
 
-  /*! \brief Set the text to be shown if no match can be found.
+  /*! \brief Sets the text to be shown if no match can be found.
    *
    * Sets the text to be shown if no match can be found.
    */
   void setNoMatchText(const WString& text);
 
-  /*! \brief Set the message to display when the input does not match.
+  /*! \brief Sets the message to display when the input does not match.
    *
    * The default value is "Invalid input".
    */

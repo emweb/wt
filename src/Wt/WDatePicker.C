@@ -92,7 +92,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   popup_->hide();
   popup_->setPopup(true);
   popup_->setPositionScheme(Absolute);
-  popup_->setStyleClass("Wt-outset Wt-popup");
+  popup_->setStyleClass("Wt-outset Wt-datepicker");
 
   popup_->escapePressed().connect(SLOT(popup_, WWidget::hide));
   displayWidget->clicked().connect(SLOT(popup_, WWidget::show));

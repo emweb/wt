@@ -36,14 +36,14 @@ public:
    */
   WRectF();
 
-  /*! \brief Construct a rectangle.
+  /*! \brief Creates a rectangle.
    *
    * Constructs a rectangle with top left point (<i>x</i>, \p y)
    * and size <i>width</i> x \p height.
    */
   WRectF(double x, double y, double width, double height);
 
-  /*! \brief Construct a rectangle.
+  /*! \brief Creates a rectangle.
    *
    * Constructs a rectangle from the two points \p topLeft and
    * \p bottomRight.
@@ -78,28 +78,28 @@ public:
    */
   bool isEmpty() const;
 
-  /*! \brief Changes the X-position of the left side.
+  /*! \brief Sets the X-position of the left side.
    *
    * The right side of the rectangle does not move, and as a result,
    * the rectangle may be resized.
    */
   void setX(double x);
 
-  /*! \brief Changes the Y-position of the top side.
+  /*! \brief Sets the Y-position of the top side.
    *
    * The bottom side of the rectangle does not move, and as a result,
    * the rectangle may be resized.
    */
   void setY(double y);
 
-  /*! \brief Changes the width.
+  /*! \brief Sets the width.
    *
    * The right side of the rectangle may move, but does not change the X
    * position of the left side.
    */
   void setWidth(double width) { width_ = width; }
 
-  /*! \brief Changes the Y-position of the top side.
+  /*! \brief Sets the Y-position of the top side.
    *
    * The bottom side of the rectangle may move, but does not change
    * the Y position of the top side.

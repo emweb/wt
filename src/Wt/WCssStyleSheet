@@ -38,7 +38,7 @@ class WCssTemplateWidget;
 class WT_API WCssRule
 {
 public:
-  /*! \brief Delete a CSS rule.
+  /*! \brief Destructor.
    */
   virtual ~WCssRule();
 
@@ -50,7 +50,7 @@ public:
    */
   WCssStyleSheet *sheet() const { return sheet_; }
 
-  /*! \brief Indicate that the rule has changed and needs updating
+  /*! \brief Indicates that the rule has changed and needs updating
    */
   void modified();
 
@@ -63,7 +63,7 @@ public:
   virtual bool updateDomElement(DomElement& cssRuleElement, bool all);
 
 protected:
-  /*! \brief Create a new CSS rule with given selector.
+  /*! \brief Creates a new CSS rule with given selector.
    */
   WCssRule(const std::string& selector);
 
@@ -100,7 +100,7 @@ private:
 class WT_API WCssTemplateRule : public WCssRule
 {
 public:
-  /*! \brief Create a CSS rule with a given selector.
+  /*! \brief Creates a CSS rule with a given selector.
    *
    * The selector should be a valid CSS selector.
    *
@@ -161,7 +161,7 @@ private:
 class WT_API WCssTextRule : public WCssRule
 {
 public:
-  /*! \brief Create a CSS rule with a given selector and declarations.
+  /*! \brief Creates a CSS rule with a given selector and declarations.
    */
   WCssTextRule(const std::string& selector, const WT_USTRING& declarations);
 
@@ -188,15 +188,15 @@ private:
 class WT_API WCssStyleSheet
 {
 public:
-  /*! \brief Create a new empty style sheet.
+  /*! \brief Creates a new empty style sheet.
    */
   WCssStyleSheet();
 
-  /*! \brief Destroy a style sheet, and all rules in it.
+  /*! \brief Destroys a style sheet, and all rules in it.
    */
   ~WCssStyleSheet();
 
-  /*! \brief Add a CSS rule.
+  /*! \brief Adds a CSS rule.
    *
    * Add a rule using the CSS selector \p selector, with CSS
    * declarations in \p declarations. These declarations must be a
@@ -211,7 +211,7 @@ public:
 			const WT_USTRING& declarations,
 			const std::string& ruleName = std::string());
 
-  /*! \brief Add a CSS rule.
+  /*! \brief Adds a CSS rule.
    *
    * Add a rule using the CSS selector \p selector, with styles specified
    * in \p style.
@@ -225,7 +225,7 @@ public:
 			    const WCssDecorationStyle& style,
 			    const std::string& ruleName = std::string());
 
-  /*! \brief Add a CSS rule.
+  /*! \brief Adds a CSS rule.
    *
    * Optionally, you may give a \p ruleName, which may later be
    * used to check if the rule was already defined.
@@ -243,7 +243,7 @@ public:
    */
   bool isDefined(const std::string& ruleName) const;
 
-  /*! \brief Remove a rule.
+  /*! \brief Removes a rule.
    */
   void removeRule(WCssRule *rule);
 

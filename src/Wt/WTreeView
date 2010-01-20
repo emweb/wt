@@ -126,12 +126,16 @@ class ToggleButtonConfig;
   .Wt-treeview .Wt-tv-node .Wt-tv-row : border-left property of cells
 \endverbatim
  *
+ * A snapshot of the WTreeView: 
+ * \image html WTreeView-default-1.png "WTreeView example (default)"
+ * \image html WTreeView-polished-1.png "WTreeView example (polished)"
+ *
  * \ingroup modelview
  */
 class WT_API WTreeView : public WAbstractItemView
 {
 public:
-  /*! \brief Create a new tree view.
+  /*! \brief Creates a new tree view.
    */
   WTreeView(WContainerWidget *parent = 0);
 
@@ -188,7 +192,7 @@ public:
   WT_USTRING columnFormat(int column) const;
 #endif // WT_DEPRECATED_3_0_0
 
-  /*! \brief Expand or collapse a node.
+  /*! \brief Expands or collapses a node.
    *
    * \sa expand(), collapse()
    */
@@ -200,19 +204,19 @@ public:
    */
   bool isExpanded(const WModelIndex& index) const;
 
-  /*! \brief Collapse a node.
+  /*! \brief Collapses a node.
    *
    * \sa setExpanded(), expand()
    */
   void collapse(const WModelIndex& index);
 
-  /*! \brief Expand a node.
+  /*! \brief Expands a node.
    *
    * \sa setExpanded(), collapse()
    */
   void expand(const WModelIndex& index);
 
-  /*! \brief Expand all nodes to a depth.
+  /*! \brief Expands all nodes to a depth.
    *
    * Expands all nodes to the given \p depth. A depth of 1 corresponds
    * to the top level nodes.
@@ -258,7 +262,7 @@ public:
    */
   bool rootIsDecorated() const { return rootIsDecorated_; }
 
-  /*! \brief Configure whether horizontal scrolling includes the first column.
+  /*! \brief Configures whether horizontal scrolling includes the first column.
    *
    * To display a model with many columns, this option allows you to
    * keep the first column fixed while scrolling through the other

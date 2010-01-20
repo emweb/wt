@@ -99,7 +99,7 @@ class WWidgetPainter;
  *   }
  *
  * protected:
- *   void paintEvent(Wt::WPaintedWidget *paintDevice) {
+ *   void paintEvent(Wt::WPaintDevice *paintDevice) {
  *     Wt::WPainter painter(paintDevice);
  *     painter.drawLine(20, 20, foo_, foo_);
  *     ...
@@ -110,9 +110,13 @@ class WWidgetPainter;
  * };
  * \endcode
  * \endif
+ * 
+ * <h3>CSS</h3>
  *
- * \note A %WPaintedWidget requires that its size is specified in
- *       pixel units using resize().
+ * Styling through CSS is not applicable.
+ *
+ * \note A %WPaintedWidget requires that it is given a size using resize() or
+ *       by a layout manager.
  *
  * \sa WImage
  *
@@ -150,20 +154,20 @@ public:
    */
   ~WPaintedWidget();
 
-  /*! \brief Set the preferred rendering method.
+  /*! \brief Sets the preferred rendering method.
    *
    * When \p method is supported by the browser, then it is chosen
    * for rendering.
    */
   void setPreferredMethod(Method method);
 
-  /*! \brief Get the preferred rendering method.
+  /*! \brief Returns the preferred rendering method.
    *
    * \sa setPreferredMethod(Method)
    */
   Method preferredMethod() const { return preferredMethod_; }
 
-  /*! \brief Let the widget repaint itself.
+  /*! \brief Lets the widget repaint itself.
    *
    * Repainting is not immediate, but happens after when the event loop
    * is exited.
@@ -172,7 +176,7 @@ public:
 
   virtual void resize(const WLength& width, const WLength& height);
 
-  /*! \brief Add an interactive area.
+  /*! \brief Adds an interactive area.
    *
    * Adds the \p area which listens to events in a specific region
    * of the widget. Areas are organized in a list, to which the given
@@ -191,7 +195,7 @@ public:
    */
   void addArea(WAbstractArea *area);
 
-  /*! \brief Insert an interactive area.
+  /*! \brief Inserts an interactive area.
    *
    * Inserts the \p area which listens to events in the
    * coresponding area of the widget. Areas are organized in a list,
@@ -234,7 +238,7 @@ public:
   const std::vector<WAbstractArea *> areas() const;
 
 protected:
-  /*! \brief Paint the widget.
+  /*! \brief Paints the widget.
    *
    * You should reimplement this method to paint the contents of the widget,
    * using the given paintDevice.

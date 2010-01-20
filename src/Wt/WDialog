@@ -83,14 +83,15 @@ class WText;
  *
  * This dialog looks like this (using the standard look):
  *
- * \image html WDialog-1.png "A simple custom dialog" 
- *
- * \note For the dialog to render properly in IE, the "html body"
- *       margin is set to 0 (if it wasn't already).
+ * <TABLE border="0" align="center"> <TR> <TD> 
+ * \image html WDialog-default-1.png "A simple custom dialog (default)" 
+ * </TD> <TD>
+ * \image html WDialog-polished-1.png "A simple custom dialog (polished)" 
+ * </TD> </TR> </TABLE>
  *
  * <h3>CSS</h3>
  *
- * The calendar is styled by the current CSS theme. A dialog has the
+ * A dialog has the
  * <tt>Wt-dialog</tt> and <tt>Wt-outset</tt> style classes. The look
  * can be overridden using the following style class selectors:
  *
@@ -99,6 +100,9 @@ class WText;
  .Wt-dialog .body     : The body (requires vertical padding 4px).
  \endverbatim
  *
+ * \note For the dialog (or rather, the silkscreen covering the user
+ *       interface below) to render properly in IE, the "html body"
+ *       margin is set to 0 (if it wasn't already).
  */
 class WT_API WDialog : public WCompositeWidget
 {
@@ -109,7 +113,7 @@ public:
 		    Accepted  //!< Dialog closed with accept()
   };
 
-  /*! \brief Construct a %WDialog with a given window title.
+  /*! \brief Constructs a %WDialog with a given window title.
    *
    * Only a single Dialog may be constructed at any time. Unlike other
    * widgets, a dialog does not need to be added to a container
@@ -117,25 +121,11 @@ public:
    */
   WDialog(const WString& windowTitle = WString());
 
-  /*! \brief Destruct a %WDialog.
+  /*! \brief Destructs a %WDialog.
    */
   ~WDialog();
 
-#ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Set the dialog caption (<b>deprecated</b>).
-   *
-   * \deprecated Use setWindowTitle() instead.
-   */
-  void setCaption(const WString& caption);
-
-  /*! \brief Get the dialog caption (<b>deprecated</b>).
-   *
-   * \deprecated Use windowTitle() instead.
-   */
-  const WString& caption() const;
-#endif // WT_DEPRECATED_3_0_0
-
-  /*! \brief Set the dialog window title.
+  /*! \brief Sets the dialog window title.
    *
    * The window title is displayed in the title bar.
    *
@@ -143,13 +133,27 @@ public:
    */
   void setWindowTitle(const WString& title);
 
-  /*! \brief Get the dialog window title.
+  /*! \brief Returns the dialog window title.
    *
    * \sa setWindowTitle()
    */
   const WString& windowTitle() const;
 
-  /*! \brief Enable or disable the title bar.
+#ifndef WT_DEPRECATED_3_0_0
+  /*! \brief Sets the dialog caption (<b>deprecated</b>).
+   *
+   * \deprecated Use setWindowTitle() instead.
+   */
+  void setCaption(const WString& caption);
+
+  /*! \brief Returns the dialog caption (<b>deprecated</b>).
+   *
+   * \deprecated Use windowTitle() instead.
+   */
+  const WString& caption() const;
+#endif // WT_DEPRECATED_3_0_0
+
+  /*! \brief Enables or disables the title bar.
    *
    * The titlebar is enabled by default.
    */
@@ -161,13 +165,13 @@ public:
    */
   bool isTitleBarEnabled() const { return !titleBar_->isHidden(); }
 
-  /*! \brief Get the dialog contents container.
+  /*! \brief Returns the dialog contents container.
    *
    * Content to the dialog window may be added to this container widget. 
    */
   WContainerWidget *contents() const { return contents_; }
 
-  /*! \brief Execute the dialog in a recursive event loop.
+  /*! \brief Executes the dialog in a recursive event loop.
    *
    * Executes the dialog. This blocks the current thread of execution
    * until one of done(DialogCode), accept() or reject() is called.
@@ -179,7 +183,7 @@ public:
    */
   DialogCode exec();
 
-  /*! \brief Stop the dialog.
+  /*! \brief Stops the dialog.
    *
    * Sets the dialog result, and emits the finished() signal.
    *
@@ -192,13 +196,13 @@ public:
    */
   virtual void done(DialogCode r);
 
-  /*! \brief Close the dialog, with result is Accepted.
+  /*! \brief Closes the dialog, with result is Accepted.
    *
    * \sa done(DialogCode r), reject()
    */
   virtual void accept();
 
-  /*! \brief Close the dialog, with result is Rejected.
+  /*! \brief Closes the dialog, with result is Rejected.
    *
    * \sa done(DialogCode r), accept()
    */
@@ -210,13 +214,13 @@ public:
    */
   Signal<DialogCode>& finished() { return finished_; }
 
-  /*! \brief Get the result that was set for this dialog.
+  /*! \brief Returns the result that was set for this dialog.
    *
    * \sa done(DialogCode r)
    */
   DialogCode result() const { return result_; }
 
-  /*! \brief Set whether the dialog is modal.
+  /*! \brief Sets whether the dialog is modal.
    *
    * A modal dialog will block the underlying user interface.
    *

@@ -88,27 +88,9 @@ ul {
     padding-left: 4px;
 }
 
-.suggest {
-    background-color: #e0ecff;
-    color: #1010cc;
-    border: 1px solid #666666;
-    cursor: default;
-    font-size: smaller;
-    padding: 2px;
-}
-
-.suggest span {
-    padding-left: 0.5em;
-    padding-right: 0.5em;  
-}
-
-.suggest .highlight {
+.Wt-suggest .highlight {
     padding: 0px;
     font-weight: bold;
-}
-
-.suggest .sel {
-    background-color: #C3D9FF;
 }
 
 ul.menu {

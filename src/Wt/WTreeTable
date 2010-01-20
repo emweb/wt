@@ -78,20 +78,25 @@ class WText;
  * \endcode
  * \endif
  *
+ * <h3>CSS</h3>
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ *
  * \sa WTreeTableNode
  * \sa WTreeView
  */
 class WT_API WTreeTable : public WCompositeWidget
 {
 public:
-  /*! \brief Construct a new WTreeTable.
+  /*! \brief Creates a new tree table.
    *
    * The treeRoot() is \c 0. The table should first be properly dimensioned
    * using addColumn() calls, and then data using setTreeRoot().
    */
   WTreeTable(WContainerWidget *parent = 0);
 
-  /*! \brief Add an extra column.
+  /*! \brief Adds an extra column.
    *
    * Add an extra column, specifying the column header and a column
    * width. The extra columns are numbered from 1 as column 0 contains
@@ -101,7 +106,7 @@ public:
    */
   void addColumn(const WString& header, const WLength& width);
 
-  /*! \brief The number of columns in this table.
+  /*! \brief Returns the number of columns in this table.
    *
    * Returns the number of columns in the table, including in the count
    * column 0 (which contains the tree).
@@ -110,7 +115,7 @@ public:
    */
   int columnCount() const { return columnWidths_.size(); }
 
-  /*! \brief Set the tree root.
+  /*! \brief Sets the tree root.
    *
    * Sets the data for the tree table, and specify the header for the
    * first column.
@@ -123,7 +128,7 @@ public:
    */
   WTreeTableNode *treeRoot();
 
-  /*! \brief Set the tree which provides the data for the tree table.
+  /*! \brief Sets the tree which provides the data for the tree table.
    *
    * \sa setTreeRoot(WTreeTableNode *, const WString&).
    */

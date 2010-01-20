@@ -63,19 +63,19 @@ public:
    */
   WTimer(WObject *parent = 0);
 
-  /*! \brief Destuctor
+  /*! \brief Destuctor.
    */
   ~WTimer();
 
-  /*! \brief Get the interval (msec)
+  /*! \brief Returns the interval (msec).
    */
   int interval() const { return interval_; }
 
-  /*! \brief Set the interval (msec)
+  /*! \brief Sets the interval (msec).
    */
   void setInterval(int msec);
 
-  /*! \brief Return if the timer is running.
+  /*! \brief Returns if the timer is running.
    */
   bool isActive() const { return active_; }
 
@@ -83,7 +83,7 @@ public:
    */
   bool isSingleShot() const { return singleShot_; }
 
-  /*! \brief Configure this timer to fire only once.
+  /*! \brief Configures this timer to fire only once.
    *
    * A Timer is by default not single shot, and will fire continuously,
    * until it is stopped.
@@ -107,7 +107,7 @@ public:
   static void singleShot(int msec, T *receiver, void (V::*method)());
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Start the timer.
+  /*! \brief Starts the timer.
    *
    * The timer will be isActive(), until either the interval has
    * elapsed, after which the timeout signal is activated,
@@ -115,7 +115,7 @@ public:
    */
   void start();
 
-  /*! \brief Stop the timer.
+  /*! \brief Stops the timer.
    *
    * You may stop the timer during its timeout(), or cancel a running timer
    * at any other time.

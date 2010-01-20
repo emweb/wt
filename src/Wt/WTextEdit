@@ -51,16 +51,20 @@ namespace Wt {
  * \endcode
  * \endif
  *
+ * <h3>CSS</h3>
+ *
+ * Styling through CSS is not applicable.
+ *
  * \image html WTextEdit-1.png "Default configuration of a WTextEdit"
  */
 class WT_API WTextEdit : public WTextArea
 {
 public:
-  /*! \brief Create a new text editor.
+  /*! \brief Creates a new text editor.
    */
   WTextEdit(WContainerWidget *parent = 0);
 
-  /*! \brief Create a new text editor and initialize with given text.
+  /*! \brief Creates a new text editor and initialize with given text.
    *
    * The \p text should be valid XHTML.
    */
@@ -70,7 +74,7 @@ public:
    */
   ~WTextEdit();
 
-  /*! \brief Set the content.
+  /*! \brief Sets the content.
    *
    * The \p text should be valid XHTML.
    *
@@ -78,7 +82,7 @@ public:
    */
   virtual void setText(const WT_USTRING& text);
 
-  /*! \brief Set the stylesheet for displaying the content.
+  /*! \brief Sets the stylesheet for displaying the content.
    *
    * The content is rendered using the rules defined in this
    * stylesheet. The stylesheet is also used to derive additional
@@ -95,7 +99,7 @@ public:
    */
   const std::string& styleSheet() const { return styleSheet_; }
 
-  /*! \brief Load additional TinyMCE plugins.
+  /*! \brief Loads additional TinyMCE plugins.
    *
    * %Wt loads by default only the plugin 'safari' (which adds support
    * for the Safari web browser). Use this method to load additional
@@ -117,7 +121,7 @@ public:
    */
   const std::string& extraPlugins() const { return extraPlugins_; }
 
-  /*! \brief Configure a tool bar.
+  /*! \brief Configures a tool bar.
    *
    * This configures the buttons for the \p i'th tool bar (with 0
    * <= \p i <= 3).

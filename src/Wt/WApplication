@@ -691,7 +691,7 @@ public:
   WebSession *session() { return session_; }
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Enable server-initiated updates.
+  /*! \brief Enables server-initiated updates.
    *
    * By default, updates to the user interface are possible only at
    * startup, during any event (in a slot), or at regular time points
@@ -741,7 +741,7 @@ public:
    */
   bool updatesEnabled() const { return serverPush_; }
 
-  /*! \brief Propagate server-initiated updates.
+  /*! \brief Propagates server-initiated updates.
    *
    * Propagate changes made to the user interface outside of the main
    * event loop. This is only possible after a call to

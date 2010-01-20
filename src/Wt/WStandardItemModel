@@ -90,11 +90,11 @@ class WStandardItem;
 class WT_API WStandardItemModel : public WAbstractItemModel
 {
 public:
-  /*! \brief Create a new standard item model.
+  /*! \brief Creates a new standard item model.
    */
   WStandardItemModel(WObject *parent = 0);
 
-  /*! \brief Create a new standard item model with an initial toplevel geometry.
+  /*! \brief Creates a new standard item model with an initial geometry.
    *
    * Creates a standard item model with a geometry of
    * <i>rows</i> x \p columns. All items are set to \c 0.
@@ -105,7 +105,7 @@ public:
    */
   ~WStandardItemModel();
 
-  /*! \brief Erase all data in the model.
+  /*! \brief Erases all data in the model.
    *
    * After clearing the model, rowCount() and columnCount() are 0.
    */
@@ -136,7 +136,7 @@ public:
    */
   WStandardItem *itemFromIndex(const WModelIndex& index) const;
 
-  /*! \brief Add a single column of top level items.
+  /*! \brief Adds a single column of top level items.
    *
    * Appends a single column of top level \p items. If necessary,
    * the row count is increased.
@@ -150,7 +150,7 @@ public:
    */
   void appendColumn(const std::vector<WStandardItem *>& items);
 
-  /*! \brief Insert a single column of top level items.
+  /*! \brief Inserts a single column of top level items.
    *
    * Inserts a single column of top level \p items at column
    * \p column. If necessary, the row count is increased.
@@ -164,7 +164,7 @@ public:
    */
   void insertColumn(int column, const std::vector<WStandardItem *>& items);
 
-  /*! \brief Add a single row of top level items.
+  /*! \brief Adds a single row of top level items.
    *
    * Appends a single row of top level \p items. If necessary,
    * the column count is increased.
@@ -178,7 +178,7 @@ public:
    */
   void appendRow(const std::vector<WStandardItem *>& items);
 
-  /*! \brief Insert a single row of top level items.
+  /*! \brief Inserts a single row of top level items.
    *
    * Inserts a single row of top level \p items at row
    * \p row. If necessary, the column count is increased.
@@ -194,7 +194,7 @@ public:
 
   using WAbstractItemModel::insertRow;
 
-  /*! \brief Append a single row containing a single item.
+  /*! \brief Appends a single row containing a single item.
    *
    * Appends a single toplevel row, with a single item.
    *
@@ -207,7 +207,7 @@ public:
    */
   void appendRow(WStandardItem *item);
 
-  /*! \brief Insert a single row containing a single item.
+  /*! \brief Inserts a single row containing a single item.
    *
    * Inserts a single toplevel row, with a single item.
    *
@@ -274,7 +274,7 @@ public:
    */
   void setItemPrototype(WStandardItem *item);
 
-  /*! \brief Take a column out of the model.
+  /*! \brief Takes a column out of the model.
    *
    * Removes a column from the model, and returns the items that it
    * contained. Ownership of the items is transferred out of the
@@ -289,7 +289,7 @@ public:
    */
   std::vector<WStandardItem *> takeColumn(int column);
 
-  /*! \brief Take a row out of the model.
+  /*! \brief Takes a row out of the model.
    *
    * Removes a row from the model, and returns the items that it
    * contained. Ownership of the items is transferred out of the
@@ -304,7 +304,7 @@ public:
    */
   std::vector<WStandardItem *> takeRow(int row);
 
-  /*! \brief Take an item out of the model.
+  /*! \brief Takes an item out of the model.
    *
    * Removes an item from the model, and returns it. Ownership of the
    * item is transferred out of the model.

@@ -151,7 +151,7 @@ public:
    */
   virtual const std::string id() const;
 
-  /*! \brief Set an object name.
+  /*! \brief Sets an object name.
    *
    * The object name can be used to easily identify a type of object
    * in the DOM, and does not need to be unique. It will usually
@@ -170,7 +170,7 @@ public:
    */
   virtual std::string objectName() const;
 
-  /*! \brief Reset learned stateless slot implementations.
+  /*! \brief Resets learned stateless slot implementations.
    *
    * Clears the stateless implementation for all slots declared to be
    * implemented with a stateless implementation.
@@ -179,7 +179,7 @@ public:
    */
   void resetLearnedSlots();
 
-  /*! \brief Reset a learned stateless slot implementation.
+  /*! \brief Resets a learned stateless slot implementation.
    *
    * Clears the stateless implementation for the given slot that
    * was declared to be implemented with a stateless implementation.
@@ -194,7 +194,7 @@ public:
   template <class T>
     void resetLearnedSlot(void (T::*method)());
    
-  /*! \brief Declare a slot to be stateless and learn client-side behaviour
+  /*! \brief Declares a slot to be stateless and learn client-side behaviour
    *         on first invocation.
    *
    * Indicate that the given slot is stateless, and meets the requirement
@@ -231,7 +231,7 @@ public:
     WStatelessSlot *implementStateless(T1 method);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Declare a slot to be stateless and learn client-side behaviour
+  /*! \brief Declares a slot to be stateless and learn client-side behaviour
    *         in advance.
    *
    * This method has the same effect as
@@ -254,7 +254,7 @@ public:
     WStatelessSlot *implementStateless(T1 method, T2 undoMethod);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Provide a JavaScript implementation for a method
+  /*! \brief Provides a JavaScript implementation for a method
    *
    * This method sets the JavaScript implementation for a method. As a
    * result, if JavaScript is available, the JavaScript version will
@@ -272,7 +272,7 @@ public:
     WStatelessSlot *implementJavaScript(void (T::*method)(),
 					const std::string& jsCode);
 
-  /*! \brief Add a child object.
+  /*! \brief Adds a child object.
    *
    * Take responsibility of deleting the child object, together with this
    * object.
@@ -281,7 +281,7 @@ public:
    */
   void addChild(WObject *child);
 
-  /*! \brief Remove a child object.
+  /*! \brief Removes a child object.
    *
    * The child must have been previously added.
    *
@@ -304,7 +304,7 @@ public:
 protected:
   virtual void signalConnectionsChanged();
 
-  /*! \brief Get the sender of the current slot call.
+  /*! \brief Returns the sender of the current slot call.
    *
    * Use this function to know who emitted the signal that triggered this
    * slot call. It may be \c 0 if the signal has no owner information, or

@@ -35,7 +35,7 @@ public:
    */
   WAbstractProxyModel(WObject *parent = 0);
 
-  /*! \brief Map a source model index to the proxy model.
+  /*! \brief Maps a source model index to the proxy model.
    *
    * This method returns a model index in the proxy model that
    * corresponds to the model index \p sourceIndex in the source
@@ -46,7 +46,7 @@ public:
    */
   virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const = 0;
 
-  /*! \brief Map a proxy model index to the source model.
+  /*! \brief Maps a proxy model index to the source model.
    *
    * This method returns a model index in the source model that
    * corresponds to the proxy model index \p proxyIndex.
@@ -55,7 +55,7 @@ public:
    */
   virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const = 0;
 
-  /*! \brief Set a source model.
+  /*! \brief Sets the source model.
    *
    * The source model provides the actual data for the proxy
    * model.

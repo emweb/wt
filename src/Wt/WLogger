@@ -180,28 +180,28 @@ public:
    */
   ~WLogEntry();
 
-  /*! \brief Write a field separator.
+  /*! \brief Writes a field separator.
    *
    * You must separate fields in a single entry using the WLogger::sep
    * constant.
    */
   WLogEntry& operator<< (const WLogger::Sep&);
 
-  /*! \brief Write a time stamp in the current field.
+  /*! \brief Writes a time stamp in the current field.
    *
    * Formats a timestamp (date+time) to the current field.
    */
   WLogEntry& operator<< (const WLogger::TimeStamp&);
 
-  /*! \brief Write a string in the current field.
+  /*! \brief Writes a string in the current field.
    */
   WLogEntry& operator<< (const char *);
 
-  /*! \brief Write a string in the current field.
+  /*! \brief Writes a string in the current field.
    */
   WLogEntry& operator<< (const std::string&);
 
-  /*! \brief Write a number value in the current field.
+  /*! \brief Writes a number value in the current field.
    */
   template <typename T>
   WLogEntry& operator<< (T t) {

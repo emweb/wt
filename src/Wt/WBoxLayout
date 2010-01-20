@@ -94,7 +94,7 @@ public:
     BottomToTop  //!< Vertical layout, widgets are arranged from bottom to top
   };
 
-  /*! \brief Create a new box layout.
+  /*! \brief Creates a new box layout.
    *
    * This constructor is rarely used. Instead, use the convenient
    * constructors of the specialized WHBoxLayout or WVBoxLayout classes.
@@ -109,7 +109,7 @@ public:
   virtual WLayoutItem *itemAt(int index) const;
   virtual int count() const;
 
-  /*! \brief Set the layout direction.
+  /*! \brief Sets the layout direction.
    *
    * \sa direction()
    */
@@ -121,7 +121,7 @@ public:
    */
   Direction direction() const { return direction_; }
 
-  /*! \brief Set spacing between each item.
+  /*! \brief Sets spacing between each item.
    *
    * The default spacing is 6 pixels.
    */
@@ -223,7 +223,7 @@ public:
    */
   void insertStretch(int index, int stretch = 0);
 
-  /*! \brief Set the stretch factor for a nested layout.
+  /*! \brief Sets the stretch factor for a nested layout.
    *
    * The \p layout must have previously been added to this layout
    * using insertLayout() or addLayout().
@@ -232,7 +232,7 @@ public:
    */
   bool setStretchFactor(WLayout *layout, int stretch);
 
-  /*! \brief Set the stretch factor for a nested layout.
+  /*! \brief Sets the stretch factor for a nested layout.
    *
    * The \p widget must have previously been added to this layout
    * using insertWidget() or addWidget().

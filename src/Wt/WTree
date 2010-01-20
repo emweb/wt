@@ -65,6 +65,11 @@ namespace Wt {
  * \endcode
  * \endif
  *
+ * <h3>CSS</h3>
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ *
  * \sa WTreeNode, WTreeTable, WTreeView
  */
 class WT_API WTree : public WCompositeWidget

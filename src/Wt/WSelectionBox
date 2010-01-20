@@ -49,9 +49,13 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag.
- *
  * %WSelectionBox is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * <h3>CSS</h3>
+ *
+ * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag and
+ * does not provide styling. It can be styled using inline or external
+ * CSS as appropriate.
  *
  * \ingroup modelview
  */

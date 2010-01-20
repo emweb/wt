@@ -36,13 +36,13 @@ namespace Wt {
 class WT_API WDateValidator : public WValidator
 {
 public:
-  /*! \brief Construct a date validator.
+  /*! \brief Creates a date validator.
    *
    * The validator will accept any date of the format 'yyyy-MM-dd'.
    */
   WDateValidator(WObject *parent = 0);
 
-  /*! \brief Construct a date validator.
+  /*! \brief Creates a date validator.
    *
    * The validator will accept dates in the indicated range in the
    * format 'yyyy-MM-dd'.
@@ -50,7 +50,7 @@ public:
   WDateValidator(const WDate& bottom,
 		 const WDate& top, WObject *parent = 0);
 
-  /*! \brief Construct a date validator.
+  /*! \brief Creates a date validator.
    *
    * The validator will accept dates in the date format \p format.
    *
@@ -58,7 +58,7 @@ public:
    */
   WDateValidator(const WT_USTRING& format, WObject *parent = 0);
 
-  /*! \brief Construct a date validator.
+  /*! \brief Creates a date validator.
    *
    * The validator will accept only dates within the indicated range
    * <i>bottom</i> to <i>top</i>, in the date format \p format.
@@ -69,47 +69,47 @@ public:
 		 const WDate& bottom,
 		 const WDate& top, WObject *parent = 0);
 
-  /*! \brief Set the bottom of the valid date range.
+  /*! \brief Sets the bottom of the valid date range.
    *
    * The default is a null date constructed using WDate().
    */
   void setBottom(const WDate& bottom);
 
-  /*! \brief Get the bottom date of the valid range.
+  /*! \brief Returns the bottom date of the valid range.
    */
   const WDate& bottom() const { return bottom_; }
 
-  /*! \brief Set the top of the valid date range.
+  /*! \brief Sets the top of the valid date range.
    *
    * The default is a null date constructed using WDate().
    */
   void setTop(const WDate& top);
 
-  /*! \brief Get the top date of the valid range.
+  /*! \brief Returns the top date of the valid range.
    */
   const WDate& top() const { return top_; }
 
-  /*! \brief Set the date format used to parse date strings.
+  /*! \brief Sets the date format used to parse date strings.
    *
    * \sa WDate::fromString()
    */
   void setFormat(const WT_USTRING& format);
 
-  /*! \brief Get the format string used to parse date strings
+  /*! \brief Returns the format string used to parse date strings
    *
    * \sa setFormat()
    */
   const WT_USTRING& format() const { return formats_[0]; }
 
-  /*! \brief Set the date formats used to parse date strings.
+  /*! \brief Sets the date formats used to parse date strings.
    */
   void setFormats(const std::vector<WT_USTRING>& formats);
 
-  /*! \brief Get the date formats used to parse date strings.
+  /*! \brief Returns the date formats used to parse date strings.
    */
   const std::vector<WT_USTRING>& formats() const { return formats_; }
 
-  /*! \brief Validate the given input.
+  /*! \brief Validates the given input.
    *
    * The input is considered valid only when it is blank for a
    * non-mandatory field, or represents a date in the given format,
@@ -120,7 +120,7 @@ public:
   virtual void createExtConfig(std::ostream& config) const;
 
 #ifndef WT_DEPRECATED_3_0_0
-  /*! \brief Parse a date from a string (<b>deprecated</b>).
+  /*! \brief Parses a date from a string (<b>deprecated</b>).
    *
    * \deprecated see WDate::fromString() static methods.
    *
@@ -129,7 +129,7 @@ public:
   static WDate parse(const WString& input);
 #endif // WT_DEPRECATED_3_0_0
 
-  /*! \brief Set the message to display when the input is not a date.
+  /*! \brief Sets the message to display when the input is not a date.
    *
    * The default message is "The date must be of the format {1}", with
    * as first argument the format string.
@@ -142,12 +142,20 @@ public:
    */
   WString invalidNotADateText() const;
 
-  /*! \brief Set message to display when the date is earlier than
-   * bottom \if cpp Depending on whether bottom() and top() are
+  /*! \brief Sets the message to display when the date is earlier than bottom.
+   *
+   * \if cpp
+   *
+   * Depending on whether bottom() and top() are
    * defined (see WDate::isNull()), the default message is "The date
    * must be between {1} and {2}" or "The date must be after {1}".
-   * \elseif java The default message is "The date must be between {1}
-   * and {2}" or "The date must be after {1}".  \endif
+   *
+   * \elseif java
+   *
+   * The default message is "The date must be between {1} and {2}" or
+   * "The date must be after {1}".
+   *
+   * \endif
    */
   void setInvalidTooEarlyText(const WString& text);
 
@@ -157,7 +165,7 @@ public:
    */
   WString invalidTooEarlyText() const;
 
-  /*! \brief Set message to display when the date is later than top.
+  /*! \brief Sets the message to display when the date is later than top.
    *
    * \if cpp
    * Depending on whether bottom() and top() are \link WDate::isNull

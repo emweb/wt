@@ -33,30 +33,34 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * The widget corresponds to an HTML <tt>&lt;textarea&gt;</tt> tag.
- *
  * %WTextArea is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * <h3>CSS</h3>
+ *
+ * The widget corresponds to an HTML <tt>&lt;textarea&gt;</tt> tag and
+ * does not provide styling. It can be styled using inline or external
+ * CSS as appropriate.
  *
  * \sa WLineEdit
  */
 class WT_API WTextArea : public WFormWidget
 {
 public:
-  /*! \brief Construct a text area with empty content and optional parent.
+  /*! \brief Creates a text area with empty content and optional parent.
    */
   WTextArea(WContainerWidget *parent = 0);
 
-  /*! \brief Construct a text area with given content and optional parent.
+  /*! \brief Creates a text area with given content and optional parent.
    */
   WTextArea(const WT_USTRING& content, WContainerWidget *parent = 0);
 
-  /*! \brief Set the number of columns.
+  /*! \brief Sets the number of columns.
    *
    * The default value is 20.
    */
   void setColumns(int cols);
 
-  /*! \brief Set the number of rows.
+  /*! \brief Sets the number of rows.
    *
    * The default value is 5.
    */
@@ -78,7 +82,7 @@ public:
    */
   const WT_USTRING& text() const { return content_; }
 
-  /*! \brief Change the content of the text area.
+  /*! \brief Sets the content of the text area.
    *
    * The default text is "".
    */

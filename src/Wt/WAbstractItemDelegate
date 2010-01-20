@@ -128,11 +128,11 @@ public:
    */
   WAbstractItemDelegate(WObject *parent = 0);
 
-  /*! \brief Desturctor.
+  /*! \brief Destructor.
    */
   virtual ~WAbstractItemDelegate();
 
-  /*! \brief Create or update a widget that renders an item.
+  /*! \brief Creates or updates a widget that renders an item.
    *
    * The item is specified by its model \p index, which also
    * indicates the model. If an existing widget already renders the
@@ -149,7 +149,7 @@ public:
   virtual WWidget *update(WWidget *widget, const WModelIndex& index,
 			  WFlags<ViewItemRenderFlag> flags) = 0;
 
-  /*! \brief Update the model index of a widget.
+  /*! \brief Updates the model index of a widget.
    *
    * This method is invoked by the view when due to row/column insertions or
    * removals, an index was modified for a widget.

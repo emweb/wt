@@ -27,25 +27,25 @@ class DomElement;
 class WT_API WScrollBar : public WObject
 {
 public:
-  /*! \brief Get the orientation of this scrollbar.
+  /*! \brief Returns the orientation of this scrollbar.
    */
   Orientation orientation() const { return orientation_; }
 
-  /*! \brief Tie two scrollbars together.
+  /*! \brief Ties two scrollbars together.
    *
    * The effect of this call is that these scrollbars will keep their
    * positions synchronised.
    */
   static void tie(WScrollBar *one, WScrollBar *two);
 
-  /*! \brief Untie two scrollbars, that were previously tied together.
+  /*! \brief Unties two scrollbars, that were previously tied together.
    *
    * Undo a tie(WScrollBar *one, WScrollBar *two);
    *
    */
   static void unTie(WScrollBar *one, WScrollBar *two);
 
-  /*! \brief Set the scrollbar value.
+  /*! \brief Sets the scrollbar value.
    *
    * This will move the scrollbar to the given value.
    */

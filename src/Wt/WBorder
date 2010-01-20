@@ -43,15 +43,15 @@ public:
 	       Outset   //!< Relief border letting contents come out of the canvas
   };
 
-  /*! \brief Create a border indicating <i>no border</i>.
+  /*! \brief Creates a border indicating <i>no border</i>.
    */
   WBorder();
 
-  /*! \brief Create a border with given style, thickness and color.
+  /*! \brief Creates a border with given style, thickness and color.
    */
   explicit WBorder(Style style, Width = Medium, WColor color = WColor());
 
-  /*! \brief Create a border with an absolute width.
+  /*! \brief Creates a border with an absolute width.
    */
   WBorder(Style style, const WLength& width, WColor color = WColor());
 
@@ -63,18 +63,18 @@ public:
    */
   bool operator!=(const WBorder& other) const;
 
-  /*! \brief Set the border width.
+  /*! \brief Sets the border width.
    *
    * If width == Explicit, then the width specified in
    * \p explicitWidth is used.
    */
   void setWidth(Width width, const WLength& explicitWidth = WLength::Auto);
 
-  /*! \brief Set the border color.
+  /*! \brief Sets the border color.
    */
   void setColor(WColor color);
 
-  /*! \brief Set the border style.
+  /*! \brief Sets the border style.
    */
   void setStyle(Style style);
 

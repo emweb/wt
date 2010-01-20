@@ -19,12 +19,17 @@ class WTreeTable;
  *
  * Additional data for each column can be set using setColumnWidget().
  *
+ * <h3>CSS</h3>
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ *
  * \sa WTreeNode, WTreeTable
  */
 class WT_API WTreeTableNode : public WTreeNode
 {
 public:
-  /*! \brief Create a new WTreeTableNode.
+  /*! \brief Creates a new tree table node.
    *
    * \sa WTreeNode::WTreeNode()
    */
@@ -32,7 +37,7 @@ public:
 		 WIconPair *labelIcon = 0,
 		 WTreeTableNode *parentNode = 0);
 
-  /*! \brief Set a widget to be displayed in the given column for this node.
+  /*! \brief Sets a widget to be displayed in the given column for this node.
    *
    * Columns are counted starting from 0 for the tree list itself, and 1
    * for the first additional column.

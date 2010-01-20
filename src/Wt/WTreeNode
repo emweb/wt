@@ -110,6 +110,11 @@ mytree * .treenodechildcount {
  *
  * See WTree for a usage example.
  *
+ * <h3>CSS</h3>
+ *
+ * This widget does not provide styling, 
+ * and can be styled using inline or external CSS as appropriate.
+ *
  * \sa WTree, WTreeTableNode
  */
 class WT_API WTreeNode : public WCompositeWidget
@@ -130,7 +135,7 @@ public:
     Lazy      //!< Only display a child count when the node is populated
   };
 
-  /*! \brief Construct a tree node with the given label.
+  /*! \brief Creates a tree node with the given label.
    *
    * The labelIcon, if specified, will appear just before the label and
    * its state reflect the expand/collapse state of the node.
@@ -145,38 +150,38 @@ public:
    */
   ~WTreeNode();
 
-  /*! \brief Get a reference to the label.
+  /*! \brief Returns the label.
    */
   WText *label() const { return labelText_; }
 
-  /*! \brief Get a reference to the label icon.
+  /*! \brief Returns the label icon.
    */
   WIconPair *labelIcon() const { return labelIcon_; }
 
-  /*! \brief Change the label icon.
+  /*! \brief Sets the label icon.
    */
   void setLabelIcon(WIconPair *labelIcon);
 
-  /*! \brief Add a child node.
+  /*! \brief Adds a child node.
    */
   virtual void addChildNode(WTreeNode *node);
 
-  /*! \brief Remove a child node.
+  /*! \brief Removes a child node.
    */
   void removeChildNode(WTreeNode *node);
 
-  /*! \brief Get the list of children.
+  /*! \brief Returns the list of children.
    */
   const std::vector<WTreeNode *>& childNodes() const { return childNodes_; }
 
-  /*! \brief Get the number of children that should be displayed.
+  /*! \brief Returns the number of children that should be displayed.
    *
    * This is used to display the count in the count label. The default
    * implementation simply returns childNodes().size().
    */
   virtual int displayedChildCount() const;
 
-  /*! \brief Configure how and when the child count should be displayed
+  /*! \brief Configures how and when the child count should be displayed
    *
    * By default, no child count indication is disabled (this is the behaviour
    * since 2.1.1). Use this method to enable child count indications.
@@ -185,20 +190,20 @@ public:
    */
   void setChildCountPolicy(ChildCountPolicy policy);
 
-  /*! \brief Get the child count policy
+  /*! \brief Returns the child count policy
    *
    * \sa setChildCountPolicy(ChildCountPolicy policy)
    */
   ChildCountPolicy childCountPolicy() const { return childCountPolicy_; }
 
-  /*! \brief Set the image pack for this (sub)tree.
+  /*! \brief Sets the image pack for this (sub)tree.
    *
    * You must specify a valid url for the directory that contains
    * the icons.
    */
   void setImagePack(const std::string& url);
 
-  /*! \brief Change the load policy for this tree.
+  /*! \brief Sets the load policy for this tree.
    *
    * This may only be set on the root of a tree, and before adding
    * any children.
@@ -209,7 +214,7 @@ public:
    */
   bool isExpanded() const;
 
-  /*! \brief Allow this node to be selected.
+  /*! \brief Allows this node to be selected.
    *
    * By default, all nodes may be selected.
    *
@@ -217,19 +222,19 @@ public:
    */
   void setSelectable(bool selectable);
 
-  /*! \brief Return if this node may be selected.
+  /*! \brief Returns if this node may be selected.
    *
    * \sa setSelectable(bool)
    */
   virtual bool isSelectable() const { return selectable_; }
 
-  /*! \brief Return the parent node
+  /*! \brief Returns the parent node
    *
    * \sa childNodes()
    */
   WTreeNode *parentNode() const;
 
-  /*! \brief Set the visibility of the node itself
+  /*! \brief Sets the visibility of the node itself
    *
    * If \c false, then the node itself is not displayed, but only its children.
    * This is typically used to hide the root node of a tree.
@@ -239,7 +244,7 @@ public:
   void setChildrenDecorated(bool decorated);
   void setInteractive(bool interactive);
 
-  /*! \brief Expand this node.
+  /*! \brief Expands this node.
    *
    * Besides the actual expansion of the node, this may also trigger
    * the loading and population of the node children, or of the children's
@@ -250,7 +255,7 @@ public:
    */
   void expand();
 
-  /*! \brief Collapse this node.
+  /*! \brief Collapses this node.
    *
    * \sa expand()
    * \sa doCollapse()
@@ -277,20 +282,20 @@ public:
   Signal<bool>& selected() { return selected_; }
 
 protected:
-  /*! \brief Construct a tree node with empty labelArea().
+  /*! \brief Creates a tree node with empty labelArea().
    *
    * This tree node has no label or labelicon, and is therefore ideally
    * suited to provide a custom look.
    */
   WTreeNode(WTreeNode *parentNode = 0);
 
-  /*! \brief Access the container widget that holds the label area.
+  /*! \brief Accesses the container widget that holds the label area.
    *
    * Use this to customize how the label should look like.
    */
   WTableCell *labelArea();
 
-  /*! \brief Populate the node dynamically on loading.
+  /*! \brief Populates the node dynamically on loading.
    *
    * Reimplement this method if you want to populate the widget dynamically,
    * as the tree is being browsed and therefore loaded. This is only
@@ -317,7 +322,7 @@ protected:
    */
   virtual bool expandable();
 
-  /*! \brief Render the node to be selected.
+  /*! \brief Renders the node to be selected.
    *
    * The default implementation changes the style class of the labelArea()
    * to "selected".
@@ -331,7 +336,7 @@ protected:
    */
   std::string imagePack() const;
 
-  /*! \brief React to the removal of a descendant node.
+  /*! \brief Reacts to the removal of a descendant node.
    *
    * Reimplement this method if you wish to react on the removal of a
    * descendant node. The default implementation simply propagates the
@@ -339,7 +344,7 @@ protected:
    */
   virtual void descendantRemoved(WTreeNode *node);
 
-  /*! \brief React to the addition of a descendant node.
+  /*! \brief Reacts to the addition of a descendant node.
    *
    * Reimplement this method if you wish to react on the addition of a
    * descendant node. The default implementation simply propagates the

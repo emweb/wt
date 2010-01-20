@@ -24,6 +24,12 @@ namespace Wt {
  *
  * %WStackedWidget, like WContainerWidget, is by default not inline.
  *
+ * <h3>CSS</h3>
+ *
+ * The widget is rendered using an HTML <tt>&lt;div&gt;</tt> tag and
+ * does not provide styling. It can be styled using inline or external
+ * CSS as appropriate.
+ *
  * \sa WMenu
  */
 class WT_API WStackedWidget : public WContainerWidget

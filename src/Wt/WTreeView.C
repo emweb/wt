@@ -333,10 +333,12 @@ WTreeViewNode::~WTreeViewNode()
 void WTreeViewNode::update(int firstColumn, int lastColumn)
 {
   WModelIndex parent = index_.parent();
-  lastColumn = std::min(lastColumn, view_->model()->columnCount(parent) - 1);
+
+  int thisNodeCount = view_->model()->columnCount(parent);
 
   for (int i = firstColumn; i <= lastColumn; ++i) {
-    WModelIndex child = childIndex(i);
+ 
+    WModelIndex child = i < thisNodeCount ? childIndex(i) : WModelIndex();
 
     WWidget *currentW = widget(i);
 
@@ -344,8 +346,8 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
     if (view_->selectionBehavior() == SelectItems && view_->isSelected(child))
       renderFlags |= RenderSelected;
 
-    WWidget *newW = view_->itemDelegate(child)->update(currentW, child,
-						       renderFlags);
+    WWidget *newW = view_->itemDelegate(i)->update(currentW, child,
+						   renderFlags);
 
     if (newW != currentW)
       setWidget(i, newW);
@@ -666,12 +668,13 @@ void WTreeViewNode::shiftModelIndexes(int start, int offset)
 					n->modelIndex().column(), index_);
 
       // update items through delegate
-      int lastColumn = std::min(view_->columnCount() - 1,
-				view_->model()->columnCount(index_) - 1);
+      int lastColumn = view_->columnCount() - 1;
+      int thisNodeCount = view_->model()->columnCount(index_);
 
       for (int j = 0; j <= lastColumn; ++j) {
-	WModelIndex child = n->childIndex(j);
-	view_->itemDelegate(child)->updateModelIndex(n->widget(j), child);
+	WModelIndex child = i < thisNodeCount
+	  ? n->childIndex(j) : WModelIndex();
+	view_->itemDelegate(j)->updateModelIndex(n->widget(j), child);
       }
 
       view_->addRenderedNode(n);
@@ -934,7 +937,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-node img.w0",
-       "width: 0px");
+       "width: 0px; margin: 0px;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-node .c0 img, .Wt-treeview .Wt-tv-node .c0 input",
@@ -965,16 +968,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
       (".Wt-treeview div.Wt-tv-rhc0",
        "float: left; width: 4px;");
 
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-sh",
-       "float: right; width: 16px; padding-bottom: 6px;"
-       "cursor: pointer; cursor:hand;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-sh-nrh",
-       "float: right; width: 16px; "
-       "cursor: pointer; cursor:hand;");
-
     /* borders: needed here for IE */
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-br, "                     // header columns 1-n
@@ -988,7 +981,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
     /* sort handles */
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh", std::string() +
-       "float: right; width: 16px; height: 10px;"
+       "float: right; width: 16px; height: 10px; padding-bottom: 6px;"
        "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule

@@ -70,30 +70,34 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * The widget corresponds to the HTML <tt>&lt;fieldset&gt;</tt> tag,
- * and the title in a nested <tt>&lt;legend&gt;</tt> tag.
- *
  * Like WContainerWidget, %WGroupBox is by default displayed as a
- * \link WWidget::setInline() block \endlink.
+ * \link WWidget::setInline() block\endlink.
  *
  * \image html WGroupBox-1.png "WGroupBox example"
+ *
+ * <h3>CSS</h3>
+ *
+ * The widget corresponds to the HTML <tt>&lt;fieldset&gt;</tt> tag,
+ * and the title in a nested <tt>&lt;legend&gt;</tt> tag. This widget
+ * does not provide styling, and can be styled using inline or
+ * external CSS as appropriate.
  */
 class WT_API WGroupBox : public WContainerWidget
 {
 public:
-  /*! \brief Create a groupbox with empty title.
+  /*! \brief Creates a groupbox with empty title.
    */
   WGroupBox(WContainerWidget *parent = 0);
   
-  /*! \brief Create a groupbox with given title message.
+  /*! \brief Creates a groupbox with given title message.
    */
   WGroupBox(const WString& title, WContainerWidget *parent = 0);
 
-  /*! \brief Get the title.
+  /*! \brief Returns the title.
    */
   const WString& title() const { return title_; }
 
-  /*! \brief Set the title.
+  /*! \brief Returns the title.
    */
   void setTitle(const WString& title);
 

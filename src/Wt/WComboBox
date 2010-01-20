@@ -48,20 +48,24 @@ namespace Wt {
  * \endcode
  * \endif 
  *
- * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag.
- *
  * %WComboBox is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * <h3>CSS</h3>
+ *
+ * The widget corresponds to the HTML <tt>&lt;select&gt;</tt> tag and
+ * does not provide styling. It can be styled using inline or external
+ * CSS as appropriate.
  *
  * \ingroup modelview
  */
 class WT_API WComboBox : public WFormWidget
 {
 public:
-  /*! \brief Create an empty combo-box with optional <i>parent</i>.
+  /*! \brief Creates an empty combo-box with optional <i>parent</i>.
    */
   WComboBox(WContainerWidget *parent = 0);
 
-  /*! \brief Add an option item.
+  /*! \brief Adds an option item.
    *
    * Equivalent to
    * \link insertItem(int, const WString&) insertItem\endlink (count(),
@@ -81,7 +85,7 @@ public:
    */
   int currentIndex() const;
 
-  /*! \brief Insert an item at the specified position.
+  /*! \brief Inserts an item at the specified position.
    *
    * The item is inserted in the underlying model at position
    * \p index. This requires that the model() is editable.
@@ -90,7 +94,7 @@ public:
    */
   void insertItem(int index, const WString& text);
 
-  /*! \brief Remove the item at the specified position.
+  /*! \brief Removes the item at the specified position.
    *
    * The item is removed from the underlying model. This requires that
    * the model() is editable.
@@ -161,7 +165,7 @@ public:
 
   virtual void refresh();
 
-  /*! \brief Clear all items.
+  /*! \brief Clears all items.
    *
    * Removes all items from the underlying model. This requires that the
    * model() is editable.

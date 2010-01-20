@@ -44,13 +44,20 @@ namespace Wt {
  * };
  * \endcode
  * \endif
+ *
+ * <h3>CSS</h3>
+ *
+ * Styling through CSS is propagated to its implementation.
  */
 class WT_API WCompositeWidget : public WWidget
 {
 public:
-  /*! \brief Create a WCompositeWidget.
+  /*! \brief Creates a %WCompositeWidget.
+   *
+   * You need to set an implemetation using setImplementation().
    */
   WCompositeWidget(WContainerWidget* parent = 0);
+
   ~WCompositeWidget();
 
   virtual const std::string id() const;

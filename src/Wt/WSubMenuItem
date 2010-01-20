@@ -51,14 +51,14 @@ namespace Wt {
 class WT_API WSubMenuItem : public WMenuItem
 {
 public:
-  /*! \brief Create a new item.
+  /*! \brief Creates a new item.
    *
    * \sa WMenuItem::WMenuItem(const WString&, WWidget *, LoadPolicy)
    */
   WSubMenuItem(const WString& text, WWidget *contents,
 	       LoadPolicy policy = LazyLoading);
 
-  /*! \brief Set a sub menu.
+  /*! \brief Sets a sub menu.
    *
    * Ownership of the \p subMenu is transferred to the item. In
    * most cases, the sub menu would use the same contents stack as the
@@ -71,7 +71,7 @@ public:
    */
   void setSubMenu(WMenu *subMenu);
 
-  /*! \brief Return the sub menu.
+  /*! \brief Returns the sub menu.
    *
    * \sa setSubMenu()
    */
