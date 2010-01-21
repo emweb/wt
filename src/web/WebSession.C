@@ -490,6 +490,15 @@ WebSession::Handler *WebSession::Handler::instance()
 #endif // WT_TARGET_JAVA
 }
 
+bool WebSession::Handler::haveLock() const
+{
+#ifdef WT_THREADED
+  return lock_.owns_lock();
+#else
+  return false;
+#endif // WT_THREADED
+}
+
 void WebSession::Handler::init()
 {
 #ifdef WT_TARGET_JAVA

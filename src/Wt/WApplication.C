@@ -54,7 +54,7 @@ WApplication::WApplication(const WEnvironment& env)
     titleChanged_(false),
     internalPathChanged_(this),
 #ifndef WT_TARGET_JAVA
-    serverPush_(false),
+    serverPush_(0),
 #ifndef WT_CNOR
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
 #endif
@@ -867,12 +867,14 @@ WLogEntry WApplication::log(const std::string& type) const
 #ifndef WT_TARGET_JAVA
 void WApplication::enableUpdates(bool enabled)
 {
-  if (serverPush_ != enabled) {
-    serverPush_ = enabled;
+  if (enabled)
+    ++serverPush_;
+  else
+    --serverPush_;
 
+  if ((enabled && serverPush_ == 1) || (!enabled && serverPush_ == 0))
     doJavaScript(javaScriptClass_ + "._p_.setServerPush("
 		 + (enabled ? "true" : "false") + ");");
-  }
 }
 
 void WApplication::triggerUpdate()
@@ -880,11 +882,11 @@ void WApplication::triggerUpdate()
   if (!shouldTriggerUpdate_)
     return;
 
-  if (serverPush_)
+  if (serverPush_ > 0)
     session_->pushUpdates();
   else
-    throw WtException("WApplication::update() called but server-triggered "
-		      "updates not enabled using "
+    throw WtException("WApplication::triggerUpdate() called but "
+		      "server-triggered updates not enabled using "
 		      "WApplication::enableUpdates()"); 
 }
 
@@ -920,8 +922,14 @@ WApplication::UpdateLock::UpdateLock(WApplication& app)
   /*
    * If we are already handling this application, then we already have
    * exclusive access.
+   *
+   * However, this is not the way to detect because a user may also just
+   * have done attachThread(): we need to check if we already have
+   * a handler
    */
-  if (WApplication::instance() != &app)
+  WebSession::Handler *handler = WebSession::Handler::instance();
+
+  if (!handler || !handler->haveLock() || handler->session() != app.session_)
     impl_ = new UpdateLockImpl(app);
 }
 

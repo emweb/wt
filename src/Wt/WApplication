@@ -739,7 +739,7 @@ public:
    *
    * \sa enableUpdates()
    */
-  bool updatesEnabled() const { return serverPush_; }
+  bool updatesEnabled() const { return serverPush_ > 0; }
 
   /*! \brief Propagates server-initiated updates.
    *
@@ -1313,7 +1313,7 @@ private:
   Signal<std::string>    internalPathChanged_;
   bool                   internalPathIsChanged_;
 #ifndef WT_TARGET_JAVA
-  bool                   serverPush_;
+  int                    serverPush_;
   boost::pool<boost::default_user_allocator_new_delete> *eventSignalPool_;
   bool			 shouldTriggerUpdate_;
 #endif // WT_TARGET_JAVA

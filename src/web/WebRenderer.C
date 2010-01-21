@@ -661,7 +661,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 #ifndef WT_TARGET_JAVA
     response.out() << app->javaScriptClass_
 		   << "._p_.setServerPush("
-		   << (app->serverPush_ ? "true" : "false") << ");";
+		   << ((app->serverPush_ > 0) ? "true" : "false") << ");";
 #endif // WT_TARGET_JAVA
 
     response.out() << "window.WtScriptLoaded = true;"

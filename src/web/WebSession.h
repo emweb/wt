@@ -150,9 +150,11 @@ public:
 
     static Handler *instance();
 
+    bool haveLock() const;
+
     WebResponse *response() { return response_; }
-    WebRequest  *request() { return request_; }
-    WebSession  *session() const { return &session_; }
+    WebRequest *request() { return request_; }
+    WebSession *session() const { return &session_; }
     void killSession();
 
   private:
