@@ -11,6 +11,14 @@
 
 namespace Wt {
 
+const char *WTemplate::DropShadow_x1_x2
+  ="<span class=\"Wt-x1\">"
+  """<span class=\"Wt-x1a\" />"
+  "</span>"
+  "<span class=\"Wt-x2\">"
+  """<span class=\"Wt-x2a\" />"
+  "</span>";
+
 WTemplate::WTemplate(WContainerWidget *parent)
   : WInteractWidget(parent),
     changed_(false)

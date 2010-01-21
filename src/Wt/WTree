@@ -67,8 +67,15 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * This widget does not provide styling, 
- * and can be styled using inline or external CSS as appropriate.
+ * The tree is styled by the current CSS theme. The look can be
+ * overridden using the <tt>Wt-tree</tt> CSS class. The style
+ * selectors that affect the rendering of the decoration of the nodes
+ * are indicated in the documentation for WTreeNode. In addition, the
+ * following selector may be used to style the header:
+ *
+ * \verbatim
+.Wt-tree .Wt-selected : selected item
+\endverbatim
  *
  * \sa WTreeNode, WTreeTable, WTreeView
  */

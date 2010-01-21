@@ -67,53 +67,26 @@ class WTableCell;
  * the event collapse/expand event handling (see doExpand() and
  * doCollapse()).
  *
- * Next to the icons, two style classes determine the look of a
- * %WTreeNode: the label has CSS style class "treenodelabel", and the
- * child count has CSS style class "treenodechildcount".
- *
- * For example, the following CSS stylesheet styles a tree for which the
- * root has style class "mytree":
- *
- * \code
-mytree * .treenodelabel {
-  font-size: smaller;
-}
-mytree * .treenodechildcount {
-  font-size: smaller;
-  color: blue;
-}
- * \endcode
- *
- * The tree node uses an image-pack, which is a collection of images
- * to render the expand/collapse icons and lines. Use setImagePack()
- * to specify the location of these icons -- a suitable set of images
- * are distributed in Wt's <tt>resources/</tt> folder. This needs only
- * be done on the root of the tree, as child nodes will query their
- * ancestors for the location of these images, when they are not set
- * explicitly:
- * <ul>
- *   <li><b>nav-plus-line-middle.gif</b>: expand icon for all but the last
- *     child in a node.</li>
- *   <li><b>nav-minus-line-middle.gif</b>: collapse icon for all but the last
- *     child in a node.</li>
- *   <li><b>line-middle.gif</b>: like nav-plus-line-middle.gif but for nodes
- *     that cannot be expanded as they have no children.</li>
- *   <li><b>nav-plus-line-last.gif</b>: same as nav-plus-line-middle.gif but
- *     for the last node (terminates the vertical line).</li>
- *   <li><b>nav-minus-line-last.gif</b>: same as nav-minus-line-middle.gif but
- *     for the last node (terminates the vertical line).</li>
- *   <li><b>line-last.gif</b>: same as line-middle.gif but for the last node
- *     (terminates the vertical line).</li>
- *   <li><b>line-trunk.gif</b>: extension gif for the vertical line.
- *     </li>
- * </ul>
- *
  * See WTree for a usage example.
  *
  * <h3>CSS</h3>
  *
- * This widget does not provide styling, 
- * and can be styled using inline or external CSS as appropriate.
+ * The tree is styled by the current CSS theme. The look can be
+ * overridden using the <tt>Wt-tree</tt> CSS class and the following
+ * selectors:
+ *
+ * \verbatim
+.Wt-tree .Wt-trunk          : vertical line, trunk
+.Wt-tree .Wt-end            : vertical line, last item
+.Wt-tree .Wt-collapse       : collapse icon (img *)
+.Wt-tree .Wt-expand         : expand icon (img *)
+.Wt-tree .Wt-noexpand       : leaf icon
+
+.Wt-tree .Wt-label          : the node label
+.Wt-tree .Wt-childcount     : the node child count
+\endverbatim
+ * * The collapse and expand icons are fetched themselves as images,
+ * <tt>nav-plus.gif</tt> and <tt>nav-minus.gif</tt>.
  *
  * \sa WTree, WTreeTableNode
  */
@@ -196,10 +169,10 @@ public:
    */
   ChildCountPolicy childCountPolicy() const { return childCountPolicy_; }
 
-  /*! \brief Sets the image pack for this (sub)tree.
+  /*! \brief Sets the image pack for this (sub)tree (<b>deprecated</b>).
    *
-   * You must specify a valid url for the directory that contains
-   * the icons.
+   * \deprecated This method does not do anything since Wt 3.1.1, as the
+   *             tree is now styled based on the current CSS theme.
    */
   void setImagePack(const std::string& url);
 
@@ -329,10 +302,10 @@ protected:
    */
   virtual void renderSelected(bool selected);
 
-  /*! \brief The image pack that is used for this tree node.
+  /*! \brief The image pack that is used for this tree node (<b>deprecated</b>).
    *
-   * This is the imagepack that was set, or if not set, the image pack of
-   * its parent.
+   * \deprecated This method returns "" since Wt 3.1.1, as the image pack is
+   *             no longer used in favour of the CSS themes.
    */
   std::string imagePack() const;
 
@@ -400,11 +373,10 @@ private:
   WTreeNode		   *parentNode_;
   LoadPolicy                loadPolicy_;
   ChildCountPolicy          childCountPolicy_;
-  std::string               imagePackUrl_;
 
   WTable                   *layout_;
   WIconPair                *expandIcon_;
-  WImage                   *noExpandIcon_;
+  WText                    *noExpandIcon_;
   WIconPair		   *labelIcon_;
   WText			   *labelText_;
   WText			   *childCountLabel_;
@@ -424,11 +396,8 @@ private:
   bool wasCollapsed_;
   bool doPopulate();
 
-  enum ImageIndex { Middle = 0, Last = 1 };
-
-  static const char* imageLine_[];
-  static const char* imagePlus_[];
-  static const char* imageMin_[];
+  static const char* imagePlus_;
+  static const char* imageMin_;
 
   boost::signals::connection clickedConnection_;
   friend class WTree;

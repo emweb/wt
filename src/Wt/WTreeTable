@@ -35,13 +35,6 @@ class WText;
  * setTreeRoot() and bind additional information (text or other
  * widgets) in each node using WTreeTableNode::setColumnWidget().
  *
- * To apply a style to the table header hou should use CSS in
- * conjunction with the style class ("header") that is set for the
- * header row. Alternatively, you may access the header directly using
- * headerWidget(). To apply a different style to each column header,
- * you can access each column header widget using \link header()
- * header(int)\endlink, e.g. to set a style class.
- *
  * The table cannot be given a height using CSS style rules, instead you
  * must use layout managers, or use resize().
  *
@@ -80,8 +73,16 @@ class WText;
  *
  * <h3>CSS</h3>
  *
- * This widget does not provide styling, 
- * and can be styled using inline or external CSS as appropriate.
+ * The treetable is styled by the current CSS theme. The look can be
+ * overridden using the <tt>Wt-treetable</tt> CSS class. The style
+ * selectors that affect the rendering of the tree are indicated in
+ * the documentation for WTree (for selection) and WTreeNode (for
+ * decoration). In addition, the following selector may be used to to
+ * style the header:
+ *
+ * \verbatim
+.Wt-treetable .Wt-header : header
+\endverbatim
  *
  * \sa WTreeTableNode
  * \sa WTreeView

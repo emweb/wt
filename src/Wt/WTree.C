@@ -91,9 +91,15 @@ namespace Wt {
 	: WTreeNode(""),
 	  tree_(tree)
       {
+	setStyleClass("Wt-tree Wt-sentinel");
 	setNodeVisible(false);
 	expand();
-      }
+
+	// avoid IE bug where height of table remains too large when
+	// collapsing nodes
+	if (WApplication::instance()->environment().agentIsIE())
+	  impl()->elementAt(1, 0)->resize(1, WLength::Auto);
+     }
 
     protected:
       virtual void descendantRemoved(WTreeNode *node)
@@ -138,11 +144,6 @@ void WTree::setSelectionMode(SelectionMode mode)
   if (mode != selectionMode_) {
     selectionMode_ = mode;
     clearSelection();
-
-    if (selectionMode_ != NoSelection) {
-      setAttributeValue("onselectstart", "return false;");
-      setStyleClass("unselectable");
-    }
   }
 }
 

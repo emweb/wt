@@ -194,20 +194,18 @@ WWidget *BasicControls::wTree()
 					"icons/yellow-folder-open.png", false);
 
   WTree *tree = new WTree(result);
-  tree->setSelectionMode(SingleSelection);
+  tree->setSelectionMode(ExtendedSelection);
 
-  WTreeNode *node = new WTreeNode("Tree root", folderIcon);
-  node->setStyleClass("example-tree");
+  WTreeNode *node = new WTreeNode("Furniture", folderIcon);
   tree->setTreeRoot(node);
   node->label()->setTextFormat(PlainText);
-  node->setImagePack("resources/");
   node->setLoadPolicy(WTreeNode::NextLevelLoading);
-  node->addChildNode(new WTreeNode("one"));
-  node->addChildNode(new WTreeNode("two"));
+  node->addChildNode(new WTreeNode("Table"));
+  node->addChildNode(new WTreeNode("Cupboard"));
 
-  WTreeNode *three = new WTreeNode("three");
+  WTreeNode *three = new WTreeNode("Chair");
   node->addChildNode(three);
-  node->addChildNode(new WTreeNode("four"));
+  node->addChildNode(new WTreeNode("Coach"));
   node->expand();
   three->addChildNode(new WTreeNode("Doc"));
   three->addChildNode(new WTreeNode("Grumpy"));
@@ -228,16 +226,16 @@ WWidget *BasicControls::wTreeTable()
 
   topic("WTreeTable","WTreeTableNode", result);
   new WText(tr("basics-WTreeTable"), result);
+
   WTreeTable *tt = new WTreeTable(result);
-  tt->resize(650, 300);
-  tt->setStyleClass("tree-table");
+  tt->resize(650, 200);
+  tt->tree()->setSelectionMode(ExtendedSelection);
   tt->addColumn("Yuppie Factor", 125);
   tt->addColumn("# Holidays", 125);
   tt->addColumn("Favorite Item", 125);
   WTreeTableNode *ttr = new WTreeTableNode("All Personnel");
   ttr->setImagePack("resources/");
   tt->setTreeRoot(ttr, "Emweb Organigram");
-  ttr->setStyleClass("treetablecol");
   WTreeTableNode *ttr1 = new WTreeTableNode("Upper Management", 0, ttr);
   WTreeTableNode *ttn;
   ttn = new WTreeTableNode("Chief Anything Officer", 0, ttr1);

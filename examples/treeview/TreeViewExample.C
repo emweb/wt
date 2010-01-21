@@ -42,7 +42,7 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   panel->resize(600, 300);
   panel->setCentralWidget(treeView_ = new WTreeView());
   treeView_->setAlternatingRowColors(!treeView_->alternatingRowColors());
-  treeView_->setRowHeight(31);
+  treeView_->setRowHeight(25);
   treeView_->setModel(model_);
   treeView_->setSelectionMode(NoSelection);
 
@@ -55,6 +55,7 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
    * Expand the first (and single) top level node
    */
   treeView_->setExpanded(model->index(0, 0), true);
+  treeView_->setExpanded(model->index(0, 0, model->index(0, 0)), true);
   
   /*
    * Setup some buttons to manipulate the view and the model.

@@ -15,6 +15,7 @@ namespace Wt {
 class WAbstractItemModel;
 class WModelIndex;
 class WFormWidget;
+class WTemplate;
 
 /*! \class WSuggestionPopup Wt/WSuggestionPopup Wt/WSuggestionPopup
  *  \brief A widget which popups to assist in editing a textarea or lineedit.
@@ -269,7 +270,8 @@ public:
   static std::string generateReplacerJS(const Options& options);
 
 private:
-  Wt::WAbstractItemModel *model_;
+  WTemplate *impl_;
+  WAbstractItemModel *model_;
   int modelColumn_;
 
   std::string       matcherJS_;

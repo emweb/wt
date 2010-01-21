@@ -198,7 +198,7 @@
     padding: 2px;
 }
 
-.Wt-suggest span {
+.Wt-suggest div span {
     padding-left: 0.5em;
     padding-right: 0.5em;
 }
@@ -264,13 +264,85 @@
 }
 
 /*
+ * WTree(node)
+ */
+
+.Wt-tree {
+    table-layout: fixed;
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 10pt;
+    cursor: default;
+    white-space: nowrap;   
+}
+
+/* nodes */
+.Wt-tree .Wt-trunk {
+    background: url(../../line-trunk.gif) repeat-y;
+    width: 19px;
+    padding: 0px;
+}
+
+.Wt-tree .Wt-end {
+    background: url(../../line-last.gif) no-repeat 0 0;
+    width: 19px;
+    padding: 0px;
+}
+
+.Wt-tree .Wt-expand {
+    width: 19px;
+    height: 18px;
+    padding: 0px;
+}
+
+.Wt-tree .Wt-collapse {
+    width: 19px;
+    height: 18px;
+    padding: 0px;
+}
+
+.Wt-tree .Wt-noexpand {
+    width: 19px;
+    height: 18px;
+    background: url(../../line-middle.gif) no-repeat 0 0;
+    display: block;
+    padding: 0px;
+}
+
+.Wt-sentinel {
+    table-layout: auto;
+}
+
+.Wt-treetable .Wt-header {
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    cursor: default;
+    white-space: nowrap;   
+    background-color: #EEEEEE;
+    white-space: normal;
+    text-overflow: ellipsis;
+    padding: 3px 0px;
+}
+
+/* selection */
+.Wt-tree .Wt-selected {
+    background-color: #FFFFAA;
+}
+
+/* label */
+.Wt-tree .Wt-label {
+    padding: 0px 2px;
+    line-height: 150%;
+}
+
+/*
  * WTreeView
  */
 .Wt-treeview {
     font-family: verdana,helvetica,tahoma,sans-serif;
     font-size: 10pt;
     cursor: default;
-    whitespace: nowrap;
+    white-space: nowrap;
 }
 
 .Wt-treeview .Wt-spacer {

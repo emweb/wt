@@ -91,6 +91,7 @@ ul {
 .Wt-suggest .highlight {
     padding: 0px;
     font-weight: bold;
+    text-decoration: underline;
 }
 
 ul.menu {

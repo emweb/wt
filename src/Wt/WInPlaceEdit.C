@@ -45,6 +45,10 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   edit_->escapePressed().connect(SLOT(this, WInPlaceEdit::cancel));
   edit_->escapePressed().setPreventDefault(true);
 
+  edit_->blurred().connect(SLOT(edit_, WWidget::hide));
+  edit_->blurred().connect(SLOT(text_, WWidget::show));
+  edit_->blurred().connect(SLOT(this, WInPlaceEdit::cancel));
+
   setButtonsEnabled();
 }
 
@@ -76,8 +80,11 @@ void WInPlaceEdit::cancel()
 
 void WInPlaceEdit::setButtonsEnabled(bool enabled)
 {
-  if (c1_.connected()) c1_.disconnect();
-  if (c2_.connected()) c2_.disconnect();
+  if (c1_.connected())
+    c1_.disconnect();
+  if (c2_.connected())
+    c2_.disconnect();
+
   if (enabled) {
     save_ = new WPushButton("Save", impl_);
     cancel_ = new WPushButton("Cancel", impl_);
@@ -86,11 +93,13 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
 
     text_->clicked().connect(SLOT(save_,   WWidget::show));
     text_->clicked().connect(SLOT(cancel_, WWidget::show));
-    
-    edit_->enterPressed().connect(SLOT(save_,    WWidget::hide));
-    edit_->enterPressed().connect(SLOT(cancel_,  WWidget::hide));
+
+    edit_->enterPressed() .connect(SLOT(save_,   WWidget::hide));
+    edit_->enterPressed() .connect(SLOT(cancel_, WWidget::hide));
     edit_->escapePressed().connect(SLOT(save_,   WWidget::hide));
     edit_->escapePressed().connect(SLOT(cancel_, WWidget::hide));
+    edit_->blurred()      .connect(SLOT(save_,   WWidget::hide));
+    edit_->blurred()      .connect(SLOT(cancel_, WWidget::hide));   
 
     save_->clicked().connect(SLOT(save_,   WWidget::hide));
     save_->clicked().connect(SLOT(cancel_, WWidget::hide));
@@ -102,7 +111,7 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
     cancel_->clicked().connect(SLOT(edit_,   WWidget::hide));
     cancel_->clicked().connect(SLOT(text_,   WWidget::show));
     cancel_->clicked().connect(SLOT(this,    WInPlaceEdit::cancel));
-   
+
   } else {
     delete save_;
     save_ = 0;

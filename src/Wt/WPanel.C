@@ -26,14 +26,9 @@ WPanel::WPanel(WContainerWidget *parent)
     expandedSS_(this)
 {
   const char *TEMPLATE =
-      "<span class=\"Wt-x1\">"
-      """<span class=\"Wt-x1a\" />"
-      "</span>"
-      "<span class=\"Wt-x2\">"
-      """<span class=\"Wt-x2a\" />"
-      "</span>"
-      "${titlebar}"
-      "${contents}";
+    "${shadow-x1-x2}"
+    "${titlebar}"
+    "${contents}";
 
   setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
   impl_->setStyleClass("Wt-panel Wt-outset");
@@ -44,6 +39,7 @@ WPanel::WPanel(WContainerWidget *parent)
   WContainerWidget *centralArea = new WContainerWidget();
   centralArea->setStyleClass("body");
 
+  impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   impl_->bindWidget("titlebar", 0);
   impl_->bindWidget("contents", centralArea);
 

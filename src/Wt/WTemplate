@@ -222,6 +222,8 @@ public:
    */
   virtual void refresh();
 
+  static const char *DropShadow_x1_x2;
+
 protected:
   /*! \brief Renders the template into the given result stream.
    *

@@ -20,11 +20,12 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
   : WCompositeWidget(parent)
 {
   setImplementation(impl_ = new WContainerWidget());
+
+  setStyleClass("Wt-treetable");
   setPositionScheme(Relative);
 
   headers_ = new WContainerWidget(impl_);
-  headers_->setStyleClass("header");
-  headers_->resize(WLength(100, WLength::Percentage), WLength::Auto);
+  headers_->setStyleClass("Wt-header header");
 
   /*
    * spacer for when a scroll bar is visible
@@ -52,19 +53,26 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
   tree_->setMargin(3, Top);
   tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
  
+  setJavaScriptMember
+    ("wtResize",
+     "function(self, w, h) {"
+     """self.style.height= h + 'px';"
+     """var c = self.lastChild;"
+     """var t = self.firstChild;"
+     """h -= $(t).outerHeight();"
+     """if (h > 0) "
+     ""  "c.style.height = h + 'px';"
+     "};");
+
   /*
    * Ugly JavaScript hack to make headers stay on top of content when
-   * scrollbars appear, and resize contents to fit in parent - header.
+   * scrollbars appear
    */
   WApplication::instance()->doJavaScript
     ("function sb" + id() + "() {"
-     """var c=" + impl_->jsRef() + ";"
-     """var h=" + headers_->jsRef() + ";"
      """var e=" + content->jsRef() + ";"
      """var sp=" + spacer->jsRef() + ";"
      """if (e && sp) {"
-     ""  "if (" WT_CLASS ".pxself(" + impl_->jsRef() + ",'height') != 0)"
-     ""    "e.style.height=(c.offsetHeight - h.offsetHeight) + 'px';"
      ""  "if (e.scrollHeight > e.offsetHeight) {"
      ""    "sp.style.display='block';"
      ""  "} else {"

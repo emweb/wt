@@ -219,6 +219,7 @@ WWidget *MvcWidgets::viewsTree()
   result->addWidget(tv2);
 
   tv2->treeView()->setColumn1Fixed(true);
+  tv2->treeView()->setColumnWidth(0, 300);
 
   return result;
 }

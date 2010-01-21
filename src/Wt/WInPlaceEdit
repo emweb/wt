@@ -42,13 +42,6 @@ class WPushButton;
  * \endcode
  * \endif
  *
- * CSS stylesheet:
- * \code
- * .inplace span:hover {
- *    background-color: gray;
- * }
- * \endcode
- *
  * This code will produce an edit that looks like:
  * \image html WInPlaceEdit-1.png "WInPlaceEdit text mode"
  * When the text is clicked, the edit will expand to become:
@@ -56,22 +49,34 @@ class WPushButton;
  *
  * <h3>CSS</h3>
  *
- * A WInPlaceEdit widget is a span element, and can be styled as such.
+ * A WInPlaceEdit widget renders as a <tt>&lt;span&gt;</tt> containing
+ * a WText, a WLineEdit and optional buttons (WPushButton). All these
+ * widgets may be styled as such. It does not provide style information.
+ *
+ * In particular, you may want to provide a visual indication that the text
+ * is editable e.g. using a hover effect:
+ *
+ * CSS stylesheet:
+ * \code
+ * .inplace span:hover {
+ *    background-color: gray;
+ * }
+ * \endcode
  */
 class WT_API WInPlaceEdit : public WCompositeWidget
 {
 public:
-  /*! \brief Create an in-place edit with the given text.
+  /*! \brief Creates an in-place edit with the given text.
    */
   WInPlaceEdit(const WString& text, WContainerWidget *parent = 0);
 
-  /*! \brief Returns the current text value.
+  /*! \brief Returns the current value.
    *
    * \sa setText()
    */
   const WString& text() const;
 
-  /*! \brief Sets the current text.
+  /*! \brief Sets the current value.
    *
    * \sa text()
    */
@@ -79,13 +84,13 @@ public:
 
   /*! \brief Returns the line edit.
    *
-   * You may for example set a validator on the line edit.
+   * You may use this for example to set a validator on the line edit.
    */
   WLineEdit *lineEdit() const { return edit_; }
 
   /*! \brief Returns the save button.
    *
-   * This method returns a null pointer if the buttons were disabled.
+   * This method returns \c 0 if the buttons were disabled.
    *
    * \sa cancelButton(), setButtonsEnabled()
    */
@@ -93,7 +98,7 @@ public:
 
   /*! \brief Returns the cancel button.
    *
-   * This method returns a null pointer if the buttons were disabled.
+   * This method returns \c 0 if the buttons were disabled.
    *
    * \sa saveButton(), setButtonsEnabled()
    */
@@ -105,12 +110,12 @@ public:
    */
   Signal<WString>& valueChanged() { return valueChanged_; }
 
-  /*! \brief Display the Save and 'Cancel' button during editing
+  /*! \brief Displays the Save and 'Cancel' button during editing
    *
-   * By default, the Save and Cancel buttons are shown. Call this function
-   * with a false parameter to only show a line edit. In this mode, the
-   * enter key has the effect of the save button and the escape key has
-   * the effect of the cancel button.
+   * By default, the Save and Cancel buttons are shown. Call this
+   * function with \p enabled = \c false to only show a line edit. In
+   * this mode, the enter key has the effect of the save button and
+   * the escape key has the effect of the cancel button.
    */
   void setButtonsEnabled(bool enabled = true);
 

@@ -5,12 +5,12 @@ body, html {
 }
 
 .maindiv {
-    background-color: #e0ecff
+    background-color: #F2F2F2
 }
 
 .Wt-treeview {
     background-color: white;
-    border: 1px solid #C3D9FF;
+    border: 1px solid #98B0D0;
 }
 
 .title {
@@ -19,6 +19,6 @@ body, html {
 
 .about {
     background-color: white;
-    border: 1px solid #C3D9FF;
+    border: 1px solid #98B0D0;
     font-size: 80%;
 }

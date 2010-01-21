@@ -23,12 +23,7 @@ WDialog::WDialog(const WString& windowTitle)
     recursiveEventLoop_(false)
 { 
   const char *TEMPLATE =
-      "<span class=\"Wt-x1\">"
-      """<span class=\"Wt-x1a\" />"
-      "</span>"
-      "<span class=\"Wt-x2\">"
-      """<span class=\"Wt-x2a\" />"
-      "</span>"
+      "${shadow-x1-x2}"
       "${titlebar}"
       "${contents}";
 
@@ -126,6 +121,7 @@ WDialog::WDialog(const WString& windowTitle)
   titleBar_->setStyleClass("titlebar");
   caption_ = new WText(windowTitle, titleBar_);
 
+  impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   impl_->bindWidget("titlebar", titleBar_);
 
   contents_ = new WContainerWidget();

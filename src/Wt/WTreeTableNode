@@ -21,8 +21,7 @@ class WTreeTable;
  *
  * <h3>CSS</h3>
  *
- * This widget does not provide styling, 
- * and can be styled using inline or external CSS as appropriate.
+ * This widget is styled by the current CSS theme. See WTreeNode for details.
  *
  * \sa WTreeNode, WTreeTable
  */

@@ -26,18 +26,14 @@ WPopupMenu::WPopupMenu()
     recursiveEventLoop_(false)
 {
   const char *TEMPLATE =
-      "<span class=\"Wt-x1\">"
-      """<span class=\"Wt-x1a\" />"
-      "</span>"
-      "<span class=\"Wt-x2\">"
-      """<span class=\"Wt-x2a\" />"
-      "</span>"
-      "${contents}";
+    "${shadow-x1-x2}"
+    "${contents}";
 
   setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
   setPositionScheme(Absolute);
   setStyleClass("Wt-popupmenu Wt-outset");
 
+  impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   impl_->bindWidget("contents", new WContainerWidget());
 
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";

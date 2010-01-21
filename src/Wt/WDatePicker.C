@@ -67,12 +67,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   layout_->addWidget(displayWidget);
 
   const char *TEMPLATE =
-    "<span class=\"Wt-x1\">"
-    """<span class=\"Wt-x1a\" />"
-    "</span>"
-    "<span class=\"Wt-x2\">"
-    """<span class=\"Wt-x2a\" />"
-    "</span>"
+    "${shadow-x1-x2}"
     "${calendar}"
     "<div style=\"text-align:center; margin-top:3px\">${close}</div>";
 
@@ -86,6 +81,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   WPushButton *closeButton = new WPushButton(i18n ? tr("Close") : "Close");
   closeButton->clicked().connect(SLOT(popup_, WWidget::hide));
 
+  popup_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   popup_->bindWidget("calendar", calendar_);
   popup_->bindWidget("close", closeButton);
 

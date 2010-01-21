@@ -19,12 +19,8 @@
 
 namespace Wt {
 
-const char *WTreeNode::imageLine_[] = { "line-middle.gif",
-					"line-last.gif" };
-const char *WTreeNode::imagePlus_[] = { "nav-plus-line-middle.gif",
-					"nav-plus-line-last.gif" };
-const char *WTreeNode::imageMin_[] = { "nav-minus-line-middle.gif",
-				       "nav-minus-line-last.gif" };
+const char *WTreeNode::imagePlus_ = "nav-plus.gif";
+const char *WTreeNode::imageMin_ = "nav-minus.gif";
 
 WTreeNode::WTreeNode(const WString& labelText,
 		     WIconPair *labelIcon, WTreeNode *parent)
@@ -131,22 +127,11 @@ bool WTreeNode::expandable()
 }
 
 void WTreeNode::setImagePack(const std::string& url)
-{
-  imagePackUrl_ = url;
-  updateChildren(true);
-}
+{ }
 
 std::string WTreeNode::imagePack() const
 {
-  if (!imagePackUrl_.empty())
-    return imagePackUrl_;
-  else {
-    WTreeNode *parent = parentNode();
-    if (parent)
-      return parent->imagePack();
-    else
-      return "";
-  }
+  return "";
 }
 
 void WTreeNode::setNodeVisible(bool visible)
@@ -165,19 +150,31 @@ void WTreeNode::create()
 {
   setImplementation(layout_ = new WTable());
 
+  setStyleClass("Wt-tree");
+  layout_->setSelectable(false);
+
   implementStateless(&WTreeNode::doExpand, &WTreeNode::undoDoExpand);
   implementStateless(&WTreeNode::doCollapse, &WTreeNode::undoDoCollapse);
 
-  expandIcon_ = new WIconPair(imagePlus_[Last], imageMin_[Last]);
-  noExpandIcon_ = new WImage(imageLine_[Last]);
+  WApplication *app = WApplication::instance();
+
+  expandIcon_
+    = new WIconPair(WApplication::resourcesUrl() + "themes/" + app->cssTheme()
+		    + "/" + imagePlus_,
+		    WApplication::resourcesUrl() + "themes/" + app->cssTheme()
+		    + "/" + imageMin_);
+  noExpandIcon_ = new WText();
+  noExpandIcon_->setStyleClass("Wt-noexpand");
 
   layout_->rowAt(1)->hide();
 
   if (labelText_)
-    labelText_->setStyleClass("treenodelabel");
+    // "treenodelabel" is for backwards compatibility with Wt < 3.1.1
+    labelText_->setStyleClass("Wt-label treenodelabel");
 
   childCountLabel_ = 0;
 
+  layout_->elementAt(0, 0)->setStyleClass("Wt-trunk");
   layout_->elementAt(0, 0)->addWidget(noExpandIcon_);
 
   if (labelIcon_) {
@@ -187,9 +184,6 @@ void WTreeNode::create()
 
   if (labelText_)
     layout_->elementAt(0, 1)->addWidget(labelText_);
-
-  if (WApplication::instance()->environment().agentIsIE())
-    layout_->elementAt(0, 0)->resize(1, WLength::Auto);
 
   layout_->elementAt(0, 0)->setContentAlignment(AlignLeft | AlignTop);
   layout_->elementAt(0, 1)->setContentAlignment(AlignLeft | AlignMiddle);
@@ -204,7 +198,8 @@ void WTreeNode::setChildCountPolicy(ChildCountPolicy policy)
   if (policy != Disabled && !childCountLabel_) {
     childCountLabel_ = new WText();
     childCountLabel_->setMargin(WLength(7), Left);
-    childCountLabel_->setStyleClass("treenodechildcount");
+    // "treenodechildcount" is for backwards compatibility.
+    childCountLabel_->setStyleClass("Wt-childcount treenodechildcount");
 
     layout_->elementAt(0, 1)->addWidget(childCountLabel_);
   }
@@ -503,15 +498,13 @@ void WTreeNode::setLabelIcon(WIconPair *labelIcon)
 
 void WTreeNode::renderSelected(bool isSelected)
 {
-  labelArea()->setStyleClass(isSelected ? "selected" : "");
+  labelArea()->setStyleClass(isSelected ? "Wt-selected selected" : "");
   selected().emit(isSelected);
 }
 
 void WTreeNode::update()
 {
-  ImageIndex index = isLastChildNode() ? Last : Middle;
-
-  std::string img = imagePack();
+  bool isLast = isLastChildNode();
 
   if (!visible_) {
     layout_->rowAt(0)->hide();
@@ -531,26 +524,12 @@ void WTreeNode::update()
   if (labelIcon_ && (labelIcon_->state() != (isExpanded() ? 1 : 0)))
     labelIcon_->setState(isExpanded() ? 1 : 0);
 
-  if (!expandIcon_->isHidden()) {
-    if (expandIcon_->icon1()->imageRef() != img + imagePlus_[index])
-      expandIcon_->icon1()->setImageRef(img + imagePlus_[index]);
-    if (expandIcon_->icon2()->imageRef() != img + imageMin_[index])
-      expandIcon_->icon2()->setImageRef(img + imageMin_[index]);
-  }
-
-  if (noExpandIcon_->imageRef() != img + imageLine_[index])
-    noExpandIcon_->setImageRef(img + imageLine_[index]);
-
-  if (index == Last) {
-    layout_->elementAt(0, 0)->decorationStyle().setBackgroundImage("");
-    layout_->elementAt(1, 0)->decorationStyle().setBackgroundImage("");
+  if (isLast) {
+    layout_->elementAt(0, 0)->setStyleClass("Wt-end");
+    layout_->elementAt(1, 0)->setStyleClass("");
   } else {
-    layout_->elementAt(0, 0)
-      ->decorationStyle().setBackgroundImage(img + "line-trunk.gif",
-					     WCssDecorationStyle::RepeatY);
-    layout_->elementAt(1, 0)
-      ->decorationStyle().setBackgroundImage(img + "line-trunk.gif",
-					     WCssDecorationStyle::RepeatY);
+    layout_->elementAt(0, 0)->setStyleClass("Wt-trunk");
+    layout_->elementAt(1, 0)->setStyleClass("Wt-trunk");
   }
 
   if (!parentNode() || parentNode()->isExpanded())

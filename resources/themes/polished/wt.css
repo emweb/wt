@@ -280,21 +280,21 @@
  * WSuggestionPopup
  */
 .Wt-suggest {
-    background-color: #e0ecff;
-    color: #1010cc;
-    border: 1px solid #666666;
+    background: #FAFAFA;
+    font: normal 13px/22px "Trebuchet MS", Verdana, Arial, Helvetica,
+      sans-serif;
+    color: #515B66;
     cursor: default;
-    font-size: smaller;
-    padding: 2px;
 }
 
-.Wt-suggest span {
+.Wt-suggest div span {
     padding-left: 0.5em;
     padding-right: 0.5em;
 }
 
 .Wt-suggest .sel {
-    background-color: #C3D9FF;
+    background: #6880A0;
+    color: white;
 }
 
 /*
@@ -336,13 +336,89 @@
 }
 
 /*
+ * WTree(node)
+ */
+.Wt-tree {
+    table-layout: fixed;
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 10pt;
+    cursor: default;
+    white-space: nowrap;   
+}
+
+/* nodes */
+.Wt-tree .Wt-trunk {
+    width: 19px;
+    padding: 0px;
+}
+
+.Wt-tree .Wt-end {
+    width: 19px;
+    padding: 0px;
+}
+
+.Wt-tree .Wt-expand {
+    width: 19px;
+    height: 18px;
+    padding: 0px;
+}
+
+.Wt-tree .Wt-collapse {
+    width: 19px;
+    height: 18px;
+    padding: 0px;
+}
+
+.Wt-tree .Wt-noexpand {
+    width: 19px;
+    height: 18px;
+    display: block;
+    padding: 0px;
+}
+
+.Wt-sentinel {
+    table-layout: auto;
+}
+
+.Wt-treetable {
+    background: white;
+    border: 1px solid #dcdfe8;
+}
+
+.Wt-treetable .Wt-header {
+    background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 10pt;
+    cursor: default;
+    color: white;
+    cursor: default;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 3px 0px 3px 3px;
+}
+
+/* selection */
+.Wt-tree .Wt-selected {
+    background-color: #999999;
+    color: white;
+}
+
+/* label */
+.Wt-tree .Wt-label {
+    padding: 0px 2px;
+    line-height: 150%;
+}
+
+/*
  * WTreeView
  */
 .Wt-treeview {
     font-family: verdana,helvetica,tahoma,sans-serif;
     font-size: 10pt;
     cursor: default;
-    whitespace: nowrap;
+    white-space: nowrap;
+    background: white;
+    border: 1px solid #dcdfe8;
 }
 
 .Wt-treeview .Wt-spacer {
@@ -411,7 +487,7 @@
 
 /* selection */
 .Wt-treeview .Wt-selected {
-    background-color: #3875D7;
+    background-color: #999999;
     color: white;
 }
 
@@ -432,13 +508,13 @@
 
 /* borders */
 .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
-    border-right: 1px solid #dcdfe8;
-    margin-right: 0px;
+    border-right: 0px;
+    margin-right: 1px;
 }
 
 .Wt-treeview .Wt-tv-node .Wt-tv-row {
-    border-left: 1px solid #dcdfe8;
-    margin-left: 0px;
+    border-left: 0px;
+    margin-left: 1px;
 }
 
 /*

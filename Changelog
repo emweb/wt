@@ -1,3 +1,6 @@
+21-01-2010:
+	* WSuggestionPopup, WTree, WTreeNode, & co: make CSS themed
+
 18-01-2010:
 	* Dbo: additional optional parameter to hasMany() allows the
 	definition of the joinId in the joinTable (you need this if you
