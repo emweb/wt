@@ -304,7 +304,7 @@ bool WStandardItem::isCheckable() const
 void WStandardItem::setChecked(bool checked)
 {
   if (isChecked() != checked)
-    setCheckState(checked);
+    setCheckState(checked ? Checked : Unchecked);
 }
 
 void WStandardItem::setCheckState(CheckState state)
