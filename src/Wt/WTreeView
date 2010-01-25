@@ -276,6 +276,12 @@ public:
    */
   void setColumn1Fixed(bool enable);
 
+  /*! \brief Returns whether horizontal scrolling includes the first column.
+   *
+   * \sa setColumn1Fixed()
+   */
+  bool column1Fixed() const { return column1Fixed_; }
+
   virtual void resize(const WLength& width, const WLength& height);
   virtual void load();
 

@@ -1,3 +1,6 @@
+25-01-2010:
+	* WTreeView.C: simplified column resize handling code
+
 22-01-2010:
 	* WCanvasPaintDevice: Use HTML5 native canvas text when available
 
