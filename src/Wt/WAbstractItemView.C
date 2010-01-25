@@ -480,7 +480,7 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
 		   + (rightBorderLevel <= headerLevel ? " Wt-tv-br" : ""));
 
   result->addWidget(w);
-  result->setStyleClass("Wt-tv-c headerrh " + info.styleClass());
+  result->setStyleClass(info.styleClass() + " Wt-tv-c headerrh");
   result->setContentAlignment(info.headerAlignment);
 
   WWidget *extraW = columnInfo(column).extraHeaderWidget;

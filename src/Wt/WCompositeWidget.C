@@ -382,8 +382,7 @@ void WCompositeWidget::setImplementation(WWidget *widget)
     throw WtException("WCompositeWidget implemnation widget "
 		      "cannot have a parent");
 
-  if (impl_)
-    delete impl_;
+  delete impl_;
 
   impl_ = widget;
   if (parent()) {

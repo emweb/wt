@@ -333,7 +333,7 @@ private:
   NodeMap              renderedNodes_;
   WTreeViewNode       *rootNode_;
   WCssTemplateRule    *rowHeightRule_, *headerHeightRule_,
-    *rowWidthRule_, *rowContentsWidthRule_, *c0WidthRule_;
+    *rowWidthRule_, *rowContentsWidthRule_;
   WCssRule            *borderColorRule_;
 
   bool                 rootIsDecorated_;

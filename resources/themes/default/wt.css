@@ -425,11 +425,6 @@
     border-right: 1px solid #FFFFFF;
 }
 
-.Wt-treeview .Wt-header .Wt-tv-row,
-.Wt-treeview .Wt-tv-node .Wt-tv-row {
-    border-left: 1px solid #FFFFFF;
-}
-
 /*
  * For Ext::TableView
  */

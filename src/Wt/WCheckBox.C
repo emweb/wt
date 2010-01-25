@@ -80,7 +80,7 @@ bool WCheckBox::needTristateImageWorkaround() const
     && (app->environment().agentIsIE()
 	|| app->environment().agentIsSafari()
 	|| (app->environment().agentIsGecko()
-	    && app->environment().agent() >= WEnvironment::Firefox3_2));
+	    && app->environment().agent() >= WEnvironment::Firefox3_1b));
 
   return !supportIndeterminate;
 }

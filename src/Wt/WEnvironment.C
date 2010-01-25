@@ -170,7 +170,9 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
 
   agent_ = Unknown;
 
-  if (userAgent_.find("MSIE 4") != std::string::npos
+  if (userAgent_.find("MSIE 2") != std::string::npos
+      || userAgent_.find("MSIE 3") != std::string::npos
+      || userAgent_.find("MSIE 4") != std::string::npos
       || userAgent_.find("MSIE 5") != std::string::npos
       || userAgent_.find("IEMobile") != std::string::npos)
     agent_ = IEMobile;
@@ -178,31 +180,55 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     agent_ = IE6;
   else if (userAgent_.find("MSIE 7") != std::string::npos)
     agent_ = IE7;
-  else if (userAgent_.find("MSIE 8") != std::string::npos)
-    agent_ = IE8;
   else if (userAgent_.find("MSIE") != std::string::npos)
-    agent_ = IE;
+    agent_ = IE8;
 
   if (userAgent_.find("Opera") != std::string::npos)
     agent_ = Opera;
 
-  if (userAgent_.find("Chrome") != std::string::npos)
-    agent_ = Chrome;
-  else if (userAgent_.find("Safari") != std::string::npos)
-    agent_ = Safari;
-  else if (userAgent_.find("WebKit") != std::string::npos)
+  if (userAgent_.find("Chrome") != std::string::npos) {
+    if (userAgent_.find("Chrome/0") != std::string::npos)
+      agent_ = Chrome0;
+    else if (userAgent_.find("Chrome/1") != std::string::npos)
+      agent_ = Chrome1;
+    else if (userAgent_.find("Chrome/2") != std::string::npos)
+      agent_ = Chrome2;
+    else if (userAgent_.find("Chrome/3") != std::string::npos)
+      agent_ = Chrome3;
+    else
+      agent_ = Chrome4;
+  } else if (userAgent_.find("Safari") != std::string::npos) {
+    if (userAgent_.find("Version") == std::string::npos)
+      agent_ = Safari;
+    else if (userAgent_.find("Version/3") != std::string::npos)
+      agent_ = Safari3;
+    else
+      agent_ = Safari4;
+  } else if (userAgent_.find("WebKit") != std::string::npos)
     agent_ = WebKit;
   else if (userAgent_.find("Konqueror") != std::string::npos)
     agent_ = Konqueror;
   else if (userAgent_.find("Gecko") != std::string::npos)
     agent_ = Gecko;
 
-  if (userAgent_.find("Firefox/3.2.") != std::string::npos)
-    agent_ = Firefox3_2;
-  else if (userAgent_.find("Firefox/3.1.") != std::string::npos)
-    agent_ = Firefox3_1;
-  else if (userAgent_.find("Firefox/3.") != std::string::npos)
-    agent_ = Firefox3;
+  if (userAgent_.find("Firefox") != std::string::npos) {
+    if (userAgent_.find("Firefox/0") != std::string::npos)
+      agent_ = Firefox;
+    else if (userAgent_.find("Firefox/1") != std::string::npos)
+      agent_ = Firefox;
+    else if (userAgent_.find("Firefox/2") != std::string::npos)
+      agent_ = Firefox;
+    else {
+      if (userAgent_.find("Firefox/3.0") != std::string::npos)
+	agent_ = Firefox3_0;
+      else if (userAgent_.find("Firefox/3.1") != std::string::npos)
+	agent_ = Firefox3_1;
+      else if (userAgent_.find("Firefox/3.1b") != std::string::npos)
+	agent_ = Firefox3_1b;
+      else
+	agent_ = Firefox3_5;
+    }
+  }
 
   if (regexMatchAny(userAgent_, conf.botList()))
     agent_ = BotAgent;

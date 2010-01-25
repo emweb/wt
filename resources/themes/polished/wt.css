@@ -502,19 +502,10 @@
     border-right: 1px solid #dcdfe8;
 }
 
-.Wt-treeview .Wt-header .Wt-tv-row {
-    border-left: 1px solid #dcdfe8;
-}
-
 /* borders */
 .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
     border-right: 0px;
     margin-right: 1px;
-}
-
-.Wt-treeview .Wt-tv-node .Wt-tv-row {
-    border-left: 0px;
-    margin-left: 1px;
 }
 
 /*

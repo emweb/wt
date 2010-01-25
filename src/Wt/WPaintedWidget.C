@@ -482,18 +482,22 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
   canvas->setAttribute("height", hstr);
   result->addChild(canvas);
 
-  DomElement *text = DomElement::createNew(DomElement_DIV);
-  text->setId('t' + widget_->id());
-  text->setProperty(PropertyStylePosition, "absolute");
-  text->setProperty(PropertyStyleZIndex, "1");
-  text->setProperty(PropertyStyleTop, "0px");
-  text->setProperty(PropertyStyleLeft, "0px");
-
   WCanvasPaintDevice *canvasDevice = dynamic_cast<WCanvasPaintDevice *>(device);
 
-  canvasDevice->render("c" + widget_->id(), text);
+  DomElement *text = 0;
+  if (canvasDevice->textMethod() == WCanvasPaintDevice::DomText) {
+    text = DomElement::createNew(DomElement_DIV);
+    text->setId('t' + widget_->id());
+    text->setProperty(PropertyStylePosition, "absolute");
+    text->setProperty(PropertyStyleZIndex, "1");
+    text->setProperty(PropertyStyleTop, "0px");
+    text->setProperty(PropertyStyleLeft, "0px");
+  }
 
-  result->addChild(text);
+  canvasDevice->render("c" + widget_->id(), text ? text : result);
+
+  if (text)
+    result->addChild(text);
 }
 
 void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
@@ -513,13 +517,17 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
     widget_->sizeChanged_ = false;
   }
 
-  DomElement *text = DomElement::getForUpdate('t' + widget_->id(),
-					      DomElement_DIV);
-  text->removeAllChildren();
+  bool domText = canvasDevice->textMethod() == WCanvasPaintDevice::DomText;
 
-  canvasDevice->render('c' + widget_->id(), text);
+  DomElement *el
+    = DomElement::getForUpdate(domText ? 't' + widget_->id() : widget_->id(),
+			       DomElement_DIV);
+  if (domText)
+    el->removeAllChildren();
 
-  result.push_back(text);
+  canvasDevice->render('c' + widget_->id(), el);
+
+  result.push_back(el);
 }
 
 #ifdef WT_TARGET_JAVA

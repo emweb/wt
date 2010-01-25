@@ -501,7 +501,7 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   textFont.setSize(textFont.size(),
     textFont.fixedSize() * app->environment().dpiScale());
 
-  rendered_ << ';'<< textFont.cssText() << "\"/></v:shape>";
+  rendered_ << ";font:" << textFont.cssText() << "\"/></v:shape>";
 
 #endif
 }

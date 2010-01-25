@@ -1697,7 +1697,11 @@ bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
     }
   } else {
     if (!accept) {
+#ifndef WT_TARGET_JAVA
       otherImpl_->acceptedDropMimeTypes_->erase(i);
+#else
+      otherImpl_->acceptedDropMimeTypes_->erase(mimeType);
+#endif // WT_TARGET_JAVA
       changed = true;
     }
   }

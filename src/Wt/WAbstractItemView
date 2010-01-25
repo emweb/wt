@@ -348,6 +348,23 @@ public:
    */
   virtual void setColumnBorder(const WColor& color) = 0;
 
+  /*! \brief Sets the header height.
+   *
+   * Use this method to change the header height. You may also enable
+   * the use of multi-line headers. By default, the header text is a 
+   * single line, that is centered vertically.
+   *
+   * The default value is 20 pixels.
+   */
+  virtual void setHeaderHeight(const WLength& height, bool multiLine = false)
+    = 0;
+
+  /*! \brief Returns the header height.
+   *
+   * \sa setHeaderHeight()
+   */
+  const WLength& headerHeight() const { return headerLineHeight_; } ;
+
 protected:
   /*! \brief Creates a new item view.
    */
@@ -395,22 +412,6 @@ protected:
    * \sa createExtraHeaderWidget()
    */
   WWidget *extraHeaderWidget(int column);
-
-  /*! \brief Sets the header height.
-   *
-   * Use this method to change the header height. You may also enable
-   * the use of multi-line headers. By default, the header text is a 
-   * single line, that is centered vertically.
-   *
-   * The default value is 20 pixels.
-   */
-  virtual void setHeaderHeight(const WLength& height, bool multiLine = false) = 0;
-
-  /*! \brief Returns the header height.
-   *
-   * \sa setHeaderHeight()
-   */
-  const WLength& headerHeight() const { return headerLineHeight_; } ;
 
 protected:
   struct ColumnInfo {

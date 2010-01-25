@@ -523,13 +523,15 @@ public:
    * AlignCenter, or AlignRight. Vertical alignment is one of
    * AlignTop, AlignMiddle or AlignBottom.
    *
-s   * \note HtmlCanvas will always render the text horizontally
-   * (unaffected by rotation), and unaffected by the scaling component
-   * of the transformation matrix. Also, text is overlayed on top of
-   * painted shapes, and is not covered by shapes that are painted
+   * \note HtmlCanvas: on older browsers implementing Html5 canvas,
+   * text will be rendered horizontally (unaffected by rotation and
+   * unaffected by the scaling component of the transformation
+   * matrix). In that case, text is overlayed on top of painted shapes
+   * (in DOM div's), and is not covered by shapes that are painted
    * after the text. Use the SVG and VML renderers
    * (WPaintedWidget::inlineSvgVml) for the most accurate font
-   * rendering.
+   * rendering. Native HTML5 text rendering is supported on Firefox3+,
+   * Chrome2+ and Safari4+.
    */
   void drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
 		const WString& text);

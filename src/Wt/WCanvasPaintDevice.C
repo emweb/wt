@@ -4,7 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication"
 #include "Wt/WCanvasPaintDevice"
+#include "Wt/WEnvironment"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
 #include "Wt/WRectF"
@@ -57,7 +59,26 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
     painter_(0),
     paintFlags_(0),
     busyWithPath_(false)
-{ }
+{ 
+  textMethod_ = DomText;
+
+  WApplication *app = WApplication::instance();
+
+  if (app) {
+    if (app->environment().agentIsChrome()) {
+      if (app->environment().agent() >= WEnvironment::Chrome2)
+	textMethod_ = Html5Text;
+    } else if (app->environment().agentIsGecko()) {
+      if (app->environment().agent() >= WEnvironment::Firefox3_5)
+	textMethod_ = Html5Text;
+      else if (app->environment().agent() >= WEnvironment::Firefox3_0)
+	textMethod_ = MozText;
+    } else if (app->environment().agentIsSafari()) {
+      if (app->environment().agent() >= WEnvironment::Safari4)
+	textMethod_ = Html5Text;
+    }
+  }
+}
 
 void WCanvasPaintDevice::setPaintFlags(WFlags<PaintFlag> paintFlags)
 {
@@ -331,62 +352,158 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 				  WFlags<AlignmentFlag> flags,
 				  const WString& text)
 {
-  WPointF pos = painter()->combinedTransform().map(rect.topLeft());
-
-  DomElement *e = DomElement::createNew(DomElement_DIV);
-  e->setProperty(PropertyStylePosition, "absolute");
-  e->setProperty(PropertyStyleTop,
-		 boost::lexical_cast<std::string>(pos.y()) + "px");
-  e->setProperty(PropertyStyleLeft,
-		 boost::lexical_cast<std::string>(pos.x()) + "px");
-  e->setProperty(PropertyStyleWidth,
-		 boost::lexical_cast<std::string>(rect.width()) + "px");
-  e->setProperty(PropertyStyleHeight,
-		 boost::lexical_cast<std::string>(rect.height()) + "px");
-
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
-  DomElement *t = e;
-
-  /*
-   * HTML tricks to center things vertically -- does not work on IE,
-   * (neither does canvas)
-   */
-  if (verticalAlign != AlignTop) {
-    t = DomElement::createNew(DomElement_DIV);
-
-    if (verticalAlign == AlignMiddle) {
-      e->setProperty(PropertyStyleDisplay, "table");
-      t->setProperty(PropertyStyleDisplay, "table-cell");
-      t->setProperty(PropertyStyleVerticalAlign, "middle");
-    } else if (verticalAlign == AlignBottom) {
-      t->setProperty(PropertyStylePosition, "absolute");
-      t->setProperty(PropertyStyleWidth, "100%");
-      t->setProperty(PropertyStyleBottom, "0px");
-    }
-
+  if (textMethod_ != DomText) {
+    finishPath();
+    renderStateChanges();
   }
 
-  t->setProperty(PropertyInnerHTML,
-		 WWebWidget::escapeText(text, true).toUTF8());
+  switch (textMethod_) {
+  case Html5Text: 
+    {
+      double x = 0, y = 0;
 
-  WFont f = painter()->font();
-  f.updateDomElement(*t, false, true);
+      js_ << "ctx.textAlign='";
+      switch (horizontalAlign) {
+      case AlignLeft: js_ << "left"; x = rect.left(); break;
+      case AlignRight: js_ << "right"; x = rect.right(); break;
+      case AlignCenter: js_ << "center"; x = rect.center().x(); break;
+      default: break;
+      }
 
-  t->setProperty(PropertyStyleColor, painter()->pen().color().cssText());
+      js_ << "';"
+	  << "ctx.textBaseline='";
+      switch (verticalAlign) {
+      case AlignTop: js_ << "top"; y = rect.top(); break;
+      case AlignBottom: js_ << "bottom"; y = rect.bottom(); break;
+      case AlignMiddle: js_ << "middle"; y = rect.center().y(); break;
+      default: break;
+      }
+      js_ << "';";
 
-  if (horizontalAlign == AlignRight)
-    t->setProperty(PropertyStyleTextAlign, "right");
-  else if (horizontalAlign == AlignCenter)
-    t->setProperty(PropertyStyleTextAlign, "center");
-  else
-    t->setProperty(PropertyStyleTextAlign, "left");
+      js_ << "ctx.font='" << painter()->font().cssText() << "';";
 
-  if (t != e)
-    e->addChild(t);
+      if (currentBrush_.color() != currentPen_.color())
+	js_ << "ctx.fillStyle=\""
+	    << currentPen_.color().cssText(true) << "\";";
 
-  textElements_.push_back(e);
+      js_ << "ctx.fillText(" << text.jsStringLiteral()
+	  << ',' << x << ',' << y << ");";
+
+      if (currentBrush_.color() != currentPen_.color())
+	js_ << "ctx.fillStyle=\""
+	    << currentBrush_.color().cssText(true) << "\";";
+    }
+    break;
+  case MozText:
+    {
+      std::string x;
+
+      switch (horizontalAlign) {
+      case AlignLeft:
+	x = boost::lexical_cast<std::string>(rect.left());
+	break;
+      case AlignRight:
+	x = boost::lexical_cast<std::string>(rect.right())
+	  + " - ctx.mozMeasureText(" + text.jsStringLiteral() + ")";
+	break;
+      case AlignCenter:
+	x = boost::lexical_cast<std::string>(rect.center().x())
+	  + " - ctx.mozMeasureText(" + text.jsStringLiteral() + ")/2";
+	break;
+      default:
+	break;
+      }
+
+      double fontSize;
+      switch (painter()->font().size()) {
+      case WFont::FixedSize:
+	fontSize = painter()->font().fixedSize().toPixels();
+	break;
+      default:
+	fontSize = 16;
+      }
+
+      double y = 0;
+      switch (verticalAlign) {
+      case AlignTop:
+	y = rect.top() + fontSize * 0.75; break;
+      case AlignMiddle:
+	y = rect.center().y() + fontSize * 0.25; break;
+      case AlignBottom:
+	y = rect.bottom() - fontSize * 0.25 ; break;
+      default:
+	break;
+      }
+
+      js_ << "ctx.save();";
+      js_ << "ctx.translate(" << x << ", " << y << ");";
+      if (currentBrush_.color() != currentPen_.color())
+	js_ << "ctx.fillStyle=\""
+	    << currentPen_.color().cssText(true) << "\";";
+      js_ << "ctx.mozTextStyle = '" << painter()->font().cssText() << "';";
+      js_ << "ctx.mozDrawText(" << text.jsStringLiteral() << ");";
+      js_ << "ctx.restore();";
+    }
+    break;
+  case DomText:
+    {
+      WPointF pos = painter()->combinedTransform().map(rect.topLeft());
+
+      DomElement *e = DomElement::createNew(DomElement_DIV);
+      e->setProperty(PropertyStylePosition, "absolute");
+      e->setProperty(PropertyStyleTop,
+		     boost::lexical_cast<std::string>(pos.y()) + "px");
+      e->setProperty(PropertyStyleLeft,
+		     boost::lexical_cast<std::string>(pos.x()) + "px");
+      e->setProperty(PropertyStyleWidth,
+		     boost::lexical_cast<std::string>(rect.width()) + "px");
+      e->setProperty(PropertyStyleHeight,
+		     boost::lexical_cast<std::string>(rect.height()) + "px");
+
+      DomElement *t = e;
+
+      /*
+       * HTML tricks to center things vertically -- does not work on IE,
+       * (neither does canvas)
+       */
+      if (verticalAlign != AlignTop) {
+	t = DomElement::createNew(DomElement_DIV);
+
+	if (verticalAlign == AlignMiddle) {
+	  e->setProperty(PropertyStyleDisplay, "table");
+	  t->setProperty(PropertyStyleDisplay, "table-cell");
+	  t->setProperty(PropertyStyleVerticalAlign, "middle");
+	} else if (verticalAlign == AlignBottom) {
+	  t->setProperty(PropertyStylePosition, "absolute");
+	  t->setProperty(PropertyStyleWidth, "100%");
+	  t->setProperty(PropertyStyleBottom, "0px");
+	}
+      }
+
+      t->setProperty(PropertyInnerHTML,
+		     WWebWidget::escapeText(text, true).toUTF8());
+
+      WFont f = painter()->font();
+      f.updateDomElement(*t, false, true);
+
+      t->setProperty(PropertyStyleColor, painter()->pen().color().cssText());
+
+      if (horizontalAlign == AlignRight)
+	t->setProperty(PropertyStyleTextAlign, "right");
+      else if (horizontalAlign == AlignCenter)
+	t->setProperty(PropertyStyleTextAlign, "center");
+      else
+	t->setProperty(PropertyStyleTextAlign, "left");
+
+      if (t != e)
+	e->addChild(t);
+
+      textElements_.push_back(e);
+    }
+  }
 }
 
 void WCanvasPaintDevice::setChanged(WFlags<ChangeFlag> flags)
@@ -441,7 +558,7 @@ void WCanvasPaintDevice::renderTransform(std::stringstream& s,
 
 void WCanvasPaintDevice::renderStateChanges()
 {
-  if (changeFlags_ == 0)
+  if (!changeFlags_)
     return;
 
   bool brushChanged

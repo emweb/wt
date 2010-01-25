@@ -163,6 +163,12 @@ private:
   bool weightChanged_;
   bool sizeChanged_;
 
+  std::string cssStyle(bool all) const;
+  std::string cssVariant(bool all) const;
+  std::string cssWeight(bool all) const;
+  std::string cssFamily(bool all) const;
+  std::string cssSize(bool all) const;
+
   void setWebWidget(WWebWidget *w);
   friend class WCssDecorationStyle;
 };

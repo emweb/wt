@@ -482,8 +482,7 @@ void WTreeNode::undoDoExpand()
 
 void WTreeNode::setLabelIcon(WIconPair *labelIcon)
 {
-  if (labelIcon_)
-    delete labelIcon_;
+  delete labelIcon_;
   labelIcon_ = labelIcon;
 
   if (labelIcon_) {

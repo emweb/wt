@@ -435,7 +435,7 @@ void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
   js.setVar("CLOSE_CONNECTION",
 	    (conf.serverType() == Configuration::WtHttpdServer)
 	    && session_.env().agentIsGecko()
-	    && session_.env().agent() < WEnvironment::Firefox3);
+	    && session_.env().agent() < WEnvironment::Firefox3_0);
   
   js.stream(out);
 }

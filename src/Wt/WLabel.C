@@ -95,8 +95,7 @@ const WString& WLabel::text() const
 
 void WLabel::setImage(WImage *image, Side side)
 {
-  if (image_)
-    delete image_;
+  delete image_;
   image_ = image;
   if (image_) {
     image_->setParent(this);

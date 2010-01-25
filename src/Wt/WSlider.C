@@ -80,7 +80,7 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
     /*
      * Draw ticks
      */
-    if (slider_->tickPosition() != 0) {
+    if (slider_->tickPosition()) {
       int tickInterval = slider_->tickInterval();
       int range = slider_->maximum() - slider_->minimum();
       if (tickInterval == 0)

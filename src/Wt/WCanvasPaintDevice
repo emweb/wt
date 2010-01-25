@@ -43,6 +43,8 @@ class WTransform;
 class WT_API WCanvasPaintDevice : public WObject, public WPaintDevice
 {
 public:
+  enum TextMethod { MozText, Html5Text, DomText };
+
   /*! \brief Create a canvas paint device.
    */
   WCanvasPaintDevice(const WLength& width, const WLength& height,
@@ -59,6 +61,8 @@ public:
   virtual void init();
   virtual void done();
   virtual bool paintActive() const { return painter_; }
+
+  TextMethod textMethod() const { return textMethod_; }
 
   void render(const std::string& canvasId, DomElement* text);
 
@@ -77,6 +81,8 @@ private:
   WPainter   *painter_;
   WFlags<ChangeFlag> changeFlags_;
   WFlags<PaintFlag> paintFlags_;
+
+  TextMethod  textMethod_;
 
   bool        busyWithPath_;
 

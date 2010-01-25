@@ -115,7 +115,7 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
 
 void WSvgImage::setChanged(WFlags<ChangeFlag> flags)
 {
-  if (flags != 0)
+  if (flags)
     newGroup_ = true;
 
   if (flags & Clipping)
@@ -249,7 +249,8 @@ void WSvgImage::makeNewGroup()
     fontStyle_ = fontStyle();
   }
 
-  tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
+  tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_
+      << "font:" << fontStyle_ << '"';
 
   if (!currentTransform_.isIdentity()) {
     tmp << " transform=\"matrix("

@@ -103,8 +103,7 @@ WTreeTableNode *WTreeTable::treeRoot()
 
 void WTreeTable::setTree(WTree *root, const WString& h)
 {
-  if (tree_)
-    delete tree_;
+  delete tree_;
 
   header(0)->setText(h);
   impl_->addWidget(tree_ = new WTree());

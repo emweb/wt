@@ -72,20 +72,27 @@ class WT_API WEnvironment
 public:
   enum UserAgent {
     Unknown = 0,
-    IE = 1000,
+    IEMobile = 1000, // <5 or lower
     IE6 = 1001,
     IE7 = 1002,
-    IE8 = 1003,
-    IEMobile = 1100,
+    IE8 = 1003, // 8 or higher
     Opera = 3000,
     WebKit = 4000,
-    Safari = 4100,
-    Chrome = 4200,
+    Safari = 4100, // < 3
+    Safari3 = 4103,
+    Safari4 = 4104, // 4 or higher
+    Chrome0 = 4200,
+    Chrome1 = 4201,
+    Chrome2 = 4202,
+    Chrome3 = 4203,
+    Chrome4 = 4204, // 4 or higher
     Konqueror = 5000,
     Gecko = 6000,
-    Firefox3 = 6101,
+    Firefox = 6100, // 2 or lower
+    Firefox3_0 = 6101,
     Firefox3_1 = 6102,
-    Firefox3_2 = 6103,
+    Firefox3_1b = 6103,
+    Firefox3_5 = 6104, // 3.5 or higher
     BotAgent = 10000
   };
 
@@ -427,11 +434,11 @@ public:
   UserAgent agent() const { return agent_; }
 
   bool agentIsIE() const {
-    return agent_ >= IE && agent_ < Opera;
+    return agent_ >= IEMobile && agent_ < Opera;
   }
 
   bool agentIsIEMobile() const {
-    return agent_ >= IEMobile && agent_ < Opera;
+    return agent_ == IEMobile;
   }
 
   bool agentIsOpera() const {
@@ -443,11 +450,11 @@ public:
   }
 
   bool agentIsSafari() const {
-    return agent_ >= Safari && agent_ < Chrome;
+    return agent_ >= Safari && agent_ < Chrome0;
   }
 
   bool agentIsChrome() const {
-    return agent_ >= Chrome && agent_ < Konqueror;
+    return agent_ >= Chrome0 && agent_ < Konqueror;
   }
 
   bool agentIsGecko() const {

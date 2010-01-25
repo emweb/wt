@@ -201,8 +201,7 @@ bool WAnchor::wordWrap() const
 
 void WAnchor::setImage(WImage *image)
 {
-  if (image_)
-    delete image_;
+  delete image_;
   image_ = image;
 
   if (image_)

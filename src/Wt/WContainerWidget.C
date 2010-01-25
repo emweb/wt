@@ -460,12 +460,11 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       element.setProperty(PropertyStylePadding,
 			  padding_[0].cssText());
     else
-      if (padding_)
-	element.setProperty(PropertyStylePadding,
-			    padding_[0].cssText()
-			    + " " + padding_[1].cssText()
-			    + " " + padding_[2].cssText()
-			    + " " + padding_[3].cssText());
+      element.setProperty(PropertyStylePadding,
+			  padding_[0].cssText()
+			  + " " + padding_[1].cssText()
+			  + " " + padding_[2].cssText()
+			  + " " + padding_[3].cssText());
 
     flags_.reset(BIT_PADDINGS_CHANGED);
   }
