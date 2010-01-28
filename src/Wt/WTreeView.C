@@ -890,6 +890,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
   itemEvent_.connect(SLOT(this, WTreeView::onItemEvent));
 
   setStyleClass("Wt-treeview");
+  setSelectable(false);
 
   const char *CSS_RULES_NAME = "Wt::WTreeView";
 
@@ -1051,7 +1052,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
   headerContainer_->setStyleClass("Wt-header headerrh cwidth");
   headers_ = new WContainerWidget(headerContainer_);
   headers_->setStyleClass("Wt-headerdiv headerrh");
-  headers_->setSelectable(false);
 
   headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh");
   app->styleSheet().addRule(headerHeightRule_);
@@ -1803,7 +1803,6 @@ void WTreeView::rerenderTree()
 
   rootNode_ = new WTreeViewNode(this, rootIndex_, -1, true, 0);
   rootNode_->resize(WLength(100, WLength::Percentage), 1);
-  rootNode_->setSelectable(false);
 
   if (WApplication::instance()->environment().ajax()) {
     rootNode_->clicked().connect(itemClickedJS_);
