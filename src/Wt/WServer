@@ -212,6 +212,13 @@ public:
    */
   bool isRunning() const;
 
+  /*! \brief Returns the server http port number.
+   *
+   * Returns -1 if the port is not known (i.e. because the connector is
+   * not aware of how the http server is configured).
+   */
+  int httpPort() const;
+
   WServerImpl *impl() { return impl_; }
 
 private:

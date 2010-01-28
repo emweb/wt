@@ -258,6 +258,11 @@ void WServer::stop()
 #endif // WT_THREADED
 }
 
+int WServer::httpPort() const
+{
+  return impl_->server_->httpPort();
+}
+
 int WServer::waitForShutdown()
 {
 #ifdef WT_THREADED

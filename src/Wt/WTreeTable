@@ -84,8 +84,11 @@ class WText;
 .Wt-treetable .Wt-header : header
 \endverbatim
  *
- * \sa WTreeTableNode
- * \sa WTreeView
+ * A screenshot of the treetable:
+ * \image html WTreeTable-default-1.png "An example WTreeTable (default)"
+ * \image html WTreeTable-polished-1.png "An example WTreeTable (polished)"
+ *
+ * \sa WTreeTableNode, WTreeView
  */
 class WT_API WTreeTable : public WCompositeWidget
 {

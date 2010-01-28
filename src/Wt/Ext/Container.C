@@ -106,6 +106,13 @@ std::string Container::createJS(DomElement *inContainer)
 {
   assert(inContainer);
 
+  if (inWtLayout()) {
+    inContainer->setProperty(PropertyStylePosition, "relative");
+    inContainer->callMethod("wtResize ="
+			    "function(self, w, h){ "
+			    + elVar() + ".setSize(w, h); };");
+  }
+
   std::string result;
 
   if (widget_) {
@@ -160,6 +167,18 @@ bool Container::applySelfCss() const
   return false;
 }
 
+bool Container::inWtLayout() const
+{
+  WWidget *p = parent();
+
+  if (p)
+    p = p->parent();
+
+  WContainerWidget *wc = dynamic_cast<WContainerWidget *>(p);
+
+  return wc && wc->layout();
+}
+
 void Container::getDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app)
 {
@@ -183,14 +202,8 @@ void Container::createConfig(std::ostream& config)
 
     config << ",renderTo:'" << id() << "'";
 
-    WContainerWidget *wc = dynamic_cast<WContainerWidget *>(p->parent());
-    if (wc && wc->layout()) {
-      app->doJavaScript
-	(parent()->jsRef() + ".wtResize ="
-	 "function(self, w, h){" + elVar() + ".setSize(w, h); };");
-      parent()->setPositionScheme(Relative);
-      setPositionScheme(Absolute);
-    }
+    if (inWtLayout())
+      config << ",style:'position: absolute;'";
   }
 
   if (widget_)

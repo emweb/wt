@@ -85,18 +85,25 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
 
   // HTTP
   if (!config.httpAddress().empty()) {
-    config.log("notice")
-      << "Starting server: http://" << config.httpAddress() << ":"
-      << config.httpPort();
+    std::string httpPort = config.httpPort();
 
-    asio::ip::tcp::resolver::query tcp_query(config.httpAddress(),
-						    config.httpPort());
-    asio::ip::tcp::endpoint tcp_endpoint = *resolver.resolve(tcp_query);
+    asio::ip::tcp::endpoint tcp_endpoint;
+
+    if (httpPort == "0")
+      tcp_endpoint.address(asio::ip::address::from_string(config.httpAddress()));      
+    else {
+      asio::ip::tcp::resolver::query tcp_query(config.httpAddress(),
+					       config.httpPort());
+      tcp_endpoint = *resolver.resolve(tcp_query);
+    }
 
     tcp_acceptor_.open(tcp_endpoint.protocol());
     tcp_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
     tcp_acceptor_.bind(tcp_endpoint);
     tcp_acceptor_.listen();
+
+    config.log("notice") << "Started server: http://" << config.httpAddress() << ":"
+			 << this->httpPort();
 
     new_tcpconnection_.reset
       (new TcpConnection(io_service_, this, connection_manager_, request_handler_));
@@ -143,6 +150,11 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
   // WServer context, we post the action of calling accept to one of
   // the threads in the threadpool.
   io_service_.post(boost::bind(&Server::startAccept, this));
+}
+
+int Server::httpPort() const
+{
+  return tcp_acceptor_.local_endpoint().port();
 }
 
 void Server::startAccept()

@@ -446,7 +446,6 @@ private:
   int renderUpperBound() const;
 
   void renderedRowsChanged(int row, int count);
-  void convertToRaw(WModelIndexSet& set, std::vector<void *>& result);
 
   WContainerWidget *headerRow();
 

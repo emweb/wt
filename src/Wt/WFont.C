@@ -149,8 +149,8 @@ std::string WFont::cssStyle(bool all) const
     if (styleChanged_ || all)
       return "normal";
     break;
-  case Italic: return "italic"; break;
-  case Oblique: return "oblique"; break;
+  case Italic: return "italic";
+  case Oblique: return "oblique";
   }
 
   return std::string();
@@ -164,7 +164,7 @@ std::string WFont::cssVariant(bool all) const
       return "normal";
     break;
   case SmallCaps:
-    return "small-caps"; break;
+    return "small-caps";
   }
 
   return std::string();
@@ -178,13 +178,12 @@ std::string WFont::cssWeight(bool all) const
     if (weightChanged_ || all)
       return "normal";
     break;
-    case Bold: return "bold"; break;
-    case Bolder:return "bolder"; break;
-    case Lighter: return "lighter"; break;
+    case Bold: return "bold";
+    case Bolder:return "bolder";
+    case Lighter: return "lighter";
     case Value: {
       int v = std::min(900, std::max(100, ((weightValue_ / 100))*100));
       return boost::lexical_cast<std::string>(v);
-      break;
     }
   }
 
@@ -198,15 +197,15 @@ std::string WFont::cssSize(bool all) const
     if (sizeChanged_ || all)
       return "medium";
     break;
-  case XXSmall: return "xx-small"; break;
-  case XSmall: return "x-small"; break;
-  case Small: return "small"; break;
-  case Large: return "large" ; break;
-  case XLarge: return "x-large" ; break;
-  case XXLarge: return "xx-large"; break;
-  case Smaller: return "smaller"; break;
-  case Larger: return "larger"; break;
-  case FixedSize: return fixedSize_.cssText(); break;
+  case XXSmall: return "xx-small";
+  case XSmall: return "x-small";
+  case Small: return "small";
+  case Large: return "large" ;
+  case XLarge: return "x-large" ;
+  case XXLarge: return "xx-large";
+  case Smaller: return "smaller";
+  case Larger: return "larger";
+  case FixedSize: return fixedSize_.cssText();
   }
 
   return std::string();

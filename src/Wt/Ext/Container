@@ -98,6 +98,8 @@ private:
   WWidget  *widget_;
   bool     layoutChanged_;
 
+  bool inWtLayout() const;
+
   void setWidget(WWidget *widget);
   WWidget *widget() const { return widget_; }
 

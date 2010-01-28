@@ -133,7 +133,11 @@ class WTemplate;
  * \endif
  *
  * A screenshot of this example:
- * \image html WSuggestionPopup-1.png "Example of WSuggestionPopup"
+ * <TABLE border="0" align="center"> <TR> <TD> 
+ * \image html WSuggestionPopup-default-1.png "An example WSuggestionPopup (default)"
+ * </TD> <TD>
+ * \image html WSuggestionPopup-polished-1.png "An example WSuggestionPopup (polished)"
+ * </TD> </TR> </TABLE>
  *
  * <h3>CSS</h3>
  *

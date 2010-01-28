@@ -77,6 +77,13 @@ namespace Wt {
 .Wt-tree .Wt-selected : selected item
 \endverbatim
  *
+ * A screenshot of the tree:
+ * <TABLE border="0" align="center"> <TR> <TD> 
+ * \image html WTree-default-1.png "An example WTree (default)"
+ * </TD> <TD>
+ * \image html WTree-polished-1.png "An example WTree (polished)"
+ * </TD> </TR> </TABLE>
+ *
  * \sa WTreeNode, WTreeTable, WTreeView
  */
 class WT_API WTree : public WCompositeWidget

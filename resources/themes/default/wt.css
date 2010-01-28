@@ -393,13 +393,13 @@
 .Wt-treeview .Wt-expand {
     width: 19px;
     height: 18px;
-    background: url(../../nav-plus.gif) no-repeat 0 center;
+    background: url(nav-plus.gif) no-repeat 0 center;
 }
 
 .Wt-treeview .Wt-collapse {
     width: 19px;
     height: 18px;
-    background: url(../../nav-minus.gif) no-repeat 0 center;
+    background: url(nav-minus.gif) no-repeat 0 center;
 }
 
 .Wt-treeview .Wt-noexpand {

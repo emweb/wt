@@ -78,6 +78,9 @@ public:
   /// Stop selecting on the descriptor
   void stop_select(int descriptor);
 
+  /// Returns the http port number.
+  int httpPort() const;
+
   static Server* instance() { return instance_; }
 
   Wt::WebController *controller() { return controller_; }

@@ -91,7 +91,12 @@ void WGridLayout::addItem(WLayoutItem *item, int row, int column,
 
   Impl::Grid::Item& gridItem = grid_.items_[row][column];
 
-  delete gridItem.item_;
+  if (gridItem.item_) {
+    WLayoutItem *item = gridItem.item_;
+    gridItem.item_ = 0;
+    updateRemoveItem(item);
+  }
+
   gridItem.item_ = item;
   gridItem.rowSpan_ = rowSpan;
   gridItem.colSpan_ = columnSpan;

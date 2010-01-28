@@ -864,6 +864,10 @@ bool WServer::isRunning() const
   return impl_ && impl_->running_;
 }
 
+int WServer::httpPort() const
+{
+  return -1;
+}
 
 void WServer::stop()
 {

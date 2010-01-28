@@ -2880,17 +2880,6 @@ void WTreeView::expandColumn(int columnid)
   setHeaderHeight(headerLineHeight_, multiLineHeader_);
 }
 
-void WTreeView::convertToRaw(WModelIndexSet& set, std::vector<void *>& result)
-{
-  for (WModelIndexSet::const_iterator i = set.begin(); i != set.end(); ++i) {
-    void *rawIndex = model_->toRawIndex(*i);
-    if (rawIndex)
-      result.push_back(rawIndex);
-  }
-
-  set.clear();
-}
-
 void WTreeView::modelLayoutAboutToBeChanged()
 {
   convertToRaw(expandedSet_, expandedRaw_);

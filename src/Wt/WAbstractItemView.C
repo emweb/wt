@@ -303,17 +303,21 @@ int WAbstractItemView::columnCount() const
 
 void WAbstractItemView::sortByColumn(int column, SortOrder order)
 {
+  WText* t = headerSortIconWidget(currentSortColumn_);
+
   if (currentSortColumn_ != -1)
-    headerSortIconWidget(currentSortColumn_)
-      ->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
+    if (t)
+      t->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
 
   currentSortColumn_ = column;
   columnInfo(column).sortOrder = order;
 
-  if (renderState_ != NeedRerender)
-    headerSortIconWidget(currentSortColumn_)
-      ->setStyleClass(order == AscendingOrder
-		      ? "Wt-tv-sh Wt-tv-sh-up" : "Wt-tv-sh Wt-tv-sh-down");
+  if (renderState_ != NeedRerender) {
+    t = headerSortIconWidget(currentSortColumn_);
+    if (t)
+      t->setStyleClass(order == AscendingOrder
+		       ? "Wt-tv-sh Wt-tv-sh-up" : "Wt-tv-sh Wt-tv-sh-down");
+  }
 
   model_->sort(column, order);
 }
@@ -546,6 +550,18 @@ int WAbstractItemView::headerLevelCount() const
     }
 
   return result + 1;
+}
+
+void WAbstractItemView::convertToRaw(WModelIndexSet& set, 
+				     std::vector<void *>& result)
+{
+  for (WModelIndexSet::const_iterator i = set.begin(); i != set.end(); ++i) {
+    void *rawIndex = model_->toRawIndex(*i);
+    if (rawIndex)
+      result.push_back(rawIndex);
+  }
+
+  set.clear();
 }
 
 }

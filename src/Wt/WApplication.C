@@ -34,6 +34,8 @@
 
 namespace Wt {
 
+const char *WApplication::RESOURCES_URL = "resourcesURL";
+
 WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
 					   const std::string& aSymbol)
   : uri(anUri), symbol(aSymbol)
@@ -301,24 +303,28 @@ std::string WApplication::resourcesUrl()
 {
 #ifndef WT_TARGET_JAVA
   std::string result = "resources/";
-  readConfigurationProperty("resourcesURL", result);
+  readConfigurationProperty(WApplication::RESOURCES_URL, result);
 
   if (!result.empty() && result[result.length()-1] != '/')
     result += '/';
 
   return WApplication::instance()->fixRelativeUrl(result);
 #else
-  std::string path = "/wt-resources/";
-  readConfigurationProperty("resourcesURL", path);
+  const std::string* path = WApplication::instance()->session_->controller()
+    ->configuration().property(WApplication::RESOURCES_URL);
   /*
    * Arghll... we should in fact know when we need the absolute URL: only
    * when we are having a request.pathInfo().
    */
-  std::string result = WApplication::instance()->environment().deploymentPath();
-  if (!result.empty() && result[result.length() - 1] == '/')
-    return result + path.substr(1);
-  else
-    return result + path;
+  if (path == "/wt-resources/") {
+    std::string result = 
+      WApplication::instance()->environment().deploymentPath();
+    if (!result.empty() && result[result.length() - 1] == '/')
+      return result + path->substr(1);
+    else
+      return result + *path;
+  } else 
+    return *path;
 #endif // WT_TARGET_JAVA
 }
 

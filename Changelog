@@ -1,3 +1,7 @@
+28-01-2010:
+	* Ext/Container.C, WStackedWidget.C: fixed behavior in combination
+	with layout managers
+
 25-01-2010:
 	* WTreeView.C: simplified column resize handling code
 

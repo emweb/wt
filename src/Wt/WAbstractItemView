@@ -509,6 +509,7 @@ protected:
   void modelReset();
 
   int headerLevelCount() const;
+  void convertToRaw(WModelIndexSet& set, std::vector<void *>& result);
 };
 
 }

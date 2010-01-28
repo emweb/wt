@@ -171,7 +171,7 @@ public:
 
   /*! \brief Sets the image pack for this (sub)tree (<b>deprecated</b>).
    *
-   * \deprecated This method does not do anything since Wt 3.1.1, as the
+   * \deprecated This method does not do anything since \Wt 3.1.1, as the
    *             tree is now styled based on the current CSS theme.
    */
   void setImagePack(const std::string& url);
@@ -304,7 +304,7 @@ protected:
 
   /*! \brief The image pack that is used for this tree node (<b>deprecated</b>).
    *
-   * \deprecated This method returns "" since Wt 3.1.1, as the image pack is
+   * \deprecated This method returns "" since \Wt 3.1.1, as the image pack is
    *             no longer used in favour of the CSS themes.
    */
   std::string imagePack() const;

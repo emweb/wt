@@ -1191,6 +1191,8 @@ public:
    */
   bool debug() const;
 
+  static const char *RESOURCES_URL;
+
 protected:
   /*! \brief Notifies an event to the application.
    *

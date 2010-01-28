@@ -199,12 +199,6 @@ Configuration::Configuration(const std::string& applicationPath,
       // Environment var must contain path to config file
       configFile = getenv("WT_CONFIG_XML");
     } else {
-      // No config file so far, try the default location
-      std::ifstream test(WT_CONFIG_XML);
-      if (!test) {
-	// Just use the default configuration
-	return;
-      }
       configFile = WT_CONFIG_XML;
     }
   }
@@ -385,10 +379,8 @@ void Configuration::readConfiguration(const std::string& configurationFile,
 #ifndef WT_NO_XML
   try {
     FILE *fp = fopen(configurationFile.c_str(), "r");
-    if (!fp) {
-      throw WServer::Exception("Configuration file not found at " +
-			       configurationFile);
-    }
+    if (!fp)
+      return;
 
     mxml_node_t *top = mxmlNewElement(MXML_NO_PARENT, "top");
 
