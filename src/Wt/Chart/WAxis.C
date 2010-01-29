@@ -428,7 +428,7 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 
 	    if (findMaximum)
 	      maximum = std::max(v, maximum);
-	    if (findMaximum)
+	    if (findMinimum)
 	      minimum = std::min(v, minimum);
 	  }
 	}
