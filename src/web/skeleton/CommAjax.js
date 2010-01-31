@@ -23,7 +23,9 @@ _$_APP_CLASS_$_._p_.comm = new (function(handleResponse) {
 	  // console.log("recvCallback " + request.status);
 	  clearTimeout(timer);
 
-	  if (request.status == 200)
+	  if (request.status == 200
+	      && request.getResponseHeader("Content-Type")
+	      .indexOf("text/javascript") == 0)
 	    handler(0, request.responseText, userData);
 	  else
 	    handler(1, null, userData);

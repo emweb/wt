@@ -492,7 +492,7 @@ protected:
 
   virtual WContainerWidget* headerContainer() = 0;
 
-  void scheduleRerender(RenderState what);
+  virtual void scheduleRerender(RenderState what);
 
   virtual void modelColumnsInserted(const WModelIndex& parent, int start, int end) = 0;
   virtual void modelColumnsAboutToBeRemoved(const WModelIndex& parent,

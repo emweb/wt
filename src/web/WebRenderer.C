@@ -117,7 +117,7 @@ void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
 			      bool embedded)
 {
   if (!embedded)
-    setHeaders(response, "text/plain; charset=UTF-8");
+    setHeaders(response, "text/javascript; charset=UTF-8");
 
   response.out() << "window.location.reload(true);";
 }
@@ -311,7 +311,7 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 
 void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
-  setHeaders(response, "text/plain; charset=UTF-8");
+  setHeaders(response, "text/javascript; charset=UTF-8");
 
   collectJavaScript();
 

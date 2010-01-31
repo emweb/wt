@@ -391,6 +391,8 @@ private:
   void rerenderHeader();
   void rerenderTree();
 
+  virtual void scheduleRerender(RenderState what);
+
   virtual void modelColumnsInserted(const WModelIndex& parent, int start, int end);
   virtual void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 				    int start, int end);

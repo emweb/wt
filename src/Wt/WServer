@@ -219,6 +219,8 @@ public:
    */
   int httpPort() const;
 
+  void expireSessions();
+
   WServerImpl *impl() { return impl_; }
 
 private:

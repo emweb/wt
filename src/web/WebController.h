@@ -77,6 +77,8 @@ public:
 
   void handleRequest(WebRequest *request, const EntryPoint *entryPoint = 0);
 
+  bool expireSessions();
+
   void forceShutdown();
 
   static std::string appSessionCookie(std::string url);
@@ -119,7 +121,6 @@ private:
   boost::threadpool::pool threadPool_;
 #endif
 
-  bool expireSessions();
   void handleRequestThreaded(WebRequest *request);
 
   const EntryPoint *getEntryPoint(const std::string& deploymentPath);

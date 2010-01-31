@@ -151,7 +151,7 @@ public:
     : node_(node),
       height_(0)
   {
-    setRows(height);
+    resize(Wt::WLength::Auto, 0);
     setInline(false);
     setStyleClass("Wt-spacer");
   }
@@ -257,10 +257,13 @@ private:
 
 void RowSpacer::setRows(int height, bool force)
 {
-  if (force || height != height_) {
-    height_ = height;
-    resize(Wt::WLength::Auto, node_->view()->rowHeight() * height);
-  }
+  if (height == 0)
+    delete this;
+  else
+    if (force || height != height_) {
+      height_ = height;
+      resize(Wt::WLength::Auto, node_->view()->rowHeight() * height);
+    }
 }
 
 int RowSpacer::renderedRow(int lowerBound, int upperBound)
@@ -560,11 +563,14 @@ bool WTreeViewNode::isExpanded()
 
 void WTreeViewNode::normalizeSpacers()
 {
-  if (childrenLoaded_
-      && childContainer()->count() == 2
-      && topSpacer() && bottomSpacer()) {
-    addTopSpacerHeight(bottomSpacerHeight());
-    delete bottomSpacer();
+  if (childrenLoaded_ && childContainer()->count() == 2) {
+    RowSpacer *top = topSpacer();
+    RowSpacer *bottom = bottomSpacer();
+
+    if (top && bottom && top != bottom) {
+      top->setRows(top->rows() + bottom->rows());
+      delete bottom;
+    }
   }
 }
 
@@ -638,7 +644,7 @@ WWidget *WTreeViewNode::widgetForModelRow(int modelRow)
 	return bottomSpacer();
     } else
       return bottomSpacer();
-  } else
+  } else // isAllSpacer()
     return topSpacer();
 }
 
@@ -1701,6 +1707,16 @@ void WTreeView::setRootIndex(const WModelIndex& rootIndex)
   }
 }
 
+void WTreeView::scheduleRerender(RenderState what)
+{
+  if (what == NeedRerender || what == NeedRerenderData) {
+    delete rootNode_;
+    rootNode_ = 0;
+  }
+
+  WAbstractItemView::scheduleRerender(what);
+}
+
 void WTreeView::render()
 {
   while (renderState_ != RenderOk) {
@@ -2341,8 +2357,9 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 	    firstRemovedRow_ = renderedRow(childIndex, s);
 	}
 
-	s->setRows(s->rows() - removedHeight_);
-	s->node()->adjustChildrenHeight(-removedHeight_);
+	WTreeViewNode *node = s->node();
+	s->setRows(s->rows() - removedHeight_); // could delete s ?
+	node->adjustChildrenHeight(-removedHeight_);
       }
     } /* else:
        parentWidget is 0: it means it is not even part of any spacer.
@@ -2600,13 +2617,13 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 	    rowStubs = 0;
 	  }
 
-	  assert(rootNode_->rowCount() == 1);
+	  // assert(rootNode_->rowCount() == 1);
 
 	  WTreeViewNode *n = new WTreeViewNode(this, childIndex,
 					       childHeight - 1,
 					       i == childCount - 1, node);
 
-	  assert(rootNode_->rowCount() == 1);
+	  // assert(rootNode_->rowCount() == 1);
 
 	  node->childContainer()->addWidget(n);
 
@@ -2690,7 +2707,7 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
     nodeRow += nch;
   }
 
-  assert(rootNode_->rowCount() == 1);
+  // assert(rootNode_->rowCount() == 1);
 
   // if a node has children loaded but is not currently expanded, then still
   // adjust it, but do not return the calculated nodeRow for it.

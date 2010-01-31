@@ -301,6 +301,11 @@ int WServer::waitForShutdown()
 #endif // WT_THREADED
 }
 
+void WServer::expireSessions()
+{
+  impl_->webController_.expireSessions();
+}
+
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {
