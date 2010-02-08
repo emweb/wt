@@ -738,7 +738,7 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
 
   if (value.empty()) {
     if (i != otherImpl_->jsMembers_->end())
-      otherImpl_->jsMembers_->erase(i);
+      otherImpl_->jsMembers_->erase(name);
     else
       return;
   } else

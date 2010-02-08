@@ -1316,7 +1316,7 @@ void WTreeView::refresh()
     ""  "c0id = h.lastChild.className.split(' ')[0],"
     ""  "c0r = WT.getCssRule('#" + id() + " .' + c0id);"
 
-    "if (WT.isHidden(e)) return;"
+    "if (WT.isHidden(e) || h.offsetWidth - hc.offsetWidth < 8) return;"
 
     "for (var i=0, length=hc.childNodes.length; i < length; ++i) {\n"
     """if (hc.childNodes[i].className) {\n" // IE may have only a text node

@@ -303,17 +303,17 @@ int WAbstractItemView::columnCount() const
 
 void WAbstractItemView::sortByColumn(int column, SortOrder order)
 {
-  WText* t = headerSortIconWidget(currentSortColumn_);
-
-  if (currentSortColumn_ != -1)
+  if (currentSortColumn_ != -1) {
+    WText* t = headerSortIconWidget(currentSortColumn_);
     if (t)
       t->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
+  }
 
   currentSortColumn_ = column;
   columnInfo(column).sortOrder = order;
 
   if (renderState_ != NeedRerender) {
-    t = headerSortIconWidget(currentSortColumn_);
+    WText* t = headerSortIconWidget(currentSortColumn_);
     if (t)
       t->setStyleClass(order == AscendingOrder
 		       ? "Wt-tv-sh Wt-tv-sh-up" : "Wt-tv-sh Wt-tv-sh-down");

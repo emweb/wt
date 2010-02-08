@@ -1188,11 +1188,15 @@ function setServerPush(how) {
 }
 
 function doJavaScript(js) {
-  with (window) {
-    if (js)
-      eval(js);
-    _$_APP_CLASS_$_._p_.autoJavaScript();
-  }
+  if (js)
+    if (window.execScript)
+      window.execScript(js);
+    else
+      with (window) {
+	eval(js);
+      }
+
+  _$_APP_CLASS_$_._p_.autoJavaScript();
 }
 
 function handleResponse(status, msg, timer) {
