@@ -792,7 +792,8 @@ var dragState = {
   dropOffsetX: null,
   dragOffsetY: null,
   dropTarget: null,
-  objectPrevStyle: null
+  objectPrevStyle: null,
+  xy: null
 };
 
 function capture(obj) {
@@ -873,6 +874,7 @@ function dragStart(obj, e) {
   ds.offsetY = -4;
   ds.dropTarget = null;
   ds.mimeType = obj.getAttribute("dmt");
+  ds.xy = WT.pageCoordinates(e);
 
   WT.cancelEvent(e);
   return false;
@@ -889,7 +891,9 @@ function dragDrag(e) {
     var ds = dragState;
     var xy = WT.pageCoordinates(e);
 
-    ds.object.style["display"] = '';
+    if (ds.object.style["display"] != '' && ds.xy.x != xy.x && ds.xy.y != xy.y)
+      ds.object.style["display"] = '';
+
     ds.object.style["left"] = (xy.x - ds.offsetX) + 'px';
     ds.object.style["top"] = (xy.y - ds.offsetY) + 'px';
 
@@ -952,6 +956,7 @@ function dragEnd(e) {
     var el = captureElement;
     capture(null);
     WT.condCall(el, 'onmouseup', e);
+    WT.cancelEvent(e, WT.CancelPropagate);
     return false;
   }
 

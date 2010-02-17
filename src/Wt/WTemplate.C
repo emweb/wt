@@ -133,13 +133,15 @@ WWidget *WTemplate::resolveWidget(const std::string& varName)
     return 0;
 }
 
-void WTemplate::setTemplateText(const WString& text)
+void WTemplate::setTemplateText(const WString& text, TextFormat textFormat)
 {
   text_ = text;
 
-  if (text_.literal())
+  if (textFormat == XHTMLText && text_.literal()) {
     if (!removeScript(text_))
       text_ = escapeText(text_, true);
+  } else if (textFormat == PlainText)
+    text_ = escapeText(text_, true);
 
   changed_ = true;
   repaint(RepaintInnerHtml);

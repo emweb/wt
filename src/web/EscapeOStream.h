@@ -17,6 +17,31 @@ namespace Wt {
 class WT_API EscapeOStream
 {
 public:
+  struct iterator {
+    struct char_proxy {
+      char& operator= (char c);
+
+    private:
+      char_proxy(EscapeOStream& stream);
+      EscapeOStream& stream_;
+
+      friend struct iterator;
+    };
+
+    iterator();
+
+    char_proxy operator * ();
+
+    iterator& operator ++ ();
+    iterator  operator ++ (int);
+
+  private:
+    EscapeOStream *stream_;
+    iterator(EscapeOStream& stream);
+
+    friend class EscapeOStream;
+  };
+
   enum RuleSet { Empty = 0, HtmlAttribute = 1,
 		 JsStringLiteralSQuote = 2, JsStringLiteralDQuote = 3 };
 
@@ -39,6 +64,8 @@ public:
   EscapeOStream& operator<< (const char *s);
   EscapeOStream& operator<< (const std::string& s);
   EscapeOStream& operator<< (int);
+
+  iterator back_inserter();
 
   const char *c_str();
   void clear();

@@ -79,6 +79,7 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     clicked_(this),
     doubleClicked_(this),
     mouseWentDown_(this),
+    mouseWentUp_(this),
     selectionChanged_(this),
     currentSortColumn_(-1),
     resizeHandleMDownJS_(this),
@@ -89,6 +90,7 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     itemClickedJS_(this),
     itemDoubleClickedJS_(this),
     itemMouseDownJS_(this),
+    itemMouseUpJS_(this),
     dragEnabled_(false),
     dropsEnabled_(false)
 {

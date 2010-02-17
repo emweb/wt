@@ -1,3 +1,6 @@
+12-02-2010:
+	* mxml: replace mxml with an (adapted) rapidxml browser.
+
 28-01-2010:
 	* Ext/Container.C, WStackedWidget.C: fixed behavior in combination
 	with layout managers

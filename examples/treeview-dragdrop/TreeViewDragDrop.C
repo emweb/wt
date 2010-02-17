@@ -361,7 +361,7 @@ private:
     treeView->selectionChanged().connect(SLOT(this,
 					      TreeViewDragDrop::folderChanged));
 
-    treeView->mouseWentDown().connect(SLOT(this, TreeViewDragDrop::showPopup));
+    treeView->mouseWentUp().connect(SLOT(this, TreeViewDragDrop::showPopup));
 
     folderView_ = treeView;
 

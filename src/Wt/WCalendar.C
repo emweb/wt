@@ -83,7 +83,7 @@ void WCalendar::create()
   std::stringstream text;
 
   text <<
-    "<table class=${table-class} cellspacing=\"0\" cellpadding=\"0\">"
+    "<table class=\"${table-class}\" cellspacing=\"0\" cellpadding=\"0\">"
     """<caption>"
     ""  "${nav-prev} ${month} ${year} ${nav-next}"
     """</caption>"
@@ -104,7 +104,8 @@ void WCalendar::create()
 
   text << "</table>";
 
-  setImplementation(impl_ = new WTemplate(WString::fromUTF8(text.str())));
+  setImplementation(impl_ = new WTemplate());
+  impl_->setTemplateText(WString::fromUTF8(text.str()), XHTMLUnsafeText);
   impl_->setStyleClass("Wt-cal");
 
   setSelectable(false);
@@ -148,7 +149,7 @@ void WCalendar::setFirstDayOfWeek(int dayOfWeek)
 
     WString title = i18n_ ? tr(WDate::longDayName(day).toUTF8())
       : DATE_NAME_STR(WDate::longDayName(day));
-    impl_->bindString("t" + boost::lexical_cast<std::string>(i), title);
+    impl_->bindString("t" + boost::lexical_cast<std::string>(i), title, XHTMLUnsafeText);
 
     WString abbr = i18n_ ? tr(WDate::shortDayName(day).toUTF8())
       : DATE_NAME_STR(WDate::shortDayName(day));
@@ -156,7 +157,7 @@ void WCalendar::setFirstDayOfWeek(int dayOfWeek)
     if (dayOfWeekChars_ != 3)
       abbr = WString::fromUTF8(abbr.toUTF8().substr(0, 1));
 
-    impl_->bindString("d" + boost::lexical_cast<std::string>(i), abbr);
+    impl_->bindString("d" + boost::lexical_cast<std::string>(i), abbr, XHTMLUnsafeText);
   }
 
   renderMonth();
@@ -167,7 +168,7 @@ void WCalendar::setDayOfWeekLength(int chars)
   dayOfWeekChars_ = chars == 3 ? 3 : 1;
 
   impl_->bindString("table-class",
-		    "d" + boost::lexical_cast<std::string>(dayOfWeekChars_));
+		    "d" + boost::lexical_cast<std::string>(dayOfWeekChars_), XHTMLUnsafeText);
 
   setFirstDayOfWeek(firstDayOfWeek_);
 }

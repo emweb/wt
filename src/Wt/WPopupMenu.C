@@ -116,7 +116,7 @@ void WPopupMenu::done(WPopupMenuItem *result)
   globalEscapeConnection_.disconnect();
 
   WApplication::instance()->root()->clicked().senderRepaint();
-  WApplication::instance()->root()->escapePressed().senderRepaint();
+  WApplication::instance()->globalEscapePressed().senderRepaint();
 
   recursiveEventLoop_ = false;
 
@@ -154,13 +154,13 @@ void WPopupMenu::popupImpl()
   // XXX
   // We rely here on the fact that no other widget is listening for
   // escape on the root()
-  if (app->root()->escapePressed().isConnected())
-    app->root()->escapePressed().emit();
+  if (app->globalEscapePressed().isConnected())
+    app->globalEscapePressed().emit();
 
   globalClickConnection_
     = app->root()->clicked().connect(SLOT(this, WPopupMenu::done));
   globalEscapeConnection_
-    = app->root()->escapePressed().connect(SLOT(this, WPopupMenu::done));
+    = app->globalEscapePressed().connect(SLOT(this, WPopupMenu::done));
 
   prepareRender(app);
 

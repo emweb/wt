@@ -3,96 +3,62 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <mxml.h>
-
 #include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WString"
 
 #include "DomElement.h"
 #include "XSSUtils.h"
+#include "EscapeOStream.h"
 
-namespace {
+#include <stdio.h>
+#include <string.h>
+#include <iomanip>
+#include "Wt/WStringUtil"
+#include "rapidxml/rapidxml.hpp"
+#include "rapidxml/rapidxml_print.hpp"
 
-class MyHandler
-{
-public:
-  MyHandler();
-
-  static void sax_cb(mxml_node_t *node, mxml_sax_event_t event, void *data);
-
-private:
-  void saxCallback(mxml_node_t *node, mxml_sax_event_t event);
-
-  int discard_;
-};
-
-MyHandler::MyHandler()
-  : discard_(0)
-{ }
-
-
-void MyHandler::saxCallback(mxml_node_t *node, mxml_sax_event_t event)
-{
-  if (event == MXML_SAX_ELEMENT_OPEN) {
-    const char *name = node->value.element.name;
-
-    if (Wt::XSS::isBadTag(name)) {
-      wApp->log("warn") << "(XSS) discarding invalid tag: " << name;
-      ++discard_;
-    }
-
-    if (discard_ == 0) {
-      for (int i = 0; i < node->value.element.num_attrs; ++i) {
-	const char *aname = node->value.element.attrs[i].name;
-	char *v = node->value.element.attrs[i].value;
-
-	if (Wt::XSS::isBadAttribute(aname) || Wt::XSS::isBadAttributeValue(aname, v)) {
-	  wApp->log("warn") << "(XSS) discarding invalid attribute: "
-			    << aname << ": " << v;
-	  mxmlElementDeleteAttr(node, aname);
-	  --i;
-	}
-      }
-    }
-  } else if (event == MXML_SAX_ELEMENT_CLOSE) {
-    std::string name = node->value.element.name;
-    if (Wt::XSS::isBadTag(name))
-      --discard_;
-
-    if (!discard_) {
-      if (!node->child && !Wt::DomElement::isSelfClosingTag(name)) {
-	mxmlNewText(node, 0, "");
-      }
-    }
-  }
-
-  if (!discard_) {
-    if (event == MXML_SAX_ELEMENT_OPEN)
-      mxmlRetain(node);
-    else if (event == MXML_SAX_DIRECTIVE)
-      mxmlRetain(node);
-    else if (event == MXML_SAX_DATA && node->parent->ref_count > 1) {
-      /*
-       * If the parent was retained, then retain
-       * this data node as well.
-       */
-      mxmlRetain(node);
-    }
-  }
-}
-
-void MyHandler::sax_cb(mxml_node_t *node, mxml_sax_event_t event,
-			     void *data)
-{
-  MyHandler *instance = (MyHandler *)data;
-
-  instance->saxCallback(node, event);
-}
-
-}
+using namespace rapidxml;
 
 namespace Wt {
+
+void XSSSanitize(xml_node<> *x_node)
+{
+  for (xml_attribute<> *x_attr = x_node->first_attribute(); x_attr;) {
+
+    xml_attribute<> *x_next_attr = x_attr->next_attribute();
+    if (Wt::XSS::isBadAttribute(x_attr->name())
+	|| Wt::XSS::isBadAttributeValue(x_attr->name(), x_attr->value())) {
+      wApp->log("warn") << "(XSS) discarding invalid attribute: "
+			<< x_attr->name() << ": " << x_attr->value();
+      x_node->remove_attribute(x_attr);
+    }
+
+    x_attr = x_next_attr;
+  }
+
+  for (xml_node<> *x_child = x_node->first_node(); x_child;) {
+    xml_node<> *x_next_child = x_child->next_sibling();
+
+    if (Wt::XSS::isBadTag(x_child->name())) {
+      wApp->log("warn") << "(XSS) discarding invalid tag: " << x_child->name();
+      x_node->remove_node(x_child);
+    } else
+      XSSSanitize(x_child);
+
+    x_child = x_next_child;
+  }
+
+  if (!x_node->first_node()
+      && x_node->value_size() == 0
+      && !DomElement::isSelfClosingTag(x_node->name())) {
+    // We need to add an emtpy data node since <div /> is illegal HTML
+    // (but valid XML / XHTML)
+    xml_node<> *empty
+      = x_node->document()->allocate_node(node_data, 0, 0, 0, 0);
+    x_node->append_node(empty);
+  }
+}
 
 bool XSSFilterRemoveScript(WString& text)
 {
@@ -100,35 +66,33 @@ bool XSSFilterRemoveScript(WString& text)
     return true;
 
   std::string result = "<span>" + text.toUTF8() + "</span>";
+  char *ctext = const_cast<char *>(result.c_str()); // Shhht it's okay !
 
-  MyHandler handler;
+  try {
+    xml_document<> doc;
+    doc.parse<parse_comment_nodes
+      | parse_validate_closing_tags
+      | parse_validate_utf8
+      | parse_xhtml_entity_translation>(ctext);
 
-  mxml_node_t *top = mxmlNewElement(MXML_NO_PARENT, "span");
-  mxml_node_t *first
-    = mxmlSAXLoadString(top, result.c_str(), MXML_OPAQUE_CALLBACK,
-			MyHandler::sax_cb, &handler);
+    XSSSanitize(doc.first_node());
 
-  if (first) {
-    char *r = mxmlSaveAllocString(top, MXML_NO_CALLBACK);
-    result = r;
-    free(r);
-  } else {
-    mxmlDelete(top);
-    wApp->log("error") << "Error parsing: " << text;
+    std::stringstream out;
+    {
+      EscapeOStream eout(out);
+      print(eout.back_inserter(), *doc.first_node(), print_no_indenting);
+    }
 
+    result = out.str();
+  } catch (parse_error& e) {
+    wApp->log("error") << "Error reading XHTML string: " << e.what();
     return false;
   }
 
-  mxmlDelete(top);
-
-  /*
-   * 27 is the length of '<span><span>x</span></span>\n'
-   */
-
-  if (result.length() < 28)
+  if (result.length() < 13)
     result.clear();
   else
-    result = result.substr(12, result.length() - 27);
+    result = result.substr(6, result.length() - 13);
 
   text = WString::fromUTF8(result);
 

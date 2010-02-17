@@ -55,6 +55,8 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
      ""  "} else if (event.keyCode == 40 || event.keyCode == 38) {"
      ""    "if (event.type.toUpperCase() == 'KEYDOWN')"
      ""      "self.kd = true;"
+     // FIXME: cancel the event so that up and down is not handled by
+     // the text area
      ""    "if (event.type.toUpperCase() == 'KEYPRESS'"
      ""      "&& self.kd == true) {"
      ""       WT_CLASS ".cancelEvent(event);"
@@ -68,11 +70,10 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
      ""         "&& n.style.display == 'none';"
      ""         "n = (event.keyCode == 40) ? n.nextSibling : n.previousSibling) { }"
      ""    "if (n != null && n.nodeName.toUpperCase() == 'DIV') {"
-     ""      "sel.setAttribute('class', null);"
-     ""      "n.setAttribute('class', 'sel');"
+     ""      "sel.className = null;"
+     ""      "n.className = 'sel';"
      ""      "self.sel = n.id;"
      ""    "}"
-     ""    WT_CLASS ".cancelEvent(event);"
      ""    "return false;"
      ""  "}"
      """}"

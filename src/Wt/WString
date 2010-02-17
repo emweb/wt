@@ -202,15 +202,25 @@ public:
    *
    * This is equivalent to using the constructor WString(\p value,
    * UTF8).
+   *
+   * When \p checkValid is \c true, the UTF8 encoding is validated. You
+   * should enable this only if you cannot trust the origin of the string.
+   * The library uses this internally whenever it receives data from the
+   * browser (in UTF-8 format).
    */
-  static WString fromUTF8(const std::string& value);
+  static WString fromUTF8(const std::string& value, bool checkValid = false);
 
   /*! \brief Creates a %WString from a UTF8 unicode encoded string.
    *
    * This is equivalent to using the constructor WString(\p value,
    * UTF8).
+   *
+   * When \p checkValid is \c true, the UTF8 encoding is validated. You
+   * should enable this only if you cannot trust the origin of the string.
+   * The library uses this internally whenever it receives data from the
+   * browser (in UTF-8 format).
    */
-  static WString fromUTF8(const char *value);
+  static WString fromUTF8(const char *value, bool checkValid = false);
 
   /*! \brief Returns the value as a UTF8 unicode encoded string.
    *
@@ -372,6 +382,8 @@ public:
   /** \brief An emtpy string.
    */
   static const WString Empty;
+
+  static void checkUTF8Encoding(std::string& value);
 
 private:
   WString(const char *key, bool);

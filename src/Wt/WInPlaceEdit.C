@@ -45,29 +45,44 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   edit_->escapePressed().connect(SLOT(this, WInPlaceEdit::cancel));
   edit_->escapePressed().setPreventDefault(true);
 
-  edit_->blurred().connect(SLOT(edit_, WWidget::hide));
-  edit_->blurred().connect(SLOT(text_, WWidget::show));
-  edit_->blurred().connect(SLOT(this, WInPlaceEdit::cancel));
-
   setButtonsEnabled();
 }
 
 const WString& WInPlaceEdit::text() const
 {
-  return text_->text();
+  return edit_->text();
 }
 
 void WInPlaceEdit::setText(const WString& text)
 {
-  text_->setText(text);
+  if (text != WString::Empty)
+    text_->setText(text);
+  else
+    text_->setText(emptyText_);
+
   edit_->setText(text);
+}
+
+void WInPlaceEdit::setEmptyText(const WString& emptyText)
+{
+  emptyText_ = emptyText;
+}
+
+const WString& WInPlaceEdit::emptyText()
+{
+  return emptyText_;
 }
 
 void WInPlaceEdit::save()
 {
   edit_->hide();
   text_->show();
-  text_->setText(edit_->text());
+
+  if (edit_->text() != WString::Empty)
+    text_->setText(edit_->text());
+  else
+    text_->setText(emptyText_);
+
   edit_->enable();
 
   valueChanged().emit(edit_->text());
@@ -98,8 +113,6 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
     edit_->enterPressed() .connect(SLOT(cancel_, WWidget::hide));
     edit_->escapePressed().connect(SLOT(save_,   WWidget::hide));
     edit_->escapePressed().connect(SLOT(cancel_, WWidget::hide));
-    edit_->blurred()      .connect(SLOT(save_,   WWidget::hide));
-    edit_->blurred()      .connect(SLOT(cancel_, WWidget::hide));   
 
     save_->clicked().connect(SLOT(save_,   WWidget::hide));
     save_->clicked().connect(SLOT(cancel_, WWidget::hide));

@@ -577,6 +577,41 @@ std::string DomElement::cssStyle() const
   return style.str();
 }
 
+void DomElement::setJavaScriptEvent(EscapeOStream& out,
+				    const char *eventName,
+				    const EventHandler& handler,
+				    WApplication *app) const
+{
+  // events on the dom root container are events received by the whole
+  // document when no element has focus
+  bool globalUnfocused = (id_ == app->domRoot()->id());
+  std::string extra1, extra2;
+
+  if (globalUnfocused) {
+    extra1 = 
+      "var g = event||window.event; "
+      "var t = g.target||g.srcElement;"
+      "if ((!t||" WT_CLASS ".hasTag(t,'DIV') "
+      ""     "||" WT_CLASS ".hasTag(t,'HTML'))) { "; 
+    extra2 =
+      "}";
+  }
+
+  int fid = nextId_++;
+
+  out << "function f" << fid
+      << "(event){ " << extra1 << handler.jsCode << extra2 << "}\n";
+
+  if (globalUnfocused)
+    out << "document";
+  else {
+    declare(out);
+    out << var_;
+  }
+
+  out << ".on" << eventName << "=f" << fid << ";\n";
+}
+
 void DomElement::asHTML(EscapeOStream& out,
 			std::ostream& javaScript,
 			std::vector<TimeoutEvent>& timeouts,
@@ -748,10 +783,9 @@ void DomElement::asHTML(EscapeOStream& out,
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
 	 i != eventHandlers_.end(); ++i) {
       if (!i->second.jsCode.empty()) {
-	if (Utils::startsWith(i->first, "key", 3) &&
-	    app->root() && id_ == app->root()->id()) {
-	  javaScript << "document.on" << i->first << "="
-		     << "function (event){" + i->second.jsCode << "}\n";
+	if (id_ == app->domRoot()->id()) {
+	  EscapeOStream eos(javaScript);
+	  setJavaScriptEvent(eos, i->first, i->second, app);
 	} else {
 	  out << " on" << i->first << "=";
 	  fastHtmlAttributeValue(out, attributeValues, i->second.jsCode);
@@ -1173,25 +1207,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     }
 
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
-	 i != eventHandlers_.end(); ++i) {
-      if ((mode_ == ModeUpdate) || !i->second.jsCode.empty()) {
-	declare(out);
-
-	int fid = nextId_++;
-
-	out << "function f" << fid
-	    << "(event){" << i->second.jsCode << "}\n";
-
-	// 'key' events on root container or handled at the whole document
-	if (Utils::startsWith(i->first, "key", 3)
-	    && app->root() && id_ == app->root()->id())
-	  out << "document";
-	else
-	  out << var_;
-
-	out << ".on" << i->first << "=f" << fid << ";\n";
-      }
-    }
+	 i != eventHandlers_.end(); ++i)
+      if ((mode_ == ModeUpdate) || !i->second.jsCode.empty())
+	setJavaScriptEvent(out, i->first, i->second, app);
 
     renderInnerHtmlJS(out, app);
 

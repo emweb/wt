@@ -4,14 +4,11 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/convenience.hpp>
+#include <boost/scoped_array.hpp>
 
 #include "Wt/WString"
 
 using namespace Wt;
-namespace fs = boost::filesystem;
 
 namespace {
 
@@ -32,14 +29,16 @@ std::string tempFileName()
 
 std::string readFileToString(const std::string& fileName) 
 {
-  std::size_t outputFileSize = fs::file_size(fileName);
   std::fstream file (fileName.c_str(), std::ios::in | std::ios::binary);
-  char* memblock = new char [outputFileSize];
-  file.read(memblock, outputFileSize);
+  file.seekg(0, std::ios::end);
+  int length = file.tellg();
+  file.seekg(0, std::ios::beg);
+
+  boost::scoped_array<char> buf(new char[length]);
+  file.read(buf.get(), length);
   file.close();
-  std::string data = std::string(memblock, outputFileSize);
-  delete [] memblock;
-  return data;
+
+  return std::string(buf.get(), length);
 }
 
 }

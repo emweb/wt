@@ -137,7 +137,7 @@ void WLineEdit::setFormData(const FormData& formData)
 
   if (!formData.values.empty()) {
     const std::string& value = formData.values[0];
-    content_ = WT_USTRING::fromUTF8(value);
+    content_ = WT_USTRING::fromUTF8(value, true);
   }
 }
 

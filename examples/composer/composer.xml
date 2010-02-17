@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <messages>
   <message id="msg.send">Send (not really)</message>
   <message id="msg.savenow">Save Now</message>
@@ -17,7 +17,7 @@
   <message id="msg.uploading">Uploading attachments...</message>
   <message id="msg.attachment.failed">Error: empty or oversized attachments?</message>
   <message id="example.info">
-    <p>This is an example application of
+    <p>This is an example application of 
       <a href="http://witty.sourceforge.net/">Wt</a>, a C++ toolkit for
       developping web applications.</p>
     <p>The benefit of Wt's widget approach to web development is the

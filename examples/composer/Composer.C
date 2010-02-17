@@ -141,7 +141,6 @@ void Composer::createUi()
    * Addressbook suggestions popup
    */
   contactSuggestions_ = new ContactSuggestions(layout_);
-  contactSuggestions_->setStyleClass("suggest");
 
   contactSuggestions_->forEdit(toEdit_);
   contactSuggestions_->forEdit(ccEdit_);

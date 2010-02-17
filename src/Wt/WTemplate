@@ -76,16 +76,16 @@ public:
   /*! \brief Sets the template text.
    *
    * The \p text must be proper XHTML, and this is checked unless the
-   * XHTML is resolved from a message resource bundle. This
-   * behavior is similar to a WText when configured with the
-   * Wt::XHTMLText textformat.
+   * XHTML is resolved from a message resource bundle or TextFormat is
+   * Wt::XHTMLUnsafeText. This behavior is similar to a WText when
+   * configured with the Wt::XHTMLText textformat.
    *
    * Changing the template text does not clear() bound widgets or
    * values.
    *
    * \sa clear()
    */
-  void setTemplateText(const WString& text);
+  void setTemplateText(const WString& text, TextFormat textFormat = XHTMLText);
 
   /*! \brief Binds a widget to a variable name.
    *

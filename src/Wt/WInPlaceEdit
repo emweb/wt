@@ -82,6 +82,20 @@ public:
    */
   void setText(const WString& text);
 
+  /*! \brief Sets the empty text to be shown when the field is empty 
+   * and not editable.
+   *
+   * \sa emptyText()
+   */
+  void setEmptyText(const WString& emptyText);
+
+  /*! \brief Returns the empty text to be shown when the field is empty 
+   * and not editable.
+   *
+   * \sa setEmptyText()
+   */
+  const WString& emptyText();
+
   /*! \brief Returns the line edit.
    *
    * You may use this for example to set a validator on the line edit.
@@ -127,6 +141,7 @@ private:
   Signal<WString> valueChanged_;
   WContainerWidget *impl_;
   WText            *text_;
+  WString          emptyText_;
   WLineEdit        *edit_;
   WPushButton      *save_;
   WPushButton      *cancel_;

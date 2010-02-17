@@ -59,21 +59,3 @@ button.default {
 .feedback div {
   margin: 10px;
 }
-
-.suggest {
-  background-color: #e0ecff;
-  color: #1010cc;
-  border: 1px solid #666666;
-  cursor: default;
-  font-size: smaller;
-  padding: 2px;
-}
-
-.suggest span {
-  padding-left: 0.5em;
-  padding-right: 0.5em;  
-}
-
-.suggest .sel {
-  background-color: #C3D9FF;
-}

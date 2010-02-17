@@ -206,7 +206,7 @@ void WebSession::init(const WebRequest& request)
   bookmarkUrl_ = applicationName_;
 
   if (applicationName_.empty())
-    bookmarkUrl_ = baseUrl_ + applicationName_;
+    bookmarkUrl_ = applicationUrl_;
 
   if (type() == WidgetSet) {
     /*
@@ -215,7 +215,7 @@ void WebSession::init(const WebRequest& request)
     applicationUrl_ = env_->urlScheme() + "://" + env_->hostName()
       + applicationUrl_;
 
-    bookmarkUrl_ = absoluteBaseUrl_ + bookmarkUrl_;
+    bookmarkUrl_ = applicationUrl_;
   }
 
   std::string path = request.pathInfo();
@@ -229,38 +229,51 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
 {
   switch (option) {
   case KeepInternalPath: {
-    std::string internalPath;
+    std::string url, internalPath;
 
     if (applicationName_.empty()) {
       internalPath = app_ ? app_->internalPath() : env_->internalPath();
 
       if (internalPath.length() > 1)
-	return appendSessionQuery("?_=" + Utils::urlEncode(internalPath));
-      else
-	return appendSessionQuery("");
-    } else
-      internalPath = WebSession::Handler::instance()->request()->pathInfo();
-      /*
-       * Java application servers use ";jsessionid=..." which generates
-       * URLs relative to the current directory, not current filename
-       * (unlike '?=...')
-       *
-       * Therefore we start with the current 'filename', this does no harm
-       * for C++ well behaving servers either.
-       */
-      if (internalPath.length() > 1) {
-	std::string lastPart
-	  = internalPath.substr(internalPath.rfind('/') + 1);
+	url = "?_=" + Utils::urlEncode(internalPath);
 
-	return appendSessionQuery(lastPart);
+      if (type() == WidgetSet)
+	url = applicationUrl_ + url;
+    } else {
+      internalPath = WebSession::Handler::instance()->request()->pathInfo();
+
+      if (type() != WidgetSet) {
+	/*
+	 * Java application servers use ";jsessionid=..." which generates
+	 * URLs relative to the current directory, not current filename
+	 * (unlike '?=...')
+	 *
+	 * Therefore we start with the current 'filename', this does no harm
+	 * for C++ well behaving servers either.
+	 */
+	if (internalPath.length() > 1) {
+	  std::string lastPart
+	    = internalPath.substr(internalPath.rfind('/') + 1);
+
+	  url = lastPart;
+	} else
+	  url = applicationName_;
       } else
-	return appendSessionQuery(applicationName_);
+	url = applicationUrl_ + internalPath;
+    }
+
+    return appendSessionQuery(url);
   }
-  case ClearInternalPath:
-    if (WebSession::Handler::instance()->request()->pathInfo().length() > 1)
-      return appendSessionQuery(baseUrl_ + applicationName_);
-    else
-      return appendSessionQuery(applicationName_);
+  case ClearInternalPath: {
+    if (type() != WidgetSet) {
+      if (WebSession::Handler::instance()->request()->pathInfo().length() > 1)
+	return appendSessionQuery(baseUrl_ + applicationName_);
+      else
+	return appendSessionQuery(applicationName_);
+    } else {
+      return appendSessionQuery(applicationUrl_);
+    }
+  }
   default:
     assert(false);
   }

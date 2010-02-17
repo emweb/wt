@@ -73,15 +73,19 @@
 
   <message id="blog-post">
     <h4>${title}</h4>
-    <div>by ${author} on ${date}</div>
-    <div class="asciidoc">
-      ${brief+body}
+    <div id="${anchor}">
+      <div>by ${author} on ${date}</div>
+      <div class="asciidoc">
+	${brief+body}
+      </div>
+      <div style="margin-top: 10px;">${comment-count}</div>
+      <div>
+	${publish} ${edit} ${delete}
+      </div>
     </div>
-    <div style="margin-top: 10px;">${comment-count}</div>
-    <div>
-      ${publish} ${edit} ${delete}
+    <div id="${anchor}/comments">
+      ${comments}
     </div>
-    ${comments}
   </message>
 
   <message id="blog-post-brief">

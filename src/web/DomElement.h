@@ -198,12 +198,27 @@ public:
   std::string createVar() const;
 
 private:
+  struct EventHandler {
+    std::string jsCode;
+    std::string signalName;
+
+    EventHandler() { }
+    EventHandler(const std::string& j, const std::string& sn)
+      : jsCode(j), signalName(sn) { }
+  };
+
+  typedef std::map<std::string, std::string> AttributeMap;
+  typedef std::map<Wt::Property, std::string> PropertyMap;
+  typedef std::map<const char *, EventHandler> EventHandlerMap;
+
   bool canWriteInnerHTML(WApplication *app) const;
   bool containsElement(DomElementType type) const;
   void processEvents(WApplication *app) const;
   void processProperties(WApplication *app) const;
   void setJavaScriptProperties(EscapeOStream& out, WApplication *app) const;
   void setJavaScriptAttributes(EscapeOStream& out) const;
+  void setJavaScriptEvent(EscapeOStream& out, const char *eventName,
+			  const EventHandler& handler, WApplication *app) const;
   void createElement(EscapeOStream& out, WApplication *app,
 		     const std::string& domInsertJS);
   std::string addToParent(EscapeOStream& out, const std::string& parentVar,
@@ -231,19 +246,6 @@ private:
   std::string  javaScript_;
   std::string  javaScriptEvenWhenDeleted_;
   mutable std::string var_;
-
-  struct EventHandler {
-    std::string jsCode;
-    std::string signalName;
-
-    EventHandler() { }
-    EventHandler(const std::string& j, const std::string& sn)
-      : jsCode(j), signalName(sn) { }
-  };
-
-  typedef std::map<std::string, std::string> AttributeMap;
-  typedef std::map<Wt::Property, std::string> PropertyMap;
-  typedef std::map<const char *, EventHandler> EventHandlerMap;
 
   AttributeMap    attributes_;
   PropertyMap     properties_;

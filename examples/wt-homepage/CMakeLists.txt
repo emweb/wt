@@ -1,3 +1,5 @@
+IF(DEFINED BOOST_FS_LIB_MT)
+
 INCLUDE(CheckFunctionExists)
 
 ADD_EXECUTABLE(Home.wt
@@ -20,7 +22,7 @@ ADD_EXECUTABLE(Home.wt
 	../blog/asciidoc/asciidoc.C
 )
 
-TARGET_LINK_LIBRARIES(Home.wt ${EXAMPLES_CONNECTOR} wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(Home.wt ${EXAMPLES_CONNECTOR} wtdbo wtdbosqlite3 ${BOOST_FS_LIB_MT})
 
 # Test whether crypt(3) is provided by libc. If it's not, check if
 # libcrypt exists and if it provides crypt(3).
@@ -57,3 +59,9 @@ CONFIGURE_FILE(
   )
 
 ADD_DEPENDENCIES(Home.wt wt ${EXAMPLES_CONNECTOR})
+
+ELSE(DEFINED BOOST_FS_LIB_MT)
+  
+  MESSAGE(STATUS "** wt-homepage example needs boost filesystem library... Skipping.")
+
+ENDIF(DEFINED BOOST_FS_LIB_MT)

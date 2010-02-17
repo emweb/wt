@@ -681,7 +681,7 @@ void WTreeViewNode::shiftModelIndexes(int start, int offset)
       int thisNodeCount = view_->model()->columnCount(index_);
 
       for (int j = 0; j <= lastColumn; ++j) {
-	WModelIndex child = i < thisNodeCount
+	WModelIndex child = j < thisNodeCount
 	  ? n->childIndex(j) : WModelIndex();
 	view_->itemDelegate(j)->updateModelIndex(n->widget(j), child);
       }
@@ -1142,6 +1142,17 @@ WTreeView::WTreeView(WContainerWidget *parent)
 				     "''", "''") + ";"
      ""  "if (tv.getAttribute('drag') === 'true' && item.selected)"
      ""    "APP._p_.dragStart(tv, event);"
+     """}"
+     "}");
+
+  itemMouseUpJS_.setJavaScript
+    ("function(obj, event) {"
+     """var APP=" + app->javaScriptClass() +", tv=" + jsRef() + ";"
+     """var item=APP.getItem(event);"
+     """if (item.columnId != -1) {"
+     "" + itemEvent_.createEventCall("item.el", "event", "item.nodeId",
+				     "item.columnId", "'mouseup'",
+				     "''", "''") + ";"
      """}"
      "}");
 
@@ -1803,6 +1814,8 @@ void WTreeView::enableAjax()
   rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
   if (mouseWentDown_.isConnected() || dragEnabled_)
     rootNode_->mouseWentDown().connect(itemMouseDownJS_);
+  if (mouseWentUp_.isConnected())
+    rootNode_->mouseWentUp().connect(itemMouseUpJS_);
 
   WCompositeWidget::enableAjax();
 }
@@ -1825,6 +1838,8 @@ void WTreeView::rerenderTree()
     rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
     if (mouseWentDown_.isConnected() || dragEnabled_)
       rootNode_->mouseWentDown().connect(itemMouseDownJS_);
+    if (mouseWentUp_.isConnected())
+      rootNode_->mouseWentUp().connect(itemMouseUpJS_);
   }
 
   setRootNodeStyle();
@@ -1883,6 +1898,8 @@ void WTreeView::onItemEvent(std::string nodeId, int columnId, std::string type,
     doubleClicked_.emit(index, event);
   } else if (type == "mousedown") {
     mouseWentDown_.emit(index, event);
+  } else if (type == "mouseup") {
+    mouseWentUp_.emit(index, event);
   } else if (type == "drop") {
     WDropEvent e(WApplication::instance()->decodeObject(extra1), extra2, event);
     dropEvent(e, index);

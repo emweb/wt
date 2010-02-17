@@ -19,73 +19,63 @@
 #include <fstream>
 #include <stdlib.h>
 
-#ifndef WT_NO_XML
-#include <mxml.h>
-#endif
+#include "rapidxml/rapidxml.hpp"
 
 #ifdef WIN32
 #include <io.h>
 #include <process.h>
 #endif
 
+using namespace rapidxml;
+
 namespace {
 
 using namespace Wt;
 
-#ifndef WT_NO_XML
-mxml_node_t *singleChildElement(mxml_node_t *element, const char* tagName)
+xml_node<> *singleChildElement(xml_node<> *element, const char* tagName)
 {
-  mxml_node_t *result = mxmlFindElement(element, element, tagName,
-					0, 0, MXML_DESCEND_FIRST);
-
+  xml_node<> *result = element->first_node(tagName);
   if (result) {
-    mxml_node_t *next = mxmlFindElement(result, element, tagName,
-					0, 0, MXML_NO_DESCEND);
+    xml_node<> *next = result->next_sibling(tagName);
+
     if (next) {
       throw WServer::Exception
 	(std::string("Expected only one child <") + tagName
-	 + "> in <" + element->value.element.name + ">");
+	 + "> in <" + element->name() + ">");
     }
   }
 
   return result;
 }
 
-bool attributeValue(mxml_node_t *element, const char *attributeName,
+bool attributeValue(xml_node<> *element, const char *attributeName,
 		    std::string& result)
 {
-  const char *r = mxmlElementGetAttr(element, attributeName);
+  xml_attribute<> *attr = element->first_attribute(attributeName);
 
-  if (r) {
-    result = r;
+  if (attr) {
+    result = attr->value();
 
     return true;
   } else
     return false;
 }
 
-std::string elementValue(mxml_node_t *element, const char *elementName)
+std::string elementValue(xml_node<> *element, const char *elementName)
 {
-  if (element->child) {
-    for (mxml_node_t *e = element->child; e != element->last_child; e = e->next)
-      if (e->type != MXML_TEXT)
-	throw WServer::Exception(std::string("<")
-				       + elementName
-				       + "> should only contain text.");
+  for (xml_node<> *e = element->first_node(); e; e = e->next_sibling())
+    if (e->type() != node_data && e->type() != node_cdata)
+      throw WServer::Exception(std::string("<")
+			       + elementName
+			       + "> should only contain text.");
 
-    char *r = mxmlSaveAllocString(element->child, MXML_NO_CALLBACK);
-    std::string result = r;
-    free(r);
-    boost::trim(result);
-    return result;
-  } else
-    return std::string();
+  return element->value();
 }
 
-std::string singleChildElementValue(mxml_node_t *element, const char* tagName,
+std::string singleChildElementValue(xml_node<> *element, const char* tagName,
 				    const std::string& defaultValue)
 {
-  mxml_node_t *child = singleChildElement(element, tagName);
+  xml_node<> *child = singleChildElement(element, tagName);
 
   if (!child)
     return defaultValue;
@@ -93,7 +83,7 @@ std::string singleChildElementValue(mxml_node_t *element, const char* tagName,
     return elementValue(child, tagName);
 }
 
-void setBoolean(mxml_node_t *element, const char *tagName, bool& result)
+void setBoolean(xml_node<> *element, const char *tagName, bool& result)
 {
   std::string v = singleChildElementValue(element, tagName, "");
 
@@ -107,21 +97,17 @@ void setBoolean(mxml_node_t *element, const char *tagName, bool& result)
 				     + ">: expecting 'true' or 'false'");
 }
 
-std::vector<mxml_node_t *> 
-childElements(mxml_node_t *element, const char *tagName)
+std::vector<xml_node<> *> childElements(xml_node<> *element,
+					const char *tagName)
 {
-  std::vector<mxml_node_t *> result;
+  std::vector<xml_node<> *> result;
 
-  for (mxml_node_t *r = mxmlFindElement(element, element, tagName,
-					0, 0, MXML_DESCEND_FIRST);
-       r;
-       r = mxmlFindElement(r, element, tagName, 0, 0, MXML_NO_DESCEND)) {
+  for (xml_node<> *r = element->first_node(tagName); r;
+       r = element->next_sibling(tagName))
     result.push_back(r);
-  }
   
   return result;
 }
-#endif // WT_NO_XML
 
 }
 
@@ -189,7 +175,6 @@ Configuration::Configuration(const std::string& applicationPath,
 
   setupLogger(std::string());
 
-#ifndef WT_NO_XML
   std::string configFile = configurationFile;
 
   // If no config file was given as startup option, see if there is
@@ -204,7 +189,6 @@ Configuration::Configuration(const std::string& applicationPath,
   }
 
   readConfiguration(configFile, startupMessage);
-#endif // WT_NO_XML
 }
 
 void Configuration::setSessionIdPrefix(const std::string& prefix)
@@ -224,14 +208,13 @@ static void error_cb(const char *message)
   throw WServer::Exception(message);
 }
 
-#ifndef WT_NO_XML
-void Configuration::readApplicationSettings(mxml_node_t *app)
+void Configuration::readApplicationSettings(xml_node<> *app)
 {
-  mxml_node_t *sess = singleChildElement(app, "session-management");
+  xml_node<> *sess = singleChildElement(app, "session-management");
 
   if (sess) {
-    mxml_node_t *dedicated = singleChildElement(sess, "dedicated-process");
-    mxml_node_t *shared = singleChildElement(sess, "shared-process");
+    xml_node<> *dedicated = singleChildElement(sess, "dedicated-process");
+    xml_node<> *shared = singleChildElement(sess, "shared-process");
     std::string tracking = singleChildElementValue(sess, "tracking", "");
     std::string timeoutStr = singleChildElementValue(sess, "timeout", "");
     std::string serverPushTimeoutStr
@@ -289,7 +272,7 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
 
   setBoolean(app, "debug", debug_);
 
-  mxml_node_t *fcgi = singleChildElement(app, "connector-fcgi");
+  xml_node<> *fcgi = singleChildElement(app, "connector-fcgi");
   if (!fcgi)
     fcgi = app; // backward compatibility
 
@@ -317,10 +300,10 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
   setBoolean(app, "persistent-sessions", persistentSessions_);
   setBoolean(app, "progressive-bootstrap", progressiveBoot_);
 
-  std::vector<mxml_node_t *> userAgents = childElements(app, "user-agents");
+  std::vector<xml_node<> *> userAgents = childElements(app, "user-agents");
 
   for (unsigned i = 0; i < userAgents.size(); ++i) {
-    mxml_node_t *userAgentsList = userAgents[i];
+    xml_node<> *userAgentsList = userAgents[i];
 
     std::string type;
     if (!attributeValue(userAgentsList, "type", type))
@@ -347,20 +330,20 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
 	("<user-agents> requires attribute 'type' with value "
 	 "\"ajax\" or \"bot\"");
 
-    std::vector<mxml_node_t *> agents
+    std::vector<xml_node<> *> agents
       = childElements(userAgentsList, "user-agent");
 
     for (unsigned j = 0; j < agents.size(); ++j)
       list->push_back(elementValue(agents[j], "user-agent"));
   }
 
-  mxml_node_t *properties = singleChildElement(app, "properties");
+  xml_node<> *properties = singleChildElement(app, "properties");
 
   if (properties) {
-    std::vector<mxml_node_t *> nodes = childElements(properties, "property");
+    std::vector<xml_node<> *> nodes = childElements(properties, "property");
 
     for (unsigned i = 0; i < nodes.size(); ++i) {
-      mxml_node_t *property = nodes[i];
+      xml_node<> *property = nodes[i];
 
       std::string name;
       if (!attributeValue(property, "name", name))
@@ -371,82 +354,76 @@ void Configuration::readApplicationSettings(mxml_node_t *app)
     }
   }
 }
-#endif // WT_NO_XML
 
 void Configuration::readConfiguration(const std::string& configurationFile,
 				      const std::string& startupMessage)
 {
-#ifndef WT_NO_XML
+  std::ifstream s(configurationFile.c_str());
+  if (!s)
+    return;
+
+  s.seekg(0, std::ios::end);
+  int length = s.tellg();
+  s.seekg(0, std::ios::beg);
+
+  boost::scoped_array<char> text(new char[length + 1]);
+  s.read(text.get(), length);
+  s.close();
+  text[length] = 0;
+
   try {
-    FILE *fp = fopen(configurationFile.c_str(), "r");
-    if (!fp)
-      return;
+    xml_document<> doc;
+    doc.parse<parse_normalize_whitespace
+      | parse_trim_whitespace
+      | parse_validate_closing_tags>(text.get());
 
-    mxml_node_t *top = mxmlNewElement(MXML_NO_PARENT, "top");
+    xml_node<> *root = doc.first_node();
 
-    mxmlSetErrorCallback(error_cb);
+    std::vector<xml_node<> *> applications
+      = childElements(root, "application-settings");
 
-    mxml_node_t *first = mxmlLoadFile(top, fp, MXML_NO_CALLBACK);
+    /*
+     * Scan the config file first to determine the logFile, in order
+     * to setup logging before parsing the other settings.
+     */
+    std::string logFile;
+    for (unsigned i = 0; i < applications.size(); ++i) {
+      xml_node<> *app = applications[i];
 
-    if (first) {
-      mxml_node_t *root = singleChildElement(top, "server");
+      std::string appLocation;
+      if (!attributeValue(app, "location", appLocation))
+	throw WServer::Exception("<application-settings> requires attribute "
+				 "'location'");
 
-      std::vector<mxml_node_t *> applications
-	= childElements(root, "application-settings");
+      if (appLocation == "*" || appLocation == applicationPath_)
+	logFile = singleChildElementValue(app, "log-file", logFile);
+    }
 
-      /*
-       * Scan the config file first to determine the logFile, in order
-       * to setup logging before parsing the other settings.
-       */
-      std::string logFile;
-      for (unsigned i = 0; i < applications.size(); ++i) {
-	mxml_node_t *app = applications[i];
+    setupLogger(logFile);
 
-	std::string appLocation;
-	if (!attributeValue(app, "location", appLocation))
-	  throw WServer::Exception("<application-settings> requires attribute "
-			  "'location'");
+    if (!startupMessage.empty())
+      log("notice") << startupMessage;
+    log("notice") << "Reading Wt config file: " << configurationFile
+		  << " (location = '" << applicationPath_ << "')";
 
-	if (appLocation == "*" || appLocation == applicationPath_)
-	  logFile = singleChildElementValue(app, "log-file", logFile);
-      }
+    /*
+     * Now read application settings.
+     */
+    for (unsigned i = 0; i < applications.size(); ++i) {
+      xml_node<> *app = applications[i];
 
-      setupLogger(logFile);
+      std::string appLocation;
+      attributeValue(app, "location", appLocation);
 
-      if (!startupMessage.empty())
-	log("notice") << startupMessage;
-      log("notice") << "Reading Wt config file: " << configurationFile
-		    << " (location = '" << applicationPath_ << "')";
-
-      /*
-       * Now read application settings.
-       */
-      for (unsigned i = 0; i < applications.size(); ++i) {
-	mxml_node_t *app = applications[i];
-
-	std::string appLocation;
-	attributeValue(app, "location", appLocation);
-
-	if (appLocation == "*" || appLocation == applicationPath_)
-	  readApplicationSettings(app);
-      }
-    } else
-      throw WServer::Exception("Malformed XML file");
-
-    if (fp)
-      fclose(fp);
-
-    mxmlDelete(top);
-
+      if (appLocation == "*" || appLocation == applicationPath_)
+	readApplicationSettings(app);
+    }
   } catch (std::exception& e) {
-    throw WServer::Exception(std::string("Error: ") + e.what());
+    throw WServer::Exception("Error reading: " + configurationFile + ": "
+			     + e.what());
   } catch (...) {
     throw WServer::Exception("Exception of unknown type!\n");
   }
-#else // WT_NO_XML
-  throw WServer::Exception("Cannot read " + configurationFile
-			   + " since Wt was built without XML support");
-#endif // WT_NO_XML
 }
 
 void Configuration::setupLogger(const std::string& logFile)

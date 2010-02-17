@@ -417,6 +417,21 @@ void Server::handleRequestThreaded(int serverSocket)
 #endif // WT_THREADED
 }
 
+bool Server::writeToSocket(int socket, const unsigned char *buf, int bufsize)
+{
+  while (bufsize > 0) {
+    int result = write(socket, buf, bufsize);
+    if (result < 0)
+      return false;
+    else {
+      bufsize -= result;
+      buf += result;
+    }
+  }
+
+  return true;
+}
+
 void Server::handleRequest(int serverSocket)
 {
   int clientSocket = -1;
@@ -596,8 +611,12 @@ void Server::handleRequest(int serverSocket)
      * Forward all data that was consumed to the application.
      */
     for (unsigned i = 0; i < consumedRecords_.size(); ++i) {
-      write(clientSocket, consumedRecords_[i]->plainText(),
-	    consumedRecords_[i]->plainTextLength());
+      if (!writeToSocket(clientSocket, consumedRecords_[i]->plainText(),
+			 consumedRecords_[i]->plainTextLength())) {
+	conf_.log("error") << "Error writing to client";
+	return;
+      }
+
       delete consumedRecords_[i];
     }
 
@@ -628,7 +647,12 @@ void Server::handleRequest(int serverSocket)
 
 	if (d.good()) {
 	  //std::cerr << "Got record from server: " << d << std::endl;
-	  write(clientSocket, d.plainText(), d.plainTextLength());
+	  if (!writeToSocket(clientSocket, d.plainText(),
+			     d.plainTextLength())) {
+	    conf_.log("error") << "Error writing to application";
+
+	    break;
+	  }
 	} else {
 	  conf_.log("error") << "Error reading from web server";
 
@@ -643,7 +667,13 @@ void Server::handleRequest(int serverSocket)
 
 	if (d.good()) {
 	  //std::cerr << "Got record from client: " << d << std::endl;
-	  write(serverSocket, d.plainText(), d.plainTextLength());
+	  if (!writeToSocket(serverSocket, d.plainText(),
+			     d.plainTextLength())) {
+	    conf_.log("error") << "Error writing to web server";
+
+	    break;
+	  }
+
 	  if (d.type() == FCGI_END_REQUEST)
 	    break;
 	} else {
@@ -883,6 +913,12 @@ int WServer::waitForShutdown()
     sleep(10000);
 
   return 0;
+}
+
+void WServer::addResource(WResource *resource, const std::string& path)
+{
+  impl()->configuration_->log("error")
+    << "WServer::addResource() not supported by FCGI connector.";
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)

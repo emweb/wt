@@ -91,8 +91,6 @@ ELSE(WIN32)
   SET(GD_DIR "/usr/lib" CACHE PATH "Search path for libgd2")
 ENDIF(WIN32)
 
-OPTION(XML_FEATURES "Use XML for configuration, XSSFilter and message resources." ON)
-OPTION(MXML_SUPPLIED "Force use of supplied mxml over installed mxml." ON)
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 OPTION(BUILD_TESTS "Build Wt tests" ON)
 
@@ -115,14 +113,6 @@ INCLUDE(cmake/WtFindZlib.txt)
 INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysqlpp.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
-
-IF(XML_FEATURES)
-  INCLUDE(cmake/WtFindMxml.txt)
-ELSE(XML_FEATURES)
-  SET(MXML_SOURCES "")
-  SET(MXML_LIBRARIES "")
-  SET(MXML_INCLUDE_DIRS "")
-ENDIF(XML_FEATURES)
 
 FIND_PACKAGE(Qt4)
 IF(QT_FOUND)

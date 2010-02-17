@@ -1,11 +1,11 @@
-IF(NOT WIN32)
+IF(NOT WIN32 AND DEFINED BOOST_FS_LIB_MT)
   ADD_EXECUTABLE(gitview.wt
     Git.C
     GitModel.C
     ../wt-homepage/SourceView.C
     GitView.C
   )
-  TARGET_LINK_LIBRARIES(gitview.wt ${EXAMPLES_CONNECTOR})
+  TARGET_LINK_LIBRARIES(gitview.wt ${EXAMPLES_CONNECTOR} ${BOOST_FS_LIB_MT})
 
   INCLUDE_DIRECTORIES(
     ${WT_SOURCE_DIR}/src
@@ -23,4 +23,9 @@ IF(NOT WIN32)
   )
 
   ADD_DEPENDENCIES(gitview.wt wt ${EXAMPLES_CONNECTOR})
-ENDIF(NOT WIN32)
+
+ELSE(NOT WIN32 AND DEFINED BOOST_FS_LIB_MT)
+
+  MESSAGE(STATUS "** Git view example needs boost filesystem library... Skipping.")
+
+ENDIF(NOT WIN32 AND DEFINED BOOST_FS_LIB_MT)

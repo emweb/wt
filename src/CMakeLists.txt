@@ -48,7 +48,6 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/web
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR} # for WConfig.h
-  ${MXML_INCLUDE_DIRS}
   ${BOOST_INCLUDE_DIRS}
   Wt/Dbo/backend/amalgamation # for sqlite3.h
 )
@@ -82,7 +81,6 @@ FILE_TO_STRING(CommScript.js CommScript_js.C CommScript_js)
 FILE_TO_STRING(jquery.min.js JQuery_js.C     JQuery_js)
 
 SET(libsources
-${MXML_SOURCES}
 Wt/StdGridLayoutImpl.C
 Wt/StdLayoutImpl.C
 Wt/StdLayoutItemImpl.C
@@ -160,6 +158,8 @@ Wt/WMemoryResource.C
 Wt/WMenu.C
 Wt/WMenuItem.C
 Wt/WMessageBox.C
+Wt/WMessageResourceBundle.C
+Wt/WMessageResources.C
 Wt/WModelIndex.C
 Wt/WObject.C
 Wt/WOverlayLoadingIndicator.C
@@ -240,6 +240,8 @@ web/EscapeOStream.C
 web/FileServe.C
 web/SoundManager.C
 web/Utils.C
+web/XSSFilter.C
+web/XSSUtils.C
 web/WebRequest.C
 web/WebStream.C
 web/WebSession.C
@@ -266,25 +268,13 @@ Wt/Chart/WChartPalette.C
 Wt/Chart/WStandardPalette.C
 )
 
-IF(XML_FEATURES)
-SET (libsources_xml
-  Wt/WMessageResourceBundle.C
-  Wt/WMessageResources.C
-  web/XSSFilter.C
-  web/XSSUtils.C
-)
-ELSE(XML_FEATURES)
-  ADD_DEFINITIONS(-DWT_NO_XML -DWT_NO_XSS_FILTER)
-ENDIF(XML_FEATURES)
+ADD_LIBRARY(wt ${libsources})
+TARGET_LINK_LIBRARIES(wt ${BOOST_WT_LIBRARIES})
 
-ADD_LIBRARY(wt ${libsources} ${libsources_xml})
-TARGET_LINK_LIBRARIES(wt ${BOOST_WT_LIBRARIES} ${MXML_LIBRARIES})
+IF(BOOST_WT_MT_FOUND)
+  TARGET_LINK_LIBRARIES(wt ${CMAKE_THREAD_LIBS_INIT})
+ENDIF(BOOST_WT_MT_FOUND)
 
-# If using Wt's MiniXML and building thread-safe, link to the threads
-# library
-IF(BOOST_WT_MT_FOUND AND NOT MXML_LIBRARIES )
-  TARGET_LINK_LIBRARIES( wt ${CMAKE_THREAD_LIBS_INIT} )
-ENDIF(BOOST_WT_MT_FOUND AND NOT MXML_LIBRARIES)
 INSTALL(TARGETS wt
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}

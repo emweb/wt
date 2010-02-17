@@ -249,4 +249,41 @@ void EscapeOStream::sAppend(const std::string& s)
   sAppend(s.c_str(), s.length());
 }
 
+EscapeOStream::iterator EscapeOStream::back_inserter()
+{
+  return iterator(*this);
+}
+
+EscapeOStream::iterator::iterator()
+  : stream_(0)
+{ }
+
+EscapeOStream::iterator::char_proxy EscapeOStream::iterator::operator * ()
+{
+  return char_proxy(*stream_);
+}
+
+EscapeOStream::iterator& EscapeOStream::iterator::operator ++ ()
+{
+  return *this;
+}
+
+EscapeOStream::iterator EscapeOStream::iterator::operator ++ (int)
+{
+  return *this;
+}
+
+char& EscapeOStream::iterator::char_proxy::operator= (char c)
+{
+  stream_ << c;
+}
+
+EscapeOStream::iterator::char_proxy::char_proxy(EscapeOStream& stream)
+  : stream_(stream)
+{ }
+
+EscapeOStream::iterator::iterator(EscapeOStream& stream)
+  : stream_(&stream)
+{ }
+
 }

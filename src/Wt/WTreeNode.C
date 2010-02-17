@@ -508,6 +508,8 @@ void WTreeNode::update()
   if (!visible_) {
     layout_->rowAt(0)->hide();
     expandIcon_->hide();
+    layout_->elementAt(0, 0)->resize(0, WLength::Auto);
+    layout_->elementAt(1, 0)->resize(0, WLength::Auto);
   }
 
   WTreeNode *parent = parentNode();

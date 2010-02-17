@@ -5,8 +5,10 @@
  */
 #ifndef WT_CNOR
 #include <fstream>
+#include <stdexcept>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/scoped_array.hpp>
 
 #include "DomElement.h"
 #include "Wt/WLogger"
@@ -14,117 +16,55 @@
 #include "Wt/WString"
 #include "Wt/WApplication"
 
-#include <mxml.h>
-
-namespace {
+#include "rapidxml/rapidxml.hpp"
+#include "rapidxml/rapidxml_print.hpp"
 
 using namespace Wt;
+using namespace rapidxml;
 
-/*
- * Mini-XML SAX-like handler for reading a resource file
- */
-class WMessageHandler
-{
-public:
-  WMessageHandler(WMessageResources::KeyValueMap& valueMap);
-
-  static void sax_cb(mxml_node_t *node, mxml_sax_event_t event, void *data);
-
-private:
-  WMessageResources::KeyValueMap& valueMap_;
-
-  void saxCallback(mxml_node_t *node, mxml_sax_event_t event);
-
-  int depth_;
-  std::string currentKey_;
-  mxml_node_t *currentMessage_;
-  bool inMessage_;
-};
-
-WMessageHandler::WMessageHandler(WMessageResources::KeyValueMap& valueMap)
-  : valueMap_(valueMap),
-    depth_(0),
-    currentMessage_(0),
-    inMessage_(false)
-{ }
-
-void WMessageHandler::saxCallback(mxml_node_t *node, mxml_sax_event_t event)
-{
-  if (event == MXML_SAX_ELEMENT_OPEN) {
-    ++depth_;
-
-    if (!inMessage_ && depth_ == 2) {
-      char *name = node->value.element.name;
-
-      if (!strcmp(name, "message")) {
-	currentKey_.clear();
-
-	const char *id = mxmlElementGetAttr(node, "id");
-
-	if (id) {
-	  currentKey_ = id;
-	  inMessage_ = true;
-	  if (currentMessage_)
-	    mxmlDelete(currentMessage_);
-	  currentMessage_ = node;
-	}
-      }
-    }
-  } else if (event == MXML_SAX_ELEMENT_CLOSE) {
-    if (depth_ == 2 && inMessage_) {
-      if (currentMessage_->child) {
-	char *currentValue
-	  = mxmlSaveAllocString(currentMessage_->child, MXML_NO_CALLBACK);
-
-	if (currentValue) {
-	  std::string v(currentValue);
-	  valueMap_[currentKey_] = v.substr(0, v.length()-1);
-
-	  free(currentValue);
-	} else
-	  wApp->log("error") << "Wt internal error: mxmlSaveAllocString() "
-	    "failed.";
-      } else {
-	valueMap_[currentKey_] = std::string();
-      }
-
-      inMessage_ = false;
-    } else {
-      std::string name = node->value.element.name;
-
-      if (!node->child && !DomElement::isSelfClosingTag(name)) {
-	mxmlNewText(node, 0, "");
-      }
-    }
-
-    --depth_;
+namespace {
+  void encode_utf8(unsigned long code, char *&out)
+  {
+    if (code < 0x80) { // 1 byte sequence
+      out[0] = static_cast<unsigned char>(code);
+      out += 1;
+    } else if (code < 0x800) {  // 2 byte sequence
+      out[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+      out[0] = static_cast<unsigned char>(code | 0xC0);
+      out += 2;
+    } else if (code < 0x10000) { // 3 byte sequence
+      out[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+      out[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+      out[0] = static_cast<unsigned char>(code | 0xE0);
+      out += 3;
+    } else if (code < 0x110000) { // 4 byte sequence
+      out[3] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+      out[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+      out[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+      out[0] = static_cast<unsigned char>(code | 0xF0);
+      out += 4;
+    } else
+      // impossible since UTF16 is already checked ?
+      throw std::runtime_error("Invalid UTF-16 stream");
   }
 
-  if (inMessage_) {
-    if (event == MXML_SAX_ELEMENT_OPEN)
-      mxmlRetain(node);
-    else if (event == MXML_SAX_DIRECTIVE)
-      mxmlRetain(node);
-    else if ((event == MXML_SAX_DATA || event == MXML_SAX_CDATA)
-	     && node->parent->ref_count > 1) {
-      /*
-       * If the parent was retained, then retain
-       * this data node as well.
-       */
-      mxmlRetain(node);
+  void fixSelfClosingTags(xml_node<> *x_node)
+  {
+    for (xml_node<> *x_child = x_node->first_node(); x_child;
+	 x_child = x_child->next_sibling())
+      fixSelfClosingTags(x_child);
+
+    if (!x_node->first_node()
+	&& x_node->value_size() == 0
+	&& !Wt::DomElement::isSelfClosingTag(x_node->name())) {
+      // We need to add an emtpy data node since <div /> is illegal HTML
+      // (but valid XML / XHTML)
+      xml_node<> *empty
+	= x_node->document()->allocate_node(node_data, 0, 0, 0, 0);
+      x_node->append_node(empty);
     }
   }
 }
-
-void WMessageHandler::sax_cb(mxml_node_t *node, mxml_sax_event_t event,
-			     void *data)
-{
-  WMessageHandler *instance = (WMessageHandler *)data;
-
-  instance->saxCallback(node, event);
-}
-
-} // end namespace
 
 namespace Wt {
 
@@ -196,28 +136,135 @@ bool WMessageResources::readResourceFile(const std::string& locale,
   std::string fileName
     = path_ + (locale.length() > 0 ? "_" : "") + locale + ".xml";
 
-  {
-    std::ifstream test(fileName.c_str());
-    if (!test)
-      return false;
+  std::ifstream s(fileName.c_str(), std::ios::binary);
+  if (!s)
+    return false;
+
+  s.seekg(0, std::ios::end);
+  int length = s.tellg();
+  s.seekg(0, std::ios::beg);
+
+  enum { UTF8, UTF16LE, UTF16BE } encoding = UTF8;
+
+  // See if we have UTF16 BOM
+  if (length >= 2) {
+    unsigned char m1, m2;
+    m1 = s.get();
+    m2 = s.get();
+
+    if (m1 == 0xFE && m2 == 0xFF)
+      encoding = UTF16BE;
+    else if (m1 == 0xFF && m2 == 0xFE)
+      encoding = UTF16LE;
+    else {
+      s.unget();
+      s.unget();
+    }
   }
 
-  WMessageHandler handler(valueMap);
+  boost::scoped_array<char> text
+    (new char[encoding == UTF8 ? length + 1 : (length-2)*2 + 1]);
 
-  FILE *fp = fopen(fileName.c_str(), "r");
+  if (encoding != UTF8) {
+    // Transcode from UTF16 stream to UTF8 text
+    const int BUFSIZE = 2048;
+    unsigned char buf[BUFSIZE];
 
-  mxmlSetWrapMargin(0);
-  mxml_node_t *top = mxmlNewElement(MXML_NO_PARENT, "top");
-  mxml_node_t *first
-    = mxmlSAXLoadFile(top, fp, MXML_OPAQUE_CALLBACK, WMessageHandler::sax_cb,
-		      &handler);
-  if (!first)
-    wApp->log("error") << "Error reading " << fileName;
+    unsigned long firstWord = 0;
+    char *out = text.get();
 
-  if (fp)
-    fclose(fp);
+    for (;;) {
+      s.read((char *)buf, BUFSIZE);
+      int read = s.gcount();
 
-  mxmlDelete(top);
+      for (int i = 0; i < read; i += 2) {
+	unsigned long ch;
+
+	// read next 2-byte char
+	if (encoding == UTF16LE) {
+	  ch = buf[i+1];
+	  ch = (ch << 8) | buf[i];
+	} else {
+	  ch = buf[i];
+	  ch = (ch << 8) | buf[i+1];
+	}
+
+	if (firstWord) {
+	  // second word of multi-word
+	  if (ch < 0xDC00 || ch > 0xDFFF) {
+	    read = 0;
+	    break;
+	  }
+
+	  unsigned long cp = 0x10000 + (((firstWord & 0x3FF) << 10)
+					| (ch & 0x3FF));
+
+	  encode_utf8(cp, out);
+
+	  firstWord = 0;
+	} else if (ch >= 0xD800 && ch <= 0xDBFF) {
+	  // first word of multi-word
+	  firstWord = ch;
+	} else {
+	  // single-word
+	  encode_utf8(ch, out);
+
+	  firstWord = 0;
+	}
+      }
+
+      if (read != BUFSIZE)
+	break;
+    }
+
+    length = out - text.get();
+  } else {
+    s.read(text.get(), length);
+    s.close();
+  }
+
+  text[length] = 0;
+
+  try {
+    xml_document<> doc;
+    doc.parse<parse_no_string_terminators
+      | parse_comment_nodes
+      | parse_xhtml_entity_translation
+      | parse_validate_closing_tags>(text.get());
+
+    xml_node<> *x_root = doc.first_node("messages");
+    if (!x_root)
+      throw parse_error("Expected <messages> root element", text.get());
+
+    // factor 2 in case we expanded <span/> to <span></span>
+    boost::scoped_array<char> buf(new char[length * 2]);
+
+    for (xml_node<> *x_message = x_root->first_node();
+	 x_message; x_message = x_message->next_sibling()) {
+      if (strncmp(x_message->name(), "message", x_message->name_size()) != 0)
+	throw parse_error("Expected <message>", x_message->value());
+
+      xml_attribute<> *x_id = x_message->first_attribute("id");
+      if (!x_id)
+	throw parse_error("Missing message id", x_message->value());
+
+      std::string id(x_id->value(), x_id->value_size());
+
+      char *ptr = buf.get();
+
+      for (xml_node<> *x_child = x_message->first_node();
+	   x_child; x_child = x_child->next_sibling()) {
+	fixSelfClosingTags(x_child);
+	ptr = print(ptr, *x_child, print_no_indenting);
+      }
+
+      valueMap[id] = std::string(buf.get(), ptr - buf.get());
+    }
+  } catch (parse_error& e) {
+    wApp->log("error") << "Error reading " << fileName
+		       << ": at character " << e.where<char>() - text.get()
+		       << ": " << e.what();
+  }
 
   return true;
 }

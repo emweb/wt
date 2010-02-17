@@ -18,7 +18,9 @@
 #include "WebSession.h"
 #include "WtRandom.h"
 
-typedef struct mxml_node_s mxml_node_t;
+namespace rapidxml {
+  template<class Ch> class xml_node;
+}
 
 namespace boost {
   namespace program_options {
@@ -172,7 +174,7 @@ private:
   WtRandom        random_;
   WLogger         logger_;
 
-  void readApplicationSettings(mxml_node_t *app);
+  void readApplicationSettings(rapidxml::xml_node<char> *app);
   void readConfiguration(const std::string& configurationFile,
 			 const std::string& startupMessage);
   void setupLogger(const std::string& logFile);

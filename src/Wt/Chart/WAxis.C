@@ -101,7 +101,9 @@ const double WAxis::AUTO_MAXIMUM = -DBL_MAX;
 
 WAxis::Segment::Segment()
   : minimum(AUTO_MINIMUM),
-    maximum(AUTO_MAXIMUM)
+    maximum(AUTO_MAXIMUM),
+    renderStart(AUTO_MAXIMUM),
+    renderLength(AUTO_MAXIMUM)
 { }
 
 WAxis::WAxis()

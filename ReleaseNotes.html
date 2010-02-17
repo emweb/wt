@@ -19,9 +19,88 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.1 (February 17, 2009)</h2>
+
+<p>The minimum boost version is now 1.36.</p>
+
+<p>This release handles mostly bug fixes, with as most visible change
+an update of the <i>polished</i> theme, which is now considered
+complete.</p>
+
+<h3>A) Security fixes:</h3>
+
+Because of the following fixes for security problems, we recommend anyone
+to upgrade live deployments of his application to the latest version.
+
+<dl>
+  <dt>Possible XSS vulnerability</dt>
+  <dd>Fixed a possible XSS attack where a user follows a link to a Wt web
+    application, taking advantage of unchecked insertions of the URL when
+    redirecting to the canonical page.</dd>
+  <dt>Possible UTF-8 vulnerability</dt>
+  <dd>Form values and JSignal arguments received from the browser are
+    now checked for sane UTF-8 encoding.</dd>
+</dl>
+
+<h3>B) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1Dbo_1_1Dbo.html">Dbo/Dbo</a></dt>
+  <dd>An optional base class for a database object, providing access to its
+    id() and session().</dd>
+</dl>
+
+<h3>C) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WCanvasPaintDevice.html">WCanvasPaintDevice</a></dt>
+  <dd>Now implements native text rendering on Firefox and latest
+    Chrome and Safari browsers</dd>
+  <dt><a href="classWt_1_1WInPlaceEdit.html">WInPlaceEdit</a></dt>
+  <dd>Added a setEmptyText() method which sets the text to be
+    displayed when value is empty.</dd>
+  <dt><a href="classWt_1_1WPopupMenu.html">WPopopMenu</a></dt>
+  <dd>Added an exec(WWidget *location, Orientation orientation) method which
+    popups the menu besides another widget.</dd>
+  <dt><a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a></dt>
+  <dd>This class is now also style by the CSS theme.</dd>
+  <dt><a href="classWt_1_1WTemplate.html">WTemplate</a></dt>
+  <dd>Avoids now rerendering of already bound widgets when the
+    template is rerendered.</dd>
+  <dt><a href="classWt_1_1WTree.html">WTree</a>,
+    <a href="classWt_1_1WTreeNode.html">WTreeNode</a>,
+    <a href="classWt_1_1WTreeTable.html">WTreeTable</a>,
+    <a href="classWt_1_1WTreeTableNode.html">WTreeTableNode</a>
+  </dt>
+  <dd>These widgets are now theme-aware, and tree decoration styling
+    is provided by the theme. The setImagePack() APIs are now
+    no-ops</dd>
+  <dt><a href="classWt_1_1WWidget.html">WWidget</a></dt>
+  <dd>Added positionAt() method which positions a widget (absolutely) besides
+    another widget.</dd>  
+  <dt><a href="classWt_1_1Chart_1_1WAxis.html">Chart/WAxis></a></dt>
+  <dd>Added a setLabelFont() method.</dd>
+  <dt><a href="classWt_1_1Http_1_1Request.html">Http/Request</a></dt>
+  <dd>Added serverName(), serverPort(), path(), pathInfo(),
+    queryString(), urlScheme(), in(), contentType(), contentLength(),
+    userAgent() and clientAddress() methods which expose information
+    form the HTTP request to WResources.</dd>
+</dl>
+
+<h3>D) Build changes:</h3>
+
+<dl>
+  <dt>XML_FEATURES</dt>
+  <dd>This CMake option has been removed, and Mini-XML has been
+    replaced by a modified RapidXML xml parser (mostly because of the
+    hard-to-interpret Mini-XML license), but there are also nice
+    performance improvements.</dd>
+</dl>
+
 <h2>Release 3.1.0 (December 29, 2009)</h2>
 
-<p>This release contains several new features and classes, after a long period of stabilization that happened before the 3.0.0 release.</p>
+<p>This release contains several new features and classes, after a long
+  period of stabilization that happened before the 3.0.0 release.</p>
 
 <h3>A) New classes:</h3>
 

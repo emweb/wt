@@ -57,9 +57,9 @@ void PostView::resolveString(const std::string& varName,
     else
       format(result, post_->bodyHtml, XHTMLText);
   } else if (varName == "brief+body") {
-    format(result, "<div>" + post_->briefHtml + "</div><div id=\""
-	   + basePath_ + post_->permaLink() + "/more" + "\">"
-	   + post_->bodyHtml + "</div>", XHTMLUnsafeText);
+    format(result, "<div>" + post_->briefHtml + "</div>"
+	   "<div id=\"" + basePath_ + post_->permaLink() + "/more\">"
+	   "<div>" + post_->bodyHtml + "</div></div>", XHTMLUnsafeText);
   } else
     WTemplate::resolveString(varName, args, result);
 }
@@ -77,15 +77,13 @@ void PostView::render(RenderType type)
 
     commentCount_ = new WText(post_->commentCount());
 
-    setId(basePath_ + post_->permaLink());
-
     CommentView *comments = new CommentView(session_, post_->rootComment());
-    comments->setId(basePath_ + post_->permaLink() + "/comments");
     session_.commentsChanged()
       .connect(SLOT(this, PostView::updateCommentCount));
 
     bindWidget("comment-count", commentCount_);
     bindWidget("comments", comments);
+    bindString("anchor", basePath_ + post_->permaLink());
 
     break;
   }

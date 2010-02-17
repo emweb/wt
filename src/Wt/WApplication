@@ -382,7 +382,7 @@ public:
    */
   void setLocalizedStrings(WLocalizedStrings *stringResolver);
 
-#if !defined(WT_TARGET_JAVA) && !defined(WT_NO_XML)
+#ifndef WT_TARGET_JAVA
   /*! \brief Returns the message resource bundle.
    *
    * The message resource bundle defines the list of external XML
@@ -1184,6 +1184,56 @@ public:
    * \sa setHtmlClass()
    */
   std::string htmlClass() const { return htmlClass_; }
+
+  /*! \brief Event signal emitted when a keyboard key is pushed down.
+   *
+   * The application receives key events when no widget currently
+   * has focus. Otherwise, key events are handled by the widget in focus,
+   * and its ancestors.
+   *
+   * \sa See WInteractWidget::keyWentDown()
+   */
+  EventSignal<WKeyEvent>& globalKeyWentDown();
+
+  /*! \brief Event signal emitted when a "character" was entered.
+   *
+   * The application receives key events when no widget currently
+   * has focus. Otherwise, key events are handled by the widget in focus,
+   * and its ancestors.
+   *
+   * \sa See WInteractWidget::keyPressed()
+   */
+  EventSignal<WKeyEvent>& globalKeyPressed();
+    
+  /*! \brief Event signal emitted when a keyboard key is released.
+   *
+   * The application receives key events when no widget currently
+   * has focus. Otherwise, key events are handled by the widget in focus,
+   * and its ancestors.
+   *
+   * \sa See WInteractWidget::keyWentUp()
+   */
+  EventSignal<WKeyEvent>& globalKeyWentUp();
+
+  /*! \brief Event signal emitted when enter was pressed.
+   *
+   * The application receives key events when no widget currently
+   * has focus. Otherwise, key events are handled by the widget in focus,
+   * and its ancestors.
+   *
+   * \sa See WInteractWidget::enterPressed()
+   */
+  EventSignal<>& globalEnterPressed();
+
+  /*! \brief Event signal emitted when escape was pressed.
+   *
+   * The application receives key events when no widget currently
+   * has focus. Otherwise, key events are handled by the widget in focus,
+   * and its ancestors.
+   *
+   * \sa See WInteractWidget::escapePressed()
+   */
+  EventSignal<>& globalEscapePressed();
 
   /*
    * Returns whether debug was configured.

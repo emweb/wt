@@ -55,6 +55,7 @@ private:
   bool getSessionFromQueryString(const std::string& uri,
 				 std::string& sessionId);
   void checkConfig();
+  bool writeToSocket(int socket, const unsigned char *buf, int bufsize);
 
   /*
    * For DedicatedProcess session policy

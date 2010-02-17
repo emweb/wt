@@ -10,6 +10,7 @@
 #include <Wt/WSignal>
 #include <Wt/WEvent>
 #include <Wt/WJavaScriptSlot>
+#include <Wt/WString>
 #include <boost/lexical_cast.hpp>
 
 namespace Wt {
@@ -525,7 +526,7 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void JSignal<A1, A2, A3, A4, A5, A6>::emit(A1 a1, A2 a2, A3 a3,
-					  A4 a4, A5 a5, A6 a6)
+					   A4 a4, A5 a5, A6 a6)
 {
   if (impl_) {
     pushSender(sender());
@@ -537,7 +538,7 @@ void JSignal<A1, A2, A3, A4, A5, A6>::emit(A1 a1, A2 a2, A3 a3,
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void JSignal<A1, A2, A3, A4, A5, A6>::operator()(A1 a1, A2 a2, A3 a3,
-						    A4 a4, A5 a5, A6 a6)
+						 A4 a4, A5 a5, A6 a6)
 {
   emit(a1, a2, a3, a4, a5, a6);
 }
@@ -558,7 +559,9 @@ struct SignalArgTraits
 		       + boost::lexical_cast<std::string>(argi));
 
     try {
-      return boost::lexical_cast<T>(jse.userEventArgs[argi]);
+      std::string v = jse.userEventArgs[argi];
+      WString::checkUTF8Encoding(v);
+      return boost::lexical_cast<T>(v);
     } catch (boost::bad_lexical_cast) {
       throwWtException("Bad argument format: '"
 		       + jse.userEventArgs[argi] + "' for C++ type '"

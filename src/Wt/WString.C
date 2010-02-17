@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "rapidxml/rapidxml.hpp"
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WApplication"
@@ -142,14 +143,35 @@ bool WString::empty() const
     return toUTF8().empty();
 }
 
-WString WString::fromUTF8(const std::string& value)
+WString WString::fromUTF8(const std::string& value, bool checkValid)
 {
-  return WString(value, UTF8);
+  WString result(value, UTF8);
+  if (checkValid)
+    checkUTF8Encoding(result.utf8_);
+  return result;
 }
 
-WString WString::fromUTF8(const char *value)
+WString WString::fromUTF8(const char *value, bool checkValid)
 {
-  return WString(value, UTF8);
+  WString result(value, UTF8);
+  if (checkValid)
+    checkUTF8Encoding(result.utf8_);
+  return result;
+}
+
+void WString::checkUTF8Encoding(std::string& value)
+{
+  const char *c = value.c_str();
+  for (; c != value.c_str() + value.length();) {
+    const char *at = c;
+    try {
+      char *dest = 0;
+      rapidxml::xml_document<>::copy_check_utf8(c, dest);
+    } catch (rapidxml::parse_error& e) {
+      for (const char *i = at; i < c; ++i)
+	value[i - value.c_str()] = '?';
+    }
+  }
 }
 
 std::string WString::toUTF8() const
@@ -219,9 +241,10 @@ WString& WString::arg(const std::string& value, CharEncoding encoding)
 {
   createImpl();
 
-  if (encoding == UTF8)
+  if (encoding == UTF8) {
     impl_->arguments_.push_back(value);
-  else
+    checkUTF8Encoding(impl_->arguments_.back());
+  } else
     impl_->arguments_.push_back(Wt::toUTF8(Wt::widen(value)));
 
   return *this;

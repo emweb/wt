@@ -19,11 +19,7 @@ WApplication *createApplication(const WEnvironment& env)
   app->setTitle("File explorer example");
   app->useStyleSheet("filetree.css");
 
-#ifndef WIN32
-  FileTreeTable *treeTable = new FileTreeTable("/Users/koen/project/wt");
-#else
-  FileTreeTable *treeTable = new FileTreeTable("/tmp");
-#endif
+  FileTreeTable *treeTable = new FileTreeTable(".");
   treeTable->resize(500, 300);
   treeTable->tree()->setSelectionMode(ExtendedSelection);
   treeTable->treeRoot()->setNodeVisible(false);

@@ -51,7 +51,6 @@ WDialog::WDialog(const WString& windowTitle)
       ""     "d.style.marginLeft='0px';"
       ""     "d.style.marginTop='0px';"
       ""   "}"
-      ""   "d.wtResize(d, d.offsetWidth, d.offsetHeight);"
       "" "}"
       "};", false);
 

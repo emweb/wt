@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <stdlib.h>
 #include <boost/tokenizer.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <Wt/WAbstractItemModel>
 #include <Wt/WString>
@@ -49,16 +49,16 @@ void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
 	  boost::any data;
 	  std::string s = *i;
 
-	  try {
-	    int i = boost::lexical_cast<int>(s);
+	  char *endptr;
+	  int i = strtol(s.c_str(), &endptr, 0);
+	  if (*endptr == 0)
 	    data = boost::any(i);
-	  } catch (boost::bad_lexical_cast&) {
-	    try {
-	      double d = boost::lexical_cast<double>(s);
+	  else {
+	    double d = strtod(s.c_str(), &endptr);
+	    if (*endptr == 0)
 	      data = boost::any(d);
-	    } catch (boost::bad_lexical_cast&) {
+	    else
 	      data = boost::any(Wt::WString::fromUTF8(s));
-	    }
 	  }
 
 	  model->setData(dataRow, col, data);

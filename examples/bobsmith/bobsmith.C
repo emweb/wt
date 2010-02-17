@@ -17,6 +17,7 @@ WApplication *createApplication(const WEnvironment& env)
   new WText("Name: ", app->root());
   WInPlaceEdit *edit = new WInPlaceEdit(L"Bob Smith", app->root());
   edit->setStyleClass(L"inplace");
+  edit->setEmptyText(L"Empty: click to edit");
 
   app->styleSheet().addRule("*.inplace span:hover", L"background-color: gray");
 

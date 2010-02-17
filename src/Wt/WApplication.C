@@ -83,11 +83,11 @@ WApplication::WApplication(const WEnvironment& env)
   newInternalPath_ = environment().internalPath();
   internalPathIsChanged_ = false;
 
-#if !defined(WT_TARGET_JAVA) && !defined(WT_NO_XML)
+#ifndef WT_TARGET_JAVA
   localizedStrings_ = new WMessageResourceBundle();
 #else
   localizedStrings_ = 0;
-#endif // WT_TARGET_JAVA
+#endif // !WT_TARGET_JAVA
 
   domRoot_ = new WContainerWidget();
   WT_DEBUG(domRoot_->setObjectName("wt-dom-root"));
@@ -235,14 +235,14 @@ void WApplication::initialize()
 #ifndef WT_TARGET_JAVA
 void WApplication::finalize()
 { }
-#endif // WT_TARGET_JAVA
+#endif // !WT_TARGET_JAVA
 
-#if !defined(WT_TARGET_JAVA) && !defined(WT_NO_XML)
+#ifndef WT_TARGET_JAVA
 WMessageResourceBundle& WApplication::messageResourceBundle() const
 {
   return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings_));
 }
-#endif // !WT_TARGET_JAVA && !WT_NO_XML
+#endif // !WT_TARGET_JAVA
 
 std::string WApplication::onePixelGifUrl()
 {
@@ -356,7 +356,7 @@ void WApplication::constrainExposed(WWidget *w)
 
 bool WApplication::isExposed(WWidget *w) const
 {
-  if (exposedOnly_) {
+  if (w != domRoot_ && exposedOnly_) {
     for (WWidget *p = w; p; p = p->parent())
       if (p == exposedOnly_ || p == timerRoot_)
 	return true;
@@ -628,6 +628,31 @@ void WApplication::setHtmlClass(const std::string& styleClass)
 {
   htmlClass_ = styleClass;
   bodyHtmlClassChanged_ = true;
+}
+
+EventSignal<WKeyEvent>& WApplication::globalKeyWentDown()
+{
+  return domRoot_->keyWentDown();
+}
+
+EventSignal<WKeyEvent>& WApplication::globalKeyWentUp()
+{
+  return domRoot_->keyWentUp();
+}
+
+EventSignal<WKeyEvent>& WApplication::globalKeyPressed()
+{
+  return domRoot_->keyPressed();
+}
+
+EventSignal<>& WApplication::globalEnterPressed()
+{
+  return domRoot_->enterPressed();
+}
+
+EventSignal<>& WApplication::globalEscapePressed()
+{
+  return domRoot_->escapePressed();
 }
 
 void WApplication::setLocalizedStrings(WLocalizedStrings *translator)

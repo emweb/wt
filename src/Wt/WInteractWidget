@@ -44,6 +44,13 @@ public:
    * "control", ...) or keyboard navigation keys that do not have a
    * corresponding character.
    *
+   * Form widgets (like WLineEdit) will receive key events when
+   * focussed. Other widgets will receive key events when they contain
+   * (directly or indirectly) a form widget that has focus.
+   *
+   * To capture a key down event when no element has focus, see
+   * WApplication::globalKeyWentDown()
+   *
    * \sa keyPressed(), keyWentUp()
    */
   EventSignal<WKeyEvent>& keyWentDown();
@@ -55,6 +62,13 @@ public:
    * for key presses that result in a character being entered, and
    * thus not for modifier keys or keyboard navigation keys.
    *
+   * Form widgets (like WLineEdit) will receive key events when
+   * focussed. Other widgets will receive key events when they contain
+   * (directly or indirectly) a form widget that has focus.
+   *
+   * To capture a key press when no element has focus, see
+   * WApplication::globalKeyPressed()
+   *
    * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyPressed();
@@ -64,6 +78,13 @@ public:
    * This is the counter-part of the keyWentDown() event. Every
    * key-down has its corresponding key-up.
    *
+   * Form widgets (like WLineEdit) will receive key events when
+   * focussed. Other widgets will receive key events when they contain
+   * (directly or indirectly) a form widget that has focus.
+   *
+   * To capture a key up event when no element has focus, see
+   * WApplication::globalKeyWentUp()
+   *
    * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyWentUp();
@@ -72,6 +93,13 @@ public:
    *
    * This signal is emitted when the Enter or Return key was pressed.
    *
+   * Form widgets (like WLineEdit) will receive key events when
+   * focussed. Other widgets will receive key events when they contain
+   * (directly or indirectly) a form widget that has focus.
+   *
+   * To capture an enter press when no element has focus, see
+   * WApplication::globalEnterPressed()
+   *
    * \sa keyPressed(), Key_Enter
    */
   EventSignal<>& enterPressed();
@@ -79,6 +107,13 @@ public:
   /*! \brief Event signal emitted when escape was pressed.
    *
    * This signal is emitted when the Escape key was pressed.
+   *
+   * Form widgets (like WLineEdit) will receive key events when
+   * focussed. Other widgets will receive key events when they contain
+   * (directly or indirectly) a form widget that has focus.
+   *
+   * To capture an escape press when no element has focus, see
+   * WApplication::globalEscapePressed()
    *
    * \sa keyPressed(), Key_Escape
    */

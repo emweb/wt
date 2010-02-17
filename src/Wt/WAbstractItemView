@@ -256,15 +256,21 @@ public:
 
   /*! \brief %Signal emitted when an item is double clicked.
    *
-   * \sa doubleClicked()
+   * \sa clicked()
    */
   Signal<WModelIndex, WMouseEvent>& doubleClicked() { return doubleClicked_; }
 
-  /*! \brief %Signal emitted when an item is double clicked.
+  /*! \brief %Signal emitted when a mouse button is pressed down.
    *
-   * \sa doubleClicked()
+   * \sa mouseWentUp()
    */
   Signal<WModelIndex, WMouseEvent>& mouseWentDown() { return mouseWentDown_; }
+
+  /*! \brief %Signal emitted when the mouse button is released.
+   *
+   * \sa mouseWentDown()
+   */
+  Signal<WModelIndex, WMouseEvent>& mouseWentUp() { return mouseWentUp_; }
 
   /*! \brief %Signal emitted when the selection is changed.
    *
@@ -467,7 +473,7 @@ protected:
   std::vector<boost::signals::connection> modelConnections_;
   JSlot resizeHandleMDownJS_, resizeHandleMMovedJS_, resizeHandleMUpJS_,
     tieContentsHeaderScrollJS_, tieRowsScrollJS_, itemClickedJS_,
-    itemDoubleClickedJS_, itemMouseDownJS_;
+    itemDoubleClickedJS_, itemMouseDownJS_, itemMouseUpJS_;
 
   WWidget *createHeaderWidget(WApplication *app, int column);
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) = 0;
@@ -477,6 +483,7 @@ protected:
   Signal<WModelIndex, WMouseEvent> clicked_;
   Signal<WModelIndex, WMouseEvent> doubleClicked_;
   Signal<WModelIndex, WMouseEvent> mouseWentDown_;
+  Signal<WModelIndex, WMouseEvent> mouseWentUp_;
   Signal<void> selectionChanged_;
 
   void clearSelection();
