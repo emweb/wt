@@ -1,6 +1,8 @@
 22-02-2010:
 	* Dbo/StdSqlTraits: support float and double
 
+	* WApplication: missing initialization messes up refresh() by reload
+
 18-02-2010:
 	* web/EscapeOStream.C: fix build error on MSVC
 

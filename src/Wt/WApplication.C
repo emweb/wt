@@ -70,6 +70,7 @@ WApplication::WApplication(const WEnvironment& env)
     loadingIndicator_(0),
     connected_(true),
     bodyHtmlClassChanged_(false),
+    enableAjax_(false),
     scriptLibrariesAdded_(0),
     theme_("default"),
     styleSheetsAdded_(0),
