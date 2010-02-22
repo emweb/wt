@@ -444,13 +444,18 @@ void WPainter::drawRects(const std::vector<WRectF>& rectangles)
 void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
 			const WString& text)
 {
+  if (!(flags & AlignVerticalMask))
+    flags |= AlignTop;
+  if (!(flags & AlignHorizontalMask))
+    flags |= AlignLeft;
+
   device_->drawText(rectangle.normalized(), flags, text);
 }
 
 void WPainter::drawText(double x, double y, double width, double height,
 			WFlags<AlignmentFlag> flags, const WString& text)
 {
-  device_->drawText(WRectF(x, y, width, height), flags, text);
+  drawText(WRectF(x, y, width, height), flags, text);
 }
 
 void WPainter::fillPath(const WPainterPath& path, const WBrush& b)

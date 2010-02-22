@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <messages>
+  <!-- All languages -->
   <message id="msg.send">Send (not really)</message>
   <message id="msg.savenow">Save Now</message>
   <message id="msg.discard">Discard</message>

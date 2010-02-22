@@ -3,6 +3,9 @@
 
 	* WApplication: missing initialization messes up refresh() by reload
 
+	* WPainter: now has defined behavior when missing horizontal or vertical
+	alignment flags in drawText()
+
 18-02-2010:
 	* web/EscapeOStream.C: fix build error on MSVC
 

@@ -239,8 +239,8 @@ bool WMessageResources::readResourceFile(const std::string& locale,
     // factor 2 in case we expanded <span/> to <span></span>
     boost::scoped_array<char> buf(new char[length * 2]);
 
-    for (xml_node<> *x_message = x_root->first_node();
-	 x_message; x_message = x_message->next_sibling()) {
+    for (xml_node<> *x_message = x_root->first_node("message");
+	 x_message; x_message = x_message->next_sibling("message")) {
       if (strncmp(x_message->name(), "message", x_message->name_size()) != 0)
 	throw parse_error("Expected <message>", x_message->value());
 
