@@ -76,10 +76,12 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
   } else if (textFormat == PlainText)
     v = escapeText(v, true);
 
-  strings_[varName] = v.toUTF8();
+  if (strings_[varName] != v.toUTF8()) {
+    strings_[varName] = v.toUTF8();
 
-  changed_ = true;
-  repaint(RepaintInnerHtml);  
+    changed_ = true;
+    repaint(RepaintInnerHtml);  
+  }
 }
 
 void WTemplate::bindInt(const std::string& varName, int value)

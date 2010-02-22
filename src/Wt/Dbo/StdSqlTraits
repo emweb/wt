@@ -56,6 +56,26 @@ struct sql_value_traits<int, void>
   static bool read(int& v, SqlStatement *statement, int column);
 };
 
+template<>
+struct sql_value_traits<float, void>
+{
+  static const bool specialized = true;
+
+  static const char *type();
+  static void bind(float v, SqlStatement *statement, int column);
+  static bool read(float& v, SqlStatement *statement, int column);
+};
+
+template<>
+struct sql_value_traits<double, void>
+{
+  static const bool specialized = true;
+
+  static const char *type();
+  static void bind(double v, SqlStatement *statement, int column);
+  static bool read(double& v, SqlStatement *statement, int column);
+};
+
 template <typename Enum>
 struct sql_value_traits<Enum,
 			typename boost::enable_if<boost::is_enum<Enum> >::type> 

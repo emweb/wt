@@ -273,9 +273,11 @@ EscapeOStream::iterator EscapeOStream::iterator::operator ++ (int)
   return *this;
 }
 
-char& EscapeOStream::iterator::char_proxy::operator= (char c)
+EscapeOStream::iterator::char_proxy&
+EscapeOStream::iterator::char_proxy::operator= (char c)
 {
   stream_ << c;
+  return *this;
 }
 
 EscapeOStream::iterator::char_proxy::char_proxy(EscapeOStream& stream)

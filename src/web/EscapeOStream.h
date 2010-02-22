@@ -19,7 +19,7 @@ class WT_API EscapeOStream
 public:
   struct iterator {
     struct char_proxy {
-      char& operator= (char c);
+      char_proxy& operator= (char c);
 
     private:
       char_proxy(EscapeOStream& stream);

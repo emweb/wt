@@ -71,6 +71,46 @@ bool sql_value_traits<int>::read(int& v, SqlStatement *statement, int column)
     return false;
 }
 
+const char *sql_value_traits<float>::type()
+{
+  return "real not null";
+}
+
+void sql_value_traits<float>::bind(float v, SqlStatement *statement,
+				   int column)
+{
+  statement->bind(column, v);
+}
+
+bool sql_value_traits<float>::read(float& v, SqlStatement *statement,
+				   int column)
+{
+  if (!statement->getResult(column, &v))
+    return true;
+  else
+    return false;
+}
+
+const char *sql_value_traits<double>::type()
+{
+  return "double precision not null";
+}
+
+void sql_value_traits<double>::bind(double v, SqlStatement *statement,
+				    int column)
+{
+  statement->bind(column, v);
+}
+
+bool sql_value_traits<double>::read(double& v, SqlStatement *statement,
+				    int column)
+{
+  if (!statement->getResult(column, &v))
+    return true;
+  else
+    return false;
+}
+
   }
 }
 

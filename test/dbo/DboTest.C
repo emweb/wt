@@ -36,6 +36,8 @@ public:
   Wt::WString    wstring;
   std::string    string;
   int            i;
+  float          f;
+  double         d;
 
   bool operator== (const A& other) const {
     return date == other.date
@@ -43,6 +45,8 @@ public:
       && string == other.string
       && i == other.i
       && b == other.b
+      && f == other.f
+      && d == other.d
       && parent == other.parent;
   }
 
@@ -55,6 +59,8 @@ public:
     dbo::field(a, wstring, "wstring");
     dbo::field(a, string, "string");
     dbo::field(a, i, "i");
+    dbo::field(a, f, "f");
+    dbo::field(a, d, "d");
 
     dbo::belongsTo(a, b, "b");
 
@@ -152,6 +158,8 @@ void DboTest::test1()
   a1.wstring = "Hello";
   a1.string = "There";
   a1.i = 42;
+  a1.f = 42.42;
+  a1.d = 42.424242;
 
   /* Create an A, check that it is found during the same transaction  */
   {

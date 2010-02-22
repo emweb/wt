@@ -48,6 +48,14 @@ public:
    */
   virtual void bind(int column, long long value) = 0;
 
+  /*! \brief Binds a value to a column.
+   */
+  virtual void bind(int column, float value) = 0;
+
+  /*! \brief Binds a value to a column.
+   */
+  virtual void bind(int column, double value) = 0;
+
   /*! \brief Binds 'null' to a column.
    */
   virtual void bindNull(int column) = 0;
@@ -90,6 +98,18 @@ public:
    * Returns true whether the value was not null.
    */
   virtual bool getResult(int column, long long *value) = 0;
+
+  /*! \brief Fetches a result value.
+   *
+   * Returns true whether the value was not null.
+   */
+  virtual bool getResult(int column, float *value) = 0;
+
+  /*! \brief Fetches a result value.
+   *
+   * Returns true whether the value was not null.
+   */
+  virtual bool getResult(int column, double *value) = 0;
 
   /*! \brief Returns the prepared SQL string.
    */

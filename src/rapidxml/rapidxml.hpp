@@ -1569,7 +1569,7 @@ namespace rapidxml
 	    // checking their validity based on
 	    // http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/character-encoding.html (5.9.4 column 3)
 
-	    int length = 1;
+	    unsigned length = 1;
 	    bool legal = false;
 	    if ((unsigned char)src[0] <= 0x7F) {
 	      legal = true;

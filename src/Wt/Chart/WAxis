@@ -226,7 +226,7 @@ public:
    *
    * \sa minimum(), setMaximum(double)
    */
-  void setMinimum(double min);
+  void setMinimum(double minimum);
 
   /*! \brief Returns the minimum value displayed on the axis.
    *
@@ -245,7 +245,7 @@ public:
    *
    * \sa minimum(), setMinimum(double)
    */
-  void setMaximum(double max);
+  void setMaximum(double maximum);
 
   /*! \brief Returns the maximum value displayed on the axis.
    *
@@ -263,7 +263,7 @@ public:
    *
    * \sa setMinimum(double), setMaximum(double)
    */
-  void setRange(double min, double max);
+  void setRange(double minimum, double maximum);
 
   /*! \brief Let the minimum and/or maximum be calculated from the
    *         data.
@@ -297,7 +297,7 @@ public:
    * that needs to be omitted from the axis. The omission is rendered
    * in the axis and in BarSeries that cross the break.
    */
-  void setBreak(double min, double max);
+  void setBreak(double minimum, double maximum);
 
   /*! \brief Sets the label interval.
    *

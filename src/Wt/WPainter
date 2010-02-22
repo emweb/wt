@@ -261,7 +261,7 @@ public:
    *
    * \sa drawImage()
    */
-  class Image {
+  class WT_API Image {
   public:
     /*! \brief Creates an image.
      *

@@ -90,6 +90,20 @@ public:
     handleErr(err);
   }
 
+  virtual void bind(int column, float value)
+  {
+    bind(column, static_cast<double>(value));
+  }
+
+  virtual void bind(int column, double value)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
+
+    int err = sqlite3_bind_double(st_, column + 1, value);
+
+    handleErr(err);
+  }
+
   virtual void bindNull(int column)
   {
     DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
@@ -194,6 +208,32 @@ public:
 
     DEBUG(std::cerr << this 
 	  << " result long long " << column << " " << *value << std::endl);
+
+    return true;
+  }
+
+  virtual bool getResult(int column, float *value)
+  {
+    if (sqlite3_column_type(st_, column) == SQLITE_NULL)
+      return false;
+
+    *value = static_cast<float>(sqlite3_column_double(st_, column));
+
+    DEBUG(std::cerr << this 
+	  << " result float " << column << " " << *value << std::endl);
+
+    return true;
+  }
+
+  virtual bool getResult(int column, double *value)
+  {
+    if (sqlite3_column_type(st_, column) == SQLITE_NULL)
+      return false;
+
+    *value = sqlite3_column_double(st_, column);
+
+    DEBUG(std::cerr << this 
+	  << " result double " << column << " " << *value << std::endl);
 
     return true;
   }

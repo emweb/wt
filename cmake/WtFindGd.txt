@@ -17,7 +17,7 @@ FIND_LIBRARY(GD_LIB
   NAMES
     gd bgd
   PATHS
-    $(GD_DIR)/lib
+    ${GD_DIR}/lib
 )
 
 IF(WIN32)
