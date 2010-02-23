@@ -477,7 +477,7 @@ WebSession::Handler::Handler(WebSession& session, bool takeLock)
 
 WebSession::Handler::Handler(WebSession& session,
 			     WebRequest& request, WebResponse& response)
-  :
+  : 
 #ifdef WT_THREADED
     lock_(session.mutex_),
     prevHandler_(0),
@@ -669,6 +669,9 @@ void WebSession::doRecursiveEventLoop()
    * Finish the request that is being handled
    */
   Handler *handler = WebSession::Handler::instance();
+
+  handler->session()->notifySignal(WEvent(*handler, WebRenderer::Update));
+
   if (handler->response())
     handler->session()->render(*handler, app_->environment().ajax()
 			       ? WebRenderer::Update : WebRenderer::Page);
@@ -712,8 +715,6 @@ bool WebSession::unlockRecursiveEventLoop()
    */
   Handler *handler = WebSession::Handler::instance();
  
-  // handlerPrevious can be 0 if the event loop was already unlocked by
-  // another event while doing WApplication::processEvents()
   recursiveEventLoop_->setRequest(handler->request(), handler->response());
   handler->setRequest(0, 0);
 
@@ -1205,6 +1206,7 @@ void WebSession::notify(const WEvent& event)
 	     */
 
 	    try {
+	      handler.nextSignal = 0;
 	      notifySignal(event);
 	    } catch (std::exception& e) {
 	      log("error") << "Error during event handling: " << e.what();
@@ -1396,21 +1398,26 @@ void WebSession::notifySignal(const WEvent& e)
   renderer_.saveChanges();
 
   // Reorder signals, as browsers sometimes generate them in a strange order
-  std::vector<unsigned int> order = getSignalProcessingOrder(e);
-  for (unsigned i = 0; i < order.size(); ++i) {
+  if (handler.nextSignal == 0)
+    handler.signalOrder = getSignalProcessingOrder(e);
+
+  for (unsigned i = handler.nextSignal; i < handler.signalOrder.size(); ++i) {
     if (!handler.request())
       return;
 
     const WebRequest& request = *handler.request();
 
-    std::string se = i > 0
-      ? 'e' + boost::lexical_cast<std::string>(i) : std::string();
+    int signalI = handler.signalOrder[i];
+    std::string se = signalI > 0
+      ? 'e' + boost::lexical_cast<std::string>(signalI) : std::string();
     const std::string *signalE = getSignal(request, se);
 
     if (!signalE)
       return;
 
     propagateFormValues(e, se);
+
+    handler.nextSignal = i + 1;
 
     if (*signalE == "hash") {
       const std::string *hashE = request.getParameter(se + "_");

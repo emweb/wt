@@ -157,6 +157,9 @@ public:
     WebSession *session() const { return &session_; }
     void killSession();
 
+    int nextSignal;
+    std::vector<unsigned int> signalOrder;
+
   private:
     void init();
 
