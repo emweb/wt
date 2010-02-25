@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <iosfwd>
+#include <locale>
 #include <Wt/WDllDefs.h>
 #include <Wt/WGlobal>
 
@@ -108,6 +109,14 @@ public:
    */
   WString(const char *value, CharEncoding encoding = LocalEncoding);
 
+  /*! \brief Creates a %WString from a C string.
+   *
+   * The C string is implicitly converted to unicode. The
+   * string is interpreted within the character set of the given locale.
+   */
+  WString(const char *value, const std::locale &loc);
+
+
   /*! \brief Creates a %WString from a C++ string.
    *
    * The C++ string is implicitly converted to unicode. When
@@ -117,6 +126,13 @@ public:
    * interpreted as a UTF8 encoded unicode string.
    */
   WString(const std::string& value, CharEncoding encoding = LocalEncoding);
+
+  /*! \brief Creates a %WString from a C++ string.
+   *
+   * The C++ string is implicitly converted to unicode. The
+   * string is interpreted within the character set of the given locale.
+   */
+  WString(const std::string& value, const std::locale &loc);
 
   /*! \brief Destructor
    */
@@ -261,13 +277,13 @@ public:
    *
    * Argument place holders are substitued with actual arguments.
    *
-   * Any wide character is narrowed, possibly losing information. If
-   * you wish to keep all information, use toUTF8() instead, which
-   * encodes wide characters in the string.
+   * Any wide character is narrowed using the provided locale, possibly
+   * losing information. If you wish to keep all information, use toUTF8()
+   * instead, which encodes wide characters in the string.
    *
    * \sa toUTF8()
    */
-  std::string narrow() const;
+  std::string narrow(const std::locale &loc = std::locale()) const;
 
   /*! \brief Returns the value as a wide C++ string.
    *
@@ -528,6 +544,8 @@ extern WT_API std::wostream& operator<< (std::wostream& lhs, const WString& rhs)
 
 /*! \brief Output a WString to a C++ stream
  *
+ * The string is narrowed using the currently global C++ locale, possibly
+ * losing information.
  * \relates WString
  */
 extern WT_API std::ostream& operator<< (std::ostream& lhs, const WString& rhs);

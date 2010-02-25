@@ -397,25 +397,18 @@ bool CgiParser::parseHead(WebRequest& request)
        * It is not easy to create a std::ostream pointing to a
        * temporary file name.
        */
-#ifndef WIN32
-      char spool[20];
-      strcpy(spool, "/tmp/wtXXXXXX");
+      std::string spool = Wt::Utils::createTempFileName();
 
-      int i = mkstemp(spool);
-      close(i);
-#else
-      char spool[2 * L_tmpnam];
-      // FIXME: check for error retval for tmpnam
-      // FIXME: where is this tmp file created ? cwd ? is that ok ?
-      tmpnam(spool);
-#endif
-
-      spoolStream_ = new std::ofstream(spool, std::ios::out | std::ios::binary);
+      spoolStream_ = new std::ofstream(spool.c_str(),
+        std::ios::out | std::ios::binary);
 
       request_->files_.insert
 	(std::make_pair(name, Http::UploadedFile(spool, fn, ctype)));
     } else {
       spoolStream_ = 0;
+      // Clear currentKey so that file we don't do harm by reading this
+      // giant blob in memory
+      currentKey_ = "";
     }
   }
 

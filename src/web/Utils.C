@@ -15,6 +15,28 @@ namespace Wt {
 
   namespace Utils {
 
+extern std::string createTempFileName()
+{
+#ifndef WIN32
+  char spool[20];
+  strcpy(spool, "/tmp/wtXXXXXX");
+
+  int i = mkstemp(spool);
+  close(i);
+
+  return spool;
+#else
+  // FIXME: check for error retval for tmpnam
+  char *spool = _tempnam("c:\\tmp", "wthttp-");
+  std::string retval;
+  if (spool) {
+    retval = spool;
+    free(spool);
+  }
+  return retval;
+#endif
+}
+
 std::string terminate(const std::string& s, char c)
 {
   if (s.empty() || s[s.length() - 1] != c)

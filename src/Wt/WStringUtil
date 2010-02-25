@@ -9,26 +9,27 @@
 #define WSTRING_UTIL_H_
 
 #include <string>
+#include <locale>
 #include <Wt/WDllDefs.h>
 
 namespace Wt {
   /*! \brief Convert a narrow to a wide string.
    *
-   * Convert a narrow string to a wide string. This method will not
-   * perform any code conversion, it simply represents the same string
-   * with a same number of wide characters.
+   * Convert a narrow string to a wide string. This method will interpret
+   * the input string as being encoded in the given locale (by default the
+   * currently configured global C++ locale).
    *
    * \sa narrow(const std::wstring&), fromUTF8(const std::string& s)
    *
    * \relates WString
    */
-  extern WT_API std::wstring widen(const std::string& s);
+  extern WT_API std::wstring widen(const std::string& s,
+      const std::locale &loc = std::locale());
 
   /*! \brief Convert a wide to a narrow string.
    *
-   * Convert a wide string to a narrow string. This method will not
-   * perform any code conversion, it simply represents (as far as possible)
-   * the same string with a same number of narrow characters.
+   * Convert a wide string to a narrow string. This method will encode
+   * the characters in the given locale, if possible.
    *
    * In general this will lead to a loss of information. If you wish to
    * preserve all information, you should us toUTF8() instead.
@@ -37,7 +38,8 @@ namespace Wt {
    *
    * \relates WString
    */
-  extern WT_API std::string narrow(const std::wstring& s);
+  extern WT_API std::string narrow(const std::wstring& s,
+      const std::locale &loc = std::locale());
 
   /*! \brief Decode a UTF8 string a wide string.
    *

@@ -21,6 +21,9 @@ namespace Wt {
 
   namespace Utils {
 
+// Returns a filename that can be used as temporary file
+extern std::string createTempFileName();
+
 // appends the character to the string if it does not end with it
 extern std::string terminate(const std::string& s, char c);
 

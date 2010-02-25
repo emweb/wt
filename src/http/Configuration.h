@@ -60,6 +60,9 @@ public:
   const std::string& sessionIdPrefix() const { return sessionIdPrefix_; }
   const std::string& accessLog() const { return accessLog_; }
 
+  int maxRequestSize() const { return maxRequestSize_; }
+  int maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
+
   Wt::WLogEntry log(const std::string& type) const;
 
 private:
@@ -86,6 +89,9 @@ private:
 
   std::string sessionIdPrefix_;
   std::string accessLog_;
+
+  int maxRequestSize_;
+  int maxMemoryRequestSize_;
 
   static Configuration *instance_;
 

@@ -27,13 +27,14 @@ namespace http {
 namespace server {
 
 class Request;
+class Server;
 
 /// Parser for incoming requests.
 class RequestParser
 {
 public:
   /// Construct ready to parse the request method.
-  RequestParser();
+  RequestParser(Server *server);
 
   /// Reset to initial parser state.
   void reset();
@@ -111,6 +112,7 @@ private:
   unsigned     buf_ptr_;
   std::string  *dest_;
   unsigned     maxSize_;
+  unsigned     max_request_size_;
 };
 
 } // namespace server

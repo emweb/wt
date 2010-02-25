@@ -12,19 +12,49 @@
 #include "HTTPRequest.h"
 #include "WebController.h"
 #include "Server.h"
+#include "Utils.h"
+
+#include <fstream>
 
 namespace http {
   namespace server {
 
-WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint)
+WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
+                 const Configuration &config)
   : Reply(request),
     entryPoint_(entryPoint),
     sending_(false),
     fetchMoreData_(0)
-{ }
+{
+  if (request.contentLength > config.maxMemoryRequestSize()) {
+    requestFileName_ = Wt::Utils::createTempFileName();
+    // First, create the file
+    std::ofstream o(requestFileName_.c_str());
+    o.close();
+    // Now, open it for read/write
+    cin_ = new std::fstream(requestFileName_.c_str(),
+      std::ios::in | std::ios::out | std::ios::binary);
+    if (!*cin_) {
+      // Give up, spool to memory
+      requestFileName_ = "";
+      delete cin_;
+      cin_ = &cin_mem_;
+    }
+  } else {
+    cin_ = &cin_mem_;
+  }
+}
 
 WtReply::~WtReply()
-{ }
+{
+  if (&cin_mem_ != cin_) {
+    dynamic_cast<std::fstream *>(cin_)->close();
+    delete cin_;
+  }
+  if (requestFileName_ != "") {
+    unlink(requestFileName_.c_str());
+  }
+}
 
 void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 				 Buffer::const_iterator end,
@@ -33,9 +63,11 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
   /*
    * Copy everything to a buffer.
    */
-  cin_.append(begin, end);
+  cin_->write(begin, end - begin);
 
   if (endOfRequest) {
+    cin_->flush();
+    cin_->seekg(0); // rewind
     responseSent_ = false;
     HTTPRequest *r = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
 				     (shared_from_this()));

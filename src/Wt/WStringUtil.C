@@ -11,14 +11,26 @@
 
 namespace Wt {
 
-std::wstring widen(const std::string& s)
+std::wstring widen(const std::string& s, const std::locale &loc)
 {
-  return std::wstring(s.begin(), s.end());
+  std::wstring retval;
+  retval.reserve(s.length());
+  for (std::string::const_iterator i = s.begin(); i != s.end(); ++i)
+  {
+    retval += std::use_facet<std::ctype<wchar_t> >(loc).widen(*i);
+  }
+  return retval;
 }
 
-std::string narrow(const std::wstring& s)
+std::string narrow(const std::wstring& s, const std::locale &loc)
 {
-  return std::string(s.begin(), s.end());
+  std::string retval;
+  retval.reserve(s.length());
+  for (std::wstring::const_iterator i = s.begin(); i != s.end(); ++i)
+  {
+    retval += std::use_facet<std::ctype<wchar_t> >(loc).narrow(*i, '?');
+  }
+  return retval;
 }
 
 std::string toUTF8(const std::wstring& s)

@@ -34,6 +34,7 @@ Connection::Connection(asio::io_service& io_service, Server *server,
   : ConnectionManager_(manager),
     request_handler_(handler),
     timer_(io_service),
+    request_parser_(server),
     server_(server)
 { }
 
@@ -100,6 +101,7 @@ void Connection::handleReadRequest0()
     reply_.reset(new StockReply(request_, StockReply::bad_request,"",
 				request_handler_.getErrorRoot()));
     reply_->setConnection(this);
+    reply_->setCloseConnection();
     moreDataToSend_ = true;
 
     startWriteResponse();

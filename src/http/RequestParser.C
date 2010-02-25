@@ -18,6 +18,7 @@
 #include "RequestParser.h"
 #include "Request.h"
 #include "Reply.h"
+#include "Server.h"
 #undef min
 
 /*
@@ -28,9 +29,6 @@
  * Any header field value over 80k.
  * Any header field name over 256 bytes.
  * Any request URI greater than 512 bytes.
- *
- * We added:
- * Any request body greater than 40MB
  */
 
 static std::size_t MAX_REQUEST_HEADER_SIZE = 112*1024;
@@ -38,13 +36,13 @@ static int MAX_URI_SIZE = 512;
 static int MAX_FIELD_VALUE_SIZE = 80*1024;
 static int MAX_FIELD_NAME_SIZE = 256;
 static int MAX_METHOD_SIZE = 16;
-static int MAX_POST_SIZE = 40*1024*1024;
 
 namespace http {
 namespace server {
 
-RequestParser::RequestParser()
-  : state_(method_start)
+RequestParser::RequestParser(Server *server)
+  : state_(method_start),
+    max_request_size_(server->configuration().maxRequestSize())
 { 
   reset();
 }
@@ -490,7 +488,7 @@ bool RequestParser::validate(Request& req)
     }
   }
 
-  if (req.contentLength >= 0 && req.contentLength <= MAX_POST_SIZE)
+  if (req.contentLength >= 0 && req.contentLength <= max_request_size_)
     bodyRemainder_ = req.contentLength;
   else {
     return false;

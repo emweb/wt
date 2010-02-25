@@ -30,12 +30,10 @@
 namespace http {
 namespace server {
 
-RequestHandler::RequestHandler(const std::string& doc_root,
-			       const std::string& err_root,
+RequestHandler::RequestHandler(const Configuration &config,
 			       const Wt::EntryPointList& entryPoints,
 			       Wt::WLogger& logger)
-  : doc_root_(doc_root),
-    err_root_(err_root),
+  : config_(config),
     entryPoints_(entryPoints),
     logger_(logger)
 { }
@@ -50,18 +48,18 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
       && (req.method != "HEAD")
       && (req.method != "POST"))
     return ReplyPtr(new StockReply(req, Reply::not_implemented,
-				   "", err_root_));
+				   "", config_.errRoot()));
 
   if ((req.http_version_major != 1)
       || (req.http_version_minor != 0 
 	  && req.http_version_minor != 1))
     return ReplyPtr(new StockReply(req, Reply::not_implemented, 
-				   "", err_root_));
+				   "", config_.errRoot()));
 
   // Decode url to path.
   if (!url_decode(req.uri, req.request_path, req.request_query)) {
     return ReplyPtr(new StockReply(req, Reply::bad_request,
-				   "", err_root_));
+				   "", config_.errRoot()));
   }
 
   std::size_t anchor = req.request_path.find("/#");
@@ -75,7 +73,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
   if (req.request_path.empty() || req.request_path[0] != '/'
       || req.request_path.find("..") != std::string::npos) {
     return ReplyPtr(new StockReply(req, Reply::bad_request,
-				   "", err_root_));
+				   "", config_.errRoot()));
   }
 
   for (unsigned i = 0; i < entryPoints_.size(); ++i) {
@@ -104,7 +102,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
       req.request_extra_path = pathInfo;
       if (!pathInfo.empty())
 	req.request_path = ep.path();
-      return ReplyPtr(new WtReply(req, ep));
+      return ReplyPtr(new WtReply(req, ep, config_));
     }
   }
 
@@ -121,8 +119,9 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
     extension = req.request_path.substr(last_dot_pos + 1);
   }
 
-  std::string full_path = doc_root_ + req.request_path;
-  return ReplyPtr(new StaticReply(full_path, extension, req, err_root_));
+  std::string full_path = config_.docRoot() + req.request_path;
+  return ReplyPtr(new StaticReply(full_path, extension,
+    req, config_.errRoot()));
 }
 
 bool RequestHandler::url_decode(const std::string& in,

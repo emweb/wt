@@ -44,7 +44,7 @@ public:
 
 private:
   WtReplyPtr reply_;
-  std::stringstream instream_;
+  std::istream &instream_;
   std::stringstream outstream_;
 };
 

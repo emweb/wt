@@ -49,7 +49,8 @@ Server *Server::instance_ = 0;
 
 Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
                Wt::WebController& controller)
-  : io_service_(),
+  : config_(config),
+    io_service_(),
     accept_strand_(io_service_),
     tcp_acceptor_(io_service_),
 #ifdef HTTP_WITH_SSL
@@ -60,7 +61,7 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
     select_reactor_(io_service_),
 #endif // defined(WT_THREADED) && BOOST_VERSION < 103600
     connection_manager_(),
-    request_handler_(config.docRoot(), config.errRoot(), wtConfig.entryPoints(),
+    request_handler_(config, wtConfig.entryPoints(),
 		     accessLogger_),
     controller_(&controller)
 {

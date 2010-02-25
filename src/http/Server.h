@@ -37,6 +37,7 @@ namespace asio = boost::asio;
 #include "SslConnection.h"
 #endif // HTTP_WITH_SSL
 
+#include "Configuration.h"
 #include "ConnectionManager.h"
 #include "RequestHandler.h"
 
@@ -85,6 +86,8 @@ public:
 
   Wt::WebController *controller() { return controller_; }
 
+  const Configuration &configuration() { return config_; }
+
 private:
   /// Starts accepting http/https connections
   void startAccept();
@@ -94,6 +97,9 @@ private:
 
   /// Handle a request to stop the server.
   void handleStop();
+
+  /// The server's configuration
+  Configuration config_;
 
   /// The logger
   Wt::WLogger   accessLogger_;

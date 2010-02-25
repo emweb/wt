@@ -129,9 +129,6 @@ private:
   /// The reply is complete.
   bool moreDataToSend_;
 
-  /// We close the connection.
-  bool forceClose_;
-
   /// The server that owns this connection
   Server *server_;
 };

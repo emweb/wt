@@ -146,6 +146,14 @@ ItemCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
   if (t || a)
     if (autoCreate) {
       wc = new WContainerWidget();
+      w.w->setInline(true);
+      w.w->setStyleClass(WString::Empty);
+
+      /* We first remove to avoid reparenting warnings */
+      WContainerWidget *p = dynamic_cast<WContainerWidget *>(w.w->parent());
+      if (p)
+	p->removeWidget(w.w);
+
       wc->addWidget(w.w);
       w.w = wc;
     } else

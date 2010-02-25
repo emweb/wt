@@ -1,3 +1,13 @@
+25-02-2010:
+	* src/Wt/WString: fix narrow() and widen() character encoding
+	conversions
+
+	* http connector: spool large POSTs to a temporary file instead
+	of in-memory, and avoid extra copies
+
+	* web/CgiParser.C: skip large file uploads entirely (instead of
+	erroneously buffering them to memory)
+
 22-02-2010:
 	* Dbo/StdSqlTraits: support float and double
 

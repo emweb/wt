@@ -22,12 +22,14 @@
 
 #include "Wt/WLogger"
 
+#include "Configuration.h"
 #include "Reply.h"
 #include "../web/Configuration.h"
 
 namespace http {
 namespace server {
 
+class Configuration;
 class Request;
 
 /// The common handler for all incoming requests.
@@ -36,8 +38,7 @@ class RequestHandler
 {
 public:
   /// Construct with a directory containing files to be served.
-  explicit RequestHandler(const std::string& doc_root,
-			  const std::string& err_root,
+  explicit RequestHandler(const Configuration &config,
 			  const Wt::EntryPointList& entryPoints,
 			  Wt::WLogger& logger);
 
@@ -46,16 +47,14 @@ public:
 
   const std::string getErrorRoot() const
   {
-    return err_root_;
+    return config_.errRoot();
   }
 
   Wt::WLogger& logger() const { return logger_; }
 
 private:
-  /// The directory containing the files to be served.
-  std::string doc_root_;
-  /// The directory containing the error pages.
-  std::string err_root_;
+  /// The server configuration
+  const Configuration &config_;
   /// The paths that match applications
   const Wt::EntryPointList& entryPoints_;
   /// The logger

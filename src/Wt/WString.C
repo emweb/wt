@@ -57,6 +57,18 @@ WString::WString(const std::string& value, CharEncoding encoding)
     utf8_ = Wt::toUTF8(widen(value));
 }
 
+WString::WString(const char *value, const std::locale& loc)
+  : impl_(0)
+{
+  utf8_ = Wt::toUTF8(widen(value, loc));
+}
+
+WString::WString(const std::string& value, const std::locale& loc)
+  : impl_(0)
+{
+  utf8_ = Wt::toUTF8(widen(value, loc));
+}
+
 WString::WString(const WString& other)
   : utf8_(other.utf8_),
     impl_(0)
@@ -213,9 +225,9 @@ std::wstring WString::value() const
   return Wt::fromUTF8(toUTF8());
 }
 
-std::string WString::narrow() const
+std::string WString::narrow(const std::locale &loc) const
 {
-  return Wt::narrow(value());
+  return Wt::narrow(value(), loc);
 }
 
 WString::operator std::wstring() const
