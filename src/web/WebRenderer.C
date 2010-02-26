@@ -885,9 +885,10 @@ void WebRenderer::loadScriptLibraries(std::ostream& out,
 	  << uri << "\",function() {\n";
     }
   } else {
-    for (unsigned i = first; i < app->scriptLibraries_.size(); ++i) {
+    if (app->scriptLibraries_.size() - first > 0)
+      out << app->javaScriptClass() << "._p_.autoJavaScript();";
+    for (unsigned i = first; i < app->scriptLibraries_.size(); ++i)
       out << "});";
-    }
     app->scriptLibrariesAdded_ = 0;
   }
 }
