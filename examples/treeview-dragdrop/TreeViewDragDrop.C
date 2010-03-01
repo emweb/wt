@@ -308,6 +308,7 @@ private:
     layout->addWidget(createTitle("Folders"), 0, 0);
     layout->addWidget(createTitle("Files"), 0, 1);
     layout->addWidget(folderView(), 1, 0);
+    layout->setColumnResizable(0);
 
     // select the first folder
     folderView_->select(folderModel_->index(0, 0, folderModel_->index(0, 0)));
@@ -315,6 +316,7 @@ private:
     WVBoxLayout *vbox = new WVBoxLayout();
     vbox->addWidget(fileView(), 1);
     vbox->addWidget(pieChart(), 1);
+    vbox->setResizable(0);
 
     layout->addLayout(vbox, 1, 1);
 

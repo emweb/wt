@@ -23,7 +23,14 @@
 #include "Wt/WWebWidget"
 
 #include "EscapeOStream.h"
+#include "JavaScriptLoader.h"
 #include "Utils.h"
+
+#include "JavaScriptLoader.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WTreeView.min.js"
+#endif
 
 /*
   TODO:
@@ -858,6 +865,14 @@ void WTreeViewNode::selfCheck()
   }
 }
 
+void WTreeView::bindObjJS(JSlot& slot, const std::string& jsMethod)
+{
+  slot.setJavaScript
+    ("function(obj, event) {"
+     """jQuery.data(" + jsRef() + ", 'obj')." + jsMethod + "(obj, event);"
+     "}");
+}
+
 WTreeView::WTreeView(WContainerWidget *parent)
   : WAbstractItemView(parent),
     rootNode_(0),
@@ -872,9 +887,10 @@ WTreeView::WTreeView(WContainerWidget *parent)
     nodeLoad_(0),
     contentsContainer_(0),
     scrollBarC_(0),
-    itemEvent_(this, "itemEvent")
+    impl_(new WContainerWidget()),
+    itemEvent_(impl_, "itemEvent")
 {
-  setImplementation(impl_ = new WContainerWidget());
+  setImplementation(impl_);
 
   renderState_ = NeedRerender;
 
@@ -940,6 +956,10 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "text-overflow: ellipsis;"
        "overflow: hidden;"
        "white-space: nowrap;");
+
+    app->styleSheet().addRule
+      (".Wt-treeview .Wt-tv-c",
+       "padding: 0px 3px;");
 
     app->styleSheet().addRule
       (".Wt-treeview img.icon, .Wt-treeview input.icon",
@@ -1080,122 +1100,13 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   selectionChanged().connect(SLOT(this, WTreeView::checkDragSelection));
 
-  app->declareJavaScriptFunction
-    ("getItem",
-     "function(event) {"
-     """var columnId = -1, nodeId = null, selected = false, "
-     ""   "drop = false, el = null;"
-     """var t = event.target || event.srcElement;"
-     """while (t) {"
-     ""  "if (t.className.indexOf('c1 rh') == 0) {"
-     ""    "if (columnId == -1)"
-     ""      "columnId = 0;"
-     ""  "} else if (t.className.indexOf('Wt-tv-c') == 0) {"
-     ""    "if (t.className.indexOf('Wt-tv-c') == 0)"
-     ""      "columnId = t.className.split(' ')[0].substring(7) * 1;"
-     ""    "else if (columnId == -1)"
-     ""      "columnId = 0;"
-     ""    "if (t.getAttribute('drop') === 'true')"
-     ""      "drop = true;"
-     ""      "el = t;"
-     ""  "} else if (t.className == 'Wt-tv-node') {"
-     ""    "nodeId = t.id;"
-     ""    "break;"
-     ""  "}"
-     ""  "if (t.className === 'Wt-selected')"
-     ""    "selected = true;"
-     ""  "t = t.parentNode;"
-     ""  "if (" WT_CLASS ".hasTag(t, 'BODY'))"
-     ""    "break;"
-     """}"
-     """return { columnId: columnId, nodeId: nodeId, selected: selected, "
-     ""         "drop: drop, el: el };"
-     "}");
-
-  itemClickedJS_.setJavaScript
-    ("function(obj, event) {"
-     """var item=" + app->javaScriptClass() + ".getItem(event);"
-     """if (item.columnId != -1) {"
-     "" + itemEvent_.createEventCall("item.el", "event", "item.nodeId",
-				     "item.columnId", "'clicked'",
-				     "''", "''") + ";"
-     """}"
-     "}");
-
-  itemDoubleClickedJS_.setJavaScript
-    ("function(obj, event) {"
-     """var item=" + app->javaScriptClass() + ".getItem(event);"
-     """if (item.columnId != -1)"
-     "" + itemEvent_.createEventCall("item.el", "event", "item.nodeId",
-				     "item.columnId", "'dblclicked'",
-				     "''", "''") + ";"
-     "}");
-
-  itemMouseDownJS_.setJavaScript
-    ("function(obj, event) {"
-     """var APP=" + app->javaScriptClass() +", tv=" + jsRef() + ";"
-     """APP._p_.capture(null);"
-     """var item=APP.getItem(event);"
-     """if (item.columnId != -1) {"
-     "" + itemEvent_.createEventCall("item.el", "event", "item.nodeId",
-				     "item.columnId", "'mousedown'",
-				     "''", "''") + ";"
-     ""  "if (tv.getAttribute('drag') === 'true' && item.selected)"
-     ""    "APP._p_.dragStart(tv, event);"
-     """}"
-     "}");
-
-  itemMouseUpJS_.setJavaScript
-    ("function(obj, event) {"
-     """var APP=" + app->javaScriptClass() +", tv=" + jsRef() + ";"
-     """var item=APP.getItem(event);"
-     """if (item.columnId != -1) {"
-     "" + itemEvent_.createEventCall("item.el", "event", "item.nodeId",
-				     "item.columnId", "'mouseup'",
-				     "''", "''") + ";"
-     """}"
-     "}");
-
-  resizeHandleMDownJS_.setJavaScript
-    ("function(obj, event) {"
-     """var pc = " WT_CLASS ".pageCoordinates(event);"
-     """obj.setAttribute('dsx', pc.x);"
-     "}");
-
-  resizeHandleMMovedJS_.setJavaScript
-    ("function(obj, event) {"
-     """var WT = " WT_CLASS ","
-     ""    "lastx = obj.getAttribute('dsx'),"
-     ""    "t = " + contents_->jsRef() + ".firstChild,"
-     ""    "h=" + headers_->jsRef() + ","
-     ""    "hh=h.firstChild,"
-     ""    "h0=h.lastChild,"
-     ""    "c0id = h0.className.split(' ')[0],"
-     ""    "c0r = WT.getCssRule('#" + id() + " .' + c0id);"
-     ""
-     """if (lastx != null && lastx != '') {"
-     ""  "var nowxy = WT.pageCoordinates(event),"
-     ""  "parent = obj.parentNode.parentNode,"
-     ""      "diffx = Math.max(nowxy.x - lastx, -parent.offsetWidth),"
-     ""      "c = parent.className.split(' ')[0];"
-     ""
-     ""  "if (c) {"
-     ""    "var r = WT.getCssRule('#" + id() + " .' + c),"
-     ""        "tw = WT.pxself(r, 'width');"
-     ""    "r.style.width = Math.max(0, tw + diffx) + 'px';"
-     ""  "}"
-     ""  "var s = " + jsRef() + ";"
-     ""  "s.adjustColumns();"
-     ""  "obj.setAttribute('dsx', nowxy.x);"
-     ""  "WT.cancelEvent(event);"
-     "  }"
-     "}");
-
-  resizeHandleMUpJS_.setJavaScript
-    ("function(obj, event) {"
-     """obj.removeAttribute('dsx');"
-     "" WT_CLASS ".cancelEvent(event);"
-     "}");
+  bindObjJS(itemClickedJS_, "click");
+  bindObjJS(itemDoubleClickedJS_, "dblClick");
+  bindObjJS(itemMouseDownJS_, "mouseDown");
+  bindObjJS(itemMouseUpJS_, "mouseUp");
+  bindObjJS(resizeHandleMDownJS_, "resizeHandleMDown");
+  bindObjJS(resizeHandleMMovedJS_, "resizeHandleMMoved");
+  bindObjJS(resizeHandleMUpJS_, "resizeHandleMUp");
 
   tieContentsHeaderScrollJS_.setJavaScript
     ("function(obj, event) {"
@@ -1223,73 +1134,9 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "}");
   }
 
-  /*
-   * This adjusts invariants that depend on the size of the whole
-   * treeview:
-   * 
-   *  - changes to the total width (tw)
-   *  - whether scrollbars are needed (vscroll), and thus the actual
-   *    contents width
-   *  - when column1 is fixed:
-   *    * .row width
-   *    * table parent width
-   */
-  std::string extra
-    = app->environment().agent() == WEnvironment::IE6 ? "10" : "8";
-
   app->addAutoJavaScript
-    ("{var e=$('#" + contentsContainer_->id() + "').get(0);"
-     "var $s=$('#" + id() + "');"
-     "var WT=" WT_CLASS ";"
-     "if (e) {"
-     """var tw=$s.innerWidth(),"
-     ""    "vscroll=e.scrollHeight > e.offsetHeight,"
-     ""    "c0id, c0w = null;" // for column 1 fixed
-     ""
-     """if ($s.hasClass('column1')) {"
-     ""  "c0id = $('#" + id() + " .Wt-headerdiv').get(0).lastChild"
-     ""    ".className.split(' ')[0];"
-     ""  "c0w = WT.pxself(WT.getCssRule('#" + id() + " .' + c0id), 'width');"
-     """}"
-     ""
-     """if (tw > 200 " // XXX: IE's incremental rendering foobars completely
-     ""    "&& (tw != e.tw || "
-     ""        "vscroll != e.vscroll || "
-     ""        "c0w != e.c0w || "
-     ""        "$s.get(0).changed)) {"
-     ""  "e.tw = tw;"
-     ""  "e.vscroll = vscroll;"
-     ""  "e.c0w = c0w;"
-     ""  "var h= " + headers_->jsRef() + ","
-     ""      "t=" + contents_->jsRef() + ".firstChild,"
-     ""      "r= WT.getCssRule('#" + id() + " .cwidth'),"
-     ""      "contentstoo=(r.style.width == h.style.width);"
-     ""  "r.style.width=(tw - (vscroll ? " SCROLLBAR_WIDTH_TEXT " : 0)) + 'px';"
-     ""  "e.style.width=tw + 'px';"
-     ""  "h.style.width=t.offsetWidth + 'px';"
-     ""  "if (c0w != null) {"
-     ""    "var w=tw - c0w - " + extra + " - (vscroll ? "
-     ""                                       SCROLLBAR_WIDTH_TEXT " : 0);"
-     ""    "if (w > 0) {"
-     ""      "w2 = Math.min(w, "
-     ""       "WT.pxself(WT.getCssRule('#" + id() + " .Wt-tv-rowc'), 'width'));"
-     ""      "tw -= (w - w2);"
-     ""      "WT.getCssRule('#" + id() + " .Wt-tv-row').style.width = w2+'px';"
-     ""      "$('#" + id() + " .Wt-tv-row').css('width', w2 + 'px').css('width', '');"
-     ""      "tw -= (vscroll ? " SCROLLBAR_WIDTH_TEXT " : 0);"
-     ""      "h.style.width=tw + 'px';"
-     ""      "t.style.width=tw + 'px';"
-     ""    "}"
-     ""  "} else if (contentstoo) {"
-     ""    "h.style.width=r.style.width;"
-     ""    "t.style.width=r.style.width;"
-     ""  "}"
-     ""  "if (!$s.get(0).changed && $s.get(0).adjustColumns)"
-     ""    "$s.get(0).adjustColumns();"
-     ""  "$s.get(0).changed = false;"
-     """}"
-     "}}"
-     );
+    ("{var obj = $('#" + id() + "').data('obj');"
+     "if (obj) obj.autoJavaScript();}");
 
   if (parent)
     parent->addWidget(this);
@@ -1301,96 +1148,21 @@ void WTreeView::refresh()
 
   WApplication *app = WApplication::instance();
 
-  /*
-   * this adjusts invariants that take into account column resizes
-   *
-   * c0w is set as soon as possible.
-   *
-   *  if (!column1 fixed):
-   *    1) width('Wt-headerdiv') = sum(column widths)
-   *    2) width('float: right') = sum(column(-1) widths)
-   *    3) width(table parent) = width('Wt-headerdiv')
-   *  else
-   *    4) width('Wt-rowc') = sum(column(-1) widths) 
-   */
   std::string extra
     = app->environment().agent() == WEnvironment::IE6 ? "10" : "8";
 
-  std::string columnsWidth =
-    "var e=" + jsRef() + ","
-    ""  "WT=" WT_CLASS ","
-    ""  "t=" + contents_->jsRef() + ".firstChild,"       // table parent
-    ""  "h=" + headers_->jsRef() + ","                   // Wt-headerdiv
-    ""  "hc=h.firstChild"                                // Wt-tv-row
-    ""      + (column1Fixed_ ? ".firstChild" : "") + "," // or Wt-tv-rowc
-    ""  "allw_1=0, allw=0,"
-    ""  "c0id = h.lastChild.className.split(' ')[0],"
-    ""  "c0r = WT.getCssRule('#" + id() + " .' + c0id);"
+  const char *THIS_JS = "js/WTreeView.js";
 
-    "if (WT.isHidden(e) || h.offsetWidth - hc.offsetWidth < 8) return;"
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WTreeView", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
 
-    "for (var i=0, length=hc.childNodes.length; i < length; ++i) {\n"
-    """if (hc.childNodes[i].className) {\n" // IE may have only a text node
-    ""  "var cl = hc.childNodes[i].className.split(' ')[0],\n"
-    ""      "r = WT.getCssRule('#" + id() + " .' + cl);\n"
-         // 7 = 2 * 3px (padding) + 1px border
-    ""  "allw_1 += WT.pxself(r, 'width') + 7;\n"
-    """}"
-    "}\n"
-
-    "if (!c0r.style.width) " // first resize and c0 width not set
-    """c0r.style.width = (h.offsetWidth - hc.offsetWidth - 8) + 'px';"
-
-    "allw = allw_1 + WT.pxself(c0r, 'width') + " + extra + ";\n";
-
-  if (!column1Fixed_)
-    columnsWidth +=
-      "h.style.width = t.style.width = allw + 'px';"
-      "hc.style.width = allw_1 + 'px';";
-  else
-    columnsWidth +=
-      "var r = WT.getCssRule('#" + id() + " .Wt-tv-rowc');"
-      "r.style.width = allw_1 + 'px';"
-      "$('#" + id() + " .Wt-tv-rowc')"
-      """.css('width', allw_1 + 'px')"
-      """.css('width', '');"
-      "e.changed=true;"
-      + app->javaScriptClass() + "._p_.autoJavaScript();";
-
-  /*
-   * Adjust columns: do everything needed when a column is resized,
-   * or columns changes somehow.
-   */
-  app->doJavaScript
-    (jsRef() + ".adjustColumns=function() {"
-     """if (" + contentsContainer_->jsRef() + ") {" + columnsWidth + "}"
-     "};");
-
-  app->doJavaScript
-    (jsRef() + ".handleDragDrop=function(action, object, event, "
-     ""                                 "sourceId, mimeType) {"
-     """var self=" + jsRef() + ";"
-     """if (self.dropEl) {"
-     ""  "self.dropEl.className = self.dropEl.classNameOrig;"
-     ""  "self.dropEl = null;"
-     """}"
-     """if (action=='end')"
-     ""  "return;"
-     """var item=" + app->javaScriptClass() + ".getItem(event);"
-     """if (!item.selected && item.drop && item.columnId != -1) {"
-     ""  "if (action=='drop') {"
-     ""    + itemEvent_.createCall("item.nodeId", "item.columnId", "'drop'",
-				   "sourceId", "mimeType") + ";"
-     ""  "} else {"
-     ""    "object.className = 'Wt-valid-drop';"
-     ""    "self.dropEl = item.el;"
-     ""    "self.dropEl.classNameOrig = self.dropEl.className;"
-     ""    "self.dropEl.className = self.dropEl.className + ' Wt-drop-site';"
-     ""  "}"
-     """} else {"
-     ""  "object.className = '';"
-     """}"
-     "};");
+  app->doJavaScript("new " WT_CLASS ".WTreeView("
+		    + app->javaScriptClass() + "," + jsRef() + ","
+		    + contentsContainer_->jsRef() + ","
+		    + headerContainer_->jsRef() + ","
+		    + (column1Fixed_ ? "true" : "false") + ");");
 }
 
 void WTreeView::initLayoutJavaScript()
@@ -1499,7 +1271,7 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
 
   WApplication *app = WApplication::instance();
   if (renderState_ < NeedRerenderHeader)
-    app->doJavaScript(jsRef() + ".adjustColumns();");
+    app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 }
 
 WLength WTreeView::columnWidth(int column) const
@@ -1802,7 +1574,7 @@ void WTreeView::rerenderHeader()
 		      : "Wt-tv-sh Wt-tv-sh-down");
   }
 
-  app->doJavaScript(jsRef() + ".adjustColumns();");
+  app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 
   if (model_)
     modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
@@ -2089,7 +1861,7 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
       if (start == 0)
 	scheduleRerender(NeedRerenderHeader);
       else {
-	app->doJavaScript(jsRef() + ".adjustColumns();");
+	app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 
 	WContainerWidget *row = headerRow();
 
@@ -2127,7 +1899,7 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
   if (!parent.isValid()) {
     if (renderState_ < NeedRerenderHeader) {
       WApplication *app = wApp;
-      app->doJavaScript(jsRef() + ".adjustColumns();");
+      app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
     }
 
     columns_.erase(columns_.begin() + start, columns_.begin() + start + count);
@@ -3099,6 +2871,7 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(const int column)
   ColumnInfo ci = ColumnInfo(this,
 			     ++nextColumnId_,
 			     column);
+
   ci.styleRule = new WCssTemplateRule("#" + this->id()
 				      + " ." + ci.styleClass());
 
@@ -3106,10 +2879,16 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(const int column)
   if (column != 0) {
     ci.width = WLength(150);
     ci.styleRule->templateWidget()->resize(ci.width, WLength::Auto);
-  } else
+
+  } else {
+    // column 0 needs width auto, so we override the ci.styleRule with
+    // a more specific rule. We also set the correct overflow attributes
     app->styleSheet().addRule("#" + this->id() + " .Wt-tv-node"
-			      + " ." + ci.styleClass(),
-			      "width: auto;");
+			      " ." + ci.styleClass(),
+			      "width: auto;"
+			      "text-overflow: ellipsis;"
+			      "overflow: hidden");
+  }
 
   app->styleSheet().addRule(ci.styleRule);
   return ci;

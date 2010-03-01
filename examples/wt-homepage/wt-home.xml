@@ -835,7 +835,7 @@ least the following two packages:
   </li>
   <li>
     The indispensable <a href="http://www.boost.org/">
-    boost C++ library</a>: boost-1.35 or later.
+    boost C++ library</a>: boost-1.36 or later.
 
     <p>Wt requires the following boost libraries (which are not headers
       only: <tt>boost_date_time</tt>, <tt>boost_regex</tt>,

@@ -39,7 +39,6 @@ WDialog::WDialog(const WString& windowTitle)
     app->doJavaScript(std::string() +
       WT_CLASS ".centerDialog = function(d){"
       "" "if (d && d.style.display != 'none') {"
-      ""   "d.style.visibility = 'visible';"
       ""   "if (!d.getAttribute('moved')) {"
       ""     "var ws=" WT_CLASS ".windowSize();"
       ""     "d.style.left=Math.round((ws.x - d.clientWidth)/2"
@@ -51,6 +50,7 @@ WDialog::WDialog(const WString& windowTitle)
       ""     "d.style.marginLeft='0px';"
       ""     "d.style.marginTop='0px';"
       ""   "}"
+      ""   "d.style.visibility = 'visible';"
       "" "}"
       "};", false);
 

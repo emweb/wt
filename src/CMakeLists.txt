@@ -81,6 +81,7 @@ FILE_TO_STRING(CommScript.js CommScript_js.C CommScript_js)
 FILE_TO_STRING(jquery.min.js JQuery_js.C     JQuery_js)
 
 SET(libsources
+Wt/SizeHandle.C
 Wt/StdGridLayoutImpl.C
 Wt/StdLayoutImpl.C
 Wt/StdLayoutItemImpl.C

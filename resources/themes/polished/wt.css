@@ -193,6 +193,40 @@
 }
 
 /*
+ * WGridLayout
+ */
+
+.Wt-hrh div, .Wt-vsh {
+    cursor: row-resize;
+    margin: 2px;
+}
+
+.Wt-vrh div, .Wt-hsh {
+    cursor: col-resize;
+    margin: 0px 2px;
+}
+
+.Wt-hrh div {
+    background: url(splitter-v.png) no-repeat 50% 50%;
+}
+
+.Wt-vrh div {
+    background: url(splitter-h.png) no-repeat 50% 50%;
+}
+
+.Wt-hrh div, .Wt-vrh div {
+    background-color: #EEEEEE;
+}
+
+.Wt-hsh, .Wt-vsh {
+    background-color: #8ea2bd;
+}
+
+.Wt-hrh div:hover, .Wt-vrh div:hover {
+    background-color: #8ea2bd;
+}
+
+/*
  * WPanel
  */
 .Wt-panel {

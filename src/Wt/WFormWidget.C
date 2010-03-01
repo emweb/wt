@@ -10,6 +10,7 @@
 #include "Wt/WJavaScript"
 #include "Wt/WLabel"
 
+#include "JavaScriptLoader.h"
 #include "DomElement.h"
 #include "Utils.h"
 
@@ -120,11 +121,14 @@ void WFormWidget::validatorChanged()
     }
 
     validateJs_->setJavaScript
-      ("function(self, event){"
-       "var v=" + validateJS + ";"
-       "self.className= v.valid ? '' : 'Wt-invalid';"
-       "if (v.valid) self.removeAttribute('title');"
-       "else self.setAttribute('title', v.message);}"); 
+      ("function(self, event) {"
+       """var v=" + validateJS + ";"
+       """self.className= v.valid ? '' : 'Wt-invalid';"
+       """if (v.valid) "
+       ""  "self.removeAttribute('title');"
+       """else "
+       ""  "self.setAttribute('title', v.message);"
+       "}");
   } else {
     delete validateJs_;
     validateJs_ = 0;
@@ -142,10 +146,13 @@ void WFormWidget::validatorChanged()
 
     filterInput_->setJavaScript
       ("function(self,e){"
-       "var c=String.fromCharCode("
-       "(typeof e.charCode!=='undefined')?e.charCode:e.keyCode);"
-       "if(/" + inputFilter + "/.test(c)) return true; else{"
-       WT_CLASS ".cancelEvent(e);}}");
+       """var c=String.fromCharCode((typeof e.charCode!=='undefined') ?"
+       ""                           "e.charCode : e.keyCode);"
+       """if(/" + inputFilter + "/.test(c))"
+       ""  "return true;"
+       """else "
+       ""  WT_CLASS ".cancelEvent(e);"
+       "}");
   } else {
     delete filterInput_;
     filterInput_ = 0;

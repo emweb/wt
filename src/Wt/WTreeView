@@ -460,6 +460,8 @@ private:
 
   void expandChildrenToDepth(const WModelIndex& index, int depth);
 
+  void bindObjJS(JSlot& slot, const std::string& jsMethod);
+
   virtual WContainerWidget* headerContainer() { return headerContainer_; }
 
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) ;

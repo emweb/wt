@@ -76,7 +76,9 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
   } else if (textFormat == PlainText)
     v = escapeText(v, true);
 
-  if (strings_[varName] != v.toUTF8()) {
+  StringMap::const_iterator i = strings_.find(varName);
+
+  if (i == strings_.end() || i->second != v.toUTF8()) {
     strings_[varName] = v.toUTF8();
 
     changed_ = true;

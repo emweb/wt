@@ -472,6 +472,11 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   FileServe script(skeletons::Wt_js);
   script.setCondition("DEBUG", conf.debug());
+#ifdef WT_DEBUG_JS
+  script.setCondition("DYNAMIC_JS", true);
+#else
+  script.setCondition("DYNAMIC_JS", false);
+#endif // WT_DEBUG_JS
   script.setVar("WT_CLASS", WT_CLASS);
   script.setVar("APP_CLASS", app->javaScriptClass());
   script.setVar("AUTO_JAVASCRIPT", "(function() {" + app->autoJavaScript_ + "})");

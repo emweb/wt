@@ -13,11 +13,13 @@ namespace Wt {
   namespace Impl {
 
 Grid::Row::Row(int stretch)
-  : stretch_(stretch)
+  : stretch_(stretch),
+    resizable_(false)
 { }
 
 Grid::Column::Column(int stretch)
-  : stretch_(stretch)
+  : stretch_(stretch),
+    resizable_(false)
 { }
 
 Grid::Item::Item(WLayoutItem *item, WFlags<AlignmentFlag> alignment)
@@ -179,6 +181,32 @@ void WGridLayout::setRowStretch(int row, int stretch)
 int WGridLayout::rowStretch(int row) const
 {
   return grid_.rows_[row].stretch_;
+}
+
+void WGridLayout::setRowResizable(int row, bool enabled)
+{
+  expand(row, 0, 1, 0);
+  grid_.rows_[row].resizable_ = enabled;
+
+  update();
+}
+
+bool WGridLayout::rowIsResizable(int row) const
+{
+  return grid_.rows_[row].resizable_;
+}
+
+void WGridLayout::setColumnResizable(int column, bool enabled)
+{
+  expand(0, column, 0, 1);
+  grid_.columns_[column].resizable_ = enabled;
+
+  update();
+}
+
+bool WGridLayout::columnIsResizable(int column) const
+{
+  return grid_.columns_[column].resizable_;
 }
 
 void WGridLayout::expand(int row, int column, int rowSpan, int columnSpan)

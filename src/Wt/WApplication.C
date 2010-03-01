@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -1094,6 +1095,41 @@ SoundManager *WApplication::getSoundManager()
     soundManager_ = new SoundManager(this);
 
   return soundManager_;
+}
+
+#ifdef WT_DEBUG_JS
+void WApplication::loadJavaScript(const char *jsFile)
+{
+  if (!javaScriptLoaded(jsFile)) {
+    std::string fname = std::string(WT_DEBUG_JS "/") + jsFile;
+    std::ifstream js(fname.c_str());
+
+    if (!js)
+      throw WtException("Could not load " + fname);
+
+    js.seekg(0, std::ios::end);
+    int length = js.tellg();
+    js.seekg(0, std::ios::beg);
+
+    boost::scoped_array<char> jstext(new char[length + 1]);
+    js.read(jstext.get(), length);
+    jstext[length] = 0;
+
+    doJavaScript(jstext.get(), false);
+
+    setJavaScriptLoaded(jsFile);
+  }
+}
+#endif
+
+bool WApplication::javaScriptLoaded(const char *jsFile)
+{
+  return javaScriptLoaded_.find(jsFile) != javaScriptLoaded_.end();
+}
+
+void WApplication::setJavaScriptLoaded(const char *jsFile)
+{
+  javaScriptLoaded_.insert(jsFile);
 }
 
 #ifndef WT_TARGET_JAVA

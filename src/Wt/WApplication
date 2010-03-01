@@ -1241,6 +1241,13 @@ public:
    */
   bool debug() const;
 
+#ifdef WT_DEBUG_JS
+  void loadJavaScript(const char *jsFile);
+#endif
+
+  bool javaScriptLoaded(const char *jsFile);
+  void setJavaScriptLoaded(const char *jsFile);
+
   static const char *RESOURCES_URL;
 
 protected:
@@ -1400,6 +1407,7 @@ private:
 
   std::string afterLoadJavaScript_, beforeLoadJavaScript_,
     newBeforeLoadJavaScript_, autoJavaScript_;
+  std::set<const char*> javaScriptLoaded_;
   bool autoJavaScriptChanged_;
 
   EventSignal<> *showLoadingIndicator_, *hideLoadingIndicator_;

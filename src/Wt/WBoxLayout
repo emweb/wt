@@ -21,11 +21,28 @@ namespace Wt {
  * height or width is used for sizing each widget, whose default
  * values may be overridden using WWidget::setMinimumSize().
  *
- * You can use WContainerWidget::setOverflow(OverflowAuto) to
- * automatically show scrollbars on a container widget which you
- * inserted into the layout. In some cases, you will want to wrap
- * another widget (like a WTable) into WContainerWidget to have the
- * scrollbars, since not all widgets allow for scrollbars.
+ * If you want to use the layout manager for a container which does
+ * not have a height that is constrained somehow, you need to specify
+ * AlignTop in the alignment flags of
+ * WContainerWidget::setLayout(). Otherwise the behavior is undefined
+ * (the parent container will continue to increase in size as it tries
+ * to satisfy the constraints assuming a contrained height).
+ *
+ * You can use \link WContainerWidget::setOverflow())
+ * WContainerWidget::setOverflow(OverflowAuto) \endlink to
+ * automatically show scrollbars on a container widget inserted in
+ * the layout. In some cases, you will want to wrap another widget
+ * (like a WTable) into WContainerWidget to have the scrollbars, since
+ * not all widgets allow for scrollbars.
+ *
+ * A layout manager may provide resize handles between items which
+ * allow the user to change the automatic layout provided by the
+ * layout manager (see setResizable()). Resize handles between rows
+ * for a vertically oriented box layout only work when the layout
+ * fills the parent vertical space (i.e. is not aligned to the
+ * top). Likewise, resize handles between columns for a horizontally
+ * oriented box layout only work when the layout fills the parent
+ * horiziontal space (i.e. is not aligned left, right or centered).
  *
  * Each item is separated using a constant spacing, which defaults to
  * 6 pixels, and can be changed using setSpacing(). In addition, when
@@ -76,11 +93,6 @@ namespace Wt {
  *       In that case, you will need to specify a width (in CSS or otherwise)
  *       for at least one item in every column that has no stretch factor.</li>
  *  </ul>
- *
- * \warning You should specify AlignTop in the alignment flags of
- *          WContainerWidget::setLayout() if the container does not have a
- *          height that is constrained somehow. Otherwise the behavior is
- *          undefined (the parent container will continue to increase in size)
  */
 class WT_API WBoxLayout : public WLayout
 {
@@ -240,6 +252,25 @@ public:
    * Returns whether the \p stretch could be set.
    */
   bool setStretchFactor(WWidget *widget, int stretch);
+
+  /*! \brief Sets whether the use may drag a particular border.
+   *
+   * This method sets whether the border that separates item
+   * <i>index</i> from the next item may be resized by the user,
+   * depending on the value of <i>enabled</i>.
+   *
+   * The default value is <i>false</i>.
+   */
+  void setResizable(int index, bool enabled = true);
+
+  /*! \brief Returns whether the user may drag a particular border.
+   *
+   * This method returns whether the border that separates item
+   * <i>index</i> from the next item may be resized by the user.
+   *
+   * \sa setResizable()
+   */
+  bool isResizable(int row) const;
 
   Impl::Grid& grid() { return grid_; }
 

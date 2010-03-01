@@ -63,8 +63,7 @@ textarea.chat-noedit {
 }
 
 .chat-msgs {
-  border-right: 2px solid #BBBBBB;
-  margin-left: 1px;
+  margin: 0px 1px;
 }
 
 .chat-users {

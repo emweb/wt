@@ -1195,7 +1195,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 					 "selectable"));
       element.setAttribute("unselectable", "off");
       element.setAttribute("onselectstart",
-			   "event.cancelBubble=true;return true;");
+			   "event.cancelBubble=true; return true;");
     }
 
     flags_.reset(BIT_SELECTABLE_CHANGED);

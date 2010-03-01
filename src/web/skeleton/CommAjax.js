@@ -25,6 +25,7 @@ _$_APP_CLASS_$_._p_.comm = new (function(handleResponse) {
 
 	  if (request.status == 200
 	      && request.getResponseHeader("Content-Type")
+	      && request.getResponseHeader("Content-Type")
 	      .indexOf("text/javascript") == 0)
 	    handler(0, request.responseText, userData);
 	  else

@@ -72,6 +72,8 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   vertLayout->addWidget(contentsStack_, 1);
   vertLayout->addWidget(eventDisplayer);
 
+  horizLayout->setResizable(0, true);
+
   /*
    * Set our style sheet last, so that it loaded after the ext stylesheets.
    */

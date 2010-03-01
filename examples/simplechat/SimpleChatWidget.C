@@ -130,6 +130,8 @@ bool SimpleChatWidget::startChat(const WString& user)
     userList_->setStyleClass("chat-users");
     userList_->setOverflow(WContainerWidget::OverflowAuto);
 
+    hLayout->setResizable(0, true);
+
     // Add nested layout to vertical layout with stretch = 1
     vLayout->addLayout(hLayout, 1);
 

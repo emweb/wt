@@ -171,6 +171,7 @@ WWidget *Home::initHome()
      WMenuItem::PreLoading);
 
   mainMenu_->itemSelectRendered().connect(SLOT(this, Home::updateTitle));
+
   mainMenu_->itemSelected().connect(SLOT(this, Home::googleAnalyticsLogger));
 
   // Make the menu be internal-path aware.
@@ -244,6 +245,7 @@ void Home::logInternalPath(const std::string& path)
 {
   // simulate an access log for the interal paths
   log("path") << path;
+
   // If this goes to /src, we need to invoke google analytics method too
   if (path.size() >= 4 && path.substr(0, 4) == "/src") {
     googleAnalyticsLogger();

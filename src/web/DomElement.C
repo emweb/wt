@@ -369,7 +369,7 @@ void DomElement::processEvents(WApplication *app) const
   EventHandlerMap::const_iterator mousedown = eventHandlers_.find(S_mousedown);
   if (mousedown != eventHandlers_.end() && !mousedown->second.jsCode.empty())
     Utils::access(self->eventHandlers_, S_mousedown).jsCode
-      = app->javaScriptClass() + "._p_.capture(this);"
+      = WT_CLASS ".capture(this);"
       + Utils::access(self->eventHandlers_, S_mousedown).jsCode;
 
   EventHandlerMap::const_iterator keypress = eventHandlers_.find(S_keypress);

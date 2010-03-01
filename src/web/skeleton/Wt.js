@@ -1,6 +1,28 @@
+_$_$if_DYNAMIC_JS_$_();
+function WT_DECLARE_WT_MEMBER(i, name, fn)
+{
+  var proto = name.indexOf('.prototype');
+  if (proto == -1)
+    _$_WT_CLASS_$_[name] = fn;
+  else
+    _$_WT_CLASS_$_[name.substr(0, proto)]
+      .prototype[name.substr(proto + '.prototype.'.length)] = fn;
+}
+
+function WT_DECLARE_APP_MEMBER(i, name, fn)
+{
+  var proto = name.indexOf('.prototype');
+  if (proto == -1)
+    _$_APP_CLASS_$_[name] = fn;
+  else
+    _$_APP_CLASS_$_[name.substr(0, proto)]
+      .prototype[name.substr(proto + '.prototype.'.length)] = fn;
+}
+_$_$endif_$_();
+
 var _$_WT_CLASS_$_ = new (function() {
 
-var self = this;
+var WT = this;
 
 // Array Remove - By John Resig (MIT Licensed)
 this.arrayRemove = function(a, from, to) {
@@ -11,6 +33,8 @@ this.arrayRemove = function(a, from, to) {
 
 this.isIE = navigator.userAgent.toLowerCase().indexOf("msie") != -1
   && navigator.userAgent.toLowerCase().indexOf("opera") == -1;
+this.isIE6 = this.isIE
+  && (navigator.userAgent.toLowerCase().indexOf("msie 6") != -1);
 this.isGecko = navigator.userAgent.toLowerCase().indexOf("gecko") != -1;
 this.isIEMobile = navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
   || navigator.userAgent.toLowerCase().indexOf("msie 5") != -1;
@@ -44,9 +68,11 @@ this.setHtml = function (el, html, add) {
       return document.createTextNode(e.nodeValue);
       break;
     }
+
+    return null;
   }
 
-  if (self.isIE || (_$_INNER_HTML_$_ && !add)) {
+  if (WT.isIE || (_$_INNER_HTML_$_ && !add)) {
     if (add)
       el.innerHTML += html;
     else
@@ -95,9 +121,9 @@ this.unstub = function(from, to, methodDisplay) {
 };
 
 this.unwrap = function(e) {
-  e = self.getElement(e);
+  e = WT.getElement(e);
   if (e.parentNode.className.indexOf('Wt-wrap') == 0) {
-    wrapped = e;
+    var wrapped = e;
     e = e.parentNode;
     wrapped.style.margin = e.style.margin;
     e.parentNode.replaceChild(wrapped, e);
@@ -105,7 +131,7 @@ this.unwrap = function(e) {
     if (e.getAttribute('type') == 'submit') {
       e.setAttribute('type', 'button');
       e.removeAttribute('name');
-    } if (self.hasTag(e, 'INPUT') && e.getAttribute('type') == 'image') {
+    } if (WT.hasTag(e, 'INPUT') && e.getAttribute('type') == 'image') {
       // change <input> to <image>
       var img = document.createElement('img');
       if (img.mergeAttributes) {
@@ -122,7 +148,7 @@ this.unwrap = function(e) {
 	}
       }
       e.parentNode.replaceChild(img, e);
-    }      
+    }
   }
 };
 
@@ -131,22 +157,22 @@ this.CancelDefaultAction = 0x2;
 this.CancelAll = 0x3;
 
 this.cancelEvent = function(e, cancelType) {
-  var ct = cancelType === undefined ? self.CancelAll : cancelType;
+  var ct = cancelType === undefined ? WT.CancelAll : cancelType;
 
-  if (ct & self.CancelDefaultAction)
+  if (ct & WT.CancelDefaultAction)
     if (e.preventDefault)
       e.preventDefault();
     else
       e.returnValue=false;
 
-  if (ct & self.CancelPropagate) {
+  if (ct & WT.CancelPropagate) {
     if (e.stopPropagation)
       e.stopPropagation();
     else
       e.cancelBubble=true;
 
     if (document.activeElement && document.activeElement.blur)
-      if (self.hasTag(document.activeElement, "TEXTAREA"))
+      if (WT.hasTag(document.activeElement, "TEXTAREA"))
 	document.activeElement.blur();
   }
 };
@@ -167,11 +193,11 @@ this.getElement = function(id) {
 
 // Get coordinates of element relative to page origin.
 this.widgetPageCoordinates = function(obj) {
-  var objX = objY = 0, op;
+  var objX = 0, objY = 0, op;
 
   // bug in safari, according to W3C, offsetParent for an area element should
   // be the map element, but safari returns null.
-  if (self.hasTag(obj, "AREA"))
+  if (WT.hasTag(obj, "AREA"))
     obj = obj.parentNode.nextSibling; // img after map
 
   while (obj) {
@@ -185,7 +211,7 @@ this.widgetPageCoordinates = function(obj) {
     else {
       do {
 	obj = obj.parentNode;
-	if (self.hasTag(obj, "DIV")) {
+	if (WT.hasTag(obj, "DIV")) {
 	  objX -= obj.scrollLeft;
 	  objY -= obj.scrollTop;
 	}
@@ -198,15 +224,15 @@ this.widgetPageCoordinates = function(obj) {
 
 // Get coordinates of (mouse) event relative to a element.
 this.widgetCoordinates = function(obj, e) {
-  var p = self.pageCoordinates(e);
-  var w = self.widgetPageCoordinates(obj);
+  var p = WT.pageCoordinates(e);
+  var w = WT.widgetPageCoordinates(obj);
   return { x: p.x - w.x, y: p.y - w.y };
 };
 
 // Get coordinates of (mouse) event relative to page origin.
 this.pageCoordinates = function(e) {
   if (!e) e = window.event;
-  var posX = posY = 0;
+  var posX = 0, posY = 0;
   if (e.pageX || e.pageY) {
     posX = e.pageX; posY = e.pageY;
   } else if (e.clientX || e.clientY) {
@@ -258,7 +284,7 @@ this.isKeyPress = function(e) {
 
   var charCode = (typeof e.charCode !== 'undefined') ? e.charCode : 0;
 
-  if (charCode > 0 || self.isIE)
+  if (charCode > 0 || WT.isIE)
     return true;
   else
     return (e.keyCode == 13 || e.keyCode == 27 || e.keyCode == 32
@@ -278,7 +304,7 @@ this.px = function(c, s) {
   if (v == 'auto' || v == null)
     return 0;
   var m = /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/.exec(v);
-  var v = m && m.length == 2 ? m[1] : "0";
+  v = m && m.length == 2 ? m[1] : "0";
   return v ? parseFloat(v) : 0;
 };
 
@@ -286,10 +312,10 @@ this.px = function(c, s) {
 this.isHidden = function(w) {
   if (w.style.display == 'none')
     return true;
-  else { 
+  else {
     w = w.parentNode;
     if (w != null && w.tagName.toLowerCase() != "body")
-      return self.isHidden(w);
+      return WT.isHidden(w);
     else
       return false;
   }
@@ -317,12 +343,12 @@ this.pctself = function(c, s) {
 this.IEwidth = function(c, min, max) {
   if (c.parentNode) {
     var r = c.parentNode.clientWidth
-    - self.px(c, 'marginLeft')
-    - self.px(c, 'marginRight')
-    - self.px(c, 'borderLeftWidth')
-    - self.px(c, 'borderRightWidth')
-    - self.px(c.parentNode, 'paddingLeft')
-    - self.px(c.parentNode, 'paddingRight');
+    - WT.px(c, 'marginLeft')
+    - WT.px(c, 'marginRight')
+    - WT.px(c, 'borderLeftWidth')
+    - WT.px(c, 'borderRightWidth')
+    - WT.px(c.parentNode, 'paddingLeft')
+    - WT.px(c.parentNode, 'paddingRight');
 
     var m = /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/.exec(min);
     var v = m && m.length == 2 ? m[1] : "0";
@@ -344,10 +370,88 @@ this.IEwidth = function(c, min, max) {
     return "auto";
 };
 
-this.hide = function(o) { self.getElement(o).style.display = 'none'; };
-this.inline = function(o) { self.getElement(o).style.display = 'inline'; };
-this.block = function(o) { self.getElement(o).style.display = 'block'; };
-this.show = function(o) { self.getElement(o).style.display = ''; };
+this.hide = function(o) { WT.getElement(o).style.display = 'none'; };
+this.inline = function(o) { WT.getElement(o).style.display = 'inline'; };
+this.block = function(o) { WT.getElement(o).style.display = 'block'; };
+this.show = function(o) { WT.getElement(o).style.display = ''; };
+
+var captureElement = null;
+
+function mouseMove(e) {
+  if (captureElement != null) {
+    if (!e) e = window.event;
+    WT.condCall(captureElement, 'onmousemove', e);
+    return false;
+  } else
+    return true;
+}
+
+function mouseUp(e) {
+  if (captureElement != null) {
+    var el = captureElement;
+    WT.capture(null);
+    if (!e) e = window.event;
+    WT.condCall(el, 'onmouseup', e);
+    WT.cancelEvent(e, WT.CancelPropagate);
+
+    return false;
+  } else
+    return true;
+}
+
+var captureInitialized = false;
+
+function initCapture() {
+  if (captureInitialized)
+    return;
+
+  captureInitialized = true;
+
+  if (document.body.addEventListener) {
+    var db = document.body;
+    db.addEventListener('mousemove', mouseMove, true);
+    db.addEventListener('mouseup', mouseUp, true);
+
+    if (WT.isGecko) {
+      window.addEventListener('mouseout', function(e) {
+				if (!e.relatedTarget
+				    && WT.hasTag(e.target, "HTML"))
+				  mouseUp(e);
+			      }, true);
+    }
+  } else {
+    var db = document.body;
+    db.attachEvent('onmousemove', mouseMove);
+    db.attachEvent('onmouseup', mouseUp);
+  }
+}
+
+this.capture = function(obj) {
+  initCapture();
+  captureElement = obj;
+
+  var db = document.body;
+  if (db.setCapture)
+    if (obj != null)
+      db.setCapture();
+    else
+      db.releaseCapture();
+
+  if (obj != null) {
+    db.className = 'unselectable';
+    db.setAttribute('unselectable', 'on');
+    db.onselectstart = 'return false;';
+  } else {
+    db.className = '';
+    db.setAttribute('unselectable', 'off');
+    db.onselectstart = '';
+  }
+};
+
+this.checkReleaseCapture = function(obj, e) {
+  if (captureElement && (obj == captureElement) && e.type == "mouseup")
+    this.capture(null);
+};
 
 this.getElementsByClassName = function(className, parentElement) {
   if (document.getElementsByClassName) {
@@ -427,7 +531,7 @@ this.getCssRule = function(selector, deleteFlag) {
 };
 
 this.removeCssRule = function(selector) {
-  return self.getCssRule(selector, 'delete');
+  return WT.getCssRule(selector, 'delete');
 };
 
 this.addStyleSheet = function(uri) {
@@ -463,52 +567,52 @@ this.windowSize = function() {
  * bottom of (y) or top from (bottomy)
  */
 this.fitToWindow = function(e, x, y, rightx, bottomy) {
-  var ws = self.windowSize();
+  var ws = WT.windowSize();
 
   var wx = document.body.scrollLeft + document.documentElement.scrollLeft;
   var wy = document.body.scrollTop + document.documentElement.scrollTop;
 
   if (x + e.offsetWidth > wx + ws.x)
-    x = rightx - e.offsetWidth - self.px(e, 'marginRight');
+    x = rightx - e.offsetWidth - WT.px(e, 'marginRight');
   else
-    x -= self.px(e, 'marginLeft');
+    x -= WT.px(e, 'marginLeft');
 
   if (y + e.offsetHeight > wy + ws.y) {
     if (bottomy > wy + ws.y)
       bottomy = wy + ws.y;
-    y = bottomy - e.offsetHeight - self.px(e, 'marginBottom');
+    y = bottomy - e.offsetHeight - WT.px(e, 'marginBottom');
   } else
-    y -= self.px(e, 'marginTop');
+    y -= WT.px(e, 'marginTop');
 
   if (x < wx)
     x = wx + ws.x - e.offsetWidth - 3;
   if (y < wy)
     y = wy + ws.y - e.offsetHeight - 3;
 
-  var ow = self.widgetPageCoordinates(e.offsetParent);
+  var ow = WT.widgetPageCoordinates(e.offsetParent);
 
   e.style.left = (x - ow.x) + 'px';
   e.style.top = (y - ow.y) + 'px';
 };
 
 this.positionXY = function(id, x, y) {
-  var w = self.getElement(id);
-  if (!self.isHidden(w))
-    self.fitToWindow(w, x, y, x, y);
+  var w = WT.getElement(id);
+  if (!WT.isHidden(w))
+    WT.fitToWindow(w, x, y, x, y);
 };
 
 this.Horizontal = 0x1;
 this.Vertical = 0x2;
 
 this.positionAtWidget = function(id, atId, orientation) {
-  var w = self.getElement(id),
-    atw = self.getElement(atId),
-    xy = self.widgetPageCoordinates(atw),
+  var w = WT.getElement(id),
+    atw = WT.getElement(atId),
+    xy = WT.widgetPageCoordinates(atw),
     x, y, rightx, bottomy;
 
   w.style.display='block';
 
-  if (orientation == self.Horizontal) {
+  if (orientation == WT.Horizontal) {
     x = xy.x + atw.offsetWidth;
     y = xy.y;
     rightx = xy.x,
@@ -520,7 +624,7 @@ this.positionAtWidget = function(id, atId, orientation) {
     bottomy = xy.y;
   }
 
-  self.fitToWindow(w, x, y, rightx, bottomy);
+  WT.fitToWindow(w, x, y, rightx, bottomy);
 };
 
 this.history = (function() {
@@ -796,43 +900,8 @@ var dragState = {
   xy: null
 };
 
-function capture(obj) {
-  captureElement = obj;
-  if (document.body.setCapture)
-    if (obj != null)
-      document.body.setCapture();
-    else
-      document.body.releaseCapture();
-};
-
 function initDragDrop() {
-  window.onresize=function() { doJavaScript(); }
-
-  var mouseMove = function(e) {
-    if (!e) e = window.event;
-    return dragDrag(e);
-  }
-
-  var mouseUp = function(e) {
-    if (!e) e = window.event;
-    return dragEnd(e);
-  }
-
-  var db = document.body;
-  if (db.addEventListener) {
-    db.addEventListener('mousemove', mouseMove, true);
-    db.addEventListener('mouseup', mouseUp, true);
-
-    if (WT.isGecko) {
-      window.addEventListener('mouseout', function(e) {
-	  if (!e.relatedTarget && WT.hasTag(e.target, "HTML"))
-	    mouseUp(e);
-	}, true);
-    }
-  } else {
-    db.attachEvent('onmousemove', mouseMove);
-    db.attachEvent('onmouseup', mouseUp);
-  }
+  window.onresize=function() { doJavaScript(); };
 
   document.body.ondragstart=function() {
     return false;
@@ -840,8 +909,6 @@ function initDragDrop() {
 }
 
 function dragStart(obj, e) {
-  capture(null);
-
   // drag element attributes:
   //   dwid = dragWidgetId
   //   dsid = dragSourceId
@@ -854,7 +921,7 @@ function dragStart(obj, e) {
 
   ds.object = WT.getElement(obj.getAttribute("dwid"));
   if (ds.object == null)
-    return;
+    return true;
 
   ds.sourceId = obj.getAttribute("dsid");
   ds.objectPrevStyle = {
@@ -870,6 +937,10 @@ function dragStart(obj, e) {
   ds.object.className = '';
   document.body.appendChild(ds.object);
 
+  WT.capture(ds.object);
+  ds.object.onmousemove = dragDrag;
+  ds.object.onmouseup = dragEnd;
+
   ds.offsetX = -4;
   ds.offsetY = -4;
   ds.dropTarget = null;
@@ -877,16 +948,12 @@ function dragStart(obj, e) {
   ds.xy = WT.pageCoordinates(e);
 
   WT.cancelEvent(e);
+
   return false;
 };
 
 function dragDrag(e) {
-  if (captureElement != null) {
-    if (!e) e = window.event;
-    WT.condCall(captureElement, 'onmousemove', e);
-    return false;
-  }
-
+  //console.log("dragDrag");
   if (dragState.object != null) {
     var ds = dragState;
     var xy = WT.pageCoordinates(e);
@@ -951,16 +1018,11 @@ function dragDrag(e) {
 };
 
 function dragEnd(e) {
-  if (!e) e = window.event;
-  if (captureElement != null) {
-    var el = captureElement;
-    capture(null);
-    WT.condCall(el, 'onmouseup', e);
-    WT.cancelEvent(e, WT.CancelPropagate);
-    return false;
-  }
+  //console.log("dragEnd()");
+  WT.capture(null);
 
   var ds = dragState;
+
   if (ds.object) {
     if (ds.dropTarget) {
       var dos = ds.dropTarget.getAttribute("dos");
@@ -975,6 +1037,7 @@ function dragEnd(e) {
     } else {
       // could not be dropped, animate it floating back ?
     }
+
     ds.object.style["position"] = ds.objectPrevStyle.position;
     ds.object.style["display"] = ds.objectPrevStyle.display;
     ds.object.style["left"] = ds.objectPrevStyle.left;
@@ -989,7 +1052,7 @@ var formObjects = _$_FORM_OBJECTS_$_;
 
 function encodeEvent(event, i) {
   var se, result, e;
-  
+
   e = event.event;
   se = i > 0 ? '&e' + i : '&';
   result = se + 'signal=' + event.signal;
@@ -1115,9 +1178,7 @@ function encodeEvent(event, i) {
 var sentEvents = [], pendingEvents = [];
 
 function encodePendingEvents() {
-  var result = '';
-
-  feedback = false;
+  var result = '', feedback = false;
 
   for (var i = 0; i < pendingEvents.length; ++i) {
     feedback = feedback || pendingEvents[i].feedback;
@@ -1127,7 +1188,7 @@ function encodePendingEvents() {
   sentEvents = pendingEvents;
   pendingEvents = [];
 
-  return {feedback: feedback, result: result};
+  return { feedback: feedback, result: result };
 }
 
 var url = _$_RELATIVE_URL_$_,
@@ -1213,7 +1274,7 @@ _$_$ifnot_DEBUG_$_();
     try {
 _$_$endif_$_();
       doJavaScript(msg);
-_$_$ifnot_DEBUG_$_(); 
+_$_$ifnot_DEBUG_$_();
     } catch (e) {
       alert("Wt internal error: " + e + ", code: " +  e.code
 	    + ", description: " + e.description /* + ":" + msg */);
@@ -1241,7 +1302,7 @@ _$_$endif_$_();
     commErrors = 0;
 
   if (serverPush || pendingEvents.length > 0) {
-    if (status == 1) { 
+    if (status == 1) {
       var ms = Math.min(120000, Math.exp(commErrors) * 500);
       updateTimeout = setTimeout(function() { sendUpdate(); }, ms);
     } else
@@ -1250,7 +1311,6 @@ _$_$endif_$_();
 };
 
 var randomSeed = new Date().getTime();
-var captureElement = null;
 
 function doPollTimeout() {
   responsePending.abort();
@@ -1261,8 +1321,7 @@ function doPollTimeout() {
 }
 
 function update(el, signalName, e, feedback) {
-  if (captureElement && (el == captureElement) && e.type == "mouseup")
-    capture(null);
+  WT.checkReleaseCapture(el, e);
 
   _$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
   if (!responsePending) {
@@ -1320,6 +1379,7 @@ function responseReceived(updateId) {
 
 function sendUpdate() {
   updateTimeout = null;
+  var feedback;
 
   if (WT.isIEMobile) feedback = false;
 
@@ -1513,7 +1573,7 @@ this._p_ = {
  dragStart : dragStart,
  dragDrag : dragDrag,
  dragEnd : dragEnd,
- capture : capture,
+ capture : WT.capture,
 
  onHashChange : onHashChange,
  setHash : setHash,
@@ -1524,6 +1584,7 @@ this._p_ = {
  response : responseReceived
 };
 
+this.WT = _$_WT_CLASS_$_;
 this.emit = emit;
 
 })();

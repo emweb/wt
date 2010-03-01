@@ -1,3 +1,9 @@
+01-03-2010:
+	* WGridLayout, WBoxLayout: add support for user resizing ('splitter')
+	functionality
+
+	* WTreeView, WGridLayout: externalize JS
+
 25-02-2010:
 	* src/Wt/WString: fix narrow() and widen() character encoding
 	conversions

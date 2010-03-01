@@ -42,7 +42,6 @@ ChatApplication::ChatApplication(const WEnvironment& env)
   : WApplication(env)
 {
   setTitle("Wt Chat");
-  useStyleSheet("resources/themes/polished/wt.css");
   useStyleSheet("simplechat.css");
   messageResourceBundle().use("simplechat");
 

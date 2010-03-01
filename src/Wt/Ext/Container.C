@@ -108,9 +108,14 @@ std::string Container::createJS(DomElement *inContainer)
 
   if (inWtLayout()) {
     inContainer->setProperty(PropertyStylePosition, "relative");
+    inContainer->setProperty(PropertyStyleWidth, "0px");
     inContainer->callMethod("wtResize ="
 			    "function(self, w, h){ "
-			    + elVar() + ".setSize(w, h); };");
+			    + elVar() + ".setSize(w, h);"
+			    """if (w == 0) {"
+			    """self.style.width='';"
+			    """window.onresize();"
+			    "}};");
   }
 
   std::string result;
@@ -203,7 +208,7 @@ void Container::createConfig(std::ostream& config)
     config << ",renderTo:'" << id() << "'";
 
     if (inWtLayout())
-      config << ",style:'position: absolute;'";
+      config << ",style:'position:absolute;'";
   }
 
   if (widget_)
