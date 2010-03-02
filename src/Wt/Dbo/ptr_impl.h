@@ -140,7 +140,7 @@ MetaDbo<C>::MetaDbo(C *obj)
   : MetaDboBase(-1, -1, New | NeedsSave, 0),
     obj_(obj)
 { 
-  DboHelper<C>::setMeta(*obj, this);
+  DboHelper<C>::setMeta(*obj_, this);
 }
 
 template <class C>
@@ -148,13 +148,17 @@ MetaDbo<C>::MetaDbo(long long id, int version, int state, Session& session,
 		    C *obj)
   : MetaDboBase(id, version, state, &session),
     obj_(obj)
-{ }
+{
+  if (obj_)
+    DboHelper<C>::setMeta(*obj_, this);
+}
 
 template <class C>
 void MetaDbo<C>::doLoad()
 {
   int column = 0;
   obj_ = session()->template implLoad<C>(*this, 0, column);
+  DboHelper<C>::setMeta(*obj_, this);
 }
 
 template <class C>

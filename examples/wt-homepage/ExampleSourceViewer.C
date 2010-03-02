@@ -157,6 +157,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
   gitLayout->addWidget(exampleView_, 0);
   gitLayout->addWidget(sourceView_, 1);
   topLayout->addLayout(gitLayout, 1);
+  gitLayout->setResizable(0);
 
   setLayout(topLayout);
   setStyleClass("maindiv");

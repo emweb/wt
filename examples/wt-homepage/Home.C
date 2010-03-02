@@ -121,7 +121,8 @@ WWidget *Home::initHome()
 
     const Lang& l = languages[i];
 
-    WAnchor *a = new WAnchor("", l.longDescription_, languagesDiv);
+    WAnchor *a = new WAnchor("", WString::fromUTF8(l.longDescription_),
+			     languagesDiv);
     a->setRefInternalPath(l.path_);
   }
 
