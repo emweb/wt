@@ -272,13 +272,11 @@ WApplication::~WApplication()
 
   dialogCover_ = 0;
 
-  WContainerWidget *tmp = domRoot_;
+  delete domRoot_;
   domRoot_ = 0;
-  delete tmp;
 
-  tmp = domRoot2_;
+  delete domRoot2_;
   domRoot2_ = 0;
-  delete tmp;
 
   delete localizedStrings_;
 

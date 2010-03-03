@@ -103,7 +103,7 @@ std::vector<xml_node<> *> childElements(xml_node<> *element,
   std::vector<xml_node<> *> result;
 
   for (xml_node<> *r = element->first_node(tagName); r;
-       r = element->next_sibling(tagName))
+       r = r->next_sibling(tagName))
     result.push_back(r);
   
   return result;
