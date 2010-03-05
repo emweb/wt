@@ -854,7 +854,7 @@ protected:
   virtual void setParent(WWidget *parent);
 
   virtual bool isStubbed() const = 0;
-  virtual void render();
+  virtual void render(WFlags<RenderFlag> flags);
 
   WWidget *adam();
 
@@ -914,6 +914,7 @@ private:
   friend class WWebWidget;
   friend class WWidgetItem;
   friend class WTemplate;
+  friend class WCalendar;
 };
 
 }

@@ -271,7 +271,7 @@ WT_DECLARE_WT_MEMBER
         headers.style.width=r.style.width;
         table.style.width=r.style.width;
       }
-      if (!el.changed)
+      if (el.changed)
         this.adjustColumns();
       el.changed = false;
     }

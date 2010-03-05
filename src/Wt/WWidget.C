@@ -73,7 +73,7 @@ void WWidget::setJsSize()
        + boost::lexical_cast<std::string>(height().toPixels()));
 }
 
-void WWidget::render()
+void WWidget::render(WFlags<RenderFlag> flags)
 { }
 
 bool WWidget::isRendered() const
@@ -178,7 +178,7 @@ std::string WWidget::jsRef() const
 
 void WWidget::htmlText(std::ostream& out)
 {
-  render();
+  render(RenderFull);
 
   DomElement *element
     = webWidget()->createSDomElement(WApplication::instance());
@@ -252,9 +252,9 @@ void WWidget::dropEvent(WDropEvent event)
 std::string WWidget::createJavaScript(std::stringstream& js,
 				      std::string insertJS)
 {
-  WApplication *app = WApplication::instance();
+  render(RenderFull);
 
-  render();
+  WApplication *app = WApplication::instance();
   DomElement *de = webWidget()->createSDomElement(app);
 
   std::string var = de->createVar();

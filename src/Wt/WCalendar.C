@@ -19,6 +19,7 @@ using namespace boost::gregorian;
 #include "Wt/WTable"
 #include "Wt/WTemplate"
 #include "Wt/WText"
+#include "WtException.h"
 
 #include "Utils.h"
 
@@ -35,7 +36,9 @@ WCalendar::WCalendar(WContainerWidget *parent)
   : WCompositeWidget(parent),
     i18n_(false),
     selectionChanged_(this),
-    selected_(this)
+    activated_(this),
+    clicked_(this),
+    currentPageChanged_(this)
 {
   create();
 }
@@ -45,19 +48,26 @@ WCalendar::WCalendar(bool i18n, WContainerWidget *parent)
   : WCompositeWidget(parent),
     i18n_(i18n),
     selectionChanged_(this),
-    selected_(this)
+    activated_(this),
+    clicked_(this),
+    currentPageChanged_(this)
 {
   create();
 }
 
 void WCalendar::setMultipleSelection(bool multiple)
 {
-  if (multiple != multipleSelection_) {
-    if (!multiple && selection_.size() > 1) {
+  setSelectionMode(multiple?ExtendedSelection:SingleSelection);
+}
+
+void WCalendar::setSelectionMode(SelectionMode mode) 
+{
+  if (selectionMode_ != mode) {
+    if (mode != ExtendedSelection && selection_.size() > 1) {
       selection_.clear();
       renderMonth();
     }
-    multipleSelection_ = multiple;
+    selectionMode_ = mode;
   }
 }
 
@@ -68,12 +78,14 @@ void WCalendar::setSingleClickSelect(bool single)
 
 void WCalendar::create()
 {
-  multipleSelection_ = false;
+  selectionMode_ = SingleSelection;
   singleClickSelect_ = false;
-  dayOfWeekChars_ = 3;
+  horizontalHeaderFormat_ = ShortDayNames;
   firstDayOfWeek_ = 1;
   cellClickMapper_ = 0;
   cellDblClickMapper_ = 0;
+
+  clicked().connect(SLOT(this, WCalendar::selectInCurrentMonth));
 
   WDate currentDay = WDate::currentDate();
 
@@ -136,7 +148,7 @@ void WCalendar::create()
   impl_->bindWidget("month", monthEdit_);
   impl_->bindWidget("year", yearEdit_);
 
-  setDayOfWeekLength(dayOfWeekChars_);
+  setHorizontalHeaderFormat(horizontalHeaderFormat_);
   setFirstDayOfWeek(firstDayOfWeek_);
 }
 
@@ -149,28 +161,60 @@ void WCalendar::setFirstDayOfWeek(int dayOfWeek)
 
     WString title = i18n_ ? tr(WDate::longDayName(day).toUTF8())
       : DATE_NAME_STR(WDate::longDayName(day));
-    impl_->bindString("t" + boost::lexical_cast<std::string>(i), title, XHTMLUnsafeText);
+    impl_->bindString("t" + boost::lexical_cast<std::string>(i), 
+		      title, 
+		      XHTMLUnsafeText);
 
-    WString abbr = i18n_ ? tr(WDate::shortDayName(day).toUTF8())
-      : DATE_NAME_STR(WDate::shortDayName(day));
-
-    if (dayOfWeekChars_ != 3)
-      abbr = WString::fromUTF8(abbr.toUTF8().substr(0, 1));
-
-    impl_->bindString("d" + boost::lexical_cast<std::string>(i), abbr, XHTMLUnsafeText);
+    std::string d;
+    WString a;
+    switch (horizontalHeaderFormat_) {
+    case SingleLetterDayNames:
+      d = "d1"; 
+      a = WString::fromUTF8(WDate::shortDayName(day).toUTF8().substr(0, 1));
+      break;
+    case ShortDayNames:
+      d = "d3";
+      a = WDate::shortDayName(day);
+      break;
+    case LongDayNames:
+      d = "dlong"; 
+      a = WDate::longDayName(day);
+      break;
+    }
+   
+    WString abbr = i18n_ ? tr(a.toUTF8()) : DATE_NAME_STR(a);
+    impl_->bindString("d" + boost::lexical_cast<std::string>(i), 
+		      abbr, 
+		      XHTMLUnsafeText);
   }
 
   renderMonth();
 }
 
-void WCalendar::setDayOfWeekLength(int chars)
+void WCalendar::setHorizontalHeaderFormat(HorizontalHeaderFormat format)
 {
-  dayOfWeekChars_ = chars == 3 ? 3 : 1;
+  std::string d;
+  switch (format) {
+  case SingleLetterDayNames:
+    d = "d1"; break;
+  case ShortDayNames:
+    d = "d3"; break;
+  case LongDayNames:
+    d = "dlong"; break;
+  default:
+    throw WtException("WCalendar: Invalid horizontal header format.");
+  }
 
-  impl_->bindString("table-class",
-		    "d" + boost::lexical_cast<std::string>(dayOfWeekChars_), XHTMLUnsafeText);
+  horizontalHeaderFormat_ = format;
+
+  impl_->bindString("table-class", d, XHTMLUnsafeText);
 
   setFirstDayOfWeek(firstDayOfWeek_);
+}
+
+void WCalendar::setDayOfWeekLength(int chars)
+{
+  setHorizontalHeaderFormat(chars == 3 ? ShortDayNames : SingleLetterDayNames);
 }
 
 void WCalendar::renderMonth()
@@ -181,11 +225,10 @@ void WCalendar::renderMonth()
     askRerender();
 }
 
-void WCalendar::render()
+void WCalendar::render(WFlags<RenderFlag> flags)
 {
   if (needRenderMonth_) {
     bool create = cellClickMapper_ == 0;
-
 #ifndef WT_TARGET_JAVA
     char buf[30];
 #else
@@ -194,13 +237,11 @@ void WCalendar::render()
 
     if (create) {
       cellClickMapper_ = new WSignalMapper<Coordinate>(this);
-      cellClickMapper_->mapped().connect(SLOT(this, WCalendar::cellClicked));
-
-      if (!singleClickSelect_) {
-	cellDblClickMapper_ = new WSignalMapper<Coordinate>(this);
-	cellDblClickMapper_->mapped().connect(SLOT(this,
-						   WCalendar::cellDblClicked));
-      }
+      cellClickMapper_
+	->mapped().connect(SLOT(this, WCalendar::cellClicked));
+      cellDblClickMapper_ = new WSignalMapper<Coordinate>(this);
+      cellDblClickMapper_
+	->mapped().connect(SLOT(this, WCalendar::cellDblClicked));
     }
 
     int m = currentMonth_ - 1;
@@ -226,42 +267,21 @@ void WCalendar::render()
       for (unsigned j = 0; j < 7; ++j) {
 	Utils::itoa(i * 7 + j, buf);
 	std::string cell = std::string("c") + buf;
-
-	WText *t = dynamic_cast<WText *>(impl_->resolveWidget(cell));
-
-	if (!t) {
-	  t = new WText();
-	  t->setInline(false);
-	  t->setTextFormat(PlainText);
-	  impl_->bindWidget(cell, t);
-
-	  cellClickMapper_->mapConnect(t->clicked(), Coordinate(i, j));
-	  if (cellDblClickMapper_)
-	    cellDblClickMapper_->mapConnect(t->doubleClicked(),
-					    Coordinate(i, j));
-	}
-
-	Utils::itoa(d.day(), buf);
-	t->setText(WString::fromUTF8(buf));
-
+	
 	WDate date(d.year(), d.month(), d.day());
 
-	std::string styleClass;
+	WWidget *w = impl_->resolveWidget(cell);
+	WWidget *rw = renderCell(w, date);
+	impl_->bindWidget(cell, rw);
 
-	if (d.month() != currentMonth_)
-	  styleClass += " Wt-cal-oom";
+	WInteractWidget* iw = dynamic_cast<WInteractWidget*>(rw->webWidget());
 
-	if (isSelected(date))
-	  styleClass += " Wt-cal-sel";
-
-	if (d == today) {
-	  if (!isSelected(date))
-	    styleClass += " Wt-cal-now";
-	  t->setToolTip("Today");
-	} else
-	  t->setToolTip("");
-
-	t->setStyleClass(styleClass.c_str());
+	if (iw && iw != w) {
+	  cellClickMapper_
+	    ->mapConnect(iw->clicked(), Coordinate(i, j));
+	  cellDblClickMapper_
+	    ->mapConnect(iw->doubleClicked(), Coordinate(i, j));
+	}
 
 	d += date_duration(1);
       }
@@ -270,7 +290,45 @@ void WCalendar::render()
     needRenderMonth_ = false;
   }
 
-  WCompositeWidget::render();
+  WCompositeWidget::render(flags);
+}
+
+WWidget* WCalendar::renderCell(WWidget* widget, const WDate& date)
+{
+  WText* t = dynamic_cast<WText*>(widget);
+
+  if (!t) {
+    t = new WText();
+    t->setInline(false);
+    t->setTextFormat(PlainText);
+  }
+
+#ifndef WT_TARGET_JAVA
+    char buf[30];
+#else
+    char *buf;
+#endif // WT_TARGET_JAVA
+  Utils::itoa(date.day(), buf);
+  t->setText(WString::fromUTF8(buf));
+
+  std::string styleClass;
+
+  if (date.month() != currentMonth())
+    styleClass += " Wt-cal-oom";
+
+  if (isSelected(date))
+    styleClass += " Wt-cal-sel";
+
+  if (date == WDate::currentDate()) {
+    if (!isSelected(date))
+      styleClass += " Wt-cal-now";
+    t->setToolTip("Today");
+  } else
+    t->setToolTip("");
+
+  t->setStyleClass(styleClass.c_str());
+
+  return t;
 }
 
 bool WCalendar::isSelected(const WDate& d) const
@@ -307,16 +365,18 @@ void WCalendar::browseTo(const WDate& date)
     rerender = true;
   }
 
-  if (rerender)
+  if (rerender) {
+    emitCurrentPageChanged();
     renderMonth();
+  }
 }
 
 void WCalendar::select(const std::set<WDate>& dates)
 {
-  if (multipleSelection_) {
+  if (selectionMode_ == ExtendedSelection) {
     selection_ = dates;
     renderMonth();
-  } else {
+  } else if(selectionMode_ == SingleSelection) {
     if (dates.empty())
       clearSelection();
     else
@@ -324,24 +384,10 @@ void WCalendar::select(const std::set<WDate>& dates)
   }
 }
 
-void WCalendar::cellClicked(Coordinate weekday)
+void WCalendar::selectInCurrentMonth(const WDate& d)
 {
-  if (!multipleSelection_ && singleClickSelect_) {
-    cellDblClicked(weekday);
-    return;
-  }
-
-  date dt = dateForCell(weekday.i, weekday.j);
-
-  selectInCurrentMonth(dt);
-}
-
-bool WCalendar::selectInCurrentMonth(const boost::gregorian::date& dt)
-{
-  if (dt.month() == currentMonth_) {
-    WDate d(dt.year(), dt.month(), dt.day());
-
-    if (multipleSelection_) {
+  if (d.month() == currentMonth_ && selectionMode_ != NoSelection) {
+    if (selectionMode_ == ExtendedSelection) {
       if (isSelected(d))
 	selection_.erase(d);
       else
@@ -357,19 +403,22 @@ bool WCalendar::selectInCurrentMonth(const boost::gregorian::date& dt)
       selectionChanged().emit();
       renderMonth();
     }
+  }
+}
 
-    return true;
-  } else
-    return false;
+void WCalendar::cellClicked(Coordinate weekday)
+{
+  date dt = dateForCell(weekday.i, weekday.j);
+  clicked().emit(WDate(dt.year(), dt.month(), dt.day()));
+  
+  if (selectionMode_ != ExtendedSelection && singleClickSelect_) 
+    activated().emit(WDate(dt.year(), dt.month(), dt.day()));
 }
 
 void WCalendar::cellDblClicked(Coordinate weekday)
 {
-  date dt = dateForCell(weekday.i, weekday.j);  
-
-  if (selectInCurrentMonth(dt))
-    if (!multipleSelection_)
-      selected().emit(WDate(dt.year(), dt.month(), dt.day()));
+  date dt = dateForCell(weekday.i, weekday.j);
+  activated().emit(WDate(dt.year(), dt.month(), dt.day()));
 }
 
 date WCalendar::dateForCell(int week, int dayOfWeek)
@@ -384,10 +433,16 @@ date WCalendar::dateForCell(int week, int dayOfWeek)
   return d;
 }
 
+void WCalendar::emitCurrentPageChanged()
+{
+  currentPageChanged().emit(currentYear_, currentMonth_);
+}
+
 void WCalendar::browseToPreviousYear()
 {
   --currentYear_;
 
+  emitCurrentPageChanged();
   renderMonth();
 }
 
@@ -398,6 +453,7 @@ void WCalendar::browseToPreviousMonth()
     --currentYear_;
   }
 
+  emitCurrentPageChanged();
   renderMonth();
 }
 
@@ -405,6 +461,7 @@ void WCalendar::browseToNextYear()
 {
   ++currentYear_;
 
+  emitCurrentPageChanged();
   renderMonth();
 }
 
@@ -415,6 +472,7 @@ void WCalendar::browseToNextMonth()
     ++currentYear_;
   }
 
+  emitCurrentPageChanged();
   renderMonth();
 }
 
@@ -427,6 +485,7 @@ void WCalendar::monthChanged(int newMonth)
 
     currentMonth_ = newMonth;
 
+    emitCurrentPageChanged();
     renderMonth();
   }
 }
@@ -440,6 +499,7 @@ void WCalendar::yearChanged(WString yearStr)
 	(year >= 1900 && year <= 2200)) { // ??
       currentYear_ = year;
 
+      emitCurrentPageChanged();
       renderMonth();
     }
   } catch (boost::bad_lexical_cast& e) {

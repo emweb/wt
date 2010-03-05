@@ -74,7 +74,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   layout_->addWidget(popup_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
 
   calendar_ = new WCalendar(i18n);
-  calendar_->selected().connect(SLOT(popup_, WWidget::hide));
+  calendar_->activated().connect(SLOT(popup_, WWidget::hide));
   calendar_->selectionChanged()
     .connect(SLOT(this, WDatePicker::setFromCalendar));
 

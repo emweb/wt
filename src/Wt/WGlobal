@@ -613,6 +613,13 @@ enum EntryPointType {
   StaticResource
 };
 
+enum RenderFlag {
+  RenderFull    = 0x1,
+  RenderUpdate  = 0x2
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(RenderFlag)
+
 }
 
 #endif // WGLOBALS_H_

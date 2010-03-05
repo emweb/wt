@@ -36,7 +36,7 @@ void WViewWidget::refresh()
     update();
 }
 
-void WViewWidget::render()
+void WViewWidget::render(WFlags<RenderFlag> flags)
 {
   if (needContentsUpdate_) {
     delete contents_; // just to be safe
@@ -51,7 +51,7 @@ void WViewWidget::render()
     needContentsUpdate_ = false;
   }
 
-  WWebWidget::render();
+  WWebWidget::render(flags);
 }
 
 void WViewWidget::updateDom(DomElement& element, bool all)
@@ -61,7 +61,7 @@ void WViewWidget::updateDom(DomElement& element, bool all)
   if (!app->session()->renderer().preLearning()) {
     if (all && !contents_) {
       needContentsUpdate_ = true;
-      render();
+      render(RenderFull);
     }
 
     if (contents_) {

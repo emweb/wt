@@ -106,8 +106,7 @@ std::istream& operator>> (std::istream& i, WGoogleMap::Coordinate& c)
 WGoogleMap::WGoogleMap(WContainerWidget *parent)
  : clicked_(this, "click"),
    doubleClicked_(this, "dblclick"),
-   mouseMoved_(this, "mousemove"),
-   rendered_(false)
+   mouseMoved_(this, "mousemove")
 {
   setImplementation(new WContainerWidget());
 
@@ -127,14 +126,9 @@ WGoogleMap::WGoogleMap(WContainerWidget *parent)
 WGoogleMap::~WGoogleMap()
 { }
 
-void WGoogleMap::refresh()
+void WGoogleMap::render(WFlags<RenderFlag> flags)
 {
-  rendered_ = false;
-}
-
-void WGoogleMap::render()
-{
-  if (!rendered_) {
+  if (flags & RenderFull) {
     // initialize the map
     std::stringstream strm;
     strm <<
@@ -179,11 +173,9 @@ void WGoogleMap::render()
     additions_.clear();
 
     WApplication::instance()->doJavaScript(strm.str());
-
-    rendered_ = true;
   }
 
-  WCompositeWidget::render();
+  WCompositeWidget::render(flags);
 }
 
 void WGoogleMap::clearOverlays()
@@ -198,7 +190,7 @@ void WGoogleMap::doGmJavaScript(const std::string& jscode, bool sepScope)
   if (sepScope)
     js = "{" + js + "}";
 
-  if (rendered_)
+  if (isRendered())
     WApplication::instance()->doJavaScript(js);
   else
     additions_.push_back(js);

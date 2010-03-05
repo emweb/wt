@@ -89,9 +89,9 @@ void FormField::setFocus()
     focusWhenRendered_ = true;
 }
 
-void FormField::render()
+void FormField::render(WFlags<RenderFlag> flags)
 {
-  Component::render();
+  Component::render(flags);
 
   if (focusWhenRendered_) {
     WApplication::instance()->doJavaScript(elVar() + ".focus(true);");

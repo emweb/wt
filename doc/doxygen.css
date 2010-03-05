@@ -80,7 +80,7 @@ A.codeRef:visited { font-weight: normal; color: #0000FF}
 A:hover { text-decoration: none; background-color: #f2f2ff }
 DL.el { margin-left: -1cm }
 .fragment {
-       font-family: monospace, fixed;
+       font-family: monospace;
        font-size: 95%;
 }
 PRE.fragment {

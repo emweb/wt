@@ -108,8 +108,6 @@ public:
    */
   virtual ~WGoogleMap();
 
-  virtual void refresh();
-
   /*! \brief Adds a marker overlay to the map.
    */
   void addMarker(const Coordinate &pos);
@@ -259,11 +257,10 @@ private:
   JSignal<Coordinate> mouseMoved_;
 
 protected:
-  virtual void render();
+  virtual void render(WFlags<RenderFlag> flags);
   virtual void doGmJavaScript(const std::string& jscode, bool sepScope);
 
 private:
-  bool rendered_;
   std::vector<std::string> additions_;
 };
 

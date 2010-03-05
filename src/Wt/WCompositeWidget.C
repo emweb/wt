@@ -415,7 +415,7 @@ WLayoutItemImpl *WCompositeWidget::createLayoutItemImpl(WLayoutItem *item)
 DomElement *WCompositeWidget::createSDomElement(WApplication *app)
 {
   if (needsToBeRendered())
-    render();
+    render(RenderFull);
 
   return impl_->createSDomElement(app);
 }
@@ -424,12 +424,12 @@ void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
 				      WApplication *app)
 {
   if (needsToBeRendered())
-    render();
+    render(impl_->isRendered() ? RenderUpdate : RenderFull);
 
   impl_->getSDomChanges(result, app);
 }
 
-void WCompositeWidget::render()
+void WCompositeWidget::render(WFlags<RenderFlag> flags)
 {
   renderOk();
 }

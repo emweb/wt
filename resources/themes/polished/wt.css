@@ -77,7 +77,7 @@
 }
 
 .Wt-cal table.d1 {
-    width: 150px;
+    width: 155px;
 }
 
 .Wt-cal table.d1 td {
@@ -90,6 +90,14 @@
 
 .Wt-cal table.d3 td {
     width: 30px;
+}
+
+.Wt-cal table.dlong {
+    width: 490px;
+}
+
+.Wt-cal table.dlong td {
+    width: 70px;
 }
 
 .Wt-cal caption {

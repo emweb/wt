@@ -306,19 +306,20 @@
 	   that may or may not be shared between several applications.
 	  -->
 	<properties>
-            <!-- resources property
+            <!-- resourcesURL property
 
-	       The location of the resources/ folder that is part of the Wt
-	       distribution.
+	       The URL at which the resources/ folder is deploeyd that
+	       comes distributed with Wt and contains auxiliary files
+	       used to primarily for styles and themes.
 
 	       The default value is 'resources/'
               -->
-	    <property name="resources">resources/</property>
+	    <property name="resourcesURL">resources/</property>
 
 	    <!-- extBaseURL property
 
                Used in conjunction with Ext:: widgets, and points to the
-	       location of Ext JavaScript and resource files (css, images).
+	       URL of Ext JavaScript and resource files (css, images).
 	       See the documentation for the Ext namespace for details.
 
 	       The default value is 'ext/'

@@ -52,7 +52,10 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
 {
   WidgetMap::iterator i = widgets_.find(varName);
   if (i != widgets_.end())
-    delete i->second;
+    if (i->second == widget)
+      return;
+    else
+      delete i->second;
 
   if (widget) {
     widget->setParent(this);

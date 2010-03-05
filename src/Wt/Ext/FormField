@@ -100,7 +100,7 @@ protected:
 
   virtual WFormWidget *formWidget() const = 0;
 
-  virtual void render();
+  virtual void render(WFlags<RenderFlag> flags);
 
 private:
   MessageLocation  errorMessageLocation_;

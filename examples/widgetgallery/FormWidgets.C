@@ -244,13 +244,15 @@ WWidget *FormWidgets::wCalendar()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WCalendar", result);
+
   new WText(tr("formwidgets-WCalendar"), result);
-  WCalendar *c = new WCalendar(false, result);
+
+  WCalendar *c = new WCalendar(result);
   ed_->mapConnect(c->selectionChanged(), "First calendar selectionChanged");
   new WText("<p>A flag indicates if multiple dates can be selected...</p>",
 	    result);
-  WCalendar *c2 = new WCalendar(false, result);
-  c2->setMultipleSelection(true);
+  WCalendar *c2 = new WCalendar(result);
+  c2->setSelectionMode(ExtendedSelection);
   ed_->mapConnect(c2->selectionChanged(), "Second calendar selectionChanged");
 
   return result;

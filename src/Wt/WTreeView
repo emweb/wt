@@ -283,7 +283,6 @@ public:
   bool column1Fixed() const { return column1Fixed_; }
 
   virtual void resize(const WLength& width, const WLength& height);
-  virtual void load();
 
   /*! \brief %Signal emitted when a node is collapsed.
    *
@@ -324,10 +323,8 @@ public:
   virtual AlignmentFlag headerAlignment(int column) const;
   virtual void setColumnBorder(const WColor& color);
 
-  virtual void refresh();
-
 protected:
-  virtual void render();
+  virtual void render(WFlags<RenderFlag> flags);
 
   virtual void enableAjax();
 
@@ -387,7 +384,7 @@ private:
   virtual ColumnInfo& columnInfo(int column) const;
   WAbstractItemView::ColumnInfo createColumnInfo(const int column) const;
 
-  void initLayoutJavaScript();
+  void defineJavaScript();
   void rerenderHeader();
   void rerenderTree();
 

@@ -144,7 +144,7 @@ protected:
 
   virtual int boxPadding(Orientation orientation) const;
   virtual int boxBorder(Orientation orientation) const;
-  virtual void render();
+  virtual void render(WFlags<RenderFlag> flags);
 
 private:
   WWidget *impl_;

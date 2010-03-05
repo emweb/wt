@@ -1,3 +1,9 @@
+03-03-2010:
+	* WCalendar: add HorizontalHeaderFormat enum (long day name support),
+	currentPageChanged signal, clicked signal, activated signal,
+	SelectionMode enum (NoSelection mode support), renderCell() virtual
+	method
+
 01-03-2010:
 	* WGridLayout, WBoxLayout: add support for user resizing ('splitter')
 	functionality

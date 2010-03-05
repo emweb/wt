@@ -1142,14 +1142,9 @@ WTreeView::WTreeView(WContainerWidget *parent)
     parent->addWidget(this);
 }
 
-void WTreeView::refresh()
+void WTreeView::defineJavaScript()
 {
-  needDefineJS_ = false;
-
   WApplication *app = WApplication::instance();
-
-  std::string extra
-    = app->environment().agent() == WEnvironment::IE6 ? "10" : "8";
 
   const char *THIS_JS = "js/WTreeView.js";
 
@@ -1163,11 +1158,6 @@ void WTreeView::refresh()
 		    + contentsContainer_->jsRef() + ","
 		    + headerContainer_->jsRef() + ","
 		    + (column1Fixed_ ? "true" : "false") + ");");
-}
-
-void WTreeView::initLayoutJavaScript()
-{
-  refresh();
 }
 
 void WTreeView::setColumn1Fixed(bool fixed)
@@ -1210,13 +1200,6 @@ void WTreeView::setColumn1Fixed(bool fixed)
        """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
        "}");
   }
-}
-
-void WTreeView::load()
-{
-  needDefineJS_ = true;
-
-  WCompositeWidget::load();
 }
 
 WTreeView::~WTreeView()
@@ -1500,15 +1483,17 @@ void WTreeView::scheduleRerender(RenderState what)
   WAbstractItemView::scheduleRerender(what);
 }
 
-void WTreeView::render()
+void WTreeView::render(WFlags<RenderFlag> flags)
 {
+  if (flags & RenderFull)
+    defineJavaScript();
+
   while (renderState_ != RenderOk) {
     RenderState s = renderState_;
     renderState_ = RenderOk;
 
     switch (s) {
     case NeedRerender:
-      initLayoutJavaScript();
       rerenderHeader();
       rerenderTree();
       break;
@@ -1526,10 +1511,7 @@ void WTreeView::render()
     }
   }
 
-  if (needDefineJS_)
-    initLayoutJavaScript();
-
-  WAbstractItemView::render();
+  WAbstractItemView::render(flags);
 }
 
 void WTreeView::rerenderHeader()

@@ -1379,7 +1379,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 
       if (!isIEMobile) {
 	DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
-	render();
+	render(RenderFull);
 	DomElement *realElement = createDomElement(app);
 	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
 	result.push_back(stub);
@@ -1387,7 +1387,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	propagateRenderOk();
     }
   } else {
-    render();
+    render(RenderUpdate);
 
     if (isIEMobile) {
       if (flags_.test(BIT_REPAINT_PROPERTY_ATTRIBUTE)) {
@@ -1555,7 +1555,7 @@ DomElement *WWebWidget::createSDomElement(WApplication *app)
   } else {
     flags_.reset(BIT_STUBBED);
 
-    render();
+    render(RenderFull);
 
     return createDomElement(app);
   }

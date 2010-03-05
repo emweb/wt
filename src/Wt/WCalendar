@@ -30,9 +30,17 @@ class WTemplate;
  * The calendar provides navigation by month and year, and indicates the
  * current day.
  *
+ * You can listen for single click or double click events on a
+ * calendar cell using the clicked() and activated() methods.
+ *
  * The calendar may be configured to allow selection of single or
- * multiple days, and you may listen for changes in the selection
- * using the selectionChanged() or selected() signals.
+ * multiple days using setSelectionMode(), and you may listen for
+ * changes in the selection using the selectionChanged()
+ * signals. Selection can also be entirely disabled in which case you
+ * can implement your own selection handling by listening for cell
+ * click events.
+ *
+ * Cell rendering may be customized by reimplementing renderCell().
  *
  * Internationalization may be provided by indicating i18n == true in
  * the constructor, and providing the appropriate messages for months
@@ -66,25 +74,35 @@ class WTemplate;
  * selectors:
  *
  * \verbatim
-.Wt-cal table    : The table
-.Wt-cal table.d1 : The table (single letter day headers)
-.Wt-cal table.d3 : The table (three letter day headers)
+.Wt-cal table       : The table
+.Wt-cal table.d1    : The table (single letter day headers)
+.Wt-cal table.d3    : The table (three letter day headers)
+.Wt-cal table.dlong : The table (long day headers)
 
-.Wt-cal caption	 : The caption (containing the navigation buttons)
-.Wt-cal-year	 : The caption year in-place-edit
+.Wt-cal caption	    : The caption (containing the navigation buttons)
+.Wt-cal-year	    : The caption year in-place-edit
 
-.Wt-cal th       : Header cell (week day)
+.Wt-cal th          : Header cell (week day)
 
-.Wt-cal td       : Day cell
-.Wt-cal-oom      : Out-of-month day
-.Wt-cal-sel      : Selected day
-.Wt-cal-now      : Today day
+.Wt-cal td          : Day cell
+.Wt-cal-oom         : Out-of-month day
+.Wt-cal-sel         : Selected day
+.Wt-cal-now         : Today day
 \endverbatim
  *
  */
 class WT_API WCalendar : public WCompositeWidget
 {
 public:
+  /*! \brief The format of the horizontal header.
+   */
+  enum HorizontalHeaderFormat { 
+    SingleLetterDayNames,  //!< First letter of a day (e.g. 'M' for Monday)
+    ShortDayNames,         //!< First 3 letters of a day (e.g. 'Mon' for Monday)
+    LongDayNames           //!< Full day name
+    // NoHorizontalHeader  //No horizontal header (not yet implemented)
+  };
+
   /*! \brief Creates a new calendar.
    *
    * Constructs a new calendar with English day/month names.  The
@@ -99,23 +117,27 @@ public:
    */
   WCalendar(bool i18n, WContainerWidget *parent = 0);
 
-  /*! \brief Configures single or multiple selection mode.
+  /*! \brief Sets the selection mode.
    *
-   * In single selection mode, only one date may be selected: the selection()
-   * will be empty or contain exactly one item. 
+   * The default selection mode is
+   * \link Wt::SingleSelection SingleSelection\endlink.
    */
-  void setMultipleSelection(bool multiple);
+  void setSelectionMode(SelectionMode mode);
 
   /*! \brief Browses to the same month in the previous year.
    *
-   * Displays the same month in the previous year. This does not change
-   * the current selection.
+   * Displays the same month in the previous year. This does not
+   * affect the selection.
+   *
+   * This will emit the currentPageChanged() singal.
    */
   void browseToPreviousYear();
 
   /*! \brief Browses to the previous month.
    *
-   * Displays the previous month. This does not change the current selection.
+   * Displays the previous month. This does not affect the selection.
+   *
+   * This will emit the currentPageChanged() singal.
    */
   void browseToPreviousMonth();
 
@@ -123,12 +145,16 @@ public:
    *
    * Displays the same month in the next year. This does not change
    * the current selection.
+   *
+   * This will emit the currentPageChanged() singal.
    */
   void browseToNextYear();
 
   /*! \brief Browses to the next month.
    *
    * Displays the next month. This does not change the current selection.
+   *
+   * This will emit the currentPageChanged() singal.
    */
   void browseToNextMonth();
 
@@ -136,6 +162,9 @@ public:
    *
    * Displays the month which contains the given date. This does not change
    * the current selection.
+   *
+   * This will emit the currentPageChanged() signal if another month
+   * is displayed.
    */
   void browseTo(const WDate& date);
 
@@ -173,6 +202,28 @@ public:
    */
   void select(const std::set<WDate>& dates);
 
+  /*! \brief Sets the horizontal header format.
+   *
+   * The default horizontal header format is ShortDayNames.
+   */
+  void setHorizontalHeaderFormat(HorizontalHeaderFormat format);
+
+  /*! \brief Returns the horizontal header format.
+   *
+   * \sa setHorizontalHeaderFormat()
+   */
+  HorizontalHeaderFormat horizontalHeaderFormat() {
+    return horizontalHeaderFormat_;
+  }
+
+  /*! \brief Sets the first day of the week.
+   *
+   * Possible values or 1 to 7, as accepted by WDate::shortDayName().
+   *
+   * The default value is 1 ("Monday").
+   */
+  void setFirstDayOfWeek(int dayOfWeek);
+
   /*! \brief Returns the current selection.
    *
    * Returns the set of dates currently selected. In single selection mode,
@@ -186,54 +237,109 @@ public:
    */
   Signal<>& selectionChanged() { return selectionChanged_; }
 
-  /*! \brief %Signal emitted when the user has double clicked on a date.
+  /*! \brief %Signal emitted when the user double-clicks a date.
    *
-   * This signal indicates that he user has selected a new date, which 
-   * is only available when in single selection mode.
+   * You may want to connect to this signal to treat a double click
+   * as the selection of a date.
    */
-  Signal<WDate>& selected() { return selected_; }
+  Signal<WDate>& activated() { return activated_; }
 
-  /*! \brief Configures the calendar to use single click to select.
+  /*! \brief %Signal emitted when the user clicks a date.
    *
-   * This only applies to a single-selection calendar.
+   * You may want to connect to this signal if you want to provide a
+   * custom selection handling.
+   */
+  Signal<WDate>& clicked() { return clicked_; } 
+
+  /*! \brief %Signal emitted when the current month is changed.
+   *
+   * The method is emitted both when the change is done through the
+   * user interface or via the public API. The two parameters are
+   * respectively the new year and month.
+   */
+  Signal<int, int>& currentPageChanged() { return currentPageChanged_; }
+
+  /*! \brief Configures single or multiple selection mode (<b> deprecated </b>).
+   *
+   * In single selection mode, only one date may be selected: the selection()
+   * will be empty or contain exactly one item. 
+   *
+   * \deprecated use setSelectionMode() instead.
+   */
+  void setMultipleSelection(bool multiple);
+
+  /*! \brief %Signal emitted when the user has double clicked on a date (<b>deprecated</b>).
+    * 
+    * This signal indicates that he user has selected a new date, which 
+    * is only available when in single selection mode.
+    *
+    * \deprecated use activated() instead.
+    */
+  Signal<WDate>& selected() { return activated_; }
+  
+  /*! \brief Configures the calendar to use single click for activation (<b>deprecated</b>)
+   *
+   * By default, double click will trigger activate(). Use this method
+   * if you want a single click to trigger activate() (and the now
+   * deprecated selected() method). This only applies to a
+   * single-selection calendar.
+   *
+   * \deprecated listen to the clicked() signal if you want to react
+   * to a single click, or activated() signal if you want to react to
+   * a doulbe click.
    *
    * \sa setMultipleSelection()
    */
   void setSingleClickSelect(bool single);
 
-  /*! \brief Sets the length for the abbreviated day of week.
+  /*! \brief Sets the length for the abbreviated day of week (<b> deprecated </b>).
    *
    * The \p chars may be 1 or 3, which render "Monday" as
    * respectively "M" or "Mon".
    *
    * The default length is 3.
+   *
+   * \deprecated use setHorizontalHeaderFormat() instead.
    */
   void setDayOfWeekLength(int chars);
 
-  /*! \brief Sets the first day of the week.
-   *
-   * Possible values or 1 to 7, as accepted by WDate::shortDayName().
-   *
-   * The default value is 1 ("Monday").
-   */
-  void setFirstDayOfWeek(int dayOfWeek);
-
 protected:
-  virtual void render();
+  virtual void render(WFlags<RenderFlag> renderFlags);
+  
+  /*! \brief Creates or updates a widget that renders a cell.
+   *
+   * The default implementation creates a WText
+   *
+   * You may want to reimplement this method if you wish to customize
+   * how a cell is rendered. When \p widget is \c 0, a new widget
+   * should be created and returned. Otherwise, you may either modify
+   * the passed \p widget, or return a new widget. If you return a new
+   * widget, the prevoius widget will be deleted.
+   */
+  virtual WWidget* renderCell(WWidget* widget, const WDate& date);
+
+  /*! \brief Returns whether a date is selected.
+   *
+   * This is a convenience method that can be used when reimplementing
+   * renderCell().
+   */
+  bool isSelected(const WDate& date) const;
 
 private:
   bool              i18n_;
-  bool              multipleSelection_;
+  SelectionMode     selectionMode_;
   bool              singleClickSelect_;
   int               currentYear_;
   int               currentMonth_;
-  int               dayOfWeekChars_;
+  HorizontalHeaderFormat horizontalHeaderFormat_;
   int               firstDayOfWeek_;
   std::set<WDate>   selection_;
   bool              needRenderMonth_;
 
   Signal<>          selectionChanged_;
-  Signal<WDate>     selected_;
+  Signal<WDate>     activated_;
+  Signal<WDate>     clicked_;
+  Signal<int, int>  currentPageChanged_;
 
   struct Coordinate {
     int i, j;
@@ -252,15 +358,15 @@ private:
   void create();
   void renderMonth();
 
+  void emitCurrentPageChanged();
+
   void monthChanged(int newMonth);
   void yearChanged(WString newYear);
   boost::gregorian::date dateForCell(int week, int dayOfWeek);
-  bool isSelected(const WDate& d) const;
+
+  void selectInCurrentMonth(const WDate& d);
 
   void cellClicked(Coordinate c);
-
-  bool selectInCurrentMonth(const boost::gregorian::date& dt);
-
   void cellDblClicked(Coordinate c);
 };
 

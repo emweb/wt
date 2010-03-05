@@ -140,7 +140,7 @@ WStandardItem *TreeViewExample::continentItem(const std::string& continent)
 WStandardItem *TreeViewExample::countryItem(const std::string& country,
 					    const std::string& code)
 {
-  WStandardItem *result = new WStandardItem(country);
+  WStandardItem *result = new WStandardItem(WString::fromUTF8(country));
   result->setIcon("icons/flag_" + code + ".png");
   
   return result;

@@ -327,7 +327,7 @@ this.pxself = function(c, s) {
   if (v == 'auto' || v == null)
     return 0;
   var m = /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/.exec(v);
-  var v = m && m.length == 2 ? m[1] : "0";
+  v = m && m.length == 2 ? m[1] : "0";
   return v ? parseFloat(v) : 0;
 };
 
@@ -336,7 +336,7 @@ this.pctself = function(c, s) {
   if (v == 'auto' || v == null)
     return 0;
   var m = /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/.exec(v);
-  var v = m && m.length == 2 ? m[1] : "0";
+  v = m && m.length == 2 ? m[1] : "0";
   return v ? parseFloat(v) : 0;
 };
 
@@ -835,14 +835,15 @@ version: 2.5.2
     }
     fqstate = state;
     if (_UAie) {
-      return _updateIFrame(fqstate);
+      updateIFrame(fqstate);
+      return;
     } else {
       location.hash = fqstate;
       if (_UAwebkit) {
 	_fqstates[history.length] = fqstate;
 	_storeStates();
       }
-      return true;
+      return;
     }
   },
   getCurrentState: function () {
@@ -984,8 +985,8 @@ function dragDrag(e) {
     if (ds.dropTarget != prevDropTarget) {
       if (ds.dropTarget) {
         var s = amts.indexOf(mimeType) + mimeType.length;
-	var e = amts.indexOf("}", s);
-	var style = amts.substring(s, e);
+	var se = amts.indexOf("}", s);
+	var style = amts.substring(s, se);
 	if (style.length != 0) {
           ds.dropTarget.setAttribute("dos", ds.dropTarget.className);
 	  ds.dropTarget.className = ds.dropTarget.className + " " + style;
@@ -1067,20 +1068,21 @@ function encodeEvent(event, i) {
   }
 
   for (var x = 0; x < formObjects.length; ++x) {
-    var el = WT.getElement(formObjects[x]), v = null;
+    var el = WT.getElement(formObjects[x]), v = null, j, jl;
+
     if (el == null)
       continue;
 
     if (el.type == 'select-multiple') {
-      for (var i = 0; i < el.options.length; i++)
-	if (el.options[i].selected) {
+      for (j = 0, jl = el.options.length; j < jl; j++)
+	if (el.options[j].selected) {
 	  result += se + formObjects[x] + '='
-	    + encodeURIComponent(el.options[i].value);
+	    + encodeURIComponent(el.options[j].value);
 	}
     } else if (WT.hasTag(el, "SPAN")) {
-      for (var i = 0; i < el.childNodes.length; i++) {
-	if (el.childNodes[i].type == 'checkbox') {
-	  var cb = el.childNodes[i];
+      for (j = 0, jl = el.childNodes.length; j < jl; ++j) {
+	if (el.childNodes[j].type == 'checkbox') {
+	  var cb = el.childNodes[j];
 
 	  if (cb.style.display == 'none')
 	    v = 'indeterminate';
