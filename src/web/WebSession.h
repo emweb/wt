@@ -148,6 +148,10 @@ public:
     Handler(WebSession& session, bool takeLock);
     ~Handler();
 
+#ifdef WT_TARGET_JAVA
+    void release();
+#endif // WT_TARGET_JAVA
+
     static Handler *instance();
 
     bool haveLock() const;
@@ -174,9 +178,12 @@ public:
     boost::mutex::scoped_lock lock_;
 
     Handler(const Handler&);
+#endif // WT_THREADED
+#ifdef WT_TARGET_JAVA
+    bool locked_;
+#endif
 
     Handler *prevHandler_;
-#endif // WT_THREADED
 
     WebSession&  session_;
     WebRequest  *request_;
@@ -189,9 +196,9 @@ public:
     friend class WFileUploadResource;
   };
 
-#ifdef WT_THREADED
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::mutex& mutex() { return mutex_; }
-#endif // WT_THREADED
+#endif // WT_THREADED || WT_TARGET_JAVA
 
   void setLoaded();
 
@@ -222,7 +229,7 @@ private:
   std::string   bookmarkUrl_, baseUrl_, absoluteBaseUrl_;
   std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
-  WebResponse  *pollResponse_;
+  WebResponse  *asyncResponse_;
   bool          updatesPending_;
   bool          progressiveBoot_;
 

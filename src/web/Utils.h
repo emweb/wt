@@ -160,6 +160,27 @@ extern std::string urlEncode(const std::string& url);
 inline bool isNaN(double d) {
   return !(d == d);  
 }
+
+/*
+ * These are workarounds for typ mismatches between Java and C++ port:
+ * in C++ vector<string>, in Java string[]
+ */
+template<typename T> inline bool isEmpty(const T& vector) {
+#ifndef WT_TARGET_JAVA
+  return vector.empty();
+#else
+  return false;
+#endif // WT_TARGET_JAVA
+}
+
+template<typename T> inline int size(const T& vector) {
+#ifndef WT_TARGET_JAVA
+  return vector.size();
+#else
+  return 0;
+#endif // WT_TARGET_JAVA
+}
+
   }
 }
 

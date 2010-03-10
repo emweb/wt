@@ -118,11 +118,21 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 void WResource::suggestFileName(const std::string& name)
 {
   suggestedFileName_ = name;
+
+  generateUrl();
+}
+
+void WResource::setInternalPath(const std::string& path)
+{
+  internalPath_ = path;
+
+  generateUrl();
 }
 
 void WResource::setChanged()
 {
   generateUrl();
+
   dataChanged_.emit();
 }
 
@@ -136,7 +146,7 @@ const std::string& WResource::generateUrl()
   WApplication *app = WApplication::instance();
 
   if (app)
-    currentUrl_ = app->addExposedResource(const_cast<WResource *>(this));
+    currentUrl_ = app->addExposedResource(this, internalPath_);
 
   return currentUrl_;
 }

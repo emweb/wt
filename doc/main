@@ -607,6 +607,20 @@ These options are not specified in the wt_config.xml configuration
 file, but may be indicated on the command-line, or within a
 configuration file that is located at /etc/wt/wthttpd.
 
+The configuration file syntax is line based:
+<ul>
+      	<li>
+		<p>A line in the form:</p>
+		<p><code>name = value</code></p>
+		<p>gives a value to an option.</p>
+	</li>
+
+	<li>
+		<p>The <code>#</code> character introduces a
+        	comment that spans until the end of the line.</p>
+	</li>
+</ul>
+
 \code
 General options:
   -h [ --help ]                 produce help message

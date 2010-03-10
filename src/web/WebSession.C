@@ -52,7 +52,7 @@ WebSession::WebSession(WebController *controller,
     sessionId_(sessionId),
     controller_(controller),
     renderer_(*this),
-    pollResponse_(0),
+    asyncResponse_(0),
     updatesPending_(false),
     embeddedEnv_(this),
     app_(0),
@@ -120,8 +120,10 @@ WebSession::~WebSession()
   delete app_;
 #endif // WT_TARGET_JAVA
 
-  if (pollResponse_)
-    pollResponse_->flush();
+  if (asyncResponse_) {
+    asyncResponse_->flush();
+    asyncResponse_ = 0;
+  }
 
 #ifndef WT_TARGET_JAVA
   unlink(controller_->configuration().sessionSocketPath(sessionId_).c_str());
@@ -460,8 +462,8 @@ WebSession::Handler::Handler(WebSession& session, bool takeLock)
   : 
 #ifdef WT_THREADED
     lock_(session.mutex_, boost::defer_lock),
-    prevHandler_(0),
 #endif // WT_THREADED
+    prevHandler_(0),
     session_(session),
     request_(0),
     response_(0),
@@ -471,6 +473,12 @@ WebSession::Handler::Handler(WebSession& session, bool takeLock)
   if (takeLock)
     lock_.lock();
 #endif
+#ifdef WT_TARGET_JAVA
+  if (takeLock) {
+    session.mutex().lock();
+    locked_ = true;
+  }
+#endif // WT_TARGET_JAVA
 
   init();
 }
@@ -480,27 +488,28 @@ WebSession::Handler::Handler(WebSession& session,
   : 
 #ifdef WT_THREADED
     lock_(session.mutex_),
-    prevHandler_(0),
 #endif // WT_THREADED
+    prevHandler_(0),
     session_(session),
     request_(&request),
     response_(&response),
     killed_(false)
 {
+#ifdef WT_TARGET_JAVA
+  session.mutex().lock();
+  locked_ = true;
+#endif
+
   init();
 }
 
 WebSession::Handler *WebSession::Handler::instance()
 {
-#ifdef WT_TARGET_JAVA
-  return threadHandler_.get();
-#else
-#ifdef WT_THREADED
+#if defined(WT_TARGET_JAVA) || defined(WT_THREADED)
   return threadHandler_.get();
 #else
   return threadHandler_;
-#endif // WT_THREADED
-#endif // WT_TARGET_JAVA
+#endif // WT_TARGET_JAVA || WT_THREADED
 }
 
 bool WebSession::Handler::haveLock() const
@@ -508,17 +517,21 @@ bool WebSession::Handler::haveLock() const
 #ifdef WT_THREADED
   return lock_.owns_lock();
 #else
+#ifdef WT_TARGET_JAVA
+  return locked_;
+#else
   return false;
+#endif
 #endif // WT_THREADED
 }
 
 void WebSession::Handler::init()
 {
 #ifdef WT_TARGET_JAVA
+  prevHandler_ = threadHandler_.get();
   threadHandler_.reset(this);
 #else
 #ifdef WT_THREADED
-
   if (request_)
     session_.handlers_.push_back(this);
 
@@ -540,6 +553,16 @@ void WebSession::Handler::attachThreadToSession(WebSession& session)
 #endif // WT_THREADED
 }
 
+#ifdef WT_TARGET_JAVA
+void WebSession::Handler::release()
+{
+  if (locked_)
+    session_.mutex().unlock();
+
+  threadHandler_.reset(prevHandler_);
+}
+#endif
+
 WebSession::Handler::~Handler()
 {
 #ifdef WT_THREADED
@@ -547,9 +570,7 @@ WebSession::Handler::~Handler()
   //assert(WebSession::Handler::instance()->lock().owns_lock());
 #endif // WT_THREADED
 
-#ifdef WT_TARGET_JAVA
-  threadHandler_.reset(0);
-#else
+#ifndef WT_TARGET_JAVA
   Utils::erase(session_.handlers_, this);
 
   if (session_.handlers_.size() == 0)
@@ -593,19 +614,6 @@ void WebSession::hibernate()
 {
   if (app_ && app_->localizedStrings())
     app_->localizedStrings()->hibernate();
-}
-
-WResource *WebSession::decodeResource(const std::string& resourceId)
-{
-  WResource *resource = app_->decodeExposedResource(resourceId);
-
-  if (resource)
-    return resource;
-  else {
-    log("error") << "decodeResource(): resource '"
-		 << resourceId << "' not exposed";
-    return 0;
-  }
 }
 
 EventSignalBase *WebSession::decodeSignal(const std::string& signalId)
@@ -733,9 +741,6 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
   /*
    * -- Start critical section exclusive access to session
    */
-#ifdef WT_TARGET_JAVA
-  synchronized(mutex_)
-#endif
   {
     Handler handler(*this, request, response);
 
@@ -754,10 +759,14 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
      *
      * in other cases: silenty discard the request
      */
-    if ((!wtdE || (*wtdE != sessionId_))
-	&& state_ != JustCreated
-	&& (requestE && (*requestE == "signal" ||
-			 *requestE == "resource"))) {
+    if (!((requestE && *requestE == "resource")
+	  || handler.request()->requestMethod() == "POST"
+	  || handler.request()->requestMethod() == "GET"))
+      handler.response()->setStatus(400); // Bad Request
+    else if ((!wtdE || (*wtdE != sessionId_))
+	     && state_ != JustCreated
+	     && (requestE && (*requestE == "signal" ||
+			      *requestE == "resource"))) {
       handler.response()->setContentType("text/html");
       handler.response()->out()
 	<< "<html><head></head><body>CSRF prevention</body></html>";
@@ -976,7 +985,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
       controller_->removeSession(sessionId_);
 
 #ifdef WT_TARGET_JAVA
-    handler.~Handler();
+    handler.release();
 #endif // WT_TARGET_JAVA
 
     return !handler.sessionDead();
@@ -1027,10 +1036,10 @@ void WebSession::pushUpdates()
 
   updatesPending_ = true;
 
-  if (pollResponse_) {
-    renderer_.serveResponse(*pollResponse_, WebRenderer::Update);
-    pollResponse_->flush();
-    pollResponse_ = 0;
+  if (asyncResponse_) {
+    renderer_.serveResponse(*asyncResponse_, WebRenderer::Update);
+    asyncResponse_->flush();
+    asyncResponse_ = 0;
   }
 }
 
@@ -1133,14 +1142,18 @@ void WebSession::notify(const WEvent& event)
 	throw;
       }
 
+      WResource *resource = 0;
+      if (!requestE && !request.pathInfo().empty())
+	resource = app_->decodeExposedResource("/path/" + request.pathInfo());
+
       const std::string *resourceE = request.getParameter("resource");
       const std::string *signalE = getSignal(request, "");
 
       if (signalE)
 	progressiveBoot_ = false; 
 
-      if (requestE && *requestE == "resource" && resourceE) {
-	if (*resourceE == "blank") {
+      if (resource || (requestE && *requestE == "resource" && resourceE)) {
+	if (resourceE && *resourceE == "blank") {
 	  handler.response()->setContentType("text/html");
 	  handler.response()->out() <<
 	    "<html><head><title>bhm</title></head>"
@@ -1148,7 +1161,8 @@ void WebSession::notify(const WEvent& event)
 	  handler.response()->flush();
 	  handler.setRequest(0, 0);
 	} else {
-	  WResource *resource = decodeResource(*resourceE);
+	  if (!resource)
+	    resource = app_->decodeExposedResource(*resourceE);
 
 	  if (resource) {
 	    try {
@@ -1166,10 +1180,11 @@ void WebSession::notify(const WEvent& event)
 	      throw;
 	    }
 	  } else {
-	    // ???
+	    log("error") << "decodeResource(): resource '"
+			 << *resourceE << "' not exposed";
 	    handler.response()->setContentType("text/html");
 	    handler.response()->out() <<
-	      "<html><body><h1>Refusing to respond.</h1></body></html>";
+	      "<html><body><h1>Nothing to say about that.</h1></body></html>";
 	    handler.response()->flush();
 	    handler.setRequest(0, 0);
 	  }
@@ -1186,12 +1201,12 @@ void WebSession::notify(const WEvent& event)
 	    log("error") << "Could not parse ackId: " << *ackIdE;
 	  }
 
-	  if (pollResponse_) {
+	  if (asyncResponse_) {
 	    if (*signalE == "poll")
-	      renderer_.letReloadJS(*pollResponse_, true);
+	      renderer_.letReloadJS(*asyncResponse_, true);
 
-	    pollResponse_->flush();
-	    pollResponse_ = 0;
+	    asyncResponse_->flush();
+	    asyncResponse_ = 0;
 	  }
 
 	  if (*signalE != "res" && *signalE != "poll") {
@@ -1216,7 +1231,8 @@ void WebSession::notify(const WEvent& event)
 	      throw;
 	    }
 	  } else if (*signalE == "poll" && !updatesPending_) {
-	    pollResponse_ = handler.response();
+	    asyncResponse_ = handler.response();
+	    asyncResponse_->startAsync();
 	    //pollResponse_->setContentType("text/plain; charset=UTF-8");
 	    //pollResponse_->flush(WebResponse::ResponseWaitMore);
 	    handler.setRequest(0, 0);
@@ -1225,7 +1241,7 @@ void WebSession::notify(const WEvent& event)
 	  log("notice") << "Refreshing session";
 
 	  if (event.responseType == WebRenderer::Page) {
-	    if (!request.pathInfo().empty())
+	    if (!env_->doesAjax_ && !request.pathInfo().empty())
 	      app_->changeInternalPath(request.pathInfo());
 	    else {
 	      const std::string *hashE = request.getParameter("_");

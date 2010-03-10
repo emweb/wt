@@ -165,10 +165,10 @@ typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
  *   session.
  * - management of the internal path (that enables browser history and
  *   bookmarks) using setInternalPath() and related methods.
+ * - support for server-initiated updates with enableUpdates()
  * \if cpp
  * - localization information and message resources bundles using setLocale()
  *   and messageResourceBundle().
- * - support for server-initiated updates with enableUpdates()
  * \elseif java
  * - localization information and message resources bundles, with
  *   setLocale() and setLocalizedStrings()
@@ -690,7 +690,6 @@ public:
 
   WebSession *session() { return session_; }
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Enables server-initiated updates.
    *
    * By default, updates to the user interface are possible only at
@@ -698,11 +697,10 @@ public:
    * using WTimer. This is the normal %Wt event loop.
    *
    * In some cases, one may want to modify the user interface from a
-   * second thread, outside the event loop, or from socket events
-   * (using the WSocketNotifier). While this may be worked around by
-   * the WTimer, in some cases, there are bandwidth and processing
-   * overheads associated which may be unnecessary, and which create a
-   * trade-off with time resolution of the updates.
+   * second thread, outside the event loop. While this may be worked
+   * around by the WTimer, in some cases, there are bandwidth and
+   * processing overheads associated which may be unnecessary, and
+   * which create a trade-off with time resolution of the updates.
    *
    * When \p enabled is \c true, this enables "server push" (what is
    * called 'comet' in AJAX terminology). Widgets may then be
@@ -710,11 +708,18 @@ public:
    * response to execution of another thread), and these changes are
    * propagated by calling triggerUpdate().
    *
+   * Note that you need to grab the application's update lock to avoid
+   * concurrency problems, whenever you modify the application's state
+   * from another thread.
+   *
    * An example of how to modify the widget tree outside the event loop
    * and propagate changes is:
+   * \if cpp
    * \code
-   * // You need to have a reference to the application whose state you are about to manipulate.
-   * // You should prevent the application from being deleted somehow, before you could grab the application lock.
+   * // You need to have a reference to the application whose state
+   * // you are about to manipulate.
+   * // You should prevent the application from being deleted somehow,
+   * // before you could grab the application lock.
    * Wt::WApplication *app = ...;
    *
    * {
@@ -728,6 +733,27 @@ public:
    *   app->triggerUpdate();
    * }
    * \endcode
+   * \else
+   * \code
+   * // You need to have a reference to the application whose state
+   * // you are about to manipulate.
+   * WApplication app = ...;
+   *
+   * // Grab the application lock
+   * WApplication.UpdateLock lock = app.getUpdateLock();
+   *
+   * try {
+   *   // We now have exclusive access to the application:
+   *   // we can safely modify the widget tree for example.
+   *   app.getRoot().addWidget(new WText("Something happened!"));
+   *
+   *   // Push the changes to the browser
+   *   app.triggerUpdate();
+   * } finally {
+   *   lock.release();
+   * }
+   * \endcode
+   * \endif
    *
    * \note This works only if JavaScript is available on the client.
    *
@@ -763,6 +789,7 @@ public:
    */
   class WT_API UpdateLock {
   public:
+#ifndef WT_TARGET_JAVA
     /*! \brief Copy constructor.
      *
      * By copying the lock, the lock is transferred. The original
@@ -774,11 +801,16 @@ public:
     /*! \brief Releases and destroys the scope dependent lock
      */
     ~UpdateLock();
+#else
+    void release();
+#endif
 
   private:
     UpdateLock(WApplication& app);
 
+#ifndef WT_TARGET_JAVA
     mutable UpdateLockImpl *impl_;
+#endif // WT_TARGET_JAVA
 
     friend class WApplication;
   };
@@ -793,7 +825,6 @@ public:
    * \sa enableUpdates(), triggerUpdate()
    */
   UpdateLock getUpdateLock();
-#endif // WT_TARGET_JAVA
 
   /*! \brief Attach an auxiliary thread to this application.
    *
@@ -1371,10 +1402,10 @@ private:
   std::string            oldInternalPath_, newInternalPath_;
   Signal<std::string>    internalPathChanged_;
   bool                   internalPathIsChanged_;
-#ifndef WT_TARGET_JAVA
   int                    serverPush_;
-  boost::pool<boost::default_user_allocator_new_delete> *eventSignalPool_;
   bool			 shouldTriggerUpdate_;
+#ifndef WT_TARGET_JAVA
+  boost::pool<boost::default_user_allocator_new_delete> *eventSignalPool_;
 #endif // WT_TARGET_JAVA
   std::string            javaScriptClass_;
   AjaxMethod             ajaxMethod_;
@@ -1427,10 +1458,10 @@ private:
 				       const std::string& name);
   const SignalMap&  exposedSignals() const;
 
-  std::string       addExposedResource(WResource *resource);
-  void              removeExposedResource(WResource *resource);
-  WResource        *decodeExposedResource(const std::string& resourceName)
-    const;
+  std::string resourceMapKey(WResource *resource);
+  std::string addExposedResource(WResource *resource, const std::string& path);
+  void removeExposedResource(WResource *resource);
+  WResource *decodeExposedResource(const std::string& resourceMapKey) const;
 
   /*
    * Methods for application state handling

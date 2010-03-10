@@ -65,6 +65,11 @@ namespace {
     virtual std::ostream& out() { return *out_; }
     virtual std::ostream& err() { return *err_; }
 
+    virtual void setStatus(int status)
+    {
+      out() << "Status: " << status << "\r\n";
+    }
+
     virtual void setContentType(const std::string& value)
     {
       out() << "Content-Type: " << value << "\r\n\r\n";

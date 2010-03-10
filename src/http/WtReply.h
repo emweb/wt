@@ -38,6 +38,7 @@ public:
 				  Buffer::const_iterator end,
 				  bool endOfRequest);
 
+  void setStatus(int status);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
   void send(const std::string& text, CallbackFunction callBack, void *cbData);
@@ -56,6 +57,7 @@ protected:
   std::string       contentType_;
   std::string       location_;
   bool              responseSent_, sending_;
+  status_type       status_;
   volatile CallbackFunction  fetchMoreData_;
   void *            callBackData_;
 

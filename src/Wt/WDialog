@@ -253,8 +253,6 @@ private:
 
   bool recursiveEventLoop_;
 
-  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
-
   void saveCoverState(WApplication *app, WContainerWidget *cover);
   void restoreCoverState(WApplication *app, WContainerWidget *cover);
 };

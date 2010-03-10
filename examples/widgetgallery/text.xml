@@ -562,7 +562,8 @@
     </p>
 
     <p>
-      The WLineEdit below reacts on every 'key up' event.
+      The WLineEdit below reacts on every 'key up' event, and shows
+      how you can embed the label within the control (when empty). 
     </p>
   </message>
 

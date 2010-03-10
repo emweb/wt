@@ -27,6 +27,8 @@ public:
   virtual std::ostream& out() { return outstream_; }
   virtual std::ostream& err() { return std::cerr; }
 
+  virtual void setStatus(int status);
+
   virtual void addHeader(const std::string& name, const std::string& value);
   virtual void setContentType(const std::string& value);
   virtual void setRedirect(const std::string& url);

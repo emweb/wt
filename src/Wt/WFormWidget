@@ -112,6 +112,20 @@ public:
    */
   bool isReadOnly() const;
 
+  /*! \brief Sets the empty text to be shown when the field is empty.
+   *
+   * \sa emptyText()
+   */
+  void setEmptyText(const WString& emptyText);
+
+  /*! \brief Returns the empty text to be shown when the field is empty.
+   *
+   * \sa setEmptyText()
+   */
+  const WString& emptyText() {
+    return emptyText_;
+  }
+
   /*! \brief %Signal emitted when the value was changed.
    */
   EventSignal<>& changed();
@@ -131,10 +145,15 @@ public:
 protected:
   WLabel     *label_;
   WValidator *validator_;
-  JSlot      *validateJs_, *filterInput_;
+  JSlot      *validateJs_, *filterInput_, *removeEmptyText_;
+  WString     emptyText_;
 
   // also used in WAbstractToggleButton
   static const char *CHANGE_SIGNAL;
+
+  void updateEmptyText();
+
+  virtual void enableAjax();
 
 private:
   static const char *SELECT_SIGNAL;
@@ -159,6 +178,8 @@ protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual void propagateRenderOk(bool deep);
   virtual WStatelessSlot *getStateless(Method method);
+
+  virtual void render(WFlags<RenderFlag> flags);
 
   virtual void propagateSetEnabled(bool enabled);
 

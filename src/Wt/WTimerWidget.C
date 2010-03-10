@@ -46,6 +46,16 @@ void WTimerWidget::timerStart(bool jsRepeat)
   repaint();
 }
 
+void WTimerWidget::enableAjax()
+{
+  if (timer_->isActive()) {
+    timerStarted_ = true;
+    repaint();
+  }
+
+  WInteractWidget::enableAjax();
+}
+
 bool WTimerWidget::timerExpired()
 {
   return timer_->getRemainingInterval() == 0;

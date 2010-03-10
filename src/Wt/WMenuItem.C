@@ -120,6 +120,17 @@ void WMenuItem::connectActivate()
   }
 }
 
+void WMenuItem::enableAjax()
+{
+  if (!contentsLoaded())
+    contents_->enableAjax();
+
+  if (menu_->internalPathEnabled()) {
+    updateItemWidget(itemWidget());
+    resetLearnedSlots();
+  }
+}
+
 void WMenuItem::updateItemWidget(WWidget *itemWidget)
 {
   WAnchor *a = dynamic_cast<WAnchor *>(itemWidget);

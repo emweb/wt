@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
   (1, "SizeHandle",
    function(WT, orientation, width, height, minDelta, maxDelta,
-	    dragWidgetClass, doneFn, el, event) {
+	    dragWidgetClass, doneFn, el, event, offsetX, offsetY) {
      var handle = document.createElement('div');
      handle.style.position = 'absolute';
      handle.style.zIndex = '100';
@@ -24,12 +24,12 @@ WT_DECLARE_WT_MEMBER
 
      var offset = WT.widgetCoordinates(el, event);
      var elpos = WT.widgetPageCoordinates(el);
-     var mx = WT.px(el, 'marginLeft');
-     var my = WT.px(el, 'marginTop');
-     elpos.x -= mx;
-     elpos.y -= my;
-     offset.x += mx;
-     offset.y += my;
+     offsetX -= WT.px(el, 'marginLeft');
+     offsetY -= WT.px(el, 'marginTop');
+     elpos.x += offsetX;
+     elpos.y += offsetY;
+     offset.x -= offsetX;
+     offset.y -= offsetY;
 
      handle.style.left = elpos.x + 'px';
      handle.style.top = elpos.y + 'px';

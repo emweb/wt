@@ -124,7 +124,7 @@ WRadioButton* WButtonGroup::selectedButton() const
 
 void WButtonGroup::setFormData(const FormData& formData)
 {
-  if (!formData.values.empty()) {
+  if (!Utils::isEmpty(formData.values)) {
     const std::string& value = formData.values[0];
 
     for (unsigned i = 0; i < buttons_.size(); ++i) {

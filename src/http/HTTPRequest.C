@@ -29,6 +29,11 @@ void HTTPRequest::flush(ResponseState state, CallbackFunction callback,
     delete this; // also deletes the reply if the connection was already closed
 }
 
+void HTTPRequest::setStatus(int status)
+{
+  reply_->setStatus(status);
+}
+
 void HTTPRequest::addHeader(const std::string& name, const std::string& value)
 {
   reply_->addHeader(name, value);

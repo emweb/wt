@@ -31,6 +31,8 @@ public:
 
   typedef void (*CallbackFunction)(void *cbData);
 
+  void startAsync() { }
+
   /*
    * Signal that the response should be flushed.
    */
@@ -56,22 +58,27 @@ public:
   virtual std::ostream& err() = 0;
 
   /*
-   * Set the redirect (instead of anything else).
+   * Sets the redirect (instead of anything else).
    */
   virtual void setRedirect(const std::string& url) = 0;
 
   /*
-   * Set the content-type for a normal response.
+   * Sets the status
+   */
+  virtual void setStatus(int status) = 0;
+
+  /*
+   * Sets the content-type for a normal response.
    */
   virtual void setContentType(const std::string& value) = 0;
 
   /*
-   * Add a header for a normal response.
+   * Adds a header for a normal response.
    */
   virtual void addHeader(const std::string& name, const std::string& value) = 0;
 
   /*
-   * Return request information, which are not http headers.
+   * Returns request information, which are not http headers.
    */
   virtual std::string envValue(const std::string& name) const = 0;
 
@@ -85,18 +92,18 @@ public:
   virtual std::string urlScheme() const = 0;
 
   /*
-   * Access to cgi environment variables and headers -- rfc2616 name 
+   * Accesses to cgi environment variables and headers -- rfc2616 name 
    */
   virtual std::string headerValue(const std::string& name) const = 0;
 
   /*
-   * Access to specific header fields (calls headerValue()).
+   * Accesses to specific header fields (calls headerValue()).
    */
   std::string userAgent() const;
   std::string referer() const;
 
   /*
-   * Access to specific information, which are not http headers
+   * Accesses to specific information, which are not http headers
    * (calls envValue())
    */
   std::string contentType() const;

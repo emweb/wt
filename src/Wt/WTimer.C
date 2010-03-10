@@ -51,7 +51,7 @@ void WTimer::start()
 {
   if (!active_) {
     WApplication *app = WApplication::instance();    
-    if (app && app->domRoot())
+    if (app && app->timerRoot())
       app->timerRoot()->addWidget(timerWidget_);
     active_ = true;
     *timeout_ = Time() + interval_;
@@ -71,7 +71,7 @@ void WTimer::stop()
 {
   if (active_) {
     WApplication *app = WApplication::instance();
-    if (app && app->domRoot())
+    if (app && app->timerRoot())
       app->timerRoot()->removeWidget(timerWidget_);
     active_ = false;
   }

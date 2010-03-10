@@ -56,13 +56,11 @@ WApplication::WApplication(const WEnvironment& env)
   : session_(env.session_),
     titleChanged_(false),
     internalPathChanged_(this),
-#ifndef WT_TARGET_JAVA
     serverPush_(0),
+    shouldTriggerUpdate_(false),
 #ifndef WT_CNOR
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
 #endif
-    shouldTriggerUpdate_(false),
-#endif // WT_TARGET_JAVA
     javaScriptClass_("Wt"),
     dialogCover_(0),
     quited_(false),
@@ -271,6 +269,8 @@ WApplication::~WApplication()
   delete hideLoadingIndicator_;
 
   dialogCover_ = 0;
+
+  timerRoot_ = 0;
 
   delete domRoot_;
   domRoot_ = 0;
@@ -564,33 +564,52 @@ const WApplication::SignalMap& WApplication::exposedSignals() const
   return exposedSignals_;
 }
 
-std::string WApplication::addExposedResource(WResource *resource)
+std::string WApplication::resourceMapKey(WResource *resource)
 {
-  exposedResources_[resource->id()] = resource;
+  return resource->internalPath().empty()
+    ? resource->id() : "/path/" + resource->internalPath();
+}
+
+std::string WApplication::addExposedResource(WResource *resource,
+					     const std::string& internalPath)
+{
+  exposedResources_[resourceMapKey(resource)] = resource;
 
   std::string fn = resource->suggestedFileName();
   if (!fn.empty() && fn[0] != '/')
     fn = '/' + fn;
 
-  return session_->mostRelativeUrl(fn)
-    + "&request=resource&resource=" + Utils::urlEncode(resource->id())
-    + "&rand=" + boost::lexical_cast<std::string>(WtRandom::getUnsigned());
+  if (resource->internalPath().empty())
+    return session_->mostRelativeUrl(fn)
+      + "&request=resource&resource=" + Utils::urlEncode(resource->id())
+      + "&rand=" + boost::lexical_cast<std::string>(WtRandom::getUnsigned());
+  else {
+    fn = resource->internalPath() + fn;
+    if (!session_->applicationName().empty() && fn[0] != '/')
+      fn = '/' + fn;
+    return session_->mostRelativeUrl(fn);
+  }
 }
 
 void WApplication::removeExposedResource(WResource *resource)
 {
-  exposedResources_.erase(resource->id());
+  exposedResources_.erase(resourceMapKey(resource));
 }
 
-WResource *WApplication::decodeExposedResource(const std::string& resourceName) 
+WResource *WApplication::decodeExposedResource(const std::string& resourceKey) 
   const
 {
-  ResourceMap::const_iterator i = exposedResources_.find(resourceName);
+  ResourceMap::const_iterator i = exposedResources_.find(resourceKey);
   
   if (i != exposedResources_.end())
     return i->second;
-  else
-    return 0;
+  else {
+    int j = resourceKey.rfind('/');
+    if (j != std::string::npos && j > 1)
+      return decodeExposedResource(resourceKey.substr(0, j));
+    else
+      return 0;
+  }
 }
 
 std::string WApplication::encodeObject(WObject *object)
@@ -895,7 +914,6 @@ WLogEntry WApplication::log(const std::string& type) const
   return session_->log(type);
 }
 
-#ifndef WT_TARGET_JAVA
 void WApplication::enableUpdates(bool enabled)
 {
   if (enabled)
@@ -926,6 +944,7 @@ WApplication::UpdateLock WApplication::getUpdateLock()
   return UpdateLock(*this);
 }
 
+#ifndef WT_TARGET_JAVA
 class UpdateLockImpl
 {
 public:
@@ -973,6 +992,38 @@ WApplication::UpdateLock::UpdateLock(const UpdateLock& other)
 WApplication::UpdateLock::~UpdateLock()
 {
   delete impl_;
+}
+
+#else
+
+WApplication::UpdateLock::UpdateLock(WApplication& app)
+{
+  std::cerr << "Grabbing update lock" << std::endl;
+  /*
+   * If we are already handling this application, then we already have
+   * exclusive access.
+   *
+   * However, this is not the way to detect because a user may also just
+   * have done attachThread(): we need to check if we already have
+   * a handler
+   */
+  WebSession::Handler *handler = WebSession::Handler::instance();
+
+  if (!handler || !handler->haveLock() || handler->session() != app.session_) {
+    std::cerr << "Creating new handler for app: app.sessionId()" << std::endl;
+    new WebSession::Handler(*(app.session()), true);
+    app.shouldTriggerUpdate_ = true;
+  }
+}
+
+void WApplication::UpdateLock::release()
+{
+  std::cerr << "Releasing update lock" << std::endl;
+  if (WApplication::instance()->shouldTriggerUpdate_) {
+    std::cerr << "Releasing handler" << std::endl;
+    WApplication::instance()->shouldTriggerUpdate_ = false;
+    WebSession::Handler::instance()->release();
+  }
 }
 
 #endif // WT_TARGET_JAVA

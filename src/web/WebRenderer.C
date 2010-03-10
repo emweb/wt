@@ -543,10 +543,13 @@ void WebRenderer::serveMainscript(WebResponse& response)
     response.out()
 	<< app->javaScriptClass()
 	<< "._p_.update(null, 'load', null, false);"
-	<< collectedJS2_.str() <<
-	"};"
-	"window.WtScriptLoaded = true;"
-	"if (window.isLoaded) onLoad();\n";
+	<< collectedJS2_.str()
+	<< "};"
+	<< app->javaScriptClass()
+	<< "._p_.setServerPush("
+	<< (app->updatesEnabled() ? "true" : "false") << ");"
+	<< "window.WtScriptLoaded = true;"
+	<< "if (window.isLoaded) onLoad();\n";
 
     app->enableAjax_ = false;
   }
@@ -663,11 +666,9 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   if (!widgetset) {
     response.out() << "};\n";
 
-#ifndef WT_TARGET_JAVA
-    response.out() << app->javaScriptClass_
+    response.out() << app->javaScriptClass()
 		   << "._p_.setServerPush("
-		   << ((app->serverPush_ > 0) ? "true" : "false") << ");";
-#endif // WT_TARGET_JAVA
+		   << (app->updatesEnabled() ? "true" : "false") << ");";
 
     response.out() << "window.WtScriptLoaded = true;"
                       "if (window.isLoaded) onLoad();\n";

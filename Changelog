@@ -1,3 +1,14 @@
+08-03-2010:
+	* WResource: add setInternalPath() to deploy a resource at a
+	deterministic URL
+
+05-03-2010:
+	* WebSession: add support for http PUT/DELETE methods.
+
+	* src/Http/Request: add method() to access request method
+
+	* src/Http/Response: add setStatus() to set the response status
+
 03-03-2010:
 	* WCalendar: add HorizontalHeaderFormat enum (long day name support),
 	currentPageChanged signal, clicked signal, activated signal,

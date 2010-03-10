@@ -79,9 +79,6 @@ private:
 
   /* called from another session */
   void processChatEvent(const ChatEvent& event);
-
-  void onEditBlur();
-  void onEditFocus();
 };
 
 /*@}*/

@@ -37,6 +37,8 @@ protected:
   virtual DomElementType domElementType() const;
   virtual DomElement *renderRemove();
 
+  virtual void enableAjax();
+
   friend class WebSession;
 };
 

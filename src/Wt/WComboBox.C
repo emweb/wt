@@ -11,6 +11,7 @@
 #include "Wt/WStringListModel"
 
 #include "DomElement.h"
+#include "Utils.h"
 
 namespace Wt {
 
@@ -240,7 +241,7 @@ void WComboBox::setFormData(const FormData& formData)
   if (selectionChanged_)
     return;
 
-  if (!formData.values.empty()) {
+  if (!Utils::isEmpty(formData.values)) {
     const std::string& value = formData.values[0];
 
     if (!value.empty()) {

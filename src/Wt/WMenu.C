@@ -83,8 +83,10 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
 
 void WMenu::enableAjax()
 {
-  if (internalPathEnabled_)
-    updateItems();
+  for (unsigned i = 0; i < items_.size(); ++i) {
+    WMenuItem *item = items_[i];
+    item->enableAjax();
+  }
 
   WCompositeWidget::enableAjax();
 }

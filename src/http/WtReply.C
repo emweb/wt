@@ -24,6 +24,7 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
   : Reply(request),
     entryPoint_(entryPoint),
     sending_(false),
+    status_(ok),
     fetchMoreData_(0)
 {
   if (request.contentLength > config.maxMemoryRequestSize()) {
@@ -75,6 +76,11 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
   }
 }
 
+void WtReply::setStatus(int status)
+{
+  status_ = (status_type)status;
+}
+
 void WtReply::setContentType(const std::string& type)
 {
   contentType_ = type;
@@ -83,6 +89,7 @@ void WtReply::setContentType(const std::string& type)
 void WtReply::setLocation(const std::string& location)
 {
   location_ = location;
+  status_ = moved_permanently;
 }
 
 bool WtReply::expectMoreData()
@@ -111,7 +118,7 @@ void WtReply::send(const std::string& text, CallbackFunction callBack,
 
 Reply::status_type WtReply::responseStatus()
 {
-  return (location_.empty() ? ok : moved_permanently);
+  return status_;
 }
 
 std::string WtReply::contentType()

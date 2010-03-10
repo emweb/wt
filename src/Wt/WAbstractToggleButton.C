@@ -10,6 +10,7 @@
 #include "Wt/WLabel"
 
 #include "DomElement.h"
+#include "Utils.h"
 
 namespace Wt {
 
@@ -339,7 +340,7 @@ void WAbstractToggleButton::setFormData(const FormData& formData)
   if (stateChanged_)
     return;
 
-  if (!formData.values.empty())
+  if (!Utils::isEmpty(formData.values))
     if (formData.values[0] == "indeterminate")
       state_ = PartiallyChecked;
     else

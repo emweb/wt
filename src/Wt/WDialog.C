@@ -15,6 +15,12 @@
 #include "WebSession.h"
 #include "WtException.h"
 
+#include "JavaScriptLoader.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WDialog.min.js"
+#endif
+
 namespace Wt {
 
 WDialog::WDialog(const WString& windowTitle)
@@ -35,24 +41,6 @@ WDialog::WDialog(const WString& windowTitle)
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
     if (app->environment().agentIsIE())
       app->styleSheet().addRule("body", "height: 100%;");
-
-    app->doJavaScript(std::string() +
-      WT_CLASS ".centerDialog = function(d){"
-      "" "if (d && d.style.display != 'none') {"
-      ""   "if (!d.getAttribute('moved')) {"
-      ""     "var ws=" WT_CLASS ".windowSize();"
-      ""     "d.style.left=Math.round((ws.x - d.clientWidth)/2"
-     + (app->environment().agent() == WEnvironment::IE6
-	?   "+ document.documentElement.scrollLeft" : "") + ") + 'px';"
-      ""     "d.style.top=Math.round((ws.y - d.clientHeight)/2"
-     + (app->environment().agent() == WEnvironment::IE6
-	?   "+ document.documentElement.scrollTop" : "") + ") + 'px';"
-      ""     "d.style.marginLeft='0px';"
-      ""     "d.style.marginTop='0px';"
-      ""   "}"
-      ""   "d.style.visibility = 'visible';"
-      "" "}"
-      "};", false);
 
     app->styleSheet().addRule("div.Wt-dialogcover", std::string() + 
 			      // IE: requres body.height=100%
@@ -112,7 +100,18 @@ WDialog::WDialog(const WString& windowTitle)
 
   setPopup(true);
 
-  app->addAutoJavaScript(WT_CLASS ".centerDialog(" + jsRef() + ");");
+  const char *THIS_JS = "js/WDialog.js";
+
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WDialog", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+
+  setJavaScriptMember("_a", "0;new " WT_CLASS ".WDialog("
+		    + app->javaScriptClass() + "," + jsRef() + ")");
+  app->addAutoJavaScript
+    ("{var obj = $('#" + id() + "').data('obj');"
+     "if (obj) obj.centerDialog();}");
 
   parent->addWidget(this);
 
@@ -128,54 +127,14 @@ WDialog::WDialog(const WString& windowTitle)
 
   impl_->bindWidget("contents", contents_);
 
-  mouseDownJS_.setJavaScript
-    ("function(obj, event) {"
-     "  var pc = " WT_CLASS ".pageCoordinates(event);"
-     "  obj.setAttribute('dsx', pc.x);"
-     "  obj.setAttribute('dsy', pc.y);"
-     "}");
-
-  mouseMovedJS_.setJavaScript
-    ("function(obj, event) {"
-     """var WT= " WT_CLASS ";"
-     """var lastx = obj.getAttribute('dsx');"
-     """var lasty = obj.getAttribute('dsy');"
-     """if (lastx != null && lastx != '') {"
-     ""  "nowxy = WT.pageCoordinates(event);"
-     ""  "var d = " + jsRef() + ";"
-     ""  "d.setAttribute('moved', true);"
-     ""  "d.style.left = (WT.pxself(d, 'left')+nowxy.x-lastx) + 'px';"
-     ""  "d.style.top = (WT.pxself(d, 'top')+nowxy.y-lasty) + 'px';"
-     ""  "obj.setAttribute('dsx', nowxy.x);"
-     ""  "obj.setAttribute('dsy', nowxy.y);"
-     """}"
-     "}");
-
-  mouseUpJS_.setJavaScript
-    ("function(obj, event) {"
-     """obj.removeAttribute('dsx');"
-     "}");
-
-  titleBar_->mouseWentDown().connect(mouseDownJS_);
-  titleBar_->mouseMoved().connect(mouseMovedJS_);
-  titleBar_->mouseWentUp().connect(mouseUpJS_);
-
   saveCoverState(app, app->dialogCover());
 
-  setJavaScriptMember
-    ("wtResize",
-     "function(self, w, h) {"
-     """h -= 2; w -= 2;" // 2 = dialog border
-     """self.style.height= h + 'px';"
-     """self.style.width= w + 'px';"
-     """var c = self.lastChild;"
-     """var t = c.previousSibling;"
-     """h -= t.offsetHeight + 8;" // 8 = body padding
-     """if (h > 0)"
-     ""  "c.style.height = h + 'px';"
-     "};");
+  setJavaScriptMember("wtResize", "$('#" + id() + "').data('obj').wtResize");
 
   hide();
+
+  app->globalEscapePressed().connect(this, &WDialog::reject);
+  impl_->escapePressed().connect(this, &WDialog::reject);
 }
 
 WDialog::~WDialog()
@@ -283,6 +242,11 @@ void WDialog::setHidden(bool hidden)
 	cover->show();
 	cover->setZIndex(impl_->zIndex() - 1);
 	app->constrainExposed(this);
+	// FIXME: this should only blur if the active element is outside
+	// of the dialog
+	app->doJavaScript
+	  ("if (document.activeElement && document.activeElement.blur)"
+	   """document.activeElement.blur();");
       } else
 	restoreCoverState(app, cover);
     }

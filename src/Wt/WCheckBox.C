@@ -75,6 +75,9 @@ bool WCheckBox::needTristateImageWorkaround() const
 {
   WApplication *app = WApplication::instance();
 
+  // FIXME: Firefox 3.5 does not correctly render the intermediate state,
+  // nor does WebKit on certain platforms
+
   bool supportIndeterminate
     = app->environment().javaScript()
     && (app->environment().agentIsIE()

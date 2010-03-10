@@ -10,6 +10,7 @@
 #include "Wt/WEnvironment"
 
 #include "DomElement.h"
+#include "Utils.h"
 
 namespace Wt {
 
@@ -43,6 +44,8 @@ void WLineEdit::setText(const WT_USTRING& text)
 
     if (validator())
       setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
+
+    updateEmptyText();
   }
 }
 
@@ -135,7 +138,7 @@ void WLineEdit::setFormData(const FormData& formData)
   if (flags_.test(BIT_CONTENT_CHANGED))
     return;
 
-  if (!formData.values.empty()) {
+  if (!Utils::isEmpty(formData.values)) {
     const std::string& value = formData.values[0];
     content_ = WT_USTRING::fromUTF8(value, true);
   }

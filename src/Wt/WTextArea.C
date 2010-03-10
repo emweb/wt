@@ -10,6 +10,7 @@
 #include "Wt/WTextArea"
 
 #include "DomElement.h"
+#include "Utils.h"
 
 namespace Wt {
 
@@ -44,6 +45,8 @@ void WTextArea::setText(const WT_USTRING& text)
 
   if (validator())
     setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
+
+  updateEmptyText();
 }
 
 void WTextArea::setColumns(int columns)
@@ -107,7 +110,7 @@ void WTextArea::setFormData(const FormData& formData)
   if (contentChanged_)
     return;
 
-  if (!formData.values.empty()) {
+  if (!Utils::isEmpty(formData.values)) {
     const std::string& value = formData.values[0];
     content_ = WT_USTRING::fromUTF8(value, true);
   }

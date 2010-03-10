@@ -6,6 +6,7 @@
  */
 
 #include "Wt/WServer"
+#include "Wt/WResource"
 
 #include <iostream>
 #include <string>
@@ -115,6 +116,7 @@ void WServer::addResource(WResource *resource, const std::string& path)
     throw WServer::Exception("WServer::addResource() error: "
 			     "static resource path should start with \'/\'");
 
+  resource->setInternalPath(path);
   impl_->wtConfiguration_.addEntryPoint(EntryPoint(resource, path));
 }
 

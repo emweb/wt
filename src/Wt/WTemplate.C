@@ -270,6 +270,18 @@ void WTemplate::propagateRenderOk(bool deep)
   WInteractWidget::propagateRenderOk(deep);
 }
 
+void WTemplate::enableAjax()
+{
+  for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
+       ++i) {
+    WWidget *w = i->second;
+    if (w->isRendered())
+      w->enableAjax();
+  }
+
+  WInteractWidget::enableAjax();
+}
+
 DomElementType WTemplate::domElementType() const
 {
   return isInline() ? DomElement_SPAN : DomElement_DIV;
@@ -277,6 +289,13 @@ DomElementType WTemplate::domElementType() const
 
 void WTemplate::refresh()
 {
+  for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
+       ++i) {
+    WWidget *w = i->second;
+    if (w->isRendered())
+      w->refresh();
+  }
+
   if (text_.refresh()) {
     changed_ = true;
     repaint(RepaintInnerHtml);

@@ -48,8 +48,8 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * This widget does not provide styling, 
- * and can be styled using inline or external CSS as appropriate.
+ * The emptyText style can be configured via .Wt-edit-emptyText,
+ * other styling can be done using inline or external CSS as appropriate.
  *
  * \sa WTextArea
  */

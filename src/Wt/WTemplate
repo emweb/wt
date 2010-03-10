@@ -258,6 +258,8 @@ protected:
   void format(std::ostream& result, const WString& s,
 	      TextFormat textFormat = PlainText);
 
+  virtual void enableAjax();
+
 private:
   typedef std::map<std::string, WWidget *> WidgetMap;
   typedef std::map<std::string, std::string> StringMap;

@@ -66,7 +66,7 @@ void WRadioButton::setFormData(const FormData& formData)
   if (stateChanged_)
     return;
 
-  if (!formData.values.empty()) {
+  if (!Utils::isEmpty(formData.values)) {
     const std::string& value = formData.values[0];
 
     if (value == id()) {

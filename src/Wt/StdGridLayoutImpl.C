@@ -525,19 +525,14 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  td = DomElement::createNew(DomElement_TD);
 	  td->setProperty(PropertyClass, "Wt-vrh");
 
-	  int padt = 0, padb = 0;
-	  if (row == 0)
-	    padt = margin[0];
-	  if (row + 1 == rowCount)
-	    padb = margin[2];
-
 #ifndef WT_TARGET_JAVA
 	  char style[100];
-	  snprintf(style, 100, "padding:%dpx 0px %dpx;", padt, padb);
+	  snprintf(style, 100, "padding:%dpx 0px %dpx;", padding[0],
+		   padding[2]);
 #else
 	  std::string style = "padding:"
-	    + boost::lexical_cast<std::string>(padt) + "px 0px"
-	    + boost::lexical_cast<std::string>(padb) + "px;";
+	    + boost::lexical_cast<std::string>(padding[0]) + "px 0px"
+	    + boost::lexical_cast<std::string>(padding[2]) + "px;";
 #endif
 	  td->setProperty(PropertyStyle, style);
 

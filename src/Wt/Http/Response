@@ -40,6 +40,12 @@ namespace Wt {
 class WT_API Response
 {
 public:
+  /*! \brief Sets the response status.
+   *
+   * Unless a overriden, 200 OK will be assumed.
+   */
+  void setStatus(int status);
+
   /*! \brief Set the content mime type.
    *
    * The content mimetype is used by the browser to correctly interpret

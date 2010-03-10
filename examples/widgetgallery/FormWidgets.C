@@ -207,13 +207,15 @@ WWidget *FormWidgets::wLineEdit()
 
   topic("WLineEdit", result);
   new WText(tr("formwidgets-WLineEdit"), result);
-  WLineEdit *le = new WLineEdit("Edit me", result);
+
+  WLineEdit *le = new WLineEdit(result);
+  le->setEmptyText("Edit me");
   ed_->mapConnect(le->keyWentUp(), "Line edit keyWentUp");
 
   new WText("<p>The WLineEdit on the following line reacts on the "
 	    "enter button:</p>", result);
 
-  le = new WLineEdit("Press enter", result);
+  le = new WLineEdit(result);
   ed_->mapConnect(le->enterPressed(), "Line edit enterPressed");
 
   new WText(tr("formwidgets-WLineEdit-more"), result);

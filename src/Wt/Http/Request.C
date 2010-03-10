@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include "Wt/Http/Request"
+#include "Utils.h"
 #include "WebRequest.h"
 
 namespace {
@@ -73,10 +74,15 @@ const ParameterValues& Request::getParameterValues(const std::string& name)
 const std::string *Request::getParameter(const std::string& name) const
 {
   const ParameterValues& v = getParameterValues(name);
-  if (!v.empty())
+  if (!Utils::isEmpty(v))
     return &v[0];
   else
     return 0;
+}
+
+std::string Request::method() const
+{
+  return request_ ? request_->requestMethod() : "GET";
 }
 
 std::string Request::serverName() const

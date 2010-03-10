@@ -6,6 +6,13 @@
 }
 
 /*
+ * WFormWidget
+ */
+.Wt-edit-emptyText {
+    color: gray;
+}
+
+/*
  * Silk screen
  */
 .Wt-dialogcover {

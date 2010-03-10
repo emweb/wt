@@ -12,6 +12,12 @@
 namespace Wt {
   namespace Http {
 
+void Response::setStatus(int status)
+{
+  if (response_)
+    response_->setStatus(status);
+}
+
 void Response::setMimeType(const std::string& mimeType)
 {
   if (response_)

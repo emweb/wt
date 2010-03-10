@@ -312,25 +312,32 @@ WT_DECLARE_WT_MEMBER
    }
 
    function startRowResize(td, ri, event) {
-     var minDelta = -td.parentNode.previousSibling.offsetHeight;
-     var maxDelta = td.parentNode.nextSibling.offsetHeight;
-     var div = td.firstChild;
+     var minDelta = -td.parentNode.previousSibling.offsetHeight,
+         maxDelta = td.parentNode.nextSibling.offsetHeight,
+         div = td.firstChild;
+
      new WT.SizeHandle(WT, 'v', div.offsetHeight, div.offsetWidth,
 		       minDelta, maxDelta, 'Wt-vsh',
 		       function(delta) {
 			 doneRowResize(td, ri, delta);
-		       }, div, event);
+		       }, div, event, 0, 0);
    }
 
    function startColResize(td, ci, event) {
-     var minDelta = -td.previousSibling.offsetWidth;
-     var maxDelta = td.nextSibling.offsetWidth;
-     var div = td.firstChild;
-     new WT.SizeHandle(WT, 'h', div.offsetWidth, div.offsetHeight,
+     var minDelta = -td.previousSibling.offsetWidth,
+         maxDelta = td.nextSibling.offsetWidth,
+         div = td.firstChild,
+         padTop = WT.pxself(t.rows[0].childNodes[0], 'paddingTop'),
+	 padBottom = WT.pxself(t.rows[t.rows.length-1].childNodes[0],
+			       'paddingBottom'),
+	 height = t.offsetHeight - padTop - padBottom;
+
+     new WT.SizeHandle(WT, 'h', div.offsetWidth, height,
 		       minDelta, maxDelta, 'Wt-hsh',
 		       function(delta) {
 			 doneColResize(td, ci, delta);
-		       }, div, event);
+		       }, div, event, 0, -td.offsetTop + padTop
+		       - WT.pxself(td, 'paddingTop'));
    }
 
    function doneRowResize(td, ri, delta) {

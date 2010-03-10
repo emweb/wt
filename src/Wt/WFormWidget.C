@@ -14,6 +14,10 @@
 #include "DomElement.h"
 #include "Utils.h"
 
+#ifndef WT_DEBUG_JS
+#include "js/WFormWidget.min.js"
+#endif
+
 namespace Wt {
 
 const char *WFormWidget::CHANGE_SIGNAL = "M_change";
@@ -26,6 +30,7 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
     label_(0),
     validator_(0),
     validateJs_(0),
+    removeEmptyText_(0),
     filterInput_(0)
 { }
 
@@ -48,6 +53,7 @@ WFormWidget::~WFormWidget()
   if (validator_)
     validator_->removeFormWidget(this);
 
+  delete removeEmptyText_;
   delete validateJs_;
   delete filterInput_;
 }
@@ -106,6 +112,76 @@ void WFormWidget::setReadOnly(bool readOnly)
 bool WFormWidget::isReadOnly() const
 {
   return flags_.test(BIT_READONLY);
+}
+
+void WFormWidget::setEmptyText(const WString& emptyText) 
+{
+  emptyText_ = emptyText;
+
+  WApplication* app = WApplication::instance();
+  const WEnvironment& env = app->environment();
+
+  if (env.ajax()) {
+    if (!emptyText_.empty()) {
+      const char *THIS_JS = "js/WFormWidget.js";
+
+      if (!app->javaScriptLoaded(THIS_JS)) {
+	LOAD_JAVASCRIPT(app, THIS_JS, "WFormWidget", wtjs1);
+	app->setJavaScriptLoaded(THIS_JS);
+      }
+
+      if (!removeEmptyText_) {
+	removeEmptyText_ = new JSlot(this);
+      
+	focussed().connect(*removeEmptyText_);
+	blurred().connect(*removeEmptyText_);
+	keyWentDown().connect(*removeEmptyText_);
+
+	std::string jsFunction = 
+	  "function(obj, event) {"
+	  """jQuery.data(" + jsRef() + ", 'obj').updateEmptyText();"
+	  "}";
+	removeEmptyText_->setJavaScript(jsFunction);
+      }
+    } else {
+      delete removeEmptyText_;
+    }
+  } else {
+    setToolTip(emptyText);
+  }
+}
+
+void WFormWidget::render(WFlags<RenderFlag> flags)
+{
+  if ((flags & RenderFull) && !emptyText_.empty()) {
+    WApplication* app = WApplication::instance();
+    const WEnvironment& env = app->environment();
+    if (env.ajax())
+      app->doJavaScript("new " WT_CLASS ".WFormWidget("
+			+ app->javaScriptClass() + "," 
+			+ jsRef() + ","
+			+ "'" + emptyText_.toUTF8() + "');");
+  }
+
+  WInteractWidget::render(flags);
+}
+
+void WFormWidget::updateEmptyText()
+{
+  if (!emptyText_.empty() && isRendered())
+    WApplication::instance()
+      ->doJavaScript("jQuery.data(" + jsRef() + ", 'obj')"
+		     ".updateEmptyText();");
+}
+
+void WFormWidget::enableAjax()
+{
+  if (!emptyText_.empty() && toolTip() == emptyText_) {
+    setToolTip("");
+    setEmptyText(emptyText_);
+  }
+  
+  WInteractWidget::enableAjax();
 }
 
 void WFormWidget::validatorChanged()

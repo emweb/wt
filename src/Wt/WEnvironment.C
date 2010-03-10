@@ -278,7 +278,7 @@ WEnvironment::getParameterValues(const std::string& name) const
 const std::string *WEnvironment::getParameter(const std::string& name) const
 {
   const Http::ParameterValues& values = getParameterValues(name);
-  if (!values.empty())
+  if (!Utils::isEmpty(values))
     return &values[0];
   else
     return 0;

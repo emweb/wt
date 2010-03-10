@@ -627,6 +627,10 @@ this.positionAtWidget = function(id, atId, orientation) {
   WT.fitToWindow(w, x, y, rightx, bottomy);
 };
 
+this.hasFocus = function(el) {
+  return el == document.activeElement;
+};
+
 this.history = (function() {
 /*
 Original copyright: heavily simplified for Wt
@@ -747,6 +751,21 @@ version: 2.5.2
 	  _storeStates();
 	}
       }, 50);
+  }
+
+  if (!document.activeElement) {
+    function trackActiveElement(evt) {
+      if (evt && evt.target) {
+	document.activeElement = evt.target == document ? null : evt.target;
+      }
+    }
+
+    function trackActiveElementLost(evt) {
+      document.activeElement = null;
+    }
+
+    document.addEventListener("focus", trackActiveElement, true);
+    document.addEventListener("blur", trackActiveElementLost, true);
   }
 
   function _initialize() {
@@ -954,7 +973,6 @@ function dragStart(obj, e) {
 };
 
 function dragDrag(e) {
-  //console.log("dragDrag");
   if (dragState.object != null) {
     var ds = dragState;
     var xy = WT.pageCoordinates(e);
@@ -1019,7 +1037,6 @@ function dragDrag(e) {
 };
 
 function dragEnd(e) {
-  //console.log("dragEnd()");
   WT.capture(null);
 
   var ds = dragState;
@@ -1099,8 +1116,12 @@ function encodeEvent(event, i) {
       else
 	if (el.checked)
 	  v = el.value;
-    } else if (el.type != 'file')
-      v = '' + el.value;
+    } else if (el.type != 'file') {
+      if ($(el).hasClass('Wt-edit-emptyText'))
+	v = '';
+      else
+	v = '' + el.value;
+    }
 
     if (v != null)
       result += se + formObjects[x] + '=' + encodeURIComponent(v);

@@ -79,11 +79,16 @@ private:
   boost::shared_ptr<Impl> fileInfo_;
 };
 
+
 /*! \brief A list of parameter values.
  *
  * This is the type used to aggregate all values for a single parameter.
  */
+#ifndef WT_TARGET_JAVA
 typedef std::vector<std::string> ParameterValues;
+#else
+typedef std::string ParameterValues[];
+#endif
 
 /*! \brief A parameter value map.
  *
@@ -249,6 +254,12 @@ public:
    * the remote socket IP address is used. 
    */
   std::string clientAddress() const;
+
+  /*! \brief Returns the request method.
+   *
+   * Returns the HTTP request method ("GET", "POST", or other).
+   */
+  std::string method() const;
 
 private:
   const WebRequest       *request_;

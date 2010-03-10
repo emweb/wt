@@ -46,7 +46,9 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
 {
   if ((req.method != "GET")
       && (req.method != "HEAD")
-      && (req.method != "POST"))
+      && (req.method != "POST")
+      && (req.method != "PUT")
+      && (req.method != "DELETE"))
     return ReplyPtr(new StockReply(req, Reply::not_implemented,
 				   "", config_.errRoot()));
 

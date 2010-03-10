@@ -198,6 +198,8 @@ protected:
 
   virtual void setFromInternalPath(const std::string& path);
 
+  virtual void enableAjax();
+
 private:
   WWidget          *itemWidget_;
   WContainerWidget *contentsContainer_;

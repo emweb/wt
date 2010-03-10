@@ -218,7 +218,7 @@ WT_DECLARE_WT_MEMBER
   this.autoJavaScript = function() {
     if (el.parentNode == null) {
       el = contentsContainer = headerContainer = contents = headers = null;
-      this.autoJavaScript() = function() { };
+      this.autoJavaScript = function() { };
       return;
     }
 
@@ -276,5 +276,7 @@ WT_DECLARE_WT_MEMBER
       el.changed = false;
     }
   };
+
+  this.adjustColumns();
 
  });
