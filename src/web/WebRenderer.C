@@ -852,7 +852,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   DomElement::TimeoutList timeouts;
   {
-    std::stringstream js;
+    EscapeOStream js;
     EscapeOStream out(response.out());
     mainElement->asHTML(out, js, timeouts);
     app->doJavaScript(js.str());

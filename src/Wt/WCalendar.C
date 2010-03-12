@@ -22,6 +22,7 @@ using namespace boost::gregorian;
 #include "WtException.h"
 
 #include "Utils.h"
+#include "EscapeOStream.h"
 
 namespace Wt {
 
@@ -92,7 +93,7 @@ void WCalendar::create()
   currentYear_ = currentDay.year();
   currentMonth_ = currentDay.month();
 
-  std::stringstream text;
+  SStream text;
 
   text <<
     "<table class=\"${table-class}\" cellspacing=\"0\" cellpadding=\"0\">"

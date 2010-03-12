@@ -14,16 +14,19 @@
 
 namespace Wt {
 
-class WT_API EscapeOStream
-{
+/*
+ * A faster stringstream than the standard library, probably because
+ * of no overhead w.r.t. localization
+ */
+class WT_API SStream {
 public:
   struct iterator {
     struct char_proxy {
       char_proxy& operator= (char c);
 
     private:
-      char_proxy(EscapeOStream& stream);
-      EscapeOStream& stream_;
+      char_proxy(SStream& stream);
+      SStream& stream_;
 
       friend struct iterator;
     };
@@ -36,20 +39,58 @@ public:
     iterator  operator ++ (int);
 
   private:
-    EscapeOStream *stream_;
-    iterator(EscapeOStream& stream);
+    SStream *stream_;
+    iterator(SStream& stream);
 
-    friend class EscapeOStream;
+    friend class SStream;
   };
 
+  SStream();
+  SStream(std::ostream& sink);
+  ~SStream();
+
+  void append(const char *s, int length);
+
+  SStream& operator<< (char);
+  SStream& operator<< (const char *s);
+  SStream& operator<< (const std::string& s);
+  SStream& operator<< (int);
+
+  iterator back_inserter();
+
+  const char *c_str();
+  std::string str() const;
+
+  bool empty() const;
+  void clear();
+
+private:
+  static const int S_LEN = 1024;
+  static const int D_LEN = 2048;
+
+  std::ostream *sink_;
+  char static_buf_[S_LEN + 1];
+
+  char *buf_;
+  int buf_i_;
+
+  int buf_len() const { return buf_ == static_buf_ ? S_LEN : D_LEN; }
+
+  std::vector<std::pair<char *, int> > bufs_;
+
+  void flushSink();
+  void pushBuf();
+};
+
+class WT_API EscapeOStream
+{
+public:
   enum RuleSet { Empty = 0, HtmlAttribute = 1,
 		 JsStringLiteralSQuote = 2, JsStringLiteralDQuote = 3 };
 
-  EscapeOStream(); // only for strings short than 1024 chars,
-                   // get using c_str() !
+  EscapeOStream();
   EscapeOStream(std::ostream& sink);
   EscapeOStream(EscapeOStream& other);
-  ~EscapeOStream();
 
   void pushEscape(RuleSet rules);
   void popEscape();
@@ -64,18 +105,16 @@ public:
   EscapeOStream& operator<< (const char *s);
   EscapeOStream& operator<< (const std::string& s);
   EscapeOStream& operator<< (int);
+  EscapeOStream& operator<< (const EscapeOStream& other);
 
-  iterator back_inserter();
+  const char *c_str(); // for default constructor, can return 0
+  std::string str() const; // for default constructor
 
-  const char *c_str();
+  bool empty() const;
   void clear();
 
 private:
-  static const int S_LEN = 1024;
-
-  std::ostream *sink_;
-  char s_[S_LEN];
-  int  slen_;
+  SStream stream_;
 
   struct Entry {
     char c;
@@ -91,7 +130,6 @@ private:
   void sAppend(char c);
   void sAppend(const char *s, int length);
   void sAppend(const std::string& s);
-  void flush();
 
   std::vector<RuleSet> ruleSets_;
 

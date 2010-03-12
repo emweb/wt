@@ -54,7 +54,7 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
   tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
  
   setJavaScriptMember
-    ("wtResize",
+    (WT_RESIZE_JS,
      "function(self, w, h) {"
      """self.style.height= h + 'px';"
      """var c = self.lastChild;"

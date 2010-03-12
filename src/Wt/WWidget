@@ -11,6 +11,7 @@
 #include <Wt/WLength>
 #include <Wt/WBorder>
 #include <Wt/WSignal>
+#include <Wt/WJavaScript>
 #include <Wt/WGlobal>
 
 #include <vector>
@@ -160,12 +161,14 @@ public:
    * Specify a new size for this widget, by specifying width and height.
    * By default a widget has automatic width and height, see WLength::isAuto().
    *
-   * This applies to CSS-based layout, and only \link setInline()
-   * block\endlink widgets can be given a size reliably.
+   * This applies to CSS-based layout, and only \link setInline() block\endlink
+   * widgets can be given a size reliably.
    *
-   * See als setJavaScriptMember() for defining a "wtResize" method
-   * which allows a widget to actively manage its size using
-   * client-side JavaScript.
+   * When inserted in a layout manager, the widget may be informed
+   * about its current size using setLayoutSizeAware(). If you have
+   * defined a "wtResize()" JavaScript method for the widget, then
+   * this method will also be called.
+   * operation.
    *
    * \sa width(), height()
    */
@@ -761,6 +764,41 @@ public:
   virtual DomElement *createSDomElement(WApplication *app) = 0;
 
 protected:
+  static const char *WT_RESIZE_JS;
+
+  /*! \brief Sets the widget to be aware of its size set by a layout manager.
+   *
+   * When the widget is inserted in a layout manager, it will be
+   * resized to fit within the constraints imposed by the layout
+   * manager. By default, this done client-side only by setting the
+   * CSS height (and if needed, width) properties of the DOM element
+   * corresponding to the widget.
+   *
+   * A widget may define a JavaScript method, "wtResize(self, width,
+   * height)", to actively manage its client-side width and height, if
+   * it wants to react to these client-side size hints in a custom way
+   * (see setJavaScriptMember()).
+   *
+   * By setting \p sizeAware to true, the widget will propagate the
+   * width and height provided by the layout manager to the virtual
+   * layoutSizeChanged() method, so that you may for example change
+   * the size of contained children in a particular way (doing a
+   * custom, manual, layout).
+   *
+   * \sa layoutSizeChanged()
+   */
+  void setLayoutSizeAware(bool sizeAware);
+
+  /*! \brief Virtual method that indicates a size change.
+   *
+   * This method propagates the client-side width and height of the
+   * widget when the widget is contained by a layout manager and
+   * setLayoutSizeAware(true) was called.
+   *
+   * \sa setLayoutSizeAware()
+   */
+  virtual void layoutSizeChanged(int width, int height);
+
   /*! \brief Creates a widget.
    *
    * When a parent container is specified, the widget is added to the
@@ -889,6 +927,7 @@ private:
   static const int BIT_NEED_RERENDER = 2;
   std::bitset<3> flags_;
 
+  JSignal<int, int> *resized_;
   EventSignalList eventSignals_;
 
   void setJsSize();

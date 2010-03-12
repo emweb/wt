@@ -261,7 +261,8 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   
     if (flags_.test(BIT_GOT_FOCUS)
 	|| (all && flags_.test(BIT_INITIAL_FOCUS))) {
-      element.callMethod("focus()");
+      element.callJavaScript("setTimeout(function() { "
+			     + jsRef() + ".focus(); }, 1);");
       flags_.reset(BIT_GOT_FOCUS);
     }
   }

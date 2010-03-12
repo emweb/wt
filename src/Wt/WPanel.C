@@ -44,7 +44,7 @@ WPanel::WPanel(WContainerWidget *parent)
   impl_->bindWidget("contents", centralArea);
 
   setJavaScriptMember
-    ("wtResize",
+    (WT_RESIZE_JS,
      "function(self, w, h) {"
      """self.style.height= h + 'px';"
      """var c = self.lastChild;"

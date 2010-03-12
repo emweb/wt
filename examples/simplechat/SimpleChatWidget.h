@@ -52,6 +52,9 @@ public:
   bool startChat(const Wt::WString& user);
 
 private:
+  typedef std::map<Wt::WString, bool> UserMap;
+  UserMap users_;
+
   SimpleChatServer&     server_;
   Wt::WApplication     *app_;
 
@@ -76,6 +79,7 @@ private:
   void logout();
   void send();
   void updateUsers();
+  void updateUser();
 
   /* called from another session */
   void processChatEvent(const ChatEvent& event);

@@ -129,7 +129,7 @@ WDialog::WDialog(const WString& windowTitle)
 
   saveCoverState(app, app->dialogCover());
 
-  setJavaScriptMember("wtResize", "$('#" + id() + "').data('obj').wtResize");
+  setJavaScriptMember(WT_RESIZE_JS, "$('#" + id() + "').data('obj').wtResize");
 
   hide();
 
@@ -236,6 +236,9 @@ void WDialog::setHidden(bool hidden)
       WApplication *app = WApplication::instance();
       WContainerWidget *cover = app->dialogCover();
 
+      if (!cover)
+	return; // when application is being destroyed
+      
       if (!hidden) {
 	saveCoverState(app, cover);
 

@@ -17,6 +17,7 @@
 #include <Wt/WText>
 #include <Wt/WTextArea>
 #include <Wt/WPushButton>
+#include <Wt/WCheckBox>
 
 #include <iostream>
 
@@ -217,17 +218,32 @@ void SimpleChatWidget::updateUsers()
 
   SimpleChatServer::UserSet users = server_.users();
 
-  WString usersStr;
+  UserMap oldUsers = users_;
+  users_.clear();
 
   for (SimpleChatServer::UserSet::iterator i = users.begin();
        i != users.end(); ++i) {
-    if (*i == user_)
-      usersStr += "<div><span class='chat-self'>" + *i + "</span></div>";
-    else
-      usersStr += "<div>" + *i + "</div>";
-  }
+    WContainerWidget *line = new WContainerWidget(userList_);
+    WCheckBox *w = new WCheckBox(*i, line);
 
-  userList_->addWidget(new WText(usersStr));
+    UserMap::const_iterator j = oldUsers.find(*i);
+    if (j != oldUsers.end())
+      w->setChecked(j->second);
+    else
+      w->setChecked(true);
+
+    users_[*i] = w->isChecked();
+    w->changed().connect(SLOT(this, SimpleChatWidget::updateUser));
+
+    if (*i == user_)
+      line->setStyleClass("chat-self");
+  }
+}
+
+void SimpleChatWidget::updateUser()
+{
+  WCheckBox *b = dynamic_cast<WCheckBox *>(sender());
+  users_[b->text()] = b->isChecked();
 }
 
 void SimpleChatWidget::processChatEvent(const ChatEvent& event)
@@ -252,31 +268,43 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
    * - if another user did not provide valid XHTML, the text is automatically
    *   interpreted as PlainText
    */
-  WText *w = new WText(event.formattedHTML(user_), messages_);
-  w->setInline(false);
-  w->setStyleClass("chat-msg");
+  bool needPush = false;
 
-  /*
-   * Leave not more than 100 messages in the back-log
-   */
-  if (messages_->count() > 100)
-    delete messages_->children()[0];
+  bool displayUser = users_.find(event.user()) != users_.end()
+    && users_[event.user()];
+
+  if (displayUser) {
+    needPush = true;
+
+    WText *w = new WText(event.formattedHTML(user_), messages_);
+    w->setInline(false);
+    w->setStyleClass("chat-msg");
+
+    /*
+     * Leave not more than 100 messages in the back-log
+     */
+    if (messages_->count() > 100)
+      delete messages_->children()[0];
+
+    /*
+     * Little javascript trick to make sure we scroll along with new content
+     */
+    app_->doJavaScript(messages_->jsRef() + ".scrollTop += "
+		       + messages_->jsRef() + ".scrollHeight;");
+
+    /* If this message belongs to another user, play a received sound */
+    if (event.user() != user_)
+      messageReceived_.play();
+  }
 
   /*
    * If it is not a normal message, also update the user list.
    */
-  if (event.type() != ChatEvent::Message)
+  if (event.type() != ChatEvent::Message) {
+    needPush = true;
     updateUsers();
+  }
 
-  /*
-   * Little javascript trick to make sure we scroll along with new content
-   */
-  app_->doJavaScript(messages_->jsRef() + ".scrollTop += "
-		     + messages_->jsRef() + ".scrollHeight;");
-
-  /* If this message belongs to another user, play a received sound */
-  if (event.user() != user_)
-    messageReceived_.play();
-
-  app_->triggerUpdate();
+  if (needPush)
+    app_->triggerUpdate();
 }

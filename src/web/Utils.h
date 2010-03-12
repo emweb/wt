@@ -126,6 +126,14 @@ inline V& access(std::map<K, V>& m, const T& key)
   return m[key];
 }
 
+template <typename K, typename V>
+inline void insert(std::map<K, V>& m, const K& key, const V& value)
+{
+#ifndef WT_TARGET_JAVA
+  m.insert(std::make_pair(key, value));
+#endif // WT_TARGET_JAVA
+}
+
 template <typename T>
 inline const T& first(const std::set<T>& s)
 {

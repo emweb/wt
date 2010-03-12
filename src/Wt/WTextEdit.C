@@ -43,7 +43,7 @@ void WTextEdit::init()
   initTinyMCE();
   
   setJavaScriptMember
-    ("wtResize",
+    (WT_RESIZE_JS,
      "function(e,w,h){" WT_CLASS ".tinyMCEResize(e, w, h); };");
 }
 

@@ -82,8 +82,7 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
     sizeChanged_(false),
     repaintFlags_(0),
     areaImage_(0),
-    renderWidth_(0), renderHeight_(0),
-    resized_(this, "resized")
+    renderWidth_(0), renderHeight_(0)
 {
   if (WApplication::instance()) {
     const WEnvironment& env = WApplication::instance()->environment();
@@ -92,20 +91,8 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
       preferredMethod_ = InlineSvgVml;
   }
 
+  setLayoutSizeAware(true);
   setInline(false);
-
-  resized_.connect(SLOT(this, WPaintedWidget::onResize));
-
-  setJavaScriptMember
-    ("wtResize",
-     "function(self, w, h) {"
-     ""  "if (!self.wtWidth || self.wtWidth!=w "
-     ""      "|| !self.wtHeight || self.wtHeight!=h) {"
-     ""    "self.wtWidth=w; self.wtHeight=h;"
-     ""    "self.style.height=h + 'px';"
-     + resized_.createCall("w", "h") +
-     ""  "}"
-     "};");
 }
 
 WPaintedWidget::~WPaintedWidget()
@@ -126,7 +113,7 @@ void WPaintedWidget::setPreferredMethod(Method method)
 void WPaintedWidget::resize(const WLength& width, const WLength& height)
 {
   if (!width.isAuto() && !height.isAuto()) {
-    setJavaScriptMember("wtResize", "");
+    setLayoutSizeAware(false);
     resizeCanvas(static_cast<int>(width.toPixels()),
 		 static_cast<int>(height.toPixels()));
   }
@@ -146,7 +133,7 @@ void WPaintedWidget::resizeCanvas(int width, int height)
   update();
 }
 
-void WPaintedWidget::onResize(int width, int height)
+void WPaintedWidget::layoutSizeChanged(int width, int height)
 {
   resize(WLength::Auto, WLength::Auto);
 

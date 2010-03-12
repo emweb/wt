@@ -854,7 +854,7 @@ version: 2.5.2
     }
     fqstate = state;
     if (_UAie) {
-      updateIFrame(fqstate);
+      _updateIFrame(fqstate);
       return;
     } else {
       location.hash = fqstate;

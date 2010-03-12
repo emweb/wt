@@ -57,17 +57,21 @@ EventSignal<WScrollEvent>& WContainerWidget::scrolled()
 
 WContainerWidget::~WContainerWidget()
 {
+#ifndef WT_NO_LAYOUT
   WLayout *layout = layout_;
   layout_ = 0;
   delete layout;
+#endif // WT_NO_LAYOUT
   delete[] padding_;
   delete[] overflow_;
 }
 
+#ifndef WT_NO_LAYOUT
 StdLayoutImpl *WContainerWidget::layoutImpl() const
 {
   return dynamic_cast<StdLayoutImpl *>(layout_->impl());
 }
+#endif // WT_NO_LAYOUT
 
 void WContainerWidget::setLayout(WLayout *layout)
 {
@@ -77,6 +81,7 @@ void WContainerWidget::setLayout(WLayout *layout)
 void WContainerWidget::setLayout(WLayout *layout,
 				 WFlags<AlignmentFlag> alignment)
 {
+#ifndef WT_NO_LAYOUT
   if (layout_ && layout != layout_)
     delete layout_;
 
@@ -91,10 +96,14 @@ void WContainerWidget::setLayout(WLayout *layout,
       layoutImpl()->setContainer(this);
     }
   }
+#else
+  assert(false);
+#endif
 }
 
 WLayoutItemImpl *WContainerWidget::createLayoutItemImpl(WLayoutItem *item)
 {
+#ifndef WT_NO_LAYOUT
   {
     WWidgetItem *wi = dynamic_cast<WWidgetItem *>(item);
     if (wi)
@@ -118,6 +127,7 @@ WLayoutItemImpl *WContainerWidget::createLayoutItemImpl(WLayoutItem *item)
     if (l)
       return new StdGridLayoutImpl(l, l->grid());
   }
+#endif
 
   assert(false);
 
@@ -203,8 +213,10 @@ void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
 
 void WContainerWidget::removeFromLayout(WWidget *widget)
 {
+#ifndef WT_NO_LAYOUT
   if (layout_)
     removeWidget(widget);
+#endif // WT_NO_LAYOUT
 }
 
 void WContainerWidget::removeWidget(WWidget *widget)
@@ -224,8 +236,10 @@ void WContainerWidget::clear()
     delete w;
   }
 
+#ifndef WT_NO_LAYOUT
   delete layout_;
   layout_ = 0;
+#endif // WT_NO_LAYOUT
 }
 
 int WContainerWidget::indexOf(WWidget *widget) const
@@ -257,11 +271,13 @@ void WContainerWidget::removeChild(WWidget *child)
     }
   }
 
+#ifndef WT_NO_LAYOUT
   if (layout_) {
     ignoreThisChildRemove = true; // will be re-rendered by layout
     if (layout_->removeWidget(child))
       return;
   }
+#endif // WT_NO_LAYOUT
 
   if (ignoreThisChildRemove)
     if (ignoreChildRemoves())
@@ -392,7 +408,9 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       element.setProperty(PropertyStyleTextAlign, "center");
       break;
     case AlignJustify:
+#ifndef WT_NO_LAYOUT
       if (!layout_)
+#endif // WT_NO_LAYOUT
 	element.setProperty(PropertyStyleTextAlign, "justify");
       break;
     default:
@@ -545,9 +563,11 @@ void WContainerWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_OVERFLOW_CHANGED);
   flags_.reset(BIT_LAYOUT_CHANGED);
 
+#ifndef WT_NO_LAYOUT
   if (layout_ && deep)
     propagateLayoutItemsOk(layout());
   else
+#endif
     if (transientImpl_)
       transientImpl_->addedChildren_.clear();
 
@@ -586,6 +606,7 @@ void WContainerWidget::getDomChanges(std::vector<DomElement *>& result,
 {
   DomElement *e = DomElement::getForUpdate(this, domElementType());
 
+#ifndef WT_NO_LAYOUT
   if (!app->session()->renderer().preLearning()) {
     if (flags_.test(BIT_LAYOUT_CHANGED)) {
       DomElement *newE = createDomElement(app);
@@ -597,6 +618,7 @@ void WContainerWidget::getDomChanges(std::vector<DomElement *>& result,
       return;
     }
   }
+#endif // WT_NO_LAYOUT
 
   updateDom(*e, false);
 
@@ -617,6 +639,7 @@ DomElement *WContainerWidget::createDomElement(WApplication *app)
 void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
 {
   if (layout_) {
+#ifndef WT_NO_LAYOUT
     bool fitWidth = contentAlignment_ & AlignJustify;
     bool fitHeight = !(contentAlignment_ & AlignVerticalMask);
 
@@ -664,6 +687,7 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
     parent.addChild(c);
 
     flags_.reset(BIT_LAYOUT_CHANGED);
+#endif // WT_NO_LAYOUT
   } else {
     for (unsigned i = 0; i < children_->size(); ++i)
       parent.addChild((*children_)[i]->createSDomElement(app));
@@ -720,12 +744,14 @@ void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,
 
 void WContainerWidget::layoutChanged(bool deleted)
 {
+#ifndef WT_NO_LAYOUT
   flags_.set(BIT_LAYOUT_CHANGED);
 
   repaint(RepaintInnerHtml);
 
   if (deleted)
     layout_ = 0;
+#endif // WT_NO_LAYOUT
 }
 
 }

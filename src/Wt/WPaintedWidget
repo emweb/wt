@@ -238,6 +238,8 @@ public:
   const std::vector<WAbstractArea *> areas() const;
 
 protected:
+  virtual void layoutSizeChanged(int width, int height);
+
   /*! \brief Paints the widget.
    *
    * You should reimplement this method to paint the contents of the widget,
@@ -263,10 +265,7 @@ private:
   WImage           *areaImage_;
   int               renderWidth_, renderHeight_;
 
-  JSignal<int, int> resized_;
-
   void resizeCanvas(int width, int height);
-  void onResize(int width, int height);
   bool createPainter();
   void createAreaImage();
 

@@ -77,12 +77,8 @@ bool XSSFilterRemoveScript(WString& text)
 
     XSSSanitize(doc.first_node());
 
-    std::stringstream out;
-    {
-      EscapeOStream eout(out);
-      print(eout.back_inserter(), *doc.first_node(), print_no_indenting);
-    }
-
+    SStream out;
+    print(out.back_inserter(), *doc.first_node(), print_no_indenting);
     result = out.str();
   } catch (parse_error& e) {
     wApp->log("error") << "Error reading XHTML string: " << e.what();

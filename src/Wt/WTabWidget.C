@@ -91,14 +91,14 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
   layout_->addWidget(contents_);
 
   setJavaScriptMember
-    ("wtResize",
+    (WT_RESIZE_JS, std::string() +
      "function(self, w, h) {"
      """self.style.height= h + 'px';"
      """var c = self.firstChild;"
      """var t = self.lastChild;"
      """h -= c.offsetHeight;"
      """if (h > 0)"
-     ""  "t.wtResize(t, w, h);"
+     ""  "t." + WT_RESIZE_JS + "(t, w, h);"
      "};");
 
   menu_->itemSelected().connect(SLOT(this, WTabWidget::onItemSelected));

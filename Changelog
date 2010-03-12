@@ -1,3 +1,9 @@
+12-03-2010:
+	* EscapeOStream, WSvgImage: a host of performance improvements by
+	tossing away stringstream in favour of a simple SStream
+
+	* WWidget: add setLayoutSizeAware() and layoutSizeChanged() methods
+
 08-03-2010:
 	* WResource: add setInternalPath() to deploy a resource at a
 	deterministic URL

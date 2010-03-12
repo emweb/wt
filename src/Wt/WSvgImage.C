@@ -193,7 +193,7 @@ void WSvgImage::makeNewGroup()
   finishPath();
 
   char buf[30];
-  EscapeOStream tmp;
+  SStream tmp;
 
   tmp << "</"SVG"g>";
 
@@ -591,7 +591,7 @@ std::string WSvgImage::clipPath() const
 
 std::string WSvgImage::strokeStyle() const
 {
-  EscapeOStream result;
+  SStream result;
 #ifndef WT_TARGET_JAVA
   char buf[30];
 #else

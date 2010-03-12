@@ -18,8 +18,11 @@
 
 namespace Wt {
 
+const char *WWidget::WT_RESIZE_JS = "wtResize";
+
 WWidget::WWidget(WContainerWidget* parent)
-  : WObject(0)
+  : WObject(0),
+    resized_(0)
 { 
   flags_.set(BIT_NEED_RERENDER);
 }
@@ -39,6 +42,9 @@ WWidget::~WWidget()
     s->~EventSignalBase();
 #endif
   }
+
+  delete resized_;
+  resized_ = 0;
 
   renderOk();
 }
@@ -66,9 +72,9 @@ void WWidget::resize(const WLength& width, const WLength& height)
 
 void WWidget::setJsSize()
 {
-  if (!height().isAuto() && !javaScriptMember("wtResize").empty())
+  if (!height().isAuto() && !javaScriptMember(WT_RESIZE_JS).empty())
     callJavaScriptMember
-      ("wtResize", jsRef() + ","
+      (WT_RESIZE_JS, jsRef() + ","
        + boost::lexical_cast<std::string>(width().toPixels()) + ","
        + boost::lexical_cast<std::string>(height().toPixels()));
 }
@@ -185,7 +191,7 @@ void WWidget::htmlText(std::ostream& out)
 
   DomElement::TimeoutList timeouts;
   EscapeOStream sout(out);
-  std::stringstream js;
+  EscapeOStream js;
   element->asHTML(sout, js, timeouts);
 
   WApplication::instance()->doJavaScript(js.str());
@@ -328,5 +334,31 @@ void WWidget::positionAt(const WWidget *widget, Orientation orientation)
      + widget->id() + "',"
      WT_CLASS + side + ");");
 }
+
+void WWidget::setLayoutSizeAware(bool aware)
+{
+  if (aware && !resized_) {
+    resized_ = new JSignal<int, int>(this, "resized");
+    resized_->connect(SLOT(this, WContainerWidget::layoutSizeChanged));
+
+    setJavaScriptMember
+      (WT_RESIZE_JS,
+       "function(self, w, h) {"
+       ""  "if (!self.wtWidth || self.wtWidth!=w "
+       ""      "|| !self.wtHeight || self.wtHeight!=h) {"
+       ""    "self.wtWidth=w; self.wtHeight=h;"
+       ""    "self.style.height=h + 'px';"
+       + resized_->createCall("w", "h") +
+       ""  "}"
+       "};");
+  } else {
+    if (!javaScriptMember(WT_RESIZE_JS).empty())
+      setJavaScriptMember(WT_RESIZE_JS, "");
+    delete resized_;
+  }
+}
+
+void WWidget::layoutSizeChanged(int width, int height)
+{ } 
 
 }

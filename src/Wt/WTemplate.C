@@ -13,10 +13,10 @@ namespace Wt {
 
 const char *WTemplate::DropShadow_x1_x2
   ="<span class=\"Wt-x1\">"
-  """<span class=\"Wt-x1a\" />"
+  """<span class=\"Wt-x1a\"></span>"
   "</span>"
   "<span class=\"Wt-x2\">"
-  """<span class=\"Wt-x2a\" />"
+  """<span class=\"Wt-x2a\"></span>"
   "</span>";
 
 WTemplate::WTemplate(WContainerWidget *parent)

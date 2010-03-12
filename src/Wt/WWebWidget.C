@@ -1374,7 +1374,7 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
     if (app->session()->renderer().preLearning()) {
       getDomChanges(result, app);
       repaint();
-    } else {
+    } else if (!app->session()->renderer().visibleOnly()) {
       flags_.reset(BIT_STUBBED);
 
       if (!isIEMobile) {

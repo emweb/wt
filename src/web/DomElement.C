@@ -106,7 +106,6 @@ DomElement::DomElement(Mode mode, DomElementType type)
     type_(type),
     numManipulations_(0),
     timeOut_(-1),
-    childrenHtml_(0),
     discardWithParent_(true)
 { }
 
@@ -117,7 +116,6 @@ DomElement::~DomElement()
 
   delete replaced_;
   delete insertBefore_;
-  delete childrenHtml_;
 }
 
 std::string DomElement::urlEncodeS(const std::string& url)
@@ -180,14 +178,7 @@ void DomElement::addChild(DomElement *child)
   ++numManipulations_;
 
   if (wasEmpty_ && canWriteInnerHTML(WApplication::instance())) {
-    if (!childrenHtml_)
-      childrenHtml_ = new std::stringstream();
-
-    std::stringstream js;
-    EscapeOStream sout(*childrenHtml_);
-    child->asHTML(sout, js, timeouts_);
-    javaScript_ += js.str();
-
+    child->asHTML(childrenHtml_, javaScript_, timeouts_);
     delete child;
   } else {
     childrenToAdd_.push_back(ChildInsertion(-1, child));
@@ -239,7 +230,7 @@ void DomElement::setEvent(const char *eventName,
 
   bool nonEmpty = isExposed || anchorClick || !jsCode.empty();
 
-  std::stringstream js;
+  SStream js;
 
   if (nonEmpty) {
     if (app->environment().agentIsIEMobile())
@@ -317,7 +308,7 @@ void DomElement::processProperties(WApplication *app) const
 
     if (minw != self->properties_.end() || maxw != self->properties_.end()) {
       if (w == self->properties_.end()) {
-	std::stringstream expr;
+	SStream expr;
 	expr << WT_CLASS ".IEwidth(this,";
 	if (minw != self->properties_.end()) {
 	  expr << '\'' << minw->second << '\'';
@@ -392,7 +383,7 @@ void DomElement::callJavaScript(const std::string& jsCode,
 {
   ++numManipulations_;
   if (!evenWhenDeleted)
-    javaScript_ += jsCode;
+    javaScript_ << jsCode;
   else
     javaScriptEvenWhenDeleted_ += jsCode;
 }
@@ -530,7 +521,7 @@ std::string DomElement::cssStyle() const
   if (properties_.empty())
     return std::string();
 
-  std::stringstream style;
+  EscapeOStream style;
   const std::string *styleProperty = 0;
 
   for (PropertyMap::const_iterator j = properties_.begin();
@@ -574,7 +565,7 @@ std::string DomElement::cssStyle() const
   if (styleProperty)
     style << *styleProperty;
 
-  return style.str();
+  return style.c_str();
 }
 
 void DomElement::setJavaScriptEvent(EscapeOStream& out,
@@ -613,7 +604,7 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
 }
 
 void DomElement::asHTML(EscapeOStream& out,
-			std::ostream& javaScript,
+			EscapeOStream& javaScript,
 			std::vector<TimeoutEvent>& timeouts,
 			bool openingTagOnly) const
 {
@@ -784,8 +775,7 @@ void DomElement::asHTML(EscapeOStream& out,
 	 i != eventHandlers_.end(); ++i) {
       if (!i->second.jsCode.empty()) {
 	if (id_ == app->domRoot()->id()) {
-	  EscapeOStream eos(javaScript);
-	  setJavaScriptEvent(eos, i->first, i->second, app);
+	  setJavaScriptEvent(javaScript, i->first, i->second, app);
 	} else {
 	  out << " on" << i->first << "=";
 	  fastHtmlAttributeValue(out, attributeValues, i->second.jsCode);
@@ -879,9 +869,7 @@ void DomElement::asHTML(EscapeOStream& out,
       out << ">";
       if (!innerHTML.empty()) {
 	DomElement *self = const_cast<DomElement *>(this);
-	if (!self->childrenHtml_)
-	  self->childrenHtml_ = new std::stringstream();
-	*self->childrenHtml_ << innerHTML;
+	self->childrenHtml_ << innerHTML;
       }
       return;
     }
@@ -899,15 +887,14 @@ void DomElement::asHTML(EscapeOStream& out,
 
       out << innerHTML; // for WPushButton must be after childrenToAdd_
 
-      if (childrenHtml_)
-	out << childrenHtml_->str();
+      out << childrenHtml_.str();
 
       // IE6 will incorrectly set the height of empty divs
       if (renderedType == DomElement_DIV
 	  && app->environment().agent() == WEnvironment::IE6
 	  && innerHTML.empty()
 	  && childrenToAdd_.empty()
-	  && !childrenHtml_)
+	  && childrenHtml_.empty())
 	out << "&nbsp;";
 
       out << "</" << elementNames_[renderedType] << ">";
@@ -1048,10 +1035,10 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
      * It also avoids problems with changing certain attributes not
      * working in IE.
      */
-    std::stringstream dummy;
     out << "document.createElement('";
     out.pushEscape(EscapeOStream::JsStringLiteralSQuote);
     TimeoutList timeouts;
+    EscapeOStream dummy;
     asHTML(out, dummy, timeouts, true);
     out.popEscape();
     out << "');";
@@ -1090,7 +1077,7 @@ std::string DomElement::addToParent(EscapeOStream& out,
     asJavaScript(out, Create);
     asJavaScript(out, Update);
   } else {
-    std::stringstream insertJS;
+    SStream insertJS;
     if (pos != -1)
       insertJS << WT_CLASS ".insertAt(" << parentVar << "," << var_
 	       << "," << pos << ");";
@@ -1167,7 +1154,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       declare(out);
 
       std::string varr = replaced_->createVar();
-      std::stringstream insertJs;
+      SStream insertJs;
       insertJs << var_ << ".parentNode.replaceChild("
 	       << varr << ',' << var_ << ");\n";
       replaced_->createElement(out, app, insertJs.str());
@@ -1180,7 +1167,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       declare(out);
 
       std::string varr = insertBefore_->createVar();
-      std::stringstream insertJs;
+      SStream insertJs;
       insertJs << var_ << ".parentNode.insertBefore(" << varr << ","
 	       << var_ + ");\n";
       insertBefore_->createElement(out, app, insertJs.str());
@@ -1229,17 +1216,16 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
   if (wasEmpty_ && canWriteInnerHTML(app)) {
     if ((type_ == DomElement_DIV
 	 && app->environment().agent() == WEnvironment::IE6)
-	|| !childrenToAdd_.empty() || childrenHtml_) {
+	|| !childrenToAdd_.empty() || !childrenHtml_.empty()) {
       declare(out);
 
       out << WT_CLASS ".setHtml(" << var_ << ",'";
 
       out.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-      if (childrenHtml_)
-	out << childrenHtml_->str();
+      out << childrenHtml_.str();
 
       TimeoutList timeouts;
-      std::stringstream js;
+      EscapeOStream js;
 
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
 	childrenToAdd_[i].child->asHTML(out, js, timeouts);
@@ -1247,7 +1233,7 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
       if (type_ == DomElement_DIV
 	  && app->environment().agent() == WEnvironment::IE6
 	  && childrenToAdd_.empty()
-	  && !childrenHtml_)
+	  && childrenHtml_.empty())
 	out << "&nbsp;";
 
       out.popEscape();
@@ -1262,7 +1248,7 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 	    << timeouts[i].msec << ","
 	    << (timeouts[i].repeat ? "true" : "false") << ");\n";
 
-      out << js.str();
+      out << js;
     }
   } else {
     for (unsigned i = 0; i < childrenToAdd_.size(); ++i) {

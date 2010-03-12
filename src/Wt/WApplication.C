@@ -268,9 +268,8 @@ WApplication::~WApplication()
   delete showLoadingIndicator_;
   delete hideLoadingIndicator_;
 
+  timerRoot_ = 0; // marker for being deleted
   dialogCover_ = 0;
-
-  timerRoot_ = 0;
 
   delete domRoot_;
   domRoot_ = 0;
@@ -340,7 +339,7 @@ void WApplication::bindWidget(WWidget *widget, const std::string& domId)
 
 WContainerWidget *WApplication::dialogCover(bool create)
 {
-  if (dialogCover_ == 0 && create) {
+  if (dialogCover_ == 0 && create && timerRoot_) {
     dialogCover_ = new WContainerWidget(domRoot_);
     dialogCover_->setStyleClass("Wt-dialogcover");
     dialogCover_->hide();
@@ -513,7 +512,7 @@ void WApplication::quit()
 void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
 {
   std::string s = signal->encodeCmd();
-  exposedSignals_[s] = signal;
+  Utils::insert(exposedSignals_, s, signal);
 
 #ifdef WTDEBUG
   std::cerr << "WApplication::addExposedSignal: " << s << std::endl;

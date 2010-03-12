@@ -12,6 +12,179 @@
 
 namespace Wt {
 
+const int SStream::S_LEN;
+const int SStream::D_LEN;
+
+SStream::SStream()
+  : sink_(0),
+    buf_(static_buf_),
+    buf_i_(0)
+{ }
+
+SStream::SStream(std::ostream& sink)
+  : sink_(&sink),
+    buf_(static_buf_),
+    buf_i_(0)
+{ }
+
+SStream::~SStream()
+{
+  flushSink();
+
+  for (int i = 1; i < bufs_.size(); ++i)
+    delete[] bufs_[i].first;
+
+  if (buf_ != static_buf_)
+    delete[] buf_;
+}
+
+void SStream::clear()
+{
+  buf_i_ = 0;
+}
+
+bool SStream::empty() const
+{
+  return !sink_ && buf_ == static_buf_ && buf_i_ == 0;
+}
+
+void SStream::flushSink()
+{
+  if (sink_) {
+    sink_->write(buf_, buf_i_);
+    buf_i_ = 0;
+  }
+}
+
+void SStream::pushBuf()
+{
+  if (sink_) {
+    sink_->write(buf_, buf_i_);
+    buf_i_ = 0;
+  } else {
+    bufs_.push_back(std::make_pair(buf_, buf_i_));
+    buf_ = new char[D_LEN];
+    buf_i_ = 0;
+  }
+}
+
+SStream& SStream::operator<< (char c)
+{
+  if (buf_i_ == buf_len())
+    pushBuf();
+
+  buf_[buf_i_++] = c;
+
+  return *this;
+}
+
+SStream& SStream::operator<< (const char *s)
+{
+  append(s, std::strlen(s));
+
+  return *this;
+}
+
+SStream& SStream::operator<< (const std::string& s)
+{
+  append(s.data(), s.length());
+
+  return *this;
+}
+
+SStream& SStream::operator<< (int v)
+{
+  char buf[20];
+  Utils::itoa(v, buf);
+  return *this << buf;
+}
+
+void SStream::append(const char *s, int length)
+{
+  if (buf_i_ + length > buf_len()) {
+    pushBuf();
+
+    if (length > buf_len())
+      if (sink_) {
+	sink_->write(s, length);
+	return;
+      } else {
+	char *buf = new char[length];
+	std::memcpy(buf, s, length);
+	bufs_.push_back(std::make_pair(buf, length));
+	return;
+      }
+  }
+
+  std::memcpy(buf_ + buf_i_, s, length);
+  buf_i_ += length;
+}
+
+const char *SStream::c_str()
+{
+  if (bufs_.empty()) {
+    buf_[buf_i_] = 0;
+    return buf_;
+  } else
+    return 0;
+}
+
+std::string SStream::str() const
+{
+  int length = buf_i_;
+  for (int i = 0; i < bufs_.size(); ++i)
+    length += bufs_[i].second;
+
+  std::string result;
+  result.reserve(length);
+
+  for (int i = 0; i < bufs_.size(); ++i)
+    result.append(bufs_[i].first, bufs_[i].second);
+
+  result.append(buf_, buf_i_);
+
+  return result;
+}
+
+SStream::iterator SStream::back_inserter()
+{
+  return iterator(*this);
+}
+
+SStream::iterator::iterator()
+  : stream_(0)
+{ }
+
+SStream::iterator::char_proxy SStream::iterator::operator * ()
+{
+  return char_proxy(*stream_);
+}
+
+SStream::iterator& SStream::iterator::operator ++ ()
+{
+  return *this;
+}
+
+SStream::iterator SStream::iterator::operator ++ (int)
+{
+  return *this;
+}
+
+SStream::iterator::char_proxy&
+SStream::iterator::char_proxy::operator= (char c)
+{
+  stream_ << c;
+  return *this;
+}
+
+SStream::iterator::char_proxy::char_proxy(SStream& stream)
+  : stream_(stream)
+{ }
+
+SStream::iterator::iterator(SStream& stream)
+  : stream_(&stream)
+{ }
+
 const EscapeOStream::Entry EscapeOStream::htmlAttributeEntries_[] = {
   { '&', "&amp;" },
   { '\"', "&#34;" },
@@ -52,37 +225,20 @@ const std::string EscapeOStream::standardSetsSpecial_[] = {
 };
 
 EscapeOStream::EscapeOStream()
-  : sink_(0),
-    slen_(0),
-    c_special_(0)
+  : c_special_(0)
 { }
 
 EscapeOStream::EscapeOStream(std::ostream& sink)
-  : sink_(&sink),
-    slen_(0),
+  : stream_(sink),
     c_special_(0)
 { }
 
 EscapeOStream::EscapeOStream(EscapeOStream& other)
-  : sink_(0),
-    slen_(0),
-    mixed_(other.mixed_),
+  : mixed_(other.mixed_),
     special_(other.special_),
     c_special_(special_.empty() ? 0 : special_.c_str()),
     ruleSets_(other.ruleSets_)
 { }
-
-EscapeOStream::~EscapeOStream()
-{
-  if (sink_)
-    flush();
-}
-
-void EscapeOStream::flush()
-{
-  sink_->write(s_, slen_);
-  slen_ = 0;
-}
 
 void EscapeOStream::mixRules()
 {
@@ -133,14 +289,14 @@ void EscapeOStream::popEscape()
 EscapeOStream& EscapeOStream::operator<< (char c)
 {
   if (c_special_ == 0) {
-    sAppend(c);
+    stream_ << c;
   } else {
     std::size_t i = special_.find(c);
 
     if (i != std::string::npos)
-      sAppend(mixed_[i].s);
+      stream_ << mixed_[i].s;
     else
-      sAppend(c);
+      stream_ << c;
   }
 
   return *this;
@@ -149,7 +305,7 @@ EscapeOStream& EscapeOStream::operator<< (char c)
 EscapeOStream& EscapeOStream::operator<< (const char *s)
 {
   if (c_special_ == 0)
-    sAppend(s, std::strlen(s));
+    stream_ << s;
   else
     put(s, *this);
 
@@ -159,9 +315,9 @@ EscapeOStream& EscapeOStream::operator<< (const char *s)
 void EscapeOStream::append(const std::string& s, const EscapeOStream& rules)
 {
   if (rules.c_special_ == 0)
-    sAppend(s);
+    stream_ << s;
   else
-    put(s.c_str(), rules);
+    put(s.data(), rules);
 }
 
 EscapeOStream& EscapeOStream::operator<< (const std::string& s)
@@ -176,21 +332,21 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
   for (;s;) {
     const char *f = std::strpbrk(s, rules.c_special_);
     if (f != 0) {
-      sAppend(s, (f - s));
+      stream_.append(s, (f - s));
       
       unsigned i = 0;
       for (; i < rules.mixed_.size(); ++i)
 	if (rules.mixed_[i].c == *f) {
-	  sAppend(rules.mixed_[i].s);
+	  stream_ << rules.mixed_[i].s;
 	  break;
 	}
 
       if (i == rules.mixed_.size())
-	sAppend(*f);
+	stream_ << *f;
 
       s = f + 1;
     } else {
-      sAppend(s, std::strlen(s));
+      stream_ << s;
       s = 0;
     }
   }
@@ -198,94 +354,38 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
 
 EscapeOStream& EscapeOStream::operator<< (int arg)
 {
-  sAppend(boost::lexical_cast<std::string>(arg));
+  stream_ << arg;
 
   return *this;
 }
 
-void EscapeOStream::sAppend(char c)
+EscapeOStream& EscapeOStream::operator<< (const EscapeOStream& other)
 {
-  if (slen_ == S_LEN) {
-    if (!sink_)
-      throw WtException("EscapeOStream buffer too short");
-    sink_->write(s_, slen_);
-    slen_ = 0;
-  }
+  if (!other.empty())
+    *this << other.str(); // FIXME could be optimized ?
 
-  s_[slen_++] = c;
-}
-
-void EscapeOStream::sAppend(const char *s, int length)
-{
-  if (slen_ + length > S_LEN) {
-    if (!sink_)
-      throw WtException("EscapeOStream buffer too short");
-    sink_->write(s_, slen_);
-    slen_ = 0;
-
-    if (length > S_LEN) {
-      sink_->write(s, length);
-      return;
-    }
-  }
-
-  std::memcpy(s_ + slen_, s, length);
-  slen_ += length;
+  return *this;
 }
 
 const char *EscapeOStream::c_str()
 {
-  s_[slen_] = 0;
-  return s_;
+  return stream_.c_str();
+}
+
+std::string EscapeOStream::str() const
+{
+  return stream_.str();
 }
 
 void EscapeOStream::clear()
 {
-  slen_ = 0;
+  stream_.clear();
 }
 
-void EscapeOStream::sAppend(const std::string& s)
+bool EscapeOStream::empty() const
 {
-  sAppend(s.c_str(), s.length());
+  return stream_.empty();
 }
 
-EscapeOStream::iterator EscapeOStream::back_inserter()
-{
-  return iterator(*this);
-}
-
-EscapeOStream::iterator::iterator()
-  : stream_(0)
-{ }
-
-EscapeOStream::iterator::char_proxy EscapeOStream::iterator::operator * ()
-{
-  return char_proxy(*stream_);
-}
-
-EscapeOStream::iterator& EscapeOStream::iterator::operator ++ ()
-{
-  return *this;
-}
-
-EscapeOStream::iterator EscapeOStream::iterator::operator ++ (int)
-{
-  return *this;
-}
-
-EscapeOStream::iterator::char_proxy&
-EscapeOStream::iterator::char_proxy::operator= (char c)
-{
-  stream_ << c;
-  return *this;
-}
-
-EscapeOStream::iterator::char_proxy::char_proxy(EscapeOStream& stream)
-  : stream_(stream)
-{ }
-
-EscapeOStream::iterator::iterator(EscapeOStream& stream)
-  : stream_(&stream)
-{ }
 
 }

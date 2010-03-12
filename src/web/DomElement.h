@@ -13,6 +13,7 @@
 #include <string>
 
 #include "Wt/WWebWidget"
+#include "EscapeOStream.h"
 
 namespace Wt {
 
@@ -161,7 +162,7 @@ public:
   void asJavaScript(std::ostream& out);
   std::string asJavaScript(EscapeOStream& out, Priority priority) const;
 
-  void asHTML(EscapeOStream& out, std::ostream& javaScript,
+  void asHTML(EscapeOStream& out, EscapeOStream& javaScript,
 	      TimeoutList& timeouts, bool openingTagOnly = false) const;
   static void createTimeoutJs(std::ostream& out, const TimeoutList& timeouts,
 			      WApplication *app);
@@ -185,7 +186,7 @@ public:
   static bool isSelfClosingTag(const std::string& tag);
   static bool isSelfClosingTag(DomElementType element);
 
-  const std::string& javaScript() const { return javaScript_; }
+  std::string javaScript() const { return javaScript_.str(); }
 
   void updateInnerHtmlOnly();
 
@@ -243,7 +244,7 @@ private:
   std::vector<std::string> methodCalls_;
   int          timeOut_;
   bool         timeOutJSRepeat_;
-  std::string  javaScript_;
+  EscapeOStream javaScript_;
   std::string  javaScriptEvenWhenDeleted_;
   mutable std::string var_;
 
@@ -261,7 +262,7 @@ private:
 
   std::vector<ChildInsertion> childrenToAdd_;
   std::vector<std::string> childrenToSave_;
-  std::stringstream *childrenHtml_;
+  EscapeOStream childrenHtml_;
   TimeoutList timeouts_;
 
   bool discardWithParent_;
