@@ -332,7 +332,8 @@ private:
 Postgres::Postgres(const std::string& db)
   : conn(NULL)
 {
-  connect(db);
+  if (!db.empty())
+    connect(db);
 }
 
 Postgres::~Postgres()
