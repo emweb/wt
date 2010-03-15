@@ -178,12 +178,20 @@ public:
 
   /*! \brief Creates the database schema.
    *
-   * This will create the database schema of the mapped tables.
+   * This will create the database schema of the mapped tables. Schema
+   * creation will fail if one or more tables already existed.
    *
-   * \sa mapClass()
+   * \sa mapClass(), dropTables()
    */
   void createTables();
 
+  /*! \brief Drops the database schema.
+   *
+   * This will drop the database schema. Dropping the schema will fail
+   * if one or more tables did not exist.
+   *
+   * \sa createTables()
+   */
   void dropTables();
 
   /*! \brief Flushes the session.
