@@ -8,6 +8,7 @@
 #include <boost/bind.hpp>
 
 #include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/backend/Postgres>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
@@ -132,6 +133,8 @@ public:
 void DboTest::setup()
 {
   connection_ = new dbo::backend::Sqlite3(":memory:");
+  //connection_ = new dbo::backend::Postgres
+  //  ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
 
   session_ = new dbo::Session();
   session_->setConnection(*connection_);
@@ -145,6 +148,8 @@ void DboTest::setup()
 
 void DboTest::teardown()
 {
+  session_->dropTables();
+
   delete session_;
   delete connection_;
 }
@@ -153,80 +158,87 @@ void DboTest::test1()
 {
   setup();
 
-  A a1;
-  a1.date = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
-  a1.wstring = "Hello";
-  a1.string = "There";
-  a1.i = 42;
-  a1.f = 42.42;
-  a1.d = 42.424242;
+  try {
+    A a1;
+    a1.date = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
+    a1.wstring = "Hello";
+    a1.string = "There";
+    a1.i = 42;
+    a1.f = 42.42;
+    a1.d = 42.424242;
 
-  /* Create an A, check that it is found during the same transaction  */
-  {
-    dbo::Transaction t(*session_);
-    dbo::ptr<A> ptrA = session_->add(new A(a1));
+    /* Create an A, check that it is found during the same transaction  */
+    {
+      dbo::Transaction t(*session_);
+      dbo::ptr<A> ptrA = session_->add(new A(a1));
 
-    BOOST_REQUIRE(ptrA->session() == session_);
+      BOOST_REQUIRE(ptrA->session() == session_);
 
-    As allAs = session_->find<A>();
-    BOOST_REQUIRE(allAs.size() == 1);
-    dbo::ptr<A> a2 = *allAs.begin();
-    BOOST_REQUIRE(*a2 == a1);
+      As allAs = session_->find<A>();
+      BOOST_REQUIRE(allAs.size() == 1);
+      dbo::ptr<A> a2 = *allAs.begin();
+      BOOST_REQUIRE(*a2 == a1);
 
-    t.commit();
+      t.commit();
 
+    }
+
+    /* Check that A is found during other transaction */
+    {
+      dbo::Transaction t(*session_);
+
+      As allAs = session_->find<A>();
+      BOOST_REQUIRE(allAs.size() == 1);
+      dbo::ptr<A> a2 = *allAs.begin();
+      BOOST_REQUIRE(*a2 == a1);
+
+      t.commit();
+    }
+
+    /* Remove the A, check it is no longer found during the same transaction */
+    {
+      dbo::Transaction t(*session_);
+
+      As allAs = session_->find<A>();
+      BOOST_REQUIRE(allAs.size() == 1);
+      dbo::ptr<A> a2 = *allAs.begin();
+
+      a2.remove();
+
+      BOOST_REQUIRE(allAs.size() == 0);
+
+      t.commit();
+    }
+
+    /* Check it is no longer found during other transaction */
+    {
+      dbo::Transaction t(*session_);
+
+      As allAs = session_->find<A>();
+      BOOST_REQUIRE(allAs.size() == 0);
+
+      t.commit();
+    }
+
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
   }
-
-  /* Check that A is found during other transaction */
-  {
-    dbo::Transaction t(*session_);
-
-    As allAs = session_->find<A>();
-    BOOST_REQUIRE(allAs.size() == 1);
-    dbo::ptr<A> a2 = *allAs.begin();
-    BOOST_REQUIRE(*a2 == a1);
-
-    t.commit();
-  }
-
-  /* Remove the A, check it is no longer found during the same transaction */
-  {
-    dbo::Transaction t(*session_);
-
-    As allAs = session_->find<A>();
-    BOOST_REQUIRE(allAs.size() == 1);
-    dbo::ptr<A> a2 = *allAs.begin();
-
-    a2.remove();
-
-    BOOST_REQUIRE(allAs.size() == 0);
-
-    t.commit();
-  }
-
-  /* Check it is no longer found during other transaction */
-  {
-    dbo::Transaction t(*session_);
-
-    As allAs = session_->find<A>();
-    BOOST_REQUIRE(allAs.size() == 0);
-
-    t.commit();
-  }
-
-  teardown();
 }
 
 void DboTest::test2()
 {
   setup();
 
-  {
+  try {
     A a1;
     a1.date = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
     a1.wstring = "Hello";
     a1.string = "There";
     a1.i = 42;
+    a1.f = 42.42;
+    a1.d = 42.424242;
 
     B b1;
     b1.name = "b1";
@@ -258,16 +270,19 @@ void DboTest::test2()
 
       t.commit();
     }
-  }
 
-  teardown();
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
 }
 
 void DboTest::test3()
 {
   setup();
 
-  {
+  try {
     /* Create B's many-to-many C's  */
     {
       dbo::Transaction t(*session_);
@@ -323,16 +338,19 @@ void DboTest::test3()
 
       t.commit();
     }
-  }
 
-  teardown();
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
 }
 
 void DboTest::test4()
 {
   setup();
 
-  {
+  try {
     {
       dbo::Transaction t(*session_);
 
@@ -342,6 +360,8 @@ void DboTest::test4()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
+      a1.modify()->f = 42.42;
+      a1.modify()->d = 42.424242;
 
       dbo::ptr<A> a2(new A(*a1));
       a2.modify()->wstring = "Oh my god";
@@ -388,16 +408,19 @@ void DboTest::test4()
 
       t.commit();
     }
-  }
 
-  teardown();
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
 }
 
 void DboTest::test5()
 {
   setup();
 
-  {
+  try {
     {
       dbo::Transaction t(*session_);
 
@@ -407,6 +430,8 @@ void DboTest::test5()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
+      a1.modify()->f = 42.42;
+      a1.modify()->d = 42.424242;
 
       dbo::ptr<A> a2(new A(*a1));
       a2.modify()->wstring = "Oh my god";
@@ -437,16 +462,19 @@ void DboTest::test5()
 
       t.commit();
     }
-  }
 
-  teardown();
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
 }
 
 void DboTest::test6()
 {
   setup();
 
-  {
+  try {
     {
       dbo::Transaction t(*session_);
 
@@ -456,6 +484,8 @@ void DboTest::test6()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
+      a1.modify()->f = 42.42;
+      a1.modify()->d = 42.424242;
 
       session_->add(a1);
 
@@ -478,9 +508,12 @@ void DboTest::test6()
 
       t2.commit();
     }
-  }
 
-  teardown();
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
 }
 
 DboTest::DboTest()

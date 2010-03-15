@@ -8,6 +8,7 @@
 #include <boost/bind.hpp>
 
 #include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/backend/Postgres>
 #include <Wt/Dbo/backend/Sqlite3>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
@@ -89,6 +90,8 @@ public:
 void DboTest2::setup()
 {
   connection_ = new dbo::backend::Sqlite3(":memory:");
+  //connection_ = new dbo::backend::Postgres
+  //  ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
 
   session_ = new dbo::Session();
   session_->setConnection(*connection_);
@@ -102,6 +105,8 @@ void DboTest2::setup()
 
 void DboTest2::teardown()
 {
+  session_->dropTables();
+
   delete session_;
   delete connection_;
 }
@@ -111,7 +116,7 @@ void DboTest2::test1()
   setup();
   dbo::Session& session = *session_;
 
-  {
+  try {
     dbo::Transaction transaction(session);
 
     User *user = new User();
@@ -136,14 +141,14 @@ void DboTest2::test1()
 
     // any queries: session.query()
     dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >
-      ("select u from user u where name = ?").bind("Joe");
+      ("select u from \"user\" u where name = ?").bind("Joe");
     std::cerr << "Indeed, Joe has karma: " << joe2->karma << std::endl;
 
     std::cerr << "Joe == Joe: " << (joe == joe2) << std::endl;
 
     // session.query() can return anything
     int count = session.query<int>
-      ("select count(*) from user where name = ?").bind("Joe");
+      ("select count(*) from \"user\" where name = ?").bind("Joe");
     std::cerr << "There is only " << count << " Joe." << std::endl;
 
     // session.query() and session.find() can return a collection
@@ -175,9 +180,12 @@ void DboTest2::test1()
 	      << std::endl;
 
     transaction.commit();
-  }
 
-  teardown();
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
 }
 
 DboTest2::DboTest2()

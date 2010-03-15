@@ -3,59 +3,62 @@
  * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
+ *
+ * Contributed by: Hilary Cheng
  */
-#ifndef WT_DBO_BACKEND_SQLITE3_H_
-#define WT_DBO_BACKEND_SQLITE3_H_
+#ifndef WT_DBO_BACKEND_POSTGRES_H_
+#define WT_DBO_BACKEND_POSTGRES_H_
 
 #include <Wt/Dbo/SqlConnection>
 #include <Wt/Dbo/SqlStatement>
 
-extern "C" {
-  struct sqlite3;
-}
+struct pg_conn;
+typedef struct pg_conn PGconn;
 
 namespace Wt {
   namespace Dbo {
     namespace backend {
 
-/*! \class Sqlite3 Wt/Dbo/backend/Sqlite3 Wt/Dbo/backend/Sqlite3
- *  \brief An SQLite3 connection
+/*! \class Postgres Wt/Dbo/backend/Postgres Wt/Dbo/backend/Postgres
+ *  \brief An PostgreSQL connection
  *
- * This class provides the backend implementation for SQLite3 databases.
+ * This class provides the backend implementation for PostgreSQL databases.
  *
  * \ingroup dbo
  */
-class Sqlite3 : public SqlConnection
+class Postgres : public SqlConnection
 {
 public:
-  /*! \brief Opens a new SQLite3 backend connection.
+  /*! \brief Opens a new PostgreSQL backend connection.
    *
-   * The \p db may be any of the values supported by sqlite3_open().
+   * The \p db may be any of the values supported by PQconnectdb().
    */
-  Sqlite3(const std::string& db);
+  Postgres(const std::string& db);
 
   /*! \brief Destructor.
    *
    * Closes the connection.
    */
-  ~Sqlite3();
+  ~Postgres();
+
+  bool connect(const std::string& db);
 
   virtual SqlStatement *prepareStatement(const std::string& sql);
   
   virtual std::string autoincrementSql();
   virtual std::string autoincrementType();
   virtual std::string autoincrementInsertSuffix();
-  
   virtual void startTransaction();
   virtual void commitTransaction();
   virtual void rollbackTransaction();
+  void executeSql(const std::string &sql);
 
 private:
-  sqlite3 *db_;
+  PGconn     *conn;
 };
 
     }
   }
 }
 
-#endif // WT_DBO_BACKEND_SQLITE3_H_
+#endif // WT_DBO_BACKEND_POSTGRES_H_

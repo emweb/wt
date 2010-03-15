@@ -184,6 +184,8 @@ public:
    */
   void createTables();
 
+  void dropTables();
+
   /*! \brief Flushes the session.
    *
    * This flushes all modified objects to the database. This does not
@@ -237,6 +239,8 @@ private:
     virtual ~ClassMappingInfo();
     virtual void createTable(Session& session,
 			     std::set<std::string>& tablesCreated) = 0;
+    virtual void dropTable(Session& session,
+			   std::set<std::string>& tablesDropped) = 0;
     virtual void prepareStatements(Session& session) = 0;
   };
 
@@ -245,6 +249,8 @@ private:
   {
     virtual void createTable(Session& session,
 			     std::set<std::string>& tablesCreated);
+    virtual void dropTable(Session& session,
+			   std::set<std::string>& tablesDropped);
     virtual void prepareStatements(Session& session);
   };
 
@@ -304,6 +310,7 @@ private:
   friend class SaveDbAction;
   friend class LoadDbAction;
   friend class CreateSchema;
+  friend class DropSchema;
   friend class MetaDboBase;
 };
 

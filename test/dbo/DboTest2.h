@@ -11,10 +11,7 @@
 
 namespace Wt {
   namespace Dbo {
-    namespace backend {
-      class Sqlite3;
-    }
-
+    class SqlConnection;
     class Session;
   }
 }
@@ -25,7 +22,7 @@ using boost::unit_test_framework::test_case;
 class DboTest2 : public test_suite
 {
 private:
-  Wt::Dbo::backend::Sqlite3 *connection_;
+  Wt::Dbo::SqlConnection *connection_;
   Wt::Dbo::Session *session_;
 
   void setup();

@@ -275,9 +275,19 @@ SqlStatement *Sqlite3::prepareStatement(const std::string& sql)
   return new Sqlite3Statement(db_, sql);
 }
 
+std::string Sqlite3::autoincrementType()
+{
+  return "integer";
+}
+
 std::string Sqlite3::autoincrementSql() 
 {
   return "autoincrement";
+}
+
+std::string Sqlite3::autoincrementInsertSuffix() 
+{
+  return std::string();
 }
 
 void Sqlite3::startTransaction() 

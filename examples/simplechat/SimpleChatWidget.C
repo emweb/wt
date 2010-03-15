@@ -270,10 +270,18 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
    */
   bool needPush = false;
 
-  bool displayUser = users_.find(event.user()) != users_.end()
-    && users_[event.user()];
+  /*
+   * If it is not a normal message, also update the user list.
+   */
+  if (event.type() != ChatEvent::Message) {
+    needPush = true;
+    updateUsers();
+  }
 
-  if (displayUser) {
+  bool display = event.type() != ChatEvent::Message
+    || (users_.find(event.user()) != users_.end() && users_[event.user()]);
+
+  if (display) {
     needPush = true;
 
     WText *w = new WText(event.formattedHTML(user_), messages_);
@@ -295,14 +303,6 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
     /* If this message belongs to another user, play a received sound */
     if (event.user() != user_)
       messageReceived_.play();
-  }
-
-  /*
-   * If it is not a normal message, also update the user list.
-   */
-  if (event.type() != ChatEvent::Message) {
-    needPush = true;
-    updateUsers();
   }
 
   if (needPush)

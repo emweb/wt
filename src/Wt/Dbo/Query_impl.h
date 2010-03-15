@@ -98,6 +98,9 @@ void Query<Result>::prepareStatements() const
 
   if (!countStatement_) {
     std::string sql = createSql(Count);
+	if (sql.find(" order by ") != std::string::npos) {
+		sql = sql.substr(0, sql.find(" order by "));
+	}
     countStatement_ = session_.getOrPrepareStatement(sql);
     countStatement_->reset();
   }

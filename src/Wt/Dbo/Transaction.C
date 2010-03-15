@@ -76,15 +76,15 @@ void Transaction::Impl::commit()
 {
   session_.flush();
 
-  connection_->commitTransaction();
-  session_.returnConnection(connection_);
-  session_.transaction_ = 0;
-  active_ = false;
-
   for (unsigned i = 0; i < objects_.size(); ++i) {
     objects_[i]->transactionDone(true);
     delete objects_[i];
   }
+
+  connection_->commitTransaction();
+  session_.returnConnection(connection_);
+  session_.transaction_ = 0;
+  active_ = false;
 
   objects_.clear();
 }
@@ -92,14 +92,15 @@ void Transaction::Impl::commit()
 void Transaction::Impl::rollback()
 {
   connection_->rollbackTransaction();
-  session_.returnConnection(connection_);
-  session_.transaction_ = 0;
-  active_ = false;
 
   for (unsigned i = 0; i < objects_.size(); ++i) {
     objects_[i]->transactionDone(false);
     delete objects_[i];
   }
+
+  session_.returnConnection(connection_);
+  session_.transaction_ = 0;
+  active_ = false;
 
   objects_.clear();
 }

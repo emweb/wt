@@ -7,6 +7,8 @@
 #ifndef WT_DBO_DBACTION_IMPL_H_
 #define WT_DBO_DBACTION_IMPL_H_
 
+#include <iostream>
+
 namespace Wt {
   namespace Dbo {
 
@@ -136,6 +138,42 @@ void CreateSchema::descend(ptr<C>& obj)
     action.visit(dummy);
   }
 }
+
+    /*
+     * DropSchema
+     */
+
+template<class C>
+void DropSchema::visit(C& obj)
+{
+  persist<C>::apply(obj, *this);
+
+  drop(tableName_);
+}
+
+template<typename V>
+void DropSchema::act(const FieldRef<V>& field)
+{ }
+
+template<class C>
+void DropSchema::actCollection(const CollectionRef<C>& field)
+{
+  if (field.type() == ManyToMany) {
+    if (tablesDropped_.count(field.joinName()) == 0)
+      drop(field.joinName());
+  } else {
+    const char *tableName = session_.tableName<C>();
+    if (tablesDropped_.count(tableName) == 0) {
+      DropSchema action(session_, tableName, tablesDropped_);
+      C dummy;
+      action.visit(dummy);
+    }
+  }
+}
+
+template<class C>
+void DropSchema::descend(ptr<C>& obj)
+{ }
 
     /*
      * SaveDbAction
@@ -339,6 +377,7 @@ void LoadDbAction::descend(ptr<C>& obj)
 template<class C>
 void TransactionDoneAction::visit(C& obj)
 {
+  undoLoadSets_.setTableName(session_->template tableName<C>());
   persist<C>::apply(obj, *this);
 }
 

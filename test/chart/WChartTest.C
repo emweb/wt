@@ -46,6 +46,8 @@ void WChartTest::test_WDateTimeChartMinutes()
   }
 
   plotTimeSeriesChart(model, "minutes.svg", DateTimeScale);
+
+  delete model;
 }
   
 void WChartTest::test_WDateTimeChartHours()
@@ -68,6 +70,8 @@ void WChartTest::test_WDateTimeChartHours()
   }
 
   plotTimeSeriesChart(model, "hours.svg", DateTimeScale);
+
+  delete model;
 }
 
 void WChartTest::test_WDateTimeChartDays()
@@ -89,6 +93,8 @@ void WChartTest::test_WDateTimeChartDays()
   }
 
   plotTimeSeriesChart(model, "days.svg", DateScale);
+
+  delete model;
 }
   
 void WChartTest::test_WDateTimeChartWeeks()
@@ -110,6 +116,8 @@ void WChartTest::test_WDateTimeChartWeeks()
   }
 
   plotTimeSeriesChart(model, "weeks.svg", DateScale);
+
+  delete model;
 }
   
 void WChartTest::test_WDateTimeChartMonths()
@@ -131,6 +139,8 @@ void WChartTest::test_WDateTimeChartMonths()
   }
 
   plotTimeSeriesChart(model, "months.svg", DateScale);
+
+  delete model;
 }
 
 void WChartTest::plotTimeSeriesChart(WStandardItemModel* model, 

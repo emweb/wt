@@ -1,3 +1,7 @@
+15-03-2010:
+	* Dbo/backend/Postgres: a PostgreSQL backend, contributed by Hilary
+	Cheng
+
 12-03-2010:
 	* EscapeOStream, WSvgImage: a host of performance improvements by
 	tossing away stringstream in favour of a simple SStream

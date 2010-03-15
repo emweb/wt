@@ -105,6 +105,30 @@ private:
 		       const std::string& joinId2);
 };
 
+class DropSchema
+{
+public:
+  DropSchema(Session& session, const char *tableName,
+	     std::set<std::string>& tablesCreated);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+private:
+  Session& session_;
+  const char *tableName_;
+  std::set<std::string>& tablesDropped_;
+
+  void drop(const std::string& tableName);
+};
+
 class LoadDbAction
 {
 public:
@@ -121,6 +145,8 @@ public:
   bool isSchema() const;
 
   void setTableName(const char *tableName);
+
+  Session *session() { return dbo_.session(); }
 
   int setStatementIdx() const { return setStatementIdx_; }
   
@@ -172,7 +198,7 @@ private:
 class TransactionDoneAction
 {
 public:
-  TransactionDoneAction(MetaDboBase& dbo, bool success);
+  TransactionDoneAction(Session *session, MetaDboBase& dbo, bool success);
 
   template<class C> void visit(C& obj);
 
@@ -185,6 +211,7 @@ public:
   bool isSchema() const;
 
 private:
+  Session *session_;
   bool success_;
   int dummy_;
   LoadDbAction undoLoadSets_;

@@ -44,6 +44,14 @@ public:
   /*! \brief Returns the 'autoincrement' SQL string.
    */
   virtual std::string autoincrementSql() = 0;
+
+  /*! \brief Returns the 'autoincrement' SQL type.
+   */
+  virtual std::string autoincrementType() = 0;
+
+  /*! \brief Returns the suffix for an 'autoincrement' insert statement.
+   */
+  virtual std::string autoincrementInsertSuffix() = 0;
   
   /*! \brief Starts a transaction
    *

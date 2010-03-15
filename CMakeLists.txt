@@ -112,6 +112,7 @@ INCLUDE(cmake/WtFindFcgi.txt)
 INCLUDE(cmake/WtFindZlib.txt)
 INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysqlpp.txt)
+INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
 
 FIND_PACKAGE(Qt4)

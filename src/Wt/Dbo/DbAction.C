@@ -51,7 +51,7 @@ std::vector<std::string> PrepareStatements::getSelfSql() const
   sql << "\") values (?";
   for (unsigned i = 0; i < fields_.size(); ++i)
     sql << ", ?";
-  sql << ")";
+  sql << ")" << session_.connection_->autoincrementInsertSuffix();
   result.push_back(sql.str()); // 0
 
   sql.str("");
@@ -166,7 +166,7 @@ CreateSchema::CreateSchema(Session& session, const char *tableName,
   tablesCreated_.insert(tableName);
 
   sql_ << "create table \"" << tableName << "\" (\n"
-       << "  id integer primary key " 
+       << "  id " << session.connection_->autoincrementType() << " primary key " 
        << session.connection_->autoincrementSql() << ",\n"
        << "  version integer not null";
 }
@@ -208,6 +208,25 @@ void CreateSchema::createJoinTable(const std::string& joinName,
 bool CreateSchema::isReading() const { return false; }
 bool CreateSchema::isWriting() const { return false; }
 bool CreateSchema::isSchema() const { return true; }
+
+DropSchema::DropSchema(Session& session, const char *tableName,
+		       std::set<std::string>& tablesDropped)
+  : session_(session),
+    tableName_(tableName),
+    tablesDropped_(tablesDropped)
+{
+  tablesDropped_.insert(tableName);
+}
+
+void DropSchema::drop(const std::string& table)
+{
+  tablesDropped_.insert(table);
+  session_.connection_->executeSql("drop table \"" + table + "\"");
+}
+
+bool DropSchema::isReading() const { return false; }
+bool DropSchema::isWriting() const { return false; }
+bool DropSchema::isSchema() const { return true; }
 
 SaveDbAction::SaveDbAction(MetaDboBase& dbo)
   : dummy_(0),
@@ -303,8 +322,10 @@ bool LoadDbAction::isReading() const { return true; }
 bool LoadDbAction::isWriting() const { return false; }
 bool LoadDbAction::isSchema() const { return false; }
 
-TransactionDoneAction::TransactionDoneAction(MetaDboBase& dbo, bool success)
-  : success_(success),
+TransactionDoneAction::TransactionDoneAction(Session *session,
+					     MetaDboBase& dbo, bool success)
+  : session_(session),
+    success_(success),
     dummy_(0),
     undoLoadSets_(dbo, 0, dummy_)
 { }

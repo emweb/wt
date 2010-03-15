@@ -84,6 +84,20 @@ void Session::createTables()
   t.commit();
 }
 
+void Session::dropTables()
+{
+  Transaction t(*this);
+
+  flush();
+
+  std::set<std::string> tablesDropped;
+  for (ClassRegistry::iterator i = classRegistry_.begin();
+       i != classRegistry_.end(); ++i)
+    i->second->dropTable(*this, tablesDropped);
+
+  t.commit();
+}
+
 void Session::needsFlush(MetaDboBase *obj)
 {
   if (dirtyObjects_.insert(obj).second)
@@ -92,13 +106,13 @@ void Session::needsFlush(MetaDboBase *obj)
 
 void Session::flush()
 {
-  for (MetaDboBaseSet::iterator i = dirtyObjects_.begin();
-       i != dirtyObjects_.end(); ++i) {
-    (*i)->flush();
-    (*i)->decRef();
+  while (!dirtyObjects_.empty()) {
+    MetaDboBaseSet::iterator i = dirtyObjects_.begin();
+    MetaDboBase *dbo = *i;
+    dirtyObjects_.erase(i);
+    dbo->flush();
+    dbo->decRef();
   }
-
-  dirtyObjects_.clear();
 }
 
 std::string Session::statementId(const char *tableName, int statementIdx)

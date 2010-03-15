@@ -213,7 +213,7 @@ void Session::implDelete(MetaDbo<C>& dbo)
 template<class C>
 void Session::implTransactionDone(MetaDbo<C>& dbo, bool success)
 {
-  TransactionDoneAction action(dbo, success);
+  TransactionDoneAction action(this, dbo, success);
   action.visit(*dbo.obj());
 }
 
@@ -236,6 +236,17 @@ void Session::ClassMapping<C>
 {
   if (tablesCreated.count(tableName) == 0) {
     CreateSchema action(session, tableName, tablesCreated);
+    C dummy;
+    action.visit(dummy);
+  }
+}
+
+template <class C>
+void Session::ClassMapping<C>
+::dropTable(Session& session, std::set<std::string>& tablesDropped)
+{
+  if (tablesDropped.count(tableName) == 0) {
+    DropSchema action(session, tableName, tablesDropped);
     C dummy;
     action.visit(dummy);
   }
