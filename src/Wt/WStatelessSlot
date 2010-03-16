@@ -8,6 +8,8 @@
 #define WSTATELESSSLOT_H_
 
 #include <Wt/WDllDefs.h>
+#include <vector>
+#include <string>
 
 namespace Wt {
 

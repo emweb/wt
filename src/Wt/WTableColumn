@@ -8,6 +8,7 @@
 #define WTABLE_COLUMN_H_
 
 #include <Wt/WObject>
+#include <Wt/WString>
 
 namespace Wt {
 

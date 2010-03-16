@@ -6,7 +6,7 @@ ADD_EXECUTABLE(test
 	wdatetime/WDateTimeTest.C
 )
 
-TARGET_LINK_LIBRARIES(test wt wtdbo wtdbosqlite3 wtdbopostgres)
+TARGET_LINK_LIBRARIES(test wt wtdbo wtdbosqlite3)
 
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 

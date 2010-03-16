@@ -10,7 +10,7 @@
 
 #include "Wt/WTable"
 #include "Wt/WTableCell"
-#include "Wt/WTableRow"
+#include "Wt/WTableColumn"
 
 namespace Wt {
 

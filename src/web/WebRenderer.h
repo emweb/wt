@@ -24,6 +24,7 @@ class FileServe;
 
 class WApplication;
 class WWidget;
+class WWebWidget;
 class WObject;
 class WResource;
 class WStatelessSlot;
