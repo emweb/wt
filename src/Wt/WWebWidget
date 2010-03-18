@@ -337,11 +337,16 @@ private:
   };
 
   struct OtherImpl {
+    struct Member {
+      std::string name;
+      std::string value;
+    };
+
     std::string                         *id_;
 
     std::map<std::string, WT_USTRING>   *attributes_;
     std::vector<std::string>            *attributesSet_;
-    std::map<std::string, std::string>  *jsMembers_;
+    std::vector<Member>            *jsMembers_;
     std::vector<std::string>            *jsMembersSet_;
     std::vector<std::string>            *jsMemberCalls_;
 
@@ -382,6 +387,8 @@ private:
   void setIgnoreChildRemoves(bool how);
   bool ignoreChildRemoves() const;
   void beingDeleted();
+
+  int indexOfJavaScriptMember(const std::string& name) const;
 
 protected:
   void setRendered(bool rendered);

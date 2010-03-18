@@ -289,7 +289,7 @@ boost::intmax_t StockReply::contentLength()
   std::string content = "";
   std::string line;
   size_t clen = content_.length();
-  boost::filesystem::ifstream ifstr(full_path);
+  std::ifstream ifstr(full_path.c_str(), std::ios::in | std::ios::binary);
 
   while (ifstr.good() && !ifstr.eof()) {
     std::getline(ifstr, line);

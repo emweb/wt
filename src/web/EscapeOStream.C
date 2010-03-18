@@ -12,9 +12,6 @@
 
 namespace Wt {
 
-const int SStream::S_LEN;
-const int SStream::D_LEN;
-
 SStream::SStream()
   : sink_(0),
     buf_(static_buf_),

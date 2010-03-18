@@ -728,21 +728,25 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
     otherImpl_ = new OtherImpl();
 
   if (!otherImpl_->jsMembers_)
-    otherImpl_->jsMembers_ = new std::map<std::string, std::string>;
-
-  std::map<std::string, std::string>::iterator i
-    = otherImpl_->jsMembers_->find(name);
+    otherImpl_->jsMembers_ = new std::vector<OtherImpl::Member>;
   
-  if (i != otherImpl_->jsMembers_->end() && i->second == value)
+  std::vector<OtherImpl::Member>& members = *otherImpl_->jsMembers_;
+  int index = indexOfJavaScriptMember(name);
+  
+  if (index != -1 && members[index].value == value)
     return;
 
   if (value.empty()) {
-    if (i != otherImpl_->jsMembers_->end())
-      otherImpl_->jsMembers_->erase(name);
+    if (index != -1)
+      members.erase(members.begin() + index);
     else
       return;
-  } else
-    (*otherImpl_->jsMembers_)[name] = value;
+  } else {
+    OtherImpl::Member m;
+    m.name = name;
+    m.value = value;
+    members.push_back(m);
+  }
 
   if (!otherImpl_->jsMembersSet_)
     otherImpl_->jsMembersSet_ = new std::vector<std::string>;
@@ -754,13 +758,21 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
 
 std::string WWebWidget::javaScriptMember(const std::string& name) const
 {
-  if (otherImpl_ && otherImpl_->jsMembers_) {
-    std::map<std::string, std::string>::const_iterator i
-      = otherImpl_->jsMembers_->find(name);
-  
-    return i != otherImpl_->jsMembers_->end() ? i->second : std::string();
-  } else
+  int index = indexOfJavaScriptMember(name);
+  if (index != -1)
+    return (*otherImpl_->jsMembers_)[index].value;
+  else
     return std::string();
+}
+
+int WWebWidget::indexOfJavaScriptMember(const std::string& name) const 
+{
+  if (otherImpl_ && otherImpl_->jsMembers_)
+  for (unsigned i = 0; i < otherImpl_->jsMembers_->size(); i++)
+    if ((*otherImpl_->jsMembers_)[i].name == name)
+      return i;
+
+  return -1;
 }
 
 void WWebWidget::callJavaScriptMember(const std::string& name,
@@ -1229,19 +1241,18 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
     if (otherImpl_->jsMembers_) {
       if (all) {
-	for (std::map<std::string, std::string>::const_iterator i
-	       = otherImpl_->jsMembers_->begin();
-	     i != otherImpl_->jsMembers_->end(); ++i)
-	  element.callMethod(i->first + "=" + i->second);
+	for (unsigned i = 0; i < otherImpl_->jsMembers_->size(); i++) {
+	  OtherImpl::Member member = (*otherImpl_->jsMembers_)[i];
+	  element.callMethod(member.name + "=" + member.value);
+	}
       } else if (otherImpl_->jsMembersSet_) {
 	for (unsigned i = 0; i < otherImpl_->jsMembersSet_->size(); ++i) {
 	  std::string m = (*otherImpl_->jsMembersSet_)[i];
 
-	  std::map<std::string, std::string>::const_iterator it
-	    = otherImpl_->jsMembers_->find(m);
+	  std::string value = javaScriptMember(m);
 
-	  if (it != otherImpl_->jsMembers_->end())
-	    element.callMethod(m + "=" + it->second);
+	  if (!value.empty())
+	    element.callMethod(m + "=" + value);
 	  else
 	    element.callMethod(m + "= null");
 	}

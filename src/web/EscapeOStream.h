@@ -65,8 +65,8 @@ public:
   void clear();
 
 private:
-  static const int S_LEN = 1024;
-  static const int D_LEN = 2048;
+  enum {S_LEN = 1024};
+  enum {D_LEN = 2048};
 
   std::ostream *sink_;
   char static_buf_[S_LEN + 1];

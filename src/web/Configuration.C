@@ -358,7 +358,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 void Configuration::readConfiguration(const std::string& configurationFile,
 				      const std::string& startupMessage)
 {
-  std::ifstream s(configurationFile.c_str());
+  std::ifstream s(configurationFile.c_str(), std::ios::in | std::ios::binary);
   if (!s)
     return;
 

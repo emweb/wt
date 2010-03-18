@@ -195,6 +195,8 @@ void WPopupMenuItem::onMouseUp()
   if (checkBox_)
     checkBox_->setChecked(!checkBox_->isChecked());
 
+  topLevelMenu()->result_ = this;
+
   triggered_.emit();
 
   topLevelMenu()->done(this);

@@ -171,7 +171,8 @@ void Configuration::setOptions(int argc, char **argv,
       po::store(po::parse_command_line(argc, argv, all_options), vm);
 
     if (!configurationFile.empty()) {
-      std::ifstream cfgFile(configurationFile.c_str());
+      std::ifstream cfgFile(configurationFile.c_str(),
+	std::ios::in | std::ios::binary);
       if (cfgFile) {
 	if (!silent_)
 	  log("notice") << "Reading wthttpd configuration from: "

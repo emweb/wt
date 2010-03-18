@@ -291,21 +291,30 @@ this.isKeyPress = function(e) {
 	   || (e.keyCode > 46 && e.keyCode < 112));
 };
 
+var rnumpx = /^-?\d+(?:px)?$/i;
+
+function css(c, s) {
+  if (c.style[s])
+    return c.style[s];
+  else if (document.defaultView && document.defaultView.getComputedStyle)
+    return document.defaultView.getComputedStyle(c, null)[s];
+  else if (c.currentStyle)
+    return c.currentStyle[s];
+  else
+    return null;
+}
+
 // Get an element metric in pixels
 this.px = function(c, s) {
-  var v = null;
-  if (document.defaultView && document.defaultView.getComputedStyle) {
-    v = document.defaultView.getComputedStyle(c, null)[s];
-  } else if (c.currentStyle) {
-    v = c.currentStyle[s];
-  } else {
-    v = c.style[s];
-  }
+  var v = css(c, s);
+
   if (v == 'auto' || v == null)
     return 0;
-  var m = /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/.exec(v);
-  v = m && m.length == 2 ? m[1] : "0";
-  return v ? parseFloat(v) : 0;
+
+  if (rnumpx.test(v))
+    return parseFloat(v);
+  else
+    return 0;
 };
 
 // Return if an element (or one of its ancestors) is hidden

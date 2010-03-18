@@ -355,6 +355,7 @@ void WWidget::setLayoutSizeAware(bool aware)
     if (!javaScriptMember(WT_RESIZE_JS).empty())
       setJavaScriptMember(WT_RESIZE_JS, "");
     delete resized_;
+    resized_ = 0;
   }
 }
 

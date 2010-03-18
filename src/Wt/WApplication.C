@@ -1150,7 +1150,7 @@ void WApplication::loadJavaScript(const char *jsFile)
 {
   if (!javaScriptLoaded(jsFile)) {
     std::string fname = std::string(WT_DEBUG_JS "/") + jsFile;
-    std::ifstream js(fname.c_str());
+    std::ifstream js(fname.c_str(), std::ios::in | std::ios::binary);
 
     if (!js)
       throw WtException("Could not load " + fname);
