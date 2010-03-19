@@ -88,12 +88,13 @@ bool WCheckBox::needTristateImageWorkaround() const
   return !supportIndeterminate;
 }
 
-void WCheckBox::updateDom(DomElement& element, bool all)
+void WCheckBox::updateDomElements(DomElement& element, DomElement& input,
+				  bool all)
 {
   if (all)
-    element.setAttribute("type", "checkbox");
+    input.setAttribute("type", "checkbox");
 
-  WAbstractToggleButton::updateDom(element, all);
+  WAbstractToggleButton::updateDomElements(element, input, all);
 }
 
 }

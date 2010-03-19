@@ -110,7 +110,8 @@ public:
   CheckState checkState() { return state_; }
 
 protected:
-  virtual void updateDom(DomElement& element, bool all);
+  virtual void updateDomElements(DomElement& element, DomElement& input,
+				 bool all);
   virtual bool useImageWorkaround() const;
 
 private:

@@ -172,7 +172,7 @@ WT_DECLARE_WT_MEMBER
        r.style.width = allw_1 + 'px';
        $(el).find(' .Wt-tv-rowc').css('width', allw_1 + 'px').css('width', '');
        el.changed = true;
-       APP._p_.autoJavaScript();
+       this.autoJavaScript();
      }
    };
 
@@ -271,8 +271,6 @@ WT_DECLARE_WT_MEMBER
         headers.style.width=r.style.width;
         table.style.width=r.style.width;
       }
-      if (el.changed)
-        this.adjustColumns();
       el.changed = false;
     }
   };

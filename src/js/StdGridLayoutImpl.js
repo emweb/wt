@@ -92,7 +92,8 @@ WT_DECLARE_WT_MEMBER
       return true;
 
      var t = widget.firstChild;
-     t.style.height = '';
+     if (t.style.height != '')
+       t.style.height = '';
 
      /*
       * 'r' holds the target height for this table. If a

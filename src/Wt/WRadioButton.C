@@ -34,18 +34,19 @@ WRadioButton::~WRadioButton()
     buttonGroup_->removeButton(this);
 }
 
-void WRadioButton::updateDom(DomElement& element, bool all)
+void WRadioButton::updateDomElements(DomElement& element, DomElement& input,
+				     bool all)
 {
   if (all) {
-    element.setAttribute("type", "radio");
+    input.setAttribute("type", "radio");
 
     if (buttonGroup_) {
-      element.setAttribute("name", buttonGroup_->id());
-      element.setAttribute("value", id());
+      input.setAttribute("name", buttonGroup_->id());
+      input.setAttribute("value", id());
     }
   }
 
-  WAbstractToggleButton::updateDom(element, all);
+  WAbstractToggleButton::updateDomElements(element, input, all);
 }
 
 void WRadioButton::getFormObjects(FormObjectsMap& formObjects)

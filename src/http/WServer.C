@@ -55,7 +55,8 @@ namespace Wt {
 struct WServerImpl {
   WServerImpl(const std::string& wtApplicationPath,
 	      const std::string& wtConfigurationFile)
-  : wtConfiguration_(wtApplicationPath, wtConfigurationFile,
+    : applicationPath_(wtApplicationPath),
+      wtConfiguration_(wtApplicationPath, wtConfigurationFile,
 		     Wt::Configuration::WtHttpdServer,
 		     "Wt: initializing built-in httpd"),
     webController_(wtConfiguration_, &stream_),
@@ -63,6 +64,7 @@ struct WServerImpl {
     server_(0)
   { }
 
+  std::string   applicationPath_;
   Configuration wtConfiguration_;
   HTTPStream    stream_;
   WebController webController_;
@@ -265,30 +267,64 @@ int WServer::httpPort() const
   return impl_->server_->httpPort();
 }
 
-int WServer::waitForShutdown()
+void WServer::restart(int argc, char **argv, char **envp)
+{
+  char *path = realpath(argv[0], 0);
+
+  // Try a few times since this may fail because we have an incomplete
+  // binary...
+  for (int i = 0; i < 5; ++i) {
+    int result = execve(path, argv, envp);
+    if (result != 0)
+      sleep(1);
+  }
+  perror("execve");
+}
+
+int WServer::waitForShutdown(const char *restartWatchFile)
 {
 #ifdef WT_THREADED
 
 #if !defined(_WIN32)
-
   sigset_t wait_mask;
   sigemptyset(&wait_mask);
 
+  sigaddset(&wait_mask, SIGHUP);
   /*
-   * uncomment the following signal to avoid gdb interference
+   * uncomment SIGINT when experiencing annoying gdb interference
    */
   sigaddset(&wait_mask, SIGINT);
   sigaddset(&wait_mask, SIGQUIT);
   sigaddset(&wait_mask, SIGTERM);
   pthread_sigmask(SIG_BLOCK, &wait_mask, 0);
-  int sig = 0;
-    
-  int err;
-  do {
-    err = sigwait(&wait_mask, &sig);
-  } while (err != 0);
 
-  return sig;
+  struct stat st;
+  time_t mtime = 0;
+  if (restartWatchFile && (stat(restartWatchFile, &st) == 0))
+    mtime = st.st_mtime;
+
+  for (;;) {
+    int sig;
+    if (mtime) {
+      struct timespec ts;
+      ts.tv_sec = 0;
+      ts.tv_nsec = 100*1000;
+      sig = sigtimedwait(&wait_mask, 0, &ts);
+    } else
+      sig = sigwaitinfo(&wait_mask, 0);
+
+    if (sig != -1)
+      return sig;
+    else
+      if (errno != EAGAIN && errno != EINTR) {
+	perror("sigtimedwait");
+	return -1;
+      } else if (errno == EAGAIN && mtime) {
+	if (stat(restartWatchFile, &st) == 0)
+	  if (st.st_mtime != mtime)
+	    return SIGHUP;
+      }
+  }
 
 #else  // WIN32
 
@@ -316,10 +352,13 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
       server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
       server.addEntryPoint(Application, createApplication);
       if (server.start()) {
-	int sig = WServer::waitForShutdown();
+	int sig = WServer::waitForShutdown(argv[0]);
 	server.impl()->serverConfiguration_.log("notice")
 	  << "Shutdown (signal = " << sig << ")";
 	server.stop();
+
+	if (sig == SIGHUP)
+	  WServer::restart(argc, argv, environ);
       }
 
       return 0;

@@ -122,19 +122,9 @@ void WAbstractToggleButton::undoSetUnChecked()
   undoSetChecked();
 }
 
-void WAbstractToggleButton::updateDom(DomElement& element, bool all)
+void WAbstractToggleButton::updateDomElements(DomElement& element,
+					      DomElement& input, bool all)
 {
-  if (stateChanged_ || all) {
-    element.setProperty(Wt::PropertyChecked,
-			state_ == Checked ? "true" : "false");
-
-    if (!useImageWorkaround())
-      element.setProperty(Wt::PropertyIndeterminate,
-			  state_ == PartiallyChecked ? "true" : "false");
-
-    stateChanged_ = false;
-  }
-
   const WEnvironment& env = WApplication::instance()->environment();
 
   EventSignal<> *check = voidEventSignal(CHECKED_SIGNAL, false);
@@ -149,10 +139,31 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
      || (check && check->needUpdate())
      || (uncheck && uncheck->needUpdate()));
 
-  WFormWidget::updateDom(element, all);
+  updateDom(input, all);
+
+  /*
+   * Copy all properties to the exterior element, as they relate to style,
+   * etc... We ignore here attributes, see WWebWidget: there seems not to
+   * be attributes that sensibly need to be moved.
+   */
+  if (&element != &input) {
+    element.setProperties(input.properties());
+    input.clearProperties();
+  }
+
+  if (stateChanged_ || all) {
+    input.setProperty(Wt::PropertyChecked,
+		      state_ == Checked ? "true" : "false");
+
+    if (!useImageWorkaround())
+      input.setProperty(Wt::PropertyIndeterminate,
+			state_ == PartiallyChecked ? "true" : "false");
+
+    stateChanged_ = false;
+  }
 
   if (needUpdateClickedSignal || all) {
-    std::string dom = WT_CLASS ".getElement('" + element.id() + "')";
+    std::string dom = WT_CLASS ".getElement('" + input.id() + "')";
     std::vector<DomElement::EventAction> actions;
 
     if (check) {
@@ -196,7 +207,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     }
 
     if (!(all && actions.empty()))
-      element.setEvent("click", actions);
+      input.setEvent("click", actions);
   }
 }
 
@@ -264,7 +275,7 @@ DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
     }
   }
 
-  updateDom(*input, true);
+  updateDomElements(*result, *input, true);
 
   if (result != input) {
     result->addChild(input);
@@ -281,19 +292,19 @@ DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
 void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
 					  WApplication *app)
 {
-  DomElementType type = domElementType();
-
-  if (type == DomElement_SPAN) {
+  DomElement *element = DomElement::getForUpdate(this, domElementType());
+  if (element->type() == DomElement_SPAN) {
     DomElement *input
       = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
+
+    updateDomElements(*element, *input, false);
 
     if (useImageWorkaround()) {
       EventSignal<> *imgClick = voidEventSignal(UNDETERMINATE_CLICK_SIGNAL,
 						true);
 
       if (stateChanged_ || imgClick->needUpdate()) {
-	DomElement *img
-	  = DomElement::getForUpdate("im" + id(), DomElement_IMG);
+	DomElement *img = DomElement::getForUpdate("im" + id(), DomElement_IMG);
 
 	if (stateChanged_) {
 	  img->setProperty(Wt::PropertyStyleDisplay,
@@ -311,12 +322,11 @@ void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
       }
     }
 
-    updateDom(*input, false);
+    result.push_back(element);
     result.push_back(input);
   } else {
-    DomElement *e = DomElement::getForUpdate(this, domElementType());
-    updateDom(*e, false);
-    result.push_back(e);
+    updateDomElements(*element, *element, false);
+    result.push_back(element);
   }
 }
 

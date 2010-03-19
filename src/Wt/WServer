@@ -30,7 +30,8 @@ struct WServerImpl;
  *
  * As an example usage, consider the implementation of WRun(), which
  * starts the server until a Ctrl-C is pressed or a termination signal
- * has been received:
+ * has been received, or a restart is indicated using SIGHUP or a changed
+ * binary (argv[0]):
  *
  * \code
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
@@ -49,10 +50,13 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
     // by the server configuration's deploy-path)
     server.addEntryPoint(WServer::Application, createApplication);
     if (server.start()) {
-      int sig = WServer::waitForShutdown();
+      int sig = WServer::waitForShutdown(argv[0]);
 
       std::cerr << "Shutdown (signal = " << sig << ")" << std::endl;
       server.stop();
+
+      if (sig == SIGHUP)
+	WServer::restart(argc, argv, environ);
     }
   } catch (WServer::Exception& e) {
     std::cerr << e.what() << "\n";
@@ -197,14 +201,28 @@ public:
    *
    * This static method blocks the current thread, waiting for a
    * shutdown signal. The implementation and details are platform
-   * dependent, but this is usually Ctrl-C or SIGKILL.
+   * dependent, but this is usually Ctrl-C (SIGINT), SIGKILL, or
+   * SIGHUP.
    *
    * This method is convenient if you want to customize how the server
    * is started (by instantiating a WServer object yourself, instead
    * of using Wt::Wrun()), but still want to use %Wt as a standalone
    * server that cleanly terminates on interruption.
+   *
+   * The optional \p restartWatchFile parameter can be used to let the
+   * server watch for changes to a particular file (usually the binary
+   * itself, argv[0]) which it will also interpret as SIGHUP. This may
+   * be convenient to start the new binary after cleanly shutting down,
+   * using restart(). <i>(Experimental, UNIX only)</i>
    */
-  static int waitForShutdown();
+  static int waitForShutdown(const char *restartWatchFile = 0);
+
+  /*! \brief A utility method to restart.
+   *
+   * This will result the application with the new image (argv[0]), effectively
+   * loading a newly deployed version. <i>(Experimental, UNIX only)</i>
+   */
+  static void restart(int argc, char **argv, char **envp);
 
   /*! \brief Returns whether the server is running.
    *

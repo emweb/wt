@@ -907,7 +907,7 @@ void WServer::stop()
   }
 }
 
-int WServer::waitForShutdown()
+int WServer::waitForShutdown(const char *restartWatchFile)
 {
   for (;;)
     sleep(10000);

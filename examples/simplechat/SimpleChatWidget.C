@@ -223,8 +223,8 @@ void SimpleChatWidget::updateUsers()
 
   for (SimpleChatServer::UserSet::iterator i = users.begin();
        i != users.end(); ++i) {
-    WContainerWidget *line = new WContainerWidget(userList_);
-    WCheckBox *w = new WCheckBox(*i, line);
+    WCheckBox *w = new WCheckBox(*i, userList_);
+    w->setInline(false);
 
     UserMap::const_iterator j = oldUsers.find(*i);
     if (j != oldUsers.end())
@@ -236,7 +236,7 @@ void SimpleChatWidget::updateUsers()
     w->changed().connect(SLOT(this, SimpleChatWidget::updateUser));
 
     if (*i == user_)
-      line->setStyleClass("chat-self");
+      w->setStyleClass("chat-self");
   }
 }
 

@@ -67,6 +67,7 @@ class WT_API DomElement
 {
 public:
   enum Mode { ModeCreate, ModeUpdate };
+  typedef std::map<Wt::Property, std::string> PropertyMap;
 
   DomElement(Mode mode, DomElementType type);
   ~DomElement();
@@ -101,6 +102,9 @@ public:
   void setProperty(Wt::Property property, const std::string& value);
   std::string getProperty(Wt::Property property) const;
   void removeProperty(Wt::Property property);
+  void setProperties(const PropertyMap& properties);
+  const PropertyMap& properties() const { return properties_; }
+  void clearProperties();
 
   void setEventSignal(const char *eventName, const EventSignalBase& signal);
 
@@ -209,7 +213,6 @@ private:
   };
 
   typedef std::map<std::string, std::string> AttributeMap;
-  typedef std::map<Wt::Property, std::string> PropertyMap;
   typedef std::map<const char *, EventHandler> EventHandlerMap;
 
   bool canWriteInnerHTML(WApplication *app) const;

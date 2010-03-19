@@ -1,3 +1,7 @@
+19-03-2010:
+	* WCheckBox, WRadioButton: fix inconsistencies when setting style
+	attributes and they have a non-empty label
+
 15-03-2010:
 	* Dbo/backend/Postgres: a PostgreSQL backend, contributed by Hilary
 	Cheng

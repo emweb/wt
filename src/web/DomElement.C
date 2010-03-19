@@ -388,6 +388,19 @@ void DomElement::callJavaScript(const std::string& jsCode,
     javaScriptEvenWhenDeleted_ += jsCode;
 }
 
+void DomElement::setProperties(const PropertyMap& properties)
+{
+  for (PropertyMap::const_iterator i = properties.begin();
+       i != properties.end(); ++i)
+    setProperty(i->first, i->second);
+}
+
+void DomElement::clearProperties()
+{
+  numManipulations_ -= properties_.size();
+  properties_.clear();
+}
+
 void DomElement::setProperty(Property property, const std::string& value)
 {
   ++numManipulations_;
