@@ -7,6 +7,8 @@
 #include "Wt/WStackedWidget"
 #include "Utils.h"
 
+#include "StdGridLayoutImpl.h"
+
 #include <iostream>
 
 namespace Wt {
@@ -16,21 +18,7 @@ WStackedWidget::WStackedWidget(WContainerWidget *parent)
     currentIndex_(-1)
 {
   WT_DEBUG( setObjectName("WStackedWidget") );
-
-  setJavaScriptMember
-    (WT_RESIZE_JS, std::string() +
-     "function(self, w, h){"
-     """var j,jl,c;"
-     """self.style.height=h+'px';"
-     """for (j=0, jl=self.childNodes.length; j<jl; ++j){"
-     ""   "c=self.childNodes[j];"
-     ""   "if (c." + WT_RESIZE_JS + ") "
-     ""     "c." + WT_RESIZE_JS + "(c, w, h);"
-     ""   "else "
-     ""     "if (c.style.height != self.style.height)"
-     ""        "c.style.height = self.style.height;"
-     """}"
-     "}");
+  setJavaScriptMember(WT_RESIZE_JS, StdGridLayoutImpl::childrenResizeJS());
 }
 
 void WStackedWidget::addWidget(WWidget *widget)

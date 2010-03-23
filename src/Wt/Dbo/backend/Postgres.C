@@ -8,12 +8,16 @@
 #include "Wt/Dbo/backend/Postgres"
 #include "Wt/Dbo/Exception"
 
-#include "EscapeOStream.h"
-
 #include <libpq-fe.h>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <vector>
+#include <sstream>
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
+#define BYTEAOID 17
 
 //#define DEBUG(x) x
 #define DEBUG(x)
@@ -39,25 +43,25 @@ public:
     : conn_(conn),
       sql_(convertToNumberedPlaceholders(sql))
   {
-    _oid = InvalidOid;
-    lastId_ = -1; affectedRows = 0;
-    c_params_ = 0;
+    lastId_ = -1;
+    row_ = affectedRows_ = 0;
+    result_ = 0;
+
+    paramValues_ = 0;
+    paramTypes_ = paramLengths_ = paramFormats_ = 0;
  
     snprintf(name_, 64, "SQL%p%08X", this, rand());
 
     DEBUG(std::cerr << this << " for: " << sql_ << std::endl);
-
-    result = PQprepare(conn_, name_, sql_.c_str(), 0, NULL);
-    handleErr(PQresultStatus(result));
 
     state_ = Done;
   }
 
   virtual ~PostgresStatement()
   {
-    PQclear(result);
-    if (c_params_)
-      free(c_params_);
+    PQclear(result_);
+    delete[] paramValues_;
+    delete[] paramTypes_;
   }
 
   virtual void reset()
@@ -69,55 +73,75 @@ public:
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    for (unsigned i = params_.size(); i <= column; ++i)
-      params_.push_back(std::make_pair(std::string(), true));
-    
-    params_[column].first = value;
-    params_[column].second = false;
+    setValue(column, value);
+  }
+
+  virtual void bind(int column, short value)
+  {
+    bind(column, static_cast<int>(value));
   }
 
   virtual void bind(int column, int value)
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    for (unsigned i = params_.size(); i <= column; ++i)
-      params_.push_back(std::make_pair(std::string(), true));
-    
-    params_[column].first = boost::lexical_cast<std::string>(value);
-    params_[column].second = false;
+    setValue(column, boost::lexical_cast<std::string>(value));
   }
 
   virtual void bind(int column, long long value)
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    for (unsigned i = params_.size(); i <= column; ++i)
-      params_.push_back(std::make_pair(std::string(), true));
-
-    params_[column].first = boost::lexical_cast<std::string>(value);
-    params_[column].second = false;
+    setValue(column, boost::lexical_cast<std::string>(value));
   }
 
   virtual void bind(int column, float value)
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    for (unsigned i = params_.size(); i <= column; ++i)
-      params_.push_back(std::make_pair(std::string(), true));
-
-    params_[column].first = boost::lexical_cast<std::string>(value);
-    params_[column].second = false;
+    setValue(column, boost::lexical_cast<std::string>(value));
   }
 
   virtual void bind(int column, double value)
   {
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
-    for (unsigned i = params_.size(); i <= column; ++i)
-      params_.push_back(std::make_pair(std::string(), true));
+    setValue(column, boost::lexical_cast<std::string>(value));
+  }
 
-    params_[column].first = boost::lexical_cast<std::string>(value);
-    params_[column].second = false;
+  virtual void bind(int column, const boost::posix_time::ptime& value,
+		    SqlDateTimeType type)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " "
+	  << boost::posix_time::to_simple_string(value) << std::endl);
+
+    std::string v;
+    if (type == SqlDate)
+      v = boost::gregorian::to_iso_extended_string(value.date());
+    else {
+      v = boost::posix_time::to_iso_extended_string(value);
+      v[v.find('T')] = ' ';
+    }
+
+    setValue(column, v);
+  }
+
+  virtual void bind(int column, const std::vector<unsigned char>& value)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " (blob, size=" <<
+	  value.size() << ")" << std::endl);
+
+    for (unsigned i = params_.size(); i <= column; ++i)
+      params_.push_back(Param());
+
+    Param& p = params_[column];
+    p.value.resize(value.size());
+    memcpy(const_cast<char *>(p.value.data()), &(*value.begin()), value.size());
+    p.isbinary = true;
+    p.isnull = false;
+
+    // FIXME if first null was bound, check here and invalidate the prepared
+    // statement if necessary because the type changes
   }
 
   virtual void bindNull(int column)
@@ -125,9 +149,9 @@ public:
     DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
 
     for (unsigned i = params_.size(); i <= column; ++i)
-      params_.push_back(std::make_pair(std::string(), true));
+      params_.push_back(Param());
 
-    params_[column].second = true;
+    params_[column].isnull = true;
   }
 
   virtual void execute()
@@ -135,41 +159,63 @@ public:
     if (showQueries)
       std::cerr << sql_ << std::endl;
 
-    if (!params_.empty()) {
-      if (!c_params_)
-	c_params_ = (char **) malloc(sizeof(char *) * params_.size());
-      for (int count = 0; count < params_.size(); count++) {
-	if (params_[count].second)
-	  c_params_[count] = 0;
-	else
-	  c_params_[count] = (char *) params_[count].first.c_str();
+    if (!result_) {
+      paramValues_ = new char *[params_.size()];
+
+      for (unsigned i = 0; i < params_.size(); ++i) {
+	if (params_[i].isbinary) {
+	  paramTypes_ = new int[params_.size() * 3];
+	  paramLengths_ = paramTypes_ + params_.size();
+	  paramFormats_ = paramLengths_ + params_.size();
+	  for (unsigned j = 0; j < params_.size(); ++j) {
+	    paramTypes_[j] = params_[j].isbinary ? BYTEAOID : 0;
+	    paramFormats_[j] = params_[j].isbinary ? 1 : 0;
+	    paramLengths_[j] = 0;
+	  }
+
+	  break;
+	}
       }
+
+      result_ = PQprepare(conn_, name_, sql_.c_str(),
+			  paramTypes_ ? params_.size() : 0, (Oid *)paramTypes_);
+      handleErr(PQresultStatus(result_));
     }
 
-    PQclear(result);
+    for (int i = 0; i < params_.size(); ++i) {
+      if (params_[i].isnull)
+	paramValues_[i] = 0;
+      else
+	if (params_[i].isbinary) {
+	  paramValues_[i] = const_cast<char *>(params_[i].value.data());
+	  paramLengths_[i] = params_[i].value.length();
+	} else
+	  paramValues_[i] = const_cast<char *>(params_[i].value.c_str());
+    }
 
-    result = PQexecPrepared(conn_, name_, params_.size(), c_params_, 0, 0, 0);
-    _oid = PQoidValue(result);
+    PQclear(result_);
+    result_ = PQexecPrepared(conn_, name_, params_.size(), paramValues_,
+			     paramLengths_, paramFormats_, 0);
 
-    starting = 0;
-    if (PQresultStatus(result) == PGRES_COMMAND_OK)
-      affectedRows = boost::lexical_cast<int>(PQcmdTuples(result));
-    if (PQresultStatus(result) == PGRES_TUPLES_OK)
-      affectedRows = PQntuples(result);
-    if (affectedRows == 1 && sql_.rfind("returning id") != std::string::npos) {
+    row_ = 0;
+    if (PQresultStatus(result_) == PGRES_COMMAND_OK)
+      affectedRows_ = boost::lexical_cast<int>(PQcmdTuples(result_));
+    if (PQresultStatus(result_) == PGRES_TUPLES_OK)
+      affectedRows_ = PQntuples(result_);
+    if (affectedRows_ == 1 && sql_.rfind("returning id") != std::string::npos) {
       state_ = NoFirstRow;
-      if (PQntuples(result) == 1 && PQnfields(result) == 1) {
-	lastId_ = boost::lexical_cast<int>(PQgetvalue(result, 0, 0));
+      if (PQntuples(result_) == 1 && PQnfields(result_) == 1) {
+	lastId_ = boost::lexical_cast<int>(PQgetvalue(result_, 0, 0));
       }
     } else {
-      if (PQntuples(result) == 0) {
+      if (PQntuples(result_) == 0) {
 	state_ = NoFirstRow;
       } else {
 	state_ = FirstRow;
       }
     }
 
-    handleErr(PQresultStatus(result));
+    handleErr(PQresultStatus(result_));
   }
 
   virtual long long insertedId()
@@ -179,7 +225,7 @@ public:
 
   virtual int affectedRowCount()
   {
-    return affectedRows;
+    return affectedRows_;
   }
   
   virtual bool nextRow()
@@ -192,8 +238,8 @@ public:
       state_ = NextRow;
       return true;
     case NextRow:
-      if (starting + 1 < PQntuples(result)) {
-	starting++;
+      if (row_ + 1 < PQntuples(result_)) {
+	row_++;
 	return true;
       } else {
 	state_ = Done;
@@ -201,18 +247,19 @@ public:
       }
       break;
     case Done:
-      throw PostgresException("Postgres: nextRow(): statement already finished");
-    }      
+      throw PostgresException("Postgres: nextRow(): statement already "
+			      "finished");
+    }
 
     return false;
   }
 
-  virtual bool getResult(int column, std::string *value)
+  virtual bool getResult(int column, std::string *value, int size)
   {
-    if (PQgetisnull(result, starting, column))
+    if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = PQgetvalue(result, starting, column);
+    *value = PQgetvalue(result_, row_, column);
 
     DEBUG(std::cerr << this 
 	  << " result string " << column << " " << *value << std::endl);
@@ -220,12 +267,22 @@ public:
     return true;
   }
 
+  virtual bool getResult(int column, short *value)
+  {
+    int intValue;
+    if (getResult(column, &intValue)) {
+      *value = intValue;
+      return true;
+    } else
+      return false;
+  }
+
   virtual bool getResult(int column, int *value)
   {
-    if (PQgetisnull(result, starting, column))
+    if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = boost::lexical_cast<int>(PQgetvalue(result, starting, column));
+    *value = boost::lexical_cast<int>(PQgetvalue(result_, row_, column));
 
     DEBUG(std::cerr << this 
 	  << " result int " << column << " " << *value << std::endl);
@@ -235,10 +292,11 @@ public:
 
   virtual bool getResult(int column, long long *value)
   {
-    if (PQgetisnull(result, starting, column))
+    if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = boost::lexical_cast<long long>(PQgetvalue(result, starting, column));
+    *value
+      = boost::lexical_cast<long long>(PQgetvalue(result_, row_, column));
 
     DEBUG(std::cerr << this 
 	  << " result long long " << column << " " << *value << std::endl);
@@ -248,10 +306,10 @@ public:
   
   virtual bool getResult(int column, float *value)
   {
-    if (PQgetisnull(result, starting, column))
+    if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = boost::lexical_cast<float>(PQgetvalue(result, starting, column));
+    *value = boost::lexical_cast<float>(PQgetvalue(result_, row_, column));
 
     DEBUG(std::cerr << this 
 	  << " result float " << column << " " << *value << std::endl);
@@ -261,13 +319,53 @@ public:
 
   virtual bool getResult(int column, double *value)
   {
-    if (PQgetisnull(result, starting, column))
+    if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = boost::lexical_cast<double>(PQgetvalue(result, starting, column));
+    *value = boost::lexical_cast<double>(PQgetvalue(result_, row_, column));
 
     DEBUG(std::cerr << this 
 	  << " result double " << column << " " << *value << std::endl);
+
+    return true;
+  }
+
+  virtual bool getResult(int column, boost::posix_time::ptime *value,
+			 SqlDateTimeType type)
+  {
+    if (PQgetisnull(result_, row_, column))
+      return false;
+
+    std::string v;
+    v = PQgetvalue(result_, row_, column);
+
+    if (type == SqlDate)
+      *value = boost::posix_time::ptime(boost::gregorian::from_string(v),
+					boost::posix_time::hours(0));
+    else
+      *value = boost::posix_time::time_from_string(v);
+
+    return true;
+  }
+
+  virtual bool getResult(int column, std::vector<unsigned char> *value,
+			 int size)
+  {
+    if (PQgetisnull(result_, row_, column))
+      return false;
+
+    const char *escaped = PQgetvalue(result_, row_, column);
+
+    std::size_t vlength;
+    unsigned char *v = PQunescapeBytea((unsigned char *)escaped, &vlength);
+
+    value->resize(vlength);
+    std::copy(v, v + vlength, value->begin());
+    free(v);
+
+    DEBUG(std::cerr << this 
+	  << " result blob " << column << " (blob, size = " << vlength << ")"
+	  << std::endl);
 
     return true;
   }
@@ -277,14 +375,24 @@ public:
   }
 
 private:
+  struct Param {
+    std::string value;
+    bool isnull, isbinary;
+
+    Param() : isnull(true), isbinary(false) { }
+  };
+
   PGconn *conn_;
   std::string sql_;
   char name_[64];
-  PGresult *result;
+  PGresult *result_;
   enum { NoFirstRow, FirstRow, NextRow, Done } state_;
-  std::vector< std::pair<std::string, bool> > params_;
-  char **c_params_;
-  int _oid, lastId_, starting, affectedRows;
+  std::vector<Param> params_;
+
+  char **paramValues_;
+  int *paramTypes_, *paramLengths_, *paramFormats_;
+ 
+  int lastId_, row_, affectedRows_;
 
   void handleErr(int err)
   {
@@ -292,9 +400,17 @@ private:
       throw PostgresException(PQerrorMessage(conn_));
   }
 
+  void setValue(int column, const std::string& value) {
+    for (unsigned i = params_.size(); i <= column; ++i)
+      params_.push_back(Param());
+
+    params_[column].value = value;
+    params_[column].isnull = false;
+  }
+
   std::string convertToNumberedPlaceholders(const std::string& sql)
   {
-    SStream result;
+    std::stringstream result;
 
     enum { Statement, SQuote, DQuote } state = Statement;
     int placeholder = 1;
@@ -364,7 +480,8 @@ void Postgres::executeSql(const std::string &sql)
   PGresult *result;
   int err;
 
-  fprintf(stderr, "Postgres::executeSql %s\n", sql.c_str());
+  if (showQueries)
+    std::cerr << sql << std::endl;
 			
   result = PQexec(conn, sql.c_str());
   err = PQresultStatus(result);
@@ -375,38 +492,50 @@ void Postgres::executeSql(const std::string &sql)
   PQclear(result);
 }
 
-std::string Postgres::autoincrementType()
+std::string Postgres::autoincrementType() const
 {
   return "serial";
 }
   
-std::string Postgres::autoincrementSql()
+std::string Postgres::autoincrementSql() const
 {
   return std::string();
 }
 
-std::string Postgres::autoincrementInsertSuffix()
+std::string Postgres::autoincrementInsertSuffix() const
 {
   return " returning id";
 }
   
+const char *Postgres::dateTimeType(SqlDateTimeType type) const
+{
+  switch (type) {
+  case SqlDate:
+    return "date";
+  case SqlDateTime:
+    return "timestamp";
+  }
+}
+
+const char *Postgres::blobType() const
+{
+  return "bytea not null";
+}
+
 void Postgres::startTransaction()
 {
-  fprintf(stderr, "Postgres::startTransaction\n");
   PGresult *result = PQexec(conn, "start transaction");
   PQclear(result);
 }
 
 void Postgres::commitTransaction()
 {
-  fprintf(stderr, "Postgres::commitTransaction\n");
   PGresult *result = PQexec(conn, "commit transaction");
   PQclear(result);
 }
 
 void Postgres::rollbackTransaction()
 {
-  fprintf(stderr, "Postgres::rollbackTransaction\n");
   PGresult *result = PQexec(conn, "rollback transaction");
   PQclear(result);
 }

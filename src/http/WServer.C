@@ -298,23 +298,28 @@ int WServer::waitForShutdown(const char *restartWatchFile)
   sigaddset(&wait_mask, SIGTERM);
   pthread_sigmask(SIG_BLOCK, &wait_mask, 0);
 
+#ifdef RESTART_WATCH_FILE
   struct stat st;
   time_t mtime = 0;
   if (restartWatchFile && (stat(restartWatchFile, &st) == 0))
     mtime = st.st_mtime;
+#endif // RESTART_WATCH_FILE
 
   for (;;) {
     int sig;
+#ifdef RESTART_WATCH_FILE
     if (mtime) {
       struct timespec ts;
       ts.tv_sec = 0;
       ts.tv_nsec = 100*1000;
       sig = sigtimedwait(&wait_mask, 0, &ts);
     } else
-      sig = sigwaitinfo(&wait_mask, 0);
+#endif // RESTART_WATCH_FILE
+      sigwait(&wait_mask, &sig);
 
     if (sig != -1)
       return sig;
+#ifdef RESTART_WATCH_FILE
     else
       if (errno != EAGAIN && errno != EINTR) {
 	perror("sigtimedwait");
@@ -324,6 +329,7 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 	  if (st.st_mtime != mtime)
 	    return SIGHUP;
       }
+#endif // RESTART_WATCH_FILE
   }
 
 #else  // WIN32
@@ -358,7 +364,8 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 	server.stop();
 
 	if (sig == SIGHUP)
-	  WServer::restart(argc, argv, environ);
+	  // Mac OSX: _NSGetEnviron()
+	  WServer::restart(argc, argv, 0);
       }
 
       return 0;

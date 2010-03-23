@@ -28,6 +28,31 @@ namespace Wt {
 class Sqlite3 : public SqlConnection
 {
 public:
+  /*! \brief Configuration of date time storage.
+   *
+   * SQlite3 does not provide real type support for date time. Instead,
+   * it offers 3 choices for storing a date time, each of these compatible
+   * with the use of the built-in arithmetic functions.
+   */
+  enum DateTimeStorage {
+    /*!
+     * As 'text' in ISO8601 format.
+     */
+    ISO8601AsText,
+
+    /*!
+     * As 'real', the number of julian days. Note that this does not support
+     * second accuracy for a date time, but is the preferred format for a
+     * plain date.
+     */
+    JulianDaysAsReal,
+
+    /*!
+     * As 'integer', number of seconds since UNIX Epoch.
+     */
+    UnixTimeAsInteger
+  };
+
   /*! \brief Opens a new SQLite3 backend connection.
    *
    * The \p db may be any of the values supported by sqlite3_open().
@@ -40,17 +65,33 @@ public:
    */
   ~Sqlite3();
 
+  /*! \brief Configures how to store date or date time.
+   *
+   * The default format is ISO8601AsText.
+   */
+  void setDateTimeStorage(SqlDateTimeType type, DateTimeStorage format);
+
+  /*! \brief Returns the date time storage.
+   */
+  DateTimeStorage dateTimeStorage(SqlDateTimeType type) const;
+
+  sqlite3 *db() { return db_; }
+
   virtual SqlStatement *prepareStatement(const std::string& sql);
   
-  virtual std::string autoincrementSql();
-  virtual std::string autoincrementType();
-  virtual std::string autoincrementInsertSuffix();
+  virtual std::string autoincrementSql() const;
+  virtual std::string autoincrementType() const;
+  virtual std::string autoincrementInsertSuffix() const;
+  virtual const char *dateTimeType(SqlDateTimeType type) const;
+  virtual const char *blobType() const;
   
   virtual void startTransaction();
   virtual void commitTransaction();
   virtual void rollbackTransaction();
 
 private:
+  DateTimeStorage dateTimeStorage_[2];
+
   sqlite3 *db_;
 };
 

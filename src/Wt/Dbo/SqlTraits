@@ -7,6 +7,7 @@
 #ifndef WT_DBO_SQL_TRAITS_H_
 #define WT_DBO_SQL_TRAITS_H_
 
+#include <string>
 #include <vector>
 
 namespace Wt {
@@ -47,10 +48,9 @@ struct sql_value_traits
 #ifdef DOXYGEN_ONLY
   /*! \brief Returns the SQL type name.
    *
-   * \note This is currently an SQLite3 type. We probably need to add an
-   *       extra argument (an SqlConnection *) to make this backend-specific.
+   * The \p size (for strings) is a hint and may be ignored by a back-end.
    */
-  static const char *type();
+  static const char *type(SqlConnection *connection, int size);
 
   /*! \brief Binds a value to a statement parameter.
    *
@@ -59,7 +59,7 @@ struct sql_value_traits
    *
    * \sa SqlStatement::bind()
    */
-  static void bind(const V& v, SqlStatement *statement, int index);
+  static void bind(const V& v, SqlStatement *statement, int index, int size);
 
   /*! \brief Reads a result from an executed query.
    *
@@ -68,10 +68,11 @@ struct sql_value_traits
    *
    * \sa SqlStatement::getResult()
    */
-  static void read(V& v, SqlStatement *statement, int column);
+  static void read(V& v, SqlStatement *statement, int column, int size);
 #endif // DOXYGEN_ONLY
 
-  static void bind(const char *v, SqlStatement *statement, int column);
+  static void bind(const char *v, SqlStatement *statement, int column,
+		   int size);
 };
 
 /*! \class sql_result_traits Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits

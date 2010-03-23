@@ -33,6 +33,9 @@ public:
 
   virtual void setHint(const std::string& name, const std::string& value);
 
+  // Does not really belong here, but who cares ?
+  static const char* childrenResizeJS();
+
 protected:
   virtual void containerAddWidgets(WContainerWidget *container);
 

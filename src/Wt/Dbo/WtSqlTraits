@@ -7,12 +7,16 @@
 #ifndef WT_DBO_WT_TYPE_TRAITS_H_
 #define WT_DBO_WT_TYPE_TRAITS_H_
 
+#include <string>
+
 #include <Wt/WDate>
 #include <Wt/WDateTime>
 #include <Wt/WString>
 
 #include <Wt/Dbo/SqlTraits>
 #include <Wt/Dbo/SqlStatement>
+
+#include <boost/lexical_cast.hpp>
 
 namespace Wt {
   namespace Dbo {
@@ -24,9 +28,9 @@ struct sql_value_traits<WDate, void>
 
   static const char *format;
 
-  static const char *type();
-  static void bind(const WDate& v, SqlStatement *statement, int column);
-  static bool read(WDate& v, SqlStatement *statement, int column);
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(const WDate& v, SqlStatement *statement, int column, int size);
+  static bool read(WDate& v, SqlStatement *statement, int column, int size);
 };
 
 template<>
@@ -34,11 +38,10 @@ struct sql_value_traits<WDateTime, void>
 {
   static const bool specialized = true;
 
-  static const char *format;
-
-  static const char *type();
-  static void bind(const WDateTime& v, SqlStatement *statement, int column);
-  static bool read(WDateTime& v, SqlStatement *statement, int column);
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(const WDateTime& v, SqlStatement *statement, int column,
+		   int size);
+  static bool read(WDateTime& v, SqlStatement *statement, int column, int size);
 };
 
 template<>
@@ -46,36 +49,39 @@ struct sql_value_traits<WString, void>
 {
   static const bool specialized = true;
 
-  static const char *type();
-  static void bind(const WString& v, SqlStatement *statement, int column);
-  static bool read(WString& v, SqlStatement *statement, int column);
+  static std::string type(SqlConnection *conn, int size);
+  static void bind(const WString& v, SqlStatement *statement, int column,
+		   int size);
+  static bool read(WString& v, SqlStatement *statement, int column, int size);
 };
 
     /*
      * WDate
      */
 
-inline const char *sql_value_traits<WDate, void>::type()
+inline const char *sql_value_traits<WDate, void>::type(SqlConnection *conn,
+						       int size)
 {
-  return "text";
+  return conn->dateTimeType(SqlDate);
 }
 
 inline void sql_value_traits<WDate, void>
-::bind(const WDate& v, SqlStatement *statement, int column)
+::bind(const WDate& v, SqlStatement *statement, int column, int size)
 {
   if (v.isNull())
     statement->bindNull(column);
   else
-    statement->bind(column, v.toString(WString::fromUTF8(format)).toUTF8());
+    statement->bind(column, Wt::WDateTime(v).toPosixTime(), SqlDate);
 }
 
 inline bool sql_value_traits<WDate, void>
-::read(WDate& v, SqlStatement *statement, int column)
+::read(WDate& v, SqlStatement *statement, int column, int size)
 {
-  std::string d;
+  boost::posix_time::ptime t;
 
-  if (statement->getResult(column, &d)) {
-    v = WDate::fromString(WString::fromUTF8(d), WString::fromUTF8(format));
+  if (statement->getResult(column, &t, SqlDate)) {
+    boost::gregorian::date d = t.date();
+    v.setDate(d.year(), d.month(), d.day());
     return true;
   } else {
     v = WDate();
@@ -87,27 +93,28 @@ inline bool sql_value_traits<WDate, void>
      * WDateTime
      */
 
-inline const char *sql_value_traits<WDateTime, void>::type()
+inline const char *sql_value_traits<WDateTime, void>::type(SqlConnection *conn,
+							   int size)
 {
-  return "text";
+  return conn->dateTimeType(SqlDateTime);
 }
 
 inline void sql_value_traits<WDateTime, void>
-::bind(const WDateTime& v, SqlStatement *statement, int column)
+::bind(const WDateTime& v, SqlStatement *statement, int column, int size)
 {
   if (v.isNull())
     statement->bindNull(column);
   else
-    statement->bind(column, v.toString(WString::fromUTF8(format)).toUTF8());
+    statement->bind(column, v.toPosixTime(), SqlDateTime);
 }
 
 inline bool sql_value_traits<WDateTime, void>
-::read(WDateTime& v, SqlStatement *statement, int column)
+::read(WDateTime& v, SqlStatement *statement, int column, int size)
 {
-  std::string d;
+  boost::posix_time::ptime t;
 
-  if (statement->getResult(column, &d)) {
-    v = WDateTime::fromString(WString::fromUTF8(d), WString::fromUTF8(format));
+  if (statement->getResult(column, &t, SqlDateTime)) {
+    v = WDateTime::fromPosixTime(t);
     return true;
   } else {
     v = WDateTime();
@@ -119,22 +126,26 @@ inline bool sql_value_traits<WDateTime, void>
      * WString
      */
 
-inline const char *sql_value_traits<WString, void>::type()
+inline std::string sql_value_traits<WString, void>::type(SqlConnection *conn,
+							 int size)
 {
-  return "text not null";
+  if (size == -1)
+    return "text not null";
+  else
+    return "varchar(" + boost::lexical_cast<std::string>(size) + ") not null";
 }
 
 inline void sql_value_traits<WString, void>
-::bind(const WString& v, SqlStatement *statement, int column)
+::bind(const WString& v, SqlStatement *statement, int column, int size)
 {
   statement->bind(column, v.toUTF8());
 }
 
 inline bool sql_value_traits<WString, void>
-::read(WString& v, SqlStatement *statement, int column)
+::read(WString& v, SqlStatement *statement, int column, int size)
 {
   std::string d;
-  if (statement->getResult(column, &d)) {
+  if (statement->getResult(column, &d, size)) {
     v = WString::fromUTF8(d);
     return true;
   } else {

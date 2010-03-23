@@ -37,9 +37,9 @@ Query<Result>& Query<Result>::bind(const T& value)
 {
   prepareStatements();
 
-  sql_value_traits<T>::bind(value, statement_, column_);
+  sql_value_traits<T>::bind(value, statement_, column_, -1);
   if (countStatement_)
-    sql_value_traits<T>::bind(value, countStatement_, column_);
+    sql_value_traits<T>::bind(value, countStatement_, column_, -1);
 
   ++column_;
 
@@ -90,26 +90,17 @@ void Query<Result>::prepareStatements() const
   session_.flush();
 
   if (!statement_) {
-    std::string sql = createSql(Select);
+    std::string sql = Impl::createQuerySql(Impl::Select, select_, from_);
     statement_ = session_.getOrPrepareStatement(sql);
     statement_->reset();
     column_ = 0;
   }
 
   if (!countStatement_) {
-    std::string sql = createSql(Count);
-	if (sql.find(" order by ") != std::string::npos) {
-		sql = sql.substr(0, sql.find(" order by "));
-	}
+    std::string sql = Impl::createQuerySql(Impl::Count, select_, from_);
     countStatement_ = session_.getOrPrepareStatement(sql);
     countStatement_->reset();
   }
-}
-
-template <class Result>
-std::string Query<Result>::createSql(StatementKind kind) const
-{
-  return (kind == Count ? "select count(*)" : select_) + ' ' + from_;
 }
 
   }

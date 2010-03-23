@@ -52,7 +52,8 @@ BlogSession::BlogSession(const std::string& sqliteDb)
     t.commit();
 
     std::cerr << "Created database, and admin/admin user";
-  } catch (...) {
+  } catch (std::exception& e) {
+    std::cerr << e.what() << std::endl;
     std::cerr << "Using existing database";
   }
 }

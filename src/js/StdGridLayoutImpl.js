@@ -426,7 +426,6 @@ WT_DECLARE_WT_MEMBER
 
 WT_DECLARE_APP_MEMBER(1, "layouts", []);
 
-
 WT_DECLARE_APP_MEMBER
   (2, "layoutsAdjust",
    function() {

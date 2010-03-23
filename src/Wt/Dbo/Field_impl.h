@@ -17,9 +17,10 @@ namespace Wt {
   namespace Dbo {
 
 template <typename V>
-FieldRef<V>::FieldRef(V& value, const std::string& name)
+FieldRef<V>::FieldRef(V& value, const std::string& name, int size)
   : value_(value),
-    name_(name)
+    name_(name),
+    size_(size)
 { }
 
 template <typename V>
@@ -29,22 +30,28 @@ const std::string& FieldRef<V>::name() const
 }
 
 template <typename V>
+int FieldRef<V>::size() const
+{
+  return size_;
+}
+
+template <typename V>
 std::string FieldRef<V>::sqlType(Session& session) const
 {
-  return sql_value_traits<V>::type();
+  return sql_value_traits<V>::type(session.transaction_->connection_, size_);
 }
 
 template <typename V>
 void FieldRef<V>::bindValue(SqlStatement *statement, int column) const
 {
-  sql_value_traits<V>::bind(value_, statement, column);
+  sql_value_traits<V>::bind(value_, statement, column, size_);
 }
 
 template <typename V>
 void FieldRef<V>::setValue(Session& session, SqlStatement *statement,
 			   int column) const
 {
-  sql_value_traits<V>::read(value_, statement, column);
+  sql_value_traits<V>::read(value_, statement, column, size_);
 }
 
 template <typename V>
@@ -110,9 +117,9 @@ void FieldRef< ptr<C> >::descend(A& action) const
 
 
 template <class A, typename V>
-void field(A& action, V& value, const std::string& name)
+void field(A& action, V& value, const std::string& name, int size)
 {
-  action.act(FieldRef<V>(value, name));
+  action.act(FieldRef<V>(value, name, size));
 }
 
 template <class A, class C>

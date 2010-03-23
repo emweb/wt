@@ -188,6 +188,19 @@ const EscapeOStream::Entry EscapeOStream::htmlAttributeEntries_[] = {
   { '<', "&lt;" }
 };
 
+const EscapeOStream::Entry EscapeOStream::plainTextEntries_[] = {
+  { '&', "&amp;" },
+  { '>', "&gt;" },
+  { '<', "&lt;" }
+};
+
+const EscapeOStream::Entry EscapeOStream::plainTextNewLinesEntries_[] = {
+  { '&', "&amp;" },
+  { '>', "&gt;" },
+  { '<', "&lt;" },
+  { '\n', "<br />" }
+};
+
 const EscapeOStream::Entry EscapeOStream::jsStringLiteralSQuoteEntries_[] = {
   { '\\', "\\\\" },
   { '\n', "\\n" },
@@ -212,13 +225,19 @@ const std::vector<EscapeOStream::Entry> EscapeOStream::standardSets_[] = {
 				    jsStringLiteralSQuoteEntries_ + 5),
   std::vector<EscapeOStream::Entry>(jsStringLiteralDQuoteEntries_,
 				    jsStringLiteralDQuoteEntries_ + 5),
+  std::vector<EscapeOStream::Entry>(plainTextEntries_,
+				    plainTextEntries_ + 3),
+  std::vector<EscapeOStream::Entry>(plainTextNewLinesEntries_,
+				    plainTextNewLinesEntries_ + 4)
 };
 
 const std::string EscapeOStream::standardSetsSpecial_[] = { 
   std::string(),
   std::string("&\"<"),
   std::string("\\\n\r\t'"),
-  std::string("\\\n\r\t\"")
+  std::string("\\\n\r\t\""),
+  std::string("&><"),
+  std::string("&><\n")
 };
 
 EscapeOStream::EscapeOStream()

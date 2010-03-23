@@ -447,11 +447,11 @@ this.capture = function(obj) {
       db.releaseCapture();
 
   if (obj != null) {
-    db.className = 'unselectable';
+    $(db).addClass('unselectable');
     db.setAttribute('unselectable', 'on');
     db.onselectstart = 'return false;';
   } else {
-    db.className = '';
+    $(db).removeClass('unselectable');
     db.setAttribute('unselectable', 'off');
     db.onselectstart = '';
   }

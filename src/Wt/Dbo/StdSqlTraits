@@ -8,6 +8,7 @@
 #define WT_DBO_STD_SQL_TRAITS_H_
 
 #include <string>
+#include <vector>
 #include <Wt/Dbo/SqlTraits>
 #include <Wt/Dbo/SqlStatement>
 
@@ -23,9 +24,11 @@ struct sql_value_traits<std::string, void>
 {
   static const bool specialized = true;
 
-  static const char *type();
-  static void bind(const std::string& v, SqlStatement *statement, int column);
-  static bool read(std::string& v, SqlStatement *statement, int column);
+  static std::string type(SqlConnection *conn, int size);
+  static void bind(const std::string& v, SqlStatement *statement, int column,
+		   int size);
+  static bool read(std::string& v, SqlStatement *statement, int column,
+		   int size);
 };
 
 template<>
@@ -33,7 +36,8 @@ struct sql_value_traits<char const *, void>
 {
   static const bool specialized = true;
 
-  static void bind(char const *v, SqlStatement *statement, int column);
+  static void bind(char const *v, SqlStatement *statement, int column,
+		   int size);
 };
 
 template<>
@@ -41,9 +45,9 @@ struct sql_value_traits<long long, void>
 {
   static const bool specialized = true;
 
-  static const char *type();
-  static void bind(long long v, SqlStatement *statement, int column);
-  static bool read(long long& v, SqlStatement *statement, int column);
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(long long v, SqlStatement *statement, int column, int size);
+  static bool read(long long& v, SqlStatement *statement, int column, int size);
 };
 
 template<>
@@ -51,9 +55,19 @@ struct sql_value_traits<int, void>
 {
   static const bool specialized = true;
 
-  static const char *type();
-  static void bind(int v, SqlStatement *statement, int column);
-  static bool read(int& v, SqlStatement *statement, int column);
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(int v, SqlStatement *statement, int column, int size);
+  static bool read(int& v, SqlStatement *statement, int column, int size);
+};
+
+template<>
+struct sql_value_traits<short, void>
+{
+  static const bool specialized = true;
+
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(short v, SqlStatement *statement, int column, int size);
+  static bool read(short& v, SqlStatement *statement, int column, int size);
 };
 
 template<>
@@ -61,9 +75,9 @@ struct sql_value_traits<float, void>
 {
   static const bool specialized = true;
 
-  static const char *type();
-  static void bind(float v, SqlStatement *statement, int column);
-  static bool read(float& v, SqlStatement *statement, int column);
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(float v, SqlStatement *statement, int column, int size);
+  static bool read(float& v, SqlStatement *statement, int column, int size);
 };
 
 template<>
@@ -71,9 +85,9 @@ struct sql_value_traits<double, void>
 {
   static const bool specialized = true;
 
-  static const char *type();
-  static void bind(double v, SqlStatement *statement, int column);
-  static bool read(double& v, SqlStatement *statement, int column);
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(double v, SqlStatement *statement, int column, int size);
+  static bool read(double& v, SqlStatement *statement, int column, int size);
 };
 
 template <typename Enum>
@@ -81,14 +95,26 @@ struct sql_value_traits<Enum,
 			typename boost::enable_if<boost::is_enum<Enum> >::type> 
 : public sql_value_traits<int>
 {
-  static void bind(Enum v, SqlStatement *statement, int column) {
-    sql_value_traits<int>::bind(static_cast<int>(v), statement, column);
+  static void bind(Enum v, SqlStatement *statement, int column, int size) {
+    sql_value_traits<int>::bind(static_cast<int>(v), statement, column, size);
   }
 
-  static bool read(Enum& v, SqlStatement *statement, int column) {
+  static bool read(Enum& v, SqlStatement *statement, int column, int size) {
     return sql_value_traits<int>::read(reinterpret_cast<int&>(v), statement,
-				       column);
+				       column, size);
   }
+};
+
+template<>
+struct sql_value_traits<std::vector<unsigned char>, void>
+{
+  static const bool specialized = true;
+
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(const std::vector<unsigned char>& v,
+		   SqlStatement *statement, int column, int size);
+  static bool read(std::vector<unsigned char>& v, SqlStatement *statement,
+		   int column, int size);
 };
 
 template<typename T>
@@ -96,8 +122,8 @@ struct sql_value_traits<boost::optional<T>, void>
 {
   static const bool specialized = true;
 
-  static std::string type() {
-    std::string nested = sql_value_traits<T>::type();
+  static std::string type(SqlConnection *conn) {
+    std::string nested = sql_value_traits<T>::type(conn);
     if (nested.length() > 8 && nested.substr(nested.length() - 8) == "not null")
       return nested.substr(0, nested.length() - 8);
   }

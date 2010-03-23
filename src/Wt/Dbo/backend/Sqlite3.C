@@ -8,11 +8,13 @@
 #include "Wt/Dbo/Exception"
 
 #include <sqlite3.h>
-
 #include <iostream>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 //#define DEBUG(x) x
 #define DEBUG(x)
+#define USEC_PER_DAY (24.0 * 60 * 60 * 1000 * 1000)
 
 namespace Wt {
   namespace Dbo {
@@ -31,16 +33,17 @@ public:
 class Sqlite3Statement : public SqlStatement
 {
 public:
-  Sqlite3Statement(sqlite3 *db, const std::string& sql)
+  Sqlite3Statement(Sqlite3& db, const std::string& sql)
     : db_(db),
       sql_(sql)
   {
     DEBUG(std::cerr << this << " for: " << sql << std::endl);
-    
+
 #if SQLITE3_VERSION_NUMBER >= 3009009
-    int err = sqlite3_prepare_v2(db_, sql.c_str(), sql.length() + 1, &st_, 0);
+    int err = sqlite3_prepare_v2(db_.db(), sql.c_str(), sql.length() + 1,
+				 st_, 0);
 #else
-    int err = sqlite3_prepare(db_, sql.c_str(), sql.length() + 1, &st_, 0);
+    int err = sqlite3_prepare(db_.db(), sql.c_str(), sql.length() + 1, &st_, 0);
 #endif
 
     handleErr(err);
@@ -68,6 +71,15 @@ public:
 
     int err = sqlite3_bind_text(st_, column + 1, value.c_str(),
 				value.length(), SQLITE_TRANSIENT);
+
+    handleErr(err);
+  }
+
+  virtual void bind(int column, short value)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
+
+    int err = sqlite3_bind_int(st_, column + 1, value);
 
     handleErr(err);
   }
@@ -104,6 +116,58 @@ public:
     handleErr(err);
   }
 
+  virtual void bind(int column, const boost::posix_time::ptime& value,
+		    SqlDateTimeType type)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " "
+	  << boost::posix_time::to_simple_string(value) << std::endl);
+
+    switch (db_.dateTimeStorage(type)) {
+    case Sqlite3::ISO8601AsText: {
+      std::string v;
+      if (type == SqlDate)
+	v = boost::gregorian::to_iso_extended_string(value.date());
+      else {
+	v = boost::posix_time::to_iso_extended_string(value);
+	v[v.find('T')] = ' ';
+      }
+
+      bind(column, v);
+      break;
+    }
+    case Sqlite3::JulianDaysAsReal:
+      if (type == SqlDate)
+	bind(column, static_cast<double>(value.date().julian_day()));
+      else {
+	bind(column, value.date().julian_day()
+	     + value.time_of_day().total_microseconds() / USEC_PER_DAY);
+      }
+      break;
+    case Sqlite3::UnixTimeAsInteger:
+      bind(column,
+	   static_cast<long long>
+	   ((value - boost::posix_time::ptime
+	     (boost::gregorian::date(1970, 1, 1))).total_seconds()));
+      break;
+    };
+  }
+
+  virtual void bind(int column, const std::vector<unsigned char>& value)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " (blob, size=" <<
+	  value.size() << ")" << std::endl);
+
+    int err;
+
+    if (value.size() == 0)
+      err = sqlite3_bind_blob(st_, column + 1, "", 0, SQLITE_TRANSIENT);
+    else 
+      err = sqlite3_bind_blob(st_, column + 1, &(*(value.begin())),
+			      value.size(), SQLITE_STATIC);
+
+    handleErr(err);
+  }
+
   virtual void bindNull(int column)
   {
     DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
@@ -133,12 +197,12 @@ public:
 
   virtual long long insertedId()
   {
-    return sqlite3_last_insert_rowid(db_);
+    return sqlite3_last_insert_rowid(db_.db());
   }
 
   virtual int affectedRowCount()
   {
-    return sqlite3_changes(db_);
+    return sqlite3_changes(db_.db());
   }
   
   virtual bool nextRow()
@@ -172,7 +236,7 @@ public:
     return false;
   }
 
-  virtual bool getResult(int column, std::string *value)
+  virtual bool getResult(int column, std::string *value, int size)
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -183,6 +247,16 @@ public:
 	  << " result string " << column << " " << *value << std::endl);
 
     return true;
+  }
+
+  virtual bool getResult(int column, short *value)
+  {
+    int intValue;
+    if (getResult(column, &intValue)) {
+      *value = intValue;
+      return true;
+    } else
+      return false;
   }
 
   virtual bool getResult(int column, int *value)
@@ -238,12 +312,89 @@ public:
     return true;
   }
 
+  virtual bool getResult(int column, boost::posix_time::ptime *value,
+			 SqlDateTimeType type)
+  {
+    switch (db_.dateTimeStorage(type)) {
+    case Sqlite3::ISO8601AsText: {
+      std::string v;
+      if (!getResult(column, &v, -1))
+	return false;
+
+      if (type == SqlDate)
+	*value = boost::posix_time::ptime(boost::gregorian::from_string(v),
+					  boost::posix_time::hours(0));
+      else
+	*value = boost::posix_time::time_from_string(v);
+
+      return true;
+    }
+    case Sqlite3::JulianDaysAsReal: {
+      double v;
+      if (!getResult(column, &v))
+	return false;
+
+      int vi = static_cast<long long>(v);
+
+      if (type == SqlDate)
+	*value = boost::posix_time::ptime(fromJulianDay(vi),
+					  boost::posix_time::hours(0));
+      else {
+	double vf = modf(v, &v);
+	boost::gregorian::date d = fromJulianDay(vi);
+	boost::posix_time::time_duration t
+	  = boost::posix_time::microseconds(vf * USEC_PER_DAY);
+	*value = boost::posix_time::ptime(d, t);
+      }
+
+      return true;
+    }
+    case Sqlite3::UnixTimeAsInteger: {
+      long long v;
+
+      if (!getResult(column, &v))
+	return false;
+
+      boost::posix_time::ptime t
+	= boost::posix_time::from_time_t(static_cast<std::time_t>(v));
+      if (type == SqlDate)
+	*value = boost::posix_time::ptime(t.date(),
+					  boost::posix_time::hours(0));
+      else
+	*value = t;
+
+      return true;
+    }
+    }
+  }
+
+
+  virtual bool getResult(int column, std::vector<unsigned char> *value,
+			 int size)
+  {
+    if (sqlite3_column_type(st_, column) == SQLITE_NULL)
+      return false;
+
+    int s = sqlite3_column_bytes(st_, column);
+    unsigned char *v = (unsigned char *)sqlite3_column_blob(st_, column);
+
+    value->resize(s);
+    std::copy(v, v + s, value->begin());
+
+    DEBUG(std::cerr << this 
+	  << " result blob " << column << " (blob, size = " << s << ")"
+	  << std::endl);
+
+    return true;
+  }
+
+ 
   virtual std::string sql() const {
     return sql_;
   }
 
 private:
-  sqlite3 *db_;
+  Sqlite3& db_;
   sqlite3_stmt *st_;
   std::string sql_;
   enum { NoFirstRow, FirstRow, NextRow, Done } state_;
@@ -251,12 +402,54 @@ private:
   void handleErr(int err)
   {
     if (err != SQLITE_OK)
-      throw Sqlite3Exception(sqlite3_errmsg(db_));
+      throw Sqlite3Exception(sqlite3_errmsg(db_.db()));
+  }
+
+  boost::gregorian::date fromJulianDay(int julian) {
+    int day, month, year;
+
+    if (julian < 0) {
+      julian = 0;
+    }
+
+    int a = julian;
+
+    if (julian >= 2299161) {
+      int jadj = (int)(((float)(julian - 1867216) - 0.25) / 36524.25);
+      a += 1 + jadj - (int)(0.25 * jadj);
+    }
+
+    int b = a + 1524;
+    int c = (int)(6680.0 + ((float)(b - 2439870) - 122.1) / 365.25);
+    int d = (int)(365 * c + (0.25 * c));
+    int e = (int)((b - d) / 30.6001);
+
+    day = b - d - (int)(30.6001 * e);
+    month = e - 1;
+
+  if (month > 12) {
+    month -= 12;
+  }
+
+  year = c - 4715;
+
+  if (month > 2) {
+    --year;
+  }
+
+  if (year <= 0) {
+    --year;
+  }
+
+  return boost::gregorian::date(year, month, day);
   }
 };
 
 Sqlite3::Sqlite3(const std::string& db)
 {
+  dateTimeStorage_[SqlDate] = ISO8601AsText;
+  dateTimeStorage_[SqlDateTime] = ISO8601AsText;
+
   int err = sqlite3_open(db.c_str(), &db_);
 
   if (err != SQLITE_OK)
@@ -272,22 +465,50 @@ Sqlite3::~Sqlite3()
 
 SqlStatement *Sqlite3::prepareStatement(const std::string& sql)
 {
-  return new Sqlite3Statement(db_, sql);
+  return new Sqlite3Statement(*this, sql);
 }
 
-std::string Sqlite3::autoincrementType()
+std::string Sqlite3::autoincrementType() const
 {
   return "integer";
 }
 
-std::string Sqlite3::autoincrementSql() 
+std::string Sqlite3::autoincrementSql() const
 {
   return "autoincrement";
 }
 
-std::string Sqlite3::autoincrementInsertSuffix() 
+std::string Sqlite3::autoincrementInsertSuffix() const
 {
   return std::string();
+}
+
+const char *Sqlite3::dateTimeType(SqlDateTimeType type) const
+{
+  switch (dateTimeStorage(type)) {
+  case ISO8601AsText:
+    return "text";
+  case JulianDaysAsReal:
+    return "real";
+  case UnixTimeAsInteger:
+    return "integer";
+  }
+}
+
+const char *Sqlite3::blobType() const
+{
+  return "blob not null";
+}
+
+void Sqlite3::setDateTimeStorage(SqlDateTimeType type,
+				 DateTimeStorage storage)
+{
+  dateTimeStorage_[type] = storage;
+}
+
+Sqlite3::DateTimeStorage Sqlite3::dateTimeStorage(SqlDateTimeType type) const
+{
+  return dateTimeStorage_[type];
 }
 
 void Sqlite3::startTransaction() 

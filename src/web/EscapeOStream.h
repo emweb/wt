@@ -87,7 +87,8 @@ class WT_API EscapeOStream
 {
 public:
   enum RuleSet { Empty = 0, HtmlAttribute = 1,
-		 JsStringLiteralSQuote = 2, JsStringLiteralDQuote = 3 };
+		 JsStringLiteralSQuote = 2, JsStringLiteralDQuote = 3, 
+                 PlainText = 4, PlainTextNewLines = 5 };
 
   EscapeOStream();
   EscapeOStream(std::ostream& sink);
@@ -134,12 +135,14 @@ private:
 
   std::vector<RuleSet> ruleSets_;
 
-  static const std::vector<Entry> standardSets_[4];
-  static const std::string standardSetsSpecial_[4];
+  static const std::vector<Entry> standardSets_[6];
+  static const std::string standardSetsSpecial_[6];
 
   static const Entry htmlAttributeEntries_[3];
   static const Entry jsStringLiteralSQuoteEntries_[5];
   static const Entry jsStringLiteralDQuoteEntries_[5];
+  static const Entry plainTextEntries_[3];
+  static const Entry plainTextNewLinesEntries_[4];
 };
 
 }

@@ -37,7 +37,6 @@ bool WMessageResourceBundle::resolveKey(const std::string& key,
       return true;
   }
 
-  result = "??" + key + "??";
   return false;
 }
 #else

@@ -6,6 +6,7 @@
 
 #include "Utils.h"
 #include "DomElement.h"
+#include "rapidxml/rapidxml.hpp"
 #include "Wt/WString"
 
 #include <cstdlib>
@@ -69,17 +70,19 @@ std::string& replace(std::string& s, const std::string& k, const std::string& r)
   return s;
 }
 
-const std::string& escapeText(std::string& s, bool newLinesToo)
+void sanitizeUnicode(EscapeOStream& sout, const std::string& text)
 {
-  Wt::Utils::replace(s, '&', "&amp;");
-  Wt::Utils::replace(s, '<', "&lt;");
-  Wt::Utils::replace(s, '>', "&gt;");
-  // replace(s, '"', "&quot;");
-  // replace(s, '\'', "&apos;");
-  if (newLinesToo)
-    Wt::Utils::replace(s, '\n', "<br />");
+  char buf[4];
 
-  return s;
+  for (const char *c = text.c_str(); *c;) {
+    char *b = buf;
+    // but copy_check_utf8() does not declare the following ranges illegal:
+    //  U+D800-U+DFFF
+    //  U+FFFE-U+FFFF
+    rapidxml::xml_document<>::copy_check_utf8(c, b);
+    for (char *i = buf; i < b; ++i)
+      sout << *i;
+  }
 }
 
 std::string eraseWord(const std::string& s, const std::string& w)

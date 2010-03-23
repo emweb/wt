@@ -15,6 +15,8 @@
 #include "Wt/WStackedWidget"
 #include "Wt/WTableCell"
 
+#include "StdGridLayoutImpl.h"
+
 #include "WtException.h"
 
 #include <cctype>
@@ -35,7 +37,11 @@ WMenuItem::WMenuItem(const WString& text, WWidget *contents,
     implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
   else {
     contentsContainer_ = new WContainerWidget();
+    contentsContainer_
+      ->setJavaScriptMember("wtResize", StdGridLayoutImpl::childrenResizeJS());
+
     addChild(contents_);
+
     WT_DEBUG( contentsContainer_->setObjectName("contents-container") );
     contentsContainer_->resize(WLength::Auto,
 			       WLength(100, WLength::Percentage));

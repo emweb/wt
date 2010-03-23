@@ -406,6 +406,8 @@ private:
 
   std::string utf8_;
 
+  void resolveKey(const std::string& key, std::string& result) const;
+
   void makeLiteral();
 
   struct Impl {

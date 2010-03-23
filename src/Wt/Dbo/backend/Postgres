@@ -45,9 +45,12 @@ public:
 
   virtual SqlStatement *prepareStatement(const std::string& sql);
   
-  virtual std::string autoincrementSql();
-  virtual std::string autoincrementType();
-  virtual std::string autoincrementInsertSuffix();
+  virtual std::string autoincrementSql() const;
+  virtual std::string autoincrementType() const;
+  virtual std::string autoincrementInsertSuffix() const;
+  virtual const char *dateTimeType(SqlDateTimeType type) const;
+  virtual const char *blobType() const;
+
   virtual void startTransaction();
   virtual void commitTransaction();
   virtual void rollbackTransaction();

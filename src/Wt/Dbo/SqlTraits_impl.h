@@ -14,7 +14,7 @@ namespace Wt {
 
 template <typename V, class Enable>
 void sql_value_traits<V, Enable>::bind(const char *v, SqlStatement *statement,
-				       int column)
+				       int column, int size)
 {
   statement->bind(column, v);
 }
@@ -37,7 +37,7 @@ Result sql_result_traits<Result>::loadValues(Session& session,
 					     int& column)
 {
   Result result;
-  sql_value_traits<Result>::read(result, &statement, column++);
+  sql_value_traits<Result>::read(result, &statement, column++, -1);
   return result;
 }
 

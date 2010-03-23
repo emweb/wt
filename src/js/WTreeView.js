@@ -222,6 +222,9 @@ WT_DECLARE_WT_MEMBER
       return;
     }
 
+    if (WT.isHidden(el))
+      return;
+
     var $el=$(el),
         tw = $el.innerWidth(),
 	vscroll

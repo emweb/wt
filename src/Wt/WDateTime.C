@@ -79,6 +79,11 @@ void WDateTime::setTime_t(std::time_t t)
   datetime_ = posix::from_time_t(t);
 }
 
+void WDateTime::setPosixTime(const posix::ptime& dt)
+{
+  datetime_ = dt;
+}
+
 void WDateTime::setDate(const WDate& date)
 {
   if (isValid()) {
@@ -183,6 +188,11 @@ std::time_t WDateTime::toTime_t() const
 {
   return (datetime_ - posix::ptime(gregorian::date(1970, 1, 1)))
     .total_seconds();
+}
+
+posix::ptime WDateTime::toPosixTime() const
+{
+  return datetime_;
 }
 
 int WDateTime::secsTo(const WDateTime& other) const
@@ -447,6 +457,10 @@ WDateTime WDateTime::fromTime_t(std::time_t t) {
   dt.setTime_t(t);
   
   return dt;
+}
+
+WDateTime WDateTime::fromPosixTime(const posix::ptime& t) {
+  return WDateTime(t);
 }
 
 }

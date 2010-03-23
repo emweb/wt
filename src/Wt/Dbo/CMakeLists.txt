@@ -2,6 +2,7 @@ ADD_LIBRARY(wtdbo
   ptr.C
   DbAction.C
   Exception.C
+  Query.C
   Session.C
   SqlConnection.C
   SqlStatement.C

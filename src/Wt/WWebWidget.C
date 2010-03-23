@@ -1635,7 +1635,16 @@ WString WWebWidget::escapeText(const WString& text, bool newlinestoo)
 
 std::string& WWebWidget::escapeText(std::string& text, bool newlinestoo)
 {
-  text = Wt::Utils::escapeText(text, newlinestoo);
+  EscapeOStream sout;
+  if (newlinestoo)
+    sout.pushEscape(EscapeOStream::PlainTextNewLines);
+  else
+    sout.pushEscape(EscapeOStream::PlainText);
+
+  Wt::Utils::sanitizeUnicode(sout, text);
+
+  text = sout.str();
+
   return text;
 }
 

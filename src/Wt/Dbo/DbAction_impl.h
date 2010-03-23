@@ -121,7 +121,7 @@ void CreateSchema::actCollection(const CollectionRef<C>& field)
 	  = session_.manyToManyJoinId<C>(field.joinName(), field.joinId());
 
 	createJoinTable(field.joinName(), tableName, tableName_,
-			field.joinId(), joinOtherId);
+			joinOtherId, field.joinId());
       }
     }
   }

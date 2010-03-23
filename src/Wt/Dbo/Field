@@ -22,9 +22,10 @@ template <typename V>
 class FieldRef
 {
 public:
-  FieldRef(V& value, const std::string& name);
+  FieldRef(V& value, const std::string& name, int size);
 
   const std::string& name() const;
+  int size() const;
 
   std::string sqlType(Session& session) const;
 
@@ -36,6 +37,7 @@ public:
 private:
   V& value_;
   std::string name_;
+  int size_;
 };
 
 /*! \brief Type of an SQL relation.
@@ -89,6 +91,10 @@ private:
  *
  * This function binds the field \p value to the database field \p name.
  *
+ * The optional \p size may be used as a hint for the needed
+ * storage. It is only useful for <i>std::string</i> or <i>WString</i>
+ * fields.
+ *
  * You may want to specialize this method for a particular value type, if it
  * is for example a composite type which should be persisted in multiple
  * database fields.
@@ -116,7 +122,7 @@ private:
  * \ingroup dbo
  */
 template <class Action, typename V>
-void field(Action& action, V& value, const std::string& name);
+void field(Action& action, V& value, const std::string& name, int size = -1);
 
 /*! \brief Maps the "One"-side of a ManyToOne relation.
  *

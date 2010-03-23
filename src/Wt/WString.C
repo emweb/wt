@@ -186,13 +186,19 @@ void WString::checkUTF8Encoding(std::string& value)
   }
 }
 
+void WString::resolveKey(const std::string& key, std::string& result) const
+{
+  if (!wApp->localizedStrings()->resolveKey(impl_->key_, result))
+    result = "??" + key + "??";
+}
+
 std::string WString::toUTF8() const
 {
   if (impl_) {
     std::string result = utf8_;
 
     if (!impl_->key_.empty())
-      wApp->localizedStrings()->resolveKey(impl_->key_, result);
+      resolveKey(impl_->key_, result);
 
     for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
       std::string key = '{' + boost::lexical_cast<std::string>(i+1) + '}';
@@ -432,7 +438,7 @@ bool operator!= (const wchar_t *lhs, const WString& rhs)
 void WString::makeLiteral()
 {
   if (!literal()) {
-    wApp->localizedStrings()->resolveKey(impl_->key_, utf8_);
+    resolveKey(impl_->key_, utf8_);
     impl_->key_ = std::string();
   }
 }

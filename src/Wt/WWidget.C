@@ -72,7 +72,8 @@ void WWidget::resize(const WLength& width, const WLength& height)
 
 void WWidget::setJsSize()
 {
-  if (!height().isAuto() && !javaScriptMember(WT_RESIZE_JS).empty())
+  if (!height().isAuto() && height().unit() != WLength::Percentage
+      && !javaScriptMember(WT_RESIZE_JS).empty())
     callJavaScriptMember
       (WT_RESIZE_JS, jsRef() + ","
        + boost::lexical_cast<std::string>(width().toPixels()) + ","
@@ -348,7 +349,7 @@ void WWidget::setLayoutSizeAware(bool aware)
        ""      "|| !self.wtHeight || self.wtHeight!=h) {"
        ""    "self.wtWidth=w; self.wtHeight=h;"
        ""    "self.style.height=h + 'px';"
-       + resized_->createCall("w", "h") +
+       + resized_->createCall("Math.round(w)", "Math.round(h)") +
        ""  "}"
        "};");
   } else {

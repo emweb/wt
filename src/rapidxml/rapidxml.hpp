@@ -1572,7 +1572,9 @@ namespace rapidxml
 	    unsigned length = 1;
 	    bool legal = false;
 	    if ((unsigned char)src[0] <= 0x7F) {
-	      legal = true;
+	      unsigned char c = src[0];
+	      if (c == 0x09 || c == 0x0A || c == 0x0D || c >= 0x20)
+		legal = true;
 	    } else if ((unsigned char)src[0] >= 0xF0) {
 	      length = 4;
 
@@ -1628,10 +1630,17 @@ namespace rapidxml
 		src += length;
 	    } else {
 	      if (dest)
-		for (unsigned i = 0; i < length; ++i) {
-		  *dest++ = '?';
-		  *src++;
-		}
+		if (length >= 3) {
+		  /* insert U+FFFD, the replacement character */
+		  *dest++ = 0xef;
+		  *dest++ = 0xbf;
+		  *dest++ = 0xbd;
+		  src += length;
+		} else
+		  for (unsigned i = 0; i < length; ++i) {
+		    *dest++ = '?';
+		    *src++;
+		  }
 	      else
 		RAPIDXML_PARSE_ERROR("Invalid UTF-8 sequence",
 				     const_cast<Ch *>(src));

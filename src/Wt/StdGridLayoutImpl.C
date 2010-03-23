@@ -22,8 +22,8 @@
 
 #ifndef WT_DEBUG_JS
 #include "js/StdGridLayoutImpl.min.js"
+#include "js/WtResize.min.js"
 #endif
-
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -51,6 +51,20 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
     app->addAutoJavaScript(app->javaScriptClass() + ".layoutsAdjust();");
   }
+}
+
+const char *StdGridLayoutImpl::childrenResizeJS()
+{
+  const char *THIS_JS = "js/WtResize.js";
+
+  WApplication *app = WApplication::instance();
+
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "ChildrenResize", wtjs10);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+
+  return WT_CLASS ".ChildrenResize";
 }
 
 StdGridLayoutImpl::~StdGridLayoutImpl()

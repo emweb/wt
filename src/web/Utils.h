@@ -18,6 +18,7 @@
 namespace Wt {
 
   class WString;
+  class EscapeOStream;
 
   namespace Utils {
 
@@ -32,7 +33,8 @@ extern std::string& replace(std::string& s, char c, const std::string& r);
 extern std::string& replace(std::string& s, const std::string& c,
 			    const std::string& r);
 
-extern const std::string& escapeText(std::string& s, bool newLinesToo);
+// sanitize unicode 
+extern void sanitizeUnicode(EscapeOStream& sout, const std::string& text);
 
 // word manipulation (for style class editing)
 extern std::string eraseWord(const std::string& s, const std::string& w);

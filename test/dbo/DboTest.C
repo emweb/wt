@@ -33,15 +33,25 @@ public:
   dbo::ptr<B> b;
   dbo::ptr<A> parent;
 
-  Wt::WDateTime  date;
-  Wt::WString    wstring;
-  std::string    string;
-  int            i;
-  float          f;
-  double         d;
+  std::vector<unsigned char> binary;
+  Wt::WDate date;
+  Wt::WDateTime datetime;
+  Wt::WString wstring;
+  std::string string;
+  int i;
+  float f;
+  double d;
 
   bool operator== (const A& other) const {
+    if (binary.size() != other.binary.size())
+      return false;
+
+    for (unsigned j = 0; j < binary.size(); ++j)
+      if (binary[j] != other.binary[j])
+	return false;
+
     return date == other.date
+      && datetime == other.datetime
       && wstring == other.wstring
       && string == other.string
       && i == other.i
@@ -57,8 +67,10 @@ public:
   void persist(Action& a)
   {
     dbo::field(a, date, "date");
+    dbo::field(a, binary, "binary");
+    dbo::field(a, datetime, "datetime");
     dbo::field(a, wstring, "wstring");
-    dbo::field(a, string, "string");
+    dbo::field(a, string, "string", 50);
     dbo::field(a, i, "i");
     dbo::field(a, f, "f");
     dbo::field(a, d, "d");
@@ -132,9 +144,17 @@ public:
 
 void DboTest::setup()
 {
-  connection_ = new dbo::backend::Sqlite3(":memory:");
-  //connection_ = new dbo::backend::Postgres
-  //  ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
+#ifdef SQLITE3
+  dbo::backend::Sqlite3 *sqlite3 = new dbo::backend::Sqlite3(":memory:");
+  sqlite3->setDateTimeStorage(dbo::SqlDate,
+  			      dbo::backend::Sqlite3::JulianDaysAsReal);
+  connection_ = sqlite3;
+#endif // SQLITE3
+
+#ifdef POSTGRES
+  connection_ = new dbo::backend::Postgres
+   ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
+#endif // POSTGRES
 
   session_ = new dbo::Session();
   session_->setConnection(*connection_);
@@ -160,7 +180,10 @@ void DboTest::test1()
 
   try {
     A a1;
-    a1.date = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
+    a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
+    for (unsigned i = 0; i < 255; ++i)
+      a1.binary.push_back(i);
+    a1.date = Wt::WDate(1976, 6, 14);
     a1.wstring = "Hello";
     a1.string = "There";
     a1.i = 42;
@@ -233,7 +256,8 @@ void DboTest::test2()
 
   try {
     A a1;
-    a1.date = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
+    a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
+    a1.date = Wt::WDate(1980, 12, 4);
     a1.wstring = "Hello";
     a1.string = "There";
     a1.i = 42;
@@ -355,8 +379,9 @@ void DboTest::test4()
       dbo::Transaction t(*session_);
 
       dbo::ptr<A> a1(new A());
-      a1.modify()->date = Wt::WDateTime(Wt::WDate(2009, 10, 1),
-					Wt::WTime(12, 11, 31));
+      a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+					    Wt::WTime(12, 11, 31));
+      a1.modify()->date = Wt::WDate(1980, 12, 4);
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
@@ -425,8 +450,9 @@ void DboTest::test5()
       dbo::Transaction t(*session_);
 
       dbo::ptr<A> a1(new A());
-      a1.modify()->date = Wt::WDateTime(Wt::WDate(2009, 10, 1),
-					Wt::WTime(12, 11, 31));
+      a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+					    Wt::WTime(12, 11, 31));
+      a1.modify()->date = Wt::WDate(1976, 11, 1);
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
@@ -479,8 +505,9 @@ void DboTest::test6()
       dbo::Transaction t(*session_);
 
       dbo::ptr<A> a1(new A());
-      a1.modify()->date = Wt::WDateTime(Wt::WDate(2009, 10, 1),
-					Wt::WTime(12, 11, 31));
+      a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+					    Wt::WTime(12, 11, 31));
+      a1.modify()->date = Wt::WDate(1980, 1, 1);
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;

@@ -13,6 +13,12 @@
 namespace Wt {
   namespace Dbo {
 
+enum SqlDateTimeType {
+  SqlDate,    // Date only
+  SqlDateTime // Date + time
+  /*, Time */ 
+};
+
 class SqlStatement;
 
 /*! \class SqlConnection Wt/Dbo/SqlConnection Wt/Dbo/SqlConnection
@@ -43,16 +49,24 @@ public:
   
   /*! \brief Returns the 'autoincrement' SQL string.
    */
-  virtual std::string autoincrementSql() = 0;
+  virtual std::string autoincrementSql() const = 0;
 
   /*! \brief Returns the 'autoincrement' SQL type.
    */
-  virtual std::string autoincrementType() = 0;
+  virtual std::string autoincrementType() const = 0;
 
   /*! \brief Returns the suffix for an 'autoincrement' insert statement.
    */
-  virtual std::string autoincrementInsertSuffix() = 0;
+  virtual std::string autoincrementInsertSuffix() const = 0;
   
+  /*! \brief Returns the date/time type.
+   */
+  virtual const char *dateTimeType(SqlDateTimeType type) const = 0;
+
+  /*! \brief Returns the blob type.
+   */
+  virtual const char *blobType() const = 0;
+
   /*! \brief Starts a transaction
    *
    * This function starts a transaction. 

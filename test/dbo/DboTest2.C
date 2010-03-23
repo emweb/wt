@@ -89,9 +89,14 @@ public:
 
 void DboTest2::setup()
 {
+#ifdef SQLITE3
   connection_ = new dbo::backend::Sqlite3(":memory:");
-  //connection_ = new dbo::backend::Postgres
-  //  ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
+#endif // SQLITE3
+
+#ifdef POSTGRES
+  connection_ = new dbo::backend::Postgres
+    ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
+#endif // POSTGRES
 
   session_ = new dbo::Session();
   session_->setConnection(*connection_);

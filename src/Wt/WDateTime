@@ -79,6 +79,10 @@ public:
    */
   void setTime_t(std::time_t time);
 
+  /*! \brief Sets the date time.
+   */
+  void setPosixTime(const boost::posix_time::ptime& time);
+
   /*! \brief Adds milliseconds.
    *
    * Returns a datetime that is \p ms milliseconds later than this
@@ -177,6 +181,12 @@ public:
    */
   std::time_t toTime_t() const;
 
+  /*! \brief Returns the boost time.
+   *
+   * \sa fromPosixTime()
+   */
+  boost::posix_time::ptime toPosixTime() const;
+
   /*! \brief Returns the difference between to datetime values (in seconds).
    *
    * \sa daysTo()
@@ -266,11 +276,17 @@ public:
    */
   static WDateTime currentDateTime();
 
-  /*! \brief Creates a WDateTime based on a number of seconds since the Epoch.
+  /*! \brief Creates a date time based on a number of seconds since the Epoch.
    *
    * \sa setTime_t()
    */
   static WDateTime fromTime_t(std::time_t seconds);
+
+  /*! \brief Creates a date time from boost's date time type.
+   *
+   * \sa toPosixTime()
+   */
+  static WDateTime fromPosixTime(const boost::posix_time::ptime& datetime);
 
 private:
   boost::posix_time::ptime datetime_;

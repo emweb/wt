@@ -11,9 +11,16 @@
 
 #include <Wt/Dbo/SqlTraits>
 #include <Wt/Dbo/ptr>
+#include <Wt/Dbo/collection>
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+      enum StatementKind { Select, Count };
+      extern std::string createQuerySql(StatementKind kind,
+					const std::string& select,
+					const std::string& from);
+    }
 
 class Session;
 class SqlConnection;
@@ -104,8 +111,6 @@ public:
 private:
   Query(Session& session, const std::string& select, const std::string& from);
 
-  enum StatementKind { Select, Count };
-
   Session& session_;
   std::string select_, from_;
 
@@ -113,8 +118,6 @@ private:
   mutable int column_;
 
   void prepareStatements() const;
-
-  std::string createSql(StatementKind kind) const;
 
   friend class Session;
 };

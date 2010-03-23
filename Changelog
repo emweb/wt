@@ -1,3 +1,7 @@
+23-03-2010:
+	* Wt/Dbo/Postgres, Wt/Dbo/Sqlite3: add proper support for dates,
+	time stamps, binary blobs, var chars
+
 19-03-2010:
 	* WCheckBox, WRadioButton: fix inconsistencies when setting style
 	attributes and they have a non-empty label
