@@ -26,8 +26,6 @@
 #include "JavaScriptLoader.h"
 #include "Utils.h"
 
-#include "JavaScriptLoader.h"
-
 #ifndef WT_DEBUG_JS
 #include "js/WTreeView.min.js"
 #endif

@@ -203,6 +203,20 @@ void CreateSchema::createJoinTable(const std::string& joinName,
        << "  primary key(\"" << table1_id << "\", \"" << table2_id << "\")\n)";
 
   session_.connection_->executeSql(sql_.str());
+
+  sql_.str("");
+
+  sql_ << "create index \"" << joinName << "_" << table1 << "\" on \""
+       << joinName << "\" (\"" << table1_id << "\")";
+
+  session_.connection_->executeSql(sql_.str());
+
+  sql_.str("");
+
+  sql_ << "create index \"" << joinName << "_" << table2 << "\" on \""
+       << joinName << "\" (\"" << table2_id << "\")";
+
+  session_.connection_->executeSql(sql_.str());
 }
 
 bool CreateSchema::isReading() const { return false; }

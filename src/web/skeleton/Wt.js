@@ -437,6 +437,10 @@ function initCapture() {
 
 this.capture = function(obj) {
   initCapture();
+
+  if (captureElement && obj)
+    return;
+
   captureElement = obj;
 
   var db = document.body;

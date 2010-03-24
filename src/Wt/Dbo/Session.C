@@ -210,18 +210,27 @@ void Session::parseSql(const std::string& sql,
 		       std::string& rest)
 {
   std::size_t selectPos = sql.find("select ");
+  if (selectPos == std::string::npos) {
+    aliases.clear();
+    rest = sql;
+    return;
+  }
+
   if (selectPos != 0)
     throw std::logic_error("Session::query(): query should start with 'select '"
 			   " (sql='" + sql + "'");
 
+  std::string aliasStr;
   std::size_t fromPos = sql.find(" from ");
-  if (fromPos == std::string::npos)
-    throw std::logic_error("Session::query(): expected ' from ' in query"
-			   " (sql='" + sql + "'");
+  if (fromPos != std::string::npos) {
+    aliasStr = sql.substr(7, fromPos - 7);
+    rest = sql.substr(fromPos);
+  } else {
+    aliasStr = sql.substr(7);
+    rest = std::string();
+  }
 
-  std::string aliasStr = sql.substr(7, fromPos - 7);
   boost::split(aliases, aliasStr, boost::is_any_of(","));
-  rest = sql.substr(fromPos);
 }
 
 std::string Session::getColumns(const char *tableName,

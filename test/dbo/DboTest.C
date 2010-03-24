@@ -543,6 +543,62 @@ void DboTest::test6()
   }
 }
 
+void DboTest::test7()
+{
+  setup();
+
+  try {
+    {
+      dbo::Transaction t(*session_);
+
+      int result = session_->query<int>("select 1");
+      BOOST_REQUIRE(result == 1);
+
+      t.commit();
+    }
+
+    int aId = -1;
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<A> a1(new A());
+      a1.modify()->datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1),
+					    Wt::WTime(12, 11, 31));
+      a1.modify()->date = Wt::WDate(1980, 1, 1);
+      a1.modify()->wstring = "Hello";
+      a1.modify()->string = "There";
+      a1.modify()->i = 42;
+      a1.modify()->f = 42.42;
+      a1.modify()->d = 42.424242;
+
+      session_->add(a1);
+      a1.flush();
+
+      aId = a1.id();
+
+      t.commit();
+    }
+
+    {
+      dbo::Transaction t(*session_);
+      int id1, id2;
+
+      boost::tie(id1, id2) = session_->query<boost::tuple<int, int> >
+	("select id, id from table_a").resultValue();
+
+      BOOST_REQUIRE(id1 == aId);
+      BOOST_REQUIRE(id2 == aId);
+
+      t.commit();
+    }
+
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
+}
+
 DboTest::DboTest()
   : test_suite("dbotest_test_suite")
 {
@@ -552,4 +608,5 @@ DboTest::DboTest()
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test4, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test5, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test6, this)));
+  add(BOOST_TEST_CASE(boost::bind(&DboTest::test7, this)));
 }

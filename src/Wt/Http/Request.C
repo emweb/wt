@@ -80,6 +80,15 @@ const std::string *Request::getParameter(const std::string& name) const
     return 0;
 }
 
+const UploadedFile *Request::getUploadedFile(const std::string& name) const
+{
+  UploadedFileMap::const_iterator i = files_.find(name);
+  if (i != files_.end())
+    return &i->second;
+  else
+    return 0;
+}
+
 std::string Request::method() const
 {
   return request_ ? request_->requestMethod() : "GET";
