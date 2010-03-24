@@ -761,7 +761,7 @@ public:
    */
   void disable();
 
-  virtual DomElement *createSDomElement(WApplication *app) = 0;
+  DomElement *createSDomElement(WApplication *app);
 
 protected:
   static const char *WT_RESIZE_JS;

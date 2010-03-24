@@ -45,7 +45,9 @@ std::vector<std::string> PrepareStatements::getSelfSql() const
 
   std::stringstream sql;
 
-  sql << "insert into \"" << tableName_ << "\" (\"version";
+  std::string table = Impl::quoteSchemaDot(tableName_);
+
+  sql << "insert into \"" << table << "\" (\"version";
   for (unsigned i = 0; i < fields_.size(); ++i)
     sql << "\", \"" << fields_[i];
   sql << "\") values (?";
@@ -56,7 +58,7 @@ std::vector<std::string> PrepareStatements::getSelfSql() const
 
   sql.str("");
 
-  sql << "update \"" << tableName_ << "\" set \"version\" = ?";
+  sql << "update \"" << table << "\" set \"version\" = ?";
   for (unsigned i = 0; i < fields_.size(); ++i)
     sql << ", \"" << fields_[i] << "\" = ?";
   sql << " where \"id\" = ? and \"version\" = ?";
@@ -64,13 +66,13 @@ std::vector<std::string> PrepareStatements::getSelfSql() const
 
   sql.str("");
 
-  sql << "delete from \"" << tableName_
+  sql << "delete from \"" << table
       << "\" where \"id\" = ?";
   result.push_back(sql.str()); // 2
 
   sql.str("");
 
-  sql << "delete from \"" << tableName_
+  sql << "delete from \"" << table
       << "\" where \"id\" = ? and \"version\" = ?";
   result.push_back(sql.str()); // 3
 
@@ -79,7 +81,7 @@ std::vector<std::string> PrepareStatements::getSelfSql() const
   sql << "select \"version";
   for (unsigned i = 0; i < fields_.size(); ++i)
     sql << "\", \"" << fields_[i];
-  sql << "\" from \"" << tableName_ << "\" where \"id\" = ?";
+  sql << "\" from \"" << table << "\" where \"id\" = ?";
   result.push_back(sql.str()); // 4
 
   return result;
@@ -114,6 +116,9 @@ void PrepareStatements::addCollectionsSql(std::vector<std::string>& statements)
       std::string join_other_id = info.joinOtherId.empty()
 	? std::string(info.tableName) + "_id" : info.joinOtherId;
 
+      std::string joinName = Impl::quoteSchemaDot(info.joinName);
+      std::string tableName = Impl::quoteSchemaDot(info.tableName);
+
       // ' where "id" = ?'
       //   -> ' join "joinName" on "joinName"."tableName_id" = "this"."id"'
       ssql.erase(ssql.length() - 15);
@@ -121,10 +126,10 @@ void PrepareStatements::addCollectionsSql(std::vector<std::string>& statements)
       // 'select version' -> 'select id, version'
       ssql.insert(7, "\"id\", ");
 
-      sql << ssql << " join \"" << info.joinName
-	  << "\" on \"" << info.joinName << "\".\"" << join_other_id
-	  << "\" = \"" << info.tableName << "\".\"id\" "
-	  << "where \"" << info.joinName << "\".\""
+      sql << ssql << " join \"" << joinName
+	  << "\" on \"" << joinName << "\".\"" << join_other_id
+	  << "\" = \"" << tableName << "\".\"id\" "
+	  << "where \"" << joinName << "\".\""
 	  << join_self_id << "\" = ?";
 
       statements.push_back(sql.str());
@@ -133,7 +138,7 @@ void PrepareStatements::addCollectionsSql(std::vector<std::string>& statements)
 
       sql.str("");
 
-      sql << "insert into \"" << info.joinName
+      sql << "insert into \"" << joinName
 	  << "\" (\"" << join_self_id << "\", \"" << join_other_id
 	  << "\") values (?, ?)";
 
@@ -143,7 +148,7 @@ void PrepareStatements::addCollectionsSql(std::vector<std::string>& statements)
 
       sql.str("");
 
-      sql << "delete from \"" << info.joinName
+      sql << "delete from \"" << joinName
 	  << "\" where \"" << join_self_id << "\" = ? and \""
 	  << join_other_id << "\" = ?";
 
@@ -165,9 +170,9 @@ CreateSchema::CreateSchema(Session& session, const char *tableName,
 {
   tablesCreated_.insert(tableName);
 
-  sql_ << "create table \"" << tableName << "\" (\n"
-       << "  id " << session.connection_->autoincrementType() << " primary key " 
-       << session.connection_->autoincrementSql() << ",\n"
+  sql_ << "create table \"" << Impl::quoteSchemaDot(tableName) << "\" (\n"
+       << "  id " << session.connection_->autoincrementType()
+       << " primary key " << session.connection_->autoincrementSql() << ",\n"
        << "  version integer not null";
 }
 
@@ -194,27 +199,28 @@ void CreateSchema::createJoinTable(const std::string& joinName,
   std::string table2_id = joinId2.empty()
     ? std::string(table2) + "_id" : joinId2;
 
+  std::string jn = Impl::quoteSchemaDot(joinName);
 
-  sql_ << "create table \"" << joinName << "\" (\n"
-       << "  \"" << table1_id << "\" integer references \"" << table1
-       << "\"(\"id\"),\n"
-       << "  \"" << table2_id << "\" integer references \"" << table2
-       << "\"(\"id\"),\n"
+  sql_ << "create table \"" << jn << "\" (\n"
+       << "  \"" << table1_id << "\" integer references \""
+       << Impl::quoteSchemaDot(table1) << "\"(\"id\"),\n"
+       << "  \"" << table2_id << "\" integer references \""
+       << Impl::quoteSchemaDot(table2) << "\"(\"id\"),\n"
        << "  primary key(\"" << table1_id << "\", \"" << table2_id << "\")\n)";
 
   session_.connection_->executeSql(sql_.str());
 
   sql_.str("");
 
-  sql_ << "create index \"" << joinName << "_" << table1 << "\" on \""
-       << joinName << "\" (\"" << table1_id << "\")";
+  sql_ << "create index \"" << joinName << "_" << table1
+       << "\" on \"" << jn << "\" (\"" << table1_id << "\")";
 
   session_.connection_->executeSql(sql_.str());
 
   sql_.str("");
 
-  sql_ << "create index \"" << joinName << "_" << table2 << "\" on \""
-       << joinName << "\" (\"" << table2_id << "\")";
+  sql_ << "create index \"" << joinName << "_" << table2
+       << "\" on \"" << jn << "\" (\"" << table2_id << "\")";
 
   session_.connection_->executeSql(sql_.str());
 }
@@ -235,7 +241,8 @@ DropSchema::DropSchema(Session& session, const char *tableName,
 void DropSchema::drop(const std::string& table)
 {
   tablesDropped_.insert(table);
-  session_.connection_->executeSql("drop table \"" + table + "\"");
+  session_.connection_
+    ->executeSql("drop table \"" + Impl::quoteSchemaDot(table) + "\"");
 }
 
 bool DropSchema::isReading() const { return false; }

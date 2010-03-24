@@ -86,7 +86,6 @@ void WWidget::render(WFlags<RenderFlag> flags)
 bool WWidget::isRendered() const
 {
   WWidget *self = const_cast<WWidget *>(this);
-
   return self->webWidget()->isRendered();
 }
 
@@ -185,10 +184,7 @@ std::string WWidget::jsRef() const
 
 void WWidget::htmlText(std::ostream& out)
 {
-  render(RenderFull);
-
-  DomElement *element
-    = webWidget()->createSDomElement(WApplication::instance());
+  DomElement *element = createSDomElement(WApplication::instance());
 
   DomElement::TimeoutList timeouts;
   EscapeOStream sout(out);
@@ -256,13 +252,25 @@ void WWidget::getDrop(const std::string sourceId, const std::string mimeType,
 void WWidget::dropEvent(WDropEvent event)
 { }
 
+DomElement *WWidget::createSDomElement(WApplication *app)
+{
+  if (!needsToBeRendered()) {
+    DomElement *result = webWidget()->createStubElement(app);
+    renderOk();
+    askRerender(true);
+    return result;
+  } else {
+    webWidget()->setRendered(true);
+    render(RenderFull);
+    return webWidget()->createActualElement(app);
+  }
+}
+
 std::string WWidget::createJavaScript(std::stringstream& js,
 				      std::string insertJS)
 {
-  render(RenderFull);
-
   WApplication *app = WApplication::instance();
-  DomElement *de = webWidget()->createSDomElement(app);
+  DomElement *de = createSDomElement(app);
 
   std::string var = de->createVar();
   if (!insertJS.empty())

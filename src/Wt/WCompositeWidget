@@ -137,7 +137,6 @@ protected:
    */
   void setImplementation(WWidget *widget);
 
-  virtual DomElement *createSDomElement(WApplication *app);
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app);
   virtual bool needsToBeRendered() const;

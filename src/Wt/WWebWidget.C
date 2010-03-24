@@ -1384,12 +1384,13 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
      */
     if (app->session()->renderer().preLearning()) {
       getDomChanges(result, app);
-      repaint();
+      askRerender(true);
     } else if (!app->session()->renderer().visibleOnly()) {
       flags_.reset(BIT_STUBBED);
 
       if (!isIEMobile) {
 	DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
+	setRendered(true);
 	render(RenderFull);
 	DomElement *realElement = createDomElement(app);
 	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
@@ -1531,45 +1532,40 @@ bool WWebWidget::isRendered() const
   return flags_.test(WWebWidget::BIT_RENDERED);
 }
 
-DomElement *WWebWidget::createSDomElement(WApplication *app)
+DomElement *WWebWidget::createStubElement(WApplication *app)
 {
-  setRendered(true);
-
-  if (!needsToBeRendered()) {
-    /*
-     * Make sure the object itself is clean, so that stateless slot
-     * learning is not confused.
-     */
-    propagateRenderOk();
+  /*
+   * Make sure the object itself is clean, so that stateless slot
+   * learning is not confused.
+   */
+  propagateRenderOk();
  
-    flags_.set(BIT_STUBBED);
+  flags_.set(BIT_STUBBED);
 
-    DomElement *stub = DomElement::createNew(DomElement_SPAN);
-    if (!flags_.test(BIT_HIDE_WITH_OFFSETS)) {
-      stub->setProperty(Wt::PropertyStyleDisplay, "none");
-    } else {
-      stub->setProperty(PropertyStylePosition, "absolute");
-      stub->setProperty(PropertyStyleLeft, "-10000px");
-      stub->setProperty(PropertyStyleTop, "-10000px");
-      stub->setProperty(PropertyStyleVisibility, "hidden");
-    }
-    if (wApp->environment().javaScript())
-      stub->setProperty(Wt::PropertyInnerHTML, "...");
-
-    if (!app->environment().agentIsSpiderBot()
-	|| (otherImpl_ && otherImpl_->id_))
-      stub->setId(id());
-
-    WWidget::askRerender(true);
-
-    return stub;
+  DomElement *stub = DomElement::createNew(DomElement_SPAN);
+  if (!flags_.test(BIT_HIDE_WITH_OFFSETS)) {
+    stub->setProperty(Wt::PropertyStyleDisplay, "none");
   } else {
-    flags_.reset(BIT_STUBBED);
-
-    render(RenderFull);
-
-    return createDomElement(app);
+    stub->setProperty(PropertyStylePosition, "absolute");
+    stub->setProperty(PropertyStyleLeft, "-10000px");
+    stub->setProperty(PropertyStyleTop, "-10000px");
+    stub->setProperty(PropertyStyleVisibility, "hidden");
   }
+  if (app->environment().javaScript())
+    stub->setProperty(Wt::PropertyInnerHTML, "...");
+
+  if (!app->environment().agentIsSpiderBot()
+      || (otherImpl_ && otherImpl_->id_))
+    stub->setId(id());
+
+  return stub;
+}
+
+DomElement *WWebWidget::createActualElement(WApplication *app)
+{
+  flags_.reset(BIT_STUBBED);
+
+  return createDomElement(app);
 }
 
 void WWebWidget::refresh()

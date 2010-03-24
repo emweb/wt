@@ -4,6 +4,8 @@
 	* Wt/Dbo/DbAction.C: create indexes on join table for each referenced
 	table id
 
+	* Wt/Dbo: support schema-qualified tables
+
 23-03-2010:
 	* Wt/Dbo/Postgres, Wt/Dbo/Sqlite3: add proper support for dates,
 	time stamps, binary blobs, var chars

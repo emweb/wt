@@ -18,6 +18,9 @@
 
 #include "DboTest.h"
 
+//#define SCHEMA "test."
+#define SCHEMA ""
+
 namespace dbo = Wt::Dbo;
 
 class A;
@@ -113,7 +116,7 @@ public:
     dbo::field(a, name, "name");
 
     dbo::hasMany(a, asManyToOne, dbo::ManyToOne,  "b");
-    dbo::hasMany(a, csManyToMany, dbo::ManyToMany, "b_c", "the_b");
+    dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_b");
   }
 };
 
@@ -138,7 +141,7 @@ public:
   {
     dbo::field(a, name, "name");
 
-    dbo::hasMany(a, bsManyToMany, dbo::ManyToMany, "b_c", "the_c");
+    dbo::hasMany(a, bsManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_c");
   }
 };
 
@@ -159,9 +162,9 @@ void DboTest::setup()
   session_ = new dbo::Session();
   session_->setConnection(*connection_);
 
-  session_->mapClass<A>("table_a");
-  session_->mapClass<B>("table_b");
-  session_->mapClass<C>("table_c");
+  session_->mapClass<A>(SCHEMA "table_a");
+  session_->mapClass<B>(SCHEMA "table_b");
+  session_->mapClass<C>(SCHEMA "table_c");
 
   session_->createTables();
 }

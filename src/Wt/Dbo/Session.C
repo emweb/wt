@@ -17,6 +17,25 @@
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+std::string& replace(std::string& s, char c, const std::string& r)
+{
+  std::string::size_type p = 0;
+
+  while ((p = s.find(c, p)) != std::string::npos) {
+    s.replace(p, 1, r);
+    p += r.length();
+  }
+
+  return s;
+}
+
+std::string quoteSchemaDot(const std::string& table) {
+  std::string result = table;
+  replace(result, '.', "\".\"");
+  return result;
+}
+    }
 
 const int Session::SqlInsert = 0;
 const int Session::SqlUpdate = 1;
