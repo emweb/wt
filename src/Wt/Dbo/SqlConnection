@@ -13,9 +13,11 @@
 namespace Wt {
   namespace Dbo {
 
+/*! \brief Enum that defines a date time type.
+ */
 enum SqlDateTimeType {
-  SqlDate,    // Date only
-  SqlDateTime // Date + time
+  SqlDate,    //!< Date only
+  SqlDateTime //!< Date and time
   /*, Time */ 
 };
 
@@ -46,26 +48,6 @@ public:
    * it, and deleting it.
    */
   virtual void executeSql(const std::string& sql);
-  
-  /*! \brief Returns the 'autoincrement' SQL string.
-   */
-  virtual std::string autoincrementSql() const = 0;
-
-  /*! \brief Returns the 'autoincrement' SQL type.
-   */
-  virtual std::string autoincrementType() const = 0;
-
-  /*! \brief Returns the suffix for an 'autoincrement' insert statement.
-   */
-  virtual std::string autoincrementInsertSuffix() const = 0;
-  
-  /*! \brief Returns the date/time type.
-   */
-  virtual const char *dateTimeType(SqlDateTimeType type) const = 0;
-
-  /*! \brief Returns the blob type.
-   */
-  virtual const char *blobType() const = 0;
 
   /*! \brief Starts a transaction
    *
@@ -106,6 +88,65 @@ public:
    */
   virtual SqlStatement *prepareStatement(const std::string& sql) = 0;
 
+  /*! \brief Sets a property.
+   *
+   * Properties may tailor the backend behavior. Some properties are
+   * applicable to all backends, while some are backend specific.
+   *
+   * General properties are:
+   * - <tt>show-queries</tt>: when value is "true", queries are shown
+   *   as they are executed.
+   */
+  void setProperty(const std::string& name, const std::string& value);
+
+  /*! \brief Returns a property.
+   *
+   * Returns the property value, or an empty string if the property was
+   * not set.
+   *
+   * \sa setProperty()
+   */
+  std::string property(const std::string& name) const;
+
+  /** @name Methods that return dialect information
+   */
+  //@{
+  /*! \brief Returns the 'autoincrement' SQL type modifier.
+   *
+   * This is used by Session::createTables() to create the <i>id</i>
+   * column.
+   */
+  virtual std::string autoincrementSql() const = 0;
+
+  /*! \brief Returns the 'autoincrement' SQL type.
+   *
+   * This is used by Session::createTables() to create the <i>id</i>
+   * column.
+   */
+  virtual std::string autoincrementType() const = 0;
+
+  /*! \brief Returns the suffix for an 'autoincrement' insert statement.
+   *
+   * This is appended to the <tt>insert</tt> statement, since some back-ends
+   * need to be indicated that they should return the autoincrement id.
+   */
+  virtual std::string autoincrementInsertSuffix() const = 0;
+  
+  /*! \brief Returns the date/time type.
+   *
+   * \sa SqlStatement::bind(int, const boost::posix_time::ptime&, SqlDateTimeType)
+   */
+  virtual const char *dateTimeType(SqlDateTimeType type) const = 0;
+
+  /*! \brief Returns the blob type.
+   *
+   * \sa SqlStatement::bind(int, const std::vector<unsigned char>&)
+   */
+  virtual const char *blobType() const = 0;
+  //@}
+
+  bool showQueries() const;
+
 protected:
   void clearStatementCache();
 
@@ -113,6 +154,7 @@ private:
   typedef std::map<std::string, SqlStatement *> StatementMap;
 
   StatementMap statementCache_;
+  std::map<std::string, std::string> properties_;
 };
 
   }

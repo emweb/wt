@@ -1,3 +1,6 @@
+25-03-2010:
+	* Wt/Dbo/backend: provide generic properties() and API clean-ups
+
 24-03-2010:
 	* Wt/Dbo/Query: also support queries without 'from' or 'select'
 

@@ -77,10 +77,15 @@ public:
    *
    * The class \p C is mapped to table with name \p tableName. You
    * need to map classes to tables.
+   *
+   * You may provide a schema-qualified table name, if the underlying
+   * database supports this, eg. <tt>"myschema.users"</tt>.
    */
   template <class C> void mapClass(const char *tableName);
 
   /*! \brief Returns the mapped table name for a class.
+   *
+   * \sa mapClass()
    */
   template <class C> const char *tableName() const;
 

@@ -93,7 +93,9 @@ private:
  *
  * The optional \p size may be used as a hint for the needed
  * storage. It is only useful for <i>std::string</i> or <i>WString</i>
- * fields.
+ * fields, and causes the schema to use a
+ * <tt>varchar(</tt><i><tt>size</tt></i><tt>)</tt> for storing the field
+ * instead of an unlimited length string type.
  *
  * You may want to specialize this method for a particular value type, if it
  * is for example a composite type which should be persisted in multiple
@@ -151,11 +153,13 @@ void belongsTo(Action& action, ptr<C>& value, const std::string& name);
  * relation.
  *
  * For a \link Wt::Dbo::ManyToMany ManyToMany\endlink relation, the \p
- * joinName is the name of a linker table. Thus, also for a
- * ManyToMany relation, both sides of the relationship will have the
- * same joinName passed to them. You may optionally specify the \p joinId
- * which is used to reference this side of the relationship in the join
- * table. If \p joinId is left blank, the value will be tableName + "_id".
+ * joinName is the name of a linker table (this linker table may be
+ * schema qualified, e.g. <tt>"myschema.posts_tags"</tt>. Thus, also
+ * for a ManyToMany relation, both sides of the relationship will have
+ * the same joinName passed to them. You may optionally specify the \p
+ * joinId which is used to reference this side of the relationship in
+ * the join table. If \p joinId is left blank, the value will be
+ * table name of the current class + "_id".
  *
  * A hasMany() must have a counter-part belongsTo() or hasMany()
  * declaration in the referenced class \p C.

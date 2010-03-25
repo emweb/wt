@@ -20,8 +20,6 @@ namespace Wt {
   namespace Dbo {
     namespace backend {
 
-const bool showQueries = true;
-
 class Sqlite3Exception : public Exception
 {
 public:
@@ -40,10 +38,11 @@ public:
     DEBUG(std::cerr << this << " for: " << sql << std::endl);
 
 #if SQLITE3_VERSION_NUMBER >= 3009009
-    int err = sqlite3_prepare_v2(db_.db(), sql.c_str(), sql.length() + 1,
-				 st_, 0);
+    int err = sqlite3_prepare_v2(db_.connection(), sql.c_str(),
+				 sql.length() + 1, st_, 0);
 #else
-    int err = sqlite3_prepare(db_.db(), sql.c_str(), sql.length() + 1, &st_, 0);
+    int err = sqlite3_prepare(db_.connection(), sql.c_str(),
+			      sql.length() + 1, &st_, 0);
 #endif
 
     handleErr(err);
@@ -179,7 +178,7 @@ public:
 
   virtual void execute()
   {
-    if (showQueries)
+    if (db_.showQueries())
       std::cerr << sql_ << std::endl;
 
     int result = sqlite3_step(st_);
@@ -197,12 +196,12 @@ public:
 
   virtual long long insertedId()
   {
-    return sqlite3_last_insert_rowid(db_.db());
+    return sqlite3_last_insert_rowid(db_.connection());
   }
 
   virtual int affectedRowCount()
   {
-    return sqlite3_changes(db_.db());
+    return sqlite3_changes(db_.connection());
   }
   
   virtual bool nextRow()
@@ -402,7 +401,7 @@ private:
   void handleErr(int err)
   {
     if (err != SQLITE_OK)
-      throw Sqlite3Exception(sqlite3_errmsg(db_.db()));
+      throw Sqlite3Exception(sqlite3_errmsg(db_.connection()));
   }
 
   boost::gregorian::date fromJulianDay(int julian) {

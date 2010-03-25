@@ -26,8 +26,6 @@ namespace Wt {
   namespace Dbo {
     namespace backend {
 
-const bool showQueries = true;
-			
 class PostgresException : public Exception
 {
 public:
@@ -39,7 +37,7 @@ public:
 class PostgresStatement : public SqlStatement
 {
 public:
-  PostgresStatement(PGconn *conn, const std::string& sql)
+  PostgresStatement(Postgres& conn, const std::string& sql)
     : conn_(conn),
       sql_(convertToNumberedPlaceholders(sql))
   {
@@ -156,7 +154,7 @@ public:
 
   virtual void execute()
   {
-    if (showQueries)
+    if (conn_.showQueries())
       std::cerr << sql_ << std::endl;
 
     if (!result_) {
@@ -177,7 +175,7 @@ public:
 	}
       }
 
-      result_ = PQprepare(conn_, name_, sql_.c_str(),
+      result_ = PQprepare(conn_.connection(), name_, sql_.c_str(),
 			  paramTypes_ ? params_.size() : 0, (Oid *)paramTypes_);
       handleErr(PQresultStatus(result_));
     }
@@ -194,8 +192,8 @@ public:
     }
 
     PQclear(result_);
-    result_ = PQexecPrepared(conn_, name_, params_.size(), paramValues_,
-			     paramLengths_, paramFormats_, 0);
+    result_ = PQexecPrepared(conn_.connection(), name_, params_.size(),
+			     paramValues_, paramLengths_, paramFormats_, 0);
 
     row_ = 0;
     if (PQresultStatus(result_) == PGRES_COMMAND_OK)
@@ -382,7 +380,7 @@ private:
     Param() : isnull(true), isbinary(false) { }
   };
 
-  PGconn *conn_;
+  Postgres& conn_;
   std::string sql_;
   char name_[64];
   PGresult *result_;
@@ -397,7 +395,7 @@ private:
   void handleErr(int err)
   {
     if (err != PGRES_COMMAND_OK && err != PGRES_TUPLES_OK)
-      throw PostgresException(PQerrorMessage(conn_));
+      throw PostgresException(PQerrorMessage(conn_.connection()));
   }
 
   void setValue(int column, const std::string& value) {
@@ -446,7 +444,7 @@ private:
 };
 
 Postgres::Postgres(const std::string& db)
-  : conn(NULL)
+  : conn_(NULL)
 {
   if (!db.empty())
     connect(db);
@@ -455,15 +453,17 @@ Postgres::Postgres(const std::string& db)
 Postgres::~Postgres()
 {
   clearStatementCache();
-  if (conn) PQfinish(conn);
+  if (conn_)
+    PQfinish(conn_);
 }
 
 bool Postgres::connect(const std::string& db)
 {
-  conn = PQconnectdb(db.c_str());
-  if (PQstatus(conn) != CONNECTION_OK) {
-    conn = NULL;
-    DEBUG(fprintf(stderr, "Connection Failed %s %s\n", db.c_str(), PQerrorMessage(conn)));
+  conn_ = PQconnectdb(db.c_str());
+  if (PQstatus(conn_) != CONNECTION_OK) {
+    conn_ = NULL;
+    DEBUG(fprintf(stderr, "Connection Failed %s %s\n", db.c_str(),
+		  PQerrorMessage(conn)));
     return false;
   }
 
@@ -472,7 +472,7 @@ bool Postgres::connect(const std::string& db)
 
 SqlStatement *Postgres::prepareStatement(const std::string& sql)
 {
-  return new PostgresStatement(conn, sql);
+  return new PostgresStatement(*this, sql);
 }
 
 void Postgres::executeSql(const std::string &sql)
@@ -480,14 +480,14 @@ void Postgres::executeSql(const std::string &sql)
   PGresult *result;
   int err;
 
-  if (showQueries)
+  if (showQueries())
     std::cerr << sql << std::endl;
 			
-  result = PQexec(conn, sql.c_str());
+  result = PQexec(conn_, sql.c_str());
   err = PQresultStatus(result);
   if (err != PGRES_COMMAND_OK && err != PGRES_TUPLES_OK) {
     PQclear(result);
-    throw PostgresException(PQerrorMessage(conn));
+    throw PostgresException(PQerrorMessage(conn_));
   }
   PQclear(result);
 }
@@ -524,19 +524,19 @@ const char *Postgres::blobType() const
 
 void Postgres::startTransaction()
 {
-  PGresult *result = PQexec(conn, "start transaction");
+  PGresult *result = PQexec(conn_, "start transaction");
   PQclear(result);
 }
 
 void Postgres::commitTransaction()
 {
-  PGresult *result = PQexec(conn, "commit transaction");
+  PGresult *result = PQexec(conn_, "commit transaction");
   PQclear(result);
 }
 
 void Postgres::rollbackTransaction()
 {
-  PGresult *result = PQexec(conn, "rollback transaction");
+  PGresult *result = PQexec(conn_, "rollback transaction");
   PQclear(result);
 }
 

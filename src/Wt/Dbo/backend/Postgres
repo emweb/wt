@@ -20,7 +20,7 @@ namespace Wt {
     namespace backend {
 
 /*! \class Postgres Wt/Dbo/backend/Postgres Wt/Dbo/backend/Postgres
- *  \brief An PostgreSQL connection
+ *  \brief A PostgreSQL connection
  *
  * This class provides the backend implementation for PostgreSQL databases.
  *
@@ -43,21 +43,30 @@ public:
 
   bool connect(const std::string& db);
 
+  /*! \brief Returns the underlying connection.
+   */
+  PGconn *connection() { return conn_; }
+
+  virtual void executeSql(const std::string &sql);
+
+  virtual void startTransaction();
+  virtual void commitTransaction();
+  virtual void rollbackTransaction();
+
   virtual SqlStatement *prepareStatement(const std::string& sql);
-  
+
+  /** @name Methods that return dialect information
+   */
+  //@{
   virtual std::string autoincrementSql() const;
   virtual std::string autoincrementType() const;
   virtual std::string autoincrementInsertSuffix() const;
   virtual const char *dateTimeType(SqlDateTimeType type) const;
   virtual const char *blobType() const;
-
-  virtual void startTransaction();
-  virtual void commitTransaction();
-  virtual void rollbackTransaction();
-  void executeSql(const std::string &sql);
+  //@}
 
 private:
-  PGconn     *conn;
+  PGconn *conn_;
 };
 
     }

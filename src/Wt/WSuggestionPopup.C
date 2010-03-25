@@ -10,9 +10,15 @@
 #include "Wt/WTemplate"
 #include "Wt/WText"
 #include "Wt/WFormWidget"
+#include "Wt/WApplication"
 
 #include "Wt/WSuggestionPopup"
 #include "Wt/WStringListModel"
+
+#include "JavaScriptLoader.h"
+#ifndef WT_DEBUG_JS
+#include "js/WSuggestionPopup.min.js"
+#endif
 
 namespace Wt {
 
@@ -42,125 +48,48 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
   setPopup(true);
   setPositionScheme(Absolute);
 
-  editKeyDown_.setJavaScript
-    ("function(edit, event) {"
-     """var self = " + jsRef() + ";"
-     """var sel = self.sel;"
-     """if (sel != null) sel = " WT_CLASS ".getElement(sel);"
-     """if (self.style.display != 'none' && sel != null) {"
-     ""  "if ((event.keyCode == 13) || (event.keyCode == 9)) {"
-     ""    "sel.firstChild.onclick();"
-     ""    WT_CLASS ".cancelEvent(event);"
-     ""    "return false;"
-     ""  "} else if (event.keyCode == 40 || event.keyCode == 38) {"
-     ""    "if (event.type.toUpperCase() == 'KEYDOWN')"
-     ""      "self.kd = true;"
-     // FIXME: cancel the event so that up and down is not handled by
-     // the text area
-     ""    "if (event.type.toUpperCase() == 'KEYPRESS'"
-     ""      "&& self.kd == true) {"
-     ""       WT_CLASS ".cancelEvent(event);"
-     ""      "return false;"
-     ""    "}"
-     ""    "var n = sel;"
-     ""    "for (var n = (event.keyCode == 40) ? n.nextSibling : "
-     ""                                         "n.previousSibling; "
-     ""         "n != null"
-     ""         "&& n.nodeName.toUpperCase() == 'DIV' "
-     ""         "&& n.style.display == 'none';"
-     ""         "n = (event.keyCode == 40) ? n.nextSibling : n.previousSibling) { }"
-     ""    "if (n != null && n.nodeName.toUpperCase() == 'DIV') {"
-     ""      "sel.className = null;"
-     ""      "n.className = 'sel';"
-     ""      "self.sel = n.id;"
-     ""    "}"
-     ""    "return false;"
-     ""  "}"
-     """}"
-     """return (event.keyCode != 13 && event.keyCode != 9);"
-     "}");
-
-  editKeyUp_.setJavaScript
-    ("function(edit, event) {"
-     """var self = " + jsRef() + ";"
-     """var sel = self.sel;"
-     """if (sel != null)"
-     ""  "sel = " WT_CLASS ".getElement(sel);"
-     ""
-     """if (event.keyCode == 27"
-     ""    "|| event.keyCode == 37"
-     ""    "|| event.keyCode == 39) {"
-     ""  "self.style.display = 'none';"
-     ""  "if (event.keyCode == 27)"
-     ""    "edit.blur();"
-     """} else {"
-     ""  "var text = edit.value;"
-     ""  "var matcher = " + matcherJS_ + "(edit);"
-     ""  "var first = null;"
-     ""  "var sels = self.lastChild.childNodes;"
-     ""  "for (var i = 0; i < sels.length; i++) {"
-     ""    "var child = sels[i];"
-     ""    "if (child.nodeName.toUpperCase() == 'DIV') {"
-     ""      "if (child.orig == null)"
-     ""        "child.orig = child.firstChild.innerHTML;"
-     ""      "else "
-     ""        "child.firstChild.innerHTML = child.orig;"
-     ""      "var result = matcher(child.firstChild.innerHTML);"
-     ""      "child.firstChild.innerHTML = result.suggestion;"
-     ""      "if (result.match) {"
-     ""        "child.style.display = 'block';"
-     ""        "if (first == null) first = child;"
-     ""      "} else "
-     ""        "child.style.display = 'none';"
-     ""      "child.className = null;"
-     ""    "}"
-     ""  "}"
-     ""  "if (first == null) {"
-     ""    "self.style.display = 'none';"
-     ""  "} else {"
-     ""    "if (self.style.display != 'block') {"
-     ""      "self.style.display = 'block';"
-     ""      WT_CLASS ".positionAtWidget(self.id, edit.id, "
-     ""                                  WT_CLASS ".Vertical);"
-     ""      "self.sel = null;"
-     ""      "self.edit = edit.id;"
-     ""      "sel = null;"
-     ""    "}"
-     ""    "if ((sel == null) || (sel.style.display == 'none')) {"
-     ""      "self.sel = first.id;"
-     ""      "first.className = 'sel';"
-     ""    "} else {"
-     ""      "sel.className = 'sel';"
-     ""    "}"
-     ""  "}"
-     """}"
-     "}");
-
-  suggestionClicked_.setJavaScript
-    ("function(suggestion, event) {"
-     """var self = " + jsRef() + ";"
-     """var edit = " WT_CLASS ".getElement(self.edit);"
-
-     """var sText = suggestion.innerHTML;"
-     """var sValue = suggestion.getAttribute('sug');"
-     """var replacer = " + replacerJS_ + ";"
-     """edit.focus();"
-
-     """replacer(edit, sText, sValue);"
-
-     """self.style.display = 'none';"
-     "}");
-
-  delayHide_.setJavaScript
-    ("function(edit, event) {"
-     """setTimeout(function() {"
-     ""  "if (" + jsRef() + ") " + jsRef() + ".style.display = 'none';"
-     """}, 300);"
-      "}");
+  setJavaScript(editKeyDown_, "editKeyDown");
+  setJavaScript(editKeyUp_, "editKeyUp");
+  setJavaScript(suggestionClicked_, "suggestionClicked");
+  setJavaScript(delayHide_, "delayHide");
 
   hide();
 
   setModel(new WStringListModel(this));
+}
+
+void WSuggestionPopup::defineJavaScript()
+{
+  WApplication *app = WApplication::instance();
+
+  const char *THIS_JS = "js/WSuggestionPopup.js";
+
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopup", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+
+  app->doJavaScript("new " WT_CLASS ".WSuggestionPopup("
+		    + app->javaScriptClass() + "," + jsRef() + ","
+		    + replacerJS_ + "," + matcherJS_ + ");");
+}
+
+void WSuggestionPopup::render(WFlags<RenderFlag> flags)
+{
+  if (flags & RenderFull)
+    defineJavaScript();
+
+  WCompositeWidget::render(flags);
+}
+
+void WSuggestionPopup::setJavaScript(JSlot& slot, 
+				     const std::string& methodName)
+{
+  std::string jsFunction = 
+    "function(obj, event) {"
+    """jQuery.data(" + jsRef() + ", 'obj')." + methodName + "(obj, event);"
+    "}";
+  slot.setJavaScript(jsFunction);
 }
 
 void WSuggestionPopup::setModel(WAbstractItemModel *model)

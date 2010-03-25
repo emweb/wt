@@ -48,5 +48,26 @@ void SqlConnection::saveStatement(const std::string& id,
   statementCache_[id] = statement;
 }
 
+std::string SqlConnection::property(const std::string& name) const
+{
+  std::map<std::string, std::string>::const_iterator i = properties_.find(name);
+
+  if (i != properties_.end())
+    return i->second;
+  else
+    return std::string();
+}
+
+void SqlConnection::setProperty(const std::string& name,
+				const std::string& value)
+{
+  properties_[name] = value;
+}
+
+bool SqlConnection::showQueries() const
+{
+  return property("show-queries") == "true";
+}
+
   }
 }

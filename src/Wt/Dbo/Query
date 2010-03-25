@@ -9,8 +9,10 @@
 
 #include <vector>
 
+#include <Wt/Dbo/DbAction>
 #include <Wt/Dbo/SqlTraits>
 #include <Wt/Dbo/ptr>
+#include <Wt/Dbo/ptr_tuple>
 #include <Wt/Dbo/collection>
 
 namespace Wt {

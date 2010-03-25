@@ -289,11 +289,18 @@ private:
   JSlot suggestionClicked_;
   JSlot delayHide_;
 
+  void setJavaScript(JSlot& slot, const std::string& methodName);
+
   void modelRowsInserted(const WModelIndex& parent, int start, int end);
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   void modelDataChanged(const WModelIndex& topLeft,
 			const WModelIndex& bottomRight);
   void modelLayoutChanged();
+
+  void defineJavaScript();
+
+protected:
+  virtual void render(WFlags<RenderFlag> flags);
 };
 
 }

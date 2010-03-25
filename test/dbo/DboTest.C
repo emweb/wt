@@ -159,6 +159,7 @@ void DboTest::setup()
    ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
 #endif // POSTGRES
 
+  connection_->setProperty("show-queries", "true");
   session_ = new dbo::Session();
   session_->setConnection(*connection_);
 

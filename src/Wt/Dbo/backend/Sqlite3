@@ -65,6 +65,10 @@ public:
    */
   ~Sqlite3();
 
+  /*! \brief Returns the underlying connection.
+   */
+  sqlite3 *connection() { return db_; }
+
   /*! \brief Configures how to store date or date time.
    *
    * The default format is ISO8601AsText.
@@ -75,20 +79,21 @@ public:
    */
   DateTimeStorage dateTimeStorage(SqlDateTimeType type) const;
 
-  sqlite3 *db() { return db_; }
+  virtual void startTransaction();
+  virtual void commitTransaction();
+  virtual void rollbackTransaction();
 
   virtual SqlStatement *prepareStatement(const std::string& sql);
   
+  /** @name Methods that return dialect information
+   */
+  //@{
   virtual std::string autoincrementSql() const;
   virtual std::string autoincrementType() const;
   virtual std::string autoincrementInsertSuffix() const;
   virtual const char *dateTimeType(SqlDateTimeType type) const;
   virtual const char *blobType() const;
-  
-  virtual void startTransaction();
-  virtual void commitTransaction();
-  virtual void rollbackTransaction();
-
+  //@}
 private:
   DateTimeStorage dateTimeStorage_[2];
 
