@@ -28,7 +28,7 @@ class WScrollBar;
  *
  * <h3>CSS</h3>
  *
- * This widget is rendered using a <tt>&lt;<div>&gt;</tt> with a CSS
+ * This widget is rendered using a <tt>&lt;div&gt;</tt> with a CSS
  * overflow attribute. It can be styled using inline or external CSS
  * as appropriate.
  */

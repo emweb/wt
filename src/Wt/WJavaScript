@@ -208,7 +208,7 @@ public:
 
   /*! \brief Connect a slot that takes no arguments.
    *
-   * The slot is specified as a method of an object \target of class
+   * The slot is specified as a method of an object \p target of class
    * \p T, which equals class \p V, or is a base class of class \p
    * V. In addition, to check for stateless implementations, class \p
    * T must be also be a descendant of WObject. Thus, the following

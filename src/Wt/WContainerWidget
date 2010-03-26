@@ -153,9 +153,8 @@ public:
    * delete them, to avoid memory leaks.
    *
    * The layout manager arranges children in the entire width and
-   * height of the container. This is equivalent to \link
-   * setLayout(WLayout*, WFlags<AlignmentFlag>) setLayout(\p layout,
-   * AlignJustify)\endlink
+   * height of the container. This is equivalent to
+   * \link setLayout(WLayout*, WFlags<AlignmentFlag>) setLayout(layout, AlignJustify)\endlink
    *
    * \sa layout(), setLayout(WLayout *, WFlags<AlignmentFlag>)
    */
@@ -271,8 +270,8 @@ public:
    * container.
    *
    * For a WTableCell, this may also specify the vertical alignment.
-   * The default alignment is (\link Wt::AlignTop AlignTop \endlink | \link
-   * Wt::AlignLeft AlignLeft \endlink).
+   * The default alignment is (\link Wt::AlignTop AlignTop \endlink |
+   * \link Wt::AlignLeft AlignLeft \endlink).
    */
   void setContentAlignment(WFlags<AlignmentFlag> contentAlignment);
 

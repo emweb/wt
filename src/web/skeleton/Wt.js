@@ -970,6 +970,7 @@ function dragStart(obj, e) {
   ds.object.className = '';
   document.body.appendChild(ds.object);
 
+  WT.capture(null);
   WT.capture(ds.object);
   ds.object.onmousemove = dragDrag;
   ds.object.onmouseup = dragEnd;

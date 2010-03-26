@@ -238,7 +238,7 @@ public:
      *         for different items.
      *
      * For example, ',' to separate different values on komma. Specify
-     * 0 ('\0') for no list separation.
+     * 0 ('\\0') for no list separation.
      */
     char listSeparator;
 

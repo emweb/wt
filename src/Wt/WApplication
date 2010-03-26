@@ -940,7 +940,7 @@ public:
    * type.
    *
    * \if cpp
-   * For \link WServer::Application plain\endlink applications, \link
+   * For \link Wt::Application plain\endlink applications, \link
    * WApplication::XMLHttpRequest XMLHttpRequest\endlink is used,
    * while for \link Wt::WidgetSet widget set\endlink
    * applications, \link WApplication::DynamicScriptTag

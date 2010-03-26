@@ -236,7 +236,7 @@ public:
    * This is always possible (even when the signal specifies a number
    * of arguments).
    *
-   * The slot is as a \p method of an object \target of class \p T,
+   * The slot is as a \p method of an object \p target of class \p T,
    * which equals class \p V, or is a base class of class \p V. Thus,
    * the following statement must return a non-null pointer:
    *
@@ -562,7 +562,7 @@ public:
    * will be cached on the client side for instant feed-back, in
    * addition running the slot on the server.
    *
-   * The slot is as a \p method of an object \target of class \p T,
+   * The slot is as a \p method of an object \p target of class \p T,
    * which equals class \p V, or is a base class of class \p V. In
    * addition, to check for stateless implementations, class \p T must
    * be also be a descendant of WObject. Thus, the following statement
