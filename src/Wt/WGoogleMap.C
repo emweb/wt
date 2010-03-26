@@ -161,7 +161,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
       """});";
 
     // additional things
-    for (int i = 0; i < additions_.size(); i++)
+    for (unsigned int i = 0; i < additions_.size(); i++)
       strm << additions_[i];
 
     strm <<

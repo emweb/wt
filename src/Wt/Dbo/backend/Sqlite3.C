@@ -333,7 +333,7 @@ public:
       if (!getResult(column, &v))
 	return false;
 
-      int vi = static_cast<long long>(v);
+      int vi = static_cast<int>(v);
 
       if (type == SqlDate)
 	*value = boost::posix_time::ptime(fromJulianDay(vi),
@@ -342,7 +342,7 @@ public:
 	double vf = modf(v, &v);
 	boost::gregorian::date d = fromJulianDay(vi);
 	boost::posix_time::time_duration t
-	  = boost::posix_time::microseconds(vf * USEC_PER_DAY);
+          = boost::posix_time::microseconds((long long)(vf * USEC_PER_DAY));
 	*value = boost::posix_time::ptime(d, t);
       }
 
@@ -365,6 +365,9 @@ public:
       return true;
     }
     }
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << ": implementation error";
+    throw Sqlite3Exception(ss.str());
   }
 
 
@@ -492,6 +495,9 @@ const char *Sqlite3::dateTimeType(SqlDateTimeType type) const
   case UnixTimeAsInteger:
     return "integer";
   }
+  std::stringstream ss;
+  ss << __FILE__ << ":" << __LINE__ << ": implementation error";
+  throw Sqlite3Exception(ss.str());
 }
 
 const char *Sqlite3::blobType() const

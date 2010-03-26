@@ -9,6 +9,7 @@
 
 #include <map>
 #include <string>
+#include <Wt/Dbo/WDboDllDefs.h>
 
 namespace Wt {
   namespace Dbo {
@@ -35,7 +36,7 @@ class SqlStatement;
  *
  * \ingroup dbo
  */
-class SqlConnection
+class WTDBO_API SqlConnection
 {
 public:
   /*! \brief Destructor.

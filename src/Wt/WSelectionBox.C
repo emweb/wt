@@ -124,7 +124,7 @@ void WSelectionBox::setFormData(const FormData& formData)
   else {
     selection_.clear();
 
-    for (unsigned j = 0; j < Utils::size(formData.values); ++j) {
+    for (int j = 0; j < Utils::size(formData.values); ++j) {
       const std::string& v = formData.values[j];
       if (!v.empty()) {
 	try {

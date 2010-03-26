@@ -31,7 +31,7 @@ struct persist
 
 class SqlStatement;
 
-class PrepareStatements
+class WTDBO_API PrepareStatements
 {
 public:
   PrepareStatements(Session& session, const char *tableName);
@@ -52,7 +52,7 @@ public:
   bool isSchema() const;
 
 private:
-  struct SetInfo {
+  struct WTDBO_API SetInfo {
     const char *tableName;
     std::string joinName;
     std::string joinSelfId, joinOtherId;
@@ -73,7 +73,7 @@ private:
   std::vector<SetInfo> sets_;
 };
 
-class CreateSchema
+class WTDBO_API CreateSchema
 {
 public:
   CreateSchema(Session& session, const char *tableName,
@@ -105,7 +105,7 @@ private:
 		       const std::string& joinId2);
 };
 
-class DropSchema
+class WTDBO_API DropSchema
 {
 public:
   DropSchema(Session& session, const char *tableName,
@@ -129,7 +129,7 @@ private:
   void drop(const std::string& tableName);
 };
 
-class LoadDbAction
+class WTDBO_API LoadDbAction
 {
 public:
   LoadDbAction(MetaDboBase& dbo, SqlStatement *statement, int& column);
@@ -161,7 +161,7 @@ private:
   void done();
 };
 
-class SaveDbAction
+class WTDBO_API SaveDbAction
 {
 public:
   SaveDbAction(MetaDboBase& dbo);
@@ -195,7 +195,7 @@ private:
   void startSetsPass();
 };
 
-class TransactionDoneAction
+class WTDBO_API TransactionDoneAction
 {
 public:
   TransactionDoneAction(Session *session, MetaDboBase& dbo, bool success);
@@ -217,7 +217,7 @@ private:
   LoadDbAction undoLoadSets_;
 };
 
-class SessionAddAction
+class WTDBO_API SessionAddAction
 {
 public:
   SessionAddAction(Session *session);
@@ -236,7 +236,7 @@ private:
   Session *session_;
 };
 
-class GetManyToManyJoinIdAction
+class WTDBO_API GetManyToManyJoinIdAction
 {
 public:
   GetManyToManyJoinIdAction(const std::string& joinName,

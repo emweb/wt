@@ -17,6 +17,10 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
 #define BYTEAOID 17
 
 //#define DEBUG(x) x
@@ -129,7 +133,7 @@ public:
     DEBUG(std::cerr << this << " bind " << column << " (blob, size=" <<
 	  value.size() << ")" << std::endl);
 
-    for (unsigned i = params_.size(); i <= column; ++i)
+    for (int i = (int)params_.size(); i <= column; ++i)
       params_.push_back(Param());
 
     Param& p = params_[column];
@@ -146,7 +150,7 @@ public:
   {
     DEBUG(std::cerr << this << " bind " << column << " null" << std::endl);
 
-    for (unsigned i = params_.size(); i <= column; ++i)
+    for (int i = (int)params_.size(); i <= column; ++i)
       params_.push_back(Param());
 
     params_[column].isnull = true;
@@ -180,7 +184,7 @@ public:
       handleErr(PQresultStatus(result_));
     }
 
-    for (int i = 0; i < params_.size(); ++i) {
+    for (unsigned i = 0; i < params_.size(); ++i) {
       if (params_[i].isnull)
 	paramValues_[i] = 0;
       else
@@ -399,7 +403,7 @@ private:
   }
 
   void setValue(int column, const std::string& value) {
-    for (unsigned i = params_.size(); i <= column; ++i)
+    for (int i = (int)params_.size(); i <= column; ++i)
       params_.push_back(Param());
 
     params_[column].value = value;
@@ -512,6 +516,9 @@ const char *Postgres::dateTimeType(SqlDateTimeType type) const
   case SqlDateTime:
     return "timestamp";
   }
+  std::stringstream ss;
+  ss << __FILE__ << ":" << __LINE__ << ": implementation error";
+  throw PostgresException(ss.str());
 }
 
 const char *Postgres::blobType() const

@@ -101,7 +101,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
   bool exists = false;
   try {
     exists = fs::exists(exampleDir);
-  } catch (std::exception& e) {
+  } catch (std::exception&) {
   }
 
   if (!exists) {

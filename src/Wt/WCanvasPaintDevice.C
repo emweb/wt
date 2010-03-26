@@ -120,12 +120,14 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
 }
 
 void WCanvasPaintDevice::init()
-{ 
+{
   currentBrush_ = painter()->brush();
   currentPen_ = painter()->pen();
   currentShadow_ = painter()->shadow();
+  currentFont_ = painter()->font();
+  currentTextVAlign_ = currentTextHAlign_ = AlignLength;
 
-  changeFlags_ = Transform | Pen | Brush | Shadow;
+  changeFlags_ = Transform | Pen | Brush | Shadow | Font;
 }
 
 void WCanvasPaintDevice::done()
@@ -180,12 +182,12 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   js_ << ',' << Utils::round_str(ra.x(), 3, buf);
   js_ << "," << Utils::round_str(ra.y(), 3, buf) << ",true);";
 
-  if (currentBrush_.style() != NoBrush) {
-    js_ << "ctx.fill();";
-  }
-
   if (currentPen_.style() != NoPen) {
     js_ << "ctx.stroke();";
+  }
+
+  if (currentBrush_.style() != NoBrush) {
+    js_ << "ctx.fill();";
   }
 
   js_ << "ctx.restore();";
@@ -320,13 +322,11 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 void WCanvasPaintDevice::finishPath()
 {
   if (busyWithPath_) {
-    if (currentBrush_.style() != NoBrush) {
-      js_ << "ctx.fill();";
-    }
-
-    if (currentPen_.style() != NoPen) {
+    if (currentPen_.style() != NoPen)
       js_ << "ctx.stroke();";
-    }
+
+    if (currentBrush_.style() != NoBrush)
+      js_ << "ctx.fill();";
 
     js_ << '\n';
 
@@ -366,25 +366,43 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
     {
       double x = 0, y = 0;
 
-      js_ << "ctx.textAlign='";
+      if (horizontalAlign != currentTextHAlign_) {
+	js_ << "ctx.textAlign='";
+	switch (horizontalAlign) {
+	case AlignLeft: js_ << "left"; break;
+	case AlignRight: js_ << "right"; break;
+	case AlignCenter: js_ << "center"; break;
+	default: break;
+	}
+	js_ << "';";
+	currentTextHAlign_ = horizontalAlign;
+      }
+
       switch (horizontalAlign) {
-      case AlignLeft: js_ << "left"; x = rect.left(); break;
-      case AlignRight: js_ << "right"; x = rect.right(); break;
-      case AlignCenter: js_ << "center"; x = rect.center().x(); break;
+      case AlignLeft: x = rect.left(); break;
+      case AlignRight: x = rect.right(); break;
+      case AlignCenter: x = rect.center().x(); break;
       default: break;
       }
 
-      js_ << "';"
-	  << "ctx.textBaseline='";
+      if (verticalAlign != currentTextVAlign_) {
+	js_ << "ctx.textBaseline='";
+	switch (verticalAlign) {
+	case AlignTop: js_ << "top"; break;
+	case AlignBottom: js_ << "bottom"; break;
+	case AlignMiddle: js_ << "middle"; break;
+	default: break;
+	}
+	js_ << "';";
+	currentTextVAlign_ = verticalAlign;
+      }
+
       switch (verticalAlign) {
-      case AlignTop: js_ << "top"; y = rect.top(); break;
-      case AlignBottom: js_ << "bottom"; y = rect.bottom(); break;
-      case AlignMiddle: js_ << "middle"; y = rect.center().y(); break;
+      case AlignTop: y = rect.top(); break;
+      case AlignBottom: y = rect.bottom(); break;
+      case AlignMiddle: y = rect.center().y(); break;
       default: break;
       }
-      js_ << "';";
-
-      js_ << "ctx.font='" << painter()->font().cssText() << "';";
 
       if (currentBrush_.color() != currentPen_.color())
 	js_ << "ctx.fillStyle=\""
@@ -444,7 +462,6 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
       if (currentBrush_.color() != currentPen_.color())
 	js_ << "ctx.fillStyle=\""
 	    << currentPen_.color().cssText(true) << "\";";
-      js_ << "ctx.mozTextStyle = '" << painter()->font().cssText() << "';";
       js_ << "ctx.mozDrawText(" << text.jsStringLiteral() << ");";
       js_ << "ctx.restore();";
     }
@@ -566,8 +583,12 @@ void WCanvasPaintDevice::renderStateChanges()
     = (changeFlags_ & Brush) && (currentBrush_ != painter()->brush());
   bool penChanged
     = (changeFlags_ & Pen) && (currentPen_ != painter()->pen());
+  bool penColorChanged
+    = penChanged && (currentPen_.color() != painter()->pen().color());
   bool shadowChanged
     = (changeFlags_ & Shadow) && (currentShadow_ != painter()->shadow());
+  bool fontChanged
+    = (changeFlags_ & Font) && (currentFont_ != painter()->font());
 
   if (changeFlags_ & (Transform | Clipping)) {
     bool resetTransform = false;
@@ -644,8 +665,10 @@ void WCanvasPaintDevice::renderStateChanges()
       pathTranslation_.setY(0);
 
       penChanged = true;
+      penColorChanged = true;
       brushChanged = true;
       shadowChanged = true;
+      fontChanged = true;
     }
   }
 
@@ -653,7 +676,7 @@ void WCanvasPaintDevice::renderStateChanges()
     finishPath();
 
   if (penChanged) {
-    if (currentPen_.color() != painter()->pen().color())
+    if (penColorChanged)
       js_ << "ctx.strokeStyle=\"" << painter()->pen().color().cssText(true)
 	  << "\";";
 
@@ -702,6 +725,21 @@ void WCanvasPaintDevice::renderStateChanges()
 	<< "ctx.shadowBlur=" << currentShadow_.blur() << ';'
 	<< "ctx.shadowColor=\"" << currentShadow_.color().cssText(true)
 	<< "\";";
+  }
+
+  if (fontChanged) {
+    currentFont_ = painter_->font();
+
+    switch (textMethod_) {
+    case Html5Text: 
+      js_ << "ctx.font='" << painter()->font().cssText() << "';";
+      break;
+    case MozText:
+      js_ << "ctx.mozTextStyle = '" << painter()->font().cssText() << "';";
+      break;
+    case DomText:
+      break;
+    }
   }
 
   changeFlags_ = 0;

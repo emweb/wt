@@ -37,13 +37,6 @@ std::string quoteSchemaDot(const std::string& table) {
 }
     }
 
-const int Session::SqlInsert = 0;
-const int Session::SqlUpdate = 1;
-const int Session::SqlDelete = 2;
-const int Session::SqlDeleteVersioned = 3;
-const int Session::SqlSelectById = 4;
-const int Session::FirstSqlSelectSet = 5;
-
 Session::Session()
   : connection_(0),
     transaction_(0)

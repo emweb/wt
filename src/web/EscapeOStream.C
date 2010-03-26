@@ -28,7 +28,7 @@ SStream::~SStream()
 {
   flushSink();
 
-  for (int i = 1; i < bufs_.size(); ++i)
+  for (unsigned int i = 1; i < bufs_.size(); ++i)
     delete[] bufs_[i].first;
 
   if (buf_ != static_buf_)
@@ -129,13 +129,13 @@ const char *SStream::c_str()
 std::string SStream::str() const
 {
   int length = buf_i_;
-  for (int i = 0; i < bufs_.size(); ++i)
+  for (unsigned int i = 0; i < bufs_.size(); ++i)
     length += bufs_[i].second;
 
   std::string result;
   result.reserve(length);
 
-  for (int i = 0; i < bufs_.size(); ++i)
+  for (unsigned int i = 0; i < bufs_.size(); ++i)
     result.append(bufs_[i].first, bufs_[i].second);
 
   result.append(buf_, buf_i_);

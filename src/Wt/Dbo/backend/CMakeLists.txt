@@ -11,7 +11,9 @@ ADD_LIBRARY(wtdbosqlite3
   ${Sqlite3_SRCS}
 )
 
-TARGET_LINK_LIBRARIES(wtdbosqlite3 wtdbo ${SQLITE3_LIBRARIES} ${BOOST_DT_LIB})
+MESSAGE("** Wt::Dbo: building SQLite3 backend.")
+
+TARGET_LINK_LIBRARIES(wtdbosqlite3 wtdbo ${SQLITE3_LIBRARIES} ${BOOST_WT_DT_LIB})
 
 IF(NOT WIN32)
   TARGET_LINK_LIBRARIES(wtdbosqlite3 dl)
@@ -33,10 +35,11 @@ PROPERTIES
 INSTALL_FILES(/include/Wt/Dbo/backend "^Sqlite3$")
 
 IF(POSTGRES_FOUND)
+  MESSAGE("** Wt::Dbo: building Postgres backend.")
   ADD_LIBRARY(wtdbopostgres
     Postgres.C
     )
-  TARGET_LINK_LIBRARIES(wtdbopostgres wtdbo ${POSTGRES_LIBRARIES} ${BOOST_DT_LIB})
+  TARGET_LINK_LIBRARIES(wtdbopostgres wtdbo ${POSTGRES_LIBRARIES} ${BOOST_WT_DT_LIB})
 
   INCLUDE_DIRECTORIES(${POSTGRES_INCLUDE})
 
@@ -54,5 +57,7 @@ IF(POSTGRES_FOUND)
   )
 
   INSTALL_FILES(/include/Wt/Dbo/backend "^Postgres$")
+ELSE(POSTGRES_FOUND)
+  MESSAGE("** Wt::Dbo: could not find libpq development files, not building Postgres backend.")
 ENDIF(POSTGRES_FOUND)
 

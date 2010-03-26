@@ -27,7 +27,7 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
 
   if (boost::filesystem::exists(path)) {
     if (!boost::filesystem::is_directory(path)) {
-      int fsize = boost::filesystem::file_size(path);
+      int fsize = (int)boost::filesystem::file_size(path);
       setColumnWidget(1, new WText(boost::lexical_cast<std::wstring>(fsize)));
       columnWidget(1)->setStyleClass("fsize");
     } else

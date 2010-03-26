@@ -355,7 +355,7 @@ std::string WVmlImage::createShadowFilter() const
 	 << Utils::round_str(currentShadow_.offsetX(), 0, buf) << ';';
   filter << "top: "
 	 << Utils::round_str(currentShadow_.offsetY(), 0, buf)
-	 << ';';
+	 << ";z-index:-10;";
   filter << "filter:progid:DXImageTransform.Microsoft.Blur(makeShadow=1,";
   filter << "pixelradius="
 	 << Utils::round_str(currentShadow_.blur() * 0.66, 1, buf);
@@ -373,12 +373,13 @@ void WVmlImage::finishPaths()
      * blurring it using a filter
      */
     if (!(painter()->renderHints() & WPainter::LowQualityShadows)
-	&& currentShadow_ != WShadow()) {
-      std::string shadowPath = activePaths_[i].path;
-      std::size_t pos = shadowPath.find("style=\"") + 7;
-      shadowPath.insert(pos, createShadowFilter());
+	&& !currentShadow_.none()) {
+      const std::string& path = activePaths_[i].path;
+      std::size_t pos = path.find("style=\"") + 7;
 
-      rendered_ << shadowPath
+      rendered_ << path.substr(0, pos)
+		<< createShadowFilter()
+		<< path.substr(pos)
 		<< "e\">"
 		<< strokeElement(currentPen_)
 		<< fillElement(currentBrush_)
@@ -542,11 +543,12 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   render << ";font:" << textFont.cssText() << "\"/></v:shape>";
 
   if (!(painter()->renderHints() & WPainter::LowQualityShadows)
-      && currentShadow_ != WShadow()) {
-    std::string shadow = render.str();
-    std::size_t pos = shadow.find("style=\"") + 7;
-    shadow.insert(pos, createShadowFilter());
-    rendered_ << shadow;
+      && !currentShadow_.none()) {
+    std::string result = render.str();
+    std::size_t pos = result.find("style=\"") + 7;
+    rendered_ << result.substr(0, pos)
+	      << createShadowFilter()
+	      << result.substr(pos);
   }
 
   rendered_ << render.str();
@@ -612,7 +614,7 @@ std::string WVmlImage::shadowElement(const WShadow& shadow) const
 
   char buf[30];
 
-  if (shadow != WShadow()) {
+  if (!shadow.none()) {
     SStream result;
 
     result << "<v:shadow on=\"true\" offset=\""

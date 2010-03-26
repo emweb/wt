@@ -141,12 +141,15 @@ void WSvgImage::makeNewGroup()
   bool shadowChanged = false;
   if (changeFlags_ & Shadow)
     if (currentShadowId_ == -1)
-      shadowChanged = painter()->shadow() != WShadow();
+      shadowChanged = !painter()->shadow().none();
     else
       shadowChanged = currentShadow_ != painter()->shadow();
 
+  if (shadowChanged)
+    newClipPath_ = true;
+
   if (!newClipPath_) {
-    if (!brushChanged && !penChanged && !shadowChanged) {
+    if (!brushChanged && !penChanged) {
       WTransform f = painter()->combinedTransform();
 
       if (busyWithPath_) {
@@ -236,9 +239,24 @@ void WSvgImage::makeNewGroup()
 
     newClipPath_ = false;
 
+    if (shadowChanged) {
+      if (!painter()->shadow().none()) {
+	if (painter()->shadow() != currentShadow_) {
+	  currentShadow_ = painter()->shadow();
+	  currentShadowId_ = createShadowFilter(tmp);
+	} else
+	  currentShadowId_ = nextShadowId_;
+      } else
+	currentShadowId_ = -1;
+    }
+
     tmp << "<"SVG"g";
     if (painter()->hasClipping())
       tmp << clipPath();
+
+    if (currentShadowId_ != -1)
+      tmp << " filter=\"url(#f" << currentShadowId_ << ")\"";
+
     tmp << '>';
   }
 
@@ -257,17 +275,6 @@ void WSvgImage::makeNewGroup()
     fontStyle_ = fontStyle();
   }
 
-  if (shadowChanged) {
-    if (painter()->shadow() != WShadow()) {
-      if (painter()->shadow() != currentShadow_) {
-	currentShadow_ = painter()->shadow();
-	currentShadowId_ = createShadowFilter(tmp);
-      } else
-	currentShadowId_ = nextShadowId_;
-    } else
-      currentShadowId_ = -1;
-  }
-
   tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_
       << "font:" << fontStyle_ << '"';
 
@@ -281,9 +288,6 @@ void WSvgImage::makeNewGroup()
     tmp << ' ' << Utils::round_str(currentTransform_.m32(), 3, buf)
 	<< ")\"";
   }
-
-  if (currentShadowId_ != -1)
-    tmp << " filter=\"url(#f" << currentShadowId_ << ")\"";
 
   tmp << '>';
   

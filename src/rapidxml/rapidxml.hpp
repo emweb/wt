@@ -1632,9 +1632,9 @@ namespace rapidxml
 	      if (dest)
 		if (length >= 3) {
 		  /* insert U+FFFD, the replacement character */
-		  *dest++ = 0xef;
-		  *dest++ = 0xbf;
-		  *dest++ = 0xbd;
+		  *dest++ = (Ch)0xef;
+		  *dest++ = (Ch)0xbf;
+		  *dest++ = (Ch)0xbd;
 		  src += length;
 		} else
 		  for (unsigned i = 0; i < length; ++i) {

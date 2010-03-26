@@ -19,9 +19,9 @@ namespace Wt {
   namespace Dbo {
     namespace Impl {
       enum StatementKind { Select, Count };
-      extern std::string createQuerySql(StatementKind kind,
-					const std::string& select,
-					const std::string& from);
+      extern std::string WTDBO_API createQuerySql(StatementKind kind,
+					          const std::string& select,
+					          const std::string& from);
     }
 
 class Session;

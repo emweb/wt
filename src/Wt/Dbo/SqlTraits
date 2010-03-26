@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include <Wt/Dbo/WDboDllDefs.h>
+
 namespace Wt {
   namespace Dbo {
 

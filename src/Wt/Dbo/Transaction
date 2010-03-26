@@ -8,6 +8,7 @@
 #define WT_DBO_TRANSACTION_H_
 
 #include <vector>
+#include <Wt/Dbo/WDboDllDefs.h>
 
 namespace Wt {
   namespace Dbo {
@@ -59,7 +60,7 @@ class ptr_base;
  *
  * \ingroup dbo
  */
-class Transaction
+class WTDBO_API Transaction
 {
 public:
   /*! \brief Constructor.

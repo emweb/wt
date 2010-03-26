@@ -162,9 +162,10 @@ private:
 
 template <typename T, typename A1>
 WSignalMapper<T, A1>::WSignalMapper(WObject *parent)
-  : WObject(parent),
-    mapped_(this)
-{ }
+  : WObject(parent)
+{
+  mapped_ = this;
+}
 
 template <typename T, typename A1>
 void WSignalMapper<T, A1>::setMapping(WObject *sender, const T& data)

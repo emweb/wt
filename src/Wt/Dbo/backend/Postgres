@@ -11,6 +11,7 @@
 
 #include <Wt/Dbo/SqlConnection>
 #include <Wt/Dbo/SqlStatement>
+#include <Wt/Dbo/backend/WDboPostgresDllDefs.h>
 
 struct pg_conn;
 typedef struct pg_conn PGconn;
@@ -26,7 +27,7 @@ namespace Wt {
  *
  * \ingroup dbo
  */
-class Postgres : public SqlConnection
+class WTDBOPOSTGRES_API Postgres : public SqlConnection
 {
 public:
   /*! \brief Opens a new PostgreSQL backend connection.

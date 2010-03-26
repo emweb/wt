@@ -22,6 +22,11 @@ WShadow::WShadow(double dx, double dy, const WColor& color, double blur)
     blur_(blur)
 { }
 
+bool WShadow::none() const
+{
+  return offsetX_ == 0 && offsetY_ == 0 && blur_ == 0;
+}
+
 bool WShadow::operator==(const WShadow& other) const
 {
   return color_ == other.color_

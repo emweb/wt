@@ -28,7 +28,7 @@ namespace Wt {
  * (the parent container will continue to increase in size as it tries
  * to satisfy the constraints assuming a contrained height).
  *
- * You can use \link WContainerWidget::setOverflow())
+ * You can use \link WContainerWidget::setOverflow()
  * WContainerWidget::setOverflow(OverflowAuto) \endlink to
  * automatically show scrollbars on a container widget inserted in
  * the layout. In some cases, you will want to wrap another widget

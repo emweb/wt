@@ -123,8 +123,8 @@ public:
   /*! \brief Enumeration for render hints
    */
   enum RenderHint {
-    Antialiasing = 0x1, //!< Antialiasing
-    LowQualityShadows = 0x2  //!< Use low-quality shadows (applies only to VML)
+    Antialiasing = 1, //!< Antialiasing
+    LowQualityShadows = 2  //!< Use low-quality shadows (applies only to VML)
   };
 
   /*! \brief Default constructor.

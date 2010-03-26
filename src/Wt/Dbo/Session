@@ -49,7 +49,7 @@ template <typename Result> class Query;
  *
  * \ingroup dbo
  */
-class Session
+class WTDBO_API Session
 {
 public:
   /*! \brief Creates a database session.
@@ -240,14 +240,14 @@ private:
   typedef std::map<DboKey, MetaDboBase *> Registry;
   typedef std::set<MetaDboBase *> MetaDboBaseSet;
 
-  static const int SqlInsert,
-		  SqlUpdate,
-		  SqlDelete,
-		  SqlDeleteVersioned,
-		  SqlSelectById,
-		  FirstSqlSelectSet;
+  enum {SqlInsert = 0,
+	SqlUpdate = 1,
+	SqlDelete = 2,
+	SqlDeleteVersioned = 3,
+	SqlSelectById = 4,
+	FirstSqlSelectSet = 5};
 
-  struct ClassMappingInfo {
+  struct WTDBO_API ClassMappingInfo {
     const char *tableName;
     int columnCount;
     std::vector<std::string> statements;

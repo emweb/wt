@@ -51,6 +51,10 @@ public:
    */
   bool operator!=(const WShadow& other) const;
 
+  /*! \brief Returns whether the shadow effect is nihil.
+   */
+  bool none() const;
+
   /*! \brief Sets the shadow offset.
    */
   void setOffsets(double dx, double dy);

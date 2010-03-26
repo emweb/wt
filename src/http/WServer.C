@@ -269,14 +269,22 @@ int WServer::httpPort() const
 
 void WServer::restart(int argc, char **argv, char **envp)
 {
+#ifndef WIN32
   char *path = realpath(argv[0], 0);
+#else
+  char *path = argv[0];
+#endif
 
   // Try a few times since this may fail because we have an incomplete
   // binary...
   for (int i = 0; i < 5; ++i) {
     int result = execve(path, argv, envp);
     if (result != 0)
+#ifndef WIN32
       sleep(1);
+#else
+      Sleep(1000);
+#endif
   }
   perror("execve");
 }
@@ -362,10 +370,11 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 	server.impl()->serverConfiguration_.log("notice")
 	  << "Shutdown (signal = " << sig << ")";
 	server.stop();
-
+#ifndef WIN32
 	if (sig == SIGHUP)
 	  // Mac OSX: _NSGetEnviron()
 	  WServer::restart(argc, argv, 0);
+#endif
       }
 
       return 0;

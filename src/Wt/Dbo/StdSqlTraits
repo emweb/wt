@@ -20,7 +20,7 @@ namespace Wt {
   namespace Dbo {
 
 template<>
-struct sql_value_traits<std::string, void>
+struct WTDBO_API sql_value_traits<std::string, void>
 {
   static const bool specialized = true;
 
@@ -32,7 +32,7 @@ struct sql_value_traits<std::string, void>
 };
 
 template<>
-struct sql_value_traits<char const *, void>
+struct WTDBO_API sql_value_traits<char const *, void>
 {
   static const bool specialized = true;
 
@@ -41,7 +41,7 @@ struct sql_value_traits<char const *, void>
 };
 
 template<>
-struct sql_value_traits<long long, void>
+struct WTDBO_API sql_value_traits<long long, void>
 {
   static const bool specialized = true;
 
@@ -51,7 +51,7 @@ struct sql_value_traits<long long, void>
 };
 
 template<>
-struct sql_value_traits<int, void>
+struct WTDBO_API sql_value_traits<int, void>
 {
   static const bool specialized = true;
 
@@ -61,7 +61,7 @@ struct sql_value_traits<int, void>
 };
 
 template<>
-struct sql_value_traits<short, void>
+struct WTDBO_API sql_value_traits<short, void>
 {
   static const bool specialized = true;
 
@@ -71,7 +71,7 @@ struct sql_value_traits<short, void>
 };
 
 template<>
-struct sql_value_traits<float, void>
+struct WTDBO_API sql_value_traits<float, void>
 {
   static const bool specialized = true;
 
@@ -81,7 +81,7 @@ struct sql_value_traits<float, void>
 };
 
 template<>
-struct sql_value_traits<double, void>
+struct WTDBO_API sql_value_traits<double, void>
 {
   static const bool specialized = true;
 
@@ -91,7 +91,7 @@ struct sql_value_traits<double, void>
 };
 
 template <typename Enum>
-struct sql_value_traits<Enum,
+struct WTDBO_API sql_value_traits<Enum,
 			typename boost::enable_if<boost::is_enum<Enum> >::type> 
 : public sql_value_traits<int>
 {
@@ -106,7 +106,7 @@ struct sql_value_traits<Enum,
 };
 
 template<>
-struct sql_value_traits<std::vector<unsigned char>, void>
+struct WTDBO_API sql_value_traits<std::vector<unsigned char>, void>
 {
   static const bool specialized = true;
 

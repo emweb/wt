@@ -22,7 +22,7 @@ namespace Wt {
 class Session;
 class SqlStatement;
 
-class MetaDboBase
+class WTDBO_API MetaDboBase
 {
 public:
   enum State {
@@ -168,7 +168,7 @@ struct DboHelper
  *
  * \ingroup dbo
  */
-class Dbo
+class WTDBO_API Dbo
 {
 public:
   /*! \brief Constructor.
@@ -201,7 +201,7 @@ struct DboHelper<C, typename boost::enable_if<boost::is_base_of<Dbo, C> >::type>
   static void setMeta(C& obj, MetaDboBase *m) { obj.meta_ = m; }
 };
 
-class ptr_base
+class WTDBO_API ptr_base
 {
 public:
   ptr_base() { }

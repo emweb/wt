@@ -29,7 +29,7 @@ namespace Wt {
  *
  * \ingroup dbo
  */
-class SqlStatement
+class WTDBO_API SqlStatement
 {
 public:
   /*! \brief Destructor.

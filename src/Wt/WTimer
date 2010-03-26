@@ -39,11 +39,11 @@ class Time;
  * resolution of the timer is one second (1000 milli-seconds), and it
  * is probably wise to use timers sparingly.
  *
- * A WTimer is only usable inside of a Wt event loop.
+ * A WTimer is only usable inside of a %Wt event loop.
  * \if cpp
- * If you want to create a timer outside the Wt event loop, take a look at asio deadline_timer.
+ * If you want to create a timer outside the %Wt event loop, take a look at asio deadline_timer.
  * \else
- * If you want to create a timer outside the Wt event loop, take a look at {javadoclink java.util.Timer}.
+ * If you want to create a timer outside the %Wt event loop, take a look at {javadoclink java.util.Timer}.
  * 
  * \if cpp
  * Timers are one way to provide updates of a web page without the

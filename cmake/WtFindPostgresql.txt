@@ -4,10 +4,14 @@
 # - POSTGRES_FOUND
 #
 
-FIND_LIBRARY(POSTGRES_LIBRARIES pq
+FIND_LIBRARY(POSTGRES_LIBRARIES
+  NAMES
+    pq libpq
+  PATHS
     /usr/lib
     /usr/local/lib
     /opt/local/lib	
+    ${POSTGRES_ROOT}/lib
     ${USERLIB_ROOT}/lib
 )
 
@@ -18,6 +22,8 @@ FIND_PATH(POSTGRES_INCLUDE libpq-fe.h
     /usr/local/include/postgresql
     /opt/local/include	
     /opt/local/include/postgresql
+    ${POSTGRES_ROOT}/include
+    ${POSTGRES_ROOT}/postgresql/include
     ${USERLIB_ROOT}/include
     ${USERLIB_ROOT}/postgresql/include
 )

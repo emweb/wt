@@ -15,6 +15,8 @@
 #include <sstream>
 #include <vector>
 
+#include <Wt/WDllDefs.h>
+
 namespace Wt {
 
   class WString;
@@ -23,7 +25,7 @@ namespace Wt {
   namespace Utils {
 
 // Returns a filename that can be used as temporary file
-extern std::string createTempFileName();
+extern WT_API std::string createTempFileName();
 
 // appends the character to the string if it does not end with it
 extern std::string terminate(const std::string& s, char c);

@@ -8,6 +8,7 @@
 #define WCANVAS_PAINT_DEVICE_H_
 
 #include <Wt/WBrush>
+#include <Wt/WFont>
 #include <Wt/WObject>
 #include <Wt/WPaintDevice>
 #include <Wt/WPen>
@@ -91,7 +92,9 @@ private:
   WBrush      currentBrush_;
   WPen        currentPen_;
   WShadow     currentShadow_;
+  WFont       currentFont_;
   WPointF     pathTranslation_;
+  AlignmentFlag currentTextHAlign_, currentTextVAlign_;
 
   std::stringstream js_;
   std::vector<DomElement *> textElements_;
