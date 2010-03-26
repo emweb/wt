@@ -38,7 +38,7 @@ Requirements
        Preferably CMake 2.6, which comes with a usable script for finding
        boost libraries, but CMake 2.4 is still supported using Wt's own
        boost find script.
-     * C++ boost library (version 1.35 or higher), preferably with thread
+     * C++ boost library (version 1.36 or higher), preferably with thread
        support enabled. You can verify you have a thread-enabled boost
        installation by locating the libboost_thread library. Thread
        support is not essential: Wt functionality is not affected except
