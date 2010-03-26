@@ -71,6 +71,16 @@ void WDataSeries::setPen(const WPen& pen)
   customFlags_ |= CustomPen;
 }
 
+void WDataSeries::setShadow(const WShadow& shadow)
+{
+  set(shadow_, shadow);
+}
+
+const WShadow& WDataSeries::shadow() const
+{
+  return shadow_;
+}
+
 WPen WDataSeries::pen() const
 {
   if (customFlags_ & CustomPen)

@@ -9,10 +9,11 @@
 
 #include <Wt/WBrush>
 #include <Wt/WFont>
-#include <Wt/WTransform>
+#include <Wt/WGlobal>
 #include <Wt/WPainterPath>
 #include <Wt/WPen>
-#include <Wt/WGlobal>
+#include <Wt/WShadow>
+#include <Wt/WTransform>
 
 namespace Wt {
 
@@ -53,10 +54,10 @@ class WRectF;
  *
  * The painter maintains state such as the current \link setPen()
  * pen\endlink, \link setBrush() brush\endlink, \link setFont()
- * font\endlink, \link worldTransform() transformation\endlink and
- * clipping settings (see setClipping() and setClipPath()). A
- * particular state can be saved using save() and later restored using
- * restore().
+ * font\endlink, \link shadow() shadow\endlink, \link worldTransform()
+ * transformation\endlink and clipping settings (see setClipping() and
+ * setClipPath()). A particular state can be saved using save() and
+ * later restored using restore().
  *
  * The painting system distinguishes between device coordinates,
  * logical coordinates, and local coordinates. The device coordinate
@@ -122,7 +123,8 @@ public:
   /*! \brief Enumeration for render hints
    */
   enum RenderHint {
-    Antialiasing = 0X1 //!< Antialiasing
+    Antialiasing = 0x1, //!< Antialiasing
+    LowQualityShadows = 0x2  //!< Use low-quality shadows (applies only to VML)
   };
 
   /*! \brief Default constructor.
@@ -581,6 +583,23 @@ public:
    */
   void strokePath(const WPainterPath& path, const WPen& pen);
 
+  /*! \brief Sets a shadow effect.
+   *
+   * The shadow effect is applied to all things drawn (paths, text and images).
+   *
+   * \note With the VML backend (IE), the shadow is not applied to images,
+   *       and the shadow color is always black; only the opacity (alpha)
+   *       channel is taken into account.
+   * \sa LowQualityShadows render hint
+   */
+  void setShadow(const WShadow& shadow);
+
+  /*! \brief Returns the current shadow effect.
+   *
+   * \sa setShadow()
+   */
+  const WShadow& shadow() const { return s().currentShadow_; }
+
   /*! \brief Sets the fill style.
    *
    * Changes the fills style for subsequent draw operations.
@@ -751,8 +770,9 @@ public:
    *
    * The state that is saved is the current \link setPen()
    * pen\endlink, \link setBrush() brush\endlink, \link setFont()
-   * font\endlink, \link worldTransform() transformation\endlink and
-   * clipping settings (see setClipping() and setClipPath()).
+   * font\endlink, \link shadow() shadow\endlink, \link
+   * worldTransform() transformation\endlink and clipping settings
+   * (see setClipping() and setClipPath()).
    *
    * \sa restore()
    */
@@ -847,6 +867,7 @@ private:
     WBrush        currentBrush_;
     WFont         currentFont_;
     WPen          currentPen_;
+    WShadow       currentShadow_;
     int           renderHints_;
     WPainterPath  clipPath_;
     WTransform    clipPathTransform_;

@@ -10,6 +10,7 @@
 #include <Wt/WBrush>
 #include <Wt/WPen>
 #include <Wt/WRectF>
+#include <Wt/WShadow>
 #include <Wt/WTransform>
 #include <Wt/WVectorImage>
 #include <Wt/WResource>
@@ -69,11 +70,12 @@ private:
   WPainter  *painter_;
   WFlags<PaintFlag> paintFlags_;
 
-  bool       penBrushChanged_;
+  bool       penBrushShadowChanged_;
   bool       clippingChanged_;
 
   WBrush     currentBrush_;
   WPen       currentPen_;
+  WShadow    currentShadow_;
 
   struct ActivePath {
     std::string path;
@@ -91,6 +93,8 @@ private:
   std::string fillElement(const WBrush& brush) const;
   std::string strokeElement(const WPen& pen) const;
   std::string skewElement(const WTransform& transform) const;
+  std::string shadowElement(const WShadow& shadow) const;
+  std::string createShadowFilter() const;
 
   static std::string colorAttributes(const WColor& color);
   static std::string quote(double s);

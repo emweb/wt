@@ -460,12 +460,9 @@ Postgres::~Postgres()
 bool Postgres::connect(const std::string& db)
 {
   conn_ = PQconnectdb(db.c_str());
-  if (PQstatus(conn_) != CONNECTION_OK) {
-    conn_ = NULL;
-    DEBUG(fprintf(stderr, "Connection Failed %s %s\n", db.c_str(),
-		  PQerrorMessage(conn)));
-    return false;
-  }
+
+  if (PQstatus(conn_) != CONNECTION_OK)
+    throw PostgresException("Could not connect to: " + db);
 
   return true;
 }

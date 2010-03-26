@@ -309,14 +309,23 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 
   bool vertical = axis_ != XAxis;
 
+  static const int CLIP_MARGIN = 5;
+
+  double clipMin = segments_.front().renderMinimum == 0 ? 0 : CLIP_MARGIN;
+  double clipMax = segments_.back().renderMaximum == 0 ? 0 : CLIP_MARGIN;
+
   double totalRenderLength
     = vertical ? renderer.chartArea().height() : renderer.chartArea().width();
   double totalRenderStart
-    = vertical ? renderer.chartArea().bottom() : renderer.chartArea().left();
+    = vertical ? renderer.chartArea().bottom() - clipMin
+    : renderer.chartArea().left() + clipMin;
 
   const double SEGMENT_MARGIN = 40;
 
-  totalRenderLength -= SEGMENT_MARGIN * (segments_.size() - 1);
+  // 6 pixels additional margin to avoid clipping lines that render
+  // the extreme values
+  totalRenderLength
+    -= SEGMENT_MARGIN * (segments_.size() - 1) - clipMin - clipMax;
 
   /*
    * Iterate twice, since we adjust the render extrema based on the size

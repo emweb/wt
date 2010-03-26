@@ -185,6 +185,7 @@ Wt/WResource.C
 Wt/WScrollArea.C
 Wt/WScrollBar.C
 Wt/WSelectionBox.C
+Wt/WShadow.C
 Wt/WSignal.C
 Wt/WSlider.C
 Wt/WSocketNotifier.C

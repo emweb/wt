@@ -25,11 +25,12 @@ class SqlStatement;
  *
  * The library has built-in support for:
  *  - std::string
- *  - char const * (only as a parameters)
- *  - int
- *  - long long
+ *  - char const * (read-only: only as a bound parameter for a query)
+ *  - short, int, long, long long
+ *  - float, double
  *  - enum types
- *  - boost::optional<T>
+ *  - std::vector<unsigned char> (binary data)
+ *  - boost::optional<T>: to make the type optionally <tt>null</tt>
  *
  * In <Wt/Dbo/WtSqlTraits>, traits classes are also provided for:
  *  - WDate

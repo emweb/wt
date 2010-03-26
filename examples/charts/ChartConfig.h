@@ -54,6 +54,7 @@ private:
     Wt::WComboBox *markerEdit;
     Wt::WComboBox *axisEdit;
     Wt::WCheckBox *legendEdit;
+    Wt::WCheckBox *shadowEdit;
     Wt::WComboBox *labelsEdit;
   };
 

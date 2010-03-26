@@ -19,7 +19,72 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 3.1.1 (February 17, 2009)</h2>
+<h2>Release 3.1.2 (March 26, 2010)</h2>
+
+<p>This release contains mostly bug fixes, and a few new features.</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1Dbo_1_1backend_1_1Postgres.html">Dbo/backend/Postgres</a></dt>
+  <dd>A Postgres backend has landed, contributed by Hilary Cheng.</dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WBoxLayout.html">WBoxLayout</a>, <a href="classWt_1_1WGridLayout.html">WGridLayout</a></dt>
+  <dd>Addition of horizontal and vertical splitter support (resize handles to
+    allow the user to adjust the layout), sponsored by Eurofer. The new API
+    methods are <a href="classWt_1_1WBoxLayout.html#00bdfb4d442bd8e8ad9c33b72692763f">setResizable()</a>, <a href="classWt_1_1WGridLayout.html#180c33a8f9e21a7b58f12e055fdb469e">setColumnResizable()</a> and <a href="classWt_1_1WGridLayout.html#6028853eb5a66d868323d0e034b69390">setRowResizable()</a></dd>
+  <dt><a href="classWt_1_1WCalendar.html">WCalendar</a></dt>
+  <dd>Improved the API to allow custom cell rendering, and custom handling
+    of selection. We have also made the API for selection consistent with other
+    widgets (like WTreeView), deprecating the old API.</dd>
+  <dt><a href="classWt_1_1WDateTime.html">WDateTime</a></dt>
+  <dd>Added <a href="classWt_1_1WDateTime.html#0d7f04bacc6ea6534bc61ec7305a8262">toPosixTime()</a> and <a href="classWt_1_1WDateTime.html#eb5f093554829688b36640f0977da541">fromPosixTime()</a> methods to interoperate with
+    <tt>boost::posix_time::ptime</tt>.</dd>
+  <dt><a href="classWt_1_1WFormWidget.html">WFormWidget</a></dt>
+  <dd>Added a <a href="classWt_1_1WFormWidget.html#92de7a4d9ca6796607dc9fd26f608436">setEmptyText()</a> method to implement a label inside a line edit or text area.</dd>
+  <dt><a href="classWt_1_1WResource.html">WResource</a></dt>
+  <dd>Added a <a href="classWt_1_1WResource.html#06bb9dbe3ae195c320cfed7b062d448a">setInternalPath()</a> method which allow a resource to be deployed at a deterministic and "pretty" URL.</dd>
+  <dt><a href="classWt_1_1WString.html">WString</a></dt>
+  <dd>Added constructors that take a std::locale for interpreting a narrow
+    string in a given locale.</dd>
+  <dt><a href="classWt_1_1WWidget.html">WWidget</a></dt>
+  <dd>Added <a href="classWt_1_1WWidget.html#4f83592912a7f8fa4fd35dadde78ee74">setLayoutSizeAware()</a> and <a href="classWt_1_1WWidget.html#f432588db3d599f89b54121f2ede8d63">layoutSizeChanged()</a> methods which allow a widget to react to layout size changes.</dd>
+  <dt><a href="classWt_1_1Http_1_1Request.html">Http::Request</a></dt>
+  <dd>Added access to the request <a href="classWt_1_1Http_1_1Request.html#e76664f93462d9311ee671c93607e5ca">method()</a>.</dd>
+  <dt><a href="classWt_1_1Http_1_1Response.html">Http::Response</a></dt>
+  <dd>Added a <a href="classWt_1_1Http_1_1Response.html#7c14ba3ab34ff14461df3a4369118443">setStatus()</a> method to modify the response status.</dd>
+  <dt><a href="classWt_1_1Dbo_1_1Session.html">Dbo::Session</a></dt>
+  <dd>Added support for schema qualified tables, in
+    <a href="classWt_1_1Dbo_1_1Session.html#5886d450c052ae0ee15ab3c91e439229">Session::mapClass()</a> and the joinTable specified in <a href="group__dbo.html#g1a086b583fb150dbd4c5b4ba92bc177f">hasMany()</a>.<br />
+    Added API for dropping the schema: <a href="classWt_1_1Dbo_1_1Session.html#4c1fedb21e4e1cc44b182a34e8ebb4efdropTables()">dropTables()</a>. <br />
+    Added support for arbitrary queries in <a href="classWt_1_1Dbo_1_1Session.html#d39e953ef521eaa58c4c7e6ca1a6c19e">Session::query()</a>, including
+    queries that do not return result or do not select from tables.</dd>
+  <dt><a href="group__dbo.html#g8a2b653ff57f1459dfa2e556badd71d6">Dbo::field()</a></dt>
+  <dd>Allow size suggestion for std::string and WString mappings</dd>
+  <dt><a href="classWt_1_1Dbo_1_1SqlConnection.html">Dbo::SqlConnection, Dbo::SqlStatement</a></dt>
+  <dd>Added support for floating point types, binary data (using std::vector&lt;unsigned char&gt;) and date and date/time types.<br/>
+    Added methods for return dialect-specific information.<br/>
+    Added properties API.<br/>
+  </dd>
+  <dt><a href="structWt_1_1Dbo_1_1sql__value__traits.html">Dbo::sql_value_traits</a></dt>
+  <dd>Added support for backend-specific type mapping.</dd>
+  <dt>(internal) DomElement</dt>
+  <dd>Performance improvements in serializing the widgets to HTML
+    and/or JavaScript</dd>
+  <dt>Built-in httpd</dt>
+  <dd>Added a configuration option <tt>--max-request-size</tt> to
+  limit the size of a POST instead of the built-in default of 40
+  MB<br/> Added a configuration option
+  <tt>--max-memory-request-size</tt> to limit the size of a POST that
+  is handed in-memory. Bigger POSTs are handled using a spool file.
+  </dd>
+</dl>
+
+<h2>Release 3.1.1 (February 17, 2010)</h2>
 
 <p>The minimum boost version is now 1.36.</p>
 
@@ -212,12 +277,13 @@ documentation improvements compared to the latest pre-release
 
 <p>
 Most build improvements are related to finding the boost
-libraries. Previously, Wt used a custom script, since CMake versions <
-2.6 did not provide a good enough script for finding boost. Starting
-with this release, when using CMake 2.6 or later, Wt will use the
-script that comes with CMake. You can still fall back to the script
-that comes with Wt, which is still used for older versions of CMake,
-by defining one of the BOOST_COMPILER or BOOST_VERSION variables.
+libraries. Previously, Wt used a custom script, since CMake versions
+&lt; 2.6 did not provide a good enough script for finding
+boost. Starting with this release, when using CMake 2.6 or later, Wt
+will use the script that comes with CMake. You can still fall back to
+the script that comes with Wt, which is still used for older versions
+of CMake, by defining one of the BOOST_COMPILER or BOOST_VERSION
+variables.
 </p>
 
 <h3>A) New classes:</h3>

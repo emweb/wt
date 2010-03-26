@@ -167,6 +167,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   ::addHeader(seriesConfig, "Marker");
   ::addHeader(seriesConfig, "Y axis");
   ::addHeader(seriesConfig, "Legend");
+  ::addHeader(seriesConfig, "Shadow");
   ::addHeader(seriesConfig, "Value labels");
 
   seriesConfig->rowAt(0)->setStyleClass("trhead");
@@ -195,7 +196,10 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     sc.legendEdit = new WCheckBox(seriesConfig->elementAt(j, 5));
     connectSignals(sc.legendEdit);
 
-    sc.labelsEdit = new WComboBox(seriesConfig->elementAt(j, 6));
+    sc.shadowEdit = new WCheckBox(seriesConfig->elementAt(j, 6));
+    connectSignals(sc.shadowEdit);
+
+    sc.labelsEdit = new WComboBox(seriesConfig->elementAt(j, 7));
     sc.labelsEdit->setModel(labels);
     connectSignals(sc.labelsEdit);
 
@@ -219,6 +223,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
 
       sc.markerEdit->setCurrentIndex((int)s.marker());
       sc.legendEdit->setChecked(s.isLegendEnabled());
+      sc.shadowEdit->setChecked(s.shadow() != WShadow());
     }
 
     seriesControls_.push_back(sc);
@@ -403,6 +408,11 @@ void ChartConfig::update()
 	haveLegend = true;
       } else
 	s.setLegendEnabled(false);
+
+      if (sc.shadowEdit->isChecked()) {
+	s.setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+      } else
+	s.setShadow(WShadow());
 
       switch (sc.labelsEdit->currentIndex()) {
       case 1:

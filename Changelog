@@ -1,3 +1,8 @@
+26-03-2010:
+	* Wt/WShadow, Wt/WPainter: add support for drop shadows
+
+	* Wt/Chart/WDataSeries, Wt/Chart/WChart2DRenderer: add support for shadows
+
 25-03-2010:
 	* Wt/Dbo/backend: provide generic properties() and API clean-ups
 

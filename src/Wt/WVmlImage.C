@@ -86,7 +86,8 @@ void WVmlImage::init()
 { 
   currentBrush_ = painter()->brush();
   currentPen_ = painter()->pen();
-  penBrushChanged_ = true;
+  currentShadow_ = painter()->shadow();
+  penBrushShadowChanged_ = true;
 
   startClip(WRectF(0, 0, width().value(), height().value()));
 }
@@ -98,8 +99,8 @@ void WVmlImage::done()
 
 void WVmlImage::setChanged(WFlags<ChangeFlag> flags)
 {
-  if (flags & (Pen | Brush))
-    penBrushChanged_ = true;
+  if (flags & (Pen | Brush | Shadow))
+    penBrushShadowChanged_ = true;
 
   if (flags & Clipping)
     clippingChanged_ = true;
@@ -180,9 +181,10 @@ static WRectF transformBbox(const WTransform& t, const WRectF& r)
 
 void WVmlImage::drawPath(const WPainterPath& path)
 {
-  if (penBrushChanged_)
+  if (penBrushShadowChanged_)
     if ((currentPen_ != painter()->pen())
-	|| (currentBrush_ != painter()->brush()))
+	|| (currentBrush_ != painter()->brush())
+	|| (currentShadow_ != painter()->shadow()))
       finishPaths();
 
   if (clippingChanged_) {
@@ -206,16 +208,18 @@ void WVmlImage::drawPath(const WPainterPath& path)
   if (activePaths_.empty()) {
     currentPen_       = painter()->pen();
     currentBrush_     = painter()->brush();
-    penBrushChanged_ = false;
+    currentShadow_    = painter()->shadow();
+    penBrushShadowChanged_ = false;
   }
 
-  std::stringstream tmp;
+  SStream tmp;
 
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (thisPath == -1) {
-    tmp << "<v:shape style=\"width:" << Z * currentRect_.width()
-	<< "px;height:" << Z * currentRect_.height() << "px;\" path=\"m0,0l0,0";
+    tmp << "<v:shape style=\"width:" << (int)(Z * currentRect_.width())
+	<< "px;height:" << (int)(Z * currentRect_.height())
+	<< "px;\" path=\"m0,0l0,0";
 
     activePaths_.push_back(ActivePath());
     thisPath = activePaths_.size() - 1;
@@ -343,13 +347,48 @@ void WVmlImage::drawPath(const WPainterPath& path)
   activePaths_[thisPath].bbox = activePaths_[thisPath].bbox.united(bbox);
 }
 
+std::string WVmlImage::createShadowFilter() const
+{
+  char buf[30];
+  SStream filter;
+  filter << "left: "
+	 << Utils::round_str(currentShadow_.offsetX(), 0, buf) << ';';
+  filter << "top: "
+	 << Utils::round_str(currentShadow_.offsetY(), 0, buf)
+	 << ';';
+  filter << "filter:progid:DXImageTransform.Microsoft.Blur(makeShadow=1,";
+  filter << "pixelradius="
+	 << Utils::round_str(currentShadow_.blur() * 0.66, 1, buf);
+  filter << ",shadowOpacity="
+	 << Utils::round_str(currentShadow_.color().alpha()/255., 2, buf)
+	 << ");";
+  return filter.str();
+}
+
 void WVmlImage::finishPaths()
 {
   for (unsigned i = 0; i < activePaths_.size(); ++i) {
+    /*
+     * High quality shadows are created by duplicating the path and
+     * blurring it using a filter
+     */
+    if (!(painter()->renderHints() & WPainter::LowQualityShadows)
+	&& currentShadow_ != WShadow()) {
+      std::string shadowPath = activePaths_[i].path;
+      std::size_t pos = shadowPath.find("style=\"") + 7;
+      shadowPath.insert(pos, createShadowFilter());
+
+      rendered_ << shadowPath
+		<< "e\">"
+		<< strokeElement(currentPen_)
+		<< fillElement(currentBrush_)
+		<< "</v:shape>";
+    }
     rendered_ << activePaths_[i].path
 	      << "e\">"
 	      << strokeElement(currentPen_)
 	      << fillElement(currentBrush_)
+	      << shadowElement(currentShadow_)
 	      << "</v:shape>";
   }
 
@@ -466,32 +505,31 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
     break;
   }
 
-  rendered_ << "<v:shape style=\"width:" << Z * currentRect_.width()
-	    << "px;height:" << Z * currentRect_.height()
-	    << "px;\"><v:path textpathok=\"True\" v=\"m"
-	    << myzround(rect.left(), false) << ',' << myzround(y, false) << 'l'
-	    << myzround(rect.right(), false) << ',' << myzround(y, false)
-	    << "m0,0l0,0e\"/><v:fill on=\"True\" "
-	    << colorAttributes(painter()->pen().color())
-	    << "/><v:stroke on=\"False\"/>"
-	    << skewElement(painter()->combinedTransform())
-	    << "<v:textpath on=\"True\" string=\"";
+  EscapeOStream render;
+  render << "<v:shape style=\"width:" << (int)(Z * currentRect_.width())
+	 << "px;height:" << (int)(Z * currentRect_.height())
+	 << "px;\"><v:path textpathok=\"True\" v=\"m"
+	 << myzround(rect.left(), false) << ',' << myzround(y, false) << 'l'
+	 << myzround(rect.right(), false) << ',' << myzround(y, false)
+	 << "m0,0l0,0e\"/><v:fill on=\"True\" "
+	 << colorAttributes(painter()->pen().color())
+	 << "/><v:stroke on=\"False\"/>"
+	 << skewElement(painter()->combinedTransform())
+	 << "<v:textpath on=\"True\" string=\"";
 
-  {
-    EscapeOStream attr(rendered_);
-    attr.pushEscape(EscapeOStream::HtmlAttribute);
-    attr << text.toUTF8();
-  }
+  render.pushEscape(EscapeOStream::HtmlAttribute);
+  render << text.toUTF8();
+  render.popEscape();
 
-  rendered_ << "\" style=\"v-text-align:";
+  render << "\" style=\"v-text-align:";
 
   switch (horizontalAlign) {
   case AlignLeft:
-    rendered_ << "left"; break;
+    render << "left"; break;
   case AlignCenter:
-    rendered_ << "center"; break;
+    render << "center"; break;
   case AlignRight:
-    rendered_ << "right"; break;
+    render << "right"; break;
   default:
     break;
   }
@@ -499,10 +537,19 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   Wt::WApplication *app = Wt::WApplication::instance();
   Wt::WFont textFont(painter()->font());
   textFont.setSize(textFont.size(),
-    textFont.fixedSize() * app->environment().dpiScale());
+		   textFont.fixedSize() * app->environment().dpiScale());
 
-  rendered_ << ";font:" << textFont.cssText() << "\"/></v:shape>";
+  render << ";font:" << textFont.cssText() << "\"/></v:shape>";
 
+  if (!(painter()->renderHints() & WPainter::LowQualityShadows)
+      && currentShadow_ != WShadow()) {
+    std::string shadow = render.str();
+    std::size_t pos = shadow.find("style=\"") + 7;
+    shadow.insert(pos, createShadowFilter());
+    rendered_ << shadow;
+  }
+
+  rendered_ << render.str();
 #endif
 }
 
@@ -531,7 +578,7 @@ std::string WVmlImage::skewElement(const WTransform& t) const
 {
   if (!t.isIdentity()) {
     char buf[30];
-    std::stringstream s;
+    SStream s;
 
     s << "<v:skew on=\"true\" matrix=\""
       << Utils::round_str(t.m11(), 5, buf) << ',';
@@ -554,6 +601,26 @@ std::string WVmlImage::skewElement(const WTransform& t) const
      */
 
     return s.str();
+  } else
+    return std::string();
+}
+
+std::string WVmlImage::shadowElement(const WShadow& shadow) const
+{
+  if (!(painter()->renderHints() & WPainter::LowQualityShadows))
+    return std::string();
+
+  char buf[30];
+
+  if (shadow != WShadow()) {
+    SStream result;
+
+    result << "<v:shadow on=\"true\" offset=\""
+	   << Utils::round_str(shadow.offsetX(), 3, buf) << "px,";
+    result << Utils::round_str(shadow.offsetY(), 3, buf) << "px\" "
+	   << colorAttributes(shadow.color()) << "/>";
+
+    return result.str();
   } else
     return std::string();
 }
@@ -681,7 +748,7 @@ std::string WVmlImage::rendered()
   if (paintFlags_ & PaintUpdate)
     return rendered_.str();
   else {
-    std::stringstream s;
+    SStream s;
     s << "<div style=\"position:relative;width:"
       << width().cssText() << ";height:" << height().cssText()
       << ";overflow:hidden;\">"

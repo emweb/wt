@@ -12,6 +12,7 @@
 #include <Wt/WPaintDevice>
 #include <Wt/WPen>
 #include <Wt/WPointF>
+#include <Wt/WShadow>
 #include <Wt/WTransform>
 
 #include <sstream>
@@ -89,6 +90,7 @@ private:
   WTransform  currentTransform_;
   WBrush      currentBrush_;
   WPen        currentPen_;
+  WShadow     currentShadow_;
   WPointF     pathTranslation_;
 
   std::stringstream js_;

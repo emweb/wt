@@ -69,9 +69,9 @@ public:
   WPen(GlobalColor color);
 
 #ifdef WT_TARGET_JAVA
-    /*! \brief Clone method.
+  /*! \brief Clone method.
    *
-   * Clones this WPen object.
+   * Clones this pen.
    */
   WPen clone() const;
 #endif

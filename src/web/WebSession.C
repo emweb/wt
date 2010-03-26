@@ -1410,9 +1410,6 @@ void WebSession::notifySignal(const WEvent& e)
 {
   WebSession::Handler& handler = e.handler;
 
-  // Save pending changes (e.g. from resource completion)
-  renderer_.saveChanges();
-
   // Reorder signals, as browsers sometimes generate them in a strange order
   if (handler.nextSignal == 0)
     handler.signalOrder = getSignalProcessingOrder(e);
@@ -1430,6 +1427,10 @@ void WebSession::notifySignal(const WEvent& e)
 
     if (!signalE)
       return;
+
+    // Save pending changes (e.g. from resource completion)
+    if (i == handler.nextSignal)
+      renderer_.saveChanges();
 
     propagateFormValues(e, se);
 

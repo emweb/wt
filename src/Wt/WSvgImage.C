@@ -55,7 +55,9 @@ WSvgImage::WSvgImage(const WLength& width, const WLength& height,
     newGroup_(true),
     newClipPath_(false),
     busyWithPath_(false),
-    currentClipId_(-1)
+    currentClipId_(-1),
+    currentShadowId_(-1),
+    nextShadowId_(0)
 { }
 
 WSvgImage::~WSvgImage()
@@ -136,9 +138,15 @@ void WSvgImage::makeNewGroup()
     || ((changeFlags_ & Pen) && (currentPen_ != painter()->pen()));
   bool fontChanged
     = (changeFlags_ & Font) && (currentFont_ != painter()->font());
+  bool shadowChanged = false;
+  if (changeFlags_ & Shadow)
+    if (currentShadowId_ == -1)
+      shadowChanged = painter()->shadow() != WShadow();
+    else
+      shadowChanged = currentShadow_ != painter()->shadow();
 
   if (!newClipPath_) {
-    if (!brushChanged && !penChanged) {
+    if (!brushChanged && !penChanged && !shadowChanged) {
       WTransform f = painter()->combinedTransform();
 
       if (busyWithPath_) {
@@ -249,6 +257,17 @@ void WSvgImage::makeNewGroup()
     fontStyle_ = fontStyle();
   }
 
+  if (shadowChanged) {
+    if (painter()->shadow() != WShadow()) {
+      if (painter()->shadow() != currentShadow_) {
+	currentShadow_ = painter()->shadow();
+	currentShadowId_ = createShadowFilter(tmp);
+      } else
+	currentShadowId_ = nextShadowId_;
+    } else
+      currentShadowId_ = -1;
+  }
+
   tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_
       << "font:" << fontStyle_ << '"';
 
@@ -263,11 +282,41 @@ void WSvgImage::makeNewGroup()
 	<< ")\"";
   }
 
+  if (currentShadowId_ != -1)
+    tmp << " filter=\"url(#f" << currentShadowId_ << ")\"";
+
   tmp << '>';
   
   shapes_ << tmp.c_str();
 
   changeFlags_ = 0;
+}
+
+int WSvgImage::createShadowFilter(SStream& out)
+{
+  char buf[30];
+  int result = ++nextShadowId_;
+
+  out << "<filter id=\"f" << result << "\" width=\"150%\" height=\"150%\">"
+    "<feOffset result=\"offOut\" in=\"SourceAlpha\" dx=\""
+      << Utils::round_str(currentShadow_.offsetX(), 3, buf) << "\" dy=\"";
+  out << Utils::round_str(currentShadow_.offsetY(), 3, buf) << "\" />";
+
+  out << "<feColorMatrix result=\"colorOut\" in=\"offOut\" type=\"matrix\" values=\"";
+  double r = currentShadow_.color().red() / 255.;
+  double g = currentShadow_.color().green() / 255.;
+  double b = currentShadow_.color().blue() / 255.;
+  double a = currentShadow_.color().alpha() / 255.;
+
+  out << "0 0 0 " << Utils::round_str(r, 3, buf) << " 0 ";
+  out << "0 0 0 " << Utils::round_str(g, 3, buf) << " 0 ";
+  out << "0 0 0 " << Utils::round_str(b, 3, buf) << " 0 ";
+  out << "0 0 0 " << Utils::round_str(a, 3, buf) << " 0\"/>";
+  out << "<feGaussianBlur result=\"blurOut\" in=\"colorOut\" stdDeviation=\""
+      << Utils::round_str(currentShadow_.blur() / 2, 3, buf) << "\" />"
+    "<feBlend in=\"SourceGraphic\" in2=\"blurOut\" mode=\"normal\" />"
+    "</filter>";
+  return result;
 }
 
 void WSvgImage::drawPlainPath(std::stringstream& out, const WPainterPath& path)

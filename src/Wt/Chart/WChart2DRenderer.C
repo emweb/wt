@@ -168,14 +168,21 @@ public:
 	curve_.cubicTo(hv(c_), hv(c1), hv(p0));
 	fill_.cubicTo(hv(c_), hv(c1), hv(p0));
       }
-      renderer_.painter().strokePath(curve_, series_.pen());
 
       if (series_.fillRange() != NoFill
 	  && series_.brush() != NoBrush) {
 	fill_.lineTo(hv(fillOtherPoint(lastX_)));
 	fill_.closeSubPath();
+	renderer_.painter().setShadow(series_.shadow());
 	renderer_.painter().fillPath(fill_, series_.brush());
       }
+
+      if (series_.fillRange() == NoFill)
+	renderer_.painter().setShadow(series_.shadow());
+      else
+	renderer_.painter().setShadow(WShadow());
+
+      renderer_.painter().strokePath(curve_, series_.pen());
     }
 
     curveLength_ = 0;
@@ -281,9 +288,10 @@ public:
     bar.lineTo(hv(crisp(left), crisp(bottomMid.y())));
     bar.closeSubPath();
 
-    renderer_.painter().setPen(series_.pen());
-    renderer_.painter().setBrush(series_.brush());
-    renderer_.painter().drawPath(bar);
+    renderer_.painter().setShadow(series_.shadow());
+    renderer_.painter().fillPath(bar, series_.brush());
+    renderer_.painter().setShadow(WShadow());
+    renderer_.painter().strokePath(bar, series_.pen());
 
     double bTopMidY = it_.breakY(topMid.y());
     double bBottomMidY = it_.breakY(bottomMid.y());
@@ -378,12 +386,15 @@ bool SeriesRenderIterator::startSeries(const WDataSeries& series,
 
   series_ = &series;
 
+  renderer_.painter().save();
   return seriesRenderer_ != 0;
 }
 
 void SeriesRenderIterator::endSeries()
 {
   seriesRenderer_->paint();
+  renderer_.painter().restore();
+
   delete seriesRenderer_;
   series_ = 0;
 }
@@ -501,9 +512,17 @@ public:
     if (series.marker() != NoMarker) {
       marker_ = WPainterPath();
       renderer_.chart()->drawMarker(series, marker_);
+
+      renderer_.painter().save();
+      renderer_.painter().setShadow(series.shadow());
       return true;
     } else
       return false;
+  }
+
+  virtual void endSeries()
+  {
+    renderer_.painter().restore();
   }
 
   virtual void newValue(const WDataSeries& series, double x, double y,
@@ -720,13 +739,27 @@ WRectF WChart2DRenderer::chartSegmentArea(WAxis yAxis, int xSegment,
   const WAxis::Segment& xs = xAxis.segments_[xSegment];
   const WAxis::Segment& ys = yAxis.segments_[ySegment];
 
-  double x1 = xs.renderStart + (xSegment == 0 ? 0 : -segmentMargin_/2);
+  // margin used when clipping, see also WAxis::prepareRender(),
+  // when the renderMinimum/maximum is 0, clipping is done exact
+  static const int CLIP_MARGIN = 5;
+
+  double x1 = xs.renderStart
+    + (xSegment == 0
+       ? (xs.renderMinimum == 0 ? 0 : -CLIP_MARGIN)
+       : -segmentMargin_/2);
   double x2 = xs.renderStart + xs.renderLength
-    + (xSegment == xAxis.segmentCount() - 1 ? 0 : segmentMargin_/2);
+    + (xSegment == xAxis.segmentCount() - 1
+       ? (xs.renderMaximum == 0 ? 0 : CLIP_MARGIN)
+       : segmentMargin_/2);
 
   double y1 = ys.renderStart - ys.renderLength
-    - (ySegment == yAxis.segmentCount() - 1 ? 0 : segmentMargin_/2);
-  double y2 = ys.renderStart + (ySegment == 0 ? 0 : segmentMargin_/2);
+    - (ySegment == yAxis.segmentCount() - 1
+       ? (ys.renderMaximum == 0 ? 0 : CLIP_MARGIN)
+       : segmentMargin_/2);
+  double y2 = ys.renderStart
+    + (ySegment == 0
+       ? (ys.renderMinimum == 0 ? 0 : CLIP_MARGIN)
+       : segmentMargin_/2);
 
   return WRectF(std::floor(x1 + 0.5), std::floor(y1 + 0.5),
 		std::floor(x2 - x1 + 0.5), std::floor(y2 - y1 + 0.5));

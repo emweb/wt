@@ -10,6 +10,7 @@
 #include <Wt/Chart/WAxis>
 #include <Wt/WBrush>
 #include <Wt/WPen>
+#include <Wt/WShadow>
 #include <Wt/Chart/WChartGlobal>
 
 namespace Wt {
@@ -219,10 +220,11 @@ public:
 
   /*! \brief Overrides the brush used for filling areas for this series.
    *
-   * Overrides the brush that is used to draw this series. For a bar plot,
-   * this is the brush used to fill the bars. For a line chart, this is the
-   * brush used to fill the area under (or above) the line. Calling
-   * this method automatically adds CustomBrush to the custom flags.
+   * Overrides the brush that is used to draw this series which is
+   * otherwise provided by the chart palette. For a bar plot, this is the
+   * brush used to fill the bars. For a line chart, this is the brush
+   * used to fill the area under (or above) the line. Calling this
+   * method automatically adds CustomBrush to the custom flags.
    *
    * \sa WChartPalette::brush()
    */
@@ -233,6 +235,16 @@ public:
    * \sa setBrush(const WBrush&)
    */
   WBrush brush() const;
+
+  /*! \brief Sets a shadow used for stroking lines for this series.
+   */
+  void setShadow(const WShadow& shadow);
+
+  /*! \brief Returns the shadow used for stroking lines for this series.
+   *
+   * \sa setShadow(const WShadow&)
+   */
+  const WShadow& shadow() const;
 
   /*! \brief Sets the fill range for line or curve series.
    *
@@ -416,6 +428,7 @@ private:
   WPen               pen_, markerPen_;
   WBrush             brush_, markerBrush_;
   WColor             labelColor_;
+  WShadow            shadow_;
   FillRangeType      fillRange_;
   MarkerType         marker_;
   double             markerSize_;

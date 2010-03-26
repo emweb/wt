@@ -123,8 +123,9 @@ void WCanvasPaintDevice::init()
 { 
   currentBrush_ = painter()->brush();
   currentPen_ = painter()->pen();
+  currentShadow_ = painter()->shadow();
 
-  changeFlags_ = Transform | Pen | Brush;
+  changeFlags_ = Transform | Pen | Brush | Shadow;
 }
 
 void WCanvasPaintDevice::done()
@@ -565,6 +566,8 @@ void WCanvasPaintDevice::renderStateChanges()
     = (changeFlags_ & Brush) && (currentBrush_ != painter()->brush());
   bool penChanged
     = (changeFlags_ & Pen) && (currentPen_ != painter()->pen());
+  bool shadowChanged
+    = (changeFlags_ & Shadow) && (currentShadow_ != painter()->shadow());
 
   if (changeFlags_ & (Transform | Clipping)) {
     bool resetTransform = false;
@@ -642,10 +645,11 @@ void WCanvasPaintDevice::renderStateChanges()
 
       penChanged = true;
       brushChanged = true;
+      shadowChanged = true;
     }
   }
 
-  if (penChanged || brushChanged)
+  if (penChanged || brushChanged || shadowChanged)
     finishPath();
 
   if (penChanged) {
@@ -688,6 +692,16 @@ void WCanvasPaintDevice::renderStateChanges()
     currentBrush_ = painter_->brush();
     js_ << "ctx.fillStyle=\"" 
 	<< currentBrush_.color().cssText(true) << "\";";
+  }
+
+  if (shadowChanged) {
+    currentShadow_ = painter_->shadow();
+
+    js_ << "ctx.shadowOffsetX=" << currentShadow_.offsetX() << ';'
+	<< "ctx.shadowOffsetY=" << currentShadow_.offsetY() << ';'
+	<< "ctx.shadowBlur=" << currentShadow_.blur() << ';'
+	<< "ctx.shadowColor=\"" << currentShadow_.color().cssText(true)
+	<< "\";";
   }
 
   changeFlags_ = 0;

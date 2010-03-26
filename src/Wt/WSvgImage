@@ -12,12 +12,15 @@
 #include <Wt/WPen>
 #include <Wt/WPointF>
 #include <Wt/WResource>
+#include <Wt/WShadow>
 #include <Wt/WTransform>
 #include <Wt/WVectorImage>
 
 #include <sstream>
 
 namespace Wt {
+
+  class SStream;
 
 /*! \class WSvgImage Wt/WSvgImage Wt/WSvgImage
  *  \brief A paint device for rendering using Scalable Vector Graphics (SVG).
@@ -82,8 +85,8 @@ protected:
 			     Http::Response& response);
 
 private:
-  WLength     width_, height_;
-  WPainter   *painter_;
+  WLength   width_, height_;
+  WPainter *painter_;
   WFlags<PaintFlag> paintFlags_;
   WFlags<ChangeFlag> changeFlags_;
 
@@ -91,13 +94,15 @@ private:
   bool        newClipPath_;
   bool        busyWithPath_;
   int         currentClipId_;
-
   static int  nextClipId_;
 
   WTransform  currentTransform_;
   WBrush      currentBrush_;
   WFont       currentFont_;
   WPen        currentPen_;
+  WShadow     currentShadow_;
+  int         currentShadowId_, nextShadowId_;
+
   WPointF     pathTranslation_;
 
   std::stringstream shapes_;
@@ -108,6 +113,7 @@ private:
   std::string strokeStyle() const;
   std::string fontStyle() const;
   std::string clipPath() const;
+  int createShadowFilter(SStream& out);
 
   std::string fillStyle_, strokeStyle_, fontStyle_;
 

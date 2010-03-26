@@ -53,7 +53,8 @@ public:
     Font = 0x4,        //!< Properties of the font have changed
     Hints = 0x8,       //!< Some render hints have changed
     Transform = 0x10,  //!< The transformation has changed
-    Clipping = 0x20    //!< The clipping has changed
+    Clipping = 0x20,   //!< The clipping has changed
+    Shadow = 0x40      //!< Properties of the shadow have changed
   };
 
   /*! \brief Destructor.

@@ -37,6 +37,7 @@ WPainter::State WPainter::State::clone()
   result.currentBrush_ = currentBrush_;
   result.currentFont_ = currentFont_;
   result.currentPen_ = currentPen_;
+  result.currentShadow_ = currentShadow_;
   result.renderHints_ = renderHints_;
   result.clipPath_ = clipPath_;
   result.clipPathTransform_ = clipPathTransform_;
@@ -190,6 +191,8 @@ void WPainter::restore()
       flags |= WPaintDevice::Font;
     if (last.currentPen_ != next.currentPen_)
       flags |= WPaintDevice::Pen;
+    if (last.currentShadow_ != next.currentShadow_)
+      flags |= WPaintDevice::Shadow;
     if (last.renderHints_ != next.renderHints_)
       flags |= WPaintDevice::Hints;
     if (last.clipPath_ != next.clipPath_)
@@ -527,6 +530,14 @@ void WPainter::setPen(const WPen& p)
   if (pen() != p) {
     s().currentPen_ = p;
     device_->setChanged(WPaintDevice::Pen);
+  }
+}
+
+void WPainter::setShadow(const WShadow& shadow)
+{
+  if (this->shadow() != shadow) {
+    s().currentShadow_ = shadow;
+    device_->setChanged(WPaintDevice::Shadow);
   }
 }
 
