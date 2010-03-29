@@ -351,7 +351,7 @@ std::string WVmlImage::createShadowFilter() const
 {
   char buf[30];
   SStream filter;
-  double r = sqrt(2 * currentShadow_.blur());
+  double r = std::sqrt(2 * currentShadow_.blur());
   filter << "left: " << myzround(currentShadow_.offsetX() - r/2 - 1) << "px;";
   filter << "top: " << myzround(currentShadow_.offsetY() - r/2 - 1) 
 	 << "px;z-index:-10;";
