@@ -62,7 +62,7 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
 void WCartesianChart::init()
 {
   setPalette(new WStandardPalette(WStandardPalette::Muted));
-  setPreferredMethod(InlineSvgVml);
+  //setPreferredMethod(InlineSvgVml);
 	
 #ifdef WT_TARGET_JAVA
   for (int i = 0; i < 3; ++i)
