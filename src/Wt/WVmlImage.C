@@ -351,14 +351,13 @@ std::string WVmlImage::createShadowFilter() const
 {
   char buf[30];
   SStream filter;
-  filter << "left: "
-	 << Utils::round_str(currentShadow_.offsetX(), 0, buf) << ';';
-  filter << "top: "
-	 << Utils::round_str(currentShadow_.offsetY(), 0, buf)
-	 << ";z-index:-10;";
+  double r = sqrt(2 * currentShadow_.blur());
+  filter << "left: " << myzround(currentShadow_.offsetX() - r/2 - 1) << "px;";
+  filter << "top: " << myzround(currentShadow_.offsetY() - r/2 - 1) 
+	 << "px;z-index:-10;";
   filter << "filter:progid:DXImageTransform.Microsoft.Blur(makeShadow=1,";
   filter << "pixelradius="
-	 << Utils::round_str(currentShadow_.blur() * 0.66, 1, buf);
+	 << Utils::round_str(r, 2, buf);
   filter << ",shadowOpacity="
 	 << Utils::round_str(currentShadow_.color().alpha()/255., 2, buf)
 	 << ");";

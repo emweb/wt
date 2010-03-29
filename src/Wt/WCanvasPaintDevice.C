@@ -365,7 +365,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
   case Html5Text: 
     {
       double x = 0, y = 0;
-
+      
       if (horizontalAlign != currentTextHAlign_) {
 	js_ << "ctx.textAlign='";
 	switch (horizontalAlign) {
@@ -669,6 +669,7 @@ void WCanvasPaintDevice::renderStateChanges()
       brushChanged = true;
       shadowChanged = true;
       fontChanged = true;
+      currentTextHAlign_ = currentTextVAlign_ = AlignLength;
     }
   }
 
