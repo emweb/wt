@@ -229,16 +229,16 @@ WT_DECLARE_WT_MEMBER
         tw = $el.innerWidth(),
 	vscroll
 	    = contentsContainer.scrollHeight > contentsContainer.offsetHeight,
-        c0id, c0w = null; // for column 1 fixed
+        c0id, c0r, c0w = null;
 
     if ($el.hasClass('column1')) {
-      c0id = $el.find('.Wt-headerdiv')
-	.get(0).lastChild.className.split(' ')[0];
-      c0w = WT.pxself(WT.getCssRule('#' + el.id + ' .' + c0id), 'width');
+      c0id = $el.find('.Wt-headerdiv').get(0).lastChild.className.split(' ')[0];
+      c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
+      c0w = WT.pxself(c0r, 'width');
     }
 
     // XXX: IE's incremental rendering foobars completely
-    if (!WT.isIE || tw > 100
+    if ((!WT.isIE || tw > 100)
         && (tw != contentsContainer.tw ||
             vscroll != contentsContainer.vscroll ||
             c0w != contentsContainer.c0w ||
@@ -247,9 +247,13 @@ WT_DECLARE_WT_MEMBER
       contentsContainer.vscroll = vscroll;
       contentsContainer.c0w = c0w;
 
+      c0id = $el.find('.Wt-headerdiv').get(0).lastChild.className.split(' ')[0];
+      c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
+
       var table = contents.firstChild,
           r = WT.getCssRule('#' + el.id + ' .cwidth'),
-	  contentstoo = (r.style.width == headers.style.width);
+          contentstoo = (r.style.width == headers.style.width),
+          hc = headers.firstChild;
 
       r.style.width = (tw - (vscroll ? SCROLLBAR_WIDTH : 0)) + 'px';
       contentsContainer.style.width = tw + 'px';
@@ -274,6 +278,8 @@ WT_DECLARE_WT_MEMBER
         headers.style.width=r.style.width;
         table.style.width=r.style.width;
       }
+      c0r.style.width = (table.offsetWidth - hc.offsetWidth - 8) + 'px';
+
       el.changed = false;
     }
   };

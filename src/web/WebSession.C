@@ -1429,7 +1429,7 @@ void WebSession::notifySignal(const WEvent& e)
       return;
 
     // Save pending changes (e.g. from resource completion)
-    if (i == handler.nextSignal)
+    if (i == 0)
       renderer_.saveChanges();
 
     propagateFormValues(e, se);

@@ -2299,12 +2299,15 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
     = std::max(0, std::min(validRowCount_,
 			   rootNode_->renderedHeight() - firstRenderedRow_));
 
-  int viewportBottom = viewportTop_ + viewportHeight_;
+  int viewportBottom = std::min(rootNode_->renderedHeight(),
+				viewportTop_ + viewportHeight_);
   int lastValidRow = firstRenderedRow_ + validRowCount_;
 
   bool renderMore =
-       (viewportTop_ > firstRenderedRow_ - viewportHeight_)
-    || (viewportBottom < lastValidRow + viewportHeight_);
+    (std::max(0,
+	      viewportTop_ - viewportHeight_) < firstRenderedRow_)
+    || (std::min(rootNode_->renderedHeight(),
+		 viewportBottom + viewportHeight_) > lastValidRow);
 
   bool pruneFirst = false;
 
