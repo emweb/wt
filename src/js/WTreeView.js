@@ -278,6 +278,7 @@ WT_DECLARE_WT_MEMBER
         headers.style.width=r.style.width;
         table.style.width=r.style.width;
       }
+
       c0r.style.width = (table.offsetWidth - hc.offsetWidth - 8) + 'px';
 
       el.changed = false;

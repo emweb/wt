@@ -1,3 +1,6 @@
+30-03-2010:
+	* WPanel: make titleBarWidget() public
+
 26-03-2010:
 	* Wt/WShadow, Wt/WPainter: add support for drop shadows
 

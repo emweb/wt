@@ -95,6 +95,20 @@ public:
    */
   bool titleBar() const;
 
+  /*! \brief Returns the title bar widget.
+   *
+   * The title bar widget contains the collapse/expand icon (if the
+   * panel isCollapsible()), and the title text (if a title was set
+   * using setTitle()). You can access the title bar widget to customize
+   * the contents of the title.
+   *
+   * The method returns \c 0 if titleBar() is \p false. You need to call
+   * setTitleBar() first.
+   *
+   * \sa setTitleBar()
+   */
+  WContainerWidget *titleBarWidget() const;
+
   /*! \brief Makes the panel collapsible.
    *
    * When \p on is \c true, a collapse/expand icon is added to the
@@ -192,7 +206,7 @@ public:
 
 private:
   WIconPair        *collapseIcon_;
-  WText            *title_;
+  WText 	   *title_;
 
   WTemplate        *impl_;
   WWidget          *centralWidget_;
@@ -212,7 +226,6 @@ private:
   virtual void onCollapse();
 
   WContainerWidget *centralArea() const;
-  WContainerWidget *titleBarWidget() const;
 };
 
 }
