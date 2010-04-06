@@ -27,21 +27,23 @@ WT_DECLARE_WT_MEMBER
      dsy = nowxy.y;
    };
 
-   titlebar.onmousedown = function(event) {
-     var e = event||window.event;
-     WT.capture(titlebar);
-     var pc = WT.pageCoordinates(e);
-     dsx = pc.x;
-     dsy = pc.y;
+   if (titlebar) {
+     titlebar.onmousedown = function(event) {
+       var e = event||window.event;
+       WT.capture(titlebar);
+       var pc = WT.pageCoordinates(e);
+       dsx = pc.x;
+       dsy = pc.y;
 
-     titlebar.onmousemove = handleMove;
-   };
+       titlebar.onmousemove = handleMove;
+     };
 
-   titlebar.onmouseup = function(event) {
-     titlebar.onmousemove = null;
+     titlebar.onmouseup = function(event) {
+       titlebar.onmousemove = null;
 
-     WT.capture(null);
-   };
+       WT.capture(null);
+     };
+   }
 
    this.centerDialog = function() {
      if (el.parentNode == null) {
