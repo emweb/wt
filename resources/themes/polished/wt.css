@@ -335,9 +335,8 @@
     cursor: default;
 }
 
-.Wt-suggest div span {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+.Wt-suggest {
+    overflow-y: auto;
 }
 
 .Wt-suggest .sel {

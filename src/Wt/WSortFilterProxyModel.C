@@ -72,7 +72,7 @@ WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
     sortKeyColumn_(-1),
     sortRole_(DisplayRole),
     sortOrder_(AscendingOrder),
-    dynamic_(0)
+    dynamic_(false)
 { }
 
 WSortFilterProxyModel::~WSortFilterProxyModel()
@@ -147,7 +147,7 @@ void WSortFilterProxyModel::setFilterRegExp(const WT_USTRING& pattern)
   else
     regex_->setPattern(pattern);
 
-  if (sourceModel() && dynamic_) {
+  if (sourceModel()) {
     layoutAboutToBeChanged().emit();
 
     resetMappings();

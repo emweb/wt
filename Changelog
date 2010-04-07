@@ -1,3 +1,9 @@
+07-04-2010:
+	* WSuggestionPopup: add setFilterLength() and filterModel() methods
+	which allow for server-side filtering based on initial input. Also
+	support setMaxSize() to specifiy maximum height of the popup and
+	scrolling through the list of suggestions
+
 30-03-2010:
 	* WPanel: make titleBarWidget() public
 

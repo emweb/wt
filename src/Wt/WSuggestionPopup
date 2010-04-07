@@ -157,10 +157,65 @@ class WTemplate;
 class WT_API WSuggestionPopup : public WCompositeWidget
 {
 public:
+  /*! \brief A configuration object to generate a matcher and replacer
+   *         JavaScript function.
+   */
+  struct Options {
+    /*! \brief Open tag to highlight a match in a suggestion.
+     *
+     * Must be an opening markup tag, such as &lt;b&gt;.
+     */
+    std::string highlightBeginTag;
+
+    /*! \brief Close tag to highlight a match in a suggestion.
+     *
+     * Must be a closing markup tag, such as &lt;/b&gt;.
+     */
+    std::string highlightEndTag;
+
+    /*! \brief When editing a list of values, the separator used
+     *         for different items.
+     *
+     * For example, ',' to separate different values on komma. Specify
+     * 0 ('\\0') for no list separation.
+     */
+    char listSeparator;
+
+    /*! \brief When editing a value, the whitespace characters ignored
+     *         before the current value.
+     *
+     * For example, " \\n" to ignore spaces and newlines.
+     */
+    std::string whitespace;
+
+    /*! \brief To show suggestions based on matches of the edited
+     *         value with parts of the suggestion.
+     *
+     * For example, " .@" will also match with suggestion text after a space,
+     * a dot (.) or an at-symbol (@).
+     */
+    std::string wordSeparators;
+
+    /*! \brief When replacing the current edited value with suggestion value,
+     *         append the following string as well.
+     */
+    std::string appendReplacedText;
+  };
+
   /*! \brief Creates a suggestion popup with given matcherJS and replacerJS.
+   *
+   * See supra for the signature of the matcher and replace JavaScript
+   * functions.
    */
   WSuggestionPopup(const std::string& matcherJS,
 		   const std::string& replacerJS,
+		   WContainerWidget *parent = 0);
+
+  /*! \brief Creates a suggestion popup with given matcher and replacer options.
+   *
+   * \sa generateMatcherJS(), generateReplacerJS()
+   */
+  WSuggestionPopup(const Options& options,
 		   WContainerWidget *parent = 0);
 
   /*! \brief Lets this suggestion popup assist in editing the given edit field.
@@ -216,53 +271,6 @@ public:
    */
   WAbstractItemModel *model() const { return model_; }
 
-  /*! \brief A configuration object to generate a matcher and replacer
-   *         JavaScript function.
-   */
-  struct Options {
-    /*! \brief Open tag to highlight a match in a suggestion.
-     *
-     * Must be an opening markup tag, such as &lt;B&gt;. The tag
-     * name must be all uppercase! (really?)
-     */
-    std::string highlightBeginTag;
-
-    /*! \brief Close tag to highlight a match in a suggestion.
-     *
-     * Must be a closing markup tag, such as &lt;/B&gt;. The tag
-     * name must be all uppercase!
-     */
-    std::string highlightEndTag;
-
-    /*! \brief When editing a list of values, the separator used
-     *         for different items.
-     *
-     * For example, ',' to separate different values on komma. Specify
-     * 0 ('\\0') for no list separation.
-     */
-    char listSeparator;
-
-    /*! \brief When editing a value, the whitespace characters ignored
-     *         before the current value.
-     *
-     * For example, " \\n" to ignore spaces and newlines.
-     */
-    std::string whitespace;
-
-    /*! \brief To show suggestions based on matches of the edited
-     *         value with parts of the suggestion.
-     *
-     * For example, " .@" will also match with suggestion text after a space,
-     * a dot (.) or an at-symbol (@).
-     */
-    std::string wordSeparators;
-
-    /*! \brief When replacing the current edited value with suggestion value,
-     *         append the following string as well.
-     */
-    std::string appendReplacedText;
-  };
-
   /*! \brief Creates a matcher JavaScript function based on some
    *         generic options.
    */
@@ -273,22 +281,52 @@ public:
    */
   static std::string generateReplacerJS(const Options& options);
 
+  /*! \brief Sets the minimum input length before showing the popup.
+   *
+   * When the user has typed this much characters, filterModel() is
+   * emitted which allows you to filter the model based on the initial
+   * input.
+   *
+   * The default value is 0, which has the effect of always show the
+   * entire model.
+   *
+   * \sa filterModel()
+   */
+  void setFilterLength(int count);
+
+  /*! \brief Returns the filter length.
+   *
+   * \sa setFilterLength()
+   */
+  int filterLength() const { return filterLength_; }
+
+  /*! \brief %Signal that indicates that the model should be filtered.
+   *
+   * The argument is the initial input (of length filterLength()).
+   */
+  Signal<WString>& filterModel() { return filterModel_; }
+
 private:
   WTemplate *impl_;
   WAbstractItemModel *model_;
   int modelColumn_;
+  int filterLength_;
 
   std::string       matcherJS_;
   std::string       replacerJS_;
   WContainerWidget *content_;
 
+  Signal<WString> filterModel_;
+
   std::vector<boost::signals::connection> modelConnections_;
 
+  JSignal<std::string> filter_;
   JSlot editKeyDown_;
   JSlot editKeyUp_;
-  JSlot suggestionClicked_;
   JSlot delayHide_;
 
+  void init();
+  void doFilter(std::string input);
   void setJavaScript(JSlot& slot, const std::string& methodName);
 
   void modelRowsInserted(const WModelIndex& parent, int start, int end);

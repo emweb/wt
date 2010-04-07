@@ -22,40 +22,64 @@
 
 namespace Wt {
 
+#define TEMPLATE "${shadow-x1-x2}${contents}"
+
+WSuggestionPopup::WSuggestionPopup(const Options& options,
+				   WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    impl_(new WTemplate(WString::fromUTF8(TEMPLATE))),
+    model_(0),
+    modelColumn_(0),
+    filterLength_(0),
+    matcherJS_(generateMatcherJS(options)),
+    replacerJS_(generateReplacerJS(options)),
+    filter_(impl_, "filter"),
+    editKeyDown_(parent), // should be this, but IE hack...
+    editKeyUp_(parent),
+    delayHide_(parent)
+{
+  init();
+}
+
 WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
 				   const std::string& replacerJS,
 				   WContainerWidget *parent)
   : WCompositeWidget(parent),
+    impl_(new WTemplate(WString::fromUTF8(TEMPLATE))),
     model_(0),
     modelColumn_(0),
+    filterLength_(0),
     matcherJS_(matcherJS),
     replacerJS_(replacerJS),
+    filter_(impl_, "filter"),
     editKeyDown_(parent), // should be this, but IE hack...
     editKeyUp_(parent),
-    suggestionClicked_(parent),
     delayHide_(parent)
 {
-  const char *TEMPLATE =
-      "${shadow-x1-x2}"
-      "${contents}";
+  init();
+}
 
-  setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
+void WSuggestionPopup::init()
+{
+  setImplementation(impl_);
   impl_->setStyleClass("Wt-suggest Wt-outset");
 
   impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   impl_->bindWidget("contents", content_ = new WContainerWidget());
+  content_->setStyleClass("content");
 
   setPopup(true);
   setPositionScheme(Absolute);
 
   setJavaScript(editKeyDown_, "editKeyDown");
   setJavaScript(editKeyUp_, "editKeyUp");
-  setJavaScript(suggestionClicked_, "suggestionClicked");
   setJavaScript(delayHide_, "delayHide");
 
   hide();
 
   setModel(new WStringListModel(this));
+
+  filter_.connect(SLOT(this, WSuggestionPopup::doFilter));
 }
 
 void WSuggestionPopup::defineJavaScript()
@@ -71,7 +95,8 @@ void WSuggestionPopup::defineJavaScript()
 
   app->doJavaScript("new " WT_CLASS ".WSuggestionPopup("
 		    + app->javaScriptClass() + "," + jsRef() + ","
-		    + replacerJS_ + "," + matcherJS_ + ");");
+		    + replacerJS_ + "," + matcherJS_ + ","
+		    + boost::lexical_cast<std::string>(filterLength_) + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)
@@ -94,7 +119,7 @@ void WSuggestionPopup::setJavaScript(JSlot& slot,
 
 void WSuggestionPopup::setModel(WAbstractItemModel *model)
 {
-    if (model_) {
+  if (model_) {
     /* disconnect slots from previous model */
     for (unsigned i = 0; i < modelConnections_.size(); ++i)
       modelConnections_[i].disconnect();
@@ -149,7 +174,6 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
 
     line->addWidget(value);
     value->setAttributeValue("sug", asString(d2));
-    value->clicked().connect(suggestionClicked_);
   }
 }
 
@@ -224,16 +248,18 @@ namespace {
     return std::string() +
       "var value = edit.value;"
       "var pos;"
-      "if (edit.selectionStart) { pos = edit.selectionStart; }"
-      "  else { pos = value.length; }"
-      "var ws = '" + options.whitespace + "';"
+      "if (edit.selectionStart)"
+      """pos = edit.selectionStart;"
+      "else "
+      """pos = value.length;"
+      "var ws='" + options.whitespace + "';"
       + (options.listSeparator != 0
 	 ? (std::string("var start = value.lastIndexOf('")
 	    + options.listSeparator + "', pos - 1) + 1;")
 	 : ("var start = 0;")) +
       "while ((start < pos)"
-      "  && (ws.indexOf(value.charAt(start)) != -1))"
-      "  start++;"
+      ""      "&& (ws.indexOf(value.charAt(start)) != -1))"
+      """start++;"
       "var end = pos;";
   }
 };
@@ -243,43 +269,49 @@ std::string WSuggestionPopup::generateMatcherJS(const Options& options)
   return std::string() +
     "function (edit) {"
     + generateParseEditJS(options) +
-    "value = edit.value.substring(start, end).toUpperCase();"
-    ""
-    "return function(suggestion) {"
-    "var sep='" + options.wordSeparators + "';"
-    "var matched = false;"
-    "var i = 0;"
-    "var sugup = suggestion.toUpperCase();"
-    "var inserted = 0;"
-    "if (value.length != 0) {"
-    "while ((i != -1) && (i < sugup.length)) {"
-    "  var matchpos = sugup.indexOf(value, i);"
-    "  if (matchpos != -1) {"
-    "    if ((matchpos == 0)"
-    "       || (sep.indexOf(sugup.charAt(matchpos - 1)) != -1)) {"
+    """value = edit.value.substring(start, end);"
+
+    """return function(suggestion) {"
+    ""  "if (!suggestion)"
+    ""    "return value;"
+
+    ""  "var sep='" + options.wordSeparators + "',"
+    ""    "matched = false,"
+    ""    "i = 0,"
+    ""    "sugup = suggestion.toUpperCase(),"
+    ""    "val = value.toUpperCase(),"
+    ""    "inserted = 0;"
+    
+    ""  "if (val.length) {"
+    ""    "while ((i != -1) && (i < sugup.length)) {"
+    ""      "var matchpos = sugup.indexOf(val, i);"
+    ""        "if (matchpos != -1) {"
+    ""          "if ((matchpos == 0)"
+    ""              "|| (sep.indexOf(sugup.charAt(matchpos - 1)) != -1)) {"
     + (!options.highlightEndTag.empty()
        ? ("suggestion = suggestion.substring(0, matchpos + inserted)"
 	  " + '" + options.highlightBeginTag + "'"
 	  " + suggestion.substring(matchpos + inserted,"
-	  "     matchpos + inserted + value.length)"
+	  "     matchpos + inserted + val.length)"
 	  " + '" + options.highlightEndTag + "'"
-	  " + suggestion.substring(matchpos + inserted + value.length,"
+	  " + suggestion.substring(matchpos + inserted + val.length,"
 	  "     suggestion.length);"
 	  " inserted += "
 	  + boost::lexical_cast<std::string>(options.highlightBeginTag.length()
 					     + options.highlightEndTag.length())
 	  + ";")
        : "") +
-    "      matched = true;"
-    "    }"
-    "    i = matchpos + 1;"
-    "  } else "
-    "    i = matchpos;"
-    "}"
-    "}"
-    "return { match: matched,"
-    "         suggestion: suggestion }"
-    "}"
+    ""            "matched = true;"
+    ""          "}"
+    ""        "i = matchpos + 1;"
+    ""      "} else "
+    ""        "i = matchpos;"
+    ""    "}"
+    ""  "}"
+
+    ""  "return { match: matched,"
+    ""           "suggestion: suggestion }"
+    """}"
     "}";
 }
 
@@ -305,6 +337,20 @@ std::string WSuggestionPopup::generateReplacerJS(const Options& options)
        : "") + ";"
     " }"
     "}";
+}
+
+void WSuggestionPopup::setFilterLength(int length)
+{
+  filterLength_ = length;
+}
+
+void WSuggestionPopup::doFilter(std::string input)
+{
+  filterModel_.emit(WString::fromUTF8(input));
+
+  WApplication *app = WApplication::instance();
+  app->doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
+		    + WWebWidget::jsStringLiteral(input) + ")");
 }
 
 }
