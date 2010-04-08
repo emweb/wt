@@ -335,8 +335,12 @@
     cursor: default;
 }
 
-.Wt-suggest {
+.Wt-suggest .content {
     overflow-y: auto;
+}
+
+.Wt-suggest .content div {
+    padding: 0px 3px;
 }
 
 .Wt-suggest .sel {

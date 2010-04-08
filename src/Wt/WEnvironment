@@ -174,9 +174,15 @@ public:
    */
   const std::string getCookie(const std::string& cookieNname) const;
 
-  /*! \brief Returns a cgi environment header value  
+  /*! \brief Returns a header value.
+   *
+   * Returns a header value, or an empty string if the header was 
+   * present.
+   *
+   * \note Currently, the header name is case sensitive, although this should
+   * not be the case according to RFC2616
    */
-  const std::string headerValue(const std::string& name) const;
+  const std::string headerValue(const std::string& field) const;
 
   /*! \brief Returns whether the browser has enabled support for cookies.
    *

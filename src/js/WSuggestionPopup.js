@@ -191,16 +191,17 @@ WT_DECLARE_WT_MEMBER
        if (!sel || (sel.style.display == 'none')) {
          selId = first.id;
 	 sel = first;
-	 sel.scrollIntoView();
+	 sel.parentNode.scrollTop = 0;
        }
 
        /*
 	* Make sure currently selected is scrolled into view
 	*/
        sel.className = 'sel';
-       if (sel.offsetTop + sel.offsetHeight > el.scrollTop + el.clientHeight)
+       var p = sel.parentNode;
+       if (sel.offsetTop + sel.offsetHeight > p.scrollTop + p.clientHeight)
 	 sel.scrollIntoView(false);
-       else if (sel.offsetTop < el.scrollTop)
+       else if (sel.offsetTop < p.scrollTop)
          sel.scrollIntoView(true);
      }
    };

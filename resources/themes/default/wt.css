@@ -244,11 +244,15 @@
     border: 1px solid #666666;
     cursor: default;
     font-size: smaller;
+}
+
+.Wt-suggest .content {
+    overflow-y: auto;
     padding: 2px;
 }
 
-.Wt-suggest {
-    overflow-y: auto;
+.Wt-suggest .content div {
+    padding: 0px 3px;
 }
 
 .Wt-suggest .sel {

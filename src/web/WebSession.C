@@ -383,7 +383,7 @@ std::string WebSession::getCgiValue(const std::string& varName) const
   if (request)
     return request->envValue(varName);
   else
-    return "";
+    return std::string();
 }
 
 std::string WebSession::getCgiHeader(const std::string& headerName) const
@@ -392,7 +392,7 @@ std::string WebSession::getCgiHeader(const std::string& headerName) const
   if (request)
     return request->headerValue(headerName);
   else
-    return "";
+    return std::string();
 }
 
 void WebSession::kill()

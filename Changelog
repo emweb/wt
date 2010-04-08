@@ -1,3 +1,6 @@
+08-04-2010:
+	* Http/Request: added headerValue() 
+
 07-04-2010:
 	* WSuggestionPopup: add setFilterLength() and filterModel() methods
 	which allow for server-side filtering based on initial input. Also

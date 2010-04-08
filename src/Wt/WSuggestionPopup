@@ -35,14 +35,18 @@ class WTemplate;
  * setModel(). The member methods clearSuggestions() and
  * addSuggestion() manipulate the model.
  *
- * The class is initialized with two JavaScript functions, one for
- * filtering the suggestions, and one for editing the value of the
- * textarea when a suggestion is selected. Two static methods,
- * generateMatcherJS() and generateReplacerJS() may be used to
- * generate these functions based on a set of options (in the Options
- * struct). If the flexibility provided in this way is not sufficient,
- * and writing JavaScript does not give you an instant heart-attack,
- * you may provide your own implementations.
+ * The popup may support very large datasets, by using server-side
+ * filtering of suggestions based on the input. You can enable this
+ * feature using setFilterLength() and then listen to a filter notification
+ * using the modelFilter() signal. By using setMaximumSize() you can also
+ * limit the maximum height of the popup, in which case scrolling is provided
+ * (similar to a combo box).
+ *
+ * The class is initialized with an Options struct which configures
+ * how suggestion filtering and result editing is done. Alternatively,
+ * you can provide two JavaScript functions, one for filtering the
+ * suggestions, and one for editing the value of the textarea when a
+ * suggestion is selected.
  *
  * The matcherJS function block must have the following JavaScript signature:
  * 
@@ -53,9 +57,10 @@ class WTemplate;
  *   // return a function that matches a given suggestion with the current value of the editElement.
  *   return function(suggestion) {
  *
- *     // 1) remove markup from the suggestion
- *     // 2) check suggestion if it matches
- *     // 3) add markup to suggestion
+ *     // 1) if suggestion is null, simply return the current text 'value'
+ *     // 2) remove markup from the suggestion
+ *     // 3) check suggestion if it matches
+ *     // 4) add markup to suggestion
  *
  *     return { match : ...,      // does the suggestion match ? (boolean)
  *              suggestion : ...  // modified suggestion markup
@@ -96,10 +101,7 @@ class WTemplate;
  *     ", "           // appendReplacedText (prepare next email address)
  *    };
  *
- * Wt::WSuggestionPopup *popup
- *   = new Wt::WSuggestionPopup(Wt::WSuggestionPopup::generateMatcherJS(contactOptions),
- *	                      Wt::WSuggestionPopup::generateReplacerJS(contactOptions),
- *                              this);
+ * Wt::WSuggestionPopup *popup = new Wt::WSuggestionPopup(contactOptions, this);
  * Wt::WTextArea *textEdit = new Wt::WTextArea(this);
  * popup->forEdit(textEdit);
  *
@@ -118,10 +120,7 @@ class WTemplate;
  * contactOptions.wordSeparators = "-., \"@\\n;"; //within an address
  * contactOptions.appendReplacedText = ", "; //prepare next email address
  *	
- * WSuggestionPopup popup
- *  = new WSuggestionPopup(WSuggestionPopup.generateMatcherJS(contactOptions),
- * WSuggestionPopup.generateReplacerJS(contactOptions),
- * this);
+ * WSuggestionPopup popup = new WSuggestionPopup(contactOptions, this);
  * 
  * WTextArea textEdit = new WTextArea(this);
  * popup.forEdit(textEdit);
@@ -305,6 +304,8 @@ public:
    * The argument is the initial input (of length filterLength()).
    */
   Signal<WString>& filterModel() { return filterModel_; }
+
+  virtual void setMaximumSize(const WLength& width, const WLength& height);
 
 private:
   WTemplate *impl_;

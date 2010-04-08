@@ -82,6 +82,12 @@ void WSuggestionPopup::init()
   filter_.connect(SLOT(this, WSuggestionPopup::doFilter));
 }
 
+void WSuggestionPopup::setMaximumSize(const WLength& width,
+				      const WLength& height)
+{
+  content_->setMaximumSize(width, height);
+}
+
 void WSuggestionPopup::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
