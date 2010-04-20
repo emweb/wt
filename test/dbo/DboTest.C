@@ -10,6 +10,7 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Postgres>
 #include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/FixedSqlConnectionPool>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
 #include <Wt/WTime>
@@ -147,21 +148,26 @@ public:
 
 void DboTest::setup()
 {
+  dbo::SqlConnection *connection;
+
 #ifdef SQLITE3
   dbo::backend::Sqlite3 *sqlite3 = new dbo::backend::Sqlite3(":memory:");
   sqlite3->setDateTimeStorage(dbo::SqlDate,
   			      dbo::backend::Sqlite3::JulianDaysAsReal);
-  connection_ = sqlite3;
+  connection = sqlite3;
 #endif // SQLITE3
 
 #ifdef POSTGRES
-  connection_ = new dbo::backend::Postgres
+  connection = new dbo::backend::Postgres
    ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
 #endif // POSTGRES
 
-  connection_->setProperty("show-queries", "true");
+  connection->setProperty("show-queries", "true");
+
+  connectionPool_ = new dbo::FixedSqlConnectionPool(connection, 5);
+
   session_ = new dbo::Session();
-  session_->setConnection(*connection_);
+  session_->setConnectionPool(*connectionPool_);
 
   session_->mapClass<A>(SCHEMA "table_a");
   session_->mapClass<B>(SCHEMA "table_b");
@@ -175,7 +181,7 @@ void DboTest::teardown()
   session_->dropTables();
 
   delete session_;
-  delete connection_;
+  delete connectionPool_;
 }
 
 void DboTest::test1()
@@ -226,13 +232,18 @@ void DboTest::test1()
     {
       dbo::Transaction t(*session_);
 
-      As allAs = session_->find<A>();
-      BOOST_REQUIRE(allAs.size() == 1);
-      dbo::ptr<A> a2 = *allAs.begin();
+      {
+	As allAs = session_->find<A>();
+	BOOST_REQUIRE(allAs.size() == 1);
+	dbo::ptr<A> a2 = *allAs.begin();
 
-      a2.remove();
+	a2.remove();
+      }
 
-      BOOST_REQUIRE(allAs.size() == 0);
+      {
+	As allAs = session_->find<A>();
+	BOOST_REQUIRE(allAs.size() == 0);
+      }
 
       t.commit();
     }
@@ -357,9 +368,9 @@ void DboTest::test3()
       dbo::Transaction t(*session_);
 
       dbo::ptr<B> b1 = session_->query< dbo::ptr<B> >
-	("select B from table_b B where B.name = ?").bind("b1");
+	("select B from table_b B ").where("B.name = ?").bind("b1");
 
-      dbo::ptr<C> c1 = session_->find<C>("where name = ?").bind("c1");
+      dbo::ptr<C> c1 = session_->find<C>().where("name = ?").bind("c1");
 
       BOOST_REQUIRE(b1->csManyToMany.size() == 1);
       BOOST_REQUIRE(c1->bsManyToMany.size() == 1);
@@ -411,8 +422,8 @@ void DboTest::test4()
       typedef dbo::collection<BA> BAs;
 
       BAs bas = session_->query<BA>
-	("select B, A from table_b B join table_a A on A.b_id = B.id "
-	 "order by A.i");
+	("select B, A from table_b B join table_a A on A.b_id = B.id")
+	.orderBy("A.i");
 
       BOOST_REQUIRE(bas.size() == 2);
 
@@ -603,6 +614,26 @@ void DboTest::test7()
   }
 }
 
+void DboTest::test8()
+{
+  setup();
+
+  try {
+    {
+      dbo::Transaction t(*session_);
+
+      session_->execute("delete from table_a");
+
+      t.commit();
+    }
+
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
+}
+
 DboTest::DboTest()
   : test_suite("dbotest_test_suite")
 {
@@ -613,4 +644,5 @@ DboTest::DboTest()
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test5, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test6, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test7, this)));
+  add(BOOST_TEST_CASE(boost::bind(&DboTest::test8, this)));
 }

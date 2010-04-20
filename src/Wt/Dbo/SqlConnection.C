@@ -6,11 +6,19 @@
 
 #include "Wt/Dbo/SqlConnection"
 #include "Wt/Dbo/SqlStatement"
+#include "Wt/Dbo/Exception"
 
 #include <cassert>
 
 namespace Wt {
   namespace Dbo {
+
+SqlConnection::SqlConnection()
+{ }
+
+SqlConnection::SqlConnection(const SqlConnection& other)
+  : properties_(other.properties_)
+{ }
 
 SqlConnection::~SqlConnection()
 {
@@ -36,9 +44,18 @@ void SqlConnection::executeSql(const std::string& sql)
 SqlStatement *SqlConnection::getStatement(const std::string& id) const
 {
   StatementMap::const_iterator i = statementCache_.find(id);
-  if (i != statementCache_.end())
-    return i->second;
-  else
+  if (i != statementCache_.end()) {
+    SqlStatement *result = i->second;
+    /*
+     * Later, if already in use, manage reentrant use by cloning the statement
+     * and adding it to a linked list in the statementCache_
+     */
+    if (!result->use())
+      throw Exception("A collection for '" + id + "' is already in use."
+		      " Reentrant statement use is not yet implemented."); 
+
+    return result;
+  } else
     return 0;
 }
 

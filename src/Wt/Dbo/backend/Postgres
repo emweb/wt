@@ -36,11 +36,17 @@ public:
    */
   Postgres(const std::string& db);
 
+  /*! \brief Copies a PostgreSQL connection.
+   */
+  Postgres(const Postgres& other);
+
   /*! \brief Destructor.
    *
    * Closes the connection.
    */
   ~Postgres();
+
+  virtual Postgres *clone() const;
 
   bool connect(const std::string& db);
 
@@ -67,6 +73,7 @@ public:
   //@}
 
 private:
+  std::string connInfo_;
   PGconn *conn_;
 };
 

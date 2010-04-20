@@ -178,7 +178,7 @@ bool WDate::operator!= (const WDate& other) const
 
 bool WDate::operator== (const WDate& other) const
 {
-  if (!isValid() || !other.isValid())
+  if ((!isValid() && !isNull()) || (!other.isValid() && !other.isNull()))
     throw InvalidDateException();
 
   return (year_ == other.year_ && month_ == other.month_ && day_ == other.day_);

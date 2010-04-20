@@ -13,30 +13,41 @@
 
 namespace Wt {
   namespace Dbo {
+    template <class Result, typename BindStrategy> class Query;
+    class DirectBinding;
+    class DynamicBinding;
     class SqlStatement;
 
   /*! \class collection Wt/Dbo/collection Wt/Dbo/collection
    *  \brief An STL container for iterating query results.
    *
    * This is an STL-compatible container that is backed by an SQL
-   * query for fetching data. Its iterators implement the
-   * InputIterator requirements, which mean that you can only iterate
-   * its results once.
+   * query for fetching data.
+   *
+   * A %collection has two uses in Wt::Dbo:
+   * - to iterate the results of a Query;
+   * - to map the many-side of a Many-to-One or Many-to-Many relation.
+   *
+   * Its iterators implement the InputIterator requirements, meaning
+   * you have to traverse the results from begin() to end() solely by
+   * alternating between reading an element and incrementing the
+   * iterator. When the collection represents the results of a Query,
+   * you can only iterate the results just once: i.e. you can have
+   * only one begin() call.
    *
    * The container is read only, unless it is being used as a member
    * of a dbo to manage a Many-to-Many relation. In that case, you may
    * also insert() and erase() may also be used.
    *
-   * The %collection should be used only for storing \link ptr
-   * ptr\endlink<<i>C</i>> values: collection< \link ptr
-   * ptr\endlink<<i>C</i>> >.
-   *
    * You will typically iterate the container results for local
    * processing, or copy the results into a standard STL container for
-   * extended processing. The reason is that the container uses a
-   * non-reentrant sql statement: only one %collection, which is
-   * backed by the same SQL statement may be used at once per session.
-   * Thus, the following will fail:
+   * extended processing. Not only the weak guarantees of the
+   * iterators make this useful, but also in the current
+   * implementation of the library, all sql statements are
+   * non-reentrant prepared statements (this limitation is likely to
+   * be removed in the future): only one %collection, which is backed
+   * by the same SQL statement may be used at once per session. Thus,
+   * the following will fail:
    *
    * \code
    * void iterateChildren(Wt::Dbo::ptr<Comment> comment)
@@ -143,12 +154,13 @@ namespace Wt {
 
     private:
       struct shared_impl {
-	const collection<C>& self_;
+	const collection<C>& collection_;
+	SqlStatement *statement_;
 	value_type current_;
 	int useCount_;
 	bool ended_;
 
-	shared_impl(const collection<C>& self);
+	shared_impl(const collection<C>& collection, SqlStatement *statement);
 	~shared_impl();
 
 	void fetchNextRow();
@@ -157,7 +169,7 @@ namespace Wt {
       shared_impl *impl_;
 
       iterator();
-      iterator(const collection<C>& self);
+      iterator(const collection<C>& collection, SqlStatement *statement);
 
       void takeImpl();
       void releaseImpl();
@@ -218,7 +230,7 @@ namespace Wt {
       typename collection<C>::iterator impl_;
 
       const_iterator();
-      const_iterator(const collection<C>& self);
+      const_iterator(const collection<C>& collection, SqlStatement *statement);
 
       friend class collection<C>;
     };
@@ -254,6 +266,10 @@ namespace Wt {
      *
      * This will execute an SQL <tt>count(*)</tt> statement to fetch the
      * size of the %collection without fetching all results.
+     *
+     * If the %collection represents the result of a Query, the underlying
+     * query is run only once, and its result is cached so that size() always
+     * returns the same value.
      */
     size_type size() const;
 
@@ -271,31 +287,58 @@ namespace Wt {
      */
     void erase(C c);
 
-    void setStatement(SqlStatement *selectStatement,
-		      SqlStatement *countStatement, Session *session);
-    void setArg(long long arg);
-    void clearStatement();
-
-    Activity *activity() { return activity_; }
-    void resetActivity();
-
     /*! \brief Returns the session to which this %collection is bound.
      */
     Session *session() const { return session_; }
 
-    long long arg() const { return arg_; }
+    /*! \brief Returns the query that backs the collection.
+     *
+     * Returns a query that backs the collection.
+     *
+     * \note This only works for a collection that represents the many-side
+     *       of a collection (i.e. for which hasMany() is called).
+     */
+    Query<C, DynamicBinding> asQuery() const;
 
   private:
-    mutable SqlStatement *statement_, *countStatement_;
-    long long arg_;
     Session *session_;
-    Activity *activity_; // only for ManyToMany %collections
+    enum { QueryCollection, RelationCollection } type_;
 
-    C loadNext() const;
+    // Structure for a relation query
+    struct RelationData {
+      const std::string *sql;
+      long long id;
+      Activity *activity; // only for ManyToMany collections
+    };
 
+    struct QueryData {
+      mutable SqlStatement *statement, *countStatement;
+      mutable int size;
+    };
+
+    union {
+      QueryData query;
+      RelationData relation;
+    } data_;
+
+    friend class SessionAddAction;
     friend class LoadDbAction;
     friend class SaveDbAction;
     friend class TransactionDoneAction;
+    template <class Result, typename BindStrategy> friend class Query;
+
+    collection(Session *session, SqlStatement *selectStatement,
+	       SqlStatement *countStatement);
+
+    void setRelationData(Session *session, const std::string *sql,
+			 long long id);
+    long long id() const { return data_.relation.id; }
+    Activity *activity() const { return data_.relation.activity; }
+    void resetActivity();
+
+    SqlStatement *executeStatement() const;
+
+    void iterateDone() const;
   };
 
   }

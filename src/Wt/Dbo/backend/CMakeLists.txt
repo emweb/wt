@@ -33,6 +33,7 @@ PROPERTIES
 )
 
 INSTALL_FILES(/include/Wt/Dbo/backend "^Sqlite3$")
+INSTALL_FILES(/include/Wt/Dbo/backend "^.*Sqlite3.*h$")
 
 IF(POSTGRES_FOUND)
   MESSAGE("** Wt::Dbo: building Postgres backend.")
@@ -57,6 +58,7 @@ IF(POSTGRES_FOUND)
   )
 
   INSTALL_FILES(/include/Wt/Dbo/backend "^Postgres$")
+  INSTALL_FILES(/include/Wt/Dbo/backend "^.*Postgres.*h$")
 ELSE(POSTGRES_FOUND)
   MESSAGE("** Wt::Dbo: could not find libpq development files, not building Postgres backend.")
 ENDIF(POSTGRES_FOUND)

@@ -69,24 +69,23 @@ public:
 	   Wt::TextFormat labelFormat,
 	   IconPair *labelIcon, Wt::WContainerWidget *parent = 0);
 
-  /*! \brief Add a child node.
+  /*! \brief Adds a child node.
    */
   void addChildNode(TreeNode *node);
 
-  /*! \brief Remove a child node.
+  /*! \brief Removes a child node.
    */
   void removeChildNode(TreeNode *node);
 
-  /*! \brief Get the list of children.
+  /*! \brief Returns the list of children.
    */
   const std::vector<TreeNode *>& childNodes() const { return childNodes_; }
 
-public slots:
-  /*! \brief Collapse this node.
+  /*! \brief Collapses this node.
    */
   void collapse();
 
-  /*! \brief Expand this node.
+  /*! \brief Expands this node.
    */
   void expand();
 

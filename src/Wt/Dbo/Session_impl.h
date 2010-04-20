@@ -139,8 +139,8 @@ ptr<C> Session::load(long long id)
   return load<C>(id, 0, column);
 }
 
-template <class C>
-Query< ptr<C> > Session::find(const std::string& where)
+template <class C, typename BindStrategy>
+Query< ptr<C>, BindStrategy > Session::find(const std::string& where)
 {
   if (!transaction_)
     throw std::logic_error("Dbo find(): no active transaction");
@@ -149,14 +149,20 @@ Query< ptr<C> > Session::find(const std::string& where)
   std::string from = std::string("from \"")
     + Impl::quoteSchemaDot(tableName<C>()) + "\" " + where;
 
-  return Query< ptr<C> >(*this, "select " + columns, from);
+  return Query< ptr<C>, BindStrategy >(*this, "select " + columns, from);
 }
 
 template <class Result>
-Query<Result> Session::query(const std::string& sql)
+Query<Result, DynamicBinding> Session::query(const std::string& sql)
+{
+  return query<Result, DynamicBinding>(sql);
+}
+
+template <class Result, typename BindStrategy>
+Query<Result, BindStrategy> Session::query(const std::string& sql)
 {
   if (!transaction_)
-    throw std::logic_error("Dbo find(): no active transaction");
+    throw std::logic_error("Dbo query(): no active transaction");
 
   std::vector<std::string> aliases;
   std::string rest;
@@ -168,7 +174,7 @@ Query<Result> Session::query(const std::string& sql)
   if (!aliases.empty())
     throw std::logic_error("Session::query(): too many aliases for result");
 
-  return Query<Result>(*this, "select " + columns, rest);
+  return Query<Result, BindStrategy>(*this, "select " + columns, rest);
 }
 
 template<class C>
@@ -209,6 +215,8 @@ void Session::implDelete(MetaDbo<C>& dbo)
   // when saved in the transaction, we will be at version() + 1
   doDelete(statement, dbo.id(), dbo.obj() != 0,
 	   dbo.version() + (dbo.savedInTransaction() ? 1 : 0));
+
+  statement->done();
 }
 
 template<class C>

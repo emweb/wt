@@ -58,8 +58,6 @@ class HangmanWidget: public WContainerWidget
       void resetButtons();
       void registerBadGuess();
       void registerCorrectGuess(wchar_t c);
-
-   private slots:
       void processButton(WPushButton *button);
       void newGame();
 };

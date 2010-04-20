@@ -33,7 +33,6 @@ private:
   Composer *composer_;
   WContainerWidget *details_;
 
-private slots:
   void send();
   void discard();
 };

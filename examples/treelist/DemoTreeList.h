@@ -31,15 +31,6 @@ public:
    */
   DemoTreeList(Wt::WContainerWidget *parent);
 
-private slots:
-  /*!\brief Add a map.
-   */
-  void addMap();
-
-  /*!\brief Remove a map.
-   */ 
-  void removeMap();
-
 private:
   TreeNode *tree_;
   TreeNode *testMap_;
@@ -47,6 +38,14 @@ private:
 
   Wt::WPushButton *addMapButton_;
   Wt::WPushButton *removeMapButton_;
+
+  /*!\brief Add a map.
+   */
+  void addMap();
+
+  /*!\brief Remove a map.
+   */ 
+  void removeMap();
 
   /*!\brief Create a "map" node, and insert in the given parent.
    */

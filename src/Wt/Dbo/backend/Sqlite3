@@ -60,11 +60,17 @@ public:
    */
   Sqlite3(const std::string& db);
 
+  /*! \brief Copies an SQLite3 connection.
+   */
+  Sqlite3(const Sqlite3& other);
+
   /*! \brief Destructor.
    *
    * Closes the connection.
    */
   ~Sqlite3();
+
+  virtual Sqlite3 *clone() const;
 
   /*! \brief Returns the underlying connection.
    */
@@ -98,6 +104,7 @@ public:
 private:
   DateTimeStorage dateTimeStorage_[2];
 
+  std::string conn_;
   sqlite3 *db_;
 };
 

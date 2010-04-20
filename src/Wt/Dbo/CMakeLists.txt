@@ -1,15 +1,20 @@
 ADD_LIBRARY(wtdbo
   ptr.C
+  Call.C
   DbAction.C
   Exception.C
+  FixedSqlConnectionPool.C
   Query.C
   Session.C
   SqlConnection.C
+  SqlConnectionPool.C
   SqlStatement.C
   StdSqlTraits.C
   Transaction.C
   WtSqlTraits.C
 )
+
+TARGET_LINK_LIBRARIES(wtdbo ${BOOST_THREAD_LIB_MT})
 
 INSTALL(TARGETS wtdbo
     RUNTIME DESTINATION bin

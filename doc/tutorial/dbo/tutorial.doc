@@ -22,7 +22,7 @@ from a mapped class is called a *database object* (dbo). Query results
 may be defined in terms of database objects, primitives, or tuples of
 these.
 
-A modern C\+\+ approach is used to solving the mapping problem. Rather
+A modern C\+\+ approach is used to solve the mapping problem. Rather
 than resorting to XML-based descriptions of how C\+\+ classes and
 fields should map onto tables and columns, or using obscure macros,
 the mapping is defined entirely in C++ code.

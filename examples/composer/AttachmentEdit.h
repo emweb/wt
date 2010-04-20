@@ -102,7 +102,6 @@ private:
   //! Whether the spool file is "taken" and is no longer managed by the edit.
   bool         taken_;
 
-private slots:
   //! Slot triggered when the WFileUpload completed an upload.
   void uploaded();
 

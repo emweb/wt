@@ -38,7 +38,7 @@ int FieldRef<V>::size() const
 template <typename V>
 std::string FieldRef<V>::sqlType(Session& session) const
 {
-  return sql_value_traits<V>::type(session.transaction_->connection_, size_);
+  return sql_value_traits<V>::type(session.connection(), size_);
 }
 
 template <typename V>

@@ -1,3 +1,14 @@
+20-04-2010:
+	* Dbo/SqlConnectionPool, Dbo/FixedSqlConnectionPool: connection pool
+	implementations
+
+	* Dbo/Query: support for several bind strategies, including a new
+	DynamicBinding strategy which supports incremental query
+	specification
+
+	* Dbo/Session: add execute() method for executing SQL that does not
+	return results
+
 08-04-2010:
 	* Http/Request: added headerValue() 
 

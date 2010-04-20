@@ -86,6 +86,7 @@ class WTemplate;
 
 .Wt-cal td          : Day cell
 .Wt-cal-oom         : Out-of-month day
+.Wt-cal-oom         : Out-of-range day (day < bottom or day > top)
 .Wt-cal-sel         : Selected day
 .Wt-cal-now         : Today day
 \endverbatim
@@ -303,6 +304,34 @@ public:
    */
   void setDayOfWeekLength(int chars);
 
+  /*! \brief Sets the bottom of the valid date range.
+   *
+   * \if cpp
+   * The default is a null date constructed using WDate().
+   * \elseif java 
+   * The default bottom is null.
+   * \endif
+   */
+  void setBottom(const WDate& bottom);
+
+  /*! \brief Returns the bottom date of the valid range.
+   */
+  const WDate& bottom() const { return bottom_; }
+
+  /*! \brief Sets the top of the valid date range.
+   *
+   * \if cpp
+   * The default is a null date constructed using WDate().
+   * \elseif java 
+   * The default top is null.
+   * \endif
+   */
+  void setTop(const WDate& top);
+
+  /*! \brief Returns the top date of the valid range.
+   */
+  const WDate& top() const { return top_; }
+
 protected:
   virtual void render(WFlags<RenderFlag> renderFlags);
   
@@ -340,6 +369,8 @@ private:
   Signal<WDate>     activated_;
   Signal<WDate>     clicked_;
   Signal<int, int>  currentPageChanged_;
+
+  WDate             bottom_, top_;
 
   struct Coordinate {
     int i, j;

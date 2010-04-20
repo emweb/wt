@@ -454,6 +454,13 @@ Postgres::Postgres(const std::string& db)
     connect(db);
 }
 
+Postgres::Postgres(const Postgres& other)
+  : SqlConnection(other)
+{
+  if (!other.connInfo_.empty())
+    connect(other.connInfo_);
+}
+
 Postgres::~Postgres()
 {
   clearStatementCache();
@@ -461,8 +468,14 @@ Postgres::~Postgres()
     PQfinish(conn_);
 }
 
+Postgres *Postgres::clone() const
+{
+  return new Postgres(*this);
+}
+
 bool Postgres::connect(const std::string& db)
 {
+  connInfo_ = db;
   conn_ = PQconnectdb(db.c_str());
 
   if (PQstatus(conn_) != CONNECTION_OK)

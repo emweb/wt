@@ -42,8 +42,6 @@ private:
   WLineEdit *radius_, *r_, *g_, *b_;
 
   WLineEdit *createValidateLineEdit(int value, int min, int max);
-
-private slots:
   void updateStyle();
 };
 

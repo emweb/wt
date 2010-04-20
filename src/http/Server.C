@@ -91,11 +91,18 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
     asio::ip::tcp::endpoint tcp_endpoint;
 
     if (httpPort == "0")
-      tcp_endpoint.address(asio::ip::address::from_string(config.httpAddress()));      
+      tcp_endpoint.address(asio::ip::address::from_string
+			   (config.httpAddress()));
     else {
+#ifndef NO_RESOLVE_ACCEPT_ADDRESS
       asio::ip::tcp::resolver::query tcp_query(config.httpAddress(),
 					       config.httpPort());
       tcp_endpoint = *resolver.resolve(tcp_query);
+#else // !NO_RESOLVE_ACCEPT_ADDRESS
+      tcp_endpoint.address
+	(asio::ip::address::from_string(config.httpAddress()));
+      tcp_endpoint.port(atoi(httpPort.c_str()));
+#endif // NO_RESOLVE_ACCEPT_ADDRESS
     }
 
     tcp_acceptor_.open(tcp_endpoint.protocol());
@@ -126,9 +133,15 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
 				      asio::ssl::context::pem);
     ssl_context_.use_tmp_dh_file(config.sslTmpDHFile());
     
+    asio::ip::tcp::endpoint ssl_endpoint;
+#ifndef NO_RESOLVE_ACCEPT_ADDRESS
     asio::ip::tcp::resolver::query ssl_query(config.httpsAddress(),
-						    config.httpsPort());
-    asio::ip::tcp::endpoint ssl_endpoint = *resolver.resolve(ssl_query);
+					     config.httpsPort());
+    ssl_endpoint = *resolver.resolve(ssl_query);
+#else // !NO_RESOLVE_ACCEPT_ADDRESS
+    ssl_endpoint.address(asio::ip::address::from_string(config.httpsAddress()));
+    ssl_endpoint.port(atoi(httpsPort.c_str()));
+#endif // NO_RESOLVE_ACCEPT_ADDRESS
 
     ssl_acceptor_.open(ssl_endpoint.protocol());
     ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));

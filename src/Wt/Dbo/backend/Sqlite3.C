@@ -404,7 +404,8 @@ private:
   void handleErr(int err)
   {
     if (err != SQLITE_OK)
-      throw Sqlite3Exception(sqlite3_errmsg(db_.connection()));
+      throw Sqlite3Exception("Sqlite3: " + sql_ + ": "
+			     + sqlite3_errmsg(db_.connection()));
   }
 
   boost::gregorian::date fromJulianDay(int julian) {
@@ -448,11 +449,25 @@ private:
 };
 
 Sqlite3::Sqlite3(const std::string& db)
+  : conn_(db)
 {
   dateTimeStorage_[SqlDate] = ISO8601AsText;
   dateTimeStorage_[SqlDateTime] = ISO8601AsText;
 
-  int err = sqlite3_open(db.c_str(), &db_);
+  int err = sqlite3_open(conn_.c_str(), &db_);
+
+  if (err != SQLITE_OK)
+    throw Sqlite3Exception(sqlite3_errmsg(db_));
+}
+
+Sqlite3::Sqlite3(const Sqlite3& other)
+  : SqlConnection(other),
+    conn_(other.conn_)
+{
+  dateTimeStorage_[SqlDate] = other.dateTimeStorage_[SqlDate];
+  dateTimeStorage_[SqlDateTime] = other.dateTimeStorage_[SqlDateTime];
+
+  int err = sqlite3_open(conn_.c_str(), &db_);
 
   if (err != SQLITE_OK)
     throw Sqlite3Exception(sqlite3_errmsg(db_));
@@ -463,6 +478,11 @@ Sqlite3::~Sqlite3()
   clearStatementCache();
 
   sqlite3_close(db_);
+}
+
+Sqlite3 *Sqlite3::clone() const
+{
+  return new Sqlite3(*this);
 }
 
 SqlStatement *Sqlite3::prepareStatement(const std::string& sql)

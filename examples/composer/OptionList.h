@@ -48,8 +48,7 @@ public:
    */
   void add(Option *option);
 
-public slots:
-  /*! \brief Update the stateless implementations after an Option has been
+  /*! \brief Updates the stateless implementations after an Option has been
    *         hidden or shown.
    */
   void update();

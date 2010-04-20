@@ -33,13 +33,12 @@ public:
    */
   FormExample(WContainerWidget *parent = 0);
 
-private slots:
+private:
+  std::vector<WText *> languageSelects_;
+
   /*!\brief Change the language.
    */
   void changeLanguage();
-
-private:
-  std::vector<WText *> languageSelects_;
 
   void setLanguage(const std::string lang);
 };

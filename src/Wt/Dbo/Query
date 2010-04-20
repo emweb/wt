@@ -19,10 +19,47 @@ namespace Wt {
   namespace Dbo {
     namespace Impl {
       enum StatementKind { Select, Count };
+
       extern std::string WTDBO_API createQuerySql(StatementKind kind,
 					          const std::string& select,
 					          const std::string& from);
+
+      extern std::string WTDBO_API createQuerySql(StatementKind kind,
+					          const std::string& select,
+					          const std::string& from,
+						  const std::string& where,
+						  const std::string& groupBy,
+						  const std::string& orderBy,
+						  int offset,
+						  int limit);
+
+      template <class Result>
+      class QueryBase {
+      protected:
+	QueryBase(Session& session, const std::string& select,
+		  const std::string& from);
+
+	Result singleResult(const collection<Result>& results) const;
+
+	Session& session_;
+	std::string select_, from_;
+      };
     }
+
+/*! \class DirectBinding Wt/Dbo/Query Wt/Dbo/Query
+ *
+ * Bind strategy indicating that parameters are bound directly to an underlying
+ * prepared statement.
+ */
+struct DirectBinding { };
+
+/*! \class DirectBinding Wt/Dbo/Query Wt/Dbo/Query
+ *
+ * Bind strategy indicating that binding to the underlying prepared statement
+ * is deferred and parameter values are temporarily stored first in a dynamic
+ * value vector.
+ */
+struct DynamicBinding { };
 
 class Session;
 class SqlConnection;
@@ -35,8 +72,8 @@ class SqlConnection;
  * Simple queries can be done using Session::find(), while more elaborate
  * queries (with arbitrary result types) using Session::query().
  *
- * You may insert positional holders for parameters using '?', using
- * bind().
+ * You may insert positional holders for parameters using '?', and bind these
+ * to actual values using bind().
  *
  * The query result may be fetched using resultValue() or resultList().
  *
@@ -44,40 +81,55 @@ class SqlConnection;
  * \code
  * typedef dbo::collection<dbo::ptr<Account> > Accounts;
  *
- * Query query = session.find<Account>("where balance > ?").bind(100000);
+ * Query query = session.find<Account>().where("balance > ?").bind(100000);
  * Accounts accounts = query.resultList();
  *
  * for (Accounts::const_iterator i = accounts.begin(); i != accounts.end(); ++i)
  *   std::cerr << "Name: " << i->name << std::end;
  * \endcode
  *
- * <b>Caveat warning!</b>
+ * The \p BindStrategy specifies how you want to bind parameters to
+ * your query (if any).
  *
- * A query object should be used transiently: a query can be used only
- * once (one call to resultValue() or resultList()), after which it
- * becomes unusable. You should not try to keep a query object
- * around. This behavior was chosen because in this way, we do not
- * need to store bound arguments and they are immediately passed on to
- * the underlying prepared statement.
+ * When using DynamicBinding (which is the default), parameter binding
+ * to an actual sql statement is deferred until the query is run. This
+ * has the advantage that you can compose the query definition using
+ * helper methods provided in the query object (where(), orderBy() and
+ * groupBy()), possibly intermixing this with parameter binding, and
+ * you can keep the query around and run the query multiple times,
+ * perhaps with different parameter values or to scroll through the
+ * query results.
+ *
+ * When using DirectBinding, parameters are directly bound to an
+ * underlying sql statement. Therefore, the query must be specified
+ * entirely when created. Because of this reliance on an sql
+ * statement, it can be run only once (one call to resultValue() or
+ * resultList()) after which it should be discarded. You should not
+ * try to keep a query object around when using this parameter binding
+ * strategy (that will amost always not do what you would hope it to
+ * do).
  *
  * \ingroup dbo
  */
-template <class Result>
+template <class Result, typename BindStrategy>
 class Query
 {
-public:
+#ifdef DOXYGEN_ONLY
   /*! \brief Destructor.
    */
   ~Query();
 
+  /*! \brief Copy constructor.
+   */
+  Query(const Query& other);
+
   /*! \brief Binds a value to the next positional marker.
    *
-   * This binds the \p value to the next positional marker. When this is the
-   * first bind() call, the statement is first prepared.
-   *
-   * You should only bind arguments after the query is complete.
+   * This binds the \p value to the next positional marker in the
+   * query condition.
    */
-  template<typename T> Query<Result>& bind(const T& value);
+  template<typename T>
+  Query<Result, BindStrategy>& bind(const T& value);
 
   /*! \brief Returns a unique result value.
    *
@@ -85,16 +137,19 @@ public:
    * at most one result. If the query returns more than one result a
    * NoUniqueResultException is thrown.
    *
-   * After a result has been fetched, the query can no longer be used.
+   * When using a DynamicBinding bind strategy, after a result has
+   * been fetched, the query can no longer be used.
    */
   Result resultValue() const;
 
   /*! \brief Returns a result list.
    *
    * This returns a collection which is backed by the underlying query.
-   * The query is not executed until this collection is traversed.
+   * The query is not actually run until this collection is traversed
+   * or its size is asked.
    *
-   * After a result has been fetched, the query can no longer be used.
+   * When using a DynamicBinding bind strategy, after a result has
+   * been fetched, the query can no longer be used.
    */
   collection< Result > resultList() const;
 
@@ -110,18 +165,162 @@ public:
    */
   operator collection< Result > () const;
 
+  /** @name Methods for composing a query (DynamicBinding only)
+   */
+  //@{
+  /*! \brief Adds a query condition.
+   *
+   * The condition must be a valid SQL condition expression.
+   *
+   * Multiple conditions may be provided, which must each be fulfilled,
+   * and are concatenated together using 'and').
+   *
+   * A condition may contain positional markers '?' to which values may
+   * be bound using bind().
+   *
+   * This provides the <i>where</i> part of an SQL query.
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& where(const std::string& condition);
+
+  /*! \brief Sets the result order.
+   *
+   * Orders the results based on the given field name (or multiple
+   * names, comma-separated).
+   *
+   * This provides the <i>order by</i> part of an SQL query.
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& orderBy(const std::string& fieldName);
+
+  /*! \brief Sets the grouping field.
+   *
+   * Groups results based on unique values of the indicated
+   * field. Only fields on which you group and aggregate functions can
+   * be returned as a query.
+   *
+   * This provides the <i>group by</i> part of an SQL query.
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& groupBy(const std::string& fieldName);
+
+  /*! \brief Sets a result offset.
+   *
+   * Sets a result offset. This has the effect that the next
+   * resultList() call will skip as many results as the offset
+   * indicates. Use -1 to indicate no offset.
+   *
+   * This provides the (non standard) <i>offset</i> part of an SQL query.
+   *
+   * \sa limit()
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& offset(int count);
+
+  /*! \brief Sets a result limit.
+   *
+   * Sets a result limit. This has the effect that the next
+   * resultList() call will return up to \p count results. Use -1 to
+   * indicate no limit.
+   *
+   * This provides the (non standard) <i>limit</i> part of an SQL query.
+   *
+   * \sa offset()
+   *
+   * \note This method is not available when using a DirectBinding binding
+   *       strategy.
+   */
+  Query<Result, BindStrategy>& limit(int count);
+  //@}
+
+#endif // DOXYGEN_ONLY
+ };
+
+template <class Result>
+class Query<Result, DirectBinding> : private Impl::QueryBase<Result>
+{
+public:
+  ~Query();
+  template<typename T> Query<Result, DirectBinding>& bind(const T& value);
+  Result resultValue() const;
+  collection< Result > resultList() const;
+  operator Result () const;
+  operator collection< Result > () const;
+
 private:
   Query(Session& session, const std::string& select, const std::string& from);
-
-  Session& session_;
-  std::string select_, from_;
-
-  mutable SqlStatement *statement_, *countStatement_;
   mutable int column_;
+  mutable SqlStatement *statement_, *countStatement_;
 
   void prepareStatements() const;
 
   friend class Session;
+};
+
+namespace Impl {
+  struct ParameterBase {
+    virtual ~ParameterBase();
+    virtual ParameterBase *clone() const = 0;
+    virtual void bind(SqlStatement *statement, int column) = 0;
+  };
+
+  template <typename T>
+  struct Parameter : ParameterBase {
+    Parameter(const T& v) : v_(v) { }
+
+    virtual Parameter<T> *clone() const;
+    virtual void bind(SqlStatement *statement, int column);
+
+  private:
+    T v_;
+  };
+
+  template<int N>
+  struct Parameter<char [N]> : Parameter<const char *> 
+  {
+    Parameter(char const *v) : Parameter<const char *>(v) { }
+  };
+}
+
+template <class Result>
+class Query<Result, DynamicBinding> : private Impl::QueryBase<Result>
+{
+public:
+  ~Query();
+  Query(const Query& other);
+  template<typename T>
+  Query<Result, DynamicBinding>& bind(const T& value);
+  Query<Result, DynamicBinding>& where(const std::string& condition);
+  Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);
+  Query<Result, DynamicBinding>& groupBy(const std::string& fieldName);
+  Query<Result, DynamicBinding>& offset(int count);
+  Query<Result, DynamicBinding>& limit(int count);
+  Result resultValue() const;
+  collection< Result > resultList() const;
+  operator Result () const;
+  operator collection< Result > () const;
+
+private:
+  Query(Session& session, const std::string& select, const std::string& from);
+
+  std::string where_, groupBy_, orderBy_;
+  int offset_, limit_;
+
+  std::vector<Impl::ParameterBase *> parameters_;
+
+  void reset();
+  void bindParameters(SqlStatement *statement) const;
+
+  friend class Session;
+  template <class C> friend class collection;
 };
 
   }

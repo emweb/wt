@@ -161,4 +161,39 @@ void WDatePicker::setHidden(bool hidden)
   displayWidget_->setHidden(hidden);
 }
 
+void WDatePicker::setBottom(const WDate& bottom)
+{
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  if (dv) {
+    dv->setBottom(bottom);
+    calendar_->setBottom(bottom);
+  }
+}
+
+WDate WDatePicker::bottom() const
+{
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  if (dv)
+    return dv->bottom();
+  else 
+    return WDate();
+}
+  
+void WDatePicker::setTop(const WDate& top) 
+{
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  if (dv) {
+    dv->setTop(top);
+    calendar_->setTop(top);
+  }
+}
+
+WDate WDatePicker::top() const
+{
+  WDateValidator *dv = dynamic_cast<WDateValidator *>(forEdit_->validator());
+  if (dv)
+    return dv->top();
+  else 
+    return WDate();
+}
 }

@@ -36,6 +36,23 @@ public:
    */
   virtual ~SqlStatement();
 
+  /*! \brief Uses the statement.
+   *
+   * Marks the statement as in-use. If the statement is already in
+   * use, return false. In that case, we will later provision that a
+   * statement can be cloned and that a list of equivalent statement
+   * is kept in the statement cache of a connectin.
+   */
+  bool use();
+
+  /*! \brief Finish statement use.
+   *
+   * Marks the statement as no longer used and resets the statement.
+   *
+   * \sa use()
+   */
+  void done();
+
   /*! \brief Resets the statement.
    */
   virtual void reset() = 0;
@@ -151,6 +168,12 @@ public:
   /*! \brief Returns the prepared SQL string.
    */
   virtual std::string sql() const = 0;
+
+protected:
+  SqlStatement();
+
+private:
+  bool inuse_;
 };
 
   }

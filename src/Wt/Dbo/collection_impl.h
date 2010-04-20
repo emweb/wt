@@ -51,9 +51,11 @@ template <class C>
 typename collection<C>::iterator&
 collection<C>::iterator::operator= (const iterator& other)
 {
-  releaseImpl();
-  impl_ = other.impl_;
-  takeImpl();
+  if (impl_ != other.impl_) {
+    releaseImpl();
+    impl_ = other.impl_;
+    takeImpl();
+  }
 
   return *this;
 }
@@ -112,19 +114,24 @@ typename collection<C>::iterator collection<C>::iterator::operator++ (int)
 }
 
 template <class C>
-collection<C>::iterator::shared_impl::shared_impl(const collection<C>& self)
-  : self_(self),
+collection<C>::iterator::
+shared_impl::shared_impl(const collection<C>& collection,
+			 SqlStatement *statement)
+  : collection_(collection),
+    statement_(statement),
     useCount_(0),
     ended_(false)
-{ 
+{
   fetchNextRow();
 }
 
 template <class C>
 collection<C>::iterator::shared_impl::~shared_impl()
 {
-  if (!ended_)
-    self_.statement_->reset();
+  if (!ended_ && statement_) {
+    statement_->done();
+    collection_.iterateDone();
+  }
 }
 
 template <class C>
@@ -133,10 +140,18 @@ void collection<C>::iterator::shared_impl::fetchNextRow()
   if (ended_)
     throw std::runtime_error("set< ptr<C> >::operator++ : beyond end.");
 
-  if (!self_.statement_ || !self_.statement_->nextRow())
+  if (!statement_ || !statement_->nextRow()) {
     ended_ = true;
-  else
-    current_ = self_.loadNext();
+    if (statement_) {
+      statement_->done();
+      collection_.iterateDone();
+    }
+  } else {
+    int column = 0;
+    current_
+      = sql_result_traits<C>::loadValues(*collection_.session(),
+					 *statement_, column);
+  }
 }
 
 template <class C>
@@ -145,9 +160,10 @@ collection<C>::iterator::iterator()
 { }
 
 template <class C>
-collection<C>::iterator::iterator(const collection<C>& self)
+collection<C>::iterator::iterator(const collection<C>& collection,
+				  SqlStatement *statement)
 {
-  impl_ = new shared_impl(self);
+  impl_ = new shared_impl(collection, statement);
   takeImpl();
 }
 
@@ -184,7 +200,6 @@ collection<C>::const_iterator::operator-> ()
   return impl_.operator->();
 }
 
-
 template <class C>
 bool collection<C>::const_iterator::operator== (const const_iterator& other)
   const
@@ -217,44 +232,85 @@ collection<C>::const_iterator::operator++ (int)
   return *this;
 }
 
-
 template <class C>
 collection<C>::const_iterator::const_iterator()
   : impl_()
 { }
 
 template <class C>
-collection<C>::const_iterator::const_iterator(const collection<C>& self)
-  : impl_(self)
+collection<C>::const_iterator::const_iterator(const collection<C>& collection,
+					      SqlStatement *statement)
+  : impl_(collection, statement)
 { }
 
 template <class C>
 collection<C>::collection()
-  : statement_(0),
-    arg_(-1),
-    session_(0),
-    activity_(0)
-{ }
+  : session_(0),
+    type_(RelationCollection)
+{
+  data_.relation.sql = 0;
+  data_.relation.id = -1;
+  data_.relation.activity = 0;
+}
+
+template <class C>
+collection<C>::collection(Session *session, SqlStatement *statement,
+			  SqlStatement *countStatement)
+  : session_(session),
+    type_(QueryCollection)
+{
+  data_.query.statement = statement;
+  data_.query.countStatement = countStatement;
+  data_.query.size = -1;
+}
 
 template <class C>
 collection<C>::~collection()
-{ 
-  delete activity_;
+{
+  if (type_ == RelationCollection)
+    delete data_.relation.activity;
+  else {
+    if (data_.query.statement)
+      data_.query.statement->done();      
+    if (data_.query.countStatement)
+      data_.query.countStatement->done();
+  }
+}
+
+template <class C>
+void collection<C>::iterateDone() const
+{
+  if (type_ == QueryCollection)
+    data_.query.statement = 0;
+}
+
+template <class C>
+SqlStatement *collection<C>::executeStatement() const
+{
+  SqlStatement *statement = 0;
+
+  if (session_)
+    session_->flush();
+
+  if (type_ == QueryCollection)
+    statement = data_.query.statement;
+  else {
+    if (data_.relation.sql) {
+      statement = session_->getOrPrepareStatement(*data_.relation.sql);
+      statement->bind(0, data_.relation.id);
+    }
+  }
+
+  if (statement)
+    statement->execute();
+
+  return statement;
 }
 
 template <class C>
 typename collection<C>::iterator collection<C>::begin()
 {
-  if (statement_) {
-    if (arg_ != -1) {
-      statement_->reset();
-      statement_->bind(0, arg_);
-    }
-
-    statement_->execute();
-  }
-
-  return iterator(*this);
+  return iterator(*this, executeStatement());
 }
 
 template <class C>
@@ -266,16 +322,7 @@ typename collection<C>::iterator collection<C>::end()
 template <class C>
 typename collection<C>::const_iterator collection<C>::begin() const
 {
-  if (statement_) {
-    session_->flush();
-    if (arg_ != -1) {
-      statement_->reset();
-      statement_->bind(0, arg_);
-    }
-    statement_->execute();
-  }
-
-  return const_iterator(*this);
+  return const_iterator(*this, executeStatement());
 }
 
 template <class C>
@@ -287,105 +334,123 @@ typename collection<C>::const_iterator collection<C>::end() const
 template <class C>
 typename collection<C>::size_type collection<C>::size() const
 {
+  if (type_ == QueryCollection && data_.query.size != -1)
+    return data_.query.size;
+
+  SqlStatement *countStatement = 0;
+
   if (session_)
     session_->flush();
 
-  if (!statement_)
-    return 0;
+  if (type_ == QueryCollection)
+    countStatement = data_.query.countStatement;
+  else {
+    if (data_.relation.sql) {
+      const std::string *sql = data_.relation.sql;
+      std::size_t f = sql->find(" from ");
+      std::string countSql = "select count(*)" + sql->substr(f);
 
-  if (!countStatement_) {
-    if (arg_ != -1) {
-      std::string sql = statement_->sql();
-      std::size_t f = sql.find(" from ");
-      sql = "select count(*)" + sql.substr(f);
-      countStatement_ = session_->getOrPrepareStatement(sql);
-    } else
-      throw std::logic_error("collection<C>::size(): no statement?");
+      countStatement = session_->getOrPrepareStatement(countSql);
+      countStatement->bind(0, data_.relation.id);      
+    }
   }
 
-  if (arg_ != -1) {
-    countStatement_->reset();
-    countStatement_->bind(0, arg_);
-  }
+  if (countStatement) {
+    countStatement->execute();
 
-  countStatement_->execute();
+    if (!countStatement->nextRow())
+      throw std::runtime_error("collection<C>::size(): no result?");
 
-  if (!countStatement_->nextRow())
-    throw std::runtime_error("collection<C>::size(): no result?");
-
-  int result;
-  if (!countStatement_->getResult(0, &result))
-    throw std::runtime_error("collection<C>::size(): null?");
+    int result;
+    if (!countStatement->getResult(0, &result))
+      throw std::runtime_error("collection<C>::size(): null?");
     
-  if (countStatement_->nextRow())
-    throw std::runtime_error("collection<C>::size(): multiple results?");
+    if (countStatement->nextRow())
+      throw std::runtime_error("collection<C>::size(): multiple results?");
 
-  countStatement_->reset();
+    countStatement->done();
 
-  return result;
+    if (type_ == QueryCollection) {
+      data_.query.size = result;
+      data_.query.countStatement = 0;
+    }
+
+    return result;
+  } else
+    return 0;
+}
+
+template <class C>
+Query<C, DynamicBinding> collection<C>::asQuery() const
+{
+  if (type_ != RelationCollection)
+    throw std::runtime_error("collection<C>::asQuery() "
+			     "only for a many-side relation collection.");
+
+  if (session_ && data_.relation.sql) {
+    const std::string *sql = data_.relation.sql;
+    std::size_t f = sql->find(" from ");
+    std::size_t w = sql->find(" where ");
+    return Query<C, DynamicBinding>
+      (*session_, sql->substr(0, f), sql->substr(f + 1, w - f))
+      .where(sql->substr(w + 7)).bind(data_.relation.id);
+  } else
+    throw std::runtime_error("collection<C>::asQuery() "
+			     "only valid for a dbo managed by a session");
 }
 
 template <class C>
 void collection<C>::insert(C c)
 {
-  if (!activity_)
-    activity_ = new Activity();
+  if (type_ != RelationCollection)
+    throw std::runtime_error("collection<C>::insert() "
+			     "only for a ManyToMany relation.");
 
-  bool wasJustErased = activity_->erased.erase(c) > 0;
-  activity_->transactionErased.erase(c);
+  RelationData& relation = data_.relation;
+  if (!relation.activity)
+    relation.activity = new Activity();
 
-  if (!wasJustErased && !activity_->transactionInserted.count(c))
-    activity_->inserted.insert(c);
+  bool wasJustErased = relation.activity->erased.erase(c) > 0;
+  relation.activity->transactionErased.erase(c);
+
+  if (!wasJustErased && !relation.activity->transactionInserted.count(c))
+    relation.activity->inserted.insert(c);
 }
 
 template <class C>
 void collection<C>::erase(C c)
 {
-  if (!activity_)
-    activity_ = new Activity();
+  if (type_ != RelationCollection)
+    throw std::runtime_error("collection<C>::erase() "
+			     "only for a ManyToMany relation.");
+  RelationData& relation = data_.relation;
+  if (!relation.activity)
+    relation.activity = new Activity();
 
-  bool wasJustInserted = activity_->inserted.erase(c) > 0;
-  activity_->transactionInserted.erase(c);
+  bool wasJustInserted = relation.activity->inserted.erase(c) > 0;
+  relation.activity->transactionInserted.erase(c);
 
-  if (!wasJustInserted && !activity_->transactionErased.count(c))
-    activity_->erased.insert(c);
+  if (!wasJustInserted && !relation.activity->transactionErased.count(c))
+    relation.activity->erased.insert(c);
 }
 
 template <class C>
 void collection<C>::resetActivity()
 {
-  delete activity_;
-  activity_ = 0;
+  RelationData& relation = data_.relation;
+  delete relation.activity;
+  relation.activity = 0;
 }
 
 template <class C>
-void collection<C>::setStatement(SqlStatement *statement,
-				 SqlStatement *countStatement,
-				 Session *session)
+void collection<C>::setRelationData(Session *session,
+				    const std::string *sql,
+				    long long id)
 {
-  statement_ = statement;
-  countStatement_ = countStatement;
   session_ = session;
-}
 
-template <class C>
-void collection<C>::clearStatement()
-{
-  statement_ = 0;
-  countStatement_ = 0;
-  session_ = 0;
-}
-
-template <class C>
-void collection<C>::setArg(long long arg)
-{
-  arg_ = arg;
-}
-
-template <class C> C collection<C>::loadNext() const
-{
-  int column = 0;
-  return sql_result_traits<C>::loadValues(*session_, *statement_, column);
+  data_.relation.sql = sql;
+  data_.relation.id = id;
 }
 
   }

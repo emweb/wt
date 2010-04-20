@@ -64,7 +64,6 @@ public:
    */
   Wt::WImage *icon2() const { return icon2_; }
 
-public slots:
   /*! \brief Set state to 0 (show icon 1).
    */
   void showIcon1();

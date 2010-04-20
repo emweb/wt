@@ -25,7 +25,6 @@ private:
 
   WText *viewPortText_;
 
-private slots:
   void moveLeft();
   void moveRight();
   void moveUp();

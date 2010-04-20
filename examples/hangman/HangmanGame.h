@@ -27,11 +27,6 @@ class HangmanGame : public WTable
    public:
       HangmanGame(WContainerWidget *parent);
 
-   private slots:
-      void play(std::wstring user, Dictionary dictionary);
-      void showGame();
-      void showHighScores();
-
    private:
       WStackedWidget   *MainStack;
       LoginWidget      *Login;
@@ -42,6 +37,10 @@ class HangmanGame : public WTable
 
       // Show the initial screen
       void doLogin();
+
+      void play(std::wstring user, Dictionary dictionary);
+      void showGame();
+      void showHighScores();
 };
 
 #endif

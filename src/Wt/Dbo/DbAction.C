@@ -53,7 +53,7 @@ std::vector<std::string> PrepareStatements::getSelfSql() const
   sql << "\") values (?";
   for (unsigned i = 0; i < fields_.size(); ++i)
     sql << ", ?";
-  sql << ")" << session_.connection_->autoincrementInsertSuffix();
+  sql << ")" << session_.connection()->autoincrementInsertSuffix();
   result.push_back(sql.str()); // 0
 
   sql.str("");
@@ -93,8 +93,8 @@ void PrepareStatements::addCollectionsSql(std::vector<std::string>& statements)
   for (unsigned i = 0; i < sets_.size(); ++i) {
     const SetInfo& info = sets_[i];
 
-    std::string ssql = session_.getStatementSql(info.tableName,
-						Session::SqlSelectById);
+    std::string ssql = *session_.getStatementSql(info.tableName,
+						 Session::SqlSelectById);
     std::stringstream sql;
 
     switch (info.type) {
@@ -171,15 +171,15 @@ CreateSchema::CreateSchema(Session& session, const char *tableName,
   tablesCreated_.insert(tableName);
 
   sql_ << "create table \"" << Impl::quoteSchemaDot(tableName) << "\" (\n"
-       << "  id " << session.connection_->autoincrementType()
-       << " primary key " << session.connection_->autoincrementSql() << ",\n"
+       << "  id " << session.connection()->autoincrementType()
+       << " primary key " << session.connection()->autoincrementSql() << ",\n"
        << "  version integer not null";
 }
 
 void CreateSchema::exec()
 {
   sql_ << "\n)";
-  session_.connection_->executeSql(sql_.str());
+  session_.connection()->executeSql(sql_.str());
 }
 
 void CreateSchema::createJoinTable(const std::string& joinName,
@@ -208,21 +208,21 @@ void CreateSchema::createJoinTable(const std::string& joinName,
        << Impl::quoteSchemaDot(table2) << "\"(\"id\"),\n"
        << "  primary key(\"" << table1_id << "\", \"" << table2_id << "\")\n)";
 
-  session_.connection_->executeSql(sql_.str());
+  session_.connection()->executeSql(sql_.str());
 
   sql_.str("");
 
   sql_ << "create index \"" << joinName << "_" << table1
        << "\" on \"" << jn << "\" (\"" << table1_id << "\")";
 
-  session_.connection_->executeSql(sql_.str());
+  session_.connection()->executeSql(sql_.str());
 
   sql_.str("");
 
   sql_ << "create index \"" << joinName << "_" << table2
        << "\" on \"" << jn << "\" (\"" << table2_id << "\")";
 
-  session_.connection_->executeSql(sql_.str());
+  session_.connection()->executeSql(sql_.str());
 }
 
 bool CreateSchema::isReading() const { return false; }
@@ -241,7 +241,7 @@ DropSchema::DropSchema(Session& session, const char *tableName,
 void DropSchema::drop(const std::string& table)
 {
   tablesDropped_.insert(table);
-  session_.connection_
+  session_.connection()
     ->executeSql("drop table \"" + Impl::quoteSchemaDot(table) + "\"");
 }
 
@@ -337,6 +337,8 @@ void LoadDbAction::done()
   if (statement_->nextRow())
     throw Exception("Dbo load: multiple rows for id "
 		    + boost::lexical_cast<std::string>(dbo_.id()) + " ??");
+
+  statement_->done();
 }
 
 bool LoadDbAction::isReading() const { return true; }

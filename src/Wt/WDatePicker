@@ -167,6 +167,22 @@ public:
    */
   void setHidden(bool hidden);
 
+  /*! \brief Sets the bottom of the valid date range in the picker's WDateValidator.
+   */
+  void setBottom(const WDate& bottom);
+
+  /*! \brief Returns the bottom date of the valid range.
+   */
+  WDate bottom() const;
+  
+  /*! \brief Sets the top of the valid date range in the picker's WDateValidator.
+   */
+  void setTop(const WDate& top);
+
+  /*! \brief Returns the top date of the valid range.
+   */
+  WDate top() const;
+
 private:
   WT_USTRING        format_;
   WInteractWidget  *displayWidget_;

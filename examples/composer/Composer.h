@@ -142,7 +142,6 @@ private:
   //! number of attachments waiting to be uploaded during saving
   int attachmentsPending_;
 
-private slots:
   /*!\brief Add an attachment edit.
    */
   void attachMore();

@@ -314,7 +314,10 @@ WWidget* WCalendar::renderCell(WWidget* widget, const WDate& date)
 
   std::string styleClass;
 
-  if (date.month() != currentMonth())
+  if ((!bottom_.isNull() && date < bottom_) || 
+       (!top_.isNull() && date > top_))
+    styleClass += " Wt-cal-oor";
+  else if (date.month() != currentMonth())
     styleClass += " Wt-cal-oom";
 
   if (isSelected(date))
@@ -507,4 +510,19 @@ void WCalendar::yearChanged(WString yearStr)
   }
 }
 
+void WCalendar::setBottom(const WDate& bottom)
+{
+  if (bottom_ != bottom) {
+    bottom_ = bottom;
+    renderMonth();
+  }
+}
+
+void WCalendar::setTop(const WDate& top)
+{
+  if (top_ != top) {
+    top_ = top;
+    renderMonth();
+  }
+}
 }

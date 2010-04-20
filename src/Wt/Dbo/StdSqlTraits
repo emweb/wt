@@ -32,15 +32,6 @@ struct WTDBO_API sql_value_traits<std::string, void>
 };
 
 template<>
-struct WTDBO_API sql_value_traits<char const *, void>
-{
-  static const bool specialized = true;
-
-  static void bind(char const *v, SqlStatement *statement, int column,
-		   int size);
-};
-
-template<>
 struct WTDBO_API sql_value_traits<long long, void>
 {
   static const bool specialized = true;

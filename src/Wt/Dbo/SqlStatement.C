@@ -9,8 +9,27 @@
 namespace Wt {
   namespace Dbo {
 
+SqlStatement::SqlStatement()
+  : inuse_(false)
+{ }
+
 SqlStatement::~SqlStatement()
 { }
+
+bool SqlStatement::use()
+{
+  if (!inuse_) {
+    inuse_ = true;
+    return true;
+  } else
+    return false;
+}
+
+void SqlStatement::done()
+{
+  reset();
+  inuse_ = false;
+}
 
   }
 }

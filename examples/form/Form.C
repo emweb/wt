@@ -14,9 +14,6 @@
 #include <Wt/WTextArea>
 #include <Wt/WText>
 
-#include "DateValidator.h"
-using namespace boost::gregorian;
-
 Form::Form(WContainerWidget *parent)
   : WTable(parent)
 {
@@ -86,10 +83,11 @@ void Form::createUI()
   ++row;
 
   birthDateEdit_ = new WDatePicker(elementAt(row, 2));
+  birthDateEdit_->setBottom(WDate(1900, 1, 1));
+  birthDateEdit_->setTop(WDate::currentDate());
   label = new WLabel(tr("example.birthdate"), elementAt(row, 0));
   label->setBuddy(birthDateEdit_->lineEdit());
-  birthDateEdit_->lineEdit()->setValidator(new DateValidator(date(1900,Jan,1),
-						 day_clock::local_day()));
+  birthDateEdit_->setFormat("dd/MM/yyyy");
   birthDateEdit_->lineEdit()->validator()->setMandatory(true);
 
   // Child count

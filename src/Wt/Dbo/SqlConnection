@@ -43,6 +43,14 @@ public:
    */
   virtual ~SqlConnection();
 
+  /*! \brief Clones the connection.
+   *
+   * Returns a new connection object that is configured like this
+   * object. This is used by connection pool implementations to create
+   * its connections.
+   */
+  virtual SqlConnection *clone() const = 0;
+
   /*! \brief Executes an SQL statement.
    *
    * This is a convenience method for preparing a statement, executing
@@ -149,6 +157,8 @@ public:
   bool showQueries() const;
 
 protected:
+  SqlConnection();
+  SqlConnection(const SqlConnection& other);
   void clearStatementCache();
 
 private:

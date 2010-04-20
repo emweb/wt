@@ -32,8 +32,9 @@ std::string Post::commentCount() const
 dbo::ptr<Comment> Post::rootComment() const
 {
   if (session())
-    return session()->find<Comment>
-      ("where post_id = ? and parent_id is null").bind(id());
+    return session()->find<Comment>()
+      .where("post_id = ?").bind(id())
+      .where("parent_id is null");
   else
     return dbo::ptr<Comment>();
 }

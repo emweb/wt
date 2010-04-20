@@ -12,7 +12,7 @@
 
 namespace Wt {
   namespace Dbo {
-    class SqlConnection;
+    class SqlConnectionPool;
     class Session;
   }
 }
@@ -23,7 +23,7 @@ using boost::unit_test_framework::test_case;
 class DboTest : public test_suite
 {
 private:
-  Wt::Dbo::SqlConnection *connection_;
+  Wt::Dbo::SqlConnectionPool *connectionPool_;
   Wt::Dbo::Session *session_;
 
   void setup();
@@ -37,6 +37,7 @@ public:
   void test5();
   void test6();
   void test7();
+  void test8();
 
   DboTest();
 };

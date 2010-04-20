@@ -8,7 +8,7 @@ IF(NOT BOOST_WT_FOUND)
   MESSAGE(STATUS "** Form example needs boost_date_time library... Skipping.")
 ELSE(NOT BOOST_WT_FOUND)
 
-  ADD_EXECUTABLE(formexample.wt DateValidator.C Form.C FormExample.C)
+  ADD_EXECUTABLE(formexample.wt Form.C FormExample.C)
   TARGET_LINK_LIBRARIES(formexample.wt
     ${EXAMPLES_CONNECTOR}
     ${BOOST_WT_DT_LIBRARY}

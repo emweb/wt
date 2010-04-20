@@ -26,8 +26,13 @@ struct NullType {
   static NullType null_;
 };
 
+class Call;
+class SqlConnection;
+class SqlConnectionPool;
 class SqlStatement;
-template <typename Result> class Query;
+template <typename Result, typename BindStrategy> class Query;
+struct DirectBinding;
+struct DynamicBinding;
 
 /*! \class Session Wt/Dbo/Session Wt/DboSession
  *  \brief A database session.
@@ -39,10 +44,11 @@ template <typename Result> class Query;
  * It also manages transactions that you need to create when accessing
  * database objects.
  *
- * In its current form, the session uses a dedicated database
- * connection that must be set using setConnection(), but its
- * implementation is ready to use a connection pool in a later
- * version.
+ * You can provide the session with a dedicated database connection
+ * using setConnection(), or with a connection pool (from which it
+ * will take a connection while processing a transaction) using
+ * setConnectionPool(). In either case, the session does not take
+ * ownership of the connection or connection pool.
  *
  * A session will typically be a long-lived object in your
  * application.
@@ -64,14 +70,21 @@ public:
    */
   ~Session();
 
-  /*! \brief Sets a connection.
+  /*! \brief Sets a dedicated connection.
    *
    * The connection will be used exclusively by this session.
    *
-   * \note Currently, a session uses a dedicated connection. Support for
-   *       a connection pool will be added later.
+   * \sa setConnectionPool()
    */
   void setConnection(SqlConnection& connection);
+
+  /*! \brief Sets a connection pool.
+   *
+   * The connection pool is typically shared with other sessions.
+   *
+   * \sa setConnection()
+   */
+  void setConnectionPool(SqlConnectionPool& pool);
 
   /*! \brief Maps a class to a database table.
    *
@@ -125,38 +138,87 @@ public:
    */
   template <class C> ptr<C> load(long long id);
 
-  /*! \brief Creates a query for finding database objects.
+  /*! \brief Finds database objects.
    *
    * This method creates a query for finding objects of type \p C.
    *
-   * When passing an empty \p where parameter, it will return all
-   * objects of type \p C. You may narrow down the search (using SQL
-   * WHERE), add ordering (using ORDER BY) or limits (using LIMIT) by
-   * sepecifying the SQL that should come after the 'select ... from
-   * ..."
+   * When passing an empty \p condition parameter, it will return all
+   * objects of type \p C. Otherwise, it will add the condition, by
+   * generating an SQL _where_ clause.
+   *
+   * You may also specify conditions, result order and result groupings
+   * in the Query object.
+   *
+   * This method is convenient when you are querying only results from a
+   * single table. For more generic query support, see query().
+   *
+   * This method calls find<C, DynamicBinding>(condition).
+   *
+   * \sa query()
+   */
+  template <class C>
+    Query< ptr<C>, DynamicBinding>
+    find(const std::string& condition = std::string()) {
+    // implemented in-line because otherwise it crashes gcc 4.0.1
+    return find<C, DynamicBinding>(condition);
+  }
+
+  /*! \brief Finds database objects.
+   *
+   * This method creates a query for finding objects of type \p C.
+   *
+   * When passing an empty \p condition parameter, it will return all
+   * objects of type \p C. Otherwise, it will add the condition, by
+   * generating an SQL _where_ clause.
+   *
+   * The \p BindStrategy specifies how you want to bind parameters to
+   * your query (if any).
+   *
+   * When using \p DynamicBinding (which is the default), you will
+   * defer the binding until the query is run. This has the advantage
+   * that you can compose the query definition using helper methods
+   * provided in the query object, you can keep the query around and
+   * run the query multiple times, perhaps with different parameter
+   * values or to scroll through the query results.
+   *
+   * When using \p DirectBinding, the query must be specified entirely
+   * using the \p condition, and can be run only once. This method
+   * does have the benefit of binding parameters directly to the
+   * underlying prepared statement.
    *
    * This method is convenient when you are querying only results from a
    * single table. For more generic query support, see query().
    *
    * \sa query()
    */
-  template <class C> Query< ptr<C> >
-    find(const std::string& where = std::string());
+  template <class C, typename BindStrategy>
+    Query< ptr<C>, BindStrategy>
+    find(const std::string& condition = std::string());
 
-  /*! \brief Creates a query for finding objects of type \p Result.
+  /*! \brief Creates a query.
+   *
+   * This method calls query<Result, DynamicBinding>(sql).
+   *
+   * \sa query()
+   */
+  template <class Result>
+    Query<Result, DynamicBinding> query(const std::string& sql);
+
+  /*! \brief Creates a query.
    *
    * The sql statement should be a complete SQL statement, however the
    * columns listed (in the SELECT part) will be edited depending on
    * the \p Result type.
    *
-   * For example, the following query (where class A is mapped onto table
-   * 'table_a'):
+   * For example, the following query (class User is mapped onto table 'user'):
    * \code
-   * return session.query<ptr<A> >("select A from table_a A where A.name = ?");
+   * return session.query< ptr<User> >("select u from user u")
+   *   .where("u.name = ?").bind("Bart");
    * \endcode
    * is the more general version of:
    * \code
-   * return session.find<A>("where A.name = ?");
+   * return session.find<User>()
+   *   .where("name = ?").bind("Bart");
    * \endcode
    *
    * The power of %query() versus find() is however that it may support other 
@@ -170,19 +232,42 @@ public:
    * Or Boost.Tuple for an arbitrary combination of result values:
    *
    * \code
-   * return session.query< boost::tuple<int, int> >("select A.id, B.id from table_a A, table_b B where ...");
+   * return session.query< boost::tuple<int, int> >("select A.id, B.id from table_a A, table_b B").where("...");
    * \endcode
    *
    * A tuple may combine any kind of object that is supported as a result,
    * including database objects (see also ptr_tuple):
    * \code
-   * return session.query< boost::tuple<ptr<A>, ptr<B> >("select A, B from table_a A, table_b B where ...");
+   * return session.query< boost::tuple<ptr<A>, ptr<B> >("select A, B" from table_a A, table_b B").where("...");
    * \endcode
+   *
+   * The \p BindStrategy specifies how you want to bind parameters to
+   * your query (if any).
+   *
+   * When using \p DynamicBinding (which is the default), you will
+   * defer the binding until the query is run. This has the advantage
+   * that you can compose the query using helper methods provided in
+   * the Query object, you can keep the query around and run the query
+   * multiple times, perhaps with different parameter values or to
+   * scroll through the query results.
+   *
+   * When using \p DirectBinding, the query must be specified entirely
+   * using the \p sql, and can be run only once. This method does have
+   * the benefit of binding parameters directly to the underlying
+   * prepared statement.
    *
    * This method uses sql_result_traits to unmarshal the query result
    * into the \p Result type.
    */
-  template <class Result> Query<Result> query(const std::string& sql);
+  template <class Result, typename BindStrategy>
+    Query<Result, BindStrategy> query(const std::string& sql);
+
+  /*! \brief Executs an Sql command.
+   *
+   * This executs an Sql command. It differs from query() in that no
+   * result is expected from the call.
+   */
+  Call execute(const std::string& sql);
 
   /*! \brief Creates the database schema.
    *
@@ -276,6 +361,7 @@ private:
   Registry           registry_;
   MetaDboBaseSet     dirtyObjects_;
   SqlConnection     *connection_;
+  SqlConnectionPool *connectionPool_;
   Transaction::Impl *transaction_;
 
   void needsFlush(MetaDboBase *dbo);
@@ -297,9 +383,10 @@ private:
   template <class C> SqlStatement *getStatement(int statementIdx);
   SqlStatement *getStatement(const std::string& id);
   SqlStatement *getStatement(const char *tableName, int statementIdx);
-  std::string getStatementSql(const char *tableName, int statementIdx);
+  const std::string *getStatementSql(const char *tableName, int statementIdx);
 
-  SqlStatement *prepareStatement(const std::string& id, const std::string& sql);
+  SqlStatement *prepareStatement(const std::string& id,
+				 const std::string& sql);
   SqlStatement *getOrPrepareStatement(const std::string& sql);
   void parseSql(const std::string& sql, std::vector<std::string>& aliases,
 		std::string& rest);
@@ -313,13 +400,15 @@ private:
 
   SqlConnection *useConnection();
   void returnConnection(SqlConnection *connection);
+  SqlConnection *connection();
 
   template <class C> friend class MetaDbo;
   template <class C> friend class collection;
-  template <class C> friend class Query;
+  template <class C, typename S> friend class Query;
   template <typename V> friend class FieldRef;
   template <class C> friend struct sql_result_traits;
 
+  friend class Call;
   friend class Transaction;
   friend struct Transaction::Impl;
   friend class PrepareStatements;

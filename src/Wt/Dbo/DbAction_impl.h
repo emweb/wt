@@ -205,6 +205,8 @@ void SaveDbAction::visit(C& obj)
   persist<C>::apply(obj, *this);
   exec();
 
+  statement_->done();
+
   /*
    * (3) collections:
    *  - references in select queries (for ManyToOne and ManyToMany)
@@ -261,8 +263,8 @@ void SaveDbAction::actCollection(const CollectionRef<C>& field)
 	int statementIdx
 	  = Session::FirstSqlSelectSet + loadSets_.setStatementIdx() + 1;
 
-	SqlStatement *statement = dbo_.session()->getStatement(tableName_,
-							       statementIdx);
+	SqlStatement *statement
+	  = dbo_.session()->getStatement(tableName_, statementIdx);
 
 	for (typename std::set< ptr<C> >::iterator i = inserted.begin();
 	     i != inserted.end(); ++i) {
@@ -274,6 +276,8 @@ void SaveDbAction::actCollection(const CollectionRef<C>& field)
 	  statement->bind(1, i->id());
 	  statement->execute();
 	}
+
+	statement->done();
 
 	std::set< ptr<C> >& erased = activity->erased;
 
@@ -292,6 +296,8 @@ void SaveDbAction::actCollection(const CollectionRef<C>& field)
 	  statement->bind(1, i->id());
 	  statement->execute();
 	}
+
+	statement->done();
 
 	activity->transactionInserted.insert(activity->inserted.begin(),
 					     activity->inserted.end());
@@ -348,17 +354,16 @@ template<class C>
 void LoadDbAction::actCollection(const CollectionRef<C>& field)
 {
   if (dbo_.id() != -1) {
-    if (field.value().arg() != dbo_.id()) {
+    if (field.value().id() != dbo_.id()) {
       int statementIdx = Session::FirstSqlSelectSet + setStatementIdx_;
 
-      SqlStatement *statement = dbo_.session()->getStatement(tableName_,
-							     statementIdx);
+      const std::string *sql
+	= dbo_.session()->getStatementSql(tableName_, statementIdx);
 
-      field.value().setStatement(statement, 0, dbo_.session());
-      field.value().setArg(dbo_.id());
+      field.value().setRelationData(dbo_.session(), sql, dbo_.id());
     } 
   } else
-    field.value().clearStatement();
+    field.value().setRelationData(0, 0, -1);
 
   if (field.type() == ManyToOne)
     ++setStatementIdx_;
@@ -430,7 +435,7 @@ template<class C>
 void SessionAddAction::actCollection(const CollectionRef<C>& field)
 {
   if (field.value().session() != session_)
-    field.value().setStatement(0, 0, session_);
+    field.value().setRelationData(session_, 0, -1);
 
   // FIXME: cascade add ?
 }

@@ -5,9 +5,11 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/Dbo/Call"
 #include "Wt/Dbo/Exception"
 #include "Wt/Dbo/Session"
 #include "Wt/Dbo/SqlConnection"
+#include "Wt/Dbo/SqlConnectionPool"
 #include "Wt/Dbo/SqlStatement"
 
 #include <cassert>
@@ -39,6 +41,7 @@ std::string quoteSchemaDot(const std::string& table) {
 
 Session::Session()
   : connection_(0),
+    connectionPool_(0),
     transaction_(0)
 { }
 
@@ -68,19 +71,45 @@ void Session::setConnection(SqlConnection& connection)
   connection_ = &connection;
 }
 
+void Session::setConnectionPool(SqlConnectionPool& pool)
+{
+  connectionPool_ = &pool;
+}
+
+SqlConnection *Session::connection()
+{
+  if (!transaction_)
+    throw std::logic_error("Operation requires an active transaction");
+
+  return transaction_->connection_;
+}
+
 SqlConnection *Session::useConnection()
 {
-  return connection_;
+  if (connectionPool_)
+    return connectionPool_->getConnection();
+  else
+    return connection_;
 }
 
 void Session::returnConnection(SqlConnection *connection)
 {
+  if (connectionPool_)
+    connectionPool_->returnConnection(connection);
 }
 
 void Session::prune(MetaDboBase *obj)
 {
   if (dirtyObjects_.erase(obj) > 0)
     obj->decRef();
+}
+
+Call Session::execute(const std::string& sql)
+{
+  if (!transaction_)
+    throw std::logic_error("Dbo execute(): no active transaction");
+
+  return Call(*this, sql);
 }
 
 void Session::createTables()
@@ -135,12 +164,13 @@ std::string Session::statementId(const char *tableName, int statementIdx)
 
 SqlStatement *Session::getStatement(const std::string& id)
 {
-  return transaction_->connection_->getStatement(id);
+  return connection()->getStatement(id);
 }
 
 SqlStatement *Session::getOrPrepareStatement(const std::string& sql)
 {
   SqlStatement *s = getStatement(sql);
+
   if (!s)
     s = prepareStatement(sql, sql);
 
@@ -153,32 +183,36 @@ SqlStatement *Session::getStatement(const char *tableName, int statementIdx)
   SqlStatement *result = getStatement(id);
 
   if (!result)
-    result = prepareStatement(id, getStatementSql(tableName, statementIdx));
+    result = prepareStatement(id, *getStatementSql(tableName, statementIdx));
 
   return result;
 }
 
-std::string Session::getStatementSql(const char *tableName, int statementIdx)
+const std::string *Session::getStatementSql(const char *tableName,
+					    int statementIdx)
 {
   for (ClassRegistry::const_iterator i = classRegistry_.begin();
-       i != classRegistry_.end(); ++i)
+       i != classRegistry_.end(); ++i) {
     if (i->second->tableName == tableName) {
       if (i->second->statements.empty())
 	i->second->prepareStatements(*this);
-      return i->second->statements[statementIdx];
+      return &i->second->statements[statementIdx];
     }
+  }
 
   assert(false);
 
-  return std::string();
+  return 0;
 }
 
 SqlStatement *Session::prepareStatement(const std::string& id,
 					const std::string& sql)
 {
-  SqlConnection *conn = transaction_->connection_;
+  SqlConnection *conn = connection();
   SqlStatement *result = conn->prepareStatement(sql);
   conn->saveStatement(id, result);
+  result->use();
+
   return result;
 }
 
@@ -248,7 +282,7 @@ void Session::parseSql(const std::string& sql,
 std::string Session::getColumns(const char *tableName,
 				std::vector<std::string> *aliases)
 {
-  std::string columns = getStatementSql(tableName, SqlSelectById);
+  std::string columns = *getStatementSql(tableName, SqlSelectById);
 
   std::size_t f = columns.find(" from ");
   columns.erase(f);

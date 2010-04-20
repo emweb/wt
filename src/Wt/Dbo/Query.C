@@ -12,6 +12,9 @@ namespace Wt {
   namespace Dbo {
     namespace Impl {
 
+ParameterBase::~ParameterBase()
+{ }
+
 std::string createQuerySql(StatementKind kind,
 			   const std::string& select,
 			   const std::string& from)
@@ -46,6 +49,39 @@ std::string createQuerySql(StatementKind kind,
   }
 }
 
+std::string createQuerySql(StatementKind kind, const std::string& select,
+			   const std::string& from,
+			   const std::string& where,
+			   const std::string& groupBy,
+			   const std::string& orderBy,
+			   int offset, int limit)
+{
+  std::string result;
+
+  if (kind == Select)
+    result = select;
+  else
+    result = "select count(*) ";
+
+  result += ' ' + from;
+
+  if (!where.empty())
+    result += " where " + where;
+
+  if (!groupBy.empty())
+    result += " group by " + groupBy;
+
+  if (kind == Select && !orderBy.empty())
+    result += " order by " + orderBy;
+
+  if (offset != -1)
+    result += " offset ?";
+
+  if (limit != -1)
+    result += " limit ?";
+
+  return result;
+}
     }
   }
 }

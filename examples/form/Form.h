@@ -39,7 +39,7 @@ public:
    */
   Form(WContainerWidget *parent = 0);
 
-private slots:
+private:
   /*!\brief The user selected a new country: adjust the cities combo box.
    */
   void countryChanged();
@@ -48,7 +48,6 @@ private slots:
    */
   void submit(); 
 
-private:
   void createUI();
  
   WContainerWidget *feedbackMessages_;

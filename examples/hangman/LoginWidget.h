@@ -26,10 +26,6 @@ class LoginWidget : public WContainerWidget
 
       Wt::Signal<std::wstring, Dictionary> loginSuccessful;
 
-   private slots:
-      void checkCredentials();
-      void startPlaying();
-
    private:
       WText     *IntroText;
       WLineEdit *Username;
@@ -40,6 +36,9 @@ class LoginWidget : public WContainerWidget
       Dictionary   Dict;
 
       void confirmLogin(const std::wstring text);
+
+      void checkCredentials();
+      void startPlaying();
 };
 
 #endif
