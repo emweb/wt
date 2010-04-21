@@ -14,6 +14,8 @@
 
 namespace Wt {
 
+class EntryPoint;
+
 /*
  * A single, raw, HTTP request/response, which conveys all of the http-related
  * information to the application and gathers the response.
@@ -127,6 +129,8 @@ public:
   WT_LOCALE parseLocale() const;
 
 protected:
+  const EntryPoint *entryPoint_;
+
   virtual ~WebRequest();
 
 private:
@@ -141,6 +145,7 @@ private:
   friend class CgiParser;
   friend class Http::Request;
   friend class WEnvironment;
+  friend class WebController;
 };
 
 class WebResponse : public WebRequest

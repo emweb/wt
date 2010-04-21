@@ -1,0 +1,82 @@
+.entry-dialog {
+	font-family: Arial,Sans-serif;
+	font-weight: bold;
+	padding: 3px;
+}
+
+.entry-dialog textarea {
+	width: 100%;
+}
+
+.all-entries-dialog-entries {
+	text-align: left;
+	padding: 5px;
+}
+
+.all-entries-dialog-entries span {
+	display: block;
+}
+
+.all-entries-dialog-button {
+	text-align: center;	
+	padding: 5px;
+}
+
+.login {
+	position:absolute;
+	top: 50%;
+	left: 50%;
+	margin-top: -3em; 
+	margin-left: -4em;
+}
+
+.login label {
+	font-weight: bold;
+	padding-right: 5px;
+}
+
+.captcha {
+	font-style: italic;
+	font-size: small;
+	padding-top: 10px;
+}
+
+.captcha canvas {
+	background: #F3F9FF;
+}
+
+.captcha div {
+	margin: 5px auto;
+}
+
+.calendar {
+	position:absolute;
+	top: 50%;
+	left: 50%;
+	width:750px;
+	height:650px;
+	margin-top: -375px; 
+	margin-left: -325px;
+}
+
+.cell {
+	white-space: nowrap;
+	font-size: 10px;
+	text-align: left;
+}
+
+.cell span {
+	display: block;
+}
+
+.cell-header {
+	font-weight: bold;
+	background-color: #C3D9FF;
+	color: black;
+}
+
+.cell-extra {
+	color: blue;
+	text-decoration: underline;
+	text-align: center;
+}

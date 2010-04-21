@@ -301,6 +301,8 @@ public:
   Signal<WObject *, NoClass, NoClass, NoClass, NoClass, NoClass>& destroyed();
 #endif // WT_CNOR
 
+  virtual bool hasParent() const;
+
 protected:
   virtual void signalConnectionsChanged();
 

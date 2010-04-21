@@ -303,6 +303,8 @@ public:
 			 std::vector<std::string> *aliases);
   
 private:
+  Session(const Session& s);
+
   struct DboKey {
     const char *table;
     long long id;

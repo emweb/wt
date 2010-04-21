@@ -36,4 +36,5 @@ SUBDIRS(
   wt-homepage
  wtwithqt
   widgetgallery
+  planner
 )

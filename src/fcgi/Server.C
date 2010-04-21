@@ -731,14 +731,14 @@ static void handleSigHup(int)
   doShutdown("SIGHUP");
 }
 
-void runSession(Configuration& conf, std::string sessionId)
+void runSession(Configuration& conf, WServer *server, std::string sessionId)
 {
   if (!bindUDStoStdin(conf.runDirectory() + "/" + sessionId, conf))
     exit(1);
 
   try {
     FCGIStream fcgiStream;
-    WebController controller(conf, &fcgiStream, sessionId);
+    WebController controller(conf, server, &fcgiStream, sessionId);
     theController = &controller;
 
     controller.run();
@@ -765,7 +765,7 @@ void runSession(Configuration& conf, std::string sessionId)
   }
 }
 
-void startSharedProcess(Configuration& conf)
+void startSharedProcess(Configuration& conf, WServer *server)
 {
   if (!bindUDStoStdin(conf.runDirectory() + "/server-"
 		      + boost::lexical_cast<std::string>(getpid()),
@@ -774,7 +774,7 @@ void startSharedProcess(Configuration& conf)
 
   try {
     FCGIStream fcgiStream;
-    WebController controller(conf, &fcgiStream);
+    WebController controller(conf, server, &fcgiStream);
     theController = &controller;
 
     controller.run();
@@ -882,9 +882,9 @@ bool WServer::start()
   impl_->running_ = true;
 
   if (impl_->sessionId_.empty())
-    startSharedProcess(*impl_->configuration_);
+    startSharedProcess(*impl_->configuration_, this);
   else
-    runSession(*impl_->configuration_, impl_->sessionId_);
+    runSession(*impl_->configuration_, this, impl_->sessionId_);
 
   return false;
 }

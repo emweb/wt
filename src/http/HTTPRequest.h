@@ -18,7 +18,7 @@ namespace server {
 class HTTPRequest : public Wt::WebRequest
 {
 public:
-  HTTPRequest(WtReplyPtr wtReply);
+  HTTPRequest(WtReplyPtr wtReply, const Wt::EntryPoint *entryPoint);
 
   virtual void flush(ResponseState state, CallbackFunction callback = 0,
 		     void *callbackData = 0);

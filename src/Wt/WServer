@@ -8,6 +8,7 @@
 #define WSERVER_H_
 
 #include <Wt/WApplication>
+#include <Wt/WAbstractServer>
 
 #ifndef WT_TARGET_JAVA
 
@@ -71,7 +72,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
  * \note Currently, only a single server instance may be created. We plan to
  *       remove this limiation in the future.
  */
-class WTCONNECTOR_API WServer
+class WTCONNECTOR_API WServer : public WAbstractServer
 {
 public:
   /*! \class Exception
@@ -120,7 +121,7 @@ public:
    *
    * \sa isRunning(), stop()
    */
-  ~WServer();
+  virtual ~WServer();
 
   /*! \brief Configures the HTTP(S) server or FastCGI process.
    *
@@ -240,6 +241,8 @@ public:
   void expireSessions();
 
   WServerImpl *impl() { return impl_; }
+
+  virtual void handleRequest(WebRequest *request);
 
 private:
   WServerImpl *impl_;

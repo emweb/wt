@@ -232,7 +232,6 @@ void WContainerWidget::clear()
   // the layout
   while (!children().empty()) {
     WWidget *w = children().back();
-    //removeWidget(w);
     delete w;
   }
 

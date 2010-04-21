@@ -7,6 +7,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/pointer_cast.hpp>
 
+#include "Wt/WServer"
 #include "WtReply.h"
 #include "StockReply.h"
 #include "HTTPRequest.h"
@@ -71,8 +72,8 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
     cin_->seekg(0); // rewind
     responseSent_ = false;
     HTTPRequest *r = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-				     (shared_from_this()));
-    connection()->server()->controller()->handleRequest(r, &entryPoint_);
+				     (shared_from_this()), &entryPoint_);
+    connection()->server()->controller()->server_->handleRequest(r);
   }
 }
 

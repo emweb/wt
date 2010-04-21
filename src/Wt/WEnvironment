@@ -16,6 +16,7 @@
 
 namespace Wt {
 
+class WAbstractServer;
 class WebRequest;
 class WebSession;
 
@@ -466,6 +467,12 @@ public:
   bool agentIsGecko() const {
     return agent_ >= Gecko && agent_ < BotAgent;
   }
+
+#ifndef WT_TARGET_JAVA
+  /** \brief Returns the server.
+   */
+  WAbstractServer *server() const;
+#endif // WT_TARGET_JAVA
 
 protected:
   WebSession *session_;

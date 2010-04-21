@@ -92,6 +92,7 @@ Wt/WAbstractItemModel.C
 Wt/WAbstractItemView.C
 Wt/WAbstractListModel.C
 Wt/WAbstractProxyModel.C
+Wt/WAbstractServer.C
 Wt/WAbstractTableModel.C
 Wt/WAbstractToggleButton.C
 Wt/WAccordionLayout.C

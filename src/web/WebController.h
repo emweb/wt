@@ -37,6 +37,7 @@ class WResource;
 class WSocketNotifier;
 class WStatelessSlot;
 class WWebWidget;
+class WAbstractServer;
 
 /*
  * The controller is a singleton class
@@ -67,15 +68,15 @@ public:
    * Construct the WebController and let it read requests from the given
    * streams.
    */
-  WebController(Configuration& configuration, WebStream *stream,
-		std::string singleSessionId = std::string());
+  WebController(Configuration& configuration, WAbstractServer *server,
+		WebStream *stream, std::string singleSessionId = std::string());
 
   ~WebController();
 
   void run();
   int sessionCount() const;
 
-  void handleRequest(WebRequest *request, const EntryPoint *entryPoint = 0);
+  void handleRequest(WebRequest *request);
 
   bool expireSessions();
 
@@ -101,11 +102,13 @@ public:
 
   std::string generateNewSessionId(WebSession *session);
 
+  WAbstractServer *server_;
+
 private:
-  Configuration& conf_;
-  WebStream     *stream_;
-  std::string    singleSessionId_;
-  bool           running_;
+  Configuration&   conf_;
+  WebStream       *stream_;
+  std::string      singleSessionId_;
+  bool             running_;
 
   typedef std::map<std::string, WebSession *> SessionMap;
   SessionMap sessions_;

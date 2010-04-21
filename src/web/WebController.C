@@ -23,6 +23,7 @@
 #include "Wt/WApplication"
 #include "Wt/WEvent"
 #include "Wt/WResource"
+#include "Wt/WServer"
 #include "Wt/WSocketNotifier"
 #include "Wt/WStringUtil"
 
@@ -39,8 +40,10 @@
 namespace Wt {
 
 WebController::WebController(Configuration& configuration,
-			     WebStream *stream, std::string singleSessionId)
+			     WAbstractServer *server, WebStream *stream,
+			     std::string singleSessionId)
   : conf_(configuration),
+    server_(server),
     stream_(stream),
     singleSessionId_(singleSessionId),
     running_(false),
@@ -92,7 +95,7 @@ void WebController::run()
   WebRequest *request = stream_->getNextRequest(10);
 
   if (request)
-    handleRequest(request);
+    server_->handleRequest(request);
   else
     if (!singleSessionId_.empty()) {
       running_ = false;
@@ -182,12 +185,12 @@ void WebController::handleRequestThreaded(WebRequest *request)
 {
 #ifdef WT_THREADED
   if (stream_->multiThreaded()) {
-    threadPool_.schedule(boost::bind(&WebController::handleRequest,
-				     this, request, (const EntryPoint *)0));
+    threadPool_.schedule
+      (boost::bind(&WAbstractServer::handleRequest, server_, request));
   } else
-    handleRequest(request);
+    server_->handleRequest(request);
 #else
-  handleRequest(request);
+  server_->handleRequest(request);
 #endif // WT_THREADED
 }
 
@@ -285,10 +288,10 @@ bool WebController::socketSelected(int descriptor)
     return false;
 }
 
-void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
+void WebController::handleRequest(WebRequest *request)
 {
-  if (!ep)
-    ep = getEntryPoint(request->scriptName());
+  if (!request->entryPoint_)
+    request->entryPoint_ = getEntryPoint(request->scriptName());
 
   CgiParser cgi(conf_.maxRequestSize() * 1024);
 
@@ -307,8 +310,8 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
     return;
   }
 
-  if (ep->type() == StaticResource) {
-    ep->resource()->handle(request, (WebResponse *)request);
+  if (request->entryPoint_->type() == StaticResource) {
+    request->entryPoint_->resource()->handle(request, (WebResponse *)request);
     return;
   }
 
@@ -353,14 +356,15 @@ void WebController::handleRequest(WebRequest *request, const EntryPoint *ep)
 	}
       }
 
-      std::string favicon = ep->favicon();
+      std::string favicon = request->entryPoint_->favicon();
       if (favicon.empty()) {
 	const std::string *confFavicon = conf_.property("favicon");
         if (confFavicon)
 	  favicon = *confFavicon;
       }
 
-      session = new WebSession(this, sessionId, ep->type(), favicon, request);
+      session = new WebSession(this, sessionId, request->entryPoint_->type(),
+			       favicon, request);
 
       if (configuration().sessionTracking() == Configuration::CookiesURL)
 	request->addHeader("Set-Cookie",

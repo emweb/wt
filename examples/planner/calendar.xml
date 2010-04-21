@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="calendar.entry.title">
+  	Enter a new appointment for {1}
+  </message>
+  <message id="calendar.entry">
+	<div class="entry-dialog">
+		<div>Summary: ${summary}</div>
+		<div>From ${start} to ${stop}</div>
+		<div>Description:</div> 
+		<div>${description}</div>
+		<div>${ok} ${cancel}</div>
+	</div>
+  </message>
+  
+  <message id="calendar.all-entries">
+	<div>
+		<div class="all-entries-dialog-entries">${entries}</div>
+		<div class="all-entries-dialog-button">${close}</div>
+	</div>
+  </message>
+  
+  <message id="calendar.entry.ok">
+  	Ok
+  </message>
+  <message id="calendar.entry.cancel">
+  	Cancel
+  </message>
+  <message id="calendar.cell.extra">+{1} extra</message>
+  <message id="calendar.cell.tooltip">Click the cell to add a new entry.</message>
+  <message id="calendar.cell.all-entries.title">
+  	All entries for {1}
+  </message>
+  <message id="calendar.cell.all-entries.close">
+  	Close
+  </message>
+</messages>

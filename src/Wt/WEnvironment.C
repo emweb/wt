@@ -304,6 +304,13 @@ std::string WEnvironment::getCgiValue(const std::string& varName) const
   return session_->getCgiValue(varName);
 }
 
+#ifndef WT_TARGET_JAVA
+WAbstractServer *WEnvironment::server() const
+{
+  return session_->controller()->server_;
+}
+#endif // WT_TARGET_JAVA
+
 void WEnvironment::parseCookies(const std::string& str)
 {
   // Cookie parsing strategy:

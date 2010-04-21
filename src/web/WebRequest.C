@@ -29,6 +29,7 @@ namespace Wt {
 Http::ParameterValues WebRequest::emptyValues_;
 
 WebRequest::WebRequest()
+  : entryPoint_(0)
 { }
 
 WebRequest::~WebRequest()

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="captcha.red">
+    red
+  </message>
+  <message id="captcha.green">
+    green
+  </message>
+  <message id="captcha.blue">
+    blue
+  </message>
+  <message id="captcha.yellow">
+    yellow
+  </message>
+
+  <message id="captcha.circle">
+    circle
+  </message>
+  <message id="captcha.rectangle">
+    rectangle
+  </message>
+
+  <message id="captcha.message">
+    Please select the <b>{1} {2}</b>.
+  </message>
+</messages>

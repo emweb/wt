@@ -38,6 +38,11 @@ void WObject::setParent(WObject *parent)
   parent_ = parent;
 }
 
+bool WObject::hasParent() const
+{
+  return parent_;
+}
+
 void WObject::addChild(WObject *child)
 {
   if (child->parent_)
@@ -46,7 +51,7 @@ void WObject::addChild(WObject *child)
   if (!children_)
     children_ = new std::vector<WObject *>;
 
-  child->parent_ = this;
+  child->setParent(this);
   children_->push_back(child);
 }
 
@@ -57,7 +62,7 @@ void WObject::removeChild(WObject *child)
 
   assert(children_);
   Utils::erase(*children_, child);
-  child->parent_ = 0;
+  child->setParent(0);
 }
 
 WObject::~WObject()

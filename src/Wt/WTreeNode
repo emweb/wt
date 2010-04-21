@@ -205,7 +205,7 @@ public:
    *
    * \sa childNodes()
    */
-  WTreeNode *parentNode() const;
+  WTreeNode *parentNode() const { return parentNode_; }
 
   /*! \brief Sets the visibility of the node itself
    *
@@ -253,6 +253,8 @@ public:
    * \sa WTree::itemSelectionChanged
    */
   Signal<bool>& selected() { return selected_; }
+
+  virtual bool hasParent() const;
 
 protected:
   /*! \brief Creates a tree node with empty labelArea().
@@ -325,7 +327,6 @@ protected:
    */
   virtual void descendantAdded(WTreeNode *node);
 
-protected:
   /*! \brief The actual expand.
    *
    * This method, which is implemented as a stateless slot, performs the
@@ -367,25 +368,24 @@ protected:
   WTable *impl() { return layout_; }
 
 private:
-  std::vector<WTreeNode *>  childNodes_;
-  bool                      collapsed_, selectable_, visible_,
-    childrenDecorated_;
-  WTreeNode		   *parentNode_;
-  LoadPolicy                loadPolicy_;
-  ChildCountPolicy          childCountPolicy_;
+  std::vector<WTreeNode *> childNodes_;
+  bool                    collapsed_, selectable_, visible_, childrenDecorated_;
+  WTreeNode		  *parentNode_;
+  LoadPolicy               loadPolicy_;
+  ChildCountPolicy         childCountPolicy_;
 
-  WTable                   *layout_;
-  WIconPair                *expandIcon_;
-  WText                    *noExpandIcon_;
-  WIconPair		   *labelIcon_;
-  WText			   *labelText_;
-  WText			   *childCountLabel_;
+  WTable                  *layout_;
+  WIconPair               *expandIcon_;
+  WText                   *noExpandIcon_;
+  WIconPair		  *labelIcon_;
+  WText			  *labelText_;
+  WText			  *childCountLabel_;
 
-  bool                      childrenLoaded_;
-  bool                      populated_;
-  bool                      interactive_;
+  bool                     childrenLoaded_;
+  bool                     populated_;
+  bool                     interactive_;
 
-  Signal<bool>              selected_;
+  Signal<bool>             selected_;
 
   void loadChildren();
   void loadGrandChildren();

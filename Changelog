@@ -1,3 +1,11 @@
+21-04-2010:
+	* WMenu: support usage without contentsStack_
+
+	* rapidxml.hpp: fix bug #344 (some special entity characters not being
+	handled properly)
+
+	* examples/planner: new example illustrating simple dbo usage
+
 20-04-2010:
 	* Dbo/SqlConnectionPool, Dbo/FixedSqlConnectionPool: connection pool
 	implementations

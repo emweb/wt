@@ -13,10 +13,12 @@
 namespace http {
 namespace server {
 
-HTTPRequest::HTTPRequest(WtReplyPtr reply)
+HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
   : reply_(reply),
     instream_(reply_->cin())
-{ }
+{
+  entryPoint_ = entryPoint;
+}
 
 void HTTPRequest::flush(ResponseState state, CallbackFunction callback,
 			void *callbackData)

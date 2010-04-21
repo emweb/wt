@@ -54,16 +54,17 @@ namespace Wt {
 
 struct WServerImpl {
   WServerImpl(const std::string& wtApplicationPath,
-	      const std::string& wtConfigurationFile)
+	      const std::string& wtConfigurationFile,
+	      WServer *server)
     : applicationPath_(wtApplicationPath),
       wtConfiguration_(wtApplicationPath, wtConfigurationFile,
-		     Wt::Configuration::WtHttpdServer,
-		     "Wt: initializing built-in httpd"),
-    webController_(wtConfiguration_, &stream_),
-    serverConfiguration_(wtConfiguration_.logger()),
-    server_(0)
+		       Wt::Configuration::WtHttpdServer,
+		       "Wt: initializing built-in httpd"),
+      webController_(wtConfiguration_, server, &stream_),
+      serverConfiguration_(wtConfiguration_.logger()),
+      server_(0)
   { }
-
+  
   std::string   applicationPath_;
   Configuration wtConfiguration_;
   HTTPStream    stream_;
@@ -78,7 +79,7 @@ struct WServerImpl {
 
 WServer::WServer(const std::string& applicationPath,
 		 const std::string& wtConfigurationFile)
-  : impl_(new WServerImpl(applicationPath, wtConfigurationFile))
+  : impl_(new WServerImpl(applicationPath, wtConfigurationFile, this))
 { }
 
 WServer::~WServer()
@@ -287,6 +288,11 @@ void WServer::restart(int argc, char **argv, char **envp)
 #endif
   }
   perror("execve");
+}
+
+void WServer::handleRequest(WebRequest *request)
+{
+  impl_->webController_.handleRequest(request);
 }
 
 int WServer::waitForShutdown(const char *restartWatchFile)

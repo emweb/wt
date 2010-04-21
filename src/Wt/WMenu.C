@@ -20,6 +20,18 @@
 
 namespace Wt {
 
+WMenu::WMenu(Orientation orientation, WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    contentsStack_(0),
+    orientation_(orientation),
+    internalPathEnabled_(false),
+    itemSelected_(this),
+    itemSelectRendered_(this),
+    current_(-1)
+{
+  setRenderAsList(false);
+}
+
 WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
 	     WContainerWidget *parent)
   : WCompositeWidget(parent),
@@ -154,19 +166,21 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
   for (unsigned i = 0; i < items_.size(); ++i)
     items_[i]->resetLearnedSlots();
 
-  WWidget *contents = item->contents();
-  if (contents)
-    contentsStack_->addWidget(contents);
-
-  if (contentsStack_->count() == 1) {
-    current_ = 0;
+  if (contentsStack_) {
+    WWidget *contents = item->contents();
     if (contents)
-      contentsStack_->setCurrentWidget(contents);
+      contentsStack_->addWidget(contents);
 
-    items_[0]->renderSelected(true);
-    items_[0]->loadContents();
-  } else
-    item->renderSelected(false);
+    if (contentsStack_->count() == 1) {
+      current_ = 0;
+      if (contents)
+	contentsStack_->setCurrentWidget(contents);
+
+      items_[0]->renderSelected(true);
+      items_[0]->loadContents();
+    } else
+      item->renderSelected(false);
+  }
 
   if (internalPathEnabled_) {
     WApplication *app = wApp;
@@ -194,7 +208,9 @@ void WMenu::removeItem(WMenuItem *item)
       std::cerr << "WMenu::removeItem() only implemented when "
 	"renderAsList == true" << std::endl;
 
-    contentsStack_->removeWidget(item->contents());
+    if (contentsStack_ && item->contents())
+      contentsStack_->removeWidget(item->contents());
+
     item->setMenu(0);
 
     if (itemIndex <= current_ && current_ > 0)
@@ -237,7 +253,9 @@ void WMenu::select(int index, bool changePath)
 void WMenu::selectVisual(int index, bool changePath)
 {
   previousCurrent_ = current_;
-  previousStackIndex_ = contentsStack_->currentIndex();
+
+  if (contentsStack_)
+    previousStackIndex_ = contentsStack_->currentIndex();
 
   current_ = index;
 
@@ -258,9 +276,11 @@ void WMenu::selectVisual(int index, bool changePath)
   if (index == -1)
     return;
 
-  WWidget *contents = items_[current_]->contents();
-  if (contents)
-    contentsStack_->setCurrentWidget(contents);
+  if (contentsStack_) {
+    WWidget *contents = items_[current_]->contents();
+    if (contents)
+      contentsStack_->setCurrentWidget(contents);
+  }
 
   itemSelectRendered_.emit(items_[current_]);
 }
@@ -317,7 +337,8 @@ void WMenu::undoSelectVisual()
   if (internalPathEnabled_)
     wApp->setInternalPath(prevPath);
 
-  contentsStack_->setCurrentIndex(prevStackIndex);
+  if (contentsStack_)
+    contentsStack_->setCurrentIndex(prevStackIndex);
 }
 
 WMenuItem *WMenu::currentItem() const

@@ -1787,19 +1787,12 @@ namespace rapidxml
                             else
                                 RAPIDXML_PARSE_ERROR("expected ;", src);
                             continue;
+			}
 
                         // Something else
-                        default:
-			    if (Flags & parse_xhtml_entity_translation)
-			      if (translate_xhtml_entity(src, dest))
-				continue;
-			      else
-				// Ignore, just copy '&' verbatim if not yet handled
-				break;
-			    else
-			      // Ignore, just copy '&' verbatim if not yet handled
-			      break;
-                        }
+			if (Flags & parse_xhtml_entity_translation)
+			  if (translate_xhtml_entity(src, dest))
+			    continue;
                     }
                 }
                 

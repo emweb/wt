@@ -28,6 +28,7 @@ WTreeNode::WTreeNode(const WString& labelText,
     selectable_(true),
     visible_(true),
     childrenDecorated_(true),
+    parentNode_(0),
     childCountPolicy_(Disabled),
     labelIcon_(labelIcon),
     labelText_(new WText(labelText)),
@@ -47,6 +48,7 @@ WTreeNode::WTreeNode(WTreeNode *parent)
     selectable_(true),
     visible_(true),
     childrenDecorated_(true),
+    parentNode_(0),
     childCountPolicy_(Disabled),
     labelIcon_(0),
     labelText_(0),
@@ -267,10 +269,8 @@ void WTreeNode::loadChildren()
   if (!childrenLoaded_) {
     doPopulate();
 
-    for (unsigned i = 0; i < childNodes_.size(); ++i) {
-      removeChild(childNodes_[i]);
+    for (unsigned i = 0; i < childNodes_.size(); ++i)
       layout_->elementAt(1, 1)->addWidget(childNodes_[i]);
-    }
 
     expandIcon_->icon1Clicked().connect(SLOT(this, WTreeNode::doExpand));
     expandIcon_->icon2Clicked().connect(SLOT(this, WTreeNode::doCollapse));
@@ -313,28 +313,13 @@ void WTreeNode::descendantRemoved(WTreeNode *node)
     parent->descendantRemoved(node);
 }
 
-WTreeNode *WTreeNode::parentNode() const
-{
-  WWidget *p = parent();
-
-  for (; p; p = p->parent()) {
-    WTreeNode *tn = dynamic_cast<WTreeNode *>(p);
-    if (tn)
-      return tn;
-  }
-   
-  return 0;
-}
-
 void WTreeNode::addChildNode(WTreeNode *node)
 {
   childNodes_.push_back(node);
+  node->parentNode_ = this;
 
   if (childrenLoaded_)
     layout_->elementAt(1, 1)->addWidget(node);
-  else
-    // this is not entirely kosjer as the widget is not rendered?
-    addChild(node);
 
   descendantAdded(node);
 
@@ -355,11 +340,10 @@ void WTreeNode::addChildNode(WTreeNode *node)
 void WTreeNode::removeChildNode(WTreeNode *node)
 {
   Utils::erase(childNodes_, node);
+  node->parentNode_ = 0;
 
   if (childrenLoaded_)
     layout_->elementAt(1, 1)->removeWidget(node);
-  else
-    removeChild(node);
 
   descendantRemoved(node);
 
@@ -557,6 +541,11 @@ void WTreeNode::update()
     else
       childCountLabel_->setText(WString());
   }
+}
+
+bool WTreeNode::hasParent() const
+{
+  return parentNode_;
 }
 
 }

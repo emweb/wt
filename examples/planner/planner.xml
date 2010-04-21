@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="login.userName">
+    User name
+  </message>
+  <message id="login.loginButton">
+    Login
+  </message>
+  <message id="fatalerror.title">
+    Fatal error
+  </message> 
+  <message id="fatalerror.body">
+    <p>A fatal error occurred and the application was terminated.</p>
+    <p>Reason:<pre>{1}</pre></p>
+  </message> 
+</messages>

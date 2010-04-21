@@ -112,6 +112,9 @@ ptr<C> Session::load(long long id, SqlStatement *statement, int& column)
 template <class C>
 ptr<C> Session::add(ptr<C>& obj)
 {
+  if (!transaction_)
+    throw std::logic_error("Dbo find(): no active transaction");
+
   MetaDbo<C> *dbo = obj.obj();
   if (dbo && !dbo->session()) {
     dbo->setSession(this);
