@@ -889,7 +889,7 @@ protected:
   virtual void removeChild(WWidget *child) = 0;
   virtual void setHideWithOffsets(bool how = true) = 0;
 
-  virtual void setParent(WWidget *parent);
+  virtual void setParentWidget(WWidget *parent);
 
   virtual bool isStubbed() const = 0;
   virtual void render(WFlags<RenderFlag> flags);

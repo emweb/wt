@@ -47,7 +47,7 @@ void WScrollArea::setWidget(WWidget *widget)
   repaint(RepaintInnerHtml);
 
   if (widget)
-    widget->setParent(this);
+    widget->setParentWidget(this);
 }
 
 WWidget *WScrollArea::takeWidget()
@@ -58,7 +58,7 @@ WWidget *WScrollArea::takeWidget()
   setWidget(0);
 
   if (result)
-    result->setParent(0);
+    result->setParentWidget(0);
 
   return result;
 }

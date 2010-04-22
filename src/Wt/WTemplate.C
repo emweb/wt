@@ -58,7 +58,7 @@ void WTemplate::bindWidget(const std::string& varName, WWidget *widget)
       delete i->second;
 
   if (widget) {
-    widget->setParent(this);
+    widget->setParentWidget(this);
     widgets_[varName] = widget;
     strings_.erase(varName);
   } else
@@ -110,7 +110,7 @@ void WTemplate::resolveString(const std::string& varName,
   else {
     WWidget *w = resolveWidget(varName);
     if (w) {
-      w->setParent(this);
+      w->setParentWidget(this);
 
       if (previouslyRendered_
 	  && previouslyRendered_->find(w) != previouslyRendered_->end()) {

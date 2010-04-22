@@ -20,7 +20,7 @@ WTableCell::WTableCell(WTableRow *row, int column)
     spanChanged_(false)
 {
   contentAlignment_ = AlignLeft | AlignTop;
-  setParent(row->table());
+  setParentWidget(row->table());
 }
 
 int WTableCell::row() const

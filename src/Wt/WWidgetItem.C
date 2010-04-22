@@ -29,7 +29,7 @@ WWidgetItem *WWidgetItem::findWidgetItem(WWidget *widget)
     return 0;
 }
 
-void WWidgetItem::setParent(WWidget *parent)
+void WWidgetItem::setParentWidget(WWidget *parent)
 { 
   assert(!impl_);
   impl_ = parent->createLayoutItemImpl(this);

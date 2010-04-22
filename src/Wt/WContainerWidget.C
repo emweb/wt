@@ -140,7 +140,7 @@ void WContainerWidget::addWidget(WWidget *widget)
     if (widget->parent() != this) {
       wApp->log("warn")
 	<< "WContainerWidget::addWidget(): reparenting widget";
-      widget->setParent(0);
+      widget->setParentWidget(0);
     } else
       return;
   }
@@ -158,7 +158,7 @@ void WContainerWidget::addWidget(WWidget *widget)
   flags_.set(BIT_ADJUST_CHILDREN_ALIGN); // children margins hacks
   repaint(RepaintInnerHtml);
 
-  widget->setParent(this);
+  widget->setParentWidget(this);
 }
 
 void WContainerWidget::insertWidget(int index, WWidget *widget)
@@ -181,7 +181,7 @@ void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
     if (widget->parent() != this) {
       wApp->log("warn")
 	<< "WContainerWidget::insertWidget(): reparenting widget";
-      widget->setParent(0);
+      widget->setParentWidget(0);
     } else
       return;
   }
@@ -201,8 +201,7 @@ void WContainerWidget::insertBefore(WWidget *widget, WWidget *before)
   // would try to add the widget again to children_
   // widget->setParent(this);
   // so instead, we copy the code from WWebWidget::addChild() here:
-
-  widget->WObject::setParent((WObject *)this);
+  widget->setParent(this);
 
   if (loaded())
     doLoad(widget);
@@ -221,7 +220,7 @@ void WContainerWidget::removeFromLayout(WWidget *widget)
 
 void WContainerWidget::removeWidget(WWidget *widget)
 {
-  widget->setParent((WWidget *)0);
+  widget->setParentWidget(0);
 
   repaint(RepaintInnerHtml);
 }

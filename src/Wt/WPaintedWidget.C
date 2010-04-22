@@ -360,7 +360,7 @@ void WPaintedWidget::createAreaImage()
 {
   if (!areaImage_) {
     areaImage_ = new WImage(wApp->onePixelGifUrl());
-    areaImage_->setParent(this);
+    areaImage_->setParentWidget(this);
 
     if (positionScheme() == Static)
       setPositionScheme(Relative);

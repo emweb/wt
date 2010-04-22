@@ -209,7 +209,7 @@ private:
   WLayoutItemImpl *impl_;
   HintsList       *hints_;
 
-  virtual void setParent(WWidget *parent);
+  virtual void setParentWidget(WWidget *parent);
   virtual void setParentLayout(WLayout *parentLayout);
   friend class WWidget;
 };

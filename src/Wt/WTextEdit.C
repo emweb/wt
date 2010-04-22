@@ -50,7 +50,7 @@ void WTextEdit::init()
 WTextEdit::~WTextEdit()
 {
   // to have virtual renderRemove():
-  setParent(0);
+  setParentWidget(0);
 }
 
 void WTextEdit::setStyleSheet(const std::string& uri)

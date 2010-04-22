@@ -60,7 +60,7 @@ public:
 private:
   /*! \brief Internal method.
    */
-  virtual void setParent(WWidget *parent) = 0;
+  virtual void setParentWidget(WWidget *parent) = 0;
   
   /*! \brief Internal method.
    */

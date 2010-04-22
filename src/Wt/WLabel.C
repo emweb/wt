@@ -35,7 +35,7 @@ WLabel::WLabel(const WString& text, WContainerWidget *parent)
 {
   text_ = new WText(text);
   text_->setWordWrap(false);
-  text_->setParent(this);
+  text_->setParentWidget(this);
 }
 
 WLabel::WLabel(WImage *image, WContainerWidget *parent)
@@ -47,7 +47,7 @@ WLabel::WLabel(WImage *image, WContainerWidget *parent)
     newText_(false)
 { 
   image_ = image;
-  image_->setParent(this);
+  image_->setParentWidget(this);
 }
 
 WLabel::~WLabel()
@@ -76,7 +76,7 @@ void WLabel::setText(const WString& text)
   if (!text_) {
     text_ = new WText();
     text_->setWordWrap(false);
-    text_->setParent(this);
+    text_->setParentWidget(this);
     newText_ = true;
     repaint(RepaintInnerHtml);
   }
@@ -98,7 +98,7 @@ void WLabel::setImage(WImage *image, Side side)
   delete image_;
   image_ = image;
   if (image_) {
-    image_->setParent(this);
+    image_->setParentWidget(this);
     imageSide_ = side;
   }
 
@@ -110,7 +110,7 @@ void WLabel::setWordWrap(bool wordWrap)
 {
   if (!text_) {
     text_ = new WText();
-    text_->setParent(this);
+    text_->setParentWidget(this);
     newText_ = true;
     repaint(RepaintInnerHtml);
   }

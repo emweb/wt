@@ -103,7 +103,7 @@ void Widget::initExt()
 Widget::~Widget()
 {
   // to have virtual renderRemove():
-  setParent(0);
+  setParentWidget(0);
 
   // in any case, delete Ext classes:
   WApplication *app = WApplication::instance();

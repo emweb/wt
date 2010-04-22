@@ -201,7 +201,7 @@ WWebWidget::~WWebWidget()
 {
   beingDeleted();
 
-  setParent(0);
+  setParentWidget(0);
 
   delete width_;
   delete height_;
@@ -294,7 +294,7 @@ void WWebWidget::removeChild(WWidget *child)
     }
     */
 
-  child->WObject::setParent((WObject *)0);
+  child->setParent(0);
     
   /*
    * When the child is about to be deleted, all of its descendants
@@ -904,7 +904,7 @@ void WWebWidget::addChild(WWidget *child)
     return;
 
   if (child->parent() != 0) {
-    child->setParent(0);
+    child->setParentWidget(0);
     wApp->log("warn") << "WWebWidget::addChild(): reparenting child";
   }
 
@@ -913,7 +913,7 @@ void WWebWidget::addChild(WWidget *child)
 
   children_->push_back(child);
 
-  child->WObject::setParent((WObject *)this);
+  child->setParent(this);
 
   WWebWidget *ww = child->webWidget();
   if (ww)

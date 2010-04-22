@@ -112,7 +112,7 @@ void WLayout::updateAddItem(WLayoutItem *item)
   item->setParentLayout(this);
 
   if (impl_) {
-    item->setParent(impl_->parent());
+    item->setParentWidget(impl_->parent());
     impl_->updateAddItem(item);
   }
 }
@@ -153,7 +153,7 @@ void WLayout::setLayoutInParent(WWidget *parent)
   parent->setLayout(this);
 }
 
-void WLayout::setParent(WWidget *parent)
+void WLayout::setParentWidget(WWidget *parent)
 {
   assert(!impl_);
 
@@ -161,7 +161,7 @@ void WLayout::setParent(WWidget *parent)
   for (int i = 0; i < c; ++i) {
     WLayoutItem *item = itemAt(i);
     if (item)
-      item->setParent(parent);
+      item->setParentWidget(parent);
   }
 
   impl_ = parent->createLayoutItemImpl(this);
@@ -177,7 +177,6 @@ void WLayout::setParent(WWidget *parent)
 void WLayout::setParentLayout(WLayout *layout)
 {
   layout->addChild(this);
-  //WObject::setParent((WObject *)layout);
 }
 
 WLayout *WLayout::parentLayout() const

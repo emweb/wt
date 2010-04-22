@@ -27,7 +27,7 @@ WCompositeWidget::WCompositeWidget(WContainerWidget *parent)
 
 WCompositeWidget::~WCompositeWidget()
 {
-  setParent(0);
+  setParentWidget(0);
 
   delete impl_;
 }
@@ -308,7 +308,7 @@ void WCompositeWidget::addChild(WWidget *child)
   if (child != impl_)
     impl_->addChild(child);
   else
-    impl_->WObject::setParent((WObject *)this);
+    impl_->setParent(this);
 }
 
 void WCompositeWidget::removeChild(WWidget *child)
@@ -316,7 +316,7 @@ void WCompositeWidget::removeChild(WWidget *child)
   if (child != impl_)
     impl_->removeChild(child);
   else
-    impl_->WObject::setParent((WObject *)0);
+    impl_->setParent(0);
 }
 
 void WCompositeWidget::setHideWithOffsets(bool how)
@@ -394,7 +394,7 @@ void WCompositeWidget::setImplementation(WWidget *widget)
       impl_->load();
   }
 
-  widget->setParent(this);
+  widget->setParentWidget(this);
 }
 
 void WCompositeWidget::setLayout(WLayout *layout)

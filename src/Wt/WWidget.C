@@ -49,7 +49,7 @@ WWidget::~WWidget()
   renderOk();
 }
 
-void WWidget::setParent(WWidget *p)
+void WWidget::setParentWidget(WWidget *p)
 {
   if (p == parent())
     return;
@@ -284,7 +284,7 @@ std::string WWidget::createJavaScript(std::stringstream& js,
 
 void WWidget::setLayout(WLayout *layout)
 { 
-  layout->setParent(this);
+  layout->setParentWidget(this);
 }
 
 WLayout *WWidget::layout()
