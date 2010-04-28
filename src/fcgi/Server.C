@@ -920,6 +920,11 @@ void WServer::addResource(WResource *resource, const std::string& path)
     << "WServer::addResource() not supported by FCGI connector.";
 }
 
+void WServer::handleRequest(WebRequest *request)
+{
+  theController->handleRequest(request);
+}
+
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {
