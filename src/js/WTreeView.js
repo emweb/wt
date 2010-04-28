@@ -136,7 +136,6 @@ WT_DECLARE_WT_MEMBER
     *    4) width('Wt-rowc') = sum(column(-1) widths)
     */
    this.adjustColumns = function() {
-     // if (contentsContainer.jsRef())
      var t = contents.firstChild, // table parent
          hc = headers.firstChild, // Wt-tv-row
          allw_1=0, allw=0,
@@ -161,6 +160,8 @@ WT_DECLARE_WT_MEMBER
 
      if (!c0r.style.width)  // first resize and c0 width not set
        c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
+     else
+       $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
 
      allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 8);
 
@@ -170,7 +171,7 @@ WT_DECLARE_WT_MEMBER
      } else {
        var r = WT.getCssRule('#' + el.id + ' .Wt-tv-rowc');
        r.style.width = allw_1 + 'px';
-       $(el).find(' .Wt-tv-rowc').css('width', allw_1 + 'px').css('width', '');
+       $(el).find('.Wt-tv-rowc').css('width', allw_1 + 'px').css('width', '');
        el.changed = true;
        this.autoJavaScript();
      }
@@ -243,6 +244,8 @@ WT_DECLARE_WT_MEMBER
             vscroll != contentsContainer.vscroll ||
             c0w != contentsContainer.c0w ||
             el.changed)) {
+      var adjustColumns = !el.changed;
+
       contentsContainer.tw = tw;
       contentsContainer.vscroll = vscroll;
       contentsContainer.c0w = c0w;
@@ -282,9 +285,12 @@ WT_DECLARE_WT_MEMBER
       c0r.style.width = (table.offsetWidth - hc.offsetWidth - 8) + 'px';
 
       el.changed = false;
+
+      if (adjustColumns && WT.isIE)
+	self.adjustColumns();
     }
   };
 
-  this.adjustColumns();
+  self.adjustColumns();
 
  });

@@ -727,13 +727,14 @@ RowSpacer *WTreeViewNode::topSpacer(bool create)
   WContainerWidget *c = childContainer();
 
   RowSpacer *result = 0;
-  if (c->count() == 0 || !(result = dynamic_cast<RowSpacer *>(c->widget(0))))
+  if (c->count() == 0 || !(result = dynamic_cast<RowSpacer *>(c->widget(0)))) {
     if (!create)
       return 0;
     else {
       result = new RowSpacer(this, 0);
       c->insertWidget(0, result);
     }
+  }
 
   return result;
 }
@@ -764,13 +765,14 @@ RowSpacer *WTreeViewNode::bottomSpacer(bool create)
 
   RowSpacer *result = 0;
   if (c->count() == 0
-      || !(result = dynamic_cast<RowSpacer *>(c->widget(c->count() - 1))))
+      || !(result = dynamic_cast<RowSpacer *>(c->widget(c->count() - 1)))) {
     if (!create)
       return 0;
     else {
       result = new RowSpacer(this, 0);
       c->addWidget(result);
     }
+  }
 
   return result;
 }

@@ -28,7 +28,7 @@ public:
 
   virtual Container   *container() const;
   virtual WLayoutItem *layoutItem() const = 0;
-  virtual WWidget     *parent() const;
+  virtual WWidget     *parentWidget() const;
 
   virtual void setHint(const std::string& name, const std::string& value);
 

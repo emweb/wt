@@ -41,11 +41,12 @@ WString::WString(const std::wstring& value)
 WString::WString(const char *value, CharEncoding encoding)
   : impl_(0)
 {
-  if (value)
+  if (value) {
     if (encoding == UTF8)
       utf8_ = value;
     else
       utf8_ = Wt::toUTF8(widen(value));
+  }
 }
 
 WString::WString(const std::string& value, CharEncoding encoding)

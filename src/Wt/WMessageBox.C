@@ -143,7 +143,6 @@ void WMessageBox::onButtonClick(StandardButton b)
   buttonClicked_.emit(b);
 }
 
-#ifndef WT_TARGET_JAVA
 StandardButton WMessageBox::show(const WString& caption,
 				 const WString& text,
 				 WFlags<StandardButton> buttons, bool i18n)
@@ -155,6 +154,5 @@ StandardButton WMessageBox::show(const WString& caption,
 
   return box.buttonResult();
 }
-#endif // WT_TARGET_JAVA
 
 }

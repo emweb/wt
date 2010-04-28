@@ -330,8 +330,8 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
     if (finished && inQuote)
       return;
 
-    if (inQuote)
-      if (c != '\'')
+    if (inQuote) {
+      if (c != '\'') {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
 	  inQuote = false;
@@ -339,13 +339,15 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
 	  if (vi >= v.length() || (v[vi++] != c))
 	    return;
 	}
-      else
+      } else {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
 	  if (vi >= v.length() || (v[vi++] != c))
 	    return;
 	} else
 	  gotQuoteInQuote = true;
+      }
+    }
 
     if (!inQuote) {
       CharState state = CharUnhandled;
@@ -409,7 +411,7 @@ WString WDateTime::toString(const WString& format) const
 WString WDateTime::toString(const WDate *date, const WTime *time,
 			    const WString& format)
 {
-  if (date && !date->isValid() || time && !time->isValid())
+  if ((date && !date->isValid()) || (time && !time->isValid()))
     return WString::fromUTF8("Null");
 
   std::stringstream result;
@@ -419,19 +421,21 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
   bool gotQuoteInQuote = false;
 
   for (unsigned i = 0; i < f.length() - 3; ++i) {
-    if (inQuote)
-      if (f[i] != '\'')
+    if (inQuote) {
+      if (f[i] != '\'') {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
 	  inQuote = false;
 	} else
 	  result.put(f[i]);
-      else
+      } else {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
 	  result.put(f[i]);
 	} else
 	  gotQuoteInQuote = true;
+      }
+    }
 
     if (!inQuote) {
       bool handled = false;
@@ -440,12 +444,13 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
       if (!handled && time)
 	handled = time->writeSpecial(f, i, result);
 
-      if (!handled)
+      if (!handled) {
 	if (f[i] == '\'') {
 	  inQuote = true;
 	  gotQuoteInQuote = false;
 	} else
 	  result.put(f[i]);
+      }
     }
   }
 

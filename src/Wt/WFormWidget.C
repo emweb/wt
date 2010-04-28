@@ -30,8 +30,8 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
     label_(0),
     validator_(0),
     validateJs_(0),
-    removeEmptyText_(0),
-    filterInput_(0)
+    filterInput_(0),
+    removeEmptyText_(0)
 { }
 
 #ifndef WT_TARGET_JAVA

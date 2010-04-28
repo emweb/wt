@@ -25,7 +25,7 @@ public:
 
   virtual WContainerWidget *container() const;
   virtual WLayoutItem      *layoutItem() const = 0;
-  virtual WWidget          *parent() const;
+  virtual WWidget          *parentWidget() const;
 
   virtual int minimumHeight() const = 0;
 

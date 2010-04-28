@@ -102,8 +102,8 @@ const double WAxis::AUTO_MAXIMUM = -DBL_MAX;
 WAxis::Segment::Segment()
   : minimum(AUTO_MINIMUM),
     maximum(AUTO_MAXIMUM),
-    renderStart(AUTO_MAXIMUM),
-    renderLength(AUTO_MAXIMUM)
+    renderLength(AUTO_MAXIMUM),
+    renderStart(AUTO_MAXIMUM)
 { }
 
 WAxis::WAxis()
@@ -131,11 +131,12 @@ void WAxis::init(WCartesianChart *chart, Axis axis)
   chart_ = chart;
   axis_ = axis;
 
-  if (axis == XAxis)
+  if (axis == XAxis) {
     if (chart->type() == CategoryChart)
       scale_ = CategoryScale;
     else if (scale_ != DateScale)
       scale_ = LinearScale;
+  }
 
   if (axis == Y2Axis)
     visible_ = false;
@@ -346,7 +347,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 
       if (i == 0) {
 	renderInterval_ = labelInterval_;
-	if (renderInterval_ == 0)
+	if (renderInterval_ == 0) {
 	  if (scale_ == CategoryScale) {
 	    double numLabels = calcAutoNumLabels(s) / 1.5;
 
@@ -357,6 +358,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 
 	    renderInterval_ = round125(diff / numLabels);
 	  }
+	}
       }
 
       if (scale_ == LinearScale) {
@@ -451,17 +453,19 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	maximum = iterator.maximum();
       }
 
-      if (minimum == std::numeric_limits<double>::max())
+      if (minimum == std::numeric_limits<double>::max()) {
 	if (scale_ == LogScale)
 	  minimum = 1;
 	else
 	  minimum = 0;
+      }
 
-      if (maximum == -std::numeric_limits<double>::max())
+      if (maximum == -std::numeric_limits<double>::max()) {
 	if (scale_ == LogScale)
 	  maximum = 10;
 	else
 	  maximum = 100;
+      }
 
       if (findMinimum)
 	segment.renderMinimum
@@ -751,6 +755,8 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 				    / (60.0 * 60.0 * 24));
       dt = WDateTime::fromTime_t((time_t)s.renderMinimum);
       break;
+    default:
+      assert(false); // CategoryScale, LinearScale
     }
 
     double numLabels = calcAutoNumLabels(s);

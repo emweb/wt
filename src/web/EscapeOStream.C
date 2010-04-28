@@ -101,7 +101,7 @@ void SStream::append(const char *s, int length)
   if (buf_i_ + length > buf_len()) {
     pushBuf();
 
-    if (length > buf_len())
+    if (length > buf_len()) {
       if (sink_) {
 	sink_->write(s, length);
 	return;
@@ -111,6 +111,7 @@ void SStream::append(const char *s, int length)
 	bufs_.push_back(std::make_pair(buf, length));
 	return;
       }
+    }
   }
 
   std::memcpy(buf_ + buf_i_, s, length);

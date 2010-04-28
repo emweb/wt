@@ -28,12 +28,13 @@ namespace {
   bool getAncestors(WTreeNode *n, std::vector<WTreeNode *>& ancestors)
   {
     WTreeNode *p = n->parentNode();
-    if (p)
+    if (p) {
       if (!p->isExpanded())
 	return false;
       else
 	if (!getAncestors(p, ancestors))
 	  return false;
+    }
 
     ancestors.push_back(n);
     return true;

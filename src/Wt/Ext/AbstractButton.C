@@ -147,11 +147,12 @@ void AbstractButton::createConfig(std::ostream& config)
     config << ",icon:" << WWebWidget::jsStringLiteral(icon_);
 
   // default cls is 'x-btn-text'
-  if (!icon_.empty())
+  if (!icon_.empty()) {
     if (text_.empty())
       config << ",cls:'x-btn-icon'";
     else
       config << ",cls:'x-btn-text-icon'";
+  }
 
   addWtSignalConfig("handler", &activated_, activated_.name(),
 		    "", "", config);

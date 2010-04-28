@@ -178,13 +178,14 @@ void WPopupMenuItem::renderSelected(bool selected)
 
   setStyleClass(selected ? "Wt-selected" : "Wt-item");
 
-  if (subMenu_)
+  if (subMenu_) {
     if (selected)
       subMenu_->popupToo(this);
     else {
       subMenu_->show();
       subMenu_->hide();
     }
+  }
 }
 
 void WPopupMenuItem::onMouseUp()

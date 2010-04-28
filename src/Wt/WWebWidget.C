@@ -968,12 +968,13 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	} else {
 	  element.setProperty(PropertyStyleDisplay, "block");
 	}
-      } else if (!all && flags_.test(BIT_HIDDEN_CHANGED))
+      } else if (!all && flags_.test(BIT_HIDDEN_CHANGED)) {
 	if (element.isDefaultInline() == flags_.test(BIT_INLINE))
 	  element.setProperty(PropertyStyleDisplay, "");
 	else
 	  element.setProperty(PropertyStyleDisplay,
 			      flags_.test(BIT_INLINE) ? "inline" : "block");
+      }
     } else
       element.setProperty(PropertyStyleDisplay, "none");
 

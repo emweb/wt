@@ -378,7 +378,6 @@ int Server::main()
     conf_.log("error") << "Cannot catch SIGHUP: signal(): "
 		       << strerror(errno);
 
-  int acceptSocket = STDIN_FILENO;
   if (argc_ == 2 && boost::starts_with(argv_[1], "--socket=")) {
     std::string socketName = std::string(argv_[1]).substr(9);
     boost::trim(socketName);
@@ -577,7 +576,7 @@ void Server::handleRequest(int serverSocket)
 	  if (processCount == 0)
 	    sleep(1);
 	  else {
-	    int i = lrand48() % processCount;
+	    unsigned i = lrand48() % processCount;
 
 	    if (i >= sessionProcessPids_.size())
 	      sleep(1);

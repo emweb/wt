@@ -79,9 +79,7 @@ public:
 
   void doRecursiveEventLoop();
 
-#ifndef WT_TARGET_JAVA
   bool unlockRecursiveEventLoop();
-#endif // WT_TARGET_JAVA
 
   void pushEmitStack(WObject *obj);
   void popEmitStack();
@@ -235,10 +233,11 @@ private:
 
 #ifndef WT_TARGET_JAVA
   Time             expire_;
-#ifdef WT_THREADED
+#endif // WT_TARGET_JAVA
+
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::condition recursiveEvent_;
 #endif // WT_THREADED
-#endif // WT_TARGET_JAVA
 
   WEnvironment  embeddedEnv_;
   WEnvironment *env_;

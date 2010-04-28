@@ -38,7 +38,7 @@ void WCheckBox::setTristate(bool tristate)
 {
   triState_ = tristate;
 
-  if (triState_)
+  if (triState_) {
     if (needTristateImageWorkaround()) {
       EventSignal<> *imgClick
 	= voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, false);
@@ -52,6 +52,7 @@ void WCheckBox::setTristate(bool tristate)
       clicked().connect(safariWorkaroundJS);
       safariWorkaround_ = true;
     }
+  }
 }
 
 void WCheckBox::gotUndeterminateClick()

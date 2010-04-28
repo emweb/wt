@@ -51,11 +51,12 @@ WLayoutItem *WBorderLayout::itemAt(int index) const
   int j = 0;
   for (int i = 0; i < 5; ++i) {
     WLayoutItem *it = itemAtPosition((Position)i).item_;
-    if (it)
+    if (it) {
       if (j == index)
 	return it;
       else
 	++j;
+    }
   }
 
   return 0;

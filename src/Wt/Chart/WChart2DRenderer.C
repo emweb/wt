@@ -1162,21 +1162,23 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 		prevStack = stackedValues[row];
 
 		double nextStack = stackedValues[row];
-		if (!Utils::isNaN(y))
+		if (!Utils::isNaN(y)) {
 		  if (reverseStacked)
 		    nextStack -= y;
 		  else
 		    nextStack += y;
+		}
 
 		stackedValues[row] = nextStack;
 
-		if (doSeries)
+		if (doSeries) {
 		  if (reverseStacked)
 		    iterator->newValue(series[i], x, prevStack, nextStack,
 				       xIndex, yIndex);
 		  else
 		    iterator->newValue(series[i], x, nextStack, prevStack,
 				       xIndex, yIndex);
+		}
 	      }
 	    }
 

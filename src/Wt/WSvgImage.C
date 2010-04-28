@@ -139,11 +139,12 @@ void WSvgImage::makeNewGroup()
   bool fontChanged
     = (changeFlags_ & Font) && (currentFont_ != painter()->font());
   bool shadowChanged = false;
-  if (changeFlags_ & Shadow)
+  if (changeFlags_ & Shadow) {
     if (currentShadowId_ == -1)
       shadowChanged = !painter()->shadow().none();
     else
       shadowChanged = currentShadow_ != painter()->shadow();
+  }
 
   if (shadowChanged)
     newClipPath_ = true;

@@ -38,7 +38,7 @@ WContainerWidget *StdLayoutItemImpl::container() const
     return 0;
 }
 
-WWidget *StdLayoutItemImpl::parent() const
+WWidget *StdLayoutItemImpl::parentWidget() const
 {
   return container();
 }

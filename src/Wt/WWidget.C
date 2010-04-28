@@ -283,7 +283,7 @@ std::string WWidget::createJavaScript(std::stringstream& js,
 }
 
 void WWidget::setLayout(WLayout *layout)
-{ 
+{
   layout->setParentWidget(this);
 }
 

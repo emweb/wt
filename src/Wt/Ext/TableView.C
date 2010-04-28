@@ -154,7 +154,7 @@ void TableView::setCurrentCell(int row, int column)
   currentRow_ = std::max(-1, std::min(model_->rowCount(), row));
   currentColumn_ = std::max(-1, std::min(model_->columnCount(), column));
 
-  if (isRendered())
+  if (isRendered()) {
     if (currentRow_ == -1) {
       addUpdateJS(elVar() + ".getSelectionModel().clearSelections();");      
     } else {
@@ -166,6 +166,7 @@ void TableView::setCurrentCell(int row, int column)
 		    + boost::lexical_cast<std::string>(row) + ","
 		    + boost::lexical_cast<std::string>(column) + ");");
     }
+  }
 }
 
 void TableView::onSelectionChange(const std::string selection)

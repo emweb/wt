@@ -21,7 +21,7 @@ StdLayoutImpl::StdLayoutImpl(WLayout *layout)
 { }
 
 StdLayoutImpl::~StdLayoutImpl()
-{ 
+{
   if (container_)
     container_->layoutChanged(true);
 }

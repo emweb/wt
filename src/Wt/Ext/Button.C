@@ -66,13 +66,14 @@ void Button::setPanel(Panel *panel)
 
 void Button::setDefault(bool how)
 {
-  if (panel_)
+  if (panel_) {
     if (how) {
       if (!isDefault())
 	panel_->setDefaultButton(this);
     } else
       if (isDefault())
 	panel_->setDefaultButton(0);
+  }
 }
 
 bool Button::isDefault() const

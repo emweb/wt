@@ -133,7 +133,7 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
   EventSignal<WMouseEvent> *click = mouseEventSignal(CLICK_SIGNAL, false);
 
   bool needUpdateClickedSignal =
-    (click && click->needUpdate()
+    ((click && click->needUpdate())
      // onchange does not work on IE
      || (env.agentIsIE() && change && change->needUpdate())
      || (check && check->needUpdate())

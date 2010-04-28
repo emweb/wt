@@ -160,11 +160,12 @@ WStandardItem::~WStandardItem()
 
 void WStandardItem::setData(const boost::any& d, int role)
 {
-  if (role == EditRole)
+  if (role == EditRole) {
     if (d.empty())
       return;
     else
       role = DisplayRole;
+  }
 
   data_[role] = d;
 

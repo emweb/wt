@@ -211,6 +211,7 @@ private:
 
   virtual void setParentWidget(WWidget *parent);
   virtual void setParentLayout(WLayout *parentLayout);
+
   friend class WWidget;
 };
 

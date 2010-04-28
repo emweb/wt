@@ -58,6 +58,10 @@ WebSession::WebSession(WebController *controller,
     app_(0),
     debug_(controller_->configuration().debug()),
     recursiveEventLoop_(0)
+#if defined(WT_TARGET_JAVA)
+  ,
+    recursiveEvent_(mutex_.newCondition())
+#endif
 {
   env_ = env ? env : &embeddedEnv_;
 
@@ -407,9 +411,7 @@ void WebSession::kill()
   /*
    * Unlock the recursive eventloop that may be pending.
    */
-#ifndef WT_TARGET_JAVA
   unlockRecursiveEventLoop();
-#endif
 
   if (handlers_.empty()) {
     // we may delete because the session has already been removed
@@ -669,7 +671,7 @@ WObject *WebSession::emitStackTop()
 
 void WebSession::doRecursiveEventLoop()
 {
-#ifndef WT_THREADED
+#if !defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
   log("error") << "Cannot do recursive event loop without threads";
 #else // WT_THREADED
   
@@ -680,9 +682,11 @@ void WebSession::doRecursiveEventLoop()
 
   handler->session()->notifySignal(WEvent(*handler, WebRenderer::Update));
 
-  if (handler->response())
+  if (handler->response()) {
+    // handler->response()->startAsync();
     handler->session()->render(*handler, app_->environment().ajax()
 			       ? WebRenderer::Update : WebRenderer::Page);
+  }
 
   /*
    * Register that we are doing a recursive event loop, this is used in
@@ -695,7 +699,11 @@ void WebSession::doRecursiveEventLoop()
    * Release session mutex lock, wait for recursive event, and retake
    * the session mutex lock.
    */
+#ifndef WT_TARGET_JAVA
   recursiveEvent_.wait(handler->lock());
+#else
+  recursiveEvent_.wait();
+#endif
 
   if (state_ == Dead) {
     recursiveEventLoop_ = 0;
@@ -709,10 +717,9 @@ void WebSession::doRecursiveEventLoop()
   app_->notify(WEvent(*handler, app_->environment().ajax() 
 		      ? WebRenderer::Update : WebRenderer::Page));
   recursiveEventLoop_ = 0;
-#endif // WT_THREADED
+#endif // !WT_THREADED && !WT_TARGET_JAVA
 }
 
-#ifndef WT_TARGET_JAVA
 bool WebSession::unlockRecursiveEventLoop()
 {
   if (!recursiveEventLoop_)
@@ -724,15 +731,15 @@ bool WebSession::unlockRecursiveEventLoop()
   Handler *handler = WebSession::Handler::instance();
  
   recursiveEventLoop_->setRequest(handler->request(), handler->response());
+  // handler->response()->startAsync();
   handler->setRequest(0, 0);
 
-#ifdef WT_THREADED
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   recursiveEvent_.notify_one();
 #endif // WT_THREADED
 
   return true;
 }
-#endif // WT_TARGET_JAVA
 
 bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 {
@@ -864,6 +871,10 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	    app_->notify(WEvent(handler, WebRenderer::Script));
 
 	    setLoaded();
+
+	    break;
+	  default:
+	    assert(false); // StaticResource
 	  }
 
 	  break;
@@ -871,11 +882,12 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	case Loaded: {
 	  responseType = WebRenderer::Page;
 
-	  if (requestE)
+	  if (requestE) {
 	    if (*requestE == "jsupdate")
 	      responseType = WebRenderer::Update;
 	    else if (*requestE == "script")
 	      responseType = WebRenderer::Script;
+	  }
 
 	  if (!app_) {
 	    if (responseType == WebRenderer::Script) {
@@ -926,9 +938,7 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
 	  bool requestForResource = requestE && *requestE == "resource";
 
-#ifndef WT_TARGET_JAVA
 	  if (requestForResource || !unlockRecursiveEventLoop())
-#endif // WT_TARGET_JAVA
 	    {
 	      app_->notify(WEvent(handler, responseType));
 	      if (handler.response() && !requestForResource)
@@ -1232,7 +1242,7 @@ void WebSession::notify(const WEvent& event)
 	    }
 	  } else if (*signalE == "poll" && !updatesPending_) {
 	    asyncResponse_ = handler.response();
-	    asyncResponse_->startAsync();
+	    //asyncResponse_->startAsync();
 	    //pollResponse_->setContentType("text/plain; charset=UTF-8");
 	    //pollResponse_->flush(WebResponse::ResponseWaitMore);
 	    handler.setRequest(0, 0);

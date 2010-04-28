@@ -143,7 +143,7 @@ ItemCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
   /*
    * Case 1 or 3
    */
-  if (t || a)
+  if (t || a) {
     if (autoCreate) {
       wc = new WContainerWidget();
       w.w->setInline(true);
@@ -158,6 +158,7 @@ ItemCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
       w.w = wc;
     } else
       return 0;
+  }
 
   ItemCheckBox *cb = dynamic_cast<ItemCheckBox *>(wc->widget(0));
 
@@ -211,7 +212,7 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w, bool autoCreate)
    * Case 1
    */
   WText *result = dynamic_cast<WText *>(w.w);
-  if (result)
+  if (result) {
     if (autoCreate) {
       WContainerWidget *wc = new WContainerWidget();
 
@@ -233,6 +234,7 @@ WImage *WItemDelegate::iconWidget(WidgetRef& w, bool autoCreate)
       return image;
     } else
       return 0;
+  }
 
   /* Cases 2-4 */
   WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w.w);

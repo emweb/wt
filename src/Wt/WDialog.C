@@ -169,7 +169,6 @@ void WDialog::setTitleBarEnabled(bool enable)
   titleBar_->setHidden(!enable);
 }
 
-#ifndef WT_TARGET_JAVA
 WDialog::DialogCode WDialog::exec()
 {
   if (recursiveEventLoop_)
@@ -186,7 +185,6 @@ WDialog::DialogCode WDialog::exec()
 
   return result_;
 }
-#endif // WT_TARGET_JAVA
 
 void WDialog::done(DialogCode result)
 {

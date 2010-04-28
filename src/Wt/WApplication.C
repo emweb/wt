@@ -603,7 +603,7 @@ WResource *WApplication::decodeExposedResource(const std::string& resourceKey)
   if (i != exposedResources_.end())
     return i->second;
   else {
-    int j = resourceKey.rfind('/');
+    std::size_t j = resourceKey.rfind('/');
     if (j != std::string::npos && j > 1)
       return decodeExposedResource(resourceKey.substr(0, j));
     else

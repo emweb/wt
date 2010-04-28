@@ -52,7 +52,7 @@ Container* LayoutItemImpl::container() const
     return 0;
 }
 
-WWidget *LayoutItemImpl::parent() const
+WWidget *LayoutItemImpl::parentWidget() const
 {
   return container();
 }

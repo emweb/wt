@@ -42,8 +42,8 @@ namespace Wt {
 WebController::WebController(Configuration& configuration,
 			     WAbstractServer *server, WebStream *stream,
 			     std::string singleSessionId)
-  : conf_(configuration),
-    server_(server),
+  : server_(server),
+    conf_(configuration),
     stream_(stream),
     singleSessionId_(singleSessionId),
     running_(false),

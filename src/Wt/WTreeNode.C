@@ -320,6 +320,8 @@ void WTreeNode::addChildNode(WTreeNode *node)
 
   if (childrenLoaded_)
     layout_->elementAt(1, 1)->addWidget(node);
+  else
+    node->setParent(0); // because node->hasParent() has Changed
 
   descendantAdded(node);
 
@@ -517,7 +519,7 @@ void WTreeNode::update()
     layout_->elementAt(1, 0)->setStyleClass("Wt-trunk");
   }
 
-  if (!parentNode() || parentNode()->isExpanded())
+  if (!parentNode() || parentNode()->isExpanded()) {
     if (childCountPolicy_ == Enabled && !populated_)
       doPopulate();
 
@@ -532,6 +534,7 @@ void WTreeNode::update()
 	layout_->elementAt(0, 0)->removeWidget(noExpandIcon_);
       }
     }
+  }
 
   if (childCountPolicy_ != Disabled && populated_ && childCountLabel_) {
     int n = displayedChildCount();

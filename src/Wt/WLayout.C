@@ -21,6 +21,9 @@ WLayout::WLayout()
 
 WLayout::~WLayout()
 {
+  if (!parentLayout())
+    setParent(0);
+
   delete impl_;
   delete hints_;
   delete[] margins_;
@@ -112,7 +115,7 @@ void WLayout::updateAddItem(WLayoutItem *item)
   item->setParentLayout(this);
 
   if (impl_) {
-    item->setParentWidget(impl_->parent());
+    item->setParentWidget(impl_->parentWidget());
     impl_->updateAddItem(item);
   }
 }
@@ -155,6 +158,9 @@ void WLayout::setLayoutInParent(WWidget *parent)
 
 void WLayout::setParentWidget(WWidget *parent)
 {
+  if (!this->parent())
+    setParent(parent);
+
   assert(!impl_);
 
   int c = count();

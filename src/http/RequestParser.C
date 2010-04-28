@@ -453,7 +453,7 @@ bool RequestParser::is_char(int c)
 
 bool RequestParser::is_ctl(int c)
 {
-  return c >= 0 && c <= 31 || c == 127;
+  return (c >= 0 && c <= 31) || c == 127;
 }
 
 bool RequestParser::is_tspecial(int c)
@@ -488,7 +488,7 @@ bool RequestParser::validate(Request& req)
     }
   }
 
-  if (req.contentLength >= 0 && req.contentLength <= max_request_size_)
+  if (req.contentLength >= 0 && req.contentLength <= (int)max_request_size_)
     bodyRemainder_ = req.contentLength;
   else {
     return false;

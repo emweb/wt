@@ -568,19 +568,21 @@ void WPieChart::modelColumnsRemoved(const WModelIndex& parent,
 {
   bool needUpdate = false;
 
-  if (labelsColumn_ >= start)
+  if (labelsColumn_ >= start) {
     if (labelsColumn_ <= end) {
       labelsColumn_ = -1;
       needUpdate = true;
     } else
       labelsColumn_ -= (end - start + 1);
+  }
 
-  if (dataColumn_ >= start)
+  if (dataColumn_ >= start) {
     if (dataColumn_ <= end) {
       dataColumn_ = -1;
       needUpdate = true;
     } else
       dataColumn_ -= (end - start + 1);
+  }
 
   if (needUpdate)
     update();

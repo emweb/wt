@@ -87,14 +87,15 @@ void setBoolean(xml_node<> *element, const char *tagName, bool& result)
 {
   std::string v = singleChildElementValue(element, tagName, "");
 
-  if (!v.empty())
+  if (!v.empty()) {
     if (v == "true")
       result = true;
     else if (v == "false")
       result = false;
     else
       throw WServer::Exception("<" + std::string(tagName)
-				     + ">: expecting 'true' or 'false'");
+			       + ">: expecting 'true' or 'false'");
+  }
 }
 
 std::vector<xml_node<> *> childElements(xml_node<> *element,
@@ -116,16 +117,16 @@ namespace Wt {
 EntryPoint::EntryPoint(EntryPointType type, ApplicationCreator appCallback,
 		       const std::string& path, const std::string& favicon)
   : type_(type),
-    appCallback_(appCallback),
     resource_(0),
+    appCallback_(appCallback),
     path_(path),
     favicon_(favicon)
 { }
 
 EntryPoint::EntryPoint(WResource *resource, const std::string& path)
   : type_(StaticResource),
-    appCallback_(0),
     resource_(resource),
+    appCallback_(0),
     path_(path)
 { }
 
@@ -201,11 +202,6 @@ void Configuration::setDefaultEntryPoint(const std::string& path)
   for (unsigned i = 0; i < entryPoints_.size(); ++i)
     if (entryPoints_[i].path().empty())
       entryPoints_[i].setPath(path);
-}
-
-static void error_cb(const char *message)
-{
-  throw WServer::Exception(message);
 }
 
 void Configuration::readApplicationSettings(xml_node<> *app)

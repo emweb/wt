@@ -44,7 +44,7 @@ public:
   /*! \brief Returns the widget for which this layout item participates in
    *         layout management.
    */
-  virtual WWidget *parent() const = 0;
+  virtual WWidget *parentWidget() const = 0;
 
   /*! \brief Provides a hint that can aid in layout strategy / algorithm.
    */

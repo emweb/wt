@@ -246,6 +246,9 @@ template<class C>
 void SaveDbAction::actCollection(const CollectionRef<C>& field)
 {
   switch (pass_) {
+  case Dependencies:
+    break;
+
   case Self:
     if (isInsert_ || field.type() == ManyToMany)
       needSetsPass_ = true;

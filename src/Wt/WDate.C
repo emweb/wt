@@ -736,19 +736,21 @@ std::string WDate::extFormat(const WString& format)
   int d = 0, M = 0, y = 0; 
 
   for (unsigned i = 0; i < f.length(); ++i) {
-    if (inQuote)
-      if (f[i] != '\'')
+    if (inQuote) {
+      if (f[i] != '\'') {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
 	  inQuote = false;
 	} else
 	  result += extLiteral(f[i]);
-      else
+      } else {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
 	  result += extLiteral(f[i]);
 	} else
 	  gotQuoteInQuote = true;
+      }
+    }
 
     if (!inQuote) {
       switch (f[i]) {
@@ -873,19 +875,21 @@ WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
   int d = 0, M = 0, y = 0; 
 
   for (unsigned i = 0; i < f.length(); ++i) {
-    if (inQuote)
-      if (f[i] != '\'')
+    if (inQuote) {
+      if (f[i] != '\'') {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
 	  inQuote = false;
 	} else
 	  result.regexp += f[i];
-      else
+      } else {
 	if (gotQuoteInQuote) {
 	  gotQuoteInQuote = false;
 	  result.regexp += f[i];
 	} else
 	  gotQuoteInQuote = true;
+      }
+    }
 
     if (!inQuote) {
       switch (f[i]) {

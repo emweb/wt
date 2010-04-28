@@ -703,11 +703,12 @@ WModelIndexList WAbstractItemModel::match(const WModelIndex& start,
   for (int i = 0; i < rc; ++i) {
     int row = start.row() + i;
 
-    if (row >= rc)
+    if (row >= rc) {
       if (!(flags & MatchWrap))
 	break;
       else
 	row -= rc;
+    }
 
     WModelIndex idx = index(row, start.column(), start.parent());
     boost::any v = data(idx, role);
