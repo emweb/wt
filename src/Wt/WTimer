@@ -100,6 +100,7 @@ public:
    */
   void setSingleShot(bool singleShot);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief This static function calls a slot after a given time interval.
    *
    * For example, the following code will call this->doSome() after 2
@@ -108,9 +109,16 @@ public:
    *   WTimer::singleShot(2000, SLOT(this, MyClass::doSome));
    * \endcode
    */
-#ifndef WT_TARGET_JAVA
   template <class T, class V>
   static void singleShot(int msec, T *receiver, void (V::*method)());
+
+  /*! \brief This static function calls a function after a given time interval.
+   *
+   * This variant of the overloaded singleShot() method supports a
+   * template function object (which supports operator ()).
+   */
+  template <class F>
+  static void singleShot(int msec, const F& f);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Starts the timer.
@@ -160,11 +168,17 @@ private:
 template <class T, class V>
 void WTimer::singleShot(int msec, T *receiver, void (V::*method)())
 {
+  singleShot(msec, boost::bind(method, receiver));
+}
+
+template <class F>
+void WTimer::singleShot(int msec, const F& f)
+{
   WTimer *timer = new WTimer();
   timer->setSingleShot(true);
   timer->setInterval(msec);
   timer->setSelfDestruct();
-  timer->timeout().connect(receiver, method);
+  timer->timeout().connect(f);
   timer->start();
 }
 #endif // WT_TARGET_JAVA
