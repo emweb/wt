@@ -23,6 +23,7 @@ void Session::mapClass(const char *tableName)
   mapping->tableName = tableName;
 
   classRegistry_[&typeid(C)] = mapping;
+  tableRegistry_[tableName] = mapping;
 }
 
 template <class C>
@@ -103,7 +104,7 @@ ptr<C> Session::load(long long id, SqlStatement *statement, int& column)
   } else {
     ClassRegistry::iterator cc = classRegistry_.find(&typeid(C));
     ClassMappingInfo *mapping = cc->second;
-    column += mapping->columnCount - 1;
+    column += mapping->fields.size() + 1; // + version
 
     return ptr<C>(dynamic_cast< MetaDbo<C> *>(i->second));
   }
@@ -145,18 +146,12 @@ ptr<C> Session::load(long long id)
 template <class C, typename BindStrategy>
 Query< ptr<C>, BindStrategy > Session::find(const std::string& where)
 {
-  if (!transaction_)
-    throw std::logic_error("Dbo find(): no active transaction");
-
-  std::string columns = sql_result_traits< ptr<C> >::getColumns(*this, 0);
-  std::string from = std::string("from \"")
-    + Impl::quoteSchemaDot(tableName<C>()) + "\" " + where;
-
-  return Query< ptr<C>, BindStrategy >(*this, "select " + columns, from);
+  return Query< ptr<C>, BindStrategy >
+    (*this, Impl::quoteSchemaDot(tableName<C>()), where);
 }
 
 template <class Result>
-Query<Result, DynamicBinding> Session::query(const std::string& sql)
+Query<Result> Session::query(const std::string& sql)
 {
   return query<Result, DynamicBinding>(sql);
 }
@@ -164,20 +159,7 @@ Query<Result, DynamicBinding> Session::query(const std::string& sql)
 template <class Result, typename BindStrategy>
 Query<Result, BindStrategy> Session::query(const std::string& sql)
 {
-  if (!transaction_)
-    throw std::logic_error("Dbo query(): no active transaction");
-
-  std::vector<std::string> aliases;
-  std::string rest;
-  parseSql(sql, aliases, rest);
-
-  std::string columns
-    = sql_result_traits<Result>::getColumns(*this, &aliases);
-
-  if (!aliases.empty())
-    throw std::logic_error("Session::query(): too many aliases for result");
-
-  return Query<Result, BindStrategy>(*this, "select " + columns, rest);
+  return Query<Result, BindStrategy>(*this, sql);
 }
 
 template<class C>
@@ -269,12 +251,12 @@ void Session::ClassMapping<C>::prepareStatements(Session& session)
 {
   // the prepare string was not yet created
   statements.push_back(std::string()); // no longer empty
-  PrepareStatements prepareAction(session, tableName);
+  PrepareStatements prepareAction(session, tableName, fields);
 
   C dummy;
   prepareAction.visitSelf(dummy);
+
   statements = prepareAction.getSelfSql();
-  columnCount = prepareAction.columnCount();
 
   prepareAction.visitCollections(dummy);
   prepareAction.addCollectionsSql(statements);

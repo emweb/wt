@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/any.hpp>
 
 #include <Wt/Dbo/WDboDllDefs.h>
 
@@ -39,7 +40,7 @@ class SqlStatement;
  *  - WDateTime
  *  - WString
  *
- * \sa sql_result_traits
+ * \sa dbo_result_traits
  *
  * \ingroup dbo
  */
@@ -78,7 +79,71 @@ struct sql_value_traits
 		   int size);
 };
 
-/*! \class sql_result_traits Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits
+/*! \class FieldInfo Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits
+ *  \brief Description of a field.
+ *
+ * \sa query_result_traits::getFields(), Query::fields()
+ *
+ * \ingroup dbo
+ */
+class FieldInfo
+{
+public:
+  /*! \brief Flags
+   */
+  enum Flags {
+    Id = 0x1,         //!< Field is an automatically generated id
+    Version = 0x2,    //!< Field is an optimistic concurrency version field
+    Mutable = 0x4,    //!< Field can be edited
+    NeedsQuotes = 0x8 //!< Field name needs quotes when using in SQL
+  };
+
+  /*! \brief Creates a field description.
+   */
+  FieldInfo(const std::string& name, const std::type_info *type,
+	    int flags);
+
+  /*! \brief Sets a qualifier for the field.
+   */
+  void setQualifier(const std::string& qualifier);
+
+  /*! \brief Returns the field name.
+   */
+  const std::string& name() const { return name_; }
+
+  /*! \brief Returns the field qualifier.
+   */
+  const std::string& qualifier() const { return qualifier_; }
+
+  /*! \brief Returns the field type.
+   */
+  const std::type_info *type() const { return type_; }
+
+  /*! \brief Returns whether the field is an Id field.
+   */
+  bool isIdField() const { return flags_ & Id; }
+
+  /*! \brief Returns whether the field is a Version field.
+   */
+  bool isVersionField() const { return (flags_ & Version) != 0; }
+
+  /*! \brief Returns whether the field is mutable.
+   */
+  bool isMutable() const { return (flags_ & Mutable) != 0; }
+
+  /*! \brief Returns whether the field name needs to be quoted.
+   */
+  bool needsQuotes() const { return (flags_ & NeedsQuotes) != 0; }
+
+  std::string sql() const;
+
+private:
+  std::string name_, qualifier_;
+  const std::type_info *type_;
+  int flags_;
+};
+
+/*! \class query_result_traits Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits
  *  \brief Traits class for result types.
  *
  * This traits class may be used to add support for using classes or structs
@@ -93,29 +158,35 @@ struct sql_value_traits
  * \ingroup dbo
  */
 template <typename Result>
-struct sql_result_traits
+struct query_result_traits
 {
-  /*! \brief Returns a string that contains the result columns.
+  /*! \brief Obtains the list of fields in this result.
    *
-   * This should return a fragment for an SQL SELECT statement that
-   * returns the columns corresponding to this result type.
+   * This is used to build the <i>select</i> clause of an Sql query.
    *
-   * It may consume any number of the given \p aliases (popping values
-   * from the front of this vector), and should throw an exception if
-   * not enough aliases were provided by the user.
+   * The given \p aliases may be used to qualify fields that correspond to
+   * entire tables (popping values from the front of this vector). An
+   * exception is thrown if not enough aliases were provided.
    */
-  static std::string getColumns(Session& session,
-				std::vector<std::string> *aliases);
+  static void getFields(Session& session,
+			std::vector<std::string> *aliases,
+			std::vector<FieldInfo>& result);
 
   /*! \brief Reads a result from an executed query.
    *
-   * This should read the value from the \p statement, starting at
-   * column \p column, and advancing the column pointer for as many
-   * columns as needed (and according to the number of columns
-   * returned by getColumns().
+   * This reads the value from the \p statement, starting at column \p
+   * column, and advancing the column pointer for as many columns as
+   * needed (and according to the number of fields returned by
+   * getFields()).
    */
-  static Result loadValues(Session& session, SqlStatement& statement,
-                           int& column);
+  static Result load(Session& session, SqlStatement& statement,
+		     int& column);
+
+  /*! \brief Returns result values.
+   *
+   * This returns the individual field values in the given \p result.
+   */
+  static void getValues(const Result& result, std::vector<boost::any>& values);
 };
 
   }

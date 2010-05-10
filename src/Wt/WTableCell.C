@@ -39,7 +39,9 @@ void WTableCell::setRowSpan(int rowSpan)
     rowSpan_ = rowSpan;
     row_->table()->expand(row(), column_, rowSpan_, columnSpan_);
     spanChanged_ = true;
-    repaint(RepaintPropertyAttribute);
+    
+    table()->flags_.set(WTable::BIT_GRID_CHANGED);
+    table()->repaint(RepaintInnerHtml);
   }
 }
 
@@ -49,7 +51,9 @@ void WTableCell::setColumnSpan(int colSpan)
     columnSpan_ = colSpan;
     row_->table()->expand(row(), column_, rowSpan_, columnSpan_);
     spanChanged_ = true;
-    repaint(RepaintPropertyAttribute);
+    
+    table()->flags_.set(WTable::BIT_GRID_CHANGED);
+    table()->repaint(RepaintInnerHtml);
   }
 }
 

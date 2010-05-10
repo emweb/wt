@@ -393,6 +393,12 @@ public:
    */
   long long id() const;
 
+  /*! \brief Returns the object version.
+   *
+   * This returns -1 for a transient object.
+   */
+  int version() const;
+
 protected:
   MetaDbo<C> *obj() const { return obj_; }
 
@@ -410,12 +416,15 @@ private:
 };
 
 template <class C>
-struct sql_result_traits< ptr<C> >
+struct query_result_traits< ptr<C> >
 {
-  static std::string getColumns(Session& session,
-				std::vector<std::string> *aliases);
-  static ptr<C> loadValues(Session& session, SqlStatement& statement,
-			   int& column);
+  static void getFields(Session& session,
+			std::vector<std::string> *aliases,
+			std::vector<FieldInfo>& result);
+  static ptr<C> load(Session& session, SqlStatement& statement,
+		     int& column);
+
+  static void getValues(const ptr<C>& ptr, std::vector<boost::any>& values);
 };
 
   }

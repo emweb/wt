@@ -239,7 +239,7 @@ public:
    * generates a new URL for this resource to avoid caching problems and then
    * emits this signal.
    */
-  Signal<void>& dataChanged() { return dataChanged_; }
+  Signal<>& dataChanged() { return dataChanged_; }
 
   /*! \brief Stream the resource to a stream.
    *

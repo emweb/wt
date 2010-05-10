@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
   (1, "SizeHandle",
    function(WT, orientation, width, height, minDelta, maxDelta,
-	    dragWidgetClass, doneFn, el, event, offsetX, offsetY) {
+	    dragWidgetClass, doneFn, el, parent, event, offsetX, offsetY) {
      var handle = document.createElement('div');
      handle.style.position = 'absolute';
      handle.style.zIndex = '100';
@@ -22,21 +22,23 @@ WT_DECLARE_WT_MEMBER
        handle.style.width = width + 'px';
      }
 
-     var offset = WT.widgetCoordinates(el, event);
-     var elpos = WT.widgetPageCoordinates(el);
+     var offset = WT.widgetCoordinates(el, event),
+         elpos = WT.widgetPageCoordinates(el),
+         parentpos = WT.widgetPageCoordinates(parent);
      offsetX -= WT.px(el, 'marginLeft');
      offsetY -= WT.px(el, 'marginTop');
-     elpos.x += offsetX;
-     elpos.y += offsetY;
-     offset.x -= offsetX;
-     offset.y -= offsetY;
+     elpos.x += offsetX - parentpos.x;
+     elpos.y += offsetY - parentpos.y;
+     offset.x -= offsetX - parentpos.x;
+     offset.y -= offsetY - parentpos.y;
 
      handle.style.left = elpos.x + 'px';
      handle.style.top = elpos.y + 'px';
      handle.className = dragWidgetClass;
 
-     document.body.appendChild(handle);
+     parent.appendChild(handle);
 
+     WT.capture(null);
      WT.capture(handle);
      WT.cancelEvent(event);
 

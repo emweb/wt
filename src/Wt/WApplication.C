@@ -125,6 +125,7 @@ WApplication::WApplication(const WEnvironment& env)
 		      "margin: 0px; padding: 0px; border: 0px");
   styleSheet_.addRule("td", "vertical-align: top; text-align: left;");
   styleSheet_.addRule("button", "white-space: nowrap");
+  styleSheet_.addRule("video", "display: block");
 
   if (environment().contentType() == WEnvironment::XHTML1) {
     //styleSheet_.addRule("img", "margin: -5px 0px;");
@@ -146,13 +147,13 @@ WApplication::WApplication(const WEnvironment& env)
 			"opacity: 0; filter: alpha(opacity=0);"
 			"border: none; margin: 0; padding: 0;");
   styleSheet_.addRule("button.Wt-wrap",
-		      "border: 0px !important;"
+		      "border: 0px;"
 		      "text-align: left;"
-		      "margin: 0px !important;"
-		      "padding: 0px !important;"
+		      "margin: 0px;"
+		      "padding: 0px;"
 		      "font-size: inherit; "
 		      "pointer: hand; cursor: pointer; cursor: hand;"
-		      "background-color: transparent;"
+		      "background: transparent;"
 		      "color: inherit;");
   styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
   styleSheet_.addRule(".Wt-invalid", "background-color: #f79a9a;");

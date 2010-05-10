@@ -1,3 +1,4 @@
+// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2010 Emweb bvba, Heverlee, Belgium.
  *
@@ -13,8 +14,9 @@
 
 #include "ShapesWidget.h"
 
-class MyCaptcha : public Wt::WContainerWidget {
- public:
+class MyCaptcha : public Wt::WContainerWidget
+{
+public:
   MyCaptcha(Wt::WContainerWidget* parent, const int width, const int height);
   
  private:

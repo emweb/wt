@@ -52,6 +52,8 @@ const std::string accepted =
   "202 Accepted\r\n";
 const std::string no_content =
   "204 No Content\r\n";
+const std::string partial_content =
+  "206 Partial Content\r\n";
 const std::string multiple_choices =
   "300 Multiple Choices\r\n";
 const std::string moved_permanently =
@@ -68,6 +70,8 @@ const std::string forbidden =
   "403 Forbidden\r\n";
 const std::string not_found =
   "404 Not Found\r\n";
+const std::string requested_range_not_satisfiable =
+  "416 Requested Range Not Satisfiable\r\n";
 const std::string internal_server_error =
   "500 Internal Server Error\r\n";
 const std::string not_implemented =
@@ -89,6 +93,8 @@ const std::string& toText(Reply::status_type status)
     return accepted;
   case Reply::no_content:
     return no_content;
+  case Reply::partial_content:
+    return partial_content;
   case Reply::multiple_choices:
     return multiple_choices;
   case Reply::moved_permanently:
@@ -105,6 +111,8 @@ const std::string& toText(Reply::status_type status)
     return forbidden;
   case Reply::not_found:
     return not_found;
+  case Reply::requested_range_not_satisfiable:
+    return requested_range_not_satisfiable;
   case Reply::internal_server_error:
     return internal_server_error;
   case Reply::not_implemented:

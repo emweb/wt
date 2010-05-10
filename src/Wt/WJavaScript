@@ -316,8 +316,8 @@ public:
 		  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
 		  A5 a5 = NoClass::none, A6 a6 = NoClass::none);
 
-  virtual boost::signals::connection connectBase(WObject *target,
-						 void (WObject::*method)());
+  virtual boost::signals::connection connect(WObject *target,
+					     void (WObject::*method)());
 
 private:
   JSignal(const JSignal<A1, A2, A3, A4, A5, A6>&);
@@ -518,9 +518,14 @@ void JSignal<A1, A2, A3, A4, A5, A6>::connect(JSlot& slot)
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
-::connectBase(WObject *target, void (WObject::*method)())
+::connect(WObject *target, void (WObject::*method)())
 {
-  return connect(target, method);
+  exposeSignal();
+  WStatelessSlot *s = target->isStateless(method);
+  if (collectSlotJavaScript_ && s)
+    return EventSignalBase::connect(method, target, s);
+  else
+    return connect(boost::bind(method, target));
 }
 
 template <typename A1, typename A2, typename A3,

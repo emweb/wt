@@ -9,6 +9,15 @@
 }
 
 /*
+ * WItemDelegate
+ */
+.Wt-delegate-edit input {
+    font-size: 9pt;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+/*
  * WTreeView
  */
 /* nodes */

@@ -1,172 +1,1378 @@
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
 #include "Wt/WTableView"
+
+#include "Wt/WTable"
+#include "Wt/WContainerWidget"
+#include "Wt/WAbstractItemModel"
+#include "Wt/WModelIndex"
+#include "Wt/WAbstractItemDelegate"
+#include "Wt/WApplication"
 #include "Wt/WText"
 #include "Wt/WItemDelegate"
+#include "Wt/WEnvironment"
+#include "Wt/WVBoxLayout"
+#include "Wt/WVBoxLayout"
+
+#include "JavaScriptLoader.h"
+#include "Utils.h"
+#ifndef WT_DEBUG_JS
+
+#include "js/WTableView.min.js"
+#endif
+
+#include <iostream>
+#include <math.h>
+
+// TODO:
+//  call updateModelIndex when shifting indexes
 
 namespace Wt {
 
-  WTableView::WTableView(WContainerWidget *parent)
-    : WCompositeWidget(parent)
-  { 
-    setImplementation(table_ = new WTable());
-    itemDelegate_ = new WItemDelegate();
-    model_ = 0;
+WTableView::WTableView(WContainerWidget *parent)
+  : WAbstractItemView(parent),
+    headers_(0),
+    canvas_(0),
+    table_(0),
+    headerContainer_(0),
+    contentsContainer_(0),
+    plainTable_(0),
+    dropEvent_(impl_, "dropEvent"),
+    columnWidthChanged_(impl_, "columnResized"),
+    viewportFirstRow_(0),
+    viewportLastRow_(50),
+    viewportRows_(25),
+    viewportFirstColumn_(0),
+    viewportLastColumn_(13),
+    tieContentsHeaderScrollJS_(this),
+    itemMouseDownJS_(this)
+{ 
+  setSelectable(false);
+
+  dropEvent_.connect(this, &WTableView::onDropEvent);
+
+  setStyleClass("Wt-tableview");
+
+  const char *CSS_RULES_NAME = "Wt::WTableView";
+  
+  WApplication *app = WApplication::instance();
+
+  if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
+    /* header */
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-headertable",
+       "-moz-user-select: none;"
+       "-khtml-user-select: none;"
+       "user-select: none;"
+       "overflow: hidden;"
+       "width: 100%;", CSS_RULES_NAME);
+
+    if (app->environment().agentIsIE())
+      app->styleSheet().addRule
+	(".Wt-tableview .Wt-header .Wt-label",
+	 "zoom: 1;");
+
+    /* resize handles */
+    app->styleSheet().addRule
+      (".Wt-tableview div.Wt-tv-rh",
+       "float: right; width: 4px; cursor: col-resize;"
+       "padding-left: 0px;");
+    
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-header-el, .Wt-tableview .Wt-tv-c",
+       "text-overflow: ellipsis;"
+       "overflow: hidden;"
+       "white-space: nowrap;"
+       "padding: 0px;");
+
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-header .Wt-tv-c",
+       "padding-left: 6px;");
+
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-tv-contents .Wt-tv-c,"
+       ".Wt-tableview tbody .Wt-tv-c",
+       "padding: 0px 3px;");
+
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-tv-rh:hover",
+       "background-color: #DDDDDD;");
+
+    app->styleSheet().addRule
+      (".Wt-tableview div.Wt-tv-rhc0",
+       "float: left; width: 4px;");
+
+    /* sort handles */
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-tv-sh", std::string() +
+       "float: right; width: 16px; height: 16px; padding-bottom: 6px;"
+       "cursor: pointer; cursor:hand;");
+
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-tv-sh-nrh", std::string() + 
+       "float: right; width: 16px; height: 16px;"
+       "cursor: pointer; cursor:hand;");
+
+    /* borders: needed here for IE */
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-tv-br, "
+       ".Wt-tableview .Wt-tv-contents .Wt-tv-c",
+       "border-right: 1px solid white;");
+
+    /* data item icons */
+    app->styleSheet().addRule
+      (".Wt-tableview .Wt-tv-contents img.icon, "
+       ".Wt-tableview .Wt-tv-contents input.icon",
+       "margin: 0px 3px 2px 0px; vertical-align: middle");
   }
 
-  WTableView::~WTableView()
-  { }
+  /* item drag & drop */
+  app->styleSheet().addRule
+    ("#" + id() + "dw",
+     "width: 32px; height: 32px;"
+     "background: url(" + WApplication::resourcesUrl() + "items-not-ok.gif);");
 
-  WTable* WTableView::table()
-  {
-    return table_;
+  app->styleSheet().addRule
+    ("#" + id() + "dw.Wt-valid-drop",
+     "width: 32px; height: 32px;"
+     "background: url(" + WApplication::resourcesUrl() + "items-ok.gif);");
+
+  if (app->environment().ajax()) {
+    impl_->setPositionScheme(Relative);
+
+    headers_ = new WContainerWidget();
+    headers_->setStyleClass("Wt-headertable headerrh");
+
+    table_ = new WContainerWidget();
+    table_->setStyleClass("Wt-tv-contents");
+
+    WVBoxLayout *layout = new WVBoxLayout();
+    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
+
+    headerContainer_ = new WContainerWidget();
+    headerContainer_->setOverflow(WContainerWidget::OverflowHidden);
+    headerContainer_->setPositionScheme(Relative);
+    headerContainer_->setStyleClass("Wt-header headerrh cwidth");
+    headerContainer_->addWidget(headers_);
+
+    contentsContainer_ = new WContainerWidget();
+    contentsContainer_->setStyleClass("cwidth");
+    contentsContainer_->setOverflow(WContainerWidget::OverflowAuto);
+    contentsContainer_->setPositionScheme(Absolute);
+
+    canvas_ = new WContainerWidget();
+    canvas_->setStyleClass("Wt-spacer");
+    canvas_->clicked()      .connect(this, &WTableView::handleSingleClick);
+    canvas_->doubleClicked().connect(this, &WTableView::handleDoubleClick);
+    canvas_->mouseWentDown().connect(this, &WTableView::handleMouseWentDown); 
+    canvas_->mouseWentDown().connect(itemMouseDownJS_);
+    canvas_->addWidget(table_);
+
+    table_->setPositionScheme(Absolute);
+    table_->resize(WLength(100, WLength::Percentage), WLength::Auto);
+
+    contentsContainer_->addWidget(canvas_);
+    contentsContainer_->scrolled().connect(this, &WTableView::onViewportChange);
+    contentsContainer_->scrolled().connect(tieContentsHeaderScrollJS_);
+
+    tieContentsHeaderScrollJS_.setJavaScript
+      ("function(obj, event) {"
+       "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
+       "}");
+
+    layout->addWidget(headerContainer_);
+    layout->addWidget(contentsContainer_, 1);
+
+    impl_->setLayout(layout);
+
+    app->addAutoJavaScript
+      ("{var obj = $('#" + id() + "').data('obj');"
+       "if (obj) obj.autoJavaScript();}");
+
+    bindObjJS(itemMouseDownJS_, "mouseDown");
+  } else {
+    plainTable_ = new WTable();
+    plainTable_->setStyleClass("Wt-plaintable");
+    plainTable_->setAttributeValue("style", "table-layout: fixed;");
+    plainTable_->setHeaderCount(1);
+
+    viewportRows_ = 1000;
+    impl_->addWidget(plainTable_);
+
+    resize(width(), height());
   }
 
-  void WTableView::setModel(WAbstractItemModel* model)
-  {
-    /* Allow the view to be attached to another model by clearing the internal
-     * WTable, which was filled by the previous model.
+  setRowHeight(rowHeight());
+
+  updateTableBackground();
+}
+
+void WTableView::resize(const WLength& width, const WLength& height)
+{
+  if (ajaxMode()) {
+    if (!height.isAuto())
+      viewportRows_ 
+	= static_cast<int>(std::ceil
+			   ((height.toPixels() - headerHeight().toPixels())
+			    / rowHeight().toPixels()));
+  } else { // Plain HTML mode
+    plainTable_->resize(width, WLength::Auto);
+
+    if (!height.isAuto()) {
+      if (impl_->count() < 2)
+	impl_->addWidget(createPageNavigationBar());
+
+      int navigationBarHeight = 25; // set in wt.css
+
+      viewportRows_ = static_cast<int>
+	((height.toPixels() - headerHeight().toPixels() - navigationBarHeight)
+	 / rowHeight().toPixels());
+    }
+  }
+
+  scheduleRerender(NeedAdjustViewPort);
+
+  WCompositeWidget::resize(width, height);
+}
+
+WTableView::~WTableView()
+{ 
+  impl_->clear();
+}
+
+void WTableView::updateTableBackground()
+{
+  std::string backgroundImage;
+
+  if (alternatingRowColors())
+    backgroundImage = "/stripes/stripe-";
+  else
+    backgroundImage = "/no-stripes/no-stripe-";
+
+  backgroundImage = WApplication::resourcesUrl()
+    + "themes/" + WApplication::instance()->cssTheme()
+    + backgroundImage 
+    + boost::lexical_cast<std::string>(static_cast<int>(rowHeight().toPixels()))
+    + "px.gif";
+
+  if (ajaxMode())
+    canvas_->decorationStyle().setBackgroundImage(backgroundImage);
+  else
+    // FIXME avoid background on header row ?
+    plainTable_->decorationStyle().setBackgroundImage(backgroundImage);	
+}
+
+void WTableView::setModel(WAbstractItemModel* model)
+{  
+  WAbstractItemView::setModel(model);
+
+  /* connect slots to new model */
+  modelConnections_.push_back(model->columnsInserted().connect
+			      (this, &WTableView::modelColumnsInserted));
+  modelConnections_.push_back(model->columnsAboutToBeRemoved().connect
+			     (this, &WTableView::modelColumnsAboutToBeRemoved));
+  modelConnections_.push_back(model->rowsInserted().connect
+			      (this, &WTableView::modelRowsInserted));
+  modelConnections_.push_back(model->rowsRemoved().connect
+			      (this, &WTableView::modelRowsRemoved));
+  modelConnections_.push_back(model->dataChanged().connect
+			      (this, &WTableView::modelDataChanged));
+  modelConnections_.push_back(model->headerDataChanged().connect
+			      (this, &WTableView::modelHeaderDataChanged));
+  modelConnections_.push_back(model->layoutAboutToBeChanged().connect
+			      (this, &WTableView::modelLayoutAboutToBeChanged));
+  modelConnections_.push_back(model->layoutChanged().connect
+			      (this, &WTableView::modelLayoutChanged));
+  modelConnections_.push_back(model->modelReset().connect
+			      (this, &WTableView::modelReset));
+}
+
+WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index) 
+{
+  WAbstractItemDelegate *itemDelegate = this->itemDelegate(index.column());
+
+  WFlags<ViewItemRenderFlag> renderFlags = 0;
+
+  if (ajaxMode()) {
+    if (   (selectionBehavior() == SelectItems && isSelected(index))
+	   || (selectionBehavior() == SelectRows
+	       && isSelected(model()->index(index.row(), 0, rootIndex()))))
+      renderFlags |= RenderSelected;
+  }
+
+  if (isEditing(index))
+    renderFlags |= RenderEditing;
+
+  bool initial = !widget;
+
+  widget = itemDelegate->update(widget, index, renderFlags);
+  widget->setInline(false);
+  widget->setStyleClass(widget->styleClass() + " Wt-tv-c");
+  widget->resize(WLength::Auto, rowHeight());
+
+  if (renderFlags & RenderEditing)
+    setEditorWidget(index, widget);
+
+  if (initial) {
+    /*
+     * If we are creating a new editor, then reset its current edit
+     * state.
      */
-    table_->clear();
+    if (renderFlags & RenderEditing) {
+      boost::any state = editState(index);
+      if (!state.empty())
+	itemDelegate->setEditState(widget, state);
+    }
+  }
 
-    if (!model)
+  return widget;
+}
+
+int WTableView::spannerCount(const Side side) const
+{
+  assert(ajaxMode());
+
+  switch (side) {
+  case Top: {
+    return (int)(table_->offset(Top).toPixels() / rowHeight().toPixels());
+  }
+  case Bottom: {
+    return (int)(model()->rowCount(rootIndex())
+      - (table_->offset(Top).toPixels() + table_->height().toPixels())
+		 / rowHeight().toPixels());
+  }
+  case Left:
+    return firstColumn_;
+  case Right:
+    return columnCount() - (lastColumn_ + 1);
+  default:
+    assert(false);
+    return -1;
+  }
+}
+
+void WTableView::setSpannerCount(const Side side, const int count)
+{
+  assert(ajaxMode());
+
+  switch (side) {
+  case Top: {
+    int size = model()->rowCount(rootIndex()) - count - spannerCount(Bottom);
+    table_->setOffsets(count * rowHeight().toPixels(), Top);
+    table_->resize(table_->width(), size * rowHeight().toPixels());
+    break;
+  }
+  case Bottom: {
+    int size = model()->rowCount(rootIndex()) - spannerCount(Top) - count;
+    table_->resize(table_->width(), size * rowHeight().toPixels());
+    break;
+  }
+  case Left: {
+    int total = 0;
+    for (int i = 0; i < count; i++)
+      total += (int)columnInfo(i).width.toPixels() + 7;
+    table_->setOffsets(total, Left);
+    firstColumn_ = count;
+    break;
+  }
+  case Right:
+    lastColumn_ = columnCount() - count - 1;
+    break;
+  default:
+    assert(false);
+  }
+}
+
+int WTableView::firstRow() const
+{
+  if (ajaxMode())
+    return spannerCount(Top);
+  else
+    return viewportFirstRow_;
+}
+
+int WTableView::lastRow() const
+{
+  if (ajaxMode())
+    return model()->rowCount(rootIndex()) - spannerCount(Bottom) - 1;
+  else
+    return viewportLastRow_;
+}
+
+int WTableView::firstColumn() const
+{
+  if (ajaxMode())
+    return firstColumn_;
+  else
+    return 0;
+}
+
+int WTableView::lastColumn() const
+{
+  if (ajaxMode())
+    return lastColumn_;
+  else
+    return model()->columnCount(rootIndex()) - 1;
+}
+
+void WTableView::addSection(const Side side,
+			    const std::vector<WWidget *>& items)
+{
+  assert(ajaxMode());
+
+  switch (side) {
+  case Top:
+    for (unsigned i = 0; i < items.size(); ++i) {
+      ColumnWidget *w = columnContainer(i);
+      w->insertWidget(0, items[i]);
+    }
+
+    setSpannerCount(side, spannerCount(side) - 1);
+    break;
+  case Bottom:
+    for (unsigned i = 0; i < items.size(); ++i) {
+      ColumnWidget *w = columnContainer(i);
+      w->addWidget(items[i]);
+    }
+
+    setSpannerCount(side, spannerCount(side) - 1);
+    break;
+  case Left: {
+    ColumnWidget *w = new ColumnWidget(this, firstColumn() - 1);
+    for (unsigned i = 0; i < items.size(); ++i)
+      w->addWidget(items[i]);
+    table_->setOffsets(table_->offset(Left).toPixels()
+		       - columnWidth(w->column()).toPixels() - 7, Left);
+    --firstColumn_;
+    break;
+  }
+  case Right: {
+    ColumnWidget *w = new ColumnWidget(this, lastColumn() + 1);
+    for (unsigned i = 0; i < items.size(); ++i)
+      w->addWidget(items[i]);
+    ++lastColumn_;
+    break;
+  }
+  default:
+    assert(false);
+  }
+}
+
+void WTableView::deleteItem(int row, int col, WWidget *w)
+{
+  WModelIndex index = model()->index(row, col, rootIndex());
+
+  if (isEditing(index)) {
+    setEditState(index, itemDelegate(col)->editState(w));
+    setEditorWidget(index, 0);
+  }
+
+  delete w;
+}
+
+void WTableView::removeSection(const Side side)
+{
+  assert(ajaxMode());
+
+  int row = firstRow(), col = firstColumn();
+
+  switch (side) {
+  case Top:
+    setSpannerCount(side, spannerCount(side) + 1);
+
+    for (int i = 0; i < table_->count(); ++i) {
+      ColumnWidget *w = columnContainer(i);
+      deleteItem(row, col + i, w->widget(0));
+    }
+    break;
+  case Bottom:
+    row = lastRow();
+    setSpannerCount(side, spannerCount(side) + 1);
+
+    for (int i = 0; i < table_->count(); ++i) {
+      ColumnWidget *w = columnContainer(i);
+      deleteItem(row, col + i, w->widget(w->count() - 1));
+    }
+    break;
+  case Left: {
+    ColumnWidget *w = columnContainer(0);
+
+    table_->setOffsets(table_->offset(Left).toPixels()
+		       + columnWidth(w->column()).toPixels() + 7, Left);
+    ++firstColumn_;
+
+    for (int i = w->count() - 1; i >= 0; --i)
+      deleteItem(row + i, col, w->widget(i));
+
+    delete w;
+
+    break;
+  }
+  case Right: {
+    ColumnWidget *w = columnContainer(-1);
+    col = w->column();
+
+    --lastColumn_;
+
+    for (int i = w->count() - 1; i >= 0; --i)
+      deleteItem(row + i, col, w->widget(i));
+
+    delete w;
+
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+void WTableView::renderTable(const int fr, const int lr,
+			     const int fc, const int lc)
+{
+  assert(ajaxMode());
+
+  if (fr > lastRow() || firstRow() > lr || 
+      fc > lastColumn() || firstColumn() > lc)
+    reset();
+
+  int oldFirstRow = firstRow();
+  int oldLastRow = lastRow();
+
+  int topRowsToAdd = 0;
+  int bottomRowsToAdd = 0;
+
+  if (oldLastRow - oldFirstRow < 0) {
+    topRowsToAdd = 0;
+    setSpannerCount(Top, fr);
+    setSpannerCount(Bottom, spannerCount(Bottom) - fr);
+    bottomRowsToAdd = lr - fr + 1;
+  } else {
+    topRowsToAdd = firstRow() - fr;
+    bottomRowsToAdd = lr - lastRow();
+  }
+
+  int oldFirstCol = firstColumn();
+  int oldLastCol = lastColumn();
+
+  int leftColsToAdd = 0;
+  int rightColsToAdd = 0;
+ 
+  if (oldLastCol - oldFirstCol < 0) {
+    leftColsToAdd = 0;
+    setSpannerCount(Left, fc);
+    setSpannerCount(Right, spannerCount(Right) - fc);
+    rightColsToAdd = lc - fc + 1;
+  } else {
+    leftColsToAdd = firstColumn() - fc;
+    rightColsToAdd = lc - lastColumn();
+  }
+
+  // Remove columns
+  for (int i = 0; i < -leftColsToAdd; ++i)
+    removeSection(Left);
+  for (int i = 0; i < -rightColsToAdd; ++i)
+    removeSection(Right);
+
+  // Remove rows
+  for (int i = 0; i < -topRowsToAdd; ++i)
+    removeSection(Top);
+  for (int i = 0; i < -bottomRowsToAdd; ++i)
+    removeSection(Bottom);
+
+  // Add rows
+  for (int i = 0; i < topRowsToAdd; i++) {
+    int row = firstRow() - 1;
+
+    std::vector<WWidget *> items;
+    for (int j = firstColumn(); j <= lastColumn(); ++j)
+      items.push_back(renderWidget(0, model()->index(row, j, rootIndex())));
+
+    addSection(Top, items);
+  }
+
+  for (int i = 0; i < bottomRowsToAdd; ++i) {
+    int row = lastRow() + 1;
+
+    std::vector<WWidget *> items;
+    for (int j = firstColumn(); j <= lastColumn(); ++j)
+      items.push_back(renderWidget(0, model()->index(row, j, rootIndex())));
+
+    addSection(Bottom, items);
+  }
+
+  // Add columns
+  for (int i = 0; i < leftColsToAdd; ++i) {
+    int col = firstColumn() - 1;
+
+    std::vector<WWidget *> items;
+    for (int j = firstRow(); j <= lastRow(); ++j)
+      items.push_back(renderWidget(0, model()->index(j, col, rootIndex())));
+
+    addSection(Left, items);
+  }
+
+  for (int i = 0; i < rightColsToAdd; ++i) {
+    int col = lastColumn() + 1;
+
+    std::vector<WWidget *> items;
+    for (int j = firstRow(); j <= lastRow(); ++j)
+      items.push_back(renderWidget(0, model()->index(j, col, rootIndex())));
+
+    addSection(Right, items);
+  }
+
+  updateColumnOffsets();
+}
+
+void WTableView::resetGeometry()
+{
+  if (ajaxMode()) {
+    reset();
+
+    viewportLastRow_
+      = std::min(model()->rowCount(rootIndex()) - 1,
+		 viewportFirstRow_ + 2 * viewportRows_);
+    viewportLastColumn_
+      = std::min(model()->columnCount(rootIndex()) - 1, viewportLastColumn_);
+  } else { // plain HTML
+    viewportLastRow_
+      = std::min(model()->rowCount(rootIndex()) - 1,
+		 viewportFirstRow_ + viewportRows_ - 1);
+    viewportLastColumn_ = model()->columnCount(rootIndex()) - 1;
+  }
+}
+
+void WTableView::reset()
+{
+  assert(ajaxMode());
+
+  int total = 0;
+  for (int i = 0; i < columnCount(); ++i)
+    total += (int)columnInfo(i).width.toPixels() + 7;
+
+  headers_->resize(total, headers_->height());
+  canvas_->resize(total,
+		  model()->rowCount(rootIndex()) * rowHeight().toPixels());
+
+  setSpannerCount(Top, 0);
+  setSpannerCount(Left, 0);
+
+  table_->clear();
+
+  setSpannerCount(Bottom, model()->rowCount(rootIndex()));
+  setSpannerCount(Right, columnCount());
+}
+
+void WTableView::defineJavaScript()
+{
+  WApplication *app = WApplication::instance();
+
+  const char *THIS_JS = "js/WTableView.js";
+
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WTableView", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+
+  app->doJavaScript("new " WT_CLASS ".WTableView("
+		    + app->javaScriptClass() + "," + jsRef() + ","
+		    + contentsContainer_->jsRef() + ","
+		    + headerContainer_->jsRef() + ");");
+}
+
+void WTableView::render(WFlags<RenderFlag> flags)
+{
+  if (ajaxMode() && (flags & RenderFull))
+    defineJavaScript();
+
+  if (model())
+    while (renderState_ != RenderOk) {
+      RenderState s = renderState_;
+      renderState_ = RenderOk;
+
+      switch (s) {
+      case NeedRerender:
+	resetGeometry();
+	rerenderHeader();
+	rerenderData();
+	break;
+      case NeedRerenderHeader:
+	rerenderHeader();
+	break;
+      case NeedRerenderData:
+	rerenderData();
+	break;
+      case NeedAdjustViewPort:
+	adjustToViewport();
+	break;
+      default:
+	break;
+      }
+    }
+
+  WAbstractItemView::render(flags);
+}
+
+void WTableView::rerenderData()
+{
+  if (ajaxMode()) {
+    reset();
+
+    renderTable(viewportFirstRow_, 
+		viewportLastRow_, 
+		viewportFirstColumn_, 
+		viewportLastColumn_);
+  } else {
+    pageChanged().emit();
+
+    while (plainTable_->rowCount() > 1)
+      plainTable_->deleteRow(plainTable_->rowCount() - 1);
+
+    for (int i = firstRow(); i <= lastRow(); ++i) {
+      int renderedRow = i - firstRow();
+
+      if (selectionBehavior() == SelectRows
+	  && isSelected(model()->index(i, 0, rootIndex()))) {
+	WTableRow *row = plainTable_->rowAt(renderedRow + 1);
+	row->setStyleClass("Wt-selected");
+      }
+
+      for (int j = firstColumn(); j <= lastColumn(); ++j) {
+	int renderedCol = j - firstColumn();
+
+	WModelIndex index = model()->index(i, j, rootIndex());
+	WWidget *w = renderWidget(0, index);
+	WTableCell *cell = plainTable_->elementAt(renderedRow + 1, renderedCol);
+	cell->addWidget(w);
+
+	WInteractWidget *wi = dynamic_cast<WInteractWidget *>(w);
+	if (wi && !isEditing(index))
+	  clickedMapper_->mapConnect1(wi->clicked(), index);
+
+	if (selectionBehavior() == SelectItems && isSelected(index))
+	  cell->setStyleClass("Wt-selected");
+      }
+    }
+  }
+}
+
+void WTableView::rerenderHeader()
+{
+  for (int i = 0; i < columnCount(); ++i) {
+    WWidget *w = columnInfo(i).extraHeaderWidget;
+    if (!w)
+      columnInfo(i).extraHeaderWidget = createExtraHeaderWidget(i);
+    else
+      dynamic_cast<WContainerWidget *>(w->parent())->removeWidget(w);
+  }
+
+  WApplication *app = WApplication::instance();
+
+  if (ajaxMode()) {
+    headers_->clear();
+
+    int total = 0;
+    for (int i = 0; i < columnCount(); ++i) {
+      WWidget *w = createHeaderWidget(app, i);
+      w->setPositionScheme(Absolute);
+      w->resize(columnInfo(i).width.toPixels() + 1, WLength::Auto);
+      w->setOffsets(total, Left);
+      headers_->addWidget(w);
+
+      total += (int)columnInfo(i).width.toPixels() + 7;
+    }
+  } else { // Plain HTML mode
+    for (int i = 0; i < columnCount(); ++i) {
+      WWidget *w = createHeaderWidget(app, i);
+      WTableCell *cell = plainTable_->elementAt(0, i);
+      cell->addWidget(w);
+      w->resize(columnInfo(i).width.toPixels() + 1, WLength::Auto);
+      cell->resize(columnInfo(i).width.toPixels() + 1, w->height());
+    }
+  }
+
+  if (model())
+    modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
+}
+
+void WTableView::setColumnWidth(int column, const WLength& width)
+{
+  int delta = (int)(width.toPixels() - columnInfo(column).width.toPixels());
+  columnInfo(column).width = width;
+
+  if (ajaxMode()) {
+    headers_->resize(headers_->width().toPixels() + delta, headers_->height());
+    canvas_->resize(canvas_->width().toPixels() + delta, canvas_->height());
+
+    if (renderState_ >= NeedRerenderHeader)
       return;
 
-    model_ = model;
+    if (isColumnRendered(column))
+      updateColumnOffsets();
+    else
+      if (column < firstColumn())
+	setSpannerCount(Left, spannerCount(Left));
+  }
 
-    for (int r = 0; r < model_->rowCount(); r++) {
-      table_->insertRow(r);
+  if (renderState_ >= NeedRerenderHeader)
+    return;
+
+  WWidget *hc = headers_->widget(column);
+  hc->resize(width.toPixels() + 1, hc->height());
+  if (!ajaxMode())
+    hc->parent()->resize(width.toPixels() + 1, hc->height());
+}
+
+bool WTableView::isRowRendered(const int row)
+{
+  return row >= firstRow() && row <= lastRow();
+}
+
+bool WTableView::isColumnRendered(const int column)
+{
+  return column >= firstColumn() && column <= lastColumn();
+}
+
+WTableView::ColumnWidget::ColumnWidget(WTableView *view, int column)
+  : column_(column)
+{
+  assert(view->ajaxMode());
+
+  WTableView::ColumnInfo& ci = view->columnInfo(column);
+  setStyleClass(ci.styleClass());
+  setPositionScheme(Absolute);
+  setOffsets(0, Top | Left);
+  setOverflow(OverflowHidden);
+
+  if (view->table_->count() == 0
+      || column > view->columnContainer(-1)->column())
+    view->table_->addWidget(this);
+  else
+    view->table_->insertWidget(0, this);
+}
+
+WTableView::ColumnWidget *WTableView::columnContainer(int renderedColumn) const
+{
+  assert(ajaxMode());
+
+  if (table_->count() > 0) {
+    if (renderedColumn < 0)
+      return dynamic_cast<ColumnWidget *>(table_->widget(table_->count() - 1));
+    else
+      return dynamic_cast<ColumnWidget *>(table_->widget(renderedColumn));
+  } else
+    return 0;
+}
+
+void WTableView::updateColumnOffsets()
+{
+  assert(ajaxMode());
+
+  int fc = firstColumn();
+  int lc = lastColumn();
+
+  int totalRendered = 0, total = 0;
+  for (int i = 0; i < columnCount(); ++i) {
+    ColumnInfo ci = columnInfo(i);
+
+    if (i >= fc && i <= lc) {
+      ColumnWidget *w = columnContainer(i - fc);
+
+      w->setOffsets(totalRendered, Left);
+      w->resize(ci.width.toPixels() + 7, WLength::Auto);
+
+      totalRendered += (int)columnInfo(i).width.toPixels() + 7;
     }
+
+    total += (int)columnInfo(i).width.toPixels() + 7;
+  }
+
+  canvas_->resize(total,
+		  model()->rowCount(rootIndex()) * rowHeight().toPixels());
+  headers_->resize(total, headers_->height());
+}
+
+void WTableView::setRowHeight(const WLength& rowHeight)
+{
+  int renderedRowCount = model() ? lastRow() - firstRow() + 1 : 0;
+
+  WAbstractItemView::setRowHeight(rowHeight);
+
+  if (ajaxMode()) {
+    canvas_->setAttributeValue("style", "line-height: " + rowHeight.cssText());
+
+    if (model()) {
+      canvas_->resize(canvas_->width(),
+		      model()->rowCount(rootIndex()) * rowHeight.toPixels());
+      table_->resize(table_->width(), renderedRowCount * rowHeight.toPixels());
+    }
+  } else // Plain HTML mode
+    resize(width(), height());
+
+  updateTableBackground();
+
+  scheduleRerender(NeedRerenderData);
+}
+
+void WTableView::setHeaderHeight(const WLength& height, bool multiLine)
+{
+  WAbstractItemView::setHeaderHeight(height, multiLine);
+
+  if (!table_) // Plain HTML mode
+    resize(this->width(), this->height());
+
+  if (renderState_ >= NeedRerenderHeader)
+    return;
+
+  if (!WApplication::instance()->environment().agentIsIE())
+    for (int i = 0; i < columnCount(); ++i)
+      headerTextWidget(i)->setWordWrap(multiLine);
+}
+
+WWidget* WTableView::headerWidget(int column, bool contentsOnly)
+{
+  WWidget *result = 0;
+
+  if (ajaxMode())
+    result = headers_->widget(column);
+  else
+    result = plainTable_->elementAt(0, column)->widget(0);
+
+  if (contentsOnly)
+    return result->find("contents");
+  else
+    return result;
+}
+
+void WTableView::setColumnBorder(const WColor& color)
+{
+  // FIXME
+}
+
+void WTableView::shiftModelIndexes(int start, int count)
+{
+  WModelIndexSet& set = selectionModel()->selection_;
   
-    for (int c = 0; c < model->columnCount(); c++) {
-      table_->insertColumn(c);
-    }
+  std::vector<WModelIndex> toShift;
+  std::vector<WModelIndex> toErase;
 
-    for (int c = 0; c < model->columnCount(); c++) {
-      boost::any header = model->headerData(c);
-      table_->elementAt(0, c)->addWidget(new WText(asString(header)));
-    }
-  
-    table_->setHeaderCount(1);
+  for (WModelIndexSet::iterator it
+	 = set.lower_bound(model()->index(start, 0, rootIndex()));
+       it != set.end(); ++it) {
 
-    for (int r = 0; r < model->rowCount(); r++) {
-      for (int c = 0; c < model->columnCount(); c++) {
-	WWidget* w = getWidget(r, c);
-	if (w)
-	  table_->elementAt(r + table_->headerCount(), c)->addWidget(w);
+    if (count < 0) {
+      if ((*it).row() < start - count) {
+	toErase.push_back(*it);
+	continue;
       }
     }
 
-    model_->columnsInserted().connect(SLOT(this, WTableView::columnsInserted));
-    model_->columnsRemoved().connect(SLOT(this, WTableView::columnsRemoved));
-
-    model_->rowsInserted().connect(SLOT(this, WTableView::rowsInserted));
-    model_->rowsRemoved().connect(SLOT(this, WTableView::rowsRemoved));
-
-    model_->dataChanged().connect(SLOT(this, WTableView::dataChanged));
-    model_->headerDataChanged()
-      .connect(SLOT(this, WTableView::headerDataChanged));  
+    toShift.push_back(*it);
+    toErase.push_back(*it);
   }
 
-  void WTableView::columnsInserted(const WModelIndex& index, int firstColumn, int lastColumn) 
-  {
-    for (int i = firstColumn; i <= lastColumn; i++) {
-      table_->insertColumn(i);
-    }
+  for (unsigned i = 0; i < toErase.size(); ++i)
+    set.erase(toErase[i]);
+
+  for (unsigned i = 0; i < toShift.size(); ++i) {
+    WModelIndex newIndex = model()->index(toShift[i].row() + count,
+					 toShift[i].column(),
+					 toShift[i].parent());
+    set.insert(newIndex);
+  }
+}
+
+void WTableView::modelColumnsInserted(const WModelIndex& parent, 
+				      int start, int end)
+{
+  if (parent != rootIndex())
+    return;
+
+  int count = end - start + 1;
+  int width = 0;
+
+  for (int i = start; i < start + count; ++i) {
+    columns_.insert(columns_.begin() + i, createColumnInfo(i));
+    width += (int)columnInfo(i).width.toPixels() + 7;
   }
 
-  void WTableView::columnsRemoved(const WModelIndex& index, int firstColumn, int lastColumn) 
-  {
-    for (int i = lastColumn; i >= firstColumn; i--) {
-      table_->deleteColumn(i);
-    }
-  }
+  if (ajaxMode())
+    canvas_->resize(canvas_->width().toPixels() + width, canvas_->height());
 
-  void WTableView::rowsInserted(const WModelIndex& index, int firstRow, int lastRow)
-  {
-    for (int i = firstRow; i <= lastRow; i++) {
-      table_->insertRow(i + table_->headerCount());
-    }
-  }
+  if (renderState_ < NeedRerenderHeader)
+    scheduleRerender(NeedRerenderHeader);
+
+  if (start > lastColumn() || 
+      renderState_ == NeedRerender || 
+      renderState_ == NeedRerenderData)
+    return;
+
+  scheduleRerender(NeedRerenderData);
+}
+
+void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent, 
+					      int start, int end)
+{
+  if (parent != rootIndex())
+    return;
+
+  int count = end - start + 1;
+  int width = 0;
+
+  for (int i = start; i < start + count; ++i)
+    width += (int)columnInfo(i).width.toPixels() + 7;
+
+  columns_.erase(columns_.begin() + start, columns_.begin() + start + count);
+
+  if (ajaxMode())
+    canvas_->resize(canvas_->width().toPixels() - width, canvas_->height());
+
+  if (start <= currentSortColumn_ && currentSortColumn_ <= end)
+    currentSortColumn_ = -1;
+
+  if (renderState_ < NeedRerenderHeader)
+    scheduleRerender(NeedRerenderHeader);
+
+  if (start > lastColumn() || 
+      renderState_ == NeedRerender || 
+      renderState_ == NeedRerenderData)
+    return;
+
+  scheduleRerender(NeedRerenderData);
+}
+
+void WTableView::modelRowsInserted(const WModelIndex& parent, 
+				   int start, int end)
+{
+  if (parent != rootIndex())
+    return;
+
+  shiftModelIndexes(start, end - start + 1);
+
+  if (start > lastRow() || 
+      renderState_ == NeedRerender || 
+      renderState_ == NeedRerenderData)
+    return;
+
+  if (ajaxMode())
+    canvas_->resize(canvas_->width(),
+		    model()->rowCount(rootIndex()) * rowHeight().toPixels());
   
-  void WTableView::rowsRemoved(const WModelIndex& index, int firstRow, int lastRow) 
-  {
-    for (int i = lastRow; i >= firstRow; i--) {
-      table_->deleteRow(i - table_->headerCount());
-    }
-  }
+  scheduleRerender(NeedRerenderData);
+}
 
-  void WTableView::dataChanged(const WModelIndex& topLeft,
-			       const WModelIndex& bottomRight)
-  {
-    for (int i = topLeft.row(); 
-	 i <= bottomRight.row(); 
-	 i++) {
-      for (int j = topLeft.column(); j <= bottomRight.column(); j++) {
-	table_->elementAt(i + table_->headerCount(),j)->clear();
-	WWidget* w = getWidget(i, j);
-	if (w)
-	  table_->elementAt(i + table_->headerCount(),j)->addWidget(w);
+void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
+{
+  if (parent != rootIndex())
+    return;
+
+  shiftModelIndexes(start, -(end - start + 1));
+
+  if (ajaxMode())
+    canvas_->resize(canvas_->width(),
+		    model()->rowCount(rootIndex()) * rowHeight().toPixels());
+
+  if (start > lastRow() ||
+      renderState_ == NeedRerender || 
+      renderState_ == NeedRerenderData)
+    return;
+  
+  scheduleRerender(NeedRerenderData);
+}
+
+
+void WTableView::modelDataChanged(const WModelIndex& topLeft, 
+				  const WModelIndex& bottomRight)
+{
+  if (topLeft.parent() != rootIndex())
+    return;
+
+  if (renderState_ < NeedRerenderData) {
+    int row1 = std::max(topLeft.row(), firstRow());
+    int row2 = std::min(bottomRight.row(), lastRow());
+    int col1 = std::max(topLeft.column(), firstColumn());
+    int col2 = std::min(bottomRight.column(), lastColumn());
+    for (int i = row1; i <= row2; ++i)
+      for (int j = col1; j <= col2; ++j) {
+	int renderedRow = i - firstRow();
+	int renderedColumn = j - firstColumn();
+
+	WContainerWidget *parentWidget;
+	WWidget *w;
+	int wIndex;
+
+	if (ajaxMode()) {
+	  parentWidget = columnContainer(renderedColumn);
+	  wIndex = renderedRow;
+	} else {
+	  parentWidget
+	    = plainTable_->elementAt(renderedRow + 1, renderedColumn);
+	  wIndex = 0;
+	}
+
+	w = parentWidget->widget(wIndex);
+
+	WModelIndex index = model()->index(i, j, rootIndex());
+
+	w = renderWidget(w, index);
+
+	if (!w->parent()) {
+	  parentWidget->insertWidget(wIndex, w);
+
+	  if (!ajaxMode() && !isEditing(index)) {
+	    WInteractWidget *wi = dynamic_cast<WInteractWidget *>(w);
+	    if (wi)
+	      clickedMapper_->mapConnect1(wi->clicked(), index);
+	  }
+	}
+      }
+  }
+}
+ 
+void WTableView::modelHeaderDataChanged(Orientation orientation, 
+					int start, int end)
+{
+  if (renderState_ < NeedRerenderHeader) {
+    if (orientation == Horizontal) {
+      for (int i = start; i <= end; ++i) {
+	WString label = asString(model()->headerData(i));
+	headerTextWidget(i)->setText(label);
       }
     }
   }
+}
 
-  void WTableView::headerDataChanged(Orientation orientation, int first, int last) 
-  {
-    for (int c = first; c <= last; c++) {
-      boost::any header = model_->headerData(c);
-      table_->elementAt(0, c)->clear();
+void WTableView::onViewportChange(WScrollEvent e)
+{
+  assert(ajaxMode());
+
+  const int borderRows = 5;
+  const int borderColumnPixels = 200;
+
+  /* row range */
+  viewportFirstRow_
+    = static_cast<int>(e.scrollY() / rowHeight().toPixels());
+
+  viewportRows_
+    = static_cast<int>(e.viewportHeight() / rowHeight().toPixels() + 0.5);
+
+  viewportLastRow_
+    = std::min(viewportFirstRow_ + viewportRows_ * 2 + borderRows,
+	       model()->rowCount(rootIndex()) - 1);
+  viewportFirstRow_
+    = std::max(viewportFirstRow_ - viewportRows_ - borderRows, 0);
+
+  /* column range */
+
+  int left
+    = std::max(0, e.scrollX() - e.viewportWidth() - borderColumnPixels);
+  int right
+    = std::min(static_cast<int>(canvas_->width().toPixels()),
+	       e.scrollX() + 2 * e.viewportWidth() + borderColumnPixels);
+
+  int total = 0;
+  viewportLastColumn_ = columnCount() - 1;
+  for (int i = 0; i < columnCount(); i++) {
+    int w = static_cast<int>(columnInfo(i).width.toPixels());
+
+    if (total <= left && left < total + w)
+      viewportFirstColumn_ = i;
       
-      if (!header.empty())
-	table_->elementAt(0, c)->addWidget(new WText(asString(header)));
+    if (total <= right && right < total + w) {
+      viewportLastColumn_ = i;
+      break;
+    }
+
+    total += w + 7;
+  }
+
+  assert(viewportFirstColumn_ <= viewportLastColumn_);
+
+  scheduleRerender(NeedAdjustViewPort);
+}
+
+void WTableView::adjustToViewport()
+{
+  assert(ajaxMode());
+
+  if (viewportFirstRow_ != firstRow() || 
+      viewportLastRow_ != lastRow() ||
+      viewportFirstColumn_ != firstColumn()||
+      viewportLastColumn_ != lastColumn()) {
+    renderTable(viewportFirstRow_, 
+		viewportLastRow_, 
+		viewportFirstColumn_, 
+		viewportLastColumn_);
+  }
+}
+
+void WTableView::setAlternatingRowColors(bool enable)
+{
+  WAbstractItemView::setAlternatingRowColors(enable);
+  updateTableBackground();
+}
+
+void WTableView::handleSingleClick(const WMouseEvent& event)
+{
+  WModelIndex index = translateModelIndex(event);
+  WAbstractItemView::handleClick(index, event);
+}
+
+void WTableView::handleDoubleClick(const WMouseEvent& event)
+{
+  WModelIndex index = translateModelIndex(event);
+  WAbstractItemView::handleDoubleClick(index, event);
+}
+
+void WTableView::handleMouseWentDown(const WMouseEvent& event)
+{
+  WModelIndex index = translateModelIndex(event);
+  WAbstractItemView::handleMouseDown(index, event);
+}
+
+void WTableView::modelLayoutChanged()
+{
+  WAbstractItemView::modelLayoutChanged();
+
+  resetGeometry();
+}
+
+WModelIndex WTableView::translateModelIndex(const WMouseEvent& event)
+{
+  int row = (int)(event.widget().y / rowHeight().toPixels());
+  int column = -1;
+
+  int total = 0;
+  for (int i = 0; i < columnCount(); i++) {
+    total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+    if (event.widget().x < total) {
+      column = i;
+      break;
     }
   }
 
-  WTableView::ColumnInfo::ColumnInfo(const WTableView *view, 
-				     WApplication *app,
-				     int column)
-    : itemDelegate_(0)
-  {
+  if (column >= 0
+      && row >= 0 && row < model()->rowCount(rootIndex()))
+    return model()->index(row, column, rootIndex());
+  else
+    return WModelIndex();
+}
 
+bool WTableView::internalSelect(const WModelIndex& index, SelectionFlag option)
+{
+  if (selectionBehavior() == SelectRows && index.column() != 0)
+    return internalSelect(model()->index(index.row(), 0, index.parent()),
+			  option);
+
+  if (WAbstractItemView::internalSelect(index, option)) {
+    renderSelected(isSelected(index), index);
+    return true;
+  } else
+    return false;
+}
+
+void WTableView::renderSelected(bool selected, const WModelIndex& index)
+{
+  if (selectionBehavior() == SelectRows) {
+    if (isRowRendered(index.row())) {
+      int renderedRow = index.row() - firstRow();
+
+      if (ajaxMode()) {
+	for (int i = 0; i < table_->count(); ++i) {
+	  ColumnWidget *column = columnContainer(i);
+	  WWidget *w = column->widget(renderedRow);
+	  if (selected)
+	    w->setStyleClass(Utils::addWord(w->styleClass().toUTF8(),
+					    "Wt-selected"));
+	  else
+	    w->setStyleClass(Utils::eraseWord(w->styleClass().toUTF8(), 
+					      "Wt-selected"));
+	}
+      } else {
+	WTableRow *row = plainTable_->rowAt(renderedRow + 1);
+	if (selected)
+	  row->setStyleClass("Wt-selected");
+	else
+	  row->setStyleClass("");
+      }
+    }
+  } else {
+    if (isRowRendered(index.row()) && isColumnRendered(index.column())) {
+      int renderedRow = index.row() - firstRow();
+      int renderedCol = index.column() - firstColumn();
+
+      WWidget *w = 0;
+      if (ajaxMode()) {
+	ColumnWidget *column = columnContainer(renderedCol);
+	w = column->widget(renderedRow);
+      } else {
+	w = plainTable_->elementAt(renderedRow + 1, renderedCol);
+      }
+
+      if (selected)
+	w->setStyleClass(Utils::addWord(w->styleClass().toUTF8(), 
+					"Wt-selected"));
+      else
+	w->setStyleClass(Utils::eraseWord(w->styleClass().toUTF8(), 
+					  "Wt-selected"));
+    }
   }
+}
 
-  void WTableView::setItemDelegate(WAbstractItemDelegate *delegate)
-  {
-    itemDelegate_ = delegate;
-  }
+void WTableView::selectRange(const WModelIndex& first, const WModelIndex& last)
+{
+  for (int c = first.column(); c <= last.column(); ++c)
+    for (int r = first.row(); r <= last.row(); ++r)
+      internalSelect(model()->index(r, c, rootIndex()), Select);
+}
 
-  void WTableView::setItemDelegateForColumn(int column,
-					   WAbstractItemDelegate *delegate)
-  {
-    columnInfo(column).itemDelegate_ = delegate;
-  }
+void WTableView::onDropEvent(int renderedRow, int columnId,
+			     std::string sourceId, std::string mimeType,
+			     WMouseEvent event)
+{
+  WDropEvent e(WApplication::instance()->decodeObject(sourceId), mimeType,
+	       event);
 
-  WAbstractItemDelegate *WTableView::itemDelegateForColumn(int column) const
-  {
-    return columnInfo(column).itemDelegate_;
-  }
+  WModelIndex index = model()->index(firstRow() + renderedRow,
+				    columnById(columnId), rootIndex());
 
-  WAbstractItemDelegate *WTableView
-  ::itemDelegate(const WModelIndex& index) const
-  {
-    WAbstractItemDelegate *result = itemDelegateForColumn(index.column());
+  dropEvent(e, index);
+}
 
-    return result ? result : itemDelegate_;
-  }
+void WTableView::setCurrentPage(int page)
+{
+  viewportFirstRow_ = page * viewportRows_;
 
-  WTableView::ColumnInfo& WTableView::columnInfo(int column) const
-  {
-    while (column >= (int)columns_.size())
-      columns_.push_back(ColumnInfo(this, WApplication::instance(),
-				    column));
+  if (model())
+    viewportLastRow_ = std::min(viewportFirstRow_ + viewportRows_ - 1,
+				model()->rowCount(rootIndex()) - 1);
+  else
+    viewportLastRow_ = viewportFirstRow_;
+ 
+  scheduleRerender(NeedRerenderData);
+}
 
-    return columns_[column];
-  }
+int WTableView::currentPage() const
+{
+  return viewportFirstRow_ / viewportRows_;
+}
 
-  WWidget* WTableView::getWidget(const int row, const int column) 
-  {
-    WAbstractItemDelegate *itemDelegate = itemDelegateForColumn(column);
-    if (!itemDelegate)
-      itemDelegate = itemDelegate_;
-    
-    return itemDelegate->update(0, model_->index(row, column), 0);
-  }
+int WTableView::pageCount() const
+{
+  if (model()) {
+    return (model()->rowCount(rootIndex()) - 1) / viewportRows_ + 1;
+  } else
+    return 1;
+}
+
+int WTableView::pageSize() const
+{
+  return viewportRows_;
+}
+
 }

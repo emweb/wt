@@ -6,11 +6,15 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <boost/spirit/include/classic_core.hpp>
 
 #include "Request.h"
 #include "StaticReply.h"
 #include "StockReply.h"
 #include "MimeTypes.h"
+
+
+using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 namespace http {
 namespace server {
@@ -27,7 +31,11 @@ StaticReply::StaticReply(const std::string &full_path,
   bool gzipReply = false;
   std::string modifiedDate, etag;
 
-  if (request.acceptGzipEncoding()) {
+  parseRangeHeader();
+
+  // Do not consider .gz files if we will respond with a range, as we cannot
+  // stream partial data from a .gz file
+  if (request.acceptGzipEncoding() && !hasRange_) {
     std::string gzipPath = path_ + ".gz";
     stream_.open(gzipPath.c_str(), std::ios::in | std::ios::binary);
 
@@ -55,6 +63,47 @@ StaticReply::StaticReply(const std::string &full_path,
     }
   }
 
+  // Can't specify zero-length Content-Range headers. But for zero-length
+  // files, we just ignore the Range header and send the full file instead of
+  // a 416 Requested Range Not Satisfiable error
+  if (stockReply || (fileSize_ == 0))
+    hasRange_ = false;
+
+  if ((!stockReply) && hasRange_) {
+    stream_.seekg((std::streamoff)rangeBegin_, std::ios_base::cur);
+    std::streamoff curpos = stream_.tellg();
+    if (curpos != rangeBegin_) {
+      // Won't be able to send even a single byte -> error 416
+      stockReply = true;
+      ReplyPtr sr(new StockReply(request,
+        StockReply::requested_range_not_satisfiable, "", err_root));
+      if (fileSize_ != -1) {
+        // 416 SHOULD include a Content-Range with byte-range-resp-spec * and
+        // instance-length set to current lenght
+        sr->addHeader("Content-Range",
+          "bytes */" + boost::lexical_cast<std::string>(fileSize_));
+      }
+      setRelay(sr);
+    } else {
+      boost::intmax_t last = rangeEnd_;
+      if (fileSize_ != -1 && last >= fileSize_) {
+        last = fileSize_ - 1;
+      }
+      std::stringstream contentRange;
+      // Note: if fileSize is unknown, we're not sure we'll be able to
+      // transmit the requested range (i.e. when the file is not large enough
+      // to satisfy the request). Wt wil report that it understood the request,
+      // and close the link prematurely if it can't provide the requested bytes
+      contentRange << "bytes " << rangeBegin_ << "-" << last << "/";
+      if (fileSize_ == -1) {
+        contentRange << "*";
+      } else {
+        contentRange << fileSize_;
+      }
+      addHeader("Content-Range", contentRange.str());
+    }
+  }
+
   if (!stockReply) {
     /*
      * Check if can send a 304 not modified reply
@@ -70,7 +119,6 @@ StaticReply::StaticReply(const std::string &full_path,
       setRelay(ReplyPtr(new StockReply(request, StockReply::not_modified)));
     }
   }
-
   if (!stockReply) {
     /*
      * Add headers for caching, but not for IE since it in fact makes it
@@ -85,13 +133,19 @@ StaticReply::StaticReply(const std::string &full_path,
 	addHeader("ETag", etag);
 
       addHeader("Expires", computeExpires());
+    } else {
+      // We experienced problems with some swf files if they are cached in IE.
+      // Therefore, don't cache swf files on IE.
+      if (boost::iequals(extension_, "swf")) {
+        addHeader("Cache-Control", "no-cache");
+      }
     }
 
     if (!modifiedDate.empty())
       addHeader("Last-Modified", modifiedDate);
   }
-
-  if (gzipReply)
+ 
+  if ((!stockReply) && gzipReply)
     addHeader("Content-Encoding", "gzip");
 }
 
@@ -123,7 +177,11 @@ void StaticReply::consumeRequestBody(Buffer::const_iterator begin,
 
 Reply::status_type StaticReply::responseStatus()
 {
-  return ok;
+  if (hasRange_) {
+    return partial_content;
+  } else {
+    return ok;
+  }
 }
 
 std::string StaticReply::contentType()
@@ -133,7 +191,21 @@ std::string StaticReply::contentType()
 
 boost::intmax_t StaticReply::contentLength()
 {
-  return fileSize_;
+  if (hasRange_) {
+    if (fileSize_ == -1) {
+      return -1;
+    }
+    if (rangeBegin_ >= fileSize_) {
+      return 0;
+    }
+    if (rangeEnd_ < fileSize_) {
+      return rangeEnd_ - rangeBegin_ + 1;
+    } else {
+      return fileSize_ - rangeBegin_;
+    }
+  } else {
+    return fileSize_;
+  }
 }
 
 asio::const_buffer StaticReply::nextContentBuffer()
@@ -141,12 +213,50 @@ asio::const_buffer StaticReply::nextContentBuffer()
   if (request_.method == "HEAD")
     return emptyBuffer;
   else {
-    stream_.read(buf_, sizeof(buf_));
+    boost::uintmax_t rangeRemainder
+      = (std::numeric_limits<boost::intmax_t>::max)();
+    if (hasRange_)
+      rangeRemainder = rangeEnd_ - stream_.tellg() + 1;
+    stream_.read(buf_,
+                 (std::streamsize)(std::min<boost::uintmax_t>)(rangeRemainder,
+                                                               sizeof(buf_)));
 
     if (stream_.gcount() > 0) {
       return asio::buffer(buf_, stream_.gcount());
     } else
       return emptyBuffer;
+  }
+}
+
+void StaticReply::parseRangeHeader()
+{
+  // Wt only support these types of ranges for now:
+  // Range: bytes=0-
+  // Range: bytes=10-
+  // Range: bytes=250-499
+  // NOT SUPPORTED: multiple ranges, and the suffix-byte-range-spec:
+  // Range: bytes=10-20,30-40
+  // Range: bytes=-500 // 'last 500 bytes'
+  Request::HeaderMap::const_iterator range
+    = request_.headerMap.find("Range");
+
+  hasRange_ = false;
+  rangeBegin_ = (std::numeric_limits<boost::intmax_t>::max)();
+  rangeEnd_ = (std::numeric_limits<boost::intmax_t>::max)();
+  if (range != request_.headerMap.end()) {
+    std::string rangeHeader = range->second;
+    uint_parser<boost::intmax_t> const uint_max_p = uint_parser<boost::intmax_t>();
+    hasRange_ = parse(rangeHeader.c_str(),
+      str_p("bytes") >> ch_p('=') >>
+      (uint_max_p[assign_a(rangeBegin_)] >>
+      ch_p('-') >>
+      !uint_max_p[assign_a(rangeEnd_)]),
+      space_p).full;
+    if (hasRange_) {
+      // Validation of the Range header
+      if (rangeBegin_ > rangeEnd_)
+        hasRange_ = false;
+    }
   }
 }
 

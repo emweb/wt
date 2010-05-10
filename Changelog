@@ -1,3 +1,33 @@
+10-05-2010:
+	* WTableView: now supports (almost) same API as WTreeView, with the
+	similar style, but better performance for tabular data.
+
+	* WTableView, WTreeView, WAbstractItemView: support non-AJAX rendering
+	using a paging bar.
+
+	* WAbstractItemDelegate, WItemDelegate, WAbstractItemView:
+	supports editing
+
+	* Dbo/QueryModel: a Wt model for viewing data from a Dbo::Query
+	result (a first version).
+
+	* Dbo/SqlTraits: sql_result_traits was renamed to query_result_traits,
+	and its API updated to allow more robust query creation and result
+	interpretation as a list of boost::any's
+
+	* Signal: SignalBase and EventSignalBase are now documented API
+
+	* WFlashObject: reimplemented with support for layout managers and
+	new API for alternative content
+
+	* WHTML5Video: HTML-5 video implementation, will become part of
+	generic video support later
+
+	* http/Reply.C, http/StaticReply.C: support for http range header
+	and partial content
+
+	* web/CgiParser.C: fix parsing logic error for multi-part/formdata
+
 28-04-2010:
 	* WTimer: implement singleShot(f) with f a function object variant
 

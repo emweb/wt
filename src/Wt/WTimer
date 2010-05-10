@@ -11,6 +11,10 @@
 #include <Wt/WSignal>
 #include <Wt/WEvent>
 
+#ifndef WT_TARGET_JAVA
+#include <boost/bind.hpp>
+#endif // WT_TARGET_JAVA
+
 namespace Wt {
 
 class WTimerWidget;

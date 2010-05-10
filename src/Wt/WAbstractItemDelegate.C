@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WAbstractItemDelegate"
+#include "Wt/WModelIndex"
 
 namespace Wt {
 
@@ -17,6 +18,20 @@ WAbstractItemDelegate::~WAbstractItemDelegate()
 
 void WAbstractItemDelegate::updateModelIndex(WWidget *widget,
 					     const WModelIndex& index)
+{ }
+
+boost::any WAbstractItemDelegate::editState(WWidget *widget) const
+{
+  return boost::any();
+}
+
+void WAbstractItemDelegate::setEditState(WWidget *widget,
+					 const boost::any& value) const
+{ }
+
+void WAbstractItemDelegate::setModelData(const boost::any& editState,
+					 WAbstractItemModel *model,
+					 const WModelIndex& index) const
 { }
 
 }

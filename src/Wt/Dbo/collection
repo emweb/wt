@@ -13,9 +13,9 @@
 
 namespace Wt {
   namespace Dbo {
+    struct DirectBinding;
+    struct DynamicBinding;
     template <class Result, typename BindStrategy> class Query;
-    class DirectBinding;
-    class DynamicBinding;
     class SqlStatement;
 
   /*! \class collection Wt/Dbo/collection Wt/Dbo/collection

@@ -90,8 +90,9 @@ public:
   boost::signals::connection mapConnect(SignalBase& signal, const T& data);
 #endif
   template<typename S>
-    boost::signals::connection mapConnect(EventSignal<S>& signal, const T& data);
-    boost::signals::connection mapConnect(EventSignal<void>& signal, const T& data);
+   boost::signals::connection mapConnect(EventSignal<S>& signal, const T& data);
+  
+  boost::signals::connection mapConnect(EventSignal<>& signal, const T& data);
 #endif
 
   /*! \brief Maps a signal with one argument.
@@ -177,7 +178,7 @@ template <typename T, typename A1>
 boost::signals::connection WSignalMapper<T, A1>::mapConnect(SignalBase& signal, const T& data)
 {
   mappings_[signal.sender()] = data;
-  return signal.connectBase
+  return signal.connect
     (this, static_cast<void (WObject::*)()>(&WSignalMapper<T, A1>::map));
 }
 

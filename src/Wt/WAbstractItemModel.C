@@ -123,6 +123,7 @@ std::string asJSLiteral(const boost::any& v)
   ELSE_LEXICAL_ANY(unsigned long);
   ELSE_LEXICAL_ANY(int64_t);
   ELSE_LEXICAL_ANY(uint64_t);
+  ELSE_LEXICAL_ANY(long long);
   ELSE_LEXICAL_ANY(float);
   ELSE_LEXICAL_ANY(double);
 
@@ -174,6 +175,7 @@ WString asString(const boost::any& v, const WT_USTRING& format)
   ELSE_LEXICAL_ANY(unsigned long)
   ELSE_LEXICAL_ANY(int64_t)
   ELSE_LEXICAL_ANY(uint64_t)
+  ELSE_LEXICAL_ANY(long long)
   ELSE_LEXICAL_ANY(float)
   ELSE_LEXICAL_ANY(double)
 
@@ -228,6 +230,7 @@ double asNumber(const boost::any& v)
   ELSE_NUMERICAL_ANY(unsigned long);
   ELSE_NUMERICAL_ANY(int64_t);
   ELSE_NUMERICAL_ANY(uint64_t);
+  ELSE_NUMERICAL_ANY(long long);
   ELSE_NUMERICAL_ANY(float);
   ELSE_NUMERICAL_ANY(double);
 

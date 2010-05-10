@@ -72,32 +72,56 @@ class JavaScriptEvent;
    slot argument.
 */
 
-/*
- * Base class for all Signals, which adds the capability to access the
- * current sender (since boost does not pass the sender, we need to
- * keep a stack of them in the current thread context).
+/*! \brief Abstract base class of a signal.
+ *
+ * Base class for all signals.
  */
 class WT_API SignalBase
 {
 public:
   virtual ~SignalBase();
+
+  /*! \brief Returns the sender.
+   *
+   * The sender usually corresponds to the owner, and is used by the
+   * WSignalMapper to associated sender-specific data.
+   *
+   * During a slot invocation, you can access the sender from WObject::sender().
+   */
   WObject *sender() const { return sender_; }
+
+  /*! \brief Returns whether this signal is connected.
+   *
+   * Returns true when the signal was connected to to at least one slot.
+   */
+  virtual bool isConnected() const = 0;
 
   void setBlocked(bool block);
   bool isBlocked() const { return blocked_; }
 
-  virtual boost::signals::connection connectBase(WObject *target,
-						 WObject::Method method) = 0;
+  /*! \brief Connects to a slot.
+   *
+   * Every signal can be connected to a slot which does not take any
+   * arguments (and may thus ignore signal arguments).
+   */
+  virtual boost::signals::connection connect(WObject *target,
+					     WObject::Method method) = 0;
 
+  /*! \brief Connects to a slot.
+   *
+   * Every signal can be connected to a slot which does not take any
+   * arguments (and may thus ignore signal arguments).
+   */
   template<class T, class V>
-    boost::signals::connection connectBase(T *target, void (V::*method)());
+    boost::signals::connection connect(T *target, void (V::*method)());
   
 protected:
   SignalBase(WObject *sender)
-    : sender_(sender), blocked_(false) { }
+    : sender_(sender), blocked_(false)
+  { }
 
-  void pushSender(WObject *sender);
-  void popSender();
+  static void pushSender(WObject *sender);
+  static void popSender();
 
 private:
   SignalBase(const SignalBase& other);
@@ -348,7 +372,7 @@ public:
    */
   void emit(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
 	    A3 a3 = NoClass::none, A4 a4 = NoClass::none,
-	    A5 a5 = NoClass::none, A6 a6 = NoClass::none);
+	    A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
 
   /*! \brief Emits the signal.
    *
@@ -358,14 +382,12 @@ public:
    */
   void operator()(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
 		  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
-		  A5 a5 = NoClass::none, A6 a6 = NoClass::none);
+		  A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
 
-  /*! \brief Is this signal connected to at least one slot ?
-   */
-  bool isConnected() const;
+  virtual bool isConnected() const;
 
-  virtual boost::signals::connection connectBase(WObject *target,
-						 WObject::Method method);
+  virtual boost::signals::connection connect(WObject *target,
+					     WObject::Method method);
 
 private:
   Signal(const Signal<A1, A2, A3, A4, A5, A6>&);
@@ -393,7 +415,7 @@ class WT_API Signal0 : public Signal<NoClass>
 public:
   Signal0(WObject *sender = 0);
 
-  void emit();
+  void emit() const;
 
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
@@ -401,8 +423,10 @@ public:
 
 #endif // WT_CNOR
 
-/*
- * Event signals do something in addition to boost signals
+/*! \brief Abstract base class of an event signal.
+ *
+ * An event signal is directly associated with a user-interface generated
+ * event.
  */
 class WT_API EventSignalBase : public SignalBase
 #ifndef WT_TARGET_JAVA
@@ -412,9 +436,13 @@ class WT_API EventSignalBase : public SignalBase
 public:
   virtual ~EventSignalBase();
 
+  /*! \brief Returns the event name.
+   *
+   * The event name is implementation-defined.
+   */
   const char *name() const { return name_; }
 
-  bool needUpdate() const;
+  bool needsUpdate(bool all) const;
   void updateOk();
   virtual bool isConnected() const;
 
@@ -423,9 +451,35 @@ public:
   bool isExposedSignal() const;
   void setNotExposed();
 
-  // These two should be public API?
-  void setPreventDefault(bool prevent);
-  bool preventDefault() const;
+  /*! \brief Prevents the default browser action.
+   *
+   * Use this method to prevent the default browser action associated
+   * with this event.
+   *
+   * \sa setPreventPropagation()
+   */
+  void preventDefaultAction(bool prevent = true);
+
+  /*! \brief Returns whether the default browser action is prevented.
+   *
+   * \sa preventDefaultAction()
+   */
+  bool defaultActionPrevented() const;
+
+  /*! \brief Prevents event propagation.
+   *
+   * Use this method to prevent that the event propagates further to
+   * its ancestors.
+   *
+   * \sa preventDefaultAction()
+   */
+  void preventPropagation(bool prevent = true);
+
+  /*! \brief Returns whether event propagation is prevented.
+   *
+   * \sa preventPropagation()
+   */
+  bool propagationPrevented() const;
 
   const std::string createUserEventCall(const std::string& jsObject,
 					const std::string& jsEvent,
@@ -459,13 +513,14 @@ protected:
   static const int BIT_EXPOSED = 1;
   static const int BIT_NEEDS_AUTOLEARN = 2;
   static const int BIT_PREVENT_DEFAULT = 3;
+  static const int BIT_PREVENT_PROPAGATION = 4;
 
   static int nextId_;
 
   const char                       *name_;
   const int                         id_;
   std::vector<StatelessConnection>  connections_;
-  std::bitset<4>                    flags_;
+  std::bitset<5>                    flags_;
 
   /*
    * Dummy signal used for knowing if stateless connections are still
@@ -478,8 +533,8 @@ protected:
 
   void prepareDestruct();
   void exposeSignal();
-  void processLearnedStateless();
-  void processNonLearnedStateless();
+  void processLearnedStateless() const;
+  void processNonLearnedStateless() const;
 
   static void *alloc();
   static void free(void *s);
@@ -604,7 +659,7 @@ public:
    * This will cause all connected slots to be triggered, with the given
    * argument.
    */
-  void emit(E e = NoClass::none);
+  void emit(E e = NoClass::none) const;
 
   /*! \brief Emits the signal.
    *
@@ -612,10 +667,10 @@ public:
    *
    * \sa emit()
    */
-  void operator()(E e);
+  void operator()(E e) const;
 
-  virtual boost::signals::connection connectBase(WObject *target,
-						 WObject::Method method);
+  virtual boost::signals::connection connect(WObject *target,
+					     WObject::Method method);
 
 private:
   typedef boost::signal1<void, E> BoostSignalType;
@@ -638,8 +693,8 @@ public:
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
 
-  void emit();
-  void operator()();
+  void emit() const;
+  void operator()() const;
 };
 
 #endif // WT_CNOR
@@ -647,13 +702,12 @@ public:
 #ifndef WT_CNOR
 
 template <class T, class V>
-boost::signals::connection SignalBase::connectBase(T *target,
-						   void (V::*method)())
+boost::signals::connection SignalBase::connect(T *target,
+					       void (V::*method)())
 {
   WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
   assert(o);
-
-  return connectBase(o, static_cast<WObject::Method>(method));
+  return connect(o, static_cast<WObject::Method>(method));
 }
 
 template <typename A1, typename A2, typename A3,
@@ -825,15 +879,15 @@ boost::signals::connection Signal<A1, A2, A3, A4, A5, A6>
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 boost::signals::connection Signal<A1, A2, A3, A4, A5, A6>
-::connectBase(WObject *target, WObject::Method method)
+::connect(WObject *target, WObject::Method method)
 {
-  return connect(target, method);
+  return connect(boost::bind(method, target));
 }
 
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void Signal<A1, A2, A3, A4, A5, A6>::emit(A1 a1, A2 a2, A3 a3,
-					  A4 a4, A5 a5, A6 a6)
+					  A4 a4, A5 a5, A6 a6) const
 {
   if (impl_ && !isBlocked()) {
     pushSender(sender());
@@ -845,7 +899,7 @@ void Signal<A1, A2, A3, A4, A5, A6>::emit(A1 a1, A2 a2, A3 a3,
 template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 void Signal<A1, A2, A3, A4, A5, A6>::operator()(A1 a1, A2 a2, A3 a3,
-						A4 a4, A5 a5, A6 a6)
+						A4 a4, A5 a5, A6 a6) const
 {
   emit(a1, a2, a3, a4, a5, a6);
 }
@@ -939,13 +993,19 @@ void EventSignal<E>::connect(JSlot& slot)
 
 template <typename E>
 boost::signals::connection
-EventSignal<E>::connectBase(WObject *target, WObject::Method method)
+EventSignal<E>::connect(WObject *target, WObject::Method method)
 {
-  return connect(target, method);
+  exposeSignal();
+  WStatelessSlot *s = target->isStateless(method);
+  if (s)
+    return EventSignalBase::connect(method, target, s);
+  else
+    return dynamic_.connect(boost::bind(method, target),
+			    boost::signals::at_front);
 }
 
 template <typename E>
-void EventSignal<E>::emit(E e)
+void EventSignal<E>::emit(E e) const
 {
   if (isBlocked())
     return;
@@ -961,7 +1021,7 @@ void EventSignal<E>::emit(E e)
 }
 
 template <typename E>
-void EventSignal<E>::operator()(E e)
+void EventSignal<E>::operator()(E e) const
 {
   emit(e);
 }

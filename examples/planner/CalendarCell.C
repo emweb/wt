@@ -62,8 +62,8 @@ void CalendarCell::update(const ptr<UserAccount>& user, const WDate& date)
 		  .arg((int)(entries.size() - maxEntries)));
       extra->setStyleClass("cell-extra");
       addWidget(extra);
-      
-      extra->clicked().setPreventDefault(true);
+
+      extra->clicked().preventPropagation();
       extra->clicked().connect(SLOT(this, CalendarCell::showAllEntriesDialog));
       
       break;

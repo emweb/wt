@@ -35,9 +35,9 @@ bool sql_value_traits<std::string>::read(std::string& v,
 {
   if (!statement->getResult(column, &v, size)) {
     v.clear();
-    return true;
-  } else
     return false;
+  } else
+    return true;
 }
 
 const char *sql_value_traits<long long>::type(SqlConnection *conn, int size)
@@ -56,10 +56,7 @@ bool sql_value_traits<long long>::read(long long& v,
 				       SqlStatement *statement, int column,
 				       int size)
 {
-  if (!statement->getResult(column, &v))
-    return true;
-  else
-    return false;
+  return statement->getResult(column, &v);
 }
 const char *sql_value_traits<int>::type(SqlConnection *conn, int size)
 {
@@ -75,10 +72,7 @@ void sql_value_traits<int>::bind(int v, SqlStatement *statement, int column,
 bool sql_value_traits<int>::read(int& v, SqlStatement *statement, int column,
 				 int size)
 {
-  if (!statement->getResult(column, &v))
-    return true;
-  else
-    return false;
+  return statement->getResult(column, &v);
 }
 
 const char *sql_value_traits<short>::type(SqlConnection *conn,
@@ -96,10 +90,7 @@ void sql_value_traits<short>::bind(short v, SqlStatement *statement, int column,
 bool sql_value_traits<short>::read(short& v, SqlStatement *statement,
 				   int column, int size)
 {
-  if (!statement->getResult(column, &v))
-    return true;
-  else
-    return false;
+  return statement->getResult(column, &v);
 }
 
 const char *sql_value_traits<float>::type(SqlConnection *conn, int size)
@@ -116,10 +107,7 @@ void sql_value_traits<float>::bind(float v, SqlStatement *statement,
 bool sql_value_traits<float>::read(float& v, SqlStatement *statement,
 				   int column, int size)
 {
-  if (!statement->getResult(column, &v))
-    return true;
-  else
-    return false;
+  return statement->getResult(column, &v);
 }
 
 const char *sql_value_traits<double>::type(SqlConnection *conn, int size)
@@ -136,10 +124,7 @@ void sql_value_traits<double>::bind(double v, SqlStatement *statement,
 bool sql_value_traits<double>::read(double& v, SqlStatement *statement,
 				    int column, int size)
 {
-  if (!statement->getResult(column, &v))
-    return true;
-  else
-    return false;
+  return statement->getResult(column, &v);
 }
 
 const char *sql_value_traits<std::vector<unsigned char> >
@@ -159,10 +144,7 @@ bool sql_value_traits<std::vector<unsigned char> >
 ::read(std::vector<unsigned char>& v, SqlStatement *statement, int column,
        int size)
 {
-  if (!statement->getResult(column, &v, size))
-    return true;
-  else
-    return false;
+  return statement->getResult(column, &v, size);
 }
 
   }

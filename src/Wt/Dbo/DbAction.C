@@ -29,15 +29,12 @@ PrepareStatements::SetInfo::SetInfo(const char *aTableName,
     type(aType)
 { }
 
-PrepareStatements::PrepareStatements(Session& session, const char *tableName)
+PrepareStatements::PrepareStatements(Session& session, const char *tableName,
+				     std::vector<FieldInfo>& fields)
   : session_(session),
-    tableName_(tableName)
+    tableName_(tableName),
+    fields_(fields)
 { }
-
-int PrepareStatements::columnCount() const
-{
-  return fields_.size() + 2; // + id, version
-}
 
 std::vector<std::string> PrepareStatements::getSelfSql() const
 {
@@ -49,18 +46,22 @@ std::vector<std::string> PrepareStatements::getSelfSql() const
 
   sql << "insert into \"" << table << "\" (\"version";
   for (unsigned i = 0; i < fields_.size(); ++i)
-    sql << "\", \"" << fields_[i];
+    sql << "\", \"" << fields_[i].name();
   sql << "\") values (?";
   for (unsigned i = 0; i < fields_.size(); ++i)
     sql << ", ?";
-  sql << ")" << session_.connection()->autoincrementInsertSuffix();
+
+  SqlConnection *conn = session_.useConnection();
+  sql << ")" << conn->autoincrementInsertSuffix();
+  session_.returnConnection(conn);
+
   result.push_back(sql.str()); // 0
 
   sql.str("");
 
   sql << "update \"" << table << "\" set \"version\" = ?";
   for (unsigned i = 0; i < fields_.size(); ++i)
-    sql << ", \"" << fields_[i] << "\" = ?";
+    sql << ", \"" << fields_[i].name() << "\" = ?";
   sql << " where \"id\" = ? and \"version\" = ?";
   result.push_back(sql.str()); // 1
 
@@ -80,7 +81,7 @@ std::vector<std::string> PrepareStatements::getSelfSql() const
 
   sql << "select \"version";
   for (unsigned i = 0; i < fields_.size(); ++i)
-    sql << "\", \"" << fields_[i];
+    sql << "\", \"" << fields_[i].name();
   sql << "\" from \"" << table << "\" where \"id\" = ?";
   result.push_back(sql.str()); // 4
 
@@ -376,6 +377,14 @@ GetManyToManyJoinIdAction
 bool GetManyToManyJoinIdAction::isReading() const { return false; }
 bool GetManyToManyJoinIdAction::isWriting() const { return false; }
 bool GetManyToManyJoinIdAction::isSchema() const { return true; }
+
+ToAnysAction::ToAnysAction(std::vector<boost::any>& result)
+  : result_(result)
+{ }
+
+bool ToAnysAction::isReading() const { return true; }
+bool ToAnysAction::isWriting() const { return false; }
+bool ToAnysAction::isSchema() const { return false; }
 
   }
 }

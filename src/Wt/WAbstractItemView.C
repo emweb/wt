@@ -1,17 +1,93 @@
+/*
+ * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include "Wt/WAbstractItemModel"
 #include "Wt/WAbstractItemView"
+#include "Wt/WApplication"
+#include "Wt/WContainerWidget"
+#include "Wt/WEnvironment"
+#include "Wt/WEvent"
+#include "Wt/WImage"
 #include "Wt/WItemSelectionModel"
 #include "Wt/WItemDelegate"
-#include "Wt/WAbstractItemModel"
-#include "Wt/WEvent"
-#include "Wt/WApplication"
+#include "Wt/WPushButton"
 #include "Wt/WText"
-#include "Wt/WContainerWidget"
-#include "Wt/WImage"
-#include "Wt/WEnvironment"
 
+#include "SizeHandle.h"
 #include "Utils.h"
 
+#include <iostream>
+
 namespace Wt {
+
+class DefaultPagingBar : public WContainerWidget
+{
+public:
+  DefaultPagingBar(WAbstractItemView *view)
+    : view_(view)
+  {
+    setStyleClass("Wt-pagingbar");
+
+    firstButton_ = new WPushButton(WString::fromUTF8("« First"), this);
+    firstButton_->clicked().connect(this, &DefaultPagingBar::showFirstPage);
+
+    prevButton_ = new WPushButton(WString::fromUTF8("‹ Previous"), this);
+    prevButton_->clicked().connect(this, &DefaultPagingBar::showPreviousPage);
+
+    current_ = new WText(this);
+
+    nextButton_ = new WPushButton(WString::fromUTF8("Next ›"), this);
+    nextButton_->clicked().connect(this, &DefaultPagingBar::showNextPage);
+
+    lastButton_ = new WPushButton(WString::fromUTF8("Last »"), this);
+    lastButton_->clicked().connect(this, &DefaultPagingBar::showLastPage);
+
+    view_->pageChanged().connect(this, &DefaultPagingBar::update);
+
+    update();
+  }
+
+private:
+  WAbstractItemView *view_;
+  WPushButton *prevButton_, *nextButton_, *firstButton_, *lastButton_;
+  WText *current_;
+
+  void update() {
+    firstButton_->setDisabled(view_->currentPage() == 0);
+    prevButton_->setDisabled(view_->currentPage() == 0);
+
+    nextButton_->setDisabled(view_->currentPage() == view_->pageCount() - 1);
+    lastButton_->setDisabled(view_->currentPage() == view_->pageCount() - 1);
+
+    current_->setText(WString::fromUTF8("<b>{1}</b> from <b>{2}</b>").
+		      arg(view_->currentPage() + 1).arg(view_->pageCount()));
+  }
+
+  void showFirstPage()
+  {
+    view_->setCurrentPage(0);
+  }
+
+  void showLastPage()
+  {
+    view_->setCurrentPage(view_->pageCount() - 1);
+  }
+
+  void showPreviousPage()
+  {
+    if (view_->currentPage() > 0)
+      view_->setCurrentPage(view_->currentPage() - 1);
+  }
+
+  void showNextPage()
+  {
+    if (view_->currentPage() < view_->pageCount() - 1)
+      view_->setCurrentPage(view_->currentPage() + 1);
+  }
+};
 
 WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view, 
 					   int anId, 
@@ -24,7 +100,12 @@ WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view,
     sorting(view->sorting_),
     itemDelegate_(0)
 {
+  width = WLength(150);
 
+  styleRule = new WCssTemplateRule("#" + view->id() + " ." + styleClass());
+  styleRule->templateWidget()->resize(width.toPixels(), WLength::Auto);
+
+  WApplication::instance()->styleSheet().addRule(styleRule);
 }
 
 std::string WAbstractItemView::ColumnInfo::styleClass() const
@@ -40,6 +121,78 @@ std::string WAbstractItemView::ColumnInfo::styleClass() const
 #endif
 }
 
+WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
+  : WCompositeWidget(parent),
+    impl_(new WContainerWidget()),
+    renderState_(NeedRerender),
+    currentSortColumn_(-1),
+    dragEnabled_(false),
+    dropsEnabled_(false),
+    model_(0),
+    itemDelegate_(0),
+    selectionModel_(new WItemSelectionModel(0, this)),
+    rowHeight_(20),
+    headerLineHeight_(20),
+    selectionMode_(NoSelection),
+    sorting_(true),
+    columnResize_(true),
+    multiLineHeader_(false),
+    columnWidthChanged_(impl_, "columnResized"),
+    columnResized_(this),
+    nextColumnId_(1),
+    alternatingRowColors_(false),
+    clicked_(this),
+    doubleClicked_(this),
+    mouseWentDown_(this),
+    mouseWentUp_(this),
+    selectionChanged_(this),
+    pageChanged_(this),
+    editTriggers_(DoubleClicked),
+    editOptions_(SingleEditor)
+{
+  setImplementation(impl_);
+
+  setItemDelegate(new WItemDelegate(this));
+
+  WApplication *app = WApplication::instance();
+
+  typedef WAbstractItemView Self;
+
+  clickedForSortMapper_ = new WSignalMapper<int>(this);
+  clickedForSortMapper_->mapped().connect(this, &Self::toggleSortColumn);
+
+  clickedForCollapseMapper_ = new WSignalMapper<int>(this);
+  clickedForCollapseMapper_->mapped().connect(this, &Self::collapseColumn);
+
+  clickedForExpandMapper_ = new WSignalMapper<int>(this);
+  clickedForExpandMapper_->mapped().connect(this, &Self::expandColumn);
+
+  SizeHandle::loadJavaScript(app);
+
+  if (!app->environment().ajax()) {
+    clickedMapper_ = new WSignalMapper<WModelIndex, WMouseEvent>(this);
+    clickedMapper_->mapped().connect(this, &Self::handleClick);
+
+    columnResize_ = false;
+  }
+
+  bindObjJS(resizeHandleMDownJS_, "resizeHandleMDown");
+
+  columnWidthChanged_.connect(this, &Self::updateColumnWidth);
+
+  headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh");
+  app->styleSheet().addRule(headerHeightRule_);
+  setHeaderHeight(headerLineHeight_);
+}
+
+WAbstractItemView::~WAbstractItemView()
+{
+  delete headerHeightRule_;
+
+  for (unsigned i = 0; i < columns_.size(); ++i)
+    delete columns_[i].styleRule;
+}
+
 void WAbstractItemView::setModel(WAbstractItemModel *model)
 {
   if (model_) {
@@ -50,47 +203,70 @@ void WAbstractItemView::setModel(WAbstractItemModel *model)
   }
 
   model_ = model;
-
   WItemSelectionModel *oldSelectionModel = selectionModel_;
   selectionModel_ = new WItemSelectionModel(model, this);
   selectionModel_->setSelectionBehavior(oldSelectionModel->selectionBehavior());
 
-  for (int i = columns_.size(); i < model_->columnCount(); ++i)
-    columnInfo(i);
+  editedItems_.clear();
 
   configureModelDragDrop();
 
-  scheduleRerender(NeedRerender);
   setHeaderHeight(headerLineHeight_, multiLineHeader_);
+
+  setRootIndex(WModelIndex());
 }
 
-WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    model_(0),
-    itemDelegate_(new WItemDelegate(this)),
-    selectionModel_(new WItemSelectionModel(0, this)),
-    rowHeight_(20),
-    headerLineHeight_(20),
-    selectionMode_(NoSelection),
-    sorting_(true),
-    columnResize_(true),
-    multiLineHeader_(false),
-    nextColumnId_(1),
-    clicked_(this),
-    doubleClicked_(this),
-    mouseWentDown_(this),
-    mouseWentUp_(this),
-    selectionChanged_(this),
-    currentSortColumn_(-1),
-    tieContentsHeaderScrollJS_(this),
-    tieRowsScrollJS_(this),
-    dragEnabled_(false),
-    dropsEnabled_(false)
+void WAbstractItemView::setRootIndex(const WModelIndex& rootIndex)
 {
-  clickedForSortMapper_ = new WSignalMapper<int>(this);
-  clickedForSortMapper_->
-    mapped().connect(SLOT(this,
-			  WAbstractItemView::toggleSortColumn));
+  rootIndex_ = rootIndex;
+
+  scheduleRerender(NeedRerender);
+
+  // make sure columnCount() is correct
+  while (static_cast<int>(columns_.size()) > model_->columnCount(rootIndex_)) {
+    delete columns_.back().styleRule;
+    columns_.erase(columns_.begin() + columns_.size() - 1);
+  }
+
+  columnInfo(model_->columnCount(rootIndex_) - 1);
+}
+
+void WAbstractItemView::setRowHeight(const WLength& rowHeight)
+{
+  rowHeight_ = rowHeight;
+}
+
+WLength WAbstractItemView::columnWidth(int column) const
+{
+  return columnInfo(column).width;
+}
+
+void WAbstractItemView::updateColumnWidth(int columnId, int width)
+{
+  int column = columnById(columnId);
+
+  if (column >= 0) {
+    columnInfo(column).width = width;
+    columnResized_.emit(column, columnInfo(column).width);
+  }
+}
+
+void WAbstractItemView::initDragDrop()
+{
+  WApplication *app = WApplication::instance();
+
+  /* item drag & drop */
+  app->styleSheet().addRule
+    ("#" + id() + "dw",
+     "width: 32px; height: 32px;"
+     "background: url(" + WApplication::resourcesUrl() + "items-not-ok.gif);");
+
+  app->styleSheet().addRule
+    ("#" + id() + "dw.Wt-valid-drop",
+     "width: 32px; height: 32px;"
+     "background: url(" + WApplication::resourcesUrl() + "items-ok.gif);");
+
+  selectionChanged_.connect(this, &WAbstractItemView::checkDragSelection);
 }
 
 void WAbstractItemView::setColumnResizeEnabled(bool enabled)
@@ -99,6 +275,53 @@ void WAbstractItemView::setColumnResizeEnabled(bool enabled)
     columnResize_ = enabled;
     scheduleRerender(NeedRerenderHeader);
   }
+}
+
+void WAbstractItemView::setColumnAlignment(int column, AlignmentFlag alignment)
+{
+  columnInfo(column).alignment = alignment;
+
+  const char *align = 0;
+  switch (alignment) {
+  case AlignLeft: align = "left"; break;
+  case AlignCenter: align = "center"; break;
+  case AlignRight: align = "right"; break;
+  case AlignJustify: align = "justify"; break;
+  default:
+    break;
+  }
+
+  if (align) {
+    WWidget *w = columnInfo(column).styleRule->templateWidget();
+    w->setAttributeValue("style", std::string("text-align: ") + align);
+  }
+}
+
+AlignmentFlag WAbstractItemView::columnAlignment(int column) const
+{
+  return columnInfo(column).alignment;
+}
+
+void WAbstractItemView::setHeaderAlignment(int column, AlignmentFlag alignment)
+{
+  columnInfo(column).headerAlignment = alignment;
+
+  if (renderState_ >= NeedRerenderHeader)
+    return;
+
+  WContainerWidget *wc = dynamic_cast<WContainerWidget *>(headerWidget(column));
+  
+  wc->setContentAlignment(alignment);
+}
+
+AlignmentFlag WAbstractItemView::headerAlignment(int column) const 
+{
+  return columnInfo(column).headerAlignment;
+}
+
+void WAbstractItemView::setAlternatingRowColors(bool enable)
+{
+  alternatingRowColors_ = enable;
 }
 
 void WAbstractItemView::setSelectionMode(SelectionMode mode)
@@ -125,12 +348,14 @@ SelectionBehavior WAbstractItemView::selectionBehavior() const
 void WAbstractItemView::setItemDelegate(WAbstractItemDelegate *delegate)
 {
   itemDelegate_ = delegate;
+  itemDelegate_->closeEditor().connect(this, &WAbstractItemView::closeEditor);
 }
 
 void WAbstractItemView::setItemDelegateForColumn(int column,
 					 WAbstractItemDelegate *delegate)
 {
   columnInfo(column).itemDelegate_ = delegate;
+  delegate->closeEditor().connect(this, &WAbstractItemView::closeEditor);
 }
 
 WAbstractItemDelegate *WAbstractItemView::itemDelegateForColumn(int column) const
@@ -192,6 +417,8 @@ void WAbstractItemView::dropEvent(const WDropEvent& e, const WModelIndex& index)
 
 void WAbstractItemView::configureModelDragDrop()
 {
+  initDragDrop();
+
   if (!model_)
     return;
 
@@ -296,6 +523,20 @@ int WAbstractItemView::columnCount() const
   return columns_.size();
 }
 
+WAbstractItemView::ColumnInfo WAbstractItemView::createColumnInfo(int column)
+  const
+{
+  return ColumnInfo(this, nextColumnId_++, column);
+}
+
+WAbstractItemView::ColumnInfo& WAbstractItemView::columnInfo(int column) const
+{
+  while (column >= (int)columns_.size())
+    columns_.push_back(createColumnInfo(columns_.size()));
+
+  return columns_[column];
+}
+
 void WAbstractItemView::sortByColumn(int column, SortOrder order)
 {
   if (currentSortColumn_ != -1) {
@@ -338,6 +579,33 @@ void WAbstractItemView::modelReset()
   setModel(model_);
 }
 
+bool WAbstractItemView::internalSelect(const WModelIndex& index,
+				       SelectionFlag option)
+{
+  if (!(index.flags() & ItemIsSelectable) || selectionMode() == NoSelection)
+    return false;
+
+  if (option == ToggleSelect)
+    option = isSelected(index) ? Deselect : Select;
+  else if (option == ClearAndSelect) {
+    clearSelection();
+    option = Select;
+  } else if (selectionMode() == SingleSelection && option == Select)
+    clearSelection();
+
+  /*
+   * now option is either Select or Deselect and we only need to do
+   * exactly that one thing
+   */
+  if (option == Select)
+    selectionModel()->selection_.insert(index);
+  else
+    if (!selectionModel()->selection_.erase(index))
+      return false;
+
+  return true;
+}
+
 void WAbstractItemView::clearSelection()
 {
   WModelIndexSet& nodes = selectionModel_->selection_;
@@ -362,6 +630,39 @@ void WAbstractItemView::setSelectedIndexes(const WModelIndexSet& indexes)
   selectionChanged_.emit();
 }
 
+void WAbstractItemView::extendSelection(const WModelIndex& index)
+{
+  if (selectionModel_->selection_.empty())
+    internalSelect(index, Select);
+  else {
+    if (selectionBehavior() == SelectRows && index.column() != 0) {
+      extendSelection(model_->index(index.row(), 0, index.parent()));
+      return;
+    }
+
+    /*
+     * Expand current selection. If index is within or below the
+     * current selection, we select from the top item to index. If index
+     * is above the current selection, select everything from the
+     * bottom item to index.
+     *
+     * For a WTreeView, only indexes with expanded ancestors can be
+     * part of the selection: this is asserted when collapsing a index.
+     */
+    WModelIndex top = Utils::first(selectionModel_->selection_);
+    if (top < index) {
+      clearSelection();
+      selectRange(top, index);
+    } else {
+      WModelIndex bottom = Utils::last(selectionModel_->selection_);
+      clearSelection();
+      selectRange(index, bottom);
+    }
+  }
+
+  selectionChanged_.emit();
+}
+
 bool WAbstractItemView::isSelected(const WModelIndex& index) const
 {
   return selectionModel_->isSelected(index);
@@ -371,6 +672,29 @@ void WAbstractItemView::select(const WModelIndex& index, SelectionFlag option)
 {
   if (internalSelect(index, option))
     selectionChanged_.emit();
+}
+
+void WAbstractItemView::selectionHandleClick(const WModelIndex& index,
+					     WFlags<KeyboardModifier> modifiers)
+{
+  if (selectionMode_ == NoSelection)
+    return;
+
+  if (selectionMode_ == ExtendedSelection) {
+    if (modifiers & ShiftModifier)
+      extendSelection(index);
+    else {
+      if (!(modifiers & (ControlModifier | MetaModifier))) {
+	//if (isSelected(index)) -> strange MacOS X behavor
+	//  return;
+	//else {
+	select(index, ClearAndSelect);
+	//}
+      } else
+	select(index, ToggleSelect);
+    }
+  } else
+    select(index, Select);
 }
 
 WModelIndexSet WAbstractItemView::selectedIndexes() const
@@ -430,6 +754,11 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
       sortIcon->setMargin(4, Right);
     sortIcon->setStyleClass("Wt-tv-sh Wt-tv-sh-none");
     clickedForSortMapper_->mapConnect(sortIcon->clicked(), info.id);
+
+    if (currentSortColumn_ == column)
+      sortIcon->setStyleClass(info.sortOrder == AscendingOrder
+			      ? "Wt-tv-sh Wt-tv-sh-up"
+			      : "Wt-tv-sh Wt-tv-sh-down");
   }
 
   if (model_->headerFlags(column)
@@ -488,12 +817,10 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
     extraW->setStyleClass(extraW->styleClass() + " Wt-tv-br");
   }
 
-  if (columnResize_) {
+  if (columnResize_ && app->environment().ajax()) {
     WContainerWidget *resizeHandle = new WContainerWidget();
     resizeHandle->setStyleClass("Wt-tv-rh headerrh");
     resizeHandle->mouseWentDown().connect(resizeHandleMDownJS_);
-    resizeHandle->mouseWentUp().connect(resizeHandleMUpJS_);
-    resizeHandle->mouseMoved().connect(resizeHandleMMovedJS_);
 
     bool ie = wApp->environment().agentIsIE();
     WContainerWidget *parent = ie ? w
@@ -547,6 +874,30 @@ int WAbstractItemView::headerLevelCount() const
   return result + 1;
 }
 
+
+void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
+{
+  headerLineHeight_ = height;
+  multiLineHeader_ = multiLine;
+
+  int lineCount = headerLevelCount();
+  WLength headerHeight = headerLineHeight_ * lineCount;
+
+  headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);
+  if (!multiLineHeader_)
+    headerHeightRule_->templateWidget()->setLineHeight(headerLineHeight_);
+  else
+    headerHeightRule_->templateWidget()->setLineHeight(WLength::Auto);
+}
+
+void WAbstractItemView::bindObjJS(JSlot& slot, const std::string& jsMethod)
+{
+  slot.setJavaScript
+    ("function(obj, event) {"
+     """jQuery.data(" + jsRef() + ", 'obj')." + jsMethod + "(obj, event);"
+     "}");
+}
+
 void WAbstractItemView::convertToRaw(WModelIndexSet& set, 
 				     std::vector<void *>& result)
 {
@@ -557,6 +908,178 @@ void WAbstractItemView::convertToRaw(WModelIndexSet& set,
   }
 
   set.clear();
+}
+
+void WAbstractItemView::modelLayoutAboutToBeChanged()
+{
+  convertToRaw(selectionModel_->selection_, selectionRaw_);
+  rawRootIndex_ = model_->toRawIndex(rootIndex_);
+}
+
+void WAbstractItemView::modelLayoutChanged()
+{
+  if (rawRootIndex_)
+    rootIndex_ = model_->fromRawIndex(rawRootIndex_);
+  else
+    rootIndex_ = WModelIndex();
+
+  editedItems_.clear();
+
+  for (unsigned i = 0; i < selectionRaw_.size(); ++i) {
+    WModelIndex index = model_->fromRawIndex(selectionRaw_[i]);
+    if (index.isValid())
+      selectionModel_->selection_.insert(index);
+  }
+  selectionRaw_.clear();
+
+  scheduleRerender(NeedRerenderData);
+}
+
+WWidget *WAbstractItemView::createPageNavigationBar()
+{
+  return new DefaultPagingBar(this);
+}
+
+void WAbstractItemView::collapseColumn(int columnid)
+{
+  model_->collapseColumn(columnById(columnid));
+  scheduleRerender(NeedRerenderHeader);
+  setHeaderHeight(headerLineHeight_, multiLineHeader_);
+}
+
+void WAbstractItemView::expandColumn(int columnid)
+{
+  model_->expandColumn(columnById(columnid));
+  scheduleRerender(NeedRerenderHeader);
+  setHeaderHeight(headerLineHeight_, multiLineHeader_);
+}
+
+void WAbstractItemView::handleClick(const WModelIndex& index,
+				    const WMouseEvent& event)
+{
+  bool doEdit = ((editTriggers() & SelectedClicked) && isSelected(index))
+    || (editTriggers() & SingleClicked);
+
+  selectionHandleClick(index, event.modifiers());
+
+  if (doEdit)
+    edit(index);
+
+  clicked_.emit(index, event);
+}
+
+void WAbstractItemView::handleDoubleClick(const WModelIndex& index,
+					  const WMouseEvent& event)
+{
+  bool doEdit = editTriggers() & DoubleClicked;
+  if (doEdit)
+    edit(index);
+
+  doubleClicked_.emit(index, event);
+}
+
+void WAbstractItemView::handleMouseDown(const WModelIndex& index,
+					const WMouseEvent& event)
+{
+  mouseWentDown_.emit(index, event);
+}
+
+void WAbstractItemView::setEditTriggers(WFlags<EditTrigger> editTriggers)
+{
+  editTriggers_ = editTriggers;
+}
+
+void WAbstractItemView::setEditOptions(WFlags<EditOption> editOptions)
+{
+  editOptions_ = editOptions;
+}
+
+void WAbstractItemView::edit(const WModelIndex& index)
+{ 
+  if (index.flags() & ItemIsEditable && !isEditing(index)) {
+    if (editOptions_ & SingleEditor) {
+      while (!editedItems_.empty())
+	closeEditor(editedItems_.begin()->first, false);
+    }
+
+    editedItems_[index].widget = 0;
+
+    modelDataChanged(index, index);
+  }
+}
+
+void WAbstractItemView::closeEditor(WWidget *editor, bool saveData)
+{
+  for (EditorMap::const_iterator i = editedItems_.begin();
+       i != editedItems_.end(); ++i)
+    if (i->second.widget == editor) {
+      closeEditor(i->first, saveData);
+      return;
+    }
+}
+
+void WAbstractItemView::closeEditor(const WModelIndex& index, bool saveData)
+{
+  EditorMap::iterator i = editedItems_.find(index);
+
+  if (i != editedItems_.end()) {
+    Editor& editor = i->second;
+
+    if (saveData || editOptions_ & SaveWhenClosed)
+      saveEditedValue(index, editor);
+
+    WModelIndex closed = index;
+
+    editedItems_.erase(i);
+
+    modelDataChanged(closed, closed);
+  }
+}
+
+bool WAbstractItemView::isEditing(const WModelIndex& index) const
+{
+  return editedItems_.find(index) != editedItems_.end();
+}
+
+bool WAbstractItemView::isEditing() const
+{
+  return !editedItems_.empty();
+}
+
+void WAbstractItemView::saveEditedValue(const WModelIndex& index,
+					Editor& editor)
+{
+  boost::any editState;
+  WAbstractItemDelegate *delegate = itemDelegate(index);
+    
+  if (editor.widget)
+    editState = delegate->editState(editor.widget);
+  else
+    editState = editor.editState;
+
+  delegate->setModelData(editState, model(), index);
+}
+
+void WAbstractItemView::setEditState(const WModelIndex& index,
+				     const boost::any& editState)
+{
+  editedItems_[index].editState = editState;
+}
+
+void WAbstractItemView::setEditorWidget(const WModelIndex& index,
+					WWidget *editor)
+{
+  editedItems_[index].widget = editor;  
+}
+
+boost::any WAbstractItemView::editState(const WModelIndex& index) const
+{
+  EditorMap::const_iterator i = editedItems_.find(index);
+
+  if (i != editedItems_.end())
+    return i->second.editState;
+  else
+    return boost::any();
 }
 
 }

@@ -183,9 +183,9 @@ bool SimpleChatWidget::startChat(const WString& user)
     sendButton_->clicked().connect(clearInput_);
     messageEdit_->enterPressed().connect(clearInput_);
 
-    // Prevent the enter from generating a new line, which is its
-    // default function
-    messageEdit_->enterPressed().setPreventDefault(true);
+    // Prevent the enter from generating a new line, which is its default
+    // action
+    messageEdit_->enterPressed().preventDefaultAction();
 
     b->clicked().connect(SLOT(this, SimpleChatWidget::logout));
 

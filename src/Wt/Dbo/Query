@@ -18,31 +18,22 @@
 namespace Wt {
   namespace Dbo {
     namespace Impl {
-      enum StatementKind { Select, Count };
-
-      extern std::string WTDBO_API createQuerySql(StatementKind kind,
-					          const std::string& select,
-					          const std::string& from);
-
-      extern std::string WTDBO_API createQuerySql(StatementKind kind,
-					          const std::string& select,
-					          const std::string& from,
-						  const std::string& where,
-						  const std::string& groupBy,
-						  const std::string& orderBy,
-						  int offset,
-						  int limit);
-
       template <class Result>
       class QueryBase {
       protected:
-	QueryBase(Session& session, const std::string& select,
-		  const std::string& from);
+	std::vector<FieldInfo> fields() const;
+	Session& session() const;
+
+	QueryBase();
+	QueryBase(Session& session, const std::string& sql);
+	QueryBase(Session& session, const std::string& table,
+		  const std::string& where);
 
 	Result singleResult(const collection<Result>& results) const;
 
-	Session& session_;
-	std::string select_, from_;
+	Session *session_;
+	std::string from_;
+	std::vector<std::string> aliases_;
       };
     }
 
@@ -111,10 +102,15 @@ class SqlConnection;
  *
  * \ingroup dbo
  */
-template <class Result, typename BindStrategy>
+template <class Result, typename BindStrategy = DynamicBinding>
 class Query
 {
 #ifdef DOXYGEN_ONLY
+public:
+  /*! \brief Default constructor.
+   */
+  Query();
+
   /*! \brief Destructor.
    */
   ~Query();
@@ -122,6 +118,12 @@ class Query
   /*! \brief Copy constructor.
    */
   Query(const Query& other);
+
+  /*! \brief Returns the result fields.
+   */
+  std::vector<FieldInfo> fields() const;
+
+  Session& session() const;
 
   /*! \brief Binds a value to the next positional marker.
    *
@@ -197,18 +199,22 @@ class Query
    */
   Query<Result, BindStrategy>& orderBy(const std::string& fieldName);
 
-  /*! \brief Sets the grouping field.
+  /*! \brief Sets the grouping field(s).
    *
-   * Groups results based on unique values of the indicated
-   * field. Only fields on which you group and aggregate functions can
-   * be returned as a query.
+   * Groups results based on unique values of the indicated field(s),
+   * which is a comma separated list of fields. Only fields on which
+   * you group and aggregate functions can be selected by a query.
+   *
+   * A field that refers to a database object that is selected by the
+   * query is expanded to all the corresponding fields of that
+   * database object (as in the select statement).
    *
    * This provides the <i>group by</i> part of an SQL query.
    *
    * \note This method is not available when using a DirectBinding binding
    *       strategy.
    */
-  Query<Result, BindStrategy>& groupBy(const std::string& fieldName);
+  Query<Result, BindStrategy>& groupBy(const std::string& fields);
 
   /*! \brief Sets a result offset.
    *
@@ -248,6 +254,10 @@ template <class Result>
 class Query<Result, DirectBinding> : private Impl::QueryBase<Result>
 {
 public:
+  using Impl::QueryBase<Result>::fields;
+  using Impl::QueryBase<Result>::session;
+
+  Query();
   ~Query();
   template<typename T> Query<Result, DirectBinding>& bind(const T& value);
   Result resultValue() const;
@@ -256,7 +266,9 @@ public:
   operator collection< Result > () const;
 
 private:
-  Query(Session& session, const std::string& select, const std::string& from);
+  Query(Session& session, const std::string& sql);
+  Query(Session& session, const std::string& table, const std::string& where);
+
   mutable int column_;
   mutable SqlStatement *statement_, *countStatement_;
 
@@ -284,23 +296,32 @@ namespace Impl {
   };
 
   template<int N>
+  struct Parameter<const char [N]> : Parameter<const char *> 
+  {
+    Parameter(char const *v) : Parameter<const char *>(v) { }
+  };
+  template<int N>
   struct Parameter<char [N]> : Parameter<const char *> 
   {
     Parameter(char const *v) : Parameter<const char *>(v) { }
   };
+
 }
 
 template <class Result>
 class Query<Result, DynamicBinding> : private Impl::QueryBase<Result>
 {
 public:
+  using Impl::QueryBase<Result>::fields;
+  using Impl::QueryBase<Result>::session;
+
+  Query();
   ~Query();
   Query(const Query& other);
-  template<typename T>
-  Query<Result, DynamicBinding>& bind(const T& value);
+  template<typename T> Query<Result, DynamicBinding>& bind(const T& value);
   Query<Result, DynamicBinding>& where(const std::string& condition);
   Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);
-  Query<Result, DynamicBinding>& groupBy(const std::string& fieldName);
+  Query<Result, DynamicBinding>& groupBy(const std::string& fields);
   Query<Result, DynamicBinding>& offset(int count);
   Query<Result, DynamicBinding>& limit(int count);
   Result resultValue() const;
@@ -309,10 +330,11 @@ public:
   operator collection< Result > () const;
 
 private:
-  Query(Session& session, const std::string& select, const std::string& from);
+  Query(Session& session, const std::string& sql);
+  Query(Session& session, const std::string& table, const std::string& where);
 
   std::string where_, groupBy_, orderBy_;
-  int offset_, limit_;
+  int limit_, offset_;
 
   std::vector<Impl::ParameterBase *> parameters_;
 

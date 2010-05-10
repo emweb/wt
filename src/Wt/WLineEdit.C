@@ -161,6 +161,8 @@ int WLineEdit::boxPadding(Orientation orientation) const
 
   if (env.agentIsIE() || env.agentIsOpera())
     return 1;
+  else if (env.agent() == WEnvironment::Arora)
+    return 0;
   else if (env.userAgent().find("Mac OS X") != std::string::npos)
     return 1;
   else if (env.userAgent().find("Windows") != std::string::npos)
@@ -171,7 +173,15 @@ int WLineEdit::boxPadding(Orientation orientation) const
 
 int WLineEdit::boxBorder(Orientation orientation) const
 {
-  return 2;
+  const WEnvironment& env = WApplication::instance()->environment();
+
+  if (env.userAgent().find("Mac OS X") != std::string::npos
+      && env.agentIsGecko())
+    return 3;
+  else if (env.agent() == WEnvironment::Arora)
+    return 0;
+  else
+    return 2;
 }
 
 

@@ -28,7 +28,7 @@ const char *WInteractWidget::ENTER_PRESS_SIGNAL = "M_enterpress";
 const char *WInteractWidget::ESCAPE_PRESS_SIGNAL = "M_escapepress";
 const char *WInteractWidget::CLICK_SIGNAL = "click";
 const char *WInteractWidget::DBL_CLICK_SIGNAL = "dblclick";
-const char *WInteractWidget::MOUSE_DOWN_SIGNAL = "mousedown";
+const char *WInteractWidget::MOUSE_DOWN_SIGNAL = "M_mousedown";
 const char *WInteractWidget::MOUSE_UP_SIGNAL = "mouseup";
 const char *WInteractWidget::MOUSE_OUT_SIGNAL = "mouseout";
 const char *WInteractWidget::MOUSE_OVER_SIGNAL = "mouseover";
@@ -112,14 +112,9 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
   EventSignal<> *escapePress = voidEventSignal(ESCAPE_PRESS_SIGNAL, false);
   EventSignal<WKeyEvent> *keyDown = keyEventSignal(KEYDOWN_SIGNAL, false);
 
-  if (all)
-    updateKeyDown = (enterPress && enterPress->isConnected())
-      || (escapePress && escapePress->isConnected())
-      || (keyDown && keyDown->isConnected());
-  else
-    updateKeyDown = (enterPress && enterPress->needUpdate())
-      || (escapePress && escapePress->needUpdate())
-      || (keyDown && keyDown->needUpdate());
+  updateKeyDown = (enterPress && enterPress->needsUpdate(all))
+    || (escapePress && escapePress->needsUpdate(all))
+    || (keyDown && keyDown->needsUpdate(all));
 
   if (updateKeyDown) {
     std::vector<DomElement::EventAction> actions;
@@ -159,7 +154,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     if (keyDown) {
-      if (keyDown->isConnected()) {
+      if (keyDown->needsUpdate(all)) {
       actions.push_back
 	(DomElement::EventAction(std::string(),
 				 keyDown->javaScript(),
@@ -172,7 +167,39 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     if (!actions.empty())
       element.setEvent("keydown", actions);
     else if (!all)
-      element.setEvent("keydown", "", "");
+      element.setEvent("keydown", std::string(), std::string());
+  }
+
+  EventSignal<WMouseEvent> *mouseDown
+    = mouseEventSignal(MOUSE_DOWN_SIGNAL, false);
+  EventSignal<WMouseEvent> *mouseUp
+    = mouseEventSignal(MOUSE_UP_SIGNAL, false);
+
+  bool updateMouseDown
+    = (mouseDown && mouseDown->needsUpdate(all))
+       || (mouseUp && mouseUp->isConnected());
+
+  if (updateMouseDown) {
+    /*
+     * when we have a mouseUp event, we also need a mouseDown event
+     * to be able to compute dragDX/Y. But when we have a mouseDown event,
+     * we need to capture everything after on mouse down.
+     */
+    std::string js;
+    if (mouseUp && mouseUp->isConnected())
+      js += WApplication::instance()->javaScriptClass()
+	+ "._p_.saveDownPos(event);";
+      
+    if (!js.empty() || (mouseDown && mouseDown->isConnected()))
+      js += WT_CLASS ".capture(this);";
+
+    if (mouseDown) {
+      js += mouseDown->javaScript();
+      element.setEvent("mousedown", js,
+		       mouseDown->encodeCmd(), mouseDown->isExposedSignal());
+      mouseDown->updateOk();
+    } else
+      element.setEvent("mousedown", js, std::string(), false);
   }
 
   EventSignalList& other = eventSignals();

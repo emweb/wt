@@ -89,11 +89,17 @@ public:
    */
   void setEnabled(bool enabled);
 
-  /*! \brief Gives focus to this widget.
+  /*! \brief Gives focus.
    *
    * Giving focus to an input element only works when JavaScript is enabled.
    */
   void setFocus();
+
+  /*! \brief Changes focus.
+   *
+   * When using \p focus = \c false, you can undo a previous setFocus() call.
+   */
+  void setFocus(bool focus);
 
   /*! \brief Sets the element read-only.
    *

@@ -1,0 +1,148 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_QUERY_MODEL_H_
+#define WT_DBO_QUERY_MODEL_H_
+
+#include <Wt/WAbstractTableModel>
+#include <Wt/Dbo/Dbo>
+
+namespace Wt {
+  namespace Dbo {
+
+// TODO figure out a nice syntax for qualified fields ?
+class QueryColumn {
+  QueryColumn(const std::string& displayField);
+
+  QueryColumn(const std::string& displayField,
+	      const std::string& editField,
+	      WAbstractTableModel *editValuesModel);
+
+private:
+  std::string displayField_;
+  std::string editField_;
+
+  int displayFieldIdx_, editFieldIdx_;
+
+  WAbstractTableModel *editValuesModel_;
+  WFlags<ItemFlag> flags_;
+
+  template <class Result> friend class QueryModel;
+};
+
+/*! \brief QueryModel Wt/Dbo/QueryModel Wt/Dbo/QueryModel
+ *
+ * Wt MVC Model to view the results of a query.
+ *
+ * The model will fetch results from the query, and presents their
+ * data in a table.
+ *
+ * You need to select columns from the query which you want to display
+ * using addColumn(). You can also add all columns from the query.
+ */
+template <class Result>
+class QueryModel : public WAbstractTableModel
+{
+public:
+  /*! \brief Creates a new query model.
+   *
+   * You need to seed the model with a query using setQuery().
+   */
+  QueryModel(WObject *parent = 0);
+
+  /*! \brief Sets the query.
+   */
+  void setQuery(const Query<Result>& query);
+
+  /*! \brief Returns the query.
+   */
+  const Query<Result>& query() const { return query_; }
+
+  /*! \brief Adds a column.
+   *
+   * The \p field name may be a qualified or unqualified field name.
+   */
+  int addColumn(const std::string& field);
+
+  // later
+  int addColumn(const QueryColumn& column);
+
+  // later
+  void setColumnsFlags(int column, WFlags<ItemFlag> flags_);
+
+  /*! \brief Adds all the columns from the field list.
+   */
+  void addAllFieldsAsColumns();
+
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
+    const;
+  virtual boost::any headerData(int section,
+				Orientation orientation = Horizontal,
+				int role = DisplayRole) const;
+  virtual void sort(int column, SortOrder order = AscendingOrder);
+
+  /*! \brief Returns a result row.
+   *
+   * This returns the result corresponding to a particular row.
+   */
+  const Result& resultRow(int row) const;
+
+  /*! \brief Rereads the data from the database.
+   *
+   * This invalidates the current (cached) data and informs views that
+   * they should rerender.
+   */
+  void reload();
+
+  /*! \brief Sets the batch size for fetching results.
+   *
+   * The model fetches results from the query in batch, and caches
+   * these in memory to avoid repetitive querying of the database.
+   *
+   * The default batch size is 40.
+   */
+  void setBatchSize(int count);
+
+  /*! \brief Returns the batch size for fetching results.
+   *
+   * \sa setBatchSize()
+   */
+  int batchSize() const { return batchSize_; }
+
+protected:
+  /*! \brief Returns the query field list.
+   */
+  const std::vector<FieldInfo>& fields();
+
+private:
+  std::vector<QueryColumn> columns_;
+
+  mutable Query<Result> query_;
+  int batchSize_;
+
+  mutable int cachedRowCount_;
+  mutable int cacheStart_;
+  mutable std::vector<Result> cache_;
+
+  mutable int currentRow_;
+  mutable std::vector<boost::any> rowValues_;
+
+  std::vector<FieldInfo> fields_;
+
+  int getFieldIndex(const std::string& field);
+
+  void invalidateData();
+  void dataReloaded();
+};
+
+  }
+}
+
+#include <Wt/Dbo/QueryModel_impl.h>
+
+#endif // WT_DBO_QUERY_MODEL_H_

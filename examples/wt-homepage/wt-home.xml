@@ -132,9 +132,9 @@ necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and AJAX
 code. The responsibility of writing secure and browser-portable web
 applications is handled by Wt. For example, if available, Wt will
 maximally use JavaScript and AJAX, but applications developed using Wt
-will also function correctly when AJAX is not available, or when
-JavaScript is disabled, by progressively enhancing a plain HTML/CGI
-application to a rich AJAX application.</p>
+will also function correctly when AJAX is not available. Wt will start
+with a plain HTML/CGI application and progressively enhance to a rich
+AJAX application if possible.</p>
 
 <h4>Typical use scenarios:</h4>
 
@@ -238,7 +238,7 @@ application to a rich AJAX application.</p>
   <li>Unified painting API which uses the browsers native (vector)
     graphics support (inline VML, inline SVG, or HTML 5 canvas).</li>
   <li>Supports arbitrary painter paths, clipping, text, images,
-    transformations, and stroke and fill styling.</li>
+    and transformations.</li>
   <li>Use the painting API in conjunction with a WPaintedWidget, or directly
     using the SVGImage paint device.</li>
 </ul>
@@ -634,10 +634,10 @@ browser and server.</p>
       The <i>Option</i> and <i>OptionList</i> classes show how
       stateless slots may be used even when the behaviour is not
       entirely stateless. In this case, the hiding of an Option
-      affects neighboring visible options to set the separator
-      correctly. By <b>invalidating the stateless slot
-      implementations</b> when state has changed, we can still
-      get away with a stateless slot implementation, and thus
+      affects neighboring visible options: an option needs a separator
+      only if there is a neighbouring option. By <b>invalidating the
+      stateless slot implementations</b> when state has changed, we
+      can still use a stateless slot implementation and enjoy
       client-side event handling performance!
     </li>
   </ul>

@@ -246,6 +246,13 @@
 }
 
 /*
+ * WItemDelegate, when editable
+ */
+.Wt-delegate-edit {
+  line-height: 0px;
+}
+
+/*
  * WPanel
  */
 .Wt-panel {
@@ -396,7 +403,7 @@
 .Wt-tree {
     table-layout: fixed;
     font-family: verdana,helvetica,tahoma,sans-serif;
-    font-size: 10pt;
+    font-size: 9pt;
     cursor: default;
     white-space: nowrap;   
 }
@@ -443,7 +450,7 @@
 .Wt-treetable .Wt-header {
     background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
     font-family: verdana,helvetica,tahoma,sans-serif;
-    font-size: 10pt;
+    font-size: 9pt;
     cursor: default;
     color: white;
     cursor: default;
@@ -465,11 +472,100 @@
 }
 
 /*
+ * WTableView
+ */
+.Wt-tableview {
+    font-family: verdana,helvetica,tahoma,sans-serif;
+    font-size: 9pt;
+    cursor: default;
+    white-space: nowrap;
+    background: white;
+    border: 1px solid #dcdfe8;
+}
+
+.Wt-tableview .Wt-spacer {
+    background: url(../../loading.png);
+    position: relative;
+    overflow: hidden;
+}
+
+/* header */
+
+.Wt-tableview {
+    white-space: nowrap
+}
+
+.Wt-tableview .Wt-headertable,
+.Wt-tableview .Wt-headertable .Wt-rowc,
+.Wt-tableview th {
+    background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
+    color: white;
+}
+
+.Wt-tableview th {
+    padding: 0px;
+}
+
+.Wt-tableview table {
+    background-position: left bottom;
+}
+
+.Wt-tableview .Wt-header .Wt-label {
+    font-weight: bold;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.Wt-tableview .Wt-tv-rh:hover {
+    background-color: #DDDDDD;
+}
+
+.Wt-tableview .Wt-tv-sh-none {
+    background: url(sort-arrow-none.gif) no-repeat 0 6px;
+}
+
+.Wt-tableview .Wt-tv-sh-up {
+    background: url(sort-arrow-up.gif) no-repeat 0 6px;
+}
+
+.Wt-tableview .Wt-tv-sh-down {
+    background: url(sort-arrow-down.gif) no-repeat 0 6px;
+}
+
+/* selection */
+.Wt-tableview .Wt-selected {
+    background-color: #999999;
+    color: white;
+}
+
+/* item drag & drop */
+.Wt-tableview .Wt-drop-site {
+    background-color: #EEEEEE;
+    outline: 1px dotted black;
+}
+
+.Wt-tableview .Wt-tv-contents {
+    position: absolute;
+}
+
+/* borders */
+.Wt-tableview .Wt-tv-br {
+    border-right: 1px solid #dcdfe8;
+}
+
+/* borders */
+.Wt-tableview .Wt-tv-contents .Wt-tv-c,
+.Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
+    border-right: 0px;
+    margin-right: 1px;
+}
+
+/*
  * WTreeView
  */
 .Wt-treeview {
     font-family: verdana,helvetica,tahoma,sans-serif;
-    font-size: 10pt;
+    font-size: 9pt;
     cursor: default;
     white-space: nowrap;
     background: white;
@@ -561,6 +657,24 @@
 .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c {
     border-right: 0px;
     margin-right: 1px;
+}
+
+/*
+ * WTreeView and WTableView default paging bar
+ */
+.Wt-pagingbar {
+    text-align: center;
+    padding: 2px;
+    height: 25px;
+    line-height: 25px;
+}
+
+.Wt-pagingbar span {
+    margin: 0px 4px;
+}
+
+.Wt-pagingbar button {
+    margin: 0px 4px;
 }
 
 /*

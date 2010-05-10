@@ -35,7 +35,7 @@ WMenuItem::WMenuItem(const WString& text, WWidget *contents,
   if (policy == PreLoading)
     // prelearn the stateless slot only if already needed.
     implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
-  else {
+  else if (contents_) {
     contentsContainer_ = new WContainerWidget();
     contentsContainer_
       ->setJavaScriptMember("wtResize", StdGridLayoutImpl::childrenResizeJS());
@@ -119,10 +119,10 @@ void WMenuItem::connectActivate()
   SignalBase& as = activateSignal();
   if (contentsContainer_ && contentsContainer_->count() == 0)
     // load contents (will only do something on the first activation).
-    as.connectBase(SLOT(this, WMenuItem::selectNotLoaded));
+    as.connect(this, &WMenuItem::selectNotLoaded);
   else {
-    as.connectBase(SLOT(this, WMenuItem::selectVisual));
-    as.connectBase(SLOT(this, WMenuItem::select));
+    as.connect(this, &WMenuItem::selectVisual);
+    as.connect(this, &WMenuItem::select);
   }
 }
 
@@ -151,7 +151,7 @@ void WMenuItem::updateItemWidget(WWidget *itemWidget)
       url = "#";
 
     a->setRef(url);
-    a->clicked().setPreventDefault(true);
+    a->clicked().preventDefaultAction();
   }
 }
 
@@ -227,7 +227,8 @@ WWidget *WMenuItem::takeContents()
 
 void WMenuItem::setFromInternalPath(const std::string& path)
 {
-  if (menu_->contentsStack_->currentWidget() != contents())
+  if (menu_->contentsStack_
+      && menu_->contentsStack_->currentWidget() != contents())
     menu_->select(menu_->indexOf(this), false);
 }
 

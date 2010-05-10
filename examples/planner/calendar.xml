@@ -3,16 +3,16 @@
   <message id="calendar.entry.title">
   	Enter a new appointment for {1}
   </message>
+
   <message id="calendar.entry">
-	<div class="entry-dialog">
-		<div>Summary: ${summary}</div>
-		<div>From ${start} to ${stop}</div>
-		<div>Description:</div> 
-		<div>${description}</div>
-		<div>${ok} ${cancel}</div>
-	</div>
+    <div class="entry-dialog">
+      <div><label>Summary: ${summary}</label></div>
+      <div><label>From ${start}</label> <label>to ${stop}</label></div>
+      <div><label>Description:<br/>${description}</label></div>
+      <div>${ok} ${cancel}</div>
+    </div>
   </message>
-  
+
   <message id="calendar.all-entries">
 	<div>
 		<div class="all-entries-dialog-entries">${entries}</div>

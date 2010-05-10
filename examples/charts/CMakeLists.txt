@@ -5,7 +5,7 @@ ADD_EXECUTABLE(charts.wt
 	CsvUtil.C
 	ChartsApplication.C
 )
-TARGET_LINK_LIBRARIES(charts.wt wtext ${EXAMPLES_CONNECTOR})
+TARGET_LINK_LIBRARIES(charts.wt wt ${EXAMPLES_CONNECTOR})
 
 #
 # If you have Wt installed somehwere, you should use the
@@ -25,5 +25,3 @@ CONFIGURE_FILE(
   ${WT_SOURCE_DIR}/deploy.sh
   ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
 )
-
-ADD_DEPENDENCIES(charts.wt wt wtext ${EXAMPLES_CONNECTOR})

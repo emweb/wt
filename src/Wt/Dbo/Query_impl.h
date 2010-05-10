@@ -18,17 +18,73 @@ namespace Wt {
   namespace Dbo {
     namespace Impl {
 
+enum StatementKind { Select, Count };
+
+extern std::string WTDBO_API
+createQuerySql(StatementKind kind, const std::vector<FieldInfo>& fields,
+	       const std::string& from);
+
+extern std::string WTDBO_API
+createQuerySql(StatementKind kind, const std::vector<FieldInfo>& fields,
+	       const std::string& from,
+	       const std::string& where,
+	       const std::string& groupBy,
+	       const std::string& orderBy,
+	       int limit,
+	       int offset);
+
+extern void WTDBO_API
+parseSql(const std::string& sql, std::vector<std::string>& aliases,
+	 std::string& rest);
+
+extern std::string WTDBO_API
+selectColumns(const std::vector<FieldInfo>& fields);
+
 template <class Result>
-QueryBase<Result>::QueryBase(Session& session, const std::string& select,
-			     const std::string& from)
-  : session_(session),
-    select_(select),
-    from_(from)
+QueryBase<Result>::QueryBase()
+  : session_(0)
 { }
 
 template <class Result>
-Result QueryBase<Result>::singleResult(const collection<Result>& results)
-  const
+QueryBase<Result>::QueryBase(Session& session, const std::string& sql)
+  : session_(&session)
+{
+  parseSql(sql, aliases_, from_);
+}
+
+template <class Result>
+QueryBase<Result>::QueryBase(Session& session, const std::string& table,
+			     const std::string& where)
+  : session_(&session)
+{
+  from_ = "from \"" + table + "\" " + where;
+}
+
+template <class Result>
+std::vector<FieldInfo> QueryBase<Result>::fields() const
+{
+  std::vector<FieldInfo> result;
+
+  if (aliases_.empty())
+    query_result_traits<Result>::getFields(*session_, 0, result);
+  else {
+    std::vector<std::string> ls = aliases_;
+    query_result_traits<Result>::getFields(*session_, &ls, result);
+    if (!ls.empty())
+      throw std::logic_error("Session::query(): too many aliases for result");
+  }
+
+  return result;
+}
+
+template <class Result>
+Session& QueryBase<Result>::session() const
+{
+  return *session_;
+}
+
+template <class Result>
+Result QueryBase<Result>::singleResult(const collection<Result>& results) const
 {
   typename collection<Result>::const_iterator i = results.begin();
   if (i == results.end())
@@ -44,9 +100,24 @@ Result QueryBase<Result>::singleResult(const collection<Result>& results)
     }
 
 template <class Result>
-Query<Result, DirectBinding>::Query(Session& session, const std::string& select,
-				   const std::string& from)
-  : Impl::QueryBase<Result>(session, select, from),
+Query<Result, DirectBinding>::Query()
+  : statement_(0),
+    countStatement_(0)
+{ }
+
+template <class Result>
+Query<Result, DirectBinding>::Query(Session& session, const std::string& sql)
+  : Impl::QueryBase<Result>(session, sql),
+    statement_(0),
+    countStatement_(0)
+{
+  prepareStatements();
+}
+
+template <class Result>
+Query<Result, DirectBinding>::Query(Session& session, const std::string& table,
+				    const std::string& where)
+  : Impl::QueryBase<Result>(session, table, where),
     statement_(0),
     countStatement_(0)
 {
@@ -91,7 +162,7 @@ collection<Result> Query<Result, DirectBinding>::resultList() const
   SqlStatement *s = this->statement_, *cs = this->countStatement_;
   this->statement_ = this->countStatement_ = 0;
 
-  return collection<Result>(&this->session_, s, cs);
+  return collection<Result>(this->session_, s, cs);
 }
 
 template <class Result>
@@ -109,15 +180,16 @@ Query<Result, DirectBinding>::operator collection<Result> () const
 template <class Result>
 void Query<Result, DirectBinding>::prepareStatements() const
 {
-  this->session_.flush();
+  this->session_->flush();
 
   std::string sql;
 
-  sql = Impl::createQuerySql(Impl::Select, this->select_, this->from_);
-  this->statement_ = this->session_.getOrPrepareStatement(sql);
+  std::vector<FieldInfo> fs = fields();
+  sql = Impl::createQuerySql(Impl::Select, fs, this->from_);
+  this->statement_ = this->session_->getOrPrepareStatement(sql);
 
-  sql = Impl::createQuerySql(Impl::Count, this->select_, this->from_);
-  this->countStatement_ = this->session_.getOrPrepareStatement(sql);
+  sql = Impl::createQuerySql(Impl::Count, fs, this->from_);
+  this->countStatement_ = this->session_->getOrPrepareStatement(sql);
 
   column_ = 0;
 }
@@ -137,23 +209,36 @@ namespace Impl {
 }
 
 template <class Result>
+Query<Result, DynamicBinding>::Query()
+  : limit_(-1),
+    offset_(-1)
+{ }
+
+template <class Result>
+Query<Result, DynamicBinding>::Query(Session& session, const std::string& sql)
+  : Impl::QueryBase<Result>(session, sql),
+    limit_(-1),
+    offset_(-1)
+{ }
+
+template <class Result>
 Query<Result, DynamicBinding>::Query(Session& session,
-				     const std::string& select,
-				     const std::string& from)
-  : Impl::QueryBase<Result>(session, select, from),
-    offset_(-1),
-    limit_(-1)
+				     const std::string& table,
+				     const std::string& where)
+  : Impl::QueryBase<Result>(session, table, where),
+    limit_(-1),
+    offset_(-1)
 { }
 
 template <class Result>
 Query<Result, DynamicBinding>
 ::Query(const Query<Result, DynamicBinding>& other)
-  : Impl::QueryBase<Result>(other.session_, other.select_, other.from_),
+  : Impl::QueryBase<Result>(other),
     where_(other.where_),
     groupBy_(other.groupBy_),
     orderBy_(other.orderBy_),
-    offset_(-1),
-    limit_(-1)
+    limit_(-1),
+    offset_(-1)
 { 
   for (unsigned i = 0; i < other.parameters_.size(); ++i)
     parameters_.push_back(other.parameters_[i]->clone());
@@ -232,22 +317,23 @@ Result Query<Result, DynamicBinding>::resultValue() const
 template <class Result>
 collection<Result> Query<Result, DynamicBinding>::resultList() const
 {
-  this->session_.flush();
+  this->session_->flush();
+
+  std::vector<FieldInfo> fs = fields();
 
   std::string sql;
-
-  sql = Impl::createQuerySql(Impl::Select, this->select_, this->from_,
-			     where_, groupBy_, orderBy_, offset_, limit_);
-  SqlStatement *statement = this->session_.getOrPrepareStatement(sql);
+  sql = Impl::createQuerySql(Impl::Select, fs, this->from_,
+			     where_, groupBy_, orderBy_, limit_, offset_);
+  SqlStatement *statement = this->session_->getOrPrepareStatement(sql);
   bindParameters(statement);
 
-  sql = Impl::createQuerySql(Impl::Count, this->select_, this->from_,
-			     where_, groupBy_, orderBy_, offset_, limit_);
-  SqlStatement *countStatement = this->session_.getOrPrepareStatement(sql);
+  sql = Impl::createQuerySql(Impl::Count, fs, this->from_,
+			     where_, groupBy_, orderBy_, limit_, offset_);
+  SqlStatement *countStatement = this->session_->getOrPrepareStatement(sql);
  
   bindParameters(countStatement);
 
-  return collection<Result>(&this->session_, statement, countStatement);
+  return collection<Result>(this->session_, statement, countStatement);
 }
 
 template <class Result>
@@ -270,11 +356,11 @@ void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
   for (; i < parameters_.size(); ++i)
     parameters_[i]->bind(statement, i);
 
-  if (offset_ != -1)
-    statement->bind(i++, offset_);
-
   if (limit_ != -1)
     statement->bind(i++, limit_);
+
+  if (offset_ != -1)
+    statement->bind(i++, offset_);
 }
 
 template <class Result>

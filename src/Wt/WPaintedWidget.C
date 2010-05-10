@@ -87,7 +87,8 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   if (WApplication::instance()) {
     const WEnvironment& env = WApplication::instance()->environment();
 
-    if (env.userAgent().find("Opera") != std::string::npos)
+    if (env.agentIsOpera()
+	&& env.userAgent().find("Mac OS X") == std::string::npos)
       preferredMethod_ = InlineSvgVml;
   }
 

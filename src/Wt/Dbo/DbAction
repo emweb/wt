@@ -34,7 +34,8 @@ class SqlStatement;
 class WTDBO_API PrepareStatements
 {
 public:
-  PrepareStatements(Session& session, const char *tableName);
+  PrepareStatements(Session& session, const char *tableName,
+		    std::vector<FieldInfo>& fields);
 
   template<class C> void visitSelf(C& obj);
   template<class C> void visitCollections(C& obj);
@@ -44,8 +45,8 @@ public:
   template<class C> void descend(ptr<C>& obj);
 
   std::vector<std::string> getSelfSql() const;
+  
   void addCollectionsSql(std::vector<std::string>& statements) const;
-  int columnCount() const;
 
   bool isWriting() const;
   bool isReading() const;
@@ -69,7 +70,7 @@ private:
 
   enum { Self, Collections } pass_;
 
-  std::vector<std::string> fields_;
+  std::vector<FieldInfo>& fields_;
   std::vector<SetInfo> sets_;
 };
 
@@ -259,6 +260,45 @@ private:
   std::string joinName_;
   std::string result_;
   bool found_;
+};
+
+class WTDBO_API ToAnysAction
+{
+public:
+  ToAnysAction(std::vector<boost::any>& result);
+
+  template<class C> void visit(const ptr<C>& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+private:
+  std::vector<boost::any>& result_;
+};
+
+class WTDBO_API FromAnysAction
+{
+public:
+  FromAnysAction(const std::vector<boost::any>& anys, int& index);
+
+  template<class C> void visit(C& obj);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+  template<class C> void descend(ptr<C>& obj);
+
+  bool isWriting() const;
+  bool isReading() const;
+  bool isSchema() const;
+
+private:
+  const std::vector<boost::any>& anys_;
+  int& index_;
 };
 
   }

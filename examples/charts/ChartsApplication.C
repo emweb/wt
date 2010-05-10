@@ -12,21 +12,24 @@ using namespace Wt;
 class ChartsApplication: public WApplication
 {
 public:
-  ChartsApplication(const WEnvironment& env): WApplication(env) {
-  setTitle("Charts example");
+  ChartsApplication(const WEnvironment& env)
+    : WApplication(env)
+  {
+    setTitle("Charts example");
 
-  messageResourceBundle().use("charts");
+    setCssTheme("polished");
+    messageResourceBundle().use("charts");
 
-  root()->setPadding(10);
-  root()->resize(WLength::Auto, WLength::Auto);
+    root()->setPadding(10);
+    root()->resize(WLength::Auto, WLength::Auto);
 
-  new ChartsExample(root());
+    new ChartsExample(root());
 
 
-  /*
-   * Set our style sheet last, so that it loaded after the ext stylesheets.
-   */
-  useStyleSheet("charts.css");
+    /*
+     * Set our style sheet last, so that it loaded after the ext stylesheets.
+     */
+    useStyleSheet("charts.css");
   }
 };
 

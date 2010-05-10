@@ -8,7 +8,9 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 
+#include <Wt/WApplication>
 #include <Wt/WContainerWidget>
+#include <Wt/WEnvironment>
 #include <Wt/WPanel>
 #include <Wt/WPushButton>
 #include <Wt/WStandardItem>
@@ -41,10 +43,12 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   WPanel *panel = new WPanel(this);
   panel->resize(600, 300);
   panel->setCentralWidget(treeView_ = new WTreeView());
+  if (!WApplication::instance()->environment().ajax())
+    treeView_->resize(WLength::Auto, 290);
   treeView_->setAlternatingRowColors(!treeView_->alternatingRowColors());
   treeView_->setRowHeight(25);
   treeView_->setModel(model_);
-  treeView_->setSelectionMode(NoSelection);
+  //treeView_->setSelectionMode(SingleSelection);
 
   treeView_->setColumnWidth(1, WLength(100));
   treeView_->setColumnAlignment(1, AlignCenter);

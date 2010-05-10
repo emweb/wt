@@ -103,8 +103,10 @@ std::string DataStore::jsCreateStore()
       if (i != 0)
 	store += ",";
       store += "[" + boost::lexical_cast<std::string>(getRecordId(i));
-      for (unsigned j = 0; j < columns_.size(); ++j)
+      for (unsigned j = 0; j < columns_.size(); ++j) {
+	// XHTML escaping if needed
 	store += "," + asJSLiteral(model_->data(i, columns_[j].modelColumn));
+      }
       store += "]";
     }
 

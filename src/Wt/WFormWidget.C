@@ -37,7 +37,11 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
 #ifndef WT_TARGET_JAVA
 WStatelessSlot *WFormWidget::getStateless(Method method)
 {
-  if (method == static_cast<WObject::Method>(&WFormWidget::setFocus))
+  typedef void (WFormWidget::*Type)();
+
+  Type focusMethod = &WFormWidget::setFocus;
+
+  if (method == static_cast<WObject::Method>(focusMethod))
     return implementStateless(&WFormWidget::setFocus,
 			      &WFormWidget::undoSetFocus);
   else
@@ -78,10 +82,15 @@ EventSignal<>& WFormWidget::focussed()
   return *voidEventSignal(FOCUS_SIGNAL, true);
 }
 
+void WFormWidget::setFocus(bool focus)
+{
+  flags_.set(BIT_GOT_FOCUS, focus);
+  repaint(RepaintPropertyIEMobile);
+}
+
 void WFormWidget::setFocus()
 {
-  flags_.set(BIT_GOT_FOCUS);
-  repaint(RepaintPropertyIEMobile);
+  setFocus(true);
 }
 
 void WFormWidget::undoSetFocus()
@@ -258,11 +267,16 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   if (isEnabled()) {
     if (all && flags_.test(BIT_GOT_FOCUS))
       flags_.set(BIT_INITIAL_FOCUS);
-  
+
     if (flags_.test(BIT_GOT_FOCUS)
 	|| (all && flags_.test(BIT_INITIAL_FOCUS))) {
-      element.callJavaScript("setTimeout(function() { "
-			     + jsRef() + ".focus(); }, 1);");
+      if (env.agentIsIE())
+	element.callJavaScript("setTimeout(function() {"
+			       """var f = " + jsRef() + ";"
+			       """if (f) f.focus(); }, 500);");
+      else
+	element.callMethod("focus()");
+
       flags_.reset(BIT_GOT_FOCUS);
     }
   }

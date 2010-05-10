@@ -11,6 +11,7 @@
 #include <Wt/WDatePicker>
 #include <Wt/WDateValidator>
 #include <Wt/WDialog>
+#include <Wt/WEnvironment>
 #include <Wt/WIntValidator>
 #include <Wt/WItemDelegate>
 #include <Wt/WLabel>
@@ -23,6 +24,7 @@
 #include <Wt/WSortFilterProxyModel>
 #include <Wt/WStandardItem>
 #include <Wt/WStandardItemModel>
+#include <Wt/WTableView>
 #include <Wt/WTreeView>
 #include <Wt/WText>
 #include <Wt/WVBoxLayout>
@@ -287,7 +289,7 @@ private:
   WTreeView *folderView_;
 
   /// The file view.
-  WTreeView *fileView_;
+  WTableView *fileView_;
 
   /// Popup menu on the folder view
   WPopupMenu *popup_;
@@ -370,43 +372,41 @@ private:
     return treeView;
   }
 
-  /*! \brief Creates the file table view (also a WTreeView)
+  /*! \brief Creates the file table view (a WTableView)
    */
-  WTreeView *fileView() {
-    WTreeView *treeView = new WTreeView();
+  WTableView *fileView() {
+    WTableView *tableView = new WTableView();
 
-    // Hide the tree-like decoration on the first column, to make it
-    // resemble a plain table
-    treeView->setRootIsDecorated(false);
-    treeView->setAlternatingRowColors(true);
+    tableView->setAlternatingRowColors(true);
 
-    treeView->setModel(fileFilterModel_);
-    treeView->setSelectionMode(ExtendedSelection);
-    treeView->setDragEnabled(true);
+    tableView->setModel(fileFilterModel_);
+    tableView->setSelectionMode(ExtendedSelection);
+    tableView->setDragEnabled(true);
 
-    treeView->setColumnWidth(0, 100);
-    treeView->setColumnWidth(1, 150);
-    treeView->setColumnWidth(2, 100);
-    treeView->setColumnWidth(3, 60);
-    treeView->setColumnWidth(4, 100);
-    treeView->setColumnWidth(5, 100);
+    tableView->setColumnWidth(0, 100);
+    tableView->setColumnWidth(1, 150);
+    tableView->setColumnWidth(2, 100);
+    tableView->setColumnWidth(3, 60);
+    tableView->setColumnWidth(4, 100);
+    tableView->setColumnWidth(5, 100);
 
     WItemDelegate *delegate = new WItemDelegate(this);
     delegate->setTextFormat(FileModel::dateDisplayFormat);
-    treeView->setItemDelegateForColumn(4, delegate);
-    treeView->setItemDelegateForColumn(5, delegate);
+    tableView->setItemDelegateForColumn(4, delegate);
+    tableView->setItemDelegateForColumn(5, delegate);
 
-    treeView->setColumnAlignment(3, AlignRight);
-    treeView->setColumnAlignment(4, AlignRight);
-    treeView->setColumnAlignment(5, AlignRight);
+    tableView->setColumnAlignment(3, AlignRight);
+    tableView->setColumnAlignment(4, AlignRight);
+    tableView->setColumnAlignment(5, AlignRight);
 
-    treeView->sortByColumn(1, AscendingOrder);
+    tableView->sortByColumn(1, AscendingOrder);
 
-    treeView->doubleClicked().connect(SLOT(this, TreeViewDragDrop::editFile));
+    tableView->doubleClicked()
+      .connect(SLOT(this, TreeViewDragDrop::editFile));
 
-    fileView_ = treeView;
+    fileView_ = tableView;
 
-    return treeView;
+    return tableView;
   }
 
   /*! \brief Edit a particular row.
@@ -429,9 +429,18 @@ private:
 
     chart->setPerspectiveEnabled(true, 0.2);
     chart->setDisplayLabels(Outside | TextLabel);
-    chart->setStyleClass("about");
 
-    return chart;
+    if (!WApplication::instance()->environment().ajax()) {
+      chart->resize(500, 200);
+      chart->setMargin(WLength::Auto, Left | Right);
+      WContainerWidget *w = new WContainerWidget();
+      w->addWidget(chart);
+      w->setStyleClass("about");
+      return w;
+    } else {
+      chart->setStyleClass("about");
+      return chart;
+    }
   }
 
   /*! \brief Creates the hints text.

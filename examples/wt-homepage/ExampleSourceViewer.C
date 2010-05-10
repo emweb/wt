@@ -122,7 +122,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
 
   exampleView_ = new WTreeView();
   exampleView_->setHeaderHeight(0);
-  exampleView_->resize(300, 300);
+  exampleView_->resize(300, WLength::Auto);
   exampleView_->setSortingEnabled(false);
   exampleView_->setModel(model_);
   exampleView_->expandToDepth(1);

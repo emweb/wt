@@ -1,3 +1,4 @@
+// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2010 Emweb bvba, Heverlee, Belgium.
  *
@@ -7,14 +8,14 @@
 #ifndef SHAPES_WIDGET_H_
 #define SHAPES_WIDGET_H_
 
-
 #include "Shape.h"
 
 #include <Wt/WPaintedWidget>
 #include <Wt/WPaintDevice>
 
-class ShapesWidget : public Wt::WPaintedWidget {
- public:
+class ShapesWidget : public Wt::WPaintedWidget
+{
+public:
   ShapesWidget(Wt::WContainerWidget* parent);
   ~ShapesWidget();
 
@@ -23,10 +24,10 @@ class ShapesWidget : public Wt::WPaintedWidget {
   bool correctlyClicked(const Wt::WMouseEvent& me);
   void initShapes();
   
- protected:
+protected:
   virtual void paintEvent(Wt::WPaintDevice *paintDevice);
 
- private:
+private:
   int randomInt(const unsigned max);
   double randomDouble();
   bool sameShapeAndColor(const Shape* s1, const Shape* s2);
@@ -34,7 +35,7 @@ class ShapesWidget : public Wt::WPaintedWidget {
   Shape* createRandomShape();
   void cleanupShapes();
 
- private:
+private:
   std::vector<Shape*> shapes_;
   Shape* toSelect_;
 };

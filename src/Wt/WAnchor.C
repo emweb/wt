@@ -235,7 +235,7 @@ void WAnchor::updateDom(DomElement& element, bool all)
 	if (!changeInternalPathJS_) {
 	  changeInternalPathJS_ = new JSlot();
 	  clicked().connect(*changeInternalPathJS_);
-	  clicked().setPreventDefault(true);
+	  clicked().preventDefaultAction();
 	}
 
 	changeInternalPathJS_->setJavaScript

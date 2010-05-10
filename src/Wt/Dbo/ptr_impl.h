@@ -288,6 +288,15 @@ long long ptr<C>::id() const
 }
 
 template <class C>
+int ptr<C>::version() const
+{
+  if (obj_)
+    return obj_->version();
+  else
+    return -1;
+}
+
+template <class C>
 ptr<C>::ptr(MetaDbo<C> *obj)
   : obj_(obj)
 {
@@ -317,15 +326,28 @@ void ptr<C>::freeObj()
 }
 
 template <class C>
-std::string sql_result_traits< ptr<C> >
-::getColumns(Session& session, std::vector<std::string> *aliases)
+void query_result_traits< ptr<C> >
+::getFields(Session& session, std::vector<std::string> *aliases,
+	    std::vector<FieldInfo>& result)
 {
-  return session.getColumns(session.tableName<C>(), aliases);
+  std::size_t first = result.size();
+  session.getFields(session.tableName<C>(), result);
+
+  if (aliases) {
+    if (aliases->empty())
+      throw std::logic_error("Session::query(): not enough aliases for result");
+
+    std::string alias = aliases->front();
+    aliases->erase(aliases->begin());
+
+    for (std::size_t i = first; i < result.size(); ++i)
+      result[i].setQualifier(alias);
+  }
 }
 
 template <class C>
-ptr<C> sql_result_traits< ptr<C> >
-::loadValues(Session& session, SqlStatement& statement, int& column)
+ptr<C> query_result_traits< ptr<C> >
+::load(Session& session, SqlStatement& statement, int& column)
 {
   long long id;
   statement.getResult(column++, &id);
@@ -333,6 +355,13 @@ ptr<C> sql_result_traits< ptr<C> >
   return session.template load<C>(id, &statement, column);
 }
 
+template <class C>
+void query_result_traits< ptr<C> >
+::getValues(const ptr<C>& ptr, std::vector<boost::any>& values)
+{
+  ToAnysAction action(values);
+  action.visit(ptr);
+}
   }
 }
 

@@ -1,30 +1,25 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2010 Emweb bvba, Leuven, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
 #ifndef WFLASHOBJECT_H_
 #define WFLASHOBJECT_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WWebWidget>
 
 namespace Wt {
 
 /*! \class WFlashObject Wt/WFlashObject Wt/WFlashObject
  *  \brief A widget that renders a Flash object (also known as Flash movie).
  *
- * This class dynamically loads a .swf Flash file in the browser.
- *
- * This widget is a container, which means that you can instantiate
- * additional widgets inside it. These widgets can for example be the
- * content that is shown when a Flash player is not available on the
- * system or when JavaScript is disabled.
+ * This class loads a .swf Flash file in the browser.
  *
  * \if cpp
  * Usage example:
  * \code
- * WFlash *player = new WFlash("dummy.swf", parent);
+ * WFlashObject *player = new WFlashObject("dummy.swf", parent);
  * player->resize(300, 600);
  * player->setFlashParameter("allowScriptAccess", "always");
  * player->setFlashParameter("quality", "high");
@@ -33,15 +28,24 @@ namespace Wt {
  * \endcode
  * \endif
  *
- * This class uses <i>resourcesURL</i>"/swfobject.js", a companion
- * JavaScript library, which is distributed with %Wt in the resources
- * folder, see also \ref deployment "deployment and resources".
+ * Flash objects must have their size set, so do not forget to call
+ * resize() after instantiation or your content will be invisible. Wt
+ * will modify width and height attributes of the Flash object if resize()
+ * is called after the object is instantiated; it is however not clear
+ * if this is permitted by the Flash plugin.
+ *
+ * Any WWidget can be set with setAlternativeContent(), and this widget
+ * will be shown only when the browser has no Flash support. By default,
+ * a 'Download Flash' button will be displayed that links to a website
+ * where the Flash player can be downloaded. You may modify this to be
+ * any widget, such as a WImage, or a native Wt implementation of the
+ * Flash movie.
  *
  * <h3>CSS</h3>
  *
  * Styling through CSS is not applicable.
  */
-class WT_API WFlashObject : public WContainerWidget
+class WT_API WFlashObject : public WWebWidget
 {
 public:
   /*! \brief Constructs a Flash widget.
@@ -59,9 +63,8 @@ public:
   /*! \brief Sets a Flash parameter.
    *
    * The Flash parameters are items such as quality, scale, menu, ...
-   * Depending on the browser they are passed as attributes or PARAM
-   * objects to the Flash movie. See the adobe website for more information
-   * about these parameters:
+   * They are passed as PARAM objects to the Flash movie. See the
+   * adobe website for more information about these parameters:
    * http://www.adobe.com/cfusion/knowledgebase/index.cfm?id=tn_12701
    *
    * Setting the same Flash parameter a second time will overwrite the
@@ -76,8 +79,11 @@ public:
    * This method is a helper function to set variable values in the
    * flashvars parameter.
    *
-   * Setting the same Flash parameter a second time will overwrite the
-   * previous value. Flash parameters can only be set before the widget
+   * The flash variables will be properly encoded (URL encoding) before
+   * being passed to the flashvars parameter.
+   *
+   * Setting the same Flash variable a second time will overwrite the
+   * previous value. Flash variables can only be set before the widget
    * is rendered for the first time, so it is recommended to call this
    * method shortly after construction before returning to the idle loop.
    */
@@ -92,10 +98,22 @@ public:
    */
   std::string jsFlashRef() const;
 
+  /*! \brief Sets content to be displayed if Flash is not available.
+   *
+   * Any widget can be a placeholder when Flash is not installed in the
+   * users browser. By default, this will show a 'Download Flash' button
+   * and link to the Flash download site.
+   *
+   * Call this method with a NULL pointer to remove the alternative content.
+   */
+  void setAlternativeContent(WWidget *alternative);
+
 protected:
+  void updateDom(DomElement& element, bool all);
   void getDomChanges(std::vector<DomElement *>& result,
                      WApplication *app);
-  virtual DomElement *createDomElement(WApplication *app);
+  //virtual DomElement *createDomElement(WApplication *app);
+  DomElementType domElementType() const;
 
 private:
   std::string url_;
@@ -103,7 +121,7 @@ private:
   bool sizeChanged_;
   std::map<std::string, WString> parameters_;
   std::map<std::string, WString> variables_;
-
+  WWidget *alternative_;
 };
 
 }

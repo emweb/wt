@@ -1,5 +1,6 @@
+// This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 2008 Emweb bvba, Heverlee, Belgium.
+ * Copyright (C) 2010 Emweb bvba, Heverlee, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -14,17 +15,20 @@
 #include <string>
 
 /*
- * A planner application class which demonstrates how to customize cell rendering in a calendar, paint a captcha in WPaintedWidget and connect to a database via Dbo.
+ * A planner application class which demonstrates how to customize
+ * cell rendering in a calendar, paint a captcha in WPaintedWidget and
+ * connect to a database via Dbo.
  */
 class PlannerApplication : public Wt::WApplication
 {
 public:
   PlannerApplication(const Wt::WEnvironment& env);
+
   static PlannerApplication* plannerApplication() {
     return (PlannerApplication*)WApplication::instance();
   }
 
- public:
+public:
   Wt::Dbo::Session session;
 
  private:

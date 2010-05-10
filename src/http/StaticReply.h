@@ -59,6 +59,12 @@ private:
   std::string computeModifiedDate() const;
   std::string computeETag() const;
   static std::string computeExpires();
+
+  void parseRangeHeader();
+  bool hasRange_;
+  boost::intmax_t rangeBegin_;
+  boost::intmax_t rangeEnd_;
+
 };
 
 } // namespace server

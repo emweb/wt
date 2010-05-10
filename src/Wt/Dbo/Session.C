@@ -15,11 +15,11 @@
 #include <cassert>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 
 namespace Wt {
   namespace Dbo {
     namespace Impl {
+
 std::string& replace(std::string& s, char c, const std::string& r)
 {
   std::string::size_type p = 0;
@@ -37,7 +37,8 @@ std::string quoteSchemaDot(const std::string& table) {
   replace(result, '.', "\".\"");
   return result;
 }
-    }
+
+    } // end namespace Impl
 
 Session::Session()
   : connection_(0),
@@ -238,71 +239,22 @@ void Session::doDelete(SqlStatement *statement, long long id,
 Session::ClassMappingInfo::~ClassMappingInfo()
 { }
 
-static std::string& replace(std::string& s, const std::string& k,
-			    const std::string& r)
+void Session::getFields(const char *tableName,
+			std::vector<FieldInfo>& result)
 {
-  std::string::size_type p = 0;
+  result.push_back(FieldInfo("id", &typeid(long long), FieldInfo::Id));
+  result.push_back(FieldInfo("version", &typeid(int), FieldInfo::Version));
 
-  while ((p = s.find(k, p)) != std::string::npos) {
-    s.replace(p, k.length(), r);
-    p += r.length();
-  }
-
-  return s;
+  TableRegistry::const_iterator i = tableRegistry_.find(tableName);
+  if (i != tableRegistry_.end()) {
+    ClassMappingInfo *info = i->second;
+    if (info->statements.empty())
+      info->prepareStatements(*this);
+    result.insert(result.end(), info->fields.begin(), info->fields.end());
+  } else
+    throw std::logic_error(std::string("Table ") + tableName
+			   + " was not mapped.");
 }
 
-void Session::parseSql(const std::string& sql,
-		       std::vector<std::string>& aliases,
-		       std::string& rest)
-{
-  std::size_t selectPos = sql.find("select ");
-  if (selectPos == std::string::npos) {
-    aliases.clear();
-    rest = sql;
-    return;
-  }
-
-  if (selectPos != 0)
-    throw std::logic_error("Session::query(): query should start with 'select '"
-			   " (sql='" + sql + "'");
-
-  std::string aliasStr;
-  std::size_t fromPos = sql.find(" from ");
-  if (fromPos != std::string::npos) {
-    aliasStr = sql.substr(7, fromPos - 7);
-    rest = sql.substr(fromPos);
-  } else {
-    aliasStr = sql.substr(7);
-    rest = std::string();
-  }
-
-  boost::split(aliases, aliasStr, boost::is_any_of(","));
-}
-
-std::string Session::getColumns(const char *tableName,
-				std::vector<std::string> *aliases)
-{
-  std::string columns = *getStatementSql(tableName, SqlSelectById);
-
-  std::size_t f = columns.find(" from ");
-  columns.erase(f);
-
-  // 'select version' -> 'id, version'
-  columns.insert(7, "\"id\", ");
-  columns.erase(0, 7);
-
-  if (aliases) {
-    if (aliases->empty())
-      throw std::logic_error("Session::query(): not enough aliases for result");
-
-    std::string alias = aliases->front();
-    aliases->erase(aliases->begin());
-
-    replace(columns, ", ", ", " + alias + ".");
-    columns = alias + "." + columns;
-  }
-
-  return columns;
-}
   }
 }

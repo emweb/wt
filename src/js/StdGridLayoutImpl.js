@@ -321,7 +321,7 @@ WT_DECLARE_WT_MEMBER
 		       minDelta, maxDelta, 'Wt-vsh',
 		       function(delta) {
 			 doneRowResize(td, ri, delta);
-		       }, div, event, 0, 0);
+		       }, div, widget, event, 0, 0);
    }
 
    function startColResize(td, ci, event) {
@@ -337,7 +337,7 @@ WT_DECLARE_WT_MEMBER
 		       minDelta, maxDelta, 'Wt-hsh',
 		       function(delta) {
 			 doneColResize(td, ci, delta);
-		       }, div, event, 0, -td.offsetTop + padTop
+		       }, div, widget, event, 0, -td.offsetTop + padTop
 		       - WT.pxself(td, 'paddingTop'));
    }
 

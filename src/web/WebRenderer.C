@@ -697,13 +697,13 @@ std::string WebRenderer::safeJsStringLiteral(const std::string& value)
 void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 				      bool all)
 {
-  if (app->showLoadingIndicator_->needUpdate() || all) {
+  if (app->showLoadingIndicator_->needsUpdate(all)) {
     out << "showLoadingIndicator = function() {var o=null,e=null;\n"
 	<< app->showLoadingIndicator_->javaScript() << "};\n";
     app->showLoadingIndicator_->updateOk();
   }
 
-  if (app->hideLoadingIndicator_->needUpdate() || all) {
+  if (app->hideLoadingIndicator_->needsUpdate(all)) {
     out << "hideLoadingIndicator = function() {var o=null,e=null;\n"
 	<< app->hideLoadingIndicator_->javaScript() << "};\n";
     app->hideLoadingIndicator_->updateOk();

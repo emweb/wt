@@ -634,6 +634,33 @@ void DboTest::test8()
   }
 }
 
+void DboTest::test9()
+{
+  setup();
+
+  try {
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<A> a(new A());
+
+      typedef dbo::query_result_traits< dbo::ptr<A> > A_traits;
+
+      std::vector<boost::any> values;
+      A_traits::getValues(a, values);
+
+      std::cerr << values.size() << std::endl;
+
+      t.commit();
+    }
+
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
+}
+
 DboTest::DboTest()
   : test_suite("dbotest_test_suite")
 {
@@ -645,4 +672,5 @@ DboTest::DboTest()
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test6, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test7, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test8, this)));
+  add(BOOST_TEST_CASE(boost::bind(&DboTest::test9, this)));
 }

@@ -183,7 +183,10 @@ boost::any WStandardItem::data(int role) const
   if (i != data_.end())
     return i->second;
   else
-    return boost::any();
+    if (role == EditRole)
+      return data(DisplayRole);
+    else
+      return boost::any();
 }
 
 void WStandardItem::setText(const WString& text)

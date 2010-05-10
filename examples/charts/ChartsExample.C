@@ -14,19 +14,15 @@
 #include <Wt/WApplication>
 #include <Wt/WDate>
 #include <Wt/WEnvironment>
+#include <Wt/WItemDelegate>
 #include <Wt/WStandardItemModel>
 #include <Wt/WText>
 
 #include <Wt/WBorderLayout>
 #include <Wt/WFitLayout>
 
-#include <Wt/Ext/Calendar>
-#include <Wt/Ext/Container>
-#include <Wt/Ext/DateField>
-#include <Wt/Ext/LineEdit>
-#include <Wt/Ext/NumberField>
-#include <Wt/Ext/Panel>
-#include <Wt/Ext/TableView>
+#include <Wt/WStandardItem>
+#include <Wt/WTableView>
 
 #include <Wt/Chart/WCartesianChart>
 #include <Wt/Chart/WPieChart>
@@ -42,6 +38,11 @@ namespace {
     
     if (f) {
       readFromCsv(f, model);
+
+      for (int row = 0; row < model->rowCount(); ++row)
+	for (int col = 0; col < model->columnCount(); ++col)
+	  model->item(row, col)->setFlags(ItemIsSelectable | ItemIsEditable);
+
       return model;
     } else {
       WString error(WString::tr("error-missing-data"));
@@ -73,30 +74,45 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   if (!model)
     return;
 
-  /*
-   * If we have JavaScript, show an Ext table view that allows editing
-   * of the model.
-   */
-  if (wApp->environment().javaScript()) {
-    WContainerWidget *w = new WContainerWidget(this);
-    Ext::TableView *table = new Ext::TableView(w);
-    table->setMargin(10, Top | Bottom);
-    table->setMargin(WLength::Auto, Left | Right);
-    table->resize(500, 175);
-    table->setModel(model);
-    table->setAutoExpandColumn(0);
+  // Show a view that allows editing of the model.
+  WContainerWidget *w = new WContainerWidget(this);
+  WTableView *table = new WTableView(w);
 
-    table->setEditor(0, new Ext::LineEdit());
+  table->setMargin(10, Top | Bottom);
+  table->setMargin(WLength::Auto, Left | Right);
 
-    for (int i = 1; i < model->columnCount(); ++i) {
-      Ext::NumberField *nf = new Ext::NumberField();
-      table->setEditor(i, nf);
-    }
+  table->setModel(model);
+  table->setSortingEnabled(true);
+  table->setColumnResizeEnabled(true);
+  table->setSelectionMode(NoSelection);
+  table->setAlternatingRowColors(true);
+  table->setColumnAlignment(0, AlignCenter);
+  table->setHeaderAlignment(0, AlignCenter);
+  table->setRowHeight(22); // height needed for line edit in IE
+
+  if (WApplication::instance()->environment().ajax()) {
+    table->resize(600, 20 + 5*22);
+    table->setEditTriggers(WAbstractItemView::SingleClicked);
+  } else {
+    table->resize(600, WLength::Auto);
+
+    // Editing does not really work without Ajax, it would require an
+    // additional button somewhere to confirm the edited value
+    table->setEditTriggers(WAbstractItemView::NoEditTrigger);
   }
+
+  WItemDelegate *delegate = new WItemDelegate(this);
+  delegate->setTextFormat("%.f");
+  table->setItemDelegate(delegate);
+
+  table->setColumnWidth(0, 80);
+  for (int i = 1; i < model->columnCount(); ++i)
+    table->setColumnWidth(i, 120);
 
   /*
    * Create the category chart.
    */
+
   WCartesianChart *chart = new WCartesianChart(this);
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the categories
@@ -235,23 +251,22 @@ PieExample::PieExample(WContainerWidget *parent):
   if (!model)
     return;
 
-  /*
-   * If we have JavaScript, show an Ext table view that allows editing
-   * of the model.
-   */
-  if (wApp->environment().javaScript()) {
-    WContainerWidget *w = new WContainerWidget(this);
-    Ext::TableView *table = new Ext::TableView(w);
-    table->setMargin(10, Top | Bottom);
-    table->setMargin(WLength::Auto, Left | Right);
-    table->resize(300, 175);
-    table->setModel(model);
-    table->setAutoExpandColumn(0);
+  WContainerWidget *w = new WContainerWidget(this);
+  WTableView* table = new WTableView(w);
 
-    table->setEditor(0, new Ext::LineEdit());
+  table->setMargin(10, Top | Bottom);
+  table->setMargin(WLength::Auto, Left | Right);
+  table->setSortingEnabled(true);
+  table->setModel(model);
+  table->setColumnWidth(1, 100);
+  table->setRowHeight(22); // height needed for line edit in IE
 
-    for (int i = 1; i < model->columnCount(); ++i)
-      table->setEditor(i, new Ext::NumberField());
+  if (WApplication::instance()->environment().ajax()) {
+    table->resize(150 + 100 + 14, 20 + 6 * 22);
+    table->setEditTriggers(WAbstractItemView::SingleClicked);
+  } else {
+    table->resize(150 + 100 + 14, WLength::Auto);
+    table->setEditTriggers(WAbstractItemView::NoEditTrigger);    
   }
 
   /*

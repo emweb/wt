@@ -14,6 +14,7 @@
 
 #include <Wt/Dbo/ptr>
 #include <Wt/Dbo/collection>
+#include <Wt/Dbo/Query>
 #include <Wt/Dbo/Transaction>
 
 namespace Wt {
@@ -152,13 +153,12 @@ public:
    * This method is convenient when you are querying only results from a
    * single table. For more generic query support, see query().
    *
-   * This method calls find<C, DynamicBinding>(condition).
+   * This method calls find<C>(condition).
    *
    * \sa query()
    */
   template <class C>
-    Query< ptr<C>, DynamicBinding>
-    find(const std::string& condition = std::string()) {
+    Query< ptr<C> > find(const std::string& condition = std::string()) {
     // implemented in-line because otherwise it crashes gcc 4.0.1
     return find<C, DynamicBinding>(condition);
   }
@@ -201,14 +201,15 @@ public:
    *
    * \sa query()
    */
-  template <class Result>
-    Query<Result, DynamicBinding> query(const std::string& sql);
+  template <class Result> Query<Result> query(const std::string& sql);
 
   /*! \brief Creates a query.
    *
-   * The sql statement should be a complete SQL statement, however the
-   * columns listed (in the SELECT part) will be edited depending on
-   * the \p Result type.
+   * The sql statement should be a complete SQL statement, starting
+   * with a "select ". The items listed in the "select" must match the
+   * \p Result type. An item that corresponds to a database object
+   * (ptr) is substituted with the selection of all the fields in the
+   * dbo.
    *
    * For example, the following query (class User is mapped onto table 'user'):
    * \code
@@ -221,12 +222,15 @@ public:
    *   .where("name = ?").bind("Bart");
    * \endcode
    *
+   * Note that "u" in this query will be expanded to select the fields of the
+   * user table (u.id, u.version, u.name, ...).
+   *
    * The power of %query() versus find() is however that it may support other 
    * result types.
    *
    * Thus, it may return plain values:
    * \code
-   * return session.query<int>("select count(*) from ...");
+   * return session.query<int>("select count(1) from ...");
    * \endcode
    *
    * Or Boost.Tuple for an arbitrary combination of result values:
@@ -256,7 +260,7 @@ public:
    * the benefit of binding parameters directly to the underlying
    * prepared statement.
    *
-   * This method uses sql_result_traits to unmarshal the query result
+   * This method uses query_result_traits to unmarshal the query result
    * into the \p Result type.
    */
   template <class Result, typename BindStrategy>
@@ -299,8 +303,7 @@ public:
    */
   void flush();
 
-  std::string getColumns(const char *tableName,
-			 std::vector<std::string> *aliases);
+  void getFields(const char *tableName, std::vector<FieldInfo>& result);
   
 private:
   Session(const Session& s);
@@ -336,7 +339,7 @@ private:
 
   struct WTDBO_API ClassMappingInfo {
     const char *tableName;
-    int columnCount;
+    std::vector<FieldInfo> fields;
     std::vector<std::string> statements;
 
     virtual ~ClassMappingInfo();
@@ -358,8 +361,10 @@ private:
   };
 
   typedef std::map<const std::type_info *, ClassMappingInfo *> ClassRegistry;
+  typedef std::map<std::string, ClassMappingInfo *> TableRegistry;
   
   ClassRegistry      classRegistry_;
+  TableRegistry      tableRegistry_;
   Registry           registry_;
   MetaDboBaseSet     dirtyObjects_;
   SqlConnection     *connection_;
@@ -390,8 +395,6 @@ private:
   SqlStatement *prepareStatement(const std::string& id,
 				 const std::string& sql);
   SqlStatement *getOrPrepareStatement(const std::string& sql);
-  void parseSql(const std::string& sql, std::vector<std::string>& aliases,
-		std::string& rest);
 
   template <class C> void prepareStatements();
   template <class C> std::string manyToManyJoinId(const std::string& joinName,
@@ -408,7 +411,7 @@ private:
   template <class C> friend class collection;
   template <class C, typename S> friend class Query;
   template <typename V> friend class FieldRef;
-  template <class C> friend struct sql_result_traits;
+  template <class C> friend struct query_result_traits;
 
   friend class Call;
   friend class Transaction;

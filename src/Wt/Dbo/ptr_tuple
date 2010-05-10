@@ -39,42 +39,46 @@ namespace Impl {
   {
     typedef typename boost::tuples::element<N, T>::type ElementType;
 
-    static std::string getColumns(Session& session,
-				  std::vector<std::string> *aliases)
+    static void getFields(Session& session,
+			  std::vector<std::string> *aliases,
+			  std::vector<FieldInfo>& result)
     {
-      std::string result = helper<N-1, T>::getColumns(session, aliases);
+      helper<N-1, T>::getFields(session, aliases, result);
+      query_result_traits<ElementType>::getFields(session, aliases, result);
+    }
 
-      if (!result.empty())
-	result += " ,";
-
-      result += sql_result_traits<ElementType>::getColumns(session, aliases);
-
-      return result;
-    };
-
-    static void loadValues(Session& session, SqlStatement& statement,
-			   int& column, T& result)
+    static void load(Session& session, SqlStatement& statement,
+		     int& column, T& result)
     {
-      helper<N-1, T>::loadValues(session, statement, column, result);
+      helper<N-1, T>::load(session, statement, column, result);
 
       boost::get<N>(result)
-	= sql_result_traits<ElementType>::loadValues(session, statement,
-						     column);
+	= query_result_traits<ElementType>::load(session, statement, column);
+    }
+
+    static void getValues(const T& result, std::vector<boost::any>& values)
+    {
+      helper<N-1, T>::getValues(result, values);
+
+      query_result_traits<ElementType>::getValues(boost::get<N>(result),
+						  values);
     }
   };
 
   template <class T>
   struct helper<-1, T>
   {
-    static std::string getColumns(Session& session,
-				  std::vector<std::string> *aliases)
-    {
-      return std::string();
-    };
+    static void getFields(Session& session,
+			  std::vector<std::string> *aliases,
+			  std::vector<FieldInfo>& result)
+    { }
 
-    static void loadValues(Session& session, SqlStatement& statement,
-			   int& column, T& result)
-    { };
+    static void load(Session& session, SqlStatement& statement,
+		     int& column, T& result)
+    { }
+
+    static void getValues(const T& result, std::vector<boost::any>& values)
+    { }
   };
 
 }
@@ -98,7 +102,7 @@ namespace Impl {
  *
  * \note Boost.Tuple (in its general form) is supported as a result for a
  *       Session::query() by a partial template specialization of
- *       sql_result_traits.
+ *       query_result_traits.
  *
  * \ingroup dbo
  */
@@ -141,39 +145,54 @@ struct ptr_tuple
 
 template <class T0, class T1, class T2, class T3, class T4,
 	  class T5, class T6, class T7, class T8, class T9>
-struct sql_result_traits< boost::tuple<T0, T1, T2, T3, T4,
+struct query_result_traits< boost::tuple<T0, T1, T2, T3, T4,
 				       T5, T6, T7, T8, T9> >
 {
   typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
   typedef Impl::helper<boost::tuples::length<tuple_type>::value - 1, tuple_type>
     helper;
 
-  static std::string getColumns(Session& session,
-				std::vector<std::string> *aliases);
-  static tuple_type loadValues(Session& session, SqlStatement& statement,
-			       int& column);
+  static void getFields(Session& session,
+			std::vector<std::string> *aliases,
+			std::vector<FieldInfo>& result);
+
+  static tuple_type load(Session& session, SqlStatement& statement,
+			 int& column);
+
+  static void getValues(const tuple_type& t, std::vector<boost::any>& values);
 };
 
 template <class T0, class T1, class T2, class T3, class T4,
 	  class T5, class T6, class T7, class T8, class T9>
-std::string sql_result_traits< boost::tuple<T0, T1, T2, T3, T4,
-					    T5, T6, T7, T8, T9> >
-::getColumns(Session& session, std::vector<std::string> *aliases)
+void query_result_traits< boost::tuple<T0, T1, T2, T3, T4,
+				     T5, T6, T7, T8, T9> >
+::getFields(Session& session,
+	    std::vector<std::string> *aliases,
+	    std::vector<FieldInfo>& result)
 {
-  return helper::getColumns(session, aliases);
+  helper::getFields(session, aliases, result);
 }
 
 template <class T0, class T1, class T2, class T3, class T4,
 	  class T5, class T6, class T7, class T8, class T9>
 boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
-sql_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-::loadValues(Session& session, SqlStatement& statement, int& column)
+query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::load(Session& session, SqlStatement& statement, int& column)
 {
   tuple_type result;
 
-  helper::loadValues(session, statement, column, result);
+  helper::load(session, statement, column, result);
 
   return result;
+}
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+void 
+query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::getValues(const tuple_type& t, std::vector<boost::any>& values)
+{
+  helper::getValues(t, values);
 }
 
   }

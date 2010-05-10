@@ -20,25 +20,35 @@ void sql_value_traits<V, Enable>::bind(const char *v, SqlStatement *statement,
 }
 
 template <typename Result>
-std::string sql_result_traits<Result>
-::getColumns(Session& session, std::vector<std::string> *aliases)
+void query_result_traits<Result>::getFields(Session& session,
+					  std::vector<std::string> *aliases,
+					  std::vector<FieldInfo>& result)
 {
+  /* Adds an immutable single value field */
+
   if (!aliases || aliases->empty())
     throw std::logic_error("Session::query(): not enough aliases for results");
-
-  std::string result = aliases->front();
+  std::string name = aliases->front();
   aliases->erase(aliases->begin());
-  return result;
+
+  result.push_back(FieldInfo(name, &typeid(Result), 0));
 }
 
 template <typename Result>
-Result sql_result_traits<Result>::loadValues(Session& session,
-					     SqlStatement& statement,
-					     int& column)
+Result query_result_traits<Result>::load(Session& session,
+				       SqlStatement& statement,
+				       int& column)
 {
   Result result;
   sql_value_traits<Result>::read(result, &statement, column++, -1);
   return result;
+}
+
+template <typename Result>
+void query_result_traits<Result>::getValues(const Result& result,
+					  std::vector<boost::any>& values)
+{
+  values.push_back(result);
 }
 
   }

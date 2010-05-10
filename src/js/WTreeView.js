@@ -87,40 +87,25 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.resizeHandleMDown = function(obj, event) {
-     var pc = WT.pageCoordinates(event);
-     obj.setAttribute('dsx', pc.x);
-   };
+     var parent = obj.parentNode.parentNode,
+         c = parent.className.split(' ')[0];
 
-   this.resizeHandleMMoved = function(obj, event) {
-     var lastx = obj.getAttribute('dsx'),
-         t = contents.firstChild,
-         hh = headers.firstChild,
-         h0 = headers.lastChild,
-         c0id = h0.className.split(' ')[0],
-         c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
+     if (c) {
+       var r = WT.getCssRule('#' + el.id + ' .' + c),
+           cw = WT.pxself(r, 'width'),
+           minDelta = -cw,
+           maxDelta = 10000;
 
-     if (lastx != null && lastx != '') {
-       var nowxy = WT.pageCoordinates(event),
-	   parent = obj.parentNode.parentNode,
-           diffx = Math.max(nowxy.x - lastx, -parent.offsetWidth),
-           c = parent.className.split(' ')[0];
-
-       if (c) {
-         var r = WT.getCssRule('#' + el.id + ' .' + c),
-             tw = WT.pxself(r, 'width');
-         r.style.width = Math.max(0, tw + diffx) + 'px';
-       }
-
-       this.adjustColumns();
-       obj.setAttribute('dsx', nowxy.x);
-
-       WT.cancelEvent(event);
+       new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.offsetHeight,
+	                 minDelta, maxDelta, 'Wt-hsh',
+			 function (delta) {
+			   var newWidth = cw + delta,
+			       columnId = c.substring(7) * 1;
+			   r.style.width = newWidth + 'px';
+			   self.adjustColumns();
+			   APP.emit(el, 'columnResized', columnId, newWidth);
+			 }, obj, el, event, -2, -1);
      }
-   };
-
-   this.resizeHandleMUp = function(obj, event) {
-     obj.removeAttribute('dsx');
-     WT.cancelEvent(event);
    };
 
    /*
@@ -158,10 +143,11 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
-     if (!c0r.style.width)  // first resize and c0 width not set
-       c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
-     else
-       $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
+     if (!column1Fixed)
+       if (!c0r.style.width)  // first resize and c0 width not set
+	 c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
+       else
+	 $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
 
      allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 8);
 
@@ -192,8 +178,8 @@ WT_DECLARE_WT_MEMBER
 
      if (!item.selected && item.drop && item.columnId != -1) {
        if (action=='drop') {
-	 APP.emit(el.id, 'itemEvent', item.nodeId, item.columnId, 'drop',
-		  sourceId, mimeType);
+	 APP.emit(el, { name: 'itemEvent', eventObject: object, event: event },
+		  item.nodeId, item.columnId, 'drop', sourceId, mimeType);
        } else {
          object.className = 'Wt-valid-drop';
          dropEl = item.el;
@@ -205,7 +191,7 @@ WT_DECLARE_WT_MEMBER
      }
    };
 
-   /*
+  /*
    * This adjusts invariants that depend on the size of the whole
    * treeview:
    *
@@ -282,7 +268,8 @@ WT_DECLARE_WT_MEMBER
         table.style.width=r.style.width;
       }
 
-      c0r.style.width = (table.offsetWidth - hc.offsetWidth - 8) + 'px';
+      if (!column1Fixed)
+	c0r.style.width = (table.offsetWidth - hc.offsetWidth - 8) + 'px';
 
       el.changed = false;
 

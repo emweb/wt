@@ -246,8 +246,6 @@ public:
    */
   static WTime currentServerTime();
 
-  static bool isValid(int h, int m, int s, int ms = 0);
-
   struct RegExpInfo {
     std::string regexp;
     std::string hourGetJS;

@@ -93,6 +93,13 @@ const std::string not_found =
   "<body><h1>404 Not Found</h1></body>"
   "</html>";
 const std::string not_found_name = "404-not-found.html";
+const std::string requested_range_not_satisfiable =
+  "<html>"
+  "<head><title>Requested Range Not Satisfiable</title></head>"
+  "<body><h1>416 Requested Range Not Satisfiable</h1></body>"
+  "</html>";
+const std::string requested_range_not_satisfiable_name =
+  "404-requested-range-not-satisfiable.html";
 const std::string internal_server_error =
   "<html>"
   "<head><title>Internal Server Error</title></head>"
@@ -146,6 +153,8 @@ const std::string& toText(Reply::status_type status)
     return forbidden;
   case Reply::not_found:
     return not_found;
+  case Reply::requested_range_not_satisfiable:
+    return requested_range_not_satisfiable;
   case Reply::internal_server_error:
     return internal_server_error;
   case Reply::not_implemented:
@@ -187,6 +196,8 @@ const std::string& toName(Reply::status_type status)
     return forbidden_name;
   case Reply::not_found:
     return not_found_name;
+  case Reply::requested_range_not_satisfiable:
+    return requested_range_not_satisfiable;
   case Reply::internal_server_error:
     return internal_server_error_name;
   case Reply::not_implemented:

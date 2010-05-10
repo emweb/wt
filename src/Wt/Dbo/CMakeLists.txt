@@ -5,10 +5,12 @@ ADD_LIBRARY(wtdbo
   Exception.C
   FixedSqlConnectionPool.C
   Query.C
+  QueryModel.C
   Session.C
   SqlConnection.C
   SqlConnectionPool.C
   SqlStatement.C
+  SqlTraits.C
   StdSqlTraits.C
   Transaction.C
   WtSqlTraits.C

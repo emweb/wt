@@ -10,8 +10,8 @@ using namespace Wt;
 
 MyCaptcha::MyCaptcha(WContainerWidget* parent, 
 		     const int width, const int height)
-  : completed(this),
-    WContainerWidget(parent)
+  : WContainerWidget(parent),
+    completed(this)
 {
   setStyleClass("captcha");
 		

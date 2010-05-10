@@ -62,7 +62,7 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
     marginRight = (w->boxPadding(Horizontal) + w->boxBorder(Horizontal)) * 2;
 
   if (fitHeight)
-    marginBottom = (w->boxPadding(Vertical) + w->boxBorder(Horizontal)) * 2;
+    marginBottom = (w->boxPadding(Vertical) + w->boxBorder(Vertical)) * 2;
 
   bool forceDiv
     = (fitHeight && d->type() == DomElement_SELECT
@@ -95,6 +95,7 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
   if (fitHeight && d->getProperty(PropertyStyleHeight).empty())
     if (   d->type() == DomElement_DIV
 	|| d->type() == DomElement_UL
+	|| d->type() == DomElement_INPUT
 	|| d->type() == DomElement_TABLE
 	|| d->type() == DomElement_TEXTAREA)
       d->setProperty(PropertyStyleHeight, "100%");

@@ -42,6 +42,12 @@ std::string FieldRef<V>::sqlType(Session& session) const
 }
 
 template <typename V>
+std::type_info *FieldRef<V>::type() const
+{
+  return &typeid(V);
+}
+
+template <typename V>
 void FieldRef<V>::bindValue(SqlStatement *statement, int column) const
 {
   sql_value_traits<V>::bind(value_, statement, column, size_);
@@ -84,6 +90,12 @@ std::string FieldRef< ptr<C> >::sqlType(Session& session) const
 {
   return std::string("integer references \"")
     + Impl::quoteSchemaDot(session.tableName<C>()) + "\"(\"id\")";
+}
+
+template <class C>
+std::type_info *FieldRef< ptr<C> >::type() const
+{
+  return &typeid(long long);
 }
 
 template <class C>

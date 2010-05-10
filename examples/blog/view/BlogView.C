@@ -37,8 +37,8 @@ public:
   BlogImpl(const std::string& basePath, const std::string& sqliteDb,
 	   const std::string& rssFeedUrl)
     : basePath_(basePath),
-      session_(sqliteDb),
-      rssFeedUrl_(rssFeedUrl)
+      rssFeedUrl_(rssFeedUrl),
+      session_(sqliteDb)
   {
     WApplication *app = wApp;
 

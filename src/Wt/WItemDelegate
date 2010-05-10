@@ -8,24 +8,30 @@
 #define WITEMDELEGATE_H_
 
 #include <Wt/WAbstractItemDelegate>
-#include <Wt/WSignalMapper>
+#include <Wt/WCheckBox>
+#include <Wt/WLineEdit>
 #include <Wt/WString>
 
 namespace Wt {
-
   class WAnchor;
   class WCheckBox;
   class WContainerWidget;
   class WImage;
+  class WLineEdit;
   class WText;
 
-  class ItemCheckBox;
+  template <class Widget> class IndexEdit;
+  typedef IndexEdit<WCheckBox> IndexCheckBox;
 
 /*! \class WItemDelegate Wt/WItemDelegate Wt/WItemDelegate
  *  \brief Standard delegate class for rendering a view item.
  *
- * This class provides the standard implementation for rendering an item
- * in a WTreeView.
+ * This class provides the standard implementation for rendering an
+ * item in a WTreeView.
+ *
+ * You may provide special editing support for an item by specializing
+ * the widget. For example, the following provides a date picker for
+ * editing a date field.
  *
  * \ingroup modelview
  */
@@ -36,6 +42,22 @@ public:
    */
   WItemDelegate(WObject *parent = 0);
 
+  /*! \brief Creates or updates a widget that renders an item.
+   *
+   * The following properties of an item are rendered:
+   *
+   * - text using the DisplayRole data (and using the format specified
+   *   by setTextFormat()
+   * - a check box depending on the ItemIsUserCheckable flag and
+   *   CheckStateRole data
+   * - an anchor depending on InternalPathRole or UrlRole values
+   * - an icon depending on the value of DecorationRole
+   * - a tooltip depending on the value of ToolTipRole
+   * - a custom style class depending on the value of StyleClassRole
+   *
+   * When the flag indicates RenderEditing, then createEditor() is
+   * called to create a suitable editor for editing the item.
+   */
   virtual WWidget *update(WWidget *widget, const WModelIndex& index,
 			  WFlags<ViewItemRenderFlag> flags);
 
@@ -44,11 +66,15 @@ public:
   /*! \brief Sets the text format string.
    *
    * \if cpp
+   *
    * The DisplayRole data is converted to a string using asString() by passing
    * the given format.
+   *
    * \elseif java
-   * The DisplayRole data is converted to a string using {javadoclink StringUtils#asString(Object)} by passing
-   * the given format.
+   *
+   * The DisplayRole data is converted to a string using {javadoclink
+   * StringUtils#asString(Object)} by passing the given format.
+   *
    * \endif 
    *
    * The default value is "".
@@ -61,23 +87,133 @@ public:
    */
   const WT_USTRING& textFormat() const { return textFormat_; }
 
+  /*! \brief Returns the current edit state.
+   *
+   * The default implementation returns the current text in the line edit.
+   * You will need to reimplement this method if you create a custom editor,
+   * with createEditor().
+   *
+   * \sa createEditor()
+   */
+  virtual boost::any editState(WWidget *editor) const;
+
+  /*! \brief Sets the editor data from the editor state.
+   *
+   * The default implementation sets the current edited text in the line edit.
+   * You will need to reimplement this method if you create a custom editor,
+   * with createEditor().
+   *
+   * \sa createEditor()
+   */
+  virtual void setEditState(WWidget *editor, const boost::any& value) const;
+
+  /*! \brief Saves the edited data to the model.
+   *
+   * The default implementation saves the current edit value to the database.
+   * You will need to reimplement this method if you create a custom editor,
+   * with createEditor().
+   *
+   * \sa createEditor()
+   */
+  virtual void setModelData(const boost::any& editState,
+			    WAbstractItemModel *model,
+			    const WModelIndex& index) const;
+
+protected:
+  /*! \brief Creates an editor for a data item.
+   *
+   * The default implementation returns a WLineEdit which edits the
+   * item's EditRole value.
+   *
+   * You may reimplement this method to provide a suitable editor, or
+   * to attach a custom validator. In that case, you will probably
+   * also want to reimplement editState(), setEditState(), and
+   * setModelData().
+   *
+   * The editor should not keep a reference to the model index (it
+   * does not need to since setModelData() will provide the proper
+   * model index to save the data to the model). Because model indexes
+   * may shift because of row or column insertions, you should also
+   * reimplement updateModelIndex() if you do so.
+   *
+   * \if cpp
+   * The following shows the default implementation:
+   * \code
+   * Wt::WWidget *WItemDelegate::createEditor(const Wt::WModelIndex& index) const
+   * {
+   *   Wt::WContainerWidget *result = new Wt::WContainerWidget();
+   *   result->setSelectable(true);
+   *
+   *   Wt::WLineEdit *lineEdit = new Wt::WLineEdit();
+   *   lineEdit->setText(asString(index.data(EditRole), textFormat_));
+   *   lineEdit->setFocus();
+   *   lineEdit->enterPressed().connect
+   *     (boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
+   *   lineEdit->escapePressed().connect
+   *     (boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
+   *
+   *   // Needed to not confuse input elements in IE
+   *   lineEdit->mouseWentDown().preventPropagation();
+   *   lineEdit->clicked().preventPropagation();
+   * 
+   *   // We use a layout so that the line edit fills the entire cell.
+   *   result->setLayout(new WHBoxLayout());
+   *   result->layout()->setContentsMargins(1, 1, 1, 1);
+   *   result->layout()->addWidget(lineEdit);
+   *
+   *   return result;
+   * }
+   *
+   * void WItemDelegate::doCloseEditor(Wt::WWidget *editor, bool save) const
+   * {
+   *   closeEditor().emit(editor, save);
+   * }
+   *
+   * boost::any WItemDelegate::editState(Wt::WWidget *editor) const
+   * {
+   *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
+   *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
+   *
+   *   return boost::any(lineEdit->text());
+   * }
+   *
+   * void WItemDelegate::setEditState(Wt::WWidget *editor, const boost::any& value) const
+   * {
+   *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
+   *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
+   *   lineEdit->setFocus(false);
+   *
+   *   lineEdit->setText(boost::any_cast<Wt::WString>(value));
+   * }
+   * 
+   * void WItemDelegate::setModelData(const boost::any& editState,
+   *				      Wt::WAbstractItemModel *model,
+   *                                  const Wt::WModelIndex& index) const
+   * {
+   *   model->setData(index, editState, EditRole);
+   * }
+   * \endcode
+   * \endif
+   */
+  virtual WWidget *createEditor(const WModelIndex& index) const;
+
 private:
   WT_USTRING textFormat_;
-  WSignalMapper<ItemCheckBox *> *checkedChangeMapper_;
 
   struct WidgetRef {
     WWidget *w;
-
     WidgetRef(WWidget *widget) : w(widget) { }
   };
 
-  ItemCheckBox *checkBox(WidgetRef& w, const WModelIndex& index,
+  IndexCheckBox *checkBox(WidgetRef& w, const WModelIndex& index,
 			 bool autoCreate, bool triState = false);
+
   WText *textWidget(WidgetRef& w);
   WImage *iconWidget(WidgetRef& w, bool autoCreate = false);
   WAnchor *anchorWidget(WidgetRef& w);
 
-  void onCheckedChange(ItemCheckBox *cb);
+  void onCheckedChange(IndexCheckBox *checkBox) const;
+  void doCloseEditor(WWidget *editor, bool save) const;
 };
 
 }

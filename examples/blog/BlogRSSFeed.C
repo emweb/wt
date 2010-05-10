@@ -21,8 +21,8 @@ BlogRSSFeed::BlogRSSFeed(const std::string& sqliteDb,
 			 const std::string& url,
 			 const std::string& description)
   : session_(new BlogSession(sqliteDb)),
-    url_(url),
     title_(title),
+    url_(url),
     description_(description)
 { }
 

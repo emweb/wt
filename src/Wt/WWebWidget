@@ -37,7 +37,11 @@ enum DomElementType {
   DomElement_TEXTAREA,
 
   DomElement_TR, DomElement_P, DomElement_CANVAS,
-  DomElement_MAP, DomElement_AREA
+  DomElement_MAP, DomElement_AREA,
+
+  DomElement_OBJECT, DomElement_PARAM,
+  
+  DomElement_AUDIO, DomElement_VIDEO, DomElement_SOURCE
 };
 
 enum RepaintFlag {

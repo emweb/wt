@@ -421,7 +421,7 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 {
   std::string value;
 
-  readUntilBoundary(request, boundary, 2,
+  readUntilBoundary(request, "\r\n" + boundary, 0,
 		    spoolStream_ ? 0 : (!currentKey_.empty() ? &value : 0),
 		    spoolStream_);
 
@@ -438,7 +438,7 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 
   currentKey_.clear();
 
-  if (std::string(buf_ + boundary.length(), 2) == "--")
+  if (std::string(buf_ + boundary.length() + 2, 2) == "--")
     return false;
 
   windBuffer(boundary.length() + 2);

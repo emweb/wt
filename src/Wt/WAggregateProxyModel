@@ -132,10 +132,6 @@ public:
    */
   void addAggregate(int parentColumn, int firstColumn, int lastColumn);
 
-  /*! \brief Removes an aggregate that was previously added.
-   */
-  void removeAggregate(int parentColumn);
-
   virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const;
   virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
 

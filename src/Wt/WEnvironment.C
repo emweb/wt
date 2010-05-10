@@ -198,9 +198,12 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     else
       agent_ = Chrome4;
   } else if (userAgent_.find("Safari") != std::string::npos) {
-    if (userAgent_.find("Version") == std::string::npos)
-      agent_ = Safari;
-    else if (userAgent_.find("Version/3") != std::string::npos)
+    if (userAgent_.find("Version") == std::string::npos) {
+      if (userAgent_.find("Arora") != std::string::npos)
+	agent_ = Arora;
+      else
+	agent_ = Safari;
+    } else if (userAgent_.find("Version/3") != std::string::npos)
       agent_ = Safari3;
     else
       agent_ = Safari4;

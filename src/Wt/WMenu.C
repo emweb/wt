@@ -180,7 +180,8 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
       items_[0]->loadContents();
     } else
       item->renderSelected(false);
-  }
+  } else
+    item->renderSelected(false);
 
   if (internalPathEnabled_) {
     WApplication *app = wApp;

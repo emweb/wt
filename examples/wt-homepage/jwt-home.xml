@@ -130,9 +130,9 @@ the necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and AJAX
 code. The responsibility of writing secure and browser-portable web
 applications is handled by Wt. For example, if available, Wt will
 maximally use JavaScript and AJAX, but applications developed using Wt
-will also function correctly when AJAX is not available, or when
-JavaScript is disabled, by progressively enhancing a plain HTML/CGI
-application to a rich AJAX application.</p>
+will also function correctly when AJAX is not available. Wt will start
+with a plain HTML/CGI application and progressively enhance to a rich
+AJAX application if possible.</p>
 
 <p>By using standard Java and JVMs, JWt applications can benefit from
 any existing Java libraries and JVM features including support for
@@ -233,7 +233,7 @@ scripting languages.</p>
   <li>Unified painting API which uses the browsers native (vector)
     graphics support (inline VML, inline SVG, or HTML 5 canvas).</li>
   <li>Supports arbitrary painter paths, clipping, text, images,
-    transformations, and stroke and fill styling.</li>
+    and transformations.</li>
   <li>Uses the painting API in conjunction with a WPaintedWidget, or
     directly using the SVGImage paint device.</li>
 </ul>

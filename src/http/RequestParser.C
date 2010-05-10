@@ -28,11 +28,11 @@
  * Any query string over 10k.
  * Any header field value over 80k.
  * Any header field name over 256 bytes.
- * Any request URI greater than 512 bytes.
+ * Any request URI greater than 10k bytes.
  */
 
 static std::size_t MAX_REQUEST_HEADER_SIZE = 112*1024;
-static int MAX_URI_SIZE = 512;
+static int MAX_URI_SIZE = 10*1024;
 static int MAX_FIELD_VALUE_SIZE = 80*1024;
 static int MAX_FIELD_NAME_SIZE = 256;
 static int MAX_METHOD_SIZE = 16;

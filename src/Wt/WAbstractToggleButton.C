@@ -133,11 +133,11 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
   EventSignal<WMouseEvent> *click = mouseEventSignal(CLICK_SIGNAL, false);
 
   bool needUpdateClickedSignal =
-    ((click && click->needUpdate())
+    ((click && click->needsUpdate(all))
      // onchange does not work on IE
-     || (env.agentIsIE() && change && change->needUpdate())
-     || (check && check->needUpdate())
-     || (uncheck && uncheck->needUpdate()));
+     || (env.agentIsIE() && change && change->needsUpdate(all))
+     || (check && check->needsUpdate(all))
+     || (uncheck && uncheck->needsUpdate(all)));
 
   updateDom(input, all);
 
@@ -187,7 +187,7 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
     }
 
     if (change) {
-      if (env.agentIsIE() && change->isConnected())
+      if (env.agentIsIE() && change->needsUpdate(all))
 	actions.push_back
 	  (DomElement::EventAction(std::string(),
 				   change->javaScript(),
@@ -197,7 +197,7 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
     }
 
     if (click) {
-      if (click->isConnected())
+      if (click->needsUpdate(all))
 	actions.push_back
 	  (DomElement::EventAction(std::string(),
 				   click->javaScript(),
@@ -303,7 +303,7 @@ void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
       EventSignal<> *imgClick = voidEventSignal(UNDETERMINATE_CLICK_SIGNAL,
 						true);
 
-      if (stateChanged_ || imgClick->needUpdate()) {
+      if (stateChanged_ || imgClick->needsUpdate(false)) {
 	DomElement *img = DomElement::getForUpdate("im" + id(), DomElement_IMG);
 
 	if (stateChanged_) {
@@ -313,7 +313,7 @@ void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
 			     state_ == PartiallyChecked ? "none" : "inline");
 	}
 
-	if (imgClick->needUpdate()) {
+	if (imgClick->needsUpdate(false)) {
 	  img->setEventSignal("click", *imgClick);
 	  imgClick->updateOk();
 	}

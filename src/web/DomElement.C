@@ -34,7 +34,11 @@ const char *elementNames_[] =
     "th", "td", "textarea",
 
     "tr", "p", "canvas",
-    "map", "area"
+    "map", "area",
+
+    "object", "param",
+
+    "audio", "video", "source"
   };
 
 bool defaultInline_[] =
@@ -51,7 +55,11 @@ bool defaultInline_[] =
     false, false, true,
 
     false, false, false,
-    false, true
+    false, true,
+
+    false, false,
+
+    false, false, false
   };
 
   static const std::string unsafeChars_ = "$&+,:;=?@'\"<>#%{}|\\^~[]`";
@@ -228,29 +236,26 @@ void DomElement::setEvent(const char *eventName,
   bool anchorClick = type() == DomElement_A
     && eventName == WInteractWidget::CLICK_SIGNAL;
 
-  bool nonEmpty = isExposed || anchorClick || !jsCode.empty();
-
   SStream js;
-
-  if (nonEmpty) {
+  if (isExposed || anchorClick || !jsCode.empty()) {
     if (app->environment().agentIsIEMobile())
       js << "var e=window.event,";
     else
       js << "var e=event||window.event,";
     js << "o=this;";
+
+    if (anchorClick)
+      js << "if(e.ctrlKey||e.metaKey)return true;else{";
+
+    if (isExposed)
+      js << app->javaScriptClass() << "._p_.update(o,'"
+	 << signalName << "',e,true);";
+
+    js << jsCode;
+
+    if (anchorClick)
+      js << "}";
   }
-
-  if (anchorClick)
-    js << "if(e.ctrlKey||e.metaKey)return true;else{";
-
-  if (isExposed)
-    js << app->javaScriptClass() << "._p_.update(o,'"
-       << signalName << "',e,true);";
-
-  js << jsCode;
-
-  if (anchorClick)
-    js << "}";
 
   ++numManipulations_;
   eventHandlers_[eventName] = EventHandler(js.str(), signalName);
@@ -339,29 +344,9 @@ void DomElement::processProperties(WApplication *app) const
 
 void DomElement::processEvents(WApplication *app) const
 {
-  /*
-   * when we have a mouseUp event, we also need a mouseDown event
-   * to be able to compute dragDX/Y. But when we have a mouseDown event,
-   * we need to capture everything after on mouse down.
-   */
-
   DomElement *self = const_cast<DomElement *>(this);
 
-  const char *S_mousedown = WInteractWidget::MOUSE_DOWN_SIGNAL;
-  const char *S_mouseup = WInteractWidget::MOUSE_UP_SIGNAL;
   const char *S_keypress = WInteractWidget::KEYPRESS_SIGNAL;
-
-  EventHandlerMap::const_iterator mouseup = eventHandlers_.find(S_mouseup);
-  if (mouseup != eventHandlers_.end() && !mouseup->second.jsCode.empty())
-    Utils::access(self->eventHandlers_, S_mousedown).jsCode
-      = app->javaScriptClass() + "._p_.saveDownPos(event);"
-      + Utils::access(self->eventHandlers_, S_mousedown).jsCode;
-
-  EventHandlerMap::const_iterator mousedown = eventHandlers_.find(S_mousedown);
-  if (mousedown != eventHandlers_.end() && !mousedown->second.jsCode.empty())
-    Utils::access(self->eventHandlers_, S_mousedown).jsCode
-      = WT_CLASS ".capture(this);"
-      + Utils::access(self->eventHandlers_, S_mousedown).jsCode;
 
   EventHandlerMap::const_iterator keypress = eventHandlers_.find(S_keypress);
   if (keypress != eventHandlers_.end() && !keypress->second.jsCode.empty())
@@ -648,6 +633,9 @@ void DomElement::asHTML(EscapeOStream& out,
        *
        * Note that IE posts the button text instead of the value. We fix
        * this by encoding the value into the name.
+       *
+       * IE6 hell: IE will post all submit buttons, not just the one click.
+       * We should therefore really be using input
        */
       DomElement *self = const_cast<DomElement *>(this);
       self->setAttribute("type", "submit");
@@ -727,16 +715,24 @@ void DomElement::asHTML(EscapeOStream& out,
 
   if (needButtonWrap) {
     if (supportButton) {
-      out << "<button type=\"submit\" name=\"signal\" value=";
-      fastHtmlAttributeValue(out, attributeValues,
-			     clickEvent->second.signalName);
-      out << " class=\"Wt-wrap ";
+      out << "<button type=\"submit\" name=\"signal=";
+      out.append(clickEvent->second.signalName, attributeValues);
+      out << "\" class=\"Wt-wrap ";
 
       PropertyMap::const_iterator l = properties_.find(PropertyClass);
-      if (l != properties_.end())
+      if (l != properties_.end()) {
 	out << l->second;
+	PropertyMap& map = const_cast<PropertyMap&>(properties_);
+	map.erase(PropertyClass);
+      }
 
-      out << "\"";
+      out << '"';
+
+      std::string wrapStyle = cssStyle();
+      if (!wrapStyle.empty()) {
+	out << " style=";
+	fastHtmlAttributeValue(out, attributeValues, wrapStyle);
+      }
 
       PropertyMap::const_iterator i = properties_.find(PropertyDisabled);
       if ((i != properties_.end()) && (i->second=="true"))
@@ -744,7 +740,7 @@ void DomElement::asHTML(EscapeOStream& out,
 
       if (app->environment().agent() != WEnvironment::Konqueror
 	  && !app->environment().agentIsWebKit())
-	style = "margin: -1px -3px -2px -3px;";
+	style = "margin: 0px -3px -2px -3px;";
 
       out << "><" << elementNames_[renderedType];
     } else {
@@ -868,7 +864,8 @@ void DomElement::asHTML(EscapeOStream& out,
     }
   }
 
-  style += cssStyle();
+  if (!needButtonWrap)
+    style += cssStyle();
 
   if (!style.empty()) {
     out << " style=";

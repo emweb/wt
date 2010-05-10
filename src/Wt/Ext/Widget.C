@@ -341,7 +341,7 @@ void Widget::updateWtSignal(EventSignalBase *s, const std::string& name,
 			    const std::string& eventArgs,
 			    const std::string& wtArg)
 {
-  if (s->needUpdate()) {
+  if (s->needsUpdate(false)) {
     addUpdateJS(elVar() + ".wt" + name + "="
 		+ jsWtSignalFunction(s, name, eventArgs, wtArg) + ";");
     s->updateOk();

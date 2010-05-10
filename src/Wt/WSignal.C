@@ -88,9 +88,11 @@ bool EventSignalBase::StatelessConnection::ok() const
 
 int EventSignalBase::nextId_ = 0;
 
-bool EventSignalBase::needUpdate() const
+bool EventSignalBase::needsUpdate(bool all) const
 {
-  return flags_.test(BIT_NEED_UPDATE);
+  return (!all && flags_.test(BIT_NEED_UPDATE))
+    || (all &&
+	(isConnected() || defaultActionPrevented() || propagationPrevented()));
 }
 
 void EventSignalBase::updateOk()
@@ -182,8 +184,15 @@ const std::string EventSignalBase::javaScript() const
     }
   }
 
-  if (preventDefault())
-    result += WT_CLASS ".cancelEvent(e);";
+  if (defaultActionPrevented() || propagationPrevented()) {
+    result += WT_CLASS ".cancelEvent(e";
+    if (defaultActionPrevented() && propagationPrevented())
+      result += ");";
+    else if (defaultActionPrevented())
+      result += ",0x2);";
+    else
+      result += ",0x1);";
+  }
 
   return result;
 }
@@ -198,17 +207,30 @@ bool EventSignalBase::isExposedSignal() const
   return flags_.test(BIT_EXPOSED);
 }
 
-void EventSignalBase::setPreventDefault(bool prevent)
+void EventSignalBase::preventDefaultAction(bool prevent)
 {
-  if (preventDefault() != prevent) {
+  if (defaultActionPrevented() != prevent) {
     flags_.set(BIT_PREVENT_DEFAULT, prevent);
     senderRepaint();
   }
 }
 
-bool EventSignalBase::preventDefault() const
+bool EventSignalBase::defaultActionPrevented() const
 {
   return flags_.test(BIT_PREVENT_DEFAULT);
+}
+
+void EventSignalBase::preventPropagation(bool prevent)
+{
+  if (propagationPrevented() != prevent) {
+    flags_.set(BIT_PREVENT_PROPAGATION, prevent);
+    senderRepaint();
+  }
+}
+
+bool EventSignalBase::propagationPrevented() const
+{
+  return flags_.test(BIT_PREVENT_PROPAGATION);
 }
 
 void EventSignalBase::prepareDestruct()
@@ -300,7 +322,7 @@ void EventSignalBase::senderRepaint()
   sender()->signalConnectionsChanged();
 }
 
-void EventSignalBase::processNonLearnedStateless()
+void EventSignalBase::processNonLearnedStateless() const
 {
   std::vector<StatelessConnection> copy = connections_;
 
@@ -312,7 +334,7 @@ void EventSignalBase::processNonLearnedStateless()
   }
 }
 
-void EventSignalBase::processLearnedStateless()
+void EventSignalBase::processLearnedStateless() const
 {
   std::vector<StatelessConnection> copy = connections_;
 

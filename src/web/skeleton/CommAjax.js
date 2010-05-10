@@ -5,7 +5,7 @@
 _$_WT_CLASS_$_.condCall = function(o, f, a) {
   if (o[f])
     o[f](a);
-}
+};
 
 _$_APP_CLASS_$_._p_.comm = new (function(handleResponse) {
     var handler = handleResponse;
@@ -47,7 +47,7 @@ _$_APP_CLASS_$_._p_.comm = new (function(handleResponse) {
 	request.onreadystatechange = new Function;
 	handled = true;
 	request.abort();
-      }
+      };
 
       if (window.XMLHttpRequest)
 	request = new XMLHttpRequest();

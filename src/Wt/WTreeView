@@ -4,8 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WTREE_VIEW_H_
-#define WTREE_VIEW_H_
+#ifndef WT_TREEVIEW_H_
+#define WT_TREEVIEW_H_
 
 #include <set>
 #include <vector>
@@ -18,16 +18,12 @@
 
 namespace Wt {
 
-class WAbstractItemDelegate;
-class WAbstractItemModel;
-class WApplication;
-class WCheckBox;
-class WCssRule;
-class WCssTemplateRule;
-class WItemSelectionModel;
-class WText;
-class WTreeViewNode;
-class ToggleButtonConfig;
+  class WCheckBox;
+  class WCssRule;
+  class WItemSelectionModel;
+  class WText;
+  class WTreeViewNode;
+  class ToggleButtonConfig;
 
 /*! \class WTreeView Wt/WTreeView Wt/WTreeView
  *  \brief A view class that displays a model as a tree or tree table.
@@ -90,6 +86,14 @@ class ToggleButtonConfig;
  * \endcode
  * \endif
  *
+ * <h3>Graceful degradation</h3>
+ *
+ * The view provides a virtual scrolling behavior which relies on Ajax
+ * availability. When Ajax is not available, a page navigation bar is
+ * used instead, see createPageNavigationBar(). In that case, the widget
+ * needs to be given an explicit height using resize() which determines the
+ * number of rows that are displayed at a time.
+ *
  * <h3>CSS</h3>
  *
  * The treeview is styled by the current CSS theme. The look can be
@@ -139,28 +143,7 @@ public:
    */
   WTreeView(WContainerWidget *parent = 0);
 
-  /*! \brief Destructor.
-   */
   ~WTreeView();
-
-  /*! \brief Sets the root index.
-   *
-   * The root index is the model index that is considered the root
-   * node. This node itself is not rendered, but all its children are
-   * the top level nodes.
-   *
-   * The default value is WModelIndex(), corresponding to the
-   * invisible root.
-   *
-   * \sa setModel()
-   */
-  void setRootIndex(const WModelIndex& rootIndex);
-
-  /*! \brief Returns the root index.
-   *
-   * \sa setRootIndex()
-   */
-  const WModelIndex& rootIndex() const { return rootIndex_; }
 
 #ifndef WT_DEPRECATED_3_0_0
   /*! \brief Sets the column format string (<b>deprecated</b>).
@@ -225,34 +208,14 @@ public:
    */
   void expandToDepth(int depth);
 
-  /*! \brief Sets if alternating row colors are to be used.
-   * Configure whether rows get an alternating background color. These
-   * are implemented by using a background image on the root node, like:
-   * \image html stripe-30px.gif "Sample image use for alternating row colors"
-   *
-   * The image that is used is
-   * <i>resourcesURL</i>"/stripes/stripe-<i>n</i>px.gif", where \p n is the
-   * row height. In the resource folder are images pregenerated for
-   * one color and row sizes from 10 to 30px.
-   *
-   * The default value is \c false.
-   *
-   * \sa setImagePack()
-   */
-  virtual void setAlternatingRowColors(bool enable);
-  virtual bool alternatingRowColors() const { return alternatingRowColors_; }
-
   /*! \brief Sets whether toplevel items are decorated.
    *
    * By default, top level nodes have expand/collapse and other lines
    * to display their linkage and offspring, like any node.
    *
    * By setting \p show to \c false, you can hide these decorations
-   * for root nodes, and in this way mimic a plain list.
-   *
-   * \if cpp
-   * \sa Ext::TableView
-   * \endif 
+   * for root nodes, and in this way mimic a plain list. You could also
+   * consider using a WTableView instead.
    */
   void setRootIsDecorated(bool show);
 
@@ -296,17 +259,14 @@ public:
    */
   Signal<WModelIndex>& expanded() { return expanded_; }
 
-  void openPersistentEditor(const WModelIndex& index);
-  void closePersistentEditor(const WModelIndex& index);
-
   virtual void setModel(WAbstractItemModel *model);
 
   /*! \brief Sets the column width.
    *
    * For a model with \link WAbstractItemModel::columnCount()
-   * columnCount()\endlink == \p N, the initial width of columns
-   * 1..\p N is set to 150 pixels, and column 0 will take all
-   * remaining space.
+   * columnCount()\endlink == \p N, the initial width of columns 1..\p
+   * N is set to 150 pixels, and column 0 will take all remaining
+   * space.
    *
    * \note The actual space occupied by each column is the column width
    *       augmented by 7 pixels for internal padding and a border.
@@ -314,41 +274,37 @@ public:
    * \sa setRowHeight()
    */
   virtual void setColumnWidth(int column, const WLength& width);
-  virtual WLength columnWidth(int column) const;
+  virtual void setAlternatingRowColors(bool enable);
   virtual void setRowHeight(const WLength& rowHeight);
   virtual void setHeaderHeight(const WLength& height, bool multiLine = false);
-  virtual void setColumnAlignment(int column, AlignmentFlag alignment);
-  virtual AlignmentFlag columnAlignment(int column) const;
-  virtual void setHeaderAlignment(int column, AlignmentFlag alignment);
-  virtual AlignmentFlag headerAlignment(int column) const;
   virtual void setColumnBorder(const WColor& color);
+
+  virtual int pageCount() const;
+  virtual int pageSize() const;
+  virtual int currentPage() const;
+  virtual void setCurrentPage(int page);
 
 protected:
   virtual void render(WFlags<RenderFlag> flags);
-
   virtual void enableAjax();
 
 private:
   typedef boost::unordered_map<WModelIndex, WTreeViewNode *> NodeMap;
 
-  WModelIndex          rootIndex_;
   WModelIndexSet       expandedSet_;
   NodeMap              renderedNodes_;
   WTreeViewNode       *rootNode_;
-  WCssTemplateRule    *rowHeightRule_, *headerHeightRule_,
-    *rowWidthRule_, *rowContentsWidthRule_;
+  WCssTemplateRule    *rowHeightRule_, *rowWidthRule_, 
+                      *rowContentsWidthRule_, *c0WidthRule_;
   WCssRule            *borderColorRule_;
 
   bool                 rootIsDecorated_;
   bool                 column1Fixed_;
 
-  bool                   alternatingRowColors_;
+  std::vector<void *>  expandedRaw_;
 
-  std::vector<void *> expandedRaw_, selectionRaw_;
-  void *rawRootIndex_;
-
-  Signal<WModelIndex> collapsed_;
-  Signal<WModelIndex> expanded_;
+  Signal<WModelIndex>  collapsed_;
+  Signal<WModelIndex>  expanded_;
 
   // in rows, as indicated by the current position of the viewport:
   int viewportTop_;
@@ -369,7 +325,6 @@ private:
   // some of its children are rendered
   int nodeLoad_;
 
-  WContainerWidget *impl_;
   WContainerWidget *headers_, *headerContainer_;
   WContainerWidget *contents_, *contentsContainer_;
   WContainerWidget *scrollBarC_;
@@ -380,9 +335,11 @@ private:
           std::string, WMouseEvent> itemEvent_;
 
   ToggleButtonConfig *expandConfig_;
+
+  JSlot tieContentsHeaderScrollJS_, tieRowsScrollJS_,
+    itemClickedJS_, itemDoubleClickedJS_, itemMouseDownJS_, itemMouseUpJS_;
   
-  virtual ColumnInfo& columnInfo(int column) const;
-  WAbstractItemView::ColumnInfo createColumnInfo(const int column) const;
+  virtual ColumnInfo createColumnInfo(int column) const;
 
   void defineJavaScript();
   void rerenderHeader();
@@ -390,16 +347,16 @@ private:
 
   virtual void scheduleRerender(RenderState what);
 
-  virtual void modelColumnsInserted(const WModelIndex& parent, int start, int end);
-  virtual void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
+  void modelColumnsInserted(const WModelIndex& parent, int start, int end);
+  void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 				    int start, int end);
-  virtual void modelColumnsRemoved(const WModelIndex& parent, int start, int end);
-  virtual void modelRowsInserted(const WModelIndex& parent, int start, int end);
-  virtual void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
-  virtual void modelRowsRemoved(const WModelIndex& parent, int start, int end);
+  void modelColumnsRemoved(const WModelIndex& parent, int start, int end);
+  void modelRowsInserted(const WModelIndex& parent, int start, int end);
+  void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
+  void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   virtual void modelDataChanged(const WModelIndex& topLeft,
-			const WModelIndex& bottomRight);
-  virtual void modelHeaderDataChanged(Orientation orientation, int start, int end);
+				const WModelIndex& bottomRight);
+  void modelHeaderDataChanged(Orientation orientation, int start, int end);
   virtual void modelLayoutAboutToBeChanged();
   virtual void modelLayoutChanged();
 
@@ -408,8 +365,6 @@ private:
 		   std::string extra1, std::string extra2, WMouseEvent event);
   void setRootNodeStyle();
   void setCollapsed(const WModelIndex& index);
-  void expandColumn(int columnid);
-  void collapseColumn(int columnid);
 
   int calcOptimalFirstRenderedRow() const;
   int calcOptimalRenderedRowCount() const;
@@ -427,6 +382,8 @@ private:
   int adjustRenderedNode(WTreeViewNode *node, int theNodeRow);
 
   WWidget *widgetForIndex(const WModelIndex& index) const;
+  WTreeViewNode *nodeForIndex(const WModelIndex& index) const;
+
   int subTreeHeight(const WModelIndex& index,
 		    int lowerBound = 0,
 		    int upperBound = std::numeric_limits<int>::max());
@@ -448,25 +405,20 @@ private:
 
   WContainerWidget *headerRow();
 
-  void selectionHandleClick(const WModelIndex& index,
-			    WFlags<KeyboardModifier> modifiers);
-  void handleClick(const WModelIndex& index);
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
-  void selectRange(const WModelIndex& first, const WModelIndex& last);
-  void extendSelection(const WModelIndex& index);
+  virtual void selectRange(const WModelIndex& first, const WModelIndex& last);
 
   void expandChildrenToDepth(const WModelIndex& index, int depth);
 
-  void bindObjJS(JSlot& slot, const std::string& jsMethod);
+  void updateColumnWidth(int columnId, int width);
 
   virtual WContainerWidget* headerContainer() { return headerContainer_; }
 
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) ;
-  virtual WText   *headerSortIconWidget(int column) ;
 
   friend class WTreeViewNode;
 };
 
 }
 
-#endif // WTREE_VIEW_H_
+#endif // WT_TREEVIEW_H_

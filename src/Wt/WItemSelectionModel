@@ -35,7 +35,7 @@ class WAbstractItemView;
  *
  * \ingroup modelview
  *
- * \sa WTreeView, WAbstractItemModel
+ * \sa WTreeView, WTableView, WAbstractItemModel
  */
 class WT_API WItemSelectionModel : public WObject
 {
@@ -85,6 +85,7 @@ private:
   // for editable selection models.
   friend class WAbstractItemView;
   friend class WTreeView;
+  friend class WTableView;
 };
 
 }

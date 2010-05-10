@@ -226,6 +226,7 @@ Wt/WValidator.C
 Wt/WVBoxLayout.C
 Wt/WVectorImage.C
 Wt/WVmlImage.C
+Wt/WHTML5Video.C
 Wt/WViewWidget.C
 Wt/WVirtualImage.C
 Wt/WWebWidget.C

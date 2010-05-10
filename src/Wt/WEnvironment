@@ -87,6 +87,7 @@ public:
     Chrome2 = 4202,
     Chrome3 = 4203,
     Chrome4 = 4204, // 4 or higher
+    Arora = 4300,
     Konqueror = 5000,
     Gecko = 6000,
     Firefox = 6100, // 2 or lower

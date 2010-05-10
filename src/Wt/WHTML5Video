@@ -1,0 +1,188 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2010 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WHTML5VIDEO_H_
+#define WHTML5VIDEO_H_
+
+#include <Wt/WWebWidget>
+#include <Wt/WFlags>
+
+namespace Wt {
+
+/*! \class WHTML5Video Wt/WHTML5Video Wt/WHTML5Video
+ *  \brief A widget that renders video using the HTML5 video element.
+ *
+ * This class renders HTML5 video. In a typical usage scenario,
+ * you instantiate the class, set options, add one or multiple
+ * video sources. Since not every browser supports HTML5 video,
+ * the class provides a mechanism to display alternative content
+ * in browsers that cannot play the video.
+ *
+ * \if cpp
+ * Usage example:
+ * \code
+ * WHTML5Video *v = new WHTML5Video(parent);
+ * v->setOptions(WHTML5Video::Autoplay | WHTML5Video::Controls);
+ * // Addsources may be called multiple times for different formats:
+ * // Firefox only plays ogg
+ * v->addSource("wt.ogv");
+ * // many others play mp4
+ * v->addSource("wt.mp4", "video/mp4");
+ * // Image to be displayed before playback starts
+ * v->setPoster("wt.jpg");
+ * // You may display a simple text to explain that you need html5 support...
+ * // v->setAlternativeContent(new WText("You have no HTML5 Video!"));
+ * // ... or provide an alternative player, e.g. Flash-based
+ * WFlashObject *f = new WFlashObject("player.swf", root());
+ * f->setFlashVariable("startimage", "wt.jpg");
+ * f->setFlashVariable("flv", "wt.mp4");
+ * f->resize(640, 384);
+ * v->setAlternativeContent(f);
+ * \endcode
+ * \endif
+ *
+ * There are two reasons why the a browser may use the alternative
+ * content: either because the browser does not support the HTML5
+ * video tag (alternative content is displayed even when JavaScript
+ * is not available), or because none of the specified sources contain
+ * a video format that is understood by the browser (requires
+ * JavaScript to display the alternative content).
+ *
+ * addSource() and setAlternativeContent() must not be called after
+ * the WHTML5Video was rendered. This can easily be avoided by calling
+ * these functions right after construction.
+ *
+ * This is a technology-specific class. To let Wt choose a technology
+ * (and fallback technologies) to display your videos, use the WVideo class.
+ */
+class WT_API WHTML5Video : public WWebWidget
+{
+public:
+  /*! \brief Enumeration for playback options
+   */
+  enum Options {
+    Autoplay = 1, //!< Start playing as soon as the video is loaded
+    Loop     = 2, //!< Enable loop mode
+    Controls = 4  //!< Show video controls in the browser
+  };
+  /*! \brief Enumeration for preload strategy
+   */
+  enum PreloadMode {
+    PreloadNone,    //!< Hints that the user will probably not play the video
+    PreloadAuto,    //!< Hints that it is ok to download the entire resource
+    PreloadMetadata //!< Hints that retrieving metadata is a good option
+  };
+  /*! \brief Creates a HTML5 video widget.
+   *
+   * The constructor sets the 'controls' option, which causes the browser
+   * to display a bar with play/pauze/volume/... controls.
+   *
+   * A freshly constructed HTML5Video widget has no poster image, no
+   * media sources, has preload mode set to PreloadAuto, and only the
+   * Controls flag is set.
+   */
+  WHTML5Video(WContainerWidget *parent = 0);
+  
+  /*! \brief Set the poster image
+   */
+  void setPoster(const std::string &url);
+  
+  /*! \brief Set the video tag options
+   *
+   * \sa Options
+   */
+  void setOptions(const WFlags<Options> &flags);
+  
+  /*! \brief Retrieve the currently configured options
+   */
+  WFlags<Options> getOptions() const;
+  
+  /*! \brief Set the preload mode for the video data
+   */
+  void setPreloadMode(PreloadMode mode);
+  
+  /*! \brief Get the preload mode for the video data
+   */
+  PreloadMode preloadMode() const;
+
+  /*! \brief Add a video source
+   *
+   * This method specifies a video source using only the URL. You may
+   * add as many video sources as you want. The browser will select
+   * the appropriate video stream to display to the user.
+   */
+  void addSource(const std::string &url);
+  
+  /*! \brief Add a video source
+   *
+   * This method specifies a video source using the URL and the mime
+   * type (e.g. video/ogg; codecs="theora, vorbis").
+   */
+  void addSource(const std::string &url, const std::string &type);
+  
+  /*! \brief Add a video source
+   *
+   * This method specifies a video source using the URL, the mime type,
+   * and the media attribute.
+   */
+  void addSource(const std::string &url, const std::string &type,
+    const std::string &media);
+
+  /*! \brief Content to be shown when video cannot be played
+   *
+   * As the video tag is not supported by all browsers, it is a good
+   * idea to provide fallback options when the video cannot be displayed.
+   * The two reasons to display the alternative content are (1) the
+   * video tag is not supported, or (2) the video tag is supported, but
+   * none of the video sources can be played by the browser. In the first
+   * case, fall-back is automatic and does not rely on JavaScript in the
+   * browser; in the latter case, JavaScript is required to make the
+   * fallback work.
+   *
+   * The alternative content can be any widget: you can set it to an
+   * alternative video player (QuickTime, Flash, ...), show a
+   * Flash movie, an animated gif, a text, the poster image, ...
+   */
+  void setAlternativeContent(WWidget *alternative);
+
+  virtual void resize(const WLength &width, const WLength &height);
+
+protected:
+  void getDomChanges(std::vector<DomElement *>& result,
+                     WApplication *app);
+  DomElementType domElementType() const;
+  void layoutSizeChanged(int width, int height);
+  DomElement *createDomElement(WApplication *app);
+
+private:
+  void updateVideoDom(DomElement& element, bool all);
+  struct Source {
+    Source(const std::string &url, const std::string &type,
+      const std::string &media) :
+      url(url), type(type), hasType(true), media(media), hasMedia(true) {}
+    Source(const std::string &url, const std::string &type) :
+     url(url), type(type), hasType(true), hasMedia(false) {}
+    Source(const std::string &url) :
+     url(url), hasType(false), hasMedia(false) {}
+    std::string type, url, media;
+    bool hasMedia, hasType;
+  };
+  std::vector<Source> sources_;
+  std::string videoId_;
+  std::string posterUrl_;
+  WFlags<Options> flags_;
+  PreloadMode preloadMode_;
+  WWidget *alternative_;
+  bool sizeChanged_, posterChanged_, flagsChanged_, preloadChanged_;
+  int renderWidth_, renderHeight_;
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WHTML5Video::Options);
+
+}
+
+#endif // WHTML5VIDEO_H_
+

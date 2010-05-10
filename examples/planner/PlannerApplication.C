@@ -21,8 +21,8 @@ using namespace Wt;
 using namespace Wt::Dbo;
 
 PlannerApplication::PlannerApplication(const WEnvironment& env)
-  : sqlite3("planner.db"),
-    WApplication(env)
+  : WApplication(env),
+    sqlite3("planner.db")
 {
   session.setConnection(sqlite3);
   sqlite3.setProperty("show-queries", "true");
@@ -34,6 +34,7 @@ PlannerApplication::PlannerApplication(const WEnvironment& env)
   try {
     session.createTables();
   } catch (...) {}
+
   transaction.commit();
 
   messageResourceBundle().use("planner");

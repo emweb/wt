@@ -58,6 +58,10 @@ public:
    */
   WCompositeWidget(WContainerWidget* parent = 0);
 
+  /*! \brief Creates a %WCompositeWidget with given implementation.
+   */
+  WCompositeWidget(WWidget *implementation, WContainerWidget* parent);
+
   ~WCompositeWidget();
 
   virtual const std::string id() const;

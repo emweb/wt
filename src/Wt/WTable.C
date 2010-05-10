@@ -323,8 +323,10 @@ DomElement *WTable::createRow(int row, bool withIds, WApplication *app)
 
       for (int i = 0; i < d.cell->rowSpan(); ++i)
 	for (int j = 0; j < d.cell->columnSpan(); ++j)
-	  if (i + j > 0)
+	  if (i + j > 0) {
 	    itemAt(row + i, col + j).overSpanned = true;
+	    itemAt(row + i, col + j).cell->setRendered(false);
+	  }
     }
   }
 

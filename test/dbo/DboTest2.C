@@ -98,6 +98,8 @@ void DboTest2::setup()
     ("host=127.0.0.1 user=test password=test port=5432 dbname=test");
 #endif // POSTGRES
 
+  connection_->setProperty("show-queries", "true");
+
   session_ = new dbo::Session();
   session_->setConnection(*connection_);
 
@@ -155,6 +157,8 @@ void DboTest2::test1()
     int count = session.query<int>
       ("select count(*) from \"user\" where name = ?").bind("Joe");
     std::cerr << "There is only " << count << " Joe." << std::endl;
+
+    BOOST_REQUIRE(count == 1);
 
     // session.query() and session.find() can return a collection
     typedef dbo::collection< dbo::ptr<User> > Users;

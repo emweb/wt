@@ -44,7 +44,9 @@ void PrepareStatements::act(const FieldRef<V>& field)
 {
   if (pass_ == Self)
     if (!field.name().empty())
-      fields_.push_back(field.name());
+      fields_.push_back
+	(FieldInfo(field.name(), &typeid(V),
+		   FieldInfo::Mutable | FieldInfo::NeedsQuotes));
 }
 
 template<class C>
@@ -482,6 +484,52 @@ void GetManyToManyJoinIdAction::actCollection(const CollectionRef<C>& field)
 
 template<class C>
 void GetManyToManyJoinIdAction::descend(ptr<C>& obj)
+{ }
+
+
+template<class C>
+void ToAnysAction::visit(const ptr<C>& obj)
+{
+  result_.push_back(obj.id());
+  result_.push_back(obj.version());
+  
+  persist<C>::apply(const_cast<C&>(*obj), *this);
+}
+
+template <typename V, class Enable = void>
+struct ToAny
+{
+  static boost::any convert(const V& v) {
+    return v;
+  }  
+};
+
+template <typename Enum>
+struct ToAny<Enum, typename boost::enable_if<boost::is_enum<Enum> >::type> 
+{
+  static boost::any convert(const Enum& v) {
+    return static_cast<int>(v);
+  }
+};
+
+template <typename V>
+boost::any convertToAny(const V& v) {
+  return ToAny<V>::convert(v);
+}
+
+template<typename V>
+void ToAnysAction::act(const FieldRef<V>& field)
+{ 
+  result_.push_back(convertToAny(field.value()));
+}
+
+template<class C>
+void ToAnysAction::actCollection(const CollectionRef<C>& field)
+{
+}
+
+template<class C>
+void ToAnysAction::descend(ptr<C>& obj)
 { }
 
   }

@@ -38,12 +38,12 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
 
   edit_->enterPressed().connect(SLOT(edit_,   WFormWidget::disable));
   edit_->enterPressed().connect(SLOT(this,    WInPlaceEdit::save));
-  edit_->enterPressed().setPreventDefault(true);
+  edit_->enterPressed().preventDefaultAction();
 
   edit_->escapePressed().connect(SLOT(edit_, WWidget::hide));
   edit_->escapePressed().connect(SLOT(text_, WWidget::show));
   edit_->escapePressed().connect(SLOT(this, WInPlaceEdit::cancel));
-  edit_->escapePressed().setPreventDefault(true);
+  edit_->escapePressed().preventDefaultAction();
 
   setButtonsEnabled();
 }

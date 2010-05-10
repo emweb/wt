@@ -28,6 +28,8 @@ public:
   int size() const;
 
   std::string sqlType(Session& session) const;
+  std::type_info *type() const;
+  const V& value() const { return value_; }
 
   void bindValue(SqlStatement *statement, int column) const;
   void setValue(Session& session, SqlStatement *statement, int column) const;
@@ -76,6 +78,8 @@ public:
   const std::string& name() const;
 
   std::string sqlType(Session& session) const;
+  std::type_info *type() const;
+  long long value() const { return value_.id(); }
 
   void bindValue(SqlStatement *statement, int column) const;
   void setValue(Session& session, SqlStatement *statement, int column) const;

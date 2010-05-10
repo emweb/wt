@@ -1,3 +1,4 @@
+// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2010 Emweb bvba, Heverlee, Belgium.
  *
@@ -11,28 +12,30 @@
 #include <Wt/WColor>
 #include <Wt/WString>
 
-class ShapeColor : public Wt::WColor {
- public:
+class ShapeColor : public Wt::WColor
+{
+public:
   ShapeColor(const Wt::WColor& color, const Wt::WString& colorName)
-    : colorName_(colorName),
-      WColor(color)
-      {}
+    : WColor(color),
+      colorName_(colorName)
+  { }
 
   Wt::WString colorName() {
     return colorName_;
   }
 
- private:
+private:
   Wt::WString colorName_;
 };
 
-class Shape {
- public:
+class Shape
+{
+public:
   Shape(const Wt::WPointF& center, const ShapeColor& color, const double size) 
     : center_(center),
       color_(color),
       size_(size)
-      {}
+  {}
 
   virtual ~Shape();
 
@@ -48,19 +51,20 @@ class Shape {
     return size_;
   }
 
- protected:
+protected:
   Wt::WPointF center() const {
     return center_;
   }
 
- private:
+private:
   Wt::WPointF center_;
   ShapeColor color_;
   double size_;
 };
 
-class Circle : public Shape {
- public:
+class Circle : public Shape
+{
+public:
   Circle(const Wt::WPointF& center, 
 	 const ShapeColor& color, 
 	 const double size);
@@ -74,8 +78,9 @@ class Circle : public Shape {
 		    const double x2, const double y2) const;
 };
 
-class Rectangle : public Shape {
- public:
+class Rectangle : public Shape
+{
+public:
   Rectangle(const Wt::WPointF& center, 
 	    const ShapeColor& color, 
 	    const double size);
@@ -85,4 +90,4 @@ class Rectangle : public Shape {
   virtual void paint(Wt::WPainter& painter) const;
 };
 
-#endif //SHAPE_H_
+#endif // SHAPE_H_

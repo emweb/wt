@@ -160,7 +160,7 @@ void WTree::select(WTreeNode *node, bool selected)
 {
   if (selectionMode_ == SingleSelection && selected && 
       selection_.size() == 1 && Utils::first(selection_) == node)
-      return; // node was already selected, avoid re-emission of signals
+    return; // node was already selected, avoid re-emission of signals
 
   if (selectionMode_ == SingleSelection && selected)
     clearSelection();
@@ -174,6 +174,8 @@ void WTree::select(WTreeNode *node, bool selected)
     } else {
       if (selection_.erase(node))
 	node->renderSelected(false);
+      else
+	return; // node was not selected, avoid re-emission of signals
     }
   }
 
@@ -193,6 +195,7 @@ void WTree::select(const WTreeNodeSet& nodes)
 void WTree::nodeRemoved(WTreeNode *node)
 {
   select(node, false);
+
   node->clickedConnection_.disconnect();
   onClickMapper_.removeMapping(node);
 
@@ -202,8 +205,6 @@ void WTree::nodeRemoved(WTreeNode *node)
 
 void WTree::nodeAdded(WTreeNode *node)
 {
-  select(node, false);
-
   if (node->isSelectable()) {
     WInteractWidget *w = node->label();
     if (!w)
@@ -217,6 +218,8 @@ void WTree::nodeAdded(WTreeNode *node)
       nodeAdded(node->childNodes()[i]);
   }
 
+  // This doesn't hurt but sounds like it is not something the library
+  // should deal with ...
   if (!node->parentNode()->isSelectable() && isSelected(node->parentNode()))
     select(node->parentNode(), false);
 }

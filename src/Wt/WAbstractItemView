@@ -10,30 +10,58 @@
 #include <Wt/WCompositeWidget>
 #include <Wt/WModelIndex>
 #include <Wt/WSignalMapper>
+#include <Wt/WItemSelectionModel>
 
 namespace Wt {
 
   class WAbstractItemDelegate;
   class WAbstractItemModel;
   class WApplication;
-  class WItemSelectionModel;
   class WCssTemplateRule;
 
 /*! \class WAbstractItemView Wt/WAbstractItemView Wt/WAbstractItemView
- *  \brief An abstract base class for item views.
+ *  \brief An abstract base class for item Views.
+ *
+ * \ingroup modelview
  */
 class WT_API WAbstractItemView : public WCompositeWidget
 {
 public:
+  /*! \brief Enumeration that specifies the user action that triggers editing.
+   *
+   * \sa setEditTriggers(), edit()
+   */
+  enum EditTrigger {
+    NoEditTrigger = 0x0,  //!< Do not allow user to initiate editing
+    SingleClicked = 0x1,  //!< Edit an item when clicked
+    DoubleClicked = 0x2,  //!< Edit an item when double clicked
+    SelectedClicked = 0x4 //!< Edit a selected item that is clicked again
+  };
+
+  /*! \brief Enumeration that specifies editing options.
+   *
+   * \sa setEditOptions()
+   */
+  enum EditOption {
+    SingleEditor = 0x1,    //!< Never show more than one active editor
+    MultipleEditors = 0x2, //!< Allow multiple editors at the same time
+    SaveWhenClosed = 0x4   //!< Always save the current edit value when closing
+  };
+
+  virtual ~WAbstractItemView();
+
   /*! \brief Sets the model.
    *
-   * The view will render the data in the given \p model. Changes
-   * to the model are reflected in the view.
+   * The View will display data in the given \p model and changes in
+   * the model are reflected by the View.
    *
    * The initial model is \c 0.
    *
+   * \if cpp
    * Ownership of the model is not transferred (and thus the
-   * previously set model is not deleted).
+   * previously set model is not deleted). A model may not be deleted as
+   * long as a view exists for it.
+   * \endif
    *
    * \sa setRootIndex()
    */
@@ -45,16 +73,31 @@ public:
    */
   WAbstractItemModel *model() const { return model_; }
 
+  /*! \brief Sets the root index.
+   *
+   * The root index is the model index that is considered the root
+   * node. This node itself is not rendered, but its children are.
+   *
+   * The default value is WModelIndex(), corresponding to the model's
+   * root node.
+   *
+   * \sa setModel()
+   */
+  void setRootIndex(const WModelIndex& rootIndex);
+
+  /*! \brief Returns the root index.
+   *
+   * \sa setRootIndex()
+   */
+  const WModelIndex& rootIndex() const { return rootIndex_; }
+
     /*! \brief Sets the content alignment for a column.
    *
    * The default value is \link Wt::AlignLeft AlignLeft\endlink.
    *
-   * \note For column 0, \link Wt::AlignCenter AlignCenter\endlink is
-   * currently not supported.
-   *
    * \sa setHeaderAlignment()
    */
-  virtual void setColumnAlignment(int column, AlignmentFlag alignment) = 0;
+  virtual void setColumnAlignment(int column, AlignmentFlag alignment);
 
   /*! \brief Sets the header alignment for a column.
    *
@@ -62,29 +105,37 @@ public:
    *
    * \sa setColumnAlignment()
    */
-  virtual void setHeaderAlignment(int column, AlignmentFlag alignment) = 0;
+  virtual void setHeaderAlignment(int column, AlignmentFlag alignment);
 
   /*! \brief Returns the content alignment for a column.
    *
    * \sa setColumnAlignment()
    */
-  virtual AlignmentFlag columnAlignment(int column) const = 0;
+  virtual AlignmentFlag columnAlignment(int column) const;
 
   /*! \brief Returns the header alignment for a column.
    *
    * \sa setHeaderAlignment()
    */
-  virtual AlignmentFlag headerAlignment(int column) const = 0;
+  virtual AlignmentFlag headerAlignment(int column) const;
 
   /*! \brief Sets if alternating row colors are to be used.
+   *
+   * Configure whether rows get alternating background colors, defined by the
+   * current CSS theme.
+   *
+   * The default value is \c false.
    */
-  virtual void setAlternatingRowColors(bool enable) = 0;
+  virtual void setAlternatingRowColors(bool enable);
 
   /*! \brief Returns whether alternating row colors are used.
    *
+   * When enabled, rows are displayed in alternating row colors, according
+   * to the current theme's definition.
+   *
    * \sa setAlternatingRowColors()
    */
-  virtual bool alternatingRowColors() const = 0;
+  virtual bool alternatingRowColors() const { return alternatingRowColors_; }
   
   /*! \brief Sorts the data according to a column.
    *
@@ -125,6 +176,8 @@ public:
    *
    * Enable or disable column resize handles for interactive resizing of
    * the columns.
+   *
+   * Column resizing is enabled by default when JavaScript is available.
    *
    * \sa setColumnResizeEnabled()
    */
@@ -276,7 +329,7 @@ public:
    *
    * \sa select(), setSelectionMode(), setSelectionBehavior()
    */
-  Signal<void>& selectionChanged() { return selectionChanged_; }
+  Signal<>& selectionChanged() { return selectionChanged_; }
 
   /*! \brief Sets the default item delegate.
    *
@@ -323,8 +376,8 @@ public:
 
   /*! \brief Sets the row height.
    *
-   * The view assumes that all rows are of the same height. Use this
-   * method to set the height.
+   * The view renders all rows with a same height. This method
+   * configures this row height.
    *
    * The default value is 20 pixels.
    *
@@ -332,13 +385,18 @@ public:
    *
    * \sa setColumnWidth()
    */
-  virtual void setRowHeight(const WLength& rowHeight) = 0;
+  virtual void setRowHeight(const WLength& rowHeight);
 
   /*! \brief Returns the row height.
    */
   const WLength& rowHeight() const { return rowHeight_; }
 
   /*! \brief Sets the column width.
+   *
+   * The default column width is 150 pixels.
+   *
+   * \note The actual space occupied by each column is the column width
+   *       augmented by 7 pixels for internal padding and a border.
    */
   virtual void setColumnWidth(int column, const WLength& width) = 0;
  
@@ -346,30 +404,133 @@ public:
    *
    * \sa setColumnWidth()
    */
-  virtual WLength columnWidth(int column) const = 0;
+  WLength columnWidth(int column) const;
+
+  Signal<int, WLength>& columnResized() { return columnResized_; }
 
   /*! \brief Sets the column border color
    *
-   * The default border color is white. 
+   * The default border color is defined by the CSS theme. 
    */
   virtual void setColumnBorder(const WColor& color) = 0;
 
   /*! \brief Sets the header height.
    *
-   * Use this method to change the header height. You may also enable
-   * the use of multi-line headers. By default, the header text is a 
-   * single line, that is centered vertically.
+   * Use this method to change the header height. By default, the
+   * header text is a single line that is centered vertically.
    *
-   * The default value is 20 pixels.
+   * By enabling multi-line headers, the header text will be aligned to
+   * the top and wrap as needed. In that case, additional contents may be
+   * displayed in the header, provided by createExtraHeaderWidget().
+   *
+   * The default value is a single line of 20 pixels.
    */
-  virtual void setHeaderHeight(const WLength& height, bool multiLine = false)
-    = 0;
+  virtual void setHeaderHeight(const WLength& height, bool multiLine = false);
 
   /*! \brief Returns the header height.
    *
    * \sa setHeaderHeight()
    */
   const WLength& headerHeight() const { return headerLineHeight_; } ;
+
+  /*! \brief Returns the number of pages.
+   *
+   * When Ajax/JavaScript is not available, the view will use a paging
+   * navigation bar to allow scrolling through the data. This returns the
+   * number of pages currently shown.
+   *
+   * \sa createPageNavigationBar(), pageChanged()
+   */
+  virtual int pageCount() const = 0;
+
+  /*! \brief Returns the page size.
+   *
+   * When Ajax/JavaScript is not available, the view will use a paging
+   * navigation bar to allow scrolling through the data. This returns the
+   * number of items per page.
+   *
+   * \sa createPageNavigationBar(), pageChanged()
+   */
+  virtual int pageSize() const = 0;
+
+  /*! \brief Returns the current page.
+   *
+   * When Ajax/JavaScript is not available, the view will use a paging
+   * navigation bar to allow scrolling through the data. This returns the
+   * current page (between 0 and pageCount() - 1).
+   *
+   * \sa createPageNavigationBar(), pageChanged()
+   */
+  virtual int currentPage() const = 0;
+
+  /*! \brief Sets the current page.
+   *
+   * When Ajax/JavaScript is not available, the view will use a paging
+   * navigation bar to allow scrolling through the data. This method can
+   * be used to change the current page.
+   *
+   * \sa createPageNavigationBar(), pageChanged()
+   */
+  virtual void setCurrentPage(int page) = 0;
+
+  /*! \brief %Signal emitted when page information was updated.
+   *
+   * When Ajax/JavaScript is not available, the view will use a paging
+   * navigation bar to allow scrolling through the data. This signal
+   * is emitted when page-related information changed (e.g. the
+   * current page was changed, or the number of rows was changed).
+   *
+   * \sa createPageNavigationBar()
+   */
+  Signal<>& pageChanged() { return pageChanged_; }
+
+  /*! \brief Configures what actions should trigger editing.
+   *
+   * \sa edit()
+   */
+  void setEditTriggers(WFlags<EditTrigger> editTriggers);
+
+  /*! \brief Returns the editing triggers.
+   *
+   * \sa setEditTriggers()
+   */
+  WFlags<EditTrigger> editTriggers() const { return editTriggers_; }
+
+  /*! \brief Configures editing options.
+   */
+  void setEditOptions(WFlags<EditOption> options);
+
+  /*! \brief Returns the editing options.
+   *
+   * \sa setEditOptions()
+   */
+  WFlags<EditOption> editOptions() const { return editOptions_; }
+
+  /*! \brief Opens an editor for the given index.
+   *
+   * Unless multiple editors are enabled, any other open editor is closed
+   * first.
+   *
+   * \sa setEditTriggers(), setEditOptions()
+   */
+  void edit(const WModelIndex& index);
+
+  /*! \brief Closes the editor for the given index.
+   *
+   * If \p saveData is true, then the currently edited value is saved first
+   * to the model.
+   *
+   * \sa edit()
+   */
+  void closeEditor(const WModelIndex& index, bool saveData = true);
+
+  /*! \brief Returns whether an editor is open for a given index.
+   *
+   * \sa edit()
+   */
+  bool isEditing(const WModelIndex& index) const;
+
+  bool isEditing() const;
 
 protected:
   /*! \brief Creates a new item view.
@@ -419,6 +580,20 @@ protected:
    */
   WWidget *extraHeaderWidget(int column);
 
+  /*! \brief Returns a page navigation widget.
+   *
+   * When Ajax/JavaScript is not available, the view will use a paging
+   * navigation bar to allow scrolling through the data, created by this
+   * method. The default implementation displays a simple navigation bar
+   * with (First, Prevous, Next, Last) buttons and a page counter.
+   *
+   * You may want to reimplement this method to provide a custom page
+   * navigation bar. You can use the currentPage(), pageCount(), and
+   * setCurrentPage() methods to set or get the page information, and
+   * listen to the pageChanged() signal to react to changes.
+   */
+  virtual WWidget *createPageNavigationBar();
+
 protected:
   struct ColumnInfo {
     WCssTemplateRule *styleRule;
@@ -433,9 +608,7 @@ protected:
 
     std::string styleClass() const;
 
-    ColumnInfo(const WAbstractItemView *view,
-	       int id, 
-	       int column);
+    ColumnInfo(const WAbstractItemView *view, int id, int column);
   };
 
   enum RenderState {
@@ -446,77 +619,121 @@ protected:
     NeedRerender = 4
   };
 
+  WContainerWidget *impl_;
+  RenderState renderState_;
+  std::vector<boost::signals::connection> modelConnections_;
+
+  WSignalMapper<WModelIndex, WMouseEvent> *clickedMapper_;
+
+  mutable std::vector<ColumnInfo> columns_;
+  int currentSortColumn_;
+
+  bool dragEnabled_, dropsEnabled_;
+  WWidget *dragWidget_;
+
+  virtual void scheduleRerender(RenderState what);
+
+  virtual void modelDataChanged(const WModelIndex& topLeft,
+				const WModelIndex& bottomRight) = 0;
+  virtual void modelLayoutAboutToBeChanged();
+  virtual void modelLayoutChanged();
+  void modelReset();
+
+  int columnCount() const;
+  virtual ColumnInfo createColumnInfo(int column) const;
+  ColumnInfo& columnInfo(int column) const;
+  int columnById(int columnid) const;
+  WWidget *createHeaderWidget(WApplication *app, int column);
+  WText *headerTextWidget(int column);
+
+  void handleClick(const WModelIndex& index, const WMouseEvent& event);
+  void handleDoubleClick(const WModelIndex& index, const WMouseEvent& event);
+  void handleMouseDown(const WModelIndex& index, const WMouseEvent& event);
+
+  virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
+
+  void convertToRaw(WModelIndexSet& set, std::vector<void *>& result);
+
+  void setEditState(const WModelIndex& index, const boost::any& editState);
+  boost::any editState(const WModelIndex& index) const;
+
+  void setEditorWidget(const WModelIndex& index, WWidget *editor);
+
+  void bindObjJS(JSlot& slot, const std::string& jsMethod);
+
+private:
+  struct Editor {
+    WWidget *widget;
+    boost::any editState;
+  };
+
   WAbstractItemModel    *model_;
+  WModelIndex            rootIndex_;
   WAbstractItemDelegate *itemDelegate_;
   WItemSelectionModel   *selectionModel_;
   WLength                rowHeight_, headerLineHeight_;
   SelectionMode          selectionMode_;
   bool                   sorting_, columnResize_;
   bool                   multiLineHeader_;
-  
-  mutable std::vector<ColumnInfo> columns_;
+
+  JSignal<int, int>    columnWidthChanged_;
+  Signal<int, WLength> columnResized_;
+
+  WCssTemplateRule *headerHeightRule_;
+
   mutable int nextColumnId_;
   
-  int currentSortColumn_;
-  
-  bool                   dragEnabled_, dropsEnabled_;
-  WWidget               *dragWidget_;
+  WSignalMapper<int>
+    *clickedForSortMapper_, *clickedForExpandMapper_,
+    *clickedForCollapseMapper_;
 
-  RenderState renderState_;
-  bool needDefineJS_;
+  bool alternatingRowColors_;
 
-  WSignalMapper<int>         *clickedForSortMapper_;
-  WSignalMapper<WModelIndex> *clickedMapper_;
-  WSignalMapper<int>         *clickedForExpandMapper_;
-  WSignalMapper<int>         *clickedForCollapseMapper_;
+  JSlot resizeHandleMDownJS_;
 
-  std::vector<boost::signals::connection> modelConnections_;
-  JSlot resizeHandleMDownJS_, resizeHandleMMovedJS_, resizeHandleMUpJS_,
-    tieContentsHeaderScrollJS_, tieRowsScrollJS_, itemClickedJS_,
-    itemDoubleClickedJS_, itemMouseDownJS_, itemMouseUpJS_;
+  typedef std::map<WModelIndex, Editor> EditorMap;
+  EditorMap editedItems_;
 
-  WWidget *createHeaderWidget(WApplication *app, int column);
-  virtual WWidget *headerWidget(int column, bool contentsOnly = true) = 0;
-  WText   *headerTextWidget(int column);
-  virtual WText   *headerSortIconWidget(int column) = 0;
+  std::vector<void *> selectionRaw_;
+  void *rawRootIndex_;
 
   Signal<WModelIndex, WMouseEvent> clicked_;
   Signal<WModelIndex, WMouseEvent> doubleClicked_;
   Signal<WModelIndex, WMouseEvent> mouseWentDown_;
   Signal<WModelIndex, WMouseEvent> mouseWentUp_;
-  Signal<void> selectionChanged_;
+  Signal<> selectionChanged_;
+  Signal<> pageChanged_;
 
+  WFlags<EditTrigger> editTriggers_;
+  WFlags<EditOption> editOptions_;
+
+  void closeEditor(WWidget *editor, bool saveData);
+  void saveEditedValue(const WModelIndex& index, Editor& editor);
+
+  virtual WWidget *headerWidget(int column, bool contentsOnly = true) = 0;
+  virtual WText *headerSortIconWidget(int column);
+
+  void selectionHandleClick(const WModelIndex& index,
+			    WFlags<KeyboardModifier> modifiers);
   void clearSelection();
-  virtual bool internalSelect(const WModelIndex& index, SelectionFlag option) = 0;
+  void extendSelection(const WModelIndex& index);
+  virtual void selectRange(const WModelIndex& first, const WModelIndex& last)
+    = 0;
 
   void checkDragSelection();
   void configureModelDragDrop();
-  virtual ColumnInfo& columnInfo(int column) const = 0;
-  ColumnInfo& insertColumn(int position);
-  int columnById(int columnid) const;
-  int columnCount() const;
+
   void toggleSortColumn(int columnid);
+  void updateColumnWidth(int columnId, int width);
 
   virtual WContainerWidget* headerContainer() = 0;
 
-  virtual void scheduleRerender(RenderState what);
-
-  virtual void modelColumnsInserted(const WModelIndex& parent, int start, int end) = 0;
-  virtual void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
-					    int start, int end) = 0;
-  virtual void modelColumnsRemoved(const WModelIndex& parent, int start, int end) = 0;
-  virtual void modelRowsInserted(const WModelIndex& parent, int start, int end) = 0;
-  virtual void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end) = 0;
-  virtual void modelRowsRemoved(const WModelIndex& parent, int start, int end) = 0;
-  virtual void modelDataChanged(const WModelIndex& topLeft,
-				const WModelIndex& bottomRight) = 0;
-  virtual void modelHeaderDataChanged(Orientation orientation, int start, int end) = 0;
-  virtual void modelLayoutAboutToBeChanged() = 0;
-  virtual void modelLayoutChanged() = 0;
-  void modelReset();
-
   int headerLevelCount() const;
-  void convertToRaw(WModelIndexSet& set, std::vector<void *>& result);
+
+  void expandColumn(int columnid);
+  void collapseColumn(int columnid);
+
+  void initDragDrop();
 };
 
 }

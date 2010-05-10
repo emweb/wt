@@ -346,7 +346,10 @@ void WWidget::positionAt(const WWidget *widget, Orientation orientation)
 
 void WWidget::setLayoutSizeAware(bool aware)
 {
-  if (aware && !resized_) {
+  if (aware == (resized_ != 0))
+    return;
+
+  if (aware) {
     resized_ = new JSignal<int, int>(this, "resized");
     resized_->connect(SLOT(this, WContainerWidget::layoutSizeChanged));
 

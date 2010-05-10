@@ -13,11 +13,13 @@ WT_DECLARE_WT_MEMBER
       self.style.height = h + 'px';
       for (j=0, jl=self.childNodes.length; j < jl; ++j) {
 	c=self.childNodes[j];
-        if (c.wtResize)
-	  c.wtResize(c, w, h);
-        else
-          if (c.style.height != self.style.height)
-             c.style.height = self.style.height;
+	if (c.nodeType == 1) {
+	  if (c.wtResize)
+	    c.wtResize(c, w, h);
+          else
+            if (c.style.height != self.style.height)
+              c.style.height = self.style.height;
+	}
       }
     }
   );

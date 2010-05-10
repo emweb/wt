@@ -15,6 +15,7 @@
 #include "Wt/WItemDelegate"
 #include "Wt/WItemSelectionModel"
 #include "Wt/WImage"
+#include "Wt/WPushButton"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
 #include "Wt/WText"
@@ -36,8 +37,6 @@
   nice to have:
    - stateless slot implementations
    - keyboard navigation ?
-
-  editing triggers
 */
 
 #ifndef DOXYGEN_ONLY
@@ -47,7 +46,7 @@
 #define SCROLLBAR_WIDTH      19
 
 namespace {
-// returns true if i2 is an ancestor of i1
+  // returns true if i2 is an ancestor of i1
   bool isAncestor(const Wt::WModelIndex& i1, const Wt::WModelIndex& i2) {
     if (!i1.isValid())
       return false;
@@ -124,12 +123,17 @@ public:
       config_(config)
   {
     setInline(false);
-    clicked().connect(*config_->toggleJS_);
 
-    for (unsigned i = 0; i < config_->states().size(); ++i)
-      signals_.push_back(new JSignal<>(this, "t-" + config_->states()[i]));
+    if (WApplication::instance()->environment().ajax()) {
+      clicked().connect(*config_->toggleJS_);
 
-    // FIXME: handle non-JavaScript case using a WSignalMapper ?
+      for (unsigned i = 0; i < config_->states().size(); ++i)
+	signals_.push_back(new JSignal<>(this, "t-" + config_->states()[i]));
+    } else {
+      clicked().connect(this, &ToggleButton::handleClick);
+      for (unsigned i = 0; i < config_->states().size(); ++i)
+	signals_.push_back(new Signal<>(this));
+    }
   }
 
   virtual ~ToggleButton() {
@@ -137,7 +141,7 @@ public:
       delete signals_[i];
   }
 
-  JSignal<>& signal(int i) { return *signals_[i]; }
+  SignalBase& signal(int i) { return *signals_[i]; }
 
   void setState(int i)
   {
@@ -145,8 +149,16 @@ public:
   }
 
 private:
-  std::vector<JSignal<> *> signals_;
-  ToggleButtonConfig      *config_;
+  std::vector<SignalBase *> signals_;
+  ToggleButtonConfig       *config_;
+
+  void handleClick() {
+    for (unsigned i = 0; i < config_->states().size(); ++i)
+      if (config_->states()[i] == styleClass().toUTF8()) {
+	(dynamic_cast<Signal<> *>(signals_[i]))->emit();
+	break;
+      }
+  }
 };
 
 class RowSpacer : public Wt::WWebWidget
@@ -241,6 +253,8 @@ public:
   void doExpand();
   void doCollapse();
 
+  WWidget *widget(int column);
+
 private:
   WTreeView     *view_;
   WModelIndex    index_;
@@ -255,7 +269,6 @@ private:
 
   WModelIndex childIndex(int column);
 
-  WWidget *widget(int column);
   void setWidget(int column, WWidget *w);
   void addColumnStyleClass(int column, WWidget *w);
 };
@@ -336,6 +349,22 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
 WTreeViewNode::~WTreeViewNode()
 {
   view_->removeRenderedNode(this);
+
+  if (view_->isEditing()) {
+    WModelIndex parent = index_.parent();
+
+    int thisNodeCount = view_->model()->columnCount(parent);
+
+    for (int i = 0; i < thisNodeCount; ++i) {
+      WModelIndex child = childIndex(i);
+
+      if (view_->isEditing(child)) {
+	boost::any editState = view_->itemDelegate(i)->editState(widget(i));
+	view_->setEditState(child, editState);
+	view_->setEditorWidget(child, 0);
+      }
+    }
+  }
 }
 
 void WTreeViewNode::update(int firstColumn, int lastColumn)
@@ -345,22 +374,36 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
   int thisNodeCount = view_->model()->columnCount(parent);
 
   for (int i = firstColumn; i <= lastColumn; ++i) {
- 
     WModelIndex child = i < thisNodeCount ? childIndex(i) : WModelIndex();
 
-    WWidget *currentW = widget(i);
+    WWidget *w = widget(i);
 
     WFlags<ViewItemRenderFlag> renderFlags = 0;
     if (view_->selectionBehavior() == SelectItems && view_->isSelected(child))
       renderFlags |= RenderSelected;
 
-    WWidget *newW = view_->itemDelegate(i)->update(currentW, child,
-						   renderFlags);
+    if (view_->isEditing(child))
+      renderFlags |= RenderEditing;
+    
+    w = view_->itemDelegate(i)->update(w, child, renderFlags);
 
-    if (newW != currentW)
-      setWidget(i, newW);
-    else
-      addColumnStyleClass(i, currentW);
+    if (renderFlags & RenderEditing)
+      view_->setEditorWidget(child, w);
+
+    if (!w->parent()) {
+      setWidget(i, w);
+
+      /*
+       * If we are creating a new editor, then reset its current edit
+       * state.
+       */
+      if (renderFlags & RenderEditing) {
+	boost::any state = view_->editState(child);
+	if (!state.empty())
+	  view_->itemDelegate(i)->setEditState(w, state);
+      }
+    } else
+      addColumnStyleClass(i, w);
   }
 }
 
@@ -389,8 +432,8 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
 	expandButton_->resize(19, WLength::Auto);
       elementAt(0, 0)->addWidget(expandButton_);
 
-      expandButton_->signal(0).connect(SLOT(this, WTreeViewNode::doExpand));
-      expandButton_->signal(1).connect(SLOT(this, WTreeViewNode::doCollapse));
+      expandButton_->signal(0).connect(this, &WTreeViewNode::doExpand);
+      expandButton_->signal(1).connect(this, &WTreeViewNode::doCollapse);
 
       expandButton_->setState(isExpanded() ? 1 : 0);
     }
@@ -496,7 +539,7 @@ void WTreeViewNode::setWidget(int column, WWidget *newW)
   if (!WApplication::instance()->environment().ajax()) {
     WInteractWidget *wi = dynamic_cast<WInteractWidget *>(newW);
     if (wi)
-      view_->clickedMapper_->mapConnect(wi->clicked(), childIndex(column));
+      view_->clickedMapper_->mapConnect1(wi->clicked(), childIndex(column));
   }
 }
 
@@ -618,6 +661,8 @@ void WTreeViewNode::adjustChildrenHeight(int diff)
 
     if (parent)
       parent->adjustChildrenHeight(diff);
+    else
+      view_->pageChanged().emit();
   }
 }
 
@@ -840,9 +885,11 @@ void WTreeViewNode::renderSelected(bool selected, int column)
   else {
     WWidget *w = widget(column);
     if (selected)
-      w->setStyleClass(Utils::addWord(w->styleClass().toUTF8(), "Wt-selected"));
+      w->setStyleClass
+	(Utils::addWord(w->styleClass().toUTF8(), "Wt-selected"));
     else
-      w->setStyleClass(Utils::eraseWord(w->styleClass().toUTF8(), "Wt-selected"));
+      w->setStyleClass
+	(Utils::eraseWord(w->styleClass().toUTF8(), "Wt-selected"));
   }
 }
 
@@ -865,61 +912,41 @@ void WTreeViewNode::selfCheck()
   }
 }
 
-void WTreeView::bindObjJS(JSlot& slot, const std::string& jsMethod)
-{
-  slot.setJavaScript
-    ("function(obj, event) {"
-     """jQuery.data(" + jsRef() + ", 'obj')." + jsMethod + "(obj, event);"
-     "}");
-}
-
 WTreeView::WTreeView(WContainerWidget *parent)
   : WAbstractItemView(parent),
     rootNode_(0),
     borderColorRule_(0),
     rootIsDecorated_(true),
     column1Fixed_(false),
-    alternatingRowColors_(false),
     collapsed_(this),
     expanded_(this),
     viewportTop_(0),
     viewportHeight_(30),
     nodeLoad_(0),
+    headerContainer_(0),
     contentsContainer_(0),
     scrollBarC_(0),
-    impl_(new WContainerWidget()),
-    itemEvent_(impl_, "itemEvent")
+    itemEvent_(impl_, "itemEvent"),
+    tieContentsHeaderScrollJS_(this),
+    itemClickedJS_(this),
+    itemDoubleClickedJS_(this),
+    itemMouseDownJS_(this),
+    itemMouseUpJS_(this)
 {
-  setImplementation(impl_);
-
-  renderState_ = NeedRerender;
-
-  WApplication *app = WApplication::instance();
-
-  clickedForCollapseMapper_ = new WSignalMapper<int>(this);
-  clickedForCollapseMapper_->mapped().connect(SLOT(this,
-						   WTreeView::collapseColumn));
-
-  clickedForExpandMapper_ = new WSignalMapper<int>(this);
-  clickedForExpandMapper_->mapped().connect(SLOT(this,
-						 WTreeView::expandColumn));
-
-  if (!app->environment().ajax()) {
-    clickedMapper_ = new WSignalMapper<WModelIndex>(this);
-    clickedMapper_->mapped().connect(SLOT(this, WTreeView::handleClick));
-  }
-
-  itemEvent_.connect(SLOT(this, WTreeView::onItemEvent));
-
-  setStyleClass("Wt-treeview");
   setSelectable(false);
-
-  const char *CSS_RULES_NAME = "Wt::WTreeView";
 
   expandConfig_ = new ToggleButtonConfig(this);
   expandConfig_->addState("Wt-expand");
   expandConfig_->addState("Wt-collapse");
   expandConfig_->generate();
+
+  itemEvent_.connect(this, &WTreeView::onItemEvent);
+
+  setStyleClass("Wt-treeview");
+
+  const char *CSS_RULES_NAME = "Wt::WTreeView";
+
+  WApplication *app = WApplication::instance();
 
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
     /* header */
@@ -1002,17 +1029,17 @@ WTreeView::WTreeView(WContainerWidget *parent)
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-br, "                      // header
        ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c", // data
-       "border-right: 1px solid white;");
+       "margin-right: 0px; border-right: 1px solid white;");
 
     /* sort handles */
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh", std::string() +
-       "float: right; width: 16px; height: 10px; padding-bottom: 6px;"
+       "float: right; width: 16px; height: 16px; padding-bottom: 6px;"
        "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh-nrh", std::string() + 
-       "float: right; width: 16px; height: 10px;"
+       "float: right; width: 16px; height: 16px;"
        "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule
@@ -1038,18 +1065,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   setColumnBorder(white);
 
-  app->styleSheet().addRule("#" + id() + " .cwidth", "height: 1px;");
-
-  /* item drag & drop */
-  app->styleSheet().addRule
-    ("#" + id() + "dw",
-     "width: 32px; height: 32px;"
-     "background: url(" + WApplication::resourcesUrl() + "items-not-ok.gif);");
-
-  app->styleSheet().addRule
-    ("#" + id() + "dw.Wt-valid-drop",
-     "width: 32px; height: 32px;"
-     "background: url(" + WApplication::resourcesUrl() + "items-ok.gif);");
+  app->styleSheet().addRule("#" + id() + " .cwidth", "");
 
   rowHeightRule_ = new WCssTemplateRule("#" + id() + " .rh");
   app->styleSheet().addRule(rowHeightRule_);
@@ -1060,63 +1076,77 @@ WTreeView::WTreeView(WContainerWidget *parent)
   rowContentsWidthRule_ = new WCssTemplateRule("#" + id() +" .Wt-tv-rowc");
   app->styleSheet().addRule(rowContentsWidthRule_);
 
-  setRowHeight(rowHeight_);
-
   /*
    * Setup main layout
    */
-
-  if (app->environment().javaScript())
-    impl_->setPositionScheme(Relative);
-
-  WVBoxLayout *layout = new WVBoxLayout();
-  layout->setSpacing(0);
-  layout->setContentsMargins(0, 0, 0, 0);
-
-  layout->addWidget(headerContainer_ = new WContainerWidget());
-  headerContainer_->setOverflow(WContainerWidget::OverflowHidden);
-  headerContainer_->setStyleClass("Wt-header headerrh cwidth");
-  headers_ = new WContainerWidget(headerContainer_);
+  headers_ = new WContainerWidget();
   headers_->setStyleClass("Wt-headerdiv headerrh");
 
-  headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh");
-  app->styleSheet().addRule(headerHeightRule_);
-  setHeaderHeight(headerLineHeight_);
+  contents_ = new WContainerWidget();
+  WContainerWidget *wrapRoot = new WContainerWidget();
+  contents_->addWidget(wrapRoot);
 
-  contentsContainer_ = new WContainerWidget();
-  contentsContainer_->setStyleClass("cwidth");
-  contentsContainer_->setOverflow(WContainerWidget::OverflowAuto);
-  contentsContainer_->addWidget(contents_ = new WContainerWidget());
-  contentsContainer_->scrolled().connect(SLOT(this, WTreeView::onViewportChange));
-  contentsContainer_->scrolled().connect(tieContentsHeaderScrollJS_);
-  contents_->addWidget(new WContainerWidget()); // wrapRoot
+  if (app->environment().agentIsIE()) {
+    wrapRoot->setAttributeValue("style", "zoom: 1");
+    contents_->setAttributeValue("style", "zoom: 1");
+  }
 
-  if (app->environment().agentIsIE())
-    contents_->setAttributeValue("style", "zoom: 1"); // trigger hasLayout
+  if (app->environment().ajax()) {
+    impl_->setPositionScheme(Relative);
+    WVBoxLayout *layout = new WVBoxLayout();
+    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
-  layout->addWidget(contentsContainer_, 1);
+    headerContainer_ = new WContainerWidget();
+    headerContainer_->setOverflow(WContainerWidget::OverflowHidden);
+    headerContainer_->setStyleClass("Wt-header headerrh cwidth");
+    headerContainer_->addWidget(headers_);
 
-  impl_->setLayout(layout);
+    contentsContainer_ = new WContainerWidget();
+    contentsContainer_->setStyleClass("cwidth");
+    contentsContainer_->setOverflow(WContainerWidget::OverflowAuto);
+    contentsContainer_->scrolled().connect(this, &WTreeView::onViewportChange);
+    contentsContainer_->scrolled().connect(tieContentsHeaderScrollJS_);
+    contentsContainer_->addWidget(contents_);
 
-  selectionChanged().connect(SLOT(this, WTreeView::checkDragSelection));
+    layout->addWidget(headerContainer_);
+    layout->addWidget(contentsContainer_, 1);
+
+    impl_->setLayout(layout);
+  } else {
+    contentsContainer_ = new WContainerWidget();
+    contentsContainer_->addWidget(contents_);
+    contentsContainer_->setOverflow(WContainerWidget::OverflowHidden);
+
+    impl_->setPositionScheme(Relative);
+    contentsContainer_->setPositionScheme(Relative);
+    contents_->setPositionScheme(Relative);
+
+    impl_->addWidget(headers_);
+    impl_->addWidget(contentsContainer_);
+
+    viewportHeight_ = 1000;
+
+    resize(width(), height());
+  }
+
+  setRowHeight(rowHeight());
 
   bindObjJS(itemClickedJS_, "click");
   bindObjJS(itemDoubleClickedJS_, "dblClick");
   bindObjJS(itemMouseDownJS_, "mouseDown");
   bindObjJS(itemMouseUpJS_, "mouseUp");
-  bindObjJS(resizeHandleMDownJS_, "resizeHandleMDown");
-  bindObjJS(resizeHandleMMovedJS_, "resizeHandleMMoved");
-  bindObjJS(resizeHandleMUpJS_, "resizeHandleMUp");
 
-  tieContentsHeaderScrollJS_.setJavaScript
-    ("function(obj, event) {"
-     "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
-     /* the following is a workaround for IE7 */
-     """var t = " + contents_->jsRef() + ".firstChild;"
-     """var h = " + headers_->jsRef() + ";"
-     """h.style.width = (t.offsetWidth - 1) + 'px';"
-     """h.style.width = t.offsetWidth + 'px';"
-     "}");
+  if (headerContainer_)
+    tieContentsHeaderScrollJS_.setJavaScript
+      ("function(obj, event) {"
+       "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
+       /* the following is a workaround for IE7 */
+       """var t = " + contents_->jsRef() + ".firstChild;"
+       """var h = " + headers_->jsRef() + ";"
+       """h.style.width = (t.offsetWidth - 1) + 'px';"
+       """h.style.width = t.offsetWidth + 'px';"
+       "}");
 
   if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
     tieRowsScrollJS_.setJavaScript
@@ -1145,6 +1175,9 @@ WTreeView::WTreeView(WContainerWidget *parent)
 void WTreeView::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
+
+  if (!app->environment().ajax())
+    return;
 
   const char *THIS_JS = "js/WTreeView.js";
 
@@ -1205,12 +1238,9 @@ void WTreeView::setColumn1Fixed(bool fixed)
 WTreeView::~WTreeView()
 { 
   delete expandConfig_;
-
-  impl_->clear();
   delete rowHeightRule_;
 
-  for (unsigned i = 0; i < columns_.size(); ++i)
-    delete columns_[i].styleRule;
+  impl_->clear();
 }
 
 std::string WTreeView::columnStyleClass(int column) const
@@ -1253,58 +1283,17 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
   toResize->resize(width.toPixels(), WLength::Auto);
 
   WApplication *app = WApplication::instance();
+
   if (renderState_ < NeedRerenderHeader)
     app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
-}
 
-WLength WTreeView::columnWidth(int column) const
-{
-  return columnInfo(column).width;
-}
+  if (!app->environment().ajax() && column == 0 && !width.isAuto()) {
+    double total = 0;
+    for (int i = 0; i < columnCount(); ++i)
+      total += columnWidth(i).toPixels();
 
-void WTreeView::setColumnAlignment(int column, AlignmentFlag alignment)
-{
-  columnInfo(column).alignment = alignment;
-
-  WWidget *w = columnInfo(column).styleRule->templateWidget();
-
-  if (column != 0) {
-    const char *align = 0;
-    switch (alignment) {
-    case AlignLeft: align = "left"; break;
-    case AlignCenter: align = "center"; break;
-    case AlignRight: align = "right"; break;
-    case AlignJustify: align = "justify"; break;
-    default:
-      break;
-    }
-    if (align)
-      w->setAttributeValue("style", std::string("text-align: ") + align);
-  } else
-    if (alignment == AlignRight)
-      w->setFloatSide(Right);
-}
-
-AlignmentFlag WTreeView::columnAlignment(int column) const
-{
-  return columnInfo(column).alignment;
-}
-
-void WTreeView::setHeaderAlignment(int column, AlignmentFlag alignment)
-{
-  columnInfo(column).headerAlignment = alignment;
-
-  if (renderState_ >= NeedRerenderHeader)
-    return;
-
-  WContainerWidget *wc = dynamic_cast<WContainerWidget *>(headerWidget(column));
-
-  wc->setContentAlignment(alignment);
-}
-
-AlignmentFlag WTreeView::headerAlignment(int column) const
-{
-  return columnInfo(column).headerAlignment;
+    resize(total, height());
+  }
 }
 
 void WTreeView::setColumnBorder(const WColor& color)
@@ -1327,10 +1316,8 @@ void WTreeView::setRootIsDecorated(bool show)
 
 void WTreeView::setAlternatingRowColors(bool enable)
 {
-  if (alternatingRowColors_ != enable) {
-    alternatingRowColors_ = enable;
-    setRootNodeStyle();
-  }
+  WAbstractItemView::setAlternatingRowColors(enable);
+  setRootNodeStyle();
 }
 
 void WTreeView::setRootNodeStyle()
@@ -1338,22 +1325,26 @@ void WTreeView::setRootNodeStyle()
   if (!rootNode_)
     return;
 
-  if (alternatingRowColors_)
+  if (alternatingRowColors())
     rootNode_->decorationStyle().setBackgroundImage
       (WApplication::resourcesUrl()
        + "themes/" + WApplication::instance()->cssTheme()
        + "/stripes/stripe-" + boost::lexical_cast<std::string>
-       (static_cast<int>(rowHeight_.toPixels())) + "px.gif");
+       (static_cast<int>(rowHeight().toPixels())) + "px.gif");
    else
      rootNode_->decorationStyle().setBackgroundImage("");
  }
 
 void WTreeView::setRowHeight(const WLength& rowHeight)
 {
-  rowHeight_ = rowHeight;
+  WAbstractItemView::setRowHeight(rowHeight);
 
-  rowHeightRule_->templateWidget()->resize(WLength::Auto, rowHeight_);
-  rowHeightRule_->templateWidget()->setLineHeight(rowHeight_);
+  rowHeightRule_->templateWidget()->resize(WLength::Auto, rowHeight);
+  rowHeightRule_->templateWidget()->setLineHeight(rowHeight);
+
+  if (!WApplication::instance()->environment().ajax() && !height().isAuto())
+    viewportHeight_ = static_cast<int>(contentsContainer_->height().toPixels()
+				       / rowHeight.toPixels());
 
   setRootNodeStyle();
 
@@ -1367,20 +1358,7 @@ void WTreeView::setRowHeight(const WLength& rowHeight)
 
 void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
 {
-  headerLineHeight_ = height;
-  multiLineHeader_ = multiLine;
-
-  int lineCount = headerLevelCount();
-  WLength headerHeight = headerLineHeight_ * lineCount;
-
-  headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);
-  if (!multiLineHeader_)
-    headerHeightRule_->templateWidget()->setLineHeight(headerLineHeight_);
-  else
-    headerHeightRule_->templateWidget()->setLineHeight(WLength::Auto);
-
-  headers_->resize(headers_->width(), headerHeight);
-  headerContainer_->resize(headerContainer_->width(), headerHeight);
+  WAbstractItemView::setHeaderHeight(height, multiLine);
 
   if (renderState_ >= NeedRerenderHeader)
     return;
@@ -1393,18 +1371,32 @@ void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
 
 void WTreeView::resize(const WLength& width, const WLength& height)
 {
-  if (!height.isAuto()) {
-    viewportHeight_ = static_cast<int>
-      (std::ceil(height.toPixels() / rowHeight_.toPixels()));
-
-    scheduleRerender(NeedAdjustViewPort);
-  }
-
-  WLength w
-    = WApplication::instance()->environment().ajax() ? WLength::Auto : width;
+  WApplication *app = WApplication::instance();
+  WLength w = app->environment().ajax() ? WLength::Auto : width;
 
   contentsContainer_->resize(w, WLength::Auto);
-  headerContainer_->resize(w, WLength::Auto);
+  
+  if (headerContainer_)
+    headerContainer_->resize(w, WLength::Auto);
+
+  if (!height.isAuto()) {
+    if (!app->environment().ajax()) {
+      if (impl_->count() < 3)
+	impl_->addWidget(createPageNavigationBar());
+
+      double navigationBarHeight = 25;
+      double headerHeight = this->headerHeight().toPixels();
+
+      contentsContainer_->resize(width, height.toPixels()
+				 - navigationBarHeight - headerHeight);
+      viewportHeight_
+	= static_cast<int>(contentsContainer_->height().toPixels()
+			   / rowHeight().toPixels());
+    } else
+      viewportHeight_ = static_cast<int>
+	(std::ceil(height.toPixels() / rowHeight().toPixels()));
+  } else
+    scheduleRerender(NeedAdjustViewPort);
 
   WCompositeWidget::resize(width, height);
 }
@@ -1414,7 +1406,7 @@ int WTreeView::calcOptimalFirstRenderedRow() const
   if (WApplication::instance()->environment().ajax())
     return std::max(0, viewportTop_ - viewportHeight_ - viewportHeight_ / 2);
   else
-    return 0;
+    return viewportTop_;
 }
 
 int WTreeView::calcOptimalRenderedRowCount() const
@@ -1422,38 +1414,36 @@ int WTreeView::calcOptimalRenderedRowCount() const
   if (WApplication::instance()->environment().ajax())
     return 4 * viewportHeight_;
   else
-    return rootNode_->renderedHeight();
+    return viewportHeight_ + 5; // some margin... something inaccurate going on?
 }
 
 void WTreeView::setModel(WAbstractItemModel *model)
 {
   WAbstractItemView::setModel(model);
 
-  rootIndex_ = WModelIndex();
-
   /* connect slots to new model */
-  modelConnections_.push_back(model_->columnsInserted().connect
-     (SLOT(this, WTreeView::modelColumnsInserted)));
-  modelConnections_.push_back(model_->columnsAboutToBeRemoved().connect
-     (SLOT(this, WTreeView::modelColumnsAboutToBeRemoved)));
-  modelConnections_.push_back(model_->columnsRemoved().connect
-     (SLOT(this, WTreeView::modelColumnsRemoved)));
-  modelConnections_.push_back(model_->rowsInserted().connect
-     (SLOT(this, WTreeView::modelRowsInserted)));
-  modelConnections_.push_back(model_->rowsAboutToBeRemoved().connect
-     (SLOT(this, WTreeView::modelRowsAboutToBeRemoved)));
-  modelConnections_.push_back(model_->rowsRemoved().connect
-     (SLOT(this, WTreeView::modelRowsRemoved)));
-  modelConnections_.push_back(model_->dataChanged().connect
-     (SLOT(this, WTreeView::modelDataChanged)));
-  modelConnections_.push_back(model_->headerDataChanged().connect
-     (SLOT(this, WTreeView::modelHeaderDataChanged)));
-  modelConnections_.push_back(model_->layoutAboutToBeChanged().connect
-     (SLOT(this, WTreeView::modelLayoutAboutToBeChanged)));
-  modelConnections_.push_back(model_->layoutChanged().connect
-     (SLOT(this, WTreeView::modelLayoutChanged)));
-  modelConnections_.push_back(model_->modelReset().connect
-     (SLOT(this, WTreeView::modelReset)));
+  modelConnections_.push_back(model->columnsInserted().connect
+			      (this, &WTreeView::modelColumnsInserted));
+  modelConnections_.push_back(model->columnsAboutToBeRemoved().connect
+			      (this, &WTreeView::modelColumnsAboutToBeRemoved));
+  modelConnections_.push_back(model->columnsRemoved().connect
+			      (this, &WTreeView::modelColumnsRemoved));
+  modelConnections_.push_back(model->rowsInserted().connect
+			      (this, &WTreeView::modelRowsInserted));
+  modelConnections_.push_back(model->rowsAboutToBeRemoved().connect
+			      (this, &WTreeView::modelRowsAboutToBeRemoved));
+  modelConnections_.push_back(model->rowsRemoved().connect
+			      (this, &WTreeView::modelRowsRemoved));
+  modelConnections_.push_back(model->dataChanged().connect
+			      (this, &WTreeView::modelDataChanged));
+  modelConnections_.push_back(model->headerDataChanged().connect
+			      (this, &WTreeView::modelHeaderDataChanged));
+  modelConnections_.push_back(model->layoutAboutToBeChanged().connect
+			      (this, &WTreeView::modelLayoutAboutToBeChanged));
+  modelConnections_.push_back(model->layoutChanged().connect
+			      (this, &WTreeView::modelLayoutChanged));
+  modelConnections_.push_back(model->modelReset().connect
+			      (this, &WTreeView::modelReset));
 
   expandedSet_.clear();
 
@@ -1461,16 +1451,8 @@ void WTreeView::setModel(WAbstractItemModel *model)
     delete columns_.back().styleRule;
     columns_.erase(columns_.begin() + columns_.size() - 1);
   }
-}
 
-void WTreeView::setRootIndex(const WModelIndex& rootIndex)
-{
-  if (rootIndex != rootIndex_) {
-    rootIndex_ = rootIndex;
-
-    if (model_)
-      scheduleRerender(NeedRerenderData);
-  }
+  pageChanged().emit();
 }
 
 void WTreeView::scheduleRerender(RenderState what)
@@ -1548,17 +1530,9 @@ void WTreeView::rerenderHeader()
       headers_->addWidget(w);
   }
 
-  if (currentSortColumn_ != -1) {
-    SortOrder order = columnInfo(currentSortColumn_).sortOrder;
-    headerSortIconWidget(currentSortColumn_)
-      ->setStyleClass(order == AscendingOrder
-		      ? "Wt-tv-sh Wt-tv-sh-up"
-		      : "Wt-tv-sh Wt-tv-sh-down");
-  }
-
   app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 
-  if (model_)
+  if (model())
     modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
 }
 
@@ -1566,9 +1540,9 @@ void WTreeView::enableAjax()
 {
   rootNode_->clicked().connect(itemClickedJS_);
   rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
-  if (mouseWentDown_.isConnected() || dragEnabled_)
+  if (mouseWentDown().isConnected() || dragEnabled_)
     rootNode_->mouseWentDown().connect(itemMouseDownJS_);
-  if (mouseWentUp_.isConnected())
+  if (mouseWentUp().isConnected())
     rootNode_->mouseWentUp().connect(itemMouseUpJS_);
 
   WCompositeWidget::enableAjax();
@@ -1584,15 +1558,15 @@ void WTreeView::rerenderTree()
   firstRenderedRow_ = calcOptimalFirstRenderedRow();
   validRowCount_ = 0;
 
-  rootNode_ = new WTreeViewNode(this, rootIndex_, -1, true, 0);
+  rootNode_ = new WTreeViewNode(this, rootIndex(), -1, true, 0);
   rootNode_->resize(WLength(100, WLength::Percentage), 1);
 
   if (WApplication::instance()->environment().ajax()) {
     rootNode_->clicked().connect(itemClickedJS_);
     rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
-    if (mouseWentDown_.isConnected() || dragEnabled_)
+    if (mouseWentDown().isConnected() || dragEnabled_)
       rootNode_->mouseWentDown().connect(itemMouseDownJS_);
-    if (mouseWentUp_.isConnected())
+    if (mouseWentUp().isConnected())
       rootNode_->mouseWentUp().connect(itemMouseUpJS_);
   }
 
@@ -1600,16 +1574,18 @@ void WTreeView::rerenderTree()
 
   wrapRoot->addWidget(rootNode_);
 
+  pageChanged().emit();
+
   adjustToViewport();
 }
 
 void WTreeView::onViewportChange(WScrollEvent e)
 {
   viewportTop_ = static_cast<int>
-    (std::floor(e.scrollY() / rowHeight_.toPixels()));
+    (std::floor(e.scrollY() / rowHeight().toPixels()));
 
   viewportHeight_ = static_cast<int>
-    (std::ceil(e.viewportHeight() / rowHeight_.toPixels()));
+    (std::ceil(e.viewportHeight() / rowHeight().toPixels()));
 
   scheduleRerender(NeedAdjustViewPort);
 }
@@ -1643,27 +1619,20 @@ void WTreeView::onItemEvent(std::string nodeId, int columnId, std::string type,
     return; // illegal node Id
   }
 
-  WModelIndex index = model_->index(c0index.row(), column, c0index.parent());
+  WModelIndex index = model()->index(c0index.row(), column, c0index.parent());
 
   if (type == "clicked") {
-    selectionHandleClick(index, event.modifiers());
-    clicked_.emit(index, event);
+    handleClick(index, event);
   } else if (type == "dblclicked") {
-    doubleClicked_.emit(index, event);
+    handleDoubleClick(index, event);
   } else if (type == "mousedown") {
-    mouseWentDown_.emit(index, event);
+    mouseWentDown().emit(index, event);
   } else if (type == "mouseup") {
-    mouseWentUp_.emit(index, event);
+    mouseWentUp().emit(index, event);
   } else if (type == "drop") {
     WDropEvent e(WApplication::instance()->decodeObject(extra1), extra2, event);
     dropEvent(e, index);
   }
-}
-
-void WTreeView::handleClick(const WModelIndex& index)
-{
-  selectionHandleClick(index, 0);
-  clicked_.emit(index, WMouseEvent());
 }
 
 int WTreeView::subTreeHeight(const WModelIndex& index,
@@ -1671,17 +1640,17 @@ int WTreeView::subTreeHeight(const WModelIndex& index,
 {
   int result = 0;
 
-  if (index != rootIndex_)
+  if (index != rootIndex())
     ++result;
 
   if (result >= upperBound)
     return result;
 
   if (isExpanded(index)) {
-    int childCount = model_->rowCount(index);
+    int childCount = model()->rowCount(index);
 
     for (int i = 0; i < childCount; ++i) {
-      WModelIndex childIndex = model_->index(i, 0, index);
+      WModelIndex childIndex = model()->index(i, 0, index);
 
       result += subTreeHeight(childIndex, upperBound - result);
 
@@ -1695,7 +1664,7 @@ int WTreeView::subTreeHeight(const WModelIndex& index,
 
 bool WTreeView::isExpanded(const WModelIndex& index) const
 {
-  return index == rootIndex_
+  return index == rootIndex()
     || expandedSet_.find(index) != expandedSet_.end();
 }
 
@@ -1704,7 +1673,7 @@ void WTreeView::setCollapsed(const WModelIndex& index)
   expandedSet_.erase(index);
 
   bool selectionHasChanged = false;
-  WModelIndexSet& selection = selectionModel_->selection_;
+  WModelIndexSet& selection = selectionModel()->selection_;
 
   for (WModelIndexSet::iterator it = selection.lower_bound(index);
        it != selection.end();) {
@@ -1727,7 +1696,7 @@ void WTreeView::setCollapsed(const WModelIndex& index)
   }
 
   if (selectionHasChanged)
-    selectionChanged_.emit();
+    selectionChanged().emit();
 }
 
 void WTreeView::setExpanded(const WModelIndex& index, bool expanded)
@@ -1736,6 +1705,7 @@ void WTreeView::setExpanded(const WModelIndex& index, bool expanded)
     WWidget *w = widgetForIndex(index);
 
     WTreeViewNode *node = w ? dynamic_cast<WTreeViewNode *>(w) : 0;
+
     if (node) {
       if (expanded)
 	node->doExpand();
@@ -1777,13 +1747,13 @@ void WTreeView::collapse(const WModelIndex& index)
 void WTreeView::expandToDepth(int depth)
 {
   if (depth > 0)
-    expandChildrenToDepth(rootIndex_, depth);
+    expandChildrenToDepth(rootIndex(), depth);
 }
 
 void WTreeView::expandChildrenToDepth(const WModelIndex& index, int depth)
 {
-  for (int i = 0; i < model_->rowCount(index); ++i) {
-    WModelIndex c = model_->index(i, 0, index);
+  for (int i = 0; i < model()->rowCount(index); ++i) {
+    WModelIndex c = model()->index(i, 0, index);
 
     expand(c);
 
@@ -1836,8 +1806,7 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
 
     WApplication *app = WApplication::instance();
     for (int i = start; i < start + count; ++i)
-      columns_.insert(columns_.begin() + i,
-		      createColumnInfo(i));
+      columns_.insert(columns_.begin() + i, createColumnInfo(i));
 
     if (renderState_ < NeedRerenderHeader) {
       if (start == 0)
@@ -1862,15 +1831,11 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
   if (start == 0)
     scheduleRerender(NeedRerenderData);
   else {
-    WWidget *parentWidget = widgetForIndex(parent);
-    if (parentWidget) {
-      WTreeViewNode *node = dynamic_cast<WTreeViewNode *>(parentWidget);
-      if (node) {
-	for (WTreeViewNode *c = node->nextChildNode(0); c;
-	     c = node->nextChildNode(c))
-	  c->insertColumns(start, count);
-      }
-    }
+    WTreeViewNode *node = nodeForIndex(parent);
+    if (node)
+      for (WTreeViewNode *c = node->nextChildNode(0); c;
+	   c = node->nextChildNode(c))
+	c->insertColumns(start, count);
   }
 }
 
@@ -1909,15 +1874,11 @@ void WTreeView::modelColumnsRemoved(const WModelIndex& parent,
   int count = end - start + 1;
 
   if (start != 0) {
-    WWidget *parentWidget = widgetForIndex(parent);
-    if (parentWidget) {
-      WTreeViewNode *node = dynamic_cast<WTreeViewNode *>(parentWidget);
-      if (node) {
-	for (WTreeViewNode *c = node->nextChildNode(0); c;
-	     c = node->nextChildNode(c))
-	  c->removeColumns(start, count);
-      }
-    }
+    WTreeViewNode *node = nodeForIndex(parent);
+    if (node)
+      for (WTreeViewNode *c = node->nextChildNode(0); c;
+	   c = node->nextChildNode(c))
+	c->removeColumns(start, count);
   }
 
   if (start <= currentSortColumn_ && currentSortColumn_ <= end)
@@ -1942,7 +1903,7 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
       if (parentNode->childrenLoaded()) {
 	WWidget *startWidget = 0;
 
-	if (end < model_->rowCount(parent) - 1)
+	if (end < model()->rowCount(parent) - 1)
 	  startWidget = parentNode->widgetForModelRow(start);
 	else if (parentNode->bottomSpacerHeight() != 0)
 	  startWidget = parentNode->bottomSpacer();
@@ -1952,7 +1913,7 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 
 	if (startWidget && startWidget == parentNode->topSpacer()) {
 	  parentNode->addTopSpacerHeight(count);
-	  renderedRowsChanged(renderedRow(model_->index(start, 0, parent),
+	  renderedRowsChanged(renderedRow(model()->index(start, 0, parent),
 					  parentNode->topSpacer(),
 					  renderLowerBound(),
 					  renderUpperBound()),
@@ -1960,7 +1921,7 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 
 	} else if (startWidget && startWidget == parentNode->bottomSpacer()) {
 	  parentNode->addBottomSpacerHeight(count);
-	  renderedRowsChanged(renderedRow(model_->index(start, 0, parent),
+	  renderedRowsChanged(renderedRow(model()->index(start, 0, parent),
 					  parentNode->bottomSpacer(),
 					  renderLowerBound(),
 					  renderUpperBound()),
@@ -1973,14 +1934,14 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 	  int containerIndex = startWidget ? parentNode->childContainer()
 	    ->indexOf(startWidget) : parentNode->childContainer()->count();
 
-	  int parentRowCount = model_->rowCount(parent);
+	  int parentRowCount = model()->rowCount(parent);
 
 	  int nodesToAdd = std::min(count, maxRenderHeight);
 
 	  WTreeViewNode *first = 0;
 	  for (int i = 0; i < nodesToAdd; ++i) {
 	    WTreeViewNode *n
-	      = new WTreeViewNode(this, model_->index(start + i, 0, parent), -1,
+	      = new WTreeViewNode(this, model()->index(start + i, 0, parent), -1,
 				  start + i == parentRowCount - 1,
 				  parentNode);
 	    parentNode->childContainer()->insertWidget(containerIndex + i, n);
@@ -2022,13 +1983,13 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 
 	  // Update graphics if the last node has changed, i.e. if we are
 	  // adding rows at the back
-	  if (end == model_->rowCount(parent) - 1 && start >= 1) {
+	  if (end == model()->rowCount(parent) - 1 && start >= 1) {
 	    WTreeViewNode *n = dynamic_cast<WTreeViewNode *>
 	      (parentNode->widgetForModelRow(start - 1));
 
 	    if (n)
 	      n->updateGraphics(false,
-				model_->rowCount(n->modelIndex()) == 0);
+				model()->rowCount(n->modelIndex()) == 0);
 	  }
 	}
       } /* else:
@@ -2036,7 +1997,7 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 	 */
 
       // Update graphics for parent when first children have een added
-      if (model_->rowCount(parent) == count)
+      if (model()->rowCount(parent) == count)
 	parentNode->updateGraphics(parentNode->isLast(), false);
     } else {
       RowSpacer *s = dynamic_cast<RowSpacer *>(parentWidget);
@@ -2044,13 +2005,16 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
       s->setRows(s->rows() + count);
       s->node()->adjustChildrenHeight(count);
 
-      renderedRowsChanged(renderedRow(model_->index(start, 0, parent), s,
+      renderedRowsChanged(renderedRow(model()->index(start, 0, parent), s,
 				      renderLowerBound(), renderUpperBound()),
 			  count);
     }
-  } /* else:
+  } else {
+    /* else:
        parentWidget is 0: it means it is not even part of any spacer.
+       FIXME: the parent could still be rendered but (somehow) collapsed ?
      */
+  }
 }
 
 void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
@@ -2075,7 +2039,7 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 
 	    RowSpacer *s = dynamic_cast<RowSpacer *>(w);
 	    if (s) {
-	      WModelIndex childIndex = model_->index(i, 0, parent);
+	      WModelIndex childIndex = model()->index(i, 0, parent);
 
 	      if (i == start)
 		firstRemovedRow_ = renderedRow(childIndex, w);
@@ -2091,7 +2055,8 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 		firstRemovedRow_ = node->renderedRow();
 
 	      removedHeight_ += node->renderedHeight();
-	      delete w;
+
+	      delete node;
 	    }
 	  }
 
@@ -2102,25 +2067,25 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 
 	  // Update graphics for last node in parent, if we are removing rows
 	  // at the back
-	  if (end == model_->rowCount(parent) - 1 && start >= 1) {
+	  if (end == model()->rowCount(parent) - 1 && start >= 1) {
 	    WTreeViewNode *n = dynamic_cast<WTreeViewNode *>
 	      (parentNode->widgetForModelRow(start - 1));
 
 	    if (n)
-	      n->updateGraphics(true, model_->rowCount(n->modelIndex()) == 0);
+	      n->updateGraphics(true, model()->rowCount(n->modelIndex()) == 0);
 	  }
 	} /* else:
 	     children not loaded -- so we do not need to bother
 	  */
 
 	// Update graphics for parent when all rows have been removed
-	if (model_->rowCount(parent) == count)
+	if (model()->rowCount(parent) == count)
 	  parentNode->updateGraphics(parentNode->isLast(), true);
       } else {
 	RowSpacer *s = dynamic_cast<RowSpacer *>(parentWidget);
 
 	for (int i = start; i <= end; ++i) {
-	  WModelIndex childIndex = model_->index(i, 0, parent);
+	  WModelIndex childIndex = model()->index(i, 0, parent);
 	  int childHeight = subTreeHeight(childIndex);
 	  removedHeight_ += childHeight;
 
@@ -2132,9 +2097,12 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 	s->setRows(s->rows() - removedHeight_); // could delete s ?
 	node->adjustChildrenHeight(-removedHeight_);
       }
-    } /* else:
-       parentWidget is 0: it means it is not even part of any spacer.
-     */
+    } else {
+      /*
+	parentWidget is 0: it means it is not even part of any spacer.
+	FIXME: but it could still be rendered, yet (somehow) collapsed ?
+      */
+    }
   }
 
   shiftModelIndexes(parent, start, -count);
@@ -2161,7 +2129,7 @@ void WTreeView::modelDataChanged(const WModelIndex& topLeft,
     if (parentNode) {
       if (parentNode->childrenLoaded()) {
 	for (int r = topLeft.row(); r <= bottomRight.row(); ++r) {
-	  WModelIndex index = model_->index(r, 0, parent);
+	  WModelIndex index = model()->index(r, 0, parent);
 
 	  WTreeViewNode *n
 	    = dynamic_cast<WTreeViewNode *>(widgetForIndex(index));
@@ -2175,9 +2143,12 @@ void WTreeView::modelDataChanged(const WModelIndex& topLeft,
     } /* else:
 	 parentWidget is a spacer -- we do not need to bother
        */
-  } /* else:
-       parent is not displayed
+  } else {
+    /*
+      parent is not displayed
+      FIXME: but it could still be rendered, yet (somehow) not expanded ?
     */
+  }
 }
 
 void WTreeView::modelHeaderDataChanged(Orientation orientation,
@@ -2186,19 +2157,11 @@ void WTreeView::modelHeaderDataChanged(Orientation orientation,
   if (renderState_ < NeedRerenderHeader) {
     if (orientation == Horizontal) {
       for (int i = start; i <= end; ++i) {
-	WString label = asString(model_->headerData(i));
+	WString label = asString(model()->headerData(i));
 	headerTextWidget(i)->setText(label);
       }
     }
   }
-}
-
-WText *WTreeView::headerSortIconWidget(int column)
-{
-  if (!columnInfo(column).sorting)
-    return 0;
-
-  return dynamic_cast<WText *>(headerWidget(column)->find("sort"));
 }
 
 WWidget *WTreeView::headerWidget(int column, bool contentsOnly)
@@ -2258,7 +2221,7 @@ int WTreeView::getIndexRow(const WModelIndex& child,
 
     int result = 0;
     for (int r = 0; r < child.row(); ++r) {
-      result += subTreeHeight(model_->index(r, 0, parent), 0,
+      result += subTreeHeight(model()->index(r, 0, parent), 0,
 			      upperBound - result);
       if (result >= upperBound)
 	return result;
@@ -2329,7 +2292,10 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
     int newRows = std::max(0, firstRenderedRow_ - newFirstRenderedRow)
       + std::max(0, newLastValidRow - lastValidRow);
 
-    if (nodeLoad_ + newRows > 9 * viewportHeight_) {
+    const int pruneFactor
+      = WApplication::instance()->environment().ajax() ? 9 : 1;
+
+    if (nodeLoad_ + newRows > pruneFactor * viewportHeight_) {
       pruneFirst = true;
     } else
       if (newFirstRenderedRow < firstRenderedRow_
@@ -2340,12 +2306,14 @@ void WTreeView::adjustToViewport(WTreeViewNode *changed)
       }
   }
 
-  if (pruneFirst || nodeLoad_ > 5 * viewportHeight_) {
+  const int pruneFactor
+    = WApplication::instance()->environment().ajax() ? 5 : 1;
+
+  if (pruneFirst || nodeLoad_ > pruneFactor * viewportHeight_) {
     firstRenderedRow_ = calcOptimalFirstRenderedRow();
     validRowCount_ = calcOptimalRenderedRowCount();
 
-    if (WApplication::instance()->environment().ajax())
-      pruneNodes(rootNode_, 0);
+    pruneNodes(rootNode_, 0);
 
     if (pruneFirst && nodeLoad_ < calcOptimalRenderedRowCount()) {
       adjustRenderedNode(rootNode_, 0);
@@ -2361,7 +2329,7 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
 
   WModelIndex index = node->modelIndex();
 
-  if (index != rootIndex_)
+  if (index != rootIndex())
     ++theNodeRow;
 
   if (!isExpanded(index) && !node->childrenLoaded())
@@ -2373,13 +2341,13 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
     if (nodeRow + node->childrenHeight() > firstRenderedRow_
 	&& nodeRow < firstRenderedRow_ + validRowCount_) {
       // replace spacer by some nodes
-      int childCount = model_->rowCount(index);
+      int childCount = model()->rowCount(index);
 
       bool firstNode = true;
       int rowStubs = 0;
 
       for (int i = 0; i < childCount; ++i) {
-	WModelIndex childIndex = model_->index(i, 0, index);
+	WModelIndex childIndex = model()->index(i, 0, index);
 
 	int childHeight = subTreeHeight(childIndex);
 
@@ -2419,7 +2387,7 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
     int nestedNodeRow = nodeRow + topSpacerHeight;
     WTreeViewNode *child = node->nextChildNode(0);
 
-    int childCount = model_->rowCount(index);
+    int childCount = model()->rowCount(index);
     while (topSpacerHeight != 0
 	   && nodeRow + topSpacerHeight > firstRenderedRow_) {
       // eat from top spacer and replace with actual nodes
@@ -2429,7 +2397,7 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
       assert(n);
 
       WModelIndex childIndex
-	= model_->index(n->modelIndex().row() - 1, 0, index);
+	= model()->index(n->modelIndex().row() - 1, 0, index);
 
       int childHeight = subTreeHeight(childIndex);
 
@@ -2462,7 +2430,7 @@ int WTreeView::adjustRenderedNode(WTreeViewNode *node, int theNodeRow)
       assert(n);
 
       WModelIndex childIndex
-	= model_->index(n->modelIndex().row() + 1, 0, index);
+	= model()->index(n->modelIndex().row() + 1, 0, index);
 
       int childHeight = subTreeHeight(childIndex);
 
@@ -2647,57 +2615,33 @@ int WTreeView::shiftModelIndexes(const WModelIndex& parent,
 void WTreeView::shiftModelIndexes(const WModelIndex& parent,
 				  int start, int count)
 {
-  shiftModelIndexes(parent, start, count, model_, expandedSet_);
+  shiftModelIndexes(parent, start, count, model(), expandedSet_);
 
-  int removed = shiftModelIndexes(parent, start, count, model_,
-				  selectionModel_->selection_);
+  int removed = shiftModelIndexes(parent, start, count, model(),
+				  selectionModel()->selection_);
 
   if (removed)
-    selectionChanged_.emit();
-}
-
-void WTreeView::collapseColumn(int columnid)
-{
-  model_->collapseColumn(columnById(columnid));
-  scheduleRerender(NeedRerenderHeader);
-  setHeaderHeight(headerLineHeight_, multiLineHeader_);
-}
-
-void WTreeView::expandColumn(int columnid)
-{
-  model_->expandColumn(columnById(columnid));
-  scheduleRerender(NeedRerenderHeader);
-  setHeaderHeight(headerLineHeight_, multiLineHeader_);
+    selectionChanged().emit();
 }
 
 void WTreeView::modelLayoutAboutToBeChanged()
 {
   convertToRaw(expandedSet_, expandedRaw_);
-  convertToRaw(selectionModel_->selection_, selectionRaw_);
-  rawRootIndex_ = model_->toRawIndex(rootIndex_);
+
+  WAbstractItemView::modelLayoutAboutToBeChanged();
 }
 
 void WTreeView::modelLayoutChanged()
 {
-  if (rawRootIndex_)
-    rootIndex_ = model_->fromRawIndex(rawRootIndex_);
-  else
-    rootIndex_ = WModelIndex();
+  WAbstractItemView::modelLayoutChanged();
 
   for (unsigned i = 0; i < expandedRaw_.size(); ++i)
-    expandedSet_.insert(model_->fromRawIndex(expandedRaw_[i]));
+    expandedSet_.insert(model()->fromRawIndex(expandedRaw_[i]));
   expandedRaw_.clear();
-
-  for (unsigned i = 0; i < selectionRaw_.size(); ++i) {
-    WModelIndex index = model_->fromRawIndex(selectionRaw_[i]);
-    if (index.isValid())
-      selectionModel_->selection_.insert(index);
-  }
-  selectionRaw_.clear();
 
   renderedNodes_.clear();
 
-  scheduleRerender(NeedRerenderData);
+  pageChanged().emit();
 }
 
 void WTreeView::addRenderedNode(WTreeViewNode *node)
@@ -2715,50 +2659,32 @@ void WTreeView::removeRenderedNode(WTreeViewNode *node)
 bool WTreeView::internalSelect(const WModelIndex& index, SelectionFlag option)
 {
   if (selectionBehavior() == SelectRows && index.column() != 0)
-    return internalSelect(model_->index(index.row(), 0, index.parent()),
+    return internalSelect(model()->index(index.row(), 0, index.parent()),
 			  option);
 
-  if (!(index.flags() & ItemIsSelectable)
-      || selectionMode_ == NoSelection)
+  if (WAbstractItemView::internalSelect(index, option)) {
+    WTreeViewNode *node = nodeForIndex(index);
+    if (node)
+      node->renderSelected(isSelected(index), index.column());
+
+    return true;
+  } else
     return false;
+}
 
-  if (option == ToggleSelect)
-    option = isSelected(index) ? Deselect : Select;
-  else if (option == ClearAndSelect) {
-    clearSelection();
-    option = Select;
-  } else if (selectionMode_ == SingleSelection && option == Select)
-    clearSelection();
-
-  /*
-   * now option is either Select or Deselect and we only need to do
-   * exactly that one thing
-   */
-  if (option == Select)
-    selectionModel_->selection_.insert(index);
-  else
-    if (!selectionModel_->selection_.erase(index))
-      return false;
-
-  WModelIndex column0Index = model_->index(index.row(), 0, index.parent());
-
-  WWidget *w = widgetForIndex(column0Index);
-  WTreeViewNode *node = dynamic_cast<WTreeViewNode *>(w);
-
-  if (node)
-    node->renderSelected(option == Select, index.column());
-
-  return true;
+WTreeViewNode *WTreeView::nodeForIndex(const WModelIndex& index) const
+{
+  WModelIndex column0Index = model()->index(index.row(), 0, index.parent());
+  NodeMap::const_iterator i = renderedNodes_.find(column0Index);
+  return i != renderedNodes_.end() ? i->second : 0;
 }
 
 void WTreeView::selectRange(const WModelIndex& first, const WModelIndex& last)
 {
-  clearSelection();
-
   WModelIndex index = first;
   for (;;) {
     for (int c = first.column(); c <= last.column(); ++c) {
-      WModelIndex ic = model_->index(index.row(), c, index.parent());
+      WModelIndex ic = model()->index(index.row(), c, index.parent());
       internalSelect(ic, Select);
 
       if (ic == last)
@@ -2767,16 +2693,16 @@ void WTreeView::selectRange(const WModelIndex& first, const WModelIndex& last)
 
     WModelIndex indexc0
       = index.column() == 0 ? index
-      : model_->index(index.row(), 0, index.parent());
+      : model()->index(index.row(), 0, index.parent());
 
-    if (isExpanded(indexc0) && model_->rowCount(indexc0) > 0)
-      index = model_->index(0, first.column(), indexc0);
+    if (isExpanded(indexc0) && model()->rowCount(indexc0) > 0)
+      index = model()->index(0, first.column(), indexc0);
     else {
       for (;;) {
 	// next row in parent, if one is available
 	WModelIndex parent = index.parent();
-	if (index.row() + 1 < model_->rowCount(parent)) {
-	  index = model_->index(index.row() + 1, first.column(), parent);
+	if (index.row() + 1 < model()->rowCount(parent)) {
+	  index = model()->index(index.row() + 1, first.column(), parent);
 	  break;
 	} else
 	  // otherwise go up one level
@@ -2786,88 +2712,18 @@ void WTreeView::selectRange(const WModelIndex& first, const WModelIndex& last)
   }
 }
 
-void WTreeView::extendSelection(const WModelIndex& index)
+WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(int column) const
 {
-  if (selectionModel_->selection_.empty())
-    internalSelect(index, Select);
-  else {
-    if (selectionBehavior() == SelectRows && index.column() != 0) {
-      extendSelection(model_->index(index.row(), 0, index.parent()));
-      return;
-    }
+  ColumnInfo ci = WAbstractItemView::createColumnInfo(column);
 
-    /*
-     * Expand current selection. If index is within or below the
-     * current selection, we select from the top item to index. If index
-     * is above the current selection, select everything from the
-     * bottom item to index.
-     *
-     * Only indexs with expanded ancestors can be
-     * part of the selection: this is asserted when collapsing a index.
-     */
-    WModelIndex top = Utils::first(selectionModel_->selection_);
-    if (top < index)
-      selectRange(top, index);
-    else {
-      WModelIndex bottom = Utils::last(selectionModel_->selection_);
-      selectRange(index, bottom);
-    }
-  }
-
-  selectionChanged_.emit();
-}
-
-void WTreeView::selectionHandleClick(const WModelIndex& index,
-				     WFlags<KeyboardModifier> modifiers)
-{
-  if (selectionMode_ == NoSelection)
-    return;
-
-  if (selectionMode_ == ExtendedSelection) {
-    if (modifiers & ShiftModifier)
-      extendSelection(index);
-    else {
-      if (!(modifiers & (ControlModifier | MetaModifier))) {
-	//if (isSelected(index)) -> strange MacOS X behavor
-	//  return;
-	//else {
-	select(index, ClearAndSelect);
-	//}
-      } else
-	select(index, ToggleSelect);
-    }
-  } else
-    select(index, Select);
-}
-
-WAbstractItemView::ColumnInfo& WTreeView::columnInfo(int column) const
-{
-  while (column >= (int)columns_.size()) {
-    ColumnInfo ci = createColumnInfo(column);
-    columns_.push_back(ci);
-  }
-
-  return columns_[column];
-}
-
-WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(const int column)
-  const
-{
-  ColumnInfo ci = ColumnInfo(this,
-			     ++nextColumnId_,
-			     column);
-
-  ci.styleRule = new WCssTemplateRule("#" + this->id()
-				      + " ." + ci.styleClass());
-
-  WApplication *app = WApplication::instance();
-  if (column != 0) {
-    ci.width = WLength(150);
-    ci.styleRule->templateWidget()->resize(ci.width, WLength::Auto);
-
-  } else {
+  if (column == 0) {
     // column 0 needs width auto, so we override the ci.styleRule with
     // a more specific rule. We also set the correct overflow attributes
+
+    ci.width = WLength::Auto;
+    ci.styleRule->templateWidget()->resize(WLength::Auto, WLength::Auto);
+
+    WApplication *app = WApplication::instance();
     app->styleSheet().addRule("#" + this->id() + " .Wt-tv-node"
 			      " ." + ci.styleClass(),
 			      "width: auto;"
@@ -2875,8 +2731,36 @@ WAbstractItemView::ColumnInfo WTreeView::createColumnInfo(const int column)
 			      "overflow: hidden");
   }
 
-  app->styleSheet().addRule(ci.styleRule);
   return ci;
+}
+
+void WTreeView::setCurrentPage(int page)
+{
+  viewportTop_ = page * viewportHeight_;
+
+  contents_->setOffsets(-viewportTop_ * rowHeight().toPixels(), Top);
+
+  pageChanged().emit();
+
+  scheduleRerender(NeedAdjustViewPort);
+}
+
+int WTreeView::currentPage() const
+{
+  return viewportTop_ / viewportHeight_;
+}
+
+int WTreeView::pageCount() const
+{
+  if (rootNode_) {
+    return (rootNode_->renderedHeight() - 1) / viewportHeight_ + 1;
+  } else
+    return 1;
+}
+
+int WTreeView::pageSize() const
+{
+  return viewportHeight_;
 }
 
 }

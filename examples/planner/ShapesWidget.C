@@ -16,8 +16,8 @@
 using namespace Wt;
 
 ShapesWidget::ShapesWidget(WContainerWidget* parent) 
-  : toSelect_(0),
-    WPaintedWidget(parent)
+  : WPaintedWidget(parent),
+    toSelect_(0)
 {}
 
 ShapesWidget::~ShapesWidget()

@@ -1112,13 +1112,13 @@ void WWebWidget::updateDom(DomElement& element, bool all)
    * set width & height
    */
   if (width_ && (flags_.test(BIT_WIDTH_CHANGED) || all)) {
-    if (flags_.test(BIT_WIDTH_CHANGED) || !width_->isAuto())
+    if (!all || !width_->isAuto())
       element.setProperty(PropertyStyleWidth, width_->cssText());
     flags_.reset(BIT_WIDTH_CHANGED);
   }
 
   if (height_ && (flags_.test(BIT_HEIGHT_CHANGED) || all)) {
-    if (flags_.test(BIT_HEIGHT_CHANGED) || !height_->isAuto())
+    if (!all || !height_->isAuto())
       element.setProperty(PropertyStyleHeight, height_->cssText());
     flags_.reset(BIT_HEIGHT_CHANGED);
   }
@@ -1152,20 +1152,16 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   if (layoutImpl_) {
     if (flags_.test(BIT_MARGINS_CHANGED) || all) {
-      if (flags_.test(BIT_MARGINS_CHANGED)
-	  || (layoutImpl_->margin_[0].value() != 0))
+      if (!all || (layoutImpl_->margin_[0].value() != 0))
 	element.setProperty(PropertyStyleMarginTop,
 			    layoutImpl_->margin_[0].cssText());
-      if (flags_.test(BIT_MARGINS_CHANGED)
-	  || (layoutImpl_->margin_[1].value() != 0))
+      if (!all || (layoutImpl_->margin_[1].value() != 0))
 	element.setProperty(PropertyStyleMarginRight,
 			    layoutImpl_->margin_[1].cssText());
-      if (flags_.test(BIT_MARGINS_CHANGED)
-	  || (layoutImpl_->margin_[2].value() != 0))
+      if (!all || (layoutImpl_->margin_[2].value() != 0))
 	element.setProperty(PropertyStyleMarginBottom,
 			    layoutImpl_->margin_[2].cssText());
-      if (flags_.test(BIT_MARGINS_CHANGED)
-	  || (layoutImpl_->margin_[3].value() != 0))
+      if (!all || (layoutImpl_->margin_[3].value() != 0))
 	element.setProperty(PropertyStyleMarginLeft,
 			    layoutImpl_->margin_[3].cssText());
 
@@ -1176,8 +1172,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   if (lookImpl_) {
     if (lookImpl_->toolTip_
 	&& (flags_.test(BIT_TOOLTIP_CHANGED) || all)) {
-      if ((lookImpl_->toolTip_->value().length() > 0)
-	  || flags_.test(BIT_TOOLTIP_CHANGED))
+      if (!all || (lookImpl_->toolTip_->value().length() > 0))
 	element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
 
       flags_.reset(BIT_TOOLTIP_CHANGED);
@@ -1186,11 +1181,11 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     if (lookImpl_->decorationStyle_)
       lookImpl_->decorationStyle_->updateDomElement(element, all);
 
-    if (((!all) && flags_.test(BIT_STYLECLASS_CHANGED))
-	|| (all && !lookImpl_->styleClass_.empty()))
-      element.setProperty(PropertyClass,
-			  Utils::addWord(element.getProperty(PropertyClass),
-					 lookImpl_->styleClass_.toUTF8()));
+    if (all || flags_.test(BIT_STYLECLASS_CHANGED))
+      if (!all || !lookImpl_->styleClass_.empty())
+	element.setProperty(PropertyClass,
+			    Utils::addWord(element.getProperty(PropertyClass),
+					   lookImpl_->styleClass_.toUTF8()));
 
     flags_.reset(BIT_STYLECLASS_CHANGED);
   }
@@ -1824,13 +1819,8 @@ void WWebWidget::updateSignalConnection(DomElement& element,
 					const char *name,
 					bool all)
 {
-  if (name[0] != 'M' && (all || signal.needUpdate())) {
-    if (signal.isConnected())
-      element.setEventSignal(name, signal);
-    else
-      if (!all)
-	element.setEvent(name, std::string(), std::string());
-
+  if (name[0] != 'M' && signal.needsUpdate(all)) {
+    element.setEventSignal(name, signal);
     signal.updateOk();
   }
 }

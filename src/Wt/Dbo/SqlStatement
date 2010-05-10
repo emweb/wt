@@ -117,50 +117,50 @@ public:
 
   /*! \brief Fetches a result value.
    *
-   * Returns true whether the value was not null.
+   * Returns true when the value was not null.
    */
   virtual bool getResult(int column, std::string *value, int size) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true whether the value was not null.
+   * Returns true when the value was not null.
    */
   virtual bool getResult(int column, short *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true whether the value was not null.
+   * Returns true when the value was not null.
    */
   virtual bool getResult(int column, int *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true whether the value was not null.
+   * Returns true when the value was not null.
    */
   virtual bool getResult(int column, long long *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true whether the value was not null.
+   * Returns true when the value was not null.
    */
   virtual bool getResult(int column, float *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true whether the value was not null.
+   * Returns true when the value was not null.
    */
   virtual bool getResult(int column, double *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true whether the value was not null.
+   * Returns true when the value was not null.
    */
   virtual bool getResult(int column, boost::posix_time::ptime *value,
 			 SqlDateTimeType type) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true whether the value was not null.
+   * Returns true when the value was not null.
    */
   virtual bool getResult(int column, std::vector<unsigned char> *value,
 			 int size) = 0;

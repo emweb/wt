@@ -4,119 +4,183 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WTABLEVIEW_H_
-#define WTABLEVIEW_H_
+#ifndef WT_WTABLEVIEW_H_
+#define WT_WTABLEVIEW_H_
 
-#include <Wt/WTable>
+#include <Wt/WAbstractItemView>
 #include <Wt/WContainerWidget>
-#include <Wt/WAbstractItemModel>
-#include <Wt/WModelIndex>
-#include <Wt/WAbstractItemDelegate>
-#include <Wt/WApplication>
-#include <Wt/WCompositeWidget>
 
 namespace Wt {
-  /*! \class WTableView Wt/WTableView Wt/WTableView
-   * \brief A container widget which provides a view implementation of a 
-   * WTable. 
-   *
-   * The WTableView operates on a WAbstractItemModel provided via
-   * setModel(). Data in the model is rendered using an HTML
-   * <tt>&lt;table&gt;</tt>, and the model reacts to any model
-   * changes. You may use CSS stylesheets for <tt>&lt;table&gt;</tt>,
-   * <tt>&lt;tr&gt;</tt>, and <tt>&lt;td&gt;</tt> elements to provide style
-   * to the table.
-   *
-   * \note This view widget is a work-in-progress. Support for column resizing,
-   *       smart rendering, and proper vertical scroll bar support is still
-   *       lacking. When support for these features is added in the future,
-   *       an HTML <tt>&lt;table&gt;</tt> element will still be used.
+
+  class WContainerWidget;
+  class WModelIndex;
+
+/*! \class WTableView Wt/WTableView Wt/WTableView
+ *  \brief An MVC View widget for tabular data.
+ *
+ * The view displays data from a WAbstractItemModel in a table. It
+ * provides incremental rendering, without excessive use of client- or
+ * serverside resources. Data of all predefined roles is displayed
+ * (see also ItemDataRole), including text, icons, checkboxes, and
+ * tooltips.
+ *
+ * The view provides virtual scrolling in both horizontal and vertical
+ * directions, and can therefore be used to display large data models
+ * (with large number of columns and rows).
+ *
+ * By default, all columns are given a width of 150px.  Column widths
+ * of all columns can be set through the API method setColumnWidth(),
+ * and also by the user using handles provided in the header.
+ *
+ * If the model supports sorting (WAbstractItemModel::sort()), such as
+ * the WStandardItemModel, then you can enable sorting buttons in the
+ * header, using setSortingEnabled().
+ *
+ * You can allow selection on row or item level (using
+ * setSelectionBehavior()), and selection of single or multiple items
+ * (using setSelectionMode()), and listen for changes in the selection
+ * using the selectionChanged() signal.
+ *
+ * You may enable drag & drop support for this view, whith awareness
+ * of the items in the model. When enabling dragging (see
+ * setDragEnabled()), the current selection may be dragged, but only
+ * when all items in the selection indicate support for dragging
+ * (controlled by the \link Wt::ItemIsDragEnabled
+ * ItemIsDragEnabled\endlink flag), and if the model indicates a
+ * mime-type (controlled by WAbstractItemModel::mimeType()). Likewise,
+ * by enabling support for dropping (see setDropsEnabled()), the view
+ * may receive a drop event on a particular item, at least if the item
+ * indicates support for drops (controlled by the \link
+ * Wt::ItemIsDropEnabled ItemIsDropEnabled\endlink flag).
+ *
+ * You may also react to mouse click events on any item, by connecting
+ * to one of the clicked() or doubleClicked() signals.
+ */
+class WT_API WTableView : public WAbstractItemView
+{
+public:
+  /*! \brief Constructor
    */
-  class WT_API WTableView : public WCompositeWidget
+  WTableView(WContainerWidget *parent = 0);
+
+  virtual ~WTableView();
+
+  virtual void setModel(WAbstractItemModel* model);
+
+  virtual void setColumnWidth(int column, const WLength& width);
+  virtual void setAlternatingRowColors(bool enable);
+  virtual void setRowHeight(const WLength& rowHeight);
+  virtual void setHeaderHeight(const WLength& height, bool multiLine = false);
+  virtual void setColumnBorder(const WColor& color);
+  virtual void resize(const WLength& width, const WLength& height);
+
+  virtual int pageCount() const;
+  virtual int pageSize() const;
+  virtual int currentPage() const;
+  virtual void setCurrentPage(int page);
+
+private:
+  class ColumnWidget : public WContainerWidget
   {
   public:
-    /*! \brief Constructor
-     */
-    WTableView(WContainerWidget *parent = 0);
-
-    /*! \brief Destructor.
-     */
-    virtual ~WTableView();
-
-    /*! \brief Sets the model.
-     *
-     * If a previous model was set, it is not deleted.
-     */
-    void setModel(WAbstractItemModel* model);
-
-    /*! \brief Sets the default item delegate.
-     *
-     * The previous delegate is removed but not deleted.
-     *
-     * The default item delegate is a WItemDelegate.
-     */
-    void setItemDelegate(WAbstractItemDelegate *delegate);
-
-    /*! \brief Returns the default item delegate.
-     *
-     * \sa setItemDelegate()
-     */
-    WAbstractItemDelegate *itemDelegate() const { return itemDelegate_; }
-
-    /*! \brief Sets the delegate for a column.
-     *
-     * The previous delegate is removed but not deleted.
-     *
-     * \sa setItemDelegate()
-     */
-    void setItemDelegateForColumn(int column, WAbstractItemDelegate *delegate);
-
-    /*! \brief Returns the delegate for a column.
-     *
-     * \sa setItemDelegateForColumn()
-     */
-    WAbstractItemDelegate *itemDelegateForColumn(int column) const;
-
-    /*! \brief Returns the delegate for rendering an item.
-     *
-     * \sa setItemDelegateForColumn(), setItemDelegate()
-     */
-    WAbstractItemDelegate *itemDelegate(const WModelIndex& index) const;
-
-  protected:
-    /*! \brief Returns the table used for rendering the model.
-     */
-    WTable* table();
+    ColumnWidget(WTableView *view, int column);
+    int column() const { return column_; }
 
   private:
-    WTable* table_;
-    
-    struct ColumnInfo {
-      WAbstractItemDelegate *itemDelegate_;
-      
-      ColumnInfo(const WTableView *view, WApplication *app, int column);
-    };
-
-    WAbstractItemDelegate *itemDelegate_;
-    mutable std::vector<ColumnInfo> columns_;
-
-    WAbstractItemModel* model_;
-    
-    void columnsInserted(const WModelIndex& index, int firstColumn, int lastColumn);
-    void columnsRemoved(const WModelIndex& index, int firstColumn, int lastColumn);
-
-    void rowsInserted(const WModelIndex& index, int firstRow, int lastRow);
-    void rowsRemoved(const WModelIndex& index, int firstRow, int lastRow);
-
-    void dataChanged(const WModelIndex& topLeft,
-		     const WModelIndex& bottomRight);
-
-    void headerDataChanged(Orientation orientation, int first, int last);
-
-    ColumnInfo& columnInfo(int column) const;
-
-    WWidget* getWidget(const int row, const int column);
+    int column_;
   };
+
+  /* For Ajax implementation */
+  WContainerWidget *headers_, *canvas_, *table_;
+  WContainerWidget *headerContainer_, *contentsContainer_;
+
+  /* For plain HTML implementation */
+  WTable *plainTable_;
+
+  JSignal<int, int, std::string, std::string, WMouseEvent> dropEvent_;
+  JSignal<int, int> columnWidthChanged_;
+
+  /* Ajax only: First and last columns rendered (this somewhat
+   * redundant with the state contained in the widgets, but because
+   * columns are variable width, we cache these values as well). The
+   * first and last rows rendered can be derived from widget
+   * properties. */
+  int firstColumn_, lastColumn_;
+
+  /* Desired size of the viewport */
+  int viewportFirstRow_, viewportLastRow_, viewportRows_,
+    viewportFirstColumn_, viewportLastColumn_;
+
+  JSlot tieContentsHeaderScrollJS_, itemMouseDownJS_;
+
+  void updateTableBackground();
+
+  ColumnWidget *columnContainer(int renderedColumn) const;
+
+  void modelColumnsInserted(const WModelIndex& parent, int start, int end);
+  void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
+				    int start, int end);
+  void modelRowsInserted(const WModelIndex& parent, int start, int end);
+  void modelRowsRemoved(const WModelIndex& parent, int start, int end);
+  void modelDataChanged(const WModelIndex& topLeft,
+			const WModelIndex& bottomRight);
+  void modelHeaderDataChanged(Orientation orientation, int start, int end);
+
+  virtual void modelLayoutChanged();
+
+  WWidget* renderWidget(WWidget* w, const WModelIndex& index);
+
+  int spannerCount(const Side side) const;
+  void setSpannerCount(const Side side, const int count);
+
+  void renderTable(const int firstRow, const int lastRow, 
+		   const int firstColumn, const int lastColumn);
+  void addSection(const Side side, const std::vector<WWidget *>& items);
+  void removeSection(const Side side);
+  int firstRow() const;
+  int lastRow() const;
+  int firstColumn() const;
+  int lastColumn() const;
+
+  virtual void render(WFlags<RenderFlag> flags);
+
+  void reset();
+  void rerenderHeader();
+  void rerenderData();
+  void adjustToViewport();
+
+  WContainerWidget* headerContainer() { return headerContainer_; }
+
+  virtual WWidget *headerWidget(int column, bool contentsOnly = true);
+
+  void onViewportChange(WScrollEvent event);
+  void resetGeometry();
+  
+  void handleSingleClick(const WMouseEvent& event);
+  void handleDoubleClick(const WMouseEvent& event);
+  void handleMouseWentDown(const WMouseEvent& event);
+  WModelIndex translateModelIndex(const WMouseEvent& event);
+
+  virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
+  virtual void selectRange(const WModelIndex& first, const WModelIndex& last);
+  void shiftModelIndexes(int start, int count);
+  void renderSelected(bool selected, const WModelIndex& index);
+
+  void defineJavaScript();
+
+  bool isRowRendered(const int row);
+  bool isColumnRendered(const int column);
+  void updateColumnOffsets();
+
+  void onDropEvent(int renderedRow, int columnId,
+		   std::string sourceId, std::string mimeType,
+		   WMouseEvent event);
+
+  void deleteItem(int row, int col, WWidget *widget);
+
+  bool ajaxMode() const { return table_; }
+};
+
 }
 
-#endif //WTABLEVIEW_H
+#endif // WT_WTABLEVIEW_H

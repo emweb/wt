@@ -17,6 +17,7 @@ SoundManager::SoundManager(WApplication *app)
   WFlashObject *player_
     = new WFlashObject(WApplication::resourcesUrl() + "WtSoundManager.swf",
 		       wApp_->domRoot());
+  player_->setAlternativeContent(0);
 
   player_->resize(100, 100);
   player_->setPositionScheme(Wt::Absolute);
