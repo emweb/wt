@@ -240,6 +240,9 @@ public:
    */
   ~Signal();
 
+  virtual boost::signals::connection connect(WObject *target,
+					     WObject::Method method);
+
   /*! \brief Connects to a function.
    *
    * This variant of the overloaded connect() method supports a
@@ -253,7 +256,11 @@ public:
    * (e.g. using boost::bind placeholders _1 to _N) that may be bound
    * to values passed by the signal.
    */
-  template <class F> boost::signals::connection connect(const F& f);
+#ifndef WT_CNOR
+  template <class F> boost::signals::connection connect(const F& function);
+#else
+  boost::signals::connection connect(const boost::bound& f);
+#endif
 
   /*! \brief Connects a slot that takes no arguments.
    *
@@ -385,9 +392,6 @@ public:
 		  A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
 
   virtual bool isConnected() const;
-
-  virtual boost::signals::connection connect(WObject *target,
-					     WObject::Method method);
 
 private:
   Signal(const Signal<A1, A2, A3, A4, A5, A6>&);
@@ -607,8 +611,11 @@ public:
    * boost::bind placeholders _1) that may be bound to the event
    * detail object passed by the signal.
    */
-  template<class F>
-    boost::signals::connection connect(const F& function);
+#ifndef WT_CNOR
+  template <class F> boost::signals::connection connect(const F& function);
+#else
+  boost::signals::connection connect(const boost::bound& function);
+#endif
 
   /*! \brief Connects a slot that takes no arguments.
    *
@@ -689,6 +696,7 @@ public:
 
   virtual bool isConnected() const;
 
+  boost::signals::connection connect(const boost::bound& f);
   void connect(JSlot& slot);
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());

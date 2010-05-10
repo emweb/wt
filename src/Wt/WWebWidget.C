@@ -615,6 +615,20 @@ void WWebWidget::calcZIndex()
   }
 }
 
+bool WWebWidget::isInLayout() const
+{
+  WWidget *p = parent();
+
+  while (p && dynamic_cast<WCompositeWidget *>(p) != 0)
+    p = p->parent();
+
+  WContainerWidget *c = dynamic_cast<WContainerWidget *>(p);
+  if (c && c->layout())
+    return true;
+  else
+    return false;
+}
+
 bool WWebWidget::isPopup() const
 {
   return layoutImpl_ ? layoutImpl_->zIndex_ != 0 : false;

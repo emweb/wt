@@ -707,7 +707,7 @@ private:
   WFlags<EditTrigger> editTriggers_;
   WFlags<EditOption> editOptions_;
 
-  void closeEditor(WWidget *editor, bool saveData);
+  void closeEditorWidget(WWidget *editor, bool saveData);
   void saveEditedValue(const WModelIndex& index, Editor& editor);
 
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) = 0;

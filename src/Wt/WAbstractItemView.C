@@ -348,14 +348,16 @@ SelectionBehavior WAbstractItemView::selectionBehavior() const
 void WAbstractItemView::setItemDelegate(WAbstractItemDelegate *delegate)
 {
   itemDelegate_ = delegate;
-  itemDelegate_->closeEditor().connect(this, &WAbstractItemView::closeEditor);
+  itemDelegate_->closeEditor()
+    .connect(this, &WAbstractItemView::closeEditorWidget);
 }
 
 void WAbstractItemView::setItemDelegateForColumn(int column,
 					 WAbstractItemDelegate *delegate)
 {
   columnInfo(column).itemDelegate_ = delegate;
-  delegate->closeEditor().connect(this, &WAbstractItemView::closeEditor);
+  delegate->closeEditor()
+    .connect(this, &WAbstractItemView::closeEditorWidget);
 }
 
 WAbstractItemDelegate *WAbstractItemView::itemDelegateForColumn(int column) const
@@ -1008,7 +1010,7 @@ void WAbstractItemView::edit(const WModelIndex& index)
   }
 }
 
-void WAbstractItemView::closeEditor(WWidget *editor, bool saveData)
+void WAbstractItemView::closeEditorWidget(WWidget *editor, bool saveData)
 {
   for (EditorMap::const_iterator i = editedItems_.begin();
        i != editedItems_.end(); ++i)
@@ -1029,8 +1031,11 @@ void WAbstractItemView::closeEditor(const WModelIndex& index, bool saveData)
       saveEditedValue(index, editor);
 
     WModelIndex closed = index;
-
+#ifndef WT_TARGET_JAVA
     editedItems_.erase(i);
+#else
+    editedItems_.erase(index);
+#endif
 
     modelDataChanged(closed, closed);
   }

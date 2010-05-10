@@ -122,16 +122,12 @@ DomElement *WHTML5Video::createDomElement(WApplication *app)
   DomElement *video = DomElement::createNew(DomElement_VIDEO);
   DomElement *wrap = 0;
 
-  // Detect if we're in a layout manager
-  if (WContainerWidget *p = dynamic_cast<WContainerWidget *>(parent())) {
-    if (p->layout()) {
-      video->setProperty(PropertyStylePosition, "absolute");
-      video->setProperty(PropertyStyleLeft, "0");
-      video->setProperty(PropertyStyleRight, "0");
-
-      wrap = DomElement::createNew(DomElement_DIV);
-      wrap->setProperty(PropertyStylePosition, "relative");
-    }
+  if (isInLayout()) {
+    video->setProperty(PropertyStylePosition, "absolute");
+    video->setProperty(PropertyStyleLeft, "0");
+    video->setProperty(PropertyStyleRight, "0");
+    wrap = DomElement::createNew(DomElement_DIV);
+    wrap->setProperty(PropertyStylePosition, "relative");
   }
 
   DomElement *result = wrap ? wrap : video;

@@ -28,7 +28,7 @@ WCompositeWidget::WCompositeWidget(WContainerWidget *parent)
 WCompositeWidget::WCompositeWidget(WWidget *implementation,
 				   WContainerWidget *parent)
   : WWidget(parent),
-    impl_()
+    impl_(0)
 {
   if (parent)
     parent->addWidget(this);

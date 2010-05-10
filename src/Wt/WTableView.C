@@ -217,7 +217,7 @@ void WTableView::resize(const WLength& width, const WLength& height)
   if (ajaxMode()) {
     if (!height.isAuto())
       viewportRows_ 
-	= static_cast<int>(std::ceil
+	= static_cast<int>(ceil
 			   ((height.toPixels() - headerHeight().toPixels())
 			    / rowHeight().toPixels()));
   } else { // Plain HTML mode

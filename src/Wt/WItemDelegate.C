@@ -26,8 +26,7 @@ class IndexEdit : public Widget
 {
 public:
   IndexEdit(const WModelIndex& index)
-    : Widget(),
-      index_(index)
+    : index_(index)
   { }
 
   void setIndex(const WModelIndex& index) {
@@ -41,6 +40,17 @@ public:
 private:
   WModelIndex index_;
 };
+
+#ifdef WT_CNOR
+class IndexCheckBox : public IndexEdit<WCheckBox>
+{
+public:
+  IndexCheckBox(const WModelIndex& index);
+
+  void setIndex(const WModelIndex& index);
+  const WModelIndex& index();
+};
+#endif // WT_CNOR
 
 WItemDelegate::WItemDelegate(WObject *parent)
   : WAbstractItemDelegate(parent)
@@ -168,7 +178,8 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
 
   if (!checkBox) {
     if (autoCreate) {
-      checkBox = new IndexCheckBox(index);
+      IndexCheckBox * const result = checkBox = new IndexCheckBox(index);
+
       checkBox->setObjectName("c");
 
       WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w.w->find("o"));
@@ -189,7 +200,7 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
       
       wc->insertWidget(0, checkBox);
       checkBox->changed().connect
-	(boost::bind(&WItemDelegate::onCheckedChange, this, checkBox));
+	(boost::bind(&WItemDelegate::onCheckedChange, this, result));
     } else
       return 0;
   }
@@ -300,7 +311,7 @@ void WItemDelegate::onCheckedChange(IndexCheckBox *cb) const
 
 WWidget *WItemDelegate::createEditor(const WModelIndex& index) const
 {
-  WContainerWidget *result = new WContainerWidget();
+  WContainerWidget *const result = new WContainerWidget();
   result->setSelectable(true);
 
   WLineEdit *lineEdit = new WLineEdit();
@@ -352,7 +363,7 @@ void WItemDelegate::setEditState(WWidget *editor, const boost::any& value) const
   WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
   lineEdit->setFocus(false);
 
-  lineEdit->setText(boost::any_cast<WString>(value));
+  lineEdit->setText(boost::any_cast<WT_USTRING>(value));
 }
 
 void WItemDelegate::setModelData(const boost::any& editState,

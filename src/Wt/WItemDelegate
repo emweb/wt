@@ -20,8 +20,12 @@ namespace Wt {
   class WLineEdit;
   class WText;
 
+#ifndef WT_CNOR
   template <class Widget> class IndexEdit;
   typedef IndexEdit<WCheckBox> IndexCheckBox;
+#else
+  class IndexCheckBox;
+#endif // WT_CNOR
 
 /*! \class WItemDelegate Wt/WItemDelegate Wt/WItemDelegate
  *  \brief Standard delegate class for rendering a view item.

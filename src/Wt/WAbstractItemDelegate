@@ -11,6 +11,8 @@
 #include <Wt/WFlags>
 #include <Wt/WSignal>
 
+#include <boost/any.hpp>
+
 namespace Wt {
 
 /*! \brief Enumeration that specifies an option for rendering a view item.
