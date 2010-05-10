@@ -140,7 +140,7 @@ void QueryModel<Result>::sort(int column, SortOrder order)
 {
   invalidateData();
 
-  query_.orderBy(fields_[column].sql() + " "
+  query_.orderBy(fields_[columns_[column].displayFieldIdx_].sql() + " "
 		 + (order == AscendingOrder ? "asc" : "desc"));
 
   dataReloaded();

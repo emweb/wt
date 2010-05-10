@@ -119,6 +119,10 @@ public:
    */
   Query(const Query& other);
 
+  /*! \brief Assignment operator.
+   */
+  Query& operator= (const Query& other);
+
   /*! \brief Returns the result fields.
    */
   std::vector<FieldInfo> fields() const;
@@ -318,6 +322,7 @@ public:
   Query();
   ~Query();
   Query(const Query& other);
+  Query& operator= (const Query& other);
   template<typename T> Query<Result, DynamicBinding>& bind(const T& value);
   Query<Result, DynamicBinding>& where(const std::string& condition);
   Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);

@@ -50,16 +50,16 @@ public:
    *
    * The following properties of an item are rendered:
    *
-   * - text using the DisplayRole data (and using the format specified
+   * - text using the Wt::DisplayRole data (and using the format specified
    *   by setTextFormat()
-   * - a check box depending on the ItemIsUserCheckable flag and
-   *   CheckStateRole data
-   * - an anchor depending on InternalPathRole or UrlRole values
-   * - an icon depending on the value of DecorationRole
-   * - a tooltip depending on the value of ToolTipRole
-   * - a custom style class depending on the value of StyleClassRole
+   * - a check box depending on the Wt::ItemIsUserCheckable flag and
+   *   Wt::CheckStateRole data
+   * - an anchor depending on Wt::InternalPathRole or Wt::UrlRole values
+   * - an icon depending on the value of Wt::DecorationRole
+   * - a tooltip depending on the value of Wt::ToolTipRole
+   * - a custom style class depending on the value of Wt::StyleClassRole
    *
-   * When the flag indicates RenderEditing, then createEditor() is
+   * When the flags indicates Wt::RenderEditing, then createEditor() is
    * called to create a suitable editor for editing the item.
    */
   virtual WWidget *update(WWidget *widget, const WModelIndex& index,
@@ -127,7 +127,7 @@ protected:
   /*! \brief Creates an editor for a data item.
    *
    * The default implementation returns a WLineEdit which edits the
-   * item's EditRole value.
+   * item's Wt::EditRole value.
    *
    * You may reimplement this method to provide a suitable editor, or
    * to attach a custom validator. In that case, you will probably
@@ -151,10 +151,8 @@ protected:
    *   Wt::WLineEdit *lineEdit = new Wt::WLineEdit();
    *   lineEdit->setText(asString(index.data(EditRole), textFormat_));
    *   lineEdit->setFocus();
-   *   lineEdit->enterPressed().connect
-   *     (boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
-   *   lineEdit->escapePressed().connect
-   *     (boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
+   *   lineEdit->enterPressed().connect(boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
+   *   lineEdit->escapePressed().connect(boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
    *
    *   // Needed to not confuse input elements in IE
    *   lineEdit->mouseWentDown().preventPropagation();
@@ -172,7 +170,10 @@ protected:
    * {
    *   closeEditor().emit(editor, save);
    * }
+   * \endcode
    *
+   * The corresponding implementation for editState():
+   * \code
    * boost::any WItemDelegate::editState(Wt::WWidget *editor) const
    * {
    *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
@@ -180,7 +181,10 @@ protected:
    *
    *   return boost::any(lineEdit->text());
    * }
+   * \endcode
    *
+   * The corresponding implementation for setEditState():
+   * \code
    * void WItemDelegate::setEditState(Wt::WWidget *editor, const boost::any& value) const
    * {
    *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
@@ -189,7 +193,10 @@ protected:
    *
    *   lineEdit->setText(boost::any_cast<Wt::WString>(value));
    * }
+   * \endcode
    * 
+   * The corresponding implementation for setModelData():
+   * \code
    * void WItemDelegate::setModelData(const boost::any& editState,
    *				      Wt::WAbstractItemModel *model,
    *                                  const Wt::WModelIndex& index) const

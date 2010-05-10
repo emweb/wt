@@ -75,6 +75,8 @@ class JavaScriptEvent;
 /*! \brief Abstract base class of a signal.
  *
  * Base class for all signals.
+ *
+ * \ingroup signalslot
  */
 class WT_API SignalBase
 {
@@ -431,6 +433,8 @@ public:
  *
  * An event signal is directly associated with a user-interface generated
  * event.
+ *
+ * \ingroup signalslot
  */
 class WT_API EventSignalBase : public SignalBase
 #ifndef WT_TARGET_JAVA

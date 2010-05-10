@@ -245,6 +245,26 @@ Query<Result, DynamicBinding>
 }
 
 template <class Result>
+Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::operator=
+(const Query<Result, DynamicBinding>& other)
+{
+  this->session_ = other.session_;
+  this->from_ = other.from_;
+  this->aliases_ = other.aliases_;
+  where_ = other.where_;
+  groupBy_ = other.groupBy_;
+  orderBy_ = other.orderBy_;
+  limit_ = other.limit_;
+  offset_ = other.offset_;
+
+  for (unsigned i = 0; i < other.parameters_.size(); ++i)
+    parameters_.push_back(other.parameters_[i]->clone());
+
+  return *this;
+}
+
+template <class Result>
 Query<Result, DynamicBinding>::~Query()
 {
   reset();
