@@ -19,6 +19,97 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.3 (May ?, 2010)</h2>
+
+<p>
+  This release several new features, and a few changes that breaks
+  backwards compatibility.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1SignalBase.html">SignalBase</a>,
+    <a href="classWt_1_1EventSignalBase.html">EventSignalBase</a></dt>
+  <dd>Abstract base classes for signals (these are not actually new,
+    but they were not yet part of the API).</dd>
+  <dt><a href="classWt_1_1WHTML5Video.html">WHTML5Video</a></dt>
+  <dd>Video support using the HTML5 video tag (work-in-progress).</dd>
+  <dt><a href="classWt_1_1Dbo_1_1Call.html">Dbo::Call</a></dt>
+  <dd>Class for executing a database call.</dd>
+  <dt><a href="classWt_1_1Dbo_1_1SqlConnectionPool.html">
+      Dbo::SqlConnectionPool</a>,
+    <a href="classWt_1_1Dbo_1_1FixedSqlConnectionPool.html">
+      Dbo::FixedSqlConnectionPool</a></dt>
+  <dd>Connection pool interface and implementation.</dd>
+  <dt><a href="classWt_1_1Dbo_1_1QueryModel.html">Dbo::QueryModel</a></dt>
+  <dd>An tabular item model for query results.</dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WAbstractItemDelegate.html">WAbstractItemDelegate</a></dt>
+  <dd>Added methods for editing: editState(), setEditState(),
+    setModelData() and closeEditor().</dd>
+  <dt><a href="classWt_1_1WAbstractItemView.html">WAbstractItemView</a></dt>
+  <dd><div>New editing API: edit(), closeEditor(), saveEditedValue(),
+    setEditOptions(), setEditTriggers().</div>
+    <div>Graceful degradation support using a paging navigation bar, which
+    may be customized by reimplementing createPageNavigationBar().</div>
+  </dd>
+  <dt><a href="classWt_1_1WCalendar.html">WCalendar</a>, <a href="classWt_1_1WDatePicker.html">WDatePicker</a></dt>
+  <dd>Added setBottom() and setTop() methods to specify a valid range.</dd>
+  <dt><a href="classWt_1_1WItemDelegate.html">WItemDelegate</a></dt>
+  <dd>Implements editing using a WLineEdit.</dd>
+  <dt><a href="classWt_1_1WMenu.html">WMenu</a></dt>
+  <dd>Can now be used without a contents stack.</dd>
+  <dt><a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a></dt>
+  <dd>Added API to support dynamic server-side filtering.</dd>
+  <dt><a href="classWt_1_1WTableView.html">WTableView</a></dt>
+  <dd>New implementation which supports horizontal and vertical
+  virtual scrolling, column resizing, drag and drop, etc... like
+  WTreeView.</dd>
+  <dt><a href="classWt_1_1Chart_1_1WPieChart.html">Chart::WPieChart</a></dt>
+  <dd>Supports now also a shadow effect.</dd>
+  <dt><a href="classWt_1_1Dbo_1_1collection.html">Dbo::collection</a></dt>
+  <dd>A find() method has been added to refine the query of a many-side relational.</dd>
+  <dt><a href="classWt_1_1Dbo_1_1ptr.html">Dbo::ptr</a></dt>
+  <dd>A version() method returns the current version.</dd>
+  <dt><a href="classWt_1_1Dbo_1_1Query.html">Dbo::Query</a></dt>
+  <dd>An extra template parameter specifies a binding strategy. The
+  default binding strategy is DynamicBinding, which allows reuse of
+  the query object, and provides new API to modify the query:
+  where(), orderBy(), groupBy(), offset(), limit().</dd>
+  <dt><a href="classWt_1_1Dbo_1_1Session.html">Dbo::Session</a></dt>
+  <dd>Added support for use with a connection pool. Added execute()
+  method to execute an SQL statement.</dd>
+  <dt>Built-in httpd</dt>
+  <dd>Support for HTTP Range header and partial content servering.</dd>
+</dl>
+
+<h3>C) Changes that break existing applications:</h3>
+
+<dl>
+  <dt><a href="structWt_1_1Dbo_1_1query__result__traits.html">Dbo::sql_result_traits</a></dt>
+  <dd>This traits class has been renamed to query_result_traits and
+    its API has changed considerably. This will only impact when you
+    have implemented a custom traits specialization. The getColumns()
+    method has been replaced with a getFields() method, and the
+    loadValues() method has been renamed to load(). A getValues()
+    method has been added which provides conversion to boost::any's.
+  </dd>
+  <dt><a href="classWt_1_1WTableView.html">WTableView</a></dt>
+  <dd>This View class was reimplemented to have functionality
+    comparable to WTreeView. In the process, we had to abandon the
+    underlying &lt;table&gt; representation because of rendering
+    issues with Chrome (of all browsers!), although the WTableView
+    documentation specifically promised that we would keep this.
+  </dd>
+</dl>
+
+<hr />
+
 <h2>Release 3.1.2 (March 26, 2010)</h2>
 
 <p>This release contains mostly bug fixes, and a few new features.</p>
@@ -88,6 +179,8 @@ behaviour.
   is handed in-memory. Bigger POSTs are handled using a spool file.
   </dd>
 </dl>
+
+<hr />
 
 <h2>Release 3.1.1 (February 17, 2010)</h2>
 
@@ -166,6 +259,8 @@ to upgrade live deployments of his application to the latest version.
     hard-to-interpret Mini-XML license), but there are also nice
     performance improvements.</dd>
 </dl>
+
+<hr />
 
 <h2>Release 3.1.0 (December 29, 2009)</h2>
 

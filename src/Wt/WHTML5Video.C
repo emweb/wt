@@ -21,12 +21,9 @@ WHTML5Video::WHTML5Video(WContainerWidget *parent):
   sizeChanged_(false),
   posterChanged_(false),
   flagsChanged_(false),
-  preloadChanged_(false),
-  renderWidth_(-1),
-  renderHeight_(-1)
+  preloadChanged_(false)
 {
   setInline(false);
-  setLayoutSizeAware(true);
 }
 
 void WHTML5Video::updateVideoDom(DomElement& element, bool all)
@@ -46,14 +43,14 @@ void WHTML5Video::updateVideoDom(DomElement& element, bool all)
       );
   }
   if (all || sizeChanged_) {
-    if ((!all) || (renderWidth_ != -1))
+    if ((!all) || !width().isAuto())
       element.setAttribute("width",
-        renderWidth_ != -1 ?
-          boost::lexical_cast<std::string>(renderWidth_) : "");
-    if ((!all) || (!height().isAuto()))
+        width().isAuto() ? "" :
+          boost::lexical_cast<std::string>((int)width().toPixels()));
+    if ((!all) || !height().isAuto())
       element.setAttribute("height",
-        renderHeight_ != -1 ?
-          boost::lexical_cast<std::string>(renderHeight_) : "");
+        height().isAuto() ? "" :
+          boost::lexical_cast<std::string>((int)height().toPixels()));
   }
   if (all || posterChanged_) {
     if ((!all) || posterUrl_ != "") {
@@ -128,6 +125,21 @@ DomElement *WHTML5Video::createDomElement(WApplication *app)
     video->setProperty(PropertyStyleRight, "0");
     wrap = DomElement::createNew(DomElement_DIV);
     wrap->setProperty(PropertyStylePosition, "relative");
+    std::stringstream ss;
+    ss <<
+      """function(self, w, h) {"
+      ""  "v=self.firstChild;"
+      ""  "v.setAttribute('width', w);"
+      ""  "v.setAttribute('height', h);";
+    if (alternative_) {
+      ss <<
+        """a=v.lastChild;"
+        ""  "if(a && a." << WT_RESIZE_JS <<")"
+        ""    "a." << WT_RESIZE_JS << "(a, w, h);";
+    }
+    ss
+      <<"}";
+    setJavaScriptMember(WT_RESIZE_JS, ss.str());
   }
 
   DomElement *result = wrap ? wrap : video;
@@ -141,8 +153,9 @@ DomElement *WHTML5Video::createDomElement(WApplication *app)
 
   updateVideoDom(*video, true);
 
-  if (wrap)
+  if (wrap) {
     wrap->addChild(video);
+  }
   updateDom(*result, true);
 
   return result;
@@ -220,26 +233,6 @@ void WHTML5Video::setAlternativeContent(WWidget *alternative)
 
 void WHTML5Video::resize(const WLength &width, const WLength &height)
 {
-  setLayoutSizeAware(width.isAuto() && height.isAuto());
-  if (!width.isAuto())
-    renderWidth_ = (int)width.toPixels();
-  else 
-    renderWidth_ = -1;
-  if (!height.isAuto())
-    renderHeight_ = (int)height.toPixels();
-  else
-    renderHeight_ = -1;
-  sizeChanged_ = true;
   WWebWidget::resize(width, height);
-  repaint(Wt::RepaintPropertyAttribute);
-}
-
-
-void WHTML5Video::layoutSizeChanged(int width, int height)
-{
-  resize(WLength::Auto, WLength::Auto);
-
-  renderWidth_ = width;
-  renderHeight_ = height;
   repaint(Wt::RepaintPropertyAttribute);
 }

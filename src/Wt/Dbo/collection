@@ -293,12 +293,13 @@ namespace Wt {
 
     /*! \brief Returns the query that backs the collection.
      *
-     * Returns a query that backs the collection.
+     * Returns the query that backs the collection. This can be used to
+     * search for a subset or to browse the results in a particular order.
      *
      * \note This only works for a collection that represents the many-side
      *       of a collection (i.e. for which hasMany() is called).
      */
-    Query<C, DynamicBinding> asQuery() const;
+    Query<C, DynamicBinding> find() const;
 
   private:
     Session *session_;

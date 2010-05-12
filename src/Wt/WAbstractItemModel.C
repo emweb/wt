@@ -75,21 +75,41 @@ bool matchValue(const boost::any& value,
 
 }
 
-std::string asJSLiteral(const boost::any& v)
+std::string asJSLiteral(const boost::any& v, bool xhtml)
 {
   if (v.empty())
     return std::string("''");
-  else if (v.type() == typeid(WString))
-    return boost::any_cast<WString>(v).jsStringLiteral();
-  else if (v.type() == typeid(std::string))
-    return
-      WWebWidget::jsStringLiteral(boost::any_cast<std::string>(v),
-				  '\'');
-  else if (v.type() == typeid(const char *))
-    return
-      WWebWidget::jsStringLiteral(std::string(boost::any_cast<const char *>(v)),
-				  '\'');
-  else if (v.type() == typeid(WDate)) {
+  else if (v.type() == typeid(WString)) {
+    WString s = boost::any_cast<WString>(v);
+
+    bool plainText = false;
+    if (xhtml) {
+      if (s.literal())
+	plainText = !WWebWidget::removeScript(s);
+    } else
+      plainText = true;
+
+    if (plainText)
+      s = WWebWidget::escapeText(s);
+
+    return s.jsStringLiteral();
+  } else if (v.type() == typeid(std::string)
+	     || v.type() == typeid(const char *)) {
+    WString s = v.type() == typeid(std::string) 
+      ? WString::fromUTF8(boost::any_cast<std::string>(v))
+      : WString::fromUTF8(boost::any_cast<const char *>(v));
+
+    bool plainText;
+    if (xhtml)
+      plainText = !WWebWidget::removeScript(s);
+    else
+      plainText = true;
+
+    if (plainText)
+      s = WWebWidget::escapeText(s);
+
+    return s.jsStringLiteral();
+  } else if (v.type() == typeid(WDate)) {
     const WDate& d = boost::any_cast<WDate>(v);
 
     return "new Date(" + boost::lexical_cast<std::string>(d.year())

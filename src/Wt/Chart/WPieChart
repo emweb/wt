@@ -62,7 +62,7 @@ W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption);
  *
  * \sa WCartesianChart
  *
- * \ingroup charts
+ * \ingroup charts modelview
  */
 class WT_API WPieChart : public WAbstractChart
 {
@@ -163,6 +163,20 @@ public:
    */
   bool isPerspectiveEnabled() const { return height_ > 0.0; }
 
+  /*! \brief Enables a shadow effect.
+   *
+   * A soft shadow effect is added.
+   *
+   * The default value is false.
+   */
+  void setShadowEnabled(bool enabled);
+
+  /*! \brief Returns whether a shadow effect is enabled.
+   *
+   * \sa setShadowEnabled()
+   */
+  bool isShadowEnabled() const { return shadow_; }
+
   /*! \brief Sets the angle of the first segment.
    *
    * The default value is 45 degrees.
@@ -207,6 +221,7 @@ private:
   double               height_;
   double               startAngle_;
   WFlags<LabelOption> labelOptions_;
+  bool                 shadow_;
 
   struct PieData {
     bool customBrush;

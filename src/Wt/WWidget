@@ -917,6 +917,7 @@ protected:
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app) = 0;
   virtual bool needsToBeRendered() const = 0;
+  bool isInLayout() const;
 
 private:
   /*

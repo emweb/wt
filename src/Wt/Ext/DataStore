@@ -103,6 +103,7 @@ private:
   bool needRefresh_;
 
   int getRecordId(int row);
+  std::string dataAsJSLiteral(int row, int col) const;
 };
 
   }

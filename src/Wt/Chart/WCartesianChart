@@ -92,7 +92,7 @@ class WChartPalette;
  * \sa WDataSeries, WAxis
  * \sa WPieChart
  *
- * \ingroup charts
+ * \ingroup charts modelview
  */
 class WT_API WCartesianChart : public WAbstractChart
 {

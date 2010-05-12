@@ -71,3 +71,10 @@ img.java-language-icon {
     margin-right: 30px;
     margin-left: 25px;
 }
+
+.run {
+    font-size: 130%;
+    margin: 0px 5px;
+    text-decoration: none;
+    text-align: top;
+}

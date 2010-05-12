@@ -1,3 +1,4 @@
+// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
  *
@@ -12,15 +13,16 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/WCalendar>
 
-class PlannerCalendar : public Wt::WCalendar {
- public: 
-    PlannerCalendar(Wt::WContainerWidget* parent, 
-		    Wt::Dbo::ptr<UserAccount> user);
- protected:
-    virtual Wt::WWidget* renderCell(Wt::WWidget* widget, const Wt::WDate& date);
+class PlannerCalendar : public Wt::WCalendar
+{
+public: 
+  PlannerCalendar(Wt::WContainerWidget* parent, 
+		  dbo::ptr<UserAccount> user);
+protected:
+  virtual Wt::WWidget* renderCell(Wt::WWidget* widget, const Wt::WDate& date);
  
- private:
-    Wt::Dbo::ptr<UserAccount> user_;
+private:
+  dbo::ptr<UserAccount> user_;
 };
 
 #endif //PLANNER_CALENDAR_H_

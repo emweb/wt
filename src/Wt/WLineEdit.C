@@ -165,7 +165,8 @@ int WLineEdit::boxPadding(Orientation orientation) const
     return 0;
   else if (env.userAgent().find("Mac OS X") != std::string::npos)
     return 1;
-  else if (env.userAgent().find("Windows") != std::string::npos)
+  else if (env.userAgent().find("Windows") != std::string::npos
+	   && !env.agentIsGecko())
     return 0;
   else
     return 1;

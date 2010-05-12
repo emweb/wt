@@ -87,10 +87,11 @@
 <p>JWt is a Java library for developing interactive web applications
 that may be deployed within standard Java Servlet containers.</p>
 
-<p>The API is <b>widget-centric</b> and inspired by desktop GUI
+<p>The API is <b>widget-centric</b> and similar to desktop GUI
 APIs. To the developer, it offers complete abstraction of any
 web-specific implementation details, including event handling,
-graphics support, and pretty URLs.</p>
+graphics support, graceful degradation (or progressive enhancement)
+and pretty URLs.</p>
 
 <p>Unlike many page-based frameworks, JWt was designed for creating
 stateful applications that are at the same time highly interactive
@@ -124,8 +125,8 @@ developer you need to be able to insert self-written JavaScript to
 improve your web application and thus the framework cannot filter it
 out.</p>
 
-<p>In contrast, a web application developed with JWt is written in
-only one compiled language (Java), from which the library generates
+<p>In contrast, a web application developed with JWt can be developed
+in only one compiled language (Java), from which the library generates
 the necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and AJAX
 code. The responsibility of writing secure and browser-portable web
 applications is handled by Wt. For example, if available, Wt will
@@ -141,8 +142,12 @@ scripting languages.</p>
 <h4>Typical use scenarios:</h4>
 
 <ul>
-  <li>Web-based <b>enterprise applications</b> with a database backend
-    that require a responsive and dynamic user interface.</li>
+  <li>Complex web-based <b>enterprise applications</b> (with a
+    database backend) that require a responsive and dynamic user
+    interface and benefit from the use of Java only to use Java
+    refactoring tools while keeping track of ever changing
+    requirements.</li>
+
   <li>Web applications which maximally benefit from modern browser
     capabilities but with <b>graceful degradation</b> to adhere to W3C
     accessibility guidelines and be search engine friendly.</li>
@@ -165,6 +170,7 @@ scripting languages.</p>
   <li>JWt applications have automatic fall-back for non-JavaScript
     browsers where possible, allowing you to create fully accessible
     applications, which benefit from AJAX where available.</li>
+  <li>Use HTML and CSS for layout and decoration, if you want to.</li>
   <li>The toolkit generates standards compliant HTML or XHTML code.</li>
   <li>You can include dynamic graphics using a portable, anti-aliased
     graphics API that uses inline VML, inline SVG or HTML 5 canvas.</li>
@@ -177,7 +183,8 @@ scripting languages.</p>
     REST API.</li>
   <li>Highly optimized load time and low bandwidth usage, which are
     affected only by screen complexity but not by application size or
-    bulky JavaScript libraries.</li>
+    bulky JavaScript libraries. Wt implements all + the common tips
+    and tricks for optimizing application responsiveness.</li>
   <li>Integrates well with modern object relational mapping techniques such
     as the Java Persistence API (e.g. Hibernate).</li>
 </ul>
@@ -302,8 +309,11 @@ gallery</a> for an interactive overview of built-in functionality.
 <div>
 <h4 class="example">Hello world!</h4>
 
-<p>The most ubiquitous of all examples:
-<a href="http://jwt.emweb.be/jwt-hello" target="_blank">Hello world</a>.</p>
+<p>
+  <a href="http://jwt.emweb.be/jwt-hello" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
+</p>
 
 <p>This simple example illustrates basic JWt concepts:</p>
 <ul>
@@ -329,8 +339,12 @@ gallery</a> for an interactive overview of built-in functionality.
 <div>
 <h4 class="example">Treeview</h4>
 <p>
-  <a href="http://jwt.emweb.be/jwt-treeviewdragdrop/treeviewdragdrop" target="_blank">
-  This example</a> demonstrates the following features:
+  <a href="http://jwt.emweb.be/jwt-treeviewdragdrop/treeviewdragdrop" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
+</p>
+<p>
+  This example demonstrates the following features:
 </p>
 <ul>
   <li>
@@ -370,9 +384,14 @@ gallery</a> for an interactive overview of built-in functionality.
 <div>
 <h4 class="example">Charts example</h4>
 
-<p><a href="http://jwt.emweb.be/jwt-charts/charts"
-target="_blank">This example</a> demonstrates the <a
-href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/chart/package-summary.html">JWt
+<p>
+  <a href="http://jwt.emweb.be/jwt-charts/charts" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
+</p>
+
+<p>This example demonstrates
+the <a href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/chart/package-summary.html">JWt
 charting widgets</a> that are implemented on top of JWt's
 cross-browser painting API. This painting API uses built-in browser
 support for generating high quality graphics (instead of the more
@@ -380,7 +399,8 @@ common approach of rendering raster images on the server side),
 thereby off-loading CPU intensive computations to the browser and at
 the same time reducing bandwidth. Depending on the browser, inline
 VML, inline SVG, or the HTML 5 canvas is used to render painted
-contents in a <a href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WPaintedWidget.html">WPaintedWidget</a>.
+contents in
+a <a href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WPaintedWidget.html">WPaintedWidget</a>.
 </p>
 
 <p>This example demonstrates JWt's MVC infrastructure. Both the <a
@@ -404,8 +424,13 @@ sure that data is synchronized between browser and server.</p>
 <h4 class="example">Mail composer</h4>
 
 <p>
-  <a href="http://jwt.emweb.be/jwt-composer/composer" target="_blank">This
-  example</a> implements a GMail-like mail composer and shows among
+  <a href="http://jwt.emweb.be/jwt-composer/composer" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
+</p>
+
+<p>
+  This example implements a GMail-like mail composer and shows among
   other things how you can easily upload files asynchronously.
 </p>
 

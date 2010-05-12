@@ -602,6 +602,9 @@ void WCanvasPaintDevice::renderStateChanges()
 
       renderTransform(js_, t);
       if (painter()->hasClipping()) {
+	pathTranslation_.setX(0);
+	pathTranslation_.setY(0);
+
 	drawPlainPath(js_, painter()->clipPath());
 	js_ << "ctx.clip();";
 	busyWithPath_ = false;

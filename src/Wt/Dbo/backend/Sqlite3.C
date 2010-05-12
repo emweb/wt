@@ -118,9 +118,6 @@ public:
   virtual void bind(int column, const boost::posix_time::ptime& value,
 		    SqlDateTimeType type)
   {
-    DEBUG(std::cerr << this << " bind " << column << " "
-	  << boost::posix_time::to_simple_string(value) << std::endl);
-
     switch (db_.dateTimeStorage(type)) {
     case Sqlite3::ISO8601AsText: {
       std::string v;

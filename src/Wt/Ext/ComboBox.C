@@ -143,10 +143,13 @@ void ComboBox::setCurrentIndex(int index)
 
     lineEdit()->setText(WString());
   } else {
-    const boost::any&v = model_->data(index, modelColumn_);
+    WModelIndex modelIndex = model_->index(index, modelColumn_);
+    const boost::any& v = model_->data(modelIndex);
 
     if (isRendered())
-      addUpdateJS(elVar() + ".setValue(" + asJSLiteral(v) + ");");
+      addUpdateJS(elVar() + ".setValue("
+		  + asJSLiteral(v, model_->flags(modelIndex) & ItemIsXHTMLText)
+		  + ");");
 
     lineEdit()->setText(asString(v));
   }

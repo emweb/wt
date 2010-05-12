@@ -249,7 +249,6 @@ protected:
   virtual void setHideWithOffsets(bool how = true);
 
   void doLoad(WWidget *w);
-  bool isInLayout() const;
 
 private:
   /*

@@ -6,6 +6,7 @@
 #include "Wt/WApplication"
 #include "Wt/WWidget"
 #include "Wt/WWebWidget"
+#include "Wt/WCompositeWidget"
 #include "Wt/WContainerWidget"
 #include "Wt/WLayout"
 #include "Wt/WJavaScript"
@@ -373,5 +374,19 @@ void WWidget::setLayoutSizeAware(bool aware)
 
 void WWidget::layoutSizeChanged(int width, int height)
 { } 
+
+bool WWidget::isInLayout() const
+{
+  WWidget *p = parent();
+  if (p != 0 &&
+      (dynamic_cast<WCompositeWidget *>(p) != 0 ||
+       !p->javaScriptMember(WT_RESIZE_JS).empty()))
+    return p->isInLayout();
+
+  WContainerWidget *c = dynamic_cast<WContainerWidget *>(p);
+
+  return c != 0 && c->layout() != 0;
+}
+
 
 }

@@ -1,9 +1,9 @@
+// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
 #ifndef ALL_ENTRIES_DIALOG_H_
 #define ALL_ENTRIES_DIALOG_H_
 
@@ -12,12 +12,13 @@
 
 #include "CalendarCell.h"
 
-class AllEntriesDialog : public Wt::WDialog {
- public:
+class AllEntriesDialog : public Wt::WDialog
+{
+public:
   AllEntriesDialog(const Wt::WString& title, CalendarCell* cell);
 
- private:
+private:
   void closeDialog();
 };
 
-#endif //ALL_ENTRIES_DIALOG_H_
+#endif // ALL_ENTRIES_DIALOG_H_

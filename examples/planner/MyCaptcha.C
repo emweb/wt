@@ -11,7 +11,7 @@ using namespace Wt;
 MyCaptcha::MyCaptcha(WContainerWidget* parent, 
 		     const int width, const int height)
   : WContainerWidget(parent),
-    completed(this)
+    completed_(this)
 {
   setStyleClass("captcha");
 		
@@ -20,7 +20,7 @@ MyCaptcha::MyCaptcha(WContainerWidget* parent,
   shapesWidget_ = new ShapesWidget(this);
   shapesWidget_->resize(width, height);
 
-  shapesWidget_->clicked().connect(SLOT(this, MyCaptcha::handleClick));
+  shapesWidget_->clicked().connect(this, &MyCaptcha::handleClick);
 
   regenerate();
 }
@@ -28,7 +28,7 @@ MyCaptcha::MyCaptcha(WContainerWidget* parent,
 void MyCaptcha::handleClick(const WMouseEvent& me)
 {
   if (shapesWidget_->correctlyClicked(me)) 
-    completed.emit();
+    completed_.emit();
   else
     regenerate();
 }

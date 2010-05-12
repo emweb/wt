@@ -1,9 +1,9 @@
+// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
 #ifndef CALENDAR_CELL_H_
 #define CALENDAR_CELL_H_
 
@@ -11,26 +11,22 @@
 
 #include <Wt/WContainerWidget>
 
-class CalendarCell : public Wt::WContainerWidget {
- public:
+class CalendarCell : public Wt::WContainerWidget
+{
+public:
   CalendarCell();
-  void update(const Wt::Dbo::ptr<UserAccount>& user, const Wt::WDate& date);
-  
-  Wt::Dbo::ptr<UserAccount> user() {
-    return user_;
-  }
-  
-  Wt::WDate date() {
-    return date_;
-  }
 
- private:
+  void update(const dbo::ptr<UserAccount>& user, const Wt::WDate& date);
+  
+  Wt::WDate date() {return date_; }
+  dbo::ptr<UserAccount> user() { return user_; }  
+
+private:
+  Wt::WDate date_;
+  dbo::ptr<UserAccount> user_;
+
   void showEntryDialog();
   void showAllEntriesDialog();
-
- private:
-  Wt::WDate date_;
-  Wt::Dbo::ptr<UserAccount> user_;
 };
 
 #endif //CALENDAR_CELL_H_

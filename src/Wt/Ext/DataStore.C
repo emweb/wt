@@ -103,10 +103,8 @@ std::string DataStore::jsCreateStore()
       if (i != 0)
 	store += ",";
       store += "[" + boost::lexical_cast<std::string>(getRecordId(i));
-      for (unsigned j = 0; j < columns_.size(); ++j) {
-	// XHTML escaping if needed
-	store += "," + asJSLiteral(model_->data(i, columns_[j].modelColumn));
-      }
+      for (unsigned j = 0; j < columns_.size(); ++j)
+	store += "," + dataAsJSLiteral(i, columns_[j].modelColumn);
       store += "]";
     }
 
@@ -178,6 +176,14 @@ void DataStore::setModel(WAbstractItemModel *model)
     needRefresh_ = true;
 }
 
+std::string DataStore::dataAsJSLiteral(int row, int col) const
+{
+  WModelIndex index = model_->index(row, col);
+
+  return asJSLiteral(model_->data(index),
+		     model_->flags(index) & ItemIsXHTMLText);
+}
+
 std::string DataStore::jsGetUpdates(const std::string& storeVar)
 {
   if (dataLocation_ == ClientSide) {
@@ -206,7 +212,7 @@ std::string DataStore::jsGetUpdates(const std::string& storeVar)
 	    if (j != 0)
 	      result << ',';
 	    result << "'c" << j << "':"
-		   << asJSLiteral(model_->data(i, columns_[j].modelColumn));
+		   << dataAsJSLiteral(i, columns_[j].modelColumn);
 	  }
 
 	  result << "}," << getRecordId(i) << ")]);";
@@ -267,7 +273,7 @@ void DataStore::modelDataChanged(const WModelIndex& topLeft,
 	  jsChanges_ += "store.getById("
 	    + boost::lexical_cast<std::string>(recordIds_[i]) + ").set('"
 	    + c.fieldName + "',"
-	    + asJSLiteral(model_->data(i, c.modelColumn)) + ");";
+	    + dataAsJSLiteral(i, c.modelColumn) + ");";
 	}
       }
     }
@@ -334,7 +340,7 @@ void DataStore::handleRequest(const Http::Request& request,
 
     for (unsigned j = 0; j < columns_.size(); ++j)
       o << ",'" << columns_[j].fieldName << "':"
-	<< asJSLiteral(model_->data(modelRow, columns_[j].modelColumn));
+	<< dataAsJSLiteral(modelRow, columns_[j].modelColumn);
 
     o << "}";
   }

@@ -112,12 +112,10 @@ protected:
   void updateDom(DomElement& element, bool all);
   void getDomChanges(std::vector<DomElement *>& result,
                      WApplication *app);
-  //virtual DomElement *createDomElement(WApplication *app);
   DomElementType domElementType() const;
 
 private:
   std::string url_;
-  bool isRendered_;
   bool sizeChanged_;
   std::map<std::string, WString> parameters_;
   std::map<std::string, WString> variables_;

@@ -22,12 +22,12 @@ namespace Wt {
  * This provides a connection pool of fixed size: its size is determined at
  * startup time, and the pool will not grow as more connections are needed.
  *
- * This is usually adequate when the number of threads (which need
- * different connections to work with) is also bounded. This is for
- * example the case when a thread pool is used, such as in the case
- * for %Wt. Note that you do not need as many connections as sessions,
- * since Session will only use a connection while processing a
- * transaction.
+ * This is adequate when the number of threads (which need different
+ * connections to work with) is also bounded, like when using a fixed
+ * size thread pool. This is for example the case when used in
+ * conjunction with %Wt. Note that you do not need as many connections
+ * as sessions, since Session will only use a connection while
+ * processing a transaction.
  *
  * \ingroup dbo
  */

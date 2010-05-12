@@ -13,6 +13,7 @@
 #include "Wt/Chart/WStandardPalette"
 
 #include "Wt/WAbstractItemModel"
+#include "Wt/WVmlImage"
 #include "Wt/WPaintDevice"
 #include "Wt/WPainter"
 
@@ -57,7 +58,8 @@ WPieChart::WPieChart(WContainerWidget *parent)
     dataColumn_(-1),
     height_(0.0),
     startAngle_(45),
-    labelOptions_(0)
+    labelOptions_(0),
+    shadow_(false)
 {
   setPalette(new WStandardPalette(WStandardPalette::Neutral));
   setPreferredMethod(InlineSvgVml);
@@ -113,6 +115,15 @@ void WPieChart::setPerspectiveEnabled(bool enabled, double height)
     update();
   }
 }
+
+void WPieChart::setShadowEnabled(bool enabled)
+{
+  if (shadow_ != enabled) {
+    shadow_ = enabled;
+    update();
+  }
+}
+
 void WPieChart::setStartAngle(double startAngle)
 {
   if (startAngle_ != startAngle) {
@@ -432,8 +443,19 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
   /*
    * Draw top
    */
+  if (shadow_) {
+    if (!dynamic_cast<WVmlImage *>(painter.device()))
+      painter.setShadow(WShadow(10, 10, WColor(0, 0, 0, 40), 30));
+    else
+      painter.setShadow(WShadow(10, 10, WColor(0, 0, 0, 20), 220));
+  }
+
   if (total == 0) {
     painter.drawArc(cx - r, cy - r, r*2, r*2, 0, 16*360);
+
+    if (shadow_)
+      painter.setShadow(WShadow());
+
     return;
   }
 
@@ -461,6 +483,9 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 
     currentAngle = endAngle;
   }
+
+  if (shadow_)
+    painter.setShadow(WShadow());
 }
 
 WBrush WPieChart::darken(const WBrush& brush)

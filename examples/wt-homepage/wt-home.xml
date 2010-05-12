@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <messages>
   <message id="top_wt">
       <a href="http://www.emweb.be/">
@@ -86,10 +86,11 @@
 <p>Wt (pronounced 'witty') is a C++ library for developing interactive
 web applications.</p>
 
-<p>The API is <b>widget-centric</b> and inspired by desktop GUI
+<p>The API is <b>widget-centric</b> and similar to desktop GUI
 APIs. To the developer, it offers complete abstraction of any
 web-specific implementation details, including event handling,
-graphics support, and pretty URLs.</p>
+graphics support, graceful degradation (or progressive enhancement),
+and pretty URLs.</p>
 
 <p>Unlike many page-based frameworks, Wt was designed for creating
 stateful applications that are at the same time highly interactive
@@ -97,8 +98,9 @@ stateful applications that are at the same time highly interactive
 (supporting plain HTML browsers), using automatic <b>graceful
 degradation or progressive enhancement</b>.</p>
 
-<p>It comes with an application server that acts as a stand-alone web
-server or integrates through FastCGI with other web servers.</p>
+<p>The library comes with an application server that acts as a
+stand-alone web server or integrates through FastCGI with other web
+servers.</p>
 
 <h4>Interactive, secure and accessible</h4>
 
@@ -107,7 +109,7 @@ etc...) do not make abstraction of the underlying technologies
 (HTML/XHTML, JavaScript, CSS, AJAX, Forms, DHTML, SVG/VML/Canvas). As
 a consequence, a developer needs to be familiar with all of these
 evolving technologies and is also responsible for graceful degradation
-when browsr support is lacking. The structure of the application
+when browser support is lacking. The structure of the application
 follows mostly the page-centric paradigm of early day HTML. This means
 that not only will you need to implement a controller to indicate how
 a user moves from page to page, but when using advanced AJAX
@@ -126,9 +128,9 @@ developer you need to be able to insert self-written JavaScript to
 improve your web application and thus the framework cannot filter it
 out.</p>
 
-<p>In contrast, a web application developed with Wt is written in only
-one compiled language (C++), from which the library generates the
-necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and AJAX
+<p>In contrast, a web application developed with Wt can be developed
+in only one compiled language (C++), from which the library generates
+the necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and AJAX
 code. The responsibility of writing secure and browser-portable web
 applications is handled by Wt. For example, if available, Wt will
 maximally use JavaScript and AJAX, but applications developed using Wt
@@ -146,9 +148,10 @@ AJAX application if possible.</p>
   applications.</li>
   <li>Creating a port of <b>existing C++ desktop applications</b> to
   the web.</li>
-  <li><b>High performance, complex</b> web applications which cannot
-  benefit from caching, fully AJAX enabled and at the same time
-  entirely accessible and Search Engine Optimized.</li>
+  <li><b>High performance, complex</b> web applications which are
+  fully personalized (and thus cannot benefit from caching), fully
+  AJAX enabled and at the same time entirely accessible and Search
+  Engine Optimized.</li>
 </ul>
 
 <h4>Other benefits of using Wt</h4>
@@ -161,6 +164,7 @@ AJAX application if possible.</p>
   availability).</li>
   <li>A single specification for both client- and server-side
   validation and event handling.</li>
+  <li>Use HTML and CSS for layout and decoration, if you want to.</li>
   <li>Generates standards compliant HTML or XHTML code.</li>
   <li>Portable, anti-aliased graphics (uses inline VML, inline SVG or
   the HTML 5 canvas).</li>
@@ -168,10 +172,11 @@ AJAX application if possible.</p>
   over the presentation layer and proactively filters out
   <i>active</i> tags and attributes nor exposures business logic,
   which stays at the server.</li>
-  <li>Ultra-fast load time and low bandwidth usage, which are
-  affected only by screen complexity, not application size.</li>
-  <li>A simple API for server-initiated events ala <i>server push</i>
-  or <i>comet</i>).</li>
+  <li>Ultra-fast load time and low bandwidth usage, which are affected
+  only by screen complexity, not application size. Wt implements all
+  the common tips and tricks for optimizing application responsiveness.</li>
+  <li>A simple API with a robust cross-browser implementation for
+  server-initiated events ala <i>server push</i> or <i>comet</i>).</li>
   <li>Use the built-in httpd for easy development and deployment, or
   use the FastCGI connector to deploy as a FastCGI application in
   existing web servers.</li>
@@ -344,17 +349,19 @@ gallery</a> for an interactive overview of built-in functionality.
 <div>
 <h4 class="example">Hello world!</h4>
 
-<p>The most ubiquitous of all examples:
-<a href="/wt/examples/hello/hello.wt" target="_blank">Hello world</a>.</p>
+<p>
+  <a href="/wt/examples/hello/hello.wt" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
+</p>
 
 <p>This simple example illustrates basic Wt concepts:</p>
 <ul>
   <li>
-    How to bootstrap a new Wt application using <b>WRun()</b>, and a
-    function to create a new <a
-    href="/wt/doc/reference/html/classWt_1_1WApplication.html" target="_blank">
-      WApplication</a>,
-    corresponding to a new session.
+    How to make a minimal Wt application, using <b>WRun()</b> to start
+    the web server, and a function to create a new <a
+    href="/wt/doc/reference/html/classWt_1_1WApplication.html"
+    target="_blank">WApplication</a>, corresponding to a new session.
   </li>
   <li>
     <b>Creating widgets</b>, and adding them to <b>the widget tree</b>.
@@ -367,9 +374,10 @@ gallery</a> for an interactive overview of built-in functionality.
   </li>
 </ul>
 
-<p>For a thorough explanation of the hello world example, see also the
-<a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/" target="_blank">nice introduction to Wt</a> written by Victor
-Venkman.</p>
+<p>For a thorough (although slightely out-dated) explanation of the
+hello world example, see also the <a
+href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/"
+target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
 </div>
   </message>
   <message id="home.examples.wt">
@@ -397,7 +405,7 @@ Venkman.</p>
   feature set. For AJAX sessions, they supports <b>pre-loading</b> and
   <b>lazy loading</b> of the contents associated with each item, which
   may be <a
-  href="/wt/doc/reference/html/classWt_1_1WMenu.html#3e68c4b6bb387f27a614e7962e11967b"
+  href="/wt/doc/reference/html/classWt_1_1WMenu.html#d7840197cc0caf0430792b9f4a0df60d"
   target="_blank">specified</a> for each item separately. The
   pre-loading of contents does not increase the load time because the
   Wt rendering engine optimizes the response time by only transmitting
@@ -438,18 +446,23 @@ Venkman.</p>
   <message id="home.examples.treeview">
 <div>
 <h4 class="example">Treeview</h4>
+
 <p>
-  <a href="/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" target="_blank">
-  This example</a> demonstrates the following features:
+  <a href="/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
 </p>
+
+This example shows functionality provided by Wt's Views (WTreeView,
+WTableView and PieChart) and models.
+
 <ul>
   <li>
-    Using a <a
-    href="/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">WTreeView</a>
-    for rendering a model in a tree or a table. WTreeView displays
-    tree-tables (i.e. a tree in the first column with a number of
-    additional columns), and a tree and table are two degenerate
-    cases.
+    Using <a href="/wt/doc/reference/html/classWt_1_1WTreeView.html"
+    target="_blank">WTreeView</a>
+    and <a href="/wt/doc/reference/html/classWt_1_1WTableView.html"
+    target="_blank">WTableView</a> widgets for rendering a Model's
+    data in a tree or a table.
   </li>
   <li>
     The use of <a
@@ -468,12 +481,11 @@ Venkman.</p>
     for an automatic window-filling layout.
   </li>
   <li>
-    Since WTreeView does not yet support inline editing, how to use a
-    modal <a href="/wt/doc/reference/html/classWt_1_1WDialog.html" target="_blank">
-      WDialog</a> to present a simple form, using a
-    <a href="/wt/doc/reference/html/classWt_1_1WGridLayout.html" target="_blank">
-      WGridLayout</a>
-    for layout.
+    How to use a
+    modal <a href="/wt/doc/reference/html/classWt_1_1WDialog.html"
+    target="_blank"> WDialog</a> to present a simple form, using a
+    <a href="/wt/doc/reference/html/classWt_1_1WGridLayout.html"
+       target="_blank">WGridLayout</a> for layout.
   </li>
   <li>
     How to show a context-sensitive
@@ -487,28 +499,32 @@ Venkman.</p>
 <div>
 <h4 class="example">Charts example</h4>
 
-<p><a href="/wt/examples/charts/charts.wt" target="_blank">This
-example</a> demonstrates the <a
-href="/wt/doc/reference/html/namespaceWt_1_1Chart.html"
+<p>
+  <a href="/wt/examples/charts/charts.wt" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
+</p>
+
+<p>This example demonstrates
+the <a href="/wt/doc/reference/html/group__charts.html"
 target="_blank">Wt charting widgets</a> that are implemented on top of
 Wt's cross-browser painting API. This painting API uses built-in
 browser support for generating high quality graphics (instead of the
 tradditional approach of rendering PNG/GIF images on the server
 side). Depending on the browser, inline VML, inline SVG, or the HTML 5
-canvas is used to render painted contents in a <a
-href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
+canvas is used to render painted contents in
+a <a href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
 target="_blank">WPaintedWidget</a>.
 </p>
 
-<p>This example also demonstrates Wt's MVC infrastructure. Both the <a
-href="/wt/doc/reference/html/classWt_1_1Ext_1_1TableView.html"
+<p>This example also demonstrates Wt's MVC infrastructure. Both
+the <a href="/wt/doc/reference/html/classWt_1_1WTableView.html"
 target="_blank">table view</a> and the charts implement Views on a
-single <a
-href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+single <a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
 target="_blank">model</a>. In this way, all changes in the model are
 automatically reflected in updated views. The model may contain
-strings, numbers or <a
-href="/wt/doc/reference/html/classWt_1_1WDate.html"
+strings, numbers
+or <a href="/wt/doc/reference/html/classWt_1_1WDate.html"
 target="_blank">dates</a>. You can see this in action by editing the
 data using the table view.</p>
 
@@ -523,23 +539,39 @@ browser and server.</p>
   <message id="home.examples.git">
 <div>
 <h4 class="example">Git explorer</h4>
+
 <p>
-  <a href="/wt/examples/gitmodel/gitview.wt" target="_blank">
-  This example</a> shows how to implement a custom model for Wt's
+  <a href="/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
+</p>
+
+<p>
+  This example shows how to implement a custom model for Wt's
   MVC-based view classes, such as
   <a href="/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">
     WTreeView</a>.
 </p>
 <p>
-  Wt provides a <a href="/wt/doc/reference/html/classWt_1_1WStandardItemModel"
-		   target="_blank">WStandardItemModel</a> which can be
-  populated with data retrieved from for example a database. A draw-back is
-  however that all data is stored in memory and must be retrieved in advance.
-  By reimplementing
-  <a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel"
-     target="_blank">WAbstractItemModel</a>, you can implement a model
-  that retrieves data only when needed, and provides a trade-off between loading
-  data in memory or keeping it elsewhere.
+  Wt provides
+  a <a href="/wt/doc/reference/html/classWt_1_1WStandardItemModel"
+  target="_blank">WStandardItemModel</a> which can be populated with
+  data retrieved from for example a database. A draw-back is however
+  that all data is stored in memory and must be retrieved in advance.
+  By
+  reimplementing <a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel"
+  target="_blank">WAbstractItemModel</a>, you can implement a model
+  that retrieves data only when needed, and provides a trade-off
+  between loading data in memory or keeping it elsewhere. In this
+  example, we implement a tree model that navigates a revision of a
+  <a href="http://git-scm.com/">git repository</a>. The model
+  lazy-stores identification of folder nodes in memory, in order to
+  generate unique ID's for folders. Initially we thought the SHA-1
+  id's could be used, but folders with the same content in different
+  places of the git repository have the same SHA-1 ID's while
+  representing
+  different <a href="/wt/doc/reference/html/classWt_1_1WModelIndex.html"
+  target="_blank">model indexes</a>.
 </p>
 </div>
   </message>
@@ -595,13 +627,14 @@ browser and server.</p>
 <h4 class="example">Mail composer</h4>
 
 <p>
-  <a href="/wt/examples/composer/composer.wt" target="_blank">This
-  example</a> implements a GMail-like mail composer and shows among
-  other things how you can easily upload files asynchronously.
+  <a href="/wt/examples/composer/composer.wt" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
 </p>
 
 <p>
-  Some notes about this example:
+  This example implements a GMail-like mail composer and shows among
+  other things how you can easily upload files asynchronously.
 </p>
 
   <ul>
@@ -648,14 +681,19 @@ browser and server.</p>
 <h4 class="example">Drag &amp; Drop</h4>
 
 <p>
-  <a href="/wt/examples/dragdrop/dragdrop.wt" target="_blank">This example</a>
-  demonstrates the usage of the Drag and drop API. Drag and drop is only
-  available when JavaScript is available or enabled, so you should
-  always provide an alternative if you wish to support other browsers.
+  <a href="/wt/examples/dragdrop/dragdrop.wt" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
 </p>
 
 <p>
-  Add drag &amp; drop functionality to your application in three steps:
+  This example demonstrates the usage of the Drag and drop API. Drag
+  and drop is only available when JavaScript is available or enabled,
+  so you should always provide an alternative if you wish to support
+  other browsers.
+
+  Adding drag &amp; drop functionality to your application takes three
+  steps:
 </p>
   <ul>
     <li>
@@ -686,8 +724,13 @@ browser and server.</p>
 <h4 class="example">Simple Chat</h4>
 
 <p>
-  <a href="http://www.webtoolkit.eu/wt/examples/simplechat/simplechat.wt" target="_blank">
-  This example</a> implements a simple chat client and server for a
+  <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
+    &#x25B6; Run example
+  </a>
+</p>
+
+<p>
+  This example implements a simple chat client and server for a
   multi-user chat application. It illustrates how one can easily let
   multiple users interact, for example using <b>server-initiated
   updates</b> to push information from one user to other users.
@@ -786,10 +829,15 @@ browser and server.</p>
 <h4 class="example">Widget gallery</h4>
 
 <p>
- <a href="/widgets" target="_blank">This example</a> demonstrates
- most widgets provided by Wt, in addition to other aspects such as
- event handling and layout classes. Useful as an executable reference
- to widgets and features provided by the library.
+  <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
+    &#x25B6; Go to widget gallery
+  </a>
+</p>
+
+<p>
+ This example demonstrates most widgets provided by Wt, in addition to
+ other aspects such as event handling and layout classes. Useful as an
+ executable reference to widgets and features provided by the library.
 </p>
 
 </div>

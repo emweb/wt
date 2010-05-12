@@ -9,16 +9,14 @@
 #include "Entry.h"
 
 using namespace Wt;
-using namespace Wt::Dbo;
 
 PlannerCalendar::PlannerCalendar(WContainerWidget* parent, 
-				 ptr<UserAccount> user)
-  : WCalendar(parent)
+				 dbo::ptr<UserAccount> user)
+  : WCalendar(parent),
+    user_(user)
 {
   setStyleClass(styleClass() + " calendar");
   
-  user_ = user;
-		
   setSelectionMode(NoSelection);
 }
 

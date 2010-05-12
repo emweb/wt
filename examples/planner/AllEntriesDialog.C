@@ -15,7 +15,6 @@
 #include <Wt/WPushButton>
 
 using namespace Wt;
-using namespace Wt::Dbo;
 
 AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
   : WDialog(title)
@@ -24,14 +23,13 @@ AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
   WContainerWidget* wc = new WContainerWidget();
   t->bindWidget("entries", wc);
 	
-  Session& session = PlannerApplication::plannerApplication()->session;
-  Transaction transaction(session);
+  dbo::Session& session = PlannerApplication::plannerApplication()->session;
+  dbo::Transaction transaction(session);
 
-  typedef collection< ptr<Entry> > Entries;
+  typedef dbo::collection< dbo::ptr<Entry> > Entries;
+
   Entries entries = 
-    UserAccount::getEntries(PlannerApplication::plannerApplication()->session, 
-			    cell->user(),
-			    cell->date(), cell->date().addDays(1));
+    cell->user()->entriesInRange(cell->date(), cell->date().addDays(1));
   
   WString format = EntryDialog::timeFormat;
   for (Entries::const_iterator i = entries.begin(); i != entries.end(); ++i) {
@@ -45,7 +43,7 @@ AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
 		
   WPushButton* button = new WPushButton(tr("calendar.cell.all-entries.close"));
   t->bindWidget("close", button);
-  button->clicked().connect(SLOT(this, AllEntriesDialog::closeDialog));
+  button->clicked().connect(this, &AllEntriesDialog::closeDialog);
 }
 
 void AllEntriesDialog::closeDialog()

@@ -11,7 +11,8 @@
 using namespace Wt;
 
 Login::Login(WContainerWidget* parent)
-  : WContainerWidget(parent)
+  : WContainerWidget(parent),
+    loggedIn_(this)
 {
   setStyleClass("login");
 		 
@@ -21,15 +22,14 @@ Login::Login(WContainerWidget* parent)
   userNameEdit_->setValidator(new WValidator(true));
   userNameL->setBuddy(userNameEdit_);
 
-  userNameEdit_->enterPressed().
-    connect(SLOT(this, Login::userNameEnterPressed));
+  userNameEdit_->enterPressed().connect(this, &Login::userNameEnterPressed);
   
   loginButton_ = new WPushButton(tr("login.loginButton"), this);
   loginButton_->hide();
-  loginButton_->clicked().connect(SLOT(this, Login::loginClicked));
+  loginButton_->clicked().connect(this, &Login::loginClicked);
 
   captcha_ = new MyCaptcha(this, 150, 70);
-  captcha_->completed.connect(SLOT(this, Login::captchaCompleted));
+  captcha_->completed().connect(this, &Login::captchaCompleted);
 }
 
 void Login::captchaCompleted()
@@ -58,6 +58,5 @@ void Login::loginClicked(const WMouseEvent& me)
 
 void Login::login()
 {
-  //TODO trim
-  loggedIn.emit(userNameEdit_->text().toUTF8());
+  loggedIn_.emit(userNameEdit_->text());
 }

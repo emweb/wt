@@ -155,6 +155,9 @@ Result Query<Result, DirectBinding>::resultValue() const
 template <class Result>
 collection<Result> Query<Result, DirectBinding>::resultList() const
 {
+  if (!this->session_)
+    return collection<Result>();
+
   if (!statement_)
     throw std::logic_error("Query<Result, DirectBinding>::resultList() "
 			   "may be called only once");
@@ -180,6 +183,9 @@ Query<Result, DirectBinding>::operator collection<Result> () const
 template <class Result>
 void Query<Result, DirectBinding>::prepareStatements() const
 {
+  if (!this->session_)
+    return;
+
   this->session_->flush();
 
   std::string sql;
@@ -337,6 +343,9 @@ Result Query<Result, DynamicBinding>::resultValue() const
 template <class Result>
 collection<Result> Query<Result, DynamicBinding>::resultList() const
 {
+  if (!this->session_)
+    return collection<Result>();
+
   this->session_->flush();
 
   std::vector<FieldInfo> fs = fields();

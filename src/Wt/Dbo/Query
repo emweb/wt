@@ -44,7 +44,7 @@ namespace Wt {
  */
 struct DirectBinding { };
 
-/*! \class DirectBinding Wt/Dbo/Query Wt/Dbo/Query
+/*! \class DynamicBinding Wt/Dbo/Query Wt/Dbo/Query
  *
  * Bind strategy indicating that binding to the underlying prepared statement
  * is deferred and parameter values are temporarily stored first in a dynamic
@@ -58,21 +58,26 @@ class SqlConnection;
 /*! \class Query Wt/Dbo/Query Wt/DboQuery
  *  \brief A database query.
  *
- * A query will be used to fetch objects of class \p Result.
+ * The query fetches results of type \p Result from the database. This
+ * can be any type for which query_result_traits are properly
+ * implemented. The library provides these implementations for
+ * primitive values (see sql_value_traits), database objects (ptr) and
+ * <tt>boost::tuple</tt>.
  *
  * Simple queries can be done using Session::find(), while more elaborate
  * queries (with arbitrary result types) using Session::query().
  *
- * You may insert positional holders for parameters using '?', and bind these
- * to actual values using bind().
+ * You may insert positional holders for parameters (in the conditional where
+ * part) using '?', and bind these to actual values using bind().
  *
  * The query result may be fetched using resultValue() or resultList().
  *
  * Usage example:
  * \code
- * typedef dbo::collection<dbo::ptr<Account> > Accounts;
+ * typedef Wt::Dbo::ptr<Account> AccountPtr;
+ * typedef Wt::Dbo::collection<AccountPtr> Accounts;
  *
- * Query query = session.find<Account>().where("balance > ?").bind(100000);
+ * Wt::Dbo::Query<AccountPtr> query = session.find<Account>().where("balance > ?").bind(100000);
  * Accounts accounts = query.resultList();
  *
  * for (Accounts::const_iterator i = accounts.begin(); i != accounts.end(); ++i)

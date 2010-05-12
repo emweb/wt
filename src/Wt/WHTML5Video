@@ -154,7 +154,6 @@ protected:
   void getDomChanges(std::vector<DomElement *>& result,
                      WApplication *app);
   DomElementType domElementType() const;
-  void layoutSizeChanged(int width, int height);
   DomElement *createDomElement(WApplication *app);
 
 private:
@@ -177,7 +176,6 @@ private:
   PreloadMode preloadMode_;
   WWidget *alternative_;
   bool sizeChanged_, posterChanged_, flagsChanged_, preloadChanged_;
-  int renderWidth_, renderHeight_;
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WHTML5Video::Options);

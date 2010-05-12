@@ -4,15 +4,14 @@
  *
  * See the LICENSE file for terms of use.
  */
-
 #ifndef PLANNER_APPLICATION_H_
 #define PLANNER_APPLICATION_H_
 
 #include <Wt/WApplication>
+#include <Wt/WString>
+
 #include <Wt/Dbo/Dbo>
 #include <Wt/Dbo/backend/Sqlite3>
-
-#include <string>
 
 /*
  * A planner application class which demonstrates how to customize
@@ -22,19 +21,18 @@
 class PlannerApplication : public Wt::WApplication
 {
 public:
+  Wt::Dbo::Session session;
+
   PlannerApplication(const Wt::WEnvironment& env);
 
   static PlannerApplication* plannerApplication() {
     return (PlannerApplication*)WApplication::instance();
   }
 
-public:
-  Wt::Dbo::Session session;
+private:
+  Wt::Dbo::backend::Sqlite3 sqlite3_;
 
- private:
-  Wt::Dbo::backend::Sqlite3 sqlite3;
-
-  void login(const std::string& user);
+  void login(const Wt::WString& user);
 };
 
 #endif //PLANNER_APPLICATION_H_

@@ -16,7 +16,6 @@
 #include <Wt/WText>
 
 using namespace Wt;
-using namespace Wt::Dbo;
 
 CalendarCell::CalendarCell()
   : WContainerWidget()
@@ -26,18 +25,18 @@ CalendarCell::CalendarCell()
   setStyleClass("cell");
   setToolTip(tr("calendar.cell.tooltip"));
 
-  clicked().connect(SLOT(this, CalendarCell::showEntryDialog));
+  clicked().connect(this, &CalendarCell::showEntryDialog);
 }
 
-void CalendarCell::update(const ptr<UserAccount>& user, const WDate& date)
+void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
 {
   date_ = date;
   user_ = user;
-		
+
   clear();
 
-  Session& session = PlannerApplication::plannerApplication()->session;
-  Transaction transaction(session);
+  dbo::Session& session = PlannerApplication::plannerApplication()->session;
+  dbo::Transaction transaction(session);
   
   WString day;
   day += boost::lexical_cast<std::string>(date.day());
@@ -48,13 +47,11 @@ void CalendarCell::update(const ptr<UserAccount>& user, const WDate& date)
   addWidget(header);
 
   typedef dbo::collection< dbo::ptr<Entry> > Entries;
-  Entries entries = 
-    UserAccount::getEntries(session,
-			    user,
-			    date, date.addDays(1));
+  Entries entries = user->entriesInRange(date, date.addDays(1));
+
   const unsigned maxEntries = 4;
   unsigned counter = 0;
-  for (Entries::const_iterator i = entries.begin(); 
+  for (Entries::const_iterator i = entries.begin();
        i != entries.end(); ++i, ++counter) {
     if (counter == maxEntries) {
       WText* extra = 

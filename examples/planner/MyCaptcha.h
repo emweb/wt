@@ -18,18 +18,16 @@ class MyCaptcha : public Wt::WContainerWidget
 {
 public:
   MyCaptcha(Wt::WContainerWidget* parent, const int width, const int height);
-  
- private:
-  void regenerate();
-  void handleClick(const Wt::WMouseEvent& me);
 
+  Wt::Signal<void>& completed() { return completed_; }
   
- public:
-  Wt::Signal<void> completed;
-
- private:
+private:
+  Wt::Signal<void> completed_;
   ShapesWidget* shapesWidget_;
   Wt::WText* captchaMessage_;
+
+  void regenerate();
+  void handleClick(const Wt::WMouseEvent& me);  
 };
 
 #endif //MY_CAPTCHA_H_

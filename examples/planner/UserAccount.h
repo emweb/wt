@@ -1,39 +1,42 @@
+// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2008 Emweb bvba, Heverlee, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
 #ifndef USER_ACCOUNT_H_
 #define USER_ACCOUNT_H_
 
-#include <Wt/Dbo/Dbo>
 #include <Wt/WDate>
-#include <string>
+#include <Wt/WString>
+
+#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/WtSqlTraits>
 
 class Entry;
 
 namespace dbo = Wt::Dbo;
 
-class UserAccount {
- public:
+class UserAccount
+{
+public:
+  Wt::WString name;
   dbo::collection< dbo::ptr<Entry> > entries;
-  std::string name;
   
+  UserAccount();
+  UserAccount(const Wt::WString& name);
+
+  dbo::collection< dbo::ptr<Entry> >
+    entriesInRange(const Wt::WDate& from, const Wt::WDate& until) const;
+
+  static dbo::ptr<UserAccount> login(dbo::Session& session, 
+				     const Wt::WString& user);
   template<class Action>
   void persist(Action& a)
   {
-    dbo::hasMany(a, entries, dbo::ManyToOne, "entry");
     dbo::field(a, name, "name");
+    dbo::hasMany(a, entries, dbo::ManyToOne, "user");
   }
-  
-  static dbo::collection< dbo::ptr<Entry> > 
-    getEntries(dbo::Session& session, 
-	       dbo::ptr<UserAccount> user, 
-	       const Wt::WDate& from, const Wt::WDate& untill);
-
-  static dbo::ptr<UserAccount> login(dbo::Session& session, 
-				     const std::string& user);
 };
 
-#endif //USER_ACCOUNT_H_
+#endif // USER_ACCOUNT_H_

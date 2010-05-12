@@ -20,7 +20,6 @@ WFlashObject::WFlashObject(const std::string& url,
                            WContainerWidget *parent)
   : WWebWidget(parent),
     url_(url),
-    isRendered_(false),
     sizeChanged_(false),
     alternative_(0)
 {
@@ -53,17 +52,41 @@ void WFlashObject::updateDom(DomElement& element, bool all)
   if (all) {
     //http://latrine.dgx.cz/how-to-correctly-insert-a-flash-into-xhtml
     DomElement *obj = DomElement::createNew(DomElement_OBJECT);
+
+    if (isInLayout()) {
+      // Layout-manager managed sizes need some CSS magic to display
+      // correctly
+      obj->setProperty(PropertyStylePosition, "absolute");
+      obj->setProperty(PropertyStyleLeft, "0");
+      obj->setProperty(PropertyStyleRight, "0");
+      element.setProperty(PropertyStylePosition, "relative");
+      std::stringstream ss;
+      // Client-side auto-resize function
+      ss <<
+        """function(self, w, h) {"
+        ""  "v=self.firstChild;"
+        ""  "v.setAttribute('width', w);"
+        ""  "v.setAttribute('height', h);";
+      if (alternative_) {
+        ss <<
+          """a=v.lastChild;"
+          ""  "if(a && a." << WT_RESIZE_JS <<")"
+          ""    "a." << WT_RESIZE_JS << "(a, w, h);";
+      }
+      ss
+        <<"}";
+      setJavaScriptMember(WT_RESIZE_JS, ss.str());
+    }
+
     obj->setId(id() + "_flash");
     obj->setAttribute("type", "application/x-shockwave-flash");
     if (!wApp->environment().agentIsIE()) {
       obj->setAttribute("data", url_);
     }
-    if (!width().isAuto())
-      obj->setAttribute("width",
-        boost::lexical_cast<std::string>((int)width().toPixels()));
-    if (!height().isAuto())
-      obj->setAttribute("height",
-        boost::lexical_cast<std::string>((int)height().toPixels()));
+    element.setAttribute("width", width().isAuto() ? "" :
+      boost::lexical_cast<std::string>((int)width().toPixels()));
+    element.setAttribute("height", height().isAuto() ? "" :
+      boost::lexical_cast<std::string>((int)height().toPixels()));
 
     for(std::map<std::string, WString>::const_iterator i = parameters_.begin();
       i != parameters_.end(); ++i) {
@@ -102,7 +125,8 @@ void WFlashObject::updateDom(DomElement& element, bool all)
     if (alternative_)
       obj->addChild(alternative_->createSDomElement(wApp));
     element.addChild(obj);
-    isRendered_ = true;
+
+
   }
   WWebWidget::updateDom(element, all);
 }
@@ -116,14 +140,14 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
                                  WApplication *app)
 {
   WWebWidget::getDomChanges(result, app);
-  if (isRendered_ && sizeChanged_) {
-    DomElement *innerElement =
+  if (sizeChanged_) {
+    DomElement *element =
       DomElement::getForUpdate(id()  + "_flash", DomElement_OBJECT);
-    innerElement->setAttribute("width",
-        boost::lexical_cast<std::string>((int)width().toPixels()));
-    innerElement->setAttribute("height",
-        boost::lexical_cast<std::string>((int)height().toPixels()));
-    result.push_back(innerElement);
+    element->setAttribute("width", width().isAuto() ? "" :
+      boost::lexical_cast<std::string>((int)width().toPixels()));
+    element->setAttribute("height", height().isAuto() ? "" :
+      boost::lexical_cast<std::string>((int)height().toPixels()));
+    result.push_back(element);
     sizeChanged_ = false;
   }
 }
@@ -139,10 +163,9 @@ void WFlashObject::setAlternativeContent(WWidget *alternative)
 
 void WFlashObject::resize(const WLength &width, const WLength &height)
 {
-  if (isRendered_) {
-    sizeChanged_ = true;
-  }
+  sizeChanged_ = true;
   WWebWidget::resize(width, height);
+  repaint(Wt::RepaintPropertyAttribute);
 }
 
 DomElementType WFlashObject::domElementType() const

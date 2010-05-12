@@ -17,8 +17,9 @@
 
 	* Signal: SignalBase and EventSignalBase are now documented API
 
-	* WFlashObject: reimplemented with support for layout managers and
-	new API for alternative content
+	* WFlashObject: reimplemented: no longer relies on JavaScript to load
+	the flash movie. WFlashObject no longer uses SwfObject.js. The objects
+	will also be resized when inserted in a layout manager.
 
 	* WHTML5Video: HTML-5 video implementation, will become part of
 	generic video support later

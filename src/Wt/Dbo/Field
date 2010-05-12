@@ -96,14 +96,14 @@ private:
  * This function binds the field \p value to the database field \p name.
  *
  * The optional \p size may be used as a hint for the needed
- * storage. It is only useful for <i>std::string</i> or <i>WString</i>
- * fields, and causes the schema to use a
- * <tt>varchar(</tt><i><tt>size</tt></i><tt>)</tt> for storing the field
- * instead of an unlimited length string type.
+ * storage. It is only useful for <i>std::string</i> or
+ * <i>Wt::WString</i> fields, and causes the schema to use a
+ * <tt>varchar(</tt><i><tt>size</tt></i><tt>)</tt> for storing the
+ * field instead of an unlimited length string type.
  *
- * You may want to specialize this method for a particular value type, if it
- * is for example a composite type which should be persisted in multiple
- * database fields.
+ * You may want to specialize this method for a particular composite
+ * type which should be persisted in multiple database fields but not as
+ * a separate table.
  *
  * For example:
  * \code
@@ -112,18 +112,21 @@ private:
  * };
  *
  * namespace Wt {
- *     namespace Dbo {
+ *   namespace Dbo {
  *
- *         template <class Action>
- *         void field(Action& action, Coordinate& coordinate, const std::string& name)
- *         {
- *             field(action, coordinate.x, name + "_x");
- *             field(action, coordinate.y, name + "_y");
- *         }
- *
+ *     template <class Action>
+ *     void field(Action& action, Coordinate& coordinate, const std::string& name)
+ *     {
+ *       field(action, coordinate.x, name + "_x");
+ *       field(action, coordinate.y, name + "_y");
  *     }
- * }
+ *
+ *   } // namespace Wt
+ * } // namespace dbo
  * \endcode
+ *
+ * To support a custom type that needs to be persisted as a single
+ * field, you should specialize sql_value_traits instead.
  *
  * \ingroup dbo
  */

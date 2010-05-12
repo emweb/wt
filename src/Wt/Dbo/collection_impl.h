@@ -380,22 +380,22 @@ typename collection<C>::size_type collection<C>::size() const
 }
 
 template <class C>
-Query<C, DynamicBinding> collection<C>::asQuery() const
+Query<C, DynamicBinding> collection<C>::find() const
 {
   if (type_ != RelationCollection)
-    throw std::runtime_error("collection<C>::asQuery() "
+    throw std::runtime_error("collection<C>::find() "
 			     "only for a many-side relation collection.");
 
   if (session_ && data_.relation.sql) {
     const std::string *sql = data_.relation.sql;
     std::size_t f = sql->find(" from ");
     std::size_t w = sql->find(" where ");
+    std::string tableName = sql->substr(f + 7, w - f - 8);
     return Query<C, DynamicBinding>
-      (*session_, sql->substr(0, f), sql->substr(f + 1, w - f))
+      (*session_, tableName, "")
       .where(sql->substr(w + 7)).bind(data_.relation.id);
   } else
-    throw std::runtime_error("collection<C>::asQuery() "
-			     "only valid for a dbo managed by a session");
+    return Query<C, DynamicBinding>();
 }
 
 template <class C>

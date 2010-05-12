@@ -30,6 +30,10 @@
 using namespace Wt;
 using namespace Wt::Chart;
 namespace {
+
+  /*
+   * Reads a CSV file as an (editable) standard item model.
+   */
   WAbstractItemModel *readCsvFile(const char *fname,
 				  WContainerWidget *parent)
   {
@@ -88,19 +92,20 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   table->setAlternatingRowColors(true);
   table->setColumnAlignment(0, AlignCenter);
   table->setHeaderAlignment(0, AlignCenter);
-  table->setRowHeight(22); // height needed for line edit in IE
+  table->setRowHeight(22);
 
+  // Editing does not really work without Ajax, it would require an
+  // additional button somewhere to confirm the edited value.
   if (WApplication::instance()->environment().ajax()) {
     table->resize(600, 20 + 5*22);
     table->setEditTriggers(WAbstractItemView::SingleClicked);
   } else {
     table->resize(600, WLength::Auto);
-
-    // Editing does not really work without Ajax, it would require an
-    // additional button somewhere to confirm the edited value
     table->setEditTriggers(WAbstractItemView::NoEditTrigger);
   }
 
+  // We use a single delegate for all items which rounds values to
+  // the closest integer value.
   WItemDelegate *delegate = new WItemDelegate(this);
   delegate->setTextFormat("%.f");
   table->setItemDelegate(delegate);
@@ -112,7 +117,6 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   /*
    * Create the category chart.
    */
-
   WCartesianChart *chart = new WCartesianChart(this);
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the categories
@@ -122,10 +126,8 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   chart->setPlotAreaPadding(100, Left);
   chart->setPlotAreaPadding(50, Top | Bottom);
 
-  //chart->axis(YAxis).setBreak(70, 110);
-
   /*
-   * Add all (but first) column as bar series
+   *   Add all (but first) column as bar series
    */
   for (int i = 1; i < model->columnCount(); ++i) {
     WDataSeries s(i, BarSeries);
@@ -133,11 +135,14 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
     chart->addSeries(s);
   }
 
-  chart->resize(800, 400); // WPaintedWidget must be given explicit size
+  chart->resize(800, 400);
 
-  chart->setMargin(10, Top | Bottom);            // add margin vertically
-  chart->setMargin(WLength::Auto, Left | Right); // center horizontally
+  chart->setMargin(10, Top | Bottom);
+  chart->setMargin(WLength::Auto, Left | Right);
 
+  /*
+   * Provide a widget to manipulate chart properties
+   */
   new ChartConfig(chart, this);
 }
 
@@ -152,13 +157,48 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
     return;
 
   /*
-   * Parse the first column as dates
+   * Parses the first column as dates, to be able to use a date scale
    */
   for (int i = 0; i < model->rowCount(); ++i) {
     WString s = asString(model->data(i, 0));
     WDate d = WDate::fromString(s, "dd/MM/yy");
     model->setData(i, 0, boost::any(d));
   }
+
+  // Show a view that allows editing of the model.
+  WContainerWidget *w = new WContainerWidget(this);
+  WTableView *table = new WTableView(w);
+
+  table->setMargin(10, Top | Bottom);
+  table->setMargin(WLength::Auto, Left | Right);
+
+  table->setModel(model);
+  table->setSortingEnabled(false); // Does not make much sense for time series
+  table->setColumnResizeEnabled(true);
+  table->setSelectionMode(NoSelection);
+  table->setAlternatingRowColors(true);
+  table->setColumnAlignment(0, AlignCenter);
+  table->setHeaderAlignment(0, AlignCenter);
+  table->setRowHeight(22);
+
+  // Editing does not really work without Ajax, it would require an
+  // additional button somewhere to confirm the edited value.
+  if (WApplication::instance()->environment().ajax()) {
+    table->resize(800, 20 + 5*22);
+    table->setEditTriggers(WAbstractItemView::SingleClicked);
+  } else {
+    table->resize(800, 20 + 5*22 + 25);
+    table->setEditTriggers(WAbstractItemView::NoEditTrigger);
+  }
+
+  WItemDelegate *delegate = new WItemDelegate(this);
+  delegate->setTextFormat("%.1f");
+  table->setItemDelegate(delegate);
+  table->setItemDelegateForColumn(0, new WItemDelegate(this));
+
+  table->setColumnWidth(0, 80);
+  for (int i = 1; i < model->columnCount(); ++i)
+    table->setColumnWidth(i, 90);
 
   /*
    * Create the scatter plot.
@@ -259,7 +299,7 @@ PieExample::PieExample(WContainerWidget *parent):
   table->setSortingEnabled(true);
   table->setModel(model);
   table->setColumnWidth(1, 100);
-  table->setRowHeight(22); // height needed for line edit in IE
+  table->setRowHeight(22);
 
   if (WApplication::instance()->environment().ajax()) {
     table->resize(150 + 100 + 14, 20 + 6 * 22);
@@ -280,13 +320,14 @@ PieExample::PieExample(WContainerWidget *parent):
   // configure location and type of labels
   chart->setDisplayLabels(Outside | TextLabel | TextPercentage);
 
-  // enable a 3D effect
+  // enable a 3D and shadow effect
   chart->setPerspectiveEnabled(true, 0.2);
+  chart->setShadowEnabled(true);
 
   // explode the first item
   chart->setExplode(0, 0.3);
 
-  chart->resize(800, 300); // WPaintedWidget must be given explicit size
+  chart->resize(800, 300); // WPaintedWidget must be given an explicit size
 
   chart->setMargin(10, Top | Bottom);            // add margin vertically
   chart->setMargin(WLength::Auto, Left | Right); // center horizontally

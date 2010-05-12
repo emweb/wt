@@ -7,42 +7,45 @@
 #include "UserAccount.h"
 #include "Entry.h"
 
+#include <Wt/WApplication>
+#include <Wt/WLogger>
+
 #include <Wt/Dbo/WtSqlTraits>
 
 using namespace Wt;
 using namespace Wt::Dbo;
 
-collection< ptr<Entry> > UserAccount::getEntries(Session& session, 
-						 ptr<UserAccount> user,
-						 const WDate& from, 
-						 const WDate& untill) 
-{
-   collection< ptr<Entry> > entries = 
-    session.find<Entry>("where start >= ? and start < ? and user_id = ?")
-      .bind(from)
-      .bind(untill)
-      .bind(user.id());
+UserAccount::UserAccount()
+{ }
 
-    return entries;
+UserAccount::UserAccount(const WString& aName)
+  : name(aName)
+{ }
+
+collection< ptr<Entry> > UserAccount::entriesInRange(const WDate& from, 
+						     const WDate& until) const
+{
+  return entries.find()
+    .where("start >= ?").bind(WDateTime(from))
+    .where("start < ?").bind(WDateTime(until));
 }
 
 ptr<UserAccount> UserAccount::login(Session& session, 
-				    const std::string& userName)
+				    const WString& userName)
 {
   Transaction transaction(session);
 
   ptr<UserAccount> ua = 
     session.find<UserAccount>("where name = ?").bind(userName);
-  
+
   if (!ua) {
-    std::cerr << "create user" << std::endl;
-    ua = session.add(new UserAccount());
-    ua.modify()->name = userName;
-  } else {
-    std::cerr << "user exists" << std::endl;
+    WApplication::instance()
+      ->log("notice") << "Creating user: " << userName.toUTF8();
+
+    ua = session.add(new UserAccount(userName));
   }
+
+  transaction.commit(); 
  
-  transaction.commit();
-  
   return ua;
 }

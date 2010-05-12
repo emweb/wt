@@ -90,7 +90,7 @@ public:
    */
   virtual void bind(int column, const std::vector<unsigned char>& value) = 0;
 
-  /*! \brief Binds 'null' to a column.
+  /*! \brief Binds \c null to a column.
    */
   virtual void bindNull(int column) = 0;
 
@@ -111,56 +111,56 @@ public:
 
   /*! \brief Fetches the next result row.
    *
-   * Returns true if there was one more row to be fetched.
+   * Returns \c true if there was one more row to be fetched.
    */
   virtual bool nextRow() = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true when the value was not null.
+   * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, std::string *value, int size) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true when the value was not null.
+   * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, short *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true when the value was not null.
+   * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, int *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true when the value was not null.
+   * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, long long *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true when the value was not null.
+   * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, float *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true when the value was not null.
+   * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, double *value) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true when the value was not null.
+   * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, boost::posix_time::ptime *value,
 			 SqlDateTimeType type) = 0;
 
   /*! \brief Fetches a result value.
    *
-   * Returns true when the value was not null.
+   * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, std::vector<unsigned char> *value,
 			 int size) = 0;

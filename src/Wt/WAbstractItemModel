@@ -907,7 +907,8 @@ private:
   friend class WAbstractProxyModel;
 };
 
-extern WT_API std::string asJSLiteral(const boost::any& v);
+extern WT_API std::string asJSLiteral(const boost::any& v,
+				      bool xhtml);
 
 /*! \brief Interpret a boost::any as a string value.
  *

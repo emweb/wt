@@ -4,36 +4,39 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "PlannerApplication.h"
-
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
+#include <Wt/WLogger>
 #include <Wt/WPushButton>
 #include <Wt/WText>
 
+#include "PlannerApplication.h"
+
 #include "Entry.h"
-#include "UserAccount.h"
 #include "Login.h"
 #include "PlannerCalendar.h"
+#include "UserAccount.h"
 
 using namespace Wt;
-using namespace Wt::Dbo;
 
 PlannerApplication::PlannerApplication(const WEnvironment& env)
   : WApplication(env),
-    sqlite3("planner.db")
+    sqlite3_("planner.db")
 {
-  session.setConnection(sqlite3);
-  sqlite3.setProperty("show-queries", "true");
+  session.setConnection(sqlite3_);
+  sqlite3_.setProperty("show-queries", "true");
 
   session.mapClass<UserAccount>("user_account");
   session.mapClass<Entry>("entry");
 
-  Transaction transaction(session);
+  dbo::Transaction transaction(session);
   try {
     session.createTables();
-  } catch (...) {}
+    log("info") << "Database created";
+  } catch (...) {
+    log("info") << "Using existing database";    
+  }
 
   transaction.commit();
 
@@ -44,14 +47,14 @@ PlannerApplication::PlannerApplication(const WEnvironment& env)
   useStyleSheet("planner.css");
 
   Login *login = new Login(root());
-  login->loggedIn.connect(SLOT(this, PlannerApplication::login));
+  login->loggedIn().connect(this, &PlannerApplication::login);
 }
 
-void PlannerApplication::login(const std::string& user)
+void PlannerApplication::login(const WString& user)
 {
   root()->clear();
 
-  ptr<UserAccount> ua  = UserAccount::login(session, user);
+  dbo::ptr<UserAccount> ua = UserAccount::login(session, user);
   new PlannerCalendar(root(), ua);
 }
 

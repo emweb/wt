@@ -20,6 +20,77 @@ class WAbstractItemModel;
 
 /*! \defgroup modelview Model/view system
  *  \brief Classes that implement %Wt's model/view system.
+ *
+ * <h2>1. Models</h2>
+ *
+ * The library provides support for tabular, tree-like and tree-table like
+ * models. All of these implement WAbstractItemModel.
+ *
+ * <h3>Concrete model implementations</h3>
+ *
+ * The following concrete model implementations are provided:
+ * - Wt::WStandardItemModel: a full general purpose model, which stores data
+ *   in memory.
+ * - Wt::WStringListModel: a low-height single column model, useful for simple
+ *   list views
+ * - Wt::Dbo::QueryModel: a database query backed model
+ *
+ * <h3>Proxy model implementations</h3>
+ *
+ * Proxy models are helper models which wrap around another model, to
+ * provide additional functionality on top of the existing model. The
+ * following propy models:
+ *
+ * - Wt::WSortFilterProxyModel: provides sorting and filtering support
+ * - Wt::WAggregateProxyModel: provides column aggregation (useful only for
+ *   views that implement column aggregation such as WAbstractItemView's).
+ *
+ * <h3>Abstract models</h3>
+ *
+ * Abstract models cannot be instantiated as such, but are the base point
+ * for custom model implementations:
+ *
+ * - Wt::WAbstractItemModel: abstract base class of all models
+ * - Wt::WAbstractTableModel: abstract base class for tabular models
+ * - Wt::WAbstractProxyModel: abstract base class for proxy models.
+ *
+ * <h2>2. Views</h2>
+ *
+ * <h3>Item-based views</h3>
+ *
+ * - WComboBox: a combo box
+ * - WSelectionBox: a selection box
+ * - WTableView: a table view (with editing support)
+ * - WTreeView: a tree(-table) view (with editing support)
+ * - WSuggestionPopup: an intelligent input-driven combo box
+ *
+ * <h3>Graphical views</h3>
+ *
+ * - Chart::WCartesianChart: 2D cartesian chart
+ * - Chart::WPieChart: pie charts
+ *
+ * <h3>ExtJS-based (JavaScript-only) views</h3>
+ *
+ * These views are being deprecated in favour of accessible
+ * counterparts.
+ *
+ * - Ext::ComboBox: ExtJS implementation of combo box
+ * - Ext::TableView: ExtJS implementation of table view (with editing support)
+ *
+ * <h2>3. Helper classes</h2>
+ *
+ * <h3>Model indexes</h3>
+ *
+ * WModelIndex represents an index to an item of a WAbstractItemModel,
+ * identified by a row, column and parent node.
+ *
+ * <h3>Item delegates</h3>
+ *
+ * Item delegates are used by WTableView and WTreeView to render a
+ * single item and to provide editing support.
+ *
+ * The abstract base class is WAbstractItemDelegate, and a default
+ * implementation is provided by WItemDelegate.
  */
 
 /*! \brief Enumeration that indicates a role for a data item.

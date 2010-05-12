@@ -139,29 +139,13 @@ public:
    */
   template <class C> ptr<C> load(long long id);
 
-  /*! \brief Finds database objects.
-   *
-   * This method creates a query for finding objects of type \p C.
-   *
-   * When passing an empty \p condition parameter, it will return all
-   * objects of type \p C. Otherwise, it will add the condition, by
-   * generating an SQL _where_ clause.
-   *
-   * You may also specify conditions, result order and result groupings
-   * in the Query object.
-   *
-   * This method is convenient when you are querying only results from a
-   * single table. For more generic query support, see query().
-   *
-   * This method calls find<C>(condition).
-   *
-   * \sa query()
-   */
+#ifndef DOXYGEN_ONLY
   template <class C>
     Query< ptr<C> > find(const std::string& condition = std::string()) {
     // implemented in-line because otherwise it crashes gcc 4.0.1
     return find<C, DynamicBinding>(condition);
   }
+#endif // DOXYGEN_ONLY
 
   /*! \brief Finds database objects.
    *
@@ -169,7 +153,7 @@ public:
    *
    * When passing an empty \p condition parameter, it will return all
    * objects of type \p C. Otherwise, it will add the condition, by
-   * generating an SQL _where_ clause.
+   * generating an SQL <i>where</i> clause.
    *
    * The \p BindStrategy specifies how you want to bind parameters to
    * your query (if any).
@@ -189,19 +173,29 @@ public:
    * This method is convenient when you are querying only results from a
    * single table. For more generic query support, see query().
    *
+   * Usage example:
+   * \code
+   * // Bart is missing, let's find him.
+   * Wt::Dbo::ptr<User> bart = session.find<User>().where("name = ?").bind("Bart");
+   *
+   * // Find all users, order by name
+   * typedef Wt::Dbo::collection< Wt::Dbo::ptr<User> > Users;
+   * Users users = session.find<User>().orderBy("name");
+   * \endcode
+   *
    * \sa query()
    */
+#ifdef DOXYGEN_ONLY
+  template <class C, typename BindStrategy = DynamicBinding>
+#else
   template <class C, typename BindStrategy>
+#endif
     Query< ptr<C>, BindStrategy>
     find(const std::string& condition = std::string());
 
-  /*! \brief Creates a query.
-   *
-   * This method calls query<Result, DynamicBinding>(sql).
-   *
-   * \sa query()
-   */
+#ifndef DOXYGEN_ONLY
   template <class Result> Query<Result> query(const std::string& sql);
+#endif // DOXYGEN_ONLY
 
   /*! \brief Creates a query.
    *
@@ -213,36 +207,35 @@ public:
    *
    * For example, the following query (class User is mapped onto table 'user'):
    * \code
-   * return session.query< ptr<User> >("select u from user u")
-   *   .where("u.name = ?").bind("Bart");
+   * session.query< ptr<User> >("select u from user u").where("u.name = ?").bind("Bart");
    * \endcode
    * is the more general version of:
    * \code
-   * return session.find<User>()
-   *   .where("name = ?").bind("Bart");
+   * session.find<User>().where("name = ?").bind("Bart");
    * \endcode
    *
    * Note that "u" in this query will be expanded to select the fields of the
-   * user table (u.id, u.version, u.name, ...).
+   * user table (u.id, u.version, u.name, ...). The same expansion happens when
+   * using an alias in Query::groupBy().
    *
-   * The power of %query() versus find() is however that it may support other 
-   * result types.
+   * The additional flexibility offered by %query() over find() is
+   * however that it may support other result types.
    *
    * Thus, it may return plain values:
    * \code
-   * return session.query<int>("select count(1) from ...");
+   * session.query<int>("select count(1) from ...");
    * \endcode
    *
    * Or Boost.Tuple for an arbitrary combination of result values:
    *
    * \code
-   * return session.query< boost::tuple<int, int> >("select A.id, B.id from table_a A, table_b B").where("...");
+   * session.query< boost::tuple<int, int> >("select A.id, B.id from table_a A, table_b B").where("...");
    * \endcode
    *
    * A tuple may combine any kind of object that is supported as a result,
    * including database objects (see also ptr_tuple):
    * \code
-   * return session.query< boost::tuple<ptr<A>, ptr<B> >("select A, B" from table_a A, table_b B").where("...");
+   * session.query< boost::tuple<ptr<A>, ptr<B> >("select A, B from table_a A, table_b B").where("...");
    * \endcode
    *
    * The \p BindStrategy specifies how you want to bind parameters to
@@ -263,13 +256,22 @@ public:
    * This method uses query_result_traits to unmarshal the query result
    * into the \p Result type.
    */
+#ifdef DOXYGEN_ONLY
+  template <class Result, typename BindStrategy = DynamicBinding>
+#else
   template <class Result, typename BindStrategy>
+#endif
     Query<Result, BindStrategy> query(const std::string& sql);
 
   /*! \brief Executs an Sql command.
    *
    * This executs an Sql command. It differs from query() in that no
    * result is expected from the call.
+   *
+   * Usage example:
+   * \code
+   * session.execute("update user set name = ? where name = ?").bind("Bart").bind("Sarah");
+   * \endcode
    */
   Call execute(const std::string& sql);
 

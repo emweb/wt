@@ -50,19 +50,16 @@
 }
 
 .calendar {
-	position:absolute;
-	top: 50%;
-	left: 50%;
-	width:750px;
-	height:650px;
-	margin-top: -375px; 
-	margin-left: -325px;
+	width: 750px;
+	margin: 50px auto;
 }
 
 .cell {
 	white-space: nowrap;
-	font-size: 10px;
+	font-size: 10pt;
 	text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;    
 }
 
 .cell span {
@@ -73,6 +70,7 @@
 	font-weight: bold;
 	background-color: #C3D9FF;
 	color: black;
+        padding: 0px 3px;
 }
 
 .cell-extra {

@@ -733,8 +733,10 @@ void WebRenderer::serveMainpage(WebResponse& response)
   if (!app->environment().ajax()
       && (/*response.requestMethod() == "POST"
 	  || */(app->internalPathIsChanged_
-	      && app->oldInternalPath_ != app->newInternalPath_)))
+		&& app->oldInternalPath_ != app->newInternalPath_))) {
+    app->oldInternalPath_ = app->newInternalPath_;
     session_.redirect(app->bookmarkUrl(app->newInternalPath_));
+  }
 
   std::string redirect = session_.getRedirect();
 

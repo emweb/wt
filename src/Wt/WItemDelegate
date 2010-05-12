@@ -31,7 +31,7 @@ namespace Wt {
  *  \brief Standard delegate class for rendering a view item.
  *
  * This class provides the standard implementation for rendering an
- * item in a WTreeView.
+ * item (as in a WAbstractItemView).
  *
  * You may provide special editing support for an item by specializing
  * the widget. For example, the following provides a date picker for

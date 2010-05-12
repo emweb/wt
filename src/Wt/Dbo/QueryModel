@@ -33,15 +33,22 @@ private:
   template <class Result> friend class QueryModel;
 };
 
-/*! \brief QueryModel Wt/Dbo/QueryModel Wt/Dbo/QueryModel
+/*! \class QueryModel Wt/Dbo/QueryModel Wt/Dbo/QueryModel
+ *  \brief A %Wt MVC Model to view the results of a query.
  *
- * Wt MVC Model to view the results of a query.
+ * The model fetches results from the query (but is smart about what
+ * to fetch), and presents their data in a table. It supports sorting
+ * by altering the query to sort using SQL (Query::orderBy()). %Query
+ * results are converted to model data using
+ * query_result_traits<Result>::getValues().
  *
- * The model will fetch results from the query, and presents their
- * data in a table.
+ * You may add columns which you want to display using
+ * addColumn(). You can also add all columns based on the query using
+ * addAllFieldsAsColumns().
  *
- * You need to select columns from the query which you want to display
- * using addColumn(). You can also add all columns from the query.
+ * Currently no editing support is provided.
+ *
+ * \ingroup dbo modelview
  */
 template <class Result>
 class QueryModel : public WAbstractTableModel
@@ -54,6 +61,8 @@ public:
   QueryModel(WObject *parent = 0);
 
   /*! \brief Sets the query.
+   *
+   * The \p query is used to query the database.
    */
   void setQuery(const Query<Result>& query);
 
@@ -74,6 +83,8 @@ public:
   void setColumnsFlags(int column, WFlags<ItemFlag> flags_);
 
   /*! \brief Adds all the columns from the field list.
+   *
+   * \sa fields()
    */
   void addAllFieldsAsColumns();
 
@@ -88,7 +99,8 @@ public:
 
   /*! \brief Returns a result row.
    *
-   * This returns the result corresponding to a particular row.
+   * This returns the result corresponding to a particular row, and could
+   * be used to customize the view or provide editing support.
    */
   const Result& resultRow(int row) const;
 
@@ -114,8 +126,9 @@ public:
    */
   int batchSize() const { return batchSize_; }
 
-protected:
   /*! \brief Returns the query field list.
+   *
+   * This returns the field list from the underlying query.
    */
   const std::vector<FieldInfo>& fields();
 
