@@ -766,21 +766,6 @@ version: 2.5.2
       }, 50);
   }
 
-  if (!document.activeElement) {
-    function trackActiveElement(evt) {
-      if (evt && evt.target) {
-	document.activeElement = evt.target == document ? null : evt.target;
-      }
-    }
-
-    function trackActiveElementLost(evt) {
-      document.activeElement = null;
-    }
-
-    document.addEventListener("focus", trackActiveElement, true);
-    document.addEventListener("blur", trackActiveElementLost, true);
-  }
-
   function _initialize() {
     var parts;
     parts = _stateField.value.split("|");
@@ -1256,6 +1241,21 @@ function setTitle(title) {
 };
 
 function load() {
+  if (!document.activeElement) {
+    function trackActiveElement(evt) {
+      if (evt && evt.target) {
+	document.activeElement = evt.target == document ? null : evt.target;
+      }
+    }
+
+    function trackActiveElementLost(evt) {
+      document.activeElement = null;
+    }
+
+    document.addEventListener("focus", trackActiveElement, true);
+    document.addEventListener("blur", trackActiveElementLost, true);
+  }
+
   WT.history._initialize();
   initDragDrop();
   if (!loaded) {

@@ -890,6 +890,8 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 	  }
 
 	  if (!app_) {
+	    const std::string *resourceE = request.getParameter("resource");
+
 	    if (responseType == WebRenderer::Script) {
 	      const std::string *hashE = request.getParameter("_");
 	      const std::string *scaleE = request.getParameter("scale");
@@ -911,6 +913,14 @@ bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
 
 	      if (!start())
 		throw WtException("Could not start application.");
+	    } else if (requestE && *requestE == "resource"
+		       && resourceE && *resourceE == "blank") {
+	      handler.response()->setContentType("text/html");
+	      handler.response()->out() <<
+		"<html><head><title>bhm</title></head>"
+		"<body>&#160;</body></html>";
+
+	      break;
 	    } else {
 	      const std::string *jsE = request.getParameter("js");
 

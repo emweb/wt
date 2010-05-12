@@ -92,8 +92,12 @@ EventSignal<>& WImage::imageLoaded()
 void WImage::setResource(WResource *resource)
 {
   resource_ = resource;
-  resource_->dataChanged().connect(SLOT(this, WImage::resourceChanged));
-  setImageRef(resource_->url());
+
+  if (resource_) {
+    resource_->dataChanged().connect(SLOT(this, WImage::resourceChanged));
+    setImageRef(resource_->url());
+  } else
+    setImageRef("#");
 }
 
 void WImage::setAlternateText(const WString& text)
@@ -125,7 +129,8 @@ const std::string WImage::imageRef() const
 
 void WImage::resourceChanged()
 {
-  setImageRef(resource_->url());
+  if (resource_)
+    setImageRef(resource_->url());
 }
 
 void WImage::addArea(WAbstractArea *area)
