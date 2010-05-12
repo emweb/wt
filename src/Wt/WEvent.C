@@ -80,8 +80,7 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
   keyCode = parseIntParameter(request, se + "keyCode", 0);
   charCode = parseIntParameter(request, se + "charCode", 0);
 
-  const std::string *p;
-  right = (p = request.getParameter(se + "right")) ? (*p == "true") : false;
+  button = parseIntParameter(request, se + "button", 0);
 
   scrollX = parseIntParameter(request, se + "scrollX", 0);
   scrollY = parseIntParameter(request, se + "scrollY", 0);

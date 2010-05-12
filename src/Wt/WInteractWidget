@@ -194,11 +194,25 @@ public:
 
   /*! \brief Event signal emitted when the mouse moved over this widget.
    *
+   * The mouse event contains information on the button(s) currently
+   * pressed. If multiple buttons are currently pressed, only the
+   * button with smallest enum value is returned.
+   *
    * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseMoved();
 
-  /*! \brief Configure dragging.
+  /*! \brief Event signal emitted when the mouse is dragged over this widget.
+   *
+   * The mouse event contains information on the button(s) currently
+   * pressed. If multiple buttons are currently pressed, only the
+   * button with smallest enum value is returned.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent>& mouseDragged();
+
+  /*! \brief Configure dragging for drag and drop.
    *
    * Enable drag&drop for this widget. The mimeType is used to find a
    * suitable drop target, which must accept dropping of this mimetype.
@@ -239,6 +253,7 @@ private:
   static const char *MOUSE_OUT_SIGNAL;
   static const char *MOUSE_OVER_SIGNAL;
   static const char *MOUSE_MOVE_SIGNAL;
+  static const char *MOUSE_DRAG_SIGNAL;
 
   friend class DomElement;
   friend class WWebWidget;

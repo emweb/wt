@@ -24,6 +24,17 @@ var _$_WT_CLASS_$_ = new (function() {
 
 var WT = this;
 
+// buttons currently down
+this.buttons = 0;
+
+this.mouseDown = function(e) {
+  WT.buttons |= WT.button(e);
+};
+
+this.mouseUp = function(e) {
+  WT.buttons ^= WT.button(e);
+};
+
 // Array Remove - By John Resig (MIT Licensed)
 this.arrayRemove = function(a, from, to) {
   var rest = a.slice((to || from) + 1 || a.length);
@@ -1172,11 +1183,16 @@ function encodeEvent(event, i) {
       + se + 'widgetX=' + (posX - objX) + se + 'widgetY=' + (posY - objY);
   }
 
-  if (e.which)
-    result += se + 'right=' + (e.which==3);
-  else
-    if (e.button)
-      result += se + 'right=' + (e.button==2);
+  var button = WT.button(e);
+  if (!button) {
+    if (WT.buttons & 1)
+      button = 1;
+    else if (WT.buttons & 2)
+      button = 2;
+    else if (WT.buttons & 4)
+      button = 4;
+  }
+  result += se + 'button=' + button;
 
   if (typeof e.keyCode !== 'undefined')
     result += se + 'keyCode=' + e.keyCode;
@@ -1195,6 +1211,35 @@ function encodeEvent(event, i) {
 
   event.data = result;
   return event;
+};
+
+// returns the button associated with the event (0 if none)
+WT.button = function(e)
+{
+  if (e.which) {
+    if (e.which == 3)
+      return 4;
+    else if (e.which == 2)
+      return 2;
+    else
+      return 1;
+  } else if (WT.isIE && typeof e.button != 'undefined') {
+    if (e.button == 2)
+      return 4;
+    else if (e.button == 4)
+      return 2;
+    else
+      return 1;
+  } else if (typeof e.button != 'undefined') {
+    if (e.button == 2)
+      return 4;
+    else if (e.button == 1)
+      return 2;
+    else
+      return 1;
+  } else {
+    return 0;
+  }
 };
 
 var sentEvents = [], pendingEvents = [];

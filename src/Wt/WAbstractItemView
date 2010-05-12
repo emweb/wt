@@ -172,6 +172,12 @@ public:
    */
   bool isSortingEnabled() const { return sorting_; }
 
+  /*! \brief Returns whether sorting is enabled for a single column.
+   *
+   * \sa setSortingEnabled()
+   */
+  bool isSortingEnabled(int column) const;
+
   /*! \brief Enables interactive column resizing
    *
    * Enable or disable column resize handles for interactive resizing of

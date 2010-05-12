@@ -576,6 +576,11 @@ void WAbstractItemView::setSortingEnabled(int column, bool enabled)
   scheduleRerender(NeedRerenderHeader);
 }
 
+bool WAbstractItemView::isSortingEnabled(int column) const
+{
+  return columnInfo(column).sorting;
+}
+
 void WAbstractItemView::modelReset()
 {
   setModel(model_);

@@ -29,10 +29,11 @@ const char *WInteractWidget::ESCAPE_PRESS_SIGNAL = "M_escapepress";
 const char *WInteractWidget::CLICK_SIGNAL = "click";
 const char *WInteractWidget::DBL_CLICK_SIGNAL = "dblclick";
 const char *WInteractWidget::MOUSE_DOWN_SIGNAL = "M_mousedown";
-const char *WInteractWidget::MOUSE_UP_SIGNAL = "mouseup";
+const char *WInteractWidget::MOUSE_UP_SIGNAL = "M_mouseup";
 const char *WInteractWidget::MOUSE_OUT_SIGNAL = "mouseout";
 const char *WInteractWidget::MOUSE_OVER_SIGNAL = "mouseover";
-const char *WInteractWidget::MOUSE_MOVE_SIGNAL = "mousemove";
+const char *WInteractWidget::MOUSE_MOVE_SIGNAL = "M_mousemove";
+const char *WInteractWidget::MOUSE_DRAG_SIGNAL = "M_mousedrag";
 
 WInteractWidget::WInteractWidget(WContainerWidget *parent)
   : WWebWidget(parent),
@@ -102,6 +103,11 @@ EventSignal<WMouseEvent>& WInteractWidget::mouseWentOver()
 EventSignal<WMouseEvent>& WInteractWidget::mouseMoved()
 {
   return *mouseEventSignal(MOUSE_MOVE_SIGNAL, true);
+}
+
+EventSignal<WMouseEvent>& WInteractWidget::mouseDragged()
+{
+  return *mouseEventSignal(MOUSE_DRAG_SIGNAL, true);
 }
 
 void WInteractWidget::updateDom(DomElement& element, bool all)
@@ -174,24 +180,45 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     = mouseEventSignal(MOUSE_DOWN_SIGNAL, false);
   EventSignal<WMouseEvent> *mouseUp
     = mouseEventSignal(MOUSE_UP_SIGNAL, false);
+  EventSignal<WMouseEvent> *mouseMove = 
+    mouseEventSignal(MOUSE_MOVE_SIGNAL, false);
+  EventSignal<WMouseEvent> *mouseDrag = 
+    mouseEventSignal(MOUSE_DRAG_SIGNAL, false);
+
+  bool updateMouseMove
+    = (mouseMove && mouseMove->needsUpdate(all))
+    || (mouseDrag && mouseDrag->needsUpdate(all));
 
   bool updateMouseDown
     = (mouseDown && mouseDown->needsUpdate(all))
-       || (mouseUp && mouseUp->isConnected());
+    || updateMouseMove;
+
+  bool updateMouseUp
+    = (mouseUp && mouseUp->needsUpdate(All))
+    || updateMouseMove;
 
   if (updateMouseDown) {
     /*
      * when we have a mouseUp event, we also need a mouseDown event
-     * to be able to compute dragDX/Y. But when we have a mouseDown event,
-     * we need to capture everything after on mouse down.
+     * to be able to compute dragDX/Y.
+     *
+     * When we have a mouseDrag or mouseMove or mouseUp event, we need
+     * to capture everything after on mouse down, and keep track of the
+     * down button if we have a mouseMove or mouseDrag
      */
     std::string js;
     if (mouseUp && mouseUp->isConnected())
       js += WApplication::instance()->javaScriptClass()
 	+ "._p_.saveDownPos(event);";
       
-    if (!js.empty() || (mouseDown && mouseDown->isConnected()))
+    if (!js.empty() // mouseUp
+	|| mouseMove && mouseMove->isConnected()
+	|| mouseDrag && mouseDrag->isConnected())
       js += WT_CLASS ".capture(this);";
+
+    if (mouseMove && mouseMove->isConnected()
+	|| mouseDrag && mouseDrag->isConnected())
+      js += WT_CLASS ".mouseDown(e);";
 
     if (mouseDown) {
       js += mouseDown->javaScript();
@@ -200,6 +227,52 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
       mouseDown->updateOk();
     } else
       element.setEvent("mousedown", js, std::string(), false);
+  }
+
+  if (updateMouseUp) {
+    /*
+     * when we have a mouseMove or mouseDrag event, we need to keep track
+     * of unpressing the button.
+     */
+    std::string js;
+    if (mouseMove && mouseMove->isConnected()
+	|| mouseDrag && mouseDrag->isConnected())
+      js += WT_CLASS ".mouseUp(e);";
+      
+    if (mouseUp) {
+      js += mouseUp->javaScript();
+      element.setEvent("mouseup", js,
+		       mouseUp->encodeCmd(), mouseUp->isExposedSignal());
+      mouseUp->updateOk();
+    } else
+      element.setEvent("mouseup", js, std::string(), false);
+  }
+
+  if (updateMouseMove) {
+    /*
+     * We need to mix mouseDrag and mouseMove events.
+     */
+    std::vector<DomElement::EventAction> actions;
+    
+    if (mouseMove) {
+      actions.push_back
+	(DomElement::EventAction(std::string(),
+				 mouseMove->javaScript(),
+				 mouseMove->encodeCmd(),
+				 mouseMove->isExposedSignal()));
+      mouseMove->updateOk();
+    }
+
+    if (mouseDrag) {
+      actions.push_back
+	(DomElement::EventAction(WT_CLASS ".buttons",
+				 mouseDrag->javaScript(),
+				 mouseDrag->encodeCmd(),
+				 mouseDrag->isExposedSignal()));
+      mouseDrag->updateOk();
+    }
+
+    element.setEvent("mousemove", actions);
   }
 
   EventSignalList& other = eventSignals();

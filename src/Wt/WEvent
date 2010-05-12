@@ -29,7 +29,7 @@ public:
   int  dragDX, dragDY;
 
   // for key events or mouse event modifiers
-  bool right;
+  int button;
   int  keyCode, charCode;
   WFlags<KeyboardModifier> modifiers;
 
@@ -83,9 +83,10 @@ public:
 
   /*! \brief Enumeration for the mouse button.
    */
-  enum Button { LeftButton,    //!< Left button
-		MiddleButton,  //!< Middle button
-		RightButton    //!< Right button
+  enum Button { NoButton = 0,      //!< No button
+		LeftButton = 1,    //!< Left button
+		MiddleButton = 2,  //!< Middle button
+		RightButton = 4    //!< Right button
   };
 
   /*! \brief A mouse coordinate.
@@ -101,8 +102,12 @@ public:
   };
 
   /*! \brief Returns the button.
+   *
+   * If multiple buttons are currently pressed for a mouse moved or
+   * mouse dragged event, then the one with the smallest numerical value
+   * is returned.
    */
-  Button button() const { return jsEvent_.right ? RightButton : LeftButton; }
+  Button button() const { return (Button)jsEvent_.button; }
 
   /*! \brief Returns keyboard modifiers.
    *

@@ -13,14 +13,12 @@ PaintBrush::PaintBrush(int width, int height, WContainerWidget *parent)
   : WPaintedWidget(parent)
 {
   setSelectable(false);
-  dragging_ = false;
 
   resize(WLength(width), WLength(height));
 
   decorationStyle().setCursor("icons/pencil.cur", CrossCursor);
 
-  mouseMoved().connect(SLOT(this, PaintBrush::drag));
-  mouseWentUp().connect(SLOT(this, PaintBrush::mouseUp));
+  mouseDragged().connect(SLOT(this, PaintBrush::drag));
   mouseWentDown().connect(SLOT(this, PaintBrush::mouseDown));
   
   color_ = WColor(black);
@@ -43,19 +41,10 @@ void PaintBrush::mouseDown(const WMouseEvent& e)
 {
   WMouseEvent::Coordinates c = e.widget();
   path_ = WPainterPath(WPointF(c.x, c.y));
-  dragging_ = true;
-}
-
-void PaintBrush::mouseUp(const WMouseEvent& e)
-{
-  dragging_ = false;
 }
 
 void PaintBrush::drag(const WMouseEvent& e)
 {
-  if (!dragging_)
-    return;
-
   WMouseEvent::Coordinates c = e.widget();
   path_.lineTo(c.x, c.y);
 

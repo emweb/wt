@@ -744,8 +744,9 @@ void WSvgImage::streamResourceData(std::ostream& stream)
 
   if (paintFlags_ & PaintUpdate)
     stream << "<"SVG"g xmlns=\"http://www.w3.org/2000/svg\""
-      " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><"SVG"g>" << shapes_.str()
-	   << "</"SVG"g></"SVG"g>";
+      " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><"SVG"g><"SVG"g>"
+	   << shapes_.str()
+	   << "</"SVG"g></"SVG"g></"SVG"g>";
   else
     stream << "<"SVG"svg xmlns=\"http://www.w3.org/2000/svg\""
       " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
