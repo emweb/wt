@@ -42,6 +42,12 @@ WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
   : uri(anUri), symbol(aSymbol)
 { }
 
+WApplication::MetaHeader::MetaHeader(const std::string& aName,
+				     const WString& aContent,
+				     const std::string& aLang)
+  : name(aName), lang(aLang), content(aContent)
+{ }
+
 bool WApplication::ScriptLibrary::operator< (const ScriptLibrary& other) const
 {
   return uri < other.uri;
@@ -699,8 +705,11 @@ void WApplication::enableAjax()
 {
   enableAjax_ = true;
 
-  afterLoadJavaScript_ = newBeforeLoadJavaScript_ + afterLoadJavaScript_;
+  session_->renderer().beforeLoadJS_ << newBeforeLoadJavaScript_;
   newBeforeLoadJavaScript_.clear();
+
+  session_->renderer().beforeLoadJS_ << afterLoadJavaScript_;
+  afterLoadJavaScript_.clear();
 
   domRoot_->enableAjax();
 
@@ -738,6 +747,16 @@ void WApplication::setCookie(const std::string& name, const std::string& value,
 			     const std::string& path)
 {
   session_->renderer().setCookie(name, value, maxAge, domain, path);
+}
+
+void WApplication::addMetaHeader(const std::string& name,
+				 const WString& content,
+				 const std::string& lang)
+{
+  if (environment().javaScript())
+    log("warn") << "WApplication::addMetaHeader() with no effect";
+
+  metaHeaders_.push_back(MetaHeader(name, content, lang));
 }
 
 WApplication *WApplication::instance()

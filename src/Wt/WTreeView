@@ -344,6 +344,7 @@ private:
   void defineJavaScript();
   void rerenderHeader();
   void rerenderTree();
+  void setup();
 
   virtual void scheduleRerender(RenderState what);
 

@@ -273,13 +273,6 @@ void WTemplate::propagateRenderOk(bool deep)
 
 void WTemplate::enableAjax()
 {
-  for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
-       ++i) {
-    WWidget *w = i->second;
-    if (w->isRendered())
-      w->enableAjax();
-  }
-
   WInteractWidget::enableAjax();
 }
 

@@ -7,6 +7,7 @@
 #ifndef WT_DBO_CALL_H_
 #define WT_DBO_CALL_H_
 
+#include <Wt/Dbo/WDboDllDefs.h>
 #include <string>
 
 namespace Wt {
@@ -23,7 +24,7 @@ class SqlStatement;
  *
  * \sa Query
  */
-class Call
+class WTDBO_API Call
 {
 public:
   /*! \brief Destructor.

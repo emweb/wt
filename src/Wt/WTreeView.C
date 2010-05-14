@@ -1076,6 +1076,40 @@ WTreeView::WTreeView(WContainerWidget *parent)
   rowContentsWidthRule_ = new WCssTemplateRule("#" + id() +" .Wt-tv-rowc");
   app->styleSheet().addRule(rowContentsWidthRule_);
 
+  if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
+    tieRowsScrollJS_.setJavaScript
+      ("function(obj, event) {"
+       "" WT_CLASS ".getCssRule('#" + id() + " .Wt-tv-rowc').style.left"
+       ""  "= -obj.scrollLeft + 'px';"
+       "}");
+  else {
+    /* this is for some reason very very slow in webkit: */
+    tieRowsScrollJS_.setJavaScript
+      ("function(obj, event) {"
+       "obj.parentNode.style.width = "
+       "" WT_CLASS ".getCssRule('#" + id() + " .cwidth').style.width;"
+       "$('#" + id() + " .Wt-tv-rowc').parent().scrollLeft(obj.scrollLeft);"
+       "}");
+  }
+
+  app->addAutoJavaScript
+    ("{var obj = $('#" + id() + "').data('obj');"
+     "if (obj) obj.autoJavaScript();}");
+
+  if (parent)
+    parent->addWidget(this);
+
+  setup();
+}
+
+void WTreeView::setup()
+{
+  WApplication *app = WApplication::instance();
+
+  impl_->clear();
+
+  rootNode_ = 0;
+
   /*
    * Setup main layout
    */
@@ -1093,6 +1127,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   if (app->environment().ajax()) {
     impl_->setPositionScheme(Relative);
+
     WVBoxLayout *layout = new WVBoxLayout();
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -1148,28 +1183,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
        """h.style.width = t.offsetWidth + 'px';"
        "}");
 
-  if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
-    tieRowsScrollJS_.setJavaScript
-      ("function(obj, event) {"
-       "" WT_CLASS ".getCssRule('#" + id() + " .Wt-tv-rowc').style.left"
-       ""  "= -obj.scrollLeft + 'px';"
-       "}");
-  else {
-    /* this is for some reason very very slow in webkit: */
-    tieRowsScrollJS_.setJavaScript
-      ("function(obj, event) {"
-       "obj.parentNode.style.width = "
-       "" WT_CLASS ".getCssRule('#" + id() + " .cwidth').style.width;"
-       "$('#" + id() + " .Wt-tv-rowc').parent().scrollLeft(obj.scrollLeft);"
-       "}");
-  }
-
-  app->addAutoJavaScript
-    ("{var obj = $('#" + id() + "').data('obj');"
-     "if (obj) obj.autoJavaScript();}");
-
-  if (parent)
-    parent->addWidget(this);
 }
 
 void WTreeView::defineJavaScript()
@@ -1195,6 +1208,10 @@ void WTreeView::defineJavaScript()
 
 void WTreeView::setColumn1Fixed(bool fixed)
 {
+  // This kills progressive enhancement too
+  if (!WApplication::instance()->environment().ajax())
+    return;
+
   if (fixed && !column1Fixed_) {
     column1Fixed_ = fixed;
 
@@ -1284,7 +1301,7 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
 
   WApplication *app = WApplication::instance();
 
-  if (renderState_ < NeedRerenderHeader)
+  if (app->environment().ajax() && renderState_ < NeedRerenderHeader)
     app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 
   if (!app->environment().ajax() && column == 0 && !width.isAuto()) {
@@ -1530,7 +1547,8 @@ void WTreeView::rerenderHeader()
       headers_->addWidget(w);
   }
 
-  app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+  if (app->environment().ajax())
+    app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 
   if (model())
     modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
@@ -1538,12 +1556,11 @@ void WTreeView::rerenderHeader()
 
 void WTreeView::enableAjax()
 {
-  rootNode_->clicked().connect(itemClickedJS_);
-  rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
-  if (mouseWentDown().isConnected() || dragEnabled_)
-    rootNode_->mouseWentDown().connect(itemMouseDownJS_);
-  if (mouseWentUp().isConnected())
-    rootNode_->mouseWentUp().connect(itemMouseUpJS_);
+  setup();
+  defineJavaScript();
+
+  rerenderHeader();
+  rerenderTree();
 
   WCompositeWidget::enableAjax();
 }
@@ -1812,7 +1829,8 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
       if (start == 0)
 	scheduleRerender(NeedRerenderHeader);
       else {
-	app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+	if (app->environment().ajax())
+	  app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
 
 	WContainerWidget *row = headerRow();
 
@@ -1846,7 +1864,8 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
   if (!parent.isValid()) {
     if (renderState_ < NeedRerenderHeader) {
       WApplication *app = wApp;
-      app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
+      if (app->environment().ajax())
+	app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
     }
 
     columns_.erase(columns_.begin() + start, columns_.begin() + start + count);

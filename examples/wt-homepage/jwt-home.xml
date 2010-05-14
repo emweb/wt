@@ -311,7 +311,7 @@ gallery</a> for an interactive overview of built-in functionality.
 
 <p>
   <a href="http://jwt.emweb.be/jwt-hello" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -340,7 +340,7 @@ gallery</a> for an interactive overview of built-in functionality.
 <h4 class="example">Treeview</h4>
 <p>
   <a href="http://jwt.emweb.be/jwt-treeviewdragdrop/treeviewdragdrop" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 <p>
@@ -386,7 +386,7 @@ gallery</a> for an interactive overview of built-in functionality.
 
 <p>
   <a href="http://jwt.emweb.be/jwt-charts/charts" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -425,7 +425,7 @@ sure that data is synchronized between browser and server.</p>
 
 <p>
   <a href="http://jwt.emweb.be/jwt-composer/composer" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 

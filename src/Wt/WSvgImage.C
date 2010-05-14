@@ -318,7 +318,7 @@ int WSvgImage::createShadowFilter(SStream& out)
   out << "0 0 0 " << Utils::round_str(b, 3, buf) << " 0 ";
   out << "0 0 0 " << Utils::round_str(a, 3, buf) << " 0\"/>";
   out << "<feGaussianBlur result=\"blurOut\" in=\"colorOut\" stdDeviation=\""
-      << Utils::round_str(currentShadow_.blur() / 2, 3, buf) << "\" />"
+      << Utils::round_str(std::sqrt(currentShadow_.blur()), 3, buf) << "\" />"
     "<feBlend in=\"SourceGraphic\" in2=\"blurOut\" mode=\"normal\" />"
     "</filter>";
   return result;

@@ -13,7 +13,7 @@
 #include "Wt/Chart/WStandardPalette"
 
 #include "Wt/WAbstractItemModel"
-#include "Wt/WVmlImage"
+#include "Wt/WSvgImage"
 #include "Wt/WPaintDevice"
 #include "Wt/WPainter"
 
@@ -286,6 +286,11 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   painter.restore();
 }
 
+void WPieChart::setShadow(WPainter& painter) const
+{
+  painter.setShadow(WShadow(5, 15, WColor(0, 0, 0, 20), 40));
+}
+
 void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 			double r, double h, double total) const
 {
@@ -293,9 +298,20 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
    * Draw sides where applicable
    */
   if (h > 0) {
-    if (model()->rowCount() == 0) {
+    if (total == 0) {
+      if (shadow_)
+	setShadow(painter);
       drawOuter(painter, cx, cy, r, 0, -180, h);
+      if (shadow_)
+	painter.setShadow(WShadow());
     } else {
+      if (shadow_) {
+	setShadow(painter);
+	painter.setBrush(WBrush(black));
+	drawSlices(painter, cx, cy + h, r, total, true);
+	painter.setShadow(WShadow());
+      }
+
       /*
        * Pre-processing: determine start and mid angles of each pie,
        * and get the index of the one that contains 90 degrees (which is
@@ -443,23 +459,18 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
   /*
    * Draw top
    */
-  if (shadow_) {
-    if (!dynamic_cast<WVmlImage *>(painter.device()))
-      painter.setShadow(WShadow(10, 10, WColor(0, 0, 0, 40), 30));
-    else
-      painter.setShadow(WShadow(10, 10, WColor(0, 0, 0, 20), 220));
-  }
-
-  if (total == 0) {
+  if (total == 0)
     painter.drawArc(cx - r, cy - r, r*2, r*2, 0, 16*360);
+  else
+    drawSlices(painter, cx, cy, r, total, false);
+}
 
-    if (shadow_)
-      painter.setShadow(WShadow());
-
-    return;
-  }
-
+void WPieChart::drawSlices(WPainter& painter,
+			   double cx, double cy, double r, double total,
+			   bool ignoreBrush) const
+{
   double currentAngle = startAngle_;
+
   for (int i = 0; i < model()->rowCount(); ++i) {
     double v = asNumber(model()->data(i, dataColumn_));
     if (Utils::isNaN(v))
@@ -471,7 +482,8 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
     double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
     double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
-    painter.setBrush(brush(i));
+    if (!ignoreBrush)
+      painter.setBrush(brush(i));
 
     painter.drawPie(pcx - r, pcy - r, r*2, r*2,
 		    static_cast<int>(currentAngle * 16),
@@ -483,9 +495,6 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 
     currentAngle = endAngle;
   }
-
-  if (shadow_)
-    painter.setShadow(WShadow());
 }
 
 WBrush WPieChart::darken(const WBrush& brush)

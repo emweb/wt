@@ -136,7 +136,9 @@ this.unwrap = function(e) {
   if (e.parentNode.className.indexOf('Wt-wrap') == 0) {
     var wrapped = e;
     e = e.parentNode;
-    wrapped.style.margin = e.style.margin;
+    if (e.className.length >= 8)
+      wrapped.className = e.className.substring(8);
+    wrapped.setAttribute('style', e.getAttribute('style'));
     e.parentNode.replaceChild(wrapped, e);
   } else {
     if (e.getAttribute('type') == 'submit') {

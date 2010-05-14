@@ -70,6 +70,7 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   if (marginRight || marginBottom || forceDiv) {
     result = DomElement::createNew(DomElement_DIV);
+    result->setProperty(PropertyClass, "Wt-wrapdiv");
     std::stringstream style;
 
     if (app->environment().agentIsIE() && !forceDiv) {
@@ -89,8 +90,9 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
   /*
    * Known issues:
    *  - textarea does not interpret height 100%, and thus it does not
-   *    work inside the wrapped div, on IE6/7
-   *  - select does not interpret height that is set on IE6/7
+   *    work inside the wrapped div, on IE6/7 -> fixed in the JavaScript code
+   *  - select does not interpret height that is set on IE6
+   *    it does work on IE7 !
    */
   if (fitHeight && d->getProperty(PropertyStyleHeight).empty())
     if (   d->type() == DomElement_DIV

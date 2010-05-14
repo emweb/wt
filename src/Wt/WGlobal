@@ -246,7 +246,8 @@ static const WFlags<AlignmentFlag> AlignHorizontalMask
 
 /*! \brief Combination of all vertical alignment flags */
 static const WFlags<AlignmentFlag> AlignVerticalMask
-  = AlignBaseline | AlignSub | AlignSuper | AlignTop | AlignTextTop | AlignMiddle | AlignBottom | AlignTextBottom | AlignLength;
+  = AlignBaseline | AlignSub | AlignSuper | AlignTop | AlignTextTop
+  | AlignMiddle | AlignBottom | AlignTextBottom | AlignLength;
 
 /*! \brief Enumeration that specifies a layout mechanism for a widget.
  *
@@ -270,6 +271,7 @@ enum PositionScheme {
    *  using setFloatSide().
    */
   Static,
+
   /*! \brief Relative position scheme.
    *
    *  The widget is first layed out according to Static layout
@@ -281,6 +283,7 @@ enum PositionScheme {
    *  system for Absolutely positioned widgets.
    */
   Relative,
+
   /*! \brief Absolute position scheme.
    *
    *  The widget is positioned at an absolute position
@@ -292,6 +295,7 @@ enum PositionScheme {
    *  </ul>
    */
   Absolute,
+
   /*! \brief Fixed position scheme.
    *
    *  The widget is positioned at fixed position with respect to
@@ -323,11 +327,17 @@ enum Cursor {
  * \relates WString
  */
 enum CharEncoding {
-  /*! \brief Each byte represents a character, using the local
-   *         server-side system locale
+  /*! \brief The (server) system locale.
+   *
+   * Each byte represents a character, according to the locale
+   * of the server-side system.
    */
   LocalEncoding,
-  /*! \brief The byte stream represents unicode characters encoded using UTF-8.
+
+  /*! \brief UTF-8 unicode encoding.
+   *
+   * The byte stream represents unicode characters encoded using
+   * UTF-8.
    */
   UTF8
 };
@@ -590,13 +600,13 @@ enum EntryPointType {
   /*! \brief Specifies an application that manages one or more widgets.
    *
    * A widget set application is part of an existing HTML page. One or
-   * more HTML elements in that web page may be bound to widgets managed
-   * by the application.
+   * more HTML elements in that web page may be bound to widgets
+   * managed by the application.
    *
-   * A widgetset application presents itself as a JavaScript file,
-   * and therefore should be embedded in the web page using a
-   * &lt;script&gt; tag, from within the &lt;body&gt; (since it
-   * needs access to the &lt;body&gt;).
+   * The application presents itself as a JavaScript file, and
+   * therefore should be embedded in the web page using a
+   * &lt;script&gt; tag, from within the &lt;body&gt; (since it needs
+   * access to the &lt;body&gt;).
    *
    * \note A WidgetSet application requires JavaScript support
    *
@@ -606,7 +616,8 @@ enum EntryPointType {
 
   /*! \brief Specifies a static resource.
    *
-   * A static resource binds a WResource to a public URL.
+   * A static resource binds a WResource to a public URL, and is not bound
+   * to a specific session.
    *
    * \sa WServer::addResource()
    */

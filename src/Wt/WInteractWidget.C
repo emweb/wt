@@ -180,10 +180,10 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     = mouseEventSignal(MOUSE_DOWN_SIGNAL, false);
   EventSignal<WMouseEvent> *mouseUp
     = mouseEventSignal(MOUSE_UP_SIGNAL, false);
-  EventSignal<WMouseEvent> *mouseMove = 
-    mouseEventSignal(MOUSE_MOVE_SIGNAL, false);
-  EventSignal<WMouseEvent> *mouseDrag = 
-    mouseEventSignal(MOUSE_DRAG_SIGNAL, false);
+  EventSignal<WMouseEvent> *mouseMove
+    = mouseEventSignal(MOUSE_MOVE_SIGNAL, false);
+  EventSignal<WMouseEvent> *mouseDrag
+    = mouseEventSignal(MOUSE_DRAG_SIGNAL, false);
 
   bool updateMouseMove
     = (mouseMove && mouseMove->needsUpdate(all))
@@ -212,12 +212,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	+ "._p_.saveDownPos(event);";
       
     if (!js.empty() // mouseUp
-	|| mouseMove && mouseMove->isConnected()
-	|| mouseDrag && mouseDrag->isConnected())
+	|| (mouseMove && mouseMove->isConnected())
+	|| (mouseDrag && mouseDrag->isConnected()))
       js += WT_CLASS ".capture(this);";
 
-    if (mouseMove && mouseMove->isConnected()
-	|| mouseDrag && mouseDrag->isConnected())
+    if ((mouseMove && mouseMove->isConnected())
+	|| (mouseDrag && mouseDrag->isConnected()))
       js += WT_CLASS ".mouseDown(e);";
 
     if (mouseDown) {
@@ -235,8 +235,8 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * of unpressing the button.
      */
     std::string js;
-    if (mouseMove && mouseMove->isConnected()
-	|| mouseDrag && mouseDrag->isConnected())
+    if ((mouseMove && mouseMove->isConnected())
+	|| (mouseDrag && mouseDrag->isConnected()))
       js += WT_CLASS ".mouseUp(e);";
       
     if (mouseUp) {
@@ -283,12 +283,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 #else
     EventSignalBase& s = **i;
 #endif
-    updateSignalConnection(element, s, s.name(), all);
 
     if (s.name() == WInteractWidget::CLICK_SIGNAL
 	&& flags_.test(BIT_REPAINT_TO_AJAX))
-      Wt::WApplication::instance()->doJavaScript
-	(WT_CLASS ".unwrap('" + id() + "');");
+      element.unwrap();
+
+    updateSignalConnection(element, s, s.name(), all);
   }
 
   WWebWidget::updateDom(element, all);

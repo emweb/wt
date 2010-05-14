@@ -261,6 +261,9 @@ public:
    */
   WContainerWidget *root() const { return widgetRoot_; }
 
+  /** @name Style sheets and CSS
+   */
+  //@{
   /*! \brief Returns a reference to the inline style sheet.
    *
    * Widgets may allow configuration of their look and feel through
@@ -329,6 +332,31 @@ public:
    * \sa setCssTheme()
    */
   std::string cssTheme() const { return theme_; }
+
+  /*! \brief Sets a style class to the entire page &lt;body&gt;.
+   *
+   * \sa setHtmlClass()
+   */
+  void setBodyClass(const std::string& styleClass);
+
+  /*! \brief Returns the style class set for the entire page &lt;body&gt;.
+   *
+   * \sa setBodyClass()
+   */
+  std::string bodyClass() const { return bodyClass_; }
+
+  /*! \brief Sets a style class to the entire page &lt;html&gt;.
+   *
+   * \sa setBodyClass()
+   */
+  void setHtmlClass(const std::string& styleClass);
+
+  /*! \brief Returns the style class set for the entire page &lt;html&gt;.
+   *
+   * \sa setHtmlClass()
+   */
+  std::string htmlClass() const { return htmlClass_; }
+  //@}
 
   /*! \brief Sets the window title.
    *
@@ -464,6 +492,9 @@ public:
    */
   void bindWidget(WWidget *widget, const std::string& domId);
 
+  /** @name URLs and internal paths
+   */
+  //@{
   /*! \brief Returns a URL for the current session
    *
    * Returns the (relative) URL for this application session
@@ -679,6 +710,16 @@ public:
    * connection.
    */
   void redirect(const std::string& url);
+  //@}
+
+  /*! \brief Returns the URL at which the resources are deployed.
+   *
+   * \if cpp
+   * This returns the value of the 'resources' property set in the
+   * configuration file.
+   * \endif
+   */
+  static std::string resourcesUrl();
 
   /*! \brief Returns the unique identifier for the current session.
    *
@@ -690,6 +731,9 @@ public:
 
   WebSession *session() { return session_; }
 
+  /** @name Manipulation outside the main event loop
+   */
+  //@{
   /*! \brief Enables server-initiated updates.
    *
    * By default, updates to the user interface are possible only at
@@ -845,7 +889,11 @@ public:
    * thread without needing the update lock.
    */
   void attachThread();
+  //@}
 
+  /** @name Invoking JavaScript or including scripts
+   */
+  //@{
   /*! \brief Executes some JavaScript code.
    *
    * This method may be used to call some custom \p javaScript code as
@@ -896,6 +944,16 @@ public:
    */
   bool require(const std::string& url,
 	       const std::string& symbol = std::string());
+
+  /*! \brief Returns the name of the application JavaScript class.
+   *
+   * This JavaScript class encapsulates all JavaScript methods
+   * specific to this application instance. The method is foreseen to
+   * allow multiple applications to run simultaneously on the same
+   * page in Wt::WidgtSet mode, without interfering.
+   */
+  std::string javaScriptClass() { return javaScriptClass_; }
+  //@}
 
   /*! \brief Processes UI events.
    *
@@ -964,15 +1022,6 @@ public:
    */
   AjaxMethod ajaxMethod() const { return ajaxMethod_; }
 
-  /*! \brief Returns the name of the application JavaScript class.
-   *
-   * This JavaScript class encapsulates all JavaScript methods
-   * specific to this application instance. The method is foreseen to
-   * allow multiple applications to run simultaneously on the same
-   * page in WidgtSet mode, without interfering.
-   */
-  std::string javaScriptClass() { return javaScriptClass_; }
-
   /*
    * The DOM root object. This contains not only the application root but
    * also other invisible objects (timers, dialog covers, ...).
@@ -1008,15 +1057,6 @@ public:
    * it point to some internal path.
    */
   std::string fixRelativeUrl(const std::string& url) const;
-
-  /*! \brief Returns the URL at which the resources are deployed.
-   *
-   * \if cpp
-   * This returns the value of the 'resources' property set in the
-   * configuration file.
-   * \endif
-   */
-  static std::string resourcesUrl();
 
   /*! \brief Initializes the application, post-construction.
    *
@@ -1087,16 +1127,26 @@ public:
 		 int maxAge, const std::string& domain = "",
 		 const std::string& path = "");
 
-  /*! \brief Returns the current maximum size of a request to the application.
+  /*! \brief Adds an HTML meta header.
    *
-   * \if cpp
-   * The maximum request size is configured in the configuration file,
-   * see \ref config_general.
-   * \endif
+   * A meta header can only be added in the following situations:
    *
-   * \sa requestTooLarge()
+   * - when a plain HTML session is used (including when the user agent is a
+   *   bot), you can add meta headers at any time.
+   *
+   * - or, when \ref progressive_bootstrap "progressive bootstrap" is
+   *   used, you can set meta headers for any type of session, from
+   *   within the application constructor (which corresponds to the
+   *   initial request).
+   *
+   * - but never for a Wt::WidgetSet mode application since then the
+   *   application is hosted within a foreign HTML page.
+   *
+   * These situations coincide with WEnvironment::ajax()
+   * returning \c false (see environment()).
    */
-  int maximumRequestSize() const;
+  void addMetaHeader(const std::string& name, const WString& content,
+		     const std::string& lang = "");
 
   /*! \brief Adds an entry to the application log.
    *
@@ -1175,6 +1225,17 @@ public:
    */
   bool isQuited() const { return quited_; }
 
+  /*! \brief Returns the current maximum size of a request to the application.
+   *
+   * \if cpp
+   * The maximum request size is configured in the configuration file,
+   * see \ref config_general.
+   * \endif
+   *
+   * \sa requestTooLarge()
+   */
+  int maximumRequestSize() const;
+
   /*! \brief %Signal which indicates that too a large request was received.
    *
    * The integer parameter is the request size that was received in bytes.
@@ -1192,30 +1253,9 @@ public:
    */
   bool isConnected() const { return connected_; }
 
-  /*! \brief Sets a style class to the entire page &lt;body&gt;.
-   *
-   * \sa setHtmlClass()
+  /** @name Global keyboard and mouse events
    */
-  void setBodyClass(const std::string& styleClass);
-
-  /*! \brief Returns the style class set for the entire page &lt;body&gt;.
-   *
-   * \sa setBodyClass()
-   */
-  std::string bodyClass() const { return bodyClass_; }
-
-  /*! \brief Sets a style class to the entire page &lt;html&gt;.
-   *
-   * \sa setBodyClass()
-   */
-  void setHtmlClass(const std::string& styleClass);
-
-  /*! \brief Returns the style class set for the entire page &lt;html&gt;.
-   *
-   * \sa setHtmlClass()
-   */
-  std::string htmlClass() const { return htmlClass_; }
-
+  //@{
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    *
    * The application receives key events when no widget currently
@@ -1265,6 +1305,7 @@ public:
    * \sa See WInteractWidget::escapePressed()
    */
   EventSignal<>& globalEscapePressed();
+  //@}
 
   /*
    * Returns whether debug was configured.
@@ -1370,16 +1411,20 @@ protected:
 private:
   Signal<int> requestTooLarge_;
 
-  /*
-   * Struct to handle library loading, which delays subsequent JS calls
-   * until the library has effectively been loaded.
-   */
   struct ScriptLibrary {
     ScriptLibrary(const std::string& uri, const std::string& symbol);
 
     std::string uri, symbol, beforeLoadJS;
     bool operator< (const ScriptLibrary& other) const;
     bool operator== (const ScriptLibrary& other) const;
+  };
+
+  struct MetaHeader {
+    MetaHeader(const std::string& name, const WString& content,
+	       const std::string& lang);
+
+    std::string name, lang;
+    WString content;
   };
 
   typedef std::map<std::string, EventSignalBase *> SignalMap;
@@ -1427,6 +1472,8 @@ private:
   std::string              theme_;
   std::vector<std::string> styleSheets_;
   int                      styleSheetsAdded_;
+
+  std::vector<MetaHeader> metaHeaders_;
 
   SignalMap   exposedSignals_;   // signals that may be accessed
   ResourceMap exposedResources_; // resources that may be accessed

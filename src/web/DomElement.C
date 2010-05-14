@@ -109,6 +109,7 @@ DomElement::DomElement(Mode mode, DomElementType type)
     removeAllChildren_(false),
     minMaxSizeProperties_(false),
     unstubbed_(false),
+    unwrapped_(false),
     replaced_(0),
     insertBefore_(0),
     type_(type),
@@ -460,6 +461,12 @@ void DomElement::unstubWith(DomElement *newElement, bool hideWithDisplay)
   replaceWith(newElement);
   unstubbed_ = true;
   hideWithDisplay_ = hideWithDisplay;
+}
+
+void DomElement::unwrap()
+{
+  ++numManipulations_;
+  unwrapped_ = true;
 }
 
 void DomElement::callMethod(const std::string& method)
@@ -1156,6 +1163,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 	}
       }
     }
+
+    if (unwrapped_)
+      out << WT_CLASS ".unwrap('" << id_ << "');\n";      
 
     processEvents(app);
     processProperties(app);

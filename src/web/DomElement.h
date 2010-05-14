@@ -145,6 +145,7 @@ public:
   void replaceWith(DomElement *newElement);
   void unstubWith(DomElement *newElement, bool hideWithDisplay);
   void insertBefore(DomElement *sibling);
+  void unwrap();
 
   void setDiscardWithParent(bool discard);
   bool discardWithParent() const { return discardWithParent_; }
@@ -239,6 +240,7 @@ private:
   bool         hideWithDisplay_;
   bool         minMaxSizeProperties_;
   bool         unstubbed_;
+  bool         unwrapped_;
   DomElement  *replaced_;        // when replaceWith() is called
   DomElement  *insertBefore_;
   DomElementType type_;

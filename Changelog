@@ -1,3 +1,8 @@
+13-05-2010:
+	* WInteractWidget: added mouseDragged()
+
+	* WApplication: added addMetaHeader()
+
 10-05-2010:
 	* WTableView: now supports (almost) same API as WTreeView, with the
 	similar style, but better performance for tabular data.

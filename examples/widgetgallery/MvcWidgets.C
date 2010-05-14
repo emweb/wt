@@ -49,11 +49,11 @@ void MvcWidgets::populateSubMenu(Wt::WMenu *menu)
   menu->addItem("Proxy models", proxyModels());
   menu->addItem("Combobox Views",
 		deferCreate(boost::bind(&MvcWidgets::viewsCombo, this)));
+  menu->addItem("WTableView",
+		deferCreate(boost::bind(&MvcWidgets::viewsTable, this)));
   menu->addItem("WTreeView",
 		deferCreate(boost::bind(&MvcWidgets::viewsTree, this)));
   menu->addItem("Chart Views", viewsChart());
-  menu->addItem("Ext::TableView",
-		deferCreate(boost::bind(&MvcWidgets::viewsExtTable, this)));
 }
 
 void MvcWidgets::comboBoxAdd()
@@ -194,12 +194,12 @@ WWidget *MvcWidgets::viewsCombo()
   return result;
 }
 
-WWidget *MvcWidgets::viewsExtTable()
+WWidget *MvcWidgets::viewsTable()
 {
   WContainerWidget *result = new WContainerWidget();
 
-  topic("Ext::TableView", result);
-  new WText(tr("mvc-ExtTable"), result);
+  topic("WTableView", result);
+  new WText(tr("mvc-WTableView"), result);
   return result;
 }
 

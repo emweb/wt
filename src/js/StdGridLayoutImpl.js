@@ -75,8 +75,15 @@ WT_DECLARE_WT_MEMBER
        if (ch.wtResize) {
 	 var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
 	 ch.wtResize(ch, w, k);
-       } else if (ch.style.height != k+'px')
-       ch.style.height = k+'px';
+       } else if (ch.style.height != k+'px') {
+	 ch.style.height = k+'px';
+	 if (ch.className == 'Wt-wrapdiv') {
+	   if (WT.isIE && WT.hasTag(ch.firstChild, 'TEXTAREA')) {
+	     ch.firstChild.style.height
+	       = (k - WT.pxself(ch, 'marginBottom')) + 'px';
+	   }
+	 }
+       }
      }
    };
 
@@ -111,11 +118,21 @@ WT_DECLARE_WT_MEMBER
      r += - WT.px(widget, 'marginTop') - WT.px(widget, 'marginBottom');
 
      /*
+      * Sometimes, there may be other elements; e.g. in FIELDSET.
+      * Remove the height of these too
+      */
+     var i, il;
+     for (i=0, il=widget.parentNode.children.length; i<il; ++i) {
+       var w = widget.parentNode.children[i];
+       if (w != widget)
+	 r -= $(w).outerHeight();
+     }
+     /*
       * Reduce 'r' with the total height of rows with stretch=0.
       */
      var ts=0,                         // Sum of stretch factors
          tmh=0,                          // Min heights
-	 i, ri, j, il, jl, row, tds, td; // Iterator variables
+	 ri, j, jl, row, tds, td; // Iterator variables
 
      for (i=0, ri=0, il=t.rows.length; i<il; i++) {
        row = t.rows[i];

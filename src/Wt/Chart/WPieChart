@@ -247,12 +247,15 @@ private:
 				const WModelIndex& bottomRight);
 
   void drawPie(WPainter& painter, double cx, double cy, double r, double h,
-	       double total)
-    const;
+	       double total) const;
+  void drawSlices(WPainter& painter, double cx, double cy, double r,
+		  double total, bool ignoreBrush) const;
   void drawSide(WPainter& painter, double pcx, double pcy, double r,
 		double angle, double h) const;
   void drawOuter(WPainter& painter, double pcx, double pcy, double r,
 		 double a1, double a2, double h) const;
+
+  void setShadow(WPainter& painter) const;
 
   int prevIndex(int i) const;
   int nextIndex(int i) const;

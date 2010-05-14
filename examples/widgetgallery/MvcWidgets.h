@@ -35,7 +35,7 @@ private:
   Wt::WWidget *models();
   Wt::WWidget *proxyModels();
   Wt::WWidget *viewsCombo();
-  Wt::WWidget *viewsExtTable();
+  Wt::WWidget *viewsTable();
   Wt::WWidget *viewsTree();
   Wt::WWidget *viewsChart();
 

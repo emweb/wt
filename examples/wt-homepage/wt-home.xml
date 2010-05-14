@@ -351,7 +351,7 @@ gallery</a> for an interactive overview of built-in functionality.
 
 <p>
   <a href="/wt/examples/hello/hello.wt" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/green-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -449,7 +449,7 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
 
 <p>
   <a href="/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -501,7 +501,7 @@ WTableView and PieChart) and models.
 
 <p>
   <a href="/wt/examples/charts/charts.wt" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -542,7 +542,7 @@ browser and server.</p>
 
 <p>
   <a href="/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -628,7 +628,7 @@ browser and server.</p>
 
 <p>
   <a href="/wt/examples/composer/composer.wt" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -682,7 +682,7 @@ browser and server.</p>
 
 <p>
   <a href="/wt/examples/dragdrop/dragdrop.wt" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -725,7 +725,7 @@ browser and server.</p>
 
 <p>
   <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
-    &#x25B6; Run example
+    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -830,7 +830,7 @@ browser and server.</p>
 
 <p>
   <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
-    &#x25B6; Go to widget gallery
+    <img src="icons/green-play.png" style="vertical-align: top"/>  Go to widget gallery
   </a>
 </p>
 

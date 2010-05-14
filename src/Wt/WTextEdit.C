@@ -87,7 +87,9 @@ void WTextEdit::initTinyMCE()
 
   WApplication *app = WApplication::instance();
 
-  app->doJavaScript("window.tinyMCE_GZ = { loaded: true };", false);
+  if (app->environment().ajax())
+    app->doJavaScript("window.tinyMCE_GZ = { loaded: true };", false);
+
   if (app->require(tinyMCEBaseURL + "tiny_mce.js", "window['tinyMCE']")) {
     /*
       interesting config options:
@@ -97,7 +99,10 @@ void WTextEdit::initTinyMCE()
 
       we should not use display:none for hiding?
     */
-    app->doJavaScript("tinymce.dom.Event._pageInit();tinyMCE.init();", false);
+    if (app->environment().ajax())
+      app->doJavaScript("tinymce.dom.Event._pageInit();", false);
+
+    app->doJavaScript("tinyMCE.init();", false);
     app->styleSheet().addRule(".mceEditor", "height: 100%;");
 
     // Adjust the height: this can only be done by adjusting the iframe height.
@@ -207,6 +212,15 @@ void WTextEdit::getDomChanges(std::vector<DomElement *>& result,
    * the contentChange to the TEXTAREA element, but reverse the order in
    * which they get applied since the load() statement expects the contents
    * to be set in the textarea first.
+   */
+
+  /*
+   * Problem! ed.render() returns before the element is actually rendered,
+   * and therefore, the _tbl element may not yet be available.
+   *
+   * This causes fail when a text edit is progressively enhanced. The solution
+   * is to listen for the onInit() event -> we should be able to add a
+   * wrapping ... .onInit(function(ed) { .... }) around the changes
    */
   DomElement *e = DomElement::getForUpdate(formName() + "_tbl",
 					   DomElement_TABLE);

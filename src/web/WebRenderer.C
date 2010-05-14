@@ -508,16 +508,24 @@ void WebRenderer::serveMainscript(WebResponse& response)
   else {
     response.out() << "window.loadWidgetTree = function(){\n";
 
+    std::stringstream scopeClose;
+
     if (app->enableAjax_) {
+      // Before-load JavaScript of libraries that were loaded directly
+      // HTML
+      response.out() << beforeLoadJS_.str();
+      beforeLoadJS_.str("");
+
+      // Load JavaScript libraries that were added during enableAjax()
+      loadScriptLibraries(response.out(), app, true); 
+      loadScriptLibraries(scopeClose, app, false);
+
       response.out()
-	<< beforeLoadJS_.str()
+	<< app->newBeforeLoadJavaScript()
 	<< "var domRoot = " << app->domRoot_->jsRef() << ";"
 	"var form = " WT_CLASS ".getElement('Wt-form');"
 	"domRoot.style.display = form.style.display;"
-	"document.body.replaceChild(domRoot, form);"
-	<< app->afterLoadJavaScript();
-
-      beforeLoadJS_.str("");
+	"document.body.replaceChild(domRoot, form);";
     }
 
     visibleOnly_ = false;
@@ -537,14 +545,15 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     if (app->enableAjax_)
       response.out()
-	<< "domRoot.style.display = 'block';"
+	<< "domRoot.style.visibility = 'visible';"
 	<< app->javaScriptClass() << "._p_.autoJavaScript();";
 
     response.out()
 	<< app->javaScriptClass()
 	<< "._p_.update(null, 'load', null, false);"
 	<< collectedJS2_.str()
-	<< "};"
+	<< scopeClose.str()
+	<< "};" // loadWidgetTree = function() { ... }
 	<< app->javaScriptClass()
 	<< "._p_.setServerPush("
 	<< (app->updatesEnabled() ? "true" : "false") << ");"
@@ -1178,13 +1187,47 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
 
 std::string WebRenderer::headDeclarations() const
 {
-  if (!session_.favicon().empty()) {
-    const bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
+  const bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
 
-    return "<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" href=\""
-      + session_.favicon() + (xhtml ? "\"/>" : "\">");
-  } else
-    return std::string();
+  EscapeOStream result;
+
+  if (session_.app()) {
+    for (unsigned i = 0; i < session_.app()->metaHeaders_.size(); ++i) {
+      const WApplication::MetaHeader& m = session_.app()->metaHeaders_[i];
+
+      result << "<meta";
+
+      if (!m.name.empty()) {
+	result << " name=\"";
+	result.pushEscape(EscapeOStream::HtmlAttribute);
+	result << m.name;
+	result.popEscape();
+	result << '"';
+      }
+
+      if (!m.lang.empty()) {
+	result << " lang=\"";
+	result.pushEscape(EscapeOStream::HtmlAttribute);
+	result << m.lang;
+	result.popEscape();
+	result << '"';
+      }
+
+      result << " content=\"";
+      result.pushEscape(EscapeOStream::HtmlAttribute);
+      result << m.content.toUTF8();
+      result.popEscape();
+      result << (xhtml ? "\"/>" : "\">");
+    }
+  }
+
+  if (!session_.favicon().empty())
+    result <<
+      "<link rel=\"icon\" "
+      "type=\"image/vnd.microsoft.icon\" "
+      "href=\"" << session_.favicon() << (xhtml ? "\"/>" : "\">");
+
+  return result.str();
 }
 
 }

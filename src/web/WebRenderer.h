@@ -138,6 +138,8 @@ private:
 
 public:
   std::string       learn(WStatelessSlot* slot);
+
+  friend class WApplication;
 };
 
 }

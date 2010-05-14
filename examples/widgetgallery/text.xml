@@ -1014,13 +1014,22 @@ WTextArea has no formatting capabilities
     </p>
   </message>
 
-  <message id="mvc-ExtTable">
-    <p>
-      The Ext::TableView can be seen in action in
-      <a href="#/charts/pie-charts">the Charts section</a> of this demo.
-      Double-click on a value in a table to modify the model. The table
-      and the chart are both views on the same model; the changes in the
-      model are immediately reflected in the chart too.
+  <message id="mvc-WTableView">
+    <p>The WTableView is part of Wt's MVC widgets, and provides the
+     same functionality as a WTreeView, but for tabular models (where
+     as WTreeView supports trees, tables or tree-tables).</p>
+
+    <p>The widget supports very large models by loading only the
+    visible region (with some margin) in the browser, and does this
+    both for rows and columns. This results in low memory consumption
+    (on client and server) and fast load times.</p>
+
+    <p>The WTableView can be seen in action in
+      <a href="#/charts/pie-charts">the Charts section</a> of this
+      gallery. Double-click on a value in a table to modify the
+      model. The table and the chart are both views on the same model;
+      the changes in the model are immediately reflected in the chart
+      too.
     </p>
   </message>
 
@@ -1066,10 +1075,12 @@ WTextArea has no formatting capabilities
     <p>
       These classes are graphical views that visualize the data
       of the model. They can be seen in action in
-      <a href="#/charts/pie-charts">the Charts section</a> of this demo.
-      Double-click on a value in a table to modify the model. The table
-      and the chart are both views on the same model; the changes in the
-      model are immediately reflected in the charts too.
+      <a href="#/charts/pie-charts">the Charts section</a> of this
+      demo. Click on any value in a table to modify the model using
+      editing provided by <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WItemDelegate.html">WItemDelegate</a>. The
+      table and the chart are both views on the same model; the
+      changes in the model are immediately reflected in the charts
+      too.
     </p>
   </message>
 

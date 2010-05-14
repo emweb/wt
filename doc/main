@@ -414,16 +414,18 @@ namespace Wt {
 
   \subsection fastcgi 8.1 FastCGI
 
-  When linking your application against libfcgi, the resulting binary is a
-  FastCGI binary. This binary may then be deployed and managed within a
-  web server which supports the FastCGI protocol (these include apache,
-  lighttpd and many other popular web servers).
+  When linking your application against <tt>libwtfcgi</tt>, the
+  resulting binary is a FastCGI binary. This binary may then be
+  deployed and managed within a web server which supports the FastCGI
+  protocol (these include apache, lighttpd and many other popular web
+  servers).
 
   \subsection wthttpd 8.2 Built-in httpd
 
-  When linking your application against libhttp, the resulting binary
-  is a stand-alone http(s) webserver. The web server will act as a
-  plain web server in addition to serving the %Wt application.
+  When linking your application against <tt>libwthttp</tt>, the
+  resulting binary is a stand-alone http(s) webserver. The web server
+  will act as a plain web server in addition to serving the %Wt
+  application.
 
   \section configuration_sec 9. Configuration
 

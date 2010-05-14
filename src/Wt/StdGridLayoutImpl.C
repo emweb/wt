@@ -41,7 +41,8 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
   WApplication *app = WApplication::instance();
 
   if (!app->javaScriptLoaded(THIS_JS)) {
-    app->styleSheet().addRule("table.Wt-hcenter", "margin: 0px auto;");
+    app->styleSheet().addRule("table.Wt-hcenter", "margin: 0px auto;"
+			      "position: relative");
 
     LOAD_JAVASCRIPT(app, THIS_JS, "StdLayout", wtjs1);
     LOAD_JAVASCRIPT(app, THIS_JS, "layouts", appjs1);
@@ -221,6 +222,8 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   std::string divStyle;
   if (fitHeight && !app->environment().agentIsIE())
     divStyle += "height: 100%;";
+  if (app->environment().agentIsIE())
+    divStyle += "zoom: 1;";
   if (!divStyle.empty())
     div->setProperty(PropertyStyle, divStyle);
 
@@ -430,6 +433,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
  	DomElement *td = DomElement::createNew(DomElement_TD);
 
+	if (app->environment().agentIsIE())
+	  td->setProperty(PropertyStylePosition, "relative");
+
 	if (item.item_) {
 	  DomElement *c = getImpl(item.item_)
 	    ->createDomElement(itemFitWidth, itemFitHeight, app);
@@ -454,10 +460,16 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    break;
 	  }
 	  case AlignRight:
-	    c->setProperty(PropertyStyleFloat, "right");
+	    if (!c->isDefaultInline())
+	      c->setProperty(PropertyStyleFloat, "right");
+	    else
+	      td->setProperty(PropertyStyleTextAlign, "right");
 	    break;
 	  case AlignLeft:
-	    c->setProperty(PropertyStyleFloat, "left");
+	    if (!c->isDefaultInline())
+	      c->setProperty(PropertyStyleFloat, "left");
+	    else
+	      td->setProperty(PropertyStyleTextAlign, "left");
 	    break;
 	  case AlignJustify:
 	    if (c->getProperty(PropertyStyleWidth).empty()

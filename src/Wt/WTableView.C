@@ -167,6 +167,7 @@ WTableView::WTableView(WContainerWidget *parent)
 
     canvas_ = new WContainerWidget();
     canvas_->setStyleClass("Wt-spacer");
+    canvas_->setPositionScheme(Relative);
     canvas_->clicked()      .connect(this, &WTableView::handleSingleClick);
     canvas_->doubleClicked().connect(this, &WTableView::handleDoubleClick);
     canvas_->mouseWentDown().connect(this, &WTableView::handleMouseWentDown); 
