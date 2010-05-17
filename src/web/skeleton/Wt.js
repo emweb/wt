@@ -138,7 +138,10 @@ this.unwrap = function(e) {
     e = e.parentNode;
     if (e.className.length >= 8)
       wrapped.className = e.className.substring(8);
-    wrapped.setAttribute('style', e.getAttribute('style'));
+    if (WT.isIE)
+      wrapped.style.setAttribute('cssText', e.getAttribute('style'));
+    else
+      wrapped.setAttribute('style', e.getAttribute('style'));
     e.parentNode.replaceChild(wrapped, e);
   } else {
     if (e.getAttribute('type') == 'submit') {

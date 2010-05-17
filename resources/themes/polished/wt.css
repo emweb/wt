@@ -363,7 +363,7 @@
  * WTabWidget
  */
 .Wt-tabs ul {
-    padding: 3px 3px;
+    padding: 3px 3px 0px;
     font: bold 12px Verdana;
     border-bottom: 1px solid gray;
     list-style-type: none;
@@ -374,7 +374,7 @@
     margin: 0;
 }
 
-.Wt-tabs li a {
+.Wt-tabs li a, .Wt-tabs li button {
     text-decoration: none;
     padding: 2px 7px 3px;
     margin-right: 3px;
@@ -384,12 +384,20 @@
     background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
 }
 
+.Wt-tabs li button a {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+}
+
 .Wt-tabs li a:hover{
     background: white; /* #DBFF6C; */
     color: black;
 }
 
-.Wt-tabs li span.itemselected a {
+.Wt-tabs li .itemselected a, .Wt-tabs li .itemselected button {
     position: relative;
     top: 1px;
     padding-top: 3px;
@@ -664,7 +672,6 @@
  */
 .Wt-pagingbar {
     text-align: center;
-    padding: 2px;
     height: 25px;
     line-height: 25px;
 }
@@ -675,6 +682,9 @@
 
 .Wt-pagingbar button {
     margin: 0px 4px;
+    padding: 0px 3px;
+    vertical-align: middle;
+    line-height: 20px;
 }
 
 /*

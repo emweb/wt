@@ -23,7 +23,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.marginV = function(el) {
-     var p = el.parentNode;
+     // TODO: consider caching
      return WT.px(el, 'marginTop')
        + WT.px(el, 'marginBottom')
        + WT.px(el, 'borderTopWidth')

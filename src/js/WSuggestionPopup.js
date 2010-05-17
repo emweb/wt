@@ -9,6 +9,8 @@
 WT_DECLARE_WT_MEMBER
 (1, "WSuggestionPopup",
  function(APP, el, replacerJS, matcherJS, filterLength) {
+   document.body.appendChild(el);
+
    jQuery.data(el, 'obj', this);
 
    var self = this;
@@ -40,7 +42,8 @@ WT_DECLARE_WT_MEMBER
      WT.positionAtWidget(el.id, edit.id, WT.Vertical);
    }
 
-   function contentClicked(e) {
+   function contentClicked(event) {
+     var e = event||window.event;
      var line = e.target || e.srcElement;
      if (line.className == "content")
        return;

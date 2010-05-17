@@ -301,19 +301,27 @@ void CgiParser::readUntilBoundary(WebRequest& request,
   int bpos;
 
   while ((bpos = index(boundary)) == -1) {
-    if ((left_ == 0) && (buflen_ == 0))
+    /*
+     * If we couldn't find it. We need to wind the buffer, but only save
+     * not including the boundary length.
+     */
+    if (left_ == 0)
       throw WtException("CgiParser: reached end of input while seeking end of "
 			"headers or content. Format of CGI input is wrong");
 
-    /* save BUFSIZE from buffer to file or value string*/
-    int save = std::min(buflen_, BUFSIZE);
-    if (resultString)
-      *resultString += std::string(buf_, save);
-    if (resultFile) 
-      resultFile->write(buf_, save);
+    /* save (up to) BUFSIZE from buffer to file or value string, but
+     * mind the boundary length */
+    int save = std::min((buflen_ - (int)boundary.length()), BUFSIZE);
 
-    /* wind buffer */
-    windBuffer(save);
+    if (save > 0) {
+      if (resultString)
+	*resultString += std::string(buf_, save);
+      if (resultFile) 
+	resultFile->write(buf_, save);
+
+      /* wind buffer */
+      windBuffer(save);
+    }
 
     unsigned amt = std::min(left_, BUFSIZE + MAXBOUND - buflen_);
 
@@ -421,7 +429,7 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 {
   std::string value;
 
-  readUntilBoundary(request, "\r\n" + boundary, 0,
+  readUntilBoundary(request, boundary, 2,
 		    spoolStream_ ? 0 : (!currentKey_.empty() ? &value : 0),
 		    spoolStream_);
 
@@ -438,7 +446,7 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 
   currentKey_.clear();
 
-  if (std::string(buf_ + boundary.length() + 2, 2) == "--")
+  if (std::string(buf_ + boundary.length(), 2) == "--")
     return false;
 
   windBuffer(boundary.length() + 2);

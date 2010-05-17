@@ -152,7 +152,7 @@ WApplication::WApplication(const WEnvironment& env)
 			"z-index: -1;"
 			"opacity: 0; filter: alpha(opacity=0);"
 			"border: none; margin: 0; padding: 0;");
-  styleSheet_.addRule("button.Wt-wrap",
+  styleSheet_.addRule(".Wt-wrap",
 		      "border: 0px;"
 		      "text-align: left;"
 		      "margin: 0px;"
@@ -160,8 +160,9 @@ WApplication::WApplication(const WEnvironment& env)
 		      "font-size: inherit; "
 		      "pointer: hand; cursor: pointer; cursor: hand;"
 		      "background: transparent;"
+		      "text-decoration: none;"
 		      "color: inherit;");
-  styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
+  //styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
   styleSheet_.addRule(".Wt-invalid", "background-color: #f79a9a;");
   styleSheet_.addRule("span.Wt-disabled", "color: gray;");
   styleSheet_.addRule("fieldset.Wt-disabled legend", "color: gray;");

@@ -641,7 +641,7 @@ void DomElement::asHTML(EscapeOStream& out,
        * Note that IE posts the button text instead of the value. We fix
        * this by encoding the value into the name.
        *
-       * IE6 hell: IE will post all submit buttons, not just the one click.
+       * IE6 hell: IE will post all submit buttons, not just the one clicked.
        * We should therefore really be using input
        */
       DomElement *self = const_cast<DomElement *>(this);
@@ -680,7 +680,7 @@ void DomElement::asHTML(EscapeOStream& out,
 
     if (type_ == DomElement_A) {
       std::string href = getAttribute("href");
-      if (app->environment().agentIsIE() || href != "#")
+      if (/* app->environment().agentIsIE() || */ href != "#")
 	needButtonWrap = false;
     }
   }
@@ -746,7 +746,8 @@ void DomElement::asHTML(EscapeOStream& out,
 	out << " disabled=\"disabled\"";
 
       if (app->environment().agent() != WEnvironment::Konqueror
-	  && !app->environment().agentIsWebKit())
+	  && !app->environment().agentIsWebKit()
+	  && !app->environment().agentIsIE())
 	style = "margin: 0px -3px -2px -3px;";
 
       out << "><" << elementNames_[renderedType];

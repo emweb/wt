@@ -30,6 +30,7 @@ void PaintBrush::paintEvent(WPaintDevice *paintDevice)
   painter.setRenderHint(WPainter::Antialiasing);
   
   WPen pen;
+  pen.setWidth(3);
   pen.setColor(color_);
   painter.setPen(pen);
   painter.drawPath(path_);

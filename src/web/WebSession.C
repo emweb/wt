@@ -1069,14 +1069,17 @@ const std::string *WebSession::getSignal(const WebRequest& request,
   const std::string *signalE = request.getParameter(se + "signal");
 
   if (!signalE) {
+    const int signalLength = 7 + se.length();
+
     const Http::ParameterMap& entries = request.getParameterMap();
 
     for (Http::ParameterMap::const_iterator i = entries.begin();
 	 i != entries.end(); ++i) {
-      if (i->first.find(se + "signal=") == 0) {
+      if (i->first.length() > signalLength
+	  && i->first.substr(0, signalLength) == se + "signal=") {
 	signalE = &i->second[0];
 
-	std::string v = i->first.substr(7 + se.length());
+	std::string v = i->first.substr(signalLength);
 	if (v.length() >= 2) {
 	  std::string e = v.substr(v.length() - 2);
 	  if (e == ".x" || e == ".y")
