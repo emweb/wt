@@ -36,6 +36,7 @@ namespace Wt {
 	      || boost::iequals(name, "body")
 	      || boost::iequals(name, "embed")
 	      || boost::iequals(name, "style")
+              || boost::iequals(name, "comment")
 	      || boost::iequals(name, "blink"));
     }
   
@@ -45,7 +46,15 @@ namespace Wt {
 	      || boost::istarts_with(name, "data")
 	      || boost::iequals(name, "dynsrc")
 	      || boost::iequals(name, "id")
-	      || boost::iequals(name, "name"));
+	      || boost::iequals(name, "autofocus")
+              || boost::iequals(name, "name")
+              // avoid repeat-based client DoS
+              || boost::iequals(name, "repeat-start")
+              || boost::iequals(name, "repeat-end")
+              || boost::iequals(name, "repeat")
+              // Some opera crashes on bad patterns
+              || boost::iequals(name, "pattern")
+	      );
     }
 
     bool isBadAttributeValue(const std::string& name, const std::string& value)
@@ -55,6 +64,8 @@ namespace Wt {
 	  || boost::iequals(name, "codebase")
 	  || boost::iequals(name, "dynsrc")
 	  || boost::iequals(name, "href")
+	  || boost::iequals(name, "formaction")
+	  || boost::iequals(name, "poster")
 	  || boost::iequals(name, "src"))
 	return (boost::istarts_with(value, "javascript:")
 		|| boost::istarts_with(value, "vbscript:")
@@ -82,6 +93,7 @@ namespace Wt {
 	if (boost::iequals(name, "style"))
 	  return boost::icontains(value, "absolute")
 	    || boost::icontains(value, "behaviour")
+	    || boost::icontains(value, "behavior")
 	    || boost::icontains(value, "content")
 	    || boost::icontains(value, "expression")
 	    || boost::icontains(value, "fixed")

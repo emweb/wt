@@ -10,7 +10,8 @@
 namespace Wt {
 
 WAbstractItemDelegate::WAbstractItemDelegate(WObject *parent)
-  : WObject(parent)
+  : WObject(parent),
+    closeEditor_(this)
 { }
 
 WAbstractItemDelegate::~WAbstractItemDelegate()

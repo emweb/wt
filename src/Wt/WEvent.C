@@ -64,6 +64,33 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
   dragDX = parseIntParameter(request, se + "dragdX", 0);
   dragDY = parseIntParameter(request, se + "dragdY", 0);
 
+  /*
+  if (widgetX == 0 && widgetY == 0) {
+    const int signalLength = 7 + se.length();
+    const Http::ParameterMap& entries = request.getParameterMap();
+
+    for (Http::ParameterMap::const_iterator i = entries.begin();
+	 i != entries.end(); ++i) {
+      std::string name = i->first;
+
+      if (name.substr(0, signalLength) == se + "signal=") {
+	std::string e = name.substr(name.length() - 2);
+	if (e == ".x") {
+	  try {
+	    widgetX = boost::lexical_cast<int>(i->second[0]);
+	  } catch (const boost::bad_lexical_cast& ee) {
+	  }
+	} else if (e == ".y") {
+	  try {
+	    widgetY = boost::lexical_cast<int>(i->second[0]);
+	  } catch (const boost::bad_lexical_cast& ee) {
+	  }
+	}
+      }
+    }
+  }
+  */
+
   modifiers = 0;
   if (request.getParameter(se + "altKey") != 0)
     modifiers |= AltModifier;

@@ -672,15 +672,15 @@ void WChart2DRenderer::prepareAxes()
     AxisValue location = axis.location();
 
     if (location == ZeroValue) {
-      if (other.segments_[0].renderMaximum < 0)
+      if (other.segments_.front().renderMaximum < 0)
 	location = MaximumValue;
-      else if (other.segments_[0].renderMinimum > 0)
+      else if (other.segments_.front().renderMinimum > 0)
 	location = MinimumValue;
     } else if (location == MinimumValue) {
-      if (other.segments_[0].renderMinimum == 0)
+      if (other.segments_.front().renderMinimum == 0)
 	location = ZeroValue;
     } else
-      if (other.segments_[0].renderMaximum == 0)
+      if (other.segments_.front().renderMaximum == 0)
 	location = MaximumValue;
 
     location_[axis.id()] = location;
@@ -689,7 +689,7 @@ void WChart2DRenderer::prepareAxes()
   // force Y axes to the sides when dual Y axes
   if (y2Axis.isVisible()) {
     if (!(location_[Y1Axis] == ZeroValue
-	  && (xAxis.segments_[0].renderMinimum == 0)))
+	  && (xAxis.segments_.front().renderMinimum == 0)))
       location_[Y1Axis] = MinimumValue;
 
     location_[Y2Axis] = MaximumValue;
@@ -741,7 +741,7 @@ WRectF WChart2DRenderer::chartSegmentArea(WAxis yAxis, int xSegment,
 
   // margin used when clipping, see also WAxis::prepareRender(),
   // when the renderMinimum/maximum is 0, clipping is done exact
-  static const int CLIP_MARGIN = 5;
+  const int CLIP_MARGIN = 5;
 
   double x1 = xs.renderStart
     + (xSegment == 0
@@ -866,6 +866,11 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
     std::vector<WAxis::TickLabel> ticks;
     axis.getLabelTicks(*this, ticks, segment);
 
+    const WAxis& other
+      = axis.id() == XAxis ? chart_->axis(Y1Axis) : chart_->axis(XAxis);
+    const WAxis::Segment& s0 = other.segments_.front();
+    const WAxis::Segment& sn = other.segments_.back();
+
     for (unsigned i = 0; i < ticks.size(); ++i) {
       double d = ticks[i].u;
 
@@ -917,15 +922,15 @@ void WChart2DRenderer::renderAxis(const WAxis& axis,
 	  ticksPath.moveTo(hv(u + (tickPos & Left ? -tickLength : 0), dd));
 	  ticksPath.lineTo(hv(u + (tickPos & Right ? +tickLength : 0), dd));
 	  if (ticks[i].tickLength == WAxis::TickLabel::Long) {
-	    gridPath.moveTo(hv(chartArea_.left(), dd));
-	    gridPath.lineTo(hv(chartArea_.right(), dd));
+	    gridPath.moveTo(hv(s0.renderStart, dd));
+	    gridPath.lineTo(hv(sn.renderStart + sn.renderLength, dd));
 	  }
 	} else {
 	  ticksPath.moveTo(hv(dd, u + (tickPos & Right ? -tickLength : 0)));
 	  ticksPath.lineTo(hv(dd, u + (tickPos & Left ? +tickLength : 0)));
 	  if (ticks[i].tickLength == WAxis::TickLabel::Long) {
-	    gridPath.moveTo(hv(dd, chartArea_.top()));
-	    gridPath.lineTo(hv(dd, chartArea_.bottom()));
+	    gridPath.moveTo(hv(dd, s0.renderStart));
+	    gridPath.lineTo(hv(dd, sn.renderStart - sn.renderLength));
 	  }
 	}
       }

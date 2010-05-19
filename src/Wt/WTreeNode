@@ -214,7 +214,23 @@ public:
    */
   void setNodeVisible(bool visible);
 
+  /*! \brief Sets whether this node's children are decorated.
+   *
+   * By default, node's children have expand/collapse and other lines
+   * to display their linkage and offspring.
+   *
+   * By setting \p decorated to \c false, you can hide the decorations for the 
+   * node's children.
+   */
   void setChildrenDecorated(bool decorated);
+  
+
+  /*! \brief Sets whether this node is interactive.
+   * 
+   * Interactive nodes can be clicked upon and will populate a list of children 
+   * when clicked. By disabling the interactivity, a node will not react to a 
+   * click event. 
+   */
   void setInteractive(bool interactive);
 
   /*! \brief Expands this node.
@@ -254,7 +270,9 @@ public:
    */
   Signal<bool>& selected() { return selected_; }
 
+#ifndef WT_TARGET_JAVA
   virtual bool hasParent() const;
+#endif //WT_TARGET_JAVA
 
 protected:
   /*! \brief Creates a tree node with empty labelArea().

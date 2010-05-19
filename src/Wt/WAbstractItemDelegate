@@ -21,7 +21,8 @@ namespace Wt {
  */
 enum ViewItemRenderFlag {
   RenderSelected = 0x1,  //!< Render as selected
-  RenderEditing = 0x2    //!< Render in editing mode
+  RenderEditing = 0x2,   //!< Render in editing mode
+  RenderFocused = 0x4    //!< Render (the editor) focused
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ViewItemRenderFlag)

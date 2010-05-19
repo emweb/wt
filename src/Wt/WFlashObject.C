@@ -21,12 +21,15 @@ WFlashObject::WFlashObject(const std::string& url,
   : WWebWidget(parent),
     url_(url),
     sizeChanged_(false),
-    alternative_(0)
+    alternative_(0),
+    ieRendersAlternative_(this, "IeAltnernative"),
+    replaceDummyIeContent_(false)
 {
   setInline(false);
   setAlternativeContent(new WAnchor("http://www.adobe.com/go/getflashplayer",
     new WImage("http://www.adobe.com/images/"
                "shared/download_buttons/get_flash_player.gif")));
+  ieRendersAlternative_.connect(SLOT(this, WFlashObject::renderIeAltnerative));
 }
 
 WFlashObject::~WFlashObject()
@@ -64,12 +67,14 @@ void WFlashObject::updateDom(DomElement& element, bool all)
       // Client-side auto-resize function
       ss <<
         """function(self, w, h) {"
-        ""  "v=self.firstChild;"
-        ""  "v.setAttribute('width', w);"
-        ""  "v.setAttribute('height', h);";
+        ""  "v=" + jsFlashRef() + ";"
+        ""  "if(v){"
+        ""    "v.setAttribute('width', w);"
+        ""    "v.setAttribute('height', h);"
+        ""  "}";
       if (alternative_) {
         ss <<
-          """a=v.lastChild;"
+          """a=" + alternative_->jsRef() + ";"
           ""  "if(a && a." << WT_RESIZE_JS <<")"
           ""    "a." << WT_RESIZE_JS << "(a, w, h);";
       }
@@ -122,12 +127,36 @@ void WFlashObject::updateDom(DomElement& element, bool all)
       param->setAttribute("value", ss.str());
       obj->addChild(param);
     }
-    if (alternative_)
-      obj->addChild(alternative_->createSDomElement(wApp));
+    if (alternative_) {
+      // Internet explorer simply eliminates the inner elements if they are
+      // not needed, causing JavaScript errors lateron. So we will only
+      // render the alternative content if we know for sure that it is not
+      // eliminated by IE (in practice, this is when Flash support is
+      // not available). To do so, we'll render a dummy div, verify if that
+      // dummy element is not eliminated, and if it's not, replace it by
+      // a call to alternative_->createDomElement().
+      if (wApp->environment().javaScript() &&
+          wApp->environment().agentIsIE()) {
+        DomElement *dummyDiv = DomElement::createNew(DomElement_DIV);
+        dummyDiv->setId(alternative_->id());
+        // As if it ain't bad enough, the altnerative content is only
+        // inserted in the DOM after 'a while', so we can't test for it with
+        // a simple doJavaScript() call. Additionally, all scripting-alike
+        // stuff inside the alternative content is ignored (script element,
+        // onrenderstatechange, ...). So this 'style=...' is indeed a hack.
+        // You can't put semicolons or curly braces inside the expression,
+        // so we added a helper function.
+        dummyDiv->setAttribute("style",
+          "width: expression(" + wApp->javaScriptClass()
+          + "._p_.ieAlternative(this));");
+        obj->addChild(dummyDiv);
+      } else {
+        obj->addChild(alternative_->createSDomElement(wApp));
+      }
+    }
     element.addChild(obj);
-
-
   }
+
   WWebWidget::updateDom(element, all);
 }
 
@@ -150,6 +179,14 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
     result.push_back(element);
     sizeChanged_ = false;
   }
+  if (alternative_ && replaceDummyIeContent_) {
+    DomElement *element =
+      DomElement::getForUpdate(alternative_->id(), DomElement_DIV);
+    element->replaceWith(alternative_->createSDomElement(app));
+    result.push_back(element);
+    replaceDummyIeContent_ = false;
+  }
+
 }
 
 void WFlashObject::setAlternativeContent(WWidget *alternative)
@@ -171,6 +208,11 @@ void WFlashObject::resize(const WLength &width, const WLength &height)
 DomElementType WFlashObject::domElementType() const
 {
   return DomElement_DIV;
+}
+void WFlashObject::renderIeAltnerative()
+{
+  replaceDummyIeContent_ = true;
+  repaint(Wt::RepaintInnerHtml);
 }
 
 }

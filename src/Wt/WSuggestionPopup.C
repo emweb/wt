@@ -68,7 +68,7 @@ void WSuggestionPopup::init()
   impl_->bindWidget("contents", content_ = new WContainerWidget());
   content_->setStyleClass("content");
 
-  setPopup(true);
+  setAttributeValue("style", "z-index: 10000");
   setPositionScheme(Absolute);
 
   setJavaScript(editKeyDown_, "editKeyDown");

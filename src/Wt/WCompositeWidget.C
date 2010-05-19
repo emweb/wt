@@ -449,4 +449,9 @@ int WCompositeWidget::boxBorder(Orientation orientation) const
   return impl_->boxBorder(orientation);
 }
 
+void WCompositeWidget::propagateSetEnabled(bool enabled)
+{
+  impl_->webWidget()->propagateSetEnabled(enabled);
+}
+
 }

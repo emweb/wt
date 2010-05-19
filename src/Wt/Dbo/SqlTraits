@@ -95,7 +95,7 @@ struct sql_value_traits
  *
  * \ingroup dbo
  */
-class FieldInfo
+class WTDBO_API FieldInfo
 {
 public:
   /*! \brief Flags

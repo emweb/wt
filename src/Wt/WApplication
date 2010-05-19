@@ -815,8 +815,7 @@ public:
    *
    * Propagate changes made to the user interface outside of the main
    * event loop. This is only possible after a call to
-   * enableUpdates(), and must be done while holding the UpdateLock
-   * (or from within a socket event, see WSocketNotifier).
+   * enableUpdates(), and must be done while holding the UpdateLock.
    *
    * \sa enableUpdates(), getUpdateLock()
    */
@@ -846,6 +845,8 @@ public:
      */
     ~UpdateLock();
 #else
+    /*! \brief Releases the scope dependent lock
+     */
     void release();
 #endif
 

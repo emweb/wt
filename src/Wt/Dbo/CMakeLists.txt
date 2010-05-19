@@ -5,7 +5,7 @@ ADD_LIBRARY(wtdbo
   Exception.C
   FixedSqlConnectionPool.C
   Query.C
-  QueryModel.C
+  QueryColumn.C
   Session.C
   SqlConnection.C
   SqlConnectionPool.C
@@ -30,6 +30,13 @@ PROPERTIES
   SOVERSION ${WTDBO_SOVERSION}
   DEBUG_POSTFIX "d"
 )
+IF(WIN32)
+  SET_TARGET_PROPERTIES(
+    wtdbo
+  PROPERTIES
+    COMPILE_FLAGS "/wd4251 /wd4275"
+  )
+ENDIF(WIN32)
 
 SUBDIRS(backend)
 

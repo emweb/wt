@@ -122,10 +122,12 @@ WT_DECLARE_WT_MEMBER
       * Remove the height of these too
       */
      var i, il;
-     for (i=0, il=widget.parentNode.children.length; i<il; ++i) {
-       var w = widget.parentNode.children[i];
-       if (w != widget)
-	 r -= $(w).outerHeight();
+     if (widget.parentNode.children) {
+       for (i=0, il=widget.parentNode.children.length; i<il; ++i) {
+	 var w = widget.parentNode.children[i];
+	   if (w != widget)
+	     r -= $(w).outerHeight();
+       }
      }
      /*
       * Reduce 'r' with the total height of rows with stretch=0.

@@ -382,8 +382,11 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
     if (view_->selectionBehavior() == SelectItems && view_->isSelected(child))
       renderFlags |= RenderSelected;
 
-    if (view_->isEditing(child))
+    if (view_->isEditing(child)) {
       renderFlags |= RenderEditing;
+      if (view_->hasEditFocus(child))
+	renderFlags |= RenderFocused;
+    }
     
     w = view_->itemDelegate(i)->update(w, child, renderFlags);
 
@@ -914,6 +917,7 @@ void WTreeViewNode::selfCheck()
 
 WTreeView::WTreeView(WContainerWidget *parent)
   : WAbstractItemView(parent),
+    renderedNodesAdded_(false),
     rootNode_(0),
     borderColorRule_(0),
     rootIsDecorated_(true),
@@ -1076,22 +1080,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
   rowContentsWidthRule_ = new WCssTemplateRule("#" + id() +" .Wt-tv-rowc");
   app->styleSheet().addRule(rowContentsWidthRule_);
 
-  if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
-    tieRowsScrollJS_.setJavaScript
-      ("function(obj, event) {"
-       "" WT_CLASS ".getCssRule('#" + id() + " .Wt-tv-rowc').style.left"
-       ""  "= -obj.scrollLeft + 'px';"
-       "}");
-  else {
-    /* this is for some reason very very slow in webkit: */
-    tieRowsScrollJS_.setJavaScript
-      ("function(obj, event) {"
-       "obj.parentNode.style.width = "
-       "" WT_CLASS ".getCssRule('#" + id() + " .cwidth').style.width;"
-       "$('#" + id() + " .Wt-tv-rowc').parent().scrollLeft(obj.scrollLeft);"
-       "}");
-  }
-
   app->addAutoJavaScript
     ("{var obj = $('#" + id() + "').data('obj');"
      "if (obj) obj.autoJavaScript();}");
@@ -1208,8 +1196,10 @@ void WTreeView::defineJavaScript()
 
 void WTreeView::setColumn1Fixed(bool fixed)
 {
+  WApplication *app = WApplication::instance();
+
   // This kills progressive enhancement too
-  if (!WApplication::instance()->environment().ajax())
+  if (!app->environment().ajax())
     return;
 
   if (fixed && !column1Fixed_) {
@@ -1224,14 +1214,35 @@ void WTreeView::setColumn1Fixed(bool fixed)
     // needed for IE, otherwise row expands automatically to content width
     rowWidthRule_->templateWidget()->resize(0, WLength::Auto);
 
+    bool useStyleLeft
+      = app->environment().agentIsWebKit()
+      || app->environment().agentIsOpera();
+
+    if (useStyleLeft)
+      tieRowsScrollJS_.setJavaScript
+	("function(obj, event) {"
+	 "" WT_CLASS ".getCssRule('#" + id() + " .Wt-tv-rowc').style.left"
+	 ""  "= -obj.scrollLeft + 'px';"
+	 "}");
+    else {
+      /*
+       * this is for some reason very very slow in webkit, and with
+       * application/xml on Firefox (jQuery suffers)
+       */
+      tieRowsScrollJS_.setJavaScript
+	("function(obj, event) {"
+	 "obj.parentNode.style.width = "
+	 "" WT_CLASS ".getCssRule('#" + id() + " .cwidth').style.width;"
+	 "$('#" + id() + " .Wt-tv-rowc').parent().scrollLeft(obj.scrollLeft);"
+	 "}");
+    }
+
     WContainerWidget *scrollBarContainer = new WContainerWidget();
     scrollBarContainer->setStyleClass("cwidth");
     scrollBarContainer->resize(WLength::Auto, SCROLLBAR_WIDTH);
     scrollBarC_ = new WContainerWidget(scrollBarContainer);
     scrollBarC_->setStyleClass("Wt-tv-row Wt-scroll");
     scrollBarC_->scrolled().connect(tieRowsScrollJS_);
-
-    WApplication *app = WApplication::instance();
 
     if (app->environment().agentIsIE()) {
       scrollBarContainer->setPositionScheme(Relative);
@@ -1241,14 +1252,9 @@ void WTreeView::setColumn1Fixed(bool fixed)
 
     WContainerWidget *scrollBar = new WContainerWidget(scrollBarC_);
     scrollBar->setStyleClass("Wt-tv-rowc");
-    if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
+    if (useStyleLeft)
       scrollBar->setAttributeValue("style", "left: 0px;");
     impl_->layout()->addWidget(scrollBarContainer);
-
-    app->addAutoJavaScript
-      ("{var s=" + scrollBarC_->jsRef() + ";"
-       """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
-       "}");
   }
 }
 
@@ -1508,6 +1514,15 @@ void WTreeView::render(WFlags<RenderFlag> flags)
     default:
       break;
     }
+  }
+
+
+  if (column1Fixed_ && renderedNodesAdded_) {
+    WApplication::instance()->doJavaScript
+      ("{var s=" + scrollBarC_->jsRef() + ";"
+       """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
+       "}");
+    renderedNodesAdded_ = false;
   }
 
   WAbstractItemView::render(flags);
@@ -2667,6 +2682,7 @@ void WTreeView::addRenderedNode(WTreeViewNode *node)
 {
   renderedNodes_[node->modelIndex()] = node;
   ++nodeLoad_;
+  renderedNodesAdded_ = true;
 }
 
 void WTreeView::removeRenderedNode(WTreeViewNode *node)

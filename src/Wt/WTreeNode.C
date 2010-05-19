@@ -546,9 +546,11 @@ void WTreeNode::update()
   }
 }
 
+#ifndef WT_TARGET_JAVA
 bool WTreeNode::hasParent() const
 {
   return parentNode_;
 }
+#endif //WT_TARGET_JAVA
 
 }

@@ -9,6 +9,7 @@
 
 #include <Wt/Dbo/WDboDllDefs.h>
 #include <string>
+#include <Wt/Dbo/WDboDllDefs.h>
 
 namespace Wt {
   namespace Dbo {

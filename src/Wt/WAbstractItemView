@@ -412,6 +412,10 @@ public:
    */
   WLength columnWidth(int column) const;
 
+  /*! \brief Returns the signal emitted when a column is resized by the user.
+   *
+   * The arguments of the signal are; the column index and the new length of the column.
+   */
   Signal<int, WLength>& columnResized() { return columnResized_; }
 
   /*! \brief Sets the column border color
@@ -662,6 +666,7 @@ protected:
 
   void setEditState(const WModelIndex& index, const boost::any& editState);
   boost::any editState(const WModelIndex& index) const;
+  bool hasEditFocus(const WModelIndex& index) const;
 
   void setEditorWidget(const WModelIndex& index, WWidget *editor);
 
@@ -671,6 +676,7 @@ private:
   struct Editor {
     WWidget *widget;
     boost::any editState;
+    bool stateSaved;
   };
 
   WAbstractItemModel    *model_;

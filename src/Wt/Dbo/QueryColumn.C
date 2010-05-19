@@ -3,7 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/Dbo/QueryModel>
+#include <Wt/Dbo/QueryColumn>
 
 namespace Wt {
   namespace Dbo {

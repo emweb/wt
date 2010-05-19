@@ -69,7 +69,7 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
   if (flags & RenderEditing) {
     if (!editing) {
       delete widget;
-      widget = createEditor(index);
+      widget = createEditor(index, flags);
     }
   } else {
     if (editing) {
@@ -309,20 +309,23 @@ void WItemDelegate::onCheckedChange(IndexCheckBox *cb) const
     model->setData(cb->index(), boost::any(cb->isChecked()), CheckStateRole);
 }
 
-WWidget *WItemDelegate::createEditor(const WModelIndex& index) const
+WWidget *WItemDelegate::createEditor(const WModelIndex& index,
+				     WFlags<ViewItemRenderFlag> flags) const
 {
   WContainerWidget *const result = new WContainerWidget();
   result->setSelectable(true);
 
   WLineEdit *lineEdit = new WLineEdit();
   lineEdit->setText(asString(index.data(EditRole), textFormat_));
-  lineEdit->setFocus();
   lineEdit->enterPressed().connect
     (boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
   lineEdit->escapePressed().connect
     (boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
 
-  // Needed to not confuse input elements in IE
+  if (flags & RenderFocused)
+    lineEdit->setFocus();
+
+  // Disable drag & drop and selection behaviour
   result->mouseWentDown().preventPropagation();
   result->clicked().preventPropagation();
   
@@ -359,9 +362,7 @@ boost::any WItemDelegate::editState(WWidget *editor) const
 void WItemDelegate::setEditState(WWidget *editor, const boost::any& value) const
 {
   WContainerWidget *w = dynamic_cast<WContainerWidget *>(editor);
-
   WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
-  lineEdit->setFocus(false);
 
   lineEdit->setText(boost::any_cast<WT_USTRING>(value));
 }

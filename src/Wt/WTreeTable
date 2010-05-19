@@ -166,6 +166,9 @@ public:
    */
   WWidget *headerWidget() const;
 
+protected:
+  virtual void render(WFlags<RenderFlag> flags);
+
 private:
   WContainerWidget *impl_;
   WContainerWidget *headers_;

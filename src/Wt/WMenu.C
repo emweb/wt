@@ -235,9 +235,10 @@ void WMenu::select(int index, bool changePath)
 
   WApplication *app = 0;
 
-  if (changePath && internalPathEnabled_) {
+  if (changePath && internalPathEnabled_ && index != -1) {
+    std::string newPath = basePath_ + items_[index]->pathComponent();
     app = wApp;
-    emitPathChange = previousInternalPath_ != app->internalPath();
+    emitPathChange = newPath != app->internalPath();
   }
 
   selectVisual(index, changePath);

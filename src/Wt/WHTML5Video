@@ -55,7 +55,7 @@ namespace Wt {
  * the WHTML5Video was rendered. This can easily be avoided by calling
  * these functions right after construction.
  *
- * This is a technology-specific class. To let Wt choose a technology
+ * This is a technology-specific class. To let %Wt choose a technology
  * (and fallback technologies) to display your videos, use the WVideo class.
  */
 class WT_API WHTML5Video : public WWebWidget
@@ -147,6 +147,16 @@ public:
    * Flash movie, an animated gif, a text, the poster image, ...
    */
   void setAlternativeContent(WWidget *alternative);
+
+  /*! \brief Returns the JavaScript reference to the video object, or null.
+   *
+   * It is possible, for compatibility reasons, that jsRef() is not the
+   * HTML5 video element. jsVideoRef() is guaranteed to be an expression
+   * that evaluates to the video object. This expression may yield null, if
+   * the video object is not rendered at all (e.g. on older versions of
+   * Internet Explorer).
+   */
+  std::string jsVideoRef() const;
 
   virtual void resize(const WLength &width, const WLength &height);
 

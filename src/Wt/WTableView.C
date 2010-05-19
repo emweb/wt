@@ -43,11 +43,10 @@ WTableView::WTableView(WContainerWidget *parent)
     plainTable_(0),
     dropEvent_(impl_, "dropEvent"),
     columnWidthChanged_(impl_, "columnResized"),
-    viewportFirstRow_(0),
-    viewportLastRow_(50),
-    viewportRows_(25),
-    viewportFirstColumn_(0),
-    viewportLastColumn_(13),
+    viewportLeft_(0),
+    viewportWidth_(1000),
+    viewportTop_(0),
+    viewportHeight_(600),
     tieContentsHeaderScrollJS_(this),
     itemMouseDownJS_(this)
 { 
@@ -202,7 +201,6 @@ WTableView::WTableView(WContainerWidget *parent)
     plainTable_->setAttributeValue("style", "table-layout: fixed;");
     plainTable_->setHeaderCount(1);
 
-    viewportRows_ = 1000;
     impl_->addWidget(plainTable_);
 
     resize(width(), height());
@@ -216,29 +214,28 @@ WTableView::WTableView(WContainerWidget *parent)
 void WTableView::resize(const WLength& width, const WLength& height)
 {
   if (ajaxMode()) {
-    if (!height.isAuto())
-      viewportRows_ 
-	= static_cast<int>(ceil
-			   ((height.toPixels() - headerHeight().toPixels())
-			    / rowHeight().toPixels()));
+    if (!height.isAuto()) {
+      viewportHeight_
+	= static_cast<int>(ceil((height.toPixels()
+				 - headerHeight().toPixels())));
+    }
   } else { // Plain HTML mode
+    if (!plainTable_) // Not yet rendered
+      return;
+
     plainTable_->resize(width, WLength::Auto);
 
     if (!height.isAuto()) {
       if (impl_->count() < 2)
 	impl_->addWidget(createPageNavigationBar());
-
-      int navigationBarHeight = 25; // set in wt.css
-
-      viewportRows_ = static_cast<int>
-	((height.toPixels() - headerHeight().toPixels() - navigationBarHeight)
-	 / rowHeight().toPixels());
     }
   }
 
-  scheduleRerender(NeedAdjustViewPort);
+  computeRenderedArea();
 
   WCompositeWidget::resize(width, height);
+
+  scheduleRerender(NeedAdjustViewPort);
 }
 
 WTableView::~WTableView()
@@ -306,8 +303,11 @@ WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index)
       renderFlags |= RenderSelected;
   }
 
-  if (isEditing(index))
+  if (isEditing(index)) {
     renderFlags |= RenderEditing;
+    if (hasEditFocus(index))
+      renderFlags |= RenderFocused;
+  }
 
   bool initial = !widget;
 
@@ -321,8 +321,9 @@ WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index)
 
   if (initial) {
     /*
-     * If we are creating a new editor, then reset its current edit
-     * state.
+     * If we are re-creating an old editor, then reset its current edit
+     * state (we do not actually check if it is an old editor, but we could
+     * now with stateSaved)
      */
     if (renderFlags & RenderEditing) {
       boost::any state = editState(index);
@@ -394,7 +395,7 @@ int WTableView::firstRow() const
   if (ajaxMode())
     return spannerCount(Top);
   else
-    return viewportFirstRow_;
+    return renderedFirstRow_;
 }
 
 int WTableView::lastRow() const
@@ -402,7 +403,7 @@ int WTableView::lastRow() const
   if (ajaxMode())
     return model()->rowCount(rootIndex()) - spannerCount(Bottom) - 1;
   else
-    return viewportLastRow_;
+    return renderedLastRow_;
 }
 
 int WTableView::firstColumn() const
@@ -634,17 +635,11 @@ void WTableView::resetGeometry()
 {
   if (ajaxMode()) {
     reset();
-
-    viewportLastRow_
-      = std::min(model()->rowCount(rootIndex()) - 1,
-		 viewportFirstRow_ + 2 * viewportRows_);
-    viewportLastColumn_
-      = std::min(model()->columnCount(rootIndex()) - 1, viewportLastColumn_);
   } else { // plain HTML
-    viewportLastRow_
+    renderedLastRow_
       = std::min(model()->rowCount(rootIndex()) - 1,
-		 viewportFirstRow_ + viewportRows_ - 1);
-    viewportLastColumn_ = model()->columnCount(rootIndex()) - 1;
+		 renderedFirstRow_ + pageSize() - 1);
+    renderedLastColumn_ = model()->columnCount(rootIndex()) - 1;
   }
 }
 
@@ -659,6 +654,12 @@ void WTableView::reset()
   headers_->resize(total, headers_->height());
   canvas_->resize(total,
 		  model()->rowCount(rootIndex()) * rowHeight().toPixels());
+
+  computeRenderedArea();
+
+  int renderedRows = lastRow() - firstRow() + 1;
+  for (int i = 0; i < renderedRows; ++i)
+    removeSection(Top);
 
   setSpannerCount(Top, 0);
   setSpannerCount(Left, 0);
@@ -724,10 +725,10 @@ void WTableView::rerenderData()
   if (ajaxMode()) {
     reset();
 
-    renderTable(viewportFirstRow_, 
-		viewportLastRow_, 
-		viewportFirstColumn_, 
-		viewportLastColumn_);
+    renderTable(renderedFirstRow_, 
+		renderedLastRow_, 
+		renderedFirstColumn_, 
+		renderedLastColumn_);
   } else {
     pageChanged().emit();
 
@@ -924,7 +925,7 @@ void WTableView::setHeaderHeight(const WLength& height, bool multiLine)
 {
   WAbstractItemView::setHeaderHeight(height, multiLine);
 
-  if (!table_) // Plain HTML mode
+  if (!ajaxMode())
     resize(this->width(), this->height());
 
   if (renderState_ >= NeedRerenderHeader)
@@ -1055,16 +1056,16 @@ void WTableView::modelRowsInserted(const WModelIndex& parent,
 
   shiftModelIndexes(start, end - start + 1);
 
-  if (start > lastRow() || 
-      renderState_ == NeedRerender || 
-      renderState_ == NeedRerenderData)
-    return;
-
-  if (ajaxMode())
+  if (ajaxMode()) {
     canvas_->resize(canvas_->width(),
 		    model()->rowCount(rootIndex()) * rowHeight().toPixels());
-  
-  scheduleRerender(NeedRerenderData);
+    scheduleRerender(NeedAdjustViewPort);
+  }
+
+  computeRenderedArea();
+
+  if (start <= lastRow())
+    scheduleRerender(NeedRerenderData);
 }
 
 void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
@@ -1074,16 +1075,16 @@ void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
 
   shiftModelIndexes(start, -(end - start + 1));
 
-  if (ajaxMode())
+  if (ajaxMode()) {
     canvas_->resize(canvas_->width(),
 		    model()->rowCount(rootIndex()) * rowHeight().toPixels());
+    scheduleRerender(NeedAdjustViewPort);
+  }
 
-  if (start > lastRow() ||
-      renderState_ == NeedRerender || 
-      renderState_ == NeedRerenderData)
-    return;
-  
-  scheduleRerender(NeedRerenderData);
+  computeRenderedArea();
+
+  if (start <= lastRow())
+    scheduleRerender(NeedRerenderData);
 }
 
 
@@ -1152,63 +1153,87 @@ void WTableView::onViewportChange(WScrollEvent e)
 {
   assert(ajaxMode());
 
-  const int borderRows = 5;
-  const int borderColumnPixels = 200;
+  viewportLeft_ = e.scrollX();
+  viewportWidth_ = e.viewportWidth();
+  viewportTop_ = e.scrollY();
+  viewportHeight_ = e.viewportHeight();
 
-  /* row range */
-  viewportFirstRow_
-    = static_cast<int>(e.scrollY() / rowHeight().toPixels());
+  computeRenderedArea();
 
-  viewportRows_
-    = static_cast<int>(e.viewportHeight() / rowHeight().toPixels() + 0.5);
+  scheduleRerender(NeedAdjustViewPort);  
+}
 
-  viewportLastRow_
-    = std::min(viewportFirstRow_ + viewportRows_ * 2 + borderRows,
-	       model()->rowCount(rootIndex()) - 1);
-  viewportFirstRow_
-    = std::max(viewportFirstRow_ - viewportRows_ - borderRows, 0);
+void WTableView::computeRenderedArea()
+{
+  if (ajaxMode()) {
+    const int borderRows = 5;
+    const int borderColumnPixels = 200;
 
-  /* column range */
+    /* row range */
+    int top = std::min(viewportTop_,
+		       static_cast<int>(canvas_->height().toPixels()));
+    int height = std::min(viewportHeight_,
+			  static_cast<int>(canvas_->height().toPixels()));
 
-  int left
-    = std::max(0, e.scrollX() - e.viewportWidth() - borderColumnPixels);
-  int right
-    = std::min(static_cast<int>(canvas_->width().toPixels()),
-	       e.scrollX() + 2 * e.viewportWidth() + borderColumnPixels);
+    renderedFirstRow_ = static_cast<int>(top / rowHeight().toPixels());
 
-  int total = 0;
-  viewportLastColumn_ = columnCount() - 1;
-  for (int i = 0; i < columnCount(); i++) {
-    int w = static_cast<int>(columnInfo(i).width.toPixels());
+    int renderedRows = static_cast<int>(height / rowHeight().toPixels() + 0.5);
 
-    if (total <= left && left < total + w)
-      viewportFirstColumn_ = i;
-      
-    if (total <= right && right < total + w) {
-      viewportLastColumn_ = i;
-      break;
+    renderedLastRow_
+      = std::min(renderedFirstRow_ + renderedRows * 2 + borderRows,
+		 model()->rowCount(rootIndex()) - 1);
+    renderedFirstRow_
+      = std::max(renderedFirstRow_ - renderedRows - borderRows, 0);
+
+    /* column range */
+    int left
+      = std::max(0, viewportLeft_ - viewportWidth_ - borderColumnPixels);
+    int right
+      = std::min(static_cast<int>(canvas_->width().toPixels()),
+		 viewportLeft_ + 2 * viewportWidth_ + borderColumnPixels);
+
+    int total = 0;
+    renderedFirstColumn_ = 0;
+    renderedLastColumn_ = columnCount() - 1;
+    for (int i = 0; i < columnCount(); i++) {
+      int w = static_cast<int>(columnInfo(i).width.toPixels());
+
+      if (total <= left && left < total + w)
+	renderedFirstColumn_ = i;
+
+      if (total <= right && right < total + w) {
+	renderedLastColumn_ = i;
+	break;
+      }
+
+      total += w + 7;
     }
 
-    total += w + 7;
+    assert(renderedFirstColumn_ <= renderedLastColumn_);
+  } else { // Plain HTML
+    renderedFirstColumn_ = 0;
+    if (model()) {
+      renderedLastColumn_ = model()->columnCount(rootIndex()) - 1;
+
+      int cp = std::max(0, std::min(currentPage(), pageCount() - 1));
+      setCurrentPage(cp);
+    } else
+      renderedFirstRow_ = renderedLastRow_ = 0;
   }
-
-  assert(viewportFirstColumn_ <= viewportLastColumn_);
-
-  scheduleRerender(NeedAdjustViewPort);
 }
 
 void WTableView::adjustToViewport()
 {
   assert(ajaxMode());
 
-  if (viewportFirstRow_ != firstRow() || 
-      viewportLastRow_ != lastRow() ||
-      viewportFirstColumn_ != firstColumn()||
-      viewportLastColumn_ != lastColumn()) {
-    renderTable(viewportFirstRow_, 
-		viewportLastRow_, 
-		viewportFirstColumn_, 
-		viewportLastColumn_);
+  if (renderedFirstRow_ != firstRow() || 
+      renderedLastRow_ != lastRow() ||
+      renderedFirstColumn_ != firstColumn()||
+      renderedLastColumn_ != lastColumn()) {
+    renderTable(renderedFirstRow_, 
+		renderedLastRow_, 
+		renderedFirstColumn_, 
+		renderedLastColumn_);
   }
 }
 
@@ -1347,33 +1372,41 @@ void WTableView::onDropEvent(int renderedRow, int columnId,
 
 void WTableView::setCurrentPage(int page)
 {
-  viewportFirstRow_ = page * viewportRows_;
+  renderedFirstRow_ = page * pageSize();
 
   if (model())
-    viewportLastRow_ = std::min(viewportFirstRow_ + viewportRows_ - 1,
-				model()->rowCount(rootIndex()) - 1);
+    renderedLastRow_= std::min(renderedFirstRow_ + pageSize() - 1,
+			       model()->rowCount(rootIndex()) - 1);
   else
-    viewportLastRow_ = viewportFirstRow_;
+    renderedLastRow_ = renderedFirstRow_;
  
   scheduleRerender(NeedRerenderData);
 }
 
 int WTableView::currentPage() const
 {
-  return viewportFirstRow_ / viewportRows_;
+  return renderedFirstRow_ / pageSize();
 }
 
 int WTableView::pageCount() const
 {
   if (model()) {
-    return (model()->rowCount(rootIndex()) - 1) / viewportRows_ + 1;
+    return (model()->rowCount(rootIndex()) - 1) / pageSize() + 1;
   } else
     return 1;
 }
 
 int WTableView::pageSize() const
 {
-  return viewportRows_;
+  if (height().isAuto())
+    return 10000;
+  else {
+    const int navigationBarHeight = 25; // set in wt.css
+
+    return static_cast<int>
+      ((height().toPixels() - headerHeight().toPixels() - navigationBarHeight)
+       / rowHeight().toPixels());
+  }
 }
 
 }

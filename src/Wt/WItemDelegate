@@ -143,21 +143,23 @@ protected:
    * \if cpp
    * The following shows the default implementation:
    * \code
-   * Wt::WWidget *WItemDelegate::createEditor(const Wt::WModelIndex& index) const
+   * Wt::WWidget *WItemDelegate::createEditor(const Wt::WModelIndex& index, WFlags<ViewItemRenderFlag> flags) const
    * {
    *   Wt::WContainerWidget *result = new Wt::WContainerWidget();
    *   result->setSelectable(true);
    *
    *   Wt::WLineEdit *lineEdit = new Wt::WLineEdit();
    *   lineEdit->setText(asString(index.data(EditRole), textFormat_));
-   *   lineEdit->setFocus();
    *   lineEdit->enterPressed().connect(boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
    *   lineEdit->escapePressed().connect(boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
    *
-   *   // Needed to not confuse input elements in IE
-   *   lineEdit->mouseWentDown().preventPropagation();
-   *   lineEdit->clicked().preventPropagation();
-   * 
+   *   if (flags & RenderFocused)
+   *     lineEdit->setFocus();
+   *
+   *   // Disable drag & drop and selection behaviour
+   *   result->mouseWentDown().preventPropagation();
+   *   result->clicked().preventPropagation();
+   *
    *   // We use a layout so that the line edit fills the entire cell.
    *   result->setLayout(new WHBoxLayout());
    *   result->layout()->setContentsMargins(1, 1, 1, 1);
@@ -189,7 +191,6 @@ protected:
    * {
    *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
    *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
-   *   lineEdit->setFocus(false);
    *
    *   lineEdit->setText(boost::any_cast<Wt::WString>(value));
    * }
@@ -206,7 +207,8 @@ protected:
    * \endcode
    * \endif
    */
-  virtual WWidget *createEditor(const WModelIndex& index) const;
+  virtual WWidget *createEditor(const WModelIndex& index,
+				WFlags<ViewItemRenderFlag> flags) const;
 
 private:
   WT_USTRING textFormat_;

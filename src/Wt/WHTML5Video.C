@@ -7,6 +7,7 @@
 #include "Wt/WHTML5Video"
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/WEnvironment"
 #include "Wt/WTemplate"
 #include "DomElement.h"
 #include "Utils.h"
@@ -28,6 +29,7 @@ WHTML5Video::WHTML5Video(WContainerWidget *parent):
 
 void WHTML5Video::updateVideoDom(DomElement& element, bool all)
 {
+  // Only if not IE
   if (all && alternative_) {
     element.setAttribute("onerror",
       """if(event.target.error.code=="
@@ -116,24 +118,61 @@ void WHTML5Video::updateVideoDom(DomElement& element, bool all)
 
 DomElement *WHTML5Video::createDomElement(WApplication *app)
 {
-  DomElement *video = DomElement::createNew(DomElement_VIDEO);
-  DomElement *wrap = 0;
+  DomElement *result = 0;
 
   if (isInLayout()) {
-    video->setProperty(PropertyStylePosition, "absolute");
-    video->setProperty(PropertyStyleLeft, "0");
-    video->setProperty(PropertyStyleRight, "0");
-    wrap = DomElement::createNew(DomElement_DIV);
-    wrap->setProperty(PropertyStylePosition, "relative");
+    // It's easier to set WT_RESIZE_JS after the following code,
+    // but if it's not set, the alternative content will think that
+    // it is not included in a layout manager. Set some phony function
+    // now, which will be overwritten later in this method.
+    setJavaScriptMember(WT_RESIZE_JS, "function() {}");
+  }
+
+  if (app->environment().agentIsIE()) {
+    // Shortcut: IE misbehaves when it encounters a video element
+    result = DomElement::createNew(DomElement_DIV);
+    if (alternative_)
+      result->addChild(alternative_->createSDomElement(app));
+  } else {
+    DomElement *video = DomElement::createNew(DomElement_VIDEO);
+    DomElement *wrap = 0;
+    if (isInLayout()) {
+      video->setProperty(PropertyStylePosition, "absolute");
+      video->setProperty(PropertyStyleLeft, "0");
+      video->setProperty(PropertyStyleRight, "0");
+      wrap = DomElement::createNew(DomElement_DIV);
+      wrap->setProperty(PropertyStylePosition, "relative");
+    }
+    result = wrap ? wrap : video;
+    if (wrap) {
+      videoId_ = id() + "_video";
+      video->setId(videoId_);
+    } else {
+      videoId_ = id();
+    }
+
+    updateVideoDom(*video, true);
+
+    if (wrap) {
+      wrap->addChild(video);
+    }
+  }
+
+  if (isInLayout()) {
     std::stringstream ss;
     ss <<
-      """function(self, w, h) {"
-      ""  "v=self.firstChild;"
-      ""  "v.setAttribute('width', w);"
-      ""  "v.setAttribute('height', h);";
+      """function(self, w, h) {";
+    if (!videoId_.empty()) {
+      ss <<
+        ""  "v=" + jsVideoRef() + ";"
+        ""  "if(v){"
+        ""    "v.setAttribute('width', w);"
+        ""    "v.setAttribute('height', h);"
+        ""  "}";
+    }
     if (alternative_) {
       ss <<
-        """a=v.lastChild;"
+        """a=" + alternative_->jsRef() + ";"
         ""  "if(a && a." << WT_RESIZE_JS <<")"
         ""    "a." << WT_RESIZE_JS << "(a, w, h);";
     }
@@ -142,31 +181,29 @@ DomElement *WHTML5Video::createDomElement(WApplication *app)
     setJavaScriptMember(WT_RESIZE_JS, ss.str());
   }
 
-  DomElement *result = wrap ? wrap : video;
   setId(result, app);
-  if (wrap) {
-    videoId_ = id() + "_video";
-    video->setId(videoId_);
-  } else {
-    videoId_ = id();
-  }
-
-  updateVideoDom(*video, true);
-
-  if (wrap) {
-    wrap->addChild(video);
-  }
   updateDom(*result, true);
 
   return result;
 }
 
+std::string WHTML5Video::jsVideoRef() const
+{
+  if (videoId_.empty()) {
+    return "null";
+  } else {
+    return WT_CLASS ".getElement('" + videoId_ + "')";
+  }
+}
+
 void WHTML5Video::getDomChanges(std::vector<DomElement *>& result,
                                 WApplication *app)
 {
-  DomElement *video = DomElement::getForUpdate(videoId_, DomElement_VIDEO);
-  updateVideoDom(*video, false);
-  result.push_back(video);
+  if (!videoId_.empty()) {
+    DomElement *video = DomElement::getForUpdate(videoId_, DomElement_VIDEO);
+    updateVideoDom(*video, false);
+    result.push_back(video);
+  }
   WWebWidget::getDomChanges(result, app);
 }
 

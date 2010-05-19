@@ -20,7 +20,7 @@
 namespace Wt {
   namespace Dbo {
     namespace Impl {
-      extern std::string quoteSchemaDot(const std::string& table);
+      extern WTDBO_API std::string quoteSchemaDot(const std::string& table);
     }
 
 struct NullType {

@@ -109,9 +109,12 @@ private:
    * properties. */
   int firstColumn_, lastColumn_;
 
-  /* Desired size of the viewport */
-  int viewportFirstRow_, viewportLastRow_, viewportRows_,
-    viewportFirstColumn_, viewportLastColumn_;
+  /* Current size of the viewport */
+  int viewportLeft_, viewportWidth_, viewportTop_, viewportHeight_;
+
+  /* Desired rendered area */
+  int renderedFirstRow_, renderedLastRow_,
+    renderedFirstColumn_, renderedLastColumn_;
 
   JSlot tieContentsHeaderScrollJS_, itemMouseDownJS_;
 
@@ -150,6 +153,7 @@ private:
   void rerenderHeader();
   void rerenderData();
   void adjustToViewport();
+  void computeRenderedArea();
 
   WContainerWidget* headerContainer() { return headerContainer_; }
 

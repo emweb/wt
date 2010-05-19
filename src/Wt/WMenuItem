@@ -198,6 +198,18 @@ protected:
 
   virtual void setFromInternalPath(const std::string& path);
 
+  /*! \brief Progresses to an Ajax-enabled widget.
+   *
+   * This method is called when the progressive bootstrap method is
+   * used, and support for AJAX has been detected. The default
+   * behavior will upgrade the menu and the contents event handling to use AJAX
+   * instead of full page reloads.
+   *
+   * You may want to reimplement this method if you want to make
+   * changes to widget when AJAX is enabled.
+   *
+   * \sa WMenu::enableAjax()
+   */
   virtual void enableAjax();
 
 private:

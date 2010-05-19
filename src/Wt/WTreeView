@@ -293,6 +293,7 @@ private:
 
   WModelIndexSet       expandedSet_;
   NodeMap              renderedNodes_;
+  bool                 renderedNodesAdded_;
   WTreeViewNode       *rootNode_;
   WCssTemplateRule    *rowHeightRule_, *rowWidthRule_, 
                       *rowContentsWidthRule_, *c0WidthRule_;

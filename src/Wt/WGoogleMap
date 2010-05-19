@@ -258,10 +258,11 @@ private:
 
 protected:
   virtual void render(WFlags<RenderFlag> flags);
-  virtual void doGmJavaScript(const std::string& jscode, bool sepScope);
 
 private:
   std::vector<std::string> additions_;
+
+  virtual void doGmJavaScript(const std::string& jscode, bool sepScope);
 };
 
 #ifndef WT_TARGET_JAVA

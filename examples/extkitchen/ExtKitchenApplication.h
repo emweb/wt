@@ -15,7 +15,7 @@ namespace Wt {
   class WStandardItemModel;
   class WTable;
   class WTreeNode;
-  class WTreeView;
+  class WTableView;
   class WWidget;
 
   namespace Ext {
@@ -80,7 +80,7 @@ private:
   void addChildren();
   Wt::WStandardItemModel *model_;
   Wt::Ext::TableView *table1_, *table2_;
-  Wt::WTreeView *treeView_;
+  Wt::WTableView *tableView_;
 
   /*
    * Modify the tabwidget

@@ -40,6 +40,7 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
   columnWidths_.push_back(WLength::Auto);
 
   WContainerWidget *content = new WContainerWidget(impl_);
+  content->setStyleClass("Wt-content");
   content->resize(WLength(100, WLength::Percentage),
 		  WLength(100, WLength::Percentage));
   if (!wApp->environment().agentIsIE())
@@ -63,25 +64,38 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
      """if (h > 0) "
      ""  "c.style.height = h + 'px';"
      "};");
+}
 
-  /*
-   * Ugly JavaScript hack to make headers stay on top of content when
-   * scrollbars appear
-   */
-  WApplication::instance()->doJavaScript
-    ("function sb" + id() + "() {"
-     """var e=" + content->jsRef() + ";"
-     """var sp=" + spacer->jsRef() + ";"
-     """if (e && sp) {"
-     ""  "if (e.scrollHeight > e.offsetHeight) {"
-     ""    "sp.style.display='block';"
-     ""  "} else {"
-     ""    "sp.style.display='none';"
-     ""  "}"
-     ""  "setTimeout(sb" + id() + ", 20);"
-     """}"
-     "}"
-     "sb" + id() + "();");
+void WTreeTable::render(WFlags<RenderFlag> flags)
+{
+  if (flags & RenderFull) {
+    /*
+     * Ugly JavaScript hack to make headers stay on top of content when
+     * scrollbars appear
+     */
+    WApplication::instance()->doJavaScript
+      ("{"
+       """var id='" + id() + "';"
+
+       """function sb() {"
+       ""  "var $el=$('#' + id);"
+       ""  "if ($el.size()) {"
+       ""    "var e=$el.find('.Wt-content').get(0);"
+       ""    "var sp=$el.find('.Wt-sbspacer').get(0);"
+       ""    "if (e.scrollHeight > e.offsetHeight) {"
+       ""      "sp.style.display='block';"
+       ""    "} else {"
+       ""      "sp.style.display='none';"
+       ""    "}"
+       ""    "setTimeout(sb, 20);"
+       ""  "}"
+       """}"
+
+       """sb();"
+       "}");
+  }
+
+  WCompositeWidget::render(flags);
 }
 
 WWidget *WTreeTable::headerWidget() const
@@ -103,10 +117,12 @@ WTreeTableNode *WTreeTable::treeRoot()
 
 void WTreeTable::setTree(WTree *root, const WString& h)
 {
+  WContainerWidget *parent = dynamic_cast<WContainerWidget *>(tree_->parent());
+
   delete tree_;
 
   header(0)->setText(h);
-  impl_->addWidget(tree_ = new WTree());
+  parent->addWidget(tree_ = new WTree());
   tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
 
   treeRoot()->setTable(this);

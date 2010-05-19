@@ -13,26 +13,6 @@
 namespace Wt {
   namespace Dbo {
 
-// TODO figure out a nice syntax for qualified fields ?
-class QueryColumn {
-  QueryColumn(const std::string& displayField);
-
-  QueryColumn(const std::string& displayField,
-	      const std::string& editField,
-	      WAbstractTableModel *editValuesModel);
-
-private:
-  std::string displayField_;
-  std::string editField_;
-
-  int displayFieldIdx_, editFieldIdx_;
-
-  WAbstractTableModel *editValuesModel_;
-  WFlags<ItemFlag> flags_;
-
-  template <class Result> friend class QueryModel;
-};
-
 /*! \class QueryModel Wt/Dbo/QueryModel Wt/Dbo/QueryModel
  *  \brief A %Wt MVC Model to view the results of a query.
  *

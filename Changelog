@@ -1,3 +1,13 @@
+19-05-2010:
+	* WMenu: fix first selection not emitting internal path change (dmitry)
+
+	* WTableView: properly react to model changes
+
+	* WItemDelegate: explicit focus support
+
+18-05-2010:
+	* Chart/WChart2DRenderer: fix rendering glitch when rendering grids
+
 13-05-2010:
 	* WInteractWidget: added mouseDragged()
 

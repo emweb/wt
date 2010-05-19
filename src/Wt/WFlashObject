@@ -29,7 +29,7 @@ namespace Wt {
  * \endif
  *
  * Flash objects must have their size set, so do not forget to call
- * resize() after instantiation or your content will be invisible. Wt
+ * resize() after instantiation or your content will be invisible. %Wt
  * will modify width and height attributes of the Flash object if resize()
  * is called after the object is instantiated; it is however not clear
  * if this is permitted by the Flash plugin.
@@ -38,7 +38,7 @@ namespace Wt {
  * will be shown only when the browser has no Flash support. By default,
  * a 'Download Flash' button will be displayed that links to a website
  * where the Flash player can be downloaded. You may modify this to be
- * any widget, such as a WImage, or a native Wt implementation of the
+ * any widget, such as a WImage, or a native %Wt implementation of the
  * Flash movie.
  *
  * <h3>CSS</h3>
@@ -95,6 +95,9 @@ public:
    * The Flash object is not stored in jsRef(), but in jsFlashRef(). Use this
    * method in conjuction with WApplication::doJavaScript() or JSlot in custom
    * JavaScript code to refer to the Flash content.
+   *
+   * The expression returned by jsFlashRef() may be null,
+   * for example on IE when flash is not installed.
    */
   std::string jsFlashRef() const;
 
@@ -120,6 +123,9 @@ private:
   std::map<std::string, WString> parameters_;
   std::map<std::string, WString> variables_;
   WWidget *alternative_;
+  JSignal<> ieRendersAlternative_;
+  bool replaceDummyIeContent_;
+  void renderIeAltnerative();
 };
 
 }

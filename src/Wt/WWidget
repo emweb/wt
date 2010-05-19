@@ -882,6 +882,18 @@ protected:
    */
   virtual int boxBorder(Orientation orientation) const;
 
+  /*! \brief Propagates that a widget was enabled or disabled through children.
+   *
+   * When enabling or disabling a widget, you usually also want to disable
+   * contained children. This method is called by setDisabled() to propagate
+   * its state to all children.
+   *
+   * You may want to reimplement this method if they wish to render
+   * differently when a widget is disabled. The default implementation will
+   * propagate the signal to all children.
+   */
+  virtual void propagateSetEnabled(bool enabled) = 0;
+
   void getDrop(const std::string sourceId, const std::string mimeType,
 	       WMouseEvent event);
 

@@ -318,6 +318,16 @@ public:
 protected:
   virtual void enableAjax();
 
+  /*! \brief Handling of internal path changes.
+   *
+   * This methods makes the menu react to internal path changes (and also
+   * the initial internal path).
+   *
+   * You may want to reimplement this if you want to customize the internal
+   * path handling.
+   */
+  virtual void internalPathChanged(const std::string& path);
+
 private:
   WWidget          *impl_;
   WStackedWidget   *contentsStack_;
@@ -344,7 +354,6 @@ private:
   friend class WMenuItem;
   friend class WSubMenuItem;
 
-  void internalPathChanged(const std::string& path);
   void updateItems();
 };
 

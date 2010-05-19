@@ -159,7 +159,7 @@ void WAxis::setLocation(AxisValue location)
 
 void WAxis::setMinimum(double minimum)
 {
-  Segment& s = segments_[0];
+  Segment& s = segments_.front();
 
 #ifndef WT_TARGET_JAVA
   if (set(s.minimum, minimum))
@@ -172,8 +172,8 @@ void WAxis::setMinimum(double minimum)
 
 double WAxis::minimum() const
 {
-  return autoLimits() & MinimumValue ? segments_[0].renderMinimum
-    : segments_[0].minimum;
+  return autoLimits() & MinimumValue ? segments_.front().renderMinimum
+    : segments_.front().minimum;
 }
 
 void WAxis::setMaximum(double maximum)
@@ -200,7 +200,7 @@ double WAxis::maximum() const
 void WAxis::setRange(double minimum, double maximum)
 {
   if (maximum > minimum) {
-    segments_[0].minimum = minimum;
+    segments_.front().minimum = minimum;
     segments_.back().maximum = maximum;
 
     update();
@@ -210,7 +210,7 @@ void WAxis::setRange(double minimum, double maximum)
 void WAxis::setAutoLimits(WFlags<AxisValue> locations)
 {
   if (locations & MinimumValue)
-    set(segments_[0].minimum, AUTO_MINIMUM);
+    set(segments_.front().minimum, AUTO_MINIMUM);
   else if (locations & MaximumValue)
     set(segments_.back().maximum, AUTO_MAXIMUM);
 }
@@ -219,7 +219,7 @@ WFlags<AxisValue> WAxis::autoLimits() const
 {
   WFlags<AxisValue> result = 0;
 
-  if (segments_[0].minimum == AUTO_MINIMUM)
+  if (segments_.front().minimum == AUTO_MINIMUM)
     result |= MinimumValue;
 
   if (segments_.back().maximum == AUTO_MAXIMUM)

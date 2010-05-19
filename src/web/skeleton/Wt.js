@@ -1642,7 +1642,21 @@ ImagePreloader.prototype.onload = function() {
 
 WT.history.register(_$_INITIAL_HASH_$_, onHashChange);
 
+// For use in FlashObject.js. In IE7, the alternative content is
+// not inserted in the DOM and when it is, it cannot contain JavaScript.
+// Through a hack in the style attribute, we do execute JS, but what we
+// can do there is limited. Hence this helper method.
+function ieAlternative(d)
+{
+  if (d.ieAlternativeExecuted) return '0';
+  self.emit(d.parentNode, 'IeAltnernative');
+  d.style.width = '';
+  d.ieAlternativeExecuted = true;
+  return '0';
+}
+
 this._p_ = {
+ ieAlternative : ieAlternative,
  loadScript : loadScript,
  onJsLoad : onJsLoad,
  setTitle : setTitle,

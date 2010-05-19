@@ -1,0 +1,40 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2010 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_DBO_QUERY_COLUMN_H_
+#define WT_DBO_QUERY_COLUMN_H_
+
+#include <Wt/Dbo/Dbo>
+
+namespace Wt {
+class WAbstractTableModel;
+
+  namespace Dbo {
+
+// TODO figure out a nice syntax for qualified fields ?
+class QueryColumn {
+  QueryColumn(const std::string& displayField);
+
+  QueryColumn(const std::string& displayField,
+	      const std::string& editField,
+	      WAbstractTableModel *editValuesModel);
+
+private:
+  std::string displayField_;
+  std::string editField_;
+
+  int displayFieldIdx_, editFieldIdx_;
+
+  WAbstractTableModel *editValuesModel_;
+
+  template <class Result> friend class QueryModel;
+};
+
+  }
+}
+
+#endif // WT_DBO_QUERY_COLUMN_H_
+

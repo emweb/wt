@@ -270,12 +270,10 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 
     if (flags_.test(BIT_GOT_FOCUS)
 	|| (all && flags_.test(BIT_INITIAL_FOCUS))) {
-      if (env.agentIsIE())
-	element.callJavaScript("setTimeout(function() {"
-			       """var f = " + jsRef() + ";"
-			       """if (f) f.focus(); }, 500);");
-      else
-	element.callMethod("focus()");
+      element.callJavaScript("setTimeout(function() {"
+			     """var f = " + jsRef() + ";"
+			     """if (f) f.focus(); }, "
+			     + (env.agentIsIE() ? "500" : "10") + ");");
 
       flags_.reset(BIT_GOT_FOCUS);
     }

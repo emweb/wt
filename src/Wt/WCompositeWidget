@@ -126,6 +126,8 @@ public:
   virtual WWidget *find(const std::string& name);
   virtual void setSelectable(bool selectable);  
 
+  virtual void propagateSetEnabled(bool enabled);
+
 protected:
   virtual void addChild(WWidget *child);
   virtual void removeChild(WWidget *child);
@@ -140,6 +142,14 @@ protected:
    * of the widget is completely transferred (including deletion).
    */
   void setImplementation(WWidget *widget);
+ 
+  /*! \brief Get the implementation widget
+   *
+   * This returns the widget that implements this compositeWidget.
+   */
+  WWidget* implementation() {
+    return impl_;
+  };
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
 			      WApplication *app);

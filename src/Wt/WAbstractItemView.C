@@ -1009,7 +1009,9 @@ void WAbstractItemView::edit(const WModelIndex& index)
 	closeEditor(editedItems_.begin()->first, false);
     }
 
+    Utils::insert(editedItems_, index, Editor());
     editedItems_[index].widget = 0;
+    editedItems_[index].stateSaved = false;
 
     modelDataChanged(index, index);
   }
@@ -1051,6 +1053,21 @@ bool WAbstractItemView::isEditing(const WModelIndex& index) const
   return editedItems_.find(index) != editedItems_.end();
 }
 
+bool WAbstractItemView::hasEditFocus(const WModelIndex& index) const
+{
+  /*
+   * Later, we may want to only return true for the 'smallest' index
+   * satisfying all these conditions
+   */
+  EditorMap::const_iterator i = editedItems_.find(index);
+
+  if (i != editedItems_.end()) {
+    const Editor& editor = i->second;
+    return !editor.widget && !editor.stateSaved;
+  } else
+    return false;
+}
+
 bool WAbstractItemView::isEditing() const
 {
   return !editedItems_.empty();
@@ -1079,7 +1096,8 @@ void WAbstractItemView::setEditState(const WModelIndex& index,
 void WAbstractItemView::setEditorWidget(const WModelIndex& index,
 					WWidget *editor)
 {
-  editedItems_[index].widget = editor;  
+  editedItems_[index].widget = editor;
+  editedItems_[index].stateSaved = !editor;
 }
 
 boost::any WAbstractItemView::editState(const WModelIndex& index) const

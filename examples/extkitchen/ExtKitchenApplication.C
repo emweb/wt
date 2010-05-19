@@ -19,7 +19,7 @@
 #include <Wt/WTableCell>
 #include <Wt/WText>
 #include <Wt/WTree>
-#include <Wt/WTreeView>
+#include <Wt/WTableView>
 #include <Wt/WIconPair>
 #include <Wt/WTreeNode>
 
@@ -388,23 +388,22 @@ void ExtKitchenApplication::tableViewExample()
 
 
   /*
-   * A WTreeView in another tab widget, working on the same model!
+   * A WTableView in another tab widget, working on the same model!
    */
-  treeView_ = new WTreeView();
-  treeView_->setRootIsDecorated(false);
-  treeView_->setSelectionMode(Wt::ExtendedSelection);
-  treeView_->setModel(model_);
-  treeView_->setRowHeight(21);
-  treeView_->setDragEnabled(true);
-  treeView_->setDropsEnabled(true);
-  treeView_->setAlternatingRowColors(true);
-  for (int i = 1; i < model_->columnCount(); ++i)
-    treeView_->setColumnWidth(i, 100);
+  tableView_ = new WTableView();
+  tableView_->setSelectionMode(Wt::ExtendedSelection);
+  tableView_->setModel(model_);
+  tableView_->setRowHeight(21);
+  tableView_->setDragEnabled(true);
+  tableView_->setDropsEnabled(true);
+  tableView_->setAlternatingRowColors(true);
+  for (int i = 0; i < model_->columnCount(); ++i)
+    tableView_->setColumnWidth(i, 90);
 
   Ext::Panel *p = new Ext::Panel();
   p->setLayout(new WFitLayout());
-  p->layout()->addWidget(treeView_);
-  p->setTitle("WTreeView");
+  p->layout()->addWidget(tableView_);
+  p->setTitle("WTableView");
   toolBar = new Ext::ToolBar();
   toolBar->addButton("Add 100 rows",
 		     SLOT(this, ExtKitchenApplication::addRow));
@@ -450,7 +449,7 @@ void ExtKitchenApplication::resetModel()
 
   table1_->setModel(model);
   table2_->setModel(model);
-  treeView_->setModel(model);
+  tableView_->setModel(model);
 
   delete model_;
   model_ = model;
