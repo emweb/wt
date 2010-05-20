@@ -276,6 +276,8 @@ void WTableView::setModel(WAbstractItemModel* model)
 			     (this, &WTableView::modelColumnsAboutToBeRemoved));
   modelConnections_.push_back(model->rowsInserted().connect
 			      (this, &WTableView::modelRowsInserted));
+  modelConnections_.push_back(model->rowsAboutToBeRemoved().connect
+			      (this, &WTableView::modelRowsAboutToBeRemoved));
   modelConnections_.push_back(model->rowsRemoved().connect
 			      (this, &WTableView::modelRowsRemoved));
   modelConnections_.push_back(model->dataChanged().connect
@@ -316,8 +318,10 @@ WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index)
   widget->setStyleClass(widget->styleClass() + " Wt-tv-c");
   widget->resize(WLength::Auto, rowHeight());
 
-  if (renderFlags & RenderEditing)
+  if (renderFlags & RenderEditing) {
+    widget->setTabIndex(-1);
     setEditorWidget(index, widget);
+  }
 
   if (initial) {
     /*
@@ -1068,12 +1072,19 @@ void WTableView::modelRowsInserted(const WModelIndex& parent,
     scheduleRerender(NeedRerenderData);
 }
 
-void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
+void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
+					   int start, int end)
 {
   if (parent != rootIndex())
     return;
 
   shiftModelIndexes(start, -(end - start + 1));
+}
+
+void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
+{
+  if (parent != rootIndex())
+    return;
 
   if (ajaxMode()) {
     canvas_->resize(canvas_->width(),

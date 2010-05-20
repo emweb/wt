@@ -829,6 +829,9 @@ void DomElement::asHTML(EscapeOStream& out,
       if (i->second == "true")
 	out << " readonly=\"readonly\"";
       break;
+    case PropertyTabIndex:
+      out << " tabindex=\"" << i->second << '"';
+      break;
     case PropertyChecked:
       if (i->second == "true")
 	// out << " checked";
@@ -1363,6 +1366,9 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       break;
     case PropertyReadOnly:
       out << var_ << ".readOnly=" << i->second << ';';
+      break;
+    case PropertyTabIndex:
+      out << var_ << ".tabIndex=" << i->second << ';';
       break;
     case PropertyChecked:
       out << var_ << ".checked=" << i->second << ';';

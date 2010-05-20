@@ -13,6 +13,8 @@
 namespace Wt {
   namespace Dbo {
 
+class QueryColumn;
+
 /*! \class QueryModel Wt/Dbo/QueryModel Wt/Dbo/QueryModel
  *  \brief A %Wt MVC Model to view the results of a query.
  *

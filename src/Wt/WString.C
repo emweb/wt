@@ -45,7 +45,7 @@ WString::WString(const char *value, CharEncoding encoding)
     if (encoding == UTF8)
       utf8_ = value;
     else
-      utf8_ = Wt::toUTF8(widen(value));
+      utf8_ = Wt::toUTF8(value);
   }
 }
 
@@ -55,19 +55,19 @@ WString::WString(const std::string& value, CharEncoding encoding)
   if (encoding == UTF8)
     utf8_ = value;
   else
-    utf8_ = Wt::toUTF8(widen(value));
+    utf8_ = Wt::toUTF8(value);
 }
 
 WString::WString(const char *value, const std::locale& loc)
   : impl_(0)
 {
-  utf8_ = Wt::toUTF8(widen(value, loc));
+  utf8_ = Wt::toUTF8(value, loc);
 }
 
 WString::WString(const std::string& value, const std::locale& loc)
   : impl_(0)
 {
-  utf8_ = Wt::toUTF8(widen(value, loc));
+  utf8_ = Wt::toUTF8(value, loc);
 }
 
 WString::WString(const WString& other)
@@ -135,7 +135,7 @@ WString& WString::operator+= (const wchar_t *rhs)
 WString& WString::operator+= (const std::string& rhs)
 {
   makeLiteral();
-  utf8_ += Wt::toUTF8(Wt::widen(rhs));
+  utf8_ += Wt::toUTF8(rhs);
 
   return *this;
 }
@@ -143,7 +143,7 @@ WString& WString::operator+= (const std::string& rhs)
 WString& WString::operator+= (const char *rhs)
 {
   makeLiteral();
-  utf8_ += Wt::toUTF8(Wt::widen(rhs));
+  utf8_ += Wt::toUTF8(rhs);
 
   return *this;
 }
@@ -234,7 +234,7 @@ std::wstring WString::value() const
 
 std::string WString::narrow(const std::locale &loc) const
 {
-  return Wt::narrow(value(), loc);
+  return Wt::fromUTF8(toUTF8(), loc);
 }
 
 WString::operator std::wstring() const
@@ -264,7 +264,7 @@ WString& WString::arg(const std::string& value, CharEncoding encoding)
     impl_->arguments_.push_back(value);
     checkUTF8Encoding(impl_->arguments_.back());
   } else
-    impl_->arguments_.push_back(Wt::toUTF8(Wt::widen(value)));
+    impl_->arguments_.push_back(Wt::toUTF8(value));
 
   return *this;
 }

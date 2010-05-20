@@ -277,7 +277,7 @@ Wt::WLogEntry Configuration::log(const std::string& type) const
   return e;
 }
 
-#ifdef WIN32
+#ifdef _MSC_VER
 static inline bool S_ISREG(unsigned short mode)
 {
    return (mode & S_IFREG) != 0;

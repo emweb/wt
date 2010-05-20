@@ -20,15 +20,26 @@ namespace Wt {
  *
  * The view displays data from a WAbstractItemModel in a table. It
  * provides incremental rendering, without excessive use of client- or
- * serverside resources. Data of all predefined roles is displayed
- * (see also ItemDataRole), including text, icons, checkboxes, and
- * tooltips.
+ * serverside resources.
+ *
+ * The rendering (and editing) of items is handled by a
+ * WAbstractItemDelegate, by default it uses WItemDelegate which
+ * renders data of all predefined roles (see also Wt::ItemDataRole),
+ * including text, icons, checkboxes, and tooltips.
  *
  * The view provides virtual scrolling in both horizontal and vertical
  * directions, and can therefore be used to display large data models
  * (with large number of columns and rows).
  *
- * By default, all columns are given a width of 150px.  Column widths
+ * The view may support editing of items, if the model indicates
+ * support (see the Wt::ItemIsEditable flag). You can define triggers
+ * that initiate editing of an item using setEditTriggers(). The
+ * actual editing is provided by the item delegate (you can set an
+ * appropriate delegate for one column using
+ * setItemDelegateForColumn()). Using setEditOptions() you can
+ * customize if and how the view deals with multiple editors.
+ *
+ * By default, all columns are given a width of 150px. Column widths
  * of all columns can be set through the API method setColumnWidth(),
  * and also by the user using handles provided in the header.
  *
@@ -117,6 +128,7 @@ private:
     renderedFirstColumn_, renderedLastColumn_;
 
   JSlot tieContentsHeaderScrollJS_, itemMouseDownJS_;
+  int tabIndex_;
 
   void updateTableBackground();
 
@@ -126,6 +138,7 @@ private:
   void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 				    int start, int end);
   void modelRowsInserted(const WModelIndex& parent, int start, int end);
+  void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   void modelDataChanged(const WModelIndex& topLeft,
 			const WModelIndex& bottomRight);

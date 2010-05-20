@@ -28,7 +28,8 @@
 #endif
 #endif
 
-#ifdef WIN32
+extern struct tm* gmtime_r(const time_t* t, struct tm* r);
+#ifdef _MSC_VER
 static struct tm* gmtime_r(const time_t* t, struct tm* r)
 {
   if(gmtime_s(r, t) == 0) {

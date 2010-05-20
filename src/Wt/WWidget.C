@@ -388,5 +388,9 @@ bool WWidget::isInLayout() const
   return c != 0 && c->layout() != 0;
 }
 
+void WWidget::setTabOrder(WWidget *first, WWidget *second)
+{
+  second->setTabIndex(first->tabIndex() + 1);
+}
 
 }

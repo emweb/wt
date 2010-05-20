@@ -7,6 +7,8 @@
 #ifndef WT_DBO_QUERY_MODEL_IMPL_H_
 #define WT_DBO_QUERY_MODEL_IMPL_H_
 
+#include <Wt/Dbo/QueryColumn>
+
 namespace Wt {
   namespace Dbo {
 

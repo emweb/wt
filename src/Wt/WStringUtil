@@ -55,6 +55,26 @@ namespace Wt {
    */
   extern WT_API std::wstring fromUTF8(const std::string& s);
 
+  /*! \brief Decode a UTF8 string into a (narrow) string.
+   *
+   * Decode a UTF8 string to a normal string.
+   * Not all Unicode characters can be represented in a narrow string,
+   * and quite a lot characters will have no equivalent in the target
+   * character set, so you may loose information.
+   *
+   * To distinguish from the other fromUTF8() function, that returns a
+   * wstring, the locale is not an optional argument, as in most other
+   * locale-conversing functions. You may choose to use the
+   * default-constructed std::locale().
+   *
+   * \sa toUTF8(const std::string& s, const std::locale &),
+   *     fromUTF8(const std::string& s)
+   *
+   * \relates WString
+   */
+  extern WT_API std::string fromUTF8(const std::string& s,
+      const std::locale &loc);
+
   /*! \brief Encode a wide string to UTF8.
    *
    * Convert a wide string to UTF8. This method will encode the given
@@ -67,6 +87,26 @@ namespace Wt {
    * \relates WString
    */
   extern WT_API std::string toUTF8(const std::wstring& s);
+
+  /*! \brief Encode an character string (encoding known) to UTF8.
+   *
+   * Convert a char * string to UTF8. This method will encode the given
+   * string in UTF8, assuming that the original string was encoded in the
+   * given locale. This conversion does not lead to a loss of information.
+   *
+   * The reverse operation is in principle narrow(fromUTF8(str), locale).
+   *
+   * Do not call this function multiple times: toUTF8(toUTF8(str)) is
+   * meaningless.
+   *
+   * \sa toUTF8(const std::wstring& s), fromUTF8(const std::string &),
+   * narrow(const std::wstring&) 
+   *
+   * \relates WString
+   */
+  extern WT_API std::string toUTF8(const std::string& s,
+      const std::locale &loc = std::locale());
+
 }
 
 #endif // WSTRING_UTIL_H_

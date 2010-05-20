@@ -14,17 +14,23 @@
 #include <string>
 #include <cassert>
 
-
 #ifndef WIN32
+#  ifndef __CYGWIN__
+#    define USE_URANDOM
+#  endif
+#endif
+
+#if defined(WIN32) || defined(__CYGWIN__)
+#  define USE_WIN32_CRYPT
+#endif
+
+#ifdef USE_URANDOM
 #ifndef BOOST_NO_INCLASS_MEMBER_INITIALIZATION
 //  A definition is required even for integral static constants
 const bool boost::random_device::has_fixed_range;
 const boost::random_device::result_type boost::random_device::min_value;
 const boost::random_device::result_type boost::random_device::max_value;
 #endif
-#endif
-
-#ifndef WIN32
 
 // the default is the unlimited capacity device, using some secure hash
 // try "/dev/random" for blocking when the entropy pool has drained
@@ -92,9 +98,13 @@ private:
   int fd;
 };
 
-#else // !WIN32
+#endif
+
+#ifdef USE_WIN32_CRYPT
 
 #include <windows.h>
+#include <wincrypt.h>
+#include <stdexcept>
 const char * const boost::random_device::default_token = "";
 
 // Note about thread-safety: according to my reading of the MSDN page 
@@ -107,13 +117,15 @@ class boost::random_device::impl
 {
 public:
   impl(const std::string & ) {
-     InitOk_ = CryptAcquireContext(&hProv_, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT|CRYPT_SILENT) ? true : false;
+     InitOk_ = CryptAcquireContext(&hProv_, 0, 0,
+         PROV_RSA_FULL, CRYPT_VERIFYCONTEXT|CRYPT_SILENT) ? true : false;
+     if (!InitOk_) error("error while initializing crypt random context");
   }
 
   ~impl() { if (InitOk_) CryptReleaseContext(hProv_, 0); }
 
   unsigned int next() {
-    unsigned int result;
+    unsigned int result = 0;
     if((!InitOk_) ||
        (!CryptGenRandom(hProv_, sizeof(result), (BYTE*)&result))) {
       error("error while generating random number");

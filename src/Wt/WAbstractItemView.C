@@ -1019,10 +1019,16 @@ void WAbstractItemView::edit(const WModelIndex& index)
 
 void WAbstractItemView::closeEditorWidget(WWidget *editor, bool saveData)
 {
-  for (EditorMap::const_iterator i = editedItems_.begin();
+  for (EditorMap::iterator i = editedItems_.begin();
        i != editedItems_.end(); ++i)
     if (i->second.widget == editor) {
-      closeEditor(i->first, saveData);
+      if (editOptions_ & LeaveEditorsOpen) {
+	// Save data, but keep editor open
+	if (saveData)
+	  saveEditedValue(i->first, i->second);
+      } else
+	closeEditor(i->first, saveData);
+
       return;
     }
 }

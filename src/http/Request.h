@@ -31,7 +31,7 @@ namespace server {
 struct my_iless
 {
   bool operator()(const std::string& a, const std::string& b) const {
-#ifdef WIN32
+#if defined(WIN32) && !defined(__CYGWIN__)
     return _stricmp(a.c_str(), b.c_str()) < 0;
 #else
     return strcasecmp(a.c_str(), b.c_str()) < 0;

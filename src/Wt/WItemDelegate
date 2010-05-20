@@ -31,11 +31,13 @@ namespace Wt {
  *  \brief Standard delegate class for rendering a view item.
  *
  * This class provides the standard implementation for rendering an
- * item (as in a WAbstractItemView).
+ * item (as in a WAbstractItemView), and renders data provided by the
+ * standard data roles (see ItemDataRole). It also provides default
+ * editing support using a line edit.
  *
  * You may provide special editing support for an item by specializing
- * the widget. For example, the following provides a date picker for
- * editing a date field.
+ * the widget and reimplement createEditor(), setModelData(),
+ * editState(), and setEditState().
  *
  * \ingroup modelview
  */
@@ -50,7 +52,7 @@ public:
    *
    * The following properties of an item are rendered:
    *
-   * - text using the Wt::DisplayRole data (and using the format specified
+   * - text using the Wt::DisplayRole data, with the format specified
    *   by setTextFormat()
    * - a check box depending on the Wt::ItemIsUserCheckable flag and
    *   Wt::CheckStateRole data
@@ -77,7 +79,8 @@ public:
    * \elseif java
    *
    * The DisplayRole data is converted to a string using {javadoclink
-   * StringUtils#asString(Object)} by passing the given format.
+   * StringUtils#asString(Object)}, passing the given format. If the format is
+   * an empty string, this corresponds to {javadoclink Object#toString()}.
    *
    * \endif 
    *
@@ -91,37 +94,97 @@ public:
    */
   const WT_USTRING& textFormat() const { return textFormat_; }
 
+  /*! \brief Saves the edited data to the model.
+   *
+   * The default implementation saves the current edit value to the database.
+   * You will need to reimplement this method for a custom editor.
+   *
+   * As an example of how to deal with a specialized editor, consider the
+   * default implementation:
+   * \if cpp
+   * \code
+   * void WItemDelegate::setModelData(const boost::any& editState,
+   *                                  Wt::WAbstractItemModel *model,
+   *                                  const Wt::WModelIndex& index) const
+   * {
+   *   model->setData(index, editState, EditRole);
+   * }
+   * \endcode
+   * \elseif java
+   * \code
+   * public void setModelData(Object editState, WAbstractItemModel model, WModelIndex index) {
+   *   model.setData(index, editState, ItemDataRole.EditRole);
+   * }
+   * \endcode
+   * \endif
+   *
+   * \sa createEditor(), editState()
+   */
+  virtual void setModelData(const boost::any& editState,
+			    WAbstractItemModel *model,
+			    const WModelIndex& index) const;
+
   /*! \brief Returns the current edit state.
    *
    * The default implementation returns the current text in the line edit.
-   * You will need to reimplement this method if you create a custom editor,
-   * with createEditor().
+   * You will need to reimplement this method for a custom editor.
    *
-   * \sa createEditor()
+   * As an example of how to deal with a specialized editor, consider the
+   * default implementation:
+   * \if cpp
+   * \code
+   * boost::any WItemDelegate::editState(Wt::WWidget *editor) const
+   * {
+   *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
+   *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
+   *
+   *   return boost::any(lineEdit->text());
+   * }
+   * \endcode
+   * \elseif java
+   * \code
+   * public Object getEditState(WWidget editor) {
+   *   WContainerWidget w = (WContainerWidget) editor;
+   *   WLineEdit lineEdit = (WLineEdit) w.getWidget(0);
+   *   return lineEdit.getText();
+   * }
+   * \endcode
+   * \endif
+   *
+   * \sa createEditor(), setEditState(), setModelData()
    */
   virtual boost::any editState(WWidget *editor) const;
 
   /*! \brief Sets the editor data from the editor state.
    *
-   * The default implementation sets the current edited text in the line edit.
-   * You will need to reimplement this method if you create a custom editor,
-   * with createEditor().
+   * The default implementation resets the text in the line edit.
+   * You will need to reimplement this method if for a custom editor.
+   *
+   * As an example of how to deal with a specialized editor, consider the
+   * default implementation:
+   * \if cpp
+   * \code
+   * void WItemDelegate::setEditState(Wt::WWidget *editor, const boost::any& value) const
+   * {
+   *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
+   *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
+   *
+   *   lineEdit->setText(boost::any_cast<Wt::WString>(value));
+   * }
+   * \endcode
+   * \elseif java
+   * \code
+   * public void setEditState(WWidget editor, Object value) {
+   *   WContainerWidget w = (WContainerWidget) editor;
+   *   WLineEdit lineEdit = (WLineEdit) w.getWidget(0);
+   *   lineEdit.setText((String) value);
+   * }
+   * \endcode
+   * \endif
    *
    * \sa createEditor()
    */
   virtual void setEditState(WWidget *editor, const boost::any& value) const;
-
-  /*! \brief Saves the edited data to the model.
-   *
-   * The default implementation saves the current edit value to the database.
-   * You will need to reimplement this method if you create a custom editor,
-   * with createEditor().
-   *
-   * \sa createEditor()
-   */
-  virtual void setModelData(const boost::any& editState,
-			    WAbstractItemModel *model,
-			    const WModelIndex& index) const;
 
 protected:
   /*! \brief Creates an editor for a data item.
@@ -136,12 +199,13 @@ protected:
    *
    * The editor should not keep a reference to the model index (it
    * does not need to since setModelData() will provide the proper
-   * model index to save the data to the model). Because model indexes
-   * may shift because of row or column insertions, you should also
-   * reimplement updateModelIndex() if you do so.
+   * model index to save the data to the model). Otherwise, because
+   * model indexes may shift because of row or column insertions, you
+   * should reimplement updateModelIndex().
    *
+   * As an example of how to provide a specialized editor, consider the
+   * default implementation, which returns a WLineEdit:
    * \if cpp
-   * The following shows the default implementation:
    * \code
    * Wt::WWidget *WItemDelegate::createEditor(const Wt::WModelIndex& index, WFlags<ViewItemRenderFlag> flags) const
    * {
@@ -156,10 +220,6 @@ protected:
    *   if (flags & RenderFocused)
    *     lineEdit->setFocus();
    *
-   *   // Disable drag & drop and selection behaviour
-   *   result->mouseWentDown().preventPropagation();
-   *   result->clicked().preventPropagation();
-   *
    *   // We use a layout so that the line edit fills the entire cell.
    *   result->setLayout(new WHBoxLayout());
    *   result->layout()->setContentsMargins(1, 1, 1, 1);
@@ -173,36 +233,31 @@ protected:
    *   closeEditor().emit(editor, save);
    * }
    * \endcode
-   *
-   * The corresponding implementation for editState():
+   * \elseif java
    * \code
-   * boost::any WItemDelegate::editState(Wt::WWidget *editor) const
-   * {
-   *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
-   *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
+   * protected WWidget createEditor(WModelIndex index, EnumSet&lt;ViewItemRenderFlag&gt; flags) {
+   *  final WContainerWidget result = new WContainerWidget();
+   *  result.setSelectable(true);
+   *  WLineEdit lineEdit = new WLineEdit();
+   *  lineEdit.setText(StringUtils.asString(index.getData(ItemDataRole.EditRole), this.textFormat_).toString());
+   *  lineEdit.enterPressed().addListener(this, new Signal.Listener() {
+   *    public void trigger() {
+   *      WItemDelegate.this.closeEditor().trigger(result, true);
+   *    }
+   *  });
+   *  lineEdit.escapePressed().addListener(this, new Signal.Listener() {
+   *    public void trigger() {
+   *      WItemDelegate.this.closeEditor().trigger(result, false);
+   *    }
+   *  });
    *
-   *   return boost::any(lineEdit->text());
-   * }
-   * \endcode
+   *  if (flags.contains(ViewItemRenderFlag.RenderFocused))
+   *    lineEdit.setFocus();
    *
-   * The corresponding implementation for setEditState():
-   * \code
-   * void WItemDelegate::setEditState(Wt::WWidget *editor, const boost::any& value) const
-   * {
-   *   Wt::WContainerWidget *w = dynamic_cast<Wt::WContainerWidget *>(editor);
-   *   Wt::WLineEdit *lineEdit = dynamic_cast<Wt::WLineEdit *>(w->widget(0));
-   *
-   *   lineEdit->setText(boost::any_cast<Wt::WString>(value));
-   * }
-   * \endcode
-   * 
-   * The corresponding implementation for setModelData():
-   * \code
-   * void WItemDelegate::setModelData(const boost::any& editState,
-   *				      Wt::WAbstractItemModel *model,
-   *                                  const Wt::WModelIndex& index) const
-   * {
-   *   model->setData(index, editState, EditRole);
+   *  result.setLayout(new WHBoxLayout());
+   *  result.getLayout().setContentsMargins(1, 1, 1, 1);
+   *  result.getLayout().addWidget(lineEdit);
+   *  return result;
    * }
    * \endcode
    * \endif

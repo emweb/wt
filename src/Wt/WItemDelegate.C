@@ -70,6 +70,12 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
     if (!editing) {
       delete widget;
       widget = createEditor(index, flags);
+      WInteractWidget *iw = dynamic_cast<WInteractWidget *>(widget);
+      if (iw) {
+	// Disable drag & drop and selection behaviour
+	iw->mouseWentDown().preventPropagation();
+	iw->clicked().preventPropagation();
+      }
     }
   } else {
     if (editing) {
@@ -325,10 +331,6 @@ WWidget *WItemDelegate::createEditor(const WModelIndex& index,
   if (flags & RenderFocused)
     lineEdit->setFocus();
 
-  // Disable drag & drop and selection behaviour
-  result->mouseWentDown().preventPropagation();
-  result->clicked().preventPropagation();
-  
   // We use a layout so that the line edit fills the entire cell.
   // Somehow, this does not work with konqueror, but it does respond
   // properly to width, height being set to 100% !

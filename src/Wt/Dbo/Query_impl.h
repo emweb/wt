@@ -190,7 +190,7 @@ void Query<Result, DirectBinding>::prepareStatements() const
 
   std::string sql;
 
-  std::vector<FieldInfo> fs = fields();
+  std::vector<FieldInfo> fs = this->fields();
   sql = Impl::createQuerySql(Impl::Select, fs, this->from_);
   this->statement_ = this->session_->getOrPrepareStatement(sql);
 
@@ -348,7 +348,7 @@ collection<Result> Query<Result, DynamicBinding>::resultList() const
 
   this->session_->flush();
 
-  std::vector<FieldInfo> fs = fields();
+  std::vector<FieldInfo> fs = this->fields();
 
   std::string sql;
   sql = Impl::createQuerySql(Impl::Select, fs, this->from_,

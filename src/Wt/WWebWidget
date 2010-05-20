@@ -138,9 +138,11 @@ public:
   virtual std::string javaScriptMember(const std::string& name) const;
   virtual void callJavaScriptMember(const std::string& name,
 				    const std::string& args);
-
   virtual void load();
   virtual bool loaded() const;
+  virtual void setTabIndex(int index);
+  virtual int tabIndex() const;
+
   virtual void setId(const std::string& id);
   virtual WWidget *find(const std::string& name);
   virtual void setSelectable(bool selectable);

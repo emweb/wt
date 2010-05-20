@@ -352,7 +352,7 @@ void WSuggestionPopup::setFilterLength(int length)
 
 void WSuggestionPopup::doFilter(std::string input)
 {
-  filterModel_.emit(WString::fromUTF8(input));
+  filterModel_.emit(WT_USTRING::fromUTF8(input));
 
   WApplication *app = WApplication::instance();
   app->doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("

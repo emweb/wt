@@ -17,6 +17,10 @@
 #include "DomElement.h"
 #include "WebSession.h"
 
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 namespace Wt {
 
 class WFileUploadResource : public WResource {

@@ -387,6 +387,16 @@ bool WCompositeWidget::loaded() const
   return impl_ ? impl_->loaded() : true;
 }
 
+void WCompositeWidget::setTabIndex(int index)
+{
+  impl_->setTabIndex(index);
+}
+
+int WCompositeWidget::tabIndex() const
+{
+  return impl_->tabIndex();
+}
+
 void WCompositeWidget::setImplementation(WWidget *widget)
 {
   if (widget->parent())

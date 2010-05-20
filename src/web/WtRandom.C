@@ -10,7 +10,7 @@
 #define __use_random_device__
 #endif
 #endif
-#ifdef WIN32
+#if defined(WIN32) || defined(__CYGWIN__)
 #define __use_random_device__
 #include <process.h> // for getpid()
 #include <stdlib.h>

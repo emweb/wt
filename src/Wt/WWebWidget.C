@@ -1172,7 +1172,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   if (lookImpl_) {
     if (lookImpl_->toolTip_
 	&& (flags_.test(BIT_TOOLTIP_CHANGED) || all)) {
-      if (!all || (lookImpl_->toolTip_->value().length() > 0))
+      if (!all || (!lookImpl_->toolTip_->empty()))
 	element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
 
       flags_.reset(BIT_TOOLTIP_CHANGED);
@@ -1677,6 +1677,30 @@ void WWebWidget::doLoad(WWidget *w)
 bool WWebWidget::loaded() const
 {
   return flags_.test(BIT_LOADED);
+}
+
+void WWebWidget::setTabIndex(int index)
+{
+  if (children_)
+    for (unsigned i = 0; i < children_->size(); ++i) {
+      WWidget *c = (*children_)[i];
+      c->setTabIndex(index);
+    }
+}
+
+int WWebWidget::tabIndex() const
+{
+  if (children_) {
+    int result = 0;
+
+    for (unsigned i = 0; i < children_->size(); ++i) {
+      WWidget *c = (*children_)[i];
+      result = std::max(result, c->tabIndex());
+    }
+
+    return result;
+  } else
+    return 0;
 }
 
 WWebWidget::DropMimeType::DropMimeType(const WT_USTRING& aHoverStyleClass)

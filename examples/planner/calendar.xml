@@ -6,10 +6,14 @@
 
   <message id="calendar.entry">
     <div class="entry-dialog">
-      <div><label>Summary: ${summary}</label></div>
-      <div><label>From ${start}</label> <label>to ${stop}</label></div>
-      <div><label>Description:<br/>${description}</label></div>
-      <div>${ok} ${cancel}</div>
+      <div class="line"><label>Summary: ${summary}</label></div>
+      <div class="line">
+	<label>From${start}</label>
+	<label>to${stop}</label>
+      </div>
+      <div class="line"><div><label>Description:</label></div>
+	<div>${description}</div></div>
+      <div class="buttons">${ok} ${cancel}</div>
     </div>
   </message>
 

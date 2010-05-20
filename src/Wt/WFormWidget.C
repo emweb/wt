@@ -31,7 +31,8 @@ WFormWidget::WFormWidget(WContainerWidget *parent)
     validator_(0),
     validateJs_(0),
     filterInput_(0),
-    removeEmptyText_(0)
+    removeEmptyText_(0),
+    tabIndex_(0)
 { }
 
 #ifndef WT_TARGET_JAVA
@@ -264,6 +265,13 @@ void WFormWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_READONLY_CHANGED);
   }
 
+  if (flags_.test(BIT_TABINDEX_CHANGED) || all) {
+    if (!all || tabIndex_)
+      element.setProperty(PropertyTabIndex,
+			  boost::lexical_cast<std::string>(tabIndex_));
+    flags_.reset(BIT_TABINDEX_CHANGED);
+  }
+
   if (isEnabled()) {
     if (all && flags_.test(BIT_GOT_FOCUS))
       flags_.set(BIT_INITIAL_FOCUS);
@@ -285,6 +293,7 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 void WFormWidget::propagateRenderOk(bool deep)
 {
   flags_.reset(BIT_ENABLED_CHANGED);
+  flags_.reset(BIT_TABINDEX_CHANGED);
 
   WInteractWidget::propagateRenderOk(deep);
 }
@@ -343,6 +352,20 @@ WValidator::State WFormWidget::validate()
 std::string WFormWidget::formName() const
 {
   return id();
+}
+
+void WFormWidget::setTabIndex(int index)
+{
+  tabIndex_ = index;
+
+  flags_.set(BIT_TABINDEX_CHANGED);
+
+  repaint(RepaintPropertyAttribute);
+}
+
+int WFormWidget::tabIndex() const
+{
+  return tabIndex_;
 }
 
 }

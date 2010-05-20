@@ -43,6 +43,16 @@ WT_DECLARE_WT_MEMBER
 	      drop: drop, el: ele };
    };
 
+   function indexOf(child) {
+     var i, il, plist = child.parentNode.childNodes;
+
+     for (i = 0, il = plist.length; i < il; ++i)
+       if (plist[i] == child)
+	 return i;
+
+     return -1;
+   }
+
    function resizeColumn(header, delta) {
      var columnClass = header.className.split(' ')[0],
          columnId = columnClass.substring(7) * 1,
@@ -114,6 +124,57 @@ WT_DECLARE_WT_MEMBER
        }
      } else {
        object.className = '';
+     }
+   };
+
+   /* Handle TAB/SHIFT-TAB for cycling through editors in the right order */
+   el.onkeydown=function(e) {
+     var event = e||window.event;
+
+     if (event.keyCode == 9) {
+       WT.cancelEvent(event);
+
+       /* Find next/prev input element, first by row, then by column */
+       var item = getItem(event);
+       if (!item.el)
+	 return;
+
+       var col = item.el.parentNode,
+           rowi = indexOf(item.el),
+           coli = indexOf(col),
+           cols = col.parentNode.childNodes.length,
+           rows = col.childNodes.length,
+	   back = event.shiftKey,
+	   wrapped = false;
+
+       var i = rowi, j;
+
+       for (;;) {
+	 for (;
+	      back ? i >= 0 : i < rows;
+	      i = (back ? i-1 : i+1)) {
+	   if (i == rowi && !wrapped)
+	     j = back ? coli - 1 : coli + 1;
+	   else
+	     j = back ? cols - 1 : 0;
+	   for (;
+		back ? j >= 0 : j < cols;
+		j = (back ? j-1 : j+1)) {
+	     /* We have wrapped and arrived back at the beginning */
+	     if (i == rowi && j == coli)
+	       return;
+	     col = col.parentNode.childNodes[j];
+	     var elij = col.childNodes[i];
+	     var inputs = $(elij).find(":input");
+	     if (inputs.size() > 0) {
+	       inputs.focus();
+	       return;
+	     }
+	   }
+	 }
+	 i = back ? rows - 1 : 0;
+	 wrapped = true;
+       }
      }
    };
 

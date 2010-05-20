@@ -4,8 +4,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WT_WABSTRACTTABLEVIEW_H_
-#define WT_WABSTRACTTABLEVIEW_H_
+#ifndef WT_WABSTRACTITEMVIEW_H_
+#define WT_WABSTRACTITEMVIEW_H_
 
 #include <Wt/WCompositeWidget>
 #include <Wt/WModelIndex>
@@ -21,6 +21,8 @@ namespace Wt {
 
 /*! \class WAbstractItemView Wt/WAbstractItemView Wt/WAbstractItemView
  *  \brief An abstract base class for item Views.
+ *
+ * See WTableView or WTreeView for a description.
  *
  * \ingroup modelview
  */
@@ -45,14 +47,15 @@ public:
   enum EditOption {
     SingleEditor = 0x1,    //!< Never show more than one active editor
     MultipleEditors = 0x2, //!< Allow multiple editors at the same time
-    SaveWhenClosed = 0x4   //!< Always save the current edit value when closing
+    SaveWhenClosed = 0x4,  //!< Always save the current edit value when closing
+    LeaveEditorsOpen = 0x8 //!< Editors can only be closed using closeEditor()
   };
 
   virtual ~WAbstractItemView();
 
   /*! \brief Sets the model.
    *
-   * The View will display data in the given \p model and changes in
+   * The View will display data of the given \p model and changes in
    * the model are reflected by the View.
    *
    * The initial model is \c 0.
@@ -78,8 +81,13 @@ public:
    * The root index is the model index that is considered the root
    * node. This node itself is not rendered, but its children are.
    *
-   * The default value is WModelIndex(), corresponding to the model's
+   * \if cpp
+   * The default value is an invalid model index, corresponding to the model's
    * root node.
+   * \endif
+   * \if java
+   * The default value is \c null, corresponding to the model's root node.
+   * \endif
    *
    * \sa setModel()
    */
@@ -91,7 +99,53 @@ public:
    */
   const WModelIndex& rootIndex() const { return rootIndex_; }
 
-    /*! \brief Sets the content alignment for a column.
+  /*! \brief Sets the default item delegate.
+   *
+   * The previous delegate is removed but not deleted. This item delegate
+   * is for all columns for which no specific item delegate is set.
+   *
+   * The default item delegate is a WItemDelegate.
+   *
+   * \sa setItemDelegateForColumn()
+   */
+  void setItemDelegate(WAbstractItemDelegate *delegate);
+
+  /*! \brief Returns the default item delegate.
+   *
+   * \sa setItemDelegate()
+   */
+  WAbstractItemDelegate *itemDelegate() const { return itemDelegate_; }
+
+  /*! \brief Sets the delegate for a column.
+   *
+   * The previous delegate is removed but not deleted.
+   *
+   * \sa setItemDelegate()
+   */
+  void setItemDelegateForColumn(int column, WAbstractItemDelegate *delegate);
+
+  /*! \brief Returns the delegate that was set for a column.
+   *
+   * Returns \c 0 if no delegate was set for the column.
+   *
+   * \sa setItemDelegateForColumn()
+   */
+  WAbstractItemDelegate *itemDelegateForColumn(int column) const;
+
+  /*! \brief Returns the delegate for rendering an item.
+   *
+   * \sa setItemDelegateForColumn(), setItemDelegate()
+   */
+  WAbstractItemDelegate *itemDelegate(const WModelIndex& index) const;
+
+  /*! \brief Returns the delegate for a column.
+   *
+   * Returns either the delegate that was set for the column, or the default
+   * delegate.
+   */
+  WAbstractItemDelegate *itemDelegate(int column) const;
+
+  /*! \brief Sets the content alignment for a column.
    *
    * The default value is \link Wt::AlignLeft AlignLeft\endlink.
    *
@@ -307,79 +361,6 @@ public:
    */
   void setDropsEnabled(bool enable);
 
-  /*! \brief %Signal emitted when an item is clicked.
-   *
-   * \sa doubleClicked()
-   */
-  Signal<WModelIndex, WMouseEvent>& clicked() { return clicked_; }
-
-  /*! \brief %Signal emitted when an item is double clicked.
-   *
-   * \sa clicked()
-   */
-  Signal<WModelIndex, WMouseEvent>& doubleClicked() { return doubleClicked_; }
-
-  /*! \brief %Signal emitted when a mouse button is pressed down.
-   *
-   * \sa mouseWentUp()
-   */
-  Signal<WModelIndex, WMouseEvent>& mouseWentDown() { return mouseWentDown_; }
-
-  /*! \brief %Signal emitted when the mouse button is released.
-   *
-   * \sa mouseWentDown()
-   */
-  Signal<WModelIndex, WMouseEvent>& mouseWentUp() { return mouseWentUp_; }
-
-  /*! \brief %Signal emitted when the selection is changed.
-   *
-   * \sa select(), setSelectionMode(), setSelectionBehavior()
-   */
-  Signal<>& selectionChanged() { return selectionChanged_; }
-
-  /*! \brief Sets the default item delegate.
-   *
-   * The previous delegate is removed but not deleted.
-   *
-   * The default item delegate is a WItemDelegate.
-   */
-  void setItemDelegate(WAbstractItemDelegate *delegate);
-
-  /*! \brief Returns the default item delegate.
-   *
-   * \sa setItemDelegate()
-   */
-  WAbstractItemDelegate *itemDelegate() const { return itemDelegate_; }
-
-  /*! \brief Sets the delegate for a column.
-   *
-   * The previous delegate is removed but not deleted.
-   *
-   * \sa setItemDelegate()
-   */
-  void setItemDelegateForColumn(int column, WAbstractItemDelegate *delegate);
-
-  /*! \brief Returns the delegate that was set for a column.
-   *
-   * Returns \c 0 if no delegate was set for the column.
-   *
-   * \sa setItemDelegateForColumn()
-   */
-  WAbstractItemDelegate *itemDelegateForColumn(int column) const;
-
-  /*! \brief Returns the delegate for rendering an item.
-   *
-   * \sa setItemDelegateForColumn(), setItemDelegate()
-   */
-  WAbstractItemDelegate *itemDelegate(const WModelIndex& index) const;
-
-  /*! \brief Returns the delegate for a column.
-   *
-   * Returns either the delegate that was set for the column, or the default
-   * delegate.
-   */
-  WAbstractItemDelegate *itemDelegate(int column) const;
-
   /*! \brief Sets the row height.
    *
    * The view renders all rows with a same height. This method
@@ -411,12 +392,6 @@ public:
    * \sa setColumnWidth()
    */
   WLength columnWidth(int column) const;
-
-  /*! \brief Returns the signal emitted when a column is resized by the user.
-   *
-   * The arguments of the signal are; the column index and the new length of the column.
-   */
-  Signal<int, WLength>& columnResized() { return columnResized_; }
 
   /*! \brief Sets the column border color
    *
@@ -483,17 +458,6 @@ public:
    */
   virtual void setCurrentPage(int page) = 0;
 
-  /*! \brief %Signal emitted when page information was updated.
-   *
-   * When Ajax/JavaScript is not available, the view will use a paging
-   * navigation bar to allow scrolling through the data. This signal
-   * is emitted when page-related information changed (e.g. the
-   * current page was changed, or the number of rows was changed).
-   *
-   * \sa createPageNavigationBar()
-   */
-  Signal<>& pageChanged() { return pageChanged_; }
-
   /*! \brief Configures what actions should trigger editing.
    *
    * \sa edit()
@@ -521,7 +485,7 @@ public:
    * Unless multiple editors are enabled, any other open editor is closed
    * first.
    *
-   * \sa setEditTriggers(), setEditOptions()
+   * \sa setEditTriggers(), setEditOptions(), closeEditor()
    */
   void edit(const WModelIndex& index);
 
@@ -541,6 +505,54 @@ public:
   bool isEditing(const WModelIndex& index) const;
 
   bool isEditing() const;
+
+  /*! \brief %Signal emitted when an item is clicked.
+   *
+   * \sa doubleClicked()
+   */
+  Signal<WModelIndex, WMouseEvent>& clicked() { return clicked_; }
+
+  /*! \brief %Signal emitted when an item is double clicked.
+   *
+   * \sa clicked()
+   */
+  Signal<WModelIndex, WMouseEvent>& doubleClicked() { return doubleClicked_; }
+
+  /*! \brief %Signal emitted when a mouse button is pressed down.
+   *
+   * \sa mouseWentUp()
+   */
+  Signal<WModelIndex, WMouseEvent>& mouseWentDown() { return mouseWentDown_; }
+
+  /*! \brief %Signal emitted when the mouse button is released.
+   *
+   * \sa mouseWentDown()
+   */
+  Signal<WModelIndex, WMouseEvent>& mouseWentUp() { return mouseWentUp_; }
+
+  /*! \brief %Signal emitted when the selection is changed.
+   *
+   * \sa select(), setSelectionMode(), setSelectionBehavior()
+   */
+  Signal<>& selectionChanged() { return selectionChanged_; }
+
+  /*! \brief %Signal emitted when page information was updated.
+   *
+   * When Ajax/JavaScript is not available, the view will use a paging
+   * navigation bar to allow scrolling through the data. This signal
+   * is emitted when page-related information changed (e.g. the
+   * current page was changed, or the number of rows was changed).
+   *
+   * \sa createPageNavigationBar()
+   */
+  Signal<>& pageChanged() { return pageChanged_; }
+
+  /*! \brief Returns the signal emitted when a column is resized by the user.
+   *
+   * The arguments of the signal are: the column index and the new
+   * width of the column.
+   */
+  Signal<int, WLength>& columnResized() { return columnResized_; }
 
 protected:
   /*! \brief Creates a new item view.
@@ -748,6 +760,9 @@ private:
   void initDragDrop();
 };
 
+W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractItemView::EditOption);
+W_DECLARE_OPERATORS_FOR_FLAGS(WAbstractItemView::EditTrigger);
+
 }
 
-#endif // WT_WABSTRACTTABLEVIEW_H
+#endif // WT_WABSTRACTITEMVIEW_H_

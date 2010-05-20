@@ -31,14 +31,12 @@ class WTransform;
  * not use the device directly, but rather rely on WPaintedWidget to
  * use this device when appropriate.
  *
- * \note Because of the lack for text support in the current HTML 5
- * &lt;canvas&gt; specification, there is only limited support for
- * text. Text is rendered in an overlayed DIV and a consequence text
- * is not subject to rotation and scaling components of the current
- * transformation (but does take into account translation). This will
- * be fixed in the future (some way, some how!). On most browser you
- * can use the WSvgImage or WVmlImage paint devices which do support
- * text natively.
+ * \note Older browsers do not have text support in &lt;canvas&gt;.
+ * Text is then rendered in an overlayed DIV and a consequence text is
+ * not subject to rotation and scaling components of the current
+ * transformation (but does take into account translation). On most
+ * browser you can use the WSvgImage or WVmlImage paint devices which
+ * do support text natively.
  *
  * \ingroup painting
  */

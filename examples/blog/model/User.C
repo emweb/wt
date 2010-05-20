@@ -15,9 +15,15 @@
 
 #include <Wt/Dbo/Impl>
 
+#ifndef WIN32
+#ifndef __CYGWIN__
+#define HAVE_CRYPT
+#endif
+#endif
+
 DBO_INSTANTIATE_TEMPLATES(User);
 
-#ifndef WIN32
+#ifdef HAVE_CRYPT
 namespace {
   std::string generateSalt() {
     /* Salt generation from glibc manual */
@@ -46,7 +52,7 @@ namespace {
 
 void User::setPassword(const std::string& password)
 {
-#ifndef WIN32
+#ifdef HAVE_CRYPT
   password_ = md5(password, generateSalt());
 #else
   // This needs some improvement for production use
@@ -56,7 +62,7 @@ void User::setPassword(const std::string& password)
 
 bool User::authenticate(const std::string& password) const
 {
-#ifndef WIN32
+#ifdef HAVE_CRYPT
   return md5(password, password_) == password_;
 #else
   return password_ == password;

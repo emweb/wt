@@ -36,94 +36,21 @@ class WModelIndex;
  *
  * Rendering of an item in a WAbstractItemView is delegated to an
  * implementation of this delegate class. The default implementation
- * used by WAbstractItemView is WItemDelegate. To provide specialized
+ * used by Wt's item views is WItemDelegate. To provide specialized
  * rendering support, you can reimplement this class, and provide a
  * specialized delegate to the view for rendering items.
  *
  * As a delegate is used for rendering multiple items, the class should
  * not keep state about one specific item.
  *
- * An example of a delegate that always renders the text in a
- * line-edit (regardless of whether the view indicates a RenderEditing
- * flag), and saves the modified value back to the (editable) model.
+ * A delegate may provide editing support by instantiating an editor
+ * when update() is called with the Wt::RenderEditing flag. In that
+ * case, you will also need to implement editState() and
+ * setEditState() to support virtual scrolling and setModelData() to
+ * save the edited value to the model. For an example, see the
+ * WItemDelegate.
  *
- * \if cpp
- * \code
-// A custom delegate that uses an EditItem
-class EditItemDelegate : public WAbstractItemDelegate
-{
-  class EditItem;
-
-public:
-  EditItemDelegate(WObject *parent = 0)
-    : WAbstractItemDelegate(parent)
-  { }
-
-  // Creates or updates an EditItem
-  WWidget *update(WWidget *widget, const WModelIndex& index,
-		  WFlags<ViewItemRenderFlag> flags)
-  {
-    EditItem *item;
-
-    if (widget) {
-      item = dynamic_cast<EditItem *>(widget);
-    } else {
-      item = new EditItem(index);
-      widget = item;
-    }
-
-    boost::any text = index.data(DisplayRole);
-    item->edit()->setText(asString(text));
-
-    return widget;
-  }
-
-  // Updates the model index of the EditItem
-  void updateModelIndex(WWidget *widget, const WModelIndex& index)
-  {
-    EditItem *item = dynamic_cast<EditItem *>(widget);
-    item->setIndex(index);
-  }
-
-private:
-
-  // A custom item widget that contains only a WLineEdit
-  class EditItem : public WContainerWidget
-  {
-  public:
-    EditItem(const WModelIndex& index)
-      : index_(index)
-    {
-      edit_ = new WLineEdit(this);
-      edit_->changed().connect(SLOT(this, EditItem::onEdit));
-
-      setAttributeValue("style", "line-height: 1em;"); // Otherwise the line edit overflows the cell
-      setSelectable(true);                             // WAbstractItemView by default disables selection
-    }
-
-    // Updates the model index
-    void setIndex(const WModelIndex& index) { index_ = index; }
-
-    // Returns the editor
-    WLineEdit *edit() const { return edit_; }
-
-  private:
-    WLineEdit  *edit_;
-    WModelIndex index_;
-
-    // Updates the model with the edited value
-    void onEdit() {
-      WAbstractItemModel *model
-        = const_cast<WAbstractItemModel *>(index_.model());
-
-      model->setData(index_, edit_->text());
-    }
-  };
-};
- * \endcode
- * \endif
- *
- * \sa WAbstractItemView::setItemDelegate(), WAbstractItemView::setItemDelegateForColumn()
+ * \sa WAbstractItemView::setItemDelegateForColumn()
  *
  * \ingroup modelview
  */

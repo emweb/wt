@@ -92,6 +92,15 @@ public:
   template<class T, class V>
     MenuItem *addItem(const WString& text,
 			T *target, void (V::*method)());
+
+  /*! \brief Add an item with given text, and specify a slot method to be
+   *         called when activated.
+   *
+   * This variant of the overloaded singleShot() method supports a
+   * template function object (which supports operator ()).
+   */
+  template <class F>
+    MenuItem *addItem(const WString& text, const F& f);
     
   /*! \brief Add an item with given text and icon, and specify a slot
    *         method to be called when activated.
@@ -102,6 +111,16 @@ public:
   template<class T, class V>
     MenuItem *addItem(const std::string& iconPath, const WString& text,
 			T *target, void (V::*method)());
+
+  /*! \brief Add an item with given text and icon, and specify a slot
+   *         method to be called when activated.
+   *
+   * This variant of the overloaded singleShot() method supports a
+   * template function object (which supports operator ()).
+   */
+  template<class F>
+    MenuItem *addItem(const std::string& iconPath, const WString& text,
+			const F& f);
 
   /*! \brief Add a submenu, with given text.
    */
@@ -138,17 +157,31 @@ template<class T, class V>
 MenuItem *Menu::addItem(const WString& text,
 			T *target, void (V::*method)())
 {
-  return addItem(std::string(), text, target, method);
+  return addItem(std::string(), text, boost::bind(method, target));
+}
+
+template <class F>
+MenuItem *Menu::addItem(const WString& text, const F& f)
+{
+  return addItem(std::string(), text, f);
 }
 
 template<class T, class V>
 MenuItem *Menu::addItem(const std::string& iconPath, const WString& text,
 			T *target, void (V::*method)())
 {
+  return addItem(iconPath, text, boost::bind(method, target));
+}
+
+template<class F>
+MenuItem *Menu::addItem(const std::string& iconPath, const WString& text,
+			const F& f)
+{
   MenuItem *item = addItem(iconPath, text);
-  item->activated().connect(target, method);
+  item->activated().connect(f);
   return item;
 }
+
 #endif // JAVA
 
   }

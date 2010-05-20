@@ -27,7 +27,7 @@
 
 #endif // HTTP_WITH_SSL
 
-#if defined(WIN32) && !defined(__MINGW32__)
+#if defined(WIN32)
 namespace {
   SOCKET dup(SOCKET handle) {
     WSAPROTOCOL_INFO ProtocolInfo;

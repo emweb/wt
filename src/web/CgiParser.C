@@ -173,10 +173,6 @@ void CgiParser::init()
 #endif
 }
 
-#ifndef WIN32
-const int CgiParser::BUFSIZE;
-const int CgiParser::MAXBOUND;
-#endif
 char CgiParser::buf_[BUFSIZE + MAXBOUND];
 
 CgiParser::CgiParser(int maxPostData)
@@ -311,7 +307,7 @@ void CgiParser::readUntilBoundary(WebRequest& request,
 
     /* save (up to) BUFSIZE from buffer to file or value string, but
      * mind the boundary length */
-    int save = std::min((buflen_ - (int)boundary.length()), BUFSIZE);
+    int save = std::min((buflen_ - (int)boundary.length()), (int)BUFSIZE);
 
     if (save > 0) {
       if (resultString)

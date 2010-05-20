@@ -5,7 +5,25 @@
 }
 
 .entry-dialog textarea {
-	width: 100%;
+	width: 250px;
+}
+
+.entry-dialog .line {
+        margin: 3px 0px;
+}
+
+.entry-dialog .line input {
+        margin: 0px 3px;
+}
+
+.entry-dialog .buttons {
+	text-align: center;
+	padding-top: 5px;
+}
+
+.entry-dialog button {
+	margin: 0px 5px;
+	padding: 0px 5px;
 }
 
 .all-entries-dialog-entries {
@@ -28,6 +46,7 @@
 	left: 50%;
 	margin-top: -3em; 
 	margin-left: -4em;
+	width: 250px;
 }
 
 .login label {
@@ -39,14 +58,12 @@
 	font-style: italic;
 	font-size: small;
 	padding-top: 10px;
+	width: 200px;
+	margin: 5px auto;
 }
 
 .captcha canvas {
 	background: #F3F9FF;
-}
-
-.captcha div {
-	margin: 5px auto;
 }
 
 .calendar {

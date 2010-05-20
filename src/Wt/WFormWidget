@@ -101,6 +101,9 @@ public:
    */
   void setFocus(bool focus);
 
+  virtual void setTabIndex(int index);
+  virtual int tabIndex() const;
+
   /*! \brief Sets the element read-only.
    *
    * A read-only form element cannot be edited, but the contents can
@@ -171,8 +174,10 @@ private:
   static const int BIT_INITIAL_FOCUS    = 2;
   static const int BIT_READONLY         = 3;
   static const int BIT_READONLY_CHANGED = 4;
+  static const int BIT_TABINDEX_CHANGED = 5;
 
-  std::bitset<5> flags_;
+  std::bitset<6> flags_;
+  int            tabIndex_;
 
   void undoSetFocus();
 

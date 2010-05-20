@@ -60,11 +60,11 @@
 #define WT_BOSTREAM std::bostream
 #endif
 
-#ifdef WIN32
+#ifdef _MSC_VER
 typedef __int64 int64_t;            /* 64 bit signed */
 typedef unsigned __int64 uint64_t;  /* 64 bit unsigned */
-#else // WIN32
+#else // _MSC_VER
 #include <stdint.h>
-#endif // WIN32
+#endif // _MSC_VER
 
 #endif // DLLDEFS_H_

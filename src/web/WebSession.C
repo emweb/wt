@@ -25,6 +25,9 @@
 #include "Utils.h"
 
 #include <boost/algorithm/string.hpp>
+#ifndef WIN32
+#include <unistd.h>
+#endif
 
 #ifdef WT_TARGET_JAVA
 #define RETHROW(e) throw e

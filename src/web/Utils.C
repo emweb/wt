@@ -12,13 +12,29 @@
 #include <cstdlib>
 #include <sstream>
 
+#ifdef WIN32
+#include <windows.h>
+#endif // WIN32
+
 namespace Wt {
 
   namespace Utils {
 
 extern std::string createTempFileName()
 {
-#ifndef WIN32
+#ifdef WIN32
+  char tmpDir[MAX_PATH];
+  char tmpName[MAX_PATH];
+
+  if(GetTempPathA(sizeof(tmpDir), tmpDir) == 0
+      || GetTempFileNameA(tmpDir, "wt-", 0, tmpName) == 0)
+  {
+    return "";
+  }
+
+  return tmpName;
+
+#else
   char spool[20];
   strcpy(spool, "/tmp/wtXXXXXX");
 
@@ -26,15 +42,6 @@ extern std::string createTempFileName()
   close(i);
 
   return spool;
-#else
-  // FIXME: check for error retval for tmpnam
-  char *spool = _tempnam("c:\\tmp", "wthttp-");
-  std::string retval;
-  if (spool) {
-    retval = spool;
-    free(spool);
-  }
-  return retval;
 #endif
 }
 
@@ -164,7 +171,7 @@ char *round_str(double d, int digits, char *buf) {
     }
     len = digits + 1;
   }
-  int dotPos = std::max(len - digits, 0);
+  int dotPos = (std::max)(len - digits, 0);
   for (int i = digits + 1; i >= 0; --i)
     num[dotPos + i + 1] = num[dotPos + i];
   num[dotPos] = '.';
@@ -174,7 +181,7 @@ char *round_str(double d, int digits, char *buf) {
 
 void unescapeHexTokens(std::string& v)
 {
-  for (unsigned i = 0; i < (unsigned)std::max(0, (int)v.length() - 2); ++i) {
+  for (unsigned i = 0; i < (unsigned)(std::max)(0, (int)v.length() - 2); ++i) {
     if (v[i] == '%') {
       std::string h = v.substr(i + 1, 2);
       char *e = 0;

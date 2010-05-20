@@ -301,9 +301,26 @@ public:
 
   /*! \brief %Signal that indicates that the model should be filtered.
    *
-   * The argument is the initial input (of length filterLength()).
+   * The argument is the initial input, whose length equals the filterLength().
+   *
+   * For example, if you are using a WSortFilterProxyModel, you could
+   * react to this signal with:
+   * \if cpp
+   * \code
+   * void MyClass::filterSuggestions(const WString& filter)
+   * {
+   *   proxyModel->setFilterRegExp(filter + ".*");
+   * }
+   * \endcode
+   * \elseif java
+   * \code
+   * public filterSuggestions(String filter) {
+   *   proxyModel.setFilterRegExp(filter + ".*");
+   * }
+   * \endcode
+   * \endif 
    */
-  Signal<WString>& filterModel() { return filterModel_; }
+  Signal<WT_USTRING>& filterModel() { return filterModel_; }
 
   virtual void setMaximumSize(const WLength& width, const WLength& height);
 
@@ -317,7 +334,7 @@ private:
   std::string       replacerJS_;
   WContainerWidget *content_;
 
-  Signal<WString> filterModel_;
+  Signal<WT_USTRING> filterModel_;
 
   std::vector<boost::signals::connection> modelConnections_;
 

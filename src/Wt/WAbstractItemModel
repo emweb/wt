@@ -75,42 +75,55 @@ namespace Wt {
 /*! \class WAbstractItemModel Wt/WAbstractItemModel Wt/WAbstractItemModel
  *  \brief An abstract model for use with %Wt's view classes.
  *
+ * This abstract model is used by several %Wt view widgets as data models.
+ *
+ * It may model data for both tree-like and table-like view
+ * widgets. Data is therefore organized in a hierarchical structure of
+ * tables, where every item stores data and items in column 0 can be
+ * the parent of a nested table of data. Every data item is uniquely
+ * identified by their row, column and parent index, and items may be
+ * referenced using the helper class WModelIndex.
+ *
+ * Each item may provide data for one or more \link Wt::ItemDataRole
+ * roles\endlink, and indicate options using \link Wt::ItemFlag
+ * flags\endlink. The different roles can be used to model different
+ * aspects of an item (its text value, an icon, style class), or to
+ * hold auxiliary custom information. The flags provide information to
+ * the View on possible interactivity.
+ *
  * \if cpp
- * This abstract model is used by several %Wt view widgets (WComboBox,
- * WSelectionBox, WTreeView, Ext::ComboBox, and Ext::TableView) as
- * data models.
- * \elseif java
- * This abstract model is used by several %Wt view widgets (WComboBox,
- * WSelectionBox and WTreeView) as data models.
+ * Top level data have an \link WModelIndex::isValid() invalid\endlink
+ * parent WModelIndex.
+ * \endif
+ * \if java
+ * Top level data have a \c null parent WModelIndex.
  * \endif
  *
- * To provide data for both tree-like and table-like view widgets, it
- * organizes data in a hierarchical structure of tables, where every
- * item stores data and optionally a nested table of data. Every data
- * item is at a particular row and column of a parent item, and items
- * may be referenced using the helper class WModelIndex. 
  * \if cpp
- * Top level data have an \link WModelIndex::isValid() invalid\endlink 
- * parent WModelIndex.
- * \endif 
+ * The data itself is of type <b>boost::any</b>, which can either be
+ * empty, or hold any type of data. Depending on the role however,
+ * view classes may expect certain types of data (e.g. a string for
+ * Wt::StyleClassRole).
  *
- * Column header data may also be specified, for each top-level
- * column.
+ * Wt's standard view classes can display (Wt::DisplayRole) the following data:
  *
- * \if cpp
- * The data itself is of type boost::any, which can either be empty, or hold
- * any of the following type of data:
+ *  - strings of type WString or std::string
+ *  - WDate, WTime, WDateTime
+ *  - standard C++ numeric types (int, double, etc...)
  *  - bool
- *  - number: standard C++ numeric types (int, double, etc...)
- *  - string: WString or std::string
- *  - date and time: WDate, WTime, WDateTime
+ *
+ * The view classes know how to interpret data of these types \link asString()
+ * as a string\endlink or \link asNumber() as a number\endlink.
+ *
+ * For these types, the library knows how to display the data \by asString() 
+ *
  * \elseif java
- * The data itself is of type Object, which can either be null, or hold
- * any of the following type of data:
- *  - Boolean
- *  - number: Short, Integer, Long, Float, Double
- *  - string: WString or String
- *  - dates: WDate
+ *
+ * The data itself is of type Object, which can either be \c null, or be
+ * any type of data. Depending on the role however, view classes may
+ * expect certain types of data (e.g. numerical types for charts) or
+ * will convert the data to a string (e.g. for Wt::DisplayRole).
+ *
  * \endif
  * 
  * \if cpp
@@ -154,8 +167,6 @@ namespace Wt {
  *  </li>
  * </ul>
  *
- * In addition, there are a number of utility functions that try to interpret
- * a boost::any value as a string (asString()) or number (asNumber()).
  * \endif 
  *
  * To implement a custom model, you need to reimplement the following methods:
@@ -189,19 +200,18 @@ namespace Wt {
  * plays no role, since only the toplevel index has children.
  * \endif
  *
- * If you want to support editing of the model, then you also need to
- * reimplement:
- *  - setData()
- *  - setHeaderData()
- * View classes will use the \link Wt::EditRole EditRole\endlink to pass an
- * edited value.
+ * If you want to support editing of the model, then you need to
+ * indicate this support using a Wt::ItemIsEditable flag, and
+ * reimplement setData(). View classes will use the \link Wt::EditRole
+ * EditRole\endlink to read and update the data for the editor.
  *
- * After data was modified, the model must emit the dataChanged()
- * signal.
+ * When the model's data has been changed, the model must emit the
+ * dataChanged() signal.
  *
- * Finally, if you want to support insertion of new data or removal of
- * data (changing the geometry) by any of the view classes, then you
- * need to reimplement the following methods:
+ * Finally, there is a generic interface for insertion of new data or
+ * removal of data (changing the geometry), although this interface is
+ * not yet used by any View class:
+ *
  * - insertRows()
  * - insertColumns()
  * - removeRows()
@@ -219,6 +229,8 @@ class WT_API WAbstractItemModel : public WObject
 {
 public:
   /*! \brief Data map.
+   *
+   * A map of data, indexed by a role.
    */
 #ifndef WT_TARGET_JAVA
   typedef std::map<int, boost::any> DataMap;
@@ -230,8 +242,6 @@ public:
    */
   WAbstractItemModel(WObject *parent = 0);
 
-  /*! \brief Destructor.
-   */
   virtual ~WAbstractItemModel();
 
   /*! \brief Returns the number of columns.
@@ -250,10 +260,10 @@ public:
    */
   virtual int rowCount(const WModelIndex& parent = WModelIndex()) const = 0;
 
-  // not yet used by WTreeView
+  // not yet used by views
   virtual bool canFetchMore(const WModelIndex& parent) const;
 
-  // not yet used by WTreeView
+  // not yet used by views
   virtual void fetchMore(const WModelIndex& parent);
 
   /*! \brief Returns the flags for an item.
@@ -285,8 +295,8 @@ public:
 
   /*! \brief Returns the parent for a model index.
    *
-   * You should use createIndex() to create a model index that corresponds
-   * to the parent of a given index.
+   * An implementation should use createIndex() to create a model
+   * index that corresponds to the parent of a given index.
    *
    * \sa index()
    */
@@ -340,10 +350,10 @@ public:
 
   /*! \brief Returns an index list for data items that match.
    *
-   * Returns an index list of data items that match, starting at start, and
-   * searching further in that column. If flags specifes MatchWrap then the
-   * search wraps around from the start. If hits is not -1, then at most that
-   * number of hits are returned.
+   * Returns an index list of data items that match, starting at
+   * start, and searching further in that column. If flags specifes
+   * Wt::MatchWrap then the search wraps around from the start. If
+   * hits is not -1, then at most that number of hits are returned.
    */
   virtual WModelIndexList match(const WModelIndex& start,
 				int role,
@@ -384,9 +394,12 @@ public:
    *
    * Returns \c true if the operation was successful.
    *
-   * The default implementation returns \c false. If you reimplement this
-   * method, then you must call beginInsertColumns() and
-   * endInsertColumns() before and after the operation.
+   * The default implementation returns \c false.
+   *
+   * The model implementation must call beginInsertColumns() and
+   * endInsertColumns() before and after the operation whenever its
+   * geometry is changed by inserting columns. This emits signals for
+   * views to properly react to these changes.
    *
    * \sa insertRows(), removeColumns(), beginInsertColumns(), endInsertColumns()
    */
@@ -395,11 +408,14 @@ public:
 
   /*! \brief Inserts one or more rows.
    *
-   * Returns \c true if the operation was successful. If you reimplement this
-   * method, then you must call beginInsertRows() and
-   * endInsertRows() before and after the operation.
+   * Returns \c true if the operation was successful.
    *
    * The default implementation returns \c false.
+   *
+   * The model implementation must call beginInsertRows() and
+   * endInsertRows() before and after the operation whenever its
+   * geometry is changed by inserting rows. This emits signals for
+   * views to properly react to these changes.
    *
    * \sa insertColumns(), removeRows(), beginInsertRows(), endInsertRows()
    */
@@ -410,9 +426,12 @@ public:
    *
    * Returns \c true if the operation was successful.
    *
-   * The default implementation returns \c false. If you reimplement this
-   * method, then you must call beginRemoveColumns() and
-   * endRemoveColumns() before and after the operation.
+   * The default implementation returns \c false.
+   *
+   * The model implementation must call beginRemoveColumns() and
+   * endRemoveColumns() before and after the operation whenever its
+   * geometry is changed by removing columns. This emits signals for
+   * views to properly react to these changes.
    *
    * \sa removeRows(), insertColumns(), beginRemoveColumns(), endRemoveColumns()
    */
@@ -423,9 +442,12 @@ public:
    *
    * Returns \c true if the operation was successful.
    *
-   * The default implementation returns \c false. If you reimplement this
-   * method, then you must call beginRemoveRows() and endRemoveRows()
-   * before and after the operation.
+   * The default implementation returns \c false.
+   *
+   * The model implementation must call beginRemoveRows() and
+   * endRemoveRows() before and after the operation whenever its
+   * geometry is changed by removing rows. This emits signals for
+   * views to properly react to these changes.
    *
    * \sa removeColumns(), insertRows(), beginRemoveRows(), endRemoveRows()
    */
@@ -436,9 +458,10 @@ public:
    *
    * Returns \c true if the operation was successful.
    *
-   * The default implementation returns \c false. If you reimplement this
-   * method, you must emit the dataChanged() signal after data was
-   * changed.
+   * The default implementation returns \c false.
+   *
+   * The model implementation must emit the dataChanged() signal after
+   * data was changed.
    *
    * \sa data()
    */
@@ -910,42 +933,50 @@ private:
 extern WT_API std::string asJSLiteral(const boost::any& v,
 				      bool xhtml);
 
-/*! \brief Interpret a boost::any as a string value.
+/*! \brief Interpret a boost::any with a standard type as a string value.
  *
  * The conversion works as follows:
- *  - a boost::any without a value is converted to an empty string
- *  - number types (integers and doubles) are formatted using the
- *    formatString using snprintf, or if omitted, are lexically casted.
- *  - WDate is converted with WDate::toString() using the indicated
- *    format string, or otherwise "dd/MM/yy" notation.
- *  - WTime is converted with WTime::toString() using the indicated
- *    format string, or otherwise "HH:mm:ss" notation.
- *  - WDateTime is converted with WDateTime::toString() using the indicated
- *    format string, or otherwise "dd/MM/yy HH:mm:ss" notation.
+ *  - A boost::any without a value is converted to an empty string
+ *  - Number values (integers and doubles) are formatted using the
+ *    format string with <i>snprintf()</i>, or with
+ *    <i>boost::lexical_cast<></i> if the format string is empty.
+ *  - Data of type WDate is converted with WDate::toString() using the indicated
+ *    format string. If the format string is empty, "dd/MM/yy" is assumed.
+ *  - Data of type WTime is converted with WTime::toString() using the indicated
+ *    format string. If the format string is emtpy, "HH:mm:ss" is assumed.
+ *  - Data of type WDateTime is converted with WDateTime::toString() using the
+ *    indicated format string. If the format string is empty,
+ *    "dd/MM/yy HH:mm:ss" is assumed.
  *
  * \relates WAbstractItemModel
  */
+#ifdef DOXYGEN_ONLY
+extern WString asString(const boost::any& v,
+			const WT_USTRING& formatString = WT_USTRING());
+#else
 extern WT_API WString asString(const boost::any& v,
 			       const WT_USTRING& formatString = WT_USTRING());
+#endif
 
-/*! \brief Interpret a boost::any as a number value.
+/*! \brief Interpret a boost::any with a standard type as a number value.
  *
- * A boost::any without a value, or a string that does not represent a
- * number, is converted to a "NaN". You can check for this value using
- * the libc function isnan().
- *
- * A WDate is converted to an integer number using the
- * WDate::modifiedJulianDay() method.
- *
- * A WDateTime is converted to an integer number using the
- * WDateTime::toTime_t() method.
- *
- * A WTime is converted to an integer number using the number of milliseconds
- * since midnight.
+ * - A boost::any without a value, or a string that does not represent a
+ * number, is converted to a <i>NaN</i>.
+ * - A string is lexically casted to a double
+ * - Data of type WDate is converted to an integer number using
+ * WDate::toJulianDay().
+ * - Data of type WDateTime is converted to an integer number using
+ * WDateTime::toTime_t().
+ * - Data of type WTime is converted to an integer number as the number of
+ * milliseconds since midnight.
  *
  * \relates WAbstractItemModel
  */
+#ifdef DOXYGEN_ONLY
+extern double asNumber(const boost::any& v);
+#else
 extern WT_API double asNumber(const boost::any& v);
+#endif // DOXYGEN_ONLY
 
 extern WT_API int compare(const boost::any& d1, const boost::any& d2);
 

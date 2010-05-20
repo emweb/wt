@@ -665,6 +665,34 @@ public:
    */
   virtual bool loaded() const = 0;
 
+  /*! \brief Sets the tab index.
+   *
+   * For widgets that receive focus, focus is passed on to the next
+   * widget in the <i>tabbing chain</i> based on their tab index. When
+   * the user navigates through form widgets using the keyboard,
+   * widgets receive focus starting from the element with the lowest
+   * tab index to elements with the highest tab index.
+   *
+   * A tab index only applies to widgets than can receive focus (which
+   * are WFormWidget, WAnchor, WPushButton), but setting a tab index
+   * on any other type of widget will propagate to its contained form
+   * widgets.
+   *
+   * Widgets with a same tab index will receive focus in the same order
+   * as they are inserted in the widget tree.
+   *
+   * The default tab index is 0.
+   *
+   * \sa setTabOrder()
+   */
+  virtual void setTabIndex(int index) = 0;
+
+  /*! \brief Returns the tab index.
+   *
+   * \sa setTabIndex()
+   */
+  virtual int tabIndex() const = 0;
+
   /*! \brief Sets a mime type to be accepted for dropping.
    *
    * You may specify a style class that is applied to the widget when the
@@ -762,6 +790,8 @@ public:
   void disable();
 
   DomElement *createSDomElement(WApplication *app);
+
+  static void setTabOrder(WWidget *first, WWidget *second);
 
 protected:
   static const char *WT_RESIZE_JS;

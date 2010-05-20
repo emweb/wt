@@ -108,9 +108,9 @@ enum ItemDataRole {
   DecorationRole = 1,   //!< Role for the url of an icon
   EditRole = 2,         //!< Role for the edited value
   StyleClassRole = 3,   //!< Role for the style class
-  /*! Role that indicates the check state. Is of type <tt>bool</tt>,
-   * unless the Wt::ItemIsTristate flag is set, then is of type
-   * Wt::CheckState.
+  /*! Role that indicates the check state. Data for this role should be
+   * a <tt>bool</tt>. When the Wt::ItemIsTristate flag is set for the item,
+   * data for this role should be of type Wt::CheckState.
    */
   CheckStateRole = 4,   
   ToolTipRole = 5,      //!< Role for a tooltip
@@ -165,27 +165,28 @@ enum DropAction {
 };
 
 /*! \class WModelIndex Wt/WModelIndex Wt/WModelIndex
- *  \brief An index to a data item in a data model.
+ *  \brief An index to an item in a item data model.
  *
  * Indexes are used to indicate a particular item in a
  * WAbstractItemModel. An index points to the item by identifying its
  * row and column location within a parent model index.
  *
- * An index is immutable. The default constructor creates an
- * <i>invalid index</i>, which by convention indicates the parent of
- * top level indexes. Thus, a model that specifies only a list or
- * table of data (but no hierarchical data) would have as valid
- * indexes only indexes that specify the <i>invalid</i> model index as
- * parent.
+ * An index is immutable.
  *
- * Valid indexes are created by the model, within the protected
- * WAbstractItemModel::createIndex() methods. In this way, models can
- * define an internal pointer or id suitable for identifying items in
- * the model.
+ * The default constructor creates an <i>invalid index</i>, which by
+ * convention indicates the parent of top level indexes. Thus, a model
+ * that specifies only a list or table of data (but no hierarchical
+ * data) would have as valid indexes only indexes that specify the
+ * <i>invalid</i> model index as parent.
  *
  * Upon the model's choice, model indexes for hierarchical models may
  * have an internal Id represented by a int64_t (internalId()), a
  * pointer (internalPointer()).
+ *
+ * Indexes are created by the model, within the protected
+ * WAbstractItemModel::createIndex() methods. In this way, models can
+ * define an internal pointer or id suitable for identifying parent
+ * items in the model.
  *
  * \sa WAbstractItemModel
  *

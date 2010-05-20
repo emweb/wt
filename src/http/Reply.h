@@ -42,11 +42,6 @@ namespace asio = boost::asio;
 #include "Buffer.h"
 #include "WHttpDllDefs.h"
 
-#ifdef WIN32
-struct tm* gmtime_r(const time_t* t, struct tm* r);
-#endif
-
-
 namespace http {
 namespace server {
 

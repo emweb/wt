@@ -6,6 +6,9 @@
 
 #include <stdexcept>
 #include <sstream>
+#ifndef WIN32
+#include <unistd.h>
+#endif
 
 #include "Wt/Http/Request"
 #include "Utils.h"
