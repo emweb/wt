@@ -202,6 +202,20 @@ void EventSignalBase::setNotExposed()
   flags_.reset(BIT_EXPOSED);
 }
 
+void EventSignalBase::disconnect(boost::signals::connection& conn)
+{
+  conn.disconnect();
+
+  if (flags_.test(BIT_EXPOSED))
+    if (!isConnected()) {
+      WApplication *app = WApplication::instance();
+      app->removeExposedSignal(this);
+      flags_.reset(BIT_EXPOSED);
+    }
+
+  senderRepaint();
+}
+
 bool EventSignalBase::isExposedSignal() const
 {
   return flags_.test(BIT_EXPOSED);

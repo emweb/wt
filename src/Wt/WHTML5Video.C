@@ -32,7 +32,7 @@ void WHTML5Video::updateVideoDom(DomElement& element, bool all)
   // Only if not IE
   if (all && alternative_) {
     element.setAttribute("onerror",
-      """if(event.target.error.code=="
+      """if(event.target.error && event.target.error.code=="
       ""   "event.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED){"
       ""  "while (this.hasChildNodes())"
       ""    "if (" WT_CLASS ".hasTag(this.firstChild,'SOURCE')){"

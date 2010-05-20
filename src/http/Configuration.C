@@ -22,6 +22,10 @@
 #include <iostream>
 #include <fstream>
 
+#ifdef __CYGWIN__
+#include <Winsock2.h> // for gethostname()
+#endif
+
 namespace http {
 namespace server {
 

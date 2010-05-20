@@ -112,11 +112,10 @@ void WPopupMenu::done(WPopupMenuItem *result)
 
   hide();
 
-  globalClickConnection_.disconnect();
-  globalEscapeConnection_.disconnect();
-
-  WApplication::instance()->root()->clicked().senderRepaint();
-  WApplication::instance()->globalEscapePressed().senderRepaint();
+  WApplication::instance()->root()->clicked()
+    .disconnect(globalClickConnection_);
+  WApplication::instance()->globalEscapePressed()
+    .disconnect(globalEscapeConnection_);
 
   recursiveEventLoop_ = false;
 
@@ -158,9 +157,9 @@ void WPopupMenu::popupImpl()
     app->globalEscapePressed().emit();
 
   globalClickConnection_
-    = app->root()->clicked().connect(SLOT(this, WPopupMenu::done));
+    = app->root()->clicked().connect(this, &WPopupMenu::done);
   globalEscapeConnection_
-    = app->globalEscapePressed().connect(SLOT(this, WPopupMenu::done));
+    = app->globalEscapePressed().connect(this, &WPopupMenu::done);
 
   prepareRender(app);
 

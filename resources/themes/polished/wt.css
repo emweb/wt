@@ -363,7 +363,7 @@
  * WTabWidget
  */
 .Wt-tabs ul {
-    padding: 3px 3px 0px;
+    padding: 3px 3px; /* 0px; */
     font: bold 12px Verdana;
     border-bottom: 1px solid gray;
     list-style-type: none;

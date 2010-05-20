@@ -14,10 +14,10 @@ namespace {
   WSuggestionPopup::Options contactOptions
   = { "<b>",         // highlightBeginTag
       "</b>",        // highlightEndTag
-      0,           // listSeparator
+      0,             // listSeparator
       " \\n",        // whitespace
-      "-., \"@\\n;", // wordSeparators
-      ""           // appendReplacedText
+      "0",           // wordSeparators
+      ""             // appendReplacedText
     };
 }
 

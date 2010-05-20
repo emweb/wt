@@ -88,9 +88,9 @@ void WFlashObject::updateDom(DomElement& element, bool all)
     if (!wApp->environment().agentIsIE()) {
       obj->setAttribute("data", url_);
     }
-    element.setAttribute("width", width().isAuto() ? "" :
+    obj->setAttribute("width", width().isAuto() ? "" :
       boost::lexical_cast<std::string>((int)width().toPixels()));
-    element.setAttribute("height", height().isAuto() ? "" :
+    obj->setAttribute("height", height().isAuto() ? "" :
       boost::lexical_cast<std::string>((int)height().toPixels()));
 
     for(std::map<std::string, WString>::const_iterator i = parameters_.begin();

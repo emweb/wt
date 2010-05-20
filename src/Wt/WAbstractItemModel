@@ -115,7 +115,7 @@ namespace Wt {
  * The view classes know how to interpret data of these types \link asString()
  * as a string\endlink or \link asNumber() as a number\endlink.
  *
- * For these types, the library knows how to display the data \by asString() 
+ * For these types, the library knows how to display the data by asString() 
  *
  * \elseif java
  *
@@ -351,9 +351,10 @@ public:
   /*! \brief Returns an index list for data items that match.
    *
    * Returns an index list of data items that match, starting at
-   * start, and searching further in that column. If flags specifes
-   * Wt::MatchWrap then the search wraps around from the start. If
-   * hits is not -1, then at most that number of hits are returned.
+   * start, and searching further in that column. If flags specifies
+   * \link Wt::MatchWrap MatchWrap \endlink then the search wraps around 
+   * from the start. If hits is not -1, then at most that number of 
+   * hits are returned.
    */
   virtual WModelIndexList match(const WModelIndex& start,
 				int role,

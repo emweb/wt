@@ -116,7 +116,7 @@ public:
    */
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
-  
+
 protected:
   SignalBase(WObject *sender)
     : sender_(sender), blocked_(false)
@@ -458,6 +458,7 @@ public:
   const std::string javaScript() const;
   bool isExposedSignal() const;
   void setNotExposed();
+  void disconnect(boost::signals::connection& conn);
 
   /*! \brief Prevents the default browser action.
    *
