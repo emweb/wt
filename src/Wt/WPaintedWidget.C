@@ -22,11 +22,23 @@ namespace Wt {
 
 class WWidgetPainter {
 public:
+  enum RenderType {
+    InlineVml,
+    InlineSvg,
+    HtmlCanvas
+#ifdef WT_TARGET_JAVA
+    ,
+    PngImage
+#endif // WT_TARGET_JAVA
+  };
+
+public:
   virtual ~WWidgetPainter();
   virtual WPaintDevice *createPaintDevice() = 0;
   virtual void createContents(DomElement *element, WPaintDevice *device) = 0;
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device) = 0;
+  virtual RenderType renderType() const = 0;
 
 protected:
   WWidgetPainter(WPaintedWidget *widget);
@@ -34,22 +46,18 @@ protected:
   WPaintedWidget *widget_;
 };
 
-enum VectorFormat {
-  SvgFormat,
-  VmlFormat
-};
-
 class WWidgetVectorPainter : public WWidgetPainter
 {
 public:
-  WWidgetVectorPainter(WPaintedWidget *widget, VectorFormat format);
+  WWidgetVectorPainter(WPaintedWidget *widget, RenderType renderType);
   virtual WPaintDevice *createPaintDevice();
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
-			      WPaintDevice *device); 
+			      WPaintDevice *device);
+  virtual RenderType renderType() const { return renderType_; }
 
 private:
-  VectorFormat format_;
+  RenderType renderType_;
 };
 
 class WWidgetCanvasPainter : public WWidgetPainter
@@ -60,6 +68,7 @@ public:
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device); 
+  virtual RenderType renderType() const { return HtmlCanvas; }
 };
 
 #ifdef WT_TARGET_JAVA
@@ -71,6 +80,7 @@ public:
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device); 
+  virtual RenderType renderType() const { return PngImage; }
 };
 #endif // WT_TARGET_JAVA
 
@@ -176,7 +186,7 @@ bool WPaintedWidget::createPainter()
    * For IE: no choice. Use VML
    */
   if (env.agentIsIE()) {
-    painter_ = new WWidgetVectorPainter(this, VmlFormat);
+    painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineVml);
     return true;
   }
 
@@ -219,7 +229,7 @@ bool WPaintedWidget::createPainter()
     }
 
   if (method == InlineSvgVml)
-    painter_ = new WWidgetVectorPainter(this, SvgFormat);
+    painter_ = new WWidgetVectorPainter(this, WWidgetPainter::InlineSvg);
   else
     painter_ = new WWidgetCanvasPainter(this);
 
@@ -228,14 +238,17 @@ bool WPaintedWidget::createPainter()
 
 DomElementType WPaintedWidget::domElementType() const
 {
-  return DomElement_DIV;
+  if (isInline() && WApplication::instance()->environment().agentIsIE())
+    return DomElement_SPAN;
+  else  
+    return DomElement_DIV;
 }
 
 DomElement *WPaintedWidget::createDomElement(WApplication *app)
 {
   createPainter();
 
-  DomElement *result = DomElement::createNew(DomElement_DIV);
+  DomElement *result = DomElement::createNew(domElementType());
   setId(result, app);
 
   DomElement *wrap = result;
@@ -255,6 +268,15 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
     canvas->setId('p' + id());
 
   WPaintDevice *device = painter_->createPaintDevice();
+
+  //handle the widget correctly when inline and using VML 
+  if (painter_->renderType() == WWidgetPainter::InlineVml 
+      && isInline()) {
+    result->setProperty(PropertyStyle, "zoom: 1;");
+    
+    canvas->setProperty(PropertyStyleDisplay, "inline");
+    canvas->setProperty(PropertyStyle, "zoom: 1;");
+  }
 
   if (renderWidth_ != 0 && renderHeight_ != 0) {
     paintEvent(device);
@@ -389,14 +411,14 @@ WWidgetPainter::~WWidgetPainter()
  */
 
 WWidgetVectorPainter::WWidgetVectorPainter(WPaintedWidget *widget,
-					   VectorFormat format)
+					   RenderType renderType)
   : WWidgetPainter(widget),
-    format_(format)
+    renderType_(renderType)
 { }
 
 WPaintDevice *WWidgetVectorPainter::createPaintDevice()
 {
-  if (format_ == SvgFormat)
+  if (renderType_ == InlineSvg)
     return new WSvgImage(widget_->renderWidth_, widget_->renderHeight_);
   else
     return new WVmlImage(widget_->renderWidth_, widget_->renderHeight_);

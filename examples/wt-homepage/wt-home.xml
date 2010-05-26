@@ -829,7 +829,7 @@ browser and server.</p>
 <h4 class="example">Widget gallery</h4>
 
 <p>
-  <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
+  <a href="/widgets" class="run" target="_blank">
     <img src="icons/green-play.png" style="vertical-align: top"/>  Go to widget gallery
   </a>
 </p>

@@ -13,9 +13,14 @@
 #include "Wt/Chart/WStandardPalette"
 
 #include "Wt/WAbstractItemModel"
+#include "Wt/WContainerWidget"
+#include "Wt/WCssDecorationStyle"
+#include "Wt/WText"
 #include "Wt/WSvgImage"
 #include "Wt/WPaintDevice"
 #include "Wt/WPainter"
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
 
 #include "WtException.h"
 #include "Utils.h"
@@ -139,6 +144,42 @@ void WPieChart::setDisplayLabels(WFlags<LabelOption> options)
   update();
 }
 
+WWidget* WPieChart::createLegendItemWidget(int index, 
+					   WFlags<LabelOption> options)
+{
+  WContainerWidget* legendItem = new WContainerWidget();
+  legendItem->setPadding(4);
+  
+  WText* colorText = new WText();
+  legendItem->addWidget(colorText);
+  colorText->setPadding(10, Left | Right);
+  colorText->decorationStyle().setBackgroundColor(brush(index).color());
+
+  if (WApplication::instance()->environment().agentIsIE())
+    colorText->setAttributeValue("style", "zoom: 1;");
+
+  double total = 0;
+
+  if (dataColumn_ != -1)
+    for (int i = 0; i < model()->rowCount(); ++i) {
+      double v = asNumber(model()->data(i, dataColumn_));
+      if (!Utils::isNaN(v))
+	total += v;
+    }
+
+  double value = asNumber(model()->data(index, dataColumn_));
+  if (!Utils::isNaN(value)) {
+    WString label = labelText(index, value, total, options);
+    if (!label.empty()) {
+      WText* l = new WText(label);
+      l->setPadding(5, Left);
+      legendItem->addWidget(l);
+    }
+  }
+
+  return legendItem;
+}
+
 void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 {
   double total = 0;
@@ -248,27 +289,9 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 	  c = palette()->fontColor(i);
 	}
 
-	WString text;
-	if (labelOptions_ & TextLabel)
-	  if (labelsColumn_ != -1)
-	    text = asString(model()->data(i, labelsColumn_));
-
-	if (labelOptions_ & TextPercentage) {
-#ifndef WT_TARGET_JAVA
-	  char buf[20];
-#else
-	  char *buf = 0;
-	  buf =
-#endif // WT_TARGET_JAVA
-	    snprintf(buf, 20, "%.3g%%", v / total * 100);
-	  if (!text.empty())
-	    text += ": ";
-	  text += buf;
-	}
-
 	painter.setPen(WPen(c));
 	painter.drawText(WRectF(left, top, width, height),
-			 alignment, text);
+			 alignment, labelText(i, v, total, labelOptions_));
 
 	currentAngle = endAngle;
       }
@@ -284,6 +307,31 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   }
 
   painter.restore();
+}
+
+WString WPieChart::labelText(int index, double v, double total, 
+			     WFlags<LabelOption> options) const
+{
+  WString text;
+
+  if (options & TextLabel)
+    if (labelsColumn_ != -1)
+      text = asString(model()->data(index, labelsColumn_));
+  
+  if (options & TextPercentage) {
+#ifndef WT_TARGET_JAVA
+    char buf[20];
+#else
+    char *buf = 0;
+    buf =
+#endif // WT_TARGET_JAVA
+      snprintf(buf, 20, "%.3g%%", v / total * 100);
+    if (!text.empty())
+      text += ": ";
+    text += buf;
+  }
+
+  return text;
 }
 
 void WPieChart::setShadow(WPainter& painter) const

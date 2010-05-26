@@ -1639,7 +1639,7 @@ namespace rapidxml
 		} else
 		  for (unsigned i = 0; i < length; ++i) {
 		    *dest++ = '?';
-		    *src++;
+		    src++;
 		  }
 	      else
 		RAPIDXML_PARSE_ERROR("Invalid UTF-8 sequence",

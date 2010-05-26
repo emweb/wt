@@ -18,12 +18,12 @@ SUBDIRS(
   dialog
   dragdrop
   extkitchen
+  feature
   filetreetable
   form
   gitmodel
   hangman
   hello
-  hello-widgetset
   javascript
   mandelbrot
   mission
@@ -34,7 +34,7 @@ SUBDIRS(
   treeview
   treeview-dragdrop
   wt-homepage
- wtwithqt
+  wtwithqt
   widgetgallery
   planner
 )

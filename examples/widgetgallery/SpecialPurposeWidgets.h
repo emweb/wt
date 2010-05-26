@@ -26,6 +26,8 @@ public:
 private:
   Wt::WWidget *wGoogleMap();
   Wt::WWidget *wSound();
+  Wt::WWidget *wVideo();
+  Wt::WWidget *wFlashObject();
   void 
   roadDescription(std::vector<Wt::WGoogleMap::Coordinate>& roadDescription);
 

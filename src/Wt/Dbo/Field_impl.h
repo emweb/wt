@@ -42,7 +42,7 @@ std::string FieldRef<V>::sqlType(Session& session) const
 }
 
 template <typename V>
-std::type_info *FieldRef<V>::type() const
+const std::type_info *FieldRef<V>::type() const
 {
   return &typeid(V);
 }
@@ -93,7 +93,7 @@ std::string FieldRef< ptr<C> >::sqlType(Session& session) const
 }
 
 template <class C>
-std::type_info *FieldRef< ptr<C> >::type() const
+const std::type_info *FieldRef< ptr<C> >::type() const
 {
   return &typeid(long long);
 }

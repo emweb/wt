@@ -8,12 +8,15 @@
 #include "EventDisplayer.h"
 #include "DeferredWidget.h"
 
-#include "Wt/WText"
-#include "Wt/WTable"
-#include "Wt/WPushButton"
-#include "Wt/WCheckBox"
-#include "Wt/WSound"
 #include "Wt/WBreak"
+#include "Wt/WCheckBox"
+#include "Wt/WFlashObject"
+#include "Wt/WHTML5Video"
+#include "Wt/WImage"
+#include "Wt/WPushButton"
+#include "Wt/WSound"
+#include "Wt/WTable"
+#include "Wt/WText"
 
 using namespace Wt;
 
@@ -30,6 +33,8 @@ void SpecialPurposeWidgets::populateSubMenu(WMenu *menu)
 					this)));
   menu->addItem("WSound",
 		deferCreate(boost::bind(&SpecialPurposeWidgets::wSound, this)));
+  menu->addItem("WVideo", wVideo());
+  menu->addItem("WFlashObject", wFlashObject());
 }
 
 WWidget *SpecialPurposeWidgets::wGoogleMap()
@@ -197,4 +202,60 @@ WWidget *SpecialPurposeWidgets::wSound()
   return result;
 }
 
+WWidget *SpecialPurposeWidgets::wVideo()
+{
+  std::string ogvVideo =
+    "http://www.webtoolkit.eu/videos/sintel_trailer.ogv";
+  std::string mp4Video =
+    "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
+  std::string poster = "sintel_trailer.jpg";
+  WContainerWidget *result = new WContainerWidget(); 
+  topic("WHTML5Video", result);
+  new WText(tr("specialpurposewidgets-WHTML5Video"), result);
+
+  new WBreak(result);
+
+  new WText(tr("specialpurposewidgets-WHTML5Video-1"), result);
+  WHTML5Video *v1 = new WHTML5Video(result);
+  v1->addSource(mp4Video);
+  v1->addSource(ogvVideo);
+  v1->setPoster(poster);
+  v1->setAlternativeContent(new WImage(poster, new WContainerWidget));
+  v1->resize(640, 360);
+  new WText(tr("specialpurposewidgets-WHTML5Video-2"), result);
+  WFlashObject *flash2 =
+    new WFlashObject("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
+  flash2->setFlashVariable("startimage", "sintel_trailer.jpg");
+  flash2->setFlashParameter("allowFullScreen", "true");
+  flash2->setFlashVariable("flv", mp4Video);
+  flash2->setFlashVariable("showvolume", "1");
+  flash2->setFlashVariable("showfullscreen", "1");
+  flash2->setAlternativeContent(new WImage(poster, new WContainerWidget));
+  flash2->resize(640, 360);
+  WHTML5Video *v2 = new WHTML5Video(result);
+  v2->addSource(mp4Video);
+  v2->addSource(ogvVideo);
+  v2->setAlternativeContent(flash2);
+  v2->setPoster(poster);
+  v2->resize(640, 360);
+
+  new WText(tr("specialpurposewidgets-WHTML5Video-3"), result);
+  WFlashObject *flash3 =
+    new WFlashObject("http://www.youtube.com/v/HOfdboHvshg", result);
+  flash3->setFlashParameter("allowFullScreen", "true");
+  flash3->resize(640, 360);
+
+  return result;
+}
+
+WWidget *SpecialPurposeWidgets::wFlashObject()
+{
+  WContainerWidget *result = new WContainerWidget(); 
+  topic("WFlashObject", result);
+  new WText(tr("specialpurposewidgets-WFlashObject"), result);
+  WFlashObject *f =
+    new WFlashObject("http://www.youtube.com/v/HOfdboHvshg", result);
+  f->resize(640, 385);
+  return result;
+}
 

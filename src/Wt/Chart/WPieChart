@@ -209,6 +209,14 @@ public:
    */
   WFlags<LabelOption> displayLabels() const { return labelOptions_; }
 
+  /*! \brief Creates a widget which renders the a legend item.
+   * 
+   * Depending on the passed LabelOption flags, the legend item widget,
+   * will contain a text (with or without the percentage) and/or a span with
+   * the segment's color.
+   */
+  WWidget* createLegendItemWidget(int index, WFlags<LabelOption> options);
+
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
     const;
 
@@ -261,6 +269,9 @@ private:
   int nextIndex(int i) const;
 
   static WBrush darken(const WBrush& brush);
+
+  WString labelText(int index, double v, double total, 
+		    WFlags<LabelOption> options) const;
 };
 
   }

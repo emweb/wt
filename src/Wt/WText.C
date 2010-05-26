@@ -9,6 +9,7 @@
 #include "Wt/WApplication"
 #include "Wt/WText"
 #include "DomElement.h"
+#include "WtException.h"
 
 namespace Wt {
 
@@ -17,7 +18,9 @@ WText::WText(WContainerWidget *parent)
     textFormat_(XHTMLText),
     wordWrap_(true),
     textChanged_(false),
-    wordWrapChanged_(false)
+    wordWrapChanged_(false),
+    paddingsChanged_(false),
+    padding_(0)
 {
   WT_DEBUG(setObjectName("WText"));
 }
@@ -27,7 +30,9 @@ WText::WText(const WString& text, WContainerWidget *parent)
     textFormat_(XHTMLText),
     wordWrap_(true),
     textChanged_(false),
-    wordWrapChanged_(false)
+    wordWrapChanged_(false),
+    paddingsChanged_(false),
+    padding_(0)
 {
   WT_DEBUG(setObjectName("WText"));
   setText(text);
@@ -38,10 +43,17 @@ WText::WText(const WString& text, TextFormat format, WContainerWidget *parent)
     textFormat_(format),
     wordWrap_(true),
     textChanged_(false),
-    wordWrapChanged_(false)
+    wordWrapChanged_(false),
+    paddingsChanged_(false),
+    padding_(0)
 {
   WT_DEBUG(setObjectName("WText"));
   setText(text);
+}
+
+WText::~WText() 
+{
+  delete[] padding_;
 }
 
 bool WText::setText(const WString& text)
@@ -100,6 +112,16 @@ void WText::updateDom(DomElement& element, bool all)
     wordWrapChanged_ = false;
   }
 
+  if (paddingsChanged_
+      || (all && padding_ &&
+	  !(padding_[0].isAuto() && padding_[1].isAuto()))) {
+    
+    element.setProperty(PropertyStylePaddingRight, padding_[0].cssText());
+    element.setProperty(PropertyStylePaddingLeft, padding_[1].cssText());
+
+    paddingsChanged_ = false;
+  }
+
   WInteractWidget::updateDom(element, all);
 }
 
@@ -133,6 +155,48 @@ bool WText::checkWellFormed()
     return removeScript(text_);
   } else
     return true;
+}
+
+void WText::setPadding(const WLength& length, WFlags<Side> sides)
+{
+  if (!padding_) {
+    padding_ = new WLength[2];
+#ifdef WT_TARGET_JAVA
+    padding_[0] = padding_[1] = WLength::Auto;
+#endif // WT_TARGET_JAVA
+  }
+
+  if (sides.testFlag(Right))
+    padding_[0] = length;
+  if (sides.testFlag(Left))
+    padding_[1] = length;
+
+  if (sides.testFlag(Top))
+    throw WtException("WText::padding on Top is not supported.");
+  if (sides.testFlag(Bottom))
+    throw WtException("WText::padding on Bottom is not supported.");
+
+  paddingsChanged_ = true;
+  repaint(RepaintPropertyAttribute);
+}
+
+WLength WText::padding(Side side) const
+{
+  if (!padding_)
+    return WLength::Auto;
+
+  switch (side) {
+  case Top:
+    throw WtException("WText::padding on Top is not supported.");
+  case Right:
+    return padding_[1];
+  case Bottom:
+    throw WtException("WText::padding on Bottom is not supported.");
+  case Left:
+    return padding_[3];
+  default:
+    throw WtException("WText::padding(Side) with invalid side.");
+  }
 }
 
 std::string WText::formattedText() const

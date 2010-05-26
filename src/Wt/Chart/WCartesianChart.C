@@ -11,9 +11,11 @@
 #include "Wt/Chart/WCartesianChart"
 #include "Wt/Chart/WStandardPalette"
 
+#include "Wt/WContainerWidget"
 #include "Wt/WAbstractItemModel"
 #include "Wt/WPaintDevice"
 #include "Wt/WPainter"
+#include "Wt/WText"
 
 #include "WtException.h"
 
@@ -36,6 +38,30 @@ private:
 
 namespace Wt {
   namespace Chart {
+
+class IconWidget : public Wt::WPaintedWidget {
+public:
+  IconWidget(WCartesianChart *chart, int index, WContainerWidget *parent = 0) 
+    : Wt::WPaintedWidget(parent),
+      chart_(chart),
+      index_(index)
+  {
+    setInline(true);
+    resize(20, 20);
+  }
+
+protected:
+   virtual void paintEvent(Wt::WPaintDevice *paintDevice) {
+     Wt::WPainter painter(paintDevice);
+     chart_->renderLegendIcon(painter, 
+			     WPointF(2.5, 10.0), 
+			     chart_->series(index_));
+   }
+
+private:
+  WCartesianChart* chart_;
+  int index_;
+};
 
 WCartesianChart::WCartesianChart(WContainerWidget *parent)
   : WAbstractChart(parent),
@@ -306,6 +332,18 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
   painter.drawText(pos.x() + 17, pos.y() - 10, 100, 20,
 		   AlignLeft | AlignMiddle,
 		   asString(model()->headerData(series.modelColumn())));
+}
+
+WWidget* WCartesianChart::createLegendItemWidget(int index)
+{
+  WContainerWidget* legendItem = new WContainerWidget();
+
+  legendItem->addWidget(new IconWidget(this, index));
+  WText* label = new WText(asString(model()->headerData(index)));
+  label->setVerticalAlignment(AlignTop);
+  legendItem->addWidget(label);
+
+  return legendItem;
 }
 
 void WCartesianChart::initLayout(const WRectF& rectangle)

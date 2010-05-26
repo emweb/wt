@@ -149,7 +149,7 @@ Query<Result, DirectBinding>::bind(const T& value)
 template <class Result>
 Result Query<Result, DirectBinding>::resultValue() const
 {
-  return singleResult(resultList());
+  return this->singleResult(resultList());
 }
 
 template <class Result>
@@ -337,7 +337,7 @@ Query<Result, DynamicBinding>::limit(int limit)
 template <class Result>
 Result Query<Result, DynamicBinding>::resultValue() const
 {
-  return singleResult(resultList());
+  return this->singleResult(resultList());
 }
 
 template <class Result>

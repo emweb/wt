@@ -819,7 +819,8 @@ WTextArea has no formatting capabilities
     </h1>
     <p>
       This section groups widgets with special functionality, such as
-      usage of Google maps, and Wt's integrated sound support.
+      usage of Google maps, Wt's integrated sound and video support, and
+      Flash objects.
     </p>
   </message>
 
@@ -840,6 +841,60 @@ WTextArea has no formatting capabilities
     <p>The current implementation uses a small Adobe Flash
       application, but future releases are expected to use the native
       HTML5 audio tags, as these are appearing in modern browsers.
+    </p>
+  </message>
+  <message id="specialpurposewidgets-WHTML5Video">
+    <p>Wt's video support is work in progress, but there are already a few
+      ways to play video in Wt. Currently, methods based on the HTML5 Video
+      element and Flash are provided.
+    </p>
+    <p>As there is no single method to insert video in a web page so that
+      it plays on all browser types supported by Wt, the video playing classes
+      have fallback support, so that if a video cannot be played by one class,
+      (e.g. WHHTML5Video), it can fall back to another method (e.g. using
+      WFlashObject). As such you can create a chain of video players that
+      will each attempt to play the video, and if they fail pass on control
+      to the next player.
+    </p>
+    <p>The trailer below is <a href="http://durian.blender.org/"
+      target="_blank">Sintel</a>,
+      (c) copyright Blender Foundation | durian.blender.org
+    </p>
+  </message>
+  <message id="specialpurposewidgets-WHTML5Video-1">
+    <h2>HTML5 Playback</h2>
+    <p>Below is a WHTML5Video class, with a WImage (a static JPEG image) as
+      fallback. The HTML5 video will play on browsers that support MP4 or OGV
+      video streams (firefox, chrome, safari, ...), and show the image
+      on other browsers (Internet Explorer, opera, ...).
+    </p>
+  </message>
+  <message id="specialpurposewidgets-WHTML5Video-2">
+    <h2>HTML5 Playback with Flash fallback</h2>
+    <p>For browsers that support HTML5 video, the video below looks exactly like
+      the one above. On other browsers, the player below falls back to a
+      Flash player, which plays an MP4 video. If flash is not supported on
+      your system, a static image is shown.
+    </p>
+    <p>
+      The Flash-based video player can be any player. The example below uses
+      <a href="http://flv-player.net/" target="_blank">FLV Player</a> as
+      fallback for HTML5 video, but any flash player can do the job.
+    </p>
+  </message>
+  <message id="specialpurposewidgets-WHTML5Video-3">
+    <h2>Youtube video</h2>
+    <p>Another way to play videos, which has been available for a long time,
+      is to use plain flash to play your videos. Below we use YouTube to play
+      the video.
+    </p>
+  </message>
+  <message id="specialpurposewidgets-WFlashObject">
+    <p>Any Flash object can easily be integrated in Wt. Instantiate a
+      WFlashObject, set Flash parameters and variables, resize the
+      object, and you're done. If flash is not supported, you can
+      provide any WWidget as alternative content (including e.g. a
+      link that sends the user to a page where flash can be downloaded).
     </p>
   </message>
 

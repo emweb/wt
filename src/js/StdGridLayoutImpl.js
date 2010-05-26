@@ -448,6 +448,9 @@ WT_DECLARE_APP_MEMBER(1, "layouts", []);
 WT_DECLARE_APP_MEMBER
   (2, "layoutsAdjust",
    function() {
+    if (this.adjusting)
+      return;
+    this.adjusting = true;
     var i;
     for (i=0;i < this.layouts.length; ++i) {
       var layout = this.layouts[i];
@@ -455,5 +458,6 @@ WT_DECLARE_APP_MEMBER
 	this.WT.arrayRemove(this.layouts, i); --i;
       }
     }
+    this.adjusting = false;
   });
 

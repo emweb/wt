@@ -71,31 +71,35 @@ class WebSession;
 class WT_API WEnvironment
 {
 public:
+  /*! \brief An enumeration type for specific user agent.
+   *
+   * \sa agent()
+   */
   enum UserAgent {
-    Unknown = 0,
-    IEMobile = 1000, // <5 or lower
-    IE6 = 1001,
-    IE7 = 1002,
-    IE8 = 1003, // 8 or higher
-    Opera = 3000,
-    WebKit = 4000,
-    Safari = 4100, // < 3
-    Safari3 = 4103,
-    Safari4 = 4104, // 4 or higher
-    Chrome0 = 4200,
-    Chrome1 = 4201,
-    Chrome2 = 4202,
-    Chrome3 = 4203,
-    Chrome4 = 4204, // 4 or higher
-    Arora = 4300,
-    Konqueror = 5000,
-    Gecko = 6000,
-    Firefox = 6100, // 2 or lower
-    Firefox3_0 = 6101,
-    Firefox3_1 = 6102,
-    Firefox3_1b = 6103,
-    Firefox3_5 = 6104, // 3.5 or higher
-    BotAgent = 10000
+    Unknown = 0,        //!< Unknown user agent
+    IEMobile = 1000,    //!< Internet Explorer Mobile, or Internet Explorer 5 or older
+    IE6 = 1001,         //!< Internet Explorer 6
+    IE7 = 1002,         //!< Internet Explorer 7
+    IE8 = 1003,         //!< Internet Explorer 8 or later
+    Opera = 3000,       //!< Opera
+    WebKit = 4000,      //!< WebKit
+    Safari = 4100,      //!< Safari 2 or older
+    Safari3 = 4103,     //!< Safari 3
+    Safari4 = 4104,     //!< Safari 4 or later
+    Chrome0 = 4200,     //!< Chrome 0
+    Chrome1 = 4201,     //!< Chrome 1
+    Chrome2 = 4202,     //!< Chrome 2
+    Chrome3 = 4203,     //!< Chrome 3
+    Chrome4 = 4204,     //!< Chrome 4 or later
+    Arora = 4300,       //!< Arora
+    Konqueror = 5000,   //!< Konqueror
+    Gecko = 6000,       //!< Gecko
+    Firefox = 6100,     //!< Firefox 2 or older
+    Firefox3_0 = 6101,  //!< Firefox 3.0
+    Firefox3_1 = 6102,  //!< Firefox 3.1
+    Firefox3_1b = 6103, //!< Firefox 3.1b
+    Firefox3_5 = 6104,  //!< Firefox 3.5 or later
+    BotAgent = 10000    //!< Bot user agent
   };
 
   /*! \brief Enumeration for HTML content type.
@@ -275,6 +279,8 @@ public:
   /*! \brief Returns the user agent.
    *
    * The user agent, as reported in the HTTP <tt>User-Agent</tt> field.
+   *
+   * \sa agent()
    */
   const std::string& userAgent() const { return userAgent_; }
 
@@ -439,32 +445,76 @@ public:
    */
   ContentType contentType() const { return contentType_; }
 
+  /*! \brief Returns the user agent type.
+   *
+   * This returns an interpretation of the userAgent(). It should be
+   * used only for user-agent specific work-arounds (as a last
+   * resort).
+   *
+   * \sa agentIsIE(), agentIsOpera(), agentIsGecko(), agentIsChrome(),
+   *     agentIsSafari(), agentIsWebKit()
+   */
   UserAgent agent() const { return agent_; }
 
+  /*! \brief Returns whether the user agent is Microsoft Internet Explorer.
+   *
+   * \sa agent()
+   */
   bool agentIsIE() const {
     return agent_ >= IEMobile && agent_ < Opera;
   }
 
+  /*! \brief Returns whether the user agent is Internet Explorer Mobile.
+   *
+   * Returns also \c true when the agent is Internet Explorer 5 or older.
+   *
+   * \sa agent()
+   */
   bool agentIsIEMobile() const {
     return agent_ == IEMobile;
   }
 
+  /*! \brief Returns whether the user agent is Opera.
+   *
+   * \sa agent()
+   */
   bool agentIsOpera() const {
     return agent_ >= Opera && agent_ < Safari;
   }
 
+  /*! \brief Returns whether the user agent is WebKit-based.
+   *
+   * Webkit-based browsers include Safari, Chrome, Arora and Konquerer
+   * browsers.
+   *
+   * \sa agent()
+   */
   bool agentIsWebKit() const {
     return agent_ >= WebKit && agent_ < Konqueror;
   }
 
+  /*! \brief Returns whether the user agent is Safari.
+   *
+   * \sa agent()
+   */
   bool agentIsSafari() const {
     return agent_ >= Safari && agent_ < Chrome0;
   }
 
+  /*! \brief Returns whether the user agent is Chrome.
+   *
+   * \sa agent()
+   */
   bool agentIsChrome() const {
     return agent_ >= Chrome0 && agent_ < Konqueror;
   }
-
+  
+  /*! \brief Returns whether the user agent is Gecko-based.
+   *
+   * Gecko-based browsers include Firefox.
+   *
+   * \sa agent()
+   */
   bool agentIsGecko() const {
     return agent_ >= Gecko && agent_ < BotAgent;
   }

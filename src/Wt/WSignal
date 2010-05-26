@@ -591,8 +591,11 @@ class EventSignal : public EventSignalBase
 {
 public:
 #ifndef WT_TARGET_JAVA
+#ifndef __clang__
+  // see bug: http://llvm.org/bugs/show_bug.cgi?id=6920
   static void *operator new(std::size_t size);
   static void operator delete(void *deletable, std::size_t size);
+#endif // __clang__
 
   EventSignal(const char *name, WObject *sender);
 #else
@@ -924,6 +927,7 @@ bool Signal<A1, A2, A3, A4, A5, A6>::isConnected() const
   return impl_ ? impl_->num_slots() > 0 : false;
 }
 
+#ifndef __clang__
 template <typename E>
 void *EventSignal<E>::operator new(std::size_t size) {
   return EventSignalBase::alloc();
@@ -933,6 +937,7 @@ template <typename E>
 void EventSignal<E>::operator delete(void *deletable, std::size_t size) {
   EventSignalBase::free(deletable);
 }
+#endif // __clang__
 
 template <typename E>
 EventSignal<E>::EventSignal(const char *name, WObject *sender)

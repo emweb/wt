@@ -54,13 +54,16 @@ WT_DECLARE_WT_MEMBER
 
      if (el.style.display != 'none') {
        if (!moved) {
-           var ws = WT.windowSize();
-           el.style.left = Math.round((ws.x - el.clientWidth)/2
-		+ (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
-           el.style.top = Math.round((ws.y - el.clientHeight)/2
-		+ (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
-           el.style.marginLeft='0px';
-           el.style.marginTop='0px';
+         var ws = WT.windowSize();
+	 el.style.left = Math.round((ws.x - el.clientWidth)/2
+	   + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
+         el.style.top = Math.round((ws.y - el.clientHeight)/2
+	   + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
+         el.style.marginLeft='0px';
+	 el.style.marginTop='0px';
+
+	 if (el.style.width != null && el.style.height != null)
+	   self.wtResize(el, el.clientWidth + 2, el.clientHeight + 2);
        }
        el.style.visibility = 'visible';
      }
@@ -73,7 +76,10 @@ WT_DECLARE_WT_MEMBER
      var c = self.lastChild;
      var t = c.previousSibling;
      h -= t.offsetHeight + 8; // 8 = body padding
-     if (h > 0)
+     if (h > 0) {
        c.style.height = h + 'px';
+       if (APP.layoutsAdjust)
+	 APP.layoutsAdjust();
+     }
    };
  });

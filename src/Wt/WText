@@ -118,6 +118,10 @@ public:
   WText(const WString& text, TextFormat textFormat,
 	WContainerWidget *parent = 0);
 
+  /*! \brief Destructor.
+   */
+  ~WText();
+
   /*! \brief Returns the text.
    *
    * When a literal XHTMLFormatted text was set, this may differ from
@@ -189,6 +193,20 @@ public:
    */
   bool wordWrap() const { return wordWrap_; }
 
+  /*! \brief Sets padding inside the widget
+   *
+   * Setting padding has the effect of adding distance between the
+   * widget children and the border, for a WText padding is only supported
+   * on the left and/or right.
+   */
+  void setPadding(const WLength& padding, WFlags<Side> sides = Left | Right);
+
+  /*! \brief Returns the padding set for the widget.
+   *
+   * \sa setPadding(const WLength&, WFlags<Side>)
+   */
+  WLength padding(Side side) const;
+
   virtual void refresh();
 
 private:
@@ -196,11 +214,13 @@ private:
   TextFormat   textFormat_;
   bool         wordWrap_;
 
-  bool textChanged_, wordWrapChanged_;
+  bool textChanged_, wordWrapChanged_, paddingsChanged_;
 
   bool        checkWellFormed();
   std::string formattedText() const;
   void        autoAdjustInline();
+
+  WLength     *WT_ARRAY padding_;
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);
