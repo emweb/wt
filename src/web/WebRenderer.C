@@ -751,6 +751,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   if (!redirect.empty()) {
     std::cerr << "Redirect: " << redirect << std::endl;
+    response.setStatus(302); // Should be 303 in fact ?
     response.setRedirect(redirect);
     return;
   }
