@@ -33,22 +33,28 @@ WApplication *createApplication(const WEnvironment& env)
 
 int main(int argc, char **argv)
 {
-  WServer server(argv[0]);
+  try {
+    WServer server(argv[0]);
 
-  server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
-  BlogRSSFeed rssFeed("blog.db", "Wt blog example",
-		      "", "It's just an example.");
+    BlogRSSFeed rssFeed("blog.db", "Wt blog example",
+      "", "It's just an example.");
 
-  server.addResource(&rssFeed, FeedUrl);
-  server.addEntryPoint(Application, createApplication, BlogUrl);
+    server.addResource(&rssFeed, FeedUrl);
+    server.addEntryPoint(Application, createApplication, BlogUrl);
 
-  std::cerr << "\n\n -- Warning: Example is deployed at '"
-	    << BlogUrl << "'\n\n";
+    std::cerr << "\n\n -- Warning: Example is deployed at '"
+      << BlogUrl << "'\n\n";
 
-  if (server.start()) {
-    WServer::waitForShutdown();
-    server.stop();
+    if (server.start()) {
+      WServer::waitForShutdown();
+      server.stop();
+    }
+  } catch (Wt::WServer::Exception& e) {
+    std::cerr << e.what() << std::endl;
+  } catch (std::exception &e) {
+    std::cerr << "exception: " << e.what() << std::endl;
   }
 }
 

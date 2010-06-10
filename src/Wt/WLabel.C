@@ -172,7 +172,10 @@ void WLabel::updateText(DomElement& element, bool all, WApplication *app,
 void WLabel::propagateSetEnabled(bool enabled)
 {
   if (text_)
-    text_->setStyleClass(enabled ? "" : "Wt-disabled");
+    if (enabled)
+      text_->removeStyleClass("Wt-disabled");
+    else
+      text_->addStyleClass("Wt-disabled");
 
   WInteractWidget::propagateSetEnabled(enabled);
 }

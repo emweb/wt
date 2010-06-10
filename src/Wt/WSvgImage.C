@@ -276,8 +276,7 @@ void WSvgImage::makeNewGroup()
     fontStyle_ = fontStyle();
   }
 
-  tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_
-      << "font:" << fontStyle_ << '"';
+  tmp << "<"SVG"g style=\"" << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
 
   if (!currentTransform_.isIdentity()) {
     tmp << " transform=\"matrix("
@@ -714,7 +713,7 @@ std::string WSvgImage::strokeStyle() const
 
 std::string WSvgImage::fontStyle() const
 {
-  return painter()->font().cssText();
+  return painter()->font().cssText(false);
 }
 
 std::string WSvgImage::rendered()

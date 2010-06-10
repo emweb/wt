@@ -24,7 +24,6 @@ DialogExample::DialogExample(const WEnvironment& env)
 {
   setTitle("Dialog example");
 
-
   WContainerWidget *textdiv = new WContainerWidget(root());
   textdiv->setStyleClass("text");
 

@@ -177,6 +177,14 @@ public:
    */
   WT_USTRING styleClass() const;
 
+  /*! \brief Adds a style class.
+   */
+  void addStyleClass(const WT_USTRING& styleClass, bool force = false);
+
+  /*! \brief Removes a style class.
+   */
+  void removeStyleClass(const WT_USTRING& styleClass, bool force = false);
+
   /*! \brief Sets the cursor.
    *
    * This sets the mouse cursor that is shown when the mouse pointer

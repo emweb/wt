@@ -41,6 +41,12 @@ WBorderLayout::WBorderLayout(WWidget *parent)
 WBorderLayout::~WBorderLayout()
 { }
 
+void WBorderLayout::setSpacing(int size)
+{
+  grid_.horizontalSpacing_ = size;
+  grid_.verticalSpacing_ = size;
+}
+
 void WBorderLayout::addItem(WLayoutItem *item)
 {
   add(item, Center);

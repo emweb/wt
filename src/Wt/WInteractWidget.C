@@ -160,12 +160,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     if (keyDown) {
-      if (keyDown->needsUpdate(all)) {
-      actions.push_back
-	(DomElement::EventAction(std::string(),
-				 keyDown->javaScript(),
-				 keyDown->encodeCmd(),
-				 keyDown->isExposedSignal()));
+      if (keyDown->isConnected()) {
+	actions.push_back
+	  (DomElement::EventAction(std::string(),
+				   keyDown->javaScript(),
+				   keyDown->encodeCmd(),
+				   keyDown->isExposedSignal()));
       }
       keyDown->updateOk();
     }
@@ -202,18 +202,21 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * when we have a mouseUp event, we also need a mouseDown event
      * to be able to compute dragDX/Y.
      *
-     * When we have a mouseDrag or mouseMove or mouseUp event, we need
-     * to capture everything after on mouse down, and keep track of the
+     * When we have:
+     *  - a mouseDrag
+     *  - or a mouseDown + (mouseMove or mouseUp),
+     * we need to capture everything after on mouse down, and keep track of the
      * down button if we have a mouseMove or mouseDrag
      */
     std::string js;
     if (mouseUp && mouseUp->isConnected())
       js += WApplication::instance()->javaScriptClass()
 	+ "._p_.saveDownPos(event);";
-      
-    if (!js.empty() // mouseUp
-	|| (mouseMove && mouseMove->isConnected())
-	|| (mouseDrag && mouseDrag->isConnected()))
+
+    if ((mouseDrag && mouseDrag->isConnected())
+	|| (mouseDown && mouseDown->isConnected()
+	    && ((mouseUp && mouseUp->isConnected())
+		|| (mouseMove && mouseMove->isConnected()))))
       js += WT_CLASS ".capture(this);";
 
     if ((mouseMove && mouseMove->isConnected())

@@ -311,11 +311,15 @@ WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index)
       renderFlags |= RenderFocused;
   }
 
+  if (!isValid(index)) {
+    renderFlags |= RenderInvalid;
+  }
+
   bool initial = !widget;
 
   widget = itemDelegate->update(widget, index, renderFlags);
   widget->setInline(false);
-  widget->setStyleClass(widget->styleClass() + " Wt-tv-c");
+  widget->addStyleClass("Wt-tv-c");
   widget->resize(WLength::Auto, rowHeight());
 
   if (renderFlags & RenderEditing) {
@@ -1027,6 +1031,12 @@ void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
   if (parent != rootIndex())
     return;
 
+  for (int r = 0; r < model()->rowCount(); r++) {
+    for (int c = start; c <= end; c++) {
+      closeEditor(model()->index(r, c), false);
+    }
+  }
+
   int count = end - start + 1;
   int width = 0;
 
@@ -1077,6 +1087,12 @@ void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 {
   if (parent != rootIndex())
     return;
+
+  for (int c = 0; c < model()->columnCount(); c++) {
+    for (int r = start; r <= end; r++) {
+      closeEditor(model()->index(r, c), false);
+    }
+  }
 
   shiftModelIndexes(start, -(end - start + 1));
 }
@@ -1324,18 +1340,13 @@ void WTableView::renderSelected(bool selected, const WModelIndex& index)
 	  ColumnWidget *column = columnContainer(i);
 	  WWidget *w = column->widget(renderedRow);
 	  if (selected)
-	    w->setStyleClass(Utils::addWord(w->styleClass().toUTF8(),
-					    "Wt-selected"));
+	    w->addStyleClass("Wt-selected");
 	  else
-	    w->setStyleClass(Utils::eraseWord(w->styleClass().toUTF8(), 
-					      "Wt-selected"));
+	    w->removeStyleClass("Wt-selected");
 	}
       } else {
 	WTableRow *row = plainTable_->rowAt(renderedRow + 1);
-	if (selected)
-	  row->setStyleClass("Wt-selected");
-	else
-	  row->setStyleClass("");
+	row->setStyleClass(selected ? "Wt-selected" : "");
       }
     }
   } else {
@@ -1352,11 +1363,9 @@ void WTableView::renderSelected(bool selected, const WModelIndex& index)
       }
 
       if (selected)
-	w->setStyleClass(Utils::addWord(w->styleClass().toUTF8(), 
-					"Wt-selected"));
+	w->addStyleClass("Wt-selected");
       else
-	w->setStyleClass(Utils::eraseWord(w->styleClass().toUTF8(), 
-					  "Wt-selected"));
+	w->removeStyleClass("Wt-selected");
     }
   }
 }

@@ -145,8 +145,10 @@ bool WebController::expireSessions()
 
       if (diff < 1000) {
 	if (session->shouldDisconnect()) {
-	  session->app()->connected_ = false;
-	  session->log("notice") << "Timeout: disconnected";
+	  if (session->app()->connected_) {
+	    session->app()->connected_ = false;
+	    session->log("notice") << "Timeout: disconnected";
+	  }
 	} else {
 	  i->second->log("notice") << "Timeout: expiring";
 	  toKill.push_back(i->second);
@@ -315,29 +317,52 @@ void WebController::handleRequest(WebRequest *request)
     return;
   }
 
-  std::string sessionId = singleSessionId_;
+  std::string sessionId;
+
+  /*
+   * Get session from request.
+   */
   const std::string *wtdE = request->getParameter("wtd");
 
-  if (sessionId.empty()) {
-    /*
-     * Get session from request.
-     */
-    if (conf_.sessionTracking() == Configuration::CookiesURL
-	&& !conf_.reloadIsNewSession())
-      sessionId = sessionFromCookie(request->headerValue("Cookie"),
-				    request->scriptName(),
-				    conf_.sessionIdLength());
+  if (conf_.sessionTracking() == Configuration::CookiesURL
+      && !conf_.reloadIsNewSession())
+    sessionId = sessionFromCookie(request->headerValue("Cookie"),
+				  request->scriptName(),
+				  conf_.sessionIdLength());
 
-    if (sessionId.empty() && wtdE)
-      sessionId = *wtdE;
-  }
+  if (sessionId.empty() && wtdE)
+    sessionId = *wtdE;
 
 #ifdef WT_THREADED
   /*
    * -- Begin critical section to handle the session.
+   *    This protects the sessions_ map and the singleSessionId_.
    */
   boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // WT_THREADED
+
+  if (!singleSessionId_.empty() && sessionId != singleSessionId_) {
+    if (conf_.persistentSessions()) {
+      // This may be because of a race condition in the filesystem:
+      // the session file is renamed in generateNewSessionId() but
+      // still a request for an old session may have arrived here
+      // while this was happening.
+      //
+      // If it is from the old app, We should be sent a reload signal,
+      // this is what will be done by a new session (which does not create
+      // an application).
+      //
+      // If it is another request to take over the persistent session,
+      // it should be handled by the persistent session. We can distinguish
+      // using the type of the request
+      conf_.log("info") 
+	<< "Persistent session requested Id: " << sessionId << ", "
+	<< "persistent Id: " << singleSessionId_;
+      if (sessions_.empty() || request->requestMethod() == "GET")
+	sessionId = singleSessionId_;
+    } else
+      sessionId = singleSessionId_;
+  }
 
   SessionMap::iterator i = sessions_.find(sessionId);
   WebSession *session = 0;

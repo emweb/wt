@@ -43,8 +43,10 @@ void WLineEdit::setText(const WT_USTRING& text)
     repaint(RepaintPropertyIEMobile);
 
     if (validator()) {
-      setStyleClass("undo-current-state");
-      setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
+      if (validate() == WValidator::Valid)
+	removeStyleClass("Wt-invalid", true);
+      else
+	addStyleClass("Wt-invalid", true);
     }
 
     updateEmptyText();

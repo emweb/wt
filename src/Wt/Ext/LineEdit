@@ -110,6 +110,14 @@ public:
    */
   EventSignal<WKeyEvent>& keyWentUp();
 
+  /*! \brief Event signal emitted when enter was pressed.
+   *
+   * This signal is emitted when the Enter or Return key was pressed.
+   *
+   * \sa WInteractWidget::enterPressed()
+   */
+  EventSignal<>& enterPressed();
+
 protected:
   WLineEdit *lineEdit() const { return lineEdit_; }
   virtual WFormWidget *formWidget() const;

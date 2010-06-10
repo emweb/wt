@@ -4,6 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
+// TODO:
+//  - filter length stuff
+
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WContainerWidget"
@@ -36,6 +39,8 @@ WSuggestionPopup::WSuggestionPopup(const Options& options,
     filter_(impl_, "filter"),
     editKeyDown_(parent), // should be this, but IE hack...
     editKeyUp_(parent),
+    editClick_(parent),
+    editMouseMove_(parent),
     delayHide_(parent)
 {
   init();
@@ -54,6 +59,8 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
     filter_(impl_, "filter"),
     editKeyDown_(parent), // should be this, but IE hack...
     editKeyUp_(parent),
+    editClick_(parent),
+    editMouseMove_(parent),
     delayHide_(parent)
 {
   init();
@@ -74,6 +81,8 @@ void WSuggestionPopup::init()
   setJavaScript(editKeyDown_, "editKeyDown");
   setJavaScript(editKeyUp_, "editKeyUp");
   setJavaScript(delayHide_, "delayHide");
+  setJavaScript(editClick_, "editClick");
+  setJavaScript(editMouseMove_, "editMouseMove");
 
   hide();
 
@@ -118,7 +127,8 @@ void WSuggestionPopup::setJavaScript(JSlot& slot,
 {
   std::string jsFunction = 
     "function(obj, event) {"
-    """jQuery.data(" + jsRef() + ", 'obj')." + methodName + "(obj, event);"
+    """var o = jQuery.data(" + jsRef() + ", 'obj');"
+    """if (o) o." + methodName + "(obj, event);"
     "}";
   slot.setJavaScript(jsFunction);
 }
@@ -224,12 +234,21 @@ void WSuggestionPopup::modelLayoutChanged()
   setModelColumn(modelColumn_);
 }
 
-void WSuggestionPopup::forEdit(WFormWidget *edit)
+void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
 {
   edit->keyPressed().connect(editKeyDown_);
   edit->keyWentDown().connect(editKeyDown_);
   edit->keyWentUp().connect(editKeyUp_);
   edit->blurred().connect(delayHide_);
+
+  if (triggers & Editing)
+    edit->addStyleClass("Wt-suggest-onedit");
+
+  if (triggers & DropDownIcon) {
+    edit->addStyleClass("Wt-suggest-dropdown");
+    edit->clicked().connect(editClick_);
+    edit->mouseMoved().connect(editMouseMove_);
+  }
 }
 
 void WSuggestionPopup::clearSuggestions()

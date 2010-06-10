@@ -136,6 +136,9 @@ Wt/WGoogleMap.C
 Wt/WGridLayout.C
 Wt/WGroupBox.C
 Wt/WHBoxLayout.C
+Wt/WHTML5Audio.C
+Wt/WHTML5Media.C
+Wt/WHTML5Video.C
 Wt/WIconPair.C
 Wt/WImage.C
 Wt/WInPlaceEdit.C
@@ -226,7 +229,6 @@ Wt/WValidator.C
 Wt/WVBoxLayout.C
 Wt/WVectorImage.C
 Wt/WVmlImage.C
-Wt/WHTML5Video.C
 Wt/WViewWidget.C
 Wt/WVirtualImage.C
 Wt/WWebWidget.C

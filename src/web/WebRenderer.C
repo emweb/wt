@@ -503,7 +503,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   streamCommJs(app, response.out());
 
-  if (session_.state() == WebSession::JustCreated)
+  if (session_.state() != WebSession::Loaded)
     serveMainAjax(response);
   else {
     response.out() << "window.loadWidgetTree = function(){\n";
@@ -631,6 +631,9 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   mainElement->addToParent(s, "document.body", widgetset ? 0 : -1, app);
   delete mainElement;
 
+  if (app->isQuited())
+    s << app->javaScriptClass() << "._p_.quit();";
+
   if (widgetset)
     app->domRoot2_->rootAsJavaScript(app, s, true);
 
@@ -669,8 +672,9 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   if (widgetset)
     response.out() << app->javaScriptClass() << "._p_.load();\n";
 
-  response.out() << session_.app()->javaScriptClass()
-		 << "._p_.update(null, 'load', null, false);\n";
+  if (!app->isQuited())
+    response.out() << session_.app()->javaScriptClass()
+		   << "._p_.update(null, 'load', null, false);\n";
 
   if (!widgetset) {
     response.out() << "};\n";
@@ -1032,17 +1036,8 @@ void WebRenderer::collectJavaScriptUpdate(std::ostream& out)
 
   out << app->afterLoadJavaScript();
 
-  if (app->isQuited()) {
+  if (app->isQuited())
     out << app->javaScriptClass() << "._p_.quit();";
-
-    WContainerWidget *timers = app->timerRoot();
-    DomElement *d = DomElement::getForUpdate(timers, DomElement_DIV);
-    d->setProperty(PropertyInnerHTML, "");
-    EscapeOStream sout(out);
-    d->asJavaScript(sout, DomElement::Update);
-
-    delete d;
-  }
 
   updateLoadIndicator(out, app, false);
 

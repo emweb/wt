@@ -272,6 +272,12 @@
     background-color: #C3D9FF;
 }
 
+.Wt-suggest-dropdown {
+    background-image: url('dropdown.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
 /*
  * WSlider
  */
@@ -377,12 +383,11 @@
     table-layout: auto;
 }
 
-.Wt-treetable .Wt-header {
+.Wt-treetable div.Wt-header {
     font-family: verdana,helvetica,tahoma,sans-serif;
     font-size: 9pt;
     font-weight: bold;
     cursor: default;
-    white-space: nowrap;   
     background-color: #EEEEEE;
     white-space: normal;
     text-overflow: ellipsis;
@@ -502,7 +507,7 @@
     background-color: #FFFFFF;
 }
 
-.Wt-treeview .Wt-header .Wt-label {
+.Wt-treeview .Wt-header div.Wt-label {
     white-space: normal;
     font-weight: bold;
     text-overflow: ellipsis;

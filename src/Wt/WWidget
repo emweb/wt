@@ -535,6 +535,20 @@ public:
    */
   virtual WT_USTRING styleClass() const = 0;
 
+  /*! \brief Adds a CSS style class.
+   */
+  virtual void addStyleClass(const WT_USTRING& styleClass,
+			     bool force = false) = 0;
+
+  void addStyleClass(const char *styleClass, bool force = false);
+
+  /*! \brief Removes a CSS style class.
+   */
+  virtual void removeStyleClass(const WT_USTRING& styleClass,
+				bool force = false) = 0;
+
+  void removeStyleClass(const char *styleClass, bool force = false);
+
   /*! \brief Sets the vertical alignment.
    *
    * This only applies to inline widgets, and determines how to position

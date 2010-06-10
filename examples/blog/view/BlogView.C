@@ -38,7 +38,9 @@ public:
 	   const std::string& rssFeedUrl)
     : basePath_(basePath),
       rssFeedUrl_(rssFeedUrl),
-      session_(sqliteDb)
+      session_(sqliteDb),
+      register_(0),
+      profile_(0)
   {
     WApplication *app = wApp;
 
@@ -48,7 +50,6 @@ public:
     app->internalPathChanged().connect(SLOT(this, BlogImpl::handlePathChange));
 
     login_ = new WTemplate(this);
-    register_ = 0;
     items_ = new WContainerWidget(this);
 
     logout();
@@ -64,6 +65,7 @@ private:
 
   WTemplate *login_;
   WTemplate *register_;
+  WTemplate *profile_;
   WContainerWidget *items_;
 
   void logout() {
@@ -142,12 +144,17 @@ private:
 
     cancelRegister();
 
+    WText *profileLink = new WText(tr("profile"));
+    profileLink->setStyleClass("link");
+    profileLink->clicked().connect(SLOT(this, BlogImpl::editProfile));
+ 
     WText *logoutLink = new WText(tr("logout"));
     logoutLink->setStyleClass("link");
     logoutLink->clicked().connect(SLOT(this, BlogImpl::logout));
 
     login_->bindString("feed-url", rssFeedUrl_);
     login_->bindString("user", user->name);
+    login_->bindWidget("profile-link", profileLink);
     login_->bindWidget("logout-link", logoutLink);
   }
 
@@ -172,11 +179,60 @@ private:
 
       register_->bindWidget("name", name);
       register_->bindWidget("passwd", passwd);
-      register_->bindWidget("passwd2", passwd);
+      register_->bindWidget("passwd2", passwd2);
       register_->bindWidget("ok-button", okButton);
       register_->bindWidget("cancel-button", cancelButton);
       register_->bindWidget("error", error);
     }
+  }
+
+  void editProfile() {
+    if (!profile_) {
+      profile_ = new WTemplate();
+      items_->insertWidget(0, profile_);
+      profile_->setTemplateText(tr("blog-profile"));
+
+      WLineEdit *passwd = new WLineEdit();
+      WLineEdit *passwd2 = new WLineEdit();
+      WPushButton *okButton = new WPushButton(tr("save"));
+      WPushButton *cancelButton = new WPushButton(tr("cancel"));
+      WText *error = new WText();
+
+      passwd->setEchoMode(WLineEdit::Password);
+      passwd2->setEchoMode(WLineEdit::Password);
+      okButton->clicked().connect(SLOT(this, BlogImpl::saveProfile));
+      cancelButton->clicked().connect(SLOT(this, BlogImpl::cancelProfile));
+
+      profile_->bindString("user",session_.user()->name);
+      profile_->bindWidget("passwd", passwd);
+      profile_->bindWidget("passwd2", passwd2);
+      profile_->bindWidget("ok-button", okButton);
+      profile_->bindWidget("cancel-button", cancelButton);
+      profile_->bindWidget("error", error);
+    }
+  }
+
+  void cancelProfile() {
+    delete profile_;
+    profile_ = 0;
+  }
+
+  void saveProfile() {
+    WLineEdit *passwd = profile_->resolve<WLineEdit *>("passwd");
+    WLineEdit *passwd2 = profile_->resolve<WLineEdit *>("passwd2");
+    WText *error = profile_->resolve<WText *>("error");
+    if (passwd->text().empty()) {
+      cancelProfile();
+      return;
+    }
+    if (passwd->text() != passwd2->text()) {
+      error->setText(tr("passwd-mismatch"));
+      return;
+    }
+    dbo::Transaction t(session_);
+    session_.user().modify()->setPassword(passwd->text().toUTF8());
+    t.commit();
+    cancelProfile();
   }
 
   void doRegister() {
@@ -238,6 +294,7 @@ private:
       std::string path = app->internalPathNextPart(basePath_);
 
       items_->clear();
+      profile_ = 0;
 
       if (path.empty())
 	showPosts(session_.find<Post>

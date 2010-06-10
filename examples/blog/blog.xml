@@ -48,6 +48,33 @@
     </table>
   </message>
 
+  <message id="blog-profile">
+    <div class="profile-panel">
+      <h4>Profile panel for <span class="poster">${user}</span></h4>
+      <table style="margin: 5px auto;">
+	<tr>
+	  <td>New password:</td>
+	  <td>${passwd}</td>
+	</tr>
+	<tr>
+	  <td>Repeat password:</td>
+	  <td>${passwd2}</td>
+	</tr>
+	<tr>
+	  <td colspan="2" style="text-align: center">
+	    ${ok-button}
+	    ${cancel-button}
+	  </td>
+	</tr>
+	<tr>
+	  <td colspan="2" style="text-align: center; color: red;" class="login-error">
+	    ${error}
+	  </td>
+	</tr>
+      </table>
+    </div>
+  </message>
+
   <message id="blog-author-panel">
     <div class="author-panel">
       <h4>Author panel for <span class="poster">${user}</span></h4>
@@ -63,7 +90,7 @@
 
   <message id="blog-logout">
     <div class="login-box">
-      <b>${user}</b> ${logout-link}
+      <b>${user}</b> ${logout-link} ${profile-link}
       <a href="${feed-url}">
 	<img src="css/rss.png" alt="Rss Feed"
 	     style="margin-left: 6px; vertical-align: top;"/>
@@ -157,8 +184,10 @@
 
   <message id="login">Login</message>
   <message id="login-tooshort">Login too short (must be at least {1} characters)</message>
+  <message id="passwd-mismatch">Passwords don't match.</message>
   <message id="register">Register</message>
   <message id="logout">Logout</message>
+  <message id="profile">Profile</message>
   <message id="comment-add">Add comment</message>
   <message id="comment-reply">Reply</message>
   <message id="comment-edit">Edit</message>

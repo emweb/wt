@@ -23,24 +23,33 @@ class WTemplate;
  * This widget may be associated with one or more \link WFormWidget
  * WFormWidgets\endlink (typically a WLineEdit or a WTextArea).
  *
- * When the user starts editing one of the associated widgets, this
- * popup will show just below it, offering a list of suggestions that
- * match in some way with the current edit. The mechanism for
- * filtering the total list of suggestions must be specified through a
- * separate JavaScript function. This function may also highlight part(s)
- * of the suggestions to provide feed-back on how they match.
+ * The popup provides the user with suggestions to enter input. The
+ * popup can be used by one or more editors, using forEdit(). The
+ * popup will show when the user starts editing the edit field, or
+ * when the user opens the suggestions explicitly using a drop down
+ * icon or with the down key. The popup positions itself intelligently
+ * just below or just on top of the edit field. It offers a list of
+ * suggestions that match in some way with the current edit field, and
+ * dynamically adjusts this list. The implementation for matching
+ * indivudal suggestions with the current text is provided through a
+ * JavaScript function. This function may also highlight part(s) of
+ * the suggestions to provide feed-back on how they match.
  *
  * %WSuggestionPopup is an MVC view class, using a simple
  * WStringListModel by default. You can set a custom model using
- * setModel(). The member methods clearSuggestions() and
- * addSuggestion() manipulate the model.
+ * setModel(). The model can provide different text for the suggestion
+ * text (Wt::DisplayRole) and value (Wt::UserRole). The member methods
+ * clearSuggestions() and addSuggestion() manipulate the model.
  *
- * The popup may support very large datasets, by using server-side
- * filtering of suggestions based on the input. You can enable this
- * feature using setFilterLength() and then listen to a filter notification
- * using the modelFilter() signal. By using setMaximumSize() you can also
- * limit the maximum height of the popup, in which case scrolling is provided
- * (similar to a combo box).
+ * By default, the popup implements all filtering client-side. To
+ * support large datasets, you may enable server-side filtering of
+ * suggestions based on the input. The server-side filtering provides
+ * a coarse filtering using a fixed size prefix of the entered text,
+ * and complements the client-side filtering. Use setFilterLength()
+ * and then listen to a filter notification using the modelFilter()
+ * signal. By using setMaximumSize() you can also limit the maximum
+ * height of the popup, in which case scrolling is supported (similar
+ * to a combo-box).
  *
  * The class is initialized with an Options struct which configures
  * how suggestion filtering and result editing is done. Alternatively,
@@ -60,7 +69,7 @@ class WTemplate;
  *     // 1) if suggestion is null, simply return the current text 'value'
  *     // 2) remove markup from the suggestion
  *     // 3) check suggestion if it matches
- *     // 4) add markup to suggestion
+ *     // 4) add markup to suggestion if necessary
  *
  *     return { match : ...,      // does the suggestion match ? (boolean)
  *              suggestion : ...  // modified suggestion markup
@@ -149,6 +158,11 @@ class WTemplate;
 .Wt-suggest .sel : A selected suggestion element
 \endverbatim
  *
+ * When using the DropDownIcon trigger, an additional style class is
+ * provided for the edit field: <tt>Wt-suggest-dropdown</tt>, which
+ * renders the icon to the right inside the edit field. This class may
+ * be used to customize how the drop down icon is rendered.
+ *
  * \note This widget requires JavaScript support.
  *
  * \ingroup modelview
@@ -156,8 +170,30 @@ class WTemplate;
 class WT_API WSuggestionPopup : public WCompositeWidget
 {
 public:
+  /*! \brief Enumeration that defines a trigger for showing the popup.
+   *
+   * \sa forEdit()
+   */
+  enum PopupTrigger {
+    /*! \brief Shows popup when the user starts editing.
+     *
+     * The popup is shown when the currently edited text has a length
+     * longer than the \link setFilterLength() filter length\endlink.
+     */
+    Editing = 0x1,
+
+    /*! \brief Shows popup when user clicks a drop down icon.
+     *
+     * The lineedit is modified to show a drop down icon, and clicking
+     * the icon shows the suggestions, very much like a WComboCox.
+     */
+    DropDownIcon = 0x2
+  };
+
   /*! \brief A configuration object to generate a matcher and replacer
    *         JavaScript function.
+   *
+   * \sa WSuggestionPopup
    */
   struct Options {
     /*! \brief Open tag to highlight a match in a suggestion.
@@ -201,34 +237,50 @@ public:
     std::string appendReplacedText;
   };
 
-  /*! \brief Creates a suggestion popup with given matcherJS and replacerJS.
+  /*! \brief Creates a suggestion popup.
    *
-   * See supra for the signature of the matcher and replace JavaScript
-   * functions.
-   */
-  WSuggestionPopup(const std::string& matcherJS,
-		   const std::string& replacerJS,
-		   WContainerWidget *parent = 0);
-
-  /*! \brief Creates a suggestion popup with given matcher and replacer options.
+   * The popup using a standard matcher and replacer implementation
+   * that is configured using the provided \p options.
    *
    * \sa generateMatcherJS(), generateReplacerJS()
    */
   WSuggestionPopup(const Options& options,
 		   WContainerWidget *parent = 0);
 
+  /*! \brief Creates a suggestion popup with given matcherJS and replacerJS.
+   *
+   * See supra for the expected signature of the matcher and replace
+   * JavaScript functions.
+   */
+  WSuggestionPopup(const std::string& matcherJS,
+		   const std::string& replacerJS,
+		   WContainerWidget *parent = 0);
+
   /*! \brief Lets this suggestion popup assist in editing the given edit field.
    *
    * A single suggestion popup may assist in several edits by repeated calls
    * of this method.
+   *
+   * The \p popupTrigger
    */
-  void forEdit(WFormWidget *edit);
+  void forEdit(WFormWidget *edit, WFlags<PopupTrigger> popupTriggers = Editing);
 
   /*! \brief Clears the list of suggestions.
+   *
+   * This clears the underlying model.
+   *
+   * \sa addSuggestion()
    */
   void clearSuggestions();
 
   /*! \brief Adds a new suggestion.
+   *
+   * This adds an entry to the underlying model. The \p suggestionText
+   * is set as Wt::DisplayRole and the \p suggestionValue (which is
+   * inserted into the edit field on selection) is set as
+   * Wt::UserRole.
+   *
+   * \sa clearSuggestions(), setModel()
    */
   void addSuggestion(const WString& suggestionText,
 		     const WString& suggestionValue);
@@ -270,13 +322,19 @@ public:
    */
   WAbstractItemModel *model() const { return model_; }
 
-  /*! \brief Creates a matcher JavaScript function based on some
-   *         generic options.
+  /*! \brief Creates a standard matcher JavaScript function.
+   *
+   * This returns a JavaScript function that provides a standard
+   * implementation for the matching input, based on the given \p
+   * \options.
    */
   static std::string generateMatcherJS(const Options& options);
 
-  /*! \brief Creates a replacer JavaScript function based on some
-   *         generic options.
+  /*! \brief Creates a standard replacer JavaScript function.
+   *
+   * This returns a JavaScript function that provides a standard
+   * implementation for the matching input, based on the given \p
+   * \options.
    */
   static std::string generateReplacerJS(const Options& options);
 
@@ -301,7 +359,12 @@ public:
 
   /*! \brief %Signal that indicates that the model should be filtered.
    *
-   * The argument is the initial input, whose length equals the filterLength().
+   * The argument is the initial input. When \link Editing
+   * Editing\endlink is used as edit trigger, its length will always
+   * equal the filterLength(). When \link DropDownIcon
+   * DropDownIcon\endlink is used as edit trigger, the input length
+   * may be less than filterLength(), and the the signal will be
+   * called repeatedly as the user provides more input.
    *
    * For example, if you are using a WSortFilterProxyModel, you could
    * react to this signal with:
@@ -339,8 +402,7 @@ private:
   std::vector<boost::signals::connection> modelConnections_;
 
   JSignal<std::string> filter_;
-  JSlot editKeyDown_;
-  JSlot editKeyUp_;
+  JSlot editKeyDown_, editKeyUp_, editClick_, editMouseMove_;
   JSlot delayHide_;
 
   void init();
@@ -358,6 +420,8 @@ private:
 protected:
   virtual void render(WFlags<RenderFlag> flags);
 };
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WSuggestionPopup::PopupTrigger);
 
 }
 

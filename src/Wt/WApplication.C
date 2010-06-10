@@ -103,7 +103,7 @@ WApplication::WApplication(const WEnvironment& env)
     domRoot_->resize(WLength::Auto, WLength(100, WLength::Percentage));
 
   timerRoot_ = new WContainerWidget(domRoot_);
-  WT_DEBUG(timerRoot_->setObjectName("wt-timer-root"));
+  timerRoot_->setId("Wt-timers");
   timerRoot_->resize(WLength::Auto, 0);
   timerRoot_->setPositionScheme(Absolute);
 
@@ -1167,10 +1167,12 @@ SoundManager *WApplication::getSoundManager()
 }
 
 #ifdef WT_DEBUG_JS
+#define xstr(s) str(s)
+#define str(s) #s
 void WApplication::loadJavaScript(const char *jsFile)
 {
   if (!javaScriptLoaded(jsFile)) {
-    std::string fname = std::string(WT_DEBUG_JS "/") + jsFile;
+    std::string fname = std::string( xstr(WT_DEBUG_JS) "/") + jsFile;
     std::ifstream js(fname.c_str(), std::ios::in | std::ios::binary);
 
     if (!js)

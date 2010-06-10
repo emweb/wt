@@ -45,10 +45,9 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   panel->setCentralWidget(treeView_ = new WTreeView());
   if (!WApplication::instance()->environment().ajax())
     treeView_->resize(WLength::Auto, 290);
-  treeView_->setAlternatingRowColors(!treeView_->alternatingRowColors());
+  treeView_->setAlternatingRowColors(true);
   treeView_->setRowHeight(25);
   treeView_->setModel(model_);
-  //treeView_->setSelectionMode(SingleSelection);
 
   treeView_->setColumnWidth(1, WLength(100));
   treeView_->setColumnAlignment(1, AlignCenter);

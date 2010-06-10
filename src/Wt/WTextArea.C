@@ -44,7 +44,10 @@ void WTextArea::setText(const WT_USTRING& text)
   repaint(RepaintInnerHtml);
 
   if (validator())
-    setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
+    if (validate() == WValidator::Valid)
+      removeStyleClass("Wt-invalid", true);
+    else
+      addStyleClass("Wt-invalid", true);
 
   updateEmptyText();
 }

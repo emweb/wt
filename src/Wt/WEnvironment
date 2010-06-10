@@ -554,10 +554,6 @@ protected:
   void setInternalPath(const std::string& path);
  
 private:
-#ifndef WT_TARGET_JAVA
-  WEnvironment(const WEnvironment&);
-#endif // WT_TARGET_JAVA
-
   WEnvironment(WebSession *session);
 
   void init(const WebRequest& request);

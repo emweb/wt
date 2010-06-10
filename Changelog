@@ -1,3 +1,37 @@
+10-06-2010:
+	* WTableView, WTreeView: workaround IE bug w.r.t. white-space: nowrap
+
+	* Chart/WCartesianChart: added createLegendItemWidget() to paint the
+	legend item outside the chart
+
+	* WItemDelegate, WAbstractItemView: add support for validation
+
+	* WBorderLayout: add missing setSpacing() method to control internal
+	spacing
+
+	* WWidget: addStyleClass() and removeStyleClass() (finally!)
+
+	* WContainerWidget: workaround scrolling bug in IE caused by
+	position: relative
+
+	* WEnvironment: agent() and agentIsXXX() methods
+
+	* WSvgImage: give in to inkscape's CSS font needs
+
+	* WHTML5Video, WHTML5Audio: HTML5 video and audio support
+
+	* WSuggestionPopup: implement explicit trigger (icon, key down)
+
+	* WTreeNode: support selection by click on whole row
+
+	* WWebWidget: added doJavaScript()
+
+	* examples/blog: improved support for MSVC builds, new feature allowing
+	profile editing
+
+	* examples/feature/serverpush: simple example illustrating use of
+	server push
+
 20-05-2010:
 	* build: added support for cygwin
 

@@ -44,6 +44,11 @@ EventSignal<WKeyEvent>& LineEdit::keyWentUp()
   return lineEdit_->keyWentUp();
 }
 
+EventSignal<>& LineEdit::enterPressed()
+{
+  return lineEdit_->enterPressed();
+}
+
 WFormWidget *LineEdit::formWidget() const
 {
   return lineEdit_;

@@ -242,6 +242,16 @@ WT_USTRING WAbstractArea::styleClass() const
   return impl_->styleClass();
 }
 
+void WAbstractArea::addStyleClass(const WT_USTRING& styleClass, bool force)
+{
+  impl_->addStyleClass(styleClass, force);
+}
+
+void WAbstractArea::removeStyleClass(const WT_USTRING& styleClass, bool force)
+{
+  impl_->removeStyleClass(styleClass, force);
+}
+
 void WAbstractArea::setCursor(Cursor cursor)
 {
   impl_->decorationStyle().setCursor(cursor);

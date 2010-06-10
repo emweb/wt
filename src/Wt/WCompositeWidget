@@ -104,6 +104,11 @@ public:
   virtual void setStyleClass(const WT_USTRING& styleClass);
   void setStyleClass(const char *styleClass);
   virtual WT_USTRING styleClass() const;
+  virtual void addStyleClass(const WT_USTRING& styleClass, bool force = false);
+  void addStyleClass(const char *styleClass, bool force = false);
+  virtual void removeStyleClass(const WT_USTRING& styleClass,
+				bool force = false);
+  void removeStyleClass(const char *styleClass, bool force = false);
   virtual void setVerticalAlignment(AlignmentFlag alignment,
 				    const WLength& length = WLength::Auto);
   virtual AlignmentFlag verticalAlignment() const;

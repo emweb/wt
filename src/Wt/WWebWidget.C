@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Wt/WApplication"
 #include "Wt/WCompositeWidget"
@@ -83,7 +84,8 @@ WWebWidget::OtherImpl::OtherImpl()
     jsMembersSet_(0),
     jsMemberCalls_(0),
     dropSignal_(0),
-    acceptedDropMimeTypes_(0)
+    acceptedDropMimeTypes_(0),
+    delayedDoJavaScript_(0)
 { }
 
 WWebWidget::OtherImpl::~OtherImpl()
@@ -96,6 +98,7 @@ WWebWidget::OtherImpl::~OtherImpl()
   delete jsMemberCalls_;
   delete dropSignal_;
   delete acceptedDropMimeTypes_;
+  delete delayedDoJavaScript_;
 }
 
 WWebWidget::WWebWidget(WContainerWidget *parent)
@@ -658,6 +661,79 @@ WLength WWebWidget::margin(Side side) const
   }
 }
 
+void WWebWidget::addStyleClass(const WT_USTRING& styleClass, bool force)
+{
+  if (!lookImpl_)
+    lookImpl_ = new LookImpl();
+
+  std::string currentClass = lookImpl_->styleClass_.toUTF8();
+  std::set<std::string> classes;
+  Utils::split(classes, currentClass, " ", true);
+  
+  if (classes.find(styleClass.toUTF8()) == classes.end()) {
+    lookImpl_->styleClass_
+      = WT_USTRING::fromUTF8(Utils::addWord(lookImpl_->styleClass_.toUTF8(),
+					    styleClass.toUTF8()));
+
+    if (!force) {
+      flags_.set(BIT_STYLECLASS_CHANGED);
+      repaint(RepaintPropertyAttribute);
+    }
+  }
+
+  if (force && isRendered()) {
+    if (!transientImpl_)
+      transientImpl_ = new TransientImpl();
+
+    transientImpl_->addedStyleClasses_.push_back(styleClass);
+    Utils::erase(transientImpl_->removedStyleClasses_, styleClass);
+
+    repaint(RepaintPropertyAttribute);
+  }
+}
+
+void WWebWidget::removeStyleClass(const WT_USTRING& styleClass, bool force)
+{
+  if (!lookImpl_)
+    lookImpl_ = new LookImpl();
+
+  std::string currentClass = lookImpl_->styleClass_.toUTF8();
+  std::set<std::string> classes;
+  Utils::split(classes, currentClass, " ", true);
+
+  if (classes.find(styleClass.toUTF8()) != classes.end()) {
+    // perhaps it is quicker to join the classes back, but then we need to
+    // make sure we keep the original order ?
+    lookImpl_->styleClass_
+      = WT_USTRING::fromUTF8(Utils::eraseWord(lookImpl_->styleClass_.toUTF8(),
+					      styleClass.toUTF8()));
+    if (!force) {
+      flags_.set(BIT_STYLECLASS_CHANGED);
+      repaint(RepaintPropertyAttribute);
+    }
+  }
+
+  if (force && isRendered()) {
+    if (!transientImpl_)
+      transientImpl_ = new TransientImpl();
+
+    transientImpl_->removedStyleClasses_.push_back(styleClass);
+    Utils::erase(transientImpl_->addedStyleClasses_, styleClass);
+
+    repaint(RepaintPropertyAttribute);
+  }
+}
+
+void WWebWidget::addStyleClass(const char *styleClass, bool force)
+{
+  addStyleClass(WString::fromUTF8(styleClass), force);
+}
+
+void WWebWidget::removeStyleClass(const char *styleClass, bool force)
+{
+  removeStyleClass(WString::fromUTF8(styleClass), force);
+}
+
 void WWebWidget::setStyleClass(const WT_USTRING& styleClass)
 {
   if (canOptimizeUpdates() && (styleClass == this->styleClass()))
@@ -1190,6 +1266,18 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_STYLECLASS_CHANGED);
   }
 
+  if (transientImpl_) {
+    for (unsigned i = 0; i < transientImpl_->addedStyleClasses_.size(); ++i)
+      element.callJavaScript("$('" + id() + "').addClass('"
+			     + transientImpl_->addedStyleClasses_[i].toUTF8()
+			     +"');");
+
+    for (unsigned i = 0; i < transientImpl_->removedStyleClasses_.size(); ++i)
+      element.callJavaScript("$('" + id() + "').removeClass('"
+			     + transientImpl_->removedStyleClasses_[i].toUTF8()
+			     +"');");
+  }
+
   if (all || flags_.test(BIT_SELECTABLE_CHANGED)) {
     if (flags_.test(BIT_SET_UNSELECTABLE)) {
       element.setProperty(PropertyClass,
@@ -1672,6 +1760,29 @@ void WWebWidget::doLoad(WWidget *w)
   if (!w->loaded())
     std::cerr << "Improper load() implementation: base implementation not "
       "called?" << std::endl;
+}
+
+void WWebWidget::render(WFlags<RenderFlag> flags)
+{
+  WWidget::render(flags);
+  if (otherImpl_ && otherImpl_->delayedDoJavaScript_) {
+    wApp->doJavaScript(otherImpl_->delayedDoJavaScript_->str());
+    delete otherImpl_->delayedDoJavaScript_;
+    otherImpl_->delayedDoJavaScript_ = 0;
+  }
+}
+
+void WWebWidget::doJavaScript(const std::string& javascript)
+{
+  if (isRendered())
+    wApp->doJavaScript(javascript);
+  else {
+    if (!otherImpl_)
+      otherImpl_ = new OtherImpl;
+    if (!otherImpl_->delayedDoJavaScript_)
+      otherImpl_->delayedDoJavaScript_ = new SStream;
+    (*otherImpl_->delayedDoJavaScript_) << javascript;
+  }
 }
 
 bool WWebWidget::loaded() const

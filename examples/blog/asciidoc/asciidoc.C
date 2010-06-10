@@ -46,7 +46,7 @@ std::string readFileToString(const std::string& fileName)
 WString asciidoc(const Wt::WString& src)
 {
   std::string srcFileName = tempFileName();
-  std::string htmlFileName = srcFileName + ".html";
+  std::string htmlFileName = tempFileName();
 
   {
     std::ofstream srcFile(srcFileName.c_str(), std::ios::out);
@@ -55,7 +55,14 @@ WString asciidoc(const Wt::WString& src)
     srcFile.close();
   }
 
-  std::string command = "asciidoc -s " + srcFileName;
+#if defined(ASCIIDOC_EXECUTABLE)
+#define xstr(s) str(s)
+#define str(s) #s
+  std::string cmd = xstr(ASCIIDOC_EXECUTABLE);
+#else
+  std::string cmd = "asciidoc";
+#endif
+  std::string command = cmd + " -o " + htmlFileName + " -s " + srcFileName;
 
 #ifndef WIN32
   /*

@@ -20,6 +20,7 @@
 
 namespace Wt {
 
+class SStream;
 class WApplication;
 
 enum DomElementType {
@@ -123,6 +124,12 @@ public:
   virtual void setStyleClass(const WT_USTRING& styleClass);
   void setStyleClass(const char *styleClass);
   virtual WT_USTRING styleClass() const;
+  virtual void addStyleClass(const WT_USTRING& styleClass,
+			     bool force = false);
+  void addStyleClass(const char *styleClass, bool force = false);
+  virtual void removeStyleClass(const WT_USTRING& styleClass,
+				bool force = false);
+  void removeStyleClass(const char *styleClass, bool force = false);
   virtual void setVerticalAlignment(AlignmentFlag alignment,
 				    const WLength& length = WLength());
   virtual AlignmentFlag verticalAlignment() const;
@@ -242,6 +249,21 @@ protected:
 
   void doLoad(WWidget *w);
 
+  virtual void render(WFlags<RenderFlag> flags);
+
+  /*! \brief Executes the given JavaScript statements, possibly delayed
+   *  until after the widget is rendered.
+   *
+   * Calling WApplication::doJavaScript() with JavaScript code that refers
+   * to a widget that is still to be rendered causes JavaScript errors. This
+   * happens for example when an object is created, but not yet inserted in
+   * the widget tree.
+   *
+   * This method offers an alternative: it queues up all doJavaScript calls
+   * for widgets that were not yet rendered until they are rendered.
+   */
+  void doJavaScript(const std::string& javascript);
+
 private:
   /*
    * Booleans packed in a bitset.
@@ -289,6 +311,7 @@ private:
   struct TransientImpl {
     std::vector<DomElement *> childRemoveChanges_;
     std::vector<WWidget *>    addedChildren_;
+    std::vector<WT_USTRING>   addedStyleClasses_, removedStyleClasses_;
 
     TransientImpl();
     ~TransientImpl();
@@ -354,6 +377,8 @@ private:
 
     typedef std::map<std::string, DropMimeType>   MimeTypesMap;
     MimeTypesMap                                 *acceptedDropMimeTypes_;
+
+    SStream *delayedDoJavaScript_;
 
     OtherImpl();
     ~OtherImpl();

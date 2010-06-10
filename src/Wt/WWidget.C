@@ -111,6 +111,16 @@ void WWidget::setStyleClass(const char *styleClass)
   setStyleClass(WString::fromUTF8(styleClass));
 }
 
+void WWidget::addStyleClass(const char *styleClass, bool force)
+{
+  addStyleClass(WString::fromUTF8(styleClass), force);
+}
+
+void WWidget::removeStyleClass(const char *styleClass, bool force)
+{
+  removeStyleClass(WString::fromUTF8(styleClass), force);
+}
+
 void WWidget::hide()
 {
   flags_.set(BIT_WAS_HIDDEN, isHidden());

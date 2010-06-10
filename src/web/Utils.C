@@ -9,6 +9,8 @@
 #include "rapidxml/rapidxml.hpp"
 #include "Wt/WString"
 
+#include <boost/algorithm/string.hpp>
+
 #include <cstdlib>
 #include <sstream>
 
@@ -205,5 +207,16 @@ std::string urlEncode(const std::string& url)
 {
   return DomElement::urlEncodeS(url);
 }
+
+void split(std::set<std::string>& tokens,
+	   const std::string &in, const char *sep,
+	   bool compress_adjacent_tokens)
+{
+    boost::split(tokens, in, boost::is_any_of(sep),
+		 compress_adjacent_tokens?
+		 boost::algorithm::token_compress_on:
+		 boost::algorithm::token_compress_off);
+}
+
   }
 }

@@ -359,6 +359,12 @@
     color: white;
 }
 
+.Wt-suggest-dropdown {
+    background-image: url('suggest-dropdown.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
 /*
  * WTabWidget
  */

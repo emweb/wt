@@ -11,8 +11,6 @@ WT_DECLARE_WT_MEMBER
  function(APP, el, contentsContainer, headerContainer) {
    jQuery.data(el, 'obj', this);
 
-   var SCROLLBAR_WIDTH = 19;
-
    var self = this;
    var WT = APP.WT;
 
@@ -131,6 +129,11 @@ WT_DECLARE_WT_MEMBER
    el.onkeydown=function(e) {
      var event = e||window.event;
 
+     var leftKey = 37,
+       upKey = 38,
+       rightKey = 39,
+       downKey = 40;
+
      if (event.keyCode == 9) {
        WT.cancelEvent(event);
 
@@ -176,6 +179,43 @@ WT_DECLARE_WT_MEMBER
 	 wrapped = true;
        }
      }
+     /* If keycode is up/down/right/left */
+     else if (event.keyCode >= leftKey && event.keyCode <= downKey) {
+       WT.cancelEvent(event);
+
+       var item = getItem(event);
+       if (!item.el)
+	 return;
+
+       var col = item.el.parentNode,
+           rowi = indexOf(item.el),
+           coli = indexOf(col),
+           cols = col.parentNode.childNodes.length,
+	   rows = col.childNodes.length;
+
+       switch (event.keyCode) {
+	 case rightKey:
+	   coli++; break;
+	 case upKey:
+	   rowi--; break;
+	 case leftKey:
+	   coli--; break;
+	 case downKey:
+	   rowi++; break;
+	 default:
+	   return;
+       }
+
+       if (rowi > -1 && rowi < rows && coli > -1 && coli < cols) {
+	 col = col.parentNode.childNodes[coli];
+	 var elToSelect = col.childNodes[rowi];
+	 var inputs = $(elToSelect).find(":input");
+	 if (inputs.size() > 0) {
+	   inputs.focus();
+	   return;
+	 }
+       }
+     }
    };
 
    this.autoJavaScript = function() {
@@ -189,18 +229,17 @@ WT_DECLARE_WT_MEMBER
        return;
 
      var tw = el.offsetWidth - WT.px(el, 'borderLeftWidth')
-	      - WT.px(el, 'borderRightWidth'),
-         vscroll = contentsContainer.scrollHeight
-		   > contentsContainer.offsetHeight;
+	      - WT.px(el, 'borderRightWidth');
+
+     var scrollwidth = contentsContainer.offsetWidth
+       - contentsContainer.clientWidth;
+     tw -= scrollwidth;
 
      if (tw > 200  // XXX: IE's incremental rendering foobars completely
-         && (tw != contentsContainer.tw
-	     || vscroll != contentsContainer.vscroll)) {
-       contentsContainer.vscroll = vscroll;
+         && (tw != contentsContainer.tw)) {
        contentsContainer.tw = tw;
-       contentsContainer.style.width = tw + 'px';
-       headerContainer.style.width
-         = (tw - (vscroll ?  SCROLLBAR_WIDTH  : 0)) + 'px';
+       contentsContainer.style.width = (tw + scrollwidth) + 'px';
+       headerContainer.style.width = tw + 'px';
      }
    };
  });

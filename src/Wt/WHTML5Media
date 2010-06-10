@@ -1,0 +1,161 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2010 Emweb bvba, Leuven, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WHTML5MEDIA_H_
+#define WHTML5MEDIA_H_
+
+#include <Wt/WWebWidget>
+#include <Wt/WFlags>
+
+namespace Wt {
+
+/*! \class WHTML5Media Wt/WHTML5Media Wt/WHTML5Media
+ *  \brief Abstract baseclass for HTML5 media elements.
+ *
+ * This class is an abstract base class for HTML5 media elements
+ * (audio, video).
+ */
+class WT_API WHTML5Media : public WWebWidget
+{
+public:
+  /*! \brief Enumeration for playback options
+   */
+  enum Options {
+    Autoplay = 1, //!< Start playing as soon as the video is loaded
+    Loop     = 2, //!< Enable loop mode
+    Controls = 4  //!< Show video controls in the browser
+  };
+  /*! \brief Enumeration for preload strategy
+   */
+  enum PreloadMode {
+    PreloadNone,    //!< Hints that the user will probably not play the video
+    PreloadAuto,    //!< Hints that it is ok to download the entire resource
+    PreloadMetadata //!< Hints that retrieving metadata is a good option
+  };
+  /*! \brief Consctructor for a HTML5 media widget.
+   *
+   * A freshly constructed HTML5Video widget has no options set, no
+   * media sources, and has preload mode set to PreloadAuto.
+   */
+  WHTML5Media(WContainerWidget *parent = 0);
+  
+  /*! \brief Set the media element options
+   *
+   * \sa Options
+   */
+  void setOptions(const WFlags<Options> &flags);
+  
+  /*! \brief Retrieve the configured options
+   */
+  WFlags<Options> getOptions() const;
+  
+  /*! \brief Set the preload mode
+   */
+  void setPreloadMode(PreloadMode mode);
+  
+  /*! \brief Retrieve the preload mode
+   */
+  PreloadMode preloadMode() const;
+
+  /*! \brief Add a media source
+   *
+   * This method specifies a media source using only the URL. You may
+   * add as many video sources as you want. The browser will select
+   * the appropriate video stream to display to the user.
+   */
+  void addSource(const std::string &url);
+  
+  /*! \brief Add a media source
+   *
+   * This method specifies a media source using the URL and the mime
+   * type (e.g. video/ogg; codecs="theora, vorbis").
+   */
+  void addSource(const std::string &url, const std::string &type);
+  
+  /*! \brief Add a media source
+   *
+   * This method specifies a media source using the URL, the mime type,
+   * and the media attribute.
+   */
+  void addSource(const std::string &url, const std::string &type,
+    const std::string &media);
+
+  /*! \brief Content to be shown when media cannot be played
+   *
+   * As the HTML5 media tags are not supported by all browsers, it is a good
+   * idea to provide fallback options when the media cannot be displayed.
+   * If the media can be played by the browser, the alternative content
+   * will be suppressed.
+   *
+   * The two reasons to display the alternative content are (1) the
+   * media tag is not supported, or (2) the media tag is supported, but
+   * none of the media sources are supported by the browser. In the first
+   * case, fall-back is automatic and does not rely on JavaScript in the
+   * browser; in the latter case, JavaScript is required to make the
+   * fallback work.
+   *
+   * The alternative content can be any widget: you can set it to an
+   * alternative media player (QuickTime, Flash, ...), show a
+   * Flash movie, an animated gif, a text, a poster image, ...
+   */
+  void setAlternativeContent(WWidget *alternative);
+
+  /*! \brief Invoke play() on the media element
+   *
+   * JavaScript must be available for this function to work.
+   */
+  void play();
+
+  /*! \brief Invoke pause() on the media element
+   *
+   * JavaScript must be available for this function to work.
+   */
+  void pause();
+
+protected:
+  void getDomChanges(std::vector<DomElement *>& result,
+                     WApplication *app);
+  DomElement *createDomElement(WApplication *app);
+
+  virtual void updateMediaDom(DomElement& element, bool all);
+  virtual DomElement *createMediaDomElement() = 0;
+
+  /*! \brief Returns the JavaScript reference to the media object, or null.
+   *
+   * It is possible, for browser compatibility reasons, that jsRef() is
+   * not the HTML5 media element. jsMediaRef() is guaranteed to be an
+   * expression that evaluates to the media object. This expression may
+   * yield null, if the video object is not rendered at all (e.g. on
+   * older versions of Internet Explorer).
+   */
+  std::string jsMediaRef() const;
+
+private:
+  struct Source {
+    Source(const std::string &url, const std::string &type,
+      const std::string &media)
+      : type(type), url(url), media(media), hasMedia(true), hasType(true) {}
+    Source(const std::string &url, const std::string &type)
+      : type(type), url(url), hasMedia(false), hasType(true) {}
+    Source(const std::string &url)
+      : url(url), hasMedia(false), hasType(false) {}
+    std::string type, url, media;
+    bool hasMedia, hasType;
+  };
+  std::vector<Source> sources_;
+  std::string mediaId_;
+  WFlags<Options> flags_;
+  PreloadMode preloadMode_;
+  WWidget *alternative_;
+  bool flagsChanged_, preloadChanged_, hasPoster_;
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WHTML5Media::Options);
+
+}
+
+#endif // WHTML5MEDIA_H_
+

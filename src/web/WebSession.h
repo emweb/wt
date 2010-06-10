@@ -200,6 +200,8 @@ public:
 
   void setLoaded();
 
+  void generateNewSessionId();
+
 private:
   /*
    * Misc methods
@@ -280,7 +282,6 @@ private:
   bool start();
   void kill();
 
-  void generateNewSessionId();
   std::string sessionQuery() const;
 };
 

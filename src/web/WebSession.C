@@ -1283,14 +1283,33 @@ void WebSession::notify(const WEvent& event)
 	  // are listening to only one browser at a time: do this by
 	  // generating a new session id when a new browser connects
 	  if (controller_->configuration().persistentSessions()) {
-	    app_->connected_ = true;
-	    generateNewSessionId();
+	    log("info") << "Refresh for persistent session";
+	    WEnvironment oldEnv = *env_;
 	    env_->init(request);
+	    env_->parameters_ = handler.request()->getParameterMap();
+
+	    try {
+	      app_->refresh();
+
+	      app_->connected_ = true;
+	    } catch (std::exception& e) {
+	      *env_ = oldEnv;
+
+	      log("info") << "Bad refresh attempt: " << e.what();
+	      handler.response()->setContentType("text/html");
+	      handler.response()->out() <<
+		"<html><body><h1>Are you trying some shenanigans?"
+		"</h1></body></html>";
+	      handler.response()->flush();
+	      handler.setRequest(0, 0);    
+	    }
+	  } else {
+#endif // WT_TARGET_JAVA
+	    env_->parameters_ = handler.request()->getParameterMap();
+	    app_->refresh();
+#ifndef WT_TARGET_JAVA
 	  }
 #endif // WT_TARGET_JAVA
-
-	  env_->parameters_ = handler.request()->getParameterMap();
-	  app_->refresh();
 	}
 
 	if (handler.response() && !recursiveEventLoop_)

@@ -32,6 +32,8 @@ struct mapping
   { "jpg", "image/jpeg" },
   { "png", "image/png" },
   { "js", "text/javascript" },
+  { "oga", "audio/ogg" },
+  { "ogg", "audio/ogg" },
   { "ogv", "video/ogg" },
   { "mp4", "video/mp4" },
   { 0, 0 } // Marks end of list.

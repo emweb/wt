@@ -378,8 +378,8 @@ public:
 
   /*! \brief Creates a widget which renders the a legend item.
    * 
-   * The legend item widget will contain a text and a WPaintedWidget 
-   * which draws the series' symbol.
+   * The legend item widget will contain a text and a \link Wt::WPaintedWidget 
+   * \endlink which draws the series' symbol.
    */
   WWidget* createLegendItemWidget(int index);
 

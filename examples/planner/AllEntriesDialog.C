@@ -22,7 +22,7 @@ AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
   WTemplate* t = new WTemplate(tr("calendar.all-entries"), contents());
   WContainerWidget* wc = new WContainerWidget();
   t->bindWidget("entries", wc);
-	
+
   dbo::Session& session = PlannerApplication::plannerApplication()->session;
   dbo::Transaction transaction(session);
 
@@ -30,7 +30,7 @@ AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
 
   Entries entries = 
     cell->user()->entriesInRange(cell->date(), cell->date().addDays(1));
-  
+
   WString format = EntryDialog::timeFormat;
   for (Entries::const_iterator i = entries.begin(); i != entries.end(); ++i) {
     wc->addWidget(new WText((*i)->start.toString(format) + 
@@ -40,7 +40,7 @@ AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
   }
 
   transaction.commit();
-		
+
   WPushButton* button = new WPushButton(tr("calendar.cell.all-entries.close"));
   t->bindWidget("close", button);
   button->clicked().connect(this, &AllEntriesDialog::closeDialog);

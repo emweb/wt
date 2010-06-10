@@ -220,7 +220,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
   v1->addSource(mp4Video);
   v1->addSource(ogvVideo);
   v1->setPoster(poster);
-  v1->setAlternativeContent(new WImage(poster, new WContainerWidget));
+  v1->setAlternativeContent(new WImage(poster));
   v1->resize(640, 360);
   new WText(tr("specialpurposewidgets-WHTML5Video-2"), result);
   WFlashObject *flash2 =
@@ -230,7 +230,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
   flash2->setFlashVariable("flv", mp4Video);
   flash2->setFlashVariable("showvolume", "1");
   flash2->setFlashVariable("showfullscreen", "1");
-  flash2->setAlternativeContent(new WImage(poster, new WContainerWidget));
+  flash2->setAlternativeContent(new WImage(poster));
   flash2->resize(640, 360);
   WHTML5Video *v2 = new WHTML5Video(result);
   v2->addSource(mp4Video);

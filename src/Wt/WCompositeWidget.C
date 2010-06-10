@@ -267,6 +267,28 @@ WT_USTRING WCompositeWidget::styleClass() const
   return impl_->styleClass();
 }
 
+void WCompositeWidget::addStyleClass(const WT_USTRING& styleClass,
+				     bool force)
+{
+  impl_->addStyleClass(styleClass, force);
+}
+
+void WCompositeWidget::addStyleClass(const char *styleClass, bool force)
+{
+  impl_->addStyleClass(WT_USTRING::fromUTF8(styleClass), force);
+}
+
+void WCompositeWidget::removeStyleClass(const WT_USTRING& styleClass,
+					bool force)
+{
+  impl_->removeStyleClass(styleClass, force);
+}
+
+void WCompositeWidget::removeStyleClass(const char *styleClass, bool force)
+{
+  impl_->removeStyleClass(WT_USTRING::fromUTF8(styleClass), force);
+}
+
 void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
 					    const WLength& length)
 {

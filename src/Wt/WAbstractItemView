@@ -11,6 +11,7 @@
 #include <Wt/WModelIndex>
 #include <Wt/WSignalMapper>
 #include <Wt/WItemSelectionModel>
+#include <Wt/WValidator>
 
 namespace Wt {
 
@@ -498,11 +499,36 @@ public:
    */
   void closeEditor(const WModelIndex& index, bool saveData = true);
 
+  /*! \brief Closes all open editors.
+   *
+   * If \p saveData is true, then the currently edited values are saved
+   * to the model before closing the editor.
+   *
+   * \sa closeEditor()
+   */
+  void closeEditors(bool saveData = true);
+
+  /*! \brief Validates the editor for the given index.
+   * 
+   * Validation is done by invoking WAbstractItemDelegate::validate().
+   */
+  WValidator::State validateEditor(const WModelIndex& index);
+
+  /*! \brief Validates all editors.
+   * 
+   * \sa validateEditor().
+   */
+  WValidator::State validateEditors();
+
   /*! \brief Returns whether an editor is open for a given index.
    *
    * \sa edit()
    */
   bool isEditing(const WModelIndex& index) const;
+  
+  /*! \brief Returns whether an editor's state is valid.
+   */
+  bool isValid(const WModelIndex& index) const;
 
   bool isEditing() const;
 
@@ -686,9 +712,16 @@ protected:
 
 private:
   struct Editor {
+    Editor() :
+      widget(0),
+      stateSaved(false),
+      valid(false) {
+      editState = boost::any();
+    }
     WWidget *widget;
     boost::any editState;
     bool stateSaved;
+    bool valid;
   };
 
   WAbstractItemModel    *model_;

@@ -10,6 +10,7 @@
 #include <Wt/WObject>
 #include <Wt/WFlags>
 #include <Wt/WSignal>
+#include <Wt/WValidator>
 
 #include <boost/any.hpp>
 
@@ -22,7 +23,8 @@ namespace Wt {
 enum ViewItemRenderFlag {
   RenderSelected = 0x1,  //!< Render as selected
   RenderEditing = 0x2,   //!< Render in editing mode
-  RenderFocused = 0x4    //!< Render (the editor) focused
+  RenderFocused = 0x4,   //!< Render (the editor) focused
+  RenderInvalid = 0x8,   //!< Render as invalid
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ViewItemRenderFlag)
@@ -132,6 +134,15 @@ public:
    * \sa editState()
    */
   virtual void setEditState(WWidget *widget, const boost::any& value) const;
+
+  /*! \brief Returns whether the edited value is valid.
+   *
+   * The default implementation does nothing and returns Valid.
+   *
+   * \sa WValidator::validate()
+   */
+  virtual WValidator::State validate(const WModelIndex& index,
+				     const boost::any& editState) const;
 
   /*! \brief Saves the edited data to the model.
    *

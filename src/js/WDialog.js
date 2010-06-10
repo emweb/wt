@@ -55,15 +55,16 @@ WT_DECLARE_WT_MEMBER
      if (el.style.display != 'none') {
        if (!moved) {
          var ws = WT.windowSize();
-	 el.style.left = Math.round((ws.x - el.clientWidth)/2
+	 var w = el.offsetWidth, h = el.offsetHeight;
+	 el.style.left = Math.round((ws.x - w)/2
 	   + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
-         el.style.top = Math.round((ws.y - el.clientHeight)/2
+         el.style.top = Math.round((ws.y - h)/2
 	   + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
          el.style.marginLeft='0px';
 	 el.style.marginTop='0px';
 
 	 if (el.style.width != null && el.style.height != null)
-	   self.wtResize(el, el.clientWidth + 2, el.clientHeight + 2);
+	   self.wtResize(el, w, h);
        }
        el.style.visibility = 'visible';
      }

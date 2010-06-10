@@ -156,9 +156,10 @@ extern char *round_str(double d, int digits, char *buf);
 // Only for Java target
 extern std::string toHexString(int i);
 
-// Split a string in a vector of strings, on every given token
-extern std::vector<std::string> tokenizer(const std::string &in,
-					  const std::string &sep);
+// Splits a string in a set of strings, on every given token
+extern void split(std::set<std::string>& tokens,
+		  const std::string &in, const char *sep,
+		  bool compress_adjacent_tokens);
 
 // Replace all occurences of the 'from' char to the 'to' char in 'v'
 extern void replaceAll(std::string& v, char from, char to);

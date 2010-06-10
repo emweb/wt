@@ -13,7 +13,6 @@ WT_DECLARE_WT_MEMBER
 
    var contents = contentsContainer.firstChild;
    var headers = headerContainer.firstChild;
-   var SCROLLBAR_WIDTH = 19; // see WTreeView.C
 
    var self = this;
    var WT = APP.WT;
@@ -195,9 +194,7 @@ WT_DECLARE_WT_MEMBER
    * This adjusts invariants that depend on the size of the whole
    * treeview:
    *
-   *  - changes to the total width (tw)
-   *  - whether scrollbars are needed (vscroll), and thus the actual
-   *    contents width
+   *  - changes to the total width (tw inc. affected by scrollbar)
    *  - when column1 is fixed:
    *    * .row width
    *    * table parent width
@@ -213,10 +210,13 @@ WT_DECLARE_WT_MEMBER
       return;
 
     var $el=$(el),
-        tw = $el.innerWidth(),
-	vscroll
-	    = contentsContainer.scrollHeight > contentsContainer.offsetHeight,
+      tw = $el.innerWidth(),
         c0id, c0r, c0w = null;
+
+    var scrollwidth = contentsContainer.offsetWidth
+      - contentsContainer.clientWidth;
+
+    tw -= scrollwidth;
 
     if ($el.hasClass('column1')) {
       c0id = $el.find('.Wt-headerdiv').get(0).lastChild.className.split(' ')[0];
@@ -227,13 +227,11 @@ WT_DECLARE_WT_MEMBER
     // XXX: IE's incremental rendering foobars completely
     if ((!WT.isIE || tw > 100)
         && (tw != contentsContainer.tw ||
-            vscroll != contentsContainer.vscroll ||
             c0w != contentsContainer.c0w ||
             el.changed)) {
       var adjustColumns = !el.changed;
 
       contentsContainer.tw = tw;
-      contentsContainer.vscroll = vscroll;
       contentsContainer.c0w = c0w;
 
       c0id = $el.find('.Wt-headerdiv').get(0).lastChild.className.split(' ')[0];
@@ -244,13 +242,12 @@ WT_DECLARE_WT_MEMBER
           contentstoo = (r.style.width == headers.style.width),
           hc = headers.firstChild;
 
-      r.style.width = (tw - (vscroll ? SCROLLBAR_WIDTH : 0)) + 'px';
-      contentsContainer.style.width = tw + 'px';
+      r.style.width = tw + 'px';
+      contentsContainer.style.width = (tw + scrollwidth) + 'px';
       headers.style.width = table.offsetWidth + 'px';
 
       if (c0w != null) {
-        var w = tw - c0w - (WT.isIE6 ? 10 : 8)
-	  - (vscroll ? SCROLLBAR_WIDTH  : 0);
+        var w = tw - c0w - (WT.isIE6 ? 10 : 8);
 
         if (w > 0) {
           var w2 = Math.min(w,
@@ -259,7 +256,6 @@ WT_DECLARE_WT_MEMBER
 
           WT.getCssRule('#' + el.id + ' .Wt-tv-row').style.width = w2 + 'px';
           $el.find(' .Wt-tv-row').css('width', w2 + 'px').css('width', '');
-          tw -= (vscroll ?  SCROLLBAR_WIDTH  : 0);
           headers.style.width=tw + 'px';
           table.style.width=tw + 'px';
         }
@@ -273,7 +269,7 @@ WT_DECLARE_WT_MEMBER
 
       el.changed = false;
 
-      if (adjustColumns && WT.isIE)
+      if (adjustColumns/* && WT.isIE */)
 	self.adjustColumns();
     }
   };

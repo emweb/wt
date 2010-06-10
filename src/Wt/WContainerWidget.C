@@ -530,6 +530,19 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     //element.setProperty(PropertyStyleOverflowY, cssText[overflow_[1]]);
 
     flags_.reset(BIT_OVERFLOW_CHANGED);
+
+    /* If a container widget has overflow, then, if ever something
+     * inside it has position scheme relative/absolute, it will not
+     * scroll properly unless every element up to the container and including 
+     * the container itself has overflow: relative.
+     *
+     * The following fixes the common case:
+     * container (overflow) - container - layout
+     */
+    WApplication *app = WApplication::instance();
+    if (app->environment().agentIsIE()
+	&& (overflow_[0] == OverflowAuto || overflow_[0] == OverflowScroll))
+      element.setProperty(PropertyStylePosition, "relative");
   }
 }
 
@@ -648,10 +661,16 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
      * layout for its contents, under the assumption that also the width
      * is handled using JavaScript (like in WTreeView, WTableView)
      */
-    if (positionScheme() == Relative) {
+    if (positionScheme() == Relative || positionScheme() == Absolute) {
       c->setProperty(PropertyStylePosition, "absolute");
       c->setProperty(PropertyStyleLeft, "0");
       c->setProperty(PropertyStyleRight, "0");
+    } else if (app->environment().agentIsIE()) {
+      /*
+       * position: relative element needs to be in a position: relative
+       * parent otherwise scrolling is broken
+       */
+      parent.setProperty(PropertyStylePosition, "relative");
     }
 
     switch (contentAlignment_ & AlignHorizontalMask) {

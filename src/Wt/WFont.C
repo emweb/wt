@@ -9,6 +9,7 @@
 #include "Wt/WWebWidget"
 #include "Wt/WFont"
 
+#include "EscapeOStream.h"
 #include "DomElement.h"
 
 namespace Wt {
@@ -237,12 +238,35 @@ std::string WFont::cssFamily(bool all) const
   return family;
 }
 
-const std::string WFont::cssText() const
+const std::string WFont::cssText(bool combined) const
 {
-  std::stringstream result;
+  SStream result;
 
-  result << cssVariant(false) << ' ' << cssStyle(false) << ' '
-	 << cssWeight(false) << ' ' << cssSize(true) << ' ' << cssFamily(true);
+  if (combined)
+    result << cssStyle(false) << ' ' << cssVariant(false) << ' '
+	   << cssWeight(false) << ' ' << cssSize(true) << ' ' << cssFamily(true);
+  else {
+    std::string s;
+    s = cssFamily(false);
+    if (!s.empty())
+      result << "font-family: " << s << ";";
+
+    s = cssSize(false);
+    if (!s.empty())
+      result << "font-size: " << s << ";";
+
+    s = cssStyle(false);
+    if (!s.empty())
+      result << "font-style: " << s << ";";
+
+    s = cssVariant(false);
+    if (!s.empty())
+      result << "font-variant: " << s << ";";
+
+    s = cssWeight(false);
+    if (!s.empty())
+      result << "font-weight: " << s << ";";
+  }
 
   return result.str();
 }

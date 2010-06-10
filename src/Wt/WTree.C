@@ -92,7 +92,7 @@ namespace Wt {
 	: WTreeNode(""),
 	  tree_(tree)
       {
-	setStyleClass("Wt-tree Wt-sentinel");
+	addStyleClass("Wt-sentinel");
 	setNodeVisible(false);
 	expand();
 
@@ -125,8 +125,6 @@ WTree::WTree(WContainerWidget *parent)
     itemSelectionChanged_(this)
 {
   setImplementation(sentinelRoot_ = new Impl::SentinelTreeNode(this));
-
-  onClickMapper_.mapped().connect(SLOT(this, WTree::onClick));
 }
 
 void WTree::setTreeRoot(WTreeNode *node)
@@ -197,7 +195,6 @@ void WTree::nodeRemoved(WTreeNode *node)
   select(node, false);
 
   node->clickedConnection_.disconnect();
-  onClickMapper_.removeMapping(node);
 
   for (unsigned i = 0; i < node->childNodes().size(); ++i)
     nodeRemoved(node->childNodes()[i]);
@@ -210,9 +207,9 @@ void WTree::nodeAdded(WTreeNode *node)
     if (!w)
       w = node->labelArea();
 
-    node->clickedConnection_ = 
-      onClickMapper_.mapConnect1(w->clicked(), node);
-    //w->clicked.setPreventDefault(true);
+    node->clickedConnection_ = node->impl()->clicked().connect
+      (boost::bind(&WTree::onClick, this, node, ::_1));
+    node->impl()->clicked().preventPropagation();
 
     for (unsigned i = 0; i < node->childNodes().size(); ++i)
       nodeAdded(node->childNodes()[i]);

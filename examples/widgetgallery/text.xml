@@ -884,9 +884,9 @@ WTextArea has no formatting capabilities
   </message>
   <message id="specialpurposewidgets-WHTML5Video-3">
     <h2>Youtube video</h2>
-    <p>Another way to play videos, which has been available for a long time,
-      is to use plain flash to play your videos. Below we use YouTube to play
-      the video.
+    <p>Another way to play videos, which has been available in Wt for a long
+       time, is to use plain flash to play your videos. Below we use YouTube
+       to play the video.
     </p>
   </message>
   <message id="specialpurposewidgets-WFlashObject">

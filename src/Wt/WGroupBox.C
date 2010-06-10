@@ -45,9 +45,9 @@ void WGroupBox::updateDom(DomElement& element, bool all)
 void WGroupBox::propagateSetEnabled(bool enabled)
 {
   if (enabled)
-    setStyleClass(WString::fromUTF8(Utils::eraseWord(styleClass().toUTF8(), "Wt-disabled")));
+    removeStyleClass("Wt-disabled");
   else
-    setStyleClass(WString::fromUTF8(Utils::addWord(styleClass().toUTF8(), "Wt-disabled")));
+    addStyleClass("Wt-disabled");
 
   WInteractWidget::propagateSetEnabled(enabled);
 }

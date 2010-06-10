@@ -145,11 +145,10 @@ public:
 
 private:
   WTreeNode                 *treeRoot_;
-  Impl::SentinelTreeNode *sentinelRoot_;
+  Impl::SentinelTreeNode    *sentinelRoot_;
 
   SelectionMode              selectionMode_;
   WTreeNodeSet               selection_;
-  WSignalMapper<WTreeNode *, WMouseEvent> onClickMapper_;
   Signal<>                   itemSelectionChanged_;
 
   void onClick(WTreeNode *node, WMouseEvent event);

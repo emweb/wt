@@ -209,11 +209,13 @@ void WFormWidget::validatorChanged()
     validateJs_->setJavaScript
       ("function(self, event) {"
        """var v=" + validateJS + ";"
-       """self.className= v.valid ? '' : 'Wt-invalid';"
-       """if (v.valid) "
+       """if (v.valid) {"
        ""  "self.removeAttribute('title');"
-       """else "
+       ""  "$(self).removeClass('Wt-invalid');"
+       """} else {"
        ""  "self.setAttribute('title', v.message);"
+       ""  "$(self).addClass('Wt-invalid');"
+       """}"
        "}");
   } else {
     delete validateJs_;
@@ -329,13 +331,16 @@ void WFormWidget::setValidator(WValidator *validator)
   if (validator_) {
     validator_->addFormWidget(this);
     validatorChanged();
-    setStyleClass(validate() == WValidator::Valid ? "" : "Wt-invalid");
+    if (validate() == WValidator::Valid)
+      removeStyleClass("Wt-invalid", true);
+    else
+      addStyleClass("Wt-invalid", true);
 #ifndef WT_TARGET_JAVA
     if (!validator_->parent())
       WObject::addChild(validator_);
 #endif // WT_TARGET_JAVA
   } else {
-    setStyleClass("");
+    removeStyleClass("Wt-invalid", true);
     delete validateJs_;
     validateJs_ = 0;
     delete filterInput_;

@@ -142,7 +142,7 @@ public:
    */
   WLength fixedSize() const { return fixedSize_; }
 
-  const std::string cssText() const;
+  const std::string cssText(bool combined = true) const;
 
   void updateDomElement(DomElement& element, bool fontall, bool all);
 

@@ -790,6 +790,9 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
   else
     t->setWordWrap(false);
 
+  if (info.sorting)
+    clickedForSortMapper_->mapConnect(t->clicked(), info.id);
+
   WContainerWidget *result = new WContainerWidget();
 
   if (headerLevel) {
@@ -811,8 +814,8 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
     }
   }
 
-  w->setStyleClass(w->styleClass()
-		   + (rightBorderLevel <= headerLevel ? " Wt-tv-br" : ""));
+  if (rightBorderLevel <= headerLevel)
+    w->addStyleClass("Wt-tv-br");
 
   result->addWidget(w);
   result->setStyleClass(info.styleClass() + " Wt-tv-c headerrh");
@@ -821,7 +824,7 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
   WWidget *extraW = columnInfo(column).extraHeaderWidget;
   if (extraW) {
     result->addWidget(extraW);
-    extraW->setStyleClass(extraW->styleClass() + " Wt-tv-br");
+    extraW->addStyleClass("Wt-tv-br");
   }
 
   if (columnResize_ && app->environment().ajax()) {
@@ -1054,9 +1057,66 @@ void WAbstractItemView::closeEditor(const WModelIndex& index, bool saveData)
   }
 }
 
+void WAbstractItemView::closeEditors(bool saveData) 
+{
+  while(!editedItems_.empty()) {
+    closeEditor(editedItems_.begin()->first, saveData);
+  }
+}
+
+WValidator::State WAbstractItemView::validateEditor(const WModelIndex& index)
+{
+  EditorMap::iterator i = editedItems_.find(index);
+
+  if (i != editedItems_.end()) {
+    WAbstractItemDelegate *delegate = itemDelegate(index);
+
+    boost::any editState;
+
+    Editor& editor = i->second;
+
+    if (editor.widget)
+      editState = delegate->editState(editor.widget);
+    else
+      editState = editor.editState;
+
+    WValidator::State state = delegate->validate(index, editState);
+    editor.valid = (state == WValidator::Valid);
+    
+    return state;
+  }
+  
+  return WValidator::Invalid;
+}
+
+WValidator::State WAbstractItemView::validateEditors() 
+{
+  WValidator::State state = WValidator::Valid;
+
+  for (EditorMap::const_iterator i = editedItems_.begin();
+       i != editedItems_.end(); ++i) {
+    WValidator::State s = validateEditor(i->first);
+    if (s < state)
+      state = s;
+  }
+
+  return state;
+}
+
 bool WAbstractItemView::isEditing(const WModelIndex& index) const
 {
   return editedItems_.find(index) != editedItems_.end();
+}
+
+bool WAbstractItemView::isValid(const WModelIndex& index) const
+{  
+  EditorMap::const_iterator i = editedItems_.find(index);
+
+  if (i != editedItems_.end()) {
+    const Editor& editor = i->second;
+    return editor.valid;
+  } else
+    return false;
 }
 
 bool WAbstractItemView::hasEditFocus(const WModelIndex& index) const

@@ -41,7 +41,7 @@ ENDIF(MSVC)
 SUBDIRS(backend)
 
 INSTALL_FILES(/include/Wt/Dbo "^[^.]+\\.h$")
-INSTALL_FILES(/include/Wt/Dbo "^[^b][^.]+$")
+INSTALL_FILES(/include/Wt/Dbo "^[^b.][^.]+$")
 
 IF (ASCIIDOC_FOUND)
   ASCIIDOC_FILE(dbo-tutorial

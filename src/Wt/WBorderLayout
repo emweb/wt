@@ -102,6 +102,18 @@ public:
    */
   ~WBorderLayout();
 
+  /*! \brief Sets spacing between each item.
+   *
+   * The default spacing is 6 pixels.
+   */
+  void setSpacing(int size);
+
+  /*! \brief Returns the spacing between each item.
+   *
+   * \sa setSpacing()
+   */
+  int spacing() const { return grid_.horizontalSpacing_; }
+
   virtual void addItem(WLayoutItem *item);
   virtual void removeItem(WLayoutItem *item);
   virtual WLayoutItem *itemAt(int index) const;

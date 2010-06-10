@@ -1274,6 +1274,17 @@ var url = _$_RELATIVE_URL_$_,
   serverPush = false,
   updateTimeout = null;
 
+function quit() {
+  quited = true;
+  if (keepAliveTimer) {
+    clearTimeout(keepAliveTimer);
+    keepAliveTimer = null;
+  }
+  var tr = $('#Wt-timers');
+  if (tr.size() > 0)
+    WT.setHtml(tr.get(0), '', false);
+};
+
 function doKeepAlive() {
   WT.history._initTimeout();
   if (commErrors == 0)
@@ -1311,7 +1322,8 @@ function load() {
   if (!loaded) {
     loaded = true;
     _$_ONLOAD_$_();
-    keepAliveTimer = setTimeout(doKeepAlive, _$_KEEP_ALIVE_$_000);
+    if (!quited)
+      keepAliveTimer = setTimeout(doKeepAlive, _$_KEEP_ALIVE_$_000);
   }
 };
 
@@ -1386,6 +1398,9 @@ _$_$endif_$_();
   else
     commErrors = 0;
 
+  if (quited)
+    return;
+
   if (serverPush || pendingEvents.length > 0) {
     if (status == 1) {
       var ms = Math.min(120000, Math.exp(commErrors) * 500);
@@ -1402,7 +1417,8 @@ function doPollTimeout() {
   responsePending = null;
   pollTimer = null;
 
-  sendUpdate();
+  if (!quited)
+    sendUpdate();
 }
 
 function update(el, signalName, e, feedback) {
@@ -1661,7 +1677,7 @@ this._p_ = {
  onJsLoad : onJsLoad,
  setTitle : setTitle,
  update : update,
- quit : function() { quited = true; clearTimeout(keepAliveTimer); },
+ quit : quit,
  setFormObjects : function(o) { formObjects = o; },
  saveDownPos : saveDownPos,
  addTimerEvent : addTimerEvent,

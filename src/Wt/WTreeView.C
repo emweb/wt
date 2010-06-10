@@ -42,8 +42,8 @@
 #ifndef DOXYGEN_ONLY
 
 // Widest scrollbar found ? My Gnome Firefox has this
-#define SCROLLBAR_WIDTH_TEXT "19"
-#define SCROLLBAR_WIDTH      19
+#define SCROLLBAR_WIDTH_TEXT "22"
+#define SCROLLBAR_WIDTH      22
 
 namespace {
   // returns true if i2 is an ancestor of i1
@@ -387,6 +387,10 @@ void WTreeViewNode::update(int firstColumn, int lastColumn)
       if (view_->hasEditFocus(child))
 	renderFlags |= RenderFocused;
     }
+
+    if (!view_->isValid(child)) {
+      renderFlags |= RenderInvalid;
+    }
     
     w = view_->itemDelegate(i)->update(w, child, renderFlags);
 
@@ -503,7 +507,7 @@ WModelIndex WTreeViewNode::childIndex(int column)
 
 void WTreeViewNode::addColumnStyleClass(int column, WWidget *w)
 {
-  EscapeOStream s;
+  SStream s;
 
   s << view_->columnStyleClass(column) << " Wt-tv-c rh "
     << w->styleClass().toUTF8();
@@ -888,11 +892,9 @@ void WTreeViewNode::renderSelected(bool selected, int column)
   else {
     WWidget *w = widget(column);
     if (selected)
-      w->setStyleClass
-	(Utils::addWord(w->styleClass().toUTF8(), "Wt-selected"));
+      w->addStyleClass(WT_USTRING::fromUTF8("Wt-selected"));
     else
-      w->setStyleClass
-	(Utils::eraseWord(w->styleClass().toUTF8(), "Wt-selected"));
+      w->removeStyleClass(WT_USTRING::fromUTF8("Wt-selected"));
   }
 }
 
@@ -1418,8 +1420,12 @@ void WTreeView::resize(const WLength& width, const WLength& height)
     } else
       viewportHeight_ = static_cast<int>
 	(std::ceil(height.toPixels() / rowHeight().toPixels()));
-  } else
+  } else {
+    if (app->environment().ajax())
+      viewportHeight_ = 30;
+
     scheduleRerender(NeedAdjustViewPort);
+  }
 
   WCompositeWidget::resize(width, height);
 }

@@ -8,3 +8,26 @@
     padding-top: 0px;
     padding-bottom: 0px;
 }
+
+/*
+ * WTableView
+ */
+.Wt-tableview div {
+    white-space: nowrap
+}
+
+/*
+ * WTree
+ */
+.Wt-tree div, .Wt-tree span {
+    white-space: nowrap;   
+}
+
+/*
+ * WTreeView
+ */
+
+/* IE ignores white-space on a table or td */
+.Wt-treeview div, .Wt-treeview span {
+    white-space: nowrap;
+}
