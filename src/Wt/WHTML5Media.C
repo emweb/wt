@@ -20,8 +20,8 @@ using namespace Wt;
 
 WHTML5Media::WHTML5Media(WContainerWidget *parent):
   WWebWidget(parent),
-  preloadMode_(PreloadAuto),
   flags_(0),
+  preloadMode_(PreloadAuto),
   alternative_(0),
   flagsChanged_(false),
   preloadChanged_(false)

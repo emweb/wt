@@ -1273,19 +1273,22 @@ void WTableView::setAlternatingRowColors(bool enable)
 void WTableView::handleSingleClick(const WMouseEvent& event)
 {
   WModelIndex index = translateModelIndex(event);
-  WAbstractItemView::handleClick(index, event);
+  if (index.isValid())
+    WAbstractItemView::handleClick(index, event);
 }
 
 void WTableView::handleDoubleClick(const WMouseEvent& event)
 {
   WModelIndex index = translateModelIndex(event);
-  WAbstractItemView::handleDoubleClick(index, event);
+  if (index.isValid())
+    WAbstractItemView::handleDoubleClick(index, event);
 }
 
 void WTableView::handleMouseWentDown(const WMouseEvent& event)
 {
   WModelIndex index = translateModelIndex(event);
-  WAbstractItemView::handleMouseDown(index, event);
+  if (index.isValid())
+    WAbstractItemView::handleMouseDown(index, event);
 }
 
 void WTableView::modelLayoutChanged()

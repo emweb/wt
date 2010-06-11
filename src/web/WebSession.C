@@ -1078,7 +1078,7 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 
     for (Http::ParameterMap::const_iterator i = entries.begin();
 	 i != entries.end(); ++i) {
-      if (i->first.length() > signalLength
+      if (i->first.length() > static_cast<unsigned>(signalLength)
 	  && i->first.substr(0, signalLength) == se + "signal=") {
 	signalE = &i->second[0];
 
