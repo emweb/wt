@@ -590,6 +590,10 @@ void WAbstractItemModel::copyData(const WAbstractItemModel *source,
 				  WAbstractItemModel *destination,
 				  const WModelIndex& dIndex)
 {
+  DataMap values = destination->itemData(dIndex);
+  for (DataMap::const_iterator i = values.begin(); i != values.end(); ++i)
+    destination->setData(dIndex, boost::any(), i->first);
+  
   destination->setItemData(dIndex, source->itemData(sIndex));
 }
 

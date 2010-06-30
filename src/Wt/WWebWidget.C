@@ -155,6 +155,20 @@ const std::string WWebWidget::id() const
 
 void WWebWidget::repaint(WFlags<RepaintFlag> flags)
 {
+  /*
+   * If the widget is currently within a stubbed widget (but not
+   * stubbed itself, since then it is considered to be painted), we need
+   * to redo the slot learning while unstubbing.
+   */
+  if (!flags_.test(BIT_STUBBED) && isStubbed()) {
+    WebRenderer& renderer = WApplication::instance()->session()->renderer();
+    if (renderer.preLearning())
+      renderer.learningIncomplete();
+  }
+
+  /*
+   * We ignore repaints to an unrendered widget.
+   */
   if (!flags_.test(BIT_RENDERED))
     return;
 
@@ -1268,12 +1282,12 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   if (transientImpl_) {
     for (unsigned i = 0; i < transientImpl_->addedStyleClasses_.size(); ++i)
-      element.callJavaScript("$('" + id() + "').addClass('"
+      element.callJavaScript("$('#" + id() + "').addClass('"
 			     + transientImpl_->addedStyleClasses_[i].toUTF8()
 			     +"');");
 
     for (unsigned i = 0; i < transientImpl_->removedStyleClasses_.size(); ++i)
-      element.callJavaScript("$('" + id() + "').removeClass('"
+      element.callJavaScript("$('#" + id() + "').removeClass('"
 			     + transientImpl_->removedStyleClasses_[i].toUTF8()
 			     +"');");
   }

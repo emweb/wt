@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/lexical_cast.hpp>
+
 #include <Wt/WTable>
 #include <Wt/WTableCell>
 #include <Wt/WImage>
@@ -16,11 +17,11 @@
 using std::find;
 
 std::string TreeNode::imageLine_[] = { "icons/line-middle.gif",
-					"icons/line-last.gif" };
+				       "icons/line-last.gif" };
 std::string TreeNode::imagePlus_[] = { "icons/nav-plus-line-middle.gif",
-					"icons/nav-plus-line-last.gif" };
+				       "icons/nav-plus-line-last.gif" };
 std::string TreeNode::imageMin_[] = { "icons/nav-minus-line-middle.gif",
-				       "icons/nav-minus-line-last.gif" };
+				      "icons/nav-minus-line-last.gif" };
 
 TreeNode::TreeNode(const std::string labelText,
 		   Wt::TextFormat labelFormat,

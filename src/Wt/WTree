@@ -158,7 +158,7 @@ private:
 
 protected:
   void nodeRemoved(WTreeNode *node);
-  void nodeAdded(WTreeNode *node);
+  void nodeAdded(WTreeNode * const node);
 
   friend class Impl::SentinelTreeNode;
 };

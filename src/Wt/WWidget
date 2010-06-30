@@ -536,6 +536,11 @@ public:
   virtual WT_USTRING styleClass() const = 0;
 
   /*! \brief Adds a CSS style class.
+   *
+   * When \p force = \c true, a JavaScript call will be used to add
+   * the style class to the DOM element (if JavaScript is
+   * available). This may be necessary when client-side JavaScript
+   * manipulates the same style class.
    */
   virtual void addStyleClass(const WT_USTRING& styleClass,
 			     bool force = false) = 0;
@@ -543,6 +548,11 @@ public:
   void addStyleClass(const char *styleClass, bool force = false);
 
   /*! \brief Removes a CSS style class.
+   *
+   * When \p force = \c true, a JavaScript call will be used to remove
+   * the style class from the DOM element (if JavaScript is
+   * available). This may be necessary when client-side JavaScript
+   * manipulates the same style class.
    */
   virtual void removeStyleClass(const WT_USTRING& styleClass,
 				bool force = false) = 0;

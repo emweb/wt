@@ -70,6 +70,7 @@ public:
 		 const std::string path);
 
   bool preLearning() const { return learning_; }
+  void learningIncomplete();
 
   void ackUpdate(int updateId);
 
@@ -131,7 +132,7 @@ private:
 
   typedef std::set<WWidget *> UpdateMap;
   UpdateMap updateMap_;
-  bool      learning_;
+  bool      learning_, learningIncomplete_;
   bool      moreUpdates_;
 
   std::string safeJsStringLiteral(const std::string& value);

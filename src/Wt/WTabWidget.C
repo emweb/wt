@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
  *
@@ -5,12 +6,15 @@
  */
 
 #include "Wt/WAnchor"
+#include "Wt/WText"
 #include "Wt/WApplication"
 #include "Wt/WTabWidget"
 #include "Wt/WMenu"
 #include "Wt/WMenuItem"
 #include "Wt/WStackedWidget"
 #include "Wt/WVBoxLayout"
+
+#include "Utils.h"
 
 namespace Wt {
 
@@ -34,18 +38,30 @@ TabWidgetItem::TabWidgetItem(const WString& text, WWidget *contents,
 
 void TabWidgetItem::updateItemWidget(WWidget *itemWidget)
 {
-  WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget);
-  WAnchor *a = dynamic_cast<WAnchor *>(c->children()[0]);
-  WMenuItem::updateItemWidget(a);
+  if (!isCloseable()) {
+    WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget);
+    WWidget *label = 0;
+    if (!isDisabled())
+      label = dynamic_cast<WAnchor *>(c->children()[0]);
+    else
+      label = dynamic_cast<WText *>(c->children()[0]);
+
+    WMenuItem::updateItemWidget(label);
+  }
+  else
+    WMenuItem::updateItemWidget(itemWidget);
 }
 
 WWidget *TabWidgetItem::createItemWidget()
 {
-  WContainerWidget *c = new WContainerWidget();
-  c->setInline(true);
-  c->addWidget(WMenuItem::createItemWidget());
+  if (!isCloseable()) {
+    WContainerWidget *c = new WContainerWidget();
+    c->setInline(true);
+    c->addWidget(WMenuItem::createItemWidget());
 
-  return c;
+    return c;
+  } else
+    return WMenuItem::createItemWidget();
 }
 
 SignalBase& TabWidgetItem::activateSignal()
@@ -64,7 +80,6 @@ WTabWidget::WTabWidget(WContainerWidget *parent)
   create(AlignJustify);
 }
 
-
 WTabWidget::WTabWidget(WFlags<AlignmentFlag> layoutAlignment,
 		       WContainerWidget *parent)
   : WCompositeWidget(parent),
@@ -79,8 +94,7 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
 
   WT_DEBUG( setObjectName("WTabWidget") );
 
-  contents_ = new WStackedWidget();
-  menu_ = new WMenu(contents_, Horizontal);
+  menu_ = new WMenu(new WStackedWidget(), Horizontal);
   menu_->setRenderAsList(true);
 
   WContainerWidget *menuDiv = new WContainerWidget();
@@ -88,7 +102,7 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
   menuDiv->addWidget(menu_);
 
   layout_->addWidget(menuDiv);
-  layout_->addWidget(contents_);
+  layout_->addWidget(menu_->contentsStack());
 
   setJavaScriptMember
     (WT_RESIZE_JS, std::string() +
@@ -117,35 +131,38 @@ WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
 
   menu_->addItem(result);
 
-  items_.push_back(TabItem());
-  items_.back().enabled = true;
-  items_.back().hidden = false;
+  contentsWidgets_.push_back(child);
 
   return result;
 }
 
 void WTabWidget::removeTab(WWidget *child)
 {
-  WMenuItem *item = menu_->items()[indexOf(child)];
-  menu_->removeItem(item);
+  int tabIndex = indexOf(child);
+  if (tabIndex != -1) {
+    contentsWidgets_.erase(contentsWidgets_.begin() + tabIndex);
 
-  item->takeContents();
-  delete item;
+    WMenuItem *item = menu_->items()[tabIndex];
+    menu_->removeItem(item);
+
+    item->takeContents();
+    delete item;
+  }
 }
 
 int WTabWidget::count() const
 {
-  return contents_->count();
+  return contentsWidgets_.size();
 }
 
 WWidget *WTabWidget::widget(int index) const
 {
-  return contents_->widget(index);
+  return contentsWidgets_[index];
 }
 
 int WTabWidget::indexOf(WWidget *widget) const
 {
-  return contents_->indexOf(widget);
+  return Utils::indexOf(contentsWidgets_, widget);
 }
 
 void WTabWidget::setCurrentIndex(int index)
@@ -160,32 +177,54 @@ int WTabWidget::currentIndex() const
 
 void WTabWidget::setCurrentWidget(WWidget *widget)
 {
-  setCurrentIndex(contents_->indexOf(widget));
+  setCurrentIndex(indexOf(widget));
 }
 
 WWidget *WTabWidget::currentWidget() const
 {
-  return contents_->currentWidget();
+  return menu_->currentItem()->contents();
 }
 
 void WTabWidget::setTabEnabled(int index, bool enable)
 {
-  items_[index].enabled = enable;
+  TabWidgetItem *item = dynamic_cast<TabWidgetItem *>(menu_->items()[index]);
+  item->setDisabled(!enable);
 }
 
 bool WTabWidget::isTabEnabled(int index) const
 {
-  return items_[index].enabled;
+  TabWidgetItem *item = dynamic_cast<TabWidgetItem *>(menu_->items()[index]);
+  return !item->isDisabled();
 }
 
 void WTabWidget::setTabHidden(int index, bool hidden)
 {
-  items_[index].hidden = hidden;
+  TabWidgetItem *item = dynamic_cast<TabWidgetItem *>(menu_->items()[index]);
+  item->setHidden(hidden);
 }
 
 bool WTabWidget::isTabHidden(int index) const
 {
-  return items_[index].hidden;
+  TabWidgetItem *item = dynamic_cast<TabWidgetItem *>(menu_->items()[index]);
+  return item->isHidden();
+}
+
+void WTabWidget::setTabCloseable(int index, bool closeable)
+{
+  TabWidgetItem *item = dynamic_cast<TabWidgetItem *>(menu_->items()[index]);
+  item->setCloseable(closeable);
+}
+
+bool WTabWidget::isTabCloseable(int index)
+{
+  TabWidgetItem *item = dynamic_cast<TabWidgetItem *>(menu_->items()[index]);
+  return item->isCloseable();
+}
+
+void WTabWidget::closeTab(int index)
+{
+  setTabHidden(index, true);
+  tabClosed_.emit(index);
 }
 
 void WTabWidget::setTabText(int index, const WString& label)
@@ -202,12 +241,14 @@ const WString& WTabWidget::tabText(int index) const
 
 void WTabWidget::setTabToolTip(int index, const WString& tip)
 {
-  items_[index].toolTip = tip;
+  TabWidgetItem *item = dynamic_cast<TabWidgetItem *>(menu_->items()[index]);
+  item->setToolTip(tip);
 }
 
 const WString& WTabWidget::tabToolTip(int index) const
 {
-  return items_[index].toolTip;
+  TabWidgetItem *item = dynamic_cast<TabWidgetItem *>(menu_->items()[index]);
+  return item->toolTip();
 }
 
 bool WTabWidget::internalPathEnabled() const

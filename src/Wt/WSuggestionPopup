@@ -359,9 +359,10 @@ public:
 
   /*! \brief %Signal that indicates that the model should be filtered.
    *
-   * The argument is the initial input. When \link Editing
-   * Editing\endlink is used as edit trigger, its length will always
-   * equal the filterLength(). When \link DropDownIcon
+   * The argument is the initial input. When 
+   * \link WSuggestionPopup::Editing Editing\endlink
+   * is used as edit trigger, its length will always
+   * equal the filterLength(). When \link WSuggestionPopup::DropDownIcon
    * DropDownIcon\endlink is used as edit trigger, the input length
    * may be less than filterLength(), and the the signal will be
    * called repeatedly as the user provides more input.

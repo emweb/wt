@@ -170,7 +170,7 @@ WT_DECLARE_WT_MEMBER
 	     var elij = col.childNodes[i];
 	     var inputs = $(elij).find(":input");
 	     if (inputs.size() > 0) {
-	       inputs.focus();
+	       setTimeout(function() { inputs.focus(); }, 0);
 	       return;
 	     }
 	   }
@@ -181,7 +181,11 @@ WT_DECLARE_WT_MEMBER
      }
      /* If keycode is up/down/right/left */
      else if (event.keyCode >= leftKey && event.keyCode <= downKey) {
-       WT.cancelEvent(event);
+       var currentEl = event.target || event.srcElement;
+
+       //do not allow arrow navigation from select
+       if (currentEl.nodeName == 'select')
+	 return;
 
        var item = getItem(event);
        if (!item.el)
@@ -195,10 +199,22 @@ WT_DECLARE_WT_MEMBER
 
        switch (event.keyCode) {
 	 case rightKey:
+	   if (currentEl.nodeName == 'input'
+	       && currentEl.getAttribute('type') == 'text') {
+	     var range = WT.getSelectionRange(currentEl);
+	     if (range.start !=  currentEl.value.length)
+	       return;
+	   }
 	   coli++; break;
 	 case upKey:
 	   rowi--; break;
 	 case leftKey:
+	   if (currentEl.nodeName == 'input'
+	       && currentEl.getAttribute('type') == 'text') {
+	     var range = WT.getSelectionRange(currentEl);
+	     if (range.start !=  0)
+	       return;
+	   }
 	   coli--; break;
 	 case downKey:
 	   rowi++; break;
@@ -206,12 +222,14 @@ WT_DECLARE_WT_MEMBER
 	   return;
        }
 
+       WT.cancelEvent(event);
+
        if (rowi > -1 && rowi < rows && coli > -1 && coli < cols) {
 	 col = col.parentNode.childNodes[coli];
 	 var elToSelect = col.childNodes[rowi];
 	 var inputs = $(elToSelect).find(":input");
 	 if (inputs.size() > 0) {
-	   inputs.focus();
+	   setTimeout(function() { inputs.focus(); }, 0);
 	   return;
 	 }
        }

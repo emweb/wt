@@ -28,16 +28,20 @@
 #endif
 #endif
 
-extern struct tm* gmtime_r(const time_t* t, struct tm* r);
-#ifdef _MSC_VER
+#ifdef WIN32
 static struct tm* gmtime_r(const time_t* t, struct tm* r)
 {
-  if(gmtime_s(r, t) == 0) {
+  // gmtime is threadsafe in windows because it uses TLS
+  struct tm *theTm = gmtime(t);
+  if (theTm) {
+    *r = *theTm;
     return r;
   } else {
     return 0;
   }
 }
+#else
+extern struct tm* gmtime_r(const time_t* t, struct tm* r);
 #endif
 
 namespace http {

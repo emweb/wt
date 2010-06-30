@@ -25,7 +25,7 @@
 #include "Utils.h"
 
 #include <boost/algorithm/string.hpp>
-#ifndef WIN32
+#ifndef _MSC_VER
 #include <unistd.h>
 #endif
 

@@ -200,7 +200,7 @@ void WTree::nodeRemoved(WTreeNode *node)
     nodeRemoved(node->childNodes()[i]);
 }
 
-void WTree::nodeAdded(WTreeNode *node)
+void WTree::nodeAdded(WTreeNode * const node)
 {
   if (node->isSelectable()) {
     WInteractWidget *w = node->label();

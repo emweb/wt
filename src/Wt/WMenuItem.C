@@ -4,7 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "Wt/WApplication"
 #include "Wt/WAnchor"
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
@@ -14,6 +13,7 @@
 #include "Wt/WMenu"
 #include "Wt/WStackedWidget"
 #include "Wt/WTableCell"
+#include "Wt/WText"
 
 #include "StdGridLayoutImpl.h"
 
@@ -28,7 +28,11 @@ WMenuItem::WMenuItem(const WString& text, WWidget *contents,
   : itemWidget_(0),
     contentsContainer_(0),
     contents_(contents),
-    customPathComponent_(false)
+    menu_(0),
+    customPathComponent_(false),
+    closeable_(false),
+    disabled_(false),
+    hidden_(false)
 {
   setText(text);
 
@@ -56,10 +60,44 @@ WMenuItem::~WMenuItem()
 
 WWidget *WMenuItem::createItemWidget()
 {
-  WAnchor *result = new WAnchor();
-  result->setWordWrap(false);
+  WAnchor *enabledLabel = 0;
+  WText *disabledLabel = 0;
 
-  return result;
+  if (!disabled_) {
+    enabledLabel = new WAnchor();
+    enabledLabel->setWordWrap(false);
+  } else {
+    disabledLabel = new WText("");
+    disabledLabel->setWordWrap(false);
+  }
+
+  if (closeable_) {
+    WText *closeIcon = new WText("");
+    closeIcon->setStyleClass("Wt-closeicon");
+    WContainerWidget *c = new WContainerWidget();
+    c->setInline(true);
+    if (enabledLabel) {
+      enabledLabel->setStyleClass("label");
+      c->addWidget(enabledLabel);
+    } else {
+      disabledLabel->setStyleClass("label");
+      c->addWidget(disabledLabel);
+    }
+
+    c->addWidget(closeIcon);
+
+    return c;
+  } else if (enabledLabel)
+    return enabledLabel;
+  else
+    return disabledLabel;
+}
+
+WWidget *WMenuItem::recreateItemWidget()
+{
+  delete itemWidget_;
+  itemWidget_ = 0;
+  return itemWidget();
 }
 
 void WMenuItem::setText(const WString& text)
@@ -103,12 +141,44 @@ void WMenuItem::setPathComponent(const std::string& path)
     updateItemWidget(itemWidget_);
 }
 
+void WMenuItem::setCloseable(bool closeable)
+{
+  closeable_ = closeable;
+
+  if (menu_)
+    menu_->recreateItem(this);
+}
+
+void WMenuItem::setHidden(bool hidden)
+{
+  hidden_ = hidden;
+
+  if (menu_)
+    menu_->doSetHiddenItem(this, hidden_);
+}
+
+void WMenuItem::hide()
+{
+  setHidden(true);
+}
+
+void WMenuItem::show()
+{
+  setHidden(false);
+}
+
+void WMenuItem::close()
+{
+  if (menu_)
+    menu_->close(this);
+}
+
 WWidget *WMenuItem::itemWidget()
 {
   if (!itemWidget_) {
     itemWidget_ = createItemWidget();
     updateItemWidget(itemWidget_);
-    connectActivate();
+    connectSignals();
   }
 
   return itemWidget_;
@@ -126,6 +196,12 @@ void WMenuItem::connectActivate()
   }
 }
 
+void WMenuItem::connectClose()
+{
+  SignalBase& cs = closeSignal();
+  cs.connect(this, &WMenuItem::close);
+}
+
 void WMenuItem::enableAjax()
 {
   if (!contentsLoaded())
@@ -139,38 +215,82 @@ void WMenuItem::enableAjax()
 
 void WMenuItem::updateItemWidget(WWidget *itemWidget)
 {
-  WAnchor *a = dynamic_cast<WAnchor *>(itemWidget);
+  WAnchor *enabledLabel = 0;
+  WText *disabledLabel = 0;
 
-  if (a) {
-    a->setText(text());
+  if (closeable_) {
+    WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget);
+    if (!disabled_)
+      enabledLabel = dynamic_cast<WAnchor *>(c->children()[0]);
+    else
+      disabledLabel = dynamic_cast<WText *>(c->children()[0]);
+  } else if (!disabled_)
+    enabledLabel = dynamic_cast<WAnchor *>(itemWidget);
+  else
+    disabledLabel = dynamic_cast<WText *>(itemWidget);
+
+  if (enabledLabel) {
+    enabledLabel->setText(text());
 
     std::string url;
-    if (menu_->internalPathEnabled())
+    if (menu_ && menu_->internalPathEnabled())
       url = wApp->bookmarkUrl(menu_->internalBasePath() + pathComponent());
     else
       url = "#";
 
-    a->setRef(url);
-    a->clicked().preventDefaultAction();
+    enabledLabel->setRef(url);
+    enabledLabel->setToolTip(toolTip());
+    enabledLabel->clicked().preventDefaultAction();
+  } else {
+    disabledLabel->setText(text());
+    disabledLabel->setToolTip(toolTip());
   }
 }
 
 SignalBase& WMenuItem::activateSignal()
 {
-  WInteractWidget *wi
-    = dynamic_cast<WInteractWidget *>(itemWidget_->webWidget());
+  WWidget *w = 0;
+
+  if (closeable_) {
+    WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget_);
+    w = c->children()[0];
+  } else
+    w = itemWidget_;
+
+  WInteractWidget *wi  = dynamic_cast<WInteractWidget *>(w->webWidget());
 
   if (wi)
     return wi->clicked();
   else
     throw WtException("WMenuItem::activateSignal(): "
-		      "could not dynamic_cast itemWidget() to a "
-		      "WInteractWidget");
+                      "could not dynamic_cast itemWidget() or "
+                      "itemWidget()->children()[0] to a WInteractWidget");
+}
+
+SignalBase& WMenuItem::closeSignal()
+{
+  WContainerWidget *c = dynamic_cast<WContainerWidget *>(itemWidget_);
+  WInteractWidget *ci = dynamic_cast<WInteractWidget *>(c->children()[1]);
+
+  if (ci)
+    return ci->clicked();
+  else
+    throw WtException("WMenuItem::closeSignal(): "
+                      "could not dynamic_cast itemWidget()->children()[1] "
+                      "to a WInteractWidget");
 }
 
 void WMenuItem::renderSelected(bool selected)
 {
-  itemWidget()->setStyleClass(selected ? "itemselected" : "item");
+  if (closeable_)
+    itemWidget()->setStyleClass(selected ? "citemselected" : "citem");
+  else
+    itemWidget()->setStyleClass(selected ? "itemselected" : "item");
+}
+
+void WMenuItem::renderHidden(bool hidden)
+{
+  itemWidget()->setHidden(hidden);
 }
 
 void WMenuItem::selectNotLoaded()
@@ -234,17 +354,58 @@ void WMenuItem::setFromInternalPath(const std::string& path)
 
 void WMenuItem::select()
 {
-  menu_->select(this);
+  if (menu_)
+    menu_->select(this);
 }
 
 void WMenuItem::selectVisual()
 {
-  menu_->selectVisual(this);
+  if (menu_)
+    menu_->selectVisual(this);
 }
 
 void WMenuItem::undoSelectVisual()
 {
-  menu_->undoSelectVisual();
+  if (menu_)
+    menu_->undoSelectVisual();
+}
+
+void WMenuItem::setToolTip(const WString& tip)
+{
+  tip_ = tip;
+
+  if (itemWidget_)
+    updateItemWidget(itemWidget_);
+}
+
+void WMenuItem::setDisabled(bool disabled)
+{
+  disabled_ = disabled;
+
+  if (menu_)
+    menu_->recreateItem(this);
+}
+
+void WMenuItem::enable()
+{
+  setDisabled(false);
+}
+
+void WMenuItem::disable()
+{
+  setDisabled(true);
+}
+
+void WMenuItem::connectSignals()
+{
+  if (!disabled_) {
+    if (contentsLoaded())
+      implementStateless(&WMenuItem::selectVisual, &WMenuItem::undoSelectVisual);
+    connectActivate();
+  }
+
+  if (closeable_)
+    connectClose();
 }
 
 }

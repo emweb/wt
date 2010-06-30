@@ -12,23 +12,29 @@
 
 int main(int argc, char **argv)
 {
-  WServer server(argv[0]);
+  try {
+    WServer server(argv[0]);
 
-  server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
-  BlogRSSFeed rssFeed("blog.db", "Wt and JWt blog",
-		      "http://www.webtoolkit.eu/wt/blog",
-		      "We care about our webtoolkits.");
+    BlogRSSFeed rssFeed("blog.db", "Wt and JWt blog",
+      "http://www.webtoolkit.eu/wt/blog",
+      "We care about our webtoolkits.");
 
-  server.addResource(&rssFeed, "/wt/blog/feed/");
+    server.addResource(&rssFeed, "/wt/blog/feed/");
 
-  server.addEntryPoint(Application, createWtHomeApplication,
-		       "", "/css/wt/favicon.ico");
-  server.addEntryPoint(Application, createJWtHomeApplication,
-		       "/jwt", "/css/jwt/favicon.ico");
+    server.addEntryPoint(Application, createWtHomeApplication,
+      "", "/css/wt/favicon.ico");
+    server.addEntryPoint(Application, createJWtHomeApplication,
+      "/jwt", "/css/jwt/favicon.ico");
 
-  if (server.start()) {
-    WServer::waitForShutdown();
-    server.stop();
+    if (server.start()) {
+      WServer::waitForShutdown();
+      server.stop();
+    }
+  } catch (Wt::WServer::Exception& e) {
+    std::cerr << e.what() << std::endl;
+  } catch (std::exception &e) {
+    std::cerr << "exception: " << e.what() << std::endl;
   }
 }

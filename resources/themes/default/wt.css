@@ -155,6 +155,23 @@
     padding: 4px 6px 4px;
 }
 
+/*
+ * WMenuItem
+ */
+.Wt-closeicon {
+    background: transparent url(../../closeicons-mi.png) no-repeat scroll right top;
+    height: 8px;
+    width: 9px;
+    margin: 0px 5px 0px 2px;
+    padding: 0px;
+    font-size: 0px;
+    cursor: default;
+}
+
+.Wt-closeicon:hover {
+    background-position: right -8px;
+}
+
 /* 
  * WMessageBox
  */
@@ -319,7 +336,7 @@
     font-size: small; font-weight: bold;
 }
 
-.Wt-tabs span.itemselected {
+.Wt-tabs span.itemselected, .Wt-tabs span.citemselected {
     background-position:100% -150px;
 }
 
@@ -330,8 +347,22 @@
     padding:5px 9px;color:#1A419D;
 }
 
-.Wt-tabs span.itemselected span {
+.Wt-tabs span.itemselected span, .Wt-tabs span.citemselected span {
     background-position:0% -150px;
+}
+
+.Wt-tabs .Wt-closeicon, .Wt-tabs span.citemselected .Wt-closeicon {
+    background: transparent url(../../closeicons-tab.png) no-repeat scroll right top;
+    margin: 6px 4px 0px 0px;
+    height: 13px;
+    width: 13px;
+    border: 0px;
+    padding: 0px;
+    cursor: default;
+}
+
+.Wt-tabs .Wt-closeicon:hover, .Wt-tabs span.citemselected .Wt-closeicon:hover {
+    background-position: right -13px;
 }
 
 /*

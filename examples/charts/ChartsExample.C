@@ -286,10 +286,39 @@ PieExample::PieExample(WContainerWidget *parent):
 {
   new WText(WString::tr("pie chart"), this);
 
-  WAbstractItemModel *model = readCsvFile("pie.csv", this);
+  WStandardItemModel *model = new WStandardItemModel(this);
+  
+  //headers
+  model->insertColumns(model->columnCount(), 2);
+  model->setHeaderData(0, boost::any(WString("Item")));
+  model->setHeaderData(1, boost::any(WString("Sales")));
 
-  if (!model)
-    return;
+  //data
+  model->insertRows(model->rowCount(), 6);
+  int row = 0;
+  model->setData(row, 0, boost::any(WString("Blueberry")));
+  model->setData(row, 1, boost::any(120));
+  row++;
+  model->setData(row, 0, boost::any(WString("Cherry")));
+  model->setData(row, 1, boost::any(30));
+  row++;
+  model->setData(row, 0, boost::any(WString("Apple")));
+  model->setData(row, 1, boost::any(260));
+  row++;
+  model->setData(row, 0, boost::any(WString("Boston Cream")));
+  model->setData(row, 1, boost::any(160));
+  row++;
+  model->setData(row, 0, boost::any(WString("Other")));
+  model->setData(row, 1, boost::any(40));
+  row++;
+  model->setData(row, 0, boost::any(WString("Vanilla Cream")));
+  model->setData(row, 1, boost::any(120));
+  row++;
+
+  //set all items to be editable and selectable
+  for (int row = 0; row < model->rowCount(); ++row)
+    for (int col = 0; col < model->columnCount(); ++col)
+      model->item(row, col)->setFlags(ItemIsSelectable | ItemIsEditable);
 
   WContainerWidget *w = new WContainerWidget(this);
   WTableView* table = new WTableView(w);

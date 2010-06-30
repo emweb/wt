@@ -754,7 +754,6 @@ void WebRenderer::serveMainpage(WebResponse& response)
   std::string redirect = session_.getRedirect();
 
   if (!redirect.empty()) {
-    std::cerr << "Redirect: " << redirect << std::endl;
     response.setStatus(302); // Should be 303 in fact ?
     response.setRedirect(redirect);
     return;
@@ -1159,6 +1158,8 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
   if (slot->type() == WStatelessSlot::PreLearnStateless)
     learning_ = true;
 
+  learningIncomplete_ = false;
+
   slot->trigger();
 
   std::stringstream js;
@@ -1176,9 +1177,15 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
     statelessJS_ << result;
   }
 
-  slot->setJavaScript(result);
+  if (!learningIncomplete_)
+    slot->setJavaScript(result);
 
   return result;
+}
+
+void WebRenderer::learningIncomplete()
+{
+  learningIncomplete_ = true;
 }
 
 std::string WebRenderer::headDeclarations() const

@@ -113,23 +113,24 @@ struct sql_value_traits<boost::optional<T>, void>
 {
   static const bool specialized = true;
 
-  static std::string type(SqlConnection *conn) {
-    std::string nested = sql_value_traits<T>::type(conn);
+  static std::string type(SqlConnection *conn, int size) {
+    std::string nested = sql_value_traits<T>::type(conn, size);
     if (nested.length() > 8 && nested.substr(nested.length() - 8) == "not null")
       return nested.substr(0, nested.length() - 8);
   }
 
   static void bind(const boost::optional<T>& v,
-		   SqlStatement *statement, int column) {
+		   SqlStatement *statement, int column, int size) {
     if (v)
-      sql_value_traits<T>::bind(v.get(), statement, column);
+      sql_value_traits<T>::bind(v.get(), statement, column, size);
     else
       statement->bindNull(column);
   }
 
-  static bool read(boost::optional<T>& v, SqlStatement *statement, int column) {
+  static bool read(boost::optional<T>& v, SqlStatement *statement, int column,
+                   int size) {
     T result;
-    if (sql_value_traits<T>::read(result, statement, column)) {
+    if (sql_value_traits<T>::read(result, statement, column, size)) {
       v = result;
       return true;
     } else {

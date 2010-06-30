@@ -27,7 +27,7 @@ TimeSuggestions::TimeSuggestions(WContainerWidget* parent)
                      parent)
 {
   for (unsigned i = 0; i < 24; i++) {
-    char buffer [2];
+    char buffer [25];
     sprintf(buffer, "%02d", i);
     std::string h = buffer;
     

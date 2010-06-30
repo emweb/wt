@@ -11,9 +11,7 @@
 #include "Wt/Chart/WCartesianChart"
 #include "Wt/Chart/WStandardPalette"
 
-#include "Wt/WContainerWidget"
 #include "Wt/WAbstractItemModel"
-#include "Wt/WPaintDevice"
 #include "Wt/WPainter"
 #include "Wt/WText"
 
@@ -38,30 +36,6 @@ private:
 
 namespace Wt {
   namespace Chart {
-
-class IconWidget : public Wt::WPaintedWidget {
-public:
-  IconWidget(WCartesianChart *chart, int index, WContainerWidget *parent = 0) 
-    : Wt::WPaintedWidget(parent),
-      chart_(chart),
-      index_(index)
-  {
-    setInline(true);
-    resize(20, 20);
-  }
-
-protected:
-   virtual void paintEvent(Wt::WPaintDevice *paintDevice) {
-     Wt::WPainter painter(paintDevice);
-     chart_->renderLegendIcon(painter, 
-			     WPointF(2.5, 10.0), 
-			     chart_->series(index_));
-   }
-
-private:
-  WCartesianChart* chart_;
-  int index_;
-};
 
 WCartesianChart::WCartesianChart(WContainerWidget *parent)
   : WAbstractChart(parent),
@@ -469,6 +443,25 @@ void WCartesianChart::modelChanged()
 void WCartesianChart::modelReset()
 {
   update();
+}
+
+WCartesianChart::IconWidget::IconWidget(WCartesianChart *chart, 
+					int index, 
+					WContainerWidget *parent) 
+  : WPaintedWidget(parent),
+    chart_(chart),
+    index_(index)
+{
+  setInline(true);
+  resize(20, 20);
+}
+
+void WCartesianChart::IconWidget::paintEvent(Wt::WPaintDevice *paintDevice) 
+{
+  Wt::WPainter painter(paintDevice);
+  chart_->renderLegendIcon(painter, 
+			   WPointF(2.5, 10.0), 
+			   chart_->series(index_));
 }
 
   }

@@ -31,18 +31,22 @@ public:
   {
     setStyleClass("Wt-pagingbar");
 
-    firstButton_ = new WPushButton(WString::fromUTF8("« First"), this);
+    firstButton_ = new WPushButton(WString::fromUTF8(pbFirst),
+        this);
     firstButton_->clicked().connect(this, &DefaultPagingBar::showFirstPage);
 
-    prevButton_ = new WPushButton(WString::fromUTF8("‹ Previous"), this);
+    prevButton_ = new WPushButton(WString::fromUTF8(pbPrevious),
+        this);
     prevButton_->clicked().connect(this, &DefaultPagingBar::showPreviousPage);
 
     current_ = new WText(this);
 
-    nextButton_ = new WPushButton(WString::fromUTF8("Next ›"), this);
+    nextButton_ = new WPushButton(WString::fromUTF8(pbNext),
+        this);
     nextButton_->clicked().connect(this, &DefaultPagingBar::showNextPage);
 
-    lastButton_ = new WPushButton(WString::fromUTF8("Last »"), this);
+    lastButton_ = new WPushButton(WString::fromUTF8(pbLast),
+        this);
     lastButton_->clicked().connect(this, &DefaultPagingBar::showLastPage);
 
     view_->pageChanged().connect(this, &DefaultPagingBar::update);
@@ -54,6 +58,11 @@ private:
   WAbstractItemView *view_;
   WPushButton *prevButton_, *nextButton_, *firstButton_, *lastButton_;
   WText *current_;
+
+  static const char *pbFirst;
+  static const char *pbPrevious;
+  static const char *pbNext;
+  static const char *pbLast;
 
   void update() {
     firstButton_->setDisabled(view_->currentPage() == 0);
@@ -88,6 +97,18 @@ private:
       view_->setCurrentPage(view_->currentPage() + 1);
   }
 };
+
+#ifndef WT_CNOR
+  const char * DefaultPagingBar::pbFirst = "\xc2\xab First";
+  const char * DefaultPagingBar::pbPrevious = "\xe2\x80\xb9 Previous";
+  const char * DefaultPagingBar::pbNext = "Next \xe2\x80\xba";
+  const char * DefaultPagingBar::pbLast = "Last \xc2\xbb";
+#else
+  const char * DefaultPagingBar::pbFirst = "« First";
+  const char * DefaultPagingBar::pbPrevious = "‹ Previous";
+  const char * DefaultPagingBar::pbNext = "Next ›";
+  const char * DefaultPagingBar::pbLast = "Last »";
+#endif
 
 WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view, 
 					   int anId, 

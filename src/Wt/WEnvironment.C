@@ -48,14 +48,6 @@ WEnvironment::WEnvironment(WebSession *session)
     contentType_(HTML4)
 { }
 
-#if WIN32
-// Because class is WT_API, all methods must be defined
-WEnvironment::WEnvironment(const WEnvironment &)
-{
-  assert(false);
-}
-#endif
-
 void WEnvironment::setInternalPath(const std::string& path)
 {
   internalPath_ = path.empty() ? "/" : path;

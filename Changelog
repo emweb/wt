@@ -1,3 +1,23 @@
+30-06-2010:
+	* WTabWidget, WMenu: support for closing, hiding and disabing
+	items, contributed by Dmitriy Igrishin
+
+	* Wt::Dbo: fix boost::optional<T> support
+
+	* WAbstractItemView: build fix for MSVC in non-Latin locales
+
+	* WAbstractItemModel: copyData() does first nullify existing data
+
+	* WSuggestionPopup: fix bug in handling of model row removal
+
+	* WWebWidget, WebRenderer: fix statelss slot learning bug when a
+	stubbed widget is affected (see treelist example)
+
+	* WWebWidget: fix addStyleClass(), removeStyleClass()
+	implementations with force=true (from Dmitriy Igrishin)
+
+	* WTableView: improved handling of arrow keys for navigating editors
+
 10-06-2010:
 	* WTableView, WTreeView: workaround IE bug w.r.t. white-space: nowrap
 

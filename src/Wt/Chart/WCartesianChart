@@ -10,6 +10,8 @@
 #include <Wt/Chart/WAbstractChart>
 #include <Wt/Chart/WAxis>
 #include <Wt/Chart/WDataSeries>
+#include <Wt/WPaintDevice>
+#include <Wt/WContainerWidget>
 
 namespace Wt {
 
@@ -378,8 +380,8 @@ public:
 
   /*! \brief Creates a widget which renders the a legend item.
    * 
-   * The legend item widget will contain a text and a \link Wt::WPaintedWidget 
-   * \endlink which draws the series' symbol.
+   * The legend item widget will contain a text and a WPaintedWidget 
+   * which draws the series' symbol.
    */
   WWidget* createLegendItemWidget(int index);
 
@@ -431,6 +433,20 @@ private:
 
   WPointF hv(double x, double y, double width) const;
   WPointF inverseHv(double x, double y, double width) const;
+
+  class IconWidget : public WPaintedWidget {
+  public:
+    IconWidget(WCartesianChart *chart, 
+	       int index, 
+	       WContainerWidget *parent = 0);
+    
+  protected:
+    virtual void paintEvent(WPaintDevice *paintDevice);
+    
+  private:
+    WCartesianChart* chart_;
+    int index_;
+  };
 
   friend class WDataSeries;
   friend class WChart2DRenderer;

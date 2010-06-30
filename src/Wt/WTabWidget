@@ -118,7 +118,7 @@ public:
    */
   WWidget *widget(int index) const;
 
-  /*! \brief Returns the index of the given widget.
+  /*! \brief Returns the index of the tab of the given content widget.
    *
    * If the widget is not in this tab widget, then -1 is returned.
    */
@@ -147,19 +147,30 @@ public:
    */
   void setTabEnabled(int index, bool enable);
 
-  /*! \brief Returns if a tab is enabled.
+  /*! \brief Returns whether a tab is enabled.
+   *
+   * \sa WMenu::enableItem(), WMenu::disableItem()
    */
   bool isTabEnabled(int index) const;
 
   /*! \brief Hides or shows a tab.
    *
-   * Hides are shows the tab at \p index.
+   * Hides or shows the tab at \p index.
    */
   void setTabHidden(int index, bool hidden);
 
-  /*! \brief Returns if a tab is hidden.
+  /*! \brief Returns whether a tab is hidden.
    */
   bool isTabHidden(int index) const;
+
+  /*! \brief Make it possible to close a tab interactively or by
+   * \link WTabWidget::closeTab() closeTab\endlink.
+   */
+  void setTabCloseable(int index, bool closeable);
+
+  /*! \brief Returns whether a tab is closeable.
+   */
+  bool isTabCloseable(int index);
 
   /*! \brief Changes the label for a tab.
    */
@@ -209,19 +220,23 @@ public:
    */
   Signal<int>& currentChanged() { return currentChanged_; }
 
+  /*! \brief Closes a tab at \p index.
+   */
+  void closeTab(int index);
+
+  /*! \brief %Signal emitted when the user closes a tab.
+   *
+   * The index of the closed tab is passed as an argument.
+   */
+  Signal<int>& tabClosed() { return tabClosed_; }
+
 private:
   Signal<int> currentChanged_;
+  Signal<int> tabClosed_;
   WContainerWidget *layout_;
   WMenu            *menu_;
-  WStackedWidget   *contents_;
 
-  struct TabItem {
-    bool    enabled;
-    bool    hidden;
-    WString toolTip;
-  };
-
-  std::vector<TabItem> items_;
+  std::vector<WWidget *> contentsWidgets_;
 
   void create(WFlags<AlignmentFlag> layoutAlignment);
   void onItemSelected(WMenuItem *item);
@@ -231,4 +246,4 @@ private:
 
 }
 
-#endif // EXT_TABWIDGET_H_
+#endif // WTABWIDGET_H_

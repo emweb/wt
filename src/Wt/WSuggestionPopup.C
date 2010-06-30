@@ -200,7 +200,7 @@ void WSuggestionPopup::modelRowsRemoved(const WModelIndex& parent,
     return;
 
   for (int i = start; i <= end; ++i)
-    delete content_->widget(i);
+    delete content_->widget(start);
 }
 
 void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
