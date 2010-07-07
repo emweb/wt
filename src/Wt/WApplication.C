@@ -42,6 +42,11 @@ WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
   : uri(anUri), symbol(aSymbol)
 { }
 
+WApplication::StyleSheet::StyleSheet(const std::string& anUri,
+				     const std::string& aMedia)
+  : uri(anUri), media(aMedia)
+{ }
+
 WApplication::MetaHeader::MetaHeader(const std::string& aName,
 				     const WString& aContent,
 				     const std::string& aLang)
@@ -387,71 +392,77 @@ void WApplication::setCssTheme(const std::string& theme)
 
 void WApplication::useStyleSheet(const std::string& uri)
 {
-  styleSheets_.push_back(uri);
+  styleSheets_.push_back(StyleSheet(uri, ""));
   ++styleSheetsAdded_;
 }
 
 void WApplication::useStyleSheet(const std::string& uri,
-				 const std::string& condition)
+				 const std::string& condition,
+				 const std::string& media)
 {
-  if (environment().agentIsIE()) {
-    bool display = false;
+  bool display = true;
 
-    int thisVersion = 4;
+  if (!condition.empty()) {
+    display = false;
+    if (environment().agentIsIE()) {
+      int thisVersion = 4;
 
-    switch (environment().agent()) {
-    case WEnvironment::IEMobile:
-      thisVersion = 5; break;
-    case WEnvironment::IE6:
-      thisVersion = 6; break;
-    default:
-      thisVersion = 7;
-    }
-
-    enum { lte, lt, eq, gt, gte } cond = eq;
-
-    bool invert = false;
-    std::string r = condition;
-
-    while (!r.empty()) {
-      if (r.length() >= 3 && r.substr(0, 3) == "IE ") {
-	r = r.substr(3);
-      } else if (r[0] == '!') {
-	r = r.substr(1);
-	invert = !invert;
-      } else if (r.length() >= 4 && r.substr(0, 4) == "lte ") {
-	r = r.substr(4);
-	cond = lte;
-      } else if (r.length() >= 3 && r.substr(0, 3) == "lt ") {
-	r = r.substr(3);
-	cond = lt;
-      } else if (r.length() >= 3 && r.substr(0, 3) == "gt ") {
-	r = r.substr(3);
-	cond = gt;
-      } else if (r.length() >= 4 && r.substr(0, 4) == "gte ") {
-	r = r.substr(4);
-	cond = gte;
-      } else {
-	try {
-	  int version = boost::lexical_cast<int>(r);
-	  switch (cond) {
-	  case eq:  display = thisVersion == version; break;
-	  case lte: display = thisVersion <= version; break;
-	  case lt:  display = thisVersion <  version; break;
-	  case gte: display = thisVersion >= version; break;
-	  case gt:  display = thisVersion >  version; break;
-	  }
-	  if (invert)
-	    display = !display;
-	} catch (std::exception& e) {
-	  log("error") << "Could not parse condition: '" << condition << "'";
-	}
-	r.clear();
+      switch (environment().agent()) {
+      case WEnvironment::IEMobile:
+	thisVersion = 5; break;
+      case WEnvironment::IE6:
+	thisVersion = 6; break;
+      default:
+	thisVersion = 7;
       }
-    }
 
-    if (display)
-      useStyleSheet(uri);
+      enum { lte, lt, eq, gt, gte } cond = eq;
+
+      bool invert = false;
+      std::string r = condition;
+
+      while (!r.empty()) {
+	if (r.length() >= 3 && r.substr(0, 3) == "IE ") {
+	  r = r.substr(3);
+	} else if (r[0] == '!') {
+	  r = r.substr(1);
+	  invert = !invert;
+	} else if (r.length() >= 4 && r.substr(0, 4) == "lte ") {
+	  r = r.substr(4);
+	  cond = lte;
+	} else if (r.length() >= 3 && r.substr(0, 3) == "lt ") {
+	  r = r.substr(3);
+	  cond = lt;
+	} else if (r.length() >= 3 && r.substr(0, 3) == "gt ") {
+	  r = r.substr(3);
+	  cond = gt;
+	} else if (r.length() >= 4 && r.substr(0, 4) == "gte ") {
+	  r = r.substr(4);
+	  cond = gte;
+	} else {
+	  try {
+	    int version = boost::lexical_cast<int>(r);
+	    switch (cond) {
+	    case eq:  display = thisVersion == version; break;
+	    case lte: display = thisVersion <= version; break;
+	    case lt:  display = thisVersion <  version; break;
+	    case gte: display = thisVersion >= version; break;
+	    case gt:  display = thisVersion >  version; break;
+	    }
+	    if (invert)
+	      display = !display;
+	  } catch (std::exception& e) {
+	    log("error") << "Could not parse condition: '" << condition << "'";
+	  }
+	  r.clear();
+	}
+      }
+    } 
+  }
+
+  if (display) {
+    styleSheets_.push_back(StyleSheet(uri, media));
+    ++styleSheetsAdded_;
   }
 }
 

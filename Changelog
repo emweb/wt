@@ -1,3 +1,18 @@
+07-07-2010:
+	* examples/feature/serverPush: fix WIN32 build problem
+
+	* Chart/WCartesianChart: fix clipping margin glitch
+
+	* Dbo/QueryModel: fix missing implementation fields() method
+
+	* WAbstractToggleButton: fix disabled/readonly properties #423
+
+	* WApplication: useStyleSheet(): allow media to be specified
+
+	* WCanvasPaintDevice: fix font rendering glitch
+
+	* WTableView: improved keyboard navigation through editors
+
 30-06-2010:
 	* WTabWidget, WMenu: support for closing, hiding and disabing
 	items, contributed by Dmitriy Igrishin

@@ -298,23 +298,29 @@ public:
    */
   void useStyleSheet(const std::string& url);
 
-  /*! \brief Adds an external style sheet, conditional to specific Internet
-   *         Explorer browser.
+  /*! \brief Adds an external style sheet, constrained with conditions.
    *
-   * \p condition is a string that is used to apply the stylesheet
-   * to specific versions of IE. Only a limited subset of the IE
-   * conditional comments syntax is supported (since these are in fact
-   * interpreted server-side instead of client-side). Examples are:
-   * - "IE gte 6": only for IE version 6 or later. 
+   * If not empty, \p condition is a string that is used to apply the
+   * stylesheet to specific versions of IE. Only a limited subset of
+   * the IE conditional comments syntax is supported (since these are
+   * in fact interpreted server-side instead of client-side). Examples
+   * are:
+   *
+   * - "IE gte 6": only for IE version 6 or later.
    * - "!IE gte 6": only for IE versions prior to IE6.
    * - "IE lte 7": only for IE versions prior to IE7.
+   *
+   * The \p media indicates the CSS media to which this stylesheet
+   * applies.  This may be a comma separated list of media. The
+   * default value is "all" indicating all media.
    *
    * The \p url indicates a relative or absolute URL to the
    * stylesheet.
    *
    * \sa useStyleSheet()
    */
-  void useStyleSheet(const std::string& url, const std::string& condition);
+  void useStyleSheet(const std::string& url, const std::string& condition,
+		     const std::string& media = "all");
 
   /*! \brief Sets the theme.
    *
@@ -1470,9 +1476,15 @@ private:
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;
 
-  std::string              theme_;
-  std::vector<std::string> styleSheets_;
-  int                      styleSheetsAdded_;
+  struct StyleSheet {
+    std::string uri, media;
+
+    StyleSheet(const std::string& anUri, const std::string& aMedia);
+  };
+
+  std::string             theme_;
+  std::vector<StyleSheet> styleSheets_;
+  int                     styleSheetsAdded_;
 
   std::vector<MetaHeader> metaHeaders_;
 

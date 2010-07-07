@@ -326,7 +326,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
   // 6 pixels additional margin to avoid clipping lines that render
   // the extreme values
   totalRenderLength
-    -= SEGMENT_MARGIN * (segments_.size() - 1) - clipMin - clipMax;
+    -= SEGMENT_MARGIN * (segments_.size() - 1) + clipMin + clipMax;
 
   /*
    * Iterate twice, since we adjust the render extrema based on the size

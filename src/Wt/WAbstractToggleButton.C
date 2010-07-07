@@ -145,10 +145,25 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
    * Copy all properties to the exterior element, as they relate to style,
    * etc... We ignore here attributes, see WWebWidget: there seems not to
    * be attributes that sensibly need to be moved.
+   *
+   * But -- bug #423, disabled and readonly are properties that should be
+   * kept on the interior element.
    */
   if (&element != &input) {
     element.setProperties(input.properties());
     input.clearProperties();
+
+    std::string v = element.getProperty(Wt::PropertyDisabled);
+    if (!v.empty()) {
+      input.setProperty(Wt::PropertyDisabled, v);
+      element.removeProperty(Wt::PropertyDisabled);
+    }
+
+    v = element.getProperty(Wt::PropertyReadOnly);
+    if (!v.empty()) {
+      input.setProperty(Wt::PropertyReadOnly, v);
+      element.removeProperty(Wt::PropertyReadOnly);
+    }
   }
 
   if (stateChanged_ || all) {

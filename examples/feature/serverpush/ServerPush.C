@@ -56,8 +56,8 @@ private:
   void doBigWork(WApplication *app)
   {
     for (unsigned i = 0; i < 20; ++i) {
-
-      usleep(50000); // This is 50 ms of hard work.
+      // Do 50 ms of hard work.
+      boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 
       // Get the application update lock to update the user-interface
       // with a progress indication.
@@ -82,19 +82,12 @@ private:
   }
 };
 
-class ServerPushApplication : public WApplication
-{
-public:
-  ServerPushApplication(const WEnvironment& env)
-    : WApplication(env)
-  {
-    new BigWorkWidget(root());
-  }
-};
-
 WApplication *createApplication(const WEnvironment& env)
 {
-  return new ServerPushApplication(env);
+  WApplication *app = new WApplication(env);
+  new BigWorkWidget(app->root());
+
+  return app;
 }
 
 int main(int argc, char **argv)

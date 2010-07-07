@@ -24,7 +24,7 @@ boost::any WAbstractProxyModel::data(const WModelIndex& index, int role) const
 }
 
 bool WAbstractProxyModel::setData(const WModelIndex& index,
-				    const boost::any& value, int role)
+				  const boost::any& value, int role)
 {
   return sourceModel_->setData(mapToSource(index), value, role);
 }
@@ -34,15 +34,14 @@ WFlags<ItemFlag> WAbstractProxyModel::flags(const WModelIndex& index) const
   return sourceModel_->flags(mapToSource(index));
 }
 
-
 bool WAbstractProxyModel::insertColumns(int column, int count,
-					  const WModelIndex& parent)
+					const WModelIndex& parent)
 {
   return sourceModel_->insertColumns(column, count, parent);
 }
 
 bool WAbstractProxyModel::insertRows(int row, int count,
-				       const WModelIndex& parent)
+				     const WModelIndex& parent)
 {
   int sourceRow = mapToSource(index(row, 0, parent)).row();
 
@@ -50,13 +49,13 @@ bool WAbstractProxyModel::insertRows(int row, int count,
 }
 
 bool WAbstractProxyModel::removeColumns(int column, int count,
-					  const WModelIndex& parent)
+					const WModelIndex& parent)
 {
   return sourceModel_->removeColumns(column, count, parent);
 }
 
 bool WAbstractProxyModel::removeRows(int row, int count,
-				       const WModelIndex& parent)
+				     const WModelIndex& parent)
 {
   int sourceRow = mapToSource(index(row, 0, parent)).row();
 
@@ -74,8 +73,8 @@ std::vector<std::string> WAbstractProxyModel::acceptDropMimeTypes() const
 }
 
 void WAbstractProxyModel::dropEvent(const WDropEvent& e, DropAction action,
-				      int row, int column,
-				      const WModelIndex& parent)
+				    int row, int column,
+				    const WModelIndex& parent)
 {
   WModelIndex sourceParent = mapToSource(parent);
 

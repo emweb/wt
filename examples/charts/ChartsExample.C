@@ -204,6 +204,8 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
    * Create the scatter plot.
    */
   WCartesianChart *chart = new WCartesianChart(this);
+  //chart->setPreferredMethod(WPaintedWidget::InlineSvgVml);
+  //chart->setBackground(gray);
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the X data
   chart->setLegendEnabled(true); // enable the legend

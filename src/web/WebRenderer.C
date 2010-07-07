@@ -593,15 +593,15 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   if (!app->cssTheme().empty()) {
     response.out() << WT_CLASS << ".addStyleSheet('"
 		   << WApplication::resourcesUrl() << "/themes/"
-		   << app->cssTheme() << "/wt.css');";
+		   << app->cssTheme() << "/wt.css', 'all');";
     if (app->environment().agentIsIE())
       response.out() << WT_CLASS << ".addStyleSheet('"
 		     << WApplication::resourcesUrl() << "/themes/"
-		     << app->cssTheme() << "/wt_ie.css');";
+		     << app->cssTheme() << "/wt_ie.css', 'all');";
     if (app->environment().agent() == WEnvironment::IE6)
       response.out() << WT_CLASS << ".addStyleSheet('"
 		     << WApplication::resourcesUrl() << "/themes/"
-		     << app->cssTheme() << "/wt_ie6.css');";
+		     << app->cssTheme() << "/wt_ie6.css', 'all');";
   }
 
   app->styleSheetsAdded_ = app->styleSheets_.size();
@@ -780,26 +780,32 @@ void WebRenderer::serveMainpage(WebResponse& response)
     styleSheets += "<link href=\""
       + WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
       + "/wt.css\" rel=\"stylesheet\" type=\"text/css\""
-      + (xhtml ? "/>" : ">");
+      + (xhtml ? "/>" : ">") + "\n";
 
     if (app->environment().agentIsIE())
       styleSheets += "<link href=\""
 	+ WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
 	+ "/wt_ie.css\" rel=\"stylesheet\" type=\"text/css\""
-	+ (xhtml ? "/>" : ">");
+	+ (xhtml ? "/>" : ">") + "\n";
 
     if (app->environment().agent() == WEnvironment::IE6)
       styleSheets += "<link href=\""
 	+ WApplication::resourcesUrl() + "/themes/" + app->cssTheme()
 	+ "/wt_ie6.css\" rel=\"stylesheet\" type=\"text/css\""
-	+ (xhtml ? "/>" : ">");
+	+ (xhtml ? "/>" : ">") + "\n";
   }
 
   for (unsigned i = 0; i < app->styleSheets_.size(); ++i) {
     styleSheets += "<link href=\""
-      + app->fixRelativeUrl(app->styleSheets_[i]) 
-      + "\" rel=\"stylesheet\" type=\"text/css\"" + (xhtml ? "/>" : ">")
-      + '\n';
+      + app->fixRelativeUrl(app->styleSheets_[i].uri) 
+      + "\" rel=\"stylesheet\" type=\"text/css\"";
+
+    if (!app->styleSheets_[i].media.empty()
+	&& app->styleSheets_[i].media != "all")
+      styleSheets += " media=\"" + app->styleSheets_[i].media + '"';
+
+    styleSheets += xhtml ? "/>" : ">";
+    styleSheets += "\n";
   }
   app->styleSheetsAdded_ = 0;
 
@@ -920,7 +926,8 @@ void WebRenderer::loadStyleSheets(std::ostream& out, WApplication *app)
 
   for (unsigned i = first; i < app->styleSheets_.size(); ++i) {
     out << WT_CLASS << ".addStyleSheet('"
-	<< app->fixRelativeUrl(app->styleSheets_[i]) << "');\n";
+	<< app->fixRelativeUrl(app->styleSheets_[i].uri) << "', '"
+	<< app->styleSheets_[i].media << "');\n";
   }
 
   app->styleSheetsAdded_ = 0;

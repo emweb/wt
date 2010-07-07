@@ -112,7 +112,7 @@ public:
    *
    * This returns the field list from the underlying query.
    */
-  const std::vector<FieldInfo>& fields();
+  const std::vector<FieldInfo>& fields() const;
 
 private:
   std::vector<QueryColumn> columns_;

@@ -258,12 +258,16 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   }
 
   if (flags_.test(BIT_ENABLED_CHANGED) || all) {
-    element.setProperty(Wt::PropertyDisabled, isEnabled() ? "false" : "true");
+    if (!all || !isEnabled())
+      element.setProperty(Wt::PropertyDisabled,
+			  isEnabled() ? "false" : "true");
     flags_.reset(BIT_ENABLED_CHANGED);
   }
 
   if (flags_.test(BIT_READONLY_CHANGED) || all) {
-    element.setProperty(Wt::PropertyReadOnly, isReadOnly() ? "true" : "false");
+    if (!all || isReadOnly())
+      element.setProperty(Wt::PropertyReadOnly,
+			  isReadOnly() ? "true" : "false");
     flags_.reset(BIT_READONLY_CHANGED);
   }
 

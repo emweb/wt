@@ -1206,9 +1206,10 @@ void WTableView::computeRenderedArea()
 
     int renderedRows = static_cast<int>(height / rowHeight().toPixels() + 0.5);
 
-    renderedLastRow_
-      = std::min(renderedFirstRow_ + renderedRows * 2 + borderRows,
-		 model()->rowCount(rootIndex()) - 1);
+    if (model())
+      renderedLastRow_
+	= std::min(renderedFirstRow_ + renderedRows * 2 + borderRows,
+		   model()->rowCount(rootIndex()) - 1);
     renderedFirstRow_
       = std::max(renderedFirstRow_ - renderedRows - borderRows, 0);
 
@@ -1236,7 +1237,8 @@ void WTableView::computeRenderedArea()
       total += w + 7;
     }
 
-    assert(renderedFirstColumn_ <= renderedLastColumn_);
+    assert(renderedLastColumn_ == -1
+	   || renderedFirstColumn_ <= renderedLastColumn_);
   } else { // Plain HTML
     renderedFirstColumn_ = 0;
     if (model()) {

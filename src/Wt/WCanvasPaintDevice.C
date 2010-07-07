@@ -121,10 +121,10 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
 
 void WCanvasPaintDevice::init()
 {
-  currentBrush_ = painter()->brush();
-  currentPen_ = painter()->pen();
-  currentShadow_ = painter()->shadow();
-  currentFont_ = painter()->font();
+  currentBrush_ = WBrush();
+  currentPen_ = WPen();
+  currentShadow_ = WShadow();
+  currentFont_ = WFont();
   currentTextVAlign_ = currentTextHAlign_ = AlignLength;
 
   changeFlags_ = Transform | Pen | Brush | Shadow | Font;

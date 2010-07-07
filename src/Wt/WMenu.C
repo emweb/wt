@@ -204,7 +204,6 @@ void WMenu::removeItem(WMenuItem *item)
   int itemIndex = indexOf(item);
 
   if (itemIndex != -1) {
-    WMenuItem *item = items_[itemIndex];
     items_.erase(items_.begin() + itemIndex);
 
     if (renderAsList_) {

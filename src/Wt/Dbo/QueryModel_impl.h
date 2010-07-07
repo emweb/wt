@@ -190,6 +190,12 @@ int QueryModel<Result>::getFieldIndex(const std::string& field)
   throw Exception("QueryModel: could not find field: '" + field + "'");
 }
 
+template <class Result>
+const std::vector<FieldInfo>& QueryModel<Result>::fields() const
+{
+  return fields_;
+}
+
   }
 }
 

@@ -267,29 +267,61 @@ this.scrollIntoView = function(id) {
     obj.scrollIntoView(true);
 };
 
-this.getSelectionRange = function(e) {
-  if (document.selection) {
-    var range = document.selection.createRange();
-    var stored_range = range.duplicate();
-    stored_range.moveToElementText(e);
-    stored_range.setEndPoint('EndToEnd', range);
-    var selectionStart = stored_range.text.length - range.text.length;
+this.getSelectionRange = function(elem) {
+/*
+ * jQuery Caret Range plugin
+ * Copyright (c) 2009 Matt Zabriskie
+ * Released under the MIT and GPL licenses.
+ */
+  var start, end;
 
-    return { start: selectionStart, end: (selectionStart + range.text.length) };
-  } else
-    return { start: e.selectionStart, end: e.selectionEnd };
+  if (elem.selectionStart != undefined) {
+    start = elem.selectionStart;
+    end = elem.selectionEnd;
+  }
+  else if (document.selection) {
+    var val = $(elem).val();
+    var range = document.selection.createRange().duplicate();
+    range.moveEnd("character", val.length);
+    start = (range.text == "" ? val.length : val.lastIndexOf(range.text));
+
+    range = document.selection.createRange().duplicate();
+    range.moveStart("character", -val.length);
+    end = range.text.length;
+  }
+
+  //console.log("xxx");
+
+  return {start:start, end:end};
 };
 
-this.setSelectionRange = function(e, start, end) {
-  if (e.createTextRange) {
-    var range = e.createTextRange();
+this.setSelectionRange = function(elem, start, end) {
+/*
+ * jQuery Caret Range plugin
+ * Copyright (c) 2009 Matt Zabriskie
+ * Released under the MIT and GPL licenses.
+ */
+  var val = $(elem).val();
+
+  if (typeof start != "number") start = -1;
+  if (typeof end != "number") end = -1;
+  if (start < 0) start = 0;
+  if (end > val.length) end = val.length;
+  if (end < start) end = start;
+  if (start > end) start = end;
+
+  elem.focus();
+
+  if (elem.selectionStart != undefined) {
+    elem.selectionStart = start;
+    elem.selectionEnd = end;
+  }
+  else if (document.selection) {
+    var range = elem.createTextRange();
     range.collapse(true);
-    range.moveEnd('character', end);
-    range.moveStart('character', start);
+    range.moveStart("character", start);
+    range.moveEnd("character", end - start);
     range.select();
-  } else if (e.setSelectionRange) {
-    e.focus();
-    e.setSelectionRange(start, end);
   }
 };
 
@@ -563,7 +595,7 @@ this.removeCssRule = function(selector) {
   return WT.getCssRule(selector, 'delete');
 };
 
-this.addStyleSheet = function(uri) {
+this.addStyleSheet = function(uri, media) {
   if (document.createStyleSheet) {
     setTimeout(function() { document.createStyleSheet(uri); }, 15);
   } else {
@@ -572,6 +604,8 @@ this.addStyleSheet = function(uri) {
     s.setAttribute('href', uri);
     s.setAttribute('type','text/css');
     s.setAttribute('rel','stylesheet');
+    if (media != '' && media != 'all')
+      s.setAttribute('media', media);
     var h = document.getElementsByTagName('head')[0];
     h.appendChild(s);
   }

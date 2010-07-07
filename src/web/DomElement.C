@@ -589,6 +589,7 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
       "var g = event||window.event; "
       "var t = g.target||g.srcElement;"
       "if ((!t||" WT_CLASS ".hasTag(t,'DIV') "
+      ""     "||" WT_CLASS ".hasTag(t,'BODY') "
       ""     "||" WT_CLASS ".hasTag(t,'HTML'))) { "; 
     extra2 =
       "}";

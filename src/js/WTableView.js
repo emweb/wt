@@ -199,20 +199,20 @@ WT_DECLARE_WT_MEMBER
 
        switch (event.keyCode) {
 	 case rightKey:
-	   if (currentEl.nodeName == 'input'
-	       && currentEl.getAttribute('type') == 'text') {
+	 if (WT.hasTag(currentEl,'INPUT')
+	       && currentEl.type == 'text') {
 	     var range = WT.getSelectionRange(currentEl);
-	     if (range.start !=  currentEl.value.length)
+	     if (range.start != currentEl.value.length)
 	       return;
 	   }
 	   coli++; break;
 	 case upKey:
 	   rowi--; break;
 	 case leftKey:
-	   if (currentEl.nodeName == 'input'
-	       && currentEl.getAttribute('type') == 'text') {
+	   if (WT.hasTag(currentEl,'INPUT')
+	       && currentEl.type == 'text') {
 	     var range = WT.getSelectionRange(currentEl);
-	     if (range.start !=  0)
+	     if (range.start != 0)
 	       return;
 	   }
 	   coli--; break;

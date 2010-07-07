@@ -212,7 +212,7 @@ public:
 
   /*! \brief Enables the item.
    *
-   * This calls \link setEnabled() setEnabled(true)\endlink.
+   * This calls \link setDisabled() setDisabled(false)\endlink.
    *
    * \sa disable()
    */
@@ -220,7 +220,7 @@ public:
 
   /*! \brief Disables the item.
    *
-   * This calls \link setEnabled() setEnabled(false)\endlink.
+   * This calls \link setDisabled() setDisabled(true)\endlink.
    *
    * \sa enable()
    */
