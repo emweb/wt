@@ -653,6 +653,9 @@ void WCanvasPaintDevice::renderStateChanges()
 
 	  resetTransform = false;
 	}
+      } else if (!resetTransform) {
+	pathTranslation_.setX(0);
+	pathTranslation_.setY(0);
       }
 
       if (resetTransform) {

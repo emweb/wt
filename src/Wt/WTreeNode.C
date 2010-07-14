@@ -549,7 +549,10 @@ void WTreeNode::update()
 #ifndef WT_TARGET_JAVA
 bool WTreeNode::hasParent() const
 {
-  return parentNode_;
+  if (parentNode_)
+    return true;
+  else
+    return WCompositeWidget::hasParent();
 }
 #endif //WT_TARGET_JAVA
 

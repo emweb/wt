@@ -49,7 +49,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
     // add a single entry point, at the default location (as determined
     // by the server configuration's deploy-path)
-    server.addEntryPoint(WServer::Application, createApplication);
+    server.addEntryPoint(Wt::Application, createApplication);
     if (server.start()) {
       int sig = WServer::waitForShutdown(argv[0]);
 

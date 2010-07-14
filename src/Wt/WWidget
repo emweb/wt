@@ -985,6 +985,8 @@ protected:
   virtual bool needsToBeRendered() const = 0;
   bool isInLayout() const;
 
+  virtual bool hasParent() const;
+
 private:
   /*
    * Booleans packed in a bitset.
@@ -992,11 +994,13 @@ private:
   static const int BIT_WAS_HIDDEN = 0;
   static const int BIT_WAS_DISABLED = 1;
   static const int BIT_NEED_RERENDER = 2;
-  std::bitset<3> flags_;
+  static const int BIT_HAS_PARENT = 3;
+  std::bitset<4> flags_;
 
   JSignal<int, int> *resized_;
   EventSignalList eventSignals_;
 
+  void setHasParent(bool hasParent);
   void setJsSize();
   void undoHideShow();
   void undoDisableEnable();

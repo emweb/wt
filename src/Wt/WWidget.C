@@ -403,4 +403,19 @@ void WWidget::setTabOrder(WWidget *first, WWidget *second)
   second->setTabIndex(first->tabIndex() + 1);
 }
 
+void WWidget::setHasParent(bool hasParent)
+{
+  flags_.set(BIT_HAS_PARENT, hasParent);
+
+  setParent(parent()); // since hasParent() has changed
+}
+
+bool WWidget::hasParent() const
+{
+  if (flags_.test(BIT_HAS_PARENT))
+    return true;
+  else
+    return WObject::hasParent();
+}
+
 }

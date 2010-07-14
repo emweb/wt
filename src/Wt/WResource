@@ -69,7 +69,7 @@ namespace Wt {
  *
  * protected:
  *   void handleRequest(const Wt::Http::Request& request,
- *                      const Wt::Http::Response& response) {
+ *                      Wt::Http::Response& response) {
  *     response.setMimeType("plain/text");
  *     response.out() << "I am a text file." << std::endl;
  *   }

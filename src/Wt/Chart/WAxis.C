@@ -425,7 +425,7 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 
     if (findMinimum || findMaximum) {
       double minimum = std::numeric_limits<double>::max();
-      double maximum = std::numeric_limits<double>::min();
+      double maximum = -std::numeric_limits<double>::max();
 
       if (axis_ == XAxis) {
 	int dataColumn = chart_->XSeriesColumn();
@@ -456,6 +456,8 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
       if (minimum == std::numeric_limits<double>::max()) {
 	if (scale_ == LogScale)
 	  minimum = 1;
+	else if (scale_ == DateScale)
+	  minimum = WDate::currentDate().toJulianDay() - 10;
 	else
 	  minimum = 0;
       }
@@ -463,6 +465,8 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
       if (maximum == -std::numeric_limits<double>::max()) {
 	if (scale_ == LogScale)
 	  maximum = 10;
+	else if (scale_ == DateScale)
+	  maximum = WDate::currentDate().toJulianDay();
 	else
 	  maximum = 100;
       }

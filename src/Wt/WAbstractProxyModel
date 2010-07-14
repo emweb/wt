@@ -70,6 +70,11 @@ public:
    */
   WAbstractItemModel *sourceModel() const { return sourceModel_; }
 
+#ifndef DOXYGEN_ONLY
+  using WAbstractItemModel::setData;
+  using WAbstractItemModel::data;
+  using WAbstractItemModel::setHeaderData;
+
   virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
     const;
   virtual bool setData(const WModelIndex& index, const boost::any& value,
@@ -94,13 +99,7 @@ public:
 
   virtual void *toRawIndex(const WModelIndex& index) const;
   virtual WModelIndex fromRawIndex(void *rawIndex) const;
-
-  using WAbstractItemModel::setData;
-  using WAbstractItemModel::data;
-
-#ifndef WT_CNOR
-  using WAbstractItemModel::setHeaderData;
-#endif // WT_CNOR
+#endif // DOXYGEN_ONLY
 
 protected:
   /*! \brief Create a source model index.

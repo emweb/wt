@@ -1,3 +1,9 @@
+14-07-2010:
+	* resizable layout managers: reset total width percentage of all
+	remaining columns to 100
+
+	* WCanvasPaintDevice: fix transformation bug
+
 07-07-2010:
 	* examples/feature/serverPush: fix WIN32 build problem
 

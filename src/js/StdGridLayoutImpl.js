@@ -381,6 +381,33 @@ WT_DECLARE_WT_MEMBER
      window.onresize();
    }
 
+   function adjustTo100() {
+     var ci, totalPct = 0;
+
+     for (ci = 0; ; ++ci) {
+       var c = getColumn(ci);
+
+       if (c)
+	 totalPct += WT.pctself(c, 'width');
+       else
+	 break;
+     }
+
+     if (totalPct == 0)
+       return;
+
+     for (ci = 0; ; ++ci) {
+       var c = getColumn(ci);
+
+       if (c) {
+	 var pct = WT.pctself(c, 'width');
+	 if (pct)
+	   c.style.width = (pct*100/totalPct) + '%';
+       } else
+	 break;
+     }
+   }
+
    function doneColResize(td, ci, delta) {
      var col = getColumn(ci),
          colw = getColumnWidth(col, ci),
@@ -388,8 +415,10 @@ WT_DECLARE_WT_MEMBER
 	 colnw = getColumnWidth(coln, ci + 1);
 
      if (WT.pctself(col, 'width') > 0
-         && WT.pctself(coln, 'width') > 0)
+         && WT.pctself(coln, 'width') > 0) {
        col.style.width = '';
+       adjustTo100();
+     }
 
      if (WT.pctself(col, 'width') == 0)
        adjustColumn(ci, colw + delta);

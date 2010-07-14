@@ -178,6 +178,8 @@ public:
    */
   void appendRow(const std::vector<WStandardItem *>& items);
 
+  using WAbstractItemModel::insertRow;
+
   /*! \brief Inserts a single row of top level items.
    *
    * Inserts a single row of top level \p items at row
@@ -191,8 +193,6 @@ public:
    * \sa WStandardItem::insertRow()
    */
   void insertRow(int row, const std::vector<WStandardItem *>& items);
-
-  using WAbstractItemModel::insertRow;
 
   /*! \brief Appends a single row containing a single item.
    *
@@ -319,6 +319,10 @@ public:
   WStandardItem *takeItem(int row, int column = 0);
 
 #ifndef DOXYGEN_ONLY
+  using WAbstractItemModel::setData;
+  using WAbstractItemModel::data;
+  using WAbstractItemModel::setHeaderData;
+
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
 
   virtual WModelIndex parent(const WModelIndex& index) const;
@@ -348,12 +352,6 @@ public:
 		       int role = EditRole);
   virtual bool setHeaderData(int section, Orientation orientation,
 			     const boost::any& value, int role = EditRole);
-  using WAbstractItemModel::setData;
-  using WAbstractItemModel::data;
-
-#ifndef WT_CNOR
-  using WAbstractItemModel::setHeaderData;
-#endif // WT_CNOR
 
   virtual void *toRawIndex(const WModelIndex& index) const;
   virtual WModelIndex fromRawIndex(void *rawIndex) const;
