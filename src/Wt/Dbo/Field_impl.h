@@ -38,7 +38,7 @@ int FieldRef<V>::size() const
 template <typename V>
 std::string FieldRef<V>::sqlType(Session& session) const
 {
-  return sql_value_traits<V>::type(session.connection(), size_);
+  return sql_value_traits<V>::type(session.connection(false), size_);
 }
 
 template <typename V>
@@ -60,11 +60,6 @@ void FieldRef<V>::setValue(Session& session, SqlStatement *statement,
   sql_value_traits<V>::read(value_, statement, column, size_);
 }
 
-template <typename V>
-template <class A>
-void FieldRef<V>::descend(A& action) const
-{ }
-
 template <class C>
 CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
 				RelationType type,
@@ -74,59 +69,57 @@ CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
 { }
 
 template <class C>
-FieldRef< ptr<C> >::FieldRef(ptr<C>& value, const std::string& name)
+PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name, int size)
   : value_(value),
-    name_(std::string(name) + "_id")
+    name_(name),
+    size_(size)
 { }
 
 template <class C>
-const std::string& FieldRef< ptr<C> >::name() const
-{
-  return name_;
-}
-
-template <class C>
-std::string FieldRef< ptr<C> >::sqlType(Session& session) const
-{
-  return std::string("integer references \"")
-    + Impl::quoteSchemaDot(session.tableName<C>()) + "\"(\"id\")";
-}
-
-template <class C>
-const std::type_info *FieldRef< ptr<C> >::type() const
-{
-  return &typeid(long long);
-}
-
-template <class C>
-void FieldRef< ptr<C> >::bindValue(SqlStatement *statement, int column)
-  const
-{
-  if (value_)
-    statement->bind(column, value_.id());
-  else
-    statement->bindNull(column);
-}
-
-template <class C>
-void FieldRef< ptr<C> >::setValue(Session& session,
-				  SqlStatement *statement, int column)
-  const
-{
-  long long id;
-  bool notNull = statement->getResult(column, &id);
-
-  if (notNull)
-    value_ = session.load<C>(id);
-}
-
-template <class C>
 template <class A>
-void FieldRef< ptr<C> >::descend(A& action) const
+void PtrRef<C>::visit(A& action, Session *session) const
 {
-  action.descend(value_);
+  typename dbo_traits<C>::IdType id;
+
+  if (action.setsValue())
+    id = dbo_traits<C>::invalidId();
+  else
+    id = value_.id();
+
+  std::string idFieldName = "stub";
+
+  if (session) {
+    Session::MappingInfo *mapping = session->getMapping<C>();
+    idFieldName = mapping->naturalIdFieldName;
+
+    if (idFieldName.empty())
+      idFieldName = mapping->surrogateIdFieldName;
+  }
+
+  field(action, id, name_ + "_" + idFieldName, size_);
+
+  if (action.setsValue()) {
+    if (!(id == dbo_traits<C>::invalidId())) {
+      if (session)
+	value_ = session->load<C>(id);
+      else
+	throw std::logic_error("Could not load referenced Dbo::ptr, "
+			       "no session?");
+    }
+  }
 }
 
+template <class C>
+const std::type_info *PtrRef<C>::type() const
+{
+  return &typeid(typename dbo_traits<C>::IdType);
+}
+
+template <class A, typename V>
+void id(A& action, V& value, const std::string& name, int size)
+{
+  action.actId(value, name, size);
+}
 
 template <class A, typename V>
 void field(A& action, V& value, const std::string& name, int size)
@@ -135,9 +128,15 @@ void field(A& action, V& value, const std::string& name, int size)
 }
 
 template <class A, class C>
-void belongsTo(A& action, ptr<C>& value, const std::string& name)
+void field(A& action, ptr<C>& value, const std::string& name, int size)
 {
-  action.act(FieldRef<ptr<C> >(value, name));
+  action.actPtr(PtrRef<C>(value, name, size));
+}
+
+template <class A, class C>
+void belongsTo(A& action, ptr<C>& value, const std::string& name, int size)
+{
+  action.actPtr(PtrRef<C>(value, name, size));
 }
 
 template <class A, class C>

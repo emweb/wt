@@ -66,10 +66,18 @@ void Transaction::rollback()
 Transaction::Impl::Impl(Session& session)
   : session_(session),
     active_(true),
+    open_(false),
     transactionCount_(0)
 { 
   connection_ = session_.useConnection();
-  connection_->startTransaction();
+}
+
+void Transaction::Impl::open()
+{
+  if (!open_) {
+    open_ = true;
+    connection_->startTransaction();
+  }
 }
 
 void Transaction::Impl::commit()
@@ -81,7 +89,9 @@ void Transaction::Impl::commit()
     delete objects_[i];
   }
 
-  connection_->commitTransaction();
+  if (open_)
+    connection_->commitTransaction();
+
   session_.returnConnection(connection_);
   session_.transaction_ = 0;
   active_ = false;
@@ -91,7 +101,8 @@ void Transaction::Impl::commit()
 
 void Transaction::Impl::rollback()
 {
-  connection_->rollbackTransaction();
+  if (open_)
+    connection_->rollbackTransaction();
 
   for (unsigned i = 0; i < objects_.size(); ++i) {
     objects_[i]->transactionDone(false);

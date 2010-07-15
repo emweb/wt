@@ -8,6 +8,7 @@
 #define WT_DBO_DBACTION_IMPL_H_
 
 #include <iostream>
+#include <boost/lexical_cast.hpp>
 
 namespace Wt {
   namespace Dbo {
@@ -20,125 +21,74 @@ void persist<C, Enable>::apply(C& obj, A& action)
 }
 
     /*
-     * PrepareStatements
+     * InitSchema
      */
 
 template<class C>
-void PrepareStatements::visitSelf(C& obj)
+void InitSchema::visit(C& obj)
 {
-  pass_ = Self;
-
-  persist<C>::apply(obj, *this);
-}
-
-template<class C>
-void PrepareStatements::visitCollections(C& obj)
-{
-  pass_ = Collections;
+  mapping_.surrogateIdFieldName = dbo_traits<C>::surrogateIdField();
+  mapping_.versionFieldName = dbo_traits<C>::versionField();
 
   persist<C>::apply(obj, *this);
 }
 
 template<typename V>
-void PrepareStatements::act(const FieldRef<V>& field)
+void InitSchema::actId(V& value, const std::string& name, int size)
 {
-  if (pass_ == Self)
-    if (!field.name().empty())
-      fields_.push_back
-	(FieldInfo(field.name(), &typeid(V),
-		   FieldInfo::Mutable | FieldInfo::NeedsQuotes));
-}
+  mapping_.naturalIdFieldName = name;
+  mapping_.naturalIdFieldSize = size;
 
-template<class C>
-void PrepareStatements::actCollection(const CollectionRef<C>& field)
-{
-  if (pass_ == Self) {
-    const char *joinTableName = session_.tableName<C>();
-    std::string joinOtherId = field.type() == ManyToMany
-      ? session_.manyToManyJoinId<C>(field.joinName(), field.joinId())
-      : std::string();
-
-    sets_.push_back(SetInfo(joinTableName, field.type(), field.joinName(),
-			    field.joinId(), joinOtherId));
-  }
-
-  if (pass_ == Collections)
-    session_.prepareStatements<C>();
-}
-
-template<class C>
-void PrepareStatements::descend(ptr<C>& obj)
-{
-}
-
-    /*
-     * CreateSchema
-     */
-
-template<class C>
-void CreateSchema::visit(C& obj)
-{
-  pass_ = Self;
-  persist<C>::apply(obj, *this);
-  exec();
-
-  if (needSetsPass_) {
-    pass_ = Sets;
-    persist<C>::apply(obj, *this);
-  }
+  idField_ = true;
+  field(*this, value, name, size);
+  idField_ = false;
 }
 
 template<typename V>
-void CreateSchema::act(const FieldRef<V>& field)
+void InitSchema::act(const FieldRef<V>& field)
 {
-  switch (pass_) {
-  case Self:
-    if (!field.name().empty()) {
-      sql_ << ",\n  \"" << field.name() << "\" " << field.sqlType(session_);
-      field.descend(*this);
-    } else
-      needSetsPass_ = true;
-
-    break;
-  case Sets:
-    if (field.name().empty())
-      field.descend(*this);
-  }
+  if (idField_) {
+    // Natural id
+    mapping_.fields.push_back
+      (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
+		 FieldInfo::Mutable | FieldInfo::NeedsQuotes
+		 | FieldInfo::NaturalId));
+  } else if (!foreignKeyName_.empty())
+    // Foreign key
+    mapping_.fields.push_back
+      (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
+		 foreignKeyTable_, foreignKeyName_,
+		 FieldInfo::Mutable | FieldInfo::NeedsQuotes
+		 | FieldInfo::ForeignKey));
+  else
+    // Normal field
+    mapping_.fields.push_back
+      (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
+		 FieldInfo::Mutable | FieldInfo::NeedsQuotes));
 }
 
 template<class C>
-void CreateSchema::actCollection(const CollectionRef<C>& field)
+void InitSchema::actPtr(const PtrRef<C>& field)
 {
-  switch (pass_) {
-  case Self:
-    needSetsPass_ = true;
-    break;
+  Session::Mapping<C> *mapping = session_.getMapping<C>();
 
-  case Sets:
-    if (field.type() == ManyToMany) {
-      const char *tableName = session_.tableName<C>();
-      
-      if (tablesCreated_.count(tableName) != 0) {
-	std::string joinOtherId
-	  = session_.manyToManyJoinId<C>(field.joinName(), field.joinId());
+  foreignKeyName_ = field.name();
+  foreignKeyTable_ = mapping->tableName;
 
-	createJoinTable(field.joinName(), tableName, tableName_,
-			joinOtherId, field.joinId());
-      }
-    }
-  }
+  field.visit(*this, &session_);
+
+  foreignKeyName_.clear();
+  foreignKeyTable_.clear();
 }
 
 template<class C>
-void CreateSchema::descend(ptr<C>& obj)
+void InitSchema::actCollection(const CollectionRef<C>& field)
 {
-  const char *tableName = session_.tableName<C>();
+  const char *joinTableName = session_.tableName<C>();
 
-  if (tablesCreated_.count(tableName) == 0) {
-    CreateSchema action(session_, tableName, tablesCreated_);
-    C dummy;
-    action.visit(dummy);
-  }
+  mapping_.sets.push_back
+    (Session::SetInfo(joinTableName, field.type(), field.joinName(),
+		      field.joinId()));
 }
 
     /*
@@ -154,7 +104,15 @@ void DropSchema::visit(C& obj)
 }
 
 template<typename V>
+void DropSchema::actId(V& value, const std::string& name, int size)
+{ }
+
+template<typename V>
 void DropSchema::act(const FieldRef<V>& field)
+{ }
+
+template<class C>
+void DropSchema::actPtr(const PtrRef<C>& field)
 { }
 
 template<class C>
@@ -173,70 +131,124 @@ void DropSchema::actCollection(const CollectionRef<C>& field)
   }
 }
 
+    /*
+     * DboAction
+     */
+
 template<class C>
-void DropSchema::descend(ptr<C>& obj)
+void DboAction::actCollection(const CollectionRef<C>& field)
+{
+  if (dbo_->isPersisted()) {
+    int statementIdx = Session::FirstSqlSelectSet + setStatementIdx_;
+
+    const std::string& sql
+      = dbo_->session()->getStatementSql(mapping_->tableName, statementIdx);
+
+    field.value().setRelationData(dbo_->session(), &sql, dbo_);
+  } else
+    field.value().setRelationData(0, 0, 0);
+
+  if (field.type() == ManyToOne)
+    setStatementIdx_ += 1;
+  else
+    setStatementIdx_ += 3;
+}
+
+    /*
+     * LoadDbAction
+     */
+
+template<typename V>
+void LoadBaseAction::act(const FieldRef<V>& field)
+{
+  field.setValue(*dbo().session(), statement_, column_++);
+}
+
+template<class C>
+void LoadBaseAction::actPtr(const PtrRef<C>& field)
+{
+  field.visit(*this, dbo().session());
+}
+
+template <class C>
+LoadDbAction<C>::LoadDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping,
+			      SqlStatement *statement, int& column)
+  : LoadBaseAction(dbo, mapping, statement, column),
+    dbo_(dbo)
 { }
+
+template<class C>
+void LoadDbAction<C>::visit(C& obj)
+{
+  bool continueStatement = statement_ != 0;
+  Session *session = dbo_.session();
+
+  if (!continueStatement) {
+    statement_ = session->template getStatement<C>(Session::SqlSelectById);
+    statement_->reset();
+
+    int column = 0;
+    dbo_.bindId(statement_, column);
+    statement_->execute();
+
+    if (!statement_->nextRow()) {
+      statement_->done();
+      throw ObjectNotFoundException
+	(boost::lexical_cast<std::string>(dbo_.id()));
+    }
+  }
+
+  start();
+
+  persist<C>::apply(obj, *this);
+
+  if (!continueStatement) {
+    if (statement_->nextRow()) {
+      statement_->done();
+      throw Exception("Dbo load: multiple rows for id "
+		      + boost::lexical_cast<std::string>(dbo_.id()) + " ??");
+    }
+
+    statement_->done();
+  }
+}
+
+template<class C>
+template<typename V>
+void LoadDbAction<C>::actId(V& value, const std::string& name, int size)
+{
+  field(*this, value, name, size);
+
+  dbo_.setId(value);
+}
 
     /*
      * SaveDbAction
      */
 
-template<class C>
-void SaveDbAction::visit(C& obj)
+template<typename V>
+void SaveBaseAction::act(const FieldRef<V>& field)
 {
-  tableName_ = dbo_.session()->template tableName<C>();
-  /*
-   * (1) Dependencies
-   */
-  startDependencyPass();
-  persist<C>::apply(obj, *this);
-
-  /*
-   * (2) Self
-   */
-  if (!statement_) {
-    isInsert_ = dbo_.deletedInTransaction()
-      || (dbo_.isNew() && !dbo_.savedInTransaction());
-
-    statement_ = isInsert_
-      ? dbo_.session()->template getStatement<C>(Session::SqlInsert)
-      : dbo_.session()->template getStatement<C>(Session::SqlUpdate);
-  }
-
-  startSelfPass();
-  persist<C>::apply(obj, *this);
-  exec();
-
-  statement_->done();
-
-  /*
-   * (3) collections:
-   *  - references in select queries (for ManyToOne and ManyToMany)
-   *  - inserts in ManyToMany collections
-   *  - deletes from ManyToMany collections
-   */
-  if (needSetsPass_) {
-    loadSets_.setTableName(tableName_);
-
-    startSetsPass();
-    persist<C>::apply(obj, *this);
+  if (pass_ == Self) {
+    if (bindNull_)
+      statement_->bindNull(column_++);
+    else
+      field.bindValue(statement_, column_++);
   }
 }
 
-template<typename V>
-void SaveDbAction::act(const FieldRef<V>& field)
+template<class C>
+void SaveBaseAction::actPtr(const PtrRef<C>& field)
 {
   switch (pass_) {
   case Dependencies:
-    // First, descend into referenced dbo's (see descend())
-    if (!field.name().empty())
-      field.descend(*this);
+    field.value().flush();
 
     break;
   case Self:
-    // Next, build the sql statement
-    if (!field.name().empty())
-      field.bindValue(statement_, column_++);
+    bindNull_ = !field.value();
+    field.visit(*this, dbo().session());
+    bindNull_ = false;
 
     break;
   case Sets:
@@ -245,7 +257,7 @@ void SaveDbAction::act(const FieldRef<V>& field)
 }
 
 template<class C>
-void SaveDbAction::actCollection(const CollectionRef<C>& field)
+void SaveBaseAction::actCollection(const CollectionRef<C>& field)
 {
   switch (pass_) {
   case Dependencies:
@@ -266,10 +278,10 @@ void SaveDbAction::actCollection(const CollectionRef<C>& field)
 
 	// Sql insert
 	int statementIdx
-	  = Session::FirstSqlSelectSet + loadSets_.setStatementIdx() + 1;
+	  = Session::FirstSqlSelectSet + setStatementIdx() + 1;
 
 	SqlStatement *statement
-	  = dbo_.session()->getStatement(tableName_, statementIdx);
+	  = dbo().session()->getStatement(mapping().tableName, statementIdx);
 
 	for (typename std::set< ptr<C> >::iterator i = inserted.begin();
 	     i != inserted.end(); ++i) {
@@ -277,8 +289,11 @@ void SaveDbAction::actCollection(const CollectionRef<C>& field)
 	  i->flush();
 
 	  statement->reset();
-	  statement->bind(0, dbo_.id());
-	  statement->bind(1, i->id());
+	  int column = 0;
+
+	  dbo().bindId(statement, column);
+	  i->obj()->bindId(statement, column);
+
 	  statement->execute();
 	}
 
@@ -289,7 +304,8 @@ void SaveDbAction::actCollection(const CollectionRef<C>& field)
 	// Sql delete
 	++statementIdx;
 
-	statement = dbo_.session()->getStatement(tableName_, statementIdx);
+	statement = dbo().session()->getStatement(mapping().tableName,
+						  statementIdx);
 
 	for (typename std::set< ptr<C> >::iterator i = erased.begin();
 	     i != erased.end(); ++i) {
@@ -297,8 +313,11 @@ void SaveDbAction::actCollection(const CollectionRef<C>& field)
 	  i->flush();
 
 	  statement->reset();
-	  statement->bind(0, dbo_.id());
-	  statement->bind(1, i->id());
+	  int column = 0;
+
+	  dbo().bindId(statement, column);
+	  i->obj()->bindId(statement, column);
+
 	  statement->execute();
 	}
 
@@ -314,71 +333,86 @@ void SaveDbAction::actCollection(const CollectionRef<C>& field)
       }
     }
 
-    loadSets_.actCollection(field);
+    DboAction::actCollection(field);
   }
 }
 
-template<class C>
-void SaveDbAction::descend(ptr<C>& obj)
-{
-  obj.flush();
-}
-
-    /*
-     * LoadDbAction
-     */
+template <class C>
+SaveDbAction<C>::SaveDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping)
+  : SaveBaseAction(dbo, mapping),
+    dbo_(dbo)
+{ }
 
 template<class C>
-void LoadDbAction::visit(C& obj)
+void SaveDbAction<C>::visit(C& obj)
 {
-  bool continueStatement = statement_ != 0;
-  Session *session = dbo_.session();
-
-  if (!continueStatement) {
-    statement_ = session->template getStatement<C>(Session::SqlSelectById);
-    exec();
-  }
-
-  setTableName(session->template tableName<C>());
-
-  start();
+  /*
+   * (1) Dependencies
+   */
+  startDependencyPass();
   persist<C>::apply(obj, *this);
 
-  if (!continueStatement)
-    done();
+  /*
+   * (2) Self
+   */
+  if (!statement_) {
+    isInsert_ = dbo_.deletedInTransaction()
+      || (dbo_.isNew() && !dbo_.savedInTransaction());
+
+    statement_ = isInsert_
+      ? dbo_.session()->template getStatement<C>(Session::SqlInsert)
+      : dbo_.session()->template getStatement<C>(Session::SqlUpdate);
+  }
+
+  startSelfPass();
+  persist<C>::apply(obj, *this);
+
+  if (!isInsert_) {
+    dbo_.bindId(statement_, column_);
+
+    if (mapping().versionFieldName) {
+      // when saved in the transaction, we will be at version() + 1
+      statement_->bind(column_++, dbo_.version()
+		       + (dbo_.savedInTransaction() ? 1 : 0));
+    }
+  }
+
+  exec();
+
+  if (!isInsert_) {
+    int modifiedCount = statement_->affectedRowCount();
+    if (modifiedCount != 1) {
+      MetaDbo<C>& dbo = static_cast< MetaDbo<C>& >(dbo_);
+      std::string idString = boost::lexical_cast<std::string>(dbo.id());
+
+      throw StaleObjectException(idString, dbo_.version());
+    }
+  }
+
+  statement_->done();
+
+  /*
+   * (3) collections:
+   *  - references in select queries (for ManyToOne and ManyToMany)
+   *  - inserts in ManyToMany collections
+   *  - deletes from ManyToMany collections
+   */
+  if (needSetsPass_) {
+    startSetsPass();
+    persist<C>::apply(obj, *this);
+  }
 }
 
+template<class C>
 template<typename V>
-void LoadDbAction::act(const FieldRef<V>& field)
+void SaveDbAction<C>::actId(V& value, const std::string& name, int size)
 {
-  if (!field.name().empty())
-    field.setValue(*dbo_.session(), statement_, column_++);
+  field(*this, value, name, size);
+
+  /* Later, we may also want to support id changes ? */
+  if (isInsert_)
+    dbo_.setId(value);
 }
-
-template<class C>
-void LoadDbAction::actCollection(const CollectionRef<C>& field)
-{
-  if (dbo_.id() != -1) {
-    if (field.value().id() != dbo_.id()) {
-      int statementIdx = Session::FirstSqlSelectSet + setStatementIdx_;
-
-      const std::string *sql
-	= dbo_.session()->getStatementSql(tableName_, statementIdx);
-
-      field.value().setRelationData(dbo_.session(), sql, dbo_.id());
-    } 
-  } else
-    field.value().setRelationData(0, 0, -1);
-
-  if (field.type() == ManyToOne)
-    ++setStatementIdx_;
-  else
-    setStatementIdx_ += 3;
-}
-
-template<class C>
-void LoadDbAction::descend(ptr<C>& obj)
-{ }
 
     /*
      * TransactionDoneAction
@@ -387,8 +421,13 @@ void LoadDbAction::descend(ptr<C>& obj)
 template<class C>
 void TransactionDoneAction::visit(C& obj)
 {
-  undoLoadSets_.setTableName(session_->template tableName<C>());
   persist<C>::apply(obj, *this);
+}
+
+template<typename V>
+void TransactionDoneAction::actId(V& value, const std::string& name, int size)
+{ 
+  field(*this, value, name, size);
 }
 
 template<typename V>
@@ -396,10 +435,14 @@ void TransactionDoneAction::act(const FieldRef<V>& field)
 { }
 
 template<class C>
+void TransactionDoneAction::actPtr(const PtrRef<C>& field)
+{ }
+
+template<class C>
 void TransactionDoneAction::actCollection(const CollectionRef<C>& field)
 {
   if (!success_)
-    undoLoadSets_.actCollection(field);
+    DboAction::actCollection(field);
 
   if (field.type() == ManyToMany) {
     if (success_)
@@ -418,12 +461,8 @@ void TransactionDoneAction::actCollection(const CollectionRef<C>& field)
   }
 }
 
-template<class C>
-void TransactionDoneAction::descend(ptr<C>& obj)
-{ }
-
     /*
-     * TransactionDoneAction
+     * SessionAddAction
      */
 
 template<class C>
@@ -433,65 +472,37 @@ void SessionAddAction::visit(C& obj)
 }
 
 template<typename V>
+void SessionAddAction::actId(V& value, const std::string& name, int size)
+{ 
+  field(*this, value, name, size);
+}
+
+template<typename V>
 void SessionAddAction::act(const FieldRef<V>& field)
+{ }
+
+template<class C>
+void SessionAddAction::actPtr(const PtrRef<C>& field)
 { }
 
 template<class C>
 void SessionAddAction::actCollection(const CollectionRef<C>& field)
 {
   if (field.value().session() != session_)
-    field.value().setRelationData(session_, 0, -1);
+    field.value().setRelationData(session_, 0, 0);
 
   // FIXME: cascade add ?
 }
-
-template<class C>
-void SessionAddAction::descend(ptr<C>& obj)
-{ 
-  // FIXME: cascade add ?
-}
-
-    /*
-     * GetManyToManyJoinIdAction
-     */
-
-template<class C>
-void GetManyToManyJoinIdAction::visit(C& obj)
-{
-  persist<C>::apply(obj, *this);
-}
-
-template<typename V>
-void GetManyToManyJoinIdAction::act(const FieldRef<V>& field)
-{ }
-
-template<class C>
-void GetManyToManyJoinIdAction::actCollection(const CollectionRef<C>& field)
-{
-  if (found_)
-    return;
-
-  if (field.type() == ManyToMany) {
-    // second check make sure we find the other id if Many-To-Many between
-    // same table
-    if (field.joinName() == joinName_
-	&& (result_.empty() || field.joinId() != result_)) {
-      result_ = field.joinId();
-      found_ = true;
-    }
-  }
-}
-
-template<class C>
-void GetManyToManyJoinIdAction::descend(ptr<C>& obj)
-{ }
-
 
 template<class C>
 void ToAnysAction::visit(const ptr<C>& obj)
 {
+  session_ = obj.obj()->session();
+
   result_.push_back(obj.id());
-  result_.push_back(obj.version());
+
+  if (dbo_traits<C>::versionField())
+    result_.push_back(obj.version());
   
   persist<C>::apply(const_cast<C&>(*obj), *this);
 }
@@ -524,13 +535,15 @@ void ToAnysAction::act(const FieldRef<V>& field)
 }
 
 template<class C>
-void ToAnysAction::actCollection(const CollectionRef<C>& field)
+void ToAnysAction::actPtr(const PtrRef<C>& field)
 {
+  field.visit(*this, session_);
 }
 
 template<class C>
-void ToAnysAction::descend(ptr<C>& obj)
-{ }
+void ToAnysAction::actCollection(const CollectionRef<C>& field)
+{
+}
 
   }
 }

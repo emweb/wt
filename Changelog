@@ -1,3 +1,11 @@
+15-07-2010:
+	* Wt::Dbo: adds support for natural keys, including composite
+	keys, custom id and version field names, and foreign key
+	constraint definition that is compatible with mysql's broken sql.
+
+	* Wt::Dbo: Dbo base class is now changed to Dbo<C> template
+	class to take into account customizable id type.
+
 14-07-2010:
 	* resizable layout managers: reset total width percentage of all
 	remaining columns to 100

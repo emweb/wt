@@ -8,6 +8,8 @@
 
 namespace Wt {
 
+#ifndef DOXYGEN_ONLY
+
 WAbstractProxyModel::WAbstractProxyModel(WObject *parent)
   : WAbstractItemModel(parent),
     sourceModel_(0)
@@ -102,5 +104,7 @@ WModelIndex WAbstractProxyModel::createSourceIndex(int row, int column,
 {
   return sourceModel_->createIndex(row, column, ptr);
 }
+
+#endif // DOXYGEN_ONLY
 
 }

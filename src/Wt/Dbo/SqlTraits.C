@@ -11,11 +11,27 @@ namespace Wt {
 
 FieldInfo::FieldInfo(const std::string& name,
 		     const std::type_info *type,
+		     const std::string& sqlType,
 		     int flags)
   : name_(name),
+    sqlType_(sqlType),
     type_(type),
     flags_(flags)
 { }
+
+FieldInfo::FieldInfo(const std::string& name, const std::type_info *type,
+		     const std::string& sqlType,
+		     const std::string& foreignKeyTable,
+		     const std::string& foreignKeyName,
+		     int flags)
+  : name_(name),
+    sqlType_(sqlType),
+    foreignKeyName_(foreignKeyName),
+    foreignKeyTable_(foreignKeyTable),
+    type_(type),
+    flags_(flags)
+{ }
+
 
 void FieldInfo::setQualifier(const std::string& qualifier)
 {
@@ -27,7 +43,7 @@ std::string FieldInfo::sql() const
   std::string result;
 
   if (!qualifier_.empty())
-    result = '"' + qualifier_ + "\".";
+    result = qualifier_ + ".";
 
   if (needsQuotes())
     result += '"' + name() + '"';

@@ -14,6 +14,7 @@
 
 #include <Wt/Dbo/ptr>
 #include <Wt/Dbo/collection>
+#include <Wt/Dbo/Field>
 #include <Wt/Dbo/Query>
 #include <Wt/Dbo/Transaction>
 
@@ -35,7 +36,7 @@ template <typename Result, typename BindStrategy> class Query;
 struct DirectBinding;
 struct DynamicBinding;
 
-/*! \class Session Wt/Dbo/Session Wt/DboSession
+/*! \class Session Wt/Dbo/Session Wt/Dbo/Session
  *  \brief A database session.
  *
  * A database session manages meta data about the mapping of C++
@@ -137,7 +138,7 @@ public:
    *
    * \sa ptr::id()
    */
-  template <class C> ptr<C> load(long long id);
+  template <class C> ptr<C> load(const typename dbo_traits<C>::IdType& id);
 
 #ifndef DOXYGEN_ONLY
   template <class C>
@@ -310,26 +311,6 @@ public:
 private:
   Session(const Session& s);
 
-  struct DboKey {
-    const char *table;
-    long long id;
-
-    bool operator<(const DboKey& other) const {
-      return id < other.id ? true
-	: (id > other.id ? false : table < other.table);
-    }
-
-    DboKey(const char *aTable, long long anId)
-      : table(aTable),
-	id(anId)
-    { }
-
-    DboKey()
-      : table(0), id(0)
-    { }
-  };
-
-  typedef std::map<DboKey, MetaDboBase *> Registry;
   typedef std::set<MetaDboBase *> MetaDboBaseSet;
 
   enum {SqlInsert = 0,
@@ -339,44 +320,100 @@ private:
 	SqlSelectById = 4,
 	FirstSqlSelectSet = 5};
 
-  struct WTDBO_API ClassMappingInfo {
+  struct JoinId {
+    std::string joinIdName;
+    std::string tableIdName;
+    std::string sqlType;
+
+    JoinId(const std::string& aJoinIdName,
+	   const std::string& aTableIdName,
+	   const std::string& aSqlType);
+  };
+
+  struct WTDBO_API SetInfo {
     const char *tableName;
+    std::string joinName;
+    std::string joinSelfId, joinOtherId;
+    RelationType type;
+
+    SetInfo(const char *aTableName, RelationType type,
+	    const std::string& aJoinName,
+	    const std::string& aJoinSelfId);
+  };
+
+  struct WTDBO_API MappingInfo {
+    bool initialized_;
+    const char *tableName;
+    const char *versionFieldName;
+    const char *surrogateIdFieldName;
+
+    std::string naturalIdFieldName; // for non-auto generated id
+    int naturalIdFieldSize;         // for non-auto generated id
+
     std::vector<FieldInfo> fields;
+    std::vector<SetInfo> sets;
+
     std::vector<std::string> statements;
 
-    virtual ~ClassMappingInfo();
-    virtual void createTable(Session& session,
-			     std::set<std::string>& tablesCreated) = 0;
+    MappingInfo();
+    virtual ~MappingInfo();
+    virtual void init(Session& session);
     virtual void dropTable(Session& session,
-			   std::set<std::string>& tablesDropped) = 0;
-    virtual void prepareStatements(Session& session) = 0;
+			   std::set<std::string>& tablesDropped);
+
+    std::string primaryKeys() const;
   };
 
   template <class C>
-  struct ClassMapping : public ClassMappingInfo
+  struct Mapping : public MappingInfo
   {
-    virtual void createTable(Session& session,
-			     std::set<std::string>& tablesCreated);
+    typedef std::map<typename dbo_traits<C>::IdType, MetaDbo<C> *> Registry;
+    Registry registry_;
+
+    virtual ~Mapping();
+    virtual void init(Session& session);
     virtual void dropTable(Session& session,
 			   std::set<std::string>& tablesDropped);
-    virtual void prepareStatements(Session& session);
   };
 
-  typedef std::map<const std::type_info *, ClassMappingInfo *> ClassRegistry;
-  typedef std::map<std::string, ClassMappingInfo *> TableRegistry;
-  
+  typedef std::map<const std::type_info *, MappingInfo *> ClassRegistry;
+  typedef std::map<std::string, MappingInfo *> TableRegistry;
+
   ClassRegistry      classRegistry_;
   TableRegistry      tableRegistry_;
-  Registry           registry_;
+  bool               schemaInitialized_;
+
   MetaDboBaseSet     dirtyObjects_;
   SqlConnection     *connection_;
   SqlConnectionPool *connectionPool_;
   Transaction::Impl *transaction_;
 
+  void initSchema() const;
+  void resolveJoinIds(MappingInfo *mapping);
+  void prepareStatements(MappingInfo *mapping);
+  std::vector<JoinId> getJoinIds(MappingInfo *mapping, 
+				 const std::string& joinId);
+
+  void createTable(MappingInfo *mapping);
+  void createRelations(MappingInfo *mapping,
+		       std::set<std::string>& joinTablesCreated);
+  void createJoinTable(const std::string& joinName,
+		       MappingInfo *mapping1, MappingInfo *mapping2,
+		       const std::string& joinId1,
+		       const std::string& joinId2);
+  void addJoinTableFields(MappingInfo& joinTableMapping,
+			  MappingInfo *mapping, const std::string& joinId,
+			  const std::string& foreignKeyName);
+  void createJoinIndex(MappingInfo& joinTableMapping,
+		       MappingInfo *mapping,
+		       const std::string& joinId,
+		       const std::string& foreignKeyName);
+
   void needsFlush(MetaDboBase *dbo);
 
-  template <class C> ptr<C> load(long long id, SqlStatement *statement,
-				 int& column);
+  template <class C> Mapping<C> *getMapping() const;
+  MappingInfo *getMapping(const char *tableName) const;
+  template <class C> ptr<C> load(SqlStatement *statement, int& column);
 
   void prune(MetaDboBase *obj);
   template <class C> void prune(MetaDbo<C> *obj);
@@ -384,15 +421,15 @@ private:
   template<class C> void implSave(MetaDbo<C>& dbo);
   template<class C> void implDelete(MetaDbo<C>& dbo);
   template<class C> void implTransactionDone(MetaDbo<C>& dbo, bool success);
-  template<class C> C *implLoad(MetaDboBase& dbo, SqlStatement *statement,
-				int& column);
+  template<class C> void implLoad(MetaDbo<C>& dbo, SqlStatement *statement,
+				  int& column);
 
   static std::string statementId(const char *table, int statementIdx);
 
   template <class C> SqlStatement *getStatement(int statementIdx);
   SqlStatement *getStatement(const std::string& id);
   SqlStatement *getStatement(const char *tableName, int statementIdx);
-  const std::string *getStatementSql(const char *tableName, int statementIdx);
+  const std::string& getStatementSql(const char *tableName, int statementIdx);
 
   SqlStatement *prepareStatement(const std::string& id,
 				 const std::string& sql);
@@ -402,28 +439,31 @@ private:
   template <class C> std::string manyToManyJoinId(const std::string& joinName,
 						  const std::string& notId);
 
-  void doDelete(SqlStatement *statement, long long id, bool withVersion,
-		int version);
-
   SqlConnection *useConnection();
   void returnConnection(SqlConnection *connection);
-  SqlConnection *connection();
+  SqlConnection *connection(bool openTransaction);
 
+  friend class MetaDboBase;
   template <class C> friend class MetaDbo;
+
   template <class C> friend class collection;
   template <class C, typename S> friend class Query;
   template <typename V> friend class FieldRef;
   template <class C> friend struct query_result_traits;
-
   friend class Call;
   friend class Transaction;
   friend struct Transaction::Impl;
-  friend class PrepareStatements;
-  friend class SaveDbAction;
-  friend class LoadDbAction;
-  friend class CreateSchema;
+
+  friend class CollectionHelper;
+  friend class InitSchema;
+  friend class DboAction;
+  friend class SaveBaseAction;
+  template <class C> friend class SaveDbAction;
+  friend class LoadBaseAction;
+  template <class C> friend class LoadDbAction;
+  template <class C> friend class PtrRef;
+  friend class TransactionDoneAction;
   friend class DropSchema;
-  friend class MetaDboBase;
 };
 
   }

@@ -84,20 +84,6 @@ void MetaDboBase::checkNotOrphaned()
   }
 }
 
-Dbo::Dbo()
-  : meta_(0)
-{ }
-
-long long Dbo::id() const
-{
-  return meta_ ? meta_->id() : -1;
-}
-
-Session *Dbo::session() const
-{
-  return meta_ ? meta_->session() : 0;
-}
-
 ptr_base::~ptr_base()
 { }
 

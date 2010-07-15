@@ -248,7 +248,7 @@ collection<C>::collection()
     type_(RelationCollection)
 {
   data_.relation.sql = 0;
-  data_.relation.id = -1;
+  data_.relation.dbo = 0;
   data_.relation.activity = 0;
 }
 
@@ -296,7 +296,8 @@ SqlStatement *collection<C>::executeStatement() const
   else {
     if (data_.relation.sql) {
       statement = session_->getOrPrepareStatement(*data_.relation.sql);
-      statement->bind(0, data_.relation.id);
+      int column = 0;
+      data_.relation.dbo->bindId(statement, column);
     }
   }
 
@@ -350,7 +351,8 @@ typename collection<C>::size_type collection<C>::size() const
       std::string countSql = "select count(1)" + sql->substr(f);
 
       countStatement = session_->getOrPrepareStatement(countSql);
-      countStatement->bind(0, data_.relation.id);      
+      int column = 0;
+      data_.relation.dbo->bindId(countStatement, column);
     }
   }
 
@@ -391,9 +393,13 @@ Query<C, DynamicBinding> collection<C>::find() const
     std::size_t f = sql->find(" from ");
     std::size_t w = sql->find(" where ");
     std::string tableName = sql->substr(f + 7, w - f - 8);
-    return Query<C, DynamicBinding>
-      (*session_, tableName, "")
-      .where(sql->substr(w + 7)).bind(data_.relation.id);
+
+    Query<C, DynamicBinding> result = Query<C, DynamicBinding>
+      (*session_, tableName, "").where(sql->substr(w + 7));
+
+    data_.relation.dbo->bindId(result.parameters_);
+
+    return result;
   } else
     return Query<C, DynamicBinding>();
 }
@@ -444,12 +450,12 @@ void collection<C>::resetActivity()
 template <class C>
 void collection<C>::setRelationData(Session *session,
 				    const std::string *sql,
-				    long long id)
+				    MetaDboBase *dbo)
 {
   session_ = session;
 
   data_.relation.sql = sql;
-  data_.relation.id = id;
+  data_.relation.dbo = dbo;
 }
 
   }

@@ -101,15 +101,25 @@ public:
   /*! \brief Flags
    */
   enum Flags {
-    Id = 0x1,         //!< Field is an automatically generated id
-    Version = 0x2,    //!< Field is an optimistic concurrency version field
-    Mutable = 0x4,    //!< Field can be edited
-    NeedsQuotes = 0x8 //!< Field name needs quotes when using in SQL
+    SurrogateId = 0x1, //!< Field is a surrogate id
+    NaturalId = 0x2,   //!< Field is (part of) a natural id
+    Version = 0x4,     //!< Field is an optimistic concurrency version field
+    Mutable = 0x8,     //!< Field can be edited
+    NeedsQuotes = 0x10,//!< Field name needs quotes when using in SQL
+    ForeignKey = 0x20  //!< Field is (part of) a foreign key
   };
 
   /*! \brief Creates a field description.
    */
   FieldInfo(const std::string& name, const std::type_info *type,
+	    const std::string& sqlType, int flags);
+
+  /*! \brief Creates a field description.
+   */
+  FieldInfo(const std::string& name, const std::type_info *type,
+	    const std::string& sqlType,
+	    const std::string& foreignKeyTable,
+	    const std::string& foreignKeyName,
 	    int flags);
 
   /*! \brief Sets a qualifier for the field.
@@ -119,6 +129,10 @@ public:
   /*! \brief Returns the field name.
    */
   const std::string& name() const { return name_; }
+
+  /*! \brief Returns the field SQL type.
+   */
+  const std::string& sqlType() const { return sqlType_; }
 
   /*! \brief Returns the field qualifier.
    */
@@ -130,7 +144,15 @@ public:
 
   /*! \brief Returns whether the field is an Id field.
    */
-  bool isIdField() const { return flags_ & Id; }
+  bool isIdField() const { return flags_ & (SurrogateId | NaturalId); }
+
+  /*! \brief Returns whether the field is a Natural Id field.
+   */
+  bool isNaturalIdField() const { return flags_ & NaturalId; }
+
+  /*! \brief Returns whether the field is a Surroaget Id field.
+   */
+  bool isSurrogateIdField() const { return flags_ & SurrogateId; }
 
   /*! \brief Returns whether the field is a Version field.
    */
@@ -144,10 +166,18 @@ public:
    */
   bool needsQuotes() const { return (flags_ & NeedsQuotes) != 0; }
 
+  /*! \brief Returns whether the field is part of a foreign key.
+   */
+  bool isForeignKey() const { return (flags_ & ForeignKey) != 0; }
+
+  std::string foreignKeyName() const { return foreignKeyName_; }
+  std::string foreignKeyTable() const { return foreignKeyTable_; }
+
   std::string sql() const;
 
 private:
-  std::string name_, qualifier_;
+  std::string name_, sqlType_, qualifier_;
+  std::string foreignKeyName_, foreignKeyTable_;
   const std::type_info *type_;
   int flags_;
 };

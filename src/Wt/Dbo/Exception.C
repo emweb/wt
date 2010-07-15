@@ -15,16 +15,13 @@ Exception::Exception(const std::string& error)
   : std::runtime_error(error)
 { }
 
-StaleObjectException::StaleObjectException(long long id, int version)
-  : Exception("Stale object, id = "
-	      + boost::lexical_cast<std::string>(id)
-	      + ", version = "
+StaleObjectException::StaleObjectException(const std::string& id, int version)
+  : Exception("Stale object, id = " + id + ", version = "
 	      + boost::lexical_cast<std::string>(version))
 { }
 
-ObjectNotFoundException::ObjectNotFoundException(long long id)
-  : Exception("Object not found, id = "
-	      + boost::lexical_cast<std::string>(id))
+ObjectNotFoundException::ObjectNotFoundException(const std::string& id)
+  : Exception("Object not found, id = " + id)
 { }
 
 NoUniqueResultException::NoUniqueResultException()

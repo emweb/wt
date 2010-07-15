@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include <Wt/Dbo/Exception>
+#include <Wt/Dbo/Field>
 #include <Wt/Dbo/SqlStatement>
 
 #ifndef DOXYGEN_ONLY
@@ -202,9 +203,9 @@ void Query<Result, DirectBinding>::prepareStatements() const
 
 namespace Impl {
   template <typename T>
-  void Parameter<T>::bind(SqlStatement *statement, int column)
+  void Parameter<T>::bind(SaveBaseAction& binder)
   {
-    sql_value_traits<T>::bind(v_, statement, column, -1);
+    field(binder, v_, "parameter");
   }
 
   template <typename T>
@@ -381,15 +382,20 @@ template <class Result>
 void Query<Result, DynamicBinding>::bindParameters(SqlStatement *statement)
   const
 {
-  unsigned i = 0;
-  for (; i < parameters_.size(); ++i)
-    parameters_[i]->bind(statement, i);
+  SaveBaseAction binder(statement, 0);
 
-  if (limit_ != -1)
-    statement->bind(i++, limit_);
+  for (unsigned i = 0; i < parameters_.size(); ++i)
+    parameters_[i]->bind(binder);
 
-  if (offset_ != -1)
-    statement->bind(i++, offset_);
+  if (limit_ != -1) {
+    int v = limit_;
+    field(binder, v, "limit");
+  }
+
+  if (offset_ != -1) {
+    int v = offset_;
+    field(binder, v, "offset");
+  }
 }
 
 template <class Result>

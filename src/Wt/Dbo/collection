@@ -11,6 +11,8 @@
 #include <iterator>
 #include <set>
 
+#include <Wt/Dbo/ptr>
+
 namespace Wt {
   namespace Dbo {
     struct DirectBinding;
@@ -308,7 +310,7 @@ namespace Wt {
     // Structure for a relation query
     struct RelationData {
       const std::string *sql;
-      long long id;
+      MetaDboBase *dbo;
       Activity *activity; // only for ManyToMany collections
     };
 
@@ -322,9 +324,10 @@ namespace Wt {
       RelationData relation;
     } data_;
 
+    friend class DboAction;
     friend class SessionAddAction;
-    friend class LoadDbAction;
-    friend class SaveDbAction;
+    friend class LoadBaseAction;
+    friend class SaveBaseAction;
     friend class TransactionDoneAction;
     template <class Result, typename BindStrategy> friend class Query;
 
@@ -332,8 +335,7 @@ namespace Wt {
 	       SqlStatement *countStatement);
 
     void setRelationData(Session *session, const std::string *sql,
-			 long long id);
-    long long id() const { return data_.relation.id; }
+			 MetaDboBase *dbo);
     Activity *activity() const { return data_.relation.activity; }
     void resetActivity();
 

@@ -201,10 +201,14 @@ create table user(
 commit transaction
 ----
 
-As you can see, next to the four columns that map to {cpp} fields,
-Wt::Dbo adds another two columns: +id+ and +version+. The id is a
-surrogate primary key, and version is used for version-based
-optimistic locking.
+As you can see, next to the four columns that map to {cpp} fields, by
+default, Wt::Dbo adds another two columns: +id+ and +version+. The id
+is a surrogate primary key, and version is used for version-based
+optimistic locking. Since Wt 3.1.4, Wt::Dbo you can suppress the
+version field, and provide natural keys of any type instead of the
+surrogate primary key, by specializing the
++{doc}structWt_1_1Dbo_1_1dbo__traits.html[Wt::Dbo::dbo_traits<C>]+ traits class for a
+mapped class.
 
 Finally, we can add a user to the database. All database operations
 happen within a transaction.

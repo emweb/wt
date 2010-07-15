@@ -19,7 +19,10 @@ namespace Wt {
 template <class C>
 void Session::mapClass(const char *tableName)
 {
-  ClassMapping<C> *mapping = new ClassMapping<C>();
+  if (schemaInitialized_)
+    throw std::logic_error("Cannot map tables after schema was initialized.");
+
+  Mapping<C> *mapping = new Mapping<C>();
   mapping->tableName = tableName;
 
   classRegistry_[&typeid(C)] = mapping;
@@ -29,48 +32,19 @@ void Session::mapClass(const char *tableName)
 template <class C>
 SqlStatement *Session::getStatement(int statementIdx)
 {
+  initSchema();
+
   ClassRegistry::iterator i = classRegistry_.find(&typeid(C));
-  ClassMappingInfo *mapping = i->second;
+  MappingInfo *mapping = i->second;
 
   std::string id = statementId(mapping->tableName, statementIdx);
 
   SqlStatement *result = getStatement(id);
 
-  if (!result) {
-    // not yet prepared in this connection
-    if (mapping->statements.empty())
-      mapping->prepareStatements(*this);
-
+  if (!result)
     result = prepareStatement(id, mapping->statements[statementIdx]);
-  }
 
   return result;
-}
-
-template <class C>
-void Session::prepareStatements()
-{
-  ClassRegistry::iterator i = classRegistry_.find(&typeid(C));
-  ClassMappingInfo *mapping = i->second;
-
-  if (mapping->statements.empty())
-      mapping->prepareStatements(*this);
-}
-
-template <class C>
-std::string Session::manyToManyJoinId(const std::string& joinName,
-				      const std::string& notId)
-{
-  GetManyToManyJoinIdAction action(joinName, notId);
-
-  C dummy;
-  action.visit(dummy);
-
-  if (action.found())
-    return action.result();
-  else
-    throw std::logic_error("No reverse mapping found for "
-			   "many-to-many relation '" + joinName + '\'');
 }
 
 template <class C>
@@ -78,41 +52,88 @@ const char *Session::tableName() const
 {
   ClassRegistry::const_iterator i = classRegistry_.find(&typeid(C));
   if (i != classRegistry_.end())
-    return i->second->tableName;
+    return dynamic_cast< Mapping<C> *>(i->second)->tableName;
   else
     throw std::logic_error(std::string("Class ")
 			   + typeid(C).name() + " was not mapped.");
 }
 
 template <class C>
-ptr<C> Session::load(long long id, SqlStatement *statement, int& column)
+Session::Mapping<C> *Session::getMapping() const
 {
-  DboKey key(tableName<C>(), id);
-  Registry::iterator i = registry_.find(key);
+  if (!schemaInitialized_)
+    initSchema();
 
-  if (i == registry_.end()) {
-    MetaDbo<C> *dbo = new MetaDbo<C>(id, -1, MetaDboBase::Persisted, *this, 0);
+  ClassRegistry::const_iterator i = classRegistry_.find(&typeid(C));
+  if (i != classRegistry_.end()) {
+    Session::Mapping<C> *mapping = dynamic_cast< Mapping<C> *>(i->second);
+    if (!mapping->initialized_)
+      mapping->init(*const_cast<Session *>(this));
+    return mapping;
+  } else
+    throw std::logic_error(std::string("Class ")
+			   + typeid(C).name() + " was not mapped.");
+}
 
-    if (statement) {
-      C *obj = implLoad<C>(*dbo, statement, column);
-      dbo->setObj(obj);
+template <class C>
+ptr<C> Session::load(SqlStatement *statement, int& column)
+{
+  Mapping<C> *mapping = getMapping<C>();
+
+  /*
+   * If mapping uses surrogate keys, then we can first read the id and decide
+   * if we already have it.
+   *
+   * If not, then we need to first read the object, get the id, and if we already
+   * had it, delete the redundant copy.
+   */
+  typedef typename dbo_traits<C>::IdType IdType;
+  IdType id;
+
+  if (mapping->naturalIdFieldName.empty()) {
+    /* Auto-generated surrogate key is first field */
+    statement->getResult(column++, &id);
+
+    typename Mapping<C>::Registry::iterator i = mapping->registry_.find(id);
+
+    if (i == mapping->registry_.end()) {
+      MetaDbo<C> *dbo
+	= new MetaDbo<C>(id, -1, MetaDboBase::Persisted, *this, 0);
+      implLoad<C>(*dbo, statement, column);
+
+      mapping->registry_[id] = dbo;
+
+      return ptr<C>(dbo);
+    } else {
+      column += mapping->fields.size() + 1; // + version
+
+      return ptr<C>(i->second);
     }
-
-    registry_[key] = dbo;
-
-    return ptr<C>(dbo);
   } else {
-    ClassRegistry::iterator cc = classRegistry_.find(&typeid(C));
-    ClassMappingInfo *mapping = cc->second;
-    column += mapping->fields.size() + 1; // + version
+    /* Natural id is possibly multiple fields anywhere */
 
-    return ptr<C>(dynamic_cast< MetaDbo<C> *>(i->second));
+    MetaDbo<C> *dbo = new MetaDbo<C>(dbo_traits<C>::invalidId(), -1,
+				     MetaDboBase::Persisted, *this, 0);
+    implLoad<C>(*dbo, statement, column);
+
+    typename Mapping<C>::Registry::iterator i
+      = mapping->registry_.find(dbo->id());
+
+    if (i == mapping->registry_.end()) {
+      mapping->registry_[id] = dbo;
+      return ptr<C>(dbo);
+    } else {
+      delete dbo;
+      return ptr<C>(i->second);
+    }
   }
 }
 
 template <class C>
 ptr<C> Session::add(ptr<C>& obj)
 {
+  initSchema();
+
   if (!transaction_)
     throw std::logic_error("Dbo find(): no active transaction");
 
@@ -137,15 +158,28 @@ ptr<C> Session::add(C *obj)
 }
 
 template <class C>
-ptr<C> Session::load(long long id)
+ptr<C> Session::load(const typename dbo_traits<C>::IdType& id)
 {
-  int column = 0;
-  return load<C>(id, 0, column);
+  initSchema();
+
+  Mapping<C> *mapping = getMapping<C>();
+  typename Mapping<C>::Registry::iterator i = mapping->registry_.find(id);
+
+  if (i == mapping->registry_.end()) {
+    MetaDbo<C> *dbo = new MetaDbo<C>(id, -1, MetaDboBase::Persisted, *this, 0);
+    mapping->registry_[id] = dbo;
+    ptr<C> result(dbo);
+    *result; // Dereference to do actual load or throw exception
+    return result;
+  } else
+    return ptr<C>(i->second);
 }
 
 template <class C, typename BindStrategy>
 Query< ptr<C>, BindStrategy > Session::find(const std::string& where)
 {
+  initSchema();
+
   return Query< ptr<C>, BindStrategy >
     (*this, Impl::quoteSchemaDot(tableName<C>()), where);
 }
@@ -159,14 +193,15 @@ Query<Result> Session::query(const std::string& sql)
 template <class Result, typename BindStrategy>
 Query<Result, BindStrategy> Session::query(const std::string& sql)
 {
+  initSchema();
+
   return Query<Result, BindStrategy>(*this, sql);
 }
 
 template<class C>
 void Session::prune(MetaDbo<C> *obj)
 {
-  DboKey key(tableName<C>(), obj->id());
-  registry_.erase(key);
+  getMapping<C>()->registry_.erase(obj->id());
 
   prune(static_cast<MetaDboBase *>(obj));
 }
@@ -179,9 +214,12 @@ void Session::implSave(MetaDbo<C>& dbo)
 
   transaction_->objects_.push_back(new ptr<C>(&dbo));
 
-  SaveDbAction action(dbo);
+  Session::Mapping<C> *mapping = getMapping<C>();
+
+  SaveDbAction<C> action(dbo, *mapping);
   action.visit(*dbo.obj());
-  registry_[DboKey(tableName<C>(), dbo.id())] = &dbo;
+
+  mapping->registry_[dbo.id()] = &dbo;
 }
 
 template<class C>
@@ -194,12 +232,32 @@ void Session::implDelete(MetaDbo<C>& dbo)
   if (!dbo.savedInTransaction())
     transaction_->objects_.push_back(new ptr<C>(&dbo));
 
+  bool versioned = dbo.obj() != 0;
   SqlStatement *statement
-    = getStatement<C>(dbo.obj() != 0 ? SqlDeleteVersioned : SqlDelete);
+    = getStatement<C>(versioned ? SqlDeleteVersioned : SqlDelete);
 
   // when saved in the transaction, we will be at version() + 1
-  doDelete(statement, dbo.id(), dbo.obj() != 0,
-	   dbo.version() + (dbo.savedInTransaction() ? 1 : 0));
+
+  statement->reset();
+
+  int column = 0;
+  dbo.bindId(statement, column);
+
+  int version = -1;
+  if (versioned) {
+    version = dbo.version() + (dbo.savedInTransaction() ? 1 : 0);
+    statement->bind(column++, version);
+  }
+
+  statement->execute();
+
+  if (versioned) {
+    statement->nextRow();
+    int modifiedCount = statement->affectedRowCount();
+    if (modifiedCount != 1)
+      throw StaleObjectException(boost::lexical_cast<std::string>(dbo.id()),
+				 version);
+  }
 
   statement->done();
 }
@@ -207,36 +265,34 @@ void Session::implDelete(MetaDbo<C>& dbo)
 template<class C>
 void Session::implTransactionDone(MetaDbo<C>& dbo, bool success)
 {
-  TransactionDoneAction action(this, dbo, success);
+  TransactionDoneAction action(dbo, *getMapping<C>(), success);
   action.visit(*dbo.obj());
 }
 
 template <class C>
-C *Session::implLoad(MetaDboBase& dbo, SqlStatement *statement, int& column)
+void Session::implLoad(MetaDbo<C>& dbo, SqlStatement *statement, int& column)
 {
   if (!transaction_)
     throw std::logic_error("Dbo load(): no active transaction");
 
-  LoadDbAction action(dbo, statement, column);
+  LoadDbAction<C> action(dbo, *getMapping<C>(), statement, column);
 
-  C *result = new C();
-  action.visit(*result);
-  return result;
+  C *obj = new C();
+  action.visit(*obj);
+  dbo.setObj(obj);
 }
 
 template <class C>
-void Session::ClassMapping<C>
-::createTable(Session& session, std::set<std::string>& tablesCreated)
+Session::Mapping<C>::~Mapping()
 {
-  if (tablesCreated.count(tableName) == 0) {
-    CreateSchema action(session, tableName, tablesCreated);
-    C dummy;
-    action.visit(dummy);
+  for (typename Registry::iterator i = registry_.begin();
+       i != registry_.end(); ++i) {
+    i->second->setState(MetaDboBase::Orphaned);
   }
 }
 
 template <class C>
-void Session::ClassMapping<C>
+void Session::Mapping<C>
 ::dropTable(Session& session, std::set<std::string>& tablesDropped)
 {
   if (tablesDropped.count(tableName) == 0) {
@@ -247,19 +303,15 @@ void Session::ClassMapping<C>
 }
 
 template <class C>
-void Session::ClassMapping<C>::prepareStatements(Session& session)
+void Session::Mapping<C>::init(Session& session)
 {
-  // the prepare string was not yet created
-  statements.push_back(std::string()); // no longer empty
-  PrepareStatements prepareAction(session, tableName, fields);
+  if (!initialized_) {
+    initialized_ = true;
 
-  C dummy;
-  prepareAction.visitSelf(dummy);
-
-  statements = prepareAction.getSelfSql();
-
-  prepareAction.visitCollections(dummy);
-  prepareAction.addCollectionsSql(statements);
+    InitSchema action(session, *this);
+    C dummy;
+    action.visit(dummy);
+  }
 }
 
   }

@@ -34,8 +34,6 @@ public:
   void bindValue(SqlStatement *statement, int column) const;
   void setValue(Session& session, SqlStatement *statement, int column) const;
 
-  template <typename A> void descend(A& action) const;
-
 private:
   V& value_;
   std::string name_;
@@ -70,26 +68,50 @@ private:
 };
 
 template <class C>
-class FieldRef< ptr<C> >
+class PtrRef
 {
 public:
-  FieldRef(ptr<C>& value, const std::string& name);
+  PtrRef(ptr<C>& value, const std::string& name, int size);
 
-  const std::string& name() const;
+  const std::string& name() const { return name_; }
+  const ptr<C>& value() const { return value_; }
+  typename dbo_traits<C>::IdType id() const { return value_.id(); }
 
-  std::string sqlType(Session& session) const;
   const std::type_info *type() const;
-  long long value() const { return value_.id(); }
 
-  void bindValue(SqlStatement *statement, int column) const;
-  void setValue(Session& session, SqlStatement *statement, int column) const;
-
-  template <typename A> void descend(A& action) const;
+  /*
+   * If session = 0, the visited foreign key fields will not be named
+   * correctly (ok when e.g. reading/writing data)
+   */
+  template <typename A> void visit(A& action, Session *session) const;
 
 private:
   ptr<C>& value_;
   std::string name_;
+  int size_;
 };
+
+/*! \brief Maps a natural primary key (id) field.
+ *
+ * A natural primary key field is optional. If you define one and its
+ * type is not <tt>long long</tt>, you must specialize
+ * Wt::Dbo::dbo_traits to match the type \p V as the IdType for this
+ * class. When not specified for a class, an auto-generated surrogate
+ * key field is used with the name specified by
+ * Wt::Dbo::dbo_traits::surrogateIdField(), which defaults to "id".
+ *
+ * Unlike the default surrogate key, a natural id is not
+ * auto-generated and thus you need to give each object a unique value
+ * when creating a new object.
+ *
+ * The id may be a composite type. In that case, you need to
+ * specialize Wt::Dbo::field().
+ *
+ * \ingroup dbo
+ */
+template <class Action, typename V>
+void id(Action& action, V& value, const std::string& name = "id",
+	int size = -1);
 
 /*! \brief Maps a database object field.
  *
@@ -103,7 +125,7 @@ private:
  *
  * You may want to specialize this method for a particular composite
  * type which should be persisted in multiple database fields but not as
- * a separate table.
+ * a separate table (e.g. for natural composite primary keys, see id()).
  *
  * For example:
  * \code
@@ -115,14 +137,14 @@ private:
  *   namespace Dbo {
  *
  *     template <class Action>
- *     void field(Action& action, Coordinate& coordinate, const std::string& name)
+ *     void field(Action& action, Coordinate& coordinate, const std::string& name, int size = -1)
  *     {
  *       field(action, coordinate.x, name + "_x");
  *       field(action, coordinate.y, name + "_y");
  *     }
  *
- *   } // namespace Wt
- * } // namespace dbo
+ *   } // namespace Dbo
+ * } // namespace Wt
  * \endcode
  *
  * To support a custom type that needs to be persisted as a single
@@ -132,6 +154,10 @@ private:
  */
 template <class Action, typename V>
 void field(Action& action, V& value, const std::string& name, int size = -1);
+
+template <class Action, class C>
+void field(Action& action, ptr<C>& value, const std::string& name,
+	   int size = -1);
 
 /*! \brief Maps the "One"-side of a ManyToOne relation.
  *
@@ -146,7 +172,8 @@ void field(Action& action, V& value, const std::string& name, int size = -1);
  * \ingroup dbo
  */
 template <class Action, class C>
-void belongsTo(Action& action, ptr<C>& value, const std::string& name);
+void belongsTo(Action& action, ptr<C>& value, const std::string& name,
+	       int size = -1);
 
 /*! \brief Maps the "Many"-side of a ManyToOne or ManyToMany relation.
  *

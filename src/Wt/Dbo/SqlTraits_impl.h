@@ -31,7 +31,9 @@ void query_result_traits<Result>::getFields(Session& session,
   std::string name = aliases->front();
   aliases->erase(aliases->begin());
 
-  result.push_back(FieldInfo(name, &typeid(Result), 0));
+  std::string sqlType = "??"; // FIXME, get from session ?
+
+  result.push_back(FieldInfo(name, &typeid(Result), sqlType, 0));
 }
 
 template <typename Result>

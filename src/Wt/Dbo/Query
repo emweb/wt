@@ -9,10 +9,8 @@
 
 #include <vector>
 
-#include <Wt/Dbo/DbAction>
 #include <Wt/Dbo/SqlTraits>
 #include <Wt/Dbo/ptr>
-#include <Wt/Dbo/ptr_tuple>
 #include <Wt/Dbo/collection>
 
 namespace Wt {
@@ -285,37 +283,6 @@ private:
 
   friend class Session;
 };
-
-namespace Impl {
-  struct WTDBO_API ParameterBase {
-    virtual ~ParameterBase();
-    virtual ParameterBase *clone() const = 0;
-    virtual void bind(SqlStatement *statement, int column) = 0;
-  };
-
-  template <typename T>
-  struct Parameter : ParameterBase {
-    Parameter(const T& v) : v_(v) { }
-
-    virtual Parameter<T> *clone() const;
-    virtual void bind(SqlStatement *statement, int column);
-
-  private:
-    T v_;
-  };
-
-  template<int N>
-  struct Parameter<const char [N]> : Parameter<const char *> 
-  {
-    Parameter(char const *v) : Parameter<const char *>(v) { }
-  };
-  template<int N>
-  struct Parameter<char [N]> : Parameter<const char *> 
-  {
-    Parameter(char const *v) : Parameter<const char *>(v) { }
-  };
-
-}
 
 template <class Result>
 class Query<Result, DynamicBinding> : private Impl::QueryBase<Result>

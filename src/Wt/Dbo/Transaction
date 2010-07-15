@@ -110,12 +110,14 @@ private:
   struct Impl {
     Session& session_;
     bool active_;
+    bool open_;
 
     int transactionCount_;
     std::vector<ptr_base *> objects_;
 
     SqlConnection *connection_;
 
+    void open();
     void commit();
     void rollback();
 

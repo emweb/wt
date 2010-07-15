@@ -16,6 +16,7 @@
 #include <Wt/Dbo/collection>
 
 #include <Wt/Dbo/Field>
+#include <Wt/Dbo/Session>
 
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_base_of.hpp>
@@ -31,79 +32,28 @@ struct persist
 
 class SqlStatement;
 
-class WTDBO_API PrepareStatements
+class WTDBO_API InitSchema
 {
 public:
-  PrepareStatements(Session& session, const char *tableName,
-		    std::vector<FieldInfo>& fields);
-
-  template<class C> void visitSelf(C& obj);
-  template<class C> void visitCollections(C& obj);
-
-  template<typename V> void act(const FieldRef<V>& field);
-  template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
-
-  std::vector<std::string> getSelfSql() const;
-  
-  void addCollectionsSql(std::vector<std::string>& statements) const;
-
-  bool isWriting() const;
-  bool isReading() const;
-  bool isSchema() const;
-
-private:
-  struct WTDBO_API SetInfo {
-    const char *tableName;
-    std::string joinName;
-    std::string joinSelfId, joinOtherId;
-    RelationType type;
-
-    SetInfo(const char *aTableName, RelationType type,
-	    const std::string& aJoinName,
-	    const std::string& aJoinSelfId,
-	    const std::string& aJoinOtherId);
-  };
-
-  Session& session_;
-  const char* tableName_;
-
-  enum { Self, Collections } pass_;
-
-  std::vector<FieldInfo>& fields_;
-  std::vector<SetInfo> sets_;
-};
-
-class WTDBO_API CreateSchema
-{
-public:
-  CreateSchema(Session& session, const char *tableName,
-	       std::set<std::string>& tablesCreated);
+  InitSchema(Session& session, Session::MappingInfo& mapping);
 
   template<class C> void visit(C& obj);
 
+  template<typename V> void actId(V& value, const std::string& name, int size);
   template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
 
-  bool isWriting() const;
-  bool isReading() const;
+  bool getsValue() const;
+  bool setsValue() const;
   bool isSchema() const;
 
 private:
   Session& session_;
-  const char *tableName_;
-  std::set<std::string>& tablesCreated_;
+  Session::MappingInfo& mapping_;
 
-  enum { Self, Sets } pass_;
-  bool needSetsPass_;
-  std::stringstream sql_;
-
-  void exec();
-  void createJoinTable(const std::string& joinName,
-		       const char *table1, const char *table2,
-		       const std::string& joinId1,
-		       const std::string& joinId2);
+  bool idField_;
+  std::string foreignKeyTable_, foreignKeyName_;
 };
 
 class WTDBO_API DropSchema
@@ -114,12 +64,13 @@ public:
 
   template<class C> void visit(C& obj);
 
+  template<typename V> void actId(V& value, const std::string& name, int size);
   template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
 
-  bool isWriting() const;
-  bool isReading() const;
+  bool getsValue() const;
+  bool setsValue() const;
   bool isSchema() const;
 
 private:
@@ -130,92 +81,132 @@ private:
   void drop(const std::string& tableName);
 };
 
-class WTDBO_API LoadDbAction
+class WTDBO_API DboAction
 {
 public:
-  LoadDbAction(MetaDboBase& dbo, SqlStatement *statement, int& column);
+  DboAction();
+  DboAction(MetaDboBase& dbo, Session::MappingInfo& mapping);
 
-  template<class C> void visit(C& obj);
-
-  template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
 
-  bool isWriting() const;
-  bool isReading() const;
+  bool getsValue() const;
+  bool setsValue() const;
   bool isSchema() const;
 
-  void setTableName(const char *tableName);
-
-  Session *session() { return dbo_.session(); }
-
+protected:
+  MetaDboBase& dbo() { return *dbo_; }
+  Session::MappingInfo& mapping() { return *mapping_; }
   int setStatementIdx() const { return setStatementIdx_; }
   
 private:
-  MetaDboBase& dbo_;
-  const char *tableName_;
-  SqlStatement *statement_;
-  int& column_, setStatementIdx_;
+  MetaDboBase *dbo_;
+  Session::MappingInfo *mapping_;
 
-  void start();
-  void exec();
-  void done();
+  int setStatementIdx_;
 };
 
-class WTDBO_API SaveDbAction
+class WTDBO_API LoadBaseAction : public DboAction
 {
 public:
-  SaveDbAction(MetaDboBase& dbo);
-
-  template<class C> void visit(C& obj);
+  LoadBaseAction(MetaDboBase& dbo, Session::MappingInfo& mapping,
+		 SqlStatement *statement, int& column);
 
   template<typename V> void act(const FieldRef<V>& field);
-  template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
+  template<class D> void actPtr(const PtrRef<D>& field);
 
-  bool isWriting() const;
-  bool isReading() const;
-  bool isSchema() const;
+  bool setsValue() const;
+
+protected:
+  SqlStatement *statement_;
+  int& column_;
+
+  void start();
+};
+
+template <class C>
+class WTDBO_API LoadDbAction : public LoadBaseAction
+{
+public:
+  LoadDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping,
+	       SqlStatement *statement, int& column);
+
+  void visit(C& obj);
+
+  template<typename V> void actId(V& value, const std::string& name, int size);
 
 private:
-  int dummy_;
-  LoadDbAction loadSets_;
-  MetaDboBase& dbo_;
+  MetaDbo<C>& dbo_;
+};
+
+class WTDBO_API SaveBaseAction : public DboAction
+{
+public:
+  /*
+   * Provide a statement and column if you want to abuse this action
+   * to simply bind values to a statement using field().
+   */
+  SaveBaseAction(SqlStatement *statement, int column);
+
+  SaveBaseAction(MetaDboBase& dbo, Session::MappingInfo& mapping,
+		 SqlStatement *statement = 0, int column = 0);
+
+  template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actPtr(const PtrRef<C>& field);
+  template<class C> void actCollection(const CollectionRef<C>& field);
+
+  bool getsValue() const;
+
+  int column() const { return column_; }
+
+protected:
   SqlStatement *statement_;
   bool isInsert_;
   int column_;
-  const char *tableName_;
+  bool bindNull_;
 
   enum { Dependencies, Self, Sets } pass_;
   bool needSetsPass_;
 
   void startDependencyPass();
   void startSelfPass();
-  void exec();
-
   void startSetsPass();
+
+  void exec();
 };
 
-class WTDBO_API TransactionDoneAction
+template <class C>
+class WTDBO_API SaveDbAction : public SaveBaseAction
 {
 public:
-  TransactionDoneAction(Session *session, MetaDboBase& dbo, bool success);
+  SaveDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping);
+
+  void visit(C& obj);
+
+  template<typename V> void actId(V& value, const std::string& name, int size);
+
+private:
+  MetaDbo<C>& dbo_;
+};
+
+class WTDBO_API TransactionDoneAction : public DboAction
+{
+public:
+  TransactionDoneAction(MetaDboBase& dbo, Session::MappingInfo& mapping,
+			bool success);
 
   template<class C> void visit(C& obj);
 
+  template<typename V> void actId(V& value, const std::string& name, int size);
   template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
 
-  bool isWriting() const;
-  bool isReading() const;
-  bool isSchema() const;
+  bool getsValue() const;
 
 private:
   Session *session_;
   bool success_;
   int dummy_;
-  LoadDbAction undoLoadSets_;
 };
 
 class WTDBO_API SessionAddAction
@@ -225,41 +216,17 @@ public:
 
   template<class C> void visit(C& obj);
 
+  template<typename V> void actId(V& value, const std::string& name, int size);
   template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
 
-  bool isWriting() const;
-  bool isReading() const;
+  bool getsValue() const;
+  bool setsValue() const;
   bool isSchema() const;
 
 private:
   Session *session_;
-};
-
-class WTDBO_API GetManyToManyJoinIdAction
-{
-public:
-  GetManyToManyJoinIdAction(const std::string& joinName,
-			    const std::string& joinId);
-
-  template<class C> void visit(C& obj);
-
-  template<typename V> void act(const FieldRef<V>& field);
-  template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
-
-  bool isWriting() const;
-  bool isReading() const;
-  bool isSchema() const;
-
-  bool found() const { return found_; }
-  std::string result() const { return result_; }
-
-private:
-  std::string joinName_;
-  std::string result_;
-  bool found_;
 };
 
 class WTDBO_API ToAnysAction
@@ -269,15 +236,17 @@ public:
 
   template<class C> void visit(const ptr<C>& obj);
 
+  template<typename V> void actId(V& value, const std::string& name, int size);
   template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
 
-  bool isWriting() const;
-  bool isReading() const;
+  bool getsValue() const;
+  bool setsValue() const;
   bool isSchema() const;
 
 private:
+  Session *session_;
   std::vector<boost::any>& result_;
 };
 
@@ -288,12 +257,13 @@ public:
 
   template<class C> void visit(C& obj);
 
+  template<typename V> void actId(V& value, const std::string& name, int size);
   template<typename V> void act(const FieldRef<V>& field);
+  template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actCollection(const CollectionRef<C>& field);
-  template<class C> void descend(ptr<C>& obj);
 
-  bool isWriting() const;
-  bool isReading() const;
+  bool getsValue() const;
+  bool setsValue() const;
   bool isSchema() const;
 
 private:

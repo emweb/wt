@@ -27,14 +27,72 @@ namespace dbo = Wt::Dbo;
 class A;
 class B;
 class C;
+class D;
+
+struct Coordinate {
+  int x, y;
+
+  Coordinate()
+    : x(-1), y(-1) { }
+
+  Coordinate(int an_x, int an_y)
+    : x(an_x), y(an_y) { }
+
+  bool operator== (const Coordinate& other) const {
+    return x == other.x && y == other.y;
+  }
+
+  bool operator< (const Coordinate& other) const {
+    if (x < other.x)
+      return true;
+    else if (x == other.x)
+      return y < other.y;
+    else
+      return false;
+  }
+};
+
+std::ostream& operator<< (std::ostream& o, const Coordinate& c)
+{
+  return o << "(" << c.x << ", " << c.y << ")";
+}
+
+namespace Wt {
+  namespace Dbo {
+
+    template <class Action>
+    void field(Action& action, Coordinate& coordinate, const std::string& name,
+	       int size = -1)
+    {
+      field(action, coordinate.x, name + "_x");
+      field(action, coordinate.y, name + "_y");
+    }
+  }
+}
+
+namespace Wt {
+  namespace Dbo {
+
+template<>
+struct dbo_traits<D> : public dbo_default_traits
+{
+  typedef Coordinate IdType;
+  static IdType invalidId() { return Coordinate(); }
+  static const char *versionField() { return 0; }
+};
+
+  }
+}
 
 typedef dbo::collection<dbo::ptr<A> > As;
 typedef dbo::collection<dbo::ptr<B> > Bs;
 typedef dbo::collection<dbo::ptr<C> > Cs;
+typedef dbo::collection<dbo::ptr<D> > Ds;
 
-class A : public dbo::Dbo {
+class A : public dbo::Dbo<A> {
 public:
   dbo::ptr<B> b;
+  dbo::ptr<D> dthing;
   dbo::ptr<A> parent;
 
   std::vector<unsigned char> binary;
@@ -62,12 +120,13 @@ public:
       && b == other.b
       && f == other.f
       && d == other.d
+      && dthing == other.dthing
       && parent == other.parent;
   }
 
   As             asManyToOne;
 
-  template<class Action>
+  template <class Action>
   void persist(Action& a)
   {
     dbo::field(a, date, "date");
@@ -80,6 +139,7 @@ public:
     dbo::field(a, d, "d");
 
     dbo::belongsTo(a, b, "b");
+    dbo::belongsTo(a, dthing, "d");
 
     dbo::belongsTo(a, parent, "a_parent");
     dbo::hasMany(a, asManyToOne, dbo::ManyToOne, "a_parent");
@@ -110,13 +170,13 @@ public:
       && state == other.state;
   }
 
-  template<class Action>
+  template <class Action>
   void persist(Action& a)
   {
     dbo::field(a, state, "state");
     dbo::field(a, name, "name");
 
-    dbo::hasMany(a, asManyToOne, dbo::ManyToOne,  "b");
+    dbo::hasMany(a, asManyToOne, dbo::ManyToOne, "b");
     dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_b");
   }
 };
@@ -126,6 +186,7 @@ public:
   std::string name;
   
   Bs    bsManyToMany;
+  Ds    dsManyToMany;
 
   C() { }
 
@@ -137,12 +198,32 @@ public:
     return name == other.name;
   }
 
-  template<class Action>
+  template <class Action>
   void persist(Action& a)
   {
     dbo::field(a, name, "name");
 
     dbo::hasMany(a, bsManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_c");
+    dbo::hasMany(a, dsManyToMany, dbo::ManyToMany, SCHEMA "c_d");
+  }
+};
+
+class D {
+public:
+  Coordinate id;
+  std::string name;
+
+  As    asManyToOne;
+  Cs    csManyToMany;
+
+  template <class Action>
+  void persist(Action& a)
+  {
+    dbo::id(a, id, "id");
+    dbo::field(a, name, "name");
+
+    dbo::hasMany(a, asManyToOne, dbo::ManyToOne, "d");
+    dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "c_d");
   }
 };
 
@@ -172,6 +253,7 @@ void DboTest::setup()
   session_->mapClass<A>(SCHEMA "table_a");
   session_->mapClass<B>(SCHEMA "table_b");
   session_->mapClass<C>(SCHEMA "table_c");
+  session_->mapClass<D>(SCHEMA "table_d");
 
   session_->createTables();
 }
@@ -661,6 +743,82 @@ void DboTest::test9()
   }
 }
 
+void DboTest::test10()
+{
+  setup();
+
+  try {
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<D> d(new D());
+
+      d.modify()->id = Coordinate(42, 43);
+      d.modify()->name = "Object @ (42, 43)";
+
+      session_->add(d);
+
+      t.commit();
+
+      // No transaction, but should just fetch it from the session.
+      // This checks that saving the dbo sets the id properly
+      BOOST_REQUIRE(session_->load<D>(Coordinate(42, 43)) == d);
+    }
+
+    {
+      dbo::Transaction t2(*session_);
+
+      try {
+	session_->load<D>(Coordinate(10, 11));
+	BOOST_REQUIRE(false); // Expected an exception
+      } catch (const dbo::ObjectNotFoundException& e) {
+      }
+
+      dbo::ptr<D> d2 = session_->load<D>(Coordinate(42, 43));
+ 
+      BOOST_REQUIRE(d2 && d2.id() == Coordinate(42, 43));
+     
+      dbo::ptr<C> c1 = session_->add(new C("c1"));
+      dbo::ptr<C> c2 = session_->add(new C("c2"));
+      dbo::ptr<C> c3 = session_->add(new C("c3"));
+
+      d2.modify()->csManyToMany.insert(c1);
+
+      BOOST_REQUIRE(d2->csManyToMany.size() == 1);
+      BOOST_REQUIRE(c1->dsManyToMany.size() == 1);
+
+      d2.modify()->csManyToMany.insert(c2);
+
+      BOOST_REQUIRE(d2->csManyToMany.size() == 2);
+      BOOST_REQUIRE(c1->dsManyToMany.size() == 1);
+      BOOST_REQUIRE(c2->dsManyToMany.size() == 1);
+      BOOST_REQUIRE(c3->dsManyToMany.size() == 0);
+
+      d2.modify()->csManyToMany.erase(c2);
+
+      BOOST_REQUIRE(d2->csManyToMany.size() == 1);
+      BOOST_REQUIRE(c1->dsManyToMany.size() == 1);
+      BOOST_REQUIRE(c2->dsManyToMany.size() == 0);
+      BOOST_REQUIRE(c3->dsManyToMany.size() == 0);
+
+      d2.modify()->csManyToMany.insert(c2);
+      d2.modify()->csManyToMany.erase(c2);
+
+      BOOST_REQUIRE(d2->csManyToMany.size() == 1);
+      BOOST_REQUIRE(c1->dsManyToMany.size() == 1);
+      BOOST_REQUIRE(c2->dsManyToMany.size() == 0);
+      BOOST_REQUIRE(c3->dsManyToMany.size() == 0);
+
+      t2.commit();
+    }
+
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
+}
+
 DboTest::DboTest()
   : test_suite("dbotest_test_suite")
 {
@@ -673,4 +831,5 @@ DboTest::DboTest()
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test7, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test8, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test9, this)));
+  add(BOOST_TEST_CASE(boost::bind(&DboTest::test10, this)));
 }
