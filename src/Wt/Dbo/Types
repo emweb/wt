@@ -19,7 +19,7 @@
 
 #include <Wt/Dbo/Query_impl.h>
 
-#ifndef _MSC_VER
+#if 0
 #define DBO_EXTERN_TEMPLATES(C)						\
   extern template class Wt::Dbo::ptr<C>;				\
   extern template class Wt::Dbo::MetaDbo<C>;				\
