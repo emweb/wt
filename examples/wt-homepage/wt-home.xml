@@ -296,6 +296,54 @@ gallery</a> for an interactive overview of built-in functionality.
     can be triggered.</li>
 </ul>
 
+<h4>Object Relational Mapping library</h4>
+
+Wt::Dbo implements Object-Relational mapping, and thus a convenient
+way to interact with SQL databases from C++. Although features like
+optimistic concurrency control make this sub-library an ideal
+companion for a database driven web application, the library can even
+be used for off-line or other applications (and does not depend on
+Wt).
+
+The ORM library (which diserves an introduction by it own in <a
+href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">this
+tutorial</a>) has the following features:
+
+<ul>
+  <li>No code generation, no macro hacks, no XML configuration, just C++!</li>
+  <li>Uses a templated visitor pattern which requires a single
+    template method to provide the mapping: DRY and terribly efficient!</li>
+  <li>You can indicate surrogate auto-incremental keys or map natural
+    keys of any C++ type, which may also be composite (i.e. require more
+    than one database field).</li>
+  <li>Supports <a
+    href="http://en.wikipedia.org/wiki/Optimistic_concurrency_control">
+    optimistic concurrency control</a> using a version field.</li>
+  <li>Maps Many-to-One and Many-to-Many relations to STL-compatible
+    collections.</li>
+  <li>Provides schema generation (aka DDL: data definition language)
+    and data manipulation language (aka DML: data manipulation
+    language).</li>
+  <li>Prepared statements throughout.</li>
+  <li>Session tracks dirty objects and provides a first-level cache.</li>
+  <li>Flexible querying which can query individual fields, objects, or
+    tuples of any these (using Boost.Tuple).</li>
+  <li>Connection pools from which connections are used only during an
+    active transaction.</li>
+  <li>Comes with Sqlite3 and PostgreSQL backends. A <a
+    href="http://wtdbomysql.sourceforge.net/">MySQL backend (GPL
+    only)</a> is maintained by the community (Paul Harisson).</li>
+</ul>
+
+<h4>Testing</h4>
+
+With Wt, event handling code constructs and manipulates a widget tree,
+which can easily be inspected by test code. Therefore, a <a href="
+http://webtoolkit.eu/wt/doc/reference/html/classWt_1_1Test_1_1WTestEnvironment.html">test
+environment</a> allows your application to be instantiated and events
+to be simulated in absence of a browser, short-cutting the underlying
+request/response cycle that would otherwise require a simulated browser.
+
 <h4>Deployment</h4>
 
 <h5>a) FastCGI</h5>

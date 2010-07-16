@@ -168,7 +168,7 @@ void WLogger::setFile(const std::string& path)
   if (ownStream_)
     delete o_;
 
-  o_ = new std::ofstream(path.c_str());
+  o_ = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate);
   ownStream_ = true;
 }
 

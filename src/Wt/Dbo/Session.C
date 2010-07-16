@@ -784,7 +784,8 @@ void Session::addJoinTableFields(MappingInfo& result, MappingInfo *mapping,
   for (unsigned i = 0; i < joinIds.size(); ++i)
     result.fields.push_back
       (FieldInfo(joinIds[i].joinIdName, &typeid(long long),
-		 joinIds[i].sqlType, mapping->tableName, keyName,
+		 joinIds[i].sqlType + " not null",
+		 mapping->tableName, keyName,
 		 FieldInfo::NaturalId | FieldInfo::ForeignKey));
 }
 

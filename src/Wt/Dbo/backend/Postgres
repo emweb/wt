@@ -30,6 +30,13 @@ namespace Wt {
 class WTDBOPOSTGRES_API Postgres : public SqlConnection
 {
 public:
+  /*! \brief Creates new PostgreSQL backend connection.
+   *
+   * The connection is not yet open, and requires a connect() before it
+   * can be used.
+   */
+  Postgres();
+
   /*! \brief Opens a new PostgreSQL backend connection.
    *
    * The \p db may be any of the values supported by PQconnectdb().
@@ -48,6 +55,10 @@ public:
 
   virtual Postgres *clone() const;
 
+  /*! \brief Tries to connect.
+   *
+   * Throws an exception if there was a problem, otherwise true.
+   */
   bool connect(const std::string& db);
 
   /*! \brief Returns the underlying connection.

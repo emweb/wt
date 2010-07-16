@@ -24,10 +24,11 @@ namespace Test {
 /*! \class WTestEnvironment Wt/Test/WTestEnvironment Wt/Test/WTestEnvironment
  *  \brief An environment for testing purposes.
  *
- * This environment is useful for use in unit tests: you may configure its
- * properties and pass it to the constructor of an application.
+ * This environment is useful for use in automated (integration/unit)
+ * tests: you may configure its properties and pass it to the
+ * constructor of an application.
  *
- * This is useful for (unit) test-cases:
+ * This is useful for automated test-cases:
  * \if cpp
  * \code
  * void testX() {

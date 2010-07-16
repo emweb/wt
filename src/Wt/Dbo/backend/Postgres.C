@@ -478,8 +478,12 @@ bool Postgres::connect(const std::string& db)
   connInfo_ = db;
   conn_ = PQconnectdb(db.c_str());
 
-  if (PQstatus(conn_) != CONNECTION_OK)
-    throw PostgresException("Could not connect to: " + db);
+  if (PQstatus(conn_) != CONNECTION_OK) {
+    std::string error = PQerrorMessage(conn_);
+    PQfinish(conn_);
+    conn_ = 0;
+    throw PostgresException("Could not connect to: " + error);
+  }
 
   return true;
 }
