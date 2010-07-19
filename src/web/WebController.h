@@ -117,6 +117,8 @@ private:
 
   bool shutdown_;
 
+  void handleAsyncRequest(WebRequest *request);
+
 #ifdef WT_THREADED
   // mutex to protect access to the sessions map.
   boost::recursive_mutex mutex_;

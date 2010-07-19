@@ -13,6 +13,8 @@
 #include <Wt/Dbo/Field>
 #include <Wt/Dbo/SqlStatement>
 
+#include <Wt/Dbo/Field_impl.h>
+
 #ifndef DOXYGEN_ONLY
 
 namespace Wt {

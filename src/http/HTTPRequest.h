@@ -43,6 +43,7 @@ public:
   virtual std::string pathInfo() const;
   virtual std::string remoteAddr() const;
   virtual std::string urlScheme() const;
+  virtual bool isSynchronous() const;
 
 private:
   WtReplyPtr reply_;

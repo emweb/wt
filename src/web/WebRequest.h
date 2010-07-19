@@ -12,6 +12,8 @@
 #include <Wt/WGlobal>
 #include <Wt/Http/Request>
 
+#include <boost/function.hpp>
+
 namespace Wt {
 
 class EntryPoint;
@@ -27,8 +29,7 @@ public:
 
   enum ResponseState {
     ResponseDone,
-    ResponseCallBack,
-    ResponseWaitMore
+    ResponseCallBack
   };
 
   typedef void (*CallbackFunction)(void *cbData);
@@ -128,10 +129,24 @@ public:
 
   WT_LOCALE parseLocale() const;
 
+  // For synchronous requests, finish() will be called by the controller.
+  virtual bool isSynchronous() const = 0;
+
+  // Finish simulates the invocation of asynchronous callbacks and
+  // deletes the request. Finish is only to be called for synchronous
+  // requests; asynchronous requests are assumed to manage their own lifetime
+  void finish();
+
 protected:
   const EntryPoint *entryPoint_;
 
   virtual ~WebRequest();
+
+  // Indicates that finish() should invoke this callback before
+  // terminating the request. This function is only used for
+  // synchronous requests.
+  void setAsyncCallback(boost::function<void(void)> cb);
+  boost::function<void(void)> getAsyncCallback();
 
 private:
   std::string parsePreferredAcceptValue(const std::string& value) const;
@@ -141,6 +156,8 @@ private:
   Http::UploadedFileMap files_;
 
   static Http::ParameterValues emptyValues_;
+
+  boost::function<void(void)> asyncCallback_;
 
   friend class CgiParser;
   friend class Http::Request;

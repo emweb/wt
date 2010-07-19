@@ -23,7 +23,7 @@ HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
 void HTTPRequest::flush(ResponseState state, CallbackFunction callback,
 			void *callbackData)
 {
-  reply_->setWaitMoreData(state == ResponseWaitMore);
+  reply_->setWaitMoreData(false);
   reply_->send(outstream_.str(), callback, callbackData);
   outstream_.str("");
 
@@ -122,6 +122,11 @@ std::string HTTPRequest::remoteAddr() const
 std::string HTTPRequest::urlScheme() const
 {
   return reply_->request().urlScheme;
+}
+
+bool HTTPRequest::isSynchronous() const
+{
+  return false;
 }
 
 } // namespace server

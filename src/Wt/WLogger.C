@@ -168,7 +168,16 @@ void WLogger::setFile(const std::string& path)
   if (ownStream_)
     delete o_;
 
+#ifdef WIN32
+  FILE *file = _fsopen(path.c_str(), "at", _SH_DENYNO);
+  if (file) {
+    o_ = new std::ofstream(file);
+  } else {
+    o_ = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate);
+  }
+#else
   o_ = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate);
+#endif
   ownStream_ = true;
 }
 

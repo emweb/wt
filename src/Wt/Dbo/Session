@@ -40,10 +40,11 @@ struct DynamicBinding;
  *  \brief A database session.
  *
  * A database session manages meta data about the mapping of C++
- * classes to database tables, and keeps track of a collection of
- * in-memory objects.
+ * classes to database tables, and keeps track of a working set of
+ * in-memory objects (objects which are referenced from your code or
+ * from within a transaction).
  *
- * It also manages transactions that you need to create when accessing
+ * It also manages an active transaction, which you need to access
  * database objects.
  *
  * You can provide the session with a dedicated database connection

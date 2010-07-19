@@ -201,4 +201,24 @@ WT_LOCALE WebRequest::parseLocale() const
   return parsePreferredAcceptValue(headerValue("Accept-Language"));
 }
 
+void WebRequest::setAsyncCallback(boost::function<void(void)> cb)
+{
+  asyncCallback_ = cb;
+}
+
+boost::function<void(void)> WebRequest::getAsyncCallback()
+{
+  return asyncCallback_;
+}
+
+void WebRequest::finish()
+{
+  while (asyncCallback_) {
+    boost::function<void(void)> fn = asyncCallback_;
+    asyncCallback_.clear();
+    fn();
+  }
+  delete this;
+}
+
 }

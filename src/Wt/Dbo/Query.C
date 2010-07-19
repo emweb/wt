@@ -5,6 +5,7 @@
  */
 #include "Query"
 #include "Query_impl.h"
+#include "DbAction"
 
 #include <iostream>
 #include <string>

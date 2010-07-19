@@ -1,0 +1,465 @@
+#include "IsapiRequest.h"
+#include "Server.h"
+#include <boost/algorithm/string/case_conv.hpp>
+
+namespace Wt {
+  namespace isapi {
+
+IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
+                           IsapiServer *server, bool forceSynchronous)
+  : ecb_(ecb),
+  server_(server),
+  synchronous_(true),
+  reading_(true),
+  chunking_(false),
+  responseLengthKnown_(true),
+  headerSent_(false)
+{
+  std::string version = envValue("HTTP_VERSION");
+  if (version == "HTTP/1.1") {
+    version_ = HTTP_1_1;
+  } else if (version == "HTTP/1.0") {
+    version_ = HTTP_1_0;
+  } else {
+    version_ = HTTP_1_0;
+  }
+
+  if (!forceSynchronous) {
+    // Try to configure async mode (synchronous_ must be set right, also
+    // if only used for write)
+    if (ecb->ServerSupportFunction(ecb->ConnID, HSE_REQ_IO_COMPLETION,
+        &IsapiRequest::completionCallback, 0, (LPDWORD)this)) {
+      synchronous_ = false;
+    }
+  }
+
+  // Read whatever has already been read
+  bool done = false;
+  bytesToRead_ = ecb->cbTotalBytes;
+  if (ecb->lpbData && ecb->cbAvailable) {
+    in_.write((const char *)ecb_->lpbData, ecb->cbAvailable);
+  }
+  if (bytesToRead_ != 0xffffffff) {
+    bytesToRead_ -= ecb->cbAvailable;
+  }
+  if (bytesToRead_ == 0) {
+    in_.seekg(0);
+    server->pushRequest(this);
+    return;
+  }
+
+  if (!synchronous_) {
+    processAsyncRead(0, 0, true);
+  } else {
+    // FIXME!! (1) store in tmp file if too big (2) make async
+    while (bytesToRead_ != 0 && !done) {
+      bufferSize_ = sizeof(buffer_);
+      if (bytesToRead_ != 0xffffffff && bytesToRead_ < bufferSize_) {
+        bufferSize_ = bytesToRead_;
+      }
+      if (ecb->ReadClient(ecb->ConnID, (LPVOID)buffer_, &bufferSize_)) {
+        if (bytesToRead_ != 0xffffffff) {
+          bytesToRead_ -= bufferSize_;
+        }
+        if (bufferSize_ != 0) {
+          in_.write(buffer_, bufferSize_);
+        } else {
+          done = true;
+        }
+      } else {
+        int err = GetLastError();
+        done = true;
+      }
+    }
+    in_.seekg(0);
+    // FIXME: should we also push on error?
+    server->pushRequest(this);
+  }
+}
+
+void IsapiRequest::completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,
+                                          PVOID pContext,
+                                          DWORD cbIO,
+                                          DWORD dwError)
+{
+  IsapiRequest *req = reinterpret_cast<IsapiRequest *>(pContext);
+  if (req->reading_)
+    req->processAsyncRead(cbIO, dwError, false);
+  else
+    req->writeAsync(cbIO, dwError, false);
+}
+
+void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
+{
+  // First, queue up the bytes received
+  if (bytesToRead_ != 0xffffffff) {
+    bytesToRead_ -= cbIO;
+  }
+  if (cbIO != 0) {
+    in_.write(buffer_, cbIO);
+  }
+
+  // Then, read more, if applicable
+  if ((first && bytesToRead_ != 0) ||
+      (cbIO != 0 && bytesToRead_ != 0 && dwError == 0)) {
+    bufferSize_ = sizeof(buffer_);
+    if (bytesToRead_ != 0xffffffff && bytesToRead_ < bufferSize_) {
+      bufferSize_ = bytesToRead_;
+    }
+    DWORD dwFlags = HSE_IO_ASYNC;
+    if (!ecb_->ServerSupportFunction(ecb_->ConnID,
+          HSE_REQ_ASYNC_READ_CLIENT, (LPVOID)buffer_, &bufferSize_,
+          (LPDWORD)&dwFlags)) {
+      int err = GetLastError();
+      // FIXME: what to do here?
+      in_.seekg(0);
+      server_->pushRequest(this);
+    } else {
+      // Don't do anything here, the readclient callback may already
+      // be invoked
+    }
+  } else {
+    // Nothing more to read, or error
+    in_.seekg(0);
+    // FIXME: should we also push on error?
+    server_->pushRequest(this);
+  }
+}
+
+bool IsapiRequest::isSynchronous() const
+{
+  return synchronous_;
+}
+
+IsapiRequest::~IsapiRequest()
+{
+}
+
+void IsapiRequest::sendHeader()
+{
+  // Finish up the header
+  if (chunking_) {
+    header_ << "Transfer-Encoding: chunked\r\n\r\n";
+  } else if (responseLengthKnown_) {
+    out_.seekg(0, std::ios_base::end);
+    DWORD size = out_.tellg();
+    out_.seekg(0);
+    header_ << "Content-Length: " << size << "\r\n\r\n";
+  } else {
+    header_ << "\r\n";
+  }
+  // TODO: add proper human-readable description
+  std::string status =
+    boost::lexical_cast<std::string>(ecb_->dwHttpStatusCode);
+  std::string header = header_.str();
+  HSE_SEND_HEADER_EX_INFO hei = { 0 };
+  hei.pszStatus = status.c_str();
+  hei.cchStatus = status.size();
+  hei.pszHeader = header.c_str();
+  hei.cchHeader = header.size();;
+  hei.fKeepConn =  version_ == HTTP_1_1 && (responseLengthKnown_ || chunking_);
+  ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_SEND_RESPONSE_HEADER_EX,
+    &hei, 0, 0);
+  headerSent_ = true;
+}
+
+void IsapiRequest::flush(ResponseState state,
+                         CallbackFunction callback,
+                         void *callbackData)
+{
+  reading_ = false;
+  if (!headerSent_) {
+    // Determine how we will tell the client how long the response is
+    if (state != ResponseDone) {
+      if (version_ == HTTP_1_1) {
+        chunking_ = true;
+      }
+      responseLengthKnown_ = false;
+    }
+
+    sendHeader();
+  }
+
+  flushState_ = state;
+  if (state == ResponseCallBack) {
+    setAsyncCallback(boost::bind(callback, callbackData));
+  } else {
+    setAsyncCallback(boost::function<void(void)>());
+  }
+
+  // Reserve some space so that data doesn't get copied around
+  writeData_.reserve(5);
+
+  out_.flush();
+  out_.seekg(0, std::ios_base::end);
+  DWORD size = out_.tellg();
+  out_.seekg(0);
+  if (chunking_) {
+    std::string chunkPrefix;
+    std::stringstream hexsize;
+    hexsize << std::hex << (int)size << std::dec << "\r\n";
+    writeData_.push_back(chunkPrefix = hexsize.str());
+    if (state == ResponseDone) {
+      out_ << "\r\n0\r\n\r\n";
+    } else {
+      out_ << "\r\n";
+    }
+  }
+  writeData_.push_back(out_.str());
+  out_.str("");
+
+  if (!synchronous_) {
+    writeAsync(0, 0, true);
+  } else {
+    writeSync();
+  }
+}
+
+void IsapiRequest::writeSync()
+{
+  for (unsigned int i = 0; i < writeData_.size(); ++i) {
+    bool more = true;
+    DWORD offset = 0;
+    while (more) {
+      DWORD size = writeData_[i].size() - offset;
+      if (ecb_->WriteClient(ecb_->ConnID, (LPVOID)(writeData_[i].data() + offset),
+          &size, HSE_IO_SYNC)) {
+        offset += size;
+        if (offset >= writeData_[i].size()) {
+          more = false;
+        }
+      } else {
+        int err = GetLastError();
+        err = err;
+        ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_CLOSE_CONNECTION,
+          0, 0, 0);
+        DWORD status = HSE_STATUS_ERROR;
+        ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
+          &status, 0, 0);
+      }
+    }
+  }
+
+  // When done:
+  writeData_.clear();
+  flushDone();
+}
+
+void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
+{
+  bool error = dwError != 0;
+  if (first) {
+    writeIndex_ = 0;
+    writeOffset_ = 0;
+  }
+  writeOffset_ += cbIO;
+  if (writeIndex_ < writeData_.size() && writeOffset_ >= writeData_[writeIndex_].size()) {
+    writeIndex_++;
+    writeOffset_ = 0;
+  }
+  if (!error) {
+    if (writeIndex_ < writeData_.size()) {
+      DWORD size = writeData_[writeIndex_].size() - writeOffset_;
+      if (ecb_->WriteClient(ecb_->ConnID, (LPVOID)(writeData_[writeIndex_].data() + writeOffset_),
+        &size, HSE_IO_ASYNC)) {
+          // Don't do anything anymore, the callback will take over
+          return;
+      } else {
+        error = true;
+      }
+    } else {
+      // Everything is written, finish up
+      writeData_.clear();
+      flushDone();
+      delete this;
+      return;
+    }
+  }
+
+  if (error) {
+    int err = GetLastError();
+    err = err;
+    ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_CLOSE_CONNECTION,
+      0, 0, 0);
+    DWORD status = HSE_STATUS_ERROR;
+    ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
+      &status, 0, 0);
+    delete this;
+    return;
+  }
+}
+
+namespace {
+  struct Done {
+    LPEXTENSION_CONTROL_BLOCK ecb;
+    DWORD status;
+  };
+  boost::mutex queueMutex;
+  boost::condition_variable queueCond;
+  std::deque<Done> queue;
+  void pushDone(Done done) {
+    boost::mutex::scoped_lock l(queueMutex);
+    queue.push_back(done);
+    queueCond.notify_all();
+  }
+
+  Done popDone()
+  {
+    boost::mutex::scoped_lock l(queueMutex);
+    while (true) {
+      if (queue.size()) {
+        Done retval = queue.front();
+        queue.pop_front();
+        return retval;
+      } else {
+        // Wait until an element is inserted in the queue...
+        queueCond.wait(l);
+      }
+    }
+  }
+
+  void popperEntry()
+  {
+    while(true) {
+      Done done = popDone();
+      done.ecb->ServerSupportFunction(done.ecb, HSE_REQ_DONE_WITH_SESSION, &done.status, 0, 0);
+    }
+  }
+
+  boost::thread popper(popperEntry);
+}
+
+void IsapiRequest::flushDone()
+{
+  if (flushState_ == ResponseCallBack) {
+    if (!synchronous_) {
+      getAsyncCallback()();
+    }
+  } else if (flushState_ == ResponseDone) {
+    DWORD status;
+    if (version_ == HTTP_1_0) {
+      status = HSE_STATUS_SUCCESS;
+    } else {
+      status = HSE_STATUS_SUCCESS_AND_KEEP_CONN;
+    }
+    DWORD err;
+    err = ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
+      &status, 0, 0);
+    //err = ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
+    //  &status, 0, 0);
+    //ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
+    //  &status, 0, 0);
+    //Done done = {ecb_, status};
+    //pushDone(done);
+  }
+}
+
+void IsapiRequest::setStatus(int status)
+{
+  ecb_->dwHttpStatusCode = status;
+  header_ << "Status: " << status << "\r\n";
+}
+
+void IsapiRequest::setContentType(const std::string& value)
+{
+  header_ << "Content-Type: " << value << "\r\n";
+}
+
+void IsapiRequest::addHeader(const std::string& name, const std::string& value)
+{
+  header_ << name << ": " << value << "\r\n";
+}
+
+void IsapiRequest::setRedirect(const std::string& url)
+{
+  header_ << "Location: " << url << "\r\n";
+}
+
+std::string IsapiRequest::headerValue(const std::string& name) const
+{
+  std::string retval = envValue("HEADER_" + name);
+  if (retval == "") {
+    std::string hdr = name;
+    for (unsigned int i = 0; i < hdr.size(); ++i) {
+      if (hdr[i] == '-')
+        hdr[i] = '_';
+    }
+    retval = envValue("HTTP_" + hdr);
+  }
+  return retval;
+}
+
+std::string IsapiRequest::envValue(const std::string& hdr) const
+{
+  std::string name = boost::algorithm::to_upper_copy(hdr);
+  char buffer[1024];
+  DWORD size = sizeof(buffer);
+  if (!ecb_->GetServerVariable(ecb_->ConnID, (LPSTR)name.c_str(), buffer, &size)) {
+    switch(GetLastError()) {
+    case ERROR_INVALID_PARAMETER:
+      return "";
+      break;
+    case ERROR_INVALID_INDEX:
+      return "";
+      break;
+    case ERROR_INSUFFICIENT_BUFFER:
+      {
+        char *buf = new char[size];
+        std::string retval;
+        if (!ecb_->GetServerVariable(ecb_->ConnID, (LPSTR)name.c_str(), buf, &size)) {
+          // Give up
+        } else {
+          retval = std::string(buf, buf + size - 1);
+        }
+        delete[] buf;
+        return retval;
+      }
+      break;
+    case ERROR_NO_DATA:
+      return "";
+      break;
+    }
+    return "";
+  } else {
+    return std::string(buffer, buffer + size - 1);
+  }
+}
+
+std::string IsapiRequest::scriptName() const {
+  return envValue("SCRIPT_NAME");
+}
+
+std::string IsapiRequest::serverName() const {
+  return envValue("SERVER_NAME");
+}
+
+std::string IsapiRequest::requestMethod() const {
+  return envValue("REQUEST_METHOD");
+}
+
+std::string IsapiRequest::queryString() const {
+  return envValue("QUERY_STRING");
+}
+
+std::string IsapiRequest::serverPort() const {
+  return envValue("SERVER_PORT");
+}
+
+std::string IsapiRequest::pathInfo() const {
+  return envValue("PATH_INFO");
+}
+
+std::string IsapiRequest::remoteAddr() const {
+  return envValue("REMOTE_ADDR");
+}
+
+std::string IsapiRequest::urlScheme() const {
+  std::string https = envValue("HTTPS");
+  if (https == "ON" || https == "on")
+    return "https";
+  else
+    return "http";
+}
+
+}
+}

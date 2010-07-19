@@ -192,7 +192,7 @@ void WebController::handleRequestThreaded(WebRequest *request)
   } else
     server_->handleRequest(request);
 #else
-  server_->handleRequest(request);
+    server_->handleRequest(request);
 #endif // WT_THREADED
 }
 
@@ -291,6 +291,16 @@ bool WebController::socketSelected(int descriptor)
 }
 
 void WebController::handleRequest(WebRequest *request)
+{
+  if (request->isSynchronous()) {
+    handleAsyncRequest(request);
+    request->finish();
+  } else {
+    handleAsyncRequest(request);
+  }
+}
+
+void WebController::handleAsyncRequest(WebRequest *request)
 {
   if (!request->entryPoint_)
     request->entryPoint_ = getEntryPoint(request->scriptName());
@@ -407,11 +417,27 @@ void WebController::handleRequest(WebRequest *request)
     session = i->second;
   }
 
+  /*
+   * Grab session lock before releasing sessions-lock!
+   *
+   * This is dead-lock proof: we always grab sessions-lock before
+   * specific session-lock.
+   */
+
+  bool sessionDead = false;
+  {
+    WebSession::Handler handler(*session, *request, *(WebResponse *)request);
+
 #ifdef WT_THREADED
-  sessionsLock.unlock();
+    sessionsLock.unlock();
 #endif // WT_THREADED
 
-  session->handleRequest(*request, *(WebResponse *)request);
+    session->handleRequest(handler);
+    sessionDead = handler.sessionDead();
+  }
+
+  if (sessionDead)
+    removeSession(sessionId);
 
   if (!running_)
     expireSessions();

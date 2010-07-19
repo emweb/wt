@@ -56,9 +56,9 @@ namespace {
       out_->flush();
 
       if (state == ResponseCallBack)
-	(*callback)(callbackData);
-      else if (state == ResponseDone)
-	delete this;
+	setAsyncCallback(boost::bind(callback, callbackData));
+      else
+	setAsyncCallback(boost::function<void(void)>());
     }
 
     virtual std::istream& in() { return *in_; }
@@ -142,6 +142,10 @@ namespace {
 	return "https";
       else
 	return "http";
+    }
+
+    virtual bool isSynchronous() const {
+      return true;
     }
 
   private:

@@ -604,7 +604,7 @@ void WebSession::Handler::killSession()
 }
 
 void WebSession::Handler::setRequest(WebRequest *request,
-				      WebResponse *response)
+				     WebResponse *response)
 {
   request_ = request;
   response_ = response;
@@ -744,275 +744,262 @@ bool WebSession::unlockRecursiveEventLoop()
   return true;
 }
 
-bool WebSession::handleRequest(WebRequest& request, WebResponse& response)
+void WebSession::handleRequest(Handler& handler)
 {
   Configuration& conf = controller_->configuration();
 
+  WebRequest& request = *handler.request();
+  WebResponse& response = *handler.response();
+
+  const std::string *wtdE = request.getParameter("wtd");
+  const std::string *requestE = request.getParameter("request");
+
+  WebRenderer::ResponseType responseType = WebRenderer::Page;
+
   /*
-   * -- Start critical section exclusive access to session
+   * Under what circumstances do we allow a request which does not have
+   * a the session ID (except for through a cookie?)
+   *
+   *  - when a new session is created
+   *  - when reloading the page (we document in the API that you should not
+   *    run business logic when doing that)
+   *
+   * in other cases: silenty discard the request
    */
-  {
-    Handler handler(*this, request, response);
+  if (!((requestE && *requestE == "resource")
+	|| handler.request()->requestMethod() == "POST"
+	|| handler.request()->requestMethod() == "GET"))
+    handler.response()->setStatus(400); // Bad Request
+  else if ((!wtdE || (*wtdE != sessionId_))
+	   && state_ != JustCreated
+	   && (requestE && (*requestE == "signal" ||
+			    *requestE == "resource"))) {
+    handler.response()->setContentType("text/html");
+    handler.response()->out()
+      << "<html><head></head><body>CSRF prevention</body></html>";
+  } else
+    try {
+      /*
+       * If we have just created a new session, we need to take care:
+       * - requests from a dead session -> reload
+       * - otherwise: serve Boot.html, Hybrid.html or Plain.html
+       *
+       * Otherwise, we are Loaded: we need to react to:
+       * - when missing a request: rerender (Plain or Hybrid)
+       * - if request for 'script':
+       *   (if appropriate, upgrade to Ajax)
+       *     serve script
+       * - if signal ...
+       * - if resource ...
+       */
+      switch (state_) {
+      case JustCreated: {
+	switch (type_) {
+	case Application: {
+	  init(request); // env, url/internalpath
 
-    const std::string *wtdE = request.getParameter("wtd");
-    const std::string *requestE = request.getParameter("request");
+	  // Handle requests from dead sessions:
+	  //
+	  // We need to send JS to reload the page when we get
+	  // 'request' == 'updatejs' or 'request' == "script"
+	  // We ignore 'request' == 'resource'
+	  //
+	  // In other cases we can simply start
 
-    WebRenderer::ResponseType responseType = WebRenderer::Page;
+	  if (requestE) {
+	    if (*requestE == "jsupdate" || *requestE == "script") {
+	      log("notice") << "Signal from dead session, sending reload.";
+	      renderer_.letReloadJS(*handler.response(), true);
 
-    /*
-     * Under what circumstances do we allow a request which does not have
-     * a the session ID (except for through a cookie?)
-     *
-     *  - when a new session is created
-     *  - when reloading the page (we document in the API that you should not
-     *    run business logic when doing that)
-     *
-     * in other cases: silenty discard the request
-     */
-    if (!((requestE && *requestE == "resource")
-	  || handler.request()->requestMethod() == "POST"
-	  || handler.request()->requestMethod() == "GET"))
-      handler.response()->setStatus(400); // Bad Request
-    else if ((!wtdE || (*wtdE != sessionId_))
-	     && state_ != JustCreated
-	     && (requestE && (*requestE == "signal" ||
-			      *requestE == "resource"))) {
-      handler.response()->setContentType("text/html");
-      handler.response()->out()
-	<< "<html><head></head><body>CSRF prevention</body></html>";
-    } else
-      try {
-	/*
-	 * If we have just created a new session, we need to take care:
-	 * - requests from a dead session -> reload
-	 * - otherwise: serve Boot.html, Hybrid.html or Plain.html
-	 *
-	 * Otherwise, we are Loaded: we need to react to:
-	 * - when missing a request: rerender (Plain or Hybrid)
-	 * - if request for 'script':
-	 *   (if appropriate, upgrade to Ajax)
-	 *     serve script
-	 * - if signal ...
-	 * - if resource ...
-	 */
-	switch (state_) {
-	case JustCreated: {
-	  switch (type_) {
-	  case Application: {
-	    init(request); // env, url/internalpath
+	      handler.killSession();
+	      break;
+	    } else if (*requestE == "resource") {
+	      log("notice") << "Not serving bootstrap for resource.";
+	      handler.response()->setContentType("text/html");
+	      handler.response()->out()
+		<< "<html><head></head><body></body></html>";
 
-	    // Handle requests from dead sessions:
-	    //
-	    // We need to send JS to reload the page when we get
-	    // 'request' == 'updatejs' or 'request' == "script"
-	    // We ignore 'request' == 'resource'
-	    //
-	    // In other cases we can simply start
-
-	    if (requestE) {
-	      if (*requestE == "jsupdate" || *requestE == "script") {
-		log("notice") << "Signal from dead session, sending reload.";
-		renderer_.letReloadJS(*handler.response(), true);
-
-		handler.killSession();
-		break;
-	      } else if (*requestE == "resource") {
-		log("notice") << "Not serving bootstrap for resource.";
-		handler.response()->setContentType("text/html");
-		handler.response()->out()
-		  << "<html><head></head><body></body></html>";
-
-		handler.killSession();
-		break;
-	      }
+	      handler.killSession();
+	      break;
 	    }
+	  }
 
+	  /*
+	   * We can simply bootstrap.
+	   */
+	  bool forcePlain
+	    = env_->agentIsSpiderBot() || !env_->agentSupportsAjax();
+
+	  progressiveBoot_ = !forcePlain && conf.progressiveBoot();
+
+	  if (forcePlain || progressiveBoot_) {
 	    /*
-	     * We can simply bootstrap.
+	     * First start the application
 	     */
-	    bool forcePlain
-	      = env_->agentIsSpiderBot() || !env_->agentSupportsAjax();
+	    env_->doesAjax_ = false;
+	    env_->doesCookies_ = false;
 
-	    progressiveBoot_ = !forcePlain && conf.progressiveBoot();
-
-	    if (forcePlain || progressiveBoot_) {
-	      /*
-	       * First start the application
-	       */
-	      env_->doesAjax_ = false;
-	      env_->doesCookies_ = false;
-
-	      try {
-		std::string internalPath = env_->getCookie("WtInternalPath");
-		env_->setInternalPath(internalPath);
-	      } catch (std::exception& e) {
-	      }
-
-	      if (!start())
-		throw WtException("Could not start application.");
-
-	      app_->notify(WEvent(handler, WebRenderer::Page));
-	      setLoaded();
-
-	      if (env_->agentIsSpiderBot())
-		handler.killSession();
-	    } else {
-	      /*
-	       * Delay application start
-	       */
-	      serveResponse(handler, WebRenderer::Page);
-	      setState(Loaded, 10);
+	    try {
+	      std::string internalPath = env_->getCookie("WtInternalPath");
+	      env_->setInternalPath(internalPath);
+	    } catch (std::exception& e) {
 	    }
-	    break; }
-	  case WidgetSet:
-	    init(request); // env, url/internalpath
-	    env_->doesAjax_ = true;
 
 	    if (!start())
 	      throw WtException("Could not start application.");
 
-	    app_->notify(WEvent(handler, WebRenderer::Script));
-
+	    app_->notify(WEvent(handler, WebRenderer::Page));
 	    setLoaded();
 
-	    break;
-	  default:
-	    assert(false); // StaticResource
+	    if (env_->agentIsSpiderBot())
+	      handler.killSession();
+	  } else {
+	    /*
+	     * Delay application start
+	     */
+	    serveResponse(handler, WebRenderer::Page);
+	    setState(Loaded, 10);
 	  }
+	  break; }
+	case WidgetSet:
+	  init(request); // env, url/internalpath
+	  env_->doesAjax_ = true;
 
-	  break;
-	}
-	case Loaded: {
-	  responseType = WebRenderer::Page;
+	  if (!start())
+	    throw WtException("Could not start application.");
 
-	  if (requestE) {
-	    if (*requestE == "jsupdate")
-	      responseType = WebRenderer::Update;
-	    else if (*requestE == "script")
-	      responseType = WebRenderer::Script;
-	  }
-
-	  if (!app_) {
-	    const std::string *resourceE = request.getParameter("resource");
-
-	    if (responseType == WebRenderer::Script) {
-	      const std::string *hashE = request.getParameter("_");
-	      const std::string *scaleE = request.getParameter("scale");
-
-	      env_->doesAjax_ = true;
-	      env_->doesCookies_ = !request.headerValue("Cookie").empty();
-
-	      try {
-		env_->dpiScale_
-		  = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
-	      } catch (boost::bad_lexical_cast &e) {
-		env_->dpiScale_ = 1;
-	      }
-
-	      // the internal path, when present as an anchor (#), is only
-	      // conveyed in the second request
-	      if (hashE)
-		env_->setInternalPath(*hashE);
-
-	      if (!start())
-		throw WtException("Could not start application.");
-	    } else if (requestE && *requestE == "resource"
-		       && resourceE && *resourceE == "blank") {
-	      handler.response()->setContentType("text/html");
-	      handler.response()->out() <<
-		"<html><head><title>bhm</title></head>"
-		"<body>&#160;</body></html>";
-
-	      break;
-	    } else {
-	      const std::string *jsE = request.getParameter("js");
-
-	      if (jsE && *jsE == "no") {
-		if (!start())
-		  throw WtException("Could not start application.");
-	      } else {
-		// This could be because the session Id was not as
-		// expected. At least, it should be correct now.
-		if (!conf.reloadIsNewSession() && wtdE && *wtdE == sessionId_) {
-		  serveResponse(handler, WebRenderer::Page);
-		  setState(Loaded, 10);
-		} else {
-		  handler.response()->setContentType("text/html");
-		  handler.response()->out() <<
-		    "<html><body><h1>Refusing to respond.</h1></body></html>";
-		}
-
-		break;
-	      }
-	    }
-
-	    state_ = JustCreated;
-	  }
-
-	  bool requestForResource = requestE && *requestE == "resource";
-
-	  if (requestForResource || !unlockRecursiveEventLoop())
-	    {
-	      app_->notify(WEvent(handler, responseType));
-	      if (handler.response() && !requestForResource)
-		/*
-		 * This may be when an error was thrown during event
-		 * propagation: then we want to render the error message.
-		 */
-		app_->notify(WEvent(handler, responseType, true));
-	    }
+	  app_->notify(WEvent(handler, WebRenderer::Script));
 
 	  setLoaded();
+
 	  break;
+	default:
+	  assert(false); // StaticResource
 	}
-	case Dead:
-	  throw WtException("Internal error: WebSession is dead?");
+
+	break;
+      }
+      case Loaded: {
+	responseType = WebRenderer::Page;
+
+	if (requestE) {
+	  if (*requestE == "jsupdate")
+	    responseType = WebRenderer::Update;
+	  else if (*requestE == "script")
+	    responseType = WebRenderer::Script;
 	}
 
-      } catch (WtException& e) {
-	log("fatal") << e.what();
+	if (!app_) {
+	  const std::string *resourceE = request.getParameter("resource");
 
-#ifdef WT_TARGET_JAVA
-	e.printStackTrace();
-#endif // WT_TARGET_JAVA
+	  if (responseType == WebRenderer::Script) {
+	    const std::string *hashE = request.getParameter("_");
+	    const std::string *scaleE = request.getParameter("scale");
 
-	handler.killSession();
+	    env_->doesAjax_ = true;
+	    env_->doesCookies_ = !request.headerValue("Cookie").empty();
 
-	if (handler.response())
-	  serveError(handler, e.what(), responseType);
+	    try {
+	      env_->dpiScale_
+		= scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
+	    } catch (boost::bad_lexical_cast &e) {
+	      env_->dpiScale_ = 1;
+	    }
 
-      } catch (std::exception& e) {
-	log("fatal") << e.what();
+	    // the internal path, when present as an anchor (#), is only
+	    // conveyed in the second request
+	    if (hashE)
+	      env_->setInternalPath(*hashE);
 
-#ifdef WT_TARGET_JAVA
-	e.printStackTrace();
-#endif // WT_TARGET_JAVA
+	    if (!start())
+	      throw WtException("Could not start application.");
+	  } else if (requestE && *requestE == "resource"
+		     && resourceE && *resourceE == "blank") {
+	    handler.response()->setContentType("text/html");
+	    handler.response()->out() <<
+	      "<html><head><title>bhm</title></head>"
+	      "<body>&#160;</body></html>";
 
-	handler.killSession();
+	    break;
+	  } else {
+	    const std::string *jsE = request.getParameter("js");
 
-	if (handler.response())
-	  serveError(handler, e.what(), responseType);
-      } catch (...) {
-	log("fatal") << "Unknown exception.";
+	    if (jsE && *jsE == "no") {
+	      if (!start())
+		throw WtException("Could not start application.");
+	    } else {
+	      // This could be because the session Id was not as
+	      // expected. At least, it should be correct now.
+	      if (!conf.reloadIsNewSession() && wtdE && *wtdE == sessionId_) {
+		serveResponse(handler, WebRenderer::Page);
+		setState(Loaded, 10);
+	      } else {
+		handler.response()->setContentType("text/html");
+		handler.response()->out() <<
+		  "<html><body><h1>Refusing to respond.</h1></body></html>";
+	      }
 
-	handler.killSession();
+	      break;
+	    }
+	  }
 
-	if (handler.response())
-	  serveError(handler, "Unknown exception", responseType);
+	  state_ = JustCreated;
+	}
+
+	bool requestForResource = requestE && *requestE == "resource";
+
+	if (requestForResource || !unlockRecursiveEventLoop())
+	  {
+	    app_->notify(WEvent(handler, responseType));
+	    if (handler.response() && !requestForResource)
+	      /*
+	       * This may be when an error was thrown during event
+	       * propagation: then we want to render the error message.
+	       */
+	      app_->notify(WEvent(handler, responseType, true));
+	  }
+
+	setLoaded();
+	break;
+      }
+      case Dead:
+	throw WtException("Internal error: WebSession is dead?");
       }
 
-    if (handler.response())
-      handler.response()->flush();
-
-    if (handler.sessionDead())
-      controller_->removeSession(sessionId_);
+    } catch (WtException& e) {
+      log("fatal") << e.what();
 
 #ifdef WT_TARGET_JAVA
-    handler.release();
+      e.printStackTrace();
 #endif // WT_TARGET_JAVA
 
-    return !handler.sessionDead();
-  }
+      handler.killSession();
+
+      if (handler.response())
+	serveError(handler, e.what(), responseType);
+
+    } catch (std::exception& e) {
+      log("fatal") << e.what();
+
+#ifdef WT_TARGET_JAVA
+      e.printStackTrace();
+#endif // WT_TARGET_JAVA
+
+      handler.killSession();
+
+      if (handler.response())
+	serveError(handler, e.what(), responseType);
+    } catch (...) {
+      log("fatal") << "Unknown exception.";
+
+      handler.killSession();
+
+      if (handler.response())
+	serveError(handler, "Unknown exception", responseType);
+    }
+
+  if (handler.response())
+    handler.response()->flush();
 }
 
 std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const

@@ -144,11 +144,11 @@ public:
 
   /*! \brief Returns whether the field is an Id field.
    */
-  bool isIdField() const { return flags_ & (SurrogateId | NaturalId); }
+  bool isIdField() const { return (flags_ & (SurrogateId | NaturalId)) != 0; }
 
   /*! \brief Returns whether the field is a Natural Id field.
    */
-  bool isNaturalIdField() const { return flags_ & NaturalId; }
+  bool isNaturalIdField() const { return (flags_ & NaturalId) != 0; }
 
   /*! \brief Returns whether the field is a Surroaget Id field.
    */

@@ -9,6 +9,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include <Wt/Dbo/Session>
 #include <Wt/Dbo/Exception>
 #include <Wt/Dbo/SqlStatement>
 #include <Wt/Dbo/SqlTraits>

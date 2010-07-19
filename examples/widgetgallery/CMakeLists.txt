@@ -1,4 +1,4 @@
-ADD_EXECUTABLE(widgetgallery.wt
+ADD_LIBRARY(widgetgallery.wt SHARED
   main.C
   BasicControls.C
   ChartWidgets.C

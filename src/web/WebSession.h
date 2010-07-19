@@ -74,7 +74,6 @@ public:
   WLogEntry log(const std::string& type);
 
   void notify(const WEvent& e);
-  bool handleRequest(WebRequest& request, WebResponse& response);
   void pushUpdates();
 
   void doRecursiveEventLoop();
@@ -158,6 +157,7 @@ public:
     WebRequest *request() { return request_; }
     WebSession *session() const { return &session_; }
     void killSession();
+    bool sessionDead(); // killed or quited()
 
     int nextSignal;
     std::vector<unsigned int> signalOrder;
@@ -166,8 +166,6 @@ public:
     void init();
 
     static void attachThreadToSession(WebSession& session);
-
-    bool sessionDead(); // killed or quited()
 
     void setRequest(WebRequest *request, WebResponse *response);
 
@@ -193,6 +191,8 @@ public:
     friend class WebSession;
     friend class WFileUploadResource;
   };
+
+  void handleRequest(Handler& handler);
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::mutex& mutex() { return mutex_; }

@@ -18,7 +18,7 @@
 #include <Wt/Dbo/SqlTraits_impl.h>
 #include <Wt/Dbo/Session_impl.h>
 
-#if 0
+#ifndef _MSC_VER
 #define DBO_INSTANTIATE_TEMPLATES(C)					\
   template class Wt::Dbo::ptr<C>;					\
   template class Wt::Dbo::MetaDbo<C>;					\

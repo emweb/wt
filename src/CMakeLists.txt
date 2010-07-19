@@ -305,4 +305,4 @@ IF(MSVC)
   TARGET_LINK_LIBRARIES(wt winmm wsock32)
 ENDIF(MSVC)
 
-SUBDIRS(fcgi http)
+SUBDIRS(isapi fcgi http)
