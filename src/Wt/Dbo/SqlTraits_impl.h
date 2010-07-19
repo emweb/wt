@@ -48,9 +48,34 @@ Result query_result_traits<Result>::load(Session& session,
 
 template <typename Result>
 void query_result_traits<Result>::getValues(const Result& result,
-					  std::vector<boost::any>& values)
+					    std::vector<boost::any>& values)
 {
   values.push_back(result);
+}
+
+template <typename Result>
+void query_result_traits<Result>::setValue(Result& result,
+					   int& index, const boost::any& value)
+{
+  if (index == 0)
+    result = boost::any_cast<Result>(value);
+  --index;
+}
+
+template <typename Result>
+Result query_result_traits<Result>::create()
+{
+  return Result();
+}
+
+template <typename Result>
+void query_result_traits<Result>::add(Session& session, Result& result)
+{
+}
+
+template <typename Result>
+void query_result_traits<Result>::remove(Result& result)
+{
 }
 
   }

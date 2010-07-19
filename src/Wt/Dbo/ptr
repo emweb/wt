@@ -174,7 +174,7 @@ struct dbo_default_traits
  * the primary key and optimistic concurrency locking using a version
  * field.
  *
- * See dbo_default_traits for members and default values.
+ * See dbo_default_traits for default values.
  *
  * The following example changes the surrogate id field name for a
  * class <tt>Foo</tt> from the default <tt>"id"</tt> to
@@ -203,13 +203,15 @@ struct dbo_traits : public dbo_default_traits
    *
    * This indicates the type of the primary key, which needs to be
    * <tt>long long</tt> for a surrogate id, but can be any type
-   * supported by Wt::Dbo::field() (including composite types) for a natural primary key.
+   * supported by Wt::Dbo::field() (including composite types) for a
+   * natural primary key.
    *
    * The following operations need to be supported for an id value:
    *
    *  - <i>default constructor</i>
    *  - <i>copy constructor</i>
-   *  - serialization to a string (for formatting an error message in exceptions): <tt>std::ostream << id</tt>
+   *  - serialization to a string (for formatting an error message in exceptions)
+   *    : <tt>std::ostream << id</tt>
    *  - comparison operator (for use as a key in a std::map): <tt>id == id</tt>
    *  - less than operator (for use as a key in a std::map): <tt>id < id</tt>
    *
@@ -271,10 +273,12 @@ struct dbo_traits : public dbo_default_traits
 
   /*! \brief Returns the database field name for the surrogate primary key.
    *
-   * Returns the field name onto which the surrogate id should be mapped.
+   * Returns the field name which is the surrogate primary key,
+   * corresponding to the object's id.
    *
-   * This traits function is ignored when using a natural id for your
-   * class, see Wt::Dbo::id().
+   * You can disable this auto-incrementing surrogate id by returning
+   * \c 0 instead. In that case you will need to define a natural id
+   * for your class using Wt::Dbo::id().
    */
   static const char *surrogateIdField();
 
@@ -293,7 +297,7 @@ struct dbo_traits : public dbo_default_traits
    * You can disable optimistic locking using a version field all
    * together for your class by returning \c 0 instead.
    */
-  static const char *versionField() { return "version"; }
+  static const char *versionField();
 #endif // DOXYGEN_ONLY
 };
 
@@ -628,6 +632,7 @@ private:
   friend class Session;
   friend class SaveBaseAction;
   friend class ToAnysAction;
+  friend class FromAnyAction;
 };
 
 template <class C>
@@ -636,10 +641,16 @@ struct query_result_traits< ptr<C> >
   static void getFields(Session& session,
 			std::vector<std::string> *aliases,
 			std::vector<FieldInfo>& result);
+
   static ptr<C> load(Session& session, SqlStatement& statement,
 		     int& column);
 
   static void getValues(const ptr<C>& ptr, std::vector<boost::any>& values);
+  static void setValue(const ptr<C>& ptr, int& index, const boost::any& value);
+
+  static ptr<C> create();
+  static void add(Session& session, ptr<C>& ptr);
+  static void remove(ptr<C>& ptr);
 };
 
   }

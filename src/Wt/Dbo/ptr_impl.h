@@ -419,6 +419,33 @@ void query_result_traits< ptr<C> >
   ToAnysAction action(values);
   action.visit(ptr);
 }
+
+template <class C>
+void query_result_traits< ptr<C> >
+::setValue(const ptr<C>& ptr, int& index, const boost::any& value)
+{
+  FromAnyAction action(index, value);
+  action.visit(ptr);
+}
+
+template <class C>
+ptr<C> query_result_traits< ptr<C> >::create()
+{
+  return ptr<C>(new C());
+}
+
+template <class C>
+void query_result_traits< ptr<C> >::add(Session& session, ptr<C>& ptr)
+{
+  session.add(ptr);
+}
+
+template <class C>
+void query_result_traits< ptr<C> >::remove(ptr<C>& ptr)
+{
+  ptr.remove();
+}
+
   }
 }
 

@@ -380,6 +380,10 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       }
     }
   }
+
+  assert(false);
+
+  return false;
 }
 
 void Reply::setConnection(Connection *connection)

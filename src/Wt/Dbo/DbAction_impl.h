@@ -39,6 +39,11 @@ void InitSchema::actId(V& value, const std::string& name, int size)
   mapping_.naturalIdFieldName = name;
   mapping_.naturalIdFieldSize = size;
 
+  if (mapping_.surrogateIdFieldName)
+    throw std::logic_error("Error: Wt::Dbo::id() called for class C "
+			   "with surrogate key: "
+			   "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
+
   idField_ = true;
   field(*this, value, name, size);
   idField_ = false;
@@ -494,16 +499,19 @@ void SessionAddAction::actCollection(const CollectionRef<C>& field)
   // FIXME: cascade add ?
 }
 
+    /*
+     * ToAnysAction
+     */
+
 template<class C>
 void ToAnysAction::visit(const ptr<C>& obj)
 {
-  session_ = obj.obj()->session();
-
-  result_.push_back(obj.id());
+  if (dbo_traits<C>::surrogateIdField())
+    result_.push_back(obj.id());
 
   if (dbo_traits<C>::versionField())
     result_.push_back(obj.version());
-  
+
   persist<C>::apply(const_cast<C&>(*obj), *this);
 }
 
@@ -529,6 +537,12 @@ boost::any convertToAny(const V& v) {
 }
 
 template<typename V>
+void ToAnysAction::actId(V& value, const std::string& name, int size)
+{ 
+  field(*this, value, name, size);
+}
+
+template<typename V>
 void ToAnysAction::act(const FieldRef<V>& field)
 { 
   result_.push_back(convertToAny(field.value()));
@@ -537,11 +551,76 @@ void ToAnysAction::act(const FieldRef<V>& field)
 template<class C>
 void ToAnysAction::actPtr(const PtrRef<C>& field)
 {
-  field.visit(*this, session_);
+  field.visit(*this, 0);
 }
 
 template<class C>
 void ToAnysAction::actCollection(const CollectionRef<C>& field)
+{
+}
+
+    /*
+     * FromAnyAction
+     */
+
+template<class C>
+void FromAnyAction::visit(const ptr<C>& obj)
+{
+  if (dbo_traits<C>::surrogateIdField()) {
+    if (index_ == 0)
+      throw std::logic_error("dbo_result_traits::setValues(): "
+			     "cannot set surrogate id.");
+    --index_;
+  }
+
+  if (dbo_traits<C>::versionField()) {
+    if (index_ == 0)
+      throw std::logic_error("dbo_result_traits::setValues(): "
+			     "cannot set version field.");
+    --index_;
+  }
+
+  persist<C>::apply(const_cast<C&>(*obj), *this);
+
+  if (index_ == -1)
+    obj.modify();
+}
+
+template <typename V, class Enable = void>
+struct FromAny
+{
+  static V convert(const boost::any& v) {
+    return boost::any_cast<V>(v);
+  }  
+};
+
+template <typename Enum>
+struct FromAny<Enum, typename boost::enable_if<boost::is_enum<Enum> >::type> 
+{
+  static Enum convert(const boost::any& v) {
+    return static_cast<Enum>(boost::any_cast<int>(v));
+  }
+};
+
+template<typename V>
+void FromAnyAction::act(const FieldRef<V>& field)
+{
+  if (index_ == 0) {
+    field.setValue(FromAny<V>::convert(value_));
+
+    index_ = -1;
+  } else if (index_ > 0)
+    --index_;
+}
+
+template<class C>
+void FromAnyAction::actPtr(const PtrRef<C>& field)
+{
+  field.visit(*this, 0);
+}
+
+template<class C>
+void FromAnyAction::actCollection(const CollectionRef<C>& field)
 {
 }
 

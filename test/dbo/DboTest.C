@@ -16,6 +16,7 @@
 #include <Wt/WTime>
 #include <Wt/Dbo/WtSqlTraits>
 #include <Wt/Dbo/ptr_tuple>
+#include <Wt/Dbo/QueryModel>
 
 #include "DboTest.h"
 
@@ -78,6 +79,7 @@ struct dbo_traits<D> : public dbo_default_traits
 {
   typedef Coordinate IdType;
   static IdType invalidId() { return Coordinate(); }
+  static const char *surrogateIdField() { return 0; }
   static const char *versionField() { return 0; }
 };
 
@@ -819,6 +821,154 @@ void DboTest::test10()
   }
 }
 
+void DboTest::test11()
+{
+  setup();
+
+  try {
+    {
+      dbo::Transaction t(*session_);
+
+      session_->add(new C("c1"));
+
+      dbo::Query< dbo::ptr<C> > query = session_->find<C>();
+      dbo::QueryModel< dbo::ptr<C> > *model
+	= new dbo::QueryModel< dbo::ptr<C> >();
+
+      model->setQuery(query);
+
+      t.commit();
+
+      boost::any d;
+
+      model->addAllFieldsAsColumns();
+
+      BOOST_REQUIRE(model->columnCount() == 3);
+      BOOST_REQUIRE(model->rowCount() == 1);
+
+      BOOST_REQUIRE(Wt::asString(model->headerData(0)) == "id");
+      BOOST_REQUIRE(Wt::asString(model->headerData(1)) == "version");
+      BOOST_REQUIRE(Wt::asString(model->headerData(2)) == "name");
+
+      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "c1");
+
+      model->setData(0, 2, std::string("changed"));
+
+      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed");
+
+      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed");
+
+      {
+	dbo::Transaction t2(*session_);
+	dbo::ptr<C> c = session_->find<C>();
+	BOOST_REQUIRE(c->name == "changed");
+	t2.commit();
+      }
+
+      model->insertRow(1);
+      model->setData(1, 2, std::string("new C"));
+
+      {
+	dbo::Transaction t2(*session_);
+	BOOST_REQUIRE(session_->find<C>().resultList().size() == 2);
+	t2.commit();
+      }
+
+      model->removeRows(0, 2);
+
+      {
+	dbo::Transaction t2(*session_);
+	BOOST_REQUIRE(session_->find<C>().resultList().size() == 0);
+	t2.commit();
+      }
+    }
+
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
+}
+
+void DboTest::test12()
+{
+  setup();
+
+  try {
+    {
+      dbo::Transaction t(*session_);
+
+      session_->add(new C("c1"));
+
+      dbo::Query< dbo::ptr<C> > query = session_->find<C>();
+      dbo::QueryModel< dbo::ptr<C> > *model
+	= new dbo::QueryModel< dbo::ptr<C> >();
+
+      model->setQuery(query);
+      model->setEditStrategy(dbo::OnManualSubmit);
+
+      boost::any d;
+
+      model->addAllFieldsAsColumns();
+
+      BOOST_REQUIRE(model->columnCount() == 3);
+      BOOST_REQUIRE(model->rowCount() == 1);
+
+      BOOST_REQUIRE(Wt::asString(model->headerData(0)) == "id");
+      BOOST_REQUIRE(Wt::asString(model->headerData(1)) == "version");
+      BOOST_REQUIRE(Wt::asString(model->headerData(2)) == "name");
+
+      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "c1");
+
+      model->setData(0, 2, std::string("changed"));
+
+      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed");
+
+      model->submitAll();
+
+      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed");
+
+      {
+	dbo::ptr<C> c = session_->find<C>();
+	BOOST_REQUIRE(c->name == "changed");
+      }
+
+      model->insertRow(1);
+      model->setData(1, 2, std::string("new C"));
+
+      model->submitAll();
+
+      BOOST_REQUIRE(session_->find<C>().resultList().size() == 2);
+
+      model->removeRow(0);
+
+      BOOST_REQUIRE(model->rowCount() == 1);
+
+      model->setData(0, 2, std::string("changed again"));
+
+      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed again");
+
+      model->submitAll();
+
+      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed again");
+
+      BOOST_REQUIRE(session_->find<C>().resultList().size() == 1);
+
+      {
+	dbo::ptr<C> c = session_->find<C>();
+	BOOST_REQUIRE(c->name == "changed again");
+      }
+
+      t.commit();
+    }
+
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
+}
+
 DboTest::DboTest()
   : test_suite("dbotest_test_suite")
 {
@@ -832,4 +982,6 @@ DboTest::DboTest()
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test8, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test9, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test10, this)));
+  add(BOOST_TEST_CASE(boost::bind(&DboTest::test11, this)));
+  add(BOOST_TEST_CASE(boost::bind(&DboTest::test12, this)));
 }

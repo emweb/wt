@@ -414,6 +414,7 @@ private:
 
   template <class C> Mapping<C> *getMapping() const;
   MappingInfo *getMapping(const char *tableName) const;
+  template <class C> ptr<C> loadLazy(const typename dbo_traits<C>::IdType& id);
   template <class C> ptr<C> load(SqlStatement *statement, int& column);
 
   void prune(MetaDboBase *obj);
@@ -465,6 +466,8 @@ private:
   template <class C> friend class PtrRef;
   friend class TransactionDoneAction;
   friend class DropSchema;
+  friend class ToAnysAction;
+  friend class FromAnyAction;
 };
 
   }

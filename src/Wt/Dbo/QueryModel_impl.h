@@ -15,6 +15,7 @@ namespace Wt {
 template <class Result>
 QueryModel<Result>::QueryModel(WObject *parent)
   : WAbstractTableModel(parent),
+    editStrategy_(OnFieldChange),
     batchSize_(40),
     cachedRowCount_(-1),
     cacheStart_(-1),
@@ -38,19 +39,17 @@ void QueryModel<Result>::setBatchSize(int count)
 }
 
 template <class Result>
-int QueryModel<Result>::addColumn(const std::string& field)
+int QueryModel<Result>::addColumn(const std::string& field,
+				  WFlags<ItemFlag> flags)
 {
-  return addColumn(QueryColumn(field));
+  return addColumn(QueryColumn(field, flags));
 }
 
 template <class Result>
 int QueryModel<Result>::addColumn(const QueryColumn& column)
 {
   columns_.push_back(column);
-
-  columns_.back().displayFieldIdx_ = getFieldIndex(column.displayField_);
-  if (!column.editField_.empty())
-    columns_.back().editFieldIdx_ = getFieldIndex(column.editField_);
+  columns_.back().fieldIdx_ = getFieldIndex(column.field_);
 
   return columns_.size() - 1;
 }
@@ -59,10 +58,15 @@ template <class Result>
 void QueryModel<Result>::addAllFieldsAsColumns()
 {
   for (unsigned i = 0; i < fields_.size(); ++i) {
+    WFlags<ItemFlag> flags = ItemIsSelectable;
+
+    if (fields_[i].isMutable())
+      flags |= ItemIsEditable;
+
     if (fields_[i].qualifier().empty())
-      addColumn(fields_[i].name());
+      addColumn(fields_[i].name(), flags);
     else
-      addColumn(fields_[i].qualifier() + "." + fields_[i].name());
+      addColumn(fields_[i].qualifier() + "." + fields_[i].name(), flags);
   }
 }
 
@@ -86,7 +90,8 @@ int QueryModel<Result>::rowCount(const WModelIndex& parent) const
 
     query_.limit(-1);
     query_.offset(-1);
-    cachedRowCount_ = query_.resultList().size();
+    cachedRowCount_
+      = query_.resultList().size() + addedRows_.size() - removedRows_.size();
 
     transaction.commit();
   }
@@ -95,19 +100,145 @@ int QueryModel<Result>::rowCount(const WModelIndex& parent) const
 }
 
 template <class Result>
+WFlags<ItemFlag> QueryModel<Result>::flags(const WModelIndex& index) const
+{
+  return columns_[index.column()].flags_;
+}
+
+template <class Result>
 boost::any QueryModel<Result>::data(const WModelIndex& index, int role) const
 {
-  if (currentRow_ != index.row()) {
-    const Result& result = resultRow(index.row());
-    rowValues_.clear();
-    query_result_traits<Result>::getValues(result, rowValues_);
-    currentRow_ = index.row();
-  }
+  setCurrentRow(index.row());
 
-  if (role == DisplayRole)
-    return rowValues_[columns_[index.column()].displayFieldIdx_];
+  if (role == DisplayRole || role == EditRole)
+    return rowValues_[columns_[index.column()].fieldIdx_];
   else
     return boost::any();
+}
+
+template <class Result>
+void QueryModel<Result>::setCurrentRow(int row) const
+{
+  if (currentRow_ != row) {
+    const Result& result = resultRow(row);
+    rowValues_.clear();
+    query_result_traits<Result>::getValues(result, rowValues_);
+
+    /*
+     * Use edited values.
+     */
+    if (!editedValues_.empty()) {
+      for (int col = 0; col < columnCount(); ++col) {
+	ValueMap::const_iterator i = editedValues_.find(index(row, col));
+
+	if (i != editedValues_.end())
+	  rowValues_[col] = i->second;
+      }
+    }
+
+    currentRow_ = row;
+  }
+}
+
+template <class Result>
+bool QueryModel<Result>::setData(const WModelIndex& index,
+				 const boost::any& value, int role)
+{
+  if (role == EditRole) {
+    if (editStrategy_ == OnFieldChange) {
+      Result& result = resultRow(index.row());
+
+      int column = columns_[index.column()].fieldIdx_;
+      query_result_traits<Result>::setValue(result, column, value);
+
+      invalidateRow(index.row());
+    } else {
+      editedValues_[index] = value;
+
+      if (currentRow_ == index.row())
+	rowValues_[columns_[index.column()].fieldIdx_] = value;
+
+      dataChanged().emit(index, index);
+    }
+
+    return true;
+  } else
+    return false;
+}
+
+
+template <class Result>
+void QueryModel<Result>::setEditStrategy(EditStrategy strategy)
+{
+  revertAll();
+
+  editStrategy_ = strategy;
+}
+
+template <class Result>
+bool QueryModel<Result>::isDirty() const
+{
+  return !editedValues_.empty()
+    || !addedRows_.empty()
+    || !removedRows_.empty();
+}
+
+template <class Result>
+void QueryModel<Result>::submitAll()
+{
+  if (!isDirty())
+    return;
+
+  {
+    Transaction t(query_.session());
+
+    /*
+     * Remove rows
+     */
+    for (unsigned i = 0; i < removedRows_.size(); ++i) {
+      int row = removedRows_[i];
+      
+      deleteRow(adjustedResultRow(row));
+      cache_.erase(cache_.begin() + (row - cacheStart_));
+    }
+
+    removedRows_.clear();
+
+    /*
+     * Add rows
+     */
+    for (unsigned i = 0; i < addedRows_.size(); ++i)
+      addRow(addedRows_[i]);
+
+    addedRows_.clear();
+
+    /*
+     * Modify rows
+     */
+    for (ValueMap::const_iterator i = editedValues_.begin();
+	 i != editedValues_.end(); ++i) {
+      Result& result = resultRow(i->first.row());
+      int column = i->first.column();
+      query_result_traits<Result>::setValue(result, column, i->second);
+    }
+
+    editedValues_.clear();
+    editedRows_.clear();
+
+    t.commit();
+  }
+}
+
+template <class Result>
+void QueryModel<Result>::revertAll()
+{
+  invalidateData();
+
+  addedRows_.clear();
+  editedValues_.clear();
+  editedRows_.clear();
+
+  dataReloaded();
 }
 
 template <class Result>
@@ -116,7 +247,7 @@ boost::any QueryModel<Result>::headerData(int section,
 					 int role) const
 {
   if (orientation == Horizontal && role == DisplayRole) {
-    return fields_[columns_[section].displayFieldIdx_].name();
+    return fields_[columns_[section].fieldIdx_].name();
   } else
     return WAbstractTableModel::headerData(section, orientation, role);
 }
@@ -140,20 +271,43 @@ void QueryModel<Result>::dataReloaded()
 template <class Result>
 void QueryModel<Result>::sort(int column, SortOrder order)
 {
+  if (isDirty())
+    revertAll();
+
+  /*
+   * This should not change the row count
+   */
+  int rc = cachedRowCount_;
+
   invalidateData();
 
-  query_.orderBy(fields_[columns_[column].displayFieldIdx_].sql() + " "
+  query_.orderBy(fields_[columns_[column].fieldIdx_].sql() + " "
 		 + (order == AscendingOrder ? "asc" : "desc"));
 
+  cachedRowCount_ = rc;
   dataReloaded();
 }
 
 template <class Result>
-const Result& QueryModel<Result>::resultRow(int row) const
+Result& QueryModel<Result>::resultRow(int row)
 {
-  if (row < cacheStart_
-      || row > cacheStart_ + static_cast<int>(cache_.size())) {
-    cacheStart_ = std::max(row - batchSize_ / 4, 0);
+  typename ResultMap::iterator i = editedRows_.find(row);
+  if (i != editedRows_.end())
+    return i->second;
+
+  int firstAddedRow = rowCount() - addedRows_.size();
+  if (row >= firstAddedRow)
+    return addedRows_[row - firstAddedRow];
+
+  return adjustedResultRow(adjustForRemoved(row));
+}
+
+template <class Result>
+Result& QueryModel<Result>::adjustedResultRow(int adjustedRow)
+{
+  if (adjustedRow < cacheStart_
+      || adjustedRow >= cacheStart_ + static_cast<int>(cache_.size())) {
+    cacheStart_ = std::max(adjustedRow - batchSize_ / 4, 0);
 
     query_.offset(cacheStart_);
     query_.limit(batchSize_);
@@ -161,12 +315,38 @@ const Result& QueryModel<Result>::resultRow(int row) const
     Transaction transaction(query_.session());
 
     collection<Result> results = query_.resultList();
+    cache_.clear();
     cache_.insert(cache_.end(), results.begin(), results.end());   
 
     transaction.commit();
   }
 
-  return cache_[row - cacheStart_];
+  return cache_[adjustedRow - cacheStart_];
+}
+
+template <class Result>
+void QueryModel<Result>::setCachedResult(int row, const Result& result)
+{
+  editedRows_[adjustForRemoved(row)] = result;
+  invalidateRow(row);
+}
+
+template <class Result>
+void QueryModel<Result>::invalidateRow(int row)
+{
+  if (row == currentRow_)
+    currentRow_ = -1;
+
+  WModelIndex start = index(row, 0);
+  WModelIndex end = index(row, columnCount() - 1);
+  dataChanged().emit(start, end);
+}
+
+template <class Result>
+const Result& QueryModel<Result>::resultRow(int row) const
+{
+  return const_cast<const Result&>
+    (const_cast<QueryModel<Result> *>(this)->resultRow(row));
 }
 
 template <class Result>
@@ -194,6 +374,122 @@ template <class Result>
 const std::vector<FieldInfo>& QueryModel<Result>::fields() const
 {
   return fields_;
+}
+
+template <class Result>
+WFlags<ItemFlag> QueryModel<Result>::columnFlags(int column) const
+{
+  return columns_[column].flags_;
+}
+
+template <class Result>
+void QueryModel<Result>::setColumnFlags(int column, WFlags<ItemFlag> flags)
+{
+  return columns_[column].flags_ = flags;
+}
+
+template <class Result>
+Result QueryModel<Result>::createRow()
+{
+  return query_result_traits<Result>::create();
+}
+
+template <class Result>
+void QueryModel<Result>::addRow(Result& result)
+{
+  query_result_traits<Result>::add(query_.session(), result);
+}
+
+template <class Result>
+void QueryModel<Result>::deleteRow(Result& result)
+{
+  query_result_traits<Result>::remove(result);
+}
+
+template <class Result>
+bool QueryModel<Result>::insertRows(int row, int count,
+				    const WModelIndex& parent)
+{
+  if (row != rowCount())
+    throw Exception("QueryModel: only supporting row insertion at end");
+
+  beginInsertRows(parent, row, row + count - 1);
+
+  if (editStrategy_ == OnFieldChange) {
+    for (int i = 0; i < count; ++i) {
+      Result r = createRow();
+      addRow(r);
+
+      /*
+       * Insert also into cache, this avoids a useless insert+query
+       * when insertion is followed by setData() calls.
+       */
+      if (cacheStart_ != -1
+	  && cacheStart_ + (int)cache_.size() == adjustForRemoved(row) + i)
+	cache_.push_back(r);
+    }
+  } else {
+    for (int i = 0; i < count; ++i)
+      addedRows_.push_back(createRow());
+  }
+
+  cachedRowCount_ += count;
+
+  endInsertRows();
+
+  return true;
+}
+
+template <class Result>
+bool QueryModel<Result>::removeRows(int row, int count,
+				    const WModelIndex& parent)
+{
+  beginRemoveRows(parent, row, row + count - 1);
+  
+  if (editStrategy_ == OnFieldChange) {
+    for (int i = 0; i < count; ++i) {
+      deleteRow(resultRow(row));
+      cache_.erase(cache_.begin() + (row - cacheStart_));
+    }
+
+    cachedRowCount_ -= count;
+  } else {
+    for (int i = 0; i < count; ++i) {
+      int firstAddedRow = rowCount() - addedRows_.size();
+      if (row >= firstAddedRow)
+	addedRows_.erase(addedRows_.begin() + (row - firstAddedRow));
+      else
+	removedRows_.push_back(row);
+      --cachedRowCount_;
+    }
+
+    std::sort(removedRows_.begin(), removedRows_.end());
+  }
+
+  ValueMap shifted;
+  for (ValueMap::iterator i = editedValues_.begin();
+       i != editedValues_.end(); ++i) {
+    shifted[index(i->first.row() + count, i->first.column())] = i->second;
+  }
+  editedValues_ = shifted;
+
+  endRemoveRows();
+
+  return true;
+}
+
+template <class Result>
+int QueryModel<Result>::adjustForRemoved(int row) const
+{
+  // Upper bound of row: suppose five rows were removed, all at row 4
+  //  removedRows_ = [4, 4, 4, 4, 4]
+  //  then: adjustForRemoved(4) -> 4 + 5 = 9
+  //        adjustForRemoved(3) -> 3 + 0 = 3
+  //        adjustForRemoveD(5) -> 5 + 5 = 10
+  int i = std::upper_bound(removedRows_.begin(), removedRows_.end(), row)
+    - removedRows_.begin();
+
+  return row + i;
 }
 
   }

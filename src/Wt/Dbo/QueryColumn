@@ -7,6 +7,7 @@
 #ifndef WT_DBO_QUERY_COLUMN_H_
 #define WT_DBO_QUERY_COLUMN_H_
 
+#include <Wt/WModelIndex>
 #include <Wt/Dbo/Dbo>
 
 namespace Wt {
@@ -16,17 +17,15 @@ class WAbstractTableModel;
 
 // TODO figure out a nice syntax for qualified fields ?
 class QueryColumn {
-  QueryColumn(const std::string& displayField);
+  QueryColumn(const std::string& field, WFlags<ItemFlag> flags);
 
-  QueryColumn(const std::string& displayField,
-	      const std::string& editField,
+  QueryColumn(const std::string& field,
 	      WAbstractTableModel *editValuesModel);
 
 private:
-  std::string displayField_;
-  std::string editField_;
-
-  int displayFieldIdx_, editFieldIdx_;
+  std::string field_;
+  WFlags<ItemFlag> flags_;
+  int fieldIdx_;
 
   WAbstractTableModel *editValuesModel_;
 

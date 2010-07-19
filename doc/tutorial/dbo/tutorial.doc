@@ -823,6 +823,8 @@ namespace Wt {
       static IdType invalidId() {
         return std::string();
       }
+
+      static const char *surrogateIdField() { return 0; }
     };
 
   }

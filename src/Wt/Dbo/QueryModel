@@ -13,22 +13,82 @@
 namespace Wt {
   namespace Dbo {
 
+/*! \brief A strategy for committing edited values to the underlying database.
+ *
+ * \sa QueryModel<Result>::setEditStrategy()
+ *
+ * \ingroup dbo
+ */
+enum EditStrategy {
+  /*! \brief Changes are applied to the model directly.
+   *
+   * The actual change will be flushed to the database, when the
+   * session is flushed (e.g. when a transaction commits or a query
+   * is run).
+   */
+  OnFieldChange,
+
+  /*! \brief Changes are first cached until submitAll() or revertAll()
+   *         is called.
+   *
+   * This may be useful if you want to commit all changes in a single
+   * transaction.
+   */
+  OnManualSubmit
+};
+
 class QueryColumn;
 
 /*! \class QueryModel Wt/Dbo/QueryModel Wt/Dbo/QueryModel
- *  \brief A %Wt MVC Model to view the results of a query.
+ *  \brief A %Wt MVC Model to view/edit query results.
  *
- * The model fetches results from the query (but is smart about what
- * to fetch), and presents their data in a table. It supports sorting
- * by altering the query to sort using SQL (Query::orderBy()). %Query
- * results are converted to model data using
- * query_result_traits<Result>::getValues().
+ * The model fetches results from the query and presents the data in a
+ * table. It supports sorting the underlying SQL query using
+ * Query::orderBy().
  *
- * You may add columns which you want to display using
- * addColumn(). You can also add all columns based on the query using
- * addAllFieldsAsColumns().
+ * The default implementation of data() converts %Query results to
+ * model data using query_result_traits<Result>::getValues(). You may
+ * define your own data presentation using the underlying \p Result by
+ * specializing data() and accessing data from resultRow().
  *
- * Currently no editing support is provided.
+ * You may selectively add fields that you want to display using
+ * addColumn(), or you can also add all columns based on the query
+ * using addAllFieldsAsColumns().
+ *
+ * The model supports editing of the underlying data (even if the
+ * underlying query fetches results from multiple tables!). Values in
+ * columns that correspond to fields that have been mapped (and are
+ * writable) in a Database Object can be edited. The default
+ * implementation of setData() uses
+ * query_result_traits<Result>::setValue() to manipulate the database
+ * object, and thus uses the same write-behind properties as
+ * ptr<C>::modify(). To customize editing, you can specialize
+ * setData() and use resultRow() to modify the result object
+ * directly.
+ *
+ * The model supports also inserting rows (only at the end), and
+ * removing rows, which are reflected in object additions and removals
+ * from the Session.
+ *
+ * The model supports two strategies for applying editing (changes,
+ * insertion and deletion) to the database objects :
+ *
+ *  - Wt::Dbo::OnFieldChange will apply the editing directly to the
+ *    underlying database objects (change, insert and remove). Note
+ *    that these changes will be flushed to the database whenever a
+ *    transaction is committed, or before a query is run. The model
+ *    will not explicitly create a transaction for the modification,
+ *    but since it requires a query for reading data, the change may
+ *    be committed to the database depending on how the model is
+ *    loading data. Still, this implies that usually inserting a row
+ *    and setting its data happens within a single SQL
+ *    <tt>"insert"</tt> statement.
+ *
+ *  - Wt::Dbo::OnManualSubmit will cache editing in the model until
+ *    submitAll() is called, and only then apply the changes to the
+ *    database objects. This may be useful if you want all changes to
+ *    be committed in a transaction that you control explicilty, and
+ *    if you want to give the user the option to cancel all changes.
  *
  * \ingroup dbo modelview
  */
@@ -36,6 +96,9 @@ template <class Result>
 class QueryModel : public WAbstractTableModel
 {
 public:
+  using WAbstractItemModel::data;
+  using WAbstractItemModel::setData;
+
   /*! \brief Creates a new query model.
    *
    * You need to seed the model with a query using setQuery().
@@ -44,54 +107,139 @@ public:
 
   /*! \brief Sets the query.
    *
-   * The \p query is used to query the database.
+   * The \p query is used to query the database. This resets the
+   * column list, so you will need to add one or more columns using
+   * addColumn().
    */
   void setQuery(const Query<Result>& query);
 
   /*! \brief Returns the query.
+   *
+   * \sa setQuery()
    */
   const Query<Result>& query() const { return query_; }
 
   /*! \brief Adds a column.
    *
-   * The \p field name may be a qualified or unqualified field name.
+   * The \p field name may be a qualified or unqualified field
+   * name. The list of available fields can be inspected using
+   * fields().
+   *
+   * For the column items, flags() will returned the given \p
+   * flags. For example, to indicate that a field is editable, you can
+   * set the Wt::ItemIsEditable flag.
+   *
+   * \sa fields()
    */
-  int addColumn(const std::string& field);
+  int addColumn(const std::string& field,
+		WFlags<ItemFlag> flags = ItemIsSelectable);
+
+  /*! \brief Sets column item flags.
+   *
+   * For items in column \p column, flags() will returned the given \p
+   * flags. For example, to indicate that a field is editable, you can
+   * set the Wt::ItemIsEditable flag.
+   */
+  void setColumnFlags(int column, WFlags<ItemFlag> flags);
+
+  /*! \brief Returns column item flags.
+   *
+   * \sa setColumnFlags()
+   */
+  WFlags<ItemFlag> columnFlags(int column) const;
 
   // later
   int addColumn(const QueryColumn& column);
 
-  // later
-  void setColumnsFlags(int column, WFlags<ItemFlag> flags_);
-
   /*! \brief Adds all the columns from the field list.
+   *
+   * All fields are added as columns. Fields that are mutable are marked
+   * as editable columns.
+   *
+   * This is a convenient alternative to selectively adding columns
+   * using addColumn().
    *
    * \sa fields()
    */
   void addAllFieldsAsColumns();
 
-  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
-  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
-    const;
-  virtual boost::any headerData(int section,
-				Orientation orientation = Horizontal,
-				int role = DisplayRole) const;
-  virtual void sort(int column, SortOrder order = AscendingOrder);
+  /*! \brief Returns a result row.
+   *
+   * This returns the result corresponding to a particular row, and
+   * could be used to customize the model behaviour, e.g. by
+   * specializing data() for certain columns.
+   *
+   * Returns a const reference to an entry in the result cache.
+   */
+  const Result& resultRow(int row) const;
 
   /*! \brief Returns a result row.
    *
-   * This returns the result corresponding to a particular row, and could
-   * be used to customize the view or provide editing support.
+   * This returns the result corresponding to a particular row, and
+   * could be used to customize the model behaviour, e.g. by
+   * specializing setData() for certain columns.
+   *
+   * Returns a reference to an entry in the result cache.
+   *
+   * \sa resultRow(int row) const
    */
-  const Result& resultRow(int row) const;
+  Result& resultRow(int row);
 
   /*! \brief Rereads the data from the database.
    *
    * This invalidates the current (cached) data and informs views that
    * they should rerender.
+   *
+   * The model keeps the following data cached:
+   *  - rowCount()
+   *  - a batch of data, controlled by setBatchSize()
    */
   void reload();
+
+  /*! \brief Sets the edit strategy.
+   *
+   * The edit strategy determines when model editing (through
+   * setData()) is committed to the database.
+   *
+   * The default strategy is Wt::Dbo::OnFieldChange.
+   */
+  void setEditStrategy(EditStrategy strategy);
+
+  /*! \brief Returns the edit strategy.
+   *
+   * \sa setEditStrategy()
+   */
+  EditStrategy editStrategy() const { return editStrategy_; }
+
+  /*! \brief Returns whether the model has pending changes.
+   *
+   * When editStrategy() is Wt::Dbo::OnManualSubmit, this returns
+   * whether model changes are still pending, and can be flushed using
+   * submitAll() or reverted using revertAll().
+   *
+   * \sa revertAll(), setEditStrategy()
+   */
+  bool isDirty() const;
+
+  /*! \brief Flushes edited values to the database.
+   *
+   * When editStrategy() is Wt::Dbo::OnManualSubmit, edits are not
+   * committed directly to the underlying database. Instead, the
+   * changes are cached by the model (and consistently shown that
+   * way), and only flushed to the database when this method is
+   * called.
+   *
+   * \sa revertAll(), setEditStrategy()
+   */
+  virtual void submitAll();
+
+  /*! \brief Discards edited values.
+   *
+   * This cancels edited values.
+   *
+   * \sa submitAll(), setEditStrategy()
+   */
+  virtual void revertAll();
 
   /*! \brief Sets the batch size for fetching results.
    *
@@ -114,7 +262,150 @@ public:
    */
   const std::vector<FieldInfo>& fields() const;
 
+  /*! \brief Returns the number of columns.
+   *
+   * Returns the number of columns that have been added using
+   * addColumn() or addAllFieldsAsColumns().
+   *
+   * Since the query model implements a flat table model, this returns
+   * 0 when \p parent is valid.
+   */
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const;
+
+  /*! \brief Returns the number of rows.
+   *
+   * Returns the number of rows return from the underlying query.
+   *
+   * Since the query model implements a flat table model, this returns
+   * 0 when \p parent is valid.
+   */
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const;
+
+  /*! \brief Returns the flags for an item.
+   *
+   * Returns the flags set for the column using setColumnFlags().
+   */
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
+
+  /*! \brief Returns the data for an item.
+   *
+   * Returns data of type Wt::DisplayRole or Wt::EditRole based on the
+   * field value corresponding to the index. If necessary, this
+   * fetches a batch of results from the underlying database.
+   */
+  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
+    const;
+
+  /*! \brief Sets data at the given model index.
+   *
+   * If \p role = Wt::EditRole, sets the value for the field
+   * corresponding to the index. When the edit strategy is
+   * Wt::Dbo::OnManualSubmit, the change is first cached until
+   * submitAll() is called.
+   *
+   * \sa setCachedResult()
+   */
+  virtual bool setData(const WModelIndex& index,
+		       const boost::any& value, int role = EditRole);
+
+  /*! \brief Returns the column header data.
+   *
+   * Returns the column header based on the field name.
+   *
+   * \sa addColumn()
+   */
+  virtual boost::any headerData(int section,
+				Orientation orientation = Horizontal,
+				int role = DisplayRole) const;
+
+  /*! \brief Sorts the model according to a particular column.
+   *
+   * This sorts the model by changing the query using
+   * Query<BindStrategy>::orderBy().
+   *
+   * When the edit strategy is Wt::Dbo::OnManualSubmit, edited values are
+   * discarded using revertAll().
+   *
+   * \note We could support keeping the editing changes later, provided that
+   *       we have an implementation for toRawIndex() and fromRawIndex().
+   */
+  virtual void sort(int column, SortOrder order = AscendingOrder);
+
+  /*! \brief Inserts one or more rows.
+   *
+   * Row insertions are only supported at the end (\p row ==
+   * rowCount()). For each added row, a new result is added to the
+   * underlying database.
+   *
+   * When the edit strategy is Wt::Dbo::OnManualSubmit, the
+   * addition is first cached until submitAll() is called.
+   */
+  virtual bool insertRows(int row, int count,
+			  const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Removes one or more rows.
+   *
+   * For each removed row, the result is removed from the underlying database.
+   *
+   * When the edit strategy is Wt::Dbo::OnManualSubmit, the
+   * addition is first cached until submitAll() is called.
+   */
+  virtual bool removeRows(int row, int count,
+			  const WModelIndex& parent = WModelIndex());
+
+protected:
+  /*! \brief Caches an edited result.
+   *
+   * When the edit strategy is Wt::Dbo::OnFieldChange, any editing
+   * through setData() is automatically reflected in the underlying
+   * result object (resultRow()). When a foreign key was modified,
+   * this also updates (and, if necessary, loads) the referenced
+   * object, thus automatically showing a consistent row.
+   *
+   * When the edit strategy is Wt::Dbo::OnManualSubmit, then the
+   * default implementation of setData() caches the changed value for
+   * the single field being edited. Because this may result in an
+   * inconsistent row when the field was a foreign key, it may be
+   * useful to cache the change also in the corresponding resultRow(),
+   * ahead of a call to submitAll() in a specialized implementation of
+   * setData().
+   */
+  void setCachedResult(int row, const Result& result);
+
+  /*! \brief Creates a new row.
+   *
+   * This method is called from within insertRows() to create a new
+   * row.
+   *
+   * The default implementation uses query_result_traits<Result>::create().
+   */
+  virtual Result createRow();
+
+  /*! \brief Adds a row to the session.
+   *
+   * This method is called from within insertRows() or submitAll() to add
+   * (and save) a new result row to the Dbo session.
+   *
+   * The default implementation uses query_result_traits<Result>::add().
+   */
+  virtual void addRow(Result& result);
+
+  /*! \brief Deletes a row from the session.
+   *
+   * This method is called from within removeRows() or submitAll() to remove
+   * (and delete) a new result row from the Dbo session.
+   *
+   * The default implementation uses query_result_traits<Result>::remove().
+   */
+  virtual void deleteRow(Result& result);
+
 private:
+  typedef std::vector<boost::any> AnyList;
+  typedef std::map<unsigned, AnyList> AnyListMap;
+  typedef std::map<WModelIndex, boost::any> ValueMap;
+  typedef std::map<int, Result> ResultMap;
+
+  EditStrategy editStrategy_;
   std::vector<QueryColumn> columns_;
 
   mutable Query<Result> query_;
@@ -125,14 +416,25 @@ private:
   mutable std::vector<Result> cache_;
 
   mutable int currentRow_;
-  mutable std::vector<boost::any> rowValues_;
+  mutable AnyList rowValues_;
 
   std::vector<FieldInfo> fields_;
 
+  /* OnManualSubmit editing support */
+  ValueMap editedValues_;
+  ResultMap editedRows_;
+  std::vector<int> removedRows_;  // sorted
+  std::vector<Result> addedRows_;
+
   int getFieldIndex(const std::string& field);
 
+  void setCurrentRow(int row) const;
   void invalidateData();
+  void invalidateRow(int row);
   void dataReloaded();
+
+  Result& adjustedResultRow(int row);
+  int adjustForRemoved(int row) const;
 };
 
   }

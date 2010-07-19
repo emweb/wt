@@ -78,7 +78,7 @@ void Session::MappingInfo::dropTable(Session& session,
 
 std::string Session::MappingInfo::primaryKeys() const
 {
-  if (naturalIdFieldName.empty())
+  if (surrogateIdFieldName)
     return std::string("\"") + surrogateIdFieldName + "\"";
   else {
     std::stringstream result;
@@ -240,7 +240,7 @@ void Session::prepareStatements(MappingInfo *mapping)
 
   sql << ")";
 
-  if (mapping->naturalIdFieldName.empty()) {
+  if (mapping->surrogateIdFieldName) {
     SqlConnection *conn = useConnection();
     sql << conn->autoincrementInsertSuffix();
     returnConnection(conn);
@@ -275,7 +275,7 @@ void Session::prepareStatements(MappingInfo *mapping)
 
   std::string idCondition;
 
-  if (!mapping->naturalIdFieldName.empty()) {
+  if (!mapping->surrogateIdFieldName) {
     firstField = true;
 
     for (unsigned i = 0; i < mapping->fields.size(); ++i) {
@@ -356,7 +356,7 @@ void Session::prepareStatements(MappingInfo *mapping)
     sql << "select ";
 
     firstField = true;
-    if (otherMapping->naturalIdFieldName.empty()) {
+    if (otherMapping->surrogateIdFieldName) {
       sql << "\"" << otherMapping->surrogateIdFieldName << "\"";
       firstField = false;
     }
@@ -570,7 +570,7 @@ void Session::createTable(MappingInfo *mapping)
   bool firstField = true;
 
   // Auto-generated id
-  if (mapping->naturalIdFieldName.empty()) {
+  if (mapping->surrogateIdFieldName) {
     sql << "  \"" << mapping->surrogateIdFieldName << "\" "
 	<< connection(false)->autoincrementType()
 	<< " primary key "
@@ -690,7 +690,6 @@ void Session::createJoinTable(const std::string& joinName,
   joinTableMapping.tableName = joinName.c_str();
   joinTableMapping.versionFieldName = 0;
   joinTableMapping.surrogateIdFieldName = 0;
-  joinTableMapping.naturalIdFieldName = "dummy"; // not empty
 
   addJoinTableFields(joinTableMapping, mapping1, joinId1, "key1");
   addJoinTableFields(joinTableMapping, mapping2, joinId2, "key2");
@@ -742,7 +741,7 @@ Session::getJoinIds(MappingInfo *mapping, const std::string& joinId)
 {
   std::vector<Session::JoinId> result;
 
-  if (mapping->naturalIdFieldName.empty()) {
+  if (mapping->surrogateIdFieldName) {
     std::string idName;
 
     if (joinId.empty())
@@ -891,7 +890,7 @@ void Session::getFields(const char *tableName,
     throw std::logic_error(std::string("Table ") + tableName
 			   + " was not mapped.");
 
-  if (mapping->naturalIdFieldName.empty())
+  if (mapping->surrogateIdFieldName)
     result.push_back(FieldInfo(mapping->surrogateIdFieldName,
 			       &typeid(long long), "integer not null",
 			       FieldInfo::SurrogateId));

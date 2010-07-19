@@ -30,6 +30,7 @@ public:
   std::string sqlType(Session& session) const;
   const std::type_info *type() const;
   const V& value() const { return value_; }
+  void setValue(const V& value) const { value_ = value; }
 
   void bindValue(SqlStatement *statement, int column) const;
   void setValue(Session& session, SqlStatement *statement, int column) const;

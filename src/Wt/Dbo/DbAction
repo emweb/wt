@@ -249,12 +249,12 @@ private:
   std::vector<boost::any>& result_;
 };
 
-class WTDBO_API FromAnysAction
+class WTDBO_API FromAnyAction
 {
 public:
-  FromAnysAction(const std::vector<boost::any>& anys, int& index);
+  FromAnyAction(int& index, const boost::any& value);
 
-  template<class C> void visit(C& obj);
+  template<class C> void visit(const ptr<C>& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<typename V> void act(const FieldRef<V>& field);
@@ -266,8 +266,9 @@ public:
   bool isSchema() const;
 
 private:
-  const std::vector<boost::any>& anys_;
+  Session *session_;
   int& index_;
+  const boost::any& value_;
 };
 
   }

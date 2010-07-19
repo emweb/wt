@@ -461,6 +461,8 @@ public:
 
   /*! \brief Configures what actions should trigger editing.
    *
+   * The default value is DoubleClicked.
+   *
    * \sa edit()
    */
   void setEditTriggers(WFlags<EditTrigger> editTriggers);
@@ -472,6 +474,8 @@ public:
   WFlags<EditTrigger> editTriggers() const { return editTriggers_; }
 
   /*! \brief Configures editing options.
+   *
+   * The default value is SingleEditor;
    */
   void setEditOptions(WFlags<EditOption> options);
 

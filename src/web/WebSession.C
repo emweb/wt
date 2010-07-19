@@ -749,7 +749,6 @@ void WebSession::handleRequest(Handler& handler)
   Configuration& conf = controller_->configuration();
 
   WebRequest& request = *handler.request();
-  WebResponse& response = *handler.response();
 
   const std::string *wtdE = request.getParameter("wtd");
   const std::string *requestE = request.getParameter("request");
@@ -767,8 +766,8 @@ void WebSession::handleRequest(Handler& handler)
    * in other cases: silenty discard the request
    */
   if (!((requestE && *requestE == "resource")
-	|| handler.request()->requestMethod() == "POST"
-	|| handler.request()->requestMethod() == "GET"))
+	|| request.requestMethod() == "POST"
+	|| request.requestMethod() == "GET"))
     handler.response()->setStatus(400); // Bad Request
   else if ((!wtdE || (*wtdE != sessionId_))
 	   && state_ != JustCreated

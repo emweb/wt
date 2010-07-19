@@ -5,6 +5,9 @@
 	* WebSession: fix one possible race condition, and one possible dead-lock
 	when grabbing the session lock
 
+	* Dbo/QueryModel: implement write support (setData(), insertRows(),
+	and removeRows())
+
 15-07-2010:
 	* Wt::Dbo: adds support for natural keys, including composite
 	keys, custom id and version field names, and foreign key

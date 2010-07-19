@@ -63,6 +63,39 @@ namespace Impl {
       query_result_traits<ElementType>::getValues(boost::get<N>(result),
 						  values);
     }
+
+    static void setValue(T& result, int& index, const boost::any& value)
+    {
+      if (index >= 0) {
+	helper<N-1, T>::setValue(result, index, value);
+
+	if (index >= 0) {
+	  query_result_traits<ElementType>::setValue(boost::get<N>(result),
+						     index, value);
+	}
+      }
+    }
+
+    static void create(T& result)
+    {
+      helper<N-1, T>::create(result);
+
+      boost::get<N>(result) = query_result_traits<ElementType>::create();
+    }
+
+    static void add(Session& session, T& result)
+    {
+      helper<N-1, T>::add(session, result);
+
+      query_result_traits<ElementType>::add(session, boost::get<N>(result));
+    }
+
+    static void remove(T& result)
+    {
+      helper<N-1, T>::remove(result);
+
+      query_result_traits<ElementType>::remove(boost::get<N>(result));
+    }
   };
 
   template <class T>
@@ -78,6 +111,18 @@ namespace Impl {
     { }
 
     static void getValues(const T& result, std::vector<boost::any>& values)
+    { }
+
+    static void setValue(T& result, int& index, const boost::any& value)
+    { }
+
+    static void create(T& result)
+    { }
+
+    static void add(Session& session, T& result)
+    { }
+
+    static void remove(T& result)
     { }
   };
 
@@ -160,6 +205,12 @@ struct query_result_traits< boost::tuple<T0, T1, T2, T3, T4,
 			 int& column);
 
   static void getValues(const tuple_type& t, std::vector<boost::any>& values);
+
+  static void setValue(tuple_type& t, int& index, const boost::any& value);
+
+  static tuple_type create();
+  static void add(Session& session, tuple_type& t);
+  static void remove(tuple_type& t);
 };
 
 template <class T0, class T1, class T2, class T3, class T4,
@@ -193,6 +244,46 @@ query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 ::getValues(const tuple_type& t, std::vector<boost::any>& values)
 {
   helper::getValues(t, values);
+}
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+void 
+query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::setValue(tuple_type& t, int& index, const boost::any& value)
+{
+  helper::setValue(t, index, value);
+}
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::create()
+{
+  tuple_type result;
+
+  helper::create(result);
+
+  return result;
+}
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+void 
+query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::add(Session& session, tuple_type& t)
+{
+  helper::add(session, t);
+}
+
+template <class T0, class T1, class T2, class T3, class T4,
+	  class T5, class T6, class T7, class T8, class T9>
+void 
+query_result_traits< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+::remove(tuple_type& t)
+{
+  helper::remove(t);
 }
 
   }

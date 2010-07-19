@@ -90,7 +90,7 @@ ptr<C> Session::load(SqlStatement *statement, int& column)
   typedef typename dbo_traits<C>::IdType IdType;
   IdType id;
 
-  if (mapping->naturalIdFieldName.empty()) {
+  if (mapping->surrogateIdFieldName) {
     /* Auto-generated surrogate key is first field */
     statement->getResult(column++, &id);
 
@@ -134,9 +134,6 @@ ptr<C> Session::add(ptr<C>& obj)
 {
   initSchema();
 
-  if (!transaction_)
-    throw std::logic_error("Dbo find(): no active transaction");
-
   MetaDbo<C> *dbo = obj.obj();
   if (dbo && !dbo->session()) {
     dbo->setSession(this);
@@ -160,6 +157,14 @@ ptr<C> Session::add(C *obj)
 template <class C>
 ptr<C> Session::load(const typename dbo_traits<C>::IdType& id)
 {
+  ptr<C> result = loadLazy<C>(id);
+  *result; // Dereference to do actual load or throw exception
+  return result;
+}
+
+template <class C>
+ptr<C> Session::loadLazy(const typename dbo_traits<C>::IdType& id)
+{
   initSchema();
 
   Mapping<C> *mapping = getMapping<C>();
@@ -168,9 +173,7 @@ ptr<C> Session::load(const typename dbo_traits<C>::IdType& id)
   if (i == mapping->registry_.end()) {
     MetaDbo<C> *dbo = new MetaDbo<C>(id, -1, MetaDboBase::Persisted, *this, 0);
     mapping->registry_[id] = dbo;
-    ptr<C> result(dbo);
-    *result; // Dereference to do actual load or throw exception
-    return result;
+    return ptr<C>(dbo);
   } else
     return ptr<C>(i->second);
 }
@@ -212,7 +215,8 @@ void Session::implSave(MetaDbo<C>& dbo)
   if (!transaction_)
     throw std::logic_error("Dbo save(): no active transaction");
 
-  transaction_->objects_.push_back(new ptr<C>(&dbo));
+  if (!dbo.savedInTransaction())
+    transaction_->objects_.push_back(new ptr<C>(&dbo));
 
   Session::Mapping<C> *mapping = getMapping<C>();
 

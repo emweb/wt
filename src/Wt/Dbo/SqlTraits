@@ -206,6 +206,9 @@ struct query_result_traits
    * The given \p aliases may be used to qualify fields that correspond to
    * entire tables (popping values from the front of this vector). An
    * exception is thrown if not enough aliases were provided.
+   *
+   * This method is needed when you want to use Result as the result
+   * of query.
    */
   static void getFields(Session& session,
 			std::vector<std::string> *aliases,
@@ -217,6 +220,9 @@ struct query_result_traits
    * column, and advancing the column pointer for as many columns as
    * needed (and according to the number of fields returned by
    * getFields()).
+   *
+   * This method is needed when you want to use Result as the result
+   * of query.
    */
   static Result load(Session& session, SqlStatement& statement,
 		     int& column);
@@ -224,8 +230,57 @@ struct query_result_traits
   /*! \brief Returns result values.
    *
    * This returns the individual field values in the given \p result.
+   *
+   * This method needs to be implemented only if you want to display
+   * the result in a QueryModel (which implements Wt's MVC item
+   * model).
    */
   static void getValues(const Result& result, std::vector<boost::any>& values);
+
+  /*! \brief Sets a result value.
+   *
+   * Sets the value at \p index, where index indicates the field whose
+   * value needs to be updated.
+   *
+   * When \p index is out-of-bounds, it should be decremented with as
+   * many fields as there are in this result type. Otherwise, index
+   * should be set to -1 after the value has been set.
+   *
+   * This method needs to be implemented only if you want to modify
+   * the result from a QueryModel (which implements Wt's MVC item
+   * model).
+   */
+  static void setValue(Result& result, int& index, const boost::any& value);
+
+  /*! \brief Creates a new result.
+   *
+   * Creates a new result. This should initialize a result so that its values
+   * can be set using setValue() or read using getValues().
+   *
+   * The result should not yet be associated with a session.
+   *
+   * This method needs to be implemented only if you want to create
+   * new results from a QueryModel (which implements Wt's MVC item
+   * model).
+   */
+  static Result create();
+
+  /*! \brief Adds a new result to the session.
+   *
+   * Adds a (newly created) result to a session.
+   *
+   * This method needs to be implemented only if you want to create
+   * new results from a QueryModel (which implements Wt's MVC item
+   * model).
+   */
+  static void add(Session& session, Result& result);
+
+  /*! \brief Removes a result from the session.
+   *
+   * This method needs to be implemented only if you want to remove
+   * results from a QueryModel (which implements Wt's MVC item model).
+   */
+  static void remove(Result& result);
 };
 
   }

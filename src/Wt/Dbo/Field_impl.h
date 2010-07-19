@@ -102,7 +102,7 @@ void PtrRef<C>::visit(A& action, Session *session) const
   if (action.setsValue()) {
     if (!(id == dbo_traits<C>::invalidId())) {
       if (session)
-	value_ = session->load<C>(id);
+	value_ = session->loadLazy<C>(id);
       else
 	throw std::logic_error("Could not load referenced Dbo::ptr, "
 			       "no session?");
