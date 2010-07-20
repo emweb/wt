@@ -20,26 +20,24 @@ namespace Wt {
     - change the author
     - cannot change the number of comments
 
-   You want to display the author as its name (but that may be a
-   combination of multiple fields, do we need to customize -- needs
-   custom data()). Otherwise it is its primary key.... Unless we have a
-   model used for editing, then we can lookup the key in that model and
-   use the display value for editing ? In that way you need only once
-   the translation from entity to display value.
+   Idea of the night for foreign keys and combo-box editing
+    - two more ItemDataRoles:
+      - OptionsModel
+        a WAbstractItemModel: column 0 has entries with data of two roles:
+        - EditRole: the primary key
+	- DisplayRole: the value to display
+      - Validator
+        a WValidator: used to validate the data
 
-    Even better, use the database to generate the display value in the map
-    table / join clause ? We should at least support this: differentiate between
-    edit and display field indexes ?
-      "author_id" = editFieldIdx
-      'u.name' || u."first_name" = display FieldIdx
-      select ..., 'u.name' || u."first_name" from post join user u on author_id == u.id
+    typedef boost::function<WString (const Result&)> ResultValueFunction;
 
-   The query model item delegate puts a combo box, and populates
-     its values with:
-      - QueryModel from session.find<User>() with two fields added as columns:
-        - display column = ...
-        - value column = column 0
-      - This information 
+    addColumn(const ResultValueFunction& function,
+              const std::string& editField = "",
+	      WAbstractItemModel *editOptions = 0);
+
+    Let WItemDelegate support better editing:
+     - if validator is a WDateValidator, then display a date picker
+     - if OptionsModel data is not empty, then display a combo box
  */
 
 QueryColumn::QueryColumn(const std::string& field, WFlags<ItemFlag> flags)

@@ -52,7 +52,7 @@ public:
 
   WTreeTable *table() const { return table_; }
 
-  virtual void addChildNode(WTreeNode *node);
+  virtual void insertChildNode(int index, WTreeNode *node);
 
 protected:
 

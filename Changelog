@@ -1,3 +1,7 @@
+20-07-2010:
+	* src/Wt/WTreeNode: added insertChildNode(), as suggested by
+	Aleksey Chirkin
+
 19-07-2010:
 	* src/isapi: added a (first implementation) of an ISAPI connector,
 	which provides native support in Microsft IIS.

@@ -135,9 +135,22 @@ public:
    */
   void setLabelIcon(WIconPair *labelIcon);
 
-  /*! \brief Adds a child node.
+  /*! \brief Inserts a child node.
+   *
+   * Inserts the node \p node at index \p index.
    */
-  virtual void addChildNode(WTreeNode *node);
+  virtual void insertChildNode(int index, WTreeNode *node);
+
+  /*! \brief Adds a child node.
+   *
+   * Equivalent to:
+   * \code
+   * insertChildNode(childNodes().size(), node);
+   * \endcode
+   *
+   * \sa insertChildNode()
+   */
+  void addChildNode(WTreeNode *node);
 
   /*! \brief Removes a child node.
    */

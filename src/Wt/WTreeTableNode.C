@@ -25,9 +25,9 @@ WTreeTableNode::WTreeTableNode(const WString& labelText,
     parentNode->addChildNode(this);
 }
 
-void WTreeTableNode::addChildNode(WTreeNode *node)
+void WTreeTableNode::insertChildNode(int index, WTreeNode *node)
 {
-  WTreeNode::addChildNode(node);
+  WTreeNode::insertChildNode(index, node);
 
   if (table_)
     (dynamic_cast<WTreeTableNode *>(node))->setTable(table_);

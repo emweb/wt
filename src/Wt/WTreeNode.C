@@ -315,11 +315,16 @@ void WTreeNode::descendantRemoved(WTreeNode *node)
 
 void WTreeNode::addChildNode(WTreeNode *node)
 {
-  childNodes_.push_back(node);
+  insertChildNode(childNodes_.size(), node);
+}
+
+void WTreeNode::insertChildNode(int index, WTreeNode *node)
+{
+  childNodes_.insert(childNodes_.begin() + index, node);
   node->parentNode_ = this;
 
   if (childrenLoaded_)
-    layout_->elementAt(1, 1)->addWidget(node);
+    layout_->elementAt(1, 1)->insertWidget(index, node);
   else
     node->setParent(0); // because node->hasParent() has Changed
 
@@ -331,7 +336,11 @@ void WTreeNode::addChildNode(WTreeNode *node)
   if (childCountPolicy_ != node->childCountPolicy_)
     node->setChildCountPolicy(childCountPolicy_);
 
-  if (childNodes_.size() > 1)
+  /*
+   * If newly inserted node is last, then previous last node needs to
+   * be updated.
+   */
+  if (index == childNodes_.size() - 1 && childNodes_.size() > 1)
     childNodes_[childNodes_.size() - 2]->update();
 
   node->update();
