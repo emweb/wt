@@ -169,15 +169,17 @@ void WChartTest::plotTimeSeriesChart(WStandardItemModel* model,
   chart->setMargin(10, Top | Bottom);
   chart->setMargin(WLength::Auto, Left | Right);
 
-  WSvgImage image(400, 300);
-  WPainter painter(&image);
+  {
+    WSvgImage image(400, 300);
+    WPainter painter(&image);
 
-  chart->paint(painter);
+    chart->paint(painter);
 
-  painter.end();
-  std::ofstream f(fileName.c_str());
-  image.write(f);
-  f.close();
+    painter.end();
+    std::ofstream f(fileName.c_str());
+    image.write(f);
+    f.close();
+  }
 }
 
 WChartTest::WChartTest()

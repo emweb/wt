@@ -3,7 +3,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 SET(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE true)
 
 IF(COMMAND CMAKE_POLICY)
+  CMAKE_POLICY(SET CMP0002 OLD)
   CMAKE_POLICY(SET CMP0003 OLD)
+  CMAKE_POLICY(SET CMP0005 OLD)
 ENDIF(COMMAND CMAKE_POLICY)
 
 PROJECT(WT)
@@ -77,28 +79,37 @@ ENDIF(CMAKE_MAJOR_VERSION LESS 2)
 SET(WT_BOOST_DISCOVERY ${DEFAULT_WT_BOOST_DISCOVERY} CACHE BOOL "Use Wt's boost discovery method rather than the cmake 2.6+ method")
 
 IF(WIN32)
-  SET(USERLIB_ROOT "c:/libraries" CACHE PATH "directory containing the dependency libraries")
-  SET(LIB_INSTALL_DIR "lib" CACHE STRING "Default path for libraries within ${CMAKE_INSTALL_PREFIX}")
-  SET(RUNDIR "c:/witty" CACHE PATH "Not really used in WIN32")
+
+  SET(LIB_INSTALL_DIR "lib" CACHE STRING "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
+  SET(RUNDIR "c:/witty" CACHE PATH "Does not apply to Win32 build")
   IF( NOT DEFINED CONFIGDIR )
     SET(CONFIGDIR ${RUNDIR} CACHE STRING "Path for the configuration files")
   ENDIF( NOT DEFINED CONFIGDIR )
   SET(DEPLOYROOT c:/witty/wt-examples CACHE PATH "Path to deploy examples into")
-  SET(BOOST_DIR "c:/Program Files/Boost" CACHE PATH "Use boost in directory")
-  SET(GD_DIR ${USERLIB_ROOT} CACHE PATH "Search path for libgd")
+
+  SET(USERLIB_ROOT "c:/libraries" CACHE PATH "Location for installed dependency libraries")
+  SET(BOOST_DIR "c:/Program Files/Boost" CACHE PATH "Location of boost libraries")
   OPTION(BOOST_DYNAMIC "Link to boost DLLs (OFF means static link)" OFF)
-  SET(POSTGRES_ROOT "c:/libraries" CACHE PATH "directory containing postgresql (overrides USERLIB_ROOT)")
+  SET(GD_DIR ${USERLIB_ROOT} CACHE PATH "Location of gd library (overrides USERLIB_ROOT)")
+  SET(HARU_ROOT ${USERLIB_ROOT} CACHE PATH "Location of libharu library (overrides USERLIB_ROOT)")
+  SET(POSTGRES_ROOT "c:/libraries" CACHE PATH "Location of postgresql library (overrides USERLIB_ROOT)")
+  SET(MYSQL_ROOT "c:/libraries" CACHE PATH "Location of mysql and mysql++ libraries (overrides USERLIB_ROOT)")
+
 ELSE(WIN32)
-  SET(USERLIB_ROOT /usr CACHE PATH "Other installation prefix for dependent libraries")
-  SET(LIB_INSTALL_DIR "lib" CACHE STRING "Default path for libraries within ${CMAKE_INSTALL_PREFIX}")
+
+  SET(LIB_INSTALL_DIR "lib" CACHE STRING "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
   SET(RUNDIR "/var/run/wt" CACHE PATH "Default path for wt session management (only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
   IF( NOT DEFINED CONFIGDIR )
     SET(CONFIGDIR "/etc/wt" CACHE STRING "Path for the configuration files")
   ENDIF( NOT DEFINED CONFIGDIR )
   SET(DEPLOYROOT /var/www/localhost/htdocs/wt-examples CACHE PATH "Path to deploy examples into)")
-  SET(BOOST_DIR /usr CACHE PATH "Boost installation path prefix")
-  SET(GD_DIR "/usr/lib" CACHE PATH "Search path for libgd2")
-  SET(POSTGRES_ROOT "/usr" CACHE PATH "directory containing postgresql (overrides USERLIB_ROOT)")
+
+  SET(USERLIB_ROOT /usr CACHE PATH "Location for installed dependency libraries.")
+  SET(BOOST_DIR ${USERLIB_ROOT} CACHE PATH "Location of boost libraries (overrides USERLIB_ROOT).")
+  SET(GD_DIR ${USERLIB_ROOT} CACHE PATH "Location of gd library (overrides USERLIB_ROOT).")
+  SET(POSTGRES_ROOT ${USERLIB_ROOT} CACHE PATH "Location of postgresql library (overrides USERLIB_ROOT)")
+  SET(MYSQL_ROOT ${USERLIB_ROOT} CACHE PATH "Location of mysql and mysql++ libraries (overrides USERLIB_ROOT)")
+  SET(HARU_ROOT ${USERLIB_ROOT} CACHE PATH "Location of libharu library (overrides USERLIB_ROOT)")
 ENDIF(WIN32)
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
@@ -132,6 +143,7 @@ INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysqlpp.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
+INCLUDE(cmake/WtFindHaru.txt)
 
 FIND_PACKAGE(Qt4)
 IF(QT_FOUND)
@@ -182,12 +194,13 @@ CONFIGURE_FILE(
   ${WT_BINARY_DIR}/wt_config.xml
 )
 
+ADD_CUSTOM_TARGET(doc)
+
 IF (ASCIIDOC_FOUND)
   MACRO (ASCIIDOC_FILE target infile outfile)
     ADD_CUSTOM_TARGET(${target}
        ${ASCIIDOC_EXECUTABLE} -a toc -a numbered -o ${outfile} ${infile}
        COMMENT "Asciidoc ${infile}")
-    ADD_CUSTOM_TARGET(doc)
     ADD_DEPENDENCIES(doc ${target})
   ENDMACRO (ASCIIDOC_FILE)
 ENDIF (ASCIIDOC_FOUND)
@@ -197,7 +210,6 @@ IF (DOXYGEN_FOUND)
     ${DOXYGEN_EXECUTABLE}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Doxygen ...")
-  ADD_CUSTOM_TARGET(doc)
   ADD_DEPENDENCIES(doc doxygen)
   ADD_CUSTOM_TARGET(doxygen-examples
     ${DOXYGEN_EXECUTABLE}

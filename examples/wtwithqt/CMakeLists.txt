@@ -12,7 +12,8 @@ ENDIF (NOT QT_FOUND)
 
 IF (NOT BUILD_WTWITHQT)
 
-  MESSAGE(STATUS "** Wt/Qt interopability example (wtwithqt) needs Qt4 and threading support... Skipping.")
+  MESSAGE(STATUS "** Not building wtwithqt example.")
+  MESSAGE(STATUS "   wtwithqt example requires a Qt4 installation.")
 
 ELSE (NOT BUILD_WTWITHQT)
 

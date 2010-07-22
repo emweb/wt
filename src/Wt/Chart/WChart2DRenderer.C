@@ -387,6 +387,7 @@ bool SeriesRenderIterator::startSeries(const WDataSeries& series,
   series_ = &series;
 
   renderer_.painter().save();
+
   return seriesRenderer_ != 0;
 }
 
@@ -1137,11 +1138,11 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 	    iterator->startSegment(currentXSegment, currentYSegment, csa);
 
 	    painter_.save();
-	    painter_.setClipping(true);
 
 	    WPainterPath clipPath;
 	    clipPath.addRect(hv(csa));
 	    painter_.setClipPath(clipPath);
+	    painter_.setClipping(true);
 
 	    for (unsigned row = 0; row < rows; ++row) {
 	      WModelIndex xIndex, yIndex;

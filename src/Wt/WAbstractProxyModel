@@ -84,12 +84,8 @@ public:
 
   virtual bool insertColumns(int column, int count,
 			     const WModelIndex& parent = WModelIndex());
-  virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
   virtual bool removeColumns(int column, int count,
 			     const WModelIndex& parent = WModelIndex());
-  virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
 
   virtual std::string mimeType() const;
   virtual std::vector<std::string> acceptDropMimeTypes() const;

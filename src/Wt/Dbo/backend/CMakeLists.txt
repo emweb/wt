@@ -60,6 +60,7 @@ IF(POSTGRES_FOUND)
   INSTALL_FILES(/include/Wt/Dbo/backend "^Postgres$")
   INSTALL_FILES(/include/Wt/Dbo/backend "^.*Postgres.*h$")
 ELSE(POSTGRES_FOUND)
-  MESSAGE("** Wt::Dbo: could not find libpq development files, not building Postgres backend.")
+  MESSAGE("** Wt::Dbo: not building Postgres backend.")
+  MESSAGE("    Indicate the location of your postgres installation using -DPOSTGRES_ROOT=...")
 ENDIF(POSTGRES_FOUND)
 

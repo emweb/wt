@@ -5,7 +5,7 @@ ELSE(DEFINED BOOST_FS_LIB_MT)
 ENDIF(DEFINED BOOST_FS_LIB_MT)
 
 IF(NOT WIN32 AND NOT HAVE_FILETREE_BOOST)
-  MESSAGE(STATUS "** Filetreetable example needs boost_filesystem library... Skipping.")
+  MESSAGE(STATUS "** Not building filetreetable example: requires boost_filesystem library.")
 ELSE(NOT WIN32 AND NOT HAVE_FILETREE_BOOST)
 
   ADD_EXECUTABLE(filetreetable.wt

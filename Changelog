@@ -1,3 +1,7 @@
+22-07-2010:
+	* src/Wt/WPdfImage: PDF backend implementation for WPaintDevice,
+	sponsored by Eurofer.
+
 20-07-2010:
 	* src/Wt/WTreeNode: added insertChildNode(), as suggested by
 	Aleksey Chirkin

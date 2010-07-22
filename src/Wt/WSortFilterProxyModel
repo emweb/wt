@@ -39,8 +39,12 @@ class WRegExp;
  * or reimplement the lessThan() method to provide a specialized
  * sorting method.
  *
- * By default, the proxy does not automatically re-filter and re-sort
- * when the original model changes. You can enable this behaviour
+ * By default, the proxy does not automatically refilter and resort
+ * when the original model changes. Data changes or row additions to
+ * the source model are not automatically reflected in the proxy
+ * model, but to maintain integrity, row removals in the source model
+ * are always reflected in the proxy model. You can enable the model
+ * to always refilter and resort when the underlying model changes
  * using setDynamicSortFilter().
  *
  * Usage example:
@@ -81,10 +85,6 @@ class WRegExp;
  * ...
  * \endcode
  * \endif
- *
- * \note The implementation is not yet complete: the proxy model does
- *       not yet react properly to row insertions and row removals in the
- *       source model.
  *
  * \ingroup modelview
  */
@@ -206,6 +206,31 @@ public:
 				Orientation orientation = Horizontal,
 				int role = DisplayRole) const;
 
+  /*! \brief Inserts a number rows.
+   *
+   * The rows are inserted in the source model, and if successful,
+   * also in the proxy model regardless of whether they are matched by
+   * the current filter. They are inserted at the indicated row,
+   * regardless of whether this is the correct place according to the
+   * defined sorting.
+   *
+   * As soon as you set data for the column on which the filtering is
+   * active, or which affects the sorting, the row may be filtered out
+   * or change position when dynamic sorting/filtering is
+   * enabled. Therefore, it is usually a good idea to temporarily
+   * disable the dynamic sort/filtering behaviour while inserting new
+   * row(s) of data.
+   */
+  virtual bool insertRows(int row, int count,
+			  const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Removes a number rows.
+   *
+   * The rows are removed from the source model.
+   */
+  virtual bool removeRows(int row, int count,
+			  const WModelIndex& parent = WModelIndex());
+
   virtual void sort(int column, SortOrder order = AscendingOrder);
 
 protected:
@@ -271,7 +296,7 @@ private:
   int       filterKeyColumn_, filterRole_;
   int       sortKeyColumn_, sortRole_;
   SortOrder sortOrder_;
-  bool      dynamic_;
+  bool      dynamic_, inserting_;
 
   std::vector<boost::signals::connection> modelConnections_;
   mutable ItemMap mappedIndexes_;
@@ -307,7 +332,7 @@ private:
   void updateItem(Item *item) const;
   void rebuildSourceRowMap(Item *item) const;
 
-  int changedMappedRow(int sourceRow, int currentMappedRow, Item *item) const;
+  int mappedInsertionPoint(int sourceRow, Item *item) const;
   int compare(const WModelIndex& lhs, const WModelIndex& rhs) const;
 };
 

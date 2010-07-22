@@ -1,5 +1,6 @@
 IF(NOT GD_FOUND)
-  MESSAGE(STATUS "** Mandelbrot example needs gd library... Skipping.")
+  MESSAGE(STATUS "** Not building mandelbrot example: requires gd library.")
+  MESSAGE(STATUS "   Indicate the location of your gd library using -DGD_ROOT=...")
 ELSE(NOT GD_FOUND)
 
   ADD_EXECUTABLE(mandelbrot.wt MandelbrotImage.C MandelbrotExample.C)

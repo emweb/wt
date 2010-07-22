@@ -5,7 +5,8 @@
 #
 
 IF(NOT GD_FOUND)
-  MESSAGE(STATUS "** Style example needs gd library... Skipping.")
+  MESSAGE(STATUS "** Not building style example: requires gd library.")
+  MESSAGE(STATUS "   Indicate the location of your gd library using -DGD_ROOT=...")
 ELSE(NOT GD_FOUND)
 
   ADD_EXECUTABLE(styleexample.wt CornerImage.C RoundedWidget.C StyleExample.C)

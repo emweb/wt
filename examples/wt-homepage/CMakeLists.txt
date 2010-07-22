@@ -62,6 +62,6 @@ ADD_DEPENDENCIES(Home.wt wt ${EXAMPLES_CONNECTOR})
 
 ELSE(DEFINED BOOST_FS_LIB_MT)
   
-  MESSAGE(STATUS "** wt-homepage example needs boost filesystem library... Skipping.")
+  MESSAGE(STATUS "** Not building wt-homepage example: requires boost_filesystem library.")
 
 ENDIF(DEFINED BOOST_FS_LIB_MT)

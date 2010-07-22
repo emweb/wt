@@ -72,7 +72,8 @@ WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
     sortKeyColumn_(-1),
     sortRole_(DisplayRole),
     sortOrder_(AscendingOrder),
-    dynamic_(false)
+    dynamic_(false),
+    inserting_(false)
 { }
 
 WSortFilterProxyModel::~WSortFilterProxyModel()
@@ -304,9 +305,7 @@ void WSortFilterProxyModel::rebuildSourceRowMap(Item *item) const
     item->sourceRowMap_[item->proxyRowMap_[i]] = i;
 }
 
-int WSortFilterProxyModel::changedMappedRow(int sourceRow,
-					    int currentMappedRow,
-					    Item *item) const
+int WSortFilterProxyModel::mappedInsertionPoint(int sourceRow, Item *item) const
 {
   /*
    * Filter...
@@ -404,34 +403,94 @@ void WSortFilterProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
 
 void WSortFilterProxyModel::sourceRowsAboutToBeInserted
   (const WModelIndex& parent, int start, int end)
-{ }
+{
+  if (inserting_)
+    return;
+
+  /*
+   * Make sure the item starts in a known state, otherwise if the item
+   * does not yet have a sourceRowMap, it will be created taking into
+   * account the already updated number of source rows, in
+   * sourceRowsInserted().
+   *
+   * BTW. one might wonder if a user of the proxy model is interested
+   * at all in changes to a node which he has not yet 'opened' ..., but
+   * strictly spoken we are obliged to propagate these changes !
+   */
+  itemFromIndex(mapFromSource(parent));
+}
 
 void WSortFilterProxyModel::sourceRowsInserted(const WModelIndex& parent,
 					       int start, int end)
 {
-  // TODO
-  //  this will result in arbitrary rows to be inserted within the mapped
-  //  parent
-  //  for each inserted row:
-  //   - we need to determine whether it is not filtered,
-  //   - where it should be inserted
-  //   - emit rowsToBeInserted, insert row, emit rowsInserted()
+  if (inserting_)
+    return;
+
+  int count = end - start + 1;
+
+  WModelIndex pparent = mapFromSource(parent);
+  Item *item = itemFromIndex(pparent);
+
+  // Shift existing entries in proxyRowMap, and reserve place in sourceRowMap
+  // After this step, existing rows are okay again.
+  for (unsigned i = 0; i < item->proxyRowMap_.size(); ++i) {
+    if (item->proxyRowMap_[i] >= start)
+      item->proxyRowMap_[i] += count;
+  }
+
+  item->sourceRowMap_.insert(item->sourceRowMap_.begin() + start, count, -1);
+
+  if (!dynamic_)
+    return;
+
+  for (int row = start; row <= end; ++row) {
+    int newMappedRow = mappedInsertionPoint(row, item);
+    if (newMappedRow != -1) {
+      beginInsertRows(pparent, newMappedRow, newMappedRow);
+      item->proxyRowMap_.insert
+	(item->proxyRowMap_.begin() + newMappedRow, row);
+      rebuildSourceRowMap(item); // insertion may have shifted some
+      endInsertRows();
+    } else
+      item->sourceRowMap_[row] = -1;
+  }
 }
 
 void WSortFilterProxyModel::sourceRowsAboutToBeRemoved
 (const WModelIndex& parent, int start, int end)
 {
-  // TODO
-  //  this will result in arbitrary rows to be removed within the mapped
-  //  parent
-  //  for each removed row:
-  //   - we need to determine whether it is was not filtered
-  //   - emit rowsToBeRemoved, remove row, emit rowsRemoved()
+  WModelIndex pparent = mapFromSource(parent);
+  Item *item = itemFromIndex(pparent);
+
+  for (int row = start; row <= end; ++row) {
+    int mappedRow = item->proxyRowMap_[row];
+
+    if (mappedRow != -1) {
+      beginRemoveRows(pparent, mappedRow, mappedRow);
+      item->proxyRowMap_.erase(item->proxyRowMap_.begin() + mappedRow);
+      rebuildSourceRowMap(item); // erase may have shifted some
+      endRemoveRows();
+    }
+  }
 }
 
 void WSortFilterProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 					      int start, int end)
-{ }
+{
+  int count = end - start + 1;
+
+  WModelIndex pparent = mapFromSource(parent);
+  Item *item = itemFromIndex(pparent);
+
+  // Shift existing entries in proxyRowMap, and remove entries in sourceRowMap
+  for (unsigned i = 0; i < item->proxyRowMap_.size(); ++i) {
+    if (item->proxyRowMap_[i] >= start)
+      item->proxyRowMap_[i] -= count;
+  }
+
+  item->sourceRowMap_.erase(item->sourceRowMap_.begin() + start,
+			    item->sourceRowMap_.begin() + start + count);
+}
 
 void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
 					      const WModelIndex& bottomRight)
@@ -452,8 +511,9 @@ void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
     bool propagateDataChange = oldMappedRow != -1;
 
     if (refilter || resort) {
+      // Determine new insertion point: erase it temporarily for this
       item->proxyRowMap_.erase(item->proxyRowMap_.begin() + oldMappedRow);
-      int newMappedRow = changedMappedRow(row, oldMappedRow, item);
+      int newMappedRow = mappedInsertionPoint(row, item);
       item->proxyRowMap_.insert(item->proxyRowMap_.begin() + oldMappedRow, row);
 
       if (newMappedRow != oldMappedRow) {
@@ -511,6 +571,47 @@ void WSortFilterProxyModel::sourceLayoutAboutToBeChanged()
 void WSortFilterProxyModel::sourceLayoutChanged()
 {
   layoutChanged().emit();
+}
+
+bool WSortFilterProxyModel::insertRows(int row, int count,
+				       const WModelIndex& parent)
+{
+  int sourceRow;
+
+  int currentCount = rowCount(parent);
+  if (row < currentCount)
+    sourceRow = mapToSource(index(row, 0, parent)).row();
+  else
+    sourceRow = sourceModel()->rowCount(mapToSource(parent));
+
+  inserting_ = true;
+  bool result
+    = sourceModel()->insertRows(sourceRow, count, mapToSource(parent));
+  inserting_ = false;
+
+  if (!result)
+    return false;
+
+  Item *item = itemFromIndex(parent);
+
+  beginInsertRows(parent, row, row);
+  item->proxyRowMap_.push_back(sourceRow);
+  item->sourceRowMap_.insert(item->sourceRowMap_.begin() + sourceRow, row);
+  endInsertRows();
+
+  return true;
+}
+
+bool WSortFilterProxyModel::removeRows(int row, int count,
+				       const WModelIndex& parent)
+{
+  for (int i = 0; i < count; ++i) {
+    int sourceRow = mapToSource(index(row, 0, parent)).row();
+    if (!sourceModel()->removeRows(sourceRow, 1, mapToSource(parent)))
+      return false;
+  }
+
+  return true;
 }
 
 }

@@ -113,8 +113,7 @@ WPointF WPainterPath::positionAtSegment(int index) const
       double theta1 = segments_[i+2].x();
       double deltaTheta = segments_[i+2].y();
 
-      return getArcPosition(cx, cy, rx, ry,
-			    degreesToRadians(theta1 + deltaTheta));
+      return getArcPosition(cx, cy, rx, ry, theta1 + deltaTheta);
     }
     default:
       assert(false);

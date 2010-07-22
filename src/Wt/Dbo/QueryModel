@@ -28,11 +28,12 @@ enum EditStrategy {
    */
   OnFieldChange,
 
-  /*! \brief Changes are first cached until submitAll() or revertAll()
-   *         is called.
+  /*! \brief Changes are first cached in the model.
    *
-   * This may be useful if you want to commit all changes in a single
-   * transaction.
+   * The cached changes are committed when calling
+   * QueryModel<Result>::submitAll() or reverted using
+   * QueryModel<Result>::revertAll(). This may be useful if you want
+   * to commit all changes in a single transaction.
    */
   OnManualSubmit
 };

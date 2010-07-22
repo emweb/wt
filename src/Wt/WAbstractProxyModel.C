@@ -42,26 +42,10 @@ bool WAbstractProxyModel::insertColumns(int column, int count,
   return sourceModel_->insertColumns(column, count, parent);
 }
 
-bool WAbstractProxyModel::insertRows(int row, int count,
-				     const WModelIndex& parent)
-{
-  int sourceRow = mapToSource(index(row, 0, parent)).row();
-
-  return sourceModel_->insertRows(sourceRow, count, mapToSource(parent));
-}
-
 bool WAbstractProxyModel::removeColumns(int column, int count,
 					const WModelIndex& parent)
 {
   return sourceModel_->removeColumns(column, count, parent);
-}
-
-bool WAbstractProxyModel::removeRows(int row, int count,
-				     const WModelIndex& parent)
-{
-  int sourceRow = mapToSource(index(row, 0, parent)).row();
-
-  return sourceModel_->removeRows(sourceRow, count, mapToSource(parent));
 }
 
 std::string WAbstractProxyModel::mimeType() const

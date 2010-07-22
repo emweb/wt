@@ -9,14 +9,14 @@ FIND_LIBRARY(MYSQLPP_LIBRARIES mysqlpp
     /usr/lib
     /usr/local/lib
     /opt/local/lib	
-    ${USERLIB_ROOT}/lib
+    ${MYSQL_ROOT}/lib
 )
 
 FIND_PATH(MYSQLPP_INCLUDE mysql++/mysql++.h
     /usr/include
     /usr/local/include
     /opt/local/include	
-    ${USERLIB_ROOT}/include
+    ${MYSQL_ROOT}/include
 )
 
 FIND_PATH(MYSQL_INCLUDE mysql.h
@@ -25,7 +25,7 @@ FIND_PATH(MYSQL_INCLUDE mysql.h
     /usr/include/mysql
     /opt/local/include/mysql5/mysql
     /usr/local/include/mysql
-    ${USERLIB_ROOT}/include
+    ${MYSQL_ROOT}/include
 )
 
 SET(MYSQLPP_FOUND FALSE)

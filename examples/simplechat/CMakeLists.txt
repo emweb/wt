@@ -1,5 +1,5 @@
 IF(NOT BOOST_WT_MT_FOUND)
-  MESSAGE(STATUS "** Serverpush example needs boost with thread support... Skipping.")
+  MESSAGE(STATUS "** Not building simplechat example: requires a multi-threaded build.")
 ELSE(NOT BOOST_WT_MT_FOUND)
 
  ADD_DEFINITIONS(-DTHREADED)

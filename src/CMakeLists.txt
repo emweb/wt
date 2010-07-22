@@ -40,7 +40,7 @@ IF(BOOST_WT_MT_FOUND)
     ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
   ENDIF(MULTI_THREADED)
 ELSE(BOOST_WT_MT_FOUND)
-  MESSAGE("** Disabling multi threading.")
+  MESSAGE("** Disabling multi threading: could not find multi-threaded boost libraries")
   ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
 ENDIF(BOOST_WT_MT_FOUND)
 
@@ -274,8 +274,20 @@ Wt/Chart/WChartPalette.C
 Wt/Chart/WStandardPalette.C
 )
 
+IF(HARU_FOUND)
+  SET(libsources ${libsources} Wt/WPdfImage.C)
+ENDIF(HARU_FOUND)
+
 ADD_LIBRARY(wt ${libsources})
 TARGET_LINK_LIBRARIES(wt ${BOOST_WT_LIBRARIES})
+
+IF(HARU_FOUND)
+  TARGET_LINK_LIBRARIES(wt ${HARU_LIBRARIES})
+  INCLUDE_DIRECTORIES(${HARU_INCLUDE_DIRS})
+ELSE(HARU_FOUND)
+  MESSAGE("** Disabling PDF support (WPdfImage): requires libharu.")
+  MESSAGE("  Indicate the location of your haru library using -DHARU_ROOT=...")
+ENDIF(HARU_FOUND)
 
 IF(BOOST_WT_MT_FOUND)
   TARGET_LINK_LIBRARIES(wt ${CMAKE_THREAD_LIBS_INIT})

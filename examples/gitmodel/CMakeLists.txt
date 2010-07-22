@@ -1,4 +1,6 @@
-IF(NOT WIN32 AND DEFINED BOOST_FS_LIB_MT)
+IF(NOT WIN32)
+
+IF(DEFINED BOOST_FS_LIB_MT)
   ADD_EXECUTABLE(gitview.wt
     Git.C
     GitModel.C
@@ -24,8 +26,14 @@ IF(NOT WIN32 AND DEFINED BOOST_FS_LIB_MT)
 
   ADD_DEPENDENCIES(gitview.wt wt ${EXAMPLES_CONNECTOR})
 
-ELSE(NOT WIN32 AND DEFINED BOOST_FS_LIB_MT)
+ELSE(DEFINED BOOST_FS_LIB_MT)
 
-  MESSAGE(STATUS "** Git view example needs boost filesystem library... Skipping.")
+  MESSAGE(STATUS "** Not building gitmodel example: requires boost_filesystem library.")
 
-ENDIF(NOT WIN32 AND DEFINED BOOST_FS_LIB_MT)
+ENDIF(DEFINED BOOST_FS_LIB_MT)
+
+ELSE(NOT WIN32)
+
+  MESSAGE(STATUS "** Not building gitmodel example: uses POSIX calls not available on win32")
+
+ENDIF(NOT WIN32)
