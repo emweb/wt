@@ -21,6 +21,7 @@
 #ifndef _MSC_VER
 #define DBO_INSTANTIATE_TEMPLATES(C)					\
   template class Wt::Dbo::ptr<C>;					\
+  template class Wt::Dbo::Dbo<C>;					\
   template class Wt::Dbo::MetaDbo<C>;					\
   template class Wt::Dbo::collection< Wt::Dbo::ptr<C> >;		\
   template class Wt::Dbo::Query< Wt::Dbo::ptr<C>,			\

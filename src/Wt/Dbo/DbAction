@@ -15,6 +15,7 @@
 #include <Wt/Dbo/ptr>
 #include <Wt/Dbo/collection>
 #include <Wt/Dbo/Field>
+#include <Wt/Dbo/SqlStatement>
 #include <Wt/Dbo/Session>
 
 #include <boost/utility/enable_if.hpp>
@@ -270,6 +271,17 @@ private:
   int& index_;
   const boost::any& value_;
 };
+
+template<typename V>
+void SaveBaseAction::act(const FieldRef<V>& field)
+{
+  if (pass_ == Self) {
+    if (bindNull_)
+      statement_->bindNull(column_++);
+    else
+      field.bindValue(statement_, column_++);
+  }
+}
 
   }
 }

@@ -231,17 +231,6 @@ void LoadDbAction<C>::actId(V& value, const std::string& name, int size)
      * SaveDbAction
      */
 
-template<typename V>
-void SaveBaseAction::act(const FieldRef<V>& field)
-{
-  if (pass_ == Self) {
-    if (bindNull_)
-      statement_->bindNull(column_++);
-    else
-      field.bindValue(statement_, column_++);
-  }
-}
-
 template<class C>
 void SaveBaseAction::actPtr(const PtrRef<C>& field)
 {
