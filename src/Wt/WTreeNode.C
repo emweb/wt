@@ -340,7 +340,7 @@ void WTreeNode::insertChildNode(int index, WTreeNode *node)
    * If newly inserted node is last, then previous last node needs to
    * be updated.
    */
-  if (index == childNodes_.size() - 1 && childNodes_.size() > 1)
+  if (index == (int)childNodes_.size() - 1 && childNodes_.size() > 1)
     childNodes_[childNodes_.size() - 2]->update();
 
   node->update();

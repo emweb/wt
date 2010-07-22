@@ -28,7 +28,7 @@ using namespace Wt;
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<28> WWebWidget::AllChangeFlags = std::bitset<28>()
+const std::bitset<29> WWebWidget::AllChangeFlags = std::bitset<29>()
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
   .set(BIT_FLOAT_SIDE_CHANGED)
@@ -112,6 +112,7 @@ WWebWidget::WWebWidget(WContainerWidget *parent)
     children_(0)
 {
   flags_.set(BIT_INLINE);
+  flags_.set(BIT_ENABLED);
 
   if (parent)
     parent->addWidget(this);

@@ -291,7 +291,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 	&& flags_.test(BIT_REPAINT_TO_AJAX))
       element.unwrap();
 
-    updateSignalConnection(element, s, s.name(), all);
+    if ((s.name() != WInteractWidget::CLICK_SIGNAL
+	 && s.name() != WInteractWidget::DBL_CLICK_SIGNAL)
+	|| flags_.test(BIT_ENABLED))
+      updateSignalConnection(element, s, s.name(), all);
+    else
+      element.setEvent(s.name(), WT_CLASS ".cancelEvent(event||window.event);");
   }
 
   WWebWidget::updateDom(element, all);
@@ -311,6 +316,41 @@ void WInteractWidget::propagateRenderOk(bool deep)
   }
 
   WWebWidget::propagateRenderOk(deep);
+}
+
+void WInteractWidget::load()
+{
+  if (!isDisabled()) {
+    if (parent())
+      flags_.set(BIT_ENABLED, parent()->isEnabled());
+    else
+      flags_.set(BIT_ENABLED, true);
+  } else
+    flags_.set(BIT_ENABLED, false);
+
+  WWebWidget::load();
+}
+
+bool WInteractWidget::isEnabled() const
+{
+  return !isDisabled() && flags_.test(BIT_ENABLED);
+}
+
+void WInteractWidget::propagateSetEnabled(bool enabled)
+{
+  flags_.set(BIT_ENABLED, enabled);
+
+  EventSignal<WMouseEvent> *s;
+
+  s = mouseEventSignal(CLICK_SIGNAL, false);
+  if (s)
+    s->senderRepaint();
+
+  s = mouseEventSignal(DBL_CLICK_SIGNAL, false);
+  if (s)
+    s->senderRepaint();
+
+  WWebWidget::propagateSetEnabled(enabled);
 }
 
 void WInteractWidget::setDraggable(const std::string& mimeType,

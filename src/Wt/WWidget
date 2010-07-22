@@ -424,6 +424,9 @@ public:
    * enabled if it and all its ancestors in the widget tree are
    * disabled.
    *
+   * Typically, a disabled form widget will not allow changing the
+   * value, and disabled widgets will not react to mouse click events.
+   *
    * \sa disable(), enable()
    */
   virtual void setDisabled(bool disabled) = 0;

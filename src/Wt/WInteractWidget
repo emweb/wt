@@ -231,9 +231,14 @@ public:
    */
   void setDraggable(const std::string& mimeType, WWidget *dragWidget = 0,
 		    bool isDragWidgetOnly = false, WObject *sourceWidget = 0);
+
+  virtual void load();
+  virtual bool isEnabled() const;
+
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual void propagateRenderOk(bool deep);
+  virtual void propagateSetEnabled(bool enabled);
 
   JSlot *dragSlot_;
 

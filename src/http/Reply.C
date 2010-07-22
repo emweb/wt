@@ -268,6 +268,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	      || ct.find("text/plain") != std::string::npos
 	      || ct.find("text/javascript") != std::string::npos
 	      || ct.find("application/xhtml+xml")!= std::string::npos
+	      || ct.find("image/svg+xml")!= std::string::npos
 	      || ct.find("text/x-json") != std::string::npos);
 
 	if (gzipEncoding_) {
