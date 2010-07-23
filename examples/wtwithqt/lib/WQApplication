@@ -135,6 +135,7 @@ protected:
 private:
   bool            withEventLoop_;
   DispatchThread *thread_;
+  bool            finalize_;
 
   friend class DispatchThread;
 };

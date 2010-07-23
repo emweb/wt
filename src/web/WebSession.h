@@ -293,6 +293,12 @@ private:
  */
 class WT_API WEvent {
 private:
+  WEvent()
+    : handler(*(WebSession::Handler *)0),
+      responseType(WebRenderer::Page),
+      renderOnly(false)
+  { }
+
   WEvent(WebSession::Handler& aHandler,
 	 WebRenderer::ResponseType aResponseType,
 	 bool doRenderOnly)

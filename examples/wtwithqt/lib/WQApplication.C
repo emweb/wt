@@ -36,7 +36,8 @@ namespace Wt {
 WQApplication::WQApplication(const WEnvironment& env, bool withEventLoop)
   : WApplication(env),
     withEventLoop_(withEventLoop),
-    thread_(0)
+    thread_(0),
+    finalize_(false)
 { }
 
 void WQApplication::initialize()
@@ -51,18 +52,23 @@ void WQApplication::initialize()
 
 void WQApplication::finalize()
 {
-  if (!thread_)
-    return;
-
-  thread_->destroy();
-
-  delete thread_;
-  thread_ = 0;
+  finalize_ = true;
 }
 
 void WQApplication::notify(const WEvent& e)
 {
-  thread_->notify(e);
+  if (thread_) {
+    thread_->notify(e);
+
+    if (finalize_) {
+      thread_->destroy();
+
+      delete thread_;
+      thread_ = 0;
+    }
+  } else
+    // not yet initialized, could be the initialize() call itself.
+    realNotify(e);
 }
 
 void WQApplication::realNotify(const WEvent& e)

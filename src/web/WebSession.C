@@ -123,7 +123,8 @@ WebSession::~WebSession()
 {
 #ifndef WT_TARGET_JAVA
   if (app_)
-    app_->finalize();
+    app_->notify(WEvent());
+
   delete app_;
 #endif // WT_TARGET_JAVA
 
@@ -377,9 +378,6 @@ bool WebSession::start()
     kill();
     throw;
   }
-
-  if (app_)
-    app_->initialize();
 
   return app_;
 }
@@ -1086,6 +1084,11 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 
 void WebSession::notify(const WEvent& event)
 {
+  if (&event.handler == 0) {
+    app_->finalize();
+    return;
+  }
+
   Handler& handler = event.handler;
   WebRequest& request = *handler.request();
   WebResponse& response = *handler.response();
@@ -1103,6 +1106,7 @@ void WebSession::notify(const WEvent& event)
 
   switch (state_) {
   case WebSession::JustCreated:
+    app_->initialize();
 
 #ifdef WT_WITH_OLD_INTERNALPATH_API
     if (app_->oldInternalPathAPI() && env_->internalPath() != "/") {
