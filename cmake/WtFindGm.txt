@@ -1,0 +1,35 @@
+#
+# We set:
+# - GM_INCLUDE_DIRS
+# - GM_LIBRARIES
+# - GM_FOUND
+# 
+
+FIND_PATH(GM_INCLUDE_DIR
+    magick/api.h
+  PATHS
+    ${GM_ROOT}/include/GraphicsMagick/
+    ${GM_ROOT}/include/
+    /usr/include/GraphicsMagick/
+    /usr/include/
+    /usr/local/include/GraphicsMagick/
+    /usr/local/include/
+)
+
+FIND_LIBRARY(GM_LIB
+  NAMES
+    GraphicsMagick
+  PATHS
+    ${GM_ROOT}/lib
+)
+
+IF(GM_LIB AND GM_INCLUDE_DIR)
+  SET(GM_FOUND TRUE)
+  SET(GM_INCLUDE_DIRS ${GM_INCLUDE_DIR})
+  SET(GM_LIBRARIES ${GM_LIB} ${GM_SUPPORT_LIBS})
+ELSE(GM_LIB AND GM_INCLUDE_DIR)
+  SET(GM_FOUND FALSE)
+ENDIF(GM_LIB AND GM_INCLUDE_DIR)
+
+
+

@@ -1,20 +1,14 @@
-#
-# The style example needs the additional gd library,
-# therefore we check first that it exists before trying to build
-# the example.
-#
+IF(NOT GM_FOUND)
 
-IF(NOT GD_FOUND)
-  MESSAGE(STATUS "** Not building style example: requires gd library.")
-  MESSAGE(STATUS "   Indicate the location of your gd library using -DGD_ROOT=...")
-ELSE(NOT GD_FOUND)
+  MESSAGE(STATUS "** Not building style example: requires WRasterImage.")
+
+ELSE(NOT GM_FOUND)
 
   ADD_EXECUTABLE(styleexample.wt CornerImage.C RoundedWidget.C StyleExample.C)
-  TARGET_LINK_LIBRARIES(styleexample.wt ${EXAMPLES_CONNECTOR} ${GD_LIBRARIES})
+  TARGET_LINK_LIBRARIES(styleexample.wt ${EXAMPLES_CONNECTOR})
 
   INCLUDE_DIRECTORIES(
-    ${GD_INCLUDE_DIRS}
-    ${WT_SOURCE_DIR}/src
+   ${WT_SOURCE_DIR}/src
   )
   #
   # Create a deploy script
@@ -29,5 +23,5 @@ ELSE(NOT GD_FOUND)
 
   ADD_DEPENDENCIES(styleexample.wt wt ${EXAMPLES_CONNECTOR})
 
-ENDIF(NOT GD_FOUND)
+ENDIF(NOT GM_FOUND)
 

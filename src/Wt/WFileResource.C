@@ -14,6 +14,19 @@
 
 namespace Wt {
 
+WFileResource::WFileResource(WObject *parent)
+  : WResource(parent),
+    mimeType_("text/plain"),
+    bufferSize_(8192)
+{ }
+
+WFileResource::WFileResource(const std::string& fileName, WObject *parent)
+  : WResource(parent),
+    mimeType_("text/plain"),
+    fileName_(fileName),
+    bufferSize_(8192)
+{ }
+
 WFileResource::WFileResource(const std::string& mimeType,
 			     const std::string& fileName, WObject *parent)
   : WResource(parent),
@@ -52,9 +65,13 @@ void WFileResource::handleRequest(const Http::Request& request,
 
   std::ifstream r(fileName_.c_str(), std::ios::in | std::ios::binary);
 
-  if (startByte == 0)
+  if (startByte == 0) {
+    if (!r) {
+      response.setStatus(404);
+      return;
+    }
     response.setMimeType(mimeType_);
-  else
+  } else
     r.seekg(startByte);
 
   char *buf = new char[bufferSize_];

@@ -134,8 +134,7 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 			     color.green() / 255.,
 			     color.blue() / 255.);
 
-      // FIXME: normalizedPenWidth ?
-      WLength w = painter()->normalizedPenWidth(pen.width(), true);
+      WLength w = painter()->normalizedPenWidth(pen.width(), false);
       HPDF_Page_SetLineWidth(page_, w.toPixels());
 
       switch (pen.capStyle()) {

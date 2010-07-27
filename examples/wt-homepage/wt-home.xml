@@ -166,8 +166,9 @@ AJAX application if possible.</p>
   validation and event handling.</li>
   <li>Use HTML and CSS for layout and decoration, if you want to.</li>
   <li>Generates standards compliant HTML or XHTML code.</li>
-  <li>Portable, anti-aliased graphics (uses inline VML, inline SVG or
-  the HTML 5 canvas).</li>
+  <li>Portable, anti-aliased graphics optimized for web usage (using
+    inline VML, inline SVG, HTML 5 canvas or PNG images), which can
+    also be used to render to PDF.</li>
   <li>Avoid common security problems since Wt has complete control
   over the presentation layer and proactively filters out
   <i>active</i> tags and attributes nor exposures business logic,
@@ -241,11 +242,14 @@ AJAX application if possible.</p>
 
 <ul>
   <li>Unified painting API which uses the browsers native (vector)
-    graphics support (inline VML, inline SVG, or HTML 5 canvas).</li>
+    graphics support (inline VML, inline SVG, or HTML 5 canvas), or
+    renders to common image formats (PNG, GIF, ...) or vector formats
+    (SVG, PDF).</li>
   <li>Supports arbitrary painter paths, clipping, text, images,
-    and transformations.</li>
-  <li>Use the painting API in conjunction with a WPaintedWidget, or directly
-    using the SVGImage paint device.</li>
+    transformations, drop shadow.</li>
+  <li>Use the painting API in conjunction with a WPaintedWidget, or
+    directly using the WSvgImage, WPdfImage or WRasterImage paint
+    devices.</li>
 </ul>
 
 <h4>GUI components</h4>
@@ -559,8 +563,8 @@ target="_blank">Wt charting widgets</a> that are implemented on top of
 Wt's cross-browser painting API. This painting API uses built-in
 browser support for generating high quality graphics (instead of the
 tradditional approach of rendering PNG/GIF images on the server
-side). Depending on the browser, inline VML, inline SVG, or the HTML 5
-canvas is used to render painted contents in
+side). Depending on the browser, inline VML, inline SVG, HTML 5
+canvas, or a PNG image is used to render painted contents in
 a <a href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
 target="_blank">WPaintedWidget</a>.
 </p>
@@ -639,10 +643,10 @@ browser and server.</p>
   corners, <i>RoundedWidget</i>. Since rounded corners are not part of
   CSS 2, the current accepted solution is to use some CSS tricks with
   images. In this example, we <b>compute the corner images on the
-  fly</b> (with the specified colors and radius), using the graphics
-  library gd. Using the widget is completely straight forward (as also
-  demonstrated around the menus in the wt homepage itself), and the
-  contents is an ordinary
+  fly</b> (with the specified colors and radius), using Wt's graphics
+  API, to draw onto PNG images. Using the widget is completely
+  straight forward (as also demonstrated around the menus in the wt
+  homepage itself), and the contents is an ordinary
   <a href="/wt/doc/reference/html/classWt_1_1WContainerWidget.html"
      target="_blank">WContainerWidget</a>
   into which widgets may be added.

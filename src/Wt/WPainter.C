@@ -366,8 +366,8 @@ void WPainter::drawPie(double x, double y, double width, double height,
 }
 
 void WPainter::drawPoint(double x, double y)
-{
-  drawLine(x - 0.1, y - 0.1, x + 0.1, y + 0.1);
+{ 
+  drawLine(x - 0.05, y - 0.05, x + 0.05, y + 0.05);
 }
 
 void WPainter::drawPoint(const WPointF& point)

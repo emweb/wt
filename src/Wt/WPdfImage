@@ -25,25 +25,38 @@ namespace Wt {
   class WTransform;
 
 /*! \class WPdfImage Wt/WPdfImage Wt/WPdfImage
- *  \brief A paint device for rendering to PDF.
+ *  \brief A paint device for rendering to a PDF.
  *
- * The %WPdfImage can be painted on by a WPainter, and can be used to make
- * a PDF version of a WPaintedWidget's contents.
+ * The %WPdfImage needs to be used in conjunction with a WPainter, and
+ * can be used to make a PDF version of a WPaintedWidget's contents.
  *
- * The PDF is generated using <a href="http://libharu.org/">libharu</a>. 
+ * The PDF is generated using <a href="http://libharu.org/">The Haru
+ * Free PDF Library</a>, and this class is included in the library
+ * only if <tt>libharu</tt> was found.
  *
- * You can use the %WPdfImage as an independent resource, for example
- * in conjunction with a WAnchor or WImage:
+ * When used as a resource, a PDF file will be generated (provided that
+ * handleRequest() is specialized to paint the actual contents on the device.
+ * You can also use write() to serialize to a PDF file directly.
+ *
  * \code
  * Wt::Chart::WCartesianChart *chart = ...
  *
- * Wt::WPdfImage pdfImage(Wt::WLength(4, Wt::WLength::Centimeter), Wt::WLength(3, Wt::WLength::Centimter));
- * Wt::WPainter p(&pdfImage);
- * chart->paint(p);
- * p.end();
+ * Wt::WPdfImage pdfImage(Wt::WLength(4, Wt::WLength::Centimeter), Wt::WLength(3, Wt::WLength::Centimeter));
+ * {
+ *   Wt::WPainter p(&pdfImage);
+ *   chart->paint(p);
+ * }
  * std::ofstream f("chart.pdf");
  * pdfImage.write(f);
  * \endcode
+ *
+ * The image can also be embedded directly into a page of a
+ * <tt>libharu</tt> document, by using the alternate constructor.
+ *
+ * This paint device has the following limitations:
+ * - images (WPainter::drawImage()) can only be included from local
+ * files
+ * - drop shadows are not supported.
  *
  * \ingroup painting
  */
@@ -93,13 +106,13 @@ public:
 
   void errorHandler(HPDF_STATUS error_no, HPDF_STATUS detail_no);
   
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response);
+
 protected:
   virtual WPainter *painter() const { return painter_; }
   virtual void setPainter(WPainter *painter) { painter_ = painter; }
   virtual void setPaintFlags(WFlags<PaintFlag> paintFlags);
-
-  virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response);
 
 private:
   WLength width_, height_;
@@ -121,4 +134,4 @@ private:
 
 }
 
-#endif // WSVG_IMAGE_H_
+#endif // WPDF_IMAGE_H_

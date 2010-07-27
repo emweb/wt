@@ -11,6 +11,7 @@ FIND_PATH(HARU_INCLUDE_DIR
     ${HARU_ROOT}/include
     /usr/include
     /usr/local/include
+    /usr/local/include/hpdf
 )
 
 FIND_LIBRARY(HARU_LIB

@@ -10,21 +10,19 @@
 
 #include <Wt/WImage>
 
-namespace Wt {
-  class WMemoryResource;
-}
-
 using namespace Wt;
+
+class CornerResource;
 
 /**
  * @addtogroup styleexample
  */
 /*@{*/
 
-/*! \brief The CornerImage is an image to draw a rounded corner.
+/*! \brief The CornerImage is a painted widget with a rounded corner.
  *
- * The CornerImage is a dynamically generated WImage, which draws
- * an arc of 90°, to represent one of the four corners of a widget.
+ * The CornerImage is a dynamically generated image which draws an arc
+ * of 90°, to represent one of the four corners of a rounded widget.
  *
  * The CornerImage is part of the %Wt style example.
  *
@@ -52,10 +50,6 @@ public:
   CornerImage(Corner corner, WColor fg, WColor bg,
 	      int radius, WContainerWidget *parent = 0);
 
-  /*! \brief CornerImage destructor.
-   */
-  ~CornerImage();
-
   /*! \brief Change the corner radius (and image dimensions).
    */
   void setRadius(int radius);
@@ -80,6 +74,8 @@ public:
    */
   WColor background() const { return bg_; }
 
+  Corner corner() const { return corner_; }
+
 private:
   //! One of the four corners, which this image represents.
   Corner corner_;
@@ -93,13 +89,7 @@ private:
   //! Radius
   int radius_;
 
-  /*! \brief The resource which contains the generated image.
-   */
-  WMemoryResource *resource_;
-
-  /*! \brief Regenerate the image.
-   */
-  void compute();
+  CornerResource *resource_;
 };
 
 /*@}*/

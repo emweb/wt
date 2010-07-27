@@ -1,7 +1,7 @@
 IF(NOT MYSQLPP_FOUND)
 
   MESSAGE(STATUS "** Not building hangman example: requires mysql++")
-  MESSAGE(STATUS "    Indicate the path of your mysql++-2.x installation using -DMYSQL_ROOT=...")
+  MESSAGE(STATUS "   Indicate the path of your mysql++-2.x installation using -DMYSQL_ROOT=...")
 
 ELSE(NOT MYSQLPP_FOUND)
 

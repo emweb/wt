@@ -13,8 +13,13 @@
 #include "Wt/WImage"
 #include "Wt/WPainter"
 #include "Wt/WPaintedWidget"
+#include "Wt/WResource"
 #include "Wt/WSvgImage"
 #include "Wt/WVmlImage"
+
+#ifdef HAVE_RASTER_IMAGE
+#include "Wt/WRasterImage"
+#endif // HAVE_RASTER_IMAGE
 
 #include "DomElement.h"
 
@@ -25,16 +30,13 @@ public:
   enum RenderType {
     InlineVml,
     InlineSvg,
-    HtmlCanvas
-#ifdef WT_TARGET_JAVA
-    ,
+    HtmlCanvas,
     PngImage
-#endif // WT_TARGET_JAVA
   };
 
 public:
   virtual ~WWidgetPainter();
-  virtual WPaintDevice *createPaintDevice() = 0;
+  virtual WPaintDevice *getPaintDevice() = 0;
   virtual void createContents(DomElement *element, WPaintDevice *device) = 0;
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device) = 0;
@@ -50,7 +52,7 @@ class WWidgetVectorPainter : public WWidgetPainter
 {
 public:
   WWidgetVectorPainter(WPaintedWidget *widget, RenderType renderType);
-  virtual WPaintDevice *createPaintDevice();
+  virtual WPaintDevice *getPaintDevice();
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device);
@@ -64,25 +66,27 @@ class WWidgetCanvasPainter : public WWidgetPainter
 {
 public:
   WWidgetCanvasPainter(WPaintedWidget *widget);
-  virtual WPaintDevice *createPaintDevice();
+  virtual WPaintDevice *getPaintDevice();
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device); 
   virtual RenderType renderType() const { return HtmlCanvas; }
 };
 
-#ifdef WT_TARGET_JAVA
 class WWidgetRasterPainter : public WWidgetPainter
 {
 public:
   WWidgetRasterPainter(WPaintedWidget *widget);
-  virtual WPaintDevice *createPaintDevice();
+  ~WWidgetRasterPainter();
+  virtual WPaintDevice *getPaintDevice();
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device); 
   virtual RenderType renderType() const { return PngImage; }
+
+private:
+  WPaintDevice *device_;
 };
-#endif // WT_TARGET_JAVA
 
 WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   : WInteractWidget(parent),
@@ -173,12 +177,10 @@ bool WPaintedWidget::createPainter()
   if (painter_)
     return false;
 
-#ifdef WT_TARGET_JAVA
   if (preferredMethod_ == PngImage) {
     painter_ = new WWidgetRasterPainter(this);
     return true;
   }
-#endif // WT_TARGET_JAVA
 
   const WEnvironment& env = WApplication::instance()->environment();
 
@@ -267,27 +269,26 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
   if (!app->environment().agentIsSpiderBot())
     canvas->setId('p' + id());
 
-  WPaintDevice *device = painter_->createPaintDevice();
+  WPaintDevice *device = painter_->getPaintDevice();
 
   //handle the widget correctly when inline and using VML 
-  if (painter_->renderType() == WWidgetPainter::InlineVml 
-      && isInline()) {
+  if (painter_->renderType() == WWidgetPainter::InlineVml && isInline()) {
     result->setProperty(PropertyStyle, "zoom: 1;");
-    
     canvas->setProperty(PropertyStyleDisplay, "inline");
     canvas->setProperty(PropertyStyle, "zoom: 1;");
   }
 
   if (renderWidth_ != 0 && renderHeight_ != 0) {
     paintEvent(device);
+
 #ifdef WT_TARGET_JAVA
     if (device->painter())
       device->painter()->end();
 #endif // WT_TARGET_JAVA
+
   }
 
   painter_->createContents(canvas, device);
-  delete device;
 
   needRepaint_ = false;
 
@@ -326,14 +327,18 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
   bool createNew = createPainter();
 
   if (needRepaint_) {
-    WPaintDevice *device = painter_->createPaintDevice();
+    WPaintDevice *device = painter_->getPaintDevice();
+
     if (!createNew)
       device->setPaintFlags(repaintFlags_ & PaintUpdate);
+
     paintEvent(device);
+
 #ifdef WT_TARGET_JAVA
   if (device->painter())
     device->painter()->end();
 #endif // WT_TARGET_JAVA
+
     if (createNew) {
       DomElement *canvas = DomElement::getForUpdate('p' + id(), DomElement_DIV);
       canvas->removeAllChildren();
@@ -342,8 +347,6 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
     } else {
       painter_->updateContents(result, device);
     }
-
-    delete device;
 
     needRepaint_ = false;
     repaintFlags_ = 0;
@@ -416,7 +419,7 @@ WWidgetVectorPainter::WWidgetVectorPainter(WPaintedWidget *widget,
     renderType_(renderType)
 { }
 
-WPaintDevice *WWidgetVectorPainter::createPaintDevice()
+WPaintDevice *WWidgetVectorPainter::getPaintDevice()
 {
   if (renderType_ == InlineSvg)
     return new WSvgImage(widget_->renderWidth_, widget_->renderHeight_);
@@ -429,6 +432,7 @@ void WWidgetVectorPainter::createContents(DomElement *canvas,
 {
   WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device);
   canvas->setProperty(PropertyInnerHTML, vectorDevice->rendered());
+  delete device;
 }
 
 void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
@@ -462,6 +466,8 @@ void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
   }
 
   widget_->sizeChanged_ = false;
+
+  delete device;
 }
 
 /*
@@ -472,7 +478,7 @@ WWidgetCanvasPainter::WWidgetCanvasPainter(WPaintedWidget *widget)
   : WWidgetPainter(widget)
 { }
 
-WPaintDevice *WWidgetCanvasPainter::createPaintDevice()
+WPaintDevice *WWidgetCanvasPainter::getPaintDevice()
 {
   return new WCanvasPaintDevice(widget_->renderWidth_, widget_->renderHeight_);
 }
@@ -508,6 +514,8 @@ void WWidgetCanvasPainter::createContents(DomElement *result,
 
   if (text)
     result->addChild(text);
+
+  delete device;
 }
 
 void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
@@ -538,29 +546,42 @@ void WWidgetCanvasPainter::updateContents(std::vector<DomElement *>& result,
   canvasDevice->render('c' + widget_->id(), el);
 
   result.push_back(el);
+
+  delete device;
 }
-
-#ifdef WT_TARGET_JAVA
-
-class WRasterPaintDevice : public WPaintDevice, WResource
-{
-  enum Format { PngFormat };
-
-  WRasterPaintDevice(Format format, WLength width, WLength height) { };
-};
 
 /*
  * WWidgetRasterPainter
  */
 
 WWidgetRasterPainter::WWidgetRasterPainter(WPaintedWidget *widget)
-  : WWidgetPainter(widget)
+  : WWidgetPainter(widget),
+    device_(0)
 { }
 
-WPaintDevice *WWidgetRasterPainter::createPaintDevice()
+WWidgetRasterPainter::~WWidgetRasterPainter()
 {
-  return new WRasterPaintDevice(WRasterPaintDevice::PngFormat,
-				widget_->renderWidth_, widget_->renderHeight_);
+  delete device_;
+}
+
+WPaintDevice *WWidgetRasterPainter::getPaintDevice()
+{
+  if (device_) {
+    if (!(device_->paintFlags() & PaintUpdate)) {
+      WPainter painter(device_);
+      painter.setBrush(WBrush(white));
+      painter.setPen(NoPen);
+      painter.drawRect(0, 0, widget_->renderWidth_, widget_->renderHeight_);
+    }
+  } else {
+#ifdef HAVE_RASTER_IMAGE
+    device_ = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
+#else
+    throw new Exception("Wt was built without WRasterImage (graphicsmagick)");
+#endif
+  }
+
+  return device_;
 }
 
 void WWidgetRasterPainter::createContents(DomElement *result,
@@ -578,9 +599,8 @@ void WWidgetRasterPainter::createContents(DomElement *result,
   img->setAttribute("onselectstart", "return false;");
   img->setAttribute("onmousedown", "return false;");
 
-  WRasterPaintDevice *rasterDevice = dynamic_cast<WRasterPaintDevice *>(device);
-
-  img->setAttribute("src", rasterDevice->generateUrl());
+  WResource *resource = dynamic_cast<WResource *>(device);
+  img->setAttribute("src", resource->generateUrl());
 
   result->addChild(img);
 }
@@ -588,7 +608,7 @@ void WWidgetRasterPainter::createContents(DomElement *result,
 void WWidgetRasterPainter::updateContents(std::vector<DomElement *>& result,
 					  WPaintDevice *device)
 {
-  WRasterPaintDevice *rasterDevice = dynamic_cast<WRasterPaintDevice *>(device);
+  WResource *resource = dynamic_cast<WResource *>(device);
 
   DomElement *img
     = DomElement::getForUpdate('i' + widget_->id(), DomElement_IMG);
@@ -601,11 +621,9 @@ void WWidgetRasterPainter::updateContents(std::vector<DomElement *>& result,
     widget_->sizeChanged_ = false;
   }
 
-  img->setAttribute("src", rasterDevice->generateUrl());
+  img->setAttribute("src", resource->generateUrl());
 
   result.push_back(img);
 }
-
-#endif // WT_TARGET_JAVA
 
 }

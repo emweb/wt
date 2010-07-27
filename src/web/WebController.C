@@ -37,6 +37,10 @@
 #include "TimeUtil.h"
 #include "Utils.h"
 
+#ifdef HAVE_RASTER_IMAGE
+#include <magick/api.h>
+#endif
+
 namespace Wt {
 
 WebController::WebController(Configuration& configuration,
@@ -54,10 +58,17 @@ WebController::WebController(Configuration& configuration,
 #endif // WT_THREADED
 {
   CgiParser::init();
+
+#ifdef HAVE_RASTER_IMAGE
+  InitializeMagick(0);
+#endif
 }
 
 WebController::~WebController()
 {
+#ifdef HAVE_RASTER_IMAGE
+  DestroyMagick();
+#endif
 }
 
 void WebController::forceShutdown()

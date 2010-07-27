@@ -550,6 +550,10 @@ private:
     fileModel_->invisibleRootItem()->setRowCount(0);
 
     std::ifstream f("data/files.csv");
+
+    if (!f)
+      throw std::runtime_error("Could not read: data/files.csv");
+
     readFromCsv(f, fileModel_);
 
     for (int i = 0; i < fileModel_->rowCount(); ++i) {

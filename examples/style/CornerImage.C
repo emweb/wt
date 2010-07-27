@@ -4,11 +4,54 @@
  * See the LICENSE file for terms of use.
  */
 #include <stdio.h>
-#include "gd.h"
-
-#include <Wt/WMemoryResource>
 
 #include "CornerImage.h"
+
+#include <Wt/WPainter>
+#include <Wt/WRasterImage>
+
+class CornerResource : public WResource
+{
+public:
+  CornerResource(CornerImage *parent)
+    : WResource(parent)
+  { }
+
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response) {
+    CornerImage *img = dynamic_cast<CornerImage *>(parent());
+    WRasterImage device("png", img->radius(), img->radius());
+    paint(&device, img);
+
+    device.handleRequest(request, response);
+  }
+
+  void paint(WPaintDevice *device, CornerImage *img)
+  {
+    WPainter painter(device);
+
+    painter.setPen(NoPen);
+
+    painter.setBrush(img->background());
+    painter.drawRect(0, 0, img->radius(), img->radius());
+
+    int cx, cy;
+
+    if (img->corner() & Top)
+      cy = img->radius() + 0.5;
+    else
+      cy = -0.5;
+
+    if (img->corner() & Left)
+      cx = img->radius() + 0.5;
+    else
+      cx = -0.5;
+
+    painter.setBrush(img->foreground());
+    painter.drawEllipse(cx - img->radius(), cy - img->radius(),
+			2 * img->radius(), 2 * img->radius());    
+  }
+};
 
 CornerImage::CornerImage(Corner c, WColor fg, WColor bg,
 			 int radius, WContainerWidget *parent)
@@ -16,24 +59,17 @@ CornerImage::CornerImage(Corner c, WColor fg, WColor bg,
     corner_(c),
     fg_(fg),
     bg_(bg),
-    radius_(radius),
-    resource_(0)
+    radius_(radius)
 {
-  compute();
-}
-
-CornerImage::~CornerImage()
-{
-  if (resource_) {
-    delete resource_;
-  }
+  resource_ = new CornerResource(this);
+  setResource(resource_);
 }
 
 void CornerImage::setRadius(int radius)
 {
   if (radius != radius_) {
     radius_ = radius;
-    compute();
+    resource_->setChanged();
   }
 }
 
@@ -41,64 +77,6 @@ void CornerImage::setForeground(WColor color)
 {
   if (fg_ != color) {
     fg_ = color;
-    compute();
+    resource_->setChanged();
   }
 }
-
-void CornerImage::compute()
-{
-  /* We want an anti-aliased image: oversample twice */
-  int AA = 2;
-
-  gdImagePtr imBig = gdImageCreate(radius_ * AA, radius_ * AA);
-
-  /* automatically becomes the background color -- gd documentation */
-  gdImageColorAllocate(imBig, bg_.red(), bg_.green(), bg_.blue());
-
-  int fgColor
-    = gdImageColorAllocate(imBig, fg_.red(), fg_.green(), fg_.blue());
-
-  int cx, cy;
-
-  if (corner_ & Top)
-    cy = radius_ * AA - 1;
-  else
-    cy = 0;
-
-  if (corner_ & Left)
-    cx = radius_ * AA - 1;
-  else
-    cx = 0;
-
-  gdImageFilledArc(imBig, cx, cy, (radius_*2 - 1) * AA, (radius_*2 - 1) * AA,
-		   0, 360, fgColor, gdArc);
-
-  /* now create the real image, downsampled by a factor of 2 */
-  gdImagePtr im = gdImageCreateTrueColor(radius_, radius_);
-  gdImageCopyResampled(im, imBig, 0, 0, 0, 0, im->sx, im->sy,
-		       imBig->sx, imBig->sy);
-
-  /* and generate an in-memory png file */
-  int size;
-  unsigned char *data;
-  data = (unsigned char *) gdImagePngPtr(im, &size);
-  if (!data) {
-    return;
-    /* Error */
-  }
-
-  std::vector<unsigned char> vdata(data, data + size);
-  if (resource_) {
-    resource_->setData(vdata);
-  } else {
-    /* create and set the memory resource that contains the image */
-    resource_ = new WMemoryResource("image/png", vdata);
-    setResource(resource_);
-  }
-
-  gdFree(data);  
-
-  gdImageDestroy(im);
-  gdImageDestroy(imBig);
-}
-

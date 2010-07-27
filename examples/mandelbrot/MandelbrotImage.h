@@ -12,6 +12,10 @@
 
 using namespace Wt;
 
+namespace Wt {
+  class WRasterImage;
+}
+
 class MandelbrotImage : public WVirtualImage
 {
 public:
@@ -24,7 +28,7 @@ public:
   void zoomIn();
   void zoomOut();
 
-  void generate(int64_t x, int64_t y, int w, int h, std::ostream& out);
+  void generate(int64_t x, int64_t y, WRasterImage *img);
 
   double currentX1() const;
   double currentY1() const;

@@ -43,11 +43,12 @@ void WTextArea::setText(const WT_USTRING& text)
   contentChanged_ = true;
   repaint(RepaintInnerHtml);
 
-  if (validator())
+  if (validator()) {
     if (validate() == WValidator::Valid)
       removeStyleClass("Wt-invalid", true);
     else
       addStyleClass("Wt-invalid", true);
+  }
 
   updateEmptyText();
 }

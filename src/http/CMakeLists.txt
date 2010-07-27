@@ -26,7 +26,8 @@ IF(CONNECTOR_HTTP)
 
   IF (HTTP_WITH_SSL)
     IF (NOT SSL_FOUND)
-      MESSAGE(FATAL "HTTP_WITH_SSL enabled but could not find OpenSSL")
+      MESSAGE("** HTTP_WITH_SSL enabled but could not find OpenSSL")
+      MESSAGE(FATAL "   Indicate location of OpenSSL using -DUSERLIB_ROOT=...")
     ENDIF (NOT SSL_FOUND)
     ADD_DEFINITIONS(-DHTTP_WITH_SSL)
     SET(MY_SSL_LIBS ${SSL_LIBRARIES})
@@ -36,7 +37,9 @@ IF(CONNECTOR_HTTP)
   ENDIF (HTTP_WITH_SSL)
 
   IF(NOT BOOST_WTHTTP_FOUND)
-    MESSAGE(FATAL "Could not find all boost libraries required to build the httpe connector (thread, fs, po, dt)")
+
+    MESSAGE(FATAL "** Could not find all boost libraries required to build the httpe connector (thread, filesystem, programoptions, datetime)")
+
   ENDIF(NOT BOOST_WTHTTP_FOUND)
   IF(HTTP_WITH_ZLIB)
     ADD_DEFINITIONS(-DWTHTTP_WITH_ZLIB ${ZLIB_DEFINITIONS})

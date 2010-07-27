@@ -67,7 +67,6 @@ namespace Wt {
  *     beingDeleted(); // see "Concurrency issues" below.
  *   }
  *
- * protected:
  *   void handleRequest(const Wt::Http::Request& request,
  *                      Wt::Http::Response& response) {
  *     response.setMimeType("plain/text");
@@ -119,7 +118,6 @@ namespace Wt {
  *     beingDeleted();
  *   }
  *
- * protected:
  *   void handleRequest(const Wt::Http::Request& request,
  *                      const Wt::Http::Response& response) {
  *     // see if this request is for a continuation:
@@ -250,15 +248,6 @@ public:
 	     const Http::ParameterMap& parameters = Http::ParameterMap(),
 	     const Http::UploadedFileMap& files = Http::UploadedFileMap());
 
-protected:
-  /*! \brief Prepares the resource for deletion.
-   *
-   * When specializing a resource, you MUST call beingDeleted() from
-   * within the specialized destructor, in order to stop any further
-   * requests to the resource.
-   */
-  void beingDeleted();
-
   /*! \brief Handles a request.
    *
    * Reimplement this method so that a proper response is generated
@@ -278,6 +267,14 @@ protected:
    */
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response) = 0;
+protected:
+  /*! \brief Prepares the resource for deletion.
+   *
+   * When specializing a resource, you MUST call beingDeleted() from
+   * within the specialized destructor, in order to stop any further
+   * requests to the resource.
+   */
+  void beingDeleted();
 
 private:
 #ifndef WT_TARGET_JAVA

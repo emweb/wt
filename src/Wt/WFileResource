@@ -42,8 +42,20 @@ namespace Wt {
 class WT_API WFileResource : public WResource
 {
 public:
-  /*! \brief Creates a new resource with given mime-type and contents stored
-   *         in filename.
+  /*! \brief Default constructor.
+   *
+   * You need to set a file name (and mime type) for the resource
+   * using setFileName() and setMimeType().
+   */
+  WFileResource(WObject *parent = 0);
+
+  /*! \brief Creates a new resource for a file.
+   *
+   * The mime type defaults to "text/plain".
+   */
+  WFileResource(const std::string& fileName, WObject *parent = 0);
+
+  /*! \brief Creates a new resource with given mime-type for a file.
    */
   WFileResource(const std::string& mimeType, const std::string& fileName,
 		WObject *parent = 0);
@@ -87,7 +99,6 @@ public:
    */
   int bufferSize() const { return bufferSize_; }
 
-protected:
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response);
 

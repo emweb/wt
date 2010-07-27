@@ -1,10 +1,9 @@
-IF(NOT GD_FOUND)
-  MESSAGE(STATUS "** Not building mandelbrot example: requires gd library.")
-  MESSAGE(STATUS "   Indicate the location of your gd library using -DGD_ROOT=...")
-ELSE(NOT GD_FOUND)
+IF(NOT GM_FOUND)
+  MESSAGE(STATUS "** Not building mandelbrot example: requires Wt::WRasterImage.")
+ELSE(NOT GM_FOUND)
 
   ADD_EXECUTABLE(mandelbrot.wt MandelbrotImage.C MandelbrotExample.C)
-  TARGET_LINK_LIBRARIES(mandelbrot.wt ${EXAMPLES_CONNECTOR} ${GD_LIBRARIES})
+  TARGET_LINK_LIBRARIES(mandelbrot.wt ${EXAMPLES_CONNECTOR})
 
   INCLUDE_DIRECTORIES(
     ${GD_INCLUDE_DIRS}
@@ -24,5 +23,5 @@ ELSE(NOT GD_FOUND)
   )
   ADD_DEPENDENCIES(mandelbrot.wt wt ${EXAMPLES_CONNECTOR})
 
-ENDIF(NOT GD_FOUND)
+ENDIF(NOT GM_FOUND)
 

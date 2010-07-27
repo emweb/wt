@@ -24,33 +24,39 @@ class WPointF;
 class WRectF;
 
 /*! \defgroup painting Painting system
-    \brief Classes that provide support for vector graphics
+    \brief Classes that provide support for vector graphics painting
 
   %Wt provides a vector graphics painting system, which depending on
-  the browser support, uses one of three different methods to paint
-  the graphics (inline SVG, inline VML or HTML 5 &lt;canvas&gt;
-  element). Vector graphics has as benefit a lower bandwidth usage
+  the browser support, uses one of four different methods to paint the
+  graphics (inline SVG, inline VML, HTML 5 &lt;canvas&gt; or a raster
+  image). Vector graphics has as benefit a lower bandwidth usage
   compared to raster images, indepedent of the image size. To use the
   paint system, you need to specialize WPaintedWidget and use a
   WPainter to paint the contents of the widget inside its
   WPaintedWidget::paintEvent().
 
-  If you want to use inline SVG (which has some benefits since it is
-  widely supported and is the most complete), you will need to enable
-  xhtml support in your configuration file by enabling
-  send-xhtml-mimetype, see \ref config_general.
+  In addition, a PDF backend is included in the library, which can be used
+  to make a PDF version of a painting, or to embed a painting in a
+  PDF document.
+
+  To use inline SVG, you need to enable xhtml support in your
+  configuration file by enabling send-xhtml-mimetype, see \ref
+  config_general.
 */
 
 /*! \class WPainter Wt/WPainter Wt/WPainter
- *  \brief Helper class for painting on a WPaintDevice
+ *  \brief Vector graphics painting class.
  *
- * The painter class provides a rich interface for painting on a
- * WPaintDevice. To start painting on a device, either pass the device
- * through the constructor WPainter(WPaintDevice *), or use
- * begin(WPaintDevice *). Typically, you will instantiate a %WPainter
- * from within the WPaintedWidget::paintEvent() method, but you can also
- * use a painter to paint directly to a particular paint device, for
- * example to create an SVG image.
+ * The painter class provides a vector graphics interface for
+ * painting. It needs to be used in conjunction with a WPaintDevice,
+ * onto which it paints. To start painting on a device, either pass
+ * the device through the constructor, or use begin().
+ *
+ * A typical use is to instantiate a %WPainter from within a
+ * specialized WPaintedWidget::paintEvent() implementation, to paint
+ * on the given paint device, but you can also use a painter to paint
+ * directly to a particular paint device of choice, for example to
+ * create SVG, PDF or PNG images (as resources).
  *
  * The painter maintains state such as the current \link setPen()
  * pen\endlink, \link setBrush() brush\endlink, \link setFont()
@@ -62,15 +68,31 @@ class WRectF;
  * The painting system distinguishes between device coordinates,
  * logical coordinates, and local coordinates. The device coordinate
  * system ranges from (0, 0) in the top left corner of the device, to
- * (WPaintDevice::width(), WPaintDevice::height()) for the bottom
- * right corner. The logical coordinate system defines a coordinate
- * system that may be chosen independent of the geometry of the
- * device, which is convenient to make abstraction of the actual
+ * (device->width().toPixels(), device->height().toPixels()) for the
+ * bottom right corner. The logical coordinate system defines a
+ * coordinate system that may be chosen independent of the geometry of
+ * the device, which is convenient to make abstraction of the actual
  * device size. Finally, the current local coordinate system may be
- * different from the logical coordinate system because of a world
- * transformation. Initially, the local coordinate system coincides
- * with the logical coordinate system, which coincides with the device
+ * different from the logical coordinate system because of a
+ * transformation set (using translate(), rotate(), and
+ * scale()). Initially, the local coordinate system coincides with the
+ * logical coordinate system, which coincides with the device
  * coordinate system.
+ *
+ * The device coordinates are defined in terms of pixels. Even though
+ * most underlying devices are actual vector graphics formats, when
+ * used in conjunction with a WPaintedWidget, these vector graphics
+ * are rendered by the browser onto a pixel-based canvas (like the
+ * rest of the user-interface). The coordinates are defined such that
+ * integer values correspond to an imaginary raster which separates
+ * the individual pixels, as in the figure below.
+ *
+ * \image html WPainter.png "The device coordinate system for a 6x5 pixel device"
+ *
+ * As a consequence, to avoid anti-aliasing effects when drawing
+ * straight lines of width one pixel, you will need to use vertices
+ * that indicate the middle of a pixel to get a crisp one-pixel wide
+ * line, as in the example figure.
  *
  * By setting a viewPort() and a window(), a viewPort transformation
  * is defined which maps logical coordinates onto device
@@ -79,8 +101,9 @@ class WRectF;
  * it is defined how current local coordinates map onto logical
  * coordinates.
  *
- * Although the painter has support for clipping using an arbitrary
- * \link WPainterPath path\endlink, not all devices support clipping.
+ * The painter provides support for clipping using an arbitrary \link
+ * WPainterPath path\endlink, but not that the %VmlImage only has
+ * limited support for clipping.
  *
  * \if cpp
  * Usage example:
@@ -436,7 +459,10 @@ public:
 
   /*! \brief Draws a point.
    *
-   * Draws a single point using the current pen.
+   * Draws a single point using the current pen. This is implemented
+   * by drawing a very short line, centered around the given \p
+   * position. To get the result of a single point, you should use a
+   * pen with a Wt::SquareCap or Wt::RoundCap pen cap style.
    *
    * \sa drawPoint(double, double)
    */

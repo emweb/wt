@@ -8,13 +8,12 @@
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
-#include "gd.h"
-#ifdef WIN32
-#include <io.h>
-#endif
 
 #include <Wt/WResource>
 #include <Wt/WImage>
+#include <Wt/WPainter>
+#include <Wt/WPen>
+#include <Wt/WRasterImage>
 #include <Wt/Http/Response>
 
 #include "MandelbrotImage.h"
@@ -31,8 +30,9 @@ namespace {
 
     void handleRequest(const Http::Request& request,
 		       Http::Response& response) {
-      response.setMimeType("image/png");
-      img_->generate(x_, y_, w_, h_, response.out());
+      WRasterImage image("png", w_, h_);
+      img_->generate(x_, y_, &image);
+      image.handleRequest(request, response);
     }
 
   private:
@@ -81,10 +81,10 @@ WResource *MandelbrotImage::render(int64_t x, int64_t y, int w, int h)
   return new MandelbrotResource(this, x, y, w, h);
 }
 
-void MandelbrotImage::generate(int64_t x, int64_t y, int w, int h,
-			       std::ostream& out)
+void MandelbrotImage::generate(int64_t x, int64_t y, WRasterImage *img)
 {
-  gdImagePtr im = gdImageCreateTrueColor(w, h);
+  int w = img->width().toPixels();
+  int h = img->height().toPixels();
 
   std::cerr << "rendering: (" << x << "," << y << ") (" 
 	    << x+w << "," << y+h << ")" << std::endl;
@@ -106,16 +106,8 @@ void MandelbrotImage::generate(int64_t x, int64_t y, int w, int h,
 	b = 0;
       }
 
-      gdImageSetPixel(im, i, j, gdImageColorAllocate(im, r, g, b));
+      img->setPixel(i, j, WColor(r, g, b));
     }
-
-  int size;
-  char *data = (char *) gdImagePngPtr(im, &size);
-
-  out.write(data, size);
-
-  gdFree(data);
-  gdImageDestroy(im);
 }
 
 double MandelbrotImage::convertPixelX(int64_t x) const

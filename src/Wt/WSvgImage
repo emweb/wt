@@ -76,13 +76,13 @@ public:
 
   virtual WFlags<PaintFlag> paintFlags() const { return paintFlags_; }
 
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response);
+
 protected:
   virtual WPainter *painter() const { return painter_; }
   virtual void setPainter(WPainter *painter) { painter_ = painter; }
   virtual void setPaintFlags(WFlags<PaintFlag> paintFlags);
-
-  virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response);
 
 private:
   WLength   width_, height_;

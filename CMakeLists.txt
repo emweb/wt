@@ -130,13 +130,12 @@ SET(WTHTTP_CONFIGURATION ${CONFIGDIR}/wthttpd CACHE PATH "Path for the wthttpd c
 
 SET(WEBUSER apache CACHE STRING "Webserver username (e.g. apache or www)")
 SET(WEBGROUP apache CACHE STRING "Webserver groupname (e.g. apache or www or users)")
-OPTION(CONNECTOR_FCGI "Compile in FCGI connector (libwtfcgi) ?" OFF)
+OPTION(CONNECTOR_FCGI "Compile in FCGI connector (libwtfcgi) ?" ON)
 OPTION(CONNECTOR_ISAPI "Compile in ISAPI connector (libwtisapi) ?" OFF)
 OPTION(CONNECTOR_HTTP "Compile in stand-alone httpd connector (libwthttp) ?" ON)
 SET(EXAMPLES_CONNECTOR wthttp CACHE STRING "Connector used for examples")
 
 INCLUDE(cmake/WtFindBoost.txt)
-INCLUDE(cmake/WtFindGd.txt)
 INCLUDE(cmake/WtFindFcgi.txt)
 INCLUDE(cmake/WtFindZlib.txt)
 INCLUDE(cmake/WtFindSsl.txt)
@@ -144,6 +143,7 @@ INCLUDE(cmake/WtFindMysqlpp.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindHaru.txt)
+INCLUDE(cmake/WtFindGm.txt)
 
 FIND_PACKAGE(Qt4)
 IF(QT_FOUND)

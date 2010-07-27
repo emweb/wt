@@ -1,3 +1,7 @@
+27-07-2010:
+	* WRasterImage: Graphicsmagick backend implementation for WPaintDevice,
+	sponsorted by Eurofer, can be used for PNG, GIF, etc... output
+
 22-07-2010:
 	* WPdfImage: PDF backend implementation for WPaintDevice,
 	sponsored by Eurofer.

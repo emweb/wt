@@ -87,7 +87,6 @@ private:
   std::string mimeType_;
   std::vector<unsigned char> data_;
 
-protected:
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response);
 };

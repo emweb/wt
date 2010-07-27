@@ -1,0 +1,142 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WRASTER_IMAGE_H_
+#define WRASTER_IMAGE_H_
+
+#include <Wt/WPaintDevice>
+#include <Wt/WResource>
+
+typedef struct _DrawContext *DrawContext;
+typedef struct _Image Image;
+
+namespace Wt {
+
+class WTransform;
+
+/*! \class WRasterImage Wt/WRasterImage Wt/WRasterImage
+ *  \brief A paint device for rendering to a raster image.
+ *
+ * The %WRasterImage provides support for creating raster images (such
+ * as PNG or GIF images).
+ *
+ * It has two main use-cases:
+ *
+ *  - When used either in conjunction with a WPainter, it supports
+ *    vector graphics operations, and can be used to make a PNG or GIF
+ *    version of a WPaintedWidget's contents.
+ *
+ *  - It also provides a low-level API to color individual pixels:
+ *    setPixel(), which directly sets the raster pixels.
+ *
+ * The rendering is provided by <a
+ * href="http://www.graphicsmagick.org/">GraphicsMagick</tt>, and this
+ * class is included in the library only if <tt>libgraphicsmagick</tt>
+ * was found.
+ *
+ * When used as a resource, an image file will be generated (provided
+ * that handleRequest() is specialized to paint the actual contents on
+ * the device.  You can also use write() to serialize to an image
+ * directly.
+ *
+ * \code
+ * Wt::Chart::WCartesianChart *chart = ...
+ *
+ * Wt::WRasterImage pngImage("png", 600, 400);
+ * {
+ *   Wt::WPainter p(&pngImage);
+ *   chart->paint(p);
+ * }
+ * std::ofstream f("chart.png");
+ * pngImage.write(f);
+ * \endcode
+ *
+ * This paint device has the following limitations:
+ * - including images (WPainter::drawImage()) is not yet implemented.
+ * - drop shadows are not yet supported.
+ * 
+ * \ingroup painting
+ */
+class WT_API WRasterImage : public WResource, public WPaintDevice
+{
+public:
+  /*! \brief Creates a raster image.
+   * 
+   * \p type indicates an image type. The mime type of the resource is
+   * <tt>"image/"</tt> \p type.
+   *
+   * %Wt supports the following image types (amongst others):
+   * - png: Portable Network Graphics
+   * - gif: Graphics Interchange Format
+   * - bmp: Microsoft windows bitmap
+   * - jpeg: Joint Photographic Experts Group JFIF format
+   */
+  WRasterImage(const std::string& type,
+	       const WLength& width, const WLength& height,
+	       WObject *parent = 0);
+
+  /*! \brief Destructor.
+   */
+  ~WRasterImage();
+
+  virtual void setChanged(WFlags<ChangeFlag> flags);
+  virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle);
+  virtual void drawImage(const WRectF& rect, const std::string& imgUri,
+			 int imgWidth, int imgHeight, const WRectF& sourceRect);
+  virtual void drawLine(double x1, double y1, double x2, double y2);
+  virtual void drawPath(const WPainterPath& path);
+
+  virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+			const WString& text);
+  virtual void init();
+  virtual void done();
+  virtual bool paintActive() const { return painter_ != 0; }
+
+  virtual WLength width() const { return width_; }
+  virtual WLength height() const { return height_; }
+
+  virtual WFlags<PaintFlag> paintFlags() const { return paintFlags_; }
+
+  virtual void handleRequest(const Http::Request& request,
+			     Http::Response& response);
+
+  /*! \brief Low-level paint method.
+   *
+   * Use this method to directly set colors for individual pixels, when
+   * using the paint device without a painter.
+   */
+  void setPixel(int x, int y, const WColor& color);
+
+protected:
+  virtual WPainter *painter() const { return painter_; }
+  virtual void setPainter(WPainter *painter) { painter_ = painter; }
+  virtual void setPaintFlags(WFlags<PaintFlag> paintFlags);
+
+private:
+  WLength width_, height_;
+  std::string type_;
+
+  WPainter *painter_;
+  WFlags<PaintFlag> paintFlags_;
+
+  unsigned long w_, h_;
+  char *pixels_;
+  DrawContext context_;
+  Image *image_;
+  double fontSize_;
+
+  typedef std::list< std::pair<WPainterPath, int> > PathCache;
+  PathCache clipPathCache_;
+
+  void paintPath();
+  void drawPlainPath(const WPainterPath& path);
+  void setTransform(const WTransform& t);
+  void applyTransform(const WTransform& f);
+};
+
+}
+
+#endif // WRASTER_IMAGE_H_

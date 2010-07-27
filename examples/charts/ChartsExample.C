@@ -39,7 +39,7 @@ namespace {
   {
     WStandardItemModel *model = new WStandardItemModel(0, 0, parent);
     std::ifstream f(fname);
-    
+
     if (f) {
       readFromCsv(f, model);
 
