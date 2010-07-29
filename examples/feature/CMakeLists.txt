@@ -1,4 +1,5 @@
 SUBDIRS(
   serverpush
+  suggestionpopup
   widgetset
 )

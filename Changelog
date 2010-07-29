@@ -1,3 +1,10 @@
+29-07-2010:
+	* WSuggestionPopup: misc improvements to server-side filtering, fixing
+	rendering glitches
+
+	* examples/feature/suggestionpopup: example demonstrating WSuggestionPopup
+	features
+
 27-07-2010:
 	* WRasterImage: Graphicsmagick backend implementation for WPaintDevice,
 	sponsorted by Eurofer, can be used for PNG, GIF, etc... output

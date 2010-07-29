@@ -129,19 +129,6 @@ void StdGridLayoutImpl::containerAddWidgets(WContainerWidget *container)
       app->setBodyClass(app->bodyClass() + " Wt-layout");
       app->setHtmlClass(app->htmlClass() + " Wt-layout");
     }
-
-    /*
-     * Normally, scrollbars are not used automatically for a container,
-     * which applies to when a layout overflows.
-     *
-     * Only for IE we really need to set this otherwise the parent
-     * increases its size automatically and then we cannot reduce in
-     * size (standard behaviour is overflow visible which says the
-     * parent size should not be affected). Luckily, IE does not show the
-     * scrollbars unless really needed
-     */
-    if (app->environment().agentIsIE())
-      container->setOverflow(WContainerWidget::OverflowHidden);
   }
 }
 

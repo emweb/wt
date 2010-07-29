@@ -13,21 +13,19 @@
 #include <Wt/WServer>
 #include <Wt/WText>
 
-using namespace Wt;
-
-class HelloApplication : public WApplication
+class HelloApplication : public Wt::WApplication
 {
 public:
-  HelloApplication(const WEnvironment& env, bool embedded);
+  HelloApplication(const Wt::WEnvironment& env, bool embedded);
 
 private:
-  WLineEdit *nameEdit_;
-  WText *greeting_;
+  Wt::WLineEdit *nameEdit_;
+  Wt::WText *greeting_;
 
   void greet();
 };
 
-HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
+HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
   : WApplication(env)
 {
   /*
@@ -41,7 +39,7 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
    */
   //setAjaxMethod(XMLHttpRequest);
 
-  WContainerWidget *top;
+  Wt::WContainerWidget *top;
 
   setTitle("Hello world");
 
@@ -58,7 +56,7 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
      * divs in the web page. In this example, we create a single div
      * whose DOM id was passed as a request argument.
      */
-    top = new WContainerWidget();
+    top = new Wt::WContainerWidget();
     const std::string *div = env.getParameter("div");
     if (div)
       bindWidget(top, *div);
@@ -69,24 +67,25 @@ HelloApplication::HelloApplication(const WEnvironment& env, bool embedded)
   }
 
   if (!embedded)
-    new WText("<p><emph>Note: you can also run this application "
-	      "from within <a href=\"hello.html\">a web page</a>.</emph></p>",
-	      root());
+    new Wt::WText
+      ("<p><emph>Note: you can also run this application "
+       "from within <a href=\"hello.html\">a web page</a>.</emph></p>",
+       root());
 
   /*
    * Everything else is business as usual.
    */
 
-  top->addWidget(new WText("Your name, please ? "));
-  nameEdit_ = new WLineEdit(top);
+  top->addWidget(new Wt::WText("Your name, please ? "));
+  nameEdit_ = new Wt::WLineEdit(top);
   nameEdit_->setFocus();
 
-  WPushButton *b = new WPushButton("Greet me.", top);
-  b->setMargin(5, Left);
+  Wt::WPushButton *b = new Wt::WPushButton("Greet me.", top);
+  b->setMargin(5, Wt::Left);
 
-  top->addWidget(new WBreak());
+  top->addWidget(new Wt::WBreak());
 
-  greeting_ = new WText(top);
+  greeting_ = new Wt::WText(top);
 
   /*
    * Connect signals with slots
@@ -103,19 +102,19 @@ void HelloApplication::greet()
   greeting_->setText("Hello there, " + nameEdit_->text());
 }
 
-WApplication *createApplication(const WEnvironment& env)
+Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
   return new HelloApplication(env, false);
 }
 
-WApplication *createWidgetSet(const WEnvironment& env)
+Wt::WApplication *createWidgetSet(const Wt::WEnvironment& env)
 {
   return new HelloApplication(env, true);
 }
 
 int main(int argc, char **argv)
 {
-  WServer server(argv[0]);
+  Wt::WServer server(argv[0]);
 
   // Use default server configuration: command line arguments and the
   // wthttpd configuration file.
@@ -128,16 +127,16 @@ int main(int argc, char **argv)
   // The following is the default entry point. It configures a
   // standalone Wt application at the deploy path configured in the
   // server configuration.
-  server.addEntryPoint(Application, createApplication);
+  server.addEntryPoint(Wt::Application, createApplication);
 
   // The following adds an entry point for a widget set. A widget set
   // must be loaded as a JavaScript from an HTML page.
-  server.addEntryPoint(WidgetSet, createWidgetSet, "/hello.wtjs");
+  server.addEntryPoint(Wt::WidgetSet, createWidgetSet, "/hello.wtjs");
 
   // Start the server (in the background if there is threading support)
   // and wait for a shutdown signal (e.g. Ctrl C, SIGKILL)
   if (server.start()) {
-    WServer::waitForShutdown();
+    Wt::WServer::waitForShutdown();
 
     // Cleanly terminate all sessions
     server.stop();

@@ -69,6 +69,7 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
 void WSuggestionPopup::init()
 {
   setImplementation(impl_);
+  impl_->setLoadLaterWhenInvisible(false);
   impl_->setStyleClass("Wt-suggest Wt-outset");
 
   impl_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
@@ -94,6 +95,7 @@ void WSuggestionPopup::init()
 void WSuggestionPopup::setMaximumSize(const WLength& width,
 				      const WLength& height)
 {
+  WCompositeWidget::setMaximumSize(width, height);
   content_->setMaximumSize(width, height);
 }
 

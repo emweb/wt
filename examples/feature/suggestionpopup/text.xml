@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<messages>
+  <message id="simple-popup-editing">
+    <h2>WSuggestionPopup example</h2>
+
+    <p>
+      This example shows various configurations of WSuggestionPopup,
+      and an example of custom <i>matcher</i> and <i>replacer</i>
+      JavaScript functions.
+    </p>
+
+    <h3>Client-side filtering</h3>
+
+    <p>
+      In its simplest form, the suggestion popup provides client-side
+      filtering only. The entire model, which provides the list of
+      suggestions, is preloaded in the browser and filtered based on
+      editing in the line edit.
+    </p>
+
+    <p>
+      The example below uses a custom matcher implementation, which
+      interprets the suggestions as a semi-colon separated list of
+      synonyms, and shows the synonym that matches in addition to the
+      leading name (the first synonym).
+    </p>
+
+    <p>
+      The model below contains names of HIV anti-retrovirals, with
+      commercial, pre-clinical and abbreviations as synonyms. To see
+      the effect of the custom matching function, which matches also
+      by synonyms, try typing <tt>"tm"</tt>, and watch how this
+      selects <tt>"Darunavir"</tt> and <tt>"Etravirine"</tt> through
+      its synonyms <tt>"TMC114"</tt> and <tt>"TMC125"</tt>, and
+      compare this to typing <tt>"da"</tt>.
+    </p>
+  </message>
+
+  <message id="simple-popup-dropdown">
+    <h3>Client-side filtering with dropdown behaviour</h3>
+
+    <p>
+      When using <tt>Wt::WSuggestionPopup::DropDownIcon</tt> as
+      editing trigger, the suggestion popup acts as a smarter version
+      of a combo-box that reacts to editing to narrow-down the list of
+      matches.
+    </p>
+
+    <p>
+      Use <tt>setMaximumSize()</tt> to constrain the maximum height
+      (which is also taken into account to position the popup either
+      downwards or upwards), and <tt>setMinimumSize()</tt> to set a
+      minimum width so provide space for a vertical scrollbar.
+    </p>
+  </message>
+
+  <message id="serverside-popup-editing">
+    <h3>Client- and server-side filtering</h3>
+
+    <p>
+      To support large models, filtering may be done partially on the
+      server. A non-zero filter length indicates that until the input
+      reaches that length, suggestions are not shown. Only when the
+      input exceeds the filter length, the model is first filtered on
+      the server, and only thereafter further narrowed down
+      client-side. In other words, the filter length acts as a delay
+      for the suggestion popup to be shown, based on the input length.
+    </p>
+
+    <p>
+      The following suggestion popup is backed by a virtual model
+      which includes any combination of three characters and a letter
+      (a-z) (e.g. <tt>'A €d'</tt>), but will use server-side filtering
+      to provide suggestions only when at least three characters have
+      been entered.
+    </p>
+  </message>
+
+  <message id="serverside-popup-dropdown">
+    <h3>Client- and server-side filtering with dropdown behaviour</h3>
+
+    <p>
+      Server-side filtering also works in combination with a drop-down
+      to explicitly get the list of matching suggestions. Because the
+      user may want to see this list even when the input is shorter
+      than the filter length, the server-side filtering may in that
+      case limit the number of suggestions that match, and add
+      a <tt>...</tt> to indicate that not all matches are shown.
+    </p>
+  </message>
+
+</messages>

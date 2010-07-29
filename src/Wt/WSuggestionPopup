@@ -199,12 +199,16 @@ public:
     /*! \brief Open tag to highlight a match in a suggestion.
      *
      * Must be an opening markup tag, such as &lt;b&gt;.
+     *
+     * Used during matching.
      */
     std::string highlightBeginTag;
 
     /*! \brief Close tag to highlight a match in a suggestion.
      *
      * Must be a closing markup tag, such as &lt;/b&gt;.
+     *
+     * Used during matching.
      */
     std::string highlightEndTag;
 
@@ -213,6 +217,8 @@ public:
      *
      * For example, ',' to separate different values on komma. Specify
      * 0 ('\\0') for no list separation.
+     *
+     * Used during matching and replacing.
      */
     char listSeparator;
 
@@ -220,6 +226,8 @@ public:
      *         before the current value.
      *
      * For example, " \\n" to ignore spaces and newlines.
+     *
+     * Used during matching and replacing.
      */
     std::string whitespace;
 
@@ -228,11 +236,15 @@ public:
      *
      * For example, " .@" will also match with suggestion text after a space,
      * a dot (.) or an at-symbol (@).
+     *
+     * Used during matching.
      */
     std::string wordSeparators;
 
     /*! \brief When replacing the current edited value with suggestion value,
      *         append the following string as well.
+     *
+     * Used during replacing.
      */
     std::string appendReplacedText;
   };

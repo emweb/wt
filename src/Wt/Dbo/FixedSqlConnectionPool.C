@@ -6,6 +6,7 @@
 
 #include "Wt/Dbo/FixedSqlConnectionPool"
 #include "Wt/Dbo/SqlConnection"
+#include "Wt/Dbo/Exception"
 
 namespace Wt {
   namespace Dbo {
@@ -27,10 +28,16 @@ FixedSqlConnectionPool::~FixedSqlConnectionPool()
 
 SqlConnection *FixedSqlConnectionPool::getConnection()
 {
+#ifdef WT_THREADED
   boost::mutex::scoped_lock lock(mutex_);
 
   while (freeList_.empty())
     connectionAvailable_.wait(mutex_);
+#else
+  if (freeList_.empty())
+    throw Exception("FixedSqlConnectionPool::getConnection(): "
+		    "no connection available but single-threaded build?");
+#endif // WT_THREADED
 
   SqlConnection *result = freeList_.back();
   freeList_.pop_back();
@@ -40,12 +47,16 @@ SqlConnection *FixedSqlConnectionPool::getConnection()
 
 void FixedSqlConnectionPool::returnConnection(SqlConnection *connection)
 {
+#ifdef WT_THREADED
   boost::mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
 
   freeList_.push_back(connection);
 
+#ifdef WT_THREADED
   if (freeList_.size() == 1)
     connectionAvailable_.notify_one();
+#endif // WT_THREADED
 }
 
   }

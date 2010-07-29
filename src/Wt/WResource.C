@@ -29,8 +29,6 @@ WResource::WResource(WObject* parent)
     dataChanged_(this),
     beingDeleted_(false)
 { 
-  generateUrl();
-
 #ifdef WT_THREADED
   mutex_.reset(new boost::recursive_mutex());
 #endif // WT_THREADED
@@ -138,6 +136,9 @@ void WResource::setChanged()
 
 const std::string& WResource::url() const
 {
+  if (currentUrl_.empty())
+    (const_cast<WResource *>(this))->generateUrl();
+
   return currentUrl_;
 }
 

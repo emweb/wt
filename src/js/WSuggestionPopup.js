@@ -28,7 +28,7 @@ WT_DECLARE_WT_MEMBER
    var key_down = 40;
 
    var selId = null, editId = null, kd = false,
-       filter = null, filtering = null;
+     filter = null, filtering = null, delayHideTimeout = null;
 
    function visible() {
      return el.style.display != 'none';
@@ -80,14 +80,21 @@ WT_DECLARE_WT_MEMBER
        edit.style.cursor = 'default';
      else
        edit.style.cursor = '';
-   }
+   };
 
    this.editClick = function(edit, event) {
-     if (event.clientX > edit.offsetWidth - 16) {
-       editId = edit.id;
-       self.refilter();
+     var xy = WT.widgetCoordinates(edit, event);
+     if (xy.x > edit.offsetWidth - 16) {
+       if (editId != edit.id) {
+	 hidePopup();
+	 editId = edit.id;
+	 self.refilter();
+       } else {
+	 editId = null;
+	 hidePopup();
+       }
      }
-   }
+   };
 
    function next(n, down) {
      for (n = down ? n.nextSibling : n.previousSibling;
@@ -110,7 +117,7 @@ WT_DECLARE_WT_MEMBER
 	 editId = edit.id;
        else {
 	 editId = null;
-	 return;
+	 return true;
        }
      }
 
@@ -124,7 +131,7 @@ WT_DECLARE_WT_MEMBER
          suggestionClicked(sel);
          WT.cancelEvent(event);
 	 setTimeout(function() { edit.focus(); }, 0);
-         return false;
+	 return false;
        } else if (   event.keyCode == key_down
 		  || event.keyCode == key_up
 		  || event.keyCode == key_pdown
@@ -217,13 +224,10 @@ WT_DECLARE_WT_MEMBER
          else
            child.firstChild.innerHTML = child.orig;
 
-         var match = showall;
+	 var result = matcher(child.firstChild.innerHTML),
+	     match = showall || result.match;
 
-	 if (!showall) {
-           var result = matcher(child.firstChild.innerHTML);
-           child.firstChild.innerHTML = result.suggestion;
-           match = result.match;
-         }
+	 child.firstChild.innerHTML = result.suggestion;
 
          if (match) {
            child.style.display = '';
@@ -256,10 +260,11 @@ WT_DECLARE_WT_MEMBER
 	*/
        sel.className = 'sel';
        var p = sel.parentNode;
+
        if (sel.offsetTop + sel.offsetHeight > p.scrollTop + p.clientHeight)
-	 sel.scrollIntoView(false);
+	 p.scrollTop = sel.offsetTop + sel.offsetHeight - p.clientHeight;
        else if (sel.offsetTop < p.scrollTop)
-         sel.scrollIntoView(true);
+	 p.scrollTop = sel.offsetTop;
      }
    };
 
@@ -277,7 +282,10 @@ WT_DECLARE_WT_MEMBER
        el.style.display = 'none';
        if (event.keyCode == key_escape) {
 	 editId = null;
-         edit.blur();
+	 if ($(edit).hasClass("Wt-suggest-dropdown"))
+	   hidePopup();
+	 else
+	   edit.blur();
        }
      } else {
        self.refilter();
@@ -286,10 +294,24 @@ WT_DECLARE_WT_MEMBER
 
    el.lastChild.onclick = contentClicked;
 
+   /*
+    * In Safari, scrolling causes the edit to lose focus, but we don't want
+    * that. Can it be avoided? In any case, this fixes it.
+    */
+   el.lastChild.onscroll = function() {
+     if (delayHideTimeout) {
+       clearTimeout(delayHideTimeout);
+       var edit = WT.getElement(editId);
+       if (edit)
+	 edit.focus();
+     }
+   };
+
    this.delayHide = function(edit, event) {
-     setTimeout(function() {
-	if (el)
-	  hidePopup();
+     delayHideTimeout = setTimeout(function() {
+       delayHideTimeout = null;
+       if (el && (edit == null || editId == edit.id))
+	   hidePopup();
        }, 300);
    };
  });

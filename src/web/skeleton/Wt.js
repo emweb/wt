@@ -42,6 +42,7 @@ this.arrayRemove = function(a, from, to) {
   return a.push.apply(a, rest);
 };
 
+
 this.isIE = navigator.userAgent.toLowerCase().indexOf("msie") != -1
   && navigator.userAgent.toLowerCase().indexOf("opera") == -1;
 this.isIE6 = this.isIE
@@ -49,7 +50,7 @@ this.isIE6 = this.isIE
 this.isGecko = navigator.userAgent.toLowerCase().indexOf("gecko") != -1;
 this.isIEMobile = navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
   || navigator.userAgent.toLowerCase().indexOf("msie 5") != -1;
-
+this.isOpera = typeof window.opera !== "undefined";
 this.updateDelay = this.isIE ? 10 : 51;
 
 this.setHtml = function (el, html, add) {
@@ -105,7 +106,7 @@ this.setHtml = function (el, html, add) {
 },
 
 this.hasTag = function(e, s) {
-  return e.tagName.toUpperCase() === s;
+  return e.nodeType == 1 && e.tagName.toUpperCase() === s;
 };
 
 this.insertAt = function(p, c, i) {
@@ -289,8 +290,6 @@ this.getSelectionRange = function(elem) {
     range.moveStart("character", -val.length);
     end = range.text.length;
   }
-
-  //console.log("xxx");
 
   return {start:start, end:end};
 };
@@ -635,27 +634,54 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
   var wx = document.body.scrollLeft + document.documentElement.scrollLeft;
   var wy = document.body.scrollTop + document.documentElement.scrollTop;
 
-  if (x + e.offsetWidth > wx + ws.x)
-    x = rightx - e.offsetWidth - WT.px(e, 'marginRight');
-  else
-    x -= WT.px(e, 'marginLeft');
+  var ow = WT.widgetPageCoordinates(e.offsetParent);
 
-  if (y + e.offsetHeight > wy + ws.y) {
+  var hsides = [ 'left', 'right' ],
+      vsides = ['top', 'bottom' ],
+      ew = WT.px(e, 'maxWidth') || e.offsetWidth,
+      eh = WT.px(e, 'maxHeight') || e.offsetHeight,
+      hside, vside;
+
+  /*
+   * We hate opera !
+    if (WT.isOpera && WT.hasTag(e.offsetParent, 'BODY')) {
+      ow.x = 9; ow.y = 18;
+     }
+   */
+
+  if (x + ew > wx + ws.x) { // too far right, chose other side
+    rightx -= ow.x;
+    x = e.offsetParent.offsetWidth - (rightx + WT.px(e, 'marginRight'));
+    hside = 1;
+  } else {
+    x -= ow.x;
+    x = x - WT.px(e, 'marginLeft');
+    hside = 0;
+  }
+
+  if (y + eh > wy + ws.y) { // too far below, chose other side
     if (bottomy > wy + ws.y)
       bottomy = wy + ws.y;
-    y = bottomy - e.offsetHeight - WT.px(e, 'marginBottom');
-  } else
-    y -= WT.px(e, 'marginTop');
+    bottomy -= ow.y;
+    y = e.offsetParent.offsetHeight - (bottomy + WT.px(e, 'marginBottom'));
+    vside = 1;
+  } else {
+    y -= ow.y;
+    y = y - WT.px(e, 'marginTop');
+    vside = 0;
+  }
 
+  /*
   if (x < wx)
     x = wx + ws.x - e.offsetWidth - 3;
   if (y < wy)
     y = wy + ws.y - e.offsetHeight - 3;
+  */
 
-  var ow = WT.widgetPageCoordinates(e.offsetParent);
-
-  e.style.left = (x - ow.x) + 'px';
-  e.style.top = (y - ow.y) + 'px';
+  e.style[hsides[hside]] = x + 'px';
+  e.style[hsides[1 - hside]] = '';
+  e.style[vsides[vside]] = y + 'px';
+  e.style[vsides[1 - vside]] = '';
 };
 
 this.positionXY = function(id, x, y) {

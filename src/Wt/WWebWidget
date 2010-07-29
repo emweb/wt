@@ -167,11 +167,14 @@ public:
    *
    * By default, invisible widgets are loaded only after visible content.
    * For tiny widgets this may lead to a performance loss, instead of the
-   * expected increase, because they require many more DOM manipulation
+   * expected increase, because they require many more DOM manipulations
    * to render, reducing the overall responsiveness of the application.
    *
    * Therefore, this is disabled for some widgets like WImage, or
    * empty WContainerWidgets.
+   *
+   * You may also want to disable deferred loading when JavaScript event
+   * handling expects the widget to be loaded.
    *
    * Usually the default settings are fine, but you may want to change
    * the behaviour.
