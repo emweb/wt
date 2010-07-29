@@ -347,7 +347,7 @@ typename collection<C>::size_type collection<C>::size() const
   else {
     if (data_.relation.sql) {
       const std::string *sql = data_.relation.sql;
-      std::size_t f = sql->find(" from ");
+      std::size_t f = Impl::ifind(*sql, " from ");
       std::string countSql = "select count(1)" + sql->substr(f);
 
       countStatement = session_->getOrPrepareStatement(countSql);
@@ -390,8 +390,8 @@ Query<C, DynamicBinding> collection<C>::find() const
 
   if (session_ && data_.relation.sql) {
     const std::string *sql = data_.relation.sql;
-    std::size_t f = sql->find(" from ");
-    std::size_t w = sql->find(" where ");
+    std::size_t f = Impl::ifind(*sql, " from ");
+    std::size_t w = Impl::ifind(*sql, " where ");
     std::string tableName = sql->substr(f + 7, w - f - 8);
 
     Query<C, DynamicBinding> result = Query<C, DynamicBinding>

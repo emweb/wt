@@ -21,6 +21,7 @@
 #include "Wt/WRasterImage"
 #endif // HAVE_RASTER_IMAGE
 
+#include "WtException.h"
 #include "DomElement.h"
 
 namespace Wt {
@@ -577,7 +578,7 @@ WPaintDevice *WWidgetRasterPainter::getPaintDevice()
 #ifdef HAVE_RASTER_IMAGE
     device_ = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
 #else
-    throw new Exception("Wt was built without WRasterImage (graphicsmagick)");
+    throw WtException("Wt was built without WRasterImage (graphicsmagick)");
 #endif
   }
 

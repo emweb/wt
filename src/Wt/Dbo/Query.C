@@ -16,6 +16,16 @@ namespace Wt {
   namespace Dbo {
     namespace Impl {
 
+std::size_t ifind(const std::string& s, const std::string& needle)
+{
+  boost::iterator_range<std::string::const_iterator> i
+    = boost::ifind_first(s, needle);
+  if (!i)
+    return std::string::npos;
+  else
+    return i.begin() - s.begin();
+}
+
 ParameterBase::~ParameterBase()
 { }
 
@@ -33,10 +43,10 @@ std::string createQuerySql(StatementKind kind,
      */
     std::string result = "select count(1) " + from;
 
-    std::size_t o = result.find(" order by ");
+    std::size_t o = ifind(result, " order by ");
     if (o != std::string::npos) {
-      std::size_t l = result.find(" limit ");
-      std::size_t f = result.find(" offset ");
+      std::size_t l = ifind(result, " limit ");
+      std::size_t f = ifind(result, " offset ");
 
       std::size_t len;
       if (l != std::string::npos)
@@ -127,7 +137,7 @@ void parseSql(const std::string& sql,
 	      std::vector<std::string>& aliases,
 	      std::string& rest)
 {
-  std::size_t selectPos = sql.find("select ");
+  std::size_t selectPos = ifind(sql, "select ");
   if (selectPos == std::string::npos) {
     aliases.clear();
     rest = sql;
@@ -139,7 +149,7 @@ void parseSql(const std::string& sql,
 			   " (sql='" + sql + "'");
 
   std::string aliasStr;
-  std::size_t fromPos = sql.find(" from ");
+  std::size_t fromPos = ifind(sql, " from ");
   if (fromPos != std::string::npos) {
     aliasStr = sql.substr(7, fromPos - 7);
     rest = sql.substr(fromPos);

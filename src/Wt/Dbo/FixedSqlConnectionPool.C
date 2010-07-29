@@ -8,39 +8,60 @@
 #include "Wt/Dbo/SqlConnection"
 #include "Wt/Dbo/Exception"
 
+#ifdef WT_THREADED
+#include <boost/thread.hpp>
+#include <boost/thread/condition.hpp>
+#endif // WT_THREADED
+
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+
+struct FixedSqlConnectionPoolImpl {
+#ifdef WT_THREADED
+  boost::mutex mutex;
+  boost::condition connectionAvailable;
+#endif // WT_THREADED
+
+  std::vector<SqlConnection *> freeList;
+};
+
+    }
 
 FixedSqlConnectionPool::FixedSqlConnectionPool(SqlConnection *connection,
 					       int size)
 {
-  freeList_.push_back(connection);
+  impl_ = new Impl::FixedSqlConnectionPoolImpl();
+  
+  impl_->freeList.push_back(connection);
 
   for (int i = 1; i < size; ++i)
-    freeList_.push_back(connection->clone());
+    impl_->freeList.push_back(connection->clone());
 }
 
 FixedSqlConnectionPool::~FixedSqlConnectionPool()
 {
-  for (unsigned i = 0; i < freeList_.size(); ++i)
-    delete freeList_[i];
+  for (unsigned i = 0; i < impl_->freeList.size(); ++i)
+    delete impl_->freeList[i];
+
+  delete impl_;
 }
 
 SqlConnection *FixedSqlConnectionPool::getConnection()
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(mutex_);
+  boost::mutex::scoped_lock lock(impl_->mutex);
 
-  while (freeList_.empty())
-    connectionAvailable_.wait(mutex_);
+  while (impl_->freeList.empty())
+    impl_->connectionAvailable.wait(impl_->mutex);
 #else
-  if (freeList_.empty())
+  if (impl_->freeList.empty())
     throw Exception("FixedSqlConnectionPool::getConnection(): "
 		    "no connection available but single-threaded build?");
 #endif // WT_THREADED
 
-  SqlConnection *result = freeList_.back();
-  freeList_.pop_back();
+  SqlConnection *result = impl_->freeList.back();
+  impl_->freeList.pop_back();
 
   return result;
 }
@@ -48,14 +69,14 @@ SqlConnection *FixedSqlConnectionPool::getConnection()
 void FixedSqlConnectionPool::returnConnection(SqlConnection *connection)
 {
 #ifdef WT_THREADED
-  boost::mutex::scoped_lock lock(mutex_);
+  boost::mutex::scoped_lock lock(impl_->mutex);
 #endif // WT_THREADED
 
-  freeList_.push_back(connection);
+  impl_->freeList.push_back(connection);
 
 #ifdef WT_THREADED
-  if (freeList_.size() == 1)
-    connectionAvailable_.notify_one();
+  if (impl_->freeList.size() == 1)
+    impl_->connectionAvailable.notify_one();
 #endif // WT_THREADED
 }
 

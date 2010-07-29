@@ -11,13 +11,11 @@
 
 #include <vector>
 
-#ifdef WT_THREADED
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
-#endif // WT_THREADED
-
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+      struct FixedSqlConnectionPoolImpl;
+    }
 
 /*! \class FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool Wt/Dbo/FixedSqlConnectionPool
  *  \brief A connection pool of fixed size.
@@ -51,12 +49,7 @@ public:
   virtual void returnConnection(SqlConnection *);
 
 private:
-#ifdef WT_THREADED
-  boost::mutex mutex_;
-  boost::condition connectionAvailable_;
-#endif // WT_THREADED
-
-  std::vector<SqlConnection *> freeList_;
+  Impl::FixedSqlConnectionPoolImpl *impl_;
 };
 
   }

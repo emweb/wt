@@ -26,6 +26,9 @@ class SaveBaseAction;
 
 
 namespace Impl {
+
+  extern std::size_t ifind(const std::string& s, const std::string& needle);
+
   struct WTDBO_API ParameterBase {
     virtual ~ParameterBase();
     virtual ParameterBase *clone() const = 0;
