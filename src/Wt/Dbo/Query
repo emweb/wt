@@ -30,7 +30,7 @@ namespace Wt {
 	Result singleResult(const collection<Result>& results) const;
 
 	Session *session_;
-	std::string from_;
+	std::string selectOption_, from_;
 	std::vector<std::string> aliases_;
       };
     }

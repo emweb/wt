@@ -30,12 +30,18 @@ ParameterBase::~ParameterBase()
 { }
 
 std::string createQuerySql(StatementKind kind,
+			   const std::string& selectOption,
 			   const std::vector<FieldInfo>& fields,
 			   const std::string& from)
 {
   if (kind == Select)
-    return "select " + selectColumns(fields) + ' ' + from;
+    return "select " + selectOption + selectColumns(fields) + ' ' + from;
   else {
+    if (!selectOption.empty())
+      return "select count(1) from ("
+	+ createQuerySql(Select, selectOption, fields, from)
+	+ ")";
+
     /*
      * We cannot have " order by " in our query, but we cannot simply
      * junk evertything after " order by " since there may still be
@@ -64,6 +70,7 @@ std::string createQuerySql(StatementKind kind,
 }
 
 std::string createQuerySql(StatementKind kind,
+			   const std::string& selectOption,
 			   const std::vector<FieldInfo>& fields,
 			   const std::string& from,
 			   const std::string& where,
@@ -74,15 +81,15 @@ std::string createQuerySql(StatementKind kind,
   std::string result;
 
   if (kind == Select) {
-    result = "select " + selectColumns(fields);
+    result = "select " + selectOption + selectColumns(fields);
   } else if (kind == Count) {
     /*
      * If there is a group by, then we cannot simply substitute count(*)
      * (at least that still gives multiple results for sqlite3?
      */
-    if (!groupBy.empty()) {
+    if (!groupBy.empty() || !selectOption.empty()) {
       return "select count(1) from ("
-	+ createQuerySql(Select, fields,
+	+ createQuerySql(Select, selectOption, fields,
 			 from, where, groupBy, orderBy, limit, offset)
 	+ ")";
     } else
@@ -134,13 +141,20 @@ std::string createQuerySql(StatementKind kind,
 }
 
 void parseSql(const std::string& sql,
+	      std::string& selectOption,
 	      std::vector<std::string>& aliases,
 	      std::string& rest)
 {
-  std::size_t selectPos = ifind(sql, "select ");
+  std::string parse = sql;
+
+  boost::trim(parse);
+
+  selectOption.clear();
+
+  std::size_t selectPos = ifind(parse, "select ");
   if (selectPos == std::string::npos) {
     aliases.clear();
-    rest = sql;
+    rest = parse;
     return;
   }
 
@@ -148,13 +162,27 @@ void parseSql(const std::string& sql,
     throw std::logic_error("Session::query(): query should start with 'select '"
 			   " (sql='" + sql + "'");
 
-  std::string aliasStr;
-  std::size_t fromPos = ifind(sql, " from ");
-  if (fromPos != std::string::npos) {
-    aliasStr = sql.substr(7, fromPos - 7);
-    rest = sql.substr(fromPos);
+  parse = parse.substr(7);
+
+  std::size_t distinctPos = ifind(parse, "distinct ");
+  if (distinctPos == 0) {
+    selectOption = parse.substr(0, 9);
+    parse = parse.substr(9);
   } else {
-    aliasStr = sql.substr(7);
+    std::size_t allPos = ifind(parse, "all ");
+    if (allPos == 0) {
+      selectOption = parse.substr(0, 4);
+      parse = parse.substr(4);
+    }
+  }
+
+  std::string aliasStr;
+  std::size_t fromPos = ifind(parse, " from ");
+  if (fromPos != std::string::npos) {
+    aliasStr = parse.substr(0, fromPos);
+    rest = parse.substr(fromPos);
+  } else {
+    aliasStr = parse;
     rest = std::string();
   }
 

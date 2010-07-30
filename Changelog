@@ -1,3 +1,7 @@
+30-07-2010:
+	* Dbo/Query: support 'select distinct/all' syntax, and case-insenstive
+	query parsing
+
 29-07-2010:
 	* WSuggestionPopup: misc improvements to server-side filtering, fixing
 	rendering glitches

@@ -452,7 +452,7 @@ void DboTest::test3()
       dbo::Transaction t(*session_);
 
       dbo::ptr<B> b1 = session_->query< dbo::ptr<B> >
-	("select B from table_b B ").where("B.name = ?").bind("b1");
+	("select distinct B from table_b B ").where("B.name = ?").bind("b1");
 
       dbo::ptr<C> c1 = session_->find<C>().where("name = ?").bind("c1");
 

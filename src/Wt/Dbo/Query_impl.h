@@ -24,11 +24,13 @@ namespace Wt {
 enum StatementKind { Select, Count };
 
 extern std::string WTDBO_API
-createQuerySql(StatementKind kind, const std::vector<FieldInfo>& fields,
+createQuerySql(StatementKind kind, const std::string& selectOption,
+	       const std::vector<FieldInfo>& fields,
 	       const std::string& from);
 
 extern std::string WTDBO_API
-createQuerySql(StatementKind kind, const std::vector<FieldInfo>& fields,
+createQuerySql(StatementKind kind, const std::string& selectOption,
+	       const std::vector<FieldInfo>& fields,
 	       const std::string& from,
 	       const std::string& where,
 	       const std::string& groupBy,
@@ -37,7 +39,8 @@ createQuerySql(StatementKind kind, const std::vector<FieldInfo>& fields,
 	       int offset);
 
 extern void WTDBO_API
-parseSql(const std::string& sql, std::vector<std::string>& aliases,
+parseSql(const std::string& sql, std::string& selectOption,
+	 std::vector<std::string>& aliases,
 	 std::string& rest);
 
 extern std::string WTDBO_API
@@ -52,7 +55,7 @@ template <class Result>
 QueryBase<Result>::QueryBase(Session& session, const std::string& sql)
   : session_(&session)
 {
-  parseSql(sql, aliases_, from_);
+  parseSql(sql, selectOption_, aliases_, from_);
 }
 
 template <class Result>
@@ -194,10 +197,12 @@ void Query<Result, DirectBinding>::prepareStatements() const
   std::string sql;
 
   std::vector<FieldInfo> fs = this->fields();
-  sql = Impl::createQuerySql(Impl::Select, fs, this->from_);
+  sql = Impl::createQuerySql(Impl::Select, this->selectOption_,
+			     fs, this->from_);
   this->statement_ = this->session_->getOrPrepareStatement(sql);
 
-  sql = Impl::createQuerySql(Impl::Count, fs, this->from_);
+  sql = Impl::createQuerySql(Impl::Count, this->selectOption_,
+			     fs, this->from_);
   this->countStatement_ = this->session_->getOrPrepareStatement(sql);
 
   column_ = 0;
@@ -354,12 +359,12 @@ collection<Result> Query<Result, DynamicBinding>::resultList() const
   std::vector<FieldInfo> fs = this->fields();
 
   std::string sql;
-  sql = Impl::createQuerySql(Impl::Select, fs, this->from_,
+  sql = Impl::createQuerySql(Impl::Select, this->selectOption_, fs, this->from_,
 			     where_, groupBy_, orderBy_, limit_, offset_);
   SqlStatement *statement = this->session_->getOrPrepareStatement(sql);
   bindParameters(statement);
 
-  sql = Impl::createQuerySql(Impl::Count, fs, this->from_,
+  sql = Impl::createQuerySql(Impl::Count, this->selectOption_, fs, this->from_,
 			     where_, groupBy_, orderBy_, limit_, offset_);
   SqlStatement *countStatement = this->session_->getOrPrepareStatement(sql);
  

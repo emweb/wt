@@ -1510,7 +1510,8 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
 	    w = p->webWidget();
 	} while (p && w == this);
 
-	w->getSDomChanges(result, app);
+	if (w != this)
+	  w->getSDomChanges(result, app);
       } else if (flags_.test(BIT_REPAINT_INNER_HTML)
 		 || !flags_.test(BIT_REPAINT_PROPERTY_IEMOBILE)) {
 	// the last condition results from repainting the parent, in which
