@@ -8,6 +8,8 @@
 	* WModelIndex: clarify usage when model rows/columns shift, implement
 	in-place toRaw/fromRaw conversion
 
+	* WDialog: add titleBar() to access the title bar
+
 30-07-2010:
 	* Dbo/Query: support 'select distinct/all' syntax, and case-insenstive
 	query parsing

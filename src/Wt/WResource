@@ -146,6 +146,17 @@ namespace Wt {
  * \endcode
  * \endif
  *
+ * \if cpp
+ * <h3>Global and private resources</h3>
+ *
+ * By default, a resource is private to an application: access to it
+ * is protected by same secret session Id that protects any other
+ * access to the application.
+ *
+ * You can also deploy static resources, which are global, using
+ * WServer::addResource().
+ * \endif
+ *
  * \sa WAnchor, WImage
  */
 class WT_API WResource : public WObject
@@ -219,13 +230,13 @@ public:
    *
    * The old urls are not invalidated by calling this method.
    */
-  const std::string &generateUrl();
+  const std::string& generateUrl();
 
   /*! \brief Returns the current URL for this resource.
    *
-   * Returns the url that refers to this resource.
+   * Returns the url that references this resource.
    */
-  const std::string &url() const;
+  const std::string& url() const;
 
   /*! \brief Signal emitted when the data presented in this resource
    *         has changed.

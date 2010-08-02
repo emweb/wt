@@ -165,6 +165,14 @@ public:
    */
   bool isTitleBarEnabled() const { return !titleBar_->isHidden(); }
 
+  /*! \brief Returns the dialog title bar container.
+   *
+   * The title bar contains a single text that contains the
+   * caption. You may customize the title bar by for example adding
+   * other content.
+   */
+  WContainerWidget *titleBar() const { return titleBar_; }
+
   /*! \brief Returns the dialog contents container.
    *
    * Content to the dialog window may be added to this container widget. 

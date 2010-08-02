@@ -148,6 +148,8 @@ const std::string& WResource::generateUrl()
 
   if (app)
     currentUrl_ = app->addExposedResource(this, internalPath_);
+  else
+    currentUrl_ = internalPath_;
 
   return currentUrl_;
 }
