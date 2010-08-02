@@ -99,6 +99,13 @@ void WSuggestionPopup::setMaximumSize(const WLength& width,
   content_->setMaximumSize(width, height);
 }
 
+void WSuggestionPopup::setMinimumSize(const WLength& width,
+				      const WLength& height)
+{
+  WCompositeWidget::setMinimumSize(width, height);
+  content_->setMinimumSize(width, height);
+}
+
 void WSuggestionPopup::defineJavaScript()
 {
   WApplication *app = WApplication::instance();

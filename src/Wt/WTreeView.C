@@ -2666,7 +2666,7 @@ void WTreeView::shiftModelIndexes(const WModelIndex& parent,
 
 void WTreeView::modelLayoutAboutToBeChanged()
 {
-  convertToRaw(expandedSet_, expandedRaw_);
+  WModelIndex::encodeAsRawIndexes(expandedSet_);
 
   WAbstractItemView::modelLayoutAboutToBeChanged();
 }
@@ -2675,9 +2675,7 @@ void WTreeView::modelLayoutChanged()
 {
   WAbstractItemView::modelLayoutChanged();
 
-  for (unsigned i = 0; i < expandedRaw_.size(); ++i)
-    expandedSet_.insert(model()->fromRawIndex(expandedRaw_[i]));
-  expandedRaw_.clear();
+  expandedSet_ = WModelIndex::decodeFromRawIndexes(expandedSet_);
 
   renderedNodes_.clear();
 

@@ -9,6 +9,7 @@
 
 #include "Wt/WModelIndex"
 #include "Wt/WAbstractItemModel"
+#include "WtException.h"
 
 namespace Wt {
 
@@ -163,6 +164,56 @@ std::size_t hash_value(const Wt::WModelIndex& index) {
 
   return intHasher(index.row()) + intHasher(index.column())
     + longHasher(index.internalId());
+}
+
+void WModelIndex::encodeAsRawIndex()
+{
+  if (model_) {
+    if (isRawIndex())
+      throw WtException("WModelIndex::encodeAsRawIndex(): "
+			"cannot encode a raw index to raw again");
+
+    internalId_ = reinterpret_cast<uint64_t>(model_->toRawIndex(*this));
+    row_ = column_ = -42;
+  }
+}
+
+WModelIndex WModelIndex::decodeFromRawIndex() const
+{
+  if (model_) {
+    if (!isRawIndex())
+      throw WtException("WModelIndex::decodeFromRawIndex(): "
+			"can only decode an encoded raw index");
+
+    return model_->fromRawIndex(internalPointer());
+  } else
+    return *this;
+}
+
+bool WModelIndex::isRawIndex() const
+{
+  return row_ == -42 && column_ == -42;
+}
+
+void WModelIndex::encodeAsRawIndexes(WModelIndexSet& indexes)
+{
+  for (WModelIndexSet::iterator i = indexes.begin(); i != indexes.end(); ++i)
+    (const_cast<WModelIndex &>(*i)).encodeAsRawIndex();
+}
+
+WModelIndexSet
+WModelIndex::decodeFromRawIndexes(const WModelIndexSet& encodedIndexes)
+{
+  WModelIndexSet result;
+
+  for (WModelIndexSet::const_iterator i = encodedIndexes.begin();
+       i != encodedIndexes.end(); ++i) {
+    WModelIndex n = i->decodeFromRawIndex();
+    if (n.isValid())
+      result.insert(n);
+  }
+
+  return result;
 }
 
 }

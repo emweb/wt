@@ -81,11 +81,12 @@ private:
 
   WItemSelectionModel(WAbstractItemModel *model, WObject *parent = 0);
 
-  // temporary make the owning view a friend, until we have a better solution
-  // for editable selection models.
+  void modelLayoutAboutToBeChanged();
+  void modelLayoutChanged();
+
   friend class WAbstractItemView;
-  friend class WTreeView;
   friend class WTableView;
+  friend class WTreeView;
 };
 
 }

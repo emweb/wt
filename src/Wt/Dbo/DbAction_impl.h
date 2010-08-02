@@ -501,7 +501,14 @@ void ToAnysAction::visit(const ptr<C>& obj)
   if (dbo_traits<C>::versionField())
     result_.push_back(obj.version());
 
-  persist<C>::apply(const_cast<C&>(*obj), *this);
+  if (obj) {
+    allEmpty_ = false;
+    persist<C>::apply(const_cast<C&>(*obj), *this);
+  } else {
+    C dummy;
+    allEmpty_ = true;
+    persist<C>::apply(dummy, *this);
+  }
 }
 
 template <typename V, class Enable = void>
@@ -534,7 +541,10 @@ void ToAnysAction::actId(V& value, const std::string& name, int size)
 template<typename V>
 void ToAnysAction::act(const FieldRef<V>& field)
 { 
-  result_.push_back(convertToAny(field.value()));
+  if (allEmpty_)
+    result_.push_back(boost::any());
+  else
+    result_.push_back(convertToAny(field.value()));
 }
 
 template<class C>

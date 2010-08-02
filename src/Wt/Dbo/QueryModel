@@ -13,31 +13,6 @@
 namespace Wt {
   namespace Dbo {
 
-/*! \brief A strategy for committing edited values to the underlying database.
- *
- * \sa QueryModel<Result>::setEditStrategy()
- *
- * \ingroup dbo
- */
-enum EditStrategy {
-  /*! \brief Changes are applied to the model directly.
-   *
-   * The actual change will be flushed to the database, when the
-   * session is flushed (e.g. when a transaction commits or a query
-   * is run).
-   */
-  OnFieldChange,
-
-  /*! \brief Changes are first cached in the model.
-   *
-   * The cached changes are committed when calling
-   * QueryModel<Result>::submitAll() or reverted using
-   * QueryModel<Result>::revertAll(). This may be useful if you want
-   * to commit all changes in a single transaction.
-   */
-  OnManualSubmit
-};
-
 class QueryColumn;
 
 /*! \class QueryModel Wt/Dbo/QueryModel Wt/Dbo/QueryModel
@@ -71,25 +46,15 @@ class QueryColumn;
  * removing rows, which are reflected in object additions and removals
  * from the Session.
  *
- * The model supports two strategies for applying editing (changes,
- * insertion and deletion) to the database objects :
- *
- *  - Wt::Dbo::OnFieldChange will apply the editing directly to the
- *    underlying database objects (change, insert and remove). Note
- *    that these changes will be flushed to the database whenever a
- *    transaction is committed, or before a query is run. The model
- *    will not explicitly create a transaction for the modification,
- *    but since it requires a query for reading data, the change may
- *    be committed to the database depending on how the model is
- *    loading data. Still, this implies that usually inserting a row
- *    and setting its data happens within a single SQL
- *    <tt>"insert"</tt> statement.
- *
- *  - Wt::Dbo::OnManualSubmit will cache editing in the model until
- *    submitAll() is called, and only then apply the changes to the
- *    database objects. This may be useful if you want all changes to
- *    be committed in a transaction that you control explicilty, and
- *    if you want to give the user the option to cancel all changes.
+ * Editing is directly to the underlying database objects (change,
+ * insert and remove). Note that these changes will be flushed to the
+ * database whenever a transaction is committed, or before a query is
+ * run. The model will not explicitly create a transaction for the
+ * modification, but since the model uses a query for reading data,
+ * the change may be committed to the database depending on how the
+ * model is loading data. Still, this implies that usually inserting a
+ * row and setting its data happens within a single SQL
+ * <tt>"insert"</tt> statement.
  *
  * \ingroup dbo modelview
  */
@@ -197,51 +162,6 @@ public:
    */
   void reload();
 
-  /*! \brief Sets the edit strategy.
-   *
-   * The edit strategy determines when model editing (through
-   * setData()) is committed to the database.
-   *
-   * The default strategy is Wt::Dbo::OnFieldChange.
-   */
-  void setEditStrategy(EditStrategy strategy);
-
-  /*! \brief Returns the edit strategy.
-   *
-   * \sa setEditStrategy()
-   */
-  EditStrategy editStrategy() const { return editStrategy_; }
-
-  /*! \brief Returns whether the model has pending changes.
-   *
-   * When editStrategy() is Wt::Dbo::OnManualSubmit, this returns
-   * whether model changes are still pending, and can be flushed using
-   * submitAll() or reverted using revertAll().
-   *
-   * \sa revertAll(), setEditStrategy()
-   */
-  bool isDirty() const;
-
-  /*! \brief Flushes edited values to the database.
-   *
-   * When editStrategy() is Wt::Dbo::OnManualSubmit, edits are not
-   * committed directly to the underlying database. Instead, the
-   * changes are cached by the model (and consistently shown that
-   * way), and only flushed to the database when this method is
-   * called.
-   *
-   * \sa revertAll(), setEditStrategy()
-   */
-  virtual void submitAll();
-
-  /*! \brief Discards edited values.
-   *
-   * This cancels edited values.
-   *
-   * \sa submitAll(), setEditStrategy()
-   */
-  virtual void revertAll();
-
   /*! \brief Sets the batch size for fetching results.
    *
    * The model fetches results from the query in batch, and caches
@@ -300,9 +220,7 @@ public:
   /*! \brief Sets data at the given model index.
    *
    * If \p role = Wt::EditRole, sets the value for the field
-   * corresponding to the index. When the edit strategy is
-   * Wt::Dbo::OnManualSubmit, the change is first cached until
-   * submitAll() is called.
+   * corresponding to the index. All other editing is ignored.
    *
    * \sa setCachedResult()
    */
@@ -323,12 +241,6 @@ public:
    *
    * This sorts the model by changing the query using
    * Query<BindStrategy>::orderBy().
-   *
-   * When the edit strategy is Wt::Dbo::OnManualSubmit, edited values are
-   * discarded using revertAll().
-   *
-   * \note We could support keeping the editing changes later, provided that
-   *       we have an implementation for toRawIndex() and fromRawIndex().
    */
   virtual void sort(int column, SortOrder order = AscendingOrder);
 
@@ -337,9 +249,6 @@ public:
    * Row insertions are only supported at the end (\p row ==
    * rowCount()). For each added row, a new result is added to the
    * underlying database.
-   *
-   * When the edit strategy is Wt::Dbo::OnManualSubmit, the
-   * addition is first cached until submitAll() is called.
    */
   virtual bool insertRows(int row, int count,
 			  const WModelIndex& parent = WModelIndex());
@@ -347,32 +256,11 @@ public:
   /*! \brief Removes one or more rows.
    *
    * For each removed row, the result is removed from the underlying database.
-   *
-   * When the edit strategy is Wt::Dbo::OnManualSubmit, the
-   * addition is first cached until submitAll() is called.
    */
   virtual bool removeRows(int row, int count,
 			  const WModelIndex& parent = WModelIndex());
 
 protected:
-  /*! \brief Caches an edited result.
-   *
-   * When the edit strategy is Wt::Dbo::OnFieldChange, any editing
-   * through setData() is automatically reflected in the underlying
-   * result object (resultRow()). When a foreign key was modified,
-   * this also updates (and, if necessary, loads) the referenced
-   * object, thus automatically showing a consistent row.
-   *
-   * When the edit strategy is Wt::Dbo::OnManualSubmit, then the
-   * default implementation of setData() caches the changed value for
-   * the single field being edited. Because this may result in an
-   * inconsistent row when the field was a foreign key, it may be
-   * useful to cache the change also in the corresponding resultRow(),
-   * ahead of a call to submitAll() in a specialized implementation of
-   * setData().
-   */
-  void setCachedResult(int row, const Result& result);
-
   /*! \brief Creates a new row.
    *
    * This method is called from within insertRows() to create a new
@@ -384,8 +272,8 @@ protected:
 
   /*! \brief Adds a row to the session.
    *
-   * This method is called from within insertRows() or submitAll() to add
-   * (and save) a new result row to the Dbo session.
+   * This method is called from within insertRows() to add (and save)
+   * a new result row to the Dbo session.
    *
    * The default implementation uses query_result_traits<Result>::add().
    */
@@ -393,8 +281,8 @@ protected:
 
   /*! \brief Deletes a row from the session.
    *
-   * This method is called from within removeRows() or submitAll() to remove
-   * (and delete) a new result row from the Dbo session.
+   * This method is called from within removeRows() to remove (and
+   * delete) a new result row from the Dbo session.
    *
    * The default implementation uses query_result_traits<Result>::remove().
    */
@@ -406,7 +294,6 @@ private:
   typedef std::map<WModelIndex, boost::any> ValueMap;
   typedef std::map<int, Result> ResultMap;
 
-  EditStrategy editStrategy_;
   std::vector<QueryColumn> columns_;
 
   mutable Query<Result> query_;
@@ -421,21 +308,12 @@ private:
 
   std::vector<FieldInfo> fields_;
 
-  /* OnManualSubmit editing support */
-  ValueMap editedValues_;
-  ResultMap editedRows_;
-  std::vector<int> removedRows_;  // sorted
-  std::vector<Result> addedRows_;
-
   int getFieldIndex(const std::string& field);
 
   void setCurrentRow(int row) const;
   void invalidateData();
   void invalidateRow(int row);
   void dataReloaded();
-
-  Result& adjustedResultRow(int row);
-  int adjustForRemoved(int row) const;
 };
 
   }

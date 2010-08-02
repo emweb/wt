@@ -929,39 +929,16 @@ void WAbstractItemView::bindObjJS(JSlot& slot, const std::string& jsMethod)
      "}");
 }
 
-void WAbstractItemView::convertToRaw(WModelIndexSet& set, 
-				     std::vector<void *>& result)
-{
-  for (WModelIndexSet::const_iterator i = set.begin(); i != set.end(); ++i) {
-    void *rawIndex = model_->toRawIndex(*i);
-    if (rawIndex)
-      result.push_back(rawIndex);
-  }
-
-  set.clear();
-}
-
 void WAbstractItemView::modelLayoutAboutToBeChanged()
 {
-  convertToRaw(selectionModel_->selection_, selectionRaw_);
-  rawRootIndex_ = model_->toRawIndex(rootIndex_);
+  rootIndex_.encodeAsRawIndex();
 }
 
 void WAbstractItemView::modelLayoutChanged()
 {
-  if (rawRootIndex_)
-    rootIndex_ = model_->fromRawIndex(rawRootIndex_);
-  else
-    rootIndex_ = WModelIndex();
+  rootIndex_ = rootIndex_.decodeFromRawIndex();
 
   editedItems_.clear();
-
-  for (unsigned i = 0; i < selectionRaw_.size(); ++i) {
-    WModelIndex index = model_->fromRawIndex(selectionRaw_[i]);
-    if (index.isValid())
-      selectionModel_->selection_.insert(index);
-  }
-  selectionRaw_.clear();
 
   scheduleRerender(NeedRerenderData);
 }

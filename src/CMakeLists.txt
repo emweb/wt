@@ -99,6 +99,7 @@ Wt/WAccordionLayout.C
 Wt/WAggregateProxyModel.C
 Wt/WAnchor.C
 Wt/WApplication.C
+Wt/WBatchEditProxyModel.C
 Wt/WBorder.C
 Wt/WBorderLayout.C
 Wt/WBoxLayout.C

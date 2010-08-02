@@ -313,8 +313,6 @@ private:
   bool                 rootIsDecorated_;
   bool                 column1Fixed_;
 
-  std::vector<void *>  expandedRaw_;
-
   Signal<WModelIndex>  collapsed_;
   Signal<WModelIndex>  expanded_;
 

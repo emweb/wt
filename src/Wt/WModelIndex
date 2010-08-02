@@ -17,6 +17,15 @@
 namespace Wt {
 
 class WAbstractItemModel;
+class WModelIndex;
+
+#ifndef WT_TARGET_JAVA
+typedef std::set<WModelIndex> WModelIndexSet;
+
+extern std::size_t hash_value(const Wt::WModelIndex& index);
+#else
+typedef std::treeset<WModelIndex> WModelIndexSet;
+#endif
 
 /*! \defgroup modelview Model/view system
  *  \brief Classes that implement %Wt's model/view system.
@@ -188,6 +197,26 @@ enum DropAction {
  * define an internal pointer or id suitable for identifying parent
  * items in the model.
  *
+ * When a model's geometry changes due to row or column insertions or
+ * removals, you may need to update your indexes, as otherwise they
+ * may no longer point to the same item (but instead still to the same
+ * row/column). Thus, if you store indexes and want to support model
+ * changes such as row or columns insertions/removals, then you need
+ * to react to the corresponding signals such as
+ * WAbstractItemModel::rowsInserted() to update these indexes
+ * (i.e. shift them), or even remove them when the corresponding
+ * row/column has been removed.
+ *
+ * When a model's layout changes (it is rearranging its contents for
+ * example in response to a sort operation), a similar problem
+ * arises. Some models support tracking of indexes over layout
+ * changes, using <i>raw</i> indexes. In reaction to
+ * WAbstractItemModel::layoutAboutToBeChanged(), you should encode any
+ * index which you wish to recover after the layout change using
+ * encodeAsRawIndex(), and in WAbstractItemModel::layoutChanged() you
+ * can obtain an index that points to the same item using
+ * decodeFromRawIndex().
+ *
  * \sa WAbstractItemModel
  *
  * \ingroup modelview
@@ -322,6 +351,48 @@ public:
    */
   bool operator< (const WModelIndex& other) const;
 
+  /*! \brief Encode to raw index (before a layout change).
+   *
+   * Use this method to encode an index for which you want to recover
+   * an index after the layout change to the same item (which may
+   * still be in the model, but at a different location).
+   *
+   * An index that has been encoded as a raw index cannot be used for
+   * anything but decodeFromRawIndex() at a later point.
+   *
+   * \sa WAbstractItemModel::toRawIndex(), WAbstractItemModel::layoutAboutToBeChanged()
+   * \sa decodeFromRawIndex()
+   */
+  void encodeAsRawIndex();
+
+  /*! \brief Decodes a raw index (after a layout change).
+   *
+   * A raw index can be decoded, within the context of a model that has been
+   * re-layed out.
+   *
+   * This method returns a new index that points to the same item, or,
+   * WModelIndex() if the underlying model did not support encoding to
+   * raw indexes, or, if the item to which the index previously
+   * pointed, is no longer part of the model.
+   *
+   * \sa WAbstractItemModel::fromRawIndex(), WAbstractItemModel::layoutChanged()
+   * \sa encodeAsRawIndex()
+   */
+  WModelIndex decodeFromRawIndex() const;
+
+  /*! \brief Utility method for converting an entire set of indexes to raw.
+   *
+   * \sa encodeAsRawIndex()
+   */
+  static void encodeAsRawIndexes(WModelIndexSet& indexes);
+
+  /*! \brief Utility method to decode an entire set of raw indexes.
+   *
+   * \sa decodeFromRawIndex()
+   */
+  static
+    WModelIndexSet decodeFromRawIndexes(const WModelIndexSet& encodedIndexes);
+
   struct UnorderedLess {
     bool operator()(const WModelIndex& i1, const WModelIndex& i2) const;
   };
@@ -339,6 +410,8 @@ private:
 
   WModelIndex ancestor(int depth) const;
   int depth() const;
+
+  bool isRawIndex() const;
 };
 
 #ifndef WT_TARGET_JAVA

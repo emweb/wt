@@ -905,7 +905,6 @@ void DboTest::test12()
 	= new dbo::QueryModel< dbo::ptr<C> >();
 
       model->setQuery(query);
-      model->setEditStrategy(dbo::OnManualSubmit);
 
       boost::any d;
 
@@ -924,10 +923,6 @@ void DboTest::test12()
 
       BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed");
 
-      model->submitAll();
-
-      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed");
-
       {
 	dbo::ptr<C> c = session_->find<C>();
 	BOOST_REQUIRE(c->name == "changed");
@@ -936,8 +931,6 @@ void DboTest::test12()
       model->insertRow(1);
       model->setData(1, 2, std::string("new C"));
 
-      model->submitAll();
-
       BOOST_REQUIRE(session_->find<C>().resultList().size() == 2);
 
       model->removeRow(0);
@@ -945,10 +938,6 @@ void DboTest::test12()
       BOOST_REQUIRE(model->rowCount() == 1);
 
       model->setData(0, 2, std::string("changed again"));
-
-      BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed again");
-
-      model->submitAll();
 
       BOOST_REQUIRE(Wt::asString(model->data(0, 2)) == "changed again");
 

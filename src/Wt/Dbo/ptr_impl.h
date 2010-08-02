@@ -417,6 +417,7 @@ void query_result_traits< ptr<C> >
 ::getValues(const ptr<C>& ptr, std::vector<boost::any>& values)
 {
   ToAnysAction action(values);
+
   action.visit(ptr);
 }
 

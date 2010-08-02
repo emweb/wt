@@ -248,6 +248,7 @@ public:
 private:
   Session *session_;
   std::vector<boost::any>& result_;
+  bool allEmpty_;
 };
 
 class WTDBO_API FromAnyAction

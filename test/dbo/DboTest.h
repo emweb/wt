@@ -22,6 +22,9 @@ using boost::unit_test_framework::test_case;
 
 class DboTest : public test_suite
 {
+public:
+  DboTest();
+
 private:
   Wt::Dbo::SqlConnectionPool *connectionPool_;
   Wt::Dbo::Session *session_;
@@ -29,7 +32,6 @@ private:
   void setup();
   void teardown();
 
-public:
   void test1();
   void test2();
   void test3();
@@ -42,8 +44,6 @@ public:
   void test10();
   void test11();
   void test12();
-
-  DboTest();
 };
 
 #endif // DBO_TEST_H

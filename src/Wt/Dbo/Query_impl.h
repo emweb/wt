@@ -67,6 +67,17 @@ QueryBase<Result>::QueryBase(Session& session, const std::string& table,
 }
 
 template <class Result>
+QueryBase<Result>& QueryBase<Result>::operator=(const QueryBase<Result>& other)
+{
+  session_ = other.session_;
+  selectOption_ = other.selectOption_;
+  from_ = other.from_;
+  aliases_ = other.aliases_;
+
+  return *this;
+}
+
+template <class Result>
 std::vector<FieldInfo> QueryBase<Result>::fields() const
 {
   std::vector<FieldInfo> result;
@@ -263,9 +274,7 @@ Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::operator=
 (const Query<Result, DynamicBinding>& other)
 {
-  this->session_ = other.session_;
-  this->from_ = other.from_;
-  this->aliases_ = other.aliases_;
+  Impl::QueryBase<Result>::operator=(other);
   where_ = other.where_;
   groupBy_ = other.groupBy_;
   orderBy_ = other.orderBy_;

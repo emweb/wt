@@ -10,6 +10,13 @@
 }
 
 /*
+ * WSuggestionPopup
+ */
+.Wt-suggest .content {
+    overflow-x: hidden;
+}
+
+/*
  * WTableView
  */
 .Wt-tableview div {

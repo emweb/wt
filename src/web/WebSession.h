@@ -294,7 +294,7 @@ private:
 class WT_API WEvent {
 private:
   WEvent()
-    : handler(*(WebSession::Handler *)0),
+    : handler(0),
       responseType(WebRenderer::Page),
       renderOnly(false)
   { }
@@ -302,19 +302,19 @@ private:
   WEvent(WebSession::Handler& aHandler,
 	 WebRenderer::ResponseType aResponseType,
 	 bool doRenderOnly)
-    : handler(aHandler),
+    : handler(&aHandler),
       responseType(aResponseType),
       renderOnly(doRenderOnly)
   { }
 
   WEvent(WebSession::Handler& aHandler,
 	 WebRenderer::ResponseType aResponseType)
-    : handler(aHandler),
+    : handler(&aHandler),
       responseType(aResponseType),
       renderOnly(false)
   { }
 
-  WebSession::Handler& handler;
+  WebSession::Handler *handler;
   WebRenderer::ResponseType responseType;
   bool renderOnly;
 

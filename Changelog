@@ -1,3 +1,13 @@
+02-08-2010:
+	* WBatchEditProxyModel: a model that caches editing until submitted
+	in batch (or reverted)
+
+	* Dbo/QueryModel: remove edit strategy, this is now handled by
+	WBatchEditProxyModel
+
+	* WModelIndex: clarify usage when model rows/columns shift, implement
+	in-place toRaw/fromRaw conversion
+
 30-07-2010:
 	* Dbo/Query: support 'select distinct/all' syntax, and case-insenstive
 	query parsing

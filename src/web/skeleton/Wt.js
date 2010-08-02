@@ -642,13 +642,6 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
       eh = WT.px(e, 'maxHeight') || e.offsetHeight,
       hside, vside;
 
-  /*
-   * We hate opera !
-    if (WT.isOpera && WT.hasTag(e.offsetParent, 'BODY')) {
-      ow.x = 9; ow.y = 18;
-     }
-   */
-
   if (x + ew > wx + ws.x) { // too far right, chose other side
     rightx -= ow.x;
     x = e.offsetParent.offsetWidth - (rightx + WT.px(e, 'marginRight'));

@@ -3,6 +3,7 @@ ADD_EXECUTABLE(test
   chart/WChartTest.C
   dbo/DboTest.C
   dbo/DboTest2.C
+  models/WBatchEditProxyModelTest.C
   wdatetime/WDateTimeTest.C
 )
 

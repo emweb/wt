@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, "WSuggestionPopup",
  function(APP, el, replacerJS, matcherJS, filterLength) {
-   document.body.appendChild(el);
+   $('.Wt-domRoot').add(el);
 
    jQuery.data(el, 'obj', this);
 
@@ -166,7 +166,7 @@ WT_DECLARE_WT_MEMBER
 	 }
 
          if (n && WT.hasTag(n, 'DIV')) {
-           sel.className = null;
+           sel.className = '';
            n.className = 'sel';
            selId = n.id;
          }
@@ -236,7 +236,7 @@ WT_DECLARE_WT_MEMBER
          } else
            child.style.display = 'none';
 
-         child.className = null;
+         child.className = '';
        }
      }
 

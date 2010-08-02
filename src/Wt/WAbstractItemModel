@@ -393,7 +393,10 @@ public:
 
   /*! \brief Inserts one or more columns.
    *
-   * Returns \c true if the operation was successful.
+   * In models that support column insertion, this inserts \c count
+   * columns, starting at \c column, and returns \c true if the
+   * operation was successful. The new columns are inserted under \p
+   * parent.
    *
    * The default implementation returns \c false.
    *
@@ -409,7 +412,12 @@ public:
 
   /*! \brief Inserts one or more rows.
    *
-   * Returns \c true if the operation was successful.
+   * In models that support row insertion, this inserts \c count rows,
+   * starting at \c row, and returns \c true if the operation was
+   * successful. The new rows are inserted under \p parent.
+   *
+   * If parent had no children, then a single column is added with \c
+   * count rows.
    *
    * The default implementation returns \c false.
    *

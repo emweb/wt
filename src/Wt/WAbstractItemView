@@ -704,8 +704,6 @@ protected:
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
 
-  void convertToRaw(WModelIndexSet& set, std::vector<void *>& result);
-
   void setEditState(const WModelIndex& index, const boost::any& editState);
   boost::any editState(const WModelIndex& index) const;
   bool hasEditFocus(const WModelIndex& index) const;
@@ -754,9 +752,6 @@ private:
 
   typedef std::map<WModelIndex, Editor> EditorMap;
   EditorMap editedItems_;
-
-  std::vector<void *> selectionRaw_;
-  void *rawRootIndex_;
 
   Signal<WModelIndex, WMouseEvent> clicked_;
   Signal<WModelIndex, WMouseEvent> doubleClicked_;

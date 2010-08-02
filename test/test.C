@@ -6,16 +6,18 @@ using boost::unit_test_framework::test_suite;
 #include "chart/WChartTest.h"
 #include "dbo/DboTest.h"
 #include "dbo/DboTest2.h"
+#include "models/WBatchEditProxyModelTest.h"
 #include "wdatetime/WDateTimeTest.h"
 
-boost::unit_test::test_suite* init_unit_test_suite(int /* argc */, char * * const /* argv */)
+boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
 {
-  test_suite *top_test_suite = BOOST_TEST_SUITE("Master test suite");
+  test_suite *tests = BOOST_TEST_SUITE("Wt test suite");
 
-  top_test_suite->add(new WDateTimeTest());
-  top_test_suite->add(new WChartTest());
-  top_test_suite->add(new DboTest());
-  top_test_suite->add(new DboTest2());
+  tests->add(new DboTest());
+  tests->add(new DboTest2());
+  tests->add(new WBatchEditProxyModelTest());
+  tests->add(new WChartTest());
+  tests->add(new WDateTimeTest());
 
-  return top_test_suite;
+  return tests;
 }

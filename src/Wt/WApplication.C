@@ -101,7 +101,7 @@ WApplication::WApplication(const WEnvironment& env)
 #endif // !WT_TARGET_JAVA
 
   domRoot_ = new WContainerWidget();
-  WT_DEBUG(domRoot_->setObjectName("wt-dom-root"));
+  domRoot_->setStyleClass("Wt-domRoot");
   domRoot_->load();
 
   if (session_->type() == Application)
@@ -181,7 +181,7 @@ WApplication::WApplication(const WEnvironment& env)
 		      "user-select: text;");
   styleSheet_.addRule(".Wt-sbspacer", "float: right; width: 16px; height: 1px;"
 		      "border: 0px; display: none;");
-  styleSheet_.addRule("body", "position: relative"); // for fitToWindow()
+  styleSheet_.addRule(".Wt-domRoot", "position: relative;");
   styleSheet_.addRule("body.Wt-layout", std::string() +
 		      "height: 100%; width: 100%;"
 		      "margin: 0px; padding: 0px; border: none;"

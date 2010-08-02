@@ -683,11 +683,9 @@ void WebSession::doRecursiveEventLoop()
 
   handler->session()->notifySignal(WEvent(*handler, WebRenderer::Update));
 
-  if (handler->response()) {
-    // handler->response()->startAsync();
+  if (handler->response())
     handler->session()->render(*handler, app_->environment().ajax()
 			       ? WebRenderer::Update : WebRenderer::Page);
-  }
 
   /*
    * Register that we are doing a recursive event loop, this is used in
@@ -1084,12 +1082,12 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 
 void WebSession::notify(const WEvent& event)
 {
-  if (&event.handler == 0) {
+  if (event.handler == 0) {
     app_->finalize();
     return;
   }
 
-  Handler& handler = event.handler;
+  Handler& handler = *event.handler;
   WebRequest& request = *handler.request();
   WebResponse& response = *handler.response();
 
@@ -1368,7 +1366,7 @@ void WebSession::serveResponse(Handler& handler,
 
 void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
 {
-  const WebRequest& request = *e.handler.request();
+  const WebRequest& request = *e.handler->request();
 
   renderer_.updateFormObjectsList(app_);
   WebRenderer::FormObjectsMap formObjects = renderer_.formObjects();
@@ -1403,7 +1401,7 @@ std::vector<unsigned int> WebSession::getSignalProcessingOrder(const WEvent& e)
   // have seen situations (at least on firefox) where the clicked event
   // is processed before the changed event, causing the changed event
   // to fail because the event target was deleted.
-  WebSession::Handler& handler = e.handler;
+  WebSession::Handler& handler = *e.handler;
 
   std::vector<unsigned int> highPriority;
   std::vector<unsigned int> normalPriority;
@@ -1443,7 +1441,7 @@ std::vector<unsigned int> WebSession::getSignalProcessingOrder(const WEvent& e)
 
 void WebSession::notifySignal(const WEvent& e)
 {
-  WebSession::Handler& handler = e.handler;
+  WebSession::Handler& handler = *e.handler;
 
   // Reorder signals, as browsers sometimes generate them in a strange order
   if (handler.nextSignal == 0)

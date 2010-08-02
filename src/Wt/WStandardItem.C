@@ -88,9 +88,9 @@ namespace {
 namespace Wt {
 
 /*
- * For a standard item:
+ * As per the contract of a WAbstractItemModel:
  *  rowCount() > 0 => columnCount() > 0
- * but it is possible to have:
+ * but it is possible to have
  *  rowCount() = 0 && columnCount() > 0
  */
 WStandardItem::WStandardItem()
