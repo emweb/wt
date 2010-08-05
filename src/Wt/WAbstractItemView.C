@@ -931,12 +931,14 @@ void WAbstractItemView::bindObjJS(JSlot& slot, const std::string& jsMethod)
 
 void WAbstractItemView::modelLayoutAboutToBeChanged()
 {
-  rootIndex_.encodeAsRawIndex();
+  if (rootIndex_.isValid())
+    rootIndex_.encodeAsRawIndex();
 }
 
 void WAbstractItemView::modelLayoutChanged()
 {
-  rootIndex_ = rootIndex_.decodeFromRawIndex();
+  if (rootIndex_.isValid())
+    rootIndex_ = rootIndex_.decodeFromRawIndex();
 
   editedItems_.clear();
 

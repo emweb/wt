@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -212,6 +212,11 @@ int WBatchEditProxyModel::adjustedProxyIndex(int sourceIndex,
   int remi = 0;
 
   int proxyIndex = -1;
+
+  /*
+   * This could be optimized by considering the next element in ins and
+   * and rem vectors and skipping directly to there
+   */
   for (int si = 0; si <= sourceIndex; ++si) {
     ++proxyIndex;
 
@@ -276,11 +281,7 @@ int WBatchEditProxyModel::adjustedSourceIndex(int proxyIndex,
   //        adjustedSourceIndex(8) = -1
   //        adjustedSourceIndex(9) = 5
 
-  // index = ins_.find(proxyIndex) ? -1
-  //    anders: zoveel van aftrekken als dat er waardes zijn kleiner dan
-  //    proxyIndex
-  unsigned inserted
-    = std::lower_bound(ins.begin(), ins.end(), proxyIndex) - ins.begin();
+  unsigned inserted = Utils::lower_bound(ins, proxyIndex);
 
   if (inserted < ins.size() && ins[inserted] == proxyIndex)
     return -1;
@@ -294,18 +295,12 @@ int WBatchEditProxyModel::adjustedSourceIndex(int proxyIndex,
   //        adjustedSourceIndex(2) -> 2 + 3 = 5
   //        adjustedSourceIndex(3) -> 3 + 5 = 8
   //
-  // row = proxyRow + upper_bound(row)
-  //
-  // upper_bound: positie van waarde die groter is
-  // lower_bound: positie van waarde die kleiner of gelijk aan i
-  //
   // what if: first 2 at row 3 [i.e. source model 3 and 4]
   //           -> rem = [3, 3]
   //          then 2 at row 2 [i.e. source model 2 and 5]
   //           -> rem = [2, 2, 2, 2]
   //
-  unsigned removed
-    = std::upper_bound(rem.begin(), rem.end(), proxyIndex) - rem.begin();
+  unsigned removed = Utils::upper_bound(rem, proxyIndex);
 
   // Together:
   //  then: adjustedSourceIndex(0) -> 0 ? = 0
@@ -560,22 +555,13 @@ void WBatchEditProxyModel::deleteItemsUnder(Item *item, int row)
 {
   WModelIndex sourceIndex = sourceModel()->index(row, 0, item->sourceIndex_);
 
-  for (ItemMap::iterator it = mappedIndexes_.lower_bound(sourceIndex);
-       it != mappedIndexes_.end();) {
-#ifndef WT_TARGET_JAVA
-    ItemMap::iterator n = it;
-    ++n;
-#endif WT_TARGET_JAVA
-
-    if (isAncestor(sourceIndex, it->first)) {
-      delete it->second;
-      mappedIndexes_.erase(it);
+  for (ItemMap::iterator i = mappedIndexes_.lower_bound(sourceIndex);
+       i != mappedIndexes_.end();) {
+    if (isAncestor(sourceIndex, i->first)) {
+      delete i->second;
+      Utils::eraseAndNext(mappedIndexes_, i);
     } else
       break;
-
-#ifndef WT_TARGET_JAVA
-    it = n;
-#endif
   }
 }
 
@@ -754,7 +740,7 @@ bool WBatchEditProxyModel::setData(const WModelIndex& index,
     item->editedValues_[Cell(index.row(), index.column())] = dataMap;
   } else {
     i->second[role] = value;
-    if (role = EditRole)
+    if (role == EditRole)
       i->second[DisplayRole] = value;
   }
 
@@ -792,7 +778,7 @@ boost::any WBatchEditProxyModel::headerData(int section,
 
 void WBatchEditProxyModel::shift(std::vector<int>& v, int index, int count)
 {
-  unsigned first = std::lower_bound(v.begin(), v.end(), index) - v.begin();
+  unsigned first = Utils::lower_bound(v, index);
 
   for (unsigned i = first; i < v.size(); ++i)
     v[i] += count;
@@ -800,26 +786,26 @@ void WBatchEditProxyModel::shift(std::vector<int>& v, int index, int count)
 
 void WBatchEditProxyModel::shiftRows(ValueMap& v, int row, int count)
 {
-  ValueMap::iterator first = v.lower_bound(Cell(row, 0));
-
-  for (ValueMap::iterator i = first; i != v.end();) {
-    Cell& c = const_cast<Cell&>(i->first);
-    if (count < 0) {
-      if (c.row >= row - count) {
+  for (ValueMap::iterator i = v.begin(); i != v.end();) {
+    if (i->first.row >= row) {
+      Cell& c = const_cast<Cell&>(i->first);
+      if (count < 0) {
+	if (c.row >= row - count) {
+	  c.row += count;
+	  ++i;
+	} else
+	  Utils::eraseAndNext(v, i);
+      } else {
 	c.row += count;
 	++i;
-      } else
-	v.erase(i++);
-    } else {
-      c.row += count;
-      ++i;
+      }
     }
   }
 }
 
 void WBatchEditProxyModel::shiftColumns(ValueMap& v, int column, int count)
 {
-  for (ValueMap::iterator i = v.begin(); i != v.end(); ++i) {
+  for (ValueMap::iterator i = v.begin(); i != v.end();) {
     if (i->first.column >= column) {
       Cell& c = const_cast<Cell&>(i->first);
       if (count < 0) {
@@ -827,7 +813,7 @@ void WBatchEditProxyModel::shiftColumns(ValueMap& v, int column, int count)
 	  c.column += count;
 	  ++i;
 	} else
-	  v.erase(i++);
+	  Utils::eraseAndNext(v, i);
       } else {
 	c.column += count;
 	++i;
@@ -935,8 +921,7 @@ void WBatchEditProxyModel::insertIndexes(Item *item,
 					 std::vector<Item *> *rowItems,
 					 int index, int count)
 {
-  int insertIndex = std::lower_bound(ins.begin(), ins.end(), index)
-    - ins.begin();
+  int insertIndex = Utils::lower_bound(ins, index);
 
   for (int i = 0; i < count; ++i) {
     ins.insert(ins.begin() + insertIndex + i, index + i);
@@ -980,8 +965,7 @@ void WBatchEditProxyModel::removeIndexes(Item *item,
      * Shift inserted >= index with - 1,
      * Shift removed > index with -1
      */
-    unsigned insi = std::lower_bound(ins.begin(), ins.end(), index)
-      - ins.begin();
+    unsigned insi = Utils::lower_bound(ins, index);
 
     if (insi != ins.size() && ins[insi] == index) {
       ins.erase(ins.begin() + insi);
@@ -994,8 +978,7 @@ void WBatchEditProxyModel::removeIndexes(Item *item,
       if (rowItems)
 	deleteItemsUnder(item, index);
 
-      rem.push_back(index);
-      std::sort(rem.begin(), rem.end());
+      rem.insert(rem.begin() + Utils::lower_bound(rem, index), index);
     }
 
     shift(ins, index, -1);
@@ -1033,32 +1016,27 @@ void WBatchEditProxyModel::commitAll()
        ++i) {
     Item *item = i->second;
 
-    // First remove columns
     while (!item->removedColumns_.empty())
       sourceModel()->removeColumn(item->removedColumns_[0], item->sourceIndex_);
 
-    // Then insert columns
     while (!item->insertedColumns_.empty())
       sourceModel()->insertColumn(item->insertedColumns_[0],
 				  item->sourceIndex_);
 
-    // First remove rows
     while (!item->removedRows_.empty())
       sourceModel()->removeRow(item->removedRows_[0], item->sourceIndex_);
 
-    // Then insert rows
     while (!item->insertedRows_.empty())
       sourceModel()->insertRow(item->insertedRows_[0], item->sourceIndex_);
 
-    // Then set data
-    for (ValueMap::iterator i = item->editedValues_.begin();
-	 i != item->editedValues_.end();) {
-      WModelIndex index = sourceModel()->index(i->first.row,
-					       i->first.column,
+    for (ValueMap::iterator j = item->editedValues_.begin();
+	 j != item->editedValues_.end();) {
+      WModelIndex index = sourceModel()->index(j->first.row,
+					       j->first.column,
 					       item->sourceIndex_);
-      DataMap data = i->second;
+      DataMap data = j->second;
 
-      item->editedValues_.erase(i++);
+      Utils::eraseAndNext(item->editedValues_, j);
       sourceModel()->setItemData(index, data);
     }
   }
@@ -1074,11 +1052,9 @@ void WBatchEditProxyModel::revertAll()
 
     WModelIndex proxyIndex = mapFromSource(item->sourceIndex_);
 
-    // Undo column insertions
     while (!item->insertedColumns_.empty())
       removeColumn(item->insertedColumns_[0], proxyIndex);
 
-    // Undo column removals
     while (!item->removedColumns_.empty()) {
       int column = item->removedColumns_[0];
 
@@ -1088,11 +1064,9 @@ void WBatchEditProxyModel::revertAll()
       endInsertColumns();
     }
 
-    // Then row insertions
     while (!item->insertedRows_.empty())
       removeRow(item->insertedRows_[0], proxyIndex);
 
-    // Undo row removals
     while (!item->removedRows_.empty()) {
       int row = item->removedRows_[0];
 
@@ -1102,11 +1076,10 @@ void WBatchEditProxyModel::revertAll()
       endInsertRows();
     }
 
-    // Undo data changes
-    for (ValueMap::iterator i = item->editedValues_.begin();
-	 i != item->editedValues_.end();) {
-      Cell c = i->first;
-      item->editedValues_.erase(i++);
+    for (ValueMap::iterator j = item->editedValues_.begin();
+	 j != item->editedValues_.end();) {
+      Cell c = j->first;
+      Utils::eraseAndNext(item->editedValues_, j);
       WModelIndex child = index(c.row, c.column, proxyIndex);
       dataChanged().emit(child, child);
     }

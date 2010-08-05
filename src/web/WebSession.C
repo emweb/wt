@@ -1082,10 +1082,12 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 
 void WebSession::notify(const WEvent& event)
 {
+#ifndef WT_TARGET_JAVA
   if (event.handler == 0) {
     app_->finalize();
     return;
   }
+#endif // WT_TARGET_JAVA
 
   Handler& handler = *event.handler;
   WebRequest& request = *handler.request();

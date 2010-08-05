@@ -87,10 +87,20 @@ inline bool erase(std::vector<T>& v, const T& value)
     return false;
 }
 
+template<typename K, typename V>
+void eraseAndNext(std::map<K, V>& m, typename std::map<K, V>::iterator& i)
+{
+#ifndef WT_TARGET_JAVA
+  m.erase(i++);
+#endif // WT_TARGET_JAVA
+}
+
 template<typename T>
 inline void insert(std::vector<T>& result, const std::vector<T>& elements)
 {
+#ifndef WT_CNOR
   result.insert(result.end(), elements.begin(), elements.end());
+#endif // WT_CNOR
 }
 
 template<typename T>
@@ -118,10 +128,22 @@ inline void stable_sort(std::vector<T>& result, const Compare& compare)
 }
 
 template <typename T, typename Compare>
-inline int insertion_point(const std::vector<T>& v, const T& item,
-			   Compare compare)
+inline unsigned insertion_point(const std::vector<T>& v, const T& item,
+				Compare compare)
 {
   return std::lower_bound(v.begin(), v.end(), item, compare) - v.begin();
+}
+
+template <typename T>
+inline unsigned lower_bound(const std::vector<T>& v, const T& item)
+{
+  return std::lower_bound(v.begin(), v.end(), item) - v.begin();
+}
+
+template <typename T>
+inline unsigned upper_bound(const std::vector<T>& v, const T& item)
+{
+  return std::upper_bound(v.begin(), v.end(), item) - v.begin();
 }
 
 template <typename K, typename V, typename T>

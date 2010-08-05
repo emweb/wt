@@ -174,11 +174,7 @@ void DomElement::updateInnerHtmlOnly()
 	|| i->first == PropertyTarget)
       ++i;
     else
-#ifndef WT_TARGET_JAVA
-      properties_.erase(i++);
-#else
-      i.remove();
-#endif
+      Utils::eraseAndNext(properties_, i);
   }
 }
 

@@ -10,6 +10,8 @@
 #include <Wt/WPaintDevice>
 #include <Wt/WResource>
 
+#include <list>
+
 typedef struct _DrawContext *DrawContext;
 typedef struct _Image Image;
 
