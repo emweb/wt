@@ -877,8 +877,9 @@ void WApplication::changeInternalPath(const std::string& aPath)
   std::string path = aPath;
 
   // internal paths start with a '/'; other anchor changes are not reacted on
-  if (path != newInternalPath_ && (path.empty() || path[0] == '/')) {
-    std::string v;
+  if (path.empty() || path[0] == '/') {
+    if (path != newInternalPath_) {
+      std::string v;
 
 #ifdef WT_WITH_OLD_INTERNALPATH_API
     if (oldInternalPathAPI()) {
@@ -917,8 +918,9 @@ void WApplication::changeInternalPath(const std::string& aPath)
       return;
     }
 #endif // WT_WITH_OLD_INTERNALPATH_API
+      newInternalPath_ = path;
+    }
 
-    newInternalPath_ = path;
     internalPathChanged().emit(newInternalPath_);
   }
 }

@@ -69,6 +69,7 @@ private:
   WContainerWidget *items_;
 
   void logout() {
+    wApp->setInternalPath(basePath_, true);
     session_.setUser(dbo::ptr<User>());
     refresh();
 
