@@ -44,7 +44,6 @@ public:
 
 private:
   static IsapiServer *instance_;
-  //WebController controller_;
 
   boost::thread serverThread_;
 
@@ -54,6 +53,9 @@ private:
 
   // Also protected by queueMuex_;
   WServer *server_;
+
+  void setTerminated();
+  bool terminated_;
 };
 
 }

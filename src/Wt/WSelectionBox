@@ -45,7 +45,7 @@ namespace Wt {
  * selectionBox->addItem("Kate Winslet");
  *
  * selectionBox->setCurrentIndex(2); // Johnny Depp
- * selectionBox->activated().connect(SLOT(this, MyWidget::comboChanged));
+ * selectionBox->activated().connect(this, &MyWidget::comboChanged);
  * \endcode
  * \endif
  *

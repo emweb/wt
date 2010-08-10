@@ -174,8 +174,8 @@ void WSlider::create()
   handle_->mouseMoved().connect(mouseMovedJS_);
   handle_->mouseWentUp().connect(mouseUpJS_);
 
-  background_->clicked().connect(SLOT(this, WSlider::onSliderClick));
-  sliderReleased_.connect(SLOT(this, WSlider::onSliderReleased));
+  background_->clicked().connect(this, &WSlider::onSliderClick);
+  sliderReleased_.connect(this, &WSlider::onSliderReleased);
 
   update();
 }

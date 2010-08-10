@@ -34,7 +34,7 @@ class WSliderBackground;
  * scaleSlider->setTickInterval(5);
  * scaleSlider->setTickPosition(Wt::WSlider::TicksBothSides);
  * scaleSlider->resize(300, 50);
- * scaleSlider->valueChanged().connect(SLOT(this, ThisClass::scaleShape));
+ * scaleSlider->valueChanged().connect(this, &ThisClass::scaleShape);
  * \endcode
  * \endif
  *

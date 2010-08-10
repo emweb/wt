@@ -32,12 +32,12 @@ WApplication *createApplication(const WEnvironment& env)
 
   WPushButton *cancelButton = new WPushButton("Cancel!", appl->root());
   WPushButton *quitButton = new WPushButton("Quit", appl->root());
-  quitButton->clicked().connect(SLOT(appl, WApplication::quit));
+  quitButton->clicked().connect(appl, &WApplication::quit);
 
-  countdown->done().connect(SLOT(appl, WApplication::quit));
-  cancelButton->clicked().connect(SLOT(countdown, CountDownWidget::cancel));
-  cancelButton->clicked().connect(SLOT(cancelButton, WFormWidget::disable));
-  cancelButton->clicked().connect(SLOT(secret, WWidget::hide));
+  countdown->done().connect(appl, &WApplication::quit);
+  cancelButton->clicked().connect(countdown, &CountDownWidget::cancel);
+  cancelButton->clicked().connect(cancelButton, &WFormWidget::disable);
+  cancelButton->clicked().connect(secret, &WWidget::hide);
 
   return appl;
 }

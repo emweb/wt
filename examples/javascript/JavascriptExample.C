@@ -28,14 +28,14 @@ JavascriptExample::JavascriptExample(const WEnvironment& env)
   // an argument to the slot.
   promptAmount_ = Popup::createPrompt("How much do you want to pay?", "",
 				      this);
-  promptAmount_->okPressed().connect(SLOT(this, JavascriptExample::setAmount));
+  promptAmount_->okPressed().connect(this, &JavascriptExample::setAmount);
 
   // Create a popup for confirming the payment.
   //
   // Since a confirm popup does not allow input, we ignore the
   // argument carrying the input (which will be empty anyway).
   confirmPay_ = Popup::createConfirm("", this);
-  confirmPay_->okPressed().connect(SLOT(this, JavascriptExample::confirmed));
+  confirmPay_->okPressed().connect(this, &JavascriptExample::confirmed);
 
   new WText("<h2>Wt Javascript example</h2>"
 	    "<p>Wt makes abstraction of Javascript, and therefore allows you"

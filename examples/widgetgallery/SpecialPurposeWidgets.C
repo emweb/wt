@@ -57,9 +57,9 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
     new WContainerWidget(layout->elementAt(0,1));
   new WText("Zoom: ", zoomContainer);
   WPushButton* zoomIn = new WPushButton("+", zoomContainer);
-  zoomIn->clicked().connect(SLOT(map, WGoogleMap::zoomIn));
+  zoomIn->clicked().connect(map, &WGoogleMap::zoomIn);
   WPushButton* zoomOut = new WPushButton("-", zoomContainer);
-  zoomOut->clicked().connect(SLOT(map, WGoogleMap::zoomOut));
+  zoomOut->clicked().connect(map, &WGoogleMap::zoomOut);
 
   std::vector<WGoogleMap::Coordinate> road;
   roadDescription(road);
@@ -72,9 +72,9 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
   		      "<br/>"
   		      "<b>Emweb office</b>");
 
-  map->clicked().connect(SLOT(this, SpecialPurposeWidgets::googleMapClicked));
+  map->clicked().connect(this, &SpecialPurposeWidgets::googleMapClicked);
   map->doubleClicked()
-    .connect(SLOT(this, SpecialPurposeWidgets::googleMapDoubleClicked));
+    .connect(this, &SpecialPurposeWidgets::googleMapDoubleClicked);
 
   return result;
 }
@@ -193,8 +193,8 @@ WWidget *SpecialPurposeWidgets::wSound()
   playButton->setMargin(5);
   WPushButton *stopButton = new WPushButton("Make it stop!!!", result);
   stopButton->setMargin(5);
-  playButton->clicked().connect(SLOT(sound, WSound::play));
-  stopButton->clicked().connect(SLOT(sound, WSound::stop));
+  playButton->clicked().connect(sound, &WSound::play);
+  stopButton->clicked().connect(sound, &WSound::stop);
 
   ed_->mapConnect(playButton->clicked(), "Beeping started!");
   ed_->mapConnect(stopButton->clicked(), "Beeping stopped!");

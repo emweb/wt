@@ -1,9 +1,8 @@
-ADD_EXECUTABLE(dragdrop.wt 
+WT_ADD_EXAMPLE(dragdrop.wt 
   Character.C
   DragExample.C
   DragApplication.C
 )
-TARGET_LINK_LIBRARIES(dragdrop.wt ${EXAMPLES_CONNECTOR})
 
 #
 # If you have Wt installed somehwere, you should use the
@@ -12,17 +11,5 @@ TARGET_LINK_LIBRARIES(dragdrop.wt ${EXAMPLES_CONNECTOR})
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
-
-#
-# Create a deploy script
-#
-SET(APPNAME dragdrop)
-SET(APPBIN dragdrop.wt)
-SET(APPRESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/dragdrop.css ${CMAKE_CURRENT_SOURCE_DIR}/icons")
-
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/deploy.sh
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-)
 
 ADD_DEPENDENCIES(dragdrop.wt wt ${EXAMPLES_CONNECTOR})

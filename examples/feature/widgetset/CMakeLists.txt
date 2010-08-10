@@ -1,7 +1,6 @@
 IF (EXAMPLES_CONNECTOR MATCHES "wthttp")
 
-  ADD_EXECUTABLE(hello-widgetset.wt hello.C)
-  TARGET_LINK_LIBRARIES(hello-widgetset.wt ${EXAMPLES_CONNECTOR})
+  WT_ADD_EXAMPLE(hello-widgetset.wt hello.C)
 
   #
   # If you have Wt installed somehwere, you should use the
@@ -10,17 +9,6 @@ IF (EXAMPLES_CONNECTOR MATCHES "wthttp")
   # instead of the following:
   #
   INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
-
-  #
-  # Create a deploy script
-  #
-  SET(APPNAME hello-widgetset)
-  SET(APPBIN hello-widgetset.wt)
-  SET(APPRESOURCES "")
-  CONFIGURE_FILE(
-    ${WT_SOURCE_DIR}/deploy.sh
-    ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-    )
 
 ELSE (EXAMPLES_CONNECTOR MATCHES "wthttp")
 

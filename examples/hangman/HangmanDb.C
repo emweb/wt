@@ -6,6 +6,7 @@
 #include <mysql++/mysql++.h>
 #include <Wt/WStringUtil>
 
+#include <Wt/WApplication>
 #include "HangmanDb.h"
 
 using namespace mysqlpp;
@@ -13,7 +14,8 @@ using namespace mysqlpp;
 std::string HangmanDb::DbUser()
 {
 	std::string retval;
-	std::ifstream dbconf("HangmanDb.info");
+	std::ifstream dbconf((Wt::WApplication::appRoot()
+			      + "HangmanDb.info").c_str());
 	dbconf >> retval;
 	return retval;
 }
@@ -21,7 +23,8 @@ std::string HangmanDb::DbUser()
 std::string HangmanDb::DbPass()
 {
 	std::string retval;
-	std::ifstream dbconf("HangmanDb.info");
+	std::ifstream dbconf((Wt::WApplication::appRoot()
+			      + "HangmanDb.info").c_str());
 	dbconf >> retval; // username
 	dbconf >> retval; // password
 	return retval;

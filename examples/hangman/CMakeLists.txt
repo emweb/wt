@@ -5,7 +5,7 @@ IF(NOT MYSQLPP_FOUND)
 
 ELSE(NOT MYSQLPP_FOUND)
 
-  ADD_EXECUTABLE(hangman.wt
+  WT_ADD_EXAMPLE(hangman.wt
     hangman.C
     HangmanGame.C
     HangmanWidget.C
@@ -14,7 +14,7 @@ ELSE(NOT MYSQLPP_FOUND)
     Dictionary.C
     HangmanDb.C
   )
-  TARGET_LINK_LIBRARIES(hangman.wt ${EXAMPLES_CONNECTOR} ${MYSQLPP_LIBRARIES})
+  TARGET_LINK_LIBRARIES(hangman.wt ${MYSQLPP_LIBRARIES})
 
   INCLUDE_DIRECTORIES(
     ${WT_SOURCE_DIR}/src

@@ -28,7 +28,7 @@ namespace Wt {
  * Wt::WCircleArea *area = new Wt::WCircleArea(20, 30, 15);
  * image->addArea(area);
  *
- * area->clicked().connect(SLOT(this, MyWidget::areaClicked));
+ * area->clicked().connect(this, &MyWidget::areaClicked);
  * \endcode
  * \endif
  *

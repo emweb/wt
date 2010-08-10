@@ -60,10 +60,10 @@ void CommentView::edit()
   editArea_->setFocus();
 
   WPushButton *save = new WPushButton("save");
-  save->clicked().connect(SLOT(this, CommentView::save));
+  save->clicked().connect(this, &CommentView::save);
 
   WPushButton *cancel = new WPushButton("cancel");
-  cancel->clicked().connect(SLOT(this, CommentView::cancel));
+  cancel->clicked().connect(this, &CommentView::cancel);
 
   bindWidget("area", editArea_);
   bindWidget("save", save);
@@ -122,14 +122,14 @@ void CommentView::renderView()
   WText *replyText = new WText(isRootComment ? tr("comment-add")
 			       : tr("comment-reply"));
   replyText->setStyleClass("link");
-  replyText->clicked().connect(SLOT(this, CommentView::reply));
+  replyText->clicked().connect(this, &CommentView::reply);
   bindWidget("reply", replyText);
 
   bool mayEdit = session_.user() && comment_->author == session_.user(); 
   if (mayEdit) {
     WText *editText = new WText(tr("comment-edit"));
     editText->setStyleClass("link");
-    editText->clicked().connect(SLOT(this, CommentView::edit));
+    editText->clicked().connect(this, &CommentView::edit);
     bindWidget("edit", editText);
   } else
     bindString("edit", WString::Empty);
@@ -141,7 +141,7 @@ void CommentView::renderView()
   if (mayDelete) {
     WText *deleteText = new WText(tr("comment-delete"));
     deleteText->setStyleClass("link");
-    deleteText->clicked().connect(SLOT(this, CommentView::rm));
+    deleteText->clicked().connect(this, &CommentView::rm);
     bindWidget("delete", deleteText);
   } else
     bindString("delete", WString::Empty);

@@ -73,8 +73,8 @@ class WText;
  * Wt::WPushButton ok("Ok", dialog.contents());
  *
  * // these events will accept() the Dialog
- * edit.enterPressed().connect(SLOT(&dialog, Wt::WDialog::accept));
- * ok.clicked().connect(SLOT(&dialog, Wt::WDialog::accept));
+ * edit.enterPressed().connect(&dialog, &Wt::WDialog::accept);
+ * ok.clicked().connect(&dialog, &Wt::WDialog::accept);
  *  
  * if (dialog.exec() == Wt::WDialog::Accepted)
  *   setStatus("Welcome, " + edit.text());

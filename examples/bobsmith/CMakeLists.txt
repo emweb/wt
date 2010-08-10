@@ -1,5 +1,4 @@
-ADD_EXECUTABLE(bobsmith.wt bobsmith.C)
-TARGET_LINK_LIBRARIES(bobsmith.wt ${EXAMPLES_CONNECTOR})
+WT_ADD_EXAMPLE(bobsmith.wt bobsmith.C)
 
 #
 # If you have Wt installed somehwere, you should use the
@@ -8,17 +7,6 @@ TARGET_LINK_LIBRARIES(bobsmith.wt ${EXAMPLES_CONNECTOR})
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
-
-#
-# Create a deploy script
-#
-SET(APPNAME bobsmith)
-SET(APPBIN bobsmith.wt)
-SET(APPRESOURCES "")
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/deploy.sh
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-)
 
 ADD_DEPENDENCIES(bobsmith.wt wt ${EXAMPLES_CONNECTOR})
 

@@ -59,14 +59,9 @@ a Qt event loop (only one is needed per process, so it may be shared
 between multiple Wt sessions). You need to do this yourself, and a
 convenient location could be within your main() function.
 
-To use Qt's signal/slot system, you may need to disable the macros
-defined by Wt before including the Qt header files:
-
-#ifdef SLOT
-# undef SLOT
-# undef signals
-# undef slots
-#endif
+You will want to add -DWT_NO_SLOT_MACROS, which disables the definition
+of SLOT by Wt (this macro definition does not really add any value
+to Wt, but was intended to make Qt users of Wt feel easier at home?).
 
 2) Conversion between QString and WString
 

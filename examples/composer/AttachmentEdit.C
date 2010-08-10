@@ -4,8 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <fstream>
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -42,8 +41,8 @@ AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
   remove_ = new Option(tr("msg.remove"), this);
   upload_->decorationStyle().font().setSize(WFont::Smaller);
   remove_->setMargin(5, Left);
-  remove_->item()->clicked().connect(SLOT(this, WWidget::hide));
-  remove_->item()->clicked().connect(SLOT(this, AttachmentEdit::remove));
+  remove_->item()->clicked().connect(this, &WWidget::hide);
+  remove_->item()->clicked().connect(this, &AttachmentEdit::remove);
 
   /*
    * Fields that will display the feedback.
@@ -69,20 +68,20 @@ AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
 
   // Try to catch the fileupload change signal to trigger an upload.
   // We could do like google and at a delay with a WTimer as well...
-  upload_->changed().connect(SLOT(upload_, WFileUpload::upload));
+  upload_->changed().connect(upload_, &WFileUpload::upload);
 
   // React to a succesfull upload.
-  upload_->uploaded().connect(SLOT(this, AttachmentEdit::uploaded));
+  upload_->uploaded().connect(this, &AttachmentEdit::uploaded);
 
   // React to a fileupload problem.
-  upload_->fileTooLarge().connect(SLOT(this, AttachmentEdit::fileTooLarge));
+  upload_->fileTooLarge().connect(this, &AttachmentEdit::fileTooLarge);
 
   /*
    * Connect the uploadDone signal to the Composer's attachmentDone,
    * so that the Composer can keep track of attachment upload progress,
    * if it wishes.
    */
-  uploadDone_.connect(SLOT(composer, Composer::attachmentDone));
+  uploadDone_.connect(composer, &Composer::attachmentDone);
 }
 
 AttachmentEdit::~AttachmentEdit()
@@ -135,13 +134,18 @@ void AttachmentEdit::uploaded()
     /*
      * Give information on the file uploaded.
      */
-    struct stat buf;
-    stat(spoolFileName_.c_str(), &buf);
+    std::streamsize fsize = 0;
+    {
+      std::ifstream theFile(spoolFileName_.c_str());
+      theFile.seekg(0, std::ios_base::end);
+      fsize = theFile.tellg();
+      theFile.seekg(0);
+    }
     std::wstring size;
-    if (buf.st_size < 1024)
-      size = boost::lexical_cast<std::wstring>(buf.st_size) + L" bytes";
+    if (fsize < 1024)
+      size = boost::lexical_cast<std::wstring>(fsize) + L" bytes";
     else
-      size = boost::lexical_cast<std::wstring>((int)(buf.st_size / 1024))
+      size = boost::lexical_cast<std::wstring>((int)(fsize / 1024))
 	+ L"kb";
 
     uploaded_->setText(static_cast<std::wstring>(escapeText(fileName_))

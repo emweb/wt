@@ -110,7 +110,7 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
     tooLargeSize_(0)
 {
   setInline(true);
-  fileTooLargeImpl().connect(SLOT(this, WFileUpload::handleFileTooLargeImpl));
+  fileTooLargeImpl().connect(this, &WFileUpload::handleFileTooLargeImpl);
   create();
 }
 

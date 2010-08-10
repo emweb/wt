@@ -32,17 +32,17 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   /*
    * This is stateless implementation heaven
    */
-  text_->clicked().connect(SLOT(text_,   WWidget::hide));
-  text_->clicked().connect(SLOT(edit_,   WWidget::show));
-  text_->clicked().connect(SLOT(edit_,   WFormWidget::setFocus));
+  text_->clicked().connect(text_, &WWidget::hide);
+  text_->clicked().connect(edit_, &WWidget::show);
+  text_->clicked().connect(edit_, &WFormWidget::setFocus);
 
-  edit_->enterPressed().connect(SLOT(edit_,   WFormWidget::disable));
-  edit_->enterPressed().connect(SLOT(this,    WInPlaceEdit::save));
+  edit_->enterPressed().connect(edit_, &WFormWidget::disable);
+  edit_->enterPressed().connect(this, &WInPlaceEdit::save);
   edit_->enterPressed().preventDefaultAction();
 
-  edit_->escapePressed().connect(SLOT(edit_, WWidget::hide));
-  edit_->escapePressed().connect(SLOT(text_, WWidget::show));
-  edit_->escapePressed().connect(SLOT(this, WInPlaceEdit::cancel));
+  edit_->escapePressed().connect(edit_, &WWidget::hide);
+  edit_->escapePressed().connect(text_, &WWidget::show);
+  edit_->escapePressed().connect(this, &WInPlaceEdit::cancel);
   edit_->escapePressed().preventDefaultAction();
 
   setButtonsEnabled();
@@ -106,32 +106,32 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
     save_->hide();
     cancel_->hide();
 
-    text_->clicked().connect(SLOT(save_,   WWidget::show));
-    text_->clicked().connect(SLOT(cancel_, WWidget::show));
+    text_->clicked().connect(save_,   &WWidget::show);
+    text_->clicked().connect(cancel_, &WWidget::show);
 
-    edit_->enterPressed() .connect(SLOT(save_,   WWidget::hide));
-    edit_->enterPressed() .connect(SLOT(cancel_, WWidget::hide));
-    edit_->escapePressed().connect(SLOT(save_,   WWidget::hide));
-    edit_->escapePressed().connect(SLOT(cancel_, WWidget::hide));
+    edit_->enterPressed() .connect(save_,   &WWidget::hide);
+    edit_->enterPressed() .connect(cancel_, &WWidget::hide);
+    edit_->escapePressed().connect(save_,   &WWidget::hide);
+    edit_->escapePressed().connect(cancel_, &WWidget::hide);
 
-    save_->clicked().connect(SLOT(save_,   WWidget::hide));
-    save_->clicked().connect(SLOT(cancel_, WWidget::hide));
-    save_->clicked().connect(SLOT(edit_,   WFormWidget::disable));
-    save_->clicked().connect(SLOT(this,    WInPlaceEdit::save));
+    save_->clicked().connect(save_,   &WWidget::hide);
+    save_->clicked().connect(cancel_, &WWidget::hide);
+    save_->clicked().connect(edit_,   &WFormWidget::disable);
+    save_->clicked().connect(this,    &WInPlaceEdit::save);
     
-    cancel_->clicked().connect(SLOT(save_,   WWidget::hide));
-    cancel_->clicked().connect(SLOT(cancel_, WWidget::hide));
-    cancel_->clicked().connect(SLOT(edit_,   WWidget::hide));
-    cancel_->clicked().connect(SLOT(text_,   WWidget::show));
-    cancel_->clicked().connect(SLOT(this,    WInPlaceEdit::cancel));
+    cancel_->clicked().connect(save_,   &WWidget::hide);
+    cancel_->clicked().connect(cancel_, &WWidget::hide);
+    cancel_->clicked().connect(edit_,   &WWidget::hide);
+    cancel_->clicked().connect(text_,   &WWidget::show);
+    cancel_->clicked().connect(this,    &WInPlaceEdit::cancel);
 
   } else {
     delete save_;
     save_ = 0;
     delete cancel_;
     cancel_ = 0;
-    c1_ = edit_->blurred().connect(SLOT(edit_, WFormWidget::disable));
-    c2_ = edit_->blurred().connect(SLOT(this,  WInPlaceEdit::save));
+    c1_ = edit_->blurred().connect(edit_, &WFormWidget::disable);
+    c2_ = edit_->blurred().connect(this,  &WInPlaceEdit::save);
   }
 }
 

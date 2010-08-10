@@ -18,8 +18,8 @@ PaintBrush::PaintBrush(int width, int height, WContainerWidget *parent)
 
   decorationStyle().setCursor("icons/pencil.cur", CrossCursor);
 
-  mouseDragged().connect(SLOT(this, PaintBrush::drag));
-  mouseWentDown().connect(SLOT(this, PaintBrush::mouseDown));
+  mouseDragged().connect(this, &PaintBrush::drag);
+  mouseWentDown().connect(this, &PaintBrush::mouseDown);
   
   color_ = WColor(black);
 }

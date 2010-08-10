@@ -44,10 +44,10 @@ public:
   {
     WApplication *app = wApp;
 
-    app->messageResourceBundle().use("blog");
+    app->messageResourceBundle().use(WApplication::appRoot() + "blog");
     app->useStyleSheet("css/blog.css");
     app->useStyleSheet("css/asciidoc.css");
-    app->internalPathChanged().connect(SLOT(this, BlogImpl::handlePathChange));
+    app->internalPathChanged().connect(this, &BlogImpl::handlePathChange);
 
     login_ = new WTemplate(this);
     items_ = new WContainerWidget(this);
@@ -69,6 +69,7 @@ private:
   WContainerWidget *items_;
 
   void logout() {
+    wApp->setInternalPath(basePath_, true);
     session_.setUser(dbo::ptr<User>());
     refresh();
 
@@ -80,8 +81,8 @@ private:
     WPushButton *loginButton = new WPushButton(tr("login"));
 
     passwd->setEchoMode(WLineEdit::Password);
-    passwd->enterPressed().connect(SLOT(this, BlogImpl::login));
-    loginButton->clicked().connect(SLOT(this, BlogImpl::login));
+    passwd->enterPressed().connect(this, &BlogImpl::login);
+    loginButton->clicked().connect(this, &BlogImpl::login);
 
     name->hide();
     passwd->hide();
@@ -90,16 +91,16 @@ private:
     WText *loginLink = new WText(tr("login"));
     loginLink->setStyleClass("link");
 
-    loginLink->clicked().connect(SLOT(name, WWidget::show));
-    loginLink->clicked().connect(SLOT(passwd, WWidget::show));
-    loginLink->clicked().connect(SLOT(loginButton, WWidget::show));
-    loginLink->clicked().connect(SLOT(loginLink, WWidget::hide));
-    loginLink->clicked().connect(SLOT(name, WFormWidget::setFocus));
+    loginLink->clicked().connect(name, &WWidget::show);
+    loginLink->clicked().connect(passwd, &WWidget::show);
+    loginLink->clicked().connect(loginButton, &WWidget::show);
+    loginLink->clicked().connect(loginLink, &WWidget::hide);
+    loginLink->clicked().connect(name, &WFormWidget::setFocus);
 
     WText *registerLink = new WText(tr("register"));
     registerLink->setStyleClass("link");
 
-    registerLink->clicked().connect(SLOT(this, BlogImpl::newUser));
+    registerLink->clicked().connect(this, &BlogImpl::newUser);
 
     login_->bindWidget("name", name);
     login_->bindWidget("passwd", passwd);
@@ -134,10 +135,10 @@ private:
   void loginAs(dbo::ptr<User> user) {
     session_.setUser(user);
 
-    if (user->role == User::Admin) {
+    if (user->role == User::Admin)
       wApp->setInternalPath(basePath_ + "author/" + user->name, true);
-    } else
-      refresh();
+
+    refresh();
 
     login_->clear();
     login_->setTemplateText(tr("blog-logout"));
@@ -146,11 +147,11 @@ private:
 
     WText *profileLink = new WText(tr("profile"));
     profileLink->setStyleClass("link");
-    profileLink->clicked().connect(SLOT(this, BlogImpl::editProfile));
+    profileLink->clicked().connect(this, &BlogImpl::editProfile);
  
     WText *logoutLink = new WText(tr("logout"));
     logoutLink->setStyleClass("link");
-    logoutLink->clicked().connect(SLOT(this, BlogImpl::logout));
+    logoutLink->clicked().connect(this, &BlogImpl::logout);
 
     login_->bindString("feed-url", rssFeedUrl_);
     login_->bindString("user", user->name);
@@ -174,8 +175,8 @@ private:
       passwd->setEchoMode(WLineEdit::Password);
       passwd2->setEchoMode(WLineEdit::Password);
 
-      okButton->clicked().connect(SLOT(this, BlogImpl::doRegister));
-      cancelButton->clicked().connect(SLOT(this, BlogImpl::cancelRegister));
+      okButton->clicked().connect(this, &BlogImpl::doRegister);
+      cancelButton->clicked().connect(this, &BlogImpl::cancelRegister);
 
       register_->bindWidget("name", name);
       register_->bindWidget("passwd", passwd);
@@ -200,8 +201,8 @@ private:
 
       passwd->setEchoMode(WLineEdit::Password);
       passwd2->setEchoMode(WLineEdit::Password);
-      okButton->clicked().connect(SLOT(this, BlogImpl::saveProfile));
-      cancelButton->clicked().connect(SLOT(this, BlogImpl::cancelProfile));
+      okButton->clicked().connect(this, &BlogImpl::saveProfile);
+      cancelButton->clicked().connect(this, &BlogImpl::cancelProfile);
 
       profile_->bindString("user",session_.user()->name);
       profile_->bindWidget("passwd", passwd);
@@ -377,7 +378,7 @@ private:
       WTemplate *authorPanel = new WTemplate(tr("blog-author-panel"), items_);
 
       WPushButton *newPost = new WPushButton(tr("new-post"));
-      newPost->clicked().connect(SLOT(this, BlogImpl::newPost));
+      newPost->clicked().connect(this, &BlogImpl::newPost);
 
       WContainerWidget *unpublishedPosts = new WContainerWidget();
       showPosts(user->allPosts(Post::Unpublished), unpublishedPosts);

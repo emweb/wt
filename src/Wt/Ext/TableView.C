@@ -63,7 +63,7 @@ TableView::TableView(WContainerWidget *parent)
     selectionChanged_(this, "sc"),
     rawCellClicked_(this, "ck")
 {
-  rawCellClicked_.connect(SLOT(this, TableView::onCellClicked));
+  rawCellClicked_.connect(this, &TableView::onCellClicked);
 }
 
 void TableView::setModel(WAbstractItemModel *model)
@@ -79,21 +79,19 @@ void TableView::setModel(WAbstractItemModel *model)
 
   /* connect slots to new model */
   modelConnections_.push_back
-    (model_->columnsInserted().connect(SLOT(this,
-					    TableView::modelColumnsInserted)));
+    (model_->columnsInserted().connect(this, &TableView::modelColumnsInserted));
   modelConnections_.push_back
-    (model_->columnsRemoved().connect(SLOT(this,
-					   TableView::modelColumnsRemoved)));
+    (model_->columnsRemoved().connect(this, &TableView::modelColumnsRemoved));
   modelConnections_.push_back
-    (model_->rowsInserted().connect(SLOT(this, TableView::modelRowsInserted)));
+    (model_->rowsInserted().connect(this, &TableView::modelRowsInserted));
   modelConnections_.push_back
-    (model_->rowsRemoved().connect(SLOT(this, TableView::modelRowsRemoved)));
+    (model_->rowsRemoved().connect(this, &TableView::modelRowsRemoved));
   modelConnections_.push_back
-    (model_->dataChanged().connect(SLOT(this, TableView::modelDataChanged)));
+    (model_->dataChanged().connect(this, &TableView::modelDataChanged));
   modelConnections_.push_back
-    (model_->layoutChanged().connect(SLOT(this,TableView::modelLayoutChanged)));
+    (model_->layoutChanged().connect(this, &TableView::modelLayoutChanged));
   modelConnections_.push_back
-    (model_->modelReset().connect(SLOT(this, TableView::modelLayoutChanged)));
+    (model_->modelReset().connect(this, &TableView::modelLayoutChanged));
 
   modelLayoutChanged();
 }
@@ -437,8 +435,8 @@ std::string TableView::createJS(DomElement *inContainer)
   assert(inContainer);
 
   if (!edited_.isConnected()) {
-    edited_.connect(SLOT(this, TableView::onEdit));
-    selectionChanged_.connect(SLOT(this, TableView::onSelectionChange));
+    edited_.connect(this, &TableView::onEdit);
+    selectionChanged_.connect(this, &TableView::onSelectionChange);
   }
 
   std::stringstream result;

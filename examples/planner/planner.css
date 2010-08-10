@@ -1,3 +1,7 @@
+.Wt-domRoot {
+	position: static;
+}
+
 .entry-dialog {
 	font-family: Arial,Sans-serif;
 	font-weight: bold;

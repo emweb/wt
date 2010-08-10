@@ -112,10 +112,10 @@ WWidget *MvcWidgets::proxyModels()
   regexpFilter = new WLineEdit(result);
   regexpFilter->setText("Gi.*");
   regexpFilter->enterPressed().
-    connect(SLOT(this, MvcWidgets::changeRegexp));
+    connect(this, &MvcWidgets::changeRegexp);
   WPushButton *filter = new WPushButton("Apply", result);
   filter->clicked().
-    connect(SLOT(this, MvcWidgets::changeRegexp));
+    connect(this, &MvcWidgets::changeRegexp);
   
   WAbstractItemModel *models[4];
   WString headers[4];
@@ -189,7 +189,7 @@ WWidget *MvcWidgets::viewsCombo()
   extComboBox_->setEditable(true);
   WPushButton *pb = new WPushButton("Press here to add the edited value "
 				    "to the model", result);
-  pb->clicked().connect(SLOT(this, MvcWidgets::comboBoxAdd));
+  pb->clicked().connect(this, &MvcWidgets::comboBoxAdd);
   
   return result;
 }

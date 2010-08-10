@@ -81,16 +81,15 @@ void WTable::expand(int row, int column, int rowSpan, int columnSpan)
 
   if ((newNumRows > rowCount())
       || (newNumColumns > curNumColumns)) {
-    if (newNumColumns == curNumColumns && rowCount() > headerRowCount_)
+    if (newNumColumns == curNumColumns && rowCount() >= headerRowCount_)
       rowsAdded_ += newNumRows - rowCount();
     else
       flags_.set(BIT_GRID_CHANGED);
 
     repaint(RepaintInnerHtml);
 
-    for (int r = rowCount(); r < newNumRows; ++r) {
+    for (int r = rowCount(); r < newNumRows; ++r)
       rows_.push_back(new WTableRow(this, newNumColumns));
-    }
 
     if (newNumColumns > curNumColumns) {
       for (int r = 0; r < rowCount(); ++r) {
@@ -99,7 +98,7 @@ void WTable::expand(int row, int column, int rowSpan, int columnSpan)
       }
 
       for (int c = curNumColumns; c <= column; ++c)
-	  columns_.push_back(new WTableColumn(this));
+	columns_.push_back(new WTableColumn(this));
     }
   }
 
@@ -118,13 +117,17 @@ int WTable::columnCount() const
 
 WTableRow* WTable::insertRow(int row)
 {
-  WTableRow* tableRow = new WTableRow(this, columnCount());
+  if (row == rowCount())
+    return rowAt(row); // trigger a simple expand()
+  else {
+    WTableRow* tableRow = new WTableRow(this, columnCount());
 
-  rows_.insert(rows_.begin() + row, tableRow);
-  flags_.set(BIT_GRID_CHANGED);
-  repaint(RepaintInnerHtml);
+    rows_.insert(rows_.begin() + row, tableRow);
+    flags_.set(BIT_GRID_CHANGED);
+    repaint(RepaintInnerHtml);
   
-  return tableRow;
+    return tableRow;
+  }
 }
 
 WTableColumn* WTable::insertColumn(int column)
@@ -159,11 +162,15 @@ void WTable::deleteRow(int row)
     delete cell;
   }
 
+  if (row >= static_cast<int>(rowCount() - rowsAdded_))
+    --rowsAdded_;
+  else {
+    flags_.set(BIT_GRID_CHANGED);
+    repaint(RepaintInnerHtml);
+  }
+
   delete rows_[row];
   rows_.erase(rows_.begin() + row);
-
-  flags_.set(BIT_GRID_CHANGED);
-  repaint(RepaintInnerHtml);
 }
 
 void WTable::deleteColumn(int column)
@@ -180,6 +187,9 @@ void WTable::deleteColumn(int column)
 
 void WTable::repaintRow(WTableRow *row)
 {
+  if (row->rowNum() >= static_cast<int>(rowCount() - rowsAdded_))
+    return;
+
   if (!rowsChanged_)
     rowsChanged_ = new std::set<WTableRow *>();
 

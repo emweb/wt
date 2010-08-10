@@ -19,17 +19,18 @@ ELSE (NOT BUILD_WTWITHQT)
 
   SUBDIRS(lib)
 
+  ADD_DEFINITIONS(-DWT_NO_SLOT_MACROS)
+
   QT4_GENERATE_MOC(${CMAKE_CURRENT_SOURCE_DIR}/QtObject.h
                    ${CMAKE_CURRENT_BINARY_DIR}/moccedQtObject.C)
 
-  ADD_EXECUTABLE(helloqt.wt
+  WT_ADD_EXAMPLE(helloqt.wt
     hello.C
     QtObject.C
     ${CMAKE_CURRENT_BINARY_DIR}/moccedQtObject.C
   )
 
   TARGET_LINK_LIBRARIES(helloqt.wt
-    ${EXAMPLES_CONNECTOR}
     wtwithqt
     ${QT_LIBRARIES}
   )
@@ -44,17 +45,6 @@ ELSE (NOT BUILD_WTWITHQT)
     ${WT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/lib
     ${QT_QTCORE_INCLUDE_DIR} ${QT_INCLUDE_DIR}
-  )
-
-  #
-  # Create a deploy script
-  #
-  SET(APPNAME hello)
-  SET(APPBIN helloqt.wt)
-  SET(APPRESOURCES "")
-  CONFIGURE_FILE(
-    ${WT_SOURCE_DIR}/deploy.sh
-    ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
   )
 
 ENDIF (NOT BUILD_WTWITHQT)

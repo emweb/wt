@@ -22,7 +22,7 @@ using namespace Wt;
 
 PlannerApplication::PlannerApplication(const WEnvironment& env)
   : WApplication(env),
-    sqlite3_("planner.db")
+    sqlite3_(Wt::WApplication::appRoot() + "planner.db")
 {
   session.setConnection(sqlite3_);
   sqlite3_.setProperty("show-queries", "true");
@@ -40,9 +40,9 @@ PlannerApplication::PlannerApplication(const WEnvironment& env)
 
   transaction.commit();
 
-  messageResourceBundle().use("planner");
-  messageResourceBundle().use("captcha");
-  messageResourceBundle().use("calendar");
+  messageResourceBundle().use(appRoot() + "planner");
+  messageResourceBundle().use(appRoot() + "captcha");
+  messageResourceBundle().use(appRoot() + "calendar");
 
   useStyleSheet("planner.css");
 

@@ -29,7 +29,10 @@ class SlotLearnerInterface;
 class WStatelessSlot;
 class JavaScriptEvent;
 
+#ifndef WT_NO_SLOT_MACROS
 #define SLOT(x, y) x, &y
+#define slots
+#endif // WT_NO_SLOT_MACROS
 
 /*! \defgroup signalslot Signal/slot system
     \brief Support for event handling using signals and slots.
@@ -179,7 +182,7 @@ private:
  *   {
  *      ...
  *      Wt::WPushButton *button = new Wt::WPushButton("Okay");
- *      button->clicked().connect(SLOT(this, MyWidget::process));
+ *      button->clicked().connect(this, &MyWidget::process);
  *   }
  *
  *   // provide an accessor for the signal
@@ -204,7 +207,7 @@ private:
  * private:
  *   void init() {
  *     MyWidget *widget = new MyWidget(this);
- *     widget->done().connect(SLOT(this, GUIClass::whenDone));
+ *     widget->done().connect(this, &GUIClass::whenDone);
  *   }
  *
  *   void whenDone(int result, const std::string& description) {

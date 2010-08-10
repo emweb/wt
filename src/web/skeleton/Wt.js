@@ -1622,7 +1622,8 @@ function addTimerEvent(timerid, msec, repeat) {
 	obj.timer = null;
 	obj.tm = null;
       }
-      obj.onclick();
+      if (obj.onclick)
+	obj.onclick();
     }
   };
 

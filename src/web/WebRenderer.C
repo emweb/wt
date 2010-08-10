@@ -430,6 +430,7 @@ void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
   js.setVar("WT_CLASS", WT_CLASS);
 
   /*
+   * FIXME: is this still required?
    * Mozilla Bugzilla #246651
    */
   js.setVar("CLOSE_CONNECTION",
@@ -1135,6 +1136,7 @@ void WebRenderer::collectJS(std::ostream* js)
 
 void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 {
+#ifndef WT_TARGET_JAVA
   bool isIEMobile = app->environment().agentIsIEMobile();
 
   if (isIEMobile || !session_.env().ajax())
@@ -1156,6 +1158,7 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 
   out << statelessJS_.str();
   statelessJS_.str("");
+#endif
 }
 
 std::string WebRenderer::learn(WStatelessSlot* slot)

@@ -29,7 +29,7 @@ WFlashObject::WFlashObject(const std::string& url,
   setAlternativeContent(new WAnchor("http://www.adobe.com/go/getflashplayer",
     new WImage("http://www.adobe.com/images/"
                "shared/download_buttons/get_flash_player.gif")));
-  ieRendersAlternative_.connect(SLOT(this, WFlashObject::renderIeAltnerative));
+  ieRendersAlternative_.connect(this, &WFlashObject::renderIeAltnerative);
 }
 
 WFlashObject::~WFlashObject()

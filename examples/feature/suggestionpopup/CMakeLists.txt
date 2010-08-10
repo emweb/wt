@@ -1,5 +1,4 @@
-ADD_EXECUTABLE(suggestionpopup.wt SuggestionPopup.C)
-TARGET_LINK_LIBRARIES(suggestionpopup.wt ${EXAMPLES_CONNECTOR})
+WT_ADD_EXAMPLE(suggestionpopup.wt SuggestionPopup.C)
 
 #
 # If you have Wt installed somehwere, you should use the

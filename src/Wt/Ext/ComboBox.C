@@ -70,21 +70,19 @@ void ComboBox::setModel(WAbstractItemModel *model)
   model_ = model;
 
   modelConnections_.push_back
-    (model_->columnsInserted().connect(SLOT(this,
-					    ComboBox::modelColumnsInserted)));
+    (model_->columnsInserted().connect(this, &ComboBox::modelColumnsInserted));
   modelConnections_.push_back
-    (model_->columnsRemoved().connect(SLOT(this,
-					   ComboBox::modelColumnsRemoved)));
+    (model_->columnsRemoved().connect(this, &ComboBox::modelColumnsRemoved));
   modelConnections_.push_back
-    (model_->rowsInserted().connect(SLOT(this, ComboBox::modelRowsInserted)));
+    (model_->rowsInserted().connect(this, &ComboBox::modelRowsInserted));
   modelConnections_.push_back
-    (model_->rowsRemoved().connect(SLOT(this, ComboBox::modelRowsRemoved)));
+    (model_->rowsRemoved().connect(this, &ComboBox::modelRowsRemoved));
   modelConnections_.push_back
-    (model_->dataChanged().connect(SLOT(this, ComboBox::modelDataChanged)));
+    (model_->dataChanged().connect(this, &ComboBox::modelDataChanged));
   modelConnections_.push_back
-    (model_->layoutChanged().connect(SLOT(this, ComboBox::modelLayoutChanged)));
+    (model_->layoutChanged().connect(this, &ComboBox::modelLayoutChanged));
   modelConnections_.push_back
-    (model_->modelReset().connect(SLOT(this, ComboBox::modelLayoutChanged)));
+    (model_->modelReset().connect(this, &ComboBox::modelLayoutChanged));
 
   modelLayoutChanged();
 }

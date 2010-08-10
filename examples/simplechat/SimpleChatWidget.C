@@ -62,8 +62,8 @@ void SimpleChatWidget::letLogin()
   hLayout->addWidget(b, 0, AlignMiddle);
   hLayout->addStretch(1);
 
-  b->clicked().connect(SLOT(this, SimpleChatWidget::login));
-  userNameEdit_->enterPressed().connect(SLOT(this, SimpleChatWidget::login));
+  b->clicked().connect(this, &SimpleChatWidget::login);
+  userNameEdit_->enterPressed().connect(this, &SimpleChatWidget::login);
 
   vLayout->addWidget(statusMsg_ = new WText());
   statusMsg_->setTextFormat(PlainText);
@@ -91,8 +91,7 @@ bool SimpleChatWidget::startChat(const WString& user)
 {
   if (server_.login(user)) {
     eventConnection_
-      = server_.chatEvent().connect(SLOT(this,
-				       SimpleChatWidget::processChatEvent));
+      = server_.chatEvent().connect(this, &SimpleChatWidget::processChatEvent);
     user_ = user;    
 
     clear();
@@ -178,16 +177,18 @@ bool SimpleChatWidget::startChat(const WString& user)
        "}");
 
     // Bind the C++ and JavaScript event handlers.
-    sendButton_->clicked().connect(SLOT(this, SimpleChatWidget::send));
-    messageEdit_->enterPressed().connect(SLOT(this, SimpleChatWidget::send));
+    sendButton_->clicked().connect(this, &SimpleChatWidget::send);
+    messageEdit_->enterPressed().connect(this, &SimpleChatWidget::send);
     sendButton_->clicked().connect(clearInput_);
     messageEdit_->enterPressed().connect(clearInput_);
+    sendButton_->clicked().connect(messageEdit_, &WLineEdit::setFocus);
+    messageEdit_->enterPressed().connect(messageEdit_, &WLineEdit::setFocus);
 
     // Prevent the enter from generating a new line, which is its default
     // action
     messageEdit_->enterPressed().preventDefaultAction();
 
-    b->clicked().connect(SLOT(this, SimpleChatWidget::logout));
+    b->clicked().connect(this, &SimpleChatWidget::logout);
 
     WText *msg = new WText
       ("<div><span class='chat-info'>You are joining the conversation as "
@@ -203,13 +204,8 @@ bool SimpleChatWidget::startChat(const WString& user)
 
 void SimpleChatWidget::send()
 {
-  if (!messageEdit_->text().empty()) {
+  if (!messageEdit_->text().empty())
     server_.sendMessage(user_, messageEdit_->text());
-    if (!WApplication::instance()->environment().ajax())
-      messageEdit_->setText(WString::Empty);
-  }
-
-  messageEdit_->setFocus();
 }
 
 void SimpleChatWidget::updateUsers()
@@ -233,7 +229,7 @@ void SimpleChatWidget::updateUsers()
       w->setChecked(true);
 
     users_[*i] = w->isChecked();
-    w->changed().connect(SLOT(this, SimpleChatWidget::updateUser));
+    w->changed().connect(this, &SimpleChatWidget::updateUser);
 
     if (*i == user_)
       w->setStyleClass("chat-self");

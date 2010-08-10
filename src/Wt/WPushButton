@@ -20,8 +20,8 @@ namespace Wt {
  * Usage example:
  * \code
  * Wt::WPushButton *ok = new Wt::WPushButton("Okay");
- * ok->clicked().connect(SLOT(ok, Wt::WPushButton::disable));
- * ok->clicked().connect(SLOT(this, MyClass::processData));
+ * ok->clicked().connect(ok, &Wt::WPushButton::disable);
+ * ok->clicked().connect(this, &MyClass::processData);
  * \endcode
  * \endif
  *

@@ -10,7 +10,7 @@ IF(FS_LIB)
 
 INCLUDE(CheckFunctionExists)
 
-ADD_EXECUTABLE(Home.wt
+WT_ADD_EXAMPLE(Home.wt
 	main.C
 	Home.C
 	WtHome.C
@@ -30,7 +30,7 @@ ADD_EXECUTABLE(Home.wt
 	../blog/asciidoc/asciidoc.C
 )
 
-TARGET_LINK_LIBRARIES(Home.wt ${EXAMPLES_CONNECTOR} wtdbo wtdbosqlite3 ${FS_LIB})
+TARGET_LINK_LIBRARIES(Home.wt wtdbo wtdbosqlite3 ${FS_LIB})
 
 # Test whether crypt(3) is provided by libc. If it's not, check if
 # libcrypt exists and if it provides crypt(3).
@@ -50,20 +50,6 @@ ENDIF(CRYPT_LIB_EXISTS)
 INCLUDE_DIRECTORIES(
   ${WT_SOURCE_DIR}/src
   ${WT_SOURCE_DIR}/examples/blog
-  )
-
-#
-# Create a deploy script
-#
-SET(APPNAME wt-homepage)
-SET(APPBIN Home.wt)
-
-SET(APPRESOURCES
-  "${CMAKE_CURRENT_SOURCE_DIR}/icons ${CMAKE_CURRENT_SOURCE_DIR}/css ${CMAKE_CURRENT_SOURCE_DIR}/*.xml ${CMAKE_CURRENT_SOURCE_DIR}/*.css")
-
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/deploy.sh
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
   )
 
 ADD_DEPENDENCIES(Home.wt wt ${EXAMPLES_CONNECTOR})

@@ -13,6 +13,7 @@
 #include "Wt/WVirtualImage"
 
 #include "WtException.h"
+#include "Utils.h"
 
 namespace Wt {
 
@@ -89,7 +90,7 @@ void WVirtualImage::enableDragging()
   impl_->mouseMoved().connect(mouseMovedJS_);
   impl_->mouseWentUp().connect(mouseUpJS_);
 
-  impl_->mouseWentUp().connect(SLOT(this, WVirtualImage::mouseUp));
+  impl_->mouseWentUp().connect(this, &WVirtualImage::mouseUp);
   impl_->decorationStyle().setCursor(OpenHandCursor);
 }
 
@@ -259,13 +260,7 @@ void WVirtualImage::cleanGrid()
     if (i < i1 || i > i2 || j < j1 || j > j2) {
       delete it->second->resource();
       delete it->second;
-#ifndef WT_TARGET_JAVA
-      GridMap::iterator eraseIt = it;
-      ++it;
-      grid_.erase(eraseIt);
-#else
-      it.remove();
-#endif // WT_TARGET_JAVA
+      Utils::eraseAndNext(grid_, it);
     } else
       ++it;
   }

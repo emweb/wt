@@ -151,7 +151,7 @@ void WAnchor::setResource(WResource *resource)
   resource_ = resource;
 
   if (resource_) {
-    resource_->dataChanged().connect(SLOT(this, WAnchor::resourceChanged));
+    resource_->dataChanged().connect(this, &WAnchor::resourceChanged);
     setRef(resource_->url());
   }
 }

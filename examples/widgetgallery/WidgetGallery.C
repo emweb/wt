@@ -27,9 +27,9 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   setTitle("Wt widgets demo");
   setCssTheme("polished");
   // load text bundles (for the tr() function)
-  messageResourceBundle().use("text");
-  messageResourceBundle().use("charts");
-  messageResourceBundle().use("treeview");
+  messageResourceBundle().use(appRoot() + "text");
+  messageResourceBundle().use(appRoot() + "charts");
+  messageResourceBundle().use(appRoot() + "treeview");
 
   contentsStack_ = new WStackedWidget();
   // Show scrollbars when needed ...

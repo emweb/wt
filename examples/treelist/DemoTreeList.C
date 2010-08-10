@@ -55,11 +55,11 @@ DemoTreeList::DemoTreeList(WContainerWidget *parent)
 
   addMapButton_
     = new WPushButton("Add map", this);
-  addMapButton_->clicked().connect(SLOT(this, DemoTreeList::addMap));
+  addMapButton_->clicked().connect(this, &DemoTreeList::addMap);
 
   removeMapButton_
     = new WPushButton("Remove map", this);
-  removeMapButton_->clicked().connect(SLOT(this, DemoTreeList::removeMap));
+  removeMapButton_->clicked().connect(this, &DemoTreeList::removeMap);
   removeMapButton_->disable();
 
   addWidget

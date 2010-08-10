@@ -34,11 +34,11 @@ namespace {
   /*
    * Reads a CSV file as an (editable) standard item model.
    */
-  WAbstractItemModel *readCsvFile(const char *fname,
+  WAbstractItemModel *readCsvFile(const std::string &fname,
 				  WContainerWidget *parent)
   {
     WStandardItemModel *model = new WStandardItemModel(0, 0, parent);
-    std::ifstream f(fname);
+    std::ifstream f(fname.c_str());
 
     if (f) {
       readFromCsv(f, model);
@@ -73,7 +73,8 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
 {
   new WText(WString::tr("category chart"), this);
 
-  WAbstractItemModel *model = readCsvFile("category.csv", this);
+  WAbstractItemModel *model = readCsvFile(
+    WApplication::appRoot() + "category.csv", this);
 
   if (!model)
     return;
@@ -151,7 +152,8 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
 {
   new WText(WString::tr("scatter plot"), this);
 
-  WAbstractItemModel *model = readCsvFile("timeseries.csv", this);
+  WAbstractItemModel *model = readCsvFile(
+    WApplication::appRoot() + "timeseries.csv", this);
 
   if (!model)
     return;

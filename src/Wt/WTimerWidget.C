@@ -30,7 +30,7 @@ DomElement *WTimerWidget::renderRemove()
   e->callJavaScript
     ("{"
      """var obj=" + jsRef() + ";"
-     """if (obj.timer) {"
+     """if (obj && obj.timer) {"
      ""  "clearTimeout(obj.timer);"
      ""  "obj.timer = null;"
      """}"

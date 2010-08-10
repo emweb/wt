@@ -44,8 +44,8 @@ void WCheckBox::setTristate(bool tristate)
 	= voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, false);
       if (!imgClick) {
 	imgClick = voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, true);
-	imgClick->connect(SLOT(this, WCheckBox::setUnChecked));
-	imgClick->connect(SLOT(this, WCheckBox::gotUndeterminateClick));
+	imgClick->connect(this, &WCheckBox::setUnChecked);
+	imgClick->connect(this, &WCheckBox::gotUndeterminateClick);
       }
     } else if (WApplication::instance()->environment().agentIsSafari()
 	       && !safariWorkaround_) {

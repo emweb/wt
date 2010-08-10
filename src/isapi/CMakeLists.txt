@@ -6,7 +6,6 @@ IF(CONNECTOR_ISAPI)
   SET(libsapisources
     Server.C
     Isapi.C
-    Isapi.def
     IsapiRequest.C
     IsapiStream.C
   )

@@ -23,7 +23,7 @@ FormExample::FormExample(WContainerWidget *parent)
   for (int i = 0; i < 2; ++i) {
     WText *t = new WText(widen(lang[i]), langLayout);
     t->setMargin(5);
-    t->clicked().connect(SLOT(this, FormExample::changeLanguage));
+    t->clicked().connect(this, &FormExample::changeLanguage);
 
     languageSelects_.push_back(t);
   }
@@ -68,7 +68,7 @@ void FormExample::changeLanguage()
 WApplication *createApplication(const WEnvironment& env)
 {
   WApplication *app = new WApplication(env);
-  app->messageResourceBundle().use("form-example");
+  app->messageResourceBundle().use(WApplication::appRoot() + "form-example");
   app->setTitle("Form example");
 
   app->root()->addWidget(new FormExample());

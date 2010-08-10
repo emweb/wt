@@ -26,7 +26,7 @@ public:
   {
     setTitle("WSuggestionPopup example");
     setCssTheme("polished");
-    messageResourceBundle().use("text");
+    messageResourceBundle().use(appRoot() + "text");
 
     styleSheet().addRule(".Wt-suggest b", "color: black;");
 

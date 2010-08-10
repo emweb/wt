@@ -74,12 +74,11 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   layout_->addWidget(popup_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
 
   calendar_ = new WCalendar(i18n);
-  calendar_->activated().connect(SLOT(popup_, WWidget::hide));
-  calendar_->selectionChanged()
-    .connect(SLOT(this, WDatePicker::setFromCalendar));
+  calendar_->activated().connect(popup_, &WWidget::hide);
+  calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
 
   WPushButton *closeButton = new WPushButton(i18n ? tr("Close") : "Close");
-  closeButton->clicked().connect(SLOT(popup_, WWidget::hide));
+  closeButton->clicked().connect(popup_, &WWidget::hide);
 
   popup_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);
   popup_->bindWidget("calendar", calendar_);
@@ -90,14 +89,14 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   popup_->setPositionScheme(Absolute);
   popup_->setStyleClass("Wt-outset Wt-datepicker");
 
-  popup_->escapePressed().connect(SLOT(popup_, WWidget::hide));
-  displayWidget->clicked().connect(SLOT(popup_, WWidget::show));
+  popup_->escapePressed().connect(popup_, &WWidget::hide);
+  displayWidget->clicked().connect(popup_, &WWidget::show);
 
   positionJS_.setJavaScript("function() { " WT_CLASS ".positionAtWidget('"
 			    + popup_->id()  + "','" + displayWidget->id()
 			    + "', " WT_CLASS ".Horizontal);}");
   displayWidget->clicked().connect(positionJS_);
-  displayWidget->clicked().connect(SLOT(this, WDatePicker::setFromLineEdit));
+  displayWidget->clicked().connect(this, &WDatePicker::setFromLineEdit);
 }
 
 void WDatePicker::setFormat(const WT_USTRING& format)

@@ -5,12 +5,14 @@
  */
 #include "Server.h"
 #include "Configuration.h"
+#include "IsapiRequest.h"
 #include "IsapiStream.h"
 
 #include <windows.h>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+
 #include <exception>
 #include <vector>
 
@@ -25,13 +27,28 @@ using std::strlen;
 using std::memset;
 extern int main(int argc, char **argv);
 
+namespace {
+  const char *terminationMsg = 0;
+  const char *mainReturnedReply =
+    "<html>"
+    "<head><title>Internal Server Error</title></head>"
+    "<body><h1>Internal Server Error</h1>Wt-ISAPI terminated: returned from main</body>"
+    "</html>";
+  const char *uncaughtExceptionReply =
+    "<html>"
+    "<head><title>Internal Server Error</title></head>"
+    "<body><h1>Internal Server Error</h1>Wt-ISAPI terminated: uncaught exception</body>"
+    "</html>";
+}
+
 namespace Wt {
   namespace isapi {
 
 IsapiServer *IsapiServer::instance_;
 
 IsapiServer::IsapiServer():
-  server_(0)
+  server_(0),
+  terminated_(false)
 {
   serverThread_ = boost::thread(boost::bind(&IsapiServer::serverEntry, this));
 }
@@ -58,13 +75,33 @@ void IsapiServer::serverEntry() {
   GetModuleFileName(module, DllPath, _MAX_PATH);
   FreeLibrary(module);
 
+  try {
     main(1, &pDllPath);
+    terminationMsg = mainReturnedReply;
+  } catch (std::exception &e) {
+    terminationMsg = uncaughtExceptionReply;
+    // TODO: log
+  } catch(...) {
+    terminationMsg = uncaughtExceptionReply;
+    // TODO: log
+  }
+  setTerminated();
 }
 
 void IsapiServer::pushRequest(IsapiRequest *request) {
-  boost::mutex::scoped_lock l(queueMutex_);
-  queue_.push_back(request);
-  queueCond_.notify_all();
+  if (request->isGood()) {
+    boost::mutex::scoped_lock l(queueMutex_);
+    if (!terminated_) {
+      queue_.push_back(request);
+      queueCond_.notify_all();
+    } else {
+      request->sendSimpleReply(500, terminationMsg);
+    }
+  } else {
+    // incomplete request received
+    request->abort();
+    delete request;
+  }
 }
 
 IsapiRequest *IsapiServer::popRequest(int timeoutSec)
@@ -86,6 +123,19 @@ IsapiRequest *IsapiServer::popRequest(int timeoutSec)
     }
   }
   return 0;
+}
+
+void IsapiServer::setTerminated()
+{
+  boost::mutex::scoped_lock l(queueMutex_);
+  terminated_ = true;
+  while (queue_.size()) {
+    IsapiRequest *retval = queue_.front();
+    queue_.pop_front();
+    l.unlock();
+    retval->sendSimpleReply(500, terminationMsg);
+    l.lock();
+  }
 }
 
 void IsapiServer::shutdown()
@@ -181,10 +231,18 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 {
   bool isServer = argc < 2 || strcmp(argv[1], "client") != 0; 
 
+  std::string approot;
+  {
+    char buffer[1024];
+    GetPrivateProfileString("isapi", "approot", "",
+      buffer, sizeof(buffer), (std::string(argv[0]) + ".ini").c_str());
+    approot = buffer;
+  }
 
   impl_->configuration_ = new Configuration(impl_->applicationPath_,
+    approot,
     impl_->configurationFile_,
-    Configuration::FcgiServer,
+    Configuration::IsapiServer,
     "Wt: initializing session process");
 }
 
@@ -269,6 +327,17 @@ void WServer::addResource(WResource *resource, const std::string& path)
 void WServer::handleRequest(WebRequest *request)
 {
   theController->handleRequest(request);
+}
+
+std::string WServer::approot() const
+{
+  return impl_->configuration_->approot();
+}
+
+bool WServer::readConfigurationProperty(const std::string& name,
+                                        std::string& value) const
+{
+  return impl_->configuration_->readConfigurationProperty(name, value);
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)

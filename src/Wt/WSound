@@ -36,8 +36,8 @@ class SoundManager;
  * WSound *s = new WSound("djing.mp3", parent);
  * s->setLoops(3);
  * s->play();
- * playButton->clicked().connect(SLOT(s, WSound::play));
- * stopButton->clicked().connect(SLOT(s, WSound::stop));
+ * playButton->clicked().connect(s, &WSound::play);
+ * stopButton->clicked().connect(s, &WSound::stop);
  * \endcode
  * \endif
  *

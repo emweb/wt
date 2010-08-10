@@ -78,8 +78,7 @@ void PostView::render(RenderType type)
     commentCount_ = new WText(post_->commentCount());
 
     CommentView *comments = new CommentView(session_, post_->rootComment());
-    session_.commentsChanged()
-      .connect(SLOT(this, PostView::updateCommentCount));
+    session_.commentsChanged().connect(this, &PostView::updateCommentCount);
 
     bindWidget("comment-count", commentCount_);
     bindWidget("comments", comments);
@@ -125,8 +124,8 @@ void PostView::render(RenderType type)
     bindWidget("save", saveButton);
     bindWidget("cancel", cancelButton);
 
-    saveButton->clicked().connect(SLOT(this, PostView::saveEdit));
-    cancelButton->clicked().connect(SLOT(this, PostView::showView));
+    saveButton->clicked().connect(this, &PostView::saveEdit);
+    cancelButton->clicked().connect(this, &PostView::showView);
 
     break; }
   }
@@ -136,19 +135,19 @@ void PostView::render(RenderType type)
       WPushButton *publishButton;
       if (post_->state != Post::Published) {
 	publishButton = new WPushButton(tr("publish"));
-	publishButton->clicked().connect(SLOT(this, PostView::publish));
+	publishButton->clicked().connect(this, &PostView::publish);
       } else {
 	publishButton = new WPushButton(tr("retract"));
-	publishButton->clicked().connect(SLOT(this, PostView::retract));
+	publishButton->clicked().connect(this, &PostView::retract);
       }
       bindWidget("publish", publishButton);
 
       WPushButton *editButton = new WPushButton(tr("edit"));
-      editButton->clicked().connect(SLOT(this, PostView::showEdit));
+      editButton->clicked().connect(this, &PostView::showEdit);
       bindWidget("edit", editButton);
 
       WPushButton *deleteButton = new WPushButton(tr("delete"));
-      deleteButton->clicked().connect(SLOT(this, PostView::rm));
+      deleteButton->clicked().connect(this, &PostView::rm);
       bindWidget("delete", deleteButton);
     } else {
       bindString("publish", WString::Empty);

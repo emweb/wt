@@ -179,7 +179,11 @@ private:
   };
 
   // WModelIndex is one of source model
+#ifndef WT_TARGET_JAVA
   typedef std::map<WModelIndex, Item *> ItemMap;
+#else
+  typedef std::treemap<WModelIndex, Item *> ItemMap;
+#endif
 
   bool submitting_;
   std::map<int, DataMap> newRowData_;

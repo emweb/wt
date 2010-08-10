@@ -10,6 +10,8 @@
 #include <Wt/WPaintDevice>
 #include <Wt/WResource>
 
+#include <list>
+
 typedef struct _DrawContext *DrawContext;
 typedef struct _Image Image;
 
@@ -33,7 +35,7 @@ class WTransform;
  *    setPixel(), which directly sets the raster pixels.
  *
  * The rendering is provided by <a
- * href="http://www.graphicsmagick.org/">GraphicsMagick</tt>, and this
+ * href="http://www.graphicsmagick.org/">GraphicsMagick</a>, and this
  * class is included in the library only if <tt>libgraphicsmagick</tt>
  * was found.
  *

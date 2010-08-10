@@ -61,7 +61,7 @@ class Time;
  * // setup a timer which calls MyClass::timeout() every 2 seconds, until timer->stop() is called.
  * Wt::WTimer *timer = new Wt::WTimer();
  * timer->setInterval(2000);
- * timer->timeout().connect(SLOT(this, MyClass::timeout));
+ * timer->timeout().connect(this, &MyClass::timeout);
  * timer->start();
  * \endcode
  * \endif
@@ -110,7 +110,7 @@ public:
    * For example, the following code will call this->doSome() after 2
    * seconds: 
    * \code
-   *   WTimer::singleShot(2000, SLOT(this, MyClass::doSome));
+   *   WTimer::singleShot(2000, this, &MyClass::doSome);
    * \endcode
    */
   template <class T, class V>

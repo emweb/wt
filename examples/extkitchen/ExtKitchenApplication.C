@@ -54,7 +54,7 @@ ExtKitchenApplication::ExtKitchenApplication(const WEnvironment& env)
   setTitle("Wt-Ext, including a kitchen sink");
 
   useStyleSheet("extkitchen.css");
-  messageResourceBundle().use("extkitchen");
+  messageResourceBundle().use(appRoot() + "extkitchen");
 
   Ext::Container *viewPort = new Ext::Container(root());
   WBorderLayout *layout = new WBorderLayout(viewPort);
@@ -237,7 +237,7 @@ void ExtKitchenApplication::formWidgetsExample()
   // Button
   Ext::Button *button = new Ext::Button("Modify", table->elementAt(0, 1));
   button->setMargin(5, Left);
-  button->activated().connect(SLOT(this, ExtKitchenApplication::formModify));
+  button->activated().connect(this, &ExtKitchenApplication::formModify);
 
   // CheckBox
   Ext::CheckBox *cb1 = new Ext::CheckBox("Check 1", table->elementAt(1, 0));
@@ -248,7 +248,7 @@ void ExtKitchenApplication::formWidgetsExample()
     -- test setHideWithOffsets() of Ext::ComboBox
     table->hide();
     WPushButton *b = new WPushButton("show", ex);
-    b->clicked().connect(SLOT(table, WWidget::show));
+    b->clicked().connect(table, &WWidget::show);
   */
 
   // DateField
@@ -308,7 +308,7 @@ void ExtKitchenApplication::tableViewExample()
    * Create the data model, and load from a CSV file
    */
   model_ = new WStandardItemModel(0,0,ex);
-  std::ifstream f("compare.csv");
+  std::ifstream f((appRoot() + "compare.csv").c_str());
   readFromCsv(f, model_);
 
   /*
@@ -379,11 +379,11 @@ void ExtKitchenApplication::tableViewExample()
 
   Ext::ToolBar *toolBar = new Ext::ToolBar();
   toolBar->addButton("Add 100 rows",
-		     SLOT(this, ExtKitchenApplication::addRow));
+		     this, &ExtKitchenApplication::addRow);
   toolBar->addButton("Remove 100 row",
-		     SLOT(this, ExtKitchenApplication::removeRow));
+		     this, &ExtKitchenApplication::removeRow);
   toolBar->addButton("Reset",
-		     SLOT(this, ExtKitchenApplication::resetModel));
+		     this, &ExtKitchenApplication::resetModel);
   table2_->setBottomToolBar(toolBar);
 
 
@@ -406,7 +406,7 @@ void ExtKitchenApplication::tableViewExample()
   p->setTitle("WTableView");
   toolBar = new Ext::ToolBar();
   toolBar->addButton("Add 100 rows",
-		     SLOT(this, ExtKitchenApplication::addRow));
+		     this, &ExtKitchenApplication::addRow);
   p->setTopToolBar(toolBar);
 
   tb->addTab(p);
@@ -444,7 +444,7 @@ void ExtKitchenApplication::resetModel()
   /* Reset the original model */
   WStandardItemModel *model = new WStandardItemModel(0,0,this);
 
-  std::ifstream f("compare.csv");
+  std::ifstream f((appRoot() + "compare.csv").c_str());
   readFromCsv(f, model);
 
   table1_->setModel(model);
@@ -475,19 +475,19 @@ void ExtKitchenApplication::dialogExample()
   Ext::Button *button;
 
   vLayout->addWidget(button = new Ext::Button("Dialog 1"));
-  button->activated().connect(SLOT(this, ExtKitchenApplication::createDialog));
+  button->activated().connect(this, &ExtKitchenApplication::createDialog);
   vLayout->addWidget(button = new Ext::Button("Dialog 2"));
-  button->activated().connect(SLOT(this, ExtKitchenApplication::createDialog2));
+  button->activated().connect(this, &ExtKitchenApplication::createDialog2);
   vLayout->addWidget(button = new Ext::Button("Dialog 3"));
-  button->activated().connect(SLOT(this, ExtKitchenApplication::createDialog3));
+  button->activated().connect(this, &ExtKitchenApplication::createDialog3);
   vLayout->addWidget(button = new Ext::Button("Dialog 4"));
-  button->activated().connect(SLOT(this, ExtKitchenApplication::createDialog4));
+  button->activated().connect(this, &ExtKitchenApplication::createDialog4);
   vLayout->addWidget(button = new Ext::Button("Dialog 5"));
-  button->activated().connect(SLOT(this, ExtKitchenApplication::createDialog5));
+  button->activated().connect(this, &ExtKitchenApplication::createDialog5);
   vLayout->addWidget(button = new Ext::Button("Dialog 6"));
-  button->activated().connect(SLOT(this, ExtKitchenApplication::createDialog6));
+  button->activated().connect(this, &ExtKitchenApplication::createDialog6);
   vLayout->addWidget(button = new Ext::Button("Dialog 7"));
-  button->activated().connect(SLOT(this, ExtKitchenApplication::createDialog7));
+  button->activated().connect(this, &ExtKitchenApplication::createDialog7);
 
   setExample(ex);
 }
@@ -499,7 +499,7 @@ void ExtKitchenApplication::createDialog()
   mbox_->setWindowTitle("Hello there");
 
   mbox_->setButtons(Wt::Ok);
-  mbox_->finished().connect(SLOT(this, ExtKitchenApplication::testDelete));
+  mbox_->finished().connect(this, &ExtKitchenApplication::testDelete);
 
   mbox_->show();
 }
@@ -516,12 +516,12 @@ void ExtKitchenApplication::createDialog2()
   d.resize(300,100);
 
   Ext::Button *okButton = new Ext::Button("Ok");
-  okButton->activated().connect(SLOT(&d, Ext::Dialog::accept));
+  okButton->activated().connect(&d, &Ext::Dialog::accept);
   d.addButton(okButton);
   okButton->setDefault(true);
 
   Ext::Button *cancelButton = new Ext::Button("Cancel");
-  cancelButton->activated().connect(SLOT(&d, Ext::Dialog::reject));
+  cancelButton->activated().connect(&d, &Ext::Dialog::reject);
   d.addButton(cancelButton);
 
   WText *contents = new WText("I'm right here.");
@@ -541,12 +541,12 @@ void ExtKitchenApplication::createDialog3()
   d.setStyleClass("dialog");
 
   Ext::Button *okButton = new Ext::Button("Ok");
-  okButton->activated().connect(SLOT(&d, Ext::Dialog::accept));
+  okButton->activated().connect(&d, &Ext::Dialog::accept);
   d.addButton(okButton);
   okButton->setDefault(true);
 
   Ext::Button *cancelButton = new Ext::Button("Cancel");
-  cancelButton->activated().connect(SLOT(&d, Ext::Dialog::reject));
+  cancelButton->activated().connect(&d, &Ext::Dialog::reject);
   d.addButton(cancelButton);
 
   WBorderLayout *layout = new WBorderLayout();
@@ -630,12 +630,12 @@ void ExtKitchenApplication::createDialog7()
   d.resize(350,120);
 
   Ext::Button *okButton = new Ext::Button("Ok");
-  okButton->activated().connect(SLOT(&d, Ext::Dialog::accept));
+  okButton->activated().connect(&d, &Ext::Dialog::accept);
   d.addButton(okButton);
   okButton->setDefault(true);
 
   Ext::Button *cancelButton = new Ext::Button("Cancel");
-  cancelButton->activated().connect(SLOT(&d, Ext::Dialog::reject));
+  cancelButton->activated().connect(&d, &Ext::Dialog::reject);
   d.addButton(cancelButton);
 
   d.contents()->setPadding(8);
@@ -647,7 +647,7 @@ void ExtKitchenApplication::createDialog7()
   passwd.setMargin(5, Left);
   passwd.setInline(true);
 
-  d.contents()->enterPressed().connect(SLOT(&d, Ext::Dialog::accept));
+  d.contents()->enterPressed().connect(&d, &Ext::Dialog::accept);
 
   if (d.exec() == Ext::Dialog::Accepted) {
     // ...
@@ -673,13 +673,13 @@ void ExtKitchenApplication::tabWidgetExample()
 
   Ext::Button *b;
   hLayout->addWidget(b = new Ext::Button("Hide"));
-  b->clicked().connect(SLOT(this, ExtKitchenApplication::hideTab));
+  b->clicked().connect(this, &ExtKitchenApplication::hideTab);
 
   hLayout->addWidget(b = new Ext::Button("Show"));
-  b->clicked().connect(SLOT(this, ExtKitchenApplication::showTab));
+  b->clicked().connect(this, &ExtKitchenApplication::showTab);
 
   hLayout->addWidget(b = new Ext::Button("Add tab"));
-  b->clicked().connect(SLOT(this, ExtKitchenApplication::modifyTabWidget));
+  b->clicked().connect(this, &ExtKitchenApplication::modifyTabWidget);
   b->setToolTip("Adds a tab");
 
   setExample(ex);

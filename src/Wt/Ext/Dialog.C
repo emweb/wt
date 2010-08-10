@@ -176,7 +176,7 @@ std::string Dialog::extClassName() const
 std::string Dialog::createJS(DomElement *inContainer)
 {
   if (!hiddenS_.isConnected())
-    hiddenS_.connect(SLOT(this, Dialog::wasHidden));
+    hiddenS_.connect(this, &Dialog::wasHidden);
 
   std::string result = Panel::createJS(inContainer);
 

@@ -239,8 +239,7 @@ void WWidget::acceptDrops(const std::string& mimeType,
   WWebWidget *thisWebWidget = webWidget();
 
   if (thisWebWidget->setAcceptDropsImpl(mimeType, true, hoverStyleClass)) {
-    thisWebWidget->otherImpl_
-      ->dropSignal_->connect(SLOT(this, WWidget::getDrop));
+    thisWebWidget->otherImpl_->dropSignal_->connect(this, &WWidget::getDrop);
   }
 }
 
@@ -362,7 +361,7 @@ void WWidget::setLayoutSizeAware(bool aware)
 
   if (aware) {
     resized_ = new JSignal<int, int>(this, "resized");
-    resized_->connect(SLOT(this, WContainerWidget::layoutSizeChanged));
+    resized_->connect(this, &WContainerWidget::layoutSizeChanged);
 
     setJavaScriptMember
       (WT_RESIZE_JS,

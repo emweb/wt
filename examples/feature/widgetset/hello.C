@@ -90,8 +90,8 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
   /*
    * Connect signals with slots
    */
-  b->clicked().connect(SLOT(this, HelloApplication::greet));
-  nameEdit_->enterPressed().connect(SLOT(this, HelloApplication::greet));
+  b->clicked().connect(this, &HelloApplication::greet);
+  nameEdit_->enterPressed().connect(this, &HelloApplication::greet);
 }
 
 void HelloApplication::greet()

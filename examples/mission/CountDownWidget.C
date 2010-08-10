@@ -21,7 +21,7 @@ CountDownWidget::CountDownWidget(int start, int stop, unsigned msec,
 
   timer_ = new WTimer(this);
   timer_->setInterval(msec);
-  timer_->timeout().connect(SLOT(this, CountDownWidget::timerTick));
+  timer_->timeout().connect(this, &CountDownWidget::timerTick);
   timer_->start();
 
   setText(boost::lexical_cast<std::string>(current_));

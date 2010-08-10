@@ -29,8 +29,8 @@ Panel::Panel(WContainerWidget *parent)
     bottomToolBar_(0),
     defaultButton_(0)
 { 
-  collapsed_.connect(SLOT(this, Panel::onCollapse));
-  expanded_.connect(SLOT(this, Panel::onExpand));
+  collapsed_.connect(this, &Panel::onCollapse);
+  expanded_.connect(this, &Panel::onExpand);
 }
 
 Panel::~Panel()

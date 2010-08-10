@@ -55,7 +55,7 @@ class WTemplate;
  * Wt::WCalendar *calendar = new Wt::WCalendar(this);
  * calendar->browseTo(today.addMonths(1));
  * calendar->select(today.addMonths(1).addDays(3));
- * calendar->selected().connect(SLOT(this, MyWidget::daySelected));
+ * calendar->selected().connect(this, &MyWidget::daySelected);
  * \endcode
  * \endif
  *

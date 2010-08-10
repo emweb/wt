@@ -218,10 +218,8 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
     domRoot_->addWidget(loadingIndicatorWidget_);
 
 #ifndef WT_TARGET_JAVA
-    showLoadingIndicator_->connect
-      (SLOT(loadingIndicatorWidget_, WWidget::show));
-    hideLoadingIndicator_->connect
-      (SLOT(loadingIndicatorWidget_, WWidget::hide));
+    showLoadingIndicator_->connect(loadingIndicatorWidget_, &WWidget::show);
+    hideLoadingIndicator_->connect(loadingIndicatorWidget_, &WWidget::hide);
 #else
     // stateless learning does not yet work
     JSlot *showLoadJS = new JSlot();
@@ -340,6 +338,13 @@ std::string WApplication::resourcesUrl()
     return *path;
 #endif // WT_TARGET_JAVA
 }
+
+#ifndef WT_TARGET_JAVA
+std::string WApplication::appRoot()
+{
+  return WApplication::instance()->session_->controller()->configuration().approot();
+}
+#endif // WT_TARGET_JAVA
 
 void WApplication::bindWidget(WWidget *widget, const std::string& domId)
 {
@@ -532,7 +537,11 @@ void WApplication::quit()
 void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
 {
   std::string s = signal->encodeCmd();
+#ifdef WT_TARGET_JAVA
+  Utils::insert(exposedSignals_, s, WeakReference<Wt::EventSignalBase*>(signal));
+#else
   Utils::insert(exposedSignals_, s, signal);
+#endif
 
 #ifdef WTDEBUG
   std::cerr << "WApplication::addExposedSignal: " << s << std::endl;
@@ -559,9 +568,18 @@ WApplication::decodeExposedSignal(const std::string& signalName) const
   SignalMap::const_iterator i = exposedSignals_.find(signalName);
 
   if (i != exposedSignals_.end()) {
+#ifndef WT_TARGET_JAVA
     WWidget *w = dynamic_cast<WWidget *>(i->second->sender());
-    if (!w || isExposed(w) || boost::ends_with(signalName, ".resized"))
+#else
+    WWidget *w = dynamic_cast<WWidget *>(i->second.get()->sender());
+#endif //WT_TARGET_JAVA
+    if (!w || isExposed(w) || boost::ends_with(signalName, ".resized")) {
+#ifndef WT_TARGET_JAVA
       return i->second;
+#else
+      return i->second.get();
+#endif //WT_TARGET_JAVA
+    }
     else
       return 0;
   } else
@@ -877,8 +895,9 @@ void WApplication::changeInternalPath(const std::string& aPath)
   std::string path = aPath;
 
   // internal paths start with a '/'; other anchor changes are not reacted on
-  if (path != newInternalPath_ && (path.empty() || path[0] == '/')) {
-    std::string v;
+  if (path.empty() || path[0] == '/') {
+    if (path != newInternalPath_) {
+      std::string v;
 
 #ifdef WT_WITH_OLD_INTERNALPATH_API
     if (oldInternalPathAPI()) {
@@ -917,9 +936,10 @@ void WApplication::changeInternalPath(const std::string& aPath)
       return;
     }
 #endif // WT_WITH_OLD_INTERNALPATH_API
+      newInternalPath_ = path;
 
-    newInternalPath_ = path;
-    internalPathChanged().emit(newInternalPath_);
+      internalPathChanged().emit(newInternalPath_);
+    }
   }
 }
 
@@ -1140,15 +1160,8 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
 bool WApplication::readConfigurationProperty(const std::string& name,
 					     std::string& value)
 {
-  const std::string* property
-    = WApplication::instance()->session_->controller()
-    ->configuration().property(name);
-
-  if (property) {
-    value = *property;
-    return true;
-  } else
-    return false;
+  return WApplication::instance()->session_->controller()
+    ->configuration().readConfigurationProperty(name, value);
 }
 #else
 std::string *WApplication::readConfigurationProperty(const std::string& name,

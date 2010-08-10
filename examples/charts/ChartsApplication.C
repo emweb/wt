@@ -18,7 +18,7 @@ public:
     setTitle("Charts example");
 
     setCssTheme("polished");
-    messageResourceBundle().use("charts");
+    messageResourceBundle().use(appRoot() + "charts");
 
     root()->setPadding(10);
     root()->resize(WLength::Auto, WLength::Auto);

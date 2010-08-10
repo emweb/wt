@@ -1,3 +1,10 @@
+10-08-2010:
+	* isapi: various improvements
+
+	* WSignal: SLOT/slots macro can be disabled using -DWT_NO_SLOT_MACROS
+
+	* examples: cleanups to use appRoot() and no longer use SLOT() macro
+
 02-08-2010:
 	* WBatchEditProxyModel: a model that caches editing until submitted
 	in batch (or reverted)

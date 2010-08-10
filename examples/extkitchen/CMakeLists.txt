@@ -1,5 +1,5 @@
-ADD_EXECUTABLE(extkitchen.wt ExtKitchenApplication.C CsvUtil.C)
-TARGET_LINK_LIBRARIES(extkitchen.wt wtext ${EXAMPLES_CONNECTOR})
+WT_ADD_EXAMPLE(extkitchen.wt ExtKitchenApplication.C CsvUtil.C)
+TARGET_LINK_LIBRARIES(extkitchen.wt wtext)
 
 #
 # If you have Wt installed somehwere, you should use the
@@ -8,16 +8,5 @@ TARGET_LINK_LIBRARIES(extkitchen.wt wtext ${EXAMPLES_CONNECTOR})
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
-
-#
-# Create a deploy script
-#
-SET(APPNAME extkitchen)
-SET(APPBIN extkitchen.wt)
-SET(APPRESOURCES "")
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/deploy.sh
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-)
 
 ADD_DEPENDENCIES(extkitchen.wt wt wtext ${EXAMPLES_CONNECTOR})

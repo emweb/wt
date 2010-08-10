@@ -33,7 +33,7 @@ namespace Wt {
  * examples->addTab(chartExample(), "Charts");
  * examples->addTab(new Wt::WText("A WText"), "WText");
  *
- * examples->currentChanged().connect(SLOT(this, MyClass::logInternalPath));
+ * examples->currentChanged().connect(this, &MyClass::logInternalPath);
  * examples->setInternalPathEnabled();
  * examples->setInternalBasePath("/examples");
  * \endcode

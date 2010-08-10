@@ -64,18 +64,18 @@ namespace Wt {
  * Wt::WPushButton *uploadButton = new Wt::WPushButton("Send", this);
 
  * // Upload when the button is clicked.
- * uploadButton->clicked().connect(SLOT(upload, Wt::WFileUpload::upload));
- * uploadButton->clicked().connect(SLOT(uploadButton, Wt::WPushButton::disable));
+ * uploadButton->clicked().connect(upload, &Wt::WFileUpload::upload);
+ * uploadButton->clicked().connect(uploadButton, &Wt::WPushButton::disable);
  *
  * // Upload automatically when the user entered a file.
- * upload->changed().connect(SLOT(upload, WFileUpload::upload));
- * upload->changed().connect(SLOT(uploadButton, Wt::WPushButton::disable));
+ * upload->changed().connect(upload, &WFileUpload::upload);
+ * upload->changed().connect(uploadButton, &Wt::WPushButton::disable);
  *
  * // React to a succesfull upload.
- * upload->uploaded().connect(SLOT(this, MyWidget::fileUploaded));
+ * upload->uploaded().connect(this, &MyWidget::fileUploaded);
  *
  * // React to a fileupload problem.
- * upload->fileTooLarge().connect(SLOT(this, MyWidget::fileTooLarge));
+ * upload->fileTooLarge().connect(this, &MyWidget::fileTooLarge);
  * \endcode
  * \endif
  *

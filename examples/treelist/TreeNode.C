@@ -71,8 +71,8 @@ TreeNode::TreeNode(const std::string labelText,
   layout_->elementAt(0, 0)->setContentAlignment(Wt::AlignTop);
   layout_->elementAt(0, 1)->setContentAlignment(Wt::AlignMiddle);
 
-  expandIcon_->icon1Clicked.connect(SLOT(this, TreeNode::expand));
-  expandIcon_->icon2Clicked.connect(SLOT(this, TreeNode::collapse));
+  expandIcon_->icon1Clicked.connect(this, &TreeNode::expand);
+  expandIcon_->icon2Clicked.connect(this, &TreeNode::collapse);
 } //
 
 bool TreeNode::isLastChildNode() const

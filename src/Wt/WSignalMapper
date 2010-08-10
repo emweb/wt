@@ -26,7 +26,7 @@ namespace Wt {
  * {
  *   Wt::WSignalMapper<WText *> *MyMap = new Wt::WSignalMapper<Wt::WText *>(this);
  *   // connect mapped() to our target slot
- *   MyMap->mapped().connect(SLOT(this, Test::onClick));
+ *   MyMap->mapped().connect(this, &Test::onClick);
  *
  *   // connect and map every source signal to the mapper
  *   MyMap->mapConnect(text1->clicked(), text1);
@@ -80,7 +80,7 @@ public:
    * \code
    * Wt::WSignalMapper<T> *mapper = ...
    *
-   * widget->clicked().connect(SLOT(mapper, Wt::WSignalMapper<T>::map));
+   * widget->clicked().connect(mapper, &Wt::WSignalMapper<T>::map);
    * mapper->setMapping(widget, data);
    * \endcode
    */
@@ -110,7 +110,7 @@ public:
    * \code
    * Wt::WSignalMapper<T, Wt::WMouseEvent> *mapper = ...
    *
-   * widget->clicked().connect(SLOT(mapper, Wt::WSignalMapper<T, Wt::WMouseEvent>::map1));
+   * widget->clicked().connect(mapper, &Wt::WSignalMapper<T, Wt::WMouseEvent>::map1);
    * mapper->setMapping(widget, data);
    * \endcode
    */

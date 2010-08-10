@@ -67,19 +67,19 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
   WPushButton *b;
   
   b = new WPushButton("Toggle row height", wc);
-  b->clicked().connect(SLOT(this, TreeViewExample::toggleRowHeight));
+  b->clicked().connect(this, &TreeViewExample::toggleRowHeight);
   b->setToolTip("Toggles row height between 31px and 25px");
   
   b = new WPushButton("Toggle stripes", wc);
-  b->clicked().connect(SLOT(this, TreeViewExample::toggleStripes));
+  b->clicked().connect(this, &TreeViewExample::toggleStripes);
   b->setToolTip("Toggle alternating row colors");
   
   b = new WPushButton("Toggle root", wc);
-  b->clicked().connect(SLOT(this, TreeViewExample::toggleRoot));
+  b->clicked().connect(this, &TreeViewExample::toggleRoot);
   b->setToolTip("Toggles root item between all and the first continent.");
 
   b = new WPushButton("Add rows", wc);
-  b->clicked().connect(SLOT(this, TreeViewExample::addRows));
+  b->clicked().connect(this, &TreeViewExample::addRows);
   b->setToolTip("Adds some cities to Belgium");
 }
 

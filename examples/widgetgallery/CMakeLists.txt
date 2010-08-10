@@ -1,4 +1,4 @@
-ADD_EXECUTABLE(widgetgallery.wt
+WT_ADD_EXAMPLE(widgetgallery.wt
   main.C
   BasicControls.C
   ChartWidgets.C
@@ -26,7 +26,7 @@ ADD_EXECUTABLE(widgetgallery.wt
   ../painting/ShapesWidget.C
   ../treeview/TreeViewExample.C
 )
-TARGET_LINK_LIBRARIES(widgetgallery.wt wtext ${EXAMPLES_CONNECTOR})
+TARGET_LINK_LIBRARIES(widgetgallery.wt wtext)
 
 #
 # If you have Wt installed somehwere, you should use the

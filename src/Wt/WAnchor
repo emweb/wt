@@ -40,7 +40,7 @@ class WImage;
  * a = new WAnchor(this);
  * a->setRefInternalPath("/docs/" + myDocName());
  * //   and listen to the corresponding change in internal path
- * WApplication::instance()->internalPathChanged().connect(SLOT(this, DocsListWidget::onInternalPathChange));
+ * WApplication::instance()->internalPathChanged().connect(this, &DocsListWidget::onInternalPathChange);
  *
  * // Create an anchor that references a resource
  * WResource *r = new PdfResource(this); // serializes to a PDF file.

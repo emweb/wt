@@ -727,6 +727,45 @@ public:
    */
   static std::string resourcesUrl();
 
+#ifndef WT_TARGET_JAVA
+  /*! \brief Returns the approot special property
+   *
+   * This returns the "approot" property, with a trailing slash added to
+   * the end if it was not yet present.
+   *
+   * The property "approot" was introduced as a generalization of the
+   * working directory for the location of files that do not need to
+   * be served over http to the client, but are required by the
+   * program to run properly. Typically, these are message resource
+   * bundles (xml), CSV files, database files (e.g. SQLite files for
+   * Wt::Dbo), ...
+   *
+   * Some connectors do not allow you to control what the current
+   * working directory (CWD) is set to (fcgi, isapi). Instead of
+   * referring to files assuming a sensible CWD, it is therefore
+   * better to refer to them relative to the application root.
+   *
+   * The approot property is special in the sense that it can be set
+   * implicitly by the connector (see the connector documentation for
+   * more info). If it was not set by the connector, it can be set as
+   * a normal property in the configuration file (the default
+   * wt_config.xml describes how to set properties). If the property
+   * is not set at all, it is assumed that the approot is CWD and this
+   * function will return an empty string.
+   *
+   * \if cpp
+   * Usage example:
+   * \code
+   * messageResourceBundle().use(appRoot() + "text");
+   * messageResourceBundle().use(appRoot() + "charts");
+   *
+   * Wt::Dbo::backend::Sqlite3 sqlite3_(approot() + "planner.db");
+   * \endcode
+   * \endif
+   */
+  static std::string appRoot();
+#endif // WT_TARGET_JAVA
+
   /*! \brief Returns the unique identifier for the current session.
    *
    * The session id is a string that uniquely identifies the current session.
@@ -982,6 +1021,8 @@ public:
    * Tries to read a configured value for the property
    * \p name. The method returns whether a value is defined for
    * the property, and sets it to \p value.
+   *
+   * \sa WServer::readConfigurationProperty()
    */
   static bool readConfigurationProperty(const std::string& name,
 					std::string& value);
@@ -1327,8 +1368,6 @@ public:
   bool javaScriptLoaded(const char *jsFile);
   void setJavaScriptLoaded(const char *jsFile);
 
-  static const char *RESOURCES_URL;
-
 protected:
   /*! \brief Notifies an event to the application.
    *
@@ -1434,7 +1473,11 @@ private:
     WString content;
   };
 
+#ifndef WT_TARGET_JAVA
   typedef std::map<std::string, EventSignalBase *> SignalMap;
+#else
+  typedef std::map<std::string, WeakReference<EventSignalBase *> > SignalMap;
+#endif
   typedef std::map<std::string, WResource *> ResourceMap;
   typedef std::map<std::string, WObject *> ObjectMap;
 
@@ -1557,6 +1600,8 @@ private:
    */
   SoundManager *getSoundManager();
   SoundManager *soundManager_;
+
+  static const char *RESOURCES_URL;
 
   friend class WebRenderer;
   friend class WebSession;

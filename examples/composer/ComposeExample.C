@@ -42,8 +42,8 @@ ComposeExample::ComposeExample(WContainerWidget *parent)
   composer_->setTo(contacts);
   composer_->setSubject("That's cool! Want to start your own google?");
 
-  composer_->send.connect(SLOT(this, ComposeExample::send));
-  composer_->discard.connect(SLOT(this, ComposeExample::discard));
+  composer_->send.connect(this, &ComposeExample::send);
+  composer_->discard.connect(this, &ComposeExample::discard);
 
   details_ = new WContainerWidget(this);
 
@@ -144,7 +144,7 @@ WApplication *createApplication(const WEnvironment& env)
 
   // The following assumes composer.xml is in the webserver working directory
   // (but does not need to be deployed within docroot):
-  app->messageResourceBundle().use("composer");
+  app->messageResourceBundle().use(WApplication::appRoot() + "composer");
 
   // The following assumes composer.css is deployed in the seb server at the
   // same location as the application:

@@ -47,7 +47,7 @@ StyleExample::StyleExample(WContainerWidget *parent)
   new WBreak(this);
 
   WPushButton *p = new WPushButton("Update!", this);
-  p->clicked().connect(SLOT(this, StyleExample::updateStyle));
+  p->clicked().connect(this, &StyleExample::updateStyle);
 
   new WBreak(this);
 
@@ -56,8 +56,7 @@ StyleExample::StyleExample(WContainerWidget *parent)
 
 WLineEdit *StyleExample::createValidateLineEdit(int value, int min, int max)
 {
-  WLineEdit *le = new WLineEdit(boost::lexical_cast<std::wstring>(value),
-				this);
+  WLineEdit *le = new WLineEdit(boost::lexical_cast<std::wstring>(value), this);
   le->setTextSize(3);
   le->setValidator(new WIntValidator(min, max));
 

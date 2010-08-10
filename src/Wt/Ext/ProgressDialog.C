@@ -19,7 +19,7 @@ ProgressDialog::ProgressDialog(bool i18n)
     wasCanceled_(false)
 { 
   enableProgressBar(true);
-  buttonClicked().connect(SLOT(this, ProgressDialog::onButtonClick));
+  buttonClicked().connect(this, &ProgressDialog::onButtonClick);
 
   //show();
 }
@@ -36,7 +36,7 @@ ProgressDialog::ProgressDialog(const WString& labelText,
     wasCanceled_(false)
 {
   enableProgressBar(true);
-  buttonClicked().connect(SLOT(this, ProgressDialog::onButtonClick));
+  buttonClicked().connect(this, &ProgressDialog::onButtonClick);
 
   //show();
 }

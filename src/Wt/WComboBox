@@ -44,7 +44,7 @@ namespace Wt {
  * combo->addItem("Kate Winslet");
  *
  * combo->setCurrentIndex(2); // Johnny Depp
- * combo->activated().connect(SLOT(this, MyWidget::comboChanged));
+ * combo->activated().connect(this, &MyWidget::comboChanged);
  * \endcode
  * \endif 
  *

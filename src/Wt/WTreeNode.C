@@ -241,7 +241,7 @@ void WTreeNode::setLoadPolicy(LoadPolicy loadPolicy)
 	loadChildren();
 
       expandIcon_
-	->icon1Clicked().connect(SLOT(this, WTreeNode::loadGrandChildren));
+	->icon1Clicked().connect(this, &WTreeNode::loadGrandChildren);
     }
     break;
   case LazyLoading:
@@ -254,7 +254,7 @@ void WTreeNode::setLoadPolicy(LoadPolicy loadPolicy)
 	  doPopulate();
       }
 
-      expandIcon_->icon1Clicked().connect(SLOT(this, WTreeNode::expand));
+      expandIcon_->icon1Clicked().connect(this, &WTreeNode::expand);
     }
   }
 
@@ -272,8 +272,8 @@ void WTreeNode::loadChildren()
     for (unsigned i = 0; i < childNodes_.size(); ++i)
       layout_->elementAt(1, 1)->addWidget(childNodes_[i]);
 
-    expandIcon_->icon1Clicked().connect(SLOT(this, WTreeNode::doExpand));
-    expandIcon_->icon2Clicked().connect(SLOT(this, WTreeNode::doCollapse));
+    expandIcon_->icon1Clicked().connect(this, &WTreeNode::doExpand);
+    expandIcon_->icon2Clicked().connect(this, &WTreeNode::doCollapse);
 
     resetLearnedSlots();
 

@@ -51,7 +51,7 @@ void Form::createUI()
   label = new WLabel(tr("example.name"), elementAt(row, 0));
   label->setBuddy(nameEdit_);
   nameEdit_->setValidator(new WValidator(true));
-  nameEdit_->enterPressed().connect(SLOT(this, Form::submit));
+  nameEdit_->enterPressed().connect(this, &Form::submit);
 
   // First name
   ++row;
@@ -70,7 +70,7 @@ void Form::createUI()
   label = new WLabel(tr("example.country"), elementAt(row, 0));
   label->setBuddy(countryEdit_);
   countryEdit_->setValidator(new WValidator(true));
-  countryEdit_->changed().connect(SLOT(this, Form::countryChanged));
+  countryEdit_->changed().connect(this, &Form::countryChanged);
 
   // City
   ++row;
@@ -111,7 +111,7 @@ void Form::createUI()
   ++row;
   WPushButton *submit = new WPushButton(tr("submit"),
 					elementAt(row, 0));
-  submit->clicked().connect(SLOT(this, Form::submit));
+  submit->clicked().connect(this, &Form::submit);
   submit->setMargin(15, Top);
   elementAt(row, 0)->setColumnSpan(3);
   elementAt(row, 0)->setContentAlignment(AlignTop | AlignCenter);

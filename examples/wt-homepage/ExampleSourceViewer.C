@@ -72,7 +72,7 @@ ExampleSourceViewer::ExampleSourceViewer(const std::string& deployPath,
     examplesType_(examplesType)
 {
   wApp->internalPathChanged().connect
-    (SLOT(this, ExampleSourceViewer::handlePathChange));
+    (this, &ExampleSourceViewer::handlePathChange);
 
   handlePathChange();
 }
@@ -129,7 +129,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
   exampleView_->setSelectionMode(SingleSelection);
   exampleView_->setAlternatingRowColors(false);
   exampleView_->selectionChanged().connect
-    (SLOT(this, ExampleSourceViewer::showFile));
+    (this, &ExampleSourceViewer::showFile);
 
   sourceView_ = new SourceView(FileItem::FileNameRole, 
 			       FileItem::ContentsRole,

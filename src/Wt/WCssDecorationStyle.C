@@ -112,7 +112,7 @@ void WCssDecorationStyle::setBackgroundImage(WResource *resource,
 {
   backgroundImageResource_ = resource;
   resource->dataChanged().
-    connect(SLOT(this, WCssDecorationStyle::backgroundImageResourceChanged));
+    connect(this, &WCssDecorationStyle::backgroundImageResourceChanged);
   setBackgroundImage(resource->url(), repeat, sides);
 }
 

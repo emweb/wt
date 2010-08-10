@@ -100,7 +100,7 @@ Server *Server::instance = 0;
 Server::Server(int argc, char *argv[])
   : argc_(argc),
     argv_(argv),
-    conf_(argv[0], "", Configuration::FcgiServer,
+    conf_(argv[0], "", "", Configuration::FcgiServer,
 	  "Wt: initializing FastCGI session process manager")
 #ifdef WT_THREADED
   , threadPool_(conf_.numThreads())
@@ -836,8 +836,14 @@ void WServer::setServerConfiguration(int argc, char *argv[],
     Server webServer(argc, argv);
     exit(webServer.main());
   } else {
+    /*
+     * FastCGI configures the working directory to the location of the
+     * binary, which is a convenient default, but not really ideal.
+     */
+    std::string appRoot;
     impl_->configuration_
       = new Configuration(impl_->applicationPath_,
+			  appRoot,
 			  impl_->configurationFile_,
 			  Configuration::FcgiServer,
 			  "Wt: initializing session process");

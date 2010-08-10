@@ -64,12 +64,12 @@ public:
     revisionError_->setStyleClass("error-msg");
 
     repositoryEdit_->enterPressed()
-      .connect(SLOT(this, GitViewApplication::loadGitModel));
+      .connect(this, &GitViewApplication::loadGitModel);
     revisionEdit_->enterPressed()
-      .connect(SLOT(this, GitViewApplication::loadGitModel));
+      .connect(this, &GitViewApplication::loadGitModel);
 
     WPushButton *b = new WPushButton("Load");
-    b->clicked().connect(SLOT(this, GitViewApplication::loadGitModel));
+    b->clicked().connect(this, &GitViewApplication::loadGitModel);
     grid->addWidget(b, 2, 0, AlignLeft);
 
     gitView_ = new WTreeView();
@@ -77,8 +77,7 @@ public:
     gitView_->setSortingEnabled(false);
     gitView_->setModel(gitModel_ = new GitModel(this));
     gitView_->setSelectionMode(SingleSelection);
-    gitView_->selectionChanged().connect
-      (SLOT(this, GitViewApplication::showFile));
+    gitView_->selectionChanged().connect(this, &GitViewApplication::showFile);
 
     sourceView_ = new SourceView(DisplayRole, 
 				 GitModel::ContentsRole, 

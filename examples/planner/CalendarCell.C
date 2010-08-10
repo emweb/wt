@@ -61,7 +61,7 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
       addWidget(extra);
 
       extra->clicked().preventPropagation();
-      extra->clicked().connect(SLOT(this, CalendarCell::showAllEntriesDialog));
+      extra->clicked().connect(this, &CalendarCell::showAllEntriesDialog);
       
       break;
     }

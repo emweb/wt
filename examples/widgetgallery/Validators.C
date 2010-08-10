@@ -99,7 +99,7 @@ Validators::Validators(EventDisplayer *ed)
 	    "     mandatory</li>"
 	    "</ul></p>", this);
   WPushButton *pb = new WPushButton("Validate server-side", this);
-  pb->clicked().connect(SLOT(this, Validators::validateServerside));
+  pb->clicked().connect(this, &Validators::validateServerside);
   ed->mapConnect(pb->clicked(), "WPushButton: request server-side validation");
 }
 

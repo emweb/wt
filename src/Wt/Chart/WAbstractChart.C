@@ -101,19 +101,19 @@ void WAbstractChart::setModel(WAbstractItemModel *model)
 
   /* connect slots to new model */
   modelConnections_.push_back(model_->columnsInserted().connect
-		      (SLOT(this, WAbstractChart::modelColumnsInserted)));
+		      (this, &WAbstractChart::modelColumnsInserted));
   modelConnections_.push_back(model_->columnsRemoved().connect
-		      (SLOT(this, WAbstractChart::modelColumnsRemoved)));
+		      (this, &WAbstractChart::modelColumnsRemoved));
   modelConnections_.push_back(model_->rowsInserted().connect
-		      (SLOT(this, WAbstractChart::modelRowsInserted)));
+		      (this, &WAbstractChart::modelRowsInserted));
   modelConnections_.push_back(model_->rowsRemoved().connect
-		      (SLOT(this, WAbstractChart::modelRowsRemoved)));
+		      (this, &WAbstractChart::modelRowsRemoved));
   modelConnections_.push_back(model_->dataChanged().connect
-		      (SLOT(this, WAbstractChart::modelDataChanged)));
+		      (this, &WAbstractChart::modelDataChanged));
   modelConnections_.push_back(model_->layoutChanged().connect
-		      (SLOT(this, WAbstractChart::modelReset)));
+		      (this, &WAbstractChart::modelReset));
   modelConnections_.push_back(model_->modelReset().connect
-		      (SLOT(this, WAbstractChart::modelReset)));
+		      (this, &WAbstractChart::modelReset));
 
   modelChanged();
 }

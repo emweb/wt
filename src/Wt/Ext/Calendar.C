@@ -60,7 +60,7 @@ std::string Calendar::createJS(DomElement *inContainer)
   assert(inContainer);
 
   if (!extDateSelected_.isConnected())
-    extDateSelected_.connect(SLOT(this, Calendar::onSelect));
+    extDateSelected_.connect(this, &Calendar::onSelect);
 
   std::stringstream result;
   result << elVar() << " = new Ext.DatePicker(" << configStruct() << ");";

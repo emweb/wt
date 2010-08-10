@@ -16,6 +16,7 @@ namespace {
 
 BOOL WINAPI GetExtensionVersion(HSE_VERSION_INFO* pVer)
 {
+#if 0
 #ifdef _DEBUG
   char buffer[2048];
   std::string workingdir;
@@ -26,7 +27,11 @@ BOOL WINAPI GetExtensionVersion(HSE_VERSION_INFO* pVer)
   std::stringstream ss;
   ss << "Please attach a debugger to the process " << GetCurrentProcessId() << " and click OK" << std::endl;
   ss << "Current working dir: " << workingdir;
+  //char title[] = "Wt/ISAPI Debug Time!";
+  //DWORD response;
+  //WTSSendMessage(WTS_CURRENT_SERVER_HANDLE, 1, title, sizeof(title), (LPSTR)ss.str().c_str(), ss.str().length() + 1, MB_OK, 0, &response, TRUE);
   MessageBox(NULL, ss.str().c_str(), "Wt/ISAPI Debug Time!", MB_OK|MB_SERVICE_NOTIFICATION);
+#endif
 #endif
 
   pVer->dwExtensionVersion = HSE_VERSION;
@@ -47,46 +52,9 @@ BOOL WINAPI TerminateExtension(DWORD dwFlags)
 
 DWORD WINAPI HttpExtensionProc(LPEXTENSION_CONTROL_BLOCK lpECB)
 {
-#if 1
   // IsapiRequest will schedule itself to be processed in the
   // server when it is completely received.
-  new isapi::IsapiRequest(lpECB, theServer, true);
+  new isapi::IsapiRequest(lpECB, theServer, false);
   return HSE_STATUS_PENDING;
-#else
-  std::string status = "200 OK";
-  std::string body = "<h1>Hello World!</h1>";
-  std::stringstream header;
-  header << "Content-Type: text/html\r\n"
-    << "Content-Length: " << body.size() << "\r\n"
-    << "\r\n";
-  std::string headerString = header.str();
-  HSE_SEND_HEADER_EX_INFO hei = { 0 };
-  hei.pszStatus = status.c_str();
-  hei.cchStatus = status.size();
-  hei.pszHeader = headerString.c_str();
-  hei.cchHeader = headerString.size();
-  hei.fKeepConn = true;
-  lpECB->ServerSupportFunction(lpECB->ConnID, HSE_REQ_SEND_RESPONSE_HEADER_EX, &hei, 0, 0);
-  DWORD bytes = body.size();
-  int success = lpECB->WriteClient(lpECB->ConnID, (LPVOID)body.c_str(), &bytes, HSE_IO_SYNC);
-  if (!success) {
-    int err = GetLastError();
-    body += err;
-  }
-  return HSE_STATUS_SUCCESS_AND_KEEP_CONN;
-  return HSE_STATUS_ERROR;
-#endif
 }
 
-#if 0
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD reason, LPVOID lpvReserved)
-{
-  switch (reason) {
-    case DLL_PROCESS_ATTACH:
-      DisableThreadLibraryCalls(hinstDLL);
-      MessageBeep(MB_ICONASTERISK);
-      break;
-  }
-  return TRUE;
-}
-#endif

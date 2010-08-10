@@ -26,8 +26,7 @@ public:
      */
     aboutDrink_ = new WText("", root());
     
-    internalPathChanged().connect
-      (SLOT(this, TreeViewApplication::handlePathChange));
+    internalPathChanged().connect(this, &TreeViewApplication::handlePathChange);
   }
 private:
   WText *aboutDrink_;
@@ -45,7 +44,7 @@ WApplication *createApplication(const WEnvironment& env)
 {
   WApplication *app = new TreeViewApplication(env);
   app->setTitle("WTreeView example");
-  app->messageResourceBundle().use("drinks");
+  app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
   app->styleSheet().addRule("button", "margin: 2px");
   //app->useStyleSheet("treeview.css");
   

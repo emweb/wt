@@ -67,10 +67,10 @@ WWidget* GraphicsWidgets::paintbrush()
   addColor(colorTable, 1, 1, WColor(blue));
   new WBreak(layout->elementAt(0,1));
   WPushButton* clearButton = new WPushButton("Clear", layout->elementAt(0,1));
-  clearButton->clicked().connect(SLOT(canvas, PaintBrush::clear));
+  clearButton->clicked().connect(canvas, &PaintBrush::clear);
   layout->elementAt(0,1)->setPadding(3);
 
-  colorMapper_->mapped().connect(SLOT(canvas, PaintBrush::setColor));
+  colorMapper_->mapped().connect(canvas, &PaintBrush::setColor);
   
   return result;
 }

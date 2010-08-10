@@ -39,7 +39,7 @@ void AbstractButton::setCheckable(bool how)
   checkable_ = how;
 
   if (checkable_) {
-    toggled_.connect(SLOT(this, AbstractButton::wasToggled));
+    toggled_.connect(this, &AbstractButton::wasToggled);
   }
 }
 

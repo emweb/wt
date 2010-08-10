@@ -57,7 +57,7 @@ struct WServerImpl {
 	      const std::string& wtConfigurationFile,
 	      WServer *server)
     : applicationPath_(wtApplicationPath),
-      wtConfiguration_(wtApplicationPath, wtConfigurationFile,
+      wtConfiguration_(wtApplicationPath, "", wtConfigurationFile,
 		       Wt::Configuration::WtHttpdServer,
 		       "Wt: initializing built-in httpd"),
       webController_(wtConfiguration_, server, &stream_),
@@ -362,6 +362,17 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 void WServer::expireSessions()
 {
   impl_->webController_.expireSessions();
+}
+
+std::string WServer::approot() const
+{
+  return impl_->webController_.configuration().approot();
+}
+
+bool WServer::readConfigurationProperty(const std::string& name,
+    std::string& value) const
+{
+  return impl_->webController_.configuration().readConfigurationProperty(name, value);
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)

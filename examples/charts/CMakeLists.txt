@@ -1,11 +1,10 @@
-ADD_EXECUTABLE(charts.wt
+WT_ADD_EXAMPLE(charts.wt
 	PanelList.C
 	ChartConfig.C
 	ChartsExample.C
 	CsvUtil.C
 	ChartsApplication.C
 )
-TARGET_LINK_LIBRARIES(charts.wt wt ${EXAMPLES_CONNECTOR})
 
 #
 # If you have Wt installed somehwere, you should use the
@@ -15,13 +14,3 @@ TARGET_LINK_LIBRARIES(charts.wt wt ${EXAMPLES_CONNECTOR})
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
-#
-# Create a deploy script
-#
-SET(APPNAME charts)
-SET(APPBIN charts.wt)
-SET(APPRESOURCES "")
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/deploy.sh
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-)

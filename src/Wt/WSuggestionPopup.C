@@ -89,7 +89,7 @@ void WSuggestionPopup::init()
 
   setModel(new WStringListModel(this));
 
-  filter_.connect(SLOT(this, WSuggestionPopup::doFilter));
+  filter_.connect(this, &WSuggestionPopup::doFilter);
 }
 
 void WSuggestionPopup::setMaximumSize(const WLength& width,
@@ -155,15 +155,15 @@ void WSuggestionPopup::setModel(WAbstractItemModel *model)
 
   /* connect slots to new model */
   modelConnections_.push_back(model_->rowsInserted().connect
-     (SLOT(this, WSuggestionPopup::modelRowsInserted)));
+     (this, &WSuggestionPopup::modelRowsInserted));
   modelConnections_.push_back(model_->rowsRemoved().connect
-     (SLOT(this, WSuggestionPopup::modelRowsRemoved)));
+     (this, &WSuggestionPopup::modelRowsRemoved));
   modelConnections_.push_back(model_->dataChanged().connect
-     (SLOT(this, WSuggestionPopup::modelDataChanged)));
+     (this, &WSuggestionPopup::modelDataChanged));
   modelConnections_.push_back(model_->layoutChanged().connect
-     (SLOT(this, WSuggestionPopup::modelLayoutChanged)));
+     (this, &WSuggestionPopup::modelLayoutChanged));
   modelConnections_.push_back(model_->modelReset().connect
-     (SLOT(this, WSuggestionPopup::modelLayoutChanged)));
+     (this, &WSuggestionPopup::modelLayoutChanged));
 
   setModelColumn(modelColumn_);
 }

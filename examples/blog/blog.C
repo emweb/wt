@@ -21,7 +21,8 @@ public:
   BlogApplication(const WEnvironment& env) 
     : WApplication(env)
   {
-    root()->addWidget(new BlogView("/", "blog.db", FeedUrl));
+    root()->addWidget(new BlogView("/",
+      WApplication::appRoot() + "blog.db", FeedUrl));
     useStyleSheet("css/blogexample.css");
   }
 };
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
 
     server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
-    BlogRSSFeed rssFeed("blog.db", "Wt blog example",
+    BlogRSSFeed rssFeed(server.approot() + "blog.db", "Wt blog example",
       "", "It's just an example.");
 
     server.addResource(&rssFeed, FeedUrl);

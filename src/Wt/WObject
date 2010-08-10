@@ -15,8 +15,6 @@
 #include <vector>
 #include <map>
 
-#define slots
-
 namespace Wt {
 
 class JavaScriptEvent;
@@ -51,12 +49,6 @@ class WStatelessSlot;
  * \code
  * Wt::WInteractWidget *sender = new Wt::WText("Quit.");
  * Wt::WApplication *app = Wt::WApplication::instance();
- * sender->clicked().connect(SLOT(app, Wt::WApplication::quit));
- * \endcode
- *
- * The SLOT macro in the last statement simply expands to taking the
- * address of the method:
- * \code
  * sender->clicked().connect(app, &Wt::WApplication::quit);
  * \endcode
  *
@@ -72,7 +64,7 @@ class WStatelessSlot;
  *     : Wt::WContainerWidget(parent)
  *   {
  *     Wt::WText *text = Wt::WText("Click here", this);
- *     text->clicked().connect(SLOT(this, MyClass::handleClick));
+ *     text->clicked().connect(this, &MyClass::handleClick);
  *
  *     ...
  *   }

@@ -51,7 +51,8 @@ public:
 private:
   void load() {
     WContainerWidget::load();
-    addWidget(f_());
+    if (count() == 0)
+      addWidget(f_());
   }
 
   Function f_;

@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WApplication>
 #include <Wt/WStringUtil>
 
 #include "Dictionary.h"
@@ -15,10 +16,10 @@
 std::wstring RandomWord(Dictionary dictionary)
 {
    std::ifstream dict;
-   if(dictionary == DICT_NL) {
-      dict.open("dict-nl.txt");
+   if (dictionary == DICT_NL) {
+     dict.open((Wt::WApplication::appRoot() + "dict-nl.txt").c_str());
    } else { // english is default
-      dict.open("dict.txt");
+     dict.open((Wt::WApplication::appRoot() + "dict.txt").c_str());
    }
       
    std::string retval;

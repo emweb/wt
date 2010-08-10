@@ -28,11 +28,11 @@ IconPair::IconPair(const std::string icon1URI, const std::string icon2URI,
   icon2_->hide();
 
   if (clickIsSwitch) {
-    icon1_->clicked().connect(SLOT(icon1_, Wt::WImage::hide));
-    icon1_->clicked().connect(SLOT(icon2_, Wt::WImage::show));
+    icon1_->clicked().connect(icon1_, &Wt::WImage::hide);
+    icon1_->clicked().connect(icon2_, &Wt::WImage::show);
 
-    icon2_->clicked().connect(SLOT(icon2_, Wt::WImage::hide));
-    icon2_->clicked().connect(SLOT(icon1_, Wt::WImage::show)); //
+    icon2_->clicked().connect(icon2_, &Wt::WImage::hide);
+    icon2_->clicked().connect(icon1_, &Wt::WImage::show); //
 
     decorationStyle().setCursor(Wt::PointingHandCursor);
   }

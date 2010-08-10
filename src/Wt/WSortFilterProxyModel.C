@@ -94,34 +94,34 @@ void WSortFilterProxyModel::setSourceModel(WAbstractItemModel *model)
   WAbstractProxyModel::setSourceModel(model);
 
   modelConnections_.push_back(sourceModel()->columnsAboutToBeInserted().connect
-     (SLOT(this, WSortFilterProxyModel::sourceColumnsAboutToBeInserted)));
+     (this, &WSortFilterProxyModel::sourceColumnsAboutToBeInserted));
   modelConnections_.push_back(sourceModel()->columnsInserted().connect
-     (SLOT(this, WSortFilterProxyModel::sourceColumnsInserted)));
+     (this, &WSortFilterProxyModel::sourceColumnsInserted));
 
   modelConnections_.push_back(sourceModel()->columnsAboutToBeRemoved().connect
-     (SLOT(this, WSortFilterProxyModel::sourceColumnsAboutToBeRemoved)));
+     (this, &WSortFilterProxyModel::sourceColumnsAboutToBeRemoved));
   modelConnections_.push_back(sourceModel()->columnsRemoved().connect
-     (SLOT(this, WSortFilterProxyModel::sourceColumnsRemoved)));
+     (this, &WSortFilterProxyModel::sourceColumnsRemoved));
 
   modelConnections_.push_back(sourceModel()->rowsAboutToBeInserted().connect
-     (SLOT(this, WSortFilterProxyModel::sourceRowsAboutToBeInserted)));
+     (this, &WSortFilterProxyModel::sourceRowsAboutToBeInserted));
   modelConnections_.push_back(sourceModel()->rowsInserted().connect
-     (SLOT(this, WSortFilterProxyModel::sourceRowsInserted)));
+     (this, &WSortFilterProxyModel::sourceRowsInserted));
 
   modelConnections_.push_back(sourceModel()->rowsAboutToBeRemoved().connect
-     (SLOT(this, WSortFilterProxyModel::sourceRowsAboutToBeRemoved)));
+     (this, &WSortFilterProxyModel::sourceRowsAboutToBeRemoved));
   modelConnections_.push_back(sourceModel()->rowsRemoved().connect
-     (SLOT(this, WSortFilterProxyModel::sourceRowsRemoved)));
+     (this, &WSortFilterProxyModel::sourceRowsRemoved));
 
   modelConnections_.push_back(sourceModel()->dataChanged().connect
-     (SLOT(this, WSortFilterProxyModel::sourceDataChanged)));
+     (this, &WSortFilterProxyModel::sourceDataChanged));
   modelConnections_.push_back(sourceModel()->headerDataChanged().connect
-     (SLOT(this, WSortFilterProxyModel::sourceHeaderDataChanged)));
+     (this, &WSortFilterProxyModel::sourceHeaderDataChanged));
 
   modelConnections_.push_back(sourceModel()->layoutAboutToBeChanged().connect
-     (SLOT(this, WSortFilterProxyModel::sourceLayoutAboutToBeChanged)));
+     (this, &WSortFilterProxyModel::sourceLayoutAboutToBeChanged));
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
-     (SLOT(this, WSortFilterProxyModel::sourceLayoutChanged)));
+     (this, &WSortFilterProxyModel::sourceLayoutChanged));
 
   resetMappings();
 }

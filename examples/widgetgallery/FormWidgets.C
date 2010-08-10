@@ -363,7 +363,7 @@ WWidget *FormWidgets::wFileUpload()
 	    "browser from the client to the server where Wt is running</p>",
 	    result);
   WFileUpload *fu = new WFileUpload(result);
-  fu->changed().connect(SLOT(fu, WFileUpload::upload));
+  fu->changed().connect(fu, &WFileUpload::upload);
   ed_->mapConnect(fu->changed(), "File upload changed");
   ed_->mapConnect(fu->uploaded(), "File upload finished");
   new WText("<p>The file is stored in a temporary file at the server. The "
@@ -397,7 +397,7 @@ WWidget *FormWidgets::wPopupMenu()
   
   WLabel* clickMe = new WLabel("Clicking here will show a popup menu.", result);
   clickMe->setStyleClass("popupmenuLabel");
-  clickMe->clicked().connect(SLOT(popup, WPopupMenu::popup));
+  clickMe->clicked().connect(popup, &WPopupMenu::popup);
   
   return result;
 }

@@ -69,7 +69,7 @@ void WMessageBox::create()
   buttons->setPadding(WLength(5), Left|Right);
   buttonContainer_ = new WContainerWidget(buttons);
   buttonMapper_ = new WSignalMapper<StandardButton>(this);
-  buttonMapper_->mapped().connect(SLOT(this, WMessageBox::onButtonClick));
+  buttonMapper_->mapped().connect(this, &WMessageBox::onButtonClick);
 
   //buttonMapper_->mapConnect(contents()->escapePressed, Cancel);
   //contents()->escapePressed.preventDefault();
@@ -148,7 +148,7 @@ StandardButton WMessageBox::show(const WString& caption,
 				 WFlags<StandardButton> buttons, bool i18n)
 {
   WMessageBox box(caption, text, Information, buttons, i18n);
-  box.buttonClicked().connect(SLOT(&box, WMessageBox::accept));
+  box.buttonClicked().connect(&box, &WMessageBox::accept);
 
   box.exec();
 

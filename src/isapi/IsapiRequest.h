@@ -15,11 +15,22 @@ public:
 
   ~IsapiRequest();
 
+  // Signal ISAPI that this connection is to be closed and that we're
+  // done with it. The IsapiRequest object must be deleted after calling
+  // this method.
+  void abort();
+
+  // Returns true if the HTTP request was received without errors
+  bool isGood();
+
   virtual bool isSynchronous() const;
 
   virtual void flush(ResponseState state,
     CallbackFunction callback,
     void *callbackData);
+
+  // Sends a simple text reply
+  void sendSimpleReply(int status, const std::string &msg);
 
   virtual std::istream& in() { return in_; }
   virtual std::ostream& out() { return out_; }
@@ -56,6 +67,7 @@ public:
 private:
   LPEXTENSION_CONTROL_BLOCK ecb_;
   IsapiServer *server_;
+  bool good_;
 
   bool synchronous_;
   bool reading_;
@@ -64,7 +76,7 @@ private:
   DWORD bufferSize_;
 
   void processAsyncRead(DWORD cbIO, DWORD dwError, bool first);
-  static void completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,
+  static void WINAPI completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,
     PVOID pContext, DWORD cbIO, DWORD dwError);
   void writeSync();
   void writeAsync(DWORD cbIO, DWORD dwError, bool first);

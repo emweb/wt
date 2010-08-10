@@ -1,8 +1,6 @@
-ADD_EXECUTABLE(paintexample.wt
+WT_ADD_EXAMPLE(paintexample.wt
   PaintApplication.C PaintExample.C ShapesWidget.C
 )
-
-TARGET_LINK_LIBRARIES(paintexample.wt ${EXAMPLES_CONNECTOR})
 
 #
 # If you have Wt installed somehwere, you should use the
@@ -11,15 +9,4 @@ TARGET_LINK_LIBRARIES(paintexample.wt ${EXAMPLES_CONNECTOR})
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
-
-#
-# Create a deploy script
-#
-SET(APPNAME paintexample)
-SET(APPBIN paintexample.wt)
-SET(APPRESOURCES "")
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/deploy.sh
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-)
 

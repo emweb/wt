@@ -51,7 +51,7 @@ Home::Home(const WEnvironment& env, const std::string& title,
     homePage_(0),
     sourceViewer_(0)
 {
-  messageResourceBundle().use(resourceBundle, false);
+  messageResourceBundle().use(appRoot() + resourceBundle, false);
   useStyleSheet(cssPath + "/wt.css");
   useStyleSheet(cssPath + "/wt_ie.css", "lt IE 7");
   useStyleSheet("css/home.css");
@@ -64,9 +64,9 @@ Home::Home(const WEnvironment& env, const std::string& title,
 
 void Home::init()
 {
-  internalPathChanged().connect(SLOT(this, Home::setup));
-  internalPathChanged().connect(SLOT(this, Home::setLanguageFromPath));
-  internalPathChanged().connect(SLOT(this, Home::logInternalPath));
+  internalPathChanged().connect(this, &Home::setup);
+  internalPathChanged().connect(this, &Home::setLanguageFromPath);
+  internalPathChanged().connect(this, &Home::logInternalPath);
 
   setup();
 }
@@ -171,9 +171,9 @@ WWidget *Home::initHome()
     (tr("other-language"), wrapView(&Home::otherLanguage),
      WMenuItem::PreLoading);
 
-  mainMenu_->itemSelectRendered().connect(SLOT(this, Home::updateTitle));
+  mainMenu_->itemSelectRendered().connect(this, &Home::updateTitle);
 
-  mainMenu_->itemSelected().connect(SLOT(this, Home::googleAnalyticsLogger));
+  mainMenu_->itemSelected().connect(this, &Home::googleAnalyticsLogger);
 
   // Make the menu be internal-path aware.
   mainMenu_->setInternalPathEnabled("/");
@@ -260,7 +260,7 @@ WWidget *Home::introduction()
 
 WWidget *Home::blog()
 {
-  return new BlogView("/blog/", "blog.db", "/wt/blog/feed/");
+  return new BlogView("/blog/", appRoot() + "blog.db", "/wt/blog/feed/");
 }
 
 WWidget *Home::status()

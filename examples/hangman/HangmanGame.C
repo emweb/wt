@@ -32,18 +32,18 @@ HangmanGame::HangmanGame(WContainerWidget *parent):
    MainStack->setPadding(20);
 
    MainStack->addWidget(Login = new LoginWidget());
-   Login->loginSuccessful.connect(SLOT(this, HangmanGame::play));
+   Login->loginSuccessful.connect(this, &HangmanGame::play);
 
    // Element (2,0) contains navigation buttons. Instead of WButton,
    // we use WText. WText inherits from WInteractWidget, and thus exposes
    // the click event.
    BackToGameText = new WText(L" Gaming Grounds ", elementAt(2, 0));
    BackToGameText->decorationStyle().setCursor(PointingHandCursor);
-   BackToGameText->clicked().connect(SLOT(this, HangmanGame::showGame));
+   BackToGameText->clicked().connect(this, &HangmanGame::showGame);
 
    ScoresText = new WText(L" Highscores ", elementAt(2, 0));
    ScoresText->decorationStyle().setCursor(PointingHandCursor);
-   ScoresText->clicked().connect(SLOT(this, HangmanGame::showHighScores));
+   ScoresText->clicked().connect(this, &HangmanGame::showHighScores);
    // Center the buttons horizontally.
    elementAt(2, 0)->setContentAlignment(AlignTop | AlignCenter);
 

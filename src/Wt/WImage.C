@@ -73,7 +73,7 @@ WImage::WImage(WResource *resource, const WString& altText,
     resource_(resource),
     map_(0)
 {
-  resource_->dataChanged().connect(SLOT(this, WImage::resourceChanged));
+  resource_->dataChanged().connect(this, &WImage::resourceChanged);
   imageRef_ = resource_->url();
 
   setLoadLaterWhenInvisible(false);
@@ -94,7 +94,7 @@ void WImage::setResource(WResource *resource)
   resource_ = resource;
 
   if (resource_) {
-    resource_->dataChanged().connect(SLOT(this, WImage::resourceChanged));
+    resource_->dataChanged().connect(this, &WImage::resourceChanged);
     setImageRef(resource_->url());
   } else
     setImageRef("#");

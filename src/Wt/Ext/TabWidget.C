@@ -209,7 +209,7 @@ void TabWidget::updateExt()
 std::string TabWidget::createJS(DomElement *inContainer)
 {
   if (!jCurrentChanged_.isConnected())
-    jCurrentChanged_.connect(SLOT(this, TabWidget::onTabChange));
+    jCurrentChanged_.connect(this, &TabWidget::onTabChange);
 
   for (unsigned i = 0; i < panels_.size(); ++i)
     panels_[i]->setTitleBar(false);

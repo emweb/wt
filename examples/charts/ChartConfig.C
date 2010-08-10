@@ -307,10 +307,10 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     sc.autoEdit = new WCheckBox(axisConfig->elementAt(j, 3));
     sc.autoEdit->setChecked(autoValues);
     connectSignals(sc.autoEdit);
-    sc.autoEdit->checked().connect(SLOT(sc.maximumEdit, WLineEdit::disable));
-    sc.autoEdit->unChecked().connect(SLOT(sc.maximumEdit, WLineEdit::enable));
-    sc.autoEdit->checked().connect(SLOT(sc.minimumEdit, WLineEdit::disable));
-    sc.autoEdit->unChecked().connect(SLOT(sc.minimumEdit, WLineEdit::enable));
+    sc.autoEdit->checked().connect(sc.maximumEdit, &WLineEdit::disable);
+    sc.autoEdit->unChecked().connect(sc.maximumEdit, &WLineEdit::enable);
+    sc.autoEdit->checked().connect(sc.minimumEdit, &WLineEdit::disable);
+    sc.autoEdit->unChecked().connect(sc.minimumEdit, &WLineEdit::enable);
 
     sc.gridLinesEdit = new WCheckBox(axisConfig->elementAt(j, 6));
     connectSignals(sc.gridLinesEdit);
@@ -339,7 +339,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     b->setText("Update chart");
     b->setInline(false); // so we can add margin to center horizontally
     b->setMargin(WLength::Auto, Left | Right);
-    b->clicked().connect(SLOT(this, ChartConfig::update));
+    b->clicked().connect(this, &ChartConfig::update);
   }
 }
 
@@ -520,7 +520,7 @@ bool ChartConfig::validate(WFormWidget *w)
 
 void ChartConfig::connectSignals(WFormWidget *w)
 {
-  w->changed().connect(SLOT(this, ChartConfig::update));
+  w->changed().connect(this, &ChartConfig::update);
   if (dynamic_cast<WLineEdit *>(w))
-    w->enterPressed().connect(SLOT(this, ChartConfig::update));
+    w->enterPressed().connect(this, &ChartConfig::update);
 }

@@ -238,6 +238,24 @@ public:
    */
   int httpPort() const;
 
+  /*! \brief Returns the approot special property
+   *
+   * \sa WApplication::approot()
+   */
+  std::string approot() const;
+
+  /*! \brief Reads a configuration property.
+   *
+   * As properties are unique to an executable location, they are defined
+   * from the moment that setServerConfiguration() is invoked. Use this
+   * method to access configuration properties outside of an active
+   * session, e.g. from within the main() function.
+   *
+   * \sa WApplication::readConfigurationProperty()
+   */
+   bool readConfigurationProperty(const std::string& name,
+				  std::string& value) const;
+
   void expireSessions();
 
   WServerImpl *impl() { return impl_; }

@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
     server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
-    BlogRSSFeed rssFeed("blog.db", "Wt and JWt blog",
+    BlogRSSFeed rssFeed(server.approot() + "blog.db", "Wt and JWt blog",
       "http://www.webtoolkit.eu/wt/blog",
       "We care about our webtoolkits.");
 

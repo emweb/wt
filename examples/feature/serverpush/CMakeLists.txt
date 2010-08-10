@@ -1,5 +1,4 @@
-ADD_EXECUTABLE(serverpush.wt ServerPush.C)
-TARGET_LINK_LIBRARIES(serverpush.wt ${EXAMPLES_CONNECTOR})
+WT_ADD_EXAMPLE(serverpush.wt ServerPush.C)
 
 #
 # If you have Wt installed somehwere, you should use the

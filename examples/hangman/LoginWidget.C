@@ -55,7 +55,7 @@ LoginWidget::LoginWidget(WContainerWidget *parent):
    new WBreak(this);
 
    WPushButton *LoginButton = new WPushButton("Login", this);
-   LoginButton->clicked().connect(SLOT( this, LoginWidget::checkCredentials));
+   LoginButton->clicked().connect(this, &LoginWidget::checkCredentials);
 }
 
 void LoginWidget::checkCredentials()
@@ -92,7 +92,7 @@ void LoginWidget::confirmLogin(const std::wstring text)
 
    new WText(text, this);
    (new WPushButton("Start playing", this))
-     ->clicked().connect(SLOT(this, LoginWidget::startPlaying));
+     ->clicked().connect(this, &LoginWidget::startPlaying);
 }
 
 void LoginWidget::startPlaying()

@@ -43,7 +43,7 @@ namespace Wt {
  *   ...
  *   int sock = ...
  *   notifier_ = new Wt::WSocketNotifier(sock, Wt::WSocketNotifier::Read, this);
- *   notifier_->activated().connect(SLOT(this, HelloApplication::readData));
+ *   notifier_->activated().connect(this, &HelloApplication::readData);
  * }
  *
  * void readData() {

@@ -66,10 +66,10 @@ WWidget *StyleLayout::wLoadingIndicator()
   cb->addItem("WOverlayLoadingIndicator");
   cb->addItem("EmwebLoadingIndicator");
   cb->setCurrentIndex(0);
-  cb->sactivated().connect(SLOT(this, StyleLayout::loadingIndicatorSelected));
+  cb->sactivated().connect(this, &StyleLayout::loadingIndicatorSelected);
   new WBreak(result);
   WPushButton *load = new WPushButton("Load!", result);
-  load->clicked().connect(SLOT(this, StyleLayout::load));
+  load->clicked().connect(this, &StyleLayout::load);
 
   return result;
 }

@@ -73,7 +73,7 @@ void WPopupMenuItem::create()
   setImplementation(impl_ = new WContainerWidget());
 
   implementStateless(&WPopupMenuItem::renderOver, &WPopupMenuItem::renderOut);
-  impl_->mouseWentUp().connect(SLOT(this, WPopupMenuItem::onMouseUp));
+  impl_->mouseWentUp().connect(this, &WPopupMenuItem::onMouseUp);
 
   setStyleClass("Wt-item");
 }
@@ -82,8 +82,8 @@ void WPopupMenuItem::load()
 {
   WCompositeWidget::load();
 
-  impl_->mouseWentOver().connect(SLOT(parentMenu(), WPopupMenuItem::show));
-  impl_->mouseWentOver().connect(SLOT(this, WPopupMenuItem::renderOver));
+  impl_->mouseWentOver().connect(parentMenu(), &WPopupMenuItem::show);
+  impl_->mouseWentOver().connect(this, &WPopupMenuItem::renderOver);
   impl_->mouseWentOver().setNotExposed();
 }
 

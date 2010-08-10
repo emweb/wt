@@ -44,19 +44,19 @@ void WComboBox::setModel(WAbstractItemModel *model)
   model_ = model;
 
   modelConnections_.push_back
-    (model_->columnsInserted().connect(SLOT(this, WComboBox::itemsChanged)));
+    (model_->columnsInserted().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-    (model_->columnsRemoved().connect(SLOT(this, WComboBox::itemsChanged)));
+    (model_->columnsRemoved().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-     (model_->rowsInserted().connect(SLOT(this, WComboBox::itemsChanged)));
+     (model_->rowsInserted().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-     (model_->rowsRemoved().connect(SLOT(this, WComboBox::itemsChanged)));
+     (model_->rowsRemoved().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-     (model_->dataChanged().connect(SLOT(this, WComboBox::itemsChanged)));
+     (model_->dataChanged().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-     (model_->modelReset().connect(SLOT(this, WComboBox::itemsChanged)));
+     (model_->modelReset().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
-    (model_->layoutChanged().connect(SLOT(this, WComboBox::itemsChanged)));
+    (model_->layoutChanged().connect(this, &WComboBox::itemsChanged));
 
   /* Redraw contents of the combo box to match the contents of the new model.
    */
@@ -152,7 +152,7 @@ void WComboBox::propagateChange()
    * use this connection to know if the widget was killed
    */
   boost::signals::connection alive
-    = sactivated_.connect(SLOT(this, WComboBox::dummy));
+    = sactivated_.connect(this, &WComboBox::dummy);
 
   activated_.emit(currentIndex_);
 
@@ -217,7 +217,7 @@ void WComboBox::updateDom(DomElement& element, bool all)
   if (!currentlyConnected_
       && (activated_.isConnected() || sactivated_.isConnected())) {
     currentlyConnected_ = true;
-    changed().connect(SLOT(this, WComboBox::propagateChange));
+    changed().connect(this, &WComboBox::propagateChange);
   }
 
   WFormWidget::updateDom(element, all);

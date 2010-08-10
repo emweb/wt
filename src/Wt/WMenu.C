@@ -82,7 +82,7 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
       = Utils::terminate(basePath.empty() ? app->internalPath() : basePath,
 			 '/');
 
-    app->internalPathChanged().connect(SLOT(this, WMenu::internalPathChanged));
+    app->internalPathChanged().connect(this, &WMenu::internalPathChanged);
 
     previousInternalPath_ = app->internalPath();
 
@@ -233,7 +233,7 @@ void WMenu::removeItem(WMenuItem *item)
 
     item->setMenu(0);
 
-    if (itemIndex <= current_ && current_ > 0)
+    if (itemIndex <= current_ && current_ >= 0)
       --current_;
 
     for (unsigned i = 0; i < items_.size(); ++i)

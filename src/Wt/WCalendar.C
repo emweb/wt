@@ -86,7 +86,7 @@ void WCalendar::create()
   cellClickMapper_ = 0;
   cellDblClickMapper_ = 0;
 
-  clicked().connect(SLOT(this, WCalendar::selectInCurrentMonth));
+  clicked().connect(this, &WCalendar::selectInCurrentMonth);
 
   WDate currentDay = WDate::currentDate();
 
@@ -125,24 +125,24 @@ void WCalendar::create()
 
   WText *prevMonth = new WText(WString::fromUTF8("«"), PlainText);
   prevMonth->setStyleClass("Wt-cal-navbutton");
-  prevMonth->clicked().connect(SLOT(this, WCalendar::browseToPreviousMonth));
+  prevMonth->clicked().connect(this, &WCalendar::browseToPreviousMonth);
 
   WText *nextMonth = new WText(WString::fromUTF8("»"), PlainText);
   nextMonth->setStyleClass("Wt-cal-navbutton");
-  nextMonth->clicked().connect(SLOT(this, WCalendar::browseToNextMonth));
+  nextMonth->clicked().connect(this, &WCalendar::browseToNextMonth);
 
   monthEdit_ = new WComboBox();
   for (unsigned i = 0; i < 12; ++i)
     monthEdit_->addItem(i18n_
 			? tr(WDate::longMonthName(i+1).toUTF8().c_str())
 			: DATE_NAME_STR(WDate::longMonthName(i+1)));
-  monthEdit_->activated().connect(SLOT(this, WCalendar::monthChanged));
+  monthEdit_->activated().connect(this, &WCalendar::monthChanged);
 
   yearEdit_ = new WInPlaceEdit("");
   yearEdit_->setButtonsEnabled(false);
   yearEdit_->lineEdit()->setTextSize(4);
   yearEdit_->setStyleClass("Wt-cal-year");
-  yearEdit_->valueChanged().connect(SLOT(this, WCalendar::yearChanged));
+  yearEdit_->valueChanged().connect(this, &WCalendar::yearChanged);
 
   impl_->bindWidget("nav-prev", prevMonth);
   impl_->bindWidget("nav-next", nextMonth);
@@ -238,11 +238,9 @@ void WCalendar::render(WFlags<RenderFlag> flags)
 
     if (create) {
       cellClickMapper_ = new WSignalMapper<Coordinate>(this);
-      cellClickMapper_
-	->mapped().connect(SLOT(this, WCalendar::cellClicked));
+      cellClickMapper_->mapped().connect(this, &WCalendar::cellClicked);
       cellDblClickMapper_ = new WSignalMapper<Coordinate>(this);
-      cellDblClickMapper_
-	->mapped().connect(SLOT(this, WCalendar::cellDblClicked));
+      cellDblClickMapper_->mapped().connect(this, &WCalendar::cellDblClicked);
     }
 
     int m = currentMonth_ - 1;

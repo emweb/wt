@@ -5,7 +5,7 @@ IF(ASCIIDOC_EXECUTABLE)
   ADD_DEFINITIONS(-DASCIIDOC_EXECUTABLE="${ASCIIDOC_EXECUTABLE}")
 ENDIF(ASCIIDOC_EXECUTABLE)
 
-ADD_EXECUTABLE(blog.wt
+WT_ADD_EXAMPLE(blog.wt
   model/Post.C
   model/Comment.C
   model/User.C
@@ -19,7 +19,7 @@ ADD_EXECUTABLE(blog.wt
   blog.C
 )
 
-TARGET_LINK_LIBRARIES(blog.wt ${EXAMPLES_CONNECTOR} wtdbo wtdbosqlite3)
+TARGET_LINK_LIBRARIES(blog.wt wtdbo wtdbosqlite3)
 
 # Test whether crypt(3) is provided by libc. If it's not, check if
 # libcrypt exists and if it provides crypt(3).

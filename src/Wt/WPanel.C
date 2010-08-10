@@ -123,10 +123,10 @@ void WPanel::setCollapsible(bool on)
     collapseIcon_->setFloatSide(Left);
     titleBarWidget()->insertWidget(0, collapseIcon_);
 
-    collapseIcon_->icon1Clicked().connect(SLOT(this, WPanel::doCollapse));
-    collapseIcon_->icon1Clicked().connect(SLOT(this, WPanel::onCollapse));
-    collapseIcon_->icon2Clicked().connect(SLOT(this, WPanel::doExpand));
-    collapseIcon_->icon2Clicked().connect(SLOT(this, WPanel::onExpand));
+    collapseIcon_->icon1Clicked().connect(this, &WPanel::doCollapse);
+    collapseIcon_->icon1Clicked().connect(this, &WPanel::onCollapse);
+    collapseIcon_->icon2Clicked().connect(this, &WPanel::doExpand);
+    collapseIcon_->icon2Clicked().connect(this, &WPanel::onExpand);
     collapseIcon_->setState(0);
   } else if (!on && collapseIcon_) {
     delete collapseIcon_;

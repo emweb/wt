@@ -39,19 +39,19 @@ WWidget *EventsDemo::wKeyEvent()
   new WText(tr("events-WKeyEvent-1"), result);
   WLineEdit *l = new WLineEdit(result);
   l->setTextSize(50);
-  l->keyWentUp().connect(SLOT(this, EventsDemo::showKeyWentUp));
-  l->keyWentDown().connect(SLOT(this, EventsDemo::showKeyWentDown));
+  l->keyWentUp().connect(this, &EventsDemo::showKeyWentUp);
+  l->keyWentDown().connect(this, &EventsDemo::showKeyWentDown);
   
   new WText(tr("events-WKeyEvent-2"), result);
   l = new WLineEdit(result);
   l->setTextSize(50);
-  l->keyPressed().connect(SLOT(this, EventsDemo::showKeyPressed));
+  l->keyPressed().connect(this, &EventsDemo::showKeyPressed);
   
   new WText(tr("events-WKeyEvent-3"), result);
   l = new WLineEdit(result);
   l->setTextSize(50);
-  l->enterPressed().connect(SLOT(this, EventsDemo::showEnterPressed));
-  l->escapePressed().connect(SLOT(this, EventsDemo::showEscapePressed));
+  l->enterPressed().connect(this, &EventsDemo::showEnterPressed);
+  l->escapePressed().connect(this, &EventsDemo::showEscapePressed);
   new WBreak(result);
   new WText("Last event: ", result);
   keyEventType_ = new WText(result);
@@ -83,13 +83,13 @@ WWidget *EventsDemo::wMouseEvent()
   // prevent that firefox interprets drag as drag&drop action
   l->setStyleClass("unselectable");
   r->setStyleClass("unselectable");
-  l->clicked().connect(SLOT(this, EventsDemo::showClicked));
-  l->doubleClicked().connect(SLOT(this, EventsDemo::showDoubleClicked));
-  l->mouseWentOut().connect(SLOT(this, EventsDemo::showMouseWentOut));
-  l->mouseWentOver().connect(SLOT(this, EventsDemo::showMouseWentOver));
-  r->mouseMoved().connect(SLOT(this, EventsDemo::showMouseMoved));
-  r->mouseWentUp().connect(SLOT(this, EventsDemo::showMouseWentUp));
-  r->mouseWentDown().connect(SLOT(this, EventsDemo::showMouseWentDown));
+  l->clicked().connect(this, &EventsDemo::showClicked);
+  l->doubleClicked().connect(this, &EventsDemo::showDoubleClicked);
+  l->mouseWentOut().connect(this, &EventsDemo::showMouseWentOut);
+  l->mouseWentOver().connect(this, &EventsDemo::showMouseWentOver);
+  r->mouseMoved().connect(this, &EventsDemo::showMouseMoved);
+  r->mouseWentUp().connect(this, &EventsDemo::showMouseWentUp);
+  r->mouseWentDown().connect(this, &EventsDemo::showMouseWentDown);
   new WBreak(result);
   new WText("Last event: ", result);
   mouseEventType_ = new WText(result);

@@ -73,13 +73,15 @@ public:
   };
   enum ServerType {
     WtHttpdServer,
-    FcgiServer
+    FcgiServer,
+    IsapiServer
   };
 
   typedef std::map<std::string, std::string> PropertyMap;
   typedef std::vector<std::string> AgentList;
 
   Configuration(const std::string& applicationPath,
+                const std::string& approot,
 		const std::string& configurationFile,
 		ServerType serverType,
 		const std::string& startupMessage);
@@ -107,11 +109,14 @@ public:
   std::string        valgrindPath() const { return valgrindPath_; }
   bool               debug() const { return debug_; }
   std::string        runDirectory() const { return runDirectory_; }
+  ServerType         serverType() const { return serverType_; }
   int                sessionIdLength() const { return sessionIdLength_; }
   std::string        sessionIdPrefix() const { return sessionIdPrefix_; }
   const PropertyMap& properties() const { return properties_; }
-  const std::string* property(const std::string& name) const; 
-  ServerType         serverType() const { return serverType_; }
+  const std::string* property(const std::string& name) const;
+  bool               readConfigurationProperty(const std::string& name,
+					       std::string& value) const;
+  std::string        approot() const;
   bool               sendXHTMLMimeType() const { return xhtmlMimeType_; }
   bool               behindReverseProxy() const { return behindReverseProxy_; }
   std::string        redirectMessage() const { return redirectMsg_; }
@@ -139,6 +144,7 @@ public:
 
 private:
   std::string     applicationPath_;
+  std::string     approot_;
 
 #ifndef WT_TARGET_JAVA
   EntryPointList     entryPoints_;
@@ -169,6 +175,7 @@ private:
   bool            ajaxAgentWhiteList_;
   bool            persistentSessions_;
   bool            progressiveBoot_;
+
 
   int		  pid_;
   WtRandom        random_;

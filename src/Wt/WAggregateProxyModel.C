@@ -270,34 +270,34 @@ void WAggregateProxyModel::setSourceModel(WAbstractItemModel *model)
   WAbstractProxyModel::setSourceModel(model);
 
   modelConnections_.push_back(sourceModel()->columnsAboutToBeInserted().connect
-     (SLOT(this, WAggregateProxyModel::sourceColumnsAboutToBeInserted)));
+     (this, &WAggregateProxyModel::sourceColumnsAboutToBeInserted));
   modelConnections_.push_back(sourceModel()->columnsInserted().connect
-     (SLOT(this, WAggregateProxyModel::sourceColumnsInserted)));
+     (this, &WAggregateProxyModel::sourceColumnsInserted));
 
   modelConnections_.push_back(sourceModel()->columnsAboutToBeRemoved().connect
-     (SLOT(this, WAggregateProxyModel::sourceColumnsAboutToBeRemoved)));
+     (this, &WAggregateProxyModel::sourceColumnsAboutToBeRemoved));
   modelConnections_.push_back(sourceModel()->columnsRemoved().connect
-     (SLOT(this, WAggregateProxyModel::sourceColumnsRemoved)));
+     (this, &WAggregateProxyModel::sourceColumnsRemoved));
 
   modelConnections_.push_back(sourceModel()->rowsAboutToBeInserted().connect
-     (SLOT(this, WAggregateProxyModel::sourceRowsAboutToBeInserted)));
+     (this, &WAggregateProxyModel::sourceRowsAboutToBeInserted));
   modelConnections_.push_back(sourceModel()->rowsInserted().connect
-     (SLOT(this, WAggregateProxyModel::sourceRowsInserted)));
+     (this, &WAggregateProxyModel::sourceRowsInserted));
 
   modelConnections_.push_back(sourceModel()->rowsAboutToBeRemoved().connect
-     (SLOT(this, WAggregateProxyModel::sourceRowsAboutToBeRemoved)));
+     (this, &WAggregateProxyModel::sourceRowsAboutToBeRemoved));
   modelConnections_.push_back(sourceModel()->rowsRemoved().connect
-     (SLOT(this, WAggregateProxyModel::sourceRowsRemoved)));
+     (this, &WAggregateProxyModel::sourceRowsRemoved));
 
   modelConnections_.push_back(sourceModel()->dataChanged().connect
-     (SLOT(this, WAggregateProxyModel::sourceDataChanged)));
+     (this, &WAggregateProxyModel::sourceDataChanged));
   modelConnections_.push_back(sourceModel()->headerDataChanged().connect
-     (SLOT(this, WAggregateProxyModel::sourceHeaderDataChanged)));
+     (this, &WAggregateProxyModel::sourceHeaderDataChanged));
 
   modelConnections_.push_back(sourceModel()->layoutAboutToBeChanged().connect
-     (SLOT(this, WAggregateProxyModel::sourceLayoutAboutToBeChanged)));
+     (this, &WAggregateProxyModel::sourceLayoutAboutToBeChanged));
   modelConnections_.push_back(sourceModel()->layoutChanged().connect
-     (SLOT(this, WAggregateProxyModel::sourceLayoutChanged)));
+     (this, &WAggregateProxyModel::sourceLayoutChanged));
 
   topLevel_ = Aggregate();
 }

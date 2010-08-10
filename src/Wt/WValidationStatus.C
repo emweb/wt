@@ -36,9 +36,9 @@ WValidationStatus::WValidationStatus(WFormWidget *field,
     invalidEmptyStateWidget_->setHidden(state_ != WValidator::InvalidEmpty);
   }
 
-  field->changed().connect(SLOT(this, WValidationStatus::inputChanged));
-  field->keyWentUp().connect(SLOT(this, WValidationStatus::inputChanged));
-  //field->keyPressed().connect(SLOT(this, WValidationStatus::inputChanged));
+  field->changed().connect(this, &WValidationStatus::inputChanged);
+  field->keyWentUp().connect(this, &WValidationStatus::inputChanged);
+  //field->keyPressed().connect(this, &WValidationStatus::inputChanged);
 }
 
 void WValidationStatus::inputChanged()

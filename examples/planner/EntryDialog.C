@@ -51,11 +51,11 @@ EntryDialog::EntryDialog(const WString& title, CalendarCell* cell)
 
   WPushButton* ok = new WPushButton(tr("calendar.entry.ok"));
   t->bindWidget("ok", ok);
-  ok->clicked().connect(SLOT(this, EntryDialog::ok));
+  ok->clicked().connect(this, &EntryDialog::ok);
 
   WPushButton* cancel = new WPushButton(tr("calendar.entry.cancel"));
   t->bindWidget("cancel", cancel);
-  cancel->clicked().connect(SLOT(this, EntryDialog::cancel));
+  cancel->clicked().connect(this, &EntryDialog::cancel);
 }
 
 WDateTime EntryDialog::timeStamp(const WString& time, const WDate& day)

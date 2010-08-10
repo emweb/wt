@@ -4,12 +4,11 @@ ELSE(NOT BOOST_WT_MT_FOUND)
 
  ADD_DEFINITIONS(-DTHREADED)
 
- ADD_EXECUTABLE(simplechat.wt
+ WT_ADD_EXAMPLE(simplechat.wt
    simpleChat.C SimpleChatWidget.C SimpleChatServer.C
  )
 
- TARGET_LINK_LIBRARIES(simplechat.wt ${EXAMPLES_CONNECTOR}
-   ${BOOST_WT_THREAD_LIBRARY})
+ TARGET_LINK_LIBRARIES(simplechat.wt ${BOOST_WT_THREAD_LIBRARY})
 
  #
  # If you have Wt installed somehwere, you should use the
@@ -18,17 +17,6 @@ ELSE(NOT BOOST_WT_MT_FOUND)
  # instead of the following:
  #
  INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
-
- #
- # Create a deploy script
- #
- SET(APPNAME simplechat)
- SET(APPBIN simplechat.wt)
- SET(APPRESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/simplechat.css ${CMAKE_CURRENT_SOURCE_DIR}/simplechat.xml")
- CONFIGURE_FILE(
-   ${WT_SOURCE_DIR}/deploy.sh
-   ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
- )
 
 ENDIF(NOT BOOST_WT_MT_FOUND)
 

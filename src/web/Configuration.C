@@ -140,14 +140,16 @@ void EntryPoint::setPath(const std::string& path)
 }
 
 Configuration::Configuration(const std::string& applicationPath,
+                             const std::string& approot,
 			     const std::string& configurationFile,
 			     ServerType serverType,
 			     const std::string& startupMessage)
   : applicationPath_(applicationPath),
+    approot_(approot),
     serverType_(serverType),
     sessionPolicy_(SharedProcess),
     numProcesses_(1),
-    numThreads_(10),
+    numThreads_(serverType == WtHttpdServer ? 0 : 10),
     maxNumSessions_(100),
     maxRequestSize_(128),
     sessionTracking_(URL),
@@ -168,6 +170,9 @@ Configuration::Configuration(const std::string& applicationPath,
     progressiveBoot_(false),
     pid_(getpid())
 {
+  if (approot != "")
+    properties_["approot"] = approot;
+
   logger_.addField("datetime", false);
   logger_.addField("app", false);
   logger_.addField("session", false);
@@ -268,16 +273,27 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
   setBoolean(app, "debug", debug_);
 
-  xml_node<> *fcgi = singleChildElement(app, "connector-fcgi");
-  if (!fcgi)
-    fcgi = app; // backward compatibility
+  if (serverType_ == FcgiServer) {
+    xml_node<> *fcgi = singleChildElement(app, "connector-fcgi");
+    if (!fcgi)
+      fcgi = app; // backward compatibility
 
-  valgrindPath_ = singleChildElementValue(fcgi, "valgrind-path", valgrindPath_);
-  runDirectory_ = singleChildElementValue(fcgi, "run-directory", runDirectory_);
+    valgrindPath_ = singleChildElementValue(fcgi, "valgrind-path", valgrindPath_);
+    runDirectory_ = singleChildElementValue(fcgi, "run-directory", runDirectory_);
 
-  std::string numThreadsStr = singleChildElementValue(fcgi, "num-threads", "");
-  if (!numThreadsStr.empty())
-    numThreads_ = boost::lexical_cast<int>(numThreadsStr);
+    std::string numThreadsStr = singleChildElementValue(fcgi, "num-threads", "");
+    if (!numThreadsStr.empty())
+      numThreads_ = boost::lexical_cast<int>(numThreadsStr);
+  }
+  if (serverType_ == IsapiServer) {
+    xml_node<> *isapi = singleChildElement(app, "connector-isapi");
+    if (!isapi)
+      isapi = app; // backward compatibility
+
+    std::string numThreadsStr = singleChildElementValue(isapi, "num-threads", "");
+    if (!numThreadsStr.empty())
+      numThreads_ = boost::lexical_cast<int>(numThreadsStr);
+  }
 
   std::string sessionIdLength
     = singleChildElementValue(app, "session-id-length", "");
@@ -346,7 +362,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 	throw WServer::Exception("<property> requires attribute 'name'");
 
       std::string value = elementValue(property, "property");
-      properties_[name] = value;
+      if (name == "approot" && approot_ != "") {
+        log("warning") << "Ignoring configuration property 'approot' (" << value
+          << ") because the connector has set it to " << approot_;
+      } else {
+        properties_[name] = value;
+      }
     }
   }
 }
@@ -489,6 +510,37 @@ const std::string* Configuration::property(const std::string& name) const
     return &i->second;
   else
     return 0;
+}
+
+bool Configuration::readConfigurationProperty(const std::string& name,
+                                              std::string& value) const
+{
+  const std::string* prop = property(name);
+
+  if (prop) {
+    value = *prop;
+    return true;
+  } else
+    return false;
+}
+
+std::string Configuration::approot() const
+{
+  std::string approot;
+
+  if (!readConfigurationProperty("approot", approot)) {
+    return "";
+  }
+
+  if (!approot.empty() && approot[approot.length() - 1] != '/'
+#ifdef WIN32
+      && approot[approot.length() - 1] != '\\'
+#endif
+     ) {
+    approot += "/";
+  }
+
+  return approot;
 }
 
 }

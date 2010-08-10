@@ -169,9 +169,8 @@ void WAbstractArea::setResource(WResource *resource)
   createAnchorImpl();
 
   anchor_->resource_ = resource;
-  anchor_->resource_->dataChanged().connect(SLOT(this,
-					       WAbstractArea::resourceChanged));
-
+  anchor_->resource_->dataChanged()
+    .connect(this, &WAbstractArea::resourceChanged);
   setRef(resource->url());
 }
 

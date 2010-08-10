@@ -26,12 +26,6 @@
 #ifndef QTOBJECT_H_
 #define QTOBJECT_H_
 
-#ifdef SLOT
-# undef SLOT
-# undef signals
-# undef slots
-#endif
-
 #include <QThread>
 
 class HelloApplication;

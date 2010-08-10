@@ -18,7 +18,7 @@ WTestEnvironment::WTestEnvironment(const std::string& applicationPath,
 				   const std::string& configurationFile,
 				   EntryPointType type)
 {
-  configuration_ = new Configuration(applicationPath, configurationFile,
+  configuration_ = new Configuration(applicationPath, "", configurationFile,
 				     Configuration::WtHttpdServer,
 				     "Wt: initializing test environment");
 

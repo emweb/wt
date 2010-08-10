@@ -31,7 +31,7 @@ void WButtonGroup::addButton(WRadioButton *button, int id)
   button->setGroup(this);
 
   if (checkedChangedConnected_)
-    button->changed().connect(SLOT(this, WButtonGroup::onButtonChange));
+    button->changed().connect(this, &WButtonGroup::onButtonChange);
 }
 
 void WButtonGroup::removeButton(WRadioButton *button)
@@ -169,8 +169,7 @@ Signal<WRadioButton *>& WButtonGroup::checkedChanged()
   checkedChangedConnected_ = true;
 
   for (unsigned i = 0; i < buttons_.size(); ++i)
-    buttons_[i].button->changed()
-      .connect(SLOT(this, WButtonGroup::onButtonChange));
+    buttons_[i].button->changed().connect(this, &WButtonGroup::onButtonChange);
 
   return checkedChanged_;
 }

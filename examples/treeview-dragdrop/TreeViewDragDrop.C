@@ -157,10 +157,10 @@ public:
     WPushButton *b;
     WContainerWidget *buttons = new WContainerWidget();
     buttons->addWidget(b = new WPushButton("Save"));
-    b->clicked().connect(SLOT(this, WDialog::accept));
-    contents()->enterPressed().connect(SLOT(this, WDialog::accept));
+    b->clicked().connect(this, &WDialog::accept);
+    contents()->enterPressed().connect(this, &WDialog::accept);
     buttons->addWidget(b = new WPushButton("Cancel"));
-    b->clicked().connect(SLOT(this, WDialog::reject));
+    b->clicked().connect(this, &WDialog::reject);
 
     /*
      * Focus the form widget that corresonds to the selected item.
@@ -183,7 +183,7 @@ public:
 
     contents()->setLayout(layout, AlignTop | AlignJustify);
 
-    finished().connect(SLOT(this, FileEditDialog::handleFinish));
+    finished().connect(this, &FileEditDialog::handleFinish);
 
     show();
   }
@@ -362,10 +362,10 @@ private:
     treeView->resize(200, WLength::Auto);
     treeView->setSelectionMode(SingleSelection);
     treeView->expandToDepth(1);
-    treeView->selectionChanged().connect(SLOT(this,
-					      TreeViewDragDrop::folderChanged));
+    treeView->selectionChanged()
+      .connect(this, &TreeViewDragDrop::folderChanged);
 
-    treeView->mouseWentUp().connect(SLOT(this, TreeViewDragDrop::showPopup));
+    treeView->mouseWentUp().connect(this, &TreeViewDragDrop::showPopup);
 
     folderView_ = treeView;
 
@@ -401,8 +401,7 @@ private:
 
     tableView->sortByColumn(1, AscendingOrder);
 
-    tableView->doubleClicked()
-      .connect(SLOT(this, TreeViewDragDrop::editFile));
+    tableView->doubleClicked().connect(this, &TreeViewDragDrop::editFile);
 
     fileView_ = tableView;
 
@@ -504,7 +503,7 @@ private:
        * Alternatively you could call WPopupMenu::exec(), which returns
        * the result, but while waiting for it, blocks the thread.
        */      
-      popup_->aboutToHide().connect(SLOT(this, TreeViewDragDrop::popupAction));
+      popup_->aboutToHide().connect(this, &TreeViewDragDrop::popupAction);
       popup_->popup(event);
     }
   }
@@ -524,7 +523,7 @@ private:
       popupActionBox_ = new WMessageBox("Sorry.","Action '" + text
 					+ "' is not implemented.", NoIcon, Ok);
       popupActionBox_->buttonClicked()
-	.connect(SLOT(this, TreeViewDragDrop::dialogDone));
+	.connect(this, &TreeViewDragDrop::dialogDone);
       popupActionBox_->show();
     } else {
       delete popup_;
@@ -549,7 +548,7 @@ private:
   void populateFiles() {
     fileModel_->invisibleRootItem()->setRowCount(0);
 
-    std::ifstream f("data/files.csv");
+    std::ifstream f((appRoot() + "data/files.csv").c_str());
 
     if (!f)
       throw std::runtime_error("Could not read: data/files.csv");
@@ -635,7 +634,7 @@ WApplication *createApplication(const WEnvironment& env)
   app->setTwoPhaseRenderingThreshold(0);
   app->setTitle("WTreeView Drag & Drop");
   app->useStyleSheet("styles.css");
-  app->messageResourceBundle().use("about");
+  app->messageResourceBundle().use(WApplication::appRoot() + "about");
   app->refresh();
   
   return app;

@@ -5,10 +5,13 @@
 namespace Wt {
   namespace isapi {
 
+// Important: an IsapiRequest must ALWAYS be pushed to the server,
+// even on error. Otherwise you created a memory leak.
 IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
                            IsapiServer *server, bool forceSynchronous)
   : ecb_(ecb),
   server_(server),
+  good_(true),
   synchronous_(true),
   reading_(true),
   chunking_(false),
@@ -29,6 +32,7 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
     // if only used for write)
     if (ecb->ServerSupportFunction(ecb->ConnID, HSE_REQ_IO_COMPLETION,
         &IsapiRequest::completionCallback, 0, (LPDWORD)this)) {
+	  // Note: we don't expect this to happen
       synchronous_ = false;
     }
   }
@@ -51,7 +55,7 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
   if (!synchronous_) {
     processAsyncRead(0, 0, true);
   } else {
-    // FIXME!! (1) store in tmp file if too big (2) make async
+    // FIXME: store in tmp file if too big
     while (bytesToRead_ != 0 && !done) {
       bufferSize_ = sizeof(buffer_);
       if (bytesToRead_ != 0xffffffff && bytesToRead_ < bufferSize_) {
@@ -68,16 +72,16 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
         }
       } else {
         int err = GetLastError();
+    		good_ = false; // FIXME: retry on timeout?
         done = true;
       }
     }
     in_.seekg(0);
-    // FIXME: should we also push on error?
     server->pushRequest(this);
   }
 }
 
-void IsapiRequest::completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,
+void WINAPI IsapiRequest::completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,
                                           PVOID pContext,
                                           DWORD cbIO,
                                           DWORD dwError)
@@ -91,6 +95,7 @@ void IsapiRequest::completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,
 
 void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
 {
+  // TODO: spool to a file if the stringstream becomes to big
   // First, queue up the bytes received
   if (bytesToRead_ != 0xffffffff) {
     bytesToRead_ -= cbIO;
@@ -111,7 +116,7 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
           HSE_REQ_ASYNC_READ_CLIENT, (LPVOID)buffer_, &bufferSize_,
           (LPDWORD)&dwFlags)) {
       int err = GetLastError();
-      // FIXME: what to do here?
+      good_ = false;
       in_.seekg(0);
       server_->pushRequest(this);
     } else {
@@ -120,8 +125,10 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
     }
   } else {
     // Nothing more to read, or error
+	  if (dwError) {
+      good_ = false;
+	  }
     in_.seekg(0);
-    // FIXME: should we also push on error?
     server_->pushRequest(this);
   }
 }
@@ -154,13 +161,28 @@ void IsapiRequest::sendHeader()
   std::string header = header_.str();
   HSE_SEND_HEADER_EX_INFO hei = { 0 };
   hei.pszStatus = status.c_str();
-  hei.cchStatus = status.size();
+  hei.cchStatus = status.size() + 1;
   hei.pszHeader = header.c_str();
-  hei.cchHeader = header.size();;
+  hei.cchHeader = header.size() + 1;
   hei.fKeepConn =  version_ == HTTP_1_1 && (responseLengthKnown_ || chunking_);
   ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_SEND_RESPONSE_HEADER_EX,
     &hei, 0, 0);
   headerSent_ = true;
+}
+
+bool IsapiRequest::isGood()
+{
+  return good_;
+}
+
+void IsapiRequest::abort()
+{
+  ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_CLOSE_CONNECTION,
+    0, 0, 0);
+  good_ = false;
+  DWORD status = HSE_STATUS_ERROR;
+  ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
+    &status, 0, 0);
 }
 
 void IsapiRequest::flush(ResponseState state,
@@ -231,11 +253,11 @@ void IsapiRequest::writeSync()
       } else {
         int err = GetLastError();
         err = err;
-        ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_CLOSE_CONNECTION,
-          0, 0, 0);
-        DWORD status = HSE_STATUS_ERROR;
-        ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
-          &status, 0, 0);
+        abort();
+        // Note: it would be appropriate to call the callback function here
+        // with a notification that the continuation was aborted.
+        delete this;
+        return;
       }
     }
   }
@@ -262,8 +284,8 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
       DWORD size = writeData_[writeIndex_].size() - writeOffset_;
       if (ecb_->WriteClient(ecb_->ConnID, (LPVOID)(writeData_[writeIndex_].data() + writeOffset_),
         &size, HSE_IO_ASYNC)) {
-          // Don't do anything anymore, the callback will take over
-          return;
+        // Don't do anything anymore, the callback will take over
+        return;
       } else {
         error = true;
       }
@@ -271,7 +293,6 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
       // Everything is written, finish up
       writeData_.clear();
       flushDone();
-      delete this;
       return;
     }
   }
@@ -279,54 +300,10 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
   if (error) {
     int err = GetLastError();
     err = err;
-    ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_CLOSE_CONNECTION,
-      0, 0, 0);
-    DWORD status = HSE_STATUS_ERROR;
-    ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
-      &status, 0, 0);
+    abort();
     delete this;
     return;
   }
-}
-
-namespace {
-  struct Done {
-    LPEXTENSION_CONTROL_BLOCK ecb;
-    DWORD status;
-  };
-  boost::mutex queueMutex;
-  boost::condition_variable queueCond;
-  std::deque<Done> queue;
-  void pushDone(Done done) {
-    boost::mutex::scoped_lock l(queueMutex);
-    queue.push_back(done);
-    queueCond.notify_all();
-  }
-
-  Done popDone()
-  {
-    boost::mutex::scoped_lock l(queueMutex);
-    while (true) {
-      if (queue.size()) {
-        Done retval = queue.front();
-        queue.pop_front();
-        return retval;
-      } else {
-        // Wait until an element is inserted in the queue...
-        queueCond.wait(l);
-      }
-    }
-  }
-
-  void popperEntry()
-  {
-    while(true) {
-      Done done = popDone();
-      done.ecb->ServerSupportFunction(done.ecb, HSE_REQ_DONE_WITH_SESSION, &done.status, 0, 0);
-    }
-  }
-
-  boost::thread popper(popperEntry);
 }
 
 void IsapiRequest::flushDone()
@@ -345,13 +322,15 @@ void IsapiRequest::flushDone()
     DWORD err;
     err = ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
       &status, 0, 0);
-    //err = ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
-    //  &status, 0, 0);
-    //ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
-    //  &status, 0, 0);
-    //Done done = {ecb_, status};
-    //pushDone(done);
+    delete this;
   }
+}
+
+void IsapiRequest::sendSimpleReply(int status, const std::string &msg)
+{
+  setStatus(status);
+  out() << msg;
+  flush(ResponseDone, 0, 0);
 }
 
 void IsapiRequest::setStatus(int status)

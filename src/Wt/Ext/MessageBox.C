@@ -30,7 +30,7 @@ MessageBox::MessageBox(bool i18n)
     result_(NoButton),
     extButtonClicked_(this, "btnclk", false)
 {
-  extButtonClicked_.connect(SLOT(this, MessageBox::onClick));
+  extButtonClicked_.connect(this, &MessageBox::onClick);
 }
 
 MessageBox::MessageBox(const WString& caption, const WString& text,
@@ -51,7 +51,7 @@ MessageBox::MessageBox(const WString& caption, const WString& text,
     extButtonClicked_(this, "btnclk", false)
 {
   setWindowTitle(caption);
-  extButtonClicked_.connect(SLOT(this, MessageBox::onClick));
+  extButtonClicked_.connect(this, &MessageBox::onClick);
 }
 
 MessageBox::~MessageBox()

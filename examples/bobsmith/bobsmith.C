@@ -15,11 +15,11 @@ WApplication *createApplication(const WEnvironment& env)
   WApplication *app = new WApplication(env);
 
   new WText("Name: ", app->root());
-  WInPlaceEdit *edit = new WInPlaceEdit(L"Bob Smith", app->root());
-  edit->setStyleClass(L"inplace");
-  edit->setEmptyText(L"Empty: click to edit");
+  WInPlaceEdit *edit = new WInPlaceEdit("Bob Smith", app->root());
+  edit->setStyleClass("inplace");
+  edit->setEmptyText("Empty: click to edit");
 
-  app->styleSheet().addRule("*.inplace span:hover", L"background-color: gray");
+  app->styleSheet().addRule("*.inplace span:hover", "background-color: gray");
 
   return app;
 }

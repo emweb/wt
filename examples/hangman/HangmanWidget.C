@@ -29,7 +29,7 @@ HangmanWidget::HangmanWidget(std::wstring user, Dictionary dict,
 {
    setContentAlignment(AlignCenter);
 
-   Title = new WText(L"Guess the word!", this);
+   Title = new WText("Guess the word!", this);
    Title->decorationStyle().font().setSize(WFont::XLarge);
 
    WordContainer = new WContainerWidget(this);
@@ -37,7 +37,7 @@ HangmanWidget::HangmanWidget(std::wstring user, Dictionary dict,
    WordContainer->setContentAlignment(AlignCenter);
    WCssDecorationStyle& style = WordContainer->decorationStyle();
    style.setBorder(WBorder(WBorder::Solid));
-   style.font().setFamily(WFont::Monospace, L"courier");
+   style.font().setFamily(WFont::Monospace, "courier");
    style.font().setSize(WFont::XXLarge);
 
    StatusText = new WText(this);
@@ -45,8 +45,8 @@ HangmanWidget::HangmanWidget(std::wstring user, Dictionary dict,
    createHangmanImages(this);
    createAlphabet(this);
    new WBreak(this);
-   NewGameButton = new WPushButton(L"New Game", this);
-   NewGameButton->clicked().connect(SLOT(this, HangmanWidget::newGame));
+   NewGameButton = new WPushButton("New Game", this);
+   NewGameButton->clicked().connect(this, &HangmanWidget::newGame);
 
    // prepare for first game
    newGame();
@@ -88,7 +88,7 @@ void HangmanWidget::createAlphabet(WContainerWidget *parent)
       mapper->mapConnect(character->clicked(), character);
    }
 
-   mapper->mapped().connect(SLOT(this, HangmanWidget::processButton));
+   mapper->mapped().connect(this, &HangmanWidget::processButton);
 }
 
 void HangmanWidget::newGame()
@@ -107,7 +107,7 @@ void HangmanWidget::newGame()
    WordContainer->clear();
    WordLetters.clear();
    for(unsigned int i = 0; i < Word.size(); ++i) {
-      WText *c = new WText(L"-", WordContainer);
+      WText *c = new WText("-", WordContainer);
       WordLetters.push_back(c);
    }
 
@@ -115,7 +115,7 @@ void HangmanWidget::newGame()
    WordContainer->resize(WLength(Word.size() * 1.5, WLength::FontEx),
 			 WLength::Auto);
 
-   StatusText->setText(L"");
+   StatusText->setText("");
 }
 
 void HangmanWidget::processButton(WPushButton *button)
@@ -156,7 +156,7 @@ void HangmanWidget::registerCorrectGuess(wchar_t c)
       }
    }
    if(DisplayedLetters == Word.size()) {
-      StatusText->setText(L"You win!");
+      StatusText->setText("You win!");
       HangmanImages[BadGuesses]->hide();
       HurrayImage->show();
       LetterButtonLayout->hide();

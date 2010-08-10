@@ -115,7 +115,7 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
      ""  "t." + WT_RESIZE_JS + "(t, w, h);"
      "};");
 
-  menu_->itemSelected().connect(SLOT(this, WTabWidget::onItemSelected));
+  menu_->itemSelected().connect(this, &WTabWidget::onItemSelected);
 }
 
 WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,

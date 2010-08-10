@@ -61,7 +61,7 @@ void WTimer::start()
     timerWidget_->timerStart(jsRepeat);
 
     if (timeout().isExposedSignal() && !timeoutConnected_) {
-      timeout().connect(SLOT(this, WTimer::gotTimeout));
+      timeout().connect(this, &WTimer::gotTimeout);
       timeoutConnected_ = true;
     }
   }
