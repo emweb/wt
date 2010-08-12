@@ -154,7 +154,7 @@ public:
    * and the <i>area</i> is inserted at index \p index. When areas
    * overlap, the area with the lowest index receives the event.
    *
-   * Ownership of the \p Area is transferred to the image.
+   * Ownership of the \p area is transferred to the image.
    *
    * \sa addArea(WAbstractArea *)
    */

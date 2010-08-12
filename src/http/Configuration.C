@@ -41,6 +41,7 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
     pidPath_(),
     serverName_(),
     compression_(true),
+    gdb_(false),
     configPath_(),
     httpPort_("80"),
     httpsPort_("443"),
@@ -130,6 +131,9 @@ void Configuration::createOptions(po::options_description& options)
      "DOS attacks where large requests take up all RAM, use this parameter "
      "to force requests that are larger than the specified size to be spooled "
      "to disk. This will also spool file uploads to disk.")
+
+    ("gdb",
+     "do not shutdown when receiving Ctrl-C (and let gdb break instead)")
      ;
 
   po::options_description http("HTTP server options");
@@ -219,6 +223,8 @@ void Configuration::readOptions(const po::variables_map& vm)
 
     pidFile << getpid() << std::endl;
   }
+
+  gdb_ = vm.count("gdb");
 
   compression_ = !vm.count("no-compression");
 #ifndef WTHTTP_WITH_ZLIB

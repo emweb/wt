@@ -48,13 +48,15 @@ IsapiServer *IsapiServer::instance_;
 
 IsapiServer::IsapiServer():
   server_(0),
-  terminated_(false)
+  terminated_(false),
+  configuration_(0)
 {
   serverThread_ = boost::thread(boost::bind(&IsapiServer::serverEntry, this));
 }
 
 IsapiServer::~IsapiServer()
 {
+  delete configuration_;
 }
 
 namespace {
@@ -78,12 +80,16 @@ void IsapiServer::serverEntry() {
   try {
     main(1, &pDllPath);
     terminationMsg = mainReturnedReply;
+    if (configuration())
+      log("fatal") << "ISAPI: main() returned";
   } catch (std::exception &e) {
     terminationMsg = uncaughtExceptionReply;
-    // TODO: log
+    if (configuration())
+      log("fatal") << "ISAPI: uncaught main() exception: " << e.what();
   } catch(...) {
     terminationMsg = uncaughtExceptionReply;
-    // TODO: log
+    if (configuration())
+      log("fatal") << "ISAPI: unknown uncaught main() exception";
   }
   setTerminated();
 }
@@ -140,11 +146,15 @@ void IsapiServer::setTerminated()
 
 void IsapiServer::shutdown()
 {
+  if (configuration())
+    log("notice") << "ISAPI: shutdown requested...";
   {
     boost::mutex::scoped_lock l(queueMutex_);
     server_->stop();
   }
   serverThread_.join();
+  if (configuration())
+    log("notice") << "ISAPI: shutdown completed...";
 }
 
 IsapiServer *IsapiServer::instance()
@@ -163,107 +173,99 @@ bool IsapiServer::addServer(WServer *server)
   return true;
 }
 
-/*
- ******************
- * Client routines
- ******************
- */
-
-#if 0
-static void doShutdown(const char *signal)
+void IsapiServer::removeServer(WServer *server)
 {
-  unlink(socketPath.c_str());
-  if (theController) {
-    theController->configuration().log("notice") << "Caught " << signal;
-    theController->forceShutdown();
+  boost::mutex::scoped_lock l(queueMutex_);
+  if (server_ != server) {
+    if (configuration()) {
+      log("error") << "ISAPI internal error: removeServer() inconsistent";
+    }
   }
+  server_ = 0;
+}
 
-  exit(0);
+WLogEntry IsapiServer::log(const std::string& type)
+{
+  return configuration()->log(type);
 }
-#endif
+
 }
+
 static WebController *theController = 0;
 
-void startSharedProcess(Configuration& conf, WServer *server)
-{
-
-
-}
-
-
 struct WServerImpl {
-  WServerImpl(const std::string& applicationPath,
-	      const std::string& configurationFile)
-    : applicationPath_(applicationPath),
-      configurationFile_(configurationFile),
-      configuration_(0),
-      running_(false)
-      //,
-      //relayServer_(0),
+  WServerImpl()
+    : running_(false)
   { }
 
-  std::string applicationPath_;
-  std::string configurationFile_;
-  Configuration *configuration_;
-  bool          running_;
-#if 0
-  Server        *relayServer_;
-  std::string   sessionId_;
-#endif
+  Configuration *configuration() {
+    return isapi::IsapiServer::instance()->configuration();
+  }
+  bool running_;
 };
 
 WServer::WServer(const std::string& applicationPath,
 		 const std::string& configurationFile)
-  : impl_(new WServerImpl(applicationPath, configurationFile))
+  : impl_(new WServerImpl())
 {
   if (!isapi::IsapiServer::instance()->addServer(this))
     throw Exception("WServer::WServer(): "
 		    "Only one simultaneous WServer supported");
+
+  std::stringstream approotLog;
+  std::string approot;
+  {
+    std::string inifile = applicationPath + ".ini";
+    char buffer[1024];
+    GetPrivateProfileString("isapi", "approot", "",
+      buffer, sizeof(buffer), inifile.c_str());
+    approot = buffer;
+    if (approot != "") {
+      approotLog << "ISAPI: read approot (" << approot
+        << ") from ini file " << inifile;
+    }
+  }
+
+  isapi::IsapiServer::instance()->setConfiguration(
+    new Configuration(applicationPath, approot, configurationFile,
+      Configuration::IsapiServer, "Wt: initializing session process"));
+
+  if (approotLog.str() != "") {
+    impl_->configuration()->log("notice") << approotLog.str();
+  }
 }
 
 WServer::~WServer()
 {
+  isapi::IsapiServer::instance()->removeServer(this);
   delete impl_;
 }
 
 void WServer::setServerConfiguration(int argc, char *argv[],
 				     const std::string& serverConfigurationFile)
 {
-  bool isServer = argc < 2 || strcmp(argv[1], "client") != 0; 
 
-  std::string approot;
-  {
-    char buffer[1024];
-    GetPrivateProfileString("isapi", "approot", "",
-      buffer, sizeof(buffer), (std::string(argv[0]) + ".ini").c_str());
-    approot = buffer;
-  }
-
-  impl_->configuration_ = new Configuration(impl_->applicationPath_,
-    approot,
-    impl_->configurationFile_,
-    Configuration::IsapiServer,
-    "Wt: initializing session process");
 }
 
 void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
 			    const std::string& path, const std::string& favicon)
 {
-  if (!impl_->configuration_)
+  if (!impl_->configuration())
     throw Exception("WServer::addEntryPoint(): "
 		    "call setServerConfiguration() first");
 
-  impl_->configuration_
+  impl_->configuration()
     ->addEntryPoint(EntryPoint(type, callback, path, favicon));
 }
 
 bool WServer::start()
 {
-  if (!impl_->configuration_)
+  if (!impl_->configuration())
     throw Exception("WServer::start(): call setServerConfiguration() first");
 
   if (isRunning()) {
-    std::cerr << "WServer::start() error: server already started!" << std::endl;
+    impl_->configuration()->log("error")
+      << "WServer::start() error: server already started!";
     return false;
   }
 
@@ -271,7 +273,7 @@ bool WServer::start()
 
   try {
     isapi::IsapiStream isapiStream(isapi::IsapiServer::instance());
-    WebController controller(*impl_->configuration_, this, &isapiStream);
+    WebController controller(*impl_->configuration(), this, &isapiStream);
     theController = &controller;
 
     controller.run();
@@ -279,12 +281,12 @@ bool WServer::start()
     theController = 0;
 
   } catch (std::exception& e) {
-    impl_->configuration_->log("fatal")
+    impl_->configuration()->log("fatal")
       << "ISAPI server: caught unhandled exception: " << e.what();
 
     throw;
   } catch (...) {
-    impl_->configuration_->log("fatal")
+    impl_->configuration()->log("fatal")
       << "ISAPI server: caught unknown, unhandled exception.";
     throw;
   }
@@ -320,8 +322,12 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 
 void WServer::addResource(WResource *resource, const std::string& path)
 {
-  impl()->configuration_->log("error")
-    << "WServer::addResource() not supported by ISAPI connector.";
+  if (!boost::starts_with(path, "/")) 
+    throw WServer::Exception("WServer::addResource() error: "
+			     "static resource path should start with \'/\'");
+
+  resource->setInternalPath(path);
+  impl_->configuration()->addEntryPoint(EntryPoint(resource, path));
 }
 
 void WServer::handleRequest(WebRequest *request)
@@ -331,13 +337,13 @@ void WServer::handleRequest(WebRequest *request)
 
 std::string WServer::approot() const
 {
-  return impl_->configuration_->approot();
+  return impl_->configuration()->approot();
 }
 
 bool WServer::readConfigurationProperty(const std::string& name,
                                         std::string& value) const
 {
-  return impl_->configuration_->readConfigurationProperty(name, value);
+  return impl_->configuration()->readConfigurationProperty(name, value);
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
@@ -352,7 +358,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
       return 0;
     } catch (std::exception& e) {
-      server.impl()->configuration_->log("fatal") << e.what();
+      server.impl()->configuration()->log("fatal") << e.what();
       return 1;
     }
   } catch (Wt::WServer::Exception& e) {

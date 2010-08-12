@@ -27,8 +27,12 @@ public:
   dbo::ptr<Comment> parent;
 
   Wt::WDateTime     date;
-  Wt::WString       textSrc;
-  Wt::WString       textHtml;
+
+  void setText(const Wt::WString& text);
+  void setDeleted();
+
+  const Wt::WString& textSrc() const { return textSrc_; }
+  const Wt::WString& textHtml() const { return textHtml_; }
 
   Comments          children;
 
@@ -36,8 +40,8 @@ public:
   void persist(Action& a)
   {
     dbo::field(a, date, "date");
-    dbo::field(a, textSrc, "text_source");
-    dbo::field(a, textHtml, "text_html");
+    dbo::field(a, textSrc_, "text_source");
+    dbo::field(a, textHtml_, "text_html");
 
     dbo::belongsTo(a, post, "post");
     dbo::belongsTo(a, author, "author");
@@ -45,6 +49,10 @@ public:
 
     dbo::hasMany(a, children, dbo::ManyToOne, "parent");
   }
+
+private:
+  Wt::WString textSrc_;
+  Wt::WString textHtml_;
 };
 
 DBO_EXTERN_TEMPLATES(Comment);

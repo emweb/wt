@@ -314,7 +314,7 @@ void WebController::handleRequest(WebRequest *request)
 void WebController::handleAsyncRequest(WebRequest *request)
 {
   if (!request->entryPoint_)
-    request->entryPoint_ = getEntryPoint(request->scriptName());
+    request->entryPoint_ = getEntryPoint(request);
 
   CgiParser cgi(conf_.maxRequestSize() * 1024);
 
@@ -474,27 +474,47 @@ void WebController::handleAsyncRequest(WebRequest *request)
 
 WApplication *WebController::doCreateApplication(WebSession *session)
 {
-  const EntryPoint *ep = getEntryPoint(session->deploymentPath());
+  const EntryPoint *ep = WebSession::Handler::instance()->request()->entryPoint_;
   return (*ep->appCallback())(session->env());
 }
 
 const EntryPoint *
-WebController::getEntryPoint(const std::string& sName)
+WebController::getEntryPoint(WebRequest *request)
 {
+  std::string scriptName = request->scriptName();
+  std::string pathInfo = request->pathInfo();
+
   // Only one default entry point.
   if (conf_.entryPoints().size() == 1
       && conf_.entryPoints()[0].path().empty())
     return &conf_.entryPoints()[0];
 
   // Multiple entry points.
+  // This case probably only happens with built-in http
   for (unsigned i = 0; i < conf_.entryPoints().size(); ++i) {
     const Wt::EntryPoint& ep = conf_.entryPoints()[i];
-
-    if (sName==ep.path())
+    if (scriptName==ep.path())
       return &ep;
   }
 
-  conf_.log("error") << "No entry point configured for: '" << sName
+  // Multiple entry points: also recognized when prefixed with
+  // scriptName. For HTTP/ISAPI connectors, we only receive URLs
+  // that are subdirs of the scriptname.
+  for (unsigned i = 0; i < conf_.entryPoints().size(); ++i) {
+    const Wt::EntryPoint& ep = conf_.entryPoints()[i];
+    if (boost::starts_with(pathInfo, ep.path())) {
+      if (pathInfo.length() > ep.path().length()) {
+        char next = pathInfo[ep.path().length()];
+        if (next == '/') {
+          return &ep;
+        }
+      } else {
+        return &ep;
+      }
+    }
+  }
+
+  conf_.log("error") << "No entry point configured for: '" << scriptName
 		     << "', using first entry point ('"
 		     << conf_.entryPoints()[0].path() << "'):";
 

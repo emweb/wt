@@ -128,7 +128,7 @@ private:
 
   void handleRequestThreaded(WebRequest *request);
 
-  const EntryPoint *getEntryPoint(const std::string& deploymentPath);
+  const EntryPoint *getEntryPoint(WebRequest *request);
 
   static void mxml_error_cb(const char *message);
 

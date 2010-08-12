@@ -1,9 +1,12 @@
-# - find Sqlite 3
-# SQLITE3_INCLUDE_DIR - Where to find Sqlite 3 header files (directory)
-# SQLITE3_LIBRARIES - Sqlite 3 libraries
-# SQLITE3_LIBRARY_RELEASE - Where the release library is
-# SQLITE3_LIBRARY_DEBUG - Where the debug library is
-# SQLITE3_FOUND - Set to TRUE if we found everything (library, includes and executable)
+# We define:
+# - SQLITE3_INCLUDE_DIR - Where to find Sqlite 3 header files (directory)
+# - SQLITE3_LIBRARIES - Sqlite 3 libraries
+# - SQLITE3_LIBRARY_RELEASE - Where the release library is
+# - SQLITE3_LIBRARY_DEBUG - Where the debug library is
+# - SQLITE3_FOUND - Set to TRUE if we found everything 
+#   (library, includes and executable)
+# Taking into account:
+# - SQLITE3_PREFIX
 
 # Copyright (c) 2010 Pau Garcia i Quiles, <pgquiles@elpauer.org>
 #
@@ -16,11 +19,26 @@ IF( SQLITE3_INCLUDE_DIR AND SQLITE3_LIBRARY_RELEASE AND SQLITE3_LIBRARY_DEBUG )
     SET(SQLITE3_FIND_QUIETLY TRUE)
 ENDIF( SQLITE3_INCLUDE_DIR AND SQLITE3_LIBRARY_RELEASE AND SQLITE3_LIBRARY_DEBUG )
 
-FIND_PATH( SQLITE3_INCLUDE_DIR sqlite3.h  )
+FIND_PATH(SQLITE3_INCLUDE_DIR
+    sqlite3.h
+  PATHS
+    ${SQLITE3_PREFIX}/include
+    /usr/include
+    /usr/local/include
+)
 
-FIND_LIBRARY(SQLITE3_LIBRARY_RELEASE NAMES sqlite3 )
+FIND_LIBRARY(SQLITE3_LIBRARY_RELEASE
+  NAMES
+    sqlite3
+  PATHS
+    ${SQLITE3_PREFIX}/lib
+)
 
-FIND_LIBRARY(SQLITE3_LIBRARY_DEBUG NAMES sqlite3  HINTS /usr/lib/debug/usr/lib/ )
+FIND_LIBRARY(SQLITE3_LIBRARY_DEBUG
+  NAMES
+    sqlite3 
+  HINTS
+    ${SQLITE3_PREFIX}/lib/debug/usr/lib )
 
 IF( SQLITE3_LIBRARY_RELEASE OR SQLITE3_LIBRARY_DEBUG AND SQLITE3_INCLUDE_DIR )
 	SET( SQLITE3_FOUND TRUE )

@@ -799,7 +799,8 @@ void WBatchEditProxyModel::shiftRows(ValueMap& v, int row, int count)
 	c.row += count;
 	++i;
       }
-    }
+    } else
+      break;
   }
 }
 
@@ -818,7 +819,8 @@ void WBatchEditProxyModel::shiftColumns(ValueMap& v, int column, int count)
 	c.column += count;
 	++i;
       }
-    }
+    } else
+      ++i;
   }
 }
 

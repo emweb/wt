@@ -45,6 +45,7 @@ public:
   const std::string& pidPath() const { return pidPath_; }
   const std::string& serverName() const { return serverName_; }
   bool compression() const { return compression_; }
+  bool gdb() const { return gdb_; }
   const std::string& configPath() const { return configPath_; }
 
   const std::string& httpAddress() const { return httpAddress_; }
@@ -76,6 +77,7 @@ private:
   std::string pidPath_;
   std::string serverName_;
   bool compression_;
+  bool gdb_;
   std::string configPath_;
 
   std::string httpAddress_;

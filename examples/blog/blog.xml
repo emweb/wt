@@ -166,7 +166,7 @@
     <div class="comment-edit-icon" />
     <div class="comment-body comment-edit">
       <div>${area}</div>
-      <!-- <div style="float: right">formatting help</div> -->
+      <div style="float: right"><i>plain text</i> or (&lt;code&gt;...&lt;/code&gt;)</div>
       ${save}
       ${cancel}
     </div>

@@ -1,14 +1,14 @@
-#
 # We set:
 # - HARU_INCLUDE_DIRS
 # - HARU_LIBRARIES
 # - HARU_FOUND
-# 
+# Taking into account:
+# - HARU_PREFIX
 
 FIND_PATH(HARU_INCLUDE_DIR
     hpdf.h
   PATHS
-    ${HARU_ROOT}/include
+    ${HARU_PREFIX}/include
     /usr/include
     /usr/local/include
     /usr/local/include/hpdf
@@ -18,7 +18,7 @@ FIND_LIBRARY(HARU_LIB
   NAMES
     hpdf
   PATHS
-    ${HARU_ROOT}/lib
+    ${HARU_PREFIX}/lib
 )
 
 IF(WIN32)

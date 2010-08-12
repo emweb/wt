@@ -3,12 +3,12 @@
 # - ZLIB_LIBRARIES
 # - ZLIB_FOUND
 # - ZLIB_DEFINITIONS
-#
-
+# Taking into account:
+# - ZLIB_PREFIX
 
 FIND_PATH(ZLIB_INCLUDE zlib.h
+  ${ZLIB_PREFIX}/include
   /usr/include
-  ${USERLIB_ROOT}/include
 )
 
 IF(WIN32)
@@ -17,14 +17,14 @@ IF(WIN32)
       zlibstat 
     PATHS
       /usr/lib
-      ${USERLIB_ROOT}/lib
+      ${ZLIB_PREFIX}/lib
   )
 
   FIND_LIBRARY(ZLIB_LIB_DEBUG
     NAMES
       zlibstatd
     PATHS
-      ${USERLIB_ROOT}/lib
+      ${ZLIB_PREFIX}/lib
   )
 
   IF(ZLIB_INCLUDE AND ZLIB_LIB_RELEASE AND ZLIB_LIB_DEBUG)
@@ -41,7 +41,7 @@ ELSE(WIN32)
       z
     PATHS
       /usr/lib
-      ${USERLIB_ROOT}/lib
+      ${ZLIB_PREFIX}/lib
   )
 
   IF(ZLIB_INCLUDE AND ZLIB_LIB)

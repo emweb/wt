@@ -12,6 +12,7 @@
 
 #include "FCGIStream.h"
 #include "WebController.h"
+#include "Configuration.h"
 
 #include "fcgio.h"
 #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
@@ -109,7 +110,11 @@ namespace {
     }
 
     virtual std::string scriptName() const {
-      return envValue("SCRIPT_NAME");
+      if (entryPoint_) {
+        return envValue("SCRIPT_NAME") + entryPoint_->path();
+      } else {
+        return envValue("SCRIPT_NAME");
+      }
     }
 
     virtual std::string serverName() const {
@@ -129,7 +134,16 @@ namespace {
     }
 
     virtual std::string pathInfo() const {
-      return envValue("PATH_INFO");
+      if (entryPoint_) {
+        std::string pi = envValue("PATH_INFO");
+        if (pi.size() >= entryPoint_->path().size()) {
+          return pi.substr(entryPoint_->path().size());
+        } else {
+          return pi;
+        }
+      } else {
+        return envValue("PATH_INFO");
+      }
     }
 
     virtual std::string remoteAddr() const {

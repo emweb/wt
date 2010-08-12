@@ -30,6 +30,12 @@ WT_DECLARE_WT_MEMBER
    var selId = null, editId = null, kd = false,
      filter = null, filtering = null, delayHideTimeout = null;
 
+   /* Checks if we are (still) assisting the given edit */
+   function checkEdit(edit) {
+     return $(edit).hasClass("Wt-suggest-onedit")
+         || $(edit).hasClass("Wt-suggest-dropdown");
+   }
+
    function visible() {
      return el.style.display != 'none';
    }
@@ -61,6 +67,7 @@ WT_DECLARE_WT_MEMBER
          sValue = suggestion.getAttribute('sug');
 
      edit.focus();
+     APP.emit(el, "select", line.id, edit.id);
 
      replacerJS(edit, sText, sValue);
 
@@ -75,6 +82,9 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.editMouseMove = function(edit, event) {
+     if (!checkEdit(edit))
+       return;
+
      var xy = WT.widgetCoordinates(edit, event);
      if (xy.x > edit.offsetWidth - 16)
        edit.style.cursor = 'default';
@@ -83,6 +93,9 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.editClick = function(edit, event) {
+     if (!checkEdit(edit))
+       return;
+
      var xy = WT.widgetCoordinates(edit, event);
      if (xy.x > edit.offsetWidth - 16) {
        if (editId != edit.id) {
@@ -109,6 +122,9 @@ WT_DECLARE_WT_MEMBER
    }
 
    this.editKeyDown = function(edit, event) {
+     if (!checkEdit(edit))
+       return true;
+
      if (editId != edit.id) {
        if ($(edit).hasClass("Wt-suggest-onedit"))
 	 editId = edit.id;
@@ -213,7 +229,6 @@ WT_DECLARE_WT_MEMBER
      }
 
      var first = null,
-         sels = el.lastChild.childNodes,
          showall = !canhide && text.length == 0;
 
      for (var i = 0; i < sels.length; i++) {
@@ -270,6 +285,9 @@ WT_DECLARE_WT_MEMBER
 
    this.editKeyUp = function(edit, event) {
      if (editId == null)
+       return;
+
+     if (!checkEdit(edit))
        return;
 
      if ((event.keyCode == key_enter || event.keyCode == key_tab)

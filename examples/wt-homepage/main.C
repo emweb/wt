@@ -23,10 +23,10 @@ int main(int argc, char **argv)
 
     server.addResource(&rssFeed, "/wt/blog/feed/");
 
-    server.addEntryPoint(Application, createWtHomeApplication,
-      "", "/css/wt/favicon.ico");
     server.addEntryPoint(Application, createJWtHomeApplication,
       "/jwt", "/css/jwt/favicon.ico");
+    server.addEntryPoint(Application, createWtHomeApplication,
+      "", "/css/wt/favicon.ico");
 
     if (server.start()) {
       WServer::waitForShutdown();

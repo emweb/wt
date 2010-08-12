@@ -19,7 +19,7 @@ SET(WT_SOVERSION 23)
 SET(WTEXT_SOVERSION 23)
 SET(WTHTTP_SOVERSION 23)
 SET(WTFCGI_SOVERSION 23)
-SET(WTISAPI_SOVERSION 23)
+SET(WTISAPI_SOVERSION 1)
 SET(WTDBO_SOVERSION 23)
 SET(WTDBOSQLITE3_SOVERSION 23)
 SET(WTDBOPOSTGRES_SOVERSION 23)
@@ -78,39 +78,72 @@ ENDIF(CMAKE_MAJOR_VERSION LESS 2)
 
 SET(WT_BOOST_DISCOVERY ${DEFAULT_WT_BOOST_DISCOVERY} CACHE BOOL "Use Wt's boost discovery method rather than the cmake 2.6+ method")
 
+
+SET(LIB_INSTALL_DIR "lib" CACHE STRING
+  "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
+
 IF(WIN32)
 
-  SET(LIB_INSTALL_DIR "lib" CACHE STRING "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
-  SET(RUNDIR "c:/witty" CACHE PATH "Does not apply to Win32 build")
-  IF( NOT DEFINED CONFIGDIR )
-    SET(CONFIGDIR ${RUNDIR} CACHE STRING "Path for the configuration files")
-  ENDIF( NOT DEFINED CONFIGDIR )
-  SET(DEPLOYROOT c:/witty/wt-examples CACHE PATH "Path to deploy examples into")
+  SET(RUNDIR "c:/witty") # Does not apply to win32
 
-  SET(USERLIB_ROOT "c:/libraries" CACHE PATH "Location for installed dependency libraries")
-  SET(BOOST_DIR "c:/Program Files/Boost" CACHE PATH "Location of boost libraries")
-  OPTION(BOOST_DYNAMIC "Link to boost DLLs (OFF means static link)" OFF)
-  SET(GD_DIR ${USERLIB_ROOT} CACHE PATH "Location of gd library (overrides USERLIB_ROOT)")
-  SET(HARU_ROOT ${USERLIB_ROOT} CACHE PATH "Location of libharu library (overrides USERLIB_ROOT)")
-  SET(POSTGRES_ROOT "c:/libraries" CACHE PATH "Location of postgresql library (overrides USERLIB_ROOT)")
-  SET(MYSQL_ROOT "c:/libraries" CACHE PATH "Location of mysql and mysql++ libraries (overrides USERLIB_ROOT)")
+  IF(NOT DEFINED CONFIGDIR)
+    SET(CONFIGDIR ${RUNDIR} CACHE STRING "Path for the configuration files")
+  ENDIF(NOT DEFINED CONFIGDIR)
+
+  SET(USERLIB_PREFIX_DEFAULT "c:/libraries")
 
 ELSE(WIN32)
 
-  SET(LIB_INSTALL_DIR "lib" CACHE STRING "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
-  SET(RUNDIR "/var/run/wt" CACHE PATH "Default path for wt session management (only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
+  SET(RUNDIR "/var/run/wt" CACHE PATH
+    "Default path for wt session management "
+    "(only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
+
   IF( NOT DEFINED CONFIGDIR )
     SET(CONFIGDIR "/etc/wt" CACHE STRING "Path for the configuration files")
   ENDIF( NOT DEFINED CONFIGDIR )
-  SET(DEPLOYROOT /var/www/localhost/htdocs/wt-examples CACHE PATH "Path to deploy examples into)")
 
-  SET(USERLIB_ROOT /usr CACHE PATH "Location for installed dependency libraries.")
-  SET(BOOST_DIR ${USERLIB_ROOT} CACHE PATH "Location of boost libraries (overrides USERLIB_ROOT).")
-  SET(GD_DIR ${USERLIB_ROOT} CACHE PATH "Location of gd library (overrides USERLIB_ROOT).")
-  SET(POSTGRES_ROOT ${USERLIB_ROOT} CACHE PATH "Location of postgresql library (overrides USERLIB_ROOT)")
-  SET(MYSQL_ROOT ${USERLIB_ROOT} CACHE PATH "Location of mysql and mysql++ libraries (overrides USERLIB_ROOT)")
-  SET(HARU_ROOT ${USERLIB_ROOT} CACHE PATH "Location of libharu library (overrides USERLIB_ROOT)")
+  SET(USERLIB_PREFIX_DEFAULT "/usr")
+
 ENDIF(WIN32)
+
+IF(DEFINED USERLIB_ROOT) # Deprecated <= 3.1.3
+  SET(USERLIB_PREFIX ${USERLIB_ROOT} CACHE PATH
+    "Installation prefix of dependency libraries (by USERLIB_ROOT)")
+ELSE(DEFINED USERLIB_ROOT)
+  SET(USERLIB_PREFIX ${USERLIB_PREFIX} CACHE PATH
+    "Installation prefix of dependency libraries")
+ENDIF(DEFINED USERLIB_ROOT)
+
+IF(WIN32)
+  SET(BOOST_PREFIX_DEFAULT "c:/Program Files/Boost")
+  OPTION(BOOST_DYNAMIC "Link to boost DLLs (OFF means static link)" OFF)
+ELSE(WIN32)
+  SET(BOOST_PREFIX_DEFAULT ${USERLIB_PREFIX})
+ENDIF(WIN32)
+
+IF(DEFINED BOOST_DIR) # Deprecated <= 3.1.3
+  SET(BOOST_PREFIX ${BOOST_DIR} CACHE PATH
+    "Installation prefix of boost libraries (by BOOST_DIR)")
+ELSE(DEFINED BOOST_DIR)
+  SET(BOOST_PREFIX ${BOOST_PREFIX_DEFAULT} CACHE PATH
+    "Installation prefix of boost libraries")
+ENDIF(DEFINED BOOST_DIR)
+
+SET(FCGI_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of fcgi library (overrides USERLIB_PREFIX)")
+SET(POSTGRES_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of postgresql library (overrides USERLIB_PREFIX)")
+SET(MYSQL_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of mysql and mysql++ libraries "
+  "(overrides USERLIB_PREFIX)")
+SET(SQLITE3_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of sqlite3 library (overrides USERLIB_PREFIX)")
+SET(HARU_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of libharu library (overrides USERLIB_PREFIX)")
+SET(SSL_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of SSL library (overrides USERLIB_PREFIX)")
+SET(ZLIB_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of zlib library (overrides USERLIB_PREFIX)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 IF(CYGWIN)

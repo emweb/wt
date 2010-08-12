@@ -19,6 +19,133 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.4 (Aug 13, 2010)</h2>
+
+<p>
+  This release several new features, but also a few changes that
+  break backwards compatibility (but are unlikely to affect an average
+  application).
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WBatchEditProxyModel.html">
+      WBatchEditProxyModel</a></dt>
+  <dd>A proxy model that caches editing operations to commit them atomically.
+  </dd>
+  <dt><a href="classWt_1_1WHTML5Audio.html">WHTML5Audio</a></dt>
+  <dd>Audio support using the HTML5 audio tag.</dd>
+  <dt><a href="classWt_1_1WPdfImage.html">WPdfImage</a></dt>
+  <dd>A WPaintDevice that writes to Pdf (using libharu).</dd>
+  <dt><a href="classWt_1_1WRasterImage.html">WRasterImage</a></dt>
+  <dd>A WPaintDevice that writes to a Png/Gif (using GraphicsMagick).</dd>
+  <dt>ISAPI connector</dt>
+  <dd>(Windows only) a connector that implements the Microsoft ISAPI
+    API, to integrate directly into Microsoft IIS. On Windows, this is
+    an alternative deployment option next to the built-in httpd.</dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WAbstractItemView.html">WAbstractItemView</a>
+  </dt>
+  <dd>Added support for validators while editing.</dd>
+  <dt>
+    <a href="classWt_1_1WApplication.html#88b082dadadd3fb7dbe10887e7d89c91">WApplication</a>
+  </dt>
+  <dd>Added an appRoot() method this returns the value of the
+    special property "approot" which can in some cases be defined
+    implicitly by a connector (such as ISAPI), and which allows an
+    application to reference working files whereas previously it was
+    assumed that they were in the working directory (CWD).</dd>
+  <dt>
+    <a href="classWt_1_1WEnvironment.html#fd8726dfa8cabcb49895df4a6112ef48">WEnvironment::agent() and related</a>
+  </dt>
+  <dd>Convenience methods that return pre-parsed user agent identification,
+    should you want to differentiate based on browser.</dd>
+  <dt>
+    <a href="classWt_1_1WWidget.html#bb5949e98f47edb7db98d7b6df07a31c">WWidget::addStyleClass()</a>, <a href="classWt_1_1WWidget.html#3b8a35e37ef06c408f346c63a5f1aa8e">WWidget::removeStyleClass()</a>
+  </dt>
+  <dd>Added addStyleClass() and removeStyleClass() methods.</dd>
+  <dt>
+    <a href="classWt_1_1WMenu.html">WMenu, WMenuItem</a>
+  </dt>
+  <dd>Added support for closable and disabled items (not complete,
+    CSS is lacking for polished theme). Contributed by Dmitriy Igrishin.</dd>
+  <dt>
+    <a href="classWt_1_1WModelIndex.html#93c11e136a0fdc596eb745cc7fce7033">WModelIndex</a>
+  </dt>
+  <dd>Added support for in-place (destructive) encoding to and
+  decoding from a raw index, making this less of a hassle for View
+  classes.</dd>
+  <dt>
+    <a href="classWt_1_1WSortFilterProxyModel.html">WSortFilterProxyModel</a>
+  </dt>
+  <dd>Added support for row insertion/removal.</dd>
+  <dt>
+    <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>
+  </dt>
+  <dd>Allow usage as an advanced combo-box, with an explicit drop down
+  button and ability to react to a selection.</dd>
+  <dt>
+    <a href="group__dbo.html#gc98c1f90b00ed9ce243c6412da3ac489">Dbo::id()</a>
+  </dt>
+  <dd>Support for natural keys (possibly of composite type) next to the
+    built-in surrogate keys.</dd>
+  <dt>
+    <a href="structWt_1_1Dbo_1_1dbo__traits.html">Dbo::dbo_traits&lt;C&gt;</a>
+  </dt>
+  <dd>By specializing this traits class, you can modify the surrogate id
+    field name (or disable it), and the optimistic version lock field
+    name (or disable it).</dd>
+  <dt>
+    <a href="classWt_1_1Dbo_1_1Session.html#8712ff0d59f7bb6a4d2986ad9637cc9e">Dbo::Session::query()</a>
+  </dt>
+  <dd>More robust query parsing (of the 'select' part), including
+  support for "select distinct".</dd>
+  <dt>
+    <a href="classWt_1_1Dbo_1_1QueryModel.html">Dbo::QueryModel</a>
+  </dt>
+  <dd>Added editing support (editing the model will modify the queried
+  dbo's).</dd>
+  <dt>
+    <a href="structWt_1_1Dbo_1_1query__result__traits.html">Dbo::query_result_traits&lt;C&gt;</a>
+  </dt>
+  <dd>Added setValue(), create(), add() and remove() methods for modifying
+    queried results.</dd>
+</dl>
+
+<h3>C) Changes that break existing applications:</h3>
+
+<dl>
+  <dt><a href="structWt_1_1Dbo_1_1Dbo.html">Dbo::Dbo</a></dt>
+  <dd>
+    This class is now a templated with the class name itself, in
+    order to provide the proper type for the (natural or surrogate) id
+    field for id(). You will need to replace
+    <pre>
+      class User : public Wt::Dbo { ... }
+    </pre>
+    with
+    <pre>
+      class User : public Wt::Dbo&lt;User&gt; { ... }
+    </pre>
+  </dd>
+  <dt>CSS</dt>
+  <dd>The toplevel container used by Wt is now given a <tt>position:
+    relative</tt> style; this was needed to be able to position widgets
+    (such as popups) using <tt>position: absolute</tt>, but may break
+    application layouts. You can override this CSS style by adding
+    <tt>.Wt-domRoot { position: static; }</tt> to your application's
+    (internal or external) stylesheet.
+  </dd>
+</dl>
+
+<hr />
+
 <h2>Release 3.1.3 (May 20, 2010)</h2>
 
 <p>

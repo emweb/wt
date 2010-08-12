@@ -24,15 +24,15 @@
 FIND_PATH(BOOST_INCLUDE_DIRS
     boost/lexical_cast.hpp
   PATHS
-    ${BOOST_DIR}/include
-    ${BOOST_DIR}/include/${BOOST_VERSION}
-    ${BOOST_DIR}/include/boost-${BOOST_VERSION}
-    ${BOOST_DIR}
+    ${BOOST_PREFIX}/include
+    ${BOOST_PREFIX}/include/${BOOST_VERSION}
+    ${BOOST_PREFIX}/include/boost-${BOOST_VERSION}
+    ${BOOST_PREFIX}
   NO_DEFAULT_PATH
 )
 
-#SET (BOOST_LIB_DIRS "${BOOST_DIR}/lib ${BOOST_DIR}/lib64")
-SET (BOOST_LIB_DIRS ${BOOST_DIR}/lib)
+#SET (BOOST_LIB_DIRS "${BOOST_PREFIX}/lib ${BOOST_PREFIX}/lib64")
+SET (BOOST_LIB_DIRS ${BOOST_PREFIX}/lib)
 
 IF(MSVC)
 # FIXME: write some TRY_COMPILEs here to verify that these libs exist

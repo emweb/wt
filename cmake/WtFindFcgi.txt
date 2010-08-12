@@ -2,7 +2,9 @@
 # - FCGI_INCLUDE_DIRS
 # - FCGI_LIBRARIES
 # - FCGI_FOUND
-
+#
+# Taking into account:
+# - FCGI_PREFIX
 
 FIND_PATH(FCGI_INCLUDE_DIR
     fcgio.h
@@ -13,15 +15,15 @@ FIND_PATH(FCGI_INCLUDE_DIR
 )
 
 FIND_LIBRARY(FCGI_LIB fcgi
+  ${FCGI_PREFIX}/lib
   /usr/lib
   /usr/local/lib
-  ${USERLIB_ROOT}/lib
 )
 
 FIND_LIBRARY(FCGIPP_LIB fcgi++
+  ${FCGI_PREFIX}/lib
   /usr/lib
   /usr/local/lib
-  ${USERLIB_ROOT}/lib
 )
 
 SET(FCGI_FOUND FALSE)

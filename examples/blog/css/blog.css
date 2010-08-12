@@ -47,8 +47,19 @@
 }
 
 .comment-body {
-    overflow: hidden;
+    overflow: hidden; /* trick that makes alignment work properly */
     margin-left: 3px;
+}
+
+.comment-body .vspace {
+    margin: 10px 0px;
+}
+
+.comment-body pre {
+    line-height: 140%;
+    border: 1px solid silver;
+    background: #f4f4f4;
+    padding: 0.5em;
 }
 
 .comment-edit {

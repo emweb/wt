@@ -41,6 +41,17 @@ public:
   static IsapiServer *instance();
 
   bool addServer(WServer *server);
+  void removeServer(WServer *server);
+
+  // Test to see if configuration() is non-zero before
+  // invoking this log()!! So if (configuration()) log("notice") << "ok";
+  WLogEntry log(const std::string& type);
+
+  Configuration *configuration() const { return configuration_; }
+
+  // IsapiServer takes ownership of the Configuration object and
+  // will delete it on destruction. Once set, it must not be changed.
+  void setConfiguration(Configuration *c) { configuration_ = c; }
 
 private:
   static IsapiServer *instance_;
@@ -53,6 +64,9 @@ private:
 
   // Also protected by queueMuex_;
   WServer *server_;
+  // Once configuration_ is set, it remains valid until the IsapiServer is
+  // destroyed.
+  Configuration *configuration_;
 
   void setTerminated();
   bool terminated_;

@@ -269,11 +269,12 @@ void WebRenderer::serveError(WebResponse& response, const std::string& message,
       << WWebWidget::escapeText(WString(message), true).toUTF8()
       << std::endl;    
   } else {
-    collectedJS1_ <<
+    response.out() <<
+      wApp->javaScriptClass() << "._p_.quit();"
       "document.title = 'Error occurred.';"
       "document.body.innerHtml='<h2>Error occurred.</h2>' +";
-    DomElement::jsStringLiteral(collectedJS1_, message, '\'');
-    collectedJS1_ << ";";
+    DomElement::jsStringLiteral(response.out(), message, '\'');
+    response.out() << ";";
   }
 }
 

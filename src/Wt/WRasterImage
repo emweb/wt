@@ -22,28 +22,28 @@ class WTransform;
 /*! \class WRasterImage Wt/WRasterImage Wt/WRasterImage
  *  \brief A paint device for rendering to a raster image.
  *
- * The %WRasterImage provides support for creating raster images (such
- * as PNG or GIF images).
+ * A %WRasterImage paint device provides support for creating raster
+ * images (such as PNG or GIF images).
  *
- * It has two main use-cases:
+ * It implements two main use-cases:
  *
  *  - When used either in conjunction with a WPainter, it supports
  *    vector graphics operations, and can be used to make a PNG or GIF
  *    version of a WPaintedWidget's contents.
  *
- *  - It also provides a low-level API to color individual pixels:
+ *  - It also provides a low-level API to color individual pixels using
  *    setPixel(), which directly sets the raster pixels.
  *
  * The rendering is provided by <a
  * href="http://www.graphicsmagick.org/">GraphicsMagick</a>, and this
  * class is included in the library only if <tt>libgraphicsmagick</tt>
- * was found.
+ * was found during the build of the library.
  *
- * When used as a resource, an image file will be generated (provided
- * that handleRequest() is specialized to paint the actual contents on
- * the device.  You can also use write() to serialize to an image
- * directly.
+ * You can use the image as a resource and specialize handleRequest()
+ * to paint the contents on the fly. Alternatively can also use
+ * write() to serialize to an image file (std::ostream).
  *
+ * The latter usage is illustrated by the code below:
  * \code
  * Wt::Chart::WCartesianChart *chart = ...
  *
@@ -58,7 +58,7 @@ class WTransform;
  *
  * This paint device has the following limitations:
  * - including images (WPainter::drawImage()) is not yet implemented.
- * - drop shadows are not yet supported.
+ * - drop shadows are (not yet?) supported.
  * 
  * \ingroup painting
  */

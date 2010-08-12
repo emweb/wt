@@ -273,9 +273,21 @@ public:
    * A single suggestion popup may assist in several edits by repeated calls
    * of this method.
    *
-   * The \p popupTrigger
+   * The \p popupTriggers control how editing is triggered (either by the user
+   * editing the field by entering keys or by an explicit drop down menu that
+   * is shown inside the edit).
+   *
+   * \sa removeEdit()
    */
   void forEdit(WFormWidget *edit, WFlags<PopupTrigger> popupTriggers = Editing);
+
+  /*! \brief Removes the edit field from the list of assisted editors.
+   *
+   * The editor will no longer be assisted by this popup widget.
+   *
+   * \sa forEdit().
+   */
+  void removeEdit(WFormWidget *edit);
 
   /*! \brief Clears the list of suggestions.
    *
@@ -398,6 +410,13 @@ public:
    */
   Signal<WT_USTRING>& filterModel() { return filterModel_; }
 
+  /*! \brief %Signal emitted when a suggestion was selected.
+   *
+   * The selected item is passed as the first argument and the editor as
+   * the second.
+   */
+  Signal<int, WFormWidget *>& activated() { return activated_; }
+
   virtual void setMaximumSize(const WLength& width, const WLength& height);
   virtual void setMinimumSize(const WLength& width, const WLength& height);
 
@@ -412,15 +431,21 @@ private:
   WContainerWidget *content_;
 
   Signal<WT_USTRING> filterModel_;
+  Signal<int, WFormWidget *> activated_;
 
   std::vector<boost::signals::connection> modelConnections_;
 
   JSignal<std::string> filter_;
+  JSignal<std::string, std::string> jactivated_;
+
   JSlot editKeyDown_, editKeyUp_, editClick_, editMouseMove_;
   JSlot delayHide_;
 
+  std::vector<WFormWidget *> edits_;
+
   void init();
   void doFilter(std::string input);
+  void doActivate(std::string itemId, std::string editId);
   void setJavaScript(JSlot& slot, const std::string& methodName);
 
   void modelRowsInserted(const WModelIndex& parent, int start, int end);

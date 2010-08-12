@@ -190,7 +190,7 @@ struct dbo_default_traits
  *     template<>
  *     struct dbo_traits<Foo>
  *     {
- *        static const char *versionField() { return "foo_id"; }
+ *        static const char *surrogateIdField() { return "foo_id"; }
  *     };
  *   }
  * }
@@ -274,7 +274,7 @@ struct dbo_traits : public dbo_default_traits
    */
   static IdType invalidId();
 
-  /*! \brief Returns the database field name for the surrogate primary key.
+  /*! \brief Configures the surrogate primary key field.
    *
    * Returns the field name which is the surrogate primary key,
    * corresponding to the object's id.

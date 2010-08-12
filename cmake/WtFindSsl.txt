@@ -2,6 +2,8 @@
 # - SSL_INCLUDE_DIRS
 # - SSL_LIBRARIES
 # - SSL_FOUND
+# Taking into account:
+# - SSL_PREFIX
 #
 # Remark for Win32 users: This file searches for both debug and release
 # versions of the OpenSSL library. We assume that debug libs are compiled
@@ -9,9 +11,9 @@
 # these modes; it is currently unclear to me if cmake ever uses /MT variants.
 
 FIND_PATH(SSL_INCLUDE_DIRS openssl/ssl.h
+  ${SSL_PREFIX}/include
   /usr/include
   /usr/local/include
-  ${USERLIB_ROOT}/include
   c:/openssl/include
 )
 
@@ -23,7 +25,7 @@ IF(WIN32)
     PATHS
       /usr/lib
       /usr/local/lib
-      ${USERLIB_ROOT}/lib
+      ${SSL_PREFIX}/lib
       c:/openssl/lib/VC
   )
 
@@ -33,7 +35,7 @@ IF(WIN32)
     PATHS
       /usr/lib
       /usr/local/lib
-      ${USERLIB_ROOT}/lib
+      ${SSL_PREFIX}/lib
       c:/openssl/lib/VC
   )
 
@@ -41,7 +43,7 @@ IF(WIN32)
     NAMES
       libeay32MD
     PATHS
-      ${USERLIB_ROOT}/lib
+      ${SSL_PREFIX}/lib
       c:/openssl/lib/VC
   )
 
@@ -49,7 +51,7 @@ IF(WIN32)
     NAMES
       libeay32MDd
     PATHS
-      ${USERLIB_ROOT}/lib
+      ${SSL_PREFIX}/lib
       c:/openssl/lib/VC
   )
 
@@ -82,7 +84,7 @@ ELSE (WIN32)
     PATHS
       /usr/lib
       /usr/local/lib
-      ${USERLIB_ROOT}/lib
+      ${SSL_PREFIX}/lib
   )
 ENDIF (WIN32)
 

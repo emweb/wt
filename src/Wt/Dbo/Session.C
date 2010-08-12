@@ -11,6 +11,7 @@
 #include "Wt/Dbo/SqlConnection"
 #include "Wt/Dbo/SqlConnectionPool"
 #include "Wt/Dbo/SqlStatement"
+#include "Wt/Dbo/StdSqlTraits"
 
 #include <cassert>
 #include <iostream>
@@ -583,7 +584,8 @@ void Session::createTable(MappingInfo *mapping)
     if (!firstField)
       sql << ",\n";
 
-    sql << "  \"" << mapping->versionFieldName << "\" integer not null";
+    sql << "  \"" << mapping->versionFieldName << "\" "
+	<< sql_value_traits<int>::type(0, 0);
 
     firstField = false;
   }
@@ -751,7 +753,8 @@ Session::getJoinIds(MappingInfo *mapping, const std::string& joinId)
       idName = joinId;
 
     result.push_back
-      (JoinId(idName, mapping->surrogateIdFieldName, "integer not null"));
+      (JoinId(idName, mapping->surrogateIdFieldName,
+	      sql_value_traits<long long>::type(0, 0)));
 
   } else {
     std::string foreignKeyName;
@@ -892,12 +895,14 @@ void Session::getFields(const char *tableName,
 
   if (mapping->surrogateIdFieldName)
     result.push_back(FieldInfo(mapping->surrogateIdFieldName,
-			       &typeid(long long), "integer not null",
+			       &typeid(long long),
+			       sql_value_traits<long long>::type(0, 0),
 			       FieldInfo::SurrogateId));
 
   if (mapping->versionFieldName)
     result.push_back(FieldInfo(mapping->versionFieldName, &typeid(int),
-			       "integer not null", FieldInfo::Version));
+			       sql_value_traits<int>::type(0, 0),
+			       FieldInfo::Version));
 
   result.insert(result.end(), mapping->fields.begin(), mapping->fields.end());
 }

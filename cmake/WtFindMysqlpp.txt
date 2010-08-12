@@ -3,29 +3,30 @@
 # - MYSQLPP_INCLUDE_DIRS
 # - MYSQLPP_FOUND
 # - MSQLPP_DEFINITIONS
-#
+# Taking into account:
+# - MYSQL_PREFIX
 
 FIND_LIBRARY(MYSQLPP_LIBRARIES mysqlpp
+    ${MYSQL_PREFIX}/lib
     /usr/lib
     /usr/local/lib
     /opt/local/lib	
-    ${MYSQL_ROOT}/lib
 )
 
 FIND_PATH(MYSQLPP_INCLUDE mysql++/mysql++.h
+    ${MYSQL_PREFIX}/include
     /usr/include
     /usr/local/include
     /opt/local/include	
-    ${MYSQL_ROOT}/include
 )
 
 FIND_PATH(MYSQL_INCLUDE mysql.h
+    ${MYSQL_PREFIX}/include
     /usr/include
     /usr/local/include
     /usr/include/mysql
     /opt/local/include/mysql5/mysql
     /usr/local/include/mysql
-    ${MYSQL_ROOT}/include
 )
 
 SET(MYSQLPP_FOUND FALSE)

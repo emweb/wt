@@ -27,6 +27,7 @@
 #include "SessionInfo.h"
 #include "WebController.h"
 
+#include "Wt/WResource"
 #include "Wt/WServer"
 #include "Wt/WLogger"
 
@@ -922,8 +923,13 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 
 void WServer::addResource(WResource *resource, const std::string& path)
 {
-  impl()->configuration_->log("error")
-    << "WServer::addResource() not supported by FCGI connector.";
+  if (!boost::starts_with(path, "/")) 
+    throw WServer::Exception("WServer::addResource() error: "
+                             "static resource path should start with \'/\'");
+
+  resource->setInternalPath(path);
+  impl_->configuration_->addEntryPoint(EntryPoint(resource, path));
+
 }
 
 void WServer::handleRequest(WebRequest *request)

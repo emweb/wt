@@ -27,17 +27,19 @@ namespace Wt {
 /*! \class WPdfImage Wt/WPdfImage Wt/WPdfImage
  *  \brief A paint device for rendering to a PDF.
  *
- * The %WPdfImage needs to be used in conjunction with a WPainter, and
- * can be used to make a PDF version of a WPaintedWidget's contents.
+ * A %WPdfImage paint device should be used in conjunction with a
+ * WPainter, and can be used to make a PDF version of a
+ * WPaintedWidget's contents.
  *
  * The PDF is generated using <a href="http://libharu.org/">The Haru
  * Free PDF Library</a>, and this class is included in the library
- * only if <tt>libharu</tt> was found.
+ * only if <tt>libharu</tt> was found during the build of the library.
  *
- * When used as a resource, a PDF file will be generated (provided that
- * handleRequest() is specialized to paint the actual contents on the device.
- * You can also use write() to serialize to a PDF file directly.
+ * You can use the image as a resource and specialize handleRequest()
+ * to paint the contents on the fly. Alternatively can also use
+ * write() to serialize to a PDF file (std::ostream).
  *
+ * The latter usage is illustrated by the code below:
  * \code
  * Wt::Chart::WCartesianChart *chart = ...
  *
@@ -50,12 +52,13 @@ namespace Wt {
  * pdfImage.write(f);
  * \endcode
  *
- * The image can also be embedded directly into a page of a
- * <tt>libharu</tt> document, by using the alternate constructor.
+ * A constructor is provided which allows the generated PDF image to
+ * be embedded directly into a page of a larger <tt>libharu</tt>
+ * document.
  *
  * This paint device has the following limitations:
  * - images (WPainter::drawImage()) can only be included from local
- * files
+ * files, and is restricted to JPG and PNG images.
  * - drop shadows are not supported.
  *
  * \ingroup painting

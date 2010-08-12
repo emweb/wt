@@ -102,6 +102,7 @@ public:
   int                numThreads() const { return numThreads_; }
   int                maxNumSessions() const { return maxNumSessions_; }
   int                maxRequestSize() const { return maxRequestSize_; }
+  int                maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
   SessionTracking    sessionTracking() const { return sessionTracking_; }
   bool               reloadIsNewSession() const { return reloadIsNewSession_; }
   int                sessionTimeout() const { return sessionTimeout_; }
@@ -156,6 +157,7 @@ private:
   int             numThreads_;
   int             maxNumSessions_;
   int             maxRequestSize_;
+  int             maxMemoryRequestSize_;
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;
   int             sessionTimeout_;

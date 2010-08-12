@@ -1,6 +1,8 @@
 #include "IsapiRequest.h"
 #include "Server.h"
+#include "Utils.h"
 #include <boost/algorithm/string/case_conv.hpp>
+#include <fstream>
 
 namespace Wt {
   namespace isapi {
@@ -40,14 +42,40 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
   // Read whatever has already been read
   bool done = false;
   bytesToRead_ = ecb->cbTotalBytes;
+
+  bool spooltofile = false;
+  if (server_->configuration()) {
+    spooltofile =
+      bytesToRead_ >(unsigned)server_->configuration()->maxMemoryRequestSize();
+  } else {
+    spooltofile = bytesToRead_ > 128*1024;
+  }
+  if (spooltofile) {
+    requestFileName_ = Wt::Utils::createTempFileName();
+    // First, create the file
+    std::ofstream o(requestFileName_.c_str());
+    o.close();
+    // Now, open it for read/write
+    in_ = new std::fstream(requestFileName_.c_str(),
+      std::ios::in | std::ios::out | std::ios::binary);
+    if (!*in_) {
+      // Give up, spool to memory
+      requestFileName_ = "";
+      delete in_;
+      in_ = &in_mem_;
+    }
+  } else {
+    in_ = &in_mem_;
+  }
+
   if (ecb->lpbData && ecb->cbAvailable) {
-    in_.write((const char *)ecb_->lpbData, ecb->cbAvailable);
+    in_->write((const char *)ecb_->lpbData, ecb->cbAvailable);
   }
   if (bytesToRead_ != 0xffffffff) {
     bytesToRead_ -= ecb->cbAvailable;
   }
   if (bytesToRead_ == 0) {
-    in_.seekg(0);
+    in_->seekg(0);
     server->pushRequest(this);
     return;
   }
@@ -55,7 +83,7 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
   if (!synchronous_) {
     processAsyncRead(0, 0, true);
   } else {
-    // FIXME: store in tmp file if too big
+    // TODO: store in tmp file if too big
     while (bytesToRead_ != 0 && !done) {
       bufferSize_ = sizeof(buffer_);
       if (bytesToRead_ != 0xffffffff && bytesToRead_ < bufferSize_) {
@@ -66,19 +94,34 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
           bytesToRead_ -= bufferSize_;
         }
         if (bufferSize_ != 0) {
-          in_.write(buffer_, bufferSize_);
+          in_->write(buffer_, bufferSize_);
         } else {
           done = true;
         }
       } else {
         int err = GetLastError();
-    		good_ = false; // FIXME: retry on timeout?
+        if (server_->configuration())
+          server_->log("error")
+          << "ISAPI Synchronous Read failed with error " << err;
+        good_ = false; // TODO: retry on timeout?
         done = true;
       }
     }
-    in_.seekg(0);
+    in_->seekg(0);
     server->pushRequest(this);
   }
+}
+
+IsapiRequest::~IsapiRequest()
+{
+  if (&in_mem_ != in_) {
+    dynamic_cast<std::fstream *>(in_)->close();
+    delete in_;
+  }
+  if (requestFileName_ != "") {
+    unlink(requestFileName_.c_str());
+  }
+
 }
 
 void WINAPI IsapiRequest::completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,
@@ -101,7 +144,7 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
     bytesToRead_ -= cbIO;
   }
   if (cbIO != 0) {
-    in_.write(buffer_, cbIO);
+    in_->write(buffer_, cbIO);
   }
 
   // Then, read more, if applicable
@@ -116,8 +159,11 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
           HSE_REQ_ASYNC_READ_CLIENT, (LPVOID)buffer_, &bufferSize_,
           (LPDWORD)&dwFlags)) {
       int err = GetLastError();
+      if (server_->configuration())
+        server_->log("error")
+          << "ISAPI Asynchronous Read scheduling failed with error " << err;
       good_ = false;
-      in_.seekg(0);
+      in_->seekg(0);
       server_->pushRequest(this);
     } else {
       // Don't do anything here, the readclient callback may already
@@ -125,10 +171,13 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
     }
   } else {
     // Nothing more to read, or error
-	  if (dwError) {
+    if (dwError) {
+      if (server_->configuration())
+        server_->log("error")
+          << "ISAPI Asynchronous Read failed with error " << dwError;
       good_ = false;
-	  }
-    in_.seekg(0);
+    }
+    in_->seekg(0);
     server_->pushRequest(this);
   }
 }
@@ -138,10 +187,6 @@ bool IsapiRequest::isSynchronous() const
   return synchronous_;
 }
 
-IsapiRequest::~IsapiRequest()
-{
-}
-
 void IsapiRequest::sendHeader()
 {
   // Finish up the header
@@ -149,7 +194,8 @@ void IsapiRequest::sendHeader()
     header_ << "Transfer-Encoding: chunked\r\n\r\n";
   } else if (responseLengthKnown_) {
     out_.seekg(0, std::ios_base::end);
-    DWORD size = out_.tellg();
+    std::streamsize size = out_.tellg();
+    if (size == -1) size = 0;
     out_.seekg(0);
     header_ << "Content-Length: " << size << "\r\n\r\n";
   } else {
@@ -214,12 +260,13 @@ void IsapiRequest::flush(ResponseState state,
 
   out_.flush();
   out_.seekg(0, std::ios_base::end);
-  DWORD size = out_.tellg();
+  std::streamsize size = out_.tellg();
+  if (size == -1) size = 0;
   out_.seekg(0);
   if (chunking_) {
     std::string chunkPrefix;
     std::stringstream hexsize;
-    hexsize << std::hex << (int)size << std::dec << "\r\n";
+    hexsize << std::hex << size << std::dec << "\r\n";
     writeData_.push_back(chunkPrefix = hexsize.str());
     if (state == ResponseDone) {
       out_ << "\r\n0\r\n\r\n";
@@ -254,6 +301,8 @@ void IsapiRequest::writeSync()
         int err = GetLastError();
         err = err;
         abort();
+        server_->log("error")
+          << "ISAPI Synchronous Write failed with error " << err;
         // Note: it would be appropriate to call the callback function here
         // with a notification that the continuation was aborted.
         delete this;
@@ -270,6 +319,10 @@ void IsapiRequest::writeSync()
 void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
 {
   bool error = dwError != 0;
+  if (dwError) {
+    server_->log("error")
+      << "ISAPI Asynchronous Write failed with error " << dwError;
+  }
   if (first) {
     writeIndex_ = 0;
     writeOffset_ = 0;
@@ -288,6 +341,9 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
         return;
       } else {
         error = true;
+        int err = GetLastError();
+        server_->log("error")
+          << "ISAPI Asynchronous Write schedule failed with error " << err;
       }
     } else {
       // Everything is written, finish up
@@ -298,8 +354,6 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
   }
 
   if (error) {
-    int err = GetLastError();
-    err = err;
     abort();
     delete this;
     return;
@@ -336,6 +390,7 @@ void IsapiRequest::sendSimpleReply(int status, const std::string &msg)
 void IsapiRequest::setStatus(int status)
 {
   ecb_->dwHttpStatusCode = status;
+  setContentType("text/html");
   header_ << "Status: " << status << "\r\n";
 }
 
@@ -405,7 +460,11 @@ std::string IsapiRequest::envValue(const std::string& hdr) const
 }
 
 std::string IsapiRequest::scriptName() const {
-  return envValue("SCRIPT_NAME");
+  if (entryPoint_) {
+    return envValue("SCRIPT_NAME") + entryPoint_->path();
+  } else {
+    return envValue("SCRIPT_NAME");
+  }
 }
 
 std::string IsapiRequest::serverName() const {
@@ -425,7 +484,17 @@ std::string IsapiRequest::serverPort() const {
 }
 
 std::string IsapiRequest::pathInfo() const {
-  return envValue("PATH_INFO");
+  if (entryPoint_) {
+    std::string pi = envValue("PATH_INFO");
+    if (pi.size() >= entryPoint_->path().size()) {
+      // assert(boost::starts_with(pi, entryPoint_->path()))
+      return pi.substr(entryPoint_->path().size());
+    } else {
+      return pi;
+    }
+  } else {
+    return envValue("PATH_INFO");
+  }
 }
 
 std::string IsapiRequest::remoteAddr() const {

@@ -56,7 +56,7 @@ void CommentView::edit()
   setTemplateText(tr("blog-edit-comment"));
 
   editArea_ = new WTextArea();
-  editArea_->setText(comment_->textSrc);
+  editArea_->setText(comment_->textSrc());
   editArea_->setFocus();
 
   WPushButton *save = new WPushButton("save");
@@ -104,7 +104,7 @@ void CommentView::resolveString(const std::string& varName,
     format(result, comment_->date.timeTo(WDateTime::currentDateTime())
 	   + " ago");
   else if (varName == "contents")
-    format(result, comment_->textHtml, XHTMLText);
+    format(result, comment_->textHtml(), XHTMLText);
   else
     WTemplate::resolveString(varName, args, result);
 }
@@ -125,7 +125,10 @@ void CommentView::renderView()
   replyText->clicked().connect(this, &CommentView::reply);
   bindWidget("reply", replyText);
 
-  bool mayEdit = session_.user() && comment_->author == session_.user(); 
+  bool mayEdit = session_.user()
+    && (comment_->author == session_.user()
+	|| session_.user()->role == User::Admin);
+
   if (mayEdit) {
     WText *editText = new WText(tr("comment-edit"));
     editText->setStyleClass("link");
@@ -167,8 +170,7 @@ void CommentView::save()
 
   Comment *comment = comment_.modify();
 
-  comment->textSrc = editArea_->text();
-  comment->textHtml = WWebWidget::escapeText(comment->textSrc, true);
+  comment->setText(editArea_->text());
 
   if (comment->date.isNull())
     comment->date = WDateTime::currentDateTime();
@@ -198,7 +200,7 @@ void CommentView::rm()
 {
   dbo::Transaction t(session_);
 
-  comment_.modify()->textHtml = tr("comment-deleted");
+  comment_.modify()->setDeleted();
   renderView();
 
   t.commit();

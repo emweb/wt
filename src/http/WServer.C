@@ -36,6 +36,8 @@
 typedef boost::thread thread_t;
 #endif
 namespace {
+  bool gdb = false;
+
   static std::string getWtConfigXml(int argc, char *argv[])
   {
     std::string wt_config_xml;
@@ -125,6 +127,8 @@ void WServer::addResource(WResource *resource, const std::string& path)
 
 bool WServer::start()
 {
+  gdb = impl_->serverConfiguration_.gdb();
+
   if (isRunning()) {
     std::cerr << "WServer::start() error: server already started!" << std::endl;
     return false;
@@ -297,6 +301,13 @@ void WServer::handleRequest(WebRequest *request)
 
 int WServer::waitForShutdown(const char *restartWatchFile)
 {
+#if !defined(WIN32)
+  if (gdb) {
+    for(;;)
+      sleep(0x1<<16);
+  }
+#endif // WIN32
+
 #ifdef WT_THREADED
 
 #if !defined(_WIN32)
@@ -304,9 +315,6 @@ int WServer::waitForShutdown(const char *restartWatchFile)
   sigemptyset(&wait_mask);
 
   sigaddset(&wait_mask, SIGHUP);
-  /*
-   * uncomment SIGINT when experiencing annoying gdb interference
-   */
   sigaddset(&wait_mask, SIGINT);
   sigaddset(&wait_mask, SIGQUIT);
   sigaddset(&wait_mask, SIGTERM);

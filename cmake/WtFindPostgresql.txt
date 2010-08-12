@@ -2,27 +2,28 @@
 # - POSTGRES_LIBRARIES
 # - POSTGRES_INCLUDE_DIRS
 # - POSTGRES_FOUND
-#
+# Taking into account:
+# - POSTGRES_PREFIX
 
 FIND_LIBRARY(POSTGRES_LIBRARIES
   NAMES
     pq libpq
   PATHS
+    ${POSTGRES_PREFIX}/lib
     /usr/lib
     /usr/local/lib
     /opt/local/lib	
-    ${POSTGRES_ROOT}/lib
 )
 
 FIND_PATH(POSTGRES_INCLUDE libpq-fe.h
+    ${POSTGRES_PREFIX}/include
+    ${POSTGRES_PREFIX}/postgresql/include
     /usr/include
     /usr/include/postgresql
     /usr/local/include
     /usr/local/include/postgresql
     /opt/local/include	
     /opt/local/include/postgresql
-    ${POSTGRES_ROOT}/include
-    ${POSTGRES_ROOT}/postgresql/include
 )
 
 SET(POSTGRES_FOUND FALSE)

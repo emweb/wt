@@ -152,6 +152,7 @@ Configuration::Configuration(const std::string& applicationPath,
     numThreads_(serverType == WtHttpdServer ? 0 : 10),
     maxNumSessions_(100),
     maxRequestSize_(128),
+    maxMemoryRequestSize_(128*1024),
     sessionTracking_(URL),
     reloadIsNewSession_(true),
     sessionTimeout_(600),
@@ -293,6 +294,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     std::string numThreadsStr = singleChildElementValue(isapi, "num-threads", "");
     if (!numThreadsStr.empty())
       numThreads_ = boost::lexical_cast<int>(numThreadsStr);
+
+    std::string maxMemoryRequestSizeStr =
+      singleChildElementValue(isapi, "max-memory-request-size", "");
+    if (!maxMemoryRequestSizeStr.empty()) {
+      maxMemoryRequestSize_ = boost::lexical_cast<int>(maxMemoryRequestSizeStr) * 1024;
+    }
   }
 
   std::string sessionIdLength

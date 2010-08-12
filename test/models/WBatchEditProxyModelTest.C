@@ -103,13 +103,14 @@ void WBatchEditProxyModelTest::test()
 
   clearEvents();
 
-  pm->setData(1, 0, std::string("sm(1, 0)"), DisplayRole);
+  pm->setData(1, 0, std::string("sm(1, 0)"), EditRole);
   BOOST_REQUIRE(d(pm, 1, 0) == "sm(1, 0)");
 
   proxyModel_->commitAll();
 
   BOOST_REQUIRE(sm->rowCount() == 2);
 
+  BOOST_REQUIRE(d(pm, 1, 0) == "sm(1, 0)");
   BOOST_REQUIRE(d(sm, 1, 0) == "sm(1, 0)");
 
   WModelIndex p = pm->index(1, 0);

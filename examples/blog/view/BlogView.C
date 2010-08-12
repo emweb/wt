@@ -52,7 +52,7 @@ public:
     login_ = new WTemplate(this);
     items_ = new WContainerWidget(this);
 
-    logout();
+    init();
   }
 
   ~BlogImpl() {
@@ -69,7 +69,13 @@ private:
   WContainerWidget *items_;
 
   void logout() {
-    wApp->setInternalPath(basePath_, true);
+    if (boost::starts_with(wApp->internalPath(), basePath_ + "author/"))
+      wApp->setInternalPath(basePath_, true);
+
+    init();
+  }
+
+  void init() {
     session_.setUser(dbo::ptr<User>());
     refresh();
 
@@ -374,7 +380,7 @@ private:
   }
 
   void showPosts(dbo::ptr<User> user) {
-    if (user == session_.user()) {
+    if (user == session_.user() && user->role == User::Admin) {
       WTemplate *authorPanel = new WTemplate(tr("blog-author-panel"), items_);
 
       WPushButton *newPost = new WPushButton(tr("new-post"));

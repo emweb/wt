@@ -4,28 +4,28 @@ INCLUDE(FindThreads)
 
 IF(NOT BOOST_WT_FOUND)
   SET(ERR
-     "Could not find a boost installation in " ${BOOST_DIR} ".\n\n"
+     "Could not find a boost installation in " ${BOOST_PREFIX} ".\n\n"
       "There are two methods in Wt to find boost:\n\n"
       "1. Find boost through cmake (recommended)\n"
       "This requires cmake 2.6, and is in "
       "that case the default (unless BOOST_COMPILER or BOOST_VERSION is "
       "defined). This method requires a multi-threaded boost installation.\n"
       "You may need to add your boost version number to "
-      "Boost_ADDITIONAL_VERSIONS, and/or set BOOST_DIR to the location where "
-      "boost is installed.\n\n"
+      "Boost_ADDITIONAL_VERSIONS, and/or set BOOST_PREFIX to the location "
+      "where boost is installed.\n\n"
       "2. Use the Wt-proprietary method to find boost.\n"
       "This requires you to define three variables:\n"
-      "BOOST_DIR: set to the directory where you installed boost\n"
+      "BOOST_PREFIX: set to the directory where you installed boost\n"
       "BOOST_COMPILER: set to the compiler signature as you find them in "
       "library names (e.g.: gcc42)\n"
       "BOOST_VERSION: set to the boost version, again as you find them in "
       "the library names (e.g.: 1_38)\n\n"
-      "Note: WT_BOOST_DISCOVERY is the variable that selects the boost "
+      "Note 1: WT_BOOST_DISCOVERY is the variable that selects the boost "
       "discovery method. When set to false, method 1 is used (default if "
       "cmake version is recent enough and BOOST_COMPILER and BOOST_VERSION "
       "are not defined). When set to true, method 2 is used.\n"
       "Note 2: the code to discover boost is located in cmake/WtFindBoost.txt\n"
-      "Note 3: on windows, set BOOST_DIR to the full path, eg "
+      "Note 3: on windows, set BOOST_PREFIX to the full path, eg "
       "c:/Program Files/boost/boost_1_38\n\n"
       "Wt requires the following C++ boost libraries: date_time, regex, program_options, signals, and optionally thread")
   MESSAGE(FATAL_ERROR ${ERR})
@@ -291,7 +291,7 @@ IF(HARU_FOUND)
   INCLUDE_DIRECTORIES(${HARU_INCLUDE_DIRS})
 ELSE(HARU_FOUND)
   MESSAGE("** Disabling PDF support (WPdfImage): requires libharu.")
-  MESSAGE("   Indicate the location of your haru library using -DHARU_ROOT=...")
+  MESSAGE("   Indicate the location of your haru library using -DHARU_PREFIX=...")
 ENDIF(HARU_FOUND)
 
 IF(GM_FOUND)
@@ -300,7 +300,7 @@ IF(GM_FOUND)
   ADD_DEFINITIONS(-DHAVE_RASTER_IMAGE)
 ELSE(GM_FOUND)
   MESSAGE("** Disabling raster image support (WRasterImage): requires graphicsmagick.")
-  MESSAGE("   Indicate the location of your graphicsmagick library using -DGM_ROOT=...")
+  MESSAGE("   Indicate the location of your graphicsmagick library using -DGM_PREFIX=...")
 ENDIF(GM_FOUND)
 
 IF(BOOST_WT_MT_FOUND)

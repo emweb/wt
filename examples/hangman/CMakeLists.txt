@@ -1,7 +1,7 @@
 IF(NOT MYSQLPP_FOUND)
 
   MESSAGE(STATUS "** Not building hangman example: requires mysql++")
-  MESSAGE(STATUS "   Indicate the path of your mysql++-2.x installation using -DMYSQL_ROOT=...")
+  MESSAGE(STATUS "   Indicate the path of your mysql++-2.x installation using -DMYSQL_PREFIX=...")
 
 ELSE(NOT MYSQLPP_FOUND)
 
@@ -23,18 +23,6 @@ ELSE(NOT MYSQLPP_FOUND)
 
   # Static linkage of mysqlpp, hence we don't want __declspecs
   ADD_DEFINITIONS(${MYSQLPP_DEFINITIONS})
-
-  #
-  # Create a deploy script
-  #
-  SET(APPNAME hangman)
-  SET(APPBIN hangman.wt)
-  SET(APPRESOURCES
-      "${CMAKE_CURRENT_SOURCE_DIR}/icons ${CMAKE_CURRENT_SOURCE_DIR}/dict*.txt")
-  CONFIGURE_FILE(
-    ${WT_SOURCE_DIR}/deploy.sh
-    ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-  )
 
   ADD_DEPENDENCIES(hangman.wt wt ${EXAMPLES_CONNECTOR})
   

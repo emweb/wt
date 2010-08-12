@@ -32,7 +32,7 @@ public:
   // Sends a simple text reply
   void sendSimpleReply(int status, const std::string &msg);
 
-  virtual std::istream& in() { return in_; }
+  virtual std::istream& in() { return *in_; }
   virtual std::ostream& out() { return out_; }
   virtual std::ostream& err() { return err_; }
 
@@ -87,7 +87,10 @@ private:
   unsigned int writeOffset_; // offset withing current item of writeData_
   ResponseState flushState_;
 
-  std::stringstream header_, in_, out_, err_;
+  std::stringstream header_, in_mem_, out_, err_;
+  std::iostream *in_;
+  std::string requestFileName_;
+
   bool chunking_;
   bool responseLengthKnown_;
   bool headerSent_;

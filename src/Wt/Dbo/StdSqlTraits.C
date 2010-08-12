@@ -42,7 +42,7 @@ bool sql_value_traits<std::string>::read(std::string& v,
 
 const char *sql_value_traits<long long>::type(SqlConnection *conn, int size)
 {
-  return "integer not null";
+  return "bigint not null";
 }
 
 void sql_value_traits<long long>::bind(long long v,

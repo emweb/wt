@@ -961,10 +961,10 @@ the browser:</p>
 
    <li>
      When using apache:
-     Apache <a href="http://www.fastcgi.com/dist/mod_fastcgi-2.4.2.tar.gz">mod_fastcgi</a>:
-     mod_fastcgi-2.4.2.<br />Alternatively you may
-     use <a href="http://fastcgi.coremail.cn/">mod_fcgid</a>:
-     mod_fcgid-1.07.
+     Apache <a href="http://www.fastcgi.com/dist/mod_fastcgi-2.4.6.tar.gz">mod_fastcgi</a>:
+     mod_fastcgi-2.4.x.<br />Alternatively you may
+     use <a href="http://httpd.apache.org/download.cgi#mod_fcgid">mod_fcgid</a>:
+     mod_fcgid-2.3.5.
   </li> 
 </ul>
 
