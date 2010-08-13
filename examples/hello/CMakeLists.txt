@@ -16,14 +16,3 @@ WT_ADD_EXAMPLE(hello.wt hello.C)
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
-
-#
-# Create a deploy script
-#
-SET(APPNAME hello)
-SET(APPBIN hello.wt)
-SET(APPRESOURCES "")
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/deploy.sh
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-)

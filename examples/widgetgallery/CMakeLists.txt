@@ -41,14 +41,3 @@ INCLUDE_DIRECTORIES(
   ../painting
   ../treeview
 )
-
-#
-# Create a deploy script
-#
-SET(APPNAME widgetgallery)
-SET(APPBIN widgetgallery.wt)
-SET(APPRESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/icons ${CMAKE_CURRENT_SOURCE_DIR}/*.xml ${CMAKE_CURRENT_SOURCE_DIR}/*.css ${CMAKE_CURRENT_SOURCE_DIR}/*.csv")
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/deploy.sh
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy.sh
-)
