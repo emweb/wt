@@ -17,20 +17,20 @@ It is organized in 3 sections:
 <h2>Requirements</h2>
 
 <p>
-Wt for Windows uses the built-in web server connector - fastcgi is not
-supported. The built-in web server is more convenient during development
-and is easier to setup. To use the built-in server, you have to link your
-projects against libwt and libwthttp.</p>
+Wt for Windows uses the built-in web server connector or the ISAPI connector.
+The fastcgi connector is not supported. The built-in web server is more
+convenient during development and is easier to setup than the ISAPI connector.
+To use the built-in server, you have to link your projects against libwt
+and libwthttp. To use the ISAPI connector, you have to link to libwtisapi
+instead of libwthttp.</p>
 
 <p>Requirements:
 <ul>
-  <li>Microsoft Visual Studio C++ 2008. Wt and its dependencies also
+  <li>Microsoft Visual Studio C++ 2005 or newer. Wt and its dependencies also
       build on the Express Edition, which is free (as in beer) to use.
   <li>CMake cross-platform build system (www.cmake.org): cmake-2.6.x,
-      Windows version.</li>
+      Windows version (2.8 or newer recommended).</li>
   <li>Boost 1.36 (or later).</li>
-  <li>Optionally, <a href="http://libharu.org/">Haru Free PDF Library</a>, which is used to provide support for painting to PDF (WPdfImage).</li>
-  <li>Optionally, <a href="http://www.graphicsmagick.org/">GraphicsMagick</a>, for supporting painting to raster images (PNG, GIF, ...) (WRasterImage).</li>
 </ul>
 </p>
 
@@ -39,6 +39,8 @@ projects against libwt and libwthttp.</p>
 <li>For https support: OpenSSL, version 0.9.8d or newer.</li>
 <li>To compress traffic: zlib 1.2.3</li>
 <li>libmysql and libmysql++-2.x (hangman)</li>
+<li><a href="http://libharu.org/">Haru Free PDF Library</a>, which is used to provide support for painting to PDF (WPdfImage).</li>
+<li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>, for supporting painting to raster images (PNG, GIF, ...) (WRasterImage).</li>
 </ul>
 </p>
 
@@ -48,8 +50,8 @@ compiler and the same runtime configuration (/MT, /MD, /MTd
 or /MDd) to avoid incompatibilities with the C runtime libraries. Mixing
 CRTs is NOT recommended, the <a href="http://www.zlib.net/DLL_FAQ.txt">zlib
 DLL FAQ</a> clearly explains why and what you should do about it (in
-short: use MSVC 2005 prebuilt libraries, and if not available, rebuild
-the dependency libraries from the sources).
+short: use prebuilt libraries for the exact same compiler as you use, and
+if those are not available, rebuild the dependency libraries from the sources).
 </p>
 
 <hr />
@@ -58,6 +60,10 @@ the dependency libraries from the sources).
 
 Up to date instructions are located on the Wt wiki page:
 <a href="http://redmine.emweb.be/projects/wt/wiki/Installing_Wt_on_MS_Windows">Installing Wt on MS Windows</a>
+
+Instructions on how to use the ISAPI connector for deployment under IIS are
+also available on the wiki page:
+<a href="http://redmine.emweb.be/projects/wt/wiki/ISAPI_on_Microsoft_IIS">ISAPI on Microsoft IIS</a>
 
 <h2>Trying the examples (or your own Wt application) using wthttpd</h3>
 
@@ -78,7 +84,7 @@ href="http://127.0.0.1:8080/hello">http://127.0.0.1:8080/hello</a></p>
 Examples that need extra files to run, should be executed from their source
 directory in order to find their dependency files (icons, css files, etc.
 Watch for 404 errors in Wt's output). To do so, set the 'Working directory'
-for the example to wt-2.x.x/examples/ExampleName. Some examples (e.g. the
+for the example to wt-x.y.z/examples/ExampleName. Some examples (e.g. the
 wt home page) need the 'resources' directory to work correctly. Copy
 the wt-2.x.x/resources to the example's source directory to solve this
 problem. Other examples (such as the Charts example) may require the
