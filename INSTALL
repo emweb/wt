@@ -22,7 +22,7 @@ Requirements
    schemes including dedicated processes per sessions.
 
    Each of these two choices correspond to a library, a so-called
-   connectory library. Below it is outlined how to configure the build
+   connector library. Below it is outlined how to configure the build
    process of Wt to build either or both libraries (libwthttp and
    libfcgi).
 
@@ -164,9 +164,6 @@ Building and installing the Wt library
    WEBGROUP
           Webserver groupname: used to assign permissions to RUNDIR
 
-   DEPLOYROOT
-          Path to deploy examples into -- if you want that.
-
    The following variables apply to the wthttpd connector:
 
    WTHTTP_CONFIGURATION
@@ -228,10 +225,23 @@ Trying the examples (or your own Wt application)
 
     $ make -C examples
 
-    2. Deploy the example X
+    2. Deploy the example foobar
 
-    $ cd examples/X
-    $ ./deploy.sh
+   The easiest way to deploy the examples is by copying the binary (from
+   your build directory) and the source directory (which contains the
+   images) and the resources/ into the same destination directory
+   somewhere in your Apache server (we no longer generate a ./deploy.sh
+   script that took care of some of this).
+    $ export DESTINATION=/var/www/localhost/htdocs/wt-examples
+    $ mkdir -p $DESTINATION/foobar
+    $ cp -r examples/foobar/* resources/* build/examples/foobar/*.wt $DESTINATIO
+N/foobar/
+
+   This does however make public also files (such as message resources
+   bundles, data files, etc...) that do not need to be served by your web
+   server. The clean way to deploy your own applications is to use the
+   "approot" property to deploy those files to a directory outside the
+   webserver's doc root.
 
     3. Configure Apache
 
@@ -248,50 +258,57 @@ Trying the examples (or your own Wt application)
 
     $ make -C examples
 
-    2. Run the example X
+    2. Running an example
 
    Most examples use additional files, such as message resource bundles,
    which are not indicated with absolute path names. Therefore the working
-   directory should be the source directory for the example (unless you
-   use the ./deploy.sh script to deploy everything in a dedicated
-   deployment directory). A similar argument goes for icons and the
-   setting of the --docroot variable.
-    $ cd ../examples/X # source directory for example X
+   directory should be the source directory for the example. A similar
+   argument goes for icons and the setting of the --docroot variable.
+   Since Wt 3.1.4, you can use the "approot" property to move the
+   additional files that should not be available to browsers outside of
+   the docroot.
+    $ cd ../examples/foobar # source directory for example foobar
     $ ln -s ../../resources . # include standard Wt resource files
-    $ ../../build/examples/X/X.wt --docroot . --http-address 0.0.0.0 --http-port
- 8080
+    $ ../../build/examples/foobar/foobar.wt --docroot . --http-address 0.0.0.0 -
+-http-port 8080
 
    This will start a httpd server listening on all local interfaces, on
    port 8080, and you may browse the example at [8]http://127.0.0.1:8080/
-
-   To make sure the web server has all auxiliary files (like images, CSS
-   style sheets, and perhaps other things) in place for the web
-   application, you could use the ./deploy.sh script to copy everything
-   into a directory (see the cmake DEPLOYROOT variable)
 
    You will notice 404 File not Found errors for resources/ files if you
    are missing the resources files.
 
    These are all the command-line options that are available:
 General options:
-  -h [ --help ]                produce help message
-  -t [ --threads ] arg (=10)   number of threads
-  --servername arg (=vierwerf) servername (IP address or DNS name)
-  --docroot arg                document root for static files
-  --errroot arg                root for error pages
-  --accesslog arg              access log file (defaults to stdout)
-  --no-compression             do not compress dynamic text/html and text/plain
-                               responses
-  --deploy-path arg (=/)       location for deployment
-  --session-id-prefix arg      prefix for session-id's (overrides wt_config.xml
-                               setting)
-  -p [ --pid-file ] arg        path to pid file (optional)
-  -c [ --config ] arg          location of wt_config.xml. If unspecified,
-                               WT_CONFIG_XML is searched in the environment, if
-                               it does not exist then the compiled-in default
-                               (/etc/wt/wt_config.xml) is tried. If the default
-                               does not exist, we revert to default values for
-                               all parameters.
+  -h [ --help ]                 produce help message
+  -t [ --threads ] arg (=10)    number of threads
+  --servername arg (=vierwerf)  servername (IP address or DNS name)
+  --docroot arg                 document root for static files
+  --errroot arg                 root for error pages
+  --accesslog arg               access log file (defaults to stdout)
+  --no-compression              do not compress dynamic text/html and text/plai
+                                n responses
+  --deploy-path arg (=/)        location for deployment
+  --session-id-prefix arg       prefix for session-id's (overrides wt_config.xm
+                                l setting)
+  -p [ --pid-file ] arg         path to pid file (optional)
+  -c [ --config ] arg           location of wt_config.xml. If unspecified,
+                                WT_CONFIG_XML is searched in the environment,
+                                if it does not exist then the compiled-in
+                                default (/etc/wt/wt_config.xml) is tried. If
+                                the default does not exist, we revert to
+                                default values for all parameters.
+  --max-request-size arg        Maximum size of a HTTP request. This also
+                                limits POST requests, so this is an upper limit
+                                for file uploads. Default is 40MB.
+  --max-memory-request-size arg Requests are usually read in memory before
+                                being processed. To avoid DOS attacks where
+                                large requests take up all RAM, use this
+                                parameter to force requests that are larger
+                                than the specified size to be spooled to disk.
+                                This will also spool file uploads to disk.
+  --gdb                         do not shutdown when receiving Ctrl-C (and let
+                                gdb break instead)
 
 HTTP server options:
   --http-address arg    IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
@@ -311,8 +328,8 @@ References
 
    1. http://www.cmake.org/
    2. http://www.boost.org/
-   3. http://libharu.sourceforge.net/
-   4. http://www.graphicsmagick.org//
+   3. http://libharu.org/
+   4. http://www.graphicsmagick.org/
    5. http://yogurtearl.com/ext-2.0.2.zip
    6. http://www.webtoolkit.eu/wt/doc/reference/html/group__ext.html
    7. http://tinymce.moxiecode.com/
