@@ -681,7 +681,16 @@ void WebSession::doRecursiveEventLoop()
    */
   Handler *handler = WebSession::Handler::instance();
 
-  handler->session()->notifySignal(WEvent(*handler, WebRenderer::Update));
+  /*
+   * It could be that handler does not have a request/respone, only if
+   * it is actually a long polling server push request.
+   *
+   * In that case, we do not need to finish it.
+   */
+  if (handler->request())
+    handler->session()->notifySignal(WEvent(*handler, WebRenderer::Update));
+  else
+    assert(asyncResponse_);
 
   if (handler->response())
     handler->session()->render(*handler, app_->environment().ajax()
@@ -715,6 +724,7 @@ void WebSession::doRecursiveEventLoop()
    */
   app_->notify(WEvent(*handler, app_->environment().ajax() 
 		      ? WebRenderer::Update : WebRenderer::Page));
+
   recursiveEventLoop_ = 0;
 #endif // !WT_THREADED && !WT_TARGET_JAVA
 }
@@ -728,7 +738,7 @@ bool WebSession::unlockRecursiveEventLoop()
    * Locate both the current and previous event loop handler.
    */
   Handler *handler = WebSession::Handler::instance();
- 
+
   recursiveEventLoop_->setRequest(handler->request(), handler->response());
   // handler->response()->startAsync();
   handler->setRequest(0, 0);
@@ -1237,7 +1247,7 @@ void WebSession::notify(const WEvent& event)
 	     */
 
 	    try {
-	      handler.nextSignal = 0;
+	      handler.nextSignal = -1;
 	      notifySignal(event);
 	    } catch (std::exception& e) {
 	      log("error") << "Error during event handling: " << e.what();
@@ -1446,8 +1456,10 @@ void WebSession::notifySignal(const WEvent& e)
   WebSession::Handler& handler = *e.handler;
 
   // Reorder signals, as browsers sometimes generate them in a strange order
-  if (handler.nextSignal == 0)
+  if (handler.nextSignal == -1) {
     handler.signalOrder = getSignalProcessingOrder(e);
+    handler.nextSignal = 0;
+  }
 
   for (unsigned i = handler.nextSignal; i < handler.signalOrder.size(); ++i) {
     if (!handler.request())

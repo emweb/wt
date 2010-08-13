@@ -332,12 +332,12 @@ void WFormWidget::setValidator(WValidator *validator)
 
   validator_ = validator;
 
+  if (validator_) {
 #ifndef WT_TARGET_JAVA
-  if (!validator_->parent())
-    WObject::addChild(validator);
+    if (!validator_->parent())
+      WObject::addChild(validator_);
 #endif // WT_TARGET_JAVA
 
-  if (validator_) {
     validator_->addFormWidget(this);
     validatorChanged();
     if (validate() == WValidator::Valid)
