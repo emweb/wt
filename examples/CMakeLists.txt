@@ -15,7 +15,7 @@ ADD_DEFINITIONS(-DWT_DEPRECATED_3_0_0)
 # links to the proper libraries (connector + wt).
 MACRO(WT_ADD_EXAMPLE name)
   IF(${EXAMPLES_CONNECTOR} STREQUAL "wtisapi")
-    LIST(INSERT ARGV 1 "SHARED")
+    LIST(INSERT ${ARGV} 1 "SHARED")
     ADD_LIBRARY(${ARGV})
     SET_TARGET_PROPERTIES(${name}
       PROPERTIES

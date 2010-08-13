@@ -46,7 +46,9 @@ INSTALL_FILES(/include/Wt/Dbo "^[^.]+\\.h$")
 INSTALL_FILES(/include/Wt/Dbo "^[^b.][^.]+$")
 
 IF (ASCIIDOC_FOUND)
-  ADD_CUSTOM_TARGET(doc)
+  IF(NOT WIN32)
+    ADD_CUSTOM_TARGET(doc)
+  ENDIF(NOT WIN32)
   ASCIIDOC_FILE(dbo-tutorial
     ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo/tutorial.doc
     ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo/tutorial.html)

@@ -132,9 +132,11 @@ private:
   public:
     /*! \brief Constructor.
      */
-    Tree(int parentId, int index, const Git::ObjectId& object)
+    Tree(int parentId, int index, const Git::ObjectId& object,
+	 int rowCount)
       : index_(parentId, index),
-	treeObject_(object)
+	treeObject_(object),
+	rowCount_(rowCount)
     { }
 
     /*! \brief Returns the parent id.
@@ -153,9 +155,14 @@ private:
      */
     const Git::ObjectId& treeObject() const { return treeObject_; }
 
+    /*! \brief Returns the (cached) row count.
+     */
+    int rowCount() const { return rowCount_; }
+
   private:
     ChildIndex    index_;
     Git::ObjectId treeObject_;
+    int           rowCount_;
   };
 
   typedef std::map<ChildIndex, int> ChildPointerMap;

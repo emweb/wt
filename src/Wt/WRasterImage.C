@@ -81,6 +81,7 @@ WRasterImage::~WRasterImage()
 
 void WRasterImage::init()
 {
+  // FIXME if (!(paintFlags_ & PaintUpdate)), then clear the image.
   context_ = DrawAllocateContext(0, image_);
 
   DrawPushGraphicContext(context_);

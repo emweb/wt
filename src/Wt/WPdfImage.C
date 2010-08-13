@@ -80,6 +80,8 @@ WPdfImage::~WPdfImage()
 
 void WPdfImage::init()
 {
+  // FIXME if (!(paintFlags_ & PaintUpdate)), then clear the image.
+
   HPDF_Page_GSave(page_); // for Wt -> HPDF
 
   HPDF_Page_Concat(page_, 1, 0, 0, -1, 0, height_.toPixels());

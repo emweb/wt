@@ -90,6 +90,9 @@ void WVmlImage::init()
   penBrushShadowChanged_ = true;
 
   startClip(WRectF(0, 0, width().value(), height().value()));
+
+  if (!(paintFlags_ & PaintUpdate))
+    rendered_.str(std::string());
 }
 
 void WVmlImage::done()

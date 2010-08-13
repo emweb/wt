@@ -24,6 +24,14 @@ namespace Wt {
 	: facade_(facade)
       { }
 
+      ~AreaWidget()
+      {
+	if (facade_) {
+	  facade_->impl_ = 0;
+	  delete facade_;
+	}
+      }
+
       void repaint(WFlags<RepaintFlag> flags = RepaintAll) {
 	WInteractWidget::repaint(RepaintPropertyAttribute);
       }
@@ -49,6 +57,8 @@ namespace Wt {
       virtual DomElementType domElementType() const {
 	return DomElement_AREA;
       }
+
+      friend class Wt::WAbstractArea;
     };
 
   }
@@ -61,13 +71,17 @@ WAbstractArea::WAbstractArea()
 
 WAbstractArea::~WAbstractArea()
 {
-  WImage *i = image();
+  if (impl_) {
+    WImage *i = image();
 
-  if (i)
-    i->removeArea(this);
+    if (i)
+      i->removeArea(this);
 
-  delete anchor_;
-  delete impl_;
+    delete anchor_;
+
+    impl_->facade_ = 0;
+    delete impl_;
+  }
 }
 
 EventSignal<WKeyEvent>& WAbstractArea::keyWentDown()

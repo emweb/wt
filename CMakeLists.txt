@@ -163,8 +163,13 @@ SET(WTHTTP_CONFIGURATION ${CONFIGDIR}/wthttpd CACHE PATH "Path for the wthttpd c
 
 SET(WEBUSER apache CACHE STRING "Webserver username (e.g. apache or www)")
 SET(WEBGROUP apache CACHE STRING "Webserver groupname (e.g. apache or www or users)")
-OPTION(CONNECTOR_FCGI "Compile in FCGI connector (libwtfcgi) ?" ON)
-OPTION(CONNECTOR_ISAPI "Compile in ISAPI connector (libwtisapi) ?" OFF)
+IF(WIN32)
+  SET(CONNECTOR_FCGI FALSE)
+  OPTION(CONNECTOR_ISAPI "Compile in ISAPI connector (libwtisapi) ?" ON)
+ELSE(WIN32)
+  OPTION(CONNECTOR_FCGI "Compile in FCGI connector (libwtfcgi) ?" ON)
+  SET(CONNECTOR_ISAPI OFF)
+ENDIF(WIN32)
 OPTION(CONNECTOR_HTTP "Compile in stand-alone httpd connector (libwthttp) ?" ON)
 SET(EXAMPLES_CONNECTOR wthttp CACHE STRING "Connector used for examples")
 

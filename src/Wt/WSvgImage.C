@@ -83,6 +83,9 @@ void WSvgImage::init()
   //this is not for clipping, but for settings the initial pen stroke
   //in makeNewGroup()
   newClipPath_ = true;
+
+  if (!(paintFlags_ & PaintUpdate))
+    shapes_.str(std::string());
 }
 
 void WSvgImage::done()

@@ -128,6 +128,9 @@ void WCanvasPaintDevice::init()
   currentTextVAlign_ = currentTextHAlign_ = AlignLength;
 
   changeFlags_ = Transform | Pen | Brush | Shadow | Font;
+
+  if (!(paintFlags_ & PaintUpdate))
+    js_.str(std::string());
 }
 
 void WCanvasPaintDevice::done()

@@ -177,6 +177,9 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
 
   WApplication *app = WApplication::instance();
 
+  if (app->environment().agentIsChrome())
+    impl_->setMargin(1, Right); // Chrome WTF ? #452
+
   typedef WAbstractItemView Self;
 
   clickedForSortMapper_ = new WSignalMapper<int>(this);

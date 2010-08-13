@@ -32,7 +32,7 @@ void GitModel::loadRevision(const std::string& revName)
   childPointer_.clear();
 
   // Store the tree root as treeData_[0]
-  treeData_.push_back(Tree(-1, -1, treeRoot));
+  treeData_.push_back(Tree(-1, -1, treeRoot, git_.treeSize(treeRoot)));
 
   layoutChanged().emit();
 }
@@ -86,7 +86,7 @@ int GitModel::getTreeId(int parentId, int childIndex) const
     Git::Object o = git_.treeGetObject(parentItem.treeObject(), childIndex);
 
     // and add to treeData_ and childPointer_ data structures
-    treeData_.push_back(Tree(parentId, childIndex, o.id));
+    treeData_.push_back(Tree(parentId, childIndex, o.id, git_.treeSize(o.id)));
     int result = treeData_.size() - 1;
     childPointer_[index] = result;
     return result;
@@ -105,6 +105,7 @@ int GitModel::rowCount(const WModelIndex& index) const
   // we are looking for the git SHA1 id of a tree object (since only folders
   // may contain children).
   Git::ObjectId objectId;
+  int treeId;
 
   if (index.isValid()) {
     // only column 0 items may contain children
@@ -114,18 +115,21 @@ int GitModel::rowCount(const WModelIndex& index) const
     Git::Object o = getObject(index);
     if (o.type == Git::Tree) {
       objectId = o.id;
+      treeId = getTreeId(index.internalId(), index.row());
     } else
       // not a folder: no children
       return 0;
-  } else
+  } else {
+    treeId = 0;
     // the index corresponds to the root object
     if (treeData_.empty())
       // model not yet loaded !
       return 0;
     else
       objectId = treeData_[0].treeObject();
+  }
 
-  return git_.treeSize(objectId);
+  return treeData_[treeId].rowCount();
 }
 
 boost::any GitModel::data(const WModelIndex& index, int role) const

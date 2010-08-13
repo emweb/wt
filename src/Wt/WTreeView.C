@@ -1714,7 +1714,16 @@ void WTreeView::setCollapsed(const WModelIndex& index)
   WModelIndexSet& selection = selectionModel()->selection_;
 
   for (WModelIndexSet::iterator it = selection.lower_bound(index);
-       it != selection.end(); ++it) {
+       it != selection.end();) {    
+    /*
+     * The following is needed because internalSelect(Deselect) will remove
+     * the iterated element
+     */
+#ifndef WT_TARGET_JAVA
+    WModelIndexSet::iterator n = it;
+    ++n;
+#endif
+
     WModelIndex i = *it;
     if (i == index) {
     } else if (isAncestor(i, index)) {
@@ -1722,6 +1731,10 @@ void WTreeView::setCollapsed(const WModelIndex& index)
 	selectionHasChanged = true;
     } else
       break;
+
+#ifndef WT_TARGET_JAVA
+    it = n;
+#endif
   }
 
   if (selectionHasChanged)

@@ -178,8 +178,10 @@ void WTable::deleteColumn(int column)
   for (int i = 0; i < rowCount(); ++i)
     rows_[i]->deleteColumn(column);
 
-  if ((unsigned)column <= columns_.size())
+  if ((unsigned)column <= columns_.size()) {
+    delete columns_[column];
     columns_.erase(columns_.begin() + column);
+  }
 
   flags_.set(BIT_GRID_CHANGED);
   repaint(RepaintInnerHtml);

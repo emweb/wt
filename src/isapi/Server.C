@@ -18,6 +18,7 @@
 
 #include "WebController.h"
 
+#include "Wt/WResource"
 #include "Wt/WServer"
 #include "Wt/WLogger"
 

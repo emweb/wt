@@ -169,7 +169,8 @@ public:
   /*! \brief Begins painting on a paint device.
    *
    * Starts painting on a paint device. The paint device is
-   * automatically cleared to become entirely transparent.
+   * automatically cleared to become entirely transparent, unless
+   * it a PaintUpdate paint flag is set.
    *
    * \sa end(), isActive()
    */

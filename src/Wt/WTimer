@@ -48,6 +48,7 @@ class Time;
  * If you want to create a timer outside the %Wt event loop, take a look at asio deadline_timer.
  * \else
  * If you want to create a timer outside the %Wt event loop, take a look at {javadoclink java.util.Timer}.
+ * \endif
  * 
  * \if cpp
  * Timers are one way to provide updates of a web page without the
