@@ -531,7 +531,7 @@ bool Configuration::readConfigurationProperty(const std::string& name,
     return false;
 }
 
-std::string Configuration::approot() const
+std::string Configuration::appRoot() const
 {
   std::string approot;
 

@@ -117,7 +117,7 @@ public:
   const std::string* property(const std::string& name) const;
   bool               readConfigurationProperty(const std::string& name,
 					       std::string& value) const;
-  std::string        approot() const;
+  std::string        appRoot() const;
   bool               sendXHTMLMimeType() const { return xhtmlMimeType_; }
   bool               behindReverseProxy() const { return behindReverseProxy_; }
   std::string        redirectMessage() const { return redirectMsg_; }

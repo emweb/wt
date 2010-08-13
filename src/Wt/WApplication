@@ -762,6 +762,8 @@ public:
    * Wt::Dbo::backend::Sqlite3 sqlite3_(approot() + "planner.db");
    * \endcode
    * \endif
+   *
+   * \sa WServer::appRoot()
    */
   static std::string appRoot();
 #endif // WT_TARGET_JAVA

@@ -342,7 +342,7 @@ std::string WApplication::resourcesUrl()
 #ifndef WT_TARGET_JAVA
 std::string WApplication::appRoot()
 {
-  return WApplication::instance()->session_->controller()->configuration().approot();
+  return WApplication::instance()->session_->controller()->configuration().appRoot();
 }
 #endif // WT_TARGET_JAVA
 
@@ -571,6 +571,10 @@ WApplication::decodeExposedSignal(const std::string& signalName) const
 #ifndef WT_TARGET_JAVA
     WWidget *w = dynamic_cast<WWidget *>(i->second->sender());
 #else
+    Wt::EventSignalBase* esb = i->second.get();
+    if (!esb)
+      return 0;
+
     WWidget *w = dynamic_cast<WWidget *>(i->second.get()->sender());
 #endif //WT_TARGET_JAVA
     if (!w || isExposed(w) || boost::ends_with(signalName, ".resized")) {

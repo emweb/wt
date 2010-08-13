@@ -59,10 +59,10 @@ void CommentView::edit()
   editArea_->setText(comment_->textSrc());
   editArea_->setFocus();
 
-  WPushButton *save = new WPushButton("save");
+  WPushButton *save = new WPushButton(tr("save"));
   save->clicked().connect(this, &CommentView::save);
 
-  WPushButton *cancel = new WPushButton("cancel");
+  WPushButton *cancel = new WPushButton(tr("cancel"));
   cancel->clicked().connect(this, &CommentView::cancel);
 
   bindWidget("area", editArea_);

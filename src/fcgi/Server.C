@@ -937,9 +937,9 @@ void WServer::handleRequest(WebRequest *request)
   theController->handleRequest(request);
 }
 
-std::string WServer::approot() const
+std::string WServer::appRoot() const
 {
-  return impl_->configuration_->approot();
+  return impl_->configuration_->appRoot();
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)

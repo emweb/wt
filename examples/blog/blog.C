@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
-    BlogRSSFeed rssFeed(server.approot() + "blog.db", "Wt blog example",
+    BlogRSSFeed rssFeed(server.appRoot() + "blog.db", "Wt blog example",
       "", "It's just an example.");
 
     server.addResource(&rssFeed, FeedUrl);

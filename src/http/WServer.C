@@ -372,9 +372,9 @@ void WServer::expireSessions()
   impl_->webController_.expireSessions();
 }
 
-std::string WServer::approot() const
+std::string WServer::appRoot() const
 {
-  return impl_->webController_.configuration().approot();
+  return impl_->webController_.configuration().appRoot();
 }
 
 bool WServer::readConfigurationProperty(const std::string& name,

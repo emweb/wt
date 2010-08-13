@@ -240,9 +240,9 @@ public:
 
   /*! \brief Returns the approot special property
    *
-   * \sa WApplication::approot()
+   * \sa WApplication::appRoot()
    */
-  std::string approot() const;
+  std::string appRoot() const;
 
   /*! \brief Reads a configuration property.
    *

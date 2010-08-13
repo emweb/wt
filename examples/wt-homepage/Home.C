@@ -69,6 +69,8 @@ void Home::init()
   internalPathChanged().connect(this, &Home::logInternalPath);
 
   setup();
+
+  setLanguageFromPath();
 }
 
 void Home::setup()

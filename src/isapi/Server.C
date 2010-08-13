@@ -336,9 +336,9 @@ void WServer::handleRequest(WebRequest *request)
   theController->handleRequest(request);
 }
 
-std::string WServer::approot() const
+std::string WServer::appRoot() const
 {
-  return impl_->configuration()->approot();
+  return impl_->configuration()->appRoot();
 }
 
 bool WServer::readConfigurationProperty(const std::string& name,
