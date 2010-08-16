@@ -928,21 +928,42 @@ options, directly from the library authors.</p>
 For building and installing the latest version of Wt, you need at
 least the following two packages:
 <ul>
-  <li><a href="http://www.cmake.org/">CMake cross-platform make configure
-    utility</a>.
+  <li><a href="http://www.cmake.org/">CMake</a> cross-platform make configure
+    utility.<br />
 
-    <p>CMake 2.4 or 2.6 are preferred.</p>
+    CMake &gt;= 2.6 is preferred (although by the act of a miracle,
+    2.4 still works).
   </li>
   <li>
     The indispensable <a href="http://www.boost.org/">
-    boost C++ library</a>: boost-1.36 or later.
+    boost C++ library</a>: boost-1.36 or later. <br />
 
-    <p>Wt requires the following boost libraries (which are not headers
-      only: <tt>boost_date_time</tt>, <tt>boost_regex</tt>,
+    The following boost libraries (which are not headers only) are
+      needed: <tt>boost_date_time</tt>, <tt>boost_regex</tt>,
       <tt>boost_program_options</tt>, <tt>boost_signals</tt>,
       <tt>boost_system</tt>, and optionally (but highly recommended)
-      <tt>boost_thread</tt>.</p>
+      <tt>boost_thread</tt>.
   </li>
+</ul>
+
+The following packages are optional, and availability enables additional
+features in Wt:
+<ul>
+  <li><a href="http://www.postgresql.org/">PostgreSQL</a>: if
+    available, then also a
+    <a href="/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
+    connector</a> will be built for the ORM library
+    (<a href="/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>)</li>
+  <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>: if
+    available,
+    a <a href="/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
+    paint device will be built, allowing to integrate graphics into
+    PDF documents or be served as a PDF document.</li>
+  <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>: if
+    available,
+    a <a href="/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
+    paint device will be built, allowing to paint graphics on a raster
+    image (like PNG or GIF).</li>
 </ul>
 
 <p>The other requirements depend on the connector support you would
@@ -968,16 +989,22 @@ the browser:</p>
   </li> 
 </ul>
 
-<h5>For the built-in httpd (wthttpd):</h5>
+<h5>For the built-in http deamon, wthttpd:</h5>
 
 <ul>
-  <li>The built-in httpd requires the
-    <a href="http://asio.sourceforge.net/">asio C++ library</a>,
-    which is a header-only library included in boost.
+  <li>The built-in httpd requires the boost asio C++ library, which is a
+    header-only library included in boost.
   </li>
   <li>Optionally, libz (for compression-over-HTTP) and openssl (for
     HTTPS support).
   </li>
+</ul>
+
+<h5>For ISAPI (Win32 only):</h5>
+
+<ul>
+  <li>The ISAPI connector only works for deploying Wt applications withing a
+    Microsoft IIS server.</li>
 </ul>
 
 Follow the <a
@@ -997,20 +1024,6 @@ Wt development, you may want to use the git repository.</p>
 To obtain a clone of wt:
 <div class="fragment">
   <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/wt.git</pre>
-</div>
-</p>
-
-<h4>CVS respository</h4>
-
-<p><b>Since 2.99.0, Wt switched to a public git repository. Using CVS you
-can only access ongoing maintenance to the 2.x series.</b></p>
-
-<p>
-To checkout Wt 2.x using CVS, do:
-<div class="fragment">
-  <pre class="fragment">$ cvs -d :pserver:anonymous@cvs.webtoolkit.eu/opt/cvs login
-  (just press 'Enter' at the password prompt)
-$ cvs -z3 -d :pserver:anonymous@cvs.webtoolkit.eu/opt/cvs co wt</pre>
 </div>
 </p>
   </message>

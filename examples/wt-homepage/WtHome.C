@@ -134,20 +134,21 @@ WWidget *WtHome::download()
   WContainerWidget *result = new WContainerWidget();
   result->addWidget(new WText(tr("home.download")));
   result->addWidget(new WText(tr("home.download.license")));
-  result->addWidget(new WText(tr("home.download.requirements")));
-  result->addWidget(new WText(tr("home.download.cvs")));
   result->addWidget(new WText(tr("home.download.packages")));
 
   releases_ = new WTable();
   readReleases(releases_);
   result->addWidget(releases_);
-
+  
   result->addWidget
     (new WText("<p>Older releases are still available at "
 	       + href("http://sourceforge.net/project/showfiles.php?"
 		      "group_id=153710#files",
 		      "sourceforge.net")
 	       + "</p>"));
+
+  result->addWidget(new WText(tr("home.download.requirements")));
+  result->addWidget(new WText(tr("home.download.cvs")));
 
   return result;
 }
