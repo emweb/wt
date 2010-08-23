@@ -682,15 +682,15 @@ void WebSession::doRecursiveEventLoop()
   Handler *handler = WebSession::Handler::instance();
 
   /*
-   * It could be that handler does not have a request/respone, only if
-   * it is actually a long polling server push request.
+   * It could be that handler does not have a request/respone:
+   *  if it is actually a long polling server push request.
+   *  if we are somehow recursing recursive event loops (can anyone explain
+   *  that ?)
    *
    * In that case, we do not need to finish it.
    */
   if (handler->request())
     handler->session()->notifySignal(WEvent(*handler, WebRenderer::Update));
-  else
-    assert(asyncResponse_);
 
   if (handler->response())
     handler->session()->render(*handler, app_->environment().ajax()

@@ -1142,15 +1142,17 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
   if (isIEMobile || !session_.env().ajax())
     return;
 
-  const WApplication::SignalMap& ss = session_.app()->exposedSignals();
+  WApplication::SignalMap& ss = session_.app()->exposedSignals();
 
-  for (WApplication::SignalMap::const_iterator i = ss.begin();
-       i != ss.end(); ++i) {
+  for (WApplication::SignalMap::iterator i = ss.begin();
+       i != ss.end(); ) {
 
 #ifdef WT_TARGET_JAVA
     Wt::EventSignalBase *s = i->second.get();
-    if (!s)
+    if (!s) {
+      Utils::eraseAndNext(ss, i);
       continue;
+    }
 #else
     Wt::EventSignalBase* s = i->second;
 #endif // WT_TARGET_JAVA
@@ -1162,6 +1164,8 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 
     if (ww && ww->isRendered())
       s->processPreLearnStateless(this);
+
+    ++i;
   }
 
   out << statelessJS_.str();
