@@ -1137,7 +1137,6 @@ void WebRenderer::collectJS(std::ostream* js)
 
 void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 {
-#ifndef WT_TARGET_JAVA
   bool isIEMobile = app->environment().agentIsIEMobile();
 
   if (isIEMobile || !session_.env().ajax())
@@ -1148,18 +1147,25 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
   for (WApplication::SignalMap::const_iterator i = ss.begin();
        i != ss.end(); ++i) {
 
-    if (i->second->sender() == app)
-      i->second->processPreLearnStateless(this);
+#ifdef WT_TARGET_JAVA
+    Wt::EventSignalBase *s = i->second.get();
+    if (!s)
+      continue;
+#else
+    Wt::EventSignalBase* s = i->second;
+#endif // WT_TARGET_JAVA
 
-    WWidget *ww = dynamic_cast<WWidget *>(i->second->sender());
+    if (s->sender() == app)
+      s->processPreLearnStateless(this);
+
+    WWidget *ww = dynamic_cast<WWidget *>(s->sender());
 
     if (ww && ww->isRendered())
-      i->second->processPreLearnStateless(this);
+      s->processPreLearnStateless(this);
   }
 
   out << statelessJS_.str();
   statelessJS_.str("");
-#endif
 }
 
 std::string WebRenderer::learn(WStatelessSlot* slot)

@@ -14,6 +14,7 @@
 #include <Wt/WJavaScript>
 #include <Wt/WGlobal>
 
+#include <boost/utility.hpp>
 #include <vector>
 #include <sstream>
 
@@ -59,6 +60,9 @@ class DomElement;
  * use when the widget is not inserted into a layout manager.
  */
 class WT_API WWidget : public WObject
+#ifndef WT_TARGET_JAVA
+  , boost::noncopyable
+#endif // WT_TARGET_JAVA
 {
 public:
   /*! \brief Destructor.

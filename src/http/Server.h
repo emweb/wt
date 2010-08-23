@@ -67,18 +67,6 @@ public:
   /// Stop the server.
   void stop();
 
-  /// Select for read on descriptor
-  void select_read(int descriptor);
-
-  /// Select for read on descriptor
-  void select_write(int descriptor);
-
-  /// Select for exceptions on descriptor
-  void select_except(int descriptor);
-
-  /// Stop selecting on the descriptor
-  void stop_select(int descriptor);
-
   /// Returns the http port number.
   int httpPort() const;
 
@@ -150,10 +138,6 @@ private:
 
   /// The handler for all incoming requests.
   RequestHandler request_handler_;
-
-  enum SelectOp { Read, Write };
-  bool socketSelected(int descriptor, const asio_error_code& e,
-		      std::size_t bytes_transferred, SelectOp op);
 
   Wt::WebController *controller_;
 

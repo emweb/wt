@@ -39,9 +39,6 @@ public:
    */
   virtual WebRequest *getNextRequest(int timeoutsec) = 0;
 
-  virtual void addSocketNotifier(WSocketNotifier *notifier) = 0;
-  virtual void removeSocketNotifier(WSocketNotifier *notifier) = 0;
-
 private:
   bool multiThreaded_;
 };

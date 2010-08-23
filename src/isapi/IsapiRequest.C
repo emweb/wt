@@ -362,11 +362,7 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
 
 void IsapiRequest::flushDone()
 {
-  if (flushState_ == ResponseCallBack) {
-    if (!synchronous_) {
-      getAsyncCallback()();
-    }
-  } else if (flushState_ == ResponseDone) {
+  if (flushState_ == ResponseDone) {
     DWORD status;
     if (version_ == HTTP_1_0) {
       status = HSE_STATUS_SUCCESS;
@@ -376,7 +372,19 @@ void IsapiRequest::flushDone()
     DWORD err;
     err = ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_DONE_WITH_SESSION,
       &status, 0, 0);
-    delete this;
+    if (synchronous_) {
+      emulateAsync(flushState_);
+      return;
+    } else {
+      delete this;
+      return;
+    }
+  } else if (flushState_ == ResponseCallBack) {
+    if (synchronous_) {
+      emulateAsync(flushState_);
+    } else {
+      getAsyncCallback()();
+    }
   }
 }
 

@@ -18,9 +18,10 @@ namespace boost {
 }
 #endif
 
-#include <boost/signal.hpp>
 #include <boost/bind.hpp>
 #include <boost/intrusive/list.hpp>
+#include <boost/signal.hpp>
+#include <boost/utility.hpp>
 
 namespace Wt {
 
@@ -81,7 +82,7 @@ class JavaScriptEvent;
  *
  * \ingroup signalslot
  */
-class WT_API SignalBase
+  class WT_API SignalBase : boost::noncopyable
 {
 public:
   virtual ~SignalBase();

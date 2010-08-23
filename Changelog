@@ -1,3 +1,9 @@
+23-08-2010:
+	* Fix FCGI/ISAPI connector when using WDialog::exec() or server push (this is
+	broken in 3.1.4!)
+
+	* WSocketNotifier: finally (!) this beast works as advertised
+
 10-08-2010:
 	* isapi: various improvements
 

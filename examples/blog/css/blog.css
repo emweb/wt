@@ -1,7 +1,17 @@
 .login-box {
-    text-align: right;
     margin-bottom: -10px;
     height: 25px;
+}
+
+.user-menu {
+    float: left;
+    width: 49%;
+}
+
+.login-menu {
+    text-align: right;
+    float: right;
+    width: 49%;
 }
 
 .link {
@@ -41,6 +51,18 @@
 }
 
 .author-panel {
+    margin-top: 10px;
+    border: 1px #528B12 dashed;
+    padding: 5px;
+}
+
+.user-editor {
+    margin-top: 10px;
+    border: 1px #528B12 dashed;
+    padding: 5px;
+}
+
+.profile-panel {
     margin-top: 10px;
     border: 1px #528B12 dashed;
     padding: 5px;

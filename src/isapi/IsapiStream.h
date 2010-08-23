@@ -24,8 +24,7 @@ public:
   ~IsapiStream();
 
   virtual WebRequest *getNextRequest(int timeoutsec);
-  virtual void addSocketNotifier(WSocketNotifier *notifier);
-  virtual void removeSocketNotifier(WSocketNotifier *notifier);
+
 private:
   IsapiServer *server_;
 };

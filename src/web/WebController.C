@@ -53,7 +53,8 @@ WebController::WebController(Configuration& configuration,
     running_(false),
     shutdown_(false)
 #ifdef WT_THREADED
-  , threadPool_(conf_.serverType() == Configuration::WtHttpdServer
+  , socketNotifier_(this),
+    threadPool_(conf_.serverType() == Configuration::WtHttpdServer
 		? 0 : conf_.numThreads())
 #endif // WT_THREADED
 {
@@ -244,19 +245,40 @@ std::string WebController::sessionFromCookie(std::string cookies,
 #endif
 }
 
-bool WebController::socketSelected(int descriptor)
-{
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+WebController::SocketNotifierMap& 
+WebController::socketNotifiers(WSocketNotifier::Type type)
+{
+  switch (type) {
+  case WSocketNotifier::Read:
+    return socketNotifiersRead_;
+  case WSocketNotifier::Write:
+    return socketNotifiersWrite_;
+  case WSocketNotifier::Exception:
+  default: // to avoid return warning
+    return socketNotifiersExcept_;
+  }
+}
 #endif // WT_THREADED
 
-  SocketNotifierMap::iterator k = socketNotifiers_.find(descriptor);
+void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
+{
+#ifdef WT_THREADED
+  // This is the only member where both mutex_ and notifierMutex_ are
+  // required at the same time. All other use cases grab notifierMutex_
+  // only when mutex_ is not held.
+  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock notifierLock(notifierMutex_);
 
-  if (k == socketNotifiers_.end()) {
+  SocketNotifierMap &notifiers = socketNotifiers(type);
+
+  SocketNotifierMap::iterator k = notifiers.find(descriptor);
+
+  if (k == notifiers.end()) {
     conf_.log("error") << "WebController::socketSelected(): socket notifier"
       " should have been cancelled?";
 
-    return false;
+    return;
   }
 
   WSocketNotifier *notifier = k->second;
@@ -269,13 +291,12 @@ bool WebController::socketSelected(int descriptor)
       << "WebController::socketSelected(): socket notification"
        " for expired session " << notifier->sessionId() << ". Leaking memory?";
 
-    return false;
+    return;
   } else {
     session = i->second;
   }
 
   {
-#ifdef WT_THREADED
     WApplication *app = session->app();
 
     /*
@@ -284,31 +305,75 @@ bool WebController::socketSelected(int descriptor)
      * the handler does), and then release the sessionsLock before trying to
      * access the session exclusively.
      */
+    notifierLock.unlock();
     WApplication::UpdateLock l = app->getUpdateLock();
     sessionsLock.unlock();
-#endif // WT_THREADED
+
+    /*
+     * notifierLock had to be released before grabbing the application lock to avoid
+     * deadlocks. But by now, the WSocketNotifier object may have been destroyed.
+     * So we double check if it still exist now; if it does, we're safe to call the
+     * notification function
+     */
+    k = notifiers.find(descriptor);
+    if (k != notifiers.end())
+      notifier = k->second;
+    else
+      return;
 
     notifier->notify();
   }
-
-#ifdef WT_THREADED
-  sessionsLock.lock();
 #endif // WT_THREADED
+}
 
-  if (socketNotifiers_.find(descriptor) == socketNotifiers_.end())
-    return true;
-  else
-    return false;
+void WebController::addSocketNotifier(WSocketNotifier *notifier)
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock notifiersLock(notifierMutex_);
+
+  socketNotifiers(notifier->type())[notifier->socket()] = notifier;
+
+  switch (notifier->type()) {
+  case WSocketNotifier::Read:
+    socketNotifier_.addReadSocket(notifier->socket());
+    break;
+  case WSocketNotifier::Write:
+    socketNotifier_.addWriteSocket(notifier->socket());
+    break;
+  case WSocketNotifier::Exception:
+    socketNotifier_.addExceptSocket(notifier->socket());
+    break;
+  }
+#endif // WT_THREADED
+}
+
+void WebController::removeSocketNotifier(WSocketNotifier *notifier)
+{
+#ifdef WT_THREADED
+  boost::recursive_mutex::scoped_lock notifiersLock(notifierMutex_);
+
+  SocketNotifierMap &notifiers = socketNotifiers(notifier->type());
+  SocketNotifierMap::iterator i = notifiers.find(notifier->socket());
+  if (i != notifiers.end())
+    notifiers.erase(i);
+
+  switch (notifier->type()) {
+  case WSocketNotifier::Read:
+    socketNotifier_.removeReadSocket(notifier->socket());
+    break;
+  case WSocketNotifier::Write:
+    socketNotifier_.removeWriteSocket(notifier->socket());
+    break;
+  case WSocketNotifier::Exception:
+    socketNotifier_.removeExceptSocket(notifier->socket());
+    break;
+  }
+#endif // WT_THREADED
 }
 
 void WebController::handleRequest(WebRequest *request)
 {
-  if (request->isSynchronous()) {
-    handleAsyncRequest(request);
-    request->finish();
-  } else {
-    handleAsyncRequest(request);
-  }
+  handleAsyncRequest(request);
 }
 
 void WebController::handleAsyncRequest(WebRequest *request)
@@ -519,28 +584,6 @@ WebController::getEntryPoint(WebRequest *request)
 		     << conf_.entryPoints()[0].path() << "'):";
 
   return &conf_.entryPoints()[0];
-}
-
-void WebController::addSocketNotifier(WSocketNotifier *notifier)
-{
-#ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
-#endif // WT_THREADED
-
-  socketNotifiers_[notifier->socket()] = notifier;
-
-  stream_->addSocketNotifier(notifier);
-}
-
-void WebController::removeSocketNotifier(WSocketNotifier *notifier)
-{
-#ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
-#endif // WT_THREADED
-
-  socketNotifiers_.erase(socketNotifiers_.find(notifier->socket()));
-
-  stream_->removeSocketNotifier(notifier);
 }
 
 std::string WebController::generateNewSessionId(WebSession *session)

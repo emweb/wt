@@ -56,10 +56,12 @@ namespace {
 		       void *callbackData) {
       out_->flush();
 
-      if (state == ResponseCallBack)
-	setAsyncCallback(boost::bind(callback, callbackData));
-      else
-	setAsyncCallback(boost::function<void(void)>());
+      if (state == ResponseCallBack) {
+        setAsyncCallback(boost::bind(callback, callbackData));
+      } else {
+        setAsyncCallback(boost::function<void(void)>());
+      }
+      emulateAsync(state);
     }
 
     virtual std::istream& in() { return *in_; }
@@ -216,16 +218,6 @@ WebRequest *FCGIStream::getNextRequest(int timeoutsec)
 
     exit(1); // FIXME: throw exception
   }
-}
-
-void FCGIStream::addSocketNotifier(WSocketNotifier *notifier)
-{
-  /* FIXME: We create the select set from the map in the WebController */
-}
-
-void FCGIStream::removeSocketNotifier(WSocketNotifier *notifier)
-{
-  /* FIXME: We create the select set from the map in the WebController */
 }
 
 }

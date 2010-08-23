@@ -129,22 +129,14 @@ public:
 
   WT_LOCALE parseLocale() const;
 
-  // For synchronous requests, finish() will be called by the controller.
-  virtual bool isSynchronous() const = 0;
-
-  // Finish simulates the invocation of asynchronous callbacks and
-  // deletes the request. Finish is only to be called for synchronous
-  // requests; asynchronous requests are assumed to manage their own lifetime
-  void finish();
-
 protected:
   const EntryPoint *entryPoint_;
+  bool doingAsyncCallbacks_;
+
+  void emulateAsync(ResponseState state);
 
   virtual ~WebRequest();
 
-  // Indicates that finish() should invoke this callback before
-  // terminating the request. This function is only used for
-  // synchronous requests.
   void setAsyncCallback(boost::function<void(void)> cb);
   boost::function<void(void)> getAsyncCallback();
 

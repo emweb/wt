@@ -23,24 +23,4 @@ WebRequest *HTTPStream::getNextRequest(int timeoutsec)
   return 0;
 }
 
-void HTTPStream::addSocketNotifier(WSocketNotifier *notifier)
-{
-  switch (notifier->type()) {
-  case WSocketNotifier::Read:
-    http::server::Server::instance()->select_read(notifier->socket());
-    break;
-  case WSocketNotifier::Write:
-    http::server::Server::instance()->select_write(notifier->socket());
-    break;
-  case WSocketNotifier::Exception:
-    http::server::Server::instance()->select_except(notifier->socket());
-    break;
-  }    
-}
-
-void HTTPStream::removeSocketNotifier(WSocketNotifier *notifier)
-{
-  http::server::Server::instance()->stop_select(notifier->socket());
-}
-
 }

@@ -12,6 +12,9 @@
 #include <map>
 
 #include <Wt/WDllDefs.h>
+#include <Wt/WSocketNotifier>
+
+#include "SocketNotifier.h"
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_THREADED
@@ -34,7 +37,6 @@ class WApplication;
 class WWidget;
 class WObject;
 class WResource;
-class WSocketNotifier;
 class WStatelessSlot;
 class WWebWidget;
 class WAbstractServer;
@@ -93,12 +95,11 @@ public:
   void removeSocketNotifier(WSocketNotifier *notifier);
 
   // returns false if removeSocketNotifier was called while processing
-  bool socketSelected(int descriptor);
+  void socketSelected(int descriptor, WSocketNotifier::Type type);
 
   std::string switchSession(WebSession *session,
 			    const std::string& newSessionId);
 
-  const SocketNotifierMap& socketNotifiers() const { return socketNotifiers_; }
 
   std::string generateNewSessionId(WebSession *session);
 
@@ -113,19 +114,27 @@ private:
   typedef std::map<std::string, WebSession *> SessionMap;
   SessionMap sessions_;
 
-  SocketNotifierMap socketNotifiers_;
-
   bool shutdown_;
 
-  void handleAsyncRequest(WebRequest *request);
-
 #ifdef WT_THREADED
+  SocketNotifier socketNotifier_;
+  // mutex to protect access to notifier maps. This cannot be protected
+  // by mutex_ as this lock is grabbed while the application lock is
+  // being held, which would potentially deadlock if we took mutex_.
+  boost::recursive_mutex notifierMutex_;
+  SocketNotifierMap socketNotifiersRead_;
+  SocketNotifierMap socketNotifiersWrite_;
+  SocketNotifierMap socketNotifiersExcept_;
+  // assumes that you did grab the notifierMutex_
+  SocketNotifierMap& socketNotifiers(WSocketNotifier::Type type);
+
   // mutex to protect access to the sessions map.
   boost::recursive_mutex mutex_;
 
   boost::threadpool::pool threadPool_;
 #endif
 
+  void handleAsyncRequest(WebRequest *request);
   void handleRequestThreaded(WebRequest *request);
 
   const EntryPoint *getEntryPoint(WebRequest *request);

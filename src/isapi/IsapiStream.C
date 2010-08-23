@@ -25,15 +25,5 @@ WebRequest *IsapiStream::getNextRequest(int timeoutsec)
   return server_->popRequest(timeoutsec);
 }
 
-void IsapiStream::addSocketNotifier(WSocketNotifier *notifier)
-{
-  /* FIXME: We create the select set from the map in the WebController */
-}
-
-void IsapiStream::removeSocketNotifier(WSocketNotifier *notifier)
-{
-  /* FIXME: We create the select set from the map in the WebController */
-}
-
 }
 }

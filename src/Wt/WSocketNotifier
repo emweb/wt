@@ -78,7 +78,8 @@ public:
   /*! \brief Creates a new socket notifier.
    *
    * Create a new socket listener to listen for events of given \p type
-   * on a socket with file descriptor \p socket.
+   * on a socket with file descriptor \p socket. The WSocketNotifier is
+   * enabled after construction.
    */
   WSocketNotifier(int socket, Type type, WObject *parent = 0);
 
@@ -124,6 +125,7 @@ private:
 
   const std::string& sessionId() const { return sessionId_; }
   void notify();
+  void dummy();
 
   friend class WebController;
 };

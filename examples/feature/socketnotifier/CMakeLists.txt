@@ -1,8 +1,8 @@
 IF(NOT BOOST_WT_MT_FOUND)
-  MESSAGE(STATUS "** Not building serverpush feature example: requires a multi-threaded build.")
+  MESSAGE(STATUS "** Not building socketnotifier feature example: requires a multi-threaded build.")
 ELSE(NOT BOOST_WT_MT_FOUND)
 
-  WT_ADD_EXAMPLE(serverpush.wt ServerPush.C)
+  WT_ADD_EXAMPLE(socketnotifier.wt SocketNotifier.C)
 
   #
   # If you have Wt installed somehwere, you should use the

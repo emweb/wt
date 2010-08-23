@@ -13,6 +13,7 @@ WT_ADD_EXAMPLE(blog.wt
   view/PostView.C
   view/CommentView.C
   view/BlogView.C
+  view/EditUsers.C
   asciidoc/asciidoc.C
   BlogSession.C
   BlogRSSFeed.C

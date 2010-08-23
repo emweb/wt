@@ -21,8 +21,6 @@ public:
   ~FCGIStream();
 
   virtual WebRequest *getNextRequest(int timeoutsec);
-  virtual void addSocketNotifier(WSocketNotifier *notifier);
-  virtual void removeSocketNotifier(WSocketNotifier *notifier);
 };
 
 }

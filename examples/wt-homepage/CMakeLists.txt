@@ -23,6 +23,7 @@ WT_ADD_EXAMPLE(Home.wt
         ../blog/view/BlogView.C
 	../blog/view/CommentView.C
 	../blog/view/PostView.C
+	../blog/view/EditUsers.C
 	../blog/model/Comment.C
 	../blog/model/Post.C
 	../blog/model/Tag.C

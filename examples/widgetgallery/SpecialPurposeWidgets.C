@@ -33,8 +33,12 @@ void SpecialPurposeWidgets::populateSubMenu(WMenu *menu)
 					this)));
   menu->addItem("WSound",
 		deferCreate(boost::bind(&SpecialPurposeWidgets::wSound, this)));
-  menu->addItem("WVideo", wVideo());
-  menu->addItem("WFlashObject", wFlashObject());
+  menu->addItem("WVideo",
+		deferCreate(boost::bind(&SpecialPurposeWidgets::wVideo,
+					this)));
+  menu->addItem("WFlashObject",
+		deferCreate(boost::bind(&SpecialPurposeWidgets::wFlashObject,
+					this)));
 }
 
 WWidget *SpecialPurposeWidgets::wGoogleMap()

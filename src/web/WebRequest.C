@@ -29,7 +29,8 @@ namespace Wt {
 Http::ParameterValues WebRequest::emptyValues_;
 
 WebRequest::WebRequest()
-  : entryPoint_(0)
+  : entryPoint_(0),
+    doingAsyncCallbacks_(false)
 { }
 
 WebRequest::~WebRequest()
@@ -211,14 +212,38 @@ boost::function<void(void)> WebRequest::getAsyncCallback()
   return asyncCallback_;
 }
 
-void WebRequest::finish()
+void WebRequest::emulateAsync(ResponseState state)
 {
-  while (asyncCallback_) {
-    boost::function<void(void)> fn = asyncCallback_;
-    asyncCallback_.clear();
-    fn();
+  /*
+   * This prevents stack build-up while emulating asynchronous callbacks
+   * for a synchronous connector.
+   */
+
+  if (state == ResponseCallBack) {
+    if (doingAsyncCallbacks_) {
+      // Do nothing. emulateAsync() was already called on this stack frame.
+      // Unwind the stack and let the toplevel emulateAsync() call the cb.
+    } else {
+      doingAsyncCallbacks_ = true;
+
+      while (asyncCallback_) {
+	boost::function<void(void)> fn = asyncCallback_;
+	asyncCallback_.clear();
+	fn();
+      };
+
+      doingAsyncCallbacks_ = false;
+
+      delete this;
+    }
+  } else {
+    if (!doingAsyncCallbacks_)
+      delete this;
+    else {
+      // we should in fact signal that we can delete after stopping the
+      // asynccallbacks (e.g. by setting doingAsyncCallbacks_ = false
+    }
   }
-  delete this;
 }
 
 }

@@ -2,50 +2,96 @@
 <messages>
   <message id="blog-login">
     <div class="login-box">
-      ${name} ${passwd} ${login-button} ${login-link} ${register-link}
-      <a href="${feed-url}">
-	<img src="css/rss.png" alt="Rss Feed"
+      <div class="user-menu">
+      </div>
+      <div class="login-menu">
+	${name} ${passwd} ${login-button} ${login-link} ${register-link}
+	<a href="${feed-url}">
+	  <img src="css/rss.png" alt="Rss Feed"
 	     style="margin-left: 6px; vertical-align: top;"/>
-      </a>
+	</a>
+      </div>
+    </div>
+  </message>
+
+  <message id="edit-users-list">
+    <h4>Registered users</h4>
+    ${user-list}
+    Limit list to user names containing : ${limit-edit} ${limit-button}
+  </message>
+
+  <message id="edit-user">
+    <div class="profile-panel">
+      <h4>Edit user ${username}</h4>
+      ${role-button}
+    </div>
+  </message>
+
+  <message id="edit-one-user">
+    <h4>Editing user ${user}</h4>
+    ${save-button} ${cancel-button}
+  </message>
+
+  <message id="blog-invaliduser">
+    <div class="profile-panel">
+      <h4>This user id is invalid</h4>
+    </div>
+  </message>
+
+  <message id="blog-mustlogin">
+    <div class="profile-panel">
+      <h4>You need to log to access this function</h4>
+    </div>
+  </message>
+
+  <message id="blog-mustbeadministrator">
+    <div class="profile-panel">
+      <h4>You need to be administrator to access this function</h4>
     </div>
   </message>
 
   <message id="blog-register">
     <h4>Register</h4>
-    <p>
-      To register as a user to post comments with your own login,
-      please fill out the following form.
-    </p>
-    <table style="margin: 5px auto;">
-      <tr>
-	<td>Login:</td>
-	<td>${name}</td>
-      </tr>
+      <p>
+	To register as a user to post comments with your own login,
+	please fill out the following form.
+      </p>
+      <table style="margin: 5px auto;">
+	<tr>
+	  <td>Login:</td>
+	  <td>${name}</td>
+	</tr>
 
-      <tr>
-	<td>Password:</td>
-	<td>${passwd}</td>
-      </tr>
+	<tr>
+	  <td>Password:</td>
+	  <td>${passwd}</td>
+	</tr>
 
-      <tr>
-	<td>Repeat password:</td>
-	<td>${passwd2}</td>
-      </tr>
+	<tr>
+	  <td>Repeat password:</td>
+	  <td>${passwd2}</td>
+	</tr>
 
-      <tr>
-	<td colspan="2" style="text-align: center">
-	  ${ok-button}
-	  ${cancel-button}
-	</td>
-      </tr>
+	<tr>
+	  <td colspan="2" style="text-align: center">
+	    ${ok-button}
+	    ${cancel-button}
+	  </td>
+	</tr>
 
-      <tr>
-	<td colspan="2" class="login-error">
-	  ${error}
-	</td>
-      </tr>
+	<tr>
+	  <td colspan="2" class="login-error">
+	    ${error}
+	  </td>
+	</tr>
+	</table>
+  </message>
 
-    </table>
+  <message id="blog-userslist">
+    <div class="profile-panel">
+      <h4>Registered users</h4>
+        Search for ${searchstring} ${search-button}<br/>
+    </div>
   </message>
 
   <message id="blog-profile">
@@ -90,11 +136,16 @@
 
   <message id="blog-logout">
     <div class="login-box">
-      <b>${user}</b> ${logout-link} ${profile-link}
-      <a href="${feed-url}">
-	<img src="css/rss.png" alt="Rss Feed"
+      <div class="user-menu">
+	${profile-link} ${author-panel-link} ${userlist-link} 
+      </div>
+      <div class="login-menu">
+        <b>${user}</b> ${logout-link}
+        <a href="${feed-url}">
+	  <img src="css/rss.png" alt="Rss Feed"
 	     style="margin-left: 6px; vertical-align: top;"/>
-      </a>
+        </a>
+      </div>
     </div>
   </message>
 
@@ -188,6 +239,8 @@
   <message id="register">Register</message>
   <message id="logout">Logout</message>
   <message id="profile">Profile</message>
+  <message id="author-post">Authoring panel</message>
+  <message id="edit-users">Edit users</message>
   <message id="comment-add">Add comment</message>
   <message id="comment-reply">Reply</message>
   <message id="comment-edit">Edit</message>
@@ -201,4 +254,8 @@
   <message id="edit">Edit</message>
   <message id="save">Save</message>
   <message id="cancel">Cancel</message>
+  <message id="go-limit">Search</message>
+  <message id="demote-admin">Demote this administrator to a regular visitor</message>
+  <message id="promote-user">Promote this user to administrator</message>
+  <message id="no-users-found">No users found</message>
 </messages>

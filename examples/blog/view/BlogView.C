@@ -6,6 +6,7 @@
 
 #include "PostView.h"
 #include "BlogView.h"
+#include "EditUsers.h"
 
 #include "../BlogSession.h"
 
@@ -19,6 +20,7 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
+#include <Wt/WStackedWidget>
 #include <Wt/WTemplate>
 #include <Wt/WText>
 
@@ -39,8 +41,15 @@ public:
     : basePath_(basePath),
       rssFeedUrl_(rssFeedUrl),
       session_(sqliteDb),
+      panel_(0),
       register_(0),
-      profile_(0)
+      profile_(0),
+      authorPanel_(0),
+      users_(0),
+      userEditor_(0),
+      mustLoginWarning_(0),
+      mustBeAdministratorWarning_(0),
+      invalidUser_(0)
   {
     WApplication *app = wApp;
 
@@ -48,8 +57,8 @@ public:
     app->useStyleSheet("css/blog.css");
     app->useStyleSheet("css/asciidoc.css");
     app->internalPathChanged().connect(this, &BlogImpl::handlePathChange);
-
     login_ = new WTemplate(this);
+    panel_ = new WStackedWidget(this);
     items_ = new WContainerWidget(this);
 
     init();
@@ -64,8 +73,15 @@ private:
   BlogSession session_;
 
   WTemplate *login_;
+  WStackedWidget* panel_;
   WTemplate *register_;
   WTemplate *profile_;
+  WTemplate *authorPanel_;
+  EditUsers *users_;
+  EditUser  *userEditor_;
+  WTemplate *mustLoginWarning_;
+  WTemplate *mustBeAdministratorWarning_;
+  WTemplate *invalidUser_;
   WContainerWidget *items_;
 
   void logout() {
@@ -78,6 +94,7 @@ private:
   void init() {
     session_.setUser(dbo::ptr<User>());
     refresh();
+    panel_->hide();
 
     login_->clear();
     login_->setTemplateText(tr("blog-login"));
@@ -154,6 +171,22 @@ private:
     WText *profileLink = new WText(tr("profile"));
     profileLink->setStyleClass("link");
     profileLink->clicked().connect(this, &BlogImpl::editProfile);
+
+    if (user->role == User::Admin) {
+      WText *editUsersLink = new WText(tr("edit-users"));
+      editUsersLink->setStyleClass("link");
+      editUsersLink->clicked().connect(SLOT(this, BlogImpl::editUsers));
+      login_->bindWidget("userlist-link", editUsersLink);
+      WText *authorPanelLink = new WText(tr("author-post"));
+      authorPanelLink->setStyleClass("link");
+      authorPanelLink->clicked().connect(SLOT(this, BlogImpl::authorPanel));
+      login_->bindWidget("author-panel-link", authorPanelLink);
+    }
+    else
+    {
+      login_->bindWidget("userlist-link", new WText(""));
+      login_->bindWidget("author-panel-link", new WText(""));
+    }
  
     WText *logoutLink = new WText(tr("logout"));
     logoutLink->setStyleClass("link");
@@ -163,6 +196,8 @@ private:
     login_->bindString("user", user->name);
     login_->bindWidget("profile-link", profileLink);
     login_->bindWidget("logout-link", logoutLink);
+
+    bindPanelTemplates();
   }
 
   void newUser() {
@@ -193,11 +228,54 @@ private:
     }
   }
 
+  void bindPanelTemplates() {
+    if (!session_.user()) return;
+    Wt::Dbo::Transaction t(session_);
+    if (authorPanel_) {
+      WPushButton *newPost = new WPushButton(tr("new-post"));
+      newPost->clicked().connect(SLOT(this, BlogImpl::newPost));
+      WContainerWidget *unpublishedPosts = new WContainerWidget();
+      showPosts(session_.user()->allPosts(Post::Unpublished), unpublishedPosts);
+
+      authorPanel_->bindString("user", session_.user()->name);
+      authorPanel_->bindInt("unpublished-count",
+			   session_.user()->allPosts(Post::Unpublished).size());
+      authorPanel_->bindInt("published-count",
+			   session_.user()->allPosts(Post::Published).size());
+      authorPanel_->bindWidget("new-post", newPost);
+      authorPanel_->bindWidget("unpublished-posts", unpublishedPosts);
+    }
+    if (profile_)
+      profile_->bindString("user",session_.user()->name);
+  }
+ 
+  void editUsers() {
+    panel_->show();
+    if (!users_) {
+      users_ = new EditUsers(session_, basePath_);
+      panel_->addWidget(users_);
+      bindPanelTemplates();
+    }
+    panel_->setCurrentWidget(users_);
+  }
+
+ void authorPanel() {
+    panel_->show();
+    if (!authorPanel_)
+    {
+      authorPanel_ = new WTemplate(tr("blog-author-panel"));
+      panel_->addWidget(authorPanel_);
+      bindPanelTemplates();
+    }
+    panel_->setCurrentWidget(authorPanel_);
+  }
+
   void editProfile() {
+    panel_->show();
     if (!profile_) {
-      profile_ = new WTemplate();
-      items_->insertWidget(0, profile_);
-      profile_->setTemplateText(tr("blog-profile"));
+      profile_ = new WTemplate(tr("blog-profile"));
+      panel_->addWidget(profile_);
+      bindPanelTemplates();
 
       WLineEdit *passwd = new WLineEdit();
       WLineEdit *passwd2 = new WLineEdit();
@@ -210,18 +288,23 @@ private:
       okButton->clicked().connect(this, &BlogImpl::saveProfile);
       cancelButton->clicked().connect(this, &BlogImpl::cancelProfile);
 
-      profile_->bindString("user",session_.user()->name);
       profile_->bindWidget("passwd", passwd);
       profile_->bindWidget("passwd2", passwd2);
       profile_->bindWidget("ok-button", okButton);
       profile_->bindWidget("cancel-button", cancelButton);
       profile_->bindWidget("error", error);
     }
+    panel_->setCurrentWidget(profile_);
   }
 
   void cancelProfile() {
-    delete profile_;
-    profile_ = 0;
+    WLineEdit *passwd = profile_->resolve<WLineEdit *>("passwd");
+    WLineEdit *passwd2 = profile_->resolve<WLineEdit *>("passwd2");
+    WText *error = profile_->resolve<WText *>("error");
+    passwd->setText(WString());
+    passwd2->setText(WString());
+    error->setText(WString());
+    panel_->hide();
   }
 
   void saveProfile() {
@@ -302,6 +385,7 @@ private:
 
       items_->clear();
       profile_ = 0;
+      users_ = 0;
 
       if (path.empty())
 	showPosts(session_.find<Post>
@@ -317,6 +401,8 @@ private:
 	  showPosts(user);
 	else
 	  showError(tr("blog-no-author").arg(author));
+      } else if (path == "edituser") {
+	editUser(app->internalPathNextPart(basePath_ + path + '/'));
       } else {
 	std::string remainder = app->internalPath().substr(basePath_.length());
 	showPostsByDateTopic(remainder, items_);
@@ -324,6 +410,51 @@ private:
 
       t.commit();
     }
+  }
+
+  void editUser(const std::string& ids) {
+    if (!checkLoggedIn()) return;
+    if (!checkAdministrator()) return;
+    dbo::dbo_traits<User>::IdType id;
+    try {
+      id = boost::lexical_cast<dbo::dbo_traits<User>::IdType>(ids);
+    } catch (boost::bad_lexical_cast&) {
+      id = dbo::dbo_traits<User>::invalidId();
+    }
+    panel_->show();
+    try {
+      dbo::Transaction t(session_);
+      dbo::ptr<User> target(session_.load<User>(id));
+      if (!userEditor_)
+	panel_->addWidget(userEditor_ = new EditUser(session_));
+      userEditor_->switchUser(target);
+      panel_->setCurrentWidget(userEditor_);
+    }
+    catch (Dbo::ObjectNotFoundException) {
+      if (!invalidUser_)
+	panel_->addWidget(invalidUser_ = new WTemplate(tr("blog-invaliduser")));
+      panel_->setCurrentWidget(invalidUser_);
+    }
+  }
+
+  bool checkLoggedIn()
+  {
+    if (session_.user()) return true;
+    panel_->show();
+    if (!mustLoginWarning_)
+      panel_->addWidget(mustLoginWarning_ = new WTemplate(tr("blog-mustlogin")));
+    panel_->setCurrentWidget(mustLoginWarning_);
+    return false;
+  }
+
+  bool checkAdministrator()
+  {
+    if (session_.user() && (session_.user()->role == User::Admin)) return true;
+    panel_->show();
+    if (!mustBeAdministratorWarning_)
+      panel_->addWidget(mustBeAdministratorWarning_ = new WTemplate(tr("blog-mustbeadministrator")));
+    panel_->setCurrentWidget(mustBeAdministratorWarning_);
+    return false;
   }
 
   dbo::ptr<User> findUser(const std::string& name) {
@@ -380,6 +511,8 @@ private:
   }
 
   void showPosts(dbo::ptr<User> user) {
+    /*
+<<<<<<< HEAD:examples/blog/view/BlogView.C
     if (user == session_.user() && user->role == User::Admin) {
       WTemplate *authorPanel = new WTemplate(tr("blog-author-panel"), items_);
 
@@ -398,6 +531,9 @@ private:
       authorPanel->bindWidget("unpublished-posts", unpublishedPosts);
     }
 
+=======
+>>>>>>> bvh_blog:examples/blog/view/BlogView.C
+    */
     showPosts(user->latestPosts(), items_);
   }
 

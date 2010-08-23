@@ -45,14 +45,32 @@ void WSocketNotifier::setEnabled(bool enabled)
   }
 }
 
+void WSocketNotifier::dummy()
+{
+}
+
 void WSocketNotifier::notify()
 {
   beingNotified_ = true;
-  activated_.emit(socket_);
-  beingNotified_ = false;
 
-  if (enabled_)
-    WApplication::instance()->session()->controller()->addSocketNotifier(this);
+  /*
+   * use this connection to know if the notifier was killed while
+   * processing the notification
+   */
+  boost::signals::connection alive
+    = activated_.connect(this, &WSocketNotifier::dummy);
+
+  activated_.emit(socket_);
+
+  if (alive.connected()) {
+    alive.disconnect();
+
+    beingNotified_ = false;
+
+    if (enabled_)
+      WApplication::instance()->session()->controller()
+        ->addSocketNotifier(this);
+  }
 }
 
 }
