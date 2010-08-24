@@ -1561,7 +1561,7 @@ private:
   EventSignalBase  *decodeExposedSignal(const std::string& signalName) const;
   EventSignalBase  *decodeExposedSignal(const std::string& objectId,
 				       const std::string& name);
-  const SignalMap&  exposedSignals() const;
+  SignalMap&  exposedSignals() { return exposedSignals_; }
 
   std::string resourceMapKey(WResource *resource);
   std::string addExposedResource(WResource *resource, const std::string& path);

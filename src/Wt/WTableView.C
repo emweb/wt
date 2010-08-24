@@ -90,6 +90,7 @@ WTableView::WTableView(WContainerWidget *parent)
 
     app->styleSheet().addRule
       (".Wt-tableview .Wt-header .Wt-tv-c",
+       "overflow: visible;"
        "padding-left: 6px;");
 
     app->styleSheet().addRule
@@ -154,8 +155,6 @@ WTableView::WTableView(WContainerWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
 
     headerContainer_ = new WContainerWidget();
-    headerContainer_->setOverflow(WContainerWidget::OverflowHidden);
-    headerContainer_->setPositionScheme(Relative);
     headerContainer_->setStyleClass("Wt-header headerrh cwidth");
     headerContainer_->addWidget(headers_);
 

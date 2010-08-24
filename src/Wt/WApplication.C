@@ -600,11 +600,6 @@ WApplication::decodeExposedSignal(const std::string& objectId,
   return decodeExposedSignal(signalName);
 }
 
-const WApplication::SignalMap& WApplication::exposedSignals() const
-{
-  return exposedSignals_;
-}
-
 std::string WApplication::resourceMapKey(WResource *resource)
 {
   return resource->internalPath().empty()

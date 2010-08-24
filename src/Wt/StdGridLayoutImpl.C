@@ -319,6 +319,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       && grid_.rows_[row].resizable_;
 
     DomElement *tr = DomElement::createNew(DomElement_TR);
+    std::string zIndex;
+    if (app->environment().agentIsIE())
+      zIndex = boost::lexical_cast<std::string>(rowCount - row);
 
     std::string heightPct;
     int stretch = std::max(0, grid_.rows_[row].stretch_);
@@ -426,6 +429,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	if (item.item_) {
 	  DomElement *c = getImpl(item.item_)
 	    ->createDomElement(itemFitWidth, itemFitHeight, app);
+
+	  if (!zIndex.empty())
+	    td->setProperty(PropertyStyleZIndex, zIndex);
 
 	  if (hAlign == 0)
 	    hAlign = AlignJustify;
