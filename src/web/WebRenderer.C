@@ -494,7 +494,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 		boost::lexical_cast<std::string>(conf.sessionTimeout() / 2));
   script.setVar("INITIAL_HASH",
 		WWebWidget::jsStringLiteral(app->internalPath()));
-  script.setVar("INDICATOR_TIMEOUT", "500");
+  script.setVar("INDICATOR_TIMEOUT", conf.indicatorTimeout());
   script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
   script.setVar("ONLOAD",
 		std::string("(function() {")

@@ -86,7 +86,7 @@ class WTemplate;
 
 .Wt-cal td          : Day cell
 .Wt-cal-oom         : Out-of-month day
-.Wt-cal-oom         : Out-of-range day (day < bottom or day > top)
+.Wt-cal-oor         : Out-of-range day (day < bottom or day > top)
 .Wt-cal-sel         : Selected day
 .Wt-cal-now         : Today day
 \endverbatim

@@ -1,6 +1,7 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+
  *
  * See the LICENSE file for terms of use.
  */
@@ -15,11 +16,9 @@
 #include <Wt/WStandardItemModel>
 #include <Wt/WSvgImage>
 #include <Wt/WPainter>
-#include <Wt/WApplication>
 #include <Wt/WDate>
 #include <Wt/WDateTime>
 #include <Wt/WTime>
-#include <Wt/Test/WTestEnvironment>
 
 #include "WChartTest.h"
 
@@ -147,10 +146,7 @@ void WChartTest::plotTimeSeriesChart(WStandardItemModel* model,
 				     std::string fileName,
 				     AxisScale xScale) 
 {
-  Test::WTestEnvironment environment;
-  WApplication app(environment);
-
-  WCartesianChart *chart = new WCartesianChart(app.root());
+  WCartesianChart *chart = new WCartesianChart();
   chart->setModel(model);
   chart->setXSeriesColumn(0);
   chart->setLegendEnabled(true);
@@ -180,6 +176,8 @@ void WChartTest::plotTimeSeriesChart(WStandardItemModel* model,
     image.write(f);
     f.close();
   }
+
+  delete chart;
 }
 
 WChartTest::WChartTest()

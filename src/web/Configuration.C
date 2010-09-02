@@ -156,6 +156,7 @@ Configuration::Configuration(const std::string& applicationPath,
     sessionTracking_(URL),
     reloadIsNewSession_(true),
     sessionTimeout_(600),
+    indicatorTimeout_(500),
     serverPushTimeout_(50),
     valgrindPath_(""),
     debug_(false),
@@ -318,6 +319,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   setBoolean(app, "inline-css", inlineCss_);
   setBoolean(app, "persistent-sessions", persistentSessions_);
   setBoolean(app, "progressive-bootstrap", progressiveBoot_);
+
+  std::string indicatorTimeoutStr
+    = singleChildElementValue(app, "indicator-timeout", "");
+
+  if (!indicatorTimeoutStr.empty())
+    indicatorTimeout_ = boost::lexical_cast<int>(indicatorTimeoutStr);
 
   std::vector<xml_node<> *> userAgents = childElements(app, "user-agents");
 

@@ -106,6 +106,7 @@ public:
   SessionTracking    sessionTracking() const { return sessionTracking_; }
   bool               reloadIsNewSession() const { return reloadIsNewSession_; }
   int                sessionTimeout() const { return sessionTimeout_; }
+  int		     indicatorTimeout() const { return indicatorTimeout_; }
   int                serverPushTimeout() const { return serverPushTimeout_; }
   std::string        valgrindPath() const { return valgrindPath_; }
   bool               debug() const { return debug_; }
@@ -161,6 +162,7 @@ private:
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;
   int             sessionTimeout_;
+  int		  indicatorTimeout_;
   int             serverPushTimeout_;
   std::string     valgrindPath_;
   bool            debug_;

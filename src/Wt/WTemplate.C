@@ -283,13 +283,6 @@ DomElementType WTemplate::domElementType() const
 
 void WTemplate::refresh()
 {
-  for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
-       ++i) {
-    WWidget *w = i->second;
-    if (w->isRendered())
-      w->refresh();
-  }
-
   if (text_.refresh()) {
     changed_ = true;
     repaint(RepaintInnerHtml);

@@ -299,35 +299,41 @@
            stylesheet when first used. This can be disabled using this
 	   configuration option.
 
-           Note: some widgets, such as WTreeView, dynamically
-           manipulate rules in this stylesheet, and will no longer
-           work properly when inline-css is disabled.
+           Note: some widgets, such as WTreeView and WTableView,
+           dynamically manipulate rules in this stylesheet, and will
+           no longer work properly when inline-css is disabled.
 	  -->
 	<inline-css>true</inline-css>
 
+	<!-- The timeout before showing the loading indicator.
+
+	   The value is specified in ms.
+          -->
+	<indicator-timeout>500</indicator-timeout>
+
 	<!-- Ajax user agent list
 
-            Wt considers three types of sessions:
-	    - AJAX sessions: use AJAX and JavaScript
-	    - plain HTML sessions: use plain old server GETs and POSTs
-	    - bots: have clean internal paths and no persistent sessions
+           Wt considers three types of sessions:
+	   - AJAX sessions: use AJAX and JavaScript
+	   - plain HTML sessions: use plain old server GETs and POSTs
+	   - bots: have clean internal paths and no persistent sessions
 
-            By default, Wt does a browser detection to distinguish between
-	    the first two: if a browser supports JavaScript (and has it
-	    enabled), and has an AJAX DOM API, then AJAX sessions are chosen,
-	    otherwise plain HTML sessions.
+           By default, Wt does a browser detection to distinguish between
+	   the first two: if a browser supports JavaScript (and has it
+	   enabled), and has an AJAX DOM API, then AJAX sessions are chosen,
+	   otherwise plain HTML sessions.
 
-            Here, you may indicate which user agents should or should
-            not receive an AJAX session regardless of what they report as
-	    capabilities.
+           Here, you may indicate which user agents should or should
+           not receive an AJAX session regardless of what they report as
+	   capabilities.
 
-            Possible values for 'mode' or "white-list" or "black-list". A
-	    white-list will only treat the listed agents as supporting AJAX,
-	    all other agents will be served plain HTML sessions. A black-list
-	    will always server plain HTML sessions to listed agents and
-	    otherwise rely on browser capability detection.
+           Possible values for 'mode' or "white-list" or "black-list". A
+	   white-list will only treat the listed agents as supporting AJAX,
+	   all other agents will be served plain HTML sessions. A black-list
+	   will always server plain HTML sessions to listed agents and
+	   otherwise rely on browser capability detection.
 
-            Each <user-agent> is a regular expression.
+           Each <user-agent> is a regular expression.
 	  -->
 	<user-agents type="ajax" mode="black-list">
 	  <!-- <user-agent>.*Crappy browser.*</user-agent> -->
@@ -335,10 +341,10 @@
 
 	<!-- Bot user agent list
 
-            Here, you can specify user agents that should be should be
-            treated as bots.
+           Here, you can specify user agents that should be should be
+           treated as bots.
 
-            Each <user-agent> is a regular expression.
+           Each <user-agent> is a regular expression.
 	  -->
 	<user-agents type="bot">
 	  <user-agent>.*Googlebot.*</user-agent>
@@ -352,11 +358,11 @@
 
 	<!-- Whether the progressive bootstrap is used.
 
-	     The default bootstrap method first senses whether there is AJAX
-	     support, and only then creates the application.
+	   The default bootstrap method first senses whether there is AJAX
+	   support, and only then creates the application.
 
-	     The progressive bootstrap method first renders a plain HTML
-	     version and later upgrades to an AJAX version.
+	   The progressive bootstrap method first renders a plain HTML
+	   version and later upgrades to an AJAX version.
 	  -->
 	<progressive-bootstrap>false</progressive-bootstrap>
 

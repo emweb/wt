@@ -89,10 +89,10 @@ void WVmlImage::init()
   currentShadow_ = painter()->shadow();
   penBrushShadowChanged_ = true;
 
-  startClip(WRectF(0, 0, width().value(), height().value()));
-
   if (!(paintFlags_ & PaintUpdate))
     rendered_.str(std::string());
+
+  startClip(WRectF(0, 0, width().value(), height().value()));
 }
 
 void WVmlImage::done()

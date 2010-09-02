@@ -216,22 +216,6 @@ ELSE(DEBUG)
   SET(WT_DEBUG_ENABLED 0)
 ENDIF(DEBUG)
 
-# Compile time constants & make sure our build finds it
-FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Wt)
-SET(WCONFIG_H_PATH ${CMAKE_CURRENT_BINARY_DIR}/Wt/WConfig.h)
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/WConfig.h.in
-  ${WCONFIG_H_PATH}
-)
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
-INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
-
-# Generate wt_config.xml from wt_config.xml.in
-CONFIGURE_FILE(
-  ${WT_SOURCE_DIR}/wt_config.xml.in
-  ${WT_BINARY_DIR}/wt_config.xml
-)
-
 ADD_CUSTOM_TARGET(doc)
 
 IF (ASCIIDOC_FOUND)
@@ -279,3 +263,28 @@ INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION
 IF(NOT EXISTS ${CONFIGDIR}/wt_config.xml)
   INSTALL(FILES ${WT_BINARY_DIR}/wt_config.xml DESTINATION ${CONFIGDIR})
 ENDIF (NOT EXISTS ${CONFIGDIR}/wt_config.xml)
+
+IF(HARU_FOUND)
+  SET(WT_HAS_WPDFIMAGE true)
+ENDIF(HARU_FOUND)
+
+IF(GM_FOUND)
+  SET(WT_HAS_WRASTERIMAGE true)
+ENDIF(GM_FOUND)
+
+# Compile time constants & make sure our build finds it
+FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Wt)
+SET(WCONFIG_H_PATH ${CMAKE_CURRENT_BINARY_DIR}/Wt/WConfig.h)
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/WConfig.h.in
+  ${WCONFIG_H_PATH}
+)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
+
+# Generate wt_config.xml from wt_config.xml.in
+CONFIGURE_FILE(
+  ${WT_SOURCE_DIR}/wt_config.xml.in
+  ${WT_BINARY_DIR}/wt_config.xml
+)
+

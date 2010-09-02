@@ -33,6 +33,10 @@ typedef int socklen_t;
  * This is a minimal socket notifier example, which is used to asynchronously
  * read an RSS file and display it in raw format on the browser using server
  * push.
+ * Note that when the SocketNotifier signal is emitted, that Wt already
+ * conveniently grabbed the update lock for you. You can simply modify
+ * the widget tree and use the server push mechanism to push the changes
+ * to the browser.
  * The example looks unnecessary complex due to the use of the raw POSIX
  * socket functions. Usually these are wrapped in a more programmer-friendly
  * API.
@@ -72,11 +76,9 @@ private:
   Wt::WText *rssText_;
   std::stringstream inStream_;
 
-  // Convenience function that updates the status message. It grabs
-  // the updateLock before doing so, so it is safe to call at any time.
+  // Convenience function that updates the status message.
   void addText(const Wt::WString &text)
   {
-    Wt::WApplication::UpdateLock uiLock = wApp->getUpdateLock();
     resultText_->setText(resultText_->text() + text);
     if (wApp->updatesEnabled())
       wApp->triggerUpdate();
@@ -237,9 +239,6 @@ private:
 
   void cleanup()
   {
-    // We'll be modifying the widget tree
-    Wt::WApplication::UpdateLock uiLock = wApp->getUpdateLock();
-
     /*
      * It is mandatory not to have notifiers on closed sockets,
      * as select() fails miserably in this case. Disable (or even

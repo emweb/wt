@@ -57,9 +57,6 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
     ssl_context_(io_service_, asio::ssl::context::sslv23),
     ssl_acceptor_(io_service_),
 #endif // HTTP_WITH_SSL
-#if defined(WT_THREADED) && BOOST_VERSION < 103600
-    select_reactor_(io_service_),
-#endif // defined(WT_THREADED) && BOOST_VERSION < 103600
     connection_manager_(),
     request_handler_(config, wtConfig.entryPoints(),
 		     accessLogger_),

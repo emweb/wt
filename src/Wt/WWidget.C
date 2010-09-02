@@ -94,7 +94,9 @@ void WWidget::renderOk()
 {
   if (flags_.test(BIT_NEED_RERENDER)) {
     flags_.reset(BIT_NEED_RERENDER);
-    WApplication::instance()->session()->renderer().doneUpdate(this);
+    WApplication *app = WApplication::instance();
+    if (app)
+      app->session()->renderer().doneUpdate(this);
   }
 }
 
@@ -359,7 +361,7 @@ void WWidget::setLayoutSizeAware(bool aware)
   if (aware == (resized_ != 0))
     return;
 
-  if (aware) {
+  if (aware && WApplication::instance()) {
     resized_ = new JSignal<int, int>(this, "resized");
     resized_->connect(this, &WContainerWidget::layoutSizeChanged);
 

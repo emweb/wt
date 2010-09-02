@@ -329,9 +329,10 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
 void WebController::addSocketNotifier(WSocketNotifier *notifier)
 {
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock notifiersLock(notifierMutex_);
-
-  socketNotifiers(notifier->type())[notifier->socket()] = notifier;
+  {
+    boost::recursive_mutex::scoped_lock notifiersLock(notifierMutex_);
+    socketNotifiers(notifier->type())[notifier->socket()] = notifier;
+  }
 
   switch (notifier->type()) {
   case WSocketNotifier::Read:
@@ -350,13 +351,6 @@ void WebController::addSocketNotifier(WSocketNotifier *notifier)
 void WebController::removeSocketNotifier(WSocketNotifier *notifier)
 {
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock notifiersLock(notifierMutex_);
-
-  SocketNotifierMap &notifiers = socketNotifiers(notifier->type());
-  SocketNotifierMap::iterator i = notifiers.find(notifier->socket());
-  if (i != notifiers.end())
-    notifiers.erase(i);
-
   switch (notifier->type()) {
   case WSocketNotifier::Read:
     socketNotifier_.removeReadSocket(notifier->socket());
@@ -368,6 +362,13 @@ void WebController::removeSocketNotifier(WSocketNotifier *notifier)
     socketNotifier_.removeExceptSocket(notifier->socket());
     break;
   }
+
+  boost::recursive_mutex::scoped_lock notifiersLock(notifierMutex_);
+
+  SocketNotifierMap &notifiers = socketNotifiers(notifier->type());
+  SocketNotifierMap::iterator i = notifiers.find(notifier->socket());
+  if (i != notifiers.end())
+    notifiers.erase(i);
 #endif // WT_THREADED
 }
 

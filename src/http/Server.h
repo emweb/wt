@@ -23,10 +23,6 @@
 namespace asio = boost::asio;
 #endif // HTTP_WITH_SSL
 
-#if defined(WT_THREADED) && BOOST_VERSION < 103600
-#include <boost/asio/detail/select_reactor.hpp>
-#endif // defined(WT_THREADED) && BOOST_VERSION < 103600
-
 #include <string>
 #include <boost/noncopyable.hpp>
 #include <boost/version.hpp>
@@ -114,21 +110,6 @@ private:
   /// The next SSL connection to be accepted.
   SslConnectionPtr new_sslconnection_;
 #endif // HTTP_WITH_SSL
-
-#ifdef WT_THREADED
-#if BOOST_VERSION < 103600
-  /// Reactor that listens for selects() on auxiliary sockets. 
-  asio::detail::select_reactor<false> select_reactor_;
-#else
-  struct SelectInfo {
-    asio::ip::tcp::socket *readSocket, *writeSocket;
-
-    SelectInfo() : readSocket(0), writeSocket(0) { }
-  };
-  std::map<int, SelectInfo> notifyingSockets_;
-  boost::recursive_mutex    notifyingSocketsMutex_;
-#endif
-#endif
 
   /// The connection manager which owns all live connections.
   ConnectionManager connection_manager_;

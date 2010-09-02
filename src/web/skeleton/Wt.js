@@ -221,6 +221,15 @@ this.widgetPageCoordinates = function(obj) {
     objX += obj.offsetLeft;
     objY += obj.offsetTop;
 
+    var f = css(obj, 'position');
+    if (f == 'fixed') {
+      objX += document.body.scrollLeft
+	+ document.documentElement.scrollLeft;
+      objY += document.body.scrollTop
+	+ document.documentElement.scrollTop;
+      break;
+    }
+
     op = obj.offsetParent;
 
     if (op == null)
