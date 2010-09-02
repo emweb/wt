@@ -211,7 +211,7 @@ void Container::createConfig(std::ostream& config)
       config << ",style:'position:absolute;'";
   } else {
     // because it is relative it sets over the actual interface.
-    app->domRoot()->resize(0, 0);
+    app->styleSheet().addRule(".Wt-domRoot", "position: static;");
   }
 
   if (widget_)

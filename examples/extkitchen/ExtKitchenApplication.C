@@ -13,6 +13,7 @@
 #include <Wt/WHBoxLayout>
 #include <Wt/WVBoxLayout>
 #include <Wt/WFitLayout>
+#include <Wt/WOverlayLoadingIndicator>
 #include <Wt/WStandardItemModel>
 #include <Wt/WStandardItem>
 #include <Wt/WTable>
@@ -52,6 +53,7 @@ ExtKitchenApplication::ExtKitchenApplication(const WEnvironment& env)
   : WApplication(env)
 {
   setTitle("Wt-Ext, including a kitchen sink");
+  setLoadingIndicator(new WOverlayLoadingIndicator());
 
   useStyleSheet("extkitchen.css");
   messageResourceBundle().use(appRoot() + "extkitchen");
