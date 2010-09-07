@@ -150,19 +150,15 @@ void WCalendar::setFirstDayOfWeek(int dayOfWeek)
 		      title, 
 		      XHTMLUnsafeText);
 
-    std::string d;
     WString abbr;
     switch (horizontalHeaderFormat_) {
     case SingleLetterDayNames:
-      d = "d1"; 
       abbr = WString::fromUTF8(WDate::shortDayName(day).toUTF8().substr(0, 1));
       break;
     case ShortDayNames:
-      d = "d3";
       abbr = WDate::shortDayName(day);
       break;
     case LongDayNames:
-      d = "dlong"; 
       abbr = WDate::longDayName(day);
       break;
     }

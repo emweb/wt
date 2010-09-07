@@ -917,6 +917,9 @@ void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
   int lineCount = headerLevelCount();
   WLength headerHeight = headerLineHeight_ * lineCount;
 
+  if (columnCount() > 0)
+    headerWidget(0)->askRerender(); // for layout
+
   headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);
   if (!multiLineHeader_)
     headerHeightRule_->templateWidget()->setLineHeight(headerLineHeight_);

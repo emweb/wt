@@ -52,8 +52,14 @@ public:
    * This method is used by WString to obtain the UTF8 value corresponding
    * to a key in the current locale.
    *
+   * \if cpp
    * Returns \c true if the key could be resolved. The value is written
    * in \p result, encoded using UTF8.
+   * \endif
+   *
+   * \if java
+   * Returns the value if the key could be resolved. Returns \c null otherwise.
+   * \endif
    *
    * \sa WApplication::locale()
    */

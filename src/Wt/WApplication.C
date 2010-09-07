@@ -103,7 +103,7 @@ WApplication::WApplication(const WEnvironment& env)
 #ifndef WT_TARGET_JAVA
   setLocalizedStrings(new WMessageResourceBundle());
 #else
-  localizedStrings_ = 0;
+  setLocalizedStrings(0);
 #endif // !WT_TARGET_JAVA
 
   domRoot_ = new WContainerWidget();

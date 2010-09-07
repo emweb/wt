@@ -650,8 +650,8 @@ void DboTest::test7()
     {
       dbo::Transaction t(*session_);
 
-      int result = session_->query<int>("select 1");
-      BOOST_REQUIRE(result == 1);
+      std::string result = session_->query<std::string>("select 'dima '' ? '");
+      BOOST_REQUIRE(result == "dima ' ? ");
 
       t.commit();
     }

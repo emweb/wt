@@ -1024,6 +1024,7 @@ private:
 
   friend class StdWidgetItemImpl;
   friend class WAbstractArea;
+  friend class WAbstractItemView;
   friend class WApplication;
   friend class WContainerWidget;
   friend class WCompositeWidget;

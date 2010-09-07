@@ -121,9 +121,10 @@ void WContainerWidget::childResized(WWidget *child,
 				    WFlags<Orientation> directions)
 {
 #ifndef WT_NO_LAYOUT
+  AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
   if (layout_
       && (directions & Vertical)
-      && ((contentAlignment_ & AlignVerticalMask) == 0)) {
+      && (vAlign == 0)) {
     if (!flags_.test(BIT_LAYOUT_NEEDS_UPDATE)) {
       WWidgetItem *item = layout_->findWidgetItem(child);
       if (item)

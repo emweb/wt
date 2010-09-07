@@ -431,7 +431,12 @@ private:
 	break;
       case SQuote:
 	if (sql[i] == '\'') {
-	  if (i + 1 == sql.length() || sql[i + 1] != '\'')
+	  if (i + 1 == sql.length())
+	    state = Statement;
+	  else if (sql[i + 1] == '\'') {
+	    result << sql[i];
+	    ++i; // skip to next
+	  } else
 	    state = Statement;
 	}
 	break;
