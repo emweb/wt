@@ -62,14 +62,14 @@ public:
  * the dates is invalid.
  *
  * This class can be localized by overriding the default values for
- * the localized string keys:
+ * the localized string keys in your own resource bundles:
  * - Short day names: Wt.WDate.Mon through Wt.WDate.Sun
  * - Long day names: Wt.WDate.Monday through Wt.WDate.Sunday
  * - Short month names: Wt.WDate.Jan through Wt.WDate.Dec
  * - Long month names: Wt.WDate.January through Wt.WDate.December
  *
- * i18n affects both WDate to string conversions and string to WDate
- * conversion.
+ * Internationalization affects both WDate to string conversions and
+ * string to WDate conversion.
  */
 class WT_API WDate
 {
@@ -321,9 +321,12 @@ public:
 
   /*! \brief Returns the short day name.
    *
-   * Results (for given \p weekDay) are:<br>
+   * Results (for given \p weekDay) are (default English):<br>
    * "Mon" (1),<br> "Tue" (2),<br> "Wed" (3),<br>
    * "Thu" (4),<br> "Fri" (5),<br> "Sat" (6),<br> "Sun" (7).
+   *
+   * The result is affected by localization using the "Wt.WDate.Mon" to
+   * "Wt.WDate.Sun" keys.
    *
    * \sa longDayName()
    */
@@ -331,11 +334,14 @@ public:
 
   /*! \brief Returns the short month name.
    *
-   * Results (for given \p month) are:<br>
+   * Results (for given \p month) are (default English):<br>
    * "Jan" (1),<br> "Feb" (2),<br> "Mar" (3),<br>
    * "Apr" (4),<br> "May" (5),<br> "Jun" (6),<br>
    * "Jul" (7),<br> "Aug" (8),<br> "Sep" (9),<br>
    * "Oct" (10),<br> "Nov" (11),<br> "Dec" (12)<br>.
+   *
+   * The result is affected by localization using the "Wt.WDate.Jan" to
+   * "Wt.WDate.Dec" keys.
    *
    * \sa longMonthName()
    */
@@ -343,9 +349,12 @@ public:
 
   /*! \brief Returns the long day name.
    *
-   * Results (for given \p weekDay) are:<br>
+   * Results (for given \p weekDay) are (default English):<br>
    * "Monday" (1),<br> "Tuesday" (2),<br> "Wednesday" (3),<br>
    * "Thursday" (4),<br> "Friday" (5),<br> "Saturday" (6),<br> "Sunday" (7).
+   *
+   * The result is affected by localization using the "Wt.WDate.Monday" to
+   * "Wt.WDate.Sunday" keys.
    *
    * \sa shortDayName()
    */
@@ -353,11 +362,14 @@ public:
 
   /*! \brief Returns the long month name.
    *
-   * Results (for given \p month) are:<br>
+   * Results (for given \p month) are (default English):<br>
    * "January" (1),<br> "February" (2),<br> "March" (3),<br>
    * "April" (4),<br> "May" (5),<br> "June" (6),<br> "July" (7),<br>
    * "August" (8),<br> "September" (9),<br> "October" (10),<br>
    * "November" (11),<br> "December" (12).
+   *
+   * The result is affected by localization using the "Wt.WDate.January" to
+   * "Wt.WDate.December" keys.
    *
    * \sa shortDayName()
    */
