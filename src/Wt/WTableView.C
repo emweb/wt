@@ -158,6 +158,7 @@ WTableView::WTableView(WContainerWidget *parent)
 
     headerContainer_ = new WContainerWidget();
     headerContainer_->setStyleClass("Wt-header headerrh cwidth");
+    headerContainer_->setOverflow(WContainerWidget::OverflowHidden);
     headerContainer_->addWidget(headers_);
 
     contentsContainer_ = new WContainerWidget();
@@ -660,6 +661,12 @@ void WTableView::resetGeometry()
   }
 }
 
+double WTableView::canvasHeight() const
+{
+  return std::max(1.0,
+		  model()->rowCount(rootIndex()) * rowHeight().toPixels());
+}
+
 void WTableView::reset()
 {
   assert(ajaxMode());
@@ -669,8 +676,7 @@ void WTableView::reset()
     total += (int)columnInfo(i).width.toPixels() + 7;
 
   headers_->resize(total, headers_->height());
-  canvas_->resize(total,
-		  model()->rowCount(rootIndex()) * rowHeight().toPixels());
+  canvas_->resize(total, canvasHeight());
 
   computeRenderedArea();
 
@@ -907,8 +913,7 @@ void WTableView::updateColumnOffsets()
     total += (int)columnInfo(i).width.toPixels() + 7;
   }
 
-  canvas_->resize(total,
-		  model()->rowCount(rootIndex()) * rowHeight().toPixels());
+  canvas_->resize(total, canvasHeight());
   headers_->resize(total, headers_->height());
 }
 
@@ -922,8 +927,7 @@ void WTableView::setRowHeight(const WLength& rowHeight)
     canvas_->setAttributeValue("style", "line-height: " + rowHeight.cssText());
 
     if (model()) {
-      canvas_->resize(canvas_->width(),
-		      model()->rowCount(rootIndex()) * rowHeight.toPixels());
+      canvas_->resize(canvas_->width(), canvasHeight());
       table_->resize(table_->width(), renderedRowCount * rowHeight.toPixels());
     }
   } else // Plain HTML mode
@@ -1076,8 +1080,7 @@ void WTableView::modelRowsInserted(const WModelIndex& parent,
   shiftModelIndexes(start, end - start + 1);
 
   if (ajaxMode()) {
-    canvas_->resize(canvas_->width(),
-		    model()->rowCount(rootIndex()) * rowHeight().toPixels());
+    canvas_->resize(canvas_->width(), canvasHeight());
     scheduleRerender(NeedAdjustViewPort);
   }
 
@@ -1108,8 +1111,7 @@ void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
     return;
 
   if (ajaxMode()) {
-    canvas_->resize(canvas_->width(),
-		    model()->rowCount(rootIndex()) * rowHeight().toPixels());
+    canvas_->resize(canvas_->width(), canvasHeight());
     scheduleRerender(NeedAdjustViewPort);
   }
 

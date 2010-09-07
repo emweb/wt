@@ -199,6 +199,7 @@ private:
   void deleteItem(int row, int col, WWidget *widget);
 
   bool ajaxMode() const { return table_ != 0; }
+  double canvasHeight() const;
 };
 
 }
