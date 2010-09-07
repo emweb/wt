@@ -97,7 +97,7 @@ WTableView::WTableView(WContainerWidget *parent)
 
     app->styleSheet().addRule
       (".Wt-tableview .Wt-tv-contents .Wt-tv-c,"
-       ".Wt-tableview tbody .Wt-tv-c",
+       ".Wt-plaintable .Wt-tv-c",
        "padding: 0px 3px;");
 
     app->styleSheet().addRule
@@ -795,15 +795,11 @@ void WTableView::rerenderHeader()
   if (ajaxMode()) {
     headers_->clear();
 
-    int total = 0;
     for (int i = 0; i < columnCount(); ++i) {
       WWidget *w = createHeaderWidget(app, i);
-      w->setPositionScheme(Absolute);
-      w->resize(columnInfo(i).width.toPixels() + 1, WLength::Auto);
-      w->setOffsets(total, Left);
+      w->setFloatSide(Left);
       headers_->addWidget(w);
-
-      total += (int)columnInfo(i).width.toPixels() + 7;
+      w->resize(columnInfo(i).width.toPixels() + 1, WLength::Auto);
     }
   } else { // Plain HTML mode
     for (int i = 0; i < columnCount(); ++i) {

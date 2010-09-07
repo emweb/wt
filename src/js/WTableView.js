@@ -80,7 +80,6 @@ WT_DECLARE_WT_MEMBER
      column.style.width = (newWidth + 7) + 'px';
 
      for (; h; h = h.nextSibling) {
-       h.style.left = (WT.pxself(h, 'left') + delta) + 'px';
        if (c) {
 	 c.style.left = (WT.pxself(c, 'left') + delta) + 'px';
 	 c = c.nextSibling;
