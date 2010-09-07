@@ -10,6 +10,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Wt/WApplication"
+#include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WContainerWidget"
 #include "Wt/WDefaultLoadingIndicator"
 #include "Wt/WMemoryResource"
@@ -30,6 +31,10 @@
 #ifdef min
 #undef min
 #endif
+
+namespace skeletons {
+  extern const char * WtMessages_xml;
+}
 
 //#define WTDEBUG
 
@@ -66,6 +71,7 @@ bool WApplication::ScriptLibrary::operator== (const ScriptLibrary& other) const
 WApplication::WApplication(const WEnvironment& env)
   : session_(env.session_),
     titleChanged_(false),
+    localizedStrings_(0),
     internalPathChanged_(this),
     serverPush_(0),
     shouldTriggerUpdate_(false),
@@ -95,7 +101,7 @@ WApplication::WApplication(const WEnvironment& env)
   internalPathIsChanged_ = false;
 
 #ifndef WT_TARGET_JAVA
-  localizedStrings_ = new WMessageResourceBundle();
+  setLocalizedStrings(new WMessageResourceBundle());
 #else
   localizedStrings_ = 0;
 #endif // !WT_TARGET_JAVA
@@ -252,7 +258,7 @@ void WApplication::finalize()
 #ifndef WT_TARGET_JAVA
 WMessageResourceBundle& WApplication::messageResourceBundle() const
 {
-  return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings_));
+  return *(dynamic_cast<WMessageResourceBundle *>(localizedStrings_->items()[0]));
 }
 #endif // !WT_TARGET_JAVA
 
@@ -710,10 +716,20 @@ EventSignal<>& WApplication::globalEscapePressed()
   return domRoot_->escapePressed();
 }
 
+WLocalizedStrings *WApplication::localizedStrings()
+{
+  return localizedStrings_->items()[0];
+}
+
 void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
 {
   delete localizedStrings_;
-  localizedStrings_ = translator;
+  localizedStrings_ = new WCombinedLocalizedStrings();
+  if (translator)
+    localizedStrings_->add(translator);
+  WMessageResourceBundle *defaultMessages = new WMessageResourceBundle();
+  defaultMessages->useBuiltin(skeletons::WtMessages_xml);
+  localizedStrings_->add(defaultMessages);
 }
 
 void WApplication::refresh()

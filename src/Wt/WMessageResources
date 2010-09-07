@@ -20,6 +20,7 @@ class WT_API WMessageResources
 {
 public:
   WMessageResources(const std::string& path, bool loadInMemory = true);
+  WMessageResources(const char *data);
 
   void hibernate();
 
@@ -40,6 +41,9 @@ private:
   KeyValueMap defaults_;
 
   bool readResourceFile(const std::string& locale, KeyValueMap& valueMap);
+  bool readResourceStream(std::istream &s, KeyValueMap& valueMap,
+                          const std::string &fileName);
+
 };
 
 }

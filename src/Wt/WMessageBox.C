@@ -75,6 +75,8 @@ void WMessageBox::create()
   //contents()->escapePressed.preventDefault();
 
   buttonContainer_->setStyleClass("Wt-msgbox-buttons");
+
+  rejectWhenEscapePressed();
 }
 
 void WMessageBox::setText(const WString& text)

@@ -23,6 +23,12 @@ void WCombinedLocalizedStrings::add(WLocalizedStrings* localizedStrings)
   localizedStrings_.push_back(localizedStrings);
 }
 
+const std::vector<WLocalizedStrings *> &
+WCombinedLocalizedStrings::items() const
+{
+  return localizedStrings_;
+}
+
 #ifndef WT_TARGET_JAVA
 bool WCombinedLocalizedStrings::resolveKey(const std::string& key,
 					   std::string& result)

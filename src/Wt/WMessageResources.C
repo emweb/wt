@@ -73,30 +73,41 @@ WMessageResources::WMessageResources(const std::string& path,
   : loadInMemory_(loadInMemory),
     loaded_(false),
     path_(path)
-{ }
+{}
+
+WMessageResources::WMessageResources(const char *data)
+  : loadInMemory_(true),
+    loaded_(false),
+    path_("")
+{
+  std::istringstream s(data,  std::ios::in | std::ios::binary);
+  readResourceStream(s, defaults_, "<internal resource bundle>");
+}
 
 void WMessageResources::refresh()
 {
-  defaults_.clear();
-  readResourceFile("", defaults_);
+  if (!path_.empty()) {
+    defaults_.clear();
+    readResourceFile("", defaults_);
 
-  local_.clear();
-  std::string locale = wApp->locale();
+    local_.clear();
+    std::string locale = wApp->locale();
 
-  if (!locale.empty())
-    for(;;) {
-      if (readResourceFile(locale, local_))
-	break;
+    if (!locale.empty())
+      for(;;) {
+        if (readResourceFile(locale, local_))
+          break;
 
-      /* try a lesser specified variant */
-      std::string::size_type l = locale.rfind('-');
-      if (l != std::string::npos)
-	locale.erase(l);
-      else
-	break;
-    }
+        /* try a lesser specified variant */
+        std::string::size_type l = locale.rfind('-');
+        if (l != std::string::npos)
+          locale.erase(l);
+        else
+          break;
+      }
 
-  loaded_ = true;
+      loaded_ = true;
+  }
 }
 
 void WMessageResources::hibernate()
@@ -131,12 +142,23 @@ bool WMessageResources::resolveKey(const std::string& key, std::string& result)
 }
 
 bool WMessageResources::readResourceFile(const std::string& locale,
-					 KeyValueMap& valueMap)
+				         KeyValueMap& valueMap)
 {
-  std::string fileName
-    = path_ + (locale.length() > 0 ? "_" : "") + locale + ".xml";
+  if (!path_.empty()) {
+    std::string fileName
+      = path_ + (locale.length() > 0 ? "_" : "") + locale + ".xml";
 
-  std::ifstream s(fileName.c_str(), std::ios::binary);
+    std::ifstream s(fileName.c_str(), std::ios::binary);
+    return readResourceStream(s, valueMap, fileName);
+  } else {
+    return false;
+  }
+}
+
+bool WMessageResources::readResourceStream(std::istream &s,
+					   KeyValueMap& valueMap,
+                                           const std::string &fileName)
+{
   if (!s)
     return false;
 
@@ -220,7 +242,6 @@ bool WMessageResources::readResourceFile(const std::string& locale,
     length = out - text.get();
   } else {
     s.read(text.get(), length);
-    s.close();
   }
 
   text[length] = 0;

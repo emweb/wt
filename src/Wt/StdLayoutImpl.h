@@ -22,6 +22,10 @@ public:
   virtual void updateAddItem(WLayoutItem *);
   virtual void updateRemoveItem(WLayoutItem *);
   virtual void update(WLayoutItem *);
+  virtual void updateDom() = 0;
+
+  // Returns whether updateDom() is needed
+  virtual bool itemResized(WLayoutItem *item) = 0;
 
   virtual WContainerWidget *container() const;
   virtual WLayoutItem      *layoutItem() const;

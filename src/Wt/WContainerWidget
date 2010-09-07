@@ -378,11 +378,12 @@ private:
   static const int BIT_LIST = 4;
   static const int BIT_ORDERED_LIST = 5;
   static const int BIT_LAYOUT_CHANGED = 6;
+  static const int BIT_LAYOUT_NEEDS_UPDATE = 7;
 
   /*
    * Frequently used attributes.
    */
-  std::bitset<7>            flags_;
+  std::bitset<8>            flags_;
   WFlags<AlignmentFlag>     contentAlignment_;
   Overflow        *WT_ARRAY overflow_;
   WLength	  *WT_ARRAY padding_;
@@ -398,6 +399,7 @@ protected:
   virtual void removeChild(WWidget *child);
   virtual int firstChildIndex() const;
 
+  virtual void childResized(WWidget *child, WFlags<Orientation> directions);
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);
   void createDomChildren(DomElement& parent, WApplication *app);

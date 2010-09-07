@@ -132,14 +132,19 @@ WDialog::WDialog(const WString& windowTitle)
   setJavaScriptMember(WT_RESIZE_JS, "$('#" + id() + "').data('obj').wtResize");
 
   hide();
-
-  app->globalEscapePressed().connect(this, &WDialog::reject);
-  impl_->escapePressed().connect(this, &WDialog::reject);
 }
 
 WDialog::~WDialog()
 {
   hide();
+}
+
+void WDialog::rejectWhenEscapePressed()
+{
+  WApplication::instance()->globalEscapePressed()
+    .connect(this, &WDialog::reject);
+
+  impl_->escapePressed().connect(this, &WDialog::reject);  
 }
 
 #ifndef WT_DEPRECATED_3_0_0

@@ -28,6 +28,7 @@ public:
 
   virtual DomElement *createDomElement(bool fitWidth, bool fitHeight,
 				       WApplication *app);
+  virtual void updateDom();
 
   static bool useJavaScriptHeights(WApplication *app);
 
@@ -36,12 +37,15 @@ public:
   // Does not really belong here, but who cares ?
   static const char* childrenResizeJS();
 
+  virtual bool itemResized(WLayoutItem *item);
+
 protected:
   virtual void containerAddWidgets(WContainerWidget *container);
 
 private:
   Impl::Grid& grid_;
   bool        useFixedLayout_;
+  bool        forceUpdate_;
 };
 
 }

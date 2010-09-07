@@ -11,6 +11,7 @@
 #include "Wt/WString"
 #include "Wt/WStringUtil"
 #include "Wt/WWebWidget"
+#include "Wt/WCombinedLocalizedStrings"
 
 #include "WtException.h"
 #include "Utils.h"
@@ -189,7 +190,8 @@ void WString::checkUTF8Encoding(std::string& value)
 
 void WString::resolveKey(const std::string& key, std::string& result) const
 {
-  if (!wApp->localizedStrings()->resolveKey(impl_->key_, result))
+  if ((!wApp) ||
+      !wApp->localizedStrings_->resolveKey(impl_->key_, result))
     result = "??" + key + "??";
 }
 

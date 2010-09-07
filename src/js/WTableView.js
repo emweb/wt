@@ -14,6 +14,20 @@ WT_DECLARE_WT_MEMBER
    var self = this;
    var WT = APP.WT;
 
+   var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
+
+   contentsContainer.onscroll = function() {
+     headerContainer.scrollLeft = contentsContainer.scrollLeft;
+
+     if (contentsContainer.scrollTop < scrollY1
+	 || contentsContainer.scrollTop > scrollY2
+	 || contentsContainer.scrollLeft < scrollX1
+	 || contentsContainer.scrollLeft > scrollX2)
+       APP.emit(el, 'scrolled', contentsContainer.scrollLeft,
+	        contentsContainer.scrollTop, contentsContainer.clientWidth,
+	        contentsContainer.clientHeight);
+   };
+
    function getItem(event) {
      var columnId = -1, rowIdx = -1, selected = false,
          drop = false, ele = null;
@@ -95,6 +109,13 @@ WT_DECLARE_WT_MEMBER
 		       function (delta) {
 			 resizeColumn(header, delta);
 		       }, obj, el, event, -2, -1);
+   };
+
+   this.scrolled = function(X1, X2, Y1, Y2) {
+     scrollX1 = X1;
+     scrollX2 = X2;
+     scrollY1 = Y1;
+     scrollY2 = Y2;
    };
 
    var dropEl = null;

@@ -9,6 +9,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WApplication"
+#include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WContainerWidget"
 #include "Wt/WFormWidget"
 #include "Wt/WResource"
@@ -615,8 +616,8 @@ bool WebSession::Handler::sessionDead()
 
 void WebSession::hibernate()
 {
-  if (app_ && app_->localizedStrings())
-    app_->localizedStrings()->hibernate();
+  if (app_ && app_->localizedStrings_)
+    app_->localizedStrings_->hibernate();
 }
 
 EventSignalBase *WebSession::decodeSignal(const std::string& signalId)

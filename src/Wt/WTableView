@@ -112,6 +112,7 @@ private:
 
   JSignal<int, int, std::string, std::string, WMouseEvent> dropEvent_;
   JSignal<int, int> columnWidthChanged_;
+  JSignal<int, int, int, int> scrolled_;
 
   /* Ajax only: First and last columns rendered (this somewhat
    * redundant with the state contained in the widgets, but because
@@ -127,7 +128,7 @@ private:
   int renderedFirstRow_, renderedLastRow_,
     renderedFirstColumn_, renderedLastColumn_;
 
-  JSlot tieContentsHeaderScrollJS_, itemMouseDownJS_;
+  JSlot itemMouseDownJS_;
   int tabIndex_;
 
   void updateTableBackground();
@@ -172,7 +173,7 @@ private:
 
   virtual WWidget *headerWidget(int column, bool contentsOnly = true);
 
-  void onViewportChange(WScrollEvent event);
+  void onViewportChange(int left, int top, int width, int height);
   void resetGeometry();
   
   void handleSingleClick(const WMouseEvent& event);

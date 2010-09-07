@@ -11,7 +11,8 @@
 namespace Wt {
 
 WMessageResourceBundle::WMessageResourceBundle()
-{ }
+{
+}
 
 WMessageResourceBundle::~WMessageResourceBundle()
 {
@@ -22,10 +23,16 @@ WMessageResourceBundle::~WMessageResourceBundle()
 void WMessageResourceBundle::use(const std::string& path, bool loadInMemory)
 {
   for (unsigned i = 0; i < messageResources_.size(); ++i)
-    if (messageResources_[i]->path() == path)
+    if ((!messageResources_[i]->path().empty()) &&
+        messageResources_[i]->path() == path)
       return;
 
   messageResources_.push_back(new WMessageResources(path, loadInMemory));
+}
+
+void WMessageResourceBundle::useBuiltin(const char *xmlbundle)
+{
+  messageResources_.push_back(new WMessageResources(xmlbundle));
 }
 
 #ifndef WT_TARGET_JAVA

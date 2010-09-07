@@ -43,6 +43,11 @@ class WTemplate;
  * \endcode
  * \endif
  *
+ * Internationalization of WDatePicker is mostly handled through
+ * the internationalization mechanism of WDate. The 'Close' button
+ * can be internationalized by overriding the default value for
+ * the localization key Wt.DatePicker.Close.
+ *
  * <h3>CSS</h3>
  *
  * The date picker is styled by the current CSS theme. The look can be
@@ -66,15 +71,6 @@ public:
    */
   WDatePicker(WContainerWidget *parent = 0);
 
-  /*! \brief Create a new date picker.
-   *
-   * This constructor creates a line edit with an icon that leads to a
-   * popup calendar. A WDateValidator is configured for the line edit.
-   *
-   * \p i18n is passed to the WCalendar constructor.
-   */
-  WDatePicker(bool i18n, WContainerWidget *parent = 0);
-
   /*! \brief Create a new date picker for existing line edit and with custom
    *         display widget.
    *
@@ -85,12 +81,10 @@ public:
    * The \p forEdit argument is the lineEdit that works in
    * conjunction with the date picker. This widget does not become
    * part of the date picker, and may be located anywhere else.
-   *
-   * \p i18n is passed to the WCalendar constructor.
    */
   WDatePicker(WInteractWidget *displayWidget,
 	      WLineEdit *forEdit,
-	      bool i18n = false, WContainerWidget *parent = 0);
+	      WContainerWidget *parent = 0);
 
   /*! \brief Sets the format used for parsing or writing the date in
    *         the line edit.
@@ -194,8 +188,8 @@ private:
 
   JSlot positionJS_;
 
-  void createDefault(bool i18n);
-  void create(WInteractWidget *displayWidget, WLineEdit *forEdit, bool i18n);
+  void createDefault();
+  void create(WInteractWidget *displayWidget, WLineEdit *forEdit);
 
   void setFromCalendar();
   void setFromLineEdit();

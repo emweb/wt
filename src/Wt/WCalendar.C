@@ -35,19 +35,6 @@ namespace Wt {
 
 WCalendar::WCalendar(WContainerWidget *parent)
   : WCompositeWidget(parent),
-    i18n_(false),
-    selectionChanged_(this),
-    activated_(this),
-    clicked_(this),
-    currentPageChanged_(this)
-{
-  create();
-}
-
-
-WCalendar::WCalendar(bool i18n, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    i18n_(i18n),
     selectionChanged_(this),
     activated_(this),
     clicked_(this),
@@ -133,9 +120,7 @@ void WCalendar::create()
 
   monthEdit_ = new WComboBox();
   for (unsigned i = 0; i < 12; ++i)
-    monthEdit_->addItem(i18n_
-			? tr(WDate::longMonthName(i+1).toUTF8().c_str())
-			: DATE_NAME_STR(WDate::longMonthName(i+1)));
+    monthEdit_->addItem(WDate::longMonthName(i+1));
   monthEdit_->activated().connect(this, &WCalendar::monthChanged);
 
   yearEdit_ = new WInPlaceEdit("");
@@ -160,30 +145,28 @@ void WCalendar::setFirstDayOfWeek(int dayOfWeek)
   for (unsigned i = 0; i < 7; ++i) {
     int day = (i + firstDayOfWeek_ - 1) % 7 + 1;
 
-    WString title = i18n_ ? tr(WDate::longDayName(day).toUTF8())
-      : DATE_NAME_STR(WDate::longDayName(day));
+    WString title = WDate::longDayName(day);
     impl_->bindString("t" + boost::lexical_cast<std::string>(i), 
 		      title, 
 		      XHTMLUnsafeText);
 
     std::string d;
-    WString a;
+    WString abbr;
     switch (horizontalHeaderFormat_) {
     case SingleLetterDayNames:
       d = "d1"; 
-      a = WString::fromUTF8(WDate::shortDayName(day).toUTF8().substr(0, 1));
+      abbr = WString::fromUTF8(WDate::shortDayName(day).toUTF8().substr(0, 1));
       break;
     case ShortDayNames:
       d = "d3";
-      a = WDate::shortDayName(day);
+      abbr = WDate::shortDayName(day);
       break;
     case LongDayNames:
       d = "dlong"; 
-      a = WDate::longDayName(day);
+      abbr = WDate::longDayName(day);
       break;
     }
    
-    WString abbr = i18n_ ? tr(a.toUTF8()) : DATE_NAME_STR(a);
     impl_->bindString("d" + boost::lexical_cast<std::string>(i), 
 		      abbr, 
 		      XHTMLUnsafeText);

@@ -970,6 +970,7 @@ protected:
 
   virtual bool isStubbed() const = 0;
   virtual void render(WFlags<RenderFlag> flags);
+  virtual void childResized(WWidget *child, WFlags<Orientation> directions);
 
   WWidget *adam();
 
@@ -1015,6 +1016,7 @@ private:
   void setJsSize();
   void undoHideShow();
   void undoDisableEnable();
+
   virtual WWebWidget *webWidget() = 0;
 
   virtual WLayoutItemImpl  *createLayoutItemImpl(WLayoutItem *layout);

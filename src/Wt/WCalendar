@@ -42,10 +42,8 @@ class WTemplate;
  *
  * Cell rendering may be customized by reimplementing renderCell().
  *
- * Internationalization may be provided by indicating i18n == true in
- * the constructor, and providing the appropriate messages for months
- * (with keys from WDate::longMonthName()) and days (with keys from
- * WDate::shortDayName()) in your message resource bundle.
+ * Internationalization is provided by the internationalization
+ * features of the Wt::WDate class.
  *
  * \if cpp
  * Usage example:
@@ -110,13 +108,6 @@ public:
    * calendar shows the current day, and has an empty selection.
    */
   WCalendar(WContainerWidget *parent = 0);
-
-  /*! \brief Creates a new calendar.
-   *
-   * Constructs a new calendar, with optional support for internationalization.
-   * The calendar shows the current day, and has an empty selection.
-   */
-  WCalendar(bool i18n, WContainerWidget *parent = 0);
 
   /*! \brief Sets the selection mode.
    *
@@ -355,7 +346,6 @@ protected:
   bool isSelected(const WDate& date) const;
 
 private:
-  bool              i18n_;
   SelectionMode     selectionMode_;
   bool              singleClickSelect_;
   int               currentYear_;

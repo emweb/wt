@@ -1,6 +1,13 @@
+07-09-2010:
+	* WBoxLayout, WGridLayout: improved client-side performance by
+	selectively doing relayout
+
+	* WDate, WCalendar, WDatePicker, ...: support i18n through built-in
+	message resource bundle and get rid of ugly i18n bool in API
+
 23-08-2010:
-	* Fix FCGI/ISAPI connector when using WDialog::exec() or server push (this is
-	broken in 3.1.4!)
+	* fcgi: fix connector when using WDialog::exec() or server push
+	(this is broken in 3.1.4!)
 
 	* WSocketNotifier: finally (!) this beast works as advertised
 

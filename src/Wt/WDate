@@ -61,8 +61,15 @@ public:
  * with dates. These operations throw InvalidDateException when one of
  * the dates is invalid.
  *
- * <i>This class is still missing localization support in its
- * conversion methods from and to string representations.</i>
+ * This class can be localized by overriding the default values for
+ * the localized string keys:
+ * - Short day names: Wt.WDate.Mon through Wt.WDate.Sun
+ * - Long day names: Wt.WDate.Monday through Wt.WDate.Sunday
+ * - Short month names: Wt.WDate.Jan through Wt.WDate.Dec
+ * - Long month names: Wt.WDate.January through Wt.WDate.December
+ *
+ * i18n affects both WDate to string conversions and string to WDate
+ * conversion.
  */
 class WT_API WDate
 {

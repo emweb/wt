@@ -105,7 +105,26 @@ void WWidget::askRerender(bool laterOnly)
   if (!flags_.test(BIT_NEED_RERENDER)) {
     flags_.set(BIT_NEED_RERENDER);
     WApplication::instance()->session()->renderer().needUpdate(this, laterOnly);
+
+    /*
+     * Let's start with assuming that every change is a potential resize
+     *
+     * Propagate event up, this will be caught by a container widget
+     * with a layout manager.
+     */
+    WWidget *p = parent();
+
+    if (p)
+      p->childResized(this, Vertical);
   }
+}
+
+void WWidget::childResized(WWidget *child, WFlags<Orientation> directions)
+{
+  WWidget *p = parent();
+
+  if (p)
+    p->childResized(this, directions);
 }
 
 void WWidget::setStyleClass(const char *styleClass)

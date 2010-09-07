@@ -34,7 +34,8 @@ namespace Wt {
 StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),
     grid_(grid),
-    useFixedLayout_(false)
+    useFixedLayout_(false),
+    forceUpdate_(false)
 {
   const char *THIS_JS = "js/StdGridLayoutImpl.js";
 
@@ -51,6 +52,37 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
     app->setJavaScriptLoaded(THIS_JS);
 
     app->addAutoJavaScript(app->javaScriptClass() + ".layoutsAdjust();");
+  }
+}
+
+bool StdGridLayoutImpl::itemResized(WLayoutItem *item)
+{
+  /*
+   * Iterate over all rows in which resized widgets (height changes) may
+   * affect the layout.
+   */
+  const unsigned colCount = grid_.columns_.size();
+  const unsigned rowCount = grid_.rows_.size();
+
+  for (unsigned row = 0; row < rowCount; ++row)
+    if (grid_.rows_[row].stretch_ <= 0) {
+      for (unsigned col = 0; col < colCount; ++col)
+	if (grid_.items_[row][col].item_ == item) {
+	  forceUpdate_ = true;
+	  return true;
+	}
+    }
+
+  return false;
+}
+
+void StdGridLayoutImpl::updateDom()
+{
+  if (forceUpdate_) {
+    forceUpdate_ = false;
+    WApplication *app = WApplication::instance();
+    app->doJavaScript(app->javaScriptClass() + ".layoutsAdjust('"
+		      + id() + "');");
   }
 }
 
@@ -152,6 +184,8 @@ void StdGridLayoutImpl::setHint(const std::string& name,
 DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 						WApplication *app)
 {
+  forceUpdate_ = false;
+
   const unsigned colCount = grid_.columns_.size();
   const unsigned rowCount = grid_.rows_.size();
 

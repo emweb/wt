@@ -44,28 +44,30 @@ LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 MACRO (FILE_TO_STRING infile outfile var)
 ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${outfile}
 	           COMMAND ${CMAKE_COMMAND}
-                   ARGS -Dinfile:FILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/web/skeleton/${infile}
+                   ARGS -Dinfile:FILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/${infile}
                         -Doutfile:FILEPATH=${CMAKE_CURRENT_BINARY_DIR}/${outfile}
                         -Dvar:STRING=${var}
                         -P ${CMAKE_CURRENT_SOURCE_DIR}/filetostring.cmake
 		   MAIN_DEPENDENCY
-		        ${CMAKE_CURRENT_SOURCE_DIR}/web/skeleton/${infile}
+		        ${CMAKE_CURRENT_SOURCE_DIR}/${infile}
 )
 ENDMACRO (FILE_TO_STRING)
 
-FILE_TO_STRING(Plain.html    Plain_html.C    Plain_html)
-FILE_TO_STRING(Hybrid.html   Hybrid_html.C   Hybrid_html)
-FILE_TO_STRING(Boot.html     Boot_html.C     Boot_html)
+FILE_TO_STRING(web/skeleton/Plain.html    Plain_html.C      Plain_html)
+FILE_TO_STRING(web/skeleton/Hybrid.html   Hybrid_html.C     Hybrid_html)
+FILE_TO_STRING(web/skeleton/Boot.html     Boot_html.C       Boot_html)
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  FILE_TO_STRING(Wt.js     Wt_js.C         Wt_js)
+  FILE_TO_STRING(web/skeleton/Wt.js     Wt_js.C         Wt_js)
 ELSE(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  FILE_TO_STRING(Wt.min.js     Wt_js.C         Wt_js)
+  FILE_TO_STRING(web/skeleton/Wt.min.js     Wt_js.C         Wt_js)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-FILE_TO_STRING(CommAjax.js   CommAjax_js.C   CommAjax_js)
-FILE_TO_STRING(CommScript.js CommScript_js.C CommScript_js)
-FILE_TO_STRING(jquery.min.js JQuery_js.C     JQuery_js)
+FILE_TO_STRING(web/skeleton/CommAjax.js   CommAjax_js.C   CommAjax_js)
+FILE_TO_STRING(web/skeleton/CommScript.js CommScript_js.C CommScript_js)
+FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C     JQuery_js)
+
+FILE_TO_STRING(xml/wt.xml                 WtMessages_xml.C  WtMessages_xml)
 
 SET(libsources
 Wt/SizeHandle.C
@@ -249,6 +251,7 @@ Plain_html.C
 Boot_html.C
 Hybrid_html.C
 Wt_js.C
+WtMessages_xml.C
 CommAjax_js.C
 CommScript_js.C
 JQuery_js.C

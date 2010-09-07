@@ -23,30 +23,23 @@ namespace Wt {
 WDatePicker::WDatePicker(WContainerWidget *parent)
   : WCompositeWidget(parent)
 {
-  createDefault(false);
-}
-
-WDatePicker::WDatePicker(bool i18n, WContainerWidget *parent)
-  : WCompositeWidget(parent)
-{
-  createDefault(i18n);
+  createDefault();
 }
 
 WDatePicker::WDatePicker(WInteractWidget *displayWidget,
-			 WLineEdit *forEdit,
-			 bool i18n, WContainerWidget *parent)
+			 WLineEdit *forEdit, WContainerWidget *parent)
   : WCompositeWidget(parent)
 {
-  create(displayWidget, forEdit, i18n);
+  create(displayWidget, forEdit);
 }
 
-void WDatePicker::createDefault(bool i18n)
+void WDatePicker::createDefault()
 {
   WImage *icon = new WImage(WApplication::resourcesUrl() + "calendar_edit.png");
   icon->setVerticalAlignment(AlignMiddle);
   WLineEdit *lineEdit = new WLineEdit();
 
-  create(icon, lineEdit, i18n);
+  create(icon, lineEdit);
 
   layout_->insertWidget(0, lineEdit);
 
@@ -54,7 +47,7 @@ void WDatePicker::createDefault(bool i18n)
 }
 
 void WDatePicker::create(WInteractWidget *displayWidget,
-			 WLineEdit *forEdit, bool i18n)
+			 WLineEdit *forEdit)
 {
   setImplementation(layout_ = new WContainerWidget());
 
@@ -73,11 +66,11 @@ void WDatePicker::create(WInteractWidget *displayWidget,
 
   layout_->addWidget(popup_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
 
-  calendar_ = new WCalendar(i18n);
+  calendar_ = new WCalendar();
   calendar_->activated().connect(popup_, &WWidget::hide);
   calendar_->selectionChanged().connect(this, &WDatePicker::setFromCalendar);
 
-  WPushButton *closeButton = new WPushButton(i18n ? tr("Close") : "Close");
+  WPushButton *closeButton = new WPushButton(tr("Wt.WDatePicker.Close"));
   closeButton->clicked().connect(popup_, &WWidget::hide);
 
   popup_->bindString("shadow-x1-x2", WTemplate::DropShadow_x1_x2);

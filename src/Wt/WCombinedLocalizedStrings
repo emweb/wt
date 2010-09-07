@@ -41,6 +41,13 @@ public:
    */
   void add(WLocalizedStrings* stringResolver);
 
+  /*! \brief Returns all string resolver
+   *
+   * Returns the list of all string resolvers that were added by
+   * a call to add().
+   */
+  const std::vector<WLocalizedStrings *> &items() const;
+
   virtual void refresh();
   virtual void hibernate();
 

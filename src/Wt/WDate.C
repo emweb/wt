@@ -208,9 +208,10 @@ WDate WDate::currentDate()
 
 WString WDate::shortDayName(int weekday)
 {
-  static const char *v[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+  static const char *v[] = {"Wt.WDate.Mon", "Wt.WDate.Tue", "Wt.WDate.Wed",
+    "Wt.WDate.Thu", "Wt.WDate.Fri", "Wt.WDate.Sat", "Wt.WDate.Sun" };
 
-  return WString::fromUTF8(v[weekday - 1]);
+  return WString::tr(v[weekday - 1]);
 }
 
 int WDate::parseShortDayName(const std::string& v, unsigned& pos)
@@ -233,10 +234,11 @@ int WDate::parseShortDayName(const std::string& v, unsigned& pos)
 WString WDate::longDayName(int weekday)
 {
   static const char *v[]
-    = {"Monday", "Tuesday", "Wednesday", "Thursday",
-       "Friday", "Saturday", "Sunday" };
+    = {"Wt.WDate.Monday", "Wt.WDate.Tuesday", "Wt.WDate.Wednesday",
+      "Wt.WDate.Thursday", "Wt.WDate.Friday", "Wt.WDate.Saturday",
+      "Wt.WDate.Sunday" };
 
-  return WString::fromUTF8(v[weekday - 1]);
+  return WString::tr(v[weekday - 1]);
 }
 
 int WDate::parseLongDayName(const std::string& v, unsigned& pos)
@@ -258,10 +260,12 @@ int WDate::parseLongDayName(const std::string& v, unsigned& pos)
 
 WString WDate::shortMonthName(int month)
 {
-  static const char *v[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-			    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+  static const char *v[] = {"Wt.WDate.Jan", "Wt.WDate.Feb",
+    "Wt.WDate.Mar", "Wt.WDate.Apr", "Wt.WDate.May", "Wt.WDate.Jun",
+    "Wt.WDate.Jul", "Wt.WDate.Aug", "Wt.WDate.Sep", "Wt.WDate.Oct",
+    "Wt.WDate.Nov", "Wt.WDate.Dec" };
 
-  return WString::fromUTF8(v[month - 1]);
+  return WString::tr(v[month - 1]);
 }
 
 int WDate::parseShortMonthName(const std::string& v, unsigned& pos)
@@ -283,11 +287,12 @@ int WDate::parseShortMonthName(const std::string& v, unsigned& pos)
 
 WString WDate::longMonthName(int month)
 {
-  static const char *v[] = {"January", "February", "March", "April", "May",
-		      "June", "July", "August", "September", "October",
-		      "November", "December" };
+  static const char *v[] = {"Wt.WDate.January", "Wt.WDate.February",
+    "Wt.WDate.March", "Wt.WDate.April", "Wt.WDate.May", "Wt.WDate.June",
+    "Wt.WDate.July", "Wt.WDate.August", "Wt.WDate.September",
+    "Wt.WDate.October", "Wt.WDate.November", "Wt.WDate.December" };
 
-  return WString::fromUTF8(v[month - 1]);
+  return WString::tr(v[month - 1]);
 }
 
 int WDate::parseLongMonthName(const std::string& v, unsigned& pos)

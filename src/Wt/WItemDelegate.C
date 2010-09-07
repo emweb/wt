@@ -327,6 +327,7 @@ WWidget *WItemDelegate::createEditor(const WModelIndex& index,
     (boost::bind(&WItemDelegate::doCloseEditor, this, result, true));
   lineEdit->escapePressed().connect
     (boost::bind(&WItemDelegate::doCloseEditor, this, result, false));
+  lineEdit->escapePressed().preventPropagation();
 
   if (flags & RenderFocused)
     lineEdit->setFocus();

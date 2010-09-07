@@ -95,7 +95,6 @@ void WContainerWidget::setLayout(WLayout *layout,
       WWidget::setLayout(layout);
       layoutImpl()->setContainer(this);
 
-
       /*
        * Normally, scrollbars are not used automatically for a container,
        * which applies to when a layout overflows.
@@ -116,6 +115,27 @@ void WContainerWidget::setLayout(WLayout *layout,
 #else
   assert(false);
 #endif
+}
+
+void WContainerWidget::childResized(WWidget *child,
+				    WFlags<Orientation> directions)
+{
+#ifndef WT_NO_LAYOUT
+  if (layout_
+      && (directions & Vertical)
+      && ((contentAlignment_ & AlignVerticalMask) == 0)) {
+    if (!flags_.test(BIT_LAYOUT_NEEDS_UPDATE)) {
+      WWidgetItem *item = layout_->findWidgetItem(child);
+      if (item)
+	if (dynamic_cast<StdLayoutImpl *>(item->parentLayout()->impl())
+	    ->itemResized(item)) {
+	  flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
+	  repaint(RepaintInnerHtml);
+	}
+    }
+  } else
+#endif
+    WInteractWidget::childResized(child, directions);
 }
 
 WLayoutItemImpl *WContainerWidget::createLayoutItemImpl(WLayoutItem *item)
@@ -535,6 +555,13 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     }
   }
 
+  if (flags_.test(BIT_LAYOUT_NEEDS_UPDATE)) {
+    if (layout_)
+      layoutImpl()->updateDom();
+
+    flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
+  }
+
   WInteractWidget::updateDom(element, all);
 
   if (flags_.test(BIT_OVERFLOW_CHANGED)
@@ -590,6 +617,7 @@ void WContainerWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_PADDINGS_CHANGED);
   flags_.reset(BIT_OVERFLOW_CHANGED);
   flags_.reset(BIT_LAYOUT_CHANGED);
+  flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
 
 #ifndef WT_NO_LAYOUT
   if (layout_ && deep)
@@ -642,6 +670,7 @@ void WContainerWidget::getDomChanges(std::vector<DomElement *>& result,
       result.push_back(e);
 
       flags_.reset(BIT_LAYOUT_CHANGED);
+      flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
 
       return;
     }

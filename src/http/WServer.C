@@ -276,9 +276,6 @@ void WServer::restart(int argc, char **argv, char **envp)
 {
 #ifndef WIN32
   char *path = realpath(argv[0], 0);
-#else
-  char *path = argv[0];
-#endif
 
   // Try a few times since this may fail because we have an incomplete
   // binary...
@@ -292,6 +289,7 @@ void WServer::restart(int argc, char **argv, char **envp)
 #endif
   }
   perror("execve");
+#endif
 }
 
 void WServer::handleRequest(WebRequest *request)
@@ -363,7 +361,8 @@ int WServer::waitForShutdown(const char *restartWatchFile)
   return 0;
 
 #endif // WIN32
-
+#else
+  return 0;
 #endif // WT_THREADED
 }
 
@@ -391,9 +390,11 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
       server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
       server.addEntryPoint(Application, createApplication);
       if (server.start()) {
+#ifdef WT_THREADED
 	int sig = WServer::waitForShutdown(argv[0]);
 	server.impl()->serverConfiguration_.log("notice")
 	  << "Shutdown (signal = " << sig << ")";
+#endif
 	server.stop();
 #ifndef WIN32
 	if (sig == SIGHUP)

@@ -110,7 +110,10 @@ public:
 #endif // WT_TARGET_JAVA
 
 private:
+  void useBuiltin(const char *xmlbundle);
   std::vector<WMessageResources *> messageResources_;
+  
+  friend class WApplication;
 };
 
 }

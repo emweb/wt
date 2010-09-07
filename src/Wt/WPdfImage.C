@@ -13,8 +13,13 @@
 
 #include "web/WtException.h"
 
-#include <cstdio>
+#include <stdio.h>
 #include "hpdf.h"
+#ifdef WIN32
+// Disable warnings about conversions from double to real (data loss)
+#pragma warning(disable: 4244)
+#define snprintf _snprintf
+#endif
 
 namespace {
   std::string toUpper(const std::string& s) {
@@ -550,8 +555,8 @@ void WPdfImage::errorHandler(HPDF_STATUS error_no,
 			     HPDF_STATUS detail_no)
 {
   char buf[200];
-  std::snprintf(buf, 200, "WPdfImage error: error_no=%04X, detail_no=%d",
-		(unsigned int) error_no, (int) detail_no);
+  snprintf(buf, 200, "WPdfImage error: error_no=%04X, detail_no=%d",
+    (unsigned int) error_no, (int) detail_no);
 
   throw WtException(buf);
 }

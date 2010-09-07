@@ -99,8 +99,18 @@ WT_DECLARE_WT_MEMBER
       return true;
 
      var t = widget.firstChild;
+
      if (t.style.height != '')
        t.style.height = '';
+
+     var doit = widget.dirty
+       || t.w != widget.clientWidth
+       || t.h != widget.clientHeight;
+
+     if (!doit)
+       return true;
+
+     widget.dirty = null;
 
      /*
       * 'r' holds the target height for this table. If a
@@ -129,6 +139,7 @@ WT_DECLARE_WT_MEMBER
 	     r -= $(w).outerHeight();
        }
      }
+
      /*
       * Reduce 'r' with the total height of rows with stretch=0.
       */
@@ -191,6 +202,9 @@ WT_DECLARE_WT_MEMBER
 	 ++ri;
        }
      }
+
+     t.w = widget.clientWidth;
+     t.h = widget.clientHeight;
 
      /*
       * Column widths: for every column which has no % width set,
@@ -378,6 +392,8 @@ WT_DECLARE_WT_MEMBER
      if (config.stretch[ri + 1] <= 0)
        self.adjustRow(rown, rownh - delta);
 
+     WT.getElement(id).dirty = true;
+
      window.onresize();
    }
 
@@ -476,7 +492,13 @@ WT_DECLARE_APP_MEMBER(1, "layouts", []);
 
 WT_DECLARE_APP_MEMBER
   (2, "layoutsAdjust",
-   function() {
+   function(id) {
+    if (id) {
+      var layout=$('#' + id).get(0);
+      if (layout)
+	layout.dirty = true;
+      return;
+    }
     if (this.adjusting)
       return;
     this.adjusting = true;

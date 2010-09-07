@@ -29,6 +29,7 @@ namespace boost {
 namespace Wt {
 
 class WApplication;
+class WCombinedLocalizedStrings;
 class WContainerWidget;
 class WEnvironment;
 class WEvent;
@@ -400,7 +401,7 @@ public:
    * \sa WString::tr()
    * \endif
    */
-  WLocalizedStrings *localizedStrings() { return localizedStrings_; }
+  WLocalizedStrings *localizedStrings();
 
   /*! \brief Sets the resource object that provides localized strings.
    *
@@ -1494,7 +1495,7 @@ private:
   WContainerWidget      *domRoot2_;    // other virtual root for WidgetSet mode
   WContainerWidget      *timerRoot_;   // timers in main DOM root
   WCssStyleSheet         styleSheet_;  // internal style sheet
-  WLocalizedStrings     *localizedStrings_;
+  WCombinedLocalizedStrings *localizedStrings_;
   WT_LOCALE              locale_;
   std::string            oldInternalPath_, newInternalPath_;
   Signal<std::string>    internalPathChanged_;
@@ -1618,6 +1619,7 @@ private:
   friend class WFileUpload;
   friend class WInteractWidget;
   friend class WServerPushResource;
+  friend class WString;
   friend class WViewWidget;
   friend class WDialog;
   friend class WSound;

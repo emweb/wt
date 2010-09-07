@@ -20,6 +20,8 @@
 
 #include "JavaScriptLoader.h"
 #include "Utils.h"
+#include "EscapeOStream.h"
+
 #ifndef WT_DEBUG_JS
 
 #include "js/WTableView.min.js"
@@ -43,11 +45,11 @@ WTableView::WTableView(WContainerWidget *parent)
     plainTable_(0),
     dropEvent_(impl_, "dropEvent"),
     columnWidthChanged_(impl_, "columnResized"),
+    scrolled_(impl_, "scrolled"),
     viewportLeft_(0),
     viewportWidth_(1000),
     viewportTop_(0),
     viewportHeight_(600),
-    tieContentsHeaderScrollJS_(this),
     itemMouseDownJS_(this)
 { 
   setSelectable(false);
@@ -176,13 +178,8 @@ WTableView::WTableView(WContainerWidget *parent)
     table_->resize(WLength(100, WLength::Percentage), WLength::Auto);
 
     contentsContainer_->addWidget(canvas_);
-    contentsContainer_->scrolled().connect(this, &WTableView::onViewportChange);
-    contentsContainer_->scrolled().connect(tieContentsHeaderScrollJS_);
 
-    tieContentsHeaderScrollJS_.setJavaScript
-      ("function(obj, event) {"
-       "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
-       "}");
+    scrolled_.connect(this, &WTableView::onViewportChange);
 
     layout->addWidget(headerContainer_);
     layout->addWidget(contentsContainer_, 1);
@@ -636,6 +633,19 @@ void WTableView::renderTable(const int fr, const int lr,
   }
 
   updateColumnOffsets();
+
+  int scrollX1 = std::max(0, viewportLeft_ - viewportWidth_ / 2);
+  int scrollX2 = viewportLeft_ + viewportWidth_ + viewportWidth_ / 2;
+  int scrollY1 = std::max(0, viewportTop_ - viewportHeight_ / 2);
+  int scrollY2 = viewportTop_ + viewportHeight_ + viewportHeight_ / 2;
+
+  SStream s;
+
+  s << "jQuery.data(" << jsRef() << ", 'obj').scrolled("
+    << scrollX1 << ", " << scrollX2 << ", " << scrollY1 << ", " << scrollY2
+    << ");";
+
+  WApplication::instance()->doJavaScript(s.str());			
 }
 
 void WTableView::resetGeometry()
@@ -1175,14 +1185,14 @@ void WTableView::modelHeaderDataChanged(Orientation orientation,
   }
 }
 
-void WTableView::onViewportChange(WScrollEvent e)
+void WTableView::onViewportChange(int left, int top, int width, int height)
 {
   assert(ajaxMode());
 
-  viewportLeft_ = e.scrollX();
-  viewportWidth_ = e.viewportWidth();
-  viewportTop_ = e.scrollY();
-  viewportHeight_ = e.viewportHeight();
+  viewportLeft_ = left;
+  viewportWidth_ = width;
+  viewportTop_ = top;
+  viewportHeight_ = height;
 
   computeRenderedArea();
 
