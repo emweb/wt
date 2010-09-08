@@ -49,12 +49,7 @@ WDialog::WDialog(const WString& windowTitle)
 			      "opacity: 0.5; position: fixed;" +
 			      (app->environment().agentIsIE() ?
 			       "filter: alpha(opacity=50);"
-			       :
-			       "-moz-background-clip: -moz-initial;"
-			       "-moz-background-origin: -moz-initial;"
-			       "-moz-background-inline-policy: -moz-initial;"
-			       "-moz-opacity:0.5;"
-			       "-khtml-opacity: 0.5"), CSS_RULES_NAME);
+			       : "opacity: 0.5"), CSS_RULES_NAME);
 
     std::string position
       = app->environment().agent() == WEnvironment::IE6 ? "absolute" : "fixed";

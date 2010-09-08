@@ -16,7 +16,6 @@ namespace Wt {
 
 const char *WAbstractToggleButton::CHECKED_SIGNAL = "M_checked";
 const char *WAbstractToggleButton::UNCHECKED_SIGNAL = "M_unchecked";
-const char *WAbstractToggleButton::UNDETERMINATE_CLICK_SIGNAL = "M_click";
 
 WAbstractToggleButton::WAbstractToggleButton(WContainerWidget *parent)
   : WFormWidget(parent),
@@ -168,17 +167,20 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
 
   if (stateChanged_ || all) {
     input.setProperty(Wt::PropertyChecked,
-		      state_ == Checked ? "true" : "false");
+		      state_ == Unchecked ? "false" : "true");
 
-    if (!useImageWorkaround())
+    if (supportsIndeterminate(env))
       input.setProperty(Wt::PropertyIndeterminate,
 			state_ == PartiallyChecked ? "true" : "false");
+    else
+      input.setProperty(Wt::PropertyStyleOpacity,
+			state_ == PartiallyChecked ? "0.5" : "");
 
     stateChanged_ = false;
   }
 
   if (needUpdateClickedSignal || all) {
-    std::string dom = WT_CLASS ".getElement('" + input.id() + "')";
+    std::string dom = "o";
     std::vector<DomElement::EventAction> actions;
 
     if (check) {
@@ -222,27 +224,18 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
     }
 
     if (!(all && actions.empty()))
-      input.setEvent("click", actions);
+      input.setEvent(CLICK_SIGNAL, actions);
   }
-}
-
-bool WAbstractToggleButton::useImageWorkaround() const
-{
-  return false;
 }
 
 DomElementType WAbstractToggleButton::domElementType() const
 {
-  if (useImageWorkaround())
-    return DomElement_SPAN;
-  else {
-    WLabel *l = label();
+  WLabel *l = label();
 
-    if (l && l->parent() == this)
-      return DomElement_SPAN;
-    else
-      return DomElement_INPUT;
-  }
+  if (l && l->parent() == this)
+    return DomElement_SPAN;
+  else
+    return DomElement_INPUT;
 }
 
 DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
@@ -255,39 +248,6 @@ DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
   if (result->type() == DomElement_SPAN) {
     input = DomElement::createNew(DomElement_INPUT);
     input->setName("in" + id());
-
-    if (useImageWorkaround()) {
-      DomElement *img = DomElement::createNew(DomElement_IMG);
-      img->setId("im" + id());
-
-      std::string src = WApplication::resourcesUrl();
-
-      const WEnvironment& env = app->environment();
-
-      if (env.userAgent().find("Mac OS X") != std::string::npos)
-	src += "indeterminate-macosx.png";
-      else if (env.agentIsOpera())
-	src += "indeterminate-opera.png";
-      else if (env.userAgent().find("Windows") != std::string::npos)
-	src += "indeterminate-windows.png"; 
-      else
-	src += "indeterminate-linux.png";
-
-      img->setProperty(Wt::PropertySrc, fixRelativeUrl(src));
-      img->setProperty(Wt::PropertyClass, "Wt-indeterminate");
-
-      EventSignal<> *imgClick
-	= voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, true);
-      img->setEventSignal("click", *imgClick);
-      imgClick->updateOk();
-
-      if (state_ == PartiallyChecked)
-	input->setProperty(Wt::PropertyStyleDisplay, "none");
-      else
-	img->setProperty(Wt::PropertyStyleDisplay, "none");
-
-      result->addChild(img);
-    }
   }
 
   updateDomElements(*result, *input, true);
@@ -313,29 +273,6 @@ void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
       = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
 
     updateDomElements(*element, *input, false);
-
-    if (useImageWorkaround()) {
-      EventSignal<> *imgClick = voidEventSignal(UNDETERMINATE_CLICK_SIGNAL,
-						true);
-
-      if (stateChanged_ || imgClick->needsUpdate(false)) {
-	DomElement *img = DomElement::getForUpdate("im" + id(), DomElement_IMG);
-
-	if (stateChanged_) {
-	  img->setProperty(Wt::PropertyStyleDisplay,
-			   state_ == PartiallyChecked ? "inline" : "none");
-	  input->setProperty(Wt::PropertyStyleDisplay,
-			     state_ == PartiallyChecked ? "none" : "inline");
-	}
-
-	if (imgClick->needsUpdate(false)) {
-	  img->setEventSignal("click", *imgClick);
-	  imgClick->updateOk();
-	}
-
-	result.push_back(img);
-      }
-    }
 
     result.push_back(element);
     result.push_back(input);
@@ -366,7 +303,7 @@ void WAbstractToggleButton::setFormData(const FormData& formData)
     return;
 
   if (!Utils::isEmpty(formData.values))
-    if (formData.values[0] == "indeterminate")
+    if (formData.values[0] == "i")
       state_ = PartiallyChecked;
     else
       state_ = formData.values[0] != "0" ? Checked : Unchecked;
@@ -380,9 +317,18 @@ void WAbstractToggleButton::getFormObjects(FormObjectsMap& formObjects)
   formObjects[formName()] = this;
 }
 
+bool WAbstractToggleButton::supportsIndeterminate(const WEnvironment& env)
+  const
+{
+  return env.javaScript()
+    && (env.agentIsIE()
+	|| env.agentIsSafari()
+	|| (env.agentIsGecko() && (env.agent() >= WEnvironment::Firefox3_6)));
+}
+
 std::string WAbstractToggleButton::formName() const
 {
-  if (domElementType() == DomElement_SPAN && !useImageWorkaround())
+  if (domElementType() == DomElement_SPAN)
     return "in" + id();
   else
     return WFormWidget::formName();

@@ -112,14 +112,10 @@ public:
 protected:
   virtual void updateDomElements(DomElement& element, DomElement& input,
 				 bool all);
-  virtual bool useImageWorkaround() const;
 
 private:
   bool triState_;
   bool safariWorkaround_;
-
-  bool needTristateImageWorkaround() const;
-  void gotUndeterminateClick();
 };
 
 }

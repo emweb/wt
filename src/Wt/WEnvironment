@@ -90,7 +90,8 @@ public:
     Chrome1 = 4201,     //!< Chrome 1
     Chrome2 = 4202,     //!< Chrome 2
     Chrome3 = 4203,     //!< Chrome 3
-    Chrome4 = 4204,     //!< Chrome 4 or later
+    Chrome4 = 4204,     //!< Chrome 4
+    Chrome5 = 4205,     //!< Chrome 5 or later
     Arora = 4300,       //!< Arora
     Konqueror = 5000,   //!< Konqueror
     Gecko = 6000,       //!< Gecko
@@ -98,7 +99,8 @@ public:
     Firefox3_0 = 6101,  //!< Firefox 3.0
     Firefox3_1 = 6102,  //!< Firefox 3.1
     Firefox3_1b = 6103, //!< Firefox 3.1b
-    Firefox3_5 = 6104,  //!< Firefox 3.5 or later
+    Firefox3_5 = 6104,  //!< Firefox 3.5
+    Firefox3_6 = 6105,  //!< Firefox 3.6 or later
     BotAgent = 10000    //!< Bot user agent
   };
 

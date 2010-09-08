@@ -44,16 +44,12 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WT_USTRING& styleClass,
 			      "background: #DDDDDD;"
 			      "height: 100%; width: 100%;"
 			      "top: 0px; left: 0px;"
-			      "opacity: 0.5; position: absolute;"
-			      "-khtml-opacity: 0.5;"
+			      "position: absolute;"
 			      "z-index: 10000;" +
 			      (app->environment().agentIsIE() ?
 			       "filter: alpha(opacity=50);"
 			       :
-			       "-moz-opacity:0.5;"
-			       "-moz-background-clip: -moz-initial;"
-			       "-moz-background-origin: -moz-initial;"
-			       "-moz-background-inline-policy: -moz-initial;"
+			       "opacity: 0.5;"
 			       ));
 
   if (styleClass.empty())

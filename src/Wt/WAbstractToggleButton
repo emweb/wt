@@ -114,7 +114,7 @@ protected:
   virtual void setFormData(const FormData& formData);
   virtual void propagateRenderOk(bool deep);
   virtual DomElementType domElementType() const;
-  virtual bool useImageWorkaround() const;
+  virtual bool supportsIndeterminate(const WEnvironment& env) const;
   virtual std::string formName() const;
 
   virtual WStatelessSlot *getStateless(Method method);

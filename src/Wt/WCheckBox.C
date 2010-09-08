@@ -13,7 +13,8 @@
 #include "DomElement.h"
 
 namespace {
-  Wt::JSlot safariWorkaroundJS("function(obj, e) { obj.onchange(); };");
+  Wt::JSlot safariWorkaroundJS("function(obj, e) { obj.onchange(); }");
+  Wt::JSlot clearOpacityJS("function(obj, e) { obj.style.opacity=''; }");
 }
 
 namespace Wt {
@@ -39,54 +40,19 @@ void WCheckBox::setTristate(bool tristate)
   triState_ = tristate;
 
   if (triState_) {
-    if (needTristateImageWorkaround()) {
-      EventSignal<> *imgClick
-	= voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, false);
-      if (!imgClick) {
-	imgClick = voidEventSignal(UNDETERMINATE_CLICK_SIGNAL, true);
-	imgClick->connect(this, &WCheckBox::setUnChecked);
-	imgClick->connect(this, &WCheckBox::gotUndeterminateClick);
-      }
-    } else if (WApplication::instance()->environment().agentIsSafari()
-	       && !safariWorkaround_) {
+    if (!supportsIndeterminate(WApplication::instance()->environment()))
+      clicked().connect(clearOpacityJS);
+    else if (WApplication::instance()->environment().agentIsSafari()
+	     && !safariWorkaround_) {
       clicked().connect(safariWorkaroundJS);
       safariWorkaround_ = true;
     }
   }
 }
 
-void WCheckBox::gotUndeterminateClick()
-{
-  setUnChecked();
-  unChecked().emit();
-  changed().emit();
-}
-
 void WCheckBox::setCheckState(CheckState state)
 {
   WAbstractToggleButton::setCheckState(state);
-}
-
-bool WCheckBox::useImageWorkaround() const
-{
-  return triState_ && needTristateImageWorkaround();
-}
-
-bool WCheckBox::needTristateImageWorkaround() const
-{
-  WApplication *app = WApplication::instance();
-
-  // FIXME: Firefox 3.5 does not correctly render the intermediate state,
-  // nor does WebKit on certain platforms
-
-  bool supportIndeterminate
-    = app->environment().javaScript()
-    && (app->environment().agentIsIE()
-	|| app->environment().agentIsSafari()
-	|| (app->environment().agentIsGecko()
-	    && app->environment().agent() >= WEnvironment::Firefox3_1b));
-
-  return !supportIndeterminate;
 }
 
 void WCheckBox::updateDomElements(DomElement& element, DomElement& input,

@@ -1,3 +1,7 @@
+08-09-2010:
+	* WCheckBox: better tri-state support, using opacity: 0.5 as
+	workaround instead of an image
+
 07-09-2010:
 	* WBoxLayout, WGridLayout: improved client-side performance by
 	selectively doing relayout

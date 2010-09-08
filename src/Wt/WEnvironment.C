@@ -187,8 +187,10 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
       agent_ = Chrome2;
     else if (userAgent_.find("Chrome/3") != std::string::npos)
       agent_ = Chrome3;
-    else
+    else if (userAgent_.find("Chrome/4") != std::string::npos)
       agent_ = Chrome4;
+    else
+      agent_ = Chrome5;
   } else if (userAgent_.find("Safari") != std::string::npos) {
     if (userAgent_.find("Version") == std::string::npos) {
       if (userAgent_.find("Arora") != std::string::npos)
@@ -220,8 +222,10 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
 	agent_ = Firefox3_1;
       else if (userAgent_.find("Firefox/3.1b") != std::string::npos)
 	agent_ = Firefox3_1b;
-      else
+      else if (userAgent_.find("Firefox/3.5") != std::string::npos)
 	agent_ = Firefox3_5;
+      else
+	agent_ = Firefox3_6;
     }
   }
 

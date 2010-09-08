@@ -1173,26 +1173,11 @@ function encodeEvent(event, i) {
 	  result += se + formObjects[x] + '='
 	    + encodeURIComponent(el.options[j].value);
 	}
-    } else if (WT.hasTag(el, "SPAN")) {
-      for (j = 0, jl = el.childNodes.length; j < jl; ++j) {
-	if (el.childNodes[j].type == 'checkbox') {
-	  var cb = el.childNodes[j];
-
-	  if (cb.style.display == 'none')
-	    v = 'indeterminate';
-	  else
-	    if (cb.checked)
-	      v = cb.value;
-
-	  break;
-	}
-      }
     } else if (el.type == 'checkbox' || el.type == 'radio') {
-      if (el.indeterminate)
-	v = 'indeterminate';
-      else
-	if (el.checked)
-	  v = el.value;
+      if (el.indeterminate || el.style.opacity == '0.5')
+	v = 'i';
+      else if (el.checked)
+	v = el.value;
     } else if (el.type != 'file') {
       if ($(el).hasClass('Wt-edit-emptyText'))
 	v = '';
