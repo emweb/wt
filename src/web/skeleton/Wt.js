@@ -571,17 +571,18 @@ this.getCssRule = function(selector, deleteFlag) {
 
   if (document.styleSheets) {
     for (var i=0; i<document.styleSheets.length; i++) {
-      var styleSheet=document.styleSheets[i];
-      var ii=0;
-      var cssRule=false;
+      var styleSheet = document.styleSheets[i];
+      var ii = 0;
+      var cssRule;
       do {
+	cssRule = null;
 	if (styleSheet.cssRules)
 	  cssRule = styleSheet.cssRules[ii];
-	else
+	else if (styleSheet.rules)
 	  cssRule = styleSheet.rules[ii];
 	if (cssRule && cssRule.selectorText) {
 	  if (cssRule.selectorText.toLowerCase()==selector) {
-	    if (deleteFlag=='delete') {
+	    if (deleteFlag == 'delete') {
 	      if (styleSheet.cssRules)
 		styleSheet.deleteRule(ii);
 	      else
