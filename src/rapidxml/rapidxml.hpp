@@ -1515,6 +1515,7 @@ namespace rapidxml
             }
         };
 
+    public:
         // Insert coded character, using UTF8 or 8-bit ASCII
         template<int Flags>
         static void insert_coded_character(Ch *&text, unsigned long code)
@@ -1562,7 +1563,6 @@ namespace rapidxml
             }
         }
 
-    public:
         static void copy_check_utf8(const Ch *& src, Ch *& dest)
         {
 	    // skip entire UTF-8 encoded characters at once,

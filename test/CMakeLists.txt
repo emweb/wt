@@ -4,6 +4,7 @@ ADD_EXECUTABLE(test
   dbo/DboTest.C
   dbo/DboTest2.C
   models/WBatchEditProxyModelTest.C
+  utf8/Utf8Test.C
   wdatetime/WDateTimeTest.C
 )
 
