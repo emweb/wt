@@ -88,10 +88,29 @@ void WFlashObject::updateDom(DomElement& element, bool all)
     if (!wApp->environment().agentIsIE()) {
       obj->setAttribute("data", url_);
     }
-    obj->setAttribute("width", width().isAuto() ? "" :
-      boost::lexical_cast<std::string>((int)width().toPixels()));
-    obj->setAttribute("height", height().isAuto() ? "" :
-      boost::lexical_cast<std::string>((int)height().toPixels()));
+    // Width/height: Adobe says: must be present, and specified as pixels or
+    // percentage. We noticed that when left blank, most players come up with
+    // a reasonable default. All other units (not px or %) are converted to
+    // px. When percentage units, the surrounding div will have the % set.
+    // The flash movie is thus set to 100% in order to fill the space of the
+    // div.
+    // http://kb2.adobe.com/cps/127/tn_12701.html
+    if (width().isAuto()) {
+      obj->setAttribute("width", "");
+    } else if (width().unit() == WLength::Percentage) {
+      obj->setAttribute("width", "100%");
+    } else {
+      obj->setAttribute("width",
+        boost::lexical_cast<std::string>((int)width().toPixels()) + "px");
+    }
+    if (height().isAuto()) {
+      obj->setAttribute("height", "");
+    } else if (height().unit() == WLength::Percentage) {
+      obj->setAttribute("height", "100%");
+    } else {
+      obj->setAttribute("height",
+        boost::lexical_cast<std::string>((int)height().toPixels()) + "px");
+    }
 
     for(std::map<std::string, WString>::const_iterator i = parameters_.begin();
       i != parameters_.end(); ++i) {
@@ -170,13 +189,26 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
 {
   WWebWidget::getDomChanges(result, app);
   if (sizeChanged_) {
-    DomElement *element =
+    DomElement *obj =
       DomElement::getForUpdate(id()  + "_flash", DomElement_OBJECT);
-    element->setAttribute("width", width().isAuto() ? "" :
-      boost::lexical_cast<std::string>((int)width().toPixels()));
-    element->setAttribute("height", height().isAuto() ? "" :
-      boost::lexical_cast<std::string>((int)height().toPixels()));
-    result.push_back(element);
+
+    if (width().isAuto()) {
+      obj->setAttribute("width", "");
+    } else if (width().unit() == WLength::Percentage) {
+      obj->setAttribute("width", "100%");
+    } else {
+      obj->setAttribute("width",
+        boost::lexical_cast<std::string>((int)width().toPixels()) + "px");
+    }
+    if (height().isAuto()) {
+      obj->setAttribute("height", "");
+    } else if (height().unit() == WLength::Percentage) {
+      obj->setAttribute("height", "100%");
+    } else {
+      obj->setAttribute("height",
+        boost::lexical_cast<std::string>((int)height().toPixels()) + "px");
+    }
+    result.push_back(obj);
     sizeChanged_ = false;
   }
   if (alternative_ && replaceDummyIeContent_) {

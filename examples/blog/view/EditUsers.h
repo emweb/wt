@@ -2,6 +2,8 @@
 #define EDIT_USERS_H_
 
 #include "../model/User.h"
+#include "../model/Tag.h"
+#include "../model/Comment.h"
 
 #include <Wt/Dbo/ptr>
 #include <Wt/WStackedWidget>

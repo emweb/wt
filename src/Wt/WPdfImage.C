@@ -72,7 +72,8 @@ WPdfImage::WPdfImage(HPDF_Doc pdf, HPDF_Page page, HPDF_REAL x, HPDF_REAL y,
     pdf_(pdf),
     page_(page),
     x_(x),
-    y_(y)
+    y_(y),
+    painter_(0)
 {
   myPdf_ = false;
 }
