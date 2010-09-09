@@ -1054,6 +1054,7 @@ void WebSession::pushUpdates()
 
   if (asyncResponse_) {
     renderer_.serveResponse(*asyncResponse_, WebRenderer::Update);
+    updatesPending_ = false;
     asyncResponse_->flush();
     asyncResponse_ = 0;
   }
