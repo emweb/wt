@@ -40,20 +40,24 @@ behaviour.
 
 <h3>B) Changes that may break existing applications:</h3>
 
-<h4>Built-in resource bundles</h4>
+<h4>1) Built-in resource bundles</h4>
 
 Starting with this version, Wt uses an internal message resource
 bundle for the few strings it provides by itself (like for example
 'Ok' for the ok button in a WMessageBox, or the days-of-week in WDate).
 
-Previously, an ugly API was used for those widgets that supported
-localization of this strings, using a boolean 'i18n' parameter in the
-constructor. All this hs now been removed, and instead the keys for
-these built-in strings have been documented.
+Previously, an ugly API was used in <a href="classWt_1_1WMessageBox.html">WMessageBox</a>,
+<a href="classWt_1_1WCalendar.html">WCalendar</a>,
+and <a href="classWt_1_1WDatePicker.html">WDatePicker</a>
+using a boolean 'i18n' parameter in the constructor. All this has now been removed,
+and instead the keys for these built-in strings have been documented. If you were
+using these classes your application will no longer build, you can simply remove the
+internationalization parameter and you will need to fix the keys you used for the
+messages according to the documentation.
 
 Any localized strings you use will take precedence over these built-ins.
 
-The affected classes are:
+All affected classes (only those listed above actually have changed API and behaviour) are:
 <dl>
   <dt><a href="classWt_1_1WAbstractItemView.html">WAbstractItemView</a></dt>
   <dd>the paging tool bar buttons for graceful callback.</dd>
@@ -75,7 +79,7 @@ The affected classes are:
   <dd>for the messages they display in case of error</dd>
 </dl>
 
-<h4>Other</h4>
+<h4>2) Other behavioural changes</h4>
 
 <dl>
   <dt><a href="structWt_1_1WDialog.html">WDialog</a></dt>
