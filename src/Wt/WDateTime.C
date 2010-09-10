@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 
+#include "Wt/WApplication"
 #include "Wt/WDateTime"
 #include "Wt/WDate"
 #include "Wt/WTime"
@@ -24,12 +25,18 @@ namespace gregorian = boost::gregorian;
  */
 
 namespace Wt {
+
   namespace {
-    std::string multiple(int value, std::string s) {
+    std::string multiple(int value, std::string s)
+    {
       if (abs(value) == 1)
-	return std::string();
+        return std::string();
       else
-	return s;
+        return s;
+    }
+    inline WString tr(const char *key)
+    {
+      return WString::tr(key);
     }
   }
 
@@ -213,39 +220,78 @@ WString WDateTime::timeTo(const WDateTime& other, int minValue) const
   int secs = secsTo(other);
 
   if (abs(secs) < 1)
-    return "less than a second";
+    if (WApplication::instance()) {
+      return tr("Wt.WDateTime.LessThanASecond");
+    } else {
+      return "less than a second";
+    }
   else if (abs(secs) < 60 * minValue)
-    return boost::lexical_cast<std::string>(secs) + " second"
-      + multiple(secs, "s");
+    if (WApplication::instance()) {
+      return secs > 1 ? tr("Wt.WDateTime.seconds").arg(secs) :
+        tr("Wt.WDateTime.second");
+    } else {
+      return boost::lexical_cast<std::string>(secs) + " second"
+        + multiple(secs, "s");
+    }
   else {
     int minutes = secs / 60;
     if (abs(minutes) < 60 * minValue)
-      return boost::lexical_cast<std::string>(minutes) + " minute"
-	+ multiple(minutes, "s");
+      if (WApplication::instance()) {
+        return minutes > 1 ? tr("Wt.WDateTime.minutes").arg(minutes) :
+          tr("Wt.WDateTime.minute");
+      } else {
+        return boost::lexical_cast<std::string>(minutes) + " minute"
+          + multiple(minutes, "s");
+      }
     else {
       int hours = minutes / 60;
       if (abs(hours) < 24 * minValue)
-	return boost::lexical_cast<std::string>(hours) + " hour"
-	  + multiple(hours, "s");
+        if (WApplication::instance()) {
+          return hours > 1 ? tr("Wt.WDateTime.hours").arg(hours) :
+            tr("Wt.WDateTime.hour");
+        } else {
+          return boost::lexical_cast<std::string>(hours) + " hour"
+            + multiple(hours, "s");
+        }
       else {
 	int days = hours / 24;
-	if (abs(days) < 7 * minValue)
-	  return boost::lexical_cast<std::string>(days) + " day"
-	  + multiple(days, "s");
+        if (abs(days) < 7 * minValue)
+          if (WApplication::instance()) {
+            return days > 1 ? tr("Wt.WDateTime.days").arg(days) :
+              tr("Wt.WDateTime.day");
+          } else {
+            return boost::lexical_cast<std::string>(days) + " day"
+              + multiple(days, "s");
+          }
 	else {
 	  if (abs(days) < 31 * minValue) {
 	    int weeks = days / 7;
-	    return boost::lexical_cast<std::string>(weeks) + " week"
-	      + multiple(weeks, "s");
+            if (WApplication::instance()) {
+              return weeks > 1 ? tr("Wt.WDateTime.weeks").arg(weeks) :
+                tr("Wt.WDateTime.week");
+            } else {
+              return boost::lexical_cast<std::string>(weeks) + " week"
+                + multiple(weeks, "s");
+            }
 	  } else {
 	    if (abs(days) < 365 * minValue) {
 	      int months = days / 30;
-	      return boost::lexical_cast<std::string>(months) + " month"
-		+ multiple(months, "s");
+              if (WApplication::instance()) {
+                return months > 1 ? tr("Wt.WDateTime.months").arg(months) :
+                  tr("Wt.WDateTime.month");
+              } else {
+                return boost::lexical_cast<std::string>(months) + " month"
+                  + multiple(months, "s");
+              }
 	    } else {
 	      int years = days / 365;
-	      return boost::lexical_cast<std::string>(years) + " year"
-		+ multiple(years, "s");
+              if (WApplication::instance()) {
+                return years > 1 ? tr("Wt.WDateTime.years").arg(years) :
+                  tr("Wt.WDateTime.year");
+              } else {
+                return years > 1 ? tr("Wt.WDateTime.years").arg(years) :
+                  tr("Wt.WDateTime.year");
+              }
 	    }
 	  }
 	}
@@ -412,7 +458,11 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
 			    const WString& format)
 {
   if ((date && !date->isValid()) || (time && !time->isValid()))
-    return WString::fromUTF8("Null");
+    if (WApplication::instance()) {
+      return tr("Wt.WDateTime.null");
+    } else {
+      return WString::fromUTF8("Null");
+    }
 
   std::stringstream result;
   std::string f = format.toUTF8() + std::string(3, 0);

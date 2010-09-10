@@ -101,8 +101,8 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
     c2_.disconnect();
 
   if (enabled) {
-    save_ = new WPushButton("Save", impl_);
-    cancel_ = new WPushButton("Cancel", impl_);
+    save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"), impl_);
+    cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"), impl_);
     save_->hide();
     cancel_->hide();
 

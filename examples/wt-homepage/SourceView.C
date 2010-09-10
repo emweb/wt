@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <stdlib.h>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/convenience.hpp>

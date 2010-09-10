@@ -136,7 +136,7 @@ const std::string WObject::id() const
 void WObject::setFormData(const FormData& formData)
 { }
 
-void WObject::requestTooLarge(int size)
+void WObject::setRequestTooLarge(int size)
 { }
 
 void WObject::signalConnectionsChanged()

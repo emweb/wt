@@ -32,6 +32,15 @@ namespace Wt {
  * lineEdit->setText("01-03-2008");
  * \endcode
  * \endif 
+ *
+ * <h3>i18n</h3>
+ *
+ * The strings used in the WDateValidator can be translated by overriding
+ * the default values for the following localization keys:
+ * - Wt.WDateValidator.DateTooEarly: The date must be after {1}
+ * - Wt.WDateValidator.DateTooLate: The date must be before {1}
+ * - Wt.WDateValidator.WrongDateRange: The date must be between {1} and {2}
+ * - Wt.WDateValidator.WrongFormat: Must be a date in the format '{1}'
  */
 class WT_API WDateValidator : public WValidator
 {

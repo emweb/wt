@@ -1,6 +1,6 @@
-IF(NOT BOOST_WT_MT_FOUND)
+IF(NOT MULTI_THREADED_BUILD)
   MESSAGE(STATUS "** Not building socketnotifier feature example: requires a multi-threaded build.")
-ELSE(NOT BOOST_WT_MT_FOUND)
+ELSE(NOT MULTI_THREADED_BUILD)
 
   WT_ADD_EXAMPLE(socketnotifier.wt SocketNotifier.C)
 
@@ -12,4 +12,4 @@ ELSE(NOT BOOST_WT_MT_FOUND)
   #
   INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
-ENDIF(NOT BOOST_WT_MT_FOUND)
+ENDIF(NOT MULTI_THREADED_BUILD)

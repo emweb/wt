@@ -28,6 +28,15 @@ namespace Wt {
  * lineEdit->setText("50");
  * \endcode
  * \endif
+ *
+ * <h3>i18n</h3>
+ *
+ * The strings used in this class can be translated by overriding
+ * the default values for the following localization keys:
+ * - Wt.WIntValidator.NotAnInteger: Must be an integer number
+ * - Wt.WIntValidator.TooSmall: The number must be larger than {1}
+ * - Wt.WIntValidator.BadRange: The number must be in the range {1} to {2}
+ * - Wt.WIntValidator.TooLarge: The number must be smaller than {1}
  */
 class WT_API WIntValidator : public WValidator
 {

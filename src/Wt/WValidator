@@ -43,6 +43,12 @@ class WFormWidget;
  * validation for your own validator, you may also reimplement
  * javaScriptValidate().
  *
+ * <h3>i18n</h3>
+ *
+ * The strings used in this class can be translated by overriding
+ * the default values for the following localization keys:
+ * - Wt.WValidator.Invalid: This field cannot be empty
+ *
  * \sa WFormWidget
  */
 class WT_API WValidator : public WObject

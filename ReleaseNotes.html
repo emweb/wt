@@ -19,12 +19,71 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.5 (Sep 10, 2010)</h2>
+
+<p>
+  This release contains mostly bug fixes.
+</p>
+
+<h3>A) Main Changes</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WGridLayout.html">WGridLayout</a>,
+    <a href="classWt_1_1WBoxLayout.html">WBoxLayout</a></dt>
+  <dd>Optimized client-side rendering performance. Previously, every layout
+    manager used would automatically slowdown every event because it would try
+    to relayout each time. This is no longer the case.</dd>
+  <dt><a href="classWt_1_1WSocketNotifier.html">WSocketNotifier</a></dt>
+  <dd>The socket notifier has been resurrected (it was in an perpetual state
+    of brokeness) and now works reliably across targets.</dd>
+</dl>
+
+<h3>B) Changes that may break existing applications:</h3>
+
+<h4>Built-in resource bundles</h4>
+
+Starting with this version, Wt uses an internal message resource
+bundle for the few strings it provides by itself (like for example
+'Ok' for the ok button in a WMessageBox, or the days-of-week in WDate).
+
+Previously, an ugly API was used for those widgets that supported
+localization of this strings, using a boolean 'i18n' parameter in the
+constructor. All this hs now been removed, and instead the keys for
+these built-in strings have been documented.
+
+Any localized strings you use will take precedence over these built-ins.
+
+The affected classes are:
+<dl>
+  <dt><a href="classWt_1_1WCalendar.html">WCalendar</a></dt>
+  <dd>because of WDate</dd>
+  <dt><a href="classWt_1_1WDate.html">WDate</a></dt>
+  <dd>week days, month names</dd>
+  <dt><a href="classWt_1_1WDatePicker.html">WDatePicker</a></dt>
+  <dd>because of WCalendar and for the close button</dd>
+  <dt><a href="classWt_1_1WDefaultLoadingIndicator.html">WDefaultLoadingIndicator</a></dt>
+  <dd>loading text</dd>
+  <dt><a href="classWt_1_1WMessageBox.html">WMessageBox</a></dt>
+  <dd>standard buttons</dd>
+</dl>
+
+<h4>Other</h4>
+
+<dl>
+  <dt><a href="structWt_1_1WDialog.html">WDialog</a></dt>
+  <dd>Escape will no longer result in the dialog being rejected. You can
+    enable this behaviour using the rejectWhenEscaped() method.
+  </dd>
+</dl>
+
+<hr />
+
 <h2>Release 3.1.4 (Aug 13, 2010)</h2>
 
 <p>
-  This release several new features, but also a few changes that
-  break backwards compatibility (but are unlikely to affect an average
-  application).
+  This release contains several new features, but also a few changes
+  that break backwards compatibility (but are unlikely to affect an
+  average application).
 </p>
 
 <h3>A) New classes:</h3>

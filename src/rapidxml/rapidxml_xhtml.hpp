@@ -53,7 +53,8 @@
 #ifndef RAPIDXML_XHTML_HPP_INCLUDED
 #define RAPIDXML_XHTML_HPP_INCLUDED
 
-#include<cstddef>
+#include <cstddef>
+#include <cstring>
 
 namespace rapidxml
 {
@@ -356,14 +357,14 @@ namespace rapidxml
 
       for (;;) {
 	if (imax - imin <= 1)
-	  if (strcmp(entity, entities[imin].name) == 0) {
+	  if (std::strcmp(entity, entities[imin].name) == 0) {
 	    i = imin;
 	    break;
 	  } else
 	    return false; // not found
 	else {
 	  i = (imin + imax) / 2;
-	  int cmp = strcmp(entity, entities[i].name);
+	  int cmp = std::strcmp(entity, entities[i].name);
 	  if (cmp == 0)
 	    break;
 	  else {

@@ -319,7 +319,7 @@ protected:
   };
 
   virtual void setFormData(const FormData& formData);
-  virtual void requestTooLarge(int size);
+  virtual void setRequestTooLarge(int size);
 
   /*! \brief On-demand stateless slot implementation.
    *

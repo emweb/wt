@@ -20,6 +20,7 @@
 #include <Wt/Dbo/Query_impl.h>
 
 #ifndef _MSC_VER
+#ifndef __SUNPRO_C
 #define DBO_EXTERN_TEMPLATES(C)						\
   extern template class Wt::Dbo::ptr<C>;				\
   extern template class Wt::Dbo::Dbo<C>;				\
@@ -47,8 +48,10 @@
 #else
 // Broken on MSVC 2005 and 2008 (cannot redeclare extern declared template
 // methods to be defined after all)
+// Broken on SUN StudioExpress
 #define DBO_EXTERN_TEMPLATES(C)
 #include <Wt/Dbo/Impl>
+#endif
 #endif
 
 #endif // WT_DBO_TYPES_H_

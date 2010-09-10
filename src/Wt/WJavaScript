@@ -497,7 +497,8 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
   WStatelessSlot *s = o->isStateless(static_cast<WObject::Method>(method));
 
   if (collectSlotJavaScript_ && s)
-    return EventSignalBase::connect(static_cast<WObject::Method>(method), o, s);
+    return EventSignalBase::connectStateless
+      (static_cast<WObject::Method>(method), o, s);
   else
     return connect(boost::bind(method, target));
 }
@@ -523,7 +524,7 @@ boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
   exposeSignal();
   WStatelessSlot *s = target->isStateless(method);
   if (collectSlotJavaScript_ && s)
-    return EventSignalBase::connect(method, target, s);
+    return EventSignalBase::connectStateless(method, target, s);
   else
     return connect(boost::bind(method, target));
 }

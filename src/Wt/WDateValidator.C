@@ -56,8 +56,7 @@ WString WDateValidator::invalidNotADateText() const
     s.arg(formats_[0]);
     return s;
   } else
-    return WString::fromUTF8("Must be a date in the format '") + formats_[0]
-      + "'";
+    return WString::tr("Wt.WDateValidator.WrongFormat").arg(formats_[0]);
 }
 
 
@@ -107,12 +106,12 @@ WString WDateValidator::invalidTooEarlyText() const
       return WString();
     else
       if (top_.isNull())
-	return WString::fromUTF8("The date must be after ")
-	  + bottom_.toString(formats_[0]);
+        return WString::tr("Wt.WDateValidator.DateTooEarly")
+          .arg(bottom_.toString(formats_[0]));
       else
-	return WString::fromUTF8("The date must be between ")
-	  + bottom_.toString(formats_[0])
-	  + " and " + top_.toString(formats_[0]);
+        return WString::tr("Wt.WDateValidator.WrongDateRange")
+          .arg(bottom_.toString(formats_[0]))
+          .arg(top_.toString(formats_[0]));
 }
 
 void WDateValidator::setInvalidTooLateText(const WString& text)
@@ -132,12 +131,12 @@ WString WDateValidator::invalidTooLateText() const
       return WString();
     else
       if (bottom_.isNull())
-	return WString::fromUTF8("The date must be before ")
-	  + top_.toString(formats_[0]);
+        return WString::tr("Wt.WDateValidator.DateTooLate")
+          .arg(top_.toString(formats_[0]));
       else
-	return WString::fromUTF8("The date must be between ")
-	  + bottom_.toString(formats_[0])
-	  + " and " + top_.toString(formats_[0]);
+        return WString::tr("Wt.WDateValidator.WrongDateRange")
+          .arg(bottom_.toString(formats_[0]))
+          .arg(top_.toString(formats_[0]));
 }
 
 #ifndef WT_DEPRECATED_3_0_0

@@ -44,6 +44,28 @@ class WTime;
  * of the following methods:
  * - toTime_t(), setTime_t()
  * - currentDateTime()
+ *
+ * <h3>i18n</h3>
+ *
+ * The strings returned by toString() and timeTo() can be localized.
+ * If the thread using a WDateTime is bound to a WApplication (i.e.
+ * WApplication::instance() does not return 0), the strings
+ * can be localized by overriding the default values for
+ * the localized string keys in the resource bundles of the WApplication.
+ * If the thread using a WDateTime is not bound to a WApplication (i.e.
+ * WApplication::instance() returns 0), english strings will be used.
+ *
+ * For toString(), localization is handled through the i18n functionality
+ * of the WDate class. An invalid WDateTime is converted to a string
+ * as "Null":
+ * - Wt.WDateTime.null: Null
+ *
+ * The timeTo() method contains the following localized strings:
+ * - Wt.WDateTime.second: one second
+ * - Wt.WDateTime.seconds: {1} seconds
+ * The placeholder {1} will be replaced by the actual number of seconds. The
+ * same keys also exist for minutes, hours, days, weeks, monts and years.
+ *
  */
 class WT_API WDateTime
 {

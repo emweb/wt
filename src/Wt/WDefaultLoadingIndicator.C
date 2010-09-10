@@ -11,7 +11,7 @@
 namespace Wt {
 
 WDefaultLoadingIndicator::WDefaultLoadingIndicator()
-  : WText(tr("Wt.WDefaultLoadingIndicator.loading"))
+  : WText(tr("Wt.WDefaultLoadingIndicator.Loading"))
 {
   setInline(false);
   setStyleClass("Wt-loading");

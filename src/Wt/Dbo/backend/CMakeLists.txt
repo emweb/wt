@@ -16,6 +16,7 @@ MESSAGE("** Wt::Dbo: building SQLite3 backend.")
 TARGET_LINK_LIBRARIES(wtdbosqlite3 wtdbo ${SQLITE3_LIBRARIES} ${BOOST_WT_DT_LIB})
 
 IF(NOT WIN32)
+  # Note, on FreeBsd, the dl library should be removed
   TARGET_LINK_LIBRARIES(wtdbosqlite3 dl)
 ENDIF(NOT WIN32)
 

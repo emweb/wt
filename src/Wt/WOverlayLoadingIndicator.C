@@ -25,7 +25,7 @@ WOverlayLoadingIndicator::WOverlayLoadingIndicator(const WT_USTRING& styleClass,
 			   + "ajax-loading.gif", center_);
   img->setMargin(7, Top | Bottom);
 
-  text_ = new WText("Loading...", center_);
+  text_ = new WText(tr("Wt.WOverlayLoadingIndicator.Loading"), center_);
   text_->setInline(false);
   text_->setMargin(WLength::Auto, Left | Right);
 

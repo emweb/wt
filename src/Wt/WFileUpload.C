@@ -280,7 +280,7 @@ void WFileUpload::setFormData(const Http::UploadedFile& file)
   isStolen_ = false;
 }
 
-void WFileUpload::requestTooLarge(int size)
+void WFileUpload::setRequestTooLarge(int size)
 {
   fileTooLarge().emit(size);
 }

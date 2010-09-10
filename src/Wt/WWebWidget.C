@@ -980,7 +980,7 @@ bool WWebWidget::isDisabled() const
 
 bool WWebWidget::isEnabled() const
 {
-  if (flags_.test(BIT_DISABLED))
+  if (isDisabled())
     return false;
   else
     if (parent())

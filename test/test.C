@@ -10,7 +10,7 @@ using boost::unit_test_framework::test_suite;
 #include "utf8/Utf8Test.h"
 #include "wdatetime/WDateTimeTest.h"
 
-boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
+boost::unit_test::test_suite* init_unit_test_suite(int, char**)
 {
   test_suite *tests = BOOST_TEST_SUITE("Wt test suite");
 

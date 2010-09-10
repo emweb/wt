@@ -229,7 +229,7 @@ private:
   WResource *fileUploadTarget_;
 
   void create();
-  virtual void requestTooLarge(int size);
+  virtual void setRequestTooLarge(int size);
 
 protected:
   virtual void           updateDom(DomElement& element, bool all);

@@ -25,6 +25,17 @@ namespace Wt {
  *
  * See WTableView or WTreeView for a description.
  *
+ *
+ * <h3>i18n</h3>
+ *
+ * The strings used in this class can be translated by overriding
+ * the default values for the following localization keys:
+ * - Wt.WAbstractItemView.PageIOfN: <b>{1}</b> of <b>{2}</b>
+ * - Wt.WAbstractItemView.PageBar.First: &#xc2ab; First
+ * - Wt.WAbstractItemView.PageBar.Previous: &#xe280b9; Previous
+ * - Wt.WAbstractItemView.PageBar.Next: Next &#xe280ba;
+ * - Wt.WAbstractItemView.PageBar.Last: Last &#xc2bb;
+ *
  * \ingroup modelview
  */
 class WT_API WAbstractItemView : public WCompositeWidget

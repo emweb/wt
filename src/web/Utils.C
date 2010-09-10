@@ -16,6 +16,8 @@
 
 #ifdef WIN32
 #include <windows.h>
+#else
+#include <stdlib.h>
 #endif // WIN32
 
 namespace Wt {

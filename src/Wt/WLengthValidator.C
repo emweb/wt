@@ -56,15 +56,10 @@ WString WLengthValidator::invalidTooShortText() const
       return WString();
     else
       if (maxLength_ == std::numeric_limits<int>::max())
-	return WString::fromUTF8("The input must be at least "
-				 + boost::lexical_cast<std::string>(minLength_)
-				 + " characters");
+	return WString::tr("Wt.WLengthValidator.TooShort").arg(minLength_);
       else
-	return WString::fromUTF8("The input must have a length between "
-				 + boost::lexical_cast<std::string>(minLength_)
-				 + " and "
-				 + boost::lexical_cast<std::string>(maxLength_)
-				 + " characters");
+	return WString::tr("Wt.WLengthValidator.BadRange")
+          .arg(minLength_).arg(maxLength_);
 }
 
 void WLengthValidator::setInvalidTooLongText(const WString& text)
@@ -84,15 +79,10 @@ WString WLengthValidator::invalidTooLongText() const
       return WString();
     else
       if (minLength_ == 0)
-	return WString::fromUTF8("The input must be no more than "
-				 + boost::lexical_cast<std::string>(maxLength_)
-				 + " characters");
+	return WString::tr("Wt.WLengthValidator.TooLong").arg(maxLength_);
       else
-	return WString::fromUTF8("The input must have a length between "
-				 + boost::lexical_cast<std::string>(minLength_)
-				 + " and "
-				 + boost::lexical_cast<std::string>(maxLength_)
-				 + " characters");
+	return WString::tr("Wt.WLengthValidator.BadRange")
+          .arg(minLength_).arg(maxLength_);
 }
 
 WValidator::State WLengthValidator::validate(WT_USTRING& input) const

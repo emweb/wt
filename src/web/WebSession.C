@@ -1393,7 +1393,7 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
     if (!request.postDataExceeded())
       obj->setFormData(getFormData(request, se + formName));
     else
-      obj->requestTooLarge(request.postDataExceeded());
+      obj->setRequestTooLarge(request.postDataExceeded());
   }
 }
 

@@ -18,8 +18,10 @@ StandardButton WMessageBox::order_[] = { Ok, Yes, YesAll, Retry, No,
 					 NoAll, Abort, Ignore, Cancel };
 
 const char *WMessageBox::buttonText_[]
-  = { "Ok", "Yes", "Yes to All", "Retry", "No", "No to All", "Abort",
-      "Ignore", "Cancel" };
+  = { "Wt.WMessageBox.Ok", "Wt.WMessageBox.Yes", "Wt.WMessageBox.YesToAll",
+      "Wt.WMessageBox.Retry", "Wt.WMessageBox.No", "Wt.WMessageBox.NoToAll",
+      "Wt.WMessageBox.Abort", "Wt.WMessageBox.Ignore", "Wt.WMessageBox.Cancel"
+    };
 
 const char *WMessageBox::iconURI[]
   = { "icons/information.png",
@@ -27,10 +29,9 @@ const char *WMessageBox::iconURI[]
       "icons/critical.png",
       "icons/question.png" };
 
-WMessageBox::WMessageBox(bool i18n)
+WMessageBox::WMessageBox()
   : buttons_(0),
     icon_(NoIcon),
-    i18n_(i18n),
     result_(NoButton),
     buttonClicked_(this)
 {
@@ -38,11 +39,10 @@ WMessageBox::WMessageBox(bool i18n)
 }
 
 WMessageBox::WMessageBox(const WString& caption, const WString& text,
-			 Icon icon, WFlags<StandardButton> buttons, bool i18n)
+			 Icon icon, WFlags<StandardButton> buttons)
   : WDialog(caption),
     buttons_(0),
     icon_(NoIcon),
-    i18n_(i18n),
     buttonClicked_(this)
 {
   create();
@@ -116,8 +116,7 @@ void WMessageBox::setButtons(WFlags<StandardButton> buttons)
   for (int i = 0; i < 9; ++i)
     if (buttons_ & order_[i]) {
       WPushButton *b
-	= new WPushButton(i18n_ ? tr(buttonText_[i]) : buttonText_[i],
-			  buttonContainer_);
+	= new WPushButton(tr(buttonText_[i]), buttonContainer_);
       buttonMapper_->mapConnect(b->clicked(), order_[i]);
 
       if (order_[i] == Ok || order_[i] == Yes)
@@ -147,9 +146,9 @@ void WMessageBox::onButtonClick(StandardButton b)
 
 StandardButton WMessageBox::show(const WString& caption,
 				 const WString& text,
-				 WFlags<StandardButton> buttons, bool i18n)
+				 WFlags<StandardButton> buttons)
 {
-  WMessageBox box(caption, text, Information, buttons, i18n);
+  WMessageBox box(caption, text, Information, buttons);
   box.buttonClicked().connect(&box, &WMessageBox::accept);
 
   box.exec();

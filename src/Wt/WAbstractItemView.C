@@ -31,21 +31,21 @@ public:
   {
     setStyleClass("Wt-pagingbar");
 
-    firstButton_ = new WPushButton(WString::fromUTF8(pbFirst),
+    firstButton_ = new WPushButton(tr("Wt.WAbstractItemView.PageBar.First"),
         this);
     firstButton_->clicked().connect(this, &DefaultPagingBar::showFirstPage);
 
-    prevButton_ = new WPushButton(WString::fromUTF8(pbPrevious),
+    prevButton_ = new WPushButton(tr("Wt.WAbstractItemView.PageBar.Previous"),
         this);
     prevButton_->clicked().connect(this, &DefaultPagingBar::showPreviousPage);
 
     current_ = new WText(this);
 
-    nextButton_ = new WPushButton(WString::fromUTF8(pbNext),
+    nextButton_ = new WPushButton(tr("Wt.WAbstractItemView.PageBar.Next"),
         this);
     nextButton_->clicked().connect(this, &DefaultPagingBar::showNextPage);
 
-    lastButton_ = new WPushButton(WString::fromUTF8(pbLast),
+    lastButton_ = new WPushButton(tr("Wt.WAbstractItemView.PageBar.Last"),
         this);
     lastButton_->clicked().connect(this, &DefaultPagingBar::showLastPage);
 
@@ -59,11 +59,6 @@ private:
   WPushButton *prevButton_, *nextButton_, *firstButton_, *lastButton_;
   WText *current_;
 
-  static const char *pbFirst;
-  static const char *pbPrevious;
-  static const char *pbNext;
-  static const char *pbLast;
-
   void update() {
     firstButton_->setDisabled(view_->currentPage() == 0);
     prevButton_->setDisabled(view_->currentPage() == 0);
@@ -71,7 +66,7 @@ private:
     nextButton_->setDisabled(view_->currentPage() == view_->pageCount() - 1);
     lastButton_->setDisabled(view_->currentPage() == view_->pageCount() - 1);
 
-    current_->setText(WString::fromUTF8("<b>{1}</b> from <b>{2}</b>").
+    current_->setText(WString::tr("Wt.WAbstractItemView.PageIOfN").
 		      arg(view_->currentPage() + 1).arg(view_->pageCount()));
   }
 
@@ -98,21 +93,9 @@ private:
   }
 };
 
-#ifndef WT_CNOR
-  const char * DefaultPagingBar::pbFirst = "\xc2\xab First";
-  const char * DefaultPagingBar::pbPrevious = "\xe2\x80\xb9 Previous";
-  const char * DefaultPagingBar::pbNext = "Next \xe2\x80\xba";
-  const char * DefaultPagingBar::pbLast = "Last \xc2\xbb";
-#else
-  const char * DefaultPagingBar::pbFirst = "« First";
-  const char * DefaultPagingBar::pbPrevious = "‹ Previous";
-  const char * DefaultPagingBar::pbNext = "Next ›";
-  const char * DefaultPagingBar::pbLast = "Last »";
-#endif
-
 WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view, 
-					   int anId, 
-					   int column)
+					  int anId, 
+					  int column)
   : id(anId),
     sortOrder(AscendingOrder),
     alignment(AlignLeft),

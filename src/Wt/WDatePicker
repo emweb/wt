@@ -43,6 +43,8 @@ class WTemplate;
  * \endcode
  * \endif
  *
+ * <h3>i18n</h3>
+ *
  * Internationalization of WDatePicker is mostly handled through
  * the internationalization mechanism of WDate. The 'Close' button
  * can be internationalized by overriding the default value for

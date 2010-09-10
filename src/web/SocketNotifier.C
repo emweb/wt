@@ -19,6 +19,7 @@ typedef int socklen_t;
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <netinet/tcp.h>
 #endif
 
@@ -240,7 +241,7 @@ void SocketNotifier::createSocketPair()
 
 void SocketNotifier::startThread()
 {
-  impl_->thread_ = boost::thread(&SocketNotifier::threadEntry, this);
+  impl_->thread_ = boost::thread(&SocketNotifier::threadEntry, this).move();
 }
 
 void SocketNotifier::interruptThread()

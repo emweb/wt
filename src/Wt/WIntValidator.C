@@ -56,7 +56,7 @@ WString WIntValidator::invalidNotANumberText() const
   if (!nanText_.empty())
     return nanText_;
   else
-    return WString::fromUTF8("Must be an integer number.");
+    return WString::tr("Wt.WIntValidator.NotAnInteger");
 }
 
 void WIntValidator::setInvalidTooSmallText(const WString& text)
@@ -76,13 +76,9 @@ WString WIntValidator::invalidTooSmallText() const
       return WString();
     else
       if (top_ == std::numeric_limits<int>::max())
-	return WString::fromUTF8("The number must be larger than "
-				 + boost::lexical_cast<std::string>(bottom_));
+	return WString::tr("Wt.WIntValidator.TooSmall").arg(bottom_);
       else
-	return WString::fromUTF8("The number must be in the range "
-				 + boost::lexical_cast<std::string>(bottom_)
-				 + " to "
-				 + boost::lexical_cast<std::string>(top_));
+	return WString::tr("Wt.WIntValidator.BadRange").arg(bottom_).arg(top_);
 }
 
 void WIntValidator::setInvalidTooLargeText(const WString& text)
@@ -102,13 +98,9 @@ WString WIntValidator::invalidTooLargeText() const
       return WString();
     else
       if (bottom_ == std::numeric_limits<int>::min())
-	return WString::fromUTF8("The number must be smaller than "
-				 + boost::lexical_cast<std::string>(top_));
+	return WString::tr("Wt.WIntValidator.TooLarge").arg(top_);
       else
-	return WString::fromUTF8("The number must be in the range "
-				 + boost::lexical_cast<std::string>(bottom_)
-				 + " to "
-				 + boost::lexical_cast<std::string>(top_));
+	return WString::tr("Wt.WIntValidator.BadRange").arg(bottom_).arg(top_);
 }
 
 WValidator::State WIntValidator::validate(WT_USTRING& input) const

@@ -19,6 +19,7 @@
 #include <Wt/Dbo/Session_impl.h>
 
 #ifndef _MSC_VER
+#ifndef __SUNPRO_C
 #define DBO_INSTANTIATE_TEMPLATES(C)					\
   template class Wt::Dbo::ptr<C>;					\
   template class Wt::Dbo::Dbo<C>;					\
@@ -42,7 +43,9 @@
 	(const std::string&);
 #else
 // Functionality is broken on MSVC 2005 and 2008
+// Functionality is broken on Sun Studio Express
 #define DBO_INSTANTIATE_TEMPLATES(C)
+#endif
 #endif
 
 #endif // WT_DBO_IMPL_H_

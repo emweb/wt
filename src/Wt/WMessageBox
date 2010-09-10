@@ -54,6 +54,20 @@ class WText;
  * \image html WMessageBox-polished-1.png "Example of a WMessageBox (polished)"
  * </TD> </TR> </TABLE>
  *
+ * <h3>i18n</h3>
+ *
+ * The strings used in the WMessageBox buttons can be translated by overriding
+ * the default values for the following localization keys:
+ * - Wt.WMessageBox.Abort: Abort
+ * - Wt.WMessageBox.Cancel: Cancel
+ * - Wt.WMessageBox.Ignore: Ignore
+ * - Wt.WMessageBox.No: No
+ * - Wt.WMessageBox.NoToAll: No to All
+ * - Wt.WMessageBox.Ok: Ok
+ * - Wt.WMessageBox.Retry: Retry
+ * - Wt.WMessageBox.Yes: Yes
+ * - Wt.WMessageBox.YesToAll: Yes to All
+ *
  * <h3>CSS</h3>
  *
  * A WMessageBox can be styled using the <tt>Wt-dialog</tt> and 
@@ -67,25 +81,14 @@ public:
   using WDialog::show;
 
   /*! \brief Creates an empty message box.
-   *
-   * The button labels may be set fixed English (if \p i18n = \c
-   * false), or fetched from a resource bundle if \p i18n = \c
-   * true. In that case, the key for each button is exactly the same
-   * as the English text.
    */
-  WMessageBox(bool i18n = false);
+  WMessageBox();
 
   /*! \brief Creates a message box with given caption, text, icon, and
    *         buttons.
-   *
-   * The button labels may be set fixed English (if \p i18n = \c false),
-   * or fetched from a resource bundle if \p i18n = \c true.
-   *
-   * In that case, the key for each button is exactly the same as the
-   * English text.
    */
   WMessageBox(const WString& caption, const WString& text, Icon icon,
-	      WFlags<StandardButton> buttons, bool i18n = false);
+	      WFlags<StandardButton> buttons);
 
   /*! \brief Sets the text for the message box.
    */
@@ -151,8 +154,7 @@ public:
    */
   static StandardButton show(const WString& caption,
 			     const WString& text,
-			     WFlags<StandardButton> buttons,
-			     bool i18n = false);
+			     WFlags<StandardButton> buttons);
 
   /*! \brief %Signal emitted when a button is clicked.
    */
@@ -161,7 +163,6 @@ public:
 private:
   WFlags<StandardButton> buttons_;
   Icon icon_;
-  bool i18n_;
   StandardButton result_;
   Signal<StandardButton> buttonClicked_;
 

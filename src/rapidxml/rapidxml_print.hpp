@@ -40,11 +40,11 @@ namespace rapidxml
                 *out++ = *begin++;
             return out;
         }
-        
+
         // Copy characters from given range to given output iterator and expand
         // characters into references (&lt; &gt; &apos; &quot; &amp;)
         template<class OutIt, class Ch>
-        inline OutIt copy_and_expand_chars(const Ch *begin, const Ch *end, Ch noexpand, OutIt out)
+        inline OutIt copy_and_expand_chars(const Ch *begin, const Ch *end, Ch noexpand, OutIt out, bool quotesToo)
         {
             while (begin != end)
             {
@@ -63,10 +63,16 @@ namespace rapidxml
                         *out++ = Ch('&'); *out++ = Ch('g'); *out++ = Ch('t'); *out++ = Ch(';');
                         break;
                     case Ch('\''): 
-                        *out++ = Ch('&'); *out++ = Ch('#'); *out++ = Ch('3'); *out++ = Ch('9'); *out++ = Ch(';');
+		        if (quotesToo) {
+			  *out++ = Ch('&'); *out++ = Ch('#'); *out++ = Ch('3'); *out++ = Ch('9'); *out++ = Ch(';');
+			} else
+			  *out++ = *begin;
                         break;
                     case Ch('"'): 
-                        *out++ = Ch('&'); *out++ = Ch('q'); *out++ = Ch('u'); *out++ = Ch('o'); *out++ = Ch('t'); *out++ = Ch(';');
+		        if (quotesToo) {
+			  *out++ = Ch('&'); *out++ = Ch('q'); *out++ = Ch('u'); *out++ = Ch('o'); *out++ = Ch('t'); *out++ = Ch(';');
+			} else
+			  *out++ = *begin;
                         break;
                     case Ch('&'): 
                         *out++ = Ch('&'); *out++ = Ch('a'); *out++ = Ch('m'); *out++ = Ch('p'); *out++ = Ch(';'); 
@@ -213,13 +219,13 @@ namespace rapidxml
                     if (find_char<Ch, Ch('"')>(attribute->value(), attribute->value() + attribute->value_size()))
                     {
                         *out = Ch('\''), ++out;
-                        out = copy_and_expand_chars(attribute->value(), attribute->value() + attribute->value_size(), Ch('"'), out);
+                        out = copy_and_expand_chars(attribute->value(), attribute->value() + attribute->value_size(), Ch('"'), out, true);
                         *out = Ch('\''), ++out;
                     }
                     else
                     {
                         *out = Ch('"'), ++out;
-                        out = copy_and_expand_chars(attribute->value(), attribute->value() + attribute->value_size(), Ch('\''), out);
+                        out = copy_and_expand_chars(attribute->value(), attribute->value() + attribute->value_size(), Ch('\''), out, true);
                         *out = Ch('"'), ++out;
                     }
                 }
@@ -234,7 +240,7 @@ namespace rapidxml
             assert(node->type() == node_data);
             if (!(flags & print_no_indenting))
                 out = fill_chars(out, indent, Ch('\t'));
-            out = copy_and_expand_chars(node->value(), node->value() + node->value_size(), Ch(0), out);
+            out = copy_and_expand_chars(node->value(), node->value() + node->value_size(), Ch(0), out, false);
             return out;
         }
 
@@ -291,12 +297,12 @@ namespace rapidxml
                 if (!child)
                 {
                     // If node has no children, only print its value without indenting
-                    out = copy_and_expand_chars(node->value(), node->value() + node->value_size(), Ch(0), out);
+		  out = copy_and_expand_chars(node->value(), node->value() + node->value_size(), Ch(0), out, false);
                 }
                 else if (child->next_sibling() == 0 && child->type() == node_data)
                 {
                     // If node has a sole data child, only print its value without indenting
-                    out = copy_and_expand_chars(child->value(), child->value() + child->value_size(), Ch(0), out);
+		  out = copy_and_expand_chars(child->value(), child->value() + child->value_size(), Ch(0), out, false);
                 }
                 else
                 {

@@ -1,36 +1,5 @@
 SUBDIRS(web Wt)
 
-INCLUDE(FindThreads)
-
-IF(NOT BOOST_WT_FOUND)
-  SET(ERR
-     "Could not find a boost installation in " ${BOOST_PREFIX} ".\n\n"
-      "There are two methods in Wt to find boost:\n\n"
-      "1. Find boost through cmake (recommended)\n"
-      "This requires cmake 2.6, and is in "
-      "that case the default (unless BOOST_COMPILER or BOOST_VERSION is "
-      "defined). This method requires a multi-threaded boost installation.\n"
-      "You may need to add your boost version number to "
-      "Boost_ADDITIONAL_VERSIONS, and/or set BOOST_PREFIX to the location "
-      "where boost is installed.\n\n"
-      "2. Use the Wt-proprietary method to find boost.\n"
-      "This requires you to define three variables:\n"
-      "BOOST_PREFIX: set to the directory where you installed boost\n"
-      "BOOST_COMPILER: set to the compiler signature as you find them in "
-      "library names (e.g.: gcc42)\n"
-      "BOOST_VERSION: set to the boost version, again as you find them in "
-      "the library names (e.g.: 1_38)\n\n"
-      "Note 1: WT_BOOST_DISCOVERY is the variable that selects the boost "
-      "discovery method. When set to false, method 1 is used (default if "
-      "cmake version is recent enough and BOOST_COMPILER and BOOST_VERSION "
-      "are not defined). When set to true, method 2 is used.\n"
-      "Note 2: the code to discover boost is located in cmake/WtFindBoost.txt\n"
-      "Note 3: on windows, set BOOST_PREFIX to the full path, eg "
-      "c:/Program Files/boost/boost_1_38\n\n"
-      "Wt requires the following C++ boost libraries: date_time, regex, program_options, signals, and optionally thread")
-  MESSAGE(FATAL_ERROR ${ERR})
-ENDIF(NOT BOOST_WT_FOUND)
-
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/web
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -265,22 +234,9 @@ Wt/Chart/WChartPalette.C
 Wt/Chart/WStandardPalette.C
 )
 
-IF(BOOST_WT_MT_FOUND)
-  IF(MULTI_THREADED)
-    ADD_DEFINITIONS(-DWT_THREADED -D_REENTRANT -DBOOST_SPIRIT_THREADSAFE)
-    MESSAGE("** Enabling multi threading.")
-
-    SET(libsources ${libsources} web/SocketNotifier.C)
-
-  ELSE(MULTI_THREADED)
-    MESSAGE("** Disabling multi threading.")
-    ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
-  ENDIF(MULTI_THREADED)
-ELSE(BOOST_WT_MT_FOUND)
-  MESSAGE("** Disabling multi threading: could not find multi-threaded boost libraries")
-  ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
-ENDIF(BOOST_WT_MT_FOUND)
-
+IF (MULTI_THREADED_BUILD)
+  SET(libsources ${libsources} web/SocketNotifier.C)
+ENDIF(MULTI_THREADED_BUILD)
 
 IF(HARU_FOUND)
   SET(libsources ${libsources} Wt/WPdfImage.C)
@@ -310,9 +266,9 @@ ELSE(GM_FOUND)
   MESSAGE("   Indicate the location of your graphicsmagick library using -DGM_PREFIX=...")
 ENDIF(GM_FOUND)
 
-IF(BOOST_WT_MT_FOUND)
+IF(MULTI_THREADED_BUILD)
   TARGET_LINK_LIBRARIES(wt ${CMAKE_THREAD_LIBS_INIT})
-ENDIF(BOOST_WT_MT_FOUND)
+ENDIF(MULTI_THREADED_BUILD)
 
 INSTALL(TARGETS wt
     RUNTIME DESTINATION bin

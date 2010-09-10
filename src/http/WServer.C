@@ -396,11 +396,14 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 	  << "Shutdown (signal = " << sig << ")";
 #endif
 	server.stop();
+
+#ifdef WT_THREADED
 #ifndef WIN32
 	if (sig == SIGHUP)
 	  // Mac OSX: _NSGetEnviron()
 	  WServer::restart(argc, argv, 0);
-#endif
+#endif // WIN32
+#endif // WT_THREADED
       }
 
       return 0;

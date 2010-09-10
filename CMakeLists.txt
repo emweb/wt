@@ -95,8 +95,7 @@ IF(WIN32)
 ELSE(WIN32)
 
   SET(RUNDIR "/var/run/wt" CACHE PATH
-    "Default path for wt session management "
-    "(only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
+    "Default path for wt session management (only used by FCGI connector; not relative to CMAKE_INSTALL_PREFIX)")
 
   IF( NOT DEFINED CONFIGDIR )
     SET(CONFIGDIR "/etc/wt" CACHE STRING "Path for the configuration files")
@@ -144,6 +143,8 @@ SET(SSL_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of SSL library (overrides USERLIB_PREFIX)")
 SET(ZLIB_PREFIX ${USERLIB_PREFIX} CACHE PATH
   "Installation prefix of zlib library (overrides USERLIB_PREFIX)")
+SET(GM_PREFIX ${USERLIB_PREFIX} CACHE PATH
+  "Installation prefix of GraphicsMgick library (overrides GM_PREFIX)")
 
 OPTION(DEBUG "Support for debugging, must be enabled also in wt_config.xml" OFF)
 IF(CYGWIN)
@@ -187,6 +188,55 @@ FIND_PACKAGE(Qt4)
 IF(QT_FOUND)
   INCLUDE(${QT_USE_FILE})
 ENDIF(QT_FOUND)
+
+INCLUDE(FindThreads)
+
+IF(NOT BOOST_WT_FOUND)
+  SET(ERR
+     "Could not find a boost installation in " ${BOOST_PREFIX} ".\n\n"
+      "There are two methods in Wt to find boost:\n\n"
+      "1. Find boost through cmake (recommended)\n"
+      "This requires cmake 2.6, and is in "
+      "that case the default (unless BOOST_COMPILER or BOOST_VERSION is "
+      "defined). This method requires a multi-threaded boost installation.\n"
+      "You may need to add your boost version number to "
+      "Boost_ADDITIONAL_VERSIONS, and/or set BOOST_PREFIX to the location "
+      "where boost is installed.\n\n"
+      "2. Use the Wt-proprietary method to find boost.\n"
+      "This requires you to define three variables:\n"
+      "BOOST_PREFIX: set to the directory where you installed boost\n"
+      "BOOST_COMPILER: set to the compiler signature as you find them in "
+      "library names (e.g.: gcc42)\n"
+      "BOOST_VERSION: set to the boost version, again as you find them in "
+      "the library names (e.g.: 1_38)\n\n"
+      "Note 1: WT_BOOST_DISCOVERY is the variable that selects the boost "
+      "discovery method. When set to false, method 1 is used (default if "
+      "cmake version is recent enough and BOOST_COMPILER and BOOST_VERSION "
+      "are not defined). When set to true, method 2 is used.\n"
+      "Note 2: the code to discover boost is located in cmake/WtFindBoost.txt\n"
+      "Note 3: on windows, set BOOST_PREFIX to the full path, eg "
+      "c:/Program Files/boost/boost_1_38\n\n"
+      "Wt requires the following C++ boost libraries: date_time, regex, program_options, signals, and optionally thread")
+  MESSAGE(FATAL_ERROR ${ERR})
+ENDIF(NOT BOOST_WT_FOUND)
+
+IF(BOOST_WT_MT_FOUND)
+  IF(MULTI_THREADED)
+    MESSAGE("** Enabling multi threading.")
+    SET(MULTI_THREADED_BUILD true)
+
+    ADD_DEFINITIONS(-DWT_THREADED -D_REENTRANT -DBOOST_SPIRIT_THREADSAFE)
+  ELSE(MULTI_THREADED)
+    MESSAGE("** Disabling multi threading.")
+    SET(MULTI_THREADED_BUILD false)
+
+    ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
+  ENDIF(MULTI_THREADED)
+ELSE(BOOST_WT_MT_FOUND)
+  SET(MULTI_THREADED_BUILD false)
+  MESSAGE("** Disabling multi threading: could not find multi-threaded boost libraries")
+  ADD_DEFINITIONS(-DBOOST_DISABLE_THREADS -DSQLITE_THREADSAFE=0)
+ENDIF(BOOST_WT_MT_FOUND)
 
 FIND_PACKAGE(Doxygen)
 

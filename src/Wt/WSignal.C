@@ -269,9 +269,10 @@ EventSignalBase::~EventSignalBase()
 }
 
 #ifndef WT_CNOR
-boost::signals::connection EventSignalBase::connect(WObject::Method method,
-                                                    WObject *target,
-                                                    WStatelessSlot *slot)
+boost::signals::connection
+EventSignalBase::connectStateless(WObject::Method method,
+				  WObject *target,
+				  WStatelessSlot *slot)
 {
   boost::signals::connection c = dummy_.connect(boost::bind(method, target));
   slot->addConnection(this);

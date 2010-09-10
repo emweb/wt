@@ -56,7 +56,7 @@ WString WDoubleValidator::invalidNotANumberText() const
   if (!nanText_.empty())
     return nanText_;
   else
-    return WString::fromUTF8("Must be a number.");
+    return WString::tr("Wt.WDoubleValidator.NotANumber");
 }
 
 void WDoubleValidator::setInvalidTooSmallText(const WString& text)
@@ -76,13 +76,10 @@ WString WDoubleValidator::invalidTooSmallText() const
       return WString();
     else
       if (top_ == std::numeric_limits<double>::max())
-	return WString::fromUTF8("The number must be larger than "
-				 + boost::lexical_cast<std::string>(bottom_));
+        return WString::tr("Wt.WDoubleValidator.TooSmall").arg(bottom_);
       else
-	return WString::fromUTF8("The number must be in the range "
-				 + boost::lexical_cast<std::string>(bottom_)
-				 + " to "
-				 + boost::lexical_cast<std::string>(top_));
+        return WString::tr("Wt.WDoubleValidator.BadRange").
+          arg(bottom_).arg(top_);
 }
 
 void WDoubleValidator::setInvalidTooLargeText(const WString& text)
@@ -102,13 +99,10 @@ WString WDoubleValidator::invalidTooLargeText() const
       return WString();
     else
       if (bottom_ == -std::numeric_limits<int>::max())
-	return WString::fromUTF8("The number must be smaller than "
-				 + boost::lexical_cast<std::string>(top_));
+	return WString::tr("Wt.WDoubleValidator.TooLarge").arg(top_);
       else
-	return WString::fromUTF8("The number must be in the range "
-				 + boost::lexical_cast<std::string>(bottom_)
-				 + " to "
-				 + boost::lexical_cast<std::string>(top_));
+	return WString::tr("Wt.WDoubleValidator.BadRange").
+          arg(bottom_).arg(top_);
 }
 
 

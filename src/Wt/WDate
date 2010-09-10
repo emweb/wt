@@ -61,12 +61,19 @@ public:
  * with dates. These operations throw InvalidDateException when one of
  * the dates is invalid.
  *
- * This class can be localized by overriding the default values for
- * the localized string keys in your own resource bundles:
+ * <h3>i18n</h3>
+ *
+ * If the thread using a WDate is bound to a WApplication (i.e.
+ * WApplication::instance() does not return 0), the date strings
+ * can be localized by overriding the default values for
+ * the localized string keys in the resource bundles of the WApplication:
  * - Short day names: Wt.WDate.Mon through Wt.WDate.Sun
  * - Long day names: Wt.WDate.Monday through Wt.WDate.Sunday
  * - Short month names: Wt.WDate.Jan through Wt.WDate.Dec
  * - Long month names: Wt.WDate.January through Wt.WDate.December
+ *
+ * If the thread using a WDate is not bound to a WApplication (i.e.
+ * WApplication::instance() returns 0), english strings will be used.
  *
  * Internationalization affects both WDate to string conversions and
  * string to WDate conversion.

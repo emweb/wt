@@ -59,7 +59,7 @@ WString WRegExpValidator::invalidNoMatchText() const
   if (!noMatchText_.empty())
     return noMatchText_;
   else
-    return WString::fromUTF8("Invalid input");
+    return WString::tr("Wt.WRegExpValidator.Invalid");
 }
 
 WValidator::State WRegExpValidator::validate(WT_USTRING& input) const

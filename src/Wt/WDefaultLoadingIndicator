@@ -25,6 +25,12 @@ namespace Wt {
  * This widget does not provide styling, 
  * and can be styled using inline or external CSS as appropriate.
  *
+ * <h3>i18n</h3>
+ *
+ * The strings used in this class can be translated by overriding
+ * the default values for the following localization keys:
+ * - Wt.WDefaultLoadingIndicator.Loading: Loading...
+ *
  * \sa WApplication::setLoadingIndicator()
  */
 class WT_API WDefaultLoadingIndicator : public WText, public WLoadingIndicator
