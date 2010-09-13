@@ -93,25 +93,35 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
   std::stringstream tmp;
 
   tmp <<
-    "if(" << canvasVar << ".getContext){"
-    "new Wt._p_.ImagePreloader([";
+    "if(" << canvasVar << ".getContext){";
 
-  for (unsigned i = 0; i < images_.size(); ++i) {
-    if (i != 0)
-      tmp << ',';
-    tmp << '\'' << images_[i] << '\'';
+  if (!images_.empty()) {
+    tmp << "new Wt._p_.ImagePreloader([";
+
+    for (unsigned i = 0; i < images_.size(); ++i) {
+      if (i != 0)
+	tmp << ',';
+      tmp << '\'' << images_[i] << '\'';
+    }
+
+    tmp <<
+      "],function(images)";
   }
 
-  tmp <<
-    "],function(images) {"
-    "var ctx=" << canvasVar << ".getContext('2d');";
+  tmp << "{var ctx=" << canvasVar << ".getContext('2d');";
 
   if (!(paintFlags_ & PaintUpdate))
     tmp << "ctx.clearRect(0,0,"
 	<< width().value() << "," << height().value() << ");";
 
   tmp << "ctx.save();ctx.save();" << js_.str() 
-      << "ctx.restore();ctx.restore();});}";
+      << "ctx.restore();ctx.restore();}";
+
+  if (!images_.empty()) {
+    tmp << ");";
+  }
+
+  tmp << "}";
 
   text->callJavaScript(tmp.str());
 

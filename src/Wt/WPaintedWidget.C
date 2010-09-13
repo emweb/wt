@@ -333,7 +333,8 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
     if (!createNew)
       device->setPaintFlags(repaintFlags_ & PaintUpdate);
 
-    paintEvent(device);
+    if (renderWidth_ != 0 && renderHeight_ != 0)
+      paintEvent(device);
 
 #ifdef WT_TARGET_JAVA
   if (device->painter())
