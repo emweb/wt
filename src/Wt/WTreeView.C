@@ -2212,12 +2212,14 @@ WWidget *WTreeView::headerWidget(int column, bool contentsOnly)
 {
   WWidget *result = 0;
 
-  if (column == 0)
-    result = headers_->widget(headers_->count() - 1);
-  else
-    result = headerRow()->widget(column - 1);
+  if (headers_) {
+    if (column == 0)
+      result = headers_->widget(headers_->count() - 1);
+    else
+      result = headerRow()->widget(column - 1);
+  }
 
-  if (contentsOnly)
+  if (result && contentsOnly)
     return result->find("contents");
   else
     return result;

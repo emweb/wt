@@ -900,8 +900,11 @@ void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
   int lineCount = headerLevelCount();
   WLength headerHeight = headerLineHeight_ * lineCount;
 
-  if (columnCount() > 0)
-    headerWidget(0)->askRerender(); // for layout
+  if (columnCount() > 0) {
+    WWidget *w = headerWidget(0);
+    if (w)
+      w->askRerender(); // for layout
+  }
 
   headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);
   if (!multiLineHeader_)

@@ -957,12 +957,14 @@ WWidget* WTableView::headerWidget(int column, bool contentsOnly)
 {
   WWidget *result = 0;
 
-  if (ajaxMode())
-    result = headers_->widget(column);
-  else
-    result = plainTable_->elementAt(0, column)->widget(0);
+  if (ajaxMode()) {
+    if (headers_ && column < headers_->count())
+      result = headers_->widget(column);
+  } else
+    if (plainTable_ && column < plainTable_->columnCount())
+      result = plainTable_->elementAt(0, column)->widget(0);
 
-  if (contentsOnly)
+  if (result && contentsOnly)
     return result->find("contents");
   else
     return result;
