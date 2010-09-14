@@ -457,12 +457,13 @@ WString WDateTime::toString(const WString& format) const
 WString WDateTime::toString(const WDate *date, const WTime *time,
 			    const WString& format)
 {
-  if ((date && !date->isValid()) || (time && !time->isValid()))
+  if ((date && !date->isValid()) || (time && !time->isValid())) {
     if (WApplication::instance()) {
       return tr("Wt.WDateTime.null");
     } else {
       return WString::fromUTF8("Null");
     }
+  }
 
   std::stringstream result;
   std::string f = format.toUTF8() + std::string(3, 0);

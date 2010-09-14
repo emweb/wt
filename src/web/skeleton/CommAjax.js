@@ -32,6 +32,7 @@ _$_APP_CLASS_$_._p_.comm = new (function(handleResponse) {
 	    handler(1, null, userData);
 
 	  request.onreadystatechange = new Function;
+	  request = null;
 
 	  handled = true;
 	}
@@ -39,6 +40,7 @@ _$_APP_CLASS_$_._p_.comm = new (function(handleResponse) {
 
       function handleTimeout() {
 	request.onreadystatechange = new Function;
+	request = null;
 	handled = true;
 	handler(2, null, userData);
       };
@@ -47,6 +49,7 @@ _$_APP_CLASS_$_._p_.comm = new (function(handleResponse) {
 	request.onreadystatechange = new Function;
 	handled = true;
 	request.abort();
+	request = null;
       };
 
       if (window.XMLHttpRequest)

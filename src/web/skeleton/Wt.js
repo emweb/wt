@@ -1401,13 +1401,15 @@ function setServerPush(how) {
 }
 
 function doJavaScript(js) {
-  if (js)
+  if (js) {
+    js = "(function() {" + js + "})();";
     if (window.execScript)
       window.execScript(js);
     else
       window.eval(js);
+  }
 
-  _$_APP_CLASS_$_._p_.autoJavaScript();
+  self._p_.autoJavaScript();
 }
 
 function handleResponse(status, msg, timer) {
@@ -1573,7 +1575,7 @@ function emit(object, config) {
 
   if (typeof object === "string")
     userEvent.id = object;
-  else if (object == _$_APP_CLASS_$_)
+  else if (object == self)
     userEvent.id = "app";
   else
     userEvent.id = object.id;
@@ -1720,32 +1722,54 @@ function ieAlternative(d)
   return '0';
 }
 
+window.onunload = function()
+{
+  self.emit(self, "Wt-unload");
+  sendUpdate();
+};
+
+function setCloseMessage(m)
+{
+  if (m && m != '') {
+    window.onbeforeunload = function(event) {
+      var e = event || window.event;
+
+      if (e)
+	e.returnValue = m;
+
+      return m;
+    };
+  } else
+    window.onbeforeunload = null;
+};
+
 this._p_ = {
- ieAlternative : ieAlternative,
- loadScript : loadScript,
- onJsLoad : onJsLoad,
- setTitle : setTitle,
- update : update,
- quit : quit,
- setFormObjects : function(o) { formObjects = o; },
- saveDownPos : saveDownPos,
- addTimerEvent : addTimerEvent,
- load : load,
- handleResponse : handleResponse,
- setServerPush : setServerPush,
+  ieAlternative : ieAlternative,
+  loadScript : loadScript,
+  onJsLoad : onJsLoad,
+  setTitle : setTitle,
+  update : update,
+  quit : quit,
+  setFormObjects : function(o) { formObjects = o; },
+  saveDownPos : saveDownPos,
+  addTimerEvent : addTimerEvent,
+  load : load,
+  handleResponse : handleResponse,
+  setServerPush : setServerPush,
 
- dragStart : dragStart,
- dragDrag : dragDrag,
- dragEnd : dragEnd,
- capture : WT.capture,
+  dragStart : dragStart,
+  dragDrag : dragDrag,
+  dragEnd : dragEnd,
+  capture : WT.capture,
 
- onHashChange : onHashChange,
- setHash : setHash,
- ImagePreloader : ImagePreloader,
+  onHashChange : onHashChange,
+  setHash : setHash,
+  ImagePreloader : ImagePreloader,
 
- autoJavaScript : function() {  _$_AUTO_JAVASCRIPT_$_(); },
+  autoJavaScript : function() {  _$_AUTO_JAVASCRIPT_$_(); },
 
- response : responseReceived
+  response : responseReceived,
+  setCloseMessage : setCloseMessage
 };
 
 this.WT = _$_WT_CLASS_$_;

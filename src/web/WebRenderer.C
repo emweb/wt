@@ -668,7 +668,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 
   response.out() << app->afterLoadJavaScript()
 		 << "{var o=null,e=null;"
-		 << app->hideLoadingIndicator_->javaScript()
+		 << app->hideLoadingIndicator_.javaScript()
 		 << "}";
 
   if (widgetset)
@@ -712,16 +712,16 @@ std::string WebRenderer::safeJsStringLiteral(const std::string& value)
 void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
 				      bool all)
 {
-  if (app->showLoadingIndicator_->needsUpdate(all)) {
+  if (app->showLoadingIndicator_.needsUpdate(all)) {
     out << "showLoadingIndicator = function() {var o=null,e=null;\n"
-	<< app->showLoadingIndicator_->javaScript() << "};\n";
-    app->showLoadingIndicator_->updateOk();
+	<< app->showLoadingIndicator_.javaScript() << "};\n";
+    app->showLoadingIndicator_.updateOk();
   }
 
-  if (app->hideLoadingIndicator_->needsUpdate(all)) {
+  if (app->hideLoadingIndicator_.needsUpdate(all)) {
     out << "hideLoadingIndicator = function() {var o=null,e=null;\n"
-	<< app->hideLoadingIndicator_->javaScript() << "};\n";
-    app->hideLoadingIndicator_->updateOk();
+	<< app->hideLoadingIndicator_.javaScript() << "};\n";
+    app->hideLoadingIndicator_.updateOk();
   }
 }
 
@@ -1115,13 +1115,18 @@ void WebRenderer::collectJS(std::ostream* js)
   if (js) { 
     if (app->titleChanged_) {
       *js << app->javaScriptClass()
-	  << "._p_.setTitle(";
-      DomElement::jsStringLiteral(*js, app->title().toUTF8(), '\'');
-      *js << ");\n";
+	  << "._p_.setTitle(" << app->title_.jsStringLiteral() << ");\n";
+    }
+
+    if (app->closeMessageChanged_) {
+      *js << app->javaScriptClass()
+	  << "._p_.setCloseMessage(" << app->closeMessage_.jsStringLiteral()
+	  << ");\n";
     }
   }
 
   app->titleChanged_ = false;
+  app->closeMessageChanged_ = false;
 
   if (js) {
     if (app->internalPathIsChanged_)

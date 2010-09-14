@@ -71,6 +71,7 @@ bool WApplication::ScriptLibrary::operator== (const ScriptLibrary& other) const
 WApplication::WApplication(const WEnvironment& env)
   : session_(env.session_),
     titleChanged_(false),
+    closeMessageChanged_(false),
     localizedStrings_(0),
     internalPathChanged_(this),
     serverPush_(0),
@@ -92,6 +93,9 @@ WApplication::WApplication(const WEnvironment& env)
     styleSheetsAdded_(0),
     exposeSignals_(true),
     autoJavaScriptChanged_(false),
+    showLoadingIndicator_("showload", this),
+    hideLoadingIndicator_("hideload", this),
+    unloaded_(this, "Wt-unload"),
     soundManager_(0)
 {
   session_->setApplication(this);
@@ -208,10 +212,9 @@ WApplication::WApplication(const WEnvironment& env)
     else
       styleSheet_.addRule("img.Wt-indeterminate", "margin: 3px 3px 0px 4px;");
 
-  showLoadingIndicator_ = new EventSignal<>("showload", this);
-  hideLoadingIndicator_ = new EventSignal<>("hideload", this);
-
   setLoadingIndicator(new WDefaultLoadingIndicator());
+
+  unloaded_.connect(this, &WApplication::unload);
 }
 
 void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
@@ -224,8 +227,8 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
     domRoot_->addWidget(loadingIndicatorWidget_);
 
 #ifndef WT_TARGET_JAVA
-    showLoadingIndicator_->connect(loadingIndicatorWidget_, &WWidget::show);
-    hideLoadingIndicator_->connect(loadingIndicatorWidget_, &WWidget::hide);
+    showLoadingIndicator_.connect(loadingIndicatorWidget_, &WWidget::show);
+    hideLoadingIndicator_.connect(loadingIndicatorWidget_, &WWidget::hide);
 #else
     // stateless learning does not yet work
     JSlot *showLoadJS = new JSlot();
@@ -233,14 +236,14 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
       ("function(o,e) {"
        "" WT_CLASS ".inline('" + loadingIndicatorWidget_->id() + "');"
        "}");
-    showLoadingIndicator_->connect(*showLoadJS);
+    showLoadingIndicator_.connect(*showLoadJS);
 
     JSlot *hideLoadJS = new JSlot();
     hideLoadJS->setJavaScript
       ("function(o,e) {"
        "" WT_CLASS ".hide('" + loadingIndicatorWidget_->id() + "');"
        "}");
-    hideLoadingIndicator_->connect(*hideLoadJS);
+    hideLoadingIndicator_.connect(*hideLoadJS);
 #endif
 
     loadingIndicatorWidget_->hide();
@@ -283,9 +286,6 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
-  delete showLoadingIndicator_;
-  delete hideLoadingIndicator_;
-
   timerRoot_ = 0; // marker for being deleted
   dialogCover_ = 0;
 
@@ -496,6 +496,14 @@ void WApplication::setTitle(const WString& title)
   }
 }
 
+void WApplication::setConfirmCloseMessage(const WString& message)
+{
+  if (message != closeMessage_) {
+    closeMessage_ = message;
+    closeMessageChanged_ = true;
+  }
+}
+
 std::string WApplication::url() const
 {
   return fixRelativeUrl(session_->applicationUrl());
@@ -538,6 +546,22 @@ std::string WApplication::fixRelativeUrl(const std::string& url) const
 void WApplication::quit()
 {
   quited_ = true;
+}
+
+void WApplication::unload()
+{
+#ifndef WT_TARGET_JAVA
+  if (session_->shouldDisconnect()) {
+    if (connected_) {
+      connected_ = false;
+      log("notice") << "Session disconnected on unload()";
+    }
+
+    return;
+  }
+#endif // WT_TARGET_JAVA
+
+  quit();
 }
 
 void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
@@ -745,6 +769,9 @@ void WApplication::refresh()
 
   if (title_.refresh())
     titleChanged_ = true;
+
+  if (closeMessage_.refresh())
+    closeMessageChanged_ = true;
 }
 
 void WApplication::enableAjax()

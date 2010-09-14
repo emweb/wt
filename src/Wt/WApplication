@@ -1371,6 +1371,20 @@ public:
   bool javaScriptLoaded(const char *jsFile);
   void setJavaScriptLoaded(const char *jsFile);
 
+  /*! \brief Sets the message for the user to confirm closing of the
+   *         application window/tab.
+   *
+   * If the message is empty, then the user may navigate away from the page
+   * without confirmation.
+   *
+   * Otherwise the user will be prompted with a browser-specific
+   * dialog asking him to confirm leaving the page. This \p message is
+   * added to the page.
+   *
+   * \sa unload()
+   */
+  void setConfirmCloseMessage(const WString& message);
+
 protected:
   /*! \brief Notifies an event to the application.
    *
@@ -1457,6 +1471,19 @@ protected:
    */
   virtual void enableAjax();
 
+  /*! \brief Handles a browser unload event.
+   *
+   * The browser unloads the application when the user navigates away or
+   * when he closes the window or tab.
+   *
+   * The default behaviour is to quit() which in turn terminates the session.
+   *
+   * You may want to reimplement this if you want to keep the
+   * application running until it times out (as was the behaviour
+   * before Wt 3.1.6).
+   */
+  virtual void unload();
+
 private:
   Signal<int> requestTooLarge_;
 
@@ -1489,7 +1516,8 @@ private:
    */
   WebSession            *session_;     // session owning this application
   WString                title_;
-  bool                   titleChanged_;
+  WString                closeMessage_;
+  bool                   titleChanged_, closeMessageChanged_;
   WContainerWidget      *widgetRoot_;  // widgets in main DOM root
   WContainerWidget      *domRoot_;     // main DOM root
   WContainerWidget      *domRoot2_;    // other virtual root for WidgetSet mode
@@ -1547,7 +1575,8 @@ private:
   std::set<const char*> javaScriptLoaded_;
   bool autoJavaScriptChanged_;
 
-  EventSignal<> *showLoadingIndicator_, *hideLoadingIndicator_;
+  EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
+  JSignal<> unloaded_;
 
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WContainerWidget *dialogCover(bool create = true);
