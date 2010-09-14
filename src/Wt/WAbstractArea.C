@@ -144,6 +144,16 @@ EventSignal<WMouseEvent>& WAbstractArea::mouseMoved()
   return impl_->mouseMoved();
 }
 
+EventSignal<WMouseEvent>& WAbstractArea::mouseDragged()
+{
+  return impl_->mouseDragged();
+}
+
+EventSignal<WMouseEvent>& WAbstractArea::mouseWheel()
+{
+  return impl_->mouseWheel();
+}
+
 void WAbstractArea::setImage(WImage *image)
 {
   impl_->setParent(image);

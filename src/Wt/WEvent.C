@@ -63,6 +63,7 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
   widgetY = parseIntParameter(request, se + "widgetY", 0);
   dragDX = parseIntParameter(request, se + "dragdX", 0);
   dragDY = parseIntParameter(request, se + "dragdY", 0);
+  wheelDelta = parseIntParameter(request, se + "wheel", 0);
 
   /*
   if (widgetX == 0 && widgetY == 0) {

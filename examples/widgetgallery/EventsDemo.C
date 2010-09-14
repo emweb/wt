@@ -74,7 +74,7 @@ WWidget *EventsDemo::wMouseEvent()
   WContainerWidget *r = new WContainerWidget;
   new WText("clicked<br/>doubleClicked<br/>mouseWentOut<br/>mouseWentOver",
 	    l);
-  new WText("mouseWentDown<br/>mouseWentUp<br/>mouseMoved", r);
+  new WText("mouseWentDown<br/>mouseWentUp<br/>mouseMoved<br/>mouseWheel", r);
   hlayout->addWidget(l);
   hlayout->addWidget(r);
   c->resize(600, 300);
@@ -90,6 +90,8 @@ WWidget *EventsDemo::wMouseEvent()
   r->mouseMoved().connect(this, &EventsDemo::showMouseMoved);
   r->mouseWentUp().connect(this, &EventsDemo::showMouseWentUp);
   r->mouseWentDown().connect(this, &EventsDemo::showMouseWentDown);
+  r->mouseWheel().connect(this, &EventsDemo::showMouseWheel);
+  r->mouseWheel().preventDefaultAction(true);
   new WBreak(result);
   new WText("Last event: ", result);
   mouseEventType_ = new WText(result);
@@ -277,6 +279,12 @@ void EventsDemo::showMouseWentOut(const WMouseEvent &e)
   describe(e);
 }
 
+void EventsDemo::showMouseWheel(const WMouseEvent &e)
+{
+  mouseEventType_->setText("mouseWheel");
+  describe(e);
+}
+
 void EventsDemo::showMouseWentOver(const WMouseEvent &e)
 {
   mouseEventType_->setText("mouseWentOver");
@@ -310,6 +318,7 @@ void EventsDemo::describe(const Wt::WMouseEvent &e)
      << "Window coordinates: " << e.window() << "<br/>"
      << "Screen coordinates: " << e.screen() << "<br/>"
      << "Widget coordinates: " << e.widget() << "<br/>"
-     << "DragDelta coordinates: " << e.dragDelta() << "<br/>";
+     << "DragDelta coordinates: " << e.dragDelta() << "<br/>"
+     << "Wheel delta: " << e.wheelDelta() << "<br/>";
   mouseEventDescription_->setText(ss.str());
 }

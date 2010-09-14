@@ -3,9 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "Wt/WApplication"
 #include "Wt/WStackedWidget"
-#include "Utils.h"
 
 #include "StdGridLayoutImpl.h"
 
@@ -23,12 +21,10 @@ WStackedWidget::WStackedWidget(WContainerWidget *parent)
 
 void WStackedWidget::addWidget(WWidget *widget)
 {
-  insertWidget(widgets_.size(), widget);
-}
+  WContainerWidget::addWidget(widget);
 
-int WStackedWidget::count() const
-{
-  return widgets_.size();
+  if (currentIndex_ == -1)
+    currentIndex_ = 0;
 }
 
 int WStackedWidget::currentIndex() const
@@ -38,51 +34,34 @@ int WStackedWidget::currentIndex() const
 
 WWidget *WStackedWidget::currentWidget() const
 {
-  return widgets_[currentIndex_];
-}
-
-int WStackedWidget::indexOf(WWidget *widget) const
-{
-  return Utils::indexOf(widgets_, widget);
+  if (currentIndex_ >= 0)
+    return widget(currentIndex_);
+  else
+    return 0;
 }
 
 void WStackedWidget::insertWidget(int index, WWidget *widget)
 {
-  // do not bother inserting in correct place since this does not matter
-  // as only one will be visible at each time
-  WContainerWidget::addWidget(widget);
-
-  widgets_.insert(widgets_.begin() + index, widget);
+  WContainerWidget::insertWidget(index, widget);
 
   if (currentIndex_ == -1)
     currentIndex_ = 0;
 }
 
-void WStackedWidget::removeWidget(WWidget *widget)
-{
-  Utils::erase(widgets_, widget);
-
-  if (currentIndex_ >= (int)widgets_.size())
-    setCurrentIndex(widgets_.size() - 1);
-}
-
 void WStackedWidget::removeChild(WWidget *child)
 {
-  removeWidget(child);
   WContainerWidget::removeChild(child);
-}
 
-WWidget *WStackedWidget::widget(int index) const
-{
-  return widgets_[index];
+  if (currentIndex_ >= count())
+    setCurrentIndex(count() - 1);
 }
 
 void WStackedWidget::setCurrentIndex(int index)
 {
   currentIndex_ = index;
 
-  for (unsigned i = 0; i < (unsigned)widgets_.size(); ++i)
-    widgets_[i]->setHidden(currentIndex_ != (int)i);
+  for (int i = 0; i < count(); ++i)
+    widget(i)->setHidden(currentIndex_ != i);
 }
 
 void WStackedWidget::setCurrentWidget(WWidget *widget)
@@ -93,7 +72,6 @@ void WStackedWidget::setCurrentWidget(WWidget *widget)
 DomElement *WStackedWidget::createDomElement(WApplication *app)
 {
   setCurrentIndex(currentIndex_);
-
   return WContainerWidget::createDomElement(app);
 }
 

@@ -47,6 +47,7 @@ private:
   void showMouseMoved(const Wt::WMouseEvent &e);
   void showMouseWentUp(const Wt::WMouseEvent &e);
   void showMouseWentDown(const Wt::WMouseEvent &e);
+  void showMouseWheel(const Wt::WMouseEvent &e);
 
   Wt::WText *mouseEventType_;
   Wt::WText *mouseEventDescription_;

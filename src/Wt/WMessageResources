@@ -10,6 +10,9 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
+#include <Wt/WFlags>
+#include <Wt/WMessageResourceBundle>
 #include <Wt/WDllDefs.h>
 
 namespace Wt {
@@ -29,6 +32,8 @@ public:
   bool resolveKey(const std::string& key, std::string& value);
 
   void refresh();
+
+  const std::set<std::string> keys(WFlags<WMessageResourceBundle::Scope> scope) const;
 
   typedef std::map<std::string, std::string> KeyValueMap;
 

@@ -3,4 +3,5 @@ SUBDIRS(
   socketnotifier
   suggestionpopup
   widgetset
+  video
 )

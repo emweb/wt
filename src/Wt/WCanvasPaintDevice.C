@@ -108,13 +108,8 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
       "],function(images)";
   }
 
-  tmp << "{var ctx=" << canvasVar << ".getContext('2d');";
-
-  if (!(paintFlags_ & PaintUpdate))
-    tmp << "ctx.clearRect(0,0,"
-	<< width().value() << "," << height().value() << ");";
-
-  tmp << "ctx.save();ctx.save();" << js_.str() 
+  tmp << "{var ctx=" << canvasVar << ".getContext('2d');"
+      << "ctx.save();ctx.save();" << js_.str() 
       << "ctx.restore();ctx.restore();}";
 
   if (!images_.empty()) {
@@ -139,12 +134,15 @@ void WCanvasPaintDevice::init()
 
   changeFlags_ = Transform | Pen | Brush | Shadow | Font;
 
-  if (!(paintFlags_ & PaintUpdate))
+  if (!(paintFlags_ & PaintUpdate)) {
     js_.str(std::string());
+    js_ << "ctx.clearRect(0,0,"
+	<< width().value() << "," << height().value() << ");";
+  }
 }
 
 void WCanvasPaintDevice::done()
-{ 
+{
   finishPath();
 }
 

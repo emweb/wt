@@ -8,6 +8,8 @@
 #define WMESSAGE_RESOURCE_BUNDLE_
 
 #include <vector>
+#include <set>
+#include <Wt/WFlags>
 #include <Wt/WLocalizedStrings>
 
 namespace Wt {
@@ -56,6 +58,9 @@ class WMessageResources;
 class WT_API WMessageResourceBundle : public WLocalizedStrings
 {
 public:
+  /*! \brief Resource key scope */
+  enum Scope {Default=1, Local=2};
+
   /*! \brief Creates a message resource bundle.
    */
   WMessageResourceBundle();
@@ -99,6 +104,13 @@ public:
    * \sa WApplication::locale(), WString::tr(), WWidget::tr()
    */
   void use(const std::string& path, bool loadInMemory = true);
+
+  /*! \brief Returns a set of all keys connected with this WMessageResources.
+      
+    Returns a set of all keys connected with this WMessageResources, 
+    within the scope provided as parameter.
+   */
+  const std::set<std::string> keys(WFlags<Scope> scope) const;
 
   virtual void refresh();
   virtual void hibernate();

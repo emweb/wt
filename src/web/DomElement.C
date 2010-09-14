@@ -604,7 +604,11 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
     out << var_;
   }
 
-  out << ".on" << eventName << "=f" << fid << ";\n";
+  if (eventName == WInteractWidget::MOUSE_WHEEL_SIGNAL
+      && app->environment().agentIsGecko())
+    out << ".addEventListener('DOMMouseScroll', f" << fid << ", false);\n";
+  else
+    out << ".on" << eventName << "=f" << fid << ";\n";
 }
 
 void DomElement::asHTML(EscapeOStream& out,
@@ -796,9 +800,11 @@ void DomElement::asHTML(EscapeOStream& out,
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
 	 i != eventHandlers_.end(); ++i) {
       if (!i->second.jsCode.empty()) {
-	if (id_ == app->domRoot()->id()) {
+	if (id_ == app->domRoot()->id()
+	    || (i->first == WInteractWidget::MOUSE_WHEEL_SIGNAL
+		&& app->environment().agentIsGecko()))
 	  setJavaScriptEvent(javaScript, i->first, i->second, app);
-	} else {
+	else {
 	  out << " on" << i->first << "=";
 	  fastHtmlAttributeValue(out, attributeValues, i->second.jsCode);
 	}

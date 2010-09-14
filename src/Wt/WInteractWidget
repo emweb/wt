@@ -212,6 +212,20 @@ public:
    */
   EventSignal<WMouseEvent>& mouseDragged();
 
+  /*! \brief Event signal emitted when the mouse scroll wheel was used.
+   *
+   * The event details contains information such as the \link
+   * WMouseEvent::wheelDelta() wheel delta\endlink, optional \link
+   * WMouseEvent::modifiers() keyboard modifiers\endlink, and mouse
+   * coordinates relative to the \link WMouseEvent::widget()
+   * widget\endlink, the window \link WMouseEvent::window()
+   * window\endlink, or the \link WMouseEvent::document()
+   * document\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent>& mouseWheel();
+
   /*! \brief Configure dragging for drag and drop.
    *
    * Enable drag&drop for this widget. The mimeType is used to find a
@@ -259,6 +273,7 @@ private:
   static const char *MOUSE_OVER_SIGNAL;
   static const char *MOUSE_MOVE_SIGNAL;
   static const char *MOUSE_DRAG_SIGNAL;
+  static const char *MOUSE_WHEEL_SIGNAL;
 
   friend class DomElement;
   friend class WWebWidget;

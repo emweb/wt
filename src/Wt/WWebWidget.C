@@ -949,7 +949,7 @@ bool WWebWidget::isVisible() const
 
 void WWebWidget::setDisabled(bool disabled)
 {
-  if (canOptimizeUpdates() && (disabled == isDisabled()))
+  if (canOptimizeUpdates() && (disabled == flags_.test(BIT_DISABLED)))
     return;
 
   flags_.set(BIT_DISABLED, disabled);

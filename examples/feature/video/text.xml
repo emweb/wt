@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="intro">
+    <p>Wt's video support is work in progress, but there are already a few
+      ways to play video in Wt. Currently, methods based on the HTML5 Video
+      element and Flash are provided.
+    </p>
+    <p>The trailer below is <a href="http://durian.blender.org/"
+      target="_blank">Sintel</a>,
+      (c) copyright Blender Foundation | durian.blender.org
+    </p>
+  </message>
+  <message id="html5">
+    <h2>HTML5 Playback</h2>
+    <p>Below is a WHTML5Video class, with a WImage (a static JPEG image) as
+      fallback. The HTML5 video will play on browsers that support MP4 or OGV
+      video streams (firefox, chrome, safari, ...), and show the image
+      on other browsers (Internet Explorer, opera, ...).
+    </p>
+  </message>
+  <message id="flash-fallback">
+    <h2>HTML5 Playback with Flash fallback</h2>
+    <p>For browsers that support HTML5 video, the video below looks exactly like
+      the one above. On other browsers, the player below falls back to a
+      Flash player, which plays an MP4 video. If flash is not supported on
+      your system, a static image is shown.
+    </p>
+    <p>
+      The Flash-based video player can be any player. The example below uses
+      <a href="http://flv-player.net/" target="_blank">FLV Player</a> as
+      fallback for HTML5 video, but any flash player can do the job.
+    </p>
+  </message>
+</messages>

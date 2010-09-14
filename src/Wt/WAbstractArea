@@ -334,6 +334,30 @@ public:
    */
   EventSignal<WMouseEvent>& mouseMoved();
 
+  /*! \brief Event signal emitted when the mouse is dragged over this widget.
+   *
+   * The mouse event contains information on the button(s) currently
+   * pressed. If multiple buttons are currently pressed, only the
+   * button with smallest enum value is returned.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent>& mouseDragged();
+
+  /*! \brief Event signal emitted when the mouse scroll wheel was used.
+   *
+   * The event details contains information such as the \link
+   * WMouseEvent::wheelDelta() wheel delta\endlink, optional \link
+   * WMouseEvent::modifiers() keyboard modifiers\endlink, and mouse
+   * coordinates relative to the \link WMouseEvent::widget()
+   * widget\endlink, the window \link WMouseEvent::window()
+   * window\endlink, or the \link WMouseEvent::document()
+   * document\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WMouseEvent>& mouseWheel();
+
 private:
   struct AnchorImpl {
     std::string   ref_;

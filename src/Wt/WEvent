@@ -22,11 +22,12 @@ template<class E> class EventSignal;
 class WT_API JavaScriptEvent {
 public:
   // for mouse events:
-  int  clientX, clientY;
-  int  documentX, documentY;
-  int  screenX, screenY;
-  int  widgetX, widgetY;
-  int  dragDX, dragDY;
+  int clientX, clientY;
+  int documentX, documentY;
+  int screenX, screenY;
+  int widgetX, widgetY;
+  int dragDX, dragDY;
+  int wheelDelta; 
 
   // for key events or mouse event modifiers
   int button;
@@ -145,6 +146,14 @@ public:
    */
   Coordinates dragDelta() const
   { return Coordinates(jsEvent_.dragDX, jsEvent_.dragDY); }
+
+  /*! \brief Returns the scroll wheel delta.
+   *
+   * This is 1 when wheel was scrolled up or -1 when wheel was scrolled down.
+   *
+   * This is only defined for a WInteractWidget::mouseWheel() event.
+   */
+  int wheelDelta() const { return jsEvent_.wheelDelta; }
 
 #ifndef WT_DEPRECATED_3_0_0
   /*! \brief Returns whether the alt key is pressed (<b>deprecated</b>).

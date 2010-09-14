@@ -2212,7 +2212,7 @@ WWidget *WTreeView::headerWidget(int column, bool contentsOnly)
 {
   WWidget *result = 0;
 
-  if (headers_) {
+  if (headers_ && headers_->count() > 0) {
     if (column == 0)
       result = headers_->widget(headers_->count() - 1);
     else

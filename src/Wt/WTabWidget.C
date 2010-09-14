@@ -139,6 +139,7 @@ WMenuItem *WTabWidget::addTab(WWidget *child, const WString& label,
 void WTabWidget::removeTab(WWidget *child)
 {
   int tabIndex = indexOf(child);
+
   if (tabIndex != -1) {
     contentsWidgets_.erase(contentsWidgets_.begin() + tabIndex);
 

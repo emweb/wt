@@ -85,6 +85,24 @@ WMessageResources::WMessageResources(const char *data)
   readResourceStream(s, defaults_, "<internal resource bundle>");
 }
 
+const std::set<std::string> 
+WMessageResources::keys(WFlags<WMessageResourceBundle::Scope> scope) const
+{
+  std::set<std::string> keys;
+  
+  std::map<std::string, std::string>::const_iterator it;
+
+  if (scope & WMessageResourceBundle::Local)
+    for (it = local_.begin() ; it != local_.end(); it++)
+      keys.insert((*it).first);
+
+  if (scope & WMessageResourceBundle::Default)
+    for (it = defaults_.begin() ; it != defaults_.end(); it++)
+      keys.insert((*it).first);
+
+  return keys;
+}
+
 void WMessageResources::refresh()
 {
   if (!path_.empty()) {

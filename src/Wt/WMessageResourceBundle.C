@@ -66,4 +66,17 @@ void WMessageResourceBundle::hibernate()
     messageResources_[i]->hibernate();
 }
 
+const std::set<std::string> 
+WMessageResourceBundle::keys(WFlags<Scope> scope) const
+{
+  std::set<std::string> keys;
+
+  for (unsigned i = 0; i < messageResources_.size(); ++i) {
+    const std::set<std::string>& resources = messageResources_[i]->keys(scope);
+    keys.insert(resources.begin(), resources.end());
+  }
+
+  return keys;
+}
+
 }

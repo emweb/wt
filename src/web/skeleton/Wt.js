@@ -442,8 +442,30 @@ this.show = function(o) { WT.getElement(o).style.display = ''; };
 
 var captureElement = null;
 
+function delegateCapture(e) {
+  if (captureElement == null)
+    return false;
+
+  if (!e) e = window.event;
+
+  if (e) {
+    /*
+     * We don't need to capture	the event when the event falls inside the
+     * capture element. In this way, more specific widgets inside may still
+     * handle (and cancel) the event if they want.
+     */
+    var t = e.target || e.srcElement;
+
+    while (t && t != captureElement)
+      t = t.parentNode;
+
+    return t != captureElement;
+  } else
+    return true;
+}
+
 function mouseMove(e) {
-  if (captureElement != null) {
+  if (delegateCapture(e)) {
     if (!e) e = window.event;
     WT.condCall(captureElement, 'onmousemove', e);
     return false;
@@ -452,7 +474,7 @@ function mouseMove(e) {
 }
 
 function mouseUp(e) {
-  if (captureElement != null) {
+  if (delegateCapture(e)) {
     var el = captureElement;
     WT.capture(null);
     if (!e) e = window.event;
@@ -460,8 +482,10 @@ function mouseUp(e) {
     WT.cancelEvent(e, WT.CancelPropagate);
 
     return false;
-  } else
+  } else {
+    WT.capture(null);
     return true;
+  }
 }
 
 var captureInitialized = false;
@@ -1219,6 +1243,16 @@ function encodeEvent(event, i) {
   if (posX || posY) {
     result += se + 'documentX=' + posX + se + 'documentY=' + posY;
     result += se + 'dragdX=' + (posX - downX) + se + 'dragdY=' + (posY - downY);
+
+    var delta = 0;
+    if (e.wheelDelta) { /* IE/Opera. */
+      delta = e.wheelDelta > 0 ? 1 : -1;
+      /* if (window.opera)
+	delta = -delta; */
+    } else if (e.detail) {
+      delta = e.detail < 0 ? 1 : -1;
+    }
+    result += se + 'wheel=' + delta;
   }
 
   if (e.screenX || e.screenY)

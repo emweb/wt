@@ -41,10 +41,6 @@ public:
 
   virtual void addWidget(WWidget *widget);
 
-  /*! \brief Returns the number of widgets in the stack.
-   */
-  int count() const;
-
   /*! \brief Returns the index of the widget that is currently shown.
    *
    * \sa setCurrentIndex(), currentWidget()
@@ -57,25 +53,9 @@ public:
    */
   WWidget *currentWidget() const;
 
-  /*! \brief Returns the index of the given widget.
-   *
-   * Returns -1 if the \p widget was not added.
-   *
-   * \sa widget()
-   */
-  int indexOf(WWidget *widget) const;
-
   /*! \brief Insert a widget at a given index
    */
   void insertWidget(int index, WWidget *widget);
-
-  virtual void removeWidget(WWidget *widget);
-
-  /*! \brief Returns the widget at the specified index
-   *
-   * \sa indexOf()
-   */
-  WWidget *widget(int index) const;
 
   /*! \brief Shows a particular widget.
    *
@@ -102,7 +82,6 @@ protected:
 				    WApplication *app);
 
 private:
-  std::vector<WWidget *> widgets_;
   int currentIndex_;
 };
 

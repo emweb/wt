@@ -1,9 +1,11 @@
 14-09-2010:
-	* Wt.js: fix JavaScript memory leak after learning about the weird
-	JavaScript scoping rules
+	* Wt.js: fix JavaScript memory leak after learning about the
+	surprising JavaScript scoping rules
 
 	* WApplication: add unload() and setConfirmCloseMessage() to handle the
 	event of the user closing the window respectively have a confirmation
+
+	* WInteractWidget, WMouseEvent: add mouseWheel() event
 
 08-09-2010:
 	* WCheckBox: better tri-state support, using opacity: 0.5 as
