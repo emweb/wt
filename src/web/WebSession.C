@@ -1385,6 +1385,25 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
   renderer_.updateFormObjectsList(app_);
   WebRenderer::FormObjectsMap formObjects = renderer_.formObjects();
 
+  const std::string *focus = request.getParameter(se + "focus");
+  if (focus) {
+    int selectionStart = -1, selectionEnd = -1;
+    try {
+      const std::string *selStart = request.getParameter(se + "selstart");
+      if (selStart)
+	selectionStart = boost::lexical_cast<int>(*selStart);
+
+      const std::string *selEnd = request.getParameter(se + "selend");
+      if (selEnd)
+	selectionEnd = boost::lexical_cast<int>(*selEnd);
+    } catch (boost::bad_lexical_cast& ee) {
+      log("error") << "Could not lexical cast selection range";
+    }
+
+    app_->setFocus(*focus, selectionStart, selectionEnd);
+  } else
+    app_->setFocus(std::string(), -1, -1);
+
   for (WebRenderer::FormObjectsMap::const_iterator i = formObjects.begin();
        i != formObjects.end(); ++i) {
     std::string formName = i->first;
@@ -1403,9 +1422,9 @@ WObject::FormData WebSession::getFormData(const WebRequest& request,
   Http::UploadedFileMap::const_iterator file
     = request.uploadedFiles().find(name);
 
-  return WObject::FormData(request.getParameterValues(name),
-			   file != request.uploadedFiles().end()
-			   ? &file->second : 0);
+  return WObject::FormData
+    (request.getParameterValues(name),
+     file != request.uploadedFiles().end() ? &file->second : 0);
 }
 
 std::vector<unsigned int> WebSession::getSignalProcessingOrder(const WEvent& e)

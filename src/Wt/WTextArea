@@ -88,6 +88,34 @@ public:
    */
   virtual void setText(const WT_USTRING& text);
 
+  /*! \brief Returns the current selection start.
+   *
+   * Returns -1 if there is no selected text.
+   *
+   * \sa hasSelectedText(), selectedText()
+   */
+  int selectionStart() const;
+
+  /*! \brief Returns the currently selected text.
+   *
+   * Returns an empty string if there is currently no selected text.
+   *
+   * \sa hasSelectedText()
+   */
+  WString selectedText() const;
+
+  /*! \brief Returns whether there is selected text.
+   *
+   * \sa selectedtext()
+   */
+  bool hasSelectedText() const;
+
+  /*! \brief Returns the current cursor position.
+   *
+   * Returns -1 if the widget does not have the focus.
+   */
+  int cursorPosition() const;
+
   WValidator::State validate();
 
 private:

@@ -87,6 +87,12 @@ void WFormWidget::setFocus(bool focus)
 {
   flags_.set(BIT_GOT_FOCUS, focus);
   repaint(RepaintPropertyIEMobile);
+
+  WApplication *app = WApplication::instance();
+  if (focus)
+    app->setFocus(id(), -1, -1);
+  else if (app->focus() == id())
+    app->setFocus(std::string(), -1, -1);
 }
 
 void WFormWidget::setFocus()
@@ -96,6 +102,11 @@ void WFormWidget::setFocus()
 
 void WFormWidget::undoSetFocus()
 {
+}
+
+bool WFormWidget::hasFocus() const
+{
+  return WApplication::instance()->focus() == id();
 }
 
 void WFormWidget::setEnabled(bool enabled)

@@ -192,7 +192,11 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     else
       agent_ = Chrome5;
   } else if (userAgent_.find("Safari") != std::string::npos) {
-    if (userAgent_.find("Version") == std::string::npos) {
+    if (userAgent_.find("iPhone") != std::string::npos) {
+      agent_ = MobileWebKitiPhone;
+    } else if (userAgent_.find("Android") != std::string::npos) {
+      agent_ = MobileWebKitAndroid;
+    } else if (userAgent_.find("Version") == std::string::npos) {
       if (userAgent_.find("Arora") != std::string::npos)
 	agent_ = Arora;
       else
@@ -201,9 +205,12 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
       agent_ = Safari3;
     else
       agent_ = Safari4;
-  } else if (userAgent_.find("WebKit") != std::string::npos)
-    agent_ = WebKit;
-  else if (userAgent_.find("Konqueror") != std::string::npos)
+  } else if (userAgent_.find("WebKit") != std::string::npos) {
+    if (userAgent_.find("iPhone") != std::string::npos)
+      agent_ = MobileWebKitiPhone;
+    else
+      agent_ = WebKit;
+  } else if (userAgent_.find("Konqueror") != std::string::npos)
     agent_ = Konqueror;
   else if (userAgent_.find("Gecko") != std::string::npos)
     agent_ = Gecko;

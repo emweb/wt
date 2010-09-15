@@ -278,29 +278,48 @@ this.scrollIntoView = function(id) {
 };
 
 this.getSelectionRange = function(elem) {
-/*
- * jQuery Caret Range plugin
- * Copyright (c) 2009 Matt Zabriskie
- * Released under the MIT and GPL licenses.
- */
-  var start, end;
+  if (document.selection) { // IE
+    if (WT.hasTag(elem, 'TEXTAREA')) {
+      var sel = document.selection.createRange();
+      var sel2 = sel.duplicate();
+      sel2.moveToElementText(elem);
 
-  if (elem.selectionStart != undefined) {
-    start = elem.selectionStart;
-    end = elem.selectionEnd;
-  }
-  else if (document.selection) {
-    var val = $(elem).val();
-    var range = document.selection.createRange().duplicate();
-    range.moveEnd("character", val.length);
-    start = (range.text == "" ? val.length : val.lastIndexOf(range.text));
+      var pos = 0;
+      if(sel.text.length > 1) {
+	pos = pos - sel.text.length;
+	if(pos < 0) {
+	  pos = 0;
+	}
+      }
 
-    range = document.selection.createRange().duplicate();
-    range.moveStart("character", -val.length);
-    end = range.text.length;
-  }
+      var caretPos = -1 + pos;
+      sel2.moveStart('character', pos);
 
-  return {start:start, end:end};
+      while (sel2.inRange(sel)) {
+	sel2.moveStart('character');
+	caretPos++;
+      }
+
+      var selStr = sel.text.replace(/\r/g, "");
+
+      return {start: caretPos, end: selStr.length + caretPos};
+    } else {
+      var start, end;
+      var val = $(elem).val();
+      var range = document.selection.createRange().duplicate();
+      range.moveEnd("character", val.length);
+      start = (range.text == "" ? val.length : val.lastIndexOf(range.text));
+
+      range = document.selection.createRange().duplicate();
+      range.moveStart("character", -val.length);
+      end = range.text.length;
+
+      return {start: start, end: end};
+    }
+  } else if (elem.selectionStart || elem.selectionStart == 0) {
+    return {start: elem.selectionStart, end: elem.selectionEnd};
+  } else
+    return {start: -1, end: -1};
 };
 
 this.setSelectionRange = function(elem, start, end) {
@@ -1208,11 +1227,21 @@ function encodeEvent(event, i) {
 	v = '';
       else
 	v = '' + el.value;
+
+      if (WT.hasFocus(el)) {
+	var range = WT.getSelectionRange(el);
+	result += se + "selstart=" + range.start
+	  + se + "selend=" + range.end;
+      }
     }
 
     if (v != null)
       result += se + formObjects[x] + '=' + encodeURIComponent(v);
   }
+
+
+  if (document.activeElement)
+    result += se + "focus=" + document.activeElement.id;
 
   if (currentHash != null)
     result += se + '_=' + encodeURIComponent(unescape(currentHash));

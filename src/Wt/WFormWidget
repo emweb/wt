@@ -101,6 +101,10 @@ public:
    */
   void setFocus(bool focus);
 
+  /*! \brief Returns whether this widget has focus.
+   */
+  bool hasFocus() const;
+
   virtual void setTabIndex(int index);
   virtual int tabIndex() const;
 

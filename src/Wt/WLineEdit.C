@@ -187,5 +187,45 @@ int WLineEdit::boxBorder(Orientation orientation) const
     return 2;
 }
 
+int WLineEdit::selectionStart() const
+{
+  WApplication *app = WApplication::instance();
+
+  if (app->focus() == id()) {
+    if (app->selectionStart() != -1
+	&& app->selectionEnd() != app->selectionStart()) {
+      return app->selectionStart();
+    } else
+      return -1;
+  } else
+    return -1;
+}
+
+WString WLineEdit::selectedText() const
+{
+  if (selectionStart() != -1) {
+    WApplication *app = WApplication::instance();
+
+    std::wstring v = text();
+    return v.substr(app->selectionStart(),
+		    app->selectionEnd() - app->selectionStart());
+  } else
+    return WString::Empty;
+}
+
+bool WLineEdit::hasSelectedText() const
+{
+  return selectionStart() != -1;
+}
+
+int WLineEdit::cursorPosition() const
+{
+  WApplication *app = WApplication::instance();
+
+  if (app->focus() == id())
+    return app->selectionEnd();
+  else
+    return -1;
+}
 
 }

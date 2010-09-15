@@ -108,9 +108,9 @@ void WHTML5Media::updateMediaDom(DomElement& element, bool all)
       if (i + 1 >= sources_.size() && alternative_) {
         // Last element -> add error handler for unsupported content
         src->setAttribute("onerror",
-          """media = parentNode;"
+          """var media = this.parentNode;"
           """if(media){"
-          ""  "while (media && media.hasChildNodes())"
+          ""  "while (media && media.children.length)"
           ""    "if (" WT_CLASS ".hasTag(media.firstChild,'SOURCE')){"
           ""      "media.removeChild(media.firstChild);"
           ""    "}else{"
@@ -142,7 +142,8 @@ DomElement *WHTML5Media::createDomElement(WApplication *app)
     setJavaScriptMember(WT_RESIZE_JS, "function() {}");
   }
 
-  if (app->environment().agentIsIE()) {
+  if (app->environment().agentIsIE() ||
+      app->environment().agent() == WEnvironment::MobileWebKitAndroid) {
     // Shortcut: IE misbehaves when it encounters a media element
     result = DomElement::createNew(DomElement_DIV);
     if (alternative_)

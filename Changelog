@@ -7,6 +7,14 @@
 
 	* WInteractWidget, WMouseEvent: add mouseWheel() event
 
+	* WTabWidget: fixed polished style close icon, and wrapping to next line
+	if having many tabs
+
+	* WFormWidget: implement hasFocus()
+
+	* WLineEdit, WTextArea: implements methods for retrieving cursor position and
+	current selection 
+
 08-09-2010:
 	* WCheckBox: better tri-state support, using opacity: 0.5 as
 	workaround instead of an image

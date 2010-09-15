@@ -31,6 +31,27 @@
     white-space: nowrap
 }
 
+.Wt-tabs {
+    padding-bottom: 2px; /* should be 1px when we have close icons ... */
+}
+
+.Wt-tabs li a, .Wt-tabs li button {
+    color: white;
+}
+
+.Wt-tabs li .citemselected a {
+    color: black;
+}
+
+.Wt-tabs .Wt-closeicon, .Wt-tabs span.citemselected .Wt-closeicon {
+    background-position: right 1px;
+    zoom: 1;
+}
+
+.Wt-tabs .Wt-closeicon:hover, .Wt-tabs span.citemselected .Wt-closeicon:hover {
+    background-position: right -12px;
+}
+
 /*
  * WTree
  */

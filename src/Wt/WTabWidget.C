@@ -6,6 +6,7 @@
  */
 
 #include "Wt/WAnchor"
+#include "Wt/WBreak"
 #include "Wt/WText"
 #include "Wt/WApplication"
 #include "Wt/WTabWidget"
@@ -97,9 +98,13 @@ void WTabWidget::create(WFlags<AlignmentFlag> layoutAlignment)
   menu_ = new WMenu(new WStackedWidget(), Horizontal);
   menu_->setRenderAsList(true);
 
+  WBreak *clear = new WBreak();
+  clear->setStyleClass("Wt-tabs-clear");
+
   WContainerWidget *menuDiv = new WContainerWidget();
   menuDiv->setStyleClass("Wt-tabs");
   menuDiv->addWidget(menu_);
+  menuDiv->addWidget(clear);
 
   layout_->addWidget(menuDiv);
   layout_->addWidget(menu_->contentsStack());

@@ -368,26 +368,42 @@
 /*
  * WTabWidget
  */
-.Wt-tabs ul {
-    padding: 3px 3px; /* 0px; */
-    font: bold 12px Verdana;
+.Wt-tabs-clear {
+    clear: both;
+}
+
+.Wt-tabs {
     border-bottom: 1px solid gray;
+}
+
+.Wt-tabs ul {
+    padding: 3px 3px 0px;
+    font: bold 12px Verdana;
     list-style-type: none;
+    margin: 0px;
 }
 
 .Wt-tabs li {
     display: inline;
+    white-space: nowrap;
     margin: 0;
 }
 
-.Wt-tabs li a, .Wt-tabs li button {
-    text-decoration: none;
-    padding: 2px 7px 3px;
+.Wt-tabs .item, .Wt-tabs .itemselected,
+.Wt-tabs .citem, .Wt-tabs .citemselected {
+    display: block;
+    float: left;
+    padding: 2px 6px 3px;
     margin-right: 3px;
     border: 1px solid gray;
     border-bottom: none;
-    color: #FFFFFF;
     background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
+    color: #FFFFFF;
+}
+
+.Wt-tabs li a, .Wt-tabs li button {
+   text-decoration: none;
+   color: inherit;
 }
 
 .Wt-tabs li button a {
@@ -398,17 +414,32 @@
     background: transparent;
 }
 
-.Wt-tabs li a:hover{
-    background: white; /* #DBFF6C; */
+.Wt-tabs li:hover .item, .Wt-tabs .itemselected,
+.Wt-tabs li:hover .citem, .Wt-tabs .citemselected,
+.Wt-tabs li:hover a {
+    background: white;
     color: black;
+    border-bottom: 1px solid white;
+    margin-bottom: -1px;
 }
 
 .Wt-tabs li .itemselected a, .Wt-tabs li .itemselected button {
-    position: relative;
-    top: 1px;
-    padding-top: 3px;
     background: white;
     color: black;
+}
+
+.Wt-tabs .Wt-closeicon, .Wt-tabs span.citemselected .Wt-closeicon {
+    background: transparent url(../../closeicons-tab.png) no-repeat scroll right top;
+    background-position: right 3px;
+    border-width: 3px 0px 0px 0px;
+    padding: 0px 6px 0px 7px;
+    cursor: default;
+    margin-left: 3px;
+    vertical-align: top;
+}
+
+.Wt-tabs .Wt-closeicon:hover, .Wt-tabs span.citemselected .Wt-closeicon:hover {
+    background-position: right -10px;
 }
 
 /*
@@ -419,7 +450,7 @@
     font-family: verdana,helvetica,tahoma,sans-serif;
     font-size: 9pt;
     cursor: default;
-    white-space: nowrap;   
+    white-space: nowrap;
 }
 
 /* nodes */

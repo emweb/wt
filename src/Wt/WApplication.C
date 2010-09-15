@@ -88,6 +88,8 @@ WApplication::WApplication(const WEnvironment& env)
     connected_(true),
     bodyHtmlClassChanged_(false),
     enableAjax_(false),
+    selectionStart_(-1),
+    selectionEnd_(-1),
     scriptLibrariesAdded_(0),
     theme_("default"),
     styleSheetsAdded_(0),
@@ -1268,6 +1270,14 @@ bool WApplication::javaScriptLoaded(const char *jsFile)
 void WApplication::setJavaScriptLoaded(const char *jsFile)
 {
   javaScriptLoaded_.insert(jsFile);
+}
+
+void WApplication::setFocus(const std::string& id,
+			    int selectionStart, int selectionEnd)
+{
+  focusId_ = id;
+  selectionStart_ = selectionStart;
+  selectionEnd_ = selectionEnd;
 }
 
 #ifndef WT_TARGET_JAVA

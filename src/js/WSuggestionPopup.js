@@ -49,15 +49,16 @@ WT_DECLARE_WT_MEMBER
    }
 
    function contentClicked(event) {
-     var e = event||window.event;
+     var e = event || window.event;
      var line = e.target || e.srcElement;
      if (line.className == "content")
        return;
 
-     if (!WT.hasTag(line, "DIV"))
+     while (line && !WT.hasTag(line, "DIV"))
        line = line.parentNode;
 
-     suggestionClicked(line);
+     if (line)
+       suggestionClicked(line);
    }
 
    function suggestionClicked(line) {

@@ -76,11 +76,11 @@ if (window.opera)
 var ajax = (window.XMLHttpRequest || window.ActiveXObject);
 
 // cookie support
-var testcookie='jscookietest=valid';
-document.cookie=testcookie;
+var inOneSecond = new Date();
+inOneSecond.setTime(inOneSecond.getTime() + 1000);
+var testcookie='WtTestCookie=ok;path=/;expires=' + inOneSecond.toGMTString();
 var no_replace = _$_RELOAD_IS_NEWSESSION_$_
   || (_$_USE_COOKIES_$_ && document.cookie.indexOf(testcookie) != -1);
-document.cookie=testcookie+';expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
 // hash to query
 var hash = window.location.hash;

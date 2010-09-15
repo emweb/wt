@@ -1364,6 +1364,14 @@ public:
    */
   bool debug() const;
 
+  /*
+   * Methods for client-side focus
+   */
+  void setFocus(const std::string& id, int selectionStart, int selectionEnd);
+  std::string focus() const { return focusId_; }
+  int selectionStart() const { return selectionStart_; }
+  int selectionEnd() const { return selectionEnd_; }
+
 #ifdef WT_DEBUG_JS
   void loadJavaScript(const char *jsFile);
 #endif
@@ -1546,6 +1554,8 @@ private:
   std::string            htmlClass_, bodyClass_;
   bool                   bodyHtmlClassChanged_;
   bool                   enableAjax_;
+  std::string            focusId_;
+  int                    selectionStart_, selectionEnd_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;

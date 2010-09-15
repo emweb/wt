@@ -7,6 +7,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WApplication"
+#include "Wt/WBreak"
 #include "Wt/WLogger"
 #include "Wt/WMenu"
 #include "Wt/WMenuItem"
@@ -53,6 +54,8 @@ void WMenu::setRenderAsList(bool enable)
 {
   if (enable) {
     WContainerWidget *c = new WContainerWidget();
+    //WBreak *w = new WBreak(c);
+    //w->setAttributeValue("style","clear:both;");
     c->setList(true);
 
     setImplementation(impl_ = c);
@@ -150,7 +153,8 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
 
   if (renderAsList_) {
     WContainerWidget *p = dynamic_cast<WContainerWidget *>(impl_);
-    WContainerWidget *li = new WContainerWidget(p);
+    WContainerWidget *li = new WContainerWidget();
+    p->insertWidget(p->count()/* - 1 */, li);
     li->addWidget(item->itemWidget());
   } else {
     WTable *layout = dynamic_cast<WTable *>(impl_);
