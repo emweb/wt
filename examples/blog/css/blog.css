@@ -5,13 +5,13 @@
 
 .user-menu {
     float: left;
-    width: 49%;
+    width: 40%;
 }
 
 .login-menu {
     text-align: right;
     float: right;
-    width: 49%;
+    width: 60%;
 }
 
 .link {

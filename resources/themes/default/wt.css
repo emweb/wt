@@ -310,7 +310,6 @@
  * WTabWidget
  */
 .Wt-tabs {
-    background: transparent url(../../tab_b.gif) repeat-x scroll center bottom;
     margin-bottom: 4px;
     zoom: 1;
     width: 100%;
@@ -325,6 +324,7 @@
     padding-left: 10px;
     list-style-type: none;
     list-style-position: outside;
+    background: transparent url(../../tab_b.gif) repeat-x scroll center bottom;
     overflow: auto;
 }
 

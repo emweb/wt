@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication"
+#include "Wt/WLogger"
 #include "Wt/WStringUtil"
 #include "rapidxml/rapidxml.hpp"
 
@@ -39,9 +41,16 @@ std::string toUTF8(const std::wstring& s)
   char buf[4];
   for (std::wstring::const_iterator i = s.begin(); i != s.end(); ++i) {
     char *end = buf;
-    rapidxml::xml_document<>::insert_coded_character<0>(end, *i);
-    for (char *b = buf; b != end; ++b)
-      result += *b;
+    try {
+      rapidxml::xml_document<>::insert_coded_character<0>(end, *i);
+      for (char *b = buf; b != end; ++b)
+	result += *b;
+    } catch (rapidxml::parse_error& e) {
+      if (WApplication::instance())
+	WApplication::instance()->log("error") << e.what();
+      else
+	std::cerr << "WString::toUTF8(): " << e.what() << std::endl;
+    }
   }
 
   return result;

@@ -540,9 +540,9 @@ private:
   void newPost() {
     dbo::Transaction t(session_);
 
-    WTemplate *panel = dynamic_cast<WTemplate *>(items_->widget(0));
-    WContainerWidget *unpublishedPosts
-      = panel->resolve<WContainerWidget *>("unpublished-posts");
+	authorPanel();
+	WContainerWidget *unpublishedPosts
+      = authorPanel_->resolve<WContainerWidget *>("unpublished-posts");
 
     dbo::ptr<Post> post(new Post);
 

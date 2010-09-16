@@ -161,11 +161,20 @@ private:
 
 #ifndef WT_TARGET_JAVA
 
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4355 )
+#endif // _MSC_VER
+
 template <typename T, typename A1>
 WSignalMapper<T, A1>::WSignalMapper(WObject *parent)
   : WObject(parent),
     mapped_(this)
 { }
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif // _MSC_VER
 
 template <typename T, typename A1>
 void WSignalMapper<T, A1>::setMapping(WObject *sender, const T& data)

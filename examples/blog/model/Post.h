@@ -13,8 +13,9 @@
 #include <Wt/Dbo/Types>
 #include <Wt/Dbo/WtSqlTraits>
 
-class Comment;
-class Tag;
+#include "Comment.h"
+#include "Tag.h"
+
 class User;
 
 namespace dbo = Wt::Dbo;
