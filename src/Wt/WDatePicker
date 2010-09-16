@@ -179,6 +179,13 @@ public:
    */
   WDate top() const;
 
+  /*! \brief %Signal emitted when the value has changed.
+   *
+   * This signal is emitted when a new date has been entered (either through
+   * the line edit, or through the calendar popup).
+   */
+  Signal<>& changed();
+
 private:
   WT_USTRING        format_;
   WInteractWidget  *displayWidget_;

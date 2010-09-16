@@ -381,6 +381,10 @@ public:
    */
   const WString& title() const { return title_; }
 
+  /*! \brief Returns the close message.
+   */
+  const WString& closeMessage() const { return closeMessage_; }
+
   /*! \brief Returns the resource object that provides localized strings.
    *
    * \if cpp

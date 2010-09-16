@@ -50,11 +50,13 @@
 #define WT_ARRAY
 #define W_JAVA_COMPARATOR(type)
 #define WT_USTRING WString
+#define WT_WSTRING std::wstring 
 #define WT_LOCALE std::string 
 #define WT_BOSTREAM std::ostream
 #else
 #define WT_ARRAY volatile
 #define W_JAVA_COMPARATOR(type) : public Comparator<type>
+#define WT_WSTRING std::string 
 #define WT_USTRING std::string
 #define WT_LOCALE Locale 
 #define WT_BOSTREAM std::bostream

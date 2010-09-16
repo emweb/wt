@@ -196,7 +196,7 @@ public:
 
   /*! \brief Sets the horizontal header format.
    *
-   * The default horizontal header format is ShortDayNames.
+   * The default horizontal header format is WCalendar::ShortDayNames.
    */
   void setHorizontalHeaderFormat(HorizontalHeaderFormat format);
 
@@ -278,7 +278,7 @@ public:
    *
    * \deprecated listen to the clicked() signal if you want to react
    * to a single click, or activated() signal if you want to react to
-   * a doulbe click.
+   * a double click.
    *
    * \sa setMultipleSelection()
    */

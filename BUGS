@@ -1,4 +1,0 @@
-Minor:
-- key handling in SuggestionPopup.C behaves differently in different browsers
-- getAttribute() in SuggestionPopup.C gets literal character entitites in Opera
-

@@ -180,12 +180,12 @@ int WTextArea::selectionStart() const
     return -1;
 }
 
-WString WTextArea::selectedText() const
+WT_USTRING WTextArea::selectedText() const
 {
   if (selectionStart() != -1) {
     WApplication *app = WApplication::instance();
 
-    std::wstring v = text();
+    WT_WSTRING v = text();
     return v.substr(app->selectionStart(),
 		    app->selectionEnd() - app->selectionStart());
   } else

@@ -1115,12 +1115,12 @@ void WebRenderer::collectJS(std::ostream* js)
   if (js) { 
     if (app->titleChanged_) {
       *js << app->javaScriptClass()
-	  << "._p_.setTitle(" << app->title_.jsStringLiteral() << ");\n";
+	  << "._p_.setTitle(" << app->title().jsStringLiteral() << ");\n";
     }
 
     if (app->closeMessageChanged_) {
       *js << app->javaScriptClass()
-	  << "._p_.setCloseMessage(" << app->closeMessage_.jsStringLiteral()
+	  << "._p_.setCloseMessage(" << app->closeMessage().jsStringLiteral()
 	  << ");\n";
     }
   }

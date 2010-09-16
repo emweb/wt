@@ -54,6 +54,7 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   displayWidget_ = displayWidget;
   forEdit_ = forEdit;
   forEdit_->setVerticalAlignment(AlignMiddle);
+  forEdit_->changed().connect(this, &WDatePicker::setFromLineEdit);
   format_ = "dd/MM/yyyy";
 
   layout_->setInline(true);
@@ -130,9 +131,19 @@ void WDatePicker::setFromLineEdit()
   WDate d = WDate::fromString(forEdit_->text(), format_);
 
   if (d.isValid()) {
-    calendar_->select(d);
+    if (calendar_->selection().empty()
+	|| *calendar_->selection().begin() != d) {
+      calendar_->select(d);
+      calendar_->selectionChanged().emit();
+    }
+
     calendar_->browseTo(d);
   }
+}
+
+Signal<>& WDatePicker::changed()
+{
+  return calendar_->selectionChanged();
 }
 
 void WDatePicker::setEnabled(bool enabled)
