@@ -101,7 +101,8 @@ public:
 
   /*! \brief Returns whether the path is empty.
    *
-   * Returns \c true if the path contains no drawing operations.
+   * Returns \c true if the path contains no drawing operations. Note that
+   * move operations are not considered drawing operations.
    */
   bool isEmpty() const;
 

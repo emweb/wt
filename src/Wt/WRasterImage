@@ -100,8 +100,6 @@ public:
   virtual WLength width() const { return width_; }
   virtual WLength height() const { return height_; }
 
-  virtual WFlags<PaintFlag> paintFlags() const { return paintFlags_; }
-
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response);
 
@@ -115,14 +113,13 @@ public:
 protected:
   virtual WPainter *painter() const { return painter_; }
   virtual void setPainter(WPainter *painter) { painter_ = painter; }
-  virtual void setPaintFlags(WFlags<PaintFlag> paintFlags);
+  virtual void clear();
 
 private:
   WLength width_, height_;
   std::string type_;
 
   WPainter *painter_;
-  WFlags<PaintFlag> paintFlags_;
 
   unsigned long w_, h_;
   char *pixels_;

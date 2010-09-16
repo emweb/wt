@@ -1,3 +1,9 @@
+16-09-2010:
+	* WPaintDevice: remove paintFlags() method; PaintUpdate is a property of the
+	painted widget, and no longer something which has to do with WPainter. In this
+	we revert to the old behaviour of using multiple WPainters on a single paint
+	device in turn.
+
 14-09-2010:
 	* Wt.js: fix JavaScript memory leak after learning about the
 	surprising JavaScript scoping rules

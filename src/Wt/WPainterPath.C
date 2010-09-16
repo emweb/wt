@@ -143,7 +143,11 @@ void WPainterPath::closeSubPath()
 
 bool WPainterPath::isEmpty() const
 {
-  return segments_.empty();
+  for (unsigned i = 0; i < segments_.size(); ++i)
+    if (segments_[i].type() != Segment::MoveTo)
+      return false;
+
+  return true;
 }
 
 bool WPainterPath::operator==(const WPainterPath& path) const

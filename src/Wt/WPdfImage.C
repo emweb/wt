@@ -80,14 +80,19 @@ WPdfImage::WPdfImage(HPDF_Doc pdf, HPDF_Page page, HPDF_REAL x, HPDF_REAL y,
 
 WPdfImage::~WPdfImage()
 {
+  beingDeleted();
+
   if (myPdf_)
     HPDF_Free(pdf_);
 }
 
+void WPdfImage::clear()
+{
+  // FIXME
+}
+
 void WPdfImage::init()
 {
-  // FIXME if (!(paintFlags_ & PaintUpdate)), then clear the image.
-
   HPDF_Page_GSave(page_); // for Wt -> HPDF
 
   HPDF_Page_Concat(page_, 1, 0, 0, -1, 0, height_.toPixels());
@@ -524,11 +529,6 @@ void WPdfImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   HPDF_Page_EndText(page_);
 
   HPDF_Page_GRestore(page_);
-}
-
-void WPdfImage::setPaintFlags(WFlags<PaintFlag> paintFlags)
-{
-  paintFlags_ = paintFlags;
 }
 
 void WPdfImage::handleRequest(const Http::Request& request,

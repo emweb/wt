@@ -152,14 +152,6 @@ public:
    */
   virtual bool paintActive() const = 0;
 
-  /*! \brief Returns the paint flags.
-   */
-  virtual WFlags<PaintFlag> paintFlags() const = 0;
-
-  /*! \brief Sets paint flags.
-   */
-  virtual void setPaintFlags(WFlags<PaintFlag> paintFlags) = 0;
-
 protected:
   /*! \brief Returns the painter that is currently painting on the device.
    *
@@ -170,6 +162,10 @@ protected:
   /*! \brief Sets the painter.
    */
   virtual void setPainter(WPainter *painter) = 0;
+
+  /*! \brief Clears the paint device.
+   */
+  virtual void clear() = 0;
 
   friend class WPainter;
   friend class WPaintedWidget;

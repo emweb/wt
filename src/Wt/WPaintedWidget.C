@@ -271,6 +271,7 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
     canvas->setId('p' + id());
 
   WPaintDevice *device = painter_->getPaintDevice();
+  device->clear();
 
   //handle the widget correctly when inline and using VML 
   if (painter_->renderType() == WWidgetPainter::InlineVml && isInline()) {
@@ -325,13 +326,13 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
   updateDom(*e, false);
   result.push_back(e);
 
-  bool createNew = createPainter();
+  bool createdNew = createPainter();
 
   if (needRepaint_) {
     WPaintDevice *device = painter_->getPaintDevice();
 
-    if (!createNew)
-      device->setPaintFlags(repaintFlags_ & PaintUpdate);
+    if (createdNew || !(repaintFlags_ & PaintUpdate))
+      device->clear();
 
     if (renderWidth_ != 0 && renderHeight_ != 0)
       paintEvent(device);
@@ -341,7 +342,7 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
     device->painter()->end();
 #endif // WT_TARGET_JAVA
 
-    if (createNew) {
+    if (createdNew) {
       DomElement *canvas = DomElement::getForUpdate('p' + id(), DomElement_DIV);
       canvas->removeAllChildren();
       painter_->createContents(canvas, device);
@@ -442,7 +443,7 @@ void WWidgetVectorPainter::updateContents(std::vector<DomElement *>& result,
 {
   WVectorImage *vectorDevice = dynamic_cast<WVectorImage *>(device);
 
-  if (device->paintFlags() & PaintUpdate) {
+  if (widget_->repaintFlags_ & PaintUpdate) {
     DomElement *painter = DomElement::updateGiven
       (WT_CLASS ".getElement('p" + widget_->id()+ "').firstChild",
        DomElement_DIV);
@@ -568,14 +569,7 @@ WWidgetRasterPainter::~WWidgetRasterPainter()
 
 WPaintDevice *WWidgetRasterPainter::getPaintDevice()
 {
-  if (device_) {
-    if (!(device_->paintFlags() & PaintUpdate)) {
-      WPainter painter(device_);
-      painter.setBrush(WBrush(white));
-      painter.setPen(NoPen);
-      painter.drawRect(0, 0, widget_->renderWidth_, widget_->renderHeight_);
-    }
-  } else {
+  if (!device_) {
 #ifdef HAVE_RASTER_IMAGE
     device_ = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
 #else

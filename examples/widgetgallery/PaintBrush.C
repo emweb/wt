@@ -22,6 +22,8 @@ PaintBrush::PaintBrush(int width, int height, WContainerWidget *parent)
   mouseWentDown().connect(this, &PaintBrush::mouseDown);
   
   color_ = WColor(black);
+
+  // setPreferredMethod(PngImage);
 }
 
 void PaintBrush::paintEvent(WPaintDevice *paintDevice)

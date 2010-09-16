@@ -58,17 +58,15 @@ public:
   virtual WLength width() const { return width_; }
   virtual WLength height() const { return height_; }
 
-  virtual WFlags<PaintFlag> paintFlags() const { return paintFlags_; }
-
 protected:
   virtual WPainter *painter() const { return painter_; }
   virtual void setPainter(WPainter *painter) { painter_ = painter; }
-  virtual void setPaintFlags(WFlags<PaintFlag> paintFlags);
+  virtual void clear();
 
 private:
   WLength    width_, height_;
   WPainter  *painter_;
-  WFlags<PaintFlag> paintFlags_;
+  bool       paintUpdate_;
 
   bool       penBrushShadowChanged_;
   bool       clippingChanged_;

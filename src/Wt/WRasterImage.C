@@ -73,15 +73,24 @@ WRasterImage::WRasterImage(const std::string& type,
   context_ = 0;
 }
 
+void WRasterImage::clear()
+{
+  PixelPacket *pixel = SetImagePixels(image_, 0, 0, w_, h_);
+  for (unsigned i = 0; i < w_ * h_; ++i)
+    WColorToPixelPacket(white, pixel + i);
+  SyncImagePixels(image_);
+}
+
 WRasterImage::~WRasterImage()
 {
+  beingDeleted();
+
   DestroyImage(image_);
   delete[] pixels_;
 }
 
 void WRasterImage::init()
 {
-  // FIXME if (!(paintFlags_ & PaintUpdate)), then clear the image.
   context_ = DrawAllocateContext(0, image_);
 
   DrawPushGraphicContext(context_);
@@ -365,11 +374,13 @@ void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
 
 void WRasterImage::drawPath(const WPainterPath& path)
 {
-  DrawPathStart(context_);
+  if (!path.isEmpty()) {
+    DrawPathStart(context_);
 
-  drawPlainPath(path);
+    drawPlainPath(path);
 
-  DrawPathFinish(context_);
+    DrawPathFinish(context_);
+  }
 }
 
 void WRasterImage::setPixel(int x, int y, const WColor& c)
@@ -380,12 +391,6 @@ void WRasterImage::setPixel(int x, int y, const WColor& c)
   PixelPacket *pixel = SetImagePixels(image_, x, y, 1, 1);
   WColorToPixelPacket(c, pixel);
   SyncImagePixels(image_);
-
-  PixelPacket test = GetOnePixel(image_, x, y);
-
-  assert(test.red == pixel->red);
-  assert(test.green == pixel->green);
-  assert(test.blue == pixel->blue);
 }
 
 void WRasterImage::drawPlainPath(const WPainterPath& path)
@@ -549,10 +554,6 @@ void WRasterImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   DrawPopGraphicContext(context_);
 
   setChanged(Transform);
-}
-
-void WRasterImage::setPaintFlags(WFlags<PaintFlag> paintFlags)
-{
 }
 
 void WRasterImage::handleRequest(const Http::Request& request,

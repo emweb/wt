@@ -51,7 +51,7 @@ WSvgImage::WSvgImage(const WLength& width, const WLength& height,
     width_(width),
     height_(height),
     painter_(0),
-    paintFlags_(0),
+    paintUpdate_(true),
     newGroup_(true),
     newClipPath_(false),
     busyWithPath_(false),
@@ -65,9 +65,11 @@ WSvgImage::~WSvgImage()
   beingDeleted();
 }
 
-void WSvgImage::setPaintFlags(WFlags<PaintFlag> paintFlags)
+void WSvgImage::clear()
 {
-  paintFlags_ = paintFlags;
+  paintUpdate_ = false;
+
+  shapes_.str(std::string());
 }
 
 void WSvgImage::init()
@@ -83,9 +85,6 @@ void WSvgImage::init()
   //this is not for clipping, but for settings the initial pen stroke
   //in makeNewGroup()
   newClipPath_ = true;
-
-  if (!(paintFlags_ & PaintUpdate))
-    shapes_.str(std::string());
 }
 
 void WSvgImage::done()
@@ -744,7 +743,7 @@ void WSvgImage::streamResourceData(std::ostream& stream)
 {
   finishPath();
 
-  if (paintFlags_ & PaintUpdate)
+  if (paintUpdate_)
     stream << "<"SVG"g xmlns=\"http://www.w3.org/2000/svg\""
       " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><"SVG"g><"SVG"g>"
 	   << shapes_.str()

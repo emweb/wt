@@ -73,13 +73,14 @@ WVmlImage::WVmlImage(const WLength& width, const WLength& height)
   : width_(width),
     height_(height),
     painter_(0),
-    paintFlags_(0),
+    paintUpdate_(true),
     clippingChanged_(false)
 { }
 
-void WVmlImage::setPaintFlags(WFlags<PaintFlag> paintFlags)
+void WVmlImage::clear()
 {
-  paintFlags_ = paintFlags;
+  paintUpdate_ = false;
+  rendered_.str(std::string());
 }
 
 void WVmlImage::init()
@@ -88,9 +89,6 @@ void WVmlImage::init()
   currentPen_ = painter()->pen();
   currentShadow_ = painter()->shadow();
   penBrushShadowChanged_ = true;
-
-  if (!(paintFlags_ & PaintUpdate))
-    rendered_.str(std::string());
 
   startClip(WRectF(0, 0, width().value(), height().value()));
 }
@@ -749,7 +747,7 @@ std::string WVmlImage::rendered()
 {
   stopClip();
 
-  if (paintFlags_ & PaintUpdate)
+  if (paintUpdate_)
     return rendered_.str();
   else {
     SStream s;

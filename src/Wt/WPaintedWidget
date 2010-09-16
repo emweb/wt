@@ -149,6 +149,9 @@ public:
    *
    * Repainting is not immediate, but happens after when the event loop
    * is exited.
+   *
+   * Unless a Wt::PaintUpdate paint flag is set, the widget is first
+   * cleared.
    */
   void update(WFlags<PaintFlag> flags = 0);
 

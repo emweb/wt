@@ -57,7 +57,6 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
     width_(width),
     height_(height),
     painter_(0),
-    paintFlags_(0),
     busyWithPath_(false)
 { 
   textMethod_ = DomText;
@@ -80,9 +79,11 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
   }
 }
 
-void WCanvasPaintDevice::setPaintFlags(WFlags<PaintFlag> paintFlags)
+void WCanvasPaintDevice::clear()
 {
-  paintFlags_ = paintFlags;
+  js_.str(std::string());
+  js_ << "ctx.clearRect(0,0,"
+      << width().value() << "," << height().value() << ");";
 }
 
 void WCanvasPaintDevice::render(const std::string& canvasId,
@@ -133,12 +134,6 @@ void WCanvasPaintDevice::init()
   currentTextVAlign_ = currentTextHAlign_ = AlignLength;
 
   changeFlags_ = Transform | Pen | Brush | Shadow | Font;
-
-  if (!(paintFlags_ & PaintUpdate)) {
-    js_.str(std::string());
-    js_ << "ctx.clearRect(0,0,"
-	<< width().value() << "," << height().value() << ");";
-  }
 }
 
 void WCanvasPaintDevice::done()

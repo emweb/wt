@@ -463,48 +463,67 @@ var captureElement = null;
 
 function delegateCapture(e) {
   if (captureElement == null)
-    return false;
+    return null;
 
   if (!e) e = window.event;
 
   if (e) {
+    var t = e.target || e.srcElement, p = t;
+
+    while (p && p != captureElement)
+      p = p.parentNode;
+
     /*
      * We don't need to capture	the event when the event falls inside the
      * capture element. In this way, more specific widgets inside may still
      * handle (and cancel) the event if they want.
+     *
+     * On IE this means that we need to delegate the event to the event
+     * target; on other browsers we can just rely on event bubbling.
      */
-    var t = e.target || e.srcElement;
-
-    while (t && t != captureElement)
-      t = t.parentNode;
-
-    return t != captureElement;
+    if (p == captureElement)
+      return WT.isIE ? t : null;
+    else
+      return captureElement;
   } else
-    return true;
+    return captureElement;
 }
 
+var delegating = false;
+
 function mouseMove(e) {
-  if (delegateCapture(e)) {
+  var d = delegateCapture(e);
+
+  if (d && !delegating) {
     if (!e) e = window.event;
-    WT.condCall(captureElement, 'onmousemove', e);
+    delegating = true;
+    if (WT.isIE)
+      d.fireEvent('onmousemove', e);
+    else
+      WT.condCall(d, 'onmousemove', e);
+    delegating = false;
     return false;
   } else
     return true;
 }
 
 function mouseUp(e) {
-  if (delegateCapture(e)) {
-    var el = captureElement;
-    WT.capture(null);
+  var d = delegateCapture(e);
+  WT.capture(null);
+
+  if (d) {
     if (!e) e = window.event;
-    WT.condCall(el, 'onmouseup', e);
+
+    if (WT.isIE)
+      d.fireEvent('onmouseup', e);
+    else
+      WT.condCall(d, 'onmouseup', e);
+
     WT.cancelEvent(e, WT.CancelPropagate);
 
     return false;
-  } else {
-    WT.capture(null);
+  } else
     return true;
-  }
 }
 
 var captureInitialized = false;
