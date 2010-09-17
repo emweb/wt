@@ -78,3 +78,9 @@ img.java-language-icon {
     text-decoration: none;
     text-align: top;
 }
+
+.emph {
+    font-size: 10pt;
+    font-style: italic;
+    color: #CC1111;
+}

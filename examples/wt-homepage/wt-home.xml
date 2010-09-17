@@ -923,6 +923,27 @@ href="http://www.emweb.be/?page=services">support and training</a>
 options, directly from the library authors.</p>
   </message>
   <message id="home.download.requirements">
+
+<h4>WINST: the Wt installer <span class="emph">(new!)</span></h4>
+
+If you are curious about Wt and would like to try it out but your OS
+or distribution does not provide an up-to-date package, then WINST may
+be useful for you. This package will download and build Wt and its
+dependencies in a <b>Linux/UNIX like environment</b>, and provides a
+script to run the examples.
+<p>
+This requires <tt>CMake</tt> and <tt>GNU make</tt> and will try to
+download software using <tt>wget</tt>.
+</p>
+<p>
+Download the package
+(<a href="http://www.webtoolkit.eu/pacakges/winst-0.1.tar.gz">winst-0.1.tar.gz</a>)
+or get the latest git version:
+<div class="fragment">
+  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/winst.git</pre>
+</div>
+</p>
+
 <h4>System requirements</h4>
 
 For building and installing the latest version of Wt, you need at
