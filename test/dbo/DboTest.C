@@ -454,8 +454,13 @@ void DboTest::test3()
       dbo::ptr<B> b1 = session_->query< dbo::ptr<B> >
 	("select distinct B from table_b B ").where("B.name = ?").bind("b1");
 
+      int count = session_->query< dbo::ptr<B> >
+	("select distinct B from table_b B ").where("B.name = ?").bind("b1")
+	.resultList().size();
+
       dbo::ptr<C> c1 = session_->find<C>().where("name = ?").bind("c1");
 
+      BOOST_REQUIRE(count == 1);
       BOOST_REQUIRE(b1->csManyToMany.size() == 1);
       BOOST_REQUIRE(c1->bsManyToMany.size() == 1);
 

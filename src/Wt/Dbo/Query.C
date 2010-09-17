@@ -40,7 +40,7 @@ std::string createQuerySql(StatementKind kind,
     if (!selectOption.empty())
       return "select count(1) from ("
 	+ createQuerySql(Select, selectOption, fields, from)
-	+ ")";
+	+ ") as dbofoobar";
 
     /*
      * We cannot have " order by " in our query, but we cannot simply
@@ -91,7 +91,7 @@ std::string createQuerySql(StatementKind kind,
       return "select count(1) from ("
 	+ createQuerySql(Select, selectOption, fields,
 			 from, where, groupBy, orderBy, limit, offset)
-	+ ")";
+	+ ") as dbofoobar";
     } else
       result = "select count(1)";
   }
