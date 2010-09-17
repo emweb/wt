@@ -20,11 +20,17 @@ WT_DECLARE_WT_MEMBER
    function handleMove(event) {
      var e = event||window.event;
      var nowxy = WT.pageCoordinates(e);
-     moved = true;
-     el.style.left = (WT.pxself(el, 'left') + nowxy.x - dsx) + 'px';
-     el.style.top = (WT.pxself(el, 'top') + nowxy.y - dsy) + 'px';
-     dsx = nowxy.x;
-     dsy = nowxy.y;
+     var wxy = WT.windowCoordinates(e);
+     var wsize = WT.windowSize();
+
+     if (wxy.x > 0 && wxy.x < wsize.x && wxy.y > 0 && wxy.y < wsize.y) {
+       moved = true;
+
+       el.style.left = (WT.pxself(el, 'left') + nowxy.x - dsx) + 'px';
+       el.style.top = (WT.pxself(el, 'top') + nowxy.y - dsy) + 'px';
+       dsx = nowxy.x;
+       dsy = nowxy.y;
+     }
    };
 
    if (titlebar) {

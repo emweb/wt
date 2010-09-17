@@ -10,7 +10,7 @@
 #include <Wt/WPushButton>
 #include <Wt/WContainerWidget>
 #include <Wt/WStringUtil>
-#ifndef WIN32
+#ifndef _MSVC_VER
 #include <unistd.h>
 #endif
 

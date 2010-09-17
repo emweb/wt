@@ -208,8 +208,13 @@ public:
    */
   WTransform& translate(double dx, double dy);
 
-  // adds a transform that is conceptually applied after this transform.
+  /*! \brief Adds a transform that is conceptually applied after this transform.
+   */
   WTransform& operator*= (const WTransform& rhs);
+
+  /*! \brief Multiply 2 transform objects.
+   */
+  WTransform operator* (const WTransform& rhs) const;
 
   /*! \brief Returns the determinant.
    */
@@ -301,10 +306,6 @@ private:
 
   double m_[6];
 };
-
-/*! \brief Multiply 2 transform objects.
- */
-extern WTransform operator* (const WTransform& lhs, const WTransform& rhs);
 
 }
 

@@ -271,6 +271,14 @@ this.pageCoordinates = function(e) {
   return { x: posX, y: posY };
 };
 
+this.windowCoordinates = function(e) {
+  var p = WT.pageCoordinates(e);
+  var cx = p.x - document.body.scrollLeft - document.documentElement.scrollLeft;
+  var cy = p.y - document.body.scrollTop - document.documentElement.scrollTop;
+
+  return { x: cx, y: cy };
+}
+
 this.scrollIntoView = function(id) {
   var obj = document.getElementById(id);
   if (obj && obj.scrollIntoView)
@@ -362,8 +370,8 @@ this.isKeyPress = function(e) {
   if (charCode > 0 || WT.isIE)
     return true;
   else
-    return (e.keyCode == 13 || e.keyCode == 27 || e.keyCode == 32
-	   || (e.keyCode > 46 && e.keyCode < 112));
+    return (e.keyCode == 13 || e.keyCode == 27
+	   || (e.keyCode >= 32 && e.keyCode < 125));
 };
 
 var rnumpx = /^-?\d+(?:px)?$/i;

@@ -206,7 +206,7 @@ WT_USTRING WLineEdit::selectedText() const
   if (selectionStart() != -1) {
     WApplication *app = WApplication::instance();
 
-    WT_WSTRING v = text();
+    std::wstring v = text();
     return v.substr(app->selectionStart(),
 		    app->selectionEnd() - app->selectionStart());
   } else

@@ -244,13 +244,14 @@ void WFormWidget::validatorChanged()
     Wt::Utils::replace(inputFilter, '/', "\\/");
 
     filterInput_->setJavaScript
-      ("function(self,e){"
-       """var c=String.fromCharCode((typeof e.charCode!=='undefined') ?"
-       ""                           "e.charCode : e.keyCode);"
-       """if(/" + inputFilter + "/.test(c))"
-       ""  "return true;"
-       """else "
-       ""  WT_CLASS ".cancelEvent(e);"
+      ("function(self,e){\n"
+       """var c=\n"
+       ""  "String.fromCharCode((typeof e.charCode!=='undefined') ?"
+       ""                       "e.charCode : e.keyCode);\n"
+       """if(/" + inputFilter + "/.test(c))\n"
+       ""  "return true;\n"
+       """else\n"
+       ""  WT_CLASS ".cancelEvent(e);\n"
        "}");
   } else {
     delete filterInput_;

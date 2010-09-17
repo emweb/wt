@@ -1372,9 +1372,6 @@ public:
    * Methods for client-side focus
    */
   void setFocus(const std::string& id, int selectionStart, int selectionEnd);
-  std::string focus() const { return focusId_; }
-  int selectionStart() const { return selectionStart_; }
-  int selectionEnd() const { return selectionEnd_; }
 
 #ifdef WT_DEBUG_JS
   void loadJavaScript(const char *jsFile);
@@ -1641,6 +1638,10 @@ private:
 
   static bool pathMatches(const std::string& path, const std::string& query);
 
+  std::string focus() const { return focusId_; }
+  int selectionStart() const { return selectionStart_; }
+  int selectionEnd() const { return selectionEnd_; }
+
   /*
    * Methods for audio handling
    */
@@ -1663,6 +1664,9 @@ private:
   friend class WInteractWidget;
   friend class WServerPushResource;
   friend class WString;
+  friend class WFormWidget;
+  friend class WLineEdit;
+  friend class WTextArea;
   friend class WViewWidget;
   friend class WDialog;
   friend class WSound;

@@ -166,7 +166,9 @@ SET(WEBUSER apache CACHE STRING "Webserver username (e.g. apache or www)")
 SET(WEBGROUP apache CACHE STRING "Webserver groupname (e.g. apache or www or users)")
 IF(WIN32)
   SET(CONNECTOR_FCGI FALSE)
-  OPTION(CONNECTOR_ISAPI "Compile in ISAPI connector (libwtisapi) ?" ON)
+  IF(NOT MINGW)
+    OPTION(CONNECTOR_ISAPI "Compile in ISAPI connector (libwtisapi) ?" ON)
+  ENDIF(NOT MINGW)
 ELSE(WIN32)
   OPTION(CONNECTOR_FCGI "Compile in FCGI connector (libwtfcgi) ?" ON)
   SET(CONNECTOR_ISAPI OFF)
@@ -246,6 +248,10 @@ LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 IF(WIN32)
   IF(BOOST_DYNAMIC)
     ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+  ELSE(BOOST_DYNAMIC)
+    # You could expect that this is the default when BOOST_ALL_DYN_LINK
+    # is not set, but this is problematic for cygwin
+    ADD_DEFINITIONS(-DBOOST_THREAD_USE_LIB)
   ENDIF(BOOST_DYNAMIC)
   ADD_DEFINITIONS(
       -D_CRT_SECURE_NO_WARNINGS
