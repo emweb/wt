@@ -319,50 +319,50 @@ namespace {
 std::string WSuggestionPopup::generateMatcherJS(const Options& options)
 {
   return std::string() +
-    "function (edit) {"
+    "function (edit) {\n"
     + generateParseEditJS(options) +
-    """value = edit.value.substring(start, end);"
+    """value = edit.value.substring(start, end);\n"
 
-    """return function(suggestion) {"
-    ""  "if (!suggestion)"
-    ""    "return value;"
+    """return function(suggestion) {\n"
+    ""  "if (!suggestion)\n"
+    ""    "return value;\n"
 
-    ""  "var sep='" + options.wordSeparators + "',"
-    ""    "matched = false,"
-    ""    "i = 0,"
-    ""    "sugup = suggestion.toUpperCase(),"
-    ""    "val = value.toUpperCase(),"
-    ""    "inserted = 0;"
+    ""  "var sep='" + options.wordSeparators + "',\n"
+    ""    "matched = false,\n"
+    ""    "i = 0,\n"
+    ""    "sugup = suggestion.toUpperCase(),\n"
+    ""    "val = value.toUpperCase(),\n"
+    ""    "inserted = 0;\n"
     
-    ""  "if (val.length) {"
-    ""    "while ((i != -1) && (i < sugup.length)) {"
-    ""      "var matchpos = sugup.indexOf(val, i);"
-    ""        "if (matchpos != -1) {"
-    ""          "if ((matchpos == 0)"
-    ""              "|| (sep.indexOf(sugup.charAt(matchpos - 1)) != -1)) {"
+    ""  "if (val.length) {\n"
+    ""    "while ((i != -1) && (i < sugup.length)) {\n"
+    ""      "var matchpos = sugup.indexOf(val, i);\n"
+    ""        "if (matchpos != -1) {\n"
+    ""          "if ((matchpos == 0)\n"
+    ""              "|| (sep.indexOf(sugup.charAt(matchpos - 1)) != -1)) {\n"
     + (!options.highlightEndTag.empty()
-       ? ("suggestion = suggestion.substring(0, matchpos + inserted)"
+       ? ("suggestion = suggestion.substring(0, matchpos + inserted)\n"
 	  " + '" + options.highlightBeginTag + "'"
 	  " + suggestion.substring(matchpos + inserted,"
-	  "     matchpos + inserted + val.length)"
+	  "     matchpos + inserted + val.length)\n"
 	  " + '" + options.highlightEndTag + "'"
 	  " + suggestion.substring(matchpos + inserted + val.length,"
-	  "     suggestion.length);"
+	  "     suggestion.length);\n"
 	  " inserted += "
 	  + boost::lexical_cast<std::string>(options.highlightBeginTag.length()
 					     + options.highlightEndTag.length())
-	  + ";")
+	  + ";\n")
        : "") +
-    ""            "matched = true;"
-    ""          "}"
-    ""        "i = matchpos + 1;"
-    ""      "} else "
-    ""        "i = matchpos;"
-    ""    "}"
-    ""  "}"
+    ""            "matched = true;\n"
+    ""          "}\n"
+    ""        "i = matchpos + 1;\n"
+    ""      "} else\n"
+    ""        "i = matchpos;\n"
+    ""    "}\n"
+    ""  "}\n"
 
-    ""  "return { match: matched,"
-    ""           "suggestion: suggestion }"
+    ""  "return { match: matched,\n"
+    ""           "suggestion: suggestion }\n"
     """}"
     "}";
 }

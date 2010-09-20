@@ -50,10 +50,13 @@ namespace Wt {
      </div>
    \ref sec_painting <br>
      <div style="margin-left: 10px; margin-bottom: 7px;"></div>
+   \ref internationalization_sec <br>
+     <div style="margin-left: 10px; margin-bottom: 7px;"></div>
    \ref deployment <br>
      <div style="margin-left: 10px; margin-bottom: 7px;">
      \ref fastcgi <br>
      \ref wthttpd <br>
+     \ref wtisapi <br>
      </div>  
    \ref configuration_sec
      <div style="margin-left: 10px; margin-bottom: 7px;">
@@ -61,6 +64,7 @@ namespace Wt {
      \ref config_general <br>
      \ref config_fastcgi <br>
      \ref config_wthttpd <br>
+     \ref config_isapi <br>
      </div>
      <div style="margin-left: 10px; margin-bottom: 7px;"></div>
    \ref error_sec
@@ -397,7 +401,26 @@ namespace Wt {
   WPainter to paint the contents of the widget inside its
   WPaintedWidget::paintEvent().
 
-  \section deployment 8. Deployment
+  \section internationalization_sec 8. Internationalization
+
+  %Wt's WString class offers an interface to translate strings by
+  using the static WString::tr("key") method to construct a WString.
+  These key values will be lookup up in so-called message resource
+  bundles (see WMessageResourceBundle). These are a set of xml files
+  that translate the keys to a localized string. The name of the xml
+  file determines the language contained therin (e.g. foo.xml, foo-nl.xml,
+  foo-cn.xml)
+
+  The strings that are used by classes within the %Wt library use the
+  same system to translate their strings. English messages will be
+  used by default and are built into %Wt. If you want to translate e.g.
+  the months of a WCalendar, copy src/xml/wt.xml and translate them to
+  your language of choice. From then on, you can call
+  WMessageResourceBundle::use() in your application and use your own
+  replacement XML files, which will take precedence over the built-in
+  translations.
+
+  \section deployment 9. Deployment
 
   The library is designed so that, besides the application binary,
   only files from the <tt>resources/</tt> folder are needed to deploy
@@ -412,7 +435,7 @@ namespace Wt {
   config_general "configuration properties"), which defaults to
   "/resources".
 
-  \subsection fastcgi 8.1 FastCGI
+  \subsection fastcgi 9.1 FastCGI
 
   When linking your application against <tt>libwtfcgi</tt>, the
   resulting binary is a FastCGI binary. This binary may then be
@@ -420,14 +443,20 @@ namespace Wt {
   protocol (these include apache, lighttpd and many other popular web
   servers).
 
-  \subsection wthttpd 8.2 Built-in httpd
+  \subsection wthttpd 9.2 Built-in httpd
 
   When linking your application against <tt>libwthttp</tt>, the
   resulting binary is a stand-alone http(s) webserver. The web server
   will act as a plain web server in addition to serving the %Wt
   application.
 
-  \section configuration_sec 9. Configuration
+  \subsection wtisapi 9.3 ISAPI
+
+  When linking your application against <tt>wtisapi</tt>, the
+  resulting binary is an ISAPI plugin. This DLL may then be
+  deployed and managed within Microsoft IIS.
+
+  \section configuration_sec 10. Configuration
 
   %Wt has one main XML configuration file (which by default is located
   in <tt>/etc/wt/wt_config.xml</tt>, and can be overridden with the
@@ -441,7 +470,7 @@ namespace Wt {
   on a per-application level by settings with a location attribute
   that matches the location of the application (on the file system).
 
-  \subsection config_session 9.1 Session management (wt_config.xml)
+  \subsection config_session 10.1 Session management (wt_config.xml)
 
   These are options related to session management, and are specified
   inside <b>&lt;session-management&gt;</b> subsection.
@@ -486,7 +515,7 @@ namespace Wt {
       average more sessions in memory that are no longer used.</dd>
       </dl>
 
-  \subsection config_general 9.2 General application settings (wt_config.xml)
+  \subsection config_general 10.2 General application settings (wt_config.xml)
 
   These options are indicated directly within
   <b>&lt;application-settings&gt;</b>, and specify settings that
@@ -586,7 +615,7 @@ namespace Wt {
     </dd>
   </dl>
 
-  \subsection config_fastcgi 9.3 FastCGI options (wt_config.xml)
+  \subsection config_fastcgi 10.3 FastCGI options (wt_config.xml)
 
   These options only apply to FastCGI-based deployment, and are
   are specified inside a <b>&lt;connector-fcgi&gt;</b> subsection.
@@ -603,7 +632,7 @@ namespace Wt {
     <dd>The path that is used by the library for managing sessions.</dd>
   </dl>
 
-  \subsection config_wthttpd 9.4 Wt httpd (command-line or configuration file) options
+  \subsection config_wthttpd 10.4 Wt httpd (command-line or configuration file) options
 
 These options are not specified in the wt_config.xml configuration
 file, but may be indicated on the command-line, or within a
@@ -659,7 +688,30 @@ HTTPS server options:
                           e.g. "/etc/ssl/dh512.pem"
 \endcode
 
-   \section error_sec 10. Error-handling and logging
+  \subsection config_isapi 10.5 ISAPI options (wt_config.xml)
+
+  These options only apply to ISAPI-based deployment, and are
+  are specified inside a <b>&lt;connector-isapi&gt;</b> subsection.
+
+  <dl>
+    <dt><strong>num-threads</strong></dt>
+
+    <dd>Sets the number of threads to be used to handle %Wt traffic. The
+    connector will never use IIS threads to do any processing, but will
+    forward the requests to a thread pool of the size given in this variable.
+    Depending on your application, you may want to increase the default size
+    of 10 threads.</dd>
+
+    <dt><strong>max-memory-request-size</strong></dt>
+
+    <dd>Every HTTP request whose size is smaller than this parameter will
+    be buffered in memory. Larger requests, such as large file uploads, will
+    be spooled to a file. You probably do not want to change this parameter.
+    </dd>
+  </dl>
+
+
+   \section error_sec 11. Error-handling and logging
 
    %Wt provides logging of events to a log-file (see the \ref
    config_general "log-file configuration setting"). Every log entry

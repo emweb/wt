@@ -28,7 +28,8 @@ WT_DECLARE_WT_MEMBER
    var key_down = 40;
 
    var selId = null, editId = null, kd = false,
-     filter = null, filtering = null, delayHideTimeout = null;
+       filter = null, filtering = null, delayHideTimeout = null,
+       lastFilterValue = null;
 
    /* Checks if we are (still) assisting the given edit */
    function checkEdit(edit) {
@@ -80,6 +81,7 @@ WT_DECLARE_WT_MEMBER
    this.showPopup = function() {
      el.style.display = '';
      selId = null;
+     lastFilterValue = null;
    };
 
    this.editMouseMove = function(edit, event) {
@@ -199,6 +201,15 @@ WT_DECLARE_WT_MEMBER
      self.refilter();
    };
 
+   function scrollToSelected(sel) {
+     var p = sel.parentNode;
+
+     if (sel.offsetTop + sel.offsetHeight > p.scrollTop + p.clientHeight)
+       p.scrollTop = sel.offsetTop + sel.offsetHeight - p.clientHeight;
+     else if (sel.offsetTop < p.scrollTop)
+       p.scrollTop = sel.offsetTop;
+   }
+
    /*
     * Refilter the current selection list based on the edit value.
     */
@@ -209,6 +220,8 @@ WT_DECLARE_WT_MEMBER
          canhide = !$(edit).hasClass("Wt-suggest-dropdown"),
          sels = el.lastChild.childNodes,
          text = matcher(null);
+
+     lastFilterValue = edit.value;
 
      if (filterLength) {
        if (canhide && text.length < filterLength) {
@@ -271,16 +284,8 @@ WT_DECLARE_WT_MEMBER
 	 sel.parentNode.scrollTop = 0;
        }
 
-       /*
-	* Make sure currently selected is scrolled into view
-	*/
        sel.className = 'sel';
-       var p = sel.parentNode;
-
-       if (sel.offsetTop + sel.offsetHeight > p.scrollTop + p.clientHeight)
-	 p.scrollTop = sel.offsetTop + sel.offsetHeight - p.clientHeight;
-       else if (sel.offsetTop < p.scrollTop)
-	 p.scrollTop = sel.offsetTop;
+       scrollToSelected(sel);
      }
    };
 
@@ -307,7 +312,13 @@ WT_DECLARE_WT_MEMBER
 	   edit.blur();
        }
      } else {
-       self.refilter();
+       if (edit.value != lastFilterValue)
+	 self.refilter();
+       else {
+	 var sel = selId ? WT.getElement(selId) : null;
+	 if (sel)
+	   scrollToSelected(sel);
+       }
      }
    };
 

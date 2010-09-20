@@ -16,6 +16,7 @@
 #include "Wt/WText"
 
 #include "StdGridLayoutImpl.h"
+#include "WebSession.h"
 
 #include "WtException.h"
 
@@ -233,9 +234,18 @@ void WMenuItem::updateItemWidget(WWidget *itemWidget)
     enabledLabel->setText(text());
 
     std::string url;
-    if (menu_ && menu_->internalPathEnabled())
-      url = wApp->bookmarkUrl(menu_->internalBasePath() + pathComponent());
-    else
+    if (menu_ && menu_->internalPathEnabled()) {
+      std::string internalPath = menu_->internalBasePath() + pathComponent();
+      WApplication *app = WApplication::instance();
+      if (app->environment().ajax() || app->environment().agentIsSpiderBot())
+	url = app->bookmarkUrl(internalPath);
+      else {
+	// If no JavaScript is available, then we still add the session
+	// so that when used in WAnchor it will be handled by the same
+	// session.
+	url = app->session()->mostRelativeUrl(internalPath);
+      }
+    } else
       url = "#";
 
     enabledLabel->setRef(url);

@@ -14,6 +14,7 @@
 
 #include "DomElement.h"
 #include "Utils.h"
+#include "WebSession.h"
 
 namespace Wt {
 
@@ -229,9 +230,9 @@ void WAnchor::updateDom(DomElement& element, bool all)
     std::string url;
     if (flags_.test(BIT_REF_INTERNAL_PATH)) {
       WApplication *app = WApplication::instance();
-      url = app->bookmarkUrl(ref_);
 
       if (app->environment().ajax()) {
+	url = app->bookmarkUrl(ref_);
 	if (!changeInternalPathJS_) {
 	  changeInternalPathJS_ = new JSlot();
 	  clicked().connect(*changeInternalPathJS_);
@@ -243,6 +244,15 @@ void WAnchor::updateDom(DomElement& element, bool all)
 	   "window.location.hash='#" + Utils::urlEncode(ref_) + "';"
 	   "}");
 	clicked().senderRepaint(); // XXX only for Java port necessary
+      } else {
+	if (app->environment().agentIsSpiderBot())
+	  url = app->bookmarkUrl(ref_);
+	else {
+	  // If no JavaScript is available, then we still add the session
+	  // so that when used in WAnchor it will be handled by the same
+	  // session.
+	  url = app->session()->mostRelativeUrl(ref_);
+	}
       }
     } else {
       url = ref_;

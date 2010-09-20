@@ -511,6 +511,18 @@ std::string WApplication::url() const
   return fixRelativeUrl(session_->applicationUrl());
 }
 
+std::string WApplication::makeAbsoluteUrl(const std::string& url) const
+{
+  if (url.find("://") != std::string::npos)
+    return url;
+  else {
+    if (!url.empty() && url[0] == '/')
+      return environment().urlScheme() + "://" + environment().hostName() + url;
+    else
+      return session_->absoluteBaseUrl() + url;
+  }
+}
+
 std::string WApplication::fixRelativeUrl(const std::string& url) const
 {
   if (url.find("://") != std::string::npos)
@@ -533,16 +545,8 @@ std::string WApplication::fixRelativeUrl(const std::string& url) const
 	return session_->baseUrl() + url;
     else
       return url;
-  } else {
-    if (!url.empty()) {
-      if (url[0] != '/')
-	return session_->absoluteBaseUrl() + url;
-      else
-	return environment().urlScheme() + "://"
-	  + environment().hostName() + url;
-    } else
-      return url;
-  }
+  } else
+    return makeAbsoluteUrl(url);
 }
 
 void WApplication::quit()
@@ -994,15 +998,9 @@ std::string WApplication::bookmarkUrl() const
 
 std::string WApplication::bookmarkUrl(const std::string& internalPath) const
 {
-  if (!environment().javaScript())
-    if (environment().agentIsSpiderBot())
-      return session_->bookmarkUrl(internalPath);
-    else
-      return session_->mostRelativeUrl(internalPath);
-  else
-    // return session_->bookmarkUrl("") + '#' + internalPath;
-    // to avoid an extra round trip
-    return session_->bookmarkUrl(internalPath);
+  // ? return session_->bookmarkUrl("") + '#' + internalPath;
+  // to avoid an extra round trip
+  return session_->bookmarkUrl(internalPath);
 }
 
 WLogEntry WApplication::log(const std::string& type) const
