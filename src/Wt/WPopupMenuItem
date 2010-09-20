@@ -136,6 +136,7 @@ public:
   Signal<>& triggered() { return triggered_; }
 
   virtual void load();
+  virtual void setDisabled(bool disabled);
 
 private:
   // Constructs a separator

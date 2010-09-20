@@ -87,6 +87,18 @@ void WPopupMenuItem::load()
   impl_->mouseWentOver().setNotExposed();
 }
 
+void WPopupMenuItem::setDisabled(bool disabled)
+{
+  if (disabled)
+    addStyleClass("Wt-disabled");
+  else
+    removeStyleClass("Wt-disabled");
+
+  resetLearnedSlot(&WPopupMenuItem::renderOver);
+
+  WCompositeWidget::setDisabled(disabled);
+}
+
 void WPopupMenuItem::setText(const WString& text)
 {
   if (!text_) {
@@ -163,12 +175,14 @@ bool WPopupMenuItem::isChecked() const
 
 void WPopupMenuItem::renderOver()
 {
-  renderSelected(true);
+  if (!isDisabled())
+    renderSelected(true);
 }
 
 void WPopupMenuItem::renderOut()
 {
-  renderSelected(false);
+  if (!isDisabled())
+    renderSelected(false);
 }
 
 void WPopupMenuItem::renderSelected(bool selected)
@@ -176,7 +190,11 @@ void WPopupMenuItem::renderSelected(bool selected)
   if (separator_)
     return;
 
-  setStyleClass(selected ? "Wt-selected" : "Wt-item");
+  if (selected) {
+    addStyleClass("Wt-selected", true); removeStyleClass("Wt-item", true);
+  } else {
+    addStyleClass("Wt-item", true); removeStyleClass("Wt-selected", true);
+  }
 
   if (subMenu_) {
     if (selected)
@@ -190,7 +208,7 @@ void WPopupMenuItem::renderSelected(bool selected)
 
 void WPopupMenuItem::onMouseUp()
 {
-  if (subMenu_)
+  if (isDisabled() || subMenu_)
     return;
 
   if (checkBox_)

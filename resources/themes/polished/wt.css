@@ -296,6 +296,10 @@
     color: white;
 }
 
+.Wt-popupmenu .Wt-disabled {
+    color: #AAAAAA;
+}
+
 .Wt-popupmenu .Wt-separator {
     border-top: 1px solid #CCCCCC;
     border-bottom: 1px solid #DDDDDD;

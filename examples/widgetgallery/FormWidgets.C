@@ -387,7 +387,7 @@ WWidget *FormWidgets::wPopupMenu()
   WPopupMenu *popup = new WPopupMenu();
   popup->addItem("icons/house.png", "Build a house");
   popup->addItem("Roof included")->setCheckable(true);
-  popup->addItem("Add a door");
+  popup->addItem("Add a door")->setDisabled(true);
   popup->addSeparator();
   popup->addItem("Add a window");
   WPopupMenu *subMenu = new WPopupMenu();

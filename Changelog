@@ -1,6 +1,8 @@
 20-09-2010:
 	* WApplication: added makeAbsoluteUrl() method.
 
+	* WPopupMenuItem: support setDisabled().
+
 16-09-2010:
 	* WPaintDevice: remove paintFlags() method; PaintUpdate is a property of
 	the painted widget, and no longer something which has to do with
