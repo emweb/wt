@@ -448,7 +448,7 @@ public:
    * resolve the strings of the current user-interface in the new
    * locale.
    *
-   * The default locale is copied from the environment
+   * At construction, the locale is copied from the environment
    * (WEnvironment::locale()), and this is the locale that was
    * configured by the user in his browser preferences, and passed
    * using an HTTP request header.

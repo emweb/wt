@@ -34,8 +34,17 @@ void WRegExpValidator::setRegExp(const WT_USTRING& pattern)
   if (!regexp_)
     regexp_ = new WRegExp(pattern);
   else
-    regexp_->setPattern(pattern);
+    regexp_->setPattern(pattern, regexp_->options());
+
   repaint();
+}
+
+void WRegExpValidator::setOptions(WFlags<WRegExpOption> options)
+{
+  if (!regexp_)
+    regexp_ = new WRegExp(".*");
+
+  regexp_->setPattern(regexp_->pattern(), options);
 }
 
 WT_USTRING WRegExpValidator::regExp() const
@@ -91,7 +100,12 @@ std::string WRegExpValidator::javaScriptValidate(const std::string& jsRef) const
     std::string s = regexp_->pattern().toUTF8();
     Wt::Utils::replace(s, '/', "\\/");
 
-    js += "var r=/^" + s + "$/; return {valid:r.test(e.value),message:tn};";
+    js += "var r=/^" + s + "$/";
+
+    if (regexp_->options() & MatchCaseInsensitive)
+      js += "i";
+
+    js += "; return {valid:r.test(e.value),message:tn};";
   } else
     js += "return {valid:true};";
 

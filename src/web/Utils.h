@@ -17,6 +17,10 @@
 
 #include <Wt/WDllDefs.h>
 
+#ifdef _MSC_VER
+#include <float.h>
+#endif
+
 namespace Wt {
 
   class WString;
@@ -193,7 +197,13 @@ extern void urlDecode(std::string &s);
 extern std::string urlEncode(const std::string& url);
 
 inline bool isNaN(double d) {
+#ifdef _MSC_VER
+  // received bug reports that on 64 bit windows, MSVC2005
+  // generates wrong code for d != d.
+  return _isnan(d);
+#else
   return !(d == d);  
+#endif
 }
 
 /*

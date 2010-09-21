@@ -146,7 +146,7 @@ void WSortFilterProxyModel::setFilterRegExp(const WT_USTRING& pattern)
   if (!regex_)
     regex_ = new WRegExp(pattern);
   else
-    regex_->setPattern(pattern);
+    regex_->setPattern(pattern, regex_->options());
 
   if (sourceModel()) {
     layoutAboutToBeChanged().emit();
@@ -160,6 +160,14 @@ void WSortFilterProxyModel::setFilterRegExp(const WT_USTRING& pattern)
 WT_USTRING WSortFilterProxyModel::filterRegExp() const
 {
   return regex_ ? regex_->pattern() : WT_USTRING();
+}
+
+void WSortFilterProxyModel::setFilterOptions(WFlags<WRegExpOption> options)
+{
+  if (!regex_)
+    regex_ = new WRegExp(".*");
+
+  regex_->setPattern(regex_->pattern(), options);
 }
 
 void WSortFilterProxyModel::sort(int column, SortOrder order)

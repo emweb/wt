@@ -29,7 +29,7 @@ WT_DECLARE_WT_MEMBER
 
    var selId = null, editId = null, kd = false,
        filter = null, filtering = null, delayHideTimeout = null,
-       lastFilterValue = null;
+       lastFilterValue = null, droppedDown = false;
 
    /* Checks if we are (still) assisting the given edit */
    function checkEdit(edit) {
@@ -104,6 +104,7 @@ WT_DECLARE_WT_MEMBER
        if (editId != edit.id) {
 	 hidePopup();
 	 editId = edit.id;
+	 droppedDown = true;
 	 self.refilter();
        } else {
 	 editId = null;
@@ -129,12 +130,14 @@ WT_DECLARE_WT_MEMBER
        return true;
 
      if (editId != edit.id) {
-       if ($(edit).hasClass("Wt-suggest-onedit"))
+       if ($(edit).hasClass("Wt-suggest-onedit")) {
 	 editId = edit.id;
-       else if ($(edit).hasClass("Wt-suggest-dropdown")
-		&& event.keyCode == key_down)
+	 droppedDown = false;
+       } else if ($(edit).hasClass("Wt-suggest-dropdown")
+		  && event.keyCode == key_down) {
 	 editId = edit.id;
-       else {
+	 droppedDown = true;
+       } else {
 	 editId = null;
 	 return true;
        }
@@ -217,14 +220,13 @@ WT_DECLARE_WT_MEMBER
      var sel = selId ? WT.getElement(selId) : null,
          edit = WT.getElement(editId),
          matcher = matcherJS(edit),
-         canhide = !$(edit).hasClass("Wt-suggest-dropdown"),
          sels = el.lastChild.childNodes,
          text = matcher(null);
 
      lastFilterValue = edit.value;
 
      if (filterLength) {
-       if (canhide && text.length < filterLength) {
+       if (text.length < filterLength && !droppedDown) {
 	 hidePopup();
 	 return;
        } else {
@@ -234,7 +236,9 @@ WT_DECLARE_WT_MEMBER
 	     filtering = nf;
 	     APP.emit(el, "filter", nf);
 	   }
-	   if (canhide) {
+
+	   if (!droppedDown) {
+	     // better would be to set a Loading indicator
 	     hidePopup();
 	     return;
 	   }
@@ -243,29 +247,32 @@ WT_DECLARE_WT_MEMBER
      }
 
      var first = null,
-         showall = !canhide && text.length == 0;
+         showall = droppedDown && text.length == 0,
+         i, il;
 
-     for (var i = 0; i < sels.length; i++) {
+     for (i = 0, il = sels.length; i < il; ++i) {
        var child = sels[i];
        if (WT.hasTag(child, 'DIV')) {
-         if (child.orig == null)
+         if (child.orig == null) {
            child.orig = child.firstChild.innerHTML;
-         else
-           child.firstChild.innerHTML = child.orig;
+	 }
 
-	 var result = matcher(child.firstChild.innerHTML),
+	 var result = matcher(child.orig),
 	     match = showall || result.match;
 
-	 child.firstChild.innerHTML = result.suggestion;
+	 if (result.suggestion != child.firstChild.innerHTML)
+	   child.firstChild.innerHTML = result.suggestion;
 
          if (match) {
-           child.style.display = '';
+	   if (child.style.display != '')
+             child.style.display = '';
            if (first == null)
 	     first = child;
-         } else
+         } else if (child.style.display != 'none')
            child.style.display = 'none';
 
-         child.className = '';
+	 if (child.className != '')
+	   child.className = '';
        }
      }
 
@@ -343,5 +350,73 @@ WT_DECLARE_WT_MEMBER
        if (el && (edit == null || editId == edit.id))
 	   hidePopup();
        }, 300);
+   };
+ });
+
+WT_DECLARE_WT_MEMBER
+(2, "WSuggestionPopupStdMatcher",
+ function(highlightBeginTag, highlightEndTag, listSeparator, whiteSpace,
+	  wordSeparators, appendReplacedText) {
+   function parseEdit(edit) {
+     var value = edit.value;
+     var pos = edit.selectionStart ? edit.selectionStart : value.length;
+
+     var start = listSeparator
+       ? value.lastIndexOf(listSeparator, pos - 1) + 1 : 0;
+
+     while ((start < pos)
+            && (whiteSpace.indexOf(value.charAt(start)) != -1))
+       ++start;
+
+     return { start: start, end: pos };
+   }
+
+   this.match = function(edit) {
+     var range = parseEdit(edit);
+     var value = edit.value.substring(range.start, range.end);
+
+     var regexp = "^";
+     if (wordSeparators.length != 0)
+       regexp = "(^|(?:[" + wordSeparators + "]))";
+
+     regexp += "(" + value.replace(/([\^\\\][\-.$*+?()|{}])/g, "\\$1") + ")";
+     regexp = new RegExp(regexp, "gi");
+
+     return function(suggestion) {
+       if (!suggestion)
+	 return value;
+
+       var matched = false;
+
+       if (value.length) {
+	 var highlighted
+	   = suggestion.replace(regexp, "$1" + highlightBeginTag + "$2"
+				+ highlightEndTag);
+	 if (highlighted != suggestion) {
+	   matched = true;
+	   suggestion = highlighted;
+	 }
+       }
+
+       return { match: matched, suggestion: suggestion };
+     };
+   };
+
+   this.replace = function(edit, suggestionText, suggestionValue) {
+     var range = parseEdit(edit);
+
+     var nv = edit.value.substring(0, range.start) + suggestionValue
+       + appendReplacedText;
+
+     if (range.end < edit.value.length)
+      nv += edit.value.substring(range.end, edit.value.length);
+
+     edit.value = nv;
+
+     if (edit.selectionStart) {
+       edit.selectionStart = range.start + suggestionValue.length
+	 + appendReplacedText.length;
+       edit.selectionEnd = edit.selectionStart;
+     }
    };
  });

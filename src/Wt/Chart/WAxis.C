@@ -211,7 +211,7 @@ void WAxis::setAutoLimits(WFlags<AxisValue> locations)
 {
   if (locations & MinimumValue)
     set(segments_.front().minimum, AUTO_MINIMUM);
-  else if (locations & MaximumValue)
+  if (locations & MaximumValue)
     set(segments_.back().maximum, AUTO_MAXIMUM);
 }
 

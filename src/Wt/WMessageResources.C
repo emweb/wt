@@ -85,7 +85,7 @@ WMessageResources::WMessageResources(const char *data)
   readResourceStream(s, defaults_, "<internal resource bundle>");
 }
 
-const std::set<std::string> 
+std::set<std::string> 
 WMessageResources::keys(WFlags<WMessageResourceBundle::Scope> scope) const
 {
   std::set<std::string> keys;

@@ -4,9 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-// TODO:
-//  - filter length stuff
-
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WContainerWidget"
@@ -21,10 +18,34 @@
 
 #include "JavaScriptLoader.h"
 #include "Utils.h"
+#include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WSuggestionPopup.min.js"
 #endif
+
+namespace {
+  std::string instantiateStdMatcher(const Wt::WSuggestionPopup::Options&
+				    options) {
+    Wt::SStream s;
+
+    s << "new " WT_CLASS ".WSuggestionPopupStdMatcher("
+      << Wt::WWebWidget::jsStringLiteral(options.highlightBeginTag) << ", "
+      << Wt::WWebWidget::jsStringLiteral(options.highlightEndTag) << ", ";
+
+    if (options.listSeparator)
+      s << Wt::WWebWidget::jsStringLiteral
+	(std::string(1, options.listSeparator));
+    else
+      s << "null";
+
+    s << ", " << Wt::WWebWidget::jsStringLiteral(options.whitespace) << ", "
+      << Wt::WWebWidget::jsStringLiteral(options.wordSeparators) << ", "
+      << Wt::WWebWidget::jsStringLiteral(options.appendReplacedText) << ")";
+
+    return s.str();
+  }
+}
 
 namespace Wt {
 
@@ -37,6 +58,7 @@ WSuggestionPopup::WSuggestionPopup(const Options& options,
     model_(0),
     modelColumn_(0),
     filterLength_(0),
+    filtering_(false),
     matcherJS_(generateMatcherJS(options)),
     replacerJS_(generateReplacerJS(options)),
     filterModel_(this),
@@ -122,6 +144,7 @@ void WSuggestionPopup::defineJavaScript()
 
   if (!app->javaScriptLoaded(THIS_JS)) {
     LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopup", wtjs1);
+    LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopupStdMatcher", wtjs2);
     app->setJavaScriptLoaded(THIS_JS);
   }
 
@@ -181,13 +204,15 @@ void WSuggestionPopup::setModelColumn(int modelColumn)
   modelColumn_ = modelColumn;
 
   content_->clear();
-
   modelRowsInserted(WModelIndex(), 0, model_->rowCount() - 1);
 }
 
 void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
 					 int start, int end)
 {
+  if (filterLength_ > 0 && !filtering_)
+    return;
+
   if (modelColumn_ >= model_->columnCount())
     return;
 
@@ -247,8 +272,7 @@ void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
 void WSuggestionPopup::modelLayoutChanged()
 {
   content_->clear();
-
-  setModelColumn(modelColumn_);
+  modelRowsInserted(WModelIndex(), 0, model_->rowCount() - 1);
 }
 
 void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
@@ -294,103 +318,6 @@ void WSuggestionPopup::addSuggestion(const WString& suggestionText,
   }
 }
 
-namespace {
-  std::string generateParseEditJS(const WSuggestionPopup::Options& options)
-  {
-    return std::string() +
-      "var value = edit.value;"
-      "var pos;"
-      "if (edit.selectionStart)"
-      """pos = edit.selectionStart;"
-      "else "
-      """pos = value.length;"
-      "var ws='" + options.whitespace + "';"
-      + (options.listSeparator != 0
-	 ? (std::string("var start = value.lastIndexOf('")
-	    + options.listSeparator + "', pos - 1) + 1;")
-	 : ("var start = 0;")) +
-      "while ((start < pos)"
-      ""      "&& (ws.indexOf(value.charAt(start)) != -1))"
-      """start++;"
-      "var end = pos;";
-  }
-};
-
-std::string WSuggestionPopup::generateMatcherJS(const Options& options)
-{
-  return std::string() +
-    "function (edit) {\n"
-    + generateParseEditJS(options) +
-    """value = edit.value.substring(start, end);\n"
-
-    """return function(suggestion) {\n"
-    ""  "if (!suggestion)\n"
-    ""    "return value;\n"
-
-    ""  "var sep='" + options.wordSeparators + "',\n"
-    ""    "matched = false,\n"
-    ""    "i = 0,\n"
-    ""    "sugup = suggestion.toUpperCase(),\n"
-    ""    "val = value.toUpperCase(),\n"
-    ""    "inserted = 0;\n"
-    
-    ""  "if (val.length) {\n"
-    ""    "while ((i != -1) && (i < sugup.length)) {\n"
-    ""      "var matchpos = sugup.indexOf(val, i);\n"
-    ""        "if (matchpos != -1) {\n"
-    ""          "if ((matchpos == 0)\n"
-    ""              "|| (sep.indexOf(sugup.charAt(matchpos - 1)) != -1)) {\n"
-    + (!options.highlightEndTag.empty()
-       ? ("suggestion = suggestion.substring(0, matchpos + inserted)\n"
-	  " + '" + options.highlightBeginTag + "'"
-	  " + suggestion.substring(matchpos + inserted,"
-	  "     matchpos + inserted + val.length)\n"
-	  " + '" + options.highlightEndTag + "'"
-	  " + suggestion.substring(matchpos + inserted + val.length,"
-	  "     suggestion.length);\n"
-	  " inserted += "
-	  + boost::lexical_cast<std::string>(options.highlightBeginTag.length()
-					     + options.highlightEndTag.length())
-	  + ";\n")
-       : "") +
-    ""            "matched = true;\n"
-    ""          "}\n"
-    ""        "i = matchpos + 1;\n"
-    ""      "} else\n"
-    ""        "i = matchpos;\n"
-    ""    "}\n"
-    ""  "}\n"
-
-    ""  "return { match: matched,\n"
-    ""           "suggestion: suggestion }\n"
-    """}"
-    "}";
-}
-
-std::string WSuggestionPopup::generateReplacerJS(const Options& options)
-{
-  return std::string() +
-    "function (edit, suggestionText, suggestionValue) {"
-    + generateParseEditJS(options) +
-    "edit.value = edit.value.substring(0, start) +"
-    "  suggestionValue "
-    + (!options.appendReplacedText.empty()
-       ? "+ '" + options.appendReplacedText + "'"
-       : "") +
-    " + edit.value.substring(end, edit.value.length);"
-    " if (edit.selectionStart) {"
-    "   edit.selectionStart = start + suggestionValue.length"
-    + (!options.appendReplacedText.empty()
-       ? "+ " + boost::lexical_cast<std::string>(2)
-       : "") + ";"
-    "   edit.selectionEnd = start + suggestionValue.length"
-    + (!options.appendReplacedText.empty()
-       ? "+ " + boost::lexical_cast<std::string>(2)
-       : "") + ";"
-    " }"
-    "}";
-}
-
 void WSuggestionPopup::setFilterLength(int length)
 {
   filterLength_ = length;
@@ -398,7 +325,9 @@ void WSuggestionPopup::setFilterLength(int length)
 
 void WSuggestionPopup::doFilter(std::string input)
 {
+  filtering_ = true;
   filterModel_.emit(WT_USTRING::fromUTF8(input));
+  filtering_ = false;
 
   WApplication *app = WApplication::instance();
   app->doJavaScript("jQuery.data(" + jsRef() + ", 'obj').filtered("
@@ -425,6 +354,16 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
     }
 
   wApp->log("error") << "WSuggestionPopup activate for bogus item";
+}
+
+std::string WSuggestionPopup::generateMatcherJS(const Options& options)
+{
+  return instantiateStdMatcher(options) + ".match";
+}
+
+std::string WSuggestionPopup::generateReplacerJS(const Options& options)
+{
+  return instantiateStdMatcher(options) + ".replace";
 }
 
 }

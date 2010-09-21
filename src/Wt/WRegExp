@@ -24,14 +24,17 @@ public:
   WRegExp(const WT_USTRING& pattern);
   ~WRegExp();
 
-  void setPattern(const WT_USTRING& pattern);
+  void setPattern(const WT_USTRING& pattern, WFlags<WRegExpOption> options);
   WT_USTRING pattern() const;
+  WFlags<WRegExpOption> options() const { return options_; }
 
   bool isValid() const;
 
   bool exactMatch(const WT_USTRING& s) const;
 
 private:
+  WFlags<WRegExpOption> options_;
+
 #ifndef WT_HAVE_GNU_REGEX
   boost::regex rx_;
 #else

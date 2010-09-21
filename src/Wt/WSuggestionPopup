@@ -425,6 +425,7 @@ private:
   WAbstractItemModel *model_;
   int modelColumn_;
   int filterLength_;
+  bool filtering_;
 
   std::string       matcherJS_;
   std::string       replacerJS_;

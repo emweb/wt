@@ -82,6 +82,14 @@ public:
    */
   void setRegExp(const WT_USTRING& pattern);
 
+  /*! \brief Sets regular expression matching options.
+   */
+  void setOptions(WFlags<WRegExpOption> options);
+
+  /*! \brief Returns regular expression matching options.
+   */
+  WFlags<WRegExpOption> options();
+
   /*! \brief Returns the regular expression for valid input.
    *
    * Returns the perl regular expression.

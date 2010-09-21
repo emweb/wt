@@ -34,15 +34,26 @@ WRegExp::~WRegExp()
 #endif // WT_HAVE_GNU_REGEX
 }
 
-void WRegExp::setPattern(const WT_USTRING& pattern)
+void WRegExp::setPattern(const WT_USTRING& pattern,
+			 WFlags<WRegExpOption> options)
 {
+  options_ = options;
+
 #ifndef WT_HAVE_GNU_REGEX
-  rx_ = pattern.toUTF8();
+  boost::regex::flag_type opt = boost::regex::normal;
+  if (options & MatchCaseInsensitive)
+    opt |= boost::regex::icase;
+  rx_ = boost::regex(pattern.toUTF8(), opt);
 #else
   if (valid_)
     regfree(&rx_);
   pattern_ = pattern;
-  valid_ = regcomp(&rx_, pattern.toUTF8().c_str(), REG_EXTENDED) == 0;
+
+  int opt = REG_EXTENDED;
+  if (options & MatchCaseInsensitive)
+    opt |= REG_ICASE;
+
+  valid_ = regcomp(&rx_, pattern.toUTF8().c_str(), opt) == 0;
 #endif
 }
 

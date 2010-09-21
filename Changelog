@@ -1,3 +1,10 @@
+21-09-2010:
+	* WRegExpValidator, WSortFilterProxyModel: support case-insensitive
+	regular expressions
+
+	* WSuggestionPopup: optimized behaviour w.r.t server-side and
+	client-side filtering
+
 20-09-2010:
 	* WApplication: added makeAbsoluteUrl() method.
 

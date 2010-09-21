@@ -362,6 +362,7 @@ this.setSelectionRange = function(elem, start, end) {
 
 this.isKeyPress = function(e) {
   if (!e) e = window.event;
+
   if (e.altKey || e.ctrlKey || e.metaKey)
     return false;
 
@@ -369,9 +370,15 @@ this.isKeyPress = function(e) {
 
   if (charCode > 0 || WT.isIE)
     return true;
-  else
-    return (e.keyCode == 13 || e.keyCode == 27
-	   || (e.keyCode >= 32 && e.keyCode < 125));
+  else {
+    if (WT.isOpera)
+      return (e.keyCode == 13 || e.keyCode == 27
+	      || (e.keyCode >= 32 && e.keyCode < 125));
+    else
+      return (e.keyCode == 13 || e.keyCode == 27 || e.keyCode == 32
+	      || (e.keyCode > 46 && e.keyCode < 112));
+
+  }
 };
 
 var rnumpx = /^-?\d+(?:px)?$/i;

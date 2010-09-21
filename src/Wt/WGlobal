@@ -672,6 +672,16 @@ enum PaintFlag {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(PaintFlag);
 
+/*! \brief Enumeration that indicates a regular expression option.
+ *
+ * \sa WSortFilterProxyModel::setFilterOptions(), WRegExpValidator::setOptions()
+ */
+enum WRegExpOption {
+  MatchCaseInsensitive = 0x1 //!< Case insensitive matching
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WRegExpOption);
+
 /*! \brief Enumeration that indicates a %Wt entrypoint type.
  *
  * An entry point binds a behavior to a public URL. Only the wthttpd

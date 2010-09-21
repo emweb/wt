@@ -33,7 +33,7 @@ public:
 
   void refresh();
 
-  const std::set<std::string> keys(WFlags<WMessageResourceBundle::Scope> scope) const;
+  std::set<std::string> keys(WFlags<WMessageResourceBundle::Scope> scope) const;
 
   typedef std::map<std::string, std::string> KeyValueMap;
 
