@@ -35,13 +35,13 @@ WRegExp::~WRegExp()
 }
 
 void WRegExp::setPattern(const WT_USTRING& pattern,
-			 WFlags<WRegExpOption> options)
+			 WFlags<RegExpFlag> flags)
 {
-  options_ = options;
+  flags_ = flags;
 
 #ifndef WT_HAVE_GNU_REGEX
   boost::regex::flag_type opt = boost::regex::normal;
-  if (options & MatchCaseInsensitive)
+  if (flags & MatchCaseInsensitive)
     opt |= boost::regex::icase;
   rx_ = boost::regex(pattern.toUTF8(), opt);
 #else
@@ -50,7 +50,7 @@ void WRegExp::setPattern(const WT_USTRING& pattern,
   pattern_ = pattern;
 
   int opt = REG_EXTENDED;
-  if (options & MatchCaseInsensitive)
+  if (flags & MatchCaseInsensitive)
     opt |= REG_ICASE;
 
   valid_ = regcomp(&rx_, pattern.toUTF8().c_str(), opt) == 0;

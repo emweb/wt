@@ -672,15 +672,24 @@ enum PaintFlag {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(PaintFlag);
 
+#ifndef WT_TARGET_JAVA
+
 /*! \brief Enumeration that indicates a regular expression option.
  *
  * \sa WSortFilterProxyModel::setFilterOptions(), WRegExpValidator::setOptions()
  */
-enum WRegExpOption {
+enum RegExpFlag {
   MatchCaseInsensitive = 0x1 //!< Case insensitive matching
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(WRegExpOption);
+W_DECLARE_OPERATORS_FOR_FLAGS(RegExpFlag);
+
+#else // WT_TARGET_JAVA
+
+enum RegExpFlag { };
+const int MatchCaseInsensitive = 0x1;
+
+#endif // WT_TARGET_JAVA
 
 /*! \brief Enumeration that indicates a %Wt entrypoint type.
  *

@@ -35,7 +35,7 @@ namespace {
 
     if (options.listSeparator)
       s << Wt::WWebWidget::jsStringLiteral
-	(std::string(1, options.listSeparator));
+	(std::string() + options.listSeparator);
     else
       s << "null";
 

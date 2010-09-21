@@ -379,7 +379,9 @@ WT_DECLARE_WT_MEMBER
      if (wordSeparators.length != 0)
        regexp = "(^|(?:[" + wordSeparators + "]))";
 
-     regexp += "(" + value.replace(/([\^\\\][\-.$*+?()|{}])/g, "\\$1") + ")";
+     regexp += "(" + value.replace
+       (new RegExp("([\\^\\\\\\][\\-.$*+?()|{}])","g"), "\\$1") + ")";
+
      regexp = new RegExp(regexp, "gi");
 
      return function(suggestion) {

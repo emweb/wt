@@ -138,13 +138,13 @@ public:
    */
   WT_USTRING filterRegExp() const;
 
-  /*! \brief Sets the filter regular expression options.
+  /*! \brief Sets the filter regular expression flags.
    */
-  void setFilterOptions(WFlags<WRegExpOption> options);
+  void setFilterFlags(WFlags<RegExpFlag> flags);
 
-  /*! \brief Returns the filter regular expression options.
+  /*! \brief Returns the filter regular expression flags.
    */
-  WFlags<WRegExpOption> filterOptions() const;
+  WFlags<RegExpFlag> filterFlags() const;
 
   /*! \brief Specify the data role used for filtering.
    *
