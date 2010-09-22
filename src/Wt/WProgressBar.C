@@ -2,7 +2,6 @@
 #include <Wt/WProgressBar>
 #include <Wt/WText>
 #include <Wt/WContainerWidget>
-#include <boost/format.hpp>
 
 #include "DomElement.h"
 
@@ -56,7 +55,8 @@ void WProgressBar::setRange(double minimum, double maximum)
 
 WString WProgressBar::text() const
 {
-  return WString::fromUTF8((boost::format("%1%%%") % percentage()).str());
+  return WString::fromUTF8
+    (boost::lexical_cast<std::string>(static_cast<int>(percentage())));
 }
 
 double WProgressBar::percentage() const
