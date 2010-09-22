@@ -31,7 +31,7 @@ class WTemplate;
  * just below or just on top of the edit field. It offers a list of
  * suggestions that match in some way with the current edit field, and
  * dynamically adjusts this list. The implementation for matching
- * indivudal suggestions with the current text is provided through a
+ * individual suggestions with the current text is provided through a
  * JavaScript function. This function may also highlight part(s) of
  * the suggestions to provide feed-back on how they match.
  *
@@ -39,17 +39,20 @@ class WTemplate;
  * WStringListModel by default. You can set a custom model using
  * setModel(). The model can provide different text for the suggestion
  * text (Wt::DisplayRole) and value (Wt::UserRole). The member methods
- * clearSuggestions() and addSuggestion() manipulate the model.
+ * clearSuggestions() and addSuggestion() manipulate this model.
  *
  * By default, the popup implements all filtering client-side. To
  * support large datasets, you may enable server-side filtering of
- * suggestions based on the input. The server-side filtering provides
- * a coarse filtering using a fixed size prefix of the entered text,
- * and complements the client-side filtering. Use setFilterLength()
- * and then listen to a filter notification using the modelFilter()
- * signal. By using setMaximumSize() you can also limit the maximum
- * height of the popup, in which case scrolling is supported (similar
- * to a combo-box).
+ * suggestions based on the input. The server-side filtering may
+ * provide a coarse filtering using a fixed size prefix of the entered
+ * text, and complement the client-side filtering. To enable
+ * server-side filtering, use setFilterLength() and listen to filter
+ * notification using the modelFilter() signal. Whenever a filter
+ * event is generated you can adjust the model's content according to
+ * the filter (e.g. using a WSortFilterProxyModel). By using
+ * setMaximumSize() you can also limit the maximum height of the
+ * popup, in which case scrolling is supported (similar to a
+ * combo-box).
  *
  * The class is initialized with an Options struct which configures
  * how suggestion filtering and result editing is done. Alternatively,
@@ -57,7 +60,7 @@ class WTemplate;
  * suggestions, and one for editing the value of the textarea when a
  * suggestion is selected.
  *
- * The matcherJS function block must have the following JavaScript signature:
+ * The matcherJS function must have the following JavaScript signature:
  * 
  * \code
  * function (editElement) {
@@ -67,18 +70,17 @@ class WTemplate;
  *   return function(suggestion) {
  *
  *     // 1) if suggestion is null, simply return the current text 'value'
- *     // 2) remove markup from the suggestion
- *     // 3) check suggestion if it matches
- *     // 4) add markup to suggestion if necessary
+ *     // 2) check suggestion if it matches
+ *     // 3) add highlighting markup to suggestion if necessary
  *
  *     return { match : ...,      // does the suggestion match ? (boolean)
- *              suggestion : ...  // modified suggestion markup
+ *              suggestion : ...  // modified suggestion with highlighting
  *             };
  *   }
  * }
  * \endcode
  *
- * The replacerJS function block that edits the value has the following
+ * The replacerJS function that edits the value has the following
  * JavaScript signature.
  *
  * \code

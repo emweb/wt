@@ -666,7 +666,7 @@ private:
   void signalModelDataChange();
   void adoptChild(int row, int column, WStandardItem *item);
   void orphanChild(WStandardItem *item);
-  void setModel(WStandardItemModel *model);
+  virtual void setModel(WStandardItemModel *model);
   void recursiveSortChildren(int column, SortOrder order);
   void renumberColumns(int column);
   void renumberRows(int row);
