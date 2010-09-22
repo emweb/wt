@@ -153,7 +153,7 @@ void CommentView::renderView()
   CommentVector comments(comment_->children.begin(), comment_->children.end());
 
   WContainerWidget *children = new WContainerWidget();
-  for (int i = comments.size() - 1; i >= 0; --i)
+  for (int i = (int)comments.size() - 1; i >= 0; --i)
     children->addWidget(new CommentView(session_, comments[i]));
 
   bindWidget("children", children);

@@ -207,9 +207,9 @@ void IsapiRequest::sendHeader()
   std::string header = header_.str();
   HSE_SEND_HEADER_EX_INFO hei = { 0 };
   hei.pszStatus = status.c_str();
-  hei.cchStatus = status.size() + 1;
+  hei.cchStatus = static_cast<DWORD>(status.size() + 1);
   hei.pszHeader = header.c_str();
-  hei.cchHeader = header.size() + 1;
+  hei.cchHeader = static_cast<DWORD>(header.size() + 1);
   hei.fKeepConn =  version_ == HTTP_1_1 && (responseLengthKnown_ || chunking_);
   ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_SEND_RESPONSE_HEADER_EX,
     &hei, 0, 0);
@@ -290,7 +290,7 @@ void IsapiRequest::writeSync()
     bool more = true;
     DWORD offset = 0;
     while (more) {
-      DWORD size = writeData_[i].size() - offset;
+      DWORD size = static_cast<DWORD>(writeData_[i].size() - offset);
       if (ecb_->WriteClient(ecb_->ConnID, (LPVOID)(writeData_[i].data() + offset),
           &size, HSE_IO_SYNC)) {
         offset += size;
@@ -334,7 +334,7 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
   }
   if (!error) {
     if (writeIndex_ < writeData_.size()) {
-      DWORD size = writeData_[writeIndex_].size() - writeOffset_;
+      DWORD size = static_cast<DWORD>(writeData_[writeIndex_].size() - writeOffset_);
       if (ecb_->WriteClient(ecb_->ConnID, (LPVOID)(writeData_[writeIndex_].data() + writeOffset_),
         &size, HSE_IO_ASYNC)) {
         // Don't do anything anymore, the callback will take over

@@ -22,7 +22,7 @@ std::string Post::permaLink() const
 
 std::string Post::commentCount() const
 {
-  int count = comments.size() - 1;
+  int count = (int)comments.size() - 1;
   if (count == 1)
     return "1 comment";
   else

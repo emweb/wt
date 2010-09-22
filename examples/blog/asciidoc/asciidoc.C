@@ -51,7 +51,7 @@ WString asciidoc(const Wt::WString& src)
   {
     std::ofstream srcFile(srcFileName.c_str(), std::ios::out);
     std::string ssrc = src.toUTF8();
-    srcFile.write(ssrc.c_str(), ssrc.length());
+    srcFile.write(ssrc.c_str(), (std::streamsize)ssrc.length());
     srcFile.close();
   }
 

@@ -98,7 +98,7 @@ SplitterHandle *Splitter::handle(int index) const
 
 WWidget *Splitter::widgetBefore(const SplitterHandle *handle) const
 {
-  int index
+  std::size_t index
     = std::find(handles_.begin(), handles_.end(), handle) - handles_.begin();
 
   return children_[index];
@@ -106,7 +106,7 @@ WWidget *Splitter::widgetBefore(const SplitterHandle *handle) const
 
 WWidget *Splitter::widgetAfter(const SplitterHandle *handle) const
 {
-  int index
+  std::size_t index
     = std::find(handles_.begin(), handles_.end(), handle) - handles_.begin();
 
   return children_[index + 1];
@@ -114,7 +114,7 @@ WWidget *Splitter::widgetAfter(const SplitterHandle *handle) const
 
 SplitterHandle *Splitter::splitterBefore(const SplitterHandle *handle) const
 {
-  int index
+  std::size_t index
     = std::find(handles_.begin(), handles_.end(), handle) - handles_.begin();
 
   if (index > 0)
@@ -125,7 +125,7 @@ SplitterHandle *Splitter::splitterBefore(const SplitterHandle *handle) const
 
 SplitterHandle *Splitter::splitterAfter(const SplitterHandle *handle) const
 {
-  unsigned index
+  std::size_t index
     = std::find(handles_.begin(), handles_.end(), handle) - handles_.begin();
 
   if (index == handles_.size() - 1)

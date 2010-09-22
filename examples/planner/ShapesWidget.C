@@ -78,7 +78,7 @@ void ShapesWidget::initShapes()
     }
   }
 
-  shapes_.insert(shapes_.begin() + randomInt(shapes_.size()), toSelect_);
+  shapes_.insert(shapes_.begin() + randomInt((int)shapes_.size()), toSelect_);
 }
 
 void ShapesWidget::paintEvent(WPaintDevice *paintDevice) 

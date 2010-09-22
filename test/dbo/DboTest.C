@@ -218,6 +218,12 @@ public:
   As    asManyToOne;
   Cs    csManyToMany;
 
+  D() { }
+  D(const Coordinate& anId, const std::string& aName)
+    : id(anId),
+      name(aName)
+  { }
+
   template <class Action>
   void persist(Action& a)
   {
@@ -281,7 +287,7 @@ void DboTest::test1()
     a1.wstring = "Hello";
     a1.string = "There";
     a1.i = 42;
-    a1.f = 42.42;
+    a1.f = (float)42.42;
     a1.d = 42.424242;
 
     /* Create an A, check that it is found during the same transaction  */
@@ -360,7 +366,7 @@ void DboTest::test2()
     a1.wstring = "Hello";
     a1.string = "There";
     a1.i = 42;
-    a1.f = 42.42;
+    a1.f = (float)42.42;
     a1.d = 42.424242;
 
     B b1;
@@ -454,7 +460,7 @@ void DboTest::test3()
       dbo::ptr<B> b1 = session_->query< dbo::ptr<B> >
 	("select distinct B from table_b B ").where("B.name = ?").bind("b1");
 
-      int count = session_->query< dbo::ptr<B> >
+      std::size_t count = session_->query< dbo::ptr<B> >
 	("select distinct B from table_b B ").where("B.name = ?").bind("b1")
 	.resultList().size();
 
@@ -489,7 +495,7 @@ void DboTest::test4()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
-      a1.modify()->f = 42.42;
+      a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
       dbo::ptr<A> a2(new A(*a1));
@@ -560,7 +566,7 @@ void DboTest::test5()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
-      a1.modify()->f = 42.42;
+      a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
       dbo::ptr<A> a2(new A(*a1));
@@ -615,7 +621,7 @@ void DboTest::test6()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
-      a1.modify()->f = 42.42;
+      a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
       session_->add(a1);
@@ -672,13 +678,13 @@ void DboTest::test7()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
-      a1.modify()->f = 42.42;
+      a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
       session_->add(a1);
       a1.flush();
 
-      aId = a1.id();
+      aId = (int)a1.id();
 
       t.commit();
     }
@@ -778,7 +784,7 @@ void DboTest::test10()
       try {
 	session_->load<D>(Coordinate(10, 11));
 	BOOST_REQUIRE(false); // Expected an exception
-      } catch (const dbo::ObjectNotFoundException& e) {
+      } catch (const dbo::ObjectNotFoundException&) {
       }
 
       dbo::ptr<D> d2 = session_->load<D>(Coordinate(42, 43));
@@ -902,6 +908,12 @@ void DboTest::test12()
   try {
     {
       dbo::Transaction t(*session_);
+
+      session_->add(new D(Coordinate(5, 6), "yes"));
+      dbo::ptr<D> d1 = session_->find<D>();
+
+      BOOST_REQUIRE(d1->name == "yes");
+      BOOST_REQUIRE(d1->id == Coordinate(5, 6));
 
       session_->add(new C("c1"));
 

@@ -85,7 +85,7 @@ std::string readFileToString(const std::string& fileName)
   std::size_t outputFileSize = (std::size_t)fs::file_size(fileName);
   std::fstream file (fileName.c_str(), std::ios::in | std::ios::binary);
   char* memblock = new char [outputFileSize];
-  file.read(memblock, outputFileSize);
+  file.read(memblock, (std::streamsize)outputFileSize);
   file.close();
   std::string data = std::string(memblock, outputFileSize);
   delete [] memblock;
@@ -135,7 +135,7 @@ WWidget * SourceView::renderView()
       inputFileName = tempFileName();
       std::ofstream out(inputFileName.c_str(), 
 			std::ios::out | std::ios::binary);
-      out.write(content.c_str(), content.length());
+      out.write(content.c_str(), (std::streamsize)content.length());
       out.close();
     }
     
@@ -180,7 +180,7 @@ WWidget * SourceView::renderView()
     imageResource_ = new WMemoryResource(this);
     imageResource_->setMimeType("mime/" + imageExtension(fileName));
     imageResource_->setData((const unsigned char*)content.data(),
-			    content.length());
+			    (int)content.length());
     image->setResource(imageResource_);
     result = image;
   } else if (lang != "") {

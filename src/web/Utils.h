@@ -76,7 +76,7 @@ inline int indexOf(const std::vector<T>& v, const T& value)
   if (i == v.end())
     return -1;
   else
-    return i - v.begin();
+    return static_cast<int>(i - v.begin());
 }
 
 template<typename T>
@@ -135,19 +135,22 @@ template <typename T, typename Compare>
 inline unsigned insertion_point(const std::vector<T>& v, const T& item,
 				Compare compare)
 {
-  return std::lower_bound(v.begin(), v.end(), item, compare) - v.begin();
+  return static_cast<unsigned>(
+    std::lower_bound(v.begin(), v.end(), item, compare) - v.begin());
 }
 
 template <typename T>
 inline unsigned lower_bound(const std::vector<T>& v, const T& item)
 {
-  return std::lower_bound(v.begin(), v.end(), item) - v.begin();
+  return static_cast<unsigned>(
+    std::lower_bound(v.begin(), v.end(), item) - v.begin());
 }
 
 template <typename T>
 inline unsigned upper_bound(const std::vector<T>& v, const T& item)
 {
-  return std::upper_bound(v.begin(), v.end(), item) - v.begin();
+  return static_cast<unsigned>(
+    std::upper_bound(v.begin(), v.end(), item) - v.begin());
 }
 
 template <typename K, typename V, typename T>
@@ -200,7 +203,7 @@ inline bool isNaN(double d) {
 #ifdef _MSC_VER
   // received bug reports that on 64 bit windows, MSVC2005
   // generates wrong code for d != d.
-  return _isnan(d);
+  return _isnan(d) != 0;
 #else
   return !(d == d);  
 #endif

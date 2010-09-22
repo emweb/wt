@@ -91,6 +91,9 @@ IF(WIN32)
   ENDIF(NOT DEFINED CONFIGDIR)
 
   SET(USERLIB_PREFIX_DEFAULT "c:/libraries")
+  IF(MSVC)
+    SET(BUILD_PARALLEL "/MP" CACHE STRING "MSVC option for parallel builds (/MP or /MPx)")
+  ENDIF(MSVC)
 
 ELSE(WIN32)
 

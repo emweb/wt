@@ -15,6 +15,27 @@
 
 namespace Wt {
   namespace Dbo {
+    namespace Impl {
+      template <class C, typename T>
+      struct LoadHelper
+      {
+	static ptr<C> load(Session *session, SqlStatement *statement,
+			   int& column)
+	{
+	  return session->loadWithNaturalId<C>(statement, column);
+	};
+      };
+
+      template <class C>
+      struct LoadHelper<C, long long>
+      {
+	static ptr<C> load(Session *session, SqlStatement *statement,
+			   int& column)
+	{
+	  return session->loadWithLongLongId<C>(statement, column);
+	}
+      };
+    }
 
 template <class C>
 void Session::mapClass(const char *tableName)
@@ -78,17 +99,49 @@ Session::Mapping<C> *Session::getMapping() const
 template <class C>
 ptr<C> Session::load(SqlStatement *statement, int& column)
 {
+  return Impl::LoadHelper<C, typename dbo_traits<C>::IdType>
+    ::load(this, statement, column);
+}
+
+template <class C>
+ptr<C> Session::loadWithNaturalId(SqlStatement *statement, int& column)
+{
+  Mapping<C> *mapping = getMapping<C>();
+
+  typedef typename dbo_traits<C>::IdType IdType;
+  IdType id;
+
+  /* Natural id is possibly multiple fields anywhere */
+
+  MetaDbo<C> *dbo = new MetaDbo<C>(dbo_traits<C>::invalidId(), -1,
+				   MetaDboBase::Persisted, *this, 0);
+  implLoad<C>(*dbo, statement, column);
+
+  typename Mapping<C>::Registry::iterator i
+    = mapping->registry_.find(dbo->id());
+
+  if (i == mapping->registry_.end()) {
+    mapping->registry_[id] = dbo;
+    return ptr<C>(dbo);
+  } else {
+    delete dbo;
+    return ptr<C>(i->second);
+  }
+}
+
+template <class C>
+ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
+{
   Mapping<C> *mapping = getMapping<C>();
 
   /*
-   * If mapping uses surrogate keys, then we can first read the id and decide
-   * if we already have it.
+   * If mapping uses surrogate keys, then we can first read the id and
+   * decide if we already have it.
    *
-   * If not, then we need to first read the object, get the id, and if we already
-   * had it, delete the redundant copy.
+   * If not, then we need to first read the object, get the id, and if
+   * we already had it, delete the redundant copy.
    */
-  typedef typename dbo_traits<C>::IdType IdType;
-  IdType id;
+  long long id;
 
   if (mapping->surrogateIdFieldName) {
     /* Auto-generated surrogate key is first field */
@@ -105,13 +158,12 @@ ptr<C> Session::load(SqlStatement *statement, int& column)
 
       return ptr<C>(dbo);
     } else {
-      column += mapping->fields.size() + 1; // + version
+      column += (int)mapping->fields.size() + 1; // + version
 
       return ptr<C>(i->second);
     }
   } else {
     /* Natural id is possibly multiple fields anywhere */
-
     MetaDbo<C> *dbo = new MetaDbo<C>(dbo_traits<C>::invalidId(), -1,
 				     MetaDboBase::Persisted, *this, 0);
     implLoad<C>(*dbo, statement, column);

@@ -50,7 +50,7 @@ int QueryModel<Result>::addColumn(const QueryColumn& column)
   columns_.push_back(column);
   columns_.back().fieldIdx_ = getFieldIndex(column.field_);
 
-  return columns_.size() - 1;
+  return static_cast<int>(columns_.size() - 1);
 }
 
 template <class Result>
@@ -75,7 +75,7 @@ int QueryModel<Result>::columnCount(const WModelIndex& parent) const
   if (parent.isValid())
     return 0;
 
-  return columns_.size();
+  return static_cast<int>(columns_.size());
 }
 
 template <class Result>
@@ -89,7 +89,7 @@ int QueryModel<Result>::rowCount(const WModelIndex& parent) const
 
     query_.limit(-1);
     query_.offset(-1);
-    cachedRowCount_ = query_.resultList().size();
+    cachedRowCount_ = static_cast<int>(query_.resultList().size());
 
     transaction.commit();
   }

@@ -475,7 +475,7 @@ public:
    */
   WCartesianChart *chart() const { return chart_; }
 
-  int segmentCount() const { return segments_.size(); }
+  int segmentCount() const { return (int)segments_.size(); }
 
 private:
   WCartesianChart *chart_;

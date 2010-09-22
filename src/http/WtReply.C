@@ -65,7 +65,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
   /*
    * Copy everything to a buffer.
    */
-  cin_->write(begin, end - begin);
+  cin_->write(begin, static_cast<std::streamsize>(end - begin));
 
   if (endOfRequest) {
     cin_->flush();

@@ -41,7 +41,7 @@ void OptionList::optionVisibilityChanged(Option *opt, bool hidden)
    * Check if it was the last visible option, in that case the second last
    * visible option loses its separator.
    */
-  for (unsigned i = options_.size() - 1; i > 0; --i) {
+  for (std::size_t i = options_.size() - 1; i > 0; --i) {
     if (options_[i] == opt) {
       for (int j = i - 1; j >= 0; --j) {
 	if (!options_[j]->isHidden()) {

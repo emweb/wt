@@ -117,7 +117,7 @@ public:
    *
    * \sa addColumn()
    */
-  int columnCount() const { return columnWidths_.size(); }
+  int columnCount() const { return (int)columnWidths_.size(); }
 
   /*! \brief Sets the tree root.
    *

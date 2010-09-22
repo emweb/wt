@@ -43,7 +43,7 @@ public:
 				 sql.length() + 1, st_, 0);
 #else
     int err = sqlite3_prepare(db_.connection(), sql.c_str(),
-			      sql.length() + 1, &st_, 0);
+			      static_cast<int>(sql.length() + 1), &st_, 0);
 #endif
 
     handleErr(err);
@@ -70,7 +70,7 @@ public:
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
     int err = sqlite3_bind_text(st_, column + 1, value.c_str(),
-				value.length(), SQLITE_TRANSIENT);
+				static_cast<int>(value.length()), SQLITE_TRANSIENT);
 
     handleErr(err);
   }
@@ -160,7 +160,7 @@ public:
       err = sqlite3_bind_blob(st_, column + 1, "", 0, SQLITE_TRANSIENT);
     else 
       err = sqlite3_bind_blob(st_, column + 1, &(*(value.begin())),
-			      value.size(), SQLITE_STATIC);
+			      static_cast<int>(value.size()), SQLITE_STATIC);
 
     handleErr(err);
   }

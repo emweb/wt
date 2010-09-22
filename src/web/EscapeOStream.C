@@ -349,7 +349,7 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
   for (;s;) {
     const char *f = std::strpbrk(s, rules.c_special_);
     if (f != 0) {
-      stream_.append(s, (f - s));
+      stream_.append(s, static_cast<int>(f - s));
       
       unsigned i = 0;
       for (; i < rules.mixed_.size(); ++i)

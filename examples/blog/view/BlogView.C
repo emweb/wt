@@ -239,9 +239,9 @@ private:
 
       authorPanel_->bindString("user", session_.user()->name);
       authorPanel_->bindInt("unpublished-count",
-			   session_.user()->allPosts(Post::Unpublished).size());
+			    (int)session_.user()->allPosts(Post::Unpublished).size());
       authorPanel_->bindInt("published-count",
-			   session_.user()->allPosts(Post::Published).size());
+			    (int)session_.user()->allPosts(Post::Published).size());
       authorPanel_->bindWidget("new-post", newPost);
       authorPanel_->bindWidget("unpublished-posts", unpublishedPosts);
     }

@@ -24,6 +24,13 @@ IF(CONNECTOR_ISAPI)
       SOVERSION ${WTISAPI_SOVERSION}
       DEBUG_POSTFIX "d"
     )
+    IF(MSVC)
+      SET_TARGET_PROPERTIES(
+          wtisapi
+        PROPERTIES
+          COMPILE_FLAGS "${BUILD_PARALLEL} /wd4267"
+      )
+    ENDIF(MSVC)
 
     INSTALL(TARGETS wtisapi
       RUNTIME DESTINATION bin
