@@ -1,0 +1,109 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2010 Thomas Suckow.
+ * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WPROGRESSBAR_H_
+#define WPROGRESSBAR_H_
+
+#include <Wt/WInteractWidget>
+
+namespace Wt {
+
+/*! \brief A progress bar.
+ *
+ * The progress bar can be used to indicate the progress of a certain
+ * operation. The text displayed in the progress bar can be customized
+ * by specializing text().
+ *
+ * To use the progress bar, you need to give it a range (minimum and maximum
+ * value), and update the progress using setValue().
+ *
+ * %WProgressBar is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * <h3>CSS</h3>
+ *
+ * Using HTML4, the widget is implemented using a set of nested
+ * DIVs. The element can be styled using the <tt>Wt-progressbar</tt>
+ * style. It may be styled through the current theme, or you can
+ * override the style using internal or external CSS as appropriate.
+ *
+ * \note With the advent of HTML5, this widget will be implemented using
+ *       the native HTML5 control when available.
+ */
+class WProgressBar : public WInteractWidget
+{
+public:
+  /*! \brief Creates a progress bar.
+   */
+  WProgressBar(WContainerWidget *parent = 0);
+
+  /*! \brief Sets the minimum value.
+   *
+   * The minimum value is the value that corresponds to 0%.
+   *
+   * The default value is 0.
+   */
+  void setMinimum(double minimum);
+
+  /*! \brief Returns the minimum value.
+   *
+   * \sa setMinimum()
+   */
+  double minimum() const { return min_; }
+
+  /*! \brief Sets the maximum value.
+   *
+   * The maximum value is the value that corresponds to 0%.
+   *
+   * The default value is 100.
+   */
+  void setMaximum(double maximum);
+
+  /*! \brief Returns the maximum value.
+   *
+   * \sa setMaximum()
+   */
+  double maximum() const { return max_; }
+
+  /*! \brief Sets the range.
+   *
+   * \sa setMinimum(), setMaximum()
+   */
+  void setRange(double minimum, double maximum);
+
+  /*! \brief Sets the current progress.
+   *
+   * \p value must be a value between minimum() and maximum().
+   */
+  void setValue(double value);
+
+  /*! \brief Returns the current progress.
+   */
+  double value() const { return value_; }
+
+  /*! \brief Returns the text displayed inside the progress bar.
+   *
+   * This text must be an XHTML formatted text fragment. The default
+   * text prints the current progress as a percentage. You may want to
+   * reimplement this method to display a different text corresponding to
+   * the current value().
+   */
+  virtual WString text() const;
+
+protected:
+  double min_, max_, value_;
+  bool changed_;
+
+  virtual void updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+  virtual void           propagateRenderOk(bool deep);
+
+  double percentage() const;
+};
+
+}
+
+#endif // WPROGRESSBAR_H_

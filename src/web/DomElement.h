@@ -270,6 +270,7 @@ private:
 
   std::vector<ChildInsertion> childrenToAdd_;
   std::vector<std::string> childrenToSave_;
+  std::vector<DomElement *> updatedChildren_;
   EscapeOStream childrenHtml_;
   TimeoutList timeouts_;
 

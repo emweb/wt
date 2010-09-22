@@ -138,6 +138,7 @@ Wt/WPointF.C
 Wt/WPolygonArea.C
 Wt/WPopupMenu.C
 Wt/WPopupMenuItem.C
+Wt/WProgressBar.C
 Wt/WPushButton.C
 Wt/WRadioButton.C
 Wt/WRectArea.C

@@ -55,13 +55,10 @@ void WCheckBox::setCheckState(CheckState state)
   WAbstractToggleButton::setCheckState(state);
 }
 
-void WCheckBox::updateDomElements(DomElement& element, DomElement& input,
-				  bool all)
+void WCheckBox::updateInput(DomElement& input, bool all)
 {
   if (all)
     input.setAttribute("type", "checkbox");
-
-  WAbstractToggleButton::updateDomElements(element, input, all);
 }
 
 }

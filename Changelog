@@ -1,3 +1,6 @@
+22-09-2010:
+	* WProgressBar: based on a contribution by Thomas Suckow.
+
 21-09-2010:
 	* WRegExpValidator, WSortFilterProxyModel: support case-insensitive
 	regular expressions

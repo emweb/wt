@@ -106,10 +106,8 @@ public:
 protected:
   CheckState state_;
 
-  virtual DomElement *createDomElement(WApplication *app);
-  virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
-  virtual void updateDomElements(DomElement& el, DomElement& input, bool all);
+  virtual void updateInput(DomElement& input, bool all) = 0;
+  virtual void updateDom(DomElement& element, bool all);
   virtual void getFormObjects(FormObjectsMap& formObjects);
   virtual void setFormData(const FormData& formData);
   virtual void propagateRenderOk(bool deep);

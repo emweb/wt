@@ -180,14 +180,17 @@ void DomElement::updateInnerHtmlOnly()
 
 void DomElement::addChild(DomElement *child)
 {
-  ++numManipulations_;
+  if (child->mode() == ModeCreate) {
+    ++numManipulations_;
 
-  if (wasEmpty_ && canWriteInnerHTML(WApplication::instance())) {
-    child->asHTML(childrenHtml_, javaScript_, timeouts_);
-    delete child;
-  } else {
-    childrenToAdd_.push_back(ChildInsertion(-1, child));
-  }
+    if (wasEmpty_ && canWriteInnerHTML(WApplication::instance())) {
+      child->asHTML(childrenHtml_, javaScript_, timeouts_);
+      delete child;
+    } else {
+      childrenToAdd_.push_back(ChildInsertion(-1, child));
+    }
+  } else
+    updatedChildren_.push_back(child);
 }
 
 void DomElement::saveChild(const std::string& id)
@@ -1156,6 +1159,12 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
       break;
 
     WApplication *app = WApplication::instance();
+
+    for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
+      DomElement *child = updatedChildren_[i];
+      child->asJavaScript(out, Update);
+      delete child;
+    }
 
     /*
      * short-cut for frequent short manipulations

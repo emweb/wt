@@ -1293,9 +1293,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 			     +"');");
 
     if (!transientImpl_->childRemoveChanges_.empty()) {
-      if (element.properties().find(PropertyInnerHTML)
-	  == element.properties().end())
-	element.setProperty(PropertyInnerHTML, std::string());
+      element.removeAllChildren();
       for (unsigned i = 0; i < transientImpl_->childRemoveChanges_.size();
 	   ++i)
 	delete transientImpl_->childRemoveChanges_[i];

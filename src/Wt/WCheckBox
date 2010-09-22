@@ -110,8 +110,7 @@ public:
   CheckState checkState() { return state_; }
 
 protected:
-  virtual void updateDomElements(DomElement& element, DomElement& input,
-				 bool all);
+  virtual void updateInput(DomElement& input, bool all);
 
 private:
   bool triState_;

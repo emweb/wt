@@ -308,6 +308,44 @@
 }
 
 /*
+ * WProgressBar
+ */
+div.Wt-progressbar
+{
+   background: #333;
+   position: relative;
+   border-width: 1px;
+   border-style: solid;
+   border-color: black;
+   overflow: hidden;
+   font-size: 0.8em;
+   color: #FFF;
+   font-weight: bold;
+   width: 200px;
+   height: 1.3em;
+}
+
+div.Wt-progressbar .Wt-pgb-bar
+{
+   position: absolute;
+   left: 0px;
+   top: 0px;
+   height: 100%;
+   background: #292;
+}
+
+div.Wt-progressbar .Wt-pgb-label
+{
+   position: absolute;
+   left: 0px;
+   top: 50%;
+   margin-top: -0.5em;
+   line-height: 100%;
+   width: 100%;
+   text-align: center;
+}
+
+/*
  * WPushButton
  */
 .Wt-btn:hover {

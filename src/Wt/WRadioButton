@@ -116,8 +116,7 @@ private:
   friend class WButtonGroup;
 
 protected:
-  virtual void updateDomElements(DomElement& element, DomElement& input,
-				 bool all);
+  virtual void updateInput(DomElement& input, bool all);
   virtual void getFormObjects(FormObjectsMap& formObjects);
 
   virtual void setFormData(const FormData& formData);

@@ -121,10 +121,23 @@ void WAbstractToggleButton::undoSetUnChecked()
   undoSetChecked();
 }
 
-void WAbstractToggleButton::updateDomElements(DomElement& element,
-					      DomElement& input, bool all)
+void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 {
-  const WEnvironment& env = WApplication::instance()->environment();
+  WApplication *app = WApplication::instance();
+  const WEnvironment& env = app->environment();
+
+  DomElement *input = 0;
+  if (element.type() == DomElement_SPAN) {
+    if (all) {
+      input = DomElement::createNew(DomElement_INPUT);
+      input->setName("in" + id());
+    } else
+      input = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
+  } else
+    input = &element;
+
+  if (all)
+    updateInput(*input, all);
 
   EventSignal<> *check = voidEventSignal(CHECKED_SIGNAL, false);
   EventSignal<> *uncheck = voidEventSignal(UNCHECKED_SIGNAL, false);
@@ -138,7 +151,7 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
      || (check && check->needsUpdate(all))
      || (uncheck && uncheck->needsUpdate(all)));
 
-  updateDom(input, all);
+  updateDom(*input, all);
 
   /*
    * Copy all properties to the exterior element, as they relate to style,
@@ -148,33 +161,33 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
    * But -- bug #423, disabled and readonly are properties that should be
    * kept on the interior element.
    */
-  if (&element != &input) {
-    element.setProperties(input.properties());
-    input.clearProperties();
+  if (&element != input) {
+    element.setProperties(input->properties());
+    input->clearProperties();
 
     std::string v = element.getProperty(Wt::PropertyDisabled);
     if (!v.empty()) {
-      input.setProperty(Wt::PropertyDisabled, v);
+      input->setProperty(Wt::PropertyDisabled, v);
       element.removeProperty(Wt::PropertyDisabled);
     }
 
     v = element.getProperty(Wt::PropertyReadOnly);
     if (!v.empty()) {
-      input.setProperty(Wt::PropertyReadOnly, v);
+      input->setProperty(Wt::PropertyReadOnly, v);
       element.removeProperty(Wt::PropertyReadOnly);
     }
   }
 
   if (stateChanged_ || all) {
-    input.setProperty(Wt::PropertyChecked,
-		      state_ == Unchecked ? "false" : "true");
+    input->setProperty(Wt::PropertyChecked,
+		       state_ == Unchecked ? "false" : "true");
 
     if (supportsIndeterminate(env))
-      input.setProperty(Wt::PropertyIndeterminate,
-			state_ == PartiallyChecked ? "true" : "false");
+      input->setProperty(Wt::PropertyIndeterminate,
+			 state_ == PartiallyChecked ? "true" : "false");
     else
-      input.setProperty(Wt::PropertyStyleOpacity,
-			state_ == PartiallyChecked ? "0.5" : "");
+      input->setProperty(Wt::PropertyStyleOpacity,
+			 state_ == PartiallyChecked ? "0.5" : "");
 
     stateChanged_ = false;
   }
@@ -224,7 +237,17 @@ void WAbstractToggleButton::updateDomElements(DomElement& element,
     }
 
     if (!(all && actions.empty()))
-      input.setEvent(CLICK_SIGNAL, actions);
+      input->setEvent(CLICK_SIGNAL, actions);
+  }
+
+  if (&element != input)
+    element.addChild(input);
+
+  if (all) {
+    WLabel *l = label();
+  
+    if (l && l->parent() == this)
+      element.addChild(((WWebWidget *)l)->createDomElement(app));
   }
 }
 
@@ -236,50 +259,6 @@ DomElementType WAbstractToggleButton::domElementType() const
     return DomElement_SPAN;
   else
     return DomElement_INPUT;
-}
-
-DomElement *WAbstractToggleButton::createDomElement(WApplication *app)
-{
-  DomElement *result = DomElement::createNew(domElementType());
-  setId(result, app);
-
-  DomElement *input = result;
-
-  if (result->type() == DomElement_SPAN) {
-    input = DomElement::createNew(DomElement_INPUT);
-    input->setName("in" + id());
-  }
-
-  updateDomElements(*result, *input, true);
-
-  if (result != input) {
-    result->addChild(input);
-
-    WLabel *l = label();
-  
-    if (l && l->parent() == this)
-      result->addChild(((WWebWidget *)l)->createDomElement(app));
-  }
-
-  return result;
-}
-
-void WAbstractToggleButton::getDomChanges(std::vector<DomElement *>& result,
-					  WApplication *app)
-{
-  DomElement *element = DomElement::getForUpdate(this, domElementType());
-  if (element->type() == DomElement_SPAN) {
-    DomElement *input
-      = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
-
-    updateDomElements(*element, *input, false);
-
-    result.push_back(element);
-    result.push_back(input);
-  } else {
-    updateDomElements(*element, *element, false);
-    result.push_back(element);
-  }
 }
 
 void WAbstractToggleButton::propagateRenderOk(bool deep)

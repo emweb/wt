@@ -6,7 +6,7 @@
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>
 #include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WProgressBar>
 
 #include <iostream>
 #include <boost/thread.hpp>
@@ -26,13 +26,15 @@ public:
     startButton_->clicked().connect(startButton_, &Wt::WPushButton::disable);
     startButton_->clicked().connect(this, &BigWorkWidget::startBigWork);
 
-    resultText_ = new Wt::WText(this);
-    resultText_->setInline(false);
+    progress_ = new Wt::WProgressBar(this);
+    progress_->setInline(false);
+    progress_->setMinimum(0);
+    progress_->setMaximum(20);
   }
 
 private:
   Wt::WPushButton *startButton_;
-  Wt::WText *resultText_;
+  Wt::WProgressBar *progress_;
 
   boost::thread workThread_;
 
@@ -45,7 +47,7 @@ private:
     workThread_ 
       = boost::thread(boost::bind(&BigWorkWidget::doBigWork, this, app));
 
-    resultText_->setText("");
+    progress_->setValue(0);
     startButton_->setText("Busy...");
   }
 
@@ -66,7 +68,7 @@ private:
       // with a progress indication.
       Wt::WApplication::UpdateLock uiLock = app->getUpdateLock();
 
-      resultText_->setText(resultText_->text() + ".");
+      progress_->setValue(i + 1);
 
       app->triggerUpdate();
     }
@@ -74,7 +76,6 @@ private:
 
     Wt::WApplication::UpdateLock uiLock = app->getUpdateLock();
 
-    resultText_->setText("That was hefty!");
     startButton_->enable();
     startButton_->setText("Again!");
 
