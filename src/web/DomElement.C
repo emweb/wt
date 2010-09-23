@@ -106,7 +106,7 @@ DomElement::DomElement(Mode mode, DomElementType type)
   : mode_(mode),
     wasEmpty_(mode_ == ModeCreate),
     deleted_(false),
-    removeAllChildren_(false),
+    removeAllChildren_(-1),
     minMaxSizeProperties_(false),
     unstubbed_(false),
     unwrapped_(false),
@@ -442,11 +442,11 @@ void DomElement::removeFromParent()
   deleted_ = true;
 }
 
-void DomElement::removeAllChildren()
+void DomElement::removeAllChildren(int firstChild)
 {
   ++numManipulations_;
-  removeAllChildren_ = true;
-  wasEmpty_ = true;
+  removeAllChildren_ = firstChild;
+  wasEmpty_ = firstChild == 0;
 }
 
 void DomElement::replaceWith(DomElement *newElement)
@@ -1130,15 +1130,20 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 {
   switch(priority) {
   case Delete:
-    if (deleted_ || removeAllChildren_) {
+    if (deleted_ || (removeAllChildren_ >= 0)) {
       declare(out);
 
       if (deleted_) {
 	out << javaScriptEvenWhenDeleted_
 	    << var_ << ".parentNode.removeChild("
 	    << var_ << ");\n";
-      } else  if (removeAllChildren_) {
-	out << var_ << ".innerHTML='';\n";
+      } else if (removeAllChildren_ >= 0) {
+	if (removeAllChildren_ == 0)
+	  out << var_ << ".innerHTML='';\n";
+	else {
+	  out << "$(" << var_ << ").children(':gt(" << removeAllChildren_
+	      << ")').remove();";
+	}
       }
     }
 

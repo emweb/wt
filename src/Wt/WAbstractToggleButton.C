@@ -151,7 +151,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
      || (check && check->needsUpdate(all))
      || (uncheck && uncheck->needsUpdate(all)));
 
-  updateDom(*input, all);
+  WFormWidget::updateDom(*input, all);
 
   /*
    * Copy all properties to the exterior element, as they relate to style,

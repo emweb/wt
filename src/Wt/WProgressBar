@@ -94,12 +94,13 @@ public:
   virtual WString text() const;
 
 protected:
-  double min_, max_, value_;
-  bool changed_;
-
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void           propagateRenderOk(bool deep);
+
+private:
+  double min_, max_, value_;
+  bool changed_;
 
   double percentage() const;
 };

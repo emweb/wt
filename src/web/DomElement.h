@@ -143,7 +143,7 @@ public:
   /*
    * only for ModeUpdate
    */
-  void removeAllChildren();
+  void removeAllChildren(int firstChild = 0);
   void removeFromParent();
   void replaceWith(DomElement *newElement);
   void unstubWith(DomElement *newElement, bool hideWithDisplay);
@@ -239,7 +239,7 @@ private:
   Mode         mode_;
   bool         wasEmpty_;
   bool         deleted_;         // when removeFromParent() is called
-  bool	       removeAllChildren_;
+  int	       removeAllChildren_;
   bool         hideWithDisplay_;
   bool         minMaxSizeProperties_;
   bool         unstubbed_;

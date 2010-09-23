@@ -86,7 +86,7 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
-     APP.emit(el, 'columnResized', columnId, newWidth);
+     APP.emit(el, 'columnResized', columnId, parseInt(newWidth));
    }
 
    this.mouseDown = function(obj, event) {

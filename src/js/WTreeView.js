@@ -102,7 +102,8 @@ WT_DECLARE_WT_MEMBER
 			       columnId = c.substring(7) * 1;
 			   r.style.width = newWidth + 'px';
 			   self.adjustColumns();
-			   APP.emit(el, 'columnResized', columnId, newWidth);
+			     APP.emit(el, 'columnResized', columnId,
+				      parseInt(newWidth));
 			 }, obj, el, event, -2, -1);
      }
    };

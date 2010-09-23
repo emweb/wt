@@ -666,14 +666,11 @@ void WContainerWidget::getDomChanges(std::vector<DomElement *>& result,
 #ifndef WT_NO_LAYOUT
   if (!app->session()->renderer().preLearning()) {
     if (flags_.test(BIT_LAYOUT_CHANGED)) {
-      DomElement *newE = createDomElement(app);
-      e->replaceWith(newE);
-      result.push_back(e);
+      e->removeAllChildren(firstChildIndex());
+      createDomChildren(*e, app);
 
       flags_.reset(BIT_LAYOUT_CHANGED);
       flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
-
-      return;
     }
   }
 #endif // WT_NO_LAYOUT

@@ -197,7 +197,7 @@ void WBatchEditProxyModelTest::geometryChanged(const WModelIndex& parent,
 
     modelEvents_[model].push_back(event);
   } else {
-    for (std::size_t i = modelEvents_[model].size() - 1; i >= 0; --i) {
+    for (int i = (int)(modelEvents_[model].size()) - 1; i >= 0; --i) {
       ModelEvent& e = modelEvents_[model][i];
       if (e.type == type
 	  && e.index == parent
