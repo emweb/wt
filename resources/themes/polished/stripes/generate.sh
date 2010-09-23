@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 # This script uses imagemagick to generate the stripe-XXpx.gif's.
 #

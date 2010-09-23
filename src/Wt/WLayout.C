@@ -182,7 +182,10 @@ void WLayout::setParentWidget(WWidget *parent)
 
 void WLayout::setParentLayout(WLayout *layout)
 {
-  layout->addChild(this);
+  if (layout)
+    layout->addChild(this);
+  else
+    setParent(0);
 }
 
 WLayout *WLayout::parentLayout() const
