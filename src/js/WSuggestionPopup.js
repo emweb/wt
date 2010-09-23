@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, "WSuggestionPopup",
- function(APP, el, replacerJS, matcherJS, filterLength) {
+ function(APP, el, replacerJS, matcherJS, filterLength, defaultValue) {
    $('.Wt-domRoot').add(el);
 
    jQuery.data(el, 'obj', this);
@@ -30,6 +30,8 @@ WT_DECLARE_WT_MEMBER
    var selId = null, editId = null, kd = false,
        filter = null, filtering = null, delayHideTimeout = null,
        lastFilterValue = null, droppedDown = false;
+
+   this.defaultValue = defaultValue;
 
    /* Checks if we are (still) assisting the given edit */
    function checkEdit(edit) {
@@ -246,7 +248,7 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
-     var first = null,
+     var first = null, toselect = null,
          showall = droppedDown && text.length == 0,
          i, il;
 
@@ -268,6 +270,9 @@ WT_DECLARE_WT_MEMBER
              child.style.display = '';
            if (first == null)
 	     first = child;
+	   if (i == this.defaultValue) {
+	     toselect = child;
+	   }
          } else if (child.style.display != 'none')
            child.style.display = 'none';
 
@@ -286,9 +291,9 @@ WT_DECLARE_WT_MEMBER
        }
 
        if (!sel || (sel.style.display == 'none')) {
-         selId = first.id;
-	 sel = first;
+	 sel = toselect || first ;
 	 sel.parentNode.scrollTop = 0;
+         selId = sel.id;
        }
 
        sel.className = 'sel';

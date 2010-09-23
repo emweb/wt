@@ -82,6 +82,8 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
     model_(0),
     modelColumn_(0),
     filterLength_(0),
+    filtering_(false),
+    defaultValue_(-1),
     matcherJS_(matcherJS),
     replacerJS_(replacerJS),
     filter_(impl_, "filter"),
@@ -151,7 +153,8 @@ void WSuggestionPopup::defineJavaScript()
   app->doJavaScript("new " WT_CLASS ".WSuggestionPopup("
 		    + app->javaScriptClass() + "," + jsRef() + ","
 		    + replacerJS_ + "," + matcherJS_ + ","
-		    + boost::lexical_cast<std::string>(filterLength_) + ");");
+		    + boost::lexical_cast<std::string>(filterLength_) + ","
+		    + boost::lexical_cast<std::string>(defaultValue_) + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)
@@ -205,6 +208,20 @@ void WSuggestionPopup::setModelColumn(int modelColumn)
 
   content_->clear();
   modelRowsInserted(WModelIndex(), 0, model_->rowCount() - 1);
+}
+
+void WSuggestionPopup::setDefaultIndex(int row)
+{
+  if (defaultValue_ != row) {
+    defaultValue_ = row;
+
+    if (isRendered()) {
+      WApplication *app = WApplication::instance();
+      app->doJavaScript("jQuery.data(" + jsRef() + ", 'obj').defaultValue = "
+			+ boost::lexical_cast<std::string>(defaultValue_)
+			+ ';');      
+    }
+  }
 }
 
 void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,

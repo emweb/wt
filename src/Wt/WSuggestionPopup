@@ -156,8 +156,8 @@ class WTemplate;
  * selectors:
  *
  * \verbatim
-.Wt-suggest span : A suggestion element
-.Wt-suggest .sel : A selected suggestion element
+.Wt-suggest .content div : A suggestion element
+.Wt-suggest .sel :         A selected suggestion element
 \endverbatim
  *
  * When using the DropDownIcon trigger, an additional style class is
@@ -332,6 +332,12 @@ public:
    */
   void setModel(WAbstractItemModel *model);
 
+  /*! \brief Returns the data model.
+   *
+   * \sa setModel()
+   */
+  WAbstractItemModel *model() const { return model_; }
+
   /*! \brief Sets the column in the model to be used for the items.
    *
    * The column \p index in the model will be used to retrieve data.
@@ -342,11 +348,20 @@ public:
    */
   void setModelColumn(int index);
 
-  /*! \brief Returns the data model.
+  /*! \brief Sets a default selected value.
    *
-   * \sa setModel()
+   * \p row is the model row that is selected by default (only if it
+   * matches the current input).
+   *
+   * The default value is -1, indicating no default.
    */
-  WAbstractItemModel *model() const { return model_; }
+  void setDefaultIndex(int row);
+
+  /*! \brief Returns the default value.
+   *
+   * \sa setDefaultValue()
+   */
+  int defaultIndex() const { return defaultValue_; }
 
   /*! \brief Creates a standard matcher JavaScript function.
    *
@@ -385,13 +400,13 @@ public:
 
   /*! \brief %Signal that indicates that the model should be filtered.
    *
-   * The argument is the initial input. When 
-   * \link WSuggestionPopup::Editing Editing\endlink
-   * is used as edit trigger, its length will always
-   * equal the filterLength(). When \link WSuggestionPopup::DropDownIcon
-   * DropDownIcon\endlink is used as edit trigger, the input length
-   * may be less than filterLength(), and the the signal will be
-   * called repeatedly as the user provides more input.
+   * The argument is the initial input. When \link
+   * WSuggestionPopup::Editing Editing\endlink is used as edit
+   * trigger, its length will always equal the filterLength(). When
+   * \link WSuggestionPopup::DropDownIcon DropDownIcon\endlink is used
+   * as edit trigger, the input length may be less than
+   * filterLength(), and the the signal will be called repeatedly as
+   * the user provides more input.
    *
    * For example, if you are using a WSortFilterProxyModel, you could
    * react to this signal with:
@@ -428,6 +443,7 @@ private:
   int modelColumn_;
   int filterLength_;
   bool filtering_;
+  int defaultValue_;
 
   std::string       matcherJS_;
   std::string       replacerJS_;

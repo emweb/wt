@@ -479,7 +479,7 @@ void WSortFilterProxyModel::sourceRowsAboutToBeRemoved
   Item *item = itemFromIndex(pparent);
 
   for (int row = start; row <= end; ++row) {
-    int mappedRow = item->proxyRowMap_[row];
+    int mappedRow = item->proxyRowMap_[start];
 
     if (mappedRow != -1) {
       beginRemoveRows(pparent, mappedRow, mappedRow);
