@@ -37,8 +37,11 @@ Grid::Grid()
 Grid::~Grid()
 {
   for (unsigned i = 0; i < items_.size(); ++i)
-    for (unsigned j = 0; j < items_[i].size(); ++j)
-      delete items_[i][j].item_;
+    for (unsigned j = 0; j < items_[i].size(); ++j) {
+      WLayoutItem *item = items_[i][j].item_;
+      items_[i][j].item_ = 0;;
+      delete item;
+    }
 }
 
   }

@@ -288,7 +288,7 @@ void Session::implDelete(MetaDbo<C>& dbo)
   if (!dbo.savedInTransaction())
     transaction_->objects_.push_back(new ptr<C>(&dbo));
 
-  bool versioned = dbo.obj() != 0;
+  bool versioned = getMapping<C>()->versionFieldName && dbo.obj() != 0;
   SqlStatement *statement
     = getStatement<C>(versioned ? SqlDeleteVersioned : SqlDelete);
 

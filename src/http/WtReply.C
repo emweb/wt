@@ -91,7 +91,7 @@ void WtReply::setLocation(const std::string& location)
 {
   location_ = location;
   if (status_ < 300)
-    status_ = moved_permanently;
+    status_ = found;
 }
 
 bool WtReply::expectMoreData()

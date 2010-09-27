@@ -266,7 +266,7 @@ public:
    * \sa internalPointer()
    * \sa WAbstractItemModel::createIndex(int, int, uint64_t) const
    */
-  uint64_t internalId() const { return internalId_; }
+  ::uint64_t internalId() const { return internalId_; }
 
   /*! \brief Returns a model index for a child item.
    *
@@ -400,11 +400,11 @@ public:
 private:
   const WAbstractItemModel *model_;
   int row_, column_;
-  uint64_t internalId_;
+  ::uint64_t internalId_;
 
   WModelIndex(int row, int column, const WAbstractItemModel *model, void *ptr);
   WModelIndex(int row, int column, const WAbstractItemModel *model,
-	      uint64_t id);
+	      ::uint64_t id);
 
   friend class WAbstractItemModel;
 

@@ -63,10 +63,14 @@ const std::string multiple_choices =
   "300 Multiple Choices\r\n";
 const std::string moved_permanently =
   "301 Moved Permanently\r\n";
-const std::string moved_temporarily =
-  "302 Moved Temporarily\r\n";
+const std::string found =
+  "302 Found\r\n";
+const std::string see_other =
+  "303 See Other\r\n";
 const std::string not_modified =
   "304 Not Modified\r\n";
+const std::string moved_temporarily =
+  "307 Moved Temporarily\r\n";
 const std::string bad_request =
   "400 Bad Request\r\n";
 const std::string unauthorized =
@@ -102,12 +106,16 @@ const std::string& toText(Reply::status_type status)
     return partial_content;
   case Reply::multiple_choices:
     return multiple_choices;
+  case Reply::found:
+    return found;
   case Reply::moved_permanently:
     return moved_permanently;
-  case Reply::moved_temporarily:
-    return moved_temporarily;
+  case Reply::see_other:
+    return see_other;
   case Reply::not_modified:
     return not_modified;
+  case Reply::moved_temporarily:
+    return moved_temporarily;
   case Reply::bad_request:
     return bad_request;
   case Reply::unauthorized:

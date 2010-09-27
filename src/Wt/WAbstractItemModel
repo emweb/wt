@@ -841,7 +841,7 @@ protected:
    *
    * \sa WModelIndex::internalId()
    */
-  WModelIndex createIndex(int row, int column, uint64_t id) const;
+  WModelIndex createIndex(int row, int column, ::uint64_t id) const;
 
 #endif // WT_TARGET_JAVA
 

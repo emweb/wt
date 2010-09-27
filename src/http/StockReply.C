@@ -57,18 +57,30 @@ const std::string moved_permanently =
   "<body><h1>301 Moved Permanently</h1></body>"
   "</html>";
 const std::string moved_permanently_name = "301-moved-permanently.html";
-const std::string moved_temporarily =
+const std::string found =
   "<html>"
-  "<head><title>Moved Temporarily</title></head>"
-  "<body><h1>302 Moved Temporarily</h1></body>"
+  "<head><title>Found</title></head>"
+  "<body><h1>302 Found</h1></body>"
   "</html>";
-const std::string moved_temporarily_name = "302-moved-temporarily.html";
+const std::string found_name = "302-found.html";
+const std::string see_other =
+  "<html>"
+  "<head><title>See Other</title></head>"
+  "<body><h1>303 See Other</h1></body>"
+  "</html>";
+const std::string see_other_name = "303-see-other.html";
 const std::string not_modified =
   "<html>"
   "<head><title>Not Modified</title></head>"
   "<body><h1>304 Not Modified</h1></body>"
   "</html>";
 const std::string not_modified_name = "304-not-modified.html";
+const std::string moved_temporarily =
+  "<html>"
+  "<head><title>Moved Temporarily</title></head>"
+  "<body><h1>307 Moved Temporarily</h1></body>"
+  "</html>";
+const std::string moved_temporarily_name = "307-moved-temporarily.html";
 const std::string bad_request =
   "<html>"
   "<head><title>Bad Request</title></head>"
@@ -141,10 +153,14 @@ const std::string& toText(Reply::status_type status)
     return multiple_choices;
   case Reply::moved_permanently:
     return moved_permanently;
-  case Reply::moved_temporarily:
-    return moved_temporarily;
+  case Reply::found:
+    return found;
+  case Reply::see_other:
+    return see_other;
   case Reply::not_modified:
     return not_modified;
+  case Reply::moved_temporarily:
+    return moved_temporarily;
   case Reply::bad_request:
     return bad_request;
   case Reply::unauthorized:
@@ -184,10 +200,14 @@ const std::string& toName(Reply::status_type status)
     return multiple_choices_name;
   case Reply::moved_permanently:
     return moved_permanently_name;
-  case Reply::moved_temporarily:
-    return moved_temporarily_name;
+  case Reply::found:
+    return found_name;
+  case Reply::see_other:
+    return see_other_name;
   case Reply::not_modified:
     return not_modified_name;
+  case Reply::moved_temporarily:
+    return moved_temporarily_name;
   case Reply::bad_request:
     return bad_request_name;
   case Reply::unauthorized:

@@ -14,7 +14,7 @@ ADD_DEFINITIONS(-DWT_DEPRECATED_3_0_0)
 # in case of FCGI or HTTPD connectors. It also makes sure that the example
 # links to the proper libraries (connector + wt).
 MACRO(WT_ADD_EXAMPLE name)
-  IF(${EXAMPLES_CONNECTOR} STREQUAL "wtisapi")
+  IF(EXAMPLES_CONNECTOR MATCHES "wtisapi")
     SET(MYLIST ${ARGV})
     LIST(INSERT MYLIST 1 SHARED)
     ADD_LIBRARY(${MYLIST})
@@ -23,9 +23,9 @@ MACRO(WT_ADD_EXAMPLE name)
         LINK_FLAGS
          "/EXPORT:HttpExtensionProc /EXPORT:GetExtensionVersion /EXPORT:TerminateExtension"
     )
-  ELSE(${EXAMPLES_CONNECTOR} STREQUAL "wtisapi")
+  ELSE(EXAMPLES_CONNECTOR MATCHES "wtisapi")
     ADD_EXECUTABLE(${ARGV})
-  ENDIF(${EXAMPLES_CONNECTOR} STREQUAL "wtisapi")
+  ENDIF(EXAMPLES_CONNECTOR MATCHES "wtisapi")
   IF(MSVC)
     SET_TARGET_PROPERTIES(${name} PROPERTIES COMPILE_FLAGS "/W3 /Wp64")
   ENDIF(MSVC)

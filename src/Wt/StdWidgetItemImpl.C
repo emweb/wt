@@ -21,7 +21,7 @@ StdWidgetItemImpl::StdWidgetItemImpl(WWidgetItem *item)
 { }
 
 StdWidgetItemImpl::~StdWidgetItemImpl()
-{ 
+{
   containerAddWidgets(0);
 }
 
