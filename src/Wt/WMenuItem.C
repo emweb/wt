@@ -57,6 +57,9 @@ WMenuItem::~WMenuItem()
 {
   if (menu_)
     menu_->removeItem(this);
+
+  delete itemWidget_;
+  delete contents();
 }
 
 WWidget *WMenuItem::createItemWidget()

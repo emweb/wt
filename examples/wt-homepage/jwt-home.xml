@@ -87,15 +87,15 @@
 <p>JWt is a Java library for developing interactive web applications
 that may be deployed within standard Java Servlet containers.</p>
 
-<p>The API is <b>widget-centric</b> and similar to desktop GUI
-APIs. To the developer, it offers complete abstraction of any
-web-specific implementation details, including event handling,
-graphics support, graceful degradation (or progressive enhancement)
-and pretty URLs.</p>
+<p>The API is <b>widget-centric</b> and and uses well-tested patterns
+of desktop GUI APIs, tailored to the web. To the developer, it offers
+complete abstraction of any web-specific implementation details,
+including event handling, graphics support, graceful degradation (or
+progressive enhancement) and pretty URLs.</p>
 
 <p>Unlike many page-based frameworks, JWt was designed for creating
 stateful applications that are at the same time highly interactive
-(leveraging techinques such as AJAX to their fullest) and accessible
+(leveraging techinques such as Ajax to their fullest) and accessible
 (supporting plain HTML browsers), using automatic <b>graceful
 degradation or progressive enhancement</b>.</p>
 
@@ -103,22 +103,28 @@ degradation or progressive enhancement</b>.</p>
 
 <p>Page-based frameworks (based on PHP, JSP/JSF, Ruby on Rails,
 etc...) do not make abstraction of the underlying technologies
-(HTML/XHTML, JavaScript, CSS, AJAX, Forms, DHTML, SVG/VML/Canvas). As
+(HTML/XHTML, JavaScript, CSS, Ajax, Forms, DHTML, SVG/VML/Canvas). As
 a consequence, a developer needs to be familiar with all of these
 evolving technologies and is also responsible for graceful degradation
 when browser support is lacking. The structure of the application
 follows mostly the page-centric paradigm of early day HTML. This means
 that not only will you need to implement a controller to indicate how
-a user moves from page to page, but when using advanced AJAX
+a user moves from page to page, but when using advanced Ajax
 techniques you will need to design and maintain manually your
 client-server communication.</p>
 
-<p>Generating HTML code or filling HTML templates is prone to security
-problems such
-as <a href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS
+<p>Pure Ajax frameworks on the other hand require tedious JavaScript
+programming to deal with browser quirks and client-server programming
+to interact securely with server resources, and all this programming
+is exposed. These applications usually are not compliant with
+accessibility guidelines and cannot be indexed by a search robot.</p>
+
+<p>In either case, generating HTML code or filling HTML templates is
+prone to security problems such as <a
+href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS
 (Cross-Site-Scripting)</a> by unwillingly allowing JavaScript to be
-inserted in the page,
-and <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
+inserted in the page, and <a
+href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
 (Cross-Site Request Forgery)</a> by trusting cookies for
 authentication. These security problems are hard to avoid when as a
 developer you need to be able to insert self-written JavaScript to
@@ -127,16 +133,16 @@ out.</p>
 
 <p>In contrast, a web application developed with JWt can be developed
 in only one compiled language (Java), from which the library generates
-the necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and AJAX
+the necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and Ajax
 code. The responsibility of writing secure and browser-portable web
 applications is handled by Wt. For example, if available, Wt will
-maximally use JavaScript and AJAX, but applications developed using Wt
-will also function correctly when AJAX is not available. Wt will start
+maximally use JavaScript and Ajax, but applications developed using Wt
+will also function correctly when Ajax is not available. Wt will start
 with a plain HTML/CGI application and progressively enhance to a rich
-AJAX application if possible.</p>
+Ajax application if possible.</p>
 
 <p>By using standard Java and JVMs, JWt applications can benefit from
-any existing Java libraries and JVM features including support for
+any existing Java libraries and JVM features including its support for
 scripting languages.</p>
 
 <h4>Typical use scenarios:</h4>
@@ -144,13 +150,14 @@ scripting languages.</p>
 <ul>
   <li>Complex web-based <b>enterprise applications</b> (with a
     database backend) that require a responsive and dynamic user
-    interface and benefit from the use of Java only to use Java
+    interface and benefit from the use of Java, if only to use Java
     refactoring tools while keeping track of ever changing
     requirements.</li>
 
   <li>Web applications which maximally benefit from modern browser
     capabilities but with <b>graceful degradation</b> to adhere to W3C
     accessibility guidelines and be search engine friendly.</li>
+
   <li>Porting of <b>Java desktop applications</b> to the web.</li>
 </ul>
 
@@ -169,22 +176,19 @@ scripting languages.</p>
     or requirements for organizing your source code.</li>
   <li>JWt applications have automatic fall-back for non-JavaScript
     browsers where possible, allowing you to create fully accessible
-    applications, which benefit from AJAX where available.</li>
-  <li>Use HTML and CSS for layout and decoration, if you want to.</li>
-  <li>The toolkit generates standards compliant HTML or XHTML code.</li>
-  <li>You can include dynamic graphics using a portable, anti-aliased
-    graphics API that uses inline VML, inline SVG or HTML 5 canvas.</li>
-  <li>The library provides sophisticated high-level widgets that allow
-    plotting of charts and visualising complex tree structures.</li>
-  <li>Avoid XSS security risks since JWt has complete control over the
-    presentation layer and proactively filters out <i>active</i> tags
-    and attributes. There is no exposure of business logic which stays
-    entirely at the server, and no need for exposing your data using a
-    REST API.</li>
-  <li>Highly optimized load time and low bandwidth usage, which are
-    affected only by screen complexity but not by application size or
-    bulky JavaScript libraries. Wt implements all + the common tips
-    and tricks for optimizing application responsiveness.</li>
+    applications, which benefit from Ajax where available.</li>
+  <li>Optionally, use XHTML and CSS for layout and decoration.</li>
+  <li>Generates standards compliant HTML or XHTML code.</li>
+  <li>Portable, anti-aliased graphics optimized for web usage (using
+    inline VML, inline SVG, HTML 5 canvas or PNG images).</li>
+  <li>Avoid common security problems since Wt has complete control
+    over the presentation layer and proactively filters out
+  <i>active</i> tags and attributes, does not expose business logic,
+    and simplifies authentication using a stateful design.</li>
+  <li>Ultra-fast load time and low bandwidth usage, which are affected
+    only by screen complexity, not application size. Wt implements all
+    the common tips and tricks for optimizing application
+    responsiveness and even optimizes per browser.</li>
   <li>Integrates well with modern object relational mapping techniques such
     as the Java Persistence API (e.g. Hibernate).</li>
 </ul>
@@ -204,17 +208,17 @@ scripting languages.</p>
     application servers. </li>
   <li>No need for IDE plugins, because the library is a plain Java
     library.</li>
-  <li>Equal behavior with or without support for JavaScript or AJAX,
+  <li>Equal behavior with or without support for JavaScript or Ajax,
     as far as possible, by using graceful degradation or progressive
     enhancement (the latter using the progressive bootstrap method).</li>
-  <li>When AJAX is available, only changes are rendered.</li>
+  <li>When Ajax is available, only changes are rendered.</li>
   <li>Two-phased rendering of changes to the web page, with first
-    visible, and in the background invisible changes (when AJAX is
-    available). When AJAX is not available, only visible contents is
+    visible, and in the background invisible changes (when Ajax is
+    available). When Ajax is not available, only visible contents is
     rendered.</li>
   <li>Support for browser history navigation (back/forward buttons and
     bookmarks), pretty URLs, and search engine optimization with a
-    unified behavior for plain HTML or AJAX sessions.</li>
+    unified behavior for plain HTML or Ajax sessions.</li>
   <li>Widget centric API that promotes component reuse and increases
     productivity.</li>
 </ul>
@@ -240,9 +244,9 @@ scripting languages.</p>
   <li>Unified painting API which uses the browsers native (vector)
     graphics support (inline VML, inline SVG, or HTML 5 canvas).</li>
   <li>Supports arbitrary painter paths, clipping, text, images,
-    and transformations.</li>
-  <li>Uses the painting API in conjunction with a WPaintedWidget, or
-    directly using the SVGImage paint device.</li>
+    transformations, drop shadow.</li>
+  <li>Use the painting API to paint a widget, or to create an SVG or
+    PNG/GIF image.</li>
 </ul>
 
 <h4>GUI components</h4>
@@ -258,10 +262,11 @@ gallery</a> for an interactive overview of built-in functionality.
     server-side validation using WValidator classes.</li>
   <li>Composite widgets (that are built on top of basic widgets, and
     use only the JWt public API): calendars, sliders, trees and tree
-    tables, (popup-)menus, in-place edits, virtual images, panels.</li>
+    tables, menus, in-place edits, suggestion popups, virtual images,
+    panels.</li>
   <li>Modal and non-modal windows (dialogs and message boxes).</li>
   <li>Built-in internationalization using messages resource bundles.</li>
-  <li>Supports sounds for event feedback.</li>
+  <li>Multi-media (sound and video).</li>
   <li>Flexible charting widgets (cartesian charts and pie charts)
     based on the native painting API, and JWt's MVC infrastructure.</li>
 </ul>
@@ -280,6 +285,16 @@ gallery</a> for an interactive overview of built-in functionality.
     a particular URL, since only those events exposed in the interface
     can be triggered.</li>
 </ul>
+
+<h4>Testing</h4>
+
+With JWt, event handling code constructs and manipulates a widget
+tree, which can easily be inspected by test code. Therefore, a <a
+href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WTestEnvironment.html">test
+environment</a> allows your application to be instantiated and events
+to be simulated in absence of a browser, short-cutting the underlying
+request/response cycle that would otherwise require a simulated
+browser.
 
 <h4>Deployment</h4>
 <ul>
@@ -318,7 +333,7 @@ gallery</a> for an interactive overview of built-in functionality.
 <p>This simple example illustrates basic JWt concepts:</p>
 <ul>
   <li>
-    How to create a simple AJAX web application that degrades
+    How to create a simple Ajax web application that degrades
     gracefully to plain HTML post-backs, using <a
     href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WApplication.html">WApplication</a> that corresponds to a new session.
   </li>
@@ -348,12 +363,11 @@ gallery</a> for an interactive overview of built-in functionality.
 </p>
 <ul>
   <li>
-    Using a <a
+    Using <a
     href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WTreeView.html">WTreeView</a>
-    for rendering a model in a tree or a table. WTreeView displays
-    tree-tables (i.e. a tree in the first column with a number of
-    additional columns), and a tree and table are two degenerate
-    cases.
+    and <a
+    href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WTableView.html">WTableView"</a>
+    for rendering a Model's data in a tree or a table.
   </li>
   <li>
     The use of <a
@@ -369,8 +383,7 @@ gallery</a> for an interactive overview of built-in functionality.
     for an automatic window-filling layout.
   </li>
   <li>
-    Since WTreeView does not yet support inline editing, how to use a
-    modal <a
+    How to use a <a
     href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WDialog.html">WDialog</a>
     to present a simple form, using a <a
     href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WGridLayout.html">WGridLayout</a>
@@ -390,17 +403,16 @@ gallery</a> for an interactive overview of built-in functionality.
   </a>
 </p>
 
-<p>This example demonstrates
-the <a href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/chart/package-summary.html">JWt
+<p>This example demonstrates the <a
+href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/chart/package-summary.html">JWt
 charting widgets</a> that are implemented on top of JWt's
 cross-browser painting API. This painting API uses built-in browser
 support for generating high quality graphics (instead of the more
-common approach of rendering raster images on the server side),
-thereby off-loading CPU intensive computations to the browser and at
-the same time reducing bandwidth. Depending on the browser, inline
-VML, inline SVG, or the HTML 5 canvas is used to render painted
-contents in
-a <a href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WPaintedWidget.html">WPaintedWidget</a>.
+common approach of rendering PNG/GIF images at the server), thereby
+off-loading CPU intensive computations to the browser and at the same
+time reducing bandwidth. Depending on the browser, inline VML, inline
+SVG, or the HTML 5 canvas is used to render painted contents in a <a
+href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WPaintedWidget.html">WPaintedWidget</a>.
 </p>
 
 <p>This example demonstrates JWt's MVC infrastructure. Both the <a

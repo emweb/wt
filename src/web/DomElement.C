@@ -1262,7 +1262,8 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
 void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
 {
-  if (wasEmpty_ && canWriteInnerHTML(app)) {
+  if (!childrenHtml_.empty() || (wasEmpty_ && canWriteInnerHTML(app))) {
+    // IE6: write &nbsp; inside a empty <div></div>
     if ((type_ == DomElement_DIV
 	 && app->environment().agent() == WEnvironment::IE6)
 	|| !childrenToAdd_.empty() || !childrenHtml_.empty()) {
