@@ -12,6 +12,10 @@ WT_DECLARE_WT_MEMBER
    var self = this;
    var initialized = false;
 
+   this.getId = function() {
+     return id;
+   };
+
    this.marginH = function(el) {
      var p = el.parentNode;
      return WT.px(el, 'marginLeft')
@@ -107,8 +111,10 @@ WT_DECLARE_WT_MEMBER
        || t.w != widget.clientWidth
        || t.h != widget.clientHeight;
 
+
      if (!doit)
        return true;
+     else
 
      widget.dirty = null;
 
@@ -155,6 +161,7 @@ WT_DECLARE_WT_MEMBER
 	 td = row.firstChild;
 	 continue;
        }
+
        tmh += config.minheight[ri];
        if (config.stretch[ri] <= 0)
 	 r -= row.offsetHeight; // reduce r
@@ -257,6 +264,8 @@ WT_DECLARE_WT_MEMBER
 
      return true;
    };
+
+   this.adjust();
  });
 
 WT_DECLARE_WT_MEMBER
@@ -488,27 +497,44 @@ WT_DECLARE_WT_MEMBER
    self.resizeInitialized = true;
  });
 
-WT_DECLARE_APP_MEMBER(1, "layouts", []);
+WT_DECLARE_APP_MEMBER(1, "layouts",
+  new (function() {
+    var layouts = [], adjusting = false;
 
-WT_DECLARE_APP_MEMBER
-  (2, "layoutsAdjust",
-   function(id) {
-    if (id) {
-      var layout=$('#' + id).get(0);
-      if (layout)
-	layout.dirty = true;
-      return;
-    }
-    if (this.adjusting)
-      return;
-    this.adjusting = true;
-    var i;
-    for (i=0;i < this.layouts.length; ++i) {
-      var layout = this.layouts[i];
-      if (!layout.adjust()) {
-	this.WT.arrayRemove(this.layouts, i); --i;
+    this.add = function(layout) {
+      var i, il;
+
+      for (i=0, il = layouts.length ;i < il; ++i) {
+        var l = layouts[i];
+        if (l.getId() == layout.getId()) {
+	  layouts[i] = layout;
+ 	  return;
+        }
       }
-    }
-    this.adjusting = false;
-  });
+      layouts.push(layout);
+    };
 
+    this.adjust = function(id) {
+      if (id) {
+	var layout=$('#' + id).get(0);
+	if (layout)
+	  layout.dirty = true;
+	return;
+      }
+
+      if (adjusting)
+	return;
+
+      adjusting = true;
+      for (i=0;i < layouts.length; ++i) {
+	var layout = layouts[i];
+	if (!layout.adjust()) {
+	  this.WT.arrayRemove(layouts, i); --i;
+	}
+      }
+
+      adjusting = false;
+    };
+
+  }) ()
+);

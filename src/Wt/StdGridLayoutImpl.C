@@ -47,11 +47,10 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
     LOAD_JAVASCRIPT(app, THIS_JS, "StdLayout", wtjs1);
     LOAD_JAVASCRIPT(app, THIS_JS, "layouts", appjs1);
-    LOAD_JAVASCRIPT(app, THIS_JS, "layoutsAdjust", appjs2);
 
     app->setJavaScriptLoaded(THIS_JS);
 
-    app->addAutoJavaScript(app->javaScriptClass() + ".layoutsAdjust();");
+    app->addAutoJavaScript(app->javaScriptClass() + ".layouts.adjust();");
   }
 }
 
@@ -81,7 +80,7 @@ void StdGridLayoutImpl::updateDom()
   if (forceUpdate_) {
     forceUpdate_ = false;
     WApplication *app = WApplication::instance();
-    app->doJavaScript(app->javaScriptClass() + ".layoutsAdjust('"
+    app->doJavaScript(app->javaScriptClass() + ".layouts.adjust('"
 		      + id() + "');");
   }
 }
@@ -267,7 +266,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
     std::stringstream layoutAdd;
 
     layoutAdd << app->javaScriptClass()
-	      << ".layouts.push(new " WT_CLASS ".StdLayout( " WT_CLASS ", '"
+	      << ".layouts.add(new " WT_CLASS ".StdLayout( " WT_CLASS ", '"
 	      << div->id() << "', { stretch: [";
     for (unsigned i = 0; i < rowCount; ++i) {
       if (i != 0)

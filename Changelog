@@ -1,3 +1,6 @@
+27-09-2010:
+	* WMenuItem: destructor now cleans up properly
+
 22-09-2010:
 	* WProgressBar: based on a contribution by Thomas Suckow.
 
