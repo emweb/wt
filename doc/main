@@ -426,14 +426,22 @@ namespace Wt {
   only files from the <tt>resources/</tt> folder are needed to deploy
   the application. The resources folder contains icons, style sheets
   associated with themes, and other resources specific for special
-  widgets. In addition, any auxiliary files you use, such as message
-  resource files, graphics, static pages, or anything else, will also
-  need to be deployed.
-
-  The URL at which the <tt>resources/</tt> folder is deployed is based
-  on the <i>resourcesURL</i> configuration property (see see \ref
-  config_general "configuration properties"), which defaults to
+  widgets. The URL at which the <tt>resources/</tt> folder is deployed
+  is based on the <i>resourcesURL</i> configuration property (see see
+  \ref config_general "configuration properties"), which defaults to
   "/resources".
+
+  In addition, you may need to deploy also your own CSS files, custom
+  icons/images, and/or static pages that you reference from your
+  application, into your web server.
+
+  Your application may also use other files which do not need to be
+  published online, but are instead read only by your
+  application. These files include message resource files (containing
+  localized text strings), the wt configuration file, your own
+  configuration files, etc... You can deploy these to an
+  <i>application root</i> (see WApplication::appRoot()), whose
+  location is configured in a way that is specific for each connector.
 
   \subsection fastcgi 9.1 FastCGI
 
@@ -443,6 +451,21 @@ namespace Wt {
   protocol (these include apache, lighttpd and many other popular web
   servers).
 
+  The following locations for the wt_config.xml configuration file are
+  considered, in this order:
+
+  - value of environment variable <tt>$WT_CONFIG_XML</tt>
+  - within the app root, as configured by the environment variable
+    <tt>$WT_APP_ROOT</tt>: <tt>$WT_APP_ROOT/wt_config.xml</tt>
+  - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>),
+
+  Environment variables can be specified to a FastCGI application depending
+  on the web server. E.g. for FastCGI, this is:
+
+\code
+ -initial-env WT_APP_ROOT=/opt/myapp
+\endcode
+
   \subsection wthttpd 9.2 Built-in httpd
 
   When linking your application against <tt>libwthttp</tt>, the
@@ -450,18 +473,39 @@ namespace Wt {
   will act as a plain web server in addition to serving the %Wt
   application.
 
+  The following locations for the wt_config.xml configuration file are
+  considered, in this order:
+
+  - command-line parameter <tt>--config</tt> or <tt>-c</tt>
+  - value of environment variable <tt>$WT_CONFIG_XML</tt>
+  - within the app root, as configured by the environment variable
+    <tt>$WT_APP_ROOT</tt>: <tt>$WT_APP_ROOT/wt_config.xml</tt>
+  - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>)
+
   \subsection wtisapi 9.3 ISAPI
 
   When linking your application against <tt>wtisapi</tt>, the
   resulting binary is an ISAPI plugin. This DLL may then be
   deployed and managed within Microsoft IIS.
 
+  The following locations for the wt_config.xml configuration file are
+  considered, in this order:
+
+  - within the app root, as configured by the INI file which has the same
+    name as the application DLL, but with .INI append to it
+    (e.g. <tt>C:\Program Files\WtApplications\Public\MyApplication.dll.ini</tt>):
+\code
+[isapi]
+appRoot=C:\Program Files\MyApplications\AppRoot
+\endcode
+  - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>)
+ 
   \section configuration_sec 10. Configuration
 
-  %Wt has one main XML configuration file (which by default is located
-  in <tt>/etc/wt/wt_config.xml</tt>, and can be overridden with the
-  WT_CONFIG_XML environment variable or the <tt>--config</tt> startup
-  parameter for wthttpd).
+  %Wt has one main XML configuration file, which by default is located
+  in <tt>/etc/wt/wt_config.xml</tt>, but whose location can be overridden
+  use environment settings and/or commandline parameters that are connector
+  specific (see the connector supra).
 
   The configuration file may specify several
   <b>&lt;application-settings&gt;</b>. The settings that apply are
@@ -581,8 +625,9 @@ namespace Wt {
       <ul>
         <li>AJAX sessions: use AJAX and JavaScript</li>
 	<li>plain HTML sessions: use plain old server POSTs</li>
-	<li>bots: have clean internal paths, no persistent sessions, and no
-	  html &lt;form&gt; elements.</li>
+	<li>bots: have clean internal paths, no persistent sessions, no
+	  html &lt;form&gt; elements, and no auto-generated DOM element
+	  id's.</li>
       </ul>
 
       <p>By default, %Wt does a browser detection to distinguish
@@ -593,7 +638,33 @@ namespace Wt {
       <p>Here, you may indicate which user agents should or should
       not receive an AJAX session regardless of what they report as
       capabilities, and which user agents should be treated as search bots.
+      You can define three types of <user-agents> lists:
+
+      - <tt>type="ajax" mode="white-list"</tt>: these are the only
+      user agents that are considered as AJAX-capable.
+      - <tt>type="ajax" mode="black-list"</tt>: these are user agents that
+      are not considered as AJAX-capable.
+      - <tt>type="bot"</tt>: these are user-agents that are treated as bots.
       </p>
+
+      Example:
+
+      \code
+<user-agents type="bot">
+  <user-agent>.*Googlebot.*</user-agent>
+  <user-agent>.*msnbot.*</user-agent>
+  <user-agent>.*Slurp.*</user-agent>
+  <user-agent>.*Crawler.*</user-agent>
+  <user-agent>.*Bot.*</user-agent>
+  <user-agent>.*ia_archiver.*</user-agent>
+  <user-agent>.*Twiceler.*</user-agent>
+  <user-agent>Yandex.*</user-agent>
+  <user-agent>.*Nutch.*</user-agent>
+  <user-agent>.*MJ12bot.*</user-agent>
+  <user-agent>Baiduspider.*</user-agent>
+</user-agents>
+      \endcode
+
     </dd>
 
     <dt><strong>progressive-bootstrap</strong></dt>
@@ -610,6 +681,7 @@ namespace Wt {
  <properties>
     <property name="extBaseURL">/ext/</property>
     <property name="resourcesURL">/resources</property>
+    <property name="appRoot">/opt/myapp</property>
  </properties>
       \endcode
     </dd>

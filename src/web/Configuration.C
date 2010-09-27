@@ -172,8 +172,15 @@ Configuration::Configuration(const std::string& applicationPath,
     progressiveBoot_(false),
     pid_(getpid())
 {
-  if (approot != "")
-    properties_["approot"] = approot;
+  char *value = 0;
+
+  if ((value = ::getenv("WT_APP_ROOT"))) {
+    // Configuration file could be $WT_APP_ROOT/wt_config.xml
+    approot_ = value;
+  }
+
+  if (approot_ != "")
+    properties_["appRoot"] = approot_;
 
   logger_.addField("datetime", false);
   logger_.addField("app", false);
@@ -183,18 +190,23 @@ Configuration::Configuration(const std::string& applicationPath,
 
   setupLogger(std::string());
 
-  std::string configFile = configurationFile;
+  std::string configFile;
 
-  // If no config file was given as startup option, see if there is
-  // a preference in the environment
-  if (configFile.empty()) {
-    if (::getenv("WT_CONFIG_XML")) {
-      // Environment var must contain path to config file
-      configFile = getenv("WT_CONFIG_XML");
-    } else {
-      configFile = WT_CONFIG_XML;
-    }
+  if (!configurationFile.empty())
+    configFile = configurationFile;
+  else if ((value = ::getenv("WT_CONFIG_XML")))
+    configFile = value;
+  else if (!approot_.empty()) {
+    std::ifstream s((approot_ + "/wt_config.xml").c_str(),
+		    std::ios::in | std::ios::binary);
+    if (s)
+      configFile = approot_ + "/wt_config.xml";
   }
+
+  if (configFile.empty())
+    configFile = WT_CONFIG_XML;
+
+  std::cerr << "Reading: " << configFile << std::endl;
 
   readConfiguration(configFile, startupMessage);
 }
@@ -376,8 +388,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 	throw WServer::Exception("<property> requires attribute 'name'");
 
       std::string value = elementValue(property, "property");
-      if (name == "approot" && approot_ != "") {
-        log("warning") << "Ignoring configuration property 'approot' (" << value
+
+      if (name == "approot")
+	name = "appRoot";
+
+      if (name == "appRoot" && approot_ != "") {
+        log("warning") << "Ignoring configuration property 'appRoot' (" << value
           << ") because the connector has set it to " << approot_;
       } else {
         properties_[name] = value;
@@ -390,8 +406,13 @@ void Configuration::readConfiguration(const std::string& configurationFile,
 				      const std::string& startupMessage)
 {
   std::ifstream s(configurationFile.c_str(), std::ios::in | std::ios::binary);
-  if (!s)
-    return;
+  if (!s) {
+    if (configurationFile != WT_CONFIG_XML)
+      throw WServer::Exception("Error reading '"
+			       + configurationFile + "': could not open file.");
+    else
+      return;
+  }
 
   s.seekg(0, std::ios::end);
   int length = s.tellg();
@@ -409,6 +430,9 @@ void Configuration::readConfiguration(const std::string& configurationFile,
       | parse_validate_closing_tags>(text.get());
 
     xml_node<> *root = doc.first_node();
+
+    if (!root)
+      throw WServer::Exception("<server> expected.");
 
     std::vector<xml_node<> *> applications
       = childElements(root, "application-settings");
@@ -542,7 +566,7 @@ std::string Configuration::appRoot() const
 {
   std::string approot;
 
-  if (!readConfigurationProperty("approot", approot)) {
+  if (!readConfigurationProperty("appRoot", approot)) {
     return "";
   }
 

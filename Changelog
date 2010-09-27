@@ -1,6 +1,9 @@
 27-09-2010:
 	* WMenuItem: destructor now cleans up properly
 
+	* all connectors: consider appRoot as the location for the wt_config.xml file
+	and provide ways to configure appRoot for wthttp and fastcgi connectors.
+
 22-09-2010:
 	* WProgressBar: based on a contribution by Thomas Suckow.
 
