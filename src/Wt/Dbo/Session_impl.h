@@ -108,11 +108,7 @@ ptr<C> Session::loadWithNaturalId(SqlStatement *statement, int& column)
 {
   Mapping<C> *mapping = getMapping<C>();
 
-  typedef typename dbo_traits<C>::IdType IdType;
-  IdType id;
-
   /* Natural id is possibly multiple fields anywhere */
-
   MetaDbo<C> *dbo = new MetaDbo<C>(dbo_traits<C>::invalidId(), -1,
 				   MetaDboBase::Persisted, *this, 0);
   implLoad<C>(*dbo, statement, column);
@@ -121,9 +117,10 @@ ptr<C> Session::loadWithNaturalId(SqlStatement *statement, int& column)
     = mapping->registry_.find(dbo->id());
 
   if (i == mapping->registry_.end()) {
-    mapping->registry_[id] = dbo;
+    mapping->registry_[dbo->id()] = dbo;
     return ptr<C>(dbo);
   } else {
+    dbo->setSession(0);
     delete dbo;
     return ptr<C>(i->second);
   }
@@ -134,16 +131,16 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
 {
   Mapping<C> *mapping = getMapping<C>();
 
-  /*
-   * If mapping uses surrogate keys, then we can first read the id and
-   * decide if we already have it.
-   *
-   * If not, then we need to first read the object, get the id, and if
-   * we already had it, delete the redundant copy.
-   */
-  long long id;
-
   if (mapping->surrogateIdFieldName) {
+    /*
+     * If mapping uses surrogate keys, then we can first read the id and
+     * decide if we already have it.
+     *
+     * If not, then we need to first read the object, get the id, and if
+     * we already had it, delete the redundant copy.
+     */
+    long long id;
+
     /* Auto-generated surrogate key is first field */
     statement->getResult(column++, &id);
 
@@ -162,23 +159,8 @@ ptr<C> Session::loadWithLongLongId(SqlStatement *statement, int& column)
 
       return ptr<C>(i->second);
     }
-  } else {
-    /* Natural id is possibly multiple fields anywhere */
-    MetaDbo<C> *dbo = new MetaDbo<C>(dbo_traits<C>::invalidId(), -1,
-				     MetaDboBase::Persisted, *this, 0);
-    implLoad<C>(*dbo, statement, column);
-
-    typename Mapping<C>::Registry::iterator i
-      = mapping->registry_.find(dbo->id());
-
-    if (i == mapping->registry_.end()) {
-      mapping->registry_[id] = dbo;
-      return ptr<C>(dbo);
-    } else {
-      delete dbo;
-      return ptr<C>(i->second);
-    }
-  }
+  } else
+    return loadWithNaturalId<C>(statement, column);
 }
 
 template <class C>

@@ -88,6 +88,10 @@ public:
 	      WLineEdit *forEdit,
 	      WContainerWidget *parent = 0);
 
+  /*! \brief Destructor.
+   */
+  ~WDatePicker();
+
   /*! \brief Sets the format used for parsing or writing the date in
    *         the line edit.
    *
@@ -185,6 +189,22 @@ public:
    * the line edit, or through the calendar popup).
    */
   Signal<>& changed();
+
+  /*! \brief Controls how the calendar popup is positioned.
+   *
+   * When \p global is \c true, then the popup will position itself
+   * globally. This avoids that the popup is affected by enclosing
+   * parents with overflow settings that clip the popup. This makes
+   * the popup however no longer follow the popup button when this
+   * button moves.
+   *
+   * The default is \c false.
+   */
+  void setGlobalPopup(bool global);
+
+  /*! \brief Shows or hides the popup.
+   */
+  void setPopupVisible(bool visible);
 
 private:
   WT_USTRING        format_;

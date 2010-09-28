@@ -18,6 +18,8 @@
 #include "Wt/WLineEdit"
 #include "Wt/WPushButton"
 
+#include "Utils.h"
+
 namespace Wt {
 
 WDatePicker::WDatePicker(WContainerWidget *parent)
@@ -31,6 +33,13 @@ WDatePicker::WDatePicker(WInteractWidget *displayWidget,
   : WCompositeWidget(parent)
 {
   create(displayWidget, forEdit);
+}
+
+WDatePicker::~WDatePicker()
+{
+  WApplication::instance()->doJavaScript
+    ("var pp=" + popup_->jsRef()
+     + "; if(pp) pp.parentNode.removeChild(pp);");
 }
 
 void WDatePicker::createDefault()
@@ -83,14 +92,27 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   popup_->setPositionScheme(Absolute);
   popup_->setStyleClass("Wt-outset Wt-datepicker");
 
+  WApplication::instance()->globalEscapePressed()
+    .connect(popup_, &WWidget::hide);
   popup_->escapePressed().connect(popup_, &WWidget::hide);
   displayWidget->clicked().connect(popup_, &WWidget::show);
-
-  positionJS_.setJavaScript("function() { " WT_CLASS ".positionAtWidget('"
-			    + popup_->id()  + "','" + displayWidget->id()
-			    + "', " WT_CLASS ".Horizontal);}");
   displayWidget->clicked().connect(positionJS_);
   displayWidget->clicked().connect(this, &WDatePicker::setFromLineEdit);
+
+  setGlobalPopup(true);
+}
+
+void WDatePicker::setPopupVisible(bool visible)
+{
+  popup_->setHidden(!visible);
+}
+
+void WDatePicker::setGlobalPopup(bool global)
+{
+  positionJS_.setJavaScript("function() { " WT_CLASS ".positionAtWidget('"
+			    + popup_->id()  + "','" + displayWidget_->id()
+			    + "', " WT_CLASS ".Horizontal, "
+			    + (global ? "true" : "false") + ");}");
 }
 
 void WDatePicker::setFormat(const WT_USTRING& format)
@@ -131,10 +153,12 @@ void WDatePicker::setFromLineEdit()
   WDate d = WDate::fromString(forEdit_->text(), format_);
 
   if (d.isValid()) {
-    if (calendar_->selection().empty()
-	|| *calendar_->selection().begin() != d) {
-      calendar_->select(d);
-      calendar_->selectionChanged().emit();
+    if (calendar_->selection().empty()) {
+      WDate j = Utils::first(calendar_->selection());
+      if (j != d) {
+	calendar_->select(d);
+	calendar_->selectionChanged().emit();
+      }
     }
 
     calendar_->browseTo(d);

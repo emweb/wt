@@ -61,27 +61,66 @@ void WFileResource::handleRequest(const Http::Request& request,
 				  Http::Response& response)
 {
   Http::ResponseContinuation *continuation = request.continuation();
-  int startByte = continuation ? boost::any_cast<int>(continuation->data()) : 0;
+  uint64_t startByte = continuation ?
+    boost::any_cast<uint64_t>(continuation->data()) : 0;
 
   std::ifstream r(fileName_.c_str(), std::ios::in | std::ios::binary);
 
   if (startByte == 0) {
+    /*
+     * Initial request (not a continuation)
+     */
     if (!r) {
       response.setStatus(404);
       return;
     }
+
+    /*
+     * See if we should return a range.
+     */
+    r.seekg(0, std::ios::end);
+    std::ifstream::pos_type fsize = r.tellg();
+    r.seekg(0, std::ios::beg);
+
+    Http::Request::ByteRangeSpecifier ranges = request.getRanges(fsize);
+
+    if (!ranges.isSatisfiable()) {
+      response.setStatus(416); // Requested range not satisfiable
+      return;
+    }
+
+    if (ranges.size() == 1) {
+      response.setStatus(206);
+      startByte = ranges[0].firstByte();
+      beyondLastByte_ = ranges[0].lastByte() + 1;
+
+      std::stringstream contentRange;
+      contentRange << "bytes " << startByte << "-"
+		   << beyondLastByte_ << "/" << fsize;
+      response.addHeader("Content-Range", contentRange.str());
+      response.setContentLength(beyondLastByte_ - startByte);
+    } else {
+      response.setContentLength(fsize);
+      beyondLastByte_ = (::uint64_t)(fsize);
+    }
+
     response.setMimeType(mimeType_);
-  } else
-    r.seekg(startByte);
+  }
+
+  r.seekg(static_cast<std::streamoff>(startByte));
 
   char *buf = new char[bufferSize_];
-  r.read(buf, bufferSize_);
+  int bytesToRead = bufferSize_;
+  if (startByte + bytesToRead > beyondLastByte_) {
+    bytesToRead = (int)(beyondLastByte_ - startByte);
+  }
+  r.read(buf, bytesToRead);
   response.out().write(buf, r.gcount());
   delete[] buf;
 
-  if (r.good()) {
+  if (r.good() && startByte + bytesToRead < beyondLastByte_) {
     continuation = response.createContinuation();
-    continuation->setData(startByte + bufferSize_);
+    continuation->setData(uint64_t(startByte + bufferSize_));
   }
 }
 

@@ -38,6 +38,8 @@ public:
 
   virtual void setStatus(int status);
 
+  virtual void setContentLength(boost::intmax_t length);
+
   virtual void setContentType(const std::string& value);
 
   virtual void addHeader(const std::string& name, const std::string& value);
@@ -92,7 +94,7 @@ private:
   std::string requestFileName_;
 
   bool chunking_;
-  bool responseLengthKnown_;
+  boost::intmax_t contentLength_;
   bool headerSent_;
   void sendHeader();
   enum {HTTP_1_0, HTTP_1_1} version_;

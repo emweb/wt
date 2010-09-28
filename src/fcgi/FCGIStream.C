@@ -83,6 +83,11 @@ namespace {
       out() << name << ": " << value << "\r\n";
     }
 
+    virtual void setContentLength(::intmax_t length)
+    {
+      addHeader("Content-Length", boost::lexical_cast<std::string>(length));
+    }
+
     virtual void setRedirect(const std::string& url)
     {
       out() << "Location: " << url << "\r\n\r\n";

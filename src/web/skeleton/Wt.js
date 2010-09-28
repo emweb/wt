@@ -773,11 +773,16 @@ this.positionXY = function(id, x, y) {
 this.Horizontal = 0x1;
 this.Vertical = 0x2;
 
-this.positionAtWidget = function(id, atId, orientation) {
+this.positionAtWidget = function(id, atId, orientation, parentInRoot) {
   var w = WT.getElement(id),
     atw = WT.getElement(atId),
     xy = WT.widgetPageCoordinates(atw),
     x, y, rightx, bottomy;
+
+  if (parentInRoot) {
+    w.parentNode.removeChild(w);
+    $('.Wt-domRoot').get(0).appendChild(w);
+  }
 
   w.style.display='block';
 

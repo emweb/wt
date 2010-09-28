@@ -41,7 +41,9 @@ public:
    * media sources, and has preload mode set to PreloadAuto.
    */
   WHTML5Media(WContainerWidget *parent = 0);
-  
+
+  ~WHTML5Media();
+
   /*! \brief Set the media element options
    *
    * \sa Options
@@ -60,28 +62,40 @@ public:
    */
   PreloadMode preloadMode() const;
 
+  /*! \ brief Removes all source elements
+   *
+   * This method can be used to remove all media sources. Afterward, you
+   * may add new media sources with calls to addSource().
+   *
+   * Use this to reuse a WHTML5Media instantiation to play something else.
+   */
+  void clearSources();
+
   /*! \brief Add a media source
    *
-   * This method specifies a media source using only the URL. You may
-   * add as many video sources as you want. The browser will select
-   * the appropriate video stream to display to the user.
-   */
-  void addSource(const std::string &url);
-  
-  /*! \brief Add a media source
-   *
-   * This method specifies a media source using the URL and the mime
-   * type (e.g. video/ogg; codecs="theora, vorbis").
-   */
-  void addSource(const std::string &url, const std::string &type);
-  
-  /*! \brief Add a media source
+   * This method specifies a media source. You may add as many media
+   * sources as you want. The browser will select the appropriate
+   * media stream to display to the user.
    *
    * This method specifies a media source using the URL, the mime type,
-   * and the media attribute.
+   * and the media attribute. HTML allows for empty type and media
+   * attributes.
    */
-  void addSource(const std::string &url, const std::string &type,
-    const std::string &media);
+  void addSource(const std::string &url, const std::string &type = "",
+    const std::string &media = "");
+
+  /*! \brief Add a media source
+   *
+   * This method specifies a media source. You may add as many media
+   * sources as you want. The browser will select the appropriate
+   * media stream to display to the user.
+   *
+   * This method specifies a media source using the URL, the mime type,
+   * and the media attribute. HTML allows for empty type and media
+   * attributes.
+   */
+  void addSource(WResource *resource, const std::string &type = "",
+    const std::string &media = "");
 
   /*! \brief Content to be shown when media cannot be played
    *
@@ -134,18 +148,30 @@ protected:
   std::string jsMediaRef() const;
 
 private:
-  struct Source {
+  struct Source 
+#ifdef WT_TARGET_JAVA
+    : public WObject
+#endif
+  {
+    Source(WHTML5Media *parent, WResource *resource, const std::string &type,
+           const std::string &media);
     Source(const std::string &url, const std::string &type,
-      const std::string &media)
-      : type(type), url(url), media(media), hasMedia(true), hasType(true) {}
-    Source(const std::string &url, const std::string &type)
-      : type(type), url(url), hasMedia(false), hasType(true) {}
-    Source(const std::string &url)
-      : url(url), hasMedia(false), hasType(false) {}
+	   const std::string &media);
+    ~Source();
+
+    void resourceChanged();
+
+    WHTML5Media *parent;
+    boost::signals::connection connection;
     std::string type, url, media;
-    bool hasMedia, hasType;
+    WResource *resource;
+    bool hasChanged;
   };
-  std::vector<Source> sources_;
+  void renderSource(DomElement* element, WHTML5Media::Source &source,
+   bool isLast);
+
+  std::vector<Source *> sources_;
+  std::size_t sourcesRendered_;
   std::string mediaId_;
   WFlags<Options> flags_;
   PreloadMode preloadMode_;

@@ -13,6 +13,8 @@
 #include "Wt/Http/Request"
 #include "Utils.h"
 #include "WebRequest.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace {
   std::stringstream emptyStream;
@@ -63,6 +65,15 @@ void UploadedFile::stealSpoolFile() const
 {
   fileInfo_->isStolen = true;
 }
+
+Request::ByteRange::ByteRange(::uint64_t first, ::uint64_t last)
+  : firstByte_(first),
+    lastByte_(last)
+{ }
+
+Request::ByteRangeSpecifier::ByteRangeSpecifier()
+  : satisfiable_(true)
+{ }
 
 const ParameterValues& Request::getParameterValues(const std::string& name)
   const
@@ -165,6 +176,106 @@ std::string Request::userAgent() const
 std::string Request::clientAddress() const
 {
   return request_ ? request_->remoteAddr() : std::string();
+}
+
+Request::ByteRangeSpecifier Request::getRanges(::int64_t filesize) const
+{
+  Request::ByteRangeSpecifier retval;
+
+  if (filesize == 0) {
+    // Don't waste our time and simplify code below
+    return retval;
+  }
+
+  bool syntaxError = false;
+  std::string rangeHdr = headerValue("Range");
+  std::vector<std::string> rangeSpecifier;
+  boost::split(rangeSpecifier, rangeHdr, boost::is_any_of("="));
+
+  if (rangeSpecifier.size() == 2) {
+    if (boost::iequals(rangeSpecifier[0], "bytes")) {
+      std::vector<std::string> ranges;
+      boost::split(ranges, rangeSpecifier[1], boost::is_any_of(","));
+      for (std::size_t i = 0; i < ranges.size(); ++i) {
+        std::vector<std::string> range;
+        boost::split(range, ranges[i], boost::is_any_of("-"));
+        if (range.size() == 2) {
+          std::string start = range[0];
+          std::string end = range[1];
+
+	  boost::trim(start);
+	  boost::trim(end);
+
+          uint64_t startInt=0, endInt=0;
+          try {
+            if (start != "")
+              startInt = boost::lexical_cast<uint64_t>(start);
+            if (end != "")
+              endInt = boost::lexical_cast<uint64_t>(end);
+          } catch (boost::bad_lexical_cast &) {
+            // syntactically invalid
+            syntaxError = true;
+          }
+          if (start == "") {
+            // notation -599: return last 599 bytes
+            if (filesize != -1 || end != "") {
+              if (endInt >= (uint64_t)filesize) {
+                endInt = (std::size_t)filesize;
+              }
+              if (endInt > 0)
+                retval.push_back
+		  (ByteRange
+		   (uint64_t(filesize - endInt), std::size_t(filesize - 1)));
+              else
+                // Not really specified as such...
+                syntaxError = true;
+            } else {
+              // syntactically invalid
+              syntaxError = true;
+            }
+          } else {
+            if (filesize == -1 || startInt < (uint64_t)filesize) {
+              if (end == "") {
+                // notation 599-: returns from byte 599 to eof
+                if (filesize == -1)
+                  retval.push_back
+		    (ByteRange(startInt, std::numeric_limits<uint64_t>::max()));
+                else
+                  retval.push_back
+		    (ByteRange
+		     (startInt, uint64_t(filesize - 1)));
+              } else {
+                if (startInt <= endInt) {
+                  if (filesize >= 0 && endInt > (uint64_t)filesize)
+                    endInt = uint64_t(filesize - 1);
+                  retval.push_back(ByteRange(startInt, endInt));
+                } else {
+                  // syntactically invalid
+                  syntaxError = true;
+                }
+              }
+            } else {
+              // Not-satisfiable: just skip this range
+            }
+          }
+        } else {
+          syntaxError = true;
+        }
+      }
+    } else {
+      // only understand 'bytes'
+      syntaxError = true;
+    }
+  } else {
+    // Too many equals
+    syntaxError = true;
+  }
+  if (syntaxError) {
+    return ByteRangeSpecifier();
+  } else {
+    // TODO: check for satisfiable ranges (416 Requested range not satisfiable)
+    return retval;
+  }
 }
 
 Request::Request(const WebRequest& request, ResponseContinuation *continuation)

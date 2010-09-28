@@ -106,6 +106,7 @@ private:
   std::string mimeType_;
   std::string fileName_;
   int         bufferSize_;
+  ::uint64_t  beyondLastByte_;
 };
 
 }

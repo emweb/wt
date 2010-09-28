@@ -344,6 +344,7 @@ void SaveDbAction<C>::visit(C& obj)
    * (1) Dependencies
    */
   startDependencyPass();
+
   persist<C>::apply(obj, *this);
 
   /*
@@ -356,7 +357,8 @@ void SaveDbAction<C>::visit(C& obj)
     statement_ = isInsert_
       ? dbo_.session()->template getStatement<C>(Session::SqlInsert)
       : dbo_.session()->template getStatement<C>(Session::SqlUpdate);
-  }
+  } else
+    isInsert_ = false;
 
   startSelfPass();
   persist<C>::apply(obj, *this);
@@ -404,7 +406,7 @@ void SaveDbAction<C>::actId(V& value, const std::string& name, int size)
   field(*this, value, name, size);
 
   /* Later, we may also want to support id changes ? */
-  if (isInsert_)
+  if (pass_ == Self && isInsert_)
     dbo_.setId(value);
 }
 

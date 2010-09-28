@@ -18,6 +18,12 @@ void Response::setStatus(int status)
     response_->setStatus(status);
 }
 
+void Response::setContentLength(uint64_t length)
+{
+  if (response_)
+    response_->setContentLength(length);
+}
+
 void Response::setMimeType(const std::string& mimeType)
 {
   if (response_)

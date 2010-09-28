@@ -95,7 +95,11 @@ public:
   void setSession(Session *session) { session_ = session; }
   Session *session() { return session_; }
 
-  bool isNew() const { return !isPersisted() && !isDeleted(); }
+  /*
+   * Returns whether the object was not in the database prior
+   * to the current transaction.
+   */
+  bool isNew() const { return 0 == (state_ & Persisted); }
   bool isPersisted() const
     { return 0 != (state_ & (Persisted | SavedInTransaction)); }
   bool isOrphaned() const { return 0 != (state_ & Orphaned); }

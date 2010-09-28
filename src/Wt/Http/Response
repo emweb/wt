@@ -46,6 +46,20 @@ public:
    */
   void setStatus(int status);
 
+  /*! \brief Sets the content length
+   *
+   * If content length is known, use this method to set it. File downloads
+   * will see progress bars. If not set, Wt will use chunked transfers.
+   *
+   * Always use this method instead of setting the Content-Length header
+   * with addHeader().
+   *
+   * Headers may be added only before setting the content mime-type
+   * (setMimeType()), and before streaming any data to the out()
+   * stream.
+   */
+   void setContentLength(::uint64_t length);
+
   /*! \brief Set the content mime type.
    *
    * The content mimetype is used by the browser to correctly interpret

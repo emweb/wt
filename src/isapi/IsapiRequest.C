@@ -17,7 +17,7 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
   synchronous_(true),
   reading_(true),
   chunking_(false),
-  responseLengthKnown_(true),
+  contentLength_(-1),
   headerSent_(false)
 {
   std::string version = envValue("HTTP_VERSION");
@@ -192,12 +192,8 @@ void IsapiRequest::sendHeader()
   // Finish up the header
   if (chunking_) {
     header_ << "Transfer-Encoding: chunked\r\n\r\n";
-  } else if (responseLengthKnown_) {
-    out_.seekg(0, std::ios_base::end);
-    std::streamsize size = out_.tellg();
-    if (size == -1) size = 0;
-    out_.seekg(0);
-    header_ << "Content-Length: " << size << "\r\n\r\n";
+  } else if (contentLength_ != -1) {
+    header_ << "Content-Length: " << contentLength_ << "\r\n\r\n";
   } else {
     header_ << "\r\n";
   }
@@ -210,7 +206,7 @@ void IsapiRequest::sendHeader()
   hei.cchStatus = static_cast<DWORD>(status.size() + 1);
   hei.pszHeader = header.c_str();
   hei.cchHeader = static_cast<DWORD>(header.size() + 1);
-  hei.fKeepConn =  version_ == HTTP_1_1 && (responseLengthKnown_ || chunking_);
+  hei.fKeepConn =  version_ == HTTP_1_1 && ((contentLength_ != -1) || chunking_);
   ecb_->ServerSupportFunction(ecb_->ConnID, HSE_REQ_SEND_RESPONSE_HEADER_EX,
     &hei, 0, 0);
   headerSent_ = true;
@@ -239,12 +235,15 @@ void IsapiRequest::flush(ResponseState state,
   if (!headerSent_) {
     // Determine how we will tell the client how long the response is
     if (state != ResponseDone) {
-      if (version_ == HTTP_1_1) {
+      if (version_ == HTTP_1_1 && contentLength_ == -1) {
         chunking_ = true;
       }
-      responseLengthKnown_ = false;
+    } else {
+      out_.seekg(0, std::ios_base::end);
+      contentLength_ = out_.tellg();
+      if (contentLength_ == -1) contentLength_ = 0;
+      out_.seekg(0);
     }
-
     sendHeader();
   }
 
@@ -398,8 +397,12 @@ void IsapiRequest::sendSimpleReply(int status, const std::string &msg)
 void IsapiRequest::setStatus(int status)
 {
   ecb_->dwHttpStatusCode = status;
-  setContentType("text/html");
   header_ << "Status: " << status << "\r\n";
+}
+
+void IsapiRequest::setContentLength(boost::intmax_t length)
+{
+  contentLength_ = length;
 }
 
 void IsapiRequest::setContentType(const std::string& value)

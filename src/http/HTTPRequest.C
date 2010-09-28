@@ -36,6 +36,11 @@ void HTTPRequest::setStatus(int status)
   reply_->setStatus(status);
 }
 
+void HTTPRequest::setContentLength(boost::intmax_t length)
+{
+  reply_->setContentLength(length);
+}
+
 void HTTPRequest::addHeader(const std::string& name, const std::string& value)
 {
   reply_->addHeader(name, value);

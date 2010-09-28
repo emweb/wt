@@ -26,6 +26,7 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
     entryPoint_(entryPoint),
     sending_(false),
     status_(ok),
+    contentLength_(-1),
     fetchMoreData_(0)
 {
   if (request.contentLength > config.maxMemoryRequestSize()) {
@@ -82,6 +83,11 @@ void WtReply::setStatus(int status)
   status_ = (status_type)status;
 }
 
+void WtReply::setContentLength(boost::intmax_t length)
+{
+  contentLength_ = length;
+}
+
 void WtReply::setContentType(const std::string& type)
 {
   contentType_ = type;
@@ -135,7 +141,7 @@ std::string WtReply::location()
 
 boost::intmax_t WtReply::contentLength()
 {
-  return -1;
+  return contentLength_;
 }
 
 asio::const_buffer WtReply::nextContentBuffer()

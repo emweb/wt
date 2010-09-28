@@ -12,6 +12,7 @@
 #include <Wt/WGlobal>
 #include <Wt/Http/Request>
 
+#include <boost/cstdint.hpp>
 #include <boost/function.hpp>
 
 namespace Wt {
@@ -76,6 +77,11 @@ public:
   virtual void setContentType(const std::string& value) = 0;
 
   /*
+   * Sets the content-length for a normal response.
+   */
+  virtual void setContentLength(boost::intmax_t length) = 0;
+
+  /*
    * Adds a header for a normal response.
    */
   virtual void addHeader(const std::string& name, const std::string& value) = 0;
@@ -137,8 +143,10 @@ protected:
 
   virtual ~WebRequest();
 
+#ifndef WT_CNOR
   void setAsyncCallback(boost::function<void(void)> cb);
   boost::function<void(void)> getAsyncCallback();
+#endif // WT_CNOR
 
 private:
   std::string parsePreferredAcceptValue(const std::string& value) const;
@@ -149,7 +157,9 @@ private:
 
   static Http::ParameterValues emptyValues_;
 
+#ifndef WT_CNOR
   boost::function<void(void)> asyncCallback_;
+#endif // WT_CNOR
 
   friend class CgiParser;
   friend class Http::Request;

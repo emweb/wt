@@ -1,8 +1,15 @@
+28-09-2010:
+	* WDatePicker: add setGlobalPopup() method which can be used to avoid
+	clipping problems on a date picker
+
+	* WDatePicker: add setPopupVisible() method
+
 27-09-2010:
 	* WMenuItem: destructor now cleans up properly
 
-	* all connectors: consider appRoot as the location for the wt_config.xml file
-	and provide ways to configure appRoot for wthttp and fastcgi connectors.
+	* all connectors: consider appRoot as the location for the
+	wt_config.xml file and provide ways to configure appRoot for
+	wthttp and fastcgi connectors.
 
 22-09-2010:
 	* WProgressBar: based on a contribution by Thomas Suckow.
@@ -39,8 +46,8 @@
 
 	* WFormWidget: implement hasFocus()
 
-	* WLineEdit, WTextArea: implements methods for retrieving cursor position and
-	current selection 
+	* WLineEdit, WTextArea: implements methods for retrieving cursor
+	position and current selection
 
 08-09-2010:
 	* WCheckBox: better tri-state support, using opacity: 0.5 as

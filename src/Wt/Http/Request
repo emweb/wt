@@ -115,6 +115,56 @@ class ResponseContinuation;
 class WT_API Request
 {
 public:
+  /*! \brief A single byte range.
+   */
+  class ByteRange
+  {
+  public:
+    /*! \brief Creates a byte range.
+     */
+    ByteRange(::uint64_t first, ::uint64_t last);
+
+    /*! \brief Returns the first byte of this range.
+     */
+    ::uint64_t firstByte() const { return firstByte_; }
+
+    /*! \brief Returns the last byte of this range.
+     */
+    ::uint64_t lastByte() const { return lastByte_; }
+
+  private:
+    uint64_t firstByte_, lastByte_;
+  };
+
+  /*! \brief A byte range specifier.
+   *
+   * \sa getRanges()
+   */
+  class ByteRangeSpecifier : public std::vector<ByteRange>
+  {
+  public:
+    /*! \brief Creates an empty byte range specifier.
+     *
+     * The specifier is satisfiable but empty, indicating that no
+     * ranges were present.
+     */
+    ByteRangeSpecifier();
+
+    /*! \brief Returns whether the range is satisfiable.
+     *
+     * If the range specification is not satisfiable, RFC 2616 states you
+     * should return a response status of 416.
+     */
+    bool isSatisfiable() const { return satisfiable_; }
+
+    /*! \brief Sets whether the specifier is satisfiable.
+     */
+    void setSatisfiable(bool satisfiable) { satisfiable_ = satisfiable; }
+
+  private:
+    bool satisfiable_;
+  };
+
   /*! \brief Returns the query parameters.
    *
    * Returns parameters that were passed to the query, either inside
@@ -271,6 +321,16 @@ public:
    */
   std::string method() const;
 
+  /*! \brief Returns the requested ranges as in the HTTP Range header
+   *
+   * The filesize is used to adapt the ranges to the actual file size
+   * as per rules of RFC 2616. If the file size is unknown, pass -1.
+   *
+   * You should check if the ranges are satisfiable using
+   * ByteRangeSpecifier::isSatisfiable().
+   */
+   ByteRangeSpecifier getRanges(::int64_t filesize) const;
+   
 private:
   const WebRequest       *request_;
   const ParameterMap&     parameters_;

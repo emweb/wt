@@ -39,6 +39,7 @@ public:
 				  bool endOfRequest);
 
   void setStatus(int status);
+  void setContentLength(boost::intmax_t length);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
   void send(const std::string& text, CallbackFunction callBack, void *cbData);
@@ -58,6 +59,7 @@ protected:
   std::string       location_;
   bool              responseSent_, sending_;
   status_type       status_;
+  boost::intmax_t   contentLength_;
   volatile CallbackFunction  fetchMoreData_;
   void *            callBackData_;
 

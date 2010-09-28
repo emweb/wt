@@ -16,6 +16,8 @@ WT_DECLARE_WT_MEMBER
      return id;
    };
 
+   this.WT = WT;
+
    this.marginH = function(el) {
      var p = el.parentNode;
      return WT.px(el, 'marginLeft')
@@ -526,10 +528,10 @@ WT_DECLARE_APP_MEMBER(1, "layouts",
 	return;
 
       adjusting = true;
-      for (i=0;i < layouts.length; ++i) {
+      for (var i = 0; i < layouts.length; ++i) {
 	var layout = layouts[i];
 	if (!layout.adjust()) {
-	  this.WT.arrayRemove(layouts, i); --i;
+	  layout.WT.arrayRemove(layouts, i); --i;
 	}
       }
 
