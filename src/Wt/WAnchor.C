@@ -233,17 +233,24 @@ void WAnchor::updateDom(DomElement& element, bool all)
 
       if (app->environment().ajax()) {
 	url = app->bookmarkUrl(ref_);
-	if (!changeInternalPathJS_) {
-	  changeInternalPathJS_ = new JSlot();
-	  clicked().connect(*changeInternalPathJS_);
-	  clicked().preventDefaultAction();
-	}
 
-	changeInternalPathJS_->setJavaScript
-	  ("function(obj, event){"
-	   "window.location.hash='#" + Utils::urlEncode(ref_) + "';"
-	   "}");
-	clicked().senderRepaint(); // XXX only for Java port necessary
+	/*
+	 * From 但浩亮: setRefInternalPath() and setTarget(TargetNewWindow)
+	 * does not work without the check below:
+	 */
+	if (target_ == TargetSelf) {
+	  if (!changeInternalPathJS_) {
+	    changeInternalPathJS_ = new JSlot();
+	    clicked().connect(*changeInternalPathJS_);
+	    clicked().preventDefaultAction();
+	  }
+
+	  changeInternalPathJS_->setJavaScript
+	    ("function(obj, event){"
+	     "window.location.hash='#" + Utils::urlEncode(ref_) + "';"
+	     "}");
+	  clicked().senderRepaint(); // XXX only for Java port necessary
+	}
       } else {
 	if (app->environment().agentIsSpiderBot())
 	  url = app->bookmarkUrl(ref_);
