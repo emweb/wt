@@ -50,7 +50,7 @@ void WTestEnvironment::init(EntryPointType type)
 {
   session_ = new WebSession(controller_, "testwtd", type, "", 0, this);
 
-  new WebSession::Handler(*session_, true);
+  new WebSession::Handler(session_->shared_from_this(), true);
 
   doesAjax_ = true;
   doesCookies_ = true;

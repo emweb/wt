@@ -12,6 +12,8 @@
 #include "Wt/Http/Response"
 #include "Wt/Http/ResponseContinuation"
 
+#include <boost/lexical_cast.hpp>
+
 namespace Wt {
 
 WFileResource::WFileResource(WObject *parent)
@@ -86,6 +88,8 @@ void WFileResource::handleRequest(const Http::Request& request,
 
     if (!ranges.isSatisfiable()) {
       response.setStatus(416); // Requested range not satisfiable
+      response.addHeader("Content-Range",
+          "bytes */" + boost::lexical_cast<std::string>(fsize));
       return;
     }
 
@@ -96,7 +100,7 @@ void WFileResource::handleRequest(const Http::Request& request,
 
       std::stringstream contentRange;
       contentRange << "bytes " << startByte << "-"
-		   << beyondLastByte_ << "/" << fsize;
+		   << beyondLastByte_ - 1 << "/" << fsize;
       response.addHeader("Content-Range", contentRange.str());
       response.setContentLength(beyondLastByte_ - startByte);
     } else {

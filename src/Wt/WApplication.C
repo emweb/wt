@@ -1043,7 +1043,7 @@ class UpdateLockImpl
 {
 public:
   UpdateLockImpl(WApplication& app)
-    : handler_(*(app.session()), true)
+    : handler_(app.session()->shared_from_this(), true)
   { 
     app.shouldTriggerUpdate_ = true;
 #ifndef WT_THREADED
@@ -1105,7 +1105,7 @@ WApplication::UpdateLock::UpdateLock(WApplication& app)
 
   if (!handler || !handler->haveLock() || handler->session() != app.session_) {
     std::cerr << "Creating new handler for app: app.sessionId()" << std::endl;
-    new WebSession::Handler(*(app.session()), true);
+    new WebSession::Handler(app.session(), true);
     app.shouldTriggerUpdate_ = true;
   }
 }

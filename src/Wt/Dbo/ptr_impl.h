@@ -401,7 +401,7 @@ void query_result_traits< ptr<C> >
     aliases->erase(aliases->begin());
 
     for (std::size_t i = first; i < result.size(); ++i)
-      result[i].setQualifier(alias);
+      result[i].setQualifier(alias, i == first);
   }
 }
 

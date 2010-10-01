@@ -352,10 +352,7 @@ void WFormWidget::setValidator(WValidator *validator)
 
     validator_->addFormWidget(this);
     validatorChanged();
-    if (validate() == WValidator::Valid)
-      removeStyleClass("Wt-invalid", true);
-    else
-      addStyleClass("Wt-invalid", true);
+    validate();
 #ifndef WT_TARGET_JAVA
     if (!validator_->parent())
       WObject::addChild(validator_);

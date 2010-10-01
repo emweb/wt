@@ -8,6 +8,7 @@
 #define WT_DBO_QUERY_IMPL_H_
 
 #include <stdexcept>
+#include <boost/tuple/tuple.hpp>
 
 #include <Wt/Dbo/Exception>
 #include <Wt/Dbo/Field>
@@ -21,30 +22,42 @@ namespace Wt {
   namespace Dbo {
     namespace Impl {
 
-enum StatementKind { Select, Count };
+extern std::string WTDBO_API
+completeQuerySelectSql(const std::string& sql,
+		       const std::string& where,
+		       const std::string& groupBy,
+		       const std::string& orderBy,
+		       int limit, int offset,
+		       const std::vector<FieldInfo>& fields);
 
 extern std::string WTDBO_API
-createQuerySql(StatementKind kind, const std::string& selectOption,
-	       const std::vector<FieldInfo>& fields,
-	       const std::string& from);
+createQuerySelectSql(const std::string& from,
+		     const std::string& where,
+		     const std::string& groupBy,
+		     const std::string& orderBy,
+		     int limit, int offset,
+		     const std::vector<FieldInfo>& fields);
 
 extern std::string WTDBO_API
-createQuerySql(StatementKind kind, const std::string& selectOption,
-	       const std::vector<FieldInfo>& fields,
-	       const std::string& from,
-	       const std::string& where,
-	       const std::string& groupBy,
-	       const std::string& orderBy,
-	       int limit,
-	       int offset);
+createWrappedQueryCountSql(const std::string& query);
+
+extern std::string WTDBO_API
+createQueryCountSql(const std::string& query,
+		    const std::string& from,
+		    const std::string& where,
+		    const std::string& groupBy,
+		    const std::string& orderBy,
+		    int limit, int offset);
 
 extern void WTDBO_API
-parseSql(const std::string& sql, std::string& selectOption,
-	 std::vector<std::string>& aliases,
-	 std::string& rest);
+substituteFields(const SelectFieldList& list,
+		      const std::vector<FieldInfo>& fs,
+		      std::string& sql,
+		      int offset);
 
-extern std::string WTDBO_API
-selectColumns(const std::vector<FieldInfo>& fields);
+extern void WTDBO_API 
+parseSql(const std::string& sql, SelectFieldLists& fieldLists,
+	 bool& simpleSelectCount);
 
 template <class Result>
 QueryBase<Result>::QueryBase()
@@ -53,9 +66,10 @@ QueryBase<Result>::QueryBase()
 
 template <class Result>
 QueryBase<Result>::QueryBase(Session& session, const std::string& sql)
-  : session_(&session)
+  : session_(&session),
+    sql_(sql)
 {
-  parseSql(sql, selectOption_, aliases_, from_);
+  parseSql(sql_, selectFieldLists_, simpleCount_);
 }
 
 template <class Result>
@@ -63,16 +77,17 @@ QueryBase<Result>::QueryBase(Session& session, const std::string& table,
 			     const std::string& where)
   : session_(&session)
 {
-  from_ = "from \"" + table + "\" " + where;
+  sql_ = "from \"" + table + "\" " + where;
+  simpleCount_ = true;
 }
 
 template <class Result>
 QueryBase<Result>& QueryBase<Result>::operator=(const QueryBase<Result>& other)
 {
   session_ = other.session_;
-  selectOption_ = other.selectOption_;
-  from_ = other.from_;
-  aliases_ = other.aliases_;
+  sql_ = other.sql_;
+  selectFieldLists_ = other.selectFieldLists_;
+  simpleCount_ = other.simpleCount_;
 
   return *this;
 }
@@ -82,16 +97,94 @@ std::vector<FieldInfo> QueryBase<Result>::fields() const
 {
   std::vector<FieldInfo> result;
 
-  if (aliases_.empty())
+  if (selectFieldLists_.empty())
     query_result_traits<Result>::getFields(*session_, 0, result);
   else {
-    std::vector<std::string> ls = aliases_;
-    query_result_traits<Result>::getFields(*session_, &ls, result);
-    if (!ls.empty())
-      throw std::logic_error("Session::query(): too many aliases for result");
+    /*
+     * We'll build only the aliases from the first selection list
+     * (this matters only for compound selects
+     */
+    fieldsForSelect(selectFieldLists_[0], result);
   }
 
   return result;
+}
+
+template <class Result>
+std::pair<SqlStatement *, SqlStatement *>
+QueryBase<Result>::statements(const std::string& where,
+			      const std::string& groupBy,
+			      const std::string& orderBy,
+			      int limit, int offset) const
+{
+  SqlStatement *statement, *countStatement;
+
+  if (selectFieldLists_.empty()) {
+    /*
+     * sql_ is "from ..."
+     */
+    std::string sql;
+
+    std::vector<FieldInfo> fs = this->fields();
+    sql = Impl::createQuerySelectSql(sql_, where, groupBy, orderBy,
+				     limit, offset, fs);
+    statement = this->session_->getOrPrepareStatement(sql);
+
+    if (simpleCount_)
+      sql = Impl::createQueryCountSql(sql, sql_, where, groupBy, orderBy,
+				      limit, offset);
+    else
+      sql = Impl::createWrappedQueryCountSql(sql);
+
+    countStatement = this->session_->getOrPrepareStatement(sql);
+  } else {
+    /*
+     * sql_ is complete "[with ...] select ..."
+     */
+    std::string sql = sql_;
+    int sql_offset = 0;
+
+    std::vector<FieldInfo> fs;
+    for (unsigned i = 0; i < selectFieldLists_.size(); ++i) {
+      const SelectFieldList& list = selectFieldLists_[i];
+
+      fs.clear();
+      this->fieldsForSelect(list, fs);
+
+      Impl::substituteFields(list, fs, sql, sql_offset);
+    }
+
+    sql = Impl::completeQuerySelectSql(sql, where, groupBy, orderBy,
+				       limit, offset, fs);
+
+    statement = this->session_->getOrPrepareStatement(sql);
+
+    if (simpleCount_) {
+      std::string from = sql_.substr(selectFieldLists_.front().back().end);
+      sql = Impl::createQueryCountSql(sql, from, where, groupBy, orderBy,
+				      limit, offset);
+    } else
+      sql = Impl::createWrappedQueryCountSql(sql);
+
+    countStatement = this->session_->getOrPrepareStatement(sql);
+  }
+
+  return std::make_pair(statement, countStatement);
+}
+
+template <class Result>
+void QueryBase<Result>::fieldsForSelect(const SelectFieldList& list,
+					std::vector<FieldInfo>& result) const
+{
+  std::vector<std::string> aliases;
+  for (unsigned i = 0; i < list.size(); ++i) {
+    const SelectField& field = list[i];
+    aliases.push_back(sql_.substr(field.begin, field.end - field.begin));
+  }
+
+  query_result_traits<Result>::getFields(*session_, &aliases, result);
+  if (!aliases.empty())
+    throw std::logic_error("Session::query(): too many aliases for result");
 }
 
 template <class Result>
@@ -205,16 +298,8 @@ void Query<Result, DirectBinding>::prepareStatements() const
 
   this->session_->flush();
 
-  std::string sql;
-
-  std::vector<FieldInfo> fs = this->fields();
-  sql = Impl::createQuerySql(Impl::Select, this->selectOption_,
-			     fs, this->from_);
-  this->statement_ = this->session_->getOrPrepareStatement(sql);
-
-  sql = Impl::createQuerySql(Impl::Count, this->selectOption_,
-			     fs, this->from_);
-  this->countStatement_ = this->session_->getOrPrepareStatement(sql);
+  boost::tie(this->statement_, this->countStatement_)
+    = this->statements(std::string(), std::string(), std::string(), -1, -1);
 
   column_ = 0;
 }
@@ -365,18 +450,12 @@ collection<Result> Query<Result, DynamicBinding>::resultList() const
 
   this->session_->flush();
 
-  std::vector<FieldInfo> fs = this->fields();
+  SqlStatement *statement, *countStatement;
 
-  std::string sql;
-  sql = Impl::createQuerySql(Impl::Select, this->selectOption_, fs, this->from_,
-			     where_, groupBy_, orderBy_, limit_, offset_);
-  SqlStatement *statement = this->session_->getOrPrepareStatement(sql);
+  boost::tie(statement, countStatement)
+    = this->statements(where_, groupBy_, orderBy_, limit_, offset_);
+
   bindParameters(statement);
-
-  sql = Impl::createQuerySql(Impl::Count, this->selectOption_, fs, this->from_,
-			     where_, groupBy_, orderBy_, limit_, offset_);
-  SqlStatement *countStatement = this->session_->getOrPrepareStatement(sql);
- 
   bindParameters(countStatement);
 
   return collection<Result>(this->session_, statement, countStatement);

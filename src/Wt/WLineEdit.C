@@ -42,12 +42,7 @@ void WLineEdit::setText(const WT_USTRING& text)
     flags_.set(BIT_CONTENT_CHANGED);
     repaint(RepaintPropertyIEMobile);
 
-    if (validator()) {
-      if (validate() == WValidator::Valid)
-	removeStyleClass("Wt-invalid", true);
-      else
-	addStyleClass("Wt-invalid", true);
-    }
+    validate();
 
     updateEmptyText();
   }
@@ -151,7 +146,13 @@ void WLineEdit::setFormData(const FormData& formData)
 WValidator::State WLineEdit::validate()
 {
   if (validator()) {
-    return validator()->validate(content_);
+    WValidator::State result = validator()->validate(content_);
+    if (result == WValidator::Valid)
+      removeStyleClass("Wt-invalid", true);
+    else
+      addStyleClass("Wt-invalid", true);
+
+    return result;
   } else
     return WValidator::Valid;
 }

@@ -6,6 +6,7 @@ ADD_LIBRARY(wtdbo
   FixedSqlConnectionPool.C
   Query.C
   QueryColumn.C
+  SqlQueryParse.C
   Session.C
   SqlConnection.C
   SqlConnectionPool.C

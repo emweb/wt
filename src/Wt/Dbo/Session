@@ -456,6 +456,7 @@ private:
 
   template <class C> friend class collection;
   template <class C, typename S> friend class Query;
+  template <class C> friend class Impl::QueryBase;
   template <typename V> friend class FieldRef;
   template <class C> friend struct query_result_traits;
   friend class Call;
@@ -474,7 +475,7 @@ private:
   friend class DropSchema;
   friend class ToAnysAction;
   friend class FromAnyAction;
-  template <class C, typename T> friend class Impl::LoadHelper;
+  template <class C, typename T> friend struct Impl::LoadHelper;
 };
 
   }

@@ -165,7 +165,6 @@ private:
     boost::signals::connection connection;
     std::string type, url, media;
     WResource *resource;
-    bool hasChanged;
   };
   void renderSource(DomElement* element, WHTML5Media::Source &source,
    bool isLast);
@@ -176,7 +175,7 @@ private:
   WFlags<Options> flags_;
   PreloadMode preloadMode_;
   WWidget *alternative_;
-  bool flagsChanged_, preloadChanged_, hasPoster_;
+  bool flagsChanged_, preloadChanged_, sourcesChanged_;
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WHTML5Media::Options);

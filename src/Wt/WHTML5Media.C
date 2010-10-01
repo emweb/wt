@@ -26,7 +26,8 @@ WHTML5Media::WHTML5Media(WContainerWidget *parent):
   preloadMode_(PreloadAuto),
   alternative_(0),
   flagsChanged_(false),
-  preloadChanged_(false)
+  preloadChanged_(false),
+  sourcesChanged_(false)
 {
   setInline(false);
 
@@ -89,7 +90,6 @@ void WHTML5Media::renderSource(DomElement* element,
   } else {
     element->setAttribute("onerror", "");
   }
-  source.hasChanged = false;
 }
 
 void WHTML5Media::updateMediaDom(DomElement& element, bool all)
@@ -184,6 +184,7 @@ DomElement *WHTML5Media::createDomElement(WApplication *app)
       media->addChild(src);
     }
     sourcesRendered_ = sources_.size();
+    sourcesChanged_ = false;
 
     if (wrap) {
       wrap->addChild(media);
@@ -235,28 +236,30 @@ void WHTML5Media::getDomChanges(std::vector<DomElement *>& result,
   if (!mediaId_.empty()) {
     DomElement *media = DomElement::getForUpdate(mediaId_, DomElement_DIV);
     updateMediaDom(*media, false);
-    // Updating source elements seems to be ill-supported in at least FF,
-    // so we delete them all and reinsert them.
-    // Delete source elements that are no longer required
-    for (std::size_t i = 0; i < sourcesRendered_; ++i) {
-      DomElement *src = DomElement::getForUpdate(
-        mediaId_ + "s" + boost::lexical_cast<std::string>(i),
-        DomElement_SOURCE);
-      src->removeFromParent();
-      result.push_back(src);
+    if (sourcesChanged_) {
+      // Updating source elements seems to be ill-supported in at least FF,
+      // so we delete them all and reinsert them.
+      // Delete source elements that are no longer required
+      for (std::size_t i = 0; i < sourcesRendered_; ++i) {
+        DomElement *src = DomElement::getForUpdate(
+          mediaId_ + "s" + boost::lexical_cast<std::string>(i),
+          DomElement_SOURCE);
+        src->removeFromParent();
+        result.push_back(src);
+      }
+      sourcesRendered_ = 0;
+      for (std::size_t i = 0; i < sources_.size(); ++i) {
+        DomElement *src = DomElement::createNew(DomElement_SOURCE);
+        src->setId(mediaId_ + "s" + boost::lexical_cast<std::string>(i));
+        renderSource(src, *sources_[i], i + 1 >= sources_.size());
+        media->addChild(src);
+      }
+      sourcesRendered_ = sources_.size();
+      sourcesChanged_ = false;
+      // Explicitly request rerun of media selection algorithm
+      // 4.8.9.2 says it should happen automatically, but FF doesn't
+      media->callJavaScript(jsMediaRef() + ".load();");
     }
-    sourcesRendered_ = 0;
-    for (std::size_t i = 0; i < sources_.size(); ++i) {
-      DomElement *src = DomElement::createNew(DomElement_SOURCE);
-      src->setId(mediaId_ + "s" + boost::lexical_cast<std::string>(i));
-      renderSource(src, *sources_[i], i + 1 >= sources_.size());
-      media->addChild(src);
-    }
-    sourcesRendered_ = sources_.size();
-    // Explicitly request rerun of media selection algorithm
-    // 4.8.9.2 says it should happen automatically, but FF doesn't
-    media->callJavaScript(jsMediaRef() + ".load();");
-
     result.push_back(media);
   }
   WWebWidget::getDomChanges(result, app);
@@ -299,6 +302,7 @@ void WHTML5Media::addSource(const std::string &url, const std::string &type,
                             const std::string &media)
 {
   sources_.push_back(new Source(url, type, media));
+  sourcesChanged_ = true;
   repaint(Wt::RepaintPropertyAttribute);
 }
 
@@ -307,6 +311,7 @@ void WHTML5Media::addSource(WResource *resource,
                             const std::string &media)
 {
   sources_.push_back(new Source(this, resource, type, media));
+  sourcesChanged_ = true;
   repaint(Wt::RepaintPropertyAttribute);
 }
 
@@ -326,15 +331,14 @@ WHTML5Media::Source::Source(WHTML5Media *parent,
      type(type),
      url(resource->url()),
      media(media),
-     resource(resource),
-     hasChanged(true)
+     resource(resource)
 {
   connection = resource->dataChanged().connect(this, &Source::resourceChanged);
 }
 
 WHTML5Media::Source::Source(const std::string &url, const std::string &type,
 			    const std::string &media)
-  : type(type), url(url), media(media), hasChanged(true)
+  : type(type), url(url), media(media)
 { }
 
 WHTML5Media::Source::~Source()
@@ -345,6 +349,6 @@ WHTML5Media::Source::~Source()
 void WHTML5Media::Source::resourceChanged()
 {
   url = resource->url();
-  hasChanged = true;
+  parent->sourcesChanged_ = true;
   parent->repaint(Wt::RepaintPropertyAttribute);
 }

@@ -167,7 +167,7 @@ public:
    */
   void setHidden(bool hidden);
 
-  /*! \brief Sets the bottom of the valid date range in the picker's WDateValidator.
+  /*! \brief Sets the bottom of the valid date range.
    */
   void setBottom(const WDate& bottom);
 
@@ -175,7 +175,7 @@ public:
    */
   WDate bottom() const;
   
-  /*! \brief Sets the top of the valid date range in the picker's WDateValidator.
+  /*! \brief Sets the top of the valid date range.
    */
   void setTop(const WDate& top);
 
@@ -185,8 +185,8 @@ public:
 
   /*! \brief %Signal emitted when the value has changed.
    *
-   * This signal is emitted when a new date has been entered (either through
-   * the line edit, or through the calendar popup).
+   * This signal is emitted when a new date has been entered (either
+   * through the line edit, or through the calendar popup).
    */
   Signal<>& changed();
 

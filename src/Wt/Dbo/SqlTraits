@@ -106,7 +106,8 @@ public:
     Version = 0x4,     //!< Field is an optimistic concurrency version field
     Mutable = 0x8,     //!< Field can be edited
     NeedsQuotes = 0x10,//!< Field name needs quotes when using in SQL
-    ForeignKey = 0x20  //!< Field is (part of) a foreign key
+    ForeignKey = 0x20, //!< Field is (part of) a foreign key
+    FirstDboField = 0x40
   };
 
   /*! \brief Creates a field description.
@@ -124,7 +125,7 @@ public:
 
   /*! \brief Sets a qualifier for the field.
    */
-  void setQualifier(const std::string& qualifier);
+  void setQualifier(const std::string& qualifier, bool firstQualified = false);
 
   /*! \brief Returns the field name.
    */
@@ -170,6 +171,7 @@ public:
    */
   bool isForeignKey() const { return (flags_ & ForeignKey) != 0; }
 
+  bool isFirstDboField() const { return (flags_ & FirstDboField) != 0; }
   std::string foreignKeyName() const { return foreignKeyName_; }
   std::string foreignKeyTable() const { return foreignKeyTable_; }
 

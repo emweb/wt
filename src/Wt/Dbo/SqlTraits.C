@@ -33,9 +33,11 @@ FieldInfo::FieldInfo(const std::string& name, const std::type_info *type,
 { }
 
 
-void FieldInfo::setQualifier(const std::string& qualifier)
+void FieldInfo::setQualifier(const std::string& qualifier, bool firstDboField)
 {
   qualifier_ = qualifier;
+  if (firstDboField)
+    flags_ |= FirstDboField;
 }
 
 std::string FieldInfo::sql() const

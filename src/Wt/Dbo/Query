@@ -16,10 +16,24 @@
 namespace Wt {
   namespace Dbo {
     namespace Impl {
+
+      struct SelectField
+      {
+	std::size_t begin, end;
+      };
+
+      typedef std::vector<SelectField> SelectFieldList;
+      typedef std::vector<SelectFieldList> SelectFieldLists;
+
       template <class Result>
       class QueryBase {
       protected:
 	std::vector<FieldInfo> fields() const;
+	void fieldsForSelect(const SelectFieldList& list,
+			     std::vector<FieldInfo>& result) const;
+	std::pair<SqlStatement *, SqlStatement *>
+	statements(const std::string& where, const std::string& groupBy,
+		   const std::string& orderBy, int limit, int offset) const;
 	Session& session() const;
 
 	QueryBase();
@@ -32,8 +46,9 @@ namespace Wt {
 	Result singleResult(const collection<Result>& results) const;
 
 	Session *session_;
-	std::string selectOption_, from_;
-	std::vector<std::string> aliases_;
+	std::string sql_;
+	SelectFieldLists selectFieldLists_;
+	bool simpleCount_;
       };
     }
 

@@ -61,6 +61,7 @@ WebSession::WebSession(WebController *controller,
     embeddedEnv_(this),
     app_(0),
     debug_(controller_->configuration().debug()),
+    handlerCount_(0),
     recursiveEventLoop_(0)
 #if defined(WT_TARGET_JAVA)
   ,
@@ -123,6 +124,8 @@ WLogEntry WebSession::log(const std::string& type)
 WebSession::~WebSession()
 {
 #ifndef WT_TARGET_JAVA
+  Handler handler(this);
+
   if (app_)
     app_->notify(WEvent());
 
@@ -403,28 +406,12 @@ std::string WebSession::getCgiHeader(const std::string& headerName) const
 
 void WebSession::kill()
 {
-#ifdef WT_THREADED
-  // see supra for why commented out
-  //assert(WebSession::Handler::instance()->lock().owns_lock());
-#endif // WT_THREADED
-
   state_ = Dead;
 
   /*
    * Unlock the recursive eventloop that may be pending.
    */
   unlockRecursiveEventLoop();
-
-  if (handlers_.empty()) {
-    // we may delete because the session has already been removed
-    // from the sessions list, and thus, once the list is empty it is
-    // guaranteed to stay empty.
-#ifdef WT_THREADED
-    WebSession::Handler::instance()->lock().unlock();
-#endif // WT_THREADED
-
-    delete this;
-  }
 }
 
 void WebSession::checkTimers()
@@ -462,16 +449,19 @@ std::string WebSession::getRedirect()
   return result;
 }
 
-WebSession::Handler::Handler(WebSession& session, bool takeLock)
+WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
+			     bool takeLock)
   : 
 #ifdef WT_THREADED
-    lock_(session.mutex_, boost::defer_lock),
+    lock_(session->mutex_, boost::defer_lock),
 #endif // WT_THREADED
     prevHandler_(0),
-    session_(session),
+    session_(session.get()),
+#ifndef WT_TARGET_JAVA
+    sessionPtr_(session),
+#endif // WT_TARGET_JAVA
     request_(0),
-    response_(0),
-    killed_(false)
+    response_(0)
 {
 #ifdef WT_THREADED
   if (takeLock)
@@ -479,7 +469,7 @@ WebSession::Handler::Handler(WebSession& session, bool takeLock)
 #endif
 #ifdef WT_TARGET_JAVA
   if (takeLock) {
-    session.mutex().lock();
+    session->mutex().lock();
     locked_ = true;
   }
 #endif // WT_TARGET_JAVA
@@ -487,20 +477,31 @@ WebSession::Handler::Handler(WebSession& session, bool takeLock)
   init();
 }
 
-WebSession::Handler::Handler(WebSession& session,
+WebSession::Handler::Handler(WebSession *session)
+  : prevHandler_(0),
+    session_(session),
+    request_(0),
+    response_(0)
+{
+  init();
+}
+
+WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 			     WebRequest& request, WebResponse& response)
-  : 
+  :
 #ifdef WT_THREADED
-    lock_(session.mutex_),
+    lock_(session->mutex_),
 #endif // WT_THREADED
     prevHandler_(0),
-    session_(session),
+    session_(session.get()),
+#ifndef WT_TARGET_JAVA
+    sessionPtr_(session),
+#endif // WT_TARGET_JAVA
     request_(&request),
-    response_(&response),
-    killed_(false)
+    response_(&response)
 {
 #ifdef WT_TARGET_JAVA
-  session.mutex().lock();
+  session->mutex().lock();
   locked_ = true;
 #endif
 
@@ -537,7 +538,7 @@ void WebSession::Handler::init()
 #else
 #ifdef WT_THREADED
   if (request_)
-    session_.handlers_.push_back(this);
+    ++session_->handlerCount_;
 
   prevHandler_ = threadHandler_.release();
   threadHandler_.reset(this);
@@ -550,7 +551,7 @@ void WebSession::Handler::init()
 void WebSession::Handler::attachThreadToSession(WebSession& session)
 {
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
-  threadHandler_.reset(new Handler(session, false));
+  threadHandler_.reset(new Handler(session.shared_from_this(), false));
 #else
   session.log("error") <<
     "attachThreadToSession() requires that Wt is built with threading enabled";
@@ -561,7 +562,7 @@ void WebSession::Handler::attachThreadToSession(WebSession& session)
 void WebSession::Handler::release()
 {
   if (locked_)
-    session_.mutex().unlock();
+    session_->mutex().unlock();
 
   threadHandler_.reset(prevHandler_);
 }
@@ -569,37 +570,19 @@ void WebSession::Handler::release()
 
 WebSession::Handler::~Handler()
 {
-#ifdef WT_THREADED
-  // see supra for why commented out
-  //assert(WebSession::Handler::instance()->lock().owns_lock());
-#endif // WT_THREADED
-
 #ifndef WT_TARGET_JAVA
-  Utils::erase(session_.handlers_, this);
+  --session_->handlerCount_;
 
-  if (session_.handlers_.size() == 0)
-    session_.hibernate();
-
-  if (killed_)
-    session_.kill();
+  if (!session_->handlerCount_)
+    session_->hibernate();
 
 #ifdef WT_THREADED
   threadHandler_.release();
   if (prevHandler_)
     threadHandler_.reset(prevHandler_);
 #endif // WT_THREADED
+
 #endif // WT_TARGET_JAVA
-}
-
-void WebSession::Handler::killSession()
-{
-#ifdef WT_THREADED
-  // see supra for why commented out
-  //assert(lock().owns_lock());
-#endif // WT_THREADED
-
-  killed_ = true;
-  session_.state_ = Dead;
 }
 
 void WebSession::Handler::setRequest(WebRequest *request,
@@ -607,11 +590,6 @@ void WebSession::Handler::setRequest(WebRequest *request,
 {
   request_ = request;
   response_ = response;
-}
-
-bool WebSession::Handler::sessionDead()
-{
-  return (killed_ || session_.done());
 }
 
 void WebSession::hibernate()
@@ -817,7 +795,7 @@ void WebSession::handleRequest(Handler& handler)
 	      log("notice") << "Signal from dead session, sending reload.";
 	      renderer_.letReloadJS(*handler.response(), true);
 
-	      handler.killSession();
+	      kill();
 	      break;
 	    } else if (*requestE == "resource") {
 	      log("notice") << "Not serving bootstrap for resource.";
@@ -825,7 +803,7 @@ void WebSession::handleRequest(Handler& handler)
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
 
-	      handler.killSession();
+	      kill();
 	      break;
 	    }
 	  }
@@ -858,7 +836,7 @@ void WebSession::handleRequest(Handler& handler)
 	    setLoaded();
 
 	    if (env_->agentIsSpiderBot())
-	      handler.killSession();
+	      kill();
 	  } else {
 	    /*
 	     * Delay application start
@@ -979,7 +957,7 @@ void WebSession::handleRequest(Handler& handler)
       e.printStackTrace();
 #endif // WT_TARGET_JAVA
 
-      handler.killSession();
+      kill();
 
       if (handler.response())
 	serveError(handler, e.what(), responseType);
@@ -991,14 +969,14 @@ void WebSession::handleRequest(Handler& handler)
       e.printStackTrace();
 #endif // WT_TARGET_JAVA
 
-      handler.killSession();
+      kill();
 
       if (handler.response())
 	serveError(handler, e.what(), responseType);
     } catch (...) {
       log("fatal") << "Unknown exception.";
 
-      handler.killSession();
+      kill();
 
       if (handler.response())
 	serveError(handler, "Unknown exception", responseType);
@@ -1344,7 +1322,7 @@ void WebSession::render(Handler& handler,
       }
 
     if (app_->isQuited())
-      handler.killSession();
+      kill();
 
     serveResponse(handler, responseType);
   } catch (std::exception& e) {
@@ -1569,7 +1547,7 @@ void WebSession::processSignal(EventSignalBase *s, const std::string& se,
 void WebSession::generateNewSessionId()
 {
   std::string oldId = sessionId_;
-  sessionId_ = controller_->generateNewSessionId(this);
+  sessionId_ = controller_->generateNewSessionId(shared_from_this());
   log("notice") << "New session id for " << oldId;
 
   if (controller_->configuration().sessionTracking()

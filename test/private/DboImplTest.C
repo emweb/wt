@@ -1,0 +1,97 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+
+#include <boost/bind.hpp>
+
+#include <Wt/Dbo/Dbo>
+#include "DboImplTest.h"
+
+namespace dbo = Wt::Dbo;
+
+#define SQL(...) #__VA_ARGS__
+
+void DboImplTest::parseSql(const std::string& sql,
+			   int listsCount,
+			   int fieldsCount,
+			   bool simpleSelect)
+{
+  dbo::Impl::SelectFieldLists result;
+  bool simpleSelectCount;
+
+  dbo::Impl::parseSql(sql, result, simpleSelectCount);
+
+  BOOST_REQUIRE(result.size() == listsCount);
+
+  int fields = 0;
+  for (unsigned i = 0; i < result.size(); ++i) {
+    fields += result[i].size();
+    for (unsigned j = 0; j < result[i].size(); ++j) {
+      dbo::Impl::SelectField& f = result[i][j];
+      std::cerr << "Field: '" << sql.substr(f.begin, f.end - f.begin)
+		<< "'" << std::endl;
+    }
+  }
+
+  BOOST_REQUIRE(fields == fieldsCount);
+  BOOST_REQUIRE(simpleSelect == simpleSelectCount);
+}
+
+void DboImplTest::test1()
+{
+  parseSql("select 1", 1, 1, true);
+  parseSql("select a, b from foo", 1, 2, true);
+  parseSql("select distinct a, b from foo", 1, 2, false);
+  parseSql("select '1'", 1, 1, true);
+  parseSql("select distinct '1'", 1, 1, false);
+  parseSql("select 'Barts'' car'", 1, 1, true);
+
+#if BOOST_VERSION >= 104100
+  // These ones only work correctly with our new spirit-based parser
+
+  parseSql("select 'Barts'', car', bike from depot", 1, 2, true);
+
+  parseSql
+    (SQL
+     (WITH
+      regional_sales AS 
+      (
+       SELECT region, SUM(amount) AS total_sales 
+       FROM orders 
+       GROUP BY region 
+       ),
+      top_regions AS
+      ( 
+       SELECT region 
+       FROM regional_sales 
+       WHERE total_sales > (SELECT SUM(total_sales)/10 FROM 
+			    regional_sales)
+      )
+      SELECT region,
+             product,
+             SUM(quantity) AS product_units,
+             SUM(amount) AS product_sales 
+      FROM orders 
+      WHERE region IN (SELECT region FROM top_regions)
+      GROUP BY region, product, result, simpleSelectCount
+      ),
+     1, 4, false
+     );
+
+  parseSql
+    (SQL
+     (select a from foo
+      intersect
+      select b, c from bar),
+     2, 3, false);
+#endif // BOOST_VERSION
+}
+
+DboImplTest::DboImplTest()
+  : test_suite("dboimpltest_test_suite")
+{
+  add(BOOST_TEST_CASE(boost::bind(&DboImplTest::test1, this)));
+}

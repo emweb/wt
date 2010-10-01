@@ -153,7 +153,10 @@ public:
     /*! \brief Returns whether the range is satisfiable.
      *
      * If the range specification is not satisfiable, RFC 2616 states you
-     * should return a response status of 416.
+     * should return a response status of 416. isSatisfiable() will return
+     * true if a Range header was missing or a syntax error occured, in
+     * which case the number of ByteRanges will be zero and the client
+     * must send the entire file.
      */
     bool isSatisfiable() const { return satisfiable_; }
 
@@ -330,7 +333,10 @@ public:
    * ByteRangeSpecifier::isSatisfiable().
    */
    ByteRangeSpecifier getRanges(::int64_t filesize) const;
-   
+
+   static ByteRangeSpecifier getRanges(const std::string &header,
+    ::int64_t filesize);
+
 private:
   const WebRequest       *request_;
   const ParameterMap&     parameters_;

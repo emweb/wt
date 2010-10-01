@@ -32,6 +32,7 @@ private:
   void setup();
   void teardown();
 
+  void testQueryParser();
   void test1();
   void test2();
   void test3();

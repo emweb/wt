@@ -82,12 +82,7 @@ void WebController::forceShutdown()
 
   shutdown_ = true;
 
-  while (!sessions_.empty()) {
-    SessionMap::iterator i = sessions_.begin();
-    WebSession::Handler handler(*i->second, true);
-    handler.killSession();
-    sessions_.erase(i);
-  }
+  sessions_.clear();
 }
 
 Configuration& WebController::configuration()
@@ -142,41 +137,47 @@ void WebController::run()
 
 bool WebController::expireSessions()
 {
-  Time now;
+  std::vector<boost::shared_ptr<WebSession> > toKill;
+
+  bool result;
+
+  {
+    Time now;
 
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // WT_THREADED
 
-  std::vector<WebSession *> toKill;
-  for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
-    WebSession *session = i->second;
+    for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
+      boost::shared_ptr<WebSession> session = i->second;
 
-    if (!session->done()) {
-      int diff = session->expireTime() - now;
+      if (!session->dead()) {
+	int diff = session->expireTime() - now;
 
-      if (diff < 1000) {
-	if (session->shouldDisconnect()) {
-	  if (session->app()->connected_) {
-	    session->app()->connected_ = false;
-	    session->log("notice") << "Timeout: disconnected";
+	if (diff < 1000) {
+	  if (session->shouldDisconnect()) {
+	    if (session->app()->connected_) {
+	      session->app()->connected_ = false;
+	      session->log("notice") << "Timeout: disconnected";
+	    }
+	    ++i;
+	  } else {
+	    i->second->log("notice") << "Timeout: expiring";
+	    toKill.push_back(session);
+	    sessions_.erase(i++);
 	  }
-	} else {
-	  i->second->log("notice") << "Timeout: expiring";
-	  toKill.push_back(i->second);
-	}
-      }
+	} else
+	  ++i;
+      } else
+	++i;
     }
+
+    result = !sessions_.empty();
   }
 
-  for (unsigned i = 0; i < toKill.size(); ++i) {
-    WebSession *session = toKill[i];
-    sessions_.erase(session->sessionId());
-    WebSession::Handler handler(*session, true);
-    handler.killSession();
-  }
+  toKill.clear();
 
-  return !sessions_.empty();
+  return result;
 }
 
 void WebController::removeSession(const std::string& sessionId)
@@ -264,64 +265,70 @@ WebController::socketNotifiers(WSocketNotifier::Type type)
 void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
 {
 #ifdef WT_THREADED
-  // This is the only member where both mutex_ and notifierMutex_ are
-  // required at the same time. All other use cases grab notifierMutex_
-  // only when mutex_ is not held.
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
-  boost::recursive_mutex::scoped_lock notifierLock(notifierMutex_);
-
-  SocketNotifierMap &notifiers = socketNotifiers(type);
-
-  SocketNotifierMap::iterator k = notifiers.find(descriptor);
-
-  if (k == notifiers.end()) {
-    conf_.log("error") << "WebController::socketSelected(): socket notifier"
-      " should have been cancelled?";
-
-    return;
-  }
-
-  WSocketNotifier *notifier = k->second;
-
-  SessionMap::iterator i = sessions_.find(notifier->sessionId());
-  WebSession *session = 0;
-
-  if (i == sessions_.end()) {
-    conf_.log("error")
-      << "WebController::socketSelected(): socket notification"
-       " for expired session " << notifier->sessionId() << ". Leaking memory?";
-
-    return;
-  } else {
-    session = i->second;
-  }
-
+  /*
+   * Find notifier, extract session Id
+   */
+  std::string sessionId;
   {
-    WApplication *app = session->app();
+    boost::recursive_mutex::scoped_lock notifierLock(notifierMutex_);
 
-    /*
-     * Is correct, but now we are holding the sessionsLock too long: we
-     * should in principle make sure the session will not be deleted (like
-     * the handler does), and then release the sessionsLock before trying to
-     * access the session exclusively.
-     */
-    notifierLock.unlock();
-    WApplication::UpdateLock l = app->getUpdateLock();
-    sessionsLock.unlock();
+    SocketNotifierMap &notifiers = socketNotifiers(type);
+    SocketNotifierMap::iterator k = notifiers.find(descriptor);
 
-    /*
-     * notifierLock had to be released before grabbing the application lock to avoid
-     * deadlocks. But by now, the WSocketNotifier object may have been destroyed.
-     * So we double check if it still exist now; if it does, we're safe to call the
-     * notification function
-     */
-    k = notifiers.find(descriptor);
-    if (k != notifiers.end())
-      notifier = k->second;
-    else
+    if (k == notifiers.end()) {
+      conf_.log("error") << "WebController::socketSelected(): socket notifier"
+	" should have been cancelled?";
+
       return;
+    } else {
+      sessionId = k->second->sessionId();
+    }
+  }
 
-    notifier->notify();
+  /*
+   * Find session
+   */
+  boost::shared_ptr<WebSession> session;
+  {
+    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+
+    SessionMap::iterator i = sessions_.find(sessionId);
+
+    if (i == sessions_.end() || i->second->dead()) {
+      conf_.log("error")
+	<< "WebController::socketSelected(): socket notification"
+	" for expired session " << sessionId << ". Leaking memory?";
+
+      return;
+    } else {
+      session = i->second;
+    }
+  }
+
+  /*
+   * Take session lock and notify
+   */
+  {
+    WebSession::Handler handler(session, true);
+
+    if (!session->dead()) {
+      WSocketNotifier *notifier = 0;
+      {
+	boost::recursive_mutex::scoped_lock notifierLock(notifierMutex_);
+	SocketNotifierMap &notifiers = socketNotifiers(type);
+	SocketNotifierMap::iterator k = notifiers.find(descriptor);	
+	if (k != notifiers.end()) {
+	  notifier = k->second;
+	  notifiers.erase(k);
+	}
+      }
+
+      WApplication::UpdateLock lock = session->app()->getUpdateLock();
+      session->app()->shouldTriggerUpdate_ = true;
+      if (notifier)
+	notifier->notify();
+      session->app()->shouldTriggerUpdate_ = false;
+    }
   }
 #endif // WT_THREADED
 }
@@ -420,107 +427,98 @@ void WebController::handleAsyncRequest(WebRequest *request)
   if (sessionId.empty() && wtdE)
     sessionId = *wtdE;
 
-#ifdef WT_THREADED
-  /*
-   * -- Begin critical section to handle the session.
-   *    This protects the sessions_ map and the singleSessionId_.
-   */
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
-#endif // WT_THREADED
-
-  if (!singleSessionId_.empty() && sessionId != singleSessionId_) {
-    if (conf_.persistentSessions()) {
-      // This may be because of a race condition in the filesystem:
-      // the session file is renamed in generateNewSessionId() but
-      // still a request for an old session may have arrived here
-      // while this was happening.
-      //
-      // If it is from the old app, We should be sent a reload signal,
-      // this is what will be done by a new session (which does not create
-      // an application).
-      //
-      // If it is another request to take over the persistent session,
-      // it should be handled by the persistent session. We can distinguish
-      // using the type of the request
-      conf_.log("info") 
-	<< "Persistent session requested Id: " << sessionId << ", "
-	<< "persistent Id: " << singleSessionId_;
-      if (sessions_.empty() || request->requestMethod() == "GET")
-	sessionId = singleSessionId_;
-    } else
-      sessionId = singleSessionId_;
-  }
-
-  SessionMap::iterator i = sessions_.find(sessionId);
-  WebSession *session = 0;
-
-  if (i == sessions_.end() || i->second->done()) {
-    try {
-      if (singleSessionId_.empty()) {
-	sessionId = conf_.generateSessionId();
-
-	if (conf_.serverType() == Configuration::FcgiServer
-	    && conf_.sessionPolicy() == Configuration::SharedProcess) {
-	  std::string socketPath = conf_.sessionSocketPath(sessionId);
-	  std::ofstream f(socketPath.c_str());
-	  f << conf_.pid() << std::endl;
-	  f.flush();
-	}
-      }
-
-      std::string favicon = request->entryPoint_->favicon();
-      if (favicon.empty()) {
-	const std::string *confFavicon = conf_.property("favicon");
-        if (confFavicon)
-	  favicon = *confFavicon;
-      }
-
-      session = new WebSession(this, sessionId, request->entryPoint_->type(),
-			       favicon, request);
-
-      if (configuration().sessionTracking() == Configuration::CookiesURL)
-	request->addHeader("Set-Cookie",
-			   appSessionCookie(request->scriptName())
-			   + "=" + sessionId + "; Version=1;");
-
-      sessions_[sessionId] = session;
-    } catch (std::exception& e) {
-      configuration().log("error")
-	<< "Could not create new session: " << e.what();
-      request->flush(WebResponse::ResponseDone);
-      return;
-    }
-  } else {
-    session = i->second;
-  }
-
-  /*
-   * Grab session lock before releasing sessions-lock!
-   *
-   * This is dead-lock proof: we always grab sessions-lock before
-   * specific session-lock.
-   */
-
-  bool sessionDead = false;
+  boost::shared_ptr<WebSession> session;
   {
-    WebSession::Handler handler(*session, *request, *(WebResponse *)request);
-
 #ifdef WT_THREADED
-    sessionsLock.unlock();
+    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
 #endif // WT_THREADED
 
-    session->handleRequest(handler);
-    sessionDead = handler.sessionDead();
+    if (!singleSessionId_.empty() && sessionId != singleSessionId_) {
+      if (conf_.persistentSessions()) {
+	// This may be because of a race condition in the filesystem:
+	// the session file is renamed in generateNewSessionId() but
+	// still a request for an old session may have arrived here
+	// while this was happening.
+	//
+	// If it is from the old app, We should be sent a reload signal,
+	// this is what will be done by a new session (which does not create
+	// an application).
+	//
+	// If it is another request to take over the persistent session,
+	// it should be handled by the persistent session. We can distinguish
+	// using the type of the request
+	conf_.log("info") 
+	  << "Persistent session requested Id: " << sessionId << ", "
+	  << "persistent Id: " << singleSessionId_;
+	if (sessions_.empty() || request->requestMethod() == "GET")
+	  sessionId = singleSessionId_;
+      } else
+	sessionId = singleSessionId_;
+    }
+
+    SessionMap::iterator i = sessions_.find(sessionId);
+
+    if (i == sessions_.end() || i->second->dead()) {
+      try {
+	if (singleSessionId_.empty()) {
+	  sessionId = conf_.generateSessionId();
+
+	  if (conf_.serverType() == Configuration::FcgiServer
+	      && conf_.sessionPolicy() == Configuration::SharedProcess) {
+	    std::string socketPath = conf_.sessionSocketPath(sessionId);
+	    std::ofstream f(socketPath.c_str());
+	    f << conf_.pid() << std::endl;
+	    f.flush();
+	  }
+	}
+
+	std::string favicon = request->entryPoint_->favicon();
+	if (favicon.empty()) {
+	  const std::string *confFavicon = conf_.property("favicon");
+	  if (confFavicon)
+	    favicon = *confFavicon;
+	}
+
+	session.reset(new WebSession(this, sessionId,
+				     request->entryPoint_->type(),
+				     favicon, request));
+
+	if (configuration().sessionTracking() == Configuration::CookiesURL)
+	  request->addHeader("Set-Cookie",
+			     appSessionCookie(request->scriptName())
+			     + "=" + sessionId + "; Version=1;");
+
+	sessions_[sessionId] = session;
+      } catch (std::exception& e) {
+	configuration().log("error")
+	  << "Could not create new session: " << e.what();
+	request->flush(WebResponse::ResponseDone);
+	return;
+      }
+    } else {
+      session = i->second;
+    }
   }
 
-  if (sessionDead)
+  bool handled = false;
+  {
+    WebSession::Handler handler(session, *request, *(WebResponse *)request);
+
+    if (!session->dead()) {
+      handled = true;
+      session->handleRequest(handler);
+    }
+  }
+
+  if (session->dead())
     removeSession(sessionId);
+
+  session.reset();
 
   if (!running_)
     expireSessions();
 
-#ifdef WT_THREADED
-#ifdef NOTHREADPOOL
+#if defined(WT_THREADED) && defined(NOTHREADPOOL)
   if (running_) {
 
     boost::thread self;
@@ -534,13 +532,17 @@ void WebController::handleAsyncRequest(WebRequest *request)
       }
     }
   }
-#endif
-#endif // WT_THREADED
+#endif // WT_THREADED && NOTHREADPOOL
+
+  if (!handled)
+    handleAsyncRequest(request);
 }
 
 WApplication *WebController::doCreateApplication(WebSession *session)
 {
-  const EntryPoint *ep = WebSession::Handler::instance()->request()->entryPoint_;
+  const EntryPoint *ep 
+    = WebSession::Handler::instance()->request()->entryPoint_;
+
   return (*ep->appCallback())(session->env());
 }
 
@@ -587,7 +589,8 @@ WebController::getEntryPoint(WebRequest *request)
   return &conf_.entryPoints()[0];
 }
 
-std::string WebController::generateNewSessionId(WebSession *session)
+std::string
+WebController::generateNewSessionId(boost::shared_ptr<WebSession> session)
 {
 #ifdef WT_THREADED
   boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
@@ -602,9 +605,10 @@ std::string WebController::generateNewSessionId(WebSession *session)
     rename(oldSocketPath.c_str(), newSocketPath.c_str());
   }
 
+  sessions_[newSessionId] = session;
+
   SessionMap::iterator i = sessions_.find(session->sessionId());
   sessions_.erase(i);
-  sessions_[newSessionId] = session;
 
   if (!singleSessionId_.empty())
     singleSessionId_ = newSessionId;

@@ -16,12 +16,10 @@
 
 #include "SocketNotifier.h"
 
-#ifndef WT_TARGET_JAVA
-#ifdef WT_THREADED
+#if defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
 #include <boost/thread.hpp>
 #include "threadpool/threadpool.hpp"
 #endif
-#endif // WT_TARGET_JAVA
 
 namespace Wt {
 
@@ -100,8 +98,7 @@ public:
   std::string switchSession(WebSession *session,
 			    const std::string& newSessionId);
 
-
-  std::string generateNewSessionId(WebSession *session);
+  std::string generateNewSessionId(boost::shared_ptr<WebSession> session);
 
   WAbstractServer *server_;
 
@@ -111,7 +108,7 @@ private:
   std::string      singleSessionId_;
   bool             running_;
 
-  typedef std::map<std::string, WebSession *> SessionMap;
+  typedef std::map<std::string, boost::shared_ptr<WebSession> > SessionMap;
   SessionMap sessions_;
 
   bool shutdown_;

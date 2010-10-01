@@ -180,19 +180,27 @@ std::string Request::clientAddress() const
 
 Request::ByteRangeSpecifier Request::getRanges(::int64_t filesize) const
 {
+  return getRanges(headerValue("Range"), filesize);
+}
+
+Request::ByteRangeSpecifier Request::getRanges(const std::string &rangeHdr,
+                                               ::int64_t filesize)
+{
   Request::ByteRangeSpecifier retval;
 
   if (filesize == 0) {
-    // Don't waste our time and simplify code below
+    // Don't waste CPU time and simplify code below.
+    retval.setSatisfiable(false);
     return retval;
   }
 
   bool syntaxError = false;
-  std::string rangeHdr = headerValue("Range");
+  bool satisfiable = filesize == -1;
   std::vector<std::string> rangeSpecifier;
   boost::split(rangeSpecifier, rangeHdr, boost::is_any_of("="));
 
   if (rangeSpecifier.size() == 2) {
+    boost::trim(rangeSpecifier[0]);
     if (boost::iequals(rangeSpecifier[0], "bytes")) {
       std::vector<std::string> ranges;
       boost::split(ranges, rangeSpecifier[1], boost::is_any_of(","));
@@ -218,17 +226,21 @@ Request::ByteRangeSpecifier Request::getRanges(::int64_t filesize) const
           }
           if (start == "") {
             // notation -599: return last 599 bytes
-            if (filesize != -1 || end != "") {
+            if (filesize != -1 && end != "") {
               if (endInt >= (uint64_t)filesize) {
                 endInt = (std::size_t)filesize;
               }
-              if (endInt > 0)
+              if (endInt > 0) {
+                satisfiable = true;
                 retval.push_back
 		  (ByteRange
 		   (uint64_t(filesize - endInt), std::size_t(filesize - 1)));
-              else
-                // Not really specified as such...
-                syntaxError = true;
+              }
+              else {
+                // Not really specified as syntax error. The paragraph about
+                // 'satisfiability' seems to imply that we should simply
+                // ignore it.
+              }
             } else {
               // syntactically invalid
               syntaxError = true;
@@ -236,6 +248,7 @@ Request::ByteRangeSpecifier Request::getRanges(::int64_t filesize) const
           } else {
             if (filesize == -1 || startInt < (uint64_t)filesize) {
               if (end == "") {
+                satisfiable = true;
                 // notation 599-: returns from byte 599 to eof
                 if (filesize == -1)
                   retval.push_back
@@ -246,6 +259,7 @@ Request::ByteRangeSpecifier Request::getRanges(::int64_t filesize) const
 		     (startInt, uint64_t(filesize - 1)));
               } else {
                 if (startInt <= endInt) {
+                  satisfiable = true;
                   if (filesize >= 0 && endInt > (uint64_t)filesize)
                     endInt = uint64_t(filesize - 1);
                   retval.push_back(ByteRange(startInt, endInt));
@@ -273,7 +287,7 @@ Request::ByteRangeSpecifier Request::getRanges(::int64_t filesize) const
   if (syntaxError) {
     return ByteRangeSpecifier();
   } else {
-    // TODO: check for satisfiable ranges (416 Requested range not satisfiable)
+    retval.setSatisfiable(satisfiable);
     return retval;
   }
 }

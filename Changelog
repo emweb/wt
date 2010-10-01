@@ -1,8 +1,23 @@
+01-10-2010:
+	* WebController, WebSession: use shared_ptr for WebSession to resolve
+	concurrency bug #544
+
+	* Wt::Dbo: use a spirit based parser for sql queries to handle more
+	complex queries like 'WITH ... SELECT ...' syntax, but also with
+	complex aggregate functions in the SELECT clause.
+
 28-09-2010:
 	* WDatePicker: add setGlobalPopup() method which can be used to avoid
 	clipping problems on a date picker
 
 	* WDatePicker: add setPopupVisible() method
+
+	* Http/Request: add getRanges(), parsing the HTTP 1.1 Ranges header
+
+	* Http/Response: add setContentLength() allowing you to specify the
+	content length.
+
+	* WFileResource: support ranges to return partial file contents.
 
 27-09-2010:
 	* WMenuItem: destructor now cleans up properly

@@ -15,6 +15,9 @@
 #include <boost/thread/condition.hpp>
 #endif // WT_THREADED || WT_TARGET_JAVA
 
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
 #include "TimeUtil.h"
 #include "WebRenderer.h"
 
@@ -38,6 +41,9 @@ class WApplication;
  *    (a web page, a resource or a javascript update).
  */
 class WT_API WebSession
+#ifndef WT_TARGET_JAVA
+  : public boost::enable_shared_from_this<WebSession>
+#endif
 {
 public:
   enum State {
@@ -89,8 +95,9 @@ public:
   bool shouldDisconnect() const;
 #endif // WT_TARGET_JAVA
 
-  bool done() { return state_ == Dead; }
+  bool dead() { return state_ == Dead; }
   State state() const { return state_; }
+  void kill();
 
   bool progressiveBoot() const { return progressiveBoot_; }
 
@@ -141,8 +148,10 @@ public:
 
   class Handler {
   public:
-    Handler(WebSession& session, WebRequest& request, WebResponse& response);
-    Handler(WebSession& session, bool takeLock);
+    Handler(boost::shared_ptr<WebSession> session,
+	    WebRequest& request, WebResponse& response);
+    Handler(boost::shared_ptr<WebSession> session, bool takeLock);
+    Handler(WebSession *session);
     ~Handler();
 
 #ifdef WT_TARGET_JAVA
@@ -155,9 +164,7 @@ public:
 
     WebResponse *response() { return response_; }
     WebRequest *request() { return request_; }
-    WebSession *session() const { return &session_; }
-    void killSession();
-    bool sessionDead(); // killed or quited()
+    WebSession *session() const { return session_; }
 
     int nextSignal;
     std::vector<unsigned int> signalOrder;
@@ -181,7 +188,11 @@ public:
 
     Handler *prevHandler_;
 
-    WebSession&  session_;
+    WebSession *session_;
+#ifndef WT_TARGET_JAVA
+    boost::shared_ptr<WebSession> sessionPtr_;
+#endif // WT_TARGET_JAVA
+
     WebRequest  *request_;
     WebResponse *response_;
     bool         killed_;
@@ -246,7 +257,7 @@ private:
   WApplication *app_;
   bool          debug_;
 
-  std::vector<Handler *> handlers_;
+  int handlerCount_;
   std::vector<WObject *> emitStack_;
 
   Handler *recursiveEventLoop_;
@@ -280,7 +291,6 @@ private:
 
   void init(const WebRequest& request);
   bool start();
-  void kill();
 
   std::string sessionQuery() const;
 };

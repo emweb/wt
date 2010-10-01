@@ -43,12 +43,7 @@ void WTextArea::setText(const WT_USTRING& text)
   contentChanged_ = true;
   repaint(RepaintInnerHtml);
 
-  if (validator()) {
-    if (validate() == WValidator::Valid)
-      removeStyleClass("Wt-invalid", true);
-    else
-      addStyleClass("Wt-invalid", true);
-  }
+  validate();
 
   updateEmptyText();
 }
@@ -129,7 +124,13 @@ void WTextArea::setFormData(const FormData& formData)
 WValidator::State WTextArea::validate()
 {
   if (validator()) {
-    return validator()->validate(content_);
+    WValidator::State result = validator()->validate(content_);
+    if (result == WValidator::Valid)
+      removeStyleClass("Wt-invalid", true);
+    else
+      addStyleClass("Wt-invalid", true);
+
+    return result;
   } else
     return WValidator::Valid;
 }

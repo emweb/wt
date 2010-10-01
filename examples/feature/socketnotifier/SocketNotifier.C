@@ -217,7 +217,7 @@ private:
   {
     addText(".");
     char buf[128];
-    int retval = ::recv(socket_, buf, sizeof buf, 0);
+    int retval = ::read(socket_, buf, sizeof buf);
     if (retval == 0) {
       // 'orderly shutdown'
       addText(" Done! (Remote end closed connection)<br/>");
