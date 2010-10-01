@@ -1247,15 +1247,13 @@ void WebSession::notify(const WEvent& event)
 	  log("notice") << "Refreshing session";
 
 	  if (event.responseType == WebRenderer::Page) {
-	    if (!env_->doesAjax_ && !request.pathInfo().empty())
+	    const std::string *hashE = request.getParameter("_");
+	    if (hashE)
+	      app_->changeInternalPath(*hashE);
+	    else if (!request.pathInfo().empty())
 	      app_->changeInternalPath(request.pathInfo());
-	    else {
-	      const std::string *hashE = request.getParameter("_");
-	      if (hashE)
-		app_->changeInternalPath(*hashE);
-	      else
-		app_->changeInternalPath("");
-	    }
+	    else
+	      app_->changeInternalPath("");
 	  }
 
 #ifndef WT_TARGET_JAVA
