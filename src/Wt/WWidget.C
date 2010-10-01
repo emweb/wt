@@ -402,6 +402,11 @@ void WWidget::setLayoutSizeAware(bool aware)
   }
 }
 
+bool WWidget::layoutSizeAware() const
+{
+  return resized_ != 0;
+}
+
 void WWidget::layoutSizeChanged(int width, int height)
 { } 
 

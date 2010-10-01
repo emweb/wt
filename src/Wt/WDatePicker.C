@@ -92,14 +92,15 @@ void WDatePicker::create(WInteractWidget *displayWidget,
   popup_->setPositionScheme(Absolute);
   popup_->setStyleClass("Wt-outset Wt-datepicker");
 
-  WApplication::instance()->globalEscapePressed()
-    .connect(popup_, &WWidget::hide);
+  // This confuses the close button hide ? XXX
+  //WApplication::instance()->globalEscapePressed()
+  //  .connect(popup_, &WWidget::hide);
   popup_->escapePressed().connect(popup_, &WWidget::hide);
   displayWidget->clicked().connect(popup_, &WWidget::show);
   displayWidget->clicked().connect(positionJS_);
   displayWidget->clicked().connect(this, &WDatePicker::setFromLineEdit);
 
-  setGlobalPopup(true);
+  setGlobalPopup(false);
 }
 
 void WDatePicker::setPopupVisible(bool visible)
@@ -153,7 +154,7 @@ void WDatePicker::setFromLineEdit()
   WDate d = WDate::fromString(forEdit_->text(), format_);
 
   if (d.isValid()) {
-    if (calendar_->selection().empty()) {
+    if (!calendar_->selection().empty()) {
       WDate j = Utils::first(calendar_->selection());
       if (j != d) {
 	calendar_->select(d);

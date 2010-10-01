@@ -123,6 +123,9 @@ void WBoxLayout::addStretch(int stretch)
 void WBoxLayout::insertWidget(int index, WWidget *widget, int stretch,
 			      WFlags<AlignmentFlag> alignment)
 {
+  if (widget->layoutSizeAware() && stretch == 0)
+    stretch = -1;
+
   insertItem(index, new WWidgetItem(widget), stretch, alignment);
 }
 

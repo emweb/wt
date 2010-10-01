@@ -824,6 +824,12 @@ public:
    */
   void disable();
 
+   /*! \brief Returns whether the widget is layout size aware.
+   *
+   * \sa setLayoutSizeAware()
+   */
+  bool layoutSizeAware() const;
+
   DomElement *createSDomElement(WApplication *app);
 
   static void setTabOrder(WWidget *first, WWidget *second);

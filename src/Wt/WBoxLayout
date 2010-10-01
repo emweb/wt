@@ -147,7 +147,15 @@ public:
 
   /*! \brief Adds a widget to the layout.
    *
-   * Adds a widget to the layout, with given \p stretch factor.
+   * Adds a widget to the layout, with given \p stretch factor. When
+   * the stretch factor is 0, the widget will not be resized by the
+   * layout manager (stretched to take excess space). You may use a
+   * special stretch factor of -1 to indicate that the widget should
+   * not take excess space but the contents height should still be
+   * actively managed. This may make sense for example if the widget
+   * is \link WWidget::setlayoutSizeAware() layout size
+   * aware\endlink).
+   *
    * The \p alignemnt parameter is a combination of a horizontal
    * and/or a vertical AlignmentFlag OR'ed together.
    *
@@ -192,8 +200,14 @@ public:
 
   /*! \brief Inserts a widget in the layout.
    *
-   * Inserts a widget in the layout at position \p index,
-   * with given \p stretch factor.
+   * Inserts a widget in the layout at position \p index, with given
+   * \p stretch factor. When the stretch factor is 0, the widget will
+   * not be resized by the layout manager (stretched to take excess
+   * space). You may use a special stretch factor of -1 to indicate
+   * that the widget should not take excess space but the contents
+   * height should still be actively managed. This may make sense for
+   * example if the widget is \link WWidget::setlayoutSizeAware()
+   * layout size aware\endlink).
    *
    * The \p alignment specifies the vertical and horizontal
    * alignment of the item. The default value 0 indicates that the
@@ -244,7 +258,7 @@ public:
    */
   bool setStretchFactor(WLayout *layout, int stretch);
 
-  /*! \brief Sets the stretch factor for a nested layout.
+  /*! \brief Sets the stretch factor for a widget.
    *
    * The \p widget must have previously been added to this layout
    * using insertWidget() or addWidget().
