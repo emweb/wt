@@ -173,7 +173,7 @@ Signal<>& WDatePicker::changed()
 
 void WDatePicker::setEnabled(bool enabled)
 {
-  setDisabled(false);
+  setDisabled(!enabled);
 }
 
 void WDatePicker::setDisabled(bool disabled)
