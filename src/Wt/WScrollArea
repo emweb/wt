@@ -23,14 +23,19 @@ class WScrollBar;
  * Use setScrollBarPolicy() to configure if and when the scrollbars may
  * appear.
  *
- * In many cases, it might be easier to use the CSS overflow property on
- * a WContainerWidget (see WContainerWidget::setOverflow()).
+ * In many cases, it might be easier to use the CSS overflow property
+ * on a WContainerWidget (see
+ * WContainerWidget::setOverflow()). However, this class will behave
+ * better when used inside a layout manager: in that case it will make
+ * sure horizontal scrolling works properly, since otherwise the
+ * layout manager would overflow rather than scrollbars appear.
  *
  * <h3>CSS</h3>
  *
  * This widget is rendered using a <tt>&lt;div&gt;</tt> with a CSS
- * overflow attribute. It can be styled using inline or external CSS
- * as appropriate.
+ * overflow attribute. When in a layout manager it is positioned
+ * absolutely. It can be styled using inline or external CSS as
+ * appropriate.
  */
 class WT_API WScrollArea : public WWebWidget
 {

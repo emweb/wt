@@ -505,6 +505,26 @@ void Session::prepareStatements(MappingInfo *mapping)
   }
 }
 
+/*
+void Session::mergeDuplicates(MappingInfo *mapping)
+{
+  for (unsigned i = 0; i < mapping->fields.size(); ++i) {
+    FieldInfo& f = mapping->fields[i];
+    for (unsigned j = i + 1; j < mapping->fields.size(); ++j) {
+      FieldInfo& f2 = mapping->fields[j];
+      if (f.name() == f2.name()) {
+	if (f.sqlType() != f2.sqlType())
+	  throw Exception("Table: " + mapping->tableName + ": field '"
+			  + f.name() + "' mapped multiple times");
+			  "for " + mapping->tableName + "."
+			  + set.joinName);
+	  
+      }
+    }
+  }
+}
+*/
+
 void Session::resolveJoinIds(MappingInfo *mapping)
 {
   for (unsigned i = 0; i < mapping->sets.size(); ++i) {
@@ -529,7 +549,9 @@ void Session::resolveJoinIds(MappingInfo *mapping)
       }
 
       if (!found)
-	throw Exception("Could not find corresponding Many-To-Many collection");
+	throw Exception("Could not find corresponding Many-To-Many collection: "
+			"for " + std::string(mapping->tableName) + "."
+			+ set.joinName);
     }
   }
 }

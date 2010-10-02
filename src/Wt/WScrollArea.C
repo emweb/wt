@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WApplication"
+#include "Wt/WEnvironment"
 #include "Wt/WScrollArea"
 #include "Wt/WScrollBar"
 #include "DomElement.h"
@@ -86,6 +87,16 @@ void WScrollArea::setScrollBarPolicy(ScrollBarPolicy policy)
 
 void WScrollArea::updateDom(DomElement& element, bool all)
 {
+  if (all)
+    if (isInLayout() && WApplication::instance()->environment().ajax()) {
+      setPositionScheme(Absolute);
+      setJavaScriptMember("wtResize",
+			  "function(s, w, h) {"
+			  "s.style.width=w+'px';"
+			  "s.style.height=h+'px';"
+			  "}");
+    }
+
   if (widgetChanged_ || all) {
     if (widget_)
       element.addChild(widget_->webWidget()
