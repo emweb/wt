@@ -93,6 +93,22 @@ public:
    */
   virtual WString text() const;
 
+  /*! \brief A %signal that indicates when the value has changed.
+   *
+   * This signal is emitted when setValue() is called.
+   *
+   * \sa setValue()
+   */
+  Signal<double>& valueChanged() { return valueChanged_; }
+
+  /*! \brief A %signal that indicates when 100% is reached.
+   *
+   * This signal is emitted when setValue(maximum()) is called.
+   *
+   * \sa setValue()
+   */
+  Signal<>& progressCompleted() { return progressCompleted_; }
+
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
@@ -102,6 +118,9 @@ private:
   double min_, max_, value_;
   bool changed_;
 
+  Signal<double> valueChanged_;
+  Signal<> progressCompleted_;
+  
   double percentage() const;
 };
 
