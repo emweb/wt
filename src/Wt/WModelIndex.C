@@ -216,4 +216,17 @@ WModelIndex::decodeFromRawIndexes(const WModelIndexSet& encodedIndexes)
   return result;
 }
 
+bool WModelIndex::isAncestor(const Wt::WModelIndex& i1,
+			     const Wt::WModelIndex& i2) {
+  if (!i1.isValid())
+    return false;
+
+  for (Wt::WModelIndex p = i1.parent(); p.isValid(); p = p.parent()) {
+    if (p == i2)
+      return true;
+  }
+
+  return !i2.isValid();
+}
+
 }

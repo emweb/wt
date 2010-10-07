@@ -1,3 +1,12 @@
+05-10-2010:
+	* CMakeLists.txt: patch for gentoo, make many things optional which
+	can be enabled or disabled explicitly regardless of whether the
+	libraries and header files for it are found
+
+07-10-2010:
+	* WTableView, WTreeView, *ProxyModel: shift model indexes only after
+	the source model has inserted or removed rows, see bug #546
+
 01-10-2010:
 	* WebController, WebSession: use shared_ptr for WebSession to resolve
 	concurrency bug #544

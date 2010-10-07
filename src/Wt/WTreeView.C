@@ -45,21 +45,6 @@
 #define SCROLLBAR_WIDTH_TEXT "22"
 #define SCROLLBAR_WIDTH      22
 
-namespace {
-  // returns true if i2 is an ancestor of i1
-  bool isAncestor(const Wt::WModelIndex& i1, const Wt::WModelIndex& i2) {
-    if (!i1.isValid())
-      return false;
-
-    for (Wt::WModelIndex p = i1.parent(); p.isValid(); p = p.parent()) {
-      if (p == i2)
-	return true;
-    }
-
-    return !i2.isValid();
-  }
-}
-
 namespace Wt {
 
 class ToggleButtonConfig
@@ -690,7 +675,7 @@ WWidget *WTreeViewNode::widgetForModelRow(int modelRow)
   if (first < c->count()) {
     WTreeViewNode *n = dynamic_cast<WTreeViewNode *>(c->widget(first));
     if (n) {
-      int row = n->index_.row();
+      int row = topSpacerHeight();
       int index = first + (modelRow - row);
 
       if (index < first)
@@ -1726,7 +1711,7 @@ void WTreeView::setCollapsed(const WModelIndex& index)
 
     WModelIndex i = *it;
     if (i == index) {
-    } else if (isAncestor(i, index)) {
+    } else if (WModelIndex::isAncestor(i, index)) {
       if (internalSelect(i, Deselect))
 	selectionHasChanged = true;
     } else
@@ -1947,6 +1932,10 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
       if (parentNode->childrenLoaded()) {
 	WWidget *startWidget = 0;
 
+	/*
+	 * First we decide between inserting in the top spacer, bottom spacer
+	 * and in actually rendered nodes.
+	 */
 	if (end < model()->rowCount(parent) - 1)
 	  startWidget = parentNode->widgetForModelRow(start);
 	else if (parentNode->bottomSpacerHeight() != 0)
@@ -2106,11 +2095,10 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 
 	  parentNode->normalizeSpacers();
 
-	  parentNode->adjustChildrenHeight(-removedHeight_);
-	  parentNode->shiftModelIndexes(start, -count);
-
 	  // Update graphics for last node in parent, if we are removing rows
-	  // at the back
+	  // at the back. This is not affected by widgetForModelRow() returning
+	  // accurate information of rows just deleted and indexes not yet
+	  // shifted
 	  if (end == model()->rowCount(parent) - 1 && start >= 1) {
 	    WTreeViewNode *n = dynamic_cast<WTreeViewNode *>
 	      (parentNode->widgetForModelRow(start - 1));
@@ -2148,13 +2136,28 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
       */
     }
   }
-
-  shiftModelIndexes(parent, start, -count);
 }
 
 void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 				 int start, int end)
 {
+  int count = end - start + 1;
+
+  if (renderState_ != NeedRerender || renderState_ != NeedRerenderData) {
+    WWidget *parentWidget = widgetForIndex(parent);
+    if (parentWidget) {
+      WTreeViewNode *parentNode = dynamic_cast<WTreeViewNode *>(parentWidget);
+      if (parentNode) {
+	if (parentNode->childrenLoaded()) {
+	  parentNode->adjustChildrenHeight(-removedHeight_);
+	  parentNode->shiftModelIndexes(start, -count);
+	}
+      }
+    }
+  }
+
+  shiftModelIndexes(parent, start, -count);
+
   renderedRowsChanged(firstRemovedRow_, -removedHeight_);
 }
 
@@ -2615,7 +2618,7 @@ int WTreeView::shiftModelIndexes(const WModelIndex& parent,
     WModelIndex i = *it;
 
     WModelIndex p = i.parent();
-    if (p != parent && !isAncestor(p, parent))
+    if (p != parent && !WModelIndex::isAncestor(p, parent))
       break;
 
     if (p == parent) {

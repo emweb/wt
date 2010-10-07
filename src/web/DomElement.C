@@ -748,6 +748,9 @@ void DomElement::asHTML(EscapeOStream& out,
       out << '"';
 
       std::string wrapStyle = cssStyle();
+      if (!isDefaultInline())
+	wrapStyle += "display: block;";
+
       if (!wrapStyle.empty()) {
 	out << " style=";
 	fastHtmlAttributeValue(out, attributeValues, wrapStyle);

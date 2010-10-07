@@ -27,6 +27,13 @@ SET(WTDBOPOSTGRES_SOVERSION 23)
 #
 # Various things that must be configured by the user or packager ...
 #
+OPTION(BUILD_EXAMPLES "Build examples" ON)
+OPTION(INSTALL_RESOURCES "Install resources directory" ON)
+OPTION(ENABLE_GM "Enable GraphicsMagick, for supporting painting to raster images (PNG, GIF, ...) (WRasterImage)" ON)
+OPTION(ENABLE_HARU "Enable Haru Free PDF Library, which is used to provide support for painting to PDF (WPdfImage)" ON)
+OPTION(ENABLE_EXT "Build Wt Ext library with JavaScript-only widgets (http://extjs.com/)" ON)
+OPTION(ENABLE_SQLITE "Build SQLite3 backend for Wt::Dbo" ON)
+OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
 
 IF(NOT SHARED_LIBS)
   IF(WIN32)
@@ -299,11 +306,15 @@ IF (DOXYGEN_FOUND)
   ADD_DEPENDENCIES(doc doxygen-examples)
  ENDIF (DOXYGEN_FOUND)
 
-IF(WIN32)
-  SUBDIRS(src examples)
-ELSE(WIN32)
-  SUBDIRS(src EXCLUDE_FROM_ALL examples)
-ENDIF(WIN32)
+SUBDIRS(src)
+
+IF(BUILD_EXAMPLES)
+  IF(WIN32)
+    SUBDIRS(examples)
+  ELSE(WIN32)
+    SUBDIRS(EXCLUDE_FROM_ALL examples)
+  ENDIF(WIN32)
+ENDIF(BUILD_EXAMPLES)
 
 IF(BUILD_TESTS)
   SUBDIRS(test)
@@ -316,20 +327,24 @@ ENDIF( NOT DEFINED WT_CMAKE_FINDER_INSTALL_DIR)
 INSTALL(FILES ${PROJECT_SOURCE_DIR}/cmake/FindWt.cmake DESTINATION
     ${CMAKE_INSTALL_PREFIX}/${WT_CMAKE_FINDER_INSTALL_DIR} )
 
+IF(INSTALL_RESOURCES)
 INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION
     ${CMAKE_INSTALL_PREFIX}/share/Wt/)
+ENDIF(INSTALL_RESOURCES)
 
-IF(NOT EXISTS ${CONFIGDIR}/wt_config.xml)
+IF(NOT EXISTS ${DESTDIR}${CONFIGDIR}/wt_config.xml)
   INSTALL(FILES ${WT_BINARY_DIR}/wt_config.xml DESTINATION ${CONFIGDIR})
-ENDIF (NOT EXISTS ${CONFIGDIR}/wt_config.xml)
+ENDIF (NOT EXISTS ${DESTDIR}${CONFIGDIR}/wt_config.xml)
 
-IF(HARU_FOUND)
+IF(ENABLE_HARU AND HARU_FOUND)
+  SET(HAVE_HARU ON)
   SET(WT_HAS_WPDFIMAGE true)
-ENDIF(HARU_FOUND)
+ENDIF(ENABLE_HARU AND HARU_FOUND)
 
-IF(GM_FOUND)
+IF(ENABLE_GM AND GM_FOUND)
+  SET(HAVE_GM ON)
   SET(WT_HAS_WRASTERIMAGE true)
-ENDIF(GM_FOUND)
+ENDIF(ENABLE_GM AND GM_FOUND)
 
 # Compile time constants & make sure our build finds it
 FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Wt)

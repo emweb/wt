@@ -50,7 +50,11 @@ void WTestEnvironment::init(EntryPointType type)
 {
   session_ = new WebSession(controller_, "testwtd", type, "", 0, this);
 
+#ifndef WT_TARGET_JAVA
   new WebSession::Handler(session_->shared_from_this(), true);
+#else
+  new WebSession::Handler(boost::shared_ptr<WebSession>(session_), true);
+#endif
 
   doesAjax_ = true;
   doesCookies_ = true;

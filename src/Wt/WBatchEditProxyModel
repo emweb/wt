@@ -161,9 +161,8 @@ private:
   /*
    * For every proxy parent, we keep the following info:
    */
-  struct Item {
+  struct Item : public BaseItem {
     Item *insertedParent_;    // !=0 when parent was inserted
-    WModelIndex sourceIndex_;
 
     ValueMap editedValues_;
     std::vector<int> removedRows_;      // sorted, proxy rows
@@ -175,15 +174,8 @@ private:
 
     Item(const WModelIndex& sourceIndex);
     Item(Item *insertedParent);
-    ~Item();
+    virtual ~Item();
   };
-
-  // WModelIndex is one of source model
-#ifndef WT_TARGET_JAVA
-  typedef std::map<WModelIndex, Item *> ItemMap;
-#else
-  typedef std::treemap<WModelIndex, Item *> ItemMap;
-#endif
 
   bool submitting_;
   std::map<int, DataMap> newRowData_;
@@ -193,7 +185,6 @@ private:
 
   std::vector<boost::signals::connection> modelConnections_;
   mutable ItemMap mappedIndexes_;
-
 
   void sourceColumnsAboutToBeInserted(const WModelIndex& parent,
 				      int start, int end);

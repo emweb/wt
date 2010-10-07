@@ -1,6 +1,6 @@
-IF(NOT GM_FOUND)
+IF(NOT HAVE_GM)
   MESSAGE(STATUS "** Not building mandelbrot example: requires Wt::WRasterImage.")
-ELSE(NOT GM_FOUND)
+ELSE(NOT HAVE_GM)
 
   WT_ADD_EXAMPLE(mandelbrot.wt MandelbrotImage.C MandelbrotExample.C)
 
@@ -11,5 +11,5 @@ ELSE(NOT GM_FOUND)
 
   ADD_DEPENDENCIES(mandelbrot.wt wt ${EXAMPLES_CONNECTOR})
 
-ENDIF(NOT GM_FOUND)
+ENDIF(NOT HAVE_GM)
 

@@ -39,12 +39,13 @@ bool WBatchEditProxyModel::Cell::operator< (const Cell& other) const
 }
 
 WBatchEditProxyModel::Item::Item(const WModelIndex& sourceIndex)
-  : insertedParent_(0),
-    sourceIndex_(sourceIndex)
+  : BaseItem(sourceIndex),
+    insertedParent_(0)
 { }
 
 WBatchEditProxyModel::Item::Item(Item *insertedParent)
-  : insertedParent_(insertedParent)
+  : BaseItem(WModelIndex()),
+    insertedParent_(insertedParent)
 { }
 
 WBatchEditProxyModel::Item::~Item()
@@ -383,7 +384,7 @@ WBatchEditProxyModel::itemFromSourceIndex(const WModelIndex& sourceParent,
     } else
       return 0;
   } else
-    return i->second;
+    return dynamic_cast<Item *>(i->second);
 }
 
 WBatchEditProxyModel::Item *
@@ -567,7 +568,12 @@ void WBatchEditProxyModel::deleteItemsUnder(Item *item, int row)
 
 void WBatchEditProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 					     int start, int end)
-{ }
+{ 
+  if (isRemoved(parent))
+    return;
+
+  shiftModelIndexes(parent, start, -(end - start + 1), mappedIndexes_);
+}
 
 void WBatchEditProxyModel::sourceRowsAboutToBeInserted
 (const WModelIndex& parent, int start, int end)
@@ -624,6 +630,8 @@ void WBatchEditProxyModel::sourceRowsInserted(const WModelIndex& parent,
       endInsertRows();
     }
   }
+
+  shiftModelIndexes(parent, start, (end - start + 1), mappedIndexes_);
 }
 
 void WBatchEditProxyModel::sourceDataChanged(const WModelIndex& topLeft,
@@ -997,7 +1005,7 @@ bool WBatchEditProxyModel::isDirty() const
 {
   for (ItemMap::iterator i = mappedIndexes_.begin();
        i != mappedIndexes_.end(); ++i) {
-    Item *item = i->second;
+    Item *item = dynamic_cast<Item *>(i->second);
 
     if (!item->removedColumns_.empty()
 	|| !item->insertedColumns_.empty()
@@ -1016,7 +1024,7 @@ void WBatchEditProxyModel::commitAll()
 
   for (ItemMap::iterator i = mappedIndexes_.begin(); i != mappedIndexes_.end();
        ++i) {
-    Item *item = i->second;
+    Item *item = dynamic_cast<Item *>(i->second);
 
     while (!item->removedColumns_.empty())
       sourceModel()->removeColumn(item->removedColumns_[0], item->sourceIndex_);
@@ -1050,7 +1058,7 @@ void WBatchEditProxyModel::revertAll()
 {
   for (ItemMap::iterator i = mappedIndexes_.begin(); i != mappedIndexes_.end();
        ++i) {
-    Item *item = i->second;
+    Item *item = dynamic_cast<Item *>(i->second);
 
     WModelIndex proxyIndex = mapFromSource(item->sourceIndex_);
 

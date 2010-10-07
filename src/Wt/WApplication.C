@@ -179,6 +179,9 @@ WApplication::WApplication(const WEnvironment& env)
 		      "background: transparent;"
 		      "text-decoration: none;"
 		      "color: inherit;");
+  if (environment().agentIsIE())
+    styleSheet_.addRule(".Wt-wrap",
+			"margin: -1px 0px -3px;");
   //styleSheet_.addRule("a.Wt-wrap", "text-decoration: none;");
   styleSheet_.addRule(".Wt-invalid", "background-color: #f79a9a;");
   styleSheet_.addRule("span.Wt-disabled", "color: gray;");

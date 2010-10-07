@@ -550,12 +550,15 @@ void WebSession::Handler::init()
 
 void WebSession::Handler::attachThreadToSession(WebSession& session)
 {
-#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#if defined(WT_THREADED)
   threadHandler_.reset(new Handler(session.shared_from_this(), false));
+#elif defined(WT_TARGET_JAVA)
+  threadHandler_.reset(new Handler(boost::shared_ptr<WebSession>(&session), 
+  				   false));
 #else
   session.log("error") <<
     "attachThreadToSession() requires that Wt is built with threading enabled";
-#endif // WT_THREADED
+#endif
 }
 
 #ifdef WT_TARGET_JAVA

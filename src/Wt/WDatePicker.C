@@ -154,7 +154,10 @@ void WDatePicker::setFromLineEdit()
   WDate d = WDate::fromString(forEdit_->text(), format_);
 
   if (d.isValid()) {
-    if (!calendar_->selection().empty()) {
+    if (calendar_->selection().empty()) {
+      calendar_->select(d);
+      calendar_->selectionChanged().emit();
+    } else {
       WDate j = Utils::first(calendar_->selection());
       if (j != d) {
 	calendar_->select(d);

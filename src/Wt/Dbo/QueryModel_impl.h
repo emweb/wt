@@ -266,7 +266,7 @@ WFlags<ItemFlag> QueryModel<Result>::columnFlags(int column) const
 template <class Result>
 void QueryModel<Result>::setColumnFlags(int column, WFlags<ItemFlag> flags)
 {
-  return columns_[column].flags_ = flags;
+  columns_[column].flags_ = flags;
 }
 
 template <class Result>

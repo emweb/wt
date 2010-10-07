@@ -64,6 +64,9 @@ int WSortFilterProxyModel::Compare::compare(int sourceRow1, int sourceRow2)
 
 #endif // DOXYGEN_ONLY
 
+WSortFilterProxyModel::Item::~Item()
+{ }
+
 WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
   : WAbstractProxyModel(parent),
     regex_(0),
@@ -285,7 +288,7 @@ WSortFilterProxyModel::itemFromSourceIndex(const WModelIndex& sourceParent)
     updateItem(result);
     return result;
   } else
-    return i->second;
+    return dynamic_cast<Item *>(i->second);
 }
 
 void WSortFilterProxyModel::updateItem(Item *item) const
@@ -439,6 +442,8 @@ void WSortFilterProxyModel::sourceRowsAboutToBeInserted
 void WSortFilterProxyModel::sourceRowsInserted(const WModelIndex& parent,
 					       int start, int end)
 {
+  shiftModelIndexes(parent, start, (end - start + 1), mappedIndexes_);
+
   if (inserting_)
     return;
 
@@ -494,6 +499,8 @@ void WSortFilterProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 					      int start, int end)
 {
   int count = end - start + 1;
+
+  shiftModelIndexes(parent, start, -count, mappedIndexes_);
 
   WModelIndex pparent = mapFromSource(parent);
   Item *item = itemFromIndex(pparent);

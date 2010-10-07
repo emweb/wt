@@ -10,6 +10,9 @@ namespace Wt {
 
 #ifndef DOXYGEN_ONLY
 
+WAbstractProxyModel::BaseItem::~BaseItem()
+{ }
+
 WAbstractProxyModel::WAbstractProxyModel(WObject *parent)
   : WAbstractItemModel(parent),
     sourceModel_(0)
@@ -87,6 +90,76 @@ WModelIndex WAbstractProxyModel::createSourceIndex(int row, int column,
 						   void *ptr) const
 {
   return sourceModel_->createIndex(row, column, ptr);
+}
+
+void WAbstractProxyModel::shiftModelIndexes(const WModelIndex& sourceParent,
+					    int start, int count,
+					    ItemMap& items)
+{
+  /*
+   * We must shift all indexes within sourceParent >= start with count
+   * and delete items when count < 0.
+   */
+  std::vector<BaseItem *> shifted;
+  std::vector<BaseItem *> erased;
+
+  for (ItemMap::iterator it
+	 = items.lower_bound(sourceModel()->index(start, 0, sourceParent));
+       it != items.end();) {
+#ifndef WT_TARGET_JAVA
+    ItemMap::iterator n = it;
+    ++n;
+#endif
+    WModelIndex i = it->first;
+
+    WModelIndex p = i.parent();
+    if (p != sourceParent && !WModelIndex::isAncestor(p, sourceParent))
+      break;
+
+    if (p == sourceParent) {
+      shifted.push_back(it->second);
+    } else if (count < 0) {
+      // delete indexes that are about to be deleted, if they are within
+      // the range of deleted indexes
+      do {
+	if (p.parent() == sourceParent
+	    && p.row() >= start
+	    && p.row() < start - count) {
+	  erased.push_back(it->second);
+	  break;
+	} else
+	  p = p.parent();
+      } while (p != sourceParent);
+    }
+
+#ifndef WT_TARGET_JAVA
+    it = n;
+#endif
+  }
+
+  for (unsigned i = 0; i < erased.size(); ++i) {
+    items.erase(erased[i]->sourceIndex_);
+    delete erased[i];
+  }
+
+  for (unsigned i = 0; i < shifted.size(); ++i) {
+    BaseItem *item = shifted[i];
+    items.erase(item->sourceIndex_);
+    if (item->sourceIndex_.row() + count >= start) {
+      item->sourceIndex_ = sourceModel()->index
+	(item->sourceIndex_.row() + count,
+	 item->sourceIndex_.column(),
+	 sourceParent);
+    } else {
+      delete item;
+      shifted[i] = 0;
+    }
+  }
+
+  for (unsigned i = 0; i < shifted.size(); ++i) {
+    if (shifted[i])
+      items[shifted[i]->sourceIndex_] = shifted[i];
+  }
 }
 
 #endif // DOXYGEN_ONLY

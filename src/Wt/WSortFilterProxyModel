@@ -269,15 +269,14 @@ private:
   /*
    * For every proxy parent, we keep the following info:
    */
-  struct Item {
+  struct Item : public BaseItem {
     // maps source rows to proxy rows
     std::vector<int> sourceRowMap_;
     // maps proxy rows to source rows
     std::vector<int> proxyRowMap_;
 
-    WModelIndex sourceIndex_;
-
-    Item(const WModelIndex& sourceIndex) : sourceIndex_(sourceIndex) { }
+    Item(const WModelIndex& sourceIndex) : BaseItem(sourceIndex) { }
+    virtual ~Item();
   };
 
   struct Compare W_JAVA_COMPARATOR(int) {
@@ -295,9 +294,6 @@ private:
     const WSortFilterProxyModel *model;
     Item *item;
   };
-
-  // WModelIndex is one of source model
-  typedef std::map<WModelIndex, Item *> ItemMap;
 
   WRegExp *regex_;
 

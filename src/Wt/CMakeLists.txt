@@ -1,4 +1,10 @@
-SUBDIRS(Dbo Ext Chart Http Test)
+SUBDIRS(Chart Http Test)
+
+SUBDIRS(Dbo)
+
+IF(ENABLE_EXT)
+  SUBDIRS(Ext)
+ENDIF(ENABLE_EXT)
 
 INSTALL_FILES(/include/Wt "^W.*[^C~]$")
 #INSTALL(

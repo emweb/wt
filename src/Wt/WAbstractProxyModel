@@ -107,6 +107,52 @@ protected:
    */
   WModelIndex createSourceIndex(int row, int column, void *ptr) const;
 
+  /*! \brief A base class for an item modeling a source index parent.
+   *
+   * Many mplementations of a proxy model will need to maintain a data
+   * structure per source model indexes, where they relate source rows or
+   * columns to proxy rows or columns, per hierarchical parent.
+   *
+   * It may be convenient to start from this item class as a base
+   * class so that shiftModelIndexes() can be used to update this data
+   * structure when the source model adds or removes rows.
+   *
+   * You will typically use your derived class of this item as the
+   * internal pointer for proxy model indexes: a proxy model index
+   * will have an item as internal pointer whose sourceIndex_ corresponds
+   * to the source equivalent of the proxy model index parent.
+   *
+   * \sa createIndex()
+   */
+  struct BaseItem {
+    /*! \brief The source model index.
+     *
+     * The source model index for this item.
+     */
+    WModelIndex sourceIndex_;
+
+    BaseItem(const WModelIndex& sourceIndex) : sourceIndex_(sourceIndex) { }
+    virtual ~BaseItem();
+  };
+
+  /*! \brief A map for items.
+   *
+   * \sa BaseItem
+   */
+#ifndef WT_TARGET_JAVA
+  typedef std::map<WModelIndex, BaseItem *> ItemMap;
+#else
+  typedef std::treemap<WModelIndex, BaseItem *> ItemMap;
+#endif // WT_TARGET_JAVA
+
+  /*! \brief Utility methods to shift items in an item map.
+   *
+   * You can use this method to adjust an item map after the source
+   * model has inserted or removed rows. When removing rows (count < 0),
+   * items may possibly be removed and deleted.
+   */
+  void shiftModelIndexes(const WModelIndex& sourceParent, int start, int count,
+			 ItemMap& items);
 private:
   WAbstractItemModel     *sourceModel_;
 };

@@ -397,6 +397,10 @@ public:
     bool operator()(const WModelIndex& i1, const WModelIndex& i2) const;
   };
 
+  /*! \brief Returns whether i2 is an ancestor of i1
+   */
+  static bool isAncestor(const Wt::WModelIndex& i1, const Wt::WModelIndex& i2);
+
 private:
   const WAbstractItemModel *model_;
   int row_, column_;
