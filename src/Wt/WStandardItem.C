@@ -404,8 +404,10 @@ void WStandardItem::insertColumn(int column,
   if (!columns_)
     columns_ = new ColumnList();
   else {
-    if (rc < items.size())
+    if (rc < items.size()) {
       setRowCount(items.size());
+      rc = items.size();
+    }
   }
 
   if (model_)
@@ -418,7 +420,7 @@ void WStandardItem::insertColumn(int column,
 
   if (items.size() < rc) {
     std::vector<WStandardItem *>& inserted = (*columns_)[column];
-    inserted.resize(items.size());
+    inserted.resize(rc);
   }
 
   renumberColumns(column + 1);

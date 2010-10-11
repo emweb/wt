@@ -41,8 +41,13 @@ private:
   template <class Result> friend class QueryModel;
 };
 
-QueryColumn::QueryColumn(const std::string& field, const WString& header,
-			 WFlags<ItemFlag> flags)
+/*
+ * Defined in the header file to avoid a link-time dependency on
+ * libwt.so
+ */
+inline QueryColumn::QueryColumn(const std::string& field,
+				const WString& header,
+				WFlags<ItemFlag> flags)
   : field_(field),
     flags_(flags),
     fieldIdx_(-1)
