@@ -39,9 +39,17 @@ void QueryModel<Result>::setBatchSize(int count)
 
 template <class Result>
 int QueryModel<Result>::addColumn(const std::string& field,
+				  const WString& header,
 				  WFlags<ItemFlag> flags)
 {
-  return addColumn(QueryColumn(field, flags));
+  return addColumn(QueryColumn(field, header, flags));  
+}
+
+template <class Result>
+int QueryModel<Result>::addColumn(const std::string& field,
+				  WFlags<ItemFlag> flags)
+{
+  return addColumn(QueryColumn(field, WString::fromUTF8(field), flags));
 }
 
 template <class Result>
@@ -141,17 +149,6 @@ bool QueryModel<Result>::setData(const WModelIndex& index,
     return true;
   } else
     return false;
-}
-
-template <class Result>
-boost::any QueryModel<Result>::headerData(int section,
-					 Orientation orientation,
-					 int role) const
-{
-  if (orientation == Horizontal && role == DisplayRole) {
-    return fields_[columns_[section].fieldIdx_].name();
-  } else
-    return WAbstractTableModel::headerData(section, orientation, role);
 }
 
 template <class Result>
@@ -332,6 +329,39 @@ bool QueryModel<Result>::removeRows(int row, int count,
   endRemoveRows();
 
   return true;
+}
+
+template <class Result>
+bool QueryModel<Result>::setHeaderData(int section, Orientation orientation,
+				       const boost::any& value,
+				       int role)
+{
+  if (orientation == Horizontal) {
+    if (role == EditRole)
+      role = DisplayRole;
+
+    columns_[section].headerData_[role] = value;
+
+    return true;
+  } else
+    return WAbstractTableModel::setHeaderData(section, orientation,
+					      value, role);
+}
+
+template <class Result>
+boost::any QueryModel<Result>::headerData(int section, Orientation orientation,
+					  int role) const
+{
+  if (orientation == Horizontal) {
+    QueryColumn::HeaderData::const_iterator i
+      = columns_[section].headerData_.find(role);
+
+    if (i != columns_[section].headerData_.end())
+      return i->second;
+    else
+      return boost::any();
+  } else
+    return WAbstractTableModel::headerData(section, orientation, role);
 }
 
   }

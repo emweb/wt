@@ -8,6 +8,7 @@
 #define WT_DBO_QUERY_COLUMN_H_
 
 #include <Wt/WModelIndex>
+#include <Wt/WString>
 #include <Wt/Dbo/Dbo>
 
 namespace Wt {
@@ -16,21 +17,38 @@ class WAbstractTableModel;
   namespace Dbo {
 
 // TODO figure out a nice syntax for qualified fields ?
-class QueryColumn {
-  QueryColumn(const std::string& field, WFlags<ItemFlag> flags);
+class QueryColumn 
+{
+  QueryColumn(const std::string& field,
+	      const WString& header,
+	      WFlags<ItemFlag> flags);
 
+  /*
   QueryColumn(const std::string& field,
 	      WAbstractTableModel *editValuesModel);
+  */
 
 private:
+  typedef std::map<int, boost::any> HeaderData;
+
   std::string field_;
   WFlags<ItemFlag> flags_;
   int fieldIdx_;
+  HeaderData headerData_;
 
   WAbstractTableModel *editValuesModel_;
 
   template <class Result> friend class QueryModel;
 };
+
+QueryColumn::QueryColumn(const std::string& field, const WString& header,
+			 WFlags<ItemFlag> flags)
+  : field_(field),
+    flags_(flags),
+    fieldIdx_(-1)
+{ 
+  headerData_[DisplayRole] = header;
+}
 
   }
 }

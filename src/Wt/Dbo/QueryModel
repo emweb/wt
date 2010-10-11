@@ -91,11 +91,25 @@ public:
    * name. The list of available fields can be inspected using
    * fields().
    *
+   * The \p header is used as Wt::DisplayRole for the column header
+   * data.
+   *
    * For the column items, flags() will returned the given \p
    * flags. For example, to indicate that a field is editable, you can
    * set the Wt::ItemIsEditable flag.
    *
    * \sa fields()
+   */
+  int addColumn(const std::string& field,
+		const WString& header,
+		WFlags<ItemFlag> flags = ItemIsSelectable);
+
+  /*! \brief Adds a column.
+   *
+   * This is an overloaded function for convenience, which uses the
+   * field name as the header value.
+   *
+   * \sa setHeaderData()
    */
   int addColumn(const std::string& field,
 		WFlags<ItemFlag> flags = ItemIsSelectable);
@@ -227,16 +241,6 @@ public:
   virtual bool setData(const WModelIndex& index,
 		       const boost::any& value, int role = EditRole);
 
-  /*! \brief Returns the column header data.
-   *
-   * Returns the column header based on the field name.
-   *
-   * \sa addColumn()
-   */
-  virtual boost::any headerData(int section,
-				Orientation orientation = Horizontal,
-				int role = DisplayRole) const;
-
   /*! \brief Sorts the model according to a particular column.
    *
    * This sorts the model by changing the query using
@@ -259,6 +263,23 @@ public:
    */
   virtual bool removeRows(int row, int count,
 			  const WModelIndex& parent = WModelIndex());
+
+  /*! \brief Sets header data for a column.
+   *
+   * The model will return this data in headerData(). Only column headers
+   * are supported (orientation == Wt::Horizontal).
+   */
+  virtual bool setHeaderData(int column, Orientation orientation,
+			     const boost::any& value,
+			     int role = EditRole);
+
+  /*! \brief Returns header data.
+   *
+   * \sa setHeaderData()
+   */
+  virtual boost::any headerData(int section,
+				Orientation orientation = Horizontal,
+				int role = DisplayRole) const;
 
 protected:
   /*! \brief Creates a new row.

@@ -40,11 +40,5 @@ namespace Wt {
      - if OptionsModel data is not empty, then display a combo box
  */
 
-QueryColumn::QueryColumn(const std::string& field, WFlags<ItemFlag> flags)
-  : field_(field),
-    flags_(flags),
-    fieldIdx_(-1)
-{ }
-
   }
 }
