@@ -103,7 +103,7 @@ WT_DECLARE_WT_MEMBER
 
      var xy = WT.widgetCoordinates(edit, event);
      if (xy.x > edit.offsetWidth - 16) {
-       if (editId != edit.id) {
+       if (editId != edit.id || !visible()) {
 	 hidePopup();
 	 editId = edit.id;
 	 droppedDown = true;

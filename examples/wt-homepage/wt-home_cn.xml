@@ -43,23 +43,22 @@
   <message id="wt">Wt，C++ 网络开发工具包</message>
 
   <message id="introduction">简介</message>
-  <message id="news">新闻</message>
+  <message id="blog">博客</message>
   <message id="features">特点</message>
   <message id="documentation">文档</message>
   <message id="examples">示例</message>
   <message id="download">下载</message>
   <message id="community">社区</message>
+  <message id="other-language">!C++</message>
 
   <message id="hello-world">Hello world</message>
   <message id="charts">图表示例</message>
   <message id="wt-homepage">Wt网站示例</message>
-  <message id="treelist">树表</message>
-  <message id="hangman">Hangman猜词游戏</message>
+  <message id="treeview">树视图</message>
+  <message id="git">Git查看器</message>
   <message id="chat">简单聊天示例</message>
   <message id="mail-composer">邮件编辑器</message>
-  <message id="drag-and-drop">拖放示例</message>
-  <message id="file-explorer">文件浏览器</message>
-  <message id="calendar">日历</message>
+  <message id="widget-gallery">Widget展示库</message>
 
   <message id="home.news">
     <h3><span>新闻</span></h3>
@@ -71,678 +70,617 @@
     <h4><span>重要消息</span></h4>
   </message>
 
+  <message id="source-browser">
+    查看源代码
+  </message>
+
+  <message id="src-title">
+    <div>
+    </div>
+  </message>
+
   <message id="home.intro">
 
-<h3><span>Wt: 简介</span></h3>
+<h3><span>Wt：简介</span></h3>
 
-<p>Wt(音同'witty')是一个C++库，同时也是开发和部署web应用的服务器。
-Wt不是所谓框架(framework)，它只是一个库，它不会将编程方式强加于开发者。</p>
+<p>Wt(音同'witty')是一个C++库，用以开发交互性Web应用。</p>
 
-<p>Wt的API是以widget为中心(widget-centric)的，并受到现有C++图形用户界面(GUI)
-的应用编程接口(APIs)的启发。Wt为开发者提供了几乎所有web实现细节的抽象，其中
-包括事件处理和图像支持。</p>
+<p>Wt的API<b>以widget为中心</b>，将桌面GUI APIs的良好测试模式引入Web开发。
+Wt为开发者提供了几乎所有Web实现细节的抽象，其中包括事件处理、图像支持、
+优雅降级（或渐进增强）、及良好的URL处理。</p>
 
-<p>基于页面的web应用开发框架(Page-based frameworks)，如PHP、JSP/JSF
-(+servlets+struts)等，没有实现对一些最基本技术的特性的抽象，这些技术包括
-HTML/XHTML、JavaScript、CSS、AJAX、 Forms、DHTML、SVG/VML/Canvas等，显然基
-于页面的开发框架(frameworks)必须要求开发者随时熟悉和掌握这些基本技术。另外，
-当选择某一种基本技术时(如当前流行的AJAX)，开发者则要对该技术的优雅降级
-(graceful degradation)负责，比如当AJAX或JavaScript已经不复存在或某些功能失效
-时。同时，应用程序结构还要遵循早期HTML以页面为基础的开发范式。作为一个AJAX开
-发者，这就意味着他需要手工设计和维护客户端/服务器端的通讯。</p>
+<p>与其他诸多基于页面的开发框架相比，Wt可以创建状态化的应用，同时
+实现了高度的交互性和可访问性；其交互性体现在Wt可以综合使用各种技术，
+如Ajax等；其可访问性体现在Wt可以使应用在必要的时候支持纯HTML浏览器；
+这些特性的获得充分利用了自动的<b>优雅降级或渐进增强</b>。</p>
 
-<p>尽管开发者有时不希望，但为了生成HTML代码或填充HTML模板会在页面中插入
-JavaScript，如此操作则会带来安全风险，如跨站脚本(XSS:Cross-Site-Scripting)。
-但是，模板框架(template frameworks)本身无法避免这种情况的发生，因为开发者总是
-需要插入自定义的JavaScript来提高web应用。</p>
+<p>Wt库还自带了应用服务器程序，可配置为独立的Web服务器，当然也允许
+通过FastCGI连同其他Web服务器进行整合。</p>
 
-<p>相比之下，使用Wt开发的web应用就要好许多，因为这样的应用只使用一种编译
-语言(C++)，而且生成必要的HTML/XHTML、Javascript、CGI、SVG/VML/Canvas以及
-AJAX代码的任务都交给Wt库完成。自然地，web开发的安全性和浏览器可移植性问题也都
-交给了Wt。另外，在可能的情况下，Wt将最大限度地使用JavaScript和AJAX；特别
-地，在不支持AJAX的情况下，采用Wt开发的web应用仍能正常工作，因为Wt采用了
-转回普通HTML/CGI的机制(reverting to a plain HTML/CGI mechanism)，保证了
-浏览器与服务器之间的正常通讯。</p>
+<h4>交互性、安全性、可访问性</h4>
+
+<p>基于页面的开发框架（如PHP、JSP/JSF、Ruby on Rails等）没有实现底层基础
+技术的抽象，这些技术包括HTML/XHTML、JavaScript、CSS、Ajax、Forms、DHTML
+、SVG/VML/Canvas等。显然，基于页面的开发框架必须要求开发者随时熟悉和掌握
+这些基本技术，同时当浏览器不支持时，还要为应用的优雅降级负责。另外，如果
+应用采取早期HTML页面为中心的设计模式，开发者不仅要实现控制器以告诉用户如何
+从一个页面跳转到另一个页面，而且还要在采用一些高级Ajax技术时手工设计和维护
+客户端与服务器端的通讯。</p>
+
+<p>另一方面，就算是纯粹的Ajax框架，也要求开发者通过繁杂的JavaScript编程来
+处理浏览器的怪异行为和客户端与服务器端间的安全通讯，这些处理任何人都不能
+跳过去不与理会。同时，这些应用通常不能符合可访问性的原则，也不能很好被搜索
+机器人索引到。</p>
+
+<p>安全方面，生成HTML或填充HTML模版很容易导致安全问题，如<a 
+href="http://en.wikipedia.org/wiki/Cross-site_scripting">跨站脚本（XSS）
+</a>和<a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">
+跨站请求伪造（CSRF）</a>；XSS问题一般由（疏忽）允许嵌入JavaScript代码引起，
+CSRF问题一般由（相信）Cookies（可）作为认证手段引起。作为开发者，
+这些安全问题将是很难避免的，因为我们有时需要允许用户插入自己的JavaScript
+代码来实现某些功能，但开发框架本身却没提供给我们过滤机制。</p>
+
+<p>相反，使用Wt来部署Web应用可以完全用C++来开发，Wt自动产生所必须的
+HTML/XHTML、CSS、Javascript、CGI、SVG/VML/Canvas和Ajax代码；与此同时，
+代码的安全性和浏览器兼容性等问题都将转交给Wt。例如，在可能的情况下，
+Wt将最大限度的使用JavaScript和Ajax，但在Ajax功能受限时，Wt也能保证
+系统功能运行正常。其原理是Wt将先启用纯HTML/CGI应用，随后在可能的情况
+下渐进增强至Ajax应用。另外，Wt提供了内置的安全性考虑。</p>
 
 <h4>典型应用举隅：</h4>
 
 <ul>
-  <li>由于Wt web应用服务器占用较低的内存(low footprint)，故而可以为
-  <b>可联网的嵌入式系统(web-enabled embedded systems)</b>提供基于web的图形
-  用户界面(GUI)；</li>
+  <li>由于Wt C++ Web应用服务器占用较小的物理空间，故而可以为<b>嵌入式系统</b>
+  提供基于Web的GUIs；</li>
 
-  <li>Wt可以为需要<b>整合现有C++库</b>的应用提供基于web的图形用户界面(GUI), 
-  这些应用包括科学上的或工程上的应用；</li>
-  <li>Wt可以创建从<b>现有C++桌面应用</b>到web的有效渠道(port)。</li>
+  <li>Wt可以为需要<b>整合现有C++库</b>的应用提供基于Web的GUIs, 这些
+  应用可能包括科学上的或工程上的应用；</li>
+
+  <li>Wt可以创建从<b>现有C++桌面应用</b>到Web的有效渠道；</li>
+
+  <li>Wt还可以应用于一些<b>高性能、复杂的</b>Web应用，这样的应用
+  一般具有高度定制、充分利用Ajax的特点，同时具有完全的可访问性和较高的
+  搜索引擎优化(SEO)需求</li>
 </ul>
 
-<h4>使用Wt的好处</h4>
+<h4>使用Wt的其他好处</h4>
 
 <ul>
-  <li>可以象开发C++桌面应用一样开发web应用；</li>
+  <li>可以使用我们熟悉的桌面GUI模式开发Web应用；</li>
 
-  <li>Wt提供最基本的(plain)widgets，这些widgets可以在运行环境不支持
-  JavaScript的情况下照常工作(当然，如果支持的话效果会更好)。同时Wt::Ext命名
-  空间下的widgets工作效果会更酷(more polished)，而且可以提供更高级的功能，
-  但是会需要对JavaScript的支持以及更为流行的浏览器。以上两类widgets在Wt中共享
-  同一套应用编程接口(API)；</li>
-  
-  <li>Wt提供两种开发与部署模式，即使用Wt内置(build-in)httpd或者FastCGI连接器
-  (connector)，前者在Wt内较容易实现，而后者则实际上是在开发FastCGI应用；</li>
-  
-  <li>客户端与服务器端在验证(validation)和事件处理(event handling)方面采用同
-  一原则(a single specification)，即两种应用下，开发者在服务器端使用C++编写，
-  Wt既在服务器端生成C++代码，又同时在客户端生成JavaScript代码；其中事件处理特
-  指使用无状态槽(stateless slot)实现的情况；</li>
- 
-  <li>可以产生标准的、符合HTML/XHTML规范的代码；</li>
-  <li>使用内联VML、SVG、HTML 5 Canvas可以提供可移植的(portable)、抗锯齿图像
-  (anti-aliased graphics)；</li>
-  <li>无跨站脚本(XSS)风险，因为Wt完全控制表示层(presentation layer)，并提前
-  (proactively)过滤掉<i>活动(active)</i> 标签(tags)和属性(attibutes)，这样很好地
-  隐藏了驻留在服务器端的业务逻辑(business logic)；</li>
-  <li>基于Wt的应用载入时间极短(ultra-fast load time)，同时占用较低带宽
-  (low bandwidth usage)，当然也会受到显示内容复杂程度(screen complexity)的影响，
-  但肯定不会是应用程序的大小。</li>
+  <li>Wt为我们提供了广阔的widgets集，这些widgets可以在环境不支持
+  JavaScript的情况下照常工作（当然，如果支持则效果更佳）；</li>
+
+  <li>在Wt中客户端与服务器端的验证和事件处理采用同一规范；</li>
+
+  <li>Wt允许开发者选择XHTML和CSS来进行布局和样式编辑；</li>
+
+  <li>Wt可生成标准的、兼容的HTML或XHTML代码；</li>
+
+  <li>Wt采用内联VML、内联SVG、HTML 5 画布或PNG可生成应用于Web的可移植的、
+  反锯齿的图像，当然这些图像还可以轻松渲染为PDF格式；</li>
+
+  <li></li>
+
+  <li>Wt可以避免常见的安全问题，因为Wt拥有对表示层的完全控制，并能够主动
+  过滤掉<i>处于活动状态的</i>标签和属性；Wt同时实现了业务逻辑的隐藏，并
+  通过状态化的设计简化了认证机制；</li>
+
+  <li>基于Wt的应用的载入时间极短且占用带宽也很低，究其原因是Wt中这些特点
+  仅受限于页面显示的复杂程度，而不是应用程序自身的尺寸；Wt还实现了所有的
+  常用技巧和方法，以优化应用的快速反应，Wt几乎做到了针对所有浏览器的优化；</li>
+
+  <li>Wt提供了服务器端初始的事件处理，即<i>服务器推</i>或<i>Comet</i>，
+  这部分API使用简单、稳定且在所有浏览器上均能实现；</li>
+
+  <li>Wt在服务器部署上，既可以使用内置的httpd，又可以使用FastCGI/ISAPI，
+  当然前者实施起来更简便易行。</li>
 </ul>
 
   </message>
   <message id="home.features">
 
-<h3><span>Wt特点</span></h3>
+<h3><span>特点</span></h3>
 
-<h4>核心库</h4>
+<h4>核心库特点</h4>
 
 <ul>
-  <li>支持所有主流浏览器(包括Firefox/Gecko、Internet Explorer、Safari、
-    Konqueror以及Opera)，同时在不支持JavaScript的浏览器上亦能正常
-    工作(已经测试过的有Links和Lynx)；</li>
-  <li>开发和部署平台为Unix/GNU Linux (gcc)或者Microsoft Windows
-    (Visual Studio)；</li>
-  <li>在有无JavaScript或AJAX支持的情况，应用程序行为基本保持一致；</li>
-  <li>整合了对UTF8及UTF16的支持；</li>
-  <li>提升了AJAX页面变化的渲染(rendering)能力；</li>
-  <li>Wt将AJAX页面变化的渲染(rendering)分成可见部分和运行在背景中(隐式)的不可见部分；
-    而当不使用AJAX时，只有可见部分被渲染；</li>
-  <li>提供可自由配置的会话跟踪(session tracking)选项，这包括URL重写和cookies；</li>
-  <li>支持定时事件(timed events)和服务器端发起更新(server-initiated updates)，
-    即服务器推送(server push)；</li>
-  <li>Wt通过内部地址应用编程接口(internal path API)，可以支持浏览器浏览历史导航
-    (即“转到上一页”、“转到下一页”按钮和“书签”功能[注：在IE以上三项称为“向前”、
-    “向后”和“收藏夹”])；</li>
-  <li>Wt性能卓越，允许部署在低端嵌入式设备(low-end embedded devices)上，或者当用户希望
-    其Internet或Extranet应用在功能强弱(energy)、占用空间大小(space)和投入成本(budget)等
-    方面达到相对平衡时。</li> 
+  <li>支持所有主流浏览器（包括Firefox/Gecko、Internet Explorer、Safari、
+	Chrome、Konqueror以及Opera），同时在纯HTML浏览器上亦能正常工作
+	（已经测试过的有Links和Lynx）；</li>
+
+  <li>既可以在Unix/GNU Linux（gcc）上开发和部署，又可以在MS Windows
+   （Visual Studio）上；</li>
+
+  <li>Wt利用优雅降低与渐进增强可以保证应用在有无JavaScript或Ajax支持
+	的情况下动作行为尽可能一致（渐进增加须使用渐进启动方法）；</li>
+
+  <li>Wt整合了Unicode支持（UTF8/UTF16），便于全面实现本地化；</li>
+
+  <li>当Ajax获得支持时，基于Wt的应用只有变化才被渲染；</li>
+
+  <li>在Wt中，页面变化有可见变化和背景中不可见变化两类，当Ajax被支持时，
+	两类都会得到渲染，而当Ajax不被支持时，只有可见内容的变化被渲染；</li>
+
+  <li>Wt中的会话跟踪选项是可以按需配置的，主要包括URL重写和Cookies两种；</li>
+
+  <li>Wt中纯HTML页面或Ajax会话的动作行为是统一的，因此Wt支持浏览器历史
+	导航操作（向后、向前按钮和书签），可生成良好URL地址，利于搜索引擎
+	优化工作；</li>
+
+  <li>Wt拥有高性能的特点，允许部署在低端嵌入式设备上，或者部署在所用功耗、
+	物理空间、经费预算等相对平衡的Internet或extranet网站上；</li>
+
+  <li>Wt采用了完全基于事件驱动的异步I/O机制：会话不用绑定于线程，也不会延迟应答
+	（如服务器推）或锁定线程；相反，线程只会被用来提高并发请求处理或事件循环
+	的重新进入。</li>
 </ul>
 
 <h4>事件处理</h4>
 
 <ul>
+  <li>Wt使用类型安全的、基于模版的信号/槽系统来处理事件；</li>
   <li>支持对键盘、鼠标及焦点事件的监听，同时可以获得事件细节，比如鼠标键位、
     键盘键位等；</li>
-  <li>Wt使用基于模板的信号/槽系统(template-based signal/slot system)进行事件处理；</li>
-  <li>Wt默认采用基于C++的服务器端事件处理，而不是基于JavaScript的客户端事件处理；</li>
-  <li>通过详细指明<i>无状态槽(stateless slot)</i>的实现，Wt将动态完成从C++到JavaScript
-    的转译；单一C++槽既提供客户端事件处理也提供服务器端事件处理，其结果是客户端引起页面
-    视觉效果变化(visual changes)，同时服务器端引起应用状态变化(application state)；</li>
-  <li>Wt可以提供自定义JavaScript的钩子(hook)(如仅存在客户端事件处理的情况)，由自定义的
-    JavaScript<i>产生(emit)</i>C++信号；</li>
-  <li>Wt应用编程接口(API)可以轻松实现拖放(Drag&amp;Drop)功能。</li> 
+  <li>自动同步表单数据；</li>
+  <li>Wt通过无状态槽实现获得了C++至JavaScript的动态转换；在此，单一C++槽的实现
+	提供了客户端和服务器端双重事件处理：即客户端实现显示的变化，服务器端实现
+	应用状态的变化；</li>
+  <li>Wt还提供了面向开发者自定义的JavaScript代码的钩技术，比如让原本仅用于客户端
+	  事件处理的JavaScript代码在执行后释放出C++信号；</li>
+  <li>Wt提供了拖放API；</li>
+  <li>Wt支持定时事件，同时内置支持服务器端初始更新（“服务器推”）。</li>
 </ul>
 
-<h4>独有的绘图系统</h4>
+<h4>原生的绘图系统</h4>
 
 <ul>
-  <li>Wt绘图应用编程接口(unified painting API)使用内联VML、内联SVG或HTML 5 canvas，
-    充分利用浏览器固有的(向量)图像支持； </li>
-  <li>绘图系统支持任意路径绘图(arbitrary painter paths)、裁减(clipping)、文本(text)、
-    图像(images)、变形(transformations)以及画笔(stroke)和类型填充(fill styling)；</li>
-  <li>Wt提供两种绘画系统实现方式，即其API与WPaintedWidget类接合使用，或者直接使用
-    SVGImage绘图设备(SVGImage paint device)。</li>
+  <li>Wt提供统一的绘图API，此系统使用了浏览器原生的（向量）图像支持
+	（如内联VML、内联SVG、HTML 5画布），也可以渲染到通用的图片格式
+	（如PNG、GIF等等）或向量格式（如SVG、PDF等）；</li>
+  <li>Wt支持任意画笔路径、裁剪、输入文本、图像、变形、投影等</li>
+  <li>使用绘图API可以绘制widget，或者创建SVG、PDF及PNG/GIF图像。</li>
 </ul>
 
-<h4>图形用户界面组件</h4>
+<h4>GUI组件</h4>
+
+具体可进入<a href="http://www.webtoolkit.eu/widgets">Widget展示库</a>
+进行交互式体验。
 
 <ul>
-  <li>基本widgets，包括按钮、HTML锚、 选择框、选择按钮、组合框、各种容器(containers)、
-    文件上传控制框、图像、标签、文本框(单行/多行)等等；</li>
-  <li>表单widgets，内部使用WValidator类支持客户端和服务器端验证；</li>
-  <li>复合(Composite)widgets，包括日历、 滚动条、树、树表、菜单、就地编辑(in-place edits)、
-    虚拟图像、窗体面板等，这些复合widgets建立在基本widgets之上，并仅使用Wt公共应用编程接口(API)</li>
-  <li>Modal视窗，包括对话框和信息提示框；</li>
-  <li>使用信息资源集(messages resource bundles)实现内置的I18N；</li>
-  <li>Wt采用内联CSS，或者也可以采用内部的或外部指定的样式表；</li>
-  <li>Wt Ext widgets，内部使用 <a href="http://extjs.com/">Ext JS 2.0.1</a> JavaScript 
-    widgets，ExtJS widgets的大部分子集在Wt中已经打包为(wrapped as) C++ widgets；</li>
-  <li>可变的图表(charting)widgets，包括笛卡尔坐标图、饼图等，这些widgets建立在Wt独有的
-    绘图系统和Wt MVC架构基础之上。</li>
+  <li>基本的HTML widgets，包括按钮、HTML锚、可选框、可选按钮、下拉菜单框、
+	各种容器组件、文件上传控制、图像、标签、文本框、按钮等等；</li>
+  <li>表单widgets，内置通过WValidator类支持客户端和服务器端验证；</li>
+  <li>复合widgets，包括日历、滚动条、树、树表、菜单、弹出菜单、就地编辑、
+	建议弹出组件、虚拟图像、面板，这些复合widgets建立在基本widgets之上，
+	并仅使用Wt公共API；</li>
+  <li>Wt还包含模态与非模态窗口（对话框和消息盒）；</li>
+  <li>内置使用文本资源集来实现I18N；</li>
+  <li>Wt提供多媒体组件（声音和视频播放）；</li>
+  <li>灵活性很大的图表widget，包括笛卡尔坐标图、饼图等，这些图表widget是
+    建立在Wt原生的绘图API和Wt的MVC架构之上的。</li>
 </ul>
 
 <h4>内置安全性</h4>
 
 <ul>
-  <li>Wt采用Kernel级的内存保护方案，特别是在采用专属进程(dedicated-process)模式下，
-    会话之间完全隔离，这样Wt完全可以保护隐私数据(privacy issues)免受程序Bug的影响；</li>
-  <li>Wt通过在安全超文本传输协议(HTTPS:Secure Hypertext Transfer Protocol)中采用
-    安全套接层协议(SSL:Secure Sockets Layer)或者传输层安全协议(TLS:Transport Layer Security)，
-    可以支持加密(encryption)和服务器认证(server authentication)；</li>
-  <li>能够满足低带宽需求下HTTPS的连续使用，尤其使AJAX获得更佳使用效果(fine-grained AJAX)；</li>
-  <li>Wt提供内置的跨站脚本(XSS)安全保护，文本渲染时能自动过滤掉具有潜在风险的恶意代码，
-    在Wt应用中使跨站脚本攻击几乎不可能存在。</li>
+  <li>Wt采用Kernel级的内存保护方案，特别是在采用专属进程模式下，
+    会话之间完全隔离，这样Wt完全可以保护隐私数据免受程序错误的影响；</li>
+  <li>Wt使用安全套接字协议层（SSL）或传输层安全协议（TLS）通过HTTPS
+	来支持加密和服务器认证；</li>
+  <li>Wt满足低带宽下HTTPS持续使用的各种需求（细粒度Ajax）；</li>
+  <li>Wt提供内置跨站脚本（XSS）保护，通过预先过滤掉渲染文本中的恶意代码，
+	使Wt应用免受XSS的攻击；</li>
+  <li>Wt应用能够对跨站请求伪造（CSRF）有一定的防护，因为用于会话跟踪的
+	Cookies是可选的，即使是如此，Cookies也永远不会严格依赖于触发事件处理代码
+	的请求；</li>
+  <li>Wt对跳过特定URL而对应用逻辑的破坏也有一定的防护，因为只有界面
+	明确的事件才会被触发；</li>
 </ul>
+
+<h4>对象关系映射库</h4>
+
+Wt提供了Wt::Dbo，这是Wt自带的一个库，实现了对象关系映射，Wt::Dbo为C++
+应用程序与SQL数据库之间的提供了一种方便的处理方法。虽然我们说Wt::Dbo拥有的
+一些特点，如最佳并发控制等，使这一技术成为数据库驱动的Web应用的理想选择
+（当然与Wt的MVC框架结合最佳），但我们还要说Wt::Dbo还可以被用在离线应用
+或其他非Wt的应用中。
+
+Wt的ORM库（教程参见<a
+href="http://www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">此处</a>）
+有如下特点：
+
+<ul>
+  <li>没有所谓代码生成、没有宏、没有XML配置，仅面向C++！</li>
+  <li>使用模板化的访问者模式，该模式要求单一模版方法以提供映射，也就是
+	常说的“不要重复”（DRY）或尽最大可能高效！</li>
+  <li>在该库中，你可以指定代理自增键，或映射任意C++类型的自然键，当然也
+	可以是组合类型（例如，当需要不止一个数据库字段时）；</li>
+  <li>支持<a
+    href="http://en.wikipedia.org/wiki/Optimistic_concurrency_control">
+	最佳并发控制</a>（利用版本字段）</li>
+  <li>Dbo支持多对一和多对多关系到标准模板库（兼容）集合的映射</li>
+  <li>支持模式生成（即数据定义语言DDL）和CRUD操作（即数据操作语言DML）；</li>
+  <li>Dbo使用了预备语句；</li>
+  <li>每个会话都会追踪脏对象并提供第一层缓存；</li>
+  <li>提供灵活的、针对单个字段、对象以及他们组合（使用Boost.Tuple）的查询；</li>
+  <li>使用单个连接或多个会话间共享连接池，这些连接只有当交互处于活动状态时
+	才被使用；</li>
+  <li>Dbo默认支持Sqlite3和PostgreSQL后端，同时<a
+	href="http://wtdbomysql.sourceforge.net/">MySQL后端(GPL协议)</a>
+    正由社区爱好者开发和维护（作者Paul Harisson）。</li>
+</ul>
+
+<h4>测试</h4>
+
+Wt使用事件处理代码构建和操作widget树，因此这很容易使用测试代码检查，
+所以Wt的<a href="
+http://webtoolkit.eu/wt/doc/reference/html/classWt_1_1Test_1_1WTestEnvironment.html">
+测试环境</a>允许你的应用实例化，且允许在没有浏览器的情况下模拟事件处理，
+这样我们可以缩减底层请求/应答循环的测试环节。
 
 <h4>部署方式</h4>
 
-<h5>a) FastCGI模式特点</h5>
+<p>
+Wt库将不同的部署选项抽象为连接器库，连接器库将Wt连接到不同的外部环境，
+选择部署方式（选项）其实就是将Wt应用连接或重连接到某个连接库上。
+</p>
+
+<h5>a) 内置httpd部署</h5>
+
+<ul>
+  <li>该模式下Wt是简单、且适合于基于C++ asio库的高性能Web应用服务器
+	（支持多线程、异步输入输出）；</li>
+  <li>既支持HTTP，也支持OpenSSL下的HTTPS；</li>
+  <li>支持应答分割与压缩；</li>
+  <li>支持单一进程（方便部署和调试），也方便嵌入已有应用；</li>
+  <li>支持通过代理或为了均衡负载的web服务器端部署；</li>
+  <li>既可以部署于UNIX平台、又可部署于Win32。</li>
+</ul>
+
+<h5>b) FastCGI部署</h5>
 
 <ul>
   <li>该模式能与多数通用web服务器(如apache, lighttpd)整合在一起；</li>
-  <li>提供不同的会话-进程映射(session-to-process mapping)策略；</li>
-  <li>支持热部署(Hot deployment)，即新会话使用新的应用版本，同时部署时
-    未终止的旧会话仍可以按旧的应用版本继续运行；</li>
-  <li>使用多线程编程，可以满足会话内和会话间的请求的同时处理(simultaneous handling of requests)；</li>
-  <li>可以使用gdb或valgrind进行调试；</li>
+  <li>提供不同的会话-进程映射策略；</li>
+  <li>支持热部署，即新会话使用新的应用版本，同时部署时未终止的旧会话仍可以
+	按旧的应用版本继续运行；</li>
   <li>该模式仅用于UNIX平台。</li>
 </ul>
 
-<h5>b) 内置httpd模式特点</h5>
+<h5>c) ISAPI部署</h5>
 
 <ul>
-  <li>该模式下Wt是简单、高效的web应用服务器，基于C++ asio库，可满足多线程
-    (multi-threaded)、异步输入输出(asynchronous I/O)；</li>
-  <li>通过OpenSSL库，完全支持HTTP和HTTPS协议；</li>
-  <li>支持应答分割与压缩(response chunking and compression)；</li>
-  <li>该模式下仅一个进程存在，便于部署和调试；</li>
-  <li>既适用于UNIX平台也适用于Win32平台；</li>
-  <li>支持通过代理或为了均衡负载的web服务器端部署(deployment behind a 
-    ProxyPass'ing (and if needed, load-balancing) web server)。</li>
+  <li>该模式整合了Microsoft IIS服务器；</li>
+  <li>使用ISAPI异步API使性能最大化；</li>
+  <li>仅用于Win32平台。</li>
 </ul>
-
   </message>
   <message id="home.examples">
 
 <h3><span>示例</span></h3>
 
-<p>以下为基于Wt的在线示例：</p>
+<p>欢迎浏览Wt的一些在线示例。</p>
 
 <p>
-  示例的源代码包含在Wt源代码发行版中，同时你可以在每个示例的源码树目录中找到。
+  这些示例的源代码均包含在Wt的源代码发行包中。你可以通过每个示例下的
+  <a href="#/src">源代码浏览器</a>查看。
 </p>
 
 <p>
-  示例源代码也以交叉链接(Cross-linked)的形式出现在
-  <a href="/wt/doc/examples/html/index.html" target="_blank">
-  Wt示例doxygen文档中(自动开启新窗口)</a>。
+  示例源代码也以交叉链接的形式出现在
+  <a href="/wt/doc/examples/html/modules.html" target="_blank">
+  Wt示例doxygen文档中</a>(自动开启新窗口)。
 </p>
 
   </message>
   <message id="home.examples.hello">
 <div>
-<br />
-<h4>Hello world!</h4>
+<h4 class="example">Hello world!</h4>
 
-<p>Wt最基本、最简单的示例:
-<a href="/wt/examples/hello/hello.wt">Hello world</a>.</p>
+<p>
+  <a href="/wt/examples/hello/hello.wt" class="run" target="_blank">
+    <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
+  </a>
+</p>
 
-<p>这个示例展示了Wt最基本的概念：</p>
+<p>这个简单的例子展示了Wt的基本概念：</p>
 <ul>
   <li>
-    如何通过<b>WRun()</b>函数轻松实现(bootstrap)一个Wt应用，在此WRun()函数即为每个新会话创建一个新的
-    <a href="/wt/doc/reference/html/classWt_1_1WApplication.html">WApplication</a>对象；
+	如何创建一个最小的Wt应用，如何使用<b>WRun()</b>启动web服务器，以及
+    如何创建一个新的<a
+    href="/wt/doc/reference/html/classWt_1_1WApplication.html"
+    target="_blank">WApplication</a>实例（新会话）；
   </li>
   <li>
-    <b>如何创建widgets</b>，并把它添加到<b>widget树</b>中；
+    <b>如何创建widgets</b>，以及如何将其添加到<b>widgets树</b>；
   </li>
   <li>
-    如何使用<b>信号/槽</b>机制响应事件；
+    如何使用<b>信号/槽</b>机制对事件做出反应；
   </li>
   <li>
-    如何读取widget状态(如，单行文本框)并更新widgets；
+    如何读取用户输入和更新widgets树。
   </li>
 </ul>
 
-<p>对hello world示例的完整阐述请参见由Victor Venkman撰写的
-   <a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">Wt介绍</a>。
+<p>对hello world示例的完整阐述请参见由Victor Venkman撰写的<a 
+href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/"
+target="_blank">Wt介绍</a>（可能有点过时）。
 </p>
 
-<p>源代码：</p>
 </div>
   </message>
   <message id="home.examples.wt">
 <div>
-<br />
-<h4>Wt网站示例</h4>
-
-<p>Wt首先为己所用了(We eat our own dog food)，本网站自身即是一个Wt应用实例。 </p>
+<h4 class="example">Wt网站示例</h4>
+<p>Wt首先为己所用了，本网站自身即是一个Wt应用实例。 </p>
 
 <p>
-  Wt网站主要展示了<a href="/wt/doc/reference/html/classWt_1_1WMenu.html">WMenu</a>
-  和<a href="/wt/doc/reference/html/classWt_1_1WTabWidget.html">WTabWidget</a>的使用，
-  同时采用不少特性来提高可扩展性(scalability)来减少服务器端资源消耗；另外，Wt网站并不
-  是一个非常具有交互性的应用，同时Wt也不推荐这样使用，恰恰相反Wt非常适合于高交互性的
-  web开发。
+  虽然不是一个交互性很强的应用，但Wt的网站不仅展示了Wt如何实现高度交互的Ajax应用，
+  同时说明Wt适合于内容驱动的网站建设。Wt为纯HTML会话和Ajax提供良好的URL支持，
+  这允许浏览器导航、书签等操作，还有利于搜索引擎优化。另外，Wt使用<a
+  href="/wt/doc/reference/html/classWt_1_1WViewWidget.html">WViewWidget</a>
+  来最小化服务器端内存使用以提高应用的规模。
 </p>
 
 <p>
-  Wt网站还使用了许多菜单widget的特性，比如主菜单，实际是一个纵向(vertical)WMenu的实例化，
-  而示例选项卡(tab)，实际是一个使用了WTabWidget实现具有特定样式的横向(horizontal)WMenu。
-</p>
-
-<p>
-  菜单widget支持对菜单子项目相关内容的<b>预先载入(pre-loading)</b>和<b>滞后载入(lazy loading)
-  </b>两种相对模式，同时可以对每个菜单子项目分别<a
-  href="/wt/doc/reference/html/classWt_1_1WMenu.html#d7840197cc0caf0430792b9f4a0df60d">指定载入模式</a>。
-  需要说明的是，预先载入(pre-loading)不会增加载入时间，因为Wt渲染引擎(render engine)总是首先传输可见的
-  widget和某些变化，以此来优化应答时间。不可见部分(如其他预先载入的菜单子项目的内容)则进行隐式传输，
-  而且这种传输是在渲染可见部分完成之后进行。
+  导航功能由<a
+  href="/wt/doc/reference/html/classWt_1_1WMenu.html"
+  target="_blank">WMenu</a>和<a
+  href="/wt/doc/reference/html/classWt_1_1WTabWidget.html"
+  target="_blank">WTabWidget</a>提供。这些widgets分享了共同的特性集。
+  对于Ajax会话，他们均支持导航条目关联内容的<b>预先载入</b>和<b>滞后载入</b>，
+  同时可以针对不同子条目分别<a
+  href="/wt/doc/reference/html/classWt_1_1WMenu.html#d7840197cc0caf0430792b9f4a0df60d"
+  target="_blank">指定载入模式</a>。
+  需要说明的是，预先载入不会增加载入时间，因为Wt渲染引擎总是首先传输可见的
+  widget和某些变化，以此来优化应答时间。不可见部分(如其他预先载入的导航子项目的内容)
+  则进行隐式传输，而且这种传输是在渲染可见部分完成之后进行。
 </p>
 
 <p>
   菜单导航栏部分采用C++无状态槽，其实现结果是<b>客户端</b>事件处理。
 </p>
-
 <p>
-  WMenu类还可以生成<b>内部路径(internal paths)</b>，用于形成浏览器历史记录，
-  同时允许加入书签[收藏夹]或者直接指向某个应用状态。当用户通过历史记录浏览时，
+  WMenu的<b>内部路径</b>特点允许为每个菜单条目生成URL，
+  这可以用于形成浏览器历史记录和书签操作。当用户通过历史记录浏览时，
   应用可以通过监听WApplication对象的
   <a href="/wt/doc/reference/html/classWt_1_1WApplication.html#41c9bda19b28526e47e70b1b6045e7cf">
-  内部路径变化信号(internalPathChanged signal)</a>，直接引起内部路径变化。同样地，
-  对于用户将一个URL加入书签中，并在日后重新访问的情况，该信号将在新应用产生后立即被释放。
+  内部路径变化信号（internalPathChanged）</a>，直接引起菜单条目指向内容的变化。同样地，
+  当用户将一个URL加入书签中，并在日后重新访问时，widgets将读取该URL初始的内部路径，并创建
+  相应的内容以显示。
 </p>
 
 <p>
-  虽然说Wt占用较少服务器CPU时间，但它确实也需要一部分内存来保持widget状态。当然，如果
-  我们能够提供足够的内存(和交换空间)，这将不成问题。另外，由于Wt网站部署在虚拟专用服务器
-  (VPS)上，所以我们对此非常小心，并通过
-  <a href="/wt/doc/reference/html/classWt_1_1WViewWidget.html">WViewWidget减小内存使用</a>。
+  虽然说Wt占用很小的服务器CPU使用，但它确实也需要一部分内存来保持widget状态。当然，如果
+  我们能够提供足够的内存（和交换空间），这将不成问题。另外，由于Wt网站部署在虚拟专用服务器
+  （VPS）上，所以我们对此非常小心，并通过
+  <a href="/wt/doc/reference/html/classWt_1_1WViewWidget.html">WViewWidget</a>
+  尽可能地减小服务器资源使用。
 </p>
-
-<p>源代码：</p>
-
 </div>
   </message>
-  <message id="home.examples.form">
-<div>
-<br />
-<h4>表单示例</h4>
 
-<p>Wt使得获得用户输入变得非常简单，<a
-href="/wt/examples/form/formexample.wt">表单示例</a>
-展示了各种不同表单widgets的使用。另外，该示例还体现了Wt对<b>表单项验证(validation)</b>和
-<b>验证反馈(validation feed-back)</b>以及<b>网站本地化</b>的内置支持。
-</p>
+  <message id="home.examples.treeview">
+<div>
+<h4 class="example">树视图</h4>
 
 <p>
-  示例代码展示了以下Wt基本概念：
+  <a href="/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
+    <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
+  </a>
 </p>
+
+该示例展示了Wt的视图（WTreeView、WTableView和PieChart）和数据模型等相关功能。
 
 <ul>
   <li>
-    <i>表单widget</i>继承自<a
-    href="/wt/doc/reference/html/classWt_1_1WTable.html">WTable</a>，并将各种不同的
-    字段放置在一个网格布局(grid layout)中，其中标签(labels)位于网格的第0列，验证反馈位于第1列，而
-    实际的表单字段则位于第2列。
+    该示例使用了<a href="/wt/doc/reference/html/classWt_1_1WTreeView.html"
+    target="_blank">WTreeView</a>
+    和<a href="/wt/doc/reference/html/classWt_1_1WTableView.html"
+    target="_blank">WTableView</a>在树或表中渲染模型数据；
   </li>
   <li>
-    <a href="/wt/doc/reference/html/classWt_1_1WValidator.html">WValidator</a>类
-    被用来决定字段的内容的验证结果，而且示例中还包含了一个自定义的日期验证器<i>DateValidator</i>。
+    使用了<a
+    href="/wt/doc/reference/html/classWt_1_1WSortFilterProxyModel.html"
+    target="_blank">WSortFilterProxyModel</a>
+    来实现别一个模型数据的排序和过滤；
   </li>
   <li>
-    <a href="/wt/doc/reference/html/classWt_1_1WValidationStatus.html">WValidationStatus</a>
-    widgets的使用可以不间断地给用户提供验证反馈的结果。
+	该示例还展示如何实现选中条目的拖放效果；
   </li>
   <li>
-    示例中<i>城市</i>多选框的内容基于所选的<i>国家</i>值，这个操作依赖国家多选框的信号改变。
+    使用了可嵌套的布局管理器（水平方向和垂直方向的
+    <a href="/wt/doc/reference/html/classWt_1_1WBoxLayout.html" target="_blank">
+      WBoxLayout</a>）来实现自动填充的布局；
   </li>
   <li>
-    示例采用<a href="/wt/doc/reference/html/classWt_1_1WMessage.html">WMessage</a>类来显示文本，
-    所显示的文本可以是原始文本或者是本地化的文本。对于本地化文本，程序获得一个key值，该值用来
-    在基于xml的<b>消息资源集合(message resource bundle)</b>中寻找恰当的文本，在该例中显示为有
-    两个可选的语种译文。
+    展示了如何使用模态
+    <a href="/wt/doc/reference/html/classWt_1_1WDialog.html"
+    target="_blank"> WDialog</a>显示一个简单的表单，示例中表单使用了
+    <a href="/wt/doc/reference/html/classWt_1_1WGridLayout.html"
+       target="_blank">WGridLayout</a>作为布局管理器；
   </li>
   <li>
-    如上，该示例采用了本地化信息，并可以自动翻译整个应用。
+    展示了如何使用基于上下文的
+    <a href="/wt/doc/reference/html/classWt_1_1WPopupMenu.html" target="_blank">
+      WPopupMenu</a>。
   </li>
 </ul>
-
-<p>源代码：</p>
-
 </div>
   </message>
   <message id="home.examples.chart">
 <div>
-<br />
-<h4>图表示例</h4>
+<h4 class="example">图表</h4>
 
 <p>
-   Wt包含跨浏览器绘图API，并利用浏览器内置的对生成高质量图像的支持，Wt将使用内联VML、内联SVG或者
-   HTML 5 canvas 将绘图内容渲染到
-   <a href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html">WPaintedWidget</a>中。
-   在<a href="/wt/examples/charts/charts.wt" target="_blank">图表示例</a>中，我们将演示
-   <a href="/wt/doc/reference/html/namespaceWt_1_1Chart.html">Wt 图表widgets</a>，这些widgets都
-   建立Wt绘图API基础之上。
+  <a href="/wt/examples/charts/charts.wt" class="run" target="_blank">
+    <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
+  </a>
 </p>
 
-<p>
-   本示例还展示了Wt的MVC框架，其中的
-   <a href="/wt/doc/reference/html/classWt_1_1Ext_1_1TableView.html">
-   数据表</a>和图通过同一个
-   <a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html">
-   模型(Model)</a>建立视图(View)。通过这种方式，模型中的所有变化都将自动反映在视图中，即自动更新视图。
-   Wt中模型可以包含字符串(strings)、数字(numbers)以及
-   <a href="/wt/doc/reference/html/classWt_1_1WDate.html">日期类型</a>，你可以通过在示例的表中编辑日期
-   直接观看到变化。
+<p>该示例展示了<a
+href="/wt/doc/reference/html/group__charts.html" target="_blank">Wt
+的图表widgets</a>，这些widgets基于Wt的跨浏览器绘图API实现。
+绘图API使用了内置于浏览器的高质量图形支持（注意：不是利用传统的在服务器端
+渲染PNG/GIF图像的方法），主要依赖浏览器的内联VML、内联SVG、HTML 5画布或
+PNG图像等将绘制内容渲染于<a
+href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
+target="_blank">WPaintedWidget</a>。
 </p>
 
-<p>
-   该示例同时展示了如何轻松使用多种输入widgets、对其输入变化做出反应、设置和读取其内容，以及如何使
-   <a href="/wt/doc/reference/html/classWt_1_1WComboBox.html">多选框(WComboBox)</a>与MVC模型关联。
-   另外，Wt库能够确保在页面操作时，保持浏览器与服务器之间的数据同步。
+<p>该示例同时展示了Wt的MVC框架，包括
+<a href="/wt/doc/reference/html/classWt_1_1WTableView.html"
+target="_blank">表视图</a>和图表所基于的
+<a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+target="_blank">数据模型</a>。Wt采用这种方式，能够将数据模型的每个变化自动
+反应于视图的更新中。当然，数据模型可以是字符串、数值或者
+<a href="/wt/doc/reference/html/classWt_1_1WDate.html"
+target="_blank">日期型</a>。你可以通过编辑表视图的数据来直接观察以上动作机制。
 </p>
 
-<p>源代码：</p>
+<p>最后，我们还可以知道如何使用多项输入widgets、如何对输入的变化做出反应、
+如何设置和读取选项的内容、以及如何使用
+<a href="/wt/doc/reference/html/classWt_1_1WComboBox.html"
+target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt库实现了数据
+在浏览器端和服务器端的同步。</p>
 </div>
   </message>
-  <message id="home.examples.hangman">
+  <message id="home.examples.git">
 <div>
-<br />
-<h4>Hangman猜词游戏</h4>
+<h4 class="example">Git查看器</h4>
 
 <p>
-  这款经典的游戏曾被写入<a href="/wt/doc/tutorial/wt-sdj.xhtml">Wt入门</a>中，有点过时了:)
+  <a href="/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
+    <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
+  </a>
 </p>
-<p>你可以点击<a href="/wt/examples/hangman/hangman.wt">此处</a>体验。
+
+<p>
+  该示例展示了如何为Wt的MVC视图类（如
+  <a href="/wt/doc/reference/html/classWt_1_1WTreeView.html" target="_blank">
+  WTreeView</a>）实现定制数据模型。
+</p>
+<p>
+  Wt提供了
+  <a href="/wt/doc/reference/html/classWt_1_1WStandardItemModel"
+  target="_blank">WStandardItemModel</a>，该类可以被填充以数据
+  （如由数据库获得），其缺点是所有数据存储在内存中且须提前获取。但是，
+  通过重新实现<a href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel"
+  target="_blank">WAbstractItemModel</a>，我们可以实现另一类数据模型，即
+  仅在需要时获取数据，这就提供了一种数据载入与数据存储的平衡。
+  该示例中，我们实现了树模型，该树可在<a href="http://git-scm.com/">
+  git仓库</a>的修改中导航。该模型将文件夹节点标识符滞后存储在内存中，
+  以生成每个文件夹的唯一ID。最初，我们认为可以使用SHA-1 ID，但具有相同
+  内容、在git仓库不同位置的文件夹却具有相同的SHA-1 ID，而我们又想采用
+  不同的<a href="/wt/doc/reference/html/classWt_1_1WModelIndex.html"
+  target="_blank">模型索引</a>来表达，因此采用了上面的方法。
 </p>
 </div>
   </message>
-  <message id="home.examples.treelist">
-<div>
-<br />
-<h4>树表</h4>
 
-<p>
-  该示例通过客户端事件处理实现一个树表widget，大概有350行C++代码。
-</p>
-
-<p>
-  从1.1.8版开始，更加复杂并富于变化的树widget已经被加入到Wt库中，(参见<a
-  href="/wt/doc/reference/html/classWt_1_1WTreeNode.html">WTreeNode</a>
-  文档)，该示例只是一个简化版本。
-  该示例展示的是如何使用<b>无状态槽</b>实现客户端事件处理，同时想说明使用
-  Wt提供的widget时不会受到任何限制，你可以轻松地创建属于自己的高交互性的
-  widgets，并可以进行客户端事件处理，还有就是只使用C++语言。
-</p>
-
-<p>
-  示例中“树叶”上的就是本示例的源代码，其中还包括了<i>WTreeNode</i>和
-  <i>IconPair</i>两个类的具体实现。
-</p>
-
-<p>
-  关于本例更为详细的介绍请参见<a href="/wt/doc/reference/html/example.html">入门</a>
-  ，还特别解释了Wt无状态槽机制。
-</p>
-
-</div>
-  </message>
-  <message id="home.examples.treelist-remarks">
-<div>
-<p>我们能从这个示例中发现什么？</p>
-<ul>
-  <li> 
-    <p>首先，这不是一个预先定义的树表组件的实例，而实际上是由
-    <a href="/wt/doc/reference/html/classWt_1_1WImage.html">WImage</a>
-    和<a href="/wt/doc/reference/html/classWt_1_1WText.html">WText</a>
-    widgets组合实现的, 仅约350行C++代码！相比之下，
-    <a href='http://myfaces.apache.org'>Apache MyFaces</a> JSF对tree2的实现，
-    相似功能下，却用掉了约2400行的Java代码和约140行的JavaScript代码。
-    </p>
-  </li>
-  <li>
-    <p>另外，还可以发现当浏览器支持JavaScript时，树表不需要任何与服务器的交互便
-    可完成在 <img src="/icons/nav-plus-line-middle.gif" alt="plus" /> 和
-    <img src="/icons/nav-minus-line-middle.gif" alt="min" /> 图标上的鼠标点击事件，
-    究其原因是这些事件已经连接到所需要的无状态槽上，而且这些槽已经通过预先学习(prelearned)
-    的方式被实现。这样的槽经过优化被直接加进客户端JavaScript代码中，使得即使
-    TreeNode::expand()[打开]和collapse()[折叠]方法由纯C++实现都没有问题。
-    </p>
-  </li>
-  <li>
-    <p>最后，示例中执行Test map内容的按钮使用的动态连接，在支持AJAX的情况下，
-    更新在服务器端处理并发起，然后反馈到浏览器。
-    </p>
-  </li>
-</ul>
-</div>
-  </message>
-
-  <message id="home.examples.style">
-<div>
-<br />
-<h4>样式示例</h4>
-
-<p>
-  HTML/CSS对于增加网页或网站样式非常之方便，在这方面Wt采用内联和样式表两种方式
-  使你的程序应用样式。
-</p>
-<p>
-  在<a href="/wt/examples/style/styleexample.wt">该例</a>中我们展示了
-  如何创建一个带有圆角的widget类<i>RoundedWidget</i>。因为圆角不是CSS 2的一部分，
-  因此现有的解决办法是接合图像使用一些CSS技巧。在该例中，我们使用gd库在特定的颜色
-  和半径下动态(on the fly)计算出需要的圆角图片。圆角widget的使用很简单，象wt网
-  站中应用菜单一样，其内容就是一个普通的
-  <a href="/wt/doc/reference/html/classWt_1_1WContainerWidget.html">WContainerWidget</a>
-  ，这个容器widegt中允许被放入其他widgets。
-</p>
-
-<p>
-  这个示例也向我们展示如何使用
-  <a href="/wt/doc/reference/html/classWt_1_1WMemoryResource.html">WMemoryResource</a>，
-  该类是抽象类
-  <a href="/wt/doc/reference/html/classWt_1_1WResource.html">WResource</a>的具体实现。
-  WResource可以称为浏览器请求的目标，用于显示各种文件。特别地，
-  <a href="/wt/doc/reference/html/classWt_1_1WImage.html">WImage</a>
-  类可以在定义时使用图像资源，如示例中显示的。
-  WMemoryResource将从内存位数组中读出的应答以数据流的方式表示，
-  <a href="/wt/doc/reference/html/classWt_1_1WFileResource.html">WFileResource</a>
-  也将对临时文件以此种方式操作。如果你希望动态计算数据而不是提前计算或将其存储在内存
-  或某个文件中，那你可以重新实现WResource。该种应用的实现在mandelbrot示例中可以找到，
-  mandelbrot示例实现了对mandelbrot图像的动态计算。
-</p>
-
-<p>源代码：</p>
-</div>
-  </message>
   <message id="home.examples.composer">
 <div>
-<br />
-<h4>邮件编辑器</h4>
+<h4 class="example">邮件编辑器</h4>
 
 <p>
-  这是<a href="/wt/examples/composer/composer.wt"> 一个酷似GMail的邮件编辑器
-  </a>示例，它更加实际地展示了Wt的各种开发能力。
+  <a href="/wt/examples/composer/composer.wt" class="run" target="_blank">
+    <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
+  </a>
 </p>
 
 <p>
-  关于本示例的几点说明：
+  该示例实现了一个酷似GMail的邮件编辑器，除此还展示了如何轻松实现文件异步上传。
 </p>
 
   <ul>
     <li>
-      与Wt网站相同，该示例仅使用<b>样式表</b>及样式类来精确控制外观。
+	  其中<i>ContactSuggestions</i>类提供了“收件人”、“抄送”、“密送”地址的
+	  自动补全功能，该类继承自
+      <a href="/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
+	  target="_blank">WSuggestionPopup</a>类，此类使用了诸多
+      <a href="/wt/doc/reference/html/classWt_1_1JSlot.html"
+	  target="_blank">JSlot</a>对象。对这些槽，客户端JavaScript事件处理代码
+	  由开发者自定义的JavaScript决定（这不同于无状态槽中客户端JavaScript
+	  代码由第一次调用时“学习”得到的方式）。Wt采用这种方式，弹出的可能适合
+	  的联系人列表的排序完全由客户端决定。注意：建议框中的联系人是在背景中
+	  自动传递的，原因很简单，因为他们是不可见的。
     </li>
     <li>
-      其中的<i>ContactSuggestions</i>类提供了对“抄送地址”和“密送地址”字段的自动补全功能，
-      该widget继承自
-      <a href="/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>
-      类，该类使用了一些
-      <a href="/wt/doc/reference/html/classWt_1_1JSlot.html">JSlot</a>
-      对象，这些对象属于槽，与无状态槽不同，其客户端JavaScript事件处理代码由自定义的JavaScript
-      指定，而无状态槽的客户端JavaScript则是通过调用“学”到的("learned through invocaiton)。
-      运行中联系人表的排序完全在客户端完成，而且其传输隐式进行，原因很简单，即因为他们都
-      是不可见的。
+      其中的<i>AttachmentEdit</i>展示了
+      <a href="/wt/doc/reference/html/classWt_1_1WFileUpload.html"
+	  target="_blank">WFileUpload</a>的使用，该类允许
+      <b>文件的异步传输</b>，也就是说我们可以实现编辑邮件内容的同时上传附件。
     </li>
     <li>
-      <i>AttachmentEdit</i> widget展示了<a
-      href="/wt/doc/reference/html/classWt_1_1WFileUpload.html">WFileUpload</a>类的使用，
-      文件上传允许<b>文件的异步传输</b>，在本例中编辑过程中即开始了附件的上传工作。
-    </li>
-    <li>
-      <i>Option</i>和<i>OptionList</i>类的使用说明了当行为不是完全为无状态时也可以使用无状态槽。
-      本例中，对某个Option对象的隐藏动作可以使其相邻的选项形成恰当的分隔距离。虽然状态改变时，
-      <b>无状态槽的实现无效</b>，但我们仍可以实现一个无状态槽，并获得客户端事件处理的良好效果。
+	  其中的<i>Option</i>和<i>OptionList</i>类展示了无状态槽是如何在行为不完全
+	  是无状态的情况下使用的。在这种情况下，一个Option的隐藏影响了临近可见Option：
+	  即只有当存在某个临近选项时，一个选项才需要分隔线。当状态变化后，通过
+	  <b>使无状态槽的实现失效</b>，我们仍能够使用无状态槽的实现，并体验到
+	  客户端事件处理的高效！
     </li>
   </ul>
-
-<p>源代码：</p>
-</div>
-  </message>
-  <message id="home.examples.dragdrop">
-<div>
-<br />
-<h4>拖放示例</h4>
-
-<p>
-  <a href="/wt/examples/dragdrop/dragdrop.wt">本示例</a>
-  展示了拖和放API的使用，拖放功能只能在支持JavaScript或JavaScript有效时使用，因此如果你希望
-  拖放支持其他浏览器，那么应当总是记住提供一种替代方案。
-</p>
-
-<p>
-  在应用中添加拖放功能有三个步骤：
-</p>
-  <ul>
-    <li>
-      首先使用<b>WInteractWidget::setDraggable()</b>方法指定一个
-      <a href="/wt/doc/reference/html/classWt_1_1WInteractWidget.html">
-      WInteractWidget</a>是可拖的，同时你必须选择一种mime类型及相关属性，以说明
-      拖事件应该如何被渲染；
-    </li>
-    <li>
-      第二步，放入点自身要声明允许放入的mime类型
-      (参见<a href="/wt/doc/reference/html/classWt_1_1WWidget.html#a38">WWidget::acceptDrops()</a>。 
-      还需要指定放入点的反馈视觉效果是什么，即当鼠标悬停在放入点上方时如何改变放入点widget的样式，当然
-      我们必须保证指定的mime类型是该widget可接收的；
-    </li>
-    <li>
-      最后，放入点重新实现<b>WWidget::dropEvent(WDropEvent)</b>方法，该方法在被放入时调用，提供针对
-      指定mime类型和渲染器的实现细节。
-    </li>
-  </ul>
-
-<p>源代码：</p>
 </div>
   </message>
   <message id="home.examples.chat">
 <div>
-<br />
-<h4>简单聊天示例</h4>
+<h4 class="example">简单聊天示例</h4>
 
 <p>
-  使用该示例<a
-  href="http://www.webtoolkit.eu:1410/simplechat.wt">你可以进行聊天</a>
-  ，举个例子，你可以和Wt的开发者及其他感性趣的人聊天。该示例通过客户端和
-  服务器端代码实现多用户聊天功能。
+  <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
+    <img src="icons/green-play.png" style="vertical-align: top"/>运行该示例
+  </a>
 </p>
 
 <p>
-  该示例展示了如何通过<b>服务器端发起更新</b>来轻松实现多用户互动。
+  该示例实现了一个简单的、多用户的聊天应用，它展示了Wt中如何轻松地让多个用户
+  即时互动，这里即用到<b>服务器端初始更新</b>将信息由一个用户推向其他用户。
 </p>
 
 <p>
-  该示例还向你展示了基于类的web部署方法的良好效果，在这种方法中，你可以轻松实现
-  对同一widget的多次初始化，示例中的SimpleChatClient widget即可以象使用Wt基本类
-  (如按钮)一样，轻松初始化。
+  该示例还向你展示了基于类的web开发方法的良好效果，在这种方法中，你可以轻松实现
+  对同一widget的多次实例化，示例中的SimpleChatClient widget就可以象使用Wt基本类
+  (如按钮)一样，轻松实例化。
 </p>
 
 <p>
   象聊天这样的一些交互应用，可以允许用户传输HTML文本给其他用户，众所周知，这非常
-  容易引起<b>跨站脚本攻击</b>，因为用户可以不被限制地输入恶意代码(javascript)并作为
+  容易引起<b>跨站脚本攻击（XSS）</b>，因为用户可以不被限制地输入恶意代码(javascript)并作为
   其发出文本的一部分。当对应用户渲染收到的文本时，它可能将从该用户(如浏览器
   cookies)获得的一些隐私信息发送出去。Wt则完全阻止了这样的进攻，同时不会给开发者带来
   负担，因为象WText这样的widgets自然保证了所显示的只有安全文本(passive text)，自动
   舍弃任何严格意义上不是文本的东西。
 </p>
-
-<p>源代码：</p>
 </div>
   </message>
-  <message id="home.examples.fileexplorer">
+  <message id="home.examples.widgetgallery">
 <div>
-<br />
-<h4>文件浏览器</h4>
+<h4 class="example">Widget展示库</h4>
 
 <p>
-  你可以在展示<a href="/wt/doc/reference/html/classWt_1_1WTreeTable.html">WTreeTable</a>的示例中
-  <a href="/wt/examples/filetreetable/filetreetable.wt">浏览Wt源代码树</a>。
+  <a href="/widgets" class="run" target="_blank">
+    <img src="icons/green-play.png" style="vertical-align: top"/>前往widget展示库 
+  </a>
 </p>
 
-<p>
-  WTreeTable使用
-  <a href="/wt/doc/reference/html/classWt_1_1WTreeTableNode.html">WTreeTableNode</a>对象
-  组织它的数据，WTreeTableNode继承自
-  <a href="/wt/doc/reference/html/classWt_1_1WTreeNode.html">WTreeNode</a>类。
-  以上所有widgets继承自
-  <a href="/wt/doc/reference/html/classWt_1_1WCompositeWidget.html">WCompositeWidget</a>类，
-  因此均使用一套公共Wt API，同时都是纯C++代码，且仅有不多的几行而已。
+<p> 
+ 该示例展示了Wt中大部分widget，另外还展示了相应的事件处理、布局类等。
+ 这可以作为Wt库中可执行的widget及其相关特性的参考，是有一定帮助作用的。
 </p>
 
-<p>
-  FileTreeTableNode类重新实现了WTreeNode::populate()方法以获得某个文件夹的内容，当然该获得仍
-  是“按需获取”，即我们使用WTreeNode的LazyLoading策略来只载入可见的树节点，当然，下面显示的数表
-  中，我们使用了NextLevelLoading策略。
-</p>
-
-<p>
-  该示例还展示了树(表)的选择支持，具体讲，该示例中我们配置的是扩展选择，只允许文件被选取，
-  而不是文件夹。
-</p>
-
-<p>源代码：</p>
 </div>
   </message>
-  <message id="home.examples.calendar">
-<div>
-<br />
-<h4>日历</h4>
 
-<p>
- <a href="/wt/doc/reference/html/classWt_1_1WCalendar.html">WCalendar</a>
- 是一个独立(self-contained)的组合(composite)widget的例子，大概330行C++代码。
-</p>
-
-<p>
- 在此我们演示了这个widget的使用，即用户可以从
- <a href="/wt/doc/reference/html/classWt_1_1WDatePicker.html">WDatePicker</a>中选择
- 日期输入到文本框中，也可以采取更直接的方式选定日期(两个实例)，参见
- <a href="/wt/doc/examples/html/Home_8C-source.html#l00397">
- Home::calendarExample()</a>方法代码。
-</p>
-</div>
-  </message>
-  <message id="home.examples.calendar.datepicker">
-    <p>下面是使用WDatePicker编辑日期字段的示例：</p>
-  </message>
-  <message id="home.examples.calendar.enter-birth-date">
-    请输入出生日期：
-  </message>
-  <message id="home.examples.calendar.plain">
-    <p>简单日历：</p>
-  </message>
-  <message id="home.examples.calendar.multi">
-    <p>可多选的日历：</p>
-  </message>
   <message id="home.download">
     <h3><span>下载</span></h3>
   </message>
   <message id="home.download.license">
-
 <h4>许可</h4>
 
 <p>Wt可以在GNU通用公共许可(GPL)或商业许可下使用。</p>
 
 <p>如果你希望在<b>GPL</b>下使用Wt库，那么你可以以任何目的创建web应用，
- 并部署在你自己的intranet或Internet服务器上，而不必开放源代码。
+ 并部署在你自己的intranet或Internet服务器上，而没有必须开放源代码的要求。
 </p>
 
 <p>注意，根据GPL条款规定，如果你正以二进制形式将你的web应用转给其他方使用，
@@ -764,81 +702,112 @@ href="/wt/examples/form/formexample.wt">表单示例</a>
   </message>
   <message id="home.download.requirements">
 
+<h4>Wt库安装器：winst <span class="emph">(new!)</span></h4>
+
+如果你现在对Wt特别好奇，想尝试一下，但是你的系统或发行版还没有提供
+最新的升级包，那么这个安装器可能非常适合你。这个安装器将下载并将Wt
+安装在<b>类UNIX环境</b>下，同时提供了用于运行示例的脚本。
+
+<p>
+Wt安装器需要<tt>CMake</tt>和<tt>GNU make</tt>，同时可能会通过<tt>wget</tt>
+下载软件。
+</p>
+<p>
+下载该软件包
+（<a href="http://www.webtoolkit.eu/packages/winst-0.1.tar.gz">winst-0.1.tar.gz</a>）
+或者直接获得最新的 git 版本：
+<div class="fragment">
+  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/winst.git</pre>
+</div>
+</p>
+
 <h4>系统需求</h4>
 
 为了能够编译和安装最新版的Wt库，你至少需要安装以下两个包：
 <ul>
-  <li><a href="http://www.cmake.org/">CMake 交叉平台make配置工具</a>。
+  <li><a href="http://www.cmake.org/">CMake</a> 交叉平台make配置工具<br />
 
-    <p>建议适用 CMake 2.4 or 2.6</p>
+    建议 CMake &gt;= 2.6（尽管2.4也能工作）。
   </li>
   <li>
-    必不可少的<a href="http://www.boost.org/"> boost C++库</a>: boost-1.34.1 or boost-1.35.0。
+    必不可少的<a href="http://www.boost.org/">
+    boost C++ 库</a>： boost-1.36 或更高版本。 <br />
 
-    <p>Wt必需以下boost库: boost_date_time、boost_regex、boost_program_options、boost_signals和boost_thread，
-       其中boost_thread可选，但推荐安装。</p>
-
-    <p>如果你正使用 boost-1.35，那么也需要安装 boost_asio and boost_system，
-       特别是对于部署方式为内置httpd的应用。</p>
+	下面的boost库需要安装（不只是头文件）：
+      <tt>boost_date_time</tt>、<tt>boost_regex</tt>、
+      <tt>boost_program_options</tt>、<tt>boost_signals</tt>、
+      <tt>boost_system</tt>和可选的（但强力推荐）
+      <tt>boost_thread</tt>。
   </li>
 </ul>
 
-<p>其他必需部分依赖于你所选择的连接器(connector)支持，连接器是能够实现你的Wt应用与浏览器通讯的工具：</p>
+下面的包是可选的，但如果能有可以体验到更多的Wt特性：
+<ul>
+  <li><a href="http://www.postgresql.org/">PostgreSQL</a>：如果安装上，那么
+    <a href="/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
+    连接器</a>将会为实现ORM库（<a href="/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>）
+	而被编译；</li>
+  <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>：如果安装上，那么
+	<a href="/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>绘图设备
+	将被编译，这样就能够将图片整合进PDF文件或作为PDF文件处理；</li>
+  <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>：如果安装上，那么
+    <a href="/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
+	绘图设备将被编译，这样就能够在光栅扫描图像（PNG或GIF）上绘图了；</li>
+</ul>
 
-<h5>对于 FastCGI (限于Unix)：</h5>
+<p>其他必需部分依赖于你所选择的连接器支持，连接器是能够实现你的Wt应用与浏览器通讯的工具：</p>
+
+<h5>对于FastCGI（限于Unix）：</h5>
 
 <ul>
   <li>Apache 1 或 2，或其他支持FastCGI协议的web服务器</li>
   <li>
-    <a href="http://www.fastcgi.com/#TheDevKit">FastCGI 开发工具包</a>
-    : fcgi-2.4.0
+    <a href="http://www.fastcgi.com/#TheDevKit">FastCGI开发工具包</a>
+    ：fcgi-2.4.0
   </li>
 
    <li>
-     使用apache时：
-     Apache <a href="http://www.fastcgi.com/dist/mod_fastcgi-2.4.2.tar.gz">mod_fastcgi</a>:
-     mod_fastcgi-2.4.2.<br />或者也可以使用
-     <a href="http://fastcgi.coremail.cn/">mod_fcgid</a>:
-     mod_fcgid-1.07。
+	 使用apache时：
+     Apache <a href="http://www.fastcgi.com/dist/mod_fastcgi-2.4.6.tar.gz">mod_fastcgi</a>：
+     mod_fastcgi-2.4.x.<br />或者也可以使用
+     <a href="http://httpd.apache.org/download.cgi#mod_fcgid">mod_fcgid</a>：
+     mod_fcgid-2.3.5。
   </li> 
 </ul>
 
-<h5>对于内置 httpd (wthttpd):</h5>
+<h5>对于内置 httpd（wthttpd）：</h5>
 
 <ul>
-  <li>内置 httpd 需要<a
-  href="http://asio.sourceforge.net/">asio C++ 库</a>.
+  <li>内置httpd需要boost asio C++ 库（仅包含头文件的库）；</li>
+  <li>可选的：libz（用于HTTP压缩）和openssl（用于HTTPS支持）；</li>
+</ul>
 
-  <p>对于 boost-1.35，它已经包含在其中。对于旧版本的 boost，你需要独立安装asio，
-    不过Wt两种均支持，唯一要求boost版本高于0.3.9。</p>
-  </li>
- <li>可选部分： libz (用于 compression-over-HTTP) 和 openssl (用于 HTTPS )。</li>
+<h5>对于ISAPI（限于Win32）：</h5>
+
+<ul>
+  <li>ISAPI连接器只有配合MS IIS服务器才能部署Wt应用。</li>
 </ul>
 
 你可以依照<a
-href="/wt/doc/reference/html/Installation.html">安装指南</a>建立Wt并运行相关示例，
-或者如果你的运行平台在<a
-href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">平台相关安装指南</a>中，也可以参照执行。
+href="/wt/doc/reference/html/Installation.html">安装指南
+</a>编译Wt并运行相关示例，或者如果你的运行平台包含在列表
+<a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">平台相关安装指南</a>
+中的话，也可参照执行。
   </message>
   <message id="home.download.cvs">
+<h4>Git仓库</h4>
 
-<h4>CVS 仓库</h4>
-
-<p>如果你希望跟踪最新的变化，或者参与到Wt的开发中，你可以连接源代码仓库。
-  Wt的源码仓库允许匿名CVS访问。</p>
+<p>如果你希望跟踪最新的变化，或者参与到Wt的开发中，你可能希望使用git仓库。</p>
 
 <p>
-CVS检出操作：
+检出操作：
 <div class="fragment">
-  <pre class="fragment">$ cvs -d :pserver:anonymous@cvs.webtoolkit.eu/opt/cvs login
-  (密码处回车即可)
-$ cvs -z3 -d :pserver:anonymous@cvs.webtoolkit.eu/opt/cvs co wt</pre>
+  <pre class="fragment">$ git clone http://www.webtoolkit.eu/git/wt.git</pre>
 </div>
 </p>
   </message>
-  
   <message id="home.download.packages">
-   <h4><span>可用版本</span></h4>
+    <h4><span>可用版本</span></h4>
   </message>
   <message id="home.download.version"><b>版本</b></message>
   <message id="home.download.date"><b>日期</b></message>
@@ -854,26 +823,18 @@ Wt最初由<a
 href="mailto:koen@emweb.be">Koen Deforche</a>开发，目前由
 <a href="http://www.emweb.be/">Emweb bvba</a>公司维护。</p>
 
-<p>Wt包含了由以下项目借鉴来的代码：</p>
+<p>我们非常感谢以下开源项目（代码借鉴）：</p>
 <ul>
-<li>Wt内置httpd基于<a
-href="http://asio.sourceforge.net/">asio C++库</a>
-的一个示例，该库由 Christopher M. Kohlhoff开发(遵循<a
-href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>)。</li>
-
-<li>服务器端发起更新(Server-initiated updates)基于
-orbited中的JavaScript代码(<a href="http://orbited.org/">Orbited
-0.2.0</a>; 遵循<a href="http://www.opensource.org/licenses/mit-license.php">MIT
-license</a>)。</li>
-
-<li>线程池实现来自于Philipp Henkel (<a
-href="http://threadpool.sourceforge.net/">threadpool</a>; 遵循<a
-href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>)。</li>
-
-<li><a href='http://www.minixml.org/'>Mini-XML
-2.4</a> 库由 Michael Sweet开发(遵循<a
-href="http://www.minixml.org/documentation.php/license.html">Mini-XML license
-  </a>，该许可实际为LGPL，只是略有不同)。</li>
+<li>Wt内置的httpd基于<a
+href="http://asio.sourceforge.net/">asio C++库
+</a>的一个示例开发，该库由Christopher M. Kohlhoff开发（遵循<a
+href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>）；</li>
+<li>Wt的<a href="http://threadpool.sourceforge.net/">Thread pool</a>
+实现来自于Philipp Henkel（遵循<a
+href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>）；</li>
+<li>Wt的<a href='http://rapidxml.sourceforge.net/'>RapidXML</a>
+库由Marcin Kalicinski开发（遵循<a
+href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>）。</li>
 </ul>
 
 <h4>Wiki</h4>
@@ -885,18 +846,22 @@ href="http://www.minixml.org/documentation.php/license.html">Mini-XML license
 
 <h4>支持</h4>
 
-<p>你还可以直接从Wt库作者处获得
- <a href="http://www.emweb.be/?page=services">支持与培训</a>。
+<p>你可以直接从Wt库作者处获得
+<a href="http://www.emweb.be/?page=services">支持与培训</a>
 </p>
 
-<p>另外，你还可以使用<a
-href="mailto:witty-interest@lists.sourceforge.net">邮件列表</a>，以获得社区帮助，
-(<a href="http://lists.sourceforge.net/lists/listinfo/witty-interest">加入信息</a>)。</p>
+<p>另外，你还可以从我们的<a
+href="http://redmine.webtoolkit.eu/projects/wt/boards">社区论坛
+</a>获取帮助， 当然还有<a
+href="mailto:witty-interest@lists.sourceforge.net">邮件列表</a>
+（<a
+href="http://lists.sourceforge.net/lists/listinfo/witty-interest">
+如何加入</a>），你可以通过<a
+href="http://gmane.org/info.php?group=gmane.comp.web.witty.general">Gmane
+gateway</a>搜索或浏览邮件列表存档内容（向建立者 Pau Garcia i Quiles 致敬）
+</p>
 
-<p>你还可以通过<a href="http://gmane.org/info.php?group=gmane.comp.web.witty.general">Gmane
-gateway</a>浏览或搜索邮件列表存档内容，特别感谢Pau Garcia i Quiles创建该搜索。</p>
-
-<h4>资助</h4>
+<h4>贡献</h4>
 
 <p>Wt的开发得到以下公司或组织的资助：</p>
 
@@ -916,34 +881,83 @@ gateway</a>浏览或搜索邮件列表存档内容，特别感谢Pau Garcia i Qu
       Eurofer</a>
     </td>
     <td class="sponsor-role">
-      Wt图表库开发的资助者
+      Wt图表库、WTreeView、及分层数据模型等开发的资助者
     </td>
   </tr>
 </table>
 </p>
 
-<h4>献计献策</h4>
-
-<p>我们欢迎用户为Wt献计献策，这可能包括某些widgets的小补丁、widget集以及Wt核心性能提高等。</p>
+<p>我们欢迎用户为Wt献计献策，这可能包括某些widgets的小补丁、
+widget集以及Wt核心性能提高等。</p>
 
 <p>然而，由于Wt采用开源与商业双重许可，并将Wt作为一个整体在法律上予以保护，
 即将Wt作为一个实体，而对于每个部分的版权不予考虑，因此我们在接受用户贡献之前
-要求贡献者将版权指认给<a href="http://www.emweb.be/">Emweb</a>
+要求贡献者将版权指认给<a href="http://www.emweb.be/">Emweb</a>。
 </p>
-
 <p>注：网站所有中译文，特别是与法律许可等相关的内容最终以英文为准。
 </p>
 
 <h4>翻译</h4>
 
-Wt网站的中文翻译工作由宋志民协助完成。
+Wt网站的中文翻译工作由中央民族大学宋志民协助完成。
 
 <h4>Sourceforge</h4>
 
 <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=153710&amp;type=1" style="vertical-align:middle" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
 Wt在Sourceforge的主页请点击<a href="http://sourceforge.net/projects/witty/">此处</a>。
   </message>
+  <message id="home.other-language">
 
+<h3><span>!C++ ?</span></h3>
+
+<p>你是否喜欢Wt库的功能，但又不太倾向于C++编程？</p>
+
+<p>不要失望，Wt还有其他语言的原生变体或可与其他语言绑定使用：
+
+<ul class="languages">
+<li>
+<div>
+<img class="java-language-icon" src="icons/java-logo.png" alt="Java"></img>
+
+你可以使用我们的<a href="/jwt">JWt</a>，JWt是Wt原生的<b>Java</b>版。JWt
+与Wt同时开发与维护，虽然他们之间有些许差异，但功能和特点几乎相同。JWt可以
+运行在JVM中，并可以部署于任何Servlet内。
+</div>
+
+<br style="clear: both" />
+
+</li>
+<li>
+<div>
+<img class="language-icon" src="icons/ruby-logo-R.png" alt="Ruby"></img>
+
+Richard Dale 正在开发和维护
+<a href="http://github.com/rdale/wtruby/tree/master">WtRuby</a>，也就是将
+<b>Ruby</b>绑定到Wt，WtRuby实施原理与将Ruby绑定到Qt和KDE相同。
+</div>
+
+
+<br style="clear: both" />
+
+</li>
+
+<li>
+<div>
+<img class="language-icon" src="icons/clojure-logo.png" alt="Clojure"></img>
+
+为了达到JVM对其他语言的支持，Raphael Bauduin正在实验<a
+href="http://www.nsa.be/index.php/eng/Blog/Using-Jwt-yes-it-s-a-J-with-Clojure">
+从<b>Clojure</b>（LISP变体）中使用JWt</a>，链接中记录了他的实验过程，该项目最终
+将开发出一个小型支持库。
+</div>
+
+<br style="clear: both" />
+
+</li>
+</ul>
+</p>
+
+  </message>
   <message id="home.documentation">
  
 <h3><span>文档</span></h3>
@@ -955,7 +969,6 @@ Wt在Sourceforge的主页请点击<a href="http://sourceforge.net/projects/witty
 <a href="/wt/doc/reference/html/Installation.html">此处</a>，此文档也可
 在源文件包中找到，分别为INSTALL或INSTALL.html文件。</p>
 <p>
-
 另外，<a href="http://redmine.webtoolkit.eu/wiki/wt">Wt Wiki</a> 还有一部分涉及到
 <a href="http://redmine.webtoolkit.eu/wiki/wt/Wt_Installation">平台相关安装说明</a>。
 </p>
@@ -963,18 +976,27 @@ Wt在Sourceforge的主页请点击<a href="http://sourceforge.net/projects/witty
 <h4>介绍和入门</h4>
 
 <ul>
+<li>请参考我们的<a
+href="/doc/Wt-WhitePaper.pdf">白皮书</a>以了解使用Wt较之于其他传统web开发框架的好处。
+</li>
+
 <li>Dr Dobbs Journal上有一篇很好的<a href="http://www.ddj.com/cpp/206401952">
 介绍性文章</a> (2008年2月)。</li>
 
-<li>Software Developers Journal上有一篇入门性文章(
+<li>Wt参考手册中包含一篇
+<a href="http://www.webtoolkit.eu/wt/doc/reference/html/overview.html">Wt库概览
+</a>，这是一篇很好的入门文章。</li>
+
+<li>Software Developers Journal上有一篇入门性文章（
    <a href="/wt/doc/tutorial/wt-sdj.xhtml">在线阅读</a>，
-   <a href="/wt/doc/tutorial/wt-sdj.pdf">PDF版</a>)(2006年4月)，稍微有点过时，
-   这篇入门文章使用了Hangman猜词游戏示例的代码进行介绍。
+   <a href="/wt/doc/tutorial/wt-sdj.pdf">PDF版</a>）
+   （写于2006年4月，稍微有点过时），
+   这篇入门文章使用了Hangman猜词游戏示例的代码（也可参看源文件）进行介绍。
 </li>
 
 <li>Victor Venkman所写的
-   <a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">Wt介绍</a>中，对
-   <a href="/wt/examples/">hello world 示例</a>进行了测试。
+<a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">Wt介绍</a>中，对
+<a href="/wt/examples/">hello world 示例</a>进行了评测。
 </li>
 
 </ul>
@@ -982,15 +1004,15 @@ Wt在Sourceforge的主页请点击<a href="http://sourceforge.net/projects/witty
 <h4>参考手册</h4>
 
 <p><a href="/wt/doc/reference/html/index.html"
-   target="_blank"> Wt参考手册(在新窗口中开启)</a>直接由doxygen从源码中生成，
-   手册中也包含了关于树表示例的入门教程，特别是针对无状态槽的实现机制进行了
-   说明，另外还强调了Wt允许客户端代码在事件处理中可进一步优化的一些高级特性。
+target="_blank"> Wt参考手册</a>（在新窗口中开启）直接由doxygen从源码中生成，
+手册中也包含了关于树表示例的入门教程，特别是针对无状态槽的实现机制进行了
+说明，另外还强调了Wt允许客户端代码在事件处理中可进一步优化的一些高级特性。
 </p>
 
 <h4>注释性示例</h4>
 
 <p>示例的源码级文档也已经制作完成，<a href="/wt/doc/examples/html/modules.html"
-target="_blank">在此查看(新窗口中打开)</a>。</p>
+target="_blank">在此查看</a>（新窗口中打开）。</p>
 
 <h4>Wiki</h4>
 
@@ -999,4 +1021,128 @@ target="_blank">在此查看(新窗口中打开)</a>。</p>
 </p>
 
   </message>
+
+  <message id="srcview.title.CPP.">
+    <div class="srcviewtitle">
+      <h2>Wt示例源代码</h2>
+
+      <p>
+	  浏览<a href="http://www.webtoolkit.eu/wt">Wt</a>中所有示例的源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.">Wt示例</message>
+
+  <message id="srcview.title.CPP.hello">
+    <div class="srcviewtitle">
+      <h2><i>Hello world</i>示例源代码</h2>
+
+      <p>
+	浏览以下 
+	<a href="http://www.webtoolkit.eu/wt/examples/hello_world">
+	  Hello world</a>示例源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.hello">示例：Hello world</message>
+
+  <message id="srcview.title.CPP.charts">
+    <div class="srcviewtitle">
+      <h2><i>图表</i>示例源代码</h2>
+
+      <p>
+	浏览以下
+	<a href="http://www.webtoolkit.eu/wt/examples/charts">
+	  图表</a>示例源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.charts">示例：图表</message>
+
+  <message id="srcview.title.CPP.treeview-dragdrop">
+    <div class="srcviewtitle">
+      <h2><i>树视图</i>示例源代码</h2>
+
+      <p>
+	浏览以下
+	<a href="http://www.webtoolkit.eu/wt/examples/treeview">
+	  树视图</a>示例源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.treeview-dragdrop">示例：树视图</message>
+
+  <message id="srcview.title.CPP.composer">
+    <div class="srcviewtitle">
+      <h2><i>邮件编辑器</i>示例源代码</h2>
+
+      <p>
+	浏览以下
+	<a href="http://www.webtoolkit.eu/wt/examples/composer">
+	  邮件编辑器</a>示例源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.composer">示例：邮件编辑器</message>
+  
+  <message id="srcview.title.CPP.wt-homepage">
+    <div class="srcviewtitle">
+      <h2><i>Wt网站</i>示例源代码</h2>
+
+      <p>
+	浏览以下
+	<a href="http://www.webtoolkit.eu/wt/examples/wt-homepage">
+	  Wt网站</a>示例源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.wt-homepage">示例：Wt网站</message>
+
+  <message id="srcview.title.CPP.gitmodel">
+    <div class="srcviewtitle">
+      <h2><i>Git查看器</i>示例源代码</h2>
+
+      <p>
+	浏览以下
+	<a href="http://www.webtoolkit.eu/wt/examples/gitmodel">
+	  Git查看器</a>示例源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.gitmodel">示例：Git查看器</message>
+
+  <message id="srcview.title.CPP.simplechat">
+    <div class="srcviewtitle">
+      <h2><i>简单聊天</i>示例源代码</h2>
+
+      <p>
+	浏览以下
+	<a href="http://www.webtoolkit.eu/wt/examples/simplechat">
+	  简单聊天</a>示例源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.simplechat">示例：简单聊天</message>
+
+  <message id="srcview.title.CPP.widgetgallery">
+    <div class="srcviewtitle">
+      <h2><i>Widget展示库</i>示例源代码</h2>
+
+      <p>
+	浏览以下
+	<a href="http://www.webtoolkit.eu/wt/examples/widgetgallery">
+	  Widget展示库</a>示例源代码。
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.widgetgallery">示例：Widget展示库</message>
 </messages>
