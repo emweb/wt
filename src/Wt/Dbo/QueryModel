@@ -73,11 +73,17 @@ public:
 
   /*! \brief Sets the query.
    *
-   * The \p query is used to query the database. This resets the
-   * column list, so you will need to add one or more columns using
+   * The \p query is used to query the database.
+   *
+   * Unless \p keepColumns is \c true, this resets the column list, so
+   * you will need to (re-)add one or more columns using
    * addColumn().
+   *
+   * When keeping the current columns, a LayoutChange rather than a
+   * Reset is emitted by the model, allowing views to keep their
+   * column geometry as well.
    */
-  void setQuery(const Query<Result>& query);
+  void setQuery(const Query<Result>& query, bool keepColumns = false);
 
   /*! \brief Returns the query.
    *

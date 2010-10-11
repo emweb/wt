@@ -22,13 +22,20 @@ QueryModel<Result>::QueryModel(WObject *parent)
 { }
 
 template <class Result>
-void QueryModel<Result>::setQuery(const Query<Result>& query)
+void QueryModel<Result>::setQuery(const Query<Result>& query,
+				  bool keepColumns)
 {
-  query_ = query;
-  fields_ = query_.fields();
-  columns_.clear();
-
-  reset();
+  if (!keepColumns) {
+    query_ = query;
+    fields_ = query_.fields();
+    columns_.clear();
+    reset();
+  } else {
+    invalidateData();
+    query_ = query;
+    fields_ = query_.fields();
+    dataReloaded();
+  }
 }
 
 template <class Result>

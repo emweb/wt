@@ -791,10 +791,10 @@ public:
 
   /*! \brief %Signal emitted when the layout is about to be changed.
    *
-   * A layout change reorders the data in the model, but no data is
-   * added or removed. Model indexes are invalidated by a layout
-   * change, but indexes may be ported across a layout change by using
-   * the toRawIndex() and fromRawIndex() methods.
+   * A layout change reorders the data in the model, but columns are
+   * preserved. Model indexes are invalidated by a layout change, but
+   * indexes may be ported across a layout change by using the
+   * toRawIndex() and fromRawIndex() methods.
    *
    * \sa layoutChanged(), toRawIndex(), fromRawIndex()
    */
@@ -807,6 +807,9 @@ public:
   Signal<>& layoutChanged() { return layoutChanged_; }
 
   /*! \brief %Signal emitted when the model was reset.
+   *
+   * A model reset invalidates all existing data, and the model may change
+   * its entire geometry (column count, row count).
    *
    * \sa reset()
    */

@@ -1,7 +1,8 @@
 11-10-2010:
 	* Dbo/WtSqlTraits, Dbo/backends: added support for WTime
 
-	* Dbo/QueryModel: added support for customized header data.
+	* Dbo/QueryModel: added support for customized header data, and
+	option for setQuery() to keep the current columns.
 
 07-10-2010:
 	* WTableView, WTreeView, *ProxyModel: shift model indexes only after
