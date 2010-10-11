@@ -30,6 +30,9 @@ public:
   // Print a message on the displayer
   void setStatus(const Wt::WString &msg);
 
+  template<typename T> void showSignal(T &s, const std::string& str);
+  template<typename T> void showEvent(T &s, const Wt::WString& str);
+
 private:
   Wt::WString lastEventStr_;
   int eventCount_;
@@ -37,10 +40,21 @@ private:
 
   Wt::WSignalMapper<std::string> *map_;
   Wt::WSignalMapper<std::string, Wt::WString> *mapWString_;
-  void showSignal(const std::string& str);
   void showWStringSignal(const std::string& str, const Wt::WString& wstr);
-
-  void showEvent(const Wt::WString& str);
+  void showSignalImpl(const std::string& str);
+  void showEventImpl(const Wt::WString& str);
 };
+
+template<typename T>
+void EventDisplayer::showSignal(T &s, const std::string& str)
+{
+  s.connect(boost::bind(&EventDisplayer::showSignalImpl, this, str));
+}
+
+template<typename T>
+void EventDisplayer::showEvent(T &s, const Wt::WString& str)
+{
+  s.connect(boost::bind(&EventDisplayer::showEventImpl, this, str));
+}
 
 #endif

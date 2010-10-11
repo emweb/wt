@@ -7,7 +7,7 @@
 #ifndef WHTML5MEDIA_H_
 #define WHTML5MEDIA_H_
 
-#include <Wt/WWebWidget>
+#include <Wt/WInteractWidget>
 #include <Wt/WFlags>
 
 namespace Wt {
@@ -18,7 +18,7 @@ namespace Wt {
  * This class is an abstract base class for HTML5 media elements
  * (audio, video).
  */
-class WT_API WHTML5Media : public WWebWidget
+class WT_API WHTML5Media : public WInteractWidget
 {
 public:
   /*! \brief Enumeration for playback options
@@ -28,6 +28,7 @@ public:
     Loop     = 2, //!< Enable loop mode
     Controls = 4  //!< Show video controls in the browser
   };
+
   /*! \brief Enumeration for preload strategy
    */
   enum PreloadMode {
@@ -35,6 +36,7 @@ public:
     PreloadAuto,    //!< Hints that it is ok to download the entire resource
     PreloadMetadata //!< Hints that retrieving metadata is a good option
   };
+
   /*! \brief Consctructor for a HTML5 media widget.
    *
    * A freshly constructed HTML5Video widget has no options set, no
@@ -49,15 +51,15 @@ public:
    * \sa Options
    */
   void setOptions(const WFlags<Options> &flags);
-  
+
   /*! \brief Retrieve the configured options
    */
   WFlags<Options> getOptions() const;
-  
+
   /*! \brief Set the preload mode
    */
   void setPreloadMode(PreloadMode mode);
-  
+
   /*! \brief Retrieve the preload mode
    */
   PreloadMode preloadMode() const;
@@ -129,6 +131,45 @@ public:
    */
   void pause();
 
+  /*! \brief Event signal emitted when playback has begun.
+   *
+   * This event fires when play was invoked, or when the media element
+   * starts playing because the Autoplay option was provided.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<>& playbackStarted();
+
+  /*! \brief Event signal emitted when the playback has paused.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<>& playbackPaused();
+
+  /*! \brief Event signal emitted when the playback stopped because
+   *         the end of the media was reached.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<>& ended();
+
+  /*! \brief Event signal emitted when the current playback position has
+   *         changed.
+   *
+   * This event is fired when the playback position has changed,
+   * both when the media is in a normal playing mode, but also when it has
+   * changed discontinuously because of another reason.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<>& timeUpdated();
+
+  /*! \brief Event signal emitted when the playback volume has changed.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<>& volumeChanged();
+
 protected:
   void getDomChanges(std::vector<DomElement *>& result,
                      WApplication *app);
@@ -176,6 +217,13 @@ private:
   PreloadMode preloadMode_;
   WWidget *alternative_;
   bool flagsChanged_, preloadChanged_, sourcesChanged_;
+  
+  static const char *PLAYBACKSTARTED_SIGNAL;
+  static const char *PLAYBACKPAUSED_SIGNAL;
+  static const char *ENDED_SIGNAL;
+  static const char *TIMEUPDATED_SIGNAL;
+  static const char *VOLUMECHANGED_SIGNAL;
+
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WHTML5Media::Options);

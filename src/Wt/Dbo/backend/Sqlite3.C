@@ -116,6 +116,16 @@ public:
     handleErr(err);
   }
 
+  virtual void bind(int column, const boost::posix_time::time_duration & value)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " "
+	  << boost::posix_time::to_simple_string(value) << std::endl);
+
+    long long msec = value.total_milliseconds();   
+
+    int err = sqlite3_bind_int64(st_, column + 1, msec);
+  }
+
   virtual void bind(int column, const boost::posix_time::ptime& value,
 		    SqlDateTimeType type)
   {
@@ -305,6 +315,24 @@ public:
 
     DEBUG(std::cerr << this 
 	  << " result double " << column << " " << *value << std::endl);
+
+    return true;
+  }
+
+  virtual bool getResult(int column, boost::posix_time::time_duration *value)
+  {
+    if (sqlite3_column_type(st_, column) == SQLITE_NULL)
+      return false;
+
+    long long msec = sqlite3_column_int64(st_, column);
+    boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
+      boost::posix_time::time_duration::ticks_per_second() / 1000;
+
+    *value = boost::posix_time::time_duration(0, 0, 0,
+					      msec * ticks_per_msec);
+
+    DEBUG(std::cerr << this 
+	  << " result time_duration " << column << " " << *value << std::endl);
 
     return true;
   }
@@ -505,7 +533,9 @@ std::string Sqlite3::autoincrementInsertSuffix() const
 
 const char *Sqlite3::dateTimeType(SqlDateTimeType type) const
 {
-  switch (dateTimeStorage(type)) {
+  if (type == SqlTime)
+    return "integer";
+  else switch (dateTimeStorage(type)) {
   case ISO8601AsText:
     return "text";
   case JulianDaysAsReal:

@@ -112,24 +112,26 @@ void WAbstractProxyModel::shiftModelIndexes(const WModelIndex& sourceParent,
 #endif
     WModelIndex i = it->first;
 
-    WModelIndex p = i.parent();
-    if (p != sourceParent && !WModelIndex::isAncestor(p, sourceParent))
-      break;
+    if (i.isValid()) {
+      WModelIndex p = i.parent();
+      if (p != sourceParent && !WModelIndex::isAncestor(p, sourceParent))
+	break;
 
-    if (p == sourceParent) {
-      shifted.push_back(it->second);
-    } else if (count < 0) {
-      // delete indexes that are about to be deleted, if they are within
-      // the range of deleted indexes
-      do {
-	if (p.parent() == sourceParent
-	    && p.row() >= start
-	    && p.row() < start - count) {
-	  erased.push_back(it->second);
-	  break;
-	} else
-	  p = p.parent();
-      } while (p != sourceParent);
+      if (p == sourceParent) {
+	shifted.push_back(it->second);
+      } else if (count < 0) {
+	// delete indexes that are about to be deleted, if they are within
+	// the range of deleted indexes
+	do {
+	  if (p.parent() == sourceParent
+	      && p.row() >= start
+	      && p.row() < start - count) {
+	    erased.push_back(it->second);
+	    break;
+	  } else
+	    p = p.parent();
+	} while (p != sourceParent);
+      }
     }
 
 #ifndef WT_TARGET_JAVA

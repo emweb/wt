@@ -11,6 +11,7 @@
 
 #include <Wt/WDate>
 #include <Wt/WDateTime>
+#include <Wt/WTime>
 #include <Wt/WString>
 
 #include <Wt/Dbo/SqlTraits>
@@ -42,6 +43,18 @@ struct sql_value_traits<WDateTime, void>
   static void bind(const WDateTime& v, SqlStatement *statement, int column,
 		   int size);
   static bool read(WDateTime& v, SqlStatement *statement, int column, int size);
+};
+
+template<>
+struct sql_value_traits<WTime, void>
+{
+  static const bool specialized = true;
+
+  static const char *format;
+
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(const WTime& v, SqlStatement *statement, int column, int size);
+  static bool read(WTime& v, SqlStatement *statement, int column, int size);
 };
 
 template<>
@@ -85,6 +98,56 @@ inline bool sql_value_traits<WDate, void>
     return true;
   } else {
     v = WDate();
+    return false;
+  }
+}
+
+    /*
+     * WTime
+     */
+
+inline const char *sql_value_traits<WTime, void>::type(SqlConnection *conn,
+						       int size)
+{
+  return conn->dateTimeType(SqlTime);
+}
+
+inline void sql_value_traits<WTime, void>
+::bind(const WTime& v, SqlStatement *statement, int column, int size)
+{
+  if (v.isNull())
+    statement->bindNull(column);
+  else {
+    boost::posix_time::time_duration::fractional_seconds_type ticks_per_msec =
+      boost::posix_time::time_duration::ticks_per_second() / 1000;
+
+    statement->bind
+      (column,
+       boost::posix_time::time_duration(v.hour(), v.minute(), v.second(),
+					v.msec() * ticks_per_msec));
+  }
+}
+
+inline bool sql_value_traits<WTime, void>
+::read(WTime& v, SqlStatement *statement, int column, int size)
+{
+  boost::posix_time::time_duration t;
+ 
+  if (statement->getResult(column, &t)) {
+    int h = t.hours();
+    int m = t.minutes();
+    int s = t.seconds();
+    int ms = t.total_milliseconds() % 1000;
+
+    if (!v.setHMS (h, m, s, ms)) {
+      std::cerr << "Wt::Dbo: WTime can only hold durations < 24h"
+		<< std::endl;
+      return true;
+    } else
+      return false;
+
+  } else {
+    v = WTime();
     return false;
   }
 }

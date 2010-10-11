@@ -18,8 +18,8 @@ namespace Wt {
  */
 enum SqlDateTimeType {
   SqlDate,    //!< Date only
-  SqlDateTime //!< Date and time
-  /*, Time */ 
+  SqlDateTime,//!< Date and time
+  SqlTime     //!< Time duration
 };
 
 class SqlStatement;

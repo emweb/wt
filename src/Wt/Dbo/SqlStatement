@@ -88,6 +88,11 @@ public:
 
   /*! \brief Binds a value to a column.
    */
+  virtual void bind(int column, const boost::posix_time::time_duration& value)
+    = 0;
+
+  /*! \brief Binds a value to a column.
+   */
   virtual void bind(int column, const std::vector<unsigned char>& value) = 0;
 
   /*! \brief Binds \c null to a column.
@@ -157,6 +162,13 @@ public:
    */
   virtual bool getResult(int column, boost::posix_time::ptime *value,
 			 SqlDateTimeType type) = 0;
+
+  /*! \brief Fetches a result value.
+   *
+   * Returns \c true when the value was not \c null.
+   */
+  virtual bool getResult(int column, boost::posix_time::time_duration *value)
+    = 0;
 
   /*! \brief Fetches a result value.
    *

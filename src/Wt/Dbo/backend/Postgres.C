@@ -16,6 +16,7 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/time_parsers.hpp> 
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -109,6 +110,15 @@ public:
     DEBUG(std::cerr << this << " bind " << column << " " << value << std::endl);
 
     setValue(column, boost::lexical_cast<std::string>(value));
+  }
+
+  virtual void bind(int column, const boost::posix_time::time_duration & value)
+  {
+    DEBUG(std::cerr << this << " bind " << column << " " << boost::posix_time::to_simple_string(value) << std::endl);
+
+    std::string v = boost::posix_time::to_simple_string(value);   
+
+    setValue(column, v);
   }
 
   virtual void bind(int column, const boost::posix_time::ptime& value,
@@ -347,6 +357,23 @@ public:
     else
       *value = boost::posix_time::time_from_string(v);
 
+    DEBUG(std::cerr << this 
+	  << " result time_duration " << column << " " << *value << std::endl);
+
+    return true;
+  }
+
+  virtual bool getResult(int column, boost::posix_time::time_duration *value)
+  {
+    if (PQgetisnull(result_, row_, column))
+      return false;
+
+    std::string v;
+    v = PQgetvalue(result_, row_, column);
+
+    *value = boost::posix_time::time_duration
+      (boost::posix_time::duration_from_string(v));
+
     return true;
   }
 
@@ -537,7 +564,10 @@ const char *Postgres::dateTimeType(SqlDateTimeType type) const
     return "date";
   case SqlDateTime:
     return "timestamp";
+  case SqlTime:
+    return "interval";
   }
+
   std::stringstream ss;
   ss << __FILE__ << ":" << __LINE__ << ": implementation error";
   throw PostgresException(ss.str());

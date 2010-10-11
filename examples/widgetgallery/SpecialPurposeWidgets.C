@@ -226,6 +226,12 @@ WWidget *SpecialPurposeWidgets::wVideo()
   v1->setPoster(poster);
   v1->setAlternativeContent(new WImage(poster));
   v1->resize(640, 360);
+
+  ed_->showEvent(v1->playbackStarted(), "Video 1 playing");
+  ed_->showEvent(v1->playbackPaused(), "Video 1 paused");
+  ed_->showEvent(v1->ended(), "Video 1 ended");
+  ed_->showEvent(v1->volumeChanged(), "Video 1 volume changed");
+
   new WText(tr("specialpurposewidgets-WHTML5Video-2"), result);
   WFlashObject *flash2 =
     new WFlashObject("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
@@ -242,6 +248,11 @@ WWidget *SpecialPurposeWidgets::wVideo()
   v2->setAlternativeContent(flash2);
   v2->setPoster(poster);
   v2->resize(640, 360);
+  ed_->showEvent(v2->playbackStarted(), "Video 2 playing");
+  ed_->showEvent(v2->playbackPaused(), "Video 2 paused");
+  ed_->showEvent(v2->ended(), "Video 2 ended");
+  ed_->showEvent(v2->volumeChanged(), "Video 2 volume changed");
+
 
   new WText(tr("specialpurposewidgets-WHTML5Video-3"), result);
   WFlashObject *flash3 =

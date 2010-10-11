@@ -18,9 +18,14 @@
 #endif
 
 using namespace Wt;
+const char *WHTML5Media::PLAYBACKSTARTED_SIGNAL = "play";
+const char *WHTML5Media::PLAYBACKPAUSED_SIGNAL = "pause";
+const char *WHTML5Media::ENDED_SIGNAL = "ended";
+const char *WHTML5Media::TIMEUPDATED_SIGNAL = "timeupdate";
+const char *WHTML5Media::VOLUMECHANGED_SIGNAL = "volumechange";
 
 WHTML5Media::WHTML5Media(WContainerWidget *parent):
-  WWebWidget(parent),
+  WInteractWidget(parent),
   sourcesRendered_(0),
   flags_(0),
   preloadMode_(PreloadAuto),
@@ -54,6 +59,31 @@ WHTML5Media::~WHTML5Media()
 {
   for (std::size_t i = 0; i < sources_.size(); ++i)
     delete sources_[i];
+}
+
+EventSignal<>& WHTML5Media::playbackStarted()
+{
+  return *voidEventSignal(PLAYBACKSTARTED_SIGNAL, true);
+}
+
+EventSignal<>& WHTML5Media::playbackPaused()
+{
+  return *voidEventSignal(PLAYBACKPAUSED_SIGNAL, true);
+}
+
+EventSignal<>& WHTML5Media::ended()
+{
+  return *voidEventSignal(ENDED_SIGNAL, true);
+}
+
+EventSignal<>& WHTML5Media::timeUpdated()
+{
+  return *voidEventSignal(TIMEUPDATED_SIGNAL, true);
+}
+
+EventSignal<>& WHTML5Media::volumeChanged()
+{
+  return *voidEventSignal(VOLUMECHANGED_SIGNAL, true);
 }
 
 void WHTML5Media::play()
@@ -262,7 +292,7 @@ void WHTML5Media::getDomChanges(std::vector<DomElement *>& result,
     }
     result.push_back(media);
   }
-  WWebWidget::getDomChanges(result, app);
+  WInteractWidget::getDomChanges(result, app);
 }
 
 void WHTML5Media::setOptions(const WFlags<WHTML5Media::Options> &flags)

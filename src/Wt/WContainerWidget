@@ -303,15 +303,10 @@ public:
    * horizontal scroll behaviour, since this is not supported on
    * Opera. Therefore, settings will apply automatically to both orientations.
    *
-   * \note For Internet Explorer, setting overflow to OverflowAuto or
-   * OverflowScroll may cause problems with content that uses
-   * absolutely positioned DOM elements (such as WPaintedWidget or
-   * several %Ext widgets): due to a bug in IE, these elements will
-   * not scroll along, but stay 'fixed' at their initial
-   * position. This problem can (usually) be circumvented by using a
-   * relative position scheme relative (using \link setPositionScheme()
-   * setPositionScheme(Relative)\endlink) for the same container
-   * widget which provides the scroll bars.
+   * Unlike WScrollArea, horizontal scrolling does not work reliably
+   * when the container widget is inserted in a layout manager: the
+   * layout manager will overflow rather than use scrollbars for this
+   * container widget. A solution there is to use WScrollArea instead.
    *
    * \sa WScrollArea
    */

@@ -99,6 +99,7 @@ public:
 
   std::vector<unsigned char> binary;
   Wt::WDate date;
+  Wt::WTime time;
   Wt::WDateTime datetime;
   Wt::WString wstring;
   std::string string;
@@ -115,6 +116,7 @@ public:
 	return false;
 
     return date == other.date
+      && time == other.time
       && datetime == other.datetime
       && wstring == other.wstring
       && string == other.string
@@ -132,6 +134,7 @@ public:
   void persist(Action& a)
   {
     dbo::field(a, date, "date");
+    dbo::field(a, time, "time");
     dbo::field(a, binary, "binary");
     dbo::field(a, datetime, "datetime");
     dbo::field(a, wstring, "wstring");
@@ -284,6 +287,7 @@ void DboTest::test1()
     for (unsigned i = 0; i < 255; ++i)
       a1.binary.push_back(i);
     a1.date = Wt::WDate(1976, 6, 14);
+    a1.time = Wt::WTime(13, 14, 15, 102);
     a1.wstring = "Hello";
     a1.string = "There";
     a1.i = 42;
@@ -363,6 +367,7 @@ void DboTest::test2()
     A a1;
     a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
     a1.date = Wt::WDate(1980, 12, 4);
+    a1.time = Wt::WTime(12, 13, 14, 123);
     a1.wstring = "Hello";
     a1.string = "There";
     a1.i = 42;

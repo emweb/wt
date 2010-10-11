@@ -122,6 +122,9 @@ bool WTime::operator> (const WTime& other) const
 
 bool WTime::operator< (const WTime& other) const
 {
+  if (!isValid() && !other.isValid())
+    return false;
+
   if (!isValid() || !other.isValid())
     throw InvalidTimeException();
 
@@ -135,6 +138,9 @@ bool WTime::operator!= (const WTime& other) const
 
 bool WTime::operator== (const WTime& other) const
 {
+  if (!isValid() && !other.isValid())
+    return true;
+
   if (!isValid() || !other.isValid())
     throw InvalidTimeException();
 
@@ -143,6 +149,9 @@ bool WTime::operator== (const WTime& other) const
 
 bool WTime::operator<= (const WTime& other) const
 {
+  if (!isValid() && !other.isValid())
+    return true;
+
   if (!isValid() || !other.isValid())
     throw InvalidTimeException();
 

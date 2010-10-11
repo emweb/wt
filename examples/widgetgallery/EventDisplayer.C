@@ -11,7 +11,7 @@ EventDisplayer::EventDisplayer(WContainerWidget *parent):
 {
   setStyleClass("events");
 
-  map_->mapped().connect(this, &EventDisplayer::showSignal);
+  map_->mapped().connect(this, &EventDisplayer::showSignalImpl);
   mapWString_->mapped().connect(this, &EventDisplayer::showWStringSignal);
 }
 
@@ -26,23 +26,23 @@ void EventDisplayer::mapConnectWString(Signal<WString> &signal,
   mapWString_->mapConnect1(signal, data);
 }
 
-void EventDisplayer::showSignal(const std::string& str)
+void EventDisplayer::showSignalImpl(const std::string& str)
 {
-  showEvent("Last activated signal: " + str);
+  showEventImpl("Last activated signal: " + str);
 }
 
 void EventDisplayer::showWStringSignal(const std::string& str,
 				       const WString& wstr)
 {
-  showEvent("Last activated signal: " + str + wstr);
+  showEventImpl("Last activated signal: " + str + wstr);
 }
 
 void EventDisplayer::setStatus(const WString &msg)
 {
-  showEvent("Last status message: " + msg);
+  showEventImpl("Last status message: " + msg);
 }
 
-void EventDisplayer::showEvent(const WString& str)
+void EventDisplayer::showEventImpl(const WString& str)
 {
   if (str == lastEventStr_) {
     ++eventCount_;
