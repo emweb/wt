@@ -104,15 +104,14 @@ WT_DECLARE_WT_MEMBER
      if (WT.isHidden(widget))
       return true;
 
-     var t = widget.firstChild;
+     var t = widget.firstChild, p = widget.parentNode;
 
      if (t.style.height != '')
        t.style.height = '';
 
      var doit = widget.dirty
-       || t.w != widget.clientWidth
-       || t.h != widget.clientHeight;
-
+       || t.w != p.clientWidth
+       || t.h != p.clientHeight;
 
      if (!doit)
        return true;
@@ -126,11 +125,11 @@ WT_DECLARE_WT_MEMBER
       * otherwise we use the computed height. Note that we need to
       * remove padding of the parent, and margin of myself.
       */
-     var r = WT.pxself(widget.parentNode, 'height');
+     var r = WT.pxself(p, 'height');
      if (r == 0) {
-       r = widget.parentNode.clientHeight;
-       r += - WT.px(widget.parentNode, 'paddingTop')
-	 - WT.px(widget.parentNode, 'paddingBottom');
+       r = p.clientHeight;
+       r += - WT.px(p, 'paddingTop')
+	 - WT.px(p, 'paddingBottom');
      }
 
      r += - WT.px(widget, 'marginTop') - WT.px(widget, 'marginBottom');
@@ -140,9 +139,9 @@ WT_DECLARE_WT_MEMBER
       * Remove the height of these too
       */
      var i, il;
-     if (widget.parentNode.children) {
-       for (i=0, il=widget.parentNode.children.length; i<il; ++i) {
-	 var w = widget.parentNode.children[i];
+     if (p.children) {
+       for (i=0, il=p.children.length; i<il; ++i) {
+	 var w = p.children[i];
 	   if (w != widget)
 	     r -= $(w).outerHeight();
        }
@@ -212,8 +211,8 @@ WT_DECLARE_WT_MEMBER
        }
      }
 
-     t.w = widget.clientWidth;
-     t.h = widget.clientHeight;
+     t.w = p.clientWidth;
+     t.h = p.clientHeight;
 
      /*
       * Column widths: for every column which has no % width set,

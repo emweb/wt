@@ -4,6 +4,9 @@
 	* Dbo/QueryModel: added support for customized header data, and
 	option for setQuery() to keep the current columns.
 
+	* js/StdGridLayoutImpl: use parent node geometry for detecting need
+	for relayout, fixes IE7+ behaviour
+
 07-10-2010:
 	* WTableView, WTreeView, *ProxyModel: shift model indexes only after
 	the source model has inserted or removed rows, see bug #546
