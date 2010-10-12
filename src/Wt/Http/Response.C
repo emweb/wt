@@ -18,7 +18,7 @@ void Response::setStatus(int status)
     response_->setStatus(status);
 }
 
-void Response::setContentLength(uint64_t length)
+void Response::setContentLength(::uint64_t length)
 {
   if (response_)
     response_->setContentLength(length);

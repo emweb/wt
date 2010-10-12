@@ -55,8 +55,7 @@ namespace Wt {
  * manipulations. Instead, you should convert to a standard library
  * string class to manipulate the string contents and perform string
  * algorithms on them. In particular, we recommend to use the
- * conversion methods toUTF8(), fromUTF8() and the WString(..., \link
- * Wt::UTF8 UTF8\endlink) constructor to convert from and to UTF8
+ * conversion methods toUTF8(), fromUTF8() to convert from and to UTF8
  * encoded std::strings. In this way, you can support the whole
  * unicode character set, with backward compatible support for the
  * standard 7-bit ASCII set. Since %WString internally uses

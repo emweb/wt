@@ -1261,6 +1261,8 @@ function encodeEvent(event, i) {
 	v = 'i';
       else if (el.checked)
 	v = el.value;
+    } else if (WT.hasTag(el, "VIDEO") || WT.hasTag(el, "AUDIO")) {
+      v = '' + el.volume + ';' + el.currentTime + ';' + el.duration + ';' + (el.paused?'1':'0') + ';' + (el.ended?'1':'0');
     } else if (el.type != 'file') {
       if ($(el).hasClass('Wt-edit-emptyText'))
 	v = '';

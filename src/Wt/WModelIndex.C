@@ -151,7 +151,7 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
 { }
 
 WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
-			 uint64_t id)
+			 ::uint64_t id)
   : model_(model),
     row_(row),
     column_(column),

@@ -740,6 +740,60 @@ enum RenderFlag {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RenderFlag)
 
+/*! \brief Flag that specifies how to match two values.
+ *
+ * Except when MatchExactly, the lexical matching is done (by comparing
+ * string representations of the value with the query). This is by default
+ * case insensitive, unless MatchCaseSensitive is OR'ed.
+ *
+ * \ingroup modelview
+ */
+enum MatchFlag {
+  MatchExactly = 0x0,       //!< Same type and value
+  MatchStringExactly = 0x1, //!< Lexical match
+  MatchStartsWith = 0x2,    //!< Match start with query
+  MatchEndsWith = 0x3,      //!< Match end with query
+  MatchRegExp = 0x4,        //!< Regular expression match
+  MatchWildCard = 0x5,      //!< Wildcard match
+  MatchCaseSensitive = 0x10,//!< Case sensitive
+  MatchWrap = 0x20          //!< Wrap around whole model
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(MatchFlag)
+
+/*! \brief Type part of MatchFlags */
+static const WFlags<MatchFlag> MatchTypeMask = 
+  MatchExactly | MatchStringExactly | MatchStartsWith | MatchEndsWith |
+  MatchRegExp | MatchWildCard;
+
+/*! \brief Flags that indicate header options
+ *
+ * \sa WAbstractItemModel::headerFlags()
+ *
+ * \ingroup modelview
+ */
+enum HeaderFlag {
+  /*! \brief Flag that indicates that the column can be expanded.
+   *
+   * \sa WAbstractItemModel::expandColumn()
+   */
+  ColumnIsCollapsed = 0x1,
+
+  /*! \brief Flag that indicates that the column was expanded to the left.
+   *
+   * \sa WAbstractItemModel::collapseColumn()
+   */
+  ColumnIsExpandedLeft = 0x2,
+
+  /*! \brief Flag that indicates that the column was expanded to the right.
+   *
+   * \sa WAbstractItemModel::collapseColumn()
+   */
+  ColumnIsExpandedRight = 0x4
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)
+
 }
 
 #endif // WGLOBALS_H_

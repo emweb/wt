@@ -270,8 +270,7 @@ public:
    * container.
    *
    * For a WTableCell, this may also specify the vertical alignment.
-   * The default alignment is (\link Wt::AlignTop AlignTop \endlink |
-   * \link Wt::AlignLeft AlignLeft \endlink).
+   * The default alignment is (Wt::AlignTop | Wt::AlignLeft).
    */
   void setContentAlignment(WFlags<AlignmentFlag> contentAlignment);
 

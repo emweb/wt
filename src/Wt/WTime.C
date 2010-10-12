@@ -381,7 +381,7 @@ int WTime::pmhour() const
   return result != 0 ? result : 12;
 }
 
-bool WTime::writeSpecial(const std::string& f, unsigned int& i,
+bool WTime::writeSpecial(const std::string& f, unsigned& i,
 			 std::stringstream& result) const
 {
   char buf[30];

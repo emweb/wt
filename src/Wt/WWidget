@@ -105,36 +105,35 @@ public:
 
   /*! \brief Sets CSS offsets for a non-statically positioned widget.
    *
-   * The argument \p sides may be a combination of \link
-   * Wt::Left Left\endlink, \link Wt::Right Right\endlink, \link
-   * Wt::Top Top\endlink, and \link Wt::Bottom Bottom\endlink.
+   * The argument \p sides may be a combination of Wt::Left,
+   * Wt::Right, Wt::Top, and Wt::Bottom.
    *
    * This applies only to widgets that have a position scheme that is
-   * \link Wt::Relative Relative\endlink, \link Wt::Absolute
-   * Absolute\endlink, or \link Wt::Fixed Fixed\endlink, and has
-   * a slightly different meaning for these three cases.
+   * Wt::Relative, Wt::Absolute, or Wt::Fixed, and has a slightly
+   * different meaning for these three cases.
    *
-   * For a relatively positioned widget, an offset applies relative to
-   * the position the widget would have when layed-out using a \link
-   * Wt::Static Static\endlink position scheme. The widget may be
-   * shifted to the left or right by specifying an offset to the \link
-   * Wt::Left Left\endlink or \link Wt::Right
-   * Right\endlink). The widget may be shifted vertically, by
-   * specifying an offset for the \link Wt::AlignTop Top\endlink
-   * or \link Wt::Bottom Bottom\endlink.
+   * For a \link Wt::Relative relatively positioned\endlink widget, an
+   * offset applies relative to the position the widget would have
+   * when layed-out using a \link Wt::Static static\endlink position
+   * scheme. The widget may be shifted to the left or right by
+   * specifying an offset for the \link Wt::Left left\endlink or \link
+   * Wt::Right right\endlink) side. The widget may be shifted
+   * vertically, by specifying an offset for the \link Wt::AlignTop
+   * top\endlink or \link Wt::Bottom bottom\endlink side.
    *
-   * For an absolutely positioned widget, an offset specifies a
-   * distance of the corresponding side of the widget with respect to
-   * the corresponding side of the reference parent widget. Thus,
+   * For an \link Wt::Absolute absolutely positioned\endlink widget,
+   * an offset specifies a distance of the corresponding side of the
+   * widget with respect to the corresponding side of the reference
+   * parent widget. Thus, setting all offsets to 0 result in a widget
+   * that spans the entire reference widget. The reference parent
+   * widget is the first ancestor widget that is a table cell, or a
+   * widget with a relative, absolute or fixed position scheme.
+   *
+   * For an \link Wt::Fixed fixed positioned\endlink widget, an offset
+   * specifies a distance of the corresponding side of the widget with
+   * respect to the browser window, regardless of scrolling. Thus,
    * setting all offsets to 0 result in a widget that spans the entire
-   * reference widget. The reference parent widget is the first
-   * ancestor widget that is a table cell, or a widget with a relative,
-   * absolute or fixed position scheme.
-   *
-   * For an fixed positioned widget, an offset specifies a distance of
-   * the corresponding side of the widget with respect to the browser
-   * window, regardless of scrolling. Thus, setting all offsets to 0
-   * result in a widget that spans the entire browser window.
+   * browser window.
    *
    * This applies to CSS-based layout.
    *
@@ -170,7 +169,7 @@ public:
    *
    * When inserted in a layout manager, the widget may be informed
    * about its current size using setLayoutSizeAware(). If you have
-   * defined a "wtResize()" JavaScript method for the widget, then
+   * defined a <tt>"wtResize()"</tt> JavaScript method for the widget, then
    * this method will also be called.
    * operation.
    *
@@ -267,12 +266,12 @@ public:
    * Positions this absolutely positioned widget next to another \p
    * widget. Both widgets must be visible.
    *
-   * When \p orientation = Vertical, the widget is displayed below the
+   * When \p orientation = Wt::Vertical, the widget is displayed below the
    * other widget (or above in case there is not enough room
    * below). It is aligned so that the left edges align (or the right
    * edges if there is not enough room to the right).
    *
-   * Conversely, when \p orientation = Horizontal, the widget is
+   * Conversely, when \p orientation = Wt::Horizontal, the widget is
    * displayed to the right of the other widget (or to the left in
    * case there is not enough room to the right). It is aligned so
    * that the top edges align (or the bottom edges if there is not
@@ -294,14 +293,12 @@ public:
 
   /*! \brief Specifies a CSS float side.
    *
-   * This only applies to widgets with a \link Wt::Static Static
-   * \endlink positionScheme().
+   * This only applies to widgets with a Wt::Static positionScheme().
    *
    * This lets the widget float to one of the sides of the parent
    * widget, at the current line. A typical use is to position images
-   * within text. Valid values for Side or \if cpp \link Wt::None None
-   * \endlink \elseif java {javadoclink Side#None None} \endif , \link
-   * Wt::Left Left \endlink or \link Wt::Right Right \endlink.
+   * within text. Valid values for Side or \if cpp Wt::None \elseif
+   * java {javadoclink Side#None None} \endif, Wt::Left or Wt::Right.
    *
    * This applies to CSS-based layout.
    */
@@ -316,8 +313,8 @@ public:
   /*! \brief Sets the sides that should be cleared of floats.
    *
    * This pushes the widget down until it is not surrounded by floats
-   * at the \p sides (which may be a combination of \link Wt::Left
-   * Left\endlink and \link Wt::Right Right\endlink.
+   * at the \p sides (which may be a combination of Wt::Left and
+   * Wt::Right).
    * 
    * This applies to CSS-based layout.
    *
@@ -337,14 +334,11 @@ public:
    * and surrounding widgets. The default margin (with an automatic length)
    * is zero.
    *
-   * Use any combination of \link Wt::Left Left \endlink,
-   * \link Wt::Right Right \endlink,
-   * \link Wt::Bottom Bottom \endlink,
-   * or \link Wt::Top Top \endlink.
+   * Use any combination of Wt::Left, Wt::Right, Wt::Bottom, or Wt::Top.
    *
    * This applies to CSS-based layout.
    *
-   * \sa margin();
+   * \sa margin()
    */
   virtual void setMargin(const WLength& margin, WFlags<Side> sides = All) = 0;
 
@@ -362,7 +356,7 @@ public:
    *
    * This applies to CSS-based layout.
    *
-   * \sa setMargin();
+   * \sa setMargin()
    */
   virtual WLength margin(Side side) const = 0;
 
@@ -387,10 +381,10 @@ public:
   /*! \brief Sets whether the widget is hidden.
    *
    * Hides or show the widget (including all its descendant widgets).
-   * setHidden(false) will show this widget and all descendant widgets
-   * that are not hidden. A widget is only visible if it and all its
-   * ancestors in the widget tree are visible, which may be checked
-   * using isVisible().
+   * When setting \p hidden = \c false, this widget and all descendant
+   * widgets that are not hidden will be shown. A widget is only
+   * visible if it and all its ancestors in the widget tree are
+   * visible, which may be checked using isVisible().
    *
    * \sa hide(), show()
    */
@@ -465,9 +459,8 @@ public:
    * sibling widget contained within the same parent (including other
    * popup widgets previously added to the container).
    *
-   * This will only have an effect when the widgetis either \link
-   * Wt::Absolute Absolute \endlink or \link Wt::Fixed Fixed \endlink
-   * positionScheme().
+   * This will only have an effect when the widgetis either
+   * Wt::Absolute or Wt::Fixed positionScheme().
    *
    * This applies to CSS-based layout, and configures the z-index
    * property.
@@ -643,12 +636,12 @@ public:
    * to the DOM object that implements this widget. The value may be any
    * JavaScript expression, including a function.
    *
-   * Members that start with "wt" are reserved for internal use. You
-   * may define a member "wtResize(self, width, height)" method if
-   * your widget needs active layout management. If defined, this
-   * method will be used by layout managers and when doing resize() to
-   * set the size of the widget, instead of setting the CSS width and height
-   * properties.
+   * Members that start with <tt>"wt"</tt> are reserved for internal
+   * use. You may define a member <tt>"wtResize(self, width,
+   * height)"</tt> method if your widget needs active layout
+   * management. If defined, this method will be used by layout
+   * managers and when doing resize() to set the size of the widget,
+   * instead of setting the CSS width and height properties.
    */
   virtual void setJavaScriptMember(const std::string& name,
 				   const std::string& value) = 0;
@@ -845,10 +838,10 @@ protected:
    * CSS height (and if needed, width) properties of the DOM element
    * corresponding to the widget.
    *
-   * A widget may define a JavaScript method, "wtResize(self, width,
-   * height)", to actively manage its client-side width and height, if
-   * it wants to react to these client-side size hints in a custom way
-   * (see setJavaScriptMember()).
+   * A widget may define a JavaScript method, <tt>"wtResize(self,
+   * width, height)"</tt>, to actively manage its client-side width
+   * and height, if it wants to react to these client-side size hints
+   * in a custom way (see setJavaScriptMember()).
    *
    * By setting \p sizeAware to true, the widget will propagate the
    * width and height provided by the layout manager to the virtual

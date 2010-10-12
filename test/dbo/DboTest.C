@@ -267,6 +267,8 @@ void DboTest::setup()
   session_->mapClass<D>(SCHEMA "table_d");
 
   session_->createTables();
+
+  Wt::registerType<Coordinate>();
 }
 
 void DboTest::teardown()
@@ -770,6 +772,9 @@ void DboTest::test10()
       dbo::Transaction t(*session_);
 
       dbo::ptr<D> d(new D());
+
+      BOOST_REQUIRE(Wt::asString(boost::any(Coordinate(10, 4)))
+		    == "(10, 4)");
 
       d.modify()->id = Coordinate(42, 43);
       d.modify()->name = "Object @ (42, 43)";

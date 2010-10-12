@@ -56,6 +56,7 @@ SUBDIRS(
   treelist
   treeview
   treeview-dragdrop
+  webgl
   wt-homepage
   wtwithqt
   widgetgallery

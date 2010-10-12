@@ -115,7 +115,6 @@ WT_DECLARE_WT_MEMBER
 
      if (!doit)
        return true;
-     else
 
      widget.dirty = null;
 

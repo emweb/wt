@@ -85,8 +85,8 @@ WT_DECLARE_WT_MEMBER
      h -= t.offsetHeight + 8; // 8 = body padding
      if (h > 0) {
        c.style.height = h + 'px';
-       if (APP.layoutsAdjust)
-	 APP.layoutsAdjust();
+       if (APP.layouts)
+	 APP.layouts.adjust();
      }
    };
  });

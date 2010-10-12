@@ -10,67 +10,13 @@
 #include <Wt/WObject>
 #include <Wt/WModelIndex>
 #include <Wt/WSignal>
-#include <Wt/WString>
 #include <Wt/WGlobal>
 #include <boost/any.hpp>
+#include <Wt/WBoostAny>
 
 namespace Wt {
 
   class WDropEvent;
-
-  /*! \brief Flags that specify how to match two values.
-   *
-   * Except when MatchExactly, the lexical matching is done (by comparing
-   * string representations of the value with the query). This is by default
-   * case insensitive, unless MatchCaseSensitive is OR'ed.
-   *
-   * \ingroup modelview
-   */
-  enum MatchFlag {
-    MatchExactly = 0x0,       //!< Same type and value
-    MatchStringExactly = 0x1, //!< Lexical match
-    MatchStartsWith = 0x2,    //!< Match start with query
-    MatchEndsWith = 0x3,      //!< Match end with query
-    MatchRegExp = 0x4,        //!< Regular expression match
-    MatchWildCard = 0x5,      //!< Wildcard match
-    MatchCaseSensitive = 0x10,//!< Case sensitive
-    MatchWrap = 0x20          //!< Wrap around whole model
-  };
-
-  W_DECLARE_OPERATORS_FOR_FLAGS(MatchFlag)
-
-  /*! \brief Type part of MatchFlags */
-  static const WFlags<MatchFlag> MatchTypeMask = 
-    MatchExactly | MatchStringExactly | MatchStartsWith | MatchEndsWith |
-    MatchRegExp | MatchWildCard;
-
-  /*! \brief Flags that indicate header options
-   *
-   * \sa WAbstractItemModel::headerFlags()
-   *
-   * \ingroup modelview
-   */
-  enum HeaderFlag {
-    /*! \brief Flag that indicates that the column can be expanded.
-     *
-     * \sa WAbstractItemModel::expandColumn()
-     */
-    ColumnIsCollapsed = 0x1,
-
-    /*! \brief Flag that indicates that the column was expanded to the left.
-     *
-     * \sa WAbstractItemModel::collapseColumn()
-     */
-    ColumnIsExpandedLeft = 0x2,
-
-    /*! \brief Flag that indicates that the column was expanded to the right.
-     *
-     * \sa WAbstractItemModel::collapseColumn()
-     */
-    ColumnIsExpandedRight = 0x4
-  };
-
-  W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)
 
 /*! \class WAbstractItemModel Wt/WAbstractItemModel Wt/WAbstractItemModel
  *  \brief An abstract model for use with %Wt's view classes.
@@ -112,10 +58,9 @@ namespace Wt {
  *  - standard C++ numeric types (int, double, etc...)
  *  - bool
  *
- * The view classes know how to interpret data of these types \link asString()
- * as a string\endlink or \link asNumber() as a number\endlink.
- *
- * For these types, the library knows how to display the data by asString() 
+ * The view classes know how to interpret data of these types \link
+ * Wt::asString() as a string\endlink or \link Wt::asNumber() as a
+ * number\endlink.
  *
  * \elseif java
  *
@@ -941,58 +886,6 @@ private:
 
   friend class WAbstractProxyModel;
 };
-
-extern WT_API std::string asJSLiteral(const boost::any& v,
-				      bool xhtml);
-
-/*! \brief Interpret a boost::any with a standard type as a string value.
- *
- * The conversion works as follows:
- *  - A boost::any without a value is converted to an empty string
- *  - Number values (integers and doubles) are formatted using the
- *    format string with <i>snprintf()</i>, or with
- *    <i>boost::lexical_cast<></i> if the format string is empty.
- *  - Data of type WDate is converted with WDate::toString() using the indicated
- *    format string. If the format string is empty, "dd/MM/yy" is assumed.
- *  - Data of type WTime is converted with WTime::toString() using the indicated
- *    format string. If the format string is emtpy, "HH:mm:ss" is assumed.
- *  - Data of type WDateTime is converted with WDateTime::toString() using the
- *    indicated format string. If the format string is empty,
- *    "dd/MM/yy HH:mm:ss" is assumed.
- *
- * \relates WAbstractItemModel
- */
-#ifdef DOXYGEN_ONLY
-extern WString asString(const boost::any& v,
-			const WT_USTRING& formatString = WT_USTRING());
-#else
-extern WT_API WString asString(const boost::any& v,
-			       const WT_USTRING& formatString = WT_USTRING());
-#endif
-
-/*! \brief Interpret a boost::any with a standard type as a number value.
- *
- * - A boost::any without a value, or a string that does not represent a
- * number, is converted to a <i>NaN</i>.
- * - A string is lexically casted to a double
- * - Data of type WDate is converted to an integer number using
- * WDate::toJulianDay().
- * - Data of type WDateTime is converted to an integer number using
- * WDateTime::toTime_t().
- * - Data of type WTime is converted to an integer number as the number of
- * milliseconds since midnight.
- *
- * \relates WAbstractItemModel
- */
-#ifdef DOXYGEN_ONLY
-extern double asNumber(const boost::any& v);
-#else
-extern WT_API double asNumber(const boost::any& v);
-#endif // DOXYGEN_ONLY
-
-extern WT_API int compare(const boost::any& d1, const boost::any& d2);
-
-extern WT_API boost::any updateFromJS(const boost::any& v, std::string s);
 
 }
 

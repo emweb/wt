@@ -146,7 +146,8 @@ void ComboBox::setCurrentIndex(int index)
 
     if (isRendered())
       addUpdateJS(elVar() + ".setValue("
-		  + asJSLiteral(v, model_->flags(modelIndex) & ItemIsXHTMLText)
+		  + Wt::Impl::asJSLiteral(v, model_->flags(modelIndex)
+					  & ItemIsXHTMLText)
 		  + ");");
 
     lineEdit()->setText(asString(v));

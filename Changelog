@@ -1,3 +1,7 @@
+12-10-2010:
+	* WBoostAny: support for other types in boost::any for standard
+	views
+
 11-10-2010:
 	* Dbo/WtSqlTraits, Dbo/backends: added support for WTime
 

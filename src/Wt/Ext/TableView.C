@@ -397,7 +397,8 @@ void TableView::onEdit(std::string field, int rowId, std::string value)
 
   try {
     int col = boost::lexical_cast<int>(field.substr(1));
-    model_->setData(row, col, updateFromJS(model_->data(row, col), value));
+    model_->setData(row, col,
+		    Wt::Impl::updateFromJS(model_->data(row, col), value));
   } catch (boost::bad_lexical_cast& e) {
     wApp->log("error") << "Internal error reading field name '" << field << "'";
   }
@@ -508,7 +509,7 @@ void TableView::createConfig(std::ostream& config)
     if (i != 0)
       config << ',';
     config << "{id:'c" << i << "',header:"
-	   << asJSLiteral(model_->headerData(i), false);
+	   << Wt::Impl::asJSLiteral(model_->headerData(i), false);
 
     ColumnMap::const_iterator k = columnInfo_.find(i);
     if (k != columnInfo_.end()) {

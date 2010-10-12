@@ -796,7 +796,7 @@ int WStandardItem::compare(const WStandardItem& other) const
   boost::any d1 = data(role);
   boost::any d2 = other.data(role);
 
-  return Wt::compare(d1, d2);
+  return Wt::Impl::compare(d1, d2);
 }
 
 void WStandardItem::recursiveSortChildren(int column, SortOrder order)

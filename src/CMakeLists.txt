@@ -58,6 +58,7 @@ Wt/WAggregateProxyModel.C
 Wt/WAnchor.C
 Wt/WApplication.C
 Wt/WBatchEditProxyModel.C
+Wt/WBoostAny.C
 Wt/WBorder.C
 Wt/WBorderLayout.C
 Wt/WBoxLayout.C
@@ -191,6 +192,7 @@ Wt/WVectorImage.C
 Wt/WVmlImage.C
 Wt/WViewWidget.C
 Wt/WVirtualImage.C
+Wt/WGLWidget.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C

@@ -362,7 +362,7 @@ bool WSortFilterProxyModel::lessThan(const WModelIndex& lhs,
 int WSortFilterProxyModel::compare(const WModelIndex& lhs,
 				   const WModelIndex& rhs) const
 {
-  return Wt::compare(lhs.data(sortRole_), rhs.data(sortRole_));
+  return Wt::Impl::compare(lhs.data(sortRole_), rhs.data(sortRole_));
 }
 
 int WSortFilterProxyModel::columnCount(const WModelIndex& parent) const

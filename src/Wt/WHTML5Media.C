@@ -17,6 +17,8 @@
 #include "js/WHTML5Media.min.js"
 #endif
 
+#include <boost/algorithm/string.hpp>
+
 using namespace Wt;
 const char *WHTML5Media::PLAYBACKSTARTED_SIGNAL = "play";
 const char *WHTML5Media::PLAYBACKPAUSED_SIGNAL = "pause";
@@ -35,6 +37,7 @@ WHTML5Media::WHTML5Media(WContainerWidget *parent):
   sourcesChanged_(false)
 {
   setInline(false);
+  setFormObject(true);
 
   WApplication *app = wApp;
   const char *THIS_JS = "js/WHTML5Media.js";
@@ -84,6 +87,35 @@ EventSignal<>& WHTML5Media::timeUpdated()
 EventSignal<>& WHTML5Media::volumeChanged()
 {
   return *voidEventSignal(VOLUMECHANGED_SIGNAL, true);
+}
+
+void WHTML5Media::setFormData(const FormData& formData)
+{
+  if (formData.values.size() == 1) {
+    std::vector<std::string> attributes;
+    boost::split(attributes, formData.values[0], boost::is_any_of(";"));
+    if (attributes.size() == 5) {
+      bool bad = false;
+      double volume, current, duration;
+      bool paused, ended;
+      try {
+        volume = boost::lexical_cast<float>(attributes[0]);
+        current = boost::lexical_cast<double>(attributes[1]);
+        duration = boost::lexical_cast<double>(attributes[2]);
+        paused = (attributes[3] == "1");
+        ended = (attributes[4] == "1");
+      } catch (boost::bad_lexical_cast &e) {
+        bad = true;
+      }
+      if (!bad) {
+        //volume_ = volume;
+        //currentTime_ = current;
+        //duration_ = duration;
+        //paused_ = paused;
+        //ended_ = ended;
+      }
+    }
+  }
 }
 
 void WHTML5Media::play()
@@ -295,7 +327,7 @@ void WHTML5Media::getDomChanges(std::vector<DomElement *>& result,
   WInteractWidget::getDomChanges(result, app);
 }
 
-void WHTML5Media::setOptions(const WFlags<WHTML5Media::Options> &flags)
+void WHTML5Media::setOptions(const WFlags<Options> &flags)
 {
   flags_ = flags;
   flagsChanged_ = true;
