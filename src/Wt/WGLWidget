@@ -8,6 +8,7 @@
 #define WGLWIDGET_H_
 
 #include "Wt/WWebWidget"
+#include <boost/type_traits/is_enum.hpp>
 
 namespace Wt {
 
@@ -16,8 +17,9 @@ typedef std::string Program;
 typedef std::string AttribLocation;
 typedef std::string Buffer;
 typedef std::string UniformLocation;
+typedef std::string Texture;
 
-#define GLDEBUG do {js_ << "\n";} while(false)
+#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) alert('error: ' + err);}";} while(false)
 
 // Incomplete implementation of the new webgl standard. This is to be
 // considered as a technology preview, and we welcome comments regarding
@@ -38,6 +40,11 @@ public:
   virtual void resizeGL(int width, int height);
   virtual void initializeGL();
   
+  // Sometimes, OpenGL is a bit ugly. These values belong in multiple
+  // enums
+  enum {ZERO = 0,
+        UNSIGNED_BYTE = 0x1401};
+  
   enum ClearBufferEnum {
     DEPTH_BUFFER_BIT               = 0x00000100,
     STENCIL_BUFFER_BIT             = 0x00000400,
@@ -52,50 +59,41 @@ public:
     TRIANGLE_STRIP                 = 0x0005,
     TRIANGLE_FAN                   = 0x0006
   };
-  //enum BlendingFactorDestEnum {
-  ///* BlendingFactorDest */
-  // ZERO                           = 0,
-  // ONE                            = 1,
-  // SRC_COLOR                      = 0x0300,
-  // ONE_MINUS_SRC_COLOR            = 0x0301,
-  // SRC_ALPHA                      = 0x0302,
-  // ONE_MINUS_SRC_ALPHA            = 0x0303,
-  // DST_ALPHA                      = 0x0304,
-  // ONE_MINUS_DST_ALPHA            = 0x0305,
-  //};
-  //enum BlendingFactorSrcEnum {
-  ///* BlendingFactorSrc */
-  //  /*      ZERO */
-  //  /*      ONE */
-  // DST_COLOR                      = 0x0306,
-  // ONE_MINUS_DST_COLOR            = 0x0307,
-  // SRC_ALPHA_SATURATE             = 0x0308,
-  //  /*      SRC_ALPHA */
-  //  /*      ONE_MINUS_SRC_ALPHA */
-  //  /*      DST_ALPHA */
-  //  /*      ONE_MINUS_DST_ALPHA */
-  //};
+  enum BlendingFactorEnum {
+    BF_ZERO                        = 0, // TODO: ok?
+    ONE                            = 1,
+    SRC_COLOR                      = 0x0300,
+    ONE_MINUS_SRC_COLOR            = 0x0301,
+    SRC_ALPHA                      = 0x0302,
+    ONE_MINUS_SRC_ALPHA            = 0x0303,
+    DST_ALPHA                      = 0x0304,
+    ONE_MINUS_DST_ALPHA            = 0x0305,
+    DST_COLOR                      = 0x0306,
+    ONE_MINUS_DST_COLOR            = 0x0307,
+    CONSTANT_COLOR                 = 0x8001,
+    ONE_MINUS_CONSTANT_COLOR       = 0x8002,
+    CONSTANT_ALPHA                 = 0x8003,
+    ONE_MINUS_CONSTANT_ALPHA       = 0x8004,
+    SRC_ALPHA_SATURATE             = 0x0308,
+  };
   
   
-  //enum BlendEquationSeparateEnum {
-  // FUNC_ADD                       = 0x8006,
-  // BLEND_EQUATION                 = 0x8009,
-  // BLEND_EQUATION_RGB             = 0x8009,   /* same as BLEND_EQUATION */
-  // BLEND_EQUATION_ALPHA           = 0x883D,
-  //};
+  enum BlendEquationModeEnum {
+    FUNC_ADD                       = 0x8006,
+    FUNC_SUBTRACT                  = 0x800A,
+    FUNC_REVERSE_SUBTRACT          = 0x800B,
+  };
+  // The defines below are for the glGet functions
+  //  BLEND_EQUATION                 = 0x8009,
+  //  BLEND_EQUATION_RGB             = 0x8009,   /* same as BLEND_EQUATION */
+  //  BLEND_EQUATION_ALPHA           = 0x883D,
   //enum BlendSubtractEnum {
-  // FUNC_SUBTRACT                  = 0x800A,
-  // FUNC_REVERSE_SUBTRACT          = 0x800B,
   //};
   //enum SeparateBlendFunctionsEnum {
   // BLEND_DST_RGB                  = 0x80C8,
   // BLEND_SRC_RGB                  = 0x80C9,
   // BLEND_DST_ALPHA                = 0x80CA,
   // BLEND_SRC_ALPHA                = 0x80CB,
-  // CONSTANT_COLOR                 = 0x8001,
-  // ONE_MINUS_CONSTANT_COLOR       = 0x8002,
-  // CONSTANT_ALPHA                 = 0x8003,
-  // ONE_MINUS_CONSTANT_ALPHA       = 0x8004,
   // BLEND_COLOR                    = 0x8005,
   //};
   
@@ -117,11 +115,11 @@ public:
 
   //CURRENT_VERTEX_ATTRIB          = 0x8626,
 
-  //enum CullFaceModeEnum {
-  //  FRONT                          = 0x0404,
-  //  BACK                           = 0x0405,
-  //  FRONT_AND_BACK                 = 0x0408
-  //};
+  enum CullFaceModeEnum {
+    FRONT                          = 0x0404,
+    BACK                           = 0x0405,
+    FRONT_AND_BACK                 = 0x0408
+  };
 
   enum EnableCapEnum {
     CULL_FACE                      = 0x0B44,
@@ -142,60 +140,63 @@ public:
   // INVALID_OPERATION              = 0x0502,
   // OUT_OF_MEMORY                  = 0x0505,
     
-  //  /* FrontFaceDirection */
-  // CW                             = 0x0900,
-  // CCW                            = 0x0901,
+  enum FrontFaceDirectionEnum {
+    CW                             = 0x0900,
+    CCW                            = 0x0901,
+  };
     
-  //  /* GetPName */
-  // LINE_WIDTH                     = 0x0B21,
-  // ALIASED_POINT_SIZE_RANGE       = 0x846D,
-  // ALIASED_LINE_WIDTH_RANGE       = 0x846E,
-  // CULL_FACE_MODE                 = 0x0B45,
-  // FRONT_FACE                     = 0x0B46,
-  // DEPTH_RANGE                    = 0x0B70,
-  // DEPTH_WRITEMASK                = 0x0B72,
-  // DEPTH_CLEAR_VALUE              = 0x0B73,
-  // DEPTH_FUNC                     = 0x0B74,
-  // STENCIL_CLEAR_VALUE            = 0x0B91,
-  // STENCIL_FUNC                   = 0x0B92,
-  // STENCIL_FAIL                   = 0x0B94,
-  // STENCIL_PASS_DEPTH_FAIL        = 0x0B95,
-  // STENCIL_PASS_DEPTH_PASS        = 0x0B96,
-  // STENCIL_REF                    = 0x0B97,
-  // STENCIL_VALUE_MASK             = 0x0B93,
-  // STENCIL_WRITEMASK              = 0x0B98,
-  // STENCIL_BACK_FUNC              = 0x8800,
-  // STENCIL_BACK_FAIL              = 0x8801,
-  // STENCIL_BACK_PASS_DEPTH_FAIL   = 0x8802,
-  // STENCIL_BACK_PASS_DEPTH_PASS   = 0x8803,
-  // STENCIL_BACK_REF               = 0x8CA3,
-  // STENCIL_BACK_VALUE_MASK        = 0x8CA4,
-  // STENCIL_BACK_WRITEMASK         = 0x8CA5,
-  // VIEWPORT                       = 0x0BA2,
-  // SCISSOR_BOX                    = 0x0C10,
-  //  /*      SCISSOR_TEST */
-  // COLOR_CLEAR_VALUE              = 0x0C22,
-  // COLOR_WRITEMASK                = 0x0C23,
-  // UNPACK_ALIGNMENT               = 0x0CF5,
-  // PACK_ALIGNMENT                 = 0x0D05,
-  // MAX_TEXTURE_SIZE               = 0x0D33,
-  // MAX_VIEWPORT_DIMS              = 0x0D3A,
-  // SUBPIXEL_BITS                  = 0x0D50,
-  // RED_BITS                       = 0x0D52,
-  // GREEN_BITS                     = 0x0D53,
-  // BLUE_BITS                      = 0x0D54,
-  // ALPHA_BITS                     = 0x0D55,
-  // DEPTH_BITS                     = 0x0D56,
-  // STENCIL_BITS                   = 0x0D57,
-  // POLYGON_OFFSET_UNITS           = 0x2A00,
-  //  /*      POLYGON_OFFSET_FILL */
-  // POLYGON_OFFSET_FACTOR          = 0x8038,
-  // TEXTURE_BINDING_2D             = 0x8069,
-  // SAMPLE_BUFFERS                 = 0x80A8,
-  // SAMPLES                        = 0x80A9,
-  // SAMPLE_COVERAGE_VALUE          = 0x80AA,
-  // SAMPLE_COVERAGE_INVERT         = 0x80AB,
-    
+  enum ParameterEnum {
+    LINE_WIDTH                     = 0x0B21,
+    ALIASED_POINT_SIZE_RANGE       = 0x846D,
+    ALIASED_LINE_WIDTH_RANGE       = 0x846E,
+    CULL_FACE_MODE                 = 0x0B45,
+    FRONT_FACE                     = 0x0B46,
+    DEPTH_RANGE                    = 0x0B70,
+    DEPTH_WRITEMASK                = 0x0B72,
+    DEPTH_CLEAR_VALUE              = 0x0B73,
+    DEPTH_FUNC                     = 0x0B74,
+    STENCIL_CLEAR_VALUE            = 0x0B91,
+    STENCIL_FUNC                   = 0x0B92,
+    STENCIL_FAIL                   = 0x0B94,
+    STENCIL_PASS_DEPTH_FAIL        = 0x0B95,
+    STENCIL_PASS_DEPTH_PASS        = 0x0B96,
+    STENCIL_REF                    = 0x0B97,
+    STENCIL_VALUE_MASK             = 0x0B93,
+    STENCIL_WRITEMASK              = 0x0B98,
+    STENCIL_BACK_FUNC              = 0x8800,
+    STENCIL_BACK_FAIL              = 0x8801,
+    STENCIL_BACK_PASS_DEPTH_FAIL   = 0x8802,
+    STENCIL_BACK_PASS_DEPTH_PASS   = 0x8803,
+    STENCIL_BACK_REF               = 0x8CA3,
+    STENCIL_BACK_VALUE_MASK        = 0x8CA4,
+    STENCIL_BACK_WRITEMASK         = 0x8CA5,
+    VIEWPORT                       = 0x0BA2,
+    SCISSOR_BOX                    = 0x0C10,
+     /*      SCISSOR_TEST */
+    COLOR_CLEAR_VALUE              = 0x0C22,
+    COLOR_WRITEMASK                = 0x0C23,
+    UNPACK_ALIGNMENT               = 0x0CF5,
+    UNPACK_FLIP_Y_WEBGL            = 0x9240,
+    UNPACK_PREMULTIPLY_ALPHA_WEBGL = 0x9241,
+    PACK_ALIGNMENT                 = 0x0D05,
+    MAX_TEXTURE_SIZE               = 0x0D33,
+    MAX_VIEWPORT_DIMS              = 0x0D3A,
+    SUBPIXEL_BITS                  = 0x0D50,
+    RED_BITS                       = 0x0D52,
+    GREEN_BITS                     = 0x0D53,
+    BLUE_BITS                      = 0x0D54,
+    ALPHA_BITS                     = 0x0D55,
+    DEPTH_BITS                     = 0x0D56,
+    STENCIL_BITS                   = 0x0D57,
+    POLYGON_OFFSET_UNITS           = 0x2A00,
+     /*      POLYGON_OFFSET_FILL */
+    POLYGON_OFFSET_FACTOR          = 0x8038,
+    TEXTURE_BINDING_2D             = 0x8069,
+    SAMPLE_BUFFERS                 = 0x80A8,
+    SAMPLES                        = 0x80A9,
+    SAMPLE_COVERAGE_VALUE          = 0x80AA,
+    SAMPLE_COVERAGE_INVERT         = 0x80AB,
+  };
   //  /* GetTextureParameter */
   //  /*      TEXTURE_MAG_FILTER */
   //  /*      TEXTURE_MIN_FILTER */
@@ -205,17 +206,18 @@ public:
   // NUM_COMPRESSED_TEXTURE_FORMATS = 0x86A2,
   // COMPRESSED_TEXTURE_FORMATS     = 0x86A3,
     
-  //  /* HintMode */
-  // DONT_CARE                      = 0x1100,
-  // FASTEST                        = 0x1101,
-  // NICEST                         = 0x1102,
-    
-  //  /* HintTarget */
-  // GENERATE_MIPMAP_HINT            = 0x8192,
+  enum HintModeEnum {
+    DONT_CARE                      = 0x1100,
+    FASTEST                        = 0x1101,
+    NICEST                         = 0x1102,
+  };
+  enum HintTargetEnum {
+    GENERATE_MIPMAP_HINT            = 0x8192,
+  };
 
   enum DataTypeEnum {
     BYTE                           = 0x1400,
-    UNSIGNED_BYTE                  = 0x1401,
+    DT_UNSIGNED_BYTE               = 0x1401, // TODO: ok?
     SHORT                          = 0x1402,
     UNSIGNED_SHORT                 = 0x1403,
     INT                            = 0x1404,
@@ -223,19 +225,21 @@ public:
     FLOAT                          = 0x1406
   };
   
-  ///* PixelFormat */
-  // DEPTH_COMPONENT                = 0x1902,
-  // ALPHA                          = 0x1906,
-  // RGB                            = 0x1907,
-  // RGBA                           = 0x1908,
-  // LUMINANCE                      = 0x1909,
-  // LUMINANCE_ALPHA                = 0x190A,
-  //  
-  //  /* PixelType */
-  //  /*      UNSIGNED_BYTE */
-  // UNSIGNED_SHORT_4_4_4_4         = 0x8033,
-  // UNSIGNED_SHORT_5_5_5_1         = 0x8034,
-  // UNSIGNED_SHORT_5_6_5           = 0x8363,
+  enum PixelFormatEnum {
+    DEPTH_COMPONENT                = 0x1902,
+    ALPHA                          = 0x1906,
+    RGB                            = 0x1907,
+    RGBA                           = 0x1908,
+    LUMINANCE                      = 0x1909,
+    LUMINANCE_ALPHA                = 0x190A,
+  };
+
+  enum PixelTypeEnum {
+    PT_UNSIGNED_BYTE                  = 0x1401, // TODO: ok?
+    UNSIGNED_SHORT_4_4_4_4         = 0x8033,
+    UNSIGNED_SHORT_5_5_5_1         = 0x8034,
+    UNSIGNED_SHORT_5_6_5           = 0x8363,
+  };
 
   enum ShaderEnum {
     FRAGMENT_SHADER                = 0x8B30,
@@ -272,93 +276,93 @@ public:
   };
   
   
-  ///* StencilOp */
-  //  /*      ZERO */
-  // KEEP                           = 0x1E00,
-  // REPLACE                        = 0x1E01,
-  // INCR                           = 0x1E02,
-  // DECR                           = 0x1E03,
-  // INVERT                         = 0x150A,
-  // INCR_WRAP                      = 0x8507,
-  // DECR_WRAP                      = 0x8508,
-    
+  enum StencilOpEnum {
+    SO_ZERO                        = 0,    // TODO: Ok?
+    KEEP                           = 0x1E00,
+    REPLACE                        = 0x1E01,
+    INCR                           = 0x1E02,
+    DECR                           = 0x1E03,
+    INVERT                         = 0x150A,
+    INCR_WRAP                      = 0x8507,
+    DECR_WRAP                      = 0x8508,
+  };
   //  /* StringName */
   // VENDOR                         = 0x1F00,
   // RENDERER                       = 0x1F01,
   // VERSION                        = 0x1F02,
     
-  //  /* TextureMagFilter */
-  // NEAREST                        = 0x2600,
-  // LINEAR                         = 0x2601,
+  enum TextureFilterEnum {
+    NEAREST                        = 0x2600,
+    LINEAR                         = 0x2601,
+    NEAREST_MIPMAP_NEAREST         = 0x2700,
+    LINEAR_MIPMAP_NEAREST          = 0x2701,
+    NEAREST_MIPMAP_LINEAR          = 0x2702,
+    LINEAR_MIPMAP_LINEAR           = 0x2703,
+  };
+
+  enum TextureParameterNameEnum {
+    TEXTURE_MAG_FILTER             = 0x2800,
+    TEXTURE_MIN_FILTER             = 0x2801,
+    TEXTURE_WRAP_S                 = 0x2802,
+    TEXTURE_WRAP_T                 = 0x2803,
+  };
+  enum TextureTargetEnum {
+    TEXTURE_2D                     = 0x0DE1,
+    TEXTURE                        = 0x1702,
+
+    TEXTURE_CUBE_MAP               = 0x8513,
+    TEXTURE_BINDING_CUBE_MAP       = 0x8514,
+    TEXTURE_CUBE_MAP_POSITIVE_X    = 0x8515,
+    TEXTURE_CUBE_MAP_NEGATIVE_X    = 0x8516,
+    TEXTURE_CUBE_MAP_POSITIVE_Y    = 0x8517,
+    TEXTURE_CUBE_MAP_NEGATIVE_Y    = 0x8518,
+    TEXTURE_CUBE_MAP_POSITIVE_Z    = 0x8519,
+    TEXTURE_CUBE_MAP_NEGATIVE_Z    = 0x851A,
+    MAX_CUBE_MAP_TEXTURE_SIZE      = 0x851C,
+  };
+
+  enum TextureUnitEnum {
+    TEXTURE0                       = 0x84C0,
+    TEXTURE1                       = 0x84C1,
+    TEXTURE2                       = 0x84C2,
+    TEXTURE3                       = 0x84C3,
+    TEXTURE4                       = 0x84C4,
+    TEXTURE5                       = 0x84C5,
+    TEXTURE6                       = 0x84C6,
+    TEXTURE7                       = 0x84C7,
+    TEXTURE8                       = 0x84C8,
+    TEXTURE9                       = 0x84C9,
+    TEXTURE10                      = 0x84CA,
+    TEXTURE11                      = 0x84CB,
+    TEXTURE12                      = 0x84CC,
+    TEXTURE13                      = 0x84CD,
+    TEXTURE14                      = 0x84CE,
+    TEXTURE15                      = 0x84CF,
+    TEXTURE16                      = 0x84D0,
+    TEXTURE17                      = 0x84D1,
+    TEXTURE18                      = 0x84D2,
+    TEXTURE19                      = 0x84D3,
+    TEXTURE20                      = 0x84D4,
+    TEXTURE21                      = 0x84D5,
+    TEXTURE22                      = 0x84D6,
+    TEXTURE23                      = 0x84D7,
+    TEXTURE24                      = 0x84D8,
+    TEXTURE25                      = 0x84D9,
+    TEXTURE26                      = 0x84DA,
+    TEXTURE27                      = 0x84DB,
+    TEXTURE28                      = 0x84DC,
+    TEXTURE29                      = 0x84DD,
+    TEXTURE30                      = 0x84DE,
+    TEXTURE31                      = 0x84DF,
+  };
+  //ACTIVE_TEXTURE                 = 0x84E0,
     
-  //  /* TextureMinFilter */
-  //  /*      NEAREST */
-  //  /*      LINEAR */
-  // NEAREST_MIPMAP_NEAREST         = 0x2700,
-  // LINEAR_MIPMAP_NEAREST          = 0x2701,
-  // NEAREST_MIPMAP_LINEAR          = 0x2702,
-  // LINEAR_MIPMAP_LINEAR           = 0x2703,
-    
-  //  /* TextureParameterName */
-  // TEXTURE_MAG_FILTER             = 0x2800,
-  // TEXTURE_MIN_FILTER             = 0x2801,
-  // TEXTURE_WRAP_S                 = 0x2802,
-  // TEXTURE_WRAP_T                 = 0x2803,
-    
-  //  /* TextureTarget */
-  // TEXTURE_2D                     = 0x0DE1,
-  // TEXTURE                        = 0x1702,
-    
-  // TEXTURE_CUBE_MAP               = 0x8513,
-  // TEXTURE_BINDING_CUBE_MAP       = 0x8514,
-  // TEXTURE_CUBE_MAP_POSITIVE_X    = 0x8515,
-  // TEXTURE_CUBE_MAP_NEGATIVE_X    = 0x8516,
-  // TEXTURE_CUBE_MAP_POSITIVE_Y    = 0x8517,
-  // TEXTURE_CUBE_MAP_NEGATIVE_Y    = 0x8518,
-  // TEXTURE_CUBE_MAP_POSITIVE_Z    = 0x8519,
-  // TEXTURE_CUBE_MAP_NEGATIVE_Z    = 0x851A,
-  // MAX_CUBE_MAP_TEXTURE_SIZE      = 0x851C,
-    
-  //  /* TextureUnit */
-  // TEXTURE0                       = 0x84C0,
-  // TEXTURE1                       = 0x84C1,
-  // TEXTURE2                       = 0x84C2,
-  // TEXTURE3                       = 0x84C3,
-  // TEXTURE4                       = 0x84C4,
-  // TEXTURE5                       = 0x84C5,
-  // TEXTURE6                       = 0x84C6,
-  // TEXTURE7                       = 0x84C7,
-  // TEXTURE8                       = 0x84C8,
-  // TEXTURE9                       = 0x84C9,
-  // TEXTURE10                      = 0x84CA,
-  // TEXTURE11                      = 0x84CB,
-  // TEXTURE12                      = 0x84CC,
-  // TEXTURE13                      = 0x84CD,
-  // TEXTURE14                      = 0x84CE,
-  // TEXTURE15                      = 0x84CF,
-  // TEXTURE16                      = 0x84D0,
-  // TEXTURE17                      = 0x84D1,
-  // TEXTURE18                      = 0x84D2,
-  // TEXTURE19                      = 0x84D3,
-  // TEXTURE20                      = 0x84D4,
-  // TEXTURE21                      = 0x84D5,
-  // TEXTURE22                      = 0x84D6,
-  // TEXTURE23                      = 0x84D7,
-  // TEXTURE24                      = 0x84D8,
-  // TEXTURE25                      = 0x84D9,
-  // TEXTURE26                      = 0x84DA,
-  // TEXTURE27                      = 0x84DB,
-  // TEXTURE28                      = 0x84DC,
-  // TEXTURE29                      = 0x84DD,
-  // TEXTURE30                      = 0x84DE,
-  // TEXTURE31                      = 0x84DF,
-  // ACTIVE_TEXTURE                 = 0x84E0,
-    
-  //  /* TextureWrapMode */
-  // REPEAT                         = 0x2901,
-  // CLAMP_TO_EDGE                  = 0x812F,
-  // MIRRORED_REPEAT                = 0x8370,
-    
+  enum TextureWrapModeEnum {
+    REPEAT                         = 0x2901,
+    CLAMP_TO_EDGE                  = 0x812F,
+    MIRRORED_REPEAT                = 0x8370,
+  };
+
   //  /* Uniform Types */
   // FLOAT_VEC2                     = 0x8B50,
   // FLOAT_VEC3                     = 0x8B51,
@@ -449,8 +453,6 @@ public:
   // INVALID_FRAMEBUFFER_OPERATION  = 0x0506,
     
   //  /* WebGL-specific enums */
-  // UNPACK_FLIP_Y_WEBGL            = 0x9240,
-  // UNPACK_PREMULTIPLY_ALPHA_WEBGL = 0x9241,
   // CONTEXT_LOST_WEBGL             = 0x9242,
   // UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243,
   // BROWSER_DEFAULT_WEBGL          = 0x9244,
@@ -458,19 +460,19 @@ public:
 
   
   
-  //void activeTexture(GLenum texture);
+  void activeTexture(TextureUnitEnum texture);
   void attachShader(Program program, Shader shader);
-  //void bindAttribLocation(WebGLProgram program, GLuint index, DOMString name);
+  void bindAttribLocation(Program program, unsigned index, const std::string &name);
   void bindBuffer(BufferEnum target, Buffer buffer);
   //void bindFramebuffer(GLenum target, WebGLFramebuffer framebuffer);
   //void bindRenderbuffer(GLenum target, WebGLRenderbuffer renderbuffer);
-  //void bindTexture(GLenum target, WebGLTexture texture);
-  //void blendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-  //void blendEquation(GLenum mode);
-  //void blendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
-  //void blendFunc(GLenum sfactor, GLenum dfactor);
-  //void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, 
-  //                       GLenum srcAlpha, GLenum dstAlpha);
+  void bindTexture(TextureTargetEnum target, Texture texture);
+  void blendColor(double red, double green, double blue, double alpha);
+  void blendEquation(BlendEquationModeEnum mode);
+  void blendEquationSeparate(BlendEquationModeEnum modeRGB, BlendEquationModeEnum modeAlpha);
+  void blendFunc(BlendingFactorEnum sfactor, BlendingFactorEnum dfactor);
+  void blendFuncSeparate(BlendingFactorEnum srcRGB, BlendingFactorEnum dstRGB, 
+                         BlendingFactorEnum srcAlpha, BlendingFactorEnum dstAlpha);
 
   // Unlike the C version, we can't accept a void * here. We must be able
   // to interpret the buffer's data in order to transmit it to the JS side.
@@ -486,62 +488,85 @@ public:
   }
 
   template<typename Array>
-  void bufferDataiv(BufferEnum target, const Array *values, unsigned size, BufferUsageEnum usage) {
+  void bufferDataiv(BufferEnum target, const Array *values, unsigned size,
+                    BufferUsageEnum usage, DataTypeEnum type)
+  {
     js_ << "ctx.bufferData(" << toString(target) << ",";
-    renderiv(values, size);
+    renderiv(values, size, type);
     js_ << ","<< toString(usage) << ");";
     GLDEBUG;
   }
 
-  //void bufferSubData(GLenum target, GLsizeiptr offset, ArrayBufferView data);
-  //void bufferSubData(GLenum target, GLsizeiptr offset, ArrayBuffer data);
+  template<typename Array>
+  void bufferSubDatafv(BufferEnum target, unsigned offset, const Array *values, unsigned size)
+  {
+    js_ << "ctx.bufferSubData(" << toString(target) << "," << offset << ",";
+    renderfv(values, size);
+    js_ << ");";
+    GLDEBUG;
+  }
+
+  template<typename Array>
+  void bufferSubDataiv(BufferEnum target, unsigned offset, const Array *values, unsigned size)
+  {
+    js_ << "ctx.bufferSubData(" << toString(target) << "," << offset << ",";
+    renderiv(values, size, type);
+    js_ << ");";
+    GLDEBUG;
+  }
+
 
   //GLenum checkFramebufferStatus(GLenum target);
   void clear(WFlags<ClearBufferEnum> mask);
-  void clearColor(float r, float g, float b, float a);
-  void clearDepth(float depth);
-  //void clearStencil(GLint s);
-  //void colorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+  void clearColor(double r, double g, double b, double a);
+  void clearDepth(double depth);
+  void clearStencil(int s);
+  void colorMask(bool red, bool green, bool blue, bool alpha);
   void compileShader(Shader shader);
-  //void copyTexImage2D(GLenum target, GLint level, GLenum internalformat, 
-  //                    GLint x, GLint y, GLsizei width, GLsizei height, 
-  //                    GLint border);
-  //void copyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
-  //                       GLint x, GLint y, GLsizei width, GLsizei height);
+  void copyTexImage2D(TextureTargetEnum target, int level,
+                      PixelFormatEnum internalformat,
+                      int x, int y,
+                      unsigned width, unsigned height, 
+                      int border);
+  void copyTexSubImage2D(TextureTargetEnum target, int level,
+                         int xoffset, int yoffset,
+                         int x, int y,
+                         unsigned width, unsigned height);
 
   Buffer createBuffer();
   //WebGLFramebuffer createFramebuffer();
   Program createProgram();
   //WebGLRenderbuffer createRenderbuffer();
   Shader createShader(ShaderEnum shader);
-  //WebGLTexture createTexture();
-  //void cullFace(GLenum mode);
+  Texture createTexture();
+  Texture createTextureAndLoad(const std::string &url);
+  void cullFace(CullFaceModeEnum mode);
 
-  //void deleteBuffer(WebGLBuffer buffer);
+  void deleteBuffer(Buffer buffer);
   //void deleteFramebuffer(WebGLFramebuffer framebuffer);
-  //void deleteProgram(WebGLProgram program);
+  void deleteProgram(Program program);
   //void deleteRenderbuffer(WebGLRenderbuffer renderbuffer);
-  //void deleteShader(WebGLShader shader);
-  //void deleteTexture(WebGLTexture texture);
+  void deleteShader(Shader shader);
+  void deleteTexture(Texture texture);
   void depthFunc(StencilFunctionEnum func);
-  //void depthMask(GLboolean flag);
-  //void depthRange(GLclampf zNear, GLclampf zFar);
-  //void detachShader(WebGLProgram program, WebGLShader shader);
+  void depthMask(bool flag);
+  void depthRange(double zNear, double zFar);
+  void detachShader(Program program, Shader shader);
   void disable(EnableCapEnum cap);
   void drawArrays(BeginModeEnum mode, int first, unsigned count);
-  //void drawElements(GLenum mode, GLsizei count, GLenum type, GLsizeiptr offset);
+  void drawElements(BeginModeEnum mode, unsigned count, DataTypeEnum type, unsigned offset);
   void enable(EnableCapEnum cap);
   void enableVertexAttribArray(AttribLocation index);
-  //void finish();
-  //void flush();
+  void finish();
+  void flush();
   //void framebufferRenderbuffer(GLenum target, GLenum attachment, 
   //                             GLenum renderbuffertarget, 
   //                             WebGLRenderbuffer renderbuffer);
   //void framebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, 
   //                          WebGLTexture texture, GLint level);
-  //void frontFace(GLenum mode);
+  void frontFace(FrontFaceDirectionEnum mode);
 
-  //void generateMipmap(GLenum target);
+  void generateMipmap(TextureTargetEnum target);
 
   //WebGLActiveInfo getActiveAttrib(WebGLProgram program, GLuint index);
   //WebGLActiveInfo getActiveUniform(WebGLProgram program, GLuint index);
@@ -572,7 +597,7 @@ public:
 
   //GLsizeiptr getVertexAttribOffset(GLuint index, GLenum pname);
 
-  //void hint(GLenum target, GLenum mode);
+  void hint(HintTargetEnum target, HintModeEnum mode);
   //GLboolean isBuffer(WebGLBuffer buffer);
   //GLboolean isEnabled(GLenum cap);
   //GLboolean isFramebuffer(WebGLFramebuffer framebuffer);
@@ -580,42 +605,47 @@ public:
   //GLboolean isRenderbuffer(WebGLRenderbuffer renderbuffer);
   //GLboolean isShader(WebGLShader shader);
   //GLboolean isTexture(WebGLTexture texture);
-  //void lineWidth(GLfloat width);
+  void lineWidth(double width);
 
   void linkProgram(Program program);
-  //void pixelStorei(GLenum pname, GLint param);
-  //void polygonOffset(GLfloat factor, GLfloat units);
+  void pixelStorei(ParameterEnum pname, int param);
+  void polygonOffset(double factor, double units);
 
   //void readPixels(GLint x, GLint y, GLsizei width, GLsizei height, 
   //                GLenum format, GLenum type, ArrayBufferView pixels);
 
   //void renderbufferStorage(GLenum target, GLenum internalformat, 
   //                         GLsizei width, GLsizei height);
-  //void sampleCoverage(GLclampf value, GLboolean invert);
-  //void scissor(GLint x, GLint y, GLsizei width, GLsizei height);
+  void sampleCoverage(double value, bool invert);
+  void scissor(int x, int y, unsigned width, unsigned height);
 
   void shaderSource(Shader shader, const std::string &src);
-  //void stencilFunc(GLenum func, GLint ref, GLuint mask);
-  //void stencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint mask);
-  //void stencilMask(GLuint mask);
-  //void stencilMaskSeparate(GLenum face, GLuint mask);
-  //void stencilOp(GLenum fail, GLenum zfail, GLenum zpass);
-  //void stencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass);
+  void stencilFunc(StencilFunctionEnum func, int ref, unsigned mask);
+  void stencilFuncSeparate(CullFaceModeEnum face, StencilFunctionEnum func, int ref, unsigned mask);
+  void stencilMask(unsigned mask);
+  void stencilMaskSeparate(CullFaceModeEnum face, unsigned mask);
+  void stencilOp(StencilOpEnum fail, StencilOpEnum zfail, StencilOpEnum zpass);
+  void stencilOpSeparate(CullFaceModeEnum face, StencilOpEnum fail, StencilOpEnum zfail, StencilOpEnum zpass);
 
-  //void texImage2D(GLenum target, GLint level, GLenum internalformat, 
-  //                GLsizei width, GLsizei height, GLint border, GLenum format, 
+  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat, 
+  //                GLsizei width, GLsizei height, GLint border, PixelFormatEnum format, 
   //                GLenum type, ArrayBufferView pixels);
-  //void texImage2D(GLenum target, GLint level, GLenum internalformat,
-  //                GLenum format, GLenum type, ImageData pixels);
-  //void texImage2D(GLenum target, GLint level, GLenum internalformat,
-  //                GLenum format, GLenum type, HTMLImageElement image);
-  //void texImage2D(GLenum target, GLint level, GLenum internalformat,
-  //                GLenum format, GLenum type, HTMLCanvasElement canvas);
-  //void texImage2D(GLenum target, GLint level, GLenum internalformat,
-  //                GLenum format, GLenum type, HTMLVideoElement video);
+  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
+  //                PixelFormatEnum format, GLenum type, ImageData pixels);
+  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
+  //                PixelFormatEnum format, GLenum type, HTMLImageElement image);
+  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
+  //                PixelFormatEnum format, GLenum type, HTMLCanvasElement canvas);
+  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
+  //                PixelFormatEnum format, GLenum type, HTMLVideoElement video);
+  // Overload for textures loaded with createTextureAndLoad()
+  // For use with a Texture created by createTextureAndLoad only!
+  void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
+                  PixelFormatEnum format, PixelTypeEnum type, Texture texture);
 
-  //void texParameterf(GLenum target, GLenum pname, GLfloat param);
-  //void texParameteri(GLenum target, GLenum pname, GLint param);
+  //void texParameterf(TextureTargetEnum target, TextureParameterNameEnum pname, double param);
+  void texParameteri(TextureTargetEnum target, TextureParameterNameEnum pname, TextureWrapModeEnum param);
+  void texParameteri(TextureTargetEnum target, TextureParameterNameEnum pname, TextureFilterEnum param);
 
   //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
   //                   GLsizei width, GLsizei height, 
@@ -650,7 +680,7 @@ public:
   template<typename Array>
   void uniform1iv(UniformLocation location, const Array *value) {
     js_ << "ctx.uniform1iv(" << location << ",";
-    renderiv(value, 1);
+    renderiv(value, 1, INT);
     js_ << ");";
     GLDEBUG;
   }
@@ -679,7 +709,7 @@ public:
   template<typename Array>
   void uniform2iv(UniformLocation location, const Array *value) {
     js_ << "ctx.uniform2iv(" << location << ",";
-    renderiv(value, 2);
+    renderiv(value, 2, INT);
     js_ << ");";
     GLDEBUG;
   }
@@ -710,7 +740,7 @@ public:
   template<typename Array>
   void uniform3iv(UniformLocation location, const Array *value) {
     js_ << "ctx.uniform3iv(" << location << ",";
-    renderiv(value, 3);
+    renderiv(value, 3, INT);
     js_ << ");";
     GLDEBUG;
   }
@@ -742,7 +772,7 @@ public:
   template<typename Array>
   void uniform4iv(UniformLocation location, const Array *value) {
     js_ << "ctx.uniform4iv(" << location << ",";
-    renderiv(value, 4);
+    renderiv(value, 4, INT);
     js_ << ");";
     GLDEBUG;
   }
@@ -836,6 +866,8 @@ private:
   unsigned attributes_;
   unsigned uniforms_;
   unsigned buffers_;
+  unsigned textures_;
+  std::vector<std::pair<std::string, std::string> > preloadImages_;
 
   std::stringstream js_;
 
@@ -850,10 +882,31 @@ private:
   }
 
   template<typename Type>
-  void renderiv(Type *value, unsigned int size)
+  void renderiv(Type *value, unsigned int size, DataTypeEnum type)
   {
+    switch (type) {
+    case BYTE:
+      js_ << "new Int8Array([";
+      break;
+    case UNSIGNED_BYTE:
+      js_ << "new Uint8Array([";
+      break;
+    case SHORT:
+      js_ << "new Int16Array([";
+      break;
+    case UNSIGNED_SHORT:
+      js_ << "new Uint16Array([";
+      break;
+    case INT:
+      js_ << "new Int32Array([";
+      break;
+    default:
+      // Should we warn?
+    case UNSIGNED_INT:
+      js_ << "new Uint32Array([";
+      break;
+    }
     char buf[30];
-    js_ << "new Int32Array([";
     for (unsigned int i = 0; i < size; ++i)
       js_ << makeInt(value[i], buf) << (i == size - 1 ? "" : ",");
     js_ << "])";
@@ -862,12 +915,28 @@ private:
   char *makeFloat(double d, char *buf);
   static char *makeInt(int i, char *buf);
 
+  static const char *toString(BeginModeEnum mode);
+  static const char *toString(BlendingFactorEnum e);
+  static const char *toString(BlendEquationModeEnum e);
   static const char *toString(BufferEnum target);
   static const char *toString(BufferUsageEnum usage);
-  static const char *toString(DataTypeEnum type);
-  static const char *toString(BeginModeEnum mode);
+  static const char *toString(CullFaceModeEnum e);
   static const char *toString(EnableCapEnum cap);
+  static const char *toString(FrontFaceDirectionEnum e);
+  static const char *toString(ParameterEnum e);
+  static const char *toString(HintModeEnum e);
+  static const char *toString(HintTargetEnum e);
+  static const char *toString(DataTypeEnum type);
+  static const char *toString(PixelFormatEnum e);
+  static const char *toString(PixelTypeEnum e);
   static const char *toString(StencilFunctionEnum f);
+  static const char *toString(StencilOpEnum e);
+  static const char *toString(TextureFilterEnum e);
+  static const char *toString(TextureParameterNameEnum e);
+  static const char *toString(TextureTargetEnum e);
+  static const char *toString(TextureUnitEnum e);
+  static const char *toString(TextureWrapModeEnum e);
+
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::ClearBufferEnum)

@@ -1292,6 +1292,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 			     + transientImpl_->removedStyleClasses_[i].toUTF8()
 			     +"');");
 
+#if 0
     if (!transientImpl_->childRemoveChanges_.empty()) {
       element.removeAllChildren();
       for (unsigned i = 0; i < transientImpl_->childRemoveChanges_.size();
@@ -1299,6 +1300,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	delete transientImpl_->childRemoveChanges_[i];
       transientImpl_->childRemoveChanges_.clear();
     }
+#endif
   }
 
   if (all || flags_.test(BIT_SELECTABLE_CHANGED)) {
@@ -1535,15 +1537,19 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
     }
 
     if (transientImpl_) {
+#if 0
       if (!transientImpl_->childRemoveChanges_.empty()) {
 	// Check if not all children were removed, in that case we set
 	// innerHtml to '' in updateDom()
 	if (children_
 	    && (children_->size() != transientImpl_->addedChildren_.size())) {
+#endif
 	  Utils::insert(result, transientImpl_->childRemoveChanges_);
 	  transientImpl_->childRemoveChanges_.clear();
+#if 0
 	}
       }
+#endif
     }
 
     getDomChanges(result, app);
