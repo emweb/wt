@@ -507,7 +507,7 @@ public:
   }
 
   template<typename Array>
-  void bufferSubDataiv(BufferEnum target, unsigned offset, const Array *values, unsigned size)
+  void bufferSubDataiv(BufferEnum target, unsigned offset, const Array *values, unsigned size, DataTypeEnum type)
   {
     js_ << "ctx.bufferSubData(" << toString(target) << "," << offset << ",";
     renderiv(values, size, type);

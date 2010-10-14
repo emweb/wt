@@ -256,7 +256,7 @@ void WTableView::updateTableBackground()
     + "px.gif";
 
   if (ajaxMode())
-    canvas_->decorationStyle().setBackgroundImage(backgroundImage);
+    table_->decorationStyle().setBackgroundImage(backgroundImage);
   else
     // FIXME avoid background on header row ?
     plainTable_->decorationStyle().setBackgroundImage(backgroundImage);	

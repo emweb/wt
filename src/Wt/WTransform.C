@@ -397,7 +397,8 @@ WTransform& WTransform::operator*= (const WTransform& Y)
 
 WTransform WTransform::operator* (const WTransform& rhs) const
 {
-  WTransform result = *this;
+  WTransform result;
+  result = *this;
   return result *= rhs;
 }
 
