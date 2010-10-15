@@ -1179,8 +1179,6 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
 
 std::string WebRenderer::learn(WStatelessSlot* slot)
 {
-  collectJS(&statelessJS_);
-
   if (slot->type() == WStatelessSlot::PreLearnStateless)
     learning_ = true;
 
@@ -1206,6 +1204,8 @@ std::string WebRenderer::learn(WStatelessSlot* slot)
   if (!learningIncomplete_)
     slot->setJavaScript(result);
 
+  collectJS(&statelessJS_);
+
   return result;
 }
 
@@ -1227,7 +1227,10 @@ std::string WebRenderer::headDeclarations() const
       result << "<meta";
 
       if (!m.name.empty()) {
-	result << " name=\"";
+	if (m.type == MetaName)
+	  result << " name=\"";
+	else
+	  result << " http-equiv=\"";
 	result.pushEscape(EscapeOStream::HtmlAttribute);
 	result << m.name;
 	result.popEscape();
@@ -1248,7 +1251,10 @@ std::string WebRenderer::headDeclarations() const
       result.popEscape();
       result << (xhtml ? "\"/>" : "\">");
     }
-  }
+  } else
+    if (session_.env().agentIsIE())
+      result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7"
+	     << (xhtml ? "\"/>" : "\">") << '\n';
 
   if (!session_.favicon().empty())
     result <<

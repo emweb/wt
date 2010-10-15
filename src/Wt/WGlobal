@@ -740,7 +740,7 @@ enum RenderFlag {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RenderFlag)
 
-/*! \brief Flag that specifies how to match two values.
+/*! \brief Flags that specify how to match two values.
  *
  * Except when MatchExactly, the lexical matching is done (by comparing
  * string representations of the value with the query). This is by default
@@ -766,7 +766,7 @@ static const WFlags<MatchFlag> MatchTypeMask =
   MatchExactly | MatchStringExactly | MatchStartsWith | MatchEndsWith |
   MatchRegExp | MatchWildCard;
 
-/*! \brief Flags that indicate header options
+/*! \brief Flags that indicate table header options
  *
  * \sa WAbstractItemModel::headerFlags()
  *
@@ -793,6 +793,15 @@ enum HeaderFlag {
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)
+
+/*! \brief Enumeration that indicates a meta header type.
+ *
+ * \sa WApplication::addMetaHeader()
+ */
+enum MetaHeaderType {
+  MetaName,       //!< A normal meta header defining a document property
+  MetaHttpHeader  //!< A http-equiv meta header defining a HTTP header
+};
 
 }
 

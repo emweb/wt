@@ -243,11 +243,14 @@ void WDialog::setHidden(bool hidden)
 	cover->show();
 	cover->setZIndex(impl_->zIndex() - 1);
 	app->constrainExposed(this);
+
 	// FIXME: this should only blur if the active element is outside
 	// of the dialog
 	app->doJavaScript
-	  ("if (document.activeElement && document.activeElement.blur)"
-	   """document.activeElement.blur();");
+	  ("try {"
+	   """if (document.activeElement && document.activeElement.blur)"
+	   ""  "document.activeElement.blur();"
+	   "} catch (e) { }");
       } else
 	restoreCoverState(app, cover);
     }

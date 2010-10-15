@@ -36,6 +36,7 @@ struct mapping
   { "ogg", "audio/ogg" },
   { "ogv", "video/ogg" },
   { "mp4", "video/mp4" },
+  { "mp3", "audio/mp3" },
   { 0, 0 } // Marks end of list.
 };
 
@@ -47,7 +48,7 @@ const char *extensionToType(const std::string& extension)
     }
   }
 
-  return "text/plain";
+  return "application/octet-stream";
 }
 
 } // namespace mime_types

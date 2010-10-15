@@ -52,10 +52,11 @@ WApplication::StyleSheet::StyleSheet(const std::string& anUri,
   : uri(anUri), media(aMedia)
 { }
 
-WApplication::MetaHeader::MetaHeader(const std::string& aName,
+WApplication::MetaHeader::MetaHeader(MetaHeaderType aType,
+				     const std::string& aName,
 				     const WString& aContent,
 				     const std::string& aLang)
-  : name(aName), lang(aLang), content(aContent)
+  : type(aType), name(aName), lang(aLang), content(aContent)
 { }
 
 bool WApplication::ScriptLibrary::operator< (const ScriptLibrary& other) const
@@ -111,6 +112,9 @@ WApplication::WApplication(const WEnvironment& env)
 #else
   setLocalizedStrings(0);
 #endif // !WT_TARGET_JAVA
+
+  if (environment().agentIsIE() && !environment().javaScript())
+    addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=7");
 
   domRoot_ = new WContainerWidget();
   domRoot_->setStyleClass("Wt-domRoot");
@@ -835,10 +839,32 @@ void WApplication::addMetaHeader(const std::string& name,
 				 const WString& content,
 				 const std::string& lang)
 {
+  addMetaHeader(MetaName, name, content, lang);
+}
+
+void WApplication::addMetaHeader(MetaHeaderType type,
+				 const std::string& name,
+				 const WString& content,
+				 const std::string& lang)
+{
   if (environment().javaScript())
     log("warn") << "WApplication::addMetaHeader() with no effect";
 
-  metaHeaders_.push_back(MetaHeader(name, content, lang));
+  if (type == MetaHttpHeader) {
+    /*
+     * Replace existing value
+     */
+    for (unsigned i = 0; i < metaHeaders_.size(); ++i) {
+      MetaHeader& m = metaHeaders_[i];
+
+      if (m.type == MetaHttpHeader && m.name == name) {
+	m.content = content;
+	return;
+      }
+    }
+  }
+
+  metaHeaders_.push_back(MetaHeader(type, name, content, lang));
 }
 
 WApplication *WApplication::instance()

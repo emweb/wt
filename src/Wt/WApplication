@@ -1204,6 +1204,17 @@ public:
   void addMetaHeader(const std::string& name, const WString& content,
 		     const std::string& lang = "");
 
+  /*! \brief Adds an HTML meta header.
+   *
+   * This overloaded method allows to define both "name" meta headers,
+   * relating to document properties as well as "http-equiv" meta
+   * headers, which define HTTP headers.
+   *
+   * \sa addMetaHeader()
+   */
+  void addMetaHeader(MetaHeaderType type, const std::string& name,
+		     const WString& content, const std::string& lang = "");
+
   /*! \brief Adds an entry to the application log.
    *
    * Starts a new log entry of the given \p type in the %Wt
@@ -1506,9 +1517,10 @@ private:
   };
 
   struct MetaHeader {
-    MetaHeader(const std::string& name, const WString& content,
-	       const std::string& lang);
+    MetaHeader(MetaHeaderType type, const std::string& name,
+	       const WString& content, const std::string& lang);
 
+    MetaHeaderType type;
     std::string name, lang;
     WString content;
   };

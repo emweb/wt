@@ -1,3 +1,7 @@
+15-10-2010:
+	* WApplication: addMetaHeader() allows now to set http-equiv meta
+	headers and override the X-UA-Compatible meta header
+
 14-10-2010:
 	* WWebWidget: reimplemented buggy clear() optimisation.
 

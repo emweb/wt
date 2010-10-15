@@ -195,9 +195,11 @@ this.cancelEvent = function(e, cancelType) {
     else
       e.cancelBubble=true;
 
-    if (document.activeElement && document.activeElement.blur)
-      if (WT.hasTag(document.activeElement, "TEXTAREA"))
-	document.activeElement.blur();
+    try {
+      if (document.activeElement && document.activeElement.blur)
+	if (WT.hasTag(document.activeElement, "TEXTAREA"))
+	  document.activeElement.blur();
+    } catch(e) { }
   }
 };
 
@@ -1288,8 +1290,10 @@ function encodeEvent(event, i) {
   }
 
 
-  if (document.activeElement)
-    result += se + "focus=" + document.activeElement.id;
+  try {
+    if (document.activeElement)
+      result += se + "focus=" + document.activeElement.id;
+  } catch (e) { }
 
   if (currentHash != null)
     result += se + '_=' + encodeURIComponent(unescape(currentHash));
