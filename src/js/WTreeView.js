@@ -21,7 +21,7 @@ WT_DECLARE_WT_MEMBER
      var columnId = -1, nodeId = null, selected = false,
          drop = false, ele = null;
 
-     var t = event.target || event.srcElement;
+     var t = WT.target(event);
 
      while (t) {
        if (t.className.indexOf('c1 rh') == 0) {

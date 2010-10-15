@@ -32,7 +32,7 @@ WT_DECLARE_WT_MEMBER
      var columnId = -1, rowIdx = -1, selected = false,
          drop = false, ele = null;
 
-     var t = event.target || event.srcElement;
+     var t = WT.target(event);
 
      while (t) {
        var $t = $(t);
@@ -201,7 +201,7 @@ WT_DECLARE_WT_MEMBER
      }
      /* If keycode is up/down/right/left */
      else if (event.keyCode >= leftKey && event.keyCode <= downKey) {
-       var currentEl = event.target || event.srcElement;
+       var currentEl = WT.target(event);
 
        //do not allow arrow navigation from select
        if (currentEl.nodeName == 'select')

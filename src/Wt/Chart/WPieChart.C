@@ -533,9 +533,12 @@ void WPieChart::drawSlices(WPainter& painter,
     if (!ignoreBrush)
       painter.setBrush(brush(i));
 
-    painter.drawPie(pcx - r, pcy - r, r*2, r*2,
-		    static_cast<int>(currentAngle * 16),
-		    static_cast<int>(spanAngle * 16));
+    if (v/total != 1.0)
+      painter.drawPie(pcx - r, pcy - r, r*2, r*2,
+		      static_cast<int>(currentAngle * 16),
+		      static_cast<int>(spanAngle * 16));
+    else
+      painter.drawEllipse(pcx - r, pcy - r, r*2, r*2);
 
     double endAngle = currentAngle + spanAngle;
     if (endAngle < 0)

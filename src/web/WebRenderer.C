@@ -1147,6 +1147,8 @@ void WebRenderer::preLearnStateless(WApplication *app, std::ostream& out)
   if (isIEMobile || !session_.env().ajax())
     return;
 
+  collectJS(&out);
+
   WApplication::SignalMap& ss = session_.app()->exposedSignals();
 
   for (WApplication::SignalMap::iterator i = ss.begin();

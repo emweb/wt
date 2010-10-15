@@ -53,7 +53,7 @@ WT_DECLARE_WT_MEMBER
 
    function contentClicked(event) {
      var e = event || window.event;
-     var line = e.target || e.srcElement;
+     var line = WT.target(e);
      if (line.className == "content")
        return;
 
