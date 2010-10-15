@@ -102,7 +102,7 @@ void Widget::initExt()
 
 Widget::~Widget()
 {
-  // to have virtual renderRemove():
+  // to have virtual renderRemoveJs():
   setParentWidget(0);
 
   // in any case, delete Ext classes:
@@ -330,11 +330,9 @@ void Widget::getDomChanges(std::vector<DomElement *>& result,
   result.push_back(e);
 }
 
-DomElement *Widget::renderRemove()
+std::string Widget::renderRemoveJs()
 {
-  DomElement *e = WWebWidget::renderRemove();
-  e->callJavaScript(elRef() + ".hide();", true);
-  return e;
+  return elRef() + ".hide();" WT_CLASS ".remove('" + id() + "');";
 }
 
 void Widget::updateWtSignal(EventSignalBase *s, const std::string& name,

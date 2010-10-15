@@ -105,7 +105,6 @@ DomElement *DomElement::getForUpdate(const WObject *object,
 DomElement::DomElement(Mode mode, DomElementType type)
   : mode_(mode),
     wasEmpty_(mode_ == ModeCreate),
-    deleted_(false),
     removeAllChildren_(-1),
     minMaxSizeProperties_(false),
     unstubbed_(false),
@@ -161,7 +160,6 @@ void DomElement::updateInnerHtmlOnly()
 {
   mode_ = ModeUpdate;
 
-  assert(deleted_ == false);
   assert(replaced_ == 0);
   assert(insertBefore_ == 0);
 
@@ -438,8 +436,7 @@ void DomElement::insertBefore(DomElement *sibling)
 
 void DomElement::removeFromParent()
 {
-  ++numManipulations_;
-  deleted_ = true;
+  callJavaScript(WT_CLASS ".remove('" + id() + "');", true);
 }
 
 void DomElement::removeAllChildren(int firstChild)
@@ -1133,14 +1130,10 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 {
   switch(priority) {
   case Delete:
-    if (deleted_ || (removeAllChildren_ >= 0)) {
-      declare(out);
-
-      if (deleted_) {
-	out << javaScriptEvenWhenDeleted_
-	    << var_ << ".parentNode.removeChild("
-	    << var_ << ");\n";
-      } else if (removeAllChildren_ >= 0) {
+    if (!javaScriptEvenWhenDeleted_.empty() || (removeAllChildren_ >= 0)) {
+      out << javaScriptEvenWhenDeleted_;
+      if (removeAllChildren_ >= 0) {
+	declare(out);
 	if (removeAllChildren_ == 0)
 	  out << var_ << ".innerHTML='';\n";
 	else {
@@ -1163,9 +1156,6 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     return var_;
   case Update:
   {
-    if (deleted_)
-      break;
-
     WApplication *app = WApplication::instance();
 
     for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
@@ -1314,11 +1304,6 @@ void DomElement::renderInnerHtmlJS(EscapeOStream& out, WApplication *app) const
   for (unsigned i = 0; i < methodCalls_.size(); ++i) {
     declare(out);
     out << var_ << "." << methodCalls_[i] << ';' << '\n';
-  }
-
-  if (!javaScriptEvenWhenDeleted_.empty()) {
-    declare(out);
-    out << javaScriptEvenWhenDeleted_ << '\n';
   }
 
   if (!javaScript_.empty()) {

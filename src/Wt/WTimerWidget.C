@@ -23,19 +23,14 @@ WTimerWidget::~WTimerWidget()
   timer_->timerWidget_ = 0;
 }
 
-DomElement *WTimerWidget::renderRemove()
+std::string WTimerWidget::renderRemoveJs()
 {
-  DomElement *e = DomElement::getForUpdate(this, DomElement_DIV);
-  e->removeFromParent();
-  e->callJavaScript
-    ("{"
-     """var obj=" + jsRef() + ";"
-     """if (obj && obj.timer) {"
-     ""  "clearTimeout(obj.timer);"
-     ""  "obj.timer = null;"
-     """}"
-     "}", true);
-  return e;
+ return "{"
+   "var obj=" + jsRef() + ";"
+   "if (obj && obj.timer) {"
+   """clearTimeout(obj.timer);"
+   """obj.timer = null;"
+   "}" WT_CLASS ".remove('" + id() + "');}";
 }
 
 void WTimerWidget::timerStart(bool jsRepeat)

@@ -38,8 +38,7 @@ WDatePicker::WDatePicker(WInteractWidget *displayWidget,
 WDatePicker::~WDatePicker()
 {
   WApplication::instance()->doJavaScript
-    ("var pp=" + popup_->jsRef()
-     + "; if(pp) pp.parentNode.removeChild(pp);");
+    (WT_CLASS ".remove('" + popup_->id() + "');");
 }
 
 void WDatePicker::createDefault()

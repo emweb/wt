@@ -190,6 +190,8 @@ void WTreeNode::create()
   layout_->elementAt(0, 0)->setContentAlignment(AlignLeft | AlignTop);
   layout_->elementAt(0, 1)->setContentAlignment(AlignLeft | AlignMiddle);
 
+  layout_->rowAt(0)->setStyleClass("Wt-node");
+
   childrenLoaded_ = false;
 
   setLoadPolicy(LazyLoading);
@@ -492,7 +494,7 @@ void WTreeNode::setLabelIcon(WIconPair *labelIcon)
 
 void WTreeNode::renderSelected(bool isSelected)
 {
-  labelArea()->setStyleClass(isSelected ? "Wt-selected selected" : "");
+  layout_->rowAt(0)->setStyleClass(isSelected ? "Wt-selected selected" : "");
   selected().emit(isSelected);
 }
 

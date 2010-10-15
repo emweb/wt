@@ -784,19 +784,7 @@ void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,
     transientImpl_->addedChildren_.clear();
 
   if (!all) {
-    /* ignore rendering of deletion of a bound widget... */
-    if (false && transientImpl_
-	&& !transientImpl_->childRemoveChanges_.empty()) {
-      EscapeOStream sout(out);
-      for (unsigned i = 0; i < transientImpl_->childRemoveChanges_.size();
-	   ++i) {
-	DomElement *c = transientImpl_->childRemoveChanges_[i];
-	c->asJavaScript(sout, DomElement::Delete);
-	delete c;
-      }
-
-      transientImpl_->childRemoveChanges_.clear();
-    }
+    /* Note: we ignore rendering of deletion of a bound widget... */
   }
 
   // FIXME

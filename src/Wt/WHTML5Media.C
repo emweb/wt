@@ -91,7 +91,7 @@ EventSignal<>& WHTML5Media::volumeChanged()
 
 void WHTML5Media::setFormData(const FormData& formData)
 {
-  if (formData.values.size() == 1) {
+  if (!Utils::isEmpty(formData.values)) {
     std::vector<std::string> attributes;
     boost::split(attributes, formData.values[0], boost::is_any_of(";"));
     if (attributes.size() == 5) {
@@ -302,13 +302,11 @@ void WHTML5Media::getDomChanges(std::vector<DomElement *>& result,
       // Updating source elements seems to be ill-supported in at least FF,
       // so we delete them all and reinsert them.
       // Delete source elements that are no longer required
-      for (std::size_t i = 0; i < sourcesRendered_; ++i) {
-        DomElement *src = DomElement::getForUpdate(
-          mediaId_ + "s" + boost::lexical_cast<std::string>(i),
-          DomElement_SOURCE);
-        src->removeFromParent();
-        result.push_back(src);
-      }
+      for (std::size_t i = 0; i < sourcesRendered_; ++i)
+	media->callJavaScript
+	  (WT_CLASS ".remove('" + mediaId_ + "s"
+	   + boost::lexical_cast<std::string>(i) + "');",
+	   true);
       sourcesRendered_ = 0;
       for (std::size_t i = 0; i < sources_.size(); ++i) {
         DomElement *src = DomElement::createNew(DomElement_SOURCE);

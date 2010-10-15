@@ -202,7 +202,7 @@ private:
 
   void createConfig(std::ostream& config);
   void onClick(std::string buttonId, std::string value);
-  virtual DomElement *renderRemove();
+  virtual std::string renderRemoveJs();
 
   static const char *buttonText_[];
   std::string        buttonText(int buttonIndex) const;

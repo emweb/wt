@@ -31,6 +31,7 @@ WPopupMenuItem::WPopupMenuItem(bool)
     triggered_(this)
 {
   setImplementation(impl_ = new WContainerWidget());
+  impl_->setLoadLaterWhenInvisible(false);
   setStyleClass("Wt-separator");
 }
 
@@ -82,7 +83,7 @@ void WPopupMenuItem::load()
 {
   WCompositeWidget::load();
 
-  impl_->mouseWentOver().connect(parentMenu(), &WPopupMenuItem::show);
+  //impl_->mouseWentOver().connect(parentMenu(), &WPopupMenuItem::show);
   impl_->mouseWentOver().connect(this, &WPopupMenuItem::renderOver);
   impl_->mouseWentOver().setNotExposed();
 }
@@ -155,6 +156,7 @@ void WPopupMenuItem::setPopupMenu(WPopupMenu *menu)
   std::string resources = WApplication::resourcesUrl();
 
   if (subMenu_) {
+    subMenu_->webWidget()->setLoadLaterWhenInvisible(false);
     subMenu_->parentItem_ = this;
     text_->decorationStyle().
       setBackgroundImage(resources + "right-arrow.gif",
@@ -175,6 +177,8 @@ bool WPopupMenuItem::isChecked() const
 
 void WPopupMenuItem::renderOver()
 {
+  parentMenu()->renderOutAll();
+
   if (!isDisabled())
     renderSelected(true);
 }

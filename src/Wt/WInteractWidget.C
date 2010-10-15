@@ -200,7 +200,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     || updateMouseMove;
 
   bool updateMouseUp
-    = (mouseUp && mouseUp->needsUpdate(All))
+    = (mouseUp && mouseUp->needsUpdate(all))
     || updateMouseMove;
 
   if (updateMouseDown) {

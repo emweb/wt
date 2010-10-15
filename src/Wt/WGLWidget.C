@@ -140,7 +140,7 @@ const char *WGLWidget::toString(ParameterEnum e)
     case STENCIL_BACK_WRITEMASK: return "ctx.STENCIL_BACK_WRITEMASK";
     case VIEWPORT: return "ctx.VIEWPORT";
     case SCISSOR_BOX: return "ctx.SCISSOR_BOX";
-    case SCISSOR_TEST: return "ctx.SCISSOR_TEST";
+    case P_SCISSOR_TEST: return "ctx.SCISSOR_TEST";
     case COLOR_CLEAR_VALUE: return "ctx.COLOR_CLEAR_VALUE";
     case COLOR_WRITEMASK: return "ctx.COLOR_WRITEMASK";
     case UNPACK_ALIGNMENT: return "ctx.UNPACK_ALIGNMENT";
@@ -236,6 +236,7 @@ const char *WGLWidget::toString(StencilFunctionEnum f)
 const char *WGLWidget::toString(StencilOpEnum e)
 {
   switch(e) {
+    case SO_ZERO: return "ctx.ZERO";
     case KEEP: return "ctx.KEEP";
     case REPLACE: return "ctx.REPLACE";
     case INCR: return "ctx.INCR";

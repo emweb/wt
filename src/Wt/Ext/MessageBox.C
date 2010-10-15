@@ -203,10 +203,9 @@ void MessageBox::createConfig(std::ostream& config)
 	 << extButtonClicked_.createCall("b","v") << "}";
 }
 
-DomElement *MessageBox::renderRemove()
+std::string MessageBox::renderRemoveJs()
 {
-  /* should never be called ? */
-  return 0;
+  throw WtException("MessageBox::renderRemoveJs(): really?");
 }
 
 std::string MessageBox::buttonText(int buttonIndex) const

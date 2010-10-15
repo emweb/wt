@@ -84,6 +84,7 @@ class WTableCell;
 
 .Wt-tree .Wt-label          : the node label
 .Wt-tree .Wt-childcount     : the node child count
+.Wt-tree .Wt-node           : the node's table row
 \endverbatim
  * * The collapse and expand icons are fetched themselves as images,
  * <tt>nav-plus.gif</tt> and <tt>nav-minus.gif</tt>.

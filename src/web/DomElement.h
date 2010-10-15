@@ -238,7 +238,6 @@ private:
 
   Mode         mode_;
   bool         wasEmpty_;
-  bool         deleted_;         // when removeFromParent() is called
   int	       removeAllChildren_;
   bool         hideWithDisplay_;
   bool         minMaxSizeProperties_;

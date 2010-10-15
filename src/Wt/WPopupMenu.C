@@ -98,7 +98,10 @@ WPopupMenu *WPopupMenu::topLevelMenu()
 void WPopupMenu::setHidden(bool hidden)
 {
   WCompositeWidget::setHidden(hidden);
+}
 
+void WPopupMenu::renderOutAll()
+{
   WContainerWidget *c = contents();
   for (int i = 0; i < c->count(); ++i) {
     WPopupMenuItem *item = dynamic_cast<WPopupMenuItem *>(c->widget(i));

@@ -49,7 +49,7 @@ void WTextEdit::init()
 
 WTextEdit::~WTextEdit()
 {
-  // to have virtual renderRemove():
+  // to have virtual renderRemoveJs():
   setParentWidget(0);
 }
 
@@ -68,11 +68,9 @@ void WTextEdit::setToolBar(int i, const std::string& config)
   buttons_[i] = config;
 }
 
-DomElement *WTextEdit::renderRemove()
+std::string WTextEdit::renderRemoveJs()
 {
-  DomElement *e = WWebWidget::renderRemove();
-  e->callJavaScript(jsRef() + ".ed.remove();", true);
-  return e;
+  return jsRef() + ".ed.remove();" WT_CLASS ".remove('" + id() + "');";
 }
 
 void WTextEdit::initTinyMCE()

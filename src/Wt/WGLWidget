@@ -43,7 +43,9 @@ public:
   // Sometimes, OpenGL is a bit ugly. These values belong in multiple
   // enums
   enum {ZERO = 0,
-        UNSIGNED_BYTE = 0x1401};
+        UNSIGNED_BYTE       = 0x1401,
+        POLYGON_OFFSET_FILL = 0x8037,
+        SCISSOR_TEST        = 0x0C11};
   
   enum ClearBufferEnum {
     DEPTH_BUFFER_BIT               = 0x00000100,
@@ -127,8 +129,8 @@ public:
     DITHER                         = 0x0BD0,
     STENCIL_TEST                   = 0x0B90,
     DEPTH_TEST                     = 0x0B71,
-    SCISSOR_TEST                   = 0x0C11,
-    POLYGON_OFFSET_FILL            = 0x8037,
+    EC_SCISSOR_TEST                = 0x0C11, // TODO: Ok?
+    EC_POLYGON_OFFSET_FILL         = 0x8037, // TODO: Ok?
     SAMPLE_ALPHA_TO_COVERAGE       = 0x809E,
     SAMPLE_COVERAGE                = 0x80A0
   };
@@ -172,7 +174,7 @@ public:
     STENCIL_BACK_WRITEMASK         = 0x8CA5,
     VIEWPORT                       = 0x0BA2,
     SCISSOR_BOX                    = 0x0C10,
-     /*      SCISSOR_TEST */
+    P_SCISSOR_TEST                 = 0x0C11, // TODO: Ok?
     COLOR_CLEAR_VALUE              = 0x0C22,
     COLOR_WRITEMASK                = 0x0C23,
     UNPACK_ALIGNMENT               = 0x0CF5,
@@ -189,7 +191,7 @@ public:
     DEPTH_BITS                     = 0x0D56,
     STENCIL_BITS                   = 0x0D57,
     POLYGON_OFFSET_UNITS           = 0x2A00,
-     /*      POLYGON_OFFSET_FILL */
+    P_POLYGON_OFFSET_FILL          = 0x8037,
     POLYGON_OFFSET_FACTOR          = 0x8038,
     TEXTURE_BINDING_2D             = 0x8069,
     SAMPLE_BUFFERS                 = 0x80A8,

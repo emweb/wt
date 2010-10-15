@@ -42,12 +42,12 @@ const std::bitset<29> WWebWidget::AllChangeFlags = std::bitset<29>()
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
-{ }
+{ 
+  specialChildRemove_ = false;
+}
 
 WWebWidget::TransientImpl::~TransientImpl()
 {
-  for (unsigned i = 0; i < childRemoveChanges_.size(); ++i)
-    delete childRemoveChanges_[i];
 }
 
 WWebWidget::LayoutImpl::LayoutImpl()
@@ -261,11 +261,9 @@ void WWebWidget::setDecorationStyle(const WCssDecorationStyle& style)
 #endif // WT_TARGET_JAVA
 }
 
-DomElement *WWebWidget::renderRemove()
+std::string WWebWidget::renderRemoveJs()
 {
-  DomElement *e = DomElement::getForUpdate(this, DomElement_DIV);
-  e->removeFromParent();
-  return e;
+  return "_" + id();
 }
 
 void WWebWidget::removeChild(WWidget *child)
@@ -277,16 +275,16 @@ void WWebWidget::removeChild(WWidget *child)
   assert (i != -1);
 
   if (!flags_.test(BIT_IGNORE_CHILD_REMOVES)) {
-    DomElement *e = child->webWidget()->renderRemove();
+    std::string js = child->webWidget()->renderRemoveJs();
 
-    if (e) {
-      if (!transientImpl_)
-	transientImpl_ = new TransientImpl();
+    if (!transientImpl_)
+      transientImpl_ = new TransientImpl();
 
-      transientImpl_->childRemoveChanges_.push_back(e);
+    transientImpl_->childRemoveChanges_.push_back(js);
+    if (js[0] != '_')
+      transientImpl_->specialChildRemove_ = true;
 
-      repaint(RepaintInnerHtml);
-    }
+    repaint(RepaintInnerHtml);
   }
 
   /*
@@ -1292,15 +1290,25 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 			     + transientImpl_->removedStyleClasses_[i].toUTF8()
 			     +"');");
 
-#if 0
     if (!transientImpl_->childRemoveChanges_.empty()) {
-      element.removeAllChildren();
-      for (unsigned i = 0; i < transientImpl_->childRemoveChanges_.size();
-	   ++i)
-	delete transientImpl_->childRemoveChanges_[i];
+      if ((children_
+	   && (children_->size() != transientImpl_->addedChildren_.size()))
+	  || transientImpl_->specialChildRemove_) {
+	for (unsigned i = 0; i < transientImpl_->childRemoveChanges_.size();
+	     ++i) {
+	  const std::string& js = transientImpl_->childRemoveChanges_[i];
+	  if (js[0] == '_')
+	    element.callJavaScript(WT_CLASS ".remove('" + js.substr(1) + "');",
+				   true);
+	  else
+	    element.callJavaScript(js);
+	}
+      } else
+	element.removeAllChildren();
+
       transientImpl_->childRemoveChanges_.clear();
+      transientImpl_->specialChildRemove_ = false;
     }
-#endif
   }
 
   if (all || flags_.test(BIT_SELECTABLE_CHANGED)) {
@@ -1494,18 +1502,20 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
     if (app->session()->renderer().preLearning()) {
       getDomChanges(result, app);
       askRerender(true);
-    } else if (!app->session()->renderer().visibleOnly()) {
-      flags_.reset(BIT_STUBBED);
+    } else {
+      if (!app->session()->renderer().visibleOnly()) {
+	flags_.reset(BIT_STUBBED);
 
-      if (!isIEMobile) {
-	DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
-	setRendered(true);
-	render(RenderFull);
-	DomElement *realElement = createDomElement(app);
-	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
-	result.push_back(stub);
-      } else
-	propagateRenderOk();
+	if (!isIEMobile) {
+	  DomElement *stub = DomElement::getForUpdate(this, DomElement_SPAN);
+	  setRendered(true);
+	  render(RenderFull);
+	  DomElement *realElement = createDomElement(app);
+	  stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
+	  result.push_back(stub);
+	} else
+	  propagateRenderOk();
+      }
     }
   } else {
     render(RenderUpdate);
@@ -1534,22 +1544,6 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
       }
 
       return;
-    }
-
-    if (transientImpl_) {
-#if 0
-      if (!transientImpl_->childRemoveChanges_.empty()) {
-	// Check if not all children were removed, in that case we set
-	// innerHtml to '' in updateDom()
-	if (children_
-	    && (children_->size() != transientImpl_->addedChildren_.size())) {
-#endif
-	  Utils::insert(result, transientImpl_->childRemoveChanges_);
-	  transientImpl_->childRemoveChanges_.clear();
-#if 0
-	}
-      }
-#endif
     }
 
     getDomChanges(result, app);

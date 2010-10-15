@@ -116,6 +116,13 @@ this.insertAt = function(p, c, i) {
     p.insertBefore(c, p.childNodes[i]);
 };
 
+this.remove = function(id)
+{
+  var e = WT.getElement(id);
+  if (e)
+    e.parentNode.removeChild(e);
+};
+
 this.unstub = function(from, to, methodDisplay) {
   if (methodDisplay == 1) {
     if (from.style.display != 'none')

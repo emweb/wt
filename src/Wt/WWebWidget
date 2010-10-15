@@ -240,7 +240,7 @@ protected:
   virtual void doneRerender();
   virtual void updateDom(DomElement& element, bool all);
   virtual void propagateRenderOk(bool deep = true);
-  virtual DomElement *renderRemove();
+  virtual std::string renderRemoveJs();
 
   virtual void propagateSetEnabled(bool enabled);
   virtual bool isStubbed() const;
@@ -313,9 +313,11 @@ private:
   WLength	 *height_;
 
   struct TransientImpl {
-    std::vector<DomElement *> childRemoveChanges_;
-    std::vector<WWidget *>    addedChildren_;
-    std::vector<WT_USTRING>   addedStyleClasses_, removedStyleClasses_;
+    std::vector<std::string> childRemoveChanges_;
+    std::vector<WWidget *>   addedChildren_;
+    std::vector<WT_USTRING>  addedStyleClasses_, removedStyleClasses_;
+
+    bool specialChildRemove_;
 
     TransientImpl();
     ~TransientImpl();
