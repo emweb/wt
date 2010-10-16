@@ -985,6 +985,45 @@ void DboTest::test12()
   }
 }
 
+void DboTest::test13()
+{
+  setup();
+
+  try {
+    {
+      dbo::Transaction t(*session_);
+
+      dbo::ptr<B> b1 = session_->add(new B("b1", B::State1));
+      dbo::ptr<B> b2 = session_->add(new B("b2", B::State2));
+      dbo::ptr<B> b3 = session_->add(new B("b3", B::State1));
+
+
+      {
+	dbo::collection<dbo::ptr<B> > c = session_->query< dbo::ptr<B> >
+	  ("select B from table_b B ")
+	  .where("B.state = ?").orderBy("B.name")
+	  .limit(1).bind(0);
+
+	BOOST_REQUIRE(c.size() == 1);
+      }
+
+      dbo::ptr<B> d = session_->query< dbo::ptr<B> >
+	("select B from table_b B ")
+	.where("B.state = ?").orderBy("B.name")
+	.limit(1).bind(0);
+
+      BOOST_REQUIRE(d == b1 || d == b3);
+
+      t.commit();
+    }
+
+    teardown();
+  } catch (std::exception&) {
+    teardown();
+    throw;
+  }
+}
+
 DboTest::DboTest()
   : test_suite("dbotest_test_suite")
 {
@@ -1000,4 +1039,5 @@ DboTest::DboTest()
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test10, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test11, this)));
   add(BOOST_TEST_CASE(boost::bind(&DboTest::test12, this)));
+  add(BOOST_TEST_CASE(boost::bind(&DboTest::test13, this)));
 }

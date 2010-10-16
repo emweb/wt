@@ -744,7 +744,7 @@ public:
 namespace Wt {
   namespace Dbo {
 
-    class dbo_traits<Post> : public default_dbo_traits {
+    struct dbo_traits<Post> : public dbo_default_traits {
       static const char *surrogateIdField() {
         return "post_id";
       }
@@ -778,7 +778,7 @@ public:
 namespace Wt {
   namespace Dbo {
 
-    class dbo_traits<Post> : public default_dbo_traits {
+    struct dbo_traits<Post> : public dbo_default_traits {
       static const char *versionField() {
         return 0;
       }
@@ -817,7 +817,7 @@ public:
 namespace Wt {
   namespace Dbo {
 
-    class dbo_traits<User> : public default_dbo_traits {
+    struct dbo_traits<User> : public dbo_default_traits {
       typedef std::string IdType;
 
       static IdType invalidId() {

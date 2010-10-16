@@ -150,9 +150,13 @@ std::string createQueryCountSql(const std::string& query,
    *
    * The Internet consensus is that wrapping like this is not really
    * a performance loss so we do not take any risk here.
+   *
+   * Also, we cannot count like this when we have a limit or offset
+   * parameter.
    */
   if (!groupBy.empty() || ifind(from, "group by") != std::string::npos
-      || !orderBy.empty() || ifind(from, "order by") != std::string::npos)
+      || !orderBy.empty() || ifind(from, "order by") != std::string::npos
+      || limit != -1 || offset != -1)
     return createWrappedQueryCountSql(query);
   else {
     std::string result = "select count(1) " + from;

@@ -261,7 +261,8 @@ void WebRenderer::serveError(WebResponse& response, const std::string& message,
 {
   bool js = responseType == Update || responseType == Script;
 
-  if (!js) {
+  WApplication *app = session_.app();
+  if (!js || !app) {
     response.setContentType("text/html");
     response.out()
       << "<title>Error occurred.</title>"
@@ -270,7 +271,7 @@ void WebRenderer::serveError(WebResponse& response, const std::string& message,
       << std::endl;    
   } else {
     response.out() <<
-      wApp->javaScriptClass() << "._p_.quit();"
+      app->javaScriptClass() << "._p_.quit();"
       "document.title = 'Error occurred.';"
       "document.body.innerHtml='<h2>Error occurred.</h2>' +";
     DomElement::jsStringLiteral(response.out(), message, '\'');

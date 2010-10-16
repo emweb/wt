@@ -45,6 +45,7 @@ private:
   void test10();
   void test11();
   void test12();
+  void test13();
 };
 
 #endif // DBO_TEST_H
