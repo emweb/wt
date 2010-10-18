@@ -241,8 +241,6 @@ private:
   bool visible(int64_t i, int64_t j) const;
 
   void internalScrollTo(int64_t x, int64_t y, bool moveViewPort);
-
-  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
 };
 
 }

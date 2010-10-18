@@ -155,6 +155,7 @@ Wt/WSignal.C
 Wt/WSlider.C
 Wt/WSocketNotifier.C
 Wt/WSortFilterProxyModel.C
+Wt/WSpinBox.C
 Wt/WSound.C
 Wt/WStackedWidget.C
 Wt/WStandardItem.C

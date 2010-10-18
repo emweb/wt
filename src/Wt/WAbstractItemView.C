@@ -921,6 +921,15 @@ void WAbstractItemView::bindObjJS(JSlot& slot, const std::string& jsMethod)
      "}");
 }
 
+void WAbstractItemView::connectObjJS(EventSignalBase& s,
+				     const std::string& jsMethod)
+{
+  s.connect
+    ("function(obj, event) {"
+     """jQuery.data(" + jsRef() + ", 'obj')." + jsMethod + "(obj, event);"
+     "}");
+}
+
 void WAbstractItemView::modelLayoutAboutToBeChanged()
 {
   if (rootIndex_.isValid())

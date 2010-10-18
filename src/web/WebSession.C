@@ -61,13 +61,16 @@ WebSession::WebSession(WebController *controller,
     embeddedEnv_(this),
     app_(0),
     debug_(controller_->configuration().debug()),
-    handlerCount_(0),
     recursiveEventLoop_(0)
 #if defined(WT_TARGET_JAVA)
   ,
     recursiveEvent_(mutex_.newCondition())
 #endif
 {
+#ifndef WT_TARGET_JAVA
+  syncLocks_.lastId_ = syncLocks_.lockedId_ = 0;
+#endif // WT_TARGET_JAVA
+
   env_ = env ? env : &embeddedEnv_;
 
   /*
@@ -123,6 +126,11 @@ WLogEntry WebSession::log(const std::string& type)
 
 WebSession::~WebSession()
 {
+  /*
+   * From here on, we cannot create a shared_ptr to this session. Therefore,
+   * app_ uses a weak_ptr to this session for which lock() returns an empty
+   * shared pointer.
+   */
 #ifndef WT_TARGET_JAVA
   Handler handler(this);
 
@@ -449,6 +457,20 @@ std::string WebSession::getRedirect()
   return result;
 }
 
+WebSession::Handler::Handler()
+  : 
+    prevHandler_(0),
+    session_(0),
+    request_(0),
+    response_(0)
+{
+#ifdef WT_TARGET_JAVA
+  locked_ = true;
+#endif // WT_TARGET_JAVA
+
+  init();
+}
+
 WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 			     bool takeLock)
   : 
@@ -532,33 +554,65 @@ bool WebSession::Handler::haveLock() const
 
 void WebSession::Handler::init()
 {
-#ifdef WT_TARGET_JAVA
-  prevHandler_ = threadHandler_.get();
-  threadHandler_.reset(this);
-#else
-#ifdef WT_THREADED
-  if (request_)
-    ++session_->handlerCount_;
+  prevHandler_ = attachThreadToHandler(this);
 
-  prevHandler_ = threadHandler_.release();
-  threadHandler_.reset(this);
-#else
-  threadHandler_ = this;
-#endif // WT_THREADED
-#endif // WT_TARGET_JAVA
+#ifndef WT_TARGET_JAVA
+  if (request_)
+    session_->handlers_.push_back(this);
+#endif
 }
 
-void WebSession::Handler::attachThreadToSession(WebSession& session)
+WebSession::Handler *
+WebSession::Handler::attachThreadToHandler(Handler *handler)
 {
-#if defined(WT_THREADED)
-  threadHandler_.reset(new Handler(session.shared_from_this(), false));
-#elif defined(WT_TARGET_JAVA)
-  threadHandler_.reset(new Handler(boost::shared_ptr<WebSession>(&session), 
-  				   false));
+  WebSession::Handler *result;
+
+#if defined(WT_TARGET_JAVA) || defined(WT_THREADED)
+  result = threadHandler_.release();
+  threadHandler_.reset(handler);
 #else
-  session.log("error") <<
-    "attachThreadToSession() requires that Wt is built with threading enabled";
+  result = threadHandler_;
+  threadHandler_ = handler;
 #endif
+
+  return result;
+}
+
+void WebSession
+::Handler::attachThreadToSession(boost::shared_ptr<WebSession> session)
+{
+  attachThreadToHandler(0);
+
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+  if (!session)
+    return;
+
+  /*
+   * It may be that we still need to attach to a session while it is being
+   * destroyed ?
+   */
+  if (session->state_ == Dead) {
+    session->log("warn") << "Attaching to dead session?";
+    attachThreadToHandler(new Handler(session, false));
+    return;
+  }
+
+  /*
+   * We assume that another handler has already locked this session for us.
+   * We just need to find it.
+   */
+  for (unsigned i = 0; i < session->handlers_.size(); ++i)
+    if (session->handlers_[i]->haveLock()) {
+      attachThreadToHandler(session->handlers_[i]);
+      return;
+    }
+
+  session->log("error") << "WApplication::attachThread(): "
+			<< "no thread is holding this application's lock ?";
+#else
+  session->log("error") << "WApplication::attachThread(): "
+			<< "needs Wt built with threading enabled";
+#endif // WT_THREADED || WT_TARGET_JAVA
 }
 
 #ifdef WT_TARGET_JAVA
@@ -567,24 +621,19 @@ void WebSession::Handler::release()
   if (locked_)
     session_->mutex().unlock();
 
-  threadHandler_.reset(prevHandler_);
+  attachThreadToHandler(prevHandler_);
 }
 #endif
 
 WebSession::Handler::~Handler()
 {
 #ifndef WT_TARGET_JAVA
-  --session_->handlerCount_;
+  Utils::erase(session_->handlers_, this);
 
-  if (!session_->handlerCount_)
+  if (session_->handlers_.empty())
     session_->hibernate();
 
-#ifdef WT_THREADED
-  threadHandler_.release();
-  if (prevHandler_)
-    threadHandler_.reset(prevHandler_);
-#endif // WT_THREADED
-
+  attachThreadToHandler(prevHandler_);
 #endif // WT_TARGET_JAVA
 }
 

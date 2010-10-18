@@ -1,0 +1,3 @@
+The MySQL backend is not redistributed with Wt because of license issues.
+
+A backend is maintained by the community and available from https://sourceforge.net/projects/wtdbomysql/

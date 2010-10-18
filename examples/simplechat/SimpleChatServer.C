@@ -6,6 +6,8 @@
 
 #include "SimpleChatServer.h"
 
+#include <Wt/SyncLock>
+
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 
@@ -45,7 +47,12 @@ SimpleChatServer::SimpleChatServer()
 
 bool SimpleChatServer::login(const WString& user)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  // In every application path that holds a lock to a mutex while also
+  // trying to update another application (as is in this method the
+  // case during chatEvent_.emit()) we need to use Wt::SyncLock to
+  // avoid dead-locks.
+
+  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
   
   if (users_.find(user) == users_.end()) {
     users_.insert(user);
@@ -59,7 +66,7 @@ bool SimpleChatServer::login(const WString& user)
 
 void SimpleChatServer::logout(const WString& user)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
   
   UserSet::iterator i = users_.find(user);
 
@@ -72,7 +79,7 @@ void SimpleChatServer::logout(const WString& user)
 
 WString SimpleChatServer::suggestGuest()
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
 
   for (int i = 1;; ++i) {
     std::string s = "guest " + boost::lexical_cast<std::string>(i);
@@ -85,12 +92,14 @@ WString SimpleChatServer::suggestGuest()
 
 void SimpleChatServer::sendMessage(const WString& user, const WString& message)
 {
-  boost::mutex::scoped_lock lock(mutex_);
+  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
 
   chatEvent_.emit(ChatEvent(user, message));
 }
 
 SimpleChatServer::UserSet SimpleChatServer::users()
 {
+  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
+
   return users_;
 }

@@ -636,7 +636,7 @@ public:
    *
    * \sa columnsInserted(), beginInsertColumns()
    */
-  Signal<WModelIndex, int, int>& columnsAboutToBeInserted()
+  virtual Signal<WModelIndex, int, int>& columnsAboutToBeInserted()
     { return columnsAboutToBeInserted_; }
 
   /*! \brief %Signal emitted before a number of columns will be removed.
@@ -647,7 +647,7 @@ public:
    *
    * \sa columnsRemoved(), beginRemoveColumns()
    */
-  Signal<WModelIndex, int, int>& columnsAboutToBeRemoved()
+  virtual Signal<WModelIndex, int, int>& columnsAboutToBeRemoved()
     { return columnsAboutToBeRemoved_; }
  
   /*! \brief %Signal emitted after a number of columns were inserted.
@@ -658,7 +658,7 @@ public:
    *
    * \sa columnsAboutToBeInserted(), endInsertColumns()
    */
-  Signal<WModelIndex, int, int>& columnsInserted()
+  virtual Signal<WModelIndex, int, int>& columnsInserted()
     { return columnsInserted_; }
 
   /*! \brief %Signal emitted after a number of columns were removed.
@@ -668,7 +668,7 @@ public:
    *
    * \sa columnsAboutToBeRemoved(), endRemoveColumns()
    */
-  Signal<WModelIndex, int, int>& columnsRemoved()
+  virtual Signal<WModelIndex, int, int>& columnsRemoved()
     { return columnsRemoved_; }
 
   /*! \brief %Signal emitted before a number of rows will be inserted.
@@ -679,7 +679,7 @@ public:
    *
    * \sa rowsInserted(), beginInsertRows()
    */
-  Signal<WModelIndex, int, int>& rowsAboutToBeInserted()
+  virtual Signal<WModelIndex, int, int>& rowsAboutToBeInserted()
     { return rowsAboutToBeInserted_; }
 
   /*! \brief %Signal emitted before a number of rows will be removed.
@@ -690,7 +690,7 @@ public:
    *
    * \sa rowsRemoved(), beginRemoveRows()
    */
-  Signal<WModelIndex, int, int>& rowsAboutToBeRemoved()
+  virtual Signal<WModelIndex, int, int>& rowsAboutToBeRemoved()
     { return rowsAboutToBeRemoved_; }
  
   /*! \brief %Signal emitted after a number of rows were inserted.
@@ -700,7 +700,7 @@ public:
    *
    * \sa rowsAboutToBeInserted(), endInsertRows()
    */
-  Signal<WModelIndex, int, int>& rowsInserted()
+  virtual Signal<WModelIndex, int, int>& rowsInserted()
     { return rowsInserted_; }
 
   /*! \brief %Signal emitted after a number of rows were removed.
@@ -710,7 +710,7 @@ public:
    *
    * \sa rowsAboutToBeRemoved(), endRemoveRows()
    */
-  Signal<WModelIndex, int, int>& rowsRemoved()
+  virtual Signal<WModelIndex, int, int>& rowsRemoved()
     { return rowsRemoved_; }
 
   /*! \brief %Signal emitted when some data was changed.
@@ -720,7 +720,7 @@ public:
    *
    * \sa setData()
    */
-  Signal<WModelIndex, WModelIndex>& dataChanged()
+  virtual Signal<WModelIndex, WModelIndex>& dataChanged()
     { return dataChanged_; }
 
   /*! \brief %Signal emitted when some header data was changed.
@@ -731,7 +731,7 @@ public:
    *
    * \sa setHeaderData()
    */
-  Signal<Orientation, int, int>& headerDataChanged()
+  virtual Signal<Orientation, int, int>& headerDataChanged()
     { return headerDataChanged_; }
 
   /*! \brief %Signal emitted when the layout is about to be changed.
@@ -743,13 +743,13 @@ public:
    *
    * \sa layoutChanged(), toRawIndex(), fromRawIndex()
    */
-  Signal<>& layoutAboutToBeChanged() { return layoutAboutToBeChanged_; }
+  virtual Signal<>& layoutAboutToBeChanged() { return layoutAboutToBeChanged_; }
 
   /*! \brief %Signal emitted when the layout is changed.
    *
    * \sa layoutAboutToBeChanged()
    */
-  Signal<>& layoutChanged() { return layoutChanged_; }
+  virtual Signal<>& layoutChanged() { return layoutChanged_; }
 
   /*! \brief %Signal emitted when the model was reset.
    *
@@ -758,7 +758,7 @@ public:
    *
    * \sa reset()
    */
-  Signal<>& modelReset() { return modelReset_; }
+  virtual Signal<>& modelReset() { return modelReset_; }
 
 protected:
   /*! \brief Resets the model and invalidate any data.

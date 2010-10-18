@@ -20,6 +20,7 @@ class EventSignalBase;
 class WT_API WStatelessSlot
 {
 public:
+  WStatelessSlot(const std::string& javaScript);
   ~WStatelessSlot();
 
   typedef void (WObject::*WObjectMethod)();
@@ -36,7 +37,7 @@ public:
   void setJavaScript(const std::string& javaScript);
 
   bool addConnection(EventSignalBase *);
-  void removeConnection(EventSignalBase *);	
+  bool removeConnection(EventSignalBase *);	
 
   const std::string& javaScript() const { return jscript_; }
 

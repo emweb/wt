@@ -19,7 +19,7 @@ namespace Wt {
 /*! \brief Abstract base class for a prepared SQL statement.
  *
  * The statement may be used multiple times, but cannot be used
- * concurrently.
+ * concurrently. It also cannot be copied.
  *
  * This class is part of Wt::Dbo's backend API, and should not be used
  * directly. Its interface must be reimplemented for each backend
@@ -185,6 +185,8 @@ protected:
   SqlStatement();
 
 private:
+  SqlStatement(const SqlStatement&); // non-copyable
+
   bool inuse_;
 };
 

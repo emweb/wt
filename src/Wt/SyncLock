@@ -1,0 +1,108 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WT_SYNC_LOCK_H_
+#define WT_SYNC_LOCK_H_
+
+#include <Wt/WGlobal>
+#include <Wt/WApplication>
+#include <boost/thread.hpp>
+
+namespace Wt {
+
+/*! \class SyncLock Wt/SyncLock Wt/SyncLock
+ *  \brief An dead-lock avoidance adaptor for a Boost mutex lock.
+ *
+ * A %SyncLock adapts a Boost mutex lock (such as boost::mutex::scoped_lock),
+ * and provides the same API as the original lock (it derives from it).
+ *
+ * Just as can be expected by a lock, a call to lock() will block until the
+ * thread has exclusive access to the mutex.
+ *
+ * While waiting to acquire the lock, however, the current
+ * Wt::WApplication lock, may be temporarily released in favor of
+ * another helper thread trying to acquire the application lock. Thus,
+ * you need to be aware that when the lock is taken, some other thread
+ * may have modified the current application state.
+ *
+ * A sync lock is useful in the context of a deployment where multiple
+ * (or all) WApplication instances are running in a single process and
+ * communicating with each other (such as the built-in httpd). Then,
+ * this lock adaptor helps in avoiding a dead-lock situation when
+ * applications wants to access a shared resource protected by a
+ * mutex, which communicates to other applications while taking their
+ * update lock. In that case, it is likely that you will also want to
+ * iterate over all "registered" applications while holding the global
+ * mutex, and this creates a natural dead-lock scenario because you
+ * have two mutexes (global mutex, application mutex) which are
+ * sequentially aquired in a different order:
+ *  - application mutex -> global mutex, during an application request
+ *  - global mutex -> application mutex, while propagating events to applications
+ *
+ * The altered behaviour of a call by application <i>A</i> to lock()
+ * is that this application <i>A</i>'s state may be updated by another
+ * thread (e.g. serving application <i>B</i>), which tries to take
+ * <i>A</i>'s update lock.
+ *
+ * The following conventional locking code:
+ * \code
+ *   boost::recursive_mutex::scoped_lock lock(mutex_);
+ * \endcode
+ * is updated to a sync lock, by doing:
+ * \code
+ *   Wt::SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
+ * \endcode
+ */
+template <class Lock>
+class WT_API SyncLock : public Lock
+{
+public:
+  /*! \brief Creates a RIIA lock.
+   *
+   * Initializes and acquires exclusive access to the \p mutex.
+   */
+  template <class Mutex>
+  SyncLock(Mutex& mutex)
+    : Lock(mutex, boost::defer_lock)
+  {
+    lock();
+  }
+
+  /*! \brief Creates a RIIA lock, but defers taking the lock.
+   *
+   * Initialize the lock but defers taking the lock.
+   *
+   * \sa lock()
+   */
+  template <class Mutex>
+  SyncLock(Mutex& mutex, boost::defer_lock_t)
+    : Lock(mutex, boost::defer_lock)
+  { }
+
+  /*! \brief Tries to acquire the lock, blocking while waiting.
+   *
+   * While an application <i>A</i> is waiting for the lock, its state
+   * may be updated by another application: another application
+   * <i>B</i> can succesfully take <i>A's</i> \link
+   * WApplication::UpdateLock update lock\endlink.
+   *
+   * Therefore you need to be prepared to deal with application state
+   * changes while waiting for the lock.
+   */
+  void lock() {
+    WApplication *app = WApplication::instance();
+    if (app) {
+      int id = app->startWaitingAtLock();
+      Lock::lock();
+      app->endWaitingAtLock(id);
+    } else
+      Lock::lock();
+  }
+};
+
+}
+
+#endif // WT_SYNC_LOCK_H_

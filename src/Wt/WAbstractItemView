@@ -722,6 +722,7 @@ protected:
   void setEditorWidget(const WModelIndex& index, WWidget *editor);
 
   void bindObjJS(JSlot& slot, const std::string& jsMethod);
+  void connectObjJS(EventSignalBase& s, const std::string& jsMethod);
 
 private:
   struct Editor {

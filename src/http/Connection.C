@@ -124,7 +124,7 @@ void Connection::handleReadRequest(const asio_error_code& e,
     handleReadRequest0();
   } else if (e != asio::error::operation_aborted
 	     && e != asio::error::bad_descriptor) {
-    //std::cerr << "asio error: " << this << " " << e.message() << std::endl;
+    // std::cerr << "asio error: " << this << " " << e.message() << std::endl;
     ConnectionManager_.stop(shared_from_this());
   }
 }

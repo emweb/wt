@@ -457,15 +457,12 @@ private:
   JSignal<std::string> filter_;
   JSignal<std::string, std::string> jactivated_;
 
-  JSlot editKeyDown_, editKeyUp_, editClick_, editMouseMove_;
-  JSlot delayHide_;
-
   std::vector<WFormWidget *> edits_;
 
   void init();
   void doFilter(std::string input);
   void doActivate(std::string itemId, std::string editId);
-  void setJavaScript(JSlot& slot, const std::string& methodName);
+  void connectObjJS(EventSignalBase& s, const std::string& methodName);
 
   void modelRowsInserted(const WModelIndex& parent, int start, int end);
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);

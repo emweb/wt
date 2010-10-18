@@ -64,12 +64,7 @@ WSuggestionPopup::WSuggestionPopup(const Options& options,
     filterModel_(this),
     activated_(this),
     filter_(impl_, "filter"),
-    jactivated_(impl_, "select"),
-    editKeyDown_(parent), // should be this, but IE hack...
-    editKeyUp_(parent),
-    editClick_(parent),
-    editMouseMove_(parent),
-    delayHide_(parent)
+    jactivated_(impl_, "select")
 {
   init();
 }
@@ -87,12 +82,7 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
     matcherJS_(matcherJS),
     replacerJS_(replacerJS),
     filter_(impl_, "filter"),
-    jactivated_(impl_, "select"),
-    editKeyDown_(parent), // should be this, but IE hack...
-    editKeyUp_(parent),
-    editClick_(parent),
-    editMouseMove_(parent),
-    delayHide_(parent)
+    jactivated_(impl_, "select")
 {
   init();
 }
@@ -109,12 +99,6 @@ void WSuggestionPopup::init()
 
   setAttributeValue("style", "z-index: 10000");
   setPositionScheme(Absolute);
-
-  setJavaScript(editKeyDown_, "editKeyDown");
-  setJavaScript(editKeyUp_, "editKeyUp");
-  setJavaScript(delayHide_, "delayHide");
-  setJavaScript(editClick_, "editClick");
-  setJavaScript(editMouseMove_, "editMouseMove");
 
   hide();
 
@@ -165,7 +149,7 @@ void WSuggestionPopup::render(WFlags<RenderFlag> flags)
   WCompositeWidget::render(flags);
 }
 
-void WSuggestionPopup::setJavaScript(JSlot& slot, 
+void WSuggestionPopup::connectObjJS(EventSignalBase& s, 
 				     const std::string& methodName)
 {
   std::string jsFunction = 
@@ -173,7 +157,7 @@ void WSuggestionPopup::setJavaScript(JSlot& slot,
     """var o = jQuery.data(" + jsRef() + ", 'obj');"
     """if (o) o." + methodName + "(obj, event);"
     "}";
-  slot.setJavaScript(jsFunction);
+  s.connect(jsFunction);
 }
 
 void WSuggestionPopup::setModel(WAbstractItemModel *model)
@@ -297,18 +281,18 @@ void WSuggestionPopup::modelLayoutChanged()
 
 void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
 {
-  edit->keyPressed().connect(editKeyDown_);
-  edit->keyWentDown().connect(editKeyDown_);
-  edit->keyWentUp().connect(editKeyUp_);
-  edit->blurred().connect(delayHide_);
+  connectObjJS(edit->keyPressed(), "editKeyDown");
+  connectObjJS(edit->keyWentDown(), "editKeyDown");
+  connectObjJS(edit->keyWentUp(), "editKeyUp");
+  connectObjJS(edit->blurred(), "delayHide");
 
   if (triggers & Editing)
     edit->addStyleClass("Wt-suggest-onedit");
 
   if (triggers & DropDownIcon) {
     edit->addStyleClass("Wt-suggest-dropdown");
-    edit->clicked().connect(editClick_);
-    edit->mouseMoved().connect(editMouseMove_);
+    connectObjJS(edit->clicked(), "editClick");
+    connectObjJS(edit->mouseMoved(), "editMouseMove");
   }
 
   edits_.push_back(edit);

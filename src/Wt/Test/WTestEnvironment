@@ -236,7 +236,7 @@ public:
 
 private:
   Configuration *configuration_;
-  WebSession    *session;
+  boost::shared_ptr<WebSession> theSession_;
   WebController *controller_;
 
   void init(EntryPointType type);

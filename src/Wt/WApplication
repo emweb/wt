@@ -782,7 +782,7 @@ public:
    */
   std::string sessionId() const;
 
-  WebSession *session() { return session_; }
+  WebSession *session() const { return session_; }
 
   /** @name Manipulation outside the main event loop
    */
@@ -809,6 +809,19 @@ public:
    * concurrency problems, whenever you modify the application's state
    * from another thread.
    *
+   * \if cpp
+   * At any time, the application may be deleted (e.g. because
+   * of a time out or because the user closes the application
+   * window). You should thus make sure you do no longer reference an
+   * application after it has been deleted. When Wt decides to delete
+   * an application, it first runs WApplication::finalize() and then
+   * invokes the destructor. While doing this, any other thread trying
+   * to grab the update lock will succeed but WApplication::instance()
+   * will return 0 -- i.e. the application is not actually locked. You
+   * should therefore always check WApplication::instance() after you
+   * locked the application.
+   * \endif
+   *
    * An example of how to modify the widget tree outside the event loop
    * and propagate changes is:
    * \if cpp
@@ -821,13 +834,15 @@ public:
    *
    * {
    *   // Grab the application lock. It is a scoped lock.
-   *   Wt::WApplication::UpdateLock lock = app->getUpdateLock();
+   *   Wt::WApplication::UpdateLock lock(app);
    *
-   *   // We now have exclusive access to the application: we can safely modify the widget tree for example.
-   *   app->root()->addWidget(new Wt::WText("Something happened!"));
+   *   if (Wt::WApplication::instance() == app) {
+   *     // We now have exclusive access to the application: we can safely modify the widget tree for example.
+   *     app->root()->addWidget(new Wt::WText("Something happened!"));
    *
-   *   // Push the changes to the browser
-   *   app->triggerUpdate();
+   *     // Push the changes to the browser
+   *     app->triggerUpdate();
+   *   }
    * }
    * \endcode
    * \else
@@ -870,57 +885,112 @@ public:
    * event loop. This is only possible after a call to
    * enableUpdates(), and must be done while holding the UpdateLock.
    *
-   * \sa enableUpdates(), getUpdateLock()
+   * \sa enableUpdates(), UpdateLock
    */
   void triggerUpdate();
 
-  /*! \brief A synchronisation lock for manipulating and updating the
+  /*! \if cpp
+   *  \brief A RIIA lock for manipulating and updating the
    *         application and its widgets outside of the event loop.
+   *  \else
+   *  \brief A synchronization lock for manipulating and updating the
+   *         application and its widgets outside of the event loop.
+   *  \endif
    *
-   * You need to get this lock only when you want to manipulate
+   * You need to take this lock only when you want to manipulate
    * widgets outside of the event loop. Inside the event loop, this
    * lock is already held by the library itself.
    *
-   * \sa getUpdateLock();
+   * \if java
+   * \sa getUpdateLock()
+   * \endif
    */
-  class WT_API UpdateLock {
+  class WT_API UpdateLock
+  {
   public:
 #ifndef WT_TARGET_JAVA
-    /*! \brief Copy constructor.
+    /*! \brief Creates and locks the given application.
      *
-     * By copying the lock, the lock is transferred. The original
+     * The lock guarantees exclusive access to modify the
+     * application's state.
+     *
+     * When one application <i>A</i> is trying to take the lock of an
+     * another application <i>B</i>, this lock behaves like a
+     * Wt::SyncLock. Thus while application <i>A</i> waiting for
+     * application <i>B</i>'s update lock, application <i>B</i> or
+     * <i>C</i> may succesfully take application <i>A</i>'s update
+     * lock, in this way avoiding dead-lock situations.
+     *
+     * \if cpp
+     * As soon as the library decides to destroy the application, the
+     * lock will no longer succeed in taking the application lock. You
+     * can need to detect this by checking that after the lock is taken,
+     * the lock is taken:
+     * \code
+     * WApplication::UpdateLock lock(app);
+     * if (lock) {
+     *   // exclusive access to app state
+     * }
+     * \endif
+     */
+    UpdateLock(WApplication *app);
+
+    /*! \brief Copy constructor (<b>deprecated</b>).
+     *
+     * By copying the lock, lock ownership is transferred. The original
      * object becomes empty, and its destructor has no longer the
      * effect of releasing the lock.
+     *
+     * \deprecated use UpdateLock(WApplication *) instead of getUpdateLock()
+     *             which requires this copy.
      */
     UpdateLock(const UpdateLock&);
 
-    /*! \brief Releases and destroys the scope dependent lock
+    operator bool() const { return ok_; }
+
+    /*! \brief Releases the lock.
      */
     ~UpdateLock();
+
 #else
-    /*! \brief Releases the scope dependent lock
+    /*! \brief Releases the lock.
      */
     void release();
 #endif
 
   private:
-    UpdateLock(WApplication& app);
+#ifdef WT_TARGET_JAVA
+    UpdateLock(WApplication *app);
+#endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
     mutable UpdateLockImpl *impl_;
-#endif // WT_TARGET_JAVA
+    bool ok_;
+#endif // !WT_TARGET_JAVA
 
     friend class WApplication;
   };
 
-  /*! \brief Grabs and returns the lock for manipulating widgets outside
-   *         the event loop.
+  /*!
+   * \if cpp
+   * \brief Grabs and returns the lock for manipulating widgets outside
+   *        the event loop (<b>deprecated</b>).
+   * \endif cpp
+   * \if java
+   * \brief Grabs and returns the lock for manipulating widgets outside
+   *        the event loop.
+   * \endif java
    *
    * You need to keep this lock in scope while manipulating widgets
-   * outside of the event loop. In normal cases, inside the %Wt event loop,
-   * you do not need to care about it.
+   * outside of the event loop. In normal cases, inside the %Wt event
+   * loop, you do not need to care about it.
    *
    * \sa enableUpdates(), triggerUpdate()
+   *
+   * \if cpp
+   * \deprecated Use the RIIA-style UpdateLock(WApplication *) constructor
+   *             instead.
+   * \endif cpp
    */
   UpdateLock getUpdateLock();
 
@@ -931,12 +1001,12 @@ public:
    * corresponds to the session currently being handled by the
    * thread. This is set automatically by the library whenever an
    * event is delivered to the application, or when you use the
-   * getUpdateLock() to modify the application from an auxiliary
-   * thread outside the normal event loop.
+   * UpdateLock to modify the application from an auxiliary thread
+   * outside the normal event loop.
    *
    * When you want to manipulate the widget tree inside the main event
    * loop, but from within an auxiliary thread, then you cannot use
-   * the getUpdateLock() since this will create an immediate dead
+   * the UpdateLock since this will create an immediate dead
    * lock. Instead, you may attach the auxiliary thread to the
    * application, by calling this method from the auxiliary thread,
    * and in this way you can modify the application from within that
@@ -1537,6 +1607,7 @@ private:
    * Basic application stuff
    */
   WebSession            *session_;     // session owning this application
+  boost::weak_ptr<WebSession> weakSession_; // used to sense destruction
   WString                title_;
   WString                closeMessage_;
   bool                   titleChanged_, closeMessageChanged_;
@@ -1551,7 +1622,7 @@ private:
   Signal<std::string>    internalPathChanged_;
   bool                   internalPathIsChanged_;
   int                    serverPush_;
-  bool			 shouldTriggerUpdate_;
+  bool			 modifiedWithoutEvent_;
 #ifndef WT_TARGET_JAVA
   boost::pool<boost::default_user_allocator_new_delete> *eventSignalPool_;
 #endif // WT_TARGET_JAVA
@@ -1651,6 +1722,11 @@ private:
 
   static bool pathMatches(const std::string& path, const std::string& query);
 
+#ifndef WT_TARGET_JAVA
+  int startWaitingAtLock();
+  void endWaitingAtLock(int id);
+#endif // WT_TARGET_JAVA
+
   std::string focus() const { return focusId_; }
   int selectionStart() const { return selectionStart_; }
   int selectionEnd() const { return selectionEnd_; }
@@ -1685,6 +1761,8 @@ private:
   friend class WSound;
   friend class Ext::Dialog;
   friend class Ext::MessageBox;
+
+  template <class Lock> friend class SyncLock;
 };
 
 #ifdef WIN32

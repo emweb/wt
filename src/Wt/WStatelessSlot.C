@@ -31,6 +31,14 @@ WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method,
     jscript_(javaScript)
 { }
 
+WStatelessSlot::WStatelessSlot(const std::string& javaScript)
+  : target_(0),
+    method_(0),
+    undoMethod_(0),
+    learned_(true),
+    jscript_(javaScript)
+{ }
+
 WStatelessSlot::~WStatelessSlot()
 {
   for (unsigned i = 0; i < connectingSignals_.size(); ++i)
@@ -113,9 +121,9 @@ bool WStatelessSlot::addConnection(EventSignalBase* s)
     return false;
 }	
 
-void WStatelessSlot::removeConnection(EventSignalBase* s)	
+bool WStatelessSlot::removeConnection(EventSignalBase* s)	
 {
-  Utils::erase(connectingSignals_, s);
+  return Utils::erase(connectingSignals_, s);
 }
 
 }

@@ -346,8 +346,7 @@ private:
 
   ToggleButtonConfig *expandConfig_;
 
-  JSlot tieContentsHeaderScrollJS_, tieRowsScrollJS_,
-    itemClickedJS_, itemDoubleClickedJS_, itemMouseDownJS_, itemMouseUpJS_;
+  JSlot tieRowsScrollJS_;
   
   virtual ColumnInfo createColumnInfo(int column) const;
 

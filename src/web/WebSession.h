@@ -148,6 +148,7 @@ public:
 
   class Handler {
   public:
+    Handler();
     Handler(boost::shared_ptr<WebSession> session,
 	    WebRequest& request, WebResponse& response);
     Handler(boost::shared_ptr<WebSession> session, bool takeLock);
@@ -169,15 +170,17 @@ public:
     int nextSignal;
     std::vector<unsigned int> signalOrder;
 
+    boost::mutex::scoped_lock& lock() { return lock_; }
+
+    static void attachThreadToSession(boost::shared_ptr<WebSession> session);
+    static Handler *attachThreadToHandler(Handler *handler);
+
   private:
     void init();
-
-    static void attachThreadToSession(WebSession& session);
 
     void setRequest(WebRequest *request, WebResponse *response);
 
 #ifdef WT_THREADED
-    boost::mutex::scoped_lock& lock() { return lock_; }
     boost::mutex::scoped_lock lock_;
 
     Handler(const Handler&);
@@ -212,6 +215,18 @@ public:
   void setLoaded();
 
   void generateNewSessionId();
+
+#ifndef WT_TARGET_JAVA
+  /*
+   * SyncLocks
+   */
+  struct SyncLocks {
+    boost::mutex state_;
+    boost::condition unlock_;
+    int lastId_;
+    int lockedId_;
+  } syncLocks_;
+#endif // WT_TARGET_JAVA
 
 private:
   /*
@@ -257,7 +272,7 @@ private:
   WApplication *app_;
   bool          debug_;
 
-  int handlerCount_;
+  std::vector<Handler *> handlers_;
   std::vector<WObject *> emitStack_;
 
   Handler *recursiveEventLoop_;

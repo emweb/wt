@@ -917,12 +917,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
     headerContainer_(0),
     contentsContainer_(0),
     scrollBarC_(0),
-    itemEvent_(impl_, "itemEvent"),
-    tieContentsHeaderScrollJS_(this),
-    itemClickedJS_(this),
-    itemDoubleClickedJS_(this),
-    itemMouseDownJS_(this),
-    itemMouseUpJS_(this)
+    itemEvent_(impl_, "itemEvent")
 {
   setSelectable(false);
 
@@ -1116,7 +1111,15 @@ void WTreeView::setup()
     contentsContainer_->setStyleClass("cwidth");
     contentsContainer_->setOverflow(WContainerWidget::OverflowAuto);
     contentsContainer_->scrolled().connect(this, &WTreeView::onViewportChange);
-    contentsContainer_->scrolled().connect(tieContentsHeaderScrollJS_);
+    contentsContainer_->scrolled().connect
+      ("function(obj, event) {"
+       "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
+       /* the following is a workaround for IE7 */
+       """var t = " + contents_->jsRef() + ".firstChild;"
+       """var h = " + headers_->jsRef() + ";"
+       """h.style.width = (t.offsetWidth - 1) + 'px';"
+       """h.style.width = t.offsetWidth + 'px';"
+       "}");
     contentsContainer_->addWidget(contents_);
 
     layout->addWidget(headerContainer_);
@@ -1141,23 +1144,6 @@ void WTreeView::setup()
   }
 
   setRowHeight(rowHeight());
-
-  bindObjJS(itemClickedJS_, "click");
-  bindObjJS(itemDoubleClickedJS_, "dblClick");
-  bindObjJS(itemMouseDownJS_, "mouseDown");
-  bindObjJS(itemMouseUpJS_, "mouseUp");
-
-  if (headerContainer_)
-    tieContentsHeaderScrollJS_.setJavaScript
-      ("function(obj, event) {"
-       "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
-       /* the following is a workaround for IE7 */
-       """var t = " + contents_->jsRef() + ".firstChild;"
-       """var h = " + headers_->jsRef() + ";"
-       """h.style.width = (t.offsetWidth - 1) + 'px';"
-       """h.style.width = t.offsetWidth + 'px';"
-       "}");
-
 }
 
 void WTreeView::defineJavaScript()
@@ -1585,12 +1571,12 @@ void WTreeView::rerenderTree()
   rootNode_->resize(WLength(100, WLength::Percentage), 1);
 
   if (WApplication::instance()->environment().ajax()) {
-    rootNode_->clicked().connect(itemClickedJS_);
-    rootNode_->doubleClicked().connect(itemDoubleClickedJS_);
+    connectObjJS(rootNode_->clicked(), "click");
+    connectObjJS(rootNode_->doubleClicked(), "dblClick");
     if (mouseWentDown().isConnected() || dragEnabled_)
-      rootNode_->mouseWentDown().connect(itemMouseDownJS_);
+      connectObjJS(rootNode_->mouseWentDown(), "mouseDown");
     if (mouseWentUp().isConnected())
-      rootNode_->mouseWentUp().connect(itemMouseUpJS_);
+      connectObjJS(rootNode_->mouseWentUp(), "mouseUp");
   }
 
   setRootNodeStyle();

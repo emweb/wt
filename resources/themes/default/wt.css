@@ -349,6 +349,15 @@ div.Wt-progressbar .Wt-pgb-label
 }
 
 /*
+ * WSpinBox
+ */
+.Wt-spinbox {
+    background-image: url('spin-buttons.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+/*
  * WTabWidget
  */
 .Wt-tabs {

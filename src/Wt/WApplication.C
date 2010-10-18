@@ -71,12 +71,13 @@ bool WApplication::ScriptLibrary::operator== (const ScriptLibrary& other) const
 
 WApplication::WApplication(const WEnvironment& env)
   : session_(env.session_),
+    weakSession_(session_->shared_from_this()),
     titleChanged_(false),
     closeMessageChanged_(false),
     localizedStrings_(0),
     internalPathChanged_(this),
     serverPush_(0),
-    shouldTriggerUpdate_(false),
+    modifiedWithoutEvent_(false),
 #ifndef WT_CNOR
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
 #endif
@@ -317,7 +318,7 @@ WApplication::~WApplication()
 
 void WApplication::attachThread()
 {
-  WebSession::Handler::attachThreadToSession(*session_);
+  WebSession::Handler::attachThreadToSession(weakSession_.lock());
 }
 
 void WApplication::setAjaxMethod(AjaxMethod method)
@@ -336,7 +337,7 @@ std::string WApplication::resourcesUrl()
 
   return WApplication::instance()->fixRelativeUrl(result);
 #else
-  const std::string* path = WApplication::instance()->session_->controller()
+  const std::string* path = WebSession::instance()->controller()
     ->configuration().property(WApplication::RESOURCES_URL);
   /*
    * Arghll... we should in fact know when we need the absolute URL: only
@@ -357,7 +358,7 @@ std::string WApplication::resourcesUrl()
 #ifndef WT_TARGET_JAVA
 std::string WApplication::appRoot()
 {
-  return WApplication::instance()->session_->controller()->configuration().appRoot();
+  return WebSession::instance()->controller()->configuration().appRoot();
 }
 #endif // WT_TARGET_JAVA
 
@@ -499,7 +500,7 @@ WEnvironment& WApplication::env()
 
 void WApplication::setTitle(const WString& title)
 {
-  if (session()->renderer().preLearning() || title_ != title) {
+  if (session_->renderer().preLearning() || title_ != title) {
     title_ = title;
     titleChanged_ = true;
   }
@@ -1051,7 +1052,7 @@ void WApplication::enableUpdates(bool enabled)
 
 void WApplication::triggerUpdate()
 {
-  if (!shouldTriggerUpdate_)
+  if (!modifiedWithoutEvent_)
     return;
 
   if (serverPush_ > 0)
@@ -1064,51 +1065,147 @@ void WApplication::triggerUpdate()
 
 WApplication::UpdateLock WApplication::getUpdateLock()
 {
-  return UpdateLock(*this);
+  return UpdateLock(this);
 }
 
 #ifndef WT_TARGET_JAVA
+int WApplication::startWaitingAtLock()
+{
+  WebSession::SyncLocks& syncLocks = session_->syncLocks_;
+
+  boost::mutex::scoped_lock guard(syncLocks.state_);
+
+  return ++syncLocks.lastId_;
+}
+
+void WApplication::endWaitingAtLock(int id)
+{
+  WebSession::SyncLocks& syncLocks = session_->syncLocks_;
+
+  boost::mutex::scoped_lock guard(syncLocks.state_);
+
+  /*
+   * This is all untested, we never have had a case where we were actually
+   * waiting at a lock that got through before we were allowed
+   */
+
+  // If we are not the last sync lock, we definitely need to block
+  while (id < syncLocks.lastId_)
+    syncLocks.unlock_.wait(guard);
+
+  // We need to block if an update lock relies on us
+  while (id == syncLocks.lockedId_) {
+    syncLocks.unlock_.wait(guard);
+  }
+
+  --syncLocks.lastId_;
+
+  syncLocks.unlock_.notify_all();
+}
+
 class UpdateLockImpl
 {
 public:
-  UpdateLockImpl(WApplication& app)
-    : handler_(app.session()->shared_from_this(), true)
-  { 
-    app.shouldTriggerUpdate_ = true;
+  UpdateLockImpl(WApplication *app)
+    : handler_(0)
+  {
 #ifndef WT_THREADED
     throw WtException("UpdateLock needs Wt with thread support");
+#else
+    WApplication *selfApp = 0;
+
+    prevHandler_ = WebSession::Handler::instance();
+    if (prevHandler_)
+      selfApp = prevHandler_->session()->app();
+
+    handler_ = new WebSession::Handler(app->weakSession_.lock(), false);
+
+    for (;;) {
+      if (handler_->lock().try_lock()) {
+	app->modifiedWithoutEvent_ = true;
+	return;
+      }
+
+      WebSession::SyncLocks& syncLocks = app->session_->syncLocks_;
+      boost::mutex::scoped_lock guard(syncLocks.state_);
+
+      // See if the current application thread is being held in a sync lock
+      if (syncLocks.lastId_ > syncLocks.lockedId_) {
+	// std::cerr << "Using a sync lock." << std::endl;
+	delete handler_;
+	handler_ = 0;
+
+	assert(syncLocks.lastId_ == syncLocks.lockedId_ + 1);
+	syncLockId_ = syncLocks.lockedId_ = syncLocks.lastId_;
+
+	WebSession::Handler::attachThreadToSession(app->weakSession_.lock());
+	return;
+      }
+
+      if (selfApp) {
+	int id = selfApp->startWaitingAtLock();
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+	selfApp->endWaitingAtLock(id);
+      }
+    }
 #endif // WT_THREADED
   }
 
-  ~UpdateLockImpl()
-  {
-    wApp->shouldTriggerUpdate_ = false;
+#ifdef WT_THREADED
+  ~UpdateLockImpl() {
+    if (handler_) {
+      handler_->session()->app()->modifiedWithoutEvent_ = false;
+      delete handler_;
+    } else {
+      assert(syncLockId_);
+
+      WebSession::SyncLocks& syncLocks
+	= WApplication::instance()->session_->syncLocks_;
+
+      assert(syncLockId_ == syncLocks.lockedId_);
+      --syncLocks.lockedId_;
+
+      syncLocks.unlock_.notify_all();
+
+      WebSession::Handler::attachThreadToHandler(prevHandler_);
+    }
   }
+#endif // WT_THREADED
 
 private:
-  WebSession::Handler handler_;
+  // Handler which we created for actual lock
+  WebSession::Handler *handler_;
+
+  // Sync lock state
+  int syncLockId_;
+  WebSession::Handler *prevHandler_; 
 };
 
-WApplication::UpdateLock::UpdateLock(WApplication& app)
-  : impl_(0)
+WApplication::UpdateLock::UpdateLock(WApplication *app)
+  : impl_(0),
+    ok_(true)
 {
   /*
    * If we are already handling this application, then we already have
-   * exclusive access.
-   *
-   * However, this is not the way to detect because a user may also just
-   * have done attachThread(): we need to check if we already have
-   * a handler
+   * exclusive access, unless we are not having the lock (e.g. from a
+   * WResource::handleRequest()).
    */
   WebSession::Handler *handler = WebSession::Handler::instance();
 
-  if (!handler || !handler->haveLock() || handler->session() != app.session_)
+  boost::shared_ptr<WebSession> appSession = app->weakSession_.lock();
+  if (handler && handler->haveLock() && handler->session() == appSession.get())
+    return;
+
+  if (appSession.get())
     impl_ = new UpdateLockImpl(app);
+  else
+    ok_ = false;
 }
 
 WApplication::UpdateLock::UpdateLock(const UpdateLock& other)
 {
   impl_ = other.impl_;
+
   other.impl_ = 0;
 }
 
@@ -1122,29 +1219,24 @@ WApplication::UpdateLock::~UpdateLock()
 WApplication::UpdateLock::UpdateLock(WApplication& app)
 {
   std::cerr << "Grabbing update lock" << std::endl;
-  /*
-   * If we are already handling this application, then we already have
-   * exclusive access.
-   *
-   * However, this is not the way to detect because a user may also just
-   * have done attachThread(): we need to check if we already have
-   * a handler
-   */
+
   WebSession::Handler *handler = WebSession::Handler::instance();
 
-  if (!handler || !handler->haveLock() || handler->session() != app.session_) {
-    std::cerr << "Creating new handler for app: app.sessionId()" << std::endl;
-    new WebSession::Handler(app.session(), true);
-    app.shouldTriggerUpdate_ = true;
-  }
+  if (handler && handler->haveLock() && handler->session() == app.session_)
+    return;
+
+  std::cerr << "Creating new handler for app: app.sessionId()" << std::endl;
+  new WebSession::Handler(app.session_, true);
+
+  app.modifiedWithoutEvent_ = true;
 }
 
 void WApplication::UpdateLock::release()
 {
   std::cerr << "Releasing update lock" << std::endl;
-  if (WApplication::instance()->shouldTriggerUpdate_) {
+  if (WApplication::instance()->modifiedWithoutEvent_) {
     std::cerr << "Releasing handler" << std::endl;
-    WApplication::instance()->shouldTriggerUpdate_ = false;
+    WApplication::instance()->modfiedWithoutEvent_ = false;
     WebSession::Handler::instance()->release();
   }
 }
@@ -1199,7 +1291,7 @@ std::string WApplication::beforeLoadJavaScript()
 
 void WApplication::notify(const WEvent& e)
 {
-  session_->notify(e);
+  WebSession::instance()->notify(e);
 }
 
 void WApplication::processEvents()
@@ -1231,7 +1323,7 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
 bool WApplication::readConfigurationProperty(const std::string& name,
 					     std::string& value)
 {
-  return WApplication::instance()->session_->controller()
+  return WebSession::instance()->controller()
     ->configuration().readConfigurationProperty(name, value);
 }
 #else
@@ -1239,8 +1331,7 @@ std::string *WApplication::readConfigurationProperty(const std::string& name,
 						     const std::string& value)
 {
   std::string* property
-    = WApplication::instance()->session_->controller()
-    ->configuration().property(name);
+    = WebSession::instance()->controller()->configuration().property(name);
 
   if (property)
     return property;

@@ -66,23 +66,23 @@ private:
 
       // Get the application update lock to update the user-interface
       // with a progress indication.
-      Wt::WApplication::UpdateLock uiLock = app->getUpdateLock();
-
-      progress_->setValue(i + 1);
-
-      app->triggerUpdate();
+      Wt::WApplication::UpdateLock uiLock(app);
+      if (uiLock) {
+	progress_->setValue(i + 1);
+	app->triggerUpdate();
+      }
     }
 
+    Wt::WApplication::UpdateLock uiLock(app);
+    if (uiLock) {
+      startButton_->enable();
+      startButton_->setText("Again!");
 
-    Wt::WApplication::UpdateLock uiLock = app->getUpdateLock();
+      app->triggerUpdate();
 
-    startButton_->enable();
-    startButton_->setText("Again!");
-
-    app->triggerUpdate();
-
-    // Disable server push
-    app->enableUpdates(false);
+      // Disable server push
+      app->enableUpdates(false);
+    }
   }
 };
 

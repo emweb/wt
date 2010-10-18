@@ -140,7 +140,6 @@ bool WebController::expireSessions()
   std::vector<boost::shared_ptr<WebSession> > toKill;
 
   bool result;
-
   {
     Time now;
 
@@ -324,10 +323,10 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
       }
 
       WApplication::UpdateLock lock = session->app()->getUpdateLock();
-      session->app()->shouldTriggerUpdate_ = true;
+      session->app()->modifiedWithoutEvent_ = true;
       if (notifier)
 	notifier->notify();
-      session->app()->shouldTriggerUpdate_ = false;
+      session->app()->modifiedWithoutEvent_ = false;
     }
   }
 #endif // WT_THREADED

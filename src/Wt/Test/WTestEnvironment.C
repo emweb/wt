@@ -49,12 +49,9 @@ WTestEnvironment::WTestEnvironment(Configuration *configuration,
 void WTestEnvironment::init(EntryPointType type)
 {
   session_ = new WebSession(controller_, "testwtd", type, "", 0, this);
+  theSession_.reset(session_);
 
-#ifndef WT_TARGET_JAVA
-  new WebSession::Handler(session_->shared_from_this(), true);
-#else
-  new WebSession::Handler(boost::shared_ptr<WebSession>(session_), true);
-#endif
+  new WebSession::Handler(theSession_, true);
 
   doesAjax_ = true;
   doesCookies_ = true;
@@ -80,7 +77,6 @@ void WTestEnvironment::init(EntryPointType type)
 WTestEnvironment::~WTestEnvironment()
 {
   delete WebSession::Handler::instance();
-  delete session_;
   delete controller_;
   delete configuration_;
 }

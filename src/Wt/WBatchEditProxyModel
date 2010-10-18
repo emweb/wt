@@ -14,12 +14,11 @@ namespace Wt {
 /*! \class WBatchEditProxyModel Wt/WBatchEditProxyModel Wt/WBatchEditProxyModel
  *  \brief A proxy model for %Wt's item models that provides batch editing.
  *
- * This proxy model does not store data itself, but presents data from
- * a source model. It's only function is to cache any editing
- * operation without modifying the underlying source model, until
- * commitAll() or revertAll() is called. In this way, you can commit
- * all the editing in batch to the underlying source model, when the
- * user confirms the changes.
+ * This proxy model presents data from a source model, and caches any
+ * editing operation without affecting the underlying source model,
+ * until commitAll() or revertAll() is called. In this way, you can
+ * commit all the editing in batch to the underlying source model,
+ * only when the user confirms the changes.
  *
  * All editing operations are supported:
  *  - changing data (setData())
@@ -27,8 +26,8 @@ namespace Wt {
  *  - inserting and removing columns (insertColumns() and removeColumns())
  *
  * The model supports both simple tabular models, as well as
- * hierarchical (tree-like / treetable-like) models, with children under items
- * in the first column.
+ * hierarchical (tree-like / treetable-like) models, with children
+ * under items in the first column.
  *
  * Default values for a newly inserted row can be set using
  * setNewRowData() and flags for its items using setNewRowFlags().

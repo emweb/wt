@@ -34,7 +34,7 @@ namespace Wt {
  *
  * Like other events, socket notification events are serial (not
  * simultaneous), and there are no thread safety issues (you don't
- * need to call WApplication::getUpdateLock() to get an update lock).
+ * need to take the WApplication::UpdateLock).
  *
  * \code
  * Wt::WSocketNotifier *notifier_;

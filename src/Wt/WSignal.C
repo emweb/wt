@@ -264,7 +264,8 @@ EventSignalBase::~EventSignalBase()
 
   for (unsigned i = 0; i < connections_.size(); ++i) {
     if (connections_[i].ok())
-      connections_[i].slot->removeConnection(this);
+      if (!connections_[i].slot->removeConnection(this))
+	delete connections_[i].slot;
   }
 }
 
@@ -294,6 +295,16 @@ void EventSignalBase::connect(JSlot& slot)
 
     senderRepaint();
   }
+}
+
+void EventSignalBase::connect(const std::string& javaScript)
+{
+  boost::signals::connection c;
+  connections_.push_back
+    (StatelessConnection(c, 0,
+			 new WStatelessSlot("(" + javaScript  + ")(o,e);")));
+
+  senderRepaint();
 }
 
 #ifndef WT_CNOR

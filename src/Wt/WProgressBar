@@ -118,6 +118,8 @@ private:
   double min_, max_, value_;
   bool changed_;
 
+  void onChange();
+
   Signal<double> valueChanged_;
   Signal<> progressCompleted_;
   

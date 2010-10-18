@@ -1,0 +1,118 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 20082010 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WSPIN_BOX_H_
+#define WSPIN_BOX_H_
+
+#include <Wt/WLineEdit>
+
+namespace Wt {
+
+/*! \class WSpinBox Wt/WSpinBox Wt/WSpinBox
+ *  \brief A spin box.
+ *
+ * The spin box provides a line edit for entering a number, with two buttons
+ * that allow to increase/decrease the value with a certain step size.
+ *
+ * %WSpinBox is an \link WWidget::setInline(bool) inline \endlink widget.
+ *
+ * <h3>CSS</h3>
+ *
+ * Using HTML4, the widget is implemented using a &lt;input
+ * type="text"&gt; The element can be styled using the
+ * <tt>Wt-spinbox</tt> style. It may be styled through the current
+ * theme, or you can override the style using internal or external CSS
+ * as appropriate.
+ *
+ * \note With the advent of HTML5, this widget will be implemented using
+ *       the native HTML5 control when available.
+ */
+class WT_API WSpinBox : public WLineEdit
+{
+public:
+  /*! \brief Creates a spin-box.
+   */
+  WSpinBox(WContainerWidget *parent = 0);
+
+  /*! \brief Sets the minimum value.
+   *
+   * The default value is 0.
+   */
+  void setMinimum(double minimum);
+
+  /*! \brief Returns the minimum value.
+   *
+   * \sa setMinimum()
+   */
+  double minimum() const { return min_; }
+
+  /*! \brief Sets the maximum value.
+   *
+   * The default value is 99.
+   */
+  void setMaximum(double maximum);
+
+  /*! \brief Returns the maximum value.
+   *
+   * \sa setMaximum()
+   */
+  double maximum() const { return max_; }
+
+  /*! \brief Sets the range.
+   *
+   * \sa setMinimum(), setMaximum()
+   */
+  void setRange(double minimum, double maximum);
+
+  /*! \brief Sets the step value.
+   *
+   * The default value is 1.
+   */
+  void setSingleStep(double step);
+
+  /*! \brief Returns the step value.
+   */
+  double singleStep() const { return step_; }
+
+  /*! \brief Sets the value.
+   *
+   * \p value must be a value between minimum() and maximum().
+   *
+   * The default value is 0
+   */
+  void setValue(double value);
+
+  /*! \brief Returns the value.
+   */
+  double value() const { return value_; }
+
+    /*! \brief A %signal that indicates when the value has changed.
+   *
+   * This signal is emitted when setValue() is called.
+   *
+   * \sa setValue()
+   */
+  Signal<double>& valueChanged() { return valueChanged_; }
+
+protected:
+  virtual void updateDom(DomElement& element, bool all);
+  virtual void propagateRenderOk(bool deep);
+  virtual void render(WFlags<RenderFlag> flags);
+
+private:
+  double min_, max_, value_, step_;
+  bool changed_;
+
+  Signal<double> valueChanged_;
+
+  void onChange();
+  void defineJavaScript();
+  void connectJavaScript(EventSignalBase& s, const std::string& methodName);
+};
+
+}
+
+#endif // WSPIN_BOX_H_

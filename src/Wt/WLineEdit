@@ -95,7 +95,7 @@ public:
    *
    * \sa text()
    */
-  void setText(const WT_USTRING& text);
+  virtual void setText(const WT_USTRING& text);
 
   /*! \brief Returns the current content.
    *

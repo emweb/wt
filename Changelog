@@ -1,3 +1,20 @@
+18-10-2010:
+	* WSignal: EventSignal::connect(): added an overload which accepts
+	a JavaScript function, as a short-cut for JSlot when connection
+	management is not needed
+
+	* WSpinBox: a spin box is in the making
+
+	* WApplication: deprecated getUpdateLock() in favour of the more
+	conventional RIIA UpdateLock(WApplication *app) constructor
+
+	* WebSession: do not access WebSession shared_ptr during ~WebSession
+	but allow acquiring the update lock to fail instead when an application
+	is slated for destruction (#564)
+
+	* SyncLock: an adaptor for a Boost Mutex lock which avoids dead-locks
+	when used while holding an application lock
+
 15-10-2010:
 	* WApplication: addMetaHeader() allows now to set http-equiv meta
 	headers and override the X-UA-Compatible meta header

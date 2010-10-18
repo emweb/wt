@@ -106,7 +106,7 @@ public:
 
 private:
   Wt::Signal<ChatEvent>         chatEvent_;
-  boost::mutex                  mutex_;
+  boost::recursive_mutex        mutex_;
 
   UserSet                       users_;
 };

@@ -128,7 +128,6 @@ private:
   int renderedFirstRow_, renderedLastRow_,
     renderedFirstColumn_, renderedLastColumn_;
 
-  JSlot itemMouseDownJS_;
   int tabIndex_;
 
   void updateTableBackground();

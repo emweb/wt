@@ -509,6 +509,7 @@ public:
 					      WStatelessSlot *slot);
   using SignalBase::connect;
   void connect(JSlot& slot);
+  void connect(const std::string& function);
 
   void senderRepaint();
 
@@ -665,6 +666,25 @@ public:
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)(const E&));
 
+  /*! \brief Connects a JavaScript function.
+   *
+   * This will provide a client-side connection between the event and
+   * a JavaScript function. The argument must be a JavaScript function
+   * which optinally accepts two arguments (the object and the event):
+   *
+   * \code
+   * function(object, event) {
+   *   ...
+   * }
+   * \endcode
+   *
+   * Unlike a JSlot, there is no automatic connection management: the
+   * connection cannot be removed. If you need automatic connection
+   * management, you should use connect(JSlot&) instead.
+   */
+  void connect(const std::string& function);
+  void connect(const char * function);
+
   /*! \brief Connects a slot that is specified as JavaScript only.
    *
    * This will provide a client-side connection between the event and
@@ -672,6 +692,12 @@ public:
    * connects, this does not cause the event to propagated to the
    * application, and thus the state changes caused by the JavaScript
    * slot are not tracked client-side.
+   *
+   * The connection is tracked, taking into account the life-time of
+   * the JSlot object, and can be updated by modifying the \p slot. If
+   * you do not need connection management (e.g. because the slot has
+   * the same life-time as the signal), then you can use connect(const
+   * std::string&) instead.
    */
   void connect(JSlot& slot);
 
@@ -711,6 +737,7 @@ public:
   virtual bool isConnected() const;
 
   boost::signals::connection connect(const boost::bound& f);
+  void connect(const std::string& function);
   void connect(JSlot& slot);
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)());
@@ -1008,6 +1035,18 @@ boost::signals::connection EventSignal<E>::connect(T *target,
 
   return dynamic_.connect(boost::bind(method, target, ::_1),
 			  boost::signals::at_front);
+}
+
+template <typename E>
+void EventSignal<E>::connect(const char *function)
+{
+  EventSignalBase::connect(function);
+}
+
+template <typename E>
+void EventSignal<E>::connect(const std::string& function)
+{
+  EventSignalBase::connect(function);
 }
 
 template <typename E>

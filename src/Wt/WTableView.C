@@ -49,8 +49,7 @@ WTableView::WTableView(WContainerWidget *parent)
     viewportLeft_(0),
     viewportWidth_(1000),
     viewportTop_(0),
-    viewportHeight_(600),
-    itemMouseDownJS_(this)
+    viewportHeight_(600)
 { 
   setSelectable(false);
 
@@ -172,7 +171,6 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->clicked()      .connect(this, &WTableView::handleSingleClick);
     canvas_->doubleClicked().connect(this, &WTableView::handleDoubleClick);
     canvas_->mouseWentDown().connect(this, &WTableView::handleMouseWentDown); 
-    canvas_->mouseWentDown().connect(itemMouseDownJS_);
     canvas_->addWidget(table_);
 
     table_->setPositionScheme(Absolute);
@@ -191,7 +189,7 @@ WTableView::WTableView(WContainerWidget *parent)
       ("{var obj = $('#" + id() + "').data('obj');"
        "if (obj) obj.autoJavaScript();}");
 
-    bindObjJS(itemMouseDownJS_, "mouseDown");
+    connectObjJS(canvas_->mouseWentDown(), "mouseDown");
   } else {
     plainTable_ = new WTable();
     plainTable_->setStyleClass("Wt-plaintable");

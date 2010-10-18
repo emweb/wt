@@ -90,6 +90,7 @@ void SimpleChatWidget::logout()
 bool SimpleChatWidget::startChat(const WString& user)
 {
   if (server_.login(user)) {
+    // FIXME, chatEvent() needs to be protected by the server mutex too
     eventConnection_
       = server_.chatEvent().connect(this, &SimpleChatWidget::processChatEvent);
     user_ = user;    
@@ -254,53 +255,55 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
    * First, take the lock to safely manipulate the UI outside of the
    * normal event loop, by having exclusive access to the session.
    */
-  WApplication::UpdateLock lock = app_->getUpdateLock();
+  WApplication::UpdateLock lock(app_);
 
-  /*
-   * Format and append the line to the conversation.
-   *
-   * This is also the step where the automatic XSS filtering will kick in:
-   * - if another user tried to pass on some JavaScript, it is filtered away.
-   * - if another user did not provide valid XHTML, the text is automatically
-   *   interpreted as PlainText
-   */
-  bool needPush = false;
-
-  /*
-   * If it is not a normal message, also update the user list.
-   */
-  if (event.type() != ChatEvent::Message) {
-    needPush = true;
-    updateUsers();
-  }
-
-  bool display = event.type() != ChatEvent::Message
-    || (users_.find(event.user()) != users_.end() && users_[event.user()]);
-
-  if (display) {
-    needPush = true;
-
-    WText *w = new WText(event.formattedHTML(user_), messages_);
-    w->setInline(false);
-    w->setStyleClass("chat-msg");
+  if (lock) {
+    /*
+     * Format and append the line to the conversation.
+     *
+     * This is also the step where the automatic XSS filtering will kick in:
+     * - if another user tried to pass on some JavaScript, it is filtered away.
+     * - if another user did not provide valid XHTML, the text is automatically
+     *   interpreted as PlainText
+     */
+    bool needPush = false;
 
     /*
-     * Leave not more than 100 messages in the back-log
+     * If it is not a normal message, also update the user list.
      */
-    if (messages_->count() > 100)
-      delete messages_->children()[0];
+    if (event.type() != ChatEvent::Message) {
+      needPush = true;
+      updateUsers();
+    }
 
-    /*
-     * Little javascript trick to make sure we scroll along with new content
-     */
-    app_->doJavaScript(messages_->jsRef() + ".scrollTop += "
-		       + messages_->jsRef() + ".scrollHeight;");
+    bool display = event.type() != ChatEvent::Message
+      || (users_.find(event.user()) != users_.end() && users_[event.user()]);
 
-    /* If this message belongs to another user, play a received sound */
-    if (event.user() != user_)
-      messageReceived_.play();
+    if (display) {
+      needPush = true;
+
+      WText *w = new WText(event.formattedHTML(user_), messages_);
+      w->setInline(false);
+      w->setStyleClass("chat-msg");
+
+      /*
+       * Leave not more than 100 messages in the back-log
+       */
+      if (messages_->count() > 100)
+	delete messages_->children()[0];
+
+      /*
+       * Little javascript trick to make sure we scroll along with new content
+       */
+      app_->doJavaScript(messages_->jsRef() + ".scrollTop += "
+			 + messages_->jsRef() + ".scrollHeight;");
+
+      /* If this message belongs to another user, play a received sound */
+      if (event.user() != user_)
+	messageReceived_.play();
+    }
+
+    if (needPush)
+      app_->triggerUpdate();
   }
-
-  if (needPush)
-    app_->triggerUpdate();
 }

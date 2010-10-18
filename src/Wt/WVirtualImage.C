@@ -32,10 +32,7 @@ WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
     imageWidth_(imageWidth),
     imageHeight_(imageHeight),
     currentX_(0),
-    currentY_(0),
-    mouseDownJS_(this),
-    mouseMovedJS_(this),
-    mouseUpJS_(this)
+    currentY_(0)
 {
   setImplementation(impl_ = new WContainerWidget());
 
@@ -59,15 +56,13 @@ void WVirtualImage::enableDragging()
   /*
    * For dragging the virtual image, in client-side JavaScript if available.
    */
-  mouseDownJS_.setJavaScript
-    ("function(obj, event) {"
+  impl_->mouseWentDown().connect("function(obj, event) {"
      "  var pc = " WT_CLASS ".pageCoordinates(event);"
      "  obj.setAttribute('dsx', pc.x);"
      "  obj.setAttribute('dsy', pc.y);"
      "}");
 
-  mouseMovedJS_.setJavaScript
-    ("function(obj, event) {"
+  impl_->mouseMoved().connect("function(obj, event) {"
      """var WT= " WT_CLASS ";"
      """var lastx = obj.getAttribute('dsx');"
      """var lasty = obj.getAttribute('dsy');"
@@ -81,14 +76,9 @@ void WVirtualImage::enableDragging()
      """}"
      "}");
 
-  mouseUpJS_.setJavaScript
-    ("function(obj, event) {"
+  impl_->mouseWentUp().connect("function(obj, event) {"
      + impl_->jsRef() + ".removeAttribute('dsx');"
      "}");
-
-  impl_->mouseWentDown().connect(mouseDownJS_);
-  impl_->mouseMoved().connect(mouseMovedJS_);
-  impl_->mouseWentUp().connect(mouseUpJS_);
 
   impl_->mouseWentUp().connect(this, &WVirtualImage::mouseUp);
   impl_->decorationStyle().setCursor(OpenHandCursor);
