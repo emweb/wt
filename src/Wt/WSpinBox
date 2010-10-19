@@ -14,8 +14,9 @@ namespace Wt {
 /*! \class WSpinBox Wt/WSpinBox Wt/WSpinBox
  *  \brief A spin box.
  *
- * The spin box provides a line edit for entering a number, with two buttons
- * that allow to increase/decrease the value with a certain step size.
+ * The spin box provides a control for entering a number. It consists
+ * of a line edit, and buttons which allow to increase or decrease the
+ * value.
  *
  * %WSpinBox is an \link WWidget::setInline(bool) inline \endlink widget.
  *
@@ -34,6 +35,8 @@ class WT_API WSpinBox : public WLineEdit
 {
 public:
   /*! \brief Creates a spin-box.
+   *
+   * The range is (0-99) and the step size 1.
    */
   WSpinBox(WContainerWidget *parent = 0);
 
@@ -111,6 +114,7 @@ private:
   void onChange();
   void defineJavaScript();
   void connectJavaScript(EventSignalBase& s, const std::string& methodName);
+  void updateValidator();
 };
 
 }

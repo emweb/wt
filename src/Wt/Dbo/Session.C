@@ -110,9 +110,10 @@ Session::~Session()
     std::cerr << "Warning: Wt::Dbo::Session exiting with "
 	      << dirtyObjects_.size() << " dirty objects" << std::endl;
 
-  for (MetaDboBaseSet::iterator i = dirtyObjects_.begin(); 
-       i != dirtyObjects_.end(); ++i)
-    (*i)->decRef();
+  while (!dirtyObjects_.empty()) {
+    MetaDboBase *b = *dirtyObjects_.begin();
+    b->decRef();
+  }
 
   dirtyObjects_.clear();
 
@@ -850,8 +851,8 @@ void Session::flush()
   while (!dirtyObjects_.empty()) {
     MetaDboBaseSet::iterator i = dirtyObjects_.begin();
     MetaDboBase *dbo = *i;
-    dirtyObjects_.erase(i);
     dbo->flush();
+    dirtyObjects_.erase(i);
     dbo->decRef();
   }
 }

@@ -277,6 +277,7 @@ void Session::implDelete(MetaDbo<C>& dbo)
   // when saved in the transaction, we will be at version() + 1
 
   statement->reset();
+  ScopedStatementUse use(statement);
 
   int column = 0;
   dbo.bindId(statement, column);
@@ -296,8 +297,6 @@ void Session::implDelete(MetaDbo<C>& dbo)
       throw StaleObjectException(boost::lexical_cast<std::string>(dbo.id()),
 				 version);
   }
-
-  statement->done();
 }
 
 template<class C>
@@ -316,8 +315,13 @@ void Session::implLoad(MetaDbo<C>& dbo, SqlStatement *statement, int& column)
   LoadDbAction<C> action(dbo, *getMapping<C>(), statement, column);
 
   C *obj = new C();
-  action.visit(*obj);
-  dbo.setObj(obj);
+  try {
+    action.visit(*obj);
+    dbo.setObj(obj);
+  } catch (...) {
+    delete obj;
+    throw;
+  }
 }
 
 template <class C>

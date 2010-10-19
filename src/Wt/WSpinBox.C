@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 #include <Wt/WApplication>
+#include <Wt/WDoubleValidator>
+#include <Wt/WIntValidator>
 #include <Wt/WSpinBox>
 
 #include "DomElement.h"
@@ -30,9 +32,17 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
 
   changed().connect(this, &WSpinBox::onChange);
 
+#ifdef WT_CNOR // ??
+  EventSignalBase& b = mouseMoved();
+  EventSignalBase& c = keyWentDown();
+#endif
+
   connectJavaScript(mouseMoved(), "mouseMove");
   connectJavaScript(mouseWentUp(), "mouseUp");
   connectJavaScript(mouseWentDown(), "mouseDown");
+  connectJavaScript(keyWentDown(), "keyDown");
+
+  updateValidator();
 }
 
 void WSpinBox::setValue(double value)
@@ -51,6 +61,8 @@ void WSpinBox::setMinimum(double minimum)
 
   changed_ = true;
   repaint(RepaintInnerHtml);
+
+  updateValidator();
 }
 
 void WSpinBox::setMaximum(double maximum)
@@ -59,6 +71,8 @@ void WSpinBox::setMaximum(double maximum)
 
   changed_ = true;
   repaint(RepaintInnerHtml);
+
+  updateValidator();
 }
 
 void WSpinBox::setRange(double minimum, double maximum)
@@ -68,10 +82,45 @@ void WSpinBox::setRange(double minimum, double maximum)
 
   changed_ = true;
   repaint(RepaintInnerHtml);
+
+  updateValidator();
+}
+
+void WSpinBox::setSingleStep(double step)
+{
+  step_ = step;
+
+  changed_ = true;
+  repaint(RepaintInnerHtml);
+
+  updateValidator();
+}
+
+void WSpinBox::updateValidator()
+{
+  if (static_cast<int>(min_) == min_
+      && static_cast<int>(max_) == max_
+      && static_cast<int>(step_) == step_)
+    setValidator(new WIntValidator(static_cast<int>(min_),
+				   static_cast<int>(max_)));
+  else
+    setValidator(new WDoubleValidator(min_, max_));
 }
 
 void WSpinBox::updateDom(DomElement& element, bool all)
 {
+  if (changed_) {
+    element.callJavaScript("jQuery.data(" + jsRef() + ", 'obj').update("
+			   + boost::lexical_cast<std::string>(min_)
+			   + ','
+			   + boost::lexical_cast<std::string>(max_)
+			   + ','
+			   + boost::lexical_cast<std::string>(step_)
+			   + ");");
+
+    changed_ = false;
+  }
+
   WLineEdit::updateDom(element, all);
 }
 
@@ -98,6 +147,7 @@ void WSpinBox::defineJavaScript()
 		    + boost::lexical_cast<std::string>(min_) + ","
 		    + boost::lexical_cast<std::string>(max_) + ","
 		    + boost::lexical_cast<std::string>(step_) + ");");
+  changed_ = false;
 }
 
 void WSpinBox::connectJavaScript(Wt::EventSignalBase& s,

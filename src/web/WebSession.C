@@ -584,7 +584,7 @@ void WebSession
   attachThreadToHandler(0);
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
-  if (!session)
+  if (!session.get())
     return;
 
   /*

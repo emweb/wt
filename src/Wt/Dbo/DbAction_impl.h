@@ -185,19 +185,21 @@ LoadDbAction<C>::LoadDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping,
 template<class C>
 void LoadDbAction<C>::visit(C& obj)
 {
+  ScopedStatementUse use(statement_);
+
   bool continueStatement = statement_ != 0;
   Session *session = dbo_.session();
 
   if (!continueStatement) {
-    statement_ = session->template getStatement<C>(Session::SqlSelectById);
+    use(statement_ = session->template getStatement<C>(Session::SqlSelectById));
     statement_->reset();
 
     int column = 0;
     dbo_.bindId(statement_, column);
+
     statement_->execute();
 
     if (!statement_->nextRow()) {
-      statement_->done();
       throw ObjectNotFoundException
 	(boost::lexical_cast<std::string>(dbo_.id()));
     }
@@ -207,15 +209,12 @@ void LoadDbAction<C>::visit(C& obj)
 
   persist<C>::apply(obj, *this);
 
-  if (!continueStatement) {
-    if (statement_->nextRow()) {
-      statement_->done();
-      throw Exception("Dbo load: multiple rows for id "
-		      + boost::lexical_cast<std::string>(dbo_.id()) + " ??");
-    }
+  if (!continueStatement && statement_->nextRow())
+    throw Exception("Dbo load: multiple rows for id "
+		    + boost::lexical_cast<std::string>(dbo_.id()) + " ??");
 
-    statement_->done();
-  }
+  if (continueStatement)
+    use(0);
 }
 
 template<class C>
@@ -274,24 +273,27 @@ void SaveBaseAction::actCollection(const CollectionRef<C>& field)
 	int statementIdx
 	  = Session::FirstSqlSelectSet + setStatementIdx() + 1;
 
-	SqlStatement *statement
-	  = dbo().session()->getStatement(mapping().tableName, statementIdx);
+	SqlStatement *statement;
 
-	for (typename std::set< ptr<C> >::iterator i = inserted.begin();
-	     i != inserted.end(); ++i) {
-	  // Make sure it is saved
-	  i->flush();
+	statement = dbo().session()->getStatement(mapping().tableName,
+						  statementIdx);
+	{
+	  ScopedStatementUse use(statement);
 
-	  statement->reset();
-	  int column = 0;
+	  for (typename std::set< ptr<C> >::iterator i = inserted.begin();
+	       i != inserted.end(); ++i) {
+	    // Make sure it is saved
+	    i->flush();
 
-	  dbo().bindId(statement, column);
-	  i->obj()->bindId(statement, column);
+	    statement->reset();
+	    int column = 0;
 
-	  statement->execute();
+	    dbo().bindId(statement, column);
+	    i->obj()->bindId(statement, column);
+
+	    statement->execute();
+	  }
 	}
-
-	statement->done();
 
 	std::set< ptr<C> >& erased = activity->erased;
 
@@ -301,21 +303,22 @@ void SaveBaseAction::actCollection(const CollectionRef<C>& field)
 	statement = dbo().session()->getStatement(mapping().tableName,
 						  statementIdx);
 
-	for (typename std::set< ptr<C> >::iterator i = erased.begin();
-	     i != erased.end(); ++i) {
-	  // Make sure it is saved (?)
-	  i->flush();
+	{
+	  ScopedStatementUse use(statement);
+	  for (typename std::set< ptr<C> >::iterator i = erased.begin();
+	       i != erased.end(); ++i) {
+	    // Make sure it is saved (?)
+	    i->flush();
 
-	  statement->reset();
-	  int column = 0;
+	    statement->reset();
+	    int column = 0;
 
-	  dbo().bindId(statement, column);
-	  i->obj()->bindId(statement, column);
+	    dbo().bindId(statement, column);
+	    i->obj()->bindId(statement, column);
 
-	  statement->execute();
+	    statement->execute();
+	  }
 	}
-
-	statement->done();
 
 	activity->transactionInserted.insert(activity->inserted.begin(),
 					     activity->inserted.end());
@@ -350,42 +353,43 @@ void SaveDbAction<C>::visit(C& obj)
   /*
    * (2) Self
    */
-  if (!statement_) {
-    isInsert_ = dbo_.deletedInTransaction()
-      || (dbo_.isNew() && !dbo_.savedInTransaction());
+  {
+    ScopedStatementUse use(statement_);
+    if (!statement_) {
+      isInsert_ = dbo_.deletedInTransaction()
+	|| (dbo_.isNew() && !dbo_.savedInTransaction());
 
-    statement_ = isInsert_
-      ? dbo_.session()->template getStatement<C>(Session::SqlInsert)
-      : dbo_.session()->template getStatement<C>(Session::SqlUpdate);
-  } else
-    isInsert_ = false;
+      use(statement_ = isInsert_
+	  ? dbo_.session()->template getStatement<C>(Session::SqlInsert)
+	  : dbo_.session()->template getStatement<C>(Session::SqlUpdate));
+    } else
+      isInsert_ = false;
 
-  startSelfPass();
-  persist<C>::apply(obj, *this);
+    startSelfPass();
+    persist<C>::apply(obj, *this);
 
-  if (!isInsert_) {
-    dbo_.bindId(statement_, column_);
+    if (!isInsert_) {
+      dbo_.bindId(statement_, column_);
 
-    if (mapping().versionFieldName) {
-      // when saved in the transaction, we will be at version() + 1
-      statement_->bind(column_++, dbo_.version()
-		       + (dbo_.savedInTransaction() ? 1 : 0));
+      if (mapping().versionFieldName) {
+	// when saved in the transaction, we will be at version() + 1
+	statement_->bind(column_++, dbo_.version()
+			 + (dbo_.savedInTransaction() ? 1 : 0));
+      }
+    }
+
+    exec();
+
+    if (!isInsert_) {
+      int modifiedCount = statement_->affectedRowCount();
+      if (modifiedCount != 1) {
+	MetaDbo<C>& dbo = static_cast< MetaDbo<C>& >(dbo_);
+	std::string idString = boost::lexical_cast<std::string>(dbo.id());
+
+	throw StaleObjectException(idString, dbo_.version());
+      }
     }
   }
-
-  exec();
-
-  if (!isInsert_) {
-    int modifiedCount = statement_->affectedRowCount();
-    if (modifiedCount != 1) {
-      MetaDbo<C>& dbo = static_cast< MetaDbo<C>& >(dbo_);
-      std::string idString = boost::lexical_cast<std::string>(dbo.id());
-
-      throw StaleObjectException(idString, dbo_.version());
-    }
-  }
-
-  statement_->done();
 
   /*
    * (3) collections:

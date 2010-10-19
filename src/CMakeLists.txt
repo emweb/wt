@@ -92,6 +92,7 @@ Wt/WFitLayout.C
 Wt/WFlashObject.C
 Wt/WFont.C
 Wt/WFormWidget.C
+Wt/WGLWidget.C
 Wt/WGoogleMap.C
 Wt/WGridLayout.C
 Wt/WGroupBox.C
@@ -119,6 +120,7 @@ Wt/WLineF.C
 Wt/WLoadingIndicator.C
 Wt/WLocalizedStrings.C
 Wt/WLogger.C
+Wt/WMatrix4x4.C
 Wt/WMemoryResource.C
 Wt/WMenu.C
 Wt/WMenuItem.C
@@ -193,7 +195,6 @@ Wt/WVectorImage.C
 Wt/WVmlImage.C
 Wt/WViewWidget.C
 Wt/WVirtualImage.C
-Wt/WGLWidget.C
 Wt/WWebWidget.C
 Wt/WWidget.C
 Wt/WWidgetItem.C

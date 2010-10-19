@@ -354,7 +354,7 @@ WGLWidget::~WGLWidget()
 
 char *WGLWidget::makeFloat(double d, char *buf)
 {
-  return Utils::round_str(d, 3, buf);
+  return Utils::round_str(d, 6, buf);
 }
 
 char *WGLWidget::makeInt(int i, char *buf)

@@ -357,6 +357,8 @@ typename collection<C>::size_type collection<C>::size() const
   }
 
   if (countStatement) {
+    ScopedStatementUse use(countStatement);
+
     countStatement->execute();
 
     if (!countStatement->nextRow())
@@ -368,8 +370,6 @@ typename collection<C>::size_type collection<C>::size() const
     
     if (countStatement->nextRow())
       throw std::runtime_error("collection<C>::size(): multiple results?");
-
-    countStatement->done();
 
     if (type_ == QueryCollection) {
       data_.query.size = result;

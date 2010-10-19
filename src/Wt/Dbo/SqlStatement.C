@@ -31,5 +31,20 @@ void SqlStatement::done()
   inuse_ = false;
 }
 
+ScopedStatementUse::ScopedStatementUse(SqlStatement *statement)
+  : s_(statement)
+{ }
+
+void ScopedStatementUse::operator()(SqlStatement *statement)
+{
+  s_ = statement;
+}
+
+ScopedStatementUse::~ScopedStatementUse()
+{
+  if (s_)
+    s_->done();
+}
+
   }
 }

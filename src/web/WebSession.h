@@ -170,7 +170,9 @@ public:
     int nextSignal;
     std::vector<unsigned int> signalOrder;
 
+#ifdef WT_THREADED
     boost::mutex::scoped_lock& lock() { return lock_; }
+#endif
 
     static void attachThreadToSession(boost::shared_ptr<WebSession> session);
     static Handler *attachThreadToHandler(Handler *handler);

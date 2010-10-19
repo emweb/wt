@@ -28,12 +28,20 @@ Transaction::Transaction(Session& session)
 
 Transaction::~Transaction()
 {
-  if (!committed_)
-    rollback();
-
   --impl_->transactionCount_;
 
-  if (impl_->transactionCount_ == 0)
+  // Either this Transaction shell was not committed, or the commit failed.
+  if (!committed_ || (impl_->transactionCount_ == 0 && isActive())) {
+    try {
+      rollback();
+      if (impl_->transactionCount_ == 0)
+	delete impl_;
+    } catch (std::exception& e) {
+      if (impl_->transactionCount_ == 0)
+	delete impl_;
+      throw e;
+    }
+  } else if (impl_->transactionCount_ == 0)
     delete impl_;
 }
 
@@ -101,8 +109,12 @@ void Transaction::Impl::commit()
 
 void Transaction::Impl::rollback()
 {
-  if (open_)
-    connection_->rollbackTransaction();
+  try {
+    if (open_)
+      connection_->rollbackTransaction();
+  } catch (const std::exception& e) {
+    std::cerr << "Transaction::rollback(): " << e.what() << std::endl;
+  }
 
   for (unsigned i = 0; i < objects_.size(); ++i) {
     objects_[i]->transactionDone(false);

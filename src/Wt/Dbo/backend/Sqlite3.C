@@ -237,6 +237,7 @@ public:
       }
       break;
     case Done:
+      done();
       throw Sqlite3Exception("Sqlite3: nextRow(): statement already finished");
     }      
 
@@ -429,9 +430,15 @@ private:
 
   void handleErr(int err)
   {
-    if (err != SQLITE_OK)
-      throw Sqlite3Exception("Sqlite3: " + sql_ + ": "
-			     + sqlite3_errmsg(db_.connection()));
+    if (err != SQLITE_OK) {
+      std::string msg = "Sqlite3: " + sql_ + ": "
+	+ sqlite3_errmsg(db_.connection());
+      try {
+	done();
+      }	catch (...) { }
+
+      throw Sqlite3Exception(msg);
+    }
   }
 
   boost::gregorian::date fromJulianDay(int julian) {

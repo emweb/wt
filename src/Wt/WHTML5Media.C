@@ -99,7 +99,7 @@ void WHTML5Media::setFormData(const FormData& formData)
       double volume, current, duration;
       bool paused, ended;
       try {
-        volume = boost::lexical_cast<float>(attributes[0]);
+        volume = boost::lexical_cast<double>(attributes[0]);
         current = boost::lexical_cast<double>(attributes[1]);
         duration = boost::lexical_cast<double>(attributes[2]);
         paused = (attributes[3] == "1");

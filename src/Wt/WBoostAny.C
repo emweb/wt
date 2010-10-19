@@ -10,6 +10,7 @@
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
 #endif // WT_THREADED
 
 #include "WtException.h"
@@ -31,7 +32,9 @@ namespace Wt {
 boost::mutex registryMutex_;
 #endif // WT_THREADED
 
-typedef std::map<const std::type_info *, AbstractTypeHandler *> TypeRegistryMap;
+typedef std::map<const std::type_info *,
+		 boost::shared_ptr<AbstractTypeHandler> > TypeRegistryMap;
+
 TypeRegistryMap typeRegistry_;
 
 AbstractTypeHandler::AbstractTypeHandler()
@@ -60,12 +63,12 @@ AbstractTypeHandler *getRegisteredType(const std::type_info *type,
   if (takeLock)
     lockTypeRegistry();
 
-  TypeRegistryMap::const_iterator i = typeRegistry_.find(type);
+  TypeRegistryMap::iterator i = typeRegistry_.find(type);
 
   AbstractTypeHandler *result = 0;
 
   if (i != typeRegistry_.end())
-    result = i->second;
+    result = i->second.get();
 
   if (takeLock)
     unlockTypeRegistry();
@@ -75,7 +78,7 @@ AbstractTypeHandler *getRegisteredType(const std::type_info *type,
 
 void registerType(const std::type_info *type, AbstractTypeHandler *handler)
 {
-  typeRegistry_[type] = handler;
+  typeRegistry_[type].reset(handler);
 }
 
 bool matchValue(const boost::any& value, const boost::any& query,

@@ -13,10 +13,39 @@ WT_DECLARE_WT_MEMBER
 
    var self = this;
    var WT = APP.WT;
-
+   var key_up = 38;
+   var key_down = 40;
    var CH = 'crosshair';
 
    var dragStartXY = null, dragStartValue;
+
+   function setValue(v) {
+     if (v > maxValue)
+       v = maxValue;
+     else if (v < minValue)
+     v = minValue;
+     edit.value = v;
+   }
+
+   function inc() {
+     var v = Number(edit.value);
+     v += stepValue;
+     setValue(v);
+     edit.onchange();
+   }
+
+   function dec() {
+     var v = Number(edit.value);
+     v -= stepValue;
+     setValue(v);
+     edit.onchange();
+   }
+
+   this.update = function(aMin, aMax, aStep) {
+     minValue = aMin;
+     maxValue = aMax;
+     stepValue = aStep;
+   };
 
    this.mouseMove = function(o, event) {
      if (!dragStartXY) {
@@ -35,12 +64,7 @@ WT_DECLARE_WT_MEMBER
        var v = dragStartValue;
        v = v - dy*stepValue;
 
-       if (v > maxValue)
-	 v = maxValue;
-       else if (v < minValue)
-	 v = minValue;
-
-       edit.value = v;
+       setValue(v);
      }
    };
 
@@ -51,36 +75,36 @@ WT_DECLARE_WT_MEMBER
 
        dragStartXY = WT.pageCoordinates(event);
        dragStartValue = Number(edit.value);
+     } else {
+       var xy = WT.widgetCoordinates(edit, event);
+       if (xy.x > edit.offsetWidth - 16) {
+	 // suppress selection, focus
+	 WT.cancelEvent(event);
+	 WT.capture(edit);
+       }
      }
+   };
+
+   this.keyDown = function(o, event) {
+     if (event.keyCode == key_down)
+       dec();
+     else if (event.keyCode == key_up)
+       inc();
    };
 
    this.mouseUp = function(o, event) {
-     if (dragStartXY != null)
+     if (dragStartXY != null) {
        dragStartXY = null;
-     else {
+       o.onchange();
+     } else {
        var xy = WT.widgetCoordinates(edit, event);
        if (xy.x > edit.offsetWidth - 16) {
-	 var v = Number(edit.value);
-
 	 var mid = edit.offsetHeight/2;
-	 if (xy.y < mid) {
-	   v += stepValue;
-	 } else {
-	   v -= stepValue;
-	 }
-
-	 edit.value = v;
+	 if (xy.y < mid)
+	   inc();
+	 else
+	   dec();
        }
      }
-
-     WT.cancelEvent(event);
    };
-
-   this.mouseDblClick = function(o, event) {
-     var xy = WT.widgetCoordinates(edit, event);
-     if (xy.x > edit.offsetWidth - 16) {
-       WT.cancelEvent(event);
-     }
-   };
-
  });

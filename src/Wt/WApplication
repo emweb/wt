@@ -1607,7 +1607,9 @@ private:
    * Basic application stuff
    */
   WebSession            *session_;     // session owning this application
+#ifndef WT_CNOR
   boost::weak_ptr<WebSession> weakSession_; // used to sense destruction
+#endif // WT_CNOR
   WString                title_;
   WString                closeMessage_;
   bool                   titleChanged_, closeMessageChanged_;

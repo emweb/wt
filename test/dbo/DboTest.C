@@ -902,6 +902,8 @@ void DboTest::test11()
 	BOOST_REQUIRE(session_->find<C>().resultList().size() == 0);
 	t2.commit();
       }
+
+      delete model;
     }
 
     teardown();
@@ -976,6 +978,8 @@ void DboTest::test12()
       }
 
       t.commit();
+
+      delete model;
     }
 
     teardown();

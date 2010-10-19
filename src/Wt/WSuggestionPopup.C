@@ -281,6 +281,11 @@ void WSuggestionPopup::modelLayoutChanged()
 
 void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
 {
+#ifdef WT_CNOR // ??
+  EventSignalBase& b = edit->keyPressed();
+  EventSignalBase& c = edit->clicked();
+#endif
+
   connectObjJS(edit->keyPressed(), "editKeyDown");
   connectObjJS(edit->keyWentDown(), "editKeyDown");
   connectObjJS(edit->keyWentUp(), "editKeyUp");

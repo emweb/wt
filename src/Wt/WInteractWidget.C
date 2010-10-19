@@ -219,10 +219,10 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
       js += WApplication::instance()->javaScriptClass()
 	+ "._p_.saveDownPos(event);";
 
-    if ((mouseDrag && mouseDrag->isConnected())
-	|| (mouseDown && mouseDown->isConnected()
-	    && ((mouseUp && mouseUp->isConnected())
-		|| (mouseMove && mouseMove->isConnected()))))
+    if ((mouseDrag && mouseDrag->isExposedSignal())
+	|| (mouseDown && mouseDown->isExposedSignal()
+	    && ((mouseUp && mouseUp->isExposedSignal())
+		|| (mouseMove && mouseMove->isExposedSignal()))))
       js += WT_CLASS ".capture(this);";
 
     if ((mouseMove && mouseMove->isConnected())

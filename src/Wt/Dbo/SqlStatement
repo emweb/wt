@@ -190,6 +190,17 @@ private:
   bool inuse_;
 };
 
+class WTDBO_API ScopedStatementUse
+{
+public:
+  ScopedStatementUse(SqlStatement *statement = 0);
+  void operator()(SqlStatement *statement);
+  ~ScopedStatementUse();
+
+private:
+  SqlStatement *s_;
+};
+
   }
 }
 

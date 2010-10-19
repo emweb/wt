@@ -71,7 +71,9 @@ bool WApplication::ScriptLibrary::operator== (const ScriptLibrary& other) const
 
 WApplication::WApplication(const WEnvironment& env)
   : session_(env.session_),
+#ifndef WT_CNOR
     weakSession_(session_->shared_from_this()),
+#endif // WT_CNOR
     titleChanged_(false),
     closeMessageChanged_(false),
     localizedStrings_(0),
@@ -318,7 +320,11 @@ WApplication::~WApplication()
 
 void WApplication::attachThread()
 {
+#ifndef WT_CNOR
   WebSession::Handler::attachThreadToSession(weakSession_.lock());
+#else
+  WebSession::Handler::attachThreadToSession(session_);
+#endif
 }
 
 void WApplication::setAjaxMethod(AjaxMethod method)
@@ -1216,19 +1222,19 @@ WApplication::UpdateLock::~UpdateLock()
 
 #else
 
-WApplication::UpdateLock::UpdateLock(WApplication& app)
+WApplication::UpdateLock::UpdateLock(WApplication *app)
 {
   std::cerr << "Grabbing update lock" << std::endl;
 
   WebSession::Handler *handler = WebSession::Handler::instance();
 
-  if (handler && handler->haveLock() && handler->session() == app.session_)
+  if (handler && handler->haveLock() && handler->session() == app->session_)
     return;
 
   std::cerr << "Creating new handler for app: app.sessionId()" << std::endl;
-  new WebSession::Handler(app.session_, true);
+  new WebSession::Handler(app->session_, true);
 
-  app.modifiedWithoutEvent_ = true;
+  app->modifiedWithoutEvent_ = true;
 }
 
 void WApplication::UpdateLock::release()
@@ -1236,7 +1242,7 @@ void WApplication::UpdateLock::release()
   std::cerr << "Releasing update lock" << std::endl;
   if (WApplication::instance()->modifiedWithoutEvent_) {
     std::cerr << "Releasing handler" << std::endl;
-    WApplication::instance()->modfiedWithoutEvent_ = false;
+    WApplication::instance()->modifiedWithoutEvent_ = false;
     WebSession::Handler::instance()->release();
   }
 }

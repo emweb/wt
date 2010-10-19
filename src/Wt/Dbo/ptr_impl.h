@@ -43,15 +43,24 @@ void MetaDbo<C>::flush()
   if (state_ & NeedsDelete) {
     state_ &= ~NeedsDelete;
 
-    session()->implDelete(*this);
+    try {
+      session()->implDelete(*this);
+      setTransactionState(DeletedInTransaction);
+    } catch (...) {
+      setTransactionState(DeletedInTransaction);
+      throw;
+    }
 
-    setTransactionState(DeletedInTransaction);
   } else if (state_ & NeedsSave) {
     state_ &= ~NeedsSave;
 
-    session()->implSave(*this);
-
-    setTransactionState(SavedInTransaction);
+    try {
+      session()->implSave(*this);
+      setTransactionState(SavedInTransaction);
+    } catch (...) {
+      setTransactionState(SavedInTransaction);
+      throw;
+    }
   }
 }
 

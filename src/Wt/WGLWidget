@@ -7,7 +7,8 @@
 #ifndef WGLWIDGET_H_
 #define WGLWIDGET_H_
 
-#include "Wt/WWebWidget"
+#include <Wt/WWebWidget>
+#include <Wt/WGenericMatrix>
 #include <boost/type_traits/is_enum.hpp>
 
 namespace Wt {
@@ -787,6 +788,13 @@ public:
     js_ << ");";
     GLDEBUG;
   }
+  template< typename T>
+  void uniformMatrix2(UniformLocation location, const WGenericMatrix<T, 2, 2> &m) {
+    js_ << "ctx.uniformMatrix2fv(" << location << ",false,";
+    renderfv(m.transposed().data().begin(), 4);
+    js_ << ");";
+    GLDEBUG;
+  }
   template<typename MatrixType>
   void uniformMatrix3fv(UniformLocation location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix3fv(" << location << ","
@@ -795,11 +803,25 @@ public:
     js_ << ");";
     GLDEBUG;
   }
+  template<typename T>
+  void uniformMatrix3(UniformLocation location, bool transpose, const WGenericMatrix<T, 3, 3> &m) {
+    js_ << "ctx.uniformMatrix3fv(" << location << ",false,";
+    renderfv(m.transposed().data().begin(), 9);
+    js_ << ");";
+    GLDEBUG;
+  }
   template<typename MatrixType>
   void uniformMatrix4fv(UniformLocation location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix4fv(" << location << ","
       << (transpose?"true":"false") << ",";
     renderfv(value, 16);
+    js_ << ");";
+    GLDEBUG;
+  }
+  template<typename T>
+  void uniformMatrix4(UniformLocation location, const WGenericMatrix<T, 4, 4> &m) {
+    js_ << "ctx.uniformMatrix4fv(" << location << ",false,";
+    renderfv(m.transposed().data().begin(), 16);
     js_ << ");";
     GLDEBUG;
   }
