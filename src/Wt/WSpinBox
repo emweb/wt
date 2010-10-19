@@ -90,9 +90,9 @@ public:
 
   /*! \brief Returns the value.
    */
-  double value() const { return value_; }
+  double value() const;
 
-    /*! \brief A %signal that indicates when the value has changed.
+  /*! \brief A %signal that indicates when the value has changed.
    *
    * This signal is emitted when setValue() is called.
    *
@@ -106,7 +106,7 @@ protected:
   virtual void render(WFlags<RenderFlag> flags);
 
 private:
-  double min_, max_, value_, step_;
+  double min_, max_, step_;
   bool changed_;
 
   Signal<double> valueChanged_;

@@ -67,9 +67,9 @@ WebSession::WebSession(WebController *controller,
     recursiveEvent_(mutex_.newCondition())
 #endif
 {
-#ifndef WT_TARGET_JAVA
+#ifdef WT_THREADED
   syncLocks_.lastId_ = syncLocks_.lockedId_ = 0;
-#endif // WT_TARGET_JAVA
+#endif // WT_THREADED
 
   env_ = env ? env : &embeddedEnv_;
 
@@ -758,6 +758,11 @@ void WebSession::doRecursiveEventLoop()
 
   recursiveEventLoop_ = 0;
 #endif // !WT_THREADED && !WT_TARGET_JAVA
+}
+
+void WebSession::expire()
+{
+  kill();
 }
 
 bool WebSession::unlockRecursiveEventLoop()

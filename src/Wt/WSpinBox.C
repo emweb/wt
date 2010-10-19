@@ -24,7 +24,6 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
    : WLineEdit(parent),
      min_(0),
      max_(99),
-     value_(0),
      step_(1),
      changed_(false)
 {
@@ -43,16 +42,31 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
   connectJavaScript(keyWentDown(), "keyDown");
 
   updateValidator();
+
+  setValue(0);
 }
 
 void WSpinBox::setValue(double value)
 {
-  value_ = value;
+  if (static_cast<int>(value) == value)
+    setText(WT_USTRING::fromUTF8(boost::lexical_cast<std::string>
+				 (static_cast<int>(value))));
+  else
+    setText(WT_USTRING::fromUTF8(boost::lexical_cast<std::string>(value)));
 
-  valueChanged_.emit(value_);
+  valueChanged_.emit(value);
 
   changed_ = true;
   repaint(RepaintInnerHtml);
+}
+
+double WSpinBox::value() const
+{
+  try {
+    return boost::lexical_cast<double>(text().toUTF8());
+  } catch (const boost::bad_lexical_cast& e) {
+    return 0;
+  }
 }
 
 void WSpinBox::setMinimum(double minimum)
@@ -98,13 +112,14 @@ void WSpinBox::setSingleStep(double step)
 
 void WSpinBox::updateValidator()
 {
-  if (static_cast<int>(min_) == min_
-      && static_cast<int>(max_) == max_
-      && static_cast<int>(step_) == step_)
-    setValidator(new WIntValidator(static_cast<int>(min_),
-				   static_cast<int>(max_)));
-  else
+  WValidator *v = validator();
+
+  if (!v)
     setValidator(new WDoubleValidator(min_, max_));
+  else {
+    WDoubleValidator *dv = dynamic_cast<WDoubleValidator *>(v);
+    dv->setRange(min_, max_);
+  }
 }
 
 void WSpinBox::updateDom(DomElement& element, bool all)
@@ -171,6 +186,7 @@ void WSpinBox::render(WFlags<RenderFlag> flags)
 
 void WSpinBox::onChange()
 {
+  valueChanged_.emit(value());
 }
 
 }

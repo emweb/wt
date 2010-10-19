@@ -1075,6 +1075,7 @@ WApplication::UpdateLock WApplication::getUpdateLock()
 }
 
 #ifndef WT_TARGET_JAVA
+#ifdef WT_THREADED
 int WApplication::startWaitingAtLock()
 {
   WebSession::SyncLocks& syncLocks = session_->syncLocks_;
@@ -1108,6 +1109,7 @@ void WApplication::endWaitingAtLock(int id)
 
   syncLocks.unlock_.notify_all();
 }
+#endif // WT_THREADED
 
 class UpdateLockImpl
 {

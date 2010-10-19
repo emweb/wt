@@ -17,6 +17,9 @@ WT_DECLARE_WT_MEMBER
    var dsx, dsy;
    var moved = false;
 
+   if (el.style.left != '' || el.style.top != '')
+     moved = true;
+
    function handleMove(event) {
      var e = event||window.event;
      var nowxy = WT.pageCoordinates(e);
@@ -58,21 +61,18 @@ WT_DECLARE_WT_MEMBER
        return;
      }
 
-     if (el.style.display != 'none') {
-       if (!moved) {
-         var ws = WT.windowSize();
-	 var w = el.offsetWidth, h = el.offsetHeight;
-	 el.style.left = Math.round((ws.x - w)/2
-	   + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
-         el.style.top = Math.round((ws.y - h)/2
-	   + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
-         el.style.marginLeft='0px';
-	 el.style.marginTop='0px';
+     if (!moved) {
+       var ws = WT.windowSize();
+       var w = el.offsetWidth, h = el.offsetHeight;
+       el.style.left = Math.round((ws.x - w)/2
+	 + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
+       el.style.top = Math.round((ws.y - h)/2
+	 + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
+       el.style.marginLeft='0px';
+       el.style.marginTop='0px';
 
-	 if (el.style.width != null && el.style.height != null)
-	   self.wtResize(el, w, h);
-       }
-       el.style.visibility = 'visible';
+       if (el.style.width != null && el.style.height != null)
+	 self.wtResize(el, w, h);
      }
    };
 

@@ -84,6 +84,7 @@ public:
 
   void doRecursiveEventLoop();
 
+  void expire();
   bool unlockRecursiveEventLoop();
 
   void pushEmitStack(WObject *obj);
@@ -218,7 +219,7 @@ public:
 
   void generateNewSessionId();
 
-#ifndef WT_TARGET_JAVA
+#if defined(WT_THREADED)
   /*
    * SyncLocks
    */
@@ -228,7 +229,7 @@ public:
     int lastId_;
     int lockedId_;
   } syncLocks_;
-#endif // WT_TARGET_JAVA
+#endif // WT_THREADED
 
 private:
   /*
