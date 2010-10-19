@@ -478,33 +478,37 @@ private:
       if (!folderView_->isSelected(item))
 	folderView_->select(item);
 
-      delete popup_;
+      if (!popup_) {
+	popup_ = new WPopupMenu();
+	popup_->addItem("icons/folder_new.gif", "Create a New Folder");
+	popup_->addItem("Rename this Folder")->setCheckable(true);
+	popup_->addItem("Delete this Folder");
+	popup_->addSeparator();
+	popup_->addItem("Folder Details");
+	popup_->addSeparator();
+	popup_->addItem("Application Inventory");
+	popup_->addItem("Hardware Inventory");
+	popup_->addSeparator();
 
-      popup_ = new WPopupMenu();
-      popup_->addItem("icons/folder_new.gif", "Create a New Folder");
-      popup_->addItem("Rename this Folder")->setCheckable(true);
-      popup_->addItem("Delete this Folder");
-      popup_->addSeparator();
-      popup_->addItem("Folder Details");
-      popup_->addSeparator();
-      popup_->addItem("Application Inventory");
-      popup_->addItem("Hardware Inventory");
-      popup_->addSeparator();
+	WPopupMenu *subMenu = new WPopupMenu();
+	subMenu->addItem("Sub Item 1");
+	subMenu->addItem("Sub Item 2");
+	popup_->addMenu("File Deployments", subMenu);
 
-      WPopupMenu *subMenu = new WPopupMenu();
-      subMenu->addItem("Sub Item 1");
-      subMenu->addItem("Sub Item 2");
-      popup_->addMenu("File Deployments", subMenu);
+	/*
+	 * This is one method of executing a popup, which does not block a
+	 * thread for a reentrant event loop, and thus scales.
+	 *
+	 * Alternatively you could call WPopupMenu::exec(), which returns
+	 * the result, but while waiting for it, blocks the thread.
+	 */      
+	popup_->aboutToHide().connect(this, &TreeViewDragDrop::popupAction);
+      }
 
-      /*
-       * This is one method of executing a popup, which does not block a
-       * thread for a reentrant event loop, and thus scales.
-       *
-       * Alternatively you could call WPopupMenu::exec(), which returns
-       * the result, but while waiting for it, blocks the thread.
-       */      
-      popup_->aboutToHide().connect(this, &TreeViewDragDrop::popupAction);
-      popup_->popup(event);
+      if (popup_->isHidden())
+	popup_->popup(event);
+      else
+	popup_->hide();
     }
   }
 
@@ -517,8 +521,7 @@ private:
        * check here for the action asked. For now, we just use the text.
        */
       WString text = popup_->result()->text();
-      delete popup_;
-      popup_ = 0;
+      popup_->hide();
 
       popupActionBox_ = new WMessageBox("Sorry.","Action '" + text
 					+ "' is not implemented.", NoIcon, Ok);
@@ -526,8 +529,7 @@ private:
 	.connect(this, &TreeViewDragDrop::dialogDone);
       popupActionBox_->show();
     } else {
-      delete popup_;
-      popup_ = 0;
+      popup_->hide();
     }
   }
 

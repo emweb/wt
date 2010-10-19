@@ -802,6 +802,7 @@ this.positionAtWidget = function(id, atId, orientation, parentInRoot) {
     $('.Wt-domRoot').get(0).appendChild(w);
   }
 
+  w.style.position = 'absolute';
   w.style.display='block';
 
   if (orientation == WT.Horizontal) {
@@ -817,6 +818,8 @@ this.positionAtWidget = function(id, atId, orientation, parentInRoot) {
   }
 
   WT.fitToWindow(w, x, y, rightx, bottomy);
+
+  w.style.visibility='';
 };
 
 this.hasFocus = function(el) {

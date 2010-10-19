@@ -30,6 +30,8 @@ WPopupMenu::WPopupMenu()
     "${contents}";
 
   setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
+  impl_->setHiddenKeepsGeometry(true);
+
   setPositionScheme(Absolute);
   setStyleClass("Wt-popupmenu Wt-outset");
 
@@ -98,6 +100,9 @@ WPopupMenu *WPopupMenu::topLevelMenu()
 void WPopupMenu::setHidden(bool hidden)
 {
   WCompositeWidget::setHidden(hidden);
+
+  if (hidden)
+    renderOutAll();
 }
 
 void WPopupMenu::renderOutAll()
@@ -149,6 +154,8 @@ void WPopupMenu::popup(const WMouseEvent& e)
 
 void WPopupMenu::popupImpl()
 {
+  renderOutAll();
+
   result_ = 0;
 
   WApplication *app = WApplication::instance();
