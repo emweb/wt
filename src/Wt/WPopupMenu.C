@@ -30,7 +30,6 @@ WPopupMenu::WPopupMenu()
     "${contents}";
 
   setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
-  impl_->setHiddenKeepsGeometry(true);
 
   setPositionScheme(Absolute);
   setStyleClass("Wt-popupmenu Wt-outset");

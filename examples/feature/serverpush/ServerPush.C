@@ -25,11 +25,17 @@ public:
     startButton_ = new Wt::WPushButton("Start", this);
     startButton_->clicked().connect(startButton_, &Wt::WPushButton::disable);
     startButton_->clicked().connect(this, &BigWorkWidget::startBigWork);
+    startButton_->setMargin(2);
 
     progress_ = new Wt::WProgressBar(this);
     progress_->setInline(false);
     progress_->setMinimum(0);
     progress_->setMaximum(20);
+    progress_->setMargin(2);
+  }
+
+  virtual ~BigWorkWidget() {
+    workThread_.join();
   }
 
 private:
@@ -89,6 +95,7 @@ private:
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
   Wt::WApplication *app = new Wt::WApplication(env);
+  app->setCssTheme("polished");
   new BigWorkWidget(app->root());
 
   return app;

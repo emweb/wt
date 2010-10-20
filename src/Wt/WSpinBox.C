@@ -39,6 +39,7 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
   connectJavaScript(mouseMoved(), "mouseMove");
   connectJavaScript(mouseWentUp(), "mouseUp");
   connectJavaScript(mouseWentDown(), "mouseDown");
+  connectJavaScript(mouseWentOut(), "mouseOut");
   connectJavaScript(keyWentDown(), "keyDown");
 
   updateValidator();

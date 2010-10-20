@@ -206,11 +206,12 @@ void EventSignalBase::disconnect(boost::signals::connection& conn)
 {
   conn.disconnect();
 
-  if (flags_.test(BIT_EXPOSED))
+  if (flags_.test(BIT_NEEDS_AUTOLEARN))
     if (!isConnected()) {
       WApplication *app = WApplication::instance();
       app->removeExposedSignal(this);
-      flags_.reset(BIT_EXPOSED);
+      flags_.reset(BIT_NEEDS_AUTOLEARN);
+      setNotExposed();
     }
 
   senderRepaint();
@@ -325,6 +326,16 @@ bool EventSignalBase::isConnected() const
 
 void EventSignalBase::exposeSignal()
 {
+  /*
+   * - BIT_EXPOSED indicates whether the signal invokes a server-side event
+   * - BIT_AUTOLEARN indicates whether the signal is in the WApplication's
+   *   exposed signals list, which is used as a list of signals that require
+   *   stateless slot learning.
+   *
+   * The difference is only signals in those widgets that are used to
+   * render a WViewWidget: they are not exposed but need learning
+   */
+
   // cheap catch: if it's exposed, for sure it is also autolearn
   if (flags_.test(BIT_EXPOSED)) {
     senderRepaint();

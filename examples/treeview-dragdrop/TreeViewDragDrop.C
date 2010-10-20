@@ -506,7 +506,7 @@ private:
       }
 
       if (popup_->isHidden())
-	popup_->popup(event);
+      	popup_->popup(event);
       else
 	popup_->hide();
     }

@@ -82,10 +82,11 @@ void WebController::forceShutdown()
 
   shutdown_ = true;
 
-  for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end(); ++i) {
+  for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
     boost::shared_ptr<WebSession> session = i->second;
-    WApplication::UpdateLock lock(session->app());
+    WebSession::Handler handler(session, true);
     session->expire();
+    sessions_.erase(i++);
   }
 
   sessions_.clear();
@@ -168,7 +169,7 @@ bool WebController::expireSessions()
 	    ++i;
 	  } else {
 	    i->second->log("notice") << "Timeout: expiring";
-	    WApplication::UpdateLock lock(session->app());
+	    WebSession::Handler handler(session, true);
 	    session->expire();
 	    toKill.push_back(session);
 	    sessions_.erase(i++);
@@ -330,7 +331,6 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
 	}
       }
 
-      WApplication::UpdateLock lock(session->app());
       session->app()->modifiedWithoutEvent_ = true;
       if (notifier)
 	notifier->notify();

@@ -802,7 +802,7 @@ this.positionAtWidget = function(id, atId, orientation, parentInRoot) {
     $('.Wt-domRoot').get(0).appendChild(w);
   }
 
-  w.style.position = 'absolute';
+  w.style.position='absolute';
   w.style.display='block';
 
   if (orientation == WT.Horizontal) {
@@ -1778,8 +1778,18 @@ function jsLoaded(path)
   }
 };
 
-function loadScript(uri, symbol)
+function loadScript(uri, symbol, tries)
 {
+  function onerror() {
+    var t = tries === undefined ? 2 : tries;
+    if (t > 1) {
+      loadScript(uri, symbol, t - 1);
+    } else {
+      alert('Fatal error: failed loading ' + uri);
+      quit();
+    }
+  }
+
   var loaded = false;
   if (symbol != "") {
     try {
@@ -1792,11 +1802,13 @@ function loadScript(uri, symbol)
   if (!loaded) {
     var s = document.createElement('script');
     s.setAttribute('src', uri);
-    s.onload = function() { jsLoaded(uri);};
+    s.onload = function() { jsLoaded(uri); };
+    s.onerror = onerror;
     s.onreadystatechange = function() {
-      if (s.readyState == 'complete' || s.readyState == 'loaded') {
+      if (s.readyState == 'loaded')
+	onerror();
+      else if (s.readyState == 'complete')
 	jsLoaded(uri);
-      }
     };
     var h = document.getElementsByTagName('head')[0];
     h.appendChild(s);

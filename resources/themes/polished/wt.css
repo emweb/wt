@@ -310,37 +310,34 @@
 /*
  * WProgressBar
  */
-div.Wt-progressbar
+.Wt-progressbar
 {
-   background: #333;
+   font: normal 1em "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+   background: gray;
+   border: 1px solid #555;
    position: relative;
-   border-width: 1px;
-   border-style: solid;
-   border-color: black;
    overflow: hidden;
-   font-size: 0.8em;
-   color: #FFF;
+   color: white;
    font-weight: bold;
    width: 200px;
-   height: 1.3em;
-}
+   height: 1em;
+   line-height: 1em;
+ }
 
-div.Wt-progressbar .Wt-pgb-bar
+.Wt-progressbar .Wt-pgb-bar
 {
    position: absolute;
    left: 0px;
    top: 0px;
    height: 100%;
-   background: #292;
+   background: #6880A0 url(title-gradient.png) repeat-x scroll 0 -20px;
 }
 
-div.Wt-progressbar .Wt-pgb-label
+.Wt-progressbar .Wt-pgb-label
 {
+   font-size: 0.8em;
    position: absolute;
    left: 0px;
-   top: 50%;
-   margin-top: -0.5em;
-   line-height: 100%;
    width: 100%;
    text-align: center;
 }

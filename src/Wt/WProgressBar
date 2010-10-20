@@ -109,6 +109,8 @@ public:
    */
   Signal<>& progressCompleted() { return progressCompleted_; }
 
+  virtual void resize(const WLength& width, const WLength& height);
+
 protected:
   virtual void updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;

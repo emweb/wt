@@ -11,11 +11,8 @@ WT_DECLARE_WT_MEMBER
  function(APP, edit, minValue, maxValue, stepValue) {
    jQuery.data(edit, 'obj', this);
 
-   var self = this;
-   var WT = APP.WT;
-   var key_up = 38;
-   var key_down = 40;
-   var CH = 'crosshair';
+   var self = this, WT = APP.WT, key_up = 38, key_down = 40, CH = 'crosshair',
+     $edit = $(edit);
 
    var dragStartXY = null, dragStartValue;
 
@@ -47,15 +44,25 @@ WT_DECLARE_WT_MEMBER
      stepValue = aStep;
    };
 
+   this.mouseOut = function(o, event) {
+     $edit.removeClass('Wt-spinbox-dn').removeClass('Wt-spinbox-up');
+   }
+
    this.mouseMove = function(o, event) {
      if (!dragStartXY) {
        var xy = WT.widgetCoordinates(edit, event);
+       $edit.removeClass('Wt-spinbox-dn').removeClass('Wt-spinbox-up');
        if (xy.x > edit.offsetWidth - 16) {
 	 var mid = edit.offsetHeight/2;
 	 if (xy.y >= mid - 1 && xy.y <= mid + 1)
 	   edit.style.cursor = CH;
-	 else
+	 else {
 	   edit.style.cursor = 'default';
+	   if (xy.y < mid - 1)
+	     $edit.addClass('Wt-spinbox-up');
+	   else
+	     $edit.addClass('Wt-spinbox-dn');
+	 }
        } else
 	 edit.style.cursor = '';
      } else {

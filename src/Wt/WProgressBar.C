@@ -80,6 +80,14 @@ DomElementType WProgressBar::domElementType() const
   return DomElement_DIV; // later support DomElement_PROGRESS
 }
 
+void WProgressBar::resize(const WLength& width, const WLength& height)
+{
+  WInteractWidget::resize(width, height);
+
+  if (!height.isAuto())
+    setAttributeValue("style", "line-height: " + height.cssText());
+}
+
 void WProgressBar::updateDom(DomElement& element, bool all)
 {
   DomElement *bar = 0, *label = 0;

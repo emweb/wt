@@ -35,8 +35,6 @@ WDialog::WDialog(const WString& windowTitle)
 
   setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
 
-  impl_->setHiddenKeepsGeometry(true);
-
   const char *CSS_RULES_NAME = "Wt::WDialog";
 
   WApplication *app = WApplication::instance();
@@ -92,7 +90,6 @@ WDialog::WDialog(const WString& windowTitle)
   }
 
   impl_->setStyleClass("Wt-dialog Wt-outset");
-  impl_->setPositionScheme(Absolute);
 
   WContainerWidget *parent = app->domRoot();
 

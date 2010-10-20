@@ -109,8 +109,6 @@ void WebRenderer::ackUpdate(int updateId)
 {
   if (updateId == expectedAckId_)
     setJSSynced(false);
-
-  ++expectedAckId_;
 }
 
 void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
@@ -321,10 +319,26 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
   std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
 #endif // DEBUG_JS
 
+  /*
+   * Passing the expectedAckId_ within the collectedJS1_ +
+   * collectedJS2_ risks of inflating responses when a script loading
+   * is blocked. The purpose of the ackId is to detect what has been
+   * succesfully transmitted (mostly in the presence of server push
+   * which can cancel ajax requests. Therefore we chose here to use
+   * the ackIds_ only to signal proper ajax transfers, and thus at the
+   * end of the request transfer.
+   *
+   * It does present us with another probem: what if e.g. an ExtJS
+   * library is still loading and we already update one of its widgets
+   * assuming it has been rendered ? This should be handled
+   * client-side: only when libraries have been loaded, the application can
+   * continue. TO BE DONE.
+   */
   response.out()
     << collectedJS1_.str()
-    << session_.app()->javaScriptClass() << "._p_.response(" << expectedAckId_ << ");"
-    << collectedJS2_.str();
+    << collectedJS2_.str()
+    << session_.app()->javaScriptClass()
+    << "._p_.response(" << ++expectedAckId_ << ");";
 }
 
 void WebRenderer::collectJavaScript()
@@ -542,7 +556,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     response.out()
       << collectedJS1_.str()
       << app->javaScriptClass()
-      << "._p_.response(" << expectedAckId_ << ");";
+      << "._p_.response(" << ++expectedAckId_ << ");";
 
     updateLoadIndicator(response.out(), app, true);
 
