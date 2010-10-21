@@ -213,7 +213,7 @@ DomElement *WHTML5Media::createDomElement(WApplication *app)
     setJavaScriptMember(WT_RESIZE_JS, "function() {}");
   }
 
-  if (app->environment().agentIsIE() ||
+  if (app->environment().agentIsIElt(9) ||
       app->environment().agent() == WEnvironment::MobileWebKitAndroid) {
     // Shortcut: IE misbehaves when it encounters a media element
     result = DomElement::createNew(DomElement_DIV);

@@ -64,7 +64,9 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
   WApplication *app = WApplication::instance();
 
   if (app) {
-    if (app->environment().agentIsChrome()) {
+    if (app->environment().agentIsIE()) {
+      textMethod_ = Html5Text;
+    } else if (app->environment().agentIsChrome()) {
       if (app->environment().agent() >= WEnvironment::Chrome2)
 	textMethod_ = Html5Text;
     } else if (app->environment().agentIsGecko()) {

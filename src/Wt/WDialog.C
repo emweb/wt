@@ -39,7 +39,7 @@ WDialog::WDialog(const WString& windowTitle)
 
   WApplication *app = WApplication::instance();
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    if (app->environment().agentIsIE())
+    if (app->environment().agentIsIElt(9))
       app->styleSheet().addRule("body", "height: 100%;");
 
     app->styleSheet().addRule("div.Wt-dialogcover", std::string() + 
@@ -47,7 +47,7 @@ WDialog::WDialog(const WString& windowTitle)
 			      "height: 100%; width: 100%;"
 			      "top: 0px; left: 0px;"
 			      "opacity: 0.5; position: fixed;" +
-			      (app->environment().agentIsIE() ?
+			      (app->environment().agentIsIElt(9) ?
 			       "filter: alpha(opacity=50);"
 			       : "opacity: 0.5"), CSS_RULES_NAME);
 
@@ -58,7 +58,7 @@ WDialog::WDialog(const WString& windowTitle)
     // see below for an IE workaround
     app->styleSheet().addRule("div.Wt-dialog", std::string() +
 			      (app->environment().ajax()
-			       && !app->environment().agentIsIE() ?
+			       && !app->environment().agentIsIElt(9) ?
 			       "visibility: hidden;" : "") +
 			      "position: " + position + ';'
 			      + (!app->environment().ajax() ?

@@ -85,7 +85,7 @@ void WFlashObject::updateDom(DomElement& element, bool all)
 
     obj->setId(id() + "_flash");
     obj->setAttribute("type", "application/x-shockwave-flash");
-    if (!wApp->environment().agentIsIE()) {
+    if (!wApp->environment().agentIsIElt(9)) {
       obj->setAttribute("data", url_);
     }
     // Width/height: Adobe says: must be present, and specified as pixels or
@@ -121,7 +121,7 @@ void WFlashObject::updateDom(DomElement& element, bool all)
           obj->addChild(param);
         }
     }
-    if (wApp->environment().agentIsIE()) {
+    if (wApp->environment().agentIsIElt(9)) {
       obj->setAttribute("classid", "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000");
       // The next line is considered bad practice
       //obj->setAttribute("codebase",
@@ -155,7 +155,7 @@ void WFlashObject::updateDom(DomElement& element, bool all)
       // dummy element is not eliminated, and if it's not, replace it by
       // a call to alternative_->createDomElement().
       if (wApp->environment().javaScript() &&
-          wApp->environment().agentIsIE()) {
+          wApp->environment().agentIsIElt(9)) {
         DomElement *dummyDiv = DomElement::createNew(DomElement_DIV);
         dummyDiv->setId(alternative_->id());
         // As if it ain't bad enough, the altnerative content is only

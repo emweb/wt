@@ -306,7 +306,7 @@ WT_DECLARE_WT_MEMBER
      if (col.offsetWidth > 0)
        return col.offsetWidth;
      else {
-       var t = col.parentNode, row = t.rows[0];
+       var t = widget.firstChild, row = t.rows[0];
        var td, j, ci, jl;
        for (j=0, ci=0, jl=row.childNodes.length; j<jl; ++j) {
 	 td = row.childNodes[j];

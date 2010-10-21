@@ -80,7 +80,8 @@ public:
     IEMobile = 1000,            //!< Internet Explorer Mobile, or Internet Explorer 5 or older
     IE6 = 1001,                 //!< Internet Explorer 6
     IE7 = 1002,                 //!< Internet Explorer 7
-    IE8 = 1003,                 //!< Internet Explorer 8 or later
+    IE8 = 1003,                 //!< Internet Explorer 8
+    IE9 = 1004,                 //!< Internet Explorer 9 or later
     Opera = 3000,               //!< Opera
     WebKit = 4000,              //!< WebKit
     Safari = 4100,              //!< Safari 2 or older
@@ -466,6 +467,19 @@ public:
    */
   bool agentIsIE() const {
     return agent_ >= IEMobile && agent_ < Opera;
+  }
+
+  /*! \brief Returns whether the user agent is an older version of IE
+   *
+   * Returns whether the agent is an IE version older than the given version.
+
+   * \sa agentIsIE()
+   */
+  bool agentIsIElt(int version) const {
+    if (agentIsIE())
+      return agent_ < IEMobile + (version - 5);
+    else
+      return false;
   }
 
   /*! \brief Returns whether the user agent is Internet Explorer Mobile.

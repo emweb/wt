@@ -113,7 +113,7 @@ StdGridLayoutImpl::~StdGridLayoutImpl()
       app->setHtmlClass("");
     }
 
-    if (app->environment().agentIsIE())
+    if (app->environment().agentIsIElt(9))
       container()->setOverflow(WContainerWidget::OverflowVisible);
   }
 }
@@ -240,9 +240,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   div->setProperty(PropertyStylePosition, "relative");
 
   std::string divStyle;
-  if (fitHeight && !app->environment().agentIsIE())
+  if (fitHeight && !app->environment().agentIsIElt(9))
     divStyle += "height: 100%;";
-  if (app->environment().agentIsIE())
+  if (app->environment().agentIsIElt(9))
     divStyle += "zoom: 1;";
   if (!divStyle.empty())
     div->setProperty(PropertyStyle, divStyle);
@@ -453,7 +453,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
  	DomElement *td = DomElement::createNew(DomElement_TD);
 
-	if (app->environment().agentIsIE())
+	if (app->environment().agentIsIElt(9))
 	  td->setProperty(PropertyStylePosition, "relative");
 
 	if (item.item_) {

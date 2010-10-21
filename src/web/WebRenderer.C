@@ -1269,7 +1269,8 @@ std::string WebRenderer::headDeclarations() const
       result << (xhtml ? "\"/>" : "\">");
     }
   } else
-    if (session_.env().agentIsIE())
+    if (session_.env().agentIsIE()
+	&& session_.env().agent() <= WEnvironment::IE8)
       result << "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7"
 	     << (xhtml ? "\"/>" : "\">") << '\n';
 

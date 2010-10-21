@@ -1,3 +1,7 @@
+21-10-2010:
+	* various: support IE9 in IE9 document mode, enabling HTML5 features
+	like canvas and disabling workarounds no longer needed -- hooray !
+
 19-10-2010:
 	* WPopupMenu: fix recycling of popup menu
 

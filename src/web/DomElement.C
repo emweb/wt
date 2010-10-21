@@ -827,10 +827,6 @@ void DomElement::asHTML(EscapeOStream& out,
       innerHTML += "/*<![CDATA[*/\n" + i->second + "\n/* ]]> */"; break;
     case PropertyDisabled:
       if (i->second == "true")
-	// following is not XHTML
-	// out << " disabled"; 
-	// following is not interpreted correctly by all HTML renderers
-	//  (like konqueror)
 	out << " disabled=\"disabled\"";
       break;
     case PropertyReadOnly:
@@ -842,17 +838,14 @@ void DomElement::asHTML(EscapeOStream& out,
       break;
     case PropertyChecked:
       if (i->second == "true")
-	// out << " checked";
 	out << " checked=\"checked\"";
       break;
     case PropertySelected:
       if (i->second == "true")
-	// out << " selected";
 	out << " selected=\"selected\"";
       break;
     case PropertyMultiple:
       if (i->second == "true")
-	// out << " selected";
 	out << " multiple=\"multiple\"";
       break;
     case PropertyTarget:
@@ -1063,9 +1056,10 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
 
   out << "var " << var_ << "=";
 
-  if (app->environment().agentIsIE()) {
+  if (app->environment().agentIsIE()
+      && app->environment().agent() <= WEnvironment::IE8) {
     /*
-     * IE can do create the entire opening tag at once.
+     * IE pre 9 can create the entire opening tag at once.
      * This rocks because it results in fewer JavaScript statements.
      * It also avoids problems with changing certain attributes not
      * working in IE.

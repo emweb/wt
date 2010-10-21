@@ -42,11 +42,23 @@ this.arrayRemove = function(a, from, to) {
   return a.push.apply(a, rest);
 };
 
+var ie = (function(){
+    var undef,
+        v = 3,
+        div = document.createElement('div'),
+        all = div.getElementsByTagName('i');
 
-this.isIE = navigator.userAgent.toLowerCase().indexOf("msie") != -1
-  && navigator.userAgent.toLowerCase().indexOf("opera") == -1;
-this.isIE6 = this.isIE
-  && (navigator.userAgent.toLowerCase().indexOf("msie 6") != -1);
+    while (
+        div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
+        all[0]
+    ) {}
+
+    return v > 4 ? v : undef;
+}());
+
+this.isIE = ie !== undefined;
+this.isIE6 = ie === 6;
+this.isIElt9 = ie < 9;
 this.isGecko = navigator.userAgent.toLowerCase().indexOf("gecko") != -1;
 this.isIEMobile = navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
   || navigator.userAgent.toLowerCase().indexOf("msie 5") != -1;
@@ -511,7 +523,7 @@ function delegateCapture(e) {
      * target; on other browsers we can just rely on event bubbling.
      */
     if (p == captureElement)
-      return WT.isIE ? t : null;
+      return WT.isIElt9 ? t : null;
     else
       return captureElement;
   } else
@@ -526,7 +538,7 @@ function mouseMove(e) {
   if (d && !delegating) {
     if (!e) e = window.event;
     delegating = true;
-    if (WT.isIE) {
+    if (WT.isIElt9) {
       WT.firedTarget = e.srcElement || d;
       d.fireEvent('onmousemove', e);
       WT.firedTarget = null;
@@ -545,7 +557,7 @@ function mouseUp(e) {
   if (d) {
     if (!e) e = window.event;
 
-    if (WT.isIE) {
+    if (WT.isIElt9) {
       WT.firedTarget = e.srcElement || d;
       d.fireEvent('onmouseup', e);
       WT.firedTarget = null;
@@ -835,7 +847,7 @@ http://developer.yahoo.net/yui/license.txt
 version: 2.5.2
 */
   var _UAwebkit = false;
-  var _UAie = false;
+  var _UAie = self.isIElt9;
   var _UAopera = false;
   var _onLoadFn = null;
   var _histFrame = null;
@@ -998,9 +1010,7 @@ version: 2.5.2
     if (vendor === "KDE") {
     } else if (typeof window.opera !== "undefined")
       _UAopera = true;
-    else if (typeof document.all !== "undefined")
-      _UAie = true;
-    else if (vendor.indexOf("Apple Computer, Inc.") > -1)
+    else if (!_UAie && vendor.indexOf("Apple Computer, Inc.") > -1)
       _UAwebkit = true;
 
     /*

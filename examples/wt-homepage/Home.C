@@ -352,9 +352,12 @@ WString Home::tr(const char *key)
 void Home::googleAnalyticsLogger()
 {
   std::string googleCmd = 
-    "if (window.pageTracker)"
-    "  window.pageTracker._trackPageview(\"" + environment().deploymentPath() +
-    internalPath() + "\");";
+    "if (window.pageTracker) {"
+    """try {"
+    ""  "window.pageTracker._trackPageview(\""
+    + environment().deploymentPath() + internalPath() + "\");"
+    """} catch (e) { }"
+    "}";
 
   doJavaScript(googleCmd);
 }

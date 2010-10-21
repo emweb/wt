@@ -116,7 +116,7 @@ WApplication::WApplication(const WEnvironment& env)
   setLocalizedStrings(0);
 #endif // !WT_TARGET_JAVA
 
-  if (environment().agentIsIE() && !environment().javaScript())
+  if (environment().agentIsIElt(9))
     addMetaHeader(MetaHttpHeader, "X-UA-Compatible", "IE=7");
 
   domRoot_ = new WContainerWidget();
@@ -170,7 +170,7 @@ WApplication::WApplication(const WEnvironment& env)
    */
   styleSheet_.addRule("iframe.Wt-resource",
 		      "width: 0px; height: 0px; border: 0px;");
-  if (environment().agentIsIE())
+  if (environment().agentIsIElt(9))
     styleSheet_.addRule("iframe.Wt-shim",
 			"position: absolute; top: -1px; left: -1px; "
 			"z-index: -1;"
@@ -440,8 +440,12 @@ void WApplication::useStyleSheet(const std::string& uri,
 	thisVersion = 5; break;
       case WEnvironment::IE6:
 	thisVersion = 6; break;
+      case WEnvironment::IE7:
+	thisVersion = 7; break;
+      case WEnvironment::IE8:
+	thisVersion = 8; break;
       default:
-	thisVersion = 7;
+	thisVersion = 9; break;	
       }
 
       enum { lte, lt, eq, gt, gte } cond = eq;

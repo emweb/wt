@@ -73,7 +73,7 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
     result->setProperty(PropertyClass, "Wt-wrapdiv");
     std::stringstream style;
 
-    if (app->environment().agentIsIE() && !forceDiv) {
+    if (app->environment().agentIsIElt(9) && !forceDiv) {
       style << "margin-top:-1px;";
       marginBottom -= 1;
     }

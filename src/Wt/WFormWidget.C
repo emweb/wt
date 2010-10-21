@@ -299,7 +299,7 @@ void WFormWidget::updateDom(DomElement& element, bool all)
       element.callJavaScript("setTimeout(function() {"
 			     """var f = " + jsRef() + ";"
 			     """if (f) f.focus(); }, "
-			     + (env.agentIsIE() ? "500" : "10") + ");");
+			     + (env.agentIsIElt(9) ? "500" : "10") + ");");
 
       flags_.reset(BIT_GOT_FOCUS);
     }

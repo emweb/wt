@@ -149,8 +149,12 @@ void WEnvironment::init(const WebRequest& request)
 
   locale_ = request.parseLocale();
 
+  /*
+   * checked=\"checked\" seems not to work with IE9 XHTML mode
+   */
   if (session_->controller()->configuration().sendXHTMLMimeType()
-      && (accept_.find("application/xhtml+xml") != std::string::npos))
+      && (accept_.find("application/xhtml+xml") != std::string::npos)
+      && !agentIsIE())
     contentType_ = XHTML1;
 }
 
@@ -172,8 +176,10 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     agent_ = IE6;
   else if (userAgent_.find("MSIE 7") != std::string::npos)
     agent_ = IE7;
-  else if (userAgent_.find("MSIE") != std::string::npos)
+  else if (userAgent_.find("MSIE 8") != std::string::npos)
     agent_ = IE8;
+  else if (userAgent_.find("MSIE") != std::string::npos)
+    agent_ = IE9;
 
   if (userAgent_.find("Opera") != std::string::npos)
     agent_ = Opera;
