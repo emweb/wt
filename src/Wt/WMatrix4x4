@@ -34,9 +34,9 @@ namespace Wt {
  *
  * In order to calculate the transformed vector w of a 3D vector v by the
  * transformation contained in matrix T, v will be left-multiplied by T:
- *\code
+ * \code
  * w = T * v;
- *\endcode
+ * \endcode
  * In the formula above, v and w are homogenous 3D column vectors
  * (x, y, z, w), equal to (x/w, y/w, z/w, 1). In normal use cases w is 1,
  * except for vectors that were transformed by a perspective projection
@@ -234,7 +234,7 @@ public:
     WMatrix4x4 l(
       sideX,     sideY,     sideZ,     -(eyeX*sideX + eyeY*sideY + eyeZ*sideZ),
       upDirX,    upDirY,    upDirZ,    -(eyeX*upDirX + eyeY*upDirY + eyeZ*upDirZ),
-      -lookDirX, -lookDirY, -lookDirZ, -(eyeX*lookDirX + eyeY*lookDirY + eyeZ*lookDirZ),
+      -lookDirX, -lookDirY, -lookDirZ, +(+eyeX*lookDirX + eyeY*lookDirY + eyeZ*lookDirZ),
           0,      0,         0,     1
     );
     impl() = prod(impl(), l.impl());;
@@ -340,7 +340,7 @@ public:
    * 0 y 0 0
    * 0 0 z 0
    * 0 0 0 1
-   * \code
+   * \endcode
    */
   void scale(double x, double y, double z)
   {
@@ -379,7 +379,7 @@ public:
    * 0 1 0 y
    * 0 0 1 z
    * 0 0 0 1
-   * \code
+   * \endcode
    */
   void translate(double x, double y, double z)
   {

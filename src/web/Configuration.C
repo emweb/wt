@@ -151,8 +151,7 @@ Configuration::Configuration(const std::string& applicationPath,
     numProcesses_(1),
     numThreads_(serverType == WtHttpdServer ? 0 : 10),
     maxNumSessions_(100),
-    maxRequestSize_(128),
-    maxMemoryRequestSize_(128*1024),
+    maxRequestSize_(128 * 1024),
     sessionTracking_(URL),
     reloadIsNewSession_(true),
     sessionTimeout_(600),
@@ -283,7 +282,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     = singleChildElementValue(app, "max-request-size", "");
 
   if (!maxRequestStr.empty())
-    maxRequestSize_ = boost::lexical_cast<int>(maxRequestStr);
+    maxRequestSize_ = boost::lexical_cast< ::int64_t >(maxRequestStr) * 1024;
 
   setBoolean(app, "debug", debug_);
 
@@ -307,12 +306,6 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     std::string numThreadsStr = singleChildElementValue(isapi, "num-threads", "");
     if (!numThreadsStr.empty())
       numThreads_ = boost::lexical_cast<int>(numThreadsStr);
-
-    std::string maxMemoryRequestSizeStr =
-      singleChildElementValue(isapi, "max-memory-request-size", "");
-    if (!maxMemoryRequestSizeStr.empty()) {
-      maxMemoryRequestSize_ = boost::lexical_cast<int>(maxMemoryRequestSizeStr) * 1024;
-    }
   }
 
   std::string sessionIdLength

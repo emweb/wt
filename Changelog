@@ -1,3 +1,7 @@
+22-10-2010:
+	* WFileUpload, WResource: support upload progress tracking (currently
+	only with wthttpd)
+
 21-10-2010:
 	* various: support IE9 in IE9 document mode, enabling HTML5 features
 	like canvas and disabling workarounds no longer needed -- hooray !

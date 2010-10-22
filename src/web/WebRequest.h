@@ -131,7 +131,7 @@ public:
     const;
   const Http::ParameterMap& getParameterMap() const { return parameters_; }
   const Http::UploadedFileMap& uploadedFiles() const { return files_; }
-  int postDataExceeded() const { return postDataExceeded_; }
+  ::int64_t postDataExceeded() const { return postDataExceeded_; }
 
   WT_LOCALE parseLocale() const;
 
@@ -151,7 +151,7 @@ protected:
 private:
   std::string parsePreferredAcceptValue(const std::string& value) const;
 
-  int postDataExceeded_;
+  ::int64_t postDataExceeded_;
   Http::ParameterMap    parameters_;
   Http::UploadedFileMap files_;
 

@@ -39,7 +39,7 @@ public:
 				  bool endOfRequest);
 
   void setStatus(int status);
-  void setContentLength(boost::intmax_t length);
+  void setContentLength(::int64_t length);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
   void send(const std::string& text, CallbackFunction callBack, void *cbData);
@@ -59,14 +59,16 @@ protected:
   std::string       location_;
   bool              responseSent_, sending_;
   status_type       status_;
-  boost::intmax_t   contentLength_;
+  ::int64_t   contentLength_, bodyReceived_;
   volatile CallbackFunction  fetchMoreData_;
   void *            callBackData_;
+  HTTPRequest      *httpRequest_;
 
   virtual status_type     responseStatus();
   virtual std::string     contentType();
   virtual std::string     location();
-  virtual boost::intmax_t contentLength();
+  virtual ::int64_t       contentLength();
+  virtual void            release();
 
   virtual asio::const_buffer nextContentBuffer();  
 };

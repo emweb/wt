@@ -101,7 +101,6 @@ namespace Wt {
  * object for a response, construct the response piecewise. A new
  * request() will be made to continue the response.
  *
- * \if cpp
  * Example for a custom resource implementation using continuations:
  * \code
  * class MyResource : public Wt::WResource
@@ -144,9 +143,7 @@ namespace Wt {
  *   int iterations_;
  * };
  * \endcode
- * \endif
  *
- * \if cpp
  * <h3>Global and private resources</h3>
  *
  * By default, a resource is private to an application: access to it
@@ -155,7 +152,15 @@ namespace Wt {
  *
  * You can also deploy static resources, which are global, using
  * WServer::addResource().
- * \endif
+ *
+ * <h3>Monitoring upload progress</h3>
+ *
+ * A resource may also handle the uploading of files (in fact,
+ * WFileUpload uses a WResource to do exactly that) or transmission of
+ * other large bodies of data being POST'ed or PUT to the resource
+ * URL. For these requests, it may be convenient to enable upload
+ * progress monitoring using setUploadProgress(), which allows you to
+ * be notified of data being received.
  *
  * \sa WAnchor, WImage
  */
@@ -250,6 +255,36 @@ public:
    */
   Signal<>& dataChanged() { return dataChanged_; }
 
+  /*! \brief Indicate interest in upload progress.
+   *
+   * When supported, you can track upload progress using this
+   * signal. While data is being received, and before handleRequest()
+   * is called, progress information is indicated using
+   * dataReceived().
+   *
+   * We envision that in the future support will depend on a
+   * combination of browser and connector. Currently only the wthttp
+   * connector provides support for this across all AJAX browsers. In
+   * the future, we are likely to implement this also using JavaScript
+   * File API features making it independent of connectors.
+   *
+   * The default value is \c false.
+   */
+  void setUploadProgress(bool enabled);
+
+  /*! \brief Signal emitted when data has been received for this resource.
+   *
+   * When this signal is emitted, you have the update lock to modify
+   * the application. Because there is however no corresponding
+   * request from the browser, any update to the user interface is not
+   * immediately reflected in the client. To update the client
+   * interface, you need to use a WTimer or enable \link
+   * WApplication::enableUpdates() server-push\endlink.
+   *
+   * \sa setUploadProgress()
+   */
+  Signal< ::uint64_t, ::uint64_t >& dataReceived() { return dataReceived_; }
+
   /*! \brief Stream the resource to a stream.
    *
    * This is a convenience method to serialize to a stream (for
@@ -293,8 +328,9 @@ private:
 #endif // WT_TARGET_JAVA
 
   Signal<void> dataChanged_;
+  Signal< ::uint64_t, ::uint64_t > dataReceived_;
 
-  bool        beingDeleted_;
+  bool beingDeleted_, trackUploadProgress_;
 
   std::vector<Http::ResponseContinuation *> continuations_;
 

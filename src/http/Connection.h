@@ -96,6 +96,8 @@ private:
    */
   virtual void startAsyncReadBody(Buffer& buffer, int timeout) = 0;
   void handleReadBody();
+  void handleError(const asio_error_code& e);
+  void sendStockReply(Reply::status_type code);
 
   /*
    * Asynchronoulsy writing a response

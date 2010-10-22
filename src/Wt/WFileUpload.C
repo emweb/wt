@@ -10,12 +10,14 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
+#include "Wt/WProgressBar"
 #include "Wt/WResource"
 #include "Wt/Http/Request"
 #include "Wt/Http/Response"
 
 #include "DomElement.h"
 #include "WebSession.h"
+#include "WebRequest.h"
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -106,7 +108,10 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
     isStolen_(false),
     doUpload_(false),
     enableAjax_(false),
+    uploading_(false),
     fileTooLarge_(this),
+    dataReceived_(this),
+    progressBar_(0),
     tooLargeSize_(0)
 {
   setInline(true);
@@ -131,6 +136,41 @@ WFileUpload::~WFileUpload()
 {
   if (!isStolen_)
     unlink(spoolFileName_.c_str());
+
+  if (uploading_)
+    WApplication::instance()->enableUpdates(false);
+}
+
+void WFileUpload::onData(::uint64_t current, ::uint64_t total)
+{
+  dataReceived_.emit(current, total);
+
+  if (WebSession::Handler::instance()->request()->postDataExceeded()) {
+    if (uploading_) {
+      uploading_ = false;
+      handleFileTooLargeImpl();
+
+      WApplication *app = WApplication::instance();
+      app->triggerUpdate();
+      app->enableUpdates(false);
+    }
+
+    return;
+  }
+
+  if (progressBar_ && uploading_) {
+    progressBar_->setRange(0, total);
+    progressBar_->setValue(current);
+
+    WApplication *app = WApplication::instance();
+    app->triggerUpdate();
+  }
+
+  if (current == total) {
+    WApplication *app = WApplication::instance();
+    uploading_ = false;
+    app->enableUpdates(false);
+  }
 }
 
 void WFileUpload::enableAjax()
@@ -139,6 +179,19 @@ void WFileUpload::enableAjax()
   enableAjax_ = true;
   repaint();
   WWebWidget::enableAjax();
+}
+
+void WFileUpload::setProgressBar(WProgressBar *bar)
+{
+  delete progressBar_;
+  progressBar_ = bar;
+
+  if (progressBar_) {
+    if (!progressBar_->parent()) {
+      progressBar_->setParentWidget(this);
+      progressBar_->hide();
+    }
+  }
 }
 
 EventSignal<>& WFileUpload::uploaded()
@@ -176,7 +229,21 @@ void WFileUpload::updateDom(DomElement& element, bool all)
   if (fileUploadTarget_ && doUpload_) {
     element.callMethod("submit()");
     doUpload_ = false;
+    fileUploadTarget_->setUploadProgress(true);
+    fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
+
+    if (progressBar_)
+      if (progressBar_->parent() == this) {
+	DomElement *inputE = DomElement::getForUpdate("in" + id(),
+						      DomElement_INPUT);
+	inputE->setProperty(PropertyStyleDisplay, "none");
+	element.addChild(inputE);
+      }
   }
+
+  if (progressBar_ && !progressBar_->isRendered())
+    element.addChild(((WWebWidget *)progressBar_)
+		     ->createDomElement(WApplication::instance()));
 
   WWebWidget::updateDom(element, all);
 }
@@ -215,6 +282,11 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
 
   if (fileUploadTarget_) {
+    DomElement *i = DomElement::createNew(DomElement_IFRAME);
+    i->setProperty(PropertyClass, "Wt-resource");
+    i->setProperty(PropertySrc, fileUploadTarget_->url());
+    i->setName("if" + id());
+
     DomElement *form = result;
 
     form->setAttribute("method", "post");
@@ -222,11 +294,6 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
     form->setAttribute("enctype", "multipart/form-data");
     form->setProperty(PropertyStyle, "margin:0;padding:0;display:inline");
     form->setProperty(PropertyTarget, "if" + id());
-
-    DomElement *i = DomElement::createNew(DomElement_IFRAME);
-    i->setProperty(PropertyClass, "Wt-resource");
-    i->setProperty(PropertySrc, fileUploadTarget_->generateUrl());
-    i->setName("if" + id());
 
     /*
      * wrap iframe in an extra span to work around bug in IE which does
@@ -287,9 +354,19 @@ void WFileUpload::setRequestTooLarge(int size)
 
 void WFileUpload::upload()
 {
-  if (fileUploadTarget_) {
+  if (fileUploadTarget_ && !uploading_) {
     doUpload_ = true;
     repaint(RepaintPropertyIEMobile);
+
+    if (progressBar_) {
+      if (progressBar_->parent() != this)
+	hide();
+      else
+	progressBar_->show();
+    }
+
+    WApplication::instance()->enableUpdates();
+    uploading_ = true;
   }
 }
 

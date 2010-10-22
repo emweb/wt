@@ -36,7 +36,7 @@ void HTTPRequest::setStatus(int status)
   reply_->setStatus(status);
 }
 
-void HTTPRequest::setContentLength(boost::intmax_t length)
+void HTTPRequest::setContentLength(::int64_t length)
 {
   reply_->setContentLength(length);
 }

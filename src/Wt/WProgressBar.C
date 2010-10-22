@@ -9,6 +9,7 @@
 #include <Wt/WText>
 #include <Wt/WContainerWidget>
 
+#include <stdio.h>
 #include "DomElement.h"
 
 using namespace Wt;
@@ -22,6 +23,8 @@ WProgressBar::WProgressBar(WContainerWidget *parent)
      value_(0),
      changed_(false)
 {
+  format_ = WString::fromUTF8("%.0f %%");
+
   setStyleClass("Wt-progressbar");
   setInline(true);
 }
@@ -64,10 +67,21 @@ void WProgressBar::setRange(double minimum, double maximum)
   repaint(RepaintInnerHtml);
 }
 
+void WProgressBar::setFormat(const WString& format)
+{
+  format_ = format;
+}
+
 WString WProgressBar::text() const
 {
-  return WString::fromUTF8
-    (boost::lexical_cast<std::string>(static_cast<int>(percentage())));
+  std::string f = format_.toUTF8();
+  int buflen = f.length() + 5;
+
+  char buf[buflen];
+
+  snprintf(buf, buflen, f.c_str(), percentage());
+
+  return WString::fromUTF8(buf);
 }
 
 double WProgressBar::percentage() const

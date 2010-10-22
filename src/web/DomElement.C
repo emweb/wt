@@ -552,7 +552,7 @@ std::string DomElement::cssStyle() const
 	  "background-color", "background-image", "background-repeat",
 	  "background-attachment", "background-position",
 	  "text-decoration", "white-space", "table-layout", "border-spacing",
-	  "visibility", "display"};
+	  "zoom", "visibility", "display"};
 
       if ((j->first == PropertyStyleCursor) && (j->second == "pointer")) {
 	style << "cursor:pointer;cursor:hand;";	    
@@ -1450,7 +1450,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
 	    "backgroundColor", "backgroundImage", "backgroundRepeat",
 	    "backgroundAttachment", "backgroundPosition",
 	    "textDecoration", "whiteSpace", "tableLayout", "borderSpacing",
-	    "visibility", "display" };
+	    "zoom", "visibility", "display" };
 	out << var_ << ".style."
 	    << cssCamelNames[i->first - PropertyStyle]
 	    << "='" << i->second << "';";

@@ -175,15 +175,15 @@ void CgiParser::init()
 
 char CgiParser::buf_[BUFSIZE + MAXBOUND];
 
-CgiParser::CgiParser(int maxPostData)
+CgiParser::CgiParser(::int64_t maxPostData)
   : maxPostData_(maxPostData)
 { }
 
-void CgiParser::parse(WebRequest& request)
+void CgiParser::parse(WebRequest& request, bool readBody)
 {
   request_ = &request;
 
-  unsigned len = request.contentLength();
+  ::int64_t len = request.contentLength();
   std::string type = request.contentType();
   std::string meth = request.requestMethod();
 
@@ -191,7 +191,7 @@ void CgiParser::parse(WebRequest& request)
 
   std::string queryString = request.queryString();
 
-  if (meth == "POST"
+  if (readBody && meth == "POST"
       && type.find("application/x-www-form-urlencoded") == 0) {
     char *buf = new char[len + 1];
 
@@ -248,17 +248,18 @@ void CgiParser::parse(WebRequest& request)
     }
   }
 
-  if (type.find("multipart/form-data") == 0) {
+  if (readBody && type.find("multipart/form-data") == 0) {
     if (meth != "POST") {
       throw WtException("Invalid method for multipart/form-data: " + meth);
     }
 
-    readMultipartData(request, type, len);
+    if (!request.postDataExceeded_)
+      readMultipartData(request, type, len);
   }
 }
 
 void CgiParser::readMultipartData(WebRequest& request,
-				  const std::string type, int len)
+				  const std::string type, ::int64_t len)
 {
   std::string boundary;
     
@@ -319,7 +320,9 @@ void CgiParser::readUntilBoundary(WebRequest& request,
       windBuffer(save);
     }
 
-    unsigned amt = std::min(left_, BUFSIZE + MAXBOUND - buflen_);
+    unsigned amt = static_cast<unsigned>
+      (std::min(left_,
+		static_cast< ::int64_t >(BUFSIZE + MAXBOUND - buflen_)));
 
     request.in().read(buf_ + buflen_, amt);    
     if (request.in().gcount() != (int)amt)

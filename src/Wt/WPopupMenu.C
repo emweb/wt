@@ -30,6 +30,7 @@ WPopupMenu::WPopupMenu()
     "${contents}";
 
   setImplementation(impl_ = new WTemplate(WString::fromUTF8(TEMPLATE)));
+  impl_->setLoadLaterWhenInvisible(false);
 
   setPositionScheme(Absolute);
   setStyleClass("Wt-popupmenu Wt-outset");
@@ -117,6 +118,7 @@ void WPopupMenu::done(WPopupMenuItem *result)
 {
   result_ = result;
 
+  show();
   hide();
 
   WApplication::instance()->root()->clicked()
@@ -178,6 +180,8 @@ void WPopupMenu::popupImpl()
 void WPopupMenu::popup(const WPoint& p)
 {
   popupImpl();
+
+  hide();
 
   WApplication::instance()->doJavaScript
     (WT_CLASS ".positionXY('" + id() + "',"

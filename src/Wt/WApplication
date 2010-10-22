@@ -836,7 +836,7 @@ public:
    *   // Grab the application lock. It is a scoped lock.
    *   Wt::WApplication::UpdateLock lock(app);
    *
-   *   if (Wt::WApplication::instance() == app) {
+   *   if (lock) {
    *     // We now have exclusive access to the application: we can safely modify the widget tree for example.
    *     app->root()->addWidget(new Wt::WText("Something happened!"));
    *
@@ -845,7 +845,7 @@ public:
    *   }
    * }
    * \endcode
-   * \else
+   * \elseif java
    * \code
    * // You need to have a reference to the application whose state
    * // you are about to manipulate.
@@ -889,22 +889,25 @@ public:
    */
   void triggerUpdate();
 
-  /*! \if cpp
-   *  \brief A RIIA lock for manipulating and updating the
+#ifndef WT_TARGET_JAVA
+  /*! \brief A RIIA lock for manipulating and updating the
    *         application and its widgets outside of the event loop.
-   *  \else
-   *  \brief A synchronization lock for manipulating and updating the
+   *
+   * You need to take this lock only when you want to manipulate
+   * widgets outside of the event loop. Inside the event loop, this
+   * lock is already held by the library itself.
+   */
+#else
+  /*! \brief A synchronization lock for manipulating and updating the
    *         application and its widgets outside of the event loop.
-   *  \endif
    *
    * You need to take this lock only when you want to manipulate
    * widgets outside of the event loop. Inside the event loop, this
    * lock is already held by the library itself.
    *
-   * \if java
    * \sa getUpdateLock()
-   * \endif
    */
+#endif // WT_TARGET_JAVA
   class WT_API UpdateLock
   {
   public:
@@ -931,6 +934,7 @@ public:
      * if (lock) {
      *   // exclusive access to app state
      * }
+     * \endcode
      * \endif
      */
     UpdateLock(WApplication *app);
@@ -946,6 +950,13 @@ public:
      */
     UpdateLock(const UpdateLock&);
 
+    /*! \brief Tests whether the update lock was succesfully taken.
+     *
+     * This may return \c false when the library has already decided
+     * to destroy the session (but before your application
+     * finalizer/destructor has run to notify helper threads that the
+     * application is destroyed).
+     */
     operator bool() const { return ok_; }
 
     /*! \brief Releases the lock.

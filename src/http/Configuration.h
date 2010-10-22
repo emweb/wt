@@ -11,6 +11,7 @@
 #include <exception>
 #include <string>
 #include <boost/program_options.hpp>
+#include <boost/cstdint.hpp>
 
 namespace po = boost::program_options;
 
@@ -61,8 +62,7 @@ public:
   const std::string& sessionIdPrefix() const { return sessionIdPrefix_; }
   const std::string& accessLog() const { return accessLog_; }
 
-  int maxRequestSize() const { return maxRequestSize_; }
-  int maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
+  ::int64_t maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
 
   Wt::WLogEntry log(const std::string& type) const;
 
@@ -92,8 +92,7 @@ private:
   std::string sessionIdPrefix_;
   std::string accessLog_;
 
-  int maxRequestSize_;
-  int maxMemoryRequestSize_;
+  ::int64_t maxMemoryRequestSize_;
 
   static Configuration *instance_;
 

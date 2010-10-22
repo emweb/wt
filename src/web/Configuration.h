@@ -101,8 +101,7 @@ public:
   int                numProcesses() const { return numProcesses_; }
   int                numThreads() const { return numThreads_; }
   int                maxNumSessions() const { return maxNumSessions_; }
-  int                maxRequestSize() const { return maxRequestSize_; }
-  int                maxMemoryRequestSize() const { return maxMemoryRequestSize_; }
+  ::int64_t          maxRequestSize() const { return maxRequestSize_; }
   SessionTracking    sessionTracking() const { return sessionTracking_; }
   bool               reloadIsNewSession() const { return reloadIsNewSession_; }
   int                sessionTimeout() const { return sessionTimeout_; }
@@ -157,8 +156,7 @@ private:
   int             numProcesses_;
   int             numThreads_;
   int             maxNumSessions_;
-  int             maxRequestSize_;
-  int             maxMemoryRequestSize_;
+  ::int64_t       maxRequestSize_;
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;
   int             sessionTimeout_;

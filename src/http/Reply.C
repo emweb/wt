@@ -79,6 +79,8 @@ const std::string forbidden =
   "403 Forbidden\r\n";
 const std::string not_found =
   "404 Not Found\r\n";
+const std::string request_entity_too_large =
+  "413 Request Entity too Large\r\n";
 const std::string requested_range_not_satisfiable =
   "416 Requested Range Not Satisfiable\r\n";
 const std::string internal_server_error =
@@ -124,6 +126,8 @@ const std::string& toText(Reply::status_type status)
     return forbidden;
   case Reply::not_found:
     return not_found;
+  case Reply::request_entity_too_large:
+    return request_entity_too_large;
   case Reply::requested_range_not_satisfiable:
     return requested_range_not_satisfiable;
   case Reply::internal_server_error:
@@ -167,6 +171,9 @@ Reply::Reply(const Request& request)
 }
 
 Reply::~Reply()
+{ }
+
+void Reply::release()
 { }
 
 std::string Reply::location()
@@ -261,7 +268,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       }
 
       if (responseStatus() != not_modified) {
-	boost::intmax_t cl = contentLength();
+	::int64_t cl = contentLength();
 
 #ifdef WTHTTP_WITH_ZLIB
 	/*
@@ -440,6 +447,12 @@ void Reply::setRelay(ReplyPtr reply)
 
   relay_ = reply;
   relay_->connection_ = connection_;
+
+  relay_->remoteAddress_ = remoteAddress_;
+  relay_->requestMethod_ = requestMethod_;
+  relay_->requestUri_ = requestUri_;
+  relay_->requestMajor_ = requestMajor_;
+  relay_->requestMinor_ = requestMinor_;
 }
 
 void Reply::logReply(Wt::WLogger& logger)

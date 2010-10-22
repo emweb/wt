@@ -194,6 +194,8 @@ void WHTML5Media::updateMediaDom(DomElement& element, bool all)
     }
   }
 
+  updateEventSignals(element, all);
+
   if (all)
     if (alternative_) {
       element.addChild(alternative_->createSDomElement(wApp));
@@ -278,6 +280,15 @@ DomElement *WHTML5Media::createDomElement(WApplication *app)
 
   setId(result, app);
   updateDom(*result, true);
+
+  if (isInLayout()) {
+    result->setEvent(PLAYBACKSTARTED_SIGNAL, std::string());
+    result->setEvent(PLAYBACKPAUSED_SIGNAL, std::string());
+    result->setEvent(ENDED_SIGNAL, std::string());
+    result->setEvent(TIMEUPDATED_SIGNAL, std::string());
+    result->setEvent(VOLUMECHANGED_SIGNAL, std::string());
+  }
+
   setJavaScriptMember("mediaId", "'" + mediaId_ + "'");
 
   return result;

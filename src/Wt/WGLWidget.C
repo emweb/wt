@@ -8,6 +8,7 @@
 #include "Wt/WWebWidget"
 #include "DomElement.h"
 #include "Utils.h"
+#include "Wt/WApplication"
 
 using namespace Wt;
 
@@ -337,13 +338,14 @@ const char *WGLWidget::toString(TextureWrapModeEnum e)
 }
 
 WGLWidget::WGLWidget(WContainerWidget *parent):
-  WWebWidget(parent),
+  WInteractWidget(parent),
   shaders_(0),
   programs_(0),
   attributes_(0),
   uniforms_(0),
   buffers_(0),
-  textures_(0)
+  textures_(0),
+  matrices_(0)
 {
   setInline(false);
 }
@@ -378,8 +380,11 @@ void WGLWidget::updateMediaDom(DomElement& element, bool all)
 
 DomElement *WGLWidget::createDomElement(WApplication *app)
 {
+  wApp->require("glMatrix.js");
   DomElement *result = DomElement::createNew(DomElement_CANVAS);;
 
+  result->setAttribute("width", boost::lexical_cast<std::string>(width().value()));
+  result->setAttribute("height", boost::lexical_cast<std::string>(height().value()));
   setId(result, app);
   updateDom(*result, true);
 
@@ -387,7 +392,7 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
   std::stringstream tmp;
   tmp <<
     "if(" << jsRef() << ".getContext){";
-  tmp << "var ctx=" << jsRef() << ".getContext('experimental-webgl');";
+  tmp << "ctx=" << jsRef() << ".getContext('experimental-webgl');";
   js_.str("");
   initializeGL();
   tmp << "ctx.initializeGl=function(){" << js_.str() << "};";
@@ -900,6 +905,12 @@ void WGLWidget::useProgram(Program program)
   GLDEBUG;
 }
 
+void WGLWidget::validateProgram(Program program)
+{
+  js_ << "ctx.validateProgram(" << program << ");";
+  GLDEBUG;
+}
+
 void WGLWidget::vertexAttribPointer(AttribLocation location, int size,
                                  DataTypeEnum type, bool normalized,
                                  unsigned stride, unsigned offset)
@@ -913,4 +924,105 @@ void WGLWidget::viewport(int x, int y, unsigned width, unsigned height)
 {
   js_ << "ctx.viewport(" << x << "," << y << "," << width << "," << height << ");";
   GLDEBUG;
+}
+
+
+JavaScriptMatrix4x4 WGLWidget::createJavaScriptMatrix4()
+{
+  WGenericMatrix<double, 4, 4> m; // unit matrix
+  JavaScriptMatrix4x4 retval = "WtMatrix" + boost::lexical_cast<std::string>(matrices_++);
+  setJavaScriptMatrix4(retval, m);
+  return retval;
+}
+
+void WGLWidget::setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
+                                           double centerX, double centerY, double centerZ,
+                                           double uX, double uY, double uZ,
+                                           double pitchRate, double yawRate)
+{
+  mouseWentDown().connect("function(o, e){ o.mouseDownCoordinates = " WT_CLASS ".pageCoordinates(event);}");
+  std::stringstream ss;
+  ss << "function(o, e){"
+    "var c = " WT_CLASS ".pageCoordinates(event);"
+    "var dx=(c.x - o.mouseDownCoordinates.x);"
+    "var dy=(c.y - o.mouseDownCoordinates.y);"
+    "console.log('dragged: ' + dx + ',' + dy);"
+    "o.mouseDownCoordinates = c;"
+    "var l=vec3.create();"
+    "l[0]=" << centerX << ";"
+    "l[1]=" << centerY << ";"
+    "l[2]=" << centerZ << ";"
+    "console.log('l: ' + l[0] + ';' + l[1] + ';' + l[2]);"
+    "var u=vec3.create();"
+    "u[0]=" << uX << ";"
+    "u[1]=" << uY << ";"
+    "u[2]=" << uZ << ";"
+    "var s=vec3.create();"
+    "s[0]=" << m << "[0];"
+    "s[1]=" << m << "[4];"
+    "s[2]=" << m << "[8];"
+    "var r=mat4.create();"
+    "mat4.identity(r);"
+    //"vec3.negate(l);"
+    "mat4.translate(r, l);"
+    "mat4.rotate(r, dy * " << pitchRate << ", s);"
+    "mat4.rotate(r, dx * " << yawRate << ", u);"
+    "vec3.negate(l);"
+    "mat4.translate(r, l);"
+    "mat4.multiply(" << m << ",r," << m << ");"
+    "ctx.paintGl();"
+    "}";
+  mouseDragged().connect(ss.str());
+  ss.str("");
+  ss << "function(o, e){"
+    "var d = " WT_CLASS ".wheelDelta(event);"
+    "var s = Math.pow(1.2, d);"
+    "console.log('scroll: ' + d + ';' + s);"
+    "var l=vec3.create();"
+    "l[0]=" << centerX << ";"
+    "l[1]=" << centerY << ";"
+    "l[2]=" << centerZ << ";"
+    "mat4.translate(" << m << ", l);"
+    "mat4.scale(" << m << ",[s, s, s]);"
+    "vec3.negate(l);"
+    "mat4.translate(" << m << ", l);"
+    "ctx.paintGl();"
+    "}";
+  mouseWheel().connect(ss.str());
+}
+
+void WGLWidget::setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double frontStep, double rotStep)
+{
+  mouseWentDown().connect("function(o, e){ o.mouseDownCoordinates = " WT_CLASS ".pageCoordinates(event);}");
+  std::stringstream ss;
+  ss << "function(o, e){"
+    "var c = " WT_CLASS ".pageCoordinates(event);"
+    "var dx=(c.x - o.mouseDownCoordinates.x);"
+    "var dy=(c.y - o.mouseDownCoordinates.y);"
+    //"console.log('dragged: ' + dx + ',' + dy);"
+    "o.mouseDownCoordinates = c;"
+    "var r=mat4.create();"
+    "mat4.identity(r);"
+    "mat4.rotateY(r, dx * " << rotStep << ");"
+    "var t=vec3.create();"
+    "t[0]=0;"
+    "t[1]=0;"
+    "t[2]=-" << frontStep << "*dy;"
+    "mat4.translate(r, t);"
+    "mat4.multiply(r," << m << "," << m << ");"
+    "ctx.paintGl();"
+    "}";
+  mouseDragged().connect(ss.str());
+}
+
+void WGLWidget::uniformNormalMatrix4(const UniformLocation &u,
+                                     const JavaScriptMatrix4x4 &jsm,
+                                     const WGenericMatrix<double, 4, 4> &mm)
+{
+  //js_ << "ctx.uniformMatrix3fv(" << u << ",false,mat3.transpose(mat4.toInverseMat3(mat4.multiply(mat4.create(" << jsm << "), ";
+  //renderfv(mm.transposed().data().begin(), 16);
+  //js_ << "))));";
+  js_ << "ctx.uniformMatrix4fv(" << u << ",false,mat4.transpose(mat4.inverse(mat4.multiply(mat4.create(" << jsm << "), ";
+  renderfv(mm.transposed().data().begin(), 16);
+  js_ << "))));";
 }

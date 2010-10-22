@@ -14,8 +14,9 @@
 
 #include <Wt/WApplication>
 #include <Wt/WCheckBox>
-#include <Wt/WText>
 #include <Wt/WFileUpload>
+#include <Wt/WProgressBar>
+#include <Wt/WText>
 
 #include "Attachment.h"
 #include "AttachmentEdit.h"
@@ -36,10 +37,19 @@ AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
   upload_->setFileTextSize(40);
 
   /*
+   * A progress bar
+   */
+  WProgressBar *progress = new WProgressBar();
+  progress->setFormat(WString::Empty);
+  progress->setVerticalAlignment(AlignMiddle);
+  upload_->setProgressBar(progress);
+
+  /*
    * The 'remove' option.
    */
   remove_ = new Option(tr("msg.remove"), this);
   upload_->decorationStyle().font().setSize(WFont::Smaller);
+  upload_->setVerticalAlignment(AlignMiddle);
   remove_->setMargin(5, Left);
   remove_->item()->clicked().connect(this, &WWidget::hide);
   remove_->item()->clicked().connect(this, &AttachmentEdit::remove);

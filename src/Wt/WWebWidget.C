@@ -1052,8 +1052,14 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	    element.setProperty(PropertyStyleDisplay, "inline-table");
 	  if (element.type() == DomElement_LI)
 	    element.setProperty(PropertyStyleDisplay, "inline");
-	  else if (element.type() != DomElement_TD)
-	    element.setProperty(PropertyStyleDisplay, "inline-block");
+	  else if (element.type() != DomElement_TD) {
+	    WApplication *app = WApplication::instance();
+	    if (app->environment().agentIsIElt(9)) {
+	      element.setProperty(PropertyStyleDisplay, "inline");
+	      element.setProperty(PropertyStyleZoom, "1");
+	    } else
+	      element.setProperty(PropertyStyleDisplay, "inline-block");
+	  }
 	} else {
 	  element.setProperty(PropertyStyleDisplay, "block");
 	}

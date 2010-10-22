@@ -157,7 +157,7 @@ public:
    */
   WGenericMatrix<T, Cols, Rows> transposed() const
   {
-    return boost::numeric::ublas::trans(m_);
+    return WGenericMatrix<T, Cols, Rows>(boost::numeric::ublas::trans(m_));
   }
 
   /*! \brief Equality operator.

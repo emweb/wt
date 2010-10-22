@@ -12,6 +12,7 @@
 #include "Wt/Http/Request"
 #include "Wt/Http/Response"
 
+#include "WebController.h"
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WtRandom.h"
@@ -27,7 +28,8 @@ namespace Wt {
 WResource::WResource(WObject* parent)
   : WObject(parent),
     dataChanged_(this),
-    beingDeleted_(false)
+    beingDeleted_(false),
+    trackUploadProgress_(false)
 { 
 #ifdef WT_THREADED
   mutex_.reset(new boost::recursive_mutex());
@@ -51,8 +53,24 @@ WResource::~WResource()
     delete continuations_[i];
   }
 
-  if (wApp)
+  if (wApp) {
     wApp->removeExposedResource(this);
+    if (trackUploadProgress_)
+      WebSession::instance()->controller()->removeUploadProgressUrl(url());
+  }
+}
+
+void WResource::setUploadProgress(bool enabled)
+{
+  if (trackUploadProgress_ != enabled) {
+    trackUploadProgress_ = enabled;
+
+    WebController *c = WebSession::instance()->controller();
+    if (enabled)
+      c->addUploadProgressUrl(url());
+    else
+      c->removeUploadProgressUrl(url());
+  }
 }
 
 void WResource::doContinue(Http::ResponseContinuation *continuation)
@@ -146,9 +164,17 @@ const std::string& WResource::generateUrl()
 {
   WApplication *app = WApplication::instance();
 
-  if (app)
+  if (app) {
+    WebController *c = 0;
+    if (trackUploadProgress_)
+      c = WebSession::instance()->controller();
+
+    if (c && !currentUrl_.empty())
+      c->removeUploadProgressUrl(currentUrl_);
     currentUrl_ = app->addExposedResource(this, internalPath_);
-  else
+    if (c)
+      c->addUploadProgressUrl(currentUrl_);    
+  } else
     currentUrl_ = internalPath_;
 
   return currentUrl_;

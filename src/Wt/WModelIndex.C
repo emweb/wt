@@ -147,7 +147,7 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
   : model_(model),
     row_(row),
     column_(column),
-    internalId_(reinterpret_cast<uint64_t>(ptr))
+    internalId_(reinterpret_cast< ::uint64_t >(ptr))
 { }
 
 WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
@@ -160,7 +160,7 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
 
 std::size_t hash_value(const Wt::WModelIndex& index) {
   boost::hash<int> intHasher;
-  boost::hash<uint64_t> longHasher;
+  boost::hash< ::uint64_t > longHasher;
 
   return intHasher(index.row()) + intHasher(index.column())
     + longHasher(index.internalId());
@@ -173,7 +173,7 @@ void WModelIndex::encodeAsRawIndex()
       throw WtException("WModelIndex::encodeAsRawIndex(): "
 			"cannot encode a raw index to raw again");
 
-    internalId_ = reinterpret_cast<uint64_t>(model_->toRawIndex(*this));
+    internalId_ = reinterpret_cast< ::uint64_t >(model_->toRawIndex(*this));
     row_ = column_ = -42;
   }
 }

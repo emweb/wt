@@ -103,6 +103,7 @@ namespace Wt {
   class WPolygonArea;
   class WPopupMenu;
   class WPopupMenuItem;
+  class WProgressBar;
   class WPushButton;
   class WRadioButton;
   class WRasterImage;
@@ -120,6 +121,7 @@ namespace Wt {
   class WSocketNotifier;
   class WSortFilterProxyModel;
   class WSound;
+  class WSpinBox;
   class WStackedWidget;
   class WStandardItem;
   class WStandardItemModel;

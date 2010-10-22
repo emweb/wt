@@ -11,6 +11,7 @@
 #include <map>
 #include <iostream>
 #include <vector>
+#include <boost/cstdint.hpp>
 
 #include <Wt/WDllDefs.h>
 
@@ -27,21 +28,21 @@ class CgiParser
 public:
   static void init();
 
-  CgiParser(int maxPostData);
+  CgiParser(boost::int64_t maxPostData);
 
   /*
    * Reads in GET or POST data, converts it to unescaped text, and
    * creates Entry for each parameter entry. The request is annotated
    * with the parse results.
    */
-  void parse(WebRequest& request);
+  void parse(WebRequest& request, bool readBody = true);
 
 private:
-  void readMultipartData(WebRequest& request, const std::string type, int len);
+  void readMultipartData(WebRequest& request, const std::string type,
+			 boost::int64_t len);
   bool parseBody(WebRequest& request, const std::string boundary);
   bool parseHead(WebRequest& request);
-  unsigned maxPostData_;
-  int left_;
+  boost::int64_t maxPostData_, left_;
   std::ostream *spoolStream_;
   WebRequest *request_;
 

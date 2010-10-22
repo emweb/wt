@@ -7,7 +7,7 @@
 #ifndef WGLWIDGET_H_
 #define WGLWIDGET_H_
 
-#include <Wt/WWebWidget>
+#include <Wt/WInteractWidget>
 #include <Wt/WGenericMatrix>
 #include <boost/type_traits/is_enum.hpp>
 
@@ -19,14 +19,15 @@ typedef std::string AttribLocation;
 typedef std::string Buffer;
 typedef std::string UniformLocation;
 typedef std::string Texture;
+typedef std::string JavaScriptMatrix4x4;
 
-#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) alert('error: ' + err);}";} while(false)
+#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) alert('error " << __FUNCTION__ << ": ' + err);}";} while(false)
 
 // Incomplete implementation of the new webgl standard. This is to be
 // considered as a technology preview, and we welcome comments regarding
 // this interface.
 // Expect this interface to change.
-class WGLWidget: public WWebWidget
+class WGLWidget: public WInteractWidget
 {
 public:
   WGLWidget(WContainerWidget *parent);
@@ -662,33 +663,33 @@ public:
   //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
   //                   GLenum format, GLenum type, HTMLVideoElement video);
 
-  void uniform1f(UniformLocation location, double x) {
+  void uniform1f(const UniformLocation &location, double x) {
     char buf[30];
     js_ << "ctx.uniform1f(" << location << "," << makeFloat(x, buf) << ");";
     GLDEBUG;
   }
   template<typename Array>
-  void uniform1fv(UniformLocation location, const Array *value) {
+  void uniform1fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform1fv(" << location << ",";
     renderfv(value, 1);
     js_ << ");";
     GLDEBUG;
   }
-  void uniform1i(UniformLocation location, int x) {
+  void uniform1i(const UniformLocation &location, int x) {
     char buf[30];
     js_ << "ctx.uniform1i(" << location << ",";
     js_ << makeInt(x, buf) << ");";
     GLDEBUG;
   }
   template<typename Array>
-  void uniform1iv(UniformLocation location, const Array *value) {
+  void uniform1iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform1iv(" << location << ",";
     renderiv(value, 1, INT);
     js_ << ");";
     GLDEBUG;
   }
 
-  void uniform2f(UniformLocation location, double x, double y) {
+  void uniform2f(const UniformLocation &location, double x, double y) {
     char buf[30];
     js_ << "ctx.uniform2f(" << location << ",";
     js_ << makeFloat(x, buf) << ",";
@@ -696,13 +697,13 @@ public:
     GLDEBUG;
   }
   template<typename Array>
-  void uniform2fv(UniformLocation location, const Array *value) {
+  void uniform2fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform2fv(" << location << ",";
     renderfv(value, 2);
     js_ << ");";
     GLDEBUG;
   }
-  void uniform2i(UniformLocation location, int x, int y) {
+  void uniform2i(const UniformLocation &location, int x, int y) {
     char buf[30];
     js_ << "ctx.uniform2i(" << location << ",";
     js_ << makeInt(x, buf) << ",";
@@ -710,14 +711,14 @@ public:
     GLDEBUG;
   }
   template<typename Array>
-  void uniform2iv(UniformLocation location, const Array *value) {
+  void uniform2iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform2iv(" << location << ",";
     renderiv(value, 2, INT);
     js_ << ");";
     GLDEBUG;
   }
 
-  void uniform3f(UniformLocation location, double x, double y, double z) {
+  void uniform3f(const UniformLocation &location, double x, double y, double z) {
     char buf[30];
     js_ << "ctx.uniform3f(" << location << ",";
     js_ << makeFloat(x, buf) << ",";
@@ -726,13 +727,13 @@ public:
     GLDEBUG;
   }
   template<typename Array>
-  void uniform3fv(UniformLocation location, const Array *value) {
+  void uniform3fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform3fv(" << location << ",";
     renderfv(value, 3);
     js_ << ");";
     GLDEBUG;
   }
-  void uniform3i(UniformLocation location, int x, int y, int z) {
+  void uniform3i(const UniformLocation &location, int x, int y, int z) {
     char buf[30];
     js_ << "ctx.uniform3i(" << location << ",";
     js_ << makeInt(x, buf) << ",";
@@ -741,13 +742,13 @@ public:
     GLDEBUG;
   }
   template<typename Array>
-  void uniform3iv(UniformLocation location, const Array *value) {
+  void uniform3iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform3iv(" << location << ",";
     renderiv(value, 3, INT);
     js_ << ");";
     GLDEBUG;
   }
-  void uniform4f(UniformLocation location, double x, double y, double z, double w) {
+  void uniform4f(const UniformLocation &location, double x, double y, double z, double w) {
     char buf[30];
     js_ << "ctx.uniform4f(" << location << ",";
     js_ << makeFloat(x, buf) << ",";
@@ -757,13 +758,13 @@ public:
     GLDEBUG;
   }
   template<typename Array>
-  void uniform4fv(UniformLocation location, const Array *value) {
+  void uniform4fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform4fv(" << location << ",";
     renderfv(value, 4);
     js_ << ");";
     GLDEBUG;
   }
-  void uniform4i(UniformLocation location, int x, int y, int z, int w) {
+  void uniform4i(const UniformLocation &location, int x, int y, int z, int w) {
     char buf[30];
     js_ << "ctx.uniform4i(" << location << ",";
     js_ << makeInt(x, buf) << ",";
@@ -773,7 +774,7 @@ public:
     GLDEBUG;
   }
   template<typename Array>
-  void uniform4iv(UniformLocation location, const Array *value) {
+  void uniform4iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform4iv(" << location << ",";
     renderiv(value, 4, INT);
     js_ << ");";
@@ -781,7 +782,7 @@ public:
   }
 
   template<typename MatrixType>
-  void uniformMatrix2fv(UniformLocation location, bool transpose, const MatrixType *value) {
+  void uniformMatrix2fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix2fv(" << location << ","
       << (transpose?"true":"false") << ",";
     renderfv(value, 4);
@@ -789,14 +790,14 @@ public:
     GLDEBUG;
   }
   template< typename T>
-  void uniformMatrix2(UniformLocation location, const WGenericMatrix<T, 2, 2> &m) {
+  void uniformMatrix2(const UniformLocation &location, const WGenericMatrix<T, 2, 2> &m) {
     js_ << "ctx.uniformMatrix2fv(" << location << ",false,";
     renderfv(m.transposed().data().begin(), 4);
     js_ << ");";
     GLDEBUG;
   }
   template<typename MatrixType>
-  void uniformMatrix3fv(UniformLocation location, bool transpose, const MatrixType *value) {
+  void uniformMatrix3fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix3fv(" << location << ","
       << (transpose?"true":"false") << ",";
     renderfv(value,9);
@@ -804,14 +805,14 @@ public:
     GLDEBUG;
   }
   template<typename T>
-  void uniformMatrix3(UniformLocation location, bool transpose, const WGenericMatrix<T, 3, 3> &m) {
+  void uniformMatrix3(const UniformLocation &location, bool transpose, const WGenericMatrix<T, 3, 3> &m) {
     js_ << "ctx.uniformMatrix3fv(" << location << ",false,";
     renderfv(m.transposed().data().begin(), 9);
     js_ << ");";
     GLDEBUG;
   }
   template<typename MatrixType>
-  void uniformMatrix4fv(UniformLocation location, bool transpose, const MatrixType *value) {
+  void uniformMatrix4fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix4fv(" << location << ","
       << (transpose?"true":"false") << ",";
     renderfv(value, 16);
@@ -819,15 +820,21 @@ public:
     GLDEBUG;
   }
   template<typename T>
-  void uniformMatrix4(UniformLocation location, const WGenericMatrix<T, 4, 4> &m) {
+  void uniformMatrix4(const UniformLocation &location, const WGenericMatrix<T, 4, 4> &m) {
     js_ << "ctx.uniformMatrix4fv(" << location << ",false,";
     renderfv(m.transposed().data().begin(), 16);
     js_ << ");";
     GLDEBUG;
   }
+  void uniformMatrix4(const UniformLocation &location, const JavaScriptMatrix4x4 &m) {
+    js_ << "ctx.uniformMatrix4fv(" << location << ",false,";
+    js_ << m << ");";
+    GLDEBUG;
+  }
+
 
   void useProgram(Program program);
-  //void validateProgram(WebGLProgram program);
+  void validateProgram(Program program);
 
   void vertexAttrib1f(AttribLocation location, double x) {
     char buf[30];
@@ -881,6 +888,28 @@ public:
 
   void viewport(int x, int y, unsigned width, unsigned height);
 
+  // Methods for client-side manipulated matrices. Create one.
+  JavaScriptMatrix4x4 createJavaScriptMatrix4();
+  // Set the value of a jsMatrix from the client side
+  template<typename T>
+  void setJavaScriptMatrix4(const JavaScriptMatrix4x4 &jsm, const WGenericMatrix<T, 4, 4> &m) {
+    js_ << jsm << "=";
+    renderfv(m.transposed().data().begin(), 16);
+    js_ << ";";
+    GLDEBUG;
+  }
+  // Get the current client-side value of a JavaScriptMatrix
+  //WMatrix4x4 getJavaScriptMatrix4();
+
+  void setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
+                                  double lX, double lY, double lZ,
+                                  double uX, double uY, double uZ,
+                                  double pitchRate, double yawRate);
+  void setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double frontStep, double rotStep);
+  void uniformNormalMatrix4(const UniformLocation &u,
+                            const JavaScriptMatrix4x4 &jsm,
+                            const WGenericMatrix<double, 4, 4> &mm);
+
 protected:
   DomElementType domElementType() const;
 
@@ -891,6 +920,7 @@ private:
   unsigned uniforms_;
   unsigned buffers_;
   unsigned textures_;
+  unsigned matrices_;
   std::vector<std::pair<std::string, std::string> > preloadImages_;
 
   std::stringstream js_;

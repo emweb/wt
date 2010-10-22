@@ -47,10 +47,14 @@ public:
     parse(Request& req, Buffer::const_iterator begin,
 	  Buffer::const_iterator end);
 
+  /// Validate
+  Reply::status_type validate(Request& req);
+
   bool parseBody(Request& req, ReplyPtr reply,
-	         Buffer::const_iterator& begin, Buffer::const_iterator end);
+		 Buffer::const_iterator& begin, Buffer::const_iterator end);
 
   bool initialState() const;
+
 
 private:
   /// Handle the next character of input.
@@ -67,9 +71,6 @@ private:
 
   /// Check if a byte is a digit.
   static bool is_digit(int c);
-
-  /// Validate
-  bool validate(Request& req);
 
   bool consumeChar(char input);
   void consumeToString(std::string& result, int maxSize);
@@ -102,17 +103,16 @@ private:
     expecting_newline_3
   } state_;
 
-  std::string headerName_;
-  std::string headerValue_;
+  std::string  headerName_;
+  std::string  headerValue_;
 
-  std::size_t bodyRemainder_;
-  std::size_t requestSize_;
+  ::uint64_t   bodyRemainder_;
+  ::uint64_t   requestSize_;
 
   char         buf_[4096];
   unsigned     buf_ptr_;
-  std::string  *dest_;
+  std::string *dest_;
   unsigned     maxSize_;
-  unsigned     max_request_size_;
 };
 
 } // namespace server

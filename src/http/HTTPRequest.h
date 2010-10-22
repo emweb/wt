@@ -28,7 +28,7 @@ public:
   virtual std::ostream& err() { return std::cerr; }
 
   virtual void setStatus(int status);
-  virtual void setContentLength(boost::intmax_t length);
+  virtual void setContentLength(::int64_t length);
 
   virtual void addHeader(const std::string& name, const std::string& value);
   virtual void setContentType(const std::string& value);

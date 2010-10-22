@@ -20,6 +20,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <boost/cstdint.hpp>
 #include <boost/algorithm/string.hpp>
 
 namespace http {
@@ -55,7 +56,7 @@ public:
   typedef std::map<std::string, std::string, my_iless> HeaderMap;
   HeaderMap headerMap;
   std::vector<HeaderMap::iterator> headerOrder;
-  int contentLength;
+  ::int64_t contentLength;
 
   std::string request_path;
   std::string request_query;

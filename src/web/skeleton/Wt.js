@@ -300,6 +300,18 @@ this.windowCoordinates = function(e) {
   return { x: cx, y: cy };
 }
 
+this.wheelDelta = function(e) {
+  var delta = 0;
+  if (e.wheelDelta) { /* IE/Opera. */
+    delta = e.wheelDelta > 0 ? 1 : -1;
+    /* if (window.opera)
+       delta = -delta; */
+  } else if (e.detail) {
+    delta = e.detail < 0 ? 1 : -1;
+  }
+  return delta;
+}
+
 this.scrollIntoView = function(id) {
   var obj = document.getElementById(id);
   if (obj && obj.scrollIntoView)
@@ -796,6 +808,9 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
 
 this.positionXY = function(id, x, y) {
   var w = WT.getElement(id);
+
+  w.style.display = '';
+
   if (!WT.isHidden(w))
     WT.fitToWindow(w, x, y, x, y);
 };
@@ -1346,14 +1361,7 @@ function encodeEvent(event, i) {
     result += se + 'documentX=' + posX + se + 'documentY=' + posY;
     result += se + 'dragdX=' + (posX - downX) + se + 'dragdY=' + (posY - downY);
 
-    var delta = 0;
-    if (e.wheelDelta) { /* IE/Opera. */
-      delta = e.wheelDelta > 0 ? 1 : -1;
-      /* if (window.opera)
-	delta = -delta; */
-    } else if (e.detail) {
-      delta = e.detail < 0 ? 1 : -1;
-    }
+    var delta = WT.wheelDelta(e);
     result += se + 'wheel=' + delta;
   }
 

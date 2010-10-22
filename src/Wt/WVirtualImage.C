@@ -17,11 +17,11 @@
 
 namespace Wt {
 
-const int64_t WVirtualImage::Infinite
-  = std::numeric_limits<int64_t>::max();
+const ::int64_t WVirtualImage::Infinite
+  = std::numeric_limits< ::int64_t >::max();
 
 WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
-			     int64_t imageWidth, int64_t imageHeight,
+			     ::int64_t imageWidth, ::int64_t imageHeight,
 			     int gridImageSize,
 			     WContainerWidget *parent)
   : WCompositeWidget(parent),
@@ -110,7 +110,7 @@ void WVirtualImage::redrawAll()
   generateGridItems(currentX_, currentY_);
 }
 
-void WVirtualImage::resizeImage(int64_t w, int64_t h)
+void WVirtualImage::resizeImage(::int64_t w, ::int64_t h)
 {
   imageWidth_ = w;
   imageHeight_ = h;
@@ -118,20 +118,20 @@ void WVirtualImage::resizeImage(int64_t w, int64_t h)
   redrawAll();
 }
 
-void WVirtualImage::scrollTo(int64_t newX, int64_t newY)
+void WVirtualImage::scrollTo(::int64_t newX, ::int64_t newY)
 {
   internalScrollTo(newX, newY, true);
 }
 
-void WVirtualImage::internalScrollTo(int64_t newX, int64_t newY,
+void WVirtualImage::internalScrollTo(::int64_t newX, ::int64_t newY,
 				     bool moveViewPort)
 {
   if (imageWidth_ != Infinite)
     newX = std::min(imageWidth_ - viewPortWidth_,
-		    std::max((int64_t)0, newX));
+		    std::max((::int64_t)0, newX));
   if (imageHeight_ != Infinite)
     newY = std::min(imageHeight_ - viewPortHeight_,
-		    std::max((int64_t)0, newY));
+		    std::max((::int64_t)0, newY));
 
   if (moveViewPort) {
     contents_->setOffsets((double)-newX, Left);
@@ -143,25 +143,25 @@ void WVirtualImage::internalScrollTo(int64_t newX, int64_t newY,
   viewPortChanged_.emit(currentX_, currentY_);
 }
 
-void WVirtualImage::scroll(int64_t dx, int64_t dy)
+void WVirtualImage::scroll(::int64_t dx, ::int64_t dy)
 {
   scrollTo(currentX_ + dx, currentY_ + dy);
 }
 
-WImage *WVirtualImage::createImage(int64_t x, int64_t y,
+WImage *WVirtualImage::createImage(::int64_t x, ::int64_t y,
 				   int width, int height)
 {
   WResource *r = render(x, y, width, height);
   return new WImage(r, "");
 }
 
-WResource *WVirtualImage::render(int64_t x, int64_t y,
+WResource *WVirtualImage::render(::int64_t x, ::int64_t y,
 				 int width, int height)
 {
   throw WtException("You should reimplement WVirtualImage::render()");
 }
 
-void WVirtualImage::generateGridItems(int64_t newX, int64_t newY)
+void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)
 {
   /*
    * The coordinates of the two extreme corners of the new rendered
@@ -169,22 +169,22 @@ void WVirtualImage::generateGridItems(int64_t newX, int64_t newY)
    */
   Rect newNb = neighbourhood(newX, newY, viewPortWidth_, viewPortHeight_);  
 
-  int64_t i1 = newNb.x1 / gridImageSize_;
-  int64_t j1 = newNb.y1 / gridImageSize_;
-  int64_t i2 = newNb.x2 / gridImageSize_ + 1;
-  int64_t j2 = newNb.y2 / gridImageSize_ + 1;
+  ::int64_t i1 = newNb.x1 / gridImageSize_;
+  ::int64_t j1 = newNb.y1 / gridImageSize_;
+  ::int64_t i2 = newNb.x2 / gridImageSize_ + 1;
+  ::int64_t j2 = newNb.y2 / gridImageSize_ + 1;
 
   for (int invisible = 0; invisible < 2; ++invisible) {
-    for (int64_t i = i1; i < i2; ++i)
-      for (int64_t j = j1; j < j2; ++j) {
-	int64_t key = gridKey(i, j);
+    for (::int64_t i = i1; i < i2; ++i)
+      for (::int64_t j = j1; j < j2; ++j) {
+	::int64_t key = gridKey(i, j);
 
 	GridMap::iterator it = grid_.find(key);
 	if (it == grid_.end()) {
 	  bool v = visible(i, j);
 	  if ((v && !invisible) || (!v && invisible)) {
-	    int64_t brx = i * gridImageSize_ + gridImageSize_;
-	    int64_t bry = j * gridImageSize_ + gridImageSize_;
+	    ::int64_t brx = i * gridImageSize_ + gridImageSize_;
+	    ::int64_t bry = j * gridImageSize_ + gridImageSize_;
 	    brx = std::min(brx, imageWidth_);
 	    bry = std::min(bry, imageHeight_);
 
@@ -210,24 +210,24 @@ void WVirtualImage::generateGridItems(int64_t newX, int64_t newY)
   cleanGrid();
 }
 
-int64_t WVirtualImage::gridKey(int64_t i, int64_t j)
+::int64_t WVirtualImage::gridKey(::int64_t i, ::int64_t j)
 {
   return i * 1000 + j; // I should consider fixing this properly ...
 }
 
-bool WVirtualImage::visible(int64_t i, int64_t j) const
+bool WVirtualImage::visible(::int64_t i, ::int64_t j) const
 {
-  int64_t x1 = i * gridImageSize_;
-  int64_t y1 = j * gridImageSize_;
-  int64_t x2 = x1 + gridImageSize_;
-  int64_t y2 = y1 + gridImageSize_;
+  ::int64_t x1 = i * gridImageSize_;
+  ::int64_t y1 = j * gridImageSize_;
+  ::int64_t x2 = x1 + gridImageSize_;
+  ::int64_t y2 = y1 + gridImageSize_;
 
   return ((x2 >= currentX_) && (y2 >= currentY_)
 	  && (x1 <= currentX_ + viewPortWidth_)
 	  && (y1 <= currentY_ + viewPortHeight_));
 }
 
-void WVirtualImage::decodeKey(int64_t key, int64_t& i, int64_t& j)
+void WVirtualImage::decodeKey(::int64_t key, ::int64_t& i, ::int64_t& j)
 {
   i = key / 1000;
   j = key % 1000;
@@ -238,13 +238,13 @@ void WVirtualImage::cleanGrid()
   Rect cleanNb = neighbourhood(currentX_, currentY_, 
 			       viewPortWidth_ * 3, viewPortHeight_ * 3);
 
-  int64_t i1 = cleanNb.x1 / gridImageSize_;
-  int64_t j1 = cleanNb.y1 / gridImageSize_;
-  int64_t i2 = cleanNb.x2 / gridImageSize_ + 1;
-  int64_t j2 = cleanNb.y2 / gridImageSize_ + 1;
+  ::int64_t i1 = cleanNb.x1 / gridImageSize_;
+  ::int64_t j1 = cleanNb.y1 / gridImageSize_;
+  ::int64_t i2 = cleanNb.x2 / gridImageSize_ + 1;
+  ::int64_t j2 = cleanNb.y2 / gridImageSize_ + 1;
 
   for (GridMap::iterator it = grid_.begin(); it != grid_.end();) {
-    int64_t i, j;
+    ::int64_t i, j;
     decodeKey(it->first, i, j);
 
     if (i < i1 || i > i2 || j < j1 || j > j2) {
@@ -256,21 +256,21 @@ void WVirtualImage::cleanGrid()
   }
 }
 
-WVirtualImage::Rect WVirtualImage::neighbourhood(int64_t x, int64_t y,
+WVirtualImage::Rect WVirtualImage::neighbourhood(::int64_t x, ::int64_t y,
 						 int marginX, int marginY)
 {
-  int64_t x1 = x - marginX;
+  ::int64_t x1 = x - marginX;
 
   if (imageWidth_ != Infinite)
-    x1 = std::max((int64_t)0, x1);
+    x1 = std::max((::int64_t)0, x1);
 
-  int64_t y1 = std::max((int64_t)0, y - marginY);
+  ::int64_t y1 = std::max((::int64_t)0, y - marginY);
 
-  int64_t x2 = x + viewPortWidth_ + marginX;
+  ::int64_t x2 = x + viewPortWidth_ + marginX;
   if (imageWidth_ != Infinite)
     x2 = std::min(imageWidth_, x2);
   
-  int64_t y2 = std::min(imageHeight_, y + viewPortHeight_ + marginY);
+  ::int64_t y2 = std::min(imageHeight_, y + viewPortHeight_ + marginY);
 
   return Rect(x1, y1, x2, y2);
 }

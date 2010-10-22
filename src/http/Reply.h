@@ -75,6 +75,7 @@ public:
     unauthorized = 401,
     forbidden = 403,
     not_found = 404,
+    request_entity_too_large = 413,
     requested_range_not_satisfiable = 416,
     internal_server_error = 500,
     not_implemented = 501,
@@ -96,8 +97,11 @@ public:
   bool waitMoreData() const { return waitMoreData_; }
   void setWaitMoreData(bool how);
   void send();
+  virtual void release();
 
   void logReply(Wt::WLogger& logger);
+
+  virtual status_type responseStatus() = 0;
 
 protected:
   const Request& request_;
@@ -106,10 +110,9 @@ protected:
   std::string requestUri_;
   int requestMajor_, requestMinor_;
 
-  virtual status_type responseStatus() = 0;
   virtual std::string contentType() = 0;
   virtual std::string location();
-  virtual boost::intmax_t contentLength() = 0;
+  virtual ::int64_t contentLength() = 0;
 
   virtual asio::const_buffer nextContentBuffer() = 0;
 
@@ -141,8 +144,8 @@ private:
   bool waitMoreData_;
   bool finishing_;
 
-  boost::intmax_t contentSent_;
-  boost::intmax_t contentOriginalSize_;
+  ::int64_t contentSent_;
+  ::int64_t contentOriginalSize_;
 
   ReplyPtr relay_;
   std::list<std::string> bufs_;

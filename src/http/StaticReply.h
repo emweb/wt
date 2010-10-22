@@ -44,7 +44,7 @@ public:
 protected:
   virtual status_type responseStatus();
   virtual std::string contentType();
-  virtual boost::intmax_t contentLength();
+  virtual ::int64_t contentLength();
 
   virtual asio::const_buffer nextContentBuffer();
 
@@ -52,7 +52,7 @@ private:
   std::string     path_;
   std::string     extension_;
   std::ifstream   stream_;
-  boost::intmax_t fileSize_;
+  ::int64_t fileSize_;
 
   char buf_[64 * 1024];
 
@@ -62,8 +62,8 @@ private:
 
   void parseRangeHeader();
   bool hasRange_;
-  boost::intmax_t rangeBegin_;
-  boost::intmax_t rangeEnd_;
+  ::int64_t rangeBegin_;
+  ::int64_t rangeEnd_;
 
 };
 

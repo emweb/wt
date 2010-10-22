@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 #include <Wt/WDllDefs.h>
@@ -76,6 +77,11 @@ public:
   void run();
   int sessionCount() const;
 
+  /*
+   * Returns whether we should continue receiving data.
+   */
+  bool requestDataReceived(WebRequest *request, boost::uintmax_t current,
+			   boost::uintmax_t total);
   void handleRequest(WebRequest *request);
 
   bool expireSessions();
@@ -92,6 +98,9 @@ public:
   void addSocketNotifier(WSocketNotifier *notifier);
   void removeSocketNotifier(WSocketNotifier *notifier);
 
+  void addUploadProgressUrl(const std::string& url);
+  void removeUploadProgressUrl(const std::string& url);
+
   // returns false if removeSocketNotifier was called while processing
   void socketSelected(int descriptor, WSocketNotifier::Type type);
 
@@ -107,6 +116,11 @@ private:
   WebStream       *stream_;
   std::string      singleSessionId_;
   bool             running_;
+
+#ifdef WT_THREADED
+  boost::mutex uploadProgressUrlsMutex_;
+#endif // WT_THREADED
+  std::set<std::string> uploadProgressUrls_;
 
   typedef std::map<std::string, boost::shared_ptr<WebSession> > SessionMap;
   SessionMap sessions_;

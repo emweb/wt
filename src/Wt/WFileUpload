@@ -14,8 +14,8 @@ namespace Wt {
 /*! \class WFileUpload Wt/WFileUpload Wt/WFileUpload
  *  \brief A widget that allows a file to be uploaded.
  *
- * This widget is displayed as a box in which a filename can be entered and
- * a browse button.
+ * This widget is displayed as a box in which a filename can be
+ * entered and a browse button.
  *
  * Depending on availability of JavaScript, the behaviour of the widget
  * is different, but the API is designed in a way which facilitates
@@ -23,9 +23,18 @@ namespace Wt {
  *
  * When JavaScript is available, the file will not be uploaded until
  * upload() is called. This will start an asynchronous upload (and
- * thus return immediately). When the file has been uploaded, the
- * uploaded() signal is emitted, or if the file was too large, the
- * fileTooLarge() signal is emitted.
+ * thus return immediately). \if cpp While the file is being uploaded,
+ * the dataReceived() signal is emitted when data is being received
+ * and if the connector library provides support (see also
+ * WResource::setUploadProgress() for a more detailed
+ * discussion). Although you can modify the GUI from this signal, you
+ * still need to have a mechanism in place to update the client
+ * interface (using a WTimer or using \link
+ * WApplication::enableUpdates() server-push\endlink). When the file
+ * has been uploaded, the uploaded() signal is emitted, or if the file
+ * was too large, the fileTooLarge() signal is emitted. You may
+ * configure a progress bar that is used to show the upload progress
+ * using setProgressBar(). \endif
  *
  * When no JavaScript is available, the file will be uploaded with the
  * next click event. Thus, upload() has no effect -- the file will
@@ -175,8 +184,8 @@ public:
 
   /*! \brief %Signal emitted when the user tried to upload a too large file.
    *
-   * The parameter is the approximate size of the file the user tried
-   * to upload.
+   * The parameter is the (approximate) size of the file the user
+   * tried to upload.
    *
    * The maximum file size is determined by the maximum request size,
    * which may be configured in the configuration file (<max-request-size>).
@@ -208,6 +217,39 @@ public:
    */
   void upload();
 
+  /*! \brief Sets a progress bar to indicate upload progress.
+   *
+   * When the file is being uploaded, upload progress is indicated
+   * using the provided progress bar. Both the progress bar range and
+   * values are configured when the upload starts.
+   *
+   * If the provided progress bar already has a parent, then the file
+   * upload itself is hidden as soon as the upload starts. If the
+   * provided progress bar does not yet have a parent, then the bar
+   * becomes part of the file upload, and replaces the file prompt
+   * when the upload is started.
+   *
+   * The default progress bar is 0 (no upload progress is indicated).
+   *
+   * \sa dataReceived()
+   */
+  void setProgressBar(WProgressBar *progressBar);
+
+  /*! \brief Returns the progress bar.
+   *
+   * \sa setProgressBar()
+   */
+  WProgressBar *progressBar() const { return progressBar_; }
+
+#ifndef WT_TARGET_JAVA
+  /*! \brief %Signal emitted while a file is being uploaded.
+   *
+   * When supported by the connector library, you can track the
+   * progress of the file upload by listening to this signal.
+   */
+  Signal< ::uint64_t, ::uint64_t >& dataReceived() { return dataReceived_; }
+#endif // WT_TARGET_JAVA
+
   virtual void enableAjax();
 
 private:
@@ -218,17 +260,21 @@ private:
   int textSize_;
 
   std::string spoolFileName_;
-  WT_USTRING    clientFileName_;
-  WT_USTRING    contentDescription_;
+  WT_USTRING  clientFileName_;
+  WT_USTRING  contentDescription_;
   bool isStolen_;
   bool doUpload_;
   bool enableAjax_;
+  bool uploading_;
 
   Signal<int> fileTooLarge_;
+  Signal< ::uint64_t, ::uint64_t > dataReceived_;
 
   WResource *fileUploadTarget_;
+  WProgressBar *progressBar_;
 
   void create();
+  void onData(::uint64_t current, ::uint64_t total);
   virtual void setRequestTooLarge(int size);
 
 protected:

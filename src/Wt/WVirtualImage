@@ -52,7 +52,7 @@ class WT_API WVirtualImage : public WCompositeWidget
 public:
   /*! \brief Special value for imageWidth or imageHeight
    */
-  static const int64_t Infinite;
+  static const ::int64_t Infinite;
 
   /*! \brief Creates a viewport for a virtual image.
    *
@@ -65,7 +65,7 @@ public:
    * item. The default is 256 by 256.
    */
   WVirtualImage(int viewPortWidth, int viewPortHeight,
-		int64_t imageWidth, int64_t imageHeight,
+		::int64_t imageWidth, ::int64_t imageHeight,
 		int gridImageSize = 256, WContainerWidget *parent = 0);
 
   /*! \brief Destructor.
@@ -89,7 +89,7 @@ public:
    *
    * \sa scrollTo()
    */
-  void scroll(int64_t dx, int64_t dy);
+  void scroll(::int64_t dx, ::int64_t dy);
 
   /*! \brief Scrolls the viewport of the image to a specific coordinate.
    *
@@ -97,19 +97,19 @@ public:
    *
    * \sa scroll()
    */
-  void scrollTo(int64_t x, int64_t y);
+  void scrollTo(::int64_t x, ::int64_t y);
 
   /*! \brief Returns the virtual image width.
    *
    * \sa imageHeight(), resizeImage()
    */
-  int64_t imageWidth() const { return imageWidth_; }
+  ::int64_t imageWidth() const { return imageWidth_; }
 
   /*! \brief Returns the virtual image height.
    *
    * \sa imageWidth(), resizeImage()
    */
-  int64_t imageHeight() const { return imageHeight_; }
+  ::int64_t imageHeight() const { return imageHeight_; }
 
   /*! \brief Resizes the virtual image.
    *
@@ -118,7 +118,7 @@ public:
    *
    * \sa imageWidth(), imageHeight()
    */
-  void resizeImage(int64_t w, int64_t h);
+  void resizeImage(::int64_t w, ::int64_t h);
 
   /*! \brief Returns the viewport width.
    *
@@ -143,32 +143,32 @@ public:
    *
    * \sa currentTopLeftY()
    */
-  int64_t currentTopLeftX() const { return currentX_; }
+  ::int64_t currentTopLeftX() const { return currentX_; }
 
   /*! \brief Returns the current top left Y coordinate.
    *
    * \sa currentTopLeftX()
    */
-  int64_t currentTopLeftY() const { return currentY_; }
+  ::int64_t currentTopLeftY() const { return currentY_; }
 
   /*! \brief Returns the current bottom right X coordinate.
    *
    * \sa currentBottomRightY()
    */
-  int64_t currentBottomRightX() const { return currentX_ + viewPortWidth_; }
+  ::int64_t currentBottomRightX() const { return currentX_ + viewPortWidth_; }
 
   /*! \brief Returns the current bottom right Y coordinate.
    *
    * \sa currentBottomRightX()
    */
-  int64_t currentBottomRightY() const { return currentY_ + viewPortHeight_; }
+  ::int64_t currentBottomRightY() const { return currentY_ + viewPortHeight_; }
 
   /*! \brief %Signal emitted whenever the viewport changes.
    *
    * The viewport can be changed by the user dragging the image or through
    * the API methods scrollTo() and scroll().
    */
-  Signal<int64_t, int64_t>& viewPortChanged() { return viewPortChanged_; }
+  Signal< ::int64_t, ::int64_t >& viewPortChanged() { return viewPortChanged_; }
 
 protected:
   /*! \brief Creates a grid image for the given rectangle.
@@ -185,9 +185,9 @@ protected:
    * You should override this method if you wish to serve for example
    * static image content.
    *
-   * \sa render(int64_t x, int64_t y, int width, int height)
+   * \sa render()
    */
-  virtual WImage *createImage(int64_t x, int64_t y, int width, int height);
+  virtual WImage *createImage(::int64_t x, ::int64_t y, int width, int height);
 
   /*! \brief Render a grid image for the given rectangle.
    *
@@ -201,9 +201,9 @@ protected:
    * The default implementation throws an Exception. You must
    * reimplement this method unless you reimplement createImage().
    *
-   * \sa createImage(int64_t x, int64_t y, int width, int height)
+   * \sa createImage()
    */
-  virtual WResource *render(int64_t x, int64_t y, int width, int height);
+  virtual WResource *render(::int64_t x, ::int64_t y, int width, int height);
 
 private:
   Signal<int64_t, int64_t> viewPortChanged_;
@@ -212,35 +212,35 @@ private:
   WContainerWidget *contents_;
 
   struct Rect {
-    int64_t x1, y1, x2, y2;
+    ::int64_t x1, y1, x2, y2;
     
-    Rect(int64_t x1_, int64_t y1_, int64_t x2_, int64_t y2_)
+    Rect(::int64_t x1_, ::int64_t y1_, ::int64_t x2_, ::int64_t y2_)
       : x1(x1_), y1(y1_), x2(x2_), y2(y2_) { }
   };
 
-  typedef std::map<int64_t, WImage *> GridMap;
+  typedef std::map< ::int64_t, WImage * > GridMap;
   GridMap grid_;
 
   int gridImageSize_;
 
   int viewPortWidth_;
   int viewPortHeight_;
-  int64_t imageWidth_;
-  int64_t imageHeight_;
+  ::int64_t imageWidth_;
+  ::int64_t imageHeight_;
 
-  int64_t currentX_;
-  int64_t currentY_;
+  ::int64_t currentX_;
+  ::int64_t currentY_;
 
   void mouseUp(const WMouseEvent& e);
 
-  Rect neighbourhood(int64_t x, int64_t y, int marginX, int marginY);
-  int64_t gridKey(int64_t i, int64_t j);
-  void decodeKey(int64_t key, int64_t& i, int64_t& j);
-  void generateGridItems(int64_t newX, int64_t newY);
+  Rect neighbourhood(::int64_t x, ::int64_t y, int marginX, int marginY);
+  ::int64_t gridKey(::int64_t i, ::int64_t j);
+  void decodeKey(::int64_t key, ::int64_t& i, ::int64_t& j);
+  void generateGridItems(::int64_t newX, ::int64_t newY);
   void cleanGrid();
-  bool visible(int64_t i, int64_t j) const;
+  bool visible(::int64_t i, ::int64_t j) const;
 
-  void internalScrollTo(int64_t x, int64_t y, bool moveViewPort);
+  void internalScrollTo(::int64_t x, ::int64_t y, bool moveViewPort);
 };
 
 }

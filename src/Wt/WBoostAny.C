@@ -182,9 +182,10 @@ std::string asJSLiteral(const boost::any& v, bool xhtml)
   ELSE_LEXICAL_ANY(unsigned int);
   ELSE_LEXICAL_ANY(long);
   ELSE_LEXICAL_ANY(unsigned long);
-  ELSE_LEXICAL_ANY(int64_t);
-  ELSE_LEXICAL_ANY(uint64_t);
+  ELSE_LEXICAL_ANY(::int64_t);
+  ELSE_LEXICAL_ANY(::uint64_t);
   ELSE_LEXICAL_ANY(long long);
+  ELSE_LEXICAL_ANY(unsigned long long);
   ELSE_LEXICAL_ANY(float);
   ELSE_LEXICAL_ANY(double);
 
@@ -228,6 +229,8 @@ boost::any updateFromJS(const boost::any& v, std::string s)
   ELSE_LEXICAL_ANY(unsigned long);
   ELSE_LEXICAL_ANY(int64_t);
   ELSE_LEXICAL_ANY(uint64_t);
+  ELSE_LEXICAL_ANY(long long);
+  ELSE_LEXICAL_ANY(unsigned long long);
   ELSE_LEXICAL_ANY(float);
   ELSE_LEXICAL_ANY(double);
 
@@ -271,8 +274,10 @@ int compare(const boost::any& d1, const boost::any& d2)
 	ELSE_COMPARE_ANY(unsigned int)
 	ELSE_COMPARE_ANY(long)
 	ELSE_COMPARE_ANY(unsigned long)
-	ELSE_COMPARE_ANY(int64_t)
-	ELSE_COMPARE_ANY(uint64_t)
+	ELSE_COMPARE_ANY(::int64_t)
+	ELSE_COMPARE_ANY(::uint64_t)
+	ELSE_COMPARE_ANY(long long)
+	ELSE_COMPARE_ANY(unsigned long long)
 	ELSE_COMPARE_ANY(float)
 	ELSE_COMPARE_ANY(double)
 

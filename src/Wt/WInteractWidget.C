@@ -284,6 +284,13 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     element.setEvent("mousemove", actions);
   }
 
+  updateEventSignals(element, all);
+
+  WWebWidget::updateDom(element, all);
+}
+
+void WInteractWidget::updateEventSignals(DomElement& element, bool all)
+{
   EventSignalList& other = eventSignals();
 
   for (EventSignalList::iterator i = other.begin(); i != other.end(); ++i) {
@@ -304,8 +311,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     else
       element.setEvent(s.name(), WT_CLASS ".cancelEvent(event||window.event);");
   }
-
-  WWebWidget::updateDom(element, all);
 }
 
 void WInteractWidget::propagateRenderOk(bool deep)

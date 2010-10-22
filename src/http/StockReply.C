@@ -105,13 +105,19 @@ const std::string not_found =
   "<body><h1>404 Not Found</h1></body>"
   "</html>";
 const std::string not_found_name = "404-not-found.html";
+const std::string request_entity_too_large =
+  "<html>"
+  "<head><title>Request Entity Too Large</title></head>"
+  "<body><h1>413 Request Entity Too Large</h1></body>"
+  "</html>";
+const std::string request_entity_too_large_name = "413-request-entity-too-large.html";
 const std::string requested_range_not_satisfiable =
   "<html>"
   "<head><title>Requested Range Not Satisfiable</title></head>"
   "<body><h1>416 Requested Range Not Satisfiable</h1></body>"
   "</html>";
 const std::string requested_range_not_satisfiable_name =
-  "404-requested-range-not-satisfiable.html";
+  "416-requested-range-not-satisfiable.html";
 const std::string internal_server_error =
   "<html>"
   "<head><title>Internal Server Error</title></head>"
@@ -169,6 +175,8 @@ const std::string& toText(Reply::status_type status)
     return forbidden;
   case Reply::not_found:
     return not_found;
+  case Reply::request_entity_too_large:
+    return request_entity_too_large;
   case Reply::requested_range_not_satisfiable:
     return requested_range_not_satisfiable;
   case Reply::internal_server_error:
@@ -216,6 +224,8 @@ const std::string& toName(Reply::status_type status)
     return forbidden_name;
   case Reply::not_found:
     return not_found_name;
+  case Reply::request_entity_too_large:
+    return request_entity_too_large_name;
   case Reply::requested_range_not_satisfiable:
     return requested_range_not_satisfiable;
   case Reply::internal_server_error:
@@ -313,7 +323,7 @@ std::string StockReply::contentType()
   return "text/html";
 }
 
-boost::intmax_t StockReply::contentLength()
+::int64_t StockReply::contentLength()
 {
   std::string full_path(err_root_ + stock_replies::toName(status_));
   std::string original_url;

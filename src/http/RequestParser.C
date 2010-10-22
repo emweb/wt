@@ -41,8 +41,7 @@ namespace http {
 namespace server {
 
 RequestParser::RequestParser(Server *server)
-  : state_(method_start),
-    max_request_size_(server->configuration().maxRequestSize())
+  : state_(method_start)
 { 
   reset();
 }
@@ -106,7 +105,7 @@ bool RequestParser::parseBody(Request& req, ReplyPtr reply,
 			      Buffer::const_iterator& begin,
 			      Buffer::const_iterator end)
 {
-  int thisSize = std::min((size_t)(end - begin), bodyRemainder_);
+  ::int64_t thisSize = std::min((::uint64_t)(end - begin), bodyRemainder_);
 
   Buffer::const_iterator thisBegin = begin;
   Buffer::const_iterator thisEnd = begin + thisSize;
@@ -116,7 +115,11 @@ bool RequestParser::parseBody(Request& req, ReplyPtr reply,
 
   bool endOfRequest = bodyRemainder_ == 0;
   reply->consumeRequestBody(thisBegin, thisEnd, endOfRequest);
-  return endOfRequest;
+
+  if (reply->responseStatus() == Reply::request_entity_too_large)
+    return true;
+  else
+    return endOfRequest;
 }
 
 boost::tribool& RequestParser::consume(Request& req, char input)
@@ -126,7 +129,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   static boost::tribool Indeterminate(boost::indeterminate);
 
   if (++requestSize_ > MAX_REQUEST_HEADER_SIZE)
-	return False;
+    return False;
 
   switch (state_)
   {
@@ -438,7 +441,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     }
   case expecting_newline_3:
     if (input == '\n')
-	  return validate(req)?True:False;
+      return True;
     else
       return False;
   default:
@@ -475,29 +478,30 @@ bool RequestParser::is_digit(int c)
   return c >= '0' && c <= '9';
 }
 
-bool RequestParser::validate(Request& req)
+Reply::status_type RequestParser::validate(Request& req)
 {
   req.contentLength = 0;
 
   Request::HeaderMap::const_iterator i = req.headerMap.find("Content-Length");
   if (i != req.headerMap.end()) {
     try {
-      req.contentLength = boost::lexical_cast<unsigned int>(i->second);
+      req.contentLength = boost::lexical_cast< ::int64_t >(i->second);
     } catch (boost::bad_lexical_cast&) {
-      return false;
+      return Reply::bad_request;
     }
   }
 
-  if (req.contentLength >= 0 && req.contentLength <= (int)max_request_size_)
-    bodyRemainder_ = req.contentLength;
-  else {
-    return false;
-  }
+  bodyRemainder_ = req.contentLength;
+
+  /*
+   * Other things that we could check: if there is a body expected (like
+   * POST, but there is no content-length: return 411 Length Required
+   */
 
   /*
    * HTTP 1.1 (RFC 2616) and HTTP 1.0 (RFC 1945) validation
    */
-  return true;
+  return Reply::ok;
 }
 
 } // namespace server

@@ -254,6 +254,8 @@ protected:
   virtual void propagateRenderOk(bool deep);
   virtual void propagateSetEnabled(bool enabled);
 
+  void updateEventSignals(DomElement& element, bool all);
+
   JSlot *dragSlot_;
 
 protected:

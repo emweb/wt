@@ -15,7 +15,7 @@
   <message id="msg.attachanother">Attach another file</message>
   <message id="msg.remove">remove</message>
   <message id="msg.file-empty">Error: file was empty!</message>
-  <message id="msg.file-too-large">Error: maximum file size is 100 Kb.</message>
+  <message id="msg.file-too-large">Error: maximum file size is 128 Kb.</message>
   <message id="msg.uploading">Uploading attachments...</message>
   <message id="msg.attachment.failed">Error: empty or oversized attachments?</message>
   <message id="example.info">

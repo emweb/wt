@@ -27,6 +27,7 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
     sending_(false),
     status_(ok),
     contentLength_(-1),
+    bodyReceived_(0),
     fetchMoreData_(0)
 {
   if (request.contentLength > config.maxMemoryRequestSize()) {
@@ -46,6 +47,14 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
   } else {
     cin_ = &cin_mem_;
   }
+
+  httpRequest_ = 0;
+}
+
+void WtReply::release()
+{
+  delete httpRequest_;
+  httpRequest_ = 0;
 }
 
 WtReply::~WtReply()
@@ -63,17 +72,41 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 				 Buffer::const_iterator end,
 				 bool endOfRequest)
 {
+  if (!httpRequest_)
+    httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
+				   (shared_from_this()), &entryPoint_);
+
   /*
    * Copy everything to a buffer.
    */
-  cin_->write(begin, static_cast<std::streamsize>(end - begin));
+  if (status_ != request_entity_too_large) {
+    cin_->write(begin, static_cast<std::streamsize>(end - begin));
+
+    if (end - begin > 0) {
+      bodyReceived_ += (end - begin);
+
+      if (!connection()->server()->controller()->requestDataReceived
+	  (httpRequest_, bodyReceived_, request_.contentLength)) {
+	status_ = request_entity_too_large;
+	setCloseConnection();
+	endOfRequest = true;
+      }
+    }
+  }
 
   if (endOfRequest) {
-    cin_->flush();
+    if (status_ != ok) {
+      release();
+      setRelay(ReplyPtr(new StockReply(request_, status_)));
+      Reply::send();
+      return;
+    }
+
     cin_->seekg(0); // rewind
     responseSent_ = false;
-    HTTPRequest *r = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
-				     (shared_from_this()), &entryPoint_);
+
+    HTTPRequest *r = httpRequest_;
+    httpRequest_ = 0;
     connection()->server()->controller()->server_->handleRequest(r);
   }
 }
@@ -83,7 +116,7 @@ void WtReply::setStatus(int status)
   status_ = (status_type)status;
 }
 
-void WtReply::setContentLength(boost::intmax_t length)
+void WtReply::setContentLength(::int64_t length)
 {
   contentLength_ = length;
 }
@@ -139,7 +172,7 @@ std::string WtReply::location()
   return location_;
 }
 
-boost::intmax_t WtReply::contentLength()
+::int64_t WtReply::contentLength()
 {
   return contentLength_;
 }

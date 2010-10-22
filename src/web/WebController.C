@@ -75,7 +75,7 @@ WebController::~WebController()
 void WebController::forceShutdown()
 {
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
   conf_.log("notice") << "Shutdown: stopping sessions.";
@@ -151,7 +151,7 @@ bool WebController::expireSessions()
     Time now;
 
 #ifdef WT_THREADED
-    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+    boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
     for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
@@ -191,7 +191,7 @@ bool WebController::expireSessions()
 void WebController::removeSession(const std::string& sessionId)
 {
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
   SessionMap::iterator i = sessions_.find(sessionId);
@@ -278,7 +278,7 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
    */
   std::string sessionId;
   {
-    boost::recursive_mutex::scoped_lock notifierLock(notifierMutex_);
+    boost::recursive_mutex::scoped_lock lock(notifierMutex_);
 
     SocketNotifierMap &notifiers = socketNotifiers(type);
     SocketNotifierMap::iterator k = notifiers.find(descriptor);
@@ -298,7 +298,7 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
    */
   boost::shared_ptr<WebSession> session;
   {
-    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+    boost::recursive_mutex::scoped_lock lock(mutex_);
 
     SessionMap::iterator i = sessions_.find(sessionId);
 
@@ -322,7 +322,7 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
     if (!session->dead()) {
       WSocketNotifier *notifier = 0;
       {
-	boost::recursive_mutex::scoped_lock notifierLock(notifierMutex_);
+	boost::recursive_mutex::scoped_lock lock(notifierMutex_);
 	SocketNotifierMap &notifiers = socketNotifiers(type);
 	SocketNotifierMap::iterator k = notifiers.find(descriptor);	
 	if (k != notifiers.end()) {
@@ -344,7 +344,7 @@ void WebController::addSocketNotifier(WSocketNotifier *notifier)
 {
 #ifdef WT_THREADED
   {
-    boost::recursive_mutex::scoped_lock notifiersLock(notifierMutex_);
+    boost::recursive_mutex::scoped_lock lock(notifierMutex_);
     socketNotifiers(notifier->type())[notifier->socket()] = notifier;
   }
 
@@ -377,13 +377,106 @@ void WebController::removeSocketNotifier(WSocketNotifier *notifier)
     break;
   }
 
-  boost::recursive_mutex::scoped_lock notifiersLock(notifierMutex_);
+  boost::recursive_mutex::scoped_lock lock(notifierMutex_);
 
   SocketNotifierMap &notifiers = socketNotifiers(notifier->type());
   SocketNotifierMap::iterator i = notifiers.find(notifier->socket());
   if (i != notifiers.end())
     notifiers.erase(i);
 #endif // WT_THREADED
+}
+
+bool WebController::requestDataReceived(WebRequest *request,
+					boost::uintmax_t current,
+					boost::uintmax_t total)
+{
+#ifdef WT_THREADED
+  boost::mutex::scoped_lock lock(uploadProgressUrlsMutex_);
+#endif // WT_THREADED
+
+  if (uploadProgressUrls_.find(request->queryString())
+      != uploadProgressUrls_.end()) {
+#ifdef WT_THREADED
+    lock.unlock();
+#endif // WT_THREADED
+
+    CgiParser cgi(conf_.maxRequestSize() * 1024);
+
+    try {
+      cgi.parse(*request, false);
+    } catch (std::exception& e) {
+      conf_.log("error") << "Could not parse request: " << e.what();
+      return false;
+    }
+
+    const std::string *wtdE = request->getParameter("wtd");
+    if (!wtdE)
+      return false;
+
+    std::string sessionId = *wtdE;
+
+    boost::shared_ptr<WebSession> session;
+    {
+#ifdef WT_THREADED
+      boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+
+      SessionMap::iterator i = sessions_.find(sessionId);
+
+      if (i == sessions_.end() || i->second->dead())
+	return false;
+      else
+	session = i->second;
+    }
+
+    if (session) {
+      WebSession::Handler handler(session, *request, *(WebResponse *)request);
+
+      if (!session->dead() && session->app()) {
+	const std::string *requestE = request->getParameter("request");
+
+	WResource *resource = 0;
+	if (!requestE && !request->pathInfo().empty())
+	  resource
+	    = session->app()->decodeExposedResource
+	    ("/path/" + request->pathInfo());
+
+	if (!resource) {
+	  const std::string *resourceE = request->getParameter("resource");
+	  resource = session->app()->decodeExposedResource(*resourceE);
+	}
+
+	if (resource) {
+	  // FIXME, we should do this within app()->notify()
+	  session->app()->modifiedWithoutEvent_ = true;
+	  resource->dataReceived().emit(current, total);
+	  session->app()->modifiedWithoutEvent_ = false;
+	}
+      }
+    }
+
+    return !request->postDataExceeded();
+  }
+
+  return true;
+}
+
+void WebController::addUploadProgressUrl(const std::string& url)
+{
+#ifdef WT_THREADED
+  boost::mutex::scoped_lock lock(uploadProgressUrlsMutex_);
+#endif // WT_THREADED
+
+  uploadProgressUrls_.insert(url.substr(url.find("?") + 1));
+}
+
+void WebController::removeUploadProgressUrl(const std::string& url)
+{
+#ifdef WT_THREADED
+  boost::mutex::scoped_lock lock(uploadProgressUrlsMutex_);
+#endif // WT_THREADED
+
+  uploadProgressUrls_.erase(url.substr(url.find("?") + 1));
 }
 
 void WebController::handleRequest(WebRequest *request)
@@ -437,7 +530,7 @@ void WebController::handleAsyncRequest(WebRequest *request)
   boost::shared_ptr<WebSession> session;
   {
 #ifdef WT_THREADED
-    boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+    boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
     if (!singleSessionId_.empty() && sessionId != singleSessionId_) {
@@ -529,7 +622,7 @@ void WebController::handleAsyncRequest(WebRequest *request)
   if (running_) {
 
     boost::thread self;
-    boost::mutex::scoped_lock l(threadsMutex_);
+    boost::mutex::scoped_lock lock(threadsMutex_);
 
     for (unsigned i = 0; i < threads_.size(); ++i) {
       if (*threads_[i] == self) {
@@ -600,7 +693,7 @@ std::string
 WebController::generateNewSessionId(boost::shared_ptr<WebSession> session)
 {
 #ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock sessionsLock(mutex_);
+  boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED  
 
   std::string newSessionId = conf_.generateSessionId();

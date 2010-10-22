@@ -50,7 +50,6 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
     sslTmpDHFile_(),
     sessionIdPrefix_(),
     accessLog_(),
-    maxRequestSize_(40*1024*1024),
     maxMemoryRequestSize_(128*1024)
 {
   if (instance_)
@@ -120,17 +119,12 @@ void Configuration::createOptions(po::options_description& options)
      + std::string(WT_CONFIG_XML) + ") is tried. If the default does not "
       "exist, we revert to default values for all parameters.").c_str())
 
-    ("max-request-size",
-     po::value<int>(&maxRequestSize_),
-     "Maximum size of a HTTP request. This also limits POST requests, so this"
-     " is an upper limit for file uploads. Default is 40MB.")
-
     ("max-memory-request-size",
-     po::value<int>(&maxMemoryRequestSize_),
+     po::value< ::int64_t >(&maxMemoryRequestSize_),
      "Requests are usually read in memory before being processed. To avoid "
      "DOS attacks where large requests take up all RAM, use this parameter "
-     "to force requests that are larger than the specified size to be spooled "
-     "to disk. This will also spool file uploads to disk.")
+     "to force requests that are larger than the specified size (bytes) to "
+     "be spooled to disk. This will also spool file uploads to disk.")
 
     ("gdb",
      "do not shutdown when receiving Ctrl-C (and let gdb break instead)")

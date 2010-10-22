@@ -45,7 +45,7 @@ public:
 protected:
   virtual status_type responseStatus();
   virtual std::string contentType();
-  virtual boost::intmax_t contentLength();
+  virtual ::int64_t contentLength();
 
   virtual asio::const_buffer nextContentBuffer();  
 

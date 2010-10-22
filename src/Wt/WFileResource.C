@@ -63,8 +63,8 @@ void WFileResource::handleRequest(const Http::Request& request,
 				  Http::Response& response)
 {
   Http::ResponseContinuation *continuation = request.continuation();
-  uint64_t startByte = continuation ?
-    boost::any_cast<uint64_t>(continuation->data()) : 0;
+  ::uint64_t startByte = continuation ?
+      boost::any_cast< ::uint64_t >(continuation->data()) : 0;
 
   std::ifstream r(fileName_.c_str(), std::ios::in | std::ios::binary);
 
@@ -124,7 +124,7 @@ void WFileResource::handleRequest(const Http::Request& request,
 
   if (r.good() && startByte + bytesToRead < beyondLastByte_) {
     continuation = response.createContinuation();
-    continuation->setData(uint64_t(startByte + bufferSize_));
+    continuation->setData(::uint64_t(startByte + bufferSize_));
   }
 }
 

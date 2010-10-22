@@ -85,7 +85,7 @@ StaticReply::StaticReply(const std::string &full_path,
       }
       setRelay(sr);
     } else {
-      boost::intmax_t last = rangeEnd_;
+      ::int64_t last = rangeEnd_;
       if (fileSize_ != -1 && last >= fileSize_) {
         last = fileSize_ - 1;
       }
@@ -189,7 +189,7 @@ std::string StaticReply::contentType()
   return mime_types::extensionToType(extension_);
 }
 
-boost::intmax_t StaticReply::contentLength()
+::int64_t StaticReply::contentLength()
 {
   if (hasRange_) {
     if (fileSize_ == -1) {
@@ -214,7 +214,7 @@ asio::const_buffer StaticReply::nextContentBuffer()
     return emptyBuffer;
   else {
     boost::uintmax_t rangeRemainder
-      = (std::numeric_limits<boost::intmax_t>::max)();
+      = (std::numeric_limits< ::int64_t>::max)();
     if (hasRange_)
       rangeRemainder = rangeEnd_ - stream_.tellg() + 1;
     stream_.read(buf_,
@@ -241,11 +241,11 @@ void StaticReply::parseRangeHeader()
     = request_.headerMap.find("Range");
 
   hasRange_ = false;
-  rangeBegin_ = (std::numeric_limits<boost::intmax_t>::max)();
-  rangeEnd_ = (std::numeric_limits<boost::intmax_t>::max)();
+  rangeBegin_ = (std::numeric_limits< ::int64_t>::max)();
+  rangeEnd_ = (std::numeric_limits< ::int64_t>::max)();
   if (range != request_.headerMap.end()) {
     std::string rangeHeader = range->second;
-    uint_parser<boost::intmax_t> const uint_max_p = uint_parser<boost::intmax_t>();
+    uint_parser< ::int64_t> const uint_max_p = uint_parser< ::int64_t>();
     hasRange_ = parse(rangeHeader.c_str(),
       str_p("bytes") >> ch_p('=') >>
       (uint_max_p[assign_a(rangeBegin_)] >>

@@ -84,33 +84,55 @@ void Connection::timeout(const asio_error_code& e)
 
 void Connection::handleReadRequest0()
 {
+#ifdef DEBUG
+    std::cerr << "Incoming request: "
+	    << socket().remote_endpoint().port() << ": "
+	      << std::string(remaining_,
+			     std::min(buffer_.data()
+				      - remaining_ + buffer_size_,
+				      (long unsigned)150)) << std::endl;
+#endif // DEBUG
+
   boost::tribool result;
   boost::tie(result, remaining_)
     = request_parser_.parse(request_,
 			    remaining_, buffer_.data() + buffer_size_);
 
   if (result) {
-    request_.urlScheme = urlScheme();
-    request_.port = socket().local_endpoint().port();
-    reply_ = request_handler_.handleRequest(request_);
-    reply_->setConnection(this);
-    moreDataToSend_ = true;
+    Reply::status_type status = request_parser_.validate(request_);
+    if (status != Reply::ok)
+      sendStockReply(status);
+    else {
+      request_.urlScheme = urlScheme();
+      request_.port = socket().local_endpoint().port();
+      reply_ = request_handler_.handleRequest(request_);
+      reply_->setConnection(this);
+      moreDataToSend_ = true;
 
-    handleReadBody();
+      handleReadBody();
+    }
   } else if (!result) {
-    reply_.reset(new StockReply(request_, StockReply::bad_request,"",
-				request_handler_.getErrorRoot()));
-    reply_->setConnection(this);
-    reply_->setCloseConnection();
-    moreDataToSend_ = true;
-
-    startWriteResponse();
+    sendStockReply(StockReply::bad_request);
   } else {
     startAsyncReadRequest(buffer_, 
 			  request_parser_.initialState()
 			  ? KEEPALIVE_TIMEOUT 
 			  : CONNECTION_TIMEOUT);
   }
+}
+
+void Connection::sendStockReply(StockReply::status_type status)
+{
+  if (reply_)
+    reply_->release();
+  reply_.reset(new StockReply(request_, status, "",
+			      request_handler_.getErrorRoot()));
+
+  reply_->setConnection(this);
+  reply_->setCloseConnection();
+  moreDataToSend_ = true;
+
+  startWriteResponse();
 }
 
 void Connection::handleReadRequest(const asio_error_code& e,
@@ -124,9 +146,16 @@ void Connection::handleReadRequest(const asio_error_code& e,
     handleReadRequest0();
   } else if (e != asio::error::operation_aborted
 	     && e != asio::error::bad_descriptor) {
-    // std::cerr << "asio error: " << this << " " << e.message() << std::endl;
-    ConnectionManager_.stop(shared_from_this());
+    handleError(e);
   }
+}
+
+void Connection::handleError(const asio_error_code& e)
+{
+  if (reply_)
+    reply_->release();
+  // std::cerr << "asio error: " << this << " " << e.message() << std::endl;
+  ConnectionManager_.stop(shared_from_this());
 }
 
 void Connection::handleReadBody()
@@ -149,8 +178,7 @@ void Connection::handleReadBody(const asio_error_code& e,
     handleReadBody();
   } else if (e != asio::error::operation_aborted
 	     && e != asio::error::bad_descriptor) {
-    //std::cerr << "asio error: " << e.message() << std::endl;
-    ConnectionManager_.stop(shared_from_this());
+    handleError(e);
   }
 }
 
@@ -205,6 +233,12 @@ void Connection::handleWriteResponse(const asio_error_code& e)
   cancelTimer();
 
   if (e != asio::error::operation_aborted) {
+    if (e) {
+      try {
+	std::cerr << "Asio error: " << socket().remote_endpoint().port() << ": "
+		  << e.message() << std::endl;
+      } catch (...) { }
+    }
     handleWriteResponse();
   }
 }

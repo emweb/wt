@@ -168,7 +168,7 @@ void Composer::createUi()
    */
   new WImage("icons/paperclip.png", edits_->elementAt(5, 0));
   edits_->elementAt(5, 0)->setContentAlignment(AlignRight | AlignTop);
-
+  edits_->elementAt(5, 0)->setPadding(3);
   
   // Attachment edits: we always have the next attachmentedit ready
   // but hidden. This improves the response time, since the show()
