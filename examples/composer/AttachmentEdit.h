@@ -37,12 +37,11 @@ using namespace Wt;
 class AttachmentEdit : public WContainerWidget
 {
 public:
-  /*! \brief Create an attachment edit field.
+  /*! \brief Creates an attachment edit field.
    */
   AttachmentEdit(Composer *composer, WContainerWidget *parent = 0);
-  ~AttachmentEdit();
 
-  /*! \brief Update the file now.
+  /*! \brief Updates the file now.
    *
    * Returns whether a new file will be uploaded. If so, the uploadDone
    * signal will be signalled when the file is uploaded (or failed to
@@ -50,19 +49,15 @@ public:
    */
   bool uploadNow();
 
-  /*! \brief Return whether the upload failed.
+  /*! \brief Returns whether the upload failed.
    */
   bool uploadFailed() const { return uploadFailed_; }
 
-  /*! \brief Return whether this attachment must be included in the message.
+  /*! \brief Returns the attachment.
    */
-  bool include() const;
+  std::vector<Attachment> attachments();
 
-  /*! \brief Return the attachment.
-   */
-  Attachment attachment();
-
-  /*! \brief Signal emitted when a new attachment has been uploaded (or failed
+  /*! \brief Signal emitted when new attachment(s) have been uploaded (or failed
    *         to upload.
    */
   Signal<void>& uploadDone() { return uploadDone_; }
@@ -75,32 +70,30 @@ private:
   //! The WFileUpload control.
   WFileUpload *upload_;
 
-  //! The text describing the uploaded file.
-  WText       *uploaded_;
+  class UploadInfo : public WContainerWidget
+  {
+  public:
+    UploadInfo(const Http::UploadedFile& f, WContainerWidget *parent = 0);
 
-  //! The check box to keep or discard the uploaded file.
-  WCheckBox   *keep_;
+    Http::UploadedFile info_;
 
-  //! The option to remove the file
-  Option      *remove_;
+    //! Anchor referencing the file.
+    WAnchor   *downloadLink_;
+
+    //! The check box to keep or discard the uploaded file.
+    WCheckBox *keep_;
+  };
+
+  std::vector<UploadInfo *> uploadInfo_;
 
   //! The text box to display an error (empty or too big file)
-  WText       *error_;
+  WText *error_;
+
+  //! The option to cancel the file upload
+  Option *remove_;
 
   //! The state of the last upload process.
-  bool         uploadFailed_;
-
-  //! The filename of the uploaded file.
-  std::wstring  fileName_;
-
-  //! The filename of the local spool file.
-  std::string  spoolFileName_;
-
-  //! The content description that was sent along with the file.
-  std::wstring  contentDescription_;
-
-  //! Whether the spool file is "taken" and is no longer managed by the edit.
-  bool         taken_;
+  bool uploadFailed_;
 
   //! Slot triggered when the WFileUpload completed an upload.
   void uploaded();
@@ -110,7 +103,6 @@ private:
 
   //! Slot triggered when the users wishes to remove this attachment edit.
   void remove();
-
 };
 
 /*@}*/

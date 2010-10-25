@@ -59,3 +59,9 @@ button.default {
 .feedback div {
   margin: 10px;
 }
+
+a {
+  color: blue;
+  font-size: smaller;
+  text-decoration: underline;
+}

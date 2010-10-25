@@ -1,3 +1,10 @@
+25-10-2010:
+	* WFileUpload: added setMultiple() which alows multiple files to
+	be uploaded at once (and demonstrate in composer example)
+
+	* Http/Request: changed UploadedFileMap typedef from std::map to
+	std::multimap
+
 22-10-2010:
 	* WFileUpload, WResource: support upload progress tracking (currently
 	only with wthttpd)

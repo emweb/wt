@@ -12,8 +12,10 @@
 
 #include <iostream>
 
-#include <Wt/WApplication>
+#include <Wt/WAnchor>
 #include <Wt/WCheckBox>
+#include <Wt/WCssDecorationStyle>
+#include <Wt/WFileResource>
 #include <Wt/WFileUpload>
 #include <Wt/WProgressBar>
 #include <Wt/WText>
@@ -23,17 +25,59 @@
 #include "Composer.h"
 #include "Option.h"
 
+AttachmentEdit::UploadInfo::UploadInfo(const Http::UploadedFile& f,
+				       WContainerWidget *parent)
+  : WContainerWidget(parent),
+    info_(f)
+{
+  /*
+   * Include the file ?
+   */
+  keep_ = new WCheckBox(this);
+  keep_->setChecked();
+
+  /*
+   * Give information on the file uploaded.
+   */
+  std::streamsize fsize = 0;
+  {
+    std::ifstream theFile(info_.spoolFileName().c_str());
+    theFile.seekg(0, std::ios_base::end);
+    fsize = theFile.tellg();
+    theFile.seekg(0);
+  }
+  std::wstring size;
+  if (fsize < 1024)
+    size = boost::lexical_cast<std::wstring>(fsize) + L" bytes";
+  else
+    size = boost::lexical_cast<std::wstring>((int)(fsize / 1024))
+      + L"kb";
+
+  std::wstring fn = static_cast<std::wstring>
+    (escapeText(WString::fromUTF8(info_.clientFileName())));
+
+  downloadLink_
+    = new WAnchor("", fn + L" (<i>" + WString::fromUTF8(info_.contentType())
+		  + L"</i>) " + size, this);
+
+  WFileResource *res = new WFileResource(info_.contentType(),
+					 info_.spoolFileName(),
+					 this);
+  res->suggestFileName(info_.clientFileName());
+  downloadLink_->setResource(res);
+}
+
 AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
   : WContainerWidget(parent),
     composer_(composer),
     uploadDone_(this),
-    uploadFailed_(false),
-    taken_(false)
+    uploadFailed_(false)
 {
   /*
    * The file upload itself.
    */
   upload_ = new WFileUpload(this);
+  upload_->setMultiple(true);
   upload_->setFileTextSize(40);
 
   /*
@@ -53,19 +97,6 @@ AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
   remove_->setMargin(5, Left);
   remove_->item()->clicked().connect(this, &WWidget::hide);
   remove_->item()->clicked().connect(this, &AttachmentEdit::remove);
-
-  /*
-   * Fields that will display the feedback.
-   */
-
-  // The check box to include or exclude the attachment.
-  keep_ = new WCheckBox(this);
-  keep_->hide();
-
-  // The uploaded file information.
-  uploaded_ = new WText("", this);
-  uploaded_->setStyleClass("option");
-  uploaded_->hide();
 
   // The error message.
   error_ = new WText("", this);
@@ -94,13 +125,6 @@ AttachmentEdit::AttachmentEdit(Composer *composer, WContainerWidget *parent)
   uploadDone_.connect(composer, &Composer::attachmentDone);
 }
 
-AttachmentEdit::~AttachmentEdit()
-{
-  // delete the local attachment file copy, if it was not taken from us.
-  if (!taken_)
-    unlink(spoolFileName_.c_str());
-}
-
 bool AttachmentEdit::uploadNow()
 {
   /*
@@ -119,12 +143,9 @@ bool AttachmentEdit::uploadNow()
 
 void AttachmentEdit::uploaded()
 {
-  if (!upload_->emptyFileName()) {
-    fileName_ = upload_->clientFileName();
-    spoolFileName_ = upload_->spoolFileName();
-    upload_->stealSpooledFile();
-    contentDescription_ = upload_->contentDescription();
+  std::vector<Http::UploadedFile> files = upload_->uploadedFiles();
 
+  if (!files.empty()) {
     /*
      * Delete this widgets since we have a succesfull upload.
      */
@@ -135,41 +156,15 @@ void AttachmentEdit::uploaded()
 
     error_->setText("");
 
-    /*
-     * Include the file ?
-     */
-    keep_->show();
-    keep_->setChecked();
-
-    /*
-     * Give information on the file uploaded.
-     */
-    std::streamsize fsize = 0;
-    {
-      std::ifstream theFile(spoolFileName_.c_str());
-      theFile.seekg(0, std::ios_base::end);
-      fsize = theFile.tellg();
-      theFile.seekg(0);
-    }
-    std::wstring size;
-    if (fsize < 1024)
-      size = boost::lexical_cast<std::wstring>(fsize) + L" bytes";
-    else
-      size = boost::lexical_cast<std::wstring>((int)(fsize / 1024))
-	+ L"kb";
-
-    uploaded_->setText(static_cast<std::wstring>(escapeText(fileName_))
-		       + L" (<i>" + contentDescription_ + L"</i>) " + size);
-    uploaded_->show();
-
-    uploadFailed_ = false;
+    for (unsigned i = 0; i < files.size(); ++i)
+      uploadInfo_.push_back(new UploadInfo(files[i], this));
   } else {
     error_->setText(tr("msg.file-empty"));
     uploadFailed_ = true;
   }
 
   /*
-   * Signal to the Composer that a new asyncrhonous file upload was processed.
+   * Signal to the Composer that a new asynchronous file upload was processed.
    */
   uploadDone_.emit();
 }
@@ -190,13 +185,20 @@ void AttachmentEdit::fileTooLarge(int size)
   uploadDone_.emit();
 }
 
-bool AttachmentEdit::include() const
+std::vector<Attachment> AttachmentEdit::attachments()
 {
-  return keep_->isChecked();
-}
+  std::vector<Attachment> result;
 
-Attachment AttachmentEdit::attachment()
-{
-  taken_ = true;
-  return Attachment(fileName_, contentDescription_, spoolFileName_);
+  for (unsigned i = 0; i < uploadInfo_.size(); ++i) {
+    if (uploadInfo_[i]->keep_->isChecked()) {
+      Http::UploadedFile& f = uploadInfo_[i]->info_;
+      f.stealSpoolFile();
+      result.push_back(Attachment
+		       (WString::fromUTF8(f.clientFileName()),
+			WString::fromUTF8(f.contentType()),
+			f.spoolFileName()));
+    }
+  }
+
+  return result;
 }

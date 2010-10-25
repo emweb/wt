@@ -100,7 +100,7 @@ typedef std::map<std::string, ParameterValues> ParameterMap;
  *
  * This is the type used aggregate file parameter values in a request.
  */
-typedef std::map<std::string, UploadedFile> UploadedFileMap;
+typedef std::multimap<std::string, UploadedFile> UploadedFileMap;
 
 class ResponseContinuation;
 

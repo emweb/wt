@@ -106,6 +106,26 @@ public:
 
   ~WFileUpload();
 
+  /*! \brief Sets whether the file upload accepts multiple files.
+   *
+   * In browsers which support the "multiple" attribute for the file
+   * upload (to be part of HTML5) control, this will allow the user to
+   * select multiple files at once.
+   *
+   * All uploaded files are available from uploadedFiles(). The
+   * single-file API will return only information on the first
+   * uploaded file.
+   *
+   * The default value is \c false.
+   */
+  void setMultiple(bool multiple);
+
+  /*! \brief Returns whether multiple files can be uploaded.
+   *
+   * \sa setMultiple()
+   */
+  bool multiple() const { return multiple_; }
+
   /*! \brief Sets the size of the file input.
    */
   void setFileTextSize(int chars);
@@ -116,37 +136,60 @@ public:
 
   /*! \brief Returns the spooled location of the uploaded file.
    *
-   * Returns the temporary filename in which the uploaded file
-   * was spooled. The file is guaranteed to exist as long as
-   * the WFileUpload widget is not deleted, or a new file is
-   * not uploaded.
+   * Returns the temporary filename in which the uploaded file was
+   * spooled. The file is guaranteed to exist as long as the
+   * WFileUpload widget is not deleted, or a new file is not uploaded.
+   *
+   * When multiple files were uploaded, this returns the information
+   * from the first file.
    *
    * \sa stealSpooledFile()
    * \sa uploaded
    */
-  const std::string& spoolFileName() const { return spoolFileName_; }
+  std::string spoolFileName() const;
 
   /*! \brief Returns the client filename.
+   *
+   * When multiple files were uploaded, this returns the information
+   * from the first file.
    */
-  const WT_USTRING& clientFileName() const { return clientFileName_; }
+  WT_USTRING clientFileName() const;
 
   /*! \brief Returns the client content description.
+   *
+   * When multiple files were uploaded, this returns the information
+   * from the first file.
    */
-  const WT_USTRING& contentDescription() const { return contentDescription_; }
+  WT_USTRING contentDescription() const;
 
   /*! \brief Steals the spooled file.
    *
    * By stealing the file, the spooled file will no longer be deleted
    * together with this widget, which means you need to take care of
    * managing that.
+   *
+   * When multiple files were uploaded, this returns the information
+   * from the first file.
    */
   void stealSpooledFile();
 
+  /*! \brief Returns whether one or more files have been uploaded.
+   */
+  bool empty() const;
+
   /*! \brief Checks if no filename was given and thus no file uploaded.
+   *         (<b>Deprecated</b>)
    *
    * Return whether a non-empty filename was given.
+   *
+   * \deprecated This method was renamed to empty()
    */
-  bool emptyFileName() const { return clientFileName_.empty(); }
+  bool emptyFileName() const;
+
+  /*! \brief Returns the uploaded files.
+   */
+  const std::vector<Http::UploadedFile>& uploadedFiles() const
+    { return uploadedFiles_; }
 
   /*! \brief Returns whether upload() will start a new file upload.
    *
@@ -173,9 +216,9 @@ public:
 
   /*! \brief %Signal emitted when a new file was uploaded.
    *
-   * This signal is emitted when a new file has been received.
-   * It is good practice to hide or delete the WFileUpload widget
-   * when a file has been uploaded succesfully.
+   * This signal is emitted when file upload has been completed.  It
+   * is good practice to hide or delete the WFileUpload widget when a
+   * file has been uploaded succesfully.
    *
    * \sa upload()
    * \sa fileTooLarge()
@@ -259,22 +302,28 @@ private:
 
   int textSize_;
 
-  std::string spoolFileName_;
-  WT_USTRING  clientFileName_;
-  WT_USTRING  contentDescription_;
-  bool isStolen_;
+  std::vector<Http::UploadedFile> uploadedFiles_;
+
   bool doUpload_;
   bool enableAjax_;
   bool uploading_;
+  bool multiple_;
 
   Signal<int> fileTooLarge_;
+
+#ifndef WT_TARGET_JAVA
   Signal< ::uint64_t, ::uint64_t > dataReceived_;
+#endif // WT_TARGET_JAVA
 
   WResource *fileUploadTarget_;
   WProgressBar *progressBar_;
 
   void create();
+
+#ifndef WT_TARGET_JAVA
   void onData(::uint64_t current, ::uint64_t total);
+#endif // WT_TARGET_JAVA
+
   virtual void setRequestTooLarge(int size);
 
 protected:
@@ -291,8 +340,7 @@ private:
   int                    tooLargeSize_;
 
   virtual void setFormData(const FormData& formData);
-
-  void setFormData(const Http::UploadedFile& file);
+  void setFiles(const std::vector<Http::UploadedFile>& files);
 
   friend class WFileUploadResource;
 };

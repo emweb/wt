@@ -37,13 +37,17 @@ protected:
 			     Http::Response& response) {
     bool triggerUpdate = false;
 
-    const Http::UploadedFile *p = 0;
+    std::vector<Http::UploadedFile> files;
 
     if (!request.tooLarge()) {
-      Http::UploadedFileMap::const_iterator i
-	= request.uploadedFiles().find("data");
-      if (i != request.uploadedFiles().end()) {
-	p = &i->second;
+      typedef Http::UploadedFileMap::const_iterator iter;
+
+      std::pair<iter, iter> range
+	= request.uploadedFiles().equal_range("data");
+
+      if (range.first != range.second) {
+	for (iter i = range.first; i != range.second; ++i)
+	  files.push_back(i->second);
 	triggerUpdate = true;
       } else if (request.getParameter("data")) {
 	triggerUpdate = true;
@@ -90,8 +94,8 @@ protected:
     if (request.tooLarge())
       fileUpload_->tooLargeSize_ = request.tooLarge();
     else
-      if (p)
-	fileUpload_->setFormData(*p);
+      if (!files.empty())
+	fileUpload_->setFiles(files);
   }
 
 private:
@@ -102,15 +106,24 @@ const char *WFileUpload::CHANGE_SIGNAL = "M_change";
 const char *WFileUpload::UPLOADED_SIGNAL = "M_uploaded";
 const char *WFileUpload::FILETOOLARGE_SIGNAL = "M_filetoolarge";
 
+/*
+ * Supporting the file API:
+ * - still create the resource
+ * - do not create the iframe
+ * - JavaScript method to do the upload
+ */
+
 WFileUpload::WFileUpload(WContainerWidget *parent)
   : WWebWidget(parent),
     textSize_(20),
-    isStolen_(false),
     doUpload_(false),
     enableAjax_(false),
     uploading_(false),
+    multiple_(false),
     fileTooLarge_(this),
+#ifndef WT_TARGET_JAVA
     dataReceived_(this),
+#endif // WT_TARGET_JAVA
     progressBar_(0),
     tooLargeSize_(0)
 {
@@ -134,13 +147,13 @@ void WFileUpload::create()
 
 WFileUpload::~WFileUpload()
 {
-  if (!isStolen_)
-    unlink(spoolFileName_.c_str());
-
+#ifndef WT_TARGET_JAVA
   if (uploading_)
     WApplication::instance()->enableUpdates(false);
+#endif // WT_TARGET_JAVA
 }
 
+#ifndef WT_TARGET_JAVA
 void WFileUpload::onData(::uint64_t current, ::uint64_t total)
 {
   dataReceived_.emit(current, total);
@@ -172,6 +185,7 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
     app->enableUpdates(false);
   }
 }
+#endif // WT_TARGET_JAVA
 
 void WFileUpload::enableAjax()
 {
@@ -219,9 +233,49 @@ void WFileUpload::setFileTextSize(int chars)
   textSize_ = chars;
 }
 
+void WFileUpload::setMultiple(bool multiple)
+{
+  multiple_ = multiple;
+}
+
+std::string WFileUpload::spoolFileName() const
+{
+  if (!empty())
+    return uploadedFiles_[0].spoolFileName();
+  else
+    return std::string();
+}
+
+WT_USTRING WFileUpload::clientFileName() const
+{
+  if (!empty())
+    return WT_USTRING::fromUTF8(uploadedFiles_[0].clientFileName());
+  else
+    return WT_USTRING();
+}
+
+WT_USTRING WFileUpload::contentDescription() const
+{
+  if (!empty())
+    return WT_USTRING::fromUTF8(uploadedFiles_[0].contentType());
+  else
+    return WT_USTRING();
+}
+
 void WFileUpload::stealSpooledFile()
 {
-  isStolen_ = true;
+  if (!empty())
+    uploadedFiles_[0].stealSpoolFile();
+}
+
+bool WFileUpload::emptyFileName() const
+{
+  return empty();
+}
+
+bool WFileUpload::empty() const
+{
+  return uploadedFiles_.empty();
 }
 
 void WFileUpload::updateDom(DomElement& element, bool all)
@@ -229,8 +283,11 @@ void WFileUpload::updateDom(DomElement& element, bool all)
   if (fileUploadTarget_ && doUpload_) {
     element.callMethod("submit()");
     doUpload_ = false;
+
+#ifndef WT_TARGET_JAVA
     fileUploadTarget_->setUploadProgress(true);
     fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
+#endif // WT_TARGET_JAVA
 
     if (progressBar_)
       if (progressBar_->parent() == this) {
@@ -306,6 +363,8 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
     DomElement *input = DomElement::createNew(DomElement_INPUT);
     input->setAttribute("type", "file");
+    if (multiple_)
+      input->setAttribute("multiple", "multiple");
     input->setAttribute("name", "data");
     input->setAttribute("size", boost::lexical_cast<std::string>(textSize_));
     input->setId("in" + id());
@@ -317,6 +376,8 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
   } else {
     result->setAttribute("type", "file");
+    if (multiple_)
+      result->setAttribute("multiple", "multiple");
     result->setAttribute("size", boost::lexical_cast<std::string>(textSize_));
 
     if (change)
@@ -332,19 +393,18 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 
 void WFileUpload::setFormData(const FormData& formData)
 {
-  if (formData.file) {
-    setFormData(*formData.file);
-    uploaded().emit();
-  }
+  setFiles(formData.files);
 }
 
-void WFileUpload::setFormData(const Http::UploadedFile& file)
+void WFileUpload::setFiles(const std::vector<Http::UploadedFile>& files)
 {
-  spoolFileName_ = file.spoolFileName();
-  clientFileName_ = WString::fromUTF8(file.clientFileName());
-  contentDescription_ = WString::fromUTF8(file.contentType());
-  file.stealSpoolFile();
-  isStolen_ = false;
+  uploadedFiles_.clear();
+
+  for (unsigned i = 0; i < files.size(); ++i)
+    if (!files[i].clientFileName().empty())
+      uploadedFiles_.push_back(files[i]);
+
+  uploaded().emit();
 }
 
 void WFileUpload::setRequestTooLarge(int size)
@@ -365,7 +425,10 @@ void WFileUpload::upload()
 	progressBar_->show();
     }
 
+#ifndef WT_TARGET_JAVA
     WApplication::instance()->enableUpdates();
+#endif // WT_TARGET_JAVA
+
     uploading_ = true;
   }
 }

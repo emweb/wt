@@ -77,8 +77,9 @@ std::vector<Attachment> Composer::attachments() const
   std::vector<Attachment> attachments;
 
   for (unsigned i = 0; i < attachments_.size() - 1; ++i) {
-    if (attachments_[i]->include())
-      attachments.push_back(attachments_[i]->attachment());
+    std::vector<Attachment> toadd = attachments_[i]->attachments();
+
+    attachments.insert(attachments.end(), toadd.begin(), toadd.end());
   }
 
   return attachments;

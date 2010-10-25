@@ -311,11 +311,11 @@ protected:
 
   struct FormData {
     FormData(const Http::ParameterValues& aValues,
-	     const Http::UploadedFile *aFile)
-      : values(aValues), file(aFile) { }
+	     const std::vector<Http::UploadedFile>& aFiles)
+      : values(aValues), files(aFiles) { }
 
-    const Http::ParameterValues&  values;
-    const Http::UploadedFile     *file;
+    const Http::ParameterValues& values;
+    std::vector<Http::UploadedFile> files;
   };
 
   virtual void setFormData(const FormData& formData);

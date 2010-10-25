@@ -79,7 +79,7 @@ public:
   /*
    * Sets the content-length for a normal response.
    */
-  virtual void setContentLength(boost::intmax_t length) = 0;
+  virtual void setContentLength(::int64_t length) = 0;
 
   /*
    * Adds a header for a normal response.

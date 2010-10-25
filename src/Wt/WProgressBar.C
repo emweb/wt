@@ -72,16 +72,24 @@ void WProgressBar::setFormat(const WString& format)
   format_ = format;
 }
 
-WString WProgressBar::text() const
+WT_USTRING WProgressBar::text() const
 {
   std::string f = format_.toUTF8();
   int buflen = f.length() + 5;
 
-  char buf[buflen];
+#ifndef WT_TARGET_JAVA
+  char *buf = new char[buflen];
+#else
+  char *buf = 
+#endif // WT_TARGET_JAVA
 
   snprintf(buf, buflen, f.c_str(), percentage());
 
-  return WString::fromUTF8(buf);
+  WT_USTRING result = WT_USTRING::fromUTF8(buf);
+
+  delete[] buf;
+
+  return result;
 }
 
 double WProgressBar::percentage() const

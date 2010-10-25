@@ -107,8 +107,10 @@ void WebRenderer::discardChanges()
 
 void WebRenderer::ackUpdate(int updateId)
 {
-  if (updateId == expectedAckId_)
+  if (updateId == expectedAckId_) {
     setJSSynced(false);
+    ++expectedAckId_;
+  }
 }
 
 void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
@@ -338,7 +340,7 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
     << collectedJS1_.str()
     << collectedJS2_.str()
     << session_.app()->javaScriptClass()
-    << "._p_.response(" << ++expectedAckId_ << ");";
+    << "._p_.response(" << expectedAckId_ << ");";
 }
 
 void WebRenderer::collectJavaScript()
@@ -556,7 +558,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     response.out()
       << collectedJS1_.str()
       << app->javaScriptClass()
-      << "._p_.response(" << ++expectedAckId_ << ");";
+      << "._p_.response(" << expectedAckId_ << ");";
 
     updateLoadIndicator(response.out(), app, true);
 

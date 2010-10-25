@@ -1452,12 +1452,17 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
 WObject::FormData WebSession::getFormData(const WebRequest& request,
 					  const std::string& name)
 {
-  Http::UploadedFileMap::const_iterator file
-    = request.uploadedFiles().find(name);
+  typedef Http::UploadedFileMap::const_iterator iter;
 
-  return WObject::FormData
-    (request.getParameterValues(name),
-     file != request.uploadedFiles().end() ? &file->second : 0);
+  std::pair<iter, iter> range
+    = request.uploadedFiles().equal_range(name);
+
+  std::vector<Http::UploadedFile> files;
+
+  for (iter i = range.first; i != range.second; ++i)
+    files.push_back(i->second);
+
+  return WObject::FormData(request.getParameterValues(name), files);
 }
 
 std::vector<unsigned int> WebSession::getSignalProcessingOrder(const WEvent& e)
