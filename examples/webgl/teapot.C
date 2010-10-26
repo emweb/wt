@@ -118,7 +118,7 @@ public:
     // Now, preload buffers
     objVertexBuffer_ = createBuffer();
     bindBuffer(ARRAY_BUFFER, objVertexBuffer_);
-    bufferDatafv(ARRAY_BUFFER, &data[0], data.size(), STATIC_DRAW);
+    bufferDatafv(ARRAY_BUFFER, data.begin(), data.end(), STATIC_DRAW);
 
   }
 
@@ -203,7 +203,10 @@ WApplication *createApplication(const WEnvironment& env)
 
 int main(int argc, char **argv)
 {
+  //readObj("plane.obj", data);
   readObj("teapot.obj", data);
+  //readObj("treeleaves.obj", data);
+  //readObj("treebranches.obj", data);
 
   return WRun(argc, argv, &createApplication);
 }

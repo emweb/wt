@@ -36,6 +36,12 @@
 #define RETHROW(e) throw
 #endif
 
+namespace {
+  #ifdef WT_TARGET_JAVA
+  static Wt::Http::UploadedFile* uf;
+  #endif
+}
+
 namespace Wt {
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
@@ -1452,15 +1458,8 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
 WObject::FormData WebSession::getFormData(const WebRequest& request,
 					  const std::string& name)
 {
-  typedef Http::UploadedFileMap::const_iterator iter;
-
-  std::pair<iter, iter> range
-    = request.uploadedFiles().equal_range(name);
-
   std::vector<Http::UploadedFile> files;
-
-  for (iter i = range.first; i != range.second; ++i)
-    files.push_back(i->second);
+  Utils::find(request.uploadedFiles(), name, files);
 
   return WObject::FormData(request.getParameterValues(name), files);
 }

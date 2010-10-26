@@ -229,6 +229,18 @@ template<typename T> inline int size(const T& vector) {
 #endif // WT_TARGET_JAVA
 }
 
+template<typename Map, typename K, typename V> 
+inline void find(const Map& map, const K& key, V& result)
+{
+  #ifndef WT_TARGET_JAVA
+  std::pair<typename Map::const_iterator, typename Map::const_iterator> range 
+    = map.equal_range(key);
+  
+  for (typename Map::const_iterator i = range.first; i != range.second; ++i)
+    result.push_back(i->second);
+  #endif
+}
+
   }
 }
 

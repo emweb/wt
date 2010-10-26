@@ -19,6 +19,7 @@ public:
 
 private:
   Wt::WWidget *wText();
+  Wt::WWidget *wTemplate();
   Wt::WWidget *wBreak();
   Wt::WWidget *wAnchor();
   Wt::WWidget *wImage();
@@ -31,6 +32,7 @@ private:
   Wt::WWidget *wMenu();
   Wt::WWidget *wGroupBox();
   Wt::WWidget *wStackedWidget();
+  Wt::WWidget *wProgressBar();
 };
 
 #endif // BASIC_CONTROLS_H_

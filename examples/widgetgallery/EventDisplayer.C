@@ -5,25 +5,17 @@ using namespace Wt;
 
 EventDisplayer::EventDisplayer(WContainerWidget *parent):
   WContainerWidget(parent),
-  text_(new WText("Events will be shown here.", this)),
-  map_(new WSignalMapper<std::string>(this)),
-  mapWString_(new WSignalMapper<std::string, WString>(this))
+  eventCount_(0),
+  text_(new WText("Events will be shown here.", this))
 {
   setStyleClass("events");
-
-  map_->mapped().connect(this, &EventDisplayer::showSignalImpl);
-  mapWString_->mapped().connect(this, &EventDisplayer::showWStringSignal);
 }
 
-void EventDisplayer::mapConnect(Wt::SignalBase &signal, const std::string& data)
+void EventDisplayer::showSignal(Signal<WString>& signal,
+				const std::string& data)
 {
-  map_->mapConnect(signal, data);
-}
-
-void EventDisplayer::mapConnectWString(Signal<WString> &signal,
-				       const std::string& data)
-{
-  mapWString_->mapConnect1(signal, data);
+  signal.connect(boost::bind(&EventDisplayer::showWStringSignal,
+			     this, data, _1));
 }
 
 void EventDisplayer::showSignalImpl(const std::string& str)

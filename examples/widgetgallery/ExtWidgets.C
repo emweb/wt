@@ -71,13 +71,13 @@ WWidget *ExtWidgets::eButton()
 
   Button *button;
   vLayout->addWidget(button = new Button("Push me!"));
-  ed_->mapConnect(button->clicked(), "Ext::Button clicked");
+  ed_->showSignal(button->clicked(), "Ext::Button clicked");
   vLayout->addWidget(button = new Button("Checkable button"));
   button->setCheckable(true);
-  ed_->mapConnect(button->clicked(), "Ext::Button (checkable) clicked");
+  ed_->showSignal(button->clicked(), "Ext::Button (checkable) clicked");
   vLayout->addWidget(button = new Button("Button with icon"));
   button->setIcon("icons/yellow-folder-open.png");
-  ed_->mapConnect(button->clicked(), "Ext::Button (with icon) clicked");
+  ed_->showSignal(button->clicked(), "Ext::Button (with icon) clicked");
 
   return result;
 }
@@ -92,7 +92,7 @@ WWidget *ExtWidgets::eLineEdit()
   LineEdit *le;
   le = new LineEdit(result);
   le->setTextSize(50);
-  ed_->mapConnect(le->keyWentUp(), "Ext::LineEdit keyWentUp");
+  ed_->showSignal(le->keyWentUp(), "Ext::LineEdit keyWentUp");
 
   return result;
 }
@@ -108,7 +108,7 @@ WWidget *ExtWidgets::eNumberField()
   NumberField *nf = new NumberField(result);
   nf->setDecimalPrecision(2);
   nf->setInline(true);
-  ed_->mapConnect(nf->keyPressed(), "Ext::NumberField keyPressed");
+  ed_->showSignal(nf->keyPressed(), "Ext::NumberField keyPressed");
 
   return result;
 }
@@ -122,10 +122,10 @@ WWidget *ExtWidgets::eCheckBox()
   new WText(tr("ext-CheckBox"), result);
   CheckBox *cb;
   cb = new CheckBox("Check me!", result);
-  ed_->mapConnect(cb->checked(), "Ext::CheckBox checked");
+  ed_->showSignal(cb->checked(), "Ext::CheckBox checked");
   cb = new CheckBox("Check me too!", result);
   cb->setChecked(true);
-  ed_->mapConnect(cb->checked(), "Ext::CheckBox too checked");
+  ed_->showSignal(cb->checked(), "Ext::CheckBox too checked");
 
   return result;
 }
@@ -147,7 +147,7 @@ WWidget *ExtWidgets::eComboBox()
   cb->addItem("Palm");
   cb->addItem("Westvleteren");
   cb->setCurrentIndex(1);
-  ed_->mapConnect(cb->activated(), "Ext::ComboBox activated");
+  ed_->showSignal(cb->activated(), "Ext::ComboBox activated");
 
   return result;
 }
@@ -163,16 +163,16 @@ WWidget *ExtWidgets::eRadioButton()
   RadioButton *rb;
   rb = new RadioButton("Kitchen", result);
   bg->addButton(rb);
-  ed_->mapConnect(rb->checked(), "Ext::RadioButton Kitchen checked");
+  ed_->showSignal(rb->checked(), "Ext::RadioButton Kitchen checked");
   rb = new RadioButton("Dining room", result);
   bg->addButton(rb);
-  ed_->mapConnect(rb->checked(), "Ext::RadioButton Dining Room checked");
+  ed_->showSignal(rb->checked(), "Ext::RadioButton Dining Room checked");
   rb = new RadioButton("Garden", result);
   bg->addButton(rb);
-  ed_->mapConnect(rb->checked(), "Ext::RadioButton Garden checked");
+  ed_->showSignal(rb->checked(), "Ext::RadioButton Garden checked");
   rb = new RadioButton("Attic", result);
   bg->addButton(rb);
-  ed_->mapConnect(rb->checked(), "Ext::RadioButton Attic checked");
+  ed_->showSignal(rb->checked(), "Ext::RadioButton Attic checked");
 
   return result;
 }
@@ -185,7 +185,7 @@ WWidget *ExtWidgets::eCalendar()
 
   new WText(tr("ext-Calendar"), result);
   Calendar *c = new Calendar(false, result);
-  ed_->mapConnect(c->selectionChanged(), "Ext::Calendar selectionChanged");
+  ed_->showSignal(c->selectionChanged(), "Ext::Calendar selectionChanged");
 
   return result;
 }

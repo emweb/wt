@@ -57,7 +57,8 @@ namespace {
 
     if (!x_node->first_node()
 	&& x_node->value_size() == 0
-	&& !Wt::DomElement::isSelfClosingTag(x_node->name())) {
+	&& !Wt::DomElement::isSelfClosingTag
+	(std::string(x_node->name(), x_node->name_size()))) {
       // We need to add an emtpy data node since <div /> is illegal HTML
       // (but valid XML / XHTML)
       xml_node<> *empty
@@ -110,7 +111,8 @@ void WMessageResources::refresh()
     readResourceFile("", defaults_);
 
     local_.clear();
-    std::string locale = wApp->locale();
+    WApplication *app = WApplication::instance();
+    std::string locale = app ? app->locale() : std::string();
 
     if (!locale.empty())
       for(;;) {
@@ -301,9 +303,10 @@ bool WMessageResources::readResourceStream(std::istream &s,
       valueMap[id] = std::string(buf.get(), ptr - buf.get());
     }
   } catch (parse_error& e) {
-    wApp->log("error") << "Error reading " << fileName
-		       << ": at character " << e.where<char>() - text.get()
-		       << ": " << e.what();
+    WApplication::instance()->log("error")
+      << "Error reading " << fileName
+      << ": at character " << e.where<char>() - text.get()
+      << ": " << e.what();
   }
 
   return true;

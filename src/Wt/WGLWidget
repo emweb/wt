@@ -33,11 +33,10 @@ public:
   WGLWidget(WContainerWidget *parent);
   ~WGLWidget();
 
-  void updateMediaDom(DomElement& element, bool all);
   DomElement *createDomElement(WApplication *app);
 
   void getDomChanges(std::vector<DomElement *>& result, WApplication *app);
-  
+
   virtual void paintGL();
   virtual void resizeGL(int width, int height);
   virtual void initializeGL();
@@ -483,38 +482,38 @@ public:
   // Probably we'll also want versions with strides and offsets to cope with
   // more complex buffer layouts that we typically see on desktop WebGL apps;
   // suggestions to improve this are welcome
-  template<typename Array>
-  void bufferDatafv(BufferEnum target, const Array *values, unsigned size, BufferUsageEnum usage) {
+  template<typename Iterator>
+  void bufferDatafv(BufferEnum target, const Iterator begin, const Iterator end, BufferUsageEnum usage) {
     js_ << "ctx.bufferData(" << toString(target) << ",";
-    renderfv(values, size);
+    renderfv(begin, end);
     js_ << ","<< toString(usage) << ");";
     GLDEBUG;
   }
 
-  template<typename Array>
-  void bufferDataiv(BufferEnum target, const Array *values, unsigned size,
+  template<typename Iterator>
+  void bufferDataiv(BufferEnum target, const Iterator begin, const Iterator end,
                     BufferUsageEnum usage, DataTypeEnum type)
   {
     js_ << "ctx.bufferData(" << toString(target) << ",";
-    renderiv(values, size, type);
+    renderiv(begin, end, type);
     js_ << ","<< toString(usage) << ");";
     GLDEBUG;
   }
 
-  template<typename Array>
-  void bufferSubDatafv(BufferEnum target, unsigned offset, const Array *values, unsigned size)
+  template<typename Iterator>
+  void bufferSubDatafv(BufferEnum target, unsigned offset, const Iterator begin, const Iterator end)
   {
     js_ << "ctx.bufferSubData(" << toString(target) << "," << offset << ",";
-    renderfv(values, size);
+    renderfv(begin, end);
     js_ << ");";
     GLDEBUG;
   }
 
-  template<typename Array>
-  void bufferSubDataiv(BufferEnum target, unsigned offset, const Array *values, unsigned size, DataTypeEnum type)
+  template<typename Iterator>
+  void bufferSubDataiv(BufferEnum target, unsigned offset, const Iterator begin, Iterator end, DataTypeEnum type)
   {
     js_ << "ctx.bufferSubData(" << toString(target) << "," << offset << ",";
-    renderiv(values, size, type);
+    renderiv(begin, end, type);
     js_ << ");";
     GLDEBUG;
   }
@@ -671,7 +670,7 @@ public:
   template<typename Array>
   void uniform1fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform1fv(" << location << ",";
-    renderfv(value, 1);
+    renderfv(value, value + 1);
     js_ << ");";
     GLDEBUG;
   }
@@ -684,7 +683,7 @@ public:
   template<typename Array>
   void uniform1iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform1iv(" << location << ",";
-    renderiv(value, 1, INT);
+    renderiv(value, value + 1, INT);
     js_ << ");";
     GLDEBUG;
   }
@@ -699,7 +698,7 @@ public:
   template<typename Array>
   void uniform2fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform2fv(" << location << ",";
-    renderfv(value, 2);
+    renderfv(value, value + 2);
     js_ << ");";
     GLDEBUG;
   }
@@ -713,7 +712,7 @@ public:
   template<typename Array>
   void uniform2iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform2iv(" << location << ",";
-    renderiv(value, 2, INT);
+    renderiv(value, value + 2, INT);
     js_ << ");";
     GLDEBUG;
   }
@@ -729,7 +728,7 @@ public:
   template<typename Array>
   void uniform3fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform3fv(" << location << ",";
-    renderfv(value, 3);
+    renderfv(value, value + 3);
     js_ << ");";
     GLDEBUG;
   }
@@ -744,7 +743,7 @@ public:
   template<typename Array>
   void uniform3iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform3iv(" << location << ",";
-    renderiv(value, 3, INT);
+    renderiv(value, value + 3, INT);
     js_ << ");";
     GLDEBUG;
   }
@@ -760,7 +759,7 @@ public:
   template<typename Array>
   void uniform4fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform4fv(" << location << ",";
-    renderfv(value, 4);
+    renderfv(value, value + 4);
     js_ << ");";
     GLDEBUG;
   }
@@ -776,7 +775,7 @@ public:
   template<typename Array>
   void uniform4iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform4iv(" << location << ",";
-    renderiv(value, 4, INT);
+    renderiv(value, value + 4, INT);
     js_ << ");";
     GLDEBUG;
   }
@@ -785,14 +784,15 @@ public:
   void uniformMatrix2fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix2fv(" << location << ","
       << (transpose?"true":"false") << ",";
-    renderfv(value, 4);
+    renderfv(value, value + 4);
     js_ << ");";
     GLDEBUG;
   }
   template< typename T>
   void uniformMatrix2(const UniformLocation &location, const WGenericMatrix<T, 2, 2> &m) {
     js_ << "ctx.uniformMatrix2fv(" << location << ",false,";
-    renderfv(m.transposed().data().begin(), 4);
+    WGenericMatrix<T, 2, 2> t(m.transposed());
+    renderfv(t.data().begin(), t.data().end());
     js_ << ");";
     GLDEBUG;
   }
@@ -800,14 +800,15 @@ public:
   void uniformMatrix3fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix3fv(" << location << ","
       << (transpose?"true":"false") << ",";
-    renderfv(value,9);
+    renderfv(value,value + 9);
     js_ << ");";
     GLDEBUG;
   }
   template<typename T>
   void uniformMatrix3(const UniformLocation &location, bool transpose, const WGenericMatrix<T, 3, 3> &m) {
     js_ << "ctx.uniformMatrix3fv(" << location << ",false,";
-    renderfv(m.transposed().data().begin(), 9);
+    WGenericMatrix<T, 3, 3> t(m.transposed());
+    renderfv(t.data().begin(), t.data().end());
     js_ << ");";
     GLDEBUG;
   }
@@ -815,14 +816,15 @@ public:
   void uniformMatrix4fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix4fv(" << location << ","
       << (transpose?"true":"false") << ",";
-    renderfv(value, 16);
+    renderfv(value, value + 16);
     js_ << ");";
     GLDEBUG;
   }
   template<typename T>
   void uniformMatrix4(const UniformLocation &location, const WGenericMatrix<T, 4, 4> &m) {
     js_ << "ctx.uniformMatrix4fv(" << location << ",false,";
-    renderfv(m.transposed().data().begin(), 16);
+    WGenericMatrix<T, 4, 4> t(m.transposed());
+    renderfv(t.data().begin(), t.data().end());
     js_ << ");";
     GLDEBUG;
   }
@@ -893,9 +895,10 @@ public:
   // Set the value of a jsMatrix from the client side
   template<typename T>
   void setJavaScriptMatrix4(const JavaScriptMatrix4x4 &jsm, const WGenericMatrix<T, 4, 4> &m) {
-    js_ << jsm << "=";
-    renderfv(m.transposed().data().begin(), 16);
-    js_ << ";";
+    js_ << "mat4.set(";
+    WGenericMatrix<T, 4, 4> t(m.transposed());
+    renderfv(t.data().begin(), t.data().end());
+    js_ << ", " << jsm << ");";
     GLDEBUG;
   }
   // Get the current client-side value of a JavaScriptMatrix
@@ -912,6 +915,7 @@ public:
 
 protected:
   DomElementType domElementType() const;
+  void render(WFlags<RenderFlag> flags);
 
 private:
   unsigned shaders_;
@@ -925,18 +929,18 @@ private:
 
   std::stringstream js_;
 
-  template<typename Type>
-  void renderfv(Type *value, unsigned int size)
+  template<typename Iterator>
+  void renderfv(Iterator begin, Iterator end)
   {
     char buf[30];
     js_ << "new Float32Array([";
-    for (unsigned int i = 0; i < size; ++i)
-      js_ << makeFloat(value[i], buf) << (i == size - 1 ? "" : ",");
+    for (Iterator i = begin; i != end; ++i)
+      js_ << (i == begin ? "" : ",") << makeFloat(*i, buf);
     js_ << "])";
   }
 
-  template<typename Type>
-  void renderiv(Type *value, unsigned int size, DataTypeEnum type)
+  template<typename Iterator>
+  void renderiv(Iterator begin, Iterator end, DataTypeEnum type)
   {
     switch (type) {
     case BYTE:
@@ -961,8 +965,8 @@ private:
       break;
     }
     char buf[30];
-    for (unsigned int i = 0; i < size; ++i)
-      js_ << makeInt(value[i], buf) << (i == size - 1 ? "" : ",");
+    for (Iterator i = begin; i != end; ++i)
+      js_ << (i == begin ? "" : ",") << makeInt(*i, buf);
     js_ << "])";
   }
 
@@ -990,6 +994,10 @@ private:
   static const char *toString(TextureTargetEnum e);
   static const char *toString(TextureUnitEnum e);
   static const char *toString(TextureWrapModeEnum e);
+
+  void defineJavaScript();
+  void connectJavaScript(EventSignalBase &s,
+                         const std::string &methodName);
 
 };
 

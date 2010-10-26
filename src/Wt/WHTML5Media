@@ -131,6 +131,10 @@ public:
    */
   void pause();
 
+  /*! \brief Returns whether the media is playing.
+   */
+  bool playing() const { return playing_; }
+
   /*! \brief Event signal emitted when playback has begun.
    *
    * This event fires when play was invoked, or when the media element
@@ -219,6 +223,8 @@ private:
   PreloadMode preloadMode_;
   WWidget *alternative_;
   bool flagsChanged_, preloadChanged_, sourcesChanged_;
+
+  bool playing_;
   
   static const char *PLAYBACKSTARTED_SIGNAL;
   static const char *PLAYBACKPAUSED_SIGNAL;

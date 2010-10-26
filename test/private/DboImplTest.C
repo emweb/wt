@@ -28,7 +28,7 @@ void DboImplTest::parseSql(const std::string& sql,
 
   int fields = 0;
   for (unsigned i = 0; i < result.size(); ++i) {
-    fields += result[i].size();
+    fields += static_cast<int>(result[i].size());
     for (unsigned j = 0; j < result[i].size(); ++j) {
       dbo::Impl::SelectField& f = result[i][j];
       std::cerr << "Field: '" << sql.substr(f.begin, f.end - f.begin)

@@ -9,6 +9,7 @@
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
 #include "Wt/WResource"
+#include "Wt/WLogger"
 #include "DomElement.h"
 #include "Utils.h"
 
@@ -34,7 +35,8 @@ WHTML5Media::WHTML5Media(WContainerWidget *parent):
   alternative_(0),
   flagsChanged_(false),
   preloadChanged_(false),
-  sourcesChanged_(false)
+  sourcesChanged_(false),
+  playing_(false)
 {
   setInline(false);
   setFormObject(true);
@@ -104,15 +106,13 @@ void WHTML5Media::setFormData(const FormData& formData)
         duration = boost::lexical_cast<double>(attributes[2]);
         paused = (attributes[3] == "1");
         ended = (attributes[4] == "1");
+
+	playing_ = !paused;
+
+	// Are other values any useful ?
       } catch (boost::bad_lexical_cast &e) {
-        bad = true;
-      }
-      if (!bad) {
-        //volume_ = volume;
-        //currentTime_ = current;
-        //duration_ = duration;
-        //paused_ = paused;
-        //ended_ = ended;
+	WApplication::instance()->log("error")
+	  << "WHTML5Media: could not parse form data: " << formData.values[0];
       }
     }
   }

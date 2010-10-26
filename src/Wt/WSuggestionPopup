@@ -258,16 +258,14 @@ public:
    *
    * \sa generateMatcherJS(), generateReplacerJS()
    */
-  WSuggestionPopup(const Options& options,
-		   WContainerWidget *parent = 0);
+  WSuggestionPopup(const Options& options, WContainerWidget *parent = 0);
 
   /*! \brief Creates a suggestion popup with given matcherJS and replacerJS.
    *
    * See supra for the expected signature of the matcher and replace
    * JavaScript functions.
    */
-  WSuggestionPopup(const std::string& matcherJS,
-		   const std::string& replacerJS,
+  WSuggestionPopup(const std::string& matcherJS, const std::string& replacerJS,
 		   WContainerWidget *parent = 0);
 
   /*! \brief Lets this suggestion popup assist in editing the given edit field.

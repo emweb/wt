@@ -20,22 +20,24 @@
 </p>
 
 <p class="p">
-  The two main chart widgets
-  are <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WCartesianChart.html"
-  target="_new">WCartesianChart</a>, which provides category charts
-  and scatter plots,
-  and <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WPieChart.html" target="_new">WPieChart</a>
-  which provides pie charts. These widgets are based on the MVC
-  mechanism, and retrieve their data from
-  a <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html" target="_new">WAbstractItemModel</a>.
+  The two main chart widgets are <a
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WCartesianChart.html"
+  target="_new"><tt>WCartesianChart</tt></a>, which provides category
+  charts and scatter plots, and <a
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WPieChart.html"
+  target="_new"><tt>WPieChart</tt></a> which provides pie
+  charts. These widgets are based on the MVC mechanism, and retrieve
+  their data from a <a
+  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+  target="_new"><tt>WAbstractItemModel</tt></a>.
 </p>
 
 <p class="p">
   Many aspects of the charts may be customized. By default, style
   information for rendering data series are taken from a
-  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WChartPalette.html" target="_new">WChartPalette</a>. It
+  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WChartPalette.html" target="_new"><tt>WChartPalette</tt></a>. It
   is straight forward to specialize this class to provide different
-  styles from the standard styles provided by <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WStandardPalette.html" target="_new">WStandardPalette</a>.
+  styles from the standard styles provided by <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WStandardPalette.html" target="_new"><tt>WStandardPalette</tt></a>.
 </p>
 
 <p class="p">
@@ -52,7 +54,7 @@
   A category chart uses categories on the X axis, and displays one or
   more data series on the Y axes. The values corresponding to each
   category are plotted consecutively (this is the main difference with
-  a ScatterPlot). Each data series corresponds to a column from the
+  a scatterp lot). Each data series corresponds to a column from the
   model.
 </p>
 
@@ -106,9 +108,9 @@
 <h2><span>Pie chart</span></h2>
 
 <p class="p">
-  The pie chart is provided by the WPieChart widget. A pie chart can
-  only display data from one data series. The class supports both
-  plain 2D pies, as well as a 3D effect (as used below). As shown
+  The pie chart is provided by the <tt>WPieChart</tt> widget. A pie
+  chart can only display data from one data series. The class supports
+  both plain 2D pies, as well as a 3D effect (as used below). As shown
   below for the first segment, these may be separated from the pie to
   show emphasis.
 </p>

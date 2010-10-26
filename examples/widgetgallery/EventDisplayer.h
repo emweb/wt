@@ -8,7 +8,6 @@
 #define EVENTDISPLAYER_H_
 
 #include <Wt/WContainerWidget>
-#include <Wt/WSignalMapper>
 
 namespace Wt {
   class WText;
@@ -19,17 +18,10 @@ class EventDisplayer: public Wt::WContainerWidget
 public:
   EventDisplayer(WContainerWidget *parent);
 
-  // connects the invocation of the given signal to the display of the
-  // string
-  void mapConnect(Wt::SignalBase &signal, const std::string& data);
-  // connects the invocation of the given signal to the display of the
-  // given string, concatenated with the WText parameter of the signal.
-  void mapConnectWString(Wt::Signal<Wt::WString> &signal,
-			 const std::string& data);
-
   // Print a message on the displayer
-  void setStatus(const Wt::WString &msg);
+  void setStatus(const Wt::WString& msg);
 
+  void showSignal(Wt::Signal<Wt::WString>& s, const std::string& data);
   template<typename T> void showSignal(T &s, const std::string& str);
   template<typename T> void showEvent(T &s, const Wt::WString& str);
 
@@ -38,8 +30,6 @@ private:
   int eventCount_;
   Wt::WText *text_;
 
-  Wt::WSignalMapper<std::string> *map_;
-  Wt::WSignalMapper<std::string, Wt::WString> *mapWString_;
   void showWStringSignal(const std::string& str, const Wt::WString& wstr);
   void showSignalImpl(const std::string& str);
   void showEventImpl(const Wt::WString& str);

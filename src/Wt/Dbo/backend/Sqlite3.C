@@ -40,7 +40,7 @@ public:
 
 #if SQLITE_VERSION_NUMBER >= 3003009
     int err = sqlite3_prepare_v2(db_.connection(), sql.c_str(),
-				 sql.length() + 1, &st_, 0);
+				 static_cast<int>(sql.length() + 1), &st_, 0);
 #else
     int err = sqlite3_prepare(db_.connection(), sql.c_str(),
 			      static_cast<int>(sql.length() + 1), &st_, 0);

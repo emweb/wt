@@ -10,6 +10,12 @@
 #include "Utils.h"
 #include "Wt/WApplication"
 
+#include "JavaScriptLoader.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WGLWidget.min.js"
+#endif
+
 using namespace Wt;
 
 // TODO: for uniform*v, attribute8v, generate the non-v version in js. We
@@ -364,20 +370,6 @@ char *WGLWidget::makeInt(int i, char *buf)
   return Utils::itoa(i, buf);
 }
 
-void WGLWidget::updateMediaDom(DomElement& element, bool all)
-{
-#if 0
-  if (all || flagsChanged_) {
-    if ((!all) || flags_ & Controls)
-      element.setAttribute("controls", flags_ & Controls ? "controls" : "");
-    if ((!all) || flags_ & Autoplay)
-      element.setAttribute("autoplay", flags_ & Autoplay ? "autoplay" : "");
-    if ((!all) || flags_ & Loop)
-      element.setAttribute("loop", flags_ & Loop ? "loop" : "");
-  }
-#endif
-}
-
 DomElement *WGLWidget::createDomElement(WApplication *app)
 {
   wApp->require("glMatrix.js");
@@ -441,6 +433,28 @@ DomElementType WGLWidget::domElementType() const
   return Wt::DomElement_CANVAS;
 }
 
+void WGLWidget::defineJavaScript()
+{
+  WApplication *app = WApplication::instance();
+
+  const char *THIS_JS = "js/WGLWidget.js";
+
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WGLWidget", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+
+  app->doJavaScript("new " WT_CLASS ".WGLWidget("
+    + app->javaScriptClass() + "," + jsRef() + ");");
+  app->doJavaScript("jQuery.data(" + jsRef() + ",'obj').ctx=ctx;");
+}
+
+void WGLWidget::render(WFlags<RenderFlag> flags)
+{
+  if (flags & RenderFull)
+    defineJavaScript();
+  WInteractWidget::render(flags);
+}
 
 void WGLWidget::paintGL()
 {
@@ -926,12 +940,25 @@ void WGLWidget::viewport(int x, int y, unsigned width, unsigned height)
   GLDEBUG;
 }
 
+void WGLWidget::connectJavaScript(Wt::EventSignalBase &s,
+                                  const std::string &methodName)
+{
+  std::string jsFunction =
+    "function(obj, event){"
+    """var o=jQuery.data(" + jsRef() + ",'obj');"
+    """if(o) o." + methodName + "(obj,event);"
+    "}";
+  s.connect(jsFunction);
+}
 
 JavaScriptMatrix4x4 WGLWidget::createJavaScriptMatrix4()
 {
   WGenericMatrix<double, 4, 4> m; // unit matrix
   JavaScriptMatrix4x4 retval = "WtMatrix" + boost::lexical_cast<std::string>(matrices_++);
-  setJavaScriptMatrix4(retval, m);
+  js_ << retval << "=";
+  renderfv(m.data().begin(), m.data().end());
+  js_ << ";";
+
   return retval;
 }
 
@@ -940,55 +967,17 @@ void WGLWidget::setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
                                            double uX, double uY, double uZ,
                                            double pitchRate, double yawRate)
 {
-  mouseWentDown().connect("function(o, e){ o.mouseDownCoordinates = " WT_CLASS ".pageCoordinates(event);}");
+  connectJavaScript(mouseWentDown(), "mouseDown");
+  connectJavaScript(mouseWentUp(), "mouseUp");
+  connectJavaScript(mouseDragged(), "mouseDragLookAt");
+  connectJavaScript(mouseWheel(), "mouseWheelLookAt");
   std::stringstream ss;
-  ss << "function(o, e){"
-    "var c = " WT_CLASS ".pageCoordinates(event);"
-    "var dx=(c.x - o.mouseDownCoordinates.x);"
-    "var dy=(c.y - o.mouseDownCoordinates.y);"
-    "console.log('dragged: ' + dx + ',' + dy);"
-    "o.mouseDownCoordinates = c;"
-    "var l=vec3.create();"
-    "l[0]=" << centerX << ";"
-    "l[1]=" << centerY << ";"
-    "l[2]=" << centerZ << ";"
-    "console.log('l: ' + l[0] + ';' + l[1] + ';' + l[2]);"
-    "var u=vec3.create();"
-    "u[0]=" << uX << ";"
-    "u[1]=" << uY << ";"
-    "u[2]=" << uZ << ";"
-    "var s=vec3.create();"
-    "s[0]=" << m << "[0];"
-    "s[1]=" << m << "[4];"
-    "s[2]=" << m << "[8];"
-    "var r=mat4.create();"
-    "mat4.identity(r);"
-    //"vec3.negate(l);"
-    "mat4.translate(r, l);"
-    "mat4.rotate(r, dy * " << pitchRate << ", s);"
-    "mat4.rotate(r, dx * " << yawRate << ", u);"
-    "vec3.negate(l);"
-    "mat4.translate(r, l);"
-    "mat4.multiply(" << m << ",r," << m << ");"
-    "ctx.paintGl();"
-    "}";
-  mouseDragged().connect(ss.str());
-  ss.str("");
-  ss << "function(o, e){"
-    "var d = " WT_CLASS ".wheelDelta(event);"
-    "var s = Math.pow(1.2, d);"
-    "console.log('scroll: ' + d + ';' + s);"
-    "var l=vec3.create();"
-    "l[0]=" << centerX << ";"
-    "l[1]=" << centerY << ";"
-    "l[2]=" << centerZ << ";"
-    "mat4.translate(" << m << ", l);"
-    "mat4.scale(" << m << ",[s, s, s]);"
-    "vec3.negate(l);"
-    "mat4.translate(" << m << ", l);"
-    "ctx.paintGl();"
-    "}";
-  mouseWheel().connect(ss.str());
+  ss << "jQuery.data(" << jsRef() << ",'obj').setLookAtParams("
+    << m
+    << ",[" << centerX << "," << centerY << "," << centerZ << "],"
+    << "[" << uX << "," << uY << "," << uZ << "],"
+    << pitchRate << "," << yawRate << ");";
+  doJavaScript(ss.str());
 }
 
 void WGLWidget::setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double frontStep, double rotStep)
@@ -1019,10 +1008,8 @@ void WGLWidget::uniformNormalMatrix4(const UniformLocation &u,
                                      const JavaScriptMatrix4x4 &jsm,
                                      const WGenericMatrix<double, 4, 4> &mm)
 {
-  //js_ << "ctx.uniformMatrix3fv(" << u << ",false,mat3.transpose(mat4.toInverseMat3(mat4.multiply(mat4.create(" << jsm << "), ";
-  //renderfv(mm.transposed().data().begin(), 16);
-  //js_ << "))));";
   js_ << "ctx.uniformMatrix4fv(" << u << ",false,mat4.transpose(mat4.inverse(mat4.multiply(mat4.create(" << jsm << "), ";
-  renderfv(mm.transposed().data().begin(), 16);
+  WGenericMatrix<double, 4, 4> t(mm.transposed());
+  renderfv(t.data().begin(), t.data().end());
   js_ << "))));";
 }

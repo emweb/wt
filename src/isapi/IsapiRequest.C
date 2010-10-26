@@ -46,7 +46,7 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
   bool spooltofile = false;
   if (server_->configuration()) {
     spooltofile =
-      bytesToRead_ >(unsigned)server_->configuration()->maxMemoryRequestSize();
+      bytesToRead_ >(unsigned)server_->configuration()->isapiMaxMemoryRequestSize();
   } else {
     spooltofile = bytesToRead_ > 128*1024;
   }

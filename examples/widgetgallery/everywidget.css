@@ -6,8 +6,20 @@ body, html {
     overflow: hidden;
 }
 
+tt {
+    font-family: andale mono;
+    color: #570;
+    font-size: 90%;
+}
+
 a {
     outline: none;
+    color: #570;
+}
+
+a:visited {
+    outline: none;
+    color: #570;
 }
 
 ul {
@@ -16,8 +28,9 @@ ul {
     margin: 1.12em 0;
 }
 
-.contents p {
-    margin: 16px 0px
+.contents p, .contents li {
+    margin: 16px 0px;
+    line-height: 130%;
 }
 
 .contents h1 {
@@ -256,4 +269,16 @@ div.contents {
     padding: 5px;
     background-color: #E7E5E0;
     cursor: default;   
+}
+
+.form {
+    background: #DDD;
+    text-align: center;
+    width: 40ex;
+    padding: 3px;
+    margin: 0px auto;
+}
+
+.form p {
+    margin: 5px;
 }

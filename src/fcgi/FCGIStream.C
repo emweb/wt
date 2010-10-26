@@ -83,7 +83,7 @@ namespace {
       out() << name << ": " << value << "\r\n";
     }
 
-    virtual void setContentLength(::intmax_t length)
+    virtual void setContentLength(::int64_t length)
     {
       addHeader("Content-Length", boost::lexical_cast<std::string>(length));
     }

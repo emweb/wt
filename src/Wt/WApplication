@@ -1382,7 +1382,7 @@ public:
    *
    * \sa requestTooLarge()
    */
-  int maximumRequestSize() const;
+  ::int64_t maximumRequestSize() const;
 
   /*! \brief %Signal which indicates that too a large request was received.
    *

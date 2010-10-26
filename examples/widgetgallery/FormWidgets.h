@@ -28,6 +28,7 @@ private:
   Wt::WWidget *wComboBox();
   Wt::WWidget *wSelectionBox();
   Wt::WWidget *wLineEdit();
+  Wt::WWidget *wSpinBox();
   Wt::WWidget *wTextArea();
   Wt::WWidget *wCalendar();
   Wt::WWidget *wDatePicker();

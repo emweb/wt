@@ -885,7 +885,7 @@ WApplication *WApplication::instance()
   return session ? session->app() : 0;
 }
 
-int WApplication::maximumRequestSize() const
+::int64_t WApplication::maximumRequestSize() const
 {
   return session_->controller()->configuration().maxRequestSize() * 1024;
 }

@@ -12,6 +12,7 @@ using boost::unit_test_framework::test_suite;
 #include "private/HttpTest.h"
 #include "models/WBatchEditProxyModelTest.h"
 #include "utf8/Utf8Test.h"
+#include "utf8/XmlTest.h"
 #include "wdatetime/WDateTimeTest.h"
 
 boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
@@ -27,6 +28,7 @@ boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
   tests->add(new WBatchEditProxyModelTest());
   tests->add(new WChartTest());
   tests->add(new Utf8Test());
+  tests->add(new XmlTest());
   tests->add(new WDateTimeTest());
 
   return tests;

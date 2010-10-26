@@ -4,6 +4,7 @@ SET(TEST_SOURCES
   models/WBatchEditProxyModelTest.C
   private/HttpTest.C
   utf8/Utf8Test.C
+  utf8/XmlTest.C
   wdatetime/WDateTimeTest.C
 )
 

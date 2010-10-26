@@ -34,7 +34,7 @@ Validators::Validators(EventDisplayer *ed)
   table->setStyleClass("validators");
   WLineEdit *le;
 
-  new WText("WIntValidator: input is mandatory and in range [50 - 100]",
+  new WText("<tt>WIntValidator</tt>: input is mandatory and in range [50 - 100]",
 	    table->elementAt(0, 0));
   le = new WLineEdit(table->elementAt(0, 1));
   WIntValidator *iv = new WIntValidator(50, 100);
@@ -43,47 +43,51 @@ Validators::Validators(EventDisplayer *ed)
   fields_.push_back(std::pair<WFormWidget *, WText *>
 		    (le, new WText("", table->elementAt(0, 2))));
 
-  new WText("WDoubleValidator: range [-5.0 to 15.0]", table->elementAt(1, 0));
+  new WText("<tt>WDoubleValidator</tt>: range [-5.0 to 15.0]", table->elementAt(1, 0));
   le = new WLineEdit(table->elementAt(1, 1));
   le->setValidator(new WDoubleValidator(-5, 15));
   fields_.push_back(std::pair<WFormWidget *, WText *>
 		    (le, new WText("", table->elementAt(1, 2))));
 
-  new WText("WDateValidator, default format \"yyyy-MM-dd\"", table->elementAt(2, 0));
+  new WText("<tt>WDateValidator</tt>, default format \"yyyy-MM-dd\"", table->elementAt(2, 0));
   le = new WLineEdit(table->elementAt(2, 1));
   le->setValidator(new WDateValidator());
   fields_.push_back(std::pair<WFormWidget *, WText *>
 		    (le, new WText("", table->elementAt(2, 2))));
 
-  new WText("WDateValidator, format \"dd-MM-yy\"", table->elementAt(3, 0));
+  new WText("<tt>WDateValidator</tt>, format \"dd-MM-yy\"", table->elementAt(3, 0));
   le = new WLineEdit(table->elementAt(3, 1));
   le->setValidator(new WDateValidator("dd-MM-yy"));
   fields_.push_back(std::pair<WFormWidget *, WText *>(le, new WText("", table->elementAt(3, 2))));
 
-  new WText("WDateValidator, format \"yy-MM-dd\", range 1 to 15 October 08",
+  new WText("<tt>WDateValidator</tt>, format \"yy-MM-dd\", range 1 to 15 October 08",
 	    table->elementAt(4, 0));
   le = new WLineEdit(table->elementAt(4, 1));
   le->setValidator(new WDateValidator("yy-MM-dd", WDate(2008, 10, 1),
 				      WDate(2008, 10, 15)));
   fields_.push_back(std::pair<WFormWidget *, WText *>(le, new WText("", table->elementAt(4, 2))));
 
-  new WText("WLengthValidator, 6 to 11 characters", table->elementAt(5, 0));
+  new WText("<tt>WLengthValidator</tt>, 6 to 11 characters", table->elementAt(5, 0));
   le = new WLineEdit(table->elementAt(5, 1));
   le->setValidator(new WLengthValidator(6, 11));
   fields_.push_back(std::pair<WFormWidget *, WText *>(le, new WText("", table->elementAt(5, 2))));
 
-  std::string ipRegexp = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
-  new WText("WRegExpValidator, IP address", table->elementAt(6, 0));
+  std::string ipRegexp =
+    "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}"
+    "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+  new WText("<tt>WRegExpValidator</tt>, IP address", table->elementAt(6, 0));
   le = new WLineEdit(table->elementAt(6, 1));
   le->setValidator(new WRegExpValidator(ipRegexp));
-  fields_.push_back(std::pair<WFormWidget *, WText *>(le, new WText("", table->elementAt(6, 2))));
+  fields_.push_back(std::pair<WFormWidget *, WText *>
+		    (le, new WText("", table->elementAt(6, 2))));
   
-  new WText("<p>The IP address validator regexp is: " + ipRegexp + "</p>",
-	    this);
+  new WText("<p>The IP address validator regexp is: <tt>" + ipRegexp
+	    + "</tt></p>", this);
 
   new WText("<p>All WFormWidgets can have validators, so also the "
 	    "WTextArea. Type up to 50 characters in the box below</p>", this);
   WTextArea *ta = new WTextArea(this);
+  ta->setMargin(4, Right);
   ta->setValidator(new WLengthValidator(0, 50));
   fields_.push_back(std::pair<WFormWidget *, WText *>(ta, new WText("", this)));
 
@@ -92,15 +96,15 @@ Validators::Validators(EventDisplayer *ed)
   new WText("<p>The button below causes the server to validate all "
 	    "input fields above server-side, and puts the state of the "
 	    "validation on the right of every widget: "
-	    "<ul>"
-	    " <li>Valid: data is valid</li>"
-	    " <li>Invalid: data is invalid</li>"
-	    " <li>InvalidEmpty: field is empty, but was indicated to be "
-	    "     mandatory</li>"
-	    "</ul></p>", this);
+	    "<dl>"
+	    " <dt><tt>Valid</tt></dt><dd>data is valid</dd>"
+	    " <dt><tt>Invalid</tt></dt><dd>data is invalid</dd>"
+	    " <dt><tt>InvalidEmpty</tt></dt><dd>field is empty, "
+	    "but was indicated to be mandatory</dd>"
+	    "</dl></p>", this);
   WPushButton *pb = new WPushButton("Validate server-side", this);
   pb->clicked().connect(this, &Validators::validateServerside);
-  ed->mapConnect(pb->clicked(), "WPushButton: request server-side validation");
+  ed->showSignal(pb->clicked(), "WPushButton: request server-side validation");
 }
 
 void Validators::validateServerside()

@@ -17,9 +17,11 @@
 #include <Wt/WFileUpload>
 #include <Wt/WInPlaceEdit>
 #include <Wt/WLineEdit>
+#include <Wt/WProgressBar>
 #include <Wt/WPushButton>
 #include <Wt/WRadioButton>
 #include <Wt/WSelectionBox>
+#include <Wt/WSpinBox>
 #include <Wt/WSuggestionPopup>
 #include <Wt/WText>
 #include <Wt/WTextArea>
@@ -45,6 +47,7 @@ void FormWidgets::populateSubMenu(WMenu *menu)
   menu->addItem("WComboBox", wComboBox());
   menu->addItem("WSelectionBox", wSelectionBox());
   menu->addItem("WLineEdit", wLineEdit());
+  menu->addItem("WSpinBox", wSpinBox());
   menu->addItem("WTextArea", wTextArea());
   menu->addItem("WCalendar", wCalendar());
   menu->addItem("WDatePicker", wDatePicker());
@@ -63,7 +66,7 @@ WWidget *FormWidgets::wPushButton()
   topic("WPushButton", result);
   new WText(tr("formwidgets-WPushButton"), result);
   WPushButton *pb = new WPushButton("Click me!", result);
-  ed_->mapConnect(pb->clicked(), "WPushButton click");
+  ed_->showSignal(pb->clicked(), "WPushButton click");
 
   new WText(tr("formwidgets-WPushButton-more"), result);
   pb = new WPushButton("Try to click me...", result);
@@ -80,15 +83,15 @@ WWidget *FormWidgets::wCheckBox()
   new WText(tr("formwidgets-WCheckBox"), result);
   WCheckBox *cb = new WCheckBox("Check me!", result);
   cb->setChecked(true);
-  ed_->mapConnect(cb->checked(), "'Check me!' checked");
+  ed_->showSignal(cb->checked(), "'Check me!' checked");
   new WBreak(result);
   cb = new WCheckBox("Check me too!", result);
-  ed_->mapConnect(cb->checked(), "'Check me too!' checked");
+  ed_->showSignal(cb->checked(), "'Check me too!' checked");
   new WBreak(result);
   cb = new WCheckBox("Check me, I'm tristate!", result);
   cb->setTristate();
   cb->setCheckState(PartiallyChecked);
-  ed_->mapConnect(cb->checked(), "'Check me, I'm tristate!' checked");
+  ed_->showSignal(cb->checked(), "'Check me, I'm tristate!' checked");
 
   return result;
 }
@@ -101,24 +104,24 @@ WWidget *FormWidgets::wRadioButton()
   new WText(tr("formwidgets-WRadioButton"), result);
   WRadioButton *rb = 0;
   rb = new WRadioButton("Radio me!", result);
-  ed_->mapConnect(rb->checked(), "'Radio me!' checked (not in buttongroup)");
+  ed_->showSignal(rb->checked(), "'Radio me!' checked (not in buttongroup)");
   new WBreak(result);
   rb = new WRadioButton("Radio me too!", result);
-  ed_->mapConnect(rb->checked(), "'Radio me too!' checked "
+  ed_->showSignal(rb->checked(), "'Radio me too!' checked "
 		 "(not in buttongroup)");
   
   new WText(tr("formwidgets-WRadioButton-group"), result);
   WButtonGroup *wgb = new WButtonGroup(result);
   rb = new WRadioButton("Radio me!", result);
-  ed_->mapConnect(rb->checked(), "'Radio me!' checked");
+  ed_->showSignal(rb->checked(), "'Radio me!' checked");
   wgb->addButton(rb);
   new WBreak(result);
   rb = new WRadioButton("No, radio me!", result);
-  ed_->mapConnect(rb->checked(), "'No, Radio me!' checked");
+  ed_->showSignal(rb->checked(), "'No, Radio me!' checked");
   wgb->addButton(rb);
   new WBreak(result);
   rb = new WRadioButton("Nono, radio me!", result);
-  ed_->mapConnect(rb->checked(), "'Nono, radio me!' checked");
+  ed_->showSignal(rb->checked(), "'Nono, radio me!' checked");
   wgb->addButton(rb);
 
   wgb->setSelectedButtonIndex(0);
@@ -137,7 +140,7 @@ WWidget *FormWidgets::wComboBox()
   cb->addItem("Medium");
   cb->addItem("Light");
   cb->setCurrentIndex(1); // select 'Medium'
-  ed_->mapConnectWString(cb->sactivated(), "WComboBox 1 activation: ");
+  ed_->showSignal(cb->sactivated(), "Combo-box 1 activated: ");
 
   new WText(tr("formwidgets-WComboBox-model"), result);
   
@@ -150,7 +153,7 @@ WWidget *FormWidgets::wComboBox()
   addColorElement(model, "Green", "combo-green");
   colorCb->setModel(model);
   colorCb->setCurrentIndex(0); // select 'Red'
-  ed_->mapConnectWString(colorCb->sactivated(), "WComboBox 2 activation: ");
+  ed_->showSignal(colorCb->sactivated(), "Combo-box 2 activated: ");
 
   return result;
 }
@@ -176,7 +179,7 @@ WWidget *FormWidgets::wSelectionBox()
   sb1->addItem("Medium");
   sb1->addItem("Light");
   sb1->setCurrentIndex(1); // Select 'medium'
-  ed_->mapConnectWString(sb1->sactivated(), "WSelectionBox activation: ");
+  ed_->showSignal(sb1->sactivated(), "SelectionBox activated: ");
   new WText("<p>... or multiple options (use shift and/or ctrl-click "
 	    "to select your pizza toppings)</p>", result);
   WSelectionBox *sb2 = new WSelectionBox(result);
@@ -194,7 +197,7 @@ WWidget *FormWidgets::wSelectionBox()
   selection.insert(2);
   selection.insert(5);
   sb2->setSelectedIndexes(selection);
-  ed_->mapConnect(sb2->changed(), "WSelectionBox 2 changed");
+  ed_->showSignal(sb2->changed(), "SelectionBox 2 changed");
 
   new WText(tr("formwidgets-WSelectionBox-model"), result);
   
@@ -210,15 +213,30 @@ WWidget *FormWidgets::wLineEdit()
 
   WLineEdit *le = new WLineEdit(result);
   le->setEmptyText("Edit me");
-  ed_->mapConnect(le->keyWentUp(), "Line edit keyWentUp");
+  ed_->showSignal(le->keyWentUp(), "Line edit key up event");
 
-  new WText("<p>The WLineEdit on the following line reacts on the "
+  new WText("<p>The line edit on the following line reacts on the "
 	    "enter button:</p>", result);
 
   le = new WLineEdit(result);
-  ed_->mapConnect(le->enterPressed(), "Line edit enterPressed");
+  ed_->showSignal(le->enterPressed(), "Line edit enter pressed event");
 
   new WText(tr("formwidgets-WLineEdit-more"), result);
+
+  return result;
+}
+
+WWidget *FormWidgets::wSpinBox()
+{
+  WContainerWidget *result = new WContainerWidget();
+
+  topic("WSpinBox", result);
+  new WText(tr("formwidgets-WSpinBox"), result);
+
+  new WText("Enter a number between 0 and 100: ", result);
+  WSpinBox *le = new WSpinBox(result);
+  ed_->showSignal(le->changed(), "Spin box value changed");
+  le->setValue(30);
 
   return result;
 }
@@ -234,7 +252,7 @@ WWidget *FormWidgets::wTextArea()
   ta->setColumns(80);
   ta->setRows(15);
   ta->setText(tr("formwidgets-WTextArea-contents"));
-  ed_->mapConnect(ta->changed(), "Text areax changed");
+  ed_->showSignal(ta->changed(), "Text area changed");
  
   new WText(tr("formwidgets-WTextArea-related"), result);
 
@@ -250,12 +268,12 @@ WWidget *FormWidgets::wCalendar()
   new WText(tr("formwidgets-WCalendar"), result);
 
   WCalendar *c = new WCalendar(result);
-  ed_->mapConnect(c->selectionChanged(), "First calendar selectionChanged");
+  ed_->showSignal(c->selectionChanged(), "First calendar's selection changed");
   new WText("<p>A flag indicates if multiple dates can be selected...</p>",
 	    result);
   WCalendar *c2 = new WCalendar(result);
   c2->setSelectionMode(ExtendedSelection);
-  ed_->mapConnect(c2->selectionChanged(), "Second calendar selectionChanged");
+  ed_->showSignal(c2->selectionChanged(), "Second calendar's selection changed");
 
   return result;
 }
@@ -265,17 +283,17 @@ WWidget *FormWidgets::wDatePicker()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WDatePicker", result);
-  new WText("<p>The WDatePicker allows the entry of a date.</p>",
+  new WText("<p>The <tt>WDatePicker</tt> allows the entry of a date.</p>",
 	    result);
 
   WDatePicker* dp1 = new WDatePicker(result);
-  ed_->mapConnect(dp1->lineEdit()->changed(), "WDatePicker 1 changed");
+  ed_->showSignal(dp1->lineEdit()->changed(), "Date picker 1 changed");
   new WText("(format " + dp1->format() + ")", result);
   
   new WBreak(result);
   
   WDatePicker* dp2 = new WDatePicker(result);
-  ed_->mapConnect(dp2->lineEdit()->changed(), "WDatePicker 2 changed");
+  ed_->showSignal(dp2->lineEdit()->changed(), "Date picker 2 changed");
   dp2->setFormat("dd MM yyyy");
   new WText("(format " + dp2->format() + ")", result);
 
@@ -289,13 +307,13 @@ WWidget *FormWidgets::wInPlaceEdit()
   topic("WInPlaceEdit", result);
   new WText("<p>This widget allows you to edit a text in-place by clicking "
 	    "on it. You can enable the save/cancel buttons (like here below) "
-	    "or disable them (as used in the WCalendar widget to edit the "
-	    "year).</p>",
+	    "or disable them (as used in the <tt>WCalendar</tt> widget to edit "
+	    "the year).</p>",
 	    result);
   new WText("Try it here: ", result);
   WInPlaceEdit *ipe = new WInPlaceEdit("This is editable text", result);
   ipe->setStyleClass("in-place-edit");
-  ed_->mapConnectWString(ipe->valueChanged(), "In place edit valueChanged: ");
+  ed_->showSignal(ipe->valueChanged(), "In-place edit changed: ");
 
   return result;
 }
@@ -333,7 +351,7 @@ WWidget *FormWidgets::wSuggestionPopup()
 		    "John Rambo <rambo@mycompany.com>");
   sp->addSuggestion("Johanna Tree <johanna@mycompany.com>",
 		    "Johanna Tree <johanna@mycompany.com>");
-  
+
   return result;
 }
 
@@ -342,14 +360,14 @@ WWidget *FormWidgets::wTextEdit()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WTextEdit", result);
-  new WText("<p>The WTextEdit is a full-featured editor for rich text "
+  new WText("<p>The <tt>WTextEdit</tt> is a full-featured editor for rich text"
 	    "editing. It is based on the TinyMCE editor, which must be "
 	    "downloaded separately from its author's website. The TinyMCE "
 	    "toolbar layout and plugins can be configured through Wt's "
 	    "interface. The default, shown below, covers only a small "
 	    "portion of TinyMCE's capabilities.</p>", result);
   WTextEdit *te = new WTextEdit(result);
-  ed_->mapConnect(te->changed(), "Text edit changed");
+  ed_->showSignal(te->changed(), "Text edit changed");
 
   return result;
 }
@@ -359,20 +377,13 @@ WWidget *FormWidgets::wFileUpload()
   WContainerWidget *result = new WContainerWidget();
 
   topic("WFileUpload", result);
-  new WText("<p>WFileUpload is a widget to upload a file through the "
-	    "browser from the client to the server where Wt is running</p>",
-	    result);
+  new WText(tr("formwidgets-WFileUpload"), result);
   WFileUpload *fu = new WFileUpload(result);
+  fu->setProgressBar(new WProgressBar());
   fu->changed().connect(fu, &WFileUpload::upload);
-  ed_->mapConnect(fu->changed(), "File upload changed");
-  ed_->mapConnect(fu->uploaded(), "File upload finished");
-  new WText("<p>The file is stored in a temporary file at the server. The "
-	    "filename at the client side, the temporary file name at the "
-	    "server and the status of the upload can be queried from the "
-	    "widget. Normally, the temporary file is deleted when the widget "
-	    "is destroyed. File uploads can be started in the background "
-	    "by connecting the WFfileUpload's changed() signal to it's own "
-	    "upload() slot.</p>", result);
+  ed_->showSignal(fu->changed(), "File upload changed");
+  ed_->showSignal(fu->uploaded(), "File upload finished");
+  new WText(tr("formwidgets-WFileUpload-more"), result);
 
   return result;
 }

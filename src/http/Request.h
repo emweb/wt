@@ -23,6 +23,9 @@
 #include <boost/cstdint.hpp>
 #include <boost/algorithm/string.hpp>
 
+// For ::int64_ and ::uint64_t on Windows only
+#include "Wt/WDllDefs.h"
+
 namespace http {
 namespace server {
 

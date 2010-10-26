@@ -137,7 +137,7 @@ inline bool sql_value_traits<WTime, void>
     int h = t.hours();
     int m = t.minutes();
     int s = t.seconds();
-    int ms = t.total_milliseconds() % 1000;
+    int ms = static_cast<int>(t.total_milliseconds() % 1000);
 
     if (!v.setHMS (h, m, s, ms)) {
       std::cerr << "Wt::Dbo: WTime can only hold durations < 24h"

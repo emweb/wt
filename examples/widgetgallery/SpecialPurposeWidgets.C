@@ -200,8 +200,8 @@ WWidget *SpecialPurposeWidgets::wSound()
   playButton->clicked().connect(sound, &WSound::play);
   stopButton->clicked().connect(sound, &WSound::stop);
 
-  ed_->mapConnect(playButton->clicked(), "Beeping started!");
-  ed_->mapConnect(stopButton->clicked(), "Beeping stopped!");
+  ed_->showSignal(playButton->clicked(), "Beeping started!");
+  ed_->showSignal(stopButton->clicked(), "Beeping stopped!");
 
   return result;
 }

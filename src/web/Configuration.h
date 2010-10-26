@@ -102,6 +102,7 @@ public:
   int                numThreads() const { return numThreads_; }
   int                maxNumSessions() const { return maxNumSessions_; }
   ::int64_t          maxRequestSize() const { return maxRequestSize_; }
+  ::int64_t          isapiMaxMemoryRequestSize() const { return isapiMaxMemoryRequestSize_; }
   SessionTracking    sessionTracking() const { return sessionTracking_; }
   bool               reloadIsNewSession() const { return reloadIsNewSession_; }
   int                sessionTimeout() const { return sessionTimeout_; }
@@ -157,6 +158,7 @@ private:
   int             numThreads_;
   int             maxNumSessions_;
   ::int64_t       maxRequestSize_;
+  ::int64_t       isapiMaxMemoryRequestSize_;
   SessionTracking sessionTracking_;
   bool            reloadIsNewSession_;
   int             sessionTimeout_;

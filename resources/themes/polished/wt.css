@@ -405,6 +405,23 @@
 }
 
 /*
+ * WSpinBox -- todo: polish this
+ */
+.Wt-spinbox {
+    background-image: url('../default/spin-buttons.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+.Wt-spinbox-up {
+    background-image: url('../default/spin-buttons-up.png');
+}
+
+.Wt-spinbox-dn {
+    background-image: url('../default/spin-buttons-dn.png');
+}
+
+/*
  * WTabWidget
  */
 .Wt-tabs-clear {

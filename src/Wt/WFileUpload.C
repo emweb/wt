@@ -18,6 +18,7 @@
 #include "DomElement.h"
 #include "WebSession.h"
 #include "WebRequest.h"
+#include "Utils.h"
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -38,21 +39,14 @@ protected:
     bool triggerUpdate = false;
 
     std::vector<Http::UploadedFile> files;
+#ifdef WT_TARGET_JAVA
+    static Http::UploadedFile* uploaded;
+#endif
+    Utils::find(request.uploadedFiles(), "data", files);
 
-    if (!request.tooLarge()) {
-      typedef Http::UploadedFileMap::const_iterator iter;
-
-      std::pair<iter, iter> range
-	= request.uploadedFiles().equal_range("data");
-
-      if (range.first != range.second) {
-	for (iter i = range.first; i != range.second; ++i)
-	  files.push_back(i->second);
+    if (!request.tooLarge())
+      if (!files.empty() || request.getParameter("data"))
 	triggerUpdate = true;
-      } else if (request.getParameter("data")) {
-	triggerUpdate = true;
-      }
-    }
 
     response.setMimeType("text/html; charset=utf-8");
     response.addHeader("Expires", "Sun, 14 Jun 2020 00:00:00 GMT");
@@ -72,16 +66,21 @@ protected:
       "<script type=\"text/javascript\">\n"
       "function load() { ";
 
-    if (triggerUpdate) {
-      o << "window.parent."
-	<< WApplication::instance()->javaScriptClass()
-	<< "._p_.update(null, '"
-	<< fileUpload_->uploaded().encodeCmd() << "', null, true);";
-    } else if (request.tooLarge()) {
-      o << "window.parent."
-	<< WApplication::instance()->javaScriptClass()
-	<< "._p_.update(null, '"
-	<< fileUpload_->fileTooLargeImpl().encodeCmd() << "', null, true);";
+    if (triggerUpdate || request.tooLarge()) {
+      o << "if (window.parent."
+	<< WApplication::instance()->javaScriptClass() << ") ";
+
+      if (triggerUpdate) {
+	o << "window.parent."
+	  << WApplication::instance()->javaScriptClass()
+	  << "._p_.update(null, '"
+	  << fileUpload_->uploaded().encodeCmd() << "', null, true);";
+      } else if (request.tooLarge()) {
+	o << "window.parent."
+	  << WApplication::instance()->javaScriptClass()
+	  << "._p_.update(null, '"
+	  << fileUpload_->fileTooLargeImpl().encodeCmd() << "', null, true);";
+      }
     }
 
     o << "}\n"
@@ -172,8 +171,8 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
   }
 
   if (progressBar_ && uploading_) {
-    progressBar_->setRange(0, total);
-    progressBar_->setValue(current);
+    progressBar_->setRange(0, (double)total);
+    progressBar_->setValue((double)current);
 
     WApplication *app = WApplication::instance();
     app->triggerUpdate();
@@ -394,6 +393,9 @@ DomElement *WFileUpload::createDomElement(WApplication *app)
 void WFileUpload::setFormData(const FormData& formData)
 {
   setFiles(formData.files);
+
+  if (!formData.files.empty())
+    uploaded().emit();
 }
 
 void WFileUpload::setFiles(const std::vector<Http::UploadedFile>& files)
@@ -403,8 +405,6 @@ void WFileUpload::setFiles(const std::vector<Http::UploadedFile>& files)
   for (unsigned i = 0; i < files.size(); ++i)
     if (!files[i].clientFileName().empty())
       uploadedFiles_.push_back(files[i]);
-
-  uploaded().emit();
 }
 
 void WFileUpload::setRequestTooLarge(int size)

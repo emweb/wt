@@ -518,6 +518,19 @@ void WAbstractItemView::toggleSortColumn(int columnid)
 		 ? DescendingOrder : AscendingOrder);
 }
 
+int WAbstractItemView::sortColumn() const
+{
+  return currentSortColumn_;
+}
+
+SortOrder WAbstractItemView::sortOrder() const
+{
+  if (currentSortColumn_ >= 0 && currentSortColumn_ < columns_.size())
+    return columns_[currentSortColumn_].sortOrder;
+  else
+    return AscendingOrder;
+}
+
 int WAbstractItemView::columnById(int columnid) const
 {
   for (int i = 0; i < columnCount(); ++i)

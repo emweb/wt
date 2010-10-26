@@ -208,9 +208,23 @@ public:
    * Sorts the data according to data in column \p column and sort
    * order \p order.
    *
+   * The default sorting column is -1: the model is unsorted.
+   *
    * \sa WAbstractItemModel::sort()
    */
   void sortByColumn(int column, SortOrder order);
+
+  /*! \brief Returns the current sorting columm.
+   *
+   * \sa sortByColumn(), sortOrder()
+   */
+  int sortColumn() const;
+
+  /*! \brief Returns the current sorting order.
+   *
+   * \sa sortByColumn(), sortColumn()
+   */
+  SortOrder sortOrder() const;
 
   /*! \brief Enables or disables sorting for all columns.
    *

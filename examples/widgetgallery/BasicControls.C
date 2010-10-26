@@ -13,11 +13,14 @@
 #include <Wt/WGroupBox>
 #include <Wt/WImage>
 #include <Wt/WIconPair>
+#include <Wt/WLineEdit>
 #include <Wt/WLength>
 #include <Wt/WPanel>
+#include <Wt/WProgressBar>
 #include <Wt/WPushButton>
 #include <Wt/WTable>
 #include <Wt/WTabWidget>
+#include <Wt/WTemplate>
 #include <Wt/WText>
 #include <Wt/WTree>
 #include <Wt/WTreeNode>
@@ -30,31 +33,25 @@ BasicControls::BasicControls(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
   new WText(tr("basics-intro"), this);
-
-  /*
-   * WResource
-   *   WMemoryResource
-   *   WFileResource
-   * WScrollArea
-   * WScrollBar
-   */
 }
 
 void BasicControls::populateSubMenu(WMenu *menu)
 {
-  menu->addItem("WText", wText());
-  menu->addItem("WBreak", wBreak());
-  menu->addItem("WAnchor", wAnchor());
-  menu->addItem("WImage", wImage());
-  menu->addItem("WTable", wTable());
   menu->addItem("WContainerWidget", wContainerWidget());
+  menu->addItem("WTemplate", wTemplate());
+  menu->addItem("WText", wText());
+  menu->addItem("WAnchor", wAnchor());
+  menu->addItem("WBreak", wBreak());
+  menu->addItem("WImage", wImage());
+  menu->addItem("WGroupBox", wGroupBox());
+  menu->addItem("WStackedWidget", wStackedWidget());
+  menu->addItem("WTable", wTable());
   menu->addItem("WMenu", wMenu());
   menu->addItem("WTree", wTree());
   menu->addItem("WTreeTable", wTreeTable());
   menu->addItem("WPanel", wPanel());
   menu->addItem("WTabWidget", wTabWidget());
-  menu->addItem("WGroupBox", wGroupBox());
-  menu->addItem("WStackedWidget", wStackedWidget());
+  menu->addItem("WProgressBar", wProgressBar());
 }
 
 WWidget *BasicControls::wText()
@@ -77,21 +74,44 @@ WWidget *BasicControls::wText()
 
   WText *text;
 
-  text = new WText("This WText reacts on clicked<br/>", result);
+  text = new WText("This text reacts to <tt>clicked()</tt><br/>",
+		   result);
   text->setStyleClass("reactive");
-  ed_->mapConnect(text->clicked(), "WText clicked");
+  ed_->showSignal(text->clicked(), "Text was clicked");
 
-  text = new WText("This WText reacts on doubleClicked<br/>", result);
+  text = new WText("This text reacts to <tt>doubleClicked()</tt><br/>",
+		   result);
   text->setStyleClass("reactive");
-  ed_->mapConnect(text->doubleClicked(), "WText doubleClicked");
+  ed_->showSignal(text->doubleClicked(), "Text was double clicked");
 
-  text = new WText("This WText reacts on mouseWentOver<br/>", result);
+  text = new WText("This text reacts to <tt>mouseWentOver()</tt><br/>", result);
   text->setStyleClass("reactive");
-  ed_->mapConnect(text->mouseWentOver(), "WText mouseWentOver");
+  ed_->showSignal(text->mouseWentOver(), "Mouse went over text");
 
-  text = new WText("This WText reacts on mouseWentOut<br/>", result);
+  text = new WText("This text reacts to <tt>mouseWentOut()</tt><br/>", result);
   text->setStyleClass("reactive");
-  ed_->mapConnect(text->mouseWentOut(), "WText mouseWentOut");
+  ed_->showSignal(text->mouseWentOut(), "Mouse went out text");
+
+  return result;
+}
+
+WWidget *BasicControls::wTemplate()
+{
+  WContainerWidget *result = new WContainerWidget();
+  topic("WTemplate", result);
+
+  new WText(tr("basics-WTemplate"), result);
+
+  WTemplate *pre = new WTemplate("<pre>${text}</pre>", result);
+  pre->bindString("text", tr("basics-WTemplate-example"), PlainText);
+
+  new WText(tr("basics-WTemplate2"), result);
+
+  WTemplate *temp = new WTemplate(tr("basics-WTemplate-example"), result);
+
+  temp->bindWidget("name-edit", new WLineEdit());
+  temp->bindWidget("save-button", new WPushButton("Save"));
+  temp->bindWidget("cancel-button", new WPushButton("Cancel"));
 
   return result;
 }
@@ -374,3 +394,15 @@ WWidget *BasicControls::wStackedWidget()
   return result;
 }
 
+WWidget *BasicControls::wProgressBar()
+{
+  WContainerWidget *result = new WContainerWidget();
+
+  topic("WProgressBar", result);
+
+  result->addWidget(new WText(tr("basics-WProgressBar")));
+  WProgressBar *pb = new WProgressBar(result);
+  pb->setValue(27);
+
+  return result;
+}

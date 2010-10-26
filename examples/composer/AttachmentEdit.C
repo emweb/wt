@@ -153,8 +153,8 @@ void AttachmentEdit::uploaded()
     upload_ = 0;
     delete remove_;
     remove_ = 0;
-
-    error_->setText("");
+    delete error_;
+    error_ = 0;
 
     for (unsigned i = 0; i < files.size(); ++i)
       uploadInfo_.push_back(new UploadInfo(files[i], this));

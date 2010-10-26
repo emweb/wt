@@ -14,6 +14,10 @@
 
 using namespace Wt;
 
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
 namespace Wt {
 
 WProgressBar::WProgressBar(WContainerWidget *parent)
