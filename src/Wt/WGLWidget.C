@@ -372,7 +372,7 @@ char *WGLWidget::makeInt(int i, char *buf)
 
 DomElement *WGLWidget::createDomElement(WApplication *app)
 {
-  wApp->require("glMatrix.js");
+  app->require("glMatrix.js");
   DomElement *result = DomElement::createNew(DomElement_CANVAS);;
 
   result->setAttribute("width", boost::lexical_cast<std::string>(width().value()));
@@ -383,15 +383,24 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
 
   std::stringstream tmp;
   tmp <<
-    "if(" << jsRef() << ".getContext){";
-  tmp << "ctx=" << jsRef() << ".getContext('experimental-webgl');";
+    "new " WT_CLASS ".WGLWidget(" << app->javaScriptClass() << "," << jsRef() << ");"
+    //"jQuery.data(" << jsRef() << ",'obj').ctx=ctx;"
+    "var o = jQuery.data(" + jsRef() + ",'obj');\n"
+    "o.discoverContext();\n"
+    "console.log('o.ctx: ' + o.ctx);\n"
+    "if(o.ctx){\n"
+    """var ctx = o.ctx;\n";
   js_.str("");
   initializeGL();
-  tmp << "ctx.initializeGl=function(){" << js_.str() << "};";
+  tmp << "o.initializeGl=function(){\nvar ctx=jQuery.data("
+    << jsRef() << ",'obj').ctx;\n" << js_.str() << "\n};\n";
   js_.str("");
   paintGL();
-  tmp << "ctx.paintGl=function(){" << js_.str() << "};";
+  tmp << "o.paintGl=function(){\nvar ctx=jQuery.data("
+    << jsRef() << ",'obj').ctx;\n" << js_.str() << "};";
+  js_.str("");
   // Make sure textures are loaded before we render
+  tmp << "}\n";
   if (textures_ > 0) {
     tmp << "new Wt._p_.ImagePreloader([";
     for (unsigned i = 0; i < preloadImages_.size(); ++i) {
@@ -403,19 +412,17 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
       "],function(images){";
     for (unsigned i = 0; i < preloadImages_.size(); ++i) {
       std::string texture = preloadImages_[i].first;
-      tmp << texture << "=ctx.createTexture();\n"
+      tmp << texture << "=o.ctx.createTexture();\n"
         << texture << ".image=images[" << i << "];";
     }
-    tmp << "ctx.initializeGl();"
-           "ctx.paintGl();"
+    tmp << "o.initializeGl();"
+           "o.paintGl();"
          "});";
   } else {
     // No textures to load - go and paint
-    tmp << "ctx.initializeGl();ctx.paintGl();";
+    tmp << "o.initializeGl();o.paintGl();";
   }
-  tmp << "}";
 
-  js_.str("");
 
   result->callJavaScript(tmp.str());
 
@@ -444,9 +451,6 @@ void WGLWidget::defineJavaScript()
     app->setJavaScriptLoaded(THIS_JS);
   }
 
-  app->doJavaScript("new " WT_CLASS ".WGLWidget("
-    + app->javaScriptClass() + "," + jsRef() + ");");
-  app->doJavaScript("jQuery.data(" + jsRef() + ",'obj').ctx=ctx;");
 }
 
 void WGLWidget::render(WFlags<RenderFlag> flags)

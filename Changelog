@@ -1,3 +1,11 @@
+27-10-2010:
+	* examples/feature/dbo: added examples from the Wt::Dbo tutorial
+
+	* WPushButton: added setRef() and setResource() APIs to make a button
+	behave like an anchor
+
+	* WString::widen() and WString::narrow(): fix broken implementation
+
 26-10-2010:
 	* WMessageResourceBundle: better preservation of white-space when
 	parsing the XML resource bundle

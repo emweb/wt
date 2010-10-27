@@ -44,11 +44,8 @@ void readObj(const std::string &fname,
        lit("vn") >> double_[push_back(ref(normals), _1)] >> double_[push_back(ref(normals), _1)] >> double_[push_back(ref(normals), _1)] |
        lit("vt") >> double_[push_back(ref(tex), _1)] >> double_[push_back(ref(tex), _1)] |
        char_('f') >> *(int_[push_back(ref(faces), _1)] >> char_('/') >> -(int_) >> char_('/') >> int_[push_back(ref(faces), _1)])),
-      space//,
-      //boost::spirit::qi::skip_flag::postskip
+      space
       );
-    //if (first != last)
-    //  std::cerr << "Parse error!" << std::endl;
   }
 
   for (unsigned i = 0; i < faces.size(); ++i) {

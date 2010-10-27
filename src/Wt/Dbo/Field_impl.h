@@ -88,16 +88,18 @@ void PtrRef<C>::visit(A& action, Session *session) const
     id = value_.id();
 
   std::string idFieldName = "stub";
+  int size = size_;
 
   if (session) {
     Session::MappingInfo *mapping = session->getMapping<C>();
     idFieldName = mapping->naturalIdFieldName;
+    size = mapping->naturalIdFieldSize;
 
     if (idFieldName.empty())
       idFieldName = mapping->surrogateIdFieldName;
   }
 
-  field(action, id, name_ + "_" + idFieldName, size_);
+  field(action, id, name_ + "_" + idFieldName, size);
 
   if (action.setsValue()) {
     if (!(id == dbo_traits<C>::invalidId())) {

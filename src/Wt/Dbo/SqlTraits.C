@@ -45,7 +45,7 @@ std::string FieldInfo::sql() const
   std::string result;
 
   if (!qualifier_.empty())
-    result = qualifier_ + ".";
+    result = qualifier_ + '.';
 
   if (needsQuotes())
     result += '"' + name() + '"';

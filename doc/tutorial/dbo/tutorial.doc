@@ -2,7 +2,7 @@ Wt::Dbo Tutorial
 ================
 
 Koen Deforche <koen@emweb.be>
-3.1.4, 16 July 2010
+3.1.6, 27 October 2010
 
 :doc:           link:../../reference/html/
 :cpp:		pass:[C++]
@@ -44,10 +44,17 @@ In this tutorial and the examples, we alias the namespace +Wt::Dbo+ to
 available in that namespace directly.
 ===============================
 
+[TIP]
+===============================
+The complete source code for the examples used in this tutorial are
+available as ready-to-run programs in the +examples/feature/dbo/+ folder of
+Wt.
+===============================
+
 To build the following example, you need to link against the +wtdbo+
 and +wtdbosqlite3+ libraries.
 
-.Blog.h: Mapping a single class
+.Mapping a single class (tutorial1.C)
 [source,cpp]
 ----
 #include <Wt/Dbo/Dbo>
@@ -113,12 +120,10 @@ user to the database.
 
 Let us walk through the code for doing this.
 
-.A first session
+.(tutorial1.C continued)
 [source,cpp]
 ----
-#include "Blog.h"
-
-void test()
+void run()
 {
   /*
    * Setup a session, would typically be done once at application startup.
@@ -160,7 +165,7 @@ supports {doc}classWt_1_1Dbo_1_1backend_1_1Postgres.html[Postgres]
 and {doc}classWt_1_1Dbo_1_1backend_1_1Sqlite3.html[Sqlite3] as
 backends.
 
-.(example continued)
+.(tutorial1.C continued)
 [source,cpp]
 ----
   ...
@@ -170,9 +175,7 @@ backends.
   /*
    * Try to create the schema (will fail if already exists).
    */
-  try {
-    session.createTables();
-  } catch (...) { }
+  session.createTables();
 
   ...
 ----
@@ -190,13 +193,13 @@ This generates the following SQL:
 [source,sql]
 ----
 begin transaction
-create table user(
-  id integer primary key autoincrement,
-  version integer not null,
-  name text not null,
-  password text not null,
-  role integer not null,
-  karma integer not null
+create table "user" (
+  "id" integer primary key autoincrement,
+  "version" integer not null,
+  "name" text not null,
+  "password" text not null,
+  "role" integer not null,
+  "karma" integer not null
 )
 commit transaction
 ----
@@ -211,7 +214,7 @@ surrogate primary key, see <<customizing,Customizing the mapping>>.
 Finally, we can add a user to the database. All database operations
 happen within a transaction.
 
-.(example continued)
+.(tutorial1.C continued)
 [source,cpp]
 ----
   ...
@@ -257,7 +260,7 @@ This generates the following SQL:
 [source,sql]
 ----
 begin transaction
-insert into user(version, name, password, role, karma) values (?, ?, ?, ?, ?)
+insert into "user" ("version", "name", "password", "role", "karma") values (?, ?, ?, ?, ?)
 commit transaction
 ----
 
@@ -271,6 +274,7 @@ There are two ways of querying the database. Database objects of a
 single +_Dbo_+ class can be queried using
 +{doc}classWt_1_1Dbo_1_1Session.html#a637d1031ffddd4bd7bbb55a616192ac7[Session::find<Dbo>(_condition_)]+:
 
+.(tutorial1.C continued)
 [source,cpp]
 ----
 dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");
@@ -312,9 +316,9 @@ The query formulated to the database is:
 
 [source,sql]
 ----
-select id, version, name, password, role, karma
-    from user
-    where name = ?
+select id, version, "name", "password", "role", "karma"
+   from "user"
+   where (name = ?)
 ----
 
 The more general way for querying uses
@@ -322,6 +326,7 @@ The more general way for querying uses
 which supports not only database objects as results. The query of
 above is equivalent to:
 
+.(tutorial1.C continued)
 [source,cpp]
 ----
 dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >("select u from user u").where("name = ?").bind("Joe");
@@ -331,9 +336,9 @@ And this generates similar SQL:
 
 [source,sql]
 ----
-select u.id, u.version, u.name, u.password, u.role, u.karma
+select u.id, u.version, u."name", u."password", u."role", u."karma"
     from user u
-    where name = ?
+    where (name = ?)
 ----
 
 The +_sql_+ statement passed to the method may be arbitrary sql which
@@ -345,6 +350,7 @@ To illustrate that +Session::query<Result>()+ may be used to return
 other types, consider the query below where an +int+ result is
 returned.
 
+.(tutorial1.C continued)
 [source,cpp]
 ----
 int count = session.query<int>("select count(1) from user").where("name = ?").bind("Joe");
@@ -370,6 +376,7 @@ reused unless a _DirectBinding_ bind strategy was used).
 The following code shows how you may multiple results of a query may
 be iterated:
 
+.(tutorial1.C continued)
 [source,cpp]
 ----
 typedef dbo::collection< dbo::ptr<User> > Users;
@@ -388,8 +395,8 @@ This code will perform two database queries: one for the call to
 
 [source,sql]
 ----
-select count(1) from user;
-select id, version, name, password, role, karma from user
+select count(1) from "user" 
+select id, version, "name", "password", "role", "karma" from "user"
 ----
 
 [WARNING]
@@ -419,6 +426,7 @@ need to call the +{doc}classWt_1_1Dbo_1_1ptr.html#a8f9f4ec6ed2bd8febe8b62525c957
 object. This mark the object as dirty and the modifications will later
 be synchronized to the database.
 
+.(tutorial1.C continued)
 [source,cpp]
 ----
 dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");    
@@ -439,18 +447,18 @@ The previous code will generate the following SQL:
 
 [source,sql]
 ----
-select id, version, name, password, role, karma
-    from user
-    where name = ?;
-update user
-    set version = ?, name = ?, password = ?, role = ?, karma = ?
-    where id = ? and version = ?
+select id, version, "name", "password", "role", "karma"
+    from "user"
+    where (name = ?)
+update "user" set "version" = ?, "name" = ?, "password" = ?, "role" = ?, "karma" = ?
+    where "id" = ? and "version" = ?
 ----
 
 We already saw how using +Session::add(ptr<_Dbo_>)+, we added a new
 object to the database. The opposite operation is
 +{doc}classWt_1_1Dbo_1_1ptr.html#af4b26afebd56abc42005ef9f954d8fee[ptr<_Dbo_>::remove()]+: it deletes the object in the database.
 
+.(tutorial1.C continued)
 [source,cpp]
 ----
 dbo::ptr<User> joe = session.find<User>().where("name = ?").bind("Joe");    
@@ -468,6 +476,7 @@ Like +modify()+, also the +add()+ and +remove()+ operations defer
 synchronization with the database, and therefore the following code
 does not actually have any effect on the database:
 
+.(tutorial1.C continued)
 [source,cpp]
 ----
 dbo::ptr<User> silly = session.add(new User());
@@ -484,6 +493,7 @@ Let's add posts to our blogging example, and define a Man-to-One
 relation between posts and users. In the code below, we limit
 ourselves to the statements important for defining the relationship.
 
+.Many-to-One relation (tutorial2.C)
 [source,cpp]
 ----
 #include <Wt/Dbo/Dbo>
@@ -543,16 +553,17 @@ generated:
 
 [source,sql]
 ----
-create table user(
+create table "user" (
   ...
 
   -- table user is unaffected by the relationship
 );
 
-create table post(
+create table "post" (
   ...
 
-  user_id integer references user(id)
+  "user_id" bigint,
+  constraint "fk_post_user" foreign key ("user_id") references "user" ("id")
 )
 ----
 
@@ -569,6 +580,7 @@ user.
 
 Example:
 
+.(tutorial2.C continued)
 [source,cpp]
 ----
 dbo::ptr<Post> post = session.add(new Post());
@@ -603,6 +615,7 @@ blogging example, and define an _Many-to-Many_ relation between posts
 and tags. In the code below, we again limit ourselves to the
 statements important for defining the relationship.
 
+.Many-to-Many relation (tutorial2.C)
 [source,cpp]
 ----
 #include <Wt/Dbo/Dbo>
@@ -654,23 +667,28 @@ now get the following SQL for creating the schema:
 
 [source,sql]
 ----
-create table post(
+create table "post" (
   ...
 
   -- table post is unaffected by the relationship
 )
 
-create table tag(
+create table "tag" (
   ...
 
   -- table tag is unaffected by the relationship
 )
 
-create table post_tags(
-  post_id integer references post(id),
-  tag_id integer references tag(id),
-  primary key(post_id, tag_id)
+create table "post_tags" (
+  "post_id" bigint not null,
+  "tag_id" bigint not null,
+  primary key ("post_id", "tag_id"),
+  constraint "fk_post_tags_key1" foreign key ("post_id") references "post" ("id"),
+  constraint "fk_post_tags_key2" foreign key ("tag_id") references "tag" ("id")
 )
+
+create index "post_tags_post" on "post_tags" ("post_id")
+create index "post_tags_tag" on "post_tags" ("tag_id")
 ----
 
 The collection at either side of the _Many-to-Many_ relation allows us
@@ -689,6 +707,7 @@ _posts_ collection, but not both.
 
 Example:
 
+.(tutorial2.C continued)
 [source,cpp]
 ----
 dbo::ptr<Post> post = ...
@@ -730,6 +749,7 @@ mapped class, or to disable the surrogate primary key for a class and use a naut
 For example, the code below changes the primary key field for class
 Post from +id+ to +post_id+:
 
+.Changing the "id" field name (tutorial3.C)
 [source,cpp]
 ----
 #include <Wt/Dbo/Dbo>
@@ -744,6 +764,7 @@ public:
 namespace Wt {
   namespace Dbo {
 
+    template<>
     struct dbo_traits<Post> : public dbo_default_traits {
       static const char *surrogateIdField() {
         return "post_id";
@@ -764,6 +785,7 @@ control for a class alltoghether, you need to specialize
 For example, the code below disables optimistic concurrency control
 for class Post:
 
+.Disabling the "version" field name (tutorial4.C)
 [source,cpp]
 ----
 #include <Wt/Dbo/Dbo>
@@ -778,6 +800,7 @@ public:
 namespace Wt {
   namespace Dbo {
 
+    template<>
     struct dbo_traits<Post> : public dbo_default_traits {
       static const char *versionField() {
         return 0;
@@ -797,6 +820,7 @@ For example, the code below changes the primary key for the User table
 to a string (his username) which maps onto a +varchar (20)+ field
 +user_name+:
 
+.Using a natural key (tutorial5.C)
 [source,cpp]
 ----
 #include <Wt/Dbo/Dbo>
@@ -805,18 +829,19 @@ namespace dbo = Wt::Dbo;
 
 class User {
 public:
-  std::string userName;
+  std::string userId;
 
   template<class Action>
   void persist(Action& a)
   {
-    dbo::id(a, userName, "user_name", 20);
+    dbo::id(a, userId, "user_id", 20);
   }
 };
 
 namespace Wt {
   namespace Dbo {
 
+    template<>
     struct dbo_traits<User> : public dbo_default_traits {
       typedef std::string IdType;
 

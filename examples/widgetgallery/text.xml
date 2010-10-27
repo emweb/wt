@@ -819,9 +819,9 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       Since ExtJS was originally included in Wt, its native widgets
       have expanded to include most of the functionality that was
       provided by these ExtJS widgets, without any of the drawbacks
-      from ExtJS. The use of the ExtJS widgets is considered
-      deprecated. If you are missing functionality (or esthetics) with
-      the native widgets, please consider <a
+      from ExtJS. The ExtJS widgets are considered deprecated. If you
+      are missing functionality (or esthetics) with the native
+      widgets, please consider <a
       href="http://redmine.emweb.be/projects/wt/issues/new">filing an
       issue</a>.
     </p>

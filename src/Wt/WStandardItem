@@ -634,6 +634,10 @@ public:
   virtual void sortChildren(int column, SortOrder order);
 
 protected:
+  /*! \brief Set the model for this WStandardItem and its children.
+   *
+   * You may override this method if you want to change its behaviour.
+   */
   virtual void setModel(WStandardItemModel *model);
 
 private:

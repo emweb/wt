@@ -10,7 +10,7 @@
 #include "Utf8Test.h"
 
 #include <Wt/WString>
-// #include <iostream>
+#include <iostream>
 
 void Utf8Test::test()
 {
@@ -29,8 +29,36 @@ void Utf8Test::test()
 #endif
 }
 
+void Utf8Test::test2()
+{
+  std::wstring w = L"This costs 100\x20AC (greek \x0194)";
+
+  Wt::WString ws = w;
+  std::string s = ws.narrow();
+
+  // The following will work only if locale is classic (not UTF8)
+  BOOST_REQUIRE(s == "This costs 100? (greek ?)");
+}
+
+void Utf8Test::test3()
+{
+  std::wstring w = L"\x20AC\x20AC\x20AC\x20AC (greek \x0194)";
+
+  Wt::WString ws = w;
+
+  std::locale l(std::locale("C"), std::locale(""),
+		std::locale::collate | std::locale::ctype);
+
+  std::string s = ws.narrow(l);
+
+  BOOST_REQUIRE(s == ws.toUTF8());
+}
+ 
+
 Utf8Test::Utf8Test()
   : test_suite("utf8_test_suite")
 {
   add(BOOST_TEST_CASE(boost::bind(&Utf8Test::test, this)));
+  add(BOOST_TEST_CASE(boost::bind(&Utf8Test::test2, this)));
+  add(BOOST_TEST_CASE(boost::bind(&Utf8Test::test3, this)));
 }

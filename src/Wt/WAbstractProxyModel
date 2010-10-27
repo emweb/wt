@@ -131,6 +131,8 @@ protected:
      */
     WModelIndex sourceIndex_;
 
+    /*! \brief Create a BaseItem.
+     */
     BaseItem(const WModelIndex& sourceIndex) : sourceIndex_(sourceIndex) { }
     virtual ~BaseItem();
   };

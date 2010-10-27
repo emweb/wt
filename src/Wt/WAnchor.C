@@ -121,13 +121,13 @@ WAnchor::~WAnchor()
   delete changeInternalPathJS_;
 }
 
-void WAnchor::setRef(const std::string& ref)
+void WAnchor::setRef(const std::string& url)
 {
-  if (!flags_.test(BIT_REF_INTERNAL_PATH) && ref_ == ref)
+  if (!flags_.test(BIT_REF_INTERNAL_PATH) && ref_ == url)
     return;
 
   flags_.reset(BIT_REF_INTERNAL_PATH);
-  ref_ = ref;
+  ref_ = url;
 
   flags_.set(BIT_REF_CHANGED);
 
@@ -153,7 +153,7 @@ void WAnchor::setResource(WResource *resource)
 
   if (resource_) {
     resource_->dataChanged().connect(this, &WAnchor::resourceChanged);
-    setRef(resource_->url());
+    resourceChanged();
   }
 }
 
@@ -246,7 +246,7 @@ void WAnchor::updateDom(DomElement& element, bool all)
 	  }
 
 	  changeInternalPathJS_->setJavaScript
-	    ("function(obj, event){"
+	    ("function(){"
 	     "window.location.hash='#" + Utils::urlEncode(ref_) + "';"
 	     "}");
 	  clicked().senderRepaint(); // XXX only for Java port necessary

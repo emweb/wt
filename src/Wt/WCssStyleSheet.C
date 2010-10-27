@@ -204,6 +204,20 @@ WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
   return result;
 }
 
+WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
+				      const char *declarations,
+				      const std::string& ruleName)
+{
+  return addRule(selector, WT_USTRING::fromUTF8(declarations), ruleName);
+}
+
+WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
+				      const std::string& declarations,
+				      const std::string& ruleName)
+{
+  return addRule(selector, WT_USTRING::fromUTF8(declarations), ruleName);
+}
+
 bool WCssStyleSheet::isDefined(const std::string& ruleName) const
 {
   std::set<std::string>::const_iterator i = defined_.find(ruleName);

@@ -88,10 +88,14 @@ public:
    *
    * The format is used by text() to indicate the progress value.
    *
-   * The default value is WString::fromUTF8("%.0f %%")
+   * The default value is "%.0f %%"
    */
   void setFormat(const WString& format);
 
+  /*! \brief Returns the progress format string.
+   *  
+   * \sa setFormat() 
+   */
   const WString& format() const { return format_; }
 
   /*! \brief Returns the text displayed inside the progress bar.

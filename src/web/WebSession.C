@@ -1274,7 +1274,9 @@ void WebSession::notify(const WEvent& event)
 	    if (*signalE == "poll")
 	      renderer_.letReloadJS(*asyncResponse_, true);
 
+#ifndef WT_TARGET_JAVA
 	    asyncResponse_->flush();
+#endif
 	    asyncResponse_ = 0;
 	  }
 

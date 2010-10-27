@@ -120,9 +120,7 @@ WFileUpload::WFileUpload(WContainerWidget *parent)
     uploading_(false),
     multiple_(false),
     fileTooLarge_(this),
-#ifndef WT_TARGET_JAVA
     dataReceived_(this),
-#endif // WT_TARGET_JAVA
     progressBar_(0),
     tooLargeSize_(0)
 {
@@ -146,13 +144,10 @@ void WFileUpload::create()
 
 WFileUpload::~WFileUpload()
 {
-#ifndef WT_TARGET_JAVA
   if (uploading_)
     WApplication::instance()->enableUpdates(false);
-#endif // WT_TARGET_JAVA
 }
 
-#ifndef WT_TARGET_JAVA
 void WFileUpload::onData(::uint64_t current, ::uint64_t total)
 {
   dataReceived_.emit(current, total);
@@ -184,7 +179,6 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
     app->enableUpdates(false);
   }
 }
-#endif // WT_TARGET_JAVA
 
 void WFileUpload::enableAjax()
 {
@@ -283,10 +277,8 @@ void WFileUpload::updateDom(DomElement& element, bool all)
     element.callMethod("submit()");
     doUpload_ = false;
 
-#ifndef WT_TARGET_JAVA
     fileUploadTarget_->setUploadProgress(true);
     fileUploadTarget_->dataReceived().connect(this, &WFileUpload::onData);
-#endif // WT_TARGET_JAVA
 
     if (progressBar_)
       if (progressBar_->parent() == this) {
@@ -425,9 +417,7 @@ void WFileUpload::upload()
 	progressBar_->show();
     }
 
-#ifndef WT_TARGET_JAVA
     WApplication::instance()->enableUpdates();
-#endif // WT_TARGET_JAVA
 
     uploading_ = true;
   }

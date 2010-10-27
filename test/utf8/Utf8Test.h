@@ -16,6 +16,8 @@ class Utf8Test : public test_suite
 {
 public:
   void test();
+  void test2();
+  void test3();
 
   Utf8Test();
 };

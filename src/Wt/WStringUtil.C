@@ -7,30 +7,113 @@
 #include "Wt/WApplication"
 #include "Wt/WLogger"
 #include "Wt/WStringUtil"
+
+#include "WtException.h"
 #include "rapidxml/rapidxml.hpp"
 
 #include <locale>
 
 namespace Wt {
+
 std::wstring widen(const std::string& s, const std::locale &loc)
 {
-  std::wstring retval;
-  retval.reserve(s.length());
-  for (std::string::const_iterator i = s.begin(); i != s.end(); ++i)
-  {
-    retval += std::use_facet<std::ctype<wchar_t> >(loc).widen(*i);
+  typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
+
+  const Cvt& myfacet = std::use_facet<Cvt>(loc);
+
+  Cvt::result myresult;
+
+  std::size_t size = s.length();
+  wchar_t *pwstr = new wchar_t[size + 1];
+
+  const char* pc;
+  wchar_t* pwc;
+
+  std::mbstate_t mystate = std::mbstate_t();
+  bool error = false;
+
+  for (;;) {
+    myresult = myfacet.in(mystate, s.c_str(), s.c_str() + size, pc,
+			  pwstr, pwstr + size + 1, pwc);
+
+    if (myresult != Cvt::ok) {
+      *pwc++ = L'?';
+      pc++;
+
+      error = true;
+    } else
+      break;
   }
-  return retval;
+
+  if (error) {
+    if (WApplication::instance())
+      WApplication::instance()->log("error")
+	<< "WString::widen(): could not widen string: " << s;
+    else
+      std::cerr << "WString::widen(): could not widen string: "
+		<< s << std::endl;
+  }
+
+  std::wstring result = std::wstring(pwstr, pwc - pwstr);
+  delete[] pwstr;
+
+  return result;
 }
 
 std::string narrow(const std::wstring& s, const std::locale &loc)
 {
-  std::string retval;
-  retval.reserve(s.length());
-  for (std::wstring::const_iterator i = s.begin(); i != s.end(); ++i) {
-    retval += std::use_facet<std::ctype<wchar_t> >(loc).narrow(*i, '?');
+  typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
+
+  const Cvt& myfacet = std::use_facet<Cvt>(loc);
+
+  Cvt::result myresult;
+
+  const wchar_t *pwstr = s.c_str();
+  const wchar_t *pwend = s.c_str() + s.length();
+  const wchar_t *pwc = pwstr;
+
+  int size = s.length() + 1;
+
+  char *pstr = new char [size];
+  char *pc = pstr;
+
+  std::mbstate_t mystate = std::mbstate_t();
+  bool error = false;
+
+  for (;;) {
+    myresult = myfacet.out(mystate, pwc, pwend, pwc, pc, pc + size, pc);
+
+    if (myresult == Cvt::ok) {
+      break;
+    } else {
+      if (myresult == Cvt::partial || pc >= pstr + size) {
+	size += s.length();
+	std::size_t sofar = pc - pstr;
+	pstr = (char *)realloc(pstr, size);
+	pc = pstr + sofar;
+      }
+
+      if (myresult == Cvt::error) {
+	*pc++ = '?';
+	pwc++;
+	error = true;
+      }
+    }
   }
-  return retval;
+
+  std::string result(pstr, pc - pstr);
+
+  if (error) {
+    if (WApplication::instance())
+      WApplication::instance()->log("warning")
+	<< "WString::narrow(): loss of detail: " << result;
+    else
+      std::cerr << "WString::narrow(): loss of detail: " << result << std::endl;
+  }
+
+  delete[] pstr;
+
+  return result;
 }
 
 std::string toUTF8(const std::wstring& s)

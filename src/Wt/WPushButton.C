@@ -3,20 +3,33 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WApplication"
+#include "Wt/WEnvironment"
 #include "Wt/WPushButton"
+#include "Wt/WResource"
 
 #include "DomElement.h"
+#include "Utils.h"
 
 namespace Wt {
 
 WPushButton::WPushButton(WContainerWidget *parent)
-  : WFormWidget(parent)
+  : WFormWidget(parent),
+    resource_(0),
+    redirectJS_(0)
 { }
 
 WPushButton::WPushButton(const WString& text, WContainerWidget *parent)
   : WFormWidget(parent),
-    text_(text)
+    text_(text),
+    resource_(0),
+    redirectJS_(0)
 { }
+
+WPushButton::~WPushButton()
+{
+  delete redirectJS_;
+}
 
 void WPushButton::setText(const WString& text)
 {
@@ -38,6 +51,38 @@ void WPushButton::setIcon(const std::string& url)
   flags_.set(BIT_ICON_CHANGED);
 
   repaint(RepaintInnerHtml);
+}
+
+void WPushButton::setRef(const std::string& url)
+{
+  if (ref_ == url)
+    return;
+
+  ref_ = url;
+  flags_.set(BIT_REF_CHANGED);
+
+  repaint(RepaintPropertyIEMobile);
+}
+
+void WPushButton::setResource(WResource *resource)
+{
+  resource_ = resource;
+
+  if (resource_) {
+    resource_->dataChanged().connect(this, &WPushButton::resourceChanged);
+    resourceChanged();
+  }
+}
+
+void WPushButton::resourceChanged()
+{
+  setRef(resource_->url());
+}
+
+void WPushButton::doRedirect()
+{
+  if (!WApplication::instance()->environment().ajax())
+    WApplication::instance()->redirect(ref_);
 }
 
 DomElementType WPushButton::domElementType() const
@@ -66,6 +111,27 @@ void WPushButton::updateDom(DomElement& element, bool all)
 		   text_.literal() ? escapeText(text_, true).toUTF8()
 		   : text_.toUTF8());
     flags_.reset(BIT_TEXT_CHANGED);
+  }
+
+  if (flags_.test(BIT_REF_CHANGED) || (all && !ref_.empty())) {
+    if (!ref_.empty()) {
+      if (!redirectJS_) {
+	redirectJS_ = new JSlot();
+	clicked().connect(*redirectJS_);
+
+	if (!WApplication::instance()->environment().ajax())
+	  clicked().connect(this, &WPushButton::doRedirect);
+      }
+
+      redirectJS_->setJavaScript
+	("function(){"
+	 "window.location=" + jsStringLiteral(ref_) + ";"
+	 "}");
+      clicked().senderRepaint(); // XXX only for Java port necessary
+    } else {
+      delete redirectJS_;
+      redirectJS_ = 0;
+    }
   }
 
   WFormWidget::updateDom(element, all);

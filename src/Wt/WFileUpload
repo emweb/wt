@@ -284,14 +284,12 @@ public:
    */
   WProgressBar *progressBar() const { return progressBar_; }
 
-#ifndef WT_TARGET_JAVA
   /*! \brief %Signal emitted while a file is being uploaded.
    *
    * When supported by the connector library, you can track the
    * progress of the file upload by listening to this signal.
    */
   Signal< ::uint64_t, ::uint64_t >& dataReceived() { return dataReceived_; }
-#endif // WT_TARGET_JAVA
 
   virtual void enableAjax();
 
@@ -311,18 +309,14 @@ private:
 
   Signal<int> fileTooLarge_;
 
-#ifndef WT_TARGET_JAVA
   Signal< ::uint64_t, ::uint64_t > dataReceived_;
-#endif // WT_TARGET_JAVA
 
   WResource *fileUploadTarget_;
   WProgressBar *progressBar_;
 
   void create();
 
-#ifndef WT_TARGET_JAVA
   void onData(::uint64_t current, ::uint64_t total);
-#endif // WT_TARGET_JAVA
 
   virtual void setRequestTooLarge(int size);
 

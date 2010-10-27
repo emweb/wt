@@ -1,7 +1,8 @@
 SUBDIRS(
+  dbo
   serverpush
   socketnotifier
   suggestionpopup
-  widgetset
   video
+  widgetset
 )

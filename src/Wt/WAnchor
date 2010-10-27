@@ -121,7 +121,7 @@ public:
    */
   WAnchor(WResource *resource, WImage *image, WContainerWidget *parent = 0);
 
-  ~WAnchor();
+  virtual ~WAnchor();
 
   /*! \brief Sets the destination URL.
    *

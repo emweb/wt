@@ -97,7 +97,6 @@ void WHTML5Media::setFormData(const FormData& formData)
     std::vector<std::string> attributes;
     boost::split(attributes, formData.values[0], boost::is_any_of(";"));
     if (attributes.size() == 5) {
-      bool bad = false;
       double volume, current, duration;
       bool paused, ended;
       try {

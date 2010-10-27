@@ -14,12 +14,34 @@ WT_DECLARE_WT_MEMBER
    var self = this;
    var WT = APP.WT;
 
+   this.ctx = null;
+
+   // Placeholders for the initializeGL and paintGL functions,
+   // which will be overwritten by whatever is rendered
+   this.initializeGL = function() {};
+   this.paintGL = function() {};
+
    var dragPreviousXY = null;
    var lookAtCenter = null;
    var lookAtUpDir = null;
    var lookAtPitchRate = 0;
    var lookAtYawRate = 0;
    var cameraMatrix = null;
+
+   this.discoverContext = function() {
+     //debugger;
+     if (canvas.getContext) {
+       this.ctx = canvas.getContext('experimental-webgl');
+       if (this.ctx == null) {
+         this.ctx = canvas.getContext('webgl');
+       }
+       if (this.ctx == null) {
+         console.log('WGLWidget: failed to get a webgl context');
+       }
+     }
+     console.log('ctx: ' + this.ctx);
+     return this.ctx;
+   };
 
    this.setLookAtParams = function(matrix, center, up, pitchRate, yawRate) {
      cameraMatrix = matrix;
@@ -53,7 +75,7 @@ WT_DECLARE_WT_MEMBER
      // Repaint!
      console.log('mouseDragLookAt: repaint');
      //alert('mouseDragLookAt: repaint');
-     ctx.paintGl();
+     this.paintGl();
      // store mouse coord for next action
      dragPreviousXY = WT.pageCoordinates(event);
    };
@@ -71,7 +93,7 @@ WT_DECLARE_WT_MEMBER
      vec3.negate(lookAtCenter);
      // Repaint!
      console.log('mouseWheelLookAt: repaint');
-     ctx.paintGl();
+     this.paintGl();
    };
 
    this.mouseDown = function(o, event) {
