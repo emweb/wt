@@ -828,9 +828,10 @@ void WebRenderer::serveMainpage(WebResponse& response)
   }
 
   for (unsigned i = 0; i < app->styleSheets_.size(); ++i) {
+    std::string url = app->styleSheets_[i].uri;
+    url = Wt::Utils::replace(url, '&', "&amp;");
     styleSheets += "<link href=\""
-      + app->fixRelativeUrl(app->styleSheets_[i].uri) 
-      + "\" rel=\"stylesheet\" type=\"text/css\"";
+      + app->fixRelativeUrl(url) + "\" rel=\"stylesheet\" type=\"text/css\"";
 
     if (!app->styleSheets_[i].media.empty()
 	&& app->styleSheets_[i].media != "all")
@@ -843,9 +844,9 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   beforeLoadJS_.str("");
   for (unsigned i = 0; i < app->scriptLibraries_.size(); ++i) {
-    styleSheets += "<script src='"
-      + app->fixRelativeUrl(app->scriptLibraries_[i].uri) 
-      + "'></script>\n";
+    std::string url = app->scriptLibraries_[i].uri;
+    url = Wt::Utils::replace(url, '&', "&amp;");
+    styleSheets += "<script src='" + app->fixRelativeUrl(url) + "'></script>\n";
 
     beforeLoadJS_ << app->scriptLibraries_[i].beforeLoadJS;
   }
