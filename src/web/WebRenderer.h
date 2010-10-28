@@ -89,7 +89,7 @@ private:
   };
 
   WebSession& session_;
-  bool        visibleOnly_;
+  bool        visibleOnly_, rendered_;
   int         twoPhaseThreshold_;
   int         expectedAckId_;
 

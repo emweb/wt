@@ -204,6 +204,7 @@ WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
   return result;
 }
 
+#ifndef WT_TARGET_JAVA
 WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
 				      const char *declarations,
 				      const std::string& ruleName)
@@ -217,6 +218,7 @@ WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
 {
   return addRule(selector, WT_USTRING::fromUTF8(declarations), ruleName);
 }
+#endif
 
 bool WCssStyleSheet::isDefined(const std::string& ruleName) const
 {

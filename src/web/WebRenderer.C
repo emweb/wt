@@ -51,6 +51,7 @@ const int MESSAGE_COUNTER_SIZE = 5;
 WebRenderer::WebRenderer(WebSession& session)
   : session_(session),
     visibleOnly_(true),
+    rendered_(false),
     twoPhaseThreshold_(5000),
     expectedAckId_(0),
     learning_(false)
@@ -254,6 +255,8 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   setHeaders(response, contentType);
 
   boot.stream(response.out());
+
+  rendered_ = false;
 }
 
 void WebRenderer::serveError(WebResponse& response, const std::string& message,
@@ -313,6 +316,8 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 
 void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
+  rendered_ = true;
+
   setHeaders(response, "text/javascript; charset=UTF-8");
 
   collectJavaScript();
@@ -461,12 +466,20 @@ void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
 
 void WebRenderer::serveMainscript(WebResponse& response)
 {
+  /*
+   * Serving a script is using a GET request, which can be replayed.
+   * Therefore we need to either be able to reconstruct the response
+   * (possible if !rendered_), or we need to save the response in
+   * collectedJS variables.
+   */
+
   Configuration& conf = session_.controller()->configuration();
   bool widgetset = session_.type() == WidgetSet;
 
   setHeaders(response, "text/javascript; charset=UTF-8");
 
   if (!widgetset) {
+    // FIXME: this cannot be replayed
     std::string redirect = session_.getRedirect();
 
     if (!redirect.empty()) {
@@ -522,34 +535,40 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   streamCommJs(app, response.out());
 
-  if (session_.state() != WebSession::Loaded)
+  if (!rendered_)
     serveMainAjax(response);
   else {
-    response.out() << "window.loadWidgetTree = function(){\n";
-
-    std::stringstream scopeClose;
-
     if (app->enableAjax_) {
       // Before-load JavaScript of libraries that were loaded directly
-      // HTML
-      response.out() << beforeLoadJS_.str();
+      // in HTML
+      collectedJS1_ << beforeLoadJS_.str();
       beforeLoadJS_.str("");
 
-      // Load JavaScript libraries that were added during enableAjax()
-      loadScriptLibraries(response.out(), app, true); 
-      loadScriptLibraries(scopeClose, app, false);
-
-      response.out()
+      collectedJS1_
 	<< app->newBeforeLoadJavaScript()
 	<< "var domRoot = " << app->domRoot_->jsRef() << ";"
 	"var form = " WT_CLASS ".getElement('Wt-form');"
 	"domRoot.style.display = form.style.display;"
 	"document.body.replaceChild(domRoot, form);";
+
+      // Load JavaScript libraries that were added during enableAjax()
+      loadScriptLibraries(collectedJS1_, app, true); 
+
+      collectedJS2_
+	<< "domRoot.style.visibility = 'visible';"
+	<< app->javaScriptClass() << "._p_.autoJavaScript();";
+
+      loadScriptLibraries(collectedJS2_, app, false);
+
+      app->enableAjax_ = false;
     }
+
+    response.out() << "window.loadWidgetTree = function(){\n";
 
     visibleOnly_ = false;
 
     collectJavaScript();
+    updateLoadIndicator(collectedJS1_, app, true);
 
 #ifdef DEBUG_JS
     std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
@@ -560,26 +579,16 @@ void WebRenderer::serveMainscript(WebResponse& response)
       << app->javaScriptClass()
       << "._p_.response(" << expectedAckId_ << ");";
 
-    updateLoadIndicator(response.out(), app, true);
-
-    if (app->enableAjax_)
-      response.out()
-	<< "domRoot.style.visibility = 'visible';"
-	<< app->javaScriptClass() << "._p_.autoJavaScript();";
-
     response.out()
 	<< app->javaScriptClass()
 	<< "._p_.update(null, 'load', null, false);"
 	<< collectedJS2_.str()
-	<< scopeClose.str()
 	<< "};" // loadWidgetTree = function() { ... }
 	<< app->javaScriptClass()
 	<< "._p_.setServerPush("
 	<< (app->updatesEnabled() ? "true" : "false") << ");"
 	<< "window.WtScriptLoaded = true;"
 	<< "if (window.isLoaded) onLoad();\n";
-
-    app->enableAjax_ = false;
   }
 }
 
@@ -746,8 +755,11 @@ void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
  * Serves the Plain or Hybrid HTML page.
  *
  * Requires that the application has been started.
+ *
  * The Hybrid page is served when a progressive bootstrap is indicated
- * or when we are in an ajax session.
+ * or when we are in an ajax session. We need to remember that in the next
+ * serveMainscript() we only need to serve an update, not render the whole
+ * interface.
  */
 void WebRenderer::serveMainpage(WebResponse& response)
 {
@@ -788,6 +800,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
    * non-JavaScript versions.
    */
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
+  rendered_ = true;
 
   setJSSynced(true);
 
@@ -897,6 +910,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
     mainElement->asHTML(out, js, timeouts);
     app->doJavaScript(js.str());
     delete mainElement;
+    rendered_ = true;
   }
 
   std::stringstream onload;

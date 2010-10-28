@@ -211,6 +211,7 @@ public:
 			const WT_USTRING& declarations,
 			const std::string& ruleName = std::string());
 
+#ifndef WT_TARGET_JAVA
   /* Interprets as UTF-8 */
   WCssTextRule *addRule(const std::string& selector,
 			const std::string& declarations,
@@ -220,6 +221,7 @@ public:
   WCssTextRule *addRule(const std::string& selector,
 			const char *declarations,
 			const std::string& ruleName = std::string());
+#endif
 
   /*! \brief Adds a CSS rule.
    *

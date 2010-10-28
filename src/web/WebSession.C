@@ -960,6 +960,7 @@ void WebSession::handleRequest(Handler& handler)
 
 	    if (!start())
 	      throw WtException("Could not start application.");
+
 	  } else if (requestE && *requestE == "resource"
 		     && resourceE && *resourceE == "blank") {
 	    handler.response()->setContentType("text/html");
@@ -989,8 +990,6 @@ void WebSession::handleRequest(Handler& handler)
 	      break;
 	    }
 	  }
-
-	  state_ = JustCreated;
 	}
 
 	bool requestForResource = requestE && *requestE == "resource";
@@ -1174,7 +1173,10 @@ void WebSession::notify(const WEvent& event)
   case WebSession::Loaded:
     if (event.responseType == WebRenderer::Script) {
       if (!env_->doesAjax_) {
-	// upgrade to AJAX
+	// upgrade to AJAX -> this becomes a first update we may need
+	// to replay this, so we cannot commit these changes until
+	// we have received an ack for this.
+
 	const std::string *hashE = request.getParameter("_");
 	const std::string *scaleE = request.getParameter("scale");
 

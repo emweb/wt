@@ -669,10 +669,12 @@ std::string WApplication::addExposedResource(WResource *resource,
   if (!fn.empty() && fn[0] != '/')
     fn = '/' + fn;
 
+  static unsigned long seq = 0;
+
   if (resource->internalPath().empty())
     return session_->mostRelativeUrl(fn)
       + "&request=resource&resource=" + Utils::urlEncode(resource->id())
-      + "&rand=" + boost::lexical_cast<std::string>(WtRandom::getUnsigned());
+      + "&rand=" + boost::lexical_cast<std::string>(seq++);
   else {
     fn = resource->internalPath() + fn;
     if (!session_->applicationName().empty() && fn[0] != '/')
