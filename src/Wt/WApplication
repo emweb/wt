@@ -1578,7 +1578,9 @@ protected:
    * The browser unloads the application when the user navigates away or
    * when he closes the window or tab.
    *
-   * The default behaviour is to quit() which in turn terminates the session.
+   * When <tt>reload-is-new-session</tt> is set to \c true, then the
+   * default implementation of this method terminates this session by
+   * calling quit().
    *
    * You may want to reimplement this if you want to keep the
    * application running until it times out (as was the behaviour

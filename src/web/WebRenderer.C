@@ -910,17 +910,24 @@ void WebRenderer::serveMainpage(WebResponse& response)
     mainElement->asHTML(out, js, timeouts);
     app->doJavaScript(js.str());
     delete mainElement;
-    rendered_ = true;
   }
 
-  std::stringstream onload;
-  DomElement::createTimeoutJs(onload, timeouts, app);
+  int refresh;
+  if (app->environment().ajax()) {
+    std::stringstream str;
+    DomElement::createTimeoutJs(str, timeouts, app);
+    app->doJavaScript(str.str());
 
-  int refresh = conf.sessionTimeout() / 3;
-  for (unsigned i = 0; i < timeouts.size(); ++i)
-    refresh = std::min(refresh, 1 + timeouts[i].msec/1000);
-  if (app->isQuited())
-    refresh = 100000; // ridiculously large
+    refresh = 1000000;
+  } else {
+    if (app->isQuited())
+      refresh = 1000000;
+    else {
+      refresh = conf.sessionTimeout() / 3;
+      for (unsigned i = 0; i < timeouts.size(); ++i)
+	refresh = std::min(refresh, 1 + timeouts[i].msec/1000);
+    }
+  }
   page.setVar("REFRESH", boost::lexical_cast<std::string>(refresh));
 
   page.stream(response.out());

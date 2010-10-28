@@ -4,6 +4,12 @@
 	* WebRenderer: be resilient to multiple GET requests for the main
 	script
 
+	* WApplication: unload() does not quite() when reload-is-new-session
+	is disabled
+
+	* WebRenderer: fix regression where timers are stopped by refreshing
+	a session when reload-is-new-session is disabled
+
 27-10-2010:
 	* examples/feature/dbo: added examples from the Wt::Dbo tutorial
 

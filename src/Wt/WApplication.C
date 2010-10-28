@@ -585,7 +585,9 @@ void WApplication::unload()
   }
 #endif // WT_TARGET_JAVA
 
-  quit();
+  const Configuration& conf = session_->controller()->configuration();
+  if (conf.reloadIsNewSession())
+    quit();
 }
 
 void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
