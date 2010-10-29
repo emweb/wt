@@ -33,7 +33,7 @@ namespace Wt {
  * \note With the advent of HTML5, this widget will be implemented using
  *       the native HTML5 control when available.
  */
-class WProgressBar : public WInteractWidget
+class WT_API WProgressBar : public WInteractWidget
 {
 public:
   /*! \brief Creates a progress bar.

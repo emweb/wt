@@ -214,7 +214,7 @@ public:
     double lookDirX = centerX - eyeX;
     double lookDirY = centerY - eyeY;
     double lookDirZ = centerZ - eyeZ;
-    double lookDirNorm = sqrt(lookDirX*lookDirX + lookDirY*lookDirY + lookDirZ*lookDirZ);
+    double lookDirNorm = std::sqrt(lookDirX*lookDirX + lookDirY*lookDirY + lookDirZ*lookDirZ);
     lookDirX /= lookDirNorm;
     lookDirY /= lookDirNorm;
     lookDirZ /= lookDirNorm;
@@ -222,7 +222,7 @@ public:
     double sideX = lookDirY*upZ - upY*lookDirZ;
     double sideY = -(lookDirX*upZ - upX*lookDirZ);
     double sideZ = lookDirX*upY - upX*lookDirY;
-    double sideNormal = sqrt(sideX*sideX + sideY*sideY + sideZ*sideZ);
+    double sideNormal = std::sqrt(sideX*sideX + sideY*sideY + sideZ*sideZ);
     sideX /= sideNormal;
     sideY /= sideNormal;
     sideZ /= sideNormal;
@@ -280,7 +280,7 @@ public:
       double nearPlane, double farPlane)
   {
     double halfHeight =
-      nearPlane * tan(angle / 2 / 180 * 3.14159265358979323846);
+      nearPlane * std::tan(angle / 2 / 180 * 3.14159265358979323846);
     double halfWidth = halfHeight * aspect;
     frustum(-halfWidth, halfWidth, -halfHeight, halfHeight,
       nearPlane, farPlane);
@@ -297,12 +297,12 @@ public:
   {
     using namespace boost::numeric::ublas;
     double t = angle / 180.0 * 3.14159265358979323846;
-    double norm2 = sqrt(x*x + y*y + z*z);
+    double norm2 = std::sqrt(x*x + y*y + z*z);
     x /= norm2;
     y /= norm2;
     z /= norm2;
-    double cost = cos(t);
-    double sint = sin(t);
+    double cost = std::cos(t);
+    double sint = std::sin(t);
     WMatrix4x4 rot(0);
     rot(0,0) = cost + x*x*(1-cost);
     rot(0,1) = x*y*(1-cost) - z*sint;

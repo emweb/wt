@@ -57,7 +57,7 @@ namespace Wt {
  * \endcode
  */
 template <class Lock>
-class WT_API SyncLock : public Lock
+class SyncLock : public Lock
 {
 public:
   /*! \brief Creates a RIIA lock.

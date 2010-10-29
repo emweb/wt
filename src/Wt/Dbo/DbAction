@@ -124,7 +124,7 @@ protected:
 };
 
 template <class C>
-class WTDBO_API LoadDbAction : public LoadBaseAction
+class LoadDbAction : public LoadBaseAction
 {
 public:
   LoadDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping,
@@ -175,7 +175,7 @@ protected:
 };
 
 template <class C>
-class WTDBO_API SaveDbAction : public SaveBaseAction
+class SaveDbAction : public SaveBaseAction
 {
 public:
   SaveDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping);

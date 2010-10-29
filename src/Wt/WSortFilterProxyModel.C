@@ -71,13 +71,13 @@ WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
   : WAbstractProxyModel(parent),
     regex_(0),
     filterKeyColumn_(0),
-    mappedRootItem_(0),
     filterRole_(DisplayRole),
     sortKeyColumn_(-1),
     sortRole_(DisplayRole),
     sortOrder_(AscendingOrder),
     dynamic_(false),
-    inserting_(false)
+    inserting_(false),
+    mappedRootItem_(0)
 { }
 
 WSortFilterProxyModel::~WSortFilterProxyModel()

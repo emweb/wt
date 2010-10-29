@@ -66,6 +66,12 @@ void UploadedFile::stealSpoolFile() const
   fileInfo_->isStolen = true;
 }
 
+Request::ByteRange::ByteRange()
+  : firstByte_(0),
+    lastByte_(0)
+{
+}
+
 Request::ByteRange::ByteRange(::uint64_t first, ::uint64_t last)
   : firstByte_(first),
     lastByte_(last)

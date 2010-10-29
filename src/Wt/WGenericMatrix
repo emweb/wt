@@ -46,7 +46,7 @@ typedef boost::numeric::ublas::column_major ColumnMajor;
  * consider boost ublass, MTL, ...).
  */
 template<typename T, std::size_t Rows, std::size_t Cols>
-class WT_API WGenericMatrix
+class WGenericMatrix
 {
   typedef boost::numeric::ublas::bounded_matrix<T, Rows, Cols,
     boost::numeric::ublas::row_major> MatrixType;

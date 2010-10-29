@@ -27,7 +27,7 @@ class SaveBaseAction;
 
 namespace Impl {
 
-  extern std::size_t ifind(const std::string& s, const std::string& needle);
+  extern WTDBO_API std::size_t ifind(const std::string& s, const std::string& needle);
 
   struct WTDBO_API ParameterBase {
     virtual ~ParameterBase();
@@ -390,7 +390,7 @@ struct DboHelper
  * \ingroup dbo
  */
 template <class C>
-class WTDBO_API Dbo
+class Dbo
 {
 public:
   /*! \brief Constructor.

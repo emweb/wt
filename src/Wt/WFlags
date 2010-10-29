@@ -24,7 +24,7 @@ namespace Wt {
  * represent the combination of flags.
  */
 template<typename EnumType>
-class WT_API WFlags
+class WFlags
 {
   class Zero_ {};
   typedef Zero_ *Zero;
@@ -333,12 +333,12 @@ WFlags<EnumType> WFlags<EnumType>::operator~() const
 
 #ifndef WT_TARGET_JAVA
 #define W_DECLARE_OPERATORS_FOR_FLAGS(EnumType)				\
-WT_API inline Wt::WFlags<EnumType> operator|(EnumType l, EnumType r) {  \
+inline Wt::WFlags<EnumType> operator|(EnumType l, EnumType r) {         \
   Wt::WFlags<EnumType> retval(l);					\
   retval |= r;								\
   return retval;							\
 }									\
-WT_API inline Wt::WFlags<EnumType> operator|(EnumType l,		\
+inline Wt::WFlags<EnumType> operator|(EnumType l,		        \
                                              Wt::WFlags<EnumType> r) {	\
   return r | l;								\
 }

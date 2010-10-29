@@ -27,7 +27,7 @@ typedef std::string JavaScriptMatrix4x4;
 // considered as a technology preview, and we welcome comments regarding
 // this interface.
 // Expect this interface to change.
-class WGLWidget: public WInteractWidget
+class WT_API WGLWidget: public WInteractWidget
 {
 public:
   WGLWidget(WContainerWidget *parent);

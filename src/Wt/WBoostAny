@@ -160,7 +160,7 @@ extern WT_API double asNumber(const boost::any& v);
 template <typename Type> void registerType();
 
 namespace Impl {
-  class AbstractTypeHandler {
+  class WT_API AbstractTypeHandler {
   public:
     AbstractTypeHandler();
     virtual ~AbstractTypeHandler();
@@ -185,13 +185,13 @@ namespace Impl {
     }
   };
 
-  extern AbstractTypeHandler *getRegisteredType(const std::type_info *type,
+  extern WT_API AbstractTypeHandler *getRegisteredType(const std::type_info *type,
 						bool takeLock);
-  extern void registerType(const std::type_info *type,
+  extern WT_API void registerType(const std::type_info *type,
 			   AbstractTypeHandler *handler);
 
-  extern void lockTypeRegistry();
-  extern void unlockTypeRegistry();
+  extern WT_API void lockTypeRegistry();
+  extern WT_API void unlockTypeRegistry();
 
   extern WT_API bool matchValue(const boost::any& value,
 				const boost::any& query,
