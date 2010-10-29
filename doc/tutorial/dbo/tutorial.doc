@@ -32,6 +32,13 @@ the mapping is defined entirely in {cpp} code.
 In this tutorial, we will work our way through a blogging example,
 similar to the one that is distributed with the library.
 
+[TIP]
+===============================
+The complete source code for the examples used in this tutorial are
+available as ready-to-run programs in the +examples/feature/dbo/+ folder of
+http://www.webtoolkit.eu/wt/download[Wt].
+===============================
+
 == Mapping a single class
 
 We will start off with using +Wt::Dbo+ for mapping a single class +User+
@@ -42,13 +49,6 @@ to a corresponding table +user+.
 In this tutorial and the examples, we alias the namespace +Wt::Dbo+ to
 +dbo+, and in our explanation we will refer to types and methods
 available in that namespace directly.
-===============================
-
-[TIP]
-===============================
-The complete source code for the examples used in this tutorial are
-available as ready-to-run programs in the +examples/feature/dbo/+ folder of
-Wt.
 ===============================
 
 To build the following example, you need to link against the +wtdbo+
