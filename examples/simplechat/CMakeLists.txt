@@ -8,7 +8,7 @@ ELSE(NOT MULTI_THREADED_BUILD)
    simpleChat.C SimpleChatWidget.C SimpleChatServer.C
  )
 
- TARGET_LINK_LIBRARIES(simplechat.wt ${BOOST_WT_THREAD_LIBRARY})
+ TARGET_LINK_LIBRARIES(simplechat.wt ${BOOST_THREAD_LIB})
 
  #
  # If you have Wt installed somehwere, you should use the

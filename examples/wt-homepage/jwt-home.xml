@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <messages>
   <message id="top_wt">
     <a href="http://www.emweb.be/">
@@ -58,6 +58,7 @@
   <message id="git">Git explorer</message>
   <message id="chat">Chat</message>
   <message id="mail-composer">Mail composer</message>
+  <message id="figtree">FigTree</message>
   <message id="widget-gallery">Widget gallery</message>
 
   <message id="home.news">
@@ -475,6 +476,87 @@ sure that data is synchronized between browser and server.</p>
   </ul>
 </div>
   </message>
+
+ <message id="home.examples.chat">
+<div>
+<h4 class="example">Simple Chat</h4>
+
+<p>
+  <a href="http://jwt.emweb.be/jwt-simplechat/simplechat" class="run" target="_blank">
+    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
+  </a>
+</p>
+
+<p>
+  This example implements a simple chat client and server for a
+  multi-user chat application. It illustrates how one can easily let
+  multiple users interact, for example using <b>server-initiated
+  updates</b> to push information from one user to other users.
+</p>
+
+<p>
+  It also illustrates nice benefits of a class-based approach to web
+  application development: you can easily instantiate the same widget
+  class multiple times. The SimpleChatClient widget may be intantiated
+  as easily as you use basic JWt widgets such as a push button.
+</p>
+
+<p>
+  Interactive applications like these, which allow users to post HTML
+  text to other users, are notorious for <b>cross-site-scripting (XSS)
+  attacks</b>: a user enters malicious (javascript) code as part of
+  his message. When another user renders this message, it may transmit
+  unwanted private information retrieved from, for example, browser
+  cookies. JWt prevents such attacks completely, and without any
+  responsibility to the developer, since widgets such as WText ensure
+  that what is displayed is only passive text, discarding anything
+  that is not strictly text.
+</p>
+</div>
+  </message>
+
+ <message id="home.examples.figtree">
+<div>
+<h4 class="example">FigTree</h4>
+
+<p>
+  <a href="http://jwt.emweb.be/figtree/figtree" class="run" target="_blank">
+    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
+  </a>
+</p>
+
+<p>
+  <a href="http://tree.bio.ed.ac.uk/software/figtree/"
+  target="_blank">FigTree</a> is an application created by Andrew
+  Rambaut for visualizing
+  <a href="http://en.wikipedia.org/wiki/Phylogenetic_tree"
+  target="_blank">phylogenetic trees</a> estimated from molecular
+  data. It is a Java Swing application with a basic UI available as a
+  Java applet.</p>
+
+<p>
+  In no more than 500 lines Java code, we reimplemented the applet
+  version as a real web application, reusing much of the existing
+  application. In fact, we needed only a single line code change and
+  both versions are based on the same code base.
+</p>
+
+<p>
+  The source code of this example is not part of the JWt source
+  distribution, but you can find it (including the web version which
+  we contributed) on
+  the <a href="http://code.google.com/p/figtree/source/checkout"
+  target="_blank">FigTree project page</a>.
+</p>
+
+<p>
+  See also
+  our <a href="http://www.webtoolkit.eu/jwt/blog/2010/10/25/fun_with_jwt_and_swing__webgraphics2d"
+  target="_blank">blog post</a> on porting this application.
+</p>
+</div>
+  </message>
+
   <message id="home.download">
     <h3><span>Download</span></h3>
   </message>
@@ -748,4 +830,18 @@ you may share tips, notes and experiences using JWt.
   </message>
 
   <message id="srcview.title.composer">Example: Mail composer</message>
+
+  <message id="srcview.title.JAVA.simplechat">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Chat</i> example</h2>
+
+      <p>
+	Browse below the source code for Wt's 
+	<a href="http://www.webtoolkit.eu/jwt/examples/simplechat">
+	  Chat</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.simplechat">Example: Chat</message>
 </messages>

@@ -1,7 +1,7 @@
 SET(tutorial_libs wtdbo wtdbosqlite3)
 
 #IF (MULTI_THREADED)
-#  SET(tutorial_libs ${tutorial_libs} ${BOOST_THREAD_LIB_MT})
+#  SET(tutorial_libs ${tutorial_libs} ${BOOST_THREAD_LIB})
 #ENDIF (MULTI_THREADED)
 
 ADD_EXECUTABLE(dbo-tutorial1  tutorial1.C)

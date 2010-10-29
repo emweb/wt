@@ -66,6 +66,10 @@ WWidget *JWtHome::examples()
 			tr("treeview"));
   examplesMenu_->addTab(wrapView(&JWtHome::composerExample),
 			tr("mail-composer"));
+  examplesMenu_->addTab(wrapView(&JWtHome::chatExample),
+			tr("chat"));
+  examplesMenu_->addTab(wrapView(&JWtHome::figtreeExample),
+			tr("figtree"));
   
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled("/examples");
@@ -121,6 +125,18 @@ WWidget *JWtHome::treeviewExample()
 WWidget *JWtHome::composerExample()
 {
   return example("home.examples.composer", "composer");
+}
+
+WWidget *JWtHome::chatExample()
+{
+  return example("home.examples.chat", "simplechat");
+}
+
+WWidget *JWtHome::figtreeExample()
+{
+  WContainerWidget *result = new WContainerWidget();
+  new WText(tr("home.examples.figtree"), result);
+  return result;
 }
 
 WWidget *JWtHome::wrapView(WWidget *(JWtHome::*createWidget)())

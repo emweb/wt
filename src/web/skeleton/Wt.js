@@ -425,20 +425,34 @@ function css(c, s) {
     return null;
 }
 
-var rnumpx = /^(-?\d+)(?:px)?$/i;
+function parseCss(value, regex, defaultvalue) {
+  if (value == 'auto' || value == null)
+    return defaultvalue;
+  var m = regex.exec(value),
+      v = m && m.length == 2 ? m[1] : null;
+  return v ? parseFloat(v) : defaultvalue;
+}
+
+function parsePx(v) {
+  return parseCss(v, /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/i, 0);
+}
+
+function parsePct(v, defaultValue) {
+  return parseCss(v, /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/i, defaultValue);
+}
 
 // Get an element metric in pixels
 this.px = function(c, s) {
-  var v = css(c, s);
+  return parsePx(css(c, s));
+};
 
-  if (v == 'auto' || v == null)
-    return 0;
+// Get a widget style in pixels, when set directly
+this.pxself = function(c, s) {
+  return parsePx(c.style[s]);
+};
 
-  var a = rnumpx.exec(v);
-  if (a)
-    return a[1];
-  else
-    return 0;
+this.pctself = function(c, s) {
+  return parsePct(c.style[s], 0);
 };
 
 // Return if an element (or one of its ancestors) is hidden
@@ -454,25 +468,6 @@ this.isHidden = function(w) {
   }
 };
 
-// Get a widget style in pixels, when set directly
-this.pxself = function(c, s) {
-  var v = c.style[s];
-  if (v == 'auto' || v == null)
-    return 0;
-  var m = /^\s*(-?\d+(?:\.\d+)?)\s*px\s*$/.exec(v);
-  v = m && m.length == 2 ? m[1] : "0";
-  return v ? parseFloat(v) : 0;
-};
-
-this.pctself = function(c, s) {
-  var v = c.style[s];
-  if (v == 'auto' || v == null)
-    return 0;
-  var m = /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/.exec(v);
-  v = m && m.length == 2 ? m[1] : "0";
-  return v ? parseFloat(v) : 0;
-};
-
 this.IEwidth = function(c, min, max) {
   if (c.parentNode) {
     var r = c.parentNode.clientWidth
@@ -483,13 +478,8 @@ this.IEwidth = function(c, min, max) {
     - WT.px(c.parentNode, 'paddingLeft')
     - WT.px(c.parentNode, 'paddingRight');
 
-    var m = /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/.exec(min);
-    var v = m && m.length == 2 ? m[1] : "0";
-    min = v ? parseFloat(v) : 0;
-
-    m = /^\s*(-?\d+(?:\.\d+)?)\s*\%\s*$/.exec(max);
-    v = m && m.length == 2 ? m[1] : "100000";
-    max = v ? parseFloat(v) : 100000;
+    min = parsePct(min, 0);
+    max = parsePct(max, 100000);
 
     if (r < min)
       return min-1;

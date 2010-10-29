@@ -20,22 +20,24 @@ WT_DECLARE_WT_MEMBER
 
    this.marginH = function(el) {
      var p = el.parentNode;
-     return WT.px(el, 'marginLeft')
-       + WT.px(el, 'marginRight')
-       + WT.px(el, 'borderLeftWidth')
-       + WT.px(el, 'borderRightWidth')
-       + WT.px(p, 'paddingLeft')
-       + WT.px(p, 'paddingRight');
+     var result = WT.px(el, 'marginLeft');
+     result += WT.px(el, 'marginRight');
+     result += WT.px(el, 'borderLeftWidth');
+     result += WT.px(el, 'borderRightWidth');
+     result += WT.px(p, 'paddingLeft');
+     result += WT.px(p, 'paddingRight');
+     return result;
    };
 
    this.marginV = function(el) {
      // TODO: consider caching
-     return WT.px(el, 'marginTop')
-       + WT.px(el, 'marginBottom')
-       + WT.px(el, 'borderTopWidth')
-       + WT.px(el, 'borderBottomWidth')
-       + WT.px(el, 'paddingTop')
-       + WT.px(el, 'paddingBottom');
+     var result = WT.px(el, 'marginTop');
+     result += WT.px(el, 'marginBottom');
+     result += WT.px(el, 'borderTopWidth');
+     result += WT.px(el, 'borderBottomWidth');
+     result += WT.px(el, 'paddingTop');
+     result += WT.px(el, 'paddingBottom');
+     return result;
    };
 
    this.adjustRow = function(row, height) {
@@ -46,8 +48,10 @@ WT_DECLARE_WT_MEMBER
      for (j=0, jl = tds.length; j<jl; ++j) {
        td=tds[j];
 
-       var k = height - WT.pxself(td, 'paddingTop')
-	 - WT.pxself(td, 'paddingBottom');
+       var k = height;
+       k -= WT.pxself(td, 'paddingTop');
+       k -= WT.pxself(td, 'paddingBottom');
+
        if (k <= 0)
 	 k=0;
 
@@ -70,7 +74,7 @@ WT_DECLARE_WT_MEMBER
        }
 
        if (td.childNodes.length == 1)
-	 k += -this.marginV(ch);
+	 k -= this.marginV(ch);
 
        if (k <= 0)
 	 k=0;
@@ -127,11 +131,12 @@ WT_DECLARE_WT_MEMBER
      var r = WT.pxself(p, 'height');
      if (r == 0) {
        r = p.clientHeight;
-       r += - WT.px(p, 'paddingTop')
-	 - WT.px(p, 'paddingBottom');
+       r -= WT.px(p, 'paddingTop');
+       r -= WT.px(p, 'paddingBottom');
      }
 
-     r += - WT.px(widget, 'marginTop') - WT.px(widget, 'marginBottom');
+     r -= WT.px(widget, 'marginTop');
+     r -= WT.px(widget, 'marginBottom');
 
      /*
       * Sometimes, there may be other elements; e.g. in FIELDSET.

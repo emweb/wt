@@ -33,6 +33,8 @@ private:
   WWidget *chartExample();
   WWidget *composerExample();
   WWidget *treeviewExample();
+  WWidget *chatExample();
+  WWidget *figtreeExample();
 
   std::string jwtExamplePath_;
 };

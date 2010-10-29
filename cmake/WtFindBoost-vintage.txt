@@ -8,13 +8,13 @@
 # - BOOST_SUPPORT_LIBRARIES (should always be added to the boost libs)
 #
 # Separate compiled boost libraries are also discovered:
-# - BOOST_DT_LIBRARY
-# - BOOST_FS_LIBRARY
-# - BOOST_REGEX_LIBRARY
-# - BOOST_PO_LIBRARY
-# - BOOST_SIGNALS_LIBRARY
-# - BOOST_SYSTEM_LIBRARY
-# - BOOST_THREAD_LIBRARY (only if BOOST_MT_FOUND)
+# - BOOST_DT_LIB
+# - BOOST_FS_LIB
+# - BOOST_REGEX_LIB
+# - BOOST_PO_LIB
+# - BOOST_SIGNALS_LIB
+# - BOOST_SYSTEM_LIB
+# - BOOST_THREAD_LIB (only if BOOST_MT_FOUND)
 # Boost will try to find the same kind (mt or not) of library for all three
 # of these libraries. Boost is considered to be found successfully only
 # when the libraries are all of the same kind (mt or not). If the mt
