@@ -89,7 +89,7 @@ std::string narrow(const std::wstring& s, const std::locale &loc)
       if (myresult == Cvt::partial || pc >= pstr + size) {
 	size += s.length();
 	std::size_t sofar = pc - pstr;
-	pstr = (char *)realloc(pstr, size);
+	pstr = (char *)std::realloc(pstr, size);
 	pc = pstr + sofar;
       }
 

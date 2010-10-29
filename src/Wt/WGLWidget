@@ -21,7 +21,11 @@ typedef std::string UniformLocation;
 typedef std::string Texture;
 typedef std::string JavaScriptMatrix4x4;
 
+#if 0
 #define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) alert('error " << __FUNCTION__ << ": ' + err);}";} while(false)
+#else
+#define GLDEBUG
+#endif
 
 // Incomplete implementation of the new webgl standard. This is to be
 // considered as a technology preview, and we welcome comments regarding
