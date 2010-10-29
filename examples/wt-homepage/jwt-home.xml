@@ -327,7 +327,7 @@ browser.
 
 <p>
   <a href="http://jwt.emweb.be/jwt-hello" class="run" target="_blank">
-    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
+    <img src="/icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -356,7 +356,7 @@ browser.
 <h4 class="example">Treeview</h4>
 <p>
   <a href="http://jwt.emweb.be/jwt-treeviewdragdrop/treeviewdragdrop" class="run" target="_blank">
-    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
+    <img src="/icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 <p>
@@ -400,7 +400,7 @@ browser.
 
 <p>
   <a href="http://jwt.emweb.be/jwt-charts/charts" class="run" target="_blank">
-    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
+    <img src="/icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -438,7 +438,7 @@ sure that data is synchronized between browser and server.</p>
 
 <p>
   <a href="http://jwt.emweb.be/jwt-composer/composer" class="run" target="_blank">
-    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
+    <img src="/icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -483,7 +483,7 @@ sure that data is synchronized between browser and server.</p>
 
 <p>
   <a href="http://jwt.emweb.be/jwt-simplechat/simplechat" class="run" target="_blank">
-    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
+    <img src="/icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -521,7 +521,7 @@ sure that data is synchronized between browser and server.</p>
 
 <p>
   <a href="http://jwt.emweb.be/figtree/figtree" class="run" target="_blank">
-    <img src="icons/orange-play.png" style="vertical-align: top"/> Run example
+    <img src="/icons/orange-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -668,7 +668,7 @@ in other languages:
 
 <li>
 <div>
-<img class="language-icon" src="icons/clojure-logo.png" alt="Clojure"></img>
+<img class="language-icon" src="/icons/clojure-logo.png" alt="Clojure"></img>
 
 Leveraging the JVM's support for other languages, such
 as <b>Clojure</b>, a LISP variant, Raphael Bauduin is experimenting
@@ -683,7 +683,7 @@ and eventually developing a small support library.
 
 <li>
 <div>
-<img class="language-icon" src="icons/cpp-logo.jpg" alt="C++"></img>
+<img class="language-icon" src="/icons/cpp-logo.jpg" alt="C++"></img>
 
 If you prefer <b>C++</b>, you should consider
 using <a href="/wt">Wt</a>, the C++ version, which is developed and
@@ -696,7 +696,7 @@ version is derived. It comes with application server included.
 </li>
 <li>
 <div>
-<img class="language-icon" src="icons/ruby-logo-R.png" alt="Ruby"></img>
+<img class="language-icon" src="/icons/ruby-logo-R.png" alt="Ruby"></img>
 
 Richard Dale is
 maintaining <a href="http://github.com/rdale/wtruby/tree/master">WtRuby</a>,

@@ -423,7 +423,7 @@ option is a matter of (re)linking to one of these connector libraries!
 
 <p>
   <a href="/wt/examples/hello/hello.wt" class="run" target="_blank">
-    <img src="icons/green-play.png" style="vertical-align: top"/> Run example
+    <img src="/icons/green-play.png" style="vertical-align: top"/> Run example
   </a>
 </p>
 
@@ -521,7 +521,7 @@ target="_blank">nice introduction to Wt</a> written by Victor Venkman.</p>
 
 <p>
   <a href="/wt/examples/treeview-dragdrop/treeview-dragdrop.wt" class="run" target="_blank">
-    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
+    <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -573,7 +573,7 @@ WTableView and PieChart) and models.
 
 <p>
   <a href="/wt/examples/charts/charts.wt" class="run" target="_blank">
-    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
+    <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -614,7 +614,7 @@ browser and server.</p>
 
 <p>
   <a href="/wt/examples/gitmodel/gitview.wt" class="run" target="_blank">
-    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
+    <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -654,7 +654,7 @@ browser and server.</p>
 
 <p>
   <a href="/wt/examples/composer/composer.wt" class="run" target="_blank">
-    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
+    <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -708,7 +708,7 @@ browser and server.</p>
 
 <p>
   <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
-    <img src="icons/green-play.png" style="vertical-align: top"/>  Run example
+    <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
   </a>
 </p>
 
@@ -745,7 +745,7 @@ browser and server.</p>
 
 <p>
   <a href="/widgets" class="run" target="_blank">
-    <img src="icons/green-play.png" style="vertical-align: top"/>  Go to widget gallery
+    <img src="/icons/green-play.png" style="vertical-align: top"/>  Go to widget gallery
   </a>
 </p>
 
@@ -1028,7 +1028,7 @@ in other languages:
 <ul class="languages">
 <li>
 <div>
-<img class="java-language-icon" src="icons/java-logo.png" alt="Java"></img>
+<img class="java-language-icon" src="/icons/java-logo.png" alt="Java"></img>
 
 You can use <a href="/jwt">JWt</a>, a native <b>Java</b> version of Wt
 developed and maintained together with the C++ version. It has, with
@@ -1041,7 +1041,7 @@ and can be deployed into any Servlet container.
 </li>
 <li>
 <div>
-<img class="language-icon" src="icons/ruby-logo-R.png" alt="Ruby"></img>
+<img class="language-icon" src="/icons/ruby-logo-R.png" alt="Ruby"></img>
 
 Richard Dale is
 maintaining <a href="http://github.com/rdale/wtruby/tree/master">WtRuby</a>,
@@ -1056,7 +1056,7 @@ bindings to Qt and KDE.
 
 <li>
 <div>
-<img class="language-icon" src="icons/clojure-logo.png" alt="Clojure"></img>
+<img class="language-icon" src="/icons/clojure-logo.png" alt="Clojure"></img>
 
 Leveraging the JVM's support for other languages, such as <b>Clojure</b>, a
 LISP variant, Raphael Bauduin is experimenting with <a
