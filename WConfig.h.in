@@ -29,6 +29,8 @@
 #cmakedefine WT_HAS_WRASTERIMAGE
 #cmakedefine WT_HAS_WPDFIMAGE
 
+#cmakedefine WT_NO_BOOST_INTRUSIVE
+
 #if ${WT_DEBUG_ENABLED}
 #ifndef WT_TARGET_JAVA
   #define WT_DEBUG(statement) do { if (Wt::WApplication::instance()->debug()) statement; } while(0)

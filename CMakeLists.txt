@@ -43,6 +43,13 @@ IF(NOT SHARED_LIBS)
   ENDIF(WIN32)
 ENDIF(NOT SHARED_LIBS)
 
+IF(WIN32)
+  IF(SHARED_LIBS)
+    # See http://svn.boost.org/trac/boost/ticket/3465
+    SET(WT_NO_BOOST_INTRUSIVE true)
+  ENDIF(SHARED_LIBS)
+ENDIF(WIN32)
+
 # Fixup Windows declspec stuff
 IF(NOT SHARED_LIBS)
   SET(WT_STATIC true)

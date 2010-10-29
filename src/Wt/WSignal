@@ -10,14 +10,6 @@
 #include <Wt/WObject>
 #include <bitset>
 
-#if defined(WIN32) && defined(wt_EXPORTS)
-// boost intrusive compilation fails with static asserts when Wt is compiled
-// as a DLL on windows. This hack makes all static asserts succeed.
-namespace boost {
-  template<bool x> struct STATIC_ASSERTION_FAILURE { enum { value = 1 }; };
-}
-#endif
-
 #include <boost/bind.hpp>
 #include <boost/intrusive/list.hpp>
 #include <boost/signal.hpp>
@@ -441,9 +433,9 @@ public:
  * \ingroup signalslot
  */
 class WT_API EventSignalBase : public SignalBase
-#ifndef WT_TARGET_JAVA
+#if !(defined(WT_TARGET_JAVA) || defined(WT_NO_BOOST_INTRUSIVE))
 			     ,public boost::intrusive::list_base_hook<>
-#endif // WT_TARGET_JAVA
+#endif
 {
 public:
   virtual ~EventSignalBase();
