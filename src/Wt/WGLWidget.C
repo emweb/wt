@@ -351,9 +351,18 @@ WGLWidget::WGLWidget(WContainerWidget *parent):
   uniforms_(0),
   buffers_(0),
   textures_(0),
-  matrices_(0)
+  matrices_(0),
+  mouseWentDownSlot_("function(){}", this),
+  mouseWentUpSlot_("function(){}", this),
+  mouseDraggedSlot_("function(){}", this),
+  mouseWheelSlot_("function(){}", this)
+
 {
   setInline(false);
+  mouseWentDown().connect(mouseWentDownSlot_);
+  mouseWentUp().connect(mouseWentUpSlot_);
+  mouseDragged().connect(mouseDraggedSlot_);
+  mouseWheel().connect(mouseWheelSlot_);
 }
 
 WGLWidget::~WGLWidget()
@@ -621,7 +630,7 @@ void WGLWidget::copyTexSubImage2D(TextureTargetEnum target, int level,
 
 Buffer WGLWidget::createBuffer()
 {
-  Buffer retval = "WtBuffer" + boost::lexical_cast<std::string>(buffers_++);
+  Buffer retval = "ctx.WtBuffer" + boost::lexical_cast<std::string>(buffers_++);
   js_ << retval << "=ctx.createBuffer();";
   GLDEBUG;
   return retval;
@@ -629,7 +638,7 @@ Buffer WGLWidget::createBuffer()
 
 Program WGLWidget::createProgram()
 {
-  Program retval = "WtProgram" + boost::lexical_cast<std::string>(programs_++);
+  Program retval = "ctx.WtProgram" + boost::lexical_cast<std::string>(programs_++);
   js_ << retval << "=ctx.createProgram();";
   GLDEBUG;
   return retval;
@@ -637,7 +646,7 @@ Program WGLWidget::createProgram()
 
 Shader WGLWidget::createShader(ShaderEnum shader)
 {
-  Shader retval = "WtShader" + boost::lexical_cast<std::string>(shaders_++);
+  Shader retval = "ctx.WtShader" + boost::lexical_cast<std::string>(shaders_++);
   js_ << retval << "=ctx.createShader(";
   switch (shader) {
     case FRAGMENT_SHADER:
@@ -654,7 +663,7 @@ Shader WGLWidget::createShader(ShaderEnum shader)
 
 Texture WGLWidget::createTexture()
 {
-  Texture retval = "WtTexture" + boost::lexical_cast<std::string>(textures_++);
+  Texture retval = "ctx.WtTexture" + boost::lexical_cast<std::string>(textures_++);
   js_ << retval << "=ctx.createTexture();";
   GLDEBUG;
   return retval;
@@ -781,7 +790,7 @@ void WGLWidget::generateMipmap(TextureTargetEnum target)
 
 AttribLocation WGLWidget::getAttribLocation(Program program, const std::string &attrib)
 {
-  AttribLocation retval = "WtAttrib" + boost::lexical_cast<std::string>(attributes_++);
+  AttribLocation retval = "ctx.WtAttrib" + boost::lexical_cast<std::string>(attributes_++);
   js_ << retval << "=ctx.getAttribLocation(" << program << "," << jsStringLiteral(attrib) << ");";
   GLDEBUG;
   return retval;
@@ -789,7 +798,7 @@ AttribLocation WGLWidget::getAttribLocation(Program program, const std::string &
 
 UniformLocation WGLWidget::getUniformLocation(Program program, const std::string location)
 {
-  UniformLocation retval = "WtUniform" + boost::lexical_cast<std::string>(uniforms_++);
+  UniformLocation retval = "ctx.WtUniform" + boost::lexical_cast<std::string>(uniforms_++);
   js_ << retval << "=ctx.getUniformLocation(" << program << "," << jsStringLiteral(location) << ");";
   GLDEBUG;
   return retval;
@@ -958,7 +967,7 @@ void WGLWidget::connectJavaScript(Wt::EventSignalBase &s,
 JavaScriptMatrix4x4 WGLWidget::createJavaScriptMatrix4()
 {
   WGenericMatrix<double, 4, 4> m; // unit matrix
-  JavaScriptMatrix4x4 retval = "WtMatrix" + boost::lexical_cast<std::string>(matrices_++);
+  JavaScriptMatrix4x4 retval = "ctx.WtMatrix" + boost::lexical_cast<std::string>(matrices_++);
   js_ << retval << "=";
   renderfv(m.data().begin(), m.data().end());
   js_ << ";";
@@ -971,10 +980,10 @@ void WGLWidget::setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
                                            double uX, double uY, double uZ,
                                            double pitchRate, double yawRate)
 {
-  connectJavaScript(mouseWentDown(), "mouseDown");
-  connectJavaScript(mouseWentUp(), "mouseUp");
-  connectJavaScript(mouseDragged(), "mouseDragLookAt");
-  connectJavaScript(mouseWheel(), "mouseWheelLookAt");
+  mouseWentDownSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseDown(o, e);}");
+  mouseWentUpSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseUp(o, e);}");
+  mouseDraggedSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseDragLookAt(o, e);}");
+  mouseWheelSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseWheelLookAt(o, e);}");
   std::stringstream ss;
   ss << "jQuery.data(" << jsRef() << ",'obj').setLookAtParams("
     << m
@@ -986,26 +995,15 @@ void WGLWidget::setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
 
 void WGLWidget::setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double frontStep, double rotStep)
 {
-  mouseWentDown().connect("function(o, e){ o.mouseDownCoordinates = " WT_CLASS ".pageCoordinates(event);}");
+  mouseWentDownSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseDown(o, e);}");
+  mouseWentUpSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseUp(o, e);}");
+  mouseDraggedSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseDragWalk(o, e);}");
+  mouseWheelSlot_.setJavaScript("function(o, e){}");
   std::stringstream ss;
-  ss << "function(o, e){"
-    "var c = " WT_CLASS ".pageCoordinates(event);"
-    "var dx=(c.x - o.mouseDownCoordinates.x);"
-    "var dy=(c.y - o.mouseDownCoordinates.y);"
-    //"console.log('dragged: ' + dx + ',' + dy);"
-    "o.mouseDownCoordinates = c;"
-    "var r=mat4.create();"
-    "mat4.identity(r);"
-    "mat4.rotateY(r, dx * " << rotStep << ");"
-    "var t=vec3.create();"
-    "t[0]=0;"
-    "t[1]=0;"
-    "t[2]=-" << frontStep << "*dy;"
-    "mat4.translate(r, t);"
-    "mat4.multiply(r," << m << "," << m << ");"
-    "ctx.paintGl();"
-    "}";
-  mouseDragged().connect(ss.str());
+  ss << "jQuery.data(" << jsRef() << ",'obj').setWalkParams("
+    << m << ","
+    << frontStep << "," << rotStep << ");";
+  doJavaScript(ss.str());
 }
 
 void WGLWidget::uniformNormalMatrix4(const UniformLocation &u,

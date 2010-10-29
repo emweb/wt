@@ -69,6 +69,7 @@ void readObj(const std::string &fname,
 {
   std::vector<double> points;
   std::vector<double> normals;
+  std::vector<double> textures;
   std::ifstream f(fname.c_str());
   
   while (f) {
@@ -87,9 +88,9 @@ void readObj(const std::string &fname,
         normals.push_back(str2float(splitLine[2]));
         normals.push_back(str2float(splitLine[3]));
       } else if (splitLine[0] == "vt") {
-        //textures.push_back(boost::lexical_cast<double>(splitLine[1]));
-        //textures.push_back(boost::lexical_cast<double>(splitLine[2]));
-        //textures.push_back(boost::lexical_cast<double>(splitLine[3]));
+        textures.push_back(boost::lexical_cast<double>(splitLine[1]));
+        textures.push_back(boost::lexical_cast<double>(splitLine[2]));
+        textures.push_back(boost::lexical_cast<double>(splitLine[3]));
       } else if (splitLine[0] == "f") {
         //std::vector<boost::tuple<int, int, int> > face;
         //std::vector<int> face;

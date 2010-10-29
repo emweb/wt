@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+// THIS EXAMPLE IS NOT YET EXPECTED TO WORK
+
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
@@ -12,6 +14,7 @@
 
 #include <Wt/WMatrix4x4>
 #include <Wt/WGenericMatrix>
+#include <Wt/WStringUtil>
 
 #include <boost/tuple/tuple.hpp>
 
@@ -92,6 +95,7 @@ public:
     setJavaScriptMatrix4(jsMatrix_, worldTransform);
 
     setClientSideLookAtHandler(jsMatrix_, cx, cy, cz, 0, 1, 0, 0.005, 0.005);
+    //setClientSideWalkHandler(jsMatrix_, 0.05, 0.005);
     // First, load a simple shader
     Shader fragmentShader = createShader(FRAGMENT_SHADER);
     shaderSource(fragmentShader, fragmentShaderSrc);

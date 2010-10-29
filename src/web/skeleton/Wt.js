@@ -414,8 +414,6 @@ this.isKeyPress = function(e) {
   }
 };
 
-var rnumpx = /^-?\d+(?:px)?$/i;
-
 function css(c, s) {
   if (c.style[s])
     return c.style[s];
@@ -427,6 +425,8 @@ function css(c, s) {
     return null;
 }
 
+var rnumpx = /^(-?\d+)(?:px)?$/i;
+
 // Get an element metric in pixels
 this.px = function(c, s) {
   var v = css(c, s);
@@ -434,8 +434,9 @@ this.px = function(c, s) {
   if (v == 'auto' || v == null)
     return 0;
 
-  if (rnumpx.test(v))
-    return parseFloat(v);
+  var a = rnumpx.exec(v);
+  if (a)
+    return a[1];
   else
     return 0;
 };

@@ -927,6 +927,11 @@ private:
   unsigned matrices_;
   std::vector<std::pair<std::string, std::string> > preloadImages_;
 
+  JSlot mouseWentDownSlot_;
+  JSlot mouseWentUpSlot_;
+  JSlot mouseDraggedSlot_;
+  JSlot mouseWheelSlot_;
+
   std::stringstream js_;
 
   template<typename Iterator>

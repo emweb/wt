@@ -27,9 +27,10 @@ WT_DECLARE_WT_MEMBER
    var lookAtPitchRate = 0;
    var lookAtYawRate = 0;
    var cameraMatrix = null;
+   var walkFrontRate = 0;
+   var walkYawRate = 0;
 
    this.discoverContext = function() {
-     //debugger;
      if (canvas.getContext) {
        this.ctx = canvas.getContext('experimental-webgl');
        if (this.ctx == null) {
@@ -41,7 +42,7 @@ WT_DECLARE_WT_MEMBER
      }
      console.log('ctx: ' + this.ctx);
      return this.ctx;
-   };
+   }
 
    this.setLookAtParams = function(matrix, center, up, pitchRate, yawRate) {
      cameraMatrix = matrix;
@@ -55,9 +56,6 @@ WT_DECLARE_WT_MEMBER
      var c = WT.pageCoordinates(event);
      var dx=(c.x - dragPreviousXY.x);
      var dy=(c.y - dragPreviousXY.y);
-     console.log('mouseDragLookAt: ' + dx + ',' + dy);
-     console.log('mouseDragLookAt: ' + mat4.str(cameraMatrix));
-     o.mouseDownCoordinates = c;
      var s=vec3.create();
      s[0]=cameraMatrix[0];
      s[1]=cameraMatrix[4];
@@ -95,6 +93,30 @@ WT_DECLARE_WT_MEMBER
      console.log('mouseWheelLookAt: repaint');
      this.paintGl();
    };
+
+   this.setWalkParams = function(matrix, frontRate, yawRate) {
+     cameraMatrix = matrix;
+     walkFrontRate = frontRate;
+     walkYawRate = yawRate;
+   };
+
+   this.mouseDragWalk = function(o, event){
+     var c = WT.pageCoordinates(event);
+     var dx=(c.x - dragPreviousXY.x);
+     var dy=(c.y - dragPreviousXY.y);
+     var r=mat4.create();
+     mat4.identity(r);
+     mat4.rotateY(r, dx * walkYawRate);
+     var t=vec3.create();
+     t[0]=0;
+     t[1]=0;
+     t[2]=-walkFrontRate * dy;
+     mat4.translate(r, t);
+     mat4.multiply(r, cameraMatrix, cameraMatrix);
+     this.paintGl();
+     dragPreviousXY = WT.pageCoordinates(event);
+   }
+
 
    this.mouseDown = function(o, event) {
      WT.capture(null);
