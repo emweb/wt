@@ -19,6 +19,157 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.6 (Oct 28, 2010)</h2>
+
+<p>
+  This release contains a healthy mix of bug fixes, quality improvements,
+  and new features. And hopefully no regressions :-)
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1SyncLock.html">SyncLock&lt;Lock&gt;</a></dt>
+  <dd>
+    A dead-lock avoidance adaptor for a Boost mutex lock, which provides
+    a controlled way of releasing the current application lock.
+  </dd>
+  <dt><a href="classWt_1_1WProgressBar.html">WProgressBar</a></dt>
+  <dd>
+    A progress bar, contributed by Thomas Suckow.
+  </dd>
+  <dt><a href="classWt_1_1WSpinBox.html">WSpinBox</a></dt>
+  <dd>
+    A spin box.
+  </dd>
+  <dt><a href="structWt_1_1boost__any__traits.html">boost_any_traits&lt;Type&gt;</a></dt>
+  <dd>
+    A traits class for customized interpretation of data stored in a
+    boost::any. You can register a new type using <a href="group__modelview.html#ga91842a84102ee15d41102ccf0745f4e4">registerType&lt;Type&gt;</a>.
+  </dd>
+
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt>
+    Native support for MSIE 9
+  </dt>
+  <dd>
+    MSIE 9 (Beta) is now supported in all its goodness, including support
+    for HTML5 canvas and (almost working) support for SVG.
+  </dd>
+  <dt>
+    <a href="classWt_1_1WApplication_1_1UpdateLock.html">
+      WApplication::UpdateLock</a>
+  </dt>
+  <dd>The lock is now a RIAA lock, getUpdateLock() has been deprecated.
+    The lock needs also to be tested against validity (using operator bool()):
+    when invalid the session that it is trying to lock is being destroyed.</dd>
+  <dt>
+    <a href="classWt_1_1WApplication.html#a506978cfb884af4bc6ffd5a5bc8476d6">WApplication::setConfirmCloseMessage()</a>
+  </dt>
+  <dd>Provide the user with a message to confirm navigating away from the
+    application.</dd>
+  <dt>
+    <a href="classWt_1_1WApplication.html#a9a4048e01b69a536e35f47eb2a59a69b">WApplication::unload()</a>
+  </dt>
+  <dd>Rather then waiting for the session to expire, an application
+    that is navigated away iis now notified of this and will by
+    default <tt>quit()</tt>.</dd>
+  <dt>
+    <a href="classWt_1_1WApplication.html#a149412d829d104621c445bc10604be53">WApplication::addMetaHeader()</a>
+  </dt>
+  <dd>Can now be used to specify "http-equiv" meta headers too.</dd>
+  <dt>
+    <a href="classWt_1_1WDatePicker.html#acda30d9035692895a2bb94090babc073">WDatePicker::changed()</a>
+  </dt>
+  <dd>I wonder how we ever did without.
+  </dd>
+  <dt><a href="classWt_1_1WAbstractArea.html#a3dbe39c26769a63e4bf63020e31e9f22">WAbstractArea::mouseWheel()</a>,
+  <a href="classWt_1_1WInteractWidget.html#a656a0e4d5af72af0190d84dedf0093c6">WInteractWidget::mouseWheel()</a>,
+  <a href="classWt_1_1WMouseEvent.html#a4354738e0bce7e57764a465f5e19895d">WMouseEvent::wheelDelta()</a></dt>
+  <dd>
+    Added mouseWheel() event.
+  </dd>
+
+  <dt><a href="classWt_1_1WFileUpload.html">WFileUpload</a></dt>
+  <dd>
+    Added support for the simultaneous upload of multiple files (HTML5
+    "multiple") attribute and showing a progress bar to show upload
+    progress.
+  </dd>
+
+  <dt><a href="classWt_1_1WFormWidget.html">WFormWidget::hasFocus()</a></dt>
+  <dd>
+    Returns whether the widget currently has the keyboard focus.
+  </dd>
+
+  <dt><a href="classWt_1_1WHTML5Media.html">WHTML5Media</a></dt>
+  <dd>
+    Added events to catch play, pause, play-back progress and volume
+    changes.
+  </dd>
+
+  <dt><a href="classWt_1_1WLineEdit.html">WLineEdit</a>, <a href="classWt_1_1WTextArea.html">WTextArea</a></dt>
+  <dd>
+    Added <tt>currentPosition()</tt>, <tt>selectionStart()</tt>,
+    <tt>selectedText()</tt>, and <tt>hasSelectedText()</tt> methods to retrieve
+    the current cursor position and selection.
+  </dd>
+
+  <dt><a href="classWt_1_1WPushButton.html#aa5830a2118836423f0c16d12bbfd57a0">WPushButton::setRef()</a></dt>
+  <dd>
+    Utility method to create an anchor that looks like a button, or a
+    button that behaves like an anchor, depending on your point of
+    view. There is also <tt>setResource()</tt> to set a resource as
+    target.
+  </dd>
+  <dt>
+    <a href="classWt_1_1WResource.html">WResource</a>
+  </dt>
+  <dd>Added API for upload progress tracking.</dd>
+
+  <dt>
+    <a href="classWt_1_1Http_1_1Request.html">Http::Request</a>
+  </dt>
+  <dd>Added support for HTTP request byte ranges, and this is now
+  interpreted by both the WFileResource and built-in httpd for static
+  files.
+  </dd>
+  <dt>
+    <a href="classWt_1_1Http_1_1Response.html">Http::Response</a>
+  </dt>
+  <dd>Added <tt>setContentLength()</tt> which allows you to specify the
+    lenght of the response in advance, proving a better user experience
+    for large downloads.
+  </dd>
+  <dt>
+    <a href="classWt_1_1Dbo_1_1Session.html#8712ff0d59f7bb6a4d2986ad9637cc9e">Dbo::Session::query()</a>
+  </dt>
+  <dd>Switched to a more complete Boost.Spirit parser for SQL queries, which
+    understands most of the SQL syntax, including functions,
+    "with ... select ... ".
+  </dd>
+  <dt>
+    <a href="classWt_1_1Dbo_1_1QueryModel.html">Dbo::QueryModel</a>
+  </dt>
+  <dd>Added support for custom column header names and changing the
+    undelrying query using setQuery() while preserving the current
+    column definitions.</dd>
+  <dt>
+    <a href="classWt_1_1Dbo_1_1SqlStatement.html">Dbo::SqlStatement</a>
+  </dt>
+  <dd>Added boost::posix_time::time_duration type support.</dd>
+  <dt>
+    <a href="structWt_1_1Dbo_1_1sql__value__traits.html">Dbo::sql_value_traits&lt;WTime&gt;</a>
+  </dt>
+  <dd>Added template specialization for WTime.</dd>
+</dl>
+
+<hr />
+
 <h2>Release 3.1.5 (Sep 10, 2010)</h2>
 
 <p>

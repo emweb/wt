@@ -525,7 +525,8 @@ int WAbstractItemView::sortColumn() const
 
 SortOrder WAbstractItemView::sortOrder() const
 {
-  if (currentSortColumn_ >= 0 && currentSortColumn_ < columns_.size())
+  if (currentSortColumn_ >= 0
+      && currentSortColumn_ < static_cast<int>(columns_.size()))
     return columns_[currentSortColumn_].sortOrder;
   else
     return AscendingOrder;

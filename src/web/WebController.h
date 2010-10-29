@@ -153,6 +153,12 @@ private:
   static void mxml_error_cb(const char *message);
 
 #endif // WT_TARGET_JAVA
+
+#ifdef WT_TARGET_JAVA
+  static bool isAsyncSupported() {
+    return false;
+  }
+#endif //WT_TARGET_JAVA
 };
 
 extern void WebStreamAddSocketNotifier(WSocketNotifier *notifier);

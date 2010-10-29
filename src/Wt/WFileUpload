@@ -274,6 +274,12 @@ public:
    *
    * The default progress bar is 0 (no upload progress is indicated).
    *
+   * \if java
+   * To update the progess bar server push is used, you should only
+   * use this functionality when using a Servlet 3.0 compatible servlet 
+   * container.
+   * \endif
+   *
    * \sa dataReceived()
    */
   void setProgressBar(WProgressBar *progressBar);

@@ -71,6 +71,7 @@ WSortFilterProxyModel::WSortFilterProxyModel(WObject *parent)
   : WAbstractProxyModel(parent),
     regex_(0),
     filterKeyColumn_(0),
+    mappedRootItem_(0),
     filterRole_(DisplayRole),
     sortKeyColumn_(-1),
     sortRole_(DisplayRole),
@@ -207,6 +208,9 @@ void WSortFilterProxyModel::resetMappings()
     delete i->second;
 
   mappedIndexes_.clear();
+
+  delete mappedRootItem_;
+  mappedRootItem_ = 0;
 }
 
 WModelIndex WSortFilterProxyModel::mapFromSource(const WModelIndex& sourceIndex)
@@ -281,6 +285,15 @@ WSortFilterProxyModel::Item *
 WSortFilterProxyModel::itemFromSourceIndex(const WModelIndex& sourceParent)
   const
 {
+  if (!sourceParent.isValid()) {
+    if (!mappedRootItem_) {
+      Item *result = new Item(sourceParent);
+      mappedRootItem_ = result;
+      updateItem(result);
+    }
+    return mappedRootItem_;
+  }
+
   ItemMap::const_iterator i = mappedIndexes_.find(sourceParent);
   if (i == mappedIndexes_.end()) {
     Item *result = new Item(sourceParent);

@@ -1054,6 +1054,11 @@ WLogEntry WApplication::log(const std::string& type) const
 
 void WApplication::enableUpdates(bool enabled)
 {
+#ifdef WT_TARGET_JAVA
+  if (!WebController::isAsyncSupported())
+    throw WtException("Server push requires a Servlet 3.0 API.");
+#endif
+
   if (enabled)
     ++serverPush_;
   else

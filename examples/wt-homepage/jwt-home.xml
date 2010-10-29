@@ -522,7 +522,7 @@ To obtain a clone of JWt:
 <h4>System requirements</h4>
 
 For building and using the latest version of JWt, you should follow the  <a
-href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html"> Getting started tutorial
+href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html#getting-started"> Getting started tutorial
 </a>, this tutorial explains on how to build JWt and run the examples.
   </message>
   <message id="home.download.packages">
@@ -637,7 +637,7 @@ bindings to Qt and KDE.
 
 <h4>Build and install</h4>
 
-<p>A <a href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html" target="_blank">Getting started</a> tutorial is available (in a new window). There is a section both for command line and Eclipse-based development.</p>
+<p>A <a href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html" target="_blank">User Guide</a> is available (in a new window). This user guide consists of a <a href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html#_library_overview" target="_blank">library overview</a> section and a <a href="http://www.webtoolkit.eu/jwt/latest/doc/userguide/userguide.html#getting-started" target="_blank">getting started</a> section.</p>
 
 <h4>Introduction and tutorials</h4>
 

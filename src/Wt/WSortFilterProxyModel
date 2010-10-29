@@ -304,6 +304,7 @@ private:
 
   std::vector<boost::signals::connection> modelConnections_;
   mutable ItemMap mappedIndexes_;
+  mutable Item* mappedRootItem_;
 
   void sourceColumnsAboutToBeInserted(const WModelIndex& parent,
 				      int start, int end);

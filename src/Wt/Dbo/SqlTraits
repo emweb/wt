@@ -38,6 +38,7 @@ class SqlStatement;
  * In <Wt/Dbo/WtSqlTraits>, traits classes are also provided for:
  *  - WDate
  *  - WDateTime
+ *  - WTime
  *  - WString
  *
  * \sa query_result_traits

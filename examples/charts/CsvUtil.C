@@ -50,16 +50,18 @@ void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
 	  std::string s = *i;
 
 	  char *endptr;
+	  /*
 	  int i = strtol(s.c_str(), &endptr, 0);
 	  if (*endptr == 0)
 	    data = boost::any(i);
 	  else {
+	  */
 	    double d = strtod(s.c_str(), &endptr);
 	    if (*endptr == 0)
 	      data = boost::any(d);
 	    else
 	      data = boost::any(Wt::WString::fromUTF8(s));
-	  }
+	    /*}*/
 
 	  model->setData(dataRow, col, data);
 	}

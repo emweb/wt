@@ -37,8 +37,6 @@ class WText;
  * default. You must use the method show() or setHidden(true) to show
  * the dialog.
  *
- * \if cpp
- *
  * The easiest way to display a modal dialog is using exec(): after
  * creating a %WDialog window, a call to exec() will block (suspend
  * the thread) until the dialog window is closed, and return the
@@ -50,7 +48,9 @@ class WText;
  * locked. In practical terms, this means it is only suitable for
  * software with restricted access or deployed on an intranet or
  * extranet.
- *
+ * \if java
+ * This functionality is only available on Servlet 3.0 compatible 
+ * servlet containers.
  * \endif
  *
  * Use setModal(false) to create a non-modal dialog. A non-modal
@@ -186,6 +186,10 @@ public:
    *
    * <i>Warning: using exec() does not scale to many concurrent
    * sessions, since the thread is locked.</i>
+   * \if java 
+   * <i>This functionality is only available on Servlet 3.0 compatible 
+   * servlet containers.</i>
+   * \endif
    *
    * \sa done(DialogCode r), accept(), reject()
    */

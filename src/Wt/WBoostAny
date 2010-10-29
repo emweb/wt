@@ -126,13 +126,12 @@ extern WT_API double asNumber(const boost::any& v);
 
 /*! \brief Registers MVC-support for a type passed in a boost::any.
  *
- * By registering a type, the functions Wt::asString() which is given a
- * boost::any will know how to convert the boost::any holding a value of
- * \p Type to Wt::WString and as a consequence, the type may be used as
- * Wt::DisplayRole data in a Wt::WAbstractItemModel model.
- *
- * For a registered type, Wt::boost_any_traits<Type>::asString() is
- * used to implement Wt::asString() with a boost::any of type Type.
+ * By registering a type using this method, the global function
+ * Wt::asString(), which converts a boost::any to a string, will know
+ * how to interpret a boost::any holding a value of type \p Type using
+ * Wt::boost_any_traits<Type>::asString(). This gives %Wt's built-in
+ * standard View classes the ability to display Wt::DisplayRole data
+ * of a Wt::WAbstractItemModel model.
  *
  * Similarly, Wt::asNumber() uses
  * Wt::boost_any_traits<Type>::asNumber() for use by

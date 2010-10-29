@@ -712,6 +712,11 @@ void WebSession::doRecursiveEventLoop()
 #if !defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
   log("error") << "Cannot do recursive event loop without threads";
 #else // WT_THREADED
+
+#ifdef WT_TARGET_JAVA
+  if (!WebController::isAsyncSupported())
+    throw WtException("Recursive event loop requires a Servlet 3.0 API.");
+#endif
   
   /*
    * Finish the request that is being handled

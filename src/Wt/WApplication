@@ -867,6 +867,12 @@ public:
    * \endcode
    * \endif
    *
+   * \if java
+   * This works only if your servlet container supports the Servlet 3.0
+   * API. If you try to invoke this function on a servlet container with 
+   * no such support, and exception will be thrown.
+   * \endif
+   *
    * \note This works only if JavaScript is available on the client.
    *
    * \sa triggerUpdate()
