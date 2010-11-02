@@ -1664,6 +1664,9 @@ function responseReceived(updateId) {
 }
 
 function sendUpdate() {
+  if (responsePending)
+    return;
+
   updateTimeout = null;
   var feedback;
 
@@ -1691,13 +1694,13 @@ function sendUpdate() {
       : null;
     poll = false;
   } else {
-    data = {result: 'signal=poll' };
+    data = {result: '&signal=poll' };
     tm = null;
     poll = true;
   }
 
   responsePending = self._p_.comm.sendUpdate
-    (url + query, 'request=jsupdate&' + data.result + '&ackId=' + ackUpdateId,
+    (url + query, 'request=jsupdate' + data.result + '&ackId=' + ackUpdateId,
      tm, ackUpdateId, -1);
 
   pollTimer
