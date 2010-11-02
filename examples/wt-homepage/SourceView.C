@@ -186,12 +186,12 @@ WWidget * SourceView::renderView()
   } else if (lang != "") {
     WText *text = new WText();
     text->setTextFormat(XHTMLUnsafeText);
-    text->setText(content);
+    text->setText(WString::fromUTF8(content));
     result = text;
   } else {
     WText *text = new WText();
     text->setTextFormat(PlainText);
-    text->setText(content);
+    text->setText(WString::fromUTF8(content));
     result = text;
   }
 

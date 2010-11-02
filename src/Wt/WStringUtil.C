@@ -26,15 +26,15 @@ std::wstring widen(const std::string& s, const std::locale &loc)
   std::size_t size = s.length();
   wchar_t *pwstr = new wchar_t[size + 1];
 
-  const char* pc;
-  wchar_t* pwc;
+  const char* pc = s.c_str();
+  wchar_t* pwc = pwstr;
 
   std::mbstate_t mystate = std::mbstate_t();
   bool error = false;
 
   for (;;) {
-    myresult = myfacet.in(mystate, s.c_str(), s.c_str() + size, pc,
-			  pwstr, pwstr + size + 1, pwc);
+    myresult = myfacet.in(mystate, pc, s.c_str() + size, pc,
+			  pwc, pwstr + size + 1, pwc);
 
     if (myresult != Cvt::ok) {
       *pwc++ = L'?';

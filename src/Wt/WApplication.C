@@ -92,6 +92,7 @@ WApplication::WApplication(const WEnvironment& env)
     connected_(true),
     bodyHtmlClassChanged_(false),
     enableAjax_(false),
+    initialized_(false),
     selectionStart_(-1),
     selectionEnd_(-1),
     scriptLibrariesAdded_(0),
@@ -1054,11 +1055,6 @@ WLogEntry WApplication::log(const std::string& type) const
 
 void WApplication::enableUpdates(bool enabled)
 {
-#ifdef WT_TARGET_JAVA
-  if (!WebController::isAsyncSupported())
-    throw WtException("Server push requires a Servlet 3.0 API.");
-#endif
-
   if (enabled)
     ++serverPush_;
   else
@@ -1071,6 +1067,11 @@ void WApplication::enableUpdates(bool enabled)
 
 void WApplication::triggerUpdate()
 {
+#ifdef WT_TARGET_JAVA
+  if (!WebController::isAsyncSupported())
+    throw WtException("Server push requires a Servlet 3.0 API.");
+#endif
+
   if (!modifiedWithoutEvent_)
     return;
 

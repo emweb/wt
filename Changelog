@@ -1,3 +1,14 @@
+02-11-2010:
+	* WebSession: initialize() in first notify()
+
+	* WStringUtil: fix a bug in widen() when the underlying conversion
+	gives an error
+
+	* build: fixes suggested by Pau
+
+29-10-2010:
+	* Wt 3.1.6 released
+
 28-10-2010:
 	* WebSession: use sequence instead of random numbers for resources
 

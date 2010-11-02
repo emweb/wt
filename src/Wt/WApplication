@@ -1659,7 +1659,7 @@ private:
   bool                   connected_;
   std::string            htmlClass_, bodyClass_;
   bool                   bodyHtmlClassChanged_;
-  bool                   enableAjax_;
+  bool                   enableAjax_, initialized_;
   std::string            focusId_;
   int                    selectionStart_, selectionEnd_;
 

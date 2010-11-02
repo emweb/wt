@@ -1161,9 +1161,13 @@ void WebSession::notify(const WEvent& event)
 
   const std::string *requestE = request.getParameter("request");
 
+  if (!app_->initialized_) {
+    app_->initialize();
+    app_->initialized_ = true;
+  }
+
   switch (state_) {
   case WebSession::JustCreated:
-    app_->initialize();
 
 #ifdef WT_WITH_OLD_INTERNALPATH_API
     if (app_->oldInternalPathAPI() && env_->internalPath() != "/") {

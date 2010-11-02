@@ -366,6 +366,8 @@ Query<Result, DynamicBinding>::operator=
   limit_ = other.limit_;
   offset_ = other.offset_;
 
+  reset();
+
   for (unsigned i = 0; i < other.parameters_.size(); ++i)
     parameters_.push_back(other.parameters_[i]->clone());
 
