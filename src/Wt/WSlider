@@ -213,6 +213,7 @@ public:
 
 protected:
   virtual void signalConnectionsChanged();
+  virtual void layoutSizeChanged(int width, int height);
 
 private:
   Orientation          orientation_;
@@ -240,6 +241,9 @@ private:
 
   void onSliderClick(const WMouseEvent& event);
   void onSliderReleased(int u);
+
+  WLength w() const;
+  WLength h() const;
 
   static const int HANDLE_WIDTH = 17;
   static const int HANDLE_HEIGHT = 21;
