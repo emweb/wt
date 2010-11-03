@@ -96,7 +96,7 @@ public:
 
   /*! \brief Saves the edited data to the model.
    *
-   * The default implementation saves the current edit value to the database.
+   * The default implementation saves the current edit value to the model.
    * You will need to reimplement this method for a custom editor.
    *
    * As an example of how to deal with a specialized editor, consider the

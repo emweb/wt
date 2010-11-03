@@ -1313,7 +1313,7 @@ std::string WApplication::beforeLoadJavaScript()
 
 void WApplication::notify(const WEvent& e)
 {
-  WebSession::instance()->notify(e);
+  session_->notify(e);
 }
 
 void WApplication::processEvents()

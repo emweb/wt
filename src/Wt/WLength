@@ -55,7 +55,7 @@ public:
    */
   WLength(double value, Unit unit = Pixel);
 
-  /*! \brief Returns whether the ength is 'auto'.
+  /*! \brief Returns whether the length is 'auto'.
    *
    * \sa WLength(), Auto
    */

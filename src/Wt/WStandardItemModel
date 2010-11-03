@@ -56,8 +56,8 @@ class WStandardItem;
  * for (int row = 0; row < rows; ++row) {
  *   for (int column = 0; column < columns; ++column) {
  *     Wt::WStandardItem *item = new Wt::WStandardItem();
- *     item->setText("Item " + boost::lexical_cast<int>(row)
- *                   + ", " + boost::lexical_cast<int>(column));
+ *     item->setText("Item " + boost::lexical_cast<std::string>(row)
+ *                   + ", " + boost::lexical_cast<std::string>(column));
  *     model->setItem(row, column, item);
  *   }
  * }
@@ -73,11 +73,11 @@ class WStandardItem;
  *
  * for (int row = 0; row < topLevelRows; ++row) {
  *   Wt::WStandardItem *topLevel = new Wt::WStandardItem();
- *   topLevel->setText("Item " + boost::lexical_cast<int>(row));
+ *   topLevel->setText("Item " + boost::lexical_cast<std::string>(row));
  *   for (int row2 = 0; row2 < secondLevelRows; ++row2) {
  *     Wt::WStandardItem *item = new Wt::WStandardItem();
- *     item->setText("Item " + boost::lexical_cast<int>(row)
- *                   + ": " + boost::lexical_cast<int>(row2));
+ *     item->setText("Item " + boost::lexical_cast<std::string>(row)
+ *                   + ": " + boost::lexical_cast<std::string>(row2));
  *     topLevel->appendRow(item);
  *   }
  *   root->appendRow(topLevel);

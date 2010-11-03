@@ -146,6 +146,7 @@ void DispatchThread::destroy()
 
 bool DispatchThread::doEvent()
 {
+  app_->attachThread();
   if (event_) {
     app_->realNotify(*event_);
     signalDone();
