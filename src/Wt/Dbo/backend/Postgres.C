@@ -210,9 +210,13 @@ public:
 			     paramValues_, paramLengths_, paramFormats_, 0);
 
     row_ = 0;
-    if (PQresultStatus(result_) == PGRES_COMMAND_OK)
-      affectedRows_ = boost::lexical_cast<int>(PQcmdTuples(result_));
-    if (PQresultStatus(result_) == PGRES_TUPLES_OK)
+    if (PQresultStatus(result_) == PGRES_COMMAND_OK) {
+      std::string s = PQcmdTuples(result_);
+      if (!s.empty())
+	affectedRows_ = boost::lexical_cast<int>(s);
+      else
+	affectedRows_ = 0;
+    } else if (PQresultStatus(result_) == PGRES_TUPLES_OK)
       affectedRows_ = PQntuples(result_);
     if (affectedRows_ == 1 && sql_.rfind("returning id") != std::string::npos) {
       state_ = NoFirstRow;
