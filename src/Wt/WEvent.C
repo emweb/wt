@@ -16,13 +16,17 @@
 namespace {
   using namespace Wt;
 
+  int asInt(const std::string& v) {
+    return boost::lexical_cast<int>(v);
+  }
+
   int parseIntParameter(const WebRequest& request, const std::string& name,
 			int ifMissing) {
     const std::string *p;
 
     if ((p = request.getParameter(name))) {
       try {
-	return boost::lexical_cast<int>(*p);
+	return asInt(*p);
       } catch (const boost::bad_lexical_cast& ee) {
 	wApp->log("error") << "Could not cast event property '" << name 
 			   << ": " << *p << "' to int";
@@ -41,9 +45,49 @@ namespace {
     } else
       return std::string();
   }
+
+  void decodeTouches(std::string str, std::vector<Touch>& result) {
+    if (str.empty())
+      return;
+
+    std::vector<std::string> s;
+    boost::split(s, str, boost::is_any_of(";"));
+    
+    if (s.size() % 9) {
+      wApp->log("error") << "Could not parse touches array '" << str << "'";
+      return;
+    }
+
+    try {
+      for (unsigned i = 0; i < s.size(); i += 9) {
+	result.push_back(Touch(asInt(s[i + 0]),
+			       asInt(s[i + 1]), asInt(s[i + 2]),
+			       asInt(s[i + 3]), asInt(s[i + 4]),
+			       asInt(s[i + 5]), asInt(s[i + 6]),
+			       asInt(s[i + 7]), asInt(s[i + 8])));
+      }
+    } catch (const boost::bad_lexical_cast& ee) {
+      wApp->log("error") << "Could not parse touches array '" << str << "'";
+      return;
+    }
+  }
 }
 
 namespace Wt {
+
+Touch::Touch(int identifier,
+	     int clientX, int clientY,
+	     int documentX, int documentY,
+	     int screenX, int screenY,
+	     int widgetX, int widgetY)
+  : identifier_(identifier),
+    clientX_(clientX),
+    clientY_(clientY),
+    documentX_(documentX),
+    documentY_(documentY),
+    widgetX_(widgetX),
+    widgetY_(widgetY)
+{ }
 
 JavaScriptEvent::JavaScriptEvent()
 { }
@@ -124,6 +168,10 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
       (getStringParameter(request, se + "a"
 			  + boost::lexical_cast<std::string>(i)));
   }
+
+  decodeTouches(getStringParameter(request, se + "touches"), touches);
+  decodeTouches(getStringParameter(request, se + "ttouches"), targetTouches);
+  decodeTouches(getStringParameter(request, se + "ctouches"), changedTouches);  
 }
 
 WMouseEvent::WMouseEvent()
@@ -227,6 +275,17 @@ WTouchEvent::WTouchEvent(const JavaScriptEvent& jsEvent)
 
 #ifdef WT_TARGET_JAVA
 WTouchEvent WTouchEvent::templateEvent;
+#endif // WT_TARGET_JAVA;
+
+WGestureEvent::WGestureEvent()
+{ }
+
+WGestureEvent::WGestureEvent(const JavaScriptEvent& jsEvent)
+  : jsEvent_(jsEvent)
+{ }
+
+#ifdef WT_TARGET_JAVA
+WGestureEvent WGestureEvent::templateEvent;
 #endif // WT_TARGET_JAVA;
 
 }

@@ -475,7 +475,7 @@ WT_DECLARE_WT_MEMBER
      if (row.className == 'Wt-hrh') {
        var td = row.firstChild;
        td.ri = ri - 1;
-       td.onmousedown = function(event) {
+       td.onmousedown = td.ontouchstart = function(event) {
 	 var e = event||window.event;
 	 startRowResize(this, this.ri, e);
        };
@@ -486,7 +486,7 @@ WT_DECLARE_WT_MEMBER
 
 	 if (td.className == 'Wt-vrh') {
 	   td.ci = ci - 1;
-	   td.onmousedown = function(event) {
+	   td.onmousedown = td.ontouchstart = function(event) {
 	     var e = event||window.event;
 	     startColResize(this, this.ci, e);
 	   };

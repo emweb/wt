@@ -22,9 +22,17 @@ WT_DECLARE_WT_MEMBER
        handle.style.width = width + 'px';
      }
 
-     var offset = WT.widgetCoordinates(el, event),
-         elpos = WT.widgetPageCoordinates(el),
+     var offset, elpos = WT.widgetPageCoordinates(el),
          parentpos = WT.widgetPageCoordinates(parent);
+
+     if (event.touches) {
+       offset = WT.widgetCoordinates(el, event.touches[0]);
+     } else {
+       offset = WT.widgetCoordinates(el, event);
+       WT.capture(null);
+       WT.capture(handle);
+     }
+
      offsetX -= WT.px(el, 'marginLeft');
      offsetY -= WT.px(el, 'marginTop');
      elpos.x += offsetX - parentpos.x;
@@ -38,12 +46,17 @@ WT_DECLARE_WT_MEMBER
 
      parent.appendChild(handle);
 
-     WT.capture(null);
-     WT.capture(handle);
      WT.cancelEvent(event);
 
      function computeDelta(event) {
-       var p = WT.pageCoordinates(event), result;
+       var p, result;
+
+       if (event.changedTouches)
+	 p = { x: event.changedTouches[0].pageX,
+	       y: event.changedTouches[0].pageY };
+       else
+	 p = WT.pageCoordinates(event);
+
        if (orientation == 'h')
          result = (p.x - offset.x) - elpos.x;
        else
@@ -52,18 +65,21 @@ WT_DECLARE_WT_MEMBER
        return Math.min(Math.max(result, minDelta), maxDelta);
      }
 
-     handle.onmousemove = function(event) {
+     handle.onmousemove = parent.ontouchmove = function(event) {
        var delta = computeDelta(event);
        if (orientation == 'h')
          handle.style.left = (elpos.x + delta) + 'px';
        else
          handle.style.top = (elpos.y + delta) + 'px';
+
+       WT.cancelEvent(event);
      };
 
-     handle.onmouseup = function(event) {
+     handle.onmouseup = parent.ontouchend = function(event) {
        if (handle.parentNode != null) {
 	 handle.parentNode.removeChild(handle);
 	 doneFn(computeDelta(event));
+	 parent.ontouchmove = null;
        }
      };
   }

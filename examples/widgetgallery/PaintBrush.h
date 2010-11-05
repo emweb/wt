@@ -32,7 +32,9 @@ private:
   WColor color_;
 
   void mouseDown(const WMouseEvent& e); 
-  void drag(const WMouseEvent& e);
+  void mouseDrag(const WMouseEvent& e);
+  void touchStart(const WTouchEvent& e);
+  void touchMove(const WTouchEvent& e);
 };
 
 #endif // PAINTBRUSH_H_

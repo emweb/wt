@@ -1985,6 +1985,28 @@ EventSignal<WTouchEvent> *WWebWidget::touchEventSignal(const char *name,
   }
 }
 
+EventSignal<WGestureEvent> *WWebWidget::gestureEventSignal(const char *name,
+							   bool create)
+{
+  EventSignalBase *b = getEventSignal(name);
+  if (b)
+    return static_cast<EventSignal<WGestureEvent> *>(b);
+  else if (!create)
+    return 0;
+  else {
+#ifndef WT_TARGET_JAVA
+    EventSignal<WGestureEvent> *result
+      = new EventSignal<WGestureEvent>(name, this);
+#else
+    EventSignal<WGestureEvent> *result
+      = new EventSignal<WGestureEvent>(name, this,
+				       WGestureEvent::templateEvent);
+#endif // WT_TARGET_JAVA
+    addEventSignal(*result);
+    return result;
+  }
+}
+
 EventSignal<WScrollEvent> *WWebWidget::scrollEventSignal(const char *name,
 							 bool create)
 {

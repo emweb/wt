@@ -32,6 +32,12 @@ namespace Wt {
    */
   class Touch {
   public:
+    Touch(int identifier,
+	  int clientX, int clientY,
+	  int documentX, int documentY,
+	  int screenX, int screenY,
+	  int widgetX, int widgetY);
+
     Coordinates document() const { return Coordinates(documentX_, documentY_); }
     Coordinates window() const { return Coordinates(clientX_, clientY_); }
     Coordinates screen() const { return Coordinates(screenX_, screenY_); }

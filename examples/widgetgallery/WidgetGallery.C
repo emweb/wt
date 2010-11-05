@@ -26,6 +26,9 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
 {
   setTitle("Wt widgets demo");
   setCssTheme("polished");
+
+  addMetaHeader("viewport", "width=700, height=1200");
+
   // load text bundles (for the tr() function)
   messageResourceBundle().use(appRoot() + "text");
   messageResourceBundle().use(appRoot() + "charts");

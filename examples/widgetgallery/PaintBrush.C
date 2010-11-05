@@ -18,8 +18,11 @@ PaintBrush::PaintBrush(int width, int height, WContainerWidget *parent)
 
   decorationStyle().setCursor("icons/pencil.cur", CrossCursor);
 
-  mouseDragged().connect(this, &PaintBrush::drag);
+  mouseDragged().connect(this, &PaintBrush::mouseDrag);
   mouseWentDown().connect(this, &PaintBrush::mouseDown);
+  touchStarted().connect(this, &PaintBrush::touchStart);
+  touchMoved().connect(this, &PaintBrush::touchMove);
+  touchMoved().preventDefaultAction();
   
   color_ = WColor(black);
 
@@ -42,13 +45,27 @@ void PaintBrush::paintEvent(WPaintDevice *paintDevice)
 
 void PaintBrush::mouseDown(const WMouseEvent& e)
 {
-  WMouseEvent::Coordinates c = e.widget();
+  Coordinates c = e.widget();
   path_ = WPainterPath(WPointF(c.x, c.y));
 }
 
-void PaintBrush::drag(const WMouseEvent& e)
+void PaintBrush::touchStart(const WTouchEvent& e)
 {
-  WMouseEvent::Coordinates c = e.widget();
+  Coordinates c = e.touches()[0].widget();
+  path_ = WPainterPath(WPointF(c.x, c.y));
+}
+
+void PaintBrush::mouseDrag(const WMouseEvent& e)
+{
+  Coordinates c = e.widget();
+  path_.lineTo(c.x, c.y);
+
+  update(PaintUpdate);
+}
+
+void PaintBrush::touchMove(const WTouchEvent& e)
+{
+  Coordinates c = e.touches()[0].widget();
   path_.lineTo(c.x, c.y);
 
   update(PaintUpdate);

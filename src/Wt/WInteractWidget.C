@@ -122,9 +122,34 @@ EventSignal<WMouseEvent>& WInteractWidget::mouseWheel()
   return *mouseEventSignal(MOUSE_WHEEL_SIGNAL, true);
 }
 
-EventSignal<WTouchEvent>& WInteractWidget::touchMove()
+EventSignal<WTouchEvent>& WInteractWidget::touchStarted()
+{
+  return *touchEventSignal(TOUCH_START_SIGNAL, true);
+}
+
+EventSignal<WTouchEvent>& WInteractWidget::touchMoved()
 {
   return *touchEventSignal(TOUCH_MOVE_SIGNAL, true);
+}
+
+EventSignal<WTouchEvent>& WInteractWidget::touchEnded()
+{
+  return *touchEventSignal(TOUCH_END_SIGNAL, true);
+}
+
+EventSignal<WGestureEvent>& WInteractWidget::gestureStarted()
+{
+  return *gestureEventSignal(GESTURE_START_SIGNAL, true);
+}
+
+EventSignal<WGestureEvent>& WInteractWidget::gestureChanged()
+{
+  return *gestureEventSignal(GESTURE_CHANGE_SIGNAL, true);
+}
+
+EventSignal<WGestureEvent>& WInteractWidget::gestureEnded()
+{
+  return *gestureEventSignal(GESTURE_END_SIGNAL, true);
 }
 
 void WInteractWidget::updateDom(DomElement& element, bool all)

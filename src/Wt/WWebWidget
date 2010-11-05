@@ -430,6 +430,7 @@ protected:
   EventSignal<WMouseEvent> *mouseEventSignal(const char *name, bool create);
   EventSignal<WScrollEvent> *scrollEventSignal(const char *name, bool create);
   EventSignal<WTouchEvent> *touchEventSignal(const char *name, bool create);
+  EventSignal<WGestureEvent> *gestureEventSignal(const char *name, bool create);
 
   void updateSignalConnection(DomElement& element, EventSignalBase& signal,
 			      const char *name, bool all);

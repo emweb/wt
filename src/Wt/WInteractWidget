@@ -226,13 +226,13 @@ public:
    */
   EventSignal<WMouseEvent>& mouseWheel();
 
-  EventSignal<WTouchEvent>& touchStart();
-  EventSignal<WTouchEvent>& touchEnd();
-  EventSignal<WTouchEvent>& touchMove();
+  EventSignal<WTouchEvent>& touchStarted();
+  EventSignal<WTouchEvent>& touchEnded();
+  EventSignal<WTouchEvent>& touchMoved();
 
-  EventSignal<WGestureEvent>& gestureStart();
-  EventSignal<WGestureEvent>& gestureChange();
-  EventSignal<WGestureEvent>& gestureEnd();
+  EventSignal<WGestureEvent>& gestureStarted();
+  EventSignal<WGestureEvent>& gestureChanged();
+  EventSignal<WGestureEvent>& gestureEnded();
 
   /*! \brief Configure dragging for drag and drop.
    *

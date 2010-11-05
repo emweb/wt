@@ -211,7 +211,7 @@ void CgiParser::parse(WebRequest& request, bool readBody)
     delete[] buf;
   }
 
-  std::cerr << "queryString:" << queryString << std::endl;
+  // std::cerr << "queryString:" << queryString << std::endl;
 
   if (!queryString.empty()) {
     typedef boost::tokenizer<boost::char_separator<char> > amp_tok;
