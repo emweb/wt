@@ -35,6 +35,12 @@ const char *WInteractWidget::MOUSE_OVER_SIGNAL = "mouseover";
 const char *WInteractWidget::MOUSE_MOVE_SIGNAL = "M_mousemove";
 const char *WInteractWidget::MOUSE_DRAG_SIGNAL = "M_mousedrag";
 const char *WInteractWidget::MOUSE_WHEEL_SIGNAL = "mousewheel";
+const char *WInteractWidget::TOUCH_START_SIGNAL = "touchstart";
+const char *WInteractWidget::TOUCH_MOVE_SIGNAL = "touchmove";
+const char *WInteractWidget::TOUCH_END_SIGNAL = "touchend";
+const char *WInteractWidget::GESTURE_START_SIGNAL = "gesturestart";
+const char *WInteractWidget::GESTURE_CHANGE_SIGNAL = "gesturechange";
+const char *WInteractWidget::GESTURE_END_SIGNAL = "gestureend";
 
 WInteractWidget::WInteractWidget(WContainerWidget *parent)
   : WWebWidget(parent),
@@ -114,6 +120,11 @@ EventSignal<WMouseEvent>& WInteractWidget::mouseDragged()
 EventSignal<WMouseEvent>& WInteractWidget::mouseWheel()
 {
   return *mouseEventSignal(MOUSE_WHEEL_SIGNAL, true);
+}
+
+EventSignal<WTouchEvent>& WInteractWidget::touchMove()
+{
+  return *touchEventSignal(TOUCH_MOVE_SIGNAL, true);
 }
 
 void WInteractWidget::updateDom(DomElement& element, bool all)

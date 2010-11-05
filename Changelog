@@ -1,3 +1,7 @@
+05-11-2010:
+	* Wt.js: fix opera script loading indicating failure when loading from
+	cache
+
 02-11-2010:
 	* WebSession: initialize() in first notify()
 

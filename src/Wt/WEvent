@@ -13,6 +13,38 @@
 
 namespace Wt {
 
+  /*! \brief A mouse coordinate.
+   */
+  struct Coordinates {
+    int x; //!< X coordinate
+    int y; //!< Y coordinate
+
+    operator WPointF() const;
+
+    /*! \brief Constructor.
+     */
+    Coordinates(int X, int Y) : x(X), y(Y) { }
+  };
+
+  /*! \brief A single touch of a touch event.
+   *
+   * \sa WTouchEvent
+   */
+  class Touch {
+  public:
+    Coordinates document() const { return Coordinates(documentX_, documentY_); }
+    Coordinates window() const { return Coordinates(clientX_, clientY_); }
+    Coordinates screen() const { return Coordinates(screenX_, screenY_); }
+    Coordinates widget() const { return Coordinates(widgetX_, widgetY_); }
+
+  private:
+    int clientX_, clientY_;
+    int documentX_, documentY_;
+    int screenX_, screenY_;
+    int widgetX_, widgetY_;
+    int identifier_;
+  };
+
 class WebRequest;
 class WObject;
 class WString;
@@ -31,8 +63,14 @@ public:
 
   // for key events or mouse event modifiers
   int button;
-  int  keyCode, charCode;
+  int keyCode, charCode;
   WFlags<KeyboardModifier> modifiers;
+
+  // for touch events
+  std::vector<Touch> touches, targetTouches, changedTouches;
+
+  // for gesture events
+  double scale, rotation;
 
   // for scroll events
   int  scrollX, scrollY, viewportWidth, viewportHeight;
@@ -90,17 +128,9 @@ public:
 		RightButton = 4    //!< Right button
   };
 
-  /*! \brief A mouse coordinate.
+  /*! \brief Mouse coordinates.
    */
-  struct Coordinates {
-    int x; //!< X coordinate
-    int y; //!< Y coordinate
-
-    /*! \brief Constructor.
-     */
-    Coordinates(int x_, int y_)
-      : x(x_), y(y_) { }
-  };
+  typedef Wt::Coordinates Coordinates;
 
   /*! \brief Returns the button.
    *
@@ -416,6 +446,66 @@ private:
   WScrollEvent(const JavaScriptEvent& jsEvent);
 
   friend class EventSignal<WScrollEvent>;
+};
+
+class WT_API WTouchEvent
+#ifdef WT_TARGET_JAVA
+                         : public WAbstractEvent
+#endif // WT_TARGET_JAVA
+{
+public:
+  /*! \brief Default constructor
+   */
+  WTouchEvent();
+
+  const std::vector<Touch>& touches() const
+    { return jsEvent_.touches; }
+  const std::vector<Touch>& targetTouches() const
+    { return jsEvent_.targetTouches; }
+  const std::vector<Touch>& changedTouches() const
+    { return jsEvent_.changedTouches; }
+
+#ifdef WT_TARGET_JAVA
+  virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
+  {
+    return new WTouchEvent(jsEvent);
+  }
+
+  static WTouchEvent templateEvent;
+#endif // WT_TARGET_JAVA
+
+  WTouchEvent(const JavaScriptEvent& jsEvent);
+
+protected:
+  JavaScriptEvent jsEvent_;
+};
+
+class WT_API WGestureEvent
+#ifdef WT_TARGET_JAVA
+                         : public WAbstractEvent
+#endif // WT_TARGET_JAVA
+{
+public:
+  /*! \brief Default constructor
+   */
+  WGestureEvent();
+
+  double scale() const { return jsEvent_.scale; }
+  double rotation() const { return jsEvent_.rotation; }
+
+#ifdef WT_TARGET_JAVA
+  virtual WAbstractEvent *createFromJSEvent(const JavaScriptEvent& jsEvent)
+  {
+    return new WGestureEvent(jsEvent);
+  }
+
+  static WGestureEvent templateEvent;
+#endif // WT_TARGET_JAVA
+
+  WGestureEvent(const JavaScriptEvent& jsEvent);
+
+protected:
+  JavaScriptEvent jsEvent_;
 };
 
 }

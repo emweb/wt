@@ -1262,6 +1262,22 @@ function dragEnd(e) {
   }
 };
 
+function encodeTouches(s, touches, widgetCoords) {
+  var i, il, result;
+
+  result = s + "=";
+  for (i = 0, il = touches.length; i < il; ++i) {
+    var t = touches[i];
+    result += [ t.identifier,
+		t.clientX, t.clientY,
+		t.pageX, t.pageY,
+		t.screenX, t.screenY,
+		t.pageX - widgetCoords.x, t.pageY - widgetCoords.y ].join(';');
+  }
+
+  return result;
+}
+
 var formObjects = _$_FORM_OBJECTS_$_;
 
 function encodeEvent(event, i) {
@@ -1359,8 +1375,9 @@ function encodeEvent(event, i) {
   if (e.screenX || e.screenY)
     result += se + 'screenX=' + e.screenX + se + 'screenY=' + e.screenY;
 
+  var widgetCoords = { x: 0, y: 0 };
   if (event.object && event.object.nodeType != 9) {
-    var widgetCoords = WT.widgetPageCoordinates(event.object);
+    widgetCoords = WT.widgetPageCoordinates(event.object);
     var objX = widgetCoords.x;
     var objY = widgetCoords.y;
 
@@ -1396,6 +1413,18 @@ function encodeEvent(event, i) {
     result += se + 'metaKey=1';
   if (e.shiftKey)
     result += se + 'shiftKey=1';
+
+  if (e.touches)
+    result += encodeTouches(se + "touches", e.touches, widgetCoords);
+  if (e.targetTouches)
+    result += encodeTouches(se + "ttouches", e.targetTouches, widgetCoords);
+  if (e.changedTouches)
+    result += encodeTouches(se + "ctouches", e.changedTouches, widgetCoords);
+
+  if (e.scale)
+    result += se + "scale=" + e.scale;
+  if (e.rotation)
+    result += se + "rotation=" + e.rotation;
 
   event.data = result;
   return event;
@@ -1817,10 +1846,15 @@ function loadScript(uri, symbol, tries)
     s.onload = function() { jsLoaded(uri); };
     s.onerror = onerror;
     s.onreadystatechange = function() {
-      if (s.readyState == 'loaded')
-	onerror();
-      else if (s.readyState == 'complete')
+      var rs = s.readyState;
+      if (rs == 'loaded') {
+	if (WT.isOpera) {
+	  jsLoaded(uri);
+	} else
+	  onerror();
+      } else if (rs == 'complete') {
 	jsLoaded(uri);
+      }
     };
     var h = document.getElementsByTagName('head')[0];
     h.appendChild(s);

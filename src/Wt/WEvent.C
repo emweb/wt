@@ -218,4 +218,15 @@ WScrollEvent::WScrollEvent(const JavaScriptEvent& jsEvent)
 WScrollEvent WScrollEvent::templateEvent;
 #endif // WT_TARGET_JAVA
 
+WTouchEvent::WTouchEvent()
+{ }
+
+WTouchEvent::WTouchEvent(const JavaScriptEvent& jsEvent)
+  : jsEvent_(jsEvent)
+{ }
+
+#ifdef WT_TARGET_JAVA
+WTouchEvent WTouchEvent::templateEvent;
+#endif // WT_TARGET_JAVA;
+
 }

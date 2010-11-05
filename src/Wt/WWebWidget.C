@@ -1965,6 +1965,26 @@ EventSignal<WMouseEvent> *WWebWidget::mouseEventSignal(const char *name,
   }
 }
 
+EventSignal<WTouchEvent> *WWebWidget::touchEventSignal(const char *name,
+						       bool create)
+{
+  EventSignalBase *b = getEventSignal(name);
+  if (b)
+    return static_cast<EventSignal<WTouchEvent> *>(b);
+  else if (!create)
+    return 0;
+  else {
+#ifndef WT_TARGET_JAVA
+    EventSignal<WTouchEvent> *result = new EventSignal<WTouchEvent>(name, this);
+#else
+    EventSignal<WTouchEvent> *result
+      = new EventSignal<WTouchEvent>(name, this, WTouchEvent::templateEvent);
+#endif // WT_TARGET_JAVA
+    addEventSignal(*result);
+    return result;
+  }
+}
+
 EventSignal<WScrollEvent> *WWebWidget::scrollEventSignal(const char *name,
 							 bool create)
 {

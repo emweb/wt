@@ -212,7 +212,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
     "http://www.webtoolkit.eu/videos/sintel_trailer.ogv";
   std::string mp4Video =
     "http://www.webtoolkit.eu/videos/sintel_trailer.mp4";
-  std::string poster = "sintel_trailer.jpg";
+  std::string poster = "pics/sintel_trailer.jpg";
   WContainerWidget *result = new WContainerWidget(); 
   topic("WHTML5Video", result);
   new WText(tr("specialpurposewidgets-WHTML5Video"), result);
@@ -235,7 +235,7 @@ WWidget *SpecialPurposeWidgets::wVideo()
   new WText(tr("specialpurposewidgets-WHTML5Video-2"), result);
   WFlashObject *flash2 =
     new WFlashObject("http://www.webtoolkit.eu/videos/player_flv_maxi.swf");
-  flash2->setFlashVariable("startimage", "sintel_trailer.jpg");
+  flash2->setFlashVariable("startimage", "pics/sintel_trailer.jpg");
   flash2->setFlashParameter("allowFullScreen", "true");
   flash2->setFlashVariable("flv", mp4Video);
   flash2->setFlashVariable("showvolume", "1");

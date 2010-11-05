@@ -77,9 +77,9 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   /*
    * Set our style sheet last, so that it loaded after the ext stylesheets.
    */
-  useStyleSheet("everywidget.css");
-  useStyleSheet("dragdrop.css");
-  useStyleSheet("combostyle.css");
+  useStyleSheet("style/everywidget.css");
+  useStyleSheet("style/dragdrop.css");
+  useStyleSheet("style/combostyle.css");
 }
 
 void WidgetGallery::addToMenu(WMenu *menu, const WString& name,

@@ -226,6 +226,14 @@ public:
    */
   EventSignal<WMouseEvent>& mouseWheel();
 
+  EventSignal<WTouchEvent>& touchStart();
+  EventSignal<WTouchEvent>& touchEnd();
+  EventSignal<WTouchEvent>& touchMove();
+
+  EventSignal<WGestureEvent>& gestureStart();
+  EventSignal<WGestureEvent>& gestureChange();
+  EventSignal<WGestureEvent>& gestureEnd();
+
   /*! \brief Configure dragging for drag and drop.
    *
    * Enable drag&drop for this widget. The mimeType is used to find a
@@ -276,6 +284,12 @@ private:
   static const char *MOUSE_MOVE_SIGNAL;
   static const char *MOUSE_DRAG_SIGNAL;
   static const char *MOUSE_WHEEL_SIGNAL;
+  static const char *TOUCH_START_SIGNAL;
+  static const char *TOUCH_MOVE_SIGNAL;
+  static const char *TOUCH_END_SIGNAL;
+  static const char *GESTURE_START_SIGNAL;
+  static const char *GESTURE_CHANGE_SIGNAL;
+  static const char *GESTURE_END_SIGNAL;
 
   friend class DomElement;
   friend class WWebWidget;

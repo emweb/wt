@@ -27,6 +27,7 @@ private:
   WText *greeting_;
 
   void greet();
+  void touch(const WTouchEvent& e);
 };
 
 /*
@@ -51,6 +52,9 @@ HelloApplication::HelloApplication(const WEnvironment& env)
 
   greeting_ = new WText(root());                         // empty text
 
+  root()->touchMove().preventDefaultAction();
+  root()->touchMove().connect(boost::bind(&HelloApplication::touch, this, _1));
+
   /*
    * Connect signals with slots
    *
@@ -71,6 +75,11 @@ void HelloApplication::greet()
    * Update the text, using text input into the nameEdit_ field.
    */
   greeting_->setText("Hello there, " + nameEdit_->text());
+}
+
+void HelloApplication::touch(const WTouchEvent& e)
+{
+  std::cerr << "touched" << std::endl;
 }
 
 WApplication *createApplication(const WEnvironment& env)

@@ -227,10 +227,10 @@ bool WVirtualImage::visible(::int64_t i, ::int64_t j) const
 	  && (y1 <= currentY_ + viewPortHeight_));
 }
 
-void WVirtualImage::decodeKey(::int64_t key, ::int64_t& i, ::int64_t& j)
+void WVirtualImage::decodeKey(::int64_t key, Coordinate& coordinate)
 {
-  i = key / 1000;
-  j = key % 1000;
+  coordinate.i = key / 1000;
+  coordinate.j = key % 1000;
 }
 
 void WVirtualImage::cleanGrid()
@@ -244,10 +244,11 @@ void WVirtualImage::cleanGrid()
   ::int64_t j2 = cleanNb.y2 / gridImageSize_ + 1;
 
   for (GridMap::iterator it = grid_.begin(); it != grid_.end();) {
-    ::int64_t i, j;
-    decodeKey(it->first, i, j);
+    Coordinate coordinate;
+    decodeKey(it->first, coordinate);
 
-    if (i < i1 || i > i2 || j < j1 || j > j2) {
+    if (coordinate.i < i1 || coordinate.i > i2 || 
+	coordinate.j < j1 || coordinate.j > j2) {
       delete it->second->resource();
       delete it->second;
       Utils::eraseAndNext(grid_, it);

@@ -235,7 +235,11 @@ private:
 
   Rect neighbourhood(::int64_t x, ::int64_t y, int marginX, int marginY);
   ::int64_t gridKey(::int64_t i, ::int64_t j);
-  void decodeKey(::int64_t key, ::int64_t& i, ::int64_t& j);
+  struct Coordinate {
+    ::int64_t i;
+    ::int64_t j;
+  };
+  void decodeKey(::int64_t key, Coordinate& coordinate);
   void generateGridItems(::int64_t newX, ::int64_t newY);
   void cleanGrid();
   bool visible(::int64_t i, ::int64_t j) const;
