@@ -28,7 +28,7 @@ class CgiParser
 public:
   static void init();
 
-  CgiParser(boost::int64_t maxPostData);
+  CgiParser(::int64_t maxPostData);
 
   /*
    * Reads in GET or POST data, converts it to unescaped text, and
@@ -39,10 +39,10 @@ public:
 
 private:
   void readMultipartData(WebRequest& request, const std::string type,
-			 boost::int64_t len);
+			 ::int64_t len);
   bool parseBody(WebRequest& request, const std::string boundary);
   bool parseHead(WebRequest& request);
-  boost::int64_t maxPostData_, left_;
+  ::int64_t maxPostData_, left_;
   std::ostream *spoolStream_;
   WebRequest *request_;
 

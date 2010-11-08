@@ -14,21 +14,28 @@ namespace http {
 namespace server {
 
 HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
-  : reply_(reply),
-    instream_(reply_->cin())
+  : reply_(reply)
 {
   entryPoint_ = entryPoint;
 }
 
-void HTTPRequest::flush(ResponseState state, CallbackFunction callback,
-			void *callbackData)
+void HTTPRequest::flush(ResponseState state, CallbackFunction callback)
 {
-  reply_->setWaitMoreData(false);
-  reply_->send(outstream_.str(), callback, callbackData);
+  reply_->send(outstream_.str(), callback);
   outstream_.str("");
 
   if (state == ResponseDone)
-    delete this; // also deletes the reply if the connection was already closed
+    delete this; // also deletes the reply if the connection was closed
+}
+
+void HTTPRequest::readWebSocketMessage(CallbackFunction callback)
+{
+  reply_->readWebSocketMessage(callback);
+}
+
+bool HTTPRequest::webSocketMessagePending() const
+{
+  return reply_->readAvailable();
 }
 
 void HTTPRequest::setStatus(int status)

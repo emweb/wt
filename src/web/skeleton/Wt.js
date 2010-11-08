@@ -1560,6 +1560,8 @@ function waitFeedback() {
   showLoadingIndicator();
 };
 
+var ws = null;
+
 function setServerPush(how) {
   serverPush = how;
 }
@@ -1662,6 +1664,35 @@ function update(el, signalName, e, feedback) {
 var updateTimeoutStart;
 
 function scheduleUpdate() {
+  _$_$if_WEB_SOCKETS_$_();
+  if (ws != null || window.WebSocket !== undefined) {
+    if (ws == null || ws.readyState > 1) {
+      var query = url.substr(url.indexOf('?'));
+      var wsurl = "ws" + location.protocol.substr(4)
+	+ "//" + location.hostname + ":"
+	+ location.port + location.pathname + query;
+      ws = new WebSocket(wsurl);
+      ws.onopen = function() {
+      };
+
+      ws.onmessage = function(event) {
+	handleResponse(0, event.data, null);
+      };
+
+      ws.onerror = function(event) {
+      };
+
+      ws.onclose = function(event) {
+      };
+    }
+
+    if (ws.readyState == 1) {
+      sendUpdate();
+      return;
+    }
+  }
+  _$_$endif_$_();
+
   if (responsePending != null && pollTimer != null) {
     clearTimeout(pollTimer);
     responsePending.abort();
@@ -1728,12 +1759,26 @@ function sendUpdate() {
     poll = true;
   }
 
-  responsePending = self._p_.comm.sendUpdate
-    (url + query, 'request=jsupdate' + data.result + '&ackId=' + ackUpdateId,
-     tm, ackUpdateId, -1);
+  if (ws != null && ws.readyState == 1) {
+    responsePending = null;
 
-  pollTimer
-    = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;
+    if (tm != null) {
+      clearTimeout(tm);
+      tm = null;
+    }
+
+    if (!poll) {
+      ws.send(data.result + '&ackId=' + ackUpdateId);
+    }
+  } else {
+    responsePending = self._p_.comm.sendUpdate
+      (url + query,
+       'request=jsupdate' + data.result + '&ackId=' + ackUpdateId,
+       tm, ackUpdateId, -1);
+
+    pollTimer
+     = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;
+  }
 }
 
 function emit(object, config) {

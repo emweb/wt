@@ -30,27 +30,52 @@ public:
 
   enum ResponseState {
     ResponseDone,
-    ResponseCallBack
+    ResponseFlush
   };
 
-  typedef void (*CallbackFunction)(void *cbData);
+  typedef boost::function<void(void)> CallbackFunction;
 
   void startAsync() { }
 
   /*
    * Signal that the response should be flushed.
+   *
+   * ResponseDone: flush & close
+   *
+   * ResponseFlush: flush what we have so far, do not close
+   *  - callback must be specified for ResponseFlush, and is called
+   *    if more data can be written. Until then, you cannot do new
+   *    writes.
    */
   virtual void flush(ResponseState state = ResponseDone,
-		     CallbackFunction callback = 0,
-		     void *callbackData = 0) = 0;
+		     CallbackFunction callback = CallbackFunction()) = 0;
 
   /*
-   * Access the stream that contains the request body.
+   * For a web socket request (isWebSocketRequest()), read a message
+   * and call the given callback function when done.
+   *
+   * The new message is available in in() and has length contentLength()
+   */
+  virtual void readWebSocketMessage(CallbackFunction callback);
+
+  /*
+   * For a web socket request (isWebSocketRequest()), returns whether
+   * more data is available. This is used to defer a response but wait
+   * for more incoming events.
+   */
+  virtual bool webSocketMessagePending() const;
+
+  /*
+   * Access the stream that contains the request body (HTTP) or a
+   * single message (WS)
    */
   virtual std::istream& in() = 0;
 
   /*
    * Access the stream to submit the response.
+   *
+   * This is either the entire response body (HTTP), or a single response
+   * message (WS)
    */
   virtual std::ostream& out() = 0;
 
@@ -98,7 +123,17 @@ public:
   virtual std::string queryString() const = 0;
   virtual std::string pathInfo() const = 0;
   virtual std::string remoteAddr() const = 0;
+
   virtual std::string urlScheme() const = 0;
+
+  virtual bool isWebSocketMessage() const {
+    return false;
+  }
+
+  bool isWebSocketRequest() const {
+    std::string s = urlScheme();
+    return s == "ws" || s == "wss";
+  }
 
   /*
    * Accesses to cgi environment variables and headers -- rfc2616 name 

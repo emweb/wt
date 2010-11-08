@@ -28,21 +28,23 @@ typedef boost::shared_ptr<WtReply> WtReplyPtr;
 class WtReply : public Reply
 {
 public:
-  typedef void (*CallbackFunction)(void *cbData);
+  typedef boost::function<void(void)> CallbackFunction;
 
   WtReply(const Request& request, const Wt::EntryPoint& ep,
-    const Configuration &config);
+	  const Configuration &config);
   ~WtReply();
 
-  virtual void consumeRequestBody(Buffer::const_iterator begin,
-				  Buffer::const_iterator end,
-				  bool endOfRequest);
+  virtual void consumeData(Buffer::const_iterator begin,
+			   Buffer::const_iterator end,
+			   Request::State state);
 
   void setStatus(int status);
   void setContentLength(::int64_t length);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
-  void send(const std::string& text, CallbackFunction callBack, void *cbData);
+  void send(const std::string& text, CallbackFunction callBack);
+  void readWebSocketMessage(CallbackFunction callBack);
+  bool readAvailable();
 
   std::istream& cin() { return *cin_; }
   const Request& request() const { return request_; }
@@ -57,11 +59,10 @@ protected:
   std::string       cout_, nextCout_;
   std::string       contentType_;
   std::string       location_;
-  bool              responseSent_, sending_;
+  bool              responseSent_;
   status_type       status_;
-  ::int64_t   contentLength_, bodyReceived_;
-  volatile CallbackFunction  fetchMoreData_;
-  void *            callBackData_;
+  ::int64_t         contentLength_, bodyReceived_;
+  CallbackFunction  fetchMoreDataCallback_, readMessageCallback_;
   HTTPRequest      *httpRequest_;
 
   virtual status_type     responseStatus();
@@ -71,6 +72,15 @@ protected:
   virtual void            release();
 
   virtual asio::const_buffer nextContentBuffer();  
+
+private:
+  void consumeRequestBody(Buffer::const_iterator begin,
+			  Buffer::const_iterator end,
+			  Request::State state);
+
+  void consumeWebSocketMessage(Buffer::const_iterator begin,
+			       Buffer::const_iterator end,
+			       Request::State state);
 };
 
 } // namespace server

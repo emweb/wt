@@ -167,11 +167,11 @@ std::string StaticReply::computeExpires()
   return httpDate(t);
 }
 
-void StaticReply::consumeRequestBody(Buffer::const_iterator begin,
-				     Buffer::const_iterator end,
-				     bool endOfRequest)
+void StaticReply::consumeData(Buffer::const_iterator begin,
+			      Buffer::const_iterator end,
+			      Request::State state)
 {
-  if (endOfRequest)
+  if (state != Request::Partial)
     send();
 }
 

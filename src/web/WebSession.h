@@ -232,9 +232,9 @@ public:
 #endif // WT_THREADED
 
 private:
-  /*
-   * Misc methods
-   */
+  void handleWebSocketRequest(Handler& handler);
+  static void handleWebSocketMessage(boost::weak_ptr<WebSession> session);
+  static void webSocketReady(boost::weak_ptr<WebSession> session);
 
   void checkTimers();
   void hibernate();
@@ -259,7 +259,7 @@ private:
   std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
   WebResponse  *asyncResponse_;
-  bool          updatesPending_;
+  bool          updatesPending_, canWriteAsyncResponse_;
   bool          progressiveBoot_;
 
 #ifndef WT_TARGET_JAVA
@@ -311,6 +311,8 @@ private:
   bool start();
 
   std::string sessionQuery() const;
+
+  friend class WebSocketMessage;
 };
 
 /*! \class WEvent

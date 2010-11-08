@@ -63,6 +63,8 @@
 #ifdef _MSC_VER
 typedef __int64 int64_t;            /* 64 bit signed */
 typedef unsigned __int64 uint64_t;  /* 64 bit unsigned */
+typedef __int32 int32_t;            /* 64 bit signed */
+typedef unsigned __int32 uint32_t;  /* 32 bit unsigned */
 #else // _MSC_VER
 #include <stdint.h>
 #endif // _MSC_VER

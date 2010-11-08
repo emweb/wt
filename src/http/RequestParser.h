@@ -52,6 +52,9 @@ public:
 
   bool parseBody(Request& req, ReplyPtr reply,
 		 Buffer::const_iterator& begin, Buffer::const_iterator end);
+  Request::State parseWebSocketMessage(Request& req, ReplyPtr reply,
+				       Buffer::const_iterator& begin,
+				       Buffer::const_iterator end);
 
   bool initialState() const;
 
@@ -76,8 +79,12 @@ private:
   void consumeToString(std::string& result, int maxSize);
   void consumeComplete();
 
-  /// The current state of the parser.
-  enum state
+
+  bool doWebSocketHandShake(const Request& req);
+  bool parseCrazyWebSocketKey(const std::string& key, ::uint32_t& number);
+
+  /// The current state of the request parser.
+  enum http_state
   {
     method_start,
     expecting_newline_0,
@@ -101,13 +108,26 @@ private:
     header_value,
     expecting_newline_2,
     expecting_newline_3
-  } state_;
+  } httpState_;
+
+  enum ws_state {
+    ws_start,
+    ws_hand_shake,
+    frame_start,
+    text_data,
+    binary_length,
+    binary_data
+  } wsState_;
+
+  unsigned char frameType_;
 
   std::string  headerName_;
   std::string  headerValue_;
 
-  ::uint64_t   bodyRemainder_;
   ::uint64_t   requestSize_;
+
+  // for HTTP POST body and WS binary frame
+  ::int64_t    remainder_;
 
   char         buf_[4096];
   unsigned     buf_ptr_;

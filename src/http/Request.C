@@ -40,6 +40,18 @@ void Request::transmitHeaders(std::ostream& out) const
   }
 }
 
+bool Request::isWebSocketRequest() const
+{
+  HeaderMap::const_iterator i = headerMap.find("Connection");
+  if (i != headerMap.end() && boost::iequals(i->second, "Upgrade")) {
+    HeaderMap::const_iterator j = headerMap.find("Upgrade");
+    if (j != headerMap.end() && boost::iequals(j->second, "WebSocket"))
+      return true;
+  }
+
+  return false;
+}
+
 bool Request::closeConnection() const 
 {
   if ((http_version_major == 1)

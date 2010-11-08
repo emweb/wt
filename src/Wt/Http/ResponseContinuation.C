@@ -21,21 +21,12 @@ void ResponseContinuation::setData(const boost::any& data)
 
 void ResponseContinuation::doContinue()
 {
-  resource_->doContinue(this);
-}
-
-void ResponseContinuation::callBack(void *callbackData)
-{
-  ResponseContinuation *continuation
-    = static_cast<ResponseContinuation *>(callbackData);
-
   // We are certain that the continuation is still "alive" because it is
   // protected by a mutex, and thus a simultaneous change with
   // WebResponse::flush() is not possible: ResponseContinuation::stop(),
   // called before destruction together with the resource, will thus
   // block while we are here.
-
-  continuation->doContinue();
+  resource_->doContinue(this);
 }
 
 ResponseContinuation::ResponseContinuation(WResource *resource,

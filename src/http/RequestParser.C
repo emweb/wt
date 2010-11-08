@@ -14,6 +14,7 @@
 //
 
 #include <boost/lexical_cast.hpp>
+#include <openssl/md5.h>
 
 #include "RequestParser.h"
 #include "Request.h"
@@ -37,18 +38,21 @@ static int MAX_FIELD_VALUE_SIZE = 80*1024;
 static int MAX_FIELD_NAME_SIZE = 256;
 static int MAX_METHOD_SIZE = 16;
 
+static std::size_t MAX_WEBSOCKET_MESSAGE_LENGTH = 112*1024;
+
 namespace http {
 namespace server {
 
 RequestParser::RequestParser(Server *server)
-  : state_(method_start)
 { 
   reset();
 }
 
 void RequestParser::reset()
 {
-  state_ = method_start;
+  httpState_ = method_start;
+  wsState_ = ws_start;
+  frameType_ = 0x00;
   requestSize_ = 0;
   buf_ptr_ = 0;
 }
@@ -85,7 +89,7 @@ void RequestParser::consumeComplete()
 
 bool RequestParser::initialState() const
 {
-  return (state_ == method_start);
+  return (httpState_ == method_start);
 }
 
 boost::tuple<boost::tribool, Buffer::const_iterator>
@@ -105,21 +109,206 @@ bool RequestParser::parseBody(Request& req, ReplyPtr reply,
 			      Buffer::const_iterator& begin,
 			      Buffer::const_iterator end)
 {
-  ::int64_t thisSize = std::min((::uint64_t)(end - begin), bodyRemainder_);
+  if (req.isWebSocketRequest()) {
+    Request::State state = parseWebSocketMessage(req, reply, begin, end);
 
-  Buffer::const_iterator thisBegin = begin;
-  Buffer::const_iterator thisEnd = begin + thisSize;
-  bodyRemainder_ -= thisSize;
+    if (state == Request::Error)
+      reply->consumeData(begin, begin, Request::Error);
 
-  begin = thisEnd;
+    return state != Request::Partial;
+  } else {
+    ::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
 
-  bool endOfRequest = bodyRemainder_ == 0;
-  reply->consumeRequestBody(thisBegin, thisEnd, endOfRequest);
+    Buffer::const_iterator thisBegin = begin;
+    Buffer::const_iterator thisEnd = begin + thisSize;
+    remainder_ -= thisSize;
 
-  if (reply->responseStatus() == Reply::request_entity_too_large)
+    begin = thisEnd;
+
+    bool endOfRequest = remainder_ == 0;
+
+    reply->consumeData(thisBegin, thisEnd,
+		       endOfRequest ? Request::Complete : Request::Partial);
+
+    if (reply->responseStatus() == Reply::request_entity_too_large)
+      return true;
+    else
+      return endOfRequest;
+  }
+}
+
+bool RequestParser::doWebSocketHandShake(const Request& req)
+{
+  Request::HeaderMap::const_iterator k1, k2, origin;
+
+  k1 = req.headerMap.find("Sec-WebSocket-Key1");
+  k2 = req.headerMap.find("Sec-WebSocket-Key2");
+  origin = req.headerMap.find("Origin");
+
+  if (k1 != req.headerMap.end() && k2 != req.headerMap.end()
+      && origin != req.headerMap.end()) {
+    ::uint32_t n1, n2;
+
+    if (parseCrazyWebSocketKey(k1->second, n1)
+	&& parseCrazyWebSocketKey(k2->second, n2)) {
+      unsigned char key3[8];
+      memcpy(key3, buf_, 8);
+
+      ::uint32_t v;
+
+      v = htonl(n1);
+      memcpy(buf_, &v, 4);
+
+      v = htonl(n2);
+      memcpy(buf_ + 4, &v, 4);
+
+      memcpy(buf_ + 8, key3, 8);
+
+      MD5_CTX c;
+      MD5_Init(&c);
+      MD5_Update(&c, buf_, 16);
+      MD5_Final((unsigned char *)buf_, &c);
+
+      return true;
+    } else
+      return false;
+  } else
+    return false;
+}
+
+bool RequestParser::parseCrazyWebSocketKey(const std::string& key,
+					   ::uint32_t& result)
+{
+  std::string number;
+  int spaces = 0;
+
+  for (unsigned i = 0; i < key.length(); ++i)
+    if (key[i] >= '0' && key[i] <= '9')
+      number += key[i];
+    else if (key[i] == ' ')
+      ++spaces;
+
+  ::uint64_t n = boost::lexical_cast< ::uint64_t >(number);
+
+  if (!spaces)
+    return false;
+  
+  if (n % spaces == 0) {
+    result = n / spaces;
     return true;
-  else
-    return endOfRequest;
+  } else
+    return false;
+}
+
+
+Request::State
+RequestParser::parseWebSocketMessage(Request& req,
+				     ReplyPtr reply,
+				     Buffer::const_iterator& begin,
+				     Buffer::const_iterator end)
+{
+  if (wsState_ == ws_start) {
+    wsState_ = ws_hand_shake;
+
+    reply->consumeData(begin, begin, Request::Complete);
+
+    return Request::Complete;
+  } else if (wsState_ == ws_hand_shake) {
+    ::int64_t thisSize = std::min((::int64_t)(end - begin), 8 - remainder_);
+
+    memcpy(buf_ + remainder_, begin, thisSize);
+    remainder_ += thisSize;
+    begin += thisSize;
+
+    if (remainder_ == 8) {
+      bool okay = doWebSocketHandShake(req);
+
+      if (okay) {
+	wsState_ = frame_start;
+
+	reply->consumeData(buf_, buf_ + 16, Request::Complete);
+
+	return Request::Complete;
+      } else
+	return Request::Error;
+    } else
+      return Request::Partial;
+  }
+
+  Buffer::const_iterator dataBegin = begin;
+  Buffer::const_iterator dataEnd = end;
+
+  Request::State state = Request::Partial;
+
+  while (begin < end && state == Request::Partial) {
+    switch (wsState_) {
+    case frame_start:
+      frameType_ = *begin;
+
+      if (frameType_ & 0x80) {
+	wsState_ = binary_length;
+	remainder_ = 0;
+      } else {
+	wsState_ = text_data;
+	dataBegin = begin;
+        ++dataBegin;
+	remainder_ = 0;
+      }
+
+      ++begin;
+      break;
+
+    case binary_length:
+      remainder_ = remainder_ << 7 | (*begin & 0x7F);
+      if ((*begin & 0x80) == 0) {
+	if (remainder_ == 0 || remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH)
+	  return Request::Error;
+	wsState_ = binary_data;
+      }
+
+      ++begin;
+      break;
+
+    case text_data:
+      if (static_cast<unsigned char>(*begin) == 0xFF) {
+	state = Request::Complete;
+	dataEnd = begin;
+      } else {
+	++remainder_;
+
+	if (remainder_ >= MAX_WEBSOCKET_MESSAGE_LENGTH)
+	  return Request::Error;
+      }
+
+      ++begin;
+      break;
+
+    case binary_data:
+      ::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
+
+      dataBegin = begin;
+      begin = begin + thisSize;
+      dataEnd = begin;
+      remainder_ -= thisSize;
+
+      if (remainder_ == 0)
+	state = Request::Complete;
+      break;
+    }
+  }
+
+  if (state == Request::Complete)
+    wsState_ = frame_start;
+
+  if (frameType_ == 0x00) {
+    if (dataBegin < dataEnd || state == Request::Complete) {
+      assert(*dataBegin != 0);
+      reply->consumeData(dataBegin, dataEnd, state);
+    }
+  } else
+    return Request::Error;
+
+  return state;
 }
 
 boost::tribool& RequestParser::consume(Request& req, char input)
@@ -131,7 +320,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   if (++requestSize_ > MAX_REQUEST_HEADER_SIZE)
     return False;
 
-  switch (state_)
+  switch (httpState_)
   {
   case method_start:
     if (input == '\r')
@@ -141,7 +330,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
        * accepted practice when dealing with multiple requests
        * in one connection, separated by a CRLF.
        */
-      state_ = expecting_newline_0;
+      httpState_ = expecting_newline_0;
       return Indeterminate;
     } else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
     {
@@ -149,7 +338,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     }
     else
     {
-      state_ = method;
+      httpState_ = method;
       consumeToString(req.method, MAX_METHOD_SIZE);
       consumeChar(input);
       return Indeterminate;
@@ -157,7 +346,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case expecting_newline_0:
     if (input == '\n')
     {
-      state_ = method_start;
+      httpState_ = method_start;
       return Indeterminate;
     }
     else
@@ -168,7 +357,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     if (input == ' ')
     {
       consumeComplete();
-      state_ = uri_start;
+      httpState_ = uri_start;
       return Indeterminate;
     }
     else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
@@ -189,7 +378,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     }
     else
     {
-      state_ = uri;
+      httpState_ = uri;
       consumeToString(req.uri, MAX_URI_SIZE);
       consumeChar(input);
       return Indeterminate;
@@ -199,7 +388,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     {
       consumeComplete();
 
-      state_ = http_version_h;
+      httpState_ = http_version_h;
       return Indeterminate;
     }
     else if (is_ctl(input))
@@ -216,7 +405,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case http_version_h:
     if (input == 'H')
     {
-      state_ = http_version_t_1;
+      httpState_ = http_version_t_1;
       return Indeterminate;
     }
     else
@@ -226,7 +415,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case http_version_t_1:
     if (input == 'T')
     {
-      state_ = http_version_t_2;
+      httpState_ = http_version_t_2;
       return Indeterminate;
     }
     else
@@ -236,7 +425,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case http_version_t_2:
     if (input == 'T')
     {
-      state_ = http_version_p;
+      httpState_ = http_version_p;
       return Indeterminate;
     }
     else
@@ -246,7 +435,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case http_version_p:
     if (input == 'P')
     {
-      state_ = http_version_slash;
+      httpState_ = http_version_slash;
       return Indeterminate;
     }
     else
@@ -258,7 +447,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     {
       req.http_version_major = 0;
       req.http_version_minor = 0;
-      state_ = http_version_major_start;
+      httpState_ = http_version_major_start;
       return Indeterminate;
     }
     else
@@ -269,7 +458,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     if (is_digit(input))
     {
       req.http_version_major = req.http_version_major * 10 + input - '0';
-      state_ = http_version_major;
+      httpState_ = http_version_major;
       return Indeterminate;
     }
     else
@@ -279,7 +468,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case http_version_major:
     if (input == '.')
     {
-      state_ = http_version_minor_start;
+      httpState_ = http_version_minor_start;
       return Indeterminate;
     }
     else if (is_digit(input))
@@ -295,7 +484,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     if (is_digit(input))
     {
       req.http_version_minor = req.http_version_minor * 10 + input - '0';
-      state_ = http_version_minor;
+      httpState_ = http_version_minor;
       return Indeterminate;
     }
     else
@@ -305,7 +494,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case http_version_minor:
     if (input == '\r')
     {
-      state_ = expecting_newline_1;
+      httpState_ = expecting_newline_1;
       return Indeterminate;
     }
     else if (is_digit(input))
@@ -320,7 +509,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case expecting_newline_1:
     if (input == '\n')
     {
-      state_ = header_line_start;
+      httpState_ = header_line_start;
       return Indeterminate;
     }
     else
@@ -330,13 +519,13 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case header_line_start:
     if (input == '\r')
     {
-      state_ = expecting_newline_3;
+      httpState_ = expecting_newline_3;
       return Indeterminate;
     }
     else if (!req.headerMap.empty() && (input == ' ' || input == '\t'))
     {
       // continuation of previous header
-      state_ = header_lws;
+      httpState_ = header_lws;
       return Indeterminate;
     }
     else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
@@ -347,13 +536,13 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     {
       consumeToString(headerName_, MAX_FIELD_NAME_SIZE);
       consumeChar(input);
-      state_ = header_name;
+      httpState_ = header_name;
       return Indeterminate;
     }
   case header_lws:
     if (input == '\r')
     {
-      state_ = expecting_newline_2;
+      httpState_ = expecting_newline_2;
       return Indeterminate;
     }
     else if (input == ' ' || input == '\t')
@@ -366,7 +555,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     }
     else
     {
-      state_ = header_value;
+      httpState_ = header_value;
       headerValue_.push_back(input);
       return Indeterminate;
     }
@@ -374,7 +563,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     if (input == ':')
     {
       consumeComplete();
-      state_ = space_before_header_value;
+      httpState_ = space_before_header_value;
       return Indeterminate;
     }
     else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
@@ -392,14 +581,14 @@ boost::tribool& RequestParser::consume(Request& req, char input)
     if (input == ' ')
     {
       consumeToString(headerValue_, MAX_FIELD_VALUE_SIZE);
-      state_ = header_value;
+      httpState_ = header_value;
 
       return Indeterminate;
     }
     else
     {
       consumeToString(headerValue_, MAX_FIELD_VALUE_SIZE);
-      state_ = header_value;
+      httpState_ = header_value;
     }
   case header_value:
     if (input == '\r')
@@ -415,7 +604,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
 	req.headerOrder.push_back(i);
       }
 
-      state_ = expecting_newline_2;
+      httpState_ = expecting_newline_2;
       return Indeterminate;
     }
     else if (is_ctl(input))
@@ -432,7 +621,7 @@ boost::tribool& RequestParser::consume(Request& req, char input)
   case expecting_newline_2:
     if (input == '\n')
     {
-      state_ = header_line_start;
+      httpState_ = header_line_start;
       return Indeterminate;
     }
     else
@@ -491,16 +680,18 @@ Reply::status_type RequestParser::validate(Request& req)
     }
   }
 
-  bodyRemainder_ = req.contentLength;
+  /*
+   * We could probably be more pedantic here.
+   */
+  remainder_ = req.contentLength;
 
   /*
    * Other things that we could check: if there is a body expected (like
    * POST, but there is no content-length: return 411 Length Required
-   */
-
-  /*
+   *
    * HTTP 1.1 (RFC 2616) and HTTP 1.0 (RFC 1945) validation
    */
+
   return Reply::ok;
 }
 

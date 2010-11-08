@@ -702,8 +702,8 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
 
     /*
      * Take the hint: if the container is relative, then we can use an absolute
-     * layout for its contents, under the assumption that also the width
-     * is handled using JavaScript (like in WTreeView, WTableView)
+     * layout for its contents, under the assumption that a .wtResize or
+     * auto-javascript sets the width too (like in WTreeView, WTableView)
      */
     if (positionScheme() == Relative || positionScheme() == Absolute) {
       c->setProperty(PropertyStylePosition, "absolute");

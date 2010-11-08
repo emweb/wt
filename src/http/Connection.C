@@ -100,10 +100,14 @@ void Connection::handleReadRequest0()
 
   if (result) {
     Reply::status_type status = request_parser_.validate(request_);
-    if (status != Reply::ok)
+    if (status >= 300)
       sendStockReply(status);
     else {
-      request_.urlScheme = urlScheme();
+      if (request_.isWebSocketRequest())
+	request_.urlScheme = "ws" + urlScheme().substr(4);
+      else
+	request_.urlScheme = urlScheme();
+
       request_.port = socket().local_endpoint().port();
       reply_ = request_handler_.handleRequest(request_);
       reply_->setConnection(this);
@@ -167,6 +171,11 @@ void Connection::handleReadBody()
     startAsyncReadBody(buffer_, CONNECTION_TIMEOUT);
 }
 
+bool Connection::readAvailable()
+{
+  return (remaining_ < buffer_.data() + buffer_size_) || socket().available();
+}
+
 void Connection::handleReadBody(const asio_error_code& e,
 				std::size_t bytes_transferred)
 {
@@ -188,9 +197,11 @@ void Connection::startWriteResponse()
   moreDataToSend_ = !reply_->nextBuffers(buffers);
 
 #ifdef DEBUG
+  std::cerr << "Sending" << std::endl;
   for (unsigned i = 0; i < buffers.size(); ++i) {
     char *data = (char *)asio::detail::buffer_cast_helper(buffers[i]);
     int size = asio::buffer_size(buffers[i]);
+
     for (int j = 0; j < size; ++j)
       std::cerr << data[j];
   }

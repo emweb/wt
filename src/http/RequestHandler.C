@@ -104,6 +104,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
       req.request_extra_path = pathInfo;
       if (!pathInfo.empty())
 	req.request_path = ep.path();
+
       return ReplyPtr(new WtReply(req, ep, config_));
     }
   }

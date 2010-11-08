@@ -123,6 +123,7 @@ public:
   bool               behindReverseProxy() const { return behindReverseProxy_; }
   std::string        redirectMessage() const { return redirectMsg_; }
   bool               serializedEvents() const { return serializedEvents_; }
+  bool               webSockets() const { return webSockets_; }
   bool               inlineCss() const { return inlineCss_; }
   bool               ajaxAgentWhiteList() const { return ajaxAgentWhiteList_; }
   const AgentList&   ajaxAgentList() const { return ajaxAgentList_; }
@@ -174,6 +175,7 @@ private:
   bool            behindReverseProxy_;
   std::string     redirectMsg_;
   bool            serializedEvents_;
+  bool		  webSockets_;
   bool            inlineCss_;
   AgentList       ajaxAgentList_, botList_;
   bool            ajaxAgentWhiteList_;

@@ -400,7 +400,7 @@ bool WebController::requestDataReceived(WebRequest *request,
     lock.unlock();
 #endif // WT_THREADED
 
-    CgiParser cgi(conf_.maxRequestSize() * 1024);
+    CgiParser cgi(conf_.maxRequestSize());
 
     try {
       cgi.parse(*request, false);
@@ -489,7 +489,7 @@ void WebController::handleAsyncRequest(WebRequest *request)
   if (!request->entryPoint_)
     request->entryPoint_ = getEntryPoint(request);
 
-  CgiParser cgi(conf_.maxRequestSize() * 1024);
+  CgiParser cgi(conf_.maxRequestSize());
 
   try {
     cgi.parse(*request);

@@ -17,13 +17,15 @@
 #include "Wt/Http/Request"
 #include "Wt/Http/Response"
 
-#include "WebSession.h"
-#include "WebRequest.h"
-#include "WebController.h"
+#include "CgiParser.h"
 #include "Configuration.h"
-#include "WtException.h"
 #include "DomElement.h"
 #include "Utils.h"
+#include "WebController.h"
+#include "WebRequest.h"
+#include "WebSession.h"
+#include "WebSocketMessage.h"
+#include "WtException.h"
 
 #include <boost/algorithm/string.hpp>
 #ifndef _MSC_VER
@@ -64,6 +66,7 @@ WebSession::WebSession(WebController *controller,
     renderer_(*this),
     asyncResponse_(0),
     updatesPending_(false),
+    canWriteAsyncResponse_(false),
     embeddedEnv_(this),
     app_(0),
     debug_(controller_->configuration().debug()),
@@ -799,9 +802,14 @@ bool WebSession::unlockRecursiveEventLoop()
 
 void WebSession::handleRequest(Handler& handler)
 {
-  Configuration& conf = controller_->configuration();
-
   WebRequest& request = *handler.request();
+
+  if (request.isWebSocketRequest()) {
+    handleWebSocketRequest(handler);
+    return;
+  }
+
+  Configuration& conf = controller_->configuration();
 
   const std::string *wtdE = request.getParameter("wtd");
   const std::string *requestE = request.getParameter("request");
@@ -809,8 +817,17 @@ void WebSession::handleRequest(Handler& handler)
   WebRenderer::ResponseType responseType = WebRenderer::Page;
 
   /*
+   * Only handle GET and POST requests, unless a resource is
+   * listening.
+   */
+  if (!((requestE && *requestE == "resource")
+	|| request.requestMethod() == "POST"
+	|| request.requestMethod() == "GET"))
+    handler.response()->setStatus(400); // Bad Request
+
+  /*
    * Under what circumstances do we allow a request which does not have
-   * a the session ID (except for through a cookie?)
+   * a the session ID (i.e. who as it only through a cookie?)
    *
    *  - when a new session is created
    *  - when reloading the page (we document in the API that you should not
@@ -818,13 +835,9 @@ void WebSession::handleRequest(Handler& handler)
    *
    * in other cases: silenty discard the request
    */
-  if (!((requestE && *requestE == "resource")
-	|| request.requestMethod() == "POST"
-	|| request.requestMethod() == "GET"))
-    handler.response()->setStatus(400); // Bad Request
   else if ((!wtdE || (*wtdE != sessionId_))
 	   && state_ != JustCreated
-	   && (requestE && (*requestE == "signal" ||
+	   && (requestE && (*requestE == "jsupdate" ||
 			    *requestE == "resource"))) {
     handler.response()->setContentType("text/html");
     handler.response()->out()
@@ -1053,6 +1066,69 @@ void WebSession::handleRequest(Handler& handler)
     handler.response()->flush();
 }
 
+void WebSession::handleWebSocketRequest(Handler& handler)
+{
+#ifndef WT_TARGET_JAVA
+  if (state_ != Loaded) {
+    handler.response()->flush(WebRequest::ResponseDone);
+    return;
+  }
+
+  if (asyncResponse_) {
+    asyncResponse_->flush();
+    asyncResponse_ = 0;
+  }
+
+  asyncResponse_ = handler.response();
+
+  char buf[16];
+  handler.request()->in().read(buf, 16);
+  handler.response()->out().write(buf, 16);
+
+  asyncResponse_->flush
+    (WebRequest::ResponseFlush,
+     boost::bind(&WebSession::webSocketReady,				    
+		 boost::weak_ptr<WebSession>(shared_from_this())));
+  canWriteAsyncResponse_ = false;
+
+  asyncResponse_->readWebSocketMessage
+    (boost::bind(&WebSession::handleWebSocketMessage,
+		 boost::weak_ptr<WebSession>(shared_from_this())));
+
+
+  handler.setRequest(0, 0);
+#endif // WT_TARGET_JAVA
+}
+
+void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
+{
+#ifndef WT_TARGET_JAVA
+  boost::shared_ptr<WebSession> lock = session.lock();
+  if (lock) {
+    WebSocketMessage *message = new WebSocketMessage(lock.get());
+    
+    if (message->contentLength() == 0)
+      return;
+
+    CgiParser cgi(lock->controller_->configuration().maxRequestSize());
+    try {
+      cgi.parse(*message);
+    } catch (std::exception& e) {
+      std::cerr << "Could not parse request: " << e.what();
+    }
+
+    if (lock->asyncResponse_)
+      lock->asyncResponse_->readWebSocketMessage
+        (boost::bind(&WebSession::handleWebSocketMessage, session));
+
+    {
+      Handler handler(lock, *message, (WebResponse &)(*message));
+      lock->handleRequest(handler);
+    }
+  }
+#endif // WT_TARGET_JAVA
+}
+
 std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
 {
   const std::string *hashE = 0;
@@ -1097,12 +1173,43 @@ void WebSession::pushUpdates()
 
   updatesPending_ = true;
 
-  if (asyncResponse_) {
+  if (canWriteAsyncResponse_) {
+    if (asyncResponse_->isWebSocketRequest()
+	&& asyncResponse_->webSocketMessagePending())
+      return;
+
     renderer_.serveResponse(*asyncResponse_, WebRenderer::Update);
     updatesPending_ = false;
-    asyncResponse_->flush();
-    asyncResponse_ = 0;
+
+    if (!asyncResponse_->isWebSocketRequest()) {
+      asyncResponse_->flush();
+      asyncResponse_ = 0;
+      canWriteAsyncResponse_ = false;
+    } else {
+#ifndef WT_TARGET_JAVA
+      canWriteAsyncResponse_ = false;
+      asyncResponse_->flush
+	(WebRequest::ResponseFlush,
+	 boost::bind(&WebSession::webSocketReady,
+		     boost::weak_ptr<WebSession>(shared_from_this())));
+#endif // WT_TARGET_JAVA
+    }
   }
+}
+
+void WebSession::webSocketReady(boost::weak_ptr<WebSession> session)
+{
+#ifndef WT_TARGET_JAVA
+  boost::shared_ptr<WebSession> lock = session.lock();
+  if (lock) {
+    Handler handler(lock, true);
+
+    lock->canWriteAsyncResponse_ = true;
+
+    if (lock->updatesPending_)
+      lock->pushUpdates();
+  }
+#endif // WT_TARGET_JAVA
 }
 
 const std::string *WebSession::getSignal(const WebRequest& request,
@@ -1281,7 +1388,15 @@ void WebSession::notify(const WEvent& event)
 	    log("error") << "Could not parse ackId: " << *ackIdE;
 	  }
 
-	  if (asyncResponse_) {
+	  /*
+	   * In case we are not using websocket but long polling, the client
+	   * aborts the previous poll request to indicate a client-side event.
+	   *
+	   * So we also discard the previous asyncResponse_ server-side.
+	   */
+	  if (asyncResponse_ && !asyncResponse_->isWebSocketRequest()) {
+
+	    /* Not sure of this is still relevant? */
 	    if (*signalE == "poll")
 	      renderer_.letReloadJS(*asyncResponse_, true);
 
@@ -1289,6 +1404,7 @@ void WebSession::notify(const WEvent& event)
 	    asyncResponse_->flush();
 #endif
 	    asyncResponse_ = 0;
+	    canWriteAsyncResponse_ = false;
 	  }
 
 	  if (*signalE != "res" && *signalE != "poll") {
@@ -1313,11 +1429,13 @@ void WebSession::notify(const WEvent& event)
 	      throw;
 	    }
 	  } else if (*signalE == "poll" && !updatesPending_) {
-	    asyncResponse_ = handler.response();
-	    //asyncResponse_->startAsync();
-	    //pollResponse_->setContentType("text/plain; charset=UTF-8");
-	    //pollResponse_->flush(WebResponse::ResponseWaitMore);
-	    handler.setRequest(0, 0);
+	    if (!asyncResponse_) {
+	      asyncResponse_ = handler.response();
+	      canWriteAsyncResponse_ = true;
+	      handler.setRequest(0, 0);
+            } else {
+	      std::cerr << "Poll after web socket connect. Ignoring" << std::endl;
+            }
 	  }
 	} else {
 	  log("notice") << "Refreshing session";
@@ -1383,6 +1501,7 @@ void WebSession::render(Handler& handler,
    * occurred. Since we are already rendering the response, we can no longer
    * show a nice error message.
    */
+
   try {
     if (!env_->doesAjax_)
       try {
@@ -1425,7 +1544,13 @@ void WebSession::serveError(Handler& handler, const std::string& e,
 void WebSession::serveResponse(Handler& handler,
 			       WebRenderer::ResponseType responseType)
 {
-  renderer_.serveResponse(*handler.response(), responseType);
+  /*
+   * If the request is a web socket message, then we should not actually
+   * render -- there may be more messages following.
+   */
+  if (!handler.request()->isWebSocketMessage())
+    renderer_.serveResponse(*handler.response(), responseType);
+
   handler.response()->flush();
   handler.setRequest(0, 0);
 }

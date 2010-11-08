@@ -166,6 +166,7 @@ Configuration::Configuration(const std::string& applicationPath,
     behindReverseProxy_(false),
     redirectMsg_("Load basic HTML"),
     serializedEvents_(false),
+    webSockets_(false),
     inlineCss_(true),
     ajaxAgentWhiteList_(false),
     persistentSessions_(false),
@@ -328,6 +329,12 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
   setBoolean(app, "behind-reverse-proxy", behindReverseProxy_);
   setBoolean(app, "strict-event-serialization", serializedEvents_);
+  setBoolean(app, "web-sockets", webSockets_);
+
+  if (webSockets_ && serverType_ != WtHttpdServer)
+    throw WServer::Exception("<web-sockets> only supported by built-in "
+			     "httpd connector.");
+
   setBoolean(app, "inline-css", inlineCss_);
   setBoolean(app, "persistent-sessions", persistentSessions_);
   setBoolean(app, "progressive-bootstrap", progressiveBoot_);

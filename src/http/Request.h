@@ -48,6 +48,8 @@ struct my_iless
 class Request
 {
 public:
+  enum State { Partial, Complete, Error };
+
   std::string method;
   std::string uri;
   std::string urlScheme;
@@ -69,6 +71,7 @@ public:
 
   bool closeConnection() const;
   bool acceptGzipEncoding() const;
+  bool isWebSocketRequest() const;
 
   void transmitHeaders(std::ostream& out) const;
 };

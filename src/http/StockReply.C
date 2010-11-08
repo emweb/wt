@@ -305,11 +305,11 @@ StockReply::StockReply(const Request& request, status_type status,
     transmitted_(false)
 { }
 
-void StockReply::consumeRequestBody(Buffer::const_iterator begin,
-				    Buffer::const_iterator end,
-				    bool endOfRequest)
+void StockReply::consumeData(Buffer::const_iterator begin,
+			     Buffer::const_iterator end,
+			     Request::State state)
 {
-  if (endOfRequest)
+  if (state != Request::Partial)
     send();
 }
 

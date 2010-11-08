@@ -126,9 +126,9 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
     }
     webResponse->flush(WebResponse::ResponseDone);
   } else
-    webResponse->flush(WebResponse::ResponseCallBack,
-		       Http::ResponseContinuation::callBack,
-		       response.continuation_);
+    webResponse->flush(WebResponse::ResponseFlush,
+		       boost::bind(&Http::ResponseContinuation::doContinue,
+				   response.continuation_));
 }
 
 void WResource::suggestFileName(const std::string& name)

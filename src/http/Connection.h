@@ -75,6 +75,8 @@ public: // huh?
   void handleReadRequest0();
   void handleReadBody(const asio_error_code& e,
 		      std::size_t bytes_transferred);
+  void handleReadBody();
+  bool readAvailable();
 
 protected:
   void setTimeout(int seconds);
@@ -95,7 +97,6 @@ private:
    * Asynchronoulsy reading a request body
    */
   virtual void startAsyncReadBody(Buffer& buffer, int timeout) = 0;
-  void handleReadBody();
   void handleError(const asio_error_code& e);
   void sendStockReply(Reply::status_type code);
 

@@ -25,9 +25,8 @@ public:
 
   virtual bool isSynchronous() const;
 
-  virtual void flush(ResponseState state,
-    CallbackFunction callback,
-    void *callbackData);
+  virtual void flush(ResponseState state = ResponseDone,
+		     CallbackFunction callback = CallbackFunction());
 
   // Sends a simple text reply
   void sendSimpleReply(int status, const std::string &msg);
@@ -76,6 +75,9 @@ private:
   DWORD bytesToRead_;
   char buffer_[1024];
   DWORD bufferSize_;
+
+  //boost::mutex intermediateBufferedLock_;
+  //int intermediateBufferedCounter_;
 
   void processAsyncRead(DWORD cbIO, DWORD dwError, bool first);
   static void WINAPI completionCallback(LPEXTENSION_CONTROL_BLOCK lpECB,

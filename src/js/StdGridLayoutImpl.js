@@ -84,6 +84,8 @@ WT_DECLARE_WT_MEMBER
 
        if (ch.wtResize) {
 	 var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
+	 ch.style.position = 'absolute';
+	 ch.style.width = w+'px';
 	 ch.wtResize(ch, w, k);
        } else if (ch.style.height != k+'px') {
 	 ch.style.height = k+'px';

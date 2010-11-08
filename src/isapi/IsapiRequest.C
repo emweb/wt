@@ -227,9 +227,7 @@ void IsapiRequest::abort()
     &status, 0, 0);
 }
 
-void IsapiRequest::flush(ResponseState state,
-                         CallbackFunction callback,
-                         void *callbackData)
+void IsapiRequest::flush(ResponseState state, CallbackFunction callback)
 {
   reading_ = false;
   if (!headerSent_) {
@@ -248,10 +246,10 @@ void IsapiRequest::flush(ResponseState state,
   }
 
   flushState_ = state;
-  if (state == ResponseCallBack) {
-    setAsyncCallback(boost::bind(callback, callbackData));
+  if (state == ResponseFlush) {
+    setAsyncCallback(callback);
   } else {
-    setAsyncCallback(boost::function<void(void)>());
+    setAsyncCallback(CallbackFunction());
   }
 
   // Reserve some space so that data doesn't get copied around
@@ -378,7 +376,7 @@ void IsapiRequest::flushDone()
       delete this;
       return;
     }
-  } else if (flushState_ == ResponseCallBack) {
+  } else if (flushState_ == ResponseFlush) {
     if (synchronous_) {
       emulateAsync(flushState_);
     } else {
@@ -391,7 +389,7 @@ void IsapiRequest::sendSimpleReply(int status, const std::string &msg)
 {
   setStatus(status);
   out() << msg;
-  flush(ResponseDone, 0, 0);
+  flush(ResponseDone);
 }
 
 void IsapiRequest::setStatus(int status)

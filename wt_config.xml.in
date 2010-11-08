@@ -271,6 +271,28 @@
 	  -->
 	<strict-event-serialization>false</strict-event-serialization>
 
+	<!-- Enables web socket.
+
+	   By default AJAX and long polling are used to communicate
+	   between server and browser.
+
+           By enabling web socket support, if the browser supports
+           WebSockets, then WebSocket is the protocol used for
+           communication between client and server. WebSockets are
+           currently only supported by the built-in httpd Connector,
+	   which acts as both an HTTP and WebSocket server. The WebSocket
+	   protocol is intentionally not compatible with HTTP, through 
+	   a special hand-shake mechanism, and requires
+           that all (reverse) proxy servers also have explicit support
+           for this protocol.
+
+           This feature is still experimental: the Web Sockets RFC is
+           still a draft with ongoing changes to the framing protocol,
+	   and the current implementation is based on
+	   http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-00
+	  -->
+	<web-sockets>false</web-sockets>
+
 	<!-- Redirect message shown for browsers without JavaScript support
 
 	   By default, Wt will use an automatic redirect to start the

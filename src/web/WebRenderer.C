@@ -108,6 +108,20 @@ void WebRenderer::discardChanges()
 
 void WebRenderer::ackUpdate(int updateId)
 {
+  /*
+   * If we are using an unreliable transport, then we remember
+   * JavaScript updates until they are ack'ed. This works because
+   * requests are not pipelined.
+   *
+   * WebSocket requests are pipelined so this simple mechanism will
+   * not work. When switching from web sockets to AJAX or vice-versa ?
+   * 
+   * If normal AJAX request -> web socket closes. We assume everything
+   * got delivered and start doing ack updates again.
+   *
+   * If web socket request -> we assume last AJAX request got
+   * delivered ?
+   */
   if (updateId == expectedAckId_) {
     setJSSynced(false);
     ++expectedAckId_;
@@ -346,6 +360,10 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
     << collectedJS2_.str()
     << session_.app()->javaScriptClass()
     << "._p_.response(" << expectedAckId_ << ");";
+
+  if (response.isWebSocketRequest()
+      || response.isWebSocketMessage())
+    setJSSynced(false);
 }
 
 void WebRenderer::collectJavaScript()
@@ -504,16 +522,19 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
   FileServe script(skeletons::Wt_js);
   script.setCondition("DEBUG", conf.debug());
+
 #ifdef WT_DEBUG_JS
   script.setCondition("DYNAMIC_JS", true);
 #else
   script.setCondition("DYNAMIC_JS", false);
 #endif // WT_DEBUG_JS
+
   script.setVar("WT_CLASS", WT_CLASS);
   script.setVar("APP_CLASS", app->javaScriptClass());
-  script.setVar("AUTO_JAVASCRIPT", "(function() {" + app->autoJavaScript_ + "})");
-
+  script.setVar("AUTO_JAVASCRIPT",
+		"(function(){" + app->autoJavaScript_ + "})");
   script.setCondition("STRICTLY_SERIALIZED_EVENTS", conf.serializedEvents());
+  script.setCondition("WEB_SOCKETS", conf.webSockets());
   script.setVar("INNER_HTML", innerHtml);
   script.setVar("FORM_OBJECTS", '[' + currentFormObjectsList_ + ']');
 

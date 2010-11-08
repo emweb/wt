@@ -43,6 +43,9 @@ void Session::mapClass(const char *tableName)
   if (schemaInitialized_)
     throw std::logic_error("Cannot map tables after schema was initialized.");
 
+  if (classRegistry_.find(&typeid(C)) != classRegistry_.end())
+    return;
+
   Mapping<C> *mapping = new Mapping<C>();
   mapping->tableName = tableName;
 

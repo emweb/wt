@@ -67,7 +67,6 @@ private:
 
   void         stop();
   WebResponse *response() { return response_; }
-  static void  callBack(void *callbackData);
 
   friend class Wt::WResource;
   friend class Wt::WebSession;

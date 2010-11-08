@@ -215,6 +215,7 @@ web/XSSUtils.C
 web/WebRequest.C
 web/WebStream.C
 web/WebSession.C
+web/WebSocketMessage.C
 web/WebRenderer.C
 web/WebController.C
 web/WtException.C

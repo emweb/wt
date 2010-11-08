@@ -37,9 +37,9 @@ public:
   StaticReply(const std::string &full_path, const std::string &extension,
 	      const Request& request, const std::string &err_root);
 
-  virtual void consumeRequestBody(Buffer::const_iterator begin,
-				  Buffer::const_iterator end,
-				  bool endOfRequest);
+  virtual void consumeData(Buffer::const_iterator begin,
+			   Buffer::const_iterator end,
+			   Request::State state);
 
 protected:
   virtual status_type responseStatus();

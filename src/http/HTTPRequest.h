@@ -20,10 +20,11 @@ class HTTPRequest : public Wt::WebRequest
 public:
   HTTPRequest(WtReplyPtr wtReply, const Wt::EntryPoint *entryPoint);
 
-  virtual void flush(ResponseState state, CallbackFunction callback = 0,
-		     void *callbackData = 0);
+  virtual void flush(ResponseState state, CallbackFunction callback);
+  virtual void readWebSocketMessage(CallbackFunction callback);
+  virtual bool webSocketMessagePending() const;
 
-  virtual std::istream& in() { return instream_; }
+  virtual std::istream& in() { return reply_->cin(); }
   virtual std::ostream& out() { return outstream_; }
   virtual std::ostream& err() { return std::cerr; }
 
@@ -48,7 +49,6 @@ public:
 
 private:
   WtReplyPtr reply_;
-  std::istream &instream_;
   std::stringstream outstream_;
 };
 

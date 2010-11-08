@@ -42,13 +42,13 @@ namespace asio = boost::asio;
 
 #include "Buffer.h"
 #include "WHttpDllDefs.h"
+#include "Request.h"
 
 namespace http {
 namespace server {
 
 class Connection;
 class Reply;
-class Request;
 
 typedef boost::shared_ptr<Reply> ReplyPtr;
 
@@ -60,6 +60,7 @@ public:
 
   enum status_type
   {
+    switching_protocols = 101,
     ok = 200,
     created = 201,
     accepted = 202,
@@ -83,9 +84,9 @@ public:
     service_unavailable = 503
   };
 
-  virtual void consumeRequestBody(Buffer::const_iterator begin,
-				  Buffer::const_iterator end,
-				  bool endOfRequest) = 0;
+  virtual void consumeData(Buffer::const_iterator begin,
+			   Buffer::const_iterator end,
+			   Request::State state) = 0;
 
   void setConnection(Connection *connection);
   bool nextBuffers(std::vector<asio::const_buffer>& result);

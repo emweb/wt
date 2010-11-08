@@ -5,6 +5,7 @@
  */
 
 #include "WebRequest.h"
+#include "WtException.h"
 
 #include <cstdlib>
 
@@ -35,6 +36,16 @@ WebRequest::WebRequest()
 
 WebRequest::~WebRequest()
 { }
+
+void WebRequest::readWebSocketMessage(CallbackFunction callback)
+{ 
+  throw WtException("should not get here");
+}
+
+bool WebRequest::webSocketMessagePending() const
+{
+  throw WtException("should not get here");
+}
 
 std::string WebRequest::userAgent() const
 {
@@ -219,7 +230,7 @@ void WebRequest::emulateAsync(ResponseState state)
    * for a synchronous connector.
    */
 
-  if (state == ResponseCallBack) {
+  if (state == ResponseFlush) {
     if (doingAsyncCallbacks_) {
       // Do nothing. emulateAsync() was already called on this stack frame.
       // Unwind the stack and let the toplevel emulateAsync() call the cb.

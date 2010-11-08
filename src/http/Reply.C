@@ -49,6 +49,8 @@ namespace server {
 
 namespace status_strings {
 
+const std::string switching_protocols =
+  "101 Switching Protocol\r\n";
 const std::string ok =
   "200 OK\r\n";
 const std::string created =
@@ -96,6 +98,8 @@ const std::string& toText(Reply::status_type status)
 {
   switch (status)
   {
+  case Reply::switching_protocols:
+    return switching_protocols;
   case Reply::ok:
     return ok;
   case Reply::created:
@@ -218,7 +222,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
       result.push_back(buf(status_strings::toText(responseStatus())));
 
-      if (!http10) {
+      if (!http10 && responseStatus() != switching_protocols) {
 	/*
 	 * Date header (current time)
 	 */
@@ -234,7 +238,8 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       if (responseStatus() >= 300 && responseStatus() < 400) {
 	result.push_back(buf(std::string("Location: ") + location()));
 	result.push_back(asio::buffer(misc_strings::crlf));
-      } else if (responseStatus() != not_modified) {
+      } else if (responseStatus() != not_modified
+		 && responseStatus() != switching_protocols) {
 	ct = contentType();
 	result.push_back(buf("Content-Type: " + ct));
 	result.push_back(asio::buffer(misc_strings::crlf));
@@ -339,7 +344,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	    if (closeConnection_)
 	      chunkedEncoding_ = false; // should be false
 	    else
-	      if (!http10)
+	      if (!http10 && responseStatus() != switching_protocols)
 		chunkedEncoding_ = true;
 
 	  if (chunkedEncoding_) {
@@ -429,15 +434,11 @@ void Reply::setConnection(Connection *connection)
 
 void Reply::send()
 {
-  /*
-   * FIXME: we need to support synchronous I/O as well, to be used
-   * for server push.
-   */
 #ifdef WT_THREADED
   boost::recursive_mutex::scoped_lock lock(mutex_);
 #endif // WT_THREADED
 
-  if (!finishing_ && connection_)
+  if (/* !finishing_ && */ connection_)
     connection_->startWriteResponse();
 }
 

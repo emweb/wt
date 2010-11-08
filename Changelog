@@ -1,3 +1,7 @@
+08-11-2010:
+	* WebSession: landed Web Sockets support, must be enabled in the
+	configuration file
+
 05-11-2010:
 	* Wt.js: fix opera script loading indicating failure when loading from
 	cache

@@ -38,9 +38,9 @@ public:
   StockReply(const Request& request, status_type status,
 	     const std::string &extraContent, const std::string &err_root);
 
-  virtual void consumeRequestBody(Buffer::const_iterator begin,
-				  Buffer::const_iterator end,
-				  bool endOfRequest);
+  virtual void consumeData(Buffer::const_iterator begin,
+			   Buffer::const_iterator end,
+			   Request::State state);
 
 protected:
   virtual status_type responseStatus();

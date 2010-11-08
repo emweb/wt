@@ -51,15 +51,13 @@ namespace {
       delete request_;
     }
 
-    virtual void flush(ResponseState state,
-		       CallbackFunction callback,
-		       void *callbackData) {
+    virtual void flush(ResponseState state, CallbackFunction callback) {
       out_->flush();
 
-      if (state == ResponseCallBack) {
-        setAsyncCallback(boost::bind(callback, callbackData));
+      if (state == ResponseFlush) {
+        setAsyncCallback(callback);
       } else {
-        setAsyncCallback(boost::function<void(void)>());
+        setAsyncCallback(0);
       }
       emulateAsync(state);
     }
