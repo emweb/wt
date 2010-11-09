@@ -226,12 +226,68 @@ public:
    */
   EventSignal<WMouseEvent>& mouseWheel();
 
+  /*! \brief Event signal emitted when a finger is placed on the screen.
+   *
+   * The event details contains information such as the \link
+   * WTouchEvent::touches() touches\endlink, \link WTouchEvent::targetTouches()
+   * target touches\endlink and \link WTouchEvent::changedTouches() changed
+   * touches\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
   EventSignal<WTouchEvent>& touchStarted();
+  
+  /*! \brief Event signal emitted when a finger is removed from the screen.
+   *
+   * The event details contains information such as the \link
+   * WTouchEvent::touches() touches\endlink, \link WTouchEvent::targetTouches()
+   * target touches\endlink and \link WTouchEvent::changedTouches() changed
+   * touches\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
   EventSignal<WTouchEvent>& touchEnded();
-  EventSignal<WTouchEvent>& touchMoved();
 
+  /*! \brief Event signal emitted when a finger, which is already placed on the
+   *         screen, is moved across the screen.
+   *
+   * The event details contains information such as the \link
+   * WTouchEvent::touches() touches\endlink, \link WTouchEvent::targetTouches()
+   * target touches\endlink and \link WTouchEvent::changedTouches() changed
+   * touches\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
+  EventSignal<WTouchEvent>& touchMoved();
+  
+  /*! \brief Event signal emitted when a gesture is started.
+   *
+   * The event details contains information about the \link
+   * WGestureEvent::scale() scale\endlink and the \link 
+   * WGestureEvent::rotation() rotation\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
   EventSignal<WGestureEvent>& gestureStarted();
+
+  /*! \brief Event signal emitted when a gesture is changed.
+   *
+   * The event details contains information about the \link
+   * WGestureEvent::scale() scale\endlink and the \link 
+   * WGestureEvent::rotation() rotation\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
   EventSignal<WGestureEvent>& gestureChanged();
+
+  /*! \brief Event signal emitted when a gesture is ended.
+   *
+   * The event details contains information about the \link
+   * WGestureEvent::scale() scale\endlink and the \link 
+   * WGestureEvent::rotation() rotation\endlink.
+   *
+   * \note When JavaScript is disabled, the signal will never fire.
+   */
   EventSignal<WGestureEvent>& gestureEnded();
 
   /*! \brief Configure dragging for drag and drop.

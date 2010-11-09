@@ -1976,8 +1976,10 @@ function ieAlternative(d)
 
 window.onunload = function()
 {
-  self.emit(self, "Wt-unload");
-  sendUpdate();
+  if (!quited) {
+    self.emit(self, "Wt-unload");
+    sendUpdate();
+  }
 };
 
 function setCloseMessage(m)

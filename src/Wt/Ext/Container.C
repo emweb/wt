@@ -97,7 +97,7 @@ void Container::removeChild(WWidget *child)
 std::string Container::extClassName() const
 {
   WContainerWidget* appRoot = WApplication::instance()->root();
-  if (parent() == appRoot && appRoot->layout())
+  if (parent() == appRoot && appRoot->children().size() == 1)
     return "Ext.Viewport";
   else
     return "Ext.Panel";
