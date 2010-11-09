@@ -19,6 +19,7 @@ IF(CONNECTOR_HTTP)
     TcpConnection.C
     WServer.C
     WtReply.C
+    md5.c
   )
     
   OPTION(HTTP_WITH_SSL "Support for SSL (https)" ${SSL_FOUND})

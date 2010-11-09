@@ -133,7 +133,7 @@ std::string HTTPRequest::remoteAddr() const
 
 std::string HTTPRequest::urlScheme() const
 {
-  return reply_->request().urlScheme;
+  return reply_->urlScheme();
 }
 
 bool HTTPRequest::isSynchronous() const

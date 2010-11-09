@@ -266,8 +266,8 @@ private:
 };
 
 #ifndef WT_TARGET_JAVA
-extern std::istream& operator>> (std::istream& i,
-				 WGoogleMap::Coordinate& coordinate);
+extern WT_API std::istream& operator>> (std::istream& i,
+				        WGoogleMap::Coordinate& coordinate);
 #endif
 
 } //  namespace Wt

@@ -52,9 +52,6 @@ public:
 
   bool parseBody(Request& req, ReplyPtr reply,
 		 Buffer::const_iterator& begin, Buffer::const_iterator end);
-  Request::State parseWebSocketMessage(Request& req, ReplyPtr reply,
-				       Buffer::const_iterator& begin,
-				       Buffer::const_iterator end);
 
   bool initialState() const;
 
@@ -79,6 +76,9 @@ private:
   void consumeToString(std::string& result, int maxSize);
   void consumeComplete();
 
+  Request::State parseWebSocketMessage(Request& req, ReplyPtr reply,
+				       Buffer::const_iterator& begin,
+				       Buffer::const_iterator end);
 
   bool doWebSocketHandShake(const Request& req);
   bool parseCrazyWebSocketKey(const std::string& key, ::uint32_t& number);
@@ -126,7 +126,7 @@ private:
 
   ::uint64_t   requestSize_;
 
-  // for HTTP POST body and WS binary frame
+  // used for HTTP POST body, WS hand-shake, and WS binary frame length
   ::int64_t    remainder_;
 
   char         buf_[4096];

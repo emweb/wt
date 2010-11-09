@@ -48,6 +48,7 @@ public:
 
   std::istream& cin() { return *cin_; }
   const Request& request() const { return request_; }
+  std::string urlScheme() const { return urlScheme_; }
 
   virtual bool expectMoreData();
 
@@ -59,6 +60,7 @@ protected:
   std::string       cout_, nextCout_;
   std::string       contentType_;
   std::string       location_;
+  std::string       urlScheme_;
   bool              responseSent_;
   status_type       status_;
   ::int64_t         contentLength_, bodyReceived_;

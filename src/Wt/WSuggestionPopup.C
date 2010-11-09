@@ -64,7 +64,8 @@ WSuggestionPopup::WSuggestionPopup(const Options& options,
     filterModel_(this),
     activated_(this),
     filter_(impl_, "filter"),
-    jactivated_(impl_, "select")
+    jactivated_(impl_, "select"),
+    global_(false)
 {
   init();
 }
@@ -82,7 +83,8 @@ WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
     matcherJS_(matcherJS),
     replacerJS_(replacerJS),
     filter_(impl_, "filter"),
-    jactivated_(impl_, "select")
+    jactivated_(impl_, "select"),
+    global_(false)
 {
   init();
 }
@@ -138,7 +140,8 @@ void WSuggestionPopup::defineJavaScript()
 		    + app->javaScriptClass() + "," + jsRef() + ","
 		    + replacerJS_ + "," + matcherJS_ + ","
 		    + boost::lexical_cast<std::string>(filterLength_) + ","
-		    + boost::lexical_cast<std::string>(defaultValue_) + ");");
+		    + boost::lexical_cast<std::string>(defaultValue_) + ","
+		    + (global_ ? "true" : "false") + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)

@@ -566,7 +566,6 @@ void WebRenderer::serveMainscript(WebResponse& response)
       beforeLoadJS_.str("");
 
       collectedJS1_
-	<< app->newBeforeLoadJavaScript()
 	<< "var domRoot = " << app->domRoot_->jsRef() << ";"
 	"var form = " WT_CLASS ".getElement('Wt-form');"
 	"domRoot.style.display = form.style.display;"
@@ -575,6 +574,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
       // Load JavaScript libraries that were added during enableAjax()
       loadScriptLibraries(collectedJS1_, app, true); 
 
+      collectedJS1_ << app->newBeforeLoadJavaScript();
+	
       collectedJS2_
 	<< "domRoot.style.visibility = 'visible';"
 	<< app->javaScriptClass() << "._p_.autoJavaScript();";

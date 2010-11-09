@@ -27,6 +27,8 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
     contentLength_(-1),
     bodyReceived_(0)
 {
+  urlScheme_ = request.urlScheme;
+
   status_ = ok;
 
   if (request.contentLength > config.maxMemoryRequestSize()) {

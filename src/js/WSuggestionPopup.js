@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, "WSuggestionPopup",
- function(APP, el, replacerJS, matcherJS, filterLength, defaultValue) {
+ function(APP, el, replacerJS, matcherJS, filterLength, defaultValue, global) {
    $('.Wt-domRoot').add(el);
 
    jQuery.data(el, 'obj', this);
@@ -48,7 +48,8 @@ WT_DECLARE_WT_MEMBER
    }
 
    function positionPopup(edit) {
-     WT.positionAtWidget(el.id, edit.id, WT.Vertical);
+     console.log("global" + global);
+     WT.positionAtWidget(el.id, edit.id, WT.Vertical, global);
    }
 
    function contentClicked(event) {

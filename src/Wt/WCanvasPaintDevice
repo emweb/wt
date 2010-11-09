@@ -58,7 +58,7 @@ public:
 			const WString& text);
   virtual void init();
   virtual void done();
-  virtual bool paintActive() const { return painter_; }
+  virtual bool paintActive() const { return painter_ != 0; }
 
   void render(const std::string& canvasId, DomElement* text);
 

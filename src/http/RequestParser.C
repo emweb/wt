@@ -14,7 +14,8 @@
 //
 
 #include <boost/lexical_cast.hpp>
-#include <openssl/md5.h>
+
+#include "md5.h"
 
 #include "RequestParser.h"
 #include "Request.h"
@@ -44,7 +45,7 @@ namespace http {
 namespace server {
 
 RequestParser::RequestParser(Server *server)
-{ 
+{
   reset();
 }
 
@@ -164,10 +165,10 @@ bool RequestParser::doWebSocketHandShake(const Request& req)
 
       memcpy(buf_ + 8, key3, 8);
 
-      MD5_CTX c;
-      MD5_Init(&c);
-      MD5_Update(&c, buf_, 16);
-      MD5_Final((unsigned char *)buf_, &c);
+      md5_state_t c;
+      md5_init(&c);
+      md5_append(&c, (unsigned char *)buf_, 16);
+      md5_finish(&c, (unsigned char *)buf_);
 
       return true;
     } else
@@ -225,7 +226,7 @@ RequestParser::parseWebSocketMessage(Request& req,
 
       if (okay) {
 	wsState_ = frame_start;
-
+	
 	reply->consumeData(buf_, buf_ + 16, Request::Complete);
 
 	return Request::Complete;
@@ -303,6 +304,7 @@ RequestParser::parseWebSocketMessage(Request& req,
   if (frameType_ == 0x00) {
     if (dataBegin < dataEnd || state == Request::Complete) {
       assert(*dataBegin != 0);
+
       reply->consumeData(dataBegin, dataEnd, state);
     }
   } else

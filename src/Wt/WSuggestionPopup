@@ -432,6 +432,18 @@ public:
    */
   Signal<int, WFormWidget *>& activated() { return activated_; }
 
+  /*! \brief Controls how the suggestion popup is positioned.
+   *
+   * When \p global is \c true, then the popup will position itself
+   * globally. This avoids that the popup is affected by enclosing
+   * parents with overflow settings that clip the popup. This makes
+   * the popup however no longer follow the popup button when this
+   * button moves.
+   *
+   * The default is \c false.
+   */
+  void setGlobalPopup(bool global) { global_ = global; }
+
   virtual void setMaximumSize(const WLength& width, const WLength& height);
   virtual void setMinimumSize(const WLength& width, const WLength& height);
 
@@ -456,6 +468,8 @@ private:
   JSignal<std::string, std::string> jactivated_;
 
   std::vector<WFormWidget *> edits_;
+
+  bool global_;
 
   void init();
   void doFilter(std::string input);

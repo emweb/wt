@@ -51,7 +51,7 @@ public:
 			const WString& text);
   virtual void init();
   virtual void done();
-  virtual bool paintActive() const { return painter_; }
+  virtual bool paintActive() const { return painter_ != 0; }
 
   virtual std::string rendered();
 
