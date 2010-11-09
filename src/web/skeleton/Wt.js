@@ -70,7 +70,7 @@ this.isIElt9 = ie < 9;
 this.isGecko = navigator.userAgent.toLowerCase().indexOf("gecko") != -1;
 this.isIEMobile = navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
   || navigator.userAgent.toLowerCase().indexOf("msie 5") != -1;
-this.isOpera = window.opera !== "undefined";
+this.isOpera = typeof window.opera !== 'undefined';
 this.updateDelay = this.isIE ? 10 : 51;
 
 this.setHtml = function (el, html, add) {
@@ -196,11 +196,16 @@ this.unwrap = function(e) {
   }
 };
 
+var delegating = false;
+
 this.CancelPropagate = 0x1;
 this.CancelDefaultAction = 0x2;
 this.CancelAll = 0x3;
 
 this.cancelEvent = function(e, cancelType) {
+  if (delegating)
+    return;
+
   var ct = cancelType === undefined ? WT.CancelAll : cancelType;
 
   if (ct & WT.CancelDefaultAction)
@@ -388,7 +393,7 @@ this.setSelectionRange = function(elem, start, end) {
 
   elem.focus();
 
-  if (elem.selectionStart != undefined) {
+  if (typeof elem.selectionStart !== 'undefined') {
     elem.selectionStart = start;
     elem.selectionEnd = end;
   }
@@ -540,8 +545,6 @@ function delegateCapture(e) {
   } else
     return captureElement;
 }
-
-var delegating = false;
 
 function mouseMove(e) {
   var d = delegateCapture(e);
@@ -1424,11 +1427,11 @@ function encodeEvent(event, i) {
   if (e.shiftKey)
     result += se + 'shiftKey=1';
 
-  if (e.touches)
+  if (typeof e.touches !== 'undefined')
     result += encodeTouches(se + "touches", e.touches, widgetCoords);
-  if (e.targetTouches)
+  if (typeof e.targetTouches !== 'undefined')
     result += encodeTouches(se + "ttouches", e.targetTouches, widgetCoords);
-  if (e.changedTouches)
+  if (typeof e.changedTouches !== 'undefined')
     result += encodeTouches(se + "ctouches", e.changedTouches, widgetCoords);
 
   if (e.scale)
@@ -1683,7 +1686,7 @@ var updateTimeoutStart;
 function scheduleUpdate() {
   _$_$if_WEB_SOCKETS_$_();
   if (websocket.state != WebSocketsUnavailable) {
-    if (window.WebSocket === undefined)
+    if (typeof window.WebSocket === 'undefined')
       websocket.state = WebSocketsUnavailable;
     else {
       var ws = websocket.socket;

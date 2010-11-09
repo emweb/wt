@@ -51,7 +51,7 @@ WT_DECLARE_WT_MEMBER
      function computeDelta(event) {
        var p, result;
 
-       if (event.changedTouches)
+       if (!WT.isIE && event.changedTouches)
 	 p = { x: event.changedTouches[0].pageX,
 	       y: event.changedTouches[0].pageY };
        else
