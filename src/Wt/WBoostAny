@@ -124,6 +124,15 @@ extern double asNumber(const boost::any& v);
 extern WT_API double asNumber(const boost::any& v);
 #endif // DOXYGEN_ONLY
 
+/*
+ * Converts a value of one type to a value of another type, using a
+ * WString as an intermediate form.
+ */
+extern WT_API boost::any
+convertAnyToAny(const boost::any& v,
+		const std::type_info& type,
+		const WT_USTRING& formatString = WT_USTRING());
+
 /*! \brief Registers MVC-support for a type passed in a boost::any.
  *
  * By registering a type using this method, the global function

@@ -427,4 +427,58 @@ double asNumber(const boost::any& v)
   }
 }
 
+extern WT_API boost::any convertAnyToAny(const boost::any& v,
+					 const std::type_info& type,
+					 const WT_USTRING& format)
+{
+  if (v.empty())
+    return boost::any();
+  else if (v.type() == type)
+    return v;
+
+  WString s = asString(v, format);
+
+  if (type == typeid(WString))
+    return s;
+  else if (type == typeid(std::string))
+    return s.toUTF8();
+  else if (type == typeid(const char *))
+    return s.toUTF8().c_str();
+  else if (type == typeid(WDate)) {
+    return WDate::fromString
+      (s, format.empty() ? "dd/MM/yy" : format);
+  } else if (v.type() == typeid(WDateTime)) {
+    return WDateTime::fromString
+      (s, format.empty() ? "dd/MM/yy HH:mm:ss" : format);
+  } else if (v.type() == typeid(WTime)) {
+    return WTime::fromString
+      (s, format.empty() ? "HH:mm:ss" : format);
+  }
+
+#define ELSE_LEXICAL_ANY(TYPE)						\
+  else if (v.type() == typeid(TYPE)) {					\
+    return boost::lexical_cast<TYPE>(s.toUTF8());			\
+  }
+
+  ELSE_LEXICAL_ANY(short)
+  ELSE_LEXICAL_ANY(unsigned short)
+  ELSE_LEXICAL_ANY(int)
+  ELSE_LEXICAL_ANY(unsigned int)
+  ELSE_LEXICAL_ANY(long)
+  ELSE_LEXICAL_ANY(unsigned long)
+  ELSE_LEXICAL_ANY(int64_t)
+  ELSE_LEXICAL_ANY(uint64_t)
+  ELSE_LEXICAL_ANY(long long)
+  ELSE_LEXICAL_ANY(float)
+  ELSE_LEXICAL_ANY(double)
+
+#undef ELSE_LEXICAL_ANY
+
+  else {
+    // FIXME, add this to the traits.
+    throw WtException(std::string("WAbstractItemModel: unsupported type ")
+		      + v.type().name());
+  }
+}
+
 }

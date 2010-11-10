@@ -146,12 +146,21 @@ bool QueryModel<Result>::setData(const WModelIndex& index,
 				 const boost::any& value, int role)
 {
   if (role == EditRole) {
+    Transaction transaction(query_.session());
+
     Result& result = resultRow(index.row());
 
     int column = columns_[index.column()].fieldIdx_;
-    query_result_traits<Result>::setValue(result, column, value);
+
+    const FieldInfo& field = fields()[column];
+
+    boost::any dbValue = Wt::convertAnyToAny(value, *field.type());
+
+    query_result_traits<Result>::setValue(result, column, dbValue);
 
     invalidateRow(index.row());
+
+    transaction.commit();
 
     return true;
   } else

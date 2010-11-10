@@ -1,3 +1,8 @@
+10-11-2010:
+	* QueryModel: setData() now converts the incoming type to the database
+	field type (if possible), and also uses a transaction to persist the
+	result (if not nested in another transaction)
+
 08-11-2010:
 	* WebSession: landed Web Sockets support, must be enabled in the
 	configuration file
