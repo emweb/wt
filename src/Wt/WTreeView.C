@@ -2708,9 +2708,13 @@ bool WTreeView::internalSelect(const WModelIndex& index, SelectionFlag option)
 
 WTreeViewNode *WTreeView::nodeForIndex(const WModelIndex& index) const
 {
-  WModelIndex column0Index = model()->index(index.row(), 0, index.parent());
-  NodeMap::const_iterator i = renderedNodes_.find(column0Index);
-  return i != renderedNodes_.end() ? i->second : 0;
+  if (index == rootIndex())
+    return rootNode_;
+  else {
+    WModelIndex column0Index = model()->index(index.row(), 0, index.parent());
+    NodeMap::const_iterator i = renderedNodes_.find(column0Index);
+    return i != renderedNodes_.end() ? i->second : 0;
+  }
 }
 
 void WTreeView::selectRange(const WModelIndex& first, const WModelIndex& last)

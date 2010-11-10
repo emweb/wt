@@ -218,9 +218,9 @@ void WAbstractItemView::setModel(WAbstractItemModel *model)
 
   configureModelDragDrop();
 
-  setHeaderHeight(headerLineHeight_, multiLineHeader_);
-
   setRootIndex(WModelIndex());
+
+  setHeaderHeight(headerLineHeight_, multiLineHeader_);
 }
 
 void WAbstractItemView::setRootIndex(const WModelIndex& rootIndex)
