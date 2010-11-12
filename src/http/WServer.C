@@ -38,14 +38,15 @@ typedef boost::thread thread_t;
 namespace {
   bool gdb = false;
 
-  static std::string getWtConfigXml(int argc, char *argv[])
+  static std::string getWtConfigXml(int argc, char *argv[],
+				    const std::string& configurationFile)
   {
     std::string wt_config_xml;
     Wt::WLogger stderrLogger;
     stderrLogger.setStream(std::cerr);
     
     http::server::Configuration serverConfiguration(stderrLogger, true);
-    serverConfiguration.setOptions(argc, argv, WTHTTP_CONFIGURATION);
+    serverConfiguration.setOptions(argc, argv, configurationFile);
     
     return serverConfiguration.configPath();
   }
@@ -56,23 +57,58 @@ namespace Wt {
 
 struct WServerImpl {
   WServerImpl(const std::string& wtApplicationPath,
-	      const std::string& wtConfigurationFile,
-	      WServer *server)
+	      const std::string& wtConfigurationFile)
     : applicationPath_(wtApplicationPath),
-      wtConfiguration_(wtApplicationPath, "", wtConfigurationFile,
-		       Wt::Configuration::WtHttpdServer,
-		       "Wt: initializing built-in httpd"),
-      webController_(wtConfiguration_, server, &stream_),
-      serverConfiguration_(wtConfiguration_.logger()),
+      wtConfigurationFile_(wtConfigurationFile),
+      wtConfiguration_(0),
+      webController_(0),
+      serverConfiguration_(0),
       server_(0)
   { }
   
-  std::string   applicationPath_;
-  Configuration wtConfiguration_;
-  HTTPStream    stream_;
-  WebController webController_;
+  ~WServerImpl() {
+    delete serverConfiguration_;
+    delete webController_;
+    delete wtConfiguration_;
+  }
 
-  http::server::Configuration  serverConfiguration_;
+  void readConfiguration(const WServer *server) {
+    readConfiguration(0, 0, std::string(), server);
+  }
+
+  void readConfiguration(int argc, char *argv[],
+			 const std::string& serverConfigurationFile,
+			 const WServer *server)
+  {
+    if (!wtConfiguration_) {
+      if (wtConfigurationFile_.empty())
+	wtConfigurationFile_ = getWtConfigXml(argc, argv,
+					      serverConfigurationFile);
+
+      wtConfiguration_
+	= new Wt::Configuration(applicationPath_, "",
+				wtConfigurationFile_,
+				Wt::Configuration::WtHttpdServer,
+				"Wt: initializing built-in httpd");
+
+      webController_
+	= new Wt::WebController(*wtConfiguration_,
+				const_cast<WServer *>(server), &stream_);
+
+      serverConfiguration_
+	= new http::server::Configuration(wtConfiguration_->logger());
+
+      if (argc != 0)
+	serverConfiguration_->setOptions(argc, argv, serverConfigurationFile);
+    }
+  }
+
+  std::string    applicationPath_, wtConfigurationFile_;
+  Configuration *wtConfiguration_;
+  HTTPStream     stream_;
+  WebController *webController_;
+
+  http::server::Configuration *serverConfiguration_;
   http::server::Server        *server_;
 #ifdef WT_THREADED
   thread_t **threads_;
@@ -81,7 +117,7 @@ struct WServerImpl {
 
 WServer::WServer(const std::string& applicationPath,
 		 const std::string& wtConfigurationFile)
-  : impl_(new WServerImpl(applicationPath, wtConfigurationFile, this))
+  : impl_(new WServerImpl(applicationPath, wtConfigurationFile))
 { }
 
 WServer::~WServer()
@@ -101,7 +137,7 @@ WServer::~WServer()
 void WServer::setServerConfiguration(int argc, char *argv[],
 				     const std::string& serverConfigurationFile)
 {
-  impl_->serverConfiguration_.setOptions(argc, argv, serverConfigurationFile);
+  impl_->readConfiguration(argc, argv, serverConfigurationFile, this);
 }
 
 void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
@@ -111,8 +147,9 @@ void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
     throw WServer::Exception("WServer::addEntryPoint() error: "
 			     "deployment path should start with \'/\'");
 
-  impl_->wtConfiguration_
-    .addEntryPoint(EntryPoint(type, callback, path, favicon));
+  impl_->readConfiguration(this);
+  impl_->wtConfiguration_->addEntryPoint(EntryPoint(type, callback,
+						    path, favicon));
 }
 
 void WServer::addResource(WResource *resource, const std::string& path)
@@ -122,12 +159,16 @@ void WServer::addResource(WResource *resource, const std::string& path)
 			     "static resource path should start with \'/\'");
 
   resource->setInternalPath(path);
-  impl_->wtConfiguration_.addEntryPoint(EntryPoint(resource, path));
+
+  impl_->readConfiguration(this);
+  impl_->wtConfiguration_->addEntryPoint(EntryPoint(resource, path));
 }
 
 bool WServer::start()
 {
-  gdb = impl_->serverConfiguration_.gdb();
+  impl_->readConfiguration(this);
+
+  gdb = impl_->serverConfiguration_->gdb();
 
   if (isRunning()) {
     std::cerr << "WServer::start() error: server already started!" << std::endl;
@@ -139,20 +180,20 @@ bool WServer::start()
 #endif
 
   // Override sessionIdPrefix setting
-  if (!impl_->serverConfiguration_.sessionIdPrefix().empty())
-    impl_->wtConfiguration_.setSessionIdPrefix
-      (impl_->serverConfiguration_.sessionIdPrefix());
+  if (!impl_->serverConfiguration_->sessionIdPrefix().empty())
+    impl_->wtConfiguration_->setSessionIdPrefix
+      (impl_->serverConfiguration_->sessionIdPrefix());
 
   // Set default entry point
-  impl_->wtConfiguration_.setDefaultEntryPoint
-    (impl_->serverConfiguration_.deployPath());
+  impl_->wtConfiguration_->setDefaultEntryPoint
+    (impl_->serverConfiguration_->deployPath());
 
   try {
-    impl_->server_ = new http::server::Server(impl_->serverConfiguration_,
-					      impl_->wtConfiguration_,
-                                              impl_->webController_);
+    impl_->server_ = new http::server::Server(*impl_->serverConfiguration_,
+					      *impl_->wtConfiguration_,
+                                              *impl_->webController_);
 #ifndef WT_THREADED
-    impl_->serverConfiguration_.log("warn")
+    impl_->serverConfiguration_->log("warn")
       << "No boost thread support, running in main thread.";
 
     impl_->server_->run();
@@ -171,7 +212,7 @@ bool WServer::start()
     pthread_sigmask(SIG_BLOCK, &new_mask, &old_mask);
 #endif // _WIN32
 
-    int NUM_THREADS = impl_->serverConfiguration_.threads();
+    int NUM_THREADS = impl_->serverConfiguration_->threads();
 
     impl_->threads_ = new thread_t *[NUM_THREADS];
 
@@ -235,12 +276,12 @@ void WServer::stop()
 #ifdef WT_THREADED
   try {
     // Stop the Wt application server (cleaning up all sessions).
-    impl_->webController_.forceShutdown();
+    impl_->webController_->forceShutdown();
 
     // Stop the server.
     impl_->server_->stop();
 
-    int NUM_THREADS = impl_->serverConfiguration_.threads();
+    int NUM_THREADS = impl_->serverConfiguration_->threads();
     for (int i = 0; i < NUM_THREADS; ++i) {
       impl_->threads_[i]->join();
       delete impl_->threads_[i];
@@ -294,7 +335,7 @@ void WServer::restart(int argc, char **argv, char **envp)
 
 void WServer::handleRequest(WebRequest *request)
 {
-  impl_->webController_.handleRequest(request);
+  impl_->webController_->handleRequest(request);
 }
 
 int WServer::waitForShutdown(const char *restartWatchFile)
@@ -368,31 +409,36 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 
 void WServer::expireSessions()
 {
-  impl_->webController_.expireSessions();
+  impl_->webController_->expireSessions();
 }
 
 std::string WServer::appRoot() const
 {
-  return impl_->webController_.configuration().appRoot();
+  impl_->readConfiguration(this);
+
+  return impl_->webController_->configuration().appRoot();
 }
 
 bool WServer::readConfigurationProperty(const std::string& name,
     std::string& value) const
 {
-  return impl_->webController_.configuration().readConfigurationProperty(name, value);
+  impl_->readConfiguration(this);
+
+  return impl_->webController_->configuration()
+    .readConfigurationProperty(name, value);
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {
-    WServer server(argv[0], getWtConfigXml(argc, argv));
+    WServer server(argv[0], "");
     try {
       server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
       server.addEntryPoint(Application, createApplication);
       if (server.start()) {
 #ifdef WT_THREADED
 	int sig = WServer::waitForShutdown(argv[0]);
-	server.impl()->serverConfiguration_.log("notice")
+	server.impl()->serverConfiguration_->log("notice")
 	  << "Shutdown (signal = " << sig << ")";
 #endif
 	server.stop();
@@ -408,7 +454,10 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
       return 0;
     } catch (std::exception& e) {
-      server.impl()->serverConfiguration_.log("fatal") << e.what();
+      if (server.impl()->serverConfiguration_)
+	server.impl()->serverConfiguration_->log("fatal") << e.what();
+      else
+	std::cerr << "Error: " << e.what() << std::endl;
       return 1;
     }
   } catch (Wt::WServer::Exception& e) {

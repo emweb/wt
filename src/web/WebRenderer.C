@@ -929,7 +929,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
     EscapeOStream js;
     EscapeOStream out(response.out());
     mainElement->asHTML(out, js, timeouts);
-    app->doJavaScript(js.str());
+    app->afterLoadJavaScript_ = js.str() + app->afterLoadJavaScript_;
     delete mainElement;
   }
 
