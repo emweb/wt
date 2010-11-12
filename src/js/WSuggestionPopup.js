@@ -48,7 +48,6 @@ WT_DECLARE_WT_MEMBER
    }
 
    function positionPopup(edit) {
-     console.log("global" + global);
      WT.positionAtWidget(el.id, edit.id, WT.Vertical, global);
    }
 

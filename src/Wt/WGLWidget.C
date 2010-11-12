@@ -384,7 +384,7 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
     //"jQuery.data(" << jsRef() << ",'obj').ctx=ctx;"
     "var o = jQuery.data(" + jsRef() + ",'obj');\n"
     "o.discoverContext();\n"
-    "console.log('o.ctx: ' + o.ctx);\n"
+    //"console.log('o.ctx: ' + o.ctx);\n"
     "if(o.ctx){\n"
     """var ctx = o.ctx;\n";
   js_.str("");
@@ -642,16 +642,7 @@ WGLWidget::Program WGLWidget::createProgram()
 WGLWidget::Shader WGLWidget::createShader(GLenum shader)
 {
   Shader retval = "ctx.WtShader" + boost::lexical_cast<std::string>(shaders_++);
-  js_ << retval << "=ctx.createShader(";
-  switch (shader) {
-    case FRAGMENT_SHADER:
-      js_ << "ctx.FRAGMENT_SHADER";
-      break;
-    case VERTEX_SHADER:
-      js_ << "ctx.VERTEX_SHADER";
-      break;
-  }
-  js_ << ");";
+  js_ << retval << "=ctx.createShader(" << toString(shader) << ");";
   GLDEBUG;
   return retval;
 }

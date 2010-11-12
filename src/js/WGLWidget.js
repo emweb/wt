@@ -40,9 +40,9 @@ WT_DECLARE_WT_MEMBER
        if (this.ctx == null) {
          this.ctx = canvas.getContext('webgl');
        }
-       if (this.ctx == null) {
-         console.log('WGLWidget: failed to get a webgl context');
-       }
+       //if (this.ctx == null) {
+       //  console.log('WGLWidget: failed to get a webgl context');
+       //}
      }
      return this.ctx;
    }
