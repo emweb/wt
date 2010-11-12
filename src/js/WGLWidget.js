@@ -14,6 +14,10 @@ WT_DECLARE_WT_MEMBER
    var self = this;
    var WT = APP.WT;
 
+   var vec3 = WT.glMatrix.vec3;
+   var mat3 = WT.glMatrix.mat3;
+   var mat4 = WT.glMatrix.mat4;
+
    this.ctx = null;
 
    // Placeholders for the initializeGL and paintGL functions,
@@ -40,7 +44,6 @@ WT_DECLARE_WT_MEMBER
          console.log('WGLWidget: failed to get a webgl context');
        }
      }
-     console.log('ctx: ' + this.ctx);
      return this.ctx;
    }
 
@@ -69,10 +72,9 @@ WT_DECLARE_WT_MEMBER
      mat4.translate(r, lookAtCenter);
      vec3.negate(lookAtCenter);
      mat4.multiply(cameraMatrix,r,cameraMatrix);
-     console.log('mouseDragLookAt after: ' + mat4.str(cameraMatrix));
+     //console.log('mouseDragLookAt after: ' + mat4.str(cameraMatrix));
      // Repaint!
-     console.log('mouseDragLookAt: repaint');
-     //alert('mouseDragLookAt: repaint');
+     //console.log('mouseDragLookAt: repaint');
      this.paintGl();
      // store mouse coord for next action
      dragPreviousXY = WT.pageCoordinates(event);
@@ -80,17 +82,16 @@ WT_DECLARE_WT_MEMBER
 
    // Mouse wheel = zoom in/out
    this.mouseWheelLookAt = function(o, event) {
+     WT.cancelEvent(event);
      //alert('foo');
      var d = WT.wheelDelta(event);
      var s = Math.pow(1.2, d);
-     console.log('mouseWheelLookAt: ' + d);
      mat4.translate(cameraMatrix, lookAtCenter);
      mat4.scale(cameraMatrix, [s, s, s]);
      vec3.negate(lookAtCenter);
      mat4.translate(cameraMatrix, lookAtCenter);
      vec3.negate(lookAtCenter);
      // Repaint!
-     console.log('mouseWheelLookAt: repaint');
      this.paintGl();
    };
 

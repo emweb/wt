@@ -735,11 +735,10 @@ void WebSession::doRecursiveEventLoop()
    * In that case, we do not need to finish it.
    */
   if (handler->request())
-    handler->session()->notifySignal(WEvent(*handler, WebRenderer::Update));
+    handler->session()->notifySignal(WEvent(*handler));
 
   if (handler->response())
-    handler->session()->render(*handler, app_->environment().ajax()
-			       ? WebRenderer::Update : WebRenderer::Page);
+    handler->session()->render(*handler);
 
   /*
    * Register that we are doing a recursive event loop, this is used in
@@ -767,8 +766,7 @@ void WebSession::doRecursiveEventLoop()
    * We use recursiveEventLoop_ != null to postpone rendering: we only want
    * the event handling part.
    */
-  app_->notify(WEvent(*handler, app_->environment().ajax() 
-		      ? WebRenderer::Update : WebRenderer::Page));
+  app_->notify(WEvent(*handler));
 
   recursiveEventLoop_ = 0;
 #endif // !WT_THREADED && !WT_TARGET_JAVA
@@ -814,7 +812,7 @@ void WebSession::handleRequest(Handler& handler)
   const std::string *wtdE = request.getParameter("wtd");
   const std::string *requestE = request.getParameter("request");
 
-  WebRenderer::ResponseType responseType = WebRenderer::Page;
+  handler.response()->setResponseType(WebResponse::Page);
 
   /*
    * Only handle GET and POST requests, unless a resource is
@@ -873,6 +871,7 @@ void WebSession::handleRequest(Handler& handler)
 
 	  if (requestE) {
 	    if (*requestE == "jsupdate" || *requestE == "script") {
+	      handler.response()->setResponseType(WebResponse::Update);
 	      log("notice") << "Signal from dead session, sending reload.";
 	      renderer_.letReloadJS(*handler.response(), true);
 
@@ -913,7 +912,7 @@ void WebSession::handleRequest(Handler& handler)
 	    if (!start())
 	      throw WtException("Could not start application.");
 
-	    app_->notify(WEvent(handler, WebRenderer::Page));
+	    app_->notify(WEvent(handler));
 	    setLoaded();
 
 	    if (env_->agentIsSpiderBot())
@@ -922,18 +921,20 @@ void WebSession::handleRequest(Handler& handler)
 	    /*
 	     * Delay application start
 	     */
-	    serveResponse(handler, WebRenderer::Page);
+	    serveResponse(handler);
 	    setState(Loaded, 10);
 	  }
 	  break; }
 	case WidgetSet:
+	  handler.response()->setResponseType(WebResponse::Script);
+
 	  init(request); // env, url/internalpath
 	  env_->doesAjax_ = true;
 
 	  if (!start())
 	    throw WtException("Could not start application.");
 
-	  app_->notify(WEvent(handler, WebRenderer::Script));
+	  app_->notify(WEvent(handler));
 
 	  setLoaded();
 
@@ -945,19 +946,17 @@ void WebSession::handleRequest(Handler& handler)
 	break;
       }
       case Loaded: {
-	responseType = WebRenderer::Page;
-
 	if (requestE) {
 	  if (*requestE == "jsupdate")
-	    responseType = WebRenderer::Update;
+	    handler.response()->setResponseType(WebResponse::Update);
 	  else if (*requestE == "script")
-	    responseType = WebRenderer::Script;
+	    handler.response()->setResponseType(WebResponse::Script);
 	}
 
 	if (!app_) {
 	  const std::string *resourceE = request.getParameter("resource");
 
-	  if (responseType == WebRenderer::Script) {
+	  if (handler.response()->responseType() == WebResponse::Script) {
 	    const std::string *hashE = request.getParameter("_");
 	    const std::string *scaleE = request.getParameter("scale");
 
@@ -997,7 +996,7 @@ void WebSession::handleRequest(Handler& handler)
 	      // This could be because the session Id was not as
 	      // expected. At least, it should be correct now.
 	      if (!conf.reloadIsNewSession() && wtdE && *wtdE == sessionId_) {
-		serveResponse(handler, WebRenderer::Page);
+		serveResponse(handler);
 		setState(Loaded, 10);
 	      } else {
 		handler.response()->setContentType("text/html");
@@ -1014,13 +1013,13 @@ void WebSession::handleRequest(Handler& handler)
 
 	if (requestForResource || !unlockRecursiveEventLoop())
 	  {
-	    app_->notify(WEvent(handler, responseType));
+	    app_->notify(WEvent(handler));
 	    if (handler.response() && !requestForResource)
 	      /*
 	       * This may be when an error was thrown during event
 	       * propagation: then we want to render the error message.
 	       */
-	      app_->notify(WEvent(handler, responseType, true));
+	      app_->notify(WEvent(handler, true));
 	  }
 
 	setLoaded();
@@ -1040,7 +1039,7 @@ void WebSession::handleRequest(Handler& handler)
       kill();
 
       if (handler.response())
-	serveError(handler, e.what(), responseType);
+	serveError(handler, e.what());
 
     } catch (std::exception& e) {
       log("fatal") << e.what();
@@ -1052,14 +1051,14 @@ void WebSession::handleRequest(Handler& handler)
       kill();
 
       if (handler.response())
-	serveError(handler, e.what(), responseType);
+	serveError(handler, e.what());
     } catch (...) {
       log("fatal") << "Unknown exception.";
 
       kill();
 
       if (handler.response())
-	serveError(handler, "Unknown exception", responseType);
+	serveError(handler, "Unknown exception");
     }
 
   if (handler.response())
@@ -1178,7 +1177,8 @@ void WebSession::pushUpdates()
 	&& asyncResponse_->webSocketMessagePending())
       return;
 
-    renderer_.serveResponse(*asyncResponse_, WebRenderer::Update);
+    asyncResponse_->setResponseType(WebResponse::Update);
+    renderer_.serveResponse(*asyncResponse_);
     updatesPending_ = false;
 
     if (!asyncResponse_->isWebSocketRequest()) {
@@ -1262,7 +1262,7 @@ void WebSession::notify(const WEvent& event)
     WebSession::Handler::instance()->setRequest(&request, &response);
 
   if (event.renderOnly) {
-    render(handler, event.responseType);
+    render(handler);
     return;
   }
 
@@ -1283,11 +1283,11 @@ void WebSession::notify(const WEvent& event)
     }
 #endif // WT_WITH_OLD_INTERNALPATH_API
 
-    render(handler, event.responseType);
+    render(handler);
 
     break;
   case WebSession::Loaded:
-    if (event.responseType == WebRenderer::Script) {
+    if (handler.response()->responseType() == WebResponse::Script) {
       if (!env_->doesAjax_) {
 	// upgrade to AJAX -> this becomes a first update we may need
 	// to replay this, so we cannot commit these changes until
@@ -1314,7 +1314,7 @@ void WebSession::notify(const WEvent& event)
 	  app_->changeInternalPath(env_->internalPath());
       }
 
-      render(handler, event.responseType);
+      render(handler);
     } else {
       // a normal request to a loaded application
       try {
@@ -1440,7 +1440,7 @@ void WebSession::notify(const WEvent& event)
 	} else {
 	  log("notice") << "Refreshing session";
 
-	  if (event.responseType == WebRenderer::Page) {
+	  if (handler.response()->responseType() == WebResponse::Page) {
 	    const std::string *hashE = request.getParameter("_");
 	    if (hashE)
 	      app_->changeInternalPath(*hashE);
@@ -1485,7 +1485,7 @@ void WebSession::notify(const WEvent& event)
 	}
 
 	if (handler.response() && !recursiveEventLoop_)
-	  render(handler, event.responseType);
+	  render(handler);
       }
     }
   case Dead:
@@ -1493,8 +1493,7 @@ void WebSession::notify(const WEvent& event)
   }
 }
 
-void WebSession::render(Handler& handler,
-			WebRenderer::ResponseType responseType)
+void WebSession::render(Handler& handler)
 {
   /*
    * In any case, render() will flush the response, even if an error
@@ -1517,7 +1516,7 @@ void WebSession::render(Handler& handler,
     if (app_->isQuited())
       kill();
 
-    serveResponse(handler, responseType);
+    serveResponse(handler);
   } catch (std::exception& e) {
     handler.response()->flush();
     handler.setRequest(0, 0);
@@ -1533,23 +1532,21 @@ void WebSession::render(Handler& handler,
   updatesPending_ = false;
 }
 
-void WebSession::serveError(Handler& handler, const std::string& e,
-			    WebRenderer::ResponseType responseType)
+void WebSession::serveError(Handler& handler, const std::string& e)
 {
-  renderer_.serveError(*handler.response(), e, responseType);
+  renderer_.serveError(*handler.response(), e);
   handler.response()->flush();
   handler.setRequest(0, 0);
 }
 
-void WebSession::serveResponse(Handler& handler,
-			       WebRenderer::ResponseType responseType)
+void WebSession::serveResponse(Handler& handler)
 {
   /*
    * If the request is a web socket message, then we should not actually
    * render -- there may be more messages following.
    */
   if (!handler.request()->isWebSocketMessage())
-    renderer_.serveResponse(*handler.response(), responseType);
+    renderer_.serveResponse(*handler.response());
 
   handler.response()->flush();
   handler.setRequest(0, 0);

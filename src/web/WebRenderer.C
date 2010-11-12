@@ -159,20 +159,19 @@ void WebRenderer::streamRedirectJS(std::ostream& out,
     " window.location.href='" << redirect << "';\n";
 }
 
-void WebRenderer::serveResponse(WebResponse& response,
-				ResponseType responseType)
+void WebRenderer::serveResponse(WebResponse& response)
 {
-  switch (responseType) {
-  case Update:
+  switch (response.responseType()) {
+  case WebResponse::Update:
     serveJavaScriptUpdate(response);
     break;
-  case Page:
+  case WebResponse::Page:
     if (session_.app())
       serveMainpage(response);
     else
       serveBootstrap(response);
     break;
-  case Script:
+  case WebResponse::Script:
     serveMainscript(response);
     break;
   }
@@ -273,10 +272,9 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   rendered_ = false;
 }
 
-void WebRenderer::serveError(WebResponse& response, const std::string& message,
-			     ResponseType responseType)
+void WebRenderer::serveError(WebResponse& response, const std::string& message)
 {
-  bool js = responseType == Update || responseType == Script;
+  bool js = response.responseType() != WebResponse::Page;
 
   WApplication *app = session_.app();
   if (!js || !app) {

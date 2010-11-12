@@ -46,8 +46,6 @@ public:
   void doneUpdate(WWidget *w);
   void updateFormObjects(WWebWidget *w, bool checkDescendants);
 
-  enum ResponseType { Page, Script, Update };
-
   void updateFormObjectsList(WApplication *app);
   const FormObjectsMap& formObjects() const;
 
@@ -59,11 +57,9 @@ public:
 
   bool isDirty() const;
 
-  void serveResponse(WebResponse& request, ResponseType responseType);
-  void serveError(WebResponse& request, const std::exception& error,
-		  ResponseType responseType);
-  void serveError(WebResponse& request, const std::string& message,
-		  ResponseType responseType);
+  void serveResponse(WebResponse& request);
+  void serveError(WebResponse& request, const std::exception& error);
+  void serveError(WebResponse& request, const std::string& message);
 
   void setCookie(const std::string name, const std::string value,
 		 int maxAge, const std::string domain,

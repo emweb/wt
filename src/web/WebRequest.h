@@ -33,6 +33,12 @@ public:
     ResponseFlush
   };
 
+  enum ResponseType {
+    Page,
+    Script,
+    Update
+  };
+
   typedef boost::function<void(void)> CallbackFunction;
 
   void startAsync() { }
@@ -162,13 +168,15 @@ public:
 #endif // WT_TARGET_JAVA
 
   const std::string *getParameter(const std::string& name) const;
-  const Http::ParameterValues& getParameterValues(const std::string& name)
-    const;
+  const Http::ParameterValues& getParameterValues(const std::string& name) const;
   const Http::ParameterMap& getParameterMap() const { return parameters_; }
   const Http::UploadedFileMap& uploadedFiles() const { return files_; }
   ::int64_t postDataExceeded() const { return postDataExceeded_; }
 
   WT_LOCALE parseLocale() const;
+
+  void setResponseType(ResponseType responseType);
+  ResponseType responseType() const { return responseType_; }
 
 protected:
   const EntryPoint *entryPoint_;
@@ -186,9 +194,10 @@ protected:
 private:
   std::string parsePreferredAcceptValue(const std::string& value) const;
 
-  ::int64_t postDataExceeded_;
+  ::int64_t             postDataExceeded_;
   Http::ParameterMap    parameters_;
   Http::UploadedFileMap files_;
+  ResponseType          responseType_;
 
   static Http::ParameterValues emptyValues_;
 

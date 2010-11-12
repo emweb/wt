@@ -7,7 +7,7 @@
 # except when the ISAPI (for Microsoft IIS) connector is used, where it will
 # build a DLL with the proper symbols exported.
 #
-WT_ADD_EXAMPLE(webgl.wt teapot.C readObj.C)
+WT_ADD_EXAMPLE(webgl.wt teapot.C readObj.C PaintWidget.C)
 
 #
 # If you have Wt installed somehwere, you should use the

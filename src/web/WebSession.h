@@ -288,10 +288,9 @@ private:
   static WObject::FormData getFormData(const WebRequest& request,
 				       const std::string& name);
 
-  void render(Handler& handler, WebRenderer::ResponseType responseType);
-  void serveError(Handler& handler, const std::string& exception,
-		  WebRenderer::ResponseType responseType);
-  void serveResponse(Handler& handler, WebRenderer::ResponseType responseType);
+  void render(Handler& handler);
+  void serveError(Handler& handler, const std::string& exception);
+  void serveResponse(Handler& handler);
 
   enum SignalKind { LearnedStateless = 0, AutoLearnStateless = 1,
 		    Dynamic = 2 };
@@ -325,27 +324,20 @@ class WT_API WEvent {
 private:
   WEvent()
     : handler(0),
-      responseType(WebRenderer::Page),
       renderOnly(false)
   { }
 
-  WEvent(WebSession::Handler& aHandler,
-	 WebRenderer::ResponseType aResponseType,
-	 bool doRenderOnly)
+  WEvent(WebSession::Handler& aHandler, bool doRenderOnly)
     : handler(&aHandler),
-      responseType(aResponseType),
       renderOnly(doRenderOnly)
   { }
 
-  WEvent(WebSession::Handler& aHandler,
-	 WebRenderer::ResponseType aResponseType)
+  WEvent(WebSession::Handler& aHandler)
     : handler(&aHandler),
-      responseType(aResponseType),
       renderOnly(false)
   { }
 
   WebSession::Handler *handler;
-  WebRenderer::ResponseType responseType;
   bool renderOnly;
 
   friend class WebSession;

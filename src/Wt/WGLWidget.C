@@ -14,6 +14,7 @@
 
 #ifndef WT_DEBUG_JS
 #include "js/WGLWidget.min.js"
+#include "js/WtGlMatrix.min.js"
 #endif
 
 using namespace Wt;
@@ -23,9 +24,12 @@ using namespace Wt;
 //       an extra array.
 
 
-const char *WGLWidget::toString(BeginModeEnum mode)
+const char *WGLWidget::toString(GLenum e)
 {
-  switch(mode) {
+  switch(e) {
+    case DEPTH_BUFFER_BIT: return "ctx.DEPTH_BUFFER_BIT";
+    case STENCIL_BUFFER_BIT: return "ctx.STENCIL_BUFFER_BIT";
+    case COLOR_BUFFER_BIT: return "ctx.COLOR_BUFFER_BIT";
     case POINTS: return "ctx.POINTS";
     case LINES: return "ctx.LINES";
     case LINE_LOOP: return "ctx.LINE_LOOP";
@@ -33,14 +37,8 @@ const char *WGLWidget::toString(BeginModeEnum mode)
     case TRIANGLES: return "ctx.TRIANGLES";
     case TRIANGLE_STRIP: return "ctx.TRIANGLE_STRIP";
     case TRIANGLE_FAN: return "ctx.TRIANGLE_FAN";
-  }
-  return "BAD_BEGIN_MODE_ENUM";
-}
-const char *WGLWidget::toString(BlendingFactorEnum e)
-{
-  switch(e) {
-    case BF_ZERO: return "ctx.ZERO";
-    case ONE: return "ctx.ONE";
+    //case ZERO: return "ctx.ZERO";
+    //case ONE: return "ctx.ONE";
     case SRC_COLOR: return "ctx.SRC_COLOR";
     case ONE_MINUS_SRC_COLOR: return "ctx.ONE_MINUS_SRC_COLOR";
     case SRC_ALPHA: return "ctx.SRC_ALPHA";
@@ -49,55 +47,35 @@ const char *WGLWidget::toString(BlendingFactorEnum e)
     case ONE_MINUS_DST_ALPHA: return "ctx.ONE_MINUS_DST_ALPHA";
     case DST_COLOR: return "ctx.DST_COLOR";
     case ONE_MINUS_DST_COLOR: return "ctx.ONE_MINUS_DST_COLOR";
+    case SRC_ALPHA_SATURATE: return "ctx.SRC_ALPHA_SATURATE";
+    case FUNC_ADD: return "ctx.FUNC_ADD";
+    case BLEND_EQUATION: return "ctx.BLEND_EQUATION";
+    //case BLEND_EQUATION_RGB: return "ctx.BLEND_EQUATION_RGB";
+    case BLEND_EQUATION_ALPHA: return "ctx.BLEND_EQUATION_ALPHA";
+    case FUNC_SUBTRACT: return "ctx.FUNC_SUBTRACT";
+    case FUNC_REVERSE_SUBTRACT: return "ctx.FUNC_REVERSE_SUBTRACT";
+    case BLEND_DST_RGB: return "ctx.BLEND_DST_RGB";
+    case BLEND_SRC_RGB: return "ctx.BLEND_SRC_RGB";
+    case BLEND_DST_ALPHA: return "ctx.BLEND_DST_ALPHA";
+    case BLEND_SRC_ALPHA: return "ctx.BLEND_SRC_ALPHA";
     case CONSTANT_COLOR: return "ctx.CONSTANT_COLOR";
     case ONE_MINUS_CONSTANT_COLOR: return "ctx.ONE_MINUS_CONSTANT_COLOR";
     case CONSTANT_ALPHA: return "ctx.CONSTANT_ALPHA";
     case ONE_MINUS_CONSTANT_ALPHA: return "ctx.ONE_MINUS_CONSTANT_ALPHA";
-    case SRC_ALPHA_SATURATE: return "ctx.SRC_ALPHA_SATURATE";
-  }
-  return "BAD_BLENDINGFACTOR_ENUM";
-}
-  
-  
-const char *WGLWidget::toString(BlendEquationModeEnum e)
-{
-  switch(e) {
-    case FUNC_ADD: return "ctx.FUNC_ADD";
-    case FUNC_SUBTRACT: return "ctx.FUNC_SUBTRACT";
-    case FUNC_REVERSE_SUBTRACT: return "ctx.FUNC_REVERSE_SUBTRACT";
-  }
-  return "BAD_BLENDEQUATIONMODE_ENUM";
-}
-
-const char *WGLWidget::toString(BufferEnum target)
-{
-  switch (target) {
+    case BLEND_COLOR: return "ctx.BLEND_COLOR";
     case ARRAY_BUFFER: return "ctx.ARRAY_BUFFER";
     case ELEMENT_ARRAY_BUFFER: return "ctx.ELEMENT_ARRAY_BUFFER";
-  }
-  return "BAD_BUFFER_ENUM";
-}
-const char *WGLWidget::toString(BufferUsageEnum usage)
-{
-  switch(usage) {
+    case ARRAY_BUFFER_BINDING: return "ctx.ARRAY_BUFFER_BINDING";
+    case ELEMENT_ARRAY_BUFFER_BINDING: return "ctx.ELEMENT_ARRAY_BUFFER_BINDING";
     case STREAM_DRAW: return "ctx.STREAM_DRAW";
     case STATIC_DRAW: return "ctx.STATIC_DRAW";
     case DYNAMIC_DRAW: return "ctx.DYNAMIC_DRAW";
-  }
-  return "BAD_BUFFER_USAGE_ENUM";
-}
-const char *WGLWidget::toString(CullFaceModeEnum e)
-{
-  switch(e) {
+    case BUFFER_SIZE: return "ctx.BUFFER_SIZE";
+    case BUFFER_USAGE: return "ctx.BUFFER_USAGE";
+    case CURRENT_VERTEX_ATTRIB: return "ctx.CURRENT_VERTEX_ATTRIB";
     case FRONT: return "ctx.FRONT";
     case BACK: return "ctx.BACK";
     case FRONT_AND_BACK: return "ctx.FRONT_AND_BACK";
-  }
-  return "BAD_CULLFACEMODE_ENUM";
-}
-const char *WGLWidget::toString(EnableCapEnum cap)
-{
-  switch(cap) {
     case CULL_FACE: return "ctx.CULL_FACE";
     case BLEND: return "ctx.BLEND";
     case DITHER: return "ctx.DITHER";
@@ -107,20 +85,13 @@ const char *WGLWidget::toString(EnableCapEnum cap)
     case POLYGON_OFFSET_FILL: return "ctx.POLYGON_OFFSET_FILL";
     case SAMPLE_ALPHA_TO_COVERAGE: return "ctx.SAMPLE_ALPHA_TO_COVERAGE";
     case SAMPLE_COVERAGE: return "ctx.SAMPLE_COVERAGE";
-  }
-  return "BAD_ENABLE_CAP_ENUM";
-}
-const char *WGLWidget::toString(FrontFaceDirectionEnum e)
-{
-  switch(e) {
+    //case NO_ERROR: return "ctx.NO_ERROR";
+    case INVALID_ENUM: return "ctx.INVALID_ENUM";
+    case INVALID_VALUE: return "ctx.INVALID_VALUE";
+    case INVALID_OPERATION: return "ctx.INVALID_OPERATION";
+    case OUT_OF_MEMORY: return "ctx.OUT_OF_MEMORY";
     case CW: return "ctx.CW";
     case CCW: return "ctx.CCW";
-  }
-  return "BAD_FRONTFACEDIRECTION_ENUM";
-}
-const char *WGLWidget::toString(ParameterEnum e)
-{
-  switch(e) {
     case LINE_WIDTH: return "ctx.LINE_WIDTH";
     case ALIASED_POINT_SIZE_RANGE: return "ctx.ALIASED_POINT_SIZE_RANGE";
     case ALIASED_LINE_WIDTH_RANGE: return "ctx.ALIASED_LINE_WIDTH_RANGE";
@@ -147,12 +118,9 @@ const char *WGLWidget::toString(ParameterEnum e)
     case STENCIL_BACK_WRITEMASK: return "ctx.STENCIL_BACK_WRITEMASK";
     case VIEWPORT: return "ctx.VIEWPORT";
     case SCISSOR_BOX: return "ctx.SCISSOR_BOX";
-    case P_SCISSOR_TEST: return "ctx.SCISSOR_TEST";
     case COLOR_CLEAR_VALUE: return "ctx.COLOR_CLEAR_VALUE";
     case COLOR_WRITEMASK: return "ctx.COLOR_WRITEMASK";
     case UNPACK_ALIGNMENT: return "ctx.UNPACK_ALIGNMENT";
-    case UNPACK_FLIP_Y_WEBGL: return "ctx.UNPACK_FLIP_Y_WEBGL";
-    case UNPACK_PREMULTIPLY_ALPHA_WEBGL: return "ctx.UNPACK_PREMULTIPLY_ALPHA_WEBGL";
     case PACK_ALIGNMENT: return "ctx.PACK_ALIGNMENT";
     case MAX_TEXTURE_SIZE: return "ctx.MAX_TEXTURE_SIZE";
     case MAX_VIEWPORT_DIMS: return "ctx.MAX_VIEWPORT_DIMS";
@@ -164,71 +132,54 @@ const char *WGLWidget::toString(ParameterEnum e)
     case DEPTH_BITS: return "ctx.DEPTH_BITS";
     case STENCIL_BITS: return "ctx.STENCIL_BITS";
     case POLYGON_OFFSET_UNITS: return "ctx.POLYGON_OFFSET_UNITS";
-    case POLYGON_OFFSET_FILL: return "ctx.POLYGON_OFFSET_FILL";
     case POLYGON_OFFSET_FACTOR: return "ctx.POLYGON_OFFSET_FACTOR";
     case TEXTURE_BINDING_2D: return "ctx.TEXTURE_BINDING_2D";
     case SAMPLE_BUFFERS: return "ctx.SAMPLE_BUFFERS";
     case SAMPLES: return "ctx.SAMPLES";
     case SAMPLE_COVERAGE_VALUE: return "ctx.SAMPLE_COVERAGE_VALUE";
     case SAMPLE_COVERAGE_INVERT: return "ctx.SAMPLE_COVERAGE_INVERT";
-  }
-  return "BAD_PARAMETER_ENUM";
-}
-const char *WGLWidget::toString(HintModeEnum e)
-{
-  switch(e) {
+    case NUM_COMPRESSED_TEXTURE_FORMATS: return "ctx.NUM_COMPRESSED_TEXTURE_FORMATS";
+    case COMPRESSED_TEXTURE_FORMATS: return "ctx.COMPRESSED_TEXTURE_FORMATS";
     case DONT_CARE: return "ctx.DONT_CARE";
     case FASTEST: return "ctx.FASTEST";
     case NICEST: return "ctx.NICEST";
-  }
-  return "BAD_HINTMODE_ENUM";
-}
-const char *WGLWidget::toString(HintTargetEnum e)
-{
-  switch(e) {
     case GENERATE_MIPMAP_HINT: return "ctx.GENERATE_MIPMAP_HINT";
-  }
-  return "BAD_HINTTARGET_ENUM";
-}
-const char *WGLWidget::toString(DataTypeEnum type)
-{
-  switch(type) {
     case BYTE: return "ctx.BYTE";
-    case DT_UNSIGNED_BYTE: return "ctx.UNSIGNED_BYTE";
+    case UNSIGNED_BYTE: return "ctx.UNSIGNED_BYTE";
     case SHORT: return "ctx.SHORT";
     case UNSIGNED_SHORT: return "ctx.UNSIGNED_SHORT";
     case INT: return "ctx.INT";
     case UNSIGNED_INT: return "ctx.UNSIGNED_INT";
     case FLOAT: return "ctx.FLOAT";
-  }
-  return "BAD_DATA_TYPE_ENUM";
-}
-const char *WGLWidget::toString(PixelFormatEnum e)
-{
-  switch(e) {
     case DEPTH_COMPONENT: return "ctx.DEPTH_COMPONENT";
     case ALPHA: return "ctx.ALPHA";
     case RGB: return "ctx.RGB";
     case RGBA: return "ctx.RGBA";
     case LUMINANCE: return "ctx.LUMINANCE";
     case LUMINANCE_ALPHA: return "ctx.LUMINANCE_ALPHA";
-  }
-  return "BAD_PIXELFORMAT_ENUM";
-}
-
-const char *WGLWidget::toString(PixelTypeEnum e)
-{
-  switch(e) {
-    case PT_UNSIGNED_BYTE: return "ctx.UNSIGNED_BYTE";
     case UNSIGNED_SHORT_4_4_4_4: return "ctx.UNSIGNED_SHORT_4_4_4_4";
     case UNSIGNED_SHORT_5_5_5_1: return "ctx.UNSIGNED_SHORT_5_5_5_1";
     case UNSIGNED_SHORT_5_6_5: return "ctx.UNSIGNED_SHORT_5_6_5";
-  }
-  return "BAD_PIXELTYPE_ENUM";
-}
-const char *WGLWidget::toString(StencilFunctionEnum f)
-{
-  switch(f) {
+    case FRAGMENT_SHADER: return "ctx.FRAGMENT_SHADER";
+    case VERTEX_SHADER: return "ctx.VERTEX_SHADER";
+    case MAX_VERTEX_ATTRIBS: return "ctx.MAX_VERTEX_ATTRIBS";
+    case MAX_VERTEX_UNIFORM_VECTORS: return "ctx.MAX_VERTEX_UNIFORM_VECTORS";
+    case MAX_VARYING_VECTORS: return "ctx.MAX_VARYING_VECTORS";
+    case MAX_COMBINED_TEXTURE_IMAGE_UNITS: return "ctx.MAX_COMBINED_TEXTURE_IMAGE_UNITS";
+    case MAX_VERTEX_TEXTURE_IMAGE_UNITS: return "ctx.MAX_VERTEX_TEXTURE_IMAGE_UNITS";
+    case MAX_TEXTURE_IMAGE_UNITS: return "ctx.MAX_TEXTURE_IMAGE_UNITS";
+    case MAX_FRAGMENT_UNIFORM_VECTORS: return "ctx.MAX_FRAGMENT_UNIFORM_VECTORS";
+    case SHADER_TYPE: return "ctx.SHADER_TYPE";
+    case DELETE_STATUS: return "ctx.DELETE_STATUS";
+    case LINK_STATUS: return "ctx.LINK_STATUS";
+    case VALIDATE_STATUS: return "ctx.VALIDATE_STATUS";
+    case ATTACHED_SHADERS: return "ctx.ATTACHED_SHADERS";
+    case ACTIVE_UNIFORMS: return "ctx.ACTIVE_UNIFORMS";
+    case ACTIVE_UNIFORM_MAX_LENGTH: return "ctx.ACTIVE_UNIFORM_MAX_LENGTH";
+    case ACTIVE_ATTRIBUTES: return "ctx.ACTIVE_ATTRIBUTES";
+    case ACTIVE_ATTRIBUTE_MAX_LENGTH: return "ctx.ACTIVE_ATTRIBUTE_MAX_LENGTH";
+    case SHADING_LANGUAGE_VERSION: return "ctx.SHADING_LANGUAGE_VERSION";
+    case CURRENT_PROGRAM: return "ctx.CURRENT_PROGRAM";
     case NEVER: return "ctx.NEVER";
     case LESS: return "ctx.LESS";
     case EQUAL: return "ctx.EQUAL";
@@ -237,13 +188,6 @@ const char *WGLWidget::toString(StencilFunctionEnum f)
     case NOTEQUAL: return "ctx.NOTEQUAL";
     case GEQUAL: return "ctx.GEQUAL";
     case ALWAYS: return "ctx.ALWAYS";
-  }
-  return "BAD_STENCIL_FN_ENUM";
-}
-const char *WGLWidget::toString(StencilOpEnum e)
-{
-  switch(e) {
-    case SO_ZERO: return "ctx.ZERO";
     case KEEP: return "ctx.KEEP";
     case REPLACE: return "ctx.REPLACE";
     case INCR: return "ctx.INCR";
@@ -251,35 +195,19 @@ const char *WGLWidget::toString(StencilOpEnum e)
     case INVERT: return "ctx.INVERT";
     case INCR_WRAP: return "ctx.INCR_WRAP";
     case DECR_WRAP: return "ctx.DECR_WRAP";
-  }
-  return "BAD_STENCILOP_ENUM";
-}
-const char *WGLWidget::toString(TextureFilterEnum e)
-{
-  switch (e) {
+    case VENDOR: return "ctx.VENDOR";
+    case RENDERER: return "ctx.RENDERER";
+    case VERSION: return "ctx.VERSION";
     case NEAREST: return "ctx.NEAREST";
     case LINEAR: return "ctx.LINEAR";
     case NEAREST_MIPMAP_NEAREST: return "ctx.NEAREST_MIPMAP_NEAREST";
     case LINEAR_MIPMAP_NEAREST: return "ctx.LINEAR_MIPMAP_NEAREST";
     case NEAREST_MIPMAP_LINEAR: return "ctx.NEAREST_MIPMAP_LINEAR";
     case LINEAR_MIPMAP_LINEAR: return "ctx.LINEAR_MIPMAP_LINEAR";
-  }
-  return "BAD_TEXTUREFILTER_ENUM";
-}
-
-const char *WGLWidget::toString(TextureParameterNameEnum e)
-{
-  switch (e) {
     case TEXTURE_MAG_FILTER: return "ctx.TEXTURE_MAG_FILTER";
     case TEXTURE_MIN_FILTER: return "ctx.TEXTURE_MIN_FILTER";
     case TEXTURE_WRAP_S: return "ctx.TEXTURE_WRAP_S";
     case TEXTURE_WRAP_T: return "ctx.TEXTURE_WRAP_T";
-  }
-  return "BAD_TEXTUREPARAMETERNAME_ENUM";
-};
-const char *WGLWidget::toString(TextureTargetEnum e)
-{
-  switch (e) {
     case TEXTURE_2D: return "ctx.TEXTURE_2D";
     case TEXTURE: return "ctx.TEXTURE";
     case TEXTURE_CUBE_MAP: return "ctx.TEXTURE_CUBE_MAP";
@@ -291,12 +219,6 @@ const char *WGLWidget::toString(TextureTargetEnum e)
     case TEXTURE_CUBE_MAP_POSITIVE_Z: return "ctx.TEXTURE_CUBE_MAP_POSITIVE_Z";
     case TEXTURE_CUBE_MAP_NEGATIVE_Z: return "ctx.TEXTURE_CUBE_MAP_NEGATIVE_Z";
     case MAX_CUBE_MAP_TEXTURE_SIZE: return "ctx.MAX_CUBE_MAP_TEXTURE_SIZE";
-  }
-  return "BAD_TEXTURETARGET_ENUM";
-}
-const char *WGLWidget::toString(TextureUnitEnum e)
-{
-  switch (e) {
     case TEXTURE0: return "ctx.TEXTURE0";
     case TEXTURE1: return "ctx.TEXTURE1";
     case TEXTURE2: return "ctx.TEXTURE2";
@@ -329,19 +251,86 @@ const char *WGLWidget::toString(TextureUnitEnum e)
     case TEXTURE29: return "ctx.TEXTURE29";
     case TEXTURE30: return "ctx.TEXTURE30";
     case TEXTURE31: return "ctx.TEXTURE31";
-    //case ACTIVE_TEXTURE: return "ctx.ACTIVE_TEXTURE";
-  }
-  return "BAD_TEXTUREUNIT_ENUM";
-}
-const char *WGLWidget::toString(TextureWrapModeEnum e)
-{
-  switch (e) {
+    case ACTIVE_TEXTURE: return "ctx.ACTIVE_TEXTURE";
     case REPEAT: return "ctx.REPEAT";
     case CLAMP_TO_EDGE: return "ctx.CLAMP_TO_EDGE";
     case MIRRORED_REPEAT: return "ctx.MIRRORED_REPEAT";
+    case FLOAT_VEC2: return "ctx.FLOAT_VEC2";
+    case FLOAT_VEC3: return "ctx.FLOAT_VEC3";
+    case FLOAT_VEC4: return "ctx.FLOAT_VEC4";
+    case INT_VEC2: return "ctx.INT_VEC2";
+    case INT_VEC3: return "ctx.INT_VEC3";
+    case INT_VEC4: return "ctx.INT_VEC4";
+    case BOOL: return "ctx.BOOL";
+    case BOOL_VEC2: return "ctx.BOOL_VEC2";
+    case BOOL_VEC3: return "ctx.BOOL_VEC3";
+    case BOOL_VEC4: return "ctx.BOOL_VEC4";
+    case FLOAT_MAT2: return "ctx.FLOAT_MAT2";
+    case FLOAT_MAT3: return "ctx.FLOAT_MAT3";
+    case FLOAT_MAT4: return "ctx.FLOAT_MAT4";
+    case SAMPLER_2D: return "ctx.SAMPLER_2D";
+    case SAMPLER_CUBE: return "ctx.SAMPLER_CUBE";
+    case VERTEX_ATTRIB_ARRAY_ENABLED: return "ctx.VERTEX_ATTRIB_ARRAY_ENABLED";
+    case VERTEX_ATTRIB_ARRAY_SIZE: return "ctx.VERTEX_ATTRIB_ARRAY_SIZE";
+    case VERTEX_ATTRIB_ARRAY_STRIDE: return "ctx.VERTEX_ATTRIB_ARRAY_STRIDE";
+    case VERTEX_ATTRIB_ARRAY_TYPE: return "ctx.VERTEX_ATTRIB_ARRAY_TYPE";
+    case VERTEX_ATTRIB_ARRAY_NORMALIZED: return "ctx.VERTEX_ATTRIB_ARRAY_NORMALIZED";
+    case VERTEX_ATTRIB_ARRAY_POINTER: return "ctx.VERTEX_ATTRIB_ARRAY_POINTER";
+    case VERTEX_ATTRIB_ARRAY_BUFFER_BINDING: return "ctx.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING";
+    case COMPILE_STATUS: return "ctx.COMPILE_STATUS";
+    case INFO_LOG_LENGTH: return "ctx.INFO_LOG_LENGTH";
+    case SHADER_SOURCE_LENGTH: return "ctx.SHADER_SOURCE_LENGTH";
+    case LOW_FLOAT: return "ctx.LOW_FLOAT";
+    case MEDIUM_FLOAT: return "ctx.MEDIUM_FLOAT";
+    case HIGH_FLOAT: return "ctx.HIGH_FLOAT";
+    case LOW_INT: return "ctx.LOW_INT";
+    case MEDIUM_INT: return "ctx.MEDIUM_INT";
+    case HIGH_INT: return "ctx.HIGH_INT";
+    case FRAMEBUFFER: return "ctx.FRAMEBUFFER";
+    case RENDERBUFFER: return "ctx.RENDERBUFFER";
+    case RGBA4: return "ctx.RGBA4";
+    case RGB5_A1: return "ctx.RGB5_A1";
+    case RGB565: return "ctx.RGB565";
+    case DEPTH_COMPONENT16: return "ctx.DEPTH_COMPONENT16";
+    case STENCIL_INDEX: return "ctx.STENCIL_INDEX";
+    case STENCIL_INDEX8: return "ctx.STENCIL_INDEX8";
+    case DEPTH_STENCIL: return "ctx.DEPTH_STENCIL";
+    case RENDERBUFFER_WIDTH: return "ctx.RENDERBUFFER_WIDTH";
+    case RENDERBUFFER_HEIGHT: return "ctx.RENDERBUFFER_HEIGHT";
+    case RENDERBUFFER_INTERNAL_FORMAT: return "ctx.RENDERBUFFER_INTERNAL_FORMAT";
+    case RENDERBUFFER_RED_SIZE: return "ctx.RENDERBUFFER_RED_SIZE";
+    case RENDERBUFFER_GREEN_SIZE: return "ctx.RENDERBUFFER_GREEN_SIZE";
+    case RENDERBUFFER_BLUE_SIZE: return "ctx.RENDERBUFFER_BLUE_SIZE";
+    case RENDERBUFFER_ALPHA_SIZE: return "ctx.RENDERBUFFER_ALPHA_SIZE";
+    case RENDERBUFFER_DEPTH_SIZE: return "ctx.RENDERBUFFER_DEPTH_SIZE";
+    case RENDERBUFFER_STENCIL_SIZE: return "ctx.RENDERBUFFER_STENCIL_SIZE";
+    case FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE: return "ctx.FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE";
+    case FRAMEBUFFER_ATTACHMENT_OBJECT_NAME: return "ctx.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME";
+    case FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL: return "ctx.FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL";
+    case FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE: return "ctx.FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE";
+    case COLOR_ATTACHMENT0: return "ctx.COLOR_ATTACHMENT0";
+    case DEPTH_ATTACHMENT: return "ctx.DEPTH_ATTACHMENT";
+    case STENCIL_ATTACHMENT: return "ctx.STENCIL_ATTACHMENT";
+    case DEPTH_STENCIL_ATTACHMENT: return "ctx.DEPTH_STENCIL_ATTACHMENT";
+    //case NONE: return "ctx.NONE";
+    case FRAMEBUFFER_COMPLETE: return "ctx.FRAMEBUFFER_COMPLETE";
+    case FRAMEBUFFER_INCOMPLETE_ATTACHMENT: return "ctx.FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+    case FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: return "ctx.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+    case FRAMEBUFFER_INCOMPLETE_DIMENSIONS: return "ctx.FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+    case FRAMEBUFFER_UNSUPPORTED: return "ctx.FRAMEBUFFER_UNSUPPORTED";
+    case FRAMEBUFFER_BINDING: return "ctx.FRAMEBUFFER_BINDING";
+    case RENDERBUFFER_BINDING: return "ctx.RENDERBUFFER_BINDING";
+    case MAX_RENDERBUFFER_SIZE: return "ctx.MAX_RENDERBUFFER_SIZE";
+    case INVALID_FRAMEBUFFER_OPERATION: return "ctx.INVALID_FRAMEBUFFER_OPERATION";
+    case UNPACK_FLIP_Y_WEBGL: return "ctx.UNPACK_FLIP_Y_WEBGL";
+    case UNPACK_PREMULTIPLY_ALPHA_WEBGL: return "ctx.UNPACK_PREMULTIPLY_ALPHA_WEBGL";
+    case CONTEXT_LOST_WEBGL: return "ctx.CONTEXT_LOST_WEBGL";
+    case UNPACK_COLORSPACE_CONVERSION_WEBGL: return "ctx.UNPACK_COLORSPACE_CONVERSION_WEBGL";
+    case BROWSER_DEFAULT_WEBGL: return "ctx.BROWSER_DEFAULT_WEBGL";
   }
-  return "BAD_TEXTUREWRAPMODE_ENUM";
+  return "BAD_GL_ENUM";
 }
+
 
 WGLWidget::WGLWidget(WContainerWidget *parent):
   WInteractWidget(parent),
@@ -381,7 +370,6 @@ char *WGLWidget::makeInt(int i, char *buf)
 
 DomElement *WGLWidget::createDomElement(WApplication *app)
 {
-  app->require("glMatrix.js");
   DomElement *result = DomElement::createNew(DomElement_CANVAS);;
 
   result->setAttribute("width", boost::lexical_cast<std::string>(width().value()));
@@ -453,6 +441,13 @@ void WGLWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
+  const char *GLMATRIX_JS = "js/WtGlMatrix.js";
+
+  if (!app->javaScriptLoaded(GLMATRIX_JS)) {
+    LOAD_JAVASCRIPT(app, GLMATRIX_JS, "glMatrix", wtjs2);
+    app->setJavaScriptLoaded(GLMATRIX_JS);
+  }
+
   const char *THIS_JS = "js/WGLWidget.js";
 
   if (!app->javaScriptLoaded(THIS_JS)) {
@@ -481,7 +476,7 @@ void WGLWidget::initializeGL()
 {
 }
 
-void WGLWidget::activeTexture(TextureUnitEnum texture)
+void WGLWidget::activeTexture(GLenum texture)
 {
   js_ << "ctx.activeTexture(" << toString(texture) << ");";
   GLDEBUG;
@@ -500,13 +495,13 @@ void WGLWidget::bindAttribLocation(Program program, unsigned index, const std::s
   GLDEBUG;
 }
 
-void WGLWidget::bindBuffer(BufferEnum target, Buffer buffer)
+void WGLWidget::bindBuffer(GLenum target, Buffer buffer)
 {
   js_ << "ctx.bindBuffer(" << toString(target) << "," << buffer << ");";
   GLDEBUG;
 }
 
-void WGLWidget::bindTexture(TextureTargetEnum target, Texture texture)
+void WGLWidget::bindTexture(GLenum target, Texture texture)
 {
   js_ << "ctx.bindTexture(" << toString(target) << "," << texture << ");";
   GLDEBUG;
@@ -522,31 +517,31 @@ void WGLWidget::blendColor(double red, double green, double blue, double alpha)
   GLDEBUG;
 }
 
-void WGLWidget::blendEquation(BlendEquationModeEnum mode)
+void WGLWidget::blendEquation(GLenum mode)
 {
   js_ << "ctx.blendEquation(" << toString(mode) << ");";
   GLDEBUG;
 }
 
-void WGLWidget::blendEquationSeparate(BlendEquationModeEnum modeRGB,
-                                      BlendEquationModeEnum modeAlpha)
+void WGLWidget::blendEquationSeparate(GLenum modeRGB,
+                                      GLenum modeAlpha)
 {
   js_ << "ctx.blendEquationSeparate(" << toString(modeRGB) << "," 
     << toString(modeAlpha) << ");";
   GLDEBUG;
 }
 
-void WGLWidget::blendFunc(BlendingFactorEnum sfactor, BlendingFactorEnum dfactor)
+void WGLWidget::blendFunc(GLenum sfactor, GLenum dfactor)
 {
   js_ << "ctx.blendFunc(" << toString(sfactor) << ","
     << toString(dfactor) << ");";
   GLDEBUG;
 }
 
-void WGLWidget::blendFuncSeparate(BlendingFactorEnum srcRGB,
-                                  BlendingFactorEnum dstRGB,
-                                  BlendingFactorEnum srcAlpha,
-                                  BlendingFactorEnum dstAlpha)
+void WGLWidget::blendFuncSeparate(GLenum srcRGB,
+                                  GLenum dstRGB,
+                                  GLenum srcAlpha,
+                                  GLenum dstAlpha)
 {
   js_ << "ctx.blendFuncSeparate(" << toString(srcRGB) << ","
     << toString(dstRGB) << "," << toString(srcAlpha) << ","
@@ -554,7 +549,7 @@ void WGLWidget::blendFuncSeparate(BlendingFactorEnum srcRGB,
   GLDEBUG;
 }
 
-void WGLWidget::clear(WFlags<ClearBufferEnum> mask)
+void WGLWidget::clear(WFlags<GLenum> mask)
 {
   js_ << "ctx.clear(";
   if (mask & COLOR_BUFFER_BIT) js_ << "ctx.COLOR_BUFFER_BIT|";
@@ -605,8 +600,8 @@ void WGLWidget::compileShader(Shader shader)
   GLDEBUG;
 }
 
-void WGLWidget::copyTexImage2D(TextureTargetEnum target, int level,
-                               PixelFormatEnum internalFormat,
+void WGLWidget::copyTexImage2D(GLenum target, int level,
+                               GLenum internalFormat,
                                int x, int y,
                                unsigned width, unsigned height, 
                                int border)
@@ -617,7 +612,7 @@ void WGLWidget::copyTexImage2D(TextureTargetEnum target, int level,
   GLDEBUG;
 }
 
-void WGLWidget::copyTexSubImage2D(TextureTargetEnum target, int level,
+void WGLWidget::copyTexSubImage2D(GLenum target, int level,
                                   int xoffset, int yoffset,
                                   int x, int y,
                                   unsigned width, unsigned height)
@@ -628,7 +623,7 @@ void WGLWidget::copyTexSubImage2D(TextureTargetEnum target, int level,
   GLDEBUG;
 }
 
-Buffer WGLWidget::createBuffer()
+WGLWidget::Buffer WGLWidget::createBuffer()
 {
   Buffer retval = "ctx.WtBuffer" + boost::lexical_cast<std::string>(buffers_++);
   js_ << retval << "=ctx.createBuffer();";
@@ -636,7 +631,7 @@ Buffer WGLWidget::createBuffer()
   return retval;
 }
 
-Program WGLWidget::createProgram()
+WGLWidget::Program WGLWidget::createProgram()
 {
   Program retval = "ctx.WtProgram" + boost::lexical_cast<std::string>(programs_++);
   js_ << retval << "=ctx.createProgram();";
@@ -644,7 +639,7 @@ Program WGLWidget::createProgram()
   return retval;
 }
 
-Shader WGLWidget::createShader(ShaderEnum shader)
+WGLWidget::Shader WGLWidget::createShader(GLenum shader)
 {
   Shader retval = "ctx.WtShader" + boost::lexical_cast<std::string>(shaders_++);
   js_ << retval << "=ctx.createShader(";
@@ -661,7 +656,7 @@ Shader WGLWidget::createShader(ShaderEnum shader)
   return retval;
 }
 
-Texture WGLWidget::createTexture()
+WGLWidget::Texture WGLWidget::createTexture()
 {
   Texture retval = "ctx.WtTexture" + boost::lexical_cast<std::string>(textures_++);
   js_ << retval << "=ctx.createTexture();";
@@ -669,7 +664,7 @@ Texture WGLWidget::createTexture()
   return retval;
 }
 
-Texture WGLWidget::createTextureAndLoad(const std::string &url)
+WGLWidget::Texture WGLWidget::createTextureAndLoad(const std::string &url)
 {
   Texture retval = "WtTexture" + boost::lexical_cast<std::string>(textures_++);
   preloadImages_.push_back(std::make_pair<std::string, std::string>(retval, url));
@@ -678,7 +673,7 @@ Texture WGLWidget::createTextureAndLoad(const std::string &url)
 
 }
 
-void WGLWidget::cullFace(CullFaceModeEnum mode)
+void WGLWidget::cullFace(GLenum mode)
 {
   js_ << "ctx.cullFace(" << toString(mode) << ");";
   GLDEBUG;
@@ -708,7 +703,7 @@ void WGLWidget::deleteTexture(Texture texture)
   GLDEBUG;
 }
 
-void WGLWidget::depthFunc(StencilFunctionEnum func)
+void WGLWidget::depthFunc(GLenum func)
 {
   js_ << "ctx.depthFunc(" << toString(func) << ");";
   GLDEBUG;
@@ -734,26 +729,26 @@ void WGLWidget::detachShader(Program program, Shader shader)
   GLDEBUG;
 }
 
-void WGLWidget::disable(EnableCapEnum cap)
+void WGLWidget::disable(GLenum cap)
 {
   js_ << "ctx.disable(" << toString(cap) << ");";
   GLDEBUG;
 }
 
-void WGLWidget::drawArrays(BeginModeEnum mode, int first, unsigned count)
+void WGLWidget::drawArrays(GLenum mode, int first, unsigned count)
 {
   js_ << "ctx.drawArrays(" << toString(mode) << "," << first << "," << count << ");";
   GLDEBUG;
 }
 
-void WGLWidget::drawElements(BeginModeEnum mode, unsigned count,
-                             DataTypeEnum type, unsigned offset)
+void WGLWidget::drawElements(GLenum mode, unsigned count,
+                             GLenum type, unsigned offset)
 {
   js_ << "ctx.drawElements(" << toString(mode) << "," << count << ","
     << toString(type) << "," << offset << ");";
 }
 
-void WGLWidget::enable(EnableCapEnum cap)
+void WGLWidget::enable(GLenum cap)
 {
   js_ << "ctx.enable(" << toString(cap) << ");";
   GLDEBUG;
@@ -776,19 +771,19 @@ void WGLWidget::flush()
   GLDEBUG;
 }
 
-void WGLWidget::frontFace(FrontFaceDirectionEnum mode)
+void WGLWidget::frontFace(GLenum mode)
 {
   js_ << "ctx.frontFace(" << toString(mode) << ");";
   GLDEBUG;
 }
 
-void WGLWidget::generateMipmap(TextureTargetEnum target)
+void WGLWidget::generateMipmap(GLenum target)
 {
   js_ << "ctx.generateMipmap(" << toString(target) << ");";
   GLDEBUG;
 }
 
-AttribLocation WGLWidget::getAttribLocation(Program program, const std::string &attrib)
+WGLWidget::AttribLocation WGLWidget::getAttribLocation(Program program, const std::string &attrib)
 {
   AttribLocation retval = "ctx.WtAttrib" + boost::lexical_cast<std::string>(attributes_++);
   js_ << retval << "=ctx.getAttribLocation(" << program << "," << jsStringLiteral(attrib) << ");";
@@ -796,7 +791,7 @@ AttribLocation WGLWidget::getAttribLocation(Program program, const std::string &
   return retval;
 }
 
-UniformLocation WGLWidget::getUniformLocation(Program program, const std::string location)
+WGLWidget::UniformLocation WGLWidget::getUniformLocation(Program program, const std::string location)
 {
   UniformLocation retval = "ctx.WtUniform" + boost::lexical_cast<std::string>(uniforms_++);
   js_ << retval << "=ctx.getUniformLocation(" << program << "," << jsStringLiteral(location) << ");";
@@ -804,7 +799,7 @@ UniformLocation WGLWidget::getUniformLocation(Program program, const std::string
   return retval;
 }
 
-void WGLWidget::hint(HintTargetEnum target, HintModeEnum mode)
+void WGLWidget::hint(GLenum target, GLenum mode)
 {
   js_ << "ctx.hint(" << toString(target) << "," << toString(mode) << ");";
   GLDEBUG;
@@ -825,7 +820,7 @@ void WGLWidget::linkProgram(Program program)
   GLDEBUG;
 }
 
-void WGLWidget::pixelStorei(ParameterEnum pname, int param)
+void WGLWidget::pixelStorei(GLenum pname, int param)
 {
   js_ << "ctx.pixelStorei(" << toString(pname) << "," << param << ");";
   GLDEBUG;
@@ -859,13 +854,13 @@ void WGLWidget::shaderSource(Shader shader, const std::string &src)
   GLDEBUG;
 }
 
-void WGLWidget::stencilFunc(StencilFunctionEnum func, int ref, unsigned mask)
+void WGLWidget::stencilFunc(GLenum func, int ref, unsigned mask)
 {
   js_ << "ctx.stencilFunc(" << toString(func) << "," << ref << "," << mask << ");";
   GLDEBUG;
 }
-void WGLWidget::stencilFuncSeparate(CullFaceModeEnum face,
-                                    StencilFunctionEnum func, int ref,
+void WGLWidget::stencilFuncSeparate(GLenum face,
+                                    GLenum func, int ref,
                                     unsigned mask)
 {
   js_ << "ctx.stencilFuncSeparate(" << toString(face) << "," << toString(func)
@@ -877,20 +872,20 @@ void WGLWidget::stencilMask(unsigned mask)
   js_ << "ctx.stencilMask(" << mask << ");";
   GLDEBUG;
 }
-void WGLWidget::stencilMaskSeparate(CullFaceModeEnum face, unsigned mask)
+void WGLWidget::stencilMaskSeparate(GLenum face, unsigned mask)
 {
   js_ << "ctx.stencilMaskSeparate(" << toString(face) << "," << mask << ");";
   GLDEBUG;
 }
-void WGLWidget::stencilOp(StencilOpEnum fail, StencilOpEnum zfail,
-                          StencilOpEnum zpass)
+void WGLWidget::stencilOp(GLenum fail, GLenum zfail,
+                          GLenum zpass)
 {
   js_ << "ctx.stencilOp(" << toString(fail) << "," << toString(zfail) << ","
     << toString(zpass) << ");";
   GLDEBUG;
 }
-void WGLWidget::stencilOpSeparate(CullFaceModeEnum face, StencilOpEnum fail,
-                                  StencilOpEnum zfail, StencilOpEnum zpass)
+void WGLWidget::stencilOpSeparate(GLenum face, GLenum fail,
+                                  GLenum zfail, GLenum zpass)
 {
   js_ << "ctx.stencilOpSeparate(" << toString(face) << ","
     << toString(fail) << "," << toString(zfail) << ","
@@ -898,9 +893,9 @@ void WGLWidget::stencilOpSeparate(CullFaceModeEnum face, StencilOpEnum fail,
   GLDEBUG;
 }
 
-void WGLWidget::texImage2D(TextureTargetEnum target, int level,
-                           PixelFormatEnum internalformat,
-                           PixelFormatEnum format, PixelTypeEnum type,
+void WGLWidget::texImage2D(GLenum target, int level,
+                           GLenum internalformat,
+                           GLenum format, GLenum type,
                            Texture texture)
 {
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
@@ -909,17 +904,9 @@ void WGLWidget::texImage2D(TextureTargetEnum target, int level,
   GLDEBUG;
 }
 
-void WGLWidget::texParameteri(TextureTargetEnum target,
-                              TextureParameterNameEnum pname,
-                              TextureWrapModeEnum param)
-{
-  js_ << "ctx.texParameteri(" << toString(target) << "," << toString(pname)
-    << "," << toString(param) << ");";
-  GLDEBUG;
-}
-void WGLWidget::texParameteri(TextureTargetEnum target,
-                              TextureParameterNameEnum pname,
-                              TextureFilterEnum param)
+void WGLWidget::texParameteri(GLenum target,
+                              GLenum pname,
+                              GLenum param)
 {
   js_ << "ctx.texParameteri(" << toString(target) << "," << toString(pname)
     << "," << toString(param) << ");";
@@ -939,7 +926,7 @@ void WGLWidget::validateProgram(Program program)
 }
 
 void WGLWidget::vertexAttribPointer(AttribLocation location, int size,
-                                 DataTypeEnum type, bool normalized,
+                                 GLenum type, bool normalized,
                                  unsigned stride, unsigned offset)
 {
   js_ << "ctx.vertexAttribPointer(" << location << "," << size << "," << toString(type)
@@ -964,7 +951,7 @@ void WGLWidget::connectJavaScript(Wt::EventSignalBase &s,
   s.connect(jsFunction);
 }
 
-JavaScriptMatrix4x4 WGLWidget::createJavaScriptMatrix4()
+WGLWidget::JavaScriptMatrix4x4 WGLWidget::createJavaScriptMatrix4()
 {
   WGenericMatrix<double, 4, 4> m; // unit matrix
   JavaScriptMatrix4x4 retval = "ctx.WtMatrix" + boost::lexical_cast<std::string>(matrices_++);
@@ -972,6 +959,7 @@ JavaScriptMatrix4x4 WGLWidget::createJavaScriptMatrix4()
   renderfv(m.data().begin(), m.data().end());
   js_ << ";";
 
+  GLDEBUG;
   return retval;
 }
 
@@ -1010,7 +998,7 @@ void WGLWidget::uniformNormalMatrix4(const UniformLocation &u,
                                      const JavaScriptMatrix4x4 &jsm,
                                      const WGenericMatrix<double, 4, 4> &mm)
 {
-  js_ << "ctx.uniformMatrix4fv(" << u << ",false,mat4.transpose(mat4.inverse(mat4.multiply(mat4.create(" << jsm << "), ";
+  js_ << "ctx.uniformMatrix4fv(" << u << ",false," WT_CLASS ".glMatrix.mat4.transpose(" WT_CLASS ".glMatrix.mat4.inverse(" WT_CLASS ".glMatrix.mat4.multiply(" WT_CLASS ".glMatrix.mat4.create(" << jsm << "), ";
   WGenericMatrix<double, 4, 4> t(mm.transposed());
   renderfv(t.data().begin(), t.data().end());
   js_ << "))));";

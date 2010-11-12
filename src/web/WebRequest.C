@@ -257,4 +257,9 @@ void WebRequest::emulateAsync(ResponseState state)
   }
 }
 
+void WebRequest::setResponseType(ResponseType responseType)
+{
+  responseType_ = responseType;
+}
+
 }
