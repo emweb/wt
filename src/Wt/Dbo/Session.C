@@ -77,6 +77,11 @@ void Session::MappingInfo::dropTable(Session& session,
   throw std::logic_error("Not to be done.");
 }
 
+void Session::MappingInfo::rereadAll()
+{ 
+  throw std::logic_error("Not to be done.");
+}
+
 std::string Session::MappingInfo::primaryKeys() const
 {
   if (surrogateIdFieldName)
@@ -157,7 +162,7 @@ void Session::returnConnection(SqlConnection *connection)
     connectionPool_->returnConnection(connection);
 }
 
-void Session::prune(MetaDboBase *obj)
+void Session::discardChanges(MetaDboBase *obj)
 {
   if (dirtyObjects_.erase(obj) > 0)
     obj->decRef();
@@ -855,6 +860,13 @@ void Session::flush()
     dirtyObjects_.erase(i);
     dbo->decRef();
   }
+}
+
+void Session::rereadAll()
+{
+  for (ClassRegistry::iterator i = classRegistry_.begin();
+       i != classRegistry_.end(); ++i)
+    i->second->rereadAll();
 }
 
 std::string Session::statementId(const char *tableName, int statementIdx)

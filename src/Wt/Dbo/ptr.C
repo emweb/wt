@@ -52,6 +52,7 @@ void MetaDboBase::setDirty()
 void MetaDboBase::remove()
 {
   checkNotOrphaned();
+
   if (isDeleted()) {
     // is already removed or being removed in this transaction
   } else if (isPersisted()) {
@@ -60,7 +61,7 @@ void MetaDboBase::remove()
   } else if (session_) { // was added to a Session but not yet flushed
     Session *session = session_;
     setSession(0);
-    session->prune(this);
+    session->discardChanges(this);
     state_ &= ~NeedsSave;
   } else {
     // is not yet added to the Session

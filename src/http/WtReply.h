@@ -64,6 +64,7 @@ protected:
   bool              responseSent_;
   status_type       status_;
   ::int64_t         contentLength_, bodyReceived_;
+  bool              sendingMessages_;
   CallbackFunction  fetchMoreDataCallback_, readMessageCallback_;
   HTTPRequest      *httpRequest_;
 

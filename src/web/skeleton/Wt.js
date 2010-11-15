@@ -866,7 +866,7 @@ this.history = (function()
    * version: 2.5.2
    */
   var _UAwebkit = false;
-  var _UAie = self.isIElt9;
+  var _UAie = WT.isIElt9;
   var _UAopera = false;
   var _onLoadFn = null;
   var _histFrame = null;

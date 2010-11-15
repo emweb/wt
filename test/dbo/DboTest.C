@@ -644,10 +644,13 @@ void DboTest::test6()
       a1.flush();
       t.rollback();
 
-      a1.reread();
+      session_->rereadAll();
 
       dbo::Transaction t2(*session_);
 
+      dbo::ptr<A> a2 = session_->find<A>();
+
+      BOOST_REQUIRE(a1 == a2);
       BOOST_REQUIRE(a1->i == 42);
 
       t2.commit();

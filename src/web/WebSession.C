@@ -746,15 +746,22 @@ void WebSession::doRecursiveEventLoop()
    * notification.
    */
   recursiveEventLoop_ = handler;
+  newRecursiveEvent_ = false;
 
   /*
    * Release session mutex lock, wait for recursive event, and retake
    * the session mutex lock.
    */
 #ifndef WT_TARGET_JAVA
-  recursiveEvent_.wait(handler->lock());
+  if (asyncResponse_ && asyncResponse_->isWebSocketRequest())
+    asyncResponse_->readWebSocketMessage
+     (boost::bind(&WebSession::handleWebSocketMessage, shared_from_this()));
+
+  while (!newRecursiveEvent_)
+    recursiveEvent_.wait(handler->lock());
 #else
-  recursiveEvent_.wait();
+  while (!newRecursiveEvent_)
+    recursiveEvent_.wait();
 #endif
 
   if (state_ == Dead) {
@@ -790,6 +797,8 @@ bool WebSession::unlockRecursiveEventLoop()
   recursiveEventLoop_->setRequest(handler->request(), handler->response());
   // handler->response()->startAsync();
   handler->setRequest(0, 0);
+
+  newRecursiveEvent_ = true;
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   recursiveEvent_.notify_one();
@@ -1116,14 +1125,14 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
       std::cerr << "Could not parse request: " << e.what();
     }
 
-    if (lock->asyncResponse_)
-      lock->asyncResponse_->readWebSocketMessage
-        (boost::bind(&WebSession::handleWebSocketMessage, session));
-
     {
       Handler handler(lock, *message, (WebResponse &)(*message));
+
       lock->handleRequest(handler);
     }
+
+    lock->asyncResponse_->readWebSocketMessage
+      (boost::bind(&WebSession::handleWebSocketMessage, session));
   }
 #endif // WT_TARGET_JAVA
 }

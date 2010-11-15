@@ -1,3 +1,8 @@
+10-15-2010:
+	* Dbo/Sesion: add rereadAll()
+
+	* Wt.js: fix IE6-8 history management regression
+
 10-11-2010:
 	* QueryModel: setData() now converts the incoming type to the database
 	field type (if possible), and also uses a transaction to persist the

@@ -243,7 +243,7 @@ void Session::prune(MetaDbo<C> *obj)
 {
   getMapping<C>()->registry_.erase(obj->id());
 
-  prune(static_cast<MetaDboBase *>(obj));
+  discardChanges(obj);
 }
 
 template<class C>
@@ -345,6 +345,12 @@ void Session::Mapping<C>
     C dummy;
     action.visit(dummy);
   }
+}
+
+template <class C> void Session::Mapping<C>::rereadAll()
+{
+  for (typename Registry::iterator i = registry_.begin(); i != registry_.end(); ++i)
+    i->second->reread();
 }
 
 template <class C>

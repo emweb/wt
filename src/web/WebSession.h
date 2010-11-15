@@ -269,6 +269,7 @@ private:
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::condition recursiveEvent_;
 #endif // WT_THREADED
+  bool             newRecursiveEvent_;
 
   WEnvironment  embeddedEnv_;
   WEnvironment *env_;

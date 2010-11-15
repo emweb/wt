@@ -25,7 +25,8 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
   : Reply(request),
     entryPoint_(entryPoint),
     contentLength_(-1),
-    bodyReceived_(0)
+    bodyReceived_(0),
+    sendingMessages_(false)
 {
   urlScheme_ = request.urlScheme;
 
@@ -186,7 +187,9 @@ void WtReply::consumeWebSocketMessage(Buffer::const_iterator begin,
       cin_mem_.seekg(0);
     }
 
-    readMessageCallback_();
+    CallbackFunction cb = readMessageCallback_;
+    readMessageCallback_ = 0;
+    cb();
   }
 }
 
@@ -228,7 +231,7 @@ void WtReply::send(const std::string& text, CallbackFunction callBack)
 
   fetchMoreDataCallback_ = callBack;
 
-  if (request().isWebSocketRequest() && readMessageCallback_) {
+  if (request().isWebSocketRequest() && sendingMessages_) {
     // std::cerr << "Sending frame of length " << text.length() << std::endl;
     nextCout_.clear();
     nextCout_ += (char)0;
@@ -237,6 +240,7 @@ void WtReply::send(const std::string& text, CallbackFunction callBack)
   } else {
     // std::cerr << "Sending response of length " << text.length() << std::endl;
     nextCout_.assign(text);
+    sendingMessages_ = true;
   }
 
   responseSent_ = false;
@@ -251,6 +255,9 @@ void WtReply::readWebSocketMessage(CallbackFunction callBack)
 #endif // WT_THREADED
 
   assert(request().isWebSocketRequest());
+
+  if (readMessageCallback_)
+    return;
 
   readMessageCallback_ = callBack;
 

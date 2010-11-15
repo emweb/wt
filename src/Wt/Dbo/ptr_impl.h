@@ -146,7 +146,7 @@ void MetaDbo<C>::reread()
 {
   checkNotOrphaned();
   if (isPersisted()) {
-    session()->prune(this);
+    session()->discardChanges(this);
 
     delete obj_;
     obj_ = 0;

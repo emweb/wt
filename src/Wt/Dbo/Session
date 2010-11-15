@@ -308,6 +308,16 @@ public:
    */
   void flush();
 
+  /*! \brief Rereads all objects.
+   *
+   * This rereads all objects from the database, possibly discarding
+   * unflushed modifications. This is a catch-all solution for a
+   * StaleObjectException.
+   *
+   * \sa ptr::reread()
+   */
+  void rereadAll();
+
   void getFields(const char *tableName, std::vector<FieldInfo>& result);
   
 private:
@@ -362,6 +372,7 @@ private:
     virtual void init(Session& session);
     virtual void dropTable(Session& session,
 			   std::set<std::string>& tablesDropped);
+    virtual void rereadAll();
 
     std::string primaryKeys() const;
   };
@@ -376,6 +387,7 @@ private:
     virtual void init(Session& session);
     virtual void dropTable(Session& session,
 			   std::set<std::string>& tablesDropped);
+    virtual void rereadAll();
   };
 
   typedef std::map<const std::type_info *, MappingInfo *> ClassRegistry;
@@ -423,7 +435,7 @@ private:
   template <class C>
     ptr<C> loadWithLongLongId(SqlStatement *statement, int& column);
 
-  void prune(MetaDboBase *obj);
+  void discardChanges(MetaDboBase *obj);
   template <class C> void prune(MetaDbo<C> *obj);
 
   template<class C> void implSave(MetaDbo<C>& dbo);
