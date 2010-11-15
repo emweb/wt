@@ -215,11 +215,6 @@ void WtReply::setLocation(const std::string& location)
     status_ = found;
 }
 
-bool WtReply::expectMoreData()
-{
-  return !fetchMoreDataCallback_;
-}
-
 void WtReply::send(const std::string& text, CallbackFunction callBack)
 {
 #ifdef WT_THREADED
@@ -245,7 +240,10 @@ void WtReply::send(const std::string& text, CallbackFunction callBack)
 
   responseSent_ = false;
 
-  Reply::send();
+  if (!sending_) {
+    sending_ = true;
+    Reply::send();
+  }
 }
 
 void WtReply::readWebSocketMessage(CallbackFunction callBack)
@@ -323,6 +321,9 @@ asio::const_buffer WtReply::nextContentBuffer()
     f();
     cout_.swap(nextCout_);
   }
+
+  if (cout_.empty())
+    sending_ = false;
 
   return asio::buffer(cout_);
 }

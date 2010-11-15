@@ -50,8 +50,6 @@ public:
   const Request& request() const { return request_; }
   std::string urlScheme() const { return urlScheme_; }
 
-  virtual bool expectMoreData();
-
 protected:
   const Wt::EntryPoint& entryPoint_;
   std::iostream    *cin_;
@@ -67,6 +65,7 @@ protected:
   bool              sendingMessages_;
   CallbackFunction  fetchMoreDataCallback_, readMessageCallback_;
   HTTPRequest      *httpRequest_;
+  bool              sending_;
 
   virtual status_type     responseStatus();
   virtual std::string     contentType();
