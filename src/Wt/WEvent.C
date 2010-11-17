@@ -80,13 +80,13 @@ Touch::Touch(int identifier,
 	     int documentX, int documentY,
 	     int screenX, int screenY,
 	     int widgetX, int widgetY)
-  : identifier_(identifier),
-    clientX_(clientX),
+  : clientX_(clientX),
     clientY_(clientY),
     documentX_(documentX),
     documentY_(documentY),
     widgetX_(widgetX),
-    widgetY_(widgetY)
+    widgetY_(widgetY),
+    identifier_(identifier)
 { }
 
 JavaScriptEvent::JavaScriptEvent()

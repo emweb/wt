@@ -36,6 +36,7 @@ SUBDIRS(
   blog
   bobsmith
   charts
+  codeview
   composer
   dialog
   dragdrop

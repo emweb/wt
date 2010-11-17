@@ -896,7 +896,7 @@ public:
   void triggerUpdate();
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief A RIIA lock for manipulating and updating the
+  /*! \brief A RAII lock for manipulating and updating the
    *         application and its widgets outside of the event loop.
    *
    * You need to take this lock only when you want to manipulate
@@ -1005,7 +1005,7 @@ public:
    * \sa enableUpdates(), triggerUpdate()
    *
    * \if cpp
-   * \deprecated Use the RIIA-style UpdateLock(WApplication *) constructor
+   * \deprecated Use the RAII-style UpdateLock(WApplication *) constructor
    *             instead.
    * \endif cpp
    */

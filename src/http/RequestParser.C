@@ -39,7 +39,7 @@ static int MAX_FIELD_VALUE_SIZE = 80*1024;
 static int MAX_FIELD_NAME_SIZE = 256;
 static int MAX_METHOD_SIZE = 16;
 
-static std::size_t MAX_WEBSOCKET_MESSAGE_LENGTH = 112*1024;
+static int MAX_WEBSOCKET_MESSAGE_LENGTH = 112*1024;
 
 namespace http {
 namespace server {
@@ -285,16 +285,21 @@ RequestParser::parseWebSocketMessage(Request& req,
       break;
 
     case binary_data:
-      ::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
+      {
+	::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
 
-      dataBegin = begin;
-      begin = begin + thisSize;
-      dataEnd = begin;
-      remainder_ -= thisSize;
+	dataBegin = begin;
+	begin = begin + thisSize;
+	dataEnd = begin;
+	remainder_ -= thisSize;
 
-      if (remainder_ == 0)
-	state = Request::Complete;
-      break;
+	if (remainder_ == 0)
+	  state = Request::Complete;
+	break;
+      }
+
+    default:
+      assert(false);
     }
   }
 

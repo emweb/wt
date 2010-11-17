@@ -21,8 +21,9 @@ HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
 
 void HTTPRequest::flush(ResponseState state, CallbackFunction callback)
 {
-  reply_->send(outstream_.str(), callback);
+  std::string s = outstream_.str();
   outstream_.str("");
+  reply_->send(s, callback);
 
   if (state == ResponseDone)
     delete this; // also deletes the reply if the connection was closed

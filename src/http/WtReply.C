@@ -26,7 +26,8 @@ WtReply::WtReply(const Request& request, const Wt::EntryPoint& entryPoint,
     entryPoint_(entryPoint),
     contentLength_(-1),
     bodyReceived_(0),
-    sendingMessages_(false)
+    sendingMessages_(false),
+    sending_(false)
 {
   urlScheme_ = request.urlScheme;
 
@@ -128,6 +129,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	 */
 	setWaitMoreData(true);
 	responseSent_ = true;
+	sending_ = true;
 	Reply::send();
 
 	// This will read more data, starting with the hand-shake.
@@ -227,13 +229,15 @@ void WtReply::send(const std::string& text, CallbackFunction callBack)
   fetchMoreDataCallback_ = callBack;
 
   if (request().isWebSocketRequest() && sendingMessages_) {
-    // std::cerr << "Sending frame of length " << text.length() << std::endl;
+    // std::cerr << this << " Sending frame of length "
+    //           << text.length() << std::endl;
     nextCout_.clear();
     nextCout_ += (char)0;
     nextCout_ += text;
     nextCout_ += (char)0xFF;
   } else {
-    // std::cerr << "Sending response of length " << text.length() << std::endl;
+    // std::cerr << this << "Sending response of length "
+    //           << text.length() << std::endl;
     nextCout_.assign(text);
     sendingMessages_ = true;
   }
@@ -305,6 +309,9 @@ std::string WtReply::location()
 
 asio::const_buffer WtReply::nextContentBuffer()
 {
+  // std::cerr << this << "(sending: " << sending_
+  // 	       << ", reponseSent_: " << responseSent_
+  //	       << ") nextContentBuffer: " << nextCout_.length() << std::endl;
   cout_.clear();
   cout_.swap(nextCout_);
 

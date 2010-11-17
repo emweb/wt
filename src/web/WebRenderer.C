@@ -86,6 +86,7 @@ void WebRenderer::doneUpdate(WWidget *w)
 bool WebRenderer::isDirty() const
 {
   return !updateMap_.empty()
+    || !session_.app()->afterLoadJavaScript_.empty()
     || Utils::length(collectedJS1_) > 0
     || Utils::length(collectedJS2_) > 0
     || Utils::length(invisibleJS_) > 0;
