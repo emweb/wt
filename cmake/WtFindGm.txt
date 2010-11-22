@@ -10,26 +10,72 @@ FIND_PATH(GM_INCLUDE_DIR
   PATHS
     ${GM_PREFIX}/include/GraphicsMagick/
     ${GM_PREFIX}/include/
+    ${GM_PREFIX}/
     /usr/include/GraphicsMagick/
     /usr/include/
     /usr/local/include/GraphicsMagick/
     /usr/local/include/
 )
 
-FIND_LIBRARY(GM_LIB
-  NAMES
-    GraphicsMagick
-  PATHS
-    ${GM_PREFIX}/lib
-)
+IF(WIN32)
+  FIND_LIBRARY(GM_LIB
+    NAMES
+      CORE_DB_Magick_
+    PATHS
+      ${GM_PREFIX}/VisualMagick/lib/Release
+      ${GM_PREFIX}/VisualMagick/lib
+  )
+  FIND_LIBRARY(GMPP_LIB
+    NAMES
+      CORE_DB_Magick++_
+    PATHS
+      ${GM_PREFIX}/VisualMagick/lib/Release
+      ${GM_PREFIX}/VisualMagick/lib
+  )
+  FIND_LIBRARY(GM_LIB_DEBUG
+    NAMES
+      CORE_DB_Magick_
+    PATHS
+      ${GM_PREFIX}/VisualMagick/lib/Debug
+      ${GM_PREFIX}/VisualMagick/lib
+  )
+  FIND_LIBRARY(GMPP_LIB_DEBUG
+    NAMES
+      CORE_DB_Magick++_
+    PATHS
+      ${GM_PREFIX}/VisualMagick/lib/Debug
+      ${GM_PREFIX}/VisualMagick/lib
+  )
 
-IF(GM_LIB AND GM_INCLUDE_DIR)
-  SET(GM_FOUND TRUE)
-  SET(GM_INCLUDE_DIRS ${GM_INCLUDE_DIR})
-  SET(GM_LIBRARIES ${GM_LIB} ${GM_SUPPORT_LIBS})
-ELSE(GM_LIB AND GM_INCLUDE_DIR)
-  SET(GM_FOUND FALSE)
-ENDIF(GM_LIB AND GM_INCLUDE_DIR)
+  IF(GM_LIB AND GMPP_LIB AND GM_LIB_DEBUG AND GMPP_LIB_DEBUG AND GM_INCLUDE_DIR)
+    SET(GM_FOUND TRUE)
+    SET(GM_INCLUDE_DIRS ${GM_INCLUDE_DIR})
+    SET(GM_LIBRARIES
+        optimized ${GM_LIB}
+        optimized ${GMPP_LIB}
+        debug ${GM_LIB_DEBUG}
+        debug ${GMPP_LIB_DEBUG}
+        ${GM_SUPPORT_LIBS}
+      )
+  ELSE(GM_LIB AND GMPP_LIB AND GM_LIB_DEBUG AND GMPP_LIB_DEBUG AND GM_INCLUDE_DIR)
+    SET(GM_FOUND FALSE)
+  ENDIF(GM_LIB AND GMPP_LIB AND GM_LIB_DEBUG AND GMPP_LIB_DEBUG AND GM_INCLUDE_DIR)
+ELSE(WIN32)
+  FIND_LIBRARY(GM_LIB
+    NAMES
+      GraphicsMagick
+    PATHS
+      ${GM_PREFIX}/lib
+  )
+
+  IF(GM_LIB AND GM_INCLUDE_DIR)
+    SET(GM_FOUND TRUE)
+    SET(GM_INCLUDE_DIRS ${GM_INCLUDE_DIR})
+    SET(GM_LIBRARIES ${GM_LIB} ${GM_SUPPORT_LIBS})
+  ELSE(GM_LIB AND GM_INCLUDE_DIR)
+    SET(GM_FOUND FALSE)
+  ENDIF(GM_LIB AND GM_INCLUDE_DIR)
+ENDIF(WIN32)
 
 
 

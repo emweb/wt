@@ -34,18 +34,25 @@ WT_DECLARE_WT_MEMBER
    var walkFrontRate = 0;
    var walkYawRate = 0;
 
-   this.discoverContext = function() {
+   this.discoverContext = function(noGLHandler) {
      if (canvas.getContext) {
-       this.ctx = canvas.getContext('experimental-webgl');
-       if (this.ctx == null) {
+       try {
          this.ctx = canvas.getContext('webgl');
+       } catch (e) {}
+       if (this.ctx == null) {
+         try {
+           this.ctx = canvas.getContext('experimental-webgl');
+         } catch (e) {}
        }
-       //if (this.ctx == null) {
-       //  console.log('WGLWidget: failed to get a webgl context');
-       //}
+       if (this.ctx == null) {
+         var alternative = canvas.firstChild;
+         var parentNode = canvas.parentNode;
+         parentNode.replaceChild(alternative, canvas);
+         noGLHandler();
+       }
      }
      return this.ctx;
-   }
+   };
 
    this.setLookAtParams = function(matrix, center, up, pitchRate, yawRate) {
      cameraMatrix = matrix;
@@ -56,6 +63,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.mouseDragLookAt = function(o, event) {
+     if (this.ctx == null) return; // no WebGL support
      var c = WT.pageCoordinates(event);
      var dx=(c.x - dragPreviousXY.x);
      var dy=(c.y - dragPreviousXY.y);
@@ -75,13 +83,14 @@ WT_DECLARE_WT_MEMBER
      //console.log('mouseDragLookAt after: ' + mat4.str(cameraMatrix));
      // Repaint!
      //console.log('mouseDragLookAt: repaint');
-     this.paintGl();
+     this.paintGL();
      // store mouse coord for next action
      dragPreviousXY = WT.pageCoordinates(event);
    };
 
    // Mouse wheel = zoom in/out
    this.mouseWheelLookAt = function(o, event) {
+     if (this.ctx == null) return; // no WebGL support
      WT.cancelEvent(event);
      //alert('foo');
      var d = WT.wheelDelta(event);
@@ -92,7 +101,7 @@ WT_DECLARE_WT_MEMBER
      mat4.translate(cameraMatrix, lookAtCenter);
      vec3.negate(lookAtCenter);
      // Repaint!
-     this.paintGl();
+     this.paintGL();
    };
 
    this.setWalkParams = function(matrix, frontRate, yawRate) {
@@ -102,6 +111,7 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.mouseDragWalk = function(o, event){
+     if (this.ctx == null) return; // no WebGL support
      var c = WT.pageCoordinates(event);
      var dx=(c.x - dragPreviousXY.x);
      var dy=(c.y - dragPreviousXY.y);
@@ -114,9 +124,9 @@ WT_DECLARE_WT_MEMBER
      t[2]=-walkFrontRate * dy;
      mat4.translate(r, t);
      mat4.multiply(r, cameraMatrix, cameraMatrix);
-     this.paintGl();
+     this.paintGL();
      dragPreviousXY = WT.pageCoordinates(event);
-   }
+   };
 
 
    this.mouseDown = function(o, event) {

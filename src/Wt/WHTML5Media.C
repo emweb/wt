@@ -50,9 +50,9 @@ WHTML5Media::WHTML5Media(WContainerWidget *parent):
   doJavaScript("new " WT_CLASS ".WHTML5Media("
     + app->javaScriptClass() + "," + jsRef() + ");");
   setJavaScriptMember("WtPlay",
-    "function() {$('#" + id() + "').data('obj').play();}");
+    "function() {jQuery.data(" + jsRef() + ", 'obj').play();}");
   setJavaScriptMember("WtPause",
-    "function() {$('#" + id() + "').data('obj').pause();}");
+    "function() {jQuery.data(" + jsRef() + ", 'obj').pause();}");
 
 #ifndef WT_TARGET_JAVA
   implementStateless(&WHTML5Media::play, &WHTML5Media::play);

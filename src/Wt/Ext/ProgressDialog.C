@@ -100,5 +100,13 @@ void ProgressDialog::onButtonClick(StandardButton button)
   canceled_.emit();
 }
 
+std::string ProgressDialog::buttonText(int buttonIndex) const
+{
+  if (buttonIndex == 3 && cancelButtonText_ != WString::Empty)
+    return cancelButtonText_.toUTF8();
+  else
+    return MessageBox::buttonText(buttonIndex);
+}
+
   }
 }

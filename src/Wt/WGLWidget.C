@@ -5,6 +5,10 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WGLWidget"
+#include "Wt/WEnvironment"
+#include "Wt/WHTML5Video"
+#include "Wt/WImage"
+#include "Wt/WText"
 #include "Wt/WWebWidget"
 #include "DomElement.h"
 #include "Utils.h"
@@ -334,6 +338,7 @@ const char *WGLWidget::toString(GLenum e)
 
 WGLWidget::WGLWidget(WContainerWidget *parent):
   WInteractWidget(parent),
+  alternative_(0),
   shaders_(0),
   programs_(0),
   attributes_(0),
@@ -341,21 +346,64 @@ WGLWidget::WGLWidget(WContainerWidget *parent):
   buffers_(0),
   textures_(0),
   matrices_(0),
+  webglNotAvailable_(this, "webglNotAvailable"),
   mouseWentDownSlot_("function(){}", this),
   mouseWentUpSlot_("function(){}", this),
   mouseDraggedSlot_("function(){}", this),
-  mouseWheelSlot_("function(){}", this)
+  mouseWheelSlot_("function(){}", this),
+  repaintSlot_("function() {"
+    "var o = " + this->glObjJsRef() + ";"
+    "if(o) o.paintGL();"
+    "}", this)
 
 {
   setInline(false);
+  webglNotAvailable_.connect(this, &WGLWidget::webglNotAvailable);
+
   mouseWentDown().connect(mouseWentDownSlot_);
   mouseWentUp().connect(mouseWentUpSlot_);
   mouseDragged().connect(mouseDraggedSlot_);
   mouseWheel().connect(mouseWheelSlot_);
+  setAlternativeContent(new WText("Your browser does not support WebGL"));
 }
 
 WGLWidget::~WGLWidget()
 {
+}
+
+void WGLWidget::setAlternativeContent(WWidget *alternative)
+{
+  if (alternative_)
+    delete alternative_;
+  alternative_ = alternative;
+  if (alternative_)
+    addChild(alternative_);
+}
+
+void WGLWidget::webglNotAvailable()
+{
+  std::cout << "WebGL Not available in client!\n";
+  webGlNotAvailable_ = true;
+}
+
+std::string WGLWidget::renderRemoveJs()
+{
+  if (webGlNotAvailable_) {
+    // The canvas was already deleted client-side
+    return alternative_->webWidget()->renderRemoveJs();
+  } else {
+    // Nothing special, behave as usual
+    return WInteractWidget::renderRemoveJs();
+  }
+}
+
+std::string WGLWidget::glObjJsRef()
+{
+  return "(function(){"
+    "var r = " + jsRef() + ";"
+    "var o = r ? jQuery.data(r,'obj') : null;"
+    "return o ? o : {ctx: null};"
+    "})()";
 }
 
 char *WGLWidget::makeFloat(double d, char *buf)
@@ -370,31 +418,77 @@ char *WGLWidget::makeInt(int i, char *buf)
 
 DomElement *WGLWidget::createDomElement(WApplication *app)
 {
-  DomElement *result = DomElement::createNew(DomElement_CANVAS);;
+  DomElement *result = 0;
 
+  if (isInLayout()) {
+    // It's easier to set WT_RESIZE_JS after the following code,
+    // but if it's not set, the alternative content will think that
+    // it is not included in a layout manager. Set some phony function
+    // now, which will be overwritten later in this method.
+    setJavaScriptMember(WT_RESIZE_JS, "function() {}");
+  }
+
+  if (app->environment().agentIsIElt(9) ||
+      app->environment().agent() == WEnvironment::MobileWebKitAndroid) {
+    // Shortcut: IE misbehaves when it encounters a canvas element
+    result = DomElement::createNew(DomElement_DIV);
+    if (alternative_)
+      result->addChild(alternative_->createSDomElement(app));
+  } else {
+    result = DomElement::createNew(DomElement_CANVAS);;
+    if (alternative_) {
+      result->addChild(alternative_->createSDomElement(app));
+    }
+  }
+
+  if (isInLayout()) {
+    std::stringstream ss;
+    ss <<
+      """function(self, w, h) {";
+    ss <<
+      ""  "v=" + jsRef() + ";"
+      ""  "if(v){"
+      ""    "v.setAttribute('width', w);"
+      ""    "v.setAttribute('height', h);"
+      ""  "}";
+    if (alternative_) {
+      ss <<
+        """a=" + alternative_->jsRef() + ";"
+        ""  "if(a && a." << WT_RESIZE_JS <<")"
+        ""    "a." << WT_RESIZE_JS << "(a, w, h);";
+    }
+    ss
+      <<"}";
+    setJavaScriptMember(WT_RESIZE_JS, ss.str());
+  }
+
+  setId(result, app);
+
+  // FIXME: move to updateDom()
   result->setAttribute("width", boost::lexical_cast<std::string>(width().value()));
   result->setAttribute("height", boost::lexical_cast<std::string>(height().value()));
-  setId(result, app);
-  updateDom(*result, true);
 
+  updateDom(*result, true);
 
   std::stringstream tmp;
   tmp <<
     "new " WT_CLASS ".WGLWidget(" << app->javaScriptClass() << "," << jsRef() << ");"
-    //"jQuery.data(" << jsRef() << ",'obj').ctx=ctx;"
-    "var o = jQuery.data(" + jsRef() + ",'obj');\n"
-    "o.discoverContext();\n"
+    "var o = " << glObjJsRef() << ";\n"
+    "o.discoverContext(function(){" << webglNotAvailable_.createCall() << "});\n"
     //"console.log('o.ctx: ' + o.ctx);\n"
-    "if(o.ctx){\n"
-    """var ctx = o.ctx;\n";
+    "if(o.ctx){\n";
   js_.str("");
   initializeGL();
-  tmp << "o.initializeGl=function(){\nvar ctx=jQuery.data("
-    << jsRef() << ",'obj').ctx;\n" << js_.str() << "\n};\n";
+  tmp << "o.initializeGL=function(){\n"
+    "var obj=" << glObjJsRef() << ";\n"
+    "var ctx=obj.ctx;\n"
+    << js_.str() << "\n};\n";
   js_.str("");
   paintGL();
-  tmp << "o.paintGl=function(){\nvar ctx=jQuery.data("
-    << jsRef() << ",'obj').ctx;\n" << js_.str() << "};";
+  tmp << "o.paintGL=function(){\n"
+    "var obj=" << glObjJsRef() << ";\n"
+    "var ctx=obj.ctx;\n"
+    << js_.str() << "};";
   js_.str("");
   // Make sure textures are loaded before we render
   tmp << "}\n";
@@ -406,21 +500,26 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
       tmp << '\'' << fixRelativeUrl(preloadImages_[i].second) << '\'';
     }
     tmp <<
-      "],function(images){";
+      "],function(images){\n"
+      "var o=" << glObjJsRef() << ";\n"
+      "var ctx=null;\n"
+      " if(o) ctx=o.ctx;\n"
+      "if(ctx == null) return;\n";
     for (unsigned i = 0; i < preloadImages_.size(); ++i) {
       std::string texture = preloadImages_[i].first;
-      tmp << texture << "=o.ctx.createTexture();\n"
-        << texture << ".image=images[" << i << "];";
+      tmp << texture << "=ctx.createTexture();\n"
+        << texture << ".image=images[" << i << "];\n";
     }
-    tmp << "o.initializeGl();"
-           "o.paintGl();"
+    tmp << "o.initializeGL();\n"
+           "o.paintGL();\n"
          "});";
   } else {
     // No textures to load - go and paint
-    tmp << "o.initializeGl();o.paintGl();";
+    tmp << "o.initializeGL();o.paintGL();";
   }
 
-
+  tmp << delayedJavaScript_.str();
+  delayedJavaScript_.str("");
   result->callJavaScript(tmp.str());
 
   return result;
@@ -657,7 +756,7 @@ WGLWidget::Texture WGLWidget::createTexture()
 
 WGLWidget::Texture WGLWidget::createTextureAndLoad(const std::string &url)
 {
-  Texture retval = "WtTexture" + boost::lexical_cast<std::string>(textures_++);
+  Texture retval = "ctx.WtTexture" + boost::lexical_cast<std::string>(textures_++);
   preloadImages_.push_back(std::make_pair<std::string, std::string>(retval, url));
   GLDEBUG;
   return retval;
@@ -887,6 +986,39 @@ void WGLWidget::stencilOpSeparate(GLenum face, GLenum fail,
 void WGLWidget::texImage2D(GLenum target, int level,
                            GLenum internalformat,
                            GLenum format, GLenum type,
+                           WImage *image)
+{
+  js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
+    << toString(internalformat) << "," << toString(format) << "," << toString(type)
+    << "," << image->jsRef() << ");";
+  GLDEBUG;
+}
+#if 0
+void WGLWidget::texImage2D(GLenum target, int level,
+                           GLenum internalformat,
+                           GLenum format, GLenum type,
+                           W)
+{
+  js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
+    << toString(internalformat) << "," << toString(format) << "," << toString(type)
+    << "," << image << ");";
+  GLDEBUG;
+}
+#endif
+void WGLWidget::texImage2D(GLenum target, int level,
+                           GLenum internalformat,
+                           GLenum format, GLenum type,
+                           WHTML5Video *video)
+{
+  js_ << "if (" << video->jsMediaRef()<< ")"
+    " ctx.texImage2D(" << toString(target) << "," << level << ","
+    << toString(internalformat) << "," << toString(format) << "," << toString(type)
+    << "," << video->jsMediaRef() << ");";
+  GLDEBUG;
+}
+void WGLWidget::texImage2D(GLenum target, int level,
+                           GLenum internalformat,
+                           GLenum format, GLenum type,
                            Texture texture)
 {
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
@@ -936,7 +1068,7 @@ void WGLWidget::connectJavaScript(Wt::EventSignalBase &s,
 {
   std::string jsFunction =
     "function(obj, event){"
-    """var o=jQuery.data(" + jsRef() + ",'obj');"
+    """var o=" + glObjJsRef() + ";"
     """if(o) o." + methodName + "(obj,event);"
     "}";
   s.connect(jsFunction);
@@ -959,30 +1091,40 @@ void WGLWidget::setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
                                            double uX, double uY, double uZ,
                                            double pitchRate, double yawRate)
 {
-  mouseWentDownSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseDown(o, e);}");
-  mouseWentUpSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseUp(o, e);}");
-  mouseDraggedSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseDragLookAt(o, e);}");
-  mouseWheelSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseWheelLookAt(o, e);}");
-  std::stringstream ss;
-  ss << "jQuery.data(" << jsRef() << ",'obj').setLookAtParams("
+  mouseWentDownSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseDown(o, e);}");
+  mouseWentUpSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseUp(o, e);}");
+  mouseDraggedSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseDragLookAt(o, e);}");
+  mouseWheelSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseWheelLookAt(o, e);}");
+  js_ <<
+    "obj.setLookAtParams("
     << m
     << ",[" << centerX << "," << centerY << "," << centerZ << "],"
     << "[" << uX << "," << uY << "," << uZ << "],"
     << pitchRate << "," << yawRate << ");";
-  doJavaScript(ss.str());
+//  if (this->isRendered()) {
+//    doJavaScript(ss.str());
+//  } else {
+//    delayedJavaScript_ << ss.str();
+//  }
 }
 
 void WGLWidget::setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double frontStep, double rotStep)
 {
-  mouseWentDownSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseDown(o, e);}");
-  mouseWentUpSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseUp(o, e);}");
-  mouseDraggedSlot_.setJavaScript("function(o, e){jQuery.data(" + jsRef() + ",'obj').mouseDragWalk(o, e);}");
+  mouseWentDownSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseDown(o, e);}");
+  mouseWentUpSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseUp(o, e);}");
+  mouseDraggedSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseDragWalk(o, e);}");
   mouseWheelSlot_.setJavaScript("function(o, e){}");
   std::stringstream ss;
-  ss << "jQuery.data(" << jsRef() << ",'obj').setWalkParams("
+  ss << "(function(){var o = " << glObjJsRef() << ";"
+    "if(o.ctx == null) return;"
+    "o.setWalkParams(o."
     << m << ","
-    << frontStep << "," << rotStep << ");";
-  doJavaScript(ss.str());
+    << frontStep << "," << rotStep << ");})()";
+  if (this->isRendered()) {
+    doJavaScript(ss.str());
+  } else {
+    delayedJavaScript_ << ss.str();
+  }
 }
 
 void WGLWidget::uniformNormalMatrix4(const UniformLocation &u,

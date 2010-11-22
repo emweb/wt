@@ -811,8 +811,6 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
 this.positionXY = function(id, x, y) {
   var w = WT.getElement(id);
 
-  w.style.display = '';
-
   if (!WT.isHidden(w))
     WT.fitToWindow(w, x, y, x, y);
 };

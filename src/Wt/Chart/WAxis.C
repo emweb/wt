@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <boost/lexical_cast.hpp>
+
+#include "WtException.h"
+
 #include "Wt/WAbstractItemModel"
 #include "Wt/WDate"
 
@@ -753,6 +757,11 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
     case DateScale:
       daysRange = static_cast<double>(s.renderMaximum - s.renderMinimum);
       dt.setDate(WDate::fromJulianDay(static_cast<int>(s.renderMinimum)));
+      if (!dt.isValid()) {
+	std::string exception = "Invalid julian day: ";
+	exception += boost::lexical_cast<std::string>(s.renderMinimum);
+	throw WtException(exception);
+      }
       break;
     case DateTimeScale:
       daysRange = static_cast<double>((s.renderMaximum - s.renderMinimum) 

@@ -14,10 +14,13 @@
 namespace Wt {
 
 #if 0
-#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) alert('error " << __FUNCTION__ << ": ' + err);}\n";} while(false)
+#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {alert('error " << __FUNCTION__ << ": ' + err); debugger;}}\n";} while(false)
 #else
 #define GLDEBUG
 #endif
+
+class WHTML5Video;
+class WImage;
 
 // Incomplete implementation of the new webgl standard. This is to be
 // considered as a technology preview, and we welcome comments regarding
@@ -638,14 +641,15 @@ public:
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat, 
   //                GLsizei width, GLsizei height, GLint border, PixelFormatEnum format, 
   //                GLenum type, ArrayBufferView pixels);
+
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
   //                PixelFormatEnum format, GLenum type, ImageData pixels);
-  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
-  //                PixelFormatEnum format, GLenum type, HTMLImageElement image);
+  void texImage2D(GLenum target, int level, GLenum internalformat,
+                  GLenum format, GLenum type, WImage *image);
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
   //                PixelFormatEnum format, GLenum type, HTMLCanvasElement canvas);
-  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
-  //                PixelFormatEnum format, GLenum type, HTMLVideoElement video);
+  void texImage2D(GLenum target, int level, GLenum internalformat, GLenum format,
+                  GLenum type, WHTML5Video *video);
   // Overload for textures loaded with createTextureAndLoad()
   // For use with a Texture created by createTextureAndLoad only!
   void texImage2D(GLenum target, int level, GLenum internalformat,
@@ -917,11 +921,19 @@ public:
                             const JavaScriptMatrix4x4 &jsm,
                             const WGenericMatrix<double, 4, 4> &mm);
 
+  void setAlternativeContent(WWidget *alternative);
+
+  JSlot &repaintSlot() { return repaintSlot_; }
+
 protected:
   DomElementType domElementType() const;
   void render(WFlags<RenderFlag> flags);
+  std::string renderRemoveJs();
 
 private:
+  std::string glObjJsRef();
+  WWidget *alternative_;
+
   unsigned shaders_;
   unsigned programs_;
   unsigned attributes_;
@@ -931,11 +943,20 @@ private:
   unsigned matrices_;
   std::vector<std::pair<std::string, std::string> > preloadImages_;
 
+  // If client detects that a WebGL context cannot be created, it fires this
+  // signal, and the handler sets wegGlNotAvailable_ to true. If this happens,
+  // the client side will have deleted the canvas widget.
+  JSignal<void> webglNotAvailable_;
+  void webglNotAvailable();
+  bool webGlNotAvailable_;
+
   JSlot mouseWentDownSlot_;
   JSlot mouseWentUpSlot_;
   JSlot mouseDraggedSlot_;
   JSlot mouseWheelSlot_;
+  JSlot repaintSlot_;
 
+  std::stringstream delayedJavaScript_;
   std::stringstream js_;
 
   template<typename Iterator>

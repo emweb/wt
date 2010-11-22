@@ -60,9 +60,6 @@ class Button;
  *     setSizeGripEnabled()).</li> 
  * </ul>
  *
- * In addition, unlike WDialog, an %Ext dialog may be dragged by the
- * user.
- *
  * \image html ExtDialog-1.png "An example Dialog using BorderLayouts"
  *
  * \ingroup ext

@@ -20,11 +20,10 @@
       <ul>
 	<li>
 	  Adding a widget to a <a
-	  href="#/basics/wcontainerwidget"><tt>WContainerWidget</tt></a>. This
-	  can be done by passing the container is a parent during
-	  construction, by adding the widget to a container. You'll
-	  need to use CSS to arrange your widgets inside the container
-	  widget.
+	  href="#/basics/wcontainerwidget"><tt>WContainerWidget</tt></a>
+	  (or more conveniently, passing the container as a parent
+	  during construction). You'll need to use CSS to arrange your
+	  widgets inside the container widget.
 	</li>
 	<li>
 	  Binding a widget in a <a
@@ -35,7 +34,7 @@
 	<li>
 	  By adding a widget to a layout manager <a
 	  href="#/style-and-layout">layout manager</a>, you can
-	  circument the limitations of CSS-based layout managenet, and
+	  circumvent the limitations of CSS-based layout managenet, and
 	  benefit from splitters to allow the user to adjust the
 	  layout.
 	</li>

@@ -34,6 +34,9 @@ namespace Wt {
  * At all times, the current selection index is available through
  * currentIndex() and the current selection text using currentText().
  *
+ * WComboBox does not have support for auto-completion, this behaviour
+ * can be found in the WSuggestionPopup.
+ *
  * \if cpp
  * Usage example:
  * \code

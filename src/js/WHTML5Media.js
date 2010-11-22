@@ -13,9 +13,6 @@ WT_DECLARE_WT_MEMBER
    var self = this;
    var WT = APP.WT;
 
-   this.mediaEl = null;
-   this.alternativeEl = null;
-
    function handleMove(event) {
    };
 

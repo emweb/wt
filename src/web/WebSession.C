@@ -338,8 +338,11 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
 #else
   if (boost::starts_with(result, "?"))
     result = applicationUrl_ + result;
-
-  return WebSession::Handler::instance()->response()->encodeURL(result);
+  
+  if (WebSession::Handler::instance()->response())
+    return WebSession::Handler::instance()->response()->encodeURL(result);
+  
+return url;
 #endif // WT_TARGET_JAVA
 }
 

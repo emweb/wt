@@ -174,14 +174,6 @@ public:
    */
   EventSignal<>& volumeChanged();
 
-protected:
-  void getDomChanges(std::vector<DomElement *>& result,
-                     WApplication *app);
-  DomElement *createDomElement(WApplication *app);
-
-  virtual void updateMediaDom(DomElement& element, bool all);
-  virtual DomElement *createMediaDomElement() = 0;
-
   /*! \brief Returns the JavaScript reference to the media object, or null.
    *
    * It is possible, for browser compatibility reasons, that jsRef() is
@@ -191,6 +183,14 @@ protected:
    * older versions of Internet Explorer).
    */
   std::string jsMediaRef() const;
+
+protected:
+  void getDomChanges(std::vector<DomElement *>& result,
+                     WApplication *app);
+  DomElement *createDomElement(WApplication *app);
+
+  virtual void updateMediaDom(DomElement& element, bool all);
+  virtual DomElement *createMediaDomElement() = 0;
 
   virtual void setFormData(const FormData& formData);
 

@@ -18,6 +18,10 @@
 #include <magick/api.h>
 #include <boost/lexical_cast.hpp>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace {
 
   double adjust360(double d) {
@@ -58,7 +62,7 @@ WRasterImage::WRasterImage(const std::string& type,
   h_ = static_cast<unsigned long>(height.toPixels());
 
   unsigned long bufSize = 3 * w_ * h_;
-  pixels_ = new char[bufSize];
+  pixels_ = new unsigned char[bufSize];
   for (unsigned i = 0; i < w_ * h_; ++i)
     pixels_[i*3] = pixels_[i*3 + 1] = pixels_[i*3 + 2] = 254;
 

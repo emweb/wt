@@ -1028,6 +1028,7 @@ private:
   friend class WContainerWidget;
   friend class WCompositeWidget;
   friend class WFileUpload;
+  friend class WGLWidget;
   friend class WebRenderer;
   friend class WLayout;
   friend class WMenuItem;

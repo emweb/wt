@@ -118,7 +118,6 @@ void WPopupMenu::done(WPopupMenuItem *result)
 {
   result_ = result;
 
-  show();
   hide();
 
   WApplication::instance()->root()->clicked()
@@ -181,7 +180,9 @@ void WPopupMenu::popup(const WPoint& p)
 {
   popupImpl();
 
-  hide();
+  // make sure we are not confused by client-side being positioned properly
+  setOffsets(42, Left | Top);
+  setOffsets(-10000, Left | Top);
 
   WApplication::instance()->doJavaScript
     (WT_CLASS ".positionXY('" + id() + "',"

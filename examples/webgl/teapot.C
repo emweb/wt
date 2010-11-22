@@ -9,6 +9,7 @@
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
+#include <Wt/WImage>
 #include <Wt/WPushButton>
 #include <Wt/WTabWidget>
 #include <Wt/WText>
@@ -120,6 +121,7 @@ void WebGLDemo::updateShaders()
   paintWidget_->resize(500, 500);
   paintWidget_->setShaders(vertexShaderText_->text().toUTF8(),
     fragmentShaderText_->text().toUTF8());
+  paintWidget_->setAlternativeContent(new WImage("nowebgl.png"));
 }
 
 void WebGLDemo::resetShaders()

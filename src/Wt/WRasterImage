@@ -122,7 +122,7 @@ private:
   WPainter *painter_;
 
   unsigned long w_, h_;
-  char *pixels_;
+  unsigned char *pixels_;
   DrawContext context_;
   Image *image_;
   double fontSize_;

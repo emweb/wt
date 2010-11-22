@@ -138,6 +138,9 @@ public:
    */
   Signal<>& canceled() { return canceled_; }
 
+protected:
+  virtual std::string buttonText(int buttonIndex) const;
+
 private:
   Signal<> canceled_;
   WString cancelButtonText_;
