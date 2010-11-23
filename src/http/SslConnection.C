@@ -20,6 +20,7 @@
 
 #include "SslConnection.h"
 #include "ConnectionManager.h"
+#include "Server.h"
 
 namespace http {
 namespace server {
@@ -68,10 +69,24 @@ void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
   setTimeout(timeout);
 
   socket_.async_read_some(asio::buffer(buffer),
-       boost::bind(static_cast<HandleRead>(&Connection::handleReadRequest),
-		   shared_from_this(),
-		   asio::placeholders::error,
-		   asio::placeholders::bytes_transferred));
+       boost::bind(static_cast<HandleRead>(
+         &SslConnection::handleReadRequestSsl),
+         shared_from_this(),
+         asio::placeholders::error,
+         asio::placeholders::bytes_transferred));
+}
+
+void SslConnection::handleReadRequestSsl(const asio_error_code& e,
+                                         std::size_t bytes_transferred)
+{
+  // Asio SSL does not perform a write until the read handler
+  // has returned. In the normal case, a read handler does not
+  // return in case of a recursive event loop, so the SSL write
+  // deadlocks a session. Hence, post the processing of the data
+  // read, so that the read handler can return here immediately.
+  server()->service().post(boost::bind(&Connection::handleReadRequest,
+                                       shared_from_this(),
+                                       e, bytes_transferred));
 }
 
 void SslConnection::startAsyncReadBody(Buffer& buffer, int timeout)
@@ -79,10 +94,19 @@ void SslConnection::startAsyncReadBody(Buffer& buffer, int timeout)
   setTimeout(timeout);
 
   socket_.async_read_some(asio::buffer(buffer),
-       boost::bind(static_cast<HandleRead>(&Connection::handleReadBody),
+       boost::bind(static_cast<HandleRead>(&SslConnection::handleReadBodySsl),
 		   shared_from_this(),
 		   asio::placeholders::error,
 		   asio::placeholders::bytes_transferred));
+}
+
+void SslConnection::handleReadBodySsl(const asio_error_code& e,
+                                      std::size_t bytes_transferred)
+{
+  // See handleReadRequestSsl for explanation
+  server()->service().post(boost::bind(&SslConnection::handleReadBody,
+                                       shared_from_this(),
+                                       e, bytes_transferred));
 }
 
 void SslConnection::startAsyncWriteResponse

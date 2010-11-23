@@ -72,6 +72,7 @@ public:
 
   const Configuration &configuration() { return config_; }
 
+  asio::io_service &service() { return io_service_; }
 private:
   /// Starts accepting http/https connections
   void startAccept();
