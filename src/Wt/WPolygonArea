@@ -73,13 +73,15 @@ public:
 
   /*! \brief Adds a point.
    */
+  void addPoint(double x, double y);
+
+  /*! \brief Adds a point.
+   */
   void addPoint(const WPoint& point);
 
-#ifndef WT_TARGET_JAVA
   /*! \brief Adds a point.
    */
   void addPoint(const WPointF& point);
-#endif // WT_TARGET_JAVA
 
   /*! \brief Sets the polygon vertices. 
    *

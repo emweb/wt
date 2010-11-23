@@ -44,8 +44,20 @@ namespace {
       readFromCsv(f, model);
 
       for (int row = 0; row < model->rowCount(); ++row)
-	for (int col = 0; col < model->columnCount(); ++col)
+	for (int col = 0; col < model->columnCount(); ++col) {
 	  model->item(row, col)->setFlags(ItemIsSelectable | ItemIsEditable);
+
+	  /*
+	    Example of tool tips (disabled here because they are not updated
+	    when editing data)
+ 	   */
+
+	  /*
+	  WString toolTip = asString(model->headerData(col)) + ": "
+	    + asString(model->item(row, col)->data(DisplayRole), "%.f");
+	  model->item(row, col)->setToolTip(toolTip);
+	   */
+	}
 
       return model;
     } else {
@@ -73,8 +85,8 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
 {
   new WText(WString::tr("category chart"), this);
 
-  WAbstractItemModel *model = readCsvFile(
-    WApplication::appRoot() + "category.csv", this);
+  WAbstractItemModel *model = readCsvFile(WApplication::appRoot() + "category.csv",
+					  this);
 
   if (!model)
     return;
@@ -128,7 +140,7 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   chart->setPlotAreaPadding(50, Top | Bottom);
 
   /*
-   *   Add all (but first) column as bar series
+   * Add all (but first) column as bar series
    */
   for (int i = 1; i < model->columnCount(); ++i) {
     WDataSeries s(i, BarSeries);
@@ -164,7 +176,7 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   for (int i = 0; i < model->rowCount(); ++i) {
     WString s = asString(model->data(i, 0));
     WDate d = WDate::fromString(s, "dd/MM/yy");
-    model->setData(i, 0, boost::any(d));
+    model->setData(i, 0, d);
   }
 
   // Show a view that allows editing of the model.
@@ -242,14 +254,14 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
   new WText(WString::tr("scatter plot 2"), this);
 
   WStandardItemModel *model = new WStandardItemModel(40, 2, this);
-  model->setHeaderData(0, boost::any(WString("X")));
-  model->setHeaderData(1, boost::any(WString("Y = sin(X)")));
+  model->setHeaderData(0, WString("X"));
+  model->setHeaderData(1, WString("Y = sin(X)"));
 
   for (unsigned i = 0; i < 40; ++i) {
     double x = (static_cast<double>(i) - 20) / 4;
 
-    model->setData(i, 0, boost::any(x));
-    model->setData(i, 1, boost::any(sin(x)));
+    model->setData(i, 0, x);
+    model->setData(i, 1, sin(x));
   }
  
   /*
@@ -294,29 +306,30 @@ PieExample::PieExample(WContainerWidget *parent):
   
   //headers
   model->insertColumns(model->columnCount(), 2);
-  model->setHeaderData(0, boost::any(WString("Item")));
-  model->setHeaderData(1, boost::any(WString("Sales")));
+  model->setHeaderData(0, WString("Item"));
+  model->setHeaderData(1, WString("Sales"));
 
   //data
   model->insertRows(model->rowCount(), 6);
   int row = 0;
-  model->setData(row, 0, boost::any(WString("Blueberry")));
-  model->setData(row, 1, boost::any(120));
+  model->setData(row, 0, WString("Blueberry"));
+  model->setData(row, 1, 120);
+  // model->setData(row, 1, WString("Blueberry"), ToolTipRole);
   row++;
-  model->setData(row, 0, boost::any(WString("Cherry")));
-  model->setData(row, 1, boost::any(30));
+  model->setData(row, 0, WString("Cherry"));
+  model->setData(row, 1, 30);
   row++;
-  model->setData(row, 0, boost::any(WString("Apple")));
-  model->setData(row, 1, boost::any(260));
+  model->setData(row, 0, WString("Apple"));
+  model->setData(row, 1, 260);
   row++;
-  model->setData(row, 0, boost::any(WString("Boston Cream")));
-  model->setData(row, 1, boost::any(160));
+  model->setData(row, 0, WString("Boston Cream"));
+  model->setData(row, 1, 160);
   row++;
-  model->setData(row, 0, boost::any(WString("Other")));
-  model->setData(row, 1, boost::any(40));
+  model->setData(row, 0, WString("Other"));
+  model->setData(row, 1, 40);
   row++;
-  model->setData(row, 0, boost::any(WString("Vanilla Cream")));
-  model->setData(row, 1, boost::any(120));
+  model->setData(row, 0, WString("Vanilla Cream"));
+  model->setData(row, 1, 120);
   row++;
 
   //set all items to be editable and selectable

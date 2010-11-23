@@ -26,18 +26,22 @@ WString::WString()
   : impl_(0)
 { }
 
+#ifndef WT_NO_STD_WSTRING
 WString::WString(const wchar_t *value)
   : impl_(0)
 { 
   if (value)
     utf8_ = Wt::toUTF8(value);
 }
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 WString::WString(const std::wstring& value)
   : impl_(0)
 { 
   utf8_ = Wt::toUTF8(value);
 }
+#endif
 
 WString::WString(const char *value, CharEncoding encoding)
   : impl_(0)
@@ -59,17 +63,21 @@ WString::WString(const std::string& value, CharEncoding encoding)
     utf8_ = Wt::toUTF8(value);
 }
 
+#ifndef WT_NO_STD_LOCALE
 WString::WString(const char *value, const std::locale& loc)
   : impl_(0)
 {
   utf8_ = Wt::toUTF8(value, loc);
 }
+#endif
 
+#ifndef WT_NO_STD_LOCALE
 WString::WString(const std::string& value, const std::locale& loc)
   : impl_(0)
 {
   utf8_ = Wt::toUTF8(value, loc);
 }
+#endif
 
 WString::WString(const WString& other)
   : utf8_(other.utf8_),
@@ -91,12 +99,12 @@ bool WString::operator== (const WString& rhs) const
 
 bool WString::operator< (const WString& rhs) const
 {
-  return value() < rhs.value();
+  return toUTF8() < rhs.toUTF8();
 }
 
 bool WString::operator> (const WString& rhs) const
 {
-  return value() > rhs.value();
+  return toUTF8() > rhs.toUTF8();
 }
 
 WString& WString::operator= (const WString& rhs)
@@ -117,6 +125,7 @@ WString& WString::operator+= (const WString& rhs)
   return *this;
 }
 
+#ifndef WT_NO_STD_WSTRING
 WString& WString::operator+= (const std::wstring& rhs)
 {
   makeLiteral();
@@ -124,7 +133,9 @@ WString& WString::operator+= (const std::wstring& rhs)
 
   return *this;
 }
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 WString& WString::operator+= (const wchar_t *rhs)
 {
   makeLiteral();
@@ -132,6 +143,7 @@ WString& WString::operator+= (const wchar_t *rhs)
 
   return *this;
 }
+#endif
 
 WString& WString::operator+= (const std::string& rhs)
 {
@@ -229,20 +241,31 @@ WString::WString(const char *key, bool)
   impl_->key_ = key;
 }
 
+#ifndef WT_NO_STD_WSTRING
 std::wstring WString::value() const
 {
   return Wt::fromUTF8(toUTF8());
 }
+#endif
 
+#ifndef WT_NO_STD_LOCALE
 std::string WString::narrow(const std::locale &loc) const
 {
   return Wt::fromUTF8(toUTF8(), loc);
 }
+#else
+std::string WString::narrow() const
+{
+  return Wt::fromUTF8(toUTF8(), LocalEncoding);
+}
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 WString::operator std::wstring() const
 {
   return value();
 }
+#endif
 
 const std::string WString::key() const
 {
@@ -276,6 +299,7 @@ WString& WString::arg(const char *value, CharEncoding encoding)
   return arg(std::string(value), encoding);
 }
 
+#ifndef WT_NO_STD_WSTRING
 WString& WString::arg(const std::wstring& value)
 {
   createImpl();
@@ -284,6 +308,7 @@ WString& WString::arg(const std::wstring& value)
 
   return *this;
 }
+#endif
 
 WString& WString::arg(const WString& value)
 {
@@ -349,17 +374,21 @@ WString operator+ (const WString& lhs, const WString& rhs)
   return result += rhs;
 }
 
+#ifndef WT_NO_STD_WSTRING
 WString operator+ (const WString& lhs, const std::wstring& rhs)
 {
   WString result = lhs;
   return result += rhs;
 }
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 WString operator+ (const WString& lhs, const wchar_t *rhs)
 {
   WString result = lhs;
   return result += rhs;
 }
+#endif
 
 WString operator+ (const WString& lhs, const std::string& rhs)
 {
@@ -373,17 +402,21 @@ WString operator+ (const WString& lhs, const char *rhs)
   return result += rhs;
 }
 
+#ifndef WT_NO_STD_WSTRING
 WString operator+ (const std::wstring& lhs, const WString& rhs)
 {
   WString result = lhs;
   return result += rhs;
 }
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 WString operator+ (const wchar_t *lhs, const WString& rhs)
 {
   WString result = lhs;
   return result += rhs;
 }
+#endif
 
 WString operator+ (const std::string& lhs, const WString& rhs)
 {
@@ -407,15 +440,19 @@ bool operator== (const std::string& lhs, const WString& rhs)
   return rhs == lhs;
 }
 
+#ifndef WT_NO_STD_WSTRING
 bool operator== (const std::wstring& lhs, const WString& rhs)
 {
   return rhs == lhs;
 }
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 bool operator== (const wchar_t *lhs, const WString& rhs)
 {
   return rhs == lhs;
 }
+#endif
 
 
 bool operator!= (const char *lhs, const WString& rhs)
@@ -428,15 +465,19 @@ bool operator!= (const std::string& lhs, const WString& rhs)
   return !(rhs == lhs);
 }
 
+#ifndef WT_NO_STD_WSTRING
 bool operator!= (const std::wstring& lhs, const WString& rhs)
 {
   return !(rhs == lhs);
 }
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 bool operator!= (const wchar_t *lhs, const WString& rhs)
 {
   return !(rhs == lhs);
 }
+#endif
 
 void WString::makeLiteral()
 {
@@ -446,10 +487,12 @@ void WString::makeLiteral()
   }
 }
 
+#ifndef WT_NO_STD_WSTRING
 std::wostream& operator<< (std::wostream& lhs, const WString& rhs)
 {
   return lhs << rhs.value();
 }
+#endif
 
 std::ostream& operator<< (std::ostream& lhs, const WString& rhs)
 {

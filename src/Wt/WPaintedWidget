@@ -242,6 +242,7 @@ private:
   WWidgetPainter   *painter_;
   bool              needRepaint_;
   bool              sizeChanged_;
+  bool              areaImageAdded_;
   WFlags<PaintFlag> repaintFlags_;
   WImage           *areaImage_;
   int               renderWidth_, renderHeight_;

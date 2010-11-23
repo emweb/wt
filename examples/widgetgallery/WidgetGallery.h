@@ -8,7 +8,7 @@
 #ifndef WIDGET_GALLERY_APPLICATION_H_
 #define WIDGET_GALLERY_APPLICATION_H_
 
-#include <Wt/WApplication>
+#include <Wt/WContainerWidget>
 
 namespace Wt {
   class WMenu;
@@ -17,10 +17,10 @@ namespace Wt {
 
 class ControlsWidget;
 
-class WidgetGallery : public Wt::WApplication
+class WidgetGallery : public Wt::WContainerWidget
 {
 public:
-  WidgetGallery(const Wt::WEnvironment& env);
+  WidgetGallery();
 
 private:
   Wt::WStackedWidget *contentsStack_;

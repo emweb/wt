@@ -47,7 +47,7 @@ protected:
 private:
   bool hasSubMenu_;
 
-  std::string doxygenAnchor(const std::string &classname) const;
+  std::string docAnchor(const std::string &classname) const;
   std::string title(const std::string &classname) const;
   std::string escape(const std::string &name) const;
 };

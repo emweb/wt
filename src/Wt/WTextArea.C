@@ -7,6 +7,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WStringUtil"
 #include "Wt/WTextArea"
 
 #include "DomElement.h"
@@ -186,8 +187,7 @@ WT_USTRING WTextArea::selectedText() const
   if (selectionStart() != -1) {
     WApplication *app = WApplication::instance();
 
-    std::wstring v = text();
-    return v.substr(app->selectionStart(),
+    return UTF8Substr(text().toUTF8(), app->selectionStart(),
 		    app->selectionEnd() - app->selectionStart());
   } else
     return WString::Empty;

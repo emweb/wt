@@ -302,6 +302,8 @@ public:
    */
   void connectPath(const WPainterPath& path);
 
+  /*! \brief A segment.
+   */
   class Segment {
   public:
     enum Type {

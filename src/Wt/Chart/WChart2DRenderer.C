@@ -10,8 +10,11 @@
 #include "Wt/Chart/WCartesianChart"
 
 #include "Wt/WAbstractItemModel"
+#include "Wt/WCircleArea"
 #include "Wt/WDate"
 #include "Wt/WPainter"
+#include "Wt/WPolygonArea"
+#include "Wt/WRectArea"
 
 #include "Utils.h"
 
@@ -86,7 +89,8 @@ private:
 class SeriesRenderer {
 public:
   virtual ~SeriesRenderer() { }
-  virtual void addValue(double x, double y, double stacky) = 0;
+  virtual void addValue(double x, double y, double stacky,
+			const WModelIndex& xIndex, const WModelIndex& yIndex) = 0;
   virtual void paint() = 0;
 
 protected:
@@ -125,7 +129,8 @@ public:
       curveLength_(0)
   { }
 
-  void addValue(double x, double y, double stacky) {
+  void addValue(double x, double y, double stacky,
+		const WModelIndex& xIndex, const WModelIndex& yIndex) {
     WPointF p = renderer_.map(x, y, series_.axis(),
 			      it_.currentXSegment(), it_.currentYSegment());
 
@@ -265,7 +270,8 @@ public:
       group_(group)
   { }
 
-  void addValue(double x, double y, double stacky) {
+  void addValue(double x, double y, double stacky,
+		const WModelIndex& xIndex, const WModelIndex& yIndex) {
     WPainterPath bar;
     const WAxis& yAxis = renderer_.chart()->axis(series_.axis());
 
@@ -292,6 +298,49 @@ public:
     renderer_.painter().fillPath(bar, series_.brush());
     renderer_.painter().setShadow(WShadow());
     renderer_.painter().strokePath(bar, series_.pen());
+
+    boost::any toolTip = yIndex.data(ToolTipRole);
+    if (!toolTip.empty()) {
+      WTransform t = renderer_.painter().worldTransform();
+
+      WPointF tl = t.map(segmentPoint(bar, 0));
+      WPointF tr = t.map(segmentPoint(bar, 1));
+      WPointF br = t.map(segmentPoint(bar, 2));
+      WPointF bl = t.map(segmentPoint(bar, 3));
+
+      double tlx = 0, tly = 0, brx = 0, bry = 0;
+      bool useRect = false;
+      if (fequal(tl.y(), tr.y())) {
+	tlx = std::min(tl.x(), tr.x());
+	brx = std::max(tl.x(), tr.x());
+	tly = std::min(tl.y(), bl.y());
+	bry = std::max(tl.y(), br.y());
+
+	useRect = true;
+      } else if (fequal(tl.x(), tr.x())) {
+	tlx = std::min(tl.x(), bl.x());
+	brx = std::max(tl.x(), bl.x());
+	tly = std::min(tl.y(), tr.y());
+	bry = std::max(tl.y(), tr.y());
+
+	useRect = true;
+      }
+
+      WAbstractArea *area;
+      if (useRect)
+	area = new WRectArea(tlx, tly, (brx - tlx), (bry - tly));
+      else {
+	WPolygonArea *poly = new WPolygonArea();
+	poly->addPoint(tl.x(), tl.y());
+	poly->addPoint(tr.x(), tr.y());
+	poly->addPoint(br.x(), br.y());
+	poly->addPoint(bl.x(), bl.y());
+	area = poly;
+      }
+
+      area->setToolTip(asString(toolTip));
+      renderer_.chart()->addDataPointArea(series_, xIndex, area);
+    }
 
     double bTopMidY = it_.breakY(topMid.y());
     double bBottomMidY = it_.breakY(bottomMid.y());
@@ -326,6 +375,17 @@ public:
   }
 
   void paint() { }
+
+private:
+  static Wt::WPointF segmentPoint(const Wt::WPainterPath& path, int segment)
+  {
+    const Wt::WPainterPath::Segment& s = path.segments()[segment];
+    return Wt::WPointF(s.x(), s.y());
+  }
+
+  static bool fequal(double d1, double d2) {
+    return std::fabs(d1 - d2) < 1E-5;
+  }
 
 private:
   double groupWidth_;
@@ -409,7 +469,7 @@ void SeriesRenderIterator::newValue(const WDataSeries& series,
   if (Utils::isNaN(x) || Utils::isNaN(y))
     seriesRenderer_->paint();
   else
-    seriesRenderer_->addValue(x, y, stackY);
+    seriesRenderer_->addValue(x, y, stackY, xIndex, yIndex);
 }
 
 double SeriesRenderIterator::breakY(double y)
@@ -447,6 +507,9 @@ public:
 			const WModelIndex& xIndex,
 			const WModelIndex& yIndex)
   {
+    if (Utils::isNaN(x) || Utils::isNaN(y))
+      return;
+
     WString text;
 
     if (series.isLabelsEnabled(XAxis)) {
@@ -510,15 +573,15 @@ public:
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
 			   int numBarGroups, int currentBarGroup)
   {
-    if (series.marker() != NoMarker) {
-      marker_ = WPainterPath();
-      renderer_.chart()->drawMarker(series, marker_);
+    marker_ = WPainterPath();
 
+    if (series.marker() != NoMarker) {
+      renderer_.chart()->drawMarker(series, marker_);
       renderer_.painter().save();
       renderer_.painter().setShadow(series.shadow());
-      return true;
-    } else
-      return false;
+    }
+
+    return true;
   }
 
   virtual void endSeries()
@@ -530,47 +593,58 @@ public:
 			double stackY,
 			const WModelIndex& xIndex,
 			const WModelIndex& yIndex)
-  {    
-    if (!Utils::isNaN(x) && !Utils::isNaN(y) && !marker_.isEmpty()) {
+  {
+    if (!Utils::isNaN(x) && !Utils::isNaN(y)) {
       WPointF p = renderer_.map(x, y, series.axis(),
 				currentXSegment(), currentYSegment());
+      
+      if (!marker_.isEmpty()) {
+	WPainter& painter = renderer_.painter();
+	painter.save();
+	painter.translate(hv(p));
 
-      WPainter& painter = renderer_.painter();
-      painter.save();
-      painter.translate(hv(p));
+	WPen pen;
+	pen = series.markerPen(); // assignment, for Java
 
-#ifndef WT_TARGET_JAVA
-      WPen pen = series.markerPen();
-#else
-      WPen pen = series.markerPen().clone();
-#endif // WT_TARGET_JAVA
+	boost::any penColor = yIndex.data(MarkerPenColorRole);
+	if (penColor.empty() && xIndex.isValid())
+	  penColor = xIndex.data(MarkerPenColorRole);
 
-      boost::any penColor = yIndex.data(MarkerPenColorRole);
-      if (penColor.empty() && xIndex.isValid())
-	penColor = xIndex.data(MarkerPenColorRole);
+	if (!penColor.empty())
+	  pen.setColor(boost::any_cast<WColor>(penColor));
 
-      if (!penColor.empty())
-	pen.setColor(boost::any_cast<WColor>(penColor));
+	painter.setPen(pen);
 
-      painter.setPen(pen);
+	WBrush brush;
+	brush = series.markerBrush(); // assignment, for Java
 
-#ifndef WT_TARGET_JAVA
-      WBrush brush = series.markerBrush();
-#else
-      WBrush brush = series.markerBrush().clone();
-#endif
+	boost::any brushColor = yIndex.data(MarkerBrushColorRole);
+	if (brushColor.empty() && xIndex.isValid())
+	  brushColor = xIndex.data(MarkerBrushColorRole);
 
-      boost::any brushColor = yIndex.data(MarkerBrushColorRole);
-      if (brushColor.empty() && xIndex.isValid())
-	brushColor = xIndex.data(MarkerBrushColorRole);
+	if (!brushColor.empty())
+	  brush.setColor(boost::any_cast<WColor>(brushColor));
 
-      if (!brushColor.empty())
-	brush.setColor(boost::any_cast<WColor>(brushColor));
+	painter.setBrush(brush);
 
-      painter.setBrush(brush);
+	painter.drawPath(marker_);
+	painter.restore();
+      }
 
-      painter.drawPath(marker_);
-      painter.restore();
+      if (series.type() != BarSeries) {
+	boost::any toolTip = yIndex.data(ToolTipRole);
+	if (!toolTip.empty()) {
+	  WTransform t = renderer_.painter().worldTransform();
+
+	  p = t.map(hv(p));
+
+	  WCircleArea *circleArea
+	    = new WCircleArea(static_cast<int>(p.x()), static_cast<int>(p.y()), 5);
+	  circleArea->setToolTip(asString(toolTip));
+
+	  renderer_.chart()->addDataPointArea(series, xIndex, circleArea);
+	}
+      }
     }
   }
 
@@ -587,7 +661,7 @@ private:
   WPainterPath      marker_;
 };
 
-WChart2DRenderer::WChart2DRenderer(const WCartesianChart *chart,
+WChart2DRenderer::WChart2DRenderer(WCartesianChart *chart,
 				   WPainter& painter, const WRectF& rectangle)
   : chart_(chart),
     painter_(painter)

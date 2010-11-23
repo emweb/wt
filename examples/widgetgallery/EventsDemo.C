@@ -195,14 +195,14 @@ namespace {
   {
     return o << c.x << ", " << c.y;
   }
-  std::string modifiersToString(int m)
+  std::string modifiersToString(const WFlags< KeyboardModifier >& modifiers)
   {
     std::stringstream o;
-    if (m & ShiftModifier) o << "Shift ";
-    if (m & ControlModifier) o << "Control ";
-    if (m & AltModifier) o << "Alt ";
-    if (m & MetaModifier) o << "Meta ";
-    if (m == 0) o << "No modifiers";
+    if (modifiers & ShiftModifier) o << "Shift ";
+    if (modifiers & ControlModifier) o << "Control ";
+    if (modifiers & AltModifier) o << "Alt ";
+    if (modifiers & MetaModifier) o << "Meta ";
+    if (modifiers == 0) o << "No modifiers";
     return o.str();
   }
 }

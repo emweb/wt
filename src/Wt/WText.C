@@ -70,8 +70,6 @@ bool WText::setText(const WString& text)
   textChanged_ = true;
   repaint(RepaintInnerHtml);
 
-  autoAdjustInline();
-
   return textok;
 }
 
@@ -212,11 +210,16 @@ DomElementType WText::domElementType() const
   return isInline() ? DomElement_SPAN : DomElement_DIV;
 }
 
+void WText::render(WFlags<RenderFlag> flags)
+{
+  if (textChanged_)
+    autoAdjustInline();
+}
+
 void WText::refresh()
 {
   if (text_.refresh()) {
     textChanged_ = true;
-    autoAdjustInline();
     repaint(RepaintInnerHtml);
   }
 

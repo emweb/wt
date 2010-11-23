@@ -18,15 +18,8 @@
 GraphicsWidgets::GraphicsWidgets(EventDisplayer *ed)
   : ControlsWidget(ed, true)
 {
-  colorMapper_ = new WSignalMapper<WColor >();
-
   topic("WPaintedWidget", this);
   new WText(tr("graphics-intro"), this);
-}
-
-GraphicsWidgets::~GraphicsWidgets()
-{
-  delete colorMapper_;
 }
 
 void GraphicsWidgets::populateSubMenu(WMenu *menu)
@@ -46,6 +39,20 @@ WWidget* GraphicsWidgets::emwebLogo()
   return result;
 }
 
+void addColor(PaintBrush *const canvas,
+	      WTableCell *cell, 
+	      const WColor& color)
+{
+  cell->decorationStyle().setBackgroundColor(color);
+  cell->resize(15, 15);
+
+  const WColor *const javaColor = &color;
+
+  cell->clicked().connect(boost::bind(&PaintBrush::setColor, 
+				      canvas, 
+				      *javaColor));
+}
+
 WWidget* GraphicsWidgets::paintbrush()
 {
   WContainerWidget *result = new WContainerWidget();
@@ -56,35 +63,19 @@ WWidget* GraphicsWidgets::paintbrush()
 
   WTable* layout = new WTable(result);
 
-  PaintBrush* canvas = new PaintBrush(710, 400, layout->elementAt(0,0));
+  PaintBrush *const canvas = new PaintBrush(710, 400, layout->elementAt(0,0));
   canvas->decorationStyle().setBorder(WBorder(WBorder::Solid));
 
   new WText("Color chooser:", layout->elementAt(0,1));
   WTable* colorTable = new WTable(layout->elementAt(0,1));
-  addColor(colorTable, 0, 0, WColor(black));
-  addColor(colorTable, 0, 1, WColor(red));
-  addColor(colorTable, 1, 0, WColor(green));
-  addColor(colorTable, 1, 1, WColor(blue));
+  addColor(canvas, colorTable->elementAt(0, 0), WColor(black));
+  addColor(canvas, colorTable->elementAt(0, 1), WColor(red));
+  addColor(canvas, colorTable->elementAt(1, 0), WColor(green));
+  addColor(canvas, colorTable->elementAt(1, 1), WColor(blue));
   new WBreak(layout->elementAt(0,1));
   WPushButton* clearButton = new WPushButton("Clear", layout->elementAt(0,1));
   clearButton->clicked().connect(canvas, &PaintBrush::clear);
   layout->elementAt(0,1)->setPadding(3);
 
-  colorMapper_->mapped().connect(canvas, &PaintBrush::setColor);
-  
   return result;
-}
-
-
-void GraphicsWidgets::addColor(WTable* table, 
-			       int row, 
-			       int column, 
-			       const WColor& color)
-{
-  table->elementAt(row, column)
-    ->decorationStyle().setBackgroundColor(color);
-  table->elementAt(row, column)
-    ->resize(15, 15);
-
-  colorMapper_->mapConnect(table->elementAt(row, column)->clicked(), color);
 }

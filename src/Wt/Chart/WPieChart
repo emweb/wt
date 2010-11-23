@@ -217,8 +217,16 @@ public:
    */
   WWidget* createLegendItemWidget(int index, WFlags<LabelOption> options);
 
-  virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
-    const;
+  /*! \brief Adds a data point area (used for displaying e.g. tooltips).
+   *
+   * You may want to specialize this is if you wish to modify (or delete) the area.
+   *
+   * \note Currently, an area is only created if the ToolTipRole data at the
+   *       data point is not empty.
+   */
+  virtual void addDataPointArea(const WModelIndex& index, WAbstractArea *area) const;
+
+  virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF()) const;
 
 protected:
   void paintEvent(Wt::WPaintDevice *paintDevice);

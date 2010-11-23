@@ -39,9 +39,13 @@ private:
   Wt::WWidget *viewsTree();
   Wt::WWidget *viewsChart();
 
+
   Wt::WStringListModel *stringList_;
+#ifndef WT_TARGET_JAVA
   Wt::Ext::ComboBox *extComboBox_;
   void comboBoxAdd();
+#endif
+
   void changeRegexp() {
     filteredCocktails->setFilterRegExp(regexpFilter->text());
     filteredSortedCocktails->setFilterRegExp(regexpFilter->text());

@@ -11,10 +11,13 @@
 #include "WtException.h"
 #include "rapidxml/rapidxml.hpp"
 
+#ifndef WT_NO_STD_LOCALE
 #include <locale>
+#endif
 
 namespace Wt {
 
+#ifndef WT_NO_STD_LOCALE
 std::wstring widen(const std::string& s, const std::locale &loc)
 {
   typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
@@ -59,7 +62,22 @@ std::wstring widen(const std::string& s, const std::locale &loc)
 
   return result;
 }
+#else
+// Assumes pure ASCII-7 encoding. The wstring will be UCS encoded.
+std::wstring widen(const std::string& s)
+{
+  std::wstring retval;
+  for(unsigned int i = 0; i < s.size(); ++i) {
+    if (s[i] & 0x80)
+      retval.push_back('?'); // invalid ASCII character
+    else
+      retval.push_back(s[i]); // ASCII-7 doesn't change in unicode
+  }
+  return retval;
+}
+#endif
 
+#ifndef WT_NO_STD_LOCALE
 std::string narrow(const std::wstring& s, const std::locale &loc)
 {
   typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
@@ -115,6 +133,19 @@ std::string narrow(const std::wstring& s, const std::locale &loc)
 
   return result;
 }
+#else
+std::string narrow(const std::wstring& s)
+{
+  std::string retval;
+  for (unsigned int i = 0; i < s.size(); ++i) {
+    if (retval[i] < 128)
+      retval.push_back(s[i]);
+    else
+      retval.push_back('?');
+  }
+  return retval;
+}
+#endif
 
 std::string toUTF8(const std::wstring& s)
 {
@@ -234,14 +265,66 @@ std::wstring fromUTF8(const std::string& s)
   return result;
 }
 
+#ifndef WT_NO_STD_LOCALE
 std::string fromUTF8(const std::string& s, const std::locale &loc)
 {
   return narrow(fromUTF8(s), loc);
 }
+#else
+std::string fromUTF8(const std::string& s, CharEncoding encoding)
+{
+  switch(encoding) {
+    case LocalEncoding: return narrow(fromUTF8(s));
+    case UTF8: return s;
+  }
+}
+#endif
 
+#ifndef WT_NO_STD_LOCALE
 std::string toUTF8(const std::string& s, const std::locale &loc)
 {
   return toUTF8(widen(s, loc));
+}
+#else
+std::string toUTF8(const std::string& s)
+{
+  return toUTF8(widen(s));
+}
+#endif
+
+std::string UTF8Substr(const std::string &s, int begin, int length)
+{
+  std::string retval;
+  // pos, beginPos and endPos refer to byte positions in s
+  unsigned pos = 0;
+  unsigned beginPos = 0;
+  unsigned endPos = -1;
+
+  for(int i = 0; i < begin && pos < s.size(); ++i) {
+    unsigned char c = s[pos];
+    if ((c & 0x80) == 0x0) pos++;
+    else if ((c & 0xe0) == 0xc0) pos += 2;
+    else if ((c & 0xf0) == 0xe0) pos += 3;
+    else if ((c & 0xf8) == 0xf0) pos += 4;
+    else pos++; // invalid!
+  }
+  beginPos = pos;
+
+  if (length != -1) {
+    for(int i = 0; i < length && pos < s.size(); ++i) {
+      unsigned char c = s[pos];
+      if ((c & 0x80) == 0x0) pos++;
+      else if ((c & 0xe0) == 0xc0) pos += 2;
+      else if ((c & 0xf0) == 0xe0) pos += 3;
+      else if ((c & 0xf8) == 0xf0) pos += 4;
+      else pos++; // invalid!
+    }
+    endPos = pos;
+    return s.substr(beginPos, endPos - beginPos);
+  } else {
+    endPos = -1;
+    return s.substr(beginPos, std::string::npos);
+  }
 }
 
 }

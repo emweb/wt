@@ -35,6 +35,7 @@ private:
   void showEventImpl(const Wt::WString& str);
 };
 
+#ifndef WT_TARGET_JAVA
 template<typename T>
 void EventDisplayer::showSignal(T &s, const std::string& str)
 {
@@ -46,5 +47,6 @@ void EventDisplayer::showEvent(T &s, const Wt::WString& str)
 {
   s.connect(boost::bind(&EventDisplayer::showEventImpl, this, str));
 }
+#endif
 
 #endif

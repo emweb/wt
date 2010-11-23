@@ -14,6 +14,7 @@
 
 #include "WebSession.h"
 #include "WtException.h"
+#include "WebController.h"
 
 #include "JavaScriptLoader.h"
 
@@ -175,6 +176,12 @@ WDialog::DialogCode WDialog::exec()
     throw WtException("WDialog::exec(): already in recursive event loop.");
 
   show();
+
+#ifdef WT_TARGET_JAVA
+  if (!WebController::isAsyncSupported()) {
+    throw std::runtime_error("Recursive event loop requires a Servlet 3.0 API.");
+  }
+#endif
 
   recursiveEventLoop_ = true;
   do {

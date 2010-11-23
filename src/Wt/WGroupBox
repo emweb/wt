@@ -112,8 +112,6 @@ protected:
   virtual DomElementType domElementType() const;
 
   virtual void updateDom(DomElement& element, bool all);
-  virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
   virtual void propagateSetEnabled(bool enabled);
   virtual void propagateRenderOk(bool deep);
   virtual int firstChildIndex() const;

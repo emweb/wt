@@ -134,7 +134,7 @@ public:
    * Creates a renderer for the cartesian chart <i>chart</i>, for rendering
    * in the specified <i>rectangle</i> of the <i>painter</i>.
    */
-  WChart2DRenderer(const WCartesianChart *chart,
+  WChart2DRenderer(WCartesianChart *chart,
 		   WPainter& painter, const WRectF& rectangle);
 
   /*! \brief Destructor.
@@ -143,7 +143,7 @@ public:
 
   /*! \brief Returns the corresponding chart.
    */
-  const WCartesianChart *chart() const { return chart_; }
+  WCartesianChart *chart() { return chart_; }
 
   /*! \brief Returns a reference to the painter.
    */
@@ -316,7 +316,7 @@ protected:
   int segmentMargin() const { return segmentMargin_; }
 
 private:
-  const WCartesianChart *chart_;
+  WCartesianChart *chart_;
 
   WPainter& painter_;
   int       width_;

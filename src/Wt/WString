@@ -7,12 +7,15 @@
 #ifndef WSTRING_H_
 #define WSTRING_H_
 
+#include <Wt/WDllDefs.h>
+#include <Wt/WGlobal>
+
 #include <string>
 #include <vector>
 #include <iosfwd>
+#ifndef WT_NO_STD_LOCALE
 #include <locale>
-#include <Wt/WDllDefs.h>
-#include <Wt/WGlobal>
+#endif
 
 namespace Wt {
 
@@ -78,6 +81,7 @@ public:
    */
   WString();
 
+#ifndef WT_NO_STD_WSTRING
   /*! \brief Creates a %WString from a wide C string
    *
    * The wide string is implicitly converted to proper unicode. Note
@@ -85,11 +89,13 @@ public:
    * its width and encoding are platform dependent.
    */
   WString(const wchar_t *value);
+#endif
 
   /*! \brief Copy constructor
    */
   WString(const WString& other);
 
+#ifndef WT_NO_STD_WSTRING
   /*! \brief Creates a %WString from a wide C++ string
    *
    * The wide string is implicitly converted to proper unicode. Note
@@ -97,6 +103,7 @@ public:
    * its width and encoding are platform dependent.
    */
   WString(const std::wstring& value);
+#endif
 
   /*! \brief Creates a %WString from a C string.
    *
@@ -108,12 +115,14 @@ public:
    */
   WString(const char *value, CharEncoding encoding = LocalEncoding);
 
+#ifndef WT_NO_STD_LOCALE
   /*! \brief Creates a %WString from a C string.
    *
    * The C string is implicitly converted to unicode. The
    * string is interpreted within the character set of the given locale.
    */
   WString(const char *value, const std::locale &loc);
+#endif
 
 
   /*! \brief Creates a %WString from a C++ string.
@@ -126,12 +135,14 @@ public:
    */
   WString(const std::string& value, CharEncoding encoding = LocalEncoding);
 
+#ifndef WT_NO_STD_LOCALE
   /*! \brief Creates a %WString from a C++ string.
    *
    * The C++ string is implicitly converted to unicode. The
    * string is interpreted within the character set of the given locale.
    */
   WString(const std::string& value, const std::locale &loc);
+#endif
 
   /*! \brief Destructor
    */
@@ -175,6 +186,7 @@ public:
    */
   WString& operator+= (const WString& rhs);
 
+#ifndef WT_NO_STD_WSTRING
   /*! \brief Self-concatenation operator
    *
    * Appends a string to the current value. If the string was localized,
@@ -182,7 +194,9 @@ public:
    * string using the current locale.
    */
   WString& operator+= (const std::wstring& rhs);
+#endif
 
+#ifndef WT_NO_STD_WSTRING
   /*! \brief Self-concatenation operator
    *
    * Appends a string to the current value. If the string was localized,
@@ -190,6 +204,7 @@ public:
    * string using the current locale.
    */
   WString& operator+= (const wchar_t *rhs);
+#endif
 
   /*! \brief Self-concatenation operator
    *
@@ -262,6 +277,7 @@ public:
    */
   static WString tr(const std::string& key);
 
+#ifndef WT_NO_STD_WSTRING
   /*! \brief Returns the value as a wide C++ string.
    *
    * A localized string is resolved using the WApplication::localizedStrings().
@@ -269,6 +285,7 @@ public:
    * Argument place holders are substitued with actual arguments.
    */
   std::wstring value() const;
+#endif
 
   /*! \brief Returns the value as a narrow C++ string.
    *
@@ -282,8 +299,13 @@ public:
    *
    * \sa toUTF8()
    */
+#ifndef WT_NO_STD_LOCALE
   std::string narrow(const std::locale &loc = std::locale()) const;
+#else
+  std::string narrow() const;
+#endif
 
+#ifndef WT_NO_STD_WSTRING
   /*! \brief Returns the value as a wide C++ string.
    *
    * A localized string is resolved using the WApplication::localizedStrings().
@@ -291,6 +313,7 @@ public:
    * Argument place holders are substitued with actual arguments.
    */
   operator std::wstring() const;
+#endif
 
   /*! \brief Retuns whether the string is literal or localized.
    *
@@ -304,6 +327,7 @@ public:
    */
   const std::string key() const;
 
+#ifndef WT_NO_STD_WSTRING
   /*! \brief Substitutes the next positional argument with a string value.
    *
    * In the string, the \p n-th argument is referred to as using
@@ -315,6 +339,7 @@ public:
    * the shop.</tt>"
    */
   WString& arg(const std::wstring& value);
+#endif
 
   /*! \brief Substitutes the next positional argument with a string value.
    *
@@ -391,8 +416,15 @@ public:
 #ifdef WT_CNOR
   WString& operator+(const char *);
   WString& operator+(const WString &);
-  bool operator!= (const WString& rhs) const;
 #endif
+
+  /*! \brief Comparison operator
+   *
+   * Compares to strings and returns \c true if the strings are exactly
+   * the same. This may require evaluating a localized string in the
+   * current locale.
+   */
+  bool operator!= (const WString& rhs) const { return !(*this == rhs); }
 
   /** \brief An emtpy string.
    */
@@ -441,17 +473,21 @@ extern WString utf8(const std::string& value);
  */
 extern WT_API WString operator+ (const WString& lhs, const WString& rhs);
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Conatenate a WString with a C++ wide string
  *
  * \relates WString
  */
 extern WT_API WString operator+ (const WString& lhs, const std::wstring& rhs);
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Conatenate a WString with a C wide string
  *
  * \relates WString
  */
 extern WT_API WString operator+ (const WString& lhs, const wchar_t *rhs);
+#endif
 
 /*! \brief Conatenate a WStrin with a C++ string
  *
@@ -465,17 +501,21 @@ extern WT_API WString operator+ (const WString& lhs, const std::string& rhs);
  */
 extern WT_API WString operator+ (const WString& lhs, const char *rhs);
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Conatenate a C++ wide string with a WString
  *
  * \relates WString
  */
 extern WT_API WString operator+ (const std::wstring& lhs, const WString& rhs);
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Conatenate a C wide string with a WString
  *
  * \relates WString
  */
 extern WT_API WString operator+ (const wchar_t *lhs, const WString& rhs);
+#endif
 
 /*! \brief Conatenate a C++ string with a WString
  *
@@ -495,11 +535,13 @@ extern WT_API WString operator+ (const char *lhs, const WString& rhs);
  */
 extern WT_API bool operator== (const char *lhs, const WString& rhs);
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Compare a C wide string with a WString
  *
  * \relates WString
  */
 extern WT_API bool operator== (const wchar_t *lhs, const WString& rhs);
+#endif
 
 /*! \brief Compare a C++ string with a WString
  *
@@ -507,11 +549,13 @@ extern WT_API bool operator== (const wchar_t *lhs, const WString& rhs);
  */
 extern WT_API bool operator== (const std::string& lhs, const WString& rhs);
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Compare a C++ wide string with a WString
  *
  * \relates WString
  */
 extern WT_API bool operator== (const std::wstring& lhs, const WString& rhs);
+#endif
 
 /*! \brief Compare a C string with a WString
  *
@@ -519,11 +563,13 @@ extern WT_API bool operator== (const std::wstring& lhs, const WString& rhs);
  */
 extern WT_API bool operator!= (const char *lhs, const WString& rhs);
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Compare a C wide string with a WString
  *
  * \relates WString
  */
 extern WT_API bool operator!= (const wchar_t *lhs, const WString& rhs);
+#endif
 
 /*! \brief Compare a C++ string with a WString
  *
@@ -531,17 +577,21 @@ extern WT_API bool operator!= (const wchar_t *lhs, const WString& rhs);
  */
 extern WT_API bool operator!= (const std::string& lhs, const WString& rhs);
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Compare a C++ wide string with a WString
  *
  * \relates WString
  */
 extern WT_API bool operator!= (const std::wstring& lhs, const WString& rhs);
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 /*! \brief Output a WString to a C++ wide stream
  *
  * \relates WString
  */
 extern WT_API std::wostream& operator<< (std::wostream& lhs, const WString& rhs);
+#endif
 
 /*! \brief Output a WString to a C++ stream
  *

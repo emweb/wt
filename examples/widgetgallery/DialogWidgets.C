@@ -50,8 +50,10 @@ void DialogWidgets::populateSubMenu(WMenu *menu)
 {
   menu->addItem("WDialog", wDialog());
   menu->addItem("WMessageBox", wMessageBox());
+#ifndef WT_TARGET_JAVA
   menu->addItem("Ext Dialogs",
 		deferCreate(boost::bind(&DialogWidgets::eDialogs, this)));
+#endif
 }
 
 WWidget *DialogWidgets::wDialog()
@@ -97,6 +99,7 @@ WWidget *DialogWidgets::wMessageBox()
   return result;
 }
 
+#ifndef WT_TARGET_JAVA
 WWidget *DialogWidgets::eDialogs()
 {
   WContainerWidget *result = new WContainerWidget();
@@ -122,6 +125,7 @@ WWidget *DialogWidgets::eDialogs()
 
   return result;
 }
+#endif
 
 void DialogWidgets::messageBox1()
 {
@@ -221,6 +225,7 @@ void DialogWidgets::customModal()
   }
 }
 
+#ifndef WT_TARGET_JAVA
 void DialogWidgets::createExtMessageBox()
 {
   Ext::MessageBox *mb = new Ext::MessageBox();
@@ -327,4 +332,5 @@ void DialogWidgets::deleteExtDialog()
   }
   delete extDialog_;
 }
+#endif
 

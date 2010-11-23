@@ -39,9 +39,6 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
   {
     WPainter painter(paintDevice);
 
-    WPen pen;
-    pen.setCapStyle(FlatCap);
-
     int w, h;
 
     if (slider_->orientation() == Horizontal) {
@@ -58,21 +55,27 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
     /*
      * Draw inset slider groove, as three lines
      */
-    pen.setColor(WColor(0x89, 0x89, 0x89));
-    painter.setPen(pen);
+    WPen p1;
+    p1.setCapStyle(FlatCap);
+    p1.setColor(WColor(0x89, 0x89, 0x89));
+    painter.setPen(p1);
 
     painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2 - 2 + 0.5,
 		     w - WSlider::HANDLE_WIDTH/2, h/2 - 2 + 0.5);
 
-    pen.setColor(WColor(0xb7, 0xb7, 0xb7));
-    painter.setPen(pen);
+    WPen p2;
+    p2.setCapStyle(FlatCap);
+    p2.setColor(WColor(0xb7, 0xb7, 0xb7));
+    painter.setPen(p2);
 
     painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2 + 1 + 0.5,
 		     w - WSlider::HANDLE_WIDTH/2, h/2 + 1 + 0.5);
 
-    pen.setColor(WColor(0xd7, 0xd7, 0xd7));
-    pen.setWidth(2);
-    painter.setPen(pen);
+    WPen p3;
+    p3.setCapStyle(FlatCap);
+    p3.setColor(WColor(0xd7, 0xd7, 0xd7));
+    p3.setWidth(2);
+    painter.setPen(p3);
 
     painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2,
 		     w - WSlider::HANDLE_WIDTH/2, h/2);
@@ -89,6 +92,9 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
       double tickStep = ((double)w - WSlider::HANDLE_WIDTH)
 	/ (range / tickInterval);
 
+      WPen pen;
+      pen.setColor(WColor(0xd7, 0xd7, 0xd7));
+      pen.setCapStyle(FlatCap);
       pen.setWidth(1);
       painter.setPen(pen);
 

@@ -8,6 +8,7 @@
 #include "Wt/WLineEdit"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WStringUtil"
 
 #include "DomElement.h"
 #include "Utils.h"
@@ -207,9 +208,8 @@ WT_USTRING WLineEdit::selectedText() const
   if (selectionStart() != -1) {
     WApplication *app = WApplication::instance();
 
-    std::wstring v = text();
-    return v.substr(app->selectionStart(),
-		    app->selectionEnd() - app->selectionStart());
+    return WString::fromUTF8(UTF8Substr(text().toUTF8(), app->selectionStart(),
+		    app->selectionEnd() - app->selectionStart()));
   } else
     return WString::Empty;
 }

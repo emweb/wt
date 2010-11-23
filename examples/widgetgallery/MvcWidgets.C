@@ -56,6 +56,7 @@ void MvcWidgets::populateSubMenu(Wt::WMenu *menu)
   menu->addItem("Chart Views", viewsChart());
 }
 
+#ifndef WT_TARGET_JAVA
 void MvcWidgets::comboBoxAdd()
 {
   if (extComboBox_->currentIndex() == -1) {
@@ -64,6 +65,7 @@ void MvcWidgets::comboBoxAdd()
     stringList_->setStringList(sl);
   }
 }
+#endif
 
 WWidget *MvcWidgets::models()
 {
@@ -117,29 +119,29 @@ WWidget *MvcWidgets::proxyModels()
   filter->clicked().
     connect(this, &MvcWidgets::changeRegexp);
   
-  WAbstractItemModel *models[4];
-  WString headers[4];
+  std::vector<WAbstractItemModel*> models;
+  std::vector<WString> headers;
 
-  headers[0] = "<b>Source:</b>";
-  models[0] = cocktails;
+  headers.push_back(WString("<b>Source:</b>"));
+  models.push_back(cocktails);
 
-  headers[1] = "<b>Sorted proxy:</b>";
+  headers.push_back(WString("<b>Sorted proxy:</b>"));
   WSortFilterProxyModel *sortedCocktails = new WSortFilterProxyModel(this);
   sortedCocktails->setSourceModel(cocktails);
   sortedCocktails->setDynamicSortFilter(true);
   sortedCocktails->sort(0);
-  models[1] = sortedCocktails;
+  models.push_back(sortedCocktails);
 
-  headers[2] = "<b>Filtered proxy:</b>";
+  headers.push_back(WString("<b>Filtered proxy:</b>"));
   filteredCocktails = new WSortFilterProxyModel(this);
   filteredCocktails->setSourceModel(cocktails);
   filteredCocktails->setDynamicSortFilter(true);
   filteredCocktails->setFilterKeyColumn(0);
   filteredCocktails->setFilterRole(Wt::DisplayRole);
   filteredCocktails->setFilterRegExp(regexpFilter->text());
-  models[2] = filteredCocktails;
+  models.push_back(filteredCocktails);
 
-  headers[3] = "<b>Sorted and filtered proxy:</b>";
+  headers.push_back(WString("<b>Sorted and filtered proxy:</b>"));
   filteredSortedCocktails = new WSortFilterProxyModel(this);
   filteredSortedCocktails->setSourceModel(cocktails);
   filteredSortedCocktails->setDynamicSortFilter(true);
@@ -147,11 +149,11 @@ WWidget *MvcWidgets::proxyModels()
   filteredSortedCocktails->setFilterRole(Wt::DisplayRole);
   filteredSortedCocktails->setFilterRegExp(regexpFilter->text());
   filteredSortedCocktails->sort(0);
-  models[3] = filteredSortedCocktails;
+  models.push_back(filteredSortedCocktails);
 
   WTable *layout = new WTable(result);
 
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < headers.size(); ++i) {
     layout->columnAt(i)->setWidth(WLength(25, WLength::Percentage));
     layout->elementAt(0, i)->setPadding(4);
     layout->elementAt(0, i)->setContentAlignment(AlignCenter);
@@ -182,6 +184,7 @@ WWidget *MvcWidgets::viewsCombo()
   new WText("<h3>WSelectionBox</h3>", result);
   (new WSelectionBox(result))->setModel(stringList_);
 
+#ifndef WT_TARGET_JAVA
   // Ext::ComboBox
   new WText("<h3>Ext::ComboBox</h3>", result);
   extComboBox_ = new Ext::ComboBox(result);
@@ -190,6 +193,7 @@ WWidget *MvcWidgets::viewsCombo()
   WPushButton *pb = new WPushButton("Press here to add the edited value "
 				    "to the model", result);
   pb->clicked().connect(this, &MvcWidgets::comboBoxAdd);
+#endif
   
   return result;
 }

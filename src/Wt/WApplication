@@ -1760,6 +1760,11 @@ private:
 
   static const char *RESOURCES_URL;
 
+#ifdef WT_TARGET_JAVA
+  JSlot showLoadJS;
+  JSlot hideLoadJS;
+#endif
+
   friend class WebRenderer;
   friend class WebSession;
   friend class WebController;

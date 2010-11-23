@@ -49,6 +49,12 @@ public:
 
   /*! \brief Creates a rectangular area with given geometry.
    *
+   * The arguments are in pixel units.
+   */  
+  WRectArea(double x, double y, double width, double height);
+
+  /*! \brief Creates a rectangular area with given geometry.
+   *
    * The \p rect argument is in pixel units.
    */  
   WRectArea(const WRectF& rect);

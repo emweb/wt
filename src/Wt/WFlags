@@ -169,7 +169,7 @@ public:
 private:
   unsigned int flags_;
 
-  WFlags(int flags, bool unused): flags_(flags) {}
+  WFlags(int flags, bool): flags_(flags) {}
   inline static WFlags<EnumType> createFromInt(int flags) {
     return WFlags(flags, false);
   }

@@ -95,6 +95,7 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
     painter_(0),
     needRepaint_(false),
     sizeChanged_(false),
+    areaImageAdded_(false),
     repaintFlags_(0),
     areaImage_(0),
     renderWidth_(0), renderHeight_(0)
@@ -305,9 +306,11 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 
 void WPaintedWidget::updateDom(DomElement& element, bool all)
 {
-  if (all && areaImage_)
+  if ((all && areaImage_) || areaImageAdded_) {
     element.addChild(((WWebWidget *)areaImage_)
 		     ->createDomElement(WApplication::instance()));
+    areaImageAdded_ = false;
+  }
 
   WInteractWidget::updateDom(element, all);
 }
@@ -398,6 +401,8 @@ void WPaintedWidget::createAreaImage()
     areaImage_->setMargin(0, Top);
     areaImage_->resize(renderWidth_, renderHeight_);
     areaImage_->setPopup(true);
+
+    areaImageAdded_ = true;
   }
 }
 

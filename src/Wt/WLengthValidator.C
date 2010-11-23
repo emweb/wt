@@ -88,7 +88,11 @@ WString WLengthValidator::invalidTooLongText() const
 WValidator::State WLengthValidator::validate(WT_USTRING& input) const
 {
 #ifndef WT_TARGET_JAVA
+#ifndef WT_NO_STD_WSTRING
   std::wstring text = input.value();
+#else
+  std::string text = input.narrow();
+#endif
 #else
   std::string text = input;
 #endif

@@ -12,6 +12,7 @@
  * We use this to defer widget creation until needed, which also defers
  * loading auxiliary javascript libraries.
  */
+#if !defined(WT_TARGET_JAVA)
 template <typename Function>
 class DeferredWidget : public Wt::WContainerWidget
 {
@@ -33,5 +34,16 @@ DeferredWidget<Function> *deferCreate(Function f)
 {
   return new DeferredWidget<Function>(f);
 }
+#else
+class DeferredWidget : public Wt::WContainerWidget {
+public:
+  DeferredWidget(boost::bound f) {}
+};
+DeferredWidget *deferCreate(boost::bound b) 
+{
+  return new DeferredWidget(b);
+}
+
+#endif
 
 #endif // DEFERRED_WIDGET_H_

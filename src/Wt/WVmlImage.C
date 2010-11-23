@@ -96,6 +96,7 @@ void WVmlImage::init()
 void WVmlImage::done()
 {
   finishPaths();
+  stopClip();
 }
 
 void WVmlImage::setChanged(WFlags<ChangeFlag> flags)
@@ -228,15 +229,13 @@ void WVmlImage::drawPath(const WPainterPath& path)
 
 #ifdef DEBUG_BBOX
   tmp << "m" << myzround(bbox.left()) << "," << myzround(bbox.top())
-      << "l" << myzround(bbox.right()) << "," << myzround(bbox.bottom())
-      << std::endl;
+      << "l" << myzround(bbox.right()) << "," << myzround(bbox.bottom());
 
   if (!activePaths_[thisPath].bbox.isEmpty()) {
     const WRectF& bbox = activePaths_[thisPath].bbox;
 
     tmp << "m" << myzround(bbox.left()) << "," << myzround(bbox.top())
-	<< "l" << myzround(bbox.right()) << "," << myzround(bbox.bottom())
-	<< std::endl;
+	<< "l" << myzround(bbox.right()) << "," << myzround(bbox.bottom());
   }
 #endif // DEBUG_BBOX
 
@@ -745,7 +744,6 @@ void WVmlImage::processClipping()
 
 std::string WVmlImage::rendered()
 {
-  stopClip();
 
   if (paintUpdate_)
     return rendered_.str();

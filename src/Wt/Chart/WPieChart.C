@@ -19,6 +19,7 @@
 #include "Wt/WSvgImage"
 #include "Wt/WPaintDevice"
 #include "Wt/WPainter"
+#include "Wt/WPolygonArea"
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 
@@ -515,7 +516,7 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 
 void WPieChart::drawSlices(WPainter& painter,
 			   double cx, double cy, double r, double total,
-			   bool ignoreBrush) const
+			   bool shadow) const
 {
   double currentAngle = startAngle_;
 
@@ -530,7 +531,7 @@ void WPieChart::drawSlices(WPainter& painter,
     double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
     double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
-    if (!ignoreBrush)
+    if (!shadow)
       painter.setBrush(brush(i));
 
     if (v/total != 1.0)
@@ -540,12 +541,54 @@ void WPieChart::drawSlices(WPainter& painter,
     else
       painter.drawEllipse(pcx - r, pcy - r, r*2, r*2);
 
+    /*
+     * See if we need to add an interactive area
+     */
+    if (!shadow) {
+      WModelIndex index = model()->index(i, dataColumn_);
+      
+      boost::any toolTip = index.data(ToolTipRole);
+      if (!toolTip.empty()) {
+	const int SEGMENT_ANGLE = 20;
+
+	WPolygonArea *area = new WPolygonArea();
+	WTransform t = painter.worldTransform();
+
+	area->addPoint(t.map(WPointF(pcx, pcy)));
+
+	double sa = std::fabs(spanAngle);
+
+	for (double d = 0; d < sa; d += SEGMENT_ANGLE) {
+	  double a;
+	  if (spanAngle < 0)
+	    a = currentAngle - d;
+	  else
+	    a = currentAngle + d;
+	  area->addPoint(t.map(WPointF(pcx + r * std::cos(-a / 180.0 * M_PI),
+				       pcy + r * std::sin(-a / 180.0 * M_PI))));
+	}
+
+	double a = currentAngle + spanAngle;
+	area->addPoint(t.map(WPointF(pcx + r * std::cos(-a / 180.0 * M_PI),
+				     pcy + r * std::sin(-a / 180.0 * M_PI))));
+
+	area->setToolTip(asString(toolTip));
+
+	addDataPointArea(index, area);
+      }
+    }
+
     double endAngle = currentAngle + spanAngle;
     if (endAngle < 0)
       endAngle += 360;
 
     currentAngle = endAngle;
   }
+}
+
+void WPieChart::addDataPointArea(const WModelIndex& index, WAbstractArea *area) const
+{
+  (const_cast<WPieChart *>(this))->addArea(area);
 }
 
 WBrush WPieChart::darken(const WBrush& brush)
@@ -591,6 +634,9 @@ void WPieChart::drawOuter(WPainter& painter, double pcx, double pcy, double r,
 
 void WPieChart::paintEvent(WPaintDevice *paintDevice)
 {
+  while (!areas().empty())
+    delete areas().front();
+
   WPainter painter(paintDevice);
   painter.setRenderHint(WPainter::Antialiasing, true);
   paint(painter);

@@ -56,7 +56,9 @@ void FormWidgets::populateSubMenu(WMenu *menu)
   menu->addItem("WTextEdit",
 		deferCreate(boost::bind(&FormWidgets::wTextEdit, this)));
   menu->addItem("WFileUpload", wFileUpload());
+#ifndef WT_TARGET_JAVA
   menu->addItem("WPopupMenu", wPopupMenu());
+#endif
 }
 
 WWidget *FormWidgets::wPushButton()
@@ -326,14 +328,13 @@ WWidget *FormWidgets::wSuggestionPopup()
   new WText(tr("formwidgets-WSuggestionPopup"), result);
 
   // options for email address suggestions
-  WSuggestionPopup::Options contactOptions
-    = { "<span class=\"highlight\">", // highlightBeginTag
-	"</span>",                    // highlightEndTag
-	',',           // listSeparator      (for multiple addresses)
-	" \\n",        // whitespace
-	"-., \"@\\n;", // wordSeparators     (within an address)
-	", "           // appendReplacedText (prepare next email address)
-  };
+  WSuggestionPopup::Options contactOptions;
+  contactOptions.highlightBeginTag = "<span class=\"highlight\">";
+  contactOptions.highlightEndTag = "</span>";
+  contactOptions.listSeparator = ',';
+  contactOptions.whitespace = " \\n";
+  contactOptions.wordSeparators = "-., \"@\\n;";
+  contactOptions.appendReplacedText = ", ";
 
   WSuggestionPopup *sp =
     new WSuggestionPopup(WSuggestionPopup::generateMatcherJS(contactOptions),
@@ -378,7 +379,7 @@ WWidget *FormWidgets::wFileUpload()
 
   topic("WFileUpload", result);
   new WText(tr("formwidgets-WFileUpload"), result);
-  WFileUpload *fu = new WFileUpload(result);
+  WFileUpload *const fu = new WFileUpload(result);
   fu->setProgressBar(new WProgressBar());
   fu->changed().connect(fu, &WFileUpload::upload);
   ed_->showSignal(fu->changed(), "File upload changed");
@@ -388,6 +389,7 @@ WWidget *FormWidgets::wFileUpload()
   return result;
 }
 
+#ifndef WT_TARGET_JAVA
 WWidget *FormWidgets::wPopupMenu()
 {
   WContainerWidget *result = new WContainerWidget();
@@ -412,4 +414,5 @@ WWidget *FormWidgets::wPopupMenu()
   
   return result;
 }
+#endif
 

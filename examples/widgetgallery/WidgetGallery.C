@@ -21,19 +21,9 @@
 
 using namespace Wt;
 
-WidgetGallery::WidgetGallery(const WEnvironment& env)
-  : WApplication(env)
+WidgetGallery::WidgetGallery()
+  : WContainerWidget()
 {
-  setTitle("Wt widgets demo");
-  setCssTheme("polished");
-
-  addMetaHeader("viewport", "width=700, height=1200");
-
-  // load text bundles (for the tr() function)
-  messageResourceBundle().use(appRoot() + "text");
-  messageResourceBundle().use(appRoot() + "charts");
-  messageResourceBundle().use(appRoot() + "treeview");
-
   contentsStack_ = new WStackedWidget();
   // Show scrollbars when needed ...
   contentsStack_->setOverflow(WContainerWidget::OverflowAuto);
@@ -55,7 +45,9 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   addToMenu(menu, "Basics", new BasicControls(eventDisplayer));
   addToMenu(menu, "Form Widgets", new FormWidgets(eventDisplayer));
   addToMenu(menu, "Form Validators", new Validators(eventDisplayer));
+#ifndef WT_TARGET_JAVA
   addToMenu(menu, "Ext Widgets", new ExtWidgets(eventDisplayer));
+#endif
   addToMenu(menu, "Vector Graphics", new GraphicsWidgets(eventDisplayer));
   addToMenu(menu, "Special Purpose", new SpecialPurposeWidgets(eventDisplayer));
   addToMenu(menu, "Dialogs", new DialogWidgets(eventDisplayer));
@@ -67,7 +59,7 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   /*
    * Add it all inside a layout
    */
-  WHBoxLayout *horizLayout = new WHBoxLayout(root());
+  WHBoxLayout *horizLayout = new WHBoxLayout(this);
   WVBoxLayout *vertLayout = new WVBoxLayout;
 
   horizLayout->addWidget(menu, 0);
@@ -76,13 +68,6 @@ WidgetGallery::WidgetGallery(const WEnvironment& env)
   vertLayout->addWidget(eventDisplayer);
 
   horizLayout->setResizable(0, true);
-
-  /*
-   * Set our style sheet last, so that it loaded after the ext stylesheets.
-   */
-  useStyleSheet("style/everywidget.css");
-  useStyleSheet("style/dragdrop.css");
-  useStyleSheet("style/combostyle.css");
 }
 
 void WidgetGallery::addToMenu(WMenu *menu, const WString& name,

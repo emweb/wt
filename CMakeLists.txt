@@ -60,6 +60,8 @@ OPTION(ENABLE_HARU "Enable Haru Free PDF Library, which is used to provide suppo
 OPTION(ENABLE_EXT "Build Wt Ext library with JavaScript-only widgets (http://extjs.com/)" ON)
 OPTION(ENABLE_SQLITE "Build SQLite3 backend for Wt::Dbo" ON)
 OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
+OPTION(WT_NO_STD_LOCALE "Build Wt ro run on a system without std::locale support" OFF)
+OPTION(WT_NO_STD_WSTRING "Build Wt ro run on a system without std::wstring support" OFF)
 
 IF(NOT SHARED_LIBS)
   IF(WIN32)

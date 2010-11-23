@@ -49,7 +49,7 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
   new WText(tr("specialpurposewidgets-WGoogleMap"), result);
 
   WTable* layout = new WTable(result);
-  WGoogleMap* map = new WGoogleMap(layout->elementAt(0,0));
+  WGoogleMap *const map = new WGoogleMap(layout->elementAt(0,0));
   map->resize(700, 500);
 
   map->setMapTypeControl(WGoogleMap::DefaultControl);
@@ -191,7 +191,7 @@ WWidget *SpecialPurposeWidgets::wSound()
 
   new WText("The beep will be repeated 3 times.", result);
   new WBreak(result);
-  WSound *sound = new WSound("sounds/beep.mp3", result);
+  WSound *const sound = new WSound("sounds/beep.mp3", result);
   sound->setLoops(3);
   WPushButton *playButton = new WPushButton("Beep!", result);
   playButton->setMargin(5);

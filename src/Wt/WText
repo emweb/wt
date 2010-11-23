@@ -223,6 +223,7 @@ private:
   WLength     *WT_ARRAY padding_;
 
 protected:
+  virtual void           render(WFlags<RenderFlag> flags);
   virtual void           updateDom(DomElement& element, bool all);
   virtual DomElementType domElementType() const;
   virtual void           propagateRenderOk(bool deep);

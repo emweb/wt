@@ -83,6 +83,8 @@ private:
   bool doWebSocketHandShake(const Request& req);
   bool parseCrazyWebSocketKey(const std::string& key, ::uint32_t& number);
 
+  Server *server_;
+
   /// The current state of the request parser.
   enum http_state
   {

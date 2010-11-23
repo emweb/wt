@@ -21,6 +21,8 @@
 #include "Request.h"
 #include "Reply.h"
 #include "Server.h"
+#include "WebController.h"
+
 #undef min
 
 /*
@@ -45,6 +47,7 @@ namespace http {
 namespace server {
 
 RequestParser::RequestParser(Server *server)
+  : server_(server)
 {
   reset();
 }
@@ -110,7 +113,9 @@ bool RequestParser::parseBody(Request& req, ReplyPtr reply,
 			      Buffer::const_iterator& begin,
 			      Buffer::const_iterator end)
 {
-  if (req.isWebSocketRequest()) {
+  static bool doWebSockets = server_->controller()->configuration().webSockets();
+
+  if (doWebSockets && req.isWebSocketRequest()) {
     Request::State state = parseWebSocketMessage(req, reply, begin, end);
 
     if (state == Request::Error)

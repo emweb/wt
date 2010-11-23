@@ -232,6 +232,13 @@ WApplication::WApplication(const WEnvironment& env)
 
 void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
 {
+#ifdef WT_TARGET_JAVA
+  if (!loadingIndicator_) {
+    showLoadingIndicator_.connect(showLoadJS);
+    hideLoadingIndicator_.connect(hideLoadJS);
+  }
+#endif
+
   delete loadingIndicator_;
   loadingIndicator_ = indicator;
 
@@ -244,19 +251,15 @@ void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
     hideLoadingIndicator_.connect(loadingIndicatorWidget_, &WWidget::hide);
 #else
     // stateless learning does not yet work
-    JSlot *showLoadJS = new JSlot();
-    showLoadJS->setJavaScript
+    showLoadJS.setJavaScript
       ("function(o,e) {"
        "" WT_CLASS ".inline('" + loadingIndicatorWidget_->id() + "');"
        "}");
-    showLoadingIndicator_.connect(*showLoadJS);
 
-    JSlot *hideLoadJS = new JSlot();
-    hideLoadJS->setJavaScript
+    hideLoadJS.setJavaScript
       ("function(o,e) {"
        "" WT_CLASS ".hide('" + loadingIndicatorWidget_->id() + "');"
        "}");
-    hideLoadingIndicator_.connect(*hideLoadJS);
 #endif
 
     loadingIndicatorWidget_->hide();

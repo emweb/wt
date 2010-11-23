@@ -12,6 +12,7 @@
 #include "Wt/WEvent"
 
 #include "WebRequest.h"
+#include "rapidxml/rapidxml.hpp"
 
 namespace {
   using namespace Wt;
@@ -234,10 +235,17 @@ WString WKeyEvent::text() const
 {
   int c = charCode();
   if (c != 0) {
-    wchar_t buf[2];
-    buf[0] = charCode();
-    buf[1] = 0;
-    return WString(buf);
+    char buf[10]; // 4 is enough
+    char *ptr = buf;
+    try {
+      rapidxml::xml_document<>::insert_coded_character<0>(ptr, charCode());
+    } catch (rapidxml::parse_error& e) {
+      if (WApplication::instance())
+        WApplication::instance()->log("error")
+          << "WKeyEvent charcode: " << e.what();
+      return WString();
+    }
+    return WString::fromUTF8(std::string(buf, ptr));
   } else
     return WString();
 }

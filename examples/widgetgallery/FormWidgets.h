@@ -36,7 +36,9 @@ private:
   Wt::WWidget *wSuggestionPopup();
   Wt::WWidget *wTextEdit();
   Wt::WWidget *wFileUpload();
+#ifndef WT_TARGET_JAVA
   Wt::WWidget *wPopupMenu();
+#endif
 
   void addColorElement(Wt::WStandardItemModel* model,
 		       std::string name, 

@@ -18,6 +18,13 @@ WRectArea::WRectArea(int x, int y, int width, int height)
   : x_(x), y_(y), width_(width), height_(height)
 { }
 
+WRectArea::WRectArea(double x, double y, double width, double height)
+  : x_(static_cast<int>(x)),
+    y_(static_cast<int>(y)),
+    width_(static_cast<int>(width)),
+    height_(static_cast<int>(height))
+{ }
+
 WRectArea::WRectArea(const WRectF& rect)
   : x_(static_cast<int>(rect.x())),
     y_(static_cast<int>(rect.y())),

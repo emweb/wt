@@ -66,12 +66,13 @@ private:
   Wt::WMessageBox *messageBox_;
   Wt::WText *status_;
 
+#ifndef WT_TARGET_JAVA
   void createExtDialog();
   void createExtMessageBox();
   void createExtProgress();
   void deleteExtDialog();
   Wt::Ext::Dialog *extDialog_;
-
+#endif
 };
 
 #endif

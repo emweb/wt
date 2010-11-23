@@ -8,6 +8,8 @@
 #include <Wt/WText>
 #include <sstream>
 
+#include <boost/algorithm/string.hpp>
+
 using namespace Wt;
 
 ControlsWidget::ControlsWidget(EventDisplayer *ed, bool hasSubMenu)
@@ -34,21 +36,37 @@ std::string ControlsWidget::escape(const std::string &name) const
   return ss.str();
 }
 
-std::string ControlsWidget::doxygenAnchor(const std::string &classname) const
+std::string ControlsWidget::docAnchor(const std::string &classname) const
 {
   std::stringstream ss;
+
+#if !defined(WT_TARGET_JAVA)
   ss << "<a href=\"http://www.webtoolkit.eu/wt/doc/reference/html/class"
      << escape("Wt::" + classname)
      << ".html\" target=\"_blank\">doc</a>";
+#else
+  std::string cn = boost::replace_all(classname, "Chart::","chart/");
+  ss << "<a href=\"http://www.webtoolkit.eu/"
+     << "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/"
+     << classname
+    << ".html\" target=\"_blank\">doc</a>";
+#endif
 
   return ss.str();
 }
 
 std::string ControlsWidget::title(const std::string& classname) const
 {
-  return "<span class=\"title\">" + classname + "</span> "
-    + "<span class=\"doc\">["
-    + doxygenAnchor(classname) + "]</span>";
+  std::string cn;
+#if defined(WT_TARGET_JAVA)
+    cn = boost::replace_all(classname, "Chart::","");
+#else
+    cn = classname;
+#endif
+
+    return std::string("<span class=\"title\">") + cn + "</span> "
+      + "<span class=\"doc\">["
+      + docAnchor(classname) + "]</span>";
 }
 
 void ControlsWidget::topic(const std::string &classname,

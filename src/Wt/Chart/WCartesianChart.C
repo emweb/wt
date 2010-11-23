@@ -11,6 +11,7 @@
 #include "Wt/Chart/WCartesianChart"
 #include "Wt/Chart/WStandardPalette"
 
+#include "Wt/WAbstractArea"
 #include "Wt/WAbstractItemModel"
 #include "Wt/WPainter"
 #include "Wt/WText"
@@ -204,13 +205,17 @@ void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 }
 
 WChart2DRenderer *WCartesianChart::createRenderer(WPainter& painter,
-						 const WRectF& rectangle) const
+						  const WRectF& rectangle) const
 {
-  return new WChart2DRenderer(this, painter, rectangle);
+  return new WChart2DRenderer(const_cast<WCartesianChart *>(this),
+			      painter, rectangle);
 }
 
 void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
 {
+  while (!areas().empty())
+    delete areas().front();
+
   WPainter painter(paintDevice);
   painter.setRenderHint(WPainter::Antialiasing);
   paint(painter);
@@ -318,6 +323,13 @@ WWidget* WCartesianChart::createLegendItemWidget(int index)
   legendItem->addWidget(label);
 
   return legendItem;
+}
+
+void WCartesianChart::addDataPointArea(const WDataSeries& series,
+				       const WModelIndex& xIndex,
+				       WAbstractArea *area)
+{
+  addArea(area);
 }
 
 void WCartesianChart::initLayout(const WRectF& rectangle)
