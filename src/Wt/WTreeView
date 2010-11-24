@@ -289,6 +289,7 @@ public:
   virtual void setRowHeight(const WLength& rowHeight);
   virtual void setHeaderHeight(const WLength& height, bool multiLine = false);
   virtual void setColumnBorder(const WColor& color);
+  virtual void setColumnHidden(int column, bool hidden);
 
   virtual int pageCount() const;
   virtual int pageSize() const;

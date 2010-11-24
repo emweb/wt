@@ -203,6 +203,14 @@ public:
    */
   const std::vector<FieldInfo>& fields() const;
 
+  /*! \brief Returns the FieldInfo structure for a column
+   */
+  const FieldInfo &fieldInfo(int column);
+
+  /*! \brief Returns the field name for the a column
+   */
+  const std::string &fieldName(int column);
+
   /*! \brief Returns the number of columns.
    *
    * Returns the number of columns that have been added using

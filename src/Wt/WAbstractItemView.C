@@ -94,14 +94,14 @@ private:
 };
 
 WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view, 
-					  int anId, 
-					  int column)
+					  int anId)
   : id(anId),
     sortOrder(AscendingOrder),
     alignment(AlignLeft),
     headerAlignment(AlignLeft),
     extraHeaderWidget(0),
     sorting(view->sorting_),
+    hidden(false),
     itemDelegate_(0)
 {
   width = WLength(150);
@@ -110,6 +110,36 @@ WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view,
   styleRule->templateWidget()->resize(width.toPixels(), WLength::Auto);
 
   WApplication::instance()->styleSheet().addRule(styleRule);
+}
+
+int WAbstractItemView::visibleColumnIndex(int modelColumn) const
+{
+  if (columns_[modelColumn].hidden)
+    return -1;
+
+  int j = 0;
+
+  for (int i = 0; i < modelColumn; ++i)
+    if (!columns_[i].hidden)
+      ++j;
+
+  return j;
+}
+
+int WAbstractItemView::modelColumnIndex(int visibleColumn) const
+{
+  int j = -1;
+
+  for (int i = 0; i <= visibleColumn; ++i) {
+    ++j;
+    while (j < columns_.size() && columns_[j].hidden)
+      ++j;
+
+    if (j >= columns_.size())
+      return -1;
+  }
+
+  return j;
 }
 
 std::string WAbstractItemView::ColumnInfo::styleClass() const
@@ -229,13 +259,16 @@ void WAbstractItemView::setRootIndex(const WModelIndex& rootIndex)
 
   scheduleRerender(NeedRerender);
 
-  // make sure columnCount() is correct
-  while (static_cast<int>(columns_.size()) > model_->columnCount(rootIndex_)) {
-    delete columns_.back().styleRule;
-    columns_.erase(columns_.begin() + columns_.size() - 1);
+  unsigned modelColumnCount = model_->columnCount(rootIndex_);
+
+  while (columns_.size() > modelColumnCount) {
+    int i = columns_.size() - 1;
+    delete columns_[i].styleRule;
+    columns_.erase(columns_.begin() + i);
   }
 
-  columnInfo(model_->columnCount(rootIndex_) - 1);
+  while (columns_.size() < modelColumnCount)
+    columns_.push_back(createColumnInfo(columns_.size()));
 }
 
 void WAbstractItemView::setRowHeight(const WLength& rowHeight)
@@ -256,6 +289,26 @@ void WAbstractItemView::updateColumnWidth(int columnId, int width)
     columnInfo(column).width = width;
     columnResized_.emit(column, columnInfo(column).width);
   }
+}
+
+void WAbstractItemView::setColumnHidden(int column, bool hidden)
+{
+  columnInfo(column).hidden = hidden;
+}
+
+bool WAbstractItemView::isColumnHidden(int column) const
+{
+  return columnInfo(column).hidden;
+}
+
+void WAbstractItemView::hideColumn(int column)
+{
+  setColumnHidden(column, true);
+}
+
+void WAbstractItemView::showColumn(int column)
+{
+  setColumnHidden(column, false);
 }
 
 void WAbstractItemView::initDragDrop()
@@ -313,7 +366,7 @@ void WAbstractItemView::setHeaderAlignment(int column, AlignmentFlag alignment)
 {
   columnInfo(column).headerAlignment = alignment;
 
-  if (renderState_ >= NeedRerenderHeader)
+  if (columnInfo(column).hidden || renderState_ >= NeedRerenderHeader)
     return;
 
   WContainerWidget *wc = dynamic_cast<WContainerWidget *>(headerWidget(column));
@@ -360,7 +413,7 @@ void WAbstractItemView::setItemDelegate(WAbstractItemDelegate *delegate)
 }
 
 void WAbstractItemView::setItemDelegateForColumn(int column,
-					 WAbstractItemDelegate *delegate)
+						 WAbstractItemDelegate *delegate)
 {
   columnInfo(column).itemDelegate_ = delegate;
   delegate->closeEditor()
@@ -372,7 +425,8 @@ WAbstractItemDelegate *WAbstractItemView::itemDelegateForColumn(int column) cons
   return columnInfo(column).itemDelegate_;
 }
 
-WAbstractItemDelegate *WAbstractItemView::itemDelegate(const WModelIndex& index) const
+WAbstractItemDelegate *WAbstractItemView::itemDelegate(const WModelIndex& index)
+  const
 {
   return itemDelegate(index.column());
 }
@@ -489,12 +543,20 @@ WText *WAbstractItemView::headerSortIconWidget(int column)
   if (!columnInfo(column).sorting)
     return 0;
 
-  return dynamic_cast<WText *>(headerWidget(column)->find("sort"));
+  WWidget *hw = headerWidget(column);
+  if (hw)
+    return dynamic_cast<WText *>(hw->find("sort"));
+  else
+    return 0;
 }
 
 WText *WAbstractItemView::headerTextWidget(int column)
 {
-  return dynamic_cast<WText *>(headerWidget(column)->find("text"));
+  WWidget *hw = headerWidget(column);
+  if (hw)
+    return dynamic_cast<WText *>(hw->find("text"));
+  else
+    return 0;
 }
 
 WWidget *WAbstractItemView::createExtraHeaderWidget(int column)
@@ -534,7 +596,7 @@ SortOrder WAbstractItemView::sortOrder() const
 
 int WAbstractItemView::columnById(int columnid) const
 {
-  for (int i = 0; i < columnCount(); ++i)
+  for (unsigned i = 0; i < columns_.size(); ++i)
     if (columnInfo(i).id == columnid)
       return i;
 
@@ -546,17 +608,25 @@ int WAbstractItemView::columnCount() const
   return columns_.size();
 }
 
+int WAbstractItemView::visibleColumnCount() const
+{
+  int result = 0;
+
+  for (unsigned i = 0; i < columns_.size(); ++i)
+    if (!columns_[i].hidden)
+      ++result;
+
+  return result;
+}
+
 WAbstractItemView::ColumnInfo WAbstractItemView::createColumnInfo(int column)
   const
 {
-  return ColumnInfo(this, nextColumnId_++, column);
+  return ColumnInfo(this, nextColumnId_++);
 }
 
 WAbstractItemView::ColumnInfo& WAbstractItemView::columnInfo(int column) const
 {
-  while (column >= (int)columns_.size())
-    columns_.push_back(createColumnInfo(columns_.size()));
-
   return columns_[column];
 }
 
@@ -584,7 +654,7 @@ void WAbstractItemView::sortByColumn(int column, SortOrder order)
 void WAbstractItemView::setSortingEnabled(bool enabled)
 {
   sorting_ = enabled;
-  for (int i = 0; i < columnCount(); ++i)
+  for (unsigned i = 0; i < columns_.size(); ++i)
     columnInfo(i).sorting = enabled;
 
   scheduleRerender(NeedRerenderHeader);
@@ -744,30 +814,34 @@ void WAbstractItemView::scheduleRerender(RenderState what)
   askRerender();
 }
 
+int WAbstractItemView::headerLevel(int column) const
+{
+  return static_cast<int>
+    (asNumber(model_->headerData(column, Horizontal, LevelRole)));
+}
+
 WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
 {
   static const char *OneLine = "<div>&nbsp;</div>";
 
-  int headerLevel
-    = model_ 
-    ? static_cast<int>(asNumber(model_->headerData(column, Horizontal,
-						   LevelRole))) : 0;
+  int headerLevel = model_ ? this->headerLevel(column) : 0;
 
   int rightBorderLevel = headerLevel;
-  if (model_ && column + 1 < columnCount()) {
-    WFlags<HeaderFlag> flagsLeft = model_->headerFlags(column);
-    WFlags<HeaderFlag> flagsRight = model_->headerFlags(column + 1);
+  if (model_) {
+    int rightColumn = modelColumnIndex(visibleColumnIndex(column) + 1);
+    if (rightColumn != -1) {
+      WFlags<HeaderFlag> flagsLeft = model_->headerFlags(column);
+      WFlags<HeaderFlag> flagsRight = model_->headerFlags(rightColumn);
+      
+      int rightHeaderLevel = this->headerLevel(rightColumn);
 
-    int rightHeaderLevel 
-      = static_cast<int>(asNumber(model_->headerData(column + 1, Horizontal,
-						     LevelRole)));
-
-    if (flagsLeft & ColumnIsExpandedRight)
-      rightBorderLevel = headerLevel + 1;
-    else if (flagsRight & ColumnIsExpandedLeft)
-      rightBorderLevel = rightHeaderLevel + 1;
-    else
-      rightBorderLevel = std::min(headerLevel, rightHeaderLevel);
+      if (flagsLeft & ColumnIsExpandedRight)
+	rightBorderLevel = headerLevel + 1;
+      else if (flagsRight & ColumnIsExpandedLeft)
+	rightBorderLevel = rightHeaderLevel + 1;
+      else
+	rightBorderLevel = std::min(headerLevel, rightHeaderLevel);
+    }
   }
 
   ColumnInfo& info = columnInfo(column);
@@ -854,8 +928,8 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
     resizeHandle->mouseWentDown().connect(resizeHandleMDownJS_);
 
     bool ie = wApp->environment().agentIsIE();
-    WContainerWidget *parent = ie ? w
-      : dynamic_cast<WContainerWidget *>(result->widget(0));
+    WContainerWidget *parent
+      = ie ? w : dynamic_cast<WContainerWidget *>(result->widget(0));
     parent->insertWidget(0, resizeHandle);
 
     if (ie) {
@@ -896,11 +970,9 @@ int WAbstractItemView::headerLevelCount() const
   int result = 0;
 
   if (model_)
-    for (unsigned int i = 0; i < columns_.size(); ++i) {
-      int l = static_cast<int>(asNumber(model_->headerData(i, Horizontal,
-							   LevelRole)));
-      result = std::max(result, l);			
-    }
+    for (unsigned int i = 0; i < columns_.size(); ++i)
+      if (!columns_[i].hidden)
+	result = std::max(result, headerLevel(i));
 
   return result + 1;
 }
@@ -914,7 +986,7 @@ void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
   int lineCount = headerLevelCount();
   WLength headerHeight = headerLineHeight_ * lineCount;
 
-  if (columnCount() > 0) {
+  if (columns_.size() > 0) {
     WWidget *w = headerWidget(0);
     if (w)
       w->askRerender(); // for layout

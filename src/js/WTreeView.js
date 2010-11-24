@@ -138,6 +138,9 @@ WT_DECLARE_WT_MEMBER
 	 var cl = hc.childNodes[i].className.split(' ')[0],
 	     r = WT.getCssRule('#' + el.id + ' .' + cl);
 
+	 if (r.style.display == 'none')
+	   continue;
+
 	 // 7 = 2 * 3px (padding) + 1px border
 	 allw_1 += WT.pxself(r, 'width') + 7;
        }

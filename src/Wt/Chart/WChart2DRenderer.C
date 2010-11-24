@@ -603,8 +603,7 @@ public:
 	painter.save();
 	painter.translate(hv(p));
 
-	WPen pen;
-	pen = series.markerPen(); // assignment, for Java
+	WPen pen = WPen(series.markerPen());
 
 	boost::any penColor = yIndex.data(MarkerPenColorRole);
 	if (penColor.empty() && xIndex.isValid())
@@ -615,8 +614,7 @@ public:
 
 	painter.setPen(pen);
 
-	WBrush brush;
-	brush = series.markerBrush(); // assignment, for Java
+	WBrush brush = WBrush(series.markerBrush());
 
 	boost::any brushColor = yIndex.data(MarkerBrushColorRole);
 	if (brushColor.empty() && xIndex.isValid())

@@ -86,6 +86,7 @@ public:
   virtual void setHeaderHeight(const WLength& height, bool multiLine = false);
   virtual void setColumnBorder(const WColor& color);
   virtual void resize(const WLength& width, const WLength& height);
+  virtual void setColumnHidden(int column, bool hidden);
 
   virtual int pageCount() const;
   virtual int pageSize() const;

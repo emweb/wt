@@ -419,6 +419,30 @@ public:
    */
   WLength columnWidth(int column) const;
 
+  /*! \brief Changes the visibility of a column.
+   *
+   * \sa isColumnHidden()
+   */
+  virtual void setColumnHidden(int column, bool hide);
+
+  /*! \brief Returns if a column is hidden.
+   *
+   * \sa setColumnHidden()
+   */
+  bool isColumnHidden(int column) const;
+
+  /*! \brief Hides a column.
+   *
+   * \sa showColumn(), setColumnHidden()
+   */
+  void hideColumn(int column);
+
+  /*! \brief Shows a column.
+   *
+   * \sa hideColumn(), setColumnHidden()
+   */
+  void showColumn(int column);
+
   /*! \brief Sets the column border color
    *
    * The default border color is defined by the CSS theme. 
@@ -680,12 +704,12 @@ protected:
     AlignmentFlag headerAlignment;
     WLength width;
     WWidget *extraHeaderWidget;
-    bool sorting;
+    bool sorting, hidden;
     WAbstractItemDelegate *itemDelegate_;
 
     std::string styleClass() const;
 
-    ColumnInfo(const WAbstractItemView *view, int id, int column);
+    ColumnInfo(const WAbstractItemView *view, int id);
   };
 
   enum RenderState {
@@ -716,10 +740,16 @@ protected:
   virtual void modelLayoutChanged();
   void modelReset();
 
-  int columnCount() const;
-  virtual ColumnInfo createColumnInfo(int column) const;
   ColumnInfo& columnInfo(int column) const;
   int columnById(int columnid) const;
+
+  int columnCount() const;
+  int visibleColumnCount() const;
+  int visibleColumnIndex(int modelColumn) const;
+  int modelColumnIndex(int visibleColumn) const;
+
+  virtual ColumnInfo createColumnInfo(int column) const;
+
   WWidget *createHeaderWidget(WApplication *app, int column);
   WText *headerTextWidget(int column);
 
@@ -810,6 +840,7 @@ private:
 
   virtual WContainerWidget* headerContainer() = 0;
 
+  int headerLevel(int column) const;
   int headerLevelCount() const;
 
   void expandColumn(int columnid);

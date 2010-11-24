@@ -1286,9 +1286,22 @@ void WTreeView::setColumnWidth(int column, const WLength& width)
   if (!app->environment().ajax() && column == 0 && !width.isAuto()) {
     double total = 0;
     for (int i = 0; i < columnCount(); ++i)
-      total += columnWidth(i).toPixels();
+      if (!columnInfo(i).hidden)
+	total += columnWidth(i).toPixels();
 
     resize(total, height());
+  }
+}
+
+void WTreeView::setColumnHidden(int column, bool hidden)
+{
+  if (columnInfo(column).hidden != hidden) {
+    WAbstractItemView::setColumnHidden(column, hidden);
+
+    WWidget *toHide = columnInfo(column).styleRule->templateWidget();
+    toHide->setHidden(hidden);
+
+    setColumnWidth(column, columnWidth(column));
   }
 }
 

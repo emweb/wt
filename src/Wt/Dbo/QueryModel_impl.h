@@ -271,6 +271,18 @@ const std::vector<FieldInfo>& QueryModel<Result>::fields() const
 }
 
 template <class Result>
+const FieldInfo &QueryModel<Result>::fieldInfo(int column)
+{
+  return fields_[columns_[column].fieldIdx_];
+}
+
+template <class Result>
+const std::string &QueryModel<Result>::fieldName(int column)
+{
+  return columns_[column].field_;
+}
+
+template <class Result>
 WFlags<ItemFlag> QueryModel<Result>::columnFlags(int column) const
 {
   return columns_[column].flags_;

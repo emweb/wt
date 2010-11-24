@@ -380,7 +380,8 @@ void WTableView::setSpannerCount(const Side side, const int count)
   case Left: {
     int total = 0;
     for (int i = 0; i < count; i++)
-      total += (int)columnInfo(i).width.toPixels() + 7;
+      if (!columnInfo(i).hidden)
+	total += (int)columnInfo(i).width.toPixels() + 7;
     table_->setOffsets(total, Left);
     firstColumn_ = count;
     break;
@@ -451,8 +452,13 @@ void WTableView::addSection(const Side side,
     ColumnWidget *w = new ColumnWidget(this, firstColumn() - 1);
     for (unsigned i = 0; i < items.size(); ++i)
       w->addWidget(items[i]);
-    table_->setOffsets(table_->offset(Left).toPixels()
-		       - columnWidth(w->column()).toPixels() - 7, Left);
+
+    if (!columnInfo(w->column()).hidden)
+      table_->setOffsets(table_->offset(Left).toPixels()
+			 - columnWidth(w->column()).toPixels() - 7, Left);
+    else
+      w->hide();
+
     --firstColumn_;
     break;
   }
@@ -460,6 +466,9 @@ void WTableView::addSection(const Side side,
     ColumnWidget *w = new ColumnWidget(this, lastColumn() + 1);
     for (unsigned i = 0; i < items.size(); ++i)
       w->addWidget(items[i]);
+    if (columnInfo(w->column()).hidden)
+      w->hide();
+
     ++lastColumn_;
     break;
   }
@@ -507,8 +516,9 @@ void WTableView::removeSection(const Side side)
   case Left: {
     ColumnWidget *w = columnContainer(0);
 
-    table_->setOffsets(table_->offset(Left).toPixels()
-		       + columnWidth(w->column()).toPixels() + 7, Left);
+    if (!columnInfo(w->column()).hidden)
+      table_->setOffsets(table_->offset(Left).toPixels()
+			 + columnWidth(w->column()).toPixels() + 7, Left);
     ++firstColumn_;
 
     for (int i = w->count() - 1; i >= 0; --i)
@@ -671,7 +681,8 @@ void WTableView::reset()
 
   int total = 0;
   for (int i = 0; i < columnCount(); ++i)
-    total += (int)columnInfo(i).width.toPixels() + 7;
+    if (!columnInfo(i).hidden)
+      total += (int)columnInfo(i).width.toPixels() + 7;
 
   headers_->resize(total, headers_->height());
   canvas_->resize(total, canvasHeight());
@@ -804,6 +815,8 @@ void WTableView::rerenderHeader()
       w->setFloatSide(Left);
       headers_->addWidget(w);
       w->resize(columnInfo(i).width.toPixels() + 1, WLength::Auto);
+      if (columnInfo(i).hidden)
+	w->hide();
     }
   } else { // Plain HTML mode
     for (int i = 0; i < columnCount(); ++i) {
@@ -812,6 +825,8 @@ void WTableView::rerenderHeader()
       cell->addWidget(w);
       w->resize(columnInfo(i).width.toPixels() + 1, WLength::Auto);
       cell->resize(columnInfo(i).width.toPixels() + 1, w->height());
+      if (columnInfo(i).hidden)
+	cell->hide();
     }
   }
 
@@ -819,10 +834,39 @@ void WTableView::rerenderHeader()
     modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
 }
 
+void WTableView::setColumnHidden(int column, bool hidden)
+{
+  if (columnInfo(column).hidden != hidden) {
+    WAbstractItemView::setColumnHidden(column, hidden);
+
+    int delta = static_cast<int>(columnInfo(column).width.toPixels()) + 7;
+    if (hidden)
+      delta = -delta;
+
+    headers_->resize(headers_->width().toPixels() + delta, headers_->height());
+    canvas_->resize(canvas_->width().toPixels() + delta, canvas_->height());
+
+    if (isColumnRendered(column))
+      updateColumnOffsets();
+    else
+      if (column < firstColumn())
+	setSpannerCount(Left, spannerCount(Left));
+
+    WWidget *hc = headers_->widget(column);
+    if (!ajaxMode())
+      hc->parent()->setHidden(hidden);
+    else
+      hc->setHidden(hidden);
+  }
+}
+
 void WTableView::setColumnWidth(int column, const WLength& width)
 {
   int delta = (int)(width.toPixels() - columnInfo(column).width.toPixels());
   columnInfo(column).width = width;
+
+  if (columnInfo(column).hidden)
+    delta = 0;
 
   if (ajaxMode()) {
     headers_->resize(headers_->width().toPixels() + delta, headers_->height());
@@ -905,10 +949,14 @@ void WTableView::updateColumnOffsets()
       w->setOffsets(totalRendered, Left);
       w->resize(ci.width.toPixels() + 7, WLength::Auto);
 
-      totalRendered += (int)columnInfo(i).width.toPixels() + 7;
+      if (!columnInfo(i).hidden)
+	totalRendered += (int)columnInfo(i).width.toPixels() + 7;
+
+      w->setHidden(columnInfo(i).hidden);
     }
 
-    total += (int)columnInfo(i).width.toPixels() + 7;
+    if (!columnInfo(i).hidden)
+      total += (int)columnInfo(i).width.toPixels() + 7;
   }
 
   canvas_->resize(total, canvasHeight());
@@ -1050,7 +1098,8 @@ void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
   int width = 0;
 
   for (int i = start; i < start + count; ++i)
-    width += (int)columnInfo(i).width.toPixels() + 7;
+    if (!columnInfo(i).hidden)
+      width += (int)columnInfo(i).width.toPixels() + 7;
 
   columns_.erase(columns_.begin() + start, columns_.begin() + start + count);
 
@@ -1314,15 +1363,16 @@ WModelIndex WTableView::translateModelIndex(const WMouseEvent& event)
 
   int total = 0;
   for (int i = 0; i < columnCount(); i++) {
-    total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+    if (!columnInfo(i).hidden)
+      total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+
     if (event.widget().x < total) {
       column = i;
       break;
     }
   }
 
-  if (column >= 0
-      && row >= 0 && row < model()->rowCount(rootIndex()))
+  if (column >= 0 && row >= 0 && row < model()->rowCount(rootIndex()))
     return model()->index(row, column, rootIndex());
   else
     return WModelIndex();
