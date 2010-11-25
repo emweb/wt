@@ -9,6 +9,20 @@
  *
  */
 
+#if WIN32
+// Don't link to boost_random
+#define BOOST_RANDOM_NO_LIB
+// And when compiling, don't add declspec to the classnames.
+// We have our own implementation of random_device.cpp (older boosts
+// didn't support windows well)
+#ifdef BOOST_ALL_DYN_LINK
+#undef BOOST_ALL_DYN_LINK
+#endif
+#ifdef BOOST_RANDOM_DYN_LINK
+#undef BOOST_RANDOM_DYN_LINK
+#endif
+#endif
+
 #include <boost/lexical_cast.hpp>
 #include <boost/nondet_random.hpp>
 #include <string>

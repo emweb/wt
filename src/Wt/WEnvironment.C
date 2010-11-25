@@ -198,10 +198,13 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
     else
       agent_ = Chrome5;
   } else if (userAgent_.find("Safari") != std::string::npos) {
-    if (userAgent_.find("iPhone") != std::string::npos) {
+    if (userAgent_.find("iPhone") != std::string::npos
+	|| userAgent_.find("iPad") != std::string::npos) {
       agent_ = MobileWebKitiPhone;
     } else if (userAgent_.find("Android") != std::string::npos) {
       agent_ = MobileWebKitAndroid;
+    } else if (userAgent_.find("Mobile") != std::string::npos) {
+      agent_ = MobileWebKit;
     } else if (userAgent_.find("Version") == std::string::npos) {
       if (userAgent_.find("Arora") != std::string::npos)
 	agent_ = Arora;

@@ -23,7 +23,9 @@
 
 #include "EmwebLoadingIndicator.h"
 
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
 #include <boost/thread.hpp>
+#endif
 
 using namespace Wt;
 
@@ -86,7 +88,11 @@ void StyleLayout::loadingIndicatorSelected(WString indicator)
 }
 
 void StyleLayout::load(Wt::WMouseEvent) {
+#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+#else
+  sleep(2);
+#endif // WT_THREADED
 }
 
 WWidget *StyleLayout::wBoxLayout()

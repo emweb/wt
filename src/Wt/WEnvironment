@@ -94,8 +94,9 @@ public:
     Chrome4 = 4204,             //!< Chrome 4
     Chrome5 = 4205,             //!< Chrome 5 or later
     Arora = 4300,               //!< Arora
-    MobileWebKitiPhone = 4400,  //!< Mobile WebKit iPhone
-    MobileWebKitAndroid = 4450, //!< Mobile WebKit Android
+    MobileWebKit = 4400,        //!< Mobile WebKit
+    MobileWebKitiPhone = 4450,  //!< Mobile WebKit iPhone/iPad
+    MobileWebKitAndroid = 4500, //!< Mobile WebKit Android
     Konqueror = 5000,           //!< Konqueror
     Gecko = 6000,               //!< Gecko
     Firefox = 6100,             //!< Firefox 2 or older
@@ -519,7 +520,7 @@ public:
    * \sa agent()
    */
   bool agentIsMobileWebKit() const {
-    return agent_ >= MobileWebKitiPhone && agent_ < Konqueror;
+    return agent_ >= MobileWebKit && agent_ < Konqueror;
   }
 
   /*! \brief Returns whether the user agent is Safari.

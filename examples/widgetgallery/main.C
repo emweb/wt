@@ -14,13 +14,14 @@ using namespace Wt;
 WApplication *createApplication(const WEnvironment& env)
 {
   WApplication* app = new WApplication(env);
-  
+ 
+  app->setCssTheme("polished");
+ 
   WHBoxLayout *layout = new WHBoxLayout(app->root());
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(new WidgetGallery());
 
   app->setTitle("Wt widgets demo");
-  app->setCssTheme("polished");
 
   app->addMetaHeader("viewport", "width=700, height=1200");
 

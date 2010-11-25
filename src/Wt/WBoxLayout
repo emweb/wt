@@ -292,7 +292,7 @@ public:
    *
    * \sa setResizable()
    */
-  bool isResizable(int row) const;
+  bool isResizable(int index) const;
 
   Impl::Grid& grid() { return grid_; }
 

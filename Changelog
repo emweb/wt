@@ -1,11 +1,11 @@
-10-24-2010:
+24-11-2010:
 	* WAbstractItemView: added support for column hiding
 
-10-23-2010:
+23-11-2010:
 	* Chart/WCartesianChart: support ToolTipRole data using WAbstractArea
 	areas
 
-10-15-2010:
+15-11-2010:
 	* Dbo/Sesion: add rereadAll()
 
 	* Wt.js: fix IE6-8 history management regression

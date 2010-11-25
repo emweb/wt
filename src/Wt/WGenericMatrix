@@ -14,6 +14,7 @@
 #pragma warning( disable : 4244 )
 #pragma warning( disable : 4267 )
 #endif
+#define BOOST_SERIALIZATION_NO_LIB
 #include <boost/numeric/ublas/matrix.hpp>
 #ifdef _MSC_VER
 #pragma warning( pop )
@@ -22,9 +23,6 @@
 #include <boost/numeric/ublas/io.hpp>
 
 namespace Wt {
-
-typedef boost::numeric::ublas::row_major RowMajor;
-typedef boost::numeric::ublas::column_major ColumnMajor;
 
 /*! \class WGenericMatrix Wt/WGenericMatrix Wt/WGenericMatrix
  * \brief A generalized matrix class

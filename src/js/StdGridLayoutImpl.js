@@ -40,12 +40,44 @@ WT_DECLARE_WT_MEMBER
      return result;
    };
 
+   this.getColumn = function(columni) {
+     var widget = WT.getElement(id),
+         t = widget.firstChild;
+
+     var i, j, jl, chn=t.childNodes;
+     for (i=0, j=0, jl=chn.length; j<jl; j++) {
+       var col=chn[j]; // for finding a column
+
+       if (WT.hasTag(col, 'COLGROUP')) { // IE
+	 j=-1;
+	 chn=col.childNodes;
+	 jl=chn.length;
+       }
+
+       if (!WT.hasTag(col, 'COL'))
+	 continue;
+
+       if (col.className != 'Wt-vrh') {
+	 if (i == columni) {
+	   return col;
+	 } else
+	   ++i;
+       }
+     }
+
+     return null;
+   };
+
+   /*
+    * FIXME: we should merge getColumn() functionality here to
+    * avoid repeatedly calling it
+    */
    this.adjustRow = function(row, height) {
      if (row.style.height != height+'px')
        row.style.height = height+'px';
 
-     var tds = row.childNodes, j, jl, td;
-     for (j=0, jl = tds.length; j<jl; ++j) {
+     var tds = row.childNodes, j, jl, td, col;
+     for (j=0, col=-1, jl = tds.length; j<jl; ++j) {
        td=tds[j];
 
        var k = height;
@@ -54,6 +86,9 @@ WT_DECLARE_WT_MEMBER
 
        if (k <= 0)
 	 k=0;
+
+       if (td.className != 'Wt-vrh')
+	 ++col;
 
        td.style.height = k+'px';
        if (td.style['verticalAlign'] || td.childNodes.length == 0)
@@ -84,8 +119,10 @@ WT_DECLARE_WT_MEMBER
 
        if (ch.wtResize) {
 	 var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
-	 ch.style.position = 'absolute';
-	 ch.style.width = w+'px';
+	 if (self.getColumn(col).style.width != '') {
+	   ch.style.position = 'absolute';
+	   ch.style.width = w+'px';
+	 }
 	 ch.wtResize(ch, w, k);
        } else if (ch.style.height != k+'px') {
 	 ch.style.height = k+'px';
@@ -280,33 +317,7 @@ WT_DECLARE_WT_MEMBER
  function(WT, id, config) {
    var self = this;
 
-   function getColumn(columni) {
-     var widget = WT.getElement(id),
-         t = widget.firstChild;
-
-     var i, j, jl, chn=t.childNodes;
-     for (i=0, j=0, jl=chn.length; j<jl; j++) {
-       var col=chn[j]; // for finding a column
-
-       if (WT.hasTag(col, 'COLGROUP')) { // IE
-	 j=-1;
-	 chn=col.childNodes;
-	 jl=chn.length;
-       }
-
-       if (!WT.hasTag(col, 'COL'))
-	 continue;
-
-       if (col.className != 'Wt-vrh') {
-	 if (i == columni) {
-	   return col;
-	 } else
-	   ++i;
-       }
-     }
-
-     return null;
-   }
+   var getColumn = self.getColumn;
 
    function getColumnWidth(col, columni) {
      /* col.offsetWidth = 0 in webkit/chrome */
