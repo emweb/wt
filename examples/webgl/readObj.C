@@ -2,9 +2,10 @@
 #include <fstream>
 #include <iostream>
 #include <boost/tokenizer.hpp>
-#include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#if 0
+#include <boost/bind.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
@@ -13,7 +14,6 @@ namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 namespace phoenix = boost::phoenix;
 
-#if 0
 void readObj(const std::string &fname,
              std::vector<double> &data)
 {

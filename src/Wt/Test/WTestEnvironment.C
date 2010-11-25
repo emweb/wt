@@ -77,6 +77,8 @@ void WTestEnvironment::init(EntryPointType type)
 WTestEnvironment::~WTestEnvironment()
 {
   delete WebSession::Handler::instance();
+  theSession_.reset();
+
   delete controller_;
   delete configuration_;
 }

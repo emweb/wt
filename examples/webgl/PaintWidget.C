@@ -11,8 +11,11 @@
 
 using namespace Wt;
 
+// To avoid copying large constant data around, the data points are stored
+// in a global variable.
 extern std::vector<double> data;
 
+// Calculates the centerpoint of the data. This is where the camera looks at.
 void centerpoint(double &x, double &y, double &z)
 {
   double minx, miny, minz;
@@ -110,8 +113,8 @@ void PaintWidget::initializeGL()
   // one for texture coordinates).
   // Note that if you use indexed buffers, you cannot have indexes
   // larger than 65K, due to the limitations of WebGL.
-  objVertexBuffer_ = createBuffer();
-  bindBuffer(ARRAY_BUFFER, objVertexBuffer_);
+  objBuffer_ = createBuffer();
+  bindBuffer(ARRAY_BUFFER, objBuffer_);
   bufferDatafv(ARRAY_BUFFER, data.begin(), data.end(), STATIC_DRAW);
 
   // Set the clear color to a transparant background
@@ -123,29 +126,29 @@ void PaintWidget::initializeGL()
   depthFunc(LEQUAL);
 }
 
+void PaintWidget::resizeGL(int width, int height)
+{
+  // Set the viewport size.
+  viewport(0, 0, width, height);
+
+  // Set projection matrix to some fixed values
+  WMatrix4x4 proj;
+  proj.perspective(45, ((double)width)/height, 1, 40);
+  uniformMatrix4(pMatrixUniform_, proj);
+}
+
 // The paintGL function is executed every time the canvas is to be
 // repainted. For example: when the camera location is modified,
 // an animated object is changed, ...
 void PaintWidget::paintGL()
 {
-  // Set the viewport size.
-  // FIXME: should REALLY be able to call this without needing to specify
-  //        width and height of the canvas
-  viewport(0, 0, 500, 500);
-
   // Clear color an depth buffers
   clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
-  // All of our scene is drawn using one single shader
-  useProgram(shaderProgram_);
 
   // Configure the shader: set the uniforms
   // Uniforms are 'configurable constants' in a shader: they are
   // identical for every point that has to be drawn.
-  // Set projection matrix to some fixed values
-  WMatrix4x4 proj;
-  proj.perspective(45, 1, 1, 40);
-  uniformMatrix4(pMatrixUniform_, proj);
   // Set the camera transformation to the value of a client-side JS matrix
   uniformMatrix4(cMatrixUniform_, jsMatrix_);
   // Often, a model matrix is used to move the model around. We're happy
@@ -162,12 +165,12 @@ void PaintWidget::paintGL()
   // Wt provides methods to calculate the transposed inverse of a matrix,
   // when client-side JS matrices are involved. Here, we inverse-transpose
   // the product of the client-side camera matrix and the model matrix.
-  uniformNormalMatrix4(nMatrixUniform_, jsMatrix_, modelMatrix);
+  uniformMatrix4(nMatrixUniform_, (jsMatrix_ * modelMatrix).inverted().transposed());
 
   // Configure the shaders: set the attributes.
   // Attributes are 'variables' within a shader: they vary for every point
   // that has to be drawn. All are stored in one VBO.
-  bindBuffer(ARRAY_BUFFER, objVertexBuffer_);
+  bindBuffer(ARRAY_BUFFER, objBuffer_);
   // Configure the vertex attributes:
   vertexAttribPointer(vertexPositionAttribute_,
       3,     // size: Every vertex has an X, Y anc Z component
@@ -189,10 +192,6 @@ void PaintWidget::paintGL()
 
   // Now draw all the triangles.
   drawArrays(TRIANGLES, 0, data.size()/6);
-}
-
-void PaintWidget::resizeGL(int width, int height)
-{
 }
 
 void PaintWidget::setShaders(const std::string &vertexShader,

@@ -1,5 +1,6 @@
 NOTE
 
-This webgl example is a preview of how webgl will work in Wt. THE WEBGL
-IMPLEMENTATION IS NOT YET COMPLETED, AND THIS EXAMPLE WILL NOT RUN.
+WebGL is a pretty new feature of Wt. The interface is not yet final, so
+you may need to modify your applications later if you start using WGLWidget
+now. Apart from that, the demos should work on WebGL enabled browsers.
 

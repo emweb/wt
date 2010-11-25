@@ -9,11 +9,10 @@
 
 #include <Wt/WInteractWidget>
 #include <Wt/WGenericMatrix>
-#include <boost/type_traits/is_enum.hpp>
 
 namespace Wt {
 
-#if 0
+#if 1
 #define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {alert('error " << __FUNCTION__ << ": ' + err); debugger;}}\n";} while(false)
 #else
 #define GLDEBUG
@@ -26,6 +25,85 @@ class WImage;
 // considered as a technology preview, and we welcome comments regarding
 // this interface.
 // Expect this interface to change.
+// TODO: provide a mechanism to write your own JavaScript
+
+/*! \class WGLWidget Wt/WGLWidget Wt/WGLWidget
+ *  \brief WebGL support class
+ *
+ * The WGLWidget class is an interface to the HTML5 WebGL infrastructure. Its
+ * implementation started based on the working drafts of the Khronos group, and
+ * will be updated as the standard stabilizes.
+ *
+ * The goal of the WGLWidget class is to provide a method to render 3D
+ * structures in the browser, where rendering and rerendering is normally
+ * done in JavaScript without interaction from the server, unless the
+ * scene requires updates.
+ *
+ * This widget is work in progress. The API may change in the future because
+ * of new features, reorganizations or changes in the WebGL draft.
+ *
+ * For this purpose, the JavaScript functions to render the class are cached
+ * on the browser. There are four functions that you may implement in a
+ * specialization of this class:
+ * <ul>
+ * <li>initializeGL(): this function is executed only once, right after the
+ *     successful detection of WebGL in the browser. (note: in future versions,
+ *     it may be re-executed when the webglcontextlost signal is fired, but
+ *     this is currently not yet implemented). This is the ideal location to
+ *     compose shader programs, send VBO's to the client, extract uniform and
+ *     attribute locations, ... Due to the presence of VBO's, this function
+ *     may generate a large response to the client.
+ * <li>resizeGL(): this function is executed whenever the canvas dimensions
+ *     change. A change in canvas size will require you to invoke the
+ *     viewport() function again, as well as recalculate the projection
+ *     matrices (especially when the aspect ratio has changed). Thie
+ *     resizeGL() function is therefore the ideal location to set those
+ *     properties.
+ *     The resizeGL() function is invoked automatically on every resize,
+ *     and after the first initializeGL() invocation. Additional invocations
+ *     may be triggered by calling repaint() with the RESIZE_GL flag.
+ * <li>paintGL(): this is the workhorse. It is executed every time that the
+ *     scene is to be redrawn. You can use the VBO's and shaders prepared
+ *     in the initializeGL() phase. Usually, this function sets uniforms
+ *     and attributes, links attributes to VBO's, applies textures, and
+ *     draws primitives.
+ *     You may also create local programs, buffers, ... Remeber that this
+ *     function is executed a lot of times, so every buffer/program created
+ *     in this function should also be destroyed to avoid memory leaks.
+ *     This function is transmitted once to the client, and is executed
+ *     when the scene needs to be redrawn. Redraws may be triggered from
+ *     mouse events, timer triggers, events on e.g. a video element, or
+ *     whatever other event.
+ *     The paintGL() function can be updated through invoking repaintGL()
+ *     with the PAINT_GL flag.
+ * <li>updateGL(): VBO's, programs, uniforms, GL properties, or anything
+ *     else set during intializeGL() are not necessarily immutable. If
+ *     you want to change, add, remove or reconfigure those properties,
+ *     the execution of an updateGL() function can be triggered by invoking
+ *     repaintGL() with the UPDATE_GL flag. This signals that updateGL()
+ *     needs to be evaluated - just once.
+ * </ul>
+ *
+ * The WebGL functions are intended to be used exclusively from within the
+ * invocation of the four callback functions mentioned above. In order to
+ * manually trigger the execution of these function, use the repaintGL().
+ *
+ * A WGLWidget must be given a size explicitly, or must be put inside a
+ * layout manager that manages its width and height. The behaviour of a
+ * WGLWidget that was not given a size is undefined.
+ *
+ *
+ * Client side matrices.
+ * The WGLWidget has a mechanism to use client-side modifiable matrices
+ * in the render functions. These matrices can be used identically to the
+ * 'constant', with the advantage that there is no need to have a
+ * roundtrip to the server to redraw the scene when they are changed.
+ * As such, they are ideal for mouse-based camera manipulations, timer
+ * triggered animations, or object manipulations.
+ *
+ * Note: the client side matrices are currently not yet communicated back
+ * to the server, but that is an implementation idea for the future.
+ */
 class WT_API WGLWidget: public WInteractWidget
 {
 public:
@@ -35,19 +113,152 @@ public:
   typedef std::string Buffer;
   typedef std::string UniformLocation;
   typedef std::string Texture;
-  typedef std::string JavaScriptMatrix4x4;
 
+  /*! \brief A client-side JavaScript matrix
+   *
+   * A JavaScriptMatrix has methods that make it possible to do client-side
+   * calculations on matrices.
+   *
+   * Important: only the jsRef() of the return value from a call to
+   * createJavaScriptMatrix() is a variable name that can be used 
+   * in custom JavaScript to modify a matrix from external scripts.
+   * The jsRef() of return values of operations should not be
+   * used as (they refer to unnamed temporary objects - rvalues in
+   * C++-lingo).
+   */
+  class JavaScriptMatrix4x4 {
+  public:
+    // Create an identity matrix
+    JavaScriptMatrix4x4(const std::string &jsVariable);
+    JavaScriptMatrix4x4();
+    JavaScriptMatrix4x4(const JavaScriptMatrix4x4 &other);
+
+    JavaScriptMatrix4x4 &operator=(const JavaScriptMatrix4x4 &rhs);
+
+    std::string jsRef() const { return jsRef_; }
+
+    JavaScriptMatrix4x4 inverted() const;
+    JavaScriptMatrix4x4 transposed() const;
+
+    JavaScriptMatrix4x4 operator*(const WGenericMatrix<double, 4, 4> &m) const;
+
+  private:
+    std::string jsRef_;
+  };
+
+  /*! \brief Construct a WebGL widget.
+   *
+   * Before the first rendering, you must apply a size to the WGLWidget.
+   *
+   * /code
+   * /endcode
+   */
   WGLWidget(WContainerWidget *parent);
+
+  /*! \brief Destructor
+   */
   ~WGLWidget();
 
-  DomElement *createDomElement(WApplication *app);
-
-  void getDomChanges(std::vector<DomElement *>& result, WApplication *app);
-
-  virtual void paintGL();
-  virtual void resizeGL(int width, int height);
+  /*! \brief Initialize the WebGL state when the widget is first shown.
+   *
+   * initializeGL() is called once, when the widget is first rendered. It
+   * usually creates most of the WebGL related state: shaders, VBOs,
+   * uniform locations, ...
+   *
+   * If this state is to be updated during the lifetime of the widget,
+   * you should specialize the updateGL() to accomodate for this.
+   *
+   * Note: in a future version, this method will probably also be invoked
+   * on contextrestore events.
+   */
   virtual void initializeGL();
-  
+
+  /*! \brief Act on resize events
+   *
+   * Usually, this method only contains functions to set the viewport
+   * and the projection matrix (as this is aspect ration dependent).
+   *
+   * resizeGL() is rendered after initializeGL, and whenever widget is
+   * resized. After this method finishes, the widget is repainted with
+   * the cached client-side paint function.
+   */
+  virtual void resizeGL(int width, int height);
+
+  /*! \brief Update the client-side painting function.
+   *
+   * This method is invoked client-side when a repaint is required,
+   * i.e. when the repaintSlot() (a JavaScript-side JSlot) is triggered.
+   * Typical examples are: after mouse-based camera movements, after
+   * a timed update of a camera or an object's position, after
+   * a resize event (resizeGL() will also be called then), after
+   * an animation event, ... In many cases, this function will be
+   * executed client-side many many times.
+   *
+   * Using the WebGL functions from this class, you construct a scene.
+   * The implementation tracks all JavaScript calls that need to be
+   * performed to draw the scenes, and will replay them verbatim on
+   * every trigger of the repaintSlot(). There are a few mechanisms
+   * that may be employed to change what is rendered without updating
+   * the paintGL() cache:
+   * <ul>
+   * <li>Client-side matrices may be used to change camera viewpoints,
+   *     manipilate separate object's model transformation matrices, ...
+   *     </li>
+   * <li>Shader sources can be updated without requiring the paint
+   *     function to be renewed</li>
+   * </ul>
+   *
+   * Updating the paintGL() cache is usually not too expensive; the VBOs,
+   * which are large in many cases, are already at the client side, while
+   * the paintGL() code only draws the VBOs. Of course, if you have to
+   * draw many separate objects, the paintGL() JS code may become large
+   * and updating is more expensive.
+   *
+   * In order to update the paintGL() cache, call repaintGL() with
+   * the PAINT_GL parameter, which will cause the invocation of this
+   * method.
+   */
+  virtual void paintGL();
+
+  /*! \brief Update state set in initializeGL()
+   *
+   * Invoked when repaint is called with the UPDATE_GL call.
+   *
+   * This is intended to be executed when you want to change programs,
+   * 'constant' uniforms, or even VBO's, ... without resending already
+   * initialized data. It is a mechanism to make changes to what you've
+   * set in intializeGL(). For every server-side invocation of this method,
+   * the result will be rendered client-side exactly once.
+   */
+  virtual void updateGL();
+
+  /*! \brief Specifies what WebGL function needs to be updated
+   */
+  enum ClientSideRenderer {PAINT_GL = 1,  //!< refresh paintGL()
+                           RESIZE_GL = 2, //!< refresh resizeGL()
+                           UPDATE_GL = 4  //!< refresh updateGL()
+  };
+
+  /*
+   * Request invocation of resizeGL, paintGL and/or updateGL.
+   *
+   * If invoked with PAINT_GL, the client-side cached paint function
+   * is updated. If invoked with RESIZE_GL or UPDATE_GL, the code
+   * will be executed once.
+   *
+   * If invoked with multiple flags set, the order of execution will be
+   * updateGL(), resizeGL(), paintGL().
+   */
+  void repaintGL(WFlags<ClientSideRenderer> which);
+
+  void resize(const WLength &width, const WLength &height);
+
+
+
+  /*! \brief The enourmous GLenum
+   *
+   * This enum contains all numeric constants defined by the WebGL standard.
+   */
   enum GLenum {
     /* ClearBufferMask */
     DEPTH_BUFFER_BIT               = 0x00000100,
@@ -471,119 +682,413 @@ public:
   };
   
   
+  /*! @name WebGL methods
+   * The WebGL methods are mostly 1-on-1 translated to the identical
+   * JavaScript call. You can use the WebGL methods in your resizeGL(),
+   * paintGL() and updateGL() specializations. Wt takes care that data,
+   * arguments, ... are transfered to the client side and that the equivalent
+   * JavaScript WebGL funtion is executed.
+   * @{
+   */
+  /*! \brief GL function to activate an existing texture
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glActiveTexture.xml">
+   * glActiveTexture() OpenGL ES manpage</a>
+   */
   void activeTexture(GLenum texture);
+
+  /*! \brief GL function to attach a shader to a program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glAttachShader.xml">
+   * glAttachShader() OpenGL ES manpage</a>
+   */
   void attachShader(Program program, Shader shader);
-  void bindAttribLocation(Program program, unsigned index, const std::string &name);
+
+  /*! \brief GL function to bind an attribute to a given location
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBindAttribLocation.xml">
+   * glBindAttribLocation() OpenGL ES manpage</a>
+   */
+  void bindAttribLocation(Program program, unsigned index,
+                          const std::string &name);
+
+  /*! \brief GL function to bind a buffer to a target
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBindBuffer.xml">
+   * glBindBuffer() OpenGL ES manpage</a>
+   */
   void bindBuffer(GLenum target, Buffer buffer);
+
   //void bindFramebuffer(GLenum target, WebGLFramebuffer framebuffer);
   //void bindRenderbuffer(GLenum target, WebGLRenderbuffer renderbuffer);
+
+  /*! \brief GL function to bind a texture to a target
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBindTexture.xml">
+   * glBindTexture() OpenGL ES manpage</a>
+   */
   void bindTexture(GLenum target, Texture texture);
+
+  /*! \brief GL function to set the blending color
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBlendColor.xml">
+   * glBlendColor() OpenGL ES manpage</a>
+   */
   void blendColor(double red, double green, double blue, double alpha);
+
+  /*! \brief GL function to set the blending equation
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBlendEquation.xml">
+   * glBlendEquation() OpenGL ES manpage</a>
+   */
   void blendEquation(GLenum mode);
+
+  /*! \brief GL function that sets separate blending functions for RGB and alpha
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBlendEquationSeparate.xml">
+   * glBlendEquationSeparate() OpenGL ES manpage</a>
+   */
   void blendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
+
+  /*! \brief GL function to configure the blending function
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBlendFunc.xml">
+   * glBlendFunc() OpenGL ES manpage</a>
+   */
   void blendFunc(GLenum sfactor, GLenum dfactor);
+
+  /*! \brief GL function that configures the blending function
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBlendFuncSeparate.xml">
+   * glBlendFuncSeparate() OpenGL ES manpage</a>
+   */
   void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, 
                          GLenum srcAlpha, GLenum dstAlpha);
 
-  // Unlike the C version, we can't accept a void * here. We must be able
-  // to interpret the buffer's data in order to transmit it to the JS side.
-  // Probably we'll also want versions with strides and offsets to cope with
-  // more complex buffer layouts that we typically see on desktop WebGL apps;
-  // suggestions to improve this are welcome
+  /*! \brief GL function that loads float or double data in a VBO
+   *
+   * Unlike the C version, we can't accept a void * here. We must be able
+   * to interpret the buffer's data in order to transmit it to the JS side.
+   *
+   * Later we may also want versions with strides and offsets to cope with
+   * more complex buffer layouts that we typically see on desktop WebGL apps;
+   * suggestions to improve this are welcome
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferData.xml">
+   * glBufferData() OpenGL ES manpage</a>
+   */
   template<typename Iterator>
   void bufferDatafv(GLenum target, const Iterator begin, const Iterator end, GLenum usage) {
     js_ << "ctx.bufferData(" << toString(target) << ",";
-    renderfv(begin, end);
+    renderfv(js_, begin, end);
     js_ << ","<< toString(usage) << ");";
     GLDEBUG;
   }
 
+  /*! \brief GL function that updates an existing VBO with new integer data
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferData.xml">
+   * glBufferData() OpenGL ES manpage</a>
+   */
   template<typename Iterator>
   void bufferDataiv(GLenum target, const Iterator begin, const Iterator end,
                     GLenum usage, GLenum type)
   {
     js_ << "ctx.bufferData(" << toString(target) << ",";
-    renderiv(begin, end, type);
+    renderiv(js_, begin, end, type);
     js_ << ","<< toString(usage) << ");";
     GLDEBUG;
   }
 
+  /*! \brief GL function that updates an existing VBO with new float or double
+   * data
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferSubData.xml">
+   * glBufferSubData() OpenGL ES manpage</a>
+   */
   template<typename Iterator>
   void bufferSubDatafv(GLenum target, unsigned offset, const Iterator begin, const Iterator end)
   {
     js_ << "ctx.bufferSubData(" << toString(target) << "," << offset << ",";
-    renderfv(begin, end);
+    renderfv(js_, begin, end);
     js_ << ");";
     GLDEBUG;
   }
 
+  /*! \brief GL function that loads integer data in a VBO
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferSubData.xml">
+   * glBufferSubData() OpenGL ES manpage</a>
+   */
   template<typename Iterator>
   void bufferSubDataiv(GLenum target, unsigned offset, const Iterator begin, Iterator end, GLenum type)
   {
     js_ << "ctx.bufferSubData(" << toString(target) << "," << offset << ",";
-    renderiv(begin, end, type);
+    renderiv(js_, begin, end, type);
     js_ << ");";
     GLDEBUG;
   }
 
 
   //GLenum checkFramebufferStatus(GLenum target);
+
+  /*! \brief GL function that clears the given buffers
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glClear.xml">
+   * glClear() OpenGL ES manpage</a>
+   */
   void clear(WFlags<GLenum> mask);
+
+  /*! \brief GL function that sets the clear color of the color buffer
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glClearColor.xml">
+   * glClearColor() OpenGL ES manpage</a>
+   */
   void clearColor(double r, double g, double b, double a);
+
+  /*! \brief GL function that configures the depth to be set when the
+   * depth buffer is cleared
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glClearDepthf.xml">
+   * glClearDepthf() OpenGL ES manpage</a>
+   */
   void clearDepth(double depth);
+
+  /*! \brief GL function
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glClearStencil.xml">
+   * glClearStencil() OpenGL ES manpage</a>
+   */
   void clearStencil(int s);
+
+  /*! \brief GL function
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glColorMask.xml">
+   * glColorMask() OpenGL ES manpage</a>
+   */
   void colorMask(bool red, bool green, bool blue, bool alpha);
+
+  /*! \brief GL function to compile a shader
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glCompileShader.xml">
+   * glCompileShader() OpenGL ES manpage</a>
+   */
   void compileShader(Shader shader);
+
+  /*! \brief GL function to copy a texture image
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glCopyTexImage2D.xml">
+   * glCopyTexImage2D() OpenGL ES manpage</a>
+   */
   void copyTexImage2D(GLenum target, int level,
                       GLenum internalformat,
                       int x, int y,
                       unsigned width, unsigned height, 
                       int border);
+
+  /*! \brief GL function that copies a part of a texture image
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glCopyTexSubImage2D.xml">
+   * glCopyTexSubImage2D() OpenGL ES manpage</a>
+   */
   void copyTexSubImage2D(GLenum target, int level,
                          int xoffset, int yoffset,
                          int x, int y,
                          unsigned width, unsigned height);
 
+  /*! \brief GL function that creates an empty VBO
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGenBuffers.xml">
+   * glGenBuffers() OpenGL ES manpage</a>
+   */
   Buffer createBuffer();
+
   //WebGLFramebuffer createFramebuffer();
+
+  /*! \brief GL function that creates an empty program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glCreateProgram.xml">
+   * glCreateProgram() OpenGL ES manpage</a>
+   */
   Program createProgram();
+
   //WebGLRenderbuffer createRenderbuffer();
+
+  /*! \brief GL function that creates an empty shader
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glCreateShader.xml">
+   * glCreateShader() OpenGL ES manpage</a>
+   */
   Shader createShader(GLenum shader);
+
+  /*! \brief GL function that creates an empty texture
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGenTextures.xml">
+   * glGenTextures() OpenGL ES manpage</a>
+   */
   Texture createTexture();
+
+  /*! \brief GL function that creates an image texture
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGenTextures.xml">
+   * glGenTextures() OpenGL ES manpage</a>
+   */
   Texture createTextureAndLoad(const std::string &url);
+
+  /*! \brief GL function that configures the backface culling mode
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glCullFace.xml">
+   * glCullFace() OpenGL ES manpage</a>
+   */
   void cullFace(GLenum mode);
 
+  /*! \brief GL function that deletes a VBO
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDeleteBuffers.xml">
+   * glDeleteBuffers() OpenGL ES manpage</a>
+   */
   void deleteBuffer(Buffer buffer);
+
   //void deleteFramebuffer(WebGLFramebuffer framebuffer);
+
+  /*! \brief GL function that deletes a program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDeleteProgram.xml">
+   * glDeleteProgram() OpenGL ES manpage</a>
+   */
   void deleteProgram(Program program);
+
   //void deleteRenderbuffer(WebGLRenderbuffer renderbuffer);
+
+  /*! \brief GL function that depetes a shader
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDeleteShader.xml">
+   * glDeleteShader() OpenGL ES manpage</a>
+   */
   void deleteShader(Shader shader);
+
+  /*! \brief GL function that deletes a texture
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDeleteTextures.xml">
+   * glDeleteTextures() OpenGL ES manpage</a>
+   */
   void deleteTexture(Texture texture);
+
+  /*! \brief GL function to set the depth test function
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDepthFunc.xml">
+   * glDepthFunc() OpenGL ES manpage</a>
+   */
   void depthFunc(GLenum func);
+
+  /*! \brief GL function that enables or disables writing to the depth buffer
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDepthMask.xml">
+   * glDepthMask() OpenGL ES manpage</a>
+   */
   void depthMask(bool flag);
+
+  /*! \brief GL function that specifies to what range the normalized [-1,1] z
+   * values should match.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDepthRangef.xml">
+   * glDepthRangef() OpenGL ES manpage</a>
+   */
   void depthRange(double zNear, double zFar);
+
+  /*! \brief GL function that detaches a shader from a program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDetachShader.xml">
+   * glDetachShader() OpenGL ES manpage</a>
+   */
   void detachShader(Program program, Shader shader);
+
+  /*! \brief GL function to disable features
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDisable.xml">
+   * glDisable() OpenGL ES manpage</a>
+   */
   void disable(GLenum cap);
+
+  /*! \brief GL function to draw a VBO
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDrawArrays.xml">
+   * glDrawArrays() OpenGL ES manpage</a>
+   */
   void drawArrays(GLenum mode, int first, unsigned count);
+
+  /*! \brief GL function to draw indexed VBOs
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glDrawElements.xml">
+   * glDrawElements() OpenGL ES manpage</a>
+   */
   void drawElements(GLenum mode, unsigned count, GLenum type, unsigned offset);
+
+  /*! \brief GL function to enable features
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glEnable.xml">
+   * glEnable() OpenGL ES manpage</a>
+   */
   void enable(GLenum cap);
+
+  /*! \brief GL function to enable the vertex attribute array
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glEnableVertexAttribArray.xml">
+   * glEnableVertexAttribArray() OpenGL ES manpage</a>
+   */
   void enableVertexAttribArray(AttribLocation index);
+
+  /*! \brief GL function to wait until given commands are executed
+   *
+   * This call is transfered to JS, but the server will never wait on
+   * this call.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glFinish.xml">
+   * glFinish() OpenGL ES manpage</a>
+   */
   void finish();
+
+  /*! \brief GL function to force execution of GL commands in finite time.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glFlush.xml">
+   * glFlush() OpenGL ES manpage</a>
+   */
   void flush();
+
   //void framebufferRenderbuffer(GLenum target, GLenum attachment, 
   //                             GLenum renderbuffertarget, 
   //                             WebGLRenderbuffer renderbuffer);
+
   //void framebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, 
   //                          WebGLTexture texture, GLint level);
+
+  /*! \brief GL function that specifies which side of a triangle is the
+   * front side
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glFrontFace.xml">
+   * glFrontFace() OpenGL ES manpage</a>
+   */
   void frontFace(GLenum mode);
 
+  /*! \brief GL function that generates a set of mipmaps for a texture
+   * object.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGenerateMipmap.xml">
+   * glGenerateMipmap() OpenGL ES manpage</a>
+   */
   void generateMipmap(GLenum target);
 
   //WebGLActiveInfo getActiveAttrib(WebGLProgram program, GLuint index);
   //WebGLActiveInfo getActiveUniform(WebGLProgram program, GLuint index);
   //WebGLShader[ ] getAttachedShaders(WebGLProgram program);
 
+  /*! \brief GL function to retrieve an attribute's location in a Program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGetAttribLocation.xml">
+   * glGetAttribLocation() OpenGL ES manpage</a>
+   */
   AttribLocation getAttribLocation(Program program, const std::string &attrib);
+
   //any getParameter(GLenum pname);
   //any getBufferParameter(GLenum target, GLenum pname);
 
@@ -603,12 +1108,24 @@ public:
 
   //any getUniform(WebGLProgram program, WebGLUniformLocation location);
 
+  /*! \brief GL function to retrieve a Uniform's location in a Program.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glGetUniformLocation.xml">
+   * glGetUniformLocation() OpenGL ES manpage</a>
+   */
   UniformLocation getUniformLocation(Program program, const std::string location);
+
   //any getVertexAttrib(GLuint index, GLenum pname);
 
   //GLsizeiptr getVertexAttribOffset(GLuint index, GLenum pname);
 
+  /*! \brief GL function to give hints to the render pipeline
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glHint.xml">
+   * glHint() OpenGL ES manpage</a>
+   */
   void hint(GLenum target, GLenum mode);
+
   //GLboolean isBuffer(WebGLBuffer buffer);
   //GLboolean isEnabled(GLenum cap);
   //GLboolean isFramebuffer(WebGLFramebuffer framebuffer);
@@ -616,10 +1133,33 @@ public:
   //GLboolean isRenderbuffer(WebGLRenderbuffer renderbuffer);
   //GLboolean isShader(WebGLShader shader);
   //GLboolean isTexture(WebGLTexture texture);
+
+  /*! \brief GL function to set the line width
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glLineWidth.xml">
+   * glLineWidth() OpenGL ES manpage</a>
+   */
   void lineWidth(double width);
 
+  /*! \brief GL function to link a program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glLinkProgram.xml">
+   * glLinkProgram() OpenGL ES manpage</a>
+   */
   void linkProgram(Program program);
+
+  /*! \brief GL function to set the pixel storage mode
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glPixelStorei.xml">
+   * glPixelStorei() OpenGL ES manpage</a>
+   */
   void pixelStorei(GLenum pname, int param);
+
+  /*! \brief GL function to apply modifications to Z values
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glPolygonOffset.xml">
+   * glPolygonOffset() OpenGL ES manpage</a>
+   */
   void polygonOffset(double factor, double units);
 
   //void readPixels(GLint x, GLint y, GLsizei width, GLsizei height, 
@@ -627,15 +1167,72 @@ public:
 
   //void renderbufferStorage(GLenum target, GLenum internalformat, 
   //                         GLsizei width, GLsizei height);
+
+  /*! \brief GL function to set multisample parameters
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glSampleCoverage.xml">
+   * glSampleCoverage() OpenGL ES manpage</a>
+   */
   void sampleCoverage(double value, bool invert);
+
+  /*! \brief GL function to define the scissor box
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glScissor.xml">
+   * glScissor() OpenGL ES manpage</a>
+   */
   void scissor(int x, int y, unsigned width, unsigned height);
 
+  /*! \brief GL function to set a shader's source code
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glShaderSource.xml">
+   * glShaderSource() OpenGL ES manpage</a>
+   */
   void shaderSource(Shader shader, const std::string &src);
+
+  /*! \brief GL function to set stencil test parameters
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glStencilFunc.xml">
+   * glStencilFunc() OpenGL ES manpage</a>
+   */
   void stencilFunc(GLenum func, int ref, unsigned mask);
+
+  /*! \brief GL function to set stencil test parameters for front and/or
+   * back stencils
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glStencilFuncSeparate.xml">
+   * glStencilFuncSeparate() OpenGL ES manpage</a>
+   */
   void stencilFuncSeparate(GLenum face, GLenum func, int ref, unsigned mask);
+
+  /*! \brief GL function to control which bits are to be written in the stencil
+   * buffer
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glStencilMask.xml">
+   * glStencilMask() OpenGL ES manpage</a>
+   */
   void stencilMask(unsigned mask);
+
+  /*! \brief GL function to control which bits are written to the front and/or
+   * back stencil buffers
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glStencilMaskSeparate.xml">
+   * glStencilMaskSeparate() OpenGL ES manpage</a>
+   */
   void stencilMaskSeparate(GLenum face, unsigned mask);
+
+  /*! \brief GL function to set stencil test actions
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glStencilOp.xml">
+   * glStencilOp() OpenGL ES manpage</a>
+   */
   void stencilOp(GLenum fail, GLenum zfail, GLenum zpass);
+
+  /*! \brief GL function to set front and/or back stencil test actions
+   * separately
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glStencilOpSeparate.xml">
+   * glStencilOpSeparate() OpenGL ES manpage</a>
+   */
   void stencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass);
 
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat, 
@@ -644,18 +1241,54 @@ public:
 
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
   //                PixelFormatEnum format, GLenum type, ImageData pixels);
+
+  /*! \brief GL function to load a 2D texture from a WImage
+   *
+   * Note: WImage must be loaded before this function is executed.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glTexImage2D.xml">
+   * glTexImage2D() OpenGL ES manpage</a>
+   */
   void texImage2D(GLenum target, int level, GLenum internalformat,
                   GLenum format, GLenum type, WImage *image);
+
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
   //                PixelFormatEnum format, GLenum type, HTMLCanvasElement canvas);
+
+  /*! \brief GL function to load a 2D texture from a HTML5Video object
+   *
+   * Note: the video must be loaded prior to calling this function. The
+   * current frame is used as texture image.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glTexImage2D.xml">
+   * glTexImage2D() OpenGL ES manpage</a>
+   */
   void texImage2D(GLenum target, int level, GLenum internalformat, GLenum format,
                   GLenum type, WHTML5Video *video);
-  // Overload for textures loaded with createTextureAndLoad()
-  // For use with a Texture created by createTextureAndLoad only!
+
+  /*! \brief GL function to load a 2D texture loaded with createTextureAndLoad()
+   *
+   * This function must only be used for textures created with
+   * createTextureAndLoad()
+   *
+   * Note: the WGLWidget implementation will delay rendering until
+   * all textures created with createTextureAndLoad() are loaded in the
+   * browser.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glTexImage2D.xml">
+   * glTexImage2D() OpenGL ES manpage</a>
+   */
   void texImage2D(GLenum target, int level, GLenum internalformat,
                   GLenum format, GLenum type, Texture texture);
 
-  //void texParameterf(TextureTargetEnum target, TextureParameterNameEnum pname, double param);
+  //void texParameterf(TextureTargetEnum target,
+  //                   TextureParameterNameEnum pname, double param);
+
+  /*! \brief GL function to set texture parameters
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glTexParameter.xml">
+   * glTexParameter() OpenGL ES manpage</a>
+   */
   void texParameteri(GLenum target, GLenum pname, GLenum param);
 
   //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
@@ -670,32 +1303,66 @@ public:
   //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
   //                   GLenum format, GLenum type, HTMLVideoElement video);
 
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   void uniform1f(const UniformLocation &location, double x) {
     char buf[30];
     js_ << "ctx.uniform1f(" << location << "," << makeFloat(x, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void uniform1fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform1fv(" << location << ",";
-    renderfv(value, value + 1);
+    renderfv(js_, value, value + 1);
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   void uniform1i(const UniformLocation &location, int x) {
     char buf[30];
     js_ << "ctx.uniform1i(" << location << ",";
     js_ << makeInt(x, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void uniform1iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform1iv(" << location << ",";
-    renderiv(value, value + 1, INT);
+    renderiv(js_, value, value + 1, INT);
     js_ << ");";
     GLDEBUG;
   }
 
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   void uniform2f(const UniformLocation &location, double x, double y) {
     char buf[30];
     js_ << "ctx.uniform2f(" << location << ",";
@@ -703,13 +1370,27 @@ public:
     js_ << makeFloat(y, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void uniform2fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform2fv(" << location << ",";
-    renderfv(value, value + 2);
+    renderfv(js_, value, value + 2);
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   void uniform2i(const UniformLocation &location, int x, int y) {
     char buf[30];
     js_ << "ctx.uniform2i(" << location << ",";
@@ -717,15 +1398,29 @@ public:
     js_ << makeInt(y, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void uniform2iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform2iv(" << location << ",";
-    renderiv(value, value + 2, INT);
+    renderiv(js_, value, value + 2, INT);
     js_ << ");";
     GLDEBUG;
   }
 
-  void uniform3f(const UniformLocation &location, double x, double y, double z) {
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
+  void uniform3f(const UniformLocation &location,
+                 double x, double y, double z) {
     char buf[30];
     js_ << "ctx.uniform3f(" << location << ",";
     js_ << makeFloat(x, buf) << ",";
@@ -733,13 +1428,27 @@ public:
     js_ << makeFloat(z, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void uniform3fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform3fv(" << location << ",";
-    renderfv(value, value + 3);
+    renderfv(js_, value, value + 3);
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   void uniform3i(const UniformLocation &location, int x, int y, int z) {
     char buf[30];
     js_ << "ctx.uniform3i(" << location << ",";
@@ -748,14 +1457,29 @@ public:
     js_ << makeInt(z, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void uniform3iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform3iv(" << location << ",";
-    renderiv(value, value + 3, INT);
+    renderiv(js_, value, value + 3, INT);
     js_ << ");";
     GLDEBUG;
   }
-  void uniform4f(const UniformLocation &location, double x, double y, double z, double w) {
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
+  void uniform4f(const UniformLocation &location,
+                 double x, double y, double z, double w) {
     char buf[30];
     js_ << "ctx.uniform4f(" << location << ",";
     js_ << makeFloat(x, buf) << ",";
@@ -764,13 +1488,27 @@ public:
     js_ << makeFloat(w, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void uniform4fv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform4fv(" << location << ",";
-    renderfv(value, value + 4);
+    renderfv(js_, value, value + 4);
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   void uniform4i(const UniformLocation &location, int x, int y, int z, int w) {
     char buf[30];
     js_ << "ctx.uniform4i(" << location << ",";
@@ -780,82 +1518,189 @@ public:
     js_ << makeInt(w, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform variable of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void uniform4iv(const UniformLocation &location, const Array *value) {
     js_ << "ctx.uniform4iv(" << location << ",";
-    renderiv(value, value + 4, INT);
+    renderiv(js_, value, value + 4, INT);
     js_ << ");";
     GLDEBUG;
   }
 
+  /*! \brief GL function to set the value of a uniform matrix of the current
+   * program
+   *
+   * Attention: The OpenGL ES specification states that transpose MUST be
+   * false.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename MatrixType>
-  void uniformMatrix2fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
+  void uniformMatrix2fv(const UniformLocation &location,
+                        bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix2fv(" << location << ","
       << (transpose?"true":"false") << ",";
-    renderfv(value, value + 4);
+    renderfv(js_, value, value + 4);
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform matrix of the current
+   * program
+   *
+   * This function renders the matrix in the proper row/column order.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template< typename T>
-  void uniformMatrix2(const UniformLocation &location, const WGenericMatrix<T, 2, 2> &m) {
+  void uniformMatrix2(const UniformLocation &location,
+                      const WGenericMatrix<T, 2, 2> &m) {
     js_ << "ctx.uniformMatrix2fv(" << location << ",false,";
     WGenericMatrix<T, 2, 2> t(m.transposed());
-    renderfv(t.data().begin(), t.data().end());
+    renderfv(js_, t.data().begin(), t.data().end());
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform matrix of the current
+   * program
+   *
+   * Attention: The OpenGL ES specification states that transpose MUST be
+   * false.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename MatrixType>
   void uniformMatrix3fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
     js_ << "ctx.uniformMatrix3fv(" << location << ","
       << (transpose?"true":"false") << ",";
-    renderfv(value,value + 9);
+    renderfv(js_, value,value + 9);
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform matrix of the current
+   * program
+   *
+   * This function renders the matrix in the proper row/column order.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename T>
-  void uniformMatrix3(const UniformLocation &location, bool transpose, const WGenericMatrix<T, 3, 3> &m) {
+  void uniformMatrix3(const UniformLocation &location,
+                      const WGenericMatrix<T, 3, 3> &m) {
     js_ << "ctx.uniformMatrix3fv(" << location << ",false,";
     WGenericMatrix<T, 3, 3> t(m.transposed());
-    renderfv(t.data().begin(), t.data().end());
+    renderfv(js_, t.data().begin(), t.data().end());
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform matrix of the current
+   * program
+   *
+   * Attention: The OpenGL ES specification states that transpose MUST be
+   * false.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename MatrixType>
-  void uniformMatrix4fv(const UniformLocation &location, bool transpose, const MatrixType *value) {
+  void uniformMatrix4fv(const UniformLocation &location, bool transpose,
+                        const MatrixType *value) {
     js_ << "ctx.uniformMatrix4fv(" << location << ","
       << (transpose?"true":"false") << ",";
-    renderfv(value, value + 16);
+    renderfv(js_, value, value + 16);
     js_ << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of a uniform matrix of the current
+   * program
+   *
+   * This function renders the matrix in the proper row/column order.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
   template<typename T>
-  void uniformMatrix4(const UniformLocation &location, const WGenericMatrix<T, 4, 4> &m) {
+  void uniformMatrix4(const UniformLocation &location,
+                      const WGenericMatrix<T, 4, 4> &m) {
     js_ << "ctx.uniformMatrix4fv(" << location << ",false,";
     WGenericMatrix<T, 4, 4> t(m.transposed());
-    renderfv(t.data().begin(), t.data().end());
+    renderfv(js_, t.data().begin(), t.data().end());
     js_ << ");";
     GLDEBUG;
   }
-  void uniformMatrix4(const UniformLocation &location, const JavaScriptMatrix4x4 &m) {
+
+  /*! \brief GL function to set the value of a uniform matrix of the current
+   * program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUniform.xml">
+   * glUniform() OpenGL ES manpage</a>
+   */
+  void uniformMatrix4(const UniformLocation &location,
+                      const JavaScriptMatrix4x4 &m) {
     js_ << "ctx.uniformMatrix4fv(" << location << ",false,";
-    js_ << m << ");";
+    js_ << m.jsRef() << ");";
     GLDEBUG;
   }
 
 
+  /*! \brief GL function to set the current active shader program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glUseProgram.xml">
+   * glUseProgram() OpenGL ES manpage</a>
+   */
   void useProgram(Program program);
+
+  /*! \brief GL function to validate a program
+   *
+   * implementation note: there is currently not yet a method to read
+   * out the validation result.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glValidateProgram.xml">
+   * glValidateProgram() OpenGL ES manpage</a>
+   */
   void validateProgram(Program program);
 
+  /*! \brief GL function to set the value of an attribute of the current program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttrib.xml">
+   * glVertexAttrib() OpenGL ES manpage</a>
+   */
   void vertexAttrib1f(AttribLocation location, double x) {
     char buf[30];
     js_ << "ctx.vertexAttrib1f(" << location << ",";
     js_ << makeFloat(x, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of an attribute of the current program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttrib.xml">
+   * glVertexAttrib() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void vertexAttrib1fv(AttribLocation location, const Array *values) {
     vertexAttrib1f(location, values[0]);
   }
+
+  /*! \brief GL function to set the value of an attribute of the current program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttrib.xml">
+   * glVertexAttrib() OpenGL ES manpage</a>
+   */
   void vertexAttrib2f(AttribLocation location, double x, double y) {
     char buf[30];
     js_ << "ctx.vertexAttrib2f(" << location << ",";
@@ -863,10 +1708,22 @@ public:
     js_ << makeFloat(y, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of an attribute of the current program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttrib.xml">
+   * glVertexAttrib() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void vertexAttrib2fv(AttribLocation location, const Array *values) {
     vertexAttrib2f(location, values[0], values[1]);
   }
+
+  /*! \brief GL function to set the value of an attribute of the current program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttrib.xml">
+   * glVertexAttrib() OpenGL ES manpage</a>
+   */
   void vertexAttrib3f(AttribLocation location, double x, double y, double z) {
     char buf[30];
     js_ << "ctx.vertexAttrib3f(" << location << ",";
@@ -875,11 +1732,24 @@ public:
     js_ << makeFloat(z, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of an attribute of the current program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttrib.xml">
+   * glVertexAttrib() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void vertexAttrib3fv(AttribLocation location, const Array *values) {
     vertexAttrib3f(location, values[0], values[1], values[2]);
   }
-  void vertexAttrib4f(AttribLocation location, double x, double y, double z, double w) {
+
+  /*! \brief GL function to set the value of an attribute of the current program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttrib.xml">
+   * glVertexAttrib() OpenGL ES manpage</a>
+   */
+  void vertexAttrib4f(AttribLocation location,
+                      double x, double y, double z, double w) {
     char buf[30];
     js_ << "ctx.vertexAttrib4f(" << location << ",";
     js_ << makeFloat(x, buf) << ",";
@@ -888,50 +1758,179 @@ public:
     js_ << makeFloat(w, buf) << ");";
     GLDEBUG;
   }
+
+  /*! \brief GL function to set the value of an attribute of the current program
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttrib.xml">
+   * glVertexAttrib() OpenGL ES manpage</a>
+   */
   template<typename Array>
   void vertexAttrib4fv(AttribLocation location, const Array *values) {
     vertexAttrib4f(location, values[0], values[1], values[2], values[3]);
   }
 
+  /*! \brief GL function to bind a VBO to an attribute
+   *
+   * This function links the given attribute to the VBO currently bound
+   * to the ARRAY_BUFFER target.
+   *
+   * The size parameter specifies the number of components per attribute (1
+   * to 4). The type parameter is also used to determine the size of each
+   * component.
+   *
+   * The size of a float is 8 bytes.
+   *
+   * In WGLWidget, the size of an int is 4 bytes.
+   *
+   * The stride is in bytes.
+   *
+   * The maximum stride is 255.
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glVertexAttribPointer.xml">
+   * glVertexAttribPointer() OpenGL ES manpage</a>
+   */
   void vertexAttribPointer(AttribLocation location, int size,
     GLenum type, bool normalized, unsigned stride, unsigned offset);
 
+  /*! \brief GL function to set the viewport
+   *
+   * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glViewport.xml">
+   * glViewport() OpenGL ES manpage</a>
+   */
   void viewport(int x, int y, unsigned width, unsigned height);
 
-  // Methods for client-side manipulated matrices. Create one.
+  /*! @}
+   */
+
+  /*! @name Additional WebGL methods
+   *
+   * These methods are used to render WebGL content, but have no equivalent
+   * in WebGL.
+   *
+   * Like the WebGL methods, you can use the WebGL methods in your resizeGL(),
+   * paintGL() and updateGL() specializations. It makes no sense to call these
+   * methods outside those functions.
+   * @{
+   */
+  /*! \brief Create a matrix that can be manipulated in client-side
+   * JavaScript
+   */
   JavaScriptMatrix4x4 createJavaScriptMatrix4();
-  // Set the value of a jsMatrix from the client side
+
+  /*! \brief Set the value of a client-side JavaScript matrix created by
+   * createJavaScriptMatrix4x4()
+   */
   template<typename T>
-  void setJavaScriptMatrix4(const JavaScriptMatrix4x4 &jsm, const WGenericMatrix<T, 4, 4> &m) {
+  void setJavaScriptMatrix4(const JavaScriptMatrix4x4 &jsm,
+                            const WGenericMatrix<T, 4, 4> &m) {
     js_ << WT_CLASS ".glMatrix.mat4.set(";
     WGenericMatrix<T, 4, 4> t(m.transposed());
-    renderfv(t.data().begin(), t.data().end());
-    js_ << ", " << jsm << ");";
+    renderfv(js_, t.data().begin(), t.data().end());
+    js_ << ", " << jsm.jsRef() << ");";
     GLDEBUG;
   }
+
+  /*! @}
+   */
+
+  // Todo:
   // Get the current client-side value of a JavaScriptMatrix
   //WMatrix4x4 getJavaScriptMatrix4();
 
+  /*! \brief Add a mouse handler to the widget that looks at a given point
+   *
+   * This will allow a user to change client-side matrix m with the
+   * mouse. M is a model transformation matrix, representing the viewpoint of
+   * the camera.
+   *
+   * Through mouse operations, the camera can be changed by the user, but
+   * (lX, lY, lZ) will always be at the center of the display, (uX, uY, uZ)
+   * is considered to be the up direction, and the distance of the camera to
+   * (lX, lY, lZ) will never change.
+   *
+   * Pressing the left mouse button and moving the mouse left/right will
+   * rotate the camera around the up (uX, uY, uZ) direction. Moving up/down
+   * will tilt the camera (causing it to move up/down to keep the lookpoint
+   * centered). The scroll wheel simulates zooming by scaling the scene.
+   *
+   * pitchRate and yawRate control how much the camera will move per mouse
+   * pixel.
+   *
+   * Usually this method is called after setting a camera transformation
+   * with a client-side matrix in initializeGL(). However, this function
+   * may also be called from outside the intializeGL()/paintGL()/updateGL()
+   * methods (but not before m was initialized).
+   */
   void setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
                                   double lX, double lY, double lZ,
                                   double uX, double uY, double uZ,
                                   double pitchRate, double yawRate);
-  void setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double frontStep, double rotStep);
-  void uniformNormalMatrix4(const UniformLocation &u,
-                            const JavaScriptMatrix4x4 &jsm,
-                            const WGenericMatrix<double, 4, 4> &mm);
 
+  /*! \brief Add a mouse handler to the widget that allows 'walking' in
+   * the scene
+   *
+   * This will allow a user to change client-side matrix m with the
+   * mouse. M is a model transformation matrix, representing the viewpoint of
+   * the camera.
+   *
+   * Through mouse operations, the camera can be changed by the user, as if
+   * he is walking around on a plane. 
+   *
+   * Pressing the left mouse button and moving the mouse left/right will
+   * rotate the camera around Y axis. Moving the mouse up/down will move
+   * the camera in the Z direction (walking forward/backward).
+   * centered).
+   *
+   * frontStep and rotStep control how much the camera will move per mouse
+   * pixel.
+   *
+   * Usually this method is called after setting a camera transformation
+   * with a client-side matrix in initializeGL(). However, this function
+   * may also be called from outside the intializeGL()/paintGL()/updateGL()
+   * methods (but not before m was initialized).
+   */
+  void setClientSideWalkHandler(const JavaScriptMatrix4x4 &m,
+                                double frontStep, double rotStep);
+
+  /*! \brief Sets the content to be displayed when WebGL is not available.
+   *
+   * If Wt cannot create a working WebGL context, this content will be
+   * shown to the user. This may be a text explanation, or a pre-rendered
+   * image, or a video, a flash movie, ...
+   *
+   * The default is a widget that explains to the user that he has no
+   * WebGL support.
+   */
   void setAlternativeContent(WWidget *alternative);
 
+  /*! \brief A JavaScript slot that repaints the widget when triggered.
+   *
+   * This is useful for client-side initiated repaints. You may e.g. use this
+   * if you write your own client-side mouse handler, or if you updated
+   * a texture, or if you're playing a video texture.
+   */
   JSlot &repaintSlot() { return repaintSlot_; }
 
 protected:
   DomElementType domElementType() const;
+  DomElement *createDomElement(WApplication *app);
+  void getDomChanges(std::vector<DomElement *>& result, WApplication *app);
+  void updateDom(DomElement &element, bool all);
+
   void render(WFlags<RenderFlag> flags);
   std::string renderRemoveJs();
 
 private:
   std::string glObjJsRef();
+  void layoutSizeChanged(int width, int height);
+
+  int renderWidth_;
+  int renderHeight_;
+  bool updatePaintGL_;
+  bool updateResizeGL_;
+  bool updateGL_;
+  bool sizeChanged_;
+
   WWidget *alternative_;
 
   unsigned shaders_;
@@ -960,47 +1959,47 @@ private:
   std::stringstream js_;
 
   template<typename Iterator>
-  void renderfv(Iterator begin, Iterator end)
+  static void renderfv(std::ostream &os, Iterator begin, Iterator end)
   {
     char buf[30];
-    js_ << "new Float32Array([";
+    os << "new Float32Array([";
     for (Iterator i = begin; i != end; ++i)
-      js_ << (i == begin ? "" : ",") << makeFloat(*i, buf);
-    js_ << "])";
+      os << (i == begin ? "" : ",") << makeFloat(*i, buf);
+    os << "])";
   }
 
   template<typename Iterator>
-  void renderiv(Iterator begin, Iterator end, GLenum type)
+  static void renderiv(std::ostream &os, Iterator begin, Iterator end, GLenum type)
   {
     switch (type) {
     case BYTE:
-      js_ << "new Int8Array([";
+      os << "new Int8Array([";
       break;
     case UNSIGNED_BYTE:
-      js_ << "new Uint8Array([";
+      os << "new Uint8Array([";
       break;
     case SHORT:
-      js_ << "new Int16Array([";
+      os << "new Int16Array([";
       break;
     case UNSIGNED_SHORT:
-      js_ << "new Uint16Array([";
+      os << "new Uint16Array([";
       break;
     case INT:
-      js_ << "new Int32Array([";
+      os << "new Int32Array([";
       break;
     default:
       // Should we warn?
     case UNSIGNED_INT:
-      js_ << "new Uint32Array([";
+      os << "new Uint32Array([";
       break;
     }
     char buf[30];
     for (Iterator i = begin; i != end; ++i)
-      js_ << (i == begin ? "" : ",") << makeInt(*i, buf);
-    js_ << "])";
+      os << (i == begin ? "" : ",") << makeInt(*i, buf);
+    os << "])";
   }
 
-  char *makeFloat(double d, char *buf);
+  static char *makeFloat(double d, char *buf);
   static char *makeInt(int i, char *buf);
 
   static const char *toString(GLenum e);
@@ -1012,7 +2011,7 @@ private:
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::GLenum)
-
+W_DECLARE_OPERATORS_FOR_FLAGS(WGLWidget::ClientSideRenderer)
 }
 
 #endif

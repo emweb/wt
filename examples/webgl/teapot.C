@@ -4,8 +4,6 @@
  * See the LICENSE file for terms of use.
  */
 
-// THIS EXAMPLE IS NOT YET EXPECTED TO WORK
-
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
@@ -15,8 +13,6 @@
 #include <Wt/WText>
 #include <Wt/WTextArea>
 
-
-#include <boost/tuple/tuple.hpp>
 
 #include "readObj.h"
 #include "PaintWidget.h"
@@ -63,7 +59,7 @@ const char *vertexShaderSrc =
 std::vector<double> data;
 
 /*
- * A simple WebGL demo application
+ * A pretty basic WebGL demo application
  */
 class WebGLDemo : public WApplication
 {
@@ -86,7 +82,7 @@ WebGLDemo::WebGLDemo(const WEnvironment& env)
   setTitle("WebGL Demo");
 
   root()->addWidget(new WText("If your browser supports WebGL, you'll "
-    "see a teapot below.<br/>Use your mouse to move the teapot around.<br/>"
+    "see a teapot below.<br/>Use your mouse to move around the teapot.<br/>"
     "Edit the shaders below the teapot to change how the teapot is rendered."));
   root()->addWidget(new WBreak());
 

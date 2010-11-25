@@ -26,7 +26,7 @@ using namespace Wt;
 // TODO: for uniform*v, attribute8v, generate the non-v version in js. We
 //       will probably end up with less bw and there's no use in allocating
 //       an extra array.
-
+// TODO: allow VBO's to be served from a file
 
 const char *WGLWidget::toString(GLenum e)
 {
@@ -338,6 +338,12 @@ const char *WGLWidget::toString(GLenum e)
 
 WGLWidget::WGLWidget(WContainerWidget *parent):
   WInteractWidget(parent),
+  renderWidth_(100),
+  renderHeight_(100),
+  updatePaintGL_(true),
+  updateResizeGL_(true),
+  updateGL_(false),
+  sizeChanged_(true),
   alternative_(0),
   shaders_(0),
   programs_(0),
@@ -347,17 +353,21 @@ WGLWidget::WGLWidget(WContainerWidget *parent):
   textures_(0),
   matrices_(0),
   webglNotAvailable_(this, "webglNotAvailable"),
+  webGlNotAvailable_(false),
   mouseWentDownSlot_("function(){}", this),
   mouseWentUpSlot_("function(){}", this),
   mouseDraggedSlot_("function(){}", this),
   mouseWheelSlot_("function(){}", this),
   repaintSlot_("function() {"
     "var o = " + this->glObjJsRef() + ";"
-    "if(o) o.paintGL();"
+    "if(o.ctx) o.paintGL();"
     "}", this)
 
 {
   setInline(false);
+  setLayoutSizeAware(true);
+  // A canvas must have a size set.
+  resize(100, 100);
   webglNotAvailable_.connect(this, &WGLWidget::webglNotAvailable);
 
   mouseWentDown().connect(mouseWentDownSlot_);
@@ -419,15 +429,6 @@ char *WGLWidget::makeInt(int i, char *buf)
 DomElement *WGLWidget::createDomElement(WApplication *app)
 {
   DomElement *result = 0;
-
-  if (isInLayout()) {
-    // It's easier to set WT_RESIZE_JS after the following code,
-    // but if it's not set, the alternative content will think that
-    // it is not included in a layout manager. Set some phony function
-    // now, which will be overwritten later in this method.
-    setJavaScriptMember(WT_RESIZE_JS, "function() {}");
-  }
-
   if (app->environment().agentIsIElt(9) ||
       app->environment().agent() == WEnvironment::MobileWebKitAndroid) {
     // Shortcut: IE misbehaves when it encounters a canvas element
@@ -440,89 +441,151 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
       result->addChild(alternative_->createSDomElement(app));
     }
   }
-
-  if (isInLayout()) {
-    std::stringstream ss;
-    ss <<
-      """function(self, w, h) {";
-    ss <<
-      ""  "v=" + jsRef() + ";"
-      ""  "if(v){"
-      ""    "v.setAttribute('width', w);"
-      ""    "v.setAttribute('height', h);"
-      ""  "}";
-    if (alternative_) {
-      ss <<
-        """a=" + alternative_->jsRef() + ";"
-        ""  "if(a && a." << WT_RESIZE_JS <<")"
-        ""    "a." << WT_RESIZE_JS << "(a, w, h);";
-    }
-    ss
-      <<"}";
-    setJavaScriptMember(WT_RESIZE_JS, ss.str());
-  }
-
   setId(result, app);
 
-  // FIXME: move to updateDom()
-  result->setAttribute("width", boost::lexical_cast<std::string>(width().value()));
-  result->setAttribute("height", boost::lexical_cast<std::string>(height().value()));
-
-  updateDom(*result, true);
-
   std::stringstream tmp;
-  tmp <<
-    "new " WT_CLASS ".WGLWidget(" << app->javaScriptClass() << "," << jsRef() << ");"
-    "var o = " << glObjJsRef() << ";\n"
-    "o.discoverContext(function(){" << webglNotAvailable_.createCall() << "});\n"
-    //"console.log('o.ctx: ' + o.ctx);\n"
-    "if(o.ctx){\n";
-  js_.str("");
-  initializeGL();
-  tmp << "o.initializeGL=function(){\n"
-    "var obj=" << glObjJsRef() << ";\n"
-    "var ctx=obj.ctx;\n"
-    << js_.str() << "\n};\n";
-  js_.str("");
-  paintGL();
-  tmp << "o.paintGL=function(){\n"
-    "var obj=" << glObjJsRef() << ";\n"
-    "var ctx=obj.ctx;\n"
-    << js_.str() << "};";
-  js_.str("");
-  // Make sure textures are loaded before we render
-  tmp << "}\n";
-  if (textures_ > 0) {
-    tmp << "new Wt._p_.ImagePreloader([";
-    for (unsigned i = 0; i < preloadImages_.size(); ++i) {
-      if (i != 0)
-	tmp << ',';
-      tmp << '\'' << fixRelativeUrl(preloadImages_[i].second) << '\'';
-    }
     tmp <<
-      "],function(images){\n"
-      "var o=" << glObjJsRef() << ";\n"
-      "var ctx=null;\n"
-      " if(o) ctx=o.ctx;\n"
-      "if(ctx == null) return;\n";
-    for (unsigned i = 0; i < preloadImages_.size(); ++i) {
-      std::string texture = preloadImages_[i].first;
-      tmp << texture << "=ctx.createTexture();\n"
-        << texture << ".image=images[" << i << "];\n";
-    }
-    tmp << "o.initializeGL();\n"
-           "o.paintGL();\n"
-         "});";
-  } else {
-    // No textures to load - go and paint
-    tmp << "o.initializeGL();o.paintGL();";
-  }
+      "{\n"
+      """var o = new " WT_CLASS ".WGLWidget(" << app->javaScriptClass() << "," << jsRef() << ");\n"
+      """o.discoverContext(function(){" << webglNotAvailable_.createCall() << "});\n";
 
+    js_.str("");
+    initializeGL();
+    tmp <<
+      """o.initializeGL=function(){\n"
+      //"""debugger;\n"
+      """var obj=" << glObjJsRef() << ";\n"
+      """var ctx=obj.ctx;\n" <<
+      "" << js_.str() <<
+      """o.initialized = true;\n"
+      // updates are queued until initialization is complete
+      """var key;\n"
+      """for(key in o.updates) o.updates[key]();\n"
+      """o.updates = new Array();\n"
+      // Similar, resizeGL is not executed until initialized
+      """o.resizeGL();\n"
+      "};\n"
+      "}\n";
   tmp << delayedJavaScript_.str();
   delayedJavaScript_.str("");
   result->callJavaScript(tmp.str());
 
+  repaintGL(PAINT_GL | RESIZE_GL);
+
+  updateDom(*result, true);
+
+
   return result;
+}
+
+void WGLWidget::repaintGL(WFlags<ClientSideRenderer> which)
+{
+  if (which & PAINT_GL)
+    updatePaintGL_ = true;
+  if (which & RESIZE_GL)
+    updateResizeGL_ = true;
+  if (which & UPDATE_GL)
+    updateGL_ = true;
+  if (which != 0)
+    repaint(Wt::RepaintPropertyAttribute); // FIXME: correct?
+}
+
+void WGLWidget::updateDom(DomElement &element, bool all)
+{
+  if (webGlNotAvailable_)
+    return;
+
+  DomElement *el = &element;
+  if (all || sizeChanged_) {
+    el->setAttribute("width", boost::lexical_cast<std::string>(renderWidth_));
+    el->setAttribute("height", boost::lexical_cast<std::string>(renderHeight_));
+    sizeChanged_ = false;
+  }
+  if (updateGL_ || updateResizeGL_ || updatePaintGL_) {
+    std::stringstream tmp;
+    tmp <<
+      "var o = " << glObjJsRef() << ";\n"
+      "if(o.ctx){\n";
+    if (updateGL_) {
+      js_.str("");
+      updateGL();
+      tmp << "var update =function(){\n"
+        "var obj=" << glObjJsRef() << ";\n"
+        "var ctx=obj.ctx;\n"
+        << js_.str() << "\n};\n"
+        // cannot execute updates before initializeGL is executed
+        "o.updates.push(update);";
+    }
+    if (updateResizeGL_) {
+      js_.str("");
+      resizeGL(renderWidth_, renderHeight_);
+      tmp << "o.resizeGL=function(){\n"
+        "var obj=" << glObjJsRef() << ";\n"
+        "var ctx=obj.ctx;\n"
+        << js_.str() << "};";
+    }
+    if (updatePaintGL_) {
+      js_.str("");
+      paintGL();
+      tmp << "o.paintGL=function(){\n"
+        "var obj=" << glObjJsRef() << ";\n"
+        "var ctx=obj.ctx;\n"
+        << js_.str() << "};";
+    }
+    js_.str("");
+    // Make sure textures are loaded before we render
+    tmp << "}\n";
+    if (preloadImages_.size() > 0) {
+      tmp << "new Wt._p_.ImagePreloader([";
+      for (unsigned i = 0; i < preloadImages_.size(); ++i) {
+        if (i != 0)
+          tmp << ',';
+        tmp << '\'' << fixRelativeUrl(preloadImages_[i].second) << '\'';
+      }
+      tmp <<
+        "],function(images){\n"
+        "var o=" << glObjJsRef() << ";\n"
+        "var ctx=null;\n"
+        " if(o) ctx=o.ctx;\n"
+        "if(ctx == null) return;\n";
+      for (unsigned i = 0; i < preloadImages_.size(); ++i) {
+        std::string texture = preloadImages_[i].first;
+        tmp << texture << "=ctx.createTexture();\n"
+          << texture << ".image=images[" << i << "];\n";
+      }
+      tmp <<
+        "if(o.initialized){"
+        // Delay calling of update() to after textures are loaded
+        """var key;"
+        """for(key in o.updates) o.updates[key]();"
+        """o.updates = new Array();"
+        // Delay calling of resizeGL() to after updates are executed
+        """o.resizeGL();"
+        """o.paintGL();"
+        "} else {"
+        // initializeGL will call updates and resizeGL
+        """o.initializeGL();\n"
+        """o.paintGL();\n"
+        "}});";
+    } else {
+      // No textures to load - go and paint
+      tmp <<
+        "if(o.initialized) {"
+        """var key;"
+        """for(key in o.updates) o.updates[key]();"
+        """o.updates = new Array();"
+        """o.resizeGL();"
+        """o.paintGL();"
+        "} else {"
+        """o.initializeGL();"
+        """o.paintGL();"
+        "}";
+    }
+    el->callJavaScript(tmp.str());
+    updateGL_ = updatePaintGL_ = updateResizeGL_ = false;
+  }
+
+  WInteractWidget::updateDom(element, all);
 }
 
 void WGLWidget::getDomChanges(std::vector<DomElement *>& result,
@@ -534,6 +597,21 @@ void WGLWidget::getDomChanges(std::vector<DomElement *>& result,
 DomElementType WGLWidget::domElementType() const
 {
   return Wt::DomElement_CANVAS;
+}
+
+void WGLWidget::resize(const WLength &width, const WLength &height)
+{
+  WInteractWidget::resize(width, height);
+  layoutSizeChanged(width.value(), height.value());
+}
+
+void WGLWidget::layoutSizeChanged(int width, int height)
+{
+  renderWidth_ = width;
+  renderHeight_ = height;
+  sizeChanged_ = true;
+  repaint(Wt::RepaintPropertyAttribute);
+  repaintGL(RESIZE_GL);
 }
 
 void WGLWidget::defineJavaScript()
@@ -572,6 +650,10 @@ void WGLWidget::resizeGL(int width, int height)
 }
 
 void WGLWidget::initializeGL()
+{
+}
+
+void WGLWidget::updateGL()
 {
 }
 
@@ -906,7 +988,7 @@ void WGLWidget::linkProgram(Program program)
 {
   js_ << "ctx.linkProgram(" << program << ");";
   js_ << "if(!ctx.getProgramParameter(" << program << ",ctx.LINK_STATUS)){"
-    << "alert('Could not initialize shaders');}";
+    << "alert('Could not initialize shaders: ' + ctx.getProgramInfoLog(" << program << "));}";
   GLDEBUG;
 }
 
@@ -1077,9 +1159,9 @@ void WGLWidget::connectJavaScript(Wt::EventSignalBase &s,
 WGLWidget::JavaScriptMatrix4x4 WGLWidget::createJavaScriptMatrix4()
 {
   WGenericMatrix<double, 4, 4> m; // unit matrix
-  JavaScriptMatrix4x4 retval = "ctx.WtMatrix" + boost::lexical_cast<std::string>(matrices_++);
-  js_ << retval << "=";
-  renderfv(m.data().begin(), m.data().end());
+  JavaScriptMatrix4x4 retval("ctx.WtMatrix" + boost::lexical_cast<std::string>(matrices_++));
+  js_ << retval.jsRef() << "=";
+  renderfv(js_, m.data().begin(), m.data().end());
   js_ << ";";
 
   GLDEBUG;
@@ -1097,7 +1179,7 @@ void WGLWidget::setClientSideLookAtHandler(const JavaScriptMatrix4x4 &m,
   mouseWheelSlot_.setJavaScript("function(o, e){" + glObjJsRef() + ".mouseWheelLookAt(o, e);}");
   js_ <<
     "obj.setLookAtParams("
-    << m
+    << m.jsRef()
     << ",[" << centerX << "," << centerY << "," << centerZ << "],"
     << "[" << uX << "," << uY << "," << uZ << "],"
     << pitchRate << "," << yawRate << ");";
@@ -1118,7 +1200,7 @@ void WGLWidget::setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double fr
   ss << "(function(){var o = " << glObjJsRef() << ";"
     "if(o.ctx == null) return;"
     "o.setWalkParams(o."
-    << m << ","
+    << m.jsRef() << ","
     << frontStep << "," << rotStep << ");})()";
   if (this->isRendered()) {
     doJavaScript(ss.str());
@@ -1127,12 +1209,45 @@ void WGLWidget::setClientSideWalkHandler(const JavaScriptMatrix4x4 &m, double fr
   }
 }
 
-void WGLWidget::uniformNormalMatrix4(const UniformLocation &u,
-                                     const JavaScriptMatrix4x4 &jsm,
-                                     const WGenericMatrix<double, 4, 4> &mm)
+WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4(const std::string &jsVariable):
+  jsRef_(jsVariable)
 {
-  js_ << "ctx.uniformMatrix4fv(" << u << ",false," WT_CLASS ".glMatrix.mat4.transpose(" WT_CLASS ".glMatrix.mat4.inverse(" WT_CLASS ".glMatrix.mat4.multiply(" WT_CLASS ".glMatrix.mat4.create(" << jsm << "), ";
-  WGenericMatrix<double, 4, 4> t(mm.transposed());
-  renderfv(t.data().begin(), t.data().end());
-  js_ << "))));";
+}
+
+WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4()
+{
+}
+
+WGLWidget::JavaScriptMatrix4x4::JavaScriptMatrix4x4(const WGLWidget::JavaScriptMatrix4x4 &other):
+  jsRef_(other.jsRef())
+{
+}
+
+WGLWidget::JavaScriptMatrix4x4 &
+WGLWidget::JavaScriptMatrix4x4::operator=(const WGLWidget::JavaScriptMatrix4x4 &rhs)
+{
+  jsRef_ = rhs.jsRef_;
+  return *this;
+}
+
+WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::inverted() const
+{
+  return WGLWidget::JavaScriptMatrix4x4(WT_CLASS ".glMatrix.mat4.inverse(" +
+    jsRef_ + ", " WT_CLASS ".glMatrix.mat4.create())");
+}
+
+WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::transposed() const
+{
+  return WGLWidget::JavaScriptMatrix4x4(WT_CLASS ".glMatrix.mat4.transpose(" +
+    jsRef_ + ", " WT_CLASS ".glMatrix.mat4.create())");
+}
+
+WGLWidget::JavaScriptMatrix4x4 WGLWidget::JavaScriptMatrix4x4::operator*(const WGenericMatrix<double, 4, 4> &m) const
+{
+  std::stringstream ss;
+  ss << WT_CLASS ".glMatrix.mat4.multiply(" << jsRef_ << ",";
+  WGenericMatrix<double, 4, 4> t(m.transposed());
+  renderfv(ss, t.data().begin(), t.data().end());
+  ss << ", " WT_CLASS ".glMatrix.mat4.create())";
+  return WGLWidget::JavaScriptMatrix4x4(ss.str());
 }

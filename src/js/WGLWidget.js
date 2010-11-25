@@ -24,6 +24,9 @@ WT_DECLARE_WT_MEMBER
    // which will be overwritten by whatever is rendered
    this.initializeGL = function() {};
    this.paintGL = function() {};
+   this.resizeGL = function() {};
+   this.updates = new Array();
+   this.initialized = false;
 
    var dragPreviousXY = null;
    var lookAtCenter = null;
@@ -37,7 +40,7 @@ WT_DECLARE_WT_MEMBER
    this.discoverContext = function(noGLHandler) {
      if (canvas.getContext) {
        try {
-         this.ctx = canvas.getContext('webgl');
+         this.ctx = canvas.getContext('webgl', {antialias: true});
        } catch (e) {}
        if (this.ctx == null) {
          try {
