@@ -179,6 +179,17 @@ void DboTest2::test1()
     dbo::ptr<Post> post = session.add(new Post());
     post.modify()->user = joe;
 
+#if 0
+    {
+      dbo::ptr<Post> p;
+      std::string msg;
+
+      boost::tie(p, msg)
+        = session.query<boost::tuple<dbo::ptr<Post>, std::string> >
+        ("SELECT (doc), msg FROM db_function('Howdy!')").resultValue();
+    }
+#endif
+
     std::cerr << "Joe has " << joe->posts.size() << " posts." << std::endl;
 
     dbo::ptr<Tag> cooking = session.add(new Tag());

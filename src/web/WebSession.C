@@ -1126,6 +1126,11 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
       cgi.parse(*message);
     } catch (std::exception& e) {
       std::cerr << "Could not parse request: " << e.what();
+
+      delete message;
+      lock->asyncResponse_->flush();
+      lock->asyncResponse_ = 0;
+      return;
     }
 
     {

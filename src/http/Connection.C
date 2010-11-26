@@ -245,10 +245,7 @@ void Connection::handleWriteResponse(const asio_error_code& e)
 
   if (e != asio::error::operation_aborted) {
     if (e) {
-      try {
-	std::cerr << "Asio error: " << socket().remote_endpoint().port() << ": "
-		  << e.message() << std::endl;
-      } catch (...) { }
+      handleError(e);
     }
     handleWriteResponse();
   }

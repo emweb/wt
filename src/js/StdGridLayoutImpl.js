@@ -24,8 +24,8 @@ WT_DECLARE_WT_MEMBER
      result += WT.px(el, 'marginRight');
      result += WT.px(el, 'borderLeftWidth');
      result += WT.px(el, 'borderRightWidth');
-     result += WT.px(p, 'paddingLeft');
-     result += WT.px(p, 'paddingRight');
+     result += WT.px(el, 'paddingLeft');
+     result += WT.px(el, 'paddingRight');
      return result;
    };
 

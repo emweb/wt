@@ -709,6 +709,16 @@ void DboTest::test7()
       BOOST_REQUIRE(id1 == aId);
       BOOST_REQUIRE(id2 == aId);
 
+#ifdef POSTGRES
+      dbo::ptr<A> a;
+      int id;
+      boost::tie(a, id) = session_->query<boost::tuple<dbo::ptr<A>, int> >
+	("select (a), a.id from table_a a").resultValue();
+
+      BOOST_REQUIRE(id == aId);
+      BOOST_REQUIRE(a.id() == aId);
+#endif
+
       t.commit();
     }
 

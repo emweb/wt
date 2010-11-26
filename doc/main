@@ -469,8 +469,8 @@ namespace Wt {
   \subsection wthttpd 9.2 Built-in httpd
 
   When linking your application against <tt>libwthttp</tt>, the
-  resulting binary is a stand-alone http(s) webserver. The web server
-  will act as a plain web server in addition to serving the %Wt
+  resulting binary is a stand-alone HTTP/WebSockets server.  The web
+  server will act as a plain web server in addition to serving the %Wt
   application.
 
   The following locations for the wt_config.xml configuration file are
@@ -728,28 +728,37 @@ The configuration file syntax is line based:
 General options:
   -h [ --help ]                 produce help message
   -t [ --threads ] arg (=10)    number of threads
-  --servername arg (=localhost) servername (IP address or DNS name)
+  --servername arg (=vierwerf)  servername (IP address or DNS name)
   --docroot arg                 document root for static files
   --errroot arg                 root for error pages
   --accesslog arg               access log file (defaults to stdout)
-  --no-compression              do not compress dynamic text/html and
-                                text/plain responses
+  --no-compression              do not compress dynamic text/html and text/plain
+                                responses
   --deploy-path arg (=/)        location for deployment
-  --session-id-prefix arg       prefix for session-id's (overrides
-                                wt_config.xml setting)
+  --session-id-prefix arg       prefix for session-id's (overrides wt_config.xml
+                                setting)
   -p [ --pid-file ] arg         path to pid file (optional)
   -c [ --config ] arg           location of wt_config.xml. If unspecified, 
-                                WT_CONFIG_XML is searched in the environment,
-				if it does not exist then the compiled-in
-				default (/etc/wt/wt_config.xml) is tried. If
-				the default does not exist, we revert to
-				default values for all parameters.
+                                WT_CONFIG_XML is searched in the environment, 
+                                if it does not exist then the compiled-in 
+                                default (/etc/wt/wt_config.xml) is tried. If 
+                                the default does not exist, we revert to 
+                                default values for all parameters.
+  --max-memory-request-size arg Requests are usually read in memory before 
+                                being processed. To avoid DOS attacks where 
+                                large requests take up all RAM, use this 
+                                parameter to force requests that are larger 
+                                than the specified size (bytes) to be spooled 
+                                to disk. This will also spool file uploads to 
+                                disk.
+  --gdb                         do not shutdown when receiving Ctrl-C (and let 
+                                gdb break instead)
 
-HTTP server options:
+HTTP/WebSocket server options:
   --http-address arg    IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
   --http-port arg (=80) HTTP port (e.g. 80)
 
-HTTPS server options:
+HTTPS/Secure WebSocket server options:
   --https-address arg     IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)
   --https-port arg (=443) HTTPS port (e.g. 443)
   --ssl-certificate arg   SSL server certificate chain file

@@ -132,10 +132,10 @@ int WAbstractItemView::modelColumnIndex(int visibleColumn) const
 
   for (int i = 0; i <= visibleColumn; ++i) {
     ++j;
-    while (j < columns_.size() && columns_[j].hidden)
+    while (static_cast<unsigned>(j) < columns_.size() && columns_[j].hidden)
       ++j;
 
-    if (j >= columns_.size())
+    if (static_cast<unsigned>(j) >= columns_.size())
       return -1;
   }
 

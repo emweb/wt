@@ -130,7 +130,7 @@ void Configuration::createOptions(po::options_description& options)
      "do not shutdown when receiving Ctrl-C (and let gdb break instead)")
      ;
 
-  po::options_description http("HTTP server options");
+  po::options_description http("HTTP/WebSocket server options");
   http.add_options()
     ("http-address", po::value<std::string>(),
      "IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)")
@@ -138,7 +138,7 @@ void Configuration::createOptions(po::options_description& options)
      "HTTP port (e.g. 80)")
     ;
 
-  po::options_description https("HTTPS server options");
+  po::options_description https("HTTPS/Secure WebSocket server options");
   https.add_options()
     ("https-address", po::value<std::string>(),
      "IPv4 (e.g. 0.0.0.0) or IPv6 Address (e.g. 0::0)")

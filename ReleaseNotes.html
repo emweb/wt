@@ -19,6 +19,82 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.7 (Nov 26, 2010)</h2>
+
+<p>
+  This release contains a healthy mix of bug fixes, quality improvements,
+  and new features.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WGLWidget.html">WGLWidget</a></dt>
+  <dd>
+    A preview of WebGL support in Wt (work in progress).
+  </dd>
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WAbstractItemView.html#a120156dc59eaf3608916b679d937c5b8">WAbstractItemView</a>
+  </dt>
+  <dd>Added API for hiding columns.</dd>
+  <dt>
+    <a
+  href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>,
+    <a
+  href="classWt_1_1Chart_1_1WCartesianChart.html">WPieChart</a>
+  </dt>
+  <dd>
+    Added support for ToolTipRole data, using WAbstractArea interactive areas.
+  </dd>
+  <dt>
+    <a href="classWt_1_1Dbo_1_1Session.html#ad59da4e078a4e6532da698425193bbdb">Dbo::Session::rereadAll()</a>
+  </dt>
+  <dd>
+    Reread all transient objects, as a catch-all solution to stale
+    data (data modified in another session).
+  </dd>
+  <dt>
+    <a href="classWt_1_1WInteractWidget.html#ac7d10a6cae1e23a791b44c0682a3c627">WInteractWidget</a>
+  </dt>
+  <dd>Added support for touch and gesture events (Mobile webkit).</dd>
+</dl>
+
+<h3>C) Misc:</h3>
+
+<dl>
+  <dt>
+    WebSocket protocol support (experimental)
+  </dt>
+  <dd>Use of WebSocket for communication between browser and server
+    can now be used, by enabling &lt;web-sockets&gt; in the
+    configuration file (we're likely to turn this on by default in a
+    future version. There is automatic fallback to the current
+    XMLHttpRequest based communication if WebSockets are not available
+    or communication could not be established. WebSockets is only
+    available using the built-in httpd server (which is now also a
+    WebSocket server).</dd>
+  <dt>
+    Build improvements
+  </dt>
+  <dd>
+    <ul>
+      <li>Provide a workaround for broken g++ compiler shipped in Ubuntu
+      Maverick</li>
+      <li>Provide support for building without using 
+      std::wstring (-DWT_NO_STD_WSTRING) or std::locale
+      (-DWT_NO_STD_LOCALE=OFF) support.
+      </li>
+    </ul>
+  </dd>
+</dl>
+
+<hr />
+
 <h2>Release 3.1.6 (Oct 29, 2010)</h2>
 
 <p>
