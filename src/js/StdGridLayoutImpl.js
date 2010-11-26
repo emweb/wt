@@ -26,17 +26,22 @@ WT_DECLARE_WT_MEMBER
      result += WT.px(el, 'borderRightWidth');
      result += WT.px(el, 'paddingLeft');
      result += WT.px(el, 'paddingRight');
+     result += WT.pxself(p, 'paddingLeft');
+     result += WT.pxself(p, 'paddingRight');
      return result;
    };
 
    this.marginV = function(el) {
      // TODO: consider caching
+     //var p = el.parentNode;
      var result = WT.px(el, 'marginTop');
      result += WT.px(el, 'marginBottom');
      result += WT.px(el, 'borderTopWidth');
      result += WT.px(el, 'borderBottomWidth');
      result += WT.px(el, 'paddingTop');
      result += WT.px(el, 'paddingBottom');
+     // result += WT.pxself(p, 'paddingTop');
+     // result += WT.pxself(p, 'paddingBottom');
      return result;
    };
 
@@ -309,6 +314,13 @@ WT_DECLARE_WT_MEMBER
      return true;
    };
 
+   this.contains = function(layout) {
+     var thisw = WT.getElement(id);
+     var otherw = WT.getElement(layout.getId());
+
+     return WT.contains(thisw, otherw);
+   };
+
    this.adjust();
  });
 
@@ -524,9 +536,13 @@ WT_DECLARE_APP_MEMBER(1, "layouts",
 
       for (i=0, il = layouts.length ;i < il; ++i) {
         var l = layouts[i];
+
         if (l.getId() == layout.getId()) {
 	  layouts[i] = layout;
  	  return;
+        } else if (layout.contains(l)) {
+	  layouts.splice(i, 0, layout);
+	  return;
         }
       }
       layouts.push(layout);

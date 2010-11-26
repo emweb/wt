@@ -143,6 +143,18 @@ this.remove = function(id)
     e.parentNode.removeChild(e);
 };
 
+this.contains = function(w1, w2) {
+  var p = w2.parentNode;
+
+  while (p != null && p.tagName.toLowerCase() != "body") {
+    if (p == w1)
+      return true;
+    p = p.parentNode;
+  }
+
+  return false;
+}
+
 this.unstub = function(from, to, methodDisplay) {
   if (methodDisplay == 1) {
     if (from.style.display != 'none')

@@ -110,7 +110,11 @@ void CodeSession::deleteIfEmpty()
 void CodeSession::generateId()
 {
   for (int i = 0; i < 32; ++i) {
+#ifndef WIN32
     int d = lrand48() % (26 + 26 + 10);
+#else
+    int d = rand();
+#endif
 
     char c = (d < 10 ? ('0' + d)
 	      : (d < 36 ? ('A' + d - 10)

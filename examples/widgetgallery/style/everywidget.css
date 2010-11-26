@@ -108,9 +108,8 @@ ul {
 }
 
 ul.menu {
-    margin:0px;
-    padding-left:0px;
-    padding-bottom:30px;
+    margin: 0px;
+    padding: 0px;
     text-indent:5px;
     list-style:none;
     width:200px;

@@ -1269,6 +1269,9 @@ void WTableView::computeRenderedArea()
     renderedFirstRow_
       = std::max(renderedFirstRow_ - renderedRows - borderRows, 0);
 
+    if (renderedFirstRow_ % 2 == 1)
+      --renderedFirstRow_;
+
     /* column range */
     int left
       = std::max(0, viewportLeft_ - viewportWidth_ - borderColumnPixels);
