@@ -289,7 +289,8 @@ void WFileUpload::updateDom(DomElement& element, bool all)
       }
   }
 
-  if (progressBar_ && !progressBar_->isRendered())
+  if (element.type() != DomElement_INPUT
+      && progressBar_ && !progressBar_->isRendered())
     element.addChild(((WWebWidget *)progressBar_)
 		     ->createDomElement(WApplication::instance()));
 

@@ -136,7 +136,8 @@ namespace Wt {
   extern WT_API std::string toUTF8(const std::string& s);
 #endif
 
-std::string UTF8Substr(const std::string &s, int begin, int length);
+  // Following is WT_API for testing
+  std::string WT_API UTF8Substr(const std::string &s, int begin, int length);
 }
 
 #endif // WSTRING_UTIL_H_

@@ -12,7 +12,7 @@
 
 namespace Wt {
 
-#if 1
+#if 0
 #define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {alert('error " << __FUNCTION__ << ": ' + err); debugger;}}\n";} while(false)
 #else
 #define GLDEBUG
@@ -126,7 +126,7 @@ public:
    * used as (they refer to unnamed temporary objects - rvalues in
    * C++-lingo).
    */
-  class JavaScriptMatrix4x4 {
+  class WT_API JavaScriptMatrix4x4 {
   public:
     // Create an identity matrix
     JavaScriptMatrix4x4(const std::string &jsVariable);
