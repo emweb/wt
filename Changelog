@@ -1,3 +1,9 @@
+27-11-2010:
+	* js/StdGridLayout.js: implement rowspan handling
+
+26-11-2010:
+	* released 3.1.7
+
 24-11-2010:
 	* WAbstractItemView: added support for column hiding
 

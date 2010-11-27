@@ -73,72 +73,87 @@ WT_DECLARE_WT_MEMBER
      return null;
    };
 
+   this.adjustCell = function(td, height) {
+     var shallow = height == 0;
+
+     height -= WT.pxself(td, 'paddingTop');
+     height -= WT.pxself(td, 'paddingBottom');
+
+     if (height <= 0)
+       height = 0;
+
+     td.style.height = height+'px';
+     if (td.style['verticalAlign'] || td.childNodes.length == 0)
+       return;
+
+     var ch = td.childNodes[0]; // 'ch' is cell contents
+     if (height <= 0)
+       height = 0;
+
+     if (ch.className == 'Wt-hcenter') {
+       ch.style.height = height+'px';
+       var itd = ch.firstChild.firstChild;
+       if (!WT.hasTag(itd, 'TD'))
+	 itd = itd.firstChild;
+       if (itd.style.height != height+'px')
+	 itd.style.height = height+'px';
+       ch = itd.firstChild;
+     }
+
+     if (td.childNodes.length == 1)
+       height -= this.marginV(ch);
+
+       if (height <= 0)
+	 height = 0;
+
+     if (WT.hasTag(ch, 'TABLE'))
+       return;
+
+     if (!shallow && ch.wtResize) {
+       var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
+       if (self.getColumn(col).style.width != '') {
+	 ch.style.position = 'absolute';
+	 ch.style.width = w+'px';
+       }
+       ch.wtResize(ch, w, height);
+     } else if (ch.style.height != height+'px') {
+       ch.style.height = height+'px';
+       if (ch.className == 'Wt-wrapdiv') {
+	 if (WT.isIE && WT.hasTag(ch.firstChild, 'TEXTAREA')) {
+	   ch.firstChild.style.height
+	     = (height - WT.pxself(ch, 'marginBottom')) + 'px';
+	 }
+       }
+     }
+   };
+
    /*
     * FIXME: we should merge getColumn() functionality here to
     * avoid repeatedly calling it
     */
    this.adjustRow = function(row, height) {
-     if (row.style.height != height+'px')
-       row.style.height = height+'px';
+     var rowspan_tds = [];
+
+     if (row.style.height != height + 'px')
+       row.style.height = height + 'px';
 
      var tds = row.childNodes, j, jl, td, col;
      for (j=0, col=-1, jl = tds.length; j<jl; ++j) {
        td=tds[j];
 
-       var k = height;
-       k -= WT.pxself(td, 'paddingTop');
-       k -= WT.pxself(td, 'paddingBottom');
-
-       if (k <= 0)
-	 k=0;
-
        if (td.className != 'Wt-vrh')
 	 ++col;
 
-       td.style.height = k+'px';
-       if (td.style['verticalAlign'] || td.childNodes.length == 0)
+       if (td.rowSpan != 1) {
+	 this.adjustCell(td, 0);
+	 rowspan_tds.push(td);
 	 continue;
-
-       var ch = td.childNodes[0]; // 'ch' is cell contents
-       if (k <= 0)
-	 k=0;
-
-       if (ch.className == 'Wt-hcenter') {
-	 ch.style.height = k+'px';
-	 var itd = ch.firstChild.firstChild;
-	 if (!WT.hasTag(itd, 'TD'))
-	   itd = itd.firstChild;
-	 if (itd.style.height != k+'px')
-	   itd.style.height = k+'px';
-	 ch = itd.firstChild;
        }
 
-       if (td.childNodes.length == 1)
-	 k -= this.marginV(ch);
-
-       if (k <= 0)
-	 k=0;
-
-       if (WT.hasTag(ch, 'TABLE'))
-	 continue;
-
-       if (ch.wtResize) {
-	 var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
-	 if (self.getColumn(col).style.width != '') {
-	   ch.style.position = 'absolute';
-	   ch.style.width = w+'px';
-	 }
-	 ch.wtResize(ch, w, k);
-       } else if (ch.style.height != k+'px') {
-	 ch.style.height = k+'px';
-	 if (ch.className == 'Wt-wrapdiv') {
-	   if (WT.isIE && WT.hasTag(ch.firstChild, 'TEXTAREA')) {
-	     ch.firstChild.style.height
-	       = (k - WT.pxself(ch, 'marginBottom')) + 'px';
-	   }
-	 }
-       }
+       this.adjustCell(td, height);
      }
+
+     return rowspan_tds;
    };
 
    this.adjust = function() {
@@ -221,6 +236,8 @@ WT_DECLARE_WT_MEMBER
 
      r=r>tmh?r:tmh;
 
+     var rowspan_tds = [];
+
      /*
       *  Now, iterate over the whole table, and adjust the height
       *  for every row (which has a stretch) and for every cell. Apply the
@@ -253,10 +270,15 @@ WT_DECLARE_WT_MEMBER
 	     h=row.offsetHeight;
 	   }
 
-	   this.adjustRow(row, h);
+	   WT.addAll(rowspan_tds, this.adjustRow(row, h));
 	 }
 	 ++ri;
        }
+     }
+
+     for (i = 0, il = rowspan_tds.length; i < il; ++i) {
+       var td = rowspan_tds[i];
+       this.adjustCell(td, td.offsetHeight);
      }
 
      t.w = p.clientWidth;

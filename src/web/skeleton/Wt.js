@@ -50,6 +50,11 @@ this.arrayRemove = function(a, from, to) {
   return a.push.apply(a, rest);
 };
 
+this.addAll = function(a1, a2) {
+  for (var i = 0, il = a2.length; i < il; ++i)
+    a1.push(a2[i]);
+}
+
 var ie = (function(){
     var undef,
         v = 3,

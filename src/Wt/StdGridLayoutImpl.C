@@ -317,20 +317,6 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       tr->setProperty(PropertyStyle, heightPct);
     }
 
-    int padding[] = { 0, 0, 0, 0 };
-
-    if (row == 0)
-      padding[0] = margin[0];
-    else
-      if (!resizeHandleAbove)
-	padding[0] = (grid_.verticalSpacing_+1) / 2;
-
-    if (row + 1 == rowCount)
-      padding[2] = margin[2];
-    else
-      if (!resizeHandleBelow)
-	padding[2] = grid_.verticalSpacing_ / 2;
-
     bool resizeHandleLeft = false;
 
     for (unsigned col = 0; col < colCount; ++col) {
@@ -348,8 +334,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	int colSpan = 0;
 
 	for (int i = 0; i < item.rowSpan_; ++i) {
-	  // FIXME: if we span multiple rows, it is not clear what we should
-	  // do ?
+	  // FIXME: if we span multiple rows, it is not clear what we should do ?
 	  //
 	  // if stretch == -1 or >0, then we should fit height
 	  // if stretch == 0, then we should not fit height if no row
@@ -389,7 +374,19 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	if (vAlign != 0)
 	  itemFitHeight = false;
 
-	padding[1] = padding[3] = 0;
+	int padding[] = { 0, 0, 0, 0 };
+
+	if (row == 0)
+	  padding[0] = margin[0];
+	else
+	  if (!resizeHandleAbove)
+	    padding[0] = (grid_.verticalSpacing_+1) / 2;
+
+	if (row + item.rowSpan_ == rowCount)
+	  padding[2] = margin[2];
+	else
+	  if (!resizeHandleBelow)
+	    padding[2] = grid_.verticalSpacing_ / 2;
 
 	if (col == 0)
 	  padding[3] = margin[3];
