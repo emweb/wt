@@ -339,7 +339,10 @@ WT_DECLARE_WT_MEMBER
      var thisw = WT.getElement(id);
      var otherw = WT.getElement(layout.getId());
 
-     return WT.contains(thisw, otherw);
+     if (thisw && otherw)
+       return WT.contains(thisw, otherw);
+     else
+       return false;
    };
 
    this.adjust();
