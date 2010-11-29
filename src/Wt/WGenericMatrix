@@ -146,9 +146,11 @@ public:
    */
   void setToIdentity()
   {
+    #ifndef WT_TARGET_JAVA
     using namespace boost::numeric::ublas;
     m_ = project(identity_matrix<T>(Rows > Cols ? Rows : Cols),
         range(0, Rows), range(0, Cols));
+    #endif
   }
 
   /*! \brief Returns the transposed of the matrix

@@ -1958,6 +1958,7 @@ private:
   std::stringstream delayedJavaScript_;
   std::stringstream js_;
 
+#ifndef WT_TARGET_JAVA
   template<typename Iterator>
   static void renderfv(std::ostream &os, Iterator begin, Iterator end)
   {
@@ -1967,6 +1968,7 @@ private:
       os << (i == begin ? "" : ",") << makeFloat(*i, buf);
     os << "])";
   }
+#endif
 
   template<typename Iterator>
   static void renderiv(std::ostream &os, Iterator begin, Iterator end, GLenum type)

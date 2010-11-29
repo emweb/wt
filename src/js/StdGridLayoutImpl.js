@@ -73,7 +73,7 @@ WT_DECLARE_WT_MEMBER
      return null;
    };
 
-   this.adjustCell = function(td, height) {
+   this.adjustCell = function(td, height, col) {
      var shallow = height == 0;
 
      height -= WT.pxself(td, 'paddingTop');
@@ -111,7 +111,7 @@ WT_DECLARE_WT_MEMBER
 
      if (!shallow && ch.wtResize) {
        var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
-       if (self.getColumn(col).style.width != '') {
+       if (col != -1 && self.getColumn(col).style.width != '') {
 	 ch.style.position = 'absolute';
 	 ch.style.width = w+'px';
        }
@@ -145,12 +145,12 @@ WT_DECLARE_WT_MEMBER
 	 ++col;
 
        if (td.rowSpan != 1) {
-	 this.adjustCell(td, 0);
+	 this.adjustCell(td, 0, -1);
 	 rowspan_tds.push(td);
 	 continue;
        }
 
-       this.adjustCell(td, height);
+       this.adjustCell(td, height, -1);
      }
 
      return rowspan_tds;
@@ -215,14 +215,13 @@ WT_DECLARE_WT_MEMBER
       */
      var ts=0,                         // Sum of stretch factors
          tmh=0,                          // Min heights
-	 ri, j, jl, row, tds, td; // Iterator variables
+	 ri, j, jl, row, tds; // Iterator variables
 
      for (i=0, ri=0, il=t.rows.length; i<il; i++) {
        row = t.rows[i];
 
        if (row.className == 'Wt-hrh') {  // Skip resize rows
 	 r -= row.offsetHeight;          // Reduce r
-	 td = row.firstChild;
 	 continue;
        }
 
@@ -278,7 +277,7 @@ WT_DECLARE_WT_MEMBER
 
      for (i = 0, il = rowspan_tds.length; i < il; ++i) {
        var td = rowspan_tds[i];
-       this.adjustCell(td, td.offsetHeight);
+       this.adjustCell(td, td.offsetHeight, col);
      }
 
      t.w = p.clientWidth;

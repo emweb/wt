@@ -58,7 +58,8 @@ public:
 	  t = s;
 	}
       }
-    }
+    } else
+      t = escape(t);
 
     return t; 
   }
