@@ -627,6 +627,9 @@ WAbstractItemView::ColumnInfo WAbstractItemView::createColumnInfo(int column)
 
 WAbstractItemView::ColumnInfo& WAbstractItemView::columnInfo(int column) const
 {
+  while (column >= (int)columns_.size())
+    columns_.push_back(createColumnInfo(columns_.size()));
+
   return columns_[column];
 }
 
