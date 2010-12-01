@@ -1088,7 +1088,7 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 {
   const std::vector<WDataSeries>& series = chart_->series();
   WAbstractItemModel *model = chart_->model();
-  unsigned rows = model->rowCount();
+  unsigned rows = model ? model->rowCount() : 0;
 
   double groupWidth;
   int numBarGroups;

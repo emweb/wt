@@ -53,7 +53,7 @@ this.arrayRemove = function(a, from, to) {
 this.addAll = function(a1, a2) {
   for (var i = 0, il = a2.length; i < il; ++i)
     a1.push(a2[i]);
-}
+};
 
 var ie = (function(){
     var undef,
@@ -83,7 +83,7 @@ this.setHtml = function (el, html, add) {
     var newNode, i, il;
     switch (e.nodeType) {
     case 1: // element
-      if (e.namespaceURI == null)
+      if (e.namespaceURI === null)
 	newNode = document.createElement(e.nodeName);
       else
 	newNode = document.createElementNS(e.namespaceURI, e.nodeName);
@@ -135,7 +135,7 @@ this.hasTag = function(e, s) {
 };
 
 this.insertAt = function(p, c, i) {
-  if (p.childNodes.length == 0)
+  if (!p.childNodes.length)
     p.appendChild(c);
   else
     p.insertBefore(c, p.childNodes[i]);
@@ -151,14 +151,14 @@ this.remove = function(id)
 this.contains = function(w1, w2) {
   var p = w2.parentNode;
 
-  while (p != null && p.tagName.toLowerCase() != "body") {
+  while (p && p.tagName.toLowerCase() != "body") {
     if (p == w1)
       return true;
     p = p.parentNode;
   }
 
   return false;
-}
+};
 
 this.unstub = function(from, to, methodDisplay) {
   if (methodDisplay == 1) {
@@ -178,7 +178,7 @@ this.unstub = function(from, to, methodDisplay) {
 
 this.unwrap = function(e) {
   e = WT.getElement(e);
-  if (e.parentNode.className.indexOf('Wt-wrap') == 0) {
+  if (!e.parentNode.className.indexOf('Wt-wrap')) {
     var wrapped = e;
     e = e.parentNode;
     if (e.className.length >= 8)

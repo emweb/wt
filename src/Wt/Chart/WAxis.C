@@ -332,6 +332,10 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
   totalRenderLength
     -= SEGMENT_MARGIN * (segments_.size() - 1) + clipMin + clipMax;
 
+  int rc = 0;
+  if (chart_->model())
+    rc = chart_->model()->rowCount();
+
   /*
    * Iterate twice, since we adjust the render extrema based on the size
    * and vice-versa
@@ -355,8 +359,7 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
 	  if (scale_ == CategoryScale) {
 	    double numLabels = calcAutoNumLabels(s) / 1.5;
 
-	    renderInterval_
-	      = std::max(1.0, std::floor(chart_->model()->rowCount() / numLabels));
+	    renderInterval_  = std::max(1.0, std::floor(rc / numLabels));
 	  } else if (scale_ == LinearScale) {
 	    double numLabels = calcAutoNumLabels(s);
 
@@ -417,9 +420,13 @@ void WAxis::setOtherAxisLocation(AxisValue otherLocation) const
 void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
   const
 {
+  int rc = 0;
+  if (chart_->model())
+    rc = chart_->model()->rowCount();
+
   if (scale_ == CategoryScale) {
     segment.renderMinimum = -0.5;
-    segment.renderMaximum = chart_->model()->rowCount() - 0.5;    
+    segment.renderMaximum = rc - 0.5;    
   } else {
     segment.renderMinimum = segment.minimum;
     segment.renderMaximum = segment.maximum;
@@ -437,7 +444,7 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	if (dataColumn != -1) {
 	  WAbstractItemModel *model = chart_->model();
 
-	  for (int i = 0; i < model->rowCount(); ++i) {
+	  for (int i = 0; i < rc; ++i) {
 	    double v = getValue(model->data(i, dataColumn));
 
 	    if (Utils::isNaN(v))
@@ -687,12 +694,16 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
 
   const Segment& s = segments_[segment];
 
+  int rc = 0;
+  if (chart_->model())
+    rc = chart_->model()->rowCount();
+
   switch (scale_) {
   case CategoryScale: {
     int renderInterval = std::max(1, static_cast<int>(renderInterval_));
     if (renderInterval == 1) {
       ticks.push_back(TickLabel(-0.5, TickLabel::Long));
-      for (int i = 0; i < chart_->model()->rowCount(); ++i) {
+      for (int i = 0; i < rc; ++i) {
 	ticks.push_back(TickLabel(i + 0.5, TickLabel::Long));
 	ticks.push_back(TickLabel(i, TickLabel::Zero,
 				  label(static_cast<double>(i))));
@@ -701,7 +712,7 @@ void WAxis::getLabelTicks(WChart2DRenderer& renderer,
       /*
        * We could do a special effort for date X series here...
        */
-      for (int i = 0; i < chart_->model()->rowCount(); i += renderInterval) {
+      for (int i = 0; i < rc; i += renderInterval) {
 	ticks.push_back(TickLabel(i, TickLabel::Long,
 				  label(static_cast<double>(i))));
       }

@@ -1668,7 +1668,7 @@ int WTreeView::subTreeHeight(const WModelIndex& index,
   if (result >= upperBound)
     return result;
 
-  if (isExpanded(index)) {
+  if (model() && isExpanded(index)) {
     int childCount = model()->rowCount(index);
 
     for (int i = 0; i < childCount; ++i) {

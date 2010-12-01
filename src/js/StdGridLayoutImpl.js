@@ -111,7 +111,7 @@ WT_DECLARE_WT_MEMBER
 
      if (!shallow && ch.wtResize) {
        var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
-       if (col != -1 && self.getColumn(col).style.width != '') {
+       if (self.getColumn(col).style.width != '') {
 	 ch.style.position = 'absolute';
 	 ch.style.width = w+'px';
        }
@@ -145,12 +145,12 @@ WT_DECLARE_WT_MEMBER
 	 ++col;
 
        if (td.rowSpan != 1) {
-	 this.adjustCell(td, 0, -1);
-	 rowspan_tds.push(td);
+	 /* A shallow adjust cell, resetting height to 0 */
+	 this.adjustCell(td, 0, col);
+	 rowspan_tds.push({td: td, col: col});
 	 continue;
-       }
-
-       this.adjustCell(td, height, -1);
+       } else
+	 this.adjustCell(td, height, col);
      }
 
      return rowspan_tds;
@@ -276,7 +276,8 @@ WT_DECLARE_WT_MEMBER
      }
 
      for (i = 0, il = rowspan_tds.length; i < il; ++i) {
-       var td = rowspan_tds[i];
+       var td = rowspan_tds[i].td,
+           col = rowspan_tds[i].col;
        this.adjustCell(td, td.offsetHeight, col);
      }
 
