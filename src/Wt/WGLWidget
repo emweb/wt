@@ -690,6 +690,7 @@ public:
    * JavaScript WebGL funtion is executed.
    * @{
    */
+  void debugger();
   /*! \brief GL function to activate an existing texture
    *
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glActiveTexture.xml">

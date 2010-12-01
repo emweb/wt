@@ -721,7 +721,9 @@ void WebSession::doRecursiveEventLoop()
 
 #ifdef WT_TARGET_JAVA
   if (!WebController::isAsyncSupported())
-    throw WtException("Recursive event loop requires a Servlet 3.0 API.");
+    throw WtException("Server push requires a Servlet 3.0 enabled servlet " 
+		      "container and an application with async-supported "
+		      "enabled.");
 #endif
   
   /*

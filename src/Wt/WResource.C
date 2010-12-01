@@ -113,9 +113,32 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   Http::Request  request(*webRequest, continuation);
   Http::Response response(this, webResponse, continuation);
 
-  if (!continuation && !suggestedFileName_.empty())
+  if (!continuation && !suggestedFileName_.empty()) {
+    // Browser incompatibility hell: internatianalized filename suggestions
+    // First filename is for browsers that don't support RFC 5987
+    // Second filename is for browsers that do support RFC 5987
+    std::string fileField;
+    // We cannot query wApp here, because wApp doesn't exist for
+    // static resources.
+    bool isIE = webRequest->userAgent().find("MSIE") != std::string::npos;
+    bool isChrome = webRequest->userAgent().find("Chrome") != std::string::npos;
+    if (isIE || isChrome) {
+      // filename="foo-%c3%a4-%e2%82%ac.html"
+      // Note: IE never converts %20 back to space, so avoid escaping
+      // IE wil also not url decode the filename if the file has no ASCII
+      // extension (e.g. .txt)
+      fileField = "filename=\"" +
+        Utils::urlEncode(suggestedFileName_.toUTF8(), " ") + "\";";
+    } else {
+      // Binary UTF-8 sequence: for FF3, Safari, Chrome, Chrome9
+      fileField = "filename=\"" + suggestedFileName_.toUTF8() + "\";";
+    }
+    // Next will be picked by RFC 5987 in favour of the
+    // one without specified encoding (Chrome9, 
+    fileField+= Utils::EncodeHttpHeaderField("filename", suggestedFileName_);
     response.addHeader("Content-Disposition",
-		       "attachment;filename=" + suggestedFileName_);
+		       "attachment;" + fileField);
+  }
 
   handleRequest(request, response);
 
@@ -131,7 +154,7 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
 				   response.continuation_));
 }
 
-void WResource::suggestFileName(const std::string& name)
+void WResource::suggestFileName(const WString& name)
 {
   suggestedFileName_ = name;
 

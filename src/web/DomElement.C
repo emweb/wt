@@ -62,7 +62,7 @@ bool defaultInline_[] =
     false, false, false
   };
 
-  static const std::string unsafeChars_ = "$&+,:;=?@'\"<>#%{}|\\^~[]`";
+  static const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`";
 }
 
 namespace Wt {
@@ -126,24 +126,38 @@ DomElement::~DomElement()
   delete insertBefore_;
 }
 
-std::string DomElement::urlEncodeS(const std::string& url)
+std::string DomElement::urlEncodeS(const std::string& url,
+                                   const std::string &allowed)
 {
   std::stringstream result;
+#ifndef WT_CNOR
+  result << std::hex;
+#endif
 
   for (unsigned i = 0; i < url.length(); ++i) {
-    char c = url[i];
-    if (c < 31 || c >= 127 || unsafeChars_.find(c) != std::string::npos) {
-      result << '%';
+    unsigned char c = url[i];
+    if (c <= 31 || c >= 127 || unsafeChars_.find(c) != std::string::npos) {
+      if (allowed.find(c) != std::string::npos) {
+        // overridden
+        result.put(c);
+      } else {
+        result << '%';
 #ifndef WT_CNOR
-      result << std::hex << (int)c;
+        result << (int)c;
 #else
-      result << Utils::toHexString(c);
+        result << Utils::toHexString(c);
 #endif // WT_CNOR
+      }
     } else
       result.put(c);
   }
 
   return result.str();
+}
+
+std::string DomElement::urlEncodeS(const std::string& url)
+{
+  return urlEncodeS(url, std::string());
 }
 
 void DomElement::setType(DomElementType type)

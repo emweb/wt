@@ -148,7 +148,9 @@ public:
 
     Param& p = params_[column];
     p.value.resize(value.size());
-    memcpy(const_cast<char *>(p.value.data()), &(*value.begin()), value.size());
+    if (value.size() > 0)
+      memcpy(const_cast<char *>(p.value.data()), &(*value.begin()),
+	     value.size());
     p.isbinary = true;
     p.isnull = false;
 
@@ -394,7 +396,7 @@ public:
 
     value->resize(vlength);
     std::copy(v, v + vlength, value->begin());
-    free(v);
+    PQfreemem(v);
 
     DEBUG(std::cerr << this 
 	  << " result blob " << column << " (blob, size = " << vlength << ")"

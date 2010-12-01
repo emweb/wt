@@ -322,12 +322,18 @@ WApplication::~WApplication()
 #endif
 }
 
-void WApplication::attachThread()
+void WApplication::attachThread(bool attach)
 {
 #ifndef WT_CNOR
-  WebSession::Handler::attachThreadToSession(weakSession_.lock());
+  if (attach)
+    WebSession::Handler::attachThreadToSession(weakSession_.lock());
+  else
+    WebSession::Handler::attachThreadToSession(boost::shared_ptr<WebSession>());
 #else
-  WebSession::Handler::attachThreadToSession(session_);
+  if (attach)
+    WebSession::Handler::attachThreadToSession(session_);
+  else
+    WebSession::Handler::attachThreadToSession(0);
 #endif
 }
 
@@ -671,7 +677,7 @@ std::string WApplication::addExposedResource(WResource *resource,
 {
   exposedResources_[resourceMapKey(resource)] = resource;
 
-  std::string fn = resource->suggestedFileName();
+  std::string fn = resource->suggestedFileName().toUTF8();
   if (!fn.empty() && fn[0] != '/')
     fn = '/' + fn;
 
@@ -1072,7 +1078,9 @@ void WApplication::triggerUpdate()
 {
 #ifdef WT_TARGET_JAVA
   if (!WebController::isAsyncSupported())
-    throw WtException("Server push requires a Servlet 3.0 API.");
+    throw WtException("Server push requires a Servlet 3.0 enabled servlet " 
+		      "container and an application with async-supported "
+		      "enabled.");
 #endif
 
   if (!modifiedWithoutEvent_)

@@ -78,7 +78,7 @@ void WProgressBar::setFormat(const WString& format)
   format_ = format;
 }
 
-WT_USTRING WProgressBar::text() const
+WString WProgressBar::text() const
 {
   std::string f = format_.toUTF8();
   int buflen = f.length() + 5;
@@ -91,7 +91,7 @@ WT_USTRING WProgressBar::text() const
 
   snprintf(buf, buflen, f.c_str(), percentage());
 
-  WT_USTRING result = WT_USTRING::fromUTF8(buf);
+  WString result = WT_USTRING::fromUTF8(buf);
 
   delete[] buf;
 

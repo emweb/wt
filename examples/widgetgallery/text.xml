@@ -321,8 +321,9 @@
       href="#/style-and-layout/wgridlayout"><tt>WGridLayout</tt></a>
       layout class instead. If you wish to present a lot of data in a
       table, you can also use one of the Model-View-Classes (<a
-      href="#/mvc-widgets/wtreeview"><tt>WTreeView</tt></a> or <a
-      href="#/mvc-widgets/ext__tableview"><tt>Ext::TableView</tt></a>), as
+      href="#/mvc-widgets/wtreeview"><tt>WTreeView</tt></a>,
+      <a href="#/mvc-widgets/wtableview"><tt>WTableView</tt></a> or 
+      <a href="#/mvc-widgets/ext__tableview"><tt>Ext::TableView</tt></a>), as
       these may offer a higher performance and other benefits such as
       controls for interactive column resizing and headers.
     </p>

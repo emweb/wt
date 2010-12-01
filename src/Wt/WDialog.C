@@ -178,9 +178,10 @@ WDialog::DialogCode WDialog::exec()
   show();
 
 #ifdef WT_TARGET_JAVA
-  if (!WebController::isAsyncSupported()) {
-    throw std::runtime_error("Recursive event loop requires a Servlet 3.0 API.");
-  }
+  if (!WebController::isAsyncSupported())
+     throw WtException("Server push requires a Servlet 3.0 enabled servlet " 
+		      "container and an application with async-supported "
+		      "enabled.");
 #endif
 
   recursiveEventLoop_ = true;

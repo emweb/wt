@@ -57,11 +57,12 @@ DispatchThread::DispatchThread(WQApplication *app,
 
 void DispatchThread::run()
 {
-  app_->attachThread();
+  app_->attachThread(true);
   app_->create();
 
   if (qtEventLoop_)
     dispatchObject_ = new DispatchObject(this);
+  app_->attachThread(false);
 
   signalDone();
 
@@ -146,10 +147,12 @@ void DispatchThread::destroy()
 
 bool DispatchThread::doEvent()
 {
-  app_->attachThread();
+  app_->attachThread(true);
   if (event_) {
     app_->realNotify(*event_);
     signalDone();
+
+    app_->attachThread(false);
 
     return false;
   } else {
@@ -157,6 +160,8 @@ bool DispatchThread::doEvent()
 
     if (qtEventLoop_)
       QThread::exit();
+
+    app_->attachThread(false);
 
     return true;
   }

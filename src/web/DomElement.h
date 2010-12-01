@@ -77,6 +77,8 @@ public:
   ~DomElement();
 
   static std::string urlEncodeS(const std::string& url);
+  static std::string urlEncodeS(const std::string& url,
+                                const std::string& allowed);
 
   Mode mode() const { return mode_; }
 

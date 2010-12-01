@@ -1342,7 +1342,13 @@ function encodeEvent(event, i) {
       else if (el.checked)
 	v = el.value;
     } else if (WT.hasTag(el, "VIDEO") || WT.hasTag(el, "AUDIO")) {
-      v = '' + el.volume + ';' + el.currentTime + ';' + el.duration + ';' + (el.paused?'1':'0') + ';' + (el.ended?'1':'0');
+      v = '' + el.volume + ';' + el.currentTime + ';' + el.duration + ';' + (el.paused?'1':'0') + ';' + (el.ended?'1':'0') + ';' + el.readyState;
+    } else if (WT.hasTag(el, "DIV") || el.childNodes.length == 1) {
+      // When in Layout, media elements sits in a surrounding DIV
+      var m = el.childNodes[0];
+      if (WT.hasTag(m, "VIDEO") || WT.hasTag(m, "AUDIO")) {
+        v = '' + m.volume + ';' + m.currentTime + ';' + m.duration + ';' + (m.paused?'1':'0') + ';' + (m.ended?'1':'0') + ';' + m.readyState;
+      }
     } else if (el.type != 'file') {
       if ($(el).hasClass('Wt-edit-emptyText'))
 	v = '';

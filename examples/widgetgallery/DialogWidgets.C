@@ -82,7 +82,7 @@ WWidget *DialogWidgets::wMessageBox()
   WContainerWidget *ex = new WContainerWidget(result);
   
   WVBoxLayout *vLayout = new WVBoxLayout();
-  ex->setLayout(vLayout, AlignTop);
+  ex->setLayout(vLayout, AlignTop | AlignLeft);
   vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->setSpacing(3);
 
@@ -206,7 +206,6 @@ void DialogWidgets::customNonModal()
 void DialogWidgets::customModal()
 {
   WDialog dialog("Personalia (modal)");
-  dialog.setModal(true);
 
   new WText("You can freely format the contents of a WDialog by "
 	    "adding any widget you want to it.<br/>Here, we added WText, "

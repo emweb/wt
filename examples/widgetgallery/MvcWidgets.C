@@ -175,7 +175,11 @@ WWidget *MvcWidgets::viewsCombo()
   WContainerWidget *result = new WContainerWidget();
 
   // WComboBox
+#if !defined(WT_TARGET_JAVA)
   topic("WComboBox", "WSelectionBox", "Ext::ComboBox", result);
+#else
+  topic("WComboBox", "WSelectionBox", result);
+#endif
   new WText(tr("mvc-stringlistviews"), result);
   new WText("<h3>WComboBox</h3>", result);
   (new WComboBox(result))->setModel(stringList_);

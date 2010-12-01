@@ -27,6 +27,7 @@ WT_DECLARE_WT_MEMBER
    this.resizeGL = function() {};
    this.updates = new Array();
    this.initialized = false;
+   this.preloadingTextures = false;
 
    var dragPreviousXY = null;
    var lookAtCenter = null;

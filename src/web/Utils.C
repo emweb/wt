@@ -210,6 +210,11 @@ std::string urlEncode(const std::string& url)
   return DomElement::urlEncodeS(url);
 }
 
+std::string urlEncode(const std::string& url, const std::string& allowed)
+{
+  return DomElement::urlEncodeS(url, allowed);
+}
+
 void split(std::set<std::string>& tokens,
 	   const std::string &in, const char *sep,
 	   bool compress_adjacent_tokens)
@@ -219,6 +224,14 @@ void split(std::set<std::string>& tokens,
 		 boost::algorithm::token_compress_on:
 		 boost::algorithm::token_compress_off);
 }
+
+std::string EncodeHttpHeaderField(const std::string &fieldname,
+                                  const WString &fieldValue)
+{
+  // This implements RFC 5987
+  return fieldname + "*=UTF-8''" + urlEncode(fieldValue.toUTF8());
+}
+
 
   }
 }

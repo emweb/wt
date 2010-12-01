@@ -1,3 +1,11 @@
+01-12-2010:
+	* WApplication, examples/wtwithqt/DispatchThread: attach the Qt
+	thread only during event handling
+
+	* Dbo/Session: add rereadAll() option to reread single table
+
+	* WFileUpload: correctly handle non-ascii tokens in suggestFileName()
+
 30-11-2010:
 	* fixed a regression in layout managers, released as 3.1.7a
 

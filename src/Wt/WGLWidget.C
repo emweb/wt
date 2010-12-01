@@ -367,7 +367,7 @@ WGLWidget::WGLWidget(WContainerWidget *parent):
   setInline(false);
   setLayoutSizeAware(true);
   // A canvas must have a size set.
-  resize(100, 100);
+  //resize(100, 100);
   webglNotAvailable_.connect(this, &WGLWidget::webglNotAvailable);
 
   mouseWentDown().connect(mouseWentDownSlot_);
@@ -457,13 +457,13 @@ DomElement *WGLWidget::createDomElement(WApplication *app)
       """var obj=" << glObjJsRef() << ";\n"
       """var ctx=obj.ctx;\n" <<
       "" << js_.str() <<
-      """o.initialized = true;\n"
+      """obj.initialized = true;\n"
       // updates are queued until initialization is complete
       """var key;\n"
-      """for(key in o.updates) o.updates[key]();\n"
-      """o.updates = new Array();\n"
+      """for(key in obj.updates) obj.updates[key]();\n"
+      """obj.updates = new Array();\n"
       // Similar, resizeGL is not executed until initialized
-      """o.resizeGL();\n"
+      """obj.resizeGL();\n"
       "};\n"
       "}\n";
   tmp << delayedJavaScript_.str();
@@ -536,7 +536,10 @@ void WGLWidget::updateDom(DomElement &element, bool all)
     // Make sure textures are loaded before we render
     tmp << "}\n";
     if (preloadImages_.size() > 0) {
-      tmp << "new Wt._p_.ImagePreloader([";
+      //tmp << "debugger;\n";
+      tmp <<
+        "o.preloadingTextures=true;"
+        "new Wt._p_.ImagePreloader([";
       for (unsigned i = 0; i < preloadImages_.size(); ++i) {
         if (i != 0)
           tmp << ',';
@@ -547,6 +550,7 @@ void WGLWidget::updateDom(DomElement &element, bool all)
         "var o=" << glObjJsRef() << ";\n"
         "var ctx=null;\n"
         " if(o) ctx=o.ctx;\n"
+        "o.preloadingTextures=false;"
         "if(ctx == null) return;\n";
       for (unsigned i = 0; i < preloadImages_.size(); ++i) {
         std::string texture = preloadImages_[i].first;
@@ -565,20 +569,29 @@ void WGLWidget::updateDom(DomElement &element, bool all)
         "} else {"
         // initializeGL will call updates and resizeGL
         """o.initializeGL();\n"
+        """o.resizeGL();\n"
         """o.paintGL();\n"
         "}});";
+      preloadImages_.clear();
     } else {
       // No textures to load - go and paint
       tmp <<
-        "if(o.initialized) {"
-        """var key;"
-        """for(key in o.updates) o.updates[key]();"
-        """o.updates = new Array();"
-        """o.resizeGL();"
-        """o.paintGL();"
-        "} else {"
-        """o.initializeGL();"
-        """o.paintGL();"
+        "if(!o.preloadingTextures){"
+        // It's not ok to execute an update method or initialize if we're
+        // waiting for texture to load; this will result in undefined
+        // symbols in JS. After textures are loaded, the code sequence below
+        // is executed from there.
+        """if(o.initialized) {"
+        ""  "var key;"
+        ""  "for(key in o.updates) o.updates[key]();"
+        ""  "o.updates = new Array();"
+        ""  "o.resizeGL();"
+        ""  "o.paintGL();"
+        """} else {"
+        ""  "o.initializeGL();"
+        ""  "o.resizeGL();"
+        ""  "o.paintGL();"
+        """}"
         "}";
     }
     el->callJavaScript(tmp.str());
@@ -655,6 +668,11 @@ void WGLWidget::initializeGL()
 
 void WGLWidget::updateGL()
 {
+}
+
+void WGLWidget::debugger()
+{
+  js_ << "debugger;\n";
 }
 
 void WGLWidget::activeTexture(GLenum texture)
@@ -840,7 +858,7 @@ WGLWidget::Texture WGLWidget::createTextureAndLoad(const std::string &url)
 {
   Texture retval = "ctx.WtTexture" + boost::lexical_cast<std::string>(textures_++);
   preloadImages_.push_back(std::make_pair<std::string, std::string>(retval, url));
-  GLDEBUG;
+  //GLDEBUG;
   return retval;
 
 }

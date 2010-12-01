@@ -143,9 +143,9 @@ WWidget *BasicControls::wAnchor()
 
   new WText(tr("basics-WAnchor-more"), result);
 
-  WAnchor *a2 = new WAnchor("http://www.webtoolkit.eu/", result);
+  WAnchor *a2 = new WAnchor("http://www.emweb.be/", result);
   a2->setTarget(TargetNewWindow);
-  new WImage("icons/wt_powered.jpg", a2);
+  new WImage("pics/emweb_small.jpg", a2);
 
   new WText(tr("basics-WAnchor-related"), result);
     

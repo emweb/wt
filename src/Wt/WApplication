@@ -1028,8 +1028,11 @@ public:
    * application, by calling this method from the auxiliary thread,
    * and in this way you can modify the application from within that
    * thread without needing the update lock.
+   *
+   * Calling attachThread() with \p attach = \c false, detaches the
+   * current thread.
    */
-  void attachThread();
+  void attachThread(bool attach = true);
   //@}
 
   /** @name Invoking JavaScript or including scripts

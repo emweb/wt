@@ -37,6 +37,20 @@ public:
     PreloadMetadata //!< Hints that retrieving metadata is a good option
   };
 
+  /*! \brief The HTML5 media ReadyState flag indicates how much of the media
+   *  is loaded.
+   *
+   * This is often used in conjunction with the > operator, e.g.
+   * readyState() > HAVE_CURRENT_DATA
+   */
+  enum ReadyState {
+    HAVE_NOTHING = 0,    //!< No information available
+    HAVE_METADATA=1,     //!< Metadata loaded: duration, width, height
+    HAVE_CURRENT_DATA=2, //!< Data at playback position is available
+    HAVE_FUTURE_DATA=3,  //!< Have data to play for a while
+    HAVE_ENOUGH_DATA=4   //!< Enough to reach the end without stalling (est)
+  };
+
   /*! \brief Consctructor for a HTML5 media widget.
    *
    * A freshly constructed HTML5Video widget has no options set, no
@@ -135,6 +149,10 @@ public:
    */
   bool playing() const { return playing_; }
 
+  /*! \brief Returns the media's readyState
+   */
+  ReadyState readyState() const { return readyState_; }
+
   /*! \brief Event signal emitted when playback has begun.
    *
    * This event fires when play was invoked, or when the media element
@@ -224,7 +242,13 @@ private:
   WWidget *alternative_;
   bool flagsChanged_, preloadChanged_, sourcesChanged_;
 
+  // Vars received from client
   bool playing_;
+  double volume_;
+  double current_;
+  double duration_;
+  bool ended_;
+  ReadyState readyState_;
   
   static const char *PLAYBACKSTARTED_SIGNAL;
   static const char *PLAYBACKPAUSED_SIGNAL;

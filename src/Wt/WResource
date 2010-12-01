@@ -10,6 +10,7 @@
 #include <Wt/WObject>
 #include <Wt/WGlobal>
 #include <Wt/WSignal>
+#include <Wt/WString>
 
 #include <iostream>
 
@@ -186,13 +187,13 @@ public:
    * name used for saving. The filename extension may also help the
    * browser to identify the correct program for opening the resource.
    */
-  void suggestFileName(const std::string& name);
+  void suggestFileName(const Wt::WString &name);
 
   /*! \brief Returns the suggested file name.
    *
    * \sa suggestFileName();
    */
-  const std::string& suggestedFileName() const { return suggestedFileName_; }
+  const Wt::WString& suggestedFileName() const { return suggestedFileName_; }
 
   /*! \brief Generates a new URL for this resource and emits the changed signal
    *
@@ -338,7 +339,7 @@ private:
   void handle(WebRequest *webRequest, WebResponse *webResponse,
 	      Http::ResponseContinuation *continuation = 0);
 
-  std::string suggestedFileName_;
+  Wt::WString suggestedFileName_;
   std::string currentUrl_;
   std::string internalPath_;
 

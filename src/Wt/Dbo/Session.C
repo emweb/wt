@@ -862,11 +862,12 @@ void Session::flush()
   }
 }
 
-void Session::rereadAll()
+void Session::rereadAll(const char *tableName)
 {
   for (ClassRegistry::iterator i = classRegistry_.begin();
        i != classRegistry_.end(); ++i)
-    i->second->rereadAll();
+    if (!tableName || std::string(tableName) == i->second->tableName)
+      i->second->rereadAll();
 }
 
 std::string Session::statementId(const char *tableName, int statementIdx)

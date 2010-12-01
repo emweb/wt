@@ -105,7 +105,7 @@ public:
    * reimplement this method to display a different text corresponding
    * to the current value().
    */
-  virtual WT_USTRING text() const;
+  virtual WString text() const;
 
   /*! \brief A %signal that indicates when the value has changed.
    *

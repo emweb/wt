@@ -12,13 +12,40 @@
 #include "Wt/WLogger"
 #include "DomElement.h"
 #include "Utils.h"
+#include "WtException.h"
 
 #include "JavaScriptLoader.h"
 #ifndef WT_DEBUG_JS
 #include "js/WHTML5Media.min.js"
 #endif
 
+#include <stdexcept>
+
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
+namespace {
+  Wt::WHTML5Media::ReadyState intToReadyState(int i) 
+  {
+    switch (i) {
+    case 0:
+      return Wt::WHTML5Media::HAVE_NOTHING;
+    case 1:
+      return Wt::WHTML5Media::HAVE_METADATA;
+    case 2:
+      return Wt::WHTML5Media::HAVE_CURRENT_DATA;
+    case 3:
+      return Wt::WHTML5Media::HAVE_FUTURE_DATA;
+    case 4:
+      return Wt::WHTML5Media::HAVE_ENOUGH_DATA;
+    default:
+      assert(false);
+#ifdef WT_TARGET_JAVA
+      throw std::runtime_error("unreachable code");
+#endif
+    }
+  }
+}
 
 using namespace Wt;
 const char *WHTML5Media::PLAYBACKSTARTED_SIGNAL = "play";
@@ -36,7 +63,12 @@ WHTML5Media::WHTML5Media(WContainerWidget *parent):
   flagsChanged_(false),
   preloadChanged_(false),
   sourcesChanged_(false),
-  playing_(false)
+  playing_(false),
+  volume_(-1),
+  current_(-1),
+  duration_(-1),
+  ended_(false),
+  readyState_(HAVE_NOTHING)
 {
   setInline(false);
   setFormObject(true);
@@ -96,20 +128,49 @@ void WHTML5Media::setFormData(const FormData& formData)
   if (!Utils::isEmpty(formData.values)) {
     std::vector<std::string> attributes;
     boost::split(attributes, formData.values[0], boost::is_any_of(";"));
-    if (attributes.size() == 5) {
+    if (attributes.size() == 6) {
       double volume, current, duration;
       bool paused, ended;
+      int readystate;
+      bool error = false;
       try {
         volume = boost::lexical_cast<double>(attributes[0]);
+      } catch (boost::bad_lexical_cast &e) {
+        error = true;
+      }
+      try {
         current = boost::lexical_cast<double>(attributes[1]);
+      } catch (boost::bad_lexical_cast &e) {
+        error = true;
+      }
+      try {
         duration = boost::lexical_cast<double>(attributes[2]);
+      } catch (boost::bad_lexical_cast &e) {
+        error = true;
+      }
+      try {
         paused = (attributes[3] == "1");
+        playing_ = !paused;
+      } catch (boost::bad_lexical_cast &e) {
+        error = true;
+      }
+      try {
         ended = (attributes[4] == "1");
+      } catch (boost::bad_lexical_cast &e) {
+        error = true;
+      }
+      try {
+        readystate = boost::lexical_cast<int>(attributes[5]);
+        readyState_ = HAVE_NOTHING;
+        if (readystate <= HAVE_ENOUGH_DATA && readystate >= HAVE_NOTHING)
+          readyState_ = intToReadyState(readystate);
+      } catch (boost::bad_lexical_cast &e) {
+        error = true;
+      }
 
-	playing_ = !paused;
 
 	// Are other values any useful ?
-      } catch (boost::bad_lexical_cast &e) {
+      if (error) {
 	WApplication::instance()->log("error")
 	  << "WHTML5Media: could not parse form data: " << formData.values[0];
       }

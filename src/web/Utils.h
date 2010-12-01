@@ -198,7 +198,11 @@ extern void unescapeHexTokens(std::string& v);
 extern void urlDecode(std::string &s);
 
 extern std::string urlEncode(const std::string& url);
+extern std::string urlEncode(const std::string& url,
+                             const std::string& allowed);
 
+extern std::string EncodeHttpHeaderField(const std::string &fieldname,
+                                         const Wt::WString &fieldValue);
 inline bool isNaN(double d) {
 #ifdef _MSC_VER
   // received bug reports that on 64 bit windows, MSVC2005

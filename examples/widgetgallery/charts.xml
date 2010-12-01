@@ -11,33 +11,33 @@
 
 <p class="p">
   This example demonstrates some of the capabilities of
-  the <a href="http://www.webtoolkit.eu/wt/doc/reference/html/namespaceWt_1_1Chart.html"
+  the <a href="/wt/doc/reference/html/namespaceWt_1_1Chart.html"
   target="_new">Wt charting widgets</a>. These widgets are implemented
   using
-  the <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
+  the <a href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
   target="_new">Wt painting API</a>, which provides cross-browser
   native painting, using VML, SVG, or the Html 5 canvas tag.
 </p>
 
 <p class="p">
   The two main chart widgets are <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WCartesianChart.html"
+  href="/wt/doc/reference/html/classWt_1_1Chart_1_1WCartesianChart.html"
   target="_new"><tt>WCartesianChart</tt></a>, which provides category
   charts and scatter plots, and <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WPieChart.html"
+  href="/wt/doc/reference/html/classWt_1_1Chart_1_1WPieChart.html"
   target="_new"><tt>WPieChart</tt></a> which provides pie
   charts. These widgets are based on the MVC mechanism, and retrieve
   their data from a <a
-  href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
+  href="/wt/doc/reference/html/classWt_1_1WAbstractItemModel.html"
   target="_new"><tt>WAbstractItemModel</tt></a>.
 </p>
 
 <p class="p">
   Many aspects of the charts may be customized. By default, style
   information for rendering data series are taken from a
-  <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WChartPalette.html" target="_new"><tt>WChartPalette</tt></a>. It
+  <a href="/wt/doc/reference/html/classWt_1_1Chart_1_1WChartPalette.html" target="_new"><tt>WChartPalette</tt></a>. It
   is straight forward to specialize this class to provide different
-  styles from the standard styles provided by <a href="http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Chart_1_1WStandardPalette.html" target="_new"><tt>WStandardPalette</tt></a>.
+  styles from the standard styles provided by <a href="/wt/doc/reference/html/classWt_1_1Chart_1_1WStandardPalette.html" target="_new"><tt>WStandardPalette</tt></a>.
 </p>
 
 <p class="p">
