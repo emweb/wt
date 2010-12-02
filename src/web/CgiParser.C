@@ -191,8 +191,12 @@ void CgiParser::parse(WebRequest& request, bool readBody)
 
   std::string queryString = request.queryString();
 
+  // XDomainRequest cannot set a contentType header, we therefore pass it
+  // as a request parameter
   if (readBody && meth == "POST"
-      && type.find("application/x-www-form-urlencoded") == 0) {
+      && (type.find("application/x-www-form-urlencoded") == 0
+	  || queryString.find("&contentType=x-www-form-urlencoded")
+	  != std::string::npos)) {
     char *buf = new char[len + 1];
 
     request.in().read(buf, len);

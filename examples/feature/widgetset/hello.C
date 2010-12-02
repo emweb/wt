@@ -28,17 +28,6 @@ private:
 HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
   : WApplication(env)
 {
-  /*
-   * By default, "dynamic script tags" are used to relay event information
-   * in WidgetSet mode. This has the benefit of allowing an application to
-   * be embedded from within a web page on another domain.
-   *
-   * You can revert to plain AJAX requests using the following call. This will
-   * only work if your application is hosted on the same domain as the
-   * web page in which it is embedded.
-   */
-  //setAjaxMethod(XMLHttpRequest);
-
   Wt::WContainerWidget *top;
 
   setTitle("Hello world");
@@ -131,7 +120,7 @@ int main(int argc, char **argv)
 
   // The following adds an entry point for a widget set. A widget set
   // must be loaded as a JavaScript from an HTML page.
-  server.addEntryPoint(Wt::WidgetSet, createWidgetSet, "/hello.wtjs");
+  server.addEntryPoint(Wt::WidgetSet, createWidgetSet, "/hello.js");
 
   // Start the server (in the background if there is threading support)
   // and wait for a shutdown signal (e.g. Ctrl C, SIGKILL)

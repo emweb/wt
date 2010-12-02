@@ -1,3 +1,9 @@
+02-12-2010:
+	* WebSession, WApplication, ...: support CORS (Cross-Origin Resource
+	Sharing including IE's XDomainRequest and WebSockets), deprecated
+	WApplication::setAjaxMethod() which is now chosen automatically
+	and support request pref-flighting using OPTIONS.
+
 01-12-2010:
 	* WApplication, examples/wtwithqt/DispatchThread: attach the Qt
 	thread only during event handling

@@ -559,7 +559,7 @@ std::string WApplication::fixRelativeUrl(const std::string& url) const
   if (url.length() > 0 && url[0] == '#')
     return url;
 
-  if (ajaxMethod_ == XMLHttpRequest) {
+  if (session_->type() == Application) {
     if (!environment().javaScript()
 	&& !WebSession::Handler::instance()->request()->pathInfo().empty())
       // This will break reverse proxies:

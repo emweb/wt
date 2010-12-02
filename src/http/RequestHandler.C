@@ -46,6 +46,7 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
 {
   if ((req.method != "GET")
       && (req.method != "HEAD")
+      && (req.method != "OPTIONS")
       && (req.method != "POST")
       && (req.method != "PUT")
       && (req.method != "DELETE"))

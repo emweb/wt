@@ -111,6 +111,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	assert(state == Request::Complete);
 
 	std::string origin = request().headerMap.find("Origin")->second;
+	std::string host = request().headerMap.find("Host")->second;
 
 	status_ = switching_protocols;
 	addHeader("Connection", "Upgrade");
@@ -118,8 +119,8 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	addHeader("Sec-WebSocket-Origin", origin);
 
 	std::string location
-	  = "ws" + origin.substr(4)
-	  + request().request_path + "?" + request().request_query;
+	  = request().urlScheme + "://" + host + request().request_path
+	  + "?" + request().request_query;
 	addHeader("Sec-WebSocket-Location", location);
 
 	/*

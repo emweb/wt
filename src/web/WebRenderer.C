@@ -39,8 +39,6 @@ namespace skeletons {
   extern const char *Plain_html;
   extern const char *Hybrid_html;
   extern const char *Wt_js;
-  extern const char *CommAjax_js;
-  extern const char *CommScript_js;
   extern const char *JQuery_js;
 }
 
@@ -324,6 +322,7 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
   }
   cookiesToSet_.clear();
 
+  response.addHeader("Cache-Control", "no-cache");
   response.setContentType(mimeType);
 }
 
@@ -458,29 +457,6 @@ void WebRenderer::collectJavaScript()
     streamRedirectJS(collectedJS1_, redirect);
 }
 
-void WebRenderer::streamCommJs(WApplication *app, std::ostream& out)
-{
-  Configuration& conf = session_.controller()->configuration();
-
-  FileServe js(app->ajaxMethod() == WApplication::XMLHttpRequest
-	       ? skeletons::CommAjax_js
-	       : skeletons::CommScript_js);
-
-  js.setVar("APP_CLASS", app->javaScriptClass());
-  js.setVar("WT_CLASS", WT_CLASS);
-
-  /*
-   * FIXME: is this still required?
-   * Mozilla Bugzilla #246651
-   */
-  js.setVar("CLOSE_CONNECTION",
-	    (conf.serverType() == Configuration::WtHttpdServer)
-	    && session_.env().agentIsGecko()
-	    && session_.env().agent() < WEnvironment::Firefox3_0);
-  
-  js.stream(out);
-}
-
 void WebRenderer::serveMainscript(WebResponse& response)
 {
   /*
@@ -549,11 +525,17 @@ void WebRenderer::serveMainscript(WebResponse& response)
   script.setVar("ONLOAD",
 		std::string("(function() {")
 		+ (widgetset ? "" : "window.loadWidgetTree();") + "})");
+  /*
+   * FIXME: is this still required?
+   * Mozilla Bugzilla #246651
+   */
+  script.setVar("CLOSE_CONNECTION",
+		(conf.serverType() == Configuration::WtHttpdServer)
+		&& session_.env().agentIsGecko()
+		&& session_.env().agent() < WEnvironment::Firefox3_0);
   script.stream(response.out());
 
   app->autoJavaScriptChanged_ = false;
-
-  streamCommJs(app, response.out());
 
   if (!rendered_)
     serveMainAjax(response);

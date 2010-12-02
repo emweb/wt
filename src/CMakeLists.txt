@@ -32,8 +32,6 @@ ELSE(CMAKE_BUILD_TYPE STREQUAL "Debug")
   FILE_TO_STRING(web/skeleton/Wt.min.js     Wt_js.C         Wt_js)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-FILE_TO_STRING(web/skeleton/CommAjax.js   CommAjax_js.C   CommAjax_js)
-FILE_TO_STRING(web/skeleton/CommScript.js CommScript_js.C CommScript_js)
 FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C     JQuery_js)
 
 FILE_TO_STRING(xml/wt.xml                 WtMessages_xml.C  WtMessages_xml)
@@ -227,8 +225,6 @@ Boot_html.C
 Hybrid_html.C
 Wt_js.C
 WtMessages_xml.C
-CommAjax_js.C
-CommScript_js.C
 JQuery_js.C
 Wt/Chart/WAbstractChart.C
 Wt/Chart/WAxis.C

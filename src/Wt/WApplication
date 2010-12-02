@@ -179,7 +179,7 @@ class WT_API WApplication : public WObject
 {
 public:
   /*! \brief Enumeration that indicates the method for dynamic (AJAX-alike)
-   *         updates.
+   *         updates ((<b>deprecated</b>).
    *
    * \sa setAjaxMethod()
    */
@@ -1135,34 +1135,19 @@ public:
 						const std::string& value);
 #endif // WT_TARGET_JAVA
 
-  /*! \brief Sets the Ajax communication method.
+  /*! \brief Sets the Ajax communication method (<b>deprecated</b>).
    *
-   * You may change the communication method only from within the
-   * application constructor.
+   * This method has no effect.
    *
-   * The default method depends on your application deployment
-   * type.
+   * Since Wt 3.1.8, a communication method that works is detected at
+   * run time. For widget set mode, cross-domain Ajax is chosen if
+   * available.
    *
-   * \if cpp
-   * For \link Wt::Application plain\endlink applications, \link
-   * WApplication::XMLHttpRequest XMLHttpRequest\endlink is used,
-   * while for \link Wt::WidgetSet widget set\endlink
-   * applications, \link WApplication::DynamicScriptTag
-   * DynamicScriptTag\endlink is used. The latter is less efficient,
-   * but has the benefit to allow serving the application from a
-   * different server than the page that hosts the embedded widgets.
-   * \elseif java
-   * For plain applications, \link WApplication::XMLHttpRequest 
-   * XMLHttpRequest\endlink is used, while for WidgetSet 
-   * applications, \link WApplication::DynamicScriptTag
-   * DynamicScriptTag\endlink is used. The latter is less efficient,
-   * but has the benefit to allow serving the application from a
-   * different server than the page that hosts the embedded widgets.
-   * \endif
+   * \deprecated this setting is no longer needed.
    */
   void setAjaxMethod(AjaxMethod method);
 
-  /*! \brief Returns the Ajax communication method.
+  /*! \brief Returns the Ajax communication method (<b>deprecated</b>).
    *
    * \sa setAjaxMethod()
    */

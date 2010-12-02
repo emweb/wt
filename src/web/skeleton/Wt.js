@@ -30,6 +30,11 @@ window._$_WT_CLASS_$_ = new (function()
 {
 var WT = this;
 
+this.condCall = function(o, f, a) {
+  if (o[f])
+    o[f](a);
+};
+
 // buttons currently down
 this.buttons = 0;
 
@@ -77,6 +82,172 @@ this.isIEMobile = navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
   || navigator.userAgent.toLowerCase().indexOf("msie 5") != -1;
 this.isOpera = typeof window.opera !== 'undefined';
 this.updateDelay = this.isIE ? 10 : 51;
+
+this.initAjaxComm = function(url, handler) {
+  var crossDomain = url.indexOf("://") != -1;
+
+  function createRequest(method, url) {
+    var request = null;
+    var supportsRequestHeader = true;
+    if (window.XMLHttpRequest) {
+      request = new XMLHttpRequest();
+      if (crossDomain) {
+	if ("withCredentials" in request) {
+	  if (url)
+	    request.open(method, url, true);
+	} else if (typeof XDomainRequest != "undefined") {
+	  request = new XDomainRequest();
+	  if (url) {
+	    supportsRequestHeader = false;
+	    try {
+	      request.open(method, url + '&contentType=x-www-form-urlencoded');
+	    } catch (err) {
+	      request = null;
+	    }
+	  }
+	} else
+	  request = null;
+      } else
+	if (url)
+	  request.open(method, url, true);
+    } else if (!crossDomain && window.ActiveXObject) {
+      try {
+	request = new ActiveXObject("Msxml2.XMLHTTP");
+      } catch (err) {
+	try {
+	  request = new ActiveXObject("Microsoft.XMLHTTP");
+	} catch (err2) {
+	}
+      }
+      if (url && request)
+	request.open(method, url, true);
+    }
+
+    if (url && supportsRequestHeader)
+      request.setRequestHeader("Content-type",
+			       "application/x-www-form-urlencoded");
+
+    return request;
+  }
+
+  var req = createRequest('POST', url);
+
+  if (req != null) {
+    return new (function() {
+      function Request(data, userData, id, timeout) {
+	var request = createRequest('POST', url);
+	var timer = null;
+	var handled = false;
+
+	function handleResponse(good) {
+	  if (handled)
+	    return;
+
+	  clearTimeout(timer);
+
+	  if (good)
+	    handler(0, request.responseText, userData);
+	  else
+	    handler(1, null, userData);
+
+	  request.onreadystatechange = request.onload = new Function;
+	  request = null;
+
+	  handled = true;
+	}
+
+	function recvCallback() {
+	  if (request.readyState == 4) {
+	    var good = request.status == 200
+	      && request.getResponseHeader("Content-Type")
+	      && request.getResponseHeader("Content-Type")
+		.indexOf("text/javascript") == 0;
+
+	    handleResponse(good);
+	  }
+	}
+
+	function handleTimeout() {
+	  request.onreadystatechange = new Function;
+	  request = null;
+	  handled = true;
+	  handler(2, null, userData);
+	}
+
+	this.abort = function() {
+	  request.onreadystatechange = new Function;
+	  handled = true;
+	  request.abort();
+	  request = null;
+	};
+
+	if (_$_CLOSE_CONNECTION_$_)
+	  request.setRequestHeader("Connection","close");
+
+	if (timeout > 0)
+	  timer = setTimeout(handleTimeout, timeout);
+	request.onreadystatechange = recvCallback;
+	request.onload = function() {
+	  handleResponse(true);
+	};
+	request.onerror = function() {
+	  handleResponse(false);
+	};
+	request.send(data);
+      }
+
+      this.responseReceived = function(updateId) { };
+
+      this.sendUpdate = function(data, userData, id, timeout) {
+	return new Request(data, userData, id, timeout);
+      };
+    })();
+  } else {
+    return new (function() {
+      var lastId = 0;
+      var requests = new Array();
+
+      function Request(data, userData, id, timeout) {
+	var self = this;
+
+	this.script = document.createElement('SCRIPT');
+	this.script.id = "script" + id;
+	this.script.src = url + '&' + data;
+	this.script.type = 'text/javascript';
+
+	var h = document.getElementsByTagName('HEAD')[0];
+	h.appendChild(this.script);
+
+	this.userData = userData;
+
+	this.abort = function() {
+	  self.script.parentNode.removeChild(script);
+	};
+      }
+
+      this.responseReceived = function(updateId) {
+	for (var i = lastId; i < updateId; ++i) {
+	  var request = requests[i];
+
+	  if (request) {
+	    handler(0, "", request.userData);
+	    request.script.parentNode.removeChild(request.script);
+	  }
+
+	  WT.arrayRemove(requests, i);
+	}
+
+	lastId = updateId;
+      };
+
+      this.sendUpdate = function(data, userData, id, timeout) {
+        var request = new Request(data, userData, id, timeout);
+        requests[id] = request;
+        return request;
+      };
+    })();
+  }
+};
 
 this.setHtml = function (el, html, add) {
   function myImportNode(e, deep) {
@@ -1548,7 +1719,7 @@ function setTitle(title) {
 };
 
 function load() {
-  if (!document.activeElement) {
+  if (!("activeElement" in document)) {
     function trackActiveElement(evt) {
       if (evt && evt.target) {
 	document.activeElement = evt.target == document ? null : evt.target;
@@ -1667,7 +1838,7 @@ _$_$endif_$_();
   }
 };
 
-var randomSeed = new Date().getTime();
+var comm = WT.initAjaxComm(url, handleResponse);
 
 function doPollTimeout() {
   responsePending.abort();
@@ -1716,10 +1887,18 @@ function scheduleUpdate() {
 	if (ws != null && websocket.state == WebSocketsUnknown)
 	  websocket.state = WebSocketsUnavailable;
 	else {
-	  var query = url.substr(url.indexOf('?'));
-	  var wsurl = "ws" + location.protocol.substr(4)
-	    + "//" + location.hostname + ":"
-	    + location.port + location.pathname + query;
+	  var protocolEnd = url.indexOf("://"), wsurl;
+	  if (protocolEnd != -1) {
+	    wsurl = "ws" + url.substr(4);
+	  } else {
+	    var query = url.substr(url.indexOf('?'));
+	    wsurl = "ws" + location.protocol.substr(4)
+	      + "//" + location.hostname + ":"
+	     + location.port + location.pathname + query;
+	  }
+
+	  console.log("Url: " + wsurl);
+
 	  websocket.socket = ws = new WebSocket(wsurl);
 
 	  ws.onmessage = function(event) {
@@ -1764,7 +1943,7 @@ var ackUpdateId = 0;
 
 function responseReceived(updateId) {
   ackUpdateId = updateId;
-  self._p_.comm.responseReceived(updateId);
+  comm.responseReceived(updateId);
 }
 
 function sendUpdate() {
@@ -1789,8 +1968,7 @@ function sendUpdate() {
     }
   }
 
-  var data, tm, poll,
-    query = '&rand=' + Math.round(Math.random(randomSeed) * 100000);
+  var data, tm, poll;
 
   if (pendingEvents.length > 0) {
     data = encodePendingEvents();
@@ -1815,9 +1993,8 @@ function sendUpdate() {
       websocket.socket.send(data.result + '&ackId=' + ackUpdateId);
     }
   } else {
-    responsePending = self._p_.comm.sendUpdate
-      (url + query,
-       'request=jsupdate' + data.result + '&ackId=' + ackUpdateId,
+    responsePending = comm.sendUpdate
+      ('request=jsupdate' + data.result + '&ackId=' + ackUpdateId,
        tm, ackUpdateId, -1);
 
     pollTimer
@@ -2029,7 +2206,6 @@ this._p_ = {
   saveDownPos : saveDownPos,
   addTimerEvent : addTimerEvent,
   load : load,
-  handleResponse : handleResponse,
   setServerPush : setServerPush,
 
   dragStart : dragStart,
@@ -2065,3 +2241,7 @@ window.onLoad = function() {
   _$_WT_CLASS_$_.history.initialize("Wt-history-field", "Wt-history-iframe");
   _$_APP_CLASS_$_._p_.load();
 };
+
+(function() {
+
+ })();

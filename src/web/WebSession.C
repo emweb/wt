@@ -816,6 +816,44 @@ void WebSession::handleRequest(Handler& handler)
 {
   WebRequest& request = *handler.request();
 
+  const std::string *wtdE = request.getParameter("wtd");
+
+  /*
+   * Cross-Origin Resource Sharing
+   */
+  std::string origin = request.headerValue("Origin");
+  if (!origin.empty()) {
+    /*
+     * Do we allow this XMLHttpRequest or WebSocketRequest?
+     *
+     * Only if it's proven itself by a correct (existing) wtd, and thus
+     * not for a new session.
+     */
+    if (wtdE && *wtdE == sessionId_ && state_ != JustCreated) {
+      handler.response()->addHeader("Access-Control-Allow-Origin", "*");
+
+      if (request.requestMethod() == "OPTIONS") {
+	WebResponse *response = handler.response();
+
+	response->setStatus(200);
+	response->addHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+	response->addHeader("Access-Control-Max-Age", "1728000");
+	response->flush();
+	return;
+      }
+    } else
+      if (request.isWebSocketRequest()) {
+	/*
+	 * We are already past the websocket hand-shake so it is too late
+	 * to indicate it by omitting the Access-Control-Allow-Origin header.
+	 *
+	 * But we close the socket nevertheless.
+	 */
+	handler.response()->flush();
+	return;
+      }
+  }
+
   if (request.isWebSocketRequest()) {
     handleWebSocketRequest(handler);
     return;
@@ -823,19 +861,21 @@ void WebSession::handleRequest(Handler& handler)
 
   Configuration& conf = controller_->configuration();
 
-  const std::string *wtdE = request.getParameter("wtd");
   const std::string *requestE = request.getParameter("request");
 
   handler.response()->setResponseType(WebResponse::Page);
 
   /*
-   * Only handle GET and POST requests, unless a resource is
+   * Only handle GET, POST and OPTIONS requests, unless a resource is
    * listening.
    */
   if (!((requestE && *requestE == "resource")
 	|| request.requestMethod() == "POST"
-	|| request.requestMethod() == "GET"))
+	|| request.requestMethod() == "GET")) {
     handler.response()->setStatus(400); // Bad Request
+    handler.response()->flush();
+    return;
+  }
 
   /*
    * Under what circumstances do we allow a request which does not have
@@ -847,7 +887,7 @@ void WebSession::handleRequest(Handler& handler)
    *
    * in other cases: silenty discard the request
    */
-  else if ((!wtdE || (*wtdE != sessionId_))
+  if ((!wtdE || (*wtdE != sessionId_))
 	   && state_ != JustCreated
 	   && (requestE && (*requestE == "jsupdate" ||
 			    *requestE == "resource"))) {
@@ -940,17 +980,39 @@ void WebSession::handleRequest(Handler& handler)
 	  }
 	  break; }
 	case WidgetSet:
-	  handler.response()->setResponseType(WebResponse::Script);
+	  if (requestE) {
+	    const std::string *resourceE = request.getParameter("resource");
+	    if (*requestE == "resource"
+		&& resourceE && *resourceE == "blank") {
+	      handler.response()->setContentType("text/html");
+	      handler.response()->out() <<
+		"<html><head><title>bhm</title></head>"
+		"<body>&#160;</body></html>";
+	    } else if (*requestE == "jsupdate") {
+	      handler.response()->setResponseType(WebResponse::Update);
+	      log("notice") << "Signal from dead session, sending reload.";
+	      renderer_.letReloadJS(*handler.response(), true);
+	    } else if (*requestE == "resource") {
+	      log("notice") << "Not serving bootstrap for resource.";
+	      handler.response()->setContentType("text/html");
+	      handler.response()->out()
+		<< "<html><head></head><body></body></html>";
+	    }
 
-	  init(request); // env, url/internalpath
-	  env_->doesAjax_ = true;
+	    kill();
+	  } else {
+	    handler.response()->setResponseType(WebResponse::Script);
 
-	  if (!start())
-	    throw WtException("Could not start application.");
+	    init(request); // env, url/internalpath
+	    env_->doesAjax_ = true;
 
-	  app_->notify(WEvent(handler));
+	    if (!start())
+	      throw WtException("Could not start application.");
 
-	  setLoaded();
+	    app_->notify(WEvent(handler));
+
+	    setLoaded();
+	  }
 
 	  break;
 	default:
