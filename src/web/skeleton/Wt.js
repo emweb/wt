@@ -1,3 +1,4 @@
+
 /**
  * @preserve Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
  *
@@ -1694,7 +1695,7 @@ var url = _$_RELATIVE_URL_$_,
 function quit() {
   quited = true;
   if (keepAliveTimer) {
-    clearTimeout(keepAliveTimer);
+    clearInterval(keepAliveTimer);
     keepAliveTimer = null;
   }
   var tr = $('#Wt-timers');
@@ -1706,7 +1707,6 @@ function doKeepAlive() {
   WT.history._initTimeout();
   if (commErrors == 0)
     update(null, 'none', null, false);
-  keepAliveTimer = setTimeout(doKeepAlive, _$_KEEP_ALIVE_$_000);
 };
 
 function debug(s) {
@@ -1739,8 +1739,10 @@ function load() {
   if (!loaded) {
     loaded = true;
     _$_ONLOAD_$_();
-    if (!quited)
-      keepAliveTimer = setTimeout(doKeepAlive, _$_KEEP_ALIVE_$_000);
+    if (!quited) {
+      doKeepAlive();
+      keepAliveTimer = setInterval(doKeepAlive, _$_KEEP_ALIVE_$_000);
+    }
   }
 };
 
@@ -1771,7 +1773,8 @@ function waitFeedback() {
 
 var websocket = {
   state: WebSocketsUnknown,
-  socket: null
+  socket: null,
+  keepAlive: null
 };
 
 function setServerPush(how) {
@@ -1897,13 +1900,33 @@ function scheduleUpdate() {
 	     + location.port + location.pathname + query;
 	  }
 
-	  console.log("Url: " + wsurl);
+	  // console.log("Url: " + wsurl);
 
 	  websocket.socket = ws = new WebSocket(wsurl);
+	  if (websocket.keepAlive)
+	    clearInterval(websocket.keepAlive);
+	  websocket.keepAlive = null;
 
 	  ws.onmessage = function(event) {
 	    websocket.state = WebSocketsWorking;
 	    handleResponse(0, event.data, null);
+	  };
+
+	  ws.onclose = function(event) {
+	    scheduleUpdate();
+	  };
+
+	  ws.onopen = function(event) {
+	    websocket.state = WebSocketsWorking;
+	    websocket.keepAlive = setInterval
+	    (function() {
+	       if (ws.readyState == 1)
+		 ws.send('&signal=none');
+	       else {
+		 clearInterval(websocket.keepAlive);
+		 websocket.keepAlive = null;
+	       }
+	     }, _$_SERVER_PUSH_TIMEOUT_$_);
 	  };
 	}
       }
@@ -1981,6 +2004,8 @@ function sendUpdate() {
     poll = true;
   }
 
+  data.result += '&ackId=' + ackUpdateId + '&pageId=_$_PAGE_ID_$_';
+
   if (websocket.socket != null && websocket.socket.readyState == 1) {
     responsePending = null;
 
@@ -1990,12 +2015,11 @@ function sendUpdate() {
     }
 
     if (!poll) {
-      websocket.socket.send(data.result + '&ackId=' + ackUpdateId);
+      websocket.socket.send(data.result);
     }
   } else {
     responsePending = comm.sendUpdate
-      ('request=jsupdate' + data.result + '&ackId=' + ackUpdateId,
-       tm, ackUpdateId, -1);
+      ('request=jsupdate' + data.result, tm, ackUpdateId, -1);
 
     pollTimer
      = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;

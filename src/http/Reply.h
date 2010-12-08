@@ -88,7 +88,7 @@ public:
 			   Buffer::const_iterator end,
 			   Request::State state) = 0;
 
-  void setConnection(Connection *connection);
+  virtual void setConnection(Connection *connection);
   bool nextBuffers(std::vector<asio::const_buffer>& result);
   bool closeConnection() const { return closeConnection_; }
   void setCloseConnection() { closeConnection_ = true; }

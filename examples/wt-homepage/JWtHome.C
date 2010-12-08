@@ -70,6 +70,8 @@ WWidget *JWtHome::examples()
 			tr("chat"));
   examplesMenu_->addTab(wrapView(&JWtHome::figtreeExample),
 			tr("figtree"));
+  examplesMenu_->addTab(wrapView(&JWtHome::widgetGalleryExample),
+			tr("widget-gallery"));
   
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled("/examples");
@@ -137,6 +139,11 @@ WWidget *JWtHome::figtreeExample()
   WContainerWidget *result = new WContainerWidget();
   new WText(tr("home.examples.figtree"), result);
   return result;
+}
+
+WWidget *JWtHome::widgetGalleryExample()
+{
+  return example("home.examples.widgetgallery", "widgetgallery");
 }
 
 WWidget *JWtHome::wrapView(WWidget *(JWtHome::*createWidget)())

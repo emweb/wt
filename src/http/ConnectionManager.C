@@ -52,8 +52,10 @@ void ConnectionManager::stop(ConnectionPtr c)
      * needed to be closed: as a consequence they will all try to close
      * the connection.
      */
-    std::cerr << "ConnectionManager::stop(): oops - stopping again?"
-	      << std::endl;
+    /*
+      std::cerr << "ConnectionManager::stop(): oops - stopping again?"
+                << std::endl;
+    */
     return;
 #endif // WIN32
   }

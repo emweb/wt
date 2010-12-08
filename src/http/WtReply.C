@@ -81,6 +81,16 @@ void WtReply::consumeData(Buffer::const_iterator begin,
     consumeRequestBody(begin, end, state);
 }
 
+void WtReply::setConnection(Connection *connection)
+{
+  Reply::setConnection(connection);
+
+  if (!connection && readMessageCallback_) {
+    Buffer b;
+    consumeWebSocketMessage(b.begin(), b.begin(), Request::Error);
+  }
+}
+
 void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 				 Buffer::const_iterator end,
 				 Request::State state)

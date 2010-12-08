@@ -37,6 +37,7 @@ public:
   virtual void consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
 			   Request::State state);
+  virtual void setConnection(Connection *connection);
 
   void setStatus(int status);
   void setContentLength(::int64_t length);

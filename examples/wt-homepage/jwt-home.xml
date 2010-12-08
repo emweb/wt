@@ -557,6 +557,25 @@ sure that data is synchronized between browser and server.</p>
 </div>
   </message>
 
+  <message id="home.examples.widgetgallery">
+<div>
+<h4 class="example">Widget gallery</h4>
+
+<p>
+  <a href="http://jwt.emweb.be/jwt-gallery/gallery" class="run" target="_blank">
+    <img src="/icons/orange-play.png" style="vertical-align: top"/>  Go to widget gallery
+  </a>
+</p>
+
+<p>
+ This example demonstrates most widgets provided by Wt, in addition to
+ other aspects such as event handling and layout classes. Useful as an
+ executable reference to widgets and features provided by the library.
+</p>
+
+</div>
+  </message>
+
   <message id="home.download">
     <h3><span>Download</span></h3>
   </message>
@@ -836,7 +855,7 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code of the <i>Chat</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
+	Browse below the source code for JWt's 
 	<a href="http://www.webtoolkit.eu/jwt/examples/simplechat">
 	  Chat</a> example.
       </p>
@@ -844,4 +863,18 @@ you may share tips, notes and experiences using JWt.
   </message>
 
   <message id="srcview.title.simplechat">Example: Chat</message>
+
+  <message id="srcview.title.JAVA.widgetgallery">
+    <div class="srcviewtitle">
+      <h2>Source code of the <i>Widget gallery</i> example</h2>
+
+      <p>
+	Browse below the source code for JWt's 
+	<a href="http://www.webtoolkit.eu/jwt/examples/widget_gallery">
+	  Widget gallery</a> example.
+      </p>
+    </div>
+  </message>
+
+  <message id="srcview.title.widgetgallery">Example: Widget gallery</message>
 </messages>

@@ -19,11 +19,21 @@ WT_DECLARE_WT_MEMBER
 
      if (WT.hasFocus(el)) {
        if ($(el).hasClass(emptyTextStyle)) {
+	 if (!WT.isIE && el.oldtype) {
+	   el.type = el.oldtype;
+	 }
 	 $(el).removeClass(emptyTextStyle);
 	 el.value = '';
        }
      } else {
        if (el.value == '') {
+	 if (el.type == 'password') {
+	   if (!WT.isIE) {
+	     el.oldtype = 'password';
+	     el.type = 'text';
+	   } else
+	     return;
+	 }
 	 $(el).addClass(emptyTextStyle);
 	 el.value = emptyText;
        }

@@ -1181,30 +1181,44 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
     WebSocketMessage *message = new WebSocketMessage(lock.get());
-    
-    if (message->contentLength() == 0)
-      return;
 
-    CgiParser cgi(lock->controller_->configuration().maxRequestSize());
-    try {
-      cgi.parse(*message);
-    } catch (std::exception& e) {
-      std::cerr << "Could not parse request: " << e.what();
+    bool closing = message->contentLength() == 0;
 
-      delete message;
-      lock->asyncResponse_->flush();
-      lock->asyncResponse_ = 0;
-      return;
+    if (!closing) {
+      CgiParser cgi(lock->controller_->configuration().maxRequestSize());
+      try {
+	cgi.parse(*message);
+      } catch (std::exception& e) {
+	std::cerr << "Could not parse request: " << e.what();
+
+	delete message;
+	closing = true;
+      }
     }
 
-    {
+    const std::string *pageIdE = message->getParameter("pageId");
+    if (pageIdE	&& *pageIdE
+	!= boost::lexical_cast<std::string>(lock->renderer_.pageId()))
+      closing = true;
+
+    if (!closing) {
       Handler handler(lock, *message, (WebResponse &)(*message));
 
       lock->handleRequest(handler);
     }
 
-    lock->asyncResponse_->readWebSocketMessage
-      (boost::bind(&WebSession::handleWebSocketMessage, session));
+    if (lock->dead()) {
+      closing = true;
+      lock->controller_->removeSession(lock->sessionId());
+    }
+
+    if (closing) {
+      lock->asyncResponse_->flush();
+      lock->asyncResponse_ = 0;
+      lock->canWriteAsyncResponse_ = false;
+    } else
+      lock->asyncResponse_->readWebSocketMessage
+	(boost::bind(&WebSession::handleWebSocketMessage, session));
   }
 #endif // WT_TARGET_JAVA
 }
@@ -1348,6 +1362,15 @@ void WebSession::notify(const WEvent& event)
   }
 
   const std::string *requestE = request.getParameter("request");
+
+  const std::string *pageIdE = handler.request()->getParameter("pageId");
+  if (pageIdE && *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
+    handler.response()->setContentType("text/javascript; charset=UTF-8");
+    handler.response()->out() << "{}";
+    handler.response()->flush();
+    handler.setRequest(0, 0);
+    return;
+  }
 
   if (!app_->initialized_) {
     app_->initialize();

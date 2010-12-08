@@ -1,3 +1,14 @@
+08-12-2010:
+	* WApplication: fix unload event interfering with session refresh
+
+	* WebSession: handle session quit() during a websocket message
+
+	* WRandom: moved high-entropy random generator to public API, and
+	a utility method to create a random id
+
+	* wt-homepage example: illustrate use of a cookie to persist logins
+	across sessions
+
 02-12-2010:
 	* WebSession, WApplication, ...: support CORS (Cross-Origin Resource
 	Sharing including IE's XDomainRequest and WebSockets), deprecated

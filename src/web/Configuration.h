@@ -16,7 +16,7 @@
 #include "Wt/WLogger"
 
 #include "WebSession.h"
-#include "WtRandom.h"
+#include "Wt/WRandom"
 
 namespace rapidxml {
   template<class Ch> class xml_node;
@@ -137,10 +137,10 @@ public:
   int                pid() const { return pid_; }
 
   /*
-   * Generate a unique session Id.
-   *
    * For a FastCGI server, this also creates a session file.
    */
+  static std::string generateRandomId(int length);
+
   std::string generateSessionId();
 
   std::string sessionSocketPath(const std::string& sessionId);
@@ -184,7 +184,6 @@ private:
 
 
   int		  pid_;
-  WtRandom        random_;
   WLogger         logger_;
 
   void readApplicationSettings(rapidxml::xml_node<char> *app);

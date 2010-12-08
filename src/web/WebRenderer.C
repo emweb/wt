@@ -11,6 +11,7 @@
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WLoadingIndicator"
+#include "Wt/WRandom"
 #include "Wt/WWebWidget"
 #include "Wt/WStringUtil"
 
@@ -22,7 +23,6 @@
 #include "WebSession.h"
 #include "FileServe.h"
 #include "Utils.h"
-#include "WtRandom.h"
 #include "EscapeOStream.h"
 #ifdef WIN32
 #include <process.h> // for getpid()
@@ -51,6 +51,7 @@ WebRenderer::WebRenderer(WebSession& session)
     visibleOnly_(true),
     rendered_(false),
     twoPhaseThreshold_(5000),
+    pageId_(0),
     expectedAckId_(0),
     learning_(false)
 { }
@@ -223,8 +224,7 @@ void WebRenderer::setBootVars(WebResponse& response,
 	      (session_.bootstrapUrl(response, WebSession::KeepInternalPath)));
   boot.setVar("SESSION_ID", session_.sessionId());
   boot.setVar("RANDOMSEED",
-	      boost::lexical_cast<std::string>(WtRandom::getUnsigned()
-					       + getpid()));
+	      boost::lexical_cast<std::string>(WRandom::get()));
   boot.setVar("RELOAD_IS_NEWSESSION", conf.reloadIsNewSession());
   boot.setVar("USE_COOKIES",
 	      conf.sessionTracking() == Configuration::CookiesURL);
@@ -359,8 +359,7 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
     << session_.app()->javaScriptClass()
     << "._p_.response(" << expectedAckId_ << ");";
 
-  if (response.isWebSocketRequest()
-      || response.isWebSocketMessage())
+  if (response.isWebSocketRequest() || response.isWebSocketMessage())
     setJSSynced(false);
 }
 
@@ -525,6 +524,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
   script.setVar("ONLOAD",
 		std::string("(function() {")
 		+ (widgetset ? "" : "window.loadWidgetTree();") + "})");
+  script.setVar("PAGE_ID", pageId_);
+
   /*
    * FIXME: is this still required?
    * Mozilla Bugzilla #246651
@@ -766,6 +767,9 @@ void WebRenderer::updateLoadIndicator(std::ostream& out, WApplication *app,
  */
 void WebRenderer::serveMainpage(WebResponse& response)
 {
+  ++expectedAckId_;
+  ++pageId_;
+
   Configuration& conf = session_.controller()->configuration();
 
   WApplication *app = session_.app();

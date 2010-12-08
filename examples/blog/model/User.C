@@ -13,6 +13,7 @@
 #include "Post.h"
 #include "Tag.h"
 
+#include <Wt/WRandom>
 #include <Wt/Dbo/Impl>
 
 #ifndef WIN32
@@ -67,6 +68,13 @@ bool User::authenticate(const std::string& password) const
 #else
   return password_ == password;
 #endif
+}
+
+std::string User::generateToken()
+{
+  token_ = Wt::WRandom::generateId(16);
+
+  return token_;
 }
 
 Posts User::latestPosts(int count) const

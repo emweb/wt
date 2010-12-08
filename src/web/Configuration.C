@@ -519,16 +519,7 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
 std::string Configuration::generateSessionId()
 {
   std::string sessionId = sessionIdPrefix();
-
-  for (int i = sessionId.length(); i < sessionIdLength(); ++i) {
-    // use alphanumerical characters (big and small) and numbers
-    int d = random_.rand() % (26 + 26 + 10);
-
-    char c = (d < 10 ? ('0' + d)
-	      : (d < 36 ? ('A' + d - 10)
-		 : 'a' + d - 36));
-    sessionId.push_back(c);
-  }
+  sessionId += WRandom::generateId(sessionIdLength() - sessionId.length());
 
   if (serverType_ == FcgiServer) {
     std::string socketPath = sessionSocketPath(sessionId);

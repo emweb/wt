@@ -17,7 +17,9 @@
 
 #include <Wt/WAnchor>
 #include <Wt/WApplication>
+#include <Wt/WCheckBox>
 #include <Wt/WContainerWidget>
+#include <Wt/WEnvironment>
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
 #include <Wt/WStackedWidget>
@@ -62,6 +64,21 @@ public:
     items_ = new WContainerWidget(this);
 
     init();
+
+    std::string token;
+
+    try {
+      token = app->environment().getCookie("bloglogin");
+    } catch (...) { }
+
+    if (!token.empty()) {
+      dbo::Transaction t(session_);
+      dbo::ptr<User> user
+	= session_.find<User>("where token = ?").bind(token);
+      if (user)
+	loginAs(user);
+      t.commit();
+    }
   }
 
   ~BlogImpl() {
@@ -85,8 +102,10 @@ private:
   WContainerWidget *items_;
 
   void logout() {
-    if (boost::starts_with(wApp->internalPath(), basePath_ + "author/"))
+    if (boost::starts_with(wApp->internalPath(), basePath_ + "author/")) {
       wApp->setInternalPath(basePath_, true);
+      wApp->setCookie("bloglogin", "", 0);
+    }
 
     init();
   }
@@ -99,14 +118,20 @@ private:
     login_->clear();
     login_->setTemplateText(tr("blog-login"));
 
+    WCheckBox *rememberMe = new WCheckBox(tr("remember-me"));
     WLineEdit *name = new WLineEdit();
+    name->setEmptyText("login");
+    name->setToolTip("login");
     WLineEdit *passwd = new WLineEdit();
+    passwd->setEmptyText("password");
+    passwd->setToolTip("password");
     WPushButton *loginButton = new WPushButton(tr("login"));
 
     passwd->setEchoMode(WLineEdit::Password);
     passwd->enterPressed().connect(this, &BlogImpl::login);
     loginButton->clicked().connect(this, &BlogImpl::login);
 
+    rememberMe->hide();
     name->hide();
     passwd->hide();
     loginButton->hide();
@@ -114,6 +139,7 @@ private:
     WText *loginLink = new WText(tr("login"));
     loginLink->setStyleClass("link");
 
+    loginLink->clicked().connect(rememberMe, &WWidget::show);
     loginLink->clicked().connect(name, &WWidget::show);
     loginLink->clicked().connect(passwd, &WWidget::show);
     loginLink->clicked().connect(loginButton, &WWidget::show);
@@ -125,6 +151,7 @@ private:
 
     registerLink->clicked().connect(this, &BlogImpl::newUser);
 
+    login_->bindWidget("rememberMe", rememberMe);
     login_->bindWidget("name", name);
     login_->bindWidget("passwd", passwd);
     login_->bindWidget("login-button", loginButton);
@@ -136,6 +163,7 @@ private:
   void login() {
     WLineEdit *name = login_->resolve<WLineEdit *>("name");
     WLineEdit *passwd = login_->resolve<WLineEdit *>("passwd");
+    WCheckBox *rememberMe = login_->resolve<WCheckBox *>("rememberMe");
 
     dbo::Transaction t(session_);
 
@@ -144,13 +172,18 @@ private:
 
     if (user) {
       if (user->authenticate(passwd->text().toUTF8())) {
+	if (rememberMe) {
+	  std::string token = user.modify()->generateToken();
+	  WApplication *app = wApp;
+	  app->setCookie("bloglogin", token, 60*60*24*14);
+	}
 	loginAs(user);
       } else {
-	name->setStyleClass("");
-	passwd->setStyleClass("invalid");
+	name->removeStyleClass("Wt-invalid", true);
+	passwd->addStyleClass("Wt-invalid", true);
       }
     } else
-      name->setStyleClass("invalid");
+      name->addStyleClass("Wt-invalid", true);
 
     t.commit();
   }

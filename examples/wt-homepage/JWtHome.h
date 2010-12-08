@@ -35,6 +35,7 @@ private:
   WWidget *treeviewExample();
   WWidget *chatExample();
   WWidget *figtreeExample();
+  WWidget *widgetGalleryExample();
 
   std::string jwtExamplePath_;
 };

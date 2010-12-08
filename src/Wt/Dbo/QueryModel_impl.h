@@ -133,11 +133,15 @@ template <class Result>
 void QueryModel<Result>::setCurrentRow(int row) const
 {
   if (currentRow_ != row) {
+    Transaction transaction(query_.session());
+
     const Result& result = resultRow(row);
     rowValues_.clear();
     query_result_traits<Result>::getValues(result, rowValues_);
 
     currentRow_ = row;
+
+    transaction.commit();
   }
 }
 

@@ -157,25 +157,22 @@ bool WebController::expireSessions()
     for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();) {
       boost::shared_ptr<WebSession> session = i->second;
 
-      if (!session->dead()) {
-	int diff = session->expireTime() - now;
+      int diff = session->expireTime() - now;
 
-	if (diff < 1000) {
-	  if (session->shouldDisconnect()) {
-	    if (session->app()->connected_) {
-	      session->app()->connected_ = false;
-	      session->log("notice") << "Timeout: disconnected";
-	    }
-	    ++i;
-	  } else {
-	    i->second->log("notice") << "Timeout: expiring";
-	    WebSession::Handler handler(session, true);
-	    session->expire();
-	    toKill.push_back(session);
-	    sessions_.erase(i++);
+      if (diff < 1000) {
+	if (session->shouldDisconnect()) {
+	  if (session->app()->connected_) {
+	    session->app()->connected_ = false;
+	    session->log("notice") << "Timeout: disconnected";
 	  }
-	} else
 	  ++i;
+	} else {
+	  i->second->log("notice") << "Timeout: expiring";
+	  WebSession::Handler handler(session, true);
+	  session->expire();
+	  toKill.push_back(session);
+	  sessions_.erase(i++);
+	}
       } else
 	++i;
     }

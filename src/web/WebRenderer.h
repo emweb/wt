@@ -56,6 +56,7 @@ public:
   void letReloadHTML(WebResponse& request, bool newSession);
 
   bool isDirty() const;
+  int  pageId() const { return pageId_; }
 
   void serveResponse(WebResponse& request);
   void serveError(WebResponse& request, const std::exception& error);
@@ -87,7 +88,7 @@ private:
   WebSession& session_;
   bool        visibleOnly_, rendered_;
   int         twoPhaseThreshold_;
-  int         expectedAckId_;
+  int         pageId_, expectedAckId_;
 
   std::vector<Cookie> cookiesToSet_;
 
@@ -103,7 +104,6 @@ private:
   void serveMainpage(WebResponse& response);
   void serveMainAjax(WebResponse& response);
   void serveWidgetSet(WebResponse& request);
-  void streamCommJs(WApplication *app, std::ostream& out);
   void collectJavaScript();
 
   void collectChanges(std::vector<DomElement *>& changes);

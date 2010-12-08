@@ -36,6 +36,7 @@ public:
 
   void setPassword(const std::string& password);
   bool authenticate(const std::string& password) const;
+  std::string generateToken();
 
   template<class Action>
   void persist(Action& a)
@@ -43,6 +44,7 @@ public:
     dbo::field(a, name,      "name");
     dbo::field(a, password_, "password");
     dbo::field(a, role,      "role");
+    dbo::field(a, token_,    "token");
 
     dbo::hasMany(a, comments, dbo::ManyToOne, "author");
     dbo::hasMany(a, posts,    dbo::ManyToOne, "author");
@@ -50,6 +52,7 @@ public:
 
 private:
   std::string password_;
+  std::string token_;
 };
 
 DBO_EXTERN_TEMPLATES(User);

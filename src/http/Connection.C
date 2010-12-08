@@ -85,12 +85,15 @@ void Connection::timeout(const asio_error_code& e)
 void Connection::handleReadRequest0()
 {
 #ifdef DEBUG
+  try {
     std::cerr << "Incoming request: "
 	    << socket().remote_endpoint().port() << ": "
 	      << std::string(remaining_,
 			     std::min(buffer_.data()
 				      - remaining_ + buffer_size_,
-				      (long unsigned)150)) << std::endl;
+				      (unsigned)500)) << std::endl;
+  } catch (...) {
+  }
 #endif // DEBUG
 
   boost::tribool result;

@@ -4,14 +4,11 @@
 }
 
 .user-menu {
-    float: left;
-    width: 40%;
 }
 
 .login-menu {
-    text-align: right;
     float: right;
-    width: 60%;
+    white-space: nowrap;
 }
 
 .link {

@@ -142,6 +142,7 @@ Wt/WPopupMenuItem.C
 Wt/WProgressBar.C
 Wt/WPushButton.C
 Wt/WRadioButton.C
+Wt/WRandom.C
 Wt/WRectArea.C
 Wt/WRectF.C
 Wt/WRegExp.C
@@ -217,7 +218,6 @@ web/WebSocketMessage.C
 web/WebRenderer.C
 web/WebController.C
 web/WtException.C
-web/WtRandom.C
 web/TimeUtil.C
 web/random_device.cpp
 Plain_html.C

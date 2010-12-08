@@ -333,7 +333,7 @@ void WApplication::attachThread(bool attach)
   if (attach)
     WebSession::Handler::attachThreadToSession(session_);
   else
-    WebSession::Handler::attachThreadToSession(0);
+    WebSession::Handler::attachThreadToSession(boost::shared_ptr<WebSession>());
 #endif
 }
 
@@ -595,9 +595,7 @@ void WApplication::unload()
   }
 #endif // WT_TARGET_JAVA
 
-  const Configuration& conf = session_->controller()->configuration();
-  if (conf.reloadIsNewSession())
-    quit();
+  quit();
 }
 
 void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
