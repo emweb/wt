@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <iostream>
 #include "Wt/WRegExp"
 
 namespace Wt {
@@ -16,15 +17,12 @@ WRegExp::WRegExp()
 }
 
 WRegExp::WRegExp(const WT_USTRING& pattern)
-#ifndef WT_HAVE_GNU_REGEX
-  : rx_(pattern.toUTF8())
-{ }
-#else
 {
+#ifdef WT_HAVE_GNU_REGEX
   valid_ = false;
-  setPattern(pattern);
-}
 #endif
+  setPattern(pattern, 0);
+}
 
 WRegExp::~WRegExp()
 {
@@ -34,8 +32,7 @@ WRegExp::~WRegExp()
 #endif // WT_HAVE_GNU_REGEX
 }
 
-void WRegExp::setPattern(const WT_USTRING& pattern,
-			 WFlags<RegExpFlag> flags)
+void WRegExp::setPattern(const WT_USTRING& pattern, WFlags<RegExpFlag> flags)
 {
   flags_ = flags;
 
@@ -43,7 +40,13 @@ void WRegExp::setPattern(const WT_USTRING& pattern,
   boost::regex::flag_type opt = boost::regex::normal;
   if (flags & MatchCaseInsensitive)
     opt |= boost::regex::icase;
-  rx_ = boost::regex(pattern.toUTF8(), opt);
+
+  try {
+    rx_.assign(pattern.toUTF8(), opt);
+  } catch(const std::exception& e) {
+    std::cerr << "Error parsing regular expression '" << pattern
+	      << "': " << e.what() << std::endl;
+  }
 #else
   if (valid_)
     regfree(&rx_);
