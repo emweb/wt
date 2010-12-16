@@ -1204,8 +1204,6 @@ void WTreeView::setColumn1Fixed(bool fixed)
        */
       tieRowsScrollJS_.setJavaScript
 	("function(obj, event) {"
-	 "obj.parentNode.style.width = "
-	 "" WT_CLASS ".getCssRule('#" + id() + " .cwidth').style.width;"
 	 "$('#" + id() + " .Wt-tv-rowc').parent().scrollLeft(obj.scrollLeft);"
 	 "}");
     }
