@@ -1,43 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
-  <message id="top_wt">
-      <a href="http://www.emweb.be/">
-	<img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
-      </a> 
-  </message>
-
-  <message id="banner_wrapper">
-    <div id="banner_content">
-      <div id="banner_end"> <div id="banner"><a href="#">Wt</a></div> </div>
-    </div>
-  </message>
-
-  <message id="footer_wrapper">
-    <div id="footer_content">
-      <div id="footer_copyright"> 
-	<a href="http://www.emweb.be/">
-	  <img src="/css/wt/emweb_large.jpg" height="25" width="101"
-	       alt="Emweb.be" title="emweb.be"/></a>
-	Solutions for web-based systems<br/>
-	<a href="http://www.emweb.be/">www.emweb.be</a>
+  <message id="template">
+    <div id="top_wrapper">
+      <div id="top_content">
+	${languages}
+	<div id="top_wt">
+	  <a href="http://www.emweb.be/">
+	    <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
+	  </a>
+	</div>
       </div>
-
-      <div id="footer_menu"> 
-	<a href="http://www.webtoolkit.eu/wt/">Home</a>
-	| <a href="http://www.emweb.be/?page=contact">Contact</a>
-      </div>
-      <div class="clearall"></div>
     </div>
-    <script type="text/javascript">
-      /*<![CDATA[*/
-      window.pageTracker = null;
-      loadScript("http://www.google-analytics.com/ga.js", function() {
-        window.pageTracker = _gat._getTracker('UA-4345578-1');
-        window.pageTracker._initData();
-        window.pageTracker._trackPageview();
-      });
-      /* ]]> */
-    </script>
+
+    <div id="banner_wrapper">
+      <div id="banner_content">
+	<div id="banner_end"> <div id="banner"><a href="#">Wt</a></div> </div>
+      </div>
+    </div>
+
+    <div id="main_wrapper">
+      <div id="main_content">
+	<div id="main_menu">
+	  ${menu}
+	  ${sidebar}
+	</div>
+	${contents}
+
+	<div class="clearall"></div>
+      </div>
+    </div>
+
+    <div id="footer_wrapper">
+      <div id="footer_content">
+	<div id="footer_copyright"> 
+	  <a href="http://www.emweb.be/">
+	    <img src="/css/wt/emweb_large.jpg" height="25" width="101"
+		 alt="Emweb.be" title="emweb.be"/></a>
+	  Solutions for web-based systems<br/>
+	  <a href="http://www.emweb.be/">www.emweb.be</a>
+	</div>
+
+	<div id="footer_menu"> 
+	  <a href="http://www.webtoolkit.eu/wt/">Home</a>
+	  | <a href="http://www.emweb.be/?page=contact">Contact</a>
+
+	</div>
+
+	<div id="chat"></div>
+	<script src="http://airwerf:9091/chat.js?div=chat"></script>
+
+	<div class="clearall"></div>
+      </div>
+      <script type="text/javascript">
+	    /*<![CDATA[*/
+            window.pageTracker = null;
+            loadScript("http://www.google-analytics.com/ga.js", function() {
+              window.pageTracker = _gat._getTracker('UA-4345578-1');
+              window.pageTracker._initData();
+              window.pageTracker._trackPageview();
+            });
+            /* ]]> */
+      </script>
+    </div>
   </message>
 
   <message id="wt">Wt, C++ Web Toolkit</message>
@@ -83,7 +107,7 @@
 
 <h3><span>Wt: an introduction</span></h3>
 
-<p>Wt (we pronounce that as 'witty') is a C++ library for developing
+<p>Wt (pronounced as <i>witty</i>) is a C++ library for developing
 interactive web applications.</p>
 
 <p>The API is <b>widget-centric</b> and uses well-tested patterns of
@@ -94,9 +118,9 @@ progressive enhancement), and pretty URLs.</p>
 
 <p>Unlike many page-based frameworks, Wt was designed for creating
 stateful applications that are at the same time highly interactive
-(leveraging techinques such as Ajax to their fullest) and accessible
-(supporting plain HTML browsers), using automatic <b>graceful
-degradation or progressive enhancement</b>.</p>
+(leveraging techinques such as WebSockets and Ajax to their fullest)
+and accessible (supporting plain HTML browsers), using automatic
+<b>graceful degradation or progressive enhancement</b>.</p>
 
 <p>The library comes with an application server that acts as a
 stand-alone web server or integrates through FastCGI with other web
@@ -106,15 +130,15 @@ servers.</p>
 
 <p>Page-based frameworks (based on PHP, JSP/JSF, Ruby on Rails,
 etc...) do not make abstraction of the underlying technologies
-(HTML/XHTML, JavaScript, CSS, Ajax, Forms, DHTML, SVG/VML/Canvas). As
-a consequence, a developer needs to be familiar with all of these
-evolving technologies and is also responsible for graceful degradation
-when browser support is lacking. The structure of the application
-follows mostly the page-centric paradigm of early day HTML. This means
-that not only will you need to implement a controller to indicate how
-a user moves from page to page, but when using advanced Ajax
-techniques you will need to design and maintain manually your
-client-server communication.</p>
+(HTML/XHTML, JavaScript, CSS, Ajax, WebSockets, Comet, Forms, DHTML,
+SVG/VML/Canvas). As a consequence, a developer needs to be familiar
+with all of these evolving technologies and is also responsible for
+graceful degradation when browser support is lacking. The structure of
+many web applications still follows mostly the page-centric paradigm
+of early day HTML. This means that not only will you need to implement
+a controller to indicate how a user moves from page to page, but when
+using advanced Ajax techniques you will need to design and maintain
+manually your client-server communication.</p>
 
 <p>Pure Ajax frameworks on the other hand require tedious JavaScript
 programming to deal with browser quirks and client-server programming
@@ -129,21 +153,21 @@ href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS
 inserted in the page, and <a
 href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
 (Cross-Site Request Forgery)</a> by trusting cookies for
-authentication. These security problems are hard to avoid when as a
-developer you need to be able to insert self-written JavaScript to
-improve your web application and thus the framework cannot filter it
+authentication. These security problems are hard to avoid in
+traditional frameworks when as a developer you need to implement
+JavaScript functionality and thus the framework cannot filter it
 out.</p>
 
-<p>In contrast, a web application developed with Wt can be developed
+<p>In contrast, a web application developed with Wt is developed
 entirely in C++, from which the library generates the necessary
 HTML/XHTML, CSS, Javascript, CGI, SVG/VML/Canvas and Ajax code. The
 responsibility of writing secure and browser-portable web applications
 is handled by Wt. For example, if available, Wt will maximally use
-JavaScript and Ajax, but applications developed using Wt will also
-function correctly when Ajax is not available. Wt will start with a
-plain HTML/CGI application and progressively enhance to a rich Ajax
-application if possible. With Wt, security is built-in and by
-default.</p>
+JavaScript, Ajax and even WebSockets, but applications developed using
+Wt will also function correctly when JavaScript is not available. Wt
+will start with a plain HTML/CGI application and progressively enhance
+to a rich Ajax application if possible. With Wt, security is built-in
+and by default.</p>
 
 <h4>Typical use scenarios:</h4>
 
@@ -152,9 +176,7 @@ default.</p>
   footprint of a C++ web application server.</li>
   <li>Web-based GUIs that require <b>integration with (existing) C++
   libraries</b>, for example for scientific or engineering
-  applications.</li>
-  <li>Creating a port of <b>existing C++ desktop applications</b> to
-  the web.</li>
+  applications, or <b>existing C++ desktop applications</b>.</li>
   <li><b>High performance, complex</b> web applications which are
   fully personalized (and thus cannot benefit from caching), fully
   Ajax enabled and at the same time entirely accessible and Search
@@ -174,7 +196,7 @@ default.</p>
   <li>Optionally, use XHTML and CSS for layout and decoration.</li>
   <li>Generates standards compliant HTML or XHTML code.</li>
   <li>Portable, anti-aliased graphics optimized for web usage (using
-  inline VML, inline SVG, HTML 5 canvas or PNG images), which can also
+  inline VML, inline SVG, HTML5 canvas or PNG images), which can also
   be used to render to PDF.</li>
   <li>Avoid common security problems since Wt has complete control
   over the presentation layer and proactively filters out
@@ -185,8 +207,8 @@ default.</p>
   the common tips and tricks for optimizing application
   responsiveness and even optimizes per browser.</li>
   <li>A simple API with a robust cross-browser implementation for
-  server-initiated events aka <i>server push</i> or
-  <i>comet</i>).</li>
+  server-initiated events aka <i>server push</i> (using <i>comet</i>
+  or WebSockets).</li>
   <li>Use the built-in httpd for easy development and deployment, or
   use the FastCGI/ISAPI connectors to deploy in existing web
   servers.</li>
@@ -211,10 +233,6 @@ default.</p>
   <li>Integrated Unicode support (UTF8/UTF16) and pervasive
     localization.</li>
   <li>When Ajax is available, only changes are rendered.</li>
-  <li>Two-phased rendering of changes to the web page, with first
-    visible, and in the background invisible changes (when Ajax is
-    available). When Ajax is not available, only visible contents is
-    rendered.</li>
   <li>Configurable session tracking options that include URL rewriting
     and cookies.</li>
   <li>Support for browser history navigation (back/forward buttons and
@@ -224,9 +242,13 @@ default.</p>
     devices, or energy-, space- and budget-friendly deployment of
     Internet or extranet web sites.</li>
   <li>Completely based on event-driven async I/O: sessions are not
-    tied to threads, and neither do delayed responses (e.g. for server
+    tied to threads, and neither do open connection (e.g. for server
     push) block threads. Instead, threads are needed only to improve
     concurrent request handling or for reentrant event loops.</li>
+  <li>Two-phased rendering of changes to the web page, with first
+    visible, and in the background invisible changes (when Ajax is
+    available). When Ajax is not available, only visible contents is
+    rendered.</li>
 </ul>
 
 <h4>Event handling</h4>
@@ -245,15 +267,14 @@ default.</p>
   <li>Possibility to hook in custom JavaScript (e.g. for client-side only event
     handling), and <i>emit</i> C++ signals from this custom JavaScript.</li>
   <li>Drag&amp;Drop API.</li> 
-  <li>Supports timed events and built-in support for server-initiated
-    updates ("server push")</li>
+  <li>Timed events and server-initiated updates ("server push")</li>
 </ul>
 
 <h4>Native painting system</h4>
 
 <ul>
   <li>Unified painting API which uses the browsers native (vector)
-    graphics support (inline VML, inline SVG, or HTML 5 canvas), or
+    graphics support (inline VML, inline SVG, or HTML5 canvas), or
     renders to common image formats (PNG, GIF, ...) or vector formats
     (SVG, PDF).</li>
   <li>Supports arbitrary painter paths, clipping, text, images,
@@ -583,7 +604,7 @@ charting widgets</a> that are implemented on top of Wt's cross-browser
 painting API. This painting API uses built-in browser support for
 generating high quality graphics (instead of the tradditional approach
 of rendering PNG/GIF images at the server). Depending on the browser,
-inline VML, inline SVG, HTML 5 canvas, or a PNG image is used to
+inline VML, inline SVG, HTML5 canvas, or a PNG image is used to
 render painted contents in a <a
 href="/wt/doc/reference/html/classWt_1_1WPaintedWidget.html"
 target="_blank">WPaintedWidget</a>.
@@ -709,14 +730,16 @@ browser and server.</p>
 <p>
   <a href="/wt/examples/simplechat/simplechat.wt" class="run" target="_blank">
     <img src="/icons/green-play.png" style="vertical-align: top"/>  Run example
-  </a>
+  </a> (or ventilate your thoughts down here)
 </p>
 
 <p>
   This example implements a simple chat client and server for a
   multi-user chat application. It illustrates how one can easily let
   multiple users interact, for example using <b>server-initiated
-  updates</b> to push information from one user to other users.
+  updates</b> to push information from one user to other
+  users. Server-initiated updates are implemented using Comet or
+  HTML5 WebSockets.
 </p>
 
 <p>
@@ -724,6 +747,21 @@ browser and server.</p>
   application development: you can easily instantiate the same widget
   class multiple times. The SimpleChatClient widget may be intantiated
   as easily as you use basic Wt widgets such as a push button.
+</p>
+
+<p>
+  This example is also implemented as a <i>Widget</i> which can be
+  embedded in another page (very much like how you integrate a google
+  maps widget inside another application). In this case, we've
+  embedded the chat also in this very homepage as follows:
+  <pre>
+    &lt;div id="chat"&gt;&lt;/div&gt;
+    &lt;script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat"&gt;&lt;/script&gt;
+  </pre>
+  This uses XMLHttpRequest 2.0 Cross-Origin Ajax requests (if the
+  browser supports this, falling back to old tricks if not) to
+  communicate from a particular HTML origin page to a server hosting
+  the Widget, on a different domain.
 </p>
 
 <p>

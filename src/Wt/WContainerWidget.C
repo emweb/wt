@@ -714,7 +714,9 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
        * position: relative element needs to be in a position: relative
        * parent otherwise scrolling is broken
        */
-      parent.setProperty(PropertyStylePosition, "relative");
+      if (app->environment().agentIsIE()
+	  && this->parent()->positionScheme() != Static)
+	parent.setProperty(PropertyStylePosition, "relative");
     }
 
     switch (contentAlignment_ & AlignHorizontalMask) {

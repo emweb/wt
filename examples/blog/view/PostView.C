@@ -157,7 +157,8 @@ void PostView::render(RenderType type)
   }
 
   WAnchor *postAnchor = new WAnchor("", post_->author->name);
-  postAnchor->setRefInternalPath(basePath_ + "author/" + post_->author->name);
+  postAnchor->setRefInternalPath(basePath_ + "author/"
+				 + post_->author->name.toUTF8());
   bindWidget("author", postAnchor);
 }
 

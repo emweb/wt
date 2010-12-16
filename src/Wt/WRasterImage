@@ -110,6 +110,13 @@ public:
    */
   void setPixel(int x, int y, const WColor& color);
 
+  /*! \brief Low-level paint method.
+   *
+   * Use this method to directly get the color for an individual pixel, when
+   * using the paint device without a painter.
+   */
+  WColor getPixel(int x, int y);
+
 protected:
   virtual WPainter *painter() const { return painter_; }
   virtual void setPainter(WPainter *painter) { painter_ = painter; }

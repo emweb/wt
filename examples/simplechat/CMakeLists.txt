@@ -5,8 +5,11 @@ ELSE(NOT MULTI_THREADED_BUILD)
  ADD_DEFINITIONS(-DTHREADED)
 
  WT_ADD_EXAMPLE(simplechat.wt
-   simpleChat.C SimpleChatWidget.C SimpleChatServer.C
- )
+   simpleChat.C
+   PopupChatWidget.C
+   SimpleChatWidget.C
+   SimpleChatServer.C
+)
 
  TARGET_LINK_LIBRARIES(simplechat.wt ${BOOST_THREAD_LIB})
 

@@ -235,6 +235,9 @@ public:
   template<class T, class V>
     boost::signals::connection connect(T *target, void (V::*method)(A1));
 
+  template<class T, class V>
+    boost::signals::connection connect(T *target, void (V::*method)(const A1&));
+
   /*! \brief Connect a slot that takes two arguments.
    *
    * This is only possible for signals that take at least two arguments.
@@ -488,6 +491,16 @@ template <typename A1, typename A2, typename A3,
 	  typename A4, typename A5, typename A6>
 template <class T, class V>
 boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
+::connect(T *target, void (V::*method)(const A1&))
+{
+  assert(dynamic_cast<V *>(target));
+  return connect(boost::bind(method, target, ::_1));
+}
+
+template <typename A1, typename A2, typename A3,
+	  typename A4, typename A5, typename A6>
+template <class T, class V>
+boost::signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 ::connect(T *target, void (V::*method)())
 {
   exposeSignal();
@@ -574,6 +587,19 @@ struct SignalArgTraits
 		       + typeid(T).name() + "'");
       return T();
     }
+  }
+};
+
+template<>
+struct SignalArgTraits<WString>
+{
+  static WString unMarshal(const JavaScriptEvent& jse, int argi) {
+    if ((unsigned)argi >= jse.userEventArgs.size())
+      throwWtException("Missing JavaScript argument: "
+		       + boost::lexical_cast<std::string>(argi));
+
+    std::string v = jse.userEventArgs[argi];
+    return WString::fromUTF8(v);
   }
 };
 

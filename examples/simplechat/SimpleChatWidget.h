@@ -51,6 +51,19 @@ public:
    */
   bool startChat(const Wt::WString& user);
 
+  void logout();
+
+  SimpleChatServer& server() { return server_; }
+
+  int userCount() { return users_.size(); }
+
+protected:
+  virtual void createLayout(WWidget *messages, WWidget *userList,
+			    WWidget *messageEdit,
+			    WWidget *sendButton, WWidget *logoutButton);
+
+  virtual void updateUsers();
+
 private:
   typedef std::map<Wt::WString, bool> UserMap;
   UserMap users_;
@@ -76,9 +89,7 @@ private:
   Wt::WSound messageReceived_;
 
   void login();
-  void logout();
   void send();
-  void updateUsers();
   void updateUser();
 
   /* called from another session */

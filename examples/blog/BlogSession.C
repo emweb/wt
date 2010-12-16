@@ -17,6 +17,8 @@ namespace dbo = Wt::Dbo;
 BlogSession::BlogSession(const std::string& sqliteDb)
   : connection_(sqliteDb)
 {
+  // connection_.setProperty("show-queries", "true");
+
   setConnection(connection_);
 
   mapClass<Post>("post");

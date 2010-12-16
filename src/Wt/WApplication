@@ -709,7 +709,7 @@ public:
    *
    * \sa setInternalPath()
    */
-  Signal<std::string>& internalPathChanged() { return internalPathChanged_; }
+  Signal<std::string>& internalPathChanged();
 
   /*! \brief Redirects the application to another location.
    *
@@ -1089,6 +1089,15 @@ public:
   bool require(const std::string& url,
 	       const std::string& symbol = std::string());
 
+  /*! \brief Sets the name of the application JavaScript class.
+   *
+   * This should be called right after construction of the application, and
+   * changing the JavaScript class is only supported for WidgetSet mode
+   * applications. The \p className should be a valid JavaScript identifier, and
+   * should also be unique in a single page.
+   */
+  void setJavaScriptClass(const std::string& className);
+
   /*! \brief Returns the name of the application JavaScript class.
    *
    * This JavaScript class encapsulates all JavaScript methods
@@ -1139,7 +1148,7 @@ public:
    *
    * This method has no effect.
    *
-   * Since Wt 3.1.8, a communication method that works is detected at
+   * Since %Wt 3.1.8, a communication method that works is detected at
    * run time. For widget set mode, cross-domain Ajax is chosen if
    * available.
    *
@@ -1640,7 +1649,7 @@ private:
   WContainerWidget      *dialogCover_;
   bool                   quited_;
   std::string            onePixelGifUrl_;
-  bool                   rshLoaded_;
+  bool                   internalPathsEnabled_;
   WWidget               *exposedOnly_;
   WLoadingIndicator     *loadingIndicator_;
   WWidget               *loadingIndicatorWidget_;
@@ -1705,7 +1714,7 @@ private:
   /*
    * Methods for application state handling
    */
-  bool loadRsh();
+  void enableInternalPaths();
   void changeInternalPath(const std::string& path);
 
 #ifdef WT_WITH_OLD_INTERNALPATH_API

@@ -17,12 +17,16 @@ const WString ChatEvent::formattedHTML(const WString& user) const
 {
   switch (type_) {
   case Login:
-    return "<span class='chat-info'>"
-      + user_ + " joined the conversation.</span>";
+    return "<span class='chat-info'>" + user_ + " joined.</span>";
   case Logout:
     return "<span class='chat-info'>"
       + ((user == user_) ? "You" : user_)
       + " logged out.</span>";
+  case Rename:
+    return "<span class='chat-info'>"
+      + ((user == data_ || user == user_) ?
+	 "You are" : (user_ + " is")) + " now known as "
+      + data_ + ".</span>";
   case Message:{
     WString result;
 
@@ -75,6 +79,29 @@ void SimpleChatServer::logout(const WString& user)
 
     chatEvent_.emit(ChatEvent(ChatEvent::Logout, user));
   }
+}
+
+bool SimpleChatServer::changeName(const WString& user, const WString& newUser)
+{
+  if (user == newUser)
+    return true;
+
+  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
+  
+  UserSet::iterator i = users_.find(user);
+
+  if (i != users_.end()) {
+    if (users_.find(newUser) == users_.end()) {
+      users_.erase(i);
+      users_.insert(newUser);
+
+      chatEvent_.emit(ChatEvent(ChatEvent::Rename, user, newUser));
+
+      return true;
+    } else
+      return false;
+  } else
+    return false;
 }
 
 WString SimpleChatServer::suggestGuest()

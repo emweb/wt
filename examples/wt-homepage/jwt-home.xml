@@ -1,43 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
-  <message id="top_wt">
-    <a href="http://www.emweb.be/">
-      <img src="/css/jwt/emweb_powered.jpg" alt="Emweb" height="22" />
-    </a> 
-  </message>
-
-  <message id="banner_wrapper">
-    <div id="banner_content">
-      <div id="banner_end"> <div id="banner"><a href="#">JWt</a></div> </div>
-    </div>
-  </message>
-
-  <message id="footer_wrapper">
-    <div id="footer_content">
-      <div id="footer_copyright"> 
-	<a href="http://www.emweb.be/">
-	  <img src="/css/jwt/emweb_large.jpg" height="25" width="101"
-	       alt="Emweb.be" title="emweb.be"/></a>
-	Solutions for web-based systems<br/>
-	<a href="http://www.emweb.be/">www.emweb.be</a>
+  <message id="template">
+    <div id="top_wrapper">
+      <div id="top_content">
+	${languages}
+	<div id="top_wt">
+	  <a href="http://www.emweb.be/">
+	    <img src="/css/jwt/emweb_powered.jpg" alt="Emweb" height="22" />
+	  </a>
+	</div>
       </div>
-
-      <div id="footer_menu"> 
-	<a href="http://www.webtoolkit.eu/wt/">Home</a>
-	| <a href="http://www.emweb.be/?page=contact">Contact</a>
-      </div>
-      <div class="clearall"></div>
     </div>
-    <script type="text/javascript">
-      /*<![CDATA[*/
-      window.pageTracker = null;
-      loadScript("http://www.google-analytics.com/ga.js", function() {
-        window.pageTracker = _gat._getTracker('UA-4345578-1');
-        window.pageTracker._initData();
-        window.pageTracker._trackPageview();
-      });
-      /* ]]> */
-    </script>
+
+    <div id="banner_wrapper">
+      <div id="banner_content">
+	<div id="banner_end"> <div id="banner"><a href="#">JWt</a></div> </div>
+      </div>
+    </div>
+
+    <div id="main_wrapper">
+      <div id="main_content">
+	<div id="main_menu">
+	  ${menu}
+	  ${sidebar}
+	</div>
+	${contents}
+
+	<div class="clearall"></div>
+      </div>
+    </div>
+
+    <div id="footer_wrapper">
+      <div id="footer_content">
+	<div id="footer_copyright"> 
+	  <a href="http://www.emweb.be/">
+	    <img src="/css/jwt/emweb_large.jpg" height="25" width="101"
+		 alt="Emweb.be" title="emweb.be"/></a>
+	  Solutions for web-based systems<br/>
+	  <a href="http://www.emweb.be/">www.emweb.be</a>
+	</div>
+
+	<div id="footer_menu"> 
+	  <a href="http://www.webtoolkit.eu/wt/">Home</a>
+	  | <a href="http://www.emweb.be/?page=contact">Contact</a>
+
+	</div>
+
+	<div id="chat"></div>
+	<script src="http://airwerf:9091/chat.js?div=chat"></script>
+
+	<div class="clearall"></div>
+      </div>
+      <script type="text/javascript">
+	    /*<![CDATA[*/
+            window.pageTracker = null;
+            loadScript("http://www.google-analytics.com/ga.js", function() {
+              window.pageTracker = _gat._getTracker('UA-4345578-1');
+              window.pageTracker._initData();
+              window.pageTracker._trackPageview();
+            });
+            /* ]]> */
+      </script>
+    </div>
   </message>
 
   <message id="wt">JWt, Java Web Toolkit</message>
@@ -88,8 +112,8 @@
 <p>JWt is a Java library for developing interactive web applications
 that may be deployed within standard Java Servlet containers.</p>
 
-<p>The API is <b>widget-centric</b> and and uses well-tested patterns
-of desktop GUI APIs, tailored to the web. To the developer, it offers
+<p>The API is <b>widget-centric</b> and uses well-tested patterns of
+desktop GUI APIs, tailored to the web. To the developer, it offers
 complete abstraction of any web-specific implementation details,
 including event handling, graphics support, graceful degradation (or
 progressive enhancement) and pretty URLs.</p>
@@ -127,20 +151,19 @@ href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS
 inserted in the page, and <a
 href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
 (Cross-Site Request Forgery)</a> by trusting cookies for
-authentication. These security problems are hard to avoid when as a
-developer you need to be able to insert self-written JavaScript to
-improve your web application and thus the framework cannot filter it
-out.</p>
+authentication. These security problems are hard to avoid by a
+framework when as a developer you need to implement JavaScript
+functionality thus the framework cannot filter it out.</p>
 
-<p>In contrast, a web application developed with JWt can be developed
-in only one compiled language (Java), from which the library generates
+<p>In contrast, a web application developed with JWt is developed in
+only one compiled language (Java), from which the library generates
 the necessary HTML/XHTML, Javascript, CGI, SVG/VML/Canvas and Ajax
 code. The responsibility of writing secure and browser-portable web
-applications is handled by Wt. For example, if available, Wt will
-maximally use JavaScript and Ajax, but applications developed using Wt
-will also function correctly when Ajax is not available. Wt will start
-with a plain HTML/CGI application and progressively enhance to a rich
-Ajax application if possible.</p>
+applications is handled by JWt. For example, if available, JWt will
+maximally use JavaScript and Ajax, but applications developed using
+JWt will also function correctly when Ajax is not available. JWt will
+start with a plain HTML/CGI application and progressively enhance to a
+rich Ajax application if possible.</p>
 
 <p>By using standard Java and JVMs, JWt applications can benefit from
 any existing Java libraries and JVM features including its support for
@@ -181,7 +204,7 @@ scripting languages.</p>
   <li>Optionally, use XHTML and CSS for layout and decoration.</li>
   <li>Generates standards compliant HTML or XHTML code.</li>
   <li>Portable, anti-aliased graphics optimized for web usage (using
-    inline VML, inline SVG, HTML 5 canvas or PNG images).</li>
+    inline VML, inline SVG, HTML5 canvas or PNG images).</li>
   <li>Avoid common security problems since Wt has complete control
     over the presentation layer and proactively filters out
   <i>active</i> tags and attributes, does not expose business logic,
@@ -243,7 +266,7 @@ scripting languages.</p>
 
 <ul>
   <li>Unified painting API which uses the browsers native (vector)
-    graphics support (inline VML, inline SVG, or HTML 5 canvas).</li>
+    graphics support (inline VML, inline SVG, or HTML5 canvas).</li>
   <li>Supports arbitrary painter paths, clipping, text, images,
     transformations, drop shadow.</li>
   <li>Use the painting API to paint a widget, or to create an SVG or
@@ -412,7 +435,7 @@ support for generating high quality graphics (instead of the more
 common approach of rendering PNG/GIF images at the server), thereby
 off-loading CPU intensive computations to the browser and at the same
 time reducing bandwidth. Depending on the browser, inline VML, inline
-SVG, or the HTML 5 canvas is used to render painted contents in a <a
+SVG, or the HTML5 canvas is used to render painted contents in a <a
 href="/jwt/latest/doc/javadoc/eu/webtoolkit/jwt/WPaintedWidget.html">WPaintedWidget</a>.
 </p>
 

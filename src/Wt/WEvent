@@ -112,6 +112,40 @@ public:
   JavaScriptEvent();
 };
 
+/*! \class WEvent
+ *  \brief A session event.
+ *
+ * The application is notified of an event (like a user interaction, a
+ * timeout or an internal keep-alive event) using
+ * WApplication::notify().
+ *
+ * You may want to check the event type using eventType().
+ */
+class WT_API WEvent {
+public:
+  struct Impl;
+
+  /*! \brief Returns the event type.
+   */
+  EventType eventType() const; 
+
+private:
+  WEvent(const Impl& impl, bool doRenderOnly)
+    : impl_(impl),
+      renderOnly(doRenderOnly)
+  { }
+
+  WEvent(const Impl& impl)
+    : impl_(impl),
+      renderOnly(false)
+  { }
+
+  const Impl& impl_;
+  bool renderOnly;
+
+  friend class WebSession;
+};
+
 #ifdef WT_TARGET_JAVA
 /*! \class WAbstractEvent Wt/WEvent Wt/WEvent
  *  \brief Internal class WAbstractEvent.

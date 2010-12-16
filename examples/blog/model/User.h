@@ -25,7 +25,7 @@ public:
     Admin = 1
   };
 
-  std::string name;
+  Wt::WString name;
   Role        role;
 
   Comments    comments;

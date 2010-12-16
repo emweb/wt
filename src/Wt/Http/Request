@@ -136,7 +136,7 @@ public:
     ::uint64_t lastByte() const { return lastByte_; }
 
   private:
-    uint64_t firstByte_, lastByte_;
+    ::uint64_t firstByte_, lastByte_;
   };
 
   /*! \brief A byte range specifier.

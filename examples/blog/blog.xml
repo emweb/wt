@@ -2,14 +2,15 @@
 <messages>
   <message id="blog-login">
     <div class="login-box">
-      <div class="user-menu">
-      </div>
       <div class="login-menu">
 	${name} ${passwd} ${rememberMe} ${login-button} ${login-link} ${register-link}
 	<a href="${feed-url}">
 	  <img src="css/rss.png" alt="Rss Feed"
 	     style="margin-left: 6px; vertical-align: top;"/>
 	</a>
+      </div>
+      <div class="user-menu">
+	${archive-link}
       </div>
     </div>
   </message>
@@ -146,7 +147,7 @@
         </a>
       </div>
       <div class="user-menu">
-	${profile-link} ${author-panel-link} ${userlist-link} 
+	${archive-link} ${profile-link} ${author-panel-link} ${userlist-link} 
       </div>
     </div>
   </message>
@@ -235,11 +236,16 @@
     Sorry, {1} is not a registered blog author.
   </message>
 
+  <message id="archive-title">
+    Archive
+  </message>
+
   <message id="login">Login</message>
   <message id="login-tooshort">Login too short (must be at least {1} characters)</message>
   <message id="passwd-mismatch">Passwords don't match.</message>
   <message id="register">Register</message>
   <message id="logout">Logout</message>
+  <message id="archive">Archive</message>
   <message id="profile">Profile</message>
   <message id="author-post">Authoring panel</message>
   <message id="edit-users">Edit users</message>

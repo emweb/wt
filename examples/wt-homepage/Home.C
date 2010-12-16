@@ -21,6 +21,7 @@
 #include <Wt/WTabWidget>
 #include <Wt/WTable>
 #include <Wt/WTableCell>
+#include <Wt/WTemplate>
 #include <Wt/WText>
 #include <Wt/WViewWidget>
 
@@ -28,17 +29,6 @@
 #include "view/BlogView.h"
 
 static const std::string SRC_INTERNAL_PATH = "src";
-
-/* Shortcut for a <div id=""> */
-class Div : public WContainerWidget
-{
-public:
-  Div(WContainerWidget *parent, const std::string& id)
-    : WContainerWidget(parent)
-  {
-    setId(id);
-  }
-};
 
 Home::~Home() 
 {
@@ -111,11 +101,10 @@ void Home::setup()
 
 WWidget *Home::initHome()
 {
-  WContainerWidget *result = new WContainerWidget(root());
-  Div *topWrapper = new Div(result, "top_wrapper");
-  Div *topContent = new Div(topWrapper, "top_content");
+  WTemplate *result = new WTemplate(tr("template"), root());
 
-  Div *languagesDiv = new Div(topContent, "top_languages");
+  WContainerWidget *languagesDiv = new WContainerWidget();
+  languagesDiv->setId("top_languages");
 
   for (unsigned i = 0; i < languages.size(); ++i) {
     if (i != 0)
@@ -128,21 +117,10 @@ WWidget *Home::initHome()
     a->setRefInternalPath(l.path_);
   }
 
-  WText *topWt = new WText(tr("top_wt"), topContent);
-  topWt->setInline(false);
-  topWt->setId("top_wt");
-
-  WText *bannerWt = new WText(tr("banner_wrapper"), result);
-  bannerWt->setId("banner_wrapper");
-
-  Div *mainWrapper = new Div(result, "main_wrapper");
-  Div *mainContent = new Div(mainWrapper, "main_content");
-  Div *mainMenu = new Div(mainContent, "main_menu");
-
   WStackedWidget *contents = new WStackedWidget();
   contents->setId("main_page");
 
-  mainMenu_ = new WMenu(contents, Vertical, mainMenu);
+  mainMenu_ = new WMenu(contents, Vertical);
   mainMenu_->setRenderAsList(true);
 
   mainMenu_->addItem
@@ -180,14 +158,12 @@ WWidget *Home::initHome()
   // Make the menu be internal-path aware.
   mainMenu_->setInternalPathEnabled("/");
 
-  sideBarContent_ = new WContainerWidget(mainMenu);
+  sideBarContent_ = new WContainerWidget();
 
-  mainContent->addWidget(contents);
-  WContainerWidget *clearAll = new WContainerWidget(mainContent);
-  clearAll->setStyleClass("clearall");
-
-  WText *footerWrapper = new WText(tr("footer_wrapper"), result);
-  footerWrapper->setId("footer_wrapper");
+  result->bindWidget("languages", languagesDiv);
+  result->bindWidget("menu", mainMenu_);
+  result->bindWidget("contents", contents);
+  result->bindWidget("sidebar", sideBarContent_);
 
   return result;
 }
@@ -262,7 +238,24 @@ WWidget *Home::introduction()
 
 WWidget *Home::blog()
 {
-  return new BlogView("/blog/", appRoot() + "blog.db", "/wt/blog/feed/");
+  BlogView *blog = new BlogView("/blog/", appRoot() + "blog.db", "/wt/blog/feed/");
+
+  if (!blog->user().empty())
+    chatSetUser(blog->user());
+
+  blog->userChanged().connect(this, &Home::chatSetUser);
+
+  return blog;
+}
+
+void Home::chatSetUser(const WString& userName)
+{
+  WApplication::instance()->doJavaScript
+    ("if (window.chat) "
+     """window.chat.emit(window.chat, 'login', "
+     ""                   "" + userName.jsStringLiteral() + "); "
+     "else "
+     """window.chatUser = " + userName.jsStringLiteral() + ";");
 }
 
 WWidget *Home::status()

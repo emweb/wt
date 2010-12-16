@@ -77,7 +77,7 @@ public:
 
   void setApplication(WApplication *app);
 
-  WLogEntry log(const std::string& type);
+  WLogEntry log(const std::string& type) const;
 
   void notify(const WEvent& e);
   void pushUpdates();
@@ -146,6 +146,8 @@ public:
 
   std::string getCgiValue(const std::string& varName) const;
   std::string getCgiHeader(const std::string& headerName) const;
+
+  EventType getEventType(const WEvent& event) const;
 
   class Handler {
   public:
@@ -282,9 +284,9 @@ private:
   Handler *recursiveEventLoop_;
 
   WResource *decodeResource(const std::string& resourceId);
-  EventSignalBase *decodeSignal(const std::string& signalId);
+  EventSignalBase *decodeSignal(const std::string& signalId) const;
   EventSignalBase *decodeSignal(const std::string& objectId,
-				const std::string& signalName);
+				const std::string& signalName) const;
 
   static WObject::FormData getFormData(const WebRequest& request,
 				       const std::string& name);
@@ -298,12 +300,12 @@ private:
   void processSignal(EventSignalBase *s, const std::string& se,
 		     const WebRequest& request, SignalKind kind);
 
-  std::vector<unsigned int> getSignalProcessingOrder(const WEvent& e);
+  std::vector<unsigned int> getSignalProcessingOrder(const WEvent& e) const;
   void notifySignal(const WEvent& e);
   void propagateFormValues(const WEvent& e, const std::string& se);
 
   const std::string *getSignal(const WebRequest& request,
-			       const std::string& se);
+			       const std::string& se) const;
 
   void setState(State state, int timeout);
 
@@ -315,33 +317,14 @@ private:
   friend class WebSocketMessage;
 };
 
-/*! \class WEvent
- *  \brief An internal session event.
- *
- * The request controller notifies the application to react to a request
- * using WApplication::notify().
- */
-class WT_API WEvent {
-private:
-  WEvent()
-    : handler(0),
-      renderOnly(false)
-  { }
-
-  WEvent(WebSession::Handler& aHandler, bool doRenderOnly)
-    : handler(&aHandler),
-      renderOnly(doRenderOnly)
-  { }
-
-  WEvent(WebSession::Handler& aHandler)
-    : handler(&aHandler),
-      renderOnly(false)
-  { }
-
+struct WEvent::Impl {
   WebSession::Handler *handler;
-  bool renderOnly;
 
-  friend class WebSession;
+  Impl(WebSession::Handler *aHandler) :
+    handler(aHandler) {}
+
+  Impl() :
+    handler(0) {}
 };
 
 }

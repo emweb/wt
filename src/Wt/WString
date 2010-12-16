@@ -600,6 +600,7 @@ extern WT_API std::wostream& operator<< (std::wostream& lhs, const WString& rhs)
  * \relates WString
  */
 extern WT_API std::ostream& operator<< (std::ostream& lhs, const WString& rhs);
+
 #endif // WT_CNOR
 
 #ifndef WT_DEPRECATED_3_0_0

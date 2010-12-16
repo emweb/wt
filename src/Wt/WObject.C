@@ -15,7 +15,13 @@
 namespace Wt {
 
 unsigned WObject::nextObjId_ = 0;
+
 std::vector<WObject *> WObject::emptyObjectList_;
+
+void WObject::seedId(unsigned id)
+{
+  nextObjId_ = id;
+}
 
 WObject::WObject(WObject* parent)
   : statelessSlots_(0),
@@ -119,7 +125,7 @@ const std::string WObject::uniqueId() const
 {
   char buf[20];
   buf[0] = 'o';
-  Utils::itoa(id_, buf + 1, 16);
+  Utils::itoa(id_, buf + 1, 36);
   return std::string(buf);
 }
 

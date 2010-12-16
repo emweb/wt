@@ -12,6 +12,7 @@
 #include "Wt/WEvent"
 
 #include "WebRequest.h"
+#include "WebSession.h"
 #include "rapidxml/rapidxml.hpp"
 
 namespace {
@@ -75,6 +76,11 @@ namespace {
 }
 
 namespace Wt {
+
+EventType WEvent::eventType() const 
+{
+  return impl_.handler->session()->getEventType(*this);
+}
 
 Touch::Touch(int identifier,
 	     int clientX, int clientY,

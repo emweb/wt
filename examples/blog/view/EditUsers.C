@@ -38,7 +38,7 @@ void EditUsers::limitList()
   WSignalMapper<dbo::dbo_traits<User>::IdType >* userLinkMap = new WSignalMapper<dbo::dbo_traits<User>::IdType >(this);
   userLinkMap->mapped().connect(this,&EditUsers::onUserClicked);
   for (UserList::const_iterator i = users.begin(); i != users.end(); ++i) {
-    WText* t = new WText(WString((*i)->name,UTF8),list);
+    WText* t = new WText((*i)->name, list);
     t->setStyleClass("link");
     new WBreak(list);
     userLinkMap->mapConnect(t->clicked(), (*i).id());

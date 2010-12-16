@@ -14,6 +14,7 @@
 #include "Wt/WFormWidget"
 #include "Wt/WResource"
 #include "Wt/WTimerWidget"
+#include "Wt/WTimer"
 #include "Wt/Http/Request"
 #include "Wt/Http/Response"
 
@@ -117,7 +118,7 @@ void WebSession::setApplication(WApplication *app)
   app_ = app;
 }
 
-WLogEntry WebSession::log(const std::string& type)
+WLogEntry WebSession::log(const std::string& type) const
 {
   Configuration& conf = controller_->configuration();
   WLogEntry e = conf.logger().entry();
@@ -144,7 +145,7 @@ WebSession::~WebSession()
   Handler handler(this);
 
   if (app_)
-    app_->notify(WEvent());
+    app_->notify(WEvent(WEvent::Impl()));
 
   delete app_;
 #endif // WT_TARGET_JAVA
@@ -662,7 +663,7 @@ void WebSession::hibernate()
     app_->localizedStrings_->hibernate();
 }
 
-EventSignalBase *WebSession::decodeSignal(const std::string& signalId)
+EventSignalBase *WebSession::decodeSignal(const std::string& signalId) const
 {
   EventSignalBase *result = app_->decodeExposedSignal(signalId);
 
@@ -676,7 +677,7 @@ EventSignalBase *WebSession::decodeSignal(const std::string& signalId)
 }
 
 EventSignalBase *WebSession::decodeSignal(const std::string& objectId,
-					  const std::string& name)
+					  const std::string& name) const
 {
   EventSignalBase *result = app_->decodeExposedSignal(objectId, name);
 
@@ -715,12 +716,14 @@ WObject *WebSession::emitStackTop()
 
 void WebSession::doRecursiveEventLoop()
 {
+  Handler *handler = WebSession::Handler::instance();
+
 #if !defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
   log("error") << "Cannot do recursive event loop without threads";
 #else // WT_THREADED
 
 #ifdef WT_TARGET_JAVA
-  if (!WebController::isAsyncSupported())
+  if (handler->request() && !WebController::isAsyncSupported())
     throw WtException("Server push requires a Servlet 3.0 enabled servlet " 
 		      "container and an application with async-supported "
 		      "enabled.");
@@ -728,10 +731,7 @@ void WebSession::doRecursiveEventLoop()
   
   /*
    * Finish the request that is being handled
-   */
-  Handler *handler = WebSession::Handler::instance();
-
-  /*
+   *
    * It could be that handler does not have a request/respone:
    *  if it is actually a long polling server push request.
    *  if we are somehow recursing recursive event loops (can anyone explain
@@ -740,7 +740,7 @@ void WebSession::doRecursiveEventLoop()
    * In that case, we do not need to finish it.
    */
   if (handler->request())
-    handler->session()->notifySignal(WEvent(*handler));
+    handler->session()->notifySignal(WEvent(WEvent::Impl(handler)));
 
   if (handler->response())
     handler->session()->render(*handler);
@@ -766,7 +766,11 @@ void WebSession::doRecursiveEventLoop()
     recursiveEvent_.wait(handler->lock());
 #else
   while (!newRecursiveEvent_)
-    recursiveEvent_.wait();
+    try {
+      recursiveEvent_.wait();
+    } catch (InterruptedException ie) {
+      ie.printStackTrace();
+    }
 #endif
 
   if (state_ == Dead) {
@@ -778,7 +782,7 @@ void WebSession::doRecursiveEventLoop()
    * We use recursiveEventLoop_ != null to postpone rendering: we only want
    * the event handling part.
    */
-  app_->notify(WEvent(*handler));
+  app_->notify(WEvent(WEvent::Impl(handler)));
 
   recursiveEventLoop_ = 0;
 #endif // !WT_THREADED && !WT_TARGET_JAVA
@@ -839,6 +843,7 @@ void WebSession::handleRequest(Handler& handler)
 	response->addHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
 	response->addHeader("Access-Control-Max-Age", "1728000");
 	response->flush();
+
 	return;
       }
     } else
@@ -966,7 +971,7 @@ void WebSession::handleRequest(Handler& handler)
 	    if (!start())
 	      throw WtException("Could not start application.");
 
-	    app_->notify(WEvent(handler));
+	    app_->notify(WEvent(WEvent::Impl(&handler)));
 	    setLoaded();
 
 	    if (env_->agentIsSpiderBot())
@@ -1009,7 +1014,7 @@ void WebSession::handleRequest(Handler& handler)
 	    if (!start())
 	      throw WtException("Could not start application.");
 
-	    app_->notify(WEvent(handler));
+	    app_->notify(WEvent(WEvent::Impl(&handler)));
 
 	    setLoaded();
 	  }
@@ -1089,13 +1094,14 @@ void WebSession::handleRequest(Handler& handler)
 
 	if (requestForResource || !unlockRecursiveEventLoop())
 	  {
-	    app_->notify(WEvent(handler));
-	    if (handler.response() && !requestForResource)
+	    app_->notify(WEvent(WEvent::Impl(&handler)));
+	    if (handler.response() && !requestForResource) {
 	      /*
 	       * This may be when an error was thrown during event
 	       * propagation: then we want to render the error message.
 	       */
-	      app_->notify(WEvent(handler, true));
+	      app_->notify(WEvent(WEvent::Impl(&handler), true));
+	    }
 	  }
 
 	setLoaded();
@@ -1180,6 +1186,9 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
+    if (!lock->asyncResponse_)
+      return;
+
     WebSocketMessage *message = new WebSocketMessage(lock.get());
 
     bool closing = message->contentLength() == 0;
@@ -1308,7 +1317,7 @@ void WebSession::webSocketReady(boost::weak_ptr<WebSession> session)
 }
 
 const std::string *WebSession::getSignal(const WebRequest& request,
-					 const std::string& se)
+					 const std::string& se) const
 {
   const std::string *signalE = request.getParameter(se + "signal");
 
@@ -1342,13 +1351,13 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 void WebSession::notify(const WEvent& event)
 {
 #ifndef WT_TARGET_JAVA
-  if (event.handler == 0) {
+  if (event.impl_.handler == 0) {
     app_->finalize();
     return;
   }
 #endif // WT_TARGET_JAVA
 
-  Handler& handler = *event.handler;
+  Handler& handler = *event.impl_.handler;
   WebRequest& request = *handler.request();
   WebResponse& response = *handler.response();
 
@@ -1544,7 +1553,8 @@ void WebSession::notify(const WEvent& event)
 	} else {
 	  log("notice") << "Refreshing session";
 
-	  if (handler.response()->responseType() == WebResponse::Page) {
+	  if (handler.response()->responseType() == WebResponse::Page
+	      && !env_->ajax()) {
 	    const std::string *hashE = request.getParameter("_");
 	    if (hashE)
 	      app_->changeInternalPath(*hashE);
@@ -1595,6 +1605,82 @@ void WebSession::notify(const WEvent& event)
   case Dead:
     break;
   }
+}
+
+EventType WebSession::getEventType(const WEvent& event) const
+{  
+  if (event.impl_.handler == 0) 
+    return OtherEvent;
+    
+  Handler& handler = *event.impl_.handler;
+  WebRequest& request = *handler.request();
+
+  if (event.renderOnly)
+    return OtherEvent;
+
+  const std::string *requestE = request.getParameter("request");
+
+  const std::string *pageIdE = handler.request()->getParameter("pageId");
+  if (pageIdE && 
+      *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId()))
+    return OtherEvent;
+
+  switch (state_) {
+  case WebSession::Loaded:
+    if (handler.response()->responseType() == WebResponse::Script)
+      return OtherEvent;
+    else {
+      WResource *resource = 0;
+      if (!requestE && !request.pathInfo().empty())
+	resource = app_->decodeExposedResource("/path/" + request.pathInfo());
+
+      const std::string *resourceE = request.getParameter("resource");
+      const std::string *signalE = getSignal(request, "");
+
+      if (resource || (requestE && *requestE == "resource" && resourceE))
+	return OtherEvent;
+      else if (signalE) {
+	if (*signalE == "none" || *signalE == "load" || 
+	    *signalE == "hash" || *signalE == "res" || 
+	    *signalE == "poll")
+	  return OtherEvent;
+	else {
+	  std::vector<unsigned int> signalOrder
+	    = getSignalProcessingOrder(event);
+
+	  unsigned timerSignals = 0;
+
+	  for (unsigned i = 0; i < signalOrder.size(); ++i) {
+	    int signalI = signalOrder[i];
+	    std::string se = signalI > 0
+	      ? 'e' + boost::lexical_cast<std::string>(signalI) : std::string();
+	    const std::string *s = getSignal(request, se);
+	  
+	    if (!s)
+	      break;
+	    else if (*signalE == "user")
+	      return UserEvent;
+	    else {
+	      EventSignalBase* esb = decodeSignal(*s);
+	      WTimerWidget* t = dynamic_cast<WTimerWidget*>(esb->sender());
+	      if (t)
+		++timerSignals;
+	      else
+		return UserEvent;
+	    }
+	  }
+
+	  if (timerSignals)
+	    return TimerEvent;
+	}
+      } else
+	return OtherEvent;
+    }
+  default:
+    return OtherEvent;
+  }
+
+  return OtherEvent;
 }
 
 void WebSession::render(Handler& handler)
@@ -1658,7 +1744,7 @@ void WebSession::serveResponse(Handler& handler)
 
 void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
 {
-  const WebRequest& request = *e.handler->request();
+  const WebRequest& request = *e.impl_.handler->request();
 
   renderer_.updateFormObjectsList(app_);
   WebRenderer::FormObjectsMap formObjects = renderer_.formObjects();
@@ -1703,14 +1789,15 @@ WObject::FormData WebSession::getFormData(const WebRequest& request,
   return WObject::FormData(request.getParameterValues(name), files);
 }
 
-std::vector<unsigned int> WebSession::getSignalProcessingOrder(const WEvent& e)
+std::vector<unsigned int> 
+WebSession::getSignalProcessingOrder(const WEvent& e) const
 {
   // Rush 'onChange' events. Reason: if a user edits a text area and
   // a subsequent click on another element deletes the text area, we
   // have seen situations (at least on firefox) where the clicked event
   // is processed before the changed event, causing the changed event
   // to fail because the event target was deleted.
-  WebSession::Handler& handler = *e.handler;
+  WebSession::Handler& handler = *e.impl_.handler;
 
   std::vector<unsigned int> highPriority;
   std::vector<unsigned int> normalPriority;
@@ -1750,7 +1837,7 @@ std::vector<unsigned int> WebSession::getSignalProcessingOrder(const WEvent& e)
 
 void WebSession::notifySignal(const WEvent& e)
 {
-  WebSession::Handler& handler = *e.handler;
+  WebSession::Handler& handler = *e.impl_.handler;
 
   // Reorder signals, as browsers sometimes generate them in a strange order
   if (handler.nextSignal == -1) {

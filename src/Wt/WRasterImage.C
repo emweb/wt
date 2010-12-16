@@ -61,6 +61,9 @@ WRasterImage::WRasterImage(const std::string& type,
   w_ = static_cast<unsigned long>(width.toPixels());
   h_ = static_cast<unsigned long>(height.toPixels());
 
+  if (!w_ || !h_)
+    throw WtException("Raster image should have non-0 width and height");
+
   unsigned long bufSize = 3 * w_ * h_;
   pixels_ = new unsigned char[bufSize];
   for (unsigned i = 0; i < w_ * h_; ++i)
@@ -395,6 +398,12 @@ void WRasterImage::setPixel(int x, int y, const WColor& c)
   PixelPacket *pixel = SetImagePixels(image_, x, y, 1, 1);
   WColorToPixelPacket(c, pixel);
   SyncImagePixels(image_);
+}
+
+WColor WRasterImage::getPixel(int x, int y) 
+{
+  PixelPacket *pixel = GetImagePixels(image_, x, y, 1, 1);
+  return WColor(pixel->red, pixel->green, pixel->blue, pixel->opacity);
 }
 
 void WRasterImage::drawPlainPath(const WPainterPath& path)

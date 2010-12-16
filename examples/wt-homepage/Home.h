@@ -123,6 +123,7 @@ private:
   void setLanguageFromPath();
   void setup();
   void logInternalPath(const std::string& path);
+  void chatSetUser(const WString& name);
 
   WContainerWidget *sideBarContent_;
   

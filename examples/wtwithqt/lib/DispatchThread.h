@@ -92,7 +92,7 @@ private:
   bool              newEvent_;
   boost::condition  newEventCondition_;
 
-  bool doEvent();
+  void doEvent();
 
   void signalDone();
   void myExec();

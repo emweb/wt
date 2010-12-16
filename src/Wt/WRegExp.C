@@ -80,6 +80,9 @@ bool WRegExp::isValid() const
 
 bool WRegExp::exactMatch(const WT_USTRING& s) const
 {
+  if (!isValid())
+    return false;
+
 #ifndef WT_HAVE_GNU_REGEX
   return boost::regex_match(s.toUTF8(), rx_);
 #else

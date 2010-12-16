@@ -85,6 +85,7 @@ void WebRenderer::doneUpdate(WWidget *w)
 bool WebRenderer::isDirty() const
 {
   return !updateMap_.empty()
+    || formObjectsChanged_
     || !session_.app()->afterLoadJavaScript_.empty()
     || Utils::length(collectedJS1_) > 0
     || Utils::length(collectedJS2_) > 0
@@ -183,6 +184,7 @@ void WebRenderer::setPageVars(FileServe& page)
   WApplication *app = session_.app();
 
   page.setVar("DOCTYPE", session_.docType());
+  page.setVar("APP_CLASS", "Wt");
 
   std::string htmlAttr;
   if (app && !app->htmlClass_.empty())
@@ -523,7 +525,9 @@ void WebRenderer::serveMainscript(WebResponse& response)
   script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
   script.setVar("ONLOAD",
 		std::string("(function() {")
-		+ (widgetset ? "" : "window.loadWidgetTree();") + "})");
+		+ (widgetset ? ""
+		   : "window." + app->javaScriptClass() + "LoadWidgetTree();")
+		+ "})");
   script.setVar("PAGE_ID", pageId_);
 
   /*
@@ -567,7 +571,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
       app->enableAjax_ = false;
     }
 
-    response.out() << "window.loadWidgetTree = function(){\n";
+    response.out() << "window." << app->javaScriptClass() << "LoadWidgetTree = function(){\n";
 
     visibleOnly_ = false;
 
@@ -587,12 +591,13 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< app->javaScriptClass()
 	<< "._p_.update(null, 'load', null, false);"
 	<< collectedJS2_.str()
-	<< "};" // loadWidgetTree = function() { ... }
+	<< "};" // LoadWidgetTree = function() { ... }
 	<< app->javaScriptClass()
 	<< "._p_.setServerPush("
 	<< (app->updatesEnabled() ? "true" : "false") << ");"
-	<< "window.WtScriptLoaded = true;"
-	<< "if (window.isLoaded) onLoad();\n";
+	<< "window." << app->javaScriptClass() << "ScriptLoaded = true;"
+	<< "if (window." << app->javaScriptClass() << "Loaded) "
+	<< app->javaScriptClass() << "OnLoad();\n";
   }
 }
 
@@ -645,7 +650,8 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   response.out() << std::endl << app->beforeLoadJavaScript();
 
   if (!widgetset)
-    response.out() << "window.loadWidgetTree = function(){\n";
+    response.out() << "window." << app->javaScriptClass()
+		   << "LoadWidgetTree = function(){\n";
 
   if (app->bodyHtmlClassChanged_) {
     response.out() << "document.body.parentNode.className='"
@@ -715,8 +721,9 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		   << "._p_.setServerPush("
 		   << (app->updatesEnabled() ? "true" : "false") << ");";
 
-    response.out() << "window.WtScriptLoaded = true;"
-                      "if (window.isLoaded) onLoad();\n";
+    response.out() << "window." << app->javaScriptClass() << "ScriptLoaded = true;"
+		   << "if (window." << app->javaScriptClass() << "Loaded) "
+		   << app->javaScriptClass() << "OnLoad();\n";
   }
 
   loadScriptLibraries(response.out(), app, false);

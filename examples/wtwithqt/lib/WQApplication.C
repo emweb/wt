@@ -37,38 +37,40 @@ WQApplication::WQApplication(const WEnvironment& env, bool withEventLoop)
   : WApplication(env),
     withEventLoop_(withEventLoop),
     thread_(0),
-    finalize_(false)
+    finalized_(false)
 { }
 
 void WQApplication::initialize()
 {
-  if (thread_)
-    return;
+  WApplication::initialize();
 
-  thread_ = new DispatchThread(this, withEventLoop_);
-  thread_->start();
-  thread_->waitDone();
+  create();
 }
 
 void WQApplication::finalize()
 {
-  finalize_ = true;
+  WApplication::finalize();
+
+  destroy();
+  thread_->destroy();
+
+  finalized_ = true;
 }
 
 void WQApplication::notify(const WEvent& e)
 {
-  if (thread_) {
-    thread_->notify(e);
+  if (!thread_) {
+    thread_ = new DispatchThread(this, withEventLoop_);
+    thread_->start();
+    thread_->waitDone();
+  }
 
-    if (finalize_) {
-      thread_->destroy();
+  thread_->notify(e);
 
-      delete thread_;
-      thread_ = 0;
-    }
-  } else
-    // not yet initialized, could be the initialize() call itself.
-    realNotify(e);
+  if (finalized_) {
+    delete thread_;
+    thread_ = 0;
+  }
 }
 
 void WQApplication::realNotify(const WEvent& e)

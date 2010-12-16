@@ -1,3 +1,18 @@
+16-12-2010:
+	* WEvent: add eventType() method
+
+	* wt-homepage, simplechat examples: show-case widget set mode
+
+	* blog example: add archive
+
+	* libwtwithqt: simplify implementation since notify() is now used
+	more consistently by Wt
+
+	* WObject: object ids are now seeded by a random start value, to
+	allow mixing of several wt applications
+
+	* WRasterImage: implemented a getPixel() method
+
 08-12-2010:
 	* WApplication: fix unload event interfering with session refresh
 

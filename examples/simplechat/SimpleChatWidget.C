@@ -32,11 +32,6 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
 {
   user_ = server_.suggestGuest();
   letLogin();
-
-  // this widget supports server-side updates its processChatEvent()
-  // method is connected to a slot that is triggered from outside this
-  // session's event loop (usually because another user enters text).
-  app_->enableUpdates();
 }
 
 SimpleChatWidget::~SimpleChatWidget()
@@ -83,13 +78,82 @@ void SimpleChatWidget::logout()
     eventConnection_.disconnect(); // do not listen for more events
     server_.logout(user_);
 
+    app_->enableUpdates(false);
+
     letLogin();
   }
+}
+
+void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
+				    WWidget *messageEdit,
+				    WWidget *sendButton, WWidget *logoutButton)
+{
+  /*
+   * Create a vertical layout, which will hold 3 rows,
+   * organized like this:
+   *
+   * WVBoxLayout
+   * --------------------------------------------
+   * | nested WHBoxLayout (vertical stretch=1)  |
+   * |                              |           |
+   * |  messages                    | userList  |
+   * |   (horizontal stretch=1)     |           |
+   * |                              |           |
+   * --------------------------------------------
+   * | message edit area                        |
+   * --------------------------------------------
+   * | WHBoxLayout                              |
+   * | send | logout |       stretch = 1        |
+   * --------------------------------------------
+   */
+  WVBoxLayout *vLayout = new WVBoxLayout();
+
+  // Create a horizontal layout for the messages | userslist.
+  WHBoxLayout *hLayout = new WHBoxLayout();
+
+  // Add widget to horizontal layout with stretch = 1
+  hLayout->addWidget(messages, 1);
+  messages->setStyleClass("chat-msgs");
+
+    // Add another widget to hirozontal layout with stretch = 0
+  hLayout->addWidget(userList);
+  userList->setStyleClass("chat-users");
+
+  hLayout->setResizable(0, true);
+
+  // Add nested layout to vertical layout with stretch = 1
+  vLayout->addLayout(hLayout, 1);
+
+  // Add widget to vertical layout with stretch = 0
+  vLayout->addWidget(messageEdit);
+  messageEdit->setStyleClass("chat-noedit");
+
+  // Create a horizontal layout for the buttons.
+  hLayout = new WHBoxLayout();
+
+  // Add button to horizontal layout with stretch = 0
+  hLayout->addWidget(sendButton);
+
+  // Add button to horizontal layout with stretch = 0
+  hLayout->addWidget(logoutButton);
+
+  // Add stretching spacer to horizontal layout
+  hLayout->addStretch(1);
+
+  // Add nested layout to vertical layout with stretch = 0
+  vLayout->addLayout(hLayout);
+
+  setLayout(vLayout);
 }
 
 bool SimpleChatWidget::startChat(const WString& user)
 {
   if (server_.login(user)) {
+    // this widget supports server-side updates its processChatEvent()
+    // method is connected to a slot that is triggered from outside this
+    // session's event loop (usually because another user enters text).
+    app_->enableUpdates(true);
+
     // FIXME, chatEvent() needs to be protected by the server mutex too
     eventConnection_
       = server_.chatEvent().connect(this, &SimpleChatWidget::processChatEvent);
@@ -97,68 +161,20 @@ bool SimpleChatWidget::startChat(const WString& user)
 
     clear();
 
-    /*
-     * Create a vertical layout, which will hold 3 rows,
-     * organized like this:
-     *
-     * WVBoxLayout
-     * --------------------------------------------
-     * | nested WHBoxLayout (vertical stretch=1)  |
-     * |                              |           |
-     * |  messages                    | userslist |
-     * |   (horizontal stretch=1)     |           |
-     * |                              |           |
-     * --------------------------------------------
-     * | message edit area                        |
-     * --------------------------------------------
-     * | WHBoxLayout                              |
-     * | send | logout |       stretch = 1        |
-     * --------------------------------------------
-     */
-    WVBoxLayout *vLayout = new WVBoxLayout();
-
-    // Create a horizontal layout for the messages | userslist.
-    WHBoxLayout *hLayout = new WHBoxLayout();
-
-    // Add widget to horizontal layout with stretch = 1
-    hLayout->addWidget(messages_ = new WContainerWidget(), 1);
-    messages_->setStyleClass("chat-msgs");
-    // Display scroll bars if contents overflows
-    messages_->setOverflow(WContainerWidget::OverflowAuto);
-
-    // Add another widget to hirozontal layout with stretch = 0
-    hLayout->addWidget(userList_ = new WContainerWidget());
-    userList_->setStyleClass("chat-users");
-    userList_->setOverflow(WContainerWidget::OverflowAuto);
-
-    hLayout->setResizable(0, true);
-
-    // Add nested layout to vertical layout with stretch = 1
-    vLayout->addLayout(hLayout, 1);
-
-    // Add widget to vertical layout with stretch = 0
-    vLayout->addWidget(messageEdit_ = new WTextArea());
-    messageEdit_->setStyleClass("chat-noedit");
+    messages_ = new WContainerWidget();
+    userList_ = new WContainerWidget();
+    messageEdit_ = new WTextArea();
     messageEdit_->setRows(2);
     messageEdit_->setFocus();
 
-    // Create a horizontal layout for the buttons.
-    hLayout = new WHBoxLayout();
+    // Display scroll bars if contents overflows
+    messages_->setOverflow(WContainerWidget::OverflowAuto);
+    userList_->setOverflow(WContainerWidget::OverflowAuto);
 
-    // Add button to horizontal layout with stretch = 0
-    hLayout->addWidget(sendButton_ = new WPushButton("Send"));
-    WPushButton *b;
+    sendButton_ = new WPushButton("Send");
+    WPushButton *logoutButton = new WPushButton("Logout");
 
-    // Add button to horizontal layout with stretch = 0
-    hLayout->addWidget(b = new WPushButton("Logout"));
-
-    // Add stretching spacer to horizontal layout
-    hLayout->addStretch(1);
-
-    // Add nested layout to vertical layout with stretch = 0
-    vLayout->addLayout(hLayout);
-
-    setLayout(vLayout);
+    createLayout(messages_, userList_, messageEdit_, sendButton_, logoutButton);
 
     /*
      * Connect event handlers:
@@ -173,9 +189,9 @@ bool SimpleChatWidget::startChat(const WString& user)
     // 2 arguments: the originator of the event (in our case the
     // button or text area), and the JavaScript event object.
     clearInput_.setJavaScript
-      ("function(o, e) {"
+      ("function(o, e) { setTimeout(function() {"
        "" + messageEdit_->jsRef() + ".value='';"
-       "}");
+       "}, 0); }");
 
     // Bind the C++ and JavaScript event handlers.
     sendButton_->clicked().connect(this, &SimpleChatWidget::send);
@@ -189,12 +205,25 @@ bool SimpleChatWidget::startChat(const WString& user)
     // action
     messageEdit_->enterPressed().preventDefaultAction();
 
-    b->clicked().connect(this, &SimpleChatWidget::logout);
+    logoutButton->clicked().connect(this, &SimpleChatWidget::logout);
 
     WText *msg = new WText
-      ("<div><span class='chat-info'>You are joining the conversation as "
-       + user_ + "</span></div>", messages_);
+      ("<div><span class='chat-info'>You are joining as "
+       + user_ + ".</span></div>", messages_);
     msg->setStyleClass("chat-msg");
+
+    if (!userList_->parent()) {
+      delete userList_;
+      userList_ = 0;
+    }
+
+    if (!sendButton_->parent()) {
+      delete sendButton_;
+      sendButton_ = 0;
+    }
+
+    if (!logoutButton->parent())
+      delete logoutButton;
 
     updateUsers();
     
@@ -211,29 +240,31 @@ void SimpleChatWidget::send()
 
 void SimpleChatWidget::updateUsers()
 {
-  userList_->clear();
+  if (userList_) {
+    userList_->clear();
 
-  SimpleChatServer::UserSet users = server_.users();
+    SimpleChatServer::UserSet users = server_.users();
 
-  UserMap oldUsers = users_;
-  users_.clear();
+    UserMap oldUsers = users_;
+    users_.clear();
 
-  for (SimpleChatServer::UserSet::iterator i = users.begin();
-       i != users.end(); ++i) {
-    WCheckBox *w = new WCheckBox(*i, userList_);
-    w->setInline(false);
+    for (SimpleChatServer::UserSet::iterator i = users.begin();
+	 i != users.end(); ++i) {
+      WCheckBox *w = new WCheckBox(*i, userList_);
+      w->setInline(false);
 
-    UserMap::const_iterator j = oldUsers.find(*i);
-    if (j != oldUsers.end())
-      w->setChecked(j->second);
-    else
-      w->setChecked(true);
+      UserMap::const_iterator j = oldUsers.find(*i);
+      if (j != oldUsers.end())
+	w->setChecked(j->second);
+      else
+	w->setChecked(true);
 
-    users_[*i] = w->isChecked();
-    w->changed().connect(this, &SimpleChatWidget::updateUser);
+      users_[*i] = w->isChecked();
+      w->changed().connect(this, &SimpleChatWidget::updateUser);
 
-    if (*i == user_)
-      w->setStyleClass("chat-self");
+      if (*i == user_)
+	w->setStyleClass("chat-self");
+    }
   }
 }
 
@@ -272,11 +303,16 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
      * If it is not a normal message, also update the user list.
      */
     if (event.type() != ChatEvent::Message) {
+      if (event.type() == ChatEvent::Rename
+	  && event.user() == user_)
+	user_ = event.data();
+
       needPush = true;
       updateUsers();
     }
 
     bool display = event.type() != ChatEvent::Message
+      || !userList_
       || (users_.find(event.user()) != users_.end() && users_[event.user()]);
 
     if (display) {

@@ -1,43 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
-  <message id="top_wt">
-      <a href="http://www.emweb.be/">
-	<img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
-      </a> 
-  </message>
-
-  <message id="banner_wrapper">
-    <div id="banner_content">
-      <div id="banner_end"> <div id="banner"><a href="#">Wt</a></div> </div>
-    </div>
-  </message>
-
-  <message id="footer_wrapper">
-    <div id="footer_content">
-      <div id="footer_copyright"> 
-	<a href="http://www.emweb.be/">
-	  <img src="/css/wt/emweb_large.jpg" height="25" width="101"
-	       alt="Emweb.be" title="emweb.be"/></a>
-	基于WEB的应用系统解决方案<br/>
-	<a href="http://www.emweb.be/">www.emweb.be</a>
+  <message id="template">
+    <div id="top_wrapper">
+      <div id="top_content">
+	${languages}
+	<div id="top_wt">
+	  <a href="http://www.emweb.be/">
+	    <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
+	  </a>
+	</div>
       </div>
+    </div>
+
+    <div id="banner_wrapper">
+      <div id="banner_content">
+	<div id="banner_end"> <div id="banner"><a href="#">Wt</a></div> </div>
+      </div>
+    </div>
+
+    <div id="main_wrapper">
+      <div id="main_content">
+	<div id="main_menu">
+	  ${menu}
+	  ${sidebar}
+	</div>
+	${contents}
+
+	<div class="clearall"></div>
+      </div>
+    </div>
+
+    <div id="footer_wrapper">
+      <div id="footer_content">
+	<div id="footer_copyright"> 
+	  <a href="http://www.emweb.be/">
+	    <img src="/css/wt/emweb_large.jpg" height="25" width="101"
+		 alt="Emweb.be" title="emweb.be"/></a>
+	  基于WEB的应用系统解决方案<br/>
+	  <a href="http://www.emweb.be/">www.emweb.be</a>
+	</div>
 
       <div id="footer_menu"> 
 	<a href="http://www.webtoolkit.eu/wt/">首页</a>
 	| <a href="http://www.emweb.be/?page=contact">联系我们</a>
       </div>
-      <div class="clearall"></div>
+
+	<div id="chat"></div>
+	<script src="http://airwerf:9091/chat.js?div=chat"></script>
+
+	<div class="clearall"></div>
+      </div>
+      <script type="text/javascript">
+	    /*<![CDATA[*/
+            window.pageTracker = null;
+            loadScript("http://www.google-analytics.com/ga.js", function() {
+              window.pageTracker = _gat._getTracker('UA-4345578-1');
+              window.pageTracker._initData();
+              window.pageTracker._trackPageview();
+            });
+            /* ]]> */
+      </script>
     </div>
-    <script type="text/javascript">
-      /*<![CDATA[*/
-      window.pageTracker = null;
-      loadScript("http://www.google-analytics.com/ga.js", function() {
-        window.pageTracker = _gat._getTracker('UA-4345578-1');
-        window.pageTracker._initData();
-        window.pageTracker._trackPageview();
-      });
-      /* ]]> */
-    </script>
   </message>
 
   <message id="wt">Wt，C++ 网络开发工具包</message>

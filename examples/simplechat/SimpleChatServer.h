@@ -26,7 +26,7 @@ class ChatEvent
 public:
   /*! \brief Enumeration for the event type.
    */
-  enum Type { Login, Logout, Message };
+  enum Type { Login, Logout, Rename, Message };
 
   /*! \brief Get the event type.
    */
@@ -40,6 +40,10 @@ public:
    */
   const Wt::WString& message() const { return message_; }
 
+  /*! \brief Get the extra data for this event.
+   */
+  const Wt::WString& data() const { return data_; }
+
   /*! \brief Get the message formatted as HTML, rendered for the given user.
    */
   const Wt::WString formattedHTML(const Wt::WString& user) const;
@@ -47,6 +51,7 @@ public:
 private:
   Type type_;
   Wt::WString user_;
+  Wt::WString data_;
   Wt::WString message_;
 
   /*
@@ -56,8 +61,9 @@ private:
     : type_(Message), user_(user), message_(message)
   { }
 
-  ChatEvent(Type type, const Wt::WString& user)
-    : type_(type), user_(user)
+  ChatEvent(Type type, const Wt::WString& user,
+	    const Wt::WString& data = Wt::WString::Empty)
+    : type_(type), user_(user), data_(data)
   { }
 
   friend class SimpleChatServer;
@@ -81,6 +87,10 @@ public:
   /*! \brief Logout from the server.
    */
   void logout(const Wt::WString& user);
+
+  /*! \brief Changes the name.
+   */
+  bool changeName(const Wt::WString& user, const Wt::WString& newUser);
 
   /*! \brief Get a suggestion for a guest user name.
    */

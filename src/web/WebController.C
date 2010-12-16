@@ -22,6 +22,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WEvent"
+#include "Wt/WRandom"
 #include "Wt/WResource"
 #include "Wt/WServer"
 #include "Wt/WSocketNotifier"
@@ -59,6 +60,8 @@ WebController::WebController(Configuration& configuration,
 #endif // WT_THREADED
 {
   CgiParser::init();
+
+  WObject::seedId(WRandom::get());
 
 #ifdef HAVE_RASTER_IMAGE
   InitializeMagick(0);

@@ -295,6 +295,8 @@ public:
 
   virtual bool hasParent() const;
 
+  static void seedId(unsigned id);
+
 protected:
   virtual void signalConnectionsChanged();
 

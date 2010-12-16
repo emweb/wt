@@ -47,9 +47,10 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
      */
     top = new Wt::WContainerWidget();
     const std::string *div = env.getParameter("div");
-    if (div)
+    if (div) {
+      setJavaScriptClass(*div);
       bindWidget(top, *div);
-    else {
+    } else {
       std::cerr << "Missing: parameter: 'div'" << std::endl;
       return;
     }

@@ -805,6 +805,16 @@ enum MetaHeaderType {
   MetaHttpHeader  //!< A http-equiv meta header defining a HTTP header
 };
 
+/*! \brief An enumeration describing an event's type.
+ *
+ * \sa WEvent::getEventType()
+ */
+enum EventType {
+  OtherEvent, //!< An event which is not user- or timer-initiated
+  UserEvent,  //!< A user-initiated event
+  TimerEvent  //!< A timer-initiated event
+};
+
 }
 
 #endif // WGLOBALS_H_

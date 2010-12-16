@@ -87,13 +87,15 @@ enum AxisScale {
 
   /*! A date scale is a special linear scale, which is useful for the
    * X axis in a ScatterPlot, when the X series contain dates (of type
-   * WDate).
+   * WDate). The dates are internally stored in julian date format. 
    */
   DateScale = 3,
 
   /*! A datetime scale is a special linear scale, which is useful for the
    * X axis in a ScatterPlot, when the X series contain timedates (of type
-   * WDateTime).
+   * WDateTime). The dates are internally stored as
+   * the number of seconds since the Unix Epoch (midnight 
+   * Coordinated Universal Time (UTC) of January 1, 1970).
    */
   DateTimeScale = 4
 };
@@ -224,6 +226,9 @@ public:
    * default, the minimum and maximum values are determined
    * automatically so that all the data can be displayed.
    *
+   * The numerical value corresponding to a data point is 
+   * defined by it's AxisScale type.
+   *
    * \sa minimum(), setMaximum(double)
    */
   void setMinimum(double minimum);
@@ -232,6 +237,9 @@ public:
    *
    * This returned the minimum value that was set using setMinimum(),
    * or otherwise the automatically calculated minimum.
+   *
+   * The numerical value corresponding to a data point is 
+   * defined by it's AxisScale type.
    *
    * \sa maximum(), setMinimum(double), setAutoLimits()
    */
@@ -243,6 +251,9 @@ public:
    * default, the minimum and maximum values are determined
    * automatically so that all the data can be displayed.
    *
+   * The numerical value corresponding to a data point is 
+   * defined by it's AxisScale type.
+   *
    * \sa minimum(), setMinimum(double)
    */
   void setMaximum(double maximum);
@@ -252,6 +263,9 @@ public:
    * This returned the maximum value that was set using setMaximum(),
    * or otherwise the automatically calculated maximum.
    *
+   * The numerical value corresponding to a data point is 
+   * defined by it's AxisScale type.
+   *
    * \sa minimum(), setMaximum(double)
    */
   double maximum() const;
@@ -260,6 +274,9 @@ public:
    *
    * Specifies both minimum and maximum value for the axis.
    * This automatically disables automatic range calculation.
+   *
+   * The numerical value corresponding to a data point is 
+   * defined by it's AxisScale type.
    *
    * \sa setMinimum(double), setMaximum(double)
    */

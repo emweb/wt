@@ -18,16 +18,18 @@ window.WT_DECLARE_WT_MEMBER = function(i, name, fn)
 window.WT_DECLARE_APP_MEMBER = function(i, name, fn)
 {
   var proto = name.indexOf('.prototype');
+  var app = window.currentApp;
   if (proto == -1)
-    _$_APP_CLASS_$_[name] = fn;
+    app[name] = fn;
   else
-    _$_APP_CLASS_$_[name.substr(0, proto)]
+    app[name.substr(0, proto)]
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
 };
 
 _$_$endif_$_();
 
-window._$_WT_CLASS_$_ = new (function()
+if (!window._$_WT_CLASS_$_)
+  window._$_WT_CLASS_$_ = new (function()
 {
 var WT = this;
 
@@ -124,7 +126,7 @@ this.initAjaxComm = function(url, handler) {
 	request.open(method, url, true);
     }
 
-    if (url && supportsRequestHeader)
+    if (request && url && supportsRequestHeader)
       request.setRequestHeader("Content-type",
 			       "application/x-www-form-urlencoded");
 
@@ -151,7 +153,9 @@ this.initAjaxComm = function(url, handler) {
 	  else
 	    handler(1, null, userData);
 
-	  request.onreadystatechange = request.onload = new Function;
+	  request.onreadystatechange = new Function;
+	  if (!WT.isIE6)
+	    request.onload = request.onreadystatechange;
 	  request = null;
 
 	  handled = true;
@@ -187,13 +191,15 @@ this.initAjaxComm = function(url, handler) {
 
 	if (timeout > 0)
 	  timer = setTimeout(handleTimeout, timeout);
-	request.onreadystatechange = recvCallback;
-	request.onload = function() {
-	  handleResponse(true);
-	};
-	request.onerror = function() {
-	  handleResponse(false);
-	};
+	  request.onreadystatechange = recvCallback;
+	  if (!WT.isIE6) {
+	    request.onload = function() {
+	      handleResponse(true);
+	    };
+	    request.onerror = function() {
+	      handleResponse(false);
+	    };
+	  }
 	request.send(data);
       }
 
@@ -205,45 +211,50 @@ this.initAjaxComm = function(url, handler) {
     })();
   } else {
     return new (function() {
-      var lastId = 0;
-      var requests = new Array();
+      var request = null;
 
       function Request(data, userData, id, timeout) {
 	var self = this;
 
-	this.script = document.createElement('SCRIPT');
-	this.script.id = "script" + id;
-	this.script.src = url + '&' + data;
-	this.script.type = 'text/javascript';
-
-	var h = document.getElementsByTagName('HEAD')[0];
-	h.appendChild(this.script);
-
 	this.userData = userData;
 
+	var s = this.script = document.createElement('SCRIPT');
+	s.id = "script" + id;
+	s.setAttribute('src', url + '&' + data);
+
+	function onerror() {
+	  handler(1, null, userData);
+	  s.parentNode.removeChild(s);
+	}
+
+	s.onerror = onerror;
+/*
+	s.onreadystatechange = function() {
+	  var rs = s.readyState;
+	  if (rs == 'loaded' && !WT.isOpera)
+	    onerror();
+	};
+*/
+
+	var h = document.getElementsByTagName('HEAD')[0];
+	h.appendChild(s);
+
 	this.abort = function() {
-	  self.script.parentNode.removeChild(script);
+	  s.parentNode.removeChild(s);
 	};
       }
 
       this.responseReceived = function(updateId) {
-	for (var i = lastId; i < updateId; ++i) {
-	  var request = requests[i];
-
-	  if (request) {
-	    handler(0, "", request.userData);
-	    request.script.parentNode.removeChild(request.script);
-	  }
-
-	  WT.arrayRemove(requests, i);
+        if (request != null) {
+          var req = request;
+	  request.script.parentNode.removeChild(request.script);
+          request = null;
+	  handler(0, "", req.userData);
 	}
-
-	lastId = updateId;
       };
 
       this.sendUpdate = function(data, userData, id, timeout) {
-        var request = new Request(data, userData, id, timeout);
-        requests[id] = request;
+        request = new Request(data, userData, id, timeout);
         return request;
       };
     })();
@@ -886,22 +897,30 @@ this.getCssRule = function(selector, deleteFlag) {
       var cssRule;
       do {
 	cssRule = null;
-	if (styleSheet.cssRules)
-	  cssRule = styleSheet.cssRules[ii];
-	else if (styleSheet.rules)
-	  cssRule = styleSheet.rules[ii];
-	if (cssRule && cssRule.selectorText) {
-	  if (cssRule.selectorText.toLowerCase()==selector) {
-	    if (deleteFlag == 'delete') {
-	      if (styleSheet.cssRules)
-		styleSheet.deleteRule(ii);
-	      else
-		styleSheet.removeRule(ii);
-	      return true;
-	    } else
-	      return cssRule;
+	try {
+	  if (styleSheet.cssRules)
+	    cssRule = styleSheet.cssRules[ii];
+	  else if (styleSheet.rules)
+	    cssRule = styleSheet.rules[ii];
+	  if (cssRule && cssRule.selectorText) {
+	    if (cssRule.selectorText.toLowerCase()==selector) {
+	      if (deleteFlag == 'delete') {
+		if (styleSheet.cssRules)
+		  styleSheet.deleteRule(ii);
+		else
+		  styleSheet.removeRule(ii);
+		return true;
+	      } else
+		return cssRule;
+	    }
 	  }
+	} catch (err) {
+	  /*
+	     firefox security error 1000 when access a stylesheet.cssRules hosted
+	     from another domain
+	   */
 	}
+
 	++ii;
       } while (cssRule);
     }
@@ -1062,7 +1081,7 @@ this.history = (function()
   var _interval = null;
   var _fqstates = [];
   var _initialState, _currentState;
-  var _onStateChange = function(){};
+  var _onStateChange = [];
   function _getHash() {
     var i, href;
     href = location.href;
@@ -1075,17 +1094,23 @@ this.history = (function()
       _stateField.value += "|" + _fqstates.join(",");
     }
   }
+  function onStateChange() {
+    var i, il;
+    for (i = 0, il = _onStateChange.length; i < il; ++i) {
+      _onStateChange[i](unescape(_currentState));
+    }
+  }
   function _handleFQStateChange(fqstate) {
     var currentState;
     if (!fqstate) {
       _currentState = _initialState;
-      _onStateChange(unescape(_currentState));
+      onStateChange();
       return;
     }
     currentState = fqstate;
     if (!currentState || _currentState !== currentState) {
       _currentState = currentState || _initialState;
-      _onStateChange(unescape(_currentState));
+      onStateChange();
     }
   }
   function _updateIFrame (fqstate) {
@@ -1201,12 +1226,11 @@ this.history = (function()
       _initTimeout();
   },
   register: function (initialState, onStateChange) {
-    if (_initialized) {
-      return;
+    if (!_initialized) {
+      _initialState = escape(initialState);
+      _currentState = _initialState;
     }
-    _initialState = escape(initialState);
-    _currentState = _initialState;
-    _onStateChange = onStateChange;
+    _onStateChange.push(onStateChange);
   },
   initialize: function (stateField, histFrame) {
     if (_initialized) {
@@ -1515,7 +1539,7 @@ function encodeEvent(event, i) {
 	v = el.value;
     } else if (WT.hasTag(el, "VIDEO") || WT.hasTag(el, "AUDIO")) {
       v = '' + el.volume + ';' + el.currentTime + ';' + el.duration + ';' + (el.paused?'1':'0') + ';' + (el.ended?'1':'0') + ';' + el.readyState;
-    } else if (WT.hasTag(el, "DIV") || el.childNodes.length == 1) {
+    } else if (WT.hasTag(el, "DIV") && el.childNodes.length == 1) {
       // When in Layout, media elements sits in a surrounding DIV
       var m = el.childNodes[0];
       if (WT.hasTag(m, "VIDEO") || WT.hasTag(m, "AUDIO")) {
@@ -1774,7 +1798,8 @@ function waitFeedback() {
 var websocket = {
   state: WebSocketsUnknown,
   socket: null,
-  keepAlive: null
+  keepAlive: null,
+  reconnectTries: 0
 };
 
 function setServerPush(how) {
@@ -1890,6 +1915,12 @@ function scheduleUpdate() {
 	if (ws != null && websocket.state == WebSocketsUnknown)
 	  websocket.state = WebSocketsUnavailable;
 	else {
+	  function reconnect() {
+	    ++websocket.reconnectTries;
+	    var ms = Math.min(120000, Math.exp(websocket.reconnectTries) * 500);
+	    setTimeout(function() { scheduleUpdate(); }, ms);
+	  }
+
 	  var protocolEnd = url.indexOf("://"), wsurl;
 	  if (protocolEnd != -1) {
 	    wsurl = "ws" + url.substr(4);
@@ -1908,12 +1939,17 @@ function scheduleUpdate() {
 	  websocket.keepAlive = null;
 
 	  ws.onmessage = function(event) {
+	    websocket.reconnectTries = 0;
 	    websocket.state = WebSocketsWorking;
 	    handleResponse(0, event.data, null);
 	  };
 
+	  ws.onerror = function(event) {
+	    reconnect();
+	  };
+
 	  ws.onclose = function(event) {
-	    scheduleUpdate();
+	    reconnect();
 	  };
 
 	  ws.onopen = function(event) {
@@ -2181,7 +2217,9 @@ ImagePreloader.prototype.onload = function() {
     preloader.callback(preloader.images);
 };
 
-WT.history.register(_$_INITIAL_HASH_$_, onHashChange);
+function enableInternalPaths(initialHash) {
+  WT.history.register(initialHash, onHashChange);
+}
 
 // For use in FlashObject.js. In IE7, the alternative content is
 // not inserted in the DOM and when it is, it cannot contain JavaScript.
@@ -2237,6 +2275,7 @@ this._p_ = {
   dragEnd : dragEnd,
   capture : WT.capture,
 
+  enableInternalPaths : enableInternalPaths,
   onHashChange : onHashChange,
   setHash : setHash,
   ImagePreloader : ImagePreloader,
@@ -2252,13 +2291,13 @@ this.emit = emit;
 
 })();
 
-window.WtSignalEmit = _$_APP_CLASS_$_.emit;
+window._$_APP_CLASS_$_SignalEmit = _$_APP_CLASS_$_.emit;
 
-window.WtScriptLoaded = false;
+window._$_APP_CLASS_$_ScriptLoaded = false;
 
-window.onLoad = function() {
-  if (!window.WtScriptLoaded) {
-    window.isLoaded = true;
+window._$_APP_CLASS_$_OnLoad = function() {
+  if (!window._$_APP_CLASS_$_ScriptLoaded) {
+    window._$_APP_CLASS_$_Loaded = true;
     return;
   }
 

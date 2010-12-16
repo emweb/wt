@@ -39,10 +39,12 @@ class BlogImpl : public WContainerWidget
 {
 public:
   BlogImpl(const std::string& basePath, const std::string& sqliteDb,
-	   const std::string& rssFeedUrl)
+	   const std::string& rssFeedUrl,
+	   BlogView *blogView)
     : basePath_(basePath),
       rssFeedUrl_(rssFeedUrl),
       session_(sqliteDb),
+      blogView_(blogView),
       panel_(0),
       register_(0),
       profile_(0),
@@ -81,6 +83,8 @@ public:
     }
   }
 
+  BlogSession& session() { return session_; }
+
   ~BlogImpl() {
     clear();
   }
@@ -88,6 +92,7 @@ public:
 private:
   std::string basePath_, rssFeedUrl_;
   BlogSession session_;
+  BlogView   *blogView_;
 
   WTemplate *login_;
   WStackedWidget* panel_;
@@ -107,7 +112,16 @@ private:
       wApp->setCookie("bloglogin", "", 0);
     }
 
+    blogView_->userChanged().emit(WString::Empty);
+
     init();
+  }
+
+  WAnchor* createArchiveLink() {
+    WAnchor* archiveLink = new WAnchor();
+    archiveLink->setText(tr("archive"));
+    archiveLink->setRefInternalPath(basePath_ + "all");
+    return archiveLink;
   }
 
   void init() {
@@ -158,6 +172,8 @@ private:
     login_->bindWidget("login-link", loginLink);
     login_->bindWidget("register-link", registerLink);
     login_->bindString("feed-url", rssFeedUrl_);
+
+    login_->bindWidget("archive-link", createArchiveLink());
   }
 
   void login() {
@@ -190,9 +206,10 @@ private:
 
   void loginAs(dbo::ptr<User> user) {
     session_.setUser(user);
+    blogView_->userChanged().emit(user->name);
 
     if (user->role == User::Admin)
-      wApp->setInternalPath(basePath_ + "author/" + user->name, true);
+      wApp->setInternalPath(basePath_ + "author/" + user->name.toUTF8(), true);
 
     refresh();
 
@@ -229,6 +246,8 @@ private:
     login_->bindString("user", user->name);
     login_->bindWidget("profile-link", profileLink);
     login_->bindWidget("logout-link", logoutLink);
+
+    login_->bindWidget("archive-link", createArchiveLink());
 
     bindPanelTemplates();
   }
@@ -393,10 +412,10 @@ private:
       user.modify()->role = User::Visitor;
       user.modify()->setPassword(passwd->text().toUTF8());
 
+      t.commit();
+
       loginAs(user);
     }
-
-    t.commit();
   }
 
   void cancelRegister() {
@@ -436,6 +455,8 @@ private:
 	  showError(tr("blog-no-author").arg(author));
       } else if (path == "edituser") {
 	editUser(app->internalPathNextPart(basePath_ + path + '/'));
+      } else if (path == "all") {
+	showArchive(items_);
       } else {
 	std::string remainder = app->internalPath().substr(basePath_.length());
 	showPostsByDateTopic(remainder, items_);
@@ -492,6 +513,40 @@ private:
 
   dbo::ptr<User> findUser(const std::string& name) {
     return session_.find<User>("where name = ?").bind(name);
+  }
+  
+  bool yearMonthDiffer(const WDateTime& dt1, const WDateTime& dt2) {
+    return dt1.date().year() != dt2.date().year()
+      || dt1.date().month() != dt2.date().month();
+  }
+
+  void showArchive(WContainerWidget *parent) {
+    static const char* dateFormat = "MMMM yyyy";
+    
+    WText *title = new WText(tr("archive-title"), parent);
+    title->setStyleClass("blog-header");
+
+    Posts posts = session_.find<Post>("order by date desc");
+
+    WDateTime formerDate;
+    for (Posts::const_iterator i = posts.begin(); i != posts.end(); ++i) {
+      if ((*i)->state != Post::Published)
+	continue;
+
+      if (formerDate.isNull() 
+	  || yearMonthDiffer(formerDate, (*i)->date)) {
+	std::string dateText = 
+	  "<h4>" + (*i)->date.date().toString(dateFormat).toUTF8() + "</h4>";
+	new WText(dateText, parent);
+      }
+      
+      WAnchor *a = new WAnchor("", parent);
+      a->setText((*i)->title);
+      a->setRefInternalPath(basePath_ + (*i)->permaLink());
+      a->setStyleClass("archive-anchor");
+      
+      formerDate = (*i)->date;
+    }
   }
 
   void showPostsByDateTopic(const std::string& path,
@@ -608,8 +663,17 @@ private:
 
 BlogView::BlogView(const std::string& basePath, const std::string& sqliteDb,
 		   const std::string& rssFeedUrl, WContainerWidget *parent)
-  : WCompositeWidget(parent)
+  : WCompositeWidget(parent),
+    userChanged_(this)
 {
-  impl_ = new BlogImpl(basePath, sqliteDb, rssFeedUrl);
+  impl_ = new BlogImpl(basePath, sqliteDb, rssFeedUrl, this);
   setImplementation(impl_);
+}
+
+WString BlogView::user()
+{
+  if (impl_->session().user())
+    return impl_->session().user()->name;
+  else
+    return WString::Empty;
 }

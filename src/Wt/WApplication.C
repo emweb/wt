@@ -86,7 +86,7 @@ WApplication::WApplication(const WEnvironment& env)
     javaScriptClass_("Wt"),
     dialogCover_(0),
     quited_(false),
-    rshLoaded_(false),
+    internalPathsEnabled_(false),
     exposedOnly_(0),
     loadingIndicator_(0),
     connected_(true),
@@ -228,6 +228,12 @@ WApplication::WApplication(const WEnvironment& env)
   setLoadingIndicator(new WDefaultLoadingIndicator());
 
   unloaded_.connect(this, &WApplication::unload);
+}
+
+void WApplication::setJavaScriptClass(const std::string& javaScriptClass)
+{
+  if (session_->type() != Application)
+    javaScriptClass_ = javaScriptClass;
 }
 
 void WApplication::setLoadingIndicator(WLoadingIndicator *indicator)
@@ -907,18 +913,26 @@ std::string WApplication::docType() const
   return session_->docType();
 }
 
-bool WApplication::loadRsh()
+void WApplication::enableInternalPaths()
 {
-  if (!rshLoaded_) {
-    rshLoaded_ = true;
+  if (!internalPathsEnabled_) {
+    internalPathsEnabled_ = true;
+
+    doJavaScript
+      (javaScriptClass() + "._p_.enableInternalPaths("
+       + WWebWidget::jsStringLiteral(internalPath()) + ");" , false);
 
     if (session_->applicationName().empty())
       log("warn") << "Deploy-path ends with '/', using /?_= for "
 	"internal paths";
+  }
+}
 
-    return true;
-  } else
-    return false;
+Signal<std::string>& WApplication::internalPathChanged()
+{
+  enableInternalPaths();
+
+  return internalPathChanged_;
 }
 
 bool WApplication::internalPathMatches(const std::string& path) const
@@ -969,7 +983,7 @@ std::string WApplication::internalPath() const
 
 void WApplication::setInternalPath(const std::string& path, bool emitChange)
 {
-  loadRsh();
+  enableInternalPaths();
 
   if (!internalPathIsChanged_)
     oldInternalPath_ = newInternalPath_;
@@ -1023,7 +1037,7 @@ void WApplication::changeInternalPath(const std::string& aPath)
 
 	if (!next.empty())
 	  newInternalPath_ = common + next;
-	internalPathChanged().emit(common);
+	internalPathChanged_.emit(common);
 
 	if (next.empty()) {
 	  newInternalPath_ = path;
@@ -1038,7 +1052,7 @@ void WApplication::changeInternalPath(const std::string& aPath)
 #endif // WT_WITH_OLD_INTERNALPATH_API
       newInternalPath_ = path;
 
-      internalPathChanged().emit(newInternalPath_);
+      internalPathChanged_.emit(newInternalPath_);
     }
   }
 }
@@ -1404,7 +1418,8 @@ void WApplication::loadJavaScript(const char *jsFile)
     js.read(jstext.get(), length);
     jstext[length] = 0;
 
-    doJavaScript(jstext.get(), false);
+    doJavaScript("window.currentApp = " + javaScriptClass_ + ";"
+		 + jstext.get(), false);
 
     setJavaScriptLoaded(jsFile);
   }

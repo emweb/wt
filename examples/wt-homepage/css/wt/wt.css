@@ -312,4 +312,12 @@ div#footer_menu  {
 
 .clearall{
 	clear: both;
-	}	
+	}
+
+.blog-header {
+      color: #528B12;
+      display: block;
+      font-size: 1.3em;
+      line-height: 1.8;
+      margin-top: 15px;
+}
