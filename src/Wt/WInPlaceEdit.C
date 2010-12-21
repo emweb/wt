@@ -20,10 +20,10 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   setImplementation(impl_ = new WContainerWidget());
   setInline(true);
 
-  text_ = new WText(text, PlainText, impl_);
+  text_ = new WText(WString::Empty, PlainText, impl_);
   text_->decorationStyle().setCursor(ArrowCursor);
 
-  edit_ = new WLineEdit(text, impl_);
+  edit_ = new WLineEdit(impl_);
   edit_->setTextSize(20);
   save_ = 0;
   cancel_ = 0;
@@ -46,6 +46,8 @@ WInPlaceEdit::WInPlaceEdit(const WString& text, WContainerWidget *parent)
   edit_->escapePressed().preventDefaultAction();
 
   setButtonsEnabled();
+
+  setText(text);
 }
 
 const WString& WInPlaceEdit::text() const
@@ -55,10 +57,13 @@ const WString& WInPlaceEdit::text() const
 
 void WInPlaceEdit::setText(const WString& text)
 {
-  if (text != WString::Empty)
+  if (!text.empty()) {
     text_->setText(text);
-  else
+    empty_ = false;
+  } else {
     text_->setText(emptyText_);
+    empty_ = true;
+  }
 
   edit_->setText(text);
 }
@@ -66,6 +71,8 @@ void WInPlaceEdit::setText(const WString& text)
 void WInPlaceEdit::setEmptyText(const WString& emptyText)
 {
   emptyText_ = emptyText;
+  if (empty_)
+    text_->setText(emptyText_);
 }
 
 const WString& WInPlaceEdit::emptyText()
@@ -77,20 +84,20 @@ void WInPlaceEdit::save()
 {
   edit_->hide();
   text_->show();
-
-  if (edit_->text() != WString::Empty)
-    text_->setText(edit_->text());
-  else
-    text_->setText(emptyText_);
-
   edit_->enable();
 
-  valueChanged().emit(edit_->text());
+  bool changed
+    = empty_ ? !edit_->text().empty() : edit_->text() != text_->text();
+
+  if (changed) {
+    setText(edit_->text());
+    valueChanged().emit(edit_->text());
+  }
 }
 
 void WInPlaceEdit::cancel()
 {
-  edit_->setText(text_->text());
+  edit_->setText(empty_ ? WString::Empty : text_->text());
 }
 
 void WInPlaceEdit::setButtonsEnabled(bool enabled)

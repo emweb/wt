@@ -426,7 +426,7 @@ public:
    */
   bool operator!= (const WString& rhs) const { return !(*this == rhs); }
 
-  /** \brief An emtpy string.
+  /** \brief An empty string.
    */
   static const WString Empty;
 

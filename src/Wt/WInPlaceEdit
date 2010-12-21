@@ -83,14 +83,14 @@ public:
   void setText(const WString& text);
 
   /*! \brief Sets the empty text to be shown when the field is empty 
-   * and not editable.
+   *         and not being edited.
    *
    * \sa emptyText()
    */
   void setEmptyText(const WString& emptyText);
 
   /*! \brief Returns the empty text to be shown when the field is empty 
-   * and not editable.
+   *         and not being edited.
    *
    * \sa setEmptyText()
    */
@@ -127,9 +127,10 @@ public:
   /*! \brief Displays the Save and 'Cancel' button during editing
    *
    * By default, the Save and Cancel buttons are shown. Call this
-   * function with \p enabled = \c false to only show a line edit. In
-   * this mode, the enter key has the effect of the save button and
-   * the escape key has the effect of the cancel button.
+   * function with \p enabled = \c false to only show a line edit.
+   *
+   * In this mode, the enter key or any event that causes focus to be
+   * lost saves the value while the escape key cancels the editing.
    */
   void setButtonsEnabled(bool enabled = true);
 
@@ -147,6 +148,7 @@ private:
   WPushButton      *cancel_;
   boost::signals::connection c1_;
   boost::signals::connection c2_;
+  bool              empty_;
 };
 
 }
