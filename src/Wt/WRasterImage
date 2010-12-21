@@ -52,7 +52,7 @@ class WTransform;
  *   Wt::WPainter p(&pngImage);
  *   chart->paint(p);
  * }
- * std::ofstream f("chart.png");
+ * std::ofstream f("chart.png", std::ios::out | std::ios::binary);
  * pngImage.write(f);
  * \endcode
  *

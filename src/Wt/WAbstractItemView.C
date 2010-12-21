@@ -1023,6 +1023,12 @@ void WAbstractItemView::modelLayoutAboutToBeChanged()
 {
   if (rootIndex_.isValid())
     rootIndex_.encodeAsRawIndex();
+
+  for (EditorMap::iterator i = editedItems_.begin(); i != editedItems_.end();
+       ++i) {
+    persistEditor(i->first, i->second);
+    (const_cast<WModelIndex &>(i->first)).encodeAsRawIndex();
+  }
 }
 
 void WAbstractItemView::modelLayoutChanged()
@@ -1030,7 +1036,14 @@ void WAbstractItemView::modelLayoutChanged()
   if (rootIndex_.isValid())
     rootIndex_ = rootIndex_.decodeFromRawIndex();
 
-  editedItems_.clear();
+  EditorMap newEditorMap;
+  for (EditorMap::iterator i = editedItems_.begin(); i != editedItems_.end();
+       ++i) {
+    WModelIndex m = i->first.decodeFromRawIndex();
+    if (m.isValid())
+      newEditorMap[m] = i->second;
+  }
+  editedItems_.swap(newEditorMap);
 
   scheduleRerender(NeedRerenderData);
 }
@@ -1198,6 +1211,66 @@ bool WAbstractItemView::isEditing(const WModelIndex& index) const
   return editedItems_.find(index) != editedItems_.end();
 }
 
+bool WAbstractItemView::shiftEditors(const WModelIndex& parent,
+				     int start, int count,
+				     bool persistWhenShifted)
+{
+  /* Returns whether an editor with a widget shifted */
+  bool result = false;
+
+  if (!editedItems_.empty()) {
+    std::vector<WModelIndex> toClose;
+
+    EditorMap newMap;
+
+    for (EditorMap::iterator i = editedItems_.begin(); i != editedItems_.end();
+	 ++i) {
+      WModelIndex c = i->first;
+
+      WModelIndex p = c.parent();
+
+      if (p != parent && !WModelIndex::isAncestor(p, parent))
+	newMap[c] = i->second;
+      else {
+	if (p == parent) {
+	  if (c.row() >= start) {
+	    if (c.row() < start - count) {
+	      toClose.push_back(c);
+	    } else {
+	      WModelIndex shifted
+		= model_->index(c.row() + count, c.column(), p);
+	      newMap[shifted] = i->second;
+	      if (i->second.widget) {
+		if (persistWhenShifted)
+	 	  persistEditor(shifted, i->second);
+		result = true;
+              }
+	    }
+	  } else
+	    newMap[c] = i->second;
+	} else if (count < 0) {
+	  do {
+	    if (p.parent() == parent
+		&& p.row() >= start
+		&& p.row() < start - count) {
+	      toClose.push_back(c);
+	      break;
+	    } else
+	      p = p.parent();
+	  } while (p != parent);
+	}
+      }
+    }
+
+    for (unsigned i = 0; i < toClose.size(); ++i)
+      closeEditor(toClose[i]);
+
+    editedItems_ = newMap;
+  }
+
+  return result;
+}
+
 bool WAbstractItemView::isValid(const WModelIndex& index) const
 {  
   EditorMap::const_iterator i = editedItems_.find(index);
@@ -1241,6 +1314,23 @@ void WAbstractItemView::saveEditedValue(const WModelIndex& index,
     editState = editor.editState;
 
   delegate->setModelData(editState, model(), index);
+}
+
+void WAbstractItemView::persistEditor(const WModelIndex& index)
+{
+  EditorMap::iterator i = editedItems_.find(index);
+
+  if (i != editedItems_.end())
+    persistEditor(index, i->second);
+}
+
+void WAbstractItemView::persistEditor(const WModelIndex& index, Editor& editor)
+{
+  if (editor.widget) {
+    editor.editState = itemDelegate(index)->editState(editor.widget);
+    editor.stateSaved = true;
+    editor.widget = 0;
+  }
 }
 
 void WAbstractItemView::setEditState(const WModelIndex& index,

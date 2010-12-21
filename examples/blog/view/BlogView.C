@@ -523,8 +523,7 @@ private:
   void showArchive(WContainerWidget *parent) {
     static const char* dateFormat = "MMMM yyyy";
     
-    WText *title = new WText(tr("archive-title"), parent);
-    title->setStyleClass("blog-header");
+    new WText(tr("archive-title"), parent);
 
     Posts posts = session_.find<Post>("order by date desc");
 
@@ -535,15 +534,15 @@ private:
 
       if (formerDate.isNull() 
 	  || yearMonthDiffer(formerDate, (*i)->date)) {
-	std::string dateText = 
-	  "<h4>" + (*i)->date.date().toString(dateFormat).toUTF8() + "</h4>";
-	new WText(dateText, parent);
+	WText *title
+	  = new WText((*i)->date.date().toString(dateFormat), parent);
+	title->setStyleClass("archive-month-title");
       }
       
       WAnchor *a = new WAnchor("", parent);
       a->setText((*i)->title);
       a->setRefInternalPath(basePath_ + (*i)->permaLink());
-      a->setStyleClass("archive-anchor");
+      a->setInline(false);
       
       formerDate = (*i)->date;
     }

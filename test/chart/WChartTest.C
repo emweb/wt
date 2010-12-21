@@ -165,6 +165,12 @@ void WChartTest::plotTimeSeriesChart(WStandardItemModel* model,
   chart->setMargin(10, Top | Bottom);
   chart->setMargin(WLength::Auto, Left | Right);
 
+  /*
+  chart->resize(400, 300);
+  chart->initLayout();
+  std::cerr << chart->axis(YAxis).minimum()
+            << "-" << chart->axis(YAxis).maximum() << std::endl;
+  */
   {
     WSvgImage image(400, 300);
     WPainter painter(&image);
@@ -172,7 +178,7 @@ void WChartTest::plotTimeSeriesChart(WStandardItemModel* model,
     chart->paint(painter);
 
     painter.end();
-    std::ofstream f(fileName.c_str());
+    std::ofstream f(fileName.c_str(), std::ios::out | std::ios::binary);
     image.write(f);
     f.close();
   }

@@ -1679,8 +1679,6 @@ EventType WebSession::getEventType(const WEvent& event) const
   default:
     return OtherEvent;
   }
-
-  return OtherEvent;
 }
 
 void WebSession::render(Handler& handler)

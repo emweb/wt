@@ -237,7 +237,7 @@
   </message>
 
   <message id="archive-title">
-    Archive
+    <h4>Archive</h4>
   </message>
 
   <message id="login">Login</message>

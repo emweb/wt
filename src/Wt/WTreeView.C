@@ -342,12 +342,7 @@ WTreeViewNode::~WTreeViewNode()
 
     for (int i = 0; i < thisNodeCount; ++i) {
       WModelIndex child = childIndex(i);
-
-      if (view_->isEditing(child)) {
-	boost::any editState = view_->itemDelegate(i)->editState(widget(i));
-	view_->setEditState(child, editState);
-	view_->setEditorWidget(child, 0);
-      }
+      view_->persistEditor(child);
     }
   }
 }
@@ -2665,6 +2660,8 @@ void WTreeView::shiftModelIndexes(const WModelIndex& parent,
 
   int removed = shiftModelIndexes(parent, start, count, model(),
 				  selectionModel()->selection_);
+
+  shiftEditors(parent, start, count, false);
 
   if (removed)
     selectionChanged().emit();

@@ -48,7 +48,7 @@ namespace Wt {
  *   Wt::WPainter p(&pdfImage);
  *   chart->paint(p);
  * }
- * std::ofstream f("chart.pdf");
+ * std::ofstream f("chart.pdf", std::ios::out | std::ios::binary);
  * pdfImage.write(f);
  * \endcode
  *

@@ -31,7 +31,7 @@
 #include <math.h>
 
 // TODO:
-//  call updateModelIndex when shifting indexes
+//  - call updateModelIndex when shifting indexes
 
 namespace Wt {
 
@@ -479,13 +479,7 @@ void WTableView::addSection(const Side side,
 
 void WTableView::deleteItem(int row, int col, WWidget *w)
 {
-  WModelIndex index = model()->index(row, col, rootIndex());
-
-  if (isEditing(index)) {
-    setEditState(index, itemDelegate(col)->editState(w));
-    setEditorWidget(index, 0);
-  }
-
+  persistEditor(model()->index(row, col, rootIndex()));
   delete w;
 }
 
@@ -1055,6 +1049,11 @@ void WTableView::shiftModelIndexes(int start, int count)
 					 toShift[i].parent());
     set.insert(newIndex);
   }
+
+  shiftEditors(rootIndex(), start, count, true);
+
+  if (!toErase.empty())
+    selectionChanged().emit();
 }
 
 void WTableView::modelColumnsInserted(const WModelIndex& parent, 
@@ -1191,7 +1190,6 @@ void WTableView::modelDataChanged(const WModelIndex& topLeft,
 	int renderedColumn = j - firstColumn();
 
 	WContainerWidget *parentWidget;
-	WWidget *w;
 	int wIndex;
 
 	if (ajaxMode()) {
@@ -1203,13 +1201,15 @@ void WTableView::modelDataChanged(const WModelIndex& topLeft,
 	  wIndex = 0;
 	}
 
-	w = parentWidget->widget(wIndex);
+	WWidget *current = parentWidget->widget(wIndex);
 
 	WModelIndex index = model()->index(i, j, rootIndex());
 
-	w = renderWidget(w, index);
+	WWidget *w = renderWidget(current, index);
 
 	if (!w->parent()) {
+	  if (current)
+	    delete current;
 	  parentWidget->insertWidget(wIndex, w);
 
 	  if (!ajaxMode() && !isEditing(index)) {

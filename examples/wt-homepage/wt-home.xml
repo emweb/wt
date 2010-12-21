@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <div id="main_wrapper">
+    <div id="main_wrapper" class="home">
       <div id="main_content">
 	<div id="main_menu">
 	  ${menu}
@@ -47,7 +47,7 @@
 	</div>
 
 	<div id="chat"></div>
-	<script src="http://airwerf:9091/chat.js?div=chat"></script>
+	<script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat"></script>
 
 	<div class="clearall"></div>
       </div>

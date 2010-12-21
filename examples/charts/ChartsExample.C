@@ -85,8 +85,8 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
 {
   new WText(WString::tr("category chart"), this);
 
-  WAbstractItemModel *model = readCsvFile(WApplication::appRoot() + "category.csv",
-					  this);
+  WAbstractItemModel *model
+    = readCsvFile(WApplication::appRoot() + "category.csv", this);
 
   if (!model)
     return;

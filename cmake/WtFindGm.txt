@@ -20,14 +20,14 @@ FIND_PATH(GM_INCLUDE_DIR
 IF(WIN32)
   FIND_LIBRARY(GM_LIB
     NAMES
-      CORE_DB_Magick_
+      CORE_RL_Magick_
     PATHS
       ${GM_PREFIX}/VisualMagick/lib/Release
       ${GM_PREFIX}/VisualMagick/lib
   )
   FIND_LIBRARY(GMPP_LIB
     NAMES
-      CORE_DB_Magick++_
+      CORE_RL_Magick++_
     PATHS
       ${GM_PREFIX}/VisualMagick/lib/Release
       ${GM_PREFIX}/VisualMagick/lib

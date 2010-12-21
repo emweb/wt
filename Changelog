@@ -1,3 +1,7 @@
+21-12-2010:
+	* WAbstractItemView, WTableView, WTreeView: persist editors through
+	model changes and avoid closing editors when something changes
+
 16-12-2010:
 	* WEvent: add eventType() method
 

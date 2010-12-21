@@ -68,7 +68,6 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
 
   if (flags & RenderEditing) {
     if (!editing) {
-      delete widget;
       widget = createEditor(index, flags);
       WInteractWidget *iw = dynamic_cast<WInteractWidget *>(widget);
       if (iw) {
@@ -78,10 +77,8 @@ WWidget *WItemDelegate::update(WWidget *widget, const WModelIndex& index,
       }
     }
   } else {
-    if (editing) {
-      delete widget;
+    if (editing)
       widget = 0;
-    }
   }
 
   WidgetRef widgetRef(widget);

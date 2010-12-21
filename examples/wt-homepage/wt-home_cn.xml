@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <div id="main_wrapper">
+    <div id="main_wrapper" class="home">
       <div id="main_content">
 	<div id="main_menu">
 	  ${menu}
@@ -40,13 +40,13 @@
 	  <a href="http://www.emweb.be/">www.emweb.be</a>
 	</div>
 
-      <div id="footer_menu"> 
-	<a href="http://www.webtoolkit.eu/wt/">首页</a>
-	| <a href="http://www.emweb.be/?page=contact">联系我们</a>
-      </div>
+	<div id="footer_menu"> 
+	  <a href="http://www.webtoolkit.eu/wt/">首页</a>
+	  | <a href="http://www.emweb.be/?page=contact">联系我们</a>
+	</div>
 
 	<div id="chat"></div>
-	<script src="http://airwerf:9091/chat.js?div=chat"></script>
+	<script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat"></script>
 
 	<div class="clearall"></div>
       </div>
