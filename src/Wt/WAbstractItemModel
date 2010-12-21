@@ -243,6 +243,11 @@ public:
    * An implementation should use createIndex() to create a model
    * index that corresponds to the parent of a given index.
    *
+   * Note that the index itself may be stale (referencing a row/column
+   * within the parent that is outside the model geometry), but its
+   * parent (identified by the WModelIndex::internalPointer()) is
+   * referencing an existing parent.
+   *
    * \sa index()
    */
   virtual WModelIndex parent(const WModelIndex& index) const = 0;
@@ -772,9 +777,10 @@ protected:
 
   /*! \brief Creates a model index for the given row and column.
    *
-   * Use this method to create a model index. \p ptr is an
-   * internal pointer that may be used to associate the index with
-   * particular model data.
+   * Use this method to create a model index. \p ptr is an internal
+   * pointer that may be used to identify the <b>parent</b> of the
+   * corresponding item. For a flat table model, \p ptr can thus
+   * always be 0.
    *
    * \sa WModelIndex::internalPointer()
    */
@@ -783,9 +789,10 @@ protected:
 #ifndef WT_TARGET_JAVA
   /*! \brief Creates a model index for the given row and column.
    *
-   * Use this method to create a model index. \p id is an
-   * internal id that may be used to associate the index with
-   * particular model data.
+   * Use this method to create a model index. \p id is an internal id
+   * that may be used to identify the <b>parent</b> of the
+   * corresponding item. For a flat table model, \p ptr can thus
+   * always be 0.
    *
    * \sa WModelIndex::internalId()
    */

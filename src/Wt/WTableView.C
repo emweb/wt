@@ -1152,14 +1152,14 @@ void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
       closeEditor(model()->index(r, c), false);
     }
   }
+
+  shiftModelIndexes(start, -(end - start + 1));  
 }
 
 void WTableView::modelRowsRemoved(const WModelIndex& parent, int start, int end)
 {
   if (parent != rootIndex())
     return;
-
-  shiftModelIndexes(start, -(end - start + 1));
 
   if (ajaxMode()) {
     canvas_->resize(canvas_->width(), canvasHeight());

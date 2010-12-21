@@ -2,6 +2,10 @@
 	* WAbstractItemView, WTableView, WTreeView: persist editors through
 	model changes and avoid closing editors when something changes
 
+	* WAbstractItemModel: clarify (and narrow down) usage of internal data
+	in a model index so that views can keep their relaxed take on stale
+	indexes.
+
 16-12-2010:
 	* WEvent: add eventType() method
 

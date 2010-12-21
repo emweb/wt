@@ -1146,15 +1146,15 @@ void WAbstractItemView::closeEditor(const WModelIndex& index, bool saveData)
   if (i != editedItems_.end()) {
     Editor& editor = i->second;
 
-    if (saveData || editOptions_ & SaveWhenClosed)
-      saveEditedValue(index, editor);
-
     WModelIndex closed = index;
 #ifndef WT_TARGET_JAVA
     editedItems_.erase(i);
 #else
     editedItems_.erase(index);
 #endif
+
+    if (saveData || editOptions_ & SaveWhenClosed)
+      saveEditedValue(closed, editor);
 
     modelDataChanged(closed, closed);
   }

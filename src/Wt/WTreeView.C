@@ -2087,6 +2087,9 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 
 	  parentNode->normalizeSpacers();
 
+	  parentNode->adjustChildrenHeight(-removedHeight_);
+	  parentNode->shiftModelIndexes(start, -count);
+
 	  // Update graphics for last node in parent, if we are removing rows
 	  // at the back. This is not affected by widgetForModelRow() returning
 	  // accurate information of rows just deleted and indexes not yet
@@ -2128,28 +2131,13 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
       */
     }
   }
+
+  shiftModelIndexes(parent, start, -count);
 }
 
 void WTreeView::modelRowsRemoved(const WModelIndex& parent,
 				 int start, int end)
 {
-  int count = end - start + 1;
-
-  if (renderState_ != NeedRerender || renderState_ != NeedRerenderData) {
-    WWidget *parentWidget = widgetForIndex(parent);
-    if (parentWidget) {
-      WTreeViewNode *parentNode = dynamic_cast<WTreeViewNode *>(parentWidget);
-      if (parentNode) {
-	if (parentNode->childrenLoaded()) {
-	  parentNode->adjustChildrenHeight(-removedHeight_);
-	  parentNode->shiftModelIndexes(start, -count);
-	}
-      }
-    }
-  }
-
-  shiftModelIndexes(parent, start, -count);
-
   renderedRowsChanged(firstRemovedRow_, -removedHeight_);
 }
 
