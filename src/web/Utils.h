@@ -39,6 +39,9 @@ extern std::string& replace(std::string& s, char c, const std::string& r);
 extern std::string& replace(std::string& s, const std::string& c,
 			    const std::string& r);
 
+// lower case an UTF-8 string
+extern std::string lowerCase(const std::string& s);
+
 // sanitize unicode 
 extern void sanitizeUnicode(EscapeOStream& sout, const std::string& text);
 
@@ -200,6 +203,8 @@ extern void urlDecode(std::string &s);
 extern std::string urlEncode(const std::string& url);
 extern std::string urlEncode(const std::string& url,
                              const std::string& allowed);
+extern std::string dataUrlDecode(const std::string& url,
+				 std::vector<unsigned char> &data);
 
 extern std::string EncodeHttpHeaderField(const std::string &fieldname,
                                          const Wt::WString &fieldValue);

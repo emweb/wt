@@ -1,3 +1,18 @@
+06-01-2010:
+	* Render/WTextRenderer, Render/WPdfRenderer: XHtml-to-(PDF) renderer.
+
+	* Wt/WFontMetrics: font metrics info
+
+	* Wt/WPaintDevice: add methods for font metrics
+
+	* WLength: add a string-based constructors which parses a CSS
+	length declaration like "50%"
+
+	* WFont: the string-based constructor now parses #aabbcc and
+	rgb(a,b,c) values into rgb components.
+
+	* WWidget: added setHeight() and setWidth() methods
+
 21-12-2010:
 	* WAbstractItemView, WTableView, WTreeView: persist editors through
 	model changes and avoid closing editors when something changes

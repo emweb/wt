@@ -199,6 +199,17 @@ public:
    */
   virtual WLength width() const = 0;
 
+  /*! \brief Sets the width.
+   *
+   * Sets the width for this widget by calling 
+   * resize(width, WLength(100, WLength::Percentage)). 
+   *
+   * This applies to CSS-based layout.
+   *
+   * \sa resize(const WLength&, const WLength&), width()
+   */
+  void setWidth(const WLength& width);
+
   /*! \brief Returns the height.
    *
    * Returns the height set for this widget. This is not a calculated
@@ -210,6 +221,17 @@ public:
    * \sa resize(const WLength&, const WLength&), width()
    */
   virtual WLength height() const = 0;
+
+  /*! \brief Sets the height.
+   *
+   * Sets the height for this widget by calling 
+   * resize(WLength(100, WLength::Percentage), height). 
+   *
+   * This applies to CSS-based layout.
+   *
+   * \sa resize(const WLength&, const WLength&), height()
+   */
+  void setHeight(const WLength& height);
 
   /*! \brief Sets a minimum size.
    *

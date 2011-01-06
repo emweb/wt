@@ -71,6 +71,16 @@ void WWidget::resize(const WLength& width, const WLength& height)
   setJsSize();
 }
 
+void WWidget::setHeight(const WLength& height)
+{
+  resize(WLength(100, WLength::Percentage), height);
+}
+
+void WWidget::setWidth(const WLength& width)
+{
+  resize(width, WLength(100, WLength::Percentage));
+}
+
 void WWidget::setJsSize()
 {
   if (!height().isAuto() && height().unit() != WLength::Percentage

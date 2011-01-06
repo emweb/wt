@@ -81,6 +81,14 @@ std::string& replace(std::string& s, const std::string& k, const std::string& r)
   return s;
 }
 
+std::string lowerCase(const std::string& s)
+{
+  std::string result = s;
+  for (unsigned i = 0; i < result.length(); ++i)
+    result[i] = tolower(result[i]);
+  return result;
+}
+
 void sanitizeUnicode(EscapeOStream& sout, const std::string& text)
 {
   char buf[4];
@@ -213,6 +221,12 @@ std::string urlEncode(const std::string& url)
 std::string urlEncode(const std::string& url, const std::string& allowed)
 {
   return DomElement::urlEncodeS(url, allowed);
+}
+
+std::string dataUrlDecode(const std::string& url,
+			  std::vector<unsigned char> &data)
+{
+  return std::string();
 }
 
 void split(std::set<std::string>& tokens,

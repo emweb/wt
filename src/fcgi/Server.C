@@ -954,7 +954,10 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
       return 0;
     } catch (std::exception& e) {
-      server.impl()->configuration_->log("fatal") << e.what();
+      if (server.impl()->configuration_)
+	server.impl()->configuration_->log("fatal") << e.what();
+      else
+	std::cerr << e.what() << std::endl;
       return 1;
     }
   } catch (Wt::WServer::Exception& e) {

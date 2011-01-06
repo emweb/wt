@@ -1548,8 +1548,12 @@ function encodeEvent(event, i) {
     } else if (el.type != 'file') {
       if ($(el).hasClass('Wt-edit-emptyText'))
 	v = '';
-      else
+      else {
+	/* For WTextEdit */
+	if (el.ed)
+	  el.ed.save();
 	v = '' + el.value;
+      }
 
       if (WT.hasFocus(el)) {
 	var range = WT.getSelectionRange(el);

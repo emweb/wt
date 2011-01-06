@@ -5,10 +5,12 @@
  */
 #include "Wt/WLength"
 
+#include "WtException.h"
 #include "Utils.h"
 
 #include <stdio.h>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <cstring>
 
 namespace Wt {
@@ -21,10 +23,56 @@ WLength::WLength()
     value_(-1)
 { }
 
+WLength::WLength(const char *s)
+{ 
+  auto_ = false;
+
+  char *end;
+  value_ = strtod(s, &end);
+  if (s == end) {
+    throw WtException(std::string("WLength: "
+				  "Missing value in the css length string '") 
+		      + s + "'.");
+  }
+  
+  std::string unit(end);
+  boost::trim(unit);
+  
+  if (unit == "em")
+    unit_ = FontEm;
+  else if (unit == "ex")
+    unit_ = FontEx;
+  else if (unit.empty() || unit == "px")
+    unit_ = Pixel;
+  else if (unit == "in")
+    unit_ = Inch; 
+  else if (unit == "cm")
+    unit_ = Centimeter; 
+  else if (unit == "mm")
+    unit_ = Millimeter; 
+  else if (unit == "pt")
+    unit_ = Point; 
+  else if (unit == "pc")
+    unit_ = Pica; 
+  else if (unit == "%")
+    unit_ = Percentage;
+  else {
+    throw WtException(std::string("WLength: Illegal unit '")
+		      + unit +
+		      "' in the css length string."); 
+  }
+}
+
 WLength::WLength(double value, Unit unit)
   : auto_(false),
     unit_(unit),
     value_(value)
+{ }
+
+WLength::WLength(int value, Unit unit)
+  : auto_(false),
+    unit_(unit),
+    value_((double)value)
 { }
 
 bool WLength::operator== (const WLength& other) const
@@ -59,24 +107,28 @@ const std::string WLength::cssText() const
   }
 }
 
-double WLength::toPixels() const
+double WLength::toPixels(double fontSize) const
 {
   static const double pxPerPt = 4.0/3.0;
   static const double unitFactor[]
-    = { 16,
-	8,                   // approximate: ex/em is 0.46 to 0.56...
-	1,
+    = { 1,
 	72 * pxPerPt,        // 72 'CSS'points in an inch
 	72 / 2.54 * pxPerPt, // 2.54 cm in an inch
 	72 / 25.4 * pxPerPt, // 25.4 mm in an inch
 	pxPerPt,
-	12 * pxPerPt,        // 12 points per pica
-	0.16 };              // 12pt = 16px = 1em = 100%
+	12 * pxPerPt };      // 12 points per pica
 
   if (auto_)
     return 0;
   else
-    return value_ * unitFactor[unit_];
+    if (unit_ == FontEm)
+      return value_ * fontSize;
+    else if (unit_ == FontEx)
+      return value_ * fontSize / 2.0; // approximate: ex/em is 0.46 to 0.56...
+    else if (unit_ == Percentage)
+      return value_ * fontSize / 100.0; // assuming relative to font size...
+    else
+      return value_ * unitFactor[unit_ - 2];
 }
 
 }

@@ -89,6 +89,7 @@ Wt/WFileUpload.C
 Wt/WFitLayout.C
 Wt/WFlashObject.C
 Wt/WFont.C
+Wt/WFontMetrics.C
 Wt/WFormWidget.C
 Wt/WGLWidget.C
 Wt/WGoogleMap.C
@@ -201,6 +202,10 @@ Wt/Http/Client.C
 Wt/Http/Request.C
 Wt/Http/Response.C
 Wt/Http/ResponseContinuation.C
+Wt/Render/Block.C
+Wt/Render/Line.C
+Wt/Render/LayoutBox.C
+Wt/Render/WTextRenderer.C
 Wt/Test/WTestEnvironment.C
 web/CgiParser.C
 web/Configuration.C
@@ -241,7 +246,7 @@ IF (MULTI_THREADED_BUILD)
 ENDIF(MULTI_THREADED_BUILD)
 
 IF(HAVE_HARU)
-  SET(libsources ${libsources} Wt/WPdfImage.C)
+  SET(libsources ${libsources} Wt/WPdfImage.C Wt/Render/WPdfRenderer.C)
 ENDIF(HAVE_HARU)
 
 IF(HAVE_GM)
@@ -255,7 +260,7 @@ IF(HAVE_HARU)
   TARGET_LINK_LIBRARIES(wt ${HARU_LIBRARIES})
   INCLUDE_DIRECTORIES(${HARU_INCLUDE_DIRS})
 ELSE(HAVE_HARU)
-  MESSAGE("** Disabling PDF support (WPdfImage): requires libharu.")
+  MESSAGE("** Disabling PDF support (WPdfImage, WPdfRenderer): requires libharu.")
   IF(ENABLE_HARU)
     MESSAGE("   Indicate the location of your haru library using -DHARU_PREFIX=...")
   ENDIF(ENABLE_HARU)

@@ -34,7 +34,7 @@ enum DomElementType {
 
   DomElement_OPTION, DomElement_UL, DomElement_SCRIPT, DomElement_SELECT,
   DomElement_SPAN, DomElement_TABLE, DomElement_TBODY, DomElement_THEAD,
-  DomElement_TH, DomElement_TD,
+  DomElement_TFOOT, DomElement_TH, DomElement_TD,
   DomElement_TEXTAREA,
 
   DomElement_TR, DomElement_P, DomElement_CANVAS,
@@ -42,7 +42,9 @@ enum DomElementType {
 
   DomElement_OBJECT, DomElement_PARAM,
   
-  DomElement_AUDIO, DomElement_VIDEO, DomElement_SOURCE
+  DomElement_AUDIO, DomElement_VIDEO, DomElement_SOURCE,
+
+  DomElement_STRONG, DomElement_EM, DomElement_UNKNOWN
 };
 
 enum RepaintFlag {

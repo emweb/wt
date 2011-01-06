@@ -14,6 +14,8 @@ using boost::unit_test_framework::test_suite;
 #include "utf8/Utf8Test.h"
 #include "utf8/XmlTest.h"
 #include "wdatetime/WDateTimeTest.h"
+#include "length/WLengthTest.h"
+#include "color/WColorTest.h"
 
 boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
 {
@@ -30,6 +32,8 @@ boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
   tests->add(new Utf8Test());
   tests->add(new XmlTest());
   tests->add(new WDateTimeTest());
+  tests->add(new WLengthTest());
+  tests->add(new WColorTest());
 
   return tests;
 }

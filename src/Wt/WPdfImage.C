@@ -5,16 +5,18 @@
  */
 
 #include "Wt/WBrush"
+#include "Wt/WFontMetrics"
 #include "Wt/WPainter"
 #include "Wt/WPen"
 #include "Wt/WPdfImage"
 #include "Wt/WTransform"
 #include "Wt/Http/Response"
 
+#include "web/Utils.h"
 #include "web/WtException.h"
 
 #include <stdio.h>
-#include "hpdf.h"
+#include <hpdf.h>
 #ifdef WIN32
 // Disable warnings about conversions from double to real (data loss)
 #pragma warning(disable: 4244)
@@ -56,11 +58,12 @@ WPdfImage::WPdfImage(const WLength& width, const WLength& height,
 
   page_ = HPDF_AddPage(pdf_);
 
+  font_ = 0;
+
   x_ = y_ = 0;
 
   HPDF_Page_SetWidth(page_, width_.toPixels());
   HPDF_Page_SetHeight(page_, height_.toPixels());
-
   HPDF_Page_GSave(page_);
 }
 
@@ -76,6 +79,8 @@ WPdfImage::WPdfImage(HPDF_Doc pdf, HPDF_Page page, HPDF_REAL x, HPDF_REAL y,
     y_(y)
 {
   myPdf_ = false;
+
+  font_ = 0;
 }
 
 WPdfImage::~WPdfImage()
@@ -233,7 +238,7 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
       break;
     case WFont::SansSerif:
       base = "Helvetica";
-      italic = "Olbique";
+      italic = "Oblique";
       bold = "Bold";
       break;
     case WFont::Monospace:
@@ -257,17 +262,8 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
 	break;
       }
 
-    if (bold)
-      switch (font.weight()) {
-      case WFont::NormalWeight:
-	bold = 0;
-	break;
-      case WFont::Bold:
-      case WFont::Bolder:
-	break;
-      default:
-	bold = 0;
-      }
+    if (font.weightValue() <= 400)
+      bold = 0;
 
     std::string name = base;
     if (bold) {
@@ -280,17 +276,10 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
     if (name == "Times")
       name = "Times-Roman";
 
-    HPDF_Font f = HPDF_GetFont(pdf_, name.c_str(), 0);
+    font_ = HPDF_GetFont(pdf_, name.c_str(), 0);
+    fontSize_ = font.sizeLength(12).toPixels();
 
-    switch (font.size()) {
-    case WFont::FixedSize:
-      fontSize_ = font.fixedSize().toPixels();
-      break;
-    default:
-      fontSize_ = 12;
-    }
-
-    HPDF_Page_SetFontAndSize(page_, f, fontSize_);
+    HPDF_Page_SetFontAndSize(page_, font_, fontSize_);
   }
 }
 
@@ -328,22 +317,26 @@ void WPdfImage::paintPath()
       HPDF_Page_EndPath(page_);
 }
 
-void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUri,
+void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
 			  int imgWidth, int imgHeight,
 			  const WRectF& srect)
 {
   HPDF_Image img = 0;
 
-  if (imgUri.length() >= 4) {
-    if (toUpper(imgUri.substr(imgUri.length() - 4)) == ".PNG")
-      img = HPDF_LoadPngImageFromFile2(pdf_, imgUri.c_str());
-    else if (toUpper(imgUri.substr(imgUri.length() - 4)) == ".JPG"
-	     || (toUpper(imgUri.substr(imgUri.length() - 4)) == "JPEG"))
-      img = HPDF_LoadJpegImageFromFile(pdf_, imgUri.c_str());
+  if (imgUrl.length() >= 4) {
+    if (toUpper(imgUrl.substr(imgUrl.length() - 4)) == ".PNG")
+      img = HPDF_LoadPngImageFromFile2(pdf_, imgUrl.c_str());
+    else if (toUpper(imgUrl.substr(imgUrl.length() - 4)) == ".JPG"
+	     || (toUpper(imgUrl.substr(imgUrl.length() - 4)) == "JPEG"))
+      img = HPDF_LoadJpegImageFromFile(pdf_, imgUrl.c_str());
+    else {
+      std::vector<unsigned char> data;
+      std::string mimeType = Utils::dataUrlDecode(imgUrl, data);
+    }
   }
 
   if (!img)
-    throw WtException("WPdfImage::drawImage(): cannot load image: " + imgUri);
+    throw WtException("WPdfImage::drawImage(): cannot load image: " + imgUrl);
 
   double x = rect.x();
   double y = rect.y();
@@ -368,7 +361,7 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUri,
     HPDF_Page_Clip(page_);
   }
 
-  HPDF_Page_Concat(page_, 1, 0, 0, -1, x, y); // revert upside-down
+  HPDF_Page_Concat(page_, 1, 0, 0, -1, x, y + height); // revert upside-down
 
   HPDF_Page_DrawImage(page_, img, 0, 0, width, height);
 
@@ -492,6 +485,11 @@ void WPdfImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
       alignment = HPDF_TALIGN_CENTER;
       break;
     }
+  case AlignJustify: // Does not work: libharu does not justify the last line
+    left = rect.left();
+    right = rect.right();
+    alignment = HPDF_TALIGN_JUSTIFY;
+    break;
   default:
     break;
   }
@@ -525,10 +523,44 @@ void WPdfImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 
   HPDF_Page_TextRect(page_, left, fontSize_, right, 0, text.narrow().c_str(),
 		     alignment, 0);
-  
+
   HPDF_Page_EndText(page_);
 
   HPDF_Page_GRestore(page_);
+}
+
+WFontMetrics WPdfImage::fontMetrics()
+{
+  HPDF_Box bbox = HPDF_Font_GetBBox(font_);
+
+  int ascent = HPDF_Font_GetAscent(font_);
+  int descent = -HPDF_Font_GetDescent(font_);
+
+  if (ascent == 0 && descent == 0) {
+    ascent = bbox.top;
+    descent = -bbox.bottom;
+  }
+
+  int leading = bbox.top - ascent;
+
+  return WFontMetrics(painter()->font(),
+		      fontSize_ * leading / 1000.0,
+		      fontSize_ * ascent / 1000.0,
+		      fontSize_ * descent / 1000.0);
+}
+
+WTextItem WPdfImage::measureText(const WString& text, double maxWidth,
+				 bool wordWrap)
+{
+  HPDF_REAL width = 0;
+
+  if (!wordWrap)
+    maxWidth = 1E9;
+
+  int bytes = HPDF_Page_MeasureText(page_, text.toUTF8().c_str(), maxWidth,
+				    wordWrap, &width);
+
+  return WTextItem(WString::fromUTF8(text.toUTF8().substr(0, bytes)), width);
 }
 
 void WPdfImage::handleRequest(const Http::Request& request,

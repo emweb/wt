@@ -4,11 +4,13 @@
  * See the LICENSE file for terms of use.
  */
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <sstream>
 
 #include "Wt/WColor"
 #include "Utils.h"
 #include "EscapeOStream.h"
+#include "WtException.h"
 
 namespace Wt {
 
@@ -28,14 +30,89 @@ WColor::WColor(int r, int g, int b, int a)
     alpha_(a)
 { }
 
+int parseRgbArgument(const std::string& argument) 
+{
+  std::string arg = boost::trim_copy(argument);
+  try {
+    if (boost::ends_with(arg, "%"))
+      return (int) (boost::lexical_cast<double>(arg.substr(0, arg.size() - 1)) 
+		    * 255 / 100);
+    else 
+      return boost::lexical_cast<int>(arg);
+  } catch (boost::bad_lexical_cast &e) {
+    throw WtException(std::string("WColor: Illegal rgb argument: ") + arg); 
+  }
+}
+
 WColor::WColor(const WString& name)
   : default_(false),
-    red_(-1),
-    green_(-1),
-    blue_(-1),
-    alpha_(255),
     name_(name)
-{ }
+{ 
+  std::string n = name.toUTF8();
+  boost::trim(n);
+  
+  if (boost::starts_with(n, "#")) {
+    if (n.size() - 1 == 3) {
+      red_ = strtol(n.substr(1,1).c_str(), 0, 16);
+      red_ = red_ * 16 + red_;
+      green_ = strtol(n.substr(2,1).c_str(), 0, 16);
+      green_ = green_ * 16 + green_;
+      blue_ = strtol(n.substr(3,1).c_str(), 0, 16);
+      blue_ = blue_ * 16 + blue_;
+    } else if (n.size() - 1 == 6) {
+      red_ = strtol(n.substr(1,2).c_str(), 0, 16);
+      green_ = strtol(n.substr(3,2).c_str(), 0, 16);
+      blue_ = strtol(n.substr(5,2).c_str(), 0, 16);
+    } else {
+      throw WtException(std::string("WColor: Could not parse rgb format: ") 
+			+ n);
+    }
+  } else if (boost::starts_with(n, "rgb")) {
+    if (n.size() < 5)
+      throw WtException(std::string("WColor: Could not parse rgb format: ") 
+			+ n);
+
+    bool alpha = (n[3] == 'a');
+    int start_bracket = 3 + alpha;
+
+    if (n[start_bracket] != '(' || n[n.size() - 1] != ')')
+      throw WtException(std::string("WColor: Missing brackets in rgb format: ") 
+			+ n);
+
+    std::string argumentsStr = n.substr(start_bracket + 1, 
+					n.size() - 1 - (start_bracket + 1));
+
+    std::vector<std::string> arguments;
+    boost::split(arguments, 
+		 argumentsStr,
+		 boost::is_any_of(","));
+
+    if (!alpha && arguments.size() != 3)
+      throw WtException(std::string("WColor: Invalid argument count: ") + n);
+
+    if (alpha && arguments.size() != 4)
+      throw WtException(std::string("WColor: Invalid argument count: ") + n);
+
+    red_ = parseRgbArgument(arguments[0]);
+    green_ = parseRgbArgument(arguments[1]);
+    blue_ = parseRgbArgument(arguments[2]);
+
+    if (alpha) 
+      try {
+	alpha_ = boost::lexical_cast<int>(boost::trim_copy(arguments[3]));
+      } catch (boost::bad_lexical_cast &e) {
+	throw WtException(std::string("WColor: Illegal alpha value: ") + 
+			  arguments[3]); 
+      } 
+    else
+      alpha_ = 255;
+  } else {
+    red_ = -1;
+    green_ = -1;
+    blue_ = -1;
+    alpha_ = 255;
+  }
+}
 
 WColor::WColor(Wt::GlobalColor name)
 {
@@ -74,6 +151,27 @@ bool WColor::operator==(const WColor& other) const
 bool WColor::operator!=(const WColor& other) const
 {
   return !(*this == other);
+}
+
+int WColor::red() const
+{
+  if (red_ == -1)
+    throw WtException("WColor: No rgb values are available");
+  return red_;
+}
+
+int WColor::green() const
+{
+  if (green_ == -1)
+    throw WtException("WColor: No rgb values are available");
+  return green_;
+}
+
+int WColor::blue() const
+{
+  if (blue_ == -1)
+    throw WtException("WColor: No rgb values are available");
+  return blue_;
 }
 
 void WColor::setRgb(int red, int green, int blue, int alpha)

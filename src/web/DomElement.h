@@ -42,7 +42,8 @@ enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyStyleTop, PropertyStyleBottom,
 		PropertyStyleVerticalAlign, PropertyStyleTextAlign,
 		PropertyStylePadding,
-		PropertyStylePaddingRight, PropertyStylePaddingLeft,
+		PropertyStylePaddingTop, PropertyStylePaddingRight,
+		PropertyStylePaddingBottom, PropertyStylePaddingLeft,
 		PropertyStyleMarginTop, PropertyStyleMarginRight,
 		PropertyStyleMarginBottom, PropertyStyleMarginLeft,
 		PropertyStyleCursor, 
@@ -196,6 +197,9 @@ public:
   static void htmlAttributeValue(std::ostream& out, const std::string& s);
   static bool isSelfClosingTag(const std::string& tag);
   static bool isSelfClosingTag(DomElementType element);
+  static DomElementType parseTagName(const std::string& tag);
+  static const std::string& cssName(Property property);
+  static bool isDefaultInline(DomElementType type);
 
   std::string javaScript() const { return javaScript_.str(); }
 
@@ -208,6 +212,7 @@ public:
 		     const std::string& domInsertJS);
 
   std::string createVar() const;
+
 
 private:
   struct EventHandler {

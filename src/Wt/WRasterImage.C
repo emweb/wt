@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WBrush"
+#include "Wt/WFontMetrics"
 #include "Wt/WPainter"
 #include "Wt/WPen"
 #include "Wt/WRasterImage"
@@ -567,6 +568,17 @@ void WRasterImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   DrawPopGraphicContext(context_);
 
   setChanged(Transform);
+}
+
+WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
+				    bool wordWrap)
+{
+  throw std::logic_error("WRasterImage::measureText() not (yet?) supported");
+}
+
+WFontMetrics WRasterImage::fontMetrics()
+{
+  throw std::logic_error("WRasterImage::fontMetrics() not (yet?) supported");
 }
 
 void WRasterImage::handleRequest(const Http::Request& request,

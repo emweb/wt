@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WFontMetrics"
 #include "Wt/WSvgImage"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
@@ -598,6 +599,17 @@ void WSvgImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   shapes_ << ">" << WWebWidget::escapeText(text, false).toUTF8() 
 	  << "</"SVG"text>";
 #endif
+}
+
+WTextItem WSvgImage::measureText(const WString& text, double maxWidth,
+				 bool wordWrap)
+{
+  throw std::logic_error("WSvgImage::measureText() not supported");
+}
+
+WFontMetrics WSvgImage::fontMetrics()
+{
+  throw std::logic_error("WSvgImage::fontMetrics() not (yet?) supported");
 }
 
 std::string WSvgImage::quote(const std::string& s)

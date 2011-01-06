@@ -190,7 +190,6 @@ void WTextEdit::updateDom(DomElement& element, bool all)
     element.callMethod("ed=new tinymce.Editor('" + id() + "',"
 		       + config.str() + ");");
     element.callMethod("ed.render();");
-    element.callMethod("ed.onChange.add(function(ed) { ed.save(); });");
 
     contentChanged_ = false;
   }

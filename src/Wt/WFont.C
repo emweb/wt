@@ -44,7 +44,7 @@ bool WFont::operator==(const WFont& other) const
     && weight_           == other.weight_
     && weightValue_      == other.weightValue_
     && size_             == other.size_
-    && fixedSize_        == other.fixedSize_;
+    && sizeLength_       == other.sizeLength_;
 }
 
 bool WFont::operator!=(const WFont& other) const
@@ -83,16 +83,112 @@ void WFont::setWeight(Weight weight, int value)
   if (widget_) widget_->repaint(RepaintPropertyAttribute);
 }
 
-void WFont::setSize(Size size, const WLength& fixedSize)
+WFont::Weight WFont::weight() const
+{
+  if (weight_ != Value)
+    return weight_;
+  else
+    return weightValue_ >= 400 ? WFont::Bold : WFont::NormalWeight;
+}
+
+int WFont::weightValue() const
+{
+  switch (weight_) {
+  case NormalWeight:
+  case Lighter:
+    return 400;
+  case Bold:
+  case Bolder:
+    return 700;
+  case Value:
+    return weightValue_;
+  }
+
+  assert(false);
+}
+
+void WFont::setSize(Size size, const WLength& length)
+{
+  if (size == FixedSize)
+    setSize(length);
+  else
+    setSize(size);
+}
+
+void WFont::setSize(Size size)
 {
   size_ = size;
-  if(size_ == FixedSize) {
-    fixedSize_ = fixedSize;
-  } else {
-    fixedSize_ = WLength::Auto;
-  }
+  sizeLength_ = WLength::Auto;
   sizeChanged_ = true;
   if (widget_) widget_->repaint(RepaintPropertyAttribute);
+}
+
+void WFont::setSize(const WLength& size)
+{
+  size_ = FixedSize;
+  sizeLength_ = size;
+  sizeChanged_ = true;
+  if (widget_) widget_->repaint(RepaintPropertyAttribute);
+}
+
+WFont::Size WFont::size(double mediumSize) const
+{
+  if (size_ != FixedSize)
+    return size_;
+  else {
+    double pixels = sizeLength_.toPixels();
+
+    if (pixels == mediumSize)
+      return Medium;
+    else if (pixels > mediumSize) {
+      if (pixels < 1.2 * 1.19 * mediumSize)
+	return Large;
+      else if (pixels < 1.2 * 1.2 * 1.19 * mediumSize)
+	return XLarge;
+      else
+	return XXLarge;
+    } else {
+      if (pixels > mediumSize / 1.2 / 1.19)
+	return Small;
+      else if (pixels > mediumSize / 1.2 / 1.2 / 1.19)
+	return XSmall;
+      else
+	return XXSmall;
+    }
+  }
+}
+
+WLength WFont::fixedSize() const
+{
+  return sizeLength();
+}
+
+WLength WFont::sizeLength(double mediumSize) const
+{
+  switch (size_) {
+  case FixedSize:
+    return sizeLength_;
+  case XXSmall:
+    return WLength(mediumSize / 1.2 / 1.2 / 1.2);
+  case XSmall:
+    return WLength(mediumSize / 1.2 / 1.2);
+  case Small:
+    return WLength(mediumSize / 1.2);
+  case Medium:
+    return WLength(mediumSize);
+  case Large:
+    return WLength(mediumSize * 1.2);
+  case XLarge:
+    return WLength(mediumSize * 1.2 * 1.2);
+  case XXLarge:
+    return WLength(mediumSize * 1.2 * 1.2 * 1.2);    
+  case Smaller:
+    return WLength(1 / 1.2, WLength::FontEm);
+  case Larger:
+    return WLength(1.2, WLength::FontEm);
+  }
+
+  assert(false);
 }
 
 void WFont::updateDomElement(DomElement& element, bool fontall, bool all)
@@ -206,7 +302,7 @@ std::string WFont::cssSize(bool all) const
   case XXLarge: return "xx-large";
   case Smaller: return "smaller";
   case Larger: return "larger";
-  case FixedSize: return fixedSize_.cssText();
+  case FixedSize: return sizeLength_.cssText();
   }
 
   return std::string();

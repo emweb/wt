@@ -56,6 +56,9 @@ public:
   virtual void drawPath(const WPainterPath& path);
   virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 			const WString& text);
+  virtual WTextItem measureText(const WString& text, double maxWidth = -1,
+				bool wordWrap = false);
+  virtual WFontMetrics fontMetrics();
   virtual void init();
   virtual void done();
   virtual bool paintActive() const { return painter_ != 0; }

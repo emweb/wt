@@ -1144,7 +1144,7 @@ void WAbstractItemView::closeEditor(const WModelIndex& index, bool saveData)
   EditorMap::iterator i = editedItems_.find(index);
 
   if (i != editedItems_.end()) {
-    Editor& editor = i->second;
+    Editor editor = i->second;
 
     WModelIndex closed = index;
 #ifndef WT_TARGET_JAVA

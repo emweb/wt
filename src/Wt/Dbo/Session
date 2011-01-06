@@ -238,7 +238,7 @@ public:
    * A tuple may combine any kind of object that is supported as a result,
    * including database objects (see also ptr_tuple):
    * \code
-   * session.query< boost::tuple<ptr<A>, ptr<B> >("select A, B from table_a A, table_b B").where("...");
+   * session.query< boost::tuple<ptr<A>, ptr<B> > >("select A, B from table_a A, table_b B").where("...");
    * \endcode
    *
    * The \p BindStrategy specifies how you want to bind parameters to

@@ -6,6 +6,8 @@ SET(TEST_SOURCES
   utf8/Utf8Test.C
   utf8/XmlTest.C
   wdatetime/WDateTimeTest.C
+  length/WLengthTest.C
+  color/WColorTest.C
 )
 
 # HAVE_SQLITE does not work: why ?

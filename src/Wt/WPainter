@@ -124,7 +124,7 @@ class WRectF;
  *   }
  *
  * protected:
- *   void paintEvent(Wt::WPaintedWidget *paintDevice) {
+ *   void paintEvent(Wt::WPaintDevice *paintDevice) {
  *     Wt::WPainter painter(paintDevice);
  *     painter.drawLine(20, 20, foo_, foo_);
  *     ...

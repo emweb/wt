@@ -16,6 +16,7 @@
 struct _HPDF_Dict_Rec;
 struct _HPDF_Doc_Rec;
 typedef _HPDF_Dict_Rec *HPDF_Page;
+typedef _HPDF_Dict_Rec *HPDF_Font;
 typedef _HPDF_Doc_Rec *HPDF_Doc;
 typedef float HPDF_REAL;
 typedef long unsigned HPDF_STATUS;
@@ -98,6 +99,9 @@ public:
   virtual void drawPath(const WPainterPath& path);
   virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 			const WString& text);
+  virtual WTextItem measureText(const WString& text, double maxWidth = -1,
+				bool wordWrap = false);
+  virtual WFontMetrics fontMetrics();
   virtual void init();
   virtual void done();
   virtual bool paintActive() const { return painter_ != 0; }
@@ -121,6 +125,7 @@ private:
 
   HPDF_Doc pdf_;
   HPDF_Page page_;
+  HPDF_Font font_;
 
   bool myPdf_;
   double x_, y_;

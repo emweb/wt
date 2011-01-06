@@ -48,12 +48,26 @@ public:
    */
   WLength();
 
+  /*! \brief Creates a length by parsing the argument as a css length string.
+   *
+   * Only a combination of a value and a unit is supported.
+   * If the string is an illegal css length an exception is thrown.
+   */
+  WLength(const char* c);
+
   /*! \brief Creates a length with value and unit.
    *
    * This constructor will also provide the implicit conversion between
    * a double and WLength, using a pixel unit.
    */
   WLength(double value, Unit unit = Pixel);
+
+  /*! \brief Creates a length with value and unit.
+   *
+   * This constructor will also provide the implicit conversion between
+   * an int and WLength, using a pixel unit.
+   */
+  WLength(int value, Unit unit = Pixel);
 
   /*! \brief Returns whether the length is 'auto'.
    *
@@ -90,7 +104,7 @@ public:
    * When the length isAuto(), 0 is returned, otherwise the approximate
    * length in pixels.
    */
-  double toPixels() const;
+  double toPixels(double fontSize = 16.0) const;
   
 private:
   bool auto_;

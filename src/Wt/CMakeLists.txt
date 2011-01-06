@@ -1,4 +1,4 @@
-SUBDIRS(Chart Http Test)
+SUBDIRS(Chart Http Render Test)
 
 SUBDIRS(Dbo)
 

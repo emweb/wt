@@ -54,10 +54,13 @@ public:
    * The \p name may be any valid CSS color name, including names
    * colors such as "aqua", or colors defined as RGB components.
    *
-   * In either case, the result of the methods red(), green() and
-   * blue() is undefined.
+   * Only RGB components are parsed and will initialize
+   * the internal red, blue and green values to an appropriate value,
+   * other strings will initialize these values to -1.
    *
-   * See also http://www.w3.org/TR/REC-CSS2/syndata.html#value-def-color
+   * The alpha component is only parsed if the string is in the rgba() format.
+   *
+   * See also http://www.w3.org/TR/css3-color
    */
   WColor(const WString& name);
 
@@ -97,26 +100,32 @@ public:
   /*! \brief Returns the red component.
    *
    * Only available when the color was specified in terms of the RGB
-   * components using setRgb(int, int, int, int) or WColor(int, int,
-   * int, int).
+   * components using setRgb(int, int, int, int), WColor(int, int,
+   * int, int) or WColor(const WString& name) when the name was parsable .
+   *
+   * If not available this method throws a WtException.
    */
-  int red() const { return red_; }
+  int red() const;
 
   /*! \brief Returns the green component.
    *
    * Only available when the color was specified in terms of the RGB
-   * components using setRgb(int, int, int, int) or WColor(int, int,
-   * int, int).
+   * components using setRgb(int, int, int, int), WColor(int, int,
+   * int, int) or WColor(const WString& name) when the name was parsable.
+   *
+   * If not available this method throws a WtException.
    */
-  int green() const { return green_; }
+  int green() const;
 
   /*! \brief Returns the blue component.
    *
    * Only available when the color was specified in terms of the RGB
-   * components using setRgb(int, int, int, int) or WColor(int, int,
-   * int, int).
+   * components using setRgb(int, int, int, int), WColor(int, int,
+   * int, int) or WColor(const WString& name) when the name was parsable.
+   *
+   * If not available this method throws a WtException.
    */
-  int blue() const { return blue_; }
+  int blue() const;
 
   /*! \brief Returns the alpha component.
    *

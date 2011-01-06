@@ -13,9 +13,23 @@
 
 namespace Wt {
 
+class WFontMetrics;
 class WPainter;
 class WPainterPath;
 class WRectF;
+
+class WT_API WTextItem
+{
+public:
+  WTextItem(const WString& text, double width);
+
+  WString text() const { return text_; }
+  double width() const { return width_; }
+
+private:
+  WString text_;
+  double width_;
+};
 
 /*! \class WPaintDevice Wt/WPaintDevice Wt/WPaintDevice
  *  \brief The abstract base class for a paint device
@@ -130,6 +144,34 @@ public:
   virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 			const WString& text) = 0;
 
+  /*! \brief Measures rendered text size.
+   *
+   * Returns the bounding rect of the given text when rendered using the
+   * current font.
+   *
+   * If \p maxWidth != -1, then the text is truncated to fit in the
+   * width.
+   *
+   * If \p wordWrap = \c true then text is truncated only at word
+   * boundaries. Note that in this case the whitespace is included in the
+   * text but not accounted for by the returned width (since usually you
+   * will not render the whitespace at the end of a line).
+   *
+   * Throws a std::logic_error if the underlying device does not
+   * provide font metrics.
+   */
+  virtual WTextItem measureText(const WString& text, double maxWidth = -1,
+				bool wordWrap = false) = 0;
+
+  /*! \brief Returns font metrics.
+   *
+   * This returns font metrics for the current font.
+   *
+   * Throws a std::logic_error if the underlying device does not
+   * provide font metrics.
+   */
+  virtual WFontMetrics fontMetrics() = 0;
+
   /*! \brief Initializes the device for painting.
    *
    * This method is called when a WPainter starts painting.
@@ -175,4 +217,4 @@ W_DECLARE_OPERATORS_FOR_FLAGS(WPaintDevice::ChangeFlag)
 
 }
 
-#endif // WPAINTER_H_
+#endif // WPAINTDEVICE_H_

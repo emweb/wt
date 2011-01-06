@@ -31,14 +31,16 @@ const char *elementNames_[] =
 
     "option", "ul", "script", "select",
     "span", "table", "tbody", "thead",
-    "th", "td", "textarea",
+    "tfoot", "th", "td", "textarea",
 
     "tr", "p", "canvas",
     "map", "area",
 
     "object", "param",
 
-    "audio", "video", "source"
+    "audio", "video", "source",
+
+    "strong", "em"
   };
 
 bool defaultInline_[] =
@@ -52,17 +54,69 @@ bool defaultInline_[] =
 
     true, false, false, true,
     true, false, false, false,
-    false, false, true,
+    false, false, false, true,
 
     false, false, false,
     false, true,
 
     false, false,
 
-    false, false, false
+    false, false, false,
+
+    true, true
   };
 
-  static const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`";
+static std::string cssNames_[] =
+  { "position",
+    "z-index", "float", "clear",
+    "width", "height", "line-height",
+    "min-width", "min-height",
+    "max-width", "max-height",
+    "left", "right", "top", "bottom",
+    "vertical-align", "text-align",
+    "padding",
+    "padding-top", "padding-right",
+    "padding-bottom", "padding-left",
+    "margin-top", "margin-right",
+    "margin-bottom", "margin-left", "cursor",
+    "border-top", "border-right",
+    "border-bottom", "border-left",
+    "color", "overflow", "overflow", // overflox-x/y not well supported
+    "opacity",
+    "font-family", "font-style", "font-variant",
+    "font-weight", "font-size",
+    "background-color", "background-image", "background-repeat",
+    "background-attachment", "background-position",
+    "text-decoration", "white-space", "table-layout", "border-spacing",
+    "zoom", "visibility", "display"};
+
+static std::string cssCamelNames_[] =
+  { "cssText", "width", "position",
+    "zIndex", "cssFloat", "clear",
+    "width", "height", "lineHeight",
+    "minWidth", "minHeight",
+    "maxWidth", "maxHeight",
+    "left", "right", "top", "bottom",
+    "verticalAlign", "textAlign",
+    "padding",
+    "paddingTop", "paddingRight",
+    "paddingBottom", "paddingLeft",
+    "marginTop", "marginRight",
+    "marginBottom", "marginLeft",
+    "cursor", 	    
+    "borderTop", "borderRight",
+    "borderBottom", "borderLeft",
+    "color", "overflow", "overflow",
+    "opacity",
+    "fontFamily", "fontStyle", "fontVariant",
+    "fontWeight", "fontSize",
+    "backgroundColor", "backgroundImage", "backgroundRepeat",
+    "backgroundAttachment", "backgroundPosition",
+    "textDecoration", "whiteSpace", "tableLayout", "borderSpacing",
+    "zoom", "visibility", "display" };
+
+static const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`";
+
 }
 
 namespace Wt {
@@ -545,33 +599,10 @@ std::string DomElement::cssStyle() const
       styleProperty = &j->second;
     else if ((j->first >= PropertyStylePosition)
 	&& (j->first <= PropertyStyleDisplay)) {
-      static std::string cssNames[] =
-	{ "position",
-	  "z-index", "float", "clear",
-	  "width", "height", "line-height",
-	  "min-width", "min-height",
-	  "max-width", "max-height",
-	  "left", "right", "top", "bottom",
-	  "vertical-align", "text-align",
-	  "padding",
-	  "padding-right", "padding-left",
-	  "margin-top", "margin-right",
-	  "margin-bottom", "margin-left", "cursor",
-	  "border-top", "border-right",
-	  "border-bottom", "border-left",
-	  "color", "overflow", "overflow", // overflox-x/y not well supported
-	  "opacity",
-	  "font-family", "font-style", "font-variant",
-	  "font-weight", "font-size",
-	  "background-color", "background-image", "background-repeat",
-	  "background-attachment", "background-position",
-	  "text-decoration", "white-space", "table-layout", "border-spacing",
-	  "zoom", "visibility", "display"};
-
       if ((j->first == PropertyStyleCursor) && (j->second == "pointer")) {
 	style << "cursor:pointer;cursor:hand;";	    
       } else {
-	style << cssNames[j->first - PropertyStylePosition]
+	style << cssNames_[j->first - PropertyStylePosition]
 	      << ':' << j->second << ';';
       }
     } else if (j->first == PropertyStyleWidthExpression) {
@@ -1442,31 +1473,8 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
     default:
       if ((i->first >= PropertyStyle)
 	  && (i->first <= PropertyStyleDisplay)) {
-	static std::string cssCamelNames[] =
-	  { "cssText", "width", "position",
-	    "zIndex", "cssFloat", "clear",
-	    "width", "height", "lineHeight",
-	    "minWidth", "minHeight",
-	    "maxWidth", "maxHeight",
-	    "left", "right", "top", "bottom",
-	    "verticalAlign", "textAlign",
-	    "padding",
-	    "paddingRight", "paddingLeft",
-	    "marginTop", "marginRight",
-	    "marginBottom", "marginLeft",
-	    "cursor", 	    
-	    "borderTop", "borderRight",
-	    "borderBottom", "borderLeft",
-	    "color", "overflow", "overflow",
-	    "opacity",
-	    "fontFamily", "fontStyle", "fontVariant",
-	    "fontWeight", "fontSize",
-	    "backgroundColor", "backgroundImage", "backgroundRepeat",
-	    "backgroundAttachment", "backgroundPosition",
-	    "textDecoration", "whiteSpace", "tableLayout", "borderSpacing",
-	    "zoom", "visibility", "display" };
 	out << var_ << ".style."
-	    << cssCamelNames[i->first - PropertyStyle]
+	    << cssCamelNames_[i->first - PropertyStyle]
 	    << "='" << i->second << "';";
       }
     }
@@ -1495,7 +1503,12 @@ void DomElement::setJavaScriptAttributes(EscapeOStream& out) const
 
 bool DomElement::isDefaultInline() const
 {
-  return defaultInline_[type_];
+  return isDefaultInline(type_);
+}
+
+bool DomElement::isDefaultInline(DomElementType type)
+{
+  return defaultInline_[type];
 }
 
 bool DomElement::isSelfClosingTag(const std::string& tag)
@@ -1517,5 +1530,21 @@ bool DomElement::isSelfClosingTag(DomElementType element)
 	  || (element == DomElement_COL)
 	  || (element == DomElement_INPUT));
 }
+
+DomElementType DomElement::parseTagName(const std::string& tag)
+{
+  for (unsigned i = 0; i < DomElement_UNKNOWN; ++i)
+    if (elementNames_[i] == tag)
+      return (DomElementType)i;
+
+  return DomElement_UNKNOWN;
+}
+
+const std::string& DomElement::cssName(Property property)
+{
+  return cssNames_[property - PropertyStylePosition];
+}
+
+
 
 }

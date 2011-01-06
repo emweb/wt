@@ -31,6 +31,7 @@
 
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
+#include "Wt/WFontMetrics"
 #include "Wt/WLogger"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
@@ -552,6 +553,17 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 
   rendered_ << render.str();
 #endif
+}
+
+WTextItem WVmlImage::measureText(const WString& text, double maxWidth,
+				 bool wordWrap)
+{
+  throw std::logic_error("WVmlImage::measureText() not supported");
+}
+
+WFontMetrics WVmlImage::fontMetrics()
+{
+  throw std::logic_error("WVmlImage::fontMetrics() not (yet?) supported");
 }
 
 std::string WVmlImage::quote(const std::string& s)

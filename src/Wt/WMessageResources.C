@@ -24,31 +24,6 @@ using namespace Wt;
 using namespace rapidxml;
 
 namespace {
-  void encode_utf8(unsigned long code, char *&out)
-  {
-    if (code < 0x80) { // 1 byte sequence
-      out[0] = static_cast<unsigned char>(code);
-      out += 1;
-    } else if (code < 0x800) {  // 2 byte sequence
-      out[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-      out[0] = static_cast<unsigned char>(code | 0xC0);
-      out += 2;
-    } else if (code < 0x10000) { // 3 byte sequence
-      out[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-      out[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-      out[0] = static_cast<unsigned char>(code | 0xE0);
-      out += 3;
-    } else if (code < 0x110000) { // 4 byte sequence
-      out[3] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-      out[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-      out[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-      out[0] = static_cast<unsigned char>(code | 0xF0);
-      out += 4;
-    } else
-      // impossible since UTF16 is already checked ?
-      throw std::runtime_error("Invalid UTF-16 stream");
-  }
-
   void fixSelfClosingTags(xml_node<> *x_node)
   {
     for (xml_node<> *x_child = x_node->first_node(); x_child;
@@ -242,7 +217,7 @@ bool WMessageResources::readResourceStream(std::istream &s,
 	  unsigned long cp = 0x10000 + (((firstWord & 0x3FF) << 10)
 					| (ch & 0x3FF));
 
-	  encode_utf8(cp, out);
+	  rapidxml::xml_document<>::insert_coded_character<0>(out, cp);
 
 	  firstWord = 0;
 	} else if (ch >= 0xD800 && ch <= 0xDBFF) {
@@ -250,7 +225,7 @@ bool WMessageResources::readResourceStream(std::istream &s,
 	  firstWord = ch;
 	} else {
 	  // single-word
-	  encode_utf8(ch, out);
+	  rapidxml::xml_document<>::insert_coded_character<0>(out, ch);
 
 	  firstWord = 0;
 	}

@@ -1,0 +1,174 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef RENDER_WTEXT_RENDERER_H_
+#define RENDER_WTEXT_RENDERER_H_
+
+#include <Wt/WString>
+
+namespace Wt {
+
+  /*! \brief Namespace for the \ref render
+   */
+  namespace Render {
+
+/*! \defgroup render XHTML Rendering
+ *  \brief An XHTML rendering library implemented using the %Wt \ref painting
+ *
+ * The rendering library contains a (limited) XHTML layout engine.
+ */
+
+/*! \class WTextRenderer Wt/Render/WTextRenderer Wt/Render/WTextRenderer
+ *  \brief An XHTML renderering engine.
+ *
+ * This class implements a rendering engine for a (subset of)
+ * XHTML. Its intended use is to be able to accurately render the
+ * output of the WTextEdit widget (although it handles a more general
+ * subset of XHTML than is required to do just that). Its focus is on
+ * high-quality rendering of text-like contents.
+ *
+ * The following are the main features:
+ * - rendering of inline content, floats, tables, images, ordered lists,
+ *   unordered lists
+ * - limited support for fonts, font styles, font sizes and text decorations
+ * - support for text alignment options, padding, margins, borders, background
+ *   color (only on block elements) and text colors
+ * - supports automatic page breaks and font scaling
+ * - can be used in conjunction with other drawing instructions to the same
+ *   paint device.
+ *
+ * Some of the main limitations are:
+ * - there is no CSS style resolution other than inline style definitions:
+ *   the "class" attribute is ignored entirely.
+ * - only "display: inline" or "display: block" elements are supported.
+ *   "display: none" and "display: inline-block" are not (yet) recognized. 
+ * - only normal positioning is supported (absolute positioning and relative
+ *   positioning is not supported <i>yet</i>).
+ * - only colors defined in terms of RGB values are supported: CSS named colors
+ *   (e.g. 'blue') are not allowed.
+ *
+ * This class is an abstract class. A concrete class implements the
+ * pure virtual methods to create an appropriate WPaintDevice for each
+ * page and to provide page dimension information. The paint device
+ * needs to support font metrics, which currently is only implemented
+ * by WPdfImage.
+ *
+ * All coordinates and dimensions used by this class are pixel coordinates.
+ *
+ * \ingroup render
+ */
+class WTextRenderer 
+{
+public:
+  /*! \brief Destructor.
+   */
+  virtual ~WTextRenderer();
+
+  /*! \brief Renders an XHTML fragment.
+   *
+   * The text is rendered, starting at position \p y, and flowing down
+   * the page If necessary, new pages are created using \p startPage()
+   * to render more contents on a next page. The return value is the position
+   * at which rendering stopped on the last page on which was rendered.
+   *
+   * This \p y position and returned position are <i>text
+   * coordinates</i>, which differ from page coordinates in that they exclude
+   * margins.
+   *
+   * The function returns the end position. You may call this function
+   * multiple times.
+   *
+   * Each invocation to render() has the effect of resetting the
+   * logical page numbering used by pageWidth(), pageHeight() and
+   * startPage() so that the current page is page 0.
+   */
+  double render(const WString& text, double y = 0);
+
+  /*! \brief Returns the page text width.
+   *
+   * This returns the width of the page in which text needs to be rendered,
+   * excluding horizontal margins, in pixels.
+   *
+   * \sa textHeight()
+   */
+  double textWidth(int page) const;
+
+  /*! \brief Returns the page text height.
+   *
+   * This returns the height of the page in which text needs to be rendered,
+   * excluding vertical margins, in pixels.
+   *
+   * \sa textWidth()
+   */
+  double textHeight(int page) const;
+
+  /*! \brief Sets the scaling factor used for font rendering.
+   *
+   * A scaling can be set for text. The scaling factor has as effect
+   * that text font sizes are modified by the scale. Also CSS length
+   * units that are defined in terms of font units ("em" and "ex") are
+   * scaled accordingly.
+   *
+   * The default value is 1.
+   */
+  void setFontScale(double scale);
+
+  /*! \brief Returns the font scaling factor.
+   *
+   * \sa setFontScale().
+   */
+  double fontScale() const { return fontScale_; }
+
+  /*! \brief Returns the page width.
+   *
+   * Returns the total page width (in pixel units), including
+   * horizontal margins.
+   */
+  virtual double pageWidth(int page) const = 0;
+
+  /*! \brief Returns the page height.
+   *
+   * Returns the total page height (in pixel units), including
+   * vertical margins.
+   */
+  virtual double pageHeight(int page) const = 0;
+
+  /*! \brief Returns the margin.
+   *
+   * Returns the margin at given side (in pixel units).
+   */
+  virtual double margin(Side side) const = 0;
+
+  /*! \brief Returns a paint device to render a given page.
+   *
+   * The render() method calls this function once for each page it wants
+   * to render.
+   */
+  virtual WPaintDevice *startPage(int page) = 0;
+
+  /*! \brief Stops painting on the given page.
+   */
+  virtual void endPage(WPaintDevice *device) = 0;
+
+protected:
+ /*! \brief Constructor.
+  */
+  WTextRenderer();
+
+private:
+  WPainter *painter_;
+  WPaintDevice *device_;
+  double fontScale_;
+
+  WPainter *painter() const { return painter_; }
+
+  friend class Block;
+};
+
+  }
+}
+
+#endif // RENDER_WTEXT_RENDERER_H_

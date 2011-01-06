@@ -124,23 +124,46 @@ public:
 
   /*! \brief Returns the font weight.
    */
-  Weight weight() const { return weight_; }
+  Weight weight() const;
 
   /*! \brief Returns the font weight value.
    */
-  int weightValue() const { return weightValue_; }
+  int weightValue() const;
+
+  /*! \brief Sets the font size (<b>deprecated</b>)
+   *
+   * Use setSize(Size) or setSize(const WLength&) instead.
+   */
+  void setSize(Size size, const WLength& length);
 
   /*! \brief Sets the font size.
+   *
+   * Sets the font size using a predefined CSS size.
    */
-  void setSize(Size size, const WLength& fixedSize = WLength::Auto);
+  void setSize(Size size);
+
+  /*! \brief Sets the font size.
+   *
+   * Sets the font size.
+   */
+  void setSize(const WLength& size);
 
   /*! \brief Returns the font size.
    */
-  Size size() const { return size_; }
+  Size size(double mediumSize = 16) const;
 
-  /*! \brief Returns the fixed font size for \link WFont::FixedSize FixedSize \endlink.
+  /*! \brief Returns the font size as a numerical value (<b>deprecated</b>).
+   *
+   * \deprecated This method has been renamed to sizeLength()
    */
-  WLength fixedSize() const { return fixedSize_; }
+  WLength fixedSize() const;
+
+  /*! \brief Returns the font size as a numerical value.
+   *
+   * Absolute size enumerations are converted to a length assuming a
+   * Medium font size of 16 px.
+   */
+  WLength sizeLength(double mediumSize = 16) const;
 
   const std::string cssText(bool combined = true) const;
 
@@ -155,7 +178,7 @@ private:
   Weight        weight_;
   int           weightValue_;
   Size          size_;
-  WLength       fixedSize_;
+  WLength       sizeLength_;
 
   bool familyChanged_;
   bool styleChanged_;

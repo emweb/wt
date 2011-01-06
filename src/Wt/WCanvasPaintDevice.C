@@ -7,6 +7,7 @@
 #include "Wt/WApplication"
 #include "Wt/WCanvasPaintDevice"
 #include "Wt/WEnvironment"
+#include "Wt/WFontMetrics"
 #include "Wt/WPainter"
 #include "Wt/WPainterPath"
 #include "Wt/WRectF"
@@ -531,6 +532,17 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
       textElements_.push_back(e);
     }
   }
+}
+
+WTextItem WCanvasPaintDevice::measureText(const WString& text, double maxWidth,
+					  bool wordWrap)
+{
+  throw std::logic_error("WCanvasPaintDevice::measureText() not supported");
+}
+
+WFontMetrics WCanvasPaintDevice::fontMetrics()
+{
+  throw std::logic_error("WCanvasPaintDevice::fontMetrics() not (yet?) supported");
 }
 
 void WCanvasPaintDevice::setChanged(WFlags<ChangeFlag> flags)
