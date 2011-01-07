@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <cmath>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -24,6 +25,17 @@
 #undef max
 #endif
 using namespace Wt;
+
+namespace {
+
+  WLength nonNegative(const WLength& w) {
+    if (w.isAuto())
+      return w;
+    else
+      return WLength(std::fabs(w.value()), w.unit());
+  }
+
+}
 
 std::vector<WWidget *> WWebWidget::emptyWidgetList_;
 
@@ -351,7 +363,7 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
     width_ = new WLength();
 
   if (width_ && *width_ != width) {
-    *width_ = width;
+    *width_ = nonNegative(width);
     flags_.set(BIT_WIDTH_CHANGED);
   }
 
@@ -359,7 +371,7 @@ void WWebWidget::resize(const WLength& width, const WLength& height)
     height_ = new WLength();
 
   if (height_ && *height_ != height) {
-    *height_ = height;
+    *height_ = nonNegative(height);
     flags_.set(BIT_HEIGHT_CHANGED);
   }
 
@@ -383,8 +395,8 @@ void WWebWidget::setMinimumSize(const WLength& width, const WLength& height)
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
 
-  layoutImpl_->minimumWidth_ = width;
-  layoutImpl_->minimumHeight_ = height;
+  layoutImpl_->minimumWidth_ = nonNegative(width);
+  layoutImpl_->minimumHeight_ = nonNegative(height);
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
@@ -406,8 +418,8 @@ void WWebWidget::setMaximumSize(const WLength& width, const WLength& height)
   if (!layoutImpl_)
     layoutImpl_ = new LayoutImpl();
 
-  layoutImpl_->maximumWidth_ = width;
-  layoutImpl_->maximumHeight_ = height;
+  layoutImpl_->maximumWidth_ = nonNegative(width);
+  layoutImpl_->maximumHeight_ = nonNegative(height);
 
   flags_.set(BIT_GEOMETRY_CHANGED);
 
