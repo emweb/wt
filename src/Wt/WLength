@@ -62,12 +62,10 @@ public:
    */
   WLength(double value, Unit unit = Pixel);
 
-  /*! \brief Creates a length with value and unit.
-   *
-   * This constructor will also provide the implicit conversion between
-   * an int and WLength, using a pixel unit.
-   */
   WLength(int value, Unit unit = Pixel);
+  WLength(long value, Unit unit = Pixel);
+  WLength(unsigned int value, Unit unit = Pixel);
+  WLength(unsigned long value, Unit unit = Pixel);
 
   /*! \brief Returns whether the length is 'auto'.
    *

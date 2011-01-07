@@ -978,7 +978,6 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
 
       remainWidth = 0;
       for (unsigned i = 0; i < maximumColumnWidths.size(); ++i) {
-	if (maximumColumnWidths[i] > minimumColumnWidths[i]) {
 	  double w = factor * maximumColumnWidths[i];
 
 	  if (w > minimumColumnWidths[i]) {
@@ -989,7 +988,6 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
 	    maximumColumnWidths[i] = minimumColumnWidths[i];
 	    ww -= minimumColumnWidths[i];
 	  }
-	}
       }
 
       if (columnsResized == resizableColumns && remainWidth > 0)

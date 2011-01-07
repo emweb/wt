@@ -75,6 +75,24 @@ WLength::WLength(int value, Unit unit)
     value_((double)value)
 { }
 
+WLength::WLength(long value, Unit unit)
+  : auto_(false),
+    unit_(unit),
+    value_((double)value)
+{ }
+
+WLength::WLength(unsigned int value, Unit unit)
+  : auto_(false),
+    unit_(unit),
+    value_((double)value)
+{ }
+
+WLength::WLength(unsigned long value, Unit unit)
+  : auto_(false),
+    unit_(unit),
+    value_((double)value)
+{ }
+
 bool WLength::operator== (const WLength& other) const
 {
   return
