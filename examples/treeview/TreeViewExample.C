@@ -59,7 +59,7 @@ TreeViewExample::TreeViewExample(WStandardItemModel *model,
    */
   treeView_->setExpanded(model->index(0, 0), true);
   treeView_->setExpanded(model->index(0, 0, model->index(0, 0)), true);
-  
+
   /*
    * Setup some buttons to manipulate the view and the model.
    */
@@ -205,7 +205,9 @@ void TreeViewExample::toggleRoot()
 
 void TreeViewExample::addRows()
 {
-  for (int i = 0; i < 5; ++i) {
+  static int COUNT = 10;
+
+  for (int i = 0; i < COUNT; ++i) {
     std::string cityName = "City "
       + boost::lexical_cast<std::string>(belgium_->rowCount() + 1);
     
@@ -213,4 +215,7 @@ void TreeViewExample::addRows()
     belgium_->appendRow(cityItems(cityName, Storm, "Juice", useInternalPath,
 				  false));
   }
+
+  treeView_->scrollTo(belgium_->child(belgium_->rowCount() -COUNT )->index(),
+		      WAbstractItemView::PositionAtTop);
 }

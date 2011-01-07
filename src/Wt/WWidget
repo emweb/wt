@@ -801,6 +801,19 @@ public:
    */
   virtual void setSelectable(bool selectable) = 0;
 
+  /*! \brief Executes the given JavaScript statements, possibly delayed
+   *  until after the widget is rendered.
+   *
+   * Calling WApplication::doJavaScript() with JavaScript code that refers
+   * to a widget that is still to be rendered causes JavaScript errors. This
+   * happens for example when an object is created, but not yet inserted in
+   * the widget tree.
+   *
+   * This method offers an alternative: it queues up all doJavaScript calls
+   * for widgets that were not yet rendered until they are rendered.
+   */
+  virtual void doJavaScript(const std::string& js) = 0;
+
   /*! \brief Returns whether the widget is rendered.
    *
    * \sa jsRef()

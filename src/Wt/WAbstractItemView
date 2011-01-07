@@ -63,6 +63,17 @@ public:
     LeaveEditorsOpen = 0x8 //!< Editors can only be closed using closeEditor()
   };
 
+  /*! \brief Enumeration that specifies a scrolling option.
+   *
+   * \sa scrollTo()
+   */
+  enum ScrollHint {
+    EnsureVisible,         //!< Scrolls minimally to make it visible
+    PositionAtTop,         //!< Positions the item at the top of the viewport
+    PositionAtBottom,      //!< Positions the item at the bottom of the viewport
+    PositionAtCenter       //!< Positions the item at the center of the viewport
+  };
+
   virtual ~WAbstractItemView();
 
   /*! \brief Sets the model.
@@ -507,6 +518,15 @@ public:
    * \sa createPageNavigationBar(), pageChanged()
    */
   virtual void setCurrentPage(int page) = 0;
+
+  /*! \brief Scrolls the view to an item.
+   *
+   * Scrolls the view to ensure that the item which represents the
+   * provided \p index is visible. A \p hint may indicate how the item
+   * should appear in the viewport (if possible).
+   */
+  virtual void scrollTo(const WModelIndex& index,
+			ScrollHint hint = EnsureVisible) = 0;
 
   /*! \brief Configures what actions should trigger editing.
    *

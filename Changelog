@@ -1,4 +1,7 @@
-06-01-2010:
+07-01-2011:
+	* Wt/WAbstractItemView: implement scrollTo()
+
+06-01-2011:
 	* Render/WTextRenderer, Render/WPdfRenderer: XHtml-to-(PDF) renderer.
 
 	* Wt/WFontMetrics: font metrics info

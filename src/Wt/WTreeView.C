@@ -42,8 +42,9 @@
 #ifndef DOXYGEN_ONLY
 
 // Widest scrollbar found ? My Gnome Firefox has this
-#define SCROLLBAR_WIDTH_TEXT "22"
-#define SCROLLBAR_WIDTH      22
+#define SCROLLBAR_WIDTH_TEXT   "22"
+#define SCROLLBAR_WIDTH         22
+#define UNKNOWN_VIEWPORT_HEIGHT 30
 
 namespace Wt {
 
@@ -907,7 +908,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
     collapsed_(this),
     expanded_(this),
     viewportTop_(0),
-    viewportHeight_(30),
+    viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
     nodeLoad_(0),
     headerContainer_(0),
     contentsContainer_(0),
@@ -1399,7 +1400,7 @@ void WTreeView::resize(const WLength& width, const WLength& height)
 	(std::ceil(height.toPixels() / rowHeight().toPixels()));
   } else {
     if (app->environment().ajax())
-      viewportHeight_ = 30;
+      viewportHeight_ = UNKNOWN_VIEWPORT_HEIGHT;
 
     scheduleRerender(NeedAdjustViewPort);
   }
@@ -2795,6 +2796,49 @@ int WTreeView::pageCount() const
 int WTreeView::pageSize() const
 {
   return viewportHeight_;
+}
+
+void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
+{
+  int row = getIndexRow(index, rootIndex(), 0,
+			std::numeric_limits<int>::max()) + 1;
+
+  WApplication *app = WApplication::instance();
+
+  if (app->environment().ajax()) {
+    if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
+      if (hint == EnsureVisible) {
+	if (viewportTop_ + viewportHeight_ < row)
+	  hint = PositionAtTop;
+	else if (row < viewportTop_)
+	  hint = PositionAtBottom;
+      }
+
+      switch (hint) {
+      case PositionAtTop:
+	viewportTop_ = row; break;
+      case PositionAtBottom:
+	viewportTop_ = row - viewportHeight_ + 1; break;
+      case PositionAtCenter:
+	viewportTop_ = row - viewportHeight_/2 + 1; break;
+      default:
+	break;
+      }
+
+      if (hint != EnsureVisible) {
+	scheduleRerender(NeedAdjustViewPort);
+      }
+    }
+
+    SStream s;
+
+    s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
+      << row << "," << static_cast<int>(rowHeight().toPixels())
+      << "," << hint << ");";
+
+    doJavaScript(s.str());
+  } else
+    setCurrentPage(row / pageSize());
 }
 
 }

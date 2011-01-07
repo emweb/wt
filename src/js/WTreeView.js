@@ -17,6 +17,11 @@ WT_DECLARE_WT_MEMBER
    var self = this;
    var WT = APP.WT;
 
+   /** @const */ var EnsureVisible = 0;
+   /** @const */ var PositionAtTop = 1;
+   /** @const */ var PositionAtBottom = 2;
+   /** @const */ var PositionAtCenter = 3;
+
    function getItem(event) {
      var columnId = -1, nodeId = null, selected = false,
          drop = false, ele = null;
@@ -277,6 +282,31 @@ WT_DECLARE_WT_MEMBER
 	self.adjustColumns();
     }
   };
+
+  this.scrollTo = function(x, y, rowHeight, hint) {
+     if (y != -1) {
+       y *= rowHeight;
+       var top = contentsContainer.scrollTop,
+	   height = contentsContainer.clientHeight;
+       if (hint == EnsureVisible) {
+	 if (top + height < y)
+	   hint = PositionAtTop;
+	 else if (y < top)
+	   hint = PositionAtBottom;
+       }
+
+       switch (hint) {
+       case PositionAtTop:
+         contentsContainer.scrollTop = y; break;
+       case PositionAtBottom:
+         contentsContainer.scrollTop = y - (height - rowHeight); break;
+       case PositionAtCenter:
+         contentsContainer.scrollTop = y - (height - rowHeight)/2; break;
+       }
+
+       contentsContainer.onscroll({object: contentsContainer});
+     }
+  } 
 
   self.adjustColumns();
 

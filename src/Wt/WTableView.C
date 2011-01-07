@@ -27,11 +27,10 @@
 #include "js/WTableView.min.js"
 #endif
 
+#define UNKNOWN_VIEWPORT_HEIGHT 600
+
 #include <iostream>
 #include <math.h>
-
-// TODO:
-//  - call updateModelIndex when shifting indexes
 
 namespace Wt {
 
@@ -49,7 +48,7 @@ WTableView::WTableView(WContainerWidget *parent)
     viewportLeft_(0),
     viewportWidth_(1000),
     viewportTop_(0),
-    viewportHeight_(600)
+    viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT)
 { 
   setSelectable(false);
 
@@ -1453,7 +1452,7 @@ void WTableView::onDropEvent(int renderedRow, int columnId,
 	       event);
 
   WModelIndex index = model()->index(firstRow() + renderedRow,
-				    columnById(columnId), rootIndex());
+				     columnById(columnId), rootIndex());
 
   dropEvent(e, index);
 }
@@ -1494,6 +1493,50 @@ int WTableView::pageSize() const
     return static_cast<int>
       ((height().toPixels() - headerHeight().toPixels() - navigationBarHeight)
        / rowHeight().toPixels());
+  }
+}
+
+void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
+{
+  if (index.parent() == rootIndex()) {
+    if (ajaxMode()) {
+      int rh = static_cast<int>(rowHeight().toPixels());
+      int rowY = index.row() * rh;
+
+      if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
+	if (hint == EnsureVisible) {
+	  if (viewportTop_ + viewportHeight_ < rowY)
+	    hint = PositionAtTop;
+	  else if (rowY < viewportTop_)
+	   hint = PositionAtBottom;
+	}
+
+	switch (hint) {
+	case PositionAtTop:
+	  viewportTop_ = rowY; break;
+	case PositionAtBottom:
+	  viewportTop_ = rowY - viewportHeight_ + rh; break;
+	case PositionAtCenter:
+	  viewportTop_ = rowY - (viewportHeight_ - rh)/2; break;
+	default:
+	  break;
+	}
+
+	if (hint != EnsureVisible) {
+	  computeRenderedArea();
+
+	  scheduleRerender(NeedAdjustViewPort);
+	}
+      }
+
+      SStream s;
+
+      s << "jQuery.data(" << jsRef() << ", 'obj').scrollTo(-1, "
+	<< rowY << "," << hint << ");";
+
+      doJavaScript(s.str());
+    } else
+      setCurrentPage(index.row() / pageSize());
   }
 }
 

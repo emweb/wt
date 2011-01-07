@@ -1581,9 +1581,9 @@ function encodeEvent(event, i) {
   }
 
   var t = WT.target(e);
-  while (!t.id && t.parentNode)
+  while (t && !t.id && t.parentNode)
     t = t.parentNode;
-  if (t.id)
+  if (t && t.id)
     result += se + 'tid=' + t.id;
 
   try {

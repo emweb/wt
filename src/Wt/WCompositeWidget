@@ -132,6 +132,7 @@ public:
   virtual void setId(const std::string& id);
   virtual WWidget *find(const std::string& name);
   virtual void setSelectable(bool selectable);  
+  virtual void doJavaScript(const std::string& js);
 
   virtual void propagateSetEnabled(bool enabled);
 

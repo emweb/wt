@@ -14,6 +14,11 @@ WT_DECLARE_WT_MEMBER
    var self = this;
    var WT = APP.WT;
 
+   /** @const */ var EnsureVisible = 0;
+   /** @const */ var PositionAtTop = 1;
+   /** @const */ var PositionAtBottom = 2;
+   /** @const */ var PositionAtCenter = 3;
+
    var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
 
    contentsContainer.onscroll = function() {
@@ -54,6 +59,10 @@ WT_DECLARE_WT_MEMBER
      return { columnId: columnId, rowIdx: rowIdx, selected: selected,
 	      drop: drop, el: ele };
    };
+
+   function rowHeight() {
+     return WT.pxself(contentsContainer.firstChild, "lineHeight");
+   }
 
    function indexOf(child) {
      var i, il, plist = child.parentNode.childNodes;
@@ -116,6 +125,30 @@ WT_DECLARE_WT_MEMBER
      scrollY1 = Y1;
      scrollY2 = Y2;
    };
+
+   this.scrollTo = function(x, y, hint) {
+     if (y != -1) {
+       var top = contentsContainer.scrollTop,
+	   height = contentsContainer.clientHeight;
+       if (hint == EnsureVisible) {
+	 if (top + height < y)
+	   hint = PositionAtTop;
+	 else if (y < top)
+	   hint = PositionAtBottom;
+       }
+
+       switch (hint) {
+       case PositionAtTop:
+         contentsContainer.scrollTop = y; break;
+       case PositionAtBottom:
+         contentsContainer.scrollTop = y - (height - rowHeight()); break;
+       case PositionAtCenter:
+         contentsContainer.scrollTop = y - (height - rowHeight())/2; break;
+       }
+
+       contentsContainer.onscroll();
+     }
+   }
 
    var dropEl = null;
 

@@ -471,6 +471,11 @@ void WCompositeWidget::render(WFlags<RenderFlag> flags)
   renderOk();
 }
 
+void WCompositeWidget::doJavaScript(const std::string& js)
+{
+  impl_->doJavaScript(js);
+}
+
 int WCompositeWidget::boxPadding(Orientation orientation) const
 {
   return impl_->boxPadding(orientation);

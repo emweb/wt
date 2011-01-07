@@ -93,6 +93,9 @@ public:
   virtual int currentPage() const;
   virtual void setCurrentPage(int page);
 
+  virtual void scrollTo(const WModelIndex& index,
+			ScrollHint hint = EnsureVisible);
+
 private:
   class ColumnWidget : public WContainerWidget
   {

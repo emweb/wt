@@ -155,6 +155,7 @@ public:
   virtual void setId(const std::string& id);
   virtual WWidget *find(const std::string& name);
   virtual void setSelectable(bool selectable);
+  virtual void doJavaScript(const std::string& javascript);
   virtual const std::string id() const;
 
   virtual DomElement *createDomElement(WApplication *app);
@@ -255,19 +256,6 @@ protected:
   void doLoad(WWidget *w);
 
   virtual void render(WFlags<RenderFlag> flags);
-
-  /*! \brief Executes the given JavaScript statements, possibly delayed
-   *  until after the widget is rendered.
-   *
-   * Calling WApplication::doJavaScript() with JavaScript code that refers
-   * to a widget that is still to be rendered causes JavaScript errors. This
-   * happens for example when an object is created, but not yet inserted in
-   * the widget tree.
-   *
-   * This method offers an alternative: it queues up all doJavaScript calls
-   * for widgets that were not yet rendered until they are rendered.
-   */
-  void doJavaScript(const std::string& javascript);
 
 private:
   /*
