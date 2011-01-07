@@ -58,6 +58,7 @@ bool sql_value_traits<long long>::read(long long& v,
 {
   return statement->getResult(column, &v);
 }
+
 const char *sql_value_traits<int>::type(SqlConnection *conn, int size)
 {
   return "integer not null";
@@ -91,6 +92,28 @@ bool sql_value_traits<short>::read(short& v, SqlStatement *statement,
 				   int column, int size)
 {
   return statement->getResult(column, &v);
+}
+
+const char *sql_value_traits<bool>::type(SqlConnection *conn, int size)
+{
+  return "boolean not null";
+}
+
+void sql_value_traits<bool>::bind(bool v, SqlStatement *statement, int column,
+				  int size)
+{
+  statement->bind(column, v ? 1 : 0);
+}
+
+bool sql_value_traits<bool>::read(bool& v, SqlStatement *statement, int column,
+				  int size)
+{
+  int intValue;
+  bool result = statement->getResult(column, &intValue);
+  if (result)
+    v = intValue ? true : false;
+
+  return result;
 }
 
 const char *sql_value_traits<float>::type(SqlConnection *conn, int size)

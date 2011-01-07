@@ -300,7 +300,21 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = boost::lexical_cast<int>(PQgetvalue(result_, row_, column));
+    const char *v = PQgetvalue(result_, row_, column);
+
+    try {
+      *value = boost::lexical_cast<int>(v);
+    } catch (boost::bad_lexical_cast) {
+      /*
+       * This is for bools, which we map to int values
+       */
+      if (strcmp(v, "f") == 0)
+	return 0;
+      else if (strcmp(v, "t") == 0)
+	return 1;
+      else
+	throw;
+    }
 
     DEBUG(std::cerr << this 
 	  << " result int " << column << " " << *value << std::endl);

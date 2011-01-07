@@ -1,6 +1,8 @@
 07-01-2011:
 	* Wt/WAbstractItemView: implement scrollTo()
 
+	* Wt/Dbo: support for bool types
+
 06-01-2011:
 	* Render/WTextRenderer, Render/WPdfRenderer: XHtml-to-(PDF) renderer.
 

@@ -32,8 +32,9 @@ class SqlStatement;
  *  - short, int, long, long long
  *  - float, double
  *  - enum types
+ *  - bool
  *  - std::vector<unsigned char> (binary data)
- *  - boost::optional<T>: to make the type optionally <tt>null</tt>
+ *  - boost::optional<T>: to make the type optional (allow <tt>null</tt>)
  *
  * In <Wt/Dbo/WtSqlTraits>, traits classes are also provided for:
  *  - WDate

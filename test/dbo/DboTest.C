@@ -103,6 +103,7 @@ public:
   Wt::WDateTime datetime;
   Wt::WString wstring;
   std::string string;
+  bool checked;
   int i;
   float f;
   double d;
@@ -121,9 +122,10 @@ public:
       && wstring == other.wstring
       && string == other.string
       && i == other.i
-      && b == other.b
+      && checked == other.checked
       && f == other.f
       && d == other.d
+      && b == other.b
       && dthing == other.dthing
       && parent == other.parent;
   }
@@ -140,6 +142,7 @@ public:
     dbo::field(a, wstring, "wstring");
     dbo::field(a, string, "string", 50);
     dbo::field(a, i, "i");
+    dbo::field(a, checked, "checked");
     dbo::field(a, f, "f");
     dbo::field(a, d, "d");
 
@@ -292,6 +295,7 @@ void DboTest::test1()
     a1.time = Wt::WTime(13, 14, 15, 102);
     a1.wstring = "Hello";
     a1.string = "There";
+    a1.checked = true;
     a1.i = 42;
     a1.f = (float)42.42;
     a1.d = 42.424242;
@@ -372,6 +376,7 @@ void DboTest::test2()
     a1.time = Wt::WTime(12, 13, 14, 123);
     a1.wstring = "Hello";
     a1.string = "There";
+    a1.checked = false;
     a1.i = 42;
     a1.f = (float)42.42;
     a1.d = 42.424242;
