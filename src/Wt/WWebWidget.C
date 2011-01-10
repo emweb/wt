@@ -1795,9 +1795,8 @@ void WWebWidget::load()
 {
   flags_.set(BIT_LOADED);
 
-  if (children_)
-    for (unsigned i = 0; i < children_->size(); ++i)
-      doLoad((*children_)[i]);
+  for (unsigned i = 0; children_ && i < children_->size(); ++i)
+    doLoad((*children_)[i]);
 
   if (flags_.test(BIT_HIDE_WITH_OFFSETS))
     parent()->setHideWithOffsets(true);
