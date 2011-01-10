@@ -203,13 +203,16 @@ void WTree::nodeRemoved(WTreeNode *node)
 void WTree::nodeAdded(WTreeNode * const node)
 {
   if (node->isSelectable()) {
-    WInteractWidget *w = node->label();
-    if (!w)
-      w = node->labelArea();
+    WInteractWidget *w;
 
-    node->clickedConnection_ = node->impl()->clicked().connect
+    if (WApplication::instance()->environment().ajax())
+      w = node->impl();
+    else
+      w = node->label();
+
+    node->clickedConnection_ = w->clicked().connect
       (boost::bind(&WTree::onClick, this, node, ::_1));
-    node->impl()->clicked().preventPropagation();
+    w->clicked().preventPropagation();
 
     for (unsigned i = 0; i < node->childNodes().size(); ++i)
       nodeAdded(node->childNodes()[i]);
