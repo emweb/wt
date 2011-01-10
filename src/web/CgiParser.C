@@ -179,7 +179,7 @@ CgiParser::CgiParser(::int64_t maxPostData)
   : maxPostData_(maxPostData)
 { }
 
-void CgiParser::parse(WebRequest& request, bool readBody)
+void CgiParser::parse(WebRequest& request, ReadOption readOption)
 {
   request_ = &request;
 
@@ -193,7 +193,7 @@ void CgiParser::parse(WebRequest& request, bool readBody)
 
   // XDomainRequest cannot set a contentType header, we therefore pass it
   // as a request parameter
-  if (readBody && meth == "POST"
+  if (readOption != ReadHeadersOnly && meth == "POST"
       && (type.find("application/x-www-form-urlencoded") == 0
 	  || queryString.find("&contentType=x-www-form-urlencoded")
 	  != std::string::npos)) {
@@ -215,7 +215,8 @@ void CgiParser::parse(WebRequest& request, bool readBody)
     delete[] buf;
   }
 
-  // std::cerr << "queryString (len=" << len << "): " << queryString << std::endl;
+  // std::cerr << "queryString (len=" << len << "): "
+  //           << queryString << std::endl;
 
   if (!queryString.empty()) {
     typedef boost::tokenizer<boost::char_separator<char> > amp_tok;
@@ -254,13 +255,22 @@ void CgiParser::parse(WebRequest& request, bool readBody)
     }
   }
 
-  if (readBody && type.find("multipart/form-data") == 0) {
+  if (readOption != ReadHeadersOnly && type.find("multipart/form-data") == 0) {
     if (meth != "POST") {
       throw WtException("Invalid method for multipart/form-data: " + meth);
     }
 
     if (!request.postDataExceeded_)
       readMultipartData(request, type, len);
+    else if (readOption == ReadBodyAnyway) {      
+      for (;len > 0;) {
+	::int64_t toRead = std::min(::int64_t(BUFSIZE), len);
+	request.in().read(buf_, toRead);
+	if (request.in().gcount() != (int)toRead)
+	  throw WtException("CgiParser: short read");
+	len -= toRead;
+      }
+    }
   }
 }
 

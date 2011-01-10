@@ -140,12 +140,23 @@ void WFileUpload::create()
     fileUploadTarget_ = 0;
 
   setFormObject(!fileUploadTarget_);
+
+  uploaded().connect(this, &WFileUpload::onUploaded);
+  fileTooLarge().connect(this, &WFileUpload::onUploaded);
 }
 
 WFileUpload::~WFileUpload()
 {
   if (uploading_)
     WApplication::instance()->enableUpdates(false);
+}
+
+void WFileUpload::onUploaded()
+{
+  if (uploading_) {
+    WApplication::instance()->enableUpdates(false);
+    uploading_ = false;
+  }
 }
 
 void WFileUpload::onData(::uint64_t current, ::uint64_t total)
@@ -171,12 +182,6 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
 
     WApplication *app = WApplication::instance();
     app->triggerUpdate();
-  }
-
-  if (current == total) {
-    WApplication *app = WApplication::instance();
-    uploading_ = false;
-    app->enableUpdates(false);
   }
 }
 

@@ -26,6 +26,8 @@ class WebRequest;
 class CgiParser
 {
 public:
+  enum ReadOption { ReadDefault, ReadHeadersOnly, ReadBodyAnyway };
+
   static void init();
 
   CgiParser(::int64_t maxPostData);
@@ -35,7 +37,7 @@ public:
    * creates Entry for each parameter entry. The request is annotated
    * with the parse results.
    */
-  void parse(WebRequest& request, bool readBody = true);
+  void parse(WebRequest& request, ReadOption option);
 
 private:
   void readMultipartData(WebRequest& request, const std::string type,

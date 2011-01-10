@@ -159,6 +159,10 @@ public:
    *
    * The default value is -1 (not specified).
    *
+   * The series column is reset to -1 when the model is set (or
+   * changed). Thus you need to set a model before configuring the
+   * series.
+   *
    * \sa XSeriesColumn()
    */
   void setXSeriesColumn(int modelColumn);
@@ -178,6 +182,10 @@ public:
    * A single chart may display one or more data series. Each data series
    * displays data from a single model column in the chart. Series are
    * plotted in the order that they have been added to the chart.
+   *
+   * The series column is reset to -1 when the model is set (or
+   * changed). Thus you need to set a model before configuring the
+   * series.
    *
    * \sa removeSeries(int), setSeries(const std::vector<WDataSeries>&)
    */

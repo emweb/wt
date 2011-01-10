@@ -403,7 +403,7 @@ bool WebController::requestDataReceived(WebRequest *request,
     CgiParser cgi(conf_.maxRequestSize());
 
     try {
-      cgi.parse(*request, false);
+      cgi.parse(*request, CgiParser::ReadHeadersOnly);
     } catch (std::exception& e) {
       conf_.log("error") << "Could not parse request: " << e.what();
       return false;
@@ -492,7 +492,8 @@ void WebController::handleAsyncRequest(WebRequest *request)
   CgiParser cgi(conf_.maxRequestSize());
 
   try {
-    cgi.parse(*request);
+    cgi.parse(*request, conf_.serverType() == Configuration::FcgiServer 
+	      ? CgiParser::ReadBodyAnyway : CgiParser::ReadDefault);
   } catch (std::exception& e) {
     conf_.log("error") << "Could not parse request: " << e.what();
 

@@ -1196,7 +1196,7 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
     if (!closing) {
       CgiParser cgi(lock->controller_->configuration().maxRequestSize());
       try {
-	cgi.parse(*message);
+	cgi.parse(*message, CgiParser::ReadDefault);
       } catch (std::exception& e) {
 	std::cerr << "Could not parse request: " << e.what();
 

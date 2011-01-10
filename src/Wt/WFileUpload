@@ -335,8 +335,9 @@ protected:
 				       WApplication *app);
 
 private:
-  EventSignal<>&         fileTooLargeImpl();
-  void                   handleFileTooLargeImpl();
+  EventSignal<>& fileTooLargeImpl();
+  void handleFileTooLargeImpl();
+  void onUploaded();
   int                    tooLargeSize_;
 
   virtual void setFormData(const FormData& formData);
