@@ -186,6 +186,13 @@ public:
    * Users users = session.find<User>().orderBy("name");
    * \endcode
    *
+   * In the \p condition, parameters can be bound using '?' as a
+   * positional placeholder: each occurence of '?' (as a lexical
+   * token) is replaced by a bound parameter. This is actually done by
+   * most of the backends themselves using prepared statements and
+   * parameter binding. Parameter binding is possible for all types
+   * for which sql_value_traits is specialized.
+   *
    * \sa query()
    */
 #ifdef DOXYGEN_ONLY
@@ -258,6 +265,18 @@ public:
    *
    * This method uses query_result_traits to unmarshal the query result
    * into the \p Result type.
+   *
+   * In the \p sql query, parameters can be bound using '?' as the
+   * positional placeholder: each occurence of '?' (as a lexical
+   * token) is replaced by a bound parameter. This is actually done by
+   * most of the backends themselves using prepared statements and
+   * parameter binding. Parameter binding is possible for all types
+   * for which sql_value_traits is specialized.
+   *
+   * \note The query must be a ASCII-7 string: UTF-8 is not supported by
+   * the underlying query parser. To add a non-English string to the query
+   * use parameter binding instead (which prevents against SQL injection
+   * attacks at the same time) instead of string concatenation.
    */
 #ifdef DOXYGEN_ONLY
   template <class Result, typename BindStrategy = DynamicBinding>
