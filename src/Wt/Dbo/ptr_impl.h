@@ -235,8 +235,10 @@ template <class C>
 void ptr<C>::reset(C *obj)
 {
   freeObj();
-  obj_ = new MetaDbo<C>(obj);
-  takeObj();
+  if (obj) {
+    obj_ = new MetaDbo<C>(obj);
+    takeObj();
+  }
 }
 
 template <class C>
