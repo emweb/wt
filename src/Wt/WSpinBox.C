@@ -120,6 +120,7 @@ void WSpinBox::updateValidator()
   else {
     WDoubleValidator *dv = dynamic_cast<WDoubleValidator *>(v);
     dv->setRange(min_, max_);
+    validate();
   }
 }
 
