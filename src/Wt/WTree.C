@@ -103,6 +103,8 @@ namespace Wt {
      }
 
     protected:
+      virtual WTree *tree() const { return tree_; }
+
       virtual void descendantRemoved(WTreeNode *node)
       {
 	tree_->nodeRemoved(node);

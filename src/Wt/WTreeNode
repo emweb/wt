@@ -124,6 +124,12 @@ public:
    */
   ~WTreeNode();
 
+  /*! \brief Returns the tree.
+   *
+   * By default if this node has no parent the result will be 0.
+   */
+  virtual WTree *tree() const;
+
   /*! \brief Returns the label.
    */
   WText *label() const { return labelText_; }

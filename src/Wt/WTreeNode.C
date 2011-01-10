@@ -104,6 +104,11 @@ WTreeNode::~WTreeNode()
   delete expandIcon_;
 }
 
+WTree *WTreeNode::tree() const
+{
+  return parentNode_ ? parentNode_->tree() : 0;
+}
+
 void WTreeNode::populate()
 { }
 
