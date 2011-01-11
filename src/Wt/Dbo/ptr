@@ -546,9 +546,16 @@ public:
   /*! \brief Comparison operator.
    *
    * Two pointers are equal if and only if they reference the same
-   * databse object.
+   * database object.
    */
   bool operator== (const ptr<C>& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * Two pointers are equal if and only if they reference the same
+   * database object.
+   */
+  bool operator!= (const ptr<C>& other) const;
 
   /*! \brief Comparison operator.
    *

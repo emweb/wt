@@ -288,6 +288,12 @@ bool ptr<C>::operator== (const ptr<C>& other) const
 }
 
 template <class C>
+bool ptr<C>::operator!= (const ptr<C>& other) const
+{
+  return !(*this == other);
+}
+
+template <class C>
 bool ptr<C>::operator< (const ptr<C>& other) const
 {
   return obj_ < other.obj_;
