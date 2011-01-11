@@ -318,11 +318,22 @@ public:
    */
   WStandardItem *takeItem(int row, int column = 0);
 
+  /*! \brief Sets header flags.
+   *
+   * By default, no flags are set.
+   */
+  void setHeaderFlags(int section, Orientation orientation,
+		      WFlags<HeaderFlag> flags);
+
+
 #ifndef DOXYGEN_ONLY
   using WAbstractItemModel::setData;
   using WAbstractItemModel::data;
   using WAbstractItemModel::setHeaderData;
 
+  virtual WFlags<HeaderFlag> headerFlags(int section,
+					 Orientation orientation = Horizontal)
+    const;
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const;
 
   virtual WModelIndex parent(const WModelIndex& index) const;
@@ -396,6 +407,7 @@ private:
   int sortRole_;
 
   std::vector<HeaderData> columnHeaderData_, rowHeaderData_;
+  std::vector<WFlags<HeaderFlag> > columnHeaderFlags_, rowHeaderFlags_;
   WStandardItem *invisibleRootItem_, *itemPrototype_;
 
   Signal<WStandardItem *> itemChanged_;
@@ -403,8 +415,10 @@ private:
   void init();
   WStandardItem *itemFromIndex(const WModelIndex& index, bool lazyCreate) const;
   void insertHeaderData(std::vector<HeaderData>& headerData,
+			std::vector<WFlags<HeaderFlag> >& fl,
 			WStandardItem *item, int index,	int count);
   void removeHeaderData(std::vector<HeaderData>& headerData,
+			std::vector<WFlags<HeaderFlag> >& fl,
 			WStandardItem *item, int index, int count);
 
   friend class WStandardItem;

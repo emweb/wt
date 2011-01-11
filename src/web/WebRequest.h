@@ -136,10 +136,8 @@ public:
     return false;
   }
 
-  bool isWebSocketRequest() const {
-    std::string s = urlScheme();
-    return s == "ws" || s == "wss";
-  }
+  bool isWebSocketRequest() const { return webSocketRequest_; }
+  void setWebSocketRequest(bool ws) { webSocketRequest_ = ws; }
 
   /*
    * Accesses to cgi environment variables and headers -- rfc2616 name 
@@ -198,6 +196,7 @@ private:
   Http::ParameterMap    parameters_;
   Http::UploadedFileMap files_;
   ResponseType          responseType_;
+  bool                  webSocketRequest_;
 
   static Http::ParameterValues emptyValues_;
 

@@ -614,6 +614,14 @@
 .Wt-tableview .Wt-header .Wt-label {
     font-weight: bold;
     text-overflow: ellipsis;
+}
+
+.Wt-tableview .Wt-multiline div.Wt-label {
+    white-space: normal;
+}
+
+.Wt-tableview .Wt-singleline div.Wt-label {
+    white-space: nowrap;
     overflow: hidden;
 }
 
@@ -688,8 +696,16 @@
 }
 
 .Wt-treeview .Wt-header .Wt-label {
-    white-space: normal;
+    font-weight: bold;
     text-overflow: ellipsis;
+}
+
+.Wt-treeview .Wt-multiline div.Wt-label {
+    white-space: normal;
+}
+
+.Wt-treeview .Wt-singleline div.Wt-label {
+    white-space: nowrap;
     overflow: hidden;
 }
 

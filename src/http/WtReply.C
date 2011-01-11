@@ -156,6 +156,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	if (state == Request::Complete) {
 	  HTTPRequest *r = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
 					   (shared_from_this()), &entryPoint_);
+	  r->setWebSocketRequest(true);
 
 	  connection()->server()->controller()->server_->handleRequest(r);
 	} else {

@@ -146,7 +146,6 @@ private:
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   void modelDataChanged(const WModelIndex& topLeft,
 			const WModelIndex& bottomRight);
-  void modelHeaderDataChanged(Orientation orientation, int start, int end);
 
   virtual void modelLayoutChanged();
 

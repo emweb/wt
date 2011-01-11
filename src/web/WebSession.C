@@ -849,7 +849,7 @@ void WebSession::handleRequest(Handler& handler)
     } else
       if (request.isWebSocketRequest()) {
 	/*
-	 * We are already past the websocket hand-shake so it is too late
+	 * We are already passed the websocket hand-shake so it is too late
 	 * to indicate it by omitting the Access-Control-Allow-Origin header.
 	 *
 	 * But we close the socket nevertheless.
@@ -1186,7 +1186,7 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
-    if (!lock->asyncResponse_)
+    if (!lock->asyncResponse_ || !lock->asyncResponse_->isWebSocketRequest())
       return;
 
     WebSocketMessage *message = new WebSocketMessage(lock.get());
@@ -1226,8 +1226,9 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
       lock->asyncResponse_ = 0;
       lock->canWriteAsyncResponse_ = false;
     } else
-      lock->asyncResponse_->readWebSocketMessage
-	(boost::bind(&WebSession::handleWebSocketMessage, session));
+      if (lock->asyncResponse_ && lock->asyncResponse_->isWebSocketRequest())
+	lock->asyncResponse_->readWebSocketMessage
+	  (boost::bind(&WebSession::handleWebSocketMessage, session));
   }
 #endif // WT_TARGET_JAVA
 }

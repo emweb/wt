@@ -6,6 +6,7 @@
 
 #include "Wt/WAbstractItemModel"
 #include "Wt/WAbstractItemView"
+#include "Wt/WAbstractTableModel"
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
 #include "Wt/WEnvironment"
@@ -93,6 +94,56 @@ private:
   }
 };
 
+class HeaderProxyModel : public WAbstractTableModel
+{
+public:
+  HeaderProxyModel(WAbstractItemModel *model,
+		   WObject *parent)
+    : WAbstractTableModel(parent),
+      model_(model)
+  { }
+
+  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const
+  {
+    return model_->columnCount();
+  }
+
+  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const
+  {
+    return 1;
+  }
+
+  virtual boost::any data(const WModelIndex& index, int role = DisplayRole)
+    const
+  {
+    return model_->headerData(index.column(), Horizontal, role);
+  }
+
+  virtual bool setData(const WModelIndex& index, const boost::any& value,
+		       int role = EditRole)
+  {
+    model_->setHeaderData(index.column(), Horizontal, value, role);
+  }
+  
+  virtual WFlags<ItemFlag> flags(const WModelIndex& index) const
+  {
+    WFlags<HeaderFlag> headerFlags
+      = model_->headerFlags(index.column(), Horizontal);
+
+    WFlags<ItemFlag> result;
+
+    if (headerFlags & HeaderIsUserCheckable)
+      result |= ItemIsUserCheckable;
+    if (headerFlags & HeaderIsTristate)
+      result |= ItemIsTristate;
+
+    return result;
+  }
+
+private:
+  WAbstractItemModel *model_;
+};
+
 WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view, 
 					  int anId)
   : id(anId),
@@ -163,7 +214,9 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     dragEnabled_(false),
     dropsEnabled_(false),
     model_(0),
+    headerModel_(0),
     itemDelegate_(0),
+    headerItemDelegate_(0),
     selectionModel_(new WItemSelectionModel(0, this)),
     rowHeight_(20),
     headerLineHeight_(20),
@@ -187,6 +240,7 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
   setImplementation(impl_);
 
   setItemDelegate(new WItemDelegate(this));
+  setHeaderItemDelegate(new WItemDelegate(this));
 
   WApplication *app = WApplication::instance();
 
@@ -240,6 +294,10 @@ void WAbstractItemView::setModel(WAbstractItemModel *model)
   }
 
   model_ = model;
+
+  delete headerModel_;
+  headerModel_ = new HeaderProxyModel(model_, this);
+
   WItemSelectionModel *oldSelectionModel = selectionModel_;
   selectionModel_ = new WItemSelectionModel(model, this);
   selectionModel_->setSelectionBehavior(oldSelectionModel->selectionBehavior());
@@ -438,6 +496,11 @@ WAbstractItemDelegate *WAbstractItemView::itemDelegate(int column) const
   return result ? result : itemDelegate_;
 }
 
+void WAbstractItemView::setHeaderItemDelegate(WAbstractItemDelegate *delegate)
+{
+  headerItemDelegate_ = delegate;
+}
+
 std::string repeat(const std::string& s, int times)
 {
   std::string result;
@@ -546,15 +609,6 @@ WText *WAbstractItemView::headerSortIconWidget(int column)
   WWidget *hw = headerWidget(column);
   if (hw)
     return dynamic_cast<WText *>(hw->find("sort"));
-  else
-    return 0;
-}
-
-WText *WAbstractItemView::headerTextWidget(int column)
-{
-  WWidget *hw = headerWidget(column);
-  if (hw)
-    return dynamic_cast<WText *>(hw->find("text"));
   else
     return 0;
 }
@@ -817,6 +871,23 @@ void WAbstractItemView::scheduleRerender(RenderState what)
   askRerender();
 }
 
+void WAbstractItemView::modelHeaderDataChanged(Orientation orientation,
+					       int start, int end)
+{
+  if (renderState_ < NeedRerenderHeader) {
+    if (orientation == Horizontal) {
+      for (int i = start; i <= end; ++i) {
+	WContainerWidget *hw
+	  = dynamic_cast<WContainerWidget *>(headerWidget(i, true));
+	WWidget *tw = hw->widget(hw->count() - 1);
+	headerItemDelegate_->update(tw, headerModel_->index(0, i), 0);
+	tw->setInline(false);
+	tw->addStyleClass("Wt-label");
+      }
+    }
+  }
+}
+
 int WAbstractItemView::headerLevel(int column) const
 {
   return static_cast<int>
@@ -879,6 +950,13 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
     clickedForExpandMapper_->mapConnect(expandIcon->clicked(), info.id);
   }    
 
+  WWidget *i = headerItemDelegate_->update(0, headerModel_->index(0, column),
+					   0);
+  i->setInline(false);
+  i->addStyleClass("Wt-label");
+  w->addWidget(i);
+
+  /*
   WText *t = new WText("&nbsp;", w);
   t->setObjectName("text");
   t->setStyleClass("Wt-label");
@@ -887,15 +965,20 @@ WWidget *WAbstractItemView::createHeaderWidget(WApplication *app, int column)
     t->setWordWrap(true);
   else
     t->setWordWrap(false);
+  */
 
-  if (info.sorting)
-    clickedForSortMapper_->mapConnect(t->clicked(), info.id);
+  // FIXME: we probably want this as an API option ?
+  if (info.sorting) {
+    WInteractWidget *ww = dynamic_cast<WInteractWidget *>(i);
+    if (ww)
+      clickedForSortMapper_->mapConnect(ww->clicked(), info.id);
+  }
 
   WContainerWidget *result = new WContainerWidget();
 
   if (headerLevel) {
     WContainerWidget *spacer = new WContainerWidget(result);
-    t = new WText(spacer);
+    WText *t = new WText(spacer);
     t->setInline(false);
 
     if (rightBorderLevel < headerLevel) {
@@ -980,7 +1063,6 @@ int WAbstractItemView::headerLevelCount() const
   return result + 1;
 }
 
-
 void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
 {
   headerLineHeight_ = height;
@@ -996,6 +1078,7 @@ void WAbstractItemView::setHeaderHeight(const WLength& height, bool multiLine)
   }
 
   headerHeightRule_->templateWidget()->resize(WLength::Auto, headerHeight);
+
   if (!multiLineHeader_)
     headerHeightRule_->templateWidget()->setLineHeight(headerLineHeight_);
   else
@@ -1162,7 +1245,7 @@ void WAbstractItemView::closeEditor(const WModelIndex& index, bool saveData)
 
 void WAbstractItemView::closeEditors(bool saveData) 
 {
-  while(!editedItems_.empty()) {
+  while (!editedItems_.empty()) {
     closeEditor(editedItems_.begin()->first, saveData);
   }
 }

@@ -34,13 +34,13 @@ class WWidget;
 class WModelIndex;
 
 /*! \class WAbstractItemDelegate Wt/WAbstractItemDelegate Wt/WAbstractItemDelegate
- *  \brief Abstract delegate class for rendering an item in a MVC view.
+ *  \brief Abstract delegate class for rendering an item in an item view.
  *
  * Rendering of an item in a WAbstractItemView is delegated to an
  * implementation of this delegate class. The default implementation
  * used by Wt's item views is WItemDelegate. To provide specialized
- * rendering support, you can reimplement this class, and provide a
- * specialized delegate to the view for rendering items.
+ * rendering support, you can reimplement this class (or specialize
+ * WItemDelegate).
  *
  * As a delegate is used for rendering multiple items, the class should
  * not keep state about one specific item.

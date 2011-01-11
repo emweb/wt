@@ -255,6 +255,16 @@ public:
     fileModel_ = new FileModel(this);
     populateFiles();
 
+    /*
+      The header items are also endered using an ItemDelegate, and thus
+      support other data, e.g.:
+
+      fileModel_->setHeaderFlags(0, Horizontal, HeaderIsUserCheckable);
+      fileModel_->setHeaderData(0, Horizontal,
+                                std::string("icons/file.gif"),
+			        Wt::DecorationRole);
+    */
+
     fileFilterModel_ = new WSortFilterProxyModel(this);
     fileFilterModel_->setSourceModel(fileModel_);
     fileFilterModel_->setDynamicSortFilter(true);

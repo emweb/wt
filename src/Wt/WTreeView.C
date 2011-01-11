@@ -963,8 +963,7 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "display: block; float: left;"
        "padding: 0px 3px;"
        "text-overflow: ellipsis;"
-       "overflow: hidden;"
-       "white-space: nowrap;");
+       "overflow: hidden;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-c",
@@ -1312,6 +1311,16 @@ void WTreeView::setColumnBorder(const WColor& color)
   WApplication::instance()->styleSheet().addRule(borderColorRule_);
 }
 
+void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
+{
+  WAbstractItemView::setHeaderHeight(height, multiLine);
+
+  if (headerContainer_)
+    headerContainer_->setStyleClass(std::string("Wt-header Wt-")
+				    + (multiLine ? "multiline" : "singleline")
+				    + " headerrh cwidth");
+}
+
 void WTreeView::setRootIsDecorated(bool show)
 {
   rootIsDecorated_ = show;
@@ -1357,19 +1366,6 @@ void WTreeView::setRowHeight(const WLength& rowHeight)
 
   if (rootNode_)
     scheduleRerender(NeedAdjustViewPort);
-}
-
-void WTreeView::setHeaderHeight(const WLength& height, bool multiLine)
-{
-  WAbstractItemView::setHeaderHeight(height, multiLine);
-
-  if (renderState_ >= NeedRerenderHeader)
-    return;
-
-  // XX: cannot do it for column 0!
-  if (!WApplication::instance()->environment().agentIsIE())
-    for (int i = 1; i < columnCount(); ++i)
-      headerTextWidget(i)->setWordWrap(multiLine);
 }
 
 void WTreeView::resize(const WLength& width, const WLength& height)
@@ -1428,29 +1424,31 @@ void WTreeView::setModel(WAbstractItemModel *model)
 {
   WAbstractItemView::setModel(model);
 
+  typedef WTreeView Self;
+
   /* connect slots to new model */
   modelConnections_.push_back(model->columnsInserted().connect
-			      (this, &WTreeView::modelColumnsInserted));
+			      (this, &Self::modelColumnsInserted));
   modelConnections_.push_back(model->columnsAboutToBeRemoved().connect
-			      (this, &WTreeView::modelColumnsAboutToBeRemoved));
+			      (this, &Self::modelColumnsAboutToBeRemoved));
   modelConnections_.push_back(model->columnsRemoved().connect
-			      (this, &WTreeView::modelColumnsRemoved));
+			      (this, &Self::modelColumnsRemoved));
   modelConnections_.push_back(model->rowsInserted().connect
-			      (this, &WTreeView::modelRowsInserted));
+			      (this, &Self::modelRowsInserted));
   modelConnections_.push_back(model->rowsAboutToBeRemoved().connect
-			      (this, &WTreeView::modelRowsAboutToBeRemoved));
+			      (this, &Self::modelRowsAboutToBeRemoved));
   modelConnections_.push_back(model->rowsRemoved().connect
-			      (this, &WTreeView::modelRowsRemoved));
+			      (this, &Self::modelRowsRemoved));
   modelConnections_.push_back(model->dataChanged().connect
-			      (this, &WTreeView::modelDataChanged));
+			      (this, &Self::modelDataChanged));
   modelConnections_.push_back(model->headerDataChanged().connect
-			      (this, &WTreeView::modelHeaderDataChanged));
+			      (this, &Self::modelHeaderDataChanged));
   modelConnections_.push_back(model->layoutAboutToBeChanged().connect
-			      (this, &WTreeView::modelLayoutAboutToBeChanged));
+			      (this, &Self::modelLayoutAboutToBeChanged));
   modelConnections_.push_back(model->layoutChanged().connect
-			      (this, &WTreeView::modelLayoutChanged));
+			      (this, &Self::modelLayoutChanged));
   modelConnections_.push_back(model->modelReset().connect
-			      (this, &WTreeView::modelReset));
+			      (this, &Self::modelReset));
 
   expandedSet_.clear();
 
@@ -1548,9 +1546,6 @@ void WTreeView::rerenderHeader()
 
   if (app->environment().ajax())
     app->doJavaScript("$('#" + id() + "').data('obj').adjustColumns();");
-
-  if (model())
-    modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
 }
 
 void WTreeView::enableAjax()
@@ -2176,19 +2171,6 @@ void WTreeView::modelDataChanged(const WModelIndex& topLeft,
       parent is not displayed
       FIXME: but it could still be rendered, yet (somehow) not expanded ?
     */
-  }
-}
-
-void WTreeView::modelHeaderDataChanged(Orientation orientation,
-				       int start, int end)
-{
-  if (renderState_ < NeedRerenderHeader) {
-    if (orientation == Horizontal) {
-      for (int i = start; i <= end; ++i) {
-	WString label = asString(model()->headerData(i));
-	headerTextWidget(i)->setText(label);
-      }
-    }
   }
 }
 

@@ -28,7 +28,7 @@
  * WTableView
  */
 .Wt-tableview div {
-    white-space: nowrap
+    white-space: nowrap;
 }
 
 .Wt-tabs {

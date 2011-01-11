@@ -124,8 +124,8 @@ public:
 
   /*! \brief Sets the default item delegate.
    *
-   * The previous delegate is removed but not deleted. This item delegate
-   * is for all columns for which no specific item delegate is set.
+   * The previous delegate is not deleted. This item delegate is for
+   * all columns for which no specific item delegate is set.
    *
    * The default item delegate is a WItemDelegate.
    *
@@ -141,7 +141,7 @@ public:
 
   /*! \brief Sets the delegate for a column.
    *
-   * The previous delegate is removed but not deleted.
+   * A delegate previously set (if any) is not deleted.
    *
    * \sa setItemDelegate()
    */
@@ -167,6 +167,23 @@ public:
    * delegate.
    */
   WAbstractItemDelegate *itemDelegate(int column) const;
+
+  /*! \brief Sets the header item delegate.
+   *
+   * This item delegate is used for rendering items in the header.
+   *
+   * The previous delegate is not deleted. This item delegate is for
+   * all columns for which no specific item delegate is set.
+   *
+   * The default item delegate is a WItemDelegate.
+   */
+  void setHeaderItemDelegate(WAbstractItemDelegate *delegate);
+
+  /*! \brief Returns the header item delegate.
+   *
+   * \sa setHeaderItemDelegate()
+   */
+  WAbstractItemDelegate *headerItemDelegate() const;
 
   /*! \brief Sets the content alignment for a column.
    *
@@ -758,6 +775,7 @@ protected:
 				const WModelIndex& bottomRight) = 0;
   virtual void modelLayoutAboutToBeChanged();
   virtual void modelLayoutChanged();
+  void modelHeaderDataChanged(Orientation orientation, int start, int end);
   void modelReset();
 
   ColumnInfo& columnInfo(int column) const;
@@ -805,9 +823,10 @@ private:
     bool valid;
   };
 
-  WAbstractItemModel    *model_;
+  WAbstractItemModel    *model_, *headerModel_;
   WModelIndex            rootIndex_;
   WAbstractItemDelegate *itemDelegate_;
+  WAbstractItemDelegate *headerItemDelegate_;
   WItemSelectionModel   *selectionModel_;
   WLength                rowHeight_, headerLineHeight_;
   SelectionMode          selectionMode_;

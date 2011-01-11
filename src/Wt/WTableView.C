@@ -263,27 +263,29 @@ void WTableView::setModel(WAbstractItemModel* model)
 {  
   WAbstractItemView::setModel(model);
 
+  typedef WTableView Self;
+
   /* connect slots to new model */
   modelConnections_.push_back(model->columnsInserted().connect
-			      (this, &WTableView::modelColumnsInserted));
+			      (this, &Self::modelColumnsInserted));
   modelConnections_.push_back(model->columnsAboutToBeRemoved().connect
-			     (this, &WTableView::modelColumnsAboutToBeRemoved));
+			     (this, &Self::modelColumnsAboutToBeRemoved));
   modelConnections_.push_back(model->rowsInserted().connect
-			      (this, &WTableView::modelRowsInserted));
+			      (this, &Self::modelRowsInserted));
   modelConnections_.push_back(model->rowsAboutToBeRemoved().connect
-			      (this, &WTableView::modelRowsAboutToBeRemoved));
+			      (this, &Self::modelRowsAboutToBeRemoved));
   modelConnections_.push_back(model->rowsRemoved().connect
-			      (this, &WTableView::modelRowsRemoved));
+			      (this, &Self::modelRowsRemoved));
   modelConnections_.push_back(model->dataChanged().connect
-			      (this, &WTableView::modelDataChanged));
+			      (this, &Self::modelDataChanged));
   modelConnections_.push_back(model->headerDataChanged().connect
-			      (this, &WTableView::modelHeaderDataChanged));
+			      (this, &Self::modelHeaderDataChanged));
   modelConnections_.push_back(model->layoutAboutToBeChanged().connect
-			      (this, &WTableView::modelLayoutAboutToBeChanged));
+			      (this, &Self::modelLayoutAboutToBeChanged));
   modelConnections_.push_back(model->layoutChanged().connect
-			      (this, &WTableView::modelLayoutChanged));
+			      (this, &Self::modelLayoutChanged));
   modelConnections_.push_back(model->modelReset().connect
-			      (this, &WTableView::modelReset));
+			      (this, &Self::modelReset));
 }
 
 WWidget* WTableView::renderWidget(WWidget* widget, const WModelIndex& index) 
@@ -774,7 +776,8 @@ void WTableView::rerenderData()
 
 	WModelIndex index = model()->index(i, j, rootIndex());
 	WWidget *w = renderWidget(0, index);
-	WTableCell *cell = plainTable_->elementAt(renderedRow + 1, renderedCol);
+	WTableCell *cell = plainTable_->elementAt(renderedRow + 1,
+						  renderedCol);
 	cell->addWidget(w);
 
 	WInteractWidget *wi = dynamic_cast<WInteractWidget *>(w);
@@ -822,9 +825,6 @@ void WTableView::rerenderHeader()
 	cell->hide();
     }
   }
-
-  if (model())
-    modelHeaderDataChanged(Horizontal, 0, columnCount() - 1);
 }
 
 void WTableView::setColumnHidden(int column, bool hidden)
@@ -984,15 +984,13 @@ void WTableView::setHeaderHeight(const WLength& height, bool multiLine)
 {
   WAbstractItemView::setHeaderHeight(height, multiLine);
 
+  if (headerContainer_)
+    headerContainer_->setStyleClass(std::string("Wt-header Wt-")
+				    + (multiLine ? "multiline" : "singleline")
+				    + " headerrh cwidth");
+
   if (!ajaxMode())
     resize(this->width(), this->height());
-
-  if (renderState_ >= NeedRerenderHeader)
-    return;
-
-  if (!WApplication::instance()->environment().agentIsIE())
-    for (int i = 0; i < columnCount(); ++i)
-      headerTextWidget(i)->setWordWrap(multiLine);
 }
 
 WWidget* WTableView::headerWidget(int column, bool contentsOnly)
@@ -1207,8 +1205,7 @@ void WTableView::modelDataChanged(const WModelIndex& topLeft,
 	WWidget *w = renderWidget(current, index);
 
 	if (!w->parent()) {
-	  if (current)
-	    delete current;
+	  delete current;
 	  parentWidget->insertWidget(wIndex, w);
 
 	  if (!ajaxMode() && !isEditing(index)) {
@@ -1221,19 +1218,6 @@ void WTableView::modelDataChanged(const WModelIndex& topLeft,
   }
 }
  
-void WTableView::modelHeaderDataChanged(Orientation orientation, 
-					int start, int end)
-{
-  if (renderState_ < NeedRerenderHeader) {
-    if (orientation == Horizontal) {
-      for (int i = start; i <= end; ++i) {
-	WString label = asString(model()->headerData(i));
-	headerTextWidget(i)->setText(label);
-      }
-    }
-  }
-}
-
 void WTableView::onViewportChange(int left, int top, int width, int height)
 {
   assert(ajaxMode());

@@ -281,3 +281,13 @@ div.contents {
 .form p {
     margin: 5px;
 }
+
+.googlemaps-controls button {
+    padding-left: 20px; 
+    padding-right: 20px;
+}
+
+.googlemaps-controls td {
+    white-space: nowrap;
+    padding: 2px;
+}

@@ -987,7 +987,44 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
       The example demonstrates multiple controls and shows a polyline
       representing a road description from the Emweb office to the old
       market of Leuven.
+      <br/>
+      We also added a marker to Koen's favourite bar!
     </p>
+  </message>
+
+  <message id="specialpurposewidgets-WGoogleMap-controls">
+    <table class="googlemaps-controls">
+      <tr>
+	<td>Zoom:</td>
+	<td>
+	  ${zoom-in} ${zoom-out}
+	</td>
+      </tr>
+      <tr>
+	<td>Pan to:</td>
+	<td>
+	  ${brussels} ${lisbon} ${paris}
+	</td>
+      </tr>
+      <tr>
+	<td>Control menu type: </td>
+	<td>
+	  ${control-menu-combo}
+	</td>
+      </tr>
+      <tr>
+	<td colspan="2">${dragging-cb}</td>
+      </tr>
+      <tr>
+	<td colspan="2">${double-click-zoom-cb}</td>
+      </tr>
+      <tr>
+	<td colspan="2">${scroll-wheel-zoom-cb}</td>
+      </tr>
+      <tr>
+	<td colspan="2">${save-position} ${return-to-saved-position}</td>
+      </tr>
+    </table>
   </message>
 
   <message id="specialpurposewidgets-WSound">

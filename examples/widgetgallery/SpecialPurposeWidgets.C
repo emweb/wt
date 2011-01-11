@@ -17,6 +17,10 @@
 #include "Wt/WSound"
 #include "Wt/WTable"
 #include "Wt/WText"
+#include "Wt/WTemplate"
+#include "Wt/WStandardItemModel"
+#include "Wt/WComboBox"
+#include "Wt/WHBoxLayout"
 
 using namespace Wt;
 
@@ -41,6 +45,25 @@ void SpecialPurposeWidgets::populateSubMenu(WMenu *menu)
 					this)));
 }
 
+void SpecialPurposeWidgets::addItem(WAbstractItemModel* model,
+				    const WString &description, 
+				    WGoogleMap::MapTypeControl value)
+{
+  int r = model->rowCount();
+  model->insertRow(r);
+  model->setData(r, 0, description);
+  model->setData(r, 0, value, UserRole);
+}
+
+void SpecialPurposeWidgets::setMapTypeControl(WGoogleMap *map, 
+					      const WAbstractItemModel *model,
+					      int row)
+{
+  WGoogleMap::MapTypeControl mtc = 
+    boost::any_cast<WGoogleMap::MapTypeControl>(model->data(row, 0, UserRole));
+  map->setMapTypeControl(mtc);
+}
+
 WWidget *SpecialPurposeWidgets::wGoogleMap()
 {
   WContainerWidget *result = new WContainerWidget();
@@ -48,26 +71,121 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
   topic("WGoogleMap", result);
   new WText(tr("specialpurposewidgets-WGoogleMap"), result);
 
-  WTable* layout = new WTable(result);
-  WGoogleMap *const map = new WGoogleMap(layout->elementAt(0,0));
-  map->resize(700, 500);
+  WContainerWidget* mapContainer = new WContainerWidget(result);
+  WHBoxLayout* layout = new WHBoxLayout();
+  mapContainer->setLayout(layout);
 
+  WGoogleMap *const map = new WGoogleMap(WGoogleMap::Version3);
+  layout->addWidget(map, 1);
+  
+  map->resize(700, 500);
   map->setMapTypeControl(WGoogleMap::DefaultControl);
   map->enableScrollWheelZoom();
 
-  layout->elementAt(0,1)->setPadding(3);
+  WTemplate *controls = 
+    new WTemplate(tr("specialpurposewidgets-WGoogleMap-controls"));
+  layout->addWidget(controls);
 
-  WContainerWidget* zoomContainer = 
-    new WContainerWidget(layout->elementAt(0,1));
-  new WText("Zoom: ", zoomContainer);
-  WPushButton* zoomIn = new WPushButton("+", zoomContainer);
+  WPushButton* zoomIn = new WPushButton("+");
+  controls->bindWidget("zoom-in", zoomIn);
   zoomIn->clicked().connect(map, &WGoogleMap::zoomIn);
-  WPushButton* zoomOut = new WPushButton("-", zoomContainer);
+  WPushButton* zoomOut = new WPushButton("-");
+  controls->bindWidget("zoom-out", zoomOut);
   zoomOut->clicked().connect(map, &WGoogleMap::zoomOut);
+
+  WPushButton* brussels = new WPushButton("Brussels");
+  controls->bindWidget("brussels", brussels);
+  brussels->clicked().connect(boost::bind(&WGoogleMap::panTo, 
+					  map, 
+					  WGoogleMap::Coordinate(50.85034,
+								 4.35171)));
+
+  WPushButton* lisbon = new WPushButton("Lisbon");
+  controls->bindWidget("lisbon", lisbon);
+  lisbon->clicked().connect(boost::bind(&WGoogleMap::panTo, 
+					map, 
+					WGoogleMap::Coordinate(38.703731,
+							       -9.135475)));
+
+  WPushButton* paris = new WPushButton("Paris");
+  controls->bindWidget("paris", paris);
+  paris->clicked().connect(boost::bind(&WGoogleMap::panTo, 
+				       map, 
+				       WGoogleMap::Coordinate(48.877474,
+							      2.312579)));
+
+  WPushButton* savePosition = new WPushButton("Save current position");
+  controls->bindWidget("save-position", savePosition);
+  savePosition->clicked().connect(boost::bind(&WGoogleMap::savePosition, 
+					      map)); 
+
+  WPushButton* returnToPosition = new WPushButton("Return to saved position");
+  controls->bindWidget("return-to-saved-position", returnToPosition);
+  returnToPosition->setEnabled(false);
+  returnToPosition->clicked().
+    connect(boost::bind(&WGoogleMap::returnToSavedPosition, 
+			map)); 
+
+  savePosition->clicked().
+    connect(boost::bind(&WPushButton::setEnabled, 
+			returnToPosition,
+			true)); 
+
+  WAbstractItemModel* ctm = new WStandardItemModel();
+  addItem(ctm, "No control", WGoogleMap::NoControl);
+  addItem(ctm, "Default", WGoogleMap::DefaultControl);
+  addItem(ctm, "Menu", WGoogleMap::MenuControl);
+  if (map->apiVersion() == WGoogleMap::Version2)
+    addItem(ctm, "Hierarchical", WGoogleMap::HierarchicalControl);
+  if (map->apiVersion() == WGoogleMap::Version3)
+    addItem(ctm, "Horizontal bar", WGoogleMap::HorizontalBarControl);
+
+  WComboBox* menuControls = new WComboBox();
+  menuControls->setModel(ctm);
+  controls->bindWidget("control-menu-combo", menuControls);
+  menuControls->activated().
+    connect(boost::bind(&SpecialPurposeWidgets::setMapTypeControl,
+			this,
+			map,
+			ctm,
+			_1));
+  menuControls->setCurrentIndex(1);
+
+  WCheckBox *draggingCB = new WCheckBox("Enable dragging ");
+  controls->bindWidget("dragging-cb", draggingCB);
+  draggingCB->setChecked(true);
+  map->enableDragging();
+  draggingCB->checked().
+    connect(boost::bind(&WGoogleMap::enableDragging, map));
+  draggingCB->unChecked().
+    connect(boost::bind(&WGoogleMap::disableDragging, map));
+
+  WCheckBox *enableDoubleClickZoomCB = 
+    new WCheckBox("Enable double click zoom ");
+  controls->bindWidget("double-click-zoom-cb", enableDoubleClickZoomCB);
+  enableDoubleClickZoomCB->setChecked(false);
+  map->disableDoubleClickZoom();
+  enableDoubleClickZoomCB->checked().
+    connect(boost::bind(&WGoogleMap::enableDoubleClickZoom, map));
+  enableDoubleClickZoomCB->unChecked().
+    connect(boost::bind(&WGoogleMap::disableDoubleClickZoom, map));
+
+  WCheckBox *enableScrollWheelZoomCB = 
+    new WCheckBox("Enable scroll wheel zoom ");
+  controls->bindWidget("scroll-wheel-zoom-cb", enableScrollWheelZoomCB);
+  enableScrollWheelZoomCB->setChecked(true);
+  map->enableScrollWheelZoom();
+  enableScrollWheelZoomCB->checked().
+    connect(boost::bind(&WGoogleMap::enableScrollWheelZoom, map));
+  enableScrollWheelZoomCB->unChecked().
+    connect(boost::bind(&WGoogleMap::disableScrollWheelZoom, map));
 
   std::vector<WGoogleMap::Coordinate> road;
   roadDescription(road);
   map->addPolyline(road, WColor(0, 191, 255));
+
+  //Koen's favourite bar!
+  map->addMarker(WGoogleMap::Coordinate(50.885069,4.71958));
 
   map->setCenter(road[road.size()-1]);
 

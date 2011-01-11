@@ -508,19 +508,23 @@ WFlags<HeaderFlag> WAggregateProxyModel::headerFlags(int section,
 {
   if (orientation == Horizontal) {
     int srcColumn = topLevel_.mapToSource(section);
+
+    WFlags<HeaderFlag> result
+      = sourceModel()->headerFlags(srcColumn, orientation);
+
     const Aggregate *agg = topLevel_.findAggregate(srcColumn);
     if (agg) {
       if (agg->collapsed_)
-	return ColumnIsCollapsed;
+	return result | ColumnIsCollapsed;
       else
 	if (agg->parentSrc_ == agg->lastChildSrc_ + 1)
-	  return ColumnIsExpandedLeft;
+	  return result | ColumnIsExpandedLeft;
 	else // agg->parentSrc_ == firstChildSrc_ - 1
-	  return ColumnIsExpandedRight;
+	  return result | ColumnIsExpandedRight;
     } else
-      return WAbstractProxyModel::headerFlags(section, orientation);
+      return result;
   } else
-    return WAbstractProxyModel::headerFlags(section, orientation);
+    return sourceModel()->headerFlags(section, orientation);
 }
 
 void WAggregateProxyModel::sourceColumnsAboutToBeInserted

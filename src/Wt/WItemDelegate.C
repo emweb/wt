@@ -184,6 +184,7 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
       IndexCheckBox * const result = checkBox = new IndexCheckBox(index);
 
       checkBox->setObjectName("c");
+      checkBox->clicked().preventPropagation();
 
       WContainerWidget *wc = dynamic_cast<WContainerWidget *>(w.w->find("o"));
       if (!wc) {

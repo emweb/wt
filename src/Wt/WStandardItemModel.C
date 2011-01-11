@@ -55,6 +55,8 @@ void WStandardItemModel::clear()
 
   columnHeaderData_.clear();
   rowHeaderData_.clear();
+  columnHeaderFlags_.clear();
+  rowHeaderFlags_.clear();
 
   reset();
 }
@@ -281,7 +283,7 @@ void WStandardItemModel::beginInsertColumns(const WModelIndex& parent,
 {
   WAbstractItemModel::beginInsertColumns(parent, first, last);
 
-  insertHeaderData(columnHeaderData_, itemFromIndex(parent),
+  insertHeaderData(columnHeaderData_, columnHeaderFlags_, itemFromIndex(parent),
 		   first, last - first + 1);
 }
 
@@ -290,7 +292,7 @@ void WStandardItemModel::beginInsertRows(const WModelIndex& parent,
 {
   WAbstractItemModel::beginInsertRows(parent, first, last);
 
-  insertHeaderData(rowHeaderData_, itemFromIndex(parent),
+  insertHeaderData(rowHeaderData_, rowHeaderFlags_, itemFromIndex(parent),
 		   first, last - first + 1);
 }
 
@@ -299,7 +301,7 @@ void WStandardItemModel::beginRemoveColumns(const WModelIndex& parent,
 {
   WAbstractItemModel::beginRemoveColumns(parent, first, last);
 
-  removeHeaderData(columnHeaderData_, itemFromIndex(parent),
+  removeHeaderData(columnHeaderData_, columnHeaderFlags_, itemFromIndex(parent),
 		   first, last - first + 1);
 }
 
@@ -308,25 +310,31 @@ void WStandardItemModel::beginRemoveRows(const WModelIndex& parent,
 { 
   WAbstractItemModel::beginRemoveRows(parent, first, last);
 
-  removeHeaderData(rowHeaderData_, itemFromIndex(parent),
+  removeHeaderData(rowHeaderData_, rowHeaderFlags_, itemFromIndex(parent),
 		   first, last - first + 1);
 }
 
 void WStandardItemModel::insertHeaderData(std::vector<HeaderData>& headerData,
+					  std::vector<WFlags<HeaderFlag> >& fl,
 					  WStandardItem *item, int index,
 					  int count)
 {
-  if (item == invisibleRootItem_)
+  if (item == invisibleRootItem_) {
     headerData.insert(headerData.begin() + index, count, HeaderData());
+    fl.insert(fl.begin() + index, count, WFlags<HeaderFlag>());
+  }
 }
 
 void WStandardItemModel::removeHeaderData(std::vector<HeaderData>& headerData,
+					  std::vector<WFlags<HeaderFlag> >& fl,
 					  WStandardItem *item, int index,
 					  int count)
 {
-  if (item == invisibleRootItem_)
+  if (item == invisibleRootItem_) {
     headerData.erase(headerData.begin() + index,
 		     headerData.begin() + index + count);
+    fl.erase(fl.begin() + index, fl.begin() + index + count);
+  }
 }
 
 bool WStandardItemModel::setData(const WModelIndex& index,
@@ -356,6 +364,25 @@ bool WStandardItemModel::setHeaderData(int section, Orientation orientation,
   headerDataChanged().emit(orientation, section, section);
 
   return true;
+}
+
+void WStandardItemModel::setHeaderFlags(int section, Orientation orientation,
+					WFlags<HeaderFlag> flags)
+{
+  std::vector<WFlags<HeaderFlag> >& fl
+    = (orientation == Horizontal) ? columnHeaderFlags_ : rowHeaderFlags_;
+
+  fl[section] = flags;
+}
+
+WFlags<HeaderFlag> WStandardItemModel::headerFlags(int section,
+						   Orientation orientation)
+  const
+{
+  const std::vector<WFlags<HeaderFlag> >& fl
+    = (orientation == Horizontal) ? columnHeaderFlags_ : rowHeaderFlags_;
+ 
+  return fl[section];
 }
 
 void *WStandardItemModel::toRawIndex(const WModelIndex& index) const

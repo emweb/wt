@@ -32,6 +32,9 @@ namespace Wt
  * property <tt>"google_api_key"</tt>. If this configuration property
  * has not been set, it will use a key that is suitable for localhost.
  *
+ * Loading multiple maps within the same request is currently not possible
+ * with the Google Maps v3 API.
+ *
  * <h3>CSS</h3>
  *
  * Styling through CSS is not applicable.
@@ -41,13 +44,25 @@ namespace Wt
 class WT_API WGoogleMap : public WCompositeWidget
 {
 public:
+  /*! \brief ApiVersion
+   */
+  enum ApiVersion {
+    Version2, //!< API Version 2.x
+    Version3  //!< API Version 3.x
+  };
+  
   /*! \brief MapTypeControl
    */
   enum MapTypeControl {
-    NoControl,          //!< Show no maptype control
-    DefaultControl,     //!< Show the default maptype control
-    MenuControl,        //!< Show the menu maptype control
-    HierarchicalControl //!< Show the hierarchical maptype control
+    NoControl,           //!< Show no maptype control
+    DefaultControl,      //!< Show the default maptype control 
+                         // (the behaviour depends on the Google Maps 
+                         // API version)
+    MenuControl,         //!< Show the dropdown menu maptype control
+    HierarchicalControl, //!< Show the hierarchical maptype control 
+                         // (only availble in Google Maps API v2)
+    HorizontalBarControl //!< Show the horizontal bar maptype control
+                         // (only availble in Google Maps API v3)
   };
 
   /*! \class Coordinate
@@ -100,9 +115,9 @@ public:
     double lat_, lon_;
   };
 
-  /*! \brief Creates a map widget with optional parent.
+  /*! \brief Creates a map widget with optional parent and version.
    */
-  WGoogleMap(WContainerWidget *parent = 0);
+  WGoogleMap(ApiVersion version = Version3, WContainerWidget *parent = 0);
 
   /*! \brief Destructor.
    */
@@ -180,6 +195,8 @@ public:
    *
    * Call this method after the size of the container DOM object has changed,
    * so that the map can adjust itself to fit the new size.
+   *
+   * \deprecated the map is resized automatically when necessary
    */
   void checkResize();
 
@@ -251,6 +268,10 @@ public:
    */
   JSignal<Coordinate>& mouseMoved() { return mouseMoved_; }
 
+  /*! \brief Return the used Google Maps API version.
+   */
+  ApiVersion apiVersion() { return apiVersion_; }
+
 private:
   JSignal<Coordinate> clicked_;
   JSignal<Coordinate> doubleClicked_;
@@ -263,6 +284,15 @@ private:
   std::vector<std::string> additions_;
 
   virtual void doGmJavaScript(const std::string& jscode, bool sepScope);
+  void streamJSListener(const JSignal<Coordinate> &signal, 
+			std::string signalName,
+			std::ostream &strm);
+
+  void setMapOption(const std::string &option, 
+		    const std::string &state);
+
+private:
+  ApiVersion apiVersion_;
 };
 
 #ifndef WT_TARGET_JAVA

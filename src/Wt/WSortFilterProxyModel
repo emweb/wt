@@ -213,6 +213,9 @@ public:
   virtual boost::any headerData(int section,
 				Orientation orientation = Horizontal,
 				int role = DisplayRole) const;
+  virtual WFlags<HeaderFlag> headerFlags(int section,
+					 Orientation orientation = Horizontal)
+    const;
 
   /*! \brief Inserts a number rows.
    *

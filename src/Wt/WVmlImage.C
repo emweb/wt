@@ -485,14 +485,7 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 
 #else
 
-  double fontSize;
-  switch (painter()->font().size()) {
-  case WFont::FixedSize:
-    fontSize = painter()->font().fixedSize().toPixels();
-    break;
-  default:
-    fontSize = 16;
-  }
+  double fontSize = painter()->font().sizeLength().toPixels();
 
   double y = rect.center().y();
   switch (verticalAlign) {
@@ -537,8 +530,8 @@ void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 
   Wt::WApplication *app = Wt::WApplication::instance();
   Wt::WFont textFont(painter()->font());
-  textFont.setSize(textFont.size(),
-		   textFont.fixedSize() * app->environment().dpiScale());
+  textFont.setSize(WFont::FixedSize,
+		   textFont.sizeLength() * app->environment().dpiScale());
 
   render << ";font:" << textFont.cssText() << "\"/></v:shape>";
 

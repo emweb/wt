@@ -306,6 +306,34 @@
    top:0.1em;
 }
 
+/*
+ * WSlider
+ */
+.Wt-slider .handle-h {
+    background: url(slider-thumb-h.gif) no-repeat
+}
+
+.Wt-slider .handle-v {
+    background: url(slider-thumb-v.gif) no-repeat
+}
+
+/*
+ * WSpinBox
+ */
+.Wt-spinbox {
+    background-image: url('spin-buttons.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+.Wt-spinbox-up {
+    background-image: url('spin-buttons-up.png');
+}
+
+.Wt-spinbox-dn {
+    background-image: url('spin-buttons-dn.png');
+}
+
 /* 
  * WSuggestionPopup
  */
@@ -334,34 +362,6 @@
     background-image: url('dropdown.png');
     background-repeat: no-repeat;
     background-position: right center;
-}
-
-/*
- * WSlider
- */
-.Wt-slider .handle-h {
-    background: url(slider-thumb-h.gif) no-repeat
-}
-
-.Wt-slider .handle-v {
-    background: url(slider-thumb-v.gif) no-repeat
-}
-
-/*
- * WSpinBox
- */
-.Wt-spinbox {
-    background-image: url('spin-buttons.png');
-    background-repeat: no-repeat;
-    background-position: right center;
-}
-
-.Wt-spinbox-up {
-    background-image: url('spin-buttons-up.png');
-}
-
-.Wt-spinbox-dn {
-    background-image: url('spin-buttons-dn.png');
 }
 
 /*
@@ -532,6 +532,15 @@
 .Wt-tableview .Wt-header .Wt-label {
     font-weight: bold;
     text-overflow: ellipsis;
+    overflow: hidden; /* needed for IE only */
+}
+
+.Wt-tableview .Wt-multiline div.Wt-label {
+    white-space: normal;
+}
+
+.Wt-tableview .Wt-singleline div.Wt-label {
+    white-space: nowrap;
     overflow: hidden;
 }
 
@@ -597,9 +606,17 @@
 }
 
 .Wt-treeview .Wt-header div.Wt-label {
-    white-space: normal;
     font-weight: bold;
     text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.Wt-treeview .Wt-multiline div.Wt-label {
+    white-space: normal;
+}
+
+.Wt-treeview .Wt-singleline div.Wt-label {
+    white-space: nowrap;
     overflow: hidden;
 }
 
@@ -644,6 +661,10 @@
     width: 19px;
     height: 18px;
     background: url(../../line-middle.gif) no-repeat 0 center;
+}
+
+.Wt-treeview .Wt-tv-row .Wt-tv-c {
+    white-space: nowrap;
 }
 
 /* selection */

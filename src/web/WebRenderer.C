@@ -393,12 +393,12 @@ void WebRenderer::collectJavaScript()
   /*
    * This opens scopes, waiting for new libraries to be loaded.
    */
-  loadScriptLibraries(collectedJS1_, app, true);
+  int librariesLoaded = loadScriptLibraries(collectedJS1_, app);
 
   /*
    * This closes the same scopes.
    */
-  loadScriptLibraries(collectedJS2_, app, false);
+  loadScriptLibraries(collectedJS2_, app, librariesLoaded);
 
   /*
    * Everything else happens inside JS1: after libraries have been loaded.
@@ -558,7 +558,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	"document.body.replaceChild(domRoot, form);";
 
       // Load JavaScript libraries that were added during enableAjax()
-      loadScriptLibraries(collectedJS1_, app, true); 
+      int librariesLoaded = loadScriptLibraries(collectedJS1_, app); 
 
       collectedJS1_ << app->newBeforeLoadJavaScript();
 	
@@ -566,7 +566,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< "domRoot.style.visibility = 'visible';"
 	<< app->javaScriptClass() << "._p_.autoJavaScript();";
 
-      loadScriptLibraries(collectedJS2_, app, false);
+      loadScriptLibraries(collectedJS2_, app, librariesLoaded);
 
       app->enableAjax_ = false;
     }
@@ -645,7 +645,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   loadStyleSheets(response.out(), app);
 
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
-  loadScriptLibraries(response.out(), app, true);
+  int librariesLoaded = loadScriptLibraries(response.out(), app);
 
   response.out() << std::endl << app->beforeLoadJavaScript();
 
@@ -726,7 +726,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		   << app->javaScriptClass() << "OnLoad();\n";
   }
 
-  loadScriptLibraries(response.out(), app, false);
+  loadScriptLibraries(response.out(), app, librariesLoaded);
 }
 
 void WebRenderer::setJSSynced(bool invisibleToo)
@@ -950,12 +950,12 @@ void WebRenderer::serveMainpage(WebResponse& response)
   app->internalPathIsChanged_ = false;
 }
 
-void WebRenderer::loadScriptLibraries(std::ostream& out,
-				      WApplication *app, bool start)
+int WebRenderer::loadScriptLibraries(std::ostream& out,
+				     WApplication *app, int count)
 {
-  int first = app->scriptLibraries_.size() - app->scriptLibrariesAdded_;
+  if (count == -1) {
+    int first = app->scriptLibraries_.size() - app->scriptLibrariesAdded_;
 
-  if (start) {
     for (unsigned i = first; i < app->scriptLibraries_.size(); ++i) {
       std::string uri = app->fixRelativeUrl(app->scriptLibraries_[i].uri);
 
@@ -966,12 +966,19 @@ void WebRenderer::loadScriptLibraries(std::ostream& out,
       out << app->javaScriptClass() << "._p_.onJsLoad(\""
 	  << uri << "\",function() {\n";
     }
-  } else {
-    if (app->scriptLibraries_.size() - first > 0)
-      out << app->javaScriptClass() << "._p_.autoJavaScript();";
-    for (unsigned i = first; i < app->scriptLibraries_.size(); ++i)
-      out << "});";
+
+    count = app->scriptLibrariesAdded_;
     app->scriptLibrariesAdded_ = 0;
+
+    return count;
+  } else {
+    if (count) {
+      out << app->javaScriptClass() << "._p_.autoJavaScript();";
+      for (unsigned i = 0; i < count; ++i)
+	out << "});";
+    }
+
+    return 0;
   }
 }
 
@@ -1182,11 +1189,15 @@ void WebRenderer::collectJS(std::ostream* js)
   app->closeMessageChanged_ = false;
 
   if (js) {
+    int librariesLoaded = loadScriptLibraries(*js, app);
+
     if (app->internalPathIsChanged_)
       *js << app->javaScriptClass()
 	  << "._p_.setHash('" << app->newInternalPath_ << "');\n";
 
     *js << app->afterLoadJavaScript();
+
+    loadScriptLibraries(*js, app, librariesLoaded);
   } else
     app->afterLoadJavaScript();
 

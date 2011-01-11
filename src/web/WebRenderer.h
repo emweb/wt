@@ -110,7 +110,8 @@ private:
 
   void collectJavaScriptUpdate(std::ostream& out);
   void loadStyleSheets(std::ostream& out, WApplication *app);
-  void loadScriptLibraries(std::ostream& out, WApplication *app, bool start);
+  int loadScriptLibraries(std::ostream& out, WApplication *app,
+			  int count = -1);
   void updateLoadIndicator(std::ostream& out, WApplication *app, bool all);
   void setJSSynced(bool invisibleToo);
 

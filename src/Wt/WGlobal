@@ -791,7 +791,17 @@ enum HeaderFlag {
    *
    * \sa WAbstractItemModel::collapseColumn()
    */
-  ColumnIsExpandedRight = 0x4
+  ColumnIsExpandedRight = 0x4,
+
+  /*! \brief Flag that indicates that the header can be checked.
+   */
+  HeaderIsUserCheckable = 0x8,
+
+  /*! \brief Flag that indicates that the item has three states.
+   *
+   * When set, Wt::CheckStateRole data is of type Wt::CheckState
+   */
+  HeaderIsTristate = 0x10
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)

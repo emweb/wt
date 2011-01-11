@@ -1,3 +1,9 @@
+11-01-2011:
+	* Wt/WAbstractItemView: implement setHeaderItemDelegate() and defer
+	rendering of header cells to the item delegate; also added
+	WStandardItemModel::setHeaderFlags() to allow configuration of
+	header flags.
+
 07-01-2011:
 	* Wt/WAbstractItemView: implement scrollTo()
 

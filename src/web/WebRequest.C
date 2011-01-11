@@ -31,7 +31,8 @@ Http::ParameterValues WebRequest::emptyValues_;
 
 WebRequest::WebRequest()
   : entryPoint_(0),
-    doingAsyncCallbacks_(false)
+    doingAsyncCallbacks_(false),
+    webSocketRequest_(false)
 { }
 
 WebRequest::~WebRequest()

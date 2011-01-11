@@ -409,6 +409,16 @@ boost::any WSortFilterProxyModel::headerData(int section,
   return sourceModel()->headerData(section, orientation, role);
 }
 
+WFlags<HeaderFlag> WSortFilterProxyModel::headerFlags(int section,
+						      Orientation orientation)
+    const
+{
+  if (orientation == Vertical)
+    section = mapToSource(index(section, 0)).row();
+
+  return sourceModel()->headerFlags(section, orientation);
+}
+
 void WSortFilterProxyModel::sourceColumnsAboutToBeInserted
   (const WModelIndex& parent, int start, int end)
 {
