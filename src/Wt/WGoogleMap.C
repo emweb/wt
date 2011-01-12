@@ -167,7 +167,12 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
     strm <<
       "{ " << initFunction
 	       << " = function() {"
-      """var self = " << jsRef() << ";";
+      """var self = " << jsRef() << ";"
+      """if (!self) { "
+      ""   "setTimeout(" << initFunction << ", 0);"
+      ""   "return;"
+      """}";
+
     if (apiVersion_ == Version2) {
       //TODO 
       //calling this function more than once in the same request seems to

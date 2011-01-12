@@ -2152,7 +2152,7 @@ function jsLoaded(path)
 function loadScript(uri, symbol, tries)
 {
   function onerror() {
-    var t = tries === undefined ? 2 : tries;
+    var t = tries === undefined ? (WT.isIE ? 1 : 2) : tries;
     if (t > 1) {
       loadScript(uri, symbol, t - 1);
     } else {
@@ -2178,7 +2178,7 @@ function loadScript(uri, symbol, tries)
     s.onreadystatechange = function() {
       var rs = s.readyState;
       if (rs == 'loaded') {
-	if (WT.isOpera) {
+	if (WT.isOpera || WT.isIE) {
 	  jsLoaded(uri);
 	} else
 	  onerror();

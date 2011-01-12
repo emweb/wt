@@ -1180,6 +1180,12 @@ void WAbstractItemView::handleMouseDown(const WModelIndex& index,
   mouseWentDown_.emit(index, event);
 }
 
+void WAbstractItemView::handleMouseUp(const WModelIndex& index,
+				      const WMouseEvent& event)
+{
+  mouseWentUp_.emit(index, event);
+}
+
 void WAbstractItemView::setEditTriggers(WFlags<EditTrigger> editTriggers)
 {
   editTriggers_ = editTriggers;

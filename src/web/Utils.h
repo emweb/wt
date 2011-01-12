@@ -250,6 +250,8 @@ inline void find(const Map& map, const K& key, V& result)
   #endif
 }
 
+void stringToDouble(const char *str, char **end, double &value);
+
   }
 }
 

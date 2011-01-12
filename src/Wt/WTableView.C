@@ -170,6 +170,7 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->clicked()      .connect(this, &WTableView::handleSingleClick);
     canvas_->doubleClicked().connect(this, &WTableView::handleDoubleClick);
     canvas_->mouseWentDown().connect(this, &WTableView::handleMouseWentDown); 
+    canvas_->mouseWentUp().connect(this, &WTableView::handleMouseWentUp); 
     canvas_->addWidget(table_);
 
     table_->setPositionScheme(Absolute);
@@ -1336,6 +1337,13 @@ void WTableView::handleMouseWentDown(const WMouseEvent& event)
   WModelIndex index = translateModelIndex(event);
   if (index.isValid())
     WAbstractItemView::handleMouseDown(index, event);
+}
+
+void WTableView::handleMouseWentUp(const WMouseEvent& event)
+{
+  WModelIndex index = translateModelIndex(event);
+  if (index.isValid())
+    WAbstractItemView::handleMouseUp(index, event);
 }
 
 void WTableView::modelLayoutChanged()

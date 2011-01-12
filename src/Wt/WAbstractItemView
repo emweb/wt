@@ -794,6 +794,7 @@ protected:
   void handleClick(const WModelIndex& index, const WMouseEvent& event);
   void handleDoubleClick(const WModelIndex& index, const WMouseEvent& event);
   void handleMouseDown(const WModelIndex& index, const WMouseEvent& event);
+  void handleMouseUp(const WModelIndex& index, const WMouseEvent& event);
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
 

@@ -101,10 +101,10 @@ namespace Wt {
 	if (WApplication::instance()->environment().agentIsIE())
 	  impl()->elementAt(1, 0)->resize(1, WLength::Auto);
      }
+      
+     virtual WTree *tree() const { return tree_; }
 
     protected:
-      virtual WTree *tree() const { return tree_; }
-
       virtual void descendantRemoved(WTreeNode *node)
       {
 	tree_->nodeRemoved(node);

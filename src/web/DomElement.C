@@ -1534,7 +1534,7 @@ bool DomElement::isSelfClosingTag(DomElementType element)
 DomElementType DomElement::parseTagName(const std::string& tag)
 {
   for (unsigned i = 0; i < DomElement_UNKNOWN; ++i)
-    if (elementNames_[i] == tag)
+    if (tag == elementNames_[i])
       return (DomElementType)i;
 
   return DomElement_UNKNOWN;

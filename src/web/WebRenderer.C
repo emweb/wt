@@ -647,7 +647,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
   int librariesLoaded = loadScriptLibraries(response.out(), app);
 
-  response.out() << std::endl << app->beforeLoadJavaScript();
+  response.out() << std::endl << app->newBeforeLoadJavaScript();
 
   if (!widgetset)
     response.out() << "window." << app->javaScriptClass()
@@ -974,7 +974,7 @@ int WebRenderer::loadScriptLibraries(std::ostream& out,
   } else {
     if (count) {
       out << app->javaScriptClass() << "._p_.autoJavaScript();";
-      for (unsigned i = 0; i < count; ++i)
+      for (int i = 0; i < count; ++i)
 	out << "});";
     }
 
@@ -1172,7 +1172,7 @@ void WebRenderer::collectJS(std::ostream* js)
       delete changes[i];
   }
 
-  if (js) { 
+  if (js) {
     if (app->titleChanged_) {
       *js << app->javaScriptClass()
 	  << "._p_.setTitle(" << app->title().jsStringLiteral() << ");\n";

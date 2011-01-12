@@ -13,6 +13,7 @@
 
 #include <cstdlib>
 #include <sstream>
+#include <stdio.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -246,6 +247,10 @@ std::string EncodeHttpHeaderField(const std::string &fieldname,
   return fieldname + "*=UTF-8''" + urlEncode(fieldValue.toUTF8());
 }
 
+void stringToDouble(const char *str, char **end, double &value)
+{
+  value = strtod(str, end);
+}
 
   }
 }

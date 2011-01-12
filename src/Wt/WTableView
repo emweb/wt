@@ -181,6 +181,7 @@ private:
   void handleSingleClick(const WMouseEvent& event);
   void handleDoubleClick(const WMouseEvent& event);
   void handleMouseWentDown(const WMouseEvent& event);
+  void handleMouseWentUp(const WMouseEvent& event);
   WModelIndex translateModelIndex(const WMouseEvent& event);
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);

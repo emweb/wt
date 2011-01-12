@@ -105,6 +105,7 @@ int WFont::weightValue() const
   }
 
   assert(false);
+  return -1;
 }
 
 void WFont::setSize(Size size, const WLength& length)
@@ -189,6 +190,7 @@ WLength WFont::sizeLength(double mediumSize) const
   }
 
   assert(false);
+  return WLength();
 }
 
 void WFont::updateDomElement(DomElement& element, bool fontall, bool all)

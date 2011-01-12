@@ -8,7 +8,6 @@
 #include "WtException.h"
 #include "Utils.h"
 
-#include <stdio.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <cstring>
@@ -27,8 +26,8 @@ WLength::WLength(const char *s)
 { 
   auto_ = false;
 
-  char *end;
-  value_ = strtod(s, &end);
+  char *end = 0;
+  Utils::stringToDouble(s, &end, value_);
   if (s == end) {
     throw WtException(std::string("WLength: "
 				  "Missing value in the css length string '") 
