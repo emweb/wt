@@ -21,8 +21,6 @@ WPdfRenderer::WPdfRenderer(HPDF_Doc pdf, HPDF_Page page)
 {
   for (int i = 0; i < 4; ++i)
     margin_[i] = 0;
-
-  //HPDF_SetCurrentEncoder(pdf_, "UTF-8");
 }
 
 WPdfRenderer::~WPdfRenderer()

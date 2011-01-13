@@ -73,6 +73,12 @@ public:
    */
   WFont();
 
+  /*! \brief A font of a given family.
+   *
+   * Creates a Medium font of the given family.
+   */
+  WFont(GenericFamily family);
+
   /*! \brief Comparison operator.
    */
   bool operator==(const WFont& other) const;

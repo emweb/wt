@@ -1,3 +1,10 @@
+13-01-2011:
+	* Wt/Chart/WCartesianChart: implement legend location, alignment,
+	and styling options
+
+	* Wt/Chart/WDataSeries: add setXSeriesColumn() to allow for
+	individual X series per Y series in a scatter plot.
+
 11-01-2011:
 	* Wt/WAbstractItemView: implement setHeaderItemDelegate() and defer
 	rendering of header cells to the item delegate; also added

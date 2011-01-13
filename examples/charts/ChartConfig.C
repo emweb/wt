@@ -62,6 +62,8 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
     chart_(chart),
     fill_(MinimumValueFill)
 {
+  chart_->setLegendStyle(chart_->legendFont(), WPen(black),
+			 WBrush(WColor(0xFF, 0xFA, 0xE5)));
   chart->initLayout();
 
   PanelList *list = new PanelList(this);
@@ -80,6 +82,24 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   WStandardItemModel *orientation = new WStandardItemModel(0, 1, this);
   addEntry(orientation, "Vertical");
   addEntry(orientation, "Horizontal");
+
+  WStandardItemModel *legendLocation = new WStandardItemModel(0, 1, this);
+  addEntry(legendLocation, "Outside");
+  addEntry(legendLocation, "Inside");
+
+  WStandardItemModel *legendSide = new WStandardItemModel(0, 1, this);
+  addEntry(legendSide, "Top");
+  addEntry(legendSide, "Right");
+  addEntry(legendSide, "Bottom");
+  addEntry(legendSide, "Left");
+
+  WStandardItemModel *legendAlignment = new WStandardItemModel(0, 1, this);
+  addEntry(legendAlignment, "AlignLeft");
+  addEntry(legendAlignment, "AlignCenter");
+  addEntry(legendAlignment, "AlignRight");
+  addEntry(legendAlignment, "AlignTop");
+  addEntry(legendAlignment, "AlignMiddle");
+  addEntry(legendAlignment, "AlignBottom");
 
   WTable *chartConfig = new WTable();
   chartConfig->setMargin(WLength::Auto, Left | Right);
@@ -112,6 +132,26 @@ ChartConfig::ChartConfig(WCartesianChart *chart, WContainerWidget *parent)
   chartOrientationEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
   chartOrientationEdit_->setModel(orientation);
   connectSignals(chartOrientationEdit_);
+  ++row;
+
+  chartConfig->elementAt(row, 0)->addWidget(new WText("Legend location:"));
+  legendLocationEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
+  legendLocationEdit_->setModel(legendLocation);
+  connectSignals(legendLocationEdit_);
+  ++row;
+
+  chartConfig->elementAt(row, 0)->addWidget(new WText("Legend side:"));
+  legendSideEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
+  legendSideEdit_->setModel(legendSide);
+  legendSideEdit_->setCurrentIndex(1);
+  connectSignals(legendSideEdit_);
+  ++row;
+
+  chartConfig->elementAt(row, 0)->addWidget(new WText("Legend alignment:"));
+  legendAlignmentEdit_ = new WComboBox(chartConfig->elementAt(row, 1));
+  legendAlignmentEdit_->setModel(legendAlignment);
+  legendAlignmentEdit_->setCurrentIndex(4);
+  connectSignals(legendAlignmentEdit_);
   ++row;
 
   for (int i = 0; i < chartConfig->rowCount(); ++i) {
@@ -503,7 +543,64 @@ void ChartConfig::update()
   }
 
   chart_->setLegendEnabled(haveLegend);
-  chart_->setPlotAreaPadding(haveLegend ? 200 : 40, Right);
+
+  if (haveLegend) {
+    LegendLocation location = LegendOutside;
+    Side side = Right;
+    AlignmentFlag alignment = AlignMiddle;
+
+    switch (legendLocationEdit_->currentIndex()) {
+    case 0: location = LegendOutside; break;
+    case 1: location = LegendInside; break;
+    }
+
+    switch (legendSideEdit_->currentIndex()) {
+    case 0: side = Top; break;
+    case 1: side = Right; break;
+    case 2: side = Bottom; break;
+    case 3: side = Left; break;
+    }
+
+    if (side == Left || side == Right) {
+      if (legendAlignmentEdit_->currentIndex() < 3)
+	legendAlignmentEdit_->setCurrentIndex(4);
+    } else {
+      if (legendAlignmentEdit_->currentIndex() >= 3)
+	legendAlignmentEdit_->setCurrentIndex(2);
+    }
+
+    switch (legendAlignmentEdit_->currentIndex()) {
+    case 0: alignment = AlignLeft; break;
+    case 1: alignment = AlignCenter; break;
+    case 2: alignment = AlignRight; break;
+    case 3: alignment = AlignTop; break;
+    case 4: alignment = AlignMiddle; break;
+    case 5: alignment = AlignBottom; break;
+    }
+
+    chart_->setLegendLocation(location, side, alignment);
+
+    chart_->setLegendColumns((side == Top || side == Bottom ) ? 2 : 1,
+			     WLength(100));
+  }
+
+  for (unsigned i = 0; i < 4; ++i) {
+    Side sides[] = { Top, Right, Bottom, Left };
+
+    bool legendRoom =
+      haveLegend
+      && chart_->legendLocation() == LegendOutside
+      && chart_->legendSide() == sides[i];
+
+    int padding;
+
+    if (i % 2 == 0)
+      padding = legendRoom ? 80 : 40;
+    else
+      padding = legendRoom ? 200 : 80;
+
+    chart_->setPlotAreaPadding(padding, sides[i]);
+  }
 }
 
 bool ChartConfig::validate(WFormWidget *w)

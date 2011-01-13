@@ -29,6 +29,21 @@ WFont::WFont()
     sizeChanged_(false)
 { }
 
+WFont::WFont(GenericFamily family)
+  : widget_(0),
+    genericFamily_(family),
+    style_(NormalStyle),
+    variant_(NormalVariant),
+    weight_(NormalWeight),
+    weightValue_(400),
+    size_(Medium),
+    familyChanged_(false),
+    styleChanged_(false),
+    variantChanged_(false),
+    weightChanged_(false),
+    sizeChanged_(false)
+{ }
+
 void WFont::setWebWidget(WWebWidget *w)
 {
   widget_ = w;

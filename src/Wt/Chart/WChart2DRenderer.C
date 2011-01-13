@@ -715,7 +715,12 @@ void WChart2DRenderer::render()
   renderAxes(Grid);          // render the grid
   renderSeries();            // render the data series
   renderAxes(Line | Labels); // render the axes (lines & labels)
+
+  painter_.restore();
+
   renderLegend();            // render legend and titles
+
+  painter_.save();
 }
 
 void WChart2DRenderer::prepareAxes()
@@ -1220,13 +1225,16 @@ void WChart2DRenderer::iterateSeries(SeriesIterator *iterator,
 	      WModelIndex xIndex, yIndex;
 
 	      double x;
-	      if (scatterPlot)
-		if (chart_->XSeriesColumn() != -1) {
-		  xIndex = model->index(row, chart_->XSeriesColumn());
+	      if (scatterPlot) {
+		int c = series[i].XSeriesColumn();
+		if (c == -1)
+		  c = chart_->XSeriesColumn();
+		if (c != -1) {
+		  xIndex = model->index(row, c);
 		  x = asNumber(model->data(xIndex));
 		} else
 		  x = row;
-	      else
+	      } else
 		x = row;
 
 	      yIndex = model->index(row, series[i].modelColumn());
@@ -1325,6 +1333,11 @@ void WChart2DRenderer::renderLegend()
 {
   bool vertical = chart_->orientation() == Vertical;
 
+  int w = vertical ? width_ : height_;
+  int h = vertical ? height_ : width_;
+
+  const int margin = 10;
+
   if (chart_->isLegendEnabled()) {
     int numSeriesWithLegend = 0;
 
@@ -1332,37 +1345,141 @@ void WChart2DRenderer::renderLegend()
       if (chart_->series()[i].isLegendEnabled())
 	++numSeriesWithLegend;
 
-    const int lineHeight = 25;
+    WFont f = painter_.font();
 
-    int x = int(vertical ? chartArea_.right()
-		: height_ - chartArea_.top()) + 20;
+    int numLegendRows = (numSeriesWithLegend - 1) / chart_->legendColumns() + 1;
+    double lineHeight = f.sizeLength().toPixels() * 1.5;
 
-    if (vertical && chart_->axis(Y2Axis).isVisible())
-      x += 40;
+    int legendWidth = (int)chart_->legendColumnWidth().toPixels()
+      * std::min(chart_->legendColumns(), numSeriesWithLegend);
+    int legendHeight = numLegendRows * lineHeight;
 
-    int y = (vertical
-	     ? int(chartArea_.center().y()) : int(chartArea_.center().x()))
-      - lineHeight * numSeriesWithLegend / 2; 
+    int x, y;
+
+    switch (chart_->legendSide()) {
+    case Left:
+      if (chart_->legendLocation() == LegendInside)
+	x = chart_->plotAreaPadding(Left) + margin;
+      else
+	x = chart_->plotAreaPadding(Left) - margin - legendWidth;
+      break;
+    case Right:
+      x = w - chart_->plotAreaPadding(Right);
+      if (chart_->legendLocation() == LegendInside)
+	x -= margin + legendWidth;
+      else
+	x += margin;
+      break;
+    case Top:
+      if (chart_->legendLocation() == LegendInside)
+	y = chart_->plotAreaPadding(Top) + margin;
+      else
+	y = chart_->plotAreaPadding(Top) - margin - legendHeight;
+      break;
+    case Bottom:
+      y = h - chart_->plotAreaPadding(Bottom);
+      if (chart_->legendLocation() == LegendInside)
+	y -= margin + legendHeight;
+      else
+	y += margin;
+    default:
+      break;
+    }
+
+    switch (chart_->legendAlignment()) {
+    case AlignTop:
+      y = chart_->plotAreaPadding(Top) + margin;
+      break;
+    case AlignMiddle:
+      {
+	double middle = chart_->plotAreaPadding(Top)
+	  + (h - chart_->plotAreaPadding(Top)
+	     - chart_->plotAreaPadding(Bottom)) / 2; 
+
+	y = middle - legendHeight/2;
+      }
+      break;
+    case AlignBottom:
+      y = h - chart_->plotAreaPadding(Bottom) - margin - legendHeight;
+      break;
+    case AlignLeft:
+      x = chart_->plotAreaPadding(Left) + margin;
+      break;
+    case AlignCenter:
+      {
+	double center = chart_->plotAreaPadding(Left)
+	  + (w - chart_->plotAreaPadding(Left)
+	     - chart_->plotAreaPadding(Right)) / 2; 
+
+	x = center - legendWidth/2;
+      } 
+      break;
+    case AlignRight:
+      x = w - chart_->plotAreaPadding(Right) - margin - legendWidth;
+      break;
+    default:
+      break;
+    }
+
+    if (chart_->legendLocation() == LegendOutside) {
+      if (chart_->legendSide() == Top
+	  && !vertical && chart_->axis(Y1Axis).isVisible())
+	y -= 16;
+
+      if (chart_->legendSide() == Right
+	  && vertical && chart_->axis(Y2Axis).isVisible())
+	x += 40;
+
+      if (chart_->legendSide() == Bottom
+	  && ((vertical && chart_->axis(XAxis).isVisible())
+	      || (!vertical && chart_->axis(Y2Axis).isVisible())))
+	y += 16;
+
+      if (chart_->legendSide() == Left
+	  && ((vertical && chart_->axis(Y1Axis).isVisible())
+	      || (!vertical && chart_->axis(XAxis).isVisible())))
+	x -= 40;
+    }
+
+    painter_.setPen(chart_->legendBorder());
+    painter_.setBrush(chart_->legendBackground());
+
+    painter_.drawRect(x - margin/2, y - margin/2,
+		      legendWidth + margin,
+		      legendHeight + margin);
 
     painter_.setPen(WPen());
 
+    painter_.save();
+    painter_.setFont(chart_->legendFont());
+
+    int item = 0;
     for (unsigned i = 0; i < chart_->series().size(); ++i)
       if (chart_->series()[i].isLegendEnabled()) {
-	chart_->renderLegendItem(painter_, WPointF(x, y + lineHeight/2),
+	int col = item % chart_->legendColumns();
+	int row = item / chart_->legendColumns();
+	double itemX
+	  = x + col * chart_->legendColumnWidth().toPixels();
+	double itemY
+	  = y + row * lineHeight;
+
+	chart_->renderLegendItem(painter_, WPointF(itemX, itemY + lineHeight/2),
 				 chart_->series()[i]);
-	y += lineHeight;
+
+	++item;
       }
+
+    painter_.restore();
   }
 
   if (!chart_->title().empty()) {
-    int x = (vertical ? width_/2 : height_/2);
-    WFont oldFont = painter_.font();
-    WFont titleFont = chart_->titleFont();
-    painter_.setFont(titleFont);
+    int x = w / 2;
+    painter_.save();
+    painter_.setFont(chart_->titleFont());
     painter_.drawText(x - 50, 5, 100, 50,
 		      AlignCenter | AlignTop,
 		      chart_->title());
-    painter_.setFont(oldFont);
+    painter_.restore();
   }
 }
 

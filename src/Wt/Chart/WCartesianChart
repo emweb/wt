@@ -58,15 +58,16 @@ class WChartPalette;
  * series contains dates (of type WDate) to create a time series
  * chart, or to a \link Chart::LogScale LogScale\endlink. A
  * ScatterPlot supports the same types of data series as a
- * CategoryChart, but does not support stacking. In a scatter plot, the
- * X series do not need to be ordered in increasing values.
+ * CategoryChart, but does not support stacking. In a scatter plot,
+ * the X series do not need to be ordered in increasing values, and
+ * may be set differently for each dataseries using
+ * WDataSeries::setXSeriesColumn().
  *
  * \image html ChartWCartesianChart-2.png "A time series scatter plot with line series"
  *
  * Missing data in a model series Y values is interpreted as a
  * <i>break</i>. For curve-like series, this breaks the curve (or
- * line). This may also be used to use different X series per Y series
- * in a scatter plot.
+ * line).
  *
  * The cartesian chart has support for dual Y axes. Each data series may
  * be bound to one of the two Y axes. By default, only the first Y axis
@@ -101,24 +102,28 @@ class WT_API WCartesianChart : public WAbstractChart
 public:
   /*! \brief Creates a new cartesian chart.
    *
-   * Creates a cartesian chart of type CategoryChart.
+   * Creates a cartesian chart of type \link Wt::Chart::CategoryChart
+   * CategoryChart\endlink.
    */
   WCartesianChart(WContainerWidget *parent = 0);
 
   /*! \brief Creates a new cartesian chart.
    *
-   * Creates a cartesian chart of the indicated <i>type</i>.
+   * Creates a cartesian chart of the indicated \p type.
    */
   WCartesianChart(ChartType type, WContainerWidget *parent = 0);
 
   /*! \brief Sets the chart type.
    *
    * The chart type determines how (x,y) data are interpreted. In a
-   * CategoryChart, the X values are categories, and these are plotted
-   * consecutively, evenly spaced, and in row order. In a ScatterPlot,
-   * the X values are interpreted numerically (as for Y values).
+   * \link Wt::Chart::CategoryChart CategoryChart\endlink, the X
+   * values are categories, and these are plotted consecutively,
+   * evenly spaced, and in row order. In a \link
+   * Wt::Chart::ScatterPlot ScatterPlot\endlink, the X values are
+   * interpreted numerically (as for Y values).
    *
-   * The default chart type is a CategoryChart.
+   * The default chart type is a \link Wt::Chart::CategoryChart
+   * CategoryChart\endlink.
    *
    * \sa type()
    * \sa WAxis::setScale(), axis(Axis)
@@ -127,18 +132,18 @@ public:
 
   /*! \brief Returns the chart type.
    *
-   * \sa setType(ChartType type)
+   * \sa setType()
    */
   ChartType type() const { return type_; }
 
   /*! \brief Sets the chart orientation.
    *
    * Sets the chart orientation, which corresponds to the orientation of
-   * the Y axis: a Vertical orientation corresponds to the conventional
-   * way of a horizontal X axis and vertical Y axis. A Horizontal
+   * the Y axis: a Wt::Vertical orientation corresponds to the conventional
+   * way of a horizontal X axis and vertical Y axis. A Wt::Horizontal
    * orientation is the other way around.
    *
-   * The default orientation is Vertical.
+   * The default orientation is Wt::Vertical.
    *
    * \sa orientation()
    */
@@ -146,16 +151,20 @@ public:
 
   /*! \brief Returns the chart orientation.
    *
-   * \sa setOrientation(Orientation)
+   * \sa setOrientation()
    */  
   Orientation orientation() const { return orientation_; }
 
   /*! \brief Sets the the model column for the X series.
    *
-   * Use this method to specify the data for the X series. For a
-   * ScatterPlot this is mandatory, while for a CategoryChart, if
-   * not specified, an increasing series of integer numbers will
-   * be used (1, 2, ...).
+   * Use this method to specify the data for the X series. For a \link
+   * Wt::Chart::ScatterPlot ScatterPlot\endlink this is mandatory,
+   * while for a \link Wt::Chart::CategoryChart CategoryChart\endlink,
+   * if not specified, an increasing series of integer numbers will be
+   * used (1, 2, ...).
+   *
+   * Scatterplot dataseries may each individually be given its own
+   * X series data using WDataSeries::setXSeriesColumn()
    *
    * The default value is -1 (not specified).
    *
@@ -169,7 +178,7 @@ public:
 
   /*! \brief Returns the model column for the X series.
    *
-   * \sa setXSeriesColumn(int)
+   * \sa setXSeriesColumn()
    */
   int XSeriesColumn() const { return XSeriesColumn_; }
 
@@ -187,17 +196,16 @@ public:
    * changed). Thus you need to set a model before configuring the
    * series.
    *
-   * \sa removeSeries(int), setSeries(const std::vector<WDataSeries>&)
+   * \sa removeSeries(), setSeries()
    */
   void addSeries(const WDataSeries& series);
 
   /*! \brief Removes a data series.
    *
    * This removes the first data series which plots the given
-   * <i>modelColumn</i>.
+   * \p modelColumn.
    *
-   * \sa addSeries(const WDataSeries&)
-   * \sa setSeries(const std::vector<WDataSeries>&).
+   * \sa addSeries(), setSeries()
    */
   void removeSeries(int modelColumn);
 
@@ -205,21 +213,21 @@ public:
    *
    * Replaces the current list of series with the new list.
    *
-   * \sa series(), addSeries(const WDataSeries&), removeSeries(int)
+   * \sa series(), addSeries(), removeSeries()
    */
   void setSeries(const std::vector<WDataSeries>& series);
 
   /*! \brief Returns a data series corresponding to a data column.
    *
    * Returns a reference to the first data series that plots data
-   * from <i>modelColumn</i>.
+   * from \p modelColumn.
    */
   WDataSeries& series(int modelColumn);
 
   /*! \brief Returns a data series corresponding to a data column.
    *
    * Returns a const reference to the first data series that plots data
-   * from <i>modelColumn</i>.
+   * from \p modelColumn.
    */
   const WDataSeries& series(int modelColumn) const;
 
@@ -233,13 +241,13 @@ public:
 
   /*! \brief Returns a chart axis.
    *
-   * Returns a reference to the specified <i>axis</i>.
+   * Returns a reference to the specified \p axis.
    */
   WAxis& axis(Axis axis);
 
   /*! \brief Accesses a chart axis.
    *
-   * Returns a const reference to the specified <i>axis</i>.
+   * Returns a const reference to the specified \p axis.
    */
   const WAxis& axis(Axis axis) const;
 
@@ -264,50 +272,146 @@ public:
 
   /*! \brief Enables the legend.
    *
-   * If <i>enabled</i> is true, then a default legend is added to the right
-   * of the chart. You should provide space for the legend using
-   * the setChartPadding() method. Only series for which the legend
-   * is enabled or included in this legend (see
-   * WDataSeries::isLegendEnabled()).
+   * The location of the legend can be configured using
+   * setLegendLocation(). Only series for which the legend is enabled
+   * or included in this legend.
    *
-   * To have more control over the legend, you could reimplement the
-   * renderLegendItem() method to customize how one item in the legend
-   * is rendered, or, alternatively you could reimplement the paint()
-   * method in which you use the renderLegendItem() method repeatedly
-   * to render a legend at an arbitrary position.
+   * The default value is \c false.
    *
-   * The default value is false.
-   *
-   * \sa WDataSeries::setLegendEnabled(bool)
+   * \sa see WDataSeries::isLegendEnabled(), setLegendLocation()
    */
   void setLegendEnabled(bool enabled);
 
   /*! \brief Returns whether the legend is enabled.
    *
-   * \sa setLegendEnabled(bool)
+   * \sa setLegendEnabled()
    */
   bool isLegendEnabled() const { return legend_; }
+
+  /*! \brief Configures the legend location.
+   *
+   * The legend can be renderd either inside or outside of the chart
+   * area. When \p location is \link Wt::Chart::LegendInside
+   * Chart::LegendInside\endlink, the legend will be rendered inside
+   * the chart. When \p location is \link Wt::Chart::LegendOutside
+   * Chart::Legendoutside\endlink, the legend is rendered outside the
+   * chart, in the chart padding area.
+   *
+   * The provided \p side can either be Wt::Left, Wt::Right, Wt::Top,
+   * Wt::Bottom and configures the side of the chart at which the
+   * legend is displayed.
+   *
+   * The \p alignment specifies how the legend is aligned. This can be
+   * a horizontal alignment flag (Wt::AlignLeft, Wt::AlignCenter, or
+   * Wt::AlignRight), when the \p side is Bottom or Top, or a vertical
+   * alignment flag (Wt::AlignTop, Wt::AlignMiddle, or Wt::AlignBottom)
+   * when the \p side is Left or Right.
+   *
+   * The default location is \link Wt::Chart::LegendOutside
+   * Chart::LegendOutside\endlink, Wt::Right and Wt::AlignMiddle.
+   *
+   * To have more control over the legend, you could reimplement the
+   * renderLegendItem() method to customize how one item in the legend
+   * is rendered, or, alternatively you can disable the legend
+   * generated by the chart itself, and reimplement the paint() method
+   * in which you use the renderLegendItem() method repeatedly to
+   * render a customized legend.
+   *
+   * \sa WDataSeries::setLegendEnabled()
+   */
+  void setLegendLocation(LegendLocation location, Side side,
+			 AlignmentFlag alignment);
+
+  /*! \brief Configures the legend decoration.
+   *
+   * This configures the font, border and background for the legend.
+   *
+   * The default font is a 10pt sans serif font (the same as the
+   * default axis label font), the default \p border is \link
+   * Wt::NoPen NoPen\endlink and the default \p background is \link
+   * Wt::NoBrush NoBrush\endlink.
+   *
+   * \sa setLegendEnabled()
+   */
+  void setLegendStyle(const WFont& font, const WPen& border,
+		      const WBrush& background);
+
+  /*! \brief Returns the legend location.
+   *
+   * \sa setLegendLocation()
+   */
+  LegendLocation legendLocation() const { return legendLocation_; }
+
+  /*! \brief Returns the legend side.
+   *
+   * \sa setLegendLocation()
+   */
+  Side legendSide() const { return legendSide_; }
+
+  /*! \brief Returns the legend alignment.
+   *
+   * \sa setLegendLocation()
+   */
+  AlignmentFlag legendAlignment() const { return legendAlignment_; }
+
+  /*! \brief Returns the legend columns.
+   *
+   * \sa setLegendColumns()
+   */
+  int legendColumns() const { return legendColumns_; }
+
+  /*! \brief Returns the legend column width.
+   *
+   * \sa setLegendColumns()
+   */
+  WLength legendColumnWidth() const { return legendColumnWidth_; }
+
+  /*! \brief Returns the legend font.
+   *
+   * \sa setLegendStyle()
+   */
+  WFont legendFont() const { return legendFont_; }
+
+  /*! \brief Returns the legend border pen.
+   *
+   * \sa setLegendStyle()
+   */
+  WPen legendBorder() const { return legendBorder_; }
+
+  /*! \brief Returns the legend background brush.
+   *
+   * \sa setLegendStyle()
+   */
+  WBrush legendBackground() const { return legendBackground_; }
+
+  /*! \brief Configures multiple legend columns.
+   *
+   * Multiple columns are typically useful when placing the legend at
+   * the top or at the bottom of the chart.
+   *
+   * The default value is a single column, 100 pixels wide. 
+   */
+  void setLegendColumns(int columns, const WLength& width);
   
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
     const;
 
   /*! \brief Draws the marker for a given data series.
    *
-   * Draws the marker for the indicated <i>series</i> in the <i>result</i>.
+   * Draws the marker for the indicated \p series in the \p result.
    * This method is called while painting the chart, and you may
    * want to reimplement this method if you wish to provide a custom
    * marker for a particular data series.
    *
-   * \sa setLegendEnabled(bool)
+   * \sa setLegendEnabled()
    */
   virtual void drawMarker(const WDataSeries& series, WPainterPath& result)
     const;
 
-
   /*! \brief Renders the legend icon for a given data series.
    *
-   * Renders the legend icon for the indicated <i>series</i> in the
-   * <i>painter</i> at position <i>pos</i>.
+   * Renders the legend icon for the indicated \p series in the
+   * \p painter at position \p pos.
    *
    * This method is called while rendering a legend item, and you may
    * want to reimplement this method if you wish to provide a custom
@@ -320,8 +424,8 @@ public:
 
   /*! \brief Renders the legend item for a given data series.
    *
-   * Renders the legend item for the indicated <i>series</i> in the
-   * <i>painter</i> at position <i>pos</i>. The default implementation
+   * Renders the legend item for the indicated \p series in the
+   * \p painter at position \p pos. The default implementation
    * draws the marker, and the series description to the right. The
    * series description is taken from the model's header data for that
    * series' data column.
@@ -330,7 +434,7 @@ public:
    * want to reimplement this method if you wish to provide a custom
    * marker for a particular data series.
    *
-   * \sa setLegendEnabled(bool)
+   * \sa setLegendEnabled()
    */
   virtual void renderLegendItem(WPainter& painter, const WPointF& pos,
 				const WDataSeries& series) const;
@@ -395,9 +499,10 @@ public:
 
   /*! \brief Adds a data point area (used for displaying e.g. tooltips).
    *
-   * You may want to specialize this is if you wish to modify (or delete) the area.
+   * You may want to specialize this is if you wish to modify (or
+   * delete) the area.
    *
-   * \note Currently, an area is only created if the ToolTipRole data at the
+   * \note Currently, an area is only created if the Wt::ToolTipRole data at the
    *       data point is not empty.
    */
   virtual void addDataPointArea(const WDataSeries& series,
@@ -410,8 +515,8 @@ protected:
   /*! \brief Creates a renderer which renders the chart.
    *
    * The rendering of the chart is delegated to a WChart2DRenderer
-   * class, which will render the chart within the <i>rectangle</i> of
-   * the <i>painter</i>.
+   * class, which will render the chart within the \p rectangle of
+   * the \p painter.
    *
    * You may want to reimplement this method if you wish to override
    * one or more aspects of the rendering, by returning an new instance
@@ -432,6 +537,14 @@ private:
   WAxis                     axes_[3];
   double                    barMargin_;
   bool                      legend_;
+  LegendLocation            legendLocation_;
+  Side                      legendSide_;
+  AlignmentFlag             legendAlignment_;
+  int                       legendColumns_;
+  WLength                   legendColumnWidth_;
+  WFont                     legendFont_;
+  WPen                      legendBorder_;
+  WBrush                    legendBackground_;
 
   void init();
   virtual void modelColumnsInserted(const WModelIndex& parent,

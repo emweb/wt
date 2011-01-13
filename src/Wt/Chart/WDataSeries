@@ -41,20 +41,19 @@ namespace Wt {
  * \image html ChartWDataSeries-1.png "Different styles of data series"
  * 
  * For a category chart, series may be stacked on top of each other.
- * This is controlled by setStacked(bool stacked) for a series, which
- * if enabled, will stack that series on top of the preceding data
- * series. This works regardless of whether they are of the same type,
- * but obviously works visually best if these series are of the same
+ * This is controlled by setStacked() for a series, which if enabled,
+ * will stack that series on top of the preceding data series. This
+ * works regardless of whether they are of the same type, but
+ * obviously works visually best if these series are of the same
  * type. When not stacked, bar series are rendered next to each other.
- * The margin between bars of different data series is controlled using
- * WCartesianChart::setBarMargin(double).
+ * The margin between bars of different data series is controlled
+ * using WCartesianChart::setBarMargin().
  *
  * The line and color type are by default based on the \link
  * WCartesianChart::palette() chart palette\endlink, but may be
- * overridden for a series using setPen(const WPen&),
- * setBrush(const WBrush&), etc...
+ * overridden for a series using setPen(), setBrush(), etc...
  *
- * \sa WCartesianChart::addSeries(const WDataSeries&)
+ * \sa WCartesianChart::addSeries()
  *
  * \ingroup charts
  */
@@ -84,7 +83,7 @@ public:
    * <i>seriesType</i>. The Y values are mapped to the indicated
    * <i>axis</i>, which should correspond to one of the two Y axes.
    *
-   * \sa WCartesianChart::addSeries(const WDataSeries&)
+   * \sa WCartesianChart::addSeries()
    */
   WDataSeries(int modelColumn, SeriesType seriesType = PointSeries,
 	      Axis axis = Y1Axis);
@@ -109,7 +108,7 @@ public:
 
   /*! \brief Returns the bar width.
    *
-   * \sa setBarWidth(double) 
+   * \sa setBarWidth() 
    */
   double barWidth() const;
 
@@ -122,7 +121,7 @@ public:
 
   /*! \brief Returns the series type.
    *
-   * \sa setType(SeriesType)
+   * \sa setType()
    */
   SeriesType type() const { return type_; }
 
@@ -138,16 +137,36 @@ public:
    * \endif
    *
    * \if cpp
-   * \sa asNumber(const boost::any&)
+   * \sa Wt::asNumber()
    * \endif
    */
   void setModelColumn(int modelColumn);
 
   /*! \brief Returns the model column.
    *
-   * \sa setModelColumn(int)
+   * \sa setModelColumn()
    */
   int modelColumn() const { return modelColumn_; }
+
+  /*! \brief Sets the X series column.
+   *
+   * By default, the data series uses the X series column configured
+   * for the chart. For a scatter plot, each series can have its own
+   * matching X data, which is configured here. For other plots, this
+   * setting is ignored.
+   *
+   * The default value is -1, which indicates that
+   * WCartesianChart::XSeriesColumn() is to be used.
+   *
+   * \sa WCartesianChart::setXSeriesColumn()
+   */
+  void setXSeriesColumn(int modelColumn);
+
+  /*! \brief Returns the X series column.
+   *
+   * \sa setXSeriesColumn()
+   */
+  int XSeriesColumn() const { return XSeriesColumn_; }
 
   /*! \brief Sets whether this series is stacked on top of the preceding series.
    *
@@ -165,7 +184,7 @@ public:
   /*! \brief Returns whether this series is stacked on top of the preceding
    *         series.
    *
-   * \sa setStacked(bool)
+   * \sa setStacked()
    */
   bool isStacked() const { return stacked_; }
 
@@ -182,7 +201,7 @@ public:
 
   /*! \brief Returns the chart axis used for this series.
    *
-   * \sa bindToAxis(Axis)
+   * \sa bindToAxis()
    */
   Axis axis() const { return axis_; }
 
@@ -197,7 +216,7 @@ public:
 
   /*! \brief Returns which aspects of the look are overriden.
    *
-   * \sa setCustomFlags(WFlags<CustomFlag>)
+   * \sa setCustomFlags()
    */
   WFlags<CustomFlag> curstomFlags() const { return customFlags_; }
 
@@ -214,7 +233,7 @@ public:
 
   /*! \brief Returns the pen used for drawing lines for this series.
    *
-   * \sa setPen(const WPen&)
+   * \sa setPen()
    */
   WPen pen() const;
 
@@ -232,7 +251,7 @@ public:
 
   /*! \brief Returns the brush used for filling areas for this series.
    *
-   * \sa setBrush(const WBrush&)
+   * \sa setBrush()
    */
   WBrush brush() const;
 
@@ -242,7 +261,7 @@ public:
 
   /*! \brief Returns the shadow used for stroking lines for this series.
    *
-   * \sa setShadow(const WShadow&)
+   * \sa setShadow()
    */
   const WShadow& shadow() const;
 
@@ -255,7 +274,7 @@ public:
 
   /*! \brief Returns the fill range for line or curve series.
    *
-   * \sa setFillRange(FillRangeType)
+   * \sa setFillRange()
    */
   FillRangeType fillRange() const { return fillRange_; }
 
@@ -267,13 +286,13 @@ public:
    * The default value is a CircleMarker for a PointSeries, or NoMarker
    * otherwise.
    *
-   * \sa setMarkerPen(const WPen&), setMarkerBrush(const WBrush&).
+   * \sa setMarkerPen(), setMarkerBrush().
    */
   void setMarker(MarkerType marker);
 
   /*! \brief Returns the data point marker.
    *
-   * \sa setMarker(MarkerType)
+   * \sa setMarker()
    */
   MarkerType marker() const { return marker_; }
 
@@ -295,13 +314,13 @@ public:
    * marker pen is the same as pen(). Calling this method automatically adds
    * CustomMarkerPen to the custom flags.
    *
-   * \sa setPen(const WPen&), setMarkerBrush(const WBrush&)
+   * \sa setPen(), setMarkerBrush()
    */
   void setMarkerPen(const WPen& pen);
 
   /*! \brief Returns the marker pen.
    *
-   * \sa setMarkerPen(const WPen&)
+   * \sa setMarkerPen()
    */
   WPen markerPen() const;
 
@@ -311,13 +330,13 @@ public:
    * marker brush is the same as brush(). Calling this method
    * automatically adds CustomMarkerBrush to the custom flags.
    *
-   * \sa setBrush(const WBrush&), setMarkerPen(const WPen&)
+   * \sa setBrush(), setMarkerPen()
    */
   void setMarkerBrush(const WBrush& brush);
 
   /*! \brief Returns the marker brush.
    *
-   * \sa setMarkerBrush(const WBrush&)
+   * \sa setMarkerBrush()
    */
   WBrush markerBrush() const;
 
@@ -328,13 +347,13 @@ public:
    *
    * The default value is true.
    *
-   * \sa WCartesianChart::setLegendEnabled(bool).
+   * \sa WCartesianChart::setLegendEnabled().
    */
   void setLegendEnabled(bool enabled);
 
   /*! \brief Returns whether this series has an entry in the legend.
    *
-   * \sa setLegendEnabled(bool)
+   * \sa setLegendEnabled()
    */
   bool isLegendEnabled() const;
 
@@ -353,7 +372,7 @@ public:
 
   /*! \brief Returns whether labels are enabled for the given axis.
    *
-   * \sa setLabelsEnabled(Axis, bool)
+   * \sa setLabelsEnabled()
    */
   bool isLabelsEnabled(Axis axis) const;
 
@@ -362,13 +381,13 @@ public:
    * Specify the color used for the rendering labels at the data
    * points.
    *
-   * \sa setLabelsEnabled(Axis, bool)
+   * \sa setLabelsEnabled()
    */
   void setLabelColor(const WColor& color);
 
   /*! \brief Returns the label color.
    *
-   * \sa setLabelColor(const WColor&)
+   * \sa setLabelColor()
    */
   WColor labelColor() const;
 
@@ -380,7 +399,7 @@ public:
 
   /*! \brief Return whether the series is hidden.
    *
-   * /sa setHidden()
+   * \sa setHidden()
    */
   bool isHidden() const;
 
@@ -421,6 +440,7 @@ public:
 private:
   WCartesianChart   *chart_;
   int                modelColumn_;
+  int                XSeriesColumn_;
   bool               stacked_;
   SeriesType         type_;
   Axis               axis_;

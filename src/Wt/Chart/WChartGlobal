@@ -67,6 +67,15 @@ enum ChartType {
   ScatterPlot    //!< The X series must be interpreted as numerical data
 };
 
+/*! \brief Enumeration type that indicates a legend location.
+ *
+ * \ingroup charts
+ */
+enum LegendLocation {
+  LegendInside, //!< Inside the chart area
+  LegendOutside //!< Outside the chart area (in the padding area)
+};
+
   }
 }
 

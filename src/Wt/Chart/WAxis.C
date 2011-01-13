@@ -64,7 +64,7 @@ class ExtremesIterator : public SeriesIterator
 {
 public:
   ExtremesIterator(Axis axis, AxisScale scale)
-    : axis_(axis),scale_(scale),
+    : axis_(axis), scale_(scale),
       minimum_(WAxis::AUTO_MINIMUM),
       maximum_(WAxis::AUTO_MAXIMUM)
   { }
@@ -72,16 +72,18 @@ public:
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
 			   int numBarGroups, int currentBarGroup)
   {
-    return series.axis() == axis_;
+    return axis_ == XAxis || series.axis() == axis_;
   }
 
   virtual void newValue(const WDataSeries& series, double x, double y,
 			double stackY, const WModelIndex& xIndex,
 			const WModelIndex& yIndex)
   {
-    if (!Utils::isNaN(y) && (scale_!=LogScale || y>0.0)) {
-      maximum_ = std::max(y, maximum_);
-      minimum_ = std::min(y, minimum_);
+    double v = axis_ == XAxis ? x : y;
+
+    if (!Utils::isNaN(v) && (scale_ != LogScale || v > 0.0)) {
+      maximum_ = std::max(v, maximum_);
+      minimum_ = std::min(v, minimum_);
     }
   }
 
@@ -438,31 +440,11 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
       double minimum = std::numeric_limits<double>::max();
       double maximum = -std::numeric_limits<double>::max();
 
-      if (axis_ == XAxis) {
-	int dataColumn = chart_->XSeriesColumn();
+      ExtremesIterator iterator(axis_, scale_);
+      renderer.iterateSeries(&iterator);
 
-	if (dataColumn != -1) {
-	  WAbstractItemModel *model = chart_->model();
-
-	  for (int i = 0; i < rc; ++i) {
-	    double v = getValue(model->data(i, dataColumn));
-
-	    if (Utils::isNaN(v))
-	      continue;
-
-	    if (findMaximum)
-	      maximum = std::max(v, maximum);
-	    if (findMinimum)
-	      minimum = std::min(v, minimum);
-	  }
-	}
-      } else {
-	ExtremesIterator iterator(axis_, scale_);
-	renderer.iterateSeries(&iterator);
-
-	minimum = iterator.minimum();
-	maximum = iterator.maximum();
-      }
+      minimum = iterator.minimum();
+      maximum = iterator.maximum();
 
       if (minimum == std::numeric_limits<double>::max()) {
 	if (scale_ == LogScale)

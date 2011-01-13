@@ -44,7 +44,14 @@ WCartesianChart::WCartesianChart(WContainerWidget *parent)
     XSeriesColumn_(-1),
     type_(CategoryChart),
     barMargin_(0),
-    legend_(false)
+    legend_(false),
+    legendLocation_(LegendOutside),
+    legendSide_(Right),
+    legendAlignment_(AlignMiddle),
+    legendColumns_(1),
+    legendColumnWidth_(100),
+    legendBorder_(NoPen),
+    legendBackground_(NoBrush)
 {
   init();
 }
@@ -55,13 +62,23 @@ WCartesianChart::WCartesianChart(ChartType type, WContainerWidget *parent)
     XSeriesColumn_(-1),
     type_(type),
     barMargin_(0),
-    legend_(false)
+    legend_(false),
+    legendLocation_(LegendOutside),
+    legendSide_(Right),
+    legendAlignment_(AlignMiddle),
+    legendColumns_(1),
+    legendColumnWidth_(100),
+    legendBorder_(NoPen),
+    legendBackground_(NoBrush)
 {
   init();
 }
 
 void WCartesianChart::init()
 {
+  legendFont_.setFamily(WFont::SansSerif);
+  legendFont_.setSize(WFont::FixedSize, WLength(10, WLength::Point));
+
   setPalette(new WStandardPalette(WStandardPalette::Muted));
   //setPreferredMethod(InlineSvgVml);
 	
@@ -69,7 +86,7 @@ void WCartesianChart::init()
   for (int i = 0; i < 3; ++i)
     axes_[i] = WAxis();
 #endif //WT_TARGET_JAVA
-	
+
   axes_[XAxis].init(this, XAxis);
   axes_[YAxis].init(this, YAxis);
   axes_[Y2Axis].init(this, Y2Axis);
@@ -189,6 +206,35 @@ void WCartesianChart::setLegendEnabled(bool enabled)
   }
 }
 
+void WCartesianChart::setLegendLocation(LegendLocation location, Side side,
+					AlignmentFlag alignment)
+{
+  legendLocation_ = location;
+  legendSide_ = side;
+  legendAlignment_ = alignment;
+
+  update();
+}
+
+void WCartesianChart::setLegendColumns(int columns, const WLength& columnWidth)
+{
+  legendColumns_ = columns;
+  legendColumnWidth_ = columnWidth;
+
+  update();
+}
+
+void WCartesianChart::setLegendStyle(const WFont& font,
+				     const WPen& border,
+				     const WBrush& background)
+{
+  legendFont_ = font;
+  legendBorder_ = border;
+  legendBackground_ = background;
+
+  update();
+}
+
 void WCartesianChart::paint(WPainter& painter, const WRectF& rectangle) const
 {
   if (!painter.isActive())
@@ -300,8 +346,8 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
 }
 
 void WCartesianChart::renderLegendItem(WPainter& painter,
-				      const WPointF& pos,
-				      const WDataSeries& series) const
+				       const WPointF& pos,
+				       const WDataSeries& series) const
 {
   WPen fontPen = painter.pen();
 
@@ -313,12 +359,12 @@ void WCartesianChart::renderLegendItem(WPainter& painter,
 		   asString(model()->headerData(series.modelColumn())));
 }
 
-WWidget* WCartesianChart::createLegendItemWidget(int index)
+WWidget *WCartesianChart::createLegendItemWidget(int index)
 {
-  WContainerWidget* legendItem = new WContainerWidget();
+  WContainerWidget *legendItem = new WContainerWidget();
 
   legendItem->addWidget(new IconWidget(this, index));
-  WText* label = new WText(asString(model()->headerData(index)));
+  WText *label = new WText(asString(model()->headerData(index)));
   label->setVerticalAlignment(AlignTop);
   legendItem->addWidget(label);
 

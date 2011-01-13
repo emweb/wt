@@ -15,6 +15,7 @@ namespace Wt {
 WDataSeries::WDataSeries(int modelColumn, SeriesType type, Axis axis)
   : chart_(0),
     modelColumn_(modelColumn),
+    XSeriesColumn_(-1),
     stacked_(false),
     type_(type),
     axis_(axis),

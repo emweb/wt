@@ -79,6 +79,9 @@ private:
   Wt::WLineEdit *chartWidthEdit_;
   Wt::WLineEdit *chartHeightEdit_;
   Wt::WComboBox *chartOrientationEdit_;
+  Wt::WComboBox *legendLocationEdit_;
+  Wt::WComboBox *legendSideEdit_;
+  Wt::WComboBox *legendAlignmentEdit_;
 
   void connectSignals(Wt::WFormWidget *w);
   void update();
