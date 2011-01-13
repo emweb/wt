@@ -14,6 +14,9 @@
 namespace Wt {
   namespace Dbo {
 
+  /*
+   * std::string
+   */
 std::string sql_value_traits<std::string>::type(SqlConnection *conn, int size)
 {
   if (size == -1)
@@ -40,6 +43,10 @@ bool sql_value_traits<std::string>::read(std::string& v,
     return true;
 }
 
+  /*
+   * long long 
+   */
+
 const char *sql_value_traits<long long>::type(SqlConnection *conn, int size)
 {
   return "bigint not null";
@@ -59,6 +66,50 @@ bool sql_value_traits<long long>::read(long long& v,
   return statement->getResult(column, &v);
 }
 
+
+  /*
+   * long
+   */
+
+const char *sql_value_traits<long>::type(SqlConnection *conn, int size)
+{
+  if (sizeof(long) == 4)
+    return "integer not null";
+  else
+    return "bigint not null";
+}
+
+void sql_value_traits<long>::bind(long v,
+				  SqlStatement *statement, int column,
+				  int size)
+{
+  if (sizeof(long) == 4)
+    statement->bind(column, (int)v);
+  else
+    statement->bind(column, (long long)v);
+}
+
+bool sql_value_traits<long>::read(long& v,
+				  SqlStatement *statement, int column,
+				  int size)
+{
+  if (sizeof(long) == 4) {
+    int v2;
+    bool result = statement->getResult(column, &v2);
+    v = v2;
+    return result;
+  } else {
+    long long v2;
+    bool result = statement->getResult(column, &v2);
+    v = v2;
+    return result;
+  }
+}
+
+  /*
+   * int
+   */
+
 const char *sql_value_traits<int>::type(SqlConnection *conn, int size)
 {
   return "integer not null";
@@ -75,6 +126,10 @@ bool sql_value_traits<int>::read(int& v, SqlStatement *statement, int column,
 {
   return statement->getResult(column, &v);
 }
+
+  /*
+   * short
+   */
 
 const char *sql_value_traits<short>::type(SqlConnection *conn,
 					  int size)
@@ -93,6 +148,10 @@ bool sql_value_traits<short>::read(short& v, SqlStatement *statement,
 {
   return statement->getResult(column, &v);
 }
+
+  /*
+   * bool
+   */
 
 const char *sql_value_traits<bool>::type(SqlConnection *conn, int size)
 {
@@ -116,6 +175,10 @@ bool sql_value_traits<bool>::read(bool& v, SqlStatement *statement, int column,
   return result;
 }
 
+  /*
+   * float
+   */
+
 const char *sql_value_traits<float>::type(SqlConnection *conn, int size)
 {
   return "real not null";
@@ -133,6 +196,10 @@ bool sql_value_traits<float>::read(float& v, SqlStatement *statement,
   return statement->getResult(column, &v);
 }
 
+  /*
+   * double
+   */
+
 const char *sql_value_traits<double>::type(SqlConnection *conn, int size)
 {
   return "double precision not null";
@@ -149,6 +216,10 @@ bool sql_value_traits<double>::read(double& v, SqlStatement *statement,
 {
   return statement->getResult(column, &v);
 }
+
+  /*
+   * std::vector<unsigned char>
+   */
 
 const char *sql_value_traits<std::vector<unsigned char> >
 ::type(SqlConnection *conn, int size)

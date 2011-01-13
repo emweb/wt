@@ -27,14 +27,18 @@ class SqlStatement;
  * to a single database column.
  *
  * The library has built-in support for:
- *  - std::string
- *  - char const * (read-only: only as a bound parameter for a query)
- *  - short, int, long, long long
- *  - float, double
+ *  - <tt>std::string</tt>
+ *  - <tt>char const *</tt> (read-only: only as a bound parameter for a query)
+ *  - <tt>short</tt>, <tt>int</tt>, <tt>long long</tt>
+ *  - <tt>long</tt>:  since the size of a <tt>long</tt> is 64bit on
+ *    UNIX/Linux 64bit systems and 32bit otherwise, it is mapped to an
+ *    <tt>integer</tt> or a <tt>bigint</tt> depending on the environment.
+ *  - <tt>float</tt>, <tt>double</tt>
  *  - enum types
- *  - bool
- *  - std::vector<unsigned char> (binary data)
- *  - boost::optional<T>: to make the type optional (allow <tt>null</tt>)
+ *  - <tt>bool</tt>
+ *  - <tt>std::vector<unsigned char></tt> (binary data)
+ *  - <tt>boost::optional<T></tt>: to make the type optional
+ *    (allowing an SQL <tt>null</tt> value)
  *
  * In <Wt/Dbo/WtSqlTraits>, traits classes are also provided for:
  *  - WDate

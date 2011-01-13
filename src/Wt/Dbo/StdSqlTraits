@@ -52,6 +52,16 @@ struct WTDBO_API sql_value_traits<int, void>
 };
 
 template<>
+struct WTDBO_API sql_value_traits<long, void>
+{
+  static const bool specialized = true;
+
+  static const char *type(SqlConnection *conn, int size);
+  static void bind(long v, SqlStatement *statement, int column, int size);
+  static bool read(long& v, SqlStatement *statement, int column, int size);
+};
+
+template<>
 struct WTDBO_API sql_value_traits<short, void>
 {
   static const bool specialized = true;
