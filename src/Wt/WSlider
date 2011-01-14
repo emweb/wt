@@ -57,18 +57,18 @@ public:
   /*! \brief Enumeration that specifies the location of ticks.
    */
   enum TickPosition {
-    TicksAbove = 0x1,     //!< Render ticks above (horizontal slider)
-    TicksBelow = 0x2     //!< Render ticks below (horizontal slider)
+    TicksAbove = 0x1,     //!< %Render ticks above (horizontal slider)
+    TicksBelow = 0x2     //!< %Render ticks below (horizontal slider)
 #ifndef WT_TARGET_JAVA
-    ,TicksLeft = 0x1,      //!< Render ticks on the left side (vertical slider)
-    TicksRight = 0x2      //!< Render ticks on the right side (vertical slider)
+    ,TicksLeft = 0x1,      //!< %Render ticks on the left side (vertical slider)
+    TicksRight = 0x2      //!< %Render ticks on the right side (vertical slider)
 #endif // WT_TARGET_JAVA
   };
 
   //! Do not render ticks.
   static const Wt::WFlags<TickPosition> NoTicks;
 
-  //! Render ticks on both sides.
+  //! %Render ticks on both sides.
   static const Wt::WFlags<TickPosition> TicksBothSides;
 
   /*! \brief Creates a default horizontal slider.

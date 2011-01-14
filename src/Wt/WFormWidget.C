@@ -257,6 +257,7 @@ void WFormWidget::validatorChanged()
     delete filterInput_;
     filterInput_ = 0;
   }
+  validate();
 }
 
 void WFormWidget::updateDom(DomElement& element, bool all)
@@ -352,7 +353,6 @@ void WFormWidget::setValidator(WValidator *validator)
 
     validator_->addFormWidget(this);
     validatorChanged();
-    validate();
 #ifndef WT_TARGET_JAVA
     if (!validator_->parent())
       WObject::addChild(validator_);

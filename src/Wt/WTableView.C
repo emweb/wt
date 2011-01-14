@@ -82,13 +82,6 @@ WTableView::WTableView(WContainerWidget *parent)
        "padding-left: 0px;");
     
     app->styleSheet().addRule
-      (".Wt-tableview .Wt-header-el, .Wt-tableview .Wt-tv-c",
-       "text-overflow: ellipsis;"
-       "overflow: hidden;"
-       "white-space: nowrap;"
-       "padding: 0px;");
-
-    app->styleSheet().addRule
       (".Wt-tableview .Wt-header .Wt-tv-c",
        "overflow: visible;"
        "padding-left: 6px;");
@@ -102,19 +95,10 @@ WTableView::WTableView(WContainerWidget *parent)
       (".Wt-tableview .Wt-tv-rh:hover",
        "background-color: #DDDDDD;");
 
-    app->styleSheet().addRule
-      (".Wt-tableview div.Wt-tv-rhc0",
-       "float: left; width: 4px;");
-
     /* sort handles */
     app->styleSheet().addRule
       (".Wt-tableview .Wt-tv-sh", std::string() +
        "float: right; width: 16px; height: 16px; padding-bottom: 6px;"
-       "cursor: pointer; cursor:hand;");
-
-    app->styleSheet().addRule
-      (".Wt-tableview .Wt-tv-sh-nrh", std::string() + 
-       "float: right; width: 16px; height: 16px;"
        "cursor: pointer; cursor:hand;");
 
     /* borders: needed here for IE */
@@ -129,17 +113,6 @@ WTableView::WTableView(WContainerWidget *parent)
        ".Wt-tableview .Wt-tv-contents input.icon",
        "margin: 0px 3px 2px 0px; vertical-align: middle");
   }
-
-  /* item drag & drop */
-  app->styleSheet().addRule
-    ("#" + id() + "dw",
-     "width: 32px; height: 32px;"
-     "background: url(" + WApplication::resourcesUrl() + "items-not-ok.gif);");
-
-  app->styleSheet().addRule
-    ("#" + id() + "dw.Wt-valid-drop",
-     "width: 32px; height: 32px;"
-     "background: url(" + WApplication::resourcesUrl() + "items-ok.gif);");
 
   if (app->environment().ajax()) {
     impl_->setPositionScheme(Relative);

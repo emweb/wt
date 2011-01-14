@@ -1002,10 +1002,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
       (".Wt-treeview .Wt-tv-rh:hover",
        "background-color: #DDDDDD;");
 
-    app->styleSheet().addRule
-      (".Wt-treeview div.Wt-tv-rhc0",
-       "float: left; width: 4px;");
-
     /* borders: needed here for IE */
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-br, "                      // header
@@ -1016,11 +1012,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-sh", std::string() +
        "float: right; width: 16px; height: 16px; padding-bottom: 6px;"
-       "cursor: pointer; cursor:hand;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-sh-nrh", std::string() + 
-       "float: right; width: 16px; height: 16px;"
        "cursor: pointer; cursor:hand;");
 
     app->styleSheet().addRule

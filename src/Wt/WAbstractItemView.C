@@ -122,7 +122,7 @@ public:
   virtual bool setData(const WModelIndex& index, const boost::any& value,
 		       int role = EditRole)
   {
-    model_->setHeaderData(index.column(), Horizontal, value, role);
+    return model_->setHeaderData(index.column(), Horizontal, value, role);
   }
   
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const

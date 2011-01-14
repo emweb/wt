@@ -27,13 +27,14 @@ namespace Wt
  * This widget uses the online Google Maps server to display a map. It
  * exposes a part of the google maps API.
  *
+ * This widget supports both version 2 and version 3 of the Google Maps API.
+ * The version 2 API is used by default, to enable the version 3 API, use the 
+ * constructor's version argument.
+ *
  * To use the map on a public server you will need to obtain a
  * key. The widget will look for this key as the configuration
  * property <tt>"google_api_key"</tt>. If this configuration property
  * has not been set, it will use a key that is suitable for localhost.
- *
- * Loading multiple maps within the same request is currently not possible
- * with the Google Maps v3 API.
  *
  * <h3>CSS</h3>
  *
@@ -117,7 +118,7 @@ public:
 
   /*! \brief Creates a map widget with optional parent and version.
    */
-  WGoogleMap(ApiVersion version = Version3, WContainerWidget *parent = 0);
+  WGoogleMap(ApiVersion version = Version2, WContainerWidget *parent = 0);
 
   /*! \brief Destructor.
    */
@@ -222,6 +223,8 @@ public:
    * By Google logo.
    *
    * This control is initially disabled.
+   *
+   * \note This functionality is no longer available in the Google Maps API v3.
    */
   void enableGoogleBar();
 
@@ -230,6 +233,8 @@ public:
    * When disabled, the default Powered by Google logo occupies the
    * position formerly containing this control. Note that this control
    * is already disabled by default.
+   *
+   * \note This functionality is no longer available in the Google Maps API v3.
    */
   void disableGoogleBar();
 

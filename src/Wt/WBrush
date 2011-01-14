@@ -35,7 +35,7 @@ public:
    *
    * Creates a black brush with the indicated \p style.
    */
-  WBrush(WBrushStyle style);
+  WBrush(BrushStyle style);
 
   /*! \brief Creates a solid brush of a given color.
    *
@@ -73,13 +73,13 @@ public:
    *
    * \sa style()
    */
-  void setStyle(WBrushStyle style);
+  void setStyle(BrushStyle style);
 
   /*! \brief Returns the fill style.
    *
-   * \sa setStyle(WBrushStyle)
+   * \sa setStyle(BrushStyle)
    */
-  WBrushStyle style() const { return style_; }
+  BrushStyle style() const { return style_; }
 
   /*! \brief Sets the brush color.
    *
@@ -94,7 +94,7 @@ public:
   const WColor& color() const { return color_; }
 
 private:
-  WBrushStyle style_;
+  BrushStyle style_;
   WColor      color_;
 };
 

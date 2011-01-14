@@ -1352,9 +1352,10 @@ void WChart2DRenderer::renderLegend()
 
     int legendWidth = (int)chart_->legendColumnWidth().toPixels()
       * std::min(chart_->legendColumns(), numSeriesWithLegend);
-    int legendHeight = numLegendRows * lineHeight;
+    int legendHeight = (int) (numLegendRows * lineHeight);
 
-    int x, y;
+    int x = 0;
+    int y = 0;
 
     switch (chart_->legendSide()) {
     case Left:
@@ -1396,7 +1397,7 @@ void WChart2DRenderer::renderLegend()
 	  + (h - chart_->plotAreaPadding(Top)
 	     - chart_->plotAreaPadding(Bottom)) / 2; 
 
-	y = middle - legendHeight/2;
+	y = (int) (middle - legendHeight/2);
       }
       break;
     case AlignBottom:
@@ -1411,7 +1412,7 @@ void WChart2DRenderer::renderLegend()
 	  + (w - chart_->plotAreaPadding(Left)
 	     - chart_->plotAreaPadding(Right)) / 2; 
 
-	x = center - legendWidth/2;
+	x = (int) (center - legendWidth/2);
       } 
       break;
     case AlignRight:

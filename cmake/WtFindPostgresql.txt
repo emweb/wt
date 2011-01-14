@@ -11,6 +11,7 @@ FIND_LIBRARY(POSTGRES_LIBRARIES
   PATHS
     ${POSTGRES_PREFIX}/lib
     /usr/lib
+    /usr/lib64
     /usr/local/lib
     /opt/local/lib	
 )
@@ -19,6 +20,7 @@ FIND_PATH(POSTGRES_INCLUDE libpq-fe.h
     ${POSTGRES_PREFIX}/include
     ${POSTGRES_PREFIX}/postgresql/include
     /usr/include
+    /usr/include/pgsql
     /usr/include/postgresql
     /usr/local/include
     /usr/local/include/postgresql

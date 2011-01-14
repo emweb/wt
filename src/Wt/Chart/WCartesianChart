@@ -33,7 +33,7 @@ class WChartPalette;
  *
  * To use a cartesian chart, the minimum you need to do is set a model
  * using setModel(), set the model column that holds the X data using
- * setXSeriesColumn(), and add one or more series using
+ * setXSeriesColumn(int modelColumn), and add one or more series using
  * addSeries(const WDataSeries&). Each series corresponds to one data
  * column that holds Y data.
  *
@@ -61,7 +61,7 @@ class WChartPalette;
  * CategoryChart, but does not support stacking. In a scatter plot,
  * the X series do not need to be ordered in increasing values, and
  * may be set differently for each dataseries using
- * WDataSeries::setXSeriesColumn().
+ * WDataSeries::setXSeriesColumn(int modelColumn).
  *
  * \image html ChartWCartesianChart-2.png "A time series scatter plot with line series"
  *
@@ -164,7 +164,7 @@ public:
    * used (1, 2, ...).
    *
    * Scatterplot dataseries may each individually be given its own
-   * X series data using WDataSeries::setXSeriesColumn()
+   * X series data using WDataSeries::setXSeriesColumn(int modelColumn)
    *
    * The default value is -1 (not specified).
    *

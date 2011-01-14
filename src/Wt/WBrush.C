@@ -13,7 +13,7 @@ WBrush::WBrush()
     color_(black)
 { }
 
-WBrush::WBrush(WBrushStyle style)
+WBrush::WBrush(BrushStyle style)
   : style_(style),
     color_(black)
 { }
@@ -43,7 +43,7 @@ void WBrush::setColor(const WColor& color)
   color_ = color;
 }
 
-void WBrush::setStyle(WBrushStyle style)
+void WBrush::setStyle(BrushStyle style)
 {
   style_ = style;
 }

@@ -189,7 +189,7 @@ protected:
    */
   virtual WImage *createImage(::int64_t x, ::int64_t y, int width, int height);
 
-  /*! \brief Render a grid image for the given rectangle.
+  /*! \brief %Render a grid image for the given rectangle.
    *
    * Returns a resource that streams an image which renders the
    * rectangle which spans image coordinates with left upper corner

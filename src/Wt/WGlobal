@@ -479,9 +479,9 @@ enum PenJoinStyle {
  *
  * \relates WBrush
  */
-enum WBrushStyle {
-  NoBrush = 0,      //!< Do not fill
-  SolidPattern = 1  //!< Fill with a solid color
+enum BrushStyle {
+  NoBrush,      //!< Do not fill
+  SolidPattern  //!< Fill with a solid color
 };
 
 /*! \brief Enumeration that specifies where the target of an anchor should

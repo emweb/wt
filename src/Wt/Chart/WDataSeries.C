@@ -244,5 +244,10 @@ WPointF WDataSeries::mapToDevice(const boost::any& xValue,
     return WPointF();
 }
 
+void WDataSeries::setXSeriesColumn(int modelColumn) 
+{
+  XSeriesColumn_ = modelColumn;
+}
+
   }
 }

@@ -158,13 +158,13 @@ public:
    * The default value is -1, which indicates that
    * WCartesianChart::XSeriesColumn() is to be used.
    *
-   * \sa WCartesianChart::setXSeriesColumn()
+   * \sa WCartesianChart::setXSeriesColumn(int modelColumn)
    */
   void setXSeriesColumn(int modelColumn);
 
   /*! \brief Returns the X series column.
    *
-   * \sa setXSeriesColumn()
+   * \sa setXSeriesColumn(int modelColumn)
    */
   int XSeriesColumn() const { return XSeriesColumn_; }
 
