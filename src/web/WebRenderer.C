@@ -39,6 +39,7 @@ namespace skeletons {
   extern const char *Plain_html;
   extern const char *Hybrid_html;
   extern const char *Wt_js;
+  extern const char *Boot_js;
   extern const char *JQuery_js;
 }
 
@@ -184,7 +185,6 @@ void WebRenderer::setPageVars(FileServe& page)
   WApplication *app = session_.app();
 
   page.setVar("DOCTYPE", session_.docType());
-  page.setVar("APP_CLASS", "Wt");
 
   std::string htmlAttr;
   if (app && !app->htmlClass_.empty())
@@ -213,26 +213,42 @@ void WebRenderer::setPageVars(FileServe& page)
 		    && !session_.env().ajax());
 }
 
-void WebRenderer::setBootVars(WebResponse& response,
-			      FileServe& boot)
+void WebRenderer::streamBootContent(WebResponse& response, 
+				    FileServe& boot, bool hybrid)
 {
   Configuration& conf = session_.controller()->configuration();
+
+  FileServe bootJs(skeletons::Boot_js);
 
   boot.setVar("BLANK_HTML",
 	      session_.bootstrapUrl(response, WebSession::ClearInternalPath)
 	      + "&amp;request=resource&amp;resource=blank");
-  boot.setVar("SELF_URL",
-	      safeJsStringLiteral
-	      (session_.bootstrapUrl(response, WebSession::KeepInternalPath)));
   boot.setVar("SESSION_ID", session_.sessionId());
-  boot.setVar("RANDOMSEED",
-	      boost::lexical_cast<std::string>(WRandom::get()));
-  boot.setVar("RELOAD_IS_NEWSESSION", conf.reloadIsNewSession());
-  boot.setVar("USE_COOKIES",
-	      conf.sessionTracking() == Configuration::CookiesURL);
+  //TODO remove APP_CLASS, will later only be used in the javascript
+  boot.setVar("APP_CLASS", "Wt");
 
-  boot.setVar("AJAX_CANONICAL_URL",
-	      safeJsStringLiteral(session_.ajaxCanonicalUrl(response)));
+  bootJs.setVar("SELF_URL",
+		safeJsStringLiteral
+		(session_.bootstrapUrl(response, 
+				       WebSession::KeepInternalPath)));
+  bootJs.setVar("SESSION_ID", session_.sessionId());
+  bootJs.setVar("RANDOMSEED",
+		boost::lexical_cast<std::string>(WRandom::get()));
+  bootJs.setVar("RELOAD_IS_NEWSESSION", conf.reloadIsNewSession());
+  bootJs.setVar("USE_COOKIES",
+		conf.sessionTracking() == Configuration::CookiesURL);
+  bootJs.setVar("AJAX_CANONICAL_URL",
+		safeJsStringLiteral(session_.ajaxCanonicalUrl(response)));
+  bootJs.setVar("APP_CLASS", "Wt");
+
+  bootJs.setCondition("HYBRID", hybrid);
+
+  std::string internalPath 
+    = hybrid ? safeJsStringLiteral(session_.app()->internalPath()) : "";
+  bootJs.setVar("INTERNAL_PATH", internalPath);
+
+  boot.streamUntil(response.out(), "BOOT_JS");
+  bootJs.stream(response.out());
 }
 
 void WebRenderer::serveBootstrap(WebResponse& response)
@@ -242,7 +258,6 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 
   FileServe boot(skeletons::Boot_html);
   setPageVars(boot);
-  setBootVars(response, boot);
 
   std::stringstream noJsRedirectUrl;
   DomElement::htmlAttributeValue
@@ -268,6 +283,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 
   setHeaders(response, contentType);
 
+  streamBootContent(response, boot, false);
   boot.stream(response.out());
 
   rendered_ = false;
@@ -880,11 +896,6 @@ void WebRenderer::serveMainpage(WebResponse& response)
   setPageVars(page);
   page.setVar("SESSION_ID", session_.sessionId());
 
-  if (hybridPage) {
-    setBootVars(response, page);
-    page.setVar("INTERNAL_PATH", safeJsStringLiteral(app->internalPath()));
-  }
-
   std::string url
     = (app->environment().agentIsSpiderBot()
        || (conf.sessionTracking() == Configuration::CookiesURL
@@ -921,6 +932,9 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
+
+  if (hybridPage)
+    streamBootContent(response, page, true);
 
   page.streamUntil(response.out(), "HTML");
 

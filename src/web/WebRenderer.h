@@ -123,7 +123,8 @@ private:
   void              collectJS(std::ostream *js);
 
   void setPageVars(FileServe& page);
-  void setBootVars(WebResponse& response, FileServe& boot);
+  void streamBootContent(WebResponse& response, 
+			 FileServe& boot, bool hybrid);
 
   std::string headDeclarations() const;
 

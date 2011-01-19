@@ -32,6 +32,12 @@ ELSE(CMAKE_BUILD_TYPE STREQUAL "Debug")
   FILE_TO_STRING(web/skeleton/Wt.min.js     Wt_js.C         Wt_js)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  FILE_TO_STRING(web/skeleton/Boot.js     Boot_js.C         Boot_js)
+ELSE(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  FILE_TO_STRING(web/skeleton/Boot.min.js     Boot_js.C         Boot_js)
+ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
 FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C     JQuery_js)
 
 FILE_TO_STRING(xml/wt.xml                 WtMessages_xml.C  WtMessages_xml)
@@ -228,6 +234,7 @@ web/random_device.cpp
 Plain_html.C
 Boot_html.C
 Hybrid_html.C
+Boot_js.C
 Wt_js.C
 WtMessages_xml.C
 JQuery_js.C

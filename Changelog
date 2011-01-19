@@ -5,6 +5,8 @@
 
 	* Wt/WBoostAny.C: add support for bool types (#690)
 
+	* Boot.html, Hybrid.html: fix IE8 unreliable startup (occasional blank screen)
+
 13-01-2011:
 	* Wt/Chart/WCartesianChart: implement legend location, alignment,
 	and styling options

@@ -118,6 +118,7 @@ public:
   int                serverPushTimeout() const { return serverPushTimeout_; }
   std::string        valgrindPath() const { return valgrindPath_; }
   ErrorReporting     errorReporting() const { return errorReporting_; }
+  bool               debug() const { return errorReporting_ != ErrorMessage; }
   std::string        runDirectory() const { return runDirectory_; }
   ServerType         serverType() const { return serverType_; }
   int                sessionIdLength() const { return sessionIdLength_; }
