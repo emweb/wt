@@ -116,9 +116,13 @@ public:
     double lat_, lon_;
   };
 
-  /*! \brief Creates a map widget with optional parent and version.
+  /*! \brief Creates a map widget with a version and optionally a parent argument.
    */
-  WGoogleMap(ApiVersion version = Version2, WContainerWidget *parent = 0);
+  WGoogleMap(ApiVersion version, WContainerWidget *parent = 0);
+  
+  /*! \brief Creates a map widget with optionally a parent argument.
+   */
+  WGoogleMap(WContainerWidget *parent = 0);
 
   /*! \brief Destructor.
    */

@@ -79,6 +79,9 @@ namespace Wt {
 
 EventType WEvent::eventType() const 
 {
+  if (!impl_.handler)
+    return OtherEvent;
+
   return impl_.handler->session()->getEventType(*this);
 }
 

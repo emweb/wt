@@ -217,13 +217,14 @@ WWidget *MvcWidgets::viewsTree()
 
   topic("WTreeView", result);
 
-  WStandardItemModel *model = TreeViewExample::createModel(false, this);
-
-  TreeViewExample *tv1 = new TreeViewExample(model, tr("mvc-WTreeView"));
+  WStandardItemModel *model1 = TreeViewExample::createModel(false, this);
+  TreeViewExample *tv1 
+    = new TreeViewExample(model1, tr("mvc-WTreeView"));
   result->addWidget(tv1);
-
-  TreeViewExample *tv2 = new TreeViewExample(model,
-					     tr("mvc-WTreeView-column1Fixed"));
+  
+  WStandardItemModel *model2 = TreeViewExample::createModel(false, this);
+  TreeViewExample *tv2 
+    = new TreeViewExample(model2, tr("mvc-WTreeView-column1Fixed"));
   result->addWidget(tv2);
 
   tv2->treeView()->setColumn1Fixed(true);

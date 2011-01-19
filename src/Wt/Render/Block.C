@@ -465,64 +465,6 @@ double Block::cssBoxMargin(Side side, double fontScale) const
     + cssBorderWidth(side, fontScale);
 }
 
-WFont::GenericFamily Block::cssFontFamily() const
-{
-  if (!node_)
-    return parent_->cssFontFamily();
-
-  std::string v = cssProperty(PropertyStyleFontFamily);
-
-  if (!v.empty()) {
-    std::vector<std::string> values;
-    boost::split(values, v, boost::is_any_of(","));
-
-    WFont::GenericFamily genericFamily = WFont::SansSerif;
-    WString specificFamilies;
-
-    for (unsigned i = 0; i < values.size(); ++i) {
-      std::string name = values[i];
-      boost::trim(name);
-      boost::trim_if(name, boost::is_any_of("'\""));
-      name = Utils::lowerCase(name);
-
-      if (name == "sans-serif")
-	genericFamily = WFont::SansSerif;
-      else if (name == "serif")
-	genericFamily = WFont::Serif;
-      else if (name == "cursive")
-	genericFamily = WFont::Cursive;
-      else if (name == "fantasy")
-	genericFamily = WFont::Fantasy;
-      else if (name == "monospace")
-	genericFamily = WFont::Monospace;
-      else {
-	if (   name == "times"
-	    || name == "palatino")
-	  genericFamily = WFont::Serif;
-	else if (   name == "arial"
-		 || name == "helvetica")
-	  genericFamily = WFont::SansSerif;
-	else if (name == "courier")
-	  genericFamily = WFont::Monospace;
-	else if (name == "symbol")
-	  genericFamily = WFont::Fantasy; // XXX
-	else if (name == "zapf dingbats")
-	  genericFamily = WFont::Cursive;
-
-	if (!specificFamilies.empty())
-	  specificFamilies += ", ";
-	specificFamilies += name;
-      }
-    }
-
-    return genericFamily;
-  } else
-    if (parent_)
-      return parent_->cssFontFamily();
-    else
-      return WFont::SansSerif;
-}
-
 WFont::Style Block::cssFontStyle() const
 {
   if (!node_)
@@ -1697,8 +1639,55 @@ AlignmentFlag Block::cssTextAlign() const
 
 WFont Block::cssFont(double fontScale) const
 {
+  WFont::GenericFamily genericFamily = WFont::SansSerif;
+  WString specificFamilies;
+
+  std::string family = inheritedCssProperty(PropertyStyleFontFamily);
+
+  if (!family.empty()) {
+    std::vector<std::string> values;
+    boost::split(values, family, boost::is_any_of(","));
+
+    for (unsigned i = 0; i < values.size(); ++i) {
+      std::string name = values[i];
+      boost::trim(name);
+      boost::trim_if(name, boost::is_any_of("'\""));
+      name = Utils::lowerCase(name);
+
+      if (name == "sans-serif")
+	genericFamily = WFont::SansSerif;
+      else if (name == "serif")
+	genericFamily = WFont::Serif;
+      else if (name == "cursive")
+	genericFamily = WFont::Cursive;
+      else if (name == "fantasy")
+	genericFamily = WFont::Fantasy;
+      else if (name == "monospace")
+	genericFamily = WFont::Monospace;
+      else {
+	if (   name == "times"
+	    || name == "palatino")
+	  genericFamily = WFont::Serif;
+	else if (   name == "arial"
+		 || name == "helvetica")
+	  genericFamily = WFont::SansSerif;
+	else if (name == "courier")
+	  genericFamily = WFont::Monospace;
+	else if (name == "symbol")
+	  genericFamily = WFont::Fantasy; // XXX
+	else if (name == "zapf dingbats")
+	  genericFamily = WFont::Cursive;
+
+	if (!specificFamilies.empty())
+	  specificFamilies += ", ";
+	specificFamilies += name;
+      }
+    }
+  }
+
   WFont result;
-  result.setFamily(cssFontFamily());
+
+  result.setFamily(genericFamily, specificFamilies);
   result.setSize(WFont::FixedSize,
 		 WLength(cssFontSize(fontScale), WLength::Pixel));
   result.setWeight(WFont::Value, cssFontWeight());

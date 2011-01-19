@@ -67,14 +67,22 @@ public:
     DedicatedProcess,
     SharedProcess
   };
+
   enum SessionTracking { 
     CookiesURL,
     URL
   };
+
   enum ServerType {
     WtHttpdServer,
     FcgiServer,
     IsapiServer
+  };
+
+  enum ErrorReporting {
+    NoErrors,
+    ErrorMessage,
+    ErrorMessageWithStack
   };
 
   typedef std::map<std::string, std::string> PropertyMap;
@@ -109,7 +117,7 @@ public:
   int		     indicatorTimeout() const { return indicatorTimeout_; }
   int                serverPushTimeout() const { return serverPushTimeout_; }
   std::string        valgrindPath() const { return valgrindPath_; }
-  bool               debug() const { return debug_; }
+  ErrorReporting     errorReporting() const { return errorReporting_; }
   std::string        runDirectory() const { return runDirectory_; }
   ServerType         serverType() const { return serverType_; }
   int                sessionIdLength() const { return sessionIdLength_; }
@@ -166,7 +174,7 @@ private:
   int		  indicatorTimeout_;
   int             serverPushTimeout_;
   std::string     valgrindPath_;
-  bool            debug_;
+  ErrorReporting  errorReporting_;
   std::string     runDirectory_;
   int             sessionIdLength_;
   std::string     sessionIdPrefix_;

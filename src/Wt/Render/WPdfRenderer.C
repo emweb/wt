@@ -43,6 +43,16 @@ void WPdfRenderer::setMargin(double margin, WFlags<Side> sides)
     margin_[3] = margin;
 }
 
+void WPdfRenderer::addFontCollection(const std::string& directory,
+				     bool recursive)
+{
+  FontCollection c;
+  c.directory = directory;
+  c.recursive = recursive;
+
+  fontCollections_.push_back(c);
+}
+
 HPDF_Page WPdfRenderer::createPage(int page)
 {
   HPDF_Page result = HPDF_AddPage(pdf_);
@@ -88,7 +98,14 @@ WPaintDevice *WPdfRenderer::startPage(int page)
 
   HPDF_Page_Concat (page_, 72.0f/dpi_, 0, 0, 72.0f/dpi_, 0, 0);
 
-  return new WPdfImage(pdf_, page_, 0, 0, pageWidth(page), pageHeight(page));
+  WPdfImage *device = new WPdfImage(pdf_, page_, 0, 0,
+				    pageWidth(page), pageHeight(page));
+
+  for (unsigned i = 0; i < fontCollections_.size(); ++i)
+    device->addFontCollection(fontCollections_[i].directory,
+			      fontCollections_[i].recursive);
+
+  return device;
 }
 
 void WPdfRenderer::endPage(WPaintDevice *device)

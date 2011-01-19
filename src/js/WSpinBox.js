@@ -46,7 +46,7 @@ WT_DECLARE_WT_MEMBER
 
    this.mouseOut = function(o, event) {
      $edit.removeClass('Wt-spinbox-dn').removeClass('Wt-spinbox-up');
-   }
+   };
 
    this.mouseMove = function(o, event) {
      if (!dragStartXY) {

@@ -497,7 +497,13 @@ void WebRenderer::serveMainscript(WebResponse& response)
   jquery.stream(response.out());
 
   FileServe script(skeletons::Wt_js);
-  script.setCondition("DEBUG", conf.debug());
+
+  script.setCondition
+    ("CATCH_ERROR",
+     conf.errorReporting() != Configuration::NoErrors);
+  script.setCondition
+    ("SHOW_STACK",
+     conf.errorReporting() == Configuration::ErrorMessageWithStack);
 
 #ifdef WT_DEBUG_JS
   script.setCondition("DYNAMIC_JS", true);

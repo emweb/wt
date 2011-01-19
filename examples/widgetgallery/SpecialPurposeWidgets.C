@@ -45,24 +45,252 @@ void SpecialPurposeWidgets::populateSubMenu(WMenu *menu)
 					this)));
 }
 
-void SpecialPurposeWidgets::addItem(WAbstractItemModel* model,
-				    const WString &description, 
-				    WGoogleMap::MapTypeControl value)
-{
-  int r = model->rowCount();
-  model->insertRow(r);
-  model->setData(r, 0, description);
-  model->setData(r, 0, value, UserRole);
-}
+class GoogleMapExample : public WContainerWidget {
+public:
+  GoogleMapExample(WContainerWidget* parent, ControlsWidget *controlsWidget) 
+    : WContainerWidget(parent),
+      controlsWidget_(controlsWidget) {
+    WHBoxLayout* layout = new WHBoxLayout();
+    setLayout(layout);
 
-void SpecialPurposeWidgets::setMapTypeControl(WGoogleMap *map, 
-					      const WAbstractItemModel *model,
-					      int row)
-{
-  WGoogleMap::MapTypeControl mtc = 
-    boost::any_cast<WGoogleMap::MapTypeControl>(model->data(row, 0, UserRole));
-  map->setMapTypeControl(mtc);
-}
+    map_ = new WGoogleMap(WGoogleMap::Version3);
+    layout->addWidget(map_, 1);
+
+    map_->resize(700, 500);
+    map_->setMapTypeControl(WGoogleMap::DefaultControl);
+    map_->enableScrollWheelZoom();
+    
+    WTemplate *controls = 
+      new WTemplate(tr("specialpurposewidgets-WGoogleMap-controls"));
+    layout->addWidget(controls);
+
+    WPushButton* zoomIn = new WPushButton("+");
+    controls->bindWidget("zoom-in", zoomIn);
+    zoomIn->clicked().connect(map_, &WGoogleMap::zoomIn);
+    WPushButton* zoomOut = new WPushButton("-");
+    controls->bindWidget("zoom-out", zoomOut);
+    zoomOut->clicked().connect(map_, &WGoogleMap::zoomOut);
+
+    WPushButton* brussels = new WPushButton("Brussels");
+    controls->bindWidget("brussels", brussels);
+    brussels->clicked().connect(this, &GoogleMapExample::panToBrussels);
+
+    WPushButton* lisbon = new WPushButton("Lisbon");
+    controls->bindWidget("lisbon", lisbon);
+    lisbon->clicked().connect(this, &GoogleMapExample::panToLisbon);
+
+    WPushButton* paris = new WPushButton("Paris");
+    controls->bindWidget("paris", paris);
+    paris->clicked().connect(this, &GoogleMapExample::panToParis);
+
+    WPushButton* savePosition = new WPushButton("Save current position");
+    controls->bindWidget("save-position", savePosition);
+    savePosition->clicked().connect(this, &GoogleMapExample::savePosition); 
+
+    returnToPosition_ = new WPushButton("Return to saved position");
+    controls->bindWidget("return-to-saved-position", returnToPosition_);
+    returnToPosition_->setEnabled(false);
+    returnToPosition_->clicked().
+      connect(map_, &WGoogleMap::returnToSavedPosition);
+    
+    mapTypeModel_ = new WStandardItemModel();
+    addMapTypeControl("No control", WGoogleMap::NoControl);
+    addMapTypeControl("Default", WGoogleMap::DefaultControl);
+    addMapTypeControl("Menu", WGoogleMap::MenuControl);
+    if (map_->apiVersion() == WGoogleMap::Version2)
+      addMapTypeControl("Hierarchical", WGoogleMap::HierarchicalControl);
+    if (map_->apiVersion() == WGoogleMap::Version3)
+      addMapTypeControl("Horizontal bar", WGoogleMap::HorizontalBarControl);
+
+    WComboBox* menuControls = new WComboBox();
+    menuControls->setModel(mapTypeModel_);
+    controls->bindWidget("control-menu-combo", menuControls);
+    menuControls->activated().
+      connect(this, &GoogleMapExample::setMapTypeControl);
+    menuControls->setCurrentIndex(1);
+
+    WCheckBox *draggingCB = new WCheckBox("Enable dragging ");
+    controls->bindWidget("dragging-cb", draggingCB);
+    draggingCB->setChecked(true);
+    map_->enableDragging();
+    draggingCB->checked().
+      connect(map_, &WGoogleMap::enableDragging);
+    draggingCB->unChecked().
+      connect(map_, &WGoogleMap::disableDragging);
+
+    WCheckBox *enableDoubleClickZoomCB = 
+      new WCheckBox("Enable double click zoom ");
+    controls->bindWidget("double-click-zoom-cb", enableDoubleClickZoomCB);
+    enableDoubleClickZoomCB->setChecked(false);
+    map_->disableDoubleClickZoom();
+    enableDoubleClickZoomCB->checked().
+      connect(map_, &WGoogleMap::enableDoubleClickZoom);
+    enableDoubleClickZoomCB->unChecked().
+      connect(map_, &WGoogleMap::disableDoubleClickZoom);
+    
+    WCheckBox *enableScrollWheelZoomCB = 
+      new WCheckBox("Enable scroll wheel zoom ");
+    controls->bindWidget("scroll-wheel-zoom-cb", enableScrollWheelZoomCB);
+    enableScrollWheelZoomCB->setChecked(true);
+    map_->enableScrollWheelZoom();
+    enableScrollWheelZoomCB->checked().
+      connect(map_, &WGoogleMap::enableScrollWheelZoom);
+    enableScrollWheelZoomCB->unChecked().
+      connect(map_, &WGoogleMap::disableScrollWheelZoom);
+
+    std::vector<WGoogleMap::Coordinate> road;
+    roadDescription(road);
+    map_->addPolyline(road, WColor(0, 191, 255));
+    
+    //Koen's favourite bar!
+    map_->addMarker(WGoogleMap::Coordinate(50.885069,4.71958));
+    
+    map_->setCenter(road[road.size()-1]);
+    
+    map_->openInfoWindow(road[0], 
+			 "<img src=\"http://emweb.be/img/emweb_small.jpg\" />"
+			 "<br/>"
+			 "<b>Emweb office</b>");
+    
+    map_->clicked()
+      .connect(this, &GoogleMapExample::googleMapClicked);
+    map_->doubleClicked()
+      .connect(this, &GoogleMapExample::googleMapDoubleClicked);
+  }
+
+private:
+  void panToBrussels() {
+    map_->panTo(WGoogleMap::Coordinate(50.85034,4.35171));
+  }
+
+  void panToLisbon() {
+    map_->panTo(WGoogleMap::Coordinate(38.703731,-9.135475));
+  }
+
+  void panToParis() {
+    map_->panTo(WGoogleMap::Coordinate(48.877474, 2.312579));
+  }
+
+  void savePosition() {
+    returnToPosition_->setEnabled(true);
+    map_->savePosition();
+  }
+
+  void addMapTypeControl(const WString &description, 
+			 WGoogleMap::MapTypeControl value) {
+    int r = mapTypeModel_->rowCount();
+    mapTypeModel_->insertRow(r);
+    mapTypeModel_->setData(r, 0, description);
+    mapTypeModel_->setData(r, 0, value, UserRole);
+  }
+
+  void setMapTypeControl(int row) {
+    boost::any mtc = mapTypeModel_->data(row, 0, UserRole);
+    map_->setMapTypeControl(boost::any_cast<WGoogleMap::MapTypeControl>(mtc));
+  }
+
+  void roadDescription(std::vector<WGoogleMap::Coordinate>& roadDescription) { 
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85342, 4.7281));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85377, 4.72573));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85393, 4.72496));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85393, 4.72496));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85372, 4.72482));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85304, 4.72421));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8519, 4.72297));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85154, 4.72251));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85154, 4.72251));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85153, 4.72205));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85153, 4.72205));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85752, 4.7186));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.85847, 4.71798));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.859, 4.71753));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8593, 4.71709));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8598699, 4.71589));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8606, 4.7147));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8611, 4.71327));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8612599, 4.71293));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86184, 4.71217));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86219, 4.71202));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86346, 4.71178));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86406, 4.71146));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86478, 4.71126));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86623, 4.71111));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.866599, 4.71101));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8668, 4.71072));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86709, 4.71018));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86739, 4.70941));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86751, 4.70921));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86869, 4.70843));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8691, 4.70798));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8691, 4.70798));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86936, 4.70763));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86936, 4.70763));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86874, 4.70469));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86858, 4.70365));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8684599, 4.70269));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86839, 4.70152));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86843, 4.70043));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.86851, 4.69987));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8688199, 4.69869));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8689, 4.69827));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87006, 4.6941));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87006, 4.6941));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8704599, 4.69348));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87172, 4.69233));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87229, 4.69167));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87229, 4.69167));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8725, 4.69123));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8725, 4.69123));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87408, 4.69142));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87423, 4.69125));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87464, 4.69116));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.875799, 4.69061));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87595, 4.69061));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87733, 4.69073));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87742, 4.69078));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87784, 4.69131));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87784, 4.69131));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87759, 4.69267));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.8775, 4.6935));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87751, 4.69395));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87768, 4.69545));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87769, 4.69666));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87759, 4.69742));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87734, 4.69823));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.87734, 4.69823));
+    roadDescription.push_back(WGoogleMap::Coordinate(50.877909, 4.69861));
+  }
+
+  void googleMapDoubleClicked(WGoogleMap::Coordinate c) {
+    std::ostringstream strm;
+    strm << "Double clicked at coordinate (" 
+	 << c.latitude() 
+	 << "," 
+	 << c.longitude()
+	 << ")";
+    
+    controlsWidget_->eventDisplayer()->setStatus(strm.str());
+  }
+
+  void googleMapClicked(WGoogleMap::Coordinate c) {
+    std::ostringstream strm;
+    strm << "Clicked at coordinate (" 
+	 << c.latitude() 
+	 << "," 
+	 << c.longitude()
+	 << ")";
+    
+    controlsWidget_->eventDisplayer()->setStatus(strm.str());
+  }
+
+private:
+  WGoogleMap *map_;
+  WAbstractItemModel *mapTypeModel_;
+
+  WPushButton *returnToPosition_;
+
+  ControlsWidget *controlsWidget_; 
+};
 
 WWidget *SpecialPurposeWidgets::wGoogleMap()
 {
@@ -70,235 +298,10 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
 
   topic("WGoogleMap", result);
   new WText(tr("specialpurposewidgets-WGoogleMap"), result);
-
-  WContainerWidget* mapContainer = new WContainerWidget(result);
-  WHBoxLayout* layout = new WHBoxLayout();
-  mapContainer->setLayout(layout);
-
-  WGoogleMap *const map = new WGoogleMap(WGoogleMap::Version3);
-  layout->addWidget(map, 1);
   
-  map->resize(700, 500);
-  map->setMapTypeControl(WGoogleMap::DefaultControl);
-  map->enableScrollWheelZoom();
-
-  WTemplate *controls = 
-    new WTemplate(tr("specialpurposewidgets-WGoogleMap-controls"));
-  layout->addWidget(controls);
-
-  WPushButton* zoomIn = new WPushButton("+");
-  controls->bindWidget("zoom-in", zoomIn);
-  zoomIn->clicked().connect(map, &WGoogleMap::zoomIn);
-  WPushButton* zoomOut = new WPushButton("-");
-  controls->bindWidget("zoom-out", zoomOut);
-  zoomOut->clicked().connect(map, &WGoogleMap::zoomOut);
-
-  WPushButton* brussels = new WPushButton("Brussels");
-  controls->bindWidget("brussels", brussels);
-  brussels->clicked().connect(boost::bind(&WGoogleMap::panTo, 
-					  map, 
-					  WGoogleMap::Coordinate(50.85034,
-								 4.35171)));
-
-  WPushButton* lisbon = new WPushButton("Lisbon");
-  controls->bindWidget("lisbon", lisbon);
-  lisbon->clicked().connect(boost::bind(&WGoogleMap::panTo, 
-					map, 
-					WGoogleMap::Coordinate(38.703731,
-							       -9.135475)));
-
-  WPushButton* paris = new WPushButton("Paris");
-  controls->bindWidget("paris", paris);
-  paris->clicked().connect(boost::bind(&WGoogleMap::panTo, 
-				       map, 
-				       WGoogleMap::Coordinate(48.877474,
-							      2.312579)));
-
-  WPushButton* savePosition = new WPushButton("Save current position");
-  controls->bindWidget("save-position", savePosition);
-  savePosition->clicked().connect(boost::bind(&WGoogleMap::savePosition, 
-					      map)); 
-
-  WPushButton* returnToPosition = new WPushButton("Return to saved position");
-  controls->bindWidget("return-to-saved-position", returnToPosition);
-  returnToPosition->setEnabled(false);
-  returnToPosition->clicked().
-    connect(boost::bind(&WGoogleMap::returnToSavedPosition, 
-			map)); 
-
-  savePosition->clicked().
-    connect(boost::bind(&WPushButton::setEnabled, 
-			returnToPosition,
-			true)); 
-
-  WAbstractItemModel* ctm = new WStandardItemModel();
-  addItem(ctm, "No control", WGoogleMap::NoControl);
-  addItem(ctm, "Default", WGoogleMap::DefaultControl);
-  addItem(ctm, "Menu", WGoogleMap::MenuControl);
-  if (map->apiVersion() == WGoogleMap::Version2)
-    addItem(ctm, "Hierarchical", WGoogleMap::HierarchicalControl);
-  if (map->apiVersion() == WGoogleMap::Version3)
-    addItem(ctm, "Horizontal bar", WGoogleMap::HorizontalBarControl);
-
-  WComboBox* menuControls = new WComboBox();
-  menuControls->setModel(ctm);
-  controls->bindWidget("control-menu-combo", menuControls);
-  menuControls->activated().
-    connect(boost::bind(&SpecialPurposeWidgets::setMapTypeControl,
-			this,
-			map,
-			ctm,
-			_1));
-  menuControls->setCurrentIndex(1);
-
-  WCheckBox *draggingCB = new WCheckBox("Enable dragging ");
-  controls->bindWidget("dragging-cb", draggingCB);
-  draggingCB->setChecked(true);
-  map->enableDragging();
-  draggingCB->checked().
-    connect(boost::bind(&WGoogleMap::enableDragging, map));
-  draggingCB->unChecked().
-    connect(boost::bind(&WGoogleMap::disableDragging, map));
-
-  WCheckBox *enableDoubleClickZoomCB = 
-    new WCheckBox("Enable double click zoom ");
-  controls->bindWidget("double-click-zoom-cb", enableDoubleClickZoomCB);
-  enableDoubleClickZoomCB->setChecked(false);
-  map->disableDoubleClickZoom();
-  enableDoubleClickZoomCB->checked().
-    connect(boost::bind(&WGoogleMap::enableDoubleClickZoom, map));
-  enableDoubleClickZoomCB->unChecked().
-    connect(boost::bind(&WGoogleMap::disableDoubleClickZoom, map));
-
-  WCheckBox *enableScrollWheelZoomCB = 
-    new WCheckBox("Enable scroll wheel zoom ");
-  controls->bindWidget("scroll-wheel-zoom-cb", enableScrollWheelZoomCB);
-  enableScrollWheelZoomCB->setChecked(true);
-  map->enableScrollWheelZoom();
-  enableScrollWheelZoomCB->checked().
-    connect(boost::bind(&WGoogleMap::enableScrollWheelZoom, map));
-  enableScrollWheelZoomCB->unChecked().
-    connect(boost::bind(&WGoogleMap::disableScrollWheelZoom, map));
-
-  std::vector<WGoogleMap::Coordinate> road;
-  roadDescription(road);
-  map->addPolyline(road, WColor(0, 191, 255));
-
-  //Koen's favourite bar!
-  map->addMarker(WGoogleMap::Coordinate(50.885069,4.71958));
-
-  map->setCenter(road[road.size()-1]);
-
-  map->openInfoWindow(road[0], 
-  		      "<img src=\"http://emweb.be/img/emweb_small.jpg\" />"
-  		      "<br/>"
-  		      "<b>Emweb office</b>");
-
-  map->clicked().connect(this, &SpecialPurposeWidgets::googleMapClicked);
-  map->doubleClicked()
-    .connect(this, &SpecialPurposeWidgets::googleMapDoubleClicked);
+  GoogleMapExample *googleMapExample = new GoogleMapExample(result, this);
 
   return result;
-}
-
-void SpecialPurposeWidgets::
-roadDescription(std::vector<WGoogleMap::Coordinate>& roadDescription) 
-{ 
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85342000000001, 4.7281));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85377, 4.72573));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85393, 4.72496));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85393, 4.72496));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85372, 4.72482));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85304, 4.72421));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8519, 4.72297));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85154, 4.72251));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85154, 4.72251));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85153, 4.72205));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85153, 4.72205));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85752, 4.7186));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85847, 4.71798));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.859, 4.71753));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8593, 4.71709));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.85986999999999, 4.71589));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8606, 4.7147));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8611, 4.71327));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86125999999999, 4.71293));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86184000000001, 4.71217));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86219, 4.71202));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86346, 4.71178));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86406, 4.71146));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86478, 4.71126));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86623000000001, 4.71111));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86659999999999, 4.71101));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8668, 4.71072));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86709, 4.71018));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86739, 4.70941));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86751, 4.70921));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86869, 4.70843));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8691, 4.70798));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8691, 4.70798));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86936, 4.70763));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86936, 4.70763));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86874, 4.70469));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86858, 4.70365));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86845999999999, 4.70269));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86839, 4.70152));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86843, 4.70043));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86851000000001, 4.69987));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.86881999999999, 4.69869));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8689, 4.69827));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87006, 4.6941));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87006, 4.6941));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87045999999999, 4.69348));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87172, 4.69233));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87229000000001, 4.69167));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87229000000001, 4.69167));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8725, 4.69123));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8725, 4.69123));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87408, 4.69142));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87423, 4.69125));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87464, 4.69116));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87579999999999, 4.69061));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87595, 4.69061));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87733, 4.69073));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87742, 4.69078));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87784, 4.69131));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87784, 4.69131));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87759, 4.69267));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.8775, 4.6935));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87751, 4.69395));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87768, 4.69545));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87769, 4.69666));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87759, 4.69742));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87734, 4.69823));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87734, 4.69823));
-  roadDescription.push_back(WGoogleMap::Coordinate(50.87790999999999, 4.69861));
-}
-
-void SpecialPurposeWidgets
-::googleMapDoubleClicked(WGoogleMap::Coordinate c)
-{
-  std::ostringstream strm;
-  strm << "Double clicked at coordinate (" 
-       << c.latitude() 
-       << "," 
-       << c.longitude()
-       << ")";
-
-  ed_->setStatus(strm.str());
-}
-
-void SpecialPurposeWidgets
-::googleMapClicked(WGoogleMap::Coordinate c)
-{
-  std::ostringstream strm;
-  strm << "Clicked at coordinate (" 
-       << c.latitude() 
-       << "," 
-       << c.longitude()
-       << ")";
-
-  ed_->setStatus(strm.str());
 }
 
 WWidget *SpecialPurposeWidgets::wSound()

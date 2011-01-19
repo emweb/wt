@@ -10,6 +10,8 @@
 #include <Wt/WPaintDevice>
 #include <Wt/WResource>
 
+#include <boost/filesystem/path.hpp>
+
 /*
  * Forwards for libharu types
  */
@@ -59,7 +61,7 @@ namespace Wt {
  *
  * This paint device has the following limitations:
  * - images (WPainter::drawImage()) can only be included from local
- * files, and is restricted to JPG and PNG images.
+ * files, and only JPG and PNG images are supported.
  * - drop shadows are not supported.
  *
  * \ingroup painting
@@ -91,6 +93,20 @@ public:
    */
   ~WPdfImage();
 
+  /*! \brief Adds a font collection.
+   *
+   * The provided \p directory will be searched for fonts (currently
+   * only TrueType ".ttf" fonts). TrueType fonts are preferable over
+   * Base-14 fonts (which are PDF's default fonts) since they provide
+   * partial (or complete) unicode support.
+   *
+   * When using Base-14 fonts, WString::narrow() will be called on text
+   * which may result in loss of information.
+   *
+   * \sa matchFont()
+   */
+  void addFontCollection(const std::string& directory, bool recursive=true);
+
   virtual void setChanged(WFlags<ChangeFlag> flags);
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle);
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,
@@ -110,7 +126,7 @@ public:
   virtual WLength height() const { return height_; }
 
   void errorHandler(HPDF_STATUS error_no, HPDF_STATUS detail_no);
-  
+
   virtual void handleRequest(const Http::Request& request,
 			     Http::Response& response);
 
@@ -119,13 +135,62 @@ protected:
   virtual void setPainter(WPainter *painter) { painter_ = painter; }
   virtual void clear();
 
+  /*! \brief Describes a font match.
+   */
+  class FontMatch {
+  public:
+    /*! \brief Creates a non-matching font.
+     */
+    FontMatch();
+
+    /*! \brief Creates a match with a font in the given file name.
+     */
+    FontMatch(const std::string& fileName, double quality);
+
+    bool matched() const { return quality_ > 0; }
+
+    /*! \brief Returns the font file.
+     */
+    std::string fileName() const { return file_; }
+
+    /*! \brief Returns the match quality.
+     *
+     * This is a number between 0 and 1, where 1 indicates a perfect match
+     * and 0 indicates no match.
+     */
+    double quality() const { return quality_; }
+
+  private:
+    std::string file_;
+    double quality_;
+  };
+
+  /*! \brief Locates a matching font.
+   *
+   * This method locates a match for the \p font in the given \p directory.
+   *
+   * The default implementation provides a rather simple font matching
+   * algorithm.
+   *
+   * \sa addFontCollection()
+   */
+  virtual FontMatch matchFont(const WFont& font, const std::string& directory,
+			      bool recursive) const;
+
 private:
+  struct FontCollection {
+    std::string directory;
+    bool recursive;
+  };
+
+  std::vector<FontCollection> fontCollections_;
   WLength width_, height_;
   WPainter *painter_;
 
   HPDF_Doc pdf_;
   HPDF_Page page_;
   HPDF_Font font_;
+  CharEncoding fontEncoding_;
 
   bool myPdf_;
   double x_, y_;
@@ -135,6 +200,16 @@ private:
   void paintPath();
   void drawPlainPath(const WPainterPath& path);
   void applyTransform(const WTransform& f);
+
+  void matchFont(const WFont& font,
+		 const std::vector<std::string>& fontNames,
+		 const boost::filesystem::path& path,
+		 bool recursive,
+		 FontMatch& match) const;
+  void matchFont(const WFont& font,
+		 const std::vector<std::string>& fontNames,
+		 const boost::filesystem::path& path,
+		 FontMatch& match) const;
 };
 
 }

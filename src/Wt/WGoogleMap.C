@@ -116,6 +116,18 @@ WGoogleMap::WGoogleMap(ApiVersion version, WContainerWidget *parent)
     parent->addWidget(this);
 }
 
+WGoogleMap::WGoogleMap(WContainerWidget *parent)
+ : clicked_(this, "click"),
+   doubleClicked_(this, "dblclick"),
+   mouseMoved_(this, "mousemove"),
+   apiVersion_(Version2)
+{
+  setImplementation(new WContainerWidget());
+
+  if (parent)
+    parent->addWidget(this);
+}
+
 WGoogleMap::~WGoogleMap()
 { }
 

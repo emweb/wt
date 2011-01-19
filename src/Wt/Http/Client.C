@@ -140,7 +140,7 @@ void Client::startWtSession(const std::string& host,
 
   url = path + "?wtd=" + sessionId;
   if (flags & SupportsAjax)
-    url += "&ajax=yes&js=yes&request=script";
+    url += "&request=script";
   else
     url += "&js=no";
 

@@ -207,10 +207,15 @@
 	    <max-memory-request-size>128</max-memory-request-size>
 	</connector-isapi>
 
-        <!-- Enable debug
+        <!-- Javascript debug options
 
-	     When enabled,
-	     - JavaScript errors are not caught to display an error message.
+	     Values:
+	     - true: JavaScript errors are not caught but the browser
+	             built-in debug options are used
+	     - stack: JavaScript errors are caught but also a stack trace
+                      is printed, useful for diagnosing a problem in production
+	     - false: JavaScript errors are caught and a simple error message
+	              is printed to indicate that something is terribly wrong
 	  -->
 	<debug>false</debug>
 

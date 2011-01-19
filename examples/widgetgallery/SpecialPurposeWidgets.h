@@ -28,19 +28,6 @@ private:
   Wt::WWidget *wSound();
   Wt::WWidget *wVideo();
   Wt::WWidget *wFlashObject();
-  void 
-  roadDescription(std::vector<Wt::WGoogleMap::Coordinate>& roadDescription);
-
-  void googleMapDoubleClicked(Wt::WGoogleMap::Coordinate c);
-  void googleMapClicked(Wt::WGoogleMap::Coordinate c);
-
-  void addItem(Wt::WAbstractItemModel* model,
-	       const Wt::WString &description, 
-	       Wt::WGoogleMap::MapTypeControl value);
-
-  void setMapTypeControl(Wt::WGoogleMap *map, 
-			 const Wt::WAbstractItemModel *model,
-			 int row);
 };
 
 #endif

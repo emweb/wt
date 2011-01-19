@@ -8,11 +8,24 @@
 #include "Wt/WApplication"
 #include "Wt/WEnvironment"
 #include "Wt/WImage"
+#include "Wt/WLength"
 #include "DomElement.h"
 #include "Utils.h"
 
 #include <boost/lexical_cast.hpp>
 #include <sstream>
+
+namespace {
+  std::string toString(const Wt::WLength& length) 
+  {
+    if (length.isAuto())
+      return "";
+    else if (length.unit() == Wt::WLength::Percentage)
+      return "100%";
+    else
+      return boost::lexical_cast<std::string>((int)length.toPixels()) + "px";
+  }
+}
 
 namespace Wt {
 
@@ -95,22 +108,8 @@ void WFlashObject::updateDom(DomElement& element, bool all)
     // The flash movie is thus set to 100% in order to fill the space of the
     // div.
     // http://kb2.adobe.com/cps/127/tn_12701.html
-    if (width().isAuto()) {
-      obj->setAttribute("width", "");
-    } else if (width().unit() == WLength::Percentage) {
-      obj->setAttribute("width", "100%");
-    } else {
-      obj->setAttribute("width",
-        boost::lexical_cast<std::string>((int)width().toPixels()) + "px");
-    }
-    if (height().isAuto()) {
-      obj->setAttribute("height", "");
-    } else if (height().unit() == WLength::Percentage) {
-      obj->setAttribute("height", "100%");
-    } else {
-      obj->setAttribute("height",
-        boost::lexical_cast<std::string>((int)height().toPixels()) + "px");
-    }
+    obj->setAttribute("width", toString(width()));
+    obj->setAttribute("height", toString(height()));
 
     for(std::map<std::string, WString>::const_iterator i = parameters_.begin();
       i != parameters_.end(); ++i) {
@@ -192,23 +191,15 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
     DomElement *obj =
       DomElement::getForUpdate(id()  + "_flash", DomElement_OBJECT);
 
-    if (width().isAuto()) {
-      obj->setAttribute("width", "");
-    } else if (width().unit() == WLength::Percentage) {
-      obj->setAttribute("width", "100%");
-    } else {
-      obj->setAttribute("width",
-        boost::lexical_cast<std::string>((int)width().toPixels()) + "px");
-    }
-    if (height().isAuto()) {
-      obj->setAttribute("height", "");
-    } else if (height().unit() == WLength::Percentage) {
-      obj->setAttribute("height", "100%");
-    } else {
-      obj->setAttribute("height",
-        boost::lexical_cast<std::string>((int)height().toPixels()) + "px");
-    }
-    result.push_back(obj);
+    std::stringstream ss;
+    ss << 
+      ""  "var v=" << jsFlashRef() << ";"
+      ""  "if(v){"
+      ""    "v.setAttribute('width', " << toString(width()) << ");"
+      ""    "v.setAttribute('height', " << toString(height()) << ");"
+      ""  "}";
+    WApplication::instance()->doJavaScript(ss.str());
+
     sizeChanged_ = false;
   }
   if (alternative_ && replaceDummyIeContent_) {

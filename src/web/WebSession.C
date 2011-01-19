@@ -70,7 +70,8 @@ WebSession::WebSession(WebController *controller,
     canWriteAsyncResponse_(false),
     embeddedEnv_(this),
     app_(0),
-    debug_(controller_->configuration().debug()),
+    debug_(controller_->configuration().errorReporting()
+	   != Configuration::ErrorMessage),
     recursiveEventLoop_(0)
 #if defined(WT_TARGET_JAVA)
   ,

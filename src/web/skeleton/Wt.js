@@ -1827,14 +1827,20 @@ function handleResponse(status, msg, timer) {
     return;
 
   if (status == 0) {
-_$_$ifnot_DEBUG_$_();
+_$_$if_CATCH_ERROR_$_();
     try {
 _$_$endif_$_();
       doJavaScript(msg);
-_$_$ifnot_DEBUG_$_();
+_$_$if_CATCH_ERROR_$_();
     } catch (e) {
+      var stack = null;
+
+_$_$if_SHOW_STACK_$_();
+      stack = e.stack || e.stacktrace;
+_$_$endif_$_();
       alert("Wt internal error: " + e + ", code: " +  e.code
-	    + ", description: " + e.description /* + ":" + msg */);
+	    + ", description: " + e.description
+	    + (stack ? (", stack:\n" + stack) : ""));
     }
 _$_$endif_$_();
 

@@ -41,6 +41,8 @@ public:
 	     const std::string &classname4,
 	     WContainerWidget *parent) const;
 
+  EventDisplayer* eventDisplayer() { return ed_; }
+
 protected:
   EventDisplayer *ed_;
 

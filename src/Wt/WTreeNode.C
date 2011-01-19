@@ -160,6 +160,9 @@ void WTreeNode::create()
   setStyleClass("Wt-tree");
   layout_->setSelectable(false);
 
+  if (WApplication::instance()->environment().agentIsOpera())
+    layout_->setAttributeValue("style", "table-layout: auto");
+
   implementStateless(&WTreeNode::doExpand, &WTreeNode::undoDoExpand);
   implementStateless(&WTreeNode::doCollapse, &WTreeNode::undoDoCollapse);
 

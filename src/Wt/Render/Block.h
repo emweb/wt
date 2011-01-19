@@ -93,7 +93,6 @@ private:
   double cssBoxMargin(Side side, double fontScale) const;
   double cssLineHeight(double fontLineHeight, double fontScale) const;
   double cssFontSize(double fontScale = 1) const;
-  WFont::GenericFamily cssFontFamily() const;
   WFont::Style cssFontStyle() const;
   int cssFontWeight() const;
   WFont cssFont(double fontScale) const;

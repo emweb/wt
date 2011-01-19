@@ -138,7 +138,7 @@ WApplication::WApplication(const WEnvironment& env)
     domRoot2_ = 0;
     widgetRoot_ = new WContainerWidget(domRoot_);
     WT_DEBUG(widgetRoot_->setObjectName("wt-app-root"));
-    widgetRoot_->resize(WLength(100, WLength::Percentage),
+    widgetRoot_->resize(WLength::Auto,
 			WLength(100, WLength::Percentage));
   } else {
     ajaxMethod_ = DynamicScriptTag;
@@ -436,6 +436,10 @@ void WApplication::setCssTheme(const std::string& theme)
 
 void WApplication::useStyleSheet(const std::string& uri)
 {
+  for (unsigned i = 0; i < styleSheets_.size(); ++i)
+    if (styleSheets_[i].uri == uri)
+      return;
+
   styleSheets_.push_back(StyleSheet(uri, ""));
   ++styleSheetsAdded_;
 }

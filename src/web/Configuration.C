@@ -159,7 +159,7 @@ Configuration::Configuration(const std::string& applicationPath,
     indicatorTimeout_(500),
     serverPushTimeout_(50),
     valgrindPath_(""),
-    debug_(false),
+    errorReporting_(ErrorMessage),
     runDirectory_(RUNDIR),
     sessionIdLength_(16),
     xhtmlMimeType_(false),
@@ -286,33 +286,51 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   if (!maxRequestStr.empty())
     maxRequestSize_ = boost::lexical_cast< ::int64_t >(maxRequestStr) * 1024;
 
-  setBoolean(app, "debug", debug_);
+  std::string debugStr = singleChildElementValue(app, "debug", "");
+
+  if (!debugStr.empty()) {
+    if (debugStr == "stack")
+      errorReporting_ = ErrorMessageWithStack;
+    else if (debugStr == "true")
+      errorReporting_ = NoErrors;
+    else if (debugStr == "false")
+      errorReporting_ = ErrorMessage;
+    else
+      throw WServer::Exception("<debug>: expecting 'true', 'false',"
+			       "or 'stack'");
+  }
 
   if (serverType_ == FcgiServer) {
     xml_node<> *fcgi = singleChildElement(app, "connector-fcgi");
     if (!fcgi)
       fcgi = app; // backward compatibility
 
-    valgrindPath_ = singleChildElementValue(fcgi, "valgrind-path", valgrindPath_);
-    runDirectory_ = singleChildElementValue(fcgi, "run-directory", runDirectory_);
+    valgrindPath_ = singleChildElementValue(fcgi, "valgrind-path",
+					    valgrindPath_);
+    runDirectory_ = singleChildElementValue(fcgi, "run-directory",
+					    runDirectory_);
 
-    std::string numThreadsStr = singleChildElementValue(fcgi, "num-threads", "");
+    std::string numThreadsStr = singleChildElementValue(fcgi,
+							"num-threads", "");
     if (!numThreadsStr.empty())
       numThreads_ = boost::lexical_cast<int>(numThreadsStr);
   }
+
   if (serverType_ == IsapiServer) {
     xml_node<> *isapi = singleChildElement(app, "connector-isapi");
     if (!isapi)
       isapi = app; // backward compatibility
 
-    std::string numThreadsStr = singleChildElementValue(isapi, "num-threads", "");
+    std::string numThreadsStr = singleChildElementValue(isapi,
+							"num-threads", "");
     if (!numThreadsStr.empty())
       numThreads_ = boost::lexical_cast<int>(numThreadsStr);
 
     std::string maxMemoryRequestSizeStr =
       singleChildElementValue(isapi, "max-memory-request-size", "");
     if (!maxMemoryRequestSizeStr.empty()) {
-      isapiMaxMemoryRequestSize_ = boost::lexical_cast< ::int64_t >(maxMemoryRequestSizeStr) * 1024;
+      isapiMaxMemoryRequestSize_ = boost::lexical_cast< ::int64_t >
+	(maxMemoryRequestSizeStr) * 1024;
     }
   }
 

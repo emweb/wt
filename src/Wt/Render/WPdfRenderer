@@ -82,6 +82,12 @@ public:
    */
   void setDpi(int dpi);
 
+  /*! \brief Adds a font collection.
+   *
+   * \sa WPdfImage::addFontCollection()
+   */
+  void addFontCollection(const std::string& directory, bool recursive=true);
+
   /*! \brief Returns the current page.
    *
    * This returns the page last created using createPage(), or the initial
@@ -107,6 +113,13 @@ public:
   virtual HPDF_Page createPage(int page);
 
 private:
+  struct FontCollection {
+    std::string directory;
+    bool recursive;
+  };
+
+  std::vector<FontCollection> fontCollections_;
+
   HPDF_Doc  pdf_;
   HPDF_Page page_;
 

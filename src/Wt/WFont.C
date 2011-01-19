@@ -103,7 +103,7 @@ WFont::Weight WFont::weight() const
   if (weight_ != Value)
     return weight_;
   else
-    return weightValue_ >= 400 ? WFont::Bold : WFont::NormalWeight;
+    return weightValue_ >= 700 ? WFont::Bold : WFont::NormalWeight;
 }
 
 int WFont::weightValue() const

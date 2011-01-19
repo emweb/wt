@@ -15,6 +15,14 @@
 #include "web/Utils.h"
 #include "web/WtException.h"
 
+#ifdef WT_THREADED
+#include <boost/thread.hpp>
+#endif // WT_THREADED
+
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/exception.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include <stdio.h>
 #include <hpdf.h>
 #ifdef WIN32
@@ -24,6 +32,13 @@
 #endif
 
 namespace {
+#ifdef WT_THREADED
+  boost::mutex fontRegistryMutex_;
+#endif // WT_THREADED
+
+  // Maps TrueType file names to font names
+  std::map<std::string, std::string> fontRegistry_;
+
   std::string toUpper(const std::string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(), toupper);
@@ -40,6 +55,16 @@ namespace {
 }
 
 namespace Wt {
+
+WPdfImage::FontMatch::FontMatch()
+  : quality_(0.0)
+{ }
+
+WPdfImage::FontMatch::FontMatch(const std::string& fileName,
+				double quality)
+  : file_(fileName),
+    quality_(quality)
+{ }
 
 WPdfImage::WPdfImage(const WLength& width, const WLength& height,
 		     WObject *parent)
@@ -110,6 +135,137 @@ void WPdfImage::done()
 {
   HPDF_Page_GRestore(page_); // for painter->combinedTransform()
   HPDF_Page_GRestore(page_); // for Wt -> HPDF
+}
+
+void WPdfImage::addFontCollection(const std::string& directory, bool recursive)
+{
+  FontCollection c;
+  c.directory = directory;
+  c.recursive = recursive;
+
+  fontCollections_.push_back(c);
+}
+
+WPdfImage::FontMatch WPdfImage::matchFont(const WFont& font,
+					  const std::string& directory,
+					  bool recursive) const
+{
+  boost::filesystem::path path(directory);
+
+  if (!boost::filesystem::exists(path)
+      || !boost::filesystem::is_directory(path))
+    throw WtException("WPdfImage: cannot read directory '" + directory + "'");
+
+  std::vector<std::string> fontNames;
+  std::string families = font.specificFamilies().toUTF8();
+
+  boost::split(fontNames, families, boost::is_any_of(","));
+  for (unsigned i = 0; i < fontNames.size(); ++i) {
+    std::string s = Utils::lowerCase(fontNames[i]); // UTF-8 !
+    Utils::replace(s, ' ', std::string());
+    boost::trim_if(s, boost::is_any_of("\"'"));
+    fontNames[i] = s;
+  }
+
+  switch (font.genericFamily()) {
+  case WFont::Serif:
+    fontNames.push_back("times");
+    fontNames.push_back("timesnewroman");
+    break;
+  case WFont::SansSerif:
+    fontNames.push_back("helvetica");
+    fontNames.push_back("arialunicode");
+    fontNames.push_back("arial");
+    fontNames.push_back("verdana");
+    break;
+  case WFont::Cursive:
+    fontNames.push_back("zapfchancery");
+    break;
+  case WFont::Fantasy:
+    fontNames.push_back("western");
+    break;
+  case WFont::Monospace:
+    fontNames.push_back("courier");
+    fontNames.push_back("mscouriernew");
+    break;
+  default:
+    ;
+  }
+
+  FontMatch match;
+  matchFont(font, fontNames, path, recursive, match);
+
+  return match;
+}
+
+void WPdfImage::matchFont(const WFont& font,
+			  const std::vector<std::string>& fontNames,
+			  const boost::filesystem::path& path,
+			  bool recursive,
+			  FontMatch& match) const
+{
+  boost::filesystem::directory_iterator end_itr;
+
+  for (boost::filesystem::directory_iterator i(path); i != end_itr; ++i) {
+    if (boost::filesystem::is_directory(*i)) {
+      if (recursive) {
+	matchFont(font, fontNames, *i, recursive, match);
+	if (match.quality() == 1.0)
+	  return;
+      }
+    } else {
+      matchFont(font, fontNames, *i, match);
+      if (match.quality() == 1.0)
+	return;
+    }
+  }
+}
+
+void WPdfImage::matchFont(const WFont& font,
+			  const std::vector<std::string>& fontNames,
+			  const boost::filesystem::path& path,
+			  FontMatch& match) const
+{
+  std::string f = Utils::lowerCase(path.leaf());
+
+  if (boost::ends_with(f, ".ttf")) {
+    std::string name = f.substr(0, f.length() - 4);
+    Utils::replace(name, ' ', std::string());
+
+    char const *const boldVariants[] = { "bold", "bf", 0 };
+    char const *const normalWeightVariants[] = { "", 0 };
+
+    char const *const regularVariants[] = { "regular", "", 0 };
+    char const *const italicVariants[] = { "italic", "oblique", 0 };
+    char const *const obliqueVariants[] = { "oblique", 0 };
+
+    char const *const *weightVariants, *const *styleVariants;
+
+    if (font.weight() == WFont::Bold)
+      weightVariants = boldVariants;
+    else
+      weightVariants = normalWeightVariants;
+
+    switch (font.style()) {
+    case WFont::NormalStyle: styleVariants = regularVariants; break;
+    case WFont::Italic:  styleVariants = italicVariants;  break;
+    case WFont::Oblique: styleVariants = obliqueVariants; break;
+    }
+
+    for (unsigned i = 0; i < fontNames.size(); ++i) {
+      double q = 1.0 - 0.1 * i;
+
+      if (q <= match.quality())
+	return;
+
+      for (char const *const *w = weightVariants; *w; ++w)
+	for (char const *const *s = styleVariants; *s; ++s)
+	  if (fontNames[i] + *w + *s == name) {
+	    match = FontMatch(path.string(), q);
+	    return;
+	  }
+    }
+  }
 }
 
 void WPdfImage::applyTransform(const WTransform& t)
@@ -225,61 +381,128 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
   if (flags & Font) {
     const WFont& font = painter()->font();
 
-    const char *base;
-    const char *italic = 0;
-    const char *bold = 0;
+    FontMatch match;
 
-    switch (font.genericFamily()) {
-    case WFont::Default:
-    case WFont::Serif:
-      base = "Times";
-      italic = "Italic";
-      bold = "Bold";
-      break;
-    case WFont::SansSerif:
-      base = "Helvetica";
-      italic = "Oblique";
-      bold = "Bold";
-      break;
-    case WFont::Monospace:
-      base = "Courier";
-      italic = "Oblique";
-      bold = "Bold";
-      break;
-    case WFont::Fantasy: // Not really !
-      base = "Symbol";
-      break;
-    case WFont::Cursive: // Not really !
-      base = "ZapfDingbats";
+    for (unsigned i = 0; i < fontCollections_.size(); ++i) {
+      FontMatch m = matchFont(font, fontCollections_[i].directory,
+			      fontCollections_[i].recursive);
+
+      if (m.quality() > match.quality())
+	match = m;
     }
 
-    if (italic)
-      switch (font.style()) {
-      case WFont::NormalStyle:
-	italic = 0;
+    font_ = 0;
+
+    if (match.matched()) {
+      const char *font_name = 0;
+      fontEncoding_ = UTF8;
+
+      {
+#ifdef WT_THREADED
+	boost::mutex::scoped_lock(fontRegistryMutex_);
+#endif // WT_THREADED
+	std::map<std::string, std::string>::const_iterator i
+	  = fontRegistry_.find(match.fileName());
+
+	if (i != fontRegistry_.end()) {
+	  font_name = i->second.c_str();
+	}
+      }
+
+      if (font_name) {
+	font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
+
+	if (!font_)
+	  HPDF_ResetError (pdf_);
+      }
+
+      if (!font_) {
+	bool isNew = !font_name;
+	font_name = HPDF_LoadTTFontFromFile (pdf_, match.fileName().c_str(),
+					     HPDF_TRUE);
+
+	if (font_name) {
+	  if (isNew) {
+#ifdef WT_THREADED
+	    boost::mutex::scoped_lock(fontRegistryMutex_);
+#endif // WT_THREADED
+	    fontRegistry_[match.fileName()] = font_name;
+	  }
+
+	  font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
+	} else {
+	  std::cerr << "Warning: could not load font " << match.fileName()
+		    << std::endl;
+	  HPDF_ResetError (pdf_);
+	}
+      }
+    }
+
+    if (!font_) {
+      fontEncoding_ = LocalEncoding;
+
+      /*
+       * Match with a Base14 font.
+       */
+      const char *base;
+      const char *italic = 0;
+      const char *bold = 0;
+
+      switch (font.genericFamily()) {
+      case WFont::Default:
+      case WFont::Serif:
+      case WFont::Fantasy: // Not really !
+      case WFont::Cursive: // Not really !
+	base = "Times";
+	italic = "Italic";
+	bold = "Bold";
 	break;
-      default:
+      case WFont::SansSerif:
+	base = "Helvetica";
+	italic = "Oblique";
+	bold = "Bold";
+	break;
+      case WFont::Monospace:
+	base = "Courier";
+	italic = "Oblique";
+	bold = "Bold";
 	break;
       }
 
-    if (font.weightValue() <= 400)
-      bold = 0;
+      if (font.specificFamilies() == "Symbol")
+	base = "Symbol";
+      else if (font.specificFamilies() == "ZapfDingbats")
+	base = "ZapfDingbats";
 
-    std::string name = base;
-    if (bold) {
-      name += std::string("-") + bold;
       if (italic)
-	name += italic;
-    } else if (italic)
-      name += std::string("-") + italic;
+	switch (font.style()) {
+	case WFont::NormalStyle:
+	  italic = 0;
+	  break;
+	default:
+	  break;
+	}
 
-    if (name == "Times")
-      name = "Times-Roman";
+      if (font.weightValue() <= 400)
+	bold = 0;
 
-    font_ = HPDF_GetFont(pdf_, name.c_str(), 0);
+      std::string name = base;
+      if (bold) {
+	name += std::string("-") + bold;
+	if (italic)
+	  name += italic;
+      } else if (italic)
+	name += std::string("-") + italic;
+
+      if (name == "Times")
+	name = "Times-Roman";
+
+      font_ = HPDF_GetFont(pdf_, name.c_str(), 0);
+    }
+
     fontSize_ = font.sizeLength(12).toPixels();
 
-    HPDF_Page_SetFontAndSize(page_, font_, fontSize_);
+    HPDF_Page_SetFontAndSize (page_, font_, fontSize_);
   }
 }
 
@@ -521,7 +744,9 @@ void WPdfImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
 		       penColor.green() / 255.,
 		       penColor.blue() / 255.);
 
-  HPDF_Page_TextRect(page_, left, fontSize_, right, 0, text.narrow().c_str(),
+  std::string s = fontEncoding_ == UTF8 ? text.toUTF8() : text.narrow();
+
+  HPDF_Page_TextRect(page_, left, fontSize_, right, 0, s.c_str(),
 		     alignment, 0);
 
   HPDF_Page_EndText(page_);
@@ -557,10 +782,17 @@ WTextItem WPdfImage::measureText(const WString& text, double maxWidth,
   if (!wordWrap)
     maxWidth = 1E9;
 
-  int bytes = HPDF_Page_MeasureText(page_, text.toUTF8().c_str(), maxWidth,
-				    wordWrap, &width);
+  std::string s = fontEncoding_ == UTF8 ? text.toUTF8() : text.narrow();
 
-  return WTextItem(WString::fromUTF8(text.toUTF8().substr(0, bytes)), width);
+  int bytes = HPDF_Page_MeasureText(page_, s.c_str(), maxWidth, wordWrap,
+				    &width);
+
+  switch (fontEncoding_) {
+  case UTF8:
+    return WTextItem(WString::fromUTF8(s.substr(0, bytes)), width);
+  default:
+    return WTextItem(text.value().substr(0, bytes), width);
+  }
 }
 
 void WPdfImage::handleRequest(const Http::Request& request,
