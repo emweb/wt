@@ -955,7 +955,18 @@ To checkout wt:
   <message id="home.download.version"><b>Version</b></message>
   <message id="home.download.date"><b>Date</b></message>
   <message id="home.download.description"><b>Description</b></message>
-
+  <message id="home.download.other">
+    <p>
+      If you are on Ubuntu, you can install a reasonably recent version of
+      Wt from Pau Garcia's PPA repository:
+      <div class="fragment">
+	<pre class="fragment">$ sudo add-apt-repository ppa:pgquiles/wt</pre>
+      </div>
+    </p>
+    <p>Older releases are still available at
+      <a href="http://sourceforge.net/project/showfiles.php?group_id=153710#files">sourceforge.net</a>.
+    </p>
+  </message>
   <message id="home.community">
 <h3><span>Community</span></h3>
 

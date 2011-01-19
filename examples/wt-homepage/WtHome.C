@@ -140,12 +140,7 @@ WWidget *WtHome::download()
   readReleases(releases_);
   result->addWidget(releases_);
   
-  result->addWidget
-    (new WText("<p>Older releases are still available at "
-	       + href("http://sourceforge.net/project/showfiles.php?"
-		      "group_id=153710#files",
-		      "sourceforge.net")
-	       + "</p>"));
+  result->addWidget(new WText(tr("home.download.other")));
 
   result->addWidget(new WText(tr("home.download.requirements")));
   result->addWidget(new WText(tr("home.download.cvs")));

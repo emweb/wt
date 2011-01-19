@@ -954,7 +954,7 @@ bool WApplication::pathMatches(const std::string& path,
   if (query == path
       || (path.length() > query.length()
 	  && path.substr(0, query.length()) == query
-	  && path[query.length()] == '/'))
+	  && (query[query.length() - 1] == '/' || path[query.length()] == '/')))
     return true;
   else
     return false;
