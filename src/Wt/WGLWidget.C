@@ -857,7 +857,7 @@ WGLWidget::Texture WGLWidget::createTexture()
 WGLWidget::Texture WGLWidget::createTextureAndLoad(const std::string &url)
 {
   Texture retval = "ctx.WtTexture" + boost::lexical_cast<std::string>(textures_++);
-  preloadImages_.push_back(std::make_pair<std::string, std::string>(retval, url));
+  preloadImages_.push_back(std::make_pair(retval, url));
   //GLDEBUG;
   return retval;
 

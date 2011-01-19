@@ -1,6 +1,10 @@
 19-01-2011:
 	* Wt/WPdfImage: add true type font support (libharu patch pending)
 
+	* Wt/WApplication.C: fix #693 (sloppy WApplication::internalPathMatches())
+
+	* Wt/WBoostAny.C: add support for bool types (#690)
+
 13-01-2011:
 	* Wt/Chart/WCartesianChart: implement legend location, alignment,
 	and styling options

@@ -92,4 +92,6 @@
   <message id="Wt.WOverlayLoadingIndicator.Loading">Loading...</message>
   <message id="Wt.WRegExpValidator.Invalid">Invalid input</message>
   <message id="Wt.WValidator.Invalid">This field cannot be empty</message>
+  <message id="Wt.true">true</message>
+  <message id="Wt.false">false</message>
 </messages>

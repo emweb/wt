@@ -150,6 +150,9 @@ std::string asJSLiteral(const boost::any& v, bool xhtml)
       s = WWebWidget::escapeText(s);
 
     return s.jsStringLiteral();
+  } else if (v.type() == typeid(bool)) {
+    bool b = boost::any_cast<bool>(v);
+    return b ? "true" : "false";
   } else if (v.type() == typeid(WDate)) {
     const WDate& d = boost::any_cast<WDate>(v);
 
@@ -211,6 +214,8 @@ boost::any updateFromJS(const boost::any& v, std::string s)
     return boost::any(s);
   else if (v.type() == typeid(const char *))
     return boost::any(s);
+  else if (v.type() == typeid(bool))
+    return boost::any((s == "true" || s == "1") ? true : false);
   else if (v.type() == typeid(WDate))
     return boost::any(WDate::fromString(WString::fromUTF8(s),
 					"ddd MMM d yyyy"));
@@ -318,6 +323,8 @@ WString asString(const boost::any& v, const WT_USTRING& format)
     return WString::fromUTF8(boost::any_cast<std::string>(v));
   else if (v.type() == typeid(const char *))
     return WString::fromUTF8(boost::any_cast<const char *>(v));
+  else if (v.type() == typeid(bool))
+    return WString::tr(boost::any_cast<bool>(v) ? "Wt.true" : "Wt.false");
   else if (v.type() == typeid(WDate)) {
     const WDate& d = boost::any_cast<WDate>(v);
     return d.toString(format.empty() ? "dd/MM/yy" : format);
@@ -388,6 +395,8 @@ double asNumber(const boost::any& v)
     } catch (boost::bad_lexical_cast&) {
       return std::numeric_limits<double>::signaling_NaN();
     }
+  else if (v.type() == typeid(bool))
+    return boost::any_cast<bool>(v) ? 1 : 0;
   else if (v.type() == typeid(WDate))
     return static_cast<double>(boost::any_cast<WDate>(v).toJulianDay());
   else if (v.type() == typeid(WDateTime)) {

@@ -11,6 +11,9 @@
 #include <Wt/WPushButton>
 #include <Wt/WText>
 
+// c++0x only, for std::bind
+// #include <functional>
+
 using namespace Wt;
 
 /*
@@ -63,6 +66,13 @@ HelloApplication::HelloApplication(const WEnvironment& env)
    */
   nameEdit_->enterPressed().connect
     (boost::bind(&HelloApplication::greet, this));
+
+  /*
+   * - using a c++0x lambda:
+   */
+  // b->clicked().connect(std::bind([=]() { 
+  //       greeting_->setText("Hello there, " + nameEdit_->text());
+  // }));
 }
 
 void HelloApplication::greet()

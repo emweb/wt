@@ -950,8 +950,11 @@ bool WApplication::internalPathMatches(const std::string& path) const
 bool WApplication::pathMatches(const std::string& path,
 			       const std::string& query)
 {
-  if (query.length() <= path.length()
-      && path.substr(0, query.length()) == query)
+  /* Returns whether the current path start with the query */
+  if (query == path
+      || (path.length() > query.length()
+	  && path.substr(0, query.length()) == query
+	  && path[query.length()] == '/'))
     return true;
   else
     return false;
