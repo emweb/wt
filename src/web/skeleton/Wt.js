@@ -1746,7 +1746,10 @@ function setTitle(title) {
   document.title = title;
 };
 
-function load() {
+function load(initHistory) {
+  if (initHistory)
+    WT.history.initialize("Wt-history-field", "Wt-history-iframe");
+
   if (!("activeElement" in document)) {
     function trackActiveElement(evt) {
       if (evt && evt.target) {
@@ -2303,18 +2306,7 @@ this.emit = emit;
 
 window._$_APP_CLASS_$_SignalEmit = _$_APP_CLASS_$_.emit;
 
-window._$_APP_CLASS_$_ScriptLoaded = false;
-
 window._$_APP_CLASS_$_OnLoad = function() {
-  if (!window._$_APP_CLASS_$_ScriptLoaded) {
-    window._$_APP_CLASS_$_Loaded = true;
-    return;
-  }
-
   _$_WT_CLASS_$_.history.initialize("Wt-history-field", "Wt-history-iframe");
   _$_APP_CLASS_$_._p_.load();
 };
-
-(function() {
-
- })();

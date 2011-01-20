@@ -617,9 +617,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< app->javaScriptClass()
 	<< "._p_.setServerPush("
 	<< (app->updatesEnabled() ? "true" : "false") << ");"
-	<< "window." << app->javaScriptClass() << "ScriptLoaded = true;"
-	<< "if (window." << app->javaScriptClass() << "Loaded) "
-	<< app->javaScriptClass() << "OnLoad();\n";
+	<< "$(document).ready(function() { "
+	<< app->javaScriptClass() << "._p_.load(true); });\n";
   }
 }
 
@@ -730,7 +729,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		 << "}";
 
   if (widgetset)
-    response.out() << app->javaScriptClass() << "._p_.load();\n";
+    response.out() << app->javaScriptClass() << "._p_.load(false);\n";
 
   if (!app->isQuited())
     response.out() << session_.app()->javaScriptClass()
@@ -743,9 +742,9 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		   << "._p_.setServerPush("
 		   << (app->updatesEnabled() ? "true" : "false") << ");";
 
-    response.out() << "window." << app->javaScriptClass() << "ScriptLoaded = true;"
-		   << "if (window." << app->javaScriptClass() << "Loaded) "
-		   << app->javaScriptClass() << "OnLoad();\n";
+    response.out() << "$(document).ready(function() { "
+		   << app->javaScriptClass()
+		   << "._p_.load(true); });\n";
   }
 
   loadScriptLibraries(response.out(), app, librariesLoaded);
