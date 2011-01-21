@@ -613,9 +613,9 @@ void WTableView::renderTable(const int fr, const int lr,
   updateColumnOffsets();
 
   int scrollX1 = std::max(0, viewportLeft_ - viewportWidth_ / 2);
-  int scrollX2 = viewportLeft_ + viewportWidth_ + viewportWidth_ / 2;
+  int scrollX2 = viewportLeft_ + viewportWidth_ / 2;
   int scrollY1 = std::max(0, viewportTop_ - viewportHeight_ / 2);
-  int scrollY2 = viewportTop_ + viewportHeight_ + viewportHeight_ / 2;
+  int scrollY2 = viewportTop_ + viewportHeight_ / 2;
 
   SStream s;
 
@@ -931,6 +931,7 @@ void WTableView::updateColumnOffsets()
 
   canvas_->resize(total, canvasHeight());
   headers_->resize(total, headers_->height());
+  table_->resize(totalRendered, table_->height());
 }
 
 void WTableView::setRowHeight(const WLength& rowHeight)

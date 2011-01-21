@@ -1,5 +1,6 @@
 SUBDIRS(
   dbo
+  miniwebgl
   serverpush
   socketnotifier
   suggestionpopup

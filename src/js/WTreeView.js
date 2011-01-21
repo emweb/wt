@@ -306,7 +306,7 @@ WT_DECLARE_WT_MEMBER
 
        contentsContainer.onscroll({object: contentsContainer});
      }
-  } 
+  }
 
   self.adjustColumns();
 
