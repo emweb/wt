@@ -1412,21 +1412,9 @@ void WApplication::loadJavaScript(const char *jsFile)
 {
   if (!javaScriptLoaded(jsFile)) {
     std::string fname = std::string( xstr(WT_DEBUG_JS) "/") + jsFile;
-    std::ifstream js(fname.c_str(), std::ios::in | std::ios::binary);
-
-    if (!js)
-      throw WtException("Could not load " + fname);
-
-    js.seekg(0, std::ios::end);
-    int length = js.tellg();
-    js.seekg(0, std::ios::beg);
-
-    boost::scoped_array<char> jstext(new char[length + 1]);
-    js.read(jstext.get(), length);
-    jstext[length] = 0;
-
+    std::string jstext = Utils::readJavaScriptFile(fname);
     doJavaScript("window.currentApp = " + javaScriptClass_ + ";"
-		 + jstext.get(), false);
+		 + jstext, false);
 
     setJavaScriptLoaded(jsFile);
   }

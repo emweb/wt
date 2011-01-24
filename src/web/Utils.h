@@ -252,6 +252,8 @@ inline void find(const Map& map, const K& key, V& result)
 
 void stringToDouble(const char *str, char **end, double &value);
 
+std::string readJavaScriptFile(const std::string& fname);
+
   }
 }
 

@@ -284,12 +284,9 @@ void WSuggestionPopup::modelLayoutChanged()
 
 void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
 {
-#ifdef WT_CNOR // ??
   EventSignalBase& b = edit->keyPressed();
-  EventSignalBase& c = edit->clicked();
-#endif
 
-  connectObjJS(edit->keyPressed(), "editKeyDown");
+  connectObjJS(b, "editKeyDown");
   connectObjJS(edit->keyWentDown(), "editKeyDown");
   connectObjJS(edit->keyWentUp(), "editKeyUp");
   connectObjJS(edit->blurred(), "delayHide");
@@ -299,7 +296,8 @@ void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
 
   if (triggers & DropDownIcon) {
     edit->addStyleClass("Wt-suggest-dropdown");
-    connectObjJS(edit->clicked(), "editClick");
+    EventSignalBase& c = edit->clicked();
+    connectObjJS(c, "editClick");
     connectObjJS(edit->mouseMoved(), "editMouseMove");
   }
 

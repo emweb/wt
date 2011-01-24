@@ -8,12 +8,15 @@
 #include "DomElement.h"
 #include "rapidxml/rapidxml.hpp"
 #include "Wt/WString"
+#include "WtException.h"
 
 #include <boost/algorithm/string.hpp>
 
 #include <cstdlib>
 #include <sstream>
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
 
 #ifdef WIN32
 #include <windows.h>
@@ -252,5 +255,23 @@ void stringToDouble(const char *str, char **end, double &value)
   value = strtod(str, end);
 }
 
+std::string readJavaScriptFile(const std::string& fname) 
+{
+  std::ifstream js(fname.c_str(), std::ios::in | std::ios::binary);
+  
+  if (!js)
+    throw WtException("Could not load " + fname);
+  
+  js.seekg(0, std::ios::end);
+  int length = js.tellg();
+  js.seekg(0, std::ios::beg);
+  
+  boost::scoped_array<char> jstext(new char[length + 1]);
+  js.read(jstext.get(), length);
+  jstext[length] = 0;
+
+  return std::string(jstext.get());
+}
+  
   }
 }

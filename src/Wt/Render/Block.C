@@ -494,7 +494,9 @@ int Block::cssFontWeight() const
 
   std::string v = cssProperty(PropertyStyleFontWeight);
 
-  if (v.empty() && type_ == DomElement_STRONG)
+  if (v.empty() && (type_ == DomElement_STRONG
+		    || (type_ >= DomElement_H1
+			&& type_ <= DomElement_H6)))
     v = "bolder";
 
   if (!v.empty()) {
@@ -569,8 +571,20 @@ double Block::cssFontSize(double fontScale) const
       else
 	result = l.toPixels();
     }
-  } else
-    result = parentSize;
+  } else {
+    if (type_ == DomElement_H1)
+      result = parentSize * 2;
+    else if (type_ == DomElement_H2)
+      result = parentSize * 1.5;
+    else if (type_ == DomElement_H3)
+      result = parentSize * 1.17;
+    else if (type_ == DomElement_H5)
+      result = parentSize * 0.83;
+    else if (type_ == DomElement_H6)
+      result = parentSize * 0.75;
+    else
+      result = parentSize;
+  }
 
   return result * fontScale;
 }

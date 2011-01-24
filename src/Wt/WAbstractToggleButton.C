@@ -131,6 +131,8 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     if (all) {
       input = DomElement::createNew(DomElement_INPUT);
       input->setName("in" + id());
+      
+      element.setProperty(Wt::PropertyStyleWhiteSpace, "nowrap");
     } else
       input = DomElement::getForUpdate("in" + id(), DomElement_INPUT);
   } else
