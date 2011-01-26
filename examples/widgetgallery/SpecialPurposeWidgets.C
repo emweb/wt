@@ -299,7 +299,7 @@ WWidget *SpecialPurposeWidgets::wGoogleMap()
   topic("WGoogleMap", result);
   new WText(tr("specialpurposewidgets-WGoogleMap"), result);
   
-  GoogleMapExample *googleMapExample = new GoogleMapExample(result, this);
+  new GoogleMapExample(result, this);
 
   return result;
 }

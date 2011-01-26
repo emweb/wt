@@ -153,7 +153,7 @@ WWidget *MvcWidgets::proxyModels()
 
   WTable *layout = new WTable(result);
 
-  for (int i = 0; i < headers.size(); ++i) {
+  for (unsigned i = 0; i < headers.size(); ++i) {
     layout->columnAt(i)->setWidth(WLength(25, WLength::Percentage));
     layout->elementAt(0, i)->setPadding(4);
     layout->elementAt(0, i)->setContentAlignment(AlignCenter);

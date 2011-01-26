@@ -188,9 +188,6 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
 {
   WWebWidget::getDomChanges(result, app);
   if (sizeChanged_) {
-    DomElement *obj =
-      DomElement::getForUpdate(id()  + "_flash", DomElement_OBJECT);
-
     std::stringstream ss;
     ss << 
       ""  "var v=" << jsFlashRef() << ";"

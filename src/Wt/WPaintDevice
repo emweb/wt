@@ -141,7 +141,9 @@ public:
    * The text must be rendered, stroked and transformed using the
    * current painter settings.
    */
-  virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+  virtual void drawText(const WRectF& rect, 
+			WFlags<AlignmentFlag> alignmentFlags,
+			TextFlag textFlag,
 			const WString& text) = 0;
 
   /*! \brief Measures rendered text size.
@@ -204,10 +206,6 @@ protected:
   /*! \brief Sets the painter.
    */
   virtual void setPainter(WPainter *painter) = 0;
-
-  /*! \brief Clears the paint device.
-   */
-  virtual void clear() = 0;
 
   friend class WPainter;
   friend class WPaintedWidget;

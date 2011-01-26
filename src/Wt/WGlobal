@@ -341,6 +341,15 @@ static const WFlags<AlignmentFlag> AlignVerticalMask
   = AlignBaseline | AlignSub | AlignSuper | AlignTop | AlignTextTop
   | AlignMiddle | AlignBottom | AlignTextBottom | AlignLength;
 
+/*! \brief Enumeration that specifies the way text should be printed.
+ *
+ * \sa WPainter::drawText(const WRectF& rect, WFlags<AlignmentFlag> alignmentFlags, TextFlag textFlag, const WString& text)
+ */
+enum TextFlag {
+  TextSingleLine,       //!< Text will be printed on just one line
+  TextWordWrap          //!< Lines will be braked at word boundaries
+};
+
 /*! \brief Enumeration that specifies a layout mechanism for a widget.
  *
  * The layout mechanism determines how the widget positions itself relative

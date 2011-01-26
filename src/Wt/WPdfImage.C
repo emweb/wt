@@ -116,11 +116,6 @@ WPdfImage::~WPdfImage()
     HPDF_Free(pdf_);
 }
 
-void WPdfImage::clear()
-{
-  // FIXME
-}
-
 void WPdfImage::init()
 {
   HPDF_Page_GSave(page_); // for Wt -> HPDF
@@ -676,7 +671,9 @@ void WPdfImage::drawPlainPath(const WPainterPath& path)
   }
 }
 
-void WPdfImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+void WPdfImage::drawText(const WRectF& rect, 
+			 WFlags<AlignmentFlag> flags,
+			 TextFlag textFlag,
 			 const WString& text)
 {
   // horizontal alignment: provided by TextRect, use very wide rect

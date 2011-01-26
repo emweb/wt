@@ -47,12 +47,12 @@ namespace Wt {
 int WSvgImage::nextClipId_ = 0;
 
 WSvgImage::WSvgImage(const WLength& width, const WLength& height,
-		     WObject *parent)
+		     WObject *parent, bool paintUpdate)
   : WResource(parent),
     width_(width),
     height_(height),
     painter_(0),
-    paintUpdate_(true),
+    paintUpdate_(paintUpdate),
     newGroup_(true),
     newClipPath_(false),
     busyWithPath_(false),
@@ -64,13 +64,6 @@ WSvgImage::WSvgImage(const WLength& width, const WLength& height,
 WSvgImage::~WSvgImage()
 {
   beingDeleted();
-}
-
-void WSvgImage::clear()
-{
-  paintUpdate_ = false;
-
-  shapes_.str(std::string());
 }
 
 void WSvgImage::init()
@@ -502,30 +495,66 @@ void WSvgImage::drawLine(double x1, double y1, double x2, double y2)
   drawPath(path);
 }
 
-void WSvgImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+void WSvgImage::drawText(const WRectF& rect, 
+			 WFlags<AlignmentFlag> flags,
+			 TextFlag textFlag,
 			 const WString& text)
 {
   finishPath();
   makeNewGroup();
 
   char buf[30];
-  shapes_ << "<"SVG"text";
-
+  SStream style;
   // SVG uses fill color to fill text, but we want pen color.
-  shapes_ << " style=\"stroke:none;";
+  style << "style=\"stroke:none;";
   if (painter()->pen().color() != painter()->brush().color()
       || painter()->brush().style() == NoBrush) {
     const WColor& color = painter()->pen().color();
-    shapes_ << "fill:" + color.cssText() << ';';
+    style << "fill:" + color.cssText() << ';';
     if (color.alpha() != 255)
-      shapes_ << "fill-opacity:" 
-	      << Utils::round_str(color.alpha() / 255., 3, buf)
-	      << ';';
+      style << "fill-opacity:" 
+	    << Utils::round_str(color.alpha() / 255., 3, buf)
+	    << ';';
   }
-  shapes_ << '"';
+  style << '"';
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
+
+  if (textFlag == TextWordWrap) {
+    std::string hAlign;
+    switch (horizontalAlign) {
+    case AlignLeft:
+      hAlign = "start";
+      break;
+    case AlignRight:
+      hAlign = "end";
+      break;
+    case AlignCenter:
+      hAlign = "center";
+      break;
+    case AlignJustify:
+      hAlign = "justify";
+    default:
+      break;
+    }
+
+    shapes_ << "<"SVG"flowRoot " << style.str() << ">\n"
+	    << "  <"SVG"flowRegion>\n"
+	    << "    <"SVG"rect"
+	    <<            " width=\"" << rect.width() << "\""
+	    <<            " height=\"" << rect.height() << "\""
+	    <<            " x=\"" << rect.x() << "\""
+	    <<            " y=\"" << rect.y() << "\""
+	    << "    />\n"
+	    << "  </"SVG"flowRegion>\n"
+	    << "  <"SVG"flowPara"
+	    <<              " text-align=\"" << hAlign << "\">\n"
+	    << " " << WWebWidget::escapeText(text, false).toUTF8() << "\n"
+	    << "  </"SVG"flowPara>\n"
+	    << "</"SVG"flowRoot>\n";
+  } else {
+  shapes_ << "<"SVG"text " << style.str();
 
   switch (horizontalAlign) {
   case AlignLeft:
@@ -599,6 +628,7 @@ void WSvgImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
   shapes_ << ">" << WWebWidget::escapeText(text, false).toUTF8() 
 	  << "</"SVG"text>";
 #endif
+  }
 }
 
 WTextItem WSvgImage::measureText(const WString& text, double maxWidth,

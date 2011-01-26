@@ -91,7 +91,9 @@ public:
   virtual void drawLine(double x1, double y1, double x2, double y2);
   virtual void drawPath(const WPainterPath& path);
 
-  virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+  virtual void drawText(const WRectF& rect, 
+			WFlags<AlignmentFlag> alignmentFlags,
+			TextFlag textFlag,
 			const WString& text);
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
 				bool wordWrap = false);
@@ -120,10 +122,15 @@ public:
    */
   WColor getPixel(int x, int y);
 
+  /*! \brief Clears the image.
+   *
+   * Fills the image with a white background.
+   */
+  void clear();
+
 protected:
   virtual WPainter *painter() const { return painter_; }
   virtual void setPainter(WPainter *painter) { painter_ = painter; }
-  virtual void clear();
 
 private:
   WLength width_, height_;

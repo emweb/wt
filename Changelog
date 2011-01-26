@@ -1,3 +1,9 @@
+25-01-2011:
+	* Wt/Text/Renderer: warn but proceed when minimum render width exceeds page
+	width
+
+	* Wt/WPaintDevice: solve inconsistencies w.r.t. clear()
+
 19-01-2011:
 	* Wt/WPdfImage: add true type font support (libharu patch pending)
 

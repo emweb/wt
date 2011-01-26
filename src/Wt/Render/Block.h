@@ -18,6 +18,14 @@
 namespace Wt {
   namespace Render {
 
+struct PleaseWiden {
+  PleaseWiden(double w)
+    : width(w)
+  { }
+
+  double width;
+};
+
 class WTextRenderer;
 class Block;
 class Line;

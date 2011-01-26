@@ -96,7 +96,7 @@ class SqlConnection;
  * Accounts accounts = query.resultList();
  *
  * for (Accounts::const_iterator i = accounts.begin(); i != accounts.end(); ++i)
- *   std::cerr << "Name: " << i->name << std::end;
+ *   std::cerr << "Name: " << (*i)->name << std::end;
  * \endcode
  *
  * The \p BindStrategy specifies how you want to bind parameters to

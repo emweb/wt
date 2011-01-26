@@ -37,7 +37,7 @@ public:
 
 public:
   virtual ~WWidgetPainter();
-  virtual WPaintDevice *getPaintDevice() = 0;
+  virtual WPaintDevice *getPaintDevice(bool paintUpdate) = 0;
   virtual void createContents(DomElement *element, WPaintDevice *device) = 0;
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device) = 0;
@@ -53,7 +53,7 @@ class WWidgetVectorPainter : public WWidgetPainter
 {
 public:
   WWidgetVectorPainter(WPaintedWidget *widget, RenderType renderType);
-  virtual WPaintDevice *getPaintDevice();
+  virtual WPaintDevice *getPaintDevice(bool paintUpdate);
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device);
@@ -67,7 +67,7 @@ class WWidgetCanvasPainter : public WWidgetPainter
 {
 public:
   WWidgetCanvasPainter(WPaintedWidget *widget);
-  virtual WPaintDevice *getPaintDevice();
+  virtual WPaintDevice *getPaintDevice(bool paintUpdate);
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device); 
@@ -79,14 +79,14 @@ class WWidgetRasterPainter : public WWidgetPainter
 public:
   WWidgetRasterPainter(WPaintedWidget *widget);
   ~WWidgetRasterPainter();
-  virtual WPaintDevice *getPaintDevice();
+  virtual WPaintDevice *getPaintDevice(bool paintUpdate);
   virtual void createContents(DomElement *element, WPaintDevice *device);
   virtual void updateContents(std::vector<DomElement *>& result,
 			      WPaintDevice *device); 
   virtual RenderType renderType() const { return PngImage; }
 
 private:
-  WPaintDevice *device_;
+  WRasterImage *device_;
 };
 
 WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
@@ -271,8 +271,7 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
   if (!app->environment().agentIsSpiderBot())
     canvas->setId('p' + id());
 
-  WPaintDevice *device = painter_->getPaintDevice();
-  device->clear();
+  WPaintDevice *device = painter_->getPaintDevice(false);
 
   //handle the widget correctly when inline and using VML 
   if (painter_->renderType() == WWidgetPainter::InlineVml && isInline()) {
@@ -332,10 +331,8 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
   bool createdNew = createPainter();
 
   if (needRepaint_) {
-    WPaintDevice *device = painter_->getPaintDevice();
-
-    if (createdNew || !(repaintFlags_ & PaintUpdate))
-      device->clear();
+    WPaintDevice *device
+      = painter_->getPaintDevice((repaintFlags_ & PaintUpdate) && !createdNew);
 
     if (renderWidth_ != 0 && renderHeight_ != 0)
       paintEvent(device);
@@ -427,12 +424,14 @@ WWidgetVectorPainter::WWidgetVectorPainter(WPaintedWidget *widget,
     renderType_(renderType)
 { }
 
-WPaintDevice *WWidgetVectorPainter::getPaintDevice()
+WPaintDevice *WWidgetVectorPainter::getPaintDevice(bool paintUpdate)
 {
   if (renderType_ == InlineSvg)
-    return new WSvgImage(widget_->renderWidth_, widget_->renderHeight_);
+    return new WSvgImage(widget_->renderWidth_, widget_->renderHeight_, 0,
+			 paintUpdate);
   else
-    return new WVmlImage(widget_->renderWidth_, widget_->renderHeight_);
+    return new WVmlImage(widget_->renderWidth_, widget_->renderHeight_,
+			 paintUpdate);
 }
 
 void WWidgetVectorPainter::createContents(DomElement *canvas,
@@ -486,7 +485,7 @@ WWidgetCanvasPainter::WWidgetCanvasPainter(WPaintedWidget *widget)
   : WWidgetPainter(widget)
 { }
 
-WPaintDevice *WWidgetCanvasPainter::getPaintDevice()
+WPaintDevice *WWidgetCanvasPainter::getPaintDevice(bool paintUpdate)
 {
   return new WCanvasPaintDevice(widget_->renderWidth_, widget_->renderHeight_);
 }
@@ -572,15 +571,19 @@ WWidgetRasterPainter::~WWidgetRasterPainter()
   delete device_;
 }
 
-WPaintDevice *WWidgetRasterPainter::getPaintDevice()
+WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
 {
   if (!device_) {
 #ifdef HAVE_RASTER_IMAGE
-    device_ = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
+    device_
+      = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
 #else
     throw WtException("Wt was built without WRasterImage (graphicsmagick)");
 #endif
   }
+
+  if (!paintUpdate)
+    device_->clear();
 
   return device_;
 }

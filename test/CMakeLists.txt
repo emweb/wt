@@ -8,6 +8,7 @@ SET(TEST_SOURCES
   wdatetime/WDateTimeTest.C
   length/WLengthTest.C
   color/WColorTest.C
+  paintdevice/WSvgTest.C
 )
 
 # HAVE_SQLITE does not work: why ?

@@ -447,12 +447,28 @@ void WPainter::drawRects(const std::vector<WRectF>& rectangles)
 void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
 			const WString& text)
 {
-  if (!(flags & AlignVerticalMask))
-    flags |= AlignTop;
-  if (!(flags & AlignHorizontalMask))
-    flags |= AlignLeft;
+  drawText(rectangle, flags, TextSingleLine, text);
+}
 
-  device_->drawText(rectangle.normalized(), flags, text);
+void WPainter::drawText(const WRectF& rectangle, 
+			WFlags<AlignmentFlag> alignmentFlags,
+			TextFlag textFlag,
+			const WString& text)
+{
+  if (!(alignmentFlags & AlignVerticalMask))
+    alignmentFlags |= AlignTop;
+  if (!(alignmentFlags & AlignHorizontalMask))
+    alignmentFlags |= AlignLeft;
+
+  device_->drawText(rectangle.normalized(), alignmentFlags, textFlag, text);
+}
+
+void WPainter::drawText(double x, double y, double width, double height, 
+			WFlags<AlignmentFlag> alignmentFlags,
+			TextFlag textFlag,
+			const WString& text)
+{
+  drawText(WRectF(x, y, width, height), alignmentFlags, textFlag, text);
 }
 
 void WPainter::drawText(double x, double y, double width, double height,

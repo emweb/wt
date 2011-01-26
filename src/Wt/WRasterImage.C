@@ -489,9 +489,15 @@ void WRasterImage::drawPlainPath(const WPainterPath& path)
   }
 }
 
-void WRasterImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+void WRasterImage::drawText(const WRectF& rect, 
+			    WFlags<AlignmentFlag> flags,
+			    TextFlag textFlag,
 			    const WString& text)
 {
+  if (textFlag == TextWordWrap)
+    throw std::logic_error("WRasterImage::drawText() " 
+			   "TextWordWrap is not supported");
+
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 

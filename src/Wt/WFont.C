@@ -355,10 +355,22 @@ const std::string WFont::cssText(bool combined) const
 {
   SStream result;
 
-  if (combined)
-    result << cssStyle(false) << ' ' << cssVariant(false) << ' '
-	   << cssWeight(false) << ' ' << cssSize(true) << ' ' << cssFamily(true);
-  else {
+  if (combined) {
+    std::string s;
+    s = cssStyle(false);
+    if (!s.empty())
+      result << s << ' ';
+
+    s = cssVariant(false);
+    if (!s.empty())
+      result << s << ' ';
+
+    s = cssWeight(false);
+    if (!s.empty())
+      result << s << ' ';
+
+    result << cssSize(true) << ' ' << cssFamily(true);
+  } else {
     std::string s;
     s = cssFamily(false);
     if (!s.empty())

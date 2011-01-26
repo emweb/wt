@@ -54,9 +54,6 @@ double WTextRenderer::render(const WString& text, double y)
 
     BlockList floats;
 
-    double minX = 0;
-    double maxX = textWidth(currentPage);
-
     device_ = startPage(currentPage);
     painter_ = new WPainter(device_);
 
@@ -65,10 +62,30 @@ double WTextRenderer::render(const WString& text, double y)
     painter_->setFont(defaultFont);
 
     double collapseMarginBottom;
-    docBlock.layoutBlock(currentY, currentPage, floats, minX, maxX,
-			 false, *this, std::numeric_limits<double>::max(),
-			 collapseMarginBottom);
-    Block::clearFloats(currentY, currentPage, floats, minX, maxX, maxX - minX);
+
+    double minX = 0;
+    double maxX = textWidth(currentPage);
+    bool tooWide = false;
+
+    for (;;) {
+      try {
+	docBlock.layoutBlock(currentY, currentPage, floats, minX, maxX,
+			     false, *this, std::numeric_limits<double>::max(),
+			     collapseMarginBottom);
+
+	Block::clearFloats(currentY, currentPage, floats, minX, maxX,
+			   maxX - minX);
+
+	break;
+      } catch (PleaseWiden& w) {
+	if (!tooWide) {
+	  std::cerr << "Warning: contents too wide for page." << std::endl;
+	  tooWide = true;
+	}
+
+	maxX += w.width;
+      }
+    }
 
     for (int page = 0; page <= currentPage; ++page) {
       if (page != 0) {

@@ -113,7 +113,8 @@ public:
 			 int imgWidth, int imgHeight, const WRectF& sourceRect);
   virtual void drawLine(double x1, double y1, double x2, double y2);
   virtual void drawPath(const WPainterPath& path);
-  virtual void drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+  virtual void drawText(const WRectF& rect, 
+			WFlags<AlignmentFlag> alignmentFlags, TextFlag textFlag,
 			const WString& text);
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
 				bool wordWrap = false);
@@ -133,7 +134,6 @@ public:
 protected:
   virtual WPainter *painter() const { return painter_; }
   virtual void setPainter(WPainter *painter) { painter_ = painter; }
-  virtual void clear();
 
   /*! \brief Describes a font match.
    */

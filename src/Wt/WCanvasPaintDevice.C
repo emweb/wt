@@ -83,13 +83,6 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
   }
 }
 
-void WCanvasPaintDevice::clear()
-{
-  js_.str(std::string());
-  js_ << "ctx.clearRect(0,0,"
-      << width().value() << "," << height().value() << ");";
-}
-
 void WCanvasPaintDevice::render(const std::string& canvasId,
 				DomElement *text)
 {
@@ -361,8 +354,13 @@ void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
 
 void WCanvasPaintDevice::drawText(const WRectF& rect,
 				  WFlags<AlignmentFlag> flags,
+				  TextFlag textFlag,
 				  const WString& text)
 {
+  if (textFlag == TextWordWrap)
+    throw std::logic_error("WCanvasPaintDevice::drawText() " 
+			   "TextWordWrap is not supported");
+
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 

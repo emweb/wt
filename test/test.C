@@ -16,6 +16,7 @@ using boost::unit_test_framework::test_suite;
 #include "wdatetime/WDateTimeTest.h"
 #include "length/WLengthTest.h"
 #include "color/WColorTest.h"
+#include "paintdevice/WSvgTest.h"
 
 boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
 {
@@ -34,6 +35,7 @@ boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
   tests->add(new WDateTimeTest());
   tests->add(new WLengthTest());
   tests->add(new WColorTest());
+  tests->add(new WSvgTest());
 
   return tests;
 }

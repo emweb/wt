@@ -46,14 +46,6 @@ double sum(const std::vector<double>& v)
   return result;
 }
 
-struct PleaseWiden {
-  PleaseWiden(double w)
-    : width(w)
-  { }
-
-  double width;
-};
-
 const double MARGINX = -1;
 
 Block::Block(xml_node<> *node, Block *parent)
@@ -912,7 +904,7 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
     }
   }
 
-  if (width < availableWidth) {
+  if (width <= availableWidth) {
     if (totalMaxWidth > availableWidth)
       width = availableWidth;
     else
@@ -934,19 +926,19 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
 
       remainWidth = 0;
       for (unsigned i = 0; i < maximumColumnWidths.size(); ++i) {
-	  double w = factor * maximumColumnWidths[i];
+	double w = factor * maximumColumnWidths[i];
 
-	  if (w > minimumColumnWidths[i]) {
-	    ++columnsResized;
-	    maximumColumnWidths[i] = w;
-	    remainWidth += w;
-	  } else {
-	    maximumColumnWidths[i] = minimumColumnWidths[i];
-	    ww -= minimumColumnWidths[i];
-	  }
+	if (w > minimumColumnWidths[i]) {
+	  ++columnsResized;
+	  maximumColumnWidths[i] = w;
+	  remainWidth += w;
+	} else {
+	  maximumColumnWidths[i] = minimumColumnWidths[i];
+	  ww -= minimumColumnWidths[i];
+	}
       }
 
-      if (columnsResized == resizableColumns && remainWidth > 0)
+      if (columnsResized == resizableColumns || fabs(remainWidth) < 1E-2)
 	break;
       else
 	resizableColumns = columnsResized;

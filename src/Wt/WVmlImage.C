@@ -70,19 +70,14 @@ namespace {
 
 namespace Wt {
 
-WVmlImage::WVmlImage(const WLength& width, const WLength& height)
+WVmlImage::WVmlImage(const WLength& width, const WLength& height,
+		     bool paintUpdate)
   : width_(width),
     height_(height),
     painter_(0),
-    paintUpdate_(true),
+    paintUpdate_(paintUpdate),
     clippingChanged_(false)
 { }
-
-void WVmlImage::clear()
-{
-  paintUpdate_ = false;
-  rendered_.str(std::string());
-}
 
 void WVmlImage::init()
 { 
@@ -408,9 +403,14 @@ void WVmlImage::drawLine(double x1, double y1, double x2, double y2)
   painter()->setBrush(oldBrush);
 }
 
-void WVmlImage::drawText(const WRectF& rect, WFlags<AlignmentFlag> flags,
+void WVmlImage::drawText(const WRectF& rect, 
+			 WFlags<AlignmentFlag> flags, TextFlag textFlag,
 			 const WString& text)
 {
+  if (textFlag == TextWordWrap)
+    throw std::logic_error("WVmlImage::drawText() " 
+			   "TextWordWrap is not supported");
+
   finishPaths();
 
   WFlags<AlignmentFlag> horizontalAlign = flags & AlignHorizontalMask;

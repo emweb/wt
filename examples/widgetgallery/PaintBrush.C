@@ -26,7 +26,7 @@ PaintBrush::PaintBrush(int width, int height, WContainerWidget *parent)
   
   color_ = WColor(black);
 
-  // setPreferredMethod(PngImage);
+  // setPreferredMethod(InlineSvgVml);
 }
 
 void PaintBrush::paintEvent(WPaintDevice *paintDevice)
