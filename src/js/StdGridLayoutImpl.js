@@ -430,6 +430,13 @@ WT_DECLARE_WT_MEMBER
 			       'paddingBottom'),
 	 height = t.offsetHeight - padTop - padBottom;
 
+     var rtl = $(document.body).hasClass('Wt-rtl');
+     if (rtl) {
+       var tmp = minDelta;
+       minDelta = -maxDelta;
+       maxDelta = -tmp;
+     }
+
      new WT.SizeHandle(WT, 'h', div.offsetWidth, height,
 		       minDelta, maxDelta, 'Wt-hsh',
 		       function(delta) {
@@ -493,6 +500,10 @@ WT_DECLARE_WT_MEMBER
          colw = getColumnWidth(col, ci),
 	 coln = getColumn(ci + 1),
 	 colnw = getColumnWidth(coln, ci + 1);
+
+     var rtl = $(document.body).hasClass('Wt-rtl');
+     if (rtl)
+       delta = -delta;
 
      if (WT.pctself(col, 'width') > 0
          && WT.pctself(coln, 'width') > 0) {

@@ -100,10 +100,11 @@ WT_DECLARE_WT_MEMBER
            minDelta = -cw,
            maxDelta = 10000;
 
-       new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.offsetHeight,
+       new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.firstChild.offsetHeight,
 	                 minDelta, maxDelta, 'Wt-hsh',
 			 function (delta) {
-			   var newWidth = cw + delta,
+			   var rtl = $(document.body).hasClass('Wt-rtl'),
+			       newWidth = cw + (rtl ? -delta : delta),
 			       columnId = c.substring(7) * 1;
 			   r.style.width = newWidth + 'px';
 			   self.adjustColumns();
@@ -231,6 +232,7 @@ WT_DECLARE_WT_MEMBER
       c0id = $el.find('.Wt-headerdiv').get(0).lastChild.className.split(' ')[0];
       c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
       c0w = WT.pxself(c0r, 'width');
+
     }
 
     // XXX: IE's incremental rendering foobars completely
@@ -254,6 +256,10 @@ WT_DECLARE_WT_MEMBER
       r.style.width = tw + 'px';
       contentsContainer.style.width = (tw + scrollwidth) + 'px';
       headers.style.width = table.offsetWidth + 'px';
+
+      // IE moves the scrollbar left in rtl mode.
+      if (!WT.isIE)
+	headerContainer.style.marginRight = scrollwidth + 'px';
 
       if (c0w != null) {
         var w = tw - c0w - (WT.isIE6 ? 10 : 8);
@@ -306,7 +312,7 @@ WT_DECLARE_WT_MEMBER
 
        contentsContainer.onscroll({object: contentsContainer});
      }
-  }
+  };
 
   self.adjustColumns();
 

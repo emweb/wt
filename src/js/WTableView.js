@@ -75,22 +75,33 @@ WT_DECLARE_WT_MEMBER
    }
 
    function resizeColumn(header, delta) {
+     var rtl = $(document.body).hasClass('Wt-rtl');
+
+     if (rtl)
+       delta = -delta;
+
      var columnClass = header.className.split(' ')[0],
          columnId = columnClass.substring(7) * 1,
          headers = headerContainer.firstChild,
          contents = contentsContainer.firstChild,
+         wt_tv_contents = contents.firstChild,
 	 column = $(contents).find('.' + columnClass).get(0),
          h = header.nextSibling, c = column.nextSibling,
          newWidth = WT.pxself(header, 'width') - 1 + delta;
 
-     headers.style.width = contents.style.width
+     headers.style.width 
+       = contents.style.width 
+       = wt_tv_contents.style.width
        = (WT.pxself(headers, 'width') + delta) + 'px';
      header.style.width = (newWidth + 1) + 'px';
      column.style.width = (newWidth + 7) + 'px';
 
      for (; h; h = h.nextSibling) {
        if (c) {
-	 c.style.left = (WT.pxself(c, 'left') + delta) + 'px';
+	 if (!rtl)
+	   c.style.left = (WT.pxself(c, 'left') + delta) + 'px';
+	 else
+	   c.style.right = (WT.pxself(c, 'right') + delta) + 'px';
 	 c = c.nextSibling;
        }
      }
@@ -111,6 +122,13 @@ WT_DECLARE_WT_MEMBER
          cw = WT.pxself(header, 'width') - 1,
          minDelta = -cw,
          maxDelta = 10000;
+
+     var rtl = $(document.body).hasClass('Wt-rtl');
+     if (rtl) {
+       var tmp = minDelta;
+       minDelta = -maxDelta;
+       maxDelta = -tmp;
+     }
 
      new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.offsetHeight,
 		       minDelta, maxDelta, 'Wt-hsh',
@@ -148,7 +166,7 @@ WT_DECLARE_WT_MEMBER
 
        contentsContainer.onscroll();
      }
-   }
+   };
 
    var dropEl = null;
 
@@ -311,6 +329,10 @@ WT_DECLARE_WT_MEMBER
        contentsContainer.tw = tw;
        contentsContainer.style.width = (tw + scrollwidth) + 'px';
        headerContainer.style.width = tw + 'px';
+
+       // IE moves the scrollbar left in rtl mode.
+       if (!WT.isIE)
+	 headerContainer.style.marginRight = scrollwidth + 'px';
      }
    };
  });

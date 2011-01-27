@@ -1,17 +1,25 @@
 25-01-2011:
-	* Wt/Text/Renderer: warn but proceed when minimum render width exceeds page
-	width
+	* Wt/Text/Renderer: warn but proceed when minimum render width exceeds
+	page width
 
 	* Wt/WPaintDevice: solve inconsistencies w.r.t. clear()
+
+	* WebRenderer, WebSession, Boot.html: wait for stylesheets to load
+	before loading widget tree in default bootstrap mode
+
+	* WApplication: initial work for RTL layout, set using
+	setLayoutDirection()
 
 19-01-2011:
 	* Wt/WPdfImage: add true type font support (libharu patch pending)
 
-	* Wt/WApplication.C: fix #693 (sloppy WApplication::internalPathMatches())
+	* Wt/WApplication.C: fix #693
+	(sloppy WApplication::internalPathMatches())
 
 	* Wt/WBoostAny.C: add support for bool types (#690)
 
-	* Boot.html, Hybrid.html: fix IE8 unreliable startup (occasional blank screen)
+	* Boot.html, Hybrid.html: fix IE8 unreliable startup (occasional
+	blank screen)
 
 13-01-2011:
 	* Wt/Chart/WCartesianChart: implement legend location, alignment,

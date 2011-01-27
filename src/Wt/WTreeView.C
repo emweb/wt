@@ -924,29 +924,19 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   itemEvent_.connect(this, &WTreeView::onItemEvent);
 
-  setStyleClass("Wt-treeview");
+  setStyleClass("Wt-itemview Wt-treeview");
 
   const char *CSS_RULES_NAME = "Wt::WTreeView";
 
   WApplication *app = WApplication::instance();
 
+  // a define so that it shouts at us !
+  #define RTL "body.Wt-rtl "
+  #define LTR "body.Wt-ltr "
+
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    /* header */
     app->styleSheet().addRule
-      (".Wt-treeview .Wt-headerdiv",
-       "-moz-user-select: none;"
-       "-khtml-user-select: none;"
-       "user-select: none;"
-       "overflow: hidden;"
-       "width: 100%;", CSS_RULES_NAME);
-
-    if (app->environment().agentIsIE())
-      app->styleSheet().addRule
-	(".Wt-treeview .Wt-header .Wt-label",
-	 "zoom: 1;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview table", "width: 100%");
+      (".Wt-treeview table", "width: 100%", CSS_RULES_NAME);
 
     app->styleSheet().addRule
       (".Wt-treeview .c1", "width: 100%; overflow: hidden;");
@@ -959,6 +949,9 @@ WTreeView::WTreeView(WContainerWidget *parent)
       (".Wt-treeview .Wt-tv-row", "float: right; overflow: hidden;");
 
     app->styleSheet().addRule
+      (RTL ".Wt-treeview .Wt-tv-row", "float: left;");
+
+    app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-row .Wt-tv-c",
        "display: block; float: left;"
        "padding: 0px 3px;"
@@ -966,12 +959,23 @@ WTreeView::WTreeView(WContainerWidget *parent)
        "overflow: hidden;");
 
     app->styleSheet().addRule
+      (RTL ".Wt-treeview .Wt-tv-row .Wt-tv-c", "float: right;");
+
+    app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-c",
        "padding: 0px 3px;");
 
     app->styleSheet().addRule
       (".Wt-treeview img.icon, .Wt-treeview input.icon",
-       "margin: 0px 3px 2px 0px; vertical-align: middle");
+       "vertical-align: middle");
+
+    app->styleSheet().addRule
+      (LTR ".Wt-treeview img.icon, .Wt-treeview input.icon",
+       "margin: 0px 3px 2px 0px;");
+
+    app->styleSheet().addRule
+      (RTL ".Wt-treeview img.icon, .Wt-treeview input.icon",
+       "margin: 0px 0px 2px 3px;");
 
     app->styleSheet().addRule
       (".Wt-treeview .Wt-tv-node img.w0",
@@ -981,41 +985,34 @@ WTreeView::WTreeView(WContainerWidget *parent)
       (".Wt-treeview .Wt-tv-node .c0 img, .Wt-treeview .Wt-tv-node .c0 input",
        "margin-right: 0px; margin: -4px 0px;");
 
-    /* resize handles */
-    app->styleSheet().addRule
-      (".Wt-treeview div.Wt-tv-rh",
-       "float: right; width: 4px; cursor: col-resize;"
-       "padding-left: 0px;");
-
     if (app->environment().agentIsIE()) {
       app->styleSheet().addRule
-	(".Wt-treeview .Wt-header .Wt-tv-c",
-	 "padding: 0px;"
-	 "padding-left: 7px;");
-    } else
+	(LTR ".Wt-treeview .Wt-header .Wt-tv-c",
+	 "padding: 0px 0px 0px 7px;");
       app->styleSheet().addRule
-	(".Wt-treeview .Wt-header .Wt-tv-c",
+	(RTL ".Wt-treeview .Wt-header .Wt-tv-c",
+	 "padding: 0px 7px 0px 0px;");
+    } else {
+      app->styleSheet().addRule
+	(LTR ".Wt-treeview .Wt-header .Wt-tv-c",
 	 "padding: 0px;"
 	 "margin-left: 7px;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-rh:hover",
-       "background-color: #DDDDDD;");
+      app->styleSheet().addRule
+	(RTL ".Wt-treeview .Wt-header .Wt-tv-c",
+	 "padding: 0px;"
+	 "margin-right: 7px;");
+    }
 
     /* borders: needed here for IE */
     app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-br, "                      // header
-       ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c", // data
+      (LTR ".Wt-treeview .Wt-tv-br, "                      // header
+       LTR ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c", // data
        "margin-right: 0px; border-right: 1px solid white;");
 
-    /* sort handles */
     app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-sh", std::string() +
-       "float: right; width: 16px; height: 16px; padding-bottom: 6px;"
-       "cursor: pointer; cursor:hand;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-shc0", "float: left;");
+      (RTL ".Wt-treeview .Wt-tv-br, "                      // header
+       RTL ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c", // data
+       "margin-left: 0px; border-left: 1px solid white;");
 
     /* bottom scrollbar */
     if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
@@ -1099,12 +1096,19 @@ void WTreeView::setup()
     contentsContainer_->scrolled().connect(this, &WTreeView::onViewportChange);
     contentsContainer_->scrolled().connect
       ("function(obj, event) {"
+       /*
+	* obj.sb: workaround for Konqueror to prevent recursive
+	* invocation because reading scrollLeft triggers onscroll()
+	*/
+       """if (obj.sb) return;"
+       """obj.sb = true;"
        "" + headerContainer_->jsRef() + ".scrollLeft=obj.scrollLeft;"
        /* the following is a workaround for IE7 */
        """var t = " + contents_->jsRef() + ".firstChild;"
        """var h = " + headers_->jsRef() + ";"
        """h.style.width = (t.offsetWidth - 1) + 'px';"
        """h.style.width = t.offsetWidth + 'px';"
+       """obj.sb = false;"
        "}");
     contentsContainer_->addWidget(contents_);
 
@@ -1463,8 +1467,9 @@ void WTreeView::scheduleRerender(RenderState what)
 
 void WTreeView::render(WFlags<RenderFlag> flags)
 {
-  if (flags & RenderFull)
+  if (flags & RenderFull) {
     defineJavaScript();
+  }
 
   while (renderState_ != RenderOk) {
     RenderState s = renderState_;

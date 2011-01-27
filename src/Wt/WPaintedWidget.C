@@ -568,7 +568,9 @@ WWidgetRasterPainter::WWidgetRasterPainter(WPaintedWidget *widget)
 
 WWidgetRasterPainter::~WWidgetRasterPainter()
 {
+#ifdef HAVE_RASTER_IMAGE
   delete device_;
+#endif
 }
 
 WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
@@ -582,10 +584,14 @@ WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
 #endif
   }
 
+#ifdef HAVE_RASTER_IMAGE
   if (!paintUpdate)
     device_->clear();
 
   return device_;
+#else
+  return 0;
+#endif
 }
 
 void WWidgetRasterPainter::createContents(DomElement *result,

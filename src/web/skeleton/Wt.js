@@ -1729,24 +1729,27 @@ function quit() {
   var tr = $('#Wt-timers');
   if (tr.size() > 0)
     WT.setHtml(tr.get(0), '', false);
-};
+}
 
 function doKeepAlive() {
   WT.history._initTimeout();
   if (commErrors == 0)
     update(null, 'none', null, false);
-};
+}
 
 function debug(s) {
   document.body.innerHTML += s;
-};
+}
 
 function setTitle(title) {
   if (WT.isIEMobile) return;
   document.title = title;
-};
+}
 
 function load(initHistory) {
+  if (loaded)
+    return;
+
   if (initHistory)
     WT.history.initialize("Wt-history-field", "Wt-history-iframe");
 
@@ -1767,15 +1770,13 @@ function load(initHistory) {
 
   WT.history._initialize();
   initDragDrop();
-  if (!loaded) {
-    loaded = true;
-    _$_ONLOAD_$_();
-    if (!quited) {
-      doKeepAlive();
-      keepAliveTimer = setInterval(doKeepAlive, _$_KEEP_ALIVE_$_000);
-    }
+  loaded = true;
+  _$_ONLOAD_$_();
+  if (!quited) {
+    doKeepAlive();
+    keepAliveTimer = setInterval(doKeepAlive, _$_KEEP_ALIVE_$_000);
   }
-};
+}
 
 var currentHideLoadingIndicator = null;
 
@@ -1790,13 +1791,13 @@ function cancelFeedback(t) {
     }
     currentHideLoadingIndicator = null;
   }
-};
+}
 
 function waitFeedback() {
   document.body.style.cursor = 'wait';
   currentHideLoadingIndicator = hideLoadingIndicator;
   showLoadingIndicator();
-};
+}
 
 /** @const */ var WebSocketsUnknown = 0;
 /** @const */ var WebSocketsWorking = 1;
@@ -1890,7 +1891,18 @@ function doPollTimeout() {
     sendUpdate();
 }
 
+var updating = false;
+
 function update(el, signalName, e, feedback) {
+  /*
+   * Konqueror may recurisvely call update() because
+   * /reading/ offsetLeft or offsetTop triggers an onscroll event ??
+   */
+  if (updating)
+    return;
+
+  updating = true;
+
   WT.checkReleaseCapture(el, e);
 
   _$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
@@ -1912,6 +1924,8 @@ function update(el, signalName, e, feedback) {
   _$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
   }
   _$_$endif_$_();
+
+  updating = false;
 }
 
 var updateTimeoutStart;

@@ -394,6 +394,10 @@
     font-size: small; font-weight: bold;
 }
 
+body.Wt-rtl .Wt-tabs span {
+    float:right;
+}
+
 .Wt-tabs span.itemselected, .Wt-tabs span.citemselected {
     background-position:100% -150px;
 }
@@ -495,16 +499,71 @@
 }
 
 /*
- * WTableView
+ * WAbstractItemView (WTableView and WTreeView)
  */
-.Wt-tableview {
+.Wt-itemview {
     font-family: verdana,helvetica,tahoma,sans-serif;
     font-size: 9pt;
     cursor: default;
+    white-space: nowrap;
 }
 
-.Wt-tableview .Wt-spacer {
+.Wt-itemview .Wt-spacer {
     background: url(../../loading.png);
+}
+
+.Wt-itemview .Wt-headerdiv,
+.Wt-itemview .Wt-headerdiv .Wt-tv-rowc,
+.Wt-itemview th {
+    background-color: #EEEEEE;
+}
+
+.Wt-itemview .Wt-header .Wt-label {
+    font-weight: bold;
+    text-overflow: ellipsis;
+    overflow: hidden; /* needed for IE only */
+}
+
+.Wt-itemview .Wt-multiline div.Wt-label {
+    white-space: normal;
+}
+
+.Wt-itemview .Wt-singleline div.Wt-label {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.Wt-itemview .Wt-tv-rh:hover {
+    background-color: #DDDDDD;
+}
+
+.Wt-itemview .Wt-tv-sh-none {
+    background: url(sort-arrow-none.gif) no-repeat 0 6px;
+}
+
+.Wt-itemview .Wt-tv-sh-up {
+    background: url(sort-arrow-up.gif) no-repeat 0 6px;
+}
+
+.Wt-itemview .Wt-tv-sh-down {
+    background: url(sort-arrow-down.gif) no-repeat 0 6px;
+}
+
+/* selection */
+.Wt-itemview .Wt-selected {
+    background-color: #FFFFAA;
+}
+
+/* item drag & drop */
+.Wt-itemview .Wt-drop-site {
+    background-color: #EEEEEE;
+    outline: 1px dotted black;
+}
+
+/*
+ * WTableView
+ */
+.Wt-tableview .Wt-spacer {
     position: relative;
     overflow: hidden;
 }
@@ -515,12 +574,6 @@
     white-space: nowrap
 }
 
-.Wt-tableview .Wt-headertable,
-.Wt-tableview .Wt-headertable .Wt-rowc,
-.Wt-tableview th {
-    background-color: #EEEEEE;
-}
-
 .Wt-tableview th {
     padding: 0px;
 }
@@ -529,112 +582,26 @@
     background-position: left bottom;
 }
 
-.Wt-tableview .Wt-header .Wt-label {
-    font-weight: bold;
-    text-overflow: ellipsis;
-    overflow: hidden; /* needed for IE only */
-}
-
-.Wt-tableview .Wt-multiline div.Wt-label {
-    white-space: normal;
-}
-
-.Wt-tableview .Wt-singleline div.Wt-label {
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.Wt-tableview .Wt-tv-rh:hover {
-    background-color: #DDDDDD;
-}
-
-.Wt-tableview .Wt-tv-sh-none {
-    background: url(sort-arrow-none.gif) no-repeat 0 6px;
-}
-
-.Wt-tableview .Wt-tv-sh-up {
-    background: url(sort-arrow-up.gif) no-repeat 0 6px;
-}
-
-.Wt-tableview .Wt-tv-sh-down {
-    background: url(sort-arrow-down.gif) no-repeat 0 6px;
-}
-
-/* selection */
-.Wt-tableview .Wt-selected {
-    background-color: #FFFFAA;
-}
-
-/* item drag & drop */
-.Wt-tableview .Wt-drop-site {
-    background-color: #EEEEEE;
-    outline: 1px dotted black;
-}
-
 .Wt-tableview .Wt-tv-contents {
     position: absolute;
 }
 
 /* borders */
-.Wt-tableview .Wt-tv-br,
-.Wt-tableview .Wt-tv-contents .Wt-tv-c,
-.Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
+body.Wt-ltr .Wt-tableview .Wt-tv-br,
+body.Wt-ltr .Wt-tableview .Wt-tv-contents .Wt-tv-c,
+body.Wt-ltr .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
     border-right: 1px solid #FFFFFF;
+}
+
+body.Wt-rtl .Wt-tableview .Wt-tv-br,
+body.Wt-rtl .Wt-tableview .Wt-tv-contents .Wt-tv-c,
+body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
+    border-left: 1px solid #FFFFFF;
 }
 
 /*
  * WTreeView
  */
-.Wt-treeview {
-    font-family: verdana,helvetica,tahoma,sans-serif;
-    font-size: 9pt;
-    cursor: default;
-    white-space: nowrap;
-}
-
-.Wt-treeview .Wt-spacer {
-    background: url(../../loading.png);
-}
-
-/* header */
-.Wt-treeview .Wt-headerdiv, .Wt-treeview .Wt-headerdiv .Wt-tv-rowc {
-    background-color: #EEEEEE;
-}
-
-.Wt-treeview .Wt-headerdiv .background {
-    background-color: #FFFFFF;
-}
-
-.Wt-treeview .Wt-header div.Wt-label {
-    font-weight: bold;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.Wt-treeview .Wt-multiline div.Wt-label {
-    white-space: normal;
-}
-
-.Wt-treeview .Wt-singleline div.Wt-label {
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.Wt-treeview .Wt-tv-rh:hover {
-    background-color: #DDDDDD;
-}
-
-.Wt-treeview .Wt-tv-sh-none {
-    background: url(sort-arrow-none.gif) no-repeat 0 6px;
-}
-
-.Wt-treeview .Wt-tv-sh-up {
-    background: url(sort-arrow-up.gif) no-repeat 0 6px;
-}
-
-.Wt-treeview .Wt-tv-sh-down {
-    background: url(sort-arrow-down.gif) no-repeat 0 6px;
-}
 
 /* nodes */
 .Wt-treeview .Wt-trunk {
@@ -645,10 +612,18 @@
     background: url(../../tv-line-last.gif) no-repeat 0 center;
 }
 
+body.Wt-rtl .Wt-treeview .Wt-end {
+    background: url(../../tv-line-last-rtl.gif) no-repeat 0 center;
+}
+
 .Wt-treeview .Wt-expand {
     width: 19px;
     height: 18px;
     background: url(nav-plus.gif) no-repeat 0 center;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-expand {
+    background: url(nav-plus-rtl.gif) no-repeat 0 center;
 }
 
 .Wt-treeview .Wt-collapse {
@@ -657,25 +632,22 @@
     background: url(nav-minus.gif) no-repeat 0 center;
 }
 
+body.Wt-rtl .Wt-treeview .Wt-collapse {
+    background: url(nav-minus-rtl.gif) no-repeat 0 center;
+}
+
 .Wt-treeview .Wt-noexpand {
     width: 19px;
     height: 18px;
     background: url(../../line-middle.gif) no-repeat 0 center;
 }
 
+body.Wt-rtl .Wt-treeview .Wt-noexpand {
+    background: url(../../line-middle-rtl.gif) no-repeat 0 center;
+}
+
 .Wt-treeview .Wt-tv-row .Wt-tv-c {
     white-space: nowrap;
-}
-
-/* selection */
-.Wt-treeview .Wt-selected {
-    background-color: #FFFFAA;
-}
-
-/* item drag & drop */
-.Wt-treeview .Wt-drop-site {
-    background-color: #EEEEEE;
-    outline: 1px dotted black;
 }
 
 /*

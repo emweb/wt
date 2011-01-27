@@ -95,6 +95,7 @@ WApplication::WApplication(const WEnvironment& env)
     initialized_(false),
     selectionStart_(-1),
     selectionEnd_(-1),
+    layoutDirection_(LeftToRight),
     scriptLibrariesAdded_(0),
     theme_("default"),
     styleSheetsAdded_(0),
@@ -148,13 +149,20 @@ WApplication::WApplication(const WEnvironment& env)
     widgetRoot_ = 0;
   }
 
+  // a define so that it shouts at us !
+  #define RTL ".Wt-rtl "
+  #define LTR ".Wt-ltr "
+
   /*
-   * Subset of typical CSS "reset" styles
+   * Subset of typical CSS "reset" styles, only those that are needed
+   * for Wt's built-in widgets and are relatively harmless.
    */
   styleSheet_.addRule("table", "border-collapse: collapse; border: 0px");
   styleSheet_.addRule("div, td, img",
 		      "margin: 0px; padding: 0px; border: 0px");
-  styleSheet_.addRule("td", "vertical-align: top; text-align: left;");
+  styleSheet_.addRule("td", "vertical-align: top;");
+  styleSheet_.addRule(LTR "td", "text-align: left;");
+  styleSheet_.addRule(RTL "td", "text-align: right;");
   styleSheet_.addRule("button", "white-space: nowrap");
   styleSheet_.addRule("video", "display: block");
 
@@ -179,7 +187,6 @@ WApplication::WApplication(const WEnvironment& env)
 			"border: none; margin: 0; padding: 0;");
   styleSheet_.addRule(".Wt-wrap",
 		      "border: 0px;"
-		      "text-align: left;"
 		      "margin: 0px;"
 		      "padding: 0px;"
 		      "font-size: inherit; "
@@ -187,6 +194,10 @@ WApplication::WApplication(const WEnvironment& env)
 		      "background: transparent;"
 		      "text-decoration: none;"
 		      "color: inherit;");
+
+  styleSheet_.addRule(LTR ".Wt-wrap", "text-align: left;");
+  styleSheet_.addRule(RTL ".Wt-wrap", "text-align: right;");
+
   if (environment().agentIsIE())
     styleSheet_.addRule(".Wt-wrap",
 			"margin: -1px 0px -3px;");
@@ -753,6 +764,14 @@ void WApplication::setBodyClass(const std::string& styleClass)
 {
   bodyClass_ = styleClass;
   bodyHtmlClassChanged_ = true;
+}
+
+void WApplication::setLayoutDirection(LayoutDirection direction)
+{
+  if (direction != layoutDirection_) {
+    layoutDirection_ = direction;
+    bodyHtmlClassChanged_ = true;
+  }
 }
 
 void WApplication::setHtmlClass(const std::string& styleClass)

@@ -1171,9 +1171,17 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 					       PropertyStyleLeft };
 
 	for (unsigned i = 0; i < 4; ++i) {
-	  if (!layoutImpl_->offsets_[i].isAuto())
-	    element.setProperty(properties[i],
-				layoutImpl_->offsets_[i].cssText());
+	  if (!layoutImpl_->offsets_[i].isAuto()) {
+	    Property property = properties[i];
+
+	    WApplication *app = WApplication::instance();
+	    if (app->layoutDirection() == RightToLeft) {
+	      if (i == 1) property = properties[3];
+	      else if (i == 3) property = properties[1];
+	    }
+
+	    element.setProperty(property, layoutImpl_->offsets_[i].cssText());
+	  }
 	}
       }
 
@@ -1240,12 +1248,13 @@ void WWebWidget::updateDom(DomElement& element, bool all)
         /*
         * set float
         */
+	bool ltr = WApplication::instance()->layoutDirection() == LeftToRight;
         switch (layoutImpl_->floatSide_) {
         case Left:
-	  element.setProperty(PropertyStyleFloat, "left");
+	  element.setProperty(PropertyStyleFloat, ltr ? "left" : "right");
 	  break;
         case Right:
-	  element.setProperty(PropertyStyleFloat, "right");
+	  element.setProperty(PropertyStyleFloat, ltr ? "right" : "left");
 	  break;
         default:
 	  /* illegal values */

@@ -21,7 +21,7 @@ function loadScript(url, callback) {
   h.appendChild(s);
 }
 
-(function() {
+setTimeout(function() {
 
 try {
   document.execCommand("BackgroundImageCache", false, true);
@@ -119,8 +119,6 @@ if (needSessionInUrl) {
   var canonicalUrl = _$_AJAX_CANONICAL_URL_$_;
   if (canonicalUrl.length > 1) {
     _$_$if_HYBRID_$_();
-    var inOneSecond = new Date();
-    inOneSecond.setTime(inOneSecond.getTime() + 1000);
     var pathcookie='WtInternalPath=' + escape(_$_INTERNAL_PATH_$_)
       + ';path=/;expires=' + inOneSecond.toGMTString();
     document.cookie=pathcookie;
@@ -139,4 +137,4 @@ if (needSessionInUrl) {
   }
 }
 
-})();
+}, 0);

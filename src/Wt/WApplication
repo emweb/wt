@@ -340,6 +340,42 @@ public:
    */
   std::string cssTheme() const { return theme_; }
 
+  /*! \brief Sets the layout direction.
+   * 
+   * The default direction is LeftToRight.
+   *
+   * This sets the language text direction, which by itself sets the
+   * default text alignment and reverse the column orders of <table>
+   * elements.
+   *
+   * In addition, Wt will take this setting into account in WTableView
+   * and WTreeView (so that columns are reverted), and swap the
+   * behaviour of setFloatSide() and setOffsets() for RightToLeft
+   * languages. Note that CSS settings themselves are not affected by
+   * this setting, and thus for example <tt>"float: right"</tt> will move
+   * a box to the right, irrespective of the layout direction.
+   *
+   * The library sets <tt>"Wt-ltr"</tt> or <tt>"Wt-rtl"</tt> as style
+   * classes for the document body. You may use this if to override
+   * certain style rules for a Right-to-Left document.
+   *
+   * For example:
+   * \code
+   * body.Wt-ltr .sidebar { float: right; }
+   * body.Wt-rtl .sidebar { float: left; }
+   * \endcode
+   *
+   * \note The layout direction can be set only at application startup
+   * and does not have the effect of rerendering the entire UI.
+   */
+  void setLayoutDirection(LayoutDirection direction);
+
+  /*! \brief Returns the layout direction.
+   *
+   * \sa setLayoutDirection()
+   */
+  LayoutDirection layoutDirection() const { return layoutDirection_; }
+
   /*! \brief Sets a style class to the entire page &lt;body&gt;.
    *
    * \sa setHtmlClass()
@@ -1659,6 +1695,7 @@ private:
   bool                   enableAjax_, initialized_;
   std::string            focusId_;
   int                    selectionStart_, selectionEnd_;
+  LayoutDirection        layoutDirection_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
   int                        scriptLibrariesAdded_;

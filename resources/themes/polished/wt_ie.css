@@ -73,6 +73,14 @@
     background: url(nav-plus.gif) no-repeat 0 center;
 }
 
+body.Wt-rtl .Wt-treeview .Wt-expand {
+    background: url(nav-plus-rtl.gif) no-repeat 0 center;
+}
+
 .Wt-treeview .Wt-collapse {
     background: url(nav-minus.gif) no-repeat 0 center;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-collapse {
+    background: url(nav-minus-rtl.gif) no-repeat 0 center;
 }

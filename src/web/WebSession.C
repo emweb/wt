@@ -66,6 +66,7 @@ WebSession::WebSession(WebController *controller,
     controller_(controller),
     renderer_(*this),
     asyncResponse_(0),
+    bootStyleResponse_(0),
     updatesPending_(false),
     canWriteAsyncResponse_(false),
     embeddedEnv_(this),
@@ -154,6 +155,11 @@ WebSession::~WebSession()
   if (asyncResponse_) {
     asyncResponse_->flush();
     asyncResponse_ = 0;
+  }
+
+  if (bootStyleResponse_) {
+    bootStyleResponse_->flush();
+    bootStyleResponse_ = 0;
   }
 
 #ifndef WT_TARGET_JAVA
@@ -934,18 +940,15 @@ void WebSession::handleRequest(Handler& handler)
 	      handler.response()->setResponseType(WebResponse::Update);
 	      log("notice") << "Signal from dead session, sending reload.";
 	      renderer_.letReloadJS(*handler.response(), true);
-
-	      kill();
-	      break;
-	    } else if (*requestE == "resource") {
-	      log("notice") << "Not serving bootstrap for resource.";
+	    } else {
+	      log("notice") << "Not serving this.";
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
-
-	      kill();
-	      break;
 	    }
+
+	    kill();
+	    break;
 	  }
 
 	  /*
@@ -1033,6 +1036,21 @@ void WebSession::handleRequest(Handler& handler)
 	    handler.response()->setResponseType(WebResponse::Update);
 	  else if (*requestE == "script")
 	    handler.response()->setResponseType(WebResponse::Script);
+	  else if (*requestE == "style") {
+	    if (bootStyleResponse_)
+	      bootStyleResponse_->flush();
+
+	    if (!app_) {
+	      bootStyleResponse_ = handler.response();
+	      handler.setRequest(0, 0);
+            } else {
+	      renderer_.serveLinkedCss(*handler.response());
+	      handler.response()->flush();
+	      handler.setRequest(0, 0);
+	    }
+
+	    break;
+	  }
 	}
 
 	if (!app_) {
@@ -1093,17 +1111,16 @@ void WebSession::handleRequest(Handler& handler)
 
 	bool requestForResource = requestE && *requestE == "resource";
 
-	if (requestForResource || !unlockRecursiveEventLoop())
-	  {
-	    app_->notify(WEvent(WEvent::Impl(&handler)));
-	    if (handler.response() && !requestForResource) {
-	      /*
-	       * This may be when an error was thrown during event
-	       * propagation: then we want to render the error message.
-	       */
-	      app_->notify(WEvent(WEvent::Impl(&handler), true));
-	    }
+	if (requestForResource || !unlockRecursiveEventLoop()) {
+	  app_->notify(WEvent(WEvent::Impl(&handler)));
+	  if (handler.response() && !requestForResource) {
+	    /*
+	     * This may be when an error was thrown during event
+	     * propagation: then we want to render the error message.
+	     */
+	    app_->notify(WEvent(WEvent::Impl(&handler), true));
 	  }
+	}
 
 	setLoaded();
 	break;
@@ -1375,7 +1392,8 @@ void WebSession::notify(const WEvent& event)
   const std::string *requestE = request.getParameter("request");
 
   const std::string *pageIdE = handler.request()->getParameter("pageId");
-  if (pageIdE && *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
+  if (pageIdE
+      && *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
     handler.response()->setContentType("text/javascript; charset=UTF-8");
     handler.response()->out() << "{}";
     handler.response()->flush();
@@ -1427,6 +1445,12 @@ void WebSession::notify(const WEvent& event)
 	app_->enableAjax();
 	if (env_->internalPath().length() > 1)
 	  app_->changeInternalPath(env_->internalPath());
+      }
+
+      if (bootStyleResponse_) {
+	renderer_.serveLinkedCss(*bootStyleResponse_);
+	bootStyleResponse_->flush();
+	bootStyleResponse_ = 0;
       }
 
       render(handler);
@@ -1554,6 +1578,11 @@ void WebSession::notify(const WEvent& event)
 	  }
 	} else {
 	  log("notice") << "Refreshing session";
+
+	  if (bootStyleResponse_) {
+	    bootStyleResponse_->flush();
+	    bootStyleResponse_ = 0;
+	  }
 
 	  if (handler.response()->responseType() == WebResponse::Page
 	      && !env_->ajax()) {

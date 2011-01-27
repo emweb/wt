@@ -432,13 +432,16 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED) || all) {
     AlignmentFlag hAlign = contentAlignment_ & AlignHorizontalMask;
+
+    bool ltr = WApplication::instance()->layoutDirection() == LeftToRight;
+
     switch (hAlign) {
     case AlignLeft:
       if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
-	element.setProperty(PropertyStyleTextAlign, "left");
+	element.setProperty(PropertyStyleTextAlign, ltr ? "left" : "right");
       break;
     case AlignRight:
-      element.setProperty(PropertyStyleTextAlign, "right");
+      element.setProperty(PropertyStyleTextAlign, ltr ? "right" : "left");
       break;
     case AlignCenter:
       element.setProperty(PropertyStyleTextAlign, "center");

@@ -834,6 +834,13 @@ enum EventType {
   TimerEvent  //!< A timer-initiated event
 };
 
+/*! \brief An enumeration describing a layout direction.
+ */
+enum LayoutDirection {
+  LeftToRight, //!< Left-to-Right (Western and other languages)
+  RightToLeft  //<! Right-to-Left (Many Middle Eastern and Arabic languages)
+};
+
 }
 
 #endif // WGLOBALS_H_

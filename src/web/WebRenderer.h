@@ -61,6 +61,7 @@ public:
   void serveResponse(WebResponse& request);
   void serveError(WebResponse& request, const std::exception& error);
   void serveError(WebResponse& request, const std::string& message);
+  void serveLinkedCss(WebResponse& request);
 
   void setCookie(const std::string name, const std::string value,
 		 int maxAge, const std::string domain,
@@ -127,6 +128,7 @@ private:
 			 FileServe& boot, bool hybrid);
 
   std::string headDeclarations() const;
+  std::string bodyClassRtl() const;
 
   typedef std::set<WWidget *> UpdateMap;
   UpdateMap updateMap_;

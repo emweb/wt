@@ -260,7 +260,7 @@ private:
   std::string   bookmarkUrl_, baseUrl_, absoluteBaseUrl_;
   std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
-  WebResponse  *asyncResponse_;
+  WebResponse  *asyncResponse_, *bootStyleResponse_;
   bool          updatesPending_, canWriteAsyncResponse_;
   bool          progressiveBoot_;
 

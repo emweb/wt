@@ -54,58 +54,40 @@ WTableView::WTableView(WContainerWidget *parent)
 
   dropEvent_.connect(this, &WTableView::onDropEvent);
 
-  setStyleClass("Wt-tableview");
+  setStyleClass("Wt-itemview Wt-tableview");
 
   const char *CSS_RULES_NAME = "Wt::WTableView";
   
   WApplication *app = WApplication::instance();
 
+  // a define so that it shouts at us !
+  #define RTL "body.Wt-rtl "
+  #define LTR "body.Wt-ltr "
+
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    /* header */
     app->styleSheet().addRule
-      (".Wt-tableview .Wt-headertable",
-       "-moz-user-select: none;"
-       "-khtml-user-select: none;"
-       "user-select: none;"
-       "overflow: hidden;"
-       "width: 100%;", CSS_RULES_NAME);
+      (LTR ".Wt-tableview .Wt-header .Wt-tv-c",
+       "padding-left: 6px;", CSS_RULES_NAME);
 
-    if (app->environment().agentIsIE())
-      app->styleSheet().addRule
-	(".Wt-tableview .Wt-header .Wt-label",
-	 "zoom: 1;");
-
-    /* resize handles */
     app->styleSheet().addRule
-      (".Wt-tableview div.Wt-tv-rh",
-       "float: right; width: 4px; cursor: col-resize;"
-       "padding-left: 0px;");
-    
-    app->styleSheet().addRule
-      (".Wt-tableview .Wt-header .Wt-tv-c",
-       "overflow: visible;"
-       "padding-left: 6px;");
+      (RTL ".Wt-tableview .Wt-header .Wt-tv-c",
+       "padding-right: 6px;");
 
     app->styleSheet().addRule
       (".Wt-tableview .Wt-tv-contents .Wt-tv-c,"
        ".Wt-plaintable .Wt-tv-c",
        "padding: 0px 3px;");
 
-    app->styleSheet().addRule
-      (".Wt-tableview .Wt-tv-rh:hover",
-       "background-color: #DDDDDD;");
-
-    /* sort handles */
-    app->styleSheet().addRule
-      (".Wt-tableview .Wt-tv-sh", std::string() +
-       "float: right; width: 16px; height: 16px; padding-bottom: 6px;"
-       "cursor: pointer; cursor:hand;");
-
     /* borders: needed here for IE */
     app->styleSheet().addRule
-      (".Wt-tableview .Wt-tv-br, "
-       ".Wt-tableview .Wt-tv-contents .Wt-tv-c",
+      (LTR ".Wt-tableview .Wt-tv-br, "
+       LTR ".Wt-tableview .Wt-tv-contents .Wt-tv-c",
        "border-right: 1px solid white;");
+
+    app->styleSheet().addRule
+      (RTL ".Wt-tableview .Wt-tv-br, "
+       RTL ".Wt-tableview .Wt-tv-contents .Wt-tv-c",
+       "border-left: 1px solid white;");
 
     /* data item icons */
     app->styleSheet().addRule
@@ -118,7 +100,7 @@ WTableView::WTableView(WContainerWidget *parent)
     impl_->setPositionScheme(Relative);
 
     headers_ = new WContainerWidget();
-    headers_->setStyleClass("Wt-headertable headerrh");
+    headers_->setStyleClass("Wt-headerdiv headerrh");
 
     table_ = new WContainerWidget();
     table_->setStyleClass("Wt-tv-contents");

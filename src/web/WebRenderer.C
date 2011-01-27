@@ -98,6 +98,21 @@ const WebRenderer::FormObjectsMap& WebRenderer::formObjects() const
   return currentFormObjects_;
 }
 
+std::string WebRenderer::bodyClassRtl() const
+{
+  if (session_.app()) {
+    std::string s = session_.app()->bodyClass_;
+    if (!s.empty())
+      s += ' ';
+
+    s += session_.app()->layoutDirection() == LeftToRight
+      ? "Wt-ltr" : "Wt-rtl";
+
+    return s;
+  } else
+    return std::string();
+}
+
 void WebRenderer::saveChanges()
 {
   collectJS(&collectedJS1_);
@@ -204,8 +219,15 @@ void WebRenderer::setPageVars(FileServe& page)
     page.setVar("METACLOSE", ">");
   }
 
-  page.setVar("BODYATTRIBUTES", (!app || app->bodyClass_.empty())
-	      ? "" : " class=\"" + app->bodyClass_ + "\"");
+  std::string attr = bodyClassRtl();
+
+  if (!attr.empty())
+    attr = " class=\"" + attr + "\"";
+
+  if (app && app->layoutDirection() == RightToLeft)
+    attr += " dir=\"RTL\"";
+
+  page.setVar("BODYATTRIBUTES", attr);
 
   page.setVar("HEADDECLARATIONS", headDeclarations());
 
@@ -251,6 +273,42 @@ void WebRenderer::streamBootContent(WebResponse& response,
   bootJs.stream(response.out());
 }
 
+void WebRenderer::serveLinkedCss(WebResponse& response)
+{
+  WApplication *app = session_.app();
+
+  response.setContentType("text/css");
+
+  if (!app->cssTheme().empty()) {
+    response.out() << "@import url(\""
+		   << WApplication::resourcesUrl() << "/themes/"
+		   << app->cssTheme() << "/wt.css\");\n";
+
+    if (app->environment().agentIsIE())
+      response.out() << "@import url(\""
+		     << WApplication::resourcesUrl() << "/themes/"
+		     << app->cssTheme() << "/wt_ie.css\");\n";
+
+    if (app->environment().agent() == WEnvironment::IE6)
+      response.out() << "@import url(\""
+		     << WApplication::resourcesUrl() << "/themes/"
+		     << app->cssTheme() << "/wt_ie6.css\");\n";
+  }
+
+  for (unsigned i = 0; i < app->styleSheets_.size(); ++i) {
+    std::string url = app->styleSheets_[i].uri;
+    response.out() << "@import url(\""
+		   << app->fixRelativeUrl(url) << "\")";
+    if (!app->styleSheets_[i].media.empty()
+	&& app->styleSheets_[i].media != "all")
+      response.out() << ' ' << app->styleSheets_[i].media;
+
+    response.out() << ";\n";
+  }
+
+  app->styleSheetsAdded_ = 0;
+}
+
 void WebRenderer::serveBootstrap(WebResponse& response)
 {
   bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
@@ -264,6 +322,8 @@ void WebRenderer::serveBootstrap(WebResponse& response)
     (noJsRedirectUrl,
      session_.bootstrapUrl(response, WebSession::KeepInternalPath) + "&js=no");
 
+  boot.setVar("REDIRECT_URL", noJsRedirectUrl.str());
+
   if (xhtml) {
     boot.setVar("AUTO_REDIRECT", "");
     boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
@@ -273,7 +333,12 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 		+ noJsRedirectUrl.str() + "\"></noscript>");
     boot.setVar("NOSCRIPT_TEXT", conf.redirectMessage());
   }
-  boot.setVar("REDIRECT_URL", noJsRedirectUrl.str());
+
+  std::stringstream bootStyleUrl;
+  DomElement::htmlAttributeValue
+    (bootStyleUrl, session_.mostRelativeUrl() + "&request=style");
+
+  boot.setVar("BOOT_STYLE_URL", bootStyleUrl.str());
 
   response.addHeader("Cache-Control", "no-cache, no-store");
   response.addHeader("Expires", "-1");
@@ -402,7 +467,10 @@ void WebRenderer::collectJavaScript()
   if (app->bodyHtmlClassChanged_) {
     collectedJS1_ << "document.body.parentNode.className='"
 		  << app->htmlClass_ << "';"
-		  << "document.body.className='" << app->bodyClass_ << "';";
+		  << "document.body.className='" << bodyClassRtl() << "';"
+		  << "document.body.setAttribute('dir', '"
+		  << (app->layoutDirection() == LeftToRight
+		      ? "LTR" : "RTL") << "');";
     app->bodyHtmlClassChanged_ = false;
   }
 
@@ -618,7 +686,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	<< "._p_.setServerPush("
 	<< (app->updatesEnabled() ? "true" : "false") << ");"
 	<< "$(document).ready(function() { "
-	<< app->javaScriptClass() << "._p_.load(true); });\n";
+	<< app->javaScriptClass() << "._p_.load(true);});\n";
   }
 }
 
@@ -641,30 +709,6 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   DomElement *mainElement = mainWebWidget->createSDomElement(app);
   app->loadingIndicatorWidget_->hide();
 
-  /*
-   * Need to do this after createSDomElement, since additional CSS/JS
-   * may be made during rendering, e.g. from WViewWidget::render()
-   */
-  if (conf.inlineCss())
-    app->styleSheet().javaScriptUpdate(app, response.out(), true);
-
-  if (!app->cssTheme().empty()) {
-    response.out() << WT_CLASS << ".addStyleSheet('"
-		   << WApplication::resourcesUrl() << "/themes/"
-		   << app->cssTheme() << "/wt.css', 'all');";
-    if (app->environment().agentIsIE())
-      response.out() << WT_CLASS << ".addStyleSheet('"
-		     << WApplication::resourcesUrl() << "/themes/"
-		     << app->cssTheme() << "/wt_ie.css', 'all');";
-    if (app->environment().agent() == WEnvironment::IE6)
-      response.out() << WT_CLASS << ".addStyleSheet('"
-		     << WApplication::resourcesUrl() << "/themes/"
-		     << app->cssTheme() << "/wt_ie6.css', 'all');";
-  }
-
-  app->styleSheetsAdded_ = app->styleSheets_.size();
-  loadStyleSheets(response.out(), app);
-
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
   int librariesLoaded = loadScriptLibraries(response.out(), app);
 
@@ -674,12 +718,39 @@ void WebRenderer::serveMainAjax(WebResponse& response)
     response.out() << "window." << app->javaScriptClass()
 		   << "LoadWidgetTree = function(){\n";
 
-  if (app->bodyHtmlClassChanged_) {
-    response.out() << "document.body.parentNode.className='"
-		   << app->htmlClass_ << "';"
-		   << "document.body.className='" << app->bodyClass_ << "';";
-    app->bodyHtmlClassChanged_ = false;
+  if (widgetset) {
+    if (!app->cssTheme().empty()) {
+      response.out() << WT_CLASS << ".addStyleSheet('"
+		     << WApplication::resourcesUrl() << "/themes/"
+		     << app->cssTheme() << "/wt.css', 'all');";
+      if (app->environment().agentIsIE())
+	response.out() << WT_CLASS << ".addStyleSheet('"
+		       << WApplication::resourcesUrl() << "/themes/"
+		       << app->cssTheme() << "/wt_ie.css', 'all');";
+      if (app->environment().agent() == WEnvironment::IE6)
+	response.out() << WT_CLASS << ".addStyleSheet('"
+		       << WApplication::resourcesUrl() << "/themes/"
+		       << app->cssTheme() << "/wt_ie6.css', 'all');";
+    }
+
+    app->styleSheetsAdded_ = app->styleSheets_.size();
+    loadStyleSheets(response.out(), app);
   }
+
+  /*
+   * Need to do this after createSDomElement, since additional CSS/JS
+   * may be made during rendering, e.g. from WViewWidget::render()
+   */
+  if (conf.inlineCss())
+    app->styleSheet().javaScriptUpdate(app, response.out(), true);
+
+  response.out() << "document.body.parentNode.className='"
+		 << app->htmlClass_ << "';"
+		 << "document.body.className='" << bodyClassRtl() << "';"
+		 << "document.body.setAttribute('dir', '"
+		 << (app->layoutDirection() == LeftToRight
+		     ? "LTR" : "RTL") << "');";
+  app->bodyHtmlClassChanged_ = false;
 
 #ifdef DEBUG_JS
   std::stringstream s;
@@ -729,7 +800,8 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		 << "}";
 
   if (widgetset)
-    response.out() << app->javaScriptClass() << "._p_.load(false);\n";
+    response.out() << "$(document).ready(function() { "
+		   << app->javaScriptClass() << "._p_.load(true);});\n";
 
   if (!app->isQuited())
     response.out() << session_.app()->javaScriptClass()
@@ -740,11 +812,9 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 
     response.out() << app->javaScriptClass()
 		   << "._p_.setServerPush("
-		   << (app->updatesEnabled() ? "true" : "false") << ");";
-
-    response.out() << "$(document).ready(function() { "
-		   << app->javaScriptClass()
-		   << "._p_.load(true); });\n";
+		   << (app->updatesEnabled() ? "true" : "false") << ");\n"
+		   << "$(document).ready(function() { "
+		   << app->javaScriptClass() << "._p_.load(true);});\n";
   }
 
   loadScriptLibraries(response.out(), app, librariesLoaded);

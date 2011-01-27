@@ -79,7 +79,9 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
     }
 
     if (marginRight)
-      style << "margin-right:" << marginRight << "px;";
+      style << (app->layoutDirection() == LeftToRight
+		? "margin-right:" : "margin-left:")
+	    << marginRight << "px;";
 
     if (marginBottom)
       style << "margin-bottom:" << marginBottom << "px;";
