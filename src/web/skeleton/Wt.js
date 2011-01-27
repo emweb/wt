@@ -218,7 +218,7 @@ this.initAjaxComm = function(url, handler) {
 
 	this.userData = userData;
 
-	var s = this.script = document.createElement('SCRIPT');
+	var s = this.script = document.createElement('script');
 	s.id = "script" + id;
 	s.setAttribute('src', url + '&' + data);
 
@@ -236,7 +236,7 @@ this.initAjaxComm = function(url, handler) {
 	};
 */
 
-	var h = document.getElementsByTagName('HEAD')[0];
+	var h = document.getElementsByTagName('head')[0];
 	h.appendChild(s);
 
 	this.abort = function() {

@@ -180,6 +180,44 @@ void StdGridLayoutImpl::setHint(const std::string& name,
        << "WGridLayout: unrecognized hint '" << name << "'";
 }
 
+int StdGridLayoutImpl::nextRowWithItem(int row, int c) const
+{
+  for (row += grid_.items_[row][c].rowSpan_; row < (int)grid_.rows_.size();
+       ++row) {
+    for (unsigned col = 0; col < grid_.columns_.size();
+	 col += grid_.items_[row][col].colSpan_) {
+      if (hasItem(row, col))
+	return row;
+    }
+  }
+
+  return grid_.rows_.size();
+}
+
+int StdGridLayoutImpl::nextColumnWithItem(int row, int col) const
+{
+  for (;;) {
+    col = col + grid_.items_[row][col].colSpan_;
+
+    if (col < (int)grid_.columns_.size()) {
+      if (hasItem(row, col))
+	return col;
+    } else
+      return grid_.columns_.size();
+  }
+}
+
+bool StdGridLayoutImpl::hasItem(int row, int col) const
+{
+  WLayoutItem *item = grid_.items_[row][col].item_;
+
+  if (item) {
+    WWidget *w = item->widget();
+    return !w || !w->isHidden();
+  } else
+    return false;
+}
+
 DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 						WApplication *app)
 {
@@ -299,6 +337,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 #endif // WT_TARGET_JAVA
 
   bool resizeHandleAbove = false;
+  int prevRowWithItem = -1;
   for (unsigned row = 0; row < rowCount; ++row) {
     bool resizeHandleBelow = row < rowCount - 1
       && grid_.rows_[row].resizable_;
@@ -318,7 +357,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
     }
 
     bool resizeHandleLeft = false;
+    int prevColumnWithItem = -1;
 
+    bool rowVisible = false;
     for (unsigned col = 0; col < colCount; ++col) {
       bool resizeHandleRight = col < colCount - 1
 	&& grid_.columns_[col - 1 + grid_.items_[row][col].colSpan_].resizable_;
@@ -334,7 +375,8 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	int colSpan = 0;
 
 	for (int i = 0; i < item.rowSpan_; ++i) {
-	  // FIXME: if we span multiple rows, it is not clear what we should do ?
+	  // FIXME: when spanning multiple rows, it is not clear what we
+	  //        should do here. For now, let's not think of this.
 	  //
 	  // if stretch == -1 or >0, then we should fit height
 	  // if stretch == 0, then we should not fit height if no row
@@ -346,6 +388,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    itemFitHeight = false;
 
 	  colSpan = item.colSpan_;
+
 	  for (int j = 0; j < item.colSpan_; ++j) {
 	    // there is no special meaning for column stretches
 	    if (grid_.columns_[col + j].stretch_)
@@ -358,13 +401,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  }
 	}
 
-	// If we do not always fit heights of items (nested layouts),
-	// then content of these nested layouts will not expand in
-	// each cell to the full height alotted to by this grid. But
-	// if we do, this makes the row no longer react to reductions
-	// in height... Which is worse? I think the former?
-	//
-	// Solved now: use stretch = -1 to force fitting height
+	// Use stretch = -1 to force fitting height
 
 	AlignmentFlag hAlign = item.alignment_ & AlignHorizontalMask;
 	AlignmentFlag vAlign = item.alignment_ & AlignVerticalMask;
@@ -376,29 +413,41 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
 	int padding[] = { 0, 0, 0, 0 };
 
-	if (row == 0)
-	  padding[0] = margin[0];
-	else
-	  if (!resizeHandleAbove)
-	    padding[0] = (grid_.verticalSpacing_+1) / 2;
+	bool itemVisible = hasItem(row, col);
 
-	if (row + item.rowSpan_ == rowCount)
-	  padding[2] = margin[2];
-	else
-	  if (!resizeHandleBelow)
-	    padding[2] = grid_.verticalSpacing_ / 2;
+	rowVisible = rowVisible || itemVisible;
 
-	if (col == 0)
-	  padding[3] = margin[3];
-	else
-	  if (!resizeHandleLeft)
-	    padding[3] = (grid_.horizontalSpacing_ + 1)/2;
+	if (itemVisible) {
+	  int nextRow = nextRowWithItem(row, col);
+	  int prevRow = prevRowWithItem;
 
-	if (col + item.colSpan_ == colCount)
-	  padding[1] = margin[1];
-	else
-	  if (!resizeHandleRight)
-	    padding[1] = (grid_.horizontalSpacing_)/2;
+	  int nextCol = nextColumnWithItem(row, col);
+	  int prevCol = prevColumnWithItem;
+
+	  if (prevRow == -1)
+	    padding[0] = margin[0];
+	  else
+	    if (!resizeHandleAbove)
+	      padding[0] = (grid_.verticalSpacing_+1) / 2;
+
+	  if (nextRow == (int)rowCount)
+	    padding[2] = margin[2];
+	  else
+	    if (!resizeHandleBelow)
+	      padding[2] = grid_.verticalSpacing_ / 2;
+
+	  if (prevCol == -1)
+	    padding[3] = margin[3];
+	  else
+	    if (!resizeHandleLeft)
+	      padding[3] = (grid_.horizontalSpacing_ + 1)/2;
+
+	  if (nextCol == (int)colCount)
+	    padding[1] = margin[1];
+	  else
+	    if (!resizeHandleRight)
+	      padding[1] = (grid_.horizontalSpacing_)/2;
+	}
 
  	DomElement *td = DomElement::createNew(DomElement_TD);
 
@@ -520,7 +569,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
 	tr->addChild(td);
 
-	if (resizeHandleRight) {
+	if (itemVisible && resizeHandleRight) {
 	  td = DomElement::createNew(DomElement_TD);
 	  td->setProperty(PropertyClass, "Wt-vrh");
 
@@ -542,41 +591,48 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  td->addChild(div2);
 	  tr->addChild(td);
 	}
-      }
 
-      resizeHandleLeft = resizeHandleRight;
+	if (itemVisible) {
+	  resizeHandleLeft = resizeHandleRight;
+	  prevColumnWithItem = col;
+	}
+      }
     }
 
     tbody->addChild(tr);
 
-    if (resizeHandleBelow) {
-      tr = DomElement::createNew(DomElement_TR);
-      tr->setProperty(PropertyClass, "Wt-hrh");
-      std::string height
-	= boost::lexical_cast<std::string>(grid_.verticalSpacing_) + "px";
-      tr->setProperty(PropertyStyleHeight, height);
-      DomElement *td = DomElement::createNew(DomElement_TD);
-      td->setProperty(PropertyColSpan,
-		      boost::lexical_cast<std::string>(colCount));
+    if (rowVisible) {
+      if (resizeHandleBelow) {
+	tr = DomElement::createNew(DomElement_TR);
+	tr->setProperty(PropertyClass, "Wt-hrh");
+	std::string height
+	  = boost::lexical_cast<std::string>(grid_.verticalSpacing_) + "px";
+	tr->setProperty(PropertyStyleHeight, height);
+	DomElement *td = DomElement::createNew(DomElement_TD);
+	td->setProperty(PropertyColSpan,
+			boost::lexical_cast<std::string>(colCount));
 #ifndef WT_TARGET_JAVA
-      char style2[100];
-      snprintf(style2, 100, "padding:0px %dpx 0px %dpx;", margin[1], margin[3]);
+	char style2[100];
+	snprintf(style2, 100, "padding:0px %dpx 0px %dpx;",
+		 margin[1], margin[3]);
 #else
-      std::string style2 = "padding: 0px"
-	+ boost::lexical_cast<std::string>(margin[1]) + "px 0px"
-	+ boost::lexical_cast<std::string>(margin[3]) + "px;";
+	std::string style2 = "padding: 0px"
+	  + boost::lexical_cast<std::string>(margin[1]) + "px 0px"
+	  + boost::lexical_cast<std::string>(margin[3]) + "px;";
 #endif
-      td->setProperty(PropertyStyleHeight, style2);
+	td->setProperty(PropertyStyleHeight, style2);
       
-      DomElement *div2 = DomElement::createNew(DomElement_DIV);
-      div2->setProperty(PropertyStyleHeight, height);
-      td->addChild(div2);
+	DomElement *div2 = DomElement::createNew(DomElement_DIV);
+	div2->setProperty(PropertyStyleHeight, height);
+	td->addChild(div2);
 
-      tr->addChild(td);
-      tbody->addChild(tr);
+	tr->addChild(td);
+	tbody->addChild(tr);
+      }
+
+      prevRowWithItem = row;
+      resizeHandleAbove = resizeHandleBelow;
     }
-
-    resizeHandleAbove = resizeHandleBelow;
   }
 
   table->addChild(tbody);

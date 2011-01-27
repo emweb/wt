@@ -436,8 +436,15 @@ private:
       std::string path = app->internalPathNextPart(basePath_);
 
       items_->clear();
-      profile_ = 0;
-      users_ = 0;
+      if (profile_) {
+	delete profile_;
+	profile_ = 0;
+      }
+
+      if (users_) {
+	delete users_;
+	users_ = 0;
+      }
 
       if (path.empty())
 	showPosts(session_.find<Post>

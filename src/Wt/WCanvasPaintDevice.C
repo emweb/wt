@@ -53,11 +53,13 @@ namespace {
 
 WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
 				       const WLength& height,
-				       WObject *parent)
+				       WObject *parent,
+				       bool paintUpdate)
   : WObject(parent),
     width_(width),
     height_(height),
     painter_(0),
+    paintUpdate_(paintUpdate),
     busyWithPath_(false)
 { 
   textMethod_ = DomText;
@@ -106,8 +108,14 @@ void WCanvasPaintDevice::render(const std::string& canvasId,
       "],function(images)";
   }
 
-  tmp << "{var ctx=" << canvasVar << ".getContext('2d');"
-      << "ctx.save();ctx.save();" << js_.str() 
+  tmp << "{var ctx=" << canvasVar << ".getContext('2d');";
+
+  if (!paintUpdate_) {
+    tmp << "ctx.clearRect(0,0,"
+	<< width().value() << "," << height().value() << ");";
+  }
+
+  tmp << "ctx.save();ctx.save();" << js_.str() 
       << "ctx.restore();ctx.restore();}";
 
   if (!images_.empty()) {

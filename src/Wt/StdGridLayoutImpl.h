@@ -46,6 +46,10 @@ private:
   Impl::Grid& grid_;
   bool        useFixedLayout_;
   bool        forceUpdate_;
+
+  int nextRowWithItem(int row, int c) const;
+  int nextColumnWithItem(int row, int col) const;
+  bool hasItem(int row, int col) const;
 };
 
 }

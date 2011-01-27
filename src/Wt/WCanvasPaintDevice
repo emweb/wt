@@ -46,7 +46,8 @@ public:
   /*! \brief Create a canvas paint device.
    */
   WCanvasPaintDevice(const WLength& width, const WLength& height,
-		     WObject *parent = 0);
+		     WObject *parent = 0,
+		     bool paintUpdate = false);
 
   virtual void setChanged(WFlags<ChangeFlag> flags);
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle);
@@ -80,6 +81,7 @@ private:
   WLength     width_, height_;
   WPainter   *painter_;
   WFlags<ChangeFlag> changeFlags_;
+  bool        paintUpdate_;
 
   TextMethod  textMethod_;
 

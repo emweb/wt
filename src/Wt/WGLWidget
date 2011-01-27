@@ -14,6 +14,7 @@ namespace Wt {
 
 #if 0
 #define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {alert('error " << __FUNCTION__ << ": ' + err); debugger;}}\n";} while(false)
+//#define GLDEBUG do {js_ << "\n{var err = ctx.getError(); if(err != ctx.NO_ERROR) {debugger;}}\n";} while(false)
 #else
 #define GLDEBUG
 #endif
@@ -32,41 +33,77 @@ class WImage;
  *
  * The WGLWidget class is an interface to the HTML5 WebGL infrastructure. Its
  * implementation started based on the working drafts of the Khronos group, and
- * will be updated as the standard stabilizes.
+ * will be updated as the standard stabilizes. To fully understand WebGL, it is
+ * recommended to read the WebGL standard in addition to this documentation.
  *
- * The goal of the WGLWidget class is to provide a method to render 3D
- * structures in the browser, where rendering and rerendering is normally
- * done in JavaScript without interaction from the server, unless the
- * scene requires updates.
+ * The most recent version of the WebGL specification can be found here:
+ * https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/doc/spec/WebGL-spec.html
  *
  * This widget is work in progress. The API may change in the future because
  * of new features, reorganizations or changes in the WebGL draft.
  *
- * For this purpose, the JavaScript functions to render the class are cached
- * on the browser. There are four functions that you may implement in a
- * specialization of this class:
+ * The goal of the WGLWidget class is to provide a method to render 3D
+ * structures in the browser, where rendering and rerendering is normally
+ * done at the client side in JavaScript without interaction from the server,
+ * in order to obtain a smooth user interaction. Unless the scene requires
+ * server-side updates, there is no communication with the server.
+ *
+ * The rendering interface resembles to OpenGL ES, the same standard as
+ * WebGL is based on. This is a stripped down version of the normal OpenGL
+ * as we usually find them on desktops. Many stateful OpenGL features are
+ * not present in OpenGL ES: no modelview and camera transformation stacks,
+ * no default lighting models, no support for other rendering methods than
+ * through VBOs, ... Therefore much existing example code for OpenGL
+ * applications and shaders will not work on WebGL without modifications.
+ * The 'learning webgl' web site at http://learningwebgl.com/ is a good
+ * starting point to get familiar with WebGL.
+ *
+ * To use a %WGLWidget, you must derive from it and reimplement
+ * the painter methods. Usually, you will always need to implement
+ * initializeGL() and paintGL(). Optionally, you may choose to implement
+ * resizeGL() (if your widget does not have a fixed size), and updateGL().
+ * If you need to modify the painting methods, a repaint is triggered by
+ * calling the repaintGL() method. The default behaviour for any of these
+ * four painting functions is to do nothing.
+ *
+ * The four painter methods (initializeGL(), resizeGL(), paintGL() and
+ * updateGL()) all record JavaScript which is sent to the
+ * browser. The JavaScript code of paintGL() is cached client-side, and
+ * may be executed many times, e.g. to repaint a scene from different
+ * viewpoints. The JavaScript code of initializeGL(), resizeGL() and
+ * updateGL() are intended for OpenGL state updates, and is therefore
+ * only executed once on the client and is then discarded.
+ *
+ * There are four painting methods that you may implement in a
+ * specialization of this class. The purpose of these functions is
+ * to register what JavaScript code has to be executed to render a
+ * scene. Through invocations of the WebGL functions documented below,
+ * Wt records the JavaScript calls that have to be invoked in the
+ * browser.
  * <ul>
- * <li>initializeGL(): this function is executed only once, right after the
- *     successful detection of WebGL in the browser. (note: in future versions,
- *     it may be re-executed when the webglcontextlost signal is fired, but
- *     this is currently not yet implemented). This is the ideal location to
- *     compose shader programs, send VBO's to the client, extract uniform and
- *     attribute locations, ... Due to the presence of VBO's, this function
- *     may generate a large response to the client.
- * <li>resizeGL(): this function is executed whenever the canvas dimensions
- *     change. A change in canvas size will require you to invoke the
- *     viewport() function again, as well as recalculate the projection
- *     matrices (especially when the aspect ratio has changed). Thie
- *     resizeGL() function is therefore the ideal location to set those
+ * <li><b>initializeGL()</b>: this function is executed only once, right
+ *     after the successful detection of WebGL in the browser. (note: in
+ *     future versions, it may be re-executed when the webglcontextlost
+ *     signal is fired, but this is currently not yet implemented). This
+ *     is the ideal location to compose shader programs, send VBO's to
+ *     the client, extract uniform and attribute locations, ... Due to
+ *     the presence of VBO's, this function may generate a large amount
+ *     of data to the client.
+ * <li><b>resizeGL()</b>: this function is executed whenever the canvas
+ *     dimensions change. A change in canvas size will require you to
+ *     invoke the viewport() function again, as well as recalculate the
+ *     projection matrices (especially when the aspect ratio has changed).
+ *     The resizeGL() function is therefore the ideal location to set those
  *     properties.
  *     The resizeGL() function is invoked automatically on every resize,
  *     and after the first initializeGL() invocation. Additional invocations
  *     may be triggered by calling repaint() with the RESIZE_GL flag.
- * <li>paintGL(): this is the workhorse. It is executed every time that the
- *     scene is to be redrawn. You can use the VBO's and shaders prepared
- *     in the initializeGL() phase. Usually, this function sets uniforms
- *     and attributes, links attributes to VBO's, applies textures, and
- *     draws primitives.
+ * <li><b>paintGL()</b>: this is the main scene drawing function. Through
+ *     its execution, Wt records what has to be done to render a scene,
+ *     and it is executed every time that the scene is to be redrawn. You
+ *     can use the VBO's and shaders prepared in the initializeGL() phase.
+ *     Usually, this function sets uniforms and attributes, links
+ *     attributes to VBO's, applies textures, and draws primitives.
  *     You may also create local programs, buffers, ... Remeber that this
  *     function is executed a lot of times, so every buffer/program created
  *     in this function should also be destroyed to avoid memory leaks.
@@ -76,12 +113,15 @@ class WImage;
  *     whatever other event.
  *     The paintGL() function can be updated through invoking repaintGL()
  *     with the PAINT_GL flag.
- * <li>updateGL(): VBO's, programs, uniforms, GL properties, or anything
- *     else set during intializeGL() are not necessarily immutable. If
- *     you want to change, add, remove or reconfigure those properties,
- *     the execution of an updateGL() function can be triggered by invoking
- *     repaintGL() with the UPDATE_GL flag. This signals that updateGL()
- *     needs to be evaluated - just once.
+ * <li><b>updateGL()</b>: VBO's, programs, uniforms, GL properties,
+ *     or anything else set during intializeGL() are not necessarily
+ *     immutable. If you want to change, add, remove or reconfigure those
+ *     properties, the execution of an updateGL() function can be triggered
+ *     by invoking repaintGL() with the UPDATE_GL flag. This signals that
+ *     updateGL() needs to be evaluated - just once. It is possible that
+ *     the paintGL() function also requires updates as consequence of the
+ *     changes in the updateGL() function; in this case, you should also set
+ *     the PAINT_GL flag of repaintGL().
  * </ul>
  *
  * The WebGL functions are intended to be used exclusively from within the
@@ -92,10 +132,11 @@ class WImage;
  * layout manager that manages its width and height. The behaviour of a
  * WGLWidget that was not given a size is undefined.
  *
+ * <h3>Client side matrices.</h3>
  *
- * Client side matrices.
- * The WGLWidget has a mechanism to use client-side modifiable matrices
- * in the render functions. These matrices can be used identically to the
+ * The WGLWidget provides the WGLWidget::JavaScriptMatrix4x4 class as
+ * a mechanism to use client-side modifiable matrices in the render
+ * functions. These matrices can be used identically to the
  * 'constant', with the advantage that there is no need to have a
  * roundtrip to the server to redraw the scene when they are changed.
  * As such, they are ideal for mouse-based camera manipulations, timer
@@ -120,11 +161,10 @@ public:
    * calculations on matrices.
    *
    * Important: only the jsRef() of the return value from a call to
-   * createJavaScriptMatrix() is a variable name that can be used 
+   * WGLWidget::createJavaScriptMatrix() is a variable name that can be used 
    * in custom JavaScript to modify a matrix from external scripts.
-   * The jsRef() of return values of operations should not be
-   * used as (they refer to unnamed temporary objects - rvalues in
-   * C++-lingo).
+   * The jsRef() of return values of operations refer to unnamed temporary
+   * objects - rvalues in C++-lingo.
    */
   class WT_API JavaScriptMatrix4x4 {
   public:
@@ -239,8 +279,7 @@ public:
                            UPDATE_GL = 4  //!< refresh updateGL()
   };
 
-  /*
-   * Request invocation of resizeGL, paintGL and/or updateGL.
+  /*! \brief Request invocation of resizeGL, paintGL and/or updateGL.
    *
    * If invoked with PAINT_GL, the client-side cached paint function
    * is updated. If invoked with RESIZE_GL or UPDATE_GL, the code
