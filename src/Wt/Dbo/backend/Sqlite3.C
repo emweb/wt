@@ -504,6 +504,8 @@ Sqlite3::Sqlite3(const Sqlite3& other)
 
   if (err != SQLITE_OK)
     throw Sqlite3Exception(sqlite3_errmsg(db_));
+
+  executeSql("pragma foreign_keys = ON");
 }
 
 Sqlite3::~Sqlite3()
