@@ -11,7 +11,9 @@
 #include <bitset>
 
 #include <boost/bind.hpp>
+#ifndef WT_NO_BOOST_INTRUSIVE
 #include <boost/intrusive/list.hpp>
+#endif
 #include <boost/signal.hpp>
 #include <boost/utility.hpp>
 

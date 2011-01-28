@@ -65,15 +65,19 @@ template <class C>
 CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
 				RelationType type,
 				const std::string& joinName,
-				const std::string& joinId)
-  : value_(value), joinName_(joinName), joinId_(joinId), type_(type)
+				const std::string& joinId,
+				int fkConstraints)
+  : value_(value), joinName_(joinName), joinId_(joinId), type_(type),
+    fkConstraints_(fkConstraints)
 { }
 
 template <class C>
-PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name, int size)
+PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name, int size,
+		  int fkConstraints)
   : value_(value),
     name_(name),
-    size_(size)
+    size_(size),
+    fkConstraints_(fkConstraints)
 { }
 
 template <class C>
@@ -133,21 +137,38 @@ void field(A& action, V& value, const std::string& name, int size)
 template <class A, class C>
 void field(A& action, ptr<C>& value, const std::string& name, int size)
 {
-  action.actPtr(PtrRef<C>(value, name, size));
+  action.actPtr(PtrRef<C>(value, name, size, 0));
 }
 
 template <class A, class C>
 void belongsTo(A& action, ptr<C>& value, const std::string& name, int size)
 {
-  action.actPtr(PtrRef<C>(value, name, size));
+  action.actPtr(PtrRef<C>(value, name, size, 0));
+}
+
+template <class A, class C>
+void belongsTo(A& action, ptr<C>& value, const std::string& name,
+	       ForeignKeyConstraint constraint, int size)
+{
+  action.actPtr(PtrRef<C>(value, name, size, constraint.value()));
+}
+
+template <class A, class C>
+void hasMany(A& action, collection< ptr<C> >& value,
+	     RelationType type, const std::string& joinName)
+{
+  action.actCollection(CollectionRef<C>(value, type, joinName, std::string(),
+					Impl::FKNotNull));
 }
 
 template <class A, class C>
 void hasMany(A& action, collection< ptr<C> >& value,
 	     RelationType type, const std::string& joinName,
-	     const std::string& joinId)
+	     const std::string& joinId, ForeignKeyConstraint constraint)
 {
-  action.actCollection(CollectionRef<C>(value, type, joinName, joinId));
+  assert(type == ManyToMany);
+  action.actCollection(CollectionRef<C>(value, type, joinName, joinId,
+					constraint.value()));
 }
 
   }

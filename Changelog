@@ -1,3 +1,11 @@
+28-01-2011:
+	* Dbo: belongsTo() and hasMany(/* ManyToMany */) can now be passed
+	foreign key constraints such as NotNull and OnDeleteCascade.
+
+27-01-2011:
+	* StdGridLayout: collapse paddings of empty items (affects all non-Ext
+	layout managers)
+
 25-01-2011:
 	* Wt/Text/Renderer: warn but proceed when minimum render width exceeds
 	page width
@@ -9,9 +17,6 @@
 
 	* WApplication: initial work for RTL layout, set using
 	setLayoutDirection()
-
-	* StdGridLayout: collapse paddings of empty items (affects all non-Ext
-	layout managers)
 
 19-01-2011:
 	* Wt/WPdfImage: add true type font support (libharu patch pending)

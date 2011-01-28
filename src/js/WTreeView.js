@@ -98,13 +98,19 @@ WT_DECLARE_WT_MEMBER
        var r = WT.getCssRule('#' + el.id + ' .' + c),
            cw = WT.pxself(r, 'width'),
            minDelta = -cw,
-           maxDelta = 10000;
+           maxDelta = 10000,
+	   rtl = $(document.body).hasClass('Wt-rtl');
+
+       if (rtl) {
+         var tmp = minDelta;
+         minDelta = -maxDelta;
+         maxDelta = -tmp;
+       }
 
        new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.firstChild.offsetHeight,
 	                 minDelta, maxDelta, 'Wt-hsh',
 			 function (delta) {
-			   var rtl = $(document.body).hasClass('Wt-rtl'),
-			       newWidth = cw + (rtl ? -delta : delta),
+			   var newWidth = cw + (rtl ? -delta : delta),
 			       columnId = c.substring(7) * 1;
 			   r.style.width = newWidth + 'px';
 			   self.adjustColumns();

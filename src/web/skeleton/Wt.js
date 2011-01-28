@@ -451,6 +451,8 @@ this.widgetPageCoordinates = function(obj) {
   if (WT.hasTag(obj, "AREA"))
     obj = obj.parentNode.nextSibling; // img after map
 
+  var rtl = $(document.body).hasClass('Wt-rtl');
+
   while (obj) {
     objX += obj.offsetLeft;
     objY += obj.offsetTop;
@@ -472,7 +474,8 @@ this.widgetPageCoordinates = function(obj) {
       do {
 	obj = obj.parentNode;
 	if (WT.hasTag(obj, "DIV")) {
-	  objX -= obj.scrollLeft;
+	  if (!rtl) /* Somebody explain me why, but that seems to work +/- */
+	    objX -= obj.scrollLeft;
 	  objY -= obj.scrollTop;
 	}
       } while (obj != null && obj != op);

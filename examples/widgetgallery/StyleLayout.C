@@ -75,13 +75,13 @@ WWidget *StyleLayout::wLoadingIndicator()
 
 void StyleLayout::loadingIndicatorSelected(WString indicator)
 {
-  if (indicator.value() == "WDefaultLoadingIndicator") {
+  if (indicator.toUTF8() == "WDefaultLoadingIndicator") {
     WApplication::instance()
       ->setLoadingIndicator(new WDefaultLoadingIndicator());
-  } else if (indicator.value() == "WOverlayLoadingIndicator") {
+  } else if (indicator.toUTF8() == "WOverlayLoadingIndicator") {
     WApplication::instance()
       ->setLoadingIndicator(new WOverlayLoadingIndicator());
-  } else if (indicator.value() == "EmwebLoadingIndicator") {
+  } else if (indicator.toUTF8() == "EmwebLoadingIndicator") {
     WApplication::instance()
       ->setLoadingIndicator(new EmwebLoadingIndicator());
   }

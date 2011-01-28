@@ -369,10 +369,12 @@ private:
     std::string joinName;
     std::string joinSelfId, joinOtherId;
     RelationType type;
+    int fkConstraints, otherFkConstraints;
 
     SetInfo(const char *aTableName, RelationType type,
 	    const std::string& aJoinName,
-	    const std::string& aJoinSelfId);
+	    const std::string& aJoinSelfId,
+	    int someFkConstraints);
   };
 
   struct WTDBO_API MappingInfo {
@@ -436,10 +438,11 @@ private:
   void createJoinTable(const std::string& joinName,
 		       MappingInfo *mapping1, MappingInfo *mapping2,
 		       const std::string& joinId1,
-		       const std::string& joinId2);
+		       const std::string& joinId2,
+		       int fkConstraints1, int fkConstraints2);
   void addJoinTableFields(MappingInfo& joinTableMapping,
 			  MappingInfo *mapping, const std::string& joinId,
-			  const std::string& foreignKeyName);
+			  const std::string& foreignKeyName, int fkConstraints);
   void createJoinIndex(MappingInfo& joinTableMapping,
 		       MappingInfo *mapping,
 		       const std::string& joinId,

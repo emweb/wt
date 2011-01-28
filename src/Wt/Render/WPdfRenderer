@@ -73,12 +73,14 @@ public:
    * dimensions. Note that his does not have an effect on the <i>de
    * facto</i> standard CSS resolution of 96 DPI that is used to
    * convert between physical WLength units (like <em>cm</em>,
-   * <em>inch</em> and <em>point</em) and pixels.
+   * <em>inch</em> and <em>point</em>) and pixels. Instead it has the
+   * effect of scaling down or up the rendered XHTML on the page.
    *
    * The dpi setting also affects the pageWidth(), pageHeight(), and
-   * margin() calculations.
+   * margin() pixel calculations.
    *
-   * The default resolution is 72 DPI.
+   * The default resolution is 72 DPI (this is the default resolution
+   * used by libharu).
    */
   void setDpi(int dpi);
 

@@ -52,11 +52,13 @@ Session::JoinId::JoinId(const std::string& aJoinIdName,
 Session::SetInfo::SetInfo(const char *aTableName,
 			  RelationType aType,
 			  const std::string& aJoinName,
-			  const std::string& aJoinSelfId)
+			  const std::string& aJoinSelfId,
+			  int someFkConstraints)
   : tableName(aTableName),
     joinName(aJoinName),
     joinSelfId(aJoinSelfId),
-    type(aType)
+    type(aType),
+    fkConstraints(someFkConstraints)
 { }
 
 Session::MappingInfo::MappingInfo()
@@ -548,6 +550,7 @@ void Session::resolveJoinIds(MappingInfo *mapping)
 	  // same table
 	  if (mapping != other || i != j) {
 	    set.joinOtherId = otherSet.joinSelfId;
+	    set.otherFkConstraints = otherSet.fkConstraints;
 	    found = true;
 	    break;
 	  }
@@ -627,7 +630,7 @@ void Session::createTable(MappingInfo *mapping)
 	sql << ",\n";
 
       std::string sqlType = field.sqlType();
-      if (field.isForeignKey()) {
+      if (field.isForeignKey() && !(field.fkConstraints() & Impl::FKNotNull)) {
 	if (sqlType.length() > 9
 	    && sqlType.substr(sqlType.length() - 9) == " not null")
 	  sqlType = sqlType.substr(0, sqlType.length() - 9);
@@ -681,6 +684,16 @@ void Session::createTable(MappingInfo *mapping)
       sql << ") references \"" << Impl::quoteSchemaDot(field.foreignKeyTable())
 	  << "\" (" << otherMapping->primaryKeys() << ")";
 
+      if (field.fkConstraints() & Impl::FKOnUpdateCascade)
+	sql << " on update cascade";
+      else if (field.fkConstraints() & Impl::FKOnUpdateSetNull)
+	sql << " on update set null";
+
+      if (field.fkConstraints() & Impl::FKOnDeleteCascade)
+	sql << " on delete cascade";
+      else if (field.fkConstraints() & Impl::FKOnDeleteSetNull)
+	sql << " on delete set null";
+
       i = j;
     } else
       ++i;
@@ -704,7 +717,8 @@ void Session::createRelations(MappingInfo *mapping,
 	MappingInfo *other = getMapping(set.tableName);
 
 	createJoinTable(set.joinName, mapping, other,
-			set.joinSelfId, set.joinOtherId);
+			set.joinSelfId, set.joinOtherId,
+			set.fkConstraints, set.otherFkConstraints);
       }
     }
   }
@@ -713,7 +727,8 @@ void Session::createRelations(MappingInfo *mapping,
 void Session::createJoinTable(const std::string& joinName,
 			      MappingInfo *mapping1, MappingInfo *mapping2,
 			      const std::string& joinId1,
-			      const std::string& joinId2)
+			      const std::string& joinId2,
+			      int fkConstraints1, int fkConstraints2)
 {
   MappingInfo joinTableMapping;
 
@@ -721,8 +736,10 @@ void Session::createJoinTable(const std::string& joinName,
   joinTableMapping.versionFieldName = 0;
   joinTableMapping.surrogateIdFieldName = 0;
 
-  addJoinTableFields(joinTableMapping, mapping1, joinId1, "key1");
-  addJoinTableFields(joinTableMapping, mapping2, joinId2, "key2");
+  addJoinTableFields(joinTableMapping, mapping1, joinId1, "key1",
+		     fkConstraints1);
+  addJoinTableFields(joinTableMapping, mapping2, joinId2, "key2",
+		     fkConstraints2);
 
   createTable(&joinTableMapping);
 
@@ -807,16 +824,18 @@ Session::getJoinIds(MappingInfo *mapping, const std::string& joinId)
 
 void Session::addJoinTableFields(MappingInfo& result, MappingInfo *mapping,
 				 const std::string& joinId,
-				 const std::string& keyName)
+				 const std::string& keyName,
+				 int fkConstraints)
 {
   std::vector<JoinId> joinIds = getJoinIds(mapping, joinId);
 
   for (unsigned i = 0; i < joinIds.size(); ++i)
     result.fields.push_back
       (FieldInfo(joinIds[i].joinIdName, &typeid(long long),
-		 joinIds[i].sqlType + " not null",
+		 joinIds[i].sqlType,
 		 mapping->tableName, keyName,
-		 FieldInfo::NaturalId | FieldInfo::ForeignKey));
+		 FieldInfo::NaturalId | FieldInfo::ForeignKey,
+		 fkConstraints));
 }
 
 void Session::dropTables()

@@ -23,13 +23,14 @@ FieldInfo::FieldInfo(const std::string& name, const std::type_info *type,
 		     const std::string& sqlType,
 		     const std::string& foreignKeyTable,
 		     const std::string& foreignKeyName,
-		     int flags)
+		     int flags, int fkConstraints)
   : name_(name),
     sqlType_(sqlType),
     foreignKeyName_(foreignKeyName),
     foreignKeyTable_(foreignKeyTable),
     type_(type),
-    flags_(flags)
+    flags_(flags),
+    fkConstraints_(fkConstraints)
 { }
 
 

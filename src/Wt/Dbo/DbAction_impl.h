@@ -64,7 +64,7 @@ void InitSchema::act(const FieldRef<V>& field)
       (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
 		 foreignKeyTable_, foreignKeyName_,
 		 FieldInfo::Mutable | FieldInfo::NeedsQuotes
-		 | FieldInfo::ForeignKey));
+		 | FieldInfo::ForeignKey, fkConstraints_));
   else
     // Normal field
     mapping_.fields.push_back
@@ -79,11 +79,13 @@ void InitSchema::actPtr(const PtrRef<C>& field)
 
   foreignKeyName_ = field.name();
   foreignKeyTable_ = mapping->tableName;
+  fkConstraints_ = field.fkConstraints();
 
   field.visit(*this, &session_);
 
   foreignKeyName_.clear();
   foreignKeyTable_.clear();
+  fkConstraints_ = 0;
 }
 
 template<class C>
@@ -93,7 +95,7 @@ void InitSchema::actCollection(const CollectionRef<C>& field)
 
   mapping_.sets.push_back
     (Session::SetInfo(joinTableName, field.type(), field.joinName(),
-		      field.joinId()));
+		      field.joinId(), field.fkConstraints()));
 }
 
     /*

@@ -487,7 +487,8 @@ WWidgetCanvasPainter::WWidgetCanvasPainter(WPaintedWidget *widget)
 
 WPaintDevice *WWidgetCanvasPainter::getPaintDevice(bool paintUpdate)
 {
-  return new WCanvasPaintDevice(widget_->renderWidth_, widget_->renderHeight_);
+  return new WCanvasPaintDevice(widget_->renderWidth_, widget_->renderHeight_,
+				0, paintUpdate);
 }
 
 void WWidgetCanvasPainter::createContents(DomElement *result,

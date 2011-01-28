@@ -1168,7 +1168,7 @@ void WTreeView::setColumn1Fixed(bool fixed)
   if (fixed && !column1Fixed_) {
     column1Fixed_ = fixed;
 
-    setStyleClass("Wt-treeview column1");
+    addStyleClass("column1");
     WContainerWidget *rootWrap
       = dynamic_cast<WContainerWidget *>(contents_->widget(0));
     rootWrap->resize(WLength(100, WLength::Percentage), WLength::Auto);
@@ -1181,13 +1181,17 @@ void WTreeView::setColumn1Fixed(bool fixed)
       = app->environment().agentIsWebKit()
       || app->environment().agentIsOpera();
 
-    if (useStyleLeft)
+    if (useStyleLeft) {
+      bool rtl = app->layoutDirection() == RightToLeft;
+
       tieRowsScrollJS_.setJavaScript
 	("function(obj, event) {"
 	 "" WT_CLASS ".getCssRule('#" + id() + " .Wt-tv-rowc').style.left"
-	 ""  "= -obj.scrollLeft + 'px';"
+	 ""  "= -obj.scrollLeft "
+	 + (rtl ? "+ (obj.firstChild.offsetWidth - obj.offsetWidth)" : "")
+	 + "+ 'px';"
 	 "}");
-    else {
+    } else {
       /*
        * this is for some reason very very slow in webkit, and with
        * application/xml on Firefox (jQuery suffers)

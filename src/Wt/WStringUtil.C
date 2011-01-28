@@ -17,6 +17,7 @@
 
 namespace Wt {
 
+#ifndef WT_NO_STD_WSTRING
 #ifndef WT_NO_STD_LOCALE
 std::wstring widen(const std::string& s, const std::locale &loc)
 {
@@ -76,7 +77,9 @@ std::wstring widen(const std::string& s)
   return retval;
 }
 #endif
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 #ifndef WT_NO_STD_LOCALE
 std::string narrow(const std::wstring& s, const std::locale &loc)
 {
@@ -146,7 +149,9 @@ std::string narrow(const std::wstring& s)
   return retval;
 }
 #endif
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 std::string toUTF8(const std::wstring& s)
 {
   std::string result;
@@ -169,7 +174,9 @@ std::string toUTF8(const std::wstring& s)
 
   return result;
 }
+#endif
 
+#ifndef WT_NO_STD_WSTRING
 std::wstring fromUTF8(const std::string& s)
 {
   std::wstring result;
@@ -264,6 +271,7 @@ std::wstring fromUTF8(const std::string& s)
 
   return result;
 }
+#endif
 
 #ifndef WT_NO_STD_LOCALE
 std::string fromUTF8(const std::string& s, const std::locale &loc)
@@ -274,7 +282,20 @@ std::string fromUTF8(const std::string& s, const std::locale &loc)
 std::string fromUTF8(const std::string& s, CharEncoding encoding)
 {
   switch(encoding) {
+#ifndef WT_NO_STD_WSTRING
     case LocalEncoding: return narrow(fromUTF8(s));
+#else
+    case LocalEncoding:
+      {
+        // You may want to rewrite this for your system
+        // Eliminate all non-ascii chars
+        // TODO: handle multi-byte UTF-8 characters
+        std::string retval = s;
+        for(std::size_t i = 0; i < retval.size(); ++i)
+          if (retval[i] > 127) retval[i] = '?';
+        return s;
+      }
+#endif
     case UTF8: return s;
   }
 }
@@ -288,7 +309,15 @@ std::string toUTF8(const std::string& s, const std::locale &loc)
 #else
 std::string toUTF8(const std::string& s)
 {
+#ifndef WT_NO_STD_WSTRING
   return toUTF8(widen(s));
+#else
+  // You may want to rewrite this for your system
+  std::string retval = s;
+  for(std::size_t i = 0; i < retval.size(); ++i)
+    if (retval[i] > 127) retval[i] = '?';
+  return s;
+#endif
 }
 #endif
 

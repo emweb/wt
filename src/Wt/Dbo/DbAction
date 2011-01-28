@@ -54,6 +54,7 @@ private:
 
   bool idField_;
   std::string foreignKeyTable_, foreignKeyName_;
+  int fkConstraints_;
 };
 
 class WTDBO_API DropSchema

@@ -127,7 +127,7 @@ public:
 	    const std::string& sqlType,
 	    const std::string& foreignKeyTable,
 	    const std::string& foreignKeyName,
-	    int flags);
+	    int flags, int fkConstraints);
 
   /*! \brief Sets a qualifier for the field.
    */
@@ -180,6 +180,7 @@ public:
   bool isFirstDboField() const { return (flags_ & FirstDboField) != 0; }
   std::string foreignKeyName() const { return foreignKeyName_; }
   std::string foreignKeyTable() const { return foreignKeyTable_; }
+  int fkConstraints() const { return fkConstraints_; }
 
   std::string sql() const;
 
@@ -188,6 +189,7 @@ private:
   std::string foreignKeyName_, foreignKeyTable_;
   const std::type_info *type_;
   int flags_;
+  int fkConstraints_;
 };
 
 /*! \class query_result_traits Wt/Dbo/SqlTraits Wt/Dbo/SqlTraits

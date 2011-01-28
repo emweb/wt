@@ -149,7 +149,7 @@ public:
     dbo::field(a, f, "f");
     dbo::field(a, d, "d");
 
-    dbo::belongsTo(a, b, "b");
+    dbo::belongsTo(a, b, "b", dbo::OnUpdateCascade | dbo::OnDeleteCascade);
     dbo::belongsTo(a, dthing, "d");
 
     dbo::belongsTo(a, parent, "a_parent");
@@ -188,7 +188,10 @@ public:
     dbo::field(a, name, "name");
 
     dbo::hasMany(a, asManyToOne, dbo::ManyToOne, "b");
-    dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_b");
+    dbo::hasMany(a, csManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_b",
+		   dbo::NotNull
+		 | dbo::OnDeleteCascade
+		 | dbo::OnUpdateCascade);
   }
 };
 
@@ -214,7 +217,10 @@ public:
   {
     dbo::field(a, name, "name");
 
-    dbo::hasMany(a, bsManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_c");
+    dbo::hasMany(a, bsManyToMany, dbo::ManyToMany, SCHEMA "b_c", "the_c",
+		   dbo::NotNull
+		 | dbo::OnDeleteCascade
+		 | dbo::OnUpdateCascade );
     dbo::hasMany(a, dsManyToMany, dbo::ManyToMany, SCHEMA "c_d");
   }
 };

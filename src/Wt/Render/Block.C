@@ -1011,7 +1011,7 @@ void Block::tableRowDoLayout(double x, double& y, int& page,
 			     double rowHeight)
 {
   double endY = y;
-  double endPage = page;
+  int endPage = page;
 
   unsigned col = 0;
 
@@ -1258,7 +1258,7 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
   if (!isFloat())
     startY = y;
 
-  double startPage = page;
+  int startPage = page;
 
   y += cssBorderWidth(Top, renderer.fontScale());
 
