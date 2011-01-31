@@ -29,15 +29,15 @@ namespace {
   {
     switch (i) {
     case 0:
-      return Wt::WHTML5Media::HAVE_NOTHING;
+      return Wt::WHTML5Media::HaveNothing;
     case 1:
-      return Wt::WHTML5Media::HAVE_METADATA;
+      return Wt::WHTML5Media::HaveMetaData;
     case 2:
-      return Wt::WHTML5Media::HAVE_CURRENT_DATA;
+      return Wt::WHTML5Media::HaveCurrentData;
     case 3:
-      return Wt::WHTML5Media::HAVE_FUTURE_DATA;
+      return Wt::WHTML5Media::HaveFutureData;
     case 4:
-      return Wt::WHTML5Media::HAVE_ENOUGH_DATA;
+      return Wt::WHTML5Media::HaveEnoughData;
     default:
       assert(false);
 #ifdef WT_TARGET_JAVA
@@ -68,7 +68,7 @@ WHTML5Media::WHTML5Media(WContainerWidget *parent):
   current_(-1),
   duration_(-1),
   ended_(false),
-  readyState_(HAVE_NOTHING)
+  readyState_(HaveNothing)
 {
   setInline(false);
   setFormObject(true);
@@ -161,8 +161,8 @@ void WHTML5Media::setFormData(const FormData& formData)
       }
       try {
         readystate = boost::lexical_cast<int>(attributes[5]);
-        readyState_ = HAVE_NOTHING;
-        if (readystate <= HAVE_ENOUGH_DATA && readystate >= HAVE_NOTHING)
+        readyState_ = HaveNothing;
+        if (readystate <= HaveEnoughData && readystate >= HaveNothing)
           readyState_ = intToReadyState(readystate);
       } catch (boost::bad_lexical_cast &e) {
         error = true;

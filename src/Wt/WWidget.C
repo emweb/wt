@@ -73,12 +73,12 @@ void WWidget::resize(const WLength& width, const WLength& height)
 
 void WWidget::setHeight(const WLength& height)
 {
-  resize(WLength(100, WLength::Percentage), height);
+  resize(width(), height);
 }
 
 void WWidget::setWidth(const WLength& width)
 {
-  resize(width, WLength(100, WLength::Percentage));
+  resize(width, height());
 }
 
 void WWidget::setJsSize()

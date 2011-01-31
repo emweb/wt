@@ -613,11 +613,6 @@ void WebRenderer::serveMainscript(WebResponse& response)
 		WWebWidget::jsStringLiteral(app->internalPath()));
   script.setVar("INDICATOR_TIMEOUT", conf.indicatorTimeout());
   script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
-  script.setVar("ONLOAD",
-		std::string("(function() {")
-		+ (widgetset ? ""
-		   : "window." + app->javaScriptClass() + "LoadWidgetTree();")
-		+ "})");
   script.setVar("PAGE_ID", pageId_);
 
   /*
@@ -801,7 +796,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 
   if (widgetset)
     response.out() << "$(document).ready(function() { "
-		   << app->javaScriptClass() << "._p_.load(true);});\n";
+		   << app->javaScriptClass() << "._p_.load(false);});\n";
 
   if (!app->isQuited())
     response.out() << session_.app()->javaScriptClass()

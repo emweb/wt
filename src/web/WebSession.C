@@ -1037,6 +1037,7 @@ void WebSession::handleRequest(Handler& handler)
 	  else if (*requestE == "script")
 	    handler.response()->setResponseType(WebResponse::Script);
 	  else if (*requestE == "style") {
+#ifndef WT_TARGET_JAVA
 	    if (bootStyleResponse_)
 	      bootStyleResponse_->flush();
 
@@ -1048,6 +1049,31 @@ void WebSession::handleRequest(Handler& handler)
 	      handler.response()->flush();
 	      handler.setRequest(0, 0);
 	    }
+#else
+	    /*
+	     * In Servlet2, we canont defer responding the request. So we
+	     * do a little spin lock here.
+	     *
+	     * There is no reason why the second request (script) does not
+	     * arrive within seconds.
+	     */
+	    unsigned i = 0;
+	    const unsigned MAX_TRIES = 1000;
+
+	    while (!app_ && i < MAX_TRIES) {
+	      mutex_.unlock();
+	      boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+	      mutex_.lock();
+
+	      ++i;
+	    }
+
+	    if (i < MAX_TRIES)
+	      renderer_.serveLinkedCss(*handler.response());
+
+	    handler.response()->flush();
+	    handler.setRequest(0, 0);
+#endif // WT_TARGET_JAVA
 
 	    break;
 	  }

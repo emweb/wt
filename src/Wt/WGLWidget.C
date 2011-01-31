@@ -615,7 +615,8 @@ DomElementType WGLWidget::domElementType() const
 void WGLWidget::resize(const WLength &width, const WLength &height)
 {
   WInteractWidget::resize(width, height);
-  layoutSizeChanged(width.value(), height.value());
+  layoutSizeChanged(static_cast<int>(width.value()),
+		    static_cast<int>(height.value()));
 }
 
 void WGLWidget::layoutSizeChanged(int width, int height)

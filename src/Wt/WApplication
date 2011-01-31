@@ -345,15 +345,16 @@ public:
    * The default direction is LeftToRight.
    *
    * This sets the language text direction, which by itself sets the
-   * default text alignment and reverse the column orders of <table>
+   * default text alignment and reverse the column orders of &lt;table&gt;
    * elements.
    *
-   * In addition, Wt will take this setting into account in WTableView
-   * and WTreeView (so that columns are reverted), and swap the
-   * behaviour of setFloatSide() and setOffsets() for RightToLeft
-   * languages. Note that CSS settings themselves are not affected by
-   * this setting, and thus for example <tt>"float: right"</tt> will move
-   * a box to the right, irrespective of the layout direction.
+   * In addition, %Wt will take this setting into account in
+   * WTableView and WTreeView (so that columns are reverted), and swap
+   * the behaviour of WWidget::setFloatSide() and
+   * WWidget::setOffsets() for RightToLeft languages. Note that CSS
+   * settings themselves are not affected by this setting, and thus
+   * for example <tt>"float: right"</tt> will move a box to the right,
+   * irrespective of the layout direction.
    *
    * The library sets <tt>"Wt-ltr"</tt> or <tt>"Wt-rtl"</tt> as style
    * classes for the document body. You may use this if to override

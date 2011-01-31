@@ -19,6 +19,163 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.8 (Jan ??, 2011)</h2>
+
+<p>
+  This release contains mostly bug fixes, quality improvements,
+  and a few new features.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt><a href="classWt_1_1WFontMetrics.html">WFontMetrics</a></dt>
+  <dd>
+    A font metrics class. Font metrics are only available for
+    WPdfImage, and an implementation is planned for WRasterImage.
+  </dd>
+  <dt><a href="classWt_1_1Render_1_1WTextRenderer.html">Render::WTextRenderer</a>, 
+  <a href="classWt_1_1Render_1_1WPdfRenderer.html">Render::WPdfRenderer</a></dt>
+  <dd>
+    A renderer class for a subset of XHTML, useful for e.g.~generatig
+    PDF reports.
+  </dd>
+
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WAbstractItemView.html#ad11215811b4de66f3d3c4267b694fe38">WAbstractItemView::setHeaderItemDelegate()</a>
+  </dt>
+  <dd>
+    Rendering of header cells is now also delegated and can be customized.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WAbstractItemView.html#a027a8ad4967a0e269bdabbffca15f489">WAbstractItemView::scrollTo()</a>
+  </dt>
+  <dd>
+    Scroll to a particular item.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WApplication.html#a44c5f0398b5539269be3961b26e95b08">WApplication::setLayoutDirection()</a>
+  </dt>
+  <dd>
+    Added support for Right-To-Left (mirrored) layouts, typically used
+    with some middle-Eastern languages. In addition to HTML's built-in
+    support for RTL directionality, layout managers, tables and MVC
+    tree/table views render their columns in the opposite order.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WBoxLayout.html">WBoxLayout, WGridLayout, WBorderLayout</a>
+  </dt>
+  <dd>
+    Empty layout items do longer create padding, and thus padding
+    collapses around empty items (both horizontally and vertically).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WEvent.html">WEvent::eventType()</a>
+  </dt>
+  <dd>
+    Information on the event type may be used during WApplication::notify()
+    for e.g. detecting user activity.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WGoogleMap.html">WGoogleMap</a>
+  </dt>
+  <dd>
+    Added support for Google API version 3, alongside version 2.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WPdfImage.html">WPdfImage</a>
+  </dt>
+  <dd>
+    Added support true type font loading, a UTF8 patch for libharu is
+    pending to enable full unicode support text rendering.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WWidget.html#afc4bfcc92fa39010cac8775f3332dfa5">WWidget::setWidth()</a>,
+    <a href="classWt_1_1WWidget.html#a7d82ee32496743fdd28b30461f95d5ec">WWidget::setHeight()</a>
+  </dt>
+  <dd>
+    Convenience methods for resize() for only width or height.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html">Chart::WCartesianChart</a>
+  </dt>
+  <dd>
+    A number of methods to customize the location and look of the legend.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Chart_1_1WDataSeries.html#a9361e12e94699f59090ae8ac3a4921df">Chart::WDataSeries::setXSeriesColumn()</a>
+  </dt>
+  <dd>
+    Allow use of a specific X series for each data series in scatter plots.
+  </dd>
+
+  <dt>
+    <a href="group__dbo.html#ga0f2f0c37d44f27e151b8f12412240731">Dbo::belongsTo()</a>, <a href="group__dbo.html#ga0d0cbc70dcfebc659ea1662e9327c90c">Dbo::hasMany()</a>
+  </dt>
+  <dd>
+    Support for foreign key constraints (NotNull, OnDeleteCascade, etc...).
+  </dd>
+
+  <dt>
+    <a href="group__dbo.html#ga0f2f0c37d44f27e151b8f12412240731">Dbo::Session::rereadAll()</a>
+  </dt>
+  <dd>
+    Can be optionally given a single table name to reread (discard) all object
+    data from a single class/table.
+  </dd>
+
+  <dt>
+    <a href="structWt_1_1Dbo_1_1sql__value__traits.html">Dbo::sql_value_traits&lt;bool&gt;, Dbo::sql_value_traits&lt;long&gt;</a>
+  </dt>
+  <dd>
+    Added mappings for C++ <tt>bool</tt> and <tt>long</tt> types.
+  </dd>
+
+</dl>
+
+<h3>C) API and other changes:</h3>
+
+<dl>
+  <dt>
+    CORS (Cross-Origin Resource Sharing)
+  </dt>
+  <dd>
+    A communication method between browser and server is now chosen
+    based on the needs (same origin or cross-origin), and based on
+    browser support. Cross-Origin requests are now supported for both
+    Ajax and WebSockets, and are are chosen if available and needed,
+    reverting to dynamic script-tags otherwise.<br/>
+
+    The WApplication::setAjaxMethod() has no effect anymore, and has
+    been deprecated.
+  </dd>
+
+  <dt>
+    <a href="group__painting.html#gaf67a889bc5e9f8ab3a59fe58b0fa2128">Wt::BrushStyle</a>
+  </dt>
+  <dd>
+     Wt::WBrushstyle has been renamed to Wt::BrushStyle. This makes it
+     consistent with the naming conventions of other enums. Sorry, our
+     mistake !
+  </dd>
+</dl>
+
+<hr />
+
 <h2>Release 3.1.7 (Nov 26, 2010)</h2>
 
 <p>

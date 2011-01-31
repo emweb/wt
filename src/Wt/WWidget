@@ -201,12 +201,13 @@ public:
 
   /*! \brief Sets the width.
    *
-   * Sets the width for this widget by calling 
-   * resize(width, WLength(100, WLength::Percentage)). 
+   * This is a convenience method to change only the width of a widget, and
+   * is implemented as:
+   * \code
+   * resize(width, height())
+   * \endcode
    *
-   * This applies to CSS-based layout.
-   *
-   * \sa resize(const WLength&, const WLength&), width()
+   * \sa resize(), setHeight()
    */
   void setWidth(const WLength& width);
 
@@ -224,12 +225,15 @@ public:
 
   /*! \brief Sets the height.
    *
-   * Sets the height for this widget by calling 
-   * resize(WLength(100, WLength::Percentage), height). 
+   * This is a convenience method to change only the width of a widget, and
+   * is implemented as:
+   * \code
+   * resize(width(), height)
+   * \endcode
    *
    * This applies to CSS-based layout.
    *
-   * \sa resize(const WLength&, const WLength&), height()
+   * \sa resize(), setWidth()
    */
   void setHeight(const WLength& height);
 

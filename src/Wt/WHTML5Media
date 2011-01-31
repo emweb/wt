@@ -41,14 +41,14 @@ public:
    *  is loaded.
    *
    * This is often used in conjunction with the > operator, e.g.
-   * readyState() > HAVE_CURRENT_DATA
+   * readyState() > HaveCurrentData
    */
   enum ReadyState {
-    HAVE_NOTHING = 0,    //!< No information available
-    HAVE_METADATA=1,     //!< Metadata loaded: duration, width, height
-    HAVE_CURRENT_DATA=2, //!< Data at playback position is available
-    HAVE_FUTURE_DATA=3,  //!< Have data to play for a while
-    HAVE_ENOUGH_DATA=4   //!< Enough to reach the end without stalling (est)
+    HaveNothing = 0,     //!< No information available
+    HaveMetaData = 1,    //!< Metadata loaded: duration, width, height
+    HaveCurrentData = 2, //!< Data at playback position is available
+    HaveFutureData = 3,  //!< Have data to play for a while
+    HaveEnoughData = 4   //!< Enough to reach the end without stalling (est)
   };
 
   /*! \brief Consctructor for a HTML5 media widget.

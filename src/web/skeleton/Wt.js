@@ -1749,12 +1749,16 @@ function setTitle(title) {
   document.title = title;
 }
 
-function load(initHistory) {
+function load(fullapp) {
   if (loaded)
     return;
 
-  if (initHistory)
+  if (fullapp) {
+    if (!window._$_APP_CLASS_$_LoadWidgetTree)
+      return; // That's to too soon baby.
+
     WT.history.initialize("Wt-history-field", "Wt-history-iframe");
+  }
 
   if (!("activeElement" in document)) {
     function trackActiveElement(evt) {
@@ -1774,7 +1778,10 @@ function load(initHistory) {
   WT.history._initialize();
   initDragDrop();
   loaded = true;
-  _$_ONLOAD_$_();
+
+  if (fullapp)
+    window._$_APP_CLASS_$_LoadWidgetTree();
+
   if (!quited) {
     doKeepAlive();
     keepAliveTimer = setInterval(doKeepAlive, _$_KEEP_ALIVE_$_000);
