@@ -66,6 +66,16 @@ WebController::WebController(Configuration& configuration,
 #ifdef HAVE_RASTER_IMAGE
   InitializeMagick(0);
 #endif
+
+  /*
+   * FastCGI + default bootstrap will not work with only 1 thread.
+   */
+  if (conf_.serverType() == Configuration::FcgiServer
+      && !conf_.progressiveBoot() && conf_.numThreads() == 1) {
+    conf_.log("fatal")
+      << "You need at least two threads configured in the config file, "
+         "when running Wt with FastCGI and using default bootstrap mode.";
+  }
 }
 
 WebController::~WebController()
