@@ -159,6 +159,12 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
   topLayout->addLayout(gitLayout, 1);
   gitLayout->setResizable(0);
 
+  /*
+   * FIXME, in plain HTML mode, we should set a minimum size to the source
+   * view, and remove this in enableAjax() ?
+   */
+  // sourceView_->setHeight("100%");
+
   setLayout(topLayout);
   setStyleClass("maindiv");
 }

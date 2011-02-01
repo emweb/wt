@@ -274,52 +274,6 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
   headerHeightRule_ = new WCssTemplateRule("#" + id() + " .headerrh");
   app->styleSheet().addRule(headerHeightRule_);
   setHeaderHeight(headerLineHeight_);
-
-  const char *CSS_RULES_NAME = "Wt::WAbstractIemView";
-
-  // a define so that it shouts at us !
-  #define RTL "body.Wt-rtl "
-  #define LTR "body.Wt-ltr "
-
-  if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    /* header */
-    app->styleSheet().addRule
-      (".Wt-itemview .Wt-headerdiv",
-       "-moz-user-select: none;"
-       "-khtml-user-select: none;"
-       "user-select: none;"
-       "overflow: hidden;"
-       "width: 100%;", CSS_RULES_NAME);
-
-    if (app->environment().agentIsIE())
-      app->styleSheet().addRule
-	(".Wt-itemview .Wt-header .Wt-label",
-	 "zoom: 1;");
-
-    /* resize handles */
-    app->styleSheet().addRule
-      (".Wt-itemview div.Wt-tv-rh",
-       "float: right; width: 4px; cursor: col-resize;"
-       "padding-left: 0px;");
-
-    app->styleSheet().addRule
-      (RTL ".Wt-itemview div.Wt-tv-rh",
-       "float: left; padding-right: 0px;");
-
-    app->styleSheet().addRule
-      (".Wt-itemview .Wt-tv-rh:hover",
-       "background-color: #DDDDDD;");
-    
-    /* sort handles */
-    app->styleSheet().addRule
-      (".Wt-itemview .Wt-tv-sh",
-       "float: right; width: 16px; height: 16px; padding-bottom: 6px;"
-       "cursor: pointer; cursor:hand;");
-
-    app->styleSheet().addRule
-      (RTL ".Wt-itemview .Wt-tv-sh",
-       "float: left;");
-  }
 }
 
 WAbstractItemView::~WAbstractItemView()

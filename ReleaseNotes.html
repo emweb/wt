@@ -165,6 +165,22 @@ behaviour.
   </dd>
 
   <dt>
+    Bootstrap process has changed.
+  </dt>
+  <dd>
+    While tracking bootstrapping problems on IE8 (resulting in a blank
+    page instead of a shiny app), we not only found a good workaround
+    for that, but also found a way to implement the default bootstrap
+    mode so that the stylesheets are applied before the application is
+    rendered. This solves the annoying flicker you experienced with
+    the default bootstrap mode, and also allows us to remove a number
+    of workarounds for IE. As a result of various cleanups, more CSS
+    stylesheet rules have been pushed out to the external wt.css
+    (theme) stylesheet. If you've created your own theme, you will
+    need to take note.
+  </dd>
+
+  <dt>
     <a href="group__painting.html#gaf67a889bc5e9f8ab3a59fe58b0fa2128">Wt::BrushStyle</a>
   </dt>
   <dd>

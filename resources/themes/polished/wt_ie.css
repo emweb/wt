@@ -60,6 +60,13 @@
 }
 
 /*
+ * WAbstractItemView
+ */
+.Wt-itemview .Wt-header .Wt-label {
+    zoom: 1;
+}
+
+/*
  * WTreeView
  */
 

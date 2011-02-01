@@ -579,6 +579,39 @@
 /*
  * WAbstractItemView (WTableView and WTreeView)
  */
+.Wt-itemview .Wt-headerdiv {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+    overflow: hidden;
+    width: 100%;
+}
+
+.Wt-itemview div.Wt-tv-rh {
+    float: right;
+    width: 4px;
+    cursor: col-resize;
+    padding-left: 0px;
+}
+
+body.Wt-rtl .Wt-itemview div.Wt-tv-rh {
+    float: left; padding-right: 0px;
+}
+
+/* sort handles */
+.Wt-itemview .Wt-tv-sh {
+    float: right;
+    width: 16px;
+    height: 16px;
+    padding-bottom: 6px;
+    cursor: pointer;
+    cursor:hand;
+}
+
+body.Wt-rtl .Wt-itemview .Wt-tv-sh {
+    float: left;
+}
+
 .Wt-itemview {
     font-family: verdana,helvetica,tahoma,sans-serif;
     font-size: 9pt;

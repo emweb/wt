@@ -1017,6 +1017,8 @@ void WebRenderer::serveMainpage(WebResponse& response)
     mainElement->asHTML(out, js, timeouts);
     app->afterLoadJavaScript_ = js.str() + app->afterLoadJavaScript_;
     delete mainElement;
+
+    app->domRoot_->doneRerender();
   }
 
   int refresh;
