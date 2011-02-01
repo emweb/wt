@@ -200,8 +200,9 @@ int StdGridLayoutImpl::nextColumnWithItem(int row, int col) const
     col = col + grid_.items_[row][col].colSpan_;
 
     if (col < (int)grid_.columns_.size()) {
-      if (hasItem(row, col))
-	return col;
+      for (unsigned i = 0; i < grid_.rows_.size(); ++i)
+	if (hasItem(i, col))
+	  return col;
     } else
       return grid_.columns_.size();
   }

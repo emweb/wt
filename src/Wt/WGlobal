@@ -681,7 +681,7 @@ enum PaintFlag {
   PaintUpdate = 0x1 //!< The canvas is not cleared, but further painted on.
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(PaintFlag);
+W_DECLARE_OPERATORS_FOR_FLAGS(PaintFlag)
 
 #ifndef WT_TARGET_JAVA
 
@@ -693,7 +693,7 @@ enum RegExpFlag {
   MatchCaseInsensitive = 0x1 //!< Case insensitive matching
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(RegExpFlag);
+W_DECLARE_OPERATORS_FOR_FLAGS(RegExpFlag)
 
 #else // WT_TARGET_JAVA
 

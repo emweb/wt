@@ -54,7 +54,7 @@ enum RepaintFlag {
   RepaintToAjax = 0x1 << 15
 };
 
-W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag);
+W_DECLARE_OPERATORS_FOR_FLAGS(RepaintFlag)
 
 static const WFlags<RepaintFlag> RepaintAll
   = RepaintPropertyIEMobile | RepaintPropertyAttribute | RepaintInnerHtml;

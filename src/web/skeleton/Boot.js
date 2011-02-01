@@ -21,9 +21,8 @@ function loadScript(url, callback) {
   h.appendChild(s);
 }
 
-_$_$if_DEFER_SCRIPT_$_();
-setTimeout(function() {
-_$_$endif_$_();
+(function() {
+  function doLoad() {
 
 try {
   document.execCommand("BackgroundImageCache", false, true);
@@ -138,7 +137,14 @@ if (needSessionInUrl) {
     loadScript(selfUrl + scaleInfo + '&request=script&rand=' + rand(), null);
   }
 }
+    }
 
 _$_$if_DEFER_SCRIPT_$_();
-}, 0);
+ setTimeout(doLoad, 0);
 _$_$endif_$_();
+_$_$ifnot_DEFER_SCRIPT_$_();
+ doLoad();
+_$_$endif_$_();
+
+})();
+
