@@ -265,6 +265,14 @@ void WebRenderer::streamBootContent(WebResponse& response,
 
   bootJs.setCondition("HYBRID", hybrid);
 
+  /*
+   * When server XHTML content, we cannot defer the script request after
+   * the style request, because the <noscript />style request is loaded
+   * anyway, even if scripting is present.
+   */
+  bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
+  bootJs.setCondition("DEFER_SCRIPT", !xhtml);
+
   std::string internalPath 
     = hybrid ? safeJsStringLiteral(session_.app()->internalPath()) : "";
   bootJs.setVar("INTERNAL_PATH", internalPath);
@@ -713,7 +721,7 @@ void WebRenderer::serveMainAjax(WebResponse& response)
     response.out() << "window." << app->javaScriptClass()
 		   << "LoadWidgetTree = function(){\n";
 
-  if (widgetset) {
+  if (widgetset || !session_.bootStyleResponse()) {
     if (!app->cssTheme().empty()) {
       response.out() << WT_CLASS << ".addStyleSheet('"
 		     << WApplication::resourcesUrl() << "/themes/"

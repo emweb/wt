@@ -69,6 +69,7 @@ WebSession::WebSession(WebController *controller,
     bootStyleResponse_(0),
     updatesPending_(false),
     canWriteAsyncResponse_(false),
+    noBootStyleResponse_(false),
     embeddedEnv_(this),
     app_(0),
     debug_(controller_->configuration().errorReporting()
@@ -940,15 +941,18 @@ void WebSession::handleRequest(Handler& handler)
 	      handler.response()->setResponseType(WebResponse::Update);
 	      log("notice") << "Signal from dead session, sending reload.";
 	      renderer_.letReloadJS(*handler.response(), true);
-	    } else {
+
+	      kill();
+	      break;
+	    } else if (*requestE != "page") {
 	      log("notice") << "Not serving this.";
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
-	    }
 
-	    kill();
-	    break;
+	      kill();
+	      break;
+	    }
 	  }
 
 	  /*
@@ -1037,47 +1041,67 @@ void WebSession::handleRequest(Handler& handler)
 	  else if (*requestE == "script")
 	    handler.response()->setResponseType(WebResponse::Script);
 	  else if (*requestE == "style") {
-#ifndef WT_TARGET_JAVA
 	    if (bootStyleResponse_)
 	      bootStyleResponse_->flush();
+	    bootStyleResponse_ = 0;
 
-	    if (!app_) {
-	      bootStyleResponse_ = handler.response();
+	    const std::string *jsE = request.getParameter("js");
+	    bool nojs = jsE && *jsE == "no";
+	    const bool xhtml = env_->contentType() == WEnvironment::XHTML1;
+	    noBootStyleResponse_
+	      = noBootStyleResponse_ || (!app_ && (xhtml || nojs));
+
+#ifndef WT_TARGET_JAVA
+	    if (nojs || noBootStyleResponse_) {
+	      handler.response()->flush();
 	      handler.setRequest(0, 0);
-            } else {
-	      renderer_.serveLinkedCss(*handler.response());
+	    } else {
+
+	      if (!app_) {
+		bootStyleResponse_ = handler.response();
+		handler.setRequest(0, 0);
+	      } else {
+		renderer_.serveLinkedCss(*handler.response());
+		handler.response()->flush();
+		handler.setRequest(0, 0);
+	      }
+	    }
+#else
+	    if (nojs || noBootStyleResponse_) {
+	      handler.response()->flush();
+	      handler.setRequest(0, 0);
+	    } else {
+	      /*
+	       * In Servlet2, we canont defer responding the request. So we
+	       * do a little spin lock here.
+	       *
+	       * There is no reason why the second request (script) does not
+	       * arrive within seconds.
+	       */
+	      unsigned i = 0;
+	      const unsigned MAX_TRIES = 1000;
+
+	      while (!app_ && i < MAX_TRIES) {
+		mutex_.unlock();
+		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+		mutex_.lock();
+
+		++i;
+	      }
+
+	      if (i < MAX_TRIES)
+		renderer_.serveLinkedCss(*handler.response());
+
 	      handler.response()->flush();
 	      handler.setRequest(0, 0);
 	    }
-#else
-	    /*
-	     * In Servlet2, we canont defer responding the request. So we
-	     * do a little spin lock here.
-	     *
-	     * There is no reason why the second request (script) does not
-	     * arrive within seconds.
-	     */
-	    unsigned i = 0;
-	    const unsigned MAX_TRIES = 1000;
-
-	    while (!app_ && i < MAX_TRIES) {
-	      mutex_.unlock();
-	      boost::this_thread::sleep(boost::posix_time::milliseconds(5));
-	      mutex_.lock();
-
-	      ++i;
-	    }
-
-	    if (i < MAX_TRIES)
-	      renderer_.serveLinkedCss(*handler.response());
-
-	    handler.response()->flush();
-	    handler.setRequest(0, 0);
 #endif // WT_TARGET_JAVA
 
 	    break;
 	  }
 	}
+
+	bool requestForResource = requestE && *requestE == "resource";
 
 	if (!app_) {
 	  const std::string *resourceE = request.getParameter("resource");
@@ -1104,8 +1128,7 @@ void WebSession::handleRequest(Handler& handler)
 	    if (!start())
 	      throw WtException("Could not start application.");
 
-	  } else if (requestE && *requestE == "resource"
-		     && resourceE && *resourceE == "blank") {
+	  } else if (requestForResource && resourceE && *resourceE == "blank") {
 	    handler.response()->setContentType("text/html");
 	    handler.response()->out() <<
 	      "<html><head><title>bhm</title></head>"
@@ -1134,8 +1157,6 @@ void WebSession::handleRequest(Handler& handler)
 	    }
 	  }
 	}
-
-	bool requestForResource = requestE && *requestE == "resource";
 
 	if (requestForResource || !unlockRecursiveEventLoop()) {
 	  app_->notify(WEvent(WEvent::Impl(&handler)));
@@ -1473,12 +1494,6 @@ void WebSession::notify(const WEvent& event)
 	  app_->changeInternalPath(env_->internalPath());
       }
 
-      if (bootStyleResponse_) {
-	renderer_.serveLinkedCss(*bootStyleResponse_);
-	bootStyleResponse_->flush();
-	bootStyleResponse_ = 0;
-      }
-
       render(handler);
     } else {
       // a normal request to a loaded application
@@ -1599,7 +1614,8 @@ void WebSession::notify(const WEvent& event)
 	      canWriteAsyncResponse_ = true;
 	      handler.setRequest(0, 0);
             } else {
-	      std::cerr << "Poll after web socket connect. Ignoring" << std::endl;
+	      std::cerr << "Poll after web socket connect. Ignoring"
+			<< std::endl;
             }
 	  }
 	} else {
@@ -1790,8 +1806,21 @@ void WebSession::serveResponse(Handler& handler)
    * If the request is a web socket message, then we should not actually
    * render -- there may be more messages following.
    */
-  if (!handler.request()->isWebSocketMessage())
+  if (!handler.request()->isWebSocketMessage()) {
+
+    /*
+     * In any case, flush the style request when we are serving a new
+     * page (without Ajax) or the main script (with Ajax).
+     */
+    if (bootStyleResponse_) {
+      if (handler.response()->responseType() == WebResponse::Script)
+	renderer_.serveLinkedCss(*bootStyleResponse_);
+      bootStyleResponse_->flush();
+      bootStyleResponse_ = 0;
+    }
+
     renderer_.serveResponse(*handler.response());
+  }
 
   handler.response()->flush();
   handler.setRequest(0, 0);

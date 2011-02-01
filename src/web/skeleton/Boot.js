@@ -21,7 +21,9 @@ function loadScript(url, callback) {
   h.appendChild(s);
 }
 
+_$_$if_DEFER_SCRIPT_$_();
 setTimeout(function() {
+_$_$endif_$_();
 
 try {
   document.execCommand("BackgroundImageCache", false, true);
@@ -137,4 +139,6 @@ if (needSessionInUrl) {
   }
 }
 
+_$_$if_DEFER_SCRIPT_$_();
 }, 0);
+_$_$endif_$_();

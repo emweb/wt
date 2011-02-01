@@ -83,6 +83,7 @@ public:
   void pushUpdates();
 
   void doRecursiveEventLoop();
+  bool bootStyleResponse() const { return !noBootStyleResponse_; }
 
   void expire();
   bool unlockRecursiveEventLoop();
@@ -261,7 +262,7 @@ private:
   std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
   WebResponse  *asyncResponse_, *bootStyleResponse_;
-  bool          updatesPending_, canWriteAsyncResponse_;
+  bool          updatesPending_, canWriteAsyncResponse_, noBootStyleResponse_;
   bool          progressiveBoot_;
 
 #ifndef WT_TARGET_JAVA
