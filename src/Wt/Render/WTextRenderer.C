@@ -38,11 +38,15 @@ double WTextRenderer::textHeight(int page) const
 double WTextRenderer::render(const WString& text, double y)
 {
   std::string xhtml = text.toUTF8();
-  char *cxhtml = const_cast<char *>(xhtml.c_str()); // Shhht it's okay !
+  unsigned l = xhtml.length();
+
+  boost::scoped_array<char> cxhtml(new char[l + 1]);
+  memcpy(cxhtml.get(), xhtml.c_str(), l);
+  cxhtml[l] = 0;
 
   try {
     rapidxml::xml_document<> doc;
-    doc.parse<rapidxml::parse_xhtml_entity_translation>(cxhtml);
+    doc.parse<rapidxml::parse_xhtml_entity_translation>(cxhtml.get());
 
     Block docBlock(&doc, 0);
 
