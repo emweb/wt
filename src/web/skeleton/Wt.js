@@ -861,16 +861,20 @@ this.getElementsByClassName = function(className, parentElement) {
   }
 };
 
+/* Firefox etc... */
 this.addCss = function(selector, style) {
   var s = document.styleSheets[0];
+
   s.insertRule(selector + ' { ' + style + ' }', s.cssRules.length);
 };
 
+/* IE & Konqueror */
 this.addCssText = function(cssText) {
   var s = document.getElementById('Wt-inline-css');
 
   if (!s) {
     s = document.createElement('style');
+    s.id = 'Wt-inline-css';
     document.getElementsByTagName('head')[0].appendChild(s);
   }
 
@@ -879,12 +883,7 @@ this.addCssText = function(cssText) {
     s.appendChild(t);
   } else {
     var ss = document.createElement('style');
-    if (s)
-      s.parentNode.insertBefore(ss, s);
-    else {
-      ss.id = 'Wt-inline-css';
-      document.getElementsByTagName('head')[0].appendChild(ss);
-    }
+    s.parentNode.insertBefore(ss, s);
     ss.styleSheet.cssText = cssText;
   }
 };

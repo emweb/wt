@@ -930,107 +930,11 @@ WTreeView::WTreeView(WContainerWidget *parent)
 
   WApplication *app = WApplication::instance();
 
-  // a define so that it shouts at us !
-  #define RTL "body.Wt-rtl "
-  #define LTR "body.Wt-ltr "
-
-  if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    app->styleSheet().addRule
-      (".Wt-treeview table", "width: 100%", CSS_RULES_NAME);
-
-    app->styleSheet().addRule
-      (".Wt-treeview .c1", "width: 100%; overflow: hidden;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .c0",
-       "width: 19px; vertical-align: middle");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-row", "float: right; overflow: hidden;");
-
-    app->styleSheet().addRule
-      (RTL ".Wt-treeview .Wt-tv-row", "float: left;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-row .Wt-tv-c",
-       "display: block; float: left;"
-       "padding: 0px 3px;"
-       "text-overflow: ellipsis;"
-       "overflow: hidden;");
-
-    app->styleSheet().addRule
-      (RTL ".Wt-treeview .Wt-tv-row .Wt-tv-c", "float: right;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-c",
-       "padding: 0px 3px;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview img.icon, .Wt-treeview input.icon",
-       "vertical-align: middle");
-
-    app->styleSheet().addRule
-      (LTR ".Wt-treeview img.icon, .Wt-treeview input.icon",
-       "margin: 0px 3px 2px 0px;");
-
-    app->styleSheet().addRule
-      (RTL ".Wt-treeview img.icon, .Wt-treeview input.icon",
-       "margin: 0px 0px 2px 3px;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-node img.w0",
-       "width: 0px; margin: 0px;");
-
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-tv-node .c0 img, .Wt-treeview .Wt-tv-node .c0 input",
-       "margin-right: 0px; margin: -4px 0px;");
-
-    if (app->environment().agentIsIE()) {
+  if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
+    if (!app->styleSheet().isDefined(CSS_RULES_NAME))
+      /* bottom scrollbar */
       app->styleSheet().addRule
-	(LTR ".Wt-treeview .Wt-header .Wt-tv-c",
-	 "padding: 0px 0px 0px 7px;");
-      app->styleSheet().addRule
-	(RTL ".Wt-treeview .Wt-header .Wt-tv-c",
-	 "padding: 0px 7px 0px 0px;");
-    } else {
-      app->styleSheet().addRule
-	(LTR ".Wt-treeview .Wt-header .Wt-tv-c",
-	 "padding: 0px;"
-	 "margin-left: 7px;");
-      app->styleSheet().addRule
-	(RTL ".Wt-treeview .Wt-header .Wt-tv-c",
-	 "padding: 0px;"
-	 "margin-right: 7px;");
-    }
-
-    /* borders: needed here for IE */
-    app->styleSheet().addRule
-      (LTR ".Wt-treeview .Wt-tv-br, "                      // header
-       LTR ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c", // data
-       "margin-right: 0px; border-right: 1px solid white;");
-
-    app->styleSheet().addRule
-      (RTL ".Wt-treeview .Wt-tv-br, "                      // header
-       RTL ".Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c", // data
-       "margin-left: 0px; border-left: 1px solid white;");
-
-    /* bottom scrollbar */
-    if (app->environment().agentIsWebKit() || app->environment().agentIsOpera())
-      app->styleSheet().addRule
-	(".Wt-treeview .Wt-tv-rowc", "position: relative;");
-
-    if (app->environment().agentIsIE())
-      app->styleSheet().addRule
-	(".Wt-treeview .Wt-scroll",
-	 "position: absolute; overflow-x: auto;"
-	 "height: " SCROLLBAR_WIDTH_TEXT "px;");
-    else
-      app->styleSheet().addRule
-	(".Wt-treeview .Wt-scroll", "overflow: auto;"
-	 "height: " SCROLLBAR_WIDTH_TEXT "px;");
-    app->styleSheet().addRule
-      (".Wt-treeview .Wt-scroll div", "height: 1px;");
-  }
+	(".Wt-treeview .Wt-tv-rowc", "position: relative;", CSS_RULES_NAME);
 
   setColumnBorder(white);
 

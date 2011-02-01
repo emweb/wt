@@ -56,45 +56,7 @@ WTableView::WTableView(WContainerWidget *parent)
 
   setStyleClass("Wt-itemview Wt-tableview");
 
-  const char *CSS_RULES_NAME = "Wt::WTableView";
-  
   WApplication *app = WApplication::instance();
-
-  // a define so that it shouts at us !
-  #define RTL "body.Wt-rtl "
-  #define LTR "body.Wt-ltr "
-
-  if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
-    app->styleSheet().addRule
-      (LTR ".Wt-tableview .Wt-header .Wt-tv-c",
-       "padding-left: 6px;", CSS_RULES_NAME);
-
-    app->styleSheet().addRule
-      (RTL ".Wt-tableview .Wt-header .Wt-tv-c",
-       "padding-right: 6px;");
-
-    app->styleSheet().addRule
-      (".Wt-tableview .Wt-tv-contents .Wt-tv-c,"
-       ".Wt-plaintable .Wt-tv-c",
-       "padding: 0px 3px;");
-
-    /* borders: needed here for IE */
-    app->styleSheet().addRule
-      (LTR ".Wt-tableview .Wt-tv-br, "
-       LTR ".Wt-tableview .Wt-tv-contents .Wt-tv-c",
-       "border-right: 1px solid white;");
-
-    app->styleSheet().addRule
-      (RTL ".Wt-tableview .Wt-tv-br, "
-       RTL ".Wt-tableview .Wt-tv-contents .Wt-tv-c",
-       "border-left: 1px solid white;");
-
-    /* data item icons */
-    app->styleSheet().addRule
-      (".Wt-tableview .Wt-tv-contents img.icon, "
-       ".Wt-tableview .Wt-tv-contents input.icon",
-       "margin: 0px 3px 2px 0px; vertical-align: middle");
-  }
 
   if (app->environment().ajax()) {
     impl_->setPositionScheme(Relative);

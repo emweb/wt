@@ -38,3 +38,19 @@
 .Wt-treeview div, .Wt-treeview span {
     white-space: nowrap;
 }
+
+body.Wt-ltr .Wt-treeview .Wt-header .Wt-tv-c {
+    margin: 0px;
+    padding: 0px 0px 0px 7px;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
+    margin: 0px;
+    padding: 0px 7px 0px 0px;
+}
+
+.Wt-treeview .Wt-scroll {
+    position: absolute;
+    overflow-x: auto;
+    overflow-y: hidden;
+}

@@ -35,6 +35,10 @@
     line-height: 140%;
 }
 
+.Wt-cal table td {
+    text-align: center;
+}
+
 .Wt-cal table.d1 {
     width: 170px;
 }
@@ -563,6 +567,25 @@ body.Wt-rtl .Wt-tabs span {
 /*
  * WTableView
  */
+body.Wt-ltr .Wt-tableview .Wt-header .Wt-tv-c {
+    padding-left: 6px;
+}
+
+body.Wt-rtl .Wt-tableview .Wt-header .Wt-tv-c {
+    padding-right: 6px;
+}
+
+.Wt-tableview .Wt-tv-contents .Wt-tv-c,
+.Wt-plaintable .Wt-tv-c {
+    padding: 0px 3px;
+}
+
+.Wt-tableview .Wt-tv-contents img.icon,
+.Wt-tableview .Wt-tv-contents input.icon {
+    margin: 0px 3px 2px 0px;
+    vertical-align: middle;
+}
+
 .Wt-tableview .Wt-spacer {
     position: relative;
     overflow: hidden;
@@ -602,6 +625,101 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
 /*
  * WTreeView
  */
+
+/* Layout styling */
+.Wt-treeview table {
+    width: 100%;
+}
+
+.Wt-treeview .c1 {
+    width: 100%;
+    overflow: hidden;
+}
+
+.Wt-treeview .c0 {
+    width: 19px;
+    vertical-align: middle;
+}
+
+.Wt-treeview .Wt-tv-row {
+    float: right;
+    overflow: hidden;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-tv-row {
+    float: left;
+}
+
+.Wt-treeview .Wt-tv-row .Wt-tv-c {
+    display: block; float: left;
+    padding: 0px 3px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-tv-row .Wt-tv-c {
+    float: right;
+}
+
+.Wt-treeview .Wt-tv-c {
+    padding: 0px 3px;
+}
+
+.Wt-treeview img.icon, .Wt-treeview input.icon {
+    vertical-align: middle;
+}
+
+body.Wt-ltr .Wt-treeview img.icon,
+body.Wt-ltr .Wt-treeview input.icon {
+    margin: 0px 3px 2px 0px;
+}
+
+body.Wt-rtl .Wt-treeview img.icon,
+body.Wt-rtl .Wt-treeview input.icon {
+    margin: 0px 0px 2px 3px;
+}
+
+.Wt-treeview .Wt-tv-node img.w0 {
+    width: 0px;
+    margin: 0px;
+}
+
+.Wt-treeview .Wt-tv-node .c0 img,
+.Wt-treeview .Wt-tv-node .c0 input {
+    margin-right: 0px;
+    margin: -4px 0px;
+}
+
+body.Wt-ltr .Wt-treeview .Wt-header .Wt-tv-c {
+    padding: 0px;
+    margin-left: 7px;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
+    padding: 0px;
+    margin-right: 7px;
+}
+ 
+body.Wt-ltr .Wt-treeview .Wt-tv-br,                        /* header */
+body.Wt-ltr .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c { /* data */
+    margin-right: 0px;
+    border-right: 1px solid white;
+}
+
+body.Wt-rtl .Wt-treeview .Wt-tv-br,                        /* header */
+body.Wt-rtl .Wt-treeview .Wt-tv-node .Wt-tv-row .Wt-tv-c { /* data */
+    margin-left: 0px;
+    border-left: 1px solid white;
+}
+
+.Wt-treeview .Wt-scroll {
+    overflow: auto;
+    height: 22px;
+}
+
+.Wt-treeview .Wt-scroll div {
+    height: 1px;
+}
 
 /* nodes */
 .Wt-treeview .Wt-trunk {
