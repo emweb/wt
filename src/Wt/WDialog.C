@@ -39,6 +39,12 @@ WDialog::WDialog(const WString& windowTitle)
   const char *CSS_RULES_NAME = "Wt::WDialog";
 
   WApplication *app = WApplication::instance();
+
+  /* Cannot be done using the CSS stylesheet in case there are
+   * contained elements with setHideWithOffsets() set */
+  setPositionScheme(app->environment().agent() == WEnvironment::IE6
+		    ? Absolute : Fixed);
+
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
     if (app->environment().agentIsIElt(9))
       app->styleSheet().addRule("body", "height: 100%;");

@@ -1441,16 +1441,23 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	    case Fixed:
 	      element.setProperty(PropertyStylePosition, "fixed"); break;
 	    }
-	    element.setProperty(PropertyStyleTop,
-				layoutImpl_->offsets_[0].cssText());
-	    element.setProperty(PropertyStyleLeft,
-				layoutImpl_->offsets_[3].cssText());
+
+	    if (!layoutImpl_->offsets_[0].isAuto())
+	      element.setProperty(PropertyStyleTop,
+				  layoutImpl_->offsets_[0].cssText());
+	    else
+	      element.setProperty(PropertyStyleTop, "");
+
+	    if (!layoutImpl_->offsets_[3].isAuto())
+	      element.setProperty(PropertyStyleLeft,
+				  layoutImpl_->offsets_[3].cssText());
+	    else
+	      element.setProperty(PropertyStyleTop, "");
 	  } else {
 	    element.setProperty(PropertyStylePosition, "static");
+	    element.setProperty(PropertyStyleTop, "");
+	    element.setProperty(PropertyStyleLeft, "");
 	  }
-
-	  element.setProperty(PropertyStyleTop, "0px");
-	  element.setProperty(PropertyStyleLeft, "0px");
 	}
 	element.setProperty(PropertyStyleVisibility, "visible");
 	element.setProperty(PropertyStyleDisplay, ""); // XXX

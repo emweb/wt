@@ -61,7 +61,7 @@ WT_DECLARE_WT_MEMBER
        return;
      }
 
-     if (el.style.display != 'none') {
+     if ((el.style.display != 'none') && (el.style.visibility != 'hidden')) {
        if (!moved) {
 	 var ws = WT.windowSize();
 	 var w = el.offsetWidth, h = el.offsetHeight;
@@ -69,11 +69,11 @@ WT_DECLARE_WT_MEMBER
 	   + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
 	 el.style.top = Math.round((ws.y - h)/2
 	   + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
-	 el.style.marginLeft='0px';
-	 el.style.marginTop='0px';
+	 el.style.marginLeft='';
+	 el.style.marginTop='';
 
-	 if (el.style.width != '' && el.style.height != '')
-	   self.wtResize(el, w, h);
+	 if (el.style.height != '')
+	   self.wtResize(el, -1, h);
        }
        el.style.visibility = 'visible';
      }
@@ -82,7 +82,8 @@ WT_DECLARE_WT_MEMBER
    this.wtResize = function(self, w, h) {
      h -= 2; w -= 2; // 2 = dialog border
      self.style.height= h + 'px';
-     self.style.width= w + 'px';
+     if (w > 0)
+       self.style.width= w + 'px';
      var c = self.lastChild;
      var t = c.previousSibling;
      h -= t.offsetHeight + 8; // 8 = body padding
