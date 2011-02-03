@@ -58,35 +58,41 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   int marginRight = 0, marginBottom = 0;
 
-  if (fitWidth)
-    marginRight = (w->boxPadding(Horizontal) + w->boxBorder(Horizontal)) * 2;
+  // Note to self: we should support actual IE8 since this version has
+  // box-sizing too.
+  bool boxSizing = !app->environment().agentIsIElt(9);
 
-  if (fitHeight)
-    marginBottom = (w->boxPadding(Vertical) + w->boxBorder(Vertical)) * 2;
+  if (!boxSizing) {
+    if (fitWidth)
+      marginRight = (w->boxPadding(Horizontal) + w->boxBorder(Horizontal)) * 2;
 
-  bool forceDiv
-    = (fitHeight && d->type() == DomElement_SELECT
-       && d->getAttribute("size").empty());
+    if (fitHeight)
+      marginBottom = (w->boxPadding(Vertical) + w->boxBorder(Vertical)) * 2;
 
-  if (marginRight || marginBottom || forceDiv) {
-    result = DomElement::createNew(DomElement_DIV);
-    result->setProperty(PropertyClass, "Wt-wrapdiv");
-    std::stringstream style;
+    bool forceDiv
+      = (fitHeight && d->type() == DomElement_SELECT
+	 && d->getAttribute("size").empty());
 
-    if (app->environment().agentIsIElt(9) && !forceDiv) {
-      style << "margin-top:-1px;";
-      marginBottom -= 1;
+    if (marginRight || marginBottom || forceDiv) {
+      result = DomElement::createNew(DomElement_DIV);
+      result->setProperty(PropertyClass, "Wt-wrapdiv");
+      std::stringstream style;
+
+      if (app->environment().agentIsIElt(9) && !forceDiv) {
+	style << "margin-top:-1px;";
+	marginBottom -= 1;
+      }
+
+      if (marginRight)
+	style << (app->layoutDirection() == LeftToRight
+		  ? "margin-right:" : "margin-left:")
+	      << marginRight << "px;";
+
+      if (marginBottom)
+	style << "margin-bottom:" << marginBottom << "px;";
+
+      result->setProperty(PropertyStyle, style.str());
     }
-
-    if (marginRight)
-      style << (app->layoutDirection() == LeftToRight
-		? "margin-right:" : "margin-left:")
-	    << marginRight << "px;";
-
-    if (marginBottom)
-      style << "margin-bottom:" << marginBottom << "px;";
-
-    result->setProperty(PropertyStyle, style.str());
   }
 
   /*

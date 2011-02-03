@@ -502,6 +502,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    break;
 	  }
 
+	  if (!app->environment().agentIsIElt(9))
+	    c->setProperty(PropertyStyleBoxSizing, "border-box");
+
 	  td->addChild(c);
 	}
 

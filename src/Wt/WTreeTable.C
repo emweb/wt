@@ -74,14 +74,13 @@ void WTreeTable::render(WFlags<RenderFlag> flags)
      * scrollbars appear
      */
     WApplication::instance()->doJavaScript
-      ("{"
-       """var id='" + id() + "';"
+      ("(function(){"
+       """var $el=$('#" + id() + "');"
+       """var e=$el.find('.Wt-content').get(0);"
+       """var sp=$el.find('.Wt-sbspacer').get(0);"
 
        """function sb() {"
-       ""  "var $el=$('#' + id);"
-       ""  "if ($el.size()) {"
-       ""    "var e=$el.find('.Wt-content').get(0);"
-       ""    "var sp=$el.find('.Wt-sbspacer').get(0);"
+       ""  "if ($el.get(0).parentNode) {"
        ""    "if (e.scrollHeight > e.offsetHeight) {"
        ""      "sp.style.display='block';"
        ""    "} else {"
@@ -92,7 +91,7 @@ void WTreeTable::render(WFlags<RenderFlag> flags)
        """}"
 
        """sb();"
-       "}");
+       "})();");
   }
 
   WCompositeWidget::render(flags);

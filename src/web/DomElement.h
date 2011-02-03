@@ -66,7 +66,10 @@ enum Property { PropertyInnerHTML, PropertyAddedInnerHTML,
 		PropertyStyleTextDecoration, PropertyStyleWhiteSpace,
 		PropertyStyleTableLayout, PropertyStyleBorderSpacing,
 		PropertyStyleZoom,
-		PropertyStyleVisibility, PropertyStyleDisplay };
+		PropertyStyleVisibility, PropertyStyleDisplay,
+
+		/* CSS 3 */
+		PropertyStyleBoxSizing };
 
 class WT_API DomElement
 {

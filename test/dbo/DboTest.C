@@ -306,7 +306,7 @@ void DboTest::test1()
     a1.string = "There";
     a1.checked = true;
     a1.i = 42;
-    a1.i64 = 9223372036854775805L;
+    a1.i64 = 9223372036854775805LL;
     a1.f = (float)42.42;
     a1.d = 42.424242;
 
@@ -388,7 +388,7 @@ void DboTest::test2()
     a1.string = "There";
     a1.checked = false;
     a1.i = 42;
-    a1.i64 = 9223372036854775804L;
+    a1.i64 = 9223372036854775804LL;
     a1.f = (float)42.42;
     a1.d = 42.424242;
 
@@ -518,7 +518,7 @@ void DboTest::test4()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
-      a1.modify()->i64 = 9223372036854775803L;
+      a1.modify()->i64 = 9223372036854775803LL;
       a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
@@ -590,7 +590,7 @@ void DboTest::test5()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
-      a1.modify()->i64 = 9223372036854775802L;
+      a1.modify()->i64 = 9223372036854775802LL;
       a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
@@ -646,7 +646,7 @@ void DboTest::test6()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
-      a1.modify()->i64 = 9223372036854775802L;
+      a1.modify()->i64 = 9223372036854775802LL;
       a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
@@ -707,7 +707,7 @@ void DboTest::test7()
       a1.modify()->wstring = "Hello";
       a1.modify()->string = "There";
       a1.modify()->i = 42;
-      a1.modify()->i64 = 9223372036854775801L;
+      a1.modify()->i64 = 9223372036854775801LL;
       a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 

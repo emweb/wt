@@ -88,7 +88,8 @@ static std::string cssNames_[] =
     "background-color", "background-image", "background-repeat",
     "background-attachment", "background-position",
     "text-decoration", "white-space", "table-layout", "border-spacing",
-    "zoom", "visibility", "display"};
+    "zoom", "visibility", "display",
+    "box-sizing"};
 
 static std::string cssCamelNames_[] =
   { "cssText", "width", "position",
@@ -113,7 +114,9 @@ static std::string cssCamelNames_[] =
     "backgroundColor", "backgroundImage", "backgroundRepeat",
     "backgroundAttachment", "backgroundPosition",
     "textDecoration", "whiteSpace", "tableLayout", "borderSpacing",
-    "zoom", "visibility", "display" };
+    "zoom", "visibility", "display",
+    "boxSizing" 
+  };
 
 static const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`";
 
@@ -598,12 +601,23 @@ std::string DomElement::cssStyle() const
     if (j->first == PropertyStyle)
       styleProperty = &j->second;
     else if ((j->first >= PropertyStylePosition)
-	&& (j->first <= PropertyStyleDisplay)) {
+	&& (j->first <= PropertyStyleBoxSizing)) {
       if ((j->first == PropertyStyleCursor) && (j->second == "pointer")) {
 	style << "cursor:pointer;cursor:hand;";	    
       } else {
 	style << cssNames_[j->first - PropertyStylePosition]
 	      << ':' << j->second << ';';
+	if (j->first >= PropertyStyleBoxSizing) {
+	  WApplication *app = WApplication::instance(); // XXX
+
+	  if (app->environment().agentIsGecko())
+	    style << "-moz-";
+	  else if (app->environment().agentIsWebKit())
+	    style << "-webkit-";
+
+	  style << cssNames_[j->first - PropertyStylePosition]
+		<< ':' << j->second << ';';
+	}
       }
     } else if (j->first == PropertyStyleWidthExpression) {
       style << "width:expression(" << j->second << ");";
@@ -1472,7 +1486,7 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
       break;
     default:
       if ((i->first >= PropertyStyle)
-	  && (i->first <= PropertyStyleDisplay)) {
+	  && (i->first <= PropertyStyleBoxSizing)) {
 	out << var_ << ".style."
 	    << cssCamelNames_[i->first - PropertyStyle]
 	    << "='" << i->second << "';";

@@ -80,10 +80,11 @@ var ie = (function(){
 this.isIE = ie !== undefined;
 this.isIE6 = ie === 6;
 this.isIElt9 = ie < 9;
-this.isGecko = navigator.userAgent.toLowerCase().indexOf("gecko") != -1;
 this.isIEMobile = navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
   || navigator.userAgent.toLowerCase().indexOf("msie 5") != -1;
+this.isGecko = navigator.userAgent.toLowerCase().indexOf("gecko") != -1;
 this.isOpera = typeof window.opera !== 'undefined';
+
 this.updateDelay = this.isIE ? 10 : 51;
 
 this.initAjaxComm = function(url, handler) {
@@ -630,15 +631,25 @@ this.isKeyPress = function(e) {
   }
 };
 
+var cacheC = null, cacheS = null;
+
 function css(c, s) {
   if (c.style[s])
     return c.style[s];
-  else if (document.defaultView && document.defaultView.getComputedStyle)
-    return document.defaultView.getComputedStyle(c, null)[s];
-  else if (c.currentStyle)
-    return c.currentStyle[s];
-  else
-    return null;
+  else {
+    if (c !== cacheC) {
+      cacheC = c;
+
+      if (window.getComputedStyle)
+	cacheS = window.getComputedStyle(c, null);
+      else if (c.currentStyle)
+	cacheS = c.currentStyle;
+      else
+	cacheS = null;
+    }
+
+    return cacheS ? cacheS[s] : null;
+  }
 }
 
 function parseCss(value, regex, defaultvalue) {

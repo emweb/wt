@@ -479,7 +479,7 @@ std::string WebSession::getRedirect()
 }
 
 WebSession::Handler::Handler()
-  : 
+  : nextSignal(-1),
     prevHandler_(0),
     session_(0),
     request_(0),
@@ -494,7 +494,7 @@ WebSession::Handler::Handler()
 
 WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 			     bool takeLock)
-  : 
+  : nextSignal(-1),
 #ifdef WT_THREADED
     lock_(session->mutex_, boost::defer_lock),
 #endif // WT_THREADED
@@ -521,7 +521,8 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 }
 
 WebSession::Handler::Handler(WebSession *session)
-  : prevHandler_(0),
+  : nextSignal(-1),
+    prevHandler_(0),
     session_(session),
     request_(0),
     response_(0)
@@ -531,7 +532,7 @@ WebSession::Handler::Handler(WebSession *session)
 
 WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 			     WebRequest& request, WebResponse& response)
-  :
+  : nextSignal(-1),  
 #ifdef WT_THREADED
     lock_(session->mutex_),
 #endif // WT_THREADED

@@ -328,13 +328,12 @@ std::string WFont::cssSize(bool all) const
 std::string WFont::cssFamily(bool all) const
 {
   std::string family = specificFamilies_.toUTF8();
-  if (!family.empty())
+  if ((!family.empty()) &&
+      genericFamily_ != Default)
     family += ',';
 
   switch (genericFamily_) {
   case Default:
-    if (familyChanged_ || all)
-      family = "inherit"; // discard specific families
     break;
   case Serif:
     family += "serif"; break;
@@ -369,7 +368,13 @@ const std::string WFont::cssText(bool combined) const
     if (!s.empty())
       result << s << ' ';
 
-    result << cssSize(true) << ' ' << cssFamily(true);
+    result << cssSize(true) << ' ';
+
+	s = cssFamily(true);
+    if (!s.empty())
+      result << s << ' ';
+	else
+	  result << s << " inherit";
   } else {
     std::string s;
     s = cssFamily(false);

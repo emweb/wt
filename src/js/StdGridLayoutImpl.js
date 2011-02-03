@@ -18,32 +18,35 @@ WT_DECLARE_WT_MEMBER
 
    this.WT = WT;
 
-   this.marginH = function(el) {
-     var p = el.parentNode;
-     var result = WT.px(el, 'marginLeft');
-     result += WT.px(el, 'marginRight');
-     result += WT.px(el, 'borderLeftWidth');
-     result += WT.px(el, 'borderRightWidth');
-     result += WT.px(el, 'paddingLeft');
-     result += WT.px(el, 'paddingRight');
-     result += WT.pxself(p, 'paddingLeft');
-     result += WT.pxself(p, 'paddingRight');
-     return result;
-   };
+   this.marginH
+     = !WT.isIElt9 ?
+     function(el) { return 0; } :
+     function(el) {
+       var p = el.parentNode;
+       var result = WT.px(el, 'marginLeft');
+       result += WT.px(el, 'marginRight');
+       result += WT.px(el, 'borderLeftWidth');
+       result += WT.px(el, 'borderRightWidth');
+       result += WT.px(el, 'paddingLeft');
+       result += WT.px(el, 'paddingRight');
+       result += WT.pxself(p, 'paddingLeft');
+       result += WT.pxself(p, 'paddingRight');
+       return result;
+     };
 
-   this.marginV = function(el) {
-     // TODO: consider caching
-     //var p = el.parentNode;
-     var result = WT.px(el, 'marginTop');
-     result += WT.px(el, 'marginBottom');
-     result += WT.px(el, 'borderTopWidth');
-     result += WT.px(el, 'borderBottomWidth');
-     result += WT.px(el, 'paddingTop');
-     result += WT.px(el, 'paddingBottom');
-     // result += WT.pxself(p, 'paddingTop');
-     // result += WT.pxself(p, 'paddingBottom');
-     return result;
-   };
+   this.marginV
+     = !WT.isIElt9 ?
+     function(el) { return 0; } :
+     function(el) {
+       var result = WT.px(el, 'marginTop');
+       result += WT.px(el, 'marginBottom');
+       result += WT.px(el, 'borderTopWidth');
+       result += WT.px(el, 'borderBottomWidth');
+       result += WT.px(el, 'paddingTop');
+       result += WT.px(el, 'paddingBottom');
+
+       return result;
+     };
 
    this.getColumn = function(columni) {
      var widget = WT.getElement(id),
@@ -169,12 +172,12 @@ WT_DECLARE_WT_MEMBER
 
      var t = widget.firstChild, p = widget.parentNode;
 
-     if (t.style.height != '')
+     if (t.style.height !== '')
        t.style.height = '';
 
      var doit = widget.dirty
-       || t.w != p.clientWidth
-       || t.h != p.clientHeight;
+       || t.w !== p.clientWidth
+       || t.h !== p.clientHeight;
 
      if (!doit)
        return true;
@@ -188,7 +191,7 @@ WT_DECLARE_WT_MEMBER
       * remove padding of the parent, and margin of myself.
       */
      var r = WT.pxself(p, 'height');
-     if (r == 0) {
+     if (r === 0) {
        r = p.clientHeight;
        r -= WT.px(p, 'paddingTop');
        r -= WT.px(p, 'paddingBottom');
@@ -197,15 +200,16 @@ WT_DECLARE_WT_MEMBER
      r -= WT.px(widget, 'marginTop');
      r -= WT.px(widget, 'marginBottom');
 
+     var i, il;
+
      /*
       * Sometimes, there may be other elements; e.g. in FIELDSET.
       * Remove the height of these too
       */
-     var i, il;
-     if (p.children) {
-       for (i=0, il=p.children.length; i<il; ++i) {
+     if (p.children && p.children.length !== 1) {
+       for (i = 0, il = p.children.length; i < il; ++i) {
 	 var w = p.children[i];
-	   if (w != widget)
+	   if (w !== widget)
 	     r -= $(w).outerHeight();
        }
      }
@@ -213,27 +217,29 @@ WT_DECLARE_WT_MEMBER
      /*
       * Reduce 'r' with the total height of rows with stretch=0.
       */
-     var ts=0,                         // Sum of stretch factors
-         tmh=0,                          // Min heights
-	 ri, j, jl, row, tds; // Iterator variables
+     var ts = 0,              // Sum of stretch factors
+         tmh = 0,             // Min heights
+         ri, j, jl, row, tds; // Iterator variables
 
-     for (i=0, ri=0, il=t.rows.length; i<il; i++) {
+     il = t.rows.length;
+
+     for (i = 0, ri = 0; i < il; i++) {
        row = t.rows[i];
 
-       if (row.className == 'Wt-hrh') {  // Skip resize rows
+       if (row.className === 'Wt-hrh') {  // Skip resize rows
 	 r -= row.offsetHeight;          // Reduce r
 	 continue;
        }
 
        tmh += config.minheight[ri];
        if (config.stretch[ri] <= 0)
-	 r -= row.offsetHeight; // reduce r
+	 r -= row.offsetHeight;          // Reduce r
        else
 	 ts += config.stretch[ri];
        ++ri;
      }
 
-     r=r>tmh?r:tmh;
+     r = r > tmh ? r : tmh;
 
      var rowspan_tds = [];
 
@@ -242,35 +248,37 @@ WT_DECLARE_WT_MEMBER
       *  for every row (which has a stretch) and for every cell. Apply the
       *  same height to each cell's contents as well
       */
-     if (ts!=0 && r>0) {
-       var left=r, // remaining space to be divided
-           h;
+     if (ts !== 0 && r > 0) {
+       var left = r, // remaining space to be divided
+           stretch, mh, h;
 
-       for (i=0, ri=0, il=t.rows.length; i<il; i++) {
-	 if (t.rows[i].className=='Wt-hrh') // Skip resize rows
-	   continue;
-
+       for (i = 0, ri = 0; i < il; i++) {
 	 row = t.rows[i];
 
-	 if (config.stretch[ri] != 0) {
+	 if (row.className === 'Wt-hrh') // Skip resize rows
+	   continue;
+
+	 stretch = config.stretch[ri];
+	 if (stretch !== 0) {
 	   /*
 	    * The target height 'h', cannot be more than what is still
-	    * left to distribute, and cannot be less than the minimum
-	    * height
+	    * left to distribute, and cannot be less than the minimum height
 	    */
 
-	   if (config.stretch[ri] != -1) {
-	     h=r*config.stretch[ri]/ts;
-	     h=left>h?h:left;
-	     h=Math.round(config.minheight[ri] > h
-			  ? config.minheight[ri] : h);
+	   if (stretch !== -1) {
+	     mh = config.minheight[ri];
+
+	     h = r * stretch / ts;
+	     h = left > h ? h : left;
+	     h = Math.round(mh > h ? mh : h);
 	     left -= h;
 	   } else {
-	     h=row.offsetHeight;
+	     h = row.offsetHeight;
 	   }
 
 	   WT.addAll(rowspan_tds, this.adjustRow(row, h));
 	 }
+
 	 ++ri;
        }
      }
@@ -290,33 +298,32 @@ WT_DECLARE_WT_MEMBER
       * as the width of the first cell, taking into account the
       * cell padding.
       */
-     if (t.style.tableLayout != 'fixed')
+     if (t.style.tableLayout !== 'fixed')
        return true;
 
-     var jc=0, chn=t.childNodes;
-     for (j=0, jl=chn.length; j<jl; j++) {
-       var col=chn[j], ch,
-           w, mw,      // maximum column width
-	   c, ci, cil; // for finding a column
-
+     var jc = 0, chn = t.childNodes,
+         col = chn[j], td, ch,
+         w, mw,      // maximum column width
+	 c, ci, cil; // for finding a column
+     for (j = 0, jl = chn.length; j < jl; j++) {
        if (WT.hasTag(col, 'COLGROUP')) { // IE
-	 j=-1;
-	 chn=col.childNodes;
-	 jl=chn.length;
+	 j = -1;
+	 chn = col.childNodes;
+	 jl = chn.length;
        }
 
 	if (!WT.hasTag(col, 'COL'))
 	  continue;
 
-       if (WT.pctself(col, 'width') == 0) {
+       if (WT.pctself(col, 'width') === 0) {
 	 mw = 0;
-	 for (i=0, il=t.rows.length; i<il; i++) {
+	 for (i = 0, il = t.rows.length; i < il; i++) {
 	   row = t.rows[i];
 	   tds = row.childNodes;
 	   c = 0;
-	   for (ci=0, cil=tds.length; ci<cil; ci++) {
+	   for (ci = 0, cil = tds.length; ci < cil; ci++) {
 	     td = tds[ci];
-	     if (td.colSpan==1 && c==jc && td.childNodes.length==1) {
+	     if (td.colSpan === 1 && c === jc && td.childNodes.length ===1) {
 	       ch = td.firstChild;
 	       w = ch.offsetWidth + self.marginH(ch);
 	       mw = Math.max(mw, w);
@@ -327,9 +334,10 @@ WT_DECLARE_WT_MEMBER
 	       break;
 	    }
 	 }
-	 if (mw > 0 && WT.pxself(col, 'width') != mw)
-	   col.style.width=mw+'px';
+	 if (mw > 0 && WT.pxself(col, 'width') !== mw)
+	   col.style.width = mw + 'px';
        }
+
        ++jc;
      }
 
