@@ -18,17 +18,19 @@ WT_DECLARE_WT_MEMBER
 
    this.WT = WT;
 
-   this.marginH
-     = !WT.isIElt9 ?
-     function(el) { return 0; } :
-     function(el) {
+   this.marginH = function(el) {
        var p = el.parentNode;
-       var result = WT.px(el, 'marginLeft');
-       result += WT.px(el, 'marginRight');
-       result += WT.px(el, 'borderLeftWidth');
-       result += WT.px(el, 'borderRightWidth');
-       result += WT.px(el, 'paddingLeft');
-       result += WT.px(el, 'paddingRight');
+       var result = 0;
+
+       if (WT.isIElt9) {
+	 result = WT.px(el, 'marginLeft');
+	 result += WT.px(el, 'marginRight');
+	 result += WT.px(el, 'borderLeftWidth');
+	 result += WT.px(el, 'borderRightWidth');
+	 result += WT.px(el, 'paddingLeft');
+	 result += WT.px(el, 'paddingRight');
+       }
+
        result += WT.pxself(p, 'paddingLeft');
        result += WT.pxself(p, 'paddingRight');
        return result;
@@ -86,6 +88,7 @@ WT_DECLARE_WT_MEMBER
        height = 0;
 
      td.style.height = height+'px';
+
      if (td.style['verticalAlign'] || td.childNodes.length == 0)
        return;
 
@@ -175,12 +178,22 @@ WT_DECLARE_WT_MEMBER
      if (t.style.height !== '')
        t.style.height = '';
 
+     var pHeight = WT.pxself(p, 'height'), usingClientHeight = false;
+     if (pHeight === 0) {
+       usingClientHeight = true;
+       pHeight = p.clientHeight;
+     }
+     var pWidth = p.clientWidth;
+
      var doit = widget.dirty
-       || t.w !== p.clientWidth
-       || t.h !== p.clientHeight;
+       || t.w !== pWidth
+       || t.h !== pHeight;
 
      if (!doit)
        return true;
+
+     t.w = pWidth;
+     t.h = pHeight;
 
      widget.dirty = null;
 
@@ -190,9 +203,8 @@ WT_DECLARE_WT_MEMBER
       * otherwise we use the computed height. Note that we need to
       * remove padding of the parent, and margin of myself.
       */
-     var r = WT.pxself(p, 'height');
-     if (r === 0) {
-       r = p.clientHeight;
+     var r = pHeight;
+     if (usingClientHeight) {
        r -= WT.px(p, 'paddingTop');
        r -= WT.px(p, 'paddingBottom');
      }
@@ -288,9 +300,6 @@ WT_DECLARE_WT_MEMBER
            col = rowspan_tds[i].col;
        this.adjustCell(td, td.offsetHeight, col);
      }
-
-     t.w = p.clientWidth;
-     t.h = p.clientHeight;
 
      /*
       * Column widths: for every column which has no % width set,
