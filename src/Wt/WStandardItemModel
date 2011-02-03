@@ -179,6 +179,7 @@ public:
   void appendRow(const std::vector<WStandardItem *>& items);
 
   using WAbstractItemModel::insertRow;
+  using WAbstractItemModel::insertColumn;
 
   /*! \brief Inserts a single row of top level items.
    *

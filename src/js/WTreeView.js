@@ -132,50 +132,61 @@ WT_DECLARE_WT_MEMBER
     *  else
     *    4) width('Wt-rowc') = sum(column(-1) widths)
     */
+   var adjustScheduled = false;
+
    this.adjustColumns = function() {
-     var t = contents.firstChild, // table parent
-         hc = headers.firstChild, // Wt-tv-row
-         allw_1=0, allw=0,
-         c0id = headers.lastChild.className.split(' ')[0],
-         c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
-
-     if (column1Fixed)
-       hc = hc.firstChild; // Wt-tv-rowc
-
-     if (WT.isHidden(el))
+     if (adjustScheduled)
        return;
 
-     for (var i=0, length=hc.childNodes.length; i < length; ++i) {
-       if (hc.childNodes[i].className) { // IE may have only a text node
-	 var cl = hc.childNodes[i].className.split(' ')[0],
+     adjustScheduled = true;
+
+     setTimeout(function() {
+       adjustScheduled = false;
+
+       var t = contents.firstChild, // table parent
+	   hc = headers.firstChild, // Wt-tv-row
+           allw_1=0, allw=0,
+           c0id = headers.lastChild.className.split(' ')[0],
+           c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
+
+       if (column1Fixed)
+	 hc = hc.firstChild; // Wt-tv-rowc
+
+       if (WT.isHidden(el))
+	 return;
+
+       for (var i=0, length=hc.childNodes.length; i < length; ++i) {
+	 if (hc.childNodes[i].className) { // IE may have only a text node
+	   var cl = hc.childNodes[i].className.split(' ')[0],
 	     r = WT.getCssRule('#' + el.id + ' .' + cl);
 
-	 if (r.style.display == 'none')
-	   continue;
+	   if (r.style.display == 'none')
+	     continue;
 
-	 // 7 = 2 * 3px (padding) + 1px border
-	 allw_1 += WT.pxself(r, 'width') + 7;
+	   // 7 = 2 * 3px (padding) + 1px border
+	   allw_1 += WT.pxself(r, 'width') + 7;
+	 }
        }
-     }
 
-     if (!column1Fixed)
-       if (!c0r.style.width)  // first resize and c0 width not set
-	 c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
-       else
-	 $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
+       if (!column1Fixed)
+	 if (!c0r.style.width)  // first resize and c0 width not set
+	   c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
+	 else
+	   $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
 
-     allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 8);
+       allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 8);
 
-     if (!column1Fixed) {
-       headers.style.width = t.style.width = allw + 'px';
-       hc.style.width = allw_1 + 'px';
-     } else {
-       var r = WT.getCssRule('#' + el.id + ' .Wt-tv-rowc');
-       r.style.width = allw_1 + 'px';
-       $(el).find('.Wt-tv-rowc').css('width', allw_1 + 'px').css('width', '');
-       el.changed = true;
-       this.autoJavaScript();
-     }
+       if (!column1Fixed) {
+	 headers.style.width = t.style.width = allw + 'px';
+	 hc.style.width = allw_1 + 'px';
+       } else {
+	 var r = WT.getCssRule('#' + el.id + ' .Wt-tv-rowc');
+	 r.style.width = allw_1 + 'px';
+	 $(el).find('.Wt-tv-rowc').css('width', allw_1 + 'px').css('width', '');
+	 el.changed = true;
+	 self.autoJavaScript();
+       }
+     }, 0);
    };
 
    var dropEl = null;
