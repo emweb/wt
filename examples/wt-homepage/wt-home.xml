@@ -123,8 +123,8 @@ and accessible (supporting plain HTML browsers), using automatic
 <b>graceful degradation or progressive enhancement</b>.</p>
 
 <p>The library comes with an application server that acts as a
-stand-alone web server or integrates through FastCGI with other web
-servers.</p>
+stand-alone web(sockets) server or integrates through FastCGI with
+other web servers.</p>
 
 <h4>Interactive, secure and accessible</h4>
 

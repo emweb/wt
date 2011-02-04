@@ -311,10 +311,12 @@ WT_DECLARE_WT_MEMBER
        return true;
 
      var jc = 0, chn = t.childNodes,
-         col = chn[j], td, ch,
+         col, td, ch,
          w, mw,      // maximum column width
 	 c, ci, cil; // for finding a column
      for (j = 0, jl = chn.length; j < jl; j++) {
+       col = chn[j];
+
        if (WT.hasTag(col, 'COLGROUP')) { // IE
 	 j = -1;
 	 chn = col.childNodes;
