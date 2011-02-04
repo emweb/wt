@@ -657,7 +657,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	
       collectedJS2_
 	<< "domRoot.style.visibility = 'visible';"
-	<< app->javaScriptClass() << "._p_.autoJavaScript();";
+	<< app->javaScriptClass() << "._p_.doAutoJavaScript();";
 
       loadScriptLibraries(collectedJS2_, app, librariesLoaded);
 
@@ -1067,7 +1067,7 @@ int WebRenderer::loadScriptLibraries(std::ostream& out,
     return count;
   } else {
     if (count) {
-      out << app->javaScriptClass() << "._p_.autoJavaScript();";
+      out << app->javaScriptClass() << "._p_.doAutoJavaScript();";
       for (int i = 0; i < count; ++i)
 	out << "});";
     }

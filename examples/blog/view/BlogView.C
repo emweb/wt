@@ -208,9 +208,6 @@ private:
     session_.setUser(user);
     blogView_->userChanged().emit(user->name);
 
-    if (user->role == User::Admin)
-      wApp->setInternalPath(basePath_ + "author/" + user->name.toUTF8(), true);
-
     refresh();
 
     login_->clear();

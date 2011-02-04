@@ -136,7 +136,7 @@ std::string Container::createJS(DomElement *inContainer)
   if (layout_)
     result += elVar() + ".on('afterlayout', function(){"
       + WApplication::instance()->javaScriptClass()
-      + "._p_.autoJavaScript();});";
+      + "._p_.doAutoJavaScript();});";
 
   return result;
 }

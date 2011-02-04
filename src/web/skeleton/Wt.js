@@ -1844,6 +1844,17 @@ function setServerPush(how) {
   serverPush = how;
 }
 
+var autoJavaScriptScheduled = false;
+function doAutoJavaScript() {
+  if (autoJavaScriptScheduled)
+    return;
+
+  autoJavaScriptScheduled = true;
+
+  setTimeout(function() { autoJavaScriptScheduled = false;
+			  self._p_.autoJavaScript(); }, 1);
+}
+
 function doJavaScript(js) {
   if (js) {
     js = "(function() {" + js + "})();";
@@ -1853,7 +1864,7 @@ function doJavaScript(js) {
       window.eval(js);
   }
 
-  self._p_.autoJavaScript();
+  doAutoJavaScript();
 }
 
 function handleResponse(status, msg, timer) {
@@ -2337,6 +2348,7 @@ this._p_ = {
   setHash : setHash,
   ImagePreloader : ImagePreloader,
 
+  doAutoJavaScript : doAutoJavaScript,
   autoJavaScript : function() {  _$_AUTO_JAVASCRIPT_$_(); },
 
   response : responseReceived,

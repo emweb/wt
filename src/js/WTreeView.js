@@ -246,11 +246,14 @@ WT_DECLARE_WT_MEMBER
 	return;
 
       var $el=$(el),
-	tw = $el.innerWidth(),
         c0id, c0r, c0w = null;
 
+      var tw = WT.pxself(el, 'width');
+      if (tw == 0)
+	tw = el.clientWidth;
+
       var scrollwidth = contentsContainer.offsetWidth
-	- contentsContainer.clientWidth;
+        - contentsContainer.clientWidth;
 
       tw -= scrollwidth;
 
