@@ -359,7 +359,7 @@ WT_DECLARE_WT_MEMBER
  });
 
 WT_DECLARE_WT_MEMBER
-(2, "WSuggestionPopupStdMatcher",
+(2, "ctor.WSuggestionPopupStdMatcher",
  function(highlightBeginTag, highlightEndTag, listSeparator, whiteSpace,
 	  wordSeparators, appendReplacedText) {
    function parseEdit(edit) {

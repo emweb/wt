@@ -12,11 +12,7 @@ WT_DECLARE_WT_MEMBER
       var j, jl, c, WT = this;
       self.style.height = h + 'px';
 
-      var boxSizing = (self.style['boxSizing']
-			|| self.style['MozBoxSizing']
-			|| self.style['WebkitBoxSizing']) === 'border-box';
-
-      if (boxSizing) {
+      if (WT.boxSizing(self)) {
 	h -= WT.px(self, 'marginTop');
         h -= WT.px(self, 'marginBottom');
         h -= WT.px(self, 'borderTopWidth');

@@ -53,13 +53,14 @@ public:
     WHBoxLayout* layout = new WHBoxLayout();
     setLayout(layout);
 
+    resize(1200, 500);
+
     map_ = new WGoogleMap(WGoogleMap::Version3);
     layout->addWidget(map_, 1);
 
-    map_->resize(700, 500);
     map_->setMapTypeControl(WGoogleMap::DefaultControl);
     map_->enableScrollWheelZoom();
-    
+
     WTemplate *controls = 
       new WTemplate(tr("specialpurposewidgets-WGoogleMap-controls"));
     layout->addWidget(controls);

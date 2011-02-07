@@ -688,9 +688,9 @@ this.pctself = function(c, s) {
 };
 
 this.boxSizing = function(w) {
-  return (self.style['boxSizing']
-	  || self.style['MozBoxSizing']
-	  || self.style['WebkitBoxSizing']) === 'border-box';
+  return (w.style['boxSizing']
+	  || w.style['MozBoxSizing']
+	  || w.style['WebkitBoxSizing']) === 'border-box';
 };
 
 // Return if an element (or one of its ancestors) is hidden

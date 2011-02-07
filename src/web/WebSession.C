@@ -619,6 +619,7 @@ void WebSession
     return;
   }
 
+#if !defined(WT_TARGET_JAVA)
   /*
    * We assume that another handler has already locked this session for us.
    * We just need to find it.
@@ -631,6 +632,10 @@ void WebSession
 
   session->log("error") << "WApplication::attachThread(): "
 			<< "no thread is holding this application's lock ?";
+#else
+  attachThreadToHandler(new Handler(session, false));
+#endif 
+
 #else
   session->log("error") << "WApplication::attachThread(): "
 			<< "needs Wt built with threading enabled";
