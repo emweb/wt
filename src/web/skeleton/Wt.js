@@ -8,16 +8,21 @@ _$_$if_DYNAMIC_JS_$_();
 window.WT_DECLARE_WT_MEMBER = function(i, name, fn)
 {
   var proto = name.indexOf('.prototype');
-  if (proto == -1)
-    _$_WT_CLASS_$_[name] = fn;
-  else
+  var ctor = name.indexOf('ctor.');
+
+  if (proto != -1)
     _$_WT_CLASS_$_[name.substr(0, proto)]
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
+  else if (ctor == 0)
+    _$_WT_CLASS_$_[name.substr(5)] = fn;
+  else
+    _$_WT_CLASS_$_[name] = function() { fn.apply(_$_WT_CLASS_$_, arguments); };
 };
 
 window.WT_DECLARE_APP_MEMBER = function(i, name, fn)
 {
   var proto = name.indexOf('.prototype');
+
   var app = window.currentApp;
   if (proto == -1)
     app[name] = fn;
@@ -680,6 +685,12 @@ this.pxself = function(c, s) {
 
 this.pctself = function(c, s) {
   return parsePct(c.style[s], 0);
+};
+
+this.boxSizing = function(w) {
+  return (self.style['boxSizing']
+	  || self.style['MozBoxSizing']
+	  || self.style['WebkitBoxSizing']) === 'border-box';
 };
 
 // Return if an element (or one of its ancestors) is hidden

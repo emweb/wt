@@ -36,8 +36,8 @@ ul {
 .contents h1 {
     font-size: 150%;
     font-weight: bold;
-    color: #528B12; 
-    margin: 7px 0px;
+    color: #528B12;
+    margin: 0px 0px 7px;
 }
 
 .contents h2 {

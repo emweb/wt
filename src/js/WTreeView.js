@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "WTreeView",
+(1, "ctor.WTreeView",
  function(APP, el, contentsContainer, headerContainer, column1Fixed) {
    jQuery.data(el, 'obj', this);
 

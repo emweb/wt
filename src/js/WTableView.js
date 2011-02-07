@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "WTableView",
+(1, "ctor.WTableView",
  function(APP, el, contentsContainer, headerContainer) {
    jQuery.data(el, 'obj', this);
 
@@ -89,8 +89,8 @@ WT_DECLARE_WT_MEMBER
          h = header.nextSibling, c = column.nextSibling,
          newWidth = WT.pxself(header, 'width') - 1 + delta;
 
-     headers.style.width 
-       = contents.style.width 
+     headers.style.width
+       = contents.style.width
        = wt_tv_contents.style.width
        = (WT.pxself(headers, 'width') + delta) + 'px';
      header.style.width = (newWidth + 1) + 'px';

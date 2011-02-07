@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-  (1, "SizeHandle",
+  (1, "ctor.SizeHandle",
    function(WT, orientation, width, height, minDelta, maxDelta,
 	    dragWidgetClass, doneFn, el, parent, event, offsetX, offsetY) {
      var handle = document.createElement('div');

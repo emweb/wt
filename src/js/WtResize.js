@@ -9,16 +9,39 @@
 WT_DECLARE_WT_MEMBER
   (10, "ChildrenResize",
     function(self, w, h) {
-      var j,jl,c;
+      var j, jl, c, WT = this;
       self.style.height = h + 'px';
+
+      var boxSizing = (self.style['boxSizing']
+			|| self.style['MozBoxSizing']
+			|| self.style['WebkitBoxSizing']) === 'border-box';
+
+      if (boxSizing) {
+	h -= WT.px(self, 'marginTop');
+        h -= WT.px(self, 'marginBottom');
+        h -= WT.px(self, 'borderTopWidth');
+        h -= WT.px(self, 'borderBottomWidth');
+        h -= WT.px(self, 'paddingTop');
+        h -= WT.px(self, 'paddingBottom');
+
+	w -= WT.px(self, 'marginLeft');
+        w -= WT.px(self, 'marginRight');
+        w -= WT.px(self, 'borderLeftWidth');
+        w -= WT.px(self, 'borderRightWidth');
+        w -= WT.px(self, 'paddingLeft');
+        w -= WT.px(self, 'paddingRight');
+      }
+
+      var cheight = h + 'px';
+
       for (j=0, jl=self.childNodes.length; j < jl; ++j) {
 	c=self.childNodes[j];
 	if (c.nodeType == 1) {
 	  if (c.wtResize)
 	    c.wtResize(c, w, h);
           else
-            if (c.style.height != self.style.height)
-              c.style.height = self.style.height;
+            if (c.style.height != cheight)
+              c.style.height = cheight;
 	}
       }
     }

@@ -11,11 +11,29 @@
 
 #ifndef WT_DEBUG_JS
 
-#define WT_DECLARE_WT_MEMBER(i, name, ...)	       \
-  namespace {					       \
-    const char *wtjs##i(Wt::WApplication *app) {       \
-      return WT_CLASS "." name " = " #__VA_ARGS__ ";"; \
-    }						       \
+/*
+ * If the function is not a constructor, then we make sure that
+ * it is always called with 'this' == WT.
+ *
+ * A function that is a constructor is indicated by starting with
+ * 'ctor.' (this is removed in the actual member name).
+ *
+ * This is in sync with the JavaScript WT_DECLARE_WT_MEMBER routine
+ * used using WT_DEBUG_JS
+ */
+
+#define WT_DECLARE_WT_MEMBER(i, name, ...)				\
+  namespace {								\
+    std::string wtjs##i(Wt::WApplication *app) {			\
+      const char *s = #__VA_ARGS__;					\
+      if (strncmp(name, "ctor.", 5) == 0) {				\
+	return WT_CLASS "." + std::string(name).substr(5) + " = "	\
+	  + s + ";";							\
+      } else {								\
+        return std::string(WT_CLASS "." name " = function() { (")	\
+          + s + ").apply(" WT_CLASS ", arguments) };";			\
+      }									\
+    }									\
   }
 
 #define WT_DECLARE_APP_MEMBER(i, name, ...)				\

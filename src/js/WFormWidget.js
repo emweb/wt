@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "WFormWidget",
+(1, "ctor.WFormWidget",
  function(APP, el, emptyText) {
    jQuery.data(el, 'obj', this);
 

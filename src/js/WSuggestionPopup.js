@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "WSuggestionPopup",
+(1, "ctor.WSuggestionPopup",
  function(APP, el, replacerJS, matcherJS, filterLength, defaultValue, global) {
    $('.Wt-domRoot').add(el);
 
