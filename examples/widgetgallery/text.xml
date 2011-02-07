@@ -17,6 +17,7 @@
       href="/wt/doc/reference/html/classWt_1_1WWidget.html"><tt>WWidget</tt></a>. Widgets
       are rendered by inserting them in the widget tree
       hierarchy. You have the following possibilities to structurally organize your widgets:
+    </p>
       <ul>
 	<li>
 	  Adding a widget to a <a
@@ -39,7 +40,6 @@
 	  layout.
 	</li>
       </ul>
-    </p>
     
     <p>
       User interaction can be implemented using Wt's signal/slot

@@ -14,6 +14,13 @@
 #include "Wt/WText"
 #include "Wt/WTreeTableNode"
 
+#include "JavaScriptLoader.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WTreeTable.min.js"
+#endif
+
+
 namespace Wt {
 
 WTreeTable::WTreeTable(WContainerWidget *parent)
@@ -53,45 +60,42 @@ WTreeTable::WTreeTable(WContainerWidget *parent)
 
   tree_->setMargin(3, Top);
   tree_->resize(WLength(100, WLength::Percentage), WLength::Auto);
- 
-  setJavaScriptMember
-    (WT_RESIZE_JS,
-     "function(self, w, h) {"
-     """self.style.height= h + 'px';"
-     """var c = self.lastChild;"
-     """var t = self.firstChild;"
-     """h -= $(t).outerHeight();"
-     """if (h > 0) "
-     ""  "c.style.height = h + 'px';"
-     "};");
+}
+
+void WTreeTable::defineJavaScript()
+{
+  WApplication *app = WApplication::instance();
+
+  if (!app->environment().ajax())
+    return;
+
+  const char *THIS_JS = "js/WTreeTable.js";
+
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WTreeTable", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+
+  /*
+   * We should really resolve this: we use setJavaScriptMember()
+   * instead of doJavaScript(), because setJavaScriptMember() is streamed
+   * before doJavaScript()
+   */
+  setJavaScriptMember("_a", "0;new " WT_CLASS ".WTreeTable("
+		      + app->javaScriptClass() + "," + jsRef() + ");");
 }
 
 void WTreeTable::render(WFlags<RenderFlag> flags)
 {
   if (flags & RenderFull) {
-    /*
-     * Ugly JavaScript hack to make headers stay on top of content when
-     * scrollbars appear
-     */
-    WApplication::instance()->doJavaScript
-      ("(function(){"
-       """var $el=$('#" + id() + "');"
-       """var e=$el.find('.Wt-content').get(0);"
-       """var sp=$el.find('.Wt-sbspacer').get(0);"
+    defineJavaScript();
 
-       """function sb() {"
-       ""  "if ($el.get(0).parentNode) {"
-       ""    "if (e.scrollHeight > e.offsetHeight) {"
-       ""      "sp.style.display='block';"
-       ""    "} else {"
-       ""      "sp.style.display='none';"
-       ""    "}"
-       ""    "setTimeout(sb, 20);"
-       ""  "}"
-       """}"
+    setJavaScriptMember(WT_RESIZE_JS,
+			"$('#" + id() + "').data('obj').wtResize");
 
-       """sb();"
-       "})();");
+    WApplication::instance()->addAutoJavaScript
+      ("{var obj = $('#" + id() + "').data('obj');"
+       "if (obj) obj.autoJavaScript();}");
   }
 
   WCompositeWidget::render(flags);

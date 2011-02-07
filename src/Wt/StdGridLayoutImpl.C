@@ -506,6 +506,9 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	    c->setProperty(PropertyStyleBoxSizing, "border-box");
 
 	  td->addChild(c);
+
+	  if (c->type() != DomElement_BUTTON)
+	    td->setProperty(PropertyStyleOverflowX, "hidden");
 	}
 
 	{
@@ -568,8 +571,6 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	if (colSpan != 1)
 	  td->setProperty(PropertyColSpan,
 			  boost::lexical_cast<std::string>(colSpan));
-
-	td->setProperty(PropertyStyleOverflowX, "hidden");
 
 	tr->addChild(td);
 
