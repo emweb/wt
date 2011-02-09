@@ -92,6 +92,20 @@ this.isOpera = typeof window.opera !== 'undefined';
 
 this.updateDelay = this.isIE ? 10 : 51;
 
+var traceStart = new Date();
+this.trace = function(v, start) {
+  if (start)
+    traceStart = new Date();
+  var now = new Date();
+
+  var diff = (now.getMinutes() - traceStart.getMinutes()) * 60000
+    + (now.getSeconds() - traceStart.getSeconds()) * 1000
+    + (now.getMilliseconds() - traceStart.getMilliseconds());
+
+  if (window.console)
+    console.log("[" + diff + "]: " + v);
+};
+
 this.initAjaxComm = function(url, handler) {
   var crossDomain = url.indexOf("://") != -1;
 

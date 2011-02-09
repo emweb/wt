@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, "ctor.WTreeView",
- function(APP, el, contentsContainer, headerContainer, column1Fixed) {
+ function(APP, el, contentsContainer, headerContainer, rowHeaderCount) {
    jQuery.data(el, 'obj', this);
 
    var contents = contentsContainer.firstChild;
@@ -149,7 +149,7 @@ WT_DECLARE_WT_MEMBER
            c0id = headers.lastChild.className.split(' ')[0],
            c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
 
-       if (column1Fixed)
+       if (rowHeaderCount)
 	 hc = hc.firstChild; // Wt-tv-rowc
 
        if (WT.isHidden(el))
@@ -168,7 +168,7 @@ WT_DECLARE_WT_MEMBER
 	 }
        }
 
-       if (!column1Fixed)
+       if (!rowHeaderCount)
 	 if (!c0r.style.width)  // first resize and c0 width not set
 	   c0r.style.width = (headers.offsetWidth - hc.offsetWidth - 8) + 'px';
 	 else
@@ -176,7 +176,7 @@ WT_DECLARE_WT_MEMBER
 
        allw = allw_1 + WT.pxself(c0r, 'width') + (WT.isIE6 ? 10 : 8);
 
-       if (!column1Fixed) {
+       if (!rowHeaderCount) {
 	 headers.style.width = t.style.width = allw + 'px';
 	 hc.style.width = allw_1 + 'px';
        } else {
@@ -192,7 +192,10 @@ WT_DECLARE_WT_MEMBER
 	 }
 
 	 el.changed = true;
-	 self.autoJavaScript();
+
+	 /*
+	    self.autoJavaScript();
+	  */
        }
      }, 0);
    };
@@ -249,8 +252,13 @@ WT_DECLARE_WT_MEMBER
         c0id, c0r, c0w = null;
 
       var tw = WT.pxself(el, 'width');
+
       if (tw == 0)
 	tw = el.clientWidth;
+      else if (WT.boxSizing(el)) {
+	tw -= WT.px(el, 'borderLeftWidth');
+	tw -= WT.px(el, 'borderRightWidth');
+      }
 
       var scrollwidth = contentsContainer.offsetWidth
         - contentsContainer.clientWidth;
@@ -281,12 +289,12 @@ WT_DECLARE_WT_MEMBER
 
 	var table = contents.firstChild,
           r = WT.getCssRule('#' + el.id + ' .cwidth'),
-          contentstoo = (r.style.width == headers.style.width),
+          contentstoo = (r.style.width == table.offsetWidth + 'px'),
           hc = headers.firstChild;
 
 	r.style.width = tw + 'px';
+
 	contentsContainer.style.width = (tw + scrollwidth) + 'px';
-	headers.style.width = table.offsetWidth + 'px';
 
 	// IE moves the scrollbar left in rtl mode.
 	if (!WT.isIE)
@@ -301,22 +309,29 @@ WT_DECLARE_WT_MEMBER
 			 (WT.getCssRule('#' + el.id + ' .Wt-tv-rowc'),'width'));
 	    tw -= (w - w2);
 
+	    headers.style.width=tw + 'px';
+	    table.style.width=tw + 'px';
+
+	    /* This is really slow in FF, slower than the jquery equivalent */
 	    WT.getCssRule('#' + el.id + ' .Wt-tv-row').style.width = w2 + 'px';
+
 	    if (WT.isIE)
 	      setTimeout(function() {
 			   $el.find(' .Wt-tv-row')
 			     .css('width', w2 + 'px')
 			     .css('width', '');
 			 }, 0);
-	    headers.style.width=tw + 'px';
-	    table.style.width=tw + 'px';
+
 	  }
-	} else if (contentstoo) {
-	  headers.style.width=r.style.width;
-	  table.style.width=r.style.width;
+	} else {
+	  if (contentstoo) {
+	    headers.style.width=r.style.width;
+	    table.style.width=r.style.width;
+	  } else
+	    headers.style.width = table.offsetWidth + 'px';
 	}
 
-	if (!column1Fixed)
+	if (!rowHeaderCount)
 	  c0r.style.width = (table.offsetWidth - hc.offsetWidth - 8) + 'px';
 
 	el.changed = false;

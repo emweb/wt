@@ -241,26 +241,6 @@ public:
    */
   bool rootIsDecorated() const { return rootIsDecorated_; }
 
-  /*! \brief Configures whether horizontal scrolling includes the first column.
-   *
-   * To display a model with many columns, this option allows you to
-   * keep the first column fixed while scrolling through the other
-   * columns of the model.
-   *
-   * The default value is \c false.
-   *
-   * \note Currently, you must set this option before any other manipulation
-   *       of a newly created treeview, and only \p enable = \c true
-   *       is supported.
-   */
-  void setColumn1Fixed(bool enable);
-
-  /*! \brief Returns whether horizontal scrolling includes the first column.
-   *
-   * \sa setColumn1Fixed()
-   */
-  bool column1Fixed() const { return column1Fixed_; }
-
   virtual void resize(const WLength& width, const WLength& height);
 
   /*! \brief %Signal emitted when a node is collapsed.
@@ -295,6 +275,7 @@ public:
   virtual void setHeaderHeight(const WLength& height, bool multiLine = false);
   virtual void setColumnBorder(const WColor& color);
   virtual void setColumnHidden(int column, bool hidden);
+  virtual void setRowHeaderCount(int count);
 
   virtual int pageCount() const;
   virtual int pageSize() const;

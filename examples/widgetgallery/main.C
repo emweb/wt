@@ -16,6 +16,11 @@ WApplication *createApplication(const WEnvironment& env)
   WApplication* app = new WApplication(env);
 
   app->setCssTheme("polished");
+
+  // load text bundles (for the tr() function)
+  app->messageResourceBundle().use(app->appRoot() + "text");
+  app->messageResourceBundle().use(app->appRoot() + "charts");
+  app->messageResourceBundle().use(app->appRoot() + "treeview");
  
   WHBoxLayout *layout = new WHBoxLayout(app->root());
   layout->setContentsMargins(0, 0, 0, 0);
@@ -25,10 +30,6 @@ WApplication *createApplication(const WEnvironment& env)
 
   app->addMetaHeader("viewport", "width=700, height=1200");
 
-  // load text bundles (for the tr() function)
-  app->messageResourceBundle().use(app->appRoot() + "text");
-  app->messageResourceBundle().use(app->appRoot() + "charts");
-  app->messageResourceBundle().use(app->appRoot() + "treeview");
 
   app->useStyleSheet("style/everywidget.css");
   app->useStyleSheet("style/dragdrop.css");

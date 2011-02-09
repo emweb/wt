@@ -179,6 +179,20 @@ public:
    */
   int sortRole() const { return sortRole_; }
 
+  /*! \brief Returns the current sort column.
+   *
+   * When sort() has not been called, the model is unsorted, and this method returns -1.
+   *
+   * \sa sort()
+   */
+  int sortColumn() const { return sortKeyColumn_; }
+
+  /*! \brief Returns the current sort order.
+   *
+   * \sa sort()
+   */
+  SortOrder sortOrder() const { return sortOrder_; }
+
   /*! \brief Configure the proxy to dynamically track changes in the
    *         source model.
    *

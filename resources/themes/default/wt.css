@@ -712,6 +712,10 @@ body.Wt-rtl .Wt-treeview input.icon {
     margin: 0px 0px 2px 3px;
 }
 
+.Wt-treeview .Wt-tv-node {
+    table-layout: fixed;
+}
+
 .Wt-treeview .Wt-tv-node img.w0 {
     width: 0px;
     margin: 0px;

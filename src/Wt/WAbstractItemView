@@ -670,6 +670,51 @@ public:
    */
   Signal<int, WLength>& columnResized() { return columnResized_; }
 
+  /*! \brief Configures the number of columns that are used as row
+   *         headers.
+   *
+   * An item view does not use the vertical header data from the model
+   * in any way, but instead you can configure data in the first
+   * column to be used as a row headers.
+   *
+   * These columns will not scroll horizontally together with the rest
+   * of the model.
+   *
+   * The default value is 0.
+   *
+   * \note Currently, this property must be set before any other settings of
+   *       the view and only a value of 0 or 1 is supported.
+   */
+  virtual void setRowHeaderCount(int count);
+
+  /*! \brief Returns the number of columns that are used as row headers.
+   *
+   * \sa setRowHeaderCount()
+   */
+  int rowHeaderCount() const { return rowHeaderCount_; }
+
+  /*! \brief Configures whether horizontal scrolling includes the first column
+   *         (<b>deprecated</b>)
+   *
+   * To display a model with many columns, this option allows you to
+   * keep the first column fixed while scrolling through the other
+   * columns of the model.
+   *
+   * The default value is \c false.
+   *
+   * \deprecated Use setRowHeaderCount() instead.
+   */
+  void setColumn1Fixed(bool enable);
+
+  /*! \brief Returns whether horizontal scrolling includes the first column.
+   *         (<b>deprecated</b>)
+   *
+   * \sa setColumn1Fixed()
+   *
+   * \deprecated Use rowHeaderCount() instead.
+   */
+  bool column1Fixed() const { return rowHeaderCount_ == 1; }
+
 protected:
   /*! \brief Creates a new item view.
    */
@@ -765,6 +810,7 @@ protected:
 
   mutable std::vector<ColumnInfo> columns_;
   int currentSortColumn_;
+  int rowHeaderCount_;
 
   bool dragEnabled_, dropsEnabled_;
   WWidget *dragWidget_;

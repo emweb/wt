@@ -832,7 +832,7 @@ body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
 
 /* nodes */
 .Wt-treeview .Wt-tv-node {
-    /* table-layout: fixed; could be done if we improve our CSS !*/
+    table-layout: fixed;
 }
 
 .Wt-treeview .Wt-trunk {

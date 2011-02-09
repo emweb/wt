@@ -290,13 +290,18 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 
   {
     std::string style;
+
     if (fitWidth) {
       if (useFixedLayout_)
-	style = "table-layout: fixed;";
+	style += "table-layout: fixed;";
       style += "width: 100%;";
     }
-    if (fitHeight) // for non-JavaScript mode
-      style += "height: 100%;";
+    if (fitHeight) {
+      if (app->environment().ajax())
+	style += "position: absolute;";
+      else
+	style += "height: 100%;";
+    }
 
     table->setProperty(PropertyStyle, style);
   }
@@ -379,13 +384,15 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  // FIXME: when spanning multiple rows, it is not clear what we
 	  //        should do here. For now, let's not think of this.
 	  //
-	  // if stretch == -1 or >0, then we should fit height
-	  // if stretch == 0, then we should not fit height if no row
-	  // stretch is set (in which case JavaScript will actively take
-	  // over anyway)
+	  // if stretch == -1 or >0, then we should fit height.
+	  //
+	  // if stretch == 0, then we should not fit height (in which
+	  // case JavaScript will actively take over anyway), unless
+	  // the item is a layout itself.
+
 	  if (grid_.rows_[row + i].stretch_)
 	    itemFitHeight = true;
-	  else if (!stretch)
+	  else if (!stretch && !(item.item_ && item.item_->layout()))
 	    itemFitHeight = false;
 
 	  colSpan = item.colSpan_;
@@ -505,10 +512,14 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	  if (!app->environment().agentIsIElt(9))
 	    c->setProperty(PropertyStyleBoxSizing, "border-box");
 
+	  /* Buttons are strange or I am not understanding CSS */
+	  if (c->type() == DomElement_BUTTON) {
+	    c->setProperty(PropertyStyleMarginLeft, "0");
+	    c->setProperty(PropertyStyleMarginRight, "0");
+	  }
+
 	  td->addChild(c);
 
-	  if (c->type() != DomElement_BUTTON)
-	    td->setProperty(PropertyStyleOverflowX, "hidden");
 	}
 
 	{

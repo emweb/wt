@@ -211,6 +211,7 @@ WAbstractItemView::WAbstractItemView(WContainerWidget *parent)
     impl_(new WContainerWidget()),
     renderState_(NeedRerender),
     currentSortColumn_(-1),
+    rowHeaderCount_(0),
     dragEnabled_(false),
     dropsEnabled_(false),
     model_(0),
@@ -332,6 +333,16 @@ void WAbstractItemView::setRootIndex(const WModelIndex& rootIndex)
 void WAbstractItemView::setRowHeight(const WLength& rowHeight)
 {
   rowHeight_ = rowHeight;
+}
+
+void WAbstractItemView::setRowHeaderCount(int count)
+{
+  rowHeaderCount_ = count;
+}
+
+void WAbstractItemView::setColumn1Fixed(bool enable)
+{
+  setRowHeaderCount(enable ? 1 : 0);
 }
 
 WLength WAbstractItemView::columnWidth(int column) const

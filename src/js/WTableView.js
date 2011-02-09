@@ -8,7 +8,7 @@
 
 WT_DECLARE_WT_MEMBER
 (1, "ctor.WTableView",
- function(APP, el, contentsContainer, headerContainer) {
+ function(APP, el, contentsContainer, headerContainer, headerColumnsContainer) {
    jQuery.data(el, 'obj', this);
 
    var self = this;
@@ -23,6 +23,7 @@ WT_DECLARE_WT_MEMBER
 
    contentsContainer.onscroll = function() {
      headerContainer.scrollLeft = contentsContainer.scrollLeft;
+     headerColumnsContainer.scrollTop = contentsContainer.scrollTop;
 
      if (contentsContainer.scrollTop < scrollY1
 	 || contentsContainer.scrollTop > scrollY2
@@ -82,17 +83,26 @@ WT_DECLARE_WT_MEMBER
 
      var columnClass = header.className.split(' ')[0],
          columnId = columnClass.substring(7) * 1,
-         headers = headerContainer.firstChild,
-         contents = contentsContainer.firstChild,
-         wt_tv_contents = contents.firstChild,
+	 headers = header.parentNode,
+	 headerColumn = headers.parentNode !== headerContainer,
+	 contents = headerColumn
+		      ? headerColumnsContainer.firstChild
+		      : contentsContainer.firstChild,
+	 wt_tv_contents = contents.firstChild,
 	 column = $(contents).find('.' + columnClass).get(0),
-         h = header.nextSibling, c = column.nextSibling,
+	 h = header.nextSibling, c = column.nextSibling,
          newWidth = WT.pxself(header, 'width') - 1 + delta;
+
+     var cwidth = (WT.pxself(headers, 'width') + delta) + 'px';
 
      headers.style.width
        = contents.style.width
        = wt_tv_contents.style.width
-       = (WT.pxself(headers, 'width') + delta) + 'px';
+       = cwidth;
+
+     if (headerColumn)
+       headerColumnsContainer.style.width = cwidth;
+
      header.style.width = (newWidth + 1) + 'px';
      column.style.width = (newWidth + 7) + 'px';
 
@@ -107,6 +117,7 @@ WT_DECLARE_WT_MEMBER
      }
 
      APP.emit(el, 'columnResized', columnId, parseInt(newWidth));
+     self.autoJavaScript();
    }
 
    this.mouseDown = function(obj, event) {
@@ -323,16 +334,29 @@ WT_DECLARE_WT_MEMBER
      var scrollwidth = contentsContainer.offsetWidth
        - contentsContainer.clientWidth;
      tw -= scrollwidth;
+     tw -= headerColumnsContainer.clientWidth;
 
      if (tw > 200  // XXX: IE's incremental rendering foobars completely
          && (tw != contentsContainer.tw)) {
        contentsContainer.tw = tw;
+
+
        contentsContainer.style.width = (tw + scrollwidth) + 'px';
        headerContainer.style.width = tw + 'px';
 
        // IE moves the scrollbar left in rtl mode.
        if (!WT.isIE)
 	 headerContainer.style.marginRight = scrollwidth + 'px';
+     }
+
+     var scrollheight = contentsContainer.offsetHeight
+       - contentsContainer.clientHeight;
+
+     var pns = headerColumnsContainer.parentNode.style;
+     if (pns.paddingBottom !== scrollheight + 'px') {
+       pns.paddingBottom = scrollheight + 'px';
+       APP.layouts.adjust(el.children[0].id);
+       APP.layouts.adjust();
      }
    };
  });

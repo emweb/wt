@@ -1340,12 +1340,13 @@ In contrast to a WTextEdit, which is a HTML editor and has rich text editing fun
 
   <message id="mvc-WTreeView-column1Fixed">
     <p>
-      The following example uses the same data model, and demonstrates
-      how to keep the first column fixed while scrolling
-      horizontally. This is useful when the <tt>WTreeView</tt>
-      contains a large number of auxiliary columns which cannot all be
-      displayed simultaneously, and there is a need to keep the first
-      column visible while scrolling through the columns horizontally.
+      The following example uses shows how you can use the first
+      column as a <i>row header</i>, which does not scroll
+      horizontally together with the other columns column. This is
+      useful when the <tt>WTreeView</tt> contains a large number of
+      auxiliary columns which cannot all be displayed simultaneously,
+      and there is a need to keep the first column visible while
+      scrolling through the columns horizontally.
     </p>
   </message>
 

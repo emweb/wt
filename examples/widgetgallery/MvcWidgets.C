@@ -227,7 +227,7 @@ WWidget *MvcWidgets::viewsTree()
     = new TreeViewExample(model2, tr("mvc-WTreeView-column1Fixed"));
   result->addWidget(tv2);
 
-  tv2->treeView()->setColumn1Fixed(true);
+  tv2->treeView()->setRowHeaderCount(1);
   tv2->treeView()->setColumnWidth(0, 300);
 
   return result;

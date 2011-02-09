@@ -282,9 +282,8 @@ div.contents {
     margin: 5px;
 }
 
-.googlemaps-controls button {
-    padding-left: 20px; 
-    padding-right: 20px;
+.googlemaps-controls .zoom {
+    width: 2em;
 }
 
 .googlemaps-controls td {

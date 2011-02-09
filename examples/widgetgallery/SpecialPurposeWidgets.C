@@ -53,7 +53,7 @@ public:
     WHBoxLayout* layout = new WHBoxLayout();
     setLayout(layout);
 
-    resize(1200, 500);
+    setHeight(400);
 
     map_ = new WGoogleMap(WGoogleMap::Version3);
     layout->addWidget(map_, 1);
@@ -66,9 +66,11 @@ public:
     layout->addWidget(controls);
 
     WPushButton* zoomIn = new WPushButton("+");
+    zoomIn->addStyleClass("zoom");
     controls->bindWidget("zoom-in", zoomIn);
     zoomIn->clicked().connect(map_, &WGoogleMap::zoomIn);
     WPushButton* zoomOut = new WPushButton("-");
+    zoomOut->addStyleClass("zoom");
     controls->bindWidget("zoom-out", zoomOut);
     zoomOut->clicked().connect(map_, &WGoogleMap::zoomOut);
 

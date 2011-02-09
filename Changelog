@@ -1,3 +1,10 @@
+09-02-2011:
+	* WTableView, WTreeView: renamed (and implemented for WTableView)
+	setColumn1Fixed to setRowHeaderCount()
+
+04-02-2011:
+	* Released 3.1.8
+
 28-01-2011:
 	* Dbo: belongsTo() and hasMany(/* ManyToMany */) can now be passed
 	foreign key constraints such as NotNull and OnDeleteCascade.

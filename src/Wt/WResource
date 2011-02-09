@@ -104,45 +104,45 @@ namespace Wt {
  *
  * Example for a custom resource implementation using continuations:
  * \code
- * class MyResource : public Wt::WResource
- * {
- * public:
- *   MyResource(int iterations, Wt::WObject *parent = 0)
- *     : Wt::WResource(parent)
- *     : iterations_(iterations)
- *   {
- *     suggestFileName("data.txt");
- *   }
- *
- *   ~MyResource() {
- *     beingDeleted();
- *   }
- *
- *   void handleRequest(const Wt::Http::Request& request,
- *                      const Wt::Http::Response& response) {
- *     // see if this request is for a continuation:
- *     Wt::Http::ResponseContinuation *continuation = request.continuation();
- *
- *     // calculate the current start
- *     int iteration = continuation ? boost::any_cast<int>(continuation->data()) : 0;
- *     if (iteration == 0)
- *       response.setMimeType("plain/text");
- *
- *     int last = std::min(iterations_, iteration + 100);
- *     for (int i = iteration; i < last; ++i)
- *       response.out() << "Data item " << i << std::endl;
- *
- *     // if we have not yet finished, create a continuation to serve more
- *     if (last < iterations_)
- *       continuation = response.createContinuation();
- *       // remember what to do next
- *       continuation->setData(last);
- *     }
- *   }
- *
- * private:
- *   int iterations_;
- * };
+class MyResource : public Wt::WResource
+{
+public:
+  MyResource(int iterations, Wt::WObject *parent = 0)
+    : Wt::WResource(parent),
+      iterations_(iterations)
+  {
+    suggestFileName("data.txt");
+  }
+
+  ~MyResource() {
+    beingDeleted();
+  }
+
+  void handleRequest(const Wt::Http::Request& request,
+                     Wt::Http::Response& response) {
+    // see if this request is for a continuation:
+    Wt::Http::ResponseContinuation *continuation = request.continuation();
+
+    // calculate the current start
+    int iteration = continuation ? boost::any_cast<int>(continuation->data()) : 0;
+    if (iteration == 0)
+      response.setMimeType("plain/text");
+
+    int last = std::min(iterations_, iteration + 100);
+    for (int i = iteration; i < last; ++i)
+      response.out() << "Data item " << i << std::endl;
+
+    // if we have not yet finished, create a continuation to serve more
+    if (last < iterations_) {
+      continuation = response.createContinuation();
+      // remember what to do next
+      continuation->setData(last);
+    }
+  }
+
+private:
+  int iterations_;
+};
  * \endcode
  *
  * <h3>Global and private resources</h3>

@@ -120,6 +120,7 @@ public:
   virtual void setColumnBorder(const WColor& color);
   virtual void resize(const WLength& width, const WLength& height);
   virtual void setColumnHidden(int column, bool hidden);
+  virtual void setRowHeaderCount(int count);
 
   virtual int pageCount() const;
   virtual int pageSize() const;
@@ -143,6 +144,8 @@ private:
   /* For Ajax implementation */
   WContainerWidget *headers_, *canvas_, *table_;
   WContainerWidget *headerContainer_, *contentsContainer_;
+  WContainerWidget *headerColumnsCanvas_, *headerColumnsTable_;
+  WContainerWidget *headerColumnsHeaderContainer_, *headerColumnsContainer_;
 
   /* For plain HTML implementation */
   WTable *plainTable_;
@@ -211,11 +214,14 @@ private:
   void onViewportChange(int left, int top, int width, int height);
   void resetGeometry();
   
-  void handleSingleClick(const WMouseEvent& event);
-  void handleDoubleClick(const WMouseEvent& event);
-  void handleMouseWentDown(const WMouseEvent& event);
-  void handleMouseWentUp(const WMouseEvent& event);
-  WModelIndex translateModelIndex(const WMouseEvent& event);
+  void handleSingleClick(const WMouseEvent& event, bool headerColumns);
+  void handleDoubleClick(const WMouseEvent& event, bool headerColumns);
+  void handleMouseWentDown(const WMouseEvent& event, bool headerColumns);
+  void handleMouseWentUp(const WMouseEvent& event, bool headerColumns);
+  WModelIndex translateModelIndex(const WMouseEvent& event, bool headerColumns);
+
+  void updateItem(const WModelIndex& index,
+		  int renderedRow, int renderedColumn);
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
   virtual void selectRange(const WModelIndex& first, const WModelIndex& last);

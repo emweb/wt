@@ -325,9 +325,12 @@ WTreeViewNode::WTreeViewNode(WTreeView *view, const WModelIndex& index,
 
     if (view_->selectionBehavior() == SelectRows && view_->isSelected(index_))
       renderSelected(true, 0);
-  } else
+  } else {
     if (WApplication::instance()->environment().agentIsIE())
-      elementAt(0, 0)->resize(1, WLength::Auto); 
+      elementAt(0, 0)->resize(1, WLength::Auto);
+    else
+      elementAt(0, 0)->resize(0, WLength::Auto);
+  }
 
   view_->addRenderedNode(this);
 }
@@ -455,7 +458,7 @@ void WTreeViewNode::insertColumns(int column, int count)
   if (view_->columnCount() > 1) {
     WContainerWidget *row = new WContainerWidget();
 
-    if (view_->column1Fixed_) {
+    if (view_->rowHeaderCount()) {
       row->setStyleClass("Wt-tv-rowc rh");
       WContainerWidget *rowWrap = new WContainerWidget();
       rowWrap->addWidget(row);
@@ -515,7 +518,7 @@ void WTreeViewNode::setWidget(int column, WWidget *newW)
     tc->addWidget(newW);
   } else {
     WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
-    if (view_->column1Fixed_)
+    if (view_->rowHeaderCount())
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
     if (current)
@@ -544,7 +547,7 @@ WWidget *WTreeViewNode::widget(int column)
   } else {
     WContainerWidget *row = dynamic_cast<WContainerWidget *>(tc->widget(0));
 
-    if (view_->column1Fixed_)
+    if (view_->rowHeaderCount())
       row = dynamic_cast<WContainerWidget *>(row->widget(0));
 
     return row->count() >= column ? row->widget(column - 1) : 0;
@@ -904,7 +907,6 @@ WTreeView::WTreeView(WContainerWidget *parent)
     rootNode_(0),
     borderColorRule_(0),
     rootIsDecorated_(true),
-    column1Fixed_(false),
     collapsed_(this),
     expanded_(this),
     viewportTop_(0),
@@ -1058,10 +1060,11 @@ void WTreeView::defineJavaScript()
 		    + app->javaScriptClass() + "," + jsRef() + ","
 		    + contentsContainer_->jsRef() + ","
 		    + headerContainer_->jsRef() + ","
-		    + (column1Fixed_ ? "true" : "false") + ");");
+		    + boost::lexical_cast<std::string>(rowHeaderCount())
+		    + ");");
 }
 
-void WTreeView::setColumn1Fixed(bool fixed)
+void WTreeView::setRowHeaderCount(int count)
 {
   WApplication *app = WApplication::instance();
 
@@ -1069,14 +1072,22 @@ void WTreeView::setColumn1Fixed(bool fixed)
   if (!app->environment().ajax())
     return;
 
-  if (fixed && !column1Fixed_) {
-    column1Fixed_ = fixed;
+  int oldCount = rowHeaderCount();
 
+  if (count != 0 && count != 1)
+    throw std::logic_error("WTreeView::setRowHeaderCount: "
+			   "count must be 0 or 1");
+
+  WAbstractItemView::setRowHeaderCount(count);
+
+  if (count && !oldCount) {
     addStyleClass("column1");
     WContainerWidget *rootWrap
       = dynamic_cast<WContainerWidget *>(contents_->widget(0));
     rootWrap->resize(WLength(100, WLength::Percentage), WLength::Auto);
     rootWrap->setOverflow(WContainerWidget::OverflowHidden);
+    contents_->setPositionScheme(Relative);
+    rootWrap->setPositionScheme(Absolute);
 
     // needed for IE, otherwise row expands automatically to content width
     rowWidthRule_->templateWidget()->resize(0, WLength::Auto);
@@ -1403,7 +1414,7 @@ void WTreeView::render(WFlags<RenderFlag> flags)
   }
 
 
-  if (column1Fixed_ && renderedNodesAdded_) {
+  if (rowHeaderCount() && renderedNodesAdded_) {
     WApplication::instance()->doJavaScript
       ("{var s=" + scrollBarC_->jsRef() + ";"
        """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
@@ -1431,7 +1442,7 @@ void WTreeView::rerenderHeader()
   WContainerWidget *row = new WContainerWidget(headers_);
   row->setFloatSide(Right);
 
-  if (column1Fixed_) {
+  if (rowHeaderCount()) {
     row->setStyleClass("Wt-tv-row headerrh background");
     row = new WContainerWidget(row);
     row->setStyleClass("Wt-tv-rowc headerrh");
@@ -2099,7 +2110,7 @@ WContainerWidget *WTreeView::headerRow()
 {
   WContainerWidget *row
     = dynamic_cast<WContainerWidget *>(headers_->widget(0));
-  if (column1Fixed_)
+  if (rowHeaderCount())
     row = dynamic_cast<WContainerWidget *>(row->widget(0));
   return row;
 }
