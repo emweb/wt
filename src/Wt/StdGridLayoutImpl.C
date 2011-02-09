@@ -297,9 +297,7 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
       style += "width: 100%;";
     }
     if (fitHeight) {
-      if (app->environment().ajax())
-	style += "position: absolute;";
-      else
+      if (!app->environment().ajax())
 	style += "height: 100%;";
     }
 
