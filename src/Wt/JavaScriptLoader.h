@@ -26,13 +26,15 @@
   namespace {								\
     std::string wtjs##i(Wt::WApplication *app) {			\
       const char *s = #__VA_ARGS__;					\
-      if (strncmp(name, "ctor.", 5) == 0) {				\
+      if (strstr(name, ".prototype") != 0)				\
+	return std::string(WT_CLASS "." name " = ")			\
+	  + s + ";";							\
+      else if (strncmp(name, "ctor.", 5) == 0)				\
 	return WT_CLASS "." + std::string(name).substr(5) + " = "	\
 	  + s + ";";							\
-      } else {								\
+      else								\
         return std::string(WT_CLASS "." name " = function() { (")	\
           + s + ").apply(" WT_CLASS ", arguments) };";			\
-      }									\
     }									\
   }
 
