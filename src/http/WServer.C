@@ -103,6 +103,11 @@ struct WServerImpl {
     }
   }
 
+  void runThread(WServer *server) {
+    server->initializeThread();
+    server_->run();
+  }
+
   std::string    applicationPath_, wtConfigurationFile_;
   Configuration *wtConfiguration_;
   HTTPStream     stream_;
@@ -218,7 +223,7 @@ bool WServer::start()
 
     for (int i = 0; i < NUM_THREADS; ++i)
       impl_->threads_[i] =
-	new thread_t(boost::bind(&http::server::Server::run, impl_->server_));
+	new thread_t(boost::bind(&WServerImpl::runThread, impl_, this));
 
 #if !defined(_WIN32)
     // Restore previous signals.
@@ -234,6 +239,9 @@ bool WServer::start()
     throw Exception(std::string("Error: ") + e.what());
   }
 }
+
+void WServer::initializeThread()
+{ }
 
 bool WServer::isRunning() const
 {

@@ -262,6 +262,17 @@ public:
 
   virtual void handleRequest(WebRequest *request);
 
+  /*! \brief Initializes a thread.
+   *
+   * This method is called within each newly created server thread,
+   * and may be specialized to customize scheduling properties.
+   *
+   * The default implementation does nothing.
+   *
+   * \note This currently only works for the built-in httpd
+   */
+  virtual void initializeThread();
+
 private:
   WServerImpl *impl_;
 };

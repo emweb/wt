@@ -629,22 +629,6 @@ void WebController::handleAsyncRequest(WebRequest *request)
   if (!running_)
     expireSessions();
 
-#if defined(WT_THREADED) && defined(NOTHREADPOOL)
-  if (running_) {
-
-    boost::thread self;
-    boost::mutex::scoped_lock lock(threadsMutex_);
-
-    for (unsigned i = 0; i < threads_.size(); ++i) {
-      if (*threads_[i] == self) {
-	delete threads_[i];
-	threads_.erase(threads_.begin() + i);
-	break;
-      }
-    }
-  }
-#endif // WT_THREADED && NOTHREADPOOL
-
   if (!handled)
     handleAsyncRequest(request);
 }

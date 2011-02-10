@@ -942,6 +942,9 @@ std::string WServer::appRoot() const
   return impl_->configuration_->appRoot();
 }
 
+void WServer::initializeThread()
+{ }
+
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {

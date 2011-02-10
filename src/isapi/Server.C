@@ -341,6 +341,9 @@ std::string WServer::appRoot() const
   return impl_->configuration()->appRoot();
 }
 
+void WServer::initializeThread()
+{ }
+
 bool WServer::readConfigurationProperty(const std::string& name,
                                         std::string& value) const
 {

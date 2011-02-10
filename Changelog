@@ -1,3 +1,10 @@
+10-02-2011:
+	* WRun(), WServer::addEntryPoint(): uses a boost::function for the
+	application creator callback, so that you can bind additional arguments
+
+	* WServer::initializeThread() a virtual method which can be used to
+	initialize thread in a specialized WServer class (only for built-in httpd)
+
 09-02-2011:
 	* WTableView, WTreeView: renamed (and implemented for WTableView)
 	setColumn1Fixed to setRowHeaderCount()
