@@ -654,7 +654,7 @@ WApplication *WebController::doCreateApplication(WebSession *session)
   const EntryPoint *ep 
     = WebSession::Handler::instance()->request()->entryPoint_;
 
-  return (*ep->appCallback())(session->env());
+  return ep->appCallback()(session->env());
 }
 
 const EntryPoint *

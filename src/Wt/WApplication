@@ -25,6 +25,7 @@ namespace boost {
 #include <Wt/WMessageResourceBundle>
 #include <Wt/WSignal>
 #include <Wt/WString>
+#include <boost/function.hpp>
 
 namespace Wt {
 
@@ -54,7 +55,7 @@ class SoundManager;
  *
  * \relates WApplication
  */
-typedef WApplication* (*ApplicationCreator)(const WEnvironment& env);
+typedef boost::function<WApplication* (const WEnvironment&)> ApplicationCreator;
 #endif // !WT_TARGET_JAVA
 
 /*! \class WApplication Wt/WApplication Wt/WApplication

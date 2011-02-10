@@ -7,6 +7,8 @@
 #ifndef WT_JAVASCRIPT_LOADER_H_
 #define WT_JAVASCRIPT_LOADER_H_
 
+#include <cstring>
+
 #define WT_JS(...) #__VA_ARGS__
 
 #ifndef WT_DEBUG_JS
@@ -26,10 +28,10 @@
   namespace {								\
     std::string wtjs##i(Wt::WApplication *app) {			\
       const char *s = #__VA_ARGS__;					\
-      if (strstr(name, ".prototype") != 0)				\
+      if (std::string(name).find(".prototype") != std::string::npos)	\
 	return std::string(WT_CLASS "." name " = ")			\
 	  + s + ";";							\
-      else if (strncmp(name, "ctor.", 5) == 0)				\
+      else if (std::strncmp(name, "ctor.", 5) == 0)			\
 	return WT_CLASS "." + std::string(name).substr(5) + " = "	\
 	  + s + ";";							\
       else								\

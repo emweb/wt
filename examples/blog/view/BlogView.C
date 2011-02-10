@@ -188,7 +188,7 @@ private:
 
     if (user) {
       if (user->authenticate(passwd->text().toUTF8())) {
-	if (rememberMe) {
+	if (rememberMe->isChecked()) {
 	  std::string token = user.modify()->generateToken();
 	  WApplication *app = wApp;
 	  app->setCookie("bloglogin", token, 60*60*24*14);

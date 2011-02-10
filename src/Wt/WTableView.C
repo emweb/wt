@@ -87,13 +87,13 @@ WTableView::WTableView(WContainerWidget *parent)
     canvas_->setStyleClass("Wt-spacer");
     canvas_->setPositionScheme(Relative);
     canvas_->clicked()
-      .connect(boost::bind(&WTableView::handleSingleClick, this, _1, false));
+      .connect(boost::bind(&WTableView::handleSingleClick, this, false, _1));
     canvas_->doubleClicked()
-      .connect(boost::bind(&WTableView::handleDoubleClick, this, _1, false));
+      .connect(boost::bind(&WTableView::handleDoubleClick, this, false, _1));
     canvas_->mouseWentDown()
-      .connect(boost::bind(&WTableView::handleMouseWentDown, this, _1, false)); 
+      .connect(boost::bind(&WTableView::handleMouseWentDown, this, false, _1)); 
     canvas_->mouseWentUp()
-      .connect(boost::bind(&WTableView::handleMouseWentUp, this, _1, false)); 
+      .connect(boost::bind(&WTableView::handleMouseWentUp, this, false, _1)); 
     canvas_->addWidget(table_);
 
     contentsContainer_ = new WContainerWidget();
@@ -114,13 +114,13 @@ WTableView::WTableView(WContainerWidget *parent)
     headerColumnsCanvas_ = new WContainerWidget();
     headerColumnsCanvas_->setPositionScheme(Relative);
     headerColumnsCanvas_->clicked()
-      .connect(boost::bind(&WTableView::handleSingleClick, this, _1, true));
+      .connect(boost::bind(&WTableView::handleSingleClick, this, true, _1));
     headerColumnsCanvas_->doubleClicked()
-      .connect(boost::bind(&WTableView::handleDoubleClick, this, _1, true));
+      .connect(boost::bind(&WTableView::handleDoubleClick, this, true, _1));
     headerColumnsCanvas_->mouseWentDown()
-      .connect(boost::bind(&WTableView::handleMouseWentDown, this, _1, true)); 
+      .connect(boost::bind(&WTableView::handleMouseWentDown, this, true, _1)); 
     headerColumnsCanvas_->mouseWentUp()
-      .connect(boost::bind(&WTableView::handleMouseWentUp, this, _1, true)); 
+      .connect(boost::bind(&WTableView::handleMouseWentUp, this, true, _1)); 
     headerColumnsCanvas_->addWidget(headerColumnsTable_);
 
     headerColumnsContainer_ = new WContainerWidget();
@@ -1359,31 +1359,31 @@ void WTableView::setAlternatingRowColors(bool enable)
   updateTableBackground();
 }
 
-void WTableView::handleSingleClick(const WMouseEvent& event, bool headerColumns)
+void WTableView::handleSingleClick(bool headerColumns, const WMouseEvent& event)
 {
-  WModelIndex index = translateModelIndex(event, headerColumns);
+  WModelIndex index = translateModelIndex(headerColumns, event);
   if (index.isValid())
     WAbstractItemView::handleClick(index, event);
 }
 
-void WTableView::handleDoubleClick(const WMouseEvent& event, bool headerColumns)
+void WTableView::handleDoubleClick(bool headerColumns, const WMouseEvent& event)
 {
-  WModelIndex index = translateModelIndex(event, headerColumns);
+  WModelIndex index = translateModelIndex(headerColumns, event);
   if (index.isValid())
     WAbstractItemView::handleDoubleClick(index, event);
 }
 
-void WTableView::handleMouseWentDown(const WMouseEvent& event,
-				     bool headerColumns)
+void WTableView::handleMouseWentDown(bool headerColumns,
+				     const WMouseEvent& event)
 {
-  WModelIndex index = translateModelIndex(event, headerColumns);
+  WModelIndex index = translateModelIndex(headerColumns, event);
   if (index.isValid())
     WAbstractItemView::handleMouseDown(index, event);
 }
 
-void WTableView::handleMouseWentUp(const WMouseEvent& event, bool headerColumns)
+void WTableView::handleMouseWentUp(bool headerColumns, const WMouseEvent& event)
 {
-  WModelIndex index = translateModelIndex(event, headerColumns);
+  WModelIndex index = translateModelIndex(headerColumns, event);
   if (index.isValid())
     WAbstractItemView::handleMouseUp(index, event);
 }
@@ -1395,8 +1395,8 @@ void WTableView::modelLayoutChanged()
   resetGeometry();
 }
 
-WModelIndex WTableView::translateModelIndex(const WMouseEvent& event,
-					    bool headerColumns)
+WModelIndex WTableView::translateModelIndex(bool headerColumns,
+					    const WMouseEvent& event)
 {
   int row = (int)(event.widget().y / rowHeight().toPixels());
   int column = -1;
