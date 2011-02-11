@@ -55,6 +55,22 @@ std::string *WCombinedLocalizedStrings::resolveKey(const std::string& key)
 }
 #endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
+bool WCombinedLocalizedStrings::resolvePluralKey(const std::string& key,
+						 std::string& result,
+						 ::uint64_t amount)
+{
+  for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
+    if (localizedStrings_[i]->resolvePluralKey(key, result, amount))
+      return true;
+  }
+
+  return false;
+}
+#else
+  //TODO
+#endif // WT_TARGET_JAVA
+
 void WCombinedLocalizedStrings::refresh()
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {

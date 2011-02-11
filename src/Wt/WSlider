@@ -7,12 +7,12 @@
 #ifndef WSLIDER_H_
 #define WSLIDER_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WFormWidget>
 #include <Wt/WJavaScript>
 
 namespace Wt {
 
-class WSliderBackground;
+class PaintedSlider;
 
 /*! \class WSlider Wt/WSlider Wt/WSlider
  *  \brief A horizontal or vertical slider control.
@@ -20,9 +20,9 @@ class WSliderBackground;
  * A slider allows the user to specify an integer value within a particular
  * range using a visual slider.
  *
- * The slider must be sized explicitly using WWidget::resize(). The
- * default size is 150 x 50 pixels for a horizontal slider, and 50 x
- * 150 pixels for a vertical slider.
+ * The slider must be sized explicitly using resize() or by a layout
+ * manager. The default size is 150 x 50 pixels for a horizontal
+ * slider, and 50 x 150 pixels for a vertical slider.
  *
  * \if cpp
  * Usage example:
@@ -42,16 +42,20 @@ class WSliderBackground;
  *
  * <h3>CSS</h3>
  *
- * The slider is styled by the current CSS theme. The look can be
- * overridden using the <tt>Wt-slider</tt> CSS class and the following
- * selectors:
+ * The non-native slider (see setNativeControl()) is styled by the
+ * current CSS theme. The look can be overridden using the
+ * <tt>Wt-slider-[hv]</tt> CSS class and the following selectors
+ * (shown here for a horizontal slider, the vertical slider is
+ * equivalent but using Wt-slider-v instead of Wt-slider-h:
  *
  * \verbatim
-.Wt-slider .handle-v : The vertical handle
-.Wt-slider .handle-h : The horizontal handle
+.Wt-slider-h .Wt-slider-bg : A background sized with 5px left/right margin
+.Wt-slider-h .Wt-e         : A west background image (5px width)
+.Wt-slider-h .Wt-w         : An east background image (5px width)
+.Wt-slider-h .handle       : The handle (20px width)
 \endverbatim
  */
-class WT_API WSlider : public WCompositeWidget
+class WT_API WSlider : public WFormWidget
 {
 public:
   /*! \brief Enumeration that specifies the location of ticks.
@@ -92,6 +96,29 @@ public:
   /*! \brief Destructor.
    */
   ~WSlider();
+
+  /*! \brief Configures whether a native HTML5 control should be used.
+   *
+   * When \p native, the new "range" input element, specified by HTML
+   * and available in a number of browsers, is used rather than the
+   * built-in element. A native control is styled by the browser
+   * (usually in sync with the OS) rather than through the theme
+   * chosen. Settings like tick interval and tick position are
+   * ignored.
+   *
+   * \note Vertically oriented sliders are in theory supported by the HTML5
+   *       input element, but in practice are usually not rendered correctly
+   *       by the browser.
+   */
+  void setNativeControl(bool nativeControl);
+
+  /*! \brief Returns whether a native HTML5 control is used.
+   *
+   * Taking into account the preference for a native control,
+   * configured using setNativeControl(), this method returns whether
+   * a native control is actually being used.
+   */
+  bool nativeControl() const;
 
   /*! \brief Sets the slider orientation.
    *
@@ -215,40 +242,27 @@ protected:
   virtual void signalConnectionsChanged();
   virtual void layoutSizeChanged(int width, int height);
 
+  virtual void render(WFlags<RenderFlag> flags);
+  virtual void updateDom(DomElement& element, bool all);
+  virtual DomElementType domElementType() const;
+  virtual void setFormData(const FormData& formData);
+
 private:
   Orientation          orientation_;
   int                  tickInterval_;
   WFlags<TickPosition> tickPosition_;
-  int                  minimum_, maximum_;
+  bool                 preferNative_, changed_, changedConnected_;
 
+  int                  minimum_, maximum_;
   int                  value_;
 
   Signal<int>          valueChanged_;
   JSignal<int>         sliderMoved_;
-  JSignal<int>         sliderReleased_;
 
-  WContainerWidget    *impl_;
-  WSliderBackground   *background_;
-  WContainerWidget    *handle_;
+  PaintedSlider       *paintedSlider_;
 
-  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
-
-  int range() const { return maximum_ - minimum_; }
-
-  void create();
   void update();
-  void updateSliderPosition();
-
-  void onSliderClick(const WMouseEvent& event);
-  void onSliderReleased(int u);
-
-  WLength w() const;
-  WLength h() const;
-
-  static const int HANDLE_WIDTH = 17;
-  static const int HANDLE_HEIGHT = 21;
-
-  friend class WSliderBackground;
+  void onChange();
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WSlider::TickPosition)

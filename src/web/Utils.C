@@ -11,6 +11,8 @@
 #include "WtException.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 
 #include <cstdlib>
 #include <sstream>
@@ -23,6 +25,222 @@
 #else
 #include <stdlib.h>
 #endif // WIN32
+
+#ifndef WT_NO_SPIRIT
+
+#include <boost/version.hpp>
+
+#if BOOST_VERSION < 103600
+#include <boost/spirit.hpp>
+#include <boost/spirit/phoenix/binders.hpp>
+#else
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/phoenix1_binders.hpp>
+#endif
+
+#include <boost/bind.hpp>
+
+#endif // WT_NO_SPIRIT
+
+
+#ifndef WT_NO_SPIRIT
+namespace {
+#if BOOST_VERSION < 103600
+  using namespace boost::spirit;
+#else
+  using namespace boost::spirit::classic;
+#endif
+  using namespace boost;
+
+struct CExpressionParser : grammar<CExpressionParser>
+{
+  struct ParseState
+  {
+    bool condition_;
+  };
+
+  CExpressionParser(::int64_t n, int &result, ParseState &state) : 
+    n_(n),
+    result_(result),
+    state_(state)
+  {}
+
+  struct value_closure : closure<value_closure, ::int64_t, ::int64_t>
+  {
+    member1 value;
+    member2 condition;
+  };
+
+  template <typename ScannerT>
+  struct definition
+  {
+    definition(CExpressionParser const& self)
+    {
+      using namespace boost::spirit;
+      using namespace phoenix;
+
+      group
+        = '('
+          >> expression[group.value = arg1]
+          >> ')'
+        ;
+
+       // A statement can end at the end of the line, or with a semicolon.
+      statement
+        =   ( expression[bind(&CExpressionParser::set_result)(self, arg1)]
+          )
+        >> (end_p | ';')
+        ;
+
+      literal
+        = uint_p[literal.value = arg1]
+        ;
+
+      factor
+        = literal[factor.value = arg1]
+        | group[factor.value = arg1]
+        | ch_p('n')[factor.value = bind(&CExpressionParser::get_n)(self)]
+        ;
+
+      term
+        = factor[term.value = arg1]
+          >> *( ('*' >> factor[term.value *= arg1])
+              | ('/' >> factor[term.value /= arg1])
+	      | ('%' >> factor[term.value %= arg1])
+            )
+        ;
+
+      additive_expression
+        = term[additive_expression.value = arg1]
+          >> *( ('+' >> term[additive_expression.value += arg1])
+              | ('-' >> term[additive_expression.value -= arg1])
+            )
+        ;
+
+      expression
+	= or_expression[expression.value = arg1]
+	               [expression.condition = arg1] 
+	>> !( '?' 
+	      >> expression[bind(&CExpressionParser::set_cond)
+			    (self, expression.condition)]
+	                   [bind(&CExpressionParser::ternary_op)
+			    (self, expression.value, arg1)] 
+	      >> ':' 
+	      >> expression[bind(&CExpressionParser::set_not_cond)
+			    (self, expression.condition)]
+	                   [bind(&CExpressionParser::ternary_op)
+			    (self, expression.value, arg1)]
+			    )
+	;
+
+      or_expression
+        = and_expression[or_expression.value = arg1]
+	  >> *( "||" >> and_expression[bind(&CExpressionParser::or_op)
+				       (self, or_expression.value, arg1)] )
+        ;
+      
+      and_expression
+        = eq_expression[and_expression.value = arg1]
+          >> *( "&&" >> eq_expression[bind(&CExpressionParser::and_op)
+				       (self, and_expression.value, arg1)] )
+        ;
+
+      eq_expression
+        = relational_expression[eq_expression.value = arg1]
+          >> *( ("==" >> relational_expression[bind(&CExpressionParser::eq_op)
+					       (self, 
+						eq_expression.value, 
+						arg1)])
+	      | ("!=" >> relational_expression[bind(&CExpressionParser::neq_op)
+					       (self, 
+						eq_expression.value, 
+						arg1)])
+            )
+        ;
+	
+      relational_expression
+        = additive_expression[relational_expression.value = arg1]
+          >> *( (">" >> additive_expression[bind(&CExpressionParser::gt_op)
+					    (self, 
+					     relational_expression.value, 
+					     arg1)])
+	      | (">=" >> additive_expression[bind(&CExpressionParser::gte_op)
+					     (self, 
+					      relational_expression.value, 
+					      arg1)])
+	      | ("<" >> additive_expression[bind(&CExpressionParser::lt_op)
+					    (self, 
+					     relational_expression.value, 
+					     arg1)])
+	      | ("<=" >> additive_expression[bind(&CExpressionParser::lte_op)
+					     (self, 
+					      relational_expression.value, 
+					      arg1)])
+            )
+        ;
+    }
+
+    rule<ScannerT> const&
+    start() const { return statement; }
+
+    rule<ScannerT> statement;
+    rule<ScannerT, value_closure::context_t> expression, factor,
+      group, literal, term, additive_expression, or_expression, and_expression, eq_expression, relational_expression;
+  };
+
+private: 
+  ::int64_t get_n() const { return n_; }
+  
+  void eq_op(::int64_t &x, ::int64_t y) const { x = x == y; }
+  void neq_op(::int64_t &x, ::int64_t y) const { x = x != y; }
+  
+  void lt_op(::int64_t &x, ::int64_t y) const { x = x < y;}
+  void gt_op(::int64_t &x, ::int64_t y) const { x = x > y;}
+  void lte_op(::int64_t &x, ::int64_t y) const { x = x <= y;}
+  void gte_op(::int64_t &x, ::int64_t y) const { x = x >= y;}
+
+  void ternary_op(::int64_t &result, ::int64_t y) const 
+  { 
+    if (state_.condition_) 
+      result = y; 
+  } 
+
+  void set_cond(::int64_t condition) const 
+  { 
+    state_.condition_ = condition;
+  } 
+
+  void set_not_cond(::int64_t condition) const 
+  { 
+    state_.condition_ = !condition;
+  } 
+  
+  void or_op(::int64_t &x, ::int64_t y) const { x = x || y; }
+  void and_op(::int64_t &x, ::int64_t y) const { x = x && y; }
+
+  void set_result(int result) const { result_ = result; }
+private :
+  ::int64_t n_;
+  int &result_;
+  ParseState &state_;
+
+public :
+  int result() { return result_; }
+};
+
+int calculatePluralCaseImpl(const std::string &expression, ::uint64_t n)
+{
+  int result;
+  std::string tmp = expression;
+  CExpressionParser::ParseState state;
+  CExpressionParser p(n, result, state);
+  parse_info<std::string::iterator> info 
+    = parse(tmp.begin(), tmp.end(), p, space_p);
+
+  return result;
+}
+}
+#endif //WT_NO_SPIRIT
 
 namespace Wt {
 
@@ -271,6 +489,16 @@ std::string readJavaScriptFile(const std::string& fname)
   jstext[length] = 0;
 
   return std::string(jstext.get());
+}
+
+int calculatePluralCase(const std::string &expression, ::uint64_t amount)
+{
+#ifndef WT_NO_SPIRIT
+  return calculatePluralCaseImpl(expression, amount);
+#else
+  throw std::logic_error("Utils::calculatePluralCase() "
+			 "requires the spirit library.");
+#endif
 }
   
   }

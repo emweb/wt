@@ -1,13 +1,27 @@
 /*
- * Copyright (C) 2008 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2008, 2011 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WApplication"
 #include "Wt/WContainerWidget"
+#include "Wt/WEnvironment"
 #include "Wt/WPaintedWidget"
 #include "Wt/WPainter"
 #include "Wt/WSlider"
+
+#include "DomElement.h"
+#include "Utils.h"
+
+/*
+ * Emulation:
+ *  - background PNG (on element itself)
+ *  - ticks using WPaintedWidget -> first child
+ *  - slider using div -> second child
+ *
+ * Native:
+ *  - "range" input (works on Safari hihaar !)
+ */
 
 namespace Wt {
 
@@ -15,28 +29,41 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks = 0;
 const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
   = TicksAbove | TicksBelow;
 
-  namespace {
-    const int HANDLE_WIDTH = 17;
-    const int HANDLE_HEIGHT = 21;
-  }
+class PaintedSlider : public WPaintedWidget
+{
+public:
+  PaintedSlider(WSlider *slider);
 
-  class WSliderBackground : public WPaintedWidget
-  {
-  public:
-    WSliderBackground(WSlider *slider)
-      : WPaintedWidget(),
-	slider_(slider)
-    { }
+  void updateState();
+  void updateSliderPosition();
+  void doUpdateDom(DomElement& element, bool all);
 
-  protected:
-    void paintEvent(WPaintDevice *paintDevice);
+  virtual void sliderResized(const WLength& width, const WLength& height);
 
-  private:
-    WSlider *slider_;
-  };
+protected:
+  void paintEvent(WPaintDevice *paintDevice);
 
-  void WSliderBackground::paintEvent(WPaintDevice *paintDevice)
-  {
+private:
+  WSlider *slider_;
+
+  JSignal<int> sliderReleased_;
+  JSlot mouseDownJS_, mouseMovedJS_, mouseUpJS_;
+
+  WContainerWidget *handle_;
+
+  int range() const { return slider_->maximum() - slider_->minimum(); }
+  double w() const;
+  double h() const;
+
+  void onSliderClick(const WMouseEvent& event);
+  void onSliderReleased(int u);
+
+  static const int HANDLE_WIDTH = 20;
+};
+
+void PaintedSlider::paintEvent(WPaintDevice *paintDevice)
+{
+  if (slider_->tickPosition()) {
     WPainter painter(paintDevice);
 
     int w, h;
@@ -52,186 +79,98 @@ const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
       painter.rotate(-90);
     }
 
-    /*
-     * Draw inset slider groove, as three lines
-     */
-    WPen p1;
-    p1.setCapStyle(FlatCap);
-    p1.setColor(WColor(0x89, 0x89, 0x89));
-    painter.setPen(p1);
+    int tickInterval = slider_->tickInterval();
+    int r = range();
 
-    painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2 - 2 + 0.5,
-		     w - WSlider::HANDLE_WIDTH/2, h/2 - 2 + 0.5);
+    if (tickInterval == 0)
+      tickInterval = r / 2;
 
-    WPen p2;
-    p2.setCapStyle(FlatCap);
-    p2.setColor(WColor(0xb7, 0xb7, 0xb7));
-    painter.setPen(p2);
+    double tickStep = ((double)w - (HANDLE_WIDTH - 10)) / (r / tickInterval);
 
-    painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2 + 1 + 0.5,
-		     w - WSlider::HANDLE_WIDTH/2, h/2 + 1 + 0.5);
+    WPen pen;
+    pen.setColor(WColor(0xd7, 0xd7, 0xd7));
+    pen.setCapStyle(FlatCap);
+    pen.setWidth(1);
+    painter.setPen(pen);
 
-    WPen p3;
-    p3.setCapStyle(FlatCap);
-    p3.setColor(WColor(0xd7, 0xd7, 0xd7));
-    p3.setWidth(2);
-    painter.setPen(p3);
+    int y1 = h / 4;
+    int y2 = h / 2 - 4;
+    int y3 = h / 2 + 4;
+    int y4 = h - h/4;
 
-    painter.drawLine(WSlider::HANDLE_WIDTH/2,     h/2,
-		     w - WSlider::HANDLE_WIDTH/2, h/2);
+    for (unsigned i = 0; ; ++i) {
+      int x = (HANDLE_WIDTH - 10)/2 + (int) (i * tickStep);
 
-    /*
-     * Draw ticks
-     */
-    if (slider_->tickPosition()) {
-      int tickInterval = slider_->tickInterval();
-      int range = slider_->maximum() - slider_->minimum();
-      if (tickInterval == 0)
-	tickInterval = range / 2;
+      if (x > w - (HANDLE_WIDTH - 10)/2)
+	break;
 
-      double tickStep = ((double)w - WSlider::HANDLE_WIDTH)
-	/ (range / tickInterval);
-
-      WPen pen;
-      pen.setColor(WColor(0xd7, 0xd7, 0xd7));
-      pen.setCapStyle(FlatCap);
-      pen.setWidth(1);
-      painter.setPen(pen);
-
-      int y1 = h / 4;
-      int y2 = h / 2 - 4;
-      int y3 = h / 2 + 4;
-      int y4 = h - h/4;
-
-      for (unsigned i = 0; ; ++i) {
-	int x = WSlider::HANDLE_WIDTH/2 + (int) (i * tickStep);
-
-	if (x > w - WSlider::HANDLE_WIDTH/2)
-	  break;
-
-	if (slider_->tickPosition() & WSlider::TicksAbove)
-	  painter.drawLine(x + 0.5, y1, x + 0.5, y2);
-	if (slider_->tickPosition() & WSlider::TicksBelow)
-	  painter.drawLine(x + 0.5, y3, x + 0.5, y4);
-      }
+      if (slider_->tickPosition() & WSlider::TicksAbove)
+	painter.drawLine(x + 0.5, y1, x + 0.5, y2);
+      if (slider_->tickPosition() & WSlider::TicksBelow)
+	painter.drawLine(x + 0.5, y3, x + 0.5, y4);
     }
   }
+}
 
-WSlider::WSlider(WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    orientation_(Horizontal),
-    tickInterval_(0),
-    tickPosition_(0),
-    minimum_(0),
-    maximum_(99),
-    value_(0),
-    valueChanged_(this),
-    sliderMoved_(this, "moved"),
+PaintedSlider::PaintedSlider(WSlider *slider)
+  : WPaintedWidget(),
+    slider_(slider),
     sliderReleased_(this, "released")
 {
-  setImplementation(impl_ = new WContainerWidget());
-  create();
-}
+  setStyleClass("Wt-slider-bg");
 
-WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
-  : WCompositeWidget(parent),
-    orientation_(orientation),
-    tickInterval_(0),
-    tickPosition_(0),
-    minimum_(0),
-    maximum_(99),
-    value_(0),
-    valueChanged_(this),
-    sliderMoved_(this, "moved"),
-    sliderReleased_(this, "released")
-{
-  setImplementation(impl_ = new WContainerWidget());
-  create();
-}
+  slider_->setStyleClass(std::string("Wt-slider-")
+			 + (slider_->orientation() == Horizontal ? "h" : "v"));
+  slider_->setPositionScheme(Relative);
 
-WSlider::~WSlider()
-{ }
-
-void WSlider::resize(const WLength& width, const WLength& height)
-{
-  WCompositeWidget::resize(width, height);
-  background_->resize(width, height);
-  update();
-}
-
-void WSlider::layoutSizeChanged(int width, int height)
-{
-  WCompositeWidget::resize(WLength::Auto, WLength::Auto);
-  background_->resize(width, height);
-  update();
-}
-
-WLength WSlider::w() const
-{
-  return background_->width();
-}
-
-WLength WSlider::h() const
-{
-  return background_->height();
-}
-
-void WSlider::create()
-{
-  impl_->setStyleClass("Wt-slider");
-
-  setPositionScheme(Relative);
-
-  impl_->addWidget(background_ = new WSliderBackground(this));
-  impl_->addWidget(handle_ = new WContainerWidget());
-
+  addChild(handle_ = new WContainerWidget());
   handle_->setPopup(true);
   handle_->setPositionScheme(Absolute);
-
-  if (orientation_ == Horizontal)
-    resize(150, 50);
-  else
-    resize(50, 150);
 
   handle_->mouseWentDown().connect(mouseDownJS_);
   handle_->mouseMoved().connect(mouseMovedJS_);
   handle_->mouseWentUp().connect(mouseUpJS_);
 
-  background_->clicked().connect(this, &WSlider::onSliderClick);
-  sliderReleased_.connect(this, &WSlider::onSliderReleased);
-
-  setLayoutSizeAware(true);
-
-  update();
+  slider->clicked().connect(this, &PaintedSlider::onSliderClick);
+  sliderReleased_.connect(this, &PaintedSlider::onSliderReleased);
 }
 
-void WSlider::update()
+double PaintedSlider::w() const
+{
+  return width().toPixels() + (slider_->orientation() == Horizontal ? 10 : 0);
+}
+
+double PaintedSlider::h() const
+{
+  return height().toPixels() + (slider_->orientation() == Vertical ? 10 : 0);
+}
+
+void PaintedSlider::updateState()
 {
   std::string resourcesURL = WApplication::resourcesUrl();
 
-  background_->update();
+  Orientation o = slider_->orientation();
 
-  handle_->setStyleClass(std::string("handle-")
-			 + (orientation_ == Horizontal ? 'h': 'v'));
+  handle_->setStyleClass("handle");
 
-  if (orientation_ == Horizontal) {
-    handle_->resize(HANDLE_WIDTH, HANDLE_HEIGHT);
-    handle_->setOffsets(h().toPixels() / 2 + 2, Top);
+  if (o == Horizontal) {
+    handle_->resize(HANDLE_WIDTH, h());
+    handle_->setOffsets(0, Top);
   } else {
-    handle_->resize(HANDLE_HEIGHT, HANDLE_WIDTH);
-    handle_->setOffsets(w().toPixels() / 2 - HANDLE_HEIGHT - 2, Left);
+    handle_->resize(w(), HANDLE_WIDTH);
+    handle_->setOffsets(0, Left);
   }
 
-  double l = (orientation_ == Horizontal ? w() : h()).toPixels();
+  double l = o == Horizontal ? w() : h();
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
-  std::string dir = (orientation_ == Horizontal ? "left" : "top");
-  std::string u = (orientation_ == Horizontal ? "x" : "y");
-  std::string U = (orientation_ == Horizontal ? "X" : "Y");
+  std::string dir = (o == Horizontal ? "left" : "top");
+  std::string u = (o == Horizontal ? "x" : "y");
+  std::string U = (o == Horizontal ? "X" : "Y");
   std::string maxS = boost::lexical_cast<std::string>(l - HANDLE_WIDTH);
   std::string ppU = boost::lexical_cast<std::string>(pixelsPerUnit);
-  std::string minimumS = boost::lexical_cast<std::string>(minimum_);
-  std::string maximumS = boost::lexical_cast<std::string>(maximum_);
+  std::string minimumS = boost::lexical_cast<std::string>(slider_->minimum());
+  std::string maximumS = boost::lexical_cast<std::string>(slider_->maximum());
 
   /*
    * Note: cancelling the mouseDown event prevents the selection behaviour
@@ -246,7 +185,7 @@ void WSlider::update()
   // = 'u' position relative to background, corrected for slider
   std::string computeD =
     ""  "var objh = " + handle_->jsRef() + ","
-    ""      "objb = " + background_->jsRef() + ","
+    ""      "objb = " + jsRef() + ","
     ""      "u = WT.pageCoordinates(event)." + u + " - down,"
     ""      "w = WT.widgetPageCoordinates(objb)." + u + ","
     ""      "d = u-w;";
@@ -262,9 +201,8 @@ void WSlider::update()
      ""  "var intd = v*" + ppU + ";"
      ""  "if (Math.abs(WT.pxself(objh, '" + dir + "') - intd) > 1) {"
      ""    "objh.style." + dir + " = intd + 'px';" +
-     sliderMoved_.createCall(orientation_ == Horizontal ?
-			     "v + " + minimumS
-			     : maximumS + " - v") + 
+     slider_->sliderMoved().createCall(o == Horizontal ? "v + " + minimumS
+				       : maximumS + " - v") + 
      ""  "}"
      """}"
      "}");
@@ -281,68 +219,179 @@ void WSlider::update()
      """}"
      "}");
 
+  update();
   updateSliderPosition();
 }
 
-void WSlider::onSliderClick(const WMouseEvent& event)
+void PaintedSlider::doUpdateDom(DomElement& element, bool all)
 {
-  onSliderReleased(orientation_ == Horizontal
+  if (all) {
+    WApplication *app = WApplication::instance();
+
+    element.addChild(createDomElement(app));
+    element.addChild(((WWebWidget *)handle_)->createDomElement(app));
+
+    DomElement *west = DomElement::createNew(DomElement_DIV);
+    west->setProperty(PropertyClass, "Wt-w");
+    element.addChild(west);
+
+    DomElement *east = DomElement::createNew(DomElement_DIV);
+    east->setProperty(PropertyClass, "Wt-e");
+    element.addChild(east);
+  }
+}
+
+void PaintedSlider::sliderResized(const WLength& width, const WLength& height)
+{
+  if (slider_->orientation() == Horizontal) {
+    WLength w = width;
+    if (!w.isAuto())
+      w = WLength(w.toPixels() - 10);
+
+    WPaintedWidget::resize(w, height);
+  } else {
+    WLength h = height;
+    if (!h.isAuto())
+      h = WLength(h.toPixels() - 10);
+
+    WPaintedWidget::resize(width, h);    
+  }
+
+  updateState();
+}
+ 
+void PaintedSlider::onSliderClick(const WMouseEvent& event)
+{
+  onSliderReleased(slider_->orientation() == Horizontal
 		   ? event.widget().x : event.widget().y);
 }
 
-void WSlider::onSliderReleased(int u)
+void PaintedSlider::onSliderReleased(int u)
 {
-  if (orientation_ == Horizontal)
+  if (slider_->orientation() == Horizontal)
     u -= HANDLE_WIDTH / 2;
   else
-    u = (int)h().toPixels() - (u + HANDLE_WIDTH / 2);
+    u = (int)h() - (u + HANDLE_WIDTH / 2);
 
-  double l = (orientation_ == Horizontal ? w() : h()).toPixels();
+  double l = (slider_->orientation() == Horizontal) ? w() : h();
+
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
-  double v = std::max(minimum_,
-		      std::min(maximum_,
-			       minimum_ + (int)((double)u / pixelsPerUnit
-						+ 0.5)));
+  double v = std::max(slider_->minimum(),
+		      std::min(slider_->maximum(),
+			       slider_->minimum() 
+			       + (int)((double)u / pixelsPerUnit + 0.5)));
 
-  sliderMoved_.emit(static_cast<int>(v));
+  // TODO changed() ?
+  slider_->sliderMoved().emit(static_cast<int>(v));
 
-  setValue(static_cast<int>(v));
-  valueChanged_.emit(value());  
+  slider_->setValue(static_cast<int>(v));
+  slider_->valueChanged().emit(slider_->value());  
+
+  updateSliderPosition();
 }
 
-void WSlider::updateSliderPosition()
+void PaintedSlider::updateSliderPosition()
 {
-  double l = (orientation_ == Horizontal ? w() : h()).toPixels();
+  double l = (slider_->orientation() == Horizontal) ? w() : h();
   double pixelsPerUnit = (l - HANDLE_WIDTH) / range();
 
-  double u = ((double)value_ - minimum_) * pixelsPerUnit;
+  double u = ((double)slider_->value() - slider_->minimum()) * pixelsPerUnit;
 
-  if (orientation_ == Horizontal)
+  if (slider_->orientation() == Horizontal)
     handle_->setOffsets(u, Left);
   else
-    handle_->setOffsets(h().toPixels() - HANDLE_WIDTH - u, Top);
+    handle_->setOffsets(h() - HANDLE_WIDTH - u, Top);
+}
+
+WSlider::WSlider(WContainerWidget *parent)
+  : WFormWidget(parent),
+    orientation_(Horizontal),
+    tickInterval_(0),
+    tickPosition_(0),
+    preferNative_(false),
+    changed_(false),
+    changedConnected_(false),
+    minimum_(0),
+    maximum_(99),
+    value_(0),
+    valueChanged_(this),
+    sliderMoved_(this, "moved"),
+    paintedSlider_(0)
+{ }
+
+WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
+  : WFormWidget(parent),
+    orientation_(orientation),
+    tickInterval_(0),
+    tickPosition_(0),
+    preferNative_(false),
+    changed_(false),
+    changedConnected_(false),
+    minimum_(0),
+    maximum_(99),
+    value_(0),
+    valueChanged_(this),
+    sliderMoved_(this, "moved"),
+    paintedSlider_(0)
+{ }
+
+WSlider::~WSlider()
+{ }
+
+void WSlider::setNativeControl(bool nativeControl)
+{
+  preferNative_ = nativeControl;
+}
+
+void WSlider::resize(const WLength& width, const WLength& height)
+{
+  WFormWidget::resize(width, height);
+
+  if (paintedSlider_)
+    paintedSlider_->sliderResized(width, height);
+}
+
+void WSlider::layoutSizeChanged(int width, int height)
+{
+  WFormWidget::resize(WLength::Auto, WLength::Auto);
+
+  if (paintedSlider_)
+    paintedSlider_->sliderResized(width, height);
 }
 
 void WSlider::setOrientation(Orientation orientation)
 {
   orientation_ = orientation;
 
-  update();
+  if (paintedSlider_)
+    paintedSlider_->updateState();
 }
 
 void WSlider::setTickPosition(WFlags<TickPosition> tickPosition)
 {
   tickPosition_ = tickPosition;
 
-  background_->update();
+  if (paintedSlider_)
+    paintedSlider_->updateState();
 }
 
 void WSlider::setTickInterval(int tickInterval)
 {
   tickInterval_ = tickInterval;
 
-  background_->update();
+  if (paintedSlider_)
+    paintedSlider_->updateState();
+}
+
+void WSlider::update()
+{
+  if (paintedSlider_)
+    paintedSlider_->updateState();
+  else {
+    changed_ = true;
+    repaint();
+  }
 }
 
 void WSlider::setMinimum(int minimum)
@@ -375,14 +424,100 @@ void WSlider::setRange(int minimum, int maximum)
 void WSlider::setValue(int value)
 {
   value_ = std::min(maximum_, std::max(minimum_, value));
-  updateSliderPosition();
+
+  update();
 }
 
 void WSlider::signalConnectionsChanged()
 {
-  WCompositeWidget::signalConnectionsChanged();
+  WFormWidget::signalConnectionsChanged();
 
   update();
+}
+
+void WSlider::onChange()
+{
+  valueChanged_.emit(value_);
+  sliderMoved_.emit(value_);
+}
+
+DomElementType WSlider::domElementType() const
+{
+  return paintedSlider_ ? DomElement_DIV : DomElement_INPUT;
+}
+
+void WSlider::render(WFlags<RenderFlag> flags)
+{
+  /*
+   * In theory we are a bit late here to decide what we want to become:
+   * somebody could already have asked the domElementType()
+   */
+  if (flags & RenderFull) {
+    bool useNative = false;
+    if (preferNative_) {
+      const WEnvironment& env = WApplication::instance()->environment();
+      if ((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
+	  || (env.agentIsSafari() && env.agent() >= WEnvironment::Safari4)
+	  || (env.agentIsOpera() && env.agent() >= WEnvironment::Opera10))
+	useNative = true;
+    }
+
+    if (!useNative) {
+      addChild(paintedSlider_ = new PaintedSlider(this));
+      paintedSlider_->sliderResized(width(), height());
+    } else {
+      delete paintedSlider_;
+      paintedSlider_ = 0;
+    }
+
+    setLayoutSizeAware(!useNative);
+    setFormObject(useNative);
+  }
+
+  WFormWidget::render(flags);
+}
+
+void WSlider::updateDom(DomElement& element, bool all)
+{
+  if (paintedSlider_)
+    paintedSlider_->doUpdateDom(element, all);
+  else {
+    if (all || changed_) {
+      element.setAttribute("type", "range");
+      element.setProperty(Wt::PropertyValue,
+			  boost::lexical_cast<std::string>(value_));
+      element.setAttribute("min",
+			   boost::lexical_cast<std::string>(minimum_));
+      element.setAttribute("max",
+			   boost::lexical_cast<std::string>(maximum_));
+
+      if (!changedConnected_
+	  && (valueChanged_.isConnected() || sliderMoved_.isConnected())) {
+	changedConnected_ = true;
+	changed().connect(this, &WSlider::onChange);
+      }
+
+      changed_ = false;
+    }
+  }
+
+  WFormWidget::updateDom(element, all);
+}
+
+void WSlider::setFormData(const FormData& formData)
+{
+  // if the value was updated through the API, then ignore the update from
+  // the browser, this happens when an action generated multiple events,
+  // and we do not want to revert the changes made through the API
+  if (changed_)
+    return;
+
+  if (!Utils::isEmpty(formData.values)) {
+    const std::string& value = formData.values[0];
+    try {
+      value_ = boost::lexical_cast<int>(value);
+    } catch (boost::bad_lexical_cast& e) { }
+  }
 }
 
 }

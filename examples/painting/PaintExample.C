@@ -31,7 +31,7 @@ PaintExample::PaintExample(WContainerWidget *root, bool showTitle)
     "<p>"
     "The example also demonstrates the horizontal and vertical "
     "<a href=\"http://www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSlider.html\" target=\"_blank\">"
-    "WSlider</a> widgets (which are rendered using vector graphics). Here, "
+    "WSlider</a> widgets. Here,"
     "the events of the WSlider widgets are used to scale and rotate the "
     "emweb logo."
     "</p>"

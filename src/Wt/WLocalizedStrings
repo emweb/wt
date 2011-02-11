@@ -61,12 +61,43 @@ public:
    * Returns the value if the key could be resolved. Returns \c null otherwise.
    * \endif
    *
-   * \sa WApplication::locale()
+   * \sa WApplication::locale(), WString::tr()
    */
 #ifndef WT_TARGET_JAVA
   virtual bool resolveKey(const std::string& key, std::string& result) = 0;
 #else // WT_TARGET_JAVA
   virtual std::string *resolveKey(const std::string& key) = 0;
+#endif // WT_TARGET_JAVA
+
+  /*! \brief Resolves the plural form of a key in the current locale.
+   * 
+   * This method is used by WString to obtain the UTF8 value
+   * corresponding to a key in the current locale, taking into account
+   * the possibility of multiple plural forms, and chosing the right
+   * plural form based on the \p amount passed.
+   *
+   * Throws a std::logic_error if the underlying implementation does not
+   * provide support for plural internationalized strings.
+   *
+   * \if cpp
+   * Returns \c true if the key could be resolved. The value is written
+   * in \p result, encoded as UTF8.
+   * \endif
+   *
+   * \if java
+   * Returns the value if the key could be resolved. Returns \c null
+   * otherwise.
+   * \endif
+   *
+   * \sa WApplication::locale(), WString::trn()
+   */
+#ifndef WT_TARGET_JAVA
+  virtual bool resolvePluralKey(const std::string& key, 
+				std::string& result,
+				::uint64_t amount);
+#else // WT_TARGET_JAVA
+  //TODO make this work for java
+  //virtual std::string *resolveKey(const std::string& key) = 0;
 #endif // WT_TARGET_JAVA
 };
 

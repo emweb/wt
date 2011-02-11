@@ -10,6 +10,8 @@ using boost::unit_test_framework::test_suite;
 #include "private/DboImplTest.h"
 #endif // WTDBO
 #include "private/HttpTest.h"
+#include "private/I18n.h"
+#include "private/CExpressionParserTest.h"
 #include "models/WBatchEditProxyModelTest.h"
 #include "utf8/Utf8Test.h"
 #include "utf8/XmlTest.h"
@@ -23,6 +25,8 @@ boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
   test_suite *tests = BOOST_TEST_SUITE("Wt test suite");
 
   tests->add(new HttpTest());
+  tests->add(new CExpressionParserTest());
+  tests->add(new I18n());
 #ifdef WTDBO
   tests->add(new DboImplTest());
   tests->add(new DboTest());

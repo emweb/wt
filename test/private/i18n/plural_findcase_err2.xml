@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages nplurals="1" 
+          plural="2">
+  <message id="file">
+    <plural case="0">{1} plik</plural>
+  </message>
+</messages>

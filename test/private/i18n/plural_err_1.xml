@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages plural="n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2">
+  <message id="file">
+    <plural case="0">{1} plik</plural>
+    <plural case="1">{1} pliki</plural>
+    <plural case="2">{1} pliko'w</plural>
+  </message>
+</messages>

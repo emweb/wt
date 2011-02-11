@@ -257,6 +257,8 @@ protected:
 
   virtual void render(WFlags<RenderFlag> flags);
 
+  virtual void signalConnectionsChanged();
+
 private:
   /*
    * Booleans packed in a bitset.
@@ -383,8 +385,6 @@ private:
   OtherImpl *otherImpl_;
   std::vector<WWidget *>    *children_;
   static std::vector<WWidget *> emptyWidgetList_;
-
-  virtual void signalConnectionsChanged();
 
   void renderOk();
   void calcZIndex();

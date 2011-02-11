@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages nplurals="2" 
+          plural="n != 1">
+  <message id="file">
+    <plural case="0">{1} file</plural>
+    <plural case="1">{1} files</plural>
+  </message>
+</messages>

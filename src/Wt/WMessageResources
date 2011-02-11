@@ -29,26 +29,34 @@ public:
 
   const std::string& path() const { return path_; }
 
-  bool resolveKey(const std::string& key, std::string& value);
-
+  bool resolveKey(const std::string& key, std::string& result);
+  bool resolvePluralKey(const std::string& key, 
+			std::string& result, 
+			::uint64_t amount);
+ 
   void refresh();
 
   std::set<std::string> keys(WFlags<WMessageResourceBundle::Scope> scope) const;
 
-  typedef std::map<std::string, std::string> KeyValueMap;
+  typedef std::map<std::string, std::vector<std::string> > KeyValuesMap;
 
 private:
   const bool loadInMemory_;
   bool loaded_;
   const std::string path_;
 
-  KeyValueMap local_;
-  KeyValueMap defaults_;
+  KeyValuesMap local_;
+  KeyValuesMap defaults_;
 
-  bool readResourceFile(const std::string& locale, KeyValueMap& valueMap);
-  bool readResourceStream(std::istream &s, KeyValueMap& valueMap,
+  bool readResourceFile(const std::string& locale, KeyValuesMap& valueMap);
+  bool readResourceStream(std::istream &s, KeyValuesMap& valueMap,
                           const std::string &fileName);
 
+  std::string findCase(const std::vector<std::string> &cases, 
+		       ::uint64_t amount);
+
+  std::string pluralExpression_;
+  unsigned pluralCount_;
 };
 
 }

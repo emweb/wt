@@ -277,6 +277,25 @@ public:
    */
   static WString tr(const std::string& key);
 
+  /*! \brief Creates a localized string from a key for a number \c n.
+   *
+   * Whenever the value of the string is needed, the key is used for a
+   * lookup in the application message resource bundles taking into
+   * account the current application locale. This function fetches the
+   * appropriate plural case for the translation with respect to \c.
+   * If the key cannot be resolved, its value is set to '??key??'.
+   *
+   * \sa WApplication::messageResourceBundle(), WApplication::locale(), WApplication::localizedStrings()
+   */
+  static WString trn(const char *key, ::uint64_t n);
+
+  /*! \brief Creates a localized string with the specified key for a
+      number \c n.
+   *
+   * \sa trn(const char *)
+   */
+  static WString trn(const std::string& key, ::uint64_t n);
+
 #ifndef WT_NO_STD_WSTRING
   /*! \brief Returns the value as a wide C++ string.
    *
@@ -433,7 +452,7 @@ public:
   static void checkUTF8Encoding(std::string& value);
 
 private:
-  WString(const char *key, bool);
+  WString(const char *key, bool, ::uint64_t n = -1);
 
   std::string utf8_;
 
@@ -444,6 +463,9 @@ private:
   struct Impl {
     std::string              key_;
     std::vector<std::string> arguments_;
+    ::int64_t n_;
+
+    Impl();
   };
 
   static std::vector<std::string> stArguments_;

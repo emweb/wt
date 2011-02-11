@@ -313,12 +313,28 @@
 /*
  * WSlider
  */
-.Wt-slider .handle-h {
-    background: url(slider-thumb-h.gif) no-repeat
+.Wt-slider-h {
+    background: url(sliderbg-h.png) repeat-x scroll left center;
 }
 
-.Wt-slider .handle-v {
-    background: url(slider-thumb-v.gif) no-repeat
+.Wt-slider-h .Wt-slider-bg {
+    margin: 0px 5px;
+}
+
+.Wt-slider-v {
+    background: url(sliderbg-v.png) repeat-y scroll center top;
+}
+
+.Wt-slider-v .Wt-slider-bg {
+    margin: 5px 0px;
+}
+
+.Wt-slider-h .handle {
+    background: url(slider-thumb-h.gif) no-repeat scroll center bottom;
+}
+
+.Wt-slider-v .handle {
+    background: url(slider-thumb-v.gif) no-repeat scroll right center;
 }
 
 /*

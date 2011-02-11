@@ -420,6 +420,11 @@ namespace Wt {
   replacement XML files, which will take precedence over the built-in
   translations.
 
+  %Wt also supports plural forms of nouns, to translate such string
+  use the static WString::trn("key", n) function. The WMessageResourceBundle
+  class documentation contains an example on how to format the xml resource 
+  bundle to use this functionality. 
+
   \section deployment 9. Deployment
 
   The library is designed so that, besides the application binary,

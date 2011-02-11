@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <message id="welcome-text">Welkom beste bezoeker, {1} van de WFooBar magic website !</message>
+  <message id="company-policy">Het beleid van het bedrijf is <b>onze aandeelhouders gelukking te maken</b>.</message>
+</messages>

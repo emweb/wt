@@ -12,6 +12,8 @@
 #include <boost/scoped_array.hpp>
 
 #include "DomElement.h"
+#include "EscapeOStream.h"
+#include "Utils.h"
 #include "Wt/WLogger"
 #include "Wt/WMessageResources"
 #include "Wt/WString"
@@ -41,6 +43,25 @@ namespace {
       x_node->append_node(empty);
     }
   }
+
+  std::string readElementContent(xml_node<> *x_parent, 
+				 boost::scoped_array<char> &buf) 
+  {
+    char *ptr = buf.get();
+    
+    for (xml_node<> *x_child = x_parent->first_node();
+	 x_child; x_child = x_child->next_sibling()) {
+      fixSelfClosingTags(x_child);
+      ptr = print(ptr, *x_child, print_no_indenting);
+    }
+    return std::string(buf.get(), ptr - buf.get());
+  }
+
+  int attributeValueToInt(xml_attribute<> *x_attribute)
+  {
+    return boost::lexical_cast<int>(std::string(x_attribute->value(), 
+						x_attribute->value_size()));
+  }
 }
 
 namespace Wt {
@@ -66,7 +87,7 @@ WMessageResources::keys(WFlags<WMessageResourceBundle::Scope> scope) const
 {
   std::set<std::string> keys;
   
-  std::map<std::string, std::string>::const_iterator it;
+  KeyValuesMap::const_iterator it;
 
   if (scope & WMessageResourceBundle::Local)
     for (it = local_.begin() ; it != local_.end(); it++)
@@ -120,17 +141,71 @@ bool WMessageResources::resolveKey(const std::string& key, std::string& result)
   if (!loaded_)
     refresh();
 
-  KeyValueMap::const_iterator j;
+  KeyValuesMap::const_iterator j;
 
   j = local_.find(key);
   if (j != local_.end()) {
-    result = j->second;
+    if (j->second.size() > 1 )
+      return false;
+    result = j->second[0];
     return true;
   }
 
   j = defaults_.find(key);
   if (j != defaults_.end()) {
-    result = j->second;
+    if (j->second.size() > 1 )
+      return false;
+    result = j->second[0];
+    return true;
+  }
+
+  return false;
+}
+
+std::string WMessageResources::findCase(const std::vector<std::string> &cases, 
+					::uint64_t amount)
+{
+  int c = Utils::calculatePluralCase(pluralExpression_, amount);
+
+  if (c > (int)cases.size() - 1 || c < 0) {
+    SStream error;
+    error << "Expression '" << pluralExpression_ << "' evaluates to '" 
+	  << c << "' for n=" << boost::lexical_cast<std::string>(amount);
+    
+    if (c < 0) 
+      error << " and values smaller than 0 are not allowed.";
+    else
+      error << " which is greater than the list of cases (size=" 
+	    << (int)cases.size() << ").";
+    
+    throw std::logic_error(error.c_str());
+  }
+
+  return cases[c];
+}
+
+bool WMessageResources::resolvePluralKey(const std::string& key, 
+					 std::string& result, 
+					 ::uint64_t amount)
+{
+  if (!loaded_)
+    refresh();
+
+  KeyValuesMap::const_iterator j;
+
+  j = local_.find(key);
+  if (j != local_.end()) {
+    if (j->second.size() != pluralCount_ )
+      return false;
+    result = findCase(j->second, amount);
+    return true;
+  }
+
+  j = defaults_.find(key);
+  if (j != defaults_.end()) {
+    if (j->second.size() != pluralCount_)
+      return false;
+    result = findCase(j->second, amount);
     return true;
   }
 
@@ -138,7 +213,7 @@ bool WMessageResources::resolveKey(const std::string& key, std::string& result)
 }
 
 bool WMessageResources::readResourceFile(const std::string& locale,
-				         KeyValueMap& valueMap)
+				         KeyValuesMap& valueMap)
 {
   if (!path_.empty()) {
     std::string fileName
@@ -152,7 +227,7 @@ bool WMessageResources::readResourceFile(const std::string& locale,
 }
 
 bool WMessageResources::readResourceStream(std::istream &s,
-					   KeyValueMap& valueMap,
+					   KeyValuesMap& valueMap,
                                            const std::string &fileName)
 {
   if (!s)
@@ -253,6 +328,22 @@ bool WMessageResources::readResourceStream(std::istream &s,
     if (!x_root)
       throw parse_error("Expected <messages> root element", text.get());
 
+    xml_attribute<> *x_nplurals = x_root->first_attribute("nplurals");
+    xml_attribute<> *x_plural = x_root->first_attribute("plural");
+    if (x_nplurals && !x_plural)
+      throw parse_error("Expected 'plural' attribute in <messages>",
+			x_root->value());
+    if (x_plural && !x_nplurals)
+      throw parse_error("Expected 'nplurals' attribute in <messages>",
+			x_root->value());
+    if (x_nplurals && x_plural) {
+      pluralCount_ = attributeValueToInt(x_nplurals);
+      pluralExpression_ 
+	= std::string(x_plural->value(), x_plural->value_size());
+    } else {
+      pluralCount_ = 0;
+    }
+
     // factor 2 in case we expanded <span/> to <span></span>
     boost::scoped_array<char> buf(new char[length * 2]);
 
@@ -268,15 +359,43 @@ bool WMessageResources::readResourceStream(std::istream &s,
 
       std::string id(x_id->value(), x_id->value_size());
 
-      char *ptr = buf.get();
+      xml_node<> *x_plural = x_message->first_node("plural");
+      if (x_plural) {
+	if (pluralCount_ == 0)
+	  throw parse_error("Expected 'nplurals' attribute in <message>",
+			    x_plural->value());
 
-      for (xml_node<> *x_child = x_message->first_node();
-	   x_child; x_child = x_child->next_sibling()) {
-	fixSelfClosingTags(x_child);
-	ptr = print(ptr, *x_child, print_no_indenting);
+	valueMap[id] = std::vector<std::string>();
+	valueMap[id].reserve(pluralCount_);
+	
+	std::vector<bool> visited;
+	visited.reserve(pluralCount_);
+	
+	for (unsigned i = 0; i < pluralCount_; i++) {
+	  valueMap[id].push_back(std::string());
+	  visited.push_back(false);
+	}
+	
+	for (; x_plural; x_plural = x_plural->next_sibling("plural")) {
+	  xml_attribute<> *x_case = x_plural->first_attribute("case");
+	  int c = attributeValueToInt(x_case);
+	  if (c >= (int)pluralCount_)
+	    throw parse_error("The attribute 'case' used in <plural> is greater"
+			      " than the nplurals <messages> attribute.", 
+			      x_plural->value());
+	  visited[c] = true;
+	  valueMap[id][c] = readElementContent(x_plural, buf);
+	}
+
+	for (unsigned i = 0; i < pluralCount_; i++)
+	  if (!visited[i])
+	    throw parse_error("Missing plural case in <message>", 
+			      x_message->value());
+      } else {
+	valueMap[id] = std::vector<std::string>();
+	valueMap[id].reserve(1);
+	valueMap[id].push_back(readElementContent(x_message, buf));
       }
-
-      valueMap[id] = std::string(buf.get(), ptr - buf.get());
     }
   } catch (parse_error& e) {
     WApplication::instance()->log("error")

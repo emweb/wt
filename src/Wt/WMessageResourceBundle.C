@@ -53,6 +53,26 @@ std::string *WMessageResourceBundle::resolveKey(const std::string& key)
 }
 #endif // WT_TARGET_JAVA
 
+#ifndef WT_TARGET_JAVA
+bool WMessageResourceBundle::resolvePluralKey(const std::string& key,
+					      std::string& result,
+					      ::uint64_t amount)
+{
+  for (unsigned i = 0; i < messageResources_.size(); ++i) {
+    if (messageResources_[i]->resolvePluralKey(key, result, amount))
+      return true;
+  }
+
+  return false;
+}
+#else
+std::string *WMessageResourceBundle::resolvePluralKey(const std::string& key,
+						      ::uint64_t amount)
+{
+  return 0;
+}
+#endif // WT_TARGET_JAVA
+
 void WMessageResourceBundle::refresh()
 {
   for (unsigned i = 0; i < messageResources_.size(); ++i) {

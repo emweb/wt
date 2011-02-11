@@ -87,6 +87,10 @@ WString::WString(const WString& other)
     impl_ = new Impl(*other.impl_);
 }
 
+WString::Impl::Impl()
+  : n_(-1)
+{ }
+
 WString::~WString()
 {
   delete impl_;
@@ -202,8 +206,16 @@ void WString::checkUTF8Encoding(std::string& value)
 
 void WString::resolveKey(const std::string& key, std::string& result) const
 {
-  if ((!wApp) ||
-      !wApp->localizedStrings_->resolveKey(impl_->key_, result))
+  bool resolved = wApp;
+  if (impl_->n_ == -1)
+    resolved = resolved && wApp->localizedStrings_->resolveKey(impl_->key_, 
+							       result);
+  else
+    resolved 
+      = resolved && wApp->localizedStrings_->resolvePluralKey(impl_->key_, 
+							      result,
+							      impl_->n_);
+  if (!resolved)
     result = "??" + key + "??";
 }
 
@@ -235,10 +247,21 @@ WString WString::tr(const std::string& key)
   return WString(key.c_str(), true);
 }
 
-WString::WString(const char *key, bool)
+WString WString::trn(const char *key, ::uint64_t n)
+{
+  return WString(key, true, n);
+}
+
+WString WString::trn(const std::string& key, ::uint64_t n)
+{
+  return WString(key.c_str(), true, n);
+}
+
+WString::WString(const char *key, bool, ::uint64_t n)
 {
   impl_ = new Impl;
   impl_->key_ = key;
+  impl_->n_ = n;
 }
 
 #ifndef WT_NO_STD_WSTRING

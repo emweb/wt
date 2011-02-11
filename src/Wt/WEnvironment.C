@@ -181,8 +181,22 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
   else if (userAgent_.find("MSIE") != std::string::npos)
     agent_ = IE9;
 
-  if (userAgent_.find("Opera") != std::string::npos)
+  if (userAgent_.find("Opera") != std::string::npos) {
     agent_ = Opera;
+
+    std::size_t t = userAgent_.find("Version/");
+    if (t != std::string::npos) {
+      std::string vs = userAgent_.substr(t + 8);
+      t = vs.find(' ');
+      if (t != std::string::npos)
+	vs = vs.substr(0, t);
+      try {
+	double v = boost::lexical_cast<double>(vs);
+	if (v >= 10)
+	  agent_ = Opera10;
+      } catch (boost::bad_lexical_cast& e) { }
+    }
+  }
 
   if (userAgent_.find("Chrome") != std::string::npos) {
     if (userAgent_.find("Chrome/0") != std::string::npos)
