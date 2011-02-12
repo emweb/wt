@@ -358,6 +358,12 @@ WWidget *WMenuItem::takeContents()
   return result;
 }
 
+void WMenuItem::purgeContents()
+{
+  contentsContainer_ = 0;
+  contents_ = 0;
+}
+
 void WMenuItem::setFromInternalPath(const std::string& path)
 {
   if (menu_->contentsStack_

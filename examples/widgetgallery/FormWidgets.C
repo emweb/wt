@@ -384,6 +384,7 @@ WWidget *FormWidgets::wFileUpload()
   fu->changed().connect(fu, &WFileUpload::upload);
   ed_->showSignal(fu->changed(), "File upload changed");
   ed_->showSignal(fu->uploaded(), "File upload finished");
+  ed_->showSignal(fu->fileTooLarge(), "File too large");
   new WText(tr("formwidgets-WFileUpload-more"), result);
 
   return result;

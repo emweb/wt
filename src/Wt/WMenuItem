@@ -251,6 +251,7 @@ public:
    */
   WWidget *contents() const;
   WWidget *takeContents();
+  void purgeContents();
 
   /*! \brief Returns the widget that represents the item.
    *

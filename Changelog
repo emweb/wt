@@ -1,3 +1,6 @@
+12-02-2011:
+	* WSubMenuItem: behave more consistently w.r.t selection (#694)
+
 11-02-2011:
 	* WString, WMessageResourceBundle: added i18n support for plural forms
 

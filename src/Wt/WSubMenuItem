@@ -88,6 +88,8 @@ protected:
 
 private:
   WMenu *subMenu_;
+
+  void subItemSelected();
 };
 
 }

@@ -146,6 +146,11 @@ ul.submenu {
     padding-bottom: 0px;
     width: auto;
     border-right: 0px;
+    display: none;
+}
+
+.itemselected ul.submenu {
+    display: block;
 }
 
 ul.submenu li {

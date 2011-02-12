@@ -828,10 +828,6 @@ public:
 
   std::string createJavaScript(std::stringstream& js, std::string insertJS);
 
-#ifndef WT_TARGET_JAVA
-  Signal<WWidget *> destroyed;
-#endif // WT_TARGET_JAVA
-
   /*! \brief Hides the widget.
    *
    * This calls \link setHidden() setHidden(true)\endlink.

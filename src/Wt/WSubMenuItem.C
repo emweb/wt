@@ -20,6 +20,14 @@ WSubMenuItem::WSubMenuItem(const WString& text, WWidget *contents,
 void WSubMenuItem::setSubMenu(WMenu *subMenu)
 {
   subMenu_ = subMenu;
+
+  subMenu_->itemSelected().connect(this, &WSubMenuItem::subItemSelected);
+}
+
+void WSubMenuItem::subItemSelected()
+{
+  menu()->select(-1);
+  renderSelected(true);
 }
 
 WWidget *WSubMenuItem::createItemWidget()
@@ -29,7 +37,6 @@ WWidget *WSubMenuItem::createItemWidget()
     WWidget *anchor = WMenuItem::createItemWidget();
     contents->addWidget(anchor);
     contents->addWidget(subMenu_);
-    subMenu_->hide();
 
     return contents;
   } else
@@ -48,9 +55,6 @@ void WSubMenuItem::updateItemWidget(WWidget *itemWidget)
 
 void WSubMenuItem::renderSelected(bool selected)
 {
-  if (subMenu_)
-    subMenu_->setHidden(!selected);
-
   WMenuItem::renderSelected(selected);
 }
 

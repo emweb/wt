@@ -564,6 +564,7 @@ private:
   std::vector<WMenuItem *> items_;
 
   void select(int index, bool changePath);
+  void contentsDestroyed();
 
   int current_;
   int previousCurrent_;

@@ -48,6 +48,15 @@ WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
     current_(-1)
 {
   setRenderAsList(false);
+
+  contentsStack->destroyed().connect(this, &WMenu::contentsDestroyed);
+}
+
+void WMenu::contentsDestroyed()
+{
+  for (unsigned i = 0; i < items_.size(); ++i) {
+    items_[i]->purgeContents();
+  }
 }
 
 void WMenu::setRenderAsList(bool enable)
