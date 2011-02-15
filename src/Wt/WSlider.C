@@ -13,16 +13,6 @@
 #include "DomElement.h"
 #include "Utils.h"
 
-/*
- * Emulation:
- *  - background PNG (on element itself)
- *  - ticks using WPaintedWidget -> first child
- *  - slider using div -> second child
- *
- * Native:
- *  - "range" input (works on Safari hihaar !)
- */
-
 namespace Wt {
 
 const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks = 0;
@@ -38,7 +28,7 @@ public:
   void updateSliderPosition();
   void doUpdateDom(DomElement& element, bool all);
 
-  virtual void sliderResized(const WLength& width, const WLength& height);
+  void sliderResized(const WLength& width, const WLength& height);
 
 protected:
   void paintEvent(WPaintDevice *paintDevice);
@@ -228,8 +218,8 @@ void PaintedSlider::doUpdateDom(DomElement& element, bool all)
   if (all) {
     WApplication *app = WApplication::instance();
 
-    element.addChild(createDomElement(app));
-    element.addChild(((WWebWidget *)handle_)->createDomElement(app));
+    element.addChild(createSDomElement(app));
+    element.addChild(((WWebWidget *)handle_)->createSDomElement(app));
 
     DomElement *west = DomElement::createNew(DomElement_DIV);
     west->setProperty(PropertyClass, "Wt-w");
@@ -248,13 +238,13 @@ void PaintedSlider::sliderResized(const WLength& width, const WLength& height)
     if (!w.isAuto())
       w = WLength(w.toPixels() - 10);
 
-    WPaintedWidget::resize(w, height);
+    resize(w, height);
   } else {
     WLength h = height;
     if (!h.isAuto())
       h = WLength(h.toPixels() - 10);
 
-    WPaintedWidget::resize(width, h);    
+    resize(width, h);    
   }
 
   updateState();
@@ -318,7 +308,9 @@ WSlider::WSlider(WContainerWidget *parent)
     valueChanged_(this),
     sliderMoved_(this, "moved"),
     paintedSlider_(0)
-{ }
+{ 
+  resize(150, 50);
+}
 
 WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
   : WFormWidget(parent),
@@ -334,7 +326,12 @@ WSlider::WSlider(Orientation orientation, WContainerWidget *parent)
     valueChanged_(this),
     sliderMoved_(this, "moved"),
     paintedSlider_(0)
-{ }
+{ 
+  if (orientation == Horizontal)
+    resize(150, 50);
+  else
+    resize(50, 150);
+}
 
 WSlider::~WSlider()
 { }
@@ -463,8 +460,10 @@ void WSlider::render(WFlags<RenderFlag> flags)
     }
 
     if (!useNative) {
-      addChild(paintedSlider_ = new PaintedSlider(this));
-      paintedSlider_->sliderResized(width(), height());
+      if (!paintedSlider_) {
+	addChild(paintedSlider_ = new PaintedSlider(this));
+	paintedSlider_->sliderResized(width(), height());
+      }
     } else {
       delete paintedSlider_;
       paintedSlider_ = 0;

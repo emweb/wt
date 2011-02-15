@@ -162,7 +162,7 @@ void WPaintedWidget::update(WFlags<PaintFlag> flags)
   needRepaint_ = true;
   repaintFlags_ |= flags;
 
-  WInteractWidget::repaint();
+  repaint();
 }
 
 void WPaintedWidget::enableAjax()
