@@ -313,7 +313,7 @@ RequestParser::parseWebSocketMessage(Request& req,
 
   if (frameType_ == 0x00) {
     if (dataBegin < dataEnd || state == Request::Complete) {
-      assert(*dataBegin != 0);
+      //assert(*dataBegin != 0);
 
       reply->consumeData(dataBegin, dataEnd, state);
     }

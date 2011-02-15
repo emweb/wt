@@ -247,7 +247,7 @@ void WAnchor::updateDom(DomElement& element, bool all)
 
 	  changeInternalPathJS_->setJavaScript
 	    ("function(){"
-	     "window.location.hash='#" + Utils::urlEncode(ref_) + "';"
+	     WT_CLASS ".history.navigate(" + jsStringLiteral(ref_) + ",true);"
 	     "}");
 	  clicked().senderRepaint(); // XXX only for Java port necessary
 	}

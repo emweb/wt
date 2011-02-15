@@ -49,7 +49,9 @@ WMenu::WMenu(WStackedWidget *contentsStack, Orientation orientation,
 {
   setRenderAsList(false);
 
+#ifndef WT_CNOR
   contentsStack->destroyed().connect(this, &WMenu::contentsDestroyed);
+#endif // WT_CNOR
 }
 
 void WMenu::contentsDestroyed()
@@ -91,8 +93,7 @@ void WMenu::setInternalPathEnabled(const std::string& basePath)
     WApplication *app = wApp;
 
     basePath_
-      = Utils::terminate(basePath.empty() ? app->internalPath() : basePath,
-			 '/');
+      = Utils::append(basePath.empty() ? app->internalPath() : basePath, '/');
 
     app->internalPathChanged().connect(this, &WMenu::internalPathChanged);
 
@@ -121,7 +122,7 @@ void WMenu::enableAjax()
 
 void WMenu::setInternalBasePath(const std::string& basePath)
 {
-  std::string bp = Utils::terminate(basePath, '/');
+  std::string bp = Utils::append(basePath, '/');
   if (basePath_ != bp) {
     basePath_ = bp;
 

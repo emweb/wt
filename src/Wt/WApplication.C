@@ -945,7 +945,7 @@ void WApplication::enableInternalPaths()
       (javaScriptClass() + "._p_.enableInternalPaths("
        + WWebWidget::jsStringLiteral(internalPath()) + ");" , false);
 
-    if (session_->applicationName().empty())
+    if (session_->useUglyInternalPaths())
       log("warn") << "Deploy-path ends with '/', using /?_= for "
 	"internal paths";
   }
@@ -963,7 +963,7 @@ bool WApplication::internalPathMatches(const std::string& path) const
   if (session_->renderer().preLearning())
     return false;
   else
-    return pathMatches(Utils::terminate(newInternalPath_, '/'), path);
+    return pathMatches(Utils::append(newInternalPath_, '/'), path);
 }
 
 bool WApplication::pathMatches(const std::string& path,
@@ -981,7 +981,7 @@ bool WApplication::pathMatches(const std::string& path,
 
 std::string WApplication::internalPathNextPart(const std::string& path) const
 {
-  std::string current = Utils::terminate(newInternalPath_, '/');
+  std::string current = Utils::append(newInternalPath_, '/');
 
   if (!pathMatches(current, path)) {
     log("warn") << "WApplication::internalPath(): path '"
@@ -1032,7 +1032,7 @@ bool WApplication::oldInternalPathAPI() const
 
 void WApplication::changeInternalPath(const std::string& aPath)
 {
-  std::string path = aPath;
+  std::string path = Utils::prepend(aPath, '/');
 
   // internal paths start with a '/'; other anchor changes are not reacted on
   if (path.empty() || path[0] == '/') {
@@ -1057,7 +1057,7 @@ void WApplication::changeInternalPath(const std::string& aPath)
       std::string common = path.substr(0, fileStart);
 
       for (;;) {
-	common = Utils::terminate(common, '/');
+	common = Utils::append(common, '/');
 	newInternalPath_ = path;
 	std::string next = internalPathNextPart(common);
 

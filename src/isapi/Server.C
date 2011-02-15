@@ -344,6 +344,12 @@ std::string WServer::appRoot() const
 void WServer::initializeThread()
 { }
 
+bool WServer::usesSlashExceptionForInternalPaths() const
+{
+  // Is not relevent, one cannot even deploy at a path ending with '/' ?
+  return false;
+}
+
 bool WServer::readConfigurationProperty(const std::string& name,
                                         std::string& value) const
 {

@@ -592,30 +592,23 @@ public:
   /*! \brief Returns a bookmarkable URL for a given internal path.
    *
    * Returns the (relative) URL for this application that includes the
-   * internal path \p internalPath, usable across sessions. The
-   * URL is relative and expanded into a full URL by the browser.
+   * internal path \p internalPath, usable across sessions.
    *
-   * For example, for an application with current URL:
-   * \code
-   * http://www.mydomain.com/stuff/app.wt#/project/internal/
-   * \endcode
-   * when called with <tt>"/project/external"</tt>, this method would
-   * return:
-   *  - <tt>"app.wt/project/external/"</tt> when JavaScript is available, or
-   *    the agent is a web spider, or
-   *  - <tt>"app.wt/project/external/?wtd=AbCdEf"</tt> when no JavaScript
-   *    is available and URL rewriting is used for session-tracking
-   *    \if cpp
-   *    (see also \ref config_session for configuring the session-tracking 
-   *    method).
-   *    \endif
+   * The returned URL concatenates the internal path to the application
+   * base URL, and when no JavaScript is available and URL rewriting is used
+   * for session-tracking, a session Id is appended to reuse an existing
+   * session if available.
    *
-   * When the application is deployed at a folder (ending with '/'),
-   * this style of URLs is not possible, and URLs are of the form:
-   *  - <tt>"?_=/project/external/"</tt> when JavaScript is available, or
-   *    the agent is a web spider, or
-   *  - <tt>"?_=/project/external/&wtd=AbCdEf"</tt> when no JavaScript
-   *    is available and URL rewriting is used for session-tracking.
+   * \if cpp
+   * See also \ref config_session for configuring the session-tracking 
+   * method.
+   *
+   * For the built-in httpd, when the application is deployed at a folder
+   * (ending with '/'), only an exact matching path is routed to
+   * the application (this can be changed since Wt 3.1.9, see
+   * \ref wthttpd ), making clean URLs impossible. Returned URLs then
+   * include a <tt>"?_="</tt> encoding for the internal path.
+   * \endif
    *
    * You can use bookmarkUrl() as the destination for a WAnchor, and
    * listen to a click event is attached to a slot that switches to
@@ -634,7 +627,7 @@ public:
    */
   std::string bookmarkUrl(const std::string& internalPath) const;
 
-  /*! \brief Change the internal path.
+  /*! \brief Changes the internal path.
    *
    * A %Wt application may manage multiple virtual paths. The virtual
    * path is appended to the application URL. Depending on the
@@ -648,31 +641,40 @@ public:
    * for which an \p internalPath <tt>"/project/z3cbc/details/"</tt> is
    * set, the two forms for the application URL are:
    * <ul>
-   * <li> in an AJAX session:
+   * <li> in an AJAX session (HTML5):
+   * \code
+   * http://www.mydomain.com/stuff/app.wt/project/z3cbc/details/
+   * \endcode
+   * </li><li> in an AJAX session (HTML4):
    * \code
    * http://www.mydomain.com/stuff/app.wt#/project/z3cbc/details/
    * \endcode
+   * </li><li>
    * </li><li>
    * in a plain HTML session:
    * \code
    * http://www.mydomain.com/stuff/app.wt/project/z3cbc/details/
    * \endcode
-   *    This has as major consequence that from the browser stand point,
-   *    the application now serves many different URLs. As a consequence,
-   *    relative URLs will break. Still, you can specify relative URLs
-   *    within your application (in for example WAnchor::setRef() or
-   *    WImage::setImageRef()) since %Wt will transform them
-   *    to absolute URLs when needed. But, this in turn may break deployments
-   *    behind reverse proxies when the context paths differ. For the same
-   *    reason, you will need to use absolute URLs in any XHTML or CSS you
-   *    write manually. <br>
-   *    This type of URLs are only used when the your application is
-   *    deployed at a location that does not end with
-   *    a '/'. Otherwise, %Wt will generate URLS like:
+   * </li></ul>
+   *
+   * Note, since %Wt 3.1.9, the actual form of the URL no longer
+   * affects relative URL resolution, since now %Wt includes an HTML
+   * <tt>meta base</tt> tag which points to the deployment path,
+   * regardless of the current internal path. This does break
+   * deployments behind a reverse proxy which changes paths.
+   *
+   * \if cpp
+   * For the built-in httpd, when the application is deployed
+   * at a folder (ending with '/'), only an exact matching path is
+   * routed to the application (this can be changed since Wt 3.1.9,
+   * see \ref wthttpd ), making clean URLs impossible. Returned
+   * URLs then include a <tt>"?_="</tt> encoding for the internal
+   * path:
+   * 
    * \code
    * http://www.mydomain.com/stuff/?_=/project/z3cbc/details/
    * \endcode
-   * </li></ul>
+   * \endif
    *
    * When the internal path is changed, an entry is added to the
    * browser history. When the user navigates back and forward through

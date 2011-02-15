@@ -121,7 +121,8 @@ int main(int argc, char **argv)
   server.addEntryPoint(Wt::WidgetSet, createWidget, "/chat.js");
 
   if (server.start()) {
-    Wt::WServer::waitForShutdown();
+    int sig = Wt::WServer::waitForShutdown();
+    std::cerr << "Shutting down: (signal = " << sig << ")" << std::endl;
     server.stop();
   }
 }

@@ -22,6 +22,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <boost/algorithm/string.hpp>
+
 #ifdef __CYGWIN__
 #include <Winsock2.h> // for gethostname()
 #endif
@@ -36,6 +38,7 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
     silent_(silent),
     threads_(10),
     docRoot_(),
+    defaultStatic_(true),
     errRoot_(),
     deployPath_("/"),
     pidPath_(),
@@ -87,7 +90,16 @@ void Configuration::createOptions(po::options_description& options)
 
     ("docroot",
      po::value<std::string>()->default_value(docRoot_),
-     "document root for static files")
+     "document root for static files, optionally followed by a "
+     "comma-separated list of paths with static files (even if they "
+     "are within a deployment path), after a ':' \n\n"
+     "e.g. --docroot=.:/resources,/style\n")
+
+    ("approot",
+     po::value<std::string>(&appRoot_)->default_value(appRoot_),
+     "application root for private support files; if unspecified, the value "
+     "of the environment variable $WT_APP_ROOT is used, "
+     "or else the current working directory")
 
     ("errroot",
      po::value<std::string>(&errRoot_)->default_value(errRoot_),
@@ -98,7 +110,7 @@ void Configuration::createOptions(po::options_description& options)
      "access log file (defaults to stdout)")
 
     ("no-compression",
-     "do not compress dynamic text/html and text/plain responses")
+     "do not use compression")
 
     ("deploy-path",
      po::value<std::string>(&deployPath_)->default_value(deployPath_),
@@ -114,17 +126,15 @@ void Configuration::createOptions(po::options_description& options)
 
     ("config,c",
      po::value<std::string>(&configPath_),
-     ("location of wt_config.xml. If unspecified, WT_CONFIG_XML is searched "
-     "in the environment, if it does not exist then the compiled-in default ("
-     + std::string(WT_CONFIG_XML) + ") is tried. If the default does not "
-      "exist, we revert to default values for all parameters.").c_str())
+     ("location of wt_config.xml; if unspecified, the value of the environment "
+      "variable $WT_CONFIG_XML is used, or else the built-in default "
+      "(" + std::string(WT_CONFIG_XML) + ") is tried, or else built-in "
+      "defaults are used").c_str())
 
     ("max-memory-request-size",
      po::value< ::int64_t >(&maxMemoryRequestSize_),
-     "Requests are usually read in memory before being processed. To avoid "
-     "DOS attacks where large requests take up all RAM, use this parameter "
-     "to force requests that are larger than the specified size (bytes) to "
-     "be spooled to disk. This will also spool file uploads to disk.")
+     "threshold for request size (bytes), for spooling the entire request to "
+     "disk to avoid, to avoid DoS")
 
     ("gdb",
      "do not shutdown when receiving Ctrl-C (and let gdb break instead)")
@@ -229,7 +239,24 @@ void Configuration::readOptions(const po::variables_map& vm)
   }
 #endif
 
-  checkPath(vm, "docroot", "Document root", docRoot_, Directory);
+  if (vm.count("docroot")) {
+    docRoot_ = vm["docroot"].as<std::string>();
+
+    std::vector<std::string> parts;
+    boost::split(parts, docRoot_, boost::is_any_of(":"));
+
+    if (parts.size() > 1) {
+      if (parts.size() != 2)
+	throw Wt::WServer::Exception("Document root (--docroot) should be "
+				     "of format path[:./p1[,p2[,...]]]");
+      boost::split(staticPaths_, parts[1], boost::is_any_of(","));
+      defaultStatic_ = false;
+    }
+
+    docRoot_ = parts[0];
+    checkPath(docRoot_, "Document root", Directory);
+  } else
+    throw Wt::WServer::Exception("Document root (--docroot) was not set.");
 
   if (vm.count("http-address"))
     httpAddress_ = vm["http-address"].as<std::string>();
@@ -302,40 +329,47 @@ void Configuration::checkPath(const po::variables_map& vm,
   if (vm.count(varName)) {
     result = vm[varName].as<std::string>();
 
-    struct stat t;
-    if (stat(result.c_str(), &t) != 0) {
-      std::perror("stat");
-      throw Wt::WServer::Exception(varDescription
-				   + " (\"" + result + "\") not valid.");
-    } else {
-      if (options & Directory) {
-	while (result[result.length()-1] == '/')
-	  result = result.substr(0, result.length() - 1);
-
-	if (!S_ISDIR(t.st_mode)) {
-	  throw Wt::WServer::Exception(varDescription + " (\"" + result
-				       + "\") must be a directory.");
-	}
-      }
-
-      if (options & RegularFile) {
-	if (!S_ISREG(t.st_mode)) {
-	  throw Wt::WServer::Exception(varDescription + " (\"" + result
-				       + "\") must be a regular file.");
-	}
-      }
-#ifndef WIN32
-      if (options & Private) {
-	if (t.st_mode & (S_IRWXG | S_IRWXO)) {
-	  throw Wt::WServer::Exception(varDescription + " (\"" + result
-			     + "\") must be unreadable for group and others.");
-	}
-      }
-#endif
-    }
+    checkPath(result, varDescription, options);
   } else {
     throw Wt::WServer::Exception(varDescription + " (--" + varName
 				 + ") was not set.");
+  }
+}
+
+void Configuration::checkPath(std::string& result,
+			      std::string varDescription,
+			      int options)
+{
+  struct stat t;
+  if (stat(result.c_str(), &t) != 0) {
+    std::perror("stat");
+    throw Wt::WServer::Exception(varDescription
+				 + " (\"" + result + "\") not valid.");
+  } else {
+    if (options & Directory) {
+      while (result[result.length()-1] == '/')
+	result = result.substr(0, result.length() - 1);
+
+      if (!S_ISDIR(t.st_mode)) {
+	throw Wt::WServer::Exception(varDescription + " (\"" + result
+				     + "\") must be a directory.");
+      }
+    }
+
+    if (options & RegularFile) {
+      if (!S_ISREG(t.st_mode)) {
+	throw Wt::WServer::Exception(varDescription + " (\"" + result
+				     + "\") must be a regular file.");
+      }
+    }
+#ifndef WIN32
+    if (options & Private) {
+      if (t.st_mode & (S_IRWXG | S_IRWXO)) {
+	throw Wt::WServer::Exception(varDescription + " (\"" + result
+			    + "\") must be unreadable for group and others.");
+      }
+    }
+#endif
   }
 }
 

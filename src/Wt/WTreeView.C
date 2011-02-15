@@ -1547,6 +1547,9 @@ void WTreeView::onItemEvent(std::string nodeId, int columnId, std::string type,
 
   WModelIndex index = model()->index(c0index.row(), column, c0index.parent());
 
+  if (!index.isValid())
+    return;
+
   if (type == "clicked") {
     handleClick(index, event);
   } else if (type == "dblclicked") {

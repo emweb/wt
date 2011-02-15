@@ -945,6 +945,12 @@ std::string WServer::appRoot() const
 void WServer::initializeThread()
 { }
 
+bool WServer::usesSlashExceptionForInternalPaths() const
+{
+  // Is not relevent, one cannot even deploy at a path ending with '/' ?
+  return false;
+}
+
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 {
   try {

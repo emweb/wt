@@ -1099,7 +1099,63 @@ this.hasFocus = function(el) {
   return el == document.activeElement;
 };
 
-this.history = (function()
+var html5History = !!(window.history && window.history.pushState);
+
+if (html5History) {
+  this.history = (function()
+{
+  var currentState = null, baseUrl = null, cb = null;
+
+  return {
+    _initialize: function() { },
+
+    _initTimeout: function() { },
+
+    register: function (initialState, onStateChange) {
+      currentState = initialState;
+      cb = onStateChange;
+
+      function onPopState(event) {
+	var p = window.location.pathname + window.location.search;
+	currentState = p.substr(baseUrl.length);
+	onStateChange(currentState);
+      }
+
+      window.addEventListener("popstate", onPopState, false);
+    },
+
+    initialize: function (stateField, histFrame, deployUrl) {
+      /* FIXME, should depend on ugly URL settings */
+      if (deployUrl[deployUrl.length - 1] == '/') {
+_$_$if_UGLY_INTERNAL_PATHS_$_();
+	baseUrl = deployUrl + "?_=";
+_$_$endif_$_();
+_$_$ifnot_UGLY_INTERNAL_PATHS_$_();
+	baseUrl = deployUrl.substr(0, deployUrl.length - 1);
+_$_$endif_$_();
+      } else
+	baseUrl = deployUrl;
+    },
+
+    navigate: function (state, generateEvent) {
+      currentState = state;
+
+      var url = baseUrl + state;
+
+      window.history.pushState(state, document.title, url);
+
+      if (generateEvent)
+	cb(state);
+    },
+
+    getCurrentState: function () {
+      return currentState;
+    }
+  };
+})();
+
+} else {
+  this.history = (function()
 {
   /**
    * @preserve
@@ -1249,13 +1305,6 @@ this.history = (function()
     }
   }
   return {
-  onReady: function (fn) {
-    if (_initialized) {
-      setTimeout(function () { fn(); }, 0);
-    } else {
-      _onLoadFn = fn;
-    }
-  },
   _initialize: function() {
     if (_stateField != null)
       _initialize();
@@ -1306,22 +1355,22 @@ this.history = (function()
       _histFrame = histFrame;
     }
   },
-  navigate: function (state) {
+  navigate: function (state, generateEvent) {
     if (!_initialized) {
       return;
     }
-    fqstate = state;
+    var fqstate = state;
     if (_UAie) {
       _updateIFrame(fqstate);
-      return;
     } else {
       location.hash = fqstate;
       if (_UAwebkit) {
 	_fqstates[history.length] = fqstate;
 	_storeStates();
       }
-      return;
     }
+    if (generateEvent)
+      onStateChange();
   },
   getCurrentState: function () {
     if (!_initialized) {
@@ -1331,6 +1380,8 @@ this.history = (function()
   }
   };
 })();
+
+}
 
 })();
 
@@ -1363,7 +1414,7 @@ function onHashChange() {
 function setHash(newLocation) {
   if (currentHash != newLocation) {
     currentHash = newLocation;
-    WT.history.navigate(escape(newLocation));
+    WT.history.navigate(escape(newLocation), false);
   }
 };
 
@@ -1802,7 +1853,8 @@ function load(fullapp) {
     if (!window._$_APP_CLASS_$_LoadWidgetTree)
       return; // That's to too soon baby.
 
-    WT.history.initialize("Wt-history-field", "Wt-history-iframe");
+    WT.history.initialize("Wt-history-field", "Wt-history-iframe",
+			  _$_DEPLOY_URL_$_);
   }
 
   if (!("activeElement" in document)) {
@@ -1971,9 +2023,9 @@ function update(el, signalName, e, feedback) {
 
   WT.checkReleaseCapture(el, e);
 
-  _$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
+_$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
   if (!responsePending) {
-  _$_$endif_$_();
+_$_$endif_$_();
 
   var pendingEvent = new Object(), i = pendingEvents.length;
   pendingEvent.object = el;
@@ -1987,9 +2039,9 @@ function update(el, signalName, e, feedback) {
 
   doJavaScript();
 
-  _$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
+_$_$if_STRICTLY_SERIALIZED_EVENTS_$_();
   }
-  _$_$endif_$_();
+_$_$endif_$_();
 
   updating = false;
 }
@@ -1997,7 +2049,7 @@ function update(el, signalName, e, feedback) {
 var updateTimeoutStart;
 
 function scheduleUpdate() {
-  _$_$if_WEB_SOCKETS_$_();
+_$_$if_WEB_SOCKETS_$_();
   if (websocket.state != WebSocketsUnavailable) {
     if (typeof window.WebSocket === 'undefined')
       websocket.state = WebSocketsUnavailable;
@@ -2021,7 +2073,7 @@ function scheduleUpdate() {
 	    var query = url.substr(url.indexOf('?'));
 	    wsurl = "ws" + location.protocol.substr(4)
 	      + "//" + location.hostname + ":"
-	     + location.port + location.pathname + query;
+	     + location.port + _$_DEPLOY_URL_$_ + query;
 	  }
 
 	  // console.log("Url: " + wsurl);
@@ -2066,7 +2118,7 @@ function scheduleUpdate() {
       }
     }
   }
-  _$_$endif_$_();
+_$_$endif_$_();
 
   if (responsePending != null && pollTimer != null) {
     clearTimeout(pollTimer);
@@ -2388,6 +2440,5 @@ this.emit = emit;
 window._$_APP_CLASS_$_SignalEmit = _$_APP_CLASS_$_.emit;
 
 window._$_APP_CLASS_$_OnLoad = function() {
-  _$_WT_CLASS_$_.history.initialize("Wt-history-field", "Wt-history-iframe");
   _$_APP_CLASS_$_._p_.load();
 };

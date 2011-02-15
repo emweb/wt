@@ -64,6 +64,12 @@ private:
   /// query. Returns false if the encoding was invalid.
   static bool url_decode(const std::string& in, std::string& path,
 			 std::string& query);
+
+  static bool matchesPath(const std::string& path,
+			  const std::string& prefix,
+			  bool matchAfterSlash,
+			  std::string& rest);
+
 };
 
 } // namespace server

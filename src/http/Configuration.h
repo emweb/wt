@@ -44,6 +44,10 @@ public:
 
   int threads() const { return threads_; }
   const std::string& docRoot() const { return docRoot_; }
+  const std::string& appRoot() const { return appRoot_; }
+  bool defaultStatic() const { return defaultStatic_; }
+  const std::vector<std::string>& staticPaths() const
+  { return staticPaths_; }
   const std::string& errRoot() const { return errRoot_; }
   const std::string& deployPath() const { return deployPath_; }
   const std::string& pidPath() const { return pidPath_; }
@@ -74,7 +78,9 @@ private:
   bool silent_;
 
   int threads_;
-  std::string docRoot_;
+  std::string docRoot_, appRoot_;
+  bool defaultStatic_;
+  std::vector<std::string> staticPaths_;
   std::string errRoot_;
   std::string deployPath_;
   std::string pidPath_;
@@ -102,8 +108,10 @@ private:
   void createOptions(po::options_description& options);
   void readOptions(const po::variables_map& vm);
 
-  void checkPath(const boost::program_options::variables_map& vm, std::string varName,
-		 std::string varDescription, std::string& result,
+  void checkPath(const boost::program_options::variables_map& vm,
+		 std::string varName, std::string varDescription,
+		 std::string& result, int options);
+  void checkPath(std::string& result, std::string varDescription,
 		 int options);
 
   enum PathOptions { RegularFile = 0x1,

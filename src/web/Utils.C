@@ -271,10 +271,18 @@ extern std::string createTempFileName()
 #endif
 }
 
-std::string terminate(const std::string& s, char c)
+std::string append(const std::string& s, char c)
 {
   if (s.empty() || s[s.length() - 1] != c)
     return s + c;
+  else
+    return s;
+}
+
+std::string prepend(const std::string& s, char c)
+{
+  if (s.empty() || s[0] != c)
+    return c + s;
   else
     return s;
 }

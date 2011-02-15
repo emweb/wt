@@ -407,34 +407,42 @@ void ChartConfig::update()
 	break;
       case 1:
 	s.setType(LineSeries);
+	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 2:
 	s.setType(CurveSeries);
+	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 3:
 	s.setType(BarSeries);
+	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 4:
 	s.setType(LineSeries);
 	s.setFillRange(fill_);
+	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 5:
 	s.setType(CurveSeries);
 	s.setFillRange(fill_);
+	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 6:
 	s.setType(BarSeries);
 	s.setStacked(true);
+	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 7:
 	s.setType(LineSeries);
 	s.setFillRange(fill_);
 	s.setStacked(true);
+	sc.markerEdit->setCurrentIndex(0);
 	break;
       case 8:
 	s.setType(CurveSeries);
 	s.setFillRange(fill_);
-	s.setStacked(true);	
+	s.setStacked(true);
+	sc.markerEdit->setCurrentIndex(0);
       }
 
       s.setMarker(static_cast<MarkerType>(sc.markerEdit->currentIndex()));

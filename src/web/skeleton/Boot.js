@@ -24,8 +24,10 @@ function loadScript(url, callback) {
 (function() {
   function doLoad() {
 
+var doc = document, win = window;
+
 try {
-  document.execCommand("BackgroundImageCache", false, true);
+  doc.execCommand("BackgroundImageCache", false, true);
 } catch (err) { }
 
 function rand() {
@@ -33,40 +35,40 @@ function rand() {
 }
 
 function setUrl(url) {
-  if (window.location.replace)
-    window.location.replace(url);
+  if (win.location.replace)
+    win.location.replace(url);
   else
-    window.location.href=url;
+    win.location.href=url;
 }
 
 function hideForm() {
-  var f = document.getElementById('Wt-form');
+  var f = doc.getElementById('Wt-form');
   if (f != null)
     f.style.visibility='hidden';
   else
     setTimeout(hideForm, 10);
 }
 
-if (window.opera)
-  window.opera.setOverrideHistoryNavigationMode("compatible");
+if (win.opera)
+  win.opera.setOverrideHistoryNavigationMode("compatible");
 
 // ajax support
-var ajax = (window.XMLHttpRequest || window.ActiveXObject);
+var ajax = (win.XMLHttpRequest || win.ActiveXObject);
 
 // client-side cookie support
 var testcookie='jscookietest=valid';
-document.cookie=testcookie;
+doc.cookie=testcookie;
 var no_replace = _$_RELOAD_IS_NEWSESSION_$_
-  || (_$_USE_COOKIES_$_ && document.cookie.indexOf(testcookie) != -1);
-document.cookie=testcookie+';expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  || (_$_USE_COOKIES_$_ && doc.cookie.indexOf(testcookie) != -1);
+doc.cookie=testcookie+';expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
 // server-side cookie support
 var inOneSecond = new Date();
 inOneSecond.setTime(inOneSecond.getTime() + 1000);
-document.cookie='WtTestCookie=ok;path=/;expires=' + inOneSecond.toGMTString();
+doc.cookie='WtTestCookie=ok;path=/;expires=' + inOneSecond.toGMTString();
 
 // hash to query
-var hash = window.location.hash;
+var hash = win.location.hash;
 if (hash.length > 0)
   hash = hash.substr(1);
 var qstart = hash.indexOf('?');
@@ -78,10 +80,9 @@ if ((ua.indexOf("gecko") == -1) || (ua.indexOf("webkit") != -1))
   hash = unescape(hash);
 
 // scale (VML)
+var scaleInfo = "";
 if (screen.deviceXDPI != screen.logicalXDPI)
   scaleInfo = "&scale=" + screen.deviceXDPI / screen.logicalXDPI;
-else
-  scaleInfo = "";
 
 // determine url
 var selfUrl=_$_SELF_URL_$_;
@@ -117,21 +118,22 @@ if (needSessionInUrl) {
     selfUrl += '#' + hash;
   setUrl(selfUrl);
 } else if (ajax) {
+  var htmlHistory = !!(win.history && win.history.pushState);
   var canonicalUrl = _$_AJAX_CANONICAL_URL_$_;
-  if (canonicalUrl.length > 1) {
-    _$_$if_HYBRID_$_();
+  if (!htmlHistory && canonicalUrl.length > 1) {
+_$_$if_HYBRID_$_();
     var pathcookie='WtInternalPath=' + escape(_$_INTERNAL_PATH_$_)
       + ';path=/;expires=' + inOneSecond.toGMTString();
-    document.cookie=pathcookie;
-    _$_$endif_$_();
+    doc.cookie=pathcookie;
+_$_$endif_$_();
     setUrl(canonicalUrl);
   } else {
     if (hash.length > 1 && hash.charAt(0) == '/') {
       selfUrl += '&_=' + encodeURIComponent(hash);
-      _$_$if_HYBRID_$_();
+_$_$if_HYBRID_$_();
       if (hash != _$_INTERNAL_PATH_$_)
         setTimeout(hideForm, 10);
-      _$_$endif_$_();
+_$_$endif_$_();
     }
 
     loadScript(selfUrl + scaleInfo + '&request=script&rand=' + rand(), null);

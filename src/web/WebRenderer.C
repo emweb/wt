@@ -591,11 +591,12 @@ void WebRenderer::serveMainscript(WebResponse& response)
   FileServe script(skeletons::Wt_js);
 
   script.setCondition
-    ("CATCH_ERROR",
-     conf.errorReporting() != Configuration::NoErrors);
+    ("CATCH_ERROR", conf.errorReporting() != Configuration::NoErrors);
   script.setCondition
     ("SHOW_STACK",
      conf.errorReporting() == Configuration::ErrorMessageWithStack);
+  script.setCondition
+    ("UGLY_INTERNAL_PATHS", session_.useUglyInternalPaths());
 
 #ifdef WT_DEBUG_JS
   script.setCondition("DYNAMIC_JS", true);
@@ -615,6 +616,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
   script.setVar("RELATIVE_URL", WWebWidget::jsStringLiteral
 		(session_.bootstrapUrl(response,
 				       WebSession::ClearInternalPath)));
+  script.setVar("DEPLOY_URL", WWebWidget::jsStringLiteral
+		(session_.deploymentPath()));
   script.setVar("KEEP_ALIVE",
 		boost::lexical_cast<std::string>(conf.sessionTimeout() / 2));
   script.setVar("INITIAL_HASH",
@@ -1422,6 +1425,14 @@ std::string WebRenderer::headDeclarations() const
       "<link rel=\"icon\" "
       "type=\"image/vnd.microsoft.icon\" "
       "href=\"" << session_.favicon() << (xhtml ? "\"/>" : "\">");
+
+  /*
+   * FIXME: make this work on IE too. Perhaps we really need to add the
+   * host name (lynx complains too) ? -- oh dear !
+   */
+  if (!session_.env().agentIsIE())
+    result << "<base href=\"" << session_.deploymentPath()
+	   << (xhtml ? "\"/>" : "\">");
 
   return result.str();
 }

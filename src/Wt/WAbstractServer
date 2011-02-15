@@ -19,6 +19,7 @@ public:
   virtual ~WAbstractServer();
 
   virtual void handleRequest(WebRequest *request) = 0;
+  virtual bool usesSlashExceptionForInternalPaths() const = 0;
 };
 
 }

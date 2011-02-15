@@ -38,6 +38,37 @@ RequestHandler::RequestHandler(const Configuration &config,
     logger_(logger)
 { }
 
+bool RequestHandler::matchesPath(const std::string& path,
+				 const std::string& prefix,
+				 bool matchAfterSlash,
+				 std::string& rest)
+{
+  if (boost::starts_with(path, prefix)) {
+    unsigned prefixLength = prefix.length();
+
+    if (path.length() > prefixLength) {
+      char next = path[prefixLength];
+
+      if (next == '/') {
+	rest = path.substr(prefixLength);
+	return true; 
+      } else if (matchAfterSlash) {
+	char last = prefix[prefixLength - 1];
+
+	if (last == '/') {
+	  rest = path.substr(prefixLength);
+	  return true;
+	}
+      }
+    } else {
+      rest = std::string();
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /*
  * Determine what to do with the request (based on the header),
  * and do it and create a Reply object which will do it.
@@ -79,36 +110,41 @@ ReplyPtr RequestHandler::handleRequest(Request& req)
 				   "", config_.errRoot()));
   }
 
-  for (unsigned i = 0; i < entryPoints_.size(); ++i) {
-    const Wt::EntryPoint& ep = entryPoints_[i];
+  bool isStaticFile = false;
 
-    bool matchesApp = false;
+  if (!config_.defaultStatic()) {
+    for (unsigned i = 0; i < config_.staticPaths().size(); ++i) {
+      std::string notused;
 
-    // Check if path matches with the entry point's path (e.g. app.wt)
-    // we should also match /app.wt/foobar.csv?bla=bo
-
-    std::string pathInfo;
-    unsigned entryPathLength = ep.path().length();
-
-    if (boost::starts_with(req.request_path, ep.path())) {
-      if (req.request_path.length() > entryPathLength) {
-	char next = req.request_path[entryPathLength];
-	if (next == '/') {
-	  pathInfo = req.request_path.substr(entryPathLength);
-	  matchesApp = true;	  
-	}
-      } else
-	matchesApp = true;
-    }
-
-    if (matchesApp) {
-      req.request_extra_path = pathInfo;
-      if (!pathInfo.empty())
-	req.request_path = ep.path();
-
-      return ReplyPtr(new WtReply(req, ep, config_));
+      if (matchesPath(req.request_path, config_.staticPaths()[i],
+		     true, notused)) {
+	isStaticFile = true;
+	break;
+      }
     }
   }
+
+  if (!isStaticFile)
+    for (unsigned i = 0; i < entryPoints_.size(); ++i) {
+      const Wt::EntryPoint& ep = entryPoints_[i];
+
+      std::string pathInfo;
+
+      // Check if path matches with the entry point's path (e.g. app.wt)
+      // we should also match /app.wt/foobar.csv?bla=bo
+      bool matchesApp = matchesPath(req.request_path,
+				    ep.path(),
+				    !config_.defaultStatic(),
+				    pathInfo);
+
+      if (matchesApp) {
+	req.request_extra_path = pathInfo;
+	if (!pathInfo.empty())
+	  req.request_path = ep.path();
+
+	return ReplyPtr(new WtReply(req, ep, config_));
+      }
+    }
 
   // If path ends in slash (i.e. is a directory) then add "index.html".
   if (req.request_path[req.request_path.size() - 1] == '/') {

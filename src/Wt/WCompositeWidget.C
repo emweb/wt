@@ -203,6 +203,7 @@ bool WCompositeWidget::isVisible() const
 void WCompositeWidget::setDisabled(bool disabled)
 {
   impl_->setDisabled(disabled);
+  propagateSetEnabled(!disabled);
 }
 
 bool WCompositeWidget::isDisabled() const

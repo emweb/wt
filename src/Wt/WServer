@@ -273,6 +273,8 @@ public:
    */
   virtual void initializeThread();
 
+  virtual bool usesSlashExceptionForInternalPaths() const;
+
 private:
   WServerImpl *impl_;
 };

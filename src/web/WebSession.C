@@ -8,6 +8,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "Wt/WAbstractServer"
 #include "Wt/WApplication"
 #include "Wt/WCombinedLocalizedStrings"
 #include "Wt/WContainerWidget"
@@ -264,6 +265,18 @@ void WebSession::init(const WebRequest& request)
   env_->setInternalPath(path);
 }
 
+bool WebSession::useUglyInternalPaths() const
+{
+  /*
+   * We need ugly ?_= internal paths if the server does not route
+   * /app/foo to an application deployed as /app/
+   */
+  if (applicationName_.empty())
+    return controller_->server_->usesSlashExceptionForInternalPaths();
+  else
+    return false;
+}
+
 std::string WebSession::bootstrapUrl(const WebResponse& response,
 				     BootstrapOption option) const
 {
@@ -271,7 +284,7 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
   case KeepInternalPath: {
     std::string url, internalPath;
 
-    if (applicationName_.empty()) {
+    if (useUglyInternalPaths()) {
       internalPath = app_ ? app_->internalPath() : env_->internalPath();
 
       if (internalPath.length() > 1)
@@ -295,11 +308,15 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
 	  std::string lastPart
 	    = internalPath.substr(internalPath.rfind('/') + 1);
 
-	  url = lastPart;
+	  url = ""; /* lastPart; */
 	} else
 	  url = applicationName_;
-      } else
+      } else {
+	if (applicationName_.empty() && internalPath.length() > 1)
+	  internalPath = internalPath.substr(1);
+
 	url = applicationUrl_ + internalPath;
+      }
     }
 
     return appendSessionQuery(url);
@@ -389,10 +406,14 @@ std::string WebSession::appendInternalPath(const std::string& baseUrl,
     else
       return baseUrl;
   else {
-    if (applicationName_.empty())
+    if (useUglyInternalPaths())
       return baseUrl + "?_=" + Utils::urlEncode(internalPath);
-    else
-      return baseUrl + Utils::urlEncode(internalPath);
+    else {
+      if (applicationName_.empty())
+	return baseUrl + Utils::urlEncode(internalPath.substr(1));
+      else
+	return baseUrl + Utils::urlEncode(internalPath);
+    }
   }
 }
 
@@ -1311,16 +1332,7 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
     hashE = request.getParameter("_");
 
   if (!request.pathInfo().empty() || (hashE && hashE->length() > 1)) {
-    std::string url;
-    if (!request.pathInfo().empty()) {
-      std::string pi = request.pathInfo();
-      for (std::size_t t = pi.find('/'); t != std::string::npos;
-	   t = pi.find('/', t+1)) {
-	url += "../";
-      }
-      url += applicationName();
-    } else
-      url = baseUrl() + applicationName();
+    std::string url = baseUrl() + applicationName();
 
     bool firstParameter = true;
     for (Http::ParameterMap::const_iterator i

@@ -152,16 +152,16 @@ namespace Wt {
    application is a single page web application: the URL does not
    change. Still, an application may manage multiple URLs that
    correspond to internal paths. These are URLs that are created by
-   appending an internal path to the application URL (this works only
-   if the application was not deployed at a location ending with a
-   '/'). The internal path may be manipulated through
-   WApplication::setInternalPath().  When the internal path changes,
-   this is reflected in the browser URL and an entry is added to the
-   browser history, allowing the user to use the back and forward
-   buttons to navigate through your application.
+   appending an internal path to the application URL. The internal
+   path may be manipulated through WApplication::setInternalPath().
+   When the internal path changes, this is reflected in the browser
+   URL and an entry is added to the browser history, allowing the user
+   to use the back and forward buttons to navigate through your
+   application.
 
    To avoid rerendering the entire widget tree for each internal path
    change, when AJAX is available, the internal path is indicated
+   either by manipulating the URL using the HTML5 History API, or by 
    using a name anchor (#) after the deployment URL. For a plain HTML
    session, the session ID is appended to the URL to avoid the session
    from reloading when the user navigates using a WAnchor to a new
@@ -179,18 +179,6 @@ namespace Wt {
    Finally, you can listen for path changes using the
    WApplication::internalPathChanged() event to react to the user
    navigating through his history.
-
-   When your applications uses internal URLs, this has consequences
-   for relative URLs to external resources (style sheets, images,
-   JavaScript files, etc...), since these are resolved taking into
-   account the current relative URL. All relative URLs that are known
-   to the application (e.g. those set in WAnchor::setRef(),
-   WImage::setImageRef(), WApplication::useStyleSheet(), etc...) are
-   automatically replaced by %Wt with an absolute URL that resolves
-   these directly within the deployment location. You should use
-   absolute URLs in your own CSS or XHTML snippets when you wish these
-   snippets to work regardless of the internal path in a plain
-   session, since these cannot be fixed by %Wt.
 
    \section application_sec 3. Startup and session management
   
@@ -352,10 +340,9 @@ namespace Wt {
     <li>there is an additional round-trip before any contents is rendered
     </li>
     <li>for an AJAX user interface, all contents will be loaded through
-    JavaScript. This has a draw-back that IE may delay applying external
-    stylesheets after the contents has been rendered, which might cause
-    some confusion, and some 3rd party JavaScript libraries do not support
-    being loaded on-demand (with as most notable example, Google ads).
+    JavaScript. This has a draw-back that some 3rd party JavaScript
+    libraries do not support being loaded on-demand (with as most
+    notable example, Google ads).
     </li>
   </ul>
 
@@ -386,8 +373,8 @@ namespace Wt {
   happens in the back-ground, unnoticed to the user.
 
   This mitigates disadvantages associated with the default bootstrap,
-  but has the draw-backs of being a recent development in %Wt, and it
-  requires slightly more server-side processing.
+  but has the drawback of requiring consistent enableAjax() implementations
+  and requiring more server-side processing.
 
   \section sec_painting 7. Painting
 
@@ -483,9 +470,27 @@ namespace Wt {
 
   - command-line parameter <tt>--config</tt> or <tt>-c</tt>
   - value of environment variable <tt>$WT_CONFIG_XML</tt>
-  - within the app root, as configured by the environment variable
-    <tt>$WT_APP_ROOT</tt>: <tt>$WT_APP_ROOT/wt_config.xml</tt>
+  - within the app root, as configured by command line paramater
+    <tt>--approot</tt>, or the environment variable <tt>$WT_APP_ROOT</tt>:
+    approot<tt>/wt_config.xml</tt>
   - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>)
+
+  Use the <tt>--deploy-path</tt> parameter to deploy the application at
+  a specific URL. By default, the application is deployed at '/'.
+
+  When the application is deployed at a path ending with '/' (i.e. a
+  folder path), only an exact match for a requested URL will be routed
+  to the application itself. This behaviour avoids deployment problems with
+  the singular case where you deploy at '/' and no static files would
+  be served by the web server. As a consequence, ugly URLs will be
+  generated for internal paths. Since version 3.1.9, it is however
+  possible to have clean URLs also when deploying at the root by
+  specifically listing the folders that contain static assets using
+  <tt>--docroot-static</tt>, e.g.
+
+  \code
+  $ ../../build/examples/wt-homepage/Home.wt --docroot-static=/css,/resources,/style ...
+  \endcode
 
   \subsection wtisapi 9.3 ISAPI
 
@@ -730,32 +735,35 @@ The configuration file syntax is line based:
 </ul>
 
 \code
+Allowed options:
+
 General options:
   -h [ --help ]                 produce help message
   -t [ --threads ] arg (=10)    number of threads
   --servername arg (=vierwerf)  servername (IP address or DNS name)
   --docroot arg                 document root for static files
+  --approot arg                 application root for private support files; if 
+                                unspecified, the value of the environment 
+                                variable $WT_APP_ROOT is used, or else the 
+                                current working directory
+  --docroot-static arg          comma-separated list of paths that correspond 
+                                to static files, even if they are within a 
+                                deployment path
   --errroot arg                 root for error pages
   --accesslog arg               access log file (defaults to stdout)
-  --no-compression              do not compress dynamic text/html and text/plain
-                                responses
+  --no-compression              do not use compression
   --deploy-path arg (=/)        location for deployment
-  --session-id-prefix arg       prefix for session-id's (overrides wt_config.xml
-                                setting)
+  --session-id-prefix arg       prefix for session-id's (overrides 
+                                wt_config.xml setting)
   -p [ --pid-file ] arg         path to pid file (optional)
-  -c [ --config ] arg           location of wt_config.xml. If unspecified, 
-                                WT_CONFIG_XML is searched in the environment, 
-                                if it does not exist then the compiled-in 
-                                default (/etc/wt/wt_config.xml) is tried. If 
-                                the default does not exist, we revert to 
-                                default values for all parameters.
-  --max-memory-request-size arg Requests are usually read in memory before 
-                                being processed. To avoid DOS attacks where 
-                                large requests take up all RAM, use this 
-                                parameter to force requests that are larger 
-                                than the specified size (bytes) to be spooled 
-                                to disk. This will also spool file uploads to 
-                                disk.
+  -c [ --config ] arg           location of wt_config.xml; if unspecified, the 
+                                value of the environment variable 
+                                $WT_CONFIG_XML is used, or else the built-in 
+                                default (/etc/wt/wt_config.xml) is tried, or 
+                                else built-in defaults are used
+  --max-memory-request-size arg threshold for request size (bytes), for 
+                                spooling the entire request to disk to avoid, 
+                                to avoid DoS
   --gdb                         do not shutdown when receiving Ctrl-C (and let 
                                 gdb break instead)
 
@@ -772,6 +780,8 @@ HTTPS/Secure WebSocket server options:
                           e.g. "/etc/ssl/private/company.pem"
   --ssl-tmp-dh arg        File for temporary Diffie-Hellman parameters
                           e.g. "/etc/ssl/dh512.pem"
+
+Settings may be set in the configuration file /etc/wt/wthttpd
 \endcode
 
   \subsection config_isapi 10.5 ISAPI options (wt_config.xml)

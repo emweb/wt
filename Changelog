@@ -1,3 +1,10 @@
+15-02-2011:
+	* WebSession: support HTML5 History API for internal paths
+
+	* wthttpd: a value for docroot like .:/css,/resources,/style is
+	interpreted as defaulting to a deployed app except for the given
+	paths, allowing deployment without ugly URLs (?_=)
+
 12-02-2011:
 	* WSubMenuItem: behave more consistently w.r.t selection (#694)
 

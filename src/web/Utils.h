@@ -32,7 +32,8 @@ namespace Wt {
 extern WT_API std::string createTempFileName();
 
 // appends the character to the string if it does not end with it
-extern std::string terminate(const std::string& s, char c);
+extern std::string append(const std::string& s, char c);
+extern std::string prepend(const std::string& s, char c);
 
 // in-place replace functions
 extern std::string& replace(std::string& s, char c, const std::string& r);

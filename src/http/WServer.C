@@ -38,8 +38,10 @@ typedef boost::thread thread_t;
 namespace {
   bool gdb = false;
 
-  static std::string getWtConfigXml(int argc, char *argv[],
-				    const std::string& configurationFile)
+  static void parseArgsPartially(int argc, char *argv[],
+				 const std::string& configurationFile,
+				 std::string& wtConfigXml,
+				 std::string& appRoot)
   {
     std::string wt_config_xml;
     Wt::WLogger stderrLogger;
@@ -48,7 +50,8 @@ namespace {
     http::server::Configuration serverConfiguration(stderrLogger, true);
     serverConfiguration.setOptions(argc, argv, configurationFile);
     
-    return serverConfiguration.configPath();
+    wtConfigXml = serverConfiguration.configPath();
+    appRoot = serverConfiguration.appRoot();
   }
 
 }
@@ -81,12 +84,16 @@ struct WServerImpl {
 			 const WServer *server)
   {
     if (!wtConfiguration_) {
+      std::string wtConfigFile, appRoot;
+
+      parseArgsPartially(argc, argv, serverConfigurationFile,
+			 wtConfigFile, appRoot);
+
       if (wtConfigurationFile_.empty())
-	wtConfigurationFile_ = getWtConfigXml(argc, argv,
-					      serverConfigurationFile);
+	wtConfigurationFile_ = wtConfigFile;
 
       wtConfiguration_
-	= new Wt::Configuration(applicationPath_, "",
+	= new Wt::Configuration(applicationPath_, appRoot,
 				wtConfigurationFile_,
 				Wt::Configuration::WtHttpdServer,
 				"Wt: initializing built-in httpd");
@@ -434,6 +441,11 @@ bool WServer::readConfigurationProperty(const std::string& name,
 
   return impl_->webController_->configuration()
     .readConfigurationProperty(name, value);
+}
+
+bool WServer::usesSlashExceptionForInternalPaths() const
+{
+  return impl_->serverConfiguration_->defaultStatic();
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
