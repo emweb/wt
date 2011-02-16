@@ -92,8 +92,8 @@ void Configuration::createOptions(po::options_description& options)
      po::value<std::string>()->default_value(docRoot_),
      "document root for static files, optionally followed by a "
      "comma-separated list of paths with static files (even if they "
-     "are within a deployment path), after a ':' \n\n"
-     "e.g. --docroot=.:/resources,/style\n")
+     "are within a deployment path), after a ';' \n\n"
+     "e.g. --docroot=.;/resources,/style\n")
 
     ("approot",
      po::value<std::string>(&appRoot_)->default_value(appRoot_),
@@ -243,12 +243,12 @@ void Configuration::readOptions(const po::variables_map& vm)
     docRoot_ = vm["docroot"].as<std::string>();
 
     std::vector<std::string> parts;
-    boost::split(parts, docRoot_, boost::is_any_of(":"));
+    boost::split(parts, docRoot_, boost::is_any_of(";"));
 
     if (parts.size() > 1) {
       if (parts.size() != 2)
 	throw Wt::WServer::Exception("Document root (--docroot) should be "
-				     "of format path[:./p1[,p2[,...]]]");
+				     "of format path[;./p1[,p2[,...]]]");
       boost::split(staticPaths_, parts[1], boost::is_any_of(","));
       defaultStatic_ = false;
     }

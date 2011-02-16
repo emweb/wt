@@ -267,6 +267,7 @@ void WebSession::init(const WebRequest& request)
 
 bool WebSession::useUglyInternalPaths() const
 {
+#ifndef WT_TARGET_JAVA
   /*
    * We need ugly ?_= internal paths if the server does not route
    * /app/foo to an application deployed as /app/
@@ -275,6 +276,10 @@ bool WebSession::useUglyInternalPaths() const
     return controller_->server_->usesSlashExceptionForInternalPaths();
   else
     return false;
+#else
+  //TODO redmine #725
+  return true;
+#endif
 }
 
 std::string WebSession::bootstrapUrl(const WebResponse& response,

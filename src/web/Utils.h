@@ -257,6 +257,8 @@ std::string readJavaScriptFile(const std::string& fname);
 
 int calculatePluralCase(const std::string &expression, ::uint64_t amount);
 
+WString formatFloat(const WString &format, double value);
+
   }
 }
 

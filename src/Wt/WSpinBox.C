@@ -9,6 +9,7 @@
 #include <Wt/WSpinBox>
 
 #include "DomElement.h"
+#include "Utils.h"
 
 #include "JavaScriptLoader.h"
 
@@ -47,9 +48,16 @@ WSpinBox::WSpinBox(WContainerWidget *parent)
   setValue(0);
 }
 
+void WSpinBox::setFormat(const WString& format)
+{
+  format_ = format;
+}
+
 void WSpinBox::setValue(double value)
 {
-  if (static_cast<int>(value) == value)
+  if (!format_.empty())
+    setText(Utils::formatFloat(format_, value));
+  else if (static_cast<int>(value) == value)
     setText(WT_USTRING::fromUTF8(boost::lexical_cast<std::string>
 				 (static_cast<int>(value))));
   else

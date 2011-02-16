@@ -508,6 +508,23 @@ int calculatePluralCase(const std::string &expression, ::uint64_t amount)
 			 "requires the spirit library.");
 #endif
 }
+
+WString formatFloat(const WString &format, double value)
+{
+  std::string f = format.toUTF8();
+  int buflen = f.length() + 15;
+
+  char *buf = new char[buflen];
+
+  snprintf(buf, buflen, f.c_str(), value);
+
+  WString result = WT_USTRING::fromUTF8(buf);
+
+  delete[] buf;
+
+  return result;
+
+}
   
   }
 }

@@ -80,6 +80,32 @@ public:
    */
   double singleStep() const { return step_; }
 
+  /*! \brief Sets the value format string.
+   *
+   * The format is used by setValue().
+   *
+   * \if cpp 
+   * When an empty WString is used as format, the double is
+   * cast using boost::lexical_cast<std::string>(). When the value is
+   * a real number, it will be cast to an int before passing it to
+   * boost::lexical_cast<std::string>().  
+   * \elseif java 
+   * When an empty
+   * WString is used as format, the double is cast using
+   * String#valueOf(). When the value is a real number, it will be
+   * cast to an int before passing it to String#valueOf().  
+   * \endif
+   *
+   * The default value for format is an empty WString.
+   */
+  void setFormat(const WString& format);
+
+  /*! \brief Returns the progress format string.
+   *  
+   * \sa setFormat() 
+   */
+  const WString& format() const { return format_; }
+
   /*! \brief Sets the value.
    *
    * \p value must be a value between minimum() and maximum().
@@ -110,6 +136,8 @@ private:
   bool changed_;
 
   Signal<double> valueChanged_;
+
+  WString format_;
 
   void onChange();
   void defineJavaScript();

@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include "DomElement.h"
+#include "Utils.h"
 
 using namespace Wt;
 
@@ -80,22 +81,7 @@ void WProgressBar::setFormat(const WString& format)
 
 WString WProgressBar::text() const
 {
-  std::string f = format_.toUTF8();
-  int buflen = f.length() + 5;
-
-#ifndef WT_TARGET_JAVA
-  char *buf = new char[buflen];
-#else
-  char *buf = 
-#endif // WT_TARGET_JAVA
-
-  snprintf(buf, buflen, f.c_str(), percentage());
-
-  WString result = WT_USTRING::fromUTF8(buf);
-
-  delete[] buf;
-
-  return result;
+  return Utils::formatFloat(format_, percentage());
 }
 
 double WProgressBar::percentage() const
