@@ -101,7 +101,7 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
   table->setModel(model);
   table->setSortingEnabled(true);
   table->setColumnResizeEnabled(true);
-  table->setSelectionMode(NoSelection);
+  // table->setSelectionMode(ExtendedSelection);
   table->setAlternatingRowColors(true);
   table->setColumnAlignment(0, AlignCenter);
   table->setHeaderAlignment(0, AlignCenter);
@@ -131,6 +131,7 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
    * Create the category chart.
    */
   WCartesianChart *chart = new WCartesianChart(this);
+  chart->setPreferredMethod(WPaintedWidget::PngImage);
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the categories
   chart->setLegendEnabled(true); // enable the legend
@@ -218,7 +219,7 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
    * Create the scatter plot.
    */
   WCartesianChart *chart = new WCartesianChart(this);
-  //chart->setPreferredMethod(WPaintedWidget::InlineSvgVml);
+  //chart->setPreferredMethod(WPaintedWidget::PngImage);
   //chart->setBackground(gray);
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the X data

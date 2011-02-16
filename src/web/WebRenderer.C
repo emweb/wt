@@ -1426,13 +1426,15 @@ std::string WebRenderer::headDeclarations() const
       "type=\"image/vnd.microsoft.icon\" "
       "href=\"" << session_.favicon() << (xhtml ? "\"/>" : "\">");
 
-  /*
-   * FIXME: make this work on IE too. Perhaps we really need to add the
-   * host name (lynx complains too) ? -- oh dear !
-   */
-  if (!session_.env().agentIsIE())
-    result << "<base href=\"" << session_.deploymentPath()
-	   << (xhtml ? "\"/>" : "\">");
+#ifndef WT_TARGET_JAVA
+  std::string baseUrl;
+  WApplication::readConfigurationProperty("baseURL", baseUrl);
+#else
+  std::string baseUrl = WApplication::readConfigurationProperty("base-url", "");
+#endif // WT_TARGET_JAVA
+
+  if (!baseUrl.empty())
+    result << "<base href=\"" << baseUrl << (xhtml ? "\"/>" : "\">");
 
   return result.str();
 }

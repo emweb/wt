@@ -400,6 +400,24 @@
 	   that may or may not be shared between several applications.
 	  -->
 	<properties>
+	    <!-- baseURL property
+
+	       The absolute URL at which the application is deployed
+	       (known to the user). This may be a reverse-proxified URL
+	       when the app is deployed behind a reverse proxy. This is
+               set as base URL in the HTML so that relative URLs (to e.g.
+	       css, images, etc...) work correctly regardless of the
+               internal path.
+
+	       Eg. "http://www.webtoolkit.eu/"
+
+	       The default value is empty, in which case the base URL is
+               explicitly set. Note that for most applications (which do
+	       not use internal paths and rely on relative URls) this is
+	       fine.
+	      -->
+	    <property name="baseURL"></property>
+
             <!-- resourcesURL property
 
 	       The URL at which the resources/ folder is deploeyd that
