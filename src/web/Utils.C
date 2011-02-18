@@ -22,6 +22,7 @@
 
 #ifdef WIN32
 #include <windows.h>
+#define snprintf _snprintf
 #else
 #include <stdlib.h>
 #endif // WIN32
@@ -517,6 +518,7 @@ WString formatFloat(const WString &format, double value)
   char *buf = new char[buflen];
 
   snprintf(buf, buflen, f.c_str(), value);
+  buf[buflen - 1];
 
   WString result = WT_USTRING::fromUTF8(buf);
 
