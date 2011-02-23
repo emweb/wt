@@ -1426,12 +1426,8 @@ std::string WebRenderer::headDeclarations() const
       "type=\"image/vnd.microsoft.icon\" "
       "href=\"" << session_.favicon() << (xhtml ? "\"/>" : "\">");
 
-#ifndef WT_TARGET_JAVA
   std::string baseUrl;
   WApplication::readConfigurationProperty("baseURL", baseUrl);
-#else
-  std::string baseUrl = WApplication::readConfigurationProperty("base-url", "");
-#endif // WT_TARGET_JAVA
 
   if (!baseUrl.empty())
     result << "<base href=\"" << baseUrl << (xhtml ? "\"/>" : "\">");

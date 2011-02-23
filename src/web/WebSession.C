@@ -1319,7 +1319,8 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
     }
 
     if (closing) {
-      lock->asyncResponse_->flush();
+      if (lock->asyncResponse_)
+	lock->asyncResponse_->flush();
       lock->asyncResponse_ = 0;
       lock->canWriteAsyncResponse_ = false;
     } else

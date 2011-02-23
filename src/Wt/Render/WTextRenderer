@@ -70,9 +70,9 @@ public:
   /*! \brief Renders an XHTML fragment.
    *
    * The text is rendered, starting at position \p y, and flowing down
-   * the page If necessary, new pages are created using \p startPage()
-   * to render more contents on a next page. The return value is the position
-   * at which rendering stopped on the last page on which was rendered.
+   * the page. New pages are created using \p startPage() to render
+   * more contents on a next page. The return value is the position at
+   * which rendering stopped on the last page on which was rendered.
    *
    * This \p y position and returned position are <i>text
    * coordinates</i>, which differ from page coordinates in that they exclude
@@ -152,6 +152,10 @@ public:
   /*! \brief Stops painting on the given page.
    */
   virtual void endPage(WPaintDevice *device) = 0;
+
+  /*! \brief Returns a painter for the current page.
+   */
+  virtual WPainter *getPainter(WPaintDevice *device) = 0;
 
 protected:
  /*! \brief Constructor.

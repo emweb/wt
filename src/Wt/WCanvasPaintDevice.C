@@ -85,6 +85,11 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
   }
 }
 
+WFlags<WPaintDevice::FeatureFlag> WCanvasPaintDevice::features() const
+{
+  return 0; // We could implement wordwrap
+}
+
 void WCanvasPaintDevice::render(const std::string& canvasId,
 				DomElement *text)
 {

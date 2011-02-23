@@ -12,6 +12,7 @@
 #include "Wt/WTransform"
 #include "Wt/Http/Response"
 
+#include "Wt/FontSupport.h"
 #include "web/WtException.h"
 #include "web/Utils.h"
 
@@ -46,6 +47,17 @@ namespace {
     pp->opacity = 0;
   }
 
+  void blit(const Wt::WColor& src, Wt::WColor& dst)
+  {
+    int r = dst.red()
+      + (((int)src.alpha() * (src.red() - dst.red())) >> 8);
+    int g = dst.green()
+      + (((int)src.alpha() * (src.green() - dst.green())) >> 8);
+    int b = dst.blue()
+      + (((int)src.alpha() * (src.blue() - dst.blue())) >> 8);
+
+    dst.setRgb(r, g, b, std::max(src.alpha(), dst.alpha()));
+  }
 }
 
 namespace Wt {
@@ -79,6 +91,12 @@ WRasterImage::WRasterImage(const std::string& type,
   strcpy(image_->magick, type.c_str());
 
   context_ = 0;
+
+  fontSupport_ = new FontSupport(this);
+
+  /* If the font support can actually render fonts to bitmaps, we use that */
+  if (fontSupport_->canRender())
+    fontSupport_->setDevice(0);
 }
 
 void WRasterImage::clear()
@@ -95,31 +113,55 @@ WRasterImage::~WRasterImage()
 
   DestroyImage(image_);
   delete[] pixels_;
+
+  delete fontSupport_;
+}
+
+void WRasterImage::addFontCollection(const std::string& directory,
+				     bool recursive)
+{
+  fontSupport_->addFontCollection(directory, recursive);
+}
+
+WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
+{
+  if (fontSupport_->canRender())
+    return HasFontMetrics;
+  else
+    return 0;
 }
 
 void WRasterImage::init()
 {
-  context_ = DrawAllocateContext(0, image_);
+  if (!context_) {
+    context_ = DrawAllocateContext(0, image_);
 
-  DrawPushGraphicContext(context_);
+    DrawPushGraphicContext(context_);
 
-  DrawSetFillRule(context_, NonZeroRule);
-  DrawTranslate(context_, -0.5, -0.5);
-  DrawSetTextEncoding(context_, "UTF-8");
+    DrawSetFillRule(context_, NonZeroRule);
+    DrawTranslate(context_, -0.5, -0.5);
+    DrawSetTextEncoding(context_, "UTF-8");
 
-  DrawPushGraphicContext(context_); // for painter->clipping();
-  DrawPushGraphicContext(context_); // for painter->combinedTransform()
+    DrawPushGraphicContext(context_); // for painter->clipping();
+    DrawPushGraphicContext(context_); // for painter->combinedTransform()
+
+    setChanged(Clipping | Transform | Pen | Brush | Font);
+  }
 }
 
 void WRasterImage::done()
 {
-  DrawPopGraphicContext(context_); // for painter->combinedTransform()
-  DrawPopGraphicContext(context_); // for painter->clipping();
-  DrawPopGraphicContext(context_);
+  if (context_) {
+    DrawPopGraphicContext(context_); // for painter->combinedTransform()
+    DrawPopGraphicContext(context_); // for painter->clipping();
+    DrawPopGraphicContext(context_);
 
-  DrawRender(context_);
+    DrawRender(context_);
 
-  DrawDestroyContext(context_);
+    DrawDestroyContext(context_);
+
+    context_ = 0;
+  }
 }
 
 void WRasterImage::applyTransform(const WTransform& t)
@@ -145,6 +187,8 @@ void WRasterImage::setTransform(const WTransform& t)
 
 void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 {
+  init();
+
   if (flags & Clipping) {
     DrawPopGraphicContext(context_);
     DrawPopGraphicContext(context_);
@@ -287,83 +331,106 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
   if (flags & Font) {
     const WFont& font = painter()->font();
 
-    const char *base;
-    const char *italic = 0;
-    const char *bold = 0;
+    std::string name;
 
-    switch (font.genericFamily()) {
-    case WFont::Default:
-    case WFont::Serif:
-      base = "Times";
-      italic = "Italic";
-      bold = "Bold";
-      break;
-    case WFont::SansSerif:
-      base = "Helvetica";
-      italic = "Olbique";
-      bold = "Bold";
-      break;
-    case WFont::Monospace:
-      base = "Courier";
-      italic = "Oblique";
-      bold = "Bold";
-      break;
-    case WFont::Fantasy: // Not really !
-      base = "Symbol";
-      break;
-    case WFont::Cursive: // Not really !
-      base = "ZapfDingbats";
+    /*
+     * First, consult the font support to locate a suitable font
+     */
+    if (fontSupport_->busy()) {
+      /*
+       * We have a resolved true type font.
+       */
+      name = fontSupport_->drawingFontPath();
+    } else {
+      FontSupport::FontMatch match = fontSupport_->matchFont(font);
+
+      if (match.matched())
+	name = match.fileName();
     }
 
-    if (italic)
-      switch (font.style()) {
-      case WFont::NormalStyle:
-	italic = 0;
-	break;
-      default:
-	break;
+    if (name.empty() || !fontSupport_->canRender()) {
+      if (name.empty()) {
+	/*
+	 * FIXME, does this actually make any sense ?
+	 */
+	const char *base;
+	const char *italic = 0;
+	const char *bold = 0;
+
+	switch (font.genericFamily()) {
+	case WFont::Default:
+	case WFont::Serif:
+	  base = "Times";
+	  italic = "Italic";
+	  bold = "Bold";
+	  break;
+	case WFont::SansSerif:
+	  base = "Helvetica";
+	  italic = "Olbique";
+	  bold = "Bold";
+	  break;
+	case WFont::Monospace:
+	  base = "Courier";
+	  italic = "Oblique";
+	  bold = "Bold";
+	  break;
+	case WFont::Fantasy: // Not really !
+	  base = "Symbol";
+	  break;
+	case WFont::Cursive: // Not really !
+	  base = "ZapfDingbats";
+	}
+
+	if (italic)
+	  switch (font.style()) {
+	  case WFont::NormalStyle:
+	    italic = 0;
+	    break;
+	  default:
+	    break;
+	  }
+
+	if (bold)
+	  switch (font.weight()) {
+	  case WFont::NormalWeight:
+	    bold = 0;
+	    break;
+	  case WFont::Bold:
+	  case WFont::Bolder:
+	    break;
+	  default:
+	    bold = 0;
+	  }
+
+	std::string name = base;
+	if (bold) {
+	  name += std::string("-") + bold;
+	  if (italic)
+	    name += italic;
+	} else if (italic)
+	  name += std::string("-") + italic;
+
+	if (name == "Times")
+	  name = "Times-Roman";
       }
 
-    if (bold)
-      switch (font.weight()) {
-      case WFont::NormalWeight:
-	bold = 0;
-	break;
-      case WFont::Bold:
-      case WFont::Bolder:
-	break;
-      default:
-	bold = 0;
-      }
+      DrawSetFont(context_, name.c_str());
 
-    std::string name = base;
-    if (bold) {
-      name += std::string("-") + bold;
-      if (italic)
-	name += italic;
-    } else if (italic)
-      name += std::string("-") + italic;
+      fontSize_ = font.sizeLength(12).toPixels();
 
-    if (name == "Times")
-      name = "Times-Roman";
+      DrawSetFontSize(context_, fontSize_);
 
-    DrawSetFont(context_, name.c_str());
-
-    switch (font.size()) {
-    case WFont::FixedSize:
-      fontSize_ = font.fixedSize().toPixels();
-      break;
-    default:
-      fontSize_ = 12;
-    }
-
-    DrawSetFontSize(context_, fontSize_);
+      renderText_ = true;
+    } else
+      renderText_ = false;
   }
 }
 
 void WRasterImage::drawArc(const WRectF& rect,
 			   double startAngle, double spanAngle)
 {
+  init();
+
   DrawArc(context_, rect.left(), rect.top(), rect.right(), rect.bottom(), 
 	  startAngle, startAngle + spanAngle);
 }
@@ -372,16 +439,50 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 			     int imgWidth, int imgHeight,
 			     const WRectF& srect)
 {
-  // TODO: DrawComposite
+  init();
+
+  ImageInfo info;
+  GetImageInfo(&info);
+
+  strncpy(info.filename, imgUri.c_str(), 2048);
+
+  ExceptionInfo exception;
+  GetExceptionInfo(&exception);
+
+  Image *cImage = ReadImage(&info, &exception);
+
+  if (cImage == 0) {
+    std::cerr << "WRasterImage::drawImage failed: "
+	      << exception.reason << ", "
+	      << exception.description << std::endl;
+    return;
+  }
+
+  RectangleInfo tocrop;
+  tocrop.width = srect.width();
+  tocrop.height = srect.height();
+  tocrop.x = srect.x();
+  tocrop.y = srect.y();
+  Image *croppedImage = CropImage(cImage, &tocrop, &exception);
+
+  DrawComposite(context_, OverCompositeOp, rect.x(), rect.y(), rect.width(),
+		rect.height(), croppedImage);
+
+  DestroyImage(croppedImage);
+  DestroyImage(cImage);
 }
 
 void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
 {
+  init();
+
   DrawLine(context_, x1, y1, x2, y2);
 }
 
 void WRasterImage::drawPath(const WPainterPath& path)
 {
+  init();
+
   if (!path.isEmpty()) {
     DrawPathStart(context_);
 
@@ -408,7 +509,9 @@ WColor WRasterImage::getPixel(int x, int y)
 }
 
 void WRasterImage::drawPlainPath(const WPainterPath& path)
-{ 
+{
+  init();
+
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
   if (segments.size() > 0
@@ -498,93 +601,155 @@ void WRasterImage::drawText(const WRectF& rect,
     throw std::logic_error("WRasterImage::drawText() " 
 			   "TextWordWrap is not supported");
 
-  AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
-  AlignmentFlag verticalAlign = flags & AlignVerticalMask;
+  if (renderText_) {
+    init();
 
-  /*
-   * For centering horizontally, we use graphicsmagick totally insane
-   * gravity system.
-   */
-  GravityType gravity = NorthWestGravity;
+    AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
+    AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
-  const WTransform& t = painter()->combinedTransform();
+    /*
+     * For centering horizontally, we use graphicsmagick totally insane
+     * gravity system.
+     */
+    GravityType gravity = NorthWestGravity;
 
-  WPointF p;
+    const WTransform& t = painter()->combinedTransform();
 
-  double ascent = 0.8 * fontSize_;
-  double descent = fontSize_ - ascent;
+    WPointF p;
 
-  switch (verticalAlign) {
-  case AlignTop:
-    p = rect.topLeft();
-    p.setY(p.y() + ascent);
-    break;
-  case AlignMiddle:
-    p = rect.center();
-    p.setY(p.y() + ascent - fontSize_/2);
-    break;
-  case AlignBottom:
-    p = rect.bottomLeft();
-    p.setY(p.y() - descent);
-    break;
-  default:
-    break;
-  }
+    double ascent = 0.8 * fontSize_;
+    double descent = fontSize_ - ascent;
 
-  switch (horizontalAlign) {
-  case AlignLeft:
-    gravity = NorthWestGravity;
-    p.setX(rect.left());
-    break;
-  case AlignCenter:
-    gravity = NorthGravity;
-    p.setX(rect.center().x());
+    switch (verticalAlign) {
+    case AlignTop:
+      p = rect.topLeft();
+      p.setY(p.y() + ascent);
+      break;
+    case AlignMiddle:
+      p = rect.center();
+      p.setY(p.y() + ascent - fontSize_/2);
+      break;
+    case AlignBottom:
+      p = rect.bottomLeft();
+      p.setY(p.y() - descent);
+      break;
+    default:
+      break;
+    }
 
-    p = t.map(p);
-    p.setX(p.x() - w_/2);
-    p = t.inverted().map(p);
-    break;
-  case AlignRight:
-    gravity = NorthEastGravity;
-    p.setX(rect.right());
+    switch (horizontalAlign) {
+    case AlignLeft:
+      gravity = NorthWestGravity;
+      p.setX(rect.left());
+      break;
+    case AlignCenter:
+      gravity = NorthGravity;
+      p.setX(rect.center().x());
 
-    p = t.map(p);
-    p.setX(w_ - p.x());
-    p = t.inverted().map(p);
-    break;
-  default:
-    break;
-  }
+      p = t.map(p);
+      p.setX(p.x() - w_/2);
+      p = t.inverted().map(p);
+      break;
+    case AlignRight:
+      gravity = NorthEastGravity;
+      p.setX(rect.right());
 
-  DrawPushGraphicContext(context_);
+      p = t.map(p);
+      p.setX(w_ - p.x());
+      p = t.inverted().map(p);
+      break;
+    default:
+      break;
+    }
 
-  PixelPacket pp;
-  WColorToPixelPacket(painter()->pen().color(), &pp);
-  DrawSetFillColor(context_, &pp);
-  DrawSetFillOpacity(context_, 1);
-  DrawSetStrokeOpacity(context_, 0);
+    DrawPushGraphicContext(context_);
+
+    PixelPacket pp;
+    WColorToPixelPacket(painter()->pen().color(), &pp);
+    DrawSetFillColor(context_, &pp);
+    DrawSetFillOpacity(context_, 1);
+    DrawSetStrokeOpacity(context_, 0);
   
-  DrawSetGravity(context_, gravity);
+    DrawSetGravity(context_, gravity);
 
-  std::string utf8 = text.toUTF8();
-  Utils::replace(utf8, '%', "%%");
+    std::string utf8 = text.toUTF8();
+    Utils::replace(utf8, '%', "%%");
 
-  DrawAnnotation(context_, p.x(), p.y(), (const unsigned char *)utf8.c_str());
+    DrawAnnotation(context_, p.x(), p.y(), (const unsigned char *)utf8.c_str());
 
-  DrawPopGraphicContext(context_);
+    DrawPopGraphicContext(context_);
 
-  setChanged(Transform);
+    setChanged(Transform);
+  } else {
+    const WTransform& t = painter()->combinedTransform();
+
+    WRectF renderRect;
+
+    int w, h, x0, y0;
+    if (t.isIdentity()) {
+      x0 = rect.x();
+      y0 = rect.y();
+      w = rect.width();
+      h = rect.height();
+      renderRect = WRectF(0, 0, rect.width(), rect.height());
+    } else {
+      x0 = 0;
+      y0 = 0;
+      w = w_;
+      h = h_;
+      renderRect = rect;
+    }
+
+    FontSupport::Bitmap bitmap(w, h);
+    fontSupport_->drawText(painter_->font(), renderRect, t, bitmap, flags, text);
+
+    done();
+
+    PixelPacket *pixels = GetImagePixels(image_, 0, 0, w_, h_);
+
+    WColor c = painter()->pen().color();
+ 
+    for (int y = 0; y < h; ++y) {
+      for (int x = 0; x < w; ++x) {
+	int dx = x0 + x;
+	int dy = y0 + y;
+	PixelPacket *pixel = pixels + (dy * w_ + dx);
+
+	unsigned char bit = bitmap.value(x, y);
+
+	if (bit > 0) {
+	  WColor src(c.red(), c.green(), c.blue(),
+		     ((int)c.alpha() * bit) >> 8);
+
+	  WColor dst(pixel->red, pixel->green, pixel->blue, pixel->opacity);
+
+	  blit(src, dst);
+
+	  WColorToPixelPacket(dst, pixel);
+	}
+      }
+    }
+
+    SyncImagePixels(image_);
+  }
 }
 
 WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
 				    bool wordWrap)
 {
-  throw std::logic_error("WRasterImage::measureText() not (yet?) supported");
+  if (renderText_)
+    throw std::logic_error("WRasterImage::measureText() not supported");
+  else
+    return fontSupport_->measureText(painter_->font(), text, maxWidth,
+				     wordWrap);
 }
 
 WFontMetrics WRasterImage::fontMetrics()
 {
-  throw std::logic_error("WRasterImage::fontMetrics() not (yet?) supported");
+  if (renderText_)
+    throw std::logic_error("WRasterImage::fontMetrics() not supported");
+  else
+    return fontSupport_->fontMetrics(painter_->font());
 }
 
 void WRasterImage::handleRequest(const Http::Request& request,

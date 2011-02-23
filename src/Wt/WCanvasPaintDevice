@@ -49,6 +49,7 @@ public:
 		     WObject *parent = 0,
 		     bool paintUpdate = false);
 
+  virtual WFlags<FeatureFlag> features() const;
   virtual void setChanged(WFlags<ChangeFlag> flags);
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle);
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,

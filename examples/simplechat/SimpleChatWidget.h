@@ -86,7 +86,7 @@ private:
 
   boost::signals::connection eventConnection_;
 
-  Wt::WSound messageReceived_;
+  Wt::WSound* messageReceived_;
 
   void login();
   void send();

@@ -634,7 +634,7 @@ void Block::layoutInline(Line& line, BlockList& floats,
 
     if (isText()) {
       s = text();
-      whitespaceWidth = device->measureText(" ").width();
+      whitespaceWidth = device->measureText(WString::fromUTF8(" ")).width();
     }
 
     for (;;) {
@@ -1198,6 +1198,19 @@ double Block::layoutHeight() const
   return h;
 }
 
+double Block::diff(double y, int page, double startY, int startPage,
+		   const WTextRenderer& renderer)
+{
+  double result = y - startY;
+
+  while (page > startPage) {
+    result += renderer.textHeight(page);
+    --page;
+  }
+
+  return result;
+}
+
 void Block::advance(double& y, int& page, double height,
 		    const WTextRenderer& renderer)
 {
@@ -1222,18 +1235,18 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
   double spacerTop = 0, spacerBottom = 0;
 
   if (cellHeight >= 0) {
-    double lh = layoutHeight();
+    double ch = contentsHeight_;
     AlignmentFlag va = verticalAlignment();
 
     switch (va) {
     case AlignTop:
-      spacerBottom = cellHeight - lh;
+      spacerBottom = cellHeight - ch;
       break;
     case AlignMiddle:
-      spacerTop = spacerBottom = (cellHeight - lh) / 2;
+      spacerTop = spacerBottom = (cellHeight - ch) / 2;
       break;
     case AlignBottom:
-      spacerTop = cellHeight - lh;
+      spacerTop = cellHeight - ch;
       break;
     default:
       break;
@@ -1384,6 +1397,9 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
 
   double height = cssHeight(renderer.fontScale());
   if (height >= 0) {
+    if (type_ == DomElement_TD || type_ == DomElement_TH)
+      contentsHeight_ = diff(y, page, startY, startPage, renderer);
+
     page = startPage;
     y = startY;
 

@@ -12,16 +12,13 @@
 #include "Wt/WTransform"
 #include "Wt/Http/Response"
 
+#include "Wt/FontSupport.h"
 #include "web/Utils.h"
 #include "web/WtException.h"
 
 #ifdef WT_THREADED
 #include <boost/thread.hpp>
 #endif // WT_THREADED
-
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/exception.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include <stdio.h>
 #include <hpdf.h>
@@ -56,16 +53,6 @@ namespace {
 
 namespace Wt {
 
-WPdfImage::FontMatch::FontMatch()
-  : quality_(0.0)
-{ }
-
-WPdfImage::FontMatch::FontMatch(const std::string& fileName,
-				double quality)
-  : file_(fileName),
-    quality_(quality)
-{ }
-
 WPdfImage::WPdfImage(const WLength& width, const WLength& height,
 		     WObject *parent)
   : WResource(parent),
@@ -90,6 +77,8 @@ WPdfImage::WPdfImage(const WLength& width, const WLength& height,
   HPDF_Page_SetWidth(page_, width_.toPixels());
   HPDF_Page_SetHeight(page_, height_.toPixels());
   HPDF_Page_GSave(page_);
+
+  trueTypeFonts_ = new FontSupport(this);
 }
 
 WPdfImage::WPdfImage(HPDF_Doc pdf, HPDF_Page page, HPDF_REAL x, HPDF_REAL y,
@@ -106,6 +95,8 @@ WPdfImage::WPdfImage(HPDF_Doc pdf, HPDF_Page page, HPDF_REAL x, HPDF_REAL y,
   myPdf_ = false;
 
   font_ = 0;
+
+  trueTypeFonts_ = new FontSupport(this);
 }
 
 WPdfImage::~WPdfImage()
@@ -114,6 +105,13 @@ WPdfImage::~WPdfImage()
 
   if (myPdf_)
     HPDF_Free(pdf_);
+
+  delete trueTypeFonts_;
+}
+
+WFlags<WPaintDevice::FeatureFlag> WPdfImage::features() const
+{
+  return HasFontMetrics;
 }
 
 void WPdfImage::init()
@@ -134,133 +132,7 @@ void WPdfImage::done()
 
 void WPdfImage::addFontCollection(const std::string& directory, bool recursive)
 {
-  FontCollection c;
-  c.directory = directory;
-  c.recursive = recursive;
-
-  fontCollections_.push_back(c);
-}
-
-WPdfImage::FontMatch WPdfImage::matchFont(const WFont& font,
-					  const std::string& directory,
-					  bool recursive) const
-{
-  boost::filesystem::path path(directory);
-
-  if (!boost::filesystem::exists(path)
-      || !boost::filesystem::is_directory(path))
-    throw WtException("WPdfImage: cannot read directory '" + directory + "'");
-
-  std::vector<std::string> fontNames;
-  std::string families = font.specificFamilies().toUTF8();
-
-  boost::split(fontNames, families, boost::is_any_of(","));
-  for (unsigned i = 0; i < fontNames.size(); ++i) {
-    std::string s = Utils::lowerCase(fontNames[i]); // UTF-8 !
-    Utils::replace(s, ' ', std::string());
-    boost::trim_if(s, boost::is_any_of("\"'"));
-    fontNames[i] = s;
-  }
-
-  switch (font.genericFamily()) {
-  case WFont::Serif:
-    fontNames.push_back("times");
-    fontNames.push_back("timesnewroman");
-    break;
-  case WFont::SansSerif:
-    fontNames.push_back("helvetica");
-    fontNames.push_back("arialunicode");
-    fontNames.push_back("arial");
-    fontNames.push_back("verdana");
-    break;
-  case WFont::Cursive:
-    fontNames.push_back("zapfchancery");
-    break;
-  case WFont::Fantasy:
-    fontNames.push_back("western");
-    break;
-  case WFont::Monospace:
-    fontNames.push_back("courier");
-    fontNames.push_back("mscouriernew");
-    break;
-  default:
-    ;
-  }
-
-  FontMatch match;
-  matchFont(font, fontNames, path, recursive, match);
-
-  return match;
-}
-
-void WPdfImage::matchFont(const WFont& font,
-			  const std::vector<std::string>& fontNames,
-			  const boost::filesystem::path& path,
-			  bool recursive,
-			  FontMatch& match) const
-{
-  boost::filesystem::directory_iterator end_itr;
-
-  for (boost::filesystem::directory_iterator i(path); i != end_itr; ++i) {
-    if (boost::filesystem::is_directory(*i)) {
-      if (recursive) {
-	matchFont(font, fontNames, *i, recursive, match);
-	if (match.quality() == 1.0)
-	  return;
-      }
-    } else {
-      matchFont(font, fontNames, *i, match);
-      if (match.quality() == 1.0)
-	return;
-    }
-  }
-}
-
-void WPdfImage::matchFont(const WFont& font,
-			  const std::vector<std::string>& fontNames,
-			  const boost::filesystem::path& path,
-			  FontMatch& match) const
-{
-  std::string f = Utils::lowerCase(path.leaf());
-
-  if (boost::ends_with(f, ".ttf")) {
-    std::string name = f.substr(0, f.length() - 4);
-    Utils::replace(name, ' ', std::string());
-
-    char const *const boldVariants[] = { "bold", "bf", 0 };
-    char const *const normalWeightVariants[] = { "", 0 };
-
-    char const *const regularVariants[] = { "regular", "", 0 };
-    char const *const italicVariants[] = { "italic", "oblique", 0 };
-    char const *const obliqueVariants[] = { "oblique", 0 };
-
-    char const *const *weightVariants, *const *styleVariants;
-
-    if (font.weight() == WFont::Bold)
-      weightVariants = boldVariants;
-    else
-      weightVariants = normalWeightVariants;
-
-    switch (font.style()) {
-    case WFont::NormalStyle: styleVariants = regularVariants; break;
-    case WFont::Italic:  styleVariants = italicVariants;  break;
-    case WFont::Oblique: styleVariants = obliqueVariants; break;
-    }
-
-    for (unsigned i = 0; i < fontNames.size(); ++i) {
-      double q = 1.0 - 0.1 * i;
-
-      if (q <= match.quality())
-	return;
-
-      for (char const *const *w = weightVariants; *w; ++w)
-	for (char const *const *s = styleVariants; *s; ++s)
-	  if (fontNames[i] + *w + *s == name) {
-	    match = FontMatch(path.string(), q);
-	    return;
-	  }
-    }
-  }
+  trueTypeFonts_->addFontCollection(directory, recursive);
 }
 
 void WPdfImage::applyTransform(const WTransform& t)
@@ -376,65 +248,85 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
   if (flags & Font) {
     const WFont& font = painter()->font();
 
-    FontMatch match;
-
-    for (unsigned i = 0; i < fontCollections_.size(); ++i) {
-      FontMatch m = matchFont(font, fontCollections_[i].directory,
-			      fontCollections_[i].recursive);
-
-      if (m.quality() > match.quality())
-	match = m;
-    }
+    const char *font_name = 0;
 
     font_ = 0;
 
-    if (match.matched()) {
-      const char *font_name = 0;
-      fontEncoding_ = UTF8;
+    /*
+     * First, try a true type font.
+     */
+    std::string ttfFont;
+    if (trueTypeFonts_->busy())
+      /*
+       * We have a resolved true type font.
+       */
+      ttfFont = trueTypeFonts_->drawingFontPath();
+    else {
+      FontSupport::FontMatch match = trueTypeFonts_->matchFont(font);
 
-      {
+      if (match.matched())
+	ttfFont = match.fileName();
+    }
+
+    // std::cerr << "Font: " << ttfFont << std::endl;
+
+    if (!ttfFont.empty()) {
 #ifdef WT_THREADED
-	boost::mutex::scoped_lock(fontRegistryMutex_);
+      boost::mutex::scoped_lock(fontRegistryMutex_);
 #endif // WT_THREADED
-	std::map<std::string, std::string>::const_iterator i
-	  = fontRegistry_.find(match.fileName());
+      std::map<std::string, std::string>::const_iterator i
+	= fontRegistry_.find(ttfFont);
 
-	if (i != fontRegistry_.end()) {
-	  font_name = i->second.c_str();
+      if (i != fontRegistry_.end())
+	font_name = i->second.c_str();
+      else {
+	bool fontOk = false;
+	if (ttfFont.length() > 4) {
+	  std::string suffix
+	    = Utils::lowerCase(ttfFont.substr(ttfFont.length() - 4));
+
+	  if (suffix == ".ttf") {
+	    font_name = HPDF_LoadTTFontFromFile (pdf_, ttfFont.c_str(),
+						 HPDF_TRUE);
+	    if (!font_name)
+	      HPDF_ResetError (pdf_);
+	    else
+	      fontOk = true;
+	  } else if (suffix == ".ttc") {
+	    /* Oops, pango didn't tell us which font to load ... */
+	    font_name = HPDF_LoadTTFontFromFile2(pdf_, ttfFont.c_str(),
+						 0, HPDF_TRUE);
+	    if (!font_name)
+	      HPDF_ResetError (pdf_);
+	    else
+	      fontOk = true;
+	  }
 	}
-      }
 
-      if (font_name) {
-	font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
-
-	if (!font_)
-	  HPDF_ResetError (pdf_);
-      }
-
-      if (!font_) {
-	bool isNew = !font_name;
-	font_name = HPDF_LoadTTFontFromFile (pdf_, match.fileName().c_str(),
-					     HPDF_TRUE);
+	if (!fontOk)
+	  std::cerr << "WPdfImage: cannot read font: '" << ttfFont << "': "
+	    "expecting a true type font (.ttf, .ttc)" << std::endl;
 
 	if (font_name) {
-	  if (isNew) {
 #ifdef WT_THREADED
-	    boost::mutex::scoped_lock(fontRegistryMutex_);
+	  boost::mutex::scoped_lock(fontRegistryMutex_);
 #endif // WT_THREADED
-	    fontRegistry_[match.fileName()] = font_name;
-	  }
-
-	  font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
-	} else {
-	  std::cerr << "Warning: could not load font " << match.fileName()
-		    << std::endl;
-	  HPDF_ResetError (pdf_);
+	  fontRegistry_[ttfFont] = font_name;
 	}
       }
     }
 
+    if (font_name) {
+      font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
+
+      if (!font_)
+	HPDF_ResetError (pdf_);
+      else
+	trueTypeFont_ = true;
+    }
+
     if (!font_) {
-      fontEncoding_ = LocalEncoding;
+      trueTypeFont_ = false;
 
       /*
        * Match with a Base14 font.
@@ -676,79 +568,80 @@ void WPdfImage::drawText(const WRectF& rect,
 			 TextFlag textFlag,
 			 const WString& text)
 {
-  // horizontal alignment: provided by TextRect, use very wide rect
-  // vertical alignment: provided by shifting the rect up or down, as done
-  // for WSvgImage
+  // FIXME: textFlag
 
-  HPDF_REAL left, top, right, bottom;
-  HPDF_TextAlignment alignment;
+  if (trueTypeFont_ && !trueTypeFonts_->busy())
+    trueTypeFonts_->drawText(painter()->font(), rect, flags, text);
+  else {
+    HPDF_REAL left, top, right, bottom;
+    HPDF_TextAlignment alignment;
 
-  AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
-  AlignmentFlag verticalAlign = flags & AlignVerticalMask;
+    AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
+    AlignmentFlag verticalAlign = flags & AlignVerticalMask;
 
-  switch (horizontalAlign) {
-  case AlignLeft:
-    left = rect.left();
-    right = left + 1000;
-    alignment = HPDF_TALIGN_LEFT;
-    break;
-  case AlignRight:
-    right = rect.right();
-    left = right - 1000;
-    alignment = HPDF_TALIGN_RIGHT;
-    break;
-  case AlignCenter:
-    {
-      float center = rect.center().x();
-      left = center - 500;
-      right = center + 500;
-      alignment = HPDF_TALIGN_CENTER;
+    switch (horizontalAlign) {
+    case AlignLeft:
+      left = rect.left();
+      right = left + 1000;
+      alignment = HPDF_TALIGN_LEFT;
+      break;
+    case AlignRight:
+      right = rect.right();
+      left = right - 1000;
+      alignment = HPDF_TALIGN_RIGHT;
+      break;
+    case AlignCenter:
+      {
+	float center = rect.center().x();
+	left = center - 500;
+	right = center + 500;
+	alignment = HPDF_TALIGN_CENTER;
+	break;
+      }
+    default:
       break;
     }
-  case AlignJustify: // Does not work: libharu does not justify the last line
-    left = rect.left();
-    right = rect.right();
-    alignment = HPDF_TALIGN_JUSTIFY;
-    break;
-  default:
-    break;
+
+    switch (verticalAlign) {
+    case AlignTop:
+      top = rect.top(); break;
+    case AlignMiddle:
+      // FIXME: use font metrics to center middle of ascent !
+      top = rect.center().y() - 0.60 * fontSize_; break;
+    case AlignBottom:
+      top = rect.bottom() - fontSize_; break;
+    default:
+      break;
+    }
+
+    bottom = top + fontSize_;
+
+    if (trueTypeFonts_->busy())
+      setChanged(Font);
+
+    HPDF_Page_GSave(page_);
+
+    // Undo the global inversion
+    HPDF_Page_Concat(page_, 1, 0, 0, -1, 0, bottom);
+
+    HPDF_Page_BeginText(page_);
+
+    // Need to fill text using pen color
+    const WColor& penColor = painter()->pen().color();
+    HPDF_Page_SetRGBFill(page_,
+			 penColor.red() / 255.,
+			 penColor.green() / 255.,
+			 penColor.blue() / 255.);
+
+    std::string s = trueTypeFont_ ? text.toUTF8() : text.narrow();
+
+    HPDF_Page_TextRect(page_, left, fontSize_, right, 0, s.c_str(),
+		       alignment, 0);
+
+    HPDF_Page_EndText(page_);
+
+    HPDF_Page_GRestore(page_);
   }
-
-  switch (verticalAlign) {
-  case AlignTop:
-    top = rect.top(); break;
-  case AlignMiddle:
-    top = rect.center().y() - 0.60 * fontSize_; break;
-  case AlignBottom:
-    top = rect.bottom() - fontSize_; break;
-  default:
-    break;
-  }
-
-  bottom = top + fontSize_;
-
-  HPDF_Page_GSave(page_);
-
-  // Undo the global inversion
-  HPDF_Page_Concat(page_, 1, 0, 0, -1, 0, bottom);
-
-  HPDF_Page_BeginText(page_);
-
-  // Need to fill text using pen color
-  const WColor& penColor = painter()->pen().color();
-  HPDF_Page_SetRGBFill(page_,
-		       penColor.red() / 255.,
-		       penColor.green() / 255.,
-		       penColor.blue() / 255.);
-
-  std::string s = fontEncoding_ == UTF8 ? text.toUTF8() : text.narrow();
-
-  HPDF_Page_TextRect(page_, left, fontSize_, right, 0, s.c_str(),
-		     alignment, 0);
-
-  HPDF_Page_EndText(page_);
-
-  HPDF_Page_GRestore(page_);
 }
 
 WFontMetrics WPdfImage::fontMetrics()
@@ -774,21 +667,27 @@ WFontMetrics WPdfImage::fontMetrics()
 WTextItem WPdfImage::measureText(const WString& text, double maxWidth,
 				 bool wordWrap)
 {
-  HPDF_REAL width = 0;
+  if (trueTypeFont_ && !trueTypeFonts_->busy())
+    return trueTypeFonts_->measureText(painter()->font(), text, maxWidth,
+				       wordWrap);
+  else {
+    HPDF_REAL width = 0;
 
-  if (!wordWrap)
-    maxWidth = 1E9;
+    if (!wordWrap)
+      maxWidth = 1E9;
 
-  std::string s = fontEncoding_ == UTF8 ? text.toUTF8() : text.narrow();
+    if (trueTypeFonts_->busy())
+      setChanged(Font);
 
-  int bytes = HPDF_Page_MeasureText(page_, s.c_str(), maxWidth, wordWrap,
-				    &width);
+    std::string s = trueTypeFont_ ? text.toUTF8() : text.narrow();
 
-  switch (fontEncoding_) {
-  case UTF8:
-    return WTextItem(WString::fromUTF8(s.substr(0, bytes)), width);
-  default:
-    return WTextItem(text.value().substr(0, bytes), width);
+    int bytes = HPDF_Page_MeasureText(page_, s.c_str(), maxWidth, wordWrap,
+				      &width);
+
+    if (trueTypeFont_)
+      return WTextItem(WString::fromUTF8(s.substr(0, bytes)), width);
+    else
+      return WTextItem(text.value().substr(0, bytes), width);
   }
 }
 

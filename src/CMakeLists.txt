@@ -261,6 +261,16 @@ IF(HAVE_GM)
   SET(libsources ${libsources} Wt/WRasterImage.C)
 ENDIF(HAVE_GM)
 
+IF(HAVE_HARU OR HAVE_GM)
+  IF(HAVE_PANGO)
+    SET(libsources ${libsources} Wt/FontSupportPango.C)
+  ELSE(HAVE_PANGO)
+    SET(libsources ${libsources} Wt/FontSupportSimple.C)
+  ENDIF(HAVE_PANGO)
+ELSE(HAVE_HARU OR HAVE_GM)
+  SET(HAVE_PANGO false) # font support is not needed
+ENDIF(HAVE_HARU OR HAVE_GM)
+
 ADD_LIBRARY(wt ${libsources})
 TARGET_LINK_LIBRARIES(wt ${BOOST_WT_LIBRARIES})
 
@@ -284,6 +294,13 @@ ELSE(HAVE_GM)
     MESSAGE("   Indicate the location of your graphicsmagick library using -DGM_PREFIX=...")
   ENDIF(ENABLE_GM)
 ENDIF(HAVE_GM)
+
+IF(HAVE_PANGO)
+  TARGET_LINK_LIBRARIES(wt ${PANGO_FT2_LIBRARIES})
+  INCLUDE_DIRECTORIES(${PANGO_FT2_INCLUDE_DIRS})
+  ADD_DEFINITIONS(-DHAVE_PANGO)
+  MESSAGE("** Enabling advanced font support using libpango")
+ENDIF(HAVE_PANGO)
 
 IF(MULTI_THREADED_BUILD)
   TARGET_LINK_LIBRARIES(wt ${CMAKE_THREAD_LIBS_INIT})

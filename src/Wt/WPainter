@@ -944,6 +944,10 @@ private:
   const State& s() const { return stateStack_.back(); }
 
   void recalculateViewTransform();
+
+  void drawMultilineText(const WRectF& rect, 
+			 WFlags<AlignmentFlag> alignmentFlags,
+			 const WString& text);
 };
 
 }

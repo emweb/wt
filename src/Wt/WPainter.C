@@ -8,7 +8,12 @@
 #include <cmath>
 #include <cstring>
 #include <fstream>
+#include <stdexcept>
 #include <string.h>
+
+#ifndef WT_TARGET_JAVA
+#include "Wt/Render/WTextRenderer"
+#endif
 
 #include "Wt/WLineF"
 #include "Wt/WPainter"
@@ -16,9 +21,60 @@
 #include "Wt/WPaintDevice"
 #include "Wt/WRectF"
 #include "Wt/WTransform"
+#include "Wt/WWebWidget"
+
 #include "WtException.h"
+#include "EscapeOStream.h" 
 
 namespace Wt {
+
+#ifndef WT_TARGET_JAVA
+
+class MultiLineTextRenderer : public Render::WTextRenderer
+{
+public:
+  MultiLineTextRenderer(WPainter& painter, const WRectF& rect)
+    : painter_(painter),
+      rect_(rect)
+  { }
+
+  virtual double pageWidth(int page) const {
+    return rect_.right();
+  }
+
+  virtual double pageHeight(int page) const {
+    return 1E9;
+  }
+
+  virtual double margin(Side side) const {
+    switch (side) {
+    case Top: return rect_.top(); break;
+    case Left: return rect_.left(); break;
+    default:
+      return 0;
+    }
+  }
+
+  virtual WPaintDevice *startPage(int page) {
+    if (page > 0)
+      assert(false);
+
+    return painter_.device();
+  }
+
+  virtual void endPage(WPaintDevice *device) {
+  }
+
+  virtual WPainter *getPainter(WPaintDevice *device) {
+    return &painter_;
+  }
+
+private:
+  WPainter& painter_;
+  WRectF    rect_;
+};
+
+#endif // WT_TARGET_JAVA
 
 WPainter::State::State()
   : renderHints_(0),
@@ -29,6 +85,7 @@ WPainter::State::State()
 }
 
 #ifdef WT_TARGET_JAVA
+
 WPainter::State WPainter::State::clone()
 {
   State result;
@@ -54,6 +111,7 @@ WPainter::Image::Image(const std::string& uri, int width, int height)
 { }
 
 #ifndef WT_TARGET_JAVA
+
 WPainter::Image::Image(const std::string& uri, const std::string& fileName)
   : uri_(uri)
 {
@@ -91,6 +149,7 @@ WPainter::Image::Image(const std::string& uri, const std::string& fileName)
   } else
     throw Wt::WtException("'" + fileName + "': could not read");
 }
+
 #endif // WT_TARGET_JAVA
 
 WPainter::WPainter()
@@ -447,7 +506,12 @@ void WPainter::drawRects(const std::vector<WRectF>& rectangles)
 void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
 			const WString& text)
 {
-  drawText(rectangle, flags, TextSingleLine, text);
+  if (!(flags & AlignVerticalMask))
+    flags |= AlignTop;
+  if (!(flags & AlignHorizontalMask))
+    flags |= AlignLeft;
+
+  device_->drawText(rectangle.normalized(), flags, TextSingleLine, text);
 }
 
 void WPainter::drawText(const WRectF& rectangle, 
@@ -455,12 +519,62 @@ void WPainter::drawText(const WRectF& rectangle,
 			TextFlag textFlag,
 			const WString& text)
 {
-  if (!(alignmentFlags & AlignVerticalMask))
-    alignmentFlags |= AlignTop;
-  if (!(alignmentFlags & AlignHorizontalMask))
-    alignmentFlags |= AlignLeft;
+  if (textFlag == TextSingleLine)
+    drawText(rectangle, alignmentFlags, text);
+  else {
+    if (!(alignmentFlags & AlignVerticalMask))
+      alignmentFlags |= AlignTop;
+    if (!(alignmentFlags & AlignHorizontalMask))
+      alignmentFlags |= AlignLeft;
 
-  device_->drawText(rectangle.normalized(), alignmentFlags, textFlag, text);
+    if (device_->features() & WPaintDevice::CanWordWrap)
+      device_->drawText(rectangle.normalized(), alignmentFlags, textFlag, text);
+    else if (device_->features() & WPaintDevice::HasFontMetrics) {
+#ifndef WT_TARGET_JAVA
+      MultiLineTextRenderer renderer(*this, rectangle);
+
+      AlignmentFlag horizontalAlign = alignmentFlags & AlignHorizontalMask;
+      AlignmentFlag verticalAlign = alignmentFlags & AlignVerticalMask;
+
+      /*
+       * Oh irony: after all these years of hating CSS, we now
+       * implemented an XHTML renderer for which we need to use the
+       * same silly workarounds to render the text with all possible
+       * alignment options
+       */
+      SStream s;
+      s << "<table style=\"width:" << (int)rectangle.width() << "px;\"><tr>"
+	"<td style=\"padding:0px;height:" << (int)rectangle.height() <<
+	"px;text-align:";
+
+      switch (horizontalAlign) {
+      case AlignLeft: s << "left"; break;
+      case AlignRight: s << "right"; break;
+      case AlignCenter: s << "center"; break;
+      default: break;
+      }
+
+      s << ";vertical-align:";
+
+      switch (verticalAlign) {
+      case AlignTop: s << "top"; break;
+      case AlignBottom: s << "bottom"; break;
+      case AlignMiddle: s << "middle"; break;
+      default: break;
+      }
+
+      s << ";" << font().cssText(false);
+
+      s << "\">"
+	 << WWebWidget::escapeText(text, true).toUTF8() 
+	 << "</td></tr></table>";
+
+      renderer.render(WString::fromUTF8(s.str()));
+#endif // WT_TARGET_JAVA
+    } else
+      throw std::logic_error("WPainter::drawText(): device does not support "
+			     "TextWordWrap or FontMetrics");
+  }
 }
 
 void WPainter::drawText(double x, double y, double width, double height, 

@@ -373,8 +373,8 @@ const std::string WFont::cssText(bool combined) const
 	s = cssFamily(true);
     if (!s.empty())
       result << s << ' ';
-	else
-	  result << s << " inherit";
+    else
+      result << s << " inherit";
   } else {
     std::string s;
     s = cssFamily(false);

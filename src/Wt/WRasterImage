@@ -17,6 +17,7 @@ typedef struct _Image Image;
 
 namespace Wt {
 
+class FontSupport;
 class WTransform;
 
 /*! \class WRasterImage Wt/WRasterImage Wt/WRasterImage
@@ -37,7 +38,10 @@ class WTransform;
  * The rendering is provided by <a
  * href="http://www.graphicsmagick.org/">GraphicsMagick</a>, and this
  * class is included in the library only if <tt>libgraphicsmagick</tt>
- * was found during the build of the library.
+ * was found during the build of the library. If Wt is built to use
+ * <tt>libpango</tt> for font support, then text rendering is done
+ * using this library. Otherwise, you may want to configure true type
+ * font search directories using 
  *
  * You can use the image as a resource and specialize handleRequest()
  * to paint the contents on the fly. Alternatively can also use
@@ -57,7 +61,6 @@ class WTransform;
  * \endcode
  *
  * This paint device has the following limitations:
- * - including images (WPainter::drawImage()) is not yet implemented.
  * - drop shadows are (not yet?) supported.
  * 
  * \ingroup painting
@@ -84,6 +87,25 @@ public:
    */
   ~WRasterImage();
 
+  /*! \brief Adds a font collection.
+   *
+   * If %Wt has been configured to use <tt>libpango</tt>, then font
+   * matching and character selection is done by libpango, which is
+   * seeded with information on installed fonts by fontconfig. In that
+   * case, invocations for this method is ignored.
+   * 
+   * If %Wt has not been configured to use <tt>libpango</tt>, then
+   * this method may be used to indicate the location of true type
+   * fonts. The main drawback compared to libpango is that font
+   * selection is not steered by the need for particular characters,
+   * i.e. font selection is independent from the text's need for
+   * specific characters. Most truetype fonts provided only partial
+   * unicode support. The provided \p directory will be searched for
+   * fonts (currently only TrueType ".ttf" or ".ttc" fonts).
+   */
+  void addFontCollection(const std::string& directory, bool recursive=true);
+
+  virtual WFlags<FeatureFlag> features() const;
   virtual void setChanged(WFlags<ChangeFlag> flags);
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle);
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,
@@ -135,8 +157,9 @@ protected:
 private:
   WLength width_, height_;
   std::string type_;
-
   WPainter *painter_;
+  FontSupport *fontSupport_;
+  bool renderText_;
 
   unsigned long w_, h_;
   unsigned char *pixels_;

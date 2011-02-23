@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WPainter"
 #include "Wt/WPdfImage"
 #include "Wt/Render/WPdfRenderer"
 
@@ -17,7 +18,8 @@ namespace Wt {
 WPdfRenderer::WPdfRenderer(HPDF_Doc pdf, HPDF_Page page)
   : pdf_(pdf),
     page_(page),
-    dpi_(72)
+    dpi_(72),
+    painter_(0)
 {
   for (int i = 0; i < 4; ++i)
     margin_[i] = 0;
@@ -110,9 +112,20 @@ WPaintDevice *WPdfRenderer::startPage(int page)
 
 void WPdfRenderer::endPage(WPaintDevice *device)
 {
+  delete painter_;
+  painter_ = 0;
+
   delete device;
 
   HPDF_Page_Concat (page_, dpi_/72.0f, 0, 0, dpi_/72.0f, 0, 0);
+}
+
+WPainter *WPdfRenderer::getPainter(WPaintDevice *device)
+{
+  if (!painter_)
+    painter_ = new WPainter(device);
+
+  return painter_;
 }
 
   }

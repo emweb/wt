@@ -79,6 +79,11 @@ WVmlImage::WVmlImage(const WLength& width, const WLength& height,
     clippingChanged_(false)
 { }
 
+WFlags<WPaintDevice::FeatureFlag> WVmlImage::features() const
+{
+  return 0; // Pretty low on features here ...
+}
+
 void WVmlImage::init()
 { 
   currentBrush_ = painter()->brush();

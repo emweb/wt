@@ -258,8 +258,8 @@ bool WServer::isRunning() const
 #if defined(_WIN32) && defined(WT_THREADED)
 
 boost::mutex     terminationMutex;
-boost::condition ctrlCHit;
-boost::condition serverStopped;
+bool             terminationRequested = false;
+boost::condition terminationCondition;
 
 BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 {
@@ -271,8 +271,8 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
   case CTRL_SHUTDOWN_EVENT:
     {
       boost::mutex::scoped_lock terminationLock(terminationMutex);
-
-      ctrlCHit.notify_all(); // should be just 1
+      terminationRequested = true;
+      terminationCondition.notify_all(); // should be just 1
       return TRUE;
     }
   default:
@@ -314,7 +314,9 @@ void WServer::stop()
   }
 
 #if defined(_WIN32)
-  serverStopped.notify_all();
+  boost::mutex::scoped_lock terminationLock(terminationMutex);
+  terminationRequested = true;
+  terminationCondition.notify_all(); // should be just 1
 #endif // WIN32
 
 #else // WT_THREADED
@@ -412,7 +414,8 @@ int WServer::waitForShutdown(const char *restartWatchFile)
 
   boost::mutex::scoped_lock terminationLock(terminationMutex);
   SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
-  ctrlCHit.wait(terminationLock);
+  while (!terminationRequested)
+    terminationCondition.wait(terminationLock);
   SetConsoleCtrlHandler(console_ctrl_handler, FALSE);
   return 0;
 

@@ -346,8 +346,8 @@ static const WFlags<AlignmentFlag> AlignVerticalMask
  * \sa WPainter::drawText(const WRectF& rect, WFlags<AlignmentFlag> alignmentFlags, TextFlag textFlag, const WString& text)
  */
 enum TextFlag {
-  TextSingleLine,       //!< Text will be printed on just one line
-  TextWordWrap          //!< Lines will be braked at word boundaries
+  TextSingleLine,   //!< Text will be printed on just one line
+  TextWordWrap      //!< Lines will break at word boundaries
 };
 
 /*! \brief Enumeration that specifies a layout mechanism for a widget.

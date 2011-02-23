@@ -71,11 +71,20 @@ public:
     Shadow = 0x40      //!< Properties of the shadow have changed
   };
 
+  enum FeatureFlag {
+    CanWordWrap = 0x1,    //!< Implements drawText() with Wt::TextWordWrap
+    HasFontMetrics = 0x2  //!< Implements fontMetrics() and measureText()
+  };
+
   /*! \brief Destructor.
    *
    * Frees all resources associated with this device.
    */
   virtual ~WPaintDevice();
+
+  /*! \brief Returns device features.
+   */
+  virtual WFlags<FeatureFlag> features() const = 0;
 
   /*! \brief Returns the device width.
    *
@@ -155,9 +164,10 @@ public:
    * width.
    *
    * If \p wordWrap = \c true then text is truncated only at word
-   * boundaries. Note that in this case the whitespace is included in the
-   * text but not accounted for by the returned width (since usually you
-   * will not render the whitespace at the end of a line).
+   * boundaries. Note that in this case the whitespace at the
+   * truncated position is included in the text but not accounted for
+   * by the returned width (since usually you will not render the
+   * whitespace at the end of a line).
    *
    * Throws a std::logic_error if the underlying device does not
    * provide font metrics.
@@ -212,6 +222,7 @@ protected:
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WPaintDevice::ChangeFlag)
+W_DECLARE_OPERATORS_FOR_FLAGS(WPaintDevice::FeatureFlag)
 
 }
 

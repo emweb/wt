@@ -45,6 +45,7 @@ public:
    */
   WVmlImage(const WLength& width, const WLength& height, bool paintUpdate);
 
+  virtual WFlags<FeatureFlag> features() const;
   virtual void setChanged(WFlags<ChangeFlag> flags);
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle);
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,

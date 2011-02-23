@@ -59,7 +59,7 @@ double WTextRenderer::render(const WString& text, double y)
     BlockList floats;
 
     device_ = startPage(currentPage);
-    painter_ = new WPainter(device_);
+    painter_ = getPainter(device_);
 
     WFont defaultFont;
     defaultFont.setFamily(WFont::SansSerif);
@@ -94,13 +94,12 @@ double WTextRenderer::render(const WString& text, double y)
     for (int page = 0; page <= currentPage; ++page) {
       if (page != 0) {
 	device_ = startPage(page);
-	painter_ = new WPainter(device_);
+	painter_ = getPainter(device_);
 	painter_->setFont(defaultFont);
       }
 
       docBlock.render(*this, page);
 
-      delete painter_;
       endPage(device_);
     }
 

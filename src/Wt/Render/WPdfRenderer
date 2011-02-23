@@ -104,6 +104,7 @@ public:
 
   virtual WPaintDevice *startPage(int page);
   virtual void endPage(WPaintDevice *device);
+  virtual WPainter *getPainter(WPaintDevice *device);
 
   /*! \brief Creates a new page.
    *
@@ -127,6 +128,7 @@ private:
 
   double margin_[4];
   int dpi_;
+  WPainter *painter_;
 };
 
   }

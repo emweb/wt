@@ -80,6 +80,7 @@ private:
   bool inline_;
   Side float_;
   BlockList children_;
+  double contentsHeight_;
 
   std::string attributeValue(const char *attribute) const;
   int attributeValue(const char *attribute, int defaultValue) const;
@@ -149,6 +150,8 @@ private:
 
   static void advance(double& y, int& page, double height,
 		      const WTextRenderer& renderer);
+  static double diff(double y, int page, double startY, int startPage,
+		     const WTextRenderer& renderer);
 
   static void positionFloat(double& x, double& y, int& page,
 			    double lineHeight, double width,

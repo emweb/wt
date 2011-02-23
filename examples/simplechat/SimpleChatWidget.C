@@ -28,7 +28,7 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
   : WContainerWidget(parent),
     server_(server),
     app_(WApplication::instance()),
-    messageReceived_("sounds/message_received.mp3")
+    messageReceived_(0)
 {
   user_ = server_.suggestGuest();
   letLogin();
@@ -36,6 +36,7 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
 
 SimpleChatWidget::~SimpleChatWidget()
 {
+  delete messageReceived_;
   logout();
 }
 
@@ -67,6 +68,8 @@ void SimpleChatWidget::letLogin()
 void SimpleChatWidget::login()
 {
   WString name = WWebWidget::escapeText(userNameEdit_->text());
+
+  messageReceived_ = new WSound("sounds/message_received.mp3");
 
   if (!startChat(name))
     statusMsg_->setText("Sorry, name '" + name + "' is already taken.");
@@ -335,8 +338,8 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
 			 + messages_->jsRef() + ".scrollHeight;");
 
       /* If this message belongs to another user, play a received sound */
-      if (event.user() != user_)
-	messageReceived_.play();
+      if (event.user() != user_ && messageReceived_)
+	messageReceived_->play();
     }
 
     if (needPush)

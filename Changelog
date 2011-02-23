@@ -1,3 +1,9 @@
+23-02-2011:
+	* WRasterImage: implement drawImage() and improved text rendering,
+	using libpango as font selector and glyph shaper, if available.
+
+	* WPdfImage: use libpango for selecting (truetype) fonts, if available.
+
 15-02-2011:
 	* WebSession: support HTML5 History API for internal paths
 

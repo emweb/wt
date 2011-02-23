@@ -66,6 +66,11 @@ WSvgImage::~WSvgImage()
   beingDeleted();
 }
 
+WFlags<WPaintDevice::FeatureFlag> WSvgImage::features() const
+{
+  return CanWordWrap; // Actually, only when outputting to inkscape ...
+}
+
 void WSvgImage::init()
 { 
   currentBrush_ = painter()->brush();
@@ -554,74 +559,67 @@ void WSvgImage::drawText(const WRectF& rect,
 	    << "  </"SVG"flowPara>\n"
 	    << "</"SVG"flowRoot>\n";
   } else {
-  shapes_ << "<"SVG"text " << style.str();
+    shapes_ << "<"SVG"text " << style.str();
 
-  switch (horizontalAlign) {
-  case AlignLeft:
-    shapes_ << " x=" << quote(rect.left());
-    break;
-  case AlignRight:
-    shapes_ << " x=" << quote(rect.right())
-	    << " text-anchor=\"end\"";
-    break;
-  case AlignCenter:
-    shapes_ << " x=" << quote(rect.center().x())
-	    << " text-anchor=\"middle\"";
-    break;
-  default:
-    break;
-  }
+    switch (horizontalAlign) {
+    case AlignLeft:
+      shapes_ << " x=" << quote(rect.left());
+      break;
+    case AlignRight:
+      shapes_ << " x=" << quote(rect.right())
+	      << " text-anchor=\"end\"";
+      break;
+    case AlignCenter:
+      shapes_ << " x=" << quote(rect.center().x())
+	      << " text-anchor=\"middle\"";
+      break;
+    default:
+      break;
+    }
 
-/*
- * Opera doesn't do dominant-baseline yet
- */
+    /*
+     * Opera doesn't do dominant-baseline yet
+     */
 #if 0
-  switch (verticalAlign) {
-  case AlignTop:
-    shapes_ << " y=" << quote(rect.top())
-	    << " dominant-baseline=\"text-before-edge\"";
-    break;
-  case AlignBottom:
-    shapes_ << " y=" << quote(rect.bottom())
-	    << " dominant-baseline=\"text-after-edge\"";
-    break;
-  case AlignMiddle:
-    shapes_ << " y=" << quote(rect.center().y())
-	    << " dominant-baseline=\"middle\"";
-    break;
-  default:
-    break;
-  }
+    switch (verticalAlign) {
+    case AlignTop:
+      shapes_ << " y=" << quote(rect.top())
+	      << " dominant-baseline=\"text-before-edge\"";
+      break;
+    case AlignBottom:
+      shapes_ << " y=" << quote(rect.bottom())
+	      << " dominant-baseline=\"text-after-edge\"";
+      break;
+    case AlignMiddle:
+      shapes_ << " y=" << quote(rect.center().y())
+	      << " dominant-baseline=\"middle\"";
+      break;
+    default:
+      break;
+    }
 
-  shapes << ">" << WWebWidget::escapeText(text, false).toUTF8() 
-	 << "</"SVG"text>";
+    shapes << ">" << WWebWidget::escapeText(text, false).toUTF8() 
+	   << "</"SVG"text>";
 
 #else
 
-  /*
-   * Workaround: estimate the location of the default baseline which corresponds
-   * with the font baseline.
-   */
-  double fontSize;
-  switch (painter()->font().size()) {
-  case WFont::FixedSize:
-    fontSize = painter()->font().fixedSize().toPixels();
-    break;
-  default:
-    fontSize = 16;
-  }
+    /*
+     * Workaround: estimate the location of the default baseline which
+     * corresponds with the font baseline.
+     */
+    double fontSize = painter()->font().sizeLength(16).toPixels();
 
-  double y = rect.center().y();
-  switch (verticalAlign) {
-  case AlignTop:
-    y = rect.top() + fontSize * 0.75; break;
-  case AlignMiddle:
-    y = rect.center().y() + fontSize * 0.25; break;
-  case AlignBottom:
-    y = rect.bottom() - fontSize * 0.25 ; break;
-  default:
-    break;
-  }
+    double y = rect.center().y();
+    switch (verticalAlign) {
+    case AlignTop:
+      y = rect.top() + fontSize * 0.75; break;
+    case AlignMiddle:
+      y = rect.center().y() + fontSize * 0.25; break;
+    case AlignBottom:
+      y = rect.bottom() - fontSize * 0.25 ; break;
+    default:
+      break;
+    }
 
   shapes_ << " y=" << quote(y);
 
