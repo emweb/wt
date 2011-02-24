@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <magick/api.h>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -444,12 +445,44 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   ImageInfo info;
   GetImageInfo(&info);
 
-  strncpy(info.filename, imgUri.c_str(), 2048);
-
   ExceptionInfo exception;
   GetExceptionInfo(&exception);
 
-  Image *cImage = ReadImage(&info, &exception);
+  Image *cImage;
+  if (boost::starts_with(imgUri, "data:")) {
+    size_t dataEndPos = imgUri.find("data:") + 5;
+    size_t commaPos = imgUri.find(",");
+    if (commaPos == std::string::npos)
+      commaPos = dataEndPos;
+    
+    std::string mimeTypeEncoding 
+      = imgUri.substr(dataEndPos, commaPos - dataEndPos);
+
+    std::string data = imgUri.substr(commaPos + 1);
+
+    bool validMimeType = true;
+    if (boost::istarts_with(mimeTypeEncoding, "image/png"))
+      strcpy(info.magick, "PNG");
+    else if (boost::istarts_with(mimeTypeEncoding, "image/gif"))
+      strcpy(info.magick, "GIF");
+    else if (boost::istarts_with(mimeTypeEncoding, "image/jpg")
+	     || boost::istarts_with(mimeTypeEncoding, "image/jpeg"))
+      strcpy(info.magick, "JPG");
+    else 
+    validMimeType = false;
+
+    if (!validMimeType || !boost::ends_with(mimeTypeEncoding, "base64") 
+	|| data.size() == 0)
+      throw std::logic_error(std::string("The data URI is not in the expected "
+					 "format: ") + imgUri);
+    else {
+      std::string content = imgUri.substr(commaPos);
+      cImage = ReadInlineImage(&info, content.c_str(), &exception);
+    }
+  } else {
+    strncpy(info.filename, imgUri.c_str(), 2048);
+    cImage = ReadImage(&info, &exception);
+  }
 
   if (cImage == 0) {
     std::cerr << "WRasterImage::drawImage failed: "

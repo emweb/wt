@@ -503,11 +503,11 @@ namespace Wt {
 
   - within the app root, as configured by the INI file which has the same
     name as the application DLL, but with .INI append to it
-    (e.g. <tt>C:\Program Files\WtApplications\Public\MyApplication.dll.ini</tt>):
-\code
+    (e.g. \htmlonly <tt>C:\Program Files\WtApplications\Public\MyApplication.dll.ini</tt> \endhtmlonly):
+\htmlonly <pre>
 [isapi]
 appRoot=C:\Program Files\MyApplications\AppRoot
-\endcode
+</pre> \endhtmlonly
   - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>)
  
   \section configuration_sec 10. Configuration

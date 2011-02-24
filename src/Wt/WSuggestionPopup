@@ -39,7 +39,9 @@ class WTemplate;
  * WStringListModel by default. You can set a custom model using
  * setModel(). The model can provide different text for the suggestion
  * text (Wt::DisplayRole) and value (Wt::UserRole). The member methods
- * clearSuggestions() and addSuggestion() manipulate this model.
+ * clearSuggestions() and addSuggestion() manipulate this model. Note
+ * that a WStringListModel does not support Wt::UserRole data, so you
+ * may need to use a WStandardItemModel instead.
  *
  * By default, the popup implements all filtering client-side. To
  * support large datasets, you may enable server-side filtering of
@@ -365,7 +367,7 @@ public:
    *
    * This returns a JavaScript function that provides a standard
    * implementation for the matching input, based on the given \p
-   * \options.
+   * options.
    */
   static std::string generateMatcherJS(const Options& options);
 
@@ -373,7 +375,7 @@ public:
    *
    * This returns a JavaScript function that provides a standard
    * implementation for the matching input, based on the given \p
-   * \options.
+   * options.
    */
   static std::string generateReplacerJS(const Options& options);
 

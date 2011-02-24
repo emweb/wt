@@ -54,7 +54,7 @@ public:
   /*! \brief Creates a new PDF renderer.
    *
    * The PDF renderer will render on the given \p pdf (starting) on the
-   * given \page.
+   * given \p page.
    *
    * Default margins are 0, and the default DPI is 72.
    */

@@ -18,12 +18,29 @@ class WPainter;
 class WPainterPath;
 class WRectF;
 
+/*! \class WTextItem Wt/WPaintDevice Wt/WPaintDevice
+ *  \brief The result of a font metrics computation.
+ *
+ * \sa WPaintDevice::measureText()
+ */
 class WT_API WTextItem
 {
 public:
+  /*! \brief Constructor.
+   */
   WTextItem(const WString& text, double width);
 
+  /*! \brief Returns the measured text.
+   *
+   * If the item was measured with word breaking enabled, then the text may
+   * contain trailing whitespace that is not included in the width().
+   */
   WString text() const { return text_; }
+
+  /*! \brief Returns the measured width.
+   *
+   * Returns the text width, in device local coordinates (pixels).
+   */
   double width() const { return width_; }
 
 private:
@@ -71,6 +88,10 @@ public:
     Shadow = 0x40      //!< Properties of the shadow have changed
   };
 
+  /*! \brief Enumeration to indicate paint device features.
+   *
+   * \sa features()
+   */
   enum FeatureFlag {
     CanWordWrap = 0x1,    //!< Implements drawText() with Wt::TextWordWrap
     HasFontMetrics = 0x2  //!< Implements fontMetrics() and measureText()

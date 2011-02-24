@@ -19,6 +19,9 @@ using boost::unit_test_framework::test_suite;
 #include "length/WLengthTest.h"
 #include "color/WColorTest.h"
 #include "paintdevice/WSvgTest.h"
+#ifdef WT_HAS_WRASTERIMAGE
+#include "paintdevice/WRasterTest.h"
+#endif
 
 boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
 {
@@ -40,6 +43,9 @@ boost::unit_test::test_suite* init_unit_test_suite(int, char** const)
   tests->add(new WLengthTest());
   tests->add(new WColorTest());
   tests->add(new WSvgTest());
+#ifdef WT_HAS_WRASTERIMAGE
+  tests->add(new WRasterTest());
+#endif
 
   return tests;
 }

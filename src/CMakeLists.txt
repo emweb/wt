@@ -231,6 +231,7 @@ web/WebController.C
 web/WtException.C
 web/TimeUtil.C
 web/random_device.cpp
+web/base64.cpp
 Plain_html.C
 Boot_html.C
 Hybrid_html.C

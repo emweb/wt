@@ -23,6 +23,20 @@
 #include <pango/pango.h>
 #include <pango/pangoft2.h>
 
+#ifndef DOXYGEN_ONLY
+
+namespace {
+  double pangoUnitsToDouble(const int u) 
+  {
+    return u / PANGO_SCALE;
+  }
+
+  int pangoUnitsFromDouble(const double u)
+  {
+    return (int) u * PANGO_SCALE;
+  }
+}
+
 namespace Wt {
 
 FontSupport::Bitmap::Bitmap(int width, int height)
@@ -52,7 +66,7 @@ FontSupport::FontSupport(WPaintDevice *paintDevice)
   : device_(paintDevice)
 {
   fontMap_ = pango_ft2_font_map_new();
-  context_ = pango_font_map_create_context(fontMap_);
+  context_ = pango_ft2_font_map_create_context((PangoFT2FontMap*)fontMap_);
   currentFont_ = 0;
 }
 
@@ -195,7 +209,7 @@ GList *FontSupport::layoutText(const WFont& font,
 							     item->length)),
 			       -1, false);
 
-      width += pango_units_from_double(textItem.width());
+      width += pangoUnitsFromDouble(textItem.width());
 
       currentFont_ = 0;
     } else
@@ -228,10 +242,10 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
     x = rect.left();
     break;
   case AlignRight:
-    x = rect.right() - pango_units_to_double(width);
+    x = rect.right() - pangoUnitsToDouble(width);
     break;
   case AlignCenter:
-    x = rect.center().x() - pango_units_to_double(width/2);
+    x = rect.center().x() - pangoUnitsToDouble(width/2);
     break;
   default:
     x = 0;
@@ -278,9 +292,9 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
   PangoFontMetrics *metrics = pango_font_get_metrics(pangoFont, NULL);
 
   double ascent
-    = pango_units_to_double(pango_font_metrics_get_ascent(metrics));
+    = pangoUnitsToDouble(pango_font_metrics_get_ascent(metrics));
   double descent 
-    = pango_units_to_double(pango_font_metrics_get_descent(metrics));
+    = pangoUnitsToDouble(pango_font_metrics_get_descent(metrics));
   double leading = 0;
 
   WFontMetrics result(font, leading, ascent, descent);
@@ -304,7 +318,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
   if (wordWrap) {
     int utflen = g_utf8_strlen(s, -1);
     PangoLogAttr *attrs = new PangoLogAttr[utflen + 1];
-    PangoLanguage *language = pango_language_get_default();
+    PangoLanguage *language = pango_language_from_string("en-US");
 
     pango_get_log_attrs(s, utf8.length(), -1, language, attrs, utflen + 1);
 
@@ -352,7 +366,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 
     GList *items = layoutText(font, utf8, glyphs, width);
 
-    double w = pango_units_to_double(width);
+    double w = pangoUnitsToDouble(width);
 
     for (unsigned i = 0; i < glyphs.size(); ++i)
       pango_glyph_string_free(glyphs[i]);
@@ -396,10 +410,10 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
     x = rect.left();
     break;
   case AlignRight:
-    x = rect.right() - pango_units_to_double(width);
+    x = rect.right() - pangoUnitsToDouble(width);
     break;
   case AlignCenter:
-    x = rect.center().x() - pango_units_to_double(width/2);
+    x = rect.center().x() - pangoUnitsToDouble(width/2);
     break;
   default:
     x = 0;
@@ -411,9 +425,9 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
   PangoFontMetrics *metrics = pango_font_get_metrics(pangoFont, NULL);
 
   double ascent
-    = pango_units_to_double(pango_font_metrics_get_ascent(metrics));
+    = pangoUnitsToDouble(pango_font_metrics_get_ascent(metrics));
   double descent 
-    = pango_units_to_double(pango_font_metrics_get_descent(metrics));
+    = pangoUnitsToDouble(pango_font_metrics_get_descent(metrics));
 
   pango_font_metrics_unref(metrics);
 
@@ -453,10 +467,10 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
     pango_ft2_render_transformed(&bmp, &matrix,
 				 analysis->font, gl,
-				 pango_units_from_double(x),
-				 pango_units_from_double(y));
+				 pangoUnitsFromDouble(x),
+				 pangoUnitsFromDouble(y));
 
-    x += pango_units_to_double(pango_glyph_string_get_width(gl));
+    x += pangoUnitsToDouble(pango_glyph_string_get_width(gl));
 
     pango_glyph_string_free(gl);
     pango_item_free(item);
@@ -468,3 +482,5 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 }
 
 }
+
+#endif // DOXYGEN_ONLY

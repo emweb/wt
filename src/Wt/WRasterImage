@@ -38,10 +38,10 @@ class WTransform;
  * The rendering is provided by <a
  * href="http://www.graphicsmagick.org/">GraphicsMagick</a>, and this
  * class is included in the library only if <tt>libgraphicsmagick</tt>
- * was found during the build of the library. If Wt is built to use
+ * was found during the build of the library. If %Wt is built to use
  * <tt>libpango</tt> for font support, then text rendering is done
- * using this library. Otherwise, you may want to configure true type
- * font search directories using 
+ * using this library. Otherwise, you may want to configure TrueType
+ * font search directories using addFontCollection().
  *
  * You can use the image as a resource and specialize handleRequest()
  * to paint the contents on the fly. Alternatively can also use

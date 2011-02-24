@@ -277,13 +277,15 @@ public:
    */
   static WString tr(const std::string& key);
 
-  /*! \brief Creates a localized string from a key for a number \c n.
+  /*! \brief Creates a localized string from a key for a number \p n.
    *
-   * Whenever the value of the string is needed, the key is used for a
+   * Whenever the value of the string is needed, the \p key is used for a
    * lookup in the application message resource bundles taking into
    * account the current application locale. This function fetches the
-   * appropriate plural case for the translation with respect to \c.
-   * If the key cannot be resolved, its value is set to '??key??'.
+   * appropriate plural case for the translation corresponding to the
+   * quantity \p n.
+   *
+   * If the \p key cannot be resolved, its value is set to '??key??'.
    *
    * \sa WApplication::messageResourceBundle(), WApplication::locale(), WApplication::localizedStrings()
    */

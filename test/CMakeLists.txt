@@ -13,6 +13,12 @@ SET(TEST_SOURCES
   paintdevice/WSvgTest.C
 )
 
+IF (WT_HAS_WRASTERIMAGE)
+   SET(TEST_SOURCES ${TEST_SOURCES}
+     paintdevice/WRasterTest.C
+   )
+ENDIF(WT_HAS_WRASTERIMAGE)
+
 # HAVE_SQLITE does not work: why ?
 IF(ENABLE_SQLITE)
   ADD_DEFINITIONS(-DWTDBO)
