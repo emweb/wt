@@ -277,9 +277,15 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
       std::map<std::string, std::string>::const_iterator i
 	= fontRegistry_.find(ttfFont);
 
-      if (i != fontRegistry_.end())
+      if (i != fontRegistry_.end()) {
 	font_name = i->second.c_str();
-      else {
+	font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
+
+	if (!font_)
+	  HPDF_ResetError (pdf_);
+      }
+
+      if (!font_) {
 	bool fontOk = false;
 	if (ttfFont.length() > 4) {
 	  std::string suffix
@@ -316,7 +322,7 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
       }
     }
 
-    if (font_name) {
+    if (!font_ && font_name) {
       font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
 
       if (!font_)
