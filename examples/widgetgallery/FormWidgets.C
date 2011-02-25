@@ -21,7 +21,7 @@
 #include <Wt/WPushButton>
 #include <Wt/WRadioButton>
 #include <Wt/WSelectionBox>
-#include <Wt/WSpinBox>
+#include <Wt/WDoubleSpinBox>
 #include <Wt/WSuggestionPopup>
 #include <Wt/WText>
 #include <Wt/WTextArea>
@@ -236,9 +236,12 @@ WWidget *FormWidgets::wSpinBox()
   new WText(tr("formwidgets-WSpinBox"), result);
 
   new WText("Enter a number between 0 and 100: ", result);
-  WSpinBox *le = new WSpinBox(result);
+  WDoubleSpinBox *le = new WDoubleSpinBox(result);
   ed_->showSignal(le->changed(), "Spin box value changed");
-  le->setValue(30);
+  le->setValue(30.123);
+  le->setDecimals(3);
+  // le->setPrefix("$ ");
+  // le->setSuffix(WString::fromUTF8(" €"));
 
   return result;
 }

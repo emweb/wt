@@ -4,194 +4,99 @@
  * See the LICENSE file for terms of use.
  */
 #include <Wt/WApplication>
-#include <Wt/WDoubleValidator>
-#include <Wt/WIntValidator>
 #include <Wt/WSpinBox>
+#include <Wt/WIntValidator>
 
 #include "DomElement.h"
 #include "Utils.h"
 
-#include "JavaScriptLoader.h"
-
-#ifndef WT_DEBUG_JS
-#include "js/WSpinBox.min.js"
-#endif
-
-using namespace Wt;
-
 namespace Wt {
 
 WSpinBox::WSpinBox(WContainerWidget *parent)
-   : WLineEdit(parent),
-     min_(0),
-     max_(99),
-     step_(1),
-     changed_(false)
+  : WAbstractSpinBox(parent),
+    value_(0),
+    min_(0),
+    max_(99),
+    step_(1)
+{ }
+
+void WSpinBox::setValue(int value)
 {
-  setStyleClass("Wt-spinbox");
-
-  changed().connect(this, &WSpinBox::onChange);
-
-#ifdef WT_CNOR // ??
-  EventSignalBase& b = mouseMoved();
-  EventSignalBase& c = keyWentDown();
-#endif
-
-  connectJavaScript(mouseMoved(), "mouseMove");
-  connectJavaScript(mouseWentUp(), "mouseUp");
-  connectJavaScript(mouseWentDown(), "mouseDown");
-  connectJavaScript(mouseWentOut(), "mouseOut");
-  connectJavaScript(keyWentDown(), "keyDown");
-
-  updateValidator();
-
-  setValue(0);
-}
-
-void WSpinBox::setFormat(const WString& format)
-{
-  format_ = format;
-}
-
-void WSpinBox::setValue(double value)
-{
-  if (!format_.empty())
-    setText(Utils::formatFloat(format_, value));
-  else if (static_cast<int>(value) == value)
-    setText(WT_USTRING::fromUTF8(boost::lexical_cast<std::string>
-				 (static_cast<int>(value))));
-  else
-    setText(WT_USTRING::fromUTF8(boost::lexical_cast<std::string>(value)));
-
-  valueChanged_.emit(value);
-
-  changed_ = true;
-  repaint(RepaintInnerHtml);
-}
-
-double WSpinBox::value() const
-{
-  try {
-    return boost::lexical_cast<double>(text().toUTF8());
-  } catch (const boost::bad_lexical_cast& e) {
-    return 0;
+  if (value_ != value) {
+    value_ = value;
+    setText(textFromValue());
+    valueChanged_.emit(value);
   }
 }
 
-void WSpinBox::setMinimum(double minimum)
+void WSpinBox::setMinimum(int minimum)
 {
   min_ = minimum;
 
   changed_ = true;
   repaint(RepaintInnerHtml);
-
-  updateValidator();
 }
 
-void WSpinBox::setMaximum(double maximum)
+void WSpinBox::setMaximum(int maximum)
 {
   max_ = maximum;
 
   changed_ = true;
   repaint(RepaintInnerHtml);
-
-  updateValidator();
 }
 
-void WSpinBox::setRange(double minimum, double maximum)
+void WSpinBox::setRange(int minimum, int maximum)
 {
   min_ = minimum;
   max_ = maximum;
 
   changed_ = true;
   repaint(RepaintInnerHtml);
-
-  updateValidator();
 }
 
-void WSpinBox::setSingleStep(double step)
+void WSpinBox::setSingleStep(int step)
 {
   step_ = step;
 
   changed_ = true;
   repaint(RepaintInnerHtml);
-
-  updateValidator();
 }
 
-void WSpinBox::updateValidator()
+int WSpinBox::decimals() const
 {
-  WValidator *v = validator();
+  return 0;
+}
 
-  if (!v)
-    setValidator(new WDoubleValidator(min_, max_));
-  else {
-    WDoubleValidator *dv = dynamic_cast<WDoubleValidator *>(v);
-    dv->setRange(min_, max_);
-    validate();
-  }
+std::string WSpinBox::jsMinMaxStep() const 
+{
+  return boost::lexical_cast<std::string>(min_) + ","
+    + boost::lexical_cast<std::string>(max_) + ","
+    + boost::lexical_cast<std::string>(step_);
 }
 
 void WSpinBox::updateDom(DomElement& element, bool all)
 {
-  if (changed_) {
-    element.callJavaScript("jQuery.data(" + jsRef() + ", 'obj').update("
-			   + boost::lexical_cast<std::string>(min_)
-			   + ','
-			   + boost::lexical_cast<std::string>(max_)
-			   + ','
-			   + boost::lexical_cast<std::string>(step_)
-			   + ");");
-
-    changed_ = false;
+  if (all || changed_) {
+    if (nativeControl()) {
+      element.setAttribute("min", boost::lexical_cast<std::string>(min_));
+      element.setAttribute("max", boost::lexical_cast<std::string>(max_));
+      element.setAttribute("step", boost::lexical_cast<std::string>(step_));
+    } else {
+      /* Make sure the JavaScript validator is loaded */
+      WIntValidator v;
+      v.javaScriptValidate();
+    }
   }
 
-  WLineEdit::updateDom(element, all);
+  WAbstractSpinBox::updateDom(element, all);
 }
 
-void WSpinBox::propagateRenderOk(bool deep)
+void WSpinBox::signalConnectionsChanged()
 {
-  changed_ = false;
-
-  WLineEdit::propagateRenderOk(deep);
-}
-
-void WSpinBox::defineJavaScript()
-{
-  WApplication *app = WApplication::instance();
-
-  const char *THIS_JS = "js/WSpinBox.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WSpinBox", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
+  if (valueChanged_.isConnected() && !valueChangedConnection_) {
+    changed().connect(this, &WSpinBox::onChange);
+    valueChangedConnection_ = true;
   }
-
-  app->doJavaScript("new " WT_CLASS ".WSpinBox("
-		    + app->javaScriptClass() + "," + jsRef() + ","
-		    + boost::lexical_cast<std::string>(min_) + ","
-		    + boost::lexical_cast<std::string>(max_) + ","
-		    + boost::lexical_cast<std::string>(step_) + ");");
-  changed_ = false;
-}
-
-void WSpinBox::connectJavaScript(Wt::EventSignalBase& s,
-				 const std::string& methodName)
-{
-  std::string jsFunction = 
-    "function(obj, event) {"
-    """var o = jQuery.data(" + jsRef() + ", 'obj');"
-    """if (o) o." + methodName + "(obj, event);"
-    "}";
-  s.connect(jsFunction);
-}
-
-void WSpinBox::render(WFlags<RenderFlag> flags)
-{
-  if (flags & RenderFull)
-    defineJavaScript();
-
-  WLineEdit::render(flags);
 }
 
 void WSpinBox::onChange()
@@ -199,5 +104,34 @@ void WSpinBox::onChange()
   valueChanged_.emit(value());
 }
 
+WValidator *WSpinBox::createValidator()
+{
+  WIntValidator *validator = new WIntValidator();
+  validator->setRange(min_, max_);
+  return validator;
 }
 
+WString WSpinBox::textFromValue() const
+{
+  if (nativeControl())    
+    return WString::fromUTF8(boost::lexical_cast<std::string>(value_));
+  else {
+    std::string text = prefix().toUTF8()
+      +  boost::lexical_cast<std::string>(value_)
+      + suffix().toUTF8();
+
+    return WString::fromUTF8(text);
+  }
+}
+
+bool WSpinBox::parseNumberValue(const std::string& text)
+{
+  try {
+    value_ = boost::lexical_cast<int>(text);
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
+}

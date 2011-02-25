@@ -461,6 +461,7 @@
     background-image: url('../default/spin-buttons.png');
     background-repeat: no-repeat;
     background-position: right center;
+    padding-right: 16px;
 }
 
 .Wt-spinbox-up {

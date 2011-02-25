@@ -1,3 +1,8 @@
+25-02-2011:
+	* WSpinBox, WDoubleSpinBox: separated integer from double spinbox,
+	rewrite to take into account #737, #727, #721. Note that the API
+	changed in several ways.
+
 23-02-2011:
 	* WRasterImage: implement drawImage() and improved text rendering,
 	using libpango as font selector and glyph shaper, if available.

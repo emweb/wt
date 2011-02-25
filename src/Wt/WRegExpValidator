@@ -123,12 +123,13 @@ public:
    */
   WString invalidNoMatchText() const;
 
-protected:
-  std::string javaScriptValidate(const std::string& jsRef) const;
+  virtual std::string javaScriptValidate() const;
 
 private:
   WRegExp *regexp_;
   WString  noMatchText_;
+
+  static void loadJavaScript(WApplication *app);
 };
 
 }

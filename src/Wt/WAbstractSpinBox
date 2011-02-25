@@ -1,0 +1,126 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WABSTRACT_SPIN_BOX_H_
+#define WABSTRACT_SPIN_BOX_H_
+
+#include <Wt/WLineEdit>
+
+namespace Wt {
+
+/*! \class WAbstractSpinBox Wt/WAbstractSpinBox Wt/WAbstractSpinBox
+ *  \brief An abstract spin box.
+ *
+ * <h3>CSS</h3>
+ *
+ * Using HTML4, the widget is implemented using a &lt;input
+ * type="text"&gt; The element can be styled using the
+ * <tt>Wt-spinbox</tt> style. It may be styled through the current
+ * theme, or you can override the style using internal or external CSS
+ * as appropriate.
+ */
+class WT_API WAbstractSpinBox : public WLineEdit
+{
+public:
+  /*! \brief Configures whether a native HTML5 control should be used.
+   *
+   * When \p native, the new "number" input element, specified by
+   * HTML5 and when implemented by the browser, is used rather than
+   * the built-in element. The native control is styled by the browser
+   * (usually in sync with the OS) rather than through the theme
+   * chosen.
+   *
+   * The default is \p false (as native support is now well implemented).
+   */
+  void setNativeControl(bool nativeControl);
+
+  /*! \brief Returns whether a native HTML5 control is used.
+   *
+   * Taking into account the preference for a native control,
+   * configured using setNativeControl(), this method returns whether
+   * a native control is actually being used.
+   */
+  bool nativeControl() const;
+
+  /*! \brief Sets a prefix.
+   *
+   * Option to set a prefix string shown in front of the value, e.g.:
+   *
+   * \code
+   *   spinBox->setPrefix("$ ");
+   * \endcode
+   *
+   * The default prefix is empty.
+   *
+   * \note Not supported by the native controls.
+   */
+  void setPrefix(const WString& prefix);
+
+  /*! \brief Returns the prefix.
+   *
+   * \sa setPrefix()
+   */
+  const WString& prefix() const { return prefix_; }
+
+  /*! \brief Sets a suffix.
+   *
+   * Option to set a suffix string shown to the right of the value, e.g.:
+   *
+   * \code
+   *   spinBox->setSuffix(" crates");
+   * \endcode
+   *
+   * The default suffix is empty.
+   *
+   * \note Not supported by the native controls.
+   */
+  void setSuffix(const WString& suffix);
+
+  /*! \brief Returns the suffix.
+   *
+   * \sa setSuffix()
+   */
+  const WString& suffix() const { return suffix_; }
+
+  virtual void setText(const WT_USTRING& text);
+
+protected:
+  /*! \brief Constructor.
+   */
+  WAbstractSpinBox(WContainerWidget *parent = 0);
+
+  virtual void updateDom(DomElement& element, bool all);
+  virtual void render(WFlags<RenderFlag> flags);
+  virtual void setFormData(const FormData& formData);
+  virtual void propagateRenderOk(bool deep);
+
+  virtual std::string jsMinMaxStep() const = 0;
+  virtual int decimals() const = 0;
+  virtual bool parseNumberValue(const std::string& text) = 0;
+  virtual WString textFromValue() const = 0;
+  virtual WValidator *createValidator() = 0; // for nativeControl
+
+  virtual int boxPadding(Orientation orientation) const;
+
+  bool changed_;
+  bool valueChangedConnection_;
+
+private:
+  bool preferNative_;
+  WString prefix_, suffix_;
+
+  void defineJavaScript();
+  void connectJavaScript(Wt::EventSignalBase& s,
+			 const std::string& methodName);
+  void setup(bool native);
+  bool parseValue(const WT_USTRING& text);
+
+  friend class SpinBoxValidator;
+};
+
+}
+
+#endif // WABSTRACT_SPIN_BOX_H_

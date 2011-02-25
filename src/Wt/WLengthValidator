@@ -113,8 +113,7 @@ public:
    */
   WString invalidTooLongText() const;
 
-protected:
-  std::string javaScriptValidate(const std::string& jsRef) const;
+  std::string javaScriptValidate() const;
 
 private:
   int minLength_;
@@ -122,6 +121,8 @@ private:
 
   WString tooLongText_;
   WString tooShortText_;
+
+  static void loadJavaScript(WApplication *app);
 };
 
 }

@@ -6,11 +6,18 @@
 
 #include <boost/regex.hpp>
 
+#include "Wt/WApplication"
 #include "Wt/WRegExpValidator"
 #include "Wt/WRegExp"
 #include "Wt/WString"
 
 #include "Utils.h"
+#include "JavaScriptLoader.h"
+#include "EscapeOStream.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WRegExpValidator.min.js"
+#endif
 
 namespace Wt {
 
@@ -95,20 +102,28 @@ WValidator::State WRegExpValidator::validate(WT_USTRING& input) const
     return Invalid;
 }
 
-std::string WRegExpValidator::javaScriptValidate(const std::string& jsRef) const
+void WRegExpValidator::loadJavaScript(WApplication *app)
 {
-  std::string js = "function(e,te,tn){if(e.value.length==0)";
+  const char *THIS_JS = "js/WRegExpValidator.js";
 
-  if (isMandatory())
-    js += "return {valid:false,message:te};";
-  else
-    js += "return {valid:true};";
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WRegExpValidator", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+}
+
+std::string WRegExpValidator::javaScriptValidate() const
+{
+  loadJavaScript(WApplication::instance());
+
+  SStream js;
+
+  js << "new " WT_CLASS ".WRegExpValidator("
+     << (isMandatory() ? "true" : "false") << ",";
 
   if (regexp_) {
-    std::string s = regexp_->pattern().toUTF8();
-    Wt::Utils::replace(s, '/', "\\/");
-
-    js += "var r=/^" + s + "$/";
+    js << regexp_->pattern().jsStringLiteral()
+       << ",'";
 
 #ifndef WT_TARGET_JAVA
     WFlags<RegExpFlag> flags = regexp_->flags();
@@ -117,16 +132,17 @@ std::string WRegExpValidator::javaScriptValidate(const std::string& jsRef) const
 #endif
 
     if (flags & MatchCaseInsensitive)
-      js += "i";
+      js << 'i';
 
-    js += "; return {valid:r.test(e.value),message:tn};";
+    js << '\'';
   } else
-    js += "return {valid:true};";
+    js << "null, null";
 
-  js += "}(" + jsRef + ',' + invalidBlankText().jsStringLiteral() + ','
-    + invalidNoMatchText().jsStringLiteral() + ')';
+  js << ',' << invalidBlankText().jsStringLiteral()
+     << ',' << invalidNoMatchText().jsStringLiteral()
+     << ");";
 
-  return js;
+  return js.str();
 }
 
 #ifndef WT_TARGET_JAVA

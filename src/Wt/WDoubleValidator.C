@@ -9,6 +9,15 @@
 #include "Wt/WDoubleValidator"
 #include "Wt/WString"
 
+#include "Wt/WApplication"
+
+#include "JavaScriptLoader.h"
+#include "EscapeOStream.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WDoubleValidator.min.js"
+#endif
+
 namespace Wt {
 
 WDoubleValidator::WDoubleValidator(WObject *parent)
@@ -130,32 +139,44 @@ WValidator::State WDoubleValidator::validate(WT_USTRING& input) const
   }
 }
 
-std::string WDoubleValidator::javaScriptValidate(const std::string& jsRef) const
+void WDoubleValidator::loadJavaScript(WApplication *app)
 {
-  std::string js = "function(e,te,tn,ts,tb){if(e.value.length==0)";
+  const char *THIS_JS = "js/WDoubleValidator.js";
 
-  if (isMandatory())
-    js += "return {valid:false,message:te};";
-  else
-    js += "return {valid:true};";
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WDoubleValidator", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+}
 
-  js += "var n=Number(e.value);"
-    "if (isNaN(n)) return {valid:false,message:tn};";
+std::string WDoubleValidator::javaScriptValidate() const
+{
+  loadJavaScript(WApplication::instance());
+
+  SStream js;
+
+  js << "new " WT_CLASS ".WDoubleValidator("
+     << (isMandatory() ? "true" : "false") << ",";
 
   if (bottom_ != -std::numeric_limits<double>::max())
-    js += "if(n<" + boost::lexical_cast<std::string>(bottom_)
-      + ") return {valid:false,message:ts};";
+    js << boost::lexical_cast<std::string>(bottom_);
+  else
+    js << "null";
+
+  js << ',';
+
   if (top_ != std::numeric_limits<double>::max())
-    js += "if(n>" + boost::lexical_cast<std::string>(top_)
-      + ") return {valid:false,message:tb};";
+    js << boost::lexical_cast<std::string>(top_);
+  else
+    js << "null";
 
-  js += "return {valid:true};}(" + jsRef + ','
-    + invalidBlankText().jsStringLiteral() + ','
-    + invalidNotANumberText().jsStringLiteral() + ','
-    + invalidTooSmallText().jsStringLiteral() + ','
-    + invalidTooLargeText().jsStringLiteral() + ')';
+  js << ',' << invalidBlankText().jsStringLiteral()
+     << ',' << invalidNotANumberText().jsStringLiteral()
+     << ',' << invalidTooSmallText().jsStringLiteral()
+     << ',' << invalidTooLargeText().jsStringLiteral()
+     << ");";
 
-  return js;
+  return js.str();
 }
 
 #ifndef WT_TARGET_JAVA

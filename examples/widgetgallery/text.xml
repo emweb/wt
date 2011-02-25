@@ -681,9 +681,8 @@
     </p>
 
     <p>
-      In browser which do not yet implement this input type (which is
-      currently all of them ASFAIK), a spin box is implemented using
-      JavaScript.
+      A JavaScript fall-back is used in browsers that do not yet support this
+      element natively.
     </p>
   </message>
 

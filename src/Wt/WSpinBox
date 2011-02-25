@@ -1,42 +1,40 @@
 // This may look like C code, but it's really -*- C++ -*-
 /*
- * Copyright (C) 20082010 Emweb bvba, Kessel-Lo, Belgium.
+ * Copyright (C) 2010, 2011 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
 #ifndef WSPIN_BOX_H_
 #define WSPIN_BOX_H_
 
-#include <Wt/WLineEdit>
+#include <Wt/WAbstractSpinBox>
 
 namespace Wt {
 
 /*! \class WSpinBox Wt/WSpinBox Wt/WSpinBox
- *  \brief A spin box.
+ *  \brief An input control for integer numbers.
  *
- * The spin box provides a control for entering a number. It consists
- * of a line edit, and buttons which allow to increase or decrease the
- * value.
+ * The spin box provides a control for entering an integer number. It
+ * consists of a line edit, and buttons which allow to increase or
+ * decrease the value. If you rather need input of a fractional
+ * number, use WDoubleSpinBox instead.
  *
  * %WSpinBox is an \link WWidget::setInline(bool) inline \endlink widget.
  *
  * <h3>CSS</h3>
  *
- * Using HTML4, the widget is implemented using a &lt;input
- * type="text"&gt; The element can be styled using the
- * <tt>Wt-spinbox</tt> style. It may be styled through the current
- * theme, or you can override the style using internal or external CSS
- * as appropriate.
+ * See WAbstractSpinBox.
  *
- * \note With the advent of HTML5, this widget will be implemented using
- *       the native HTML5 control when available.
+ * \sa WDoubleSpinBox
  */
-class WT_API WSpinBox : public WLineEdit
+class WT_API WSpinBox : public WAbstractSpinBox
 {
 public:
   /*! \brief Creates a spin-box.
    *
-   * The range is (0-99) and the step size 1.
+   * The range is (0 - 99) and the step size 1.
+   *
+   * The initial value is 0.
    */
   WSpinBox(WContainerWidget *parent = 0);
 
@@ -44,67 +42,41 @@ public:
    *
    * The default value is 0.
    */
-  void setMinimum(double minimum);
+  void setMinimum(int minimum);
 
   /*! \brief Returns the minimum value.
    *
    * \sa setMinimum()
    */
-  double minimum() const { return min_; }
+  int minimum() const { return min_; }
 
   /*! \brief Sets the maximum value.
    *
    * The default value is 99.
    */
-  void setMaximum(double maximum);
+  void setMaximum(int maximum);
 
   /*! \brief Returns the maximum value.
    *
    * \sa setMaximum()
    */
-  double maximum() const { return max_; }
+  int maximum() const { return max_; }
 
   /*! \brief Sets the range.
    *
    * \sa setMinimum(), setMaximum()
    */
-  void setRange(double minimum, double maximum);
+  void setRange(int minimum, int maximum);
 
   /*! \brief Sets the step value.
    *
    * The default value is 1.
    */
-  void setSingleStep(double step);
+  void setSingleStep(int step);
 
   /*! \brief Returns the step value.
    */
-  double singleStep() const { return step_; }
-
-  /*! \brief Sets the value format string.
-   *
-   * The format is used by setValue().
-   *
-   * \if cpp 
-   * When an empty WString is used as format, the double is
-   * cast using boost::lexical_cast<std::string>(). When the value is
-   * a real number, it will be cast to an int before passing it to
-   * boost::lexical_cast<std::string>().  
-   * \elseif java 
-   * When an empty
-   * WString is used as format, the double is cast using
-   * String#valueOf(). When the value is a real number, it will be
-   * cast to an int before passing it to String#valueOf().  
-   * \endif
-   *
-   * The default value for format is an empty WString.
-   */
-  void setFormat(const WString& format);
-
-  /*! \brief Returns the progress format string.
-   *  
-   * \sa setFormat() 
-   */
-  const WString& format() const { return format_; }
+  int singleStep() const { return step_; }
 
   /*! \brief Sets the value.
    *
@@ -112,11 +84,11 @@ public:
    *
    * The default value is 0
    */
-  void setValue(double value);
+  void setValue(int value);
 
   /*! \brief Returns the value.
    */
-  double value() const;
+  int value() const { return value_; }
 
   /*! \brief A %signal that indicates when the value has changed.
    *
@@ -124,25 +96,24 @@ public:
    *
    * \sa setValue()
    */
-  Signal<double>& valueChanged() { return valueChanged_; }
+  Signal<int>& valueChanged() { return valueChanged_; }
 
 protected:
   virtual void updateDom(DomElement& element, bool all);
-  virtual void propagateRenderOk(bool deep);
-  virtual void render(WFlags<RenderFlag> flags);
+  virtual void signalConnectionsChanged();
+
+  virtual std::string jsMinMaxStep() const;
+  virtual int decimals() const;
+  virtual bool parseNumberValue(const std::string& text);
+  virtual WString textFromValue() const;
+  virtual WValidator *createValidator();
 
 private:
-  double min_, max_, step_;
-  bool changed_;
+  int value_, min_, max_, step_;
 
-  Signal<double> valueChanged_;
-
-  WString format_;
+  Signal<int> valueChanged_;
 
   void onChange();
-  void defineJavaScript();
-  void connectJavaScript(EventSignalBase& s, const std::string& methodName);
-  void updateValidator();
 };
 
 }

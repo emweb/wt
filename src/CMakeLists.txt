@@ -55,6 +55,7 @@ Wt/WAbstractItemView.C
 Wt/WAbstractListModel.C
 Wt/WAbstractProxyModel.C
 Wt/WAbstractServer.C
+Wt/WAbstractSpinBox.C
 Wt/WAbstractTableModel.C
 Wt/WAbstractToggleButton.C
 Wt/WAccordionLayout.C
@@ -87,6 +88,7 @@ Wt/WDateValidator.C
 Wt/WDefaultLayout.C
 Wt/WDefaultLoadingIndicator.C
 Wt/WDialog.C
+Wt/WDoubleSpinBox.C
 Wt/WDoubleValidator.C
 Wt/WEnvironment.C
 Wt/WEvent.C

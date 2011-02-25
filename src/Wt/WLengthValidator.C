@@ -7,6 +7,14 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Wt/WLengthValidator"
+#include "Wt/WApplication"
+
+#include "JavaScriptLoader.h"
+#include "EscapeOStream.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WLengthValidator.min.js"
+#endif
 
 namespace Wt {
 
@@ -112,28 +120,43 @@ WValidator::State WLengthValidator::validate(WT_USTRING& input) const
     return Invalid;
 }
 
-std::string WLengthValidator::javaScriptValidate(const std::string& jsRef) const
+void WLengthValidator::loadJavaScript(WApplication *app)
 {
-  std::string js = "function(e,te,ts,tb){if(e.value.length==0)";
+  const char *THIS_JS = "js/WLengthValidator.js";
 
-  if (isMandatory())
-    js += "return {valid:false,message:te};";
-  else
-    js += "return {valid:true};";
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WLengthValidator", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+}
+
+std::string WLengthValidator::javaScriptValidate() const
+{
+  loadJavaScript(WApplication::instance());
+
+  SStream js;
+
+  js << "new " WT_CLASS ".WLengthValidator("
+     << (isMandatory() ? "true" : "false") << ",";
 
   if (minLength_ != 0)
-    js += "if(e.value.length<" + boost::lexical_cast<std::string>(minLength_)
-      + ") return {valid:false,message:ts};";
+    js << minLength_;
+  else
+    js << "null";
+
+  js << ',';
+
   if (maxLength_ != std::numeric_limits<int>::max())
-    js += "if(e.value.length>" + boost::lexical_cast<std::string>(maxLength_)
-      + ") return {valid:false,message:tb};";
+    js << maxLength_;
+  else
+    js << "null";
 
-  js += "return {valid:true};}(" + jsRef + ','
-    + invalidBlankText().jsStringLiteral() + ','
-    + invalidTooShortText().jsStringLiteral() + ','
-    + invalidTooLongText().jsStringLiteral() + ')';
+  js << ',' << invalidBlankText().jsStringLiteral()
+     << ',' << invalidTooShortText().jsStringLiteral()
+     << ',' << invalidTooLongText().jsStringLiteral()
+     << ");";
 
-  return js;
+  return js.str();
 }
 
 #ifndef WT_TARGET_JAVA

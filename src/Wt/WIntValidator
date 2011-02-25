@@ -123,10 +123,9 @@ public:
    */
   WString invalidTooLargeText() const;
 
-protected:
-  std::string javaScriptValidate(const std::string& jsRef) const;
+  virtual std::string javaScriptValidate() const;
 
-  std::string inputFilter() const;
+  virtual std::string inputFilter() const;
 
 private:
   int bottom_;
@@ -135,6 +134,8 @@ private:
   WString tooSmallText_;
   WString tooLargeText_;
   WString nanText_;
+  
+  static void loadJavaScript(WApplication *app);
 };
 
 }

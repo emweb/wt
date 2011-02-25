@@ -207,27 +207,18 @@ void WFormWidget::enableAjax()
 
 void WFormWidget::validatorChanged()
 {
-  std::string validateJS = validator_->javaScriptValidate(jsRef());
+  std::string validateJS = validator_->javaScriptValidate();
   if (!validateJS.empty()) {
+    setJavaScriptMember("wtValidate", validateJS);
+
     if (!validateJs_) {
-      validateJs_ = new JSlot(this);
+      validateJs_ = new JSlot();
+      validateJs_->setJavaScript("function(o){" WT_CLASS ".validate(o)}");
 
       keyWentUp().connect(*validateJs_);
       changed().connect(*validateJs_);
       clicked().connect(*validateJs_);
     }
-
-    validateJs_->setJavaScript
-      ("function(self, event) {"
-       """var v=" + validateJS + ";"
-       """if (v.valid) {"
-       ""  "self.removeAttribute('title');"
-       ""  "$(self).removeClass('Wt-invalid');"
-       """} else {"
-       ""  "self.setAttribute('title', v.message);"
-       ""  "$(self).addClass('Wt-invalid');"
-       """}"
-       "}");
   } else {
     delete validateJs_;
     validateJs_ = 0;
@@ -244,15 +235,8 @@ void WFormWidget::validatorChanged()
     Wt::Utils::replace(inputFilter, '/', "\\/");
 
     filterInput_->setJavaScript
-      ("function(self,e){\n"
-       """var c=\n"
-       ""  "String.fromCharCode((typeof e.charCode!=='undefined') ?"
-       ""                       "e.charCode : e.keyCode);\n"
-       """if(/" + inputFilter + "/.test(c))\n"
-       ""  "return true;\n"
-       """else\n"
-       ""  WT_CLASS ".cancelEvent(e);\n"
-       "}");
+      ("function(o,e){" WT_CLASS ".filter(o,e,"
+       + jsStringLiteral(inputFilter) + ")}");
   } else {
     delete filterInput_;
     filterInput_ = 0;

@@ -11,6 +11,13 @@
 #include "Wt/WLogger"
 #include "Wt/WWebWidget"
 
+#include "JavaScriptLoader.h"
+#include "EscapeOStream.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WDateValidator.min.js"
+#endif
+
 namespace Wt {
 
 WDateValidator::WDateValidator(WObject *parent)
@@ -174,57 +181,63 @@ WValidator::State WDateValidator::validate(WT_USTRING& input) const
   return Invalid;
 }
 
-std::string WDateValidator::javaScriptValidate(const std::string& jsRef) const
+void WDateValidator::loadJavaScript(WApplication *app)
 {
-  std::stringstream js;
+  const char *THIS_JS = "js/WDateValidator.js";
 
-  js << "function(e,te,tn,ts,tb){if(e.value.length==0)";
+  if (!app->javaScriptLoaded(THIS_JS)) {
+    LOAD_JAVASCRIPT(app, THIS_JS, "WDateValidator", wtjs1);
+    app->setJavaScriptLoaded(THIS_JS);
+  }
+}
 
-  if (isMandatory())
-    js << "return {valid:false,message:te};";
-  else
-    js << "return {valid:true};";
 
-  js << "var r,res,m=-1,d=-1,y=-1;";
+std::string WDateValidator::javaScriptValidate() const
+{
+  loadJavaScript(WApplication::instance());
+
+  SStream js;
+
+  js << "new " WT_CLASS ".WDateValidator("
+     << (isMandatory() ? "true" : "false") << ",[";
 
   for (unsigned i = 0; i < formats_.size(); ++i) {
     WDate::RegExpInfo r = WDate::formatToRegExp(formats_[i]);
 
-    js << "r=/^" << r.regexp << "$/;"
-      "results=r.exec(e.value);"
-      "if (results!=null) {"
-      """m=" << r.monthGetJS << ";"
-      """d=" << r.dayGetJS << ";"
-      """y=" << r.yearGetJS << ";"
-      "} else {";
+    if (i != 0)
+      js << ',';
+
+    js << "{"
+       << "regexp:" << WWebWidget::jsStringLiteral(r.regexp) << ','
+       << "getMonth:function(results){" << r.monthGetJS << ";},"
+       << "getDay:function(results){" << r.dayGetJS << ";},"
+       << "getYear:function(results){" << r.yearGetJS << ";}"
+       << "}";
   }
-  js << "return {valid:false,message:tn};";
 
-  for (unsigned i = 0; i < formats_.size(); ++i)
-    js << "}";
-
-  js << "if ((d<=0)||(d>31)||(m<=0)||(m>12))"
-    "return {valid:false,message:tn};"
-    "var dt=new Date(y,m-1,d);"
-    "if (dt.getDate() != d || "
-        "dt.getMonth() != m-1 || "
-        "dt.getFullYear() != y) "
-      "return {valid:false,massage:tn};";
+  js << "],";
 
   if (!bottom_.isNull())
-    js << "if(dt.getTime()<new Date(" << bottom_.year() << ','
-       << bottom_.month()-1 << ',' << bottom_.day() << ").getTime())"
-      "return {valid:false,message:ts};";
-  if (!top_.isNull())
-    js << "if(dt.getTime()>new Date(" << top_.year() << ','
-       << top_.month()-1 << ',' << top_.day() << ").getTime())"
-      "return {valid:false,message:tb};";
+    js << "new Date("
+       << bottom_.year() << ',' << bottom_.month()-1 << ',' << bottom_.day()
+       << ")";
+  else
+    js << "null";
 
-  js << "return {valid:true};}(" << jsRef << ','
-     << invalidBlankText().jsStringLiteral() << ','
-     << invalidNotADateText().jsStringLiteral() << ','
-     << invalidTooEarlyText().jsStringLiteral() << ','
-     << invalidTooLateText().jsStringLiteral() << ')';
+  js << ',';
+
+  if (!top_.isNull())
+    js << "new Date("
+       << top_.year() << ',' << top_.month()-1 << ',' << top_.day()
+       << ")";
+  else
+    js << "null";
+
+  js << ',' << invalidBlankText().jsStringLiteral()
+     << ',' << invalidNotADateText().jsStringLiteral()
+     << ',' << invalidTooEarlyText().jsStringLiteral()
+     << ',' << invalidTooLateText().jsStringLiteral()
+     << ");";
 
   return js.str();
 }

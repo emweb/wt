@@ -193,8 +193,7 @@ public:
    */
   WString invalidTooLateText() const;
 
-protected:
-  std::string javaScriptValidate(const std::string& jsRef) const;
+  virtual std::string javaScriptValidate() const;
 
 private:
   std::vector<WT_USTRING> formats_;
@@ -203,6 +202,8 @@ private:
   WString tooEarlyText_;
   WString tooLateText_;
   WString notADateText_;
+
+  static void loadJavaScript(WApplication *app);
 };
 
 }

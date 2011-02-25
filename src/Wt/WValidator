@@ -124,19 +124,22 @@ public:
    */
   virtual void createExtConfig(std::ostream& config) const;
 
-protected:
-  /*! \brief Creates a Javascript expression that validates the input.
+  /*! \brief Creates a Javascript object that validates the input.
    *
-   * The JavaScript expression should evaluate to an object with two
-   * fields: a boolean <i>valid</i>, and a \p message that
-   * indicates the problem if not valid.
+   * The JavaScript expression should evaluate to an object which contains
+   * a <tt>validate(text)</tt> function, which returns an object that contains
+   * the following two fields:
+   *  - fields: a boolean <i>valid</i>,
+   *  - a \p message that indicates the problem if not valid.
    *
    * Return an empty string if you are not provide the client-side
    * validation.
    *
+   * \note The signature and contract changed changed in %Wt 3.1.9.
+   *
    * \sa inputFilter()
    */
-  virtual std::string javaScriptValidate(const std::string& jsRef) const;
+  virtual std::string javaScriptValidate() const;
 
   /*! \brief Returns a regular expression that filters input.
    *
@@ -154,6 +157,7 @@ protected:
    */
   virtual std::string inputFilter() const;
 
+protected:
   void repaint();
 
 private:

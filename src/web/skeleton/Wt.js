@@ -462,6 +462,24 @@ this.getElement = function(id) {
   return el;
 };
 
+this.validate = function(edit) {
+  var v = edit.wtValidate.validate(edit.value);
+  if (v.valid) {
+    edit.removeAttribute('title');
+    $(edit).removeClass('Wt-invalid');
+  } else {
+    edit.setAttribute('title', v.message);
+    $(edit).addClass('Wt-invalid');
+  }
+};
+
+this.filter = function(edit, event, tokens) {
+  var c = String.fromCharCode((typeof event.charCode !== 'undefined') ?
+                              event.charCode : event.keyCode);
+  if (!new RegExp(tokens).test(c))
+    WT.cancelEvent(event);
+};
+
 // Get coordinates of element relative to page origin.
 this.widgetPageCoordinates = function(obj) {
   var objX = 0, objY = 0, op;
@@ -647,6 +665,35 @@ this.isKeyPress = function(e) {
       return (e.keyCode == 13 || e.keyCode == 27 || e.keyCode == 32
 	      || (e.keyCode > 46 && e.keyCode < 112));
 
+  }
+};
+
+var repeatT = null, repeatI = null;
+
+this.eventRepeat = function(fun, startDelay, repeatInterval) {
+  WT.stopRepeat();
+
+  startDelay = startDelay || 500;
+  repeatInterval = repeatInterval || 50;
+
+  fun();
+
+  repeatT = setTimeout(function() {
+    repeatT = null;
+    fun();
+    repeatI = setInterval(fun, repeatInterval);
+  }, startDelay);
+};
+
+this.stopRepeat = function() {
+  if (repeatT) {
+    clearTimeout(repeatT);
+    repeatT = null;
+  }
+
+  if (repeatI) {
+    clearInterval(repeatI);
+    repeatI = null;
   }
 };
 
@@ -878,7 +925,7 @@ this.capture = function(obj) {
 };
 
 this.checkReleaseCapture = function(obj, e) {
-  if (captureElement && (obj == captureElement) && e.type == "mouseup")
+  if (e && captureElement && (obj == captureElement) && e.type == "mouseup")
     this.capture(null);
 };
 

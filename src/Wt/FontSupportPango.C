@@ -331,7 +331,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
     bool maxWidthReached = false;
 
     for (int i = 0; i < utflen + 1; ++i) {
-      if (attrs[i].is_line_break) {
+      if (i == utflen || attrs[i].is_line_break) {
 	int cend = g_utf8_offset_to_pointer(s, end) - s;
 
 	WTextItem ti
@@ -346,6 +346,10 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 	  measured = cend;
 	  current = g_utf8_offset_to_pointer(s, i) - s;
 	  w += ti.width();
+
+	  if (i == utflen)
+	    w += measureText(font, WString::fromUTF8(utf8.substr(measured)),
+			     -1, false).width();
 	}
       }
 

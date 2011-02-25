@@ -62,16 +62,17 @@ WValidator::State WValidator::validate(WT_USTRING& input) const
   return Valid;
 }
 
-std::string WValidator::javaScriptValidate(const std::string& jsRef) const
+std::string WValidator::javaScriptValidate() const
 {
-  if (!mandatory_) {
-    return "{valid:true}";
-  } else {
-    return "function(e,t){"
-      "var v=e.value.length!=0;"
-      "return {valid:v,message:t};"
-      "}(" + jsRef + "," + invalidBlankText().jsStringLiteral() + ")";
-  }
+  if (mandatory_) {
+    return "new (function() {"
+      "this.validate = function(text) {"
+      """return { valid: text.length != 0, "
+      """message: " + invalidBlankText().jsStringLiteral() + "}"
+      "};"
+      "})();";
+  } else
+    return std::string();
 }
 
 std::string WValidator::inputFilter() const

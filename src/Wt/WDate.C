@@ -823,8 +823,8 @@ namespace {
 	else
 	  result.regexp += "(\\d{2})";
 
-	result.dayGetJS = "parseInt(results["
-	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10)";
+	result.dayGetJS = "return parseInt(results["
+	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10);";
 	break;
       default:
 	fatalFormatRegExpError(format, d, "d's");
@@ -842,8 +842,8 @@ namespace {
 	else
 	  result.regexp += "(\\d{2})";
 
-	result.monthGetJS = "parseInt(results["
-	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10)";
+	result.monthGetJS = "return parseInt(results["
+	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10);";
 	break;
       default:
 	fatalFormatRegExpError(format, M, "M's");
@@ -856,13 +856,13 @@ namespace {
       switch (y) {
       case 2:
 	result.regexp += "(\\d{2})";
-	result.yearGetJS = "function() { var y=parseInt(results["
+	result.yearGetJS = "var y=parseInt(results["
 	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10);"
-	  "return y>38?1900+y:2000+y;}()";
+	  "return y > 38 ? 1900 + y : 2000 + y;";
 	break;
       case 4:
 	result.regexp += "(\\d{4})";
-	result.yearGetJS = "parseInt(results["
+	result.yearGetJS = "return parseInt(results["
 	  + boost::lexical_cast<std::string>(currentGroup++) + "], 10)";
 	break;
       default:
@@ -880,9 +880,9 @@ WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
   std::string f = format.toUTF8();
   int currentGroup = 1;
 
-  result.dayGetJS = "1";
-  result.monthGetJS = "1";
-  result.yearGetJS = "2000";
+  result.dayGetJS = "return 1";
+  result.monthGetJS = "return 1";
+  result.yearGetJS = "return 2000";
 
   bool inQuote = false;
   bool gotQuoteInQuote = false;

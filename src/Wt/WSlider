@@ -42,8 +42,8 @@ class PaintedSlider;
  *
  * <h3>CSS</h3>
  *
- * The non-native slider (see setNativeControl()) is styled by the
- * current CSS theme. The look can be overridden using the
+ * The non-native slider (HTML4, see setNativeControl()) is styled by
+ * the current CSS theme. The look can be overridden using the
  * <tt>Wt-slider-[hv]</tt> CSS class and the following selectors
  * (shown here for a horizontal slider, the vertical slider is
  * equivalent but using Wt-slider-v instead of Wt-slider-h:
@@ -99,8 +99,8 @@ public:
 
   /*! \brief Configures whether a native HTML5 control should be used.
    *
-   * When \p native, the new "range" input element, specified by HTML
-   * and available in a number of browsers, is used rather than the
+   * When \p native, the new "range" input element, specified by HTML5
+   * and when implemented by the browser, is used rather than the
    * built-in element. A native control is styled by the browser
    * (usually in sync with the OS) rather than through the theme
    * chosen. Settings like tick interval and tick position are

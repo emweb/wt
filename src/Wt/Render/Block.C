@@ -908,7 +908,7 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
     if (totalMaxWidth > availableWidth)
       width = availableWidth;
     else
-      width = totalMaxWidth;
+      width = std::max(totalMaxWidth, width);
   } else {
     maximumColumnWidths = minimumColumnWidths;
   }

@@ -16,10 +16,6 @@
 #include "web/Utils.h"
 #include "web/WtException.h"
 
-#ifdef WT_THREADED
-#include <boost/thread.hpp>
-#endif // WT_THREADED
-
 #include <stdio.h>
 #include <hpdf.h>
 #ifdef WIN32
@@ -29,13 +25,6 @@
 #endif
 
 namespace {
-#ifdef WT_THREADED
-  boost::mutex fontRegistryMutex_;
-#endif // WT_THREADED
-
-  // Maps TrueType file names to font names
-  std::map<std::string, std::string> fontRegistry_;
-
   std::string toUpper(const std::string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(), toupper);
@@ -271,55 +260,32 @@ void WPdfImage::setChanged(WFlags<ChangeFlag> flags)
     // std::cerr << "Font: " << ttfFont << std::endl;
 
     if (!ttfFont.empty()) {
-#ifdef WT_THREADED
-      boost::mutex::scoped_lock(fontRegistryMutex_);
-#endif // WT_THREADED
-      std::map<std::string, std::string>::const_iterator i
-	= fontRegistry_.find(ttfFont);
+      bool fontOk = false;
+      if (ttfFont.length() > 4) {
+	std::string suffix
+	  = Utils::lowerCase(ttfFont.substr(ttfFont.length() - 4));
 
-      if (i != fontRegistry_.end()) {
-	font_name = i->second.c_str();
-	font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
-
-	if (!font_)
-	  HPDF_ResetError (pdf_);
-      }
-
-      if (!font_) {
-	bool fontOk = false;
-	if (ttfFont.length() > 4) {
-	  std::string suffix
-	    = Utils::lowerCase(ttfFont.substr(ttfFont.length() - 4));
-
-	  if (suffix == ".ttf") {
-	    font_name = HPDF_LoadTTFontFromFile (pdf_, ttfFont.c_str(),
-						 HPDF_TRUE);
-	    if (!font_name)
-	      HPDF_ResetError (pdf_);
-	    else
-	      fontOk = true;
-	  } else if (suffix == ".ttc") {
-	    /* Oops, pango didn't tell us which font to load ... */
-	    font_name = HPDF_LoadTTFontFromFile2(pdf_, ttfFont.c_str(),
-						 0, HPDF_TRUE);
-	    if (!font_name)
-	      HPDF_ResetError (pdf_);
-	    else
-	      fontOk = true;
-	  }
-	}
-
-	if (!fontOk)
-	  std::cerr << "WPdfImage: cannot read font: '" << ttfFont << "': "
-	    "expecting a true type font (.ttf, .ttc)" << std::endl;
-
-	if (font_name) {
-#ifdef WT_THREADED
-	  boost::mutex::scoped_lock(fontRegistryMutex_);
-#endif // WT_THREADED
-	  fontRegistry_[ttfFont] = font_name;
+	if (suffix == ".ttf") {
+	  font_name = HPDF_LoadTTFontFromFile (pdf_, ttfFont.c_str(),
+					       HPDF_TRUE);
+	  if (!font_name)
+	    HPDF_ResetError (pdf_);
+	  else
+	    fontOk = true;
+	} else if (suffix == ".ttc") {
+	  /* Oops, pango didn't tell us which font to load ... */
+	  font_name = HPDF_LoadTTFontFromFile2(pdf_, ttfFont.c_str(),
+					       0, HPDF_TRUE);
+	  if (!font_name)
+	    HPDF_ResetError (pdf_);
+	  else
+	    fontOk = true;
 	}
       }
+
+      if (!fontOk)
+	std::cerr << "WPdfImage: cannot read font: '" << ttfFont << "': "
+	  "expecting a true type font (.ttf, .ttc)" << std::endl;
     }
 
     if (!font_ && font_name) {

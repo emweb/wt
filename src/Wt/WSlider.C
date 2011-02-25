@@ -341,6 +341,19 @@ void WSlider::setNativeControl(bool nativeControl)
   preferNative_ = nativeControl;
 }
 
+bool WSlider::nativeControl() const
+{
+  if (preferNative_) {
+    const WEnvironment& env = WApplication::instance()->environment();
+    if ((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
+	|| (env.agentIsSafari() && env.agent() >= WEnvironment::Safari4)
+	|| (env.agentIsOpera() && env.agent() >= WEnvironment::Opera10))
+      return true;
+  }
+
+  return false;
+}
+
 void WSlider::resize(const WLength& width, const WLength& height)
 {
   WFormWidget::resize(width, height);
@@ -450,14 +463,7 @@ void WSlider::render(WFlags<RenderFlag> flags)
    * somebody could already have asked the domElementType()
    */
   if (flags & RenderFull) {
-    bool useNative = false;
-    if (preferNative_) {
-      const WEnvironment& env = WApplication::instance()->environment();
-      if ((env.agentIsChrome() && env.agent() >= WEnvironment::Chrome5)
-	  || (env.agentIsSafari() && env.agent() >= WEnvironment::Safari4)
-	  || (env.agentIsOpera() && env.agent() >= WEnvironment::Opera10))
-	useNative = true;
-    }
+    bool useNative = nativeControl();
 
     if (!useNative) {
       if (!paintedSlider_) {
