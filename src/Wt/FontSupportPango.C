@@ -132,7 +132,7 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
   }
 
   s += " " + boost::lexical_cast<std::string>((int)(f.sizeLength().toPixels()
-						    * 0.75 /* * 96/72 */));
+						    * 0.75 * 96/72));
 
   return pango_font_description_from_string(s.c_str());
 }
@@ -395,14 +395,22 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
   matrix.x0 = transform.dx();
   matrix.y0 = transform.dy();
 
-  pango_context_set_matrix(context_, &matrix);
-
   std::string utf8 = text.toUTF8();
 
   std::vector<PangoGlyphString *> glyphs;
   int width;
 
-  GList *items = layoutText(font, utf8, glyphs, width);
+  pango_context_set_matrix(context_, &matrix);
+
+  /*
+   * Oh my god, somebody explain me why we need to do this...
+   */
+  WFont f = font;
+  f.setSize(font.sizeLength().toPixels()
+	    / pango_matrix_get_font_scale_factor(&matrix));
+
+  GList *items = layoutText(f, utf8, glyphs, width);
+  pango_context_set_matrix(context_, 0);
 
   AlignmentFlag hAlign = flags & AlignHorizontalMask;
 
@@ -463,6 +471,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
   GList *elem;
   unsigned i = 0;
+
   for (elem = items; elem; elem = elem->next) {
     PangoItem *item = (PangoItem *)elem->data;
     PangoAnalysis *analysis = &item->analysis;
@@ -481,8 +490,6 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
   }
 
   g_list_free(items);
-
-  pango_context_set_matrix(context_, 0);
 }
 
 }

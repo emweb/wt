@@ -45,7 +45,7 @@ namespace {
     pp->red = static_cast<unsigned char>(color.red());
     pp->green = static_cast<unsigned char>(color.green());
     pp->blue = static_cast<unsigned char>(color.blue());
-    pp->opacity = 0;
+    pp->opacity = 255 - static_cast<unsigned char>(color.alpha());
   }
 
   void blit(const Wt::WColor& src, Wt::WColor& dst)
@@ -78,14 +78,18 @@ WRasterImage::WRasterImage(const std::string& type,
   if (!w_ || !h_)
     throw WtException("Raster image should have non-0 width and height");
 
-  unsigned long bufSize = 3 * w_ * h_;
+  unsigned long bufSize = 4 * w_ * h_;
   pixels_ = new unsigned char[bufSize];
-  for (unsigned i = 0; i < w_ * h_; ++i)
-    pixels_[i*3] = pixels_[i*3 + 1] = pixels_[i*3 + 2] = 254;
+  for (unsigned i = 0; i < w_ * h_; ++i) {
+    pixels_[i*4] = pixels_[i*4 + 1] = pixels_[i*4 + 2] = 254;
+    pixels_[i*4 + 3] = 0;
+  }
 
   ExceptionInfo exception;
   GetExceptionInfo(&exception);
-  image_ = ConstituteImage(w_, h_, "RGB", CharPixel, pixels_, &exception);
+  image_ = ConstituteImage(w_, h_, "RGBA", CharPixel, pixels_, &exception);
+
+  SetImageOpacity(image_, 255);
 
   std::string magick = type;
   std::transform(magick.begin(), magick.end(), magick.begin(), toupper);
@@ -102,10 +106,12 @@ WRasterImage::WRasterImage(const std::string& type,
 
 void WRasterImage::clear()
 {
+  /*
   PixelPacket *pixel = SetImagePixels(image_, 0, 0, w_, h_);
   for (unsigned i = 0; i < w_ * h_; ++i)
     WColorToPixelPacket(white, pixel + i);
   SyncImagePixels(image_);
+  */
 }
 
 WRasterImage::~WRasterImage()
@@ -730,11 +736,13 @@ void WRasterImage::drawText(const WRectF& rect,
       y0 = 0;
       w = w_;
       h = h_;
+
       renderRect = rect;
     }
 
     FontSupport::Bitmap bitmap(w, h);
-    fontSupport_->drawText(painter_->font(), renderRect, t, bitmap, flags, text);
+    fontSupport_->drawText(painter_->font(), renderRect,
+			   t, bitmap, flags, text);
 
     done();
 
@@ -751,10 +759,9 @@ void WRasterImage::drawText(const WRectF& rect,
 	unsigned char bit = bitmap.value(x, y);
 
 	if (bit > 0) {
-	  WColor src(c.red(), c.green(), c.blue(),
-		     ((int)c.alpha() * bit) >> 8);
-
-	  WColor dst(pixel->red, pixel->green, pixel->blue, pixel->opacity);
+	  WColor src(c.red(), c.green(), c.blue(), ((int)c.alpha() * bit) >> 8);
+	  WColor dst(pixel->red, pixel->green, pixel->blue,
+		     255 - pixel->opacity);
 
 	  blit(src, dst);
 

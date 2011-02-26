@@ -14,13 +14,81 @@
 #include <Wt/WPainter>
 #include <Wt/WPointF>
 #include "Wt/Test/WTestEnvironment"
+#include "Wt/Render/WTextRenderer"
 
 #include "WRasterTest.h"
+
+namespace {
+  using namespace Wt;
+
+  class MultiLineTextRenderer : public Wt::Render::WTextRenderer
+  {
+  public:
+    MultiLineTextRenderer(WPainter& painter, const WRectF& rect)
+      : painter_(painter),
+	rect_(rect)
+    { }
+    
+    virtual double pageWidth(int page) const {
+      return rect_.right();
+    }
+    
+    virtual double pageHeight(int page) const {
+      return 1E9;
+    }
+    
+    virtual double margin(Side side) const {
+      switch (side) {
+    case Top: return rect_.top(); break;
+      case Left: return rect_.left(); break;
+      default:
+      return 0;
+      }
+    }
+
+    virtual WPaintDevice *startPage(int page) {
+      if (page > 0)
+	assert(false);
+      
+      return painter_.device();
+    }
+    
+    virtual void endPage(WPaintDevice *device) {
+    }
+
+    virtual WPainter *getPainter(WPaintDevice *device) {
+      return &painter_;
+    }
+    
+  private:
+    WPainter& painter_;
+    WRectF    rect_;
+  };
+}
+
+void WRasterTest::test_textRenderer()
+{
+  Wt::Test::WTestEnvironment environment;
+
+  Wt::WRasterImage rasterImage("png", 357, 193);
+  {
+    Wt::WPainter p(&rasterImage);
+    std::string text = 
+      "<table style=\"width:357px;\"><tr><td style=\"padding:0px;height:"
+      "193px;color:rgb(247,17,117);text-align:left;vertical-align:;"
+      "font-family: Arial;font-size: 60.0pt;font-weight: normal;\">"
+      "xxx</td></tr></table>";
+    MultiLineTextRenderer renderer(p, WRectF(0, 0, 357, 193));
+    renderer.render(text);
+  }
+
+  std::ofstream f("text_render_image.png");
+  rasterImage.write(f);
+}
 
 void WRasterTest::test_dataUriImage()
 {
   Wt::Test::WTestEnvironment environment;
-  //Wt::WApplication app(environment);
 
   Wt::WRasterImage rasterImage("png", 80, 80);
   Wt::WPainter p(&rasterImage);
@@ -116,4 +184,6 @@ WRasterTest::WRasterTest()
 {
   add(BOOST_TEST_CASE
       (boost::bind(&WRasterTest::test_dataUriImage, this)));
+  add(BOOST_TEST_CASE
+      (boost::bind(&WRasterTest::test_textRenderer, this)));
 }

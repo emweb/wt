@@ -106,6 +106,7 @@ public:
   bool checked;
   int i;
   ::int64_t i64;
+  long long ll;
   float f;
   double d;
 
@@ -124,6 +125,7 @@ public:
       && string == other.string
       && i == other.i
       && i64 == other.i64
+      && ll == other.ll
       && checked == other.checked
       && f == other.f
       && d == other.d
@@ -145,6 +147,7 @@ public:
     dbo::field(a, string, "string", 50);
     dbo::field(a, i, "i");
     dbo::field(a, i64, "i64");
+    dbo::field(a, ll, "ll");
     dbo::field(a, checked, "checked");
     dbo::field(a, f, "f");
     dbo::field(a, d, "d");
@@ -307,6 +310,7 @@ void DboTest::test1()
     a1.checked = true;
     a1.i = 42;
     a1.i64 = 9223372036854775805LL;
+    a1.ll = 6066005651767221LL;
     a1.f = (float)42.42;
     a1.d = 42.424242;
 
@@ -389,6 +393,7 @@ void DboTest::test2()
     a1.checked = false;
     a1.i = 42;
     a1.i64 = 9223372036854775804LL;
+    a1.ll = 6066005651767221LL;
     a1.f = (float)42.42;
     a1.d = 42.424242;
 
@@ -519,6 +524,7 @@ void DboTest::test4()
       a1.modify()->string = "There";
       a1.modify()->i = 42;
       a1.modify()->i64 = 9223372036854775803LL;
+      a1.modify()->ll = 6066005651767220LL;
       a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
@@ -591,6 +597,7 @@ void DboTest::test5()
       a1.modify()->string = "There";
       a1.modify()->i = 42;
       a1.modify()->i64 = 9223372036854775802LL;
+      a1.modify()->ll = 6066005651767219LL;
       a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
@@ -647,6 +654,7 @@ void DboTest::test6()
       a1.modify()->string = "There";
       a1.modify()->i = 42;
       a1.modify()->i64 = 9223372036854775802LL;
+      a1.modify()->ll = 6066005651767219LL;
       a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 
@@ -708,6 +716,7 @@ void DboTest::test7()
       a1.modify()->string = "There";
       a1.modify()->i = 42;
       a1.modify()->i64 = 9223372036854775801LL;
+      a1.modify()->ll = 6066005651767219LL;
       a1.modify()->f = (float)42.42;
       a1.modify()->d = 42.424242;
 

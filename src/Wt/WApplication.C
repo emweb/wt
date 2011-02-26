@@ -342,9 +342,13 @@ WApplication::~WApplication()
 void WApplication::attachThread(bool attach)
 {
 #ifndef WT_CNOR
-  if (attach)
-    WebSession::Handler::attachThreadToSession(weakSession_.lock());
-  else
+  if (attach) {
+    boost::shared_ptr<WebSession> session = weakSession_.lock();
+    if (session)
+      WebSession::Handler::attachThreadToSession(weakSession_.lock());
+    else
+      new WebSession::Handler(session_);
+  } else
     WebSession::Handler::attachThreadToSession(boost::shared_ptr<WebSession>());
 #else
   if (attach)

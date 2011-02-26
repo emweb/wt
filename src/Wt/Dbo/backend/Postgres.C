@@ -220,6 +220,7 @@ public:
 	affectedRows_ = 0;
     } else if (PQresultStatus(result_) == PGRES_TUPLES_OK)
       affectedRows_ = PQntuples(result_);
+
     if (affectedRows_ == 1 && sql_.rfind("returning id") != std::string::npos) {
       state_ = NoFirstRow;
       if (PQntuples(result_) == 1 && PQnfields(result_) == 1) {

@@ -16,6 +16,7 @@ class WRasterTest : public test_suite
 {
 public:
   void test_dataUriImage();
+  void test_textRenderer();
 
   WRasterTest();
 };

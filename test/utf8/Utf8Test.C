@@ -40,8 +40,9 @@ void Utf8Test::test2()
   Wt::WString ws = w;
   std::string s = ws.narrow();
 
-  // The following will work only if locale is classic (not UTF8)
-  BOOST_REQUIRE(s == "This costs 100? (greek ?)");
+  // The following will work only if locale is classic.
+  // If locale is UTF8, we have the original back.
+  BOOST_REQUIRE(s == "This costs 100? (greek ?)" || s == ws.toUTF8());
 #endif
 }
 

@@ -36,16 +36,16 @@ WT_DECLARE_WT_MEMBER
        return result;
      };
 
-   this.marginV
-     = !WT.isIElt9 ?
-     function(el) { return 0; } :
-     function(el) {
+   this.marginV = function(el) {
        var result = WT.px(el, 'marginTop');
        result += WT.px(el, 'marginBottom');
-       result += WT.px(el, 'borderTopWidth');
-       result += WT.px(el, 'borderBottomWidth');
-       result += WT.px(el, 'paddingTop');
-       result += WT.px(el, 'paddingBottom');
+
+       if (WT.isIElt9) {
+	   result += WT.px(el, 'borderTopWidth');
+	   result += WT.px(el, 'borderBottomWidth');
+	   result += WT.px(el, 'paddingTop');
+	   result += WT.px(el, 'paddingBottom');
+       }
 
        return result;
      };
