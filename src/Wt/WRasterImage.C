@@ -108,7 +108,7 @@ void WRasterImage::clear()
 {
   PixelPacket *pixel = SetImagePixels(image_, 0, 0, w_, h_);
   for (unsigned i = 0; i < w_ * h_; ++i)
-    WColorToPixelPacket(transparent, pixel + i);
+    WColorToPixelPacket(WColor(0, 0, 0, 1), pixel + i);
   SyncImagePixels(image_);
 }
 
