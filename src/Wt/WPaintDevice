@@ -28,7 +28,7 @@ class WT_API WTextItem
 public:
   /*! \brief Constructor.
    */
-  WTextItem(const WString& text, double width);
+  WTextItem(const WString& text, double width, double nextWidth = -1);
 
   /*! \brief Returns the measured text.
    *
@@ -43,9 +43,16 @@ public:
    */
   double width() const { return width_; }
 
+  /*! \brief Returns the width for a next line-break boundary.
+   *
+   * Returns the width until the next line-break boundary, or -1 if the
+   * underlying word boundary analysis does not suppor this.
+   */
+  double nextWidth() const { return nextWidth_; }
+
 private:
   WString text_;
-  double width_;
+  double width_, nextWidth_;
 };
 
 /*! \class WPaintDevice Wt/WPaintDevice Wt/WPaintDevice

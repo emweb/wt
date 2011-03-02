@@ -8,9 +8,10 @@
 
 namespace Wt {
 
-WTextItem::WTextItem(const WString& text, double width)
+WTextItem::WTextItem(const WString& text, double width, double nextWidth)
   : text_(text),
-    width_(width)
+    width_(width),
+    nextWidth_(nextWidth)
 { }
 
 WPaintDevice::~WPaintDevice()

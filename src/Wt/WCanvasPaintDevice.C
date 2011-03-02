@@ -198,12 +198,12 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   js_ << ',' << Utils::round_str(ra.x(), 3, buf);
   js_ << "," << Utils::round_str(ra.y(), 3, buf) << ",true);";
 
-  if (currentPen_.style() != NoPen) {
-    js_ << "ctx.stroke();";
-  }
-
   if (currentBrush_.style() != NoBrush) {
     js_ << "ctx.fill();";
+  }
+
+  if (currentPen_.style() != NoPen) {
+    js_ << "ctx.stroke();";
   }
 
   js_ << "ctx.restore();";
@@ -338,11 +338,11 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
 void WCanvasPaintDevice::finishPath()
 {
   if (busyWithPath_) {
-    if (currentPen_.style() != NoPen)
-      js_ << "ctx.stroke();";
-
     if (currentBrush_.style() != NoBrush)
       js_ << "ctx.fill();";
+
+    if (currentPen_.style() != NoPen)
+      js_ << "ctx.stroke();";
 
     js_ << '\n';
 

@@ -94,8 +94,8 @@ void WSpinBox::updateDom(DomElement& element, bool all)
 void WSpinBox::signalConnectionsChanged()
 {
   if (valueChanged_.isConnected() && !valueChangedConnection_) {
-    changed().connect(this, &WSpinBox::onChange);
     valueChangedConnection_ = true;
+    changed().connect(this, &WSpinBox::onChange);
   }
 }
 

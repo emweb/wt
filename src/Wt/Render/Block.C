@@ -678,8 +678,8 @@ void Block::layoutInline(Line& line, BlockList& floats,
 	  w = item.width();
 
 	  /*
-	   * The measured text width excludes the trailing space, add it so
-	   * that it matches the measured word width.
+	   * The measured text width excludes the trailing space, add
+	   * this is so that it matches the measured word width.
 	   */
 	  if (utf8Count > 0
 	      && utf8Pos + utf8Count < s.length()
@@ -701,16 +701,19 @@ void Block::layoutInline(Line& line, BlockList& floats,
 	     * We need at least room for one word.
 	     */
 	    if (line.x() == startX) {
-	      for (unsigned i = utf8Pos; i <= s.length(); ++i) {
-		if (i == s.length() || isWhitespace(s[i])) {
-		  WString word = s.substr(utf8Pos, i - utf8Pos);
-		  double wordWidth = device->measureText(word).width();
+	      if (item.nextWidth() < 0) {
+		for (unsigned i = utf8Pos; i <= s.length(); ++i) {
+		  if (i == s.length() || isWhitespace(s[i])) {
+		    WString word = s.substr(utf8Pos, i - utf8Pos);
+		    double wordWidth = device->measureText(word).width();
 
-		  w = wordWidth;
+		    w = wordWidth;
 
-		  break;
+		    break;
+		  }
 		}
-	      }
+	      } else
+		w = item.nextWidth();
 	    }
 	  } else {
 	    assert(utf8Count > 0);

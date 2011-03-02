@@ -322,7 +322,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 
     pango_get_log_attrs(s, utf8.length(), -1, language, attrs, utflen + 1);
 
-    double w = 0;
+    double w = 0, nextW = -1;
 
     int current = 0;
     int measured = 0;
@@ -340,6 +340,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 			-1, false);
 
 	if (w + ti.width() > maxWidth) {
+	  nextW = ti.width();
 	  maxWidthReached = true;
 	  break;
 	} else {
@@ -360,7 +361,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
     delete[] attrs;
 
     if (maxWidthReached) {
-      return WTextItem(WString::fromUTF8(utf8.substr(0, current)), w);
+      return WTextItem(WString::fromUTF8(utf8.substr(0, current)), w, nextW);
     } else {
       return WTextItem(text, w);
     }

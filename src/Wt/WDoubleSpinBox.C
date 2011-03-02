@@ -102,8 +102,8 @@ void WDoubleSpinBox::updateDom(DomElement& element, bool all)
 void WDoubleSpinBox::signalConnectionsChanged()
 {
   if (valueChanged_.isConnected() && !valueChangedConnection_) {
-    changed().connect(this, &WDoubleSpinBox::onChange);
     valueChangedConnection_ = true;
+    changed().connect(this, &WDoubleSpinBox::onChange);
   }
 }
 

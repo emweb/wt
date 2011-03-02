@@ -75,14 +75,14 @@ void WRasterTest::test_textRenderer()
     Wt::WPainter p(&rasterImage);
     std::string text = 
       "<table style=\"width:357px;\"><tr><td style=\"padding:0px;height:"
-      "193px;color:rgb(247,17,117);text-align:left;vertical-align:;"
+      "193px;color:rgb(247,17,117);text-align:left;vertical-align:top;"
       "font-family: Arial;font-size: 60.0pt;font-weight: normal;\">"
       "xxx</td></tr></table>";
     MultiLineTextRenderer renderer(p, WRectF(0, 0, 357, 193));
     renderer.render(text);
   }
 
-  std::ofstream f("text_render_image.png");
+  std::ofstream f("text_render_image_1.png");
   rasterImage.write(f);
 }
 

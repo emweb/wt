@@ -21,9 +21,19 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
+#define MAGICK_IMPLEMENTATION
+#define MagickEpsilon 1E-5
+#include "alpha_composite.h"
+#undef MAGICK_IMPLEMENTATION
+#undef MagickEpsilon
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+namespace {
+  static const double EPSILON = 1E-5;
+}
 
 namespace {
 
@@ -46,18 +56,6 @@ namespace {
     pp->green = static_cast<unsigned char>(color.green());
     pp->blue = static_cast<unsigned char>(color.blue());
     pp->opacity = 255 - static_cast<unsigned char>(color.alpha());
-  }
-
-  void blit(const Wt::WColor& src, Wt::WColor& dst)
-  {
-    int r = dst.red()
-      + (((int)src.alpha() * (src.red() - dst.red())) >> 8);
-    int g = dst.green()
-      + (((int)src.alpha() * (src.green() - dst.green())) >> 8);
-    int b = dst.blue()
-      + (((int)src.alpha() * (src.blue() - dst.blue())) >> 8);
-
-    dst.setRgb(r, g, b, std::max(src.alpha(), dst.alpha()));
   }
 }
 
@@ -89,7 +87,9 @@ WRasterImage::WRasterImage(const std::string& type,
   GetExceptionInfo(&exception);
   image_ = ConstituteImage(w_, h_, "RGBA", CharPixel, pixels_, &exception);
 
-  SetImageOpacity(image_, 255);
+  SetImageType(image_, TrueColorMatteType);
+  SetImageOpacity(image_, 254); // 255 seems a special value...
+                                // 254 will have to do
 
   std::string magick = type;
   std::transform(magick.begin(), magick.end(), magick.begin(), toupper);
@@ -106,12 +106,10 @@ WRasterImage::WRasterImage(const std::string& type,
 
 void WRasterImage::clear()
 {
-  /*
   PixelPacket *pixel = SetImagePixels(image_, 0, 0, w_, h_);
   for (unsigned i = 0; i < w_ * h_; ++i)
-    WColorToPixelPacket(white, pixel + i);
+    WColorToPixelPacket(transparent, pixel + i);
   SyncImagePixels(image_);
-  */
 }
 
 WRasterImage::~WRasterImage()
@@ -146,13 +144,12 @@ void WRasterImage::init()
     DrawPushGraphicContext(context_);
 
     DrawSetFillRule(context_, NonZeroRule);
-    DrawTranslate(context_, -0.5, -0.5);
     DrawSetTextEncoding(context_, "UTF-8");
 
     DrawPushGraphicContext(context_); // for painter->clipping();
     DrawPushGraphicContext(context_); // for painter->combinedTransform()
 
-    setChanged(Clipping | Transform | Pen | Brush | Font);
+    setChanged(Clipping | Transform | Pen | Brush | Font | Hints);
   }
 }
 
@@ -246,7 +243,14 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
   if (flags & Transform) {
     setTransform(painter()->combinedTransform());
-    flags = Pen | Brush | Font;
+    flags = Pen | Brush | Font | Hints;
+  }
+
+  if (flags & Hints) {
+    if (!(painter()->renderHints() & WPainter::Antialiasing))
+      DrawSetStrokeAntialias(context_, 0);
+    else
+      DrawSetStrokeAntialias(context_, 1);
   }
 
   if (flags & Pen) {
@@ -257,10 +261,12 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
       PixelPacket pp;
       WColorToPixelPacket(color, &pp);
+      pp.opacity = 0;
       DrawSetStrokeColor(context_, &pp);
       DrawSetStrokeOpacity(context_, color.alpha() / 255.0);
 
-      WLength w = painter()->normalizedPenWidth(pen.width(), true);
+      WLength w = pen.width();
+      w = painter()->normalizedPenWidth(w, w.value() == 0);
       DrawSetStrokeWidth(context_, w.toPixels());
 
       switch (pen.capStyle()) {
@@ -318,8 +324,10 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       }
       }
 
-    } else
+    } else {
+      DrawSetStrokeWidth(context_, 0);
       DrawSetStrokeOpacity(context_, 0);
+    }
   }
 
   if (flags & Brush) {
@@ -329,6 +337,7 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       const WColor& color = painter()->brush().color();
       PixelPacket pp;
       WColorToPixelPacket(color, &pp);
+      pp.opacity = 0;
       DrawSetFillColor(context_, &pp);
       DrawSetFillOpacity(context_, color.alpha() / 255.0);
     } else
@@ -446,8 +455,6 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 			     int imgWidth, int imgHeight,
 			     const WRectF& srect)
 {
-  init();
-
   ImageInfo info;
   GetImageInfo(&info);
 
@@ -504,8 +511,27 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   tocrop.y = srect.y();
   Image *croppedImage = CropImage(cImage, &tocrop, &exception);
 
-  DrawComposite(context_, OverCompositeOp, rect.x(), rect.y(), rect.width(),
-		rect.height(), croppedImage);
+  const WTransform& t = painter()->combinedTransform();
+
+  bool directComposite = false;
+  if (   std::fabs(t.m11() - 1.0) < EPSILON
+      && std::fabs(t.m12() - 0.0) < EPSILON
+      && std::fabs(t.m21() - 0.0) < EPSILON
+      && std::fabs(t.m22() - 1.0) < EPSILON
+      && rect.width() == srect.width()
+      && rect.height() == srect.height())
+    directComposite = true;
+
+  if (!directComposite) {
+    init();
+    DrawComposite(context_, OverCompositeOp, rect.x(), rect.y(),
+		  rect.width(), rect.height(), croppedImage);
+  } else {
+    done();
+
+    CompositeImage(image_, OverCompositeOp, croppedImage,
+		   rect.x() + t.dx(), rect.y() + t.dy());
+  }
 
   DestroyImage(croppedImage);
   DestroyImage(cImage);
@@ -524,9 +550,7 @@ void WRasterImage::drawPath(const WPainterPath& path)
 
   if (!path.isEmpty()) {
     DrawPathStart(context_);
-
     drawPlainPath(path);
-
     DrawPathFinish(context_);
   }
 }
@@ -555,17 +579,17 @@ void WRasterImage::drawPlainPath(const WPainterPath& path)
 
   if (segments.size() > 0
       && segments[0].type() != WPainterPath::Segment::MoveTo)
-    DrawPathMoveToAbsolute(context_, 0, 0);
+    DrawPathMoveToAbsolute(context_, -0.5, -0.5);
 
   for (unsigned i = 0; i < segments.size(); ++i) {
     const WPainterPath::Segment s = segments[i];
 
     switch (s.type()) {
     case WPainterPath::Segment::MoveTo:
-      DrawPathMoveToAbsolute(context_, s.x(), s.y());
+      DrawPathMoveToAbsolute(context_, s.x() - 0.5, s.y() - 0.5);
       break;
     case WPainterPath::Segment::LineTo:
-      DrawPathLineToAbsolute(context_, s.x(), s.y());
+      DrawPathLineToAbsolute(context_, s.x() - 0.5, s.y() - 0.5);
       break;
     case WPainterPath::Segment::CubicC1: {
       const double x1 = s.x();
@@ -575,7 +599,9 @@ void WRasterImage::drawPlainPath(const WPainterPath& path)
       const double x3 = segments[i+2].x();
       const double y3 = segments[i+2].y();
 
-      DrawPathCurveToAbsolute(context_, x1, y1, x2, y2, x3, y3);
+      DrawPathCurveToAbsolute(context_, x1 - 0.5, y1 - 0.5,
+			      x2 - 0.5, y2 - 0.5,
+			      x3 - 0.5, y3 - 0.5);
 
       i += 2;
       break;
@@ -603,9 +629,10 @@ void WRasterImage::drawPlainPath(const WPainterPath& path)
       const int fs = (deltaTheta > 0 ? 1 : 0);
 
       if (!fequal(current.x(), x1) || !fequal(current.y(), y1))
-	DrawPathLineToAbsolute(context_, x1, y1);
+	DrawPathLineToAbsolute(context_, x1 - 0.5, y1 - 0.5);
 
-      DrawPathEllipticArcAbsolute(context_, rx, ry, 0, fa, fs, x2, y2);
+      DrawPathEllipticArcAbsolute(context_, rx, ry, 0, fa, fs,
+				  x2 - 0.5, y2 - 0.5);
 
       i += 2;
       break;
@@ -619,7 +646,8 @@ void WRasterImage::drawPlainPath(const WPainterPath& path)
       const double x2 = segments[i+1].x();
       const double y2 = segments[i+1].y();
 
-      DrawPathCurveToQuadraticBezierAbsolute(context_, x1, y1, x2, y2);
+      DrawPathCurveToQuadraticBezierAbsolute(context_, x1 - 0.5, y1 - 0.5,
+					     x2 - 0.5, y2 - 0.5);
 
       i += 1;
 
@@ -705,8 +733,9 @@ void WRasterImage::drawText(const WRectF& rect,
 
     PixelPacket pp;
     WColorToPixelPacket(painter()->pen().color(), &pp);
+    pp.opacity = 0;
     DrawSetFillColor(context_, &pp);
-    DrawSetFillOpacity(context_, 1);
+    DrawSetFillOpacity(context_, painter()->pen().color().alpha() / 255.0);
     DrawSetStrokeOpacity(context_, 0);
   
     DrawSetGravity(context_, gravity);
@@ -749,23 +778,29 @@ void WRasterImage::drawText(const WRectF& rect,
     PixelPacket *pixels = GetImagePixels(image_, 0, 0, w_, h_);
 
     WColor c = painter()->pen().color();
+    PixelPacket pc;
+    WColorToPixelPacket(c, &pc);
  
     for (int y = 0; y < h; ++y) {
+      int iy = y0 + y;
+
+      if (iy < 0 || iy >= (int)h_)
+	continue;
+
       for (int x = 0; x < w; ++x) {
-	int dx = x0 + x;
-	int dy = y0 + y;
-	PixelPacket *pixel = pixels + (dy * w_ + dx);
+	int ix = x0 + x;
+
+	if (ix < 0 || ix >= (int)w_)
+	  continue;
+
+	PixelPacket *pixel = pixels + (iy * w_ + ix);
 
 	unsigned char bit = bitmap.value(x, y);
 
 	if (bit > 0) {
-	  WColor src(c.red(), c.green(), c.blue(), ((int)c.alpha() * bit) >> 8);
-	  WColor dst(pixel->red, pixel->green, pixel->blue,
-		     255 - pixel->opacity);
-
-	  blit(src, dst);
-
-	  WColorToPixelPacket(dst, pixel);
+	  double alpha = (255 - bit) * (255.0 - pc.opacity) / 255.0;
+	  AlphaCompositePixel(pixel, &pc, alpha,
+			      pixel, pixel->opacity);
 	}
       }
     }
