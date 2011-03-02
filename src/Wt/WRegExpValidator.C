@@ -122,7 +122,7 @@ std::string WRegExpValidator::javaScriptValidate() const
      << (isMandatory() ? "true" : "false") << ",";
 
   if (regexp_) {
-    js << regexp_->pattern().jsStringLiteral()
+    js << WWebWidget::jsStringLiteral(regexp_->pattern())
        << ",'";
 
 #ifndef WT_TARGET_JAVA
@@ -138,8 +138,8 @@ std::string WRegExpValidator::javaScriptValidate() const
   } else
     js << "null, null";
 
-  js << ',' << invalidBlankText().jsStringLiteral()
-     << ',' << invalidNoMatchText().jsStringLiteral()
+  js << ',' << WWebWidget::jsStringLiteral(invalidBlankText())
+     << ',' << WWebWidget::jsStringLiteral(invalidNoMatchText())
      << ");";
 
   return js.str();

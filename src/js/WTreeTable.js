@@ -21,8 +21,10 @@ WT_DECLARE_WT_MEMBER
      var c = el.lastChild;
      var t = el.firstChild;
      h -= $(t).outerHeight();
-     if (h > 0)
-      c.style.height = h + 'px';
+     if (h > 0) {
+       if (c.style.height != h + 'px')
+	 c.style.height = h + 'px';
+     }
    };
 
    this.autoJavaScript = function() {
@@ -32,6 +34,10 @@ WT_DECLARE_WT_MEMBER
        } else {
          spacer.style.display='none';
        }
+
+       var h = WT.pxself(table, 'height');
+       if (h)
+	 self.wtResize(table, 0, h);
      }
    };
  });

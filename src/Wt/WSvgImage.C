@@ -515,11 +515,10 @@ void WSvgImage::drawText(const WRectF& rect,
   if (painter()->pen().color() != painter()->brush().color()
       || painter()->brush().style() == NoBrush) {
     const WColor& color = painter()->pen().color();
-    style << "fill:" + color.cssText() << ';';
-    if (color.alpha() != 255)
-      style << "fill-opacity:" 
-	    << Utils::round_str(color.alpha() / 255., 3, buf)
-	    << ';';
+    style << "fill:" + color.cssText() << ';'
+	  << "fill-opacity:" 
+	  << Utils::round_str(color.alpha() / 255., 3, buf)
+	  << ';';
   }
   style << '"';
 

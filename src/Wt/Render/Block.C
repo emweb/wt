@@ -1400,8 +1400,9 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
 
   double height = cssHeight(renderer.fontScale());
   if (height >= 0) {
-    if (type_ == DomElement_TD || type_ == DomElement_TH)
+    if (type_ == DomElement_TD || type_ == DomElement_TH) {
       contentsHeight_ = diff(y, page, startY, startPage, renderer);
+    }
 
     page = startPage;
     y = startY;
@@ -1853,7 +1854,10 @@ void Block::renderText(const std::string& text, WTextRenderer& renderer,
 
       if (ib.whitespaceWidth == device->measureText(" ").width()) {
 	WString t = WString::fromUTF8(text.substr(ib.utf8Pos, ib.utf8Count));
-	painter.drawText(rect, AlignLeft | AlignTop, t);
+
+	painter.drawText(WRectF(rect.x(), rect.y(), rect.width(),
+				rect.height() + metrics.leading()),
+			 AlignLeft | AlignTop, t);
       } else {
 	double x = rect.left();
 

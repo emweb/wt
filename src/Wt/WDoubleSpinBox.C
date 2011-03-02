@@ -142,7 +142,7 @@ bool WDoubleSpinBox::parseNumberValue(const std::string& text)
       value_ = boost::lexical_cast<double>(text);
 
     return true;
-  } catch (...) {
+  } catch (boost::bad_lexical_cast &e) {
     return false;
   }
 }

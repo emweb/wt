@@ -129,7 +129,7 @@ bool WSpinBox::parseNumberValue(const std::string& text)
   try {
     value_ = boost::lexical_cast<int>(text);
     return true;
-  } catch (...) {
+  } catch (boost::bad_lexical_cast &e) {
     return false;
   }
 }

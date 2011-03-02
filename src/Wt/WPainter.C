@@ -543,9 +543,11 @@ void WPainter::drawText(const WRectF& rectangle,
        * alignment options
        */
       SStream s;
-      s << "<table style=\"width:" << (int)rectangle.width() << "px;\"><tr>"
-		  "<td style=\"padding:0px;height:" << (int)rectangle.height() <<
-		  "px;color:" << pen().color().cssText() << ";text-align:";
+      s << "<table style=\"width:" << (int)rectangle.width() << "px;\""
+	          "cellspacing=\"0\"><tr>"
+	     "<td style=\"padding:0px;height:" << (int)rectangle.height() <<
+	                 "px;color:" << pen().color().cssText() 
+	              << ";text-align:";
 
       switch (horizontalAlign) {
       case AlignLeft: s << "left"; break;

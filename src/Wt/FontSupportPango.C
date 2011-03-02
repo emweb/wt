@@ -295,7 +295,9 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
     = pangoUnitsToDouble(pango_font_metrics_get_ascent(metrics));
   double descent 
     = pangoUnitsToDouble(pango_font_metrics_get_descent(metrics));
-  double leading = 0;
+
+  double leading = (ascent + descent) - font.sizeLength(12).toPixels();
+  ascent -= leading;
 
   WFontMetrics result(font, leading, ascent, descent);
 
