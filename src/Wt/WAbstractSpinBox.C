@@ -171,7 +171,7 @@ void WAbstractSpinBox::setup(bool useNative)
   } else {
     defineJavaScript();
 
-    setStyleClass("Wt-spinbox"); // AddStyleClass ?
+    addStyleClass("Wt-spinbox");
 
 #ifdef WT_CNOR
     EventSignalBase& b = mouseMoved();

@@ -946,7 +946,8 @@ void Block::layoutTable(double& y, int& page, BlockList& floats,
       else
 	resizableColumns = columnsResized;
     }
-  }
+  } else
+    maximumColumnWidths = minimumColumnWidths;
 
   width += cssBoxMargin(Left, renderer.fontScale())
     + cssBoxMargin(Right, renderer.fontScale());

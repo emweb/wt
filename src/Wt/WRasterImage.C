@@ -38,9 +38,6 @@
 
 namespace {
   static const double EPSILON = 1E-5;
-}
-
-namespace {
 
   double adjust360(double d) {
     if (std::fabs(d - 360) < 0.01)
@@ -61,6 +58,14 @@ namespace {
     pp->green = static_cast<unsigned char>(color.green());
     pp->blue = static_cast<unsigned char>(color.blue());
     pp->opacity = 255 - static_cast<unsigned char>(color.alpha());
+  }
+
+  bool isTranslation(const Wt::WTransform& t) 
+  {
+    return std::fabs(t.m11() - 1.0) < EPSILON
+      && std::fabs(t.m12() - 0.0) < EPSILON
+      && std::fabs(t.m21() - 0.0) < EPSILON
+      && std::fabs(t.m22() - 1.0) < EPSILON;
   }
 }
 
@@ -519,10 +524,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   const WTransform& t = painter()->combinedTransform();
 
   bool directComposite = false;
-  if (   std::fabs(t.m11() - 1.0) < EPSILON
-      && std::fabs(t.m12() - 0.0) < EPSILON
-      && std::fabs(t.m21() - 0.0) < EPSILON
-      && std::fabs(t.m22() - 1.0) < EPSILON
+  if (isTranslation(t)
       && rect.width() == srect.width()
       && rect.height() == srect.height())
     directComposite = true;
@@ -754,17 +756,18 @@ void WRasterImage::drawText(const WRectF& rect,
 
     setChanged(Transform);
   } else {
-    const WTransform& t = painter()->combinedTransform();
+    WTransform t = painter()->combinedTransform();
 
     WRectF renderRect;
 
     int w, h, x0, y0;
-    if (t.isIdentity()) {
-      x0 = rect.x();
-      y0 = rect.y();
+    if (isTranslation(t)) {
+      x0 = t.dx() + rect.x();
+      y0 = t.dy() + rect.y();
       w = rect.width();
       h = rect.height();
       renderRect = WRectF(0, 0, rect.width(), rect.height());
+      t = WTransform();
     } else {
       x0 = 0;
       y0 = 0;
