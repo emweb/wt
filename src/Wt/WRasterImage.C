@@ -21,6 +21,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
+#if MagickLibVersion < 0x030000
+#error GraphicsMagick version must be at least 1.3.0
+#error You should upgrade GraphicsMagick or disable WRasterImage with -DENABLE_GM=OFF
+#endif
+
 #define MAGICK_IMPLEMENTATION
 #define MagickEpsilon 1E-5
 #include "alpha_composite.h"

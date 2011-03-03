@@ -13,8 +13,6 @@ FIND_PATH(GM_INCLUDE_DIR
     ${GM_PREFIX}/
     /usr/include/GraphicsMagick/
     /usr/include/
-    /usr/local/include/GraphicsMagick/
-    /usr/local/include/
 )
 
 IF(WIN32)
