@@ -1462,6 +1462,21 @@ void WApplication::setFocus(const std::string& id,
   selectionEnd_ = selectionEnd;
 }
 
+void WApplication::storeObject(const char *key, const boost::any& value)
+{
+  objectStore_[key] = value;
+}
+
+boost::any WApplication::getObject(const char *key) const
+{
+  std::map<const char *, boost::any>::const_iterator i = objectStore_.find(key);
+
+  if (i != objectStore_.end())
+    return i->second;
+  else
+    return boost::any();
+}
+
 #ifndef WT_TARGET_JAVA
 WServer::Exception::Exception(const std::string what)
   : what_(what)

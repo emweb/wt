@@ -1530,6 +1530,9 @@ public:
    */
   void setConfirmCloseMessage(const WString& message);
 
+  void storeObject(const char *key, const boost::any& value);
+  boost::any getObject(const char *key) const;
+
 protected:
   /*! \brief Notifies an event to the application.
    *
@@ -1731,6 +1734,8 @@ private:
 
   EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
   JSignal<> unloaded_;
+
+  std::map<const char *, boost::any> objectStore_;
 
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WContainerWidget *dialogCover(bool create = true);

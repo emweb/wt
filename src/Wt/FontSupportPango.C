@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication"
 #include "Wt/WFont"
 #include "Wt/WFontMetrics"
 #include "Wt/WPointF"
@@ -63,17 +64,33 @@ std::string FontSupport::FontMatch::fileName() const
 }
 
 FontSupport::FontSupport(WPaintDevice *paintDevice)
-  : device_(paintDevice)
+  : device_(paintDevice),
+    matchFont_(0)
 {
-  fontMap_ = pango_ft2_font_map_new();
+  static const char *fontMapKey = "PangoFontMap";
+
+  WApplication *app = WApplication::instance();
+
+  boost::any fm = app->getObject(fontMapKey);
+  if (!fm.empty()) {
+    fontMap_ = boost::any_cast<boost::shared_ptr<PangoFontMap> >(fm).get();
+  } else {
+    fontMap_ = pango_ft2_font_map_new();
+
+    boost::shared_ptr<PangoFontMap> pfm(fontMap_, g_object_unref);
+    app->storeObject(fontMapKey, pfm);
+  }
+
   context_ = pango_ft2_font_map_create_context((PangoFT2FontMap*)fontMap_);
   currentFont_ = 0;
 }
 
 FontSupport::~FontSupport()
 {
+  if (matchFont_)
+    g_object_unref(matchFont_);
+
   g_object_unref(context_);
-  g_object_unref(fontMap_);
 }
 
 bool FontSupport::canRender() const
@@ -137,13 +154,17 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
   return pango_font_description_from_string(s.c_str());
 }
 
-FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
+FontSupport::FontMatch FontSupport::matchFont(const WFont& f) 
 {
   PangoFontDescription *desc = createFontDescription(f);
-  PangoFont *font = pango_font_map_load_font(fontMap_, context_, desc);
+
+  if (matchFont_)
+    g_object_unref(matchFont_);
+  matchFont_ = pango_font_map_load_font(fontMap_, context_, desc);
+
   pango_font_description_free(desc);
 
-  return FontMatch(font);
+  return FontMatch(matchFont_);
 }
 
 void FontSupport::addFontCollection(const std::string& directory,

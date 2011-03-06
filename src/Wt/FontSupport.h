@@ -86,7 +86,7 @@ public:
   /*
    * Returns the best matching true type font.
    */
-  FontMatch matchFont(const WFont& f) const;
+  FontMatch matchFont(const WFont& f);
 
   /*
    * Returns font metrics
@@ -152,6 +152,8 @@ private:
   PangoFontMap *fontMap_;
   PangoContext *context_;
   PangoFont *currentFont_;
+
+  PangoFont *matchFont_;
 
   PangoFontDescription *createFontDescription(const WFont& f) const;
   static std::string fontPath(PangoFont *font);

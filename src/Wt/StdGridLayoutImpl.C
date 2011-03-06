@@ -57,6 +57,15 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 bool StdGridLayoutImpl::itemResized(WLayoutItem *item)
 {
   /*
+   * The WT_RESIZE_JS function may have a new effect
+   */
+  WWidget *ww = item->widget();
+  if (ww && !ww->javaScriptMember("wtResize").empty()) {
+    forceUpdate_ = true;
+    return true;
+  }
+
+  /*
    * Iterate over all rows in which resized widgets (height changes) may
    * affect the layout.
    */
@@ -71,6 +80,7 @@ bool StdGridLayoutImpl::itemResized(WLayoutItem *item)
 	  return true;
 	}
     }
+
 
   return false;
 }

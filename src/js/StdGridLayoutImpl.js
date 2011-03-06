@@ -117,7 +117,8 @@ WT_DECLARE_WT_MEMBER
 
      if (!shallow && ch.wtResize) {
        var p = ch.parentNode, w = p.offsetWidth - self.marginH(ch);
-       if (self.getColumn(col).style.width != '') {
+       var cw = self.getColumn(col).style.width, cwl = cw.length;
+       if (cwl > 0 && cw[cwl-1] == '%') {
 	 ch.style.position = 'absolute';
 	 ch.style.width = w+'px';
        }

@@ -571,7 +571,18 @@ void WPainter::drawText(const WRectF& rectangle,
 	 << WWebWidget::escapeText(text, true).toUTF8() 
 	 << "</td></tr></table>";
 
+      save();
+
+      /*
+       * FIXME: what if there was already a clip path? We need to combine
+       * them ...
+       */
+      WPainterPath p;
+      p.addRect(rectangle);
+      setClipPath(p);
+      setClipping(true);
       renderer.render(WString::fromUTF8(s.str()));
+      restore();
 #endif // WT_TARGET_JAVA
     } else
       throw std::logic_error("WPainter::drawText(): device does not support "

@@ -17,6 +17,7 @@
 #include "web/Utils.h"
 
 #include <cstdio>
+#include <cmath>
 #include <magick/api.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -758,12 +759,42 @@ void WRasterImage::drawText(const WRectF& rect,
   } else {
     WTransform t = painter()->combinedTransform();
 
+    char *clipPath = 0;
+
+    if (painter()->hasClipping()) {
+      setChanged(Clipping);
+
+      clipPath = DrawGetClipPath(context_);
+      assert(clipPath);
+    }
+
+    done();
+
+    if (clipPath) {
+      ImageInfo info;
+      GetImageInfo(&info);
+      DrawInfo *drawInfo = (DrawInfo *)malloc(sizeof(DrawInfo));
+      GetDrawInfo(&info, drawInfo);
+
+      AffineMatrix& m = drawInfo->affine;
+      m.sx = t.m11();
+      m.rx = t.m12();
+      m.ry = t.m21();
+      m.sy = t.m22();
+      m.tx = t.dx();
+      m.ty = t.dy();
+
+      drawInfo->clip_units = UserSpaceOnUse;
+      DrawClipPath(image_, drawInfo, clipPath);
+      DestroyDrawInfo(drawInfo);
+    }
+
     WRectF renderRect;
 
     int w, h, x0, y0;
     if (isTranslation(t)) {
-      x0 = t.dx() + rect.x();
-      y0 = t.dy() + rect.y();
+      x0 = round(t.dx() + rect.x());
+      y0 = round(t.dy() + rect.y());
       w = rect.width();
       h = rect.height();
       renderRect = WRectF(0, 0, rect.width(), rect.height());
@@ -773,15 +804,12 @@ void WRasterImage::drawText(const WRectF& rect,
       y0 = 0;
       w = w_;
       h = h_;
-
       renderRect = rect;
     }
 
     FontSupport::Bitmap bitmap(w, h);
     fontSupport_->drawText(painter_->font(), renderRect,
 			   t, bitmap, flags, text);
-
-    done();
 
     PixelPacket *pixels = GetImagePixels(image_, 0, 0, w_, h_);
 
@@ -814,6 +842,11 @@ void WRasterImage::drawText(const WRectF& rect,
     }
 
     SyncImagePixels(image_);
+
+    if (clipPath) {
+      SetImageClipMask(image_, 0);
+      free(clipPath);
+    }
   }
 }
 

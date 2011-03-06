@@ -47,11 +47,15 @@ WPanel::WPanel(WContainerWidget *parent)
     (WT_RESIZE_JS,
      "function(self, w, h) {"
      """self.style.height= h + 'px';"
+     """if (" WT_CLASS ".boxSizing(self)) {"
+     ""  "h -= " WT_CLASS ".px(self, 'borderTopWidth') + "
+     ""       WT_CLASS ".px(self, 'borderBottomWidth');"
+     """}"
      """var c = self.lastChild;"
      """var t = c.previousSibling;"
      """if (t.className == 'titlebar')"
      ""  "h -= t.offsetHeight;"
-     """h -= 8;"
+     """h -= 8;" // padding
      """if (h > 0) {"
      ""  "c.style.height = h + 'px';"
      // this seems golden, but, JQuery docs say it doesn't work when
