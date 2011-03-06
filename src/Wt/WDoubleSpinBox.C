@@ -26,7 +26,6 @@ void WDoubleSpinBox::setValue(double value)
   if (value_ != value) {
     value_ = value;
     setText(textFromValue());
-    valueChanged_.emit(value);
   }
 }
 

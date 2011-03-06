@@ -25,7 +25,6 @@ void WSpinBox::setValue(int value)
   if (value_ != value) {
     value_ = value;
     setText(textFromValue());
-    valueChanged_.emit(value);
   }
 }
 
