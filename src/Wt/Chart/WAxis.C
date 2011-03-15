@@ -524,8 +524,6 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 
 double WAxis::mapToDevice(const boost::any& value, int segment) const
 {
-  assert (scale_ != CategoryScale);
-
   return mapToDevice(getValue(value), segment);
 }
 

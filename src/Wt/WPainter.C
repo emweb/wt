@@ -547,7 +547,7 @@ void WPainter::drawText(const WRectF& rectangle,
 	          "cellspacing=\"0\"><tr>"
 	     "<td style=\"padding:0px;height:" << (int)rectangle.height() <<
 	                 "px;color:" << pen().color().cssText() 
-	              << ";text-align:";
+	              << ";line-height:100%;text-align:";
 
       switch (horizontalAlign) {
       case AlignLeft: s << "left"; break;
@@ -578,7 +578,7 @@ void WPainter::drawText(const WRectF& rectangle,
        * them ...
        */
       WPainterPath p;
-      p.addRect(rectangle);
+      p.addRect(rectangle.x() + 1, rectangle.y() + 1, rectangle.width() - 2, rectangle.height() - 2);
       setClipPath(p);
       setClipping(true);
       renderer.render(WString::fromUTF8(s.str()));

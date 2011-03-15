@@ -79,7 +79,9 @@ WRasterImage::WRasterImage(const std::string& type,
     width_(width),
     height_(height),
     type_(type),
-    painter_(0)
+    painter_(0),
+    currentClipPath_(-1),
+    currentClipPathRendered_(-1)
 {
   w_ = static_cast<unsigned long>(width.toPixels());
   h_ = static_cast<unsigned long>(height.toPixels());
@@ -149,7 +151,15 @@ WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 
 void WRasterImage::init()
 {
+  internalInit(true);
+}
+
+void WRasterImage::internalInit(bool applyChanges)
+{
   if (!context_) {
+    currentClipPathRendered_ = -1;
+    SetImageClipMask(image_, 0);
+
     context_ = DrawAllocateContext(0, image_);
 
     DrawPushGraphicContext(context_);
@@ -160,7 +170,8 @@ void WRasterImage::init()
     DrawPushGraphicContext(context_); // for painter->clipping();
     DrawPushGraphicContext(context_); // for painter->combinedTransform()
 
-    setChanged(Clipping | Transform | Pen | Brush | Font | Hints);
+    if (applyChanges)
+      setChanged(Clipping | Transform | Pen | Brush | Font | Hints);
   }
 }
 
@@ -176,6 +187,9 @@ void WRasterImage::done()
     DrawDestroyContext(context_);
 
     context_ = 0;
+
+    SetImageClipMask(image_, 0);
+    currentClipPathRendered_ = -1;
   }
 }
 
@@ -202,13 +216,14 @@ void WRasterImage::setTransform(const WTransform& t)
 
 void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 {
-  init();
+  /*
+   * If it is only Clipping that changes, we may not need to manipulate
+   * the context_, since some clipping paths are cached.
+   */
+  if (flags != Clipping)
+    internalInit();
 
   if (flags & Clipping) {
-    DrawPopGraphicContext(context_);
-    DrawPopGraphicContext(context_);
-    DrawPushGraphicContext(context_);
-
     if (painter()->hasClipping()) {
       if (clipPathCache_.empty())
 	clipPathCache_.resize(3); // keep 3
@@ -228,6 +243,12 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
       }
 
       if (index == -1) {
+	internalInit(false);
+
+	DrawPopGraphicContext(context_);
+	DrawPopGraphicContext(context_);
+	DrawPushGraphicContext(context_);
+
 	index = nextIndex + 1;
 	DrawPushClipPath
 	  (context_,("clip" + boost::lexical_cast<std::string>(index)).c_str());
@@ -236,21 +257,40 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
 	clipPathCache_.pop_back(); // implement LRU
 	clipPathCache_.push_front(std::make_pair(painter()->clipPath(), index));
+      } else if (context_) {
+	DrawPopGraphicContext(context_);
+	DrawPopGraphicContext(context_);
+	DrawPushGraphicContext(context_);
       }
 
-      const WTransform& t = painter()->clipPathTransform();
+      currentClipPath_ = index;
 
-      applyTransform(t);
+      if (context_) {
+	const WTransform& t = painter()->clipPathTransform();
 
-      DrawSetClipUnits(context_, UserSpaceOnUse);
-      DrawSetClipPath
-	(context_, ("clip" + boost::lexical_cast<std::string>(index)).c_str());
+	applyTransform(t);
+
+	DrawSetClipUnits(context_, UserSpaceOnUse);
+	DrawSetClipPath(context_, currentClipPathName().c_str());
+
+	applyTransform(t.inverted());
+      }
+    } else {
+      if (context_) {
+	DrawPopGraphicContext(context_);
+	DrawPopGraphicContext(context_);
+	DrawPushGraphicContext(context_);
+      }
     }
 
-    DrawPushGraphicContext(context_);
-
-    flags = Transform;
+    if (context_) {
+      DrawPushGraphicContext(context_);
+      flags = Transform;
+    }
   }
+
+  if (flags != Clipping)
+    internalInit();
 
   if (flags & Transform) {
     setTransform(painter()->combinedTransform());
@@ -453,10 +493,15 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
   }
 }
 
+std::string WRasterImage::currentClipPathName() const
+{
+  return "clip" + boost::lexical_cast<std::string>(currentClipPath_);
+}
+
 void WRasterImage::drawArc(const WRectF& rect,
 			   double startAngle, double spanAngle)
 {
-  init();
+  internalInit();
 
   DrawArc(context_, rect.left(), rect.top(), rect.right(), rect.bottom(), 
 	  startAngle, startAngle + spanAngle);
@@ -531,7 +576,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     directComposite = true;
 
   if (!directComposite) {
-    init();
+    internalInit();
     DrawComposite(context_, OverCompositeOp, rect.x(), rect.y(),
 		  rect.width(), rect.height(), croppedImage);
   } else {
@@ -547,14 +592,14 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 
 void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
 {
-  init();
+  internalInit();
 
   DrawLine(context_, x1, y1, x2, y2);
 }
 
 void WRasterImage::drawPath(const WPainterPath& path)
 {
-  init();
+  internalInit();
 
   if (!path.isEmpty()) {
     DrawPathStart(context_);
@@ -581,7 +626,7 @@ WColor WRasterImage::getPixel(int x, int y)
 
 void WRasterImage::drawPlainPath(const WPainterPath& path)
 {
-  init();
+  internalInit();
 
   const std::vector<WPainterPath::Segment>& segments = path.segments();
 
@@ -677,7 +722,7 @@ void WRasterImage::drawText(const WRectF& rect,
 			   "TextWordWrap is not supported");
 
   if (renderText_) {
-    init();
+    internalInit();
 
     AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
     AlignmentFlag verticalAlign = flags & AlignVerticalMask;
@@ -759,34 +804,35 @@ void WRasterImage::drawText(const WRectF& rect,
   } else {
     WTransform t = painter()->combinedTransform();
 
-    char *clipPath = 0;
-
-    if (painter()->hasClipping()) {
+    if (painter()->hasClipping())
       setChanged(Clipping);
-
-      clipPath = DrawGetClipPath(context_);
-      assert(clipPath);
-    }
 
     done();
 
-    if (clipPath) {
-      ImageInfo info;
-      GetImageInfo(&info);
-      DrawInfo *drawInfo = (DrawInfo *)malloc(sizeof(DrawInfo));
-      GetDrawInfo(&info, drawInfo);
+    if (currentClipPath_ != currentClipPathRendered_) {
+      if (currentClipPath_ != -1) {
+	ImageInfo info;
+	GetImageInfo(&info);
+	DrawInfo *drawInfo = (DrawInfo *)malloc(sizeof(DrawInfo));
+	GetDrawInfo(&info, drawInfo);
 
-      AffineMatrix& m = drawInfo->affine;
-      m.sx = t.m11();
-      m.rx = t.m12();
-      m.ry = t.m21();
-      m.sy = t.m22();
-      m.tx = t.dx();
-      m.ty = t.dy();
+	AffineMatrix& m = drawInfo->affine;
+	m.sx = t.m11();
+	m.rx = t.m12();
+	m.ry = t.m21();
+	m.sy = t.m22();
+	m.tx = t.dx();
+	m.ty = t.dy();
 
-      drawInfo->clip_units = UserSpaceOnUse;
-      DrawClipPath(image_, drawInfo, clipPath);
-      DestroyDrawInfo(drawInfo);
+	drawInfo->clip_units = UserSpaceOnUse;
+	DrawClipPath(image_, drawInfo, currentClipPathName().c_str());
+
+	DestroyDrawInfo(drawInfo);	
+      } else {
+	SetImageClipMask(image_, 0);
+      }
+
+      currentClipPathRendered_ = currentClipPath_;
     }
 
     WRectF renderRect;
@@ -842,11 +888,6 @@ void WRasterImage::drawText(const WRectF& rect,
     }
 
     SyncImagePixels(image_);
-
-    if (clipPath) {
-      SetImageClipMask(image_, 0);
-      free(clipPath);
-    }
   }
 }
 

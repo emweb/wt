@@ -13,7 +13,6 @@
 #include "StockReply.h"
 #include "MimeTypes.h"
 
-
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 namespace http {

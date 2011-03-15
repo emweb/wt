@@ -199,15 +199,15 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
   }
 
   if (userAgent_.find("Chrome") != std::string::npos) {
-    if (userAgent_.find("Chrome/0") != std::string::npos)
+    if (userAgent_.find("Chrome/0.") != std::string::npos)
       agent_ = Chrome0;
-    else if (userAgent_.find("Chrome/1") != std::string::npos)
+    else if (userAgent_.find("Chrome/1.") != std::string::npos)
       agent_ = Chrome1;
-    else if (userAgent_.find("Chrome/2") != std::string::npos)
+    else if (userAgent_.find("Chrome/2.") != std::string::npos)
       agent_ = Chrome2;
-    else if (userAgent_.find("Chrome/3") != std::string::npos)
+    else if (userAgent_.find("Chrome/3.") != std::string::npos)
       agent_ = Chrome3;
-    else if (userAgent_.find("Chrome/4") != std::string::npos)
+    else if (userAgent_.find("Chrome/4.") != std::string::npos)
       agent_ = Chrome4;
     else
       agent_ = Chrome5;

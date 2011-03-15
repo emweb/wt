@@ -169,11 +169,15 @@ private:
 
   typedef std::list< std::pair<WPainterPath, int> > PathCache;
   PathCache clipPathCache_;
+  int currentClipPath_;
+  int currentClipPathRendered_;
 
+  void internalInit(bool applyChanges = true);
   void paintPath();
   void drawPlainPath(const WPainterPath& path);
   void setTransform(const WTransform& t);
   void applyTransform(const WTransform& f);
+  std::string currentClipPathName() const;
 };
 
 }

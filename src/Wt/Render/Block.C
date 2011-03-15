@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-//#define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT
 
 #include "Wt/WFontMetrics"
 #include "Wt/WPaintDevice"
@@ -598,10 +598,9 @@ double Block::cssLineHeight(double fontLineHeight, double fontScale) const
 	WLength l(v.c_str());
 
 	if (l.unit() == WLength::Percentage)
-	  return l.value() / 100;
+	  return cssFontSize(fontScale) * l.value() / 100;
 	else
-	  return l.toPixels(parent_->cssFontSize(fontScale))
-	    / cssFontSize(fontScale);
+	  return l.toPixels(parent_->cssFontSize(fontScale));
       }
     }
   } else {

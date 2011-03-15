@@ -182,7 +182,7 @@ public:
   /*! \brief Sets the axis location.
    *
    * Configures the location of the axis, relative to values on the
-   * other values (i.e. Y values for the X axis, and X values for the
+   * other axis (i.e. Y values for the X axis, and X values for the
    * Y axis).
    *
    * The default value is Chart::MinimumValue.

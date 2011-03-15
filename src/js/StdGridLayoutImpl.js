@@ -22,7 +22,7 @@ WT_DECLARE_WT_MEMBER
        var p = el.parentNode;
        var result = 0;
 
-       if (WT.isIElt9) {
+       if (!WT.boxSizing(el)) {
 	 result = WT.px(el, 'marginLeft');
 	 result += WT.px(el, 'marginRight');
 	 result += WT.px(el, 'borderLeftWidth');
@@ -40,7 +40,7 @@ WT_DECLARE_WT_MEMBER
        var result = WT.px(el, 'marginTop');
        result += WT.px(el, 'marginBottom');
 
-       if (WT.isIElt9) {
+       if (!WT.boxSizing(el)) {
 	   result += WT.px(el, 'borderTopWidth');
 	   result += WT.px(el, 'borderBottomWidth');
 	   result += WT.px(el, 'paddingTop');
@@ -208,6 +208,11 @@ WT_DECLARE_WT_MEMBER
       */
      var r = pHeight;
      if (usingClientHeight) {
+       r -= WT.px(p, 'paddingTop');
+       r -= WT.px(p, 'paddingBottom');
+     } else if (WT.boxSizing(p)) {
+       r -= WT.px(p, 'borderTopWidth');
+       r -= WT.px(p, 'borderBottomWidth');
        r -= WT.px(p, 'paddingTop');
        r -= WT.px(p, 'paddingBottom');
      }
