@@ -1,13 +1,10 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
+#include <boost/test/unit_test.hpp>
 
-#include "I18n.h"
-
-#include <boost/bind.hpp>
 #include <boost/filesystem/operations.hpp>
 
 #include "Wt/Test/WTestEnvironment"
@@ -16,15 +13,29 @@
 
 #include <iostream>
 
-void I18n::setup()
+namespace {
+
+void pluralResourceBundleException(const std::string &resourceName)
 {
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  std::string file = app.appRoot() + resourceName;
+  BOOST_REQUIRE(boost::filesystem::exists(file + ".xml"));
+  
+  app.messageResourceBundle().use(file);
+
+  BOOST_REQUIRE(Wt::WString::tr("file").toUTF8() == "??file??");
 }
 
-void I18n::teardown()
+std::string trn(const std::string &key, int n)
 {
+  return Wt::WString::trn(key, n).arg(n).toUTF8();
 }
 
-void I18n::messageResourceBundleTest()
+}
+
+BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleTest )
 {
   BOOST_REQUIRE(Wt::WString::tr("welcome-text").toUTF8() == "??welcome-text??");
   
@@ -47,50 +58,32 @@ void I18n::messageResourceBundleTest()
 		"Welkom beste bezoeker, Joske van de WFooBar magic website !");
 }
 
-void I18n::pluralResourceBundleException(const std::string &resourceName)
-{
-  Wt::Test::WTestEnvironment environment;
-  Wt::WApplication app(environment);
-
-  std::string file = app.appRoot() + resourceName;
-  BOOST_REQUIRE(boost::filesystem::exists(file + ".xml"));
-  
-  app.messageResourceBundle().use(file);
-
-  BOOST_REQUIRE(Wt::WString::tr("file").toUTF8() == "??file??");
-}
-
-void I18n::pluralResourceBundleException1()
+BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundleException1 )
 {
   pluralResourceBundleException("private/i18n/plural_err_1");
 }
 
-void I18n::pluralResourceBundleException2()
+BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundleException2 )
 {
   pluralResourceBundleException("private/i18n/plural_err_2");
 }
 
-void I18n::pluralResourceBundleException3()
+BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundleException3 )
 {
   pluralResourceBundleException("private/i18n/plural_err_3");
 }
 
-void I18n::pluralResourceBundleException4()
+BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundleException4 )
 {
   pluralResourceBundleException("private/i18n/plural_err_4");
 }
 
-void I18n::pluralResourceBundleException5()
+BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundleException5 )
 {
   pluralResourceBundleException("private/i18n/plural_err_5");
 }
 
-std::string I18n::trn(const std::string &key, int n)
-{
-  return Wt::WString::trn(key, n).arg(n).toUTF8();
-}
-
-void I18n::pluralResourceBundle1() 
+BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundle1 )
 {
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
@@ -115,7 +108,7 @@ void I18n::pluralResourceBundle1()
   BOOST_REQUIRE(Wt::WString::tr("welcome").toUTF8() == "??welcome??");
 }
 
-void I18n::findCaseException1()
+BOOST_AUTO_TEST_CASE( I18n_findCaseException1 )
 {
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
@@ -134,7 +127,7 @@ void I18n::findCaseException1()
 		"smaller than 0 are not allowed.");
 }
 
-void I18n::findCaseException2()
+BOOST_AUTO_TEST_CASE( I18n_findCaseException2 )
 {
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
@@ -152,30 +145,4 @@ void I18n::findCaseException2()
   BOOST_REQUIRE(error == 
 		"Expression '2' evaluates to '2' for n=1 which is greater "
 		"than the list of cases (size=1).");
-}
-
-I18n::I18n()
-  : test_suite("i18n_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&I18n::messageResourceBundleTest, 
-  				  this)));
-
-  add(BOOST_TEST_CASE(boost::bind(&I18n::pluralResourceBundleException1, 
-				  this)));
-  add(BOOST_TEST_CASE(boost::bind(&I18n::pluralResourceBundleException2, 
-				  this)));
-  add(BOOST_TEST_CASE(boost::bind(&I18n::pluralResourceBundleException3, 
-  				  this)));
-  add(BOOST_TEST_CASE(boost::bind(&I18n::pluralResourceBundleException4, 
-				  this)));
-  add(BOOST_TEST_CASE(boost::bind(&I18n::pluralResourceBundleException5, 
-				  this)));
-
-  add(BOOST_TEST_CASE(boost::bind(&I18n::pluralResourceBundle1, 
-				  this)));
-
-  add(BOOST_TEST_CASE(boost::bind(&I18n::findCaseException1, 
-				  this)));
-  add(BOOST_TEST_CASE(boost::bind(&I18n::findCaseException2, 
-  				  this)));
 }

@@ -1,13 +1,11 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
+#include <boost/test/unit_test.hpp>
 
-#include "CExpressionParserTest.h"
 #include "web/Utils.h"
-#include <boost/bind.hpp>
 
 namespace {
   int eval(std::string expression, ::uint64_t n) 
@@ -16,15 +14,7 @@ namespace {
   }
 }
 
-void CExpressionParserTest::setup()
-{
-}
-
-void CExpressionParserTest::teardown()
-{
-}
-
-void CExpressionParserTest::basicExpressionTest()
+BOOST_AUTO_TEST_CASE( cexpression_basic_expression_test )
 {
   {
     std::string e = "1 + 2";
@@ -124,7 +114,7 @@ void CExpressionParserTest::basicExpressionTest()
   }
 }
 
-void CExpressionParserTest::languagesTest()
+BOOST_AUTO_TEST_CASE( cexpression_basic_languagesTest )
 {
   //Polish language expression
   {
@@ -197,13 +187,4 @@ void CExpressionParserTest::languagesTest()
     BOOST_REQUIRE(eval(e, 203) == 1);
     BOOST_REQUIRE(eval(e, 204) == 1);
   }
-}
-
-CExpressionParserTest::CExpressionParserTest()
-  : test_suite("c_expression_parser_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&CExpressionParserTest::basicExpressionTest, 
-				  this)));
-  add(BOOST_TEST_CASE(boost::bind(&CExpressionParserTest::languagesTest, 
-				  this)));
 }

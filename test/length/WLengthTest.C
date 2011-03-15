@@ -1,19 +1,15 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
-#include <boost/bind.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "web/WtException.h"
 
-#include "WLengthTest.h"
-
 #include <Wt/WLength>
 
-void WLengthTest::test_constructors()
+BOOST_AUTO_TEST_CASE( length_test_constructors )
 {
   //default constructor
   {
@@ -161,11 +157,4 @@ void WLengthTest::test_constructors()
   BOOST_REQUIRE(exception == 
 		"WLength: Illegal unit 'pn' in the css length string.");
   }
-}
-
-
-WLengthTest::WLengthTest()
-  : test_suite("length_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&WLengthTest::test_constructors, this)));
 }

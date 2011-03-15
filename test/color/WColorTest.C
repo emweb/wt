@@ -4,16 +4,13 @@
  *
  * See the LICENSE file for terms of use.
  */
-
-#include <boost/bind.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "web/WtException.h"
 
-#include "WColorTest.h"
-
 #include <Wt/WColor>
 
-void WColorTest::test_constructors()
+BOOST_AUTO_TEST_CASE( color_test_constructors )
 {
   //string constructors
   {
@@ -186,11 +183,4 @@ void WColorTest::test_constructors()
     }
     BOOST_REQUIRE(exception == "WColor: No rgb values are available");
    }
-}
-
-
-WColorTest::WColorTest()
-  : test_suite("color_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&WColorTest::test_constructors, this)));
 }

@@ -154,7 +154,7 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
   return pango_font_description_from_string(s.c_str());
 }
 
-FontSupport::FontMatch FontSupport::matchFont(const WFont& f) 
+FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 {
   PangoFontDescription *desc = createFontDescription(f);
 

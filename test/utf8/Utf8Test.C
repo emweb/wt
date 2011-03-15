@@ -1,19 +1,15 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
-#include <boost/bind.hpp>
-
-#include "Utf8Test.h"
+#include <boost/test/unit_test.hpp>
 
 #include <Wt/WString>
 #include <Wt/WStringUtil>
 #include <iostream>
 
-void Utf8Test::test()
+BOOST_AUTO_TEST_CASE( Utf8_test1 )
 {
 #ifndef WT_NO_STD_WSTRING
 #ifndef WIN32
@@ -32,7 +28,7 @@ void Utf8Test::test()
 #endif
 }
 
-void Utf8Test::test2()
+BOOST_AUTO_TEST_CASE( Utf8_test2 )
 {
 #ifndef WT_NO_STD_WSTRING
   std::wstring w = L"This costs 100\x20AC (greek \x0194)";
@@ -46,7 +42,7 @@ void Utf8Test::test2()
 #endif
 }
 
-void Utf8Test::test3()
+BOOST_AUTO_TEST_CASE( Utf8_test3 )
 {
   /*
    * This is broken on MacOSX 10.6, std::locale("") throws runtime_exception
@@ -65,7 +61,7 @@ void Utf8Test::test3()
 #endif
 }
  
-void Utf8Test::test4()
+BOOST_AUTO_TEST_CASE( Utf8_test4 )
 {
   std::string u8 = "euro\xe2\x82\xac greek \xc6\x94 special \xf0\x90\x8e\xa7)";
   std::string u8a = "euro\xe2\x82\xac gree";
@@ -100,13 +96,4 @@ void Utf8Test::test4()
   ss = Wt::UTF8Substr(u8, 23, 9);
   BOOST_REQUIRE(ss == u8f);
 
-}
-
-Utf8Test::Utf8Test()
-  : test_suite("utf8_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&Utf8Test::test, this)));
-  add(BOOST_TEST_CASE(boost::bind(&Utf8Test::test2, this)));
-  add(BOOST_TEST_CASE(boost::bind(&Utf8Test::test3, this)));
-  add(BOOST_TEST_CASE(boost::bind(&Utf8Test::test4, this)));
 }

@@ -71,7 +71,7 @@ public:
   private:
 
 #ifdef HAVE_PANGO
-    PangoFont *font_;
+    mutable PangoFont *font_;
 #else
     std::string file_;
     double quality_;
@@ -86,7 +86,7 @@ public:
   /*
    * Returns the best matching true type font.
    */
-  FontMatch matchFont(const WFont& f);
+  FontMatch matchFont(const WFont& f) const;
 
   /*
    * Returns font metrics
@@ -153,7 +153,7 @@ private:
   PangoContext *context_;
   PangoFont *currentFont_;
 
-  PangoFont *matchFont_;
+  mutable PangoFont *matchFont_;
 
   PangoFontDescription *createFontDescription(const WFont& f) const;
   static std::string fontPath(PangoFont *font);

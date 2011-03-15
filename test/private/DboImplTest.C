@@ -1,23 +1,21 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
-#include <boost/bind.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <Wt/Dbo/Dbo>
-#include "DboImplTest.h"
 
 namespace dbo = Wt::Dbo;
 
 #define SQL(...) #__VA_ARGS__
 
-void DboImplTest::parseSql(const std::string& sql,
-			   int listsCount,
-			   int fieldsCount,
-			   bool simpleSelect)
+namespace {
+
+void parseSql(const std::string& sql,  int listsCount,
+	      int fieldsCount,
+	      bool simpleSelect)
 {
   dbo::Impl::SelectFieldLists result;
   bool simpleSelectCount;
@@ -40,7 +38,9 @@ void DboImplTest::parseSql(const std::string& sql,
   BOOST_REQUIRE(simpleSelect == simpleSelectCount);
 }
 
-void DboImplTest::test1()
+}
+
+BOOST_AUTO_TEST_CASE( DboImplTest_test1 )
 {
   parseSql("select 1", 1, 1, true);
   parseSql("select a, b from foo", 1, 2, true);
@@ -88,10 +88,4 @@ void DboImplTest::test1()
       select b, c from bar),
      2, 3, false);
 #endif // BOOST_VERSION
-}
-
-DboImplTest::DboImplTest()
-  : test_suite("dboimpltest_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&DboImplTest::test1, this)));
 }

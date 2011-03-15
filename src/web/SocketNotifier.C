@@ -395,7 +395,7 @@ void SocketNotifier::removeReadSocket(int socket)
 void SocketNotifier::removeWriteSocket(int socket)
 {
   boost::mutex::scoped_lock lock(impl_->mutex_);
-  impl_->readFds_.erase(socket);
+  impl_->writeFds_.erase(socket);
   interruptThread();
   impl_->interrupted_.wait(lock);
 }
@@ -403,7 +403,7 @@ void SocketNotifier::removeWriteSocket(int socket)
 void SocketNotifier::removeExceptSocket(int socket)
 {
   boost::mutex::scoped_lock lock(impl_->mutex_);
-  impl_->readFds_.erase(socket);
+  impl_->exceptFds_.erase(socket);
   interruptThread();
   impl_->interrupted_.wait(lock);
 }

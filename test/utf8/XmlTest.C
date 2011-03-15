@@ -1,16 +1,14 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2010 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/bind.hpp>
+#include <boost/test/unit_test.hpp>
+
 #include <iostream>
 #include <Wt/WMessageResourceBundle>
 
-#include "XmlTest.h"
-
-void XmlTest::test()
+BOOST_AUTO_TEST_CASE( Xml_test )
 {
   Wt::WMessageResourceBundle bundle;
   bundle.use("test");
@@ -25,10 +23,4 @@ void XmlTest::test()
 
   BOOST_REQUIRE(bundle.resolveKey("test2", result));
   BOOST_REQUIRE(result == "<div></div>");
-}
-
-XmlTest::XmlTest()
-  : test_suite("xml_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&XmlTest::test, this)));
 }

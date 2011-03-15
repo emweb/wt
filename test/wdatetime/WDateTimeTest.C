@@ -1,31 +1,27 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
-#include <boost/bind.hpp>
-
-#include "WDateTimeTest.h"
+#include <boost/test/unit_test.hpp>
 
 #include <Wt/WDate>
 #include <Wt/WTime>
 #include <Wt/WDateTime>
 
-void WDateTimeTest::test_WDate()
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDate )
 {
   Wt::WDate wd(2009, 10, 1);
   BOOST_REQUIRE(wd.toString() == "Thu Oct 1 2009");
 }
 
-void WDateTimeTest::test_WTime()
+BOOST_AUTO_TEST_CASE( WDateTime_test_WTime )
 {
   Wt::WTime wt(12, 11, 31);
   BOOST_REQUIRE(wt.toString() == "12:11:31");
 }
 
-void WDateTimeTest::test_WDateTime()
+BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
 {
   Wt::WDate wd(2009, 10, 1);
   Wt::WTime wt(12, 11, 31, 499);
@@ -123,12 +119,4 @@ void WDateTimeTest::test_WDateTime()
   BOOST_REQUIRE(d.time().second() == 12);
 
   BOOST_REQUIRE(Wt::WDateTime::fromString(d.toString()) == d);
-}
-
-WDateTimeTest::WDateTimeTest()
-  : test_suite("wdatetime_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&WDateTimeTest::test_WDate, this)));
-  add(BOOST_TEST_CASE(boost::bind(&WDateTimeTest::test_WTime, this)));
-  add(BOOST_TEST_CASE(boost::bind(&WDateTimeTest::test_WDateTime, this)));
 }

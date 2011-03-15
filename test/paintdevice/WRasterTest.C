@@ -1,11 +1,11 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
-
  *
  * See the LICENSE file for terms of use.
  */
-#include <boost/bind.hpp>
+#ifdef WT_HAS_WRASTERIMAGE
+
+#include <boost/test/unit_test.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -13,10 +13,8 @@
 #include <Wt/WRasterImage>
 #include <Wt/WPainter>
 #include <Wt/WPointF>
-#include "Wt/Test/WTestEnvironment"
-#include "Wt/Render/WTextRenderer"
-
-#include "WRasterTest.h"
+#include <Wt/Test/WTestEnvironment>
+#include <Wt/Render/WTextRenderer>
 
 namespace {
   using namespace Wt;
@@ -66,9 +64,10 @@ namespace {
   };
 }
 
-void WRasterTest::test_textRenderer()
+BOOST_AUTO_TEST_CASE( raster_test_textRenderer )
 {
   Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
 
   Wt::WRasterImage rasterImage("png", 357, 193);
   {
@@ -86,9 +85,10 @@ void WRasterTest::test_textRenderer()
   rasterImage.write(f);
 }
 
-void WRasterTest::test_dataUriImage()
+BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
 {
   Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
 
   Wt::WRasterImage rasterImage("png", 80, 80);
   Wt::WPainter p(&rasterImage);
@@ -179,11 +179,4 @@ void WRasterTest::test_dataUriImage()
   rasterImage.write(f);
 }
 
-WRasterTest::WRasterTest()
-  : test_suite("raster_test_suite")
-{
-  add(BOOST_TEST_CASE
-      (boost::bind(&WRasterTest::test_dataUriImage, this)));
-  add(BOOST_TEST_CASE
-      (boost::bind(&WRasterTest::test_textRenderer, this)));
-}
+#endif

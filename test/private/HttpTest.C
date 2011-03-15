@@ -1,26 +1,15 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
-
-#include "HttpTest.h"
-#include <boost/bind.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "Wt/Http/Request"
 
 using namespace Wt::Http;
 
-void HttpTest::setup()
-{
-}
-
-void HttpTest::teardown()
-{
-}
-
-void HttpTest::rangeTest1()
+BOOST_AUTO_TEST_CASE( http_rangeTest1 )
 {
   // These are all tests wo filesize
   Request::ByteRangeSpecifier ranges;
@@ -138,7 +127,7 @@ void HttpTest::rangeTest1()
 
 }
 
-void HttpTest::rangeTest2()
+BOOST_AUTO_TEST_CASE( http_rangeTest2 )
 {
   Request::ByteRangeSpecifier ranges;
 
@@ -235,11 +224,4 @@ void HttpTest::rangeTest2()
   BOOST_REQUIRE(ranges[1].firstByte() == 601);
   BOOST_REQUIRE(ranges[1].lastByte() == 999);
   BOOST_REQUIRE(ranges.isSatisfiable());
-}
-
-HttpTest::HttpTest()
-  : test_suite("http_test_suite")
-{
-  add(BOOST_TEST_CASE(boost::bind(&HttpTest::rangeTest1, this)));
-  add(BOOST_TEST_CASE(boost::bind(&HttpTest::rangeTest2, this)));
 }

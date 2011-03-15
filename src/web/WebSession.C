@@ -1398,10 +1398,12 @@ void WebSession::webSocketReady(boost::weak_ptr<WebSession> session)
   if (lock) {
     Handler handler(lock, true);
 
-    lock->canWriteAsyncResponse_ = true;
+    if (lock->asyncResponse_) {
+      lock->canWriteAsyncResponse_ = true;
 
-    if (lock->updatesPending_)
-      lock->pushUpdates();
+      if (lock->updatesPending_)
+	lock->pushUpdates();
+    }
   }
 #endif // WT_TARGET_JAVA
 }

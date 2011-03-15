@@ -1,12 +1,9 @@
-// This may look like C code, but it's really -*- C++ -*-
 /*
  * Copyright (C) 2009 Emweb bvba, Kessel-Lo, Belgium.
-
  *
  * See the LICENSE file for terms of use.
  */
-
-#include <boost/bind.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -16,9 +13,7 @@
 #include <Wt/WPainter>
 #include <Wt/WPen>
 
-#include "WSvgTest.h"
-
-void WSvgTest::test_drawWrappedText()
+BOOST_AUTO_TEST_CASE( svg_test_drawWrappedText )
 {
   static std::string text = 
     "ceci n'est pas un text et ceci n'est pas une pipe non plus";
@@ -64,7 +59,7 @@ void WSvgTest::test_drawWrappedText()
   svgImage.write(f);
 }
 
-void WSvgTest::test_drawSingleText()
+BOOST_AUTO_TEST_CASE( svg_test_drawSingleText )
 {
   static std::string text = 
     "ceci n'est pas un text et ceci n'est pas une pipe non plus";
@@ -108,13 +103,4 @@ void WSvgTest::test_drawSingleText()
   p.end();
   std::ofstream f("singleline_text.svg");
   svgImage.write(f);
-}
-
-WSvgTest::WSvgTest()
-  : test_suite("paintdevice_test_suite")
-{
-  add(BOOST_TEST_CASE
-      (boost::bind(&WSvgTest::test_drawWrappedText, this)));
-  add(BOOST_TEST_CASE
-      (boost::bind(&WSvgTest::test_drawSingleText, this)));
 }
