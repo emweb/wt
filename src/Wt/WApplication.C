@@ -906,21 +906,23 @@ void WApplication::addMetaHeader(MetaHeaderType type,
   if (environment().javaScript())
     log("warn") << "WApplication::addMetaHeader() with no effect";
 
-  if (type == MetaHttpHeader) {
-    /*
-     * Replace existing value
-     */
-    for (unsigned i = 0; i < metaHeaders_.size(); ++i) {
-      MetaHeader& m = metaHeaders_[i];
+  /*
+   * Replace or remove existing value
+   */
+  for (unsigned i = 0; i < metaHeaders_.size(); ++i) {
+    MetaHeader& m = metaHeaders_[i];
 
-      if (m.type == MetaHttpHeader && m.name == name) {
+    if (m.type == MetaHttpHeader && m.name == name) {
+      if (content.empty())
+	metaHeaders_.erase(metaHeaders_.begin() + i);
+      else
 	m.content = content;
-	return;
-      }
+      return;
     }
   }
 
-  metaHeaders_.push_back(MetaHeader(type, name, content, lang));
+  if (!content.empty())
+    metaHeaders_.push_back(MetaHeader(type, name, content, lang));
 }
 
 WApplication *WApplication::instance()

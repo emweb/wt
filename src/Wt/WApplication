@@ -1322,6 +1322,10 @@ public:
    * - but never for a Wt::WidgetSet mode application since then the
    *   application is hosted within a foreign HTML page.
    *
+   * When a header was previously set for the same \p name, its
+   * contents is replaced. You can remove a previously set header by
+   * replacing it with empty content.
+   *
    * These situations coincide with WEnvironment::ajax()
    * returning \c false (see environment()).
    */
