@@ -101,9 +101,11 @@ DomElement *StdWidgetItemImpl::createDomElement(bool fitWidth, bool fitHeight,
    *    work inside the wrapped div, on IE6/7 -> fixed in the JavaScript code
    *  - select does not interpret height that is set on IE6
    *    it does work on IE7 !
+   *  - webkit gets entirely confused by 100% on a div, and possibly
+   *    also on other elements ??
    */
   if (fitHeight && d->getProperty(PropertyStyleHeight).empty())
-    if (   d->type() == DomElement_DIV
+    if (  (d->type() == DomElement_DIV && !app->environment().agentIsWebKit())
 	|| d->type() == DomElement_UL
 	|| d->type() == DomElement_INPUT
 	|| d->type() == DomElement_TABLE

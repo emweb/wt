@@ -288,8 +288,14 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
   div->setId(id());
   div->setProperty(PropertyStylePosition, "relative");
 
+  /*
+   * Perhaps we should disable height: 100% on all browsers, the spec says
+   * they shouldn't react, some do something sensible, some ignore it, and
+   * some react in a bad way (as if height is set to 0).
+   */
   std::string divStyle;
-  if (fitHeight && !app->environment().agentIsIElt(9))
+  if (fitHeight && !app->environment().agentIsIElt(9)
+      && !app->environment().agentIsWebKit())
     divStyle += "height: 100%;";
   if (app->environment().agentIsIElt(9))
     divStyle += "zoom: 1;";
