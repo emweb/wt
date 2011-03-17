@@ -174,8 +174,13 @@ this.initAjaxComm = function(url, handler) {
 	    handler(1, null, userData);
 
 	  request.onreadystatechange = new Function;
-	  if (!WT.isIE6)
+	  try {
 	    request.onload = request.onreadystatechange;
+	  } catch (e) {
+	    /*
+	     * See comment below.
+	     */
+	  }
 	  request = null;
 
 	  handled = true;
@@ -212,13 +217,18 @@ this.initAjaxComm = function(url, handler) {
 	if (timeout > 0)
 	  timer = setTimeout(handleTimeout, timeout);
 	  request.onreadystatechange = recvCallback;
-	  if (!WT.isIE6) {
+	  try {
 	    request.onload = function() {
 	      handleResponse(true);
 	    };
 	    request.onerror = function() {
 	      handleResponse(false);
 	    };
+	  } catch (e) {
+	    /*
+	     * On IE, when "Enable Native XMLHTTP Support is unchecked",
+	     * setting these members will result in an exception.
+	     */
 	  }
 	request.send(data);
       }
