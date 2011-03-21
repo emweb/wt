@@ -430,12 +430,24 @@ Query<Result, DynamicBinding>::offset(int offset)
 }
 
 template <class Result>
+int Query<Result, DynamicBinding>::offset() const
+{
+  return offset_;
+}
+
+template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::limit(int limit)
 {
   limit_ = limit;
 
   return *this;
+}
+
+template <class Result>
+int Query<Result, DynamicBinding>::limit() const
+{
+  return limit_;
 }
 
 template <class Result>

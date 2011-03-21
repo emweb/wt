@@ -121,6 +121,7 @@ ENDIF(CMAKE_MAJOR_VERSION LESS 2)
 
 SET(WT_BOOST_DISCOVERY ${DEFAULT_WT_BOOST_DISCOVERY} CACHE BOOL "Use Wt's boost discovery method rather than the cmake 2.6+ method")
 
+SET(DEBUG_LIB_POSTFIX "d" CACHE STRING "String appended to debug libraries")
 
 SET(LIB_INSTALL_DIR "lib" CACHE STRING
   "Name for library directory within ${CMAKE_INSTALL_PREFIX}")
@@ -205,6 +206,7 @@ IF(CYGWIN)
 ENDIF(CYGWIN)
 
 MARK_AS_ADVANCED( CONFIGDIR )
+
 SET(CONFIGURATION "${CONFIGDIR}/wt_config.xml" CACHE PATH "Path to the wt configuration file")
 SET(WTHTTP_CONFIGURATION ${CONFIGDIR}/wthttpd CACHE PATH "Path for the wthttpd configuration file")
 

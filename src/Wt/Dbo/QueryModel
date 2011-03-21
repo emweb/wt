@@ -332,7 +332,7 @@ private:
   std::vector<QueryColumn> columns_;
 
   mutable Query<Result> query_;
-  int batchSize_;
+  int queryLimit_, queryOffset_, batchSize_;
 
   mutable int cachedRowCount_;
   mutable int cacheStart_;

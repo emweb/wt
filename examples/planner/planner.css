@@ -99,3 +99,9 @@
 	text-decoration: underline;
 	text-align: center;
 }
+
+/* This is needed for IE6 */
+body {
+	height: 100%;
+}
+

@@ -25,6 +25,9 @@ template <class Result>
 void QueryModel<Result>::setQuery(const Query<Result>& query,
 				  bool keepColumns)
 {
+  queryLimit_ = query.limit();
+  queryOffset_ = query.offset();
+
   if (!keepColumns) {
     query_ = query;
     fields_ = query_.fields();
@@ -102,8 +105,8 @@ int QueryModel<Result>::rowCount(const WModelIndex& parent) const
   if (cachedRowCount_ == -1) {
     Transaction transaction(query_.session());
 
-    query_.limit(-1);
-    query_.offset(-1);
+    query_.limit(queryLimit_);
+    query_.offset(queryOffset_);
     cachedRowCount_ = static_cast<int>(query_.resultList().size());
 
     transaction.commit();
@@ -211,8 +214,15 @@ Result& QueryModel<Result>::resultRow(int row)
       || row >= cacheStart_ + static_cast<int>(cache_.size())) {
     cacheStart_ = std::max(row - batchSize_ / 4, 0);
 
-    query_.offset(cacheStart_);
-    query_.limit(batchSize_);
+    int qOffset = cacheStart_;
+    if (queryOffset_ > 0)
+      qOffset += queryOffset_;
+    query_.offset(qOffset);
+
+    int qLimit = batchSize_;
+    if (queryLimit_ > 0)
+      qLimit = std::min(batchSize_, queryLimit_ - cacheStart_);
+    query_.limit(qLimit);
 
     Transaction transaction(query_.session());
 

@@ -1638,6 +1638,8 @@ function encodeTouches(s, touches, widgetCoords) {
   result = s + "=";
   for (i = 0, il = touches.length; i < il; ++i) {
     var t = touches[i];
+    if (i != 0)
+      result += ';';
     result += [ t.identifier,
 		t.clientX, t.clientY,
 		t.pageX, t.pageY,
