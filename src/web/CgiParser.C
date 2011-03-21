@@ -266,7 +266,7 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
       for (;len > 0;) {
 	::int64_t toRead = std::min(::int64_t(BUFSIZE), len);
 	request.in().read(buf_, toRead);
-	if (request.in().gcount() != (int)toRead)
+	if (request.in().gcount() != (::int64_t)toRead)
 	  throw WtException("CgiParser: short read");
 	len -= toRead;
       }

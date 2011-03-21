@@ -106,6 +106,8 @@ private:
 
   std::string conn_;
   sqlite3 *db_;
+
+  void init();
 };
 
     }

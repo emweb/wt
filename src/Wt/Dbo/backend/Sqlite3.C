@@ -491,6 +491,8 @@ Sqlite3::Sqlite3(const std::string& db)
 
   if (err != SQLITE_OK)
     throw Sqlite3Exception(sqlite3_errmsg(db_));
+
+  init();
 }
 
 Sqlite3::Sqlite3(const Sqlite3& other)
@@ -505,7 +507,14 @@ Sqlite3::Sqlite3(const Sqlite3& other)
   if (err != SQLITE_OK)
     throw Sqlite3Exception(sqlite3_errmsg(db_));
 
+  init();
+}
+
+void Sqlite3::init()
+{
   executeSql("pragma foreign_keys = ON");
+
+  sqlite3_busy_timeout(db_, 1000);
 }
 
 Sqlite3::~Sqlite3()
