@@ -33,7 +33,7 @@
 #endif
 
 namespace skeletons {
-  extern const char * WtMessages_xml;
+  extern const char * WtMessages_xml1;
 }
 
 //#define WTDEBUG
@@ -821,7 +821,7 @@ void WApplication::setLocalizedStrings(WLocalizedStrings *translator)
   if (translator)
     localizedStrings_->add(translator);
   WMessageResourceBundle *defaultMessages = new WMessageResourceBundle();
-  defaultMessages->useBuiltin(skeletons::WtMessages_xml);
+  defaultMessages->useBuiltin(skeletons::WtMessages_xml1);
   localizedStrings_->add(defaultMessages);
 }
 

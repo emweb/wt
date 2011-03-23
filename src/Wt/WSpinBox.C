@@ -14,11 +14,13 @@ namespace Wt {
 
 WSpinBox::WSpinBox(WContainerWidget *parent)
   : WAbstractSpinBox(parent),
-    value_(0),
+    value_(-1),
     min_(0),
     max_(99),
     step_(1)
-{ }
+{ 
+  setValue(0);
+}
 
 void WSpinBox::setValue(int value)
 {

@@ -192,7 +192,7 @@ void WAbstractSpinBox::setup(bool useNative)
 int WAbstractSpinBox::boxPadding(Orientation orientation) const
 {
   if (!nativeControl() && orientation == Horizontal)
-    return 16;
+    return WLineEdit::boxPadding(orientation) + 8; // Half since for one side
   else
     return WLineEdit::boxPadding(orientation);
 }

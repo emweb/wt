@@ -93,6 +93,8 @@ public:
    */
   const std::string& ref() const { return ref_; }
 
+  void setRefInternalPath(const std::string& path);
+
   /*! \brief Sets a destination resource.
    *
    * This method can be used to make the button behave like a WAnchor
@@ -127,12 +129,13 @@ private:
   static const int BIT_ICON_CHANGED = 1;
   static const int BIT_ICON_RENDERED = 2;
   static const int BIT_REF_CHANGED = 3;
+  static const int BIT_REF_INTERNAL_PATH = 4;
 
   WString        text_;
   std::string    icon_;
   std::string    ref_;
   WResource     *resource_;
-  std::bitset<4> flags_;
+  std::bitset<5> flags_;
 
   JSlot         *redirectJS_;
 

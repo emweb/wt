@@ -55,10 +55,25 @@ void WPushButton::setIcon(const std::string& url)
 
 void WPushButton::setRef(const std::string& url)
 {
-  if (ref_ == url)
+  if (!flags_.test(BIT_REF_INTERNAL_PATH) && ref_ == url)
     return;
 
+  flags_.reset(BIT_REF_INTERNAL_PATH);
   ref_ = url;
+
+  flags_.set(BIT_REF_CHANGED);
+
+  repaint(RepaintPropertyIEMobile);
+}
+
+void WPushButton::setRefInternalPath(const std::string& path)
+{
+  if (flags_.test(BIT_REF_INTERNAL_PATH) && ref_ == path)
+    return;
+
+  flags_.set(BIT_REF_INTERNAL_PATH);
+  ref_ = path;
+
   flags_.set(BIT_REF_CHANGED);
 
   repaint(RepaintPropertyIEMobile);
@@ -81,8 +96,14 @@ void WPushButton::resourceChanged()
 
 void WPushButton::doRedirect()
 {
-  if (!WApplication::instance()->environment().ajax())
-    WApplication::instance()->redirect(ref_);
+  WApplication *app = WApplication::instance();
+
+  if (!app->environment().ajax()) {
+    if (flags_.test(BIT_REF_INTERNAL_PATH))
+      app->setInternalPath(ref_, true);
+    else
+      app->redirect(ref_);
+  }
 }
 
 DomElementType WPushButton::domElementType() const
@@ -115,18 +136,26 @@ void WPushButton::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_REF_CHANGED) || (all && !ref_.empty())) {
     if (!ref_.empty()) {
+      WApplication *app = WApplication::instance();
+
       if (!redirectJS_) {
 	redirectJS_ = new JSlot();
 	clicked().connect(*redirectJS_);
 
-	if (!WApplication::instance()->environment().ajax())
+	if (!app->environment().ajax())
 	  clicked().connect(this, &WPushButton::doRedirect);
       }
 
-      redirectJS_->setJavaScript
-	("function(){"
-	 "window.location=" + jsStringLiteral(ref_) + ";"
-	 "}");
+      if (flags_.test(BIT_REF_INTERNAL_PATH))
+	redirectJS_->setJavaScript
+	  ("function(){"
+	   WT_CLASS ".history.navigate(" + jsStringLiteral(ref_) + ",true);"
+	   "}");
+      else
+	redirectJS_->setJavaScript
+	  ("function(){"
+	   "window.location=" + jsStringLiteral(ref_) + ";"
+	   "}");
       clicked().senderRepaint(); // XXX only for Java port necessary
     } else {
       delete redirectJS_;

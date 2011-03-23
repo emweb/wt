@@ -14,12 +14,14 @@ namespace Wt {
 
 WDoubleSpinBox::WDoubleSpinBox(WContainerWidget *parent)
   : WAbstractSpinBox(parent),
-    value_(0.0),
+    value_(-1),
     min_(0.0),
     max_(99.99),
     step_(1.0),
     precision_(2)
-{ }
+{ 
+  setValue(0.0);
+}
 
 void WDoubleSpinBox::setValue(double value)
 {
