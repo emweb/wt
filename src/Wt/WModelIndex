@@ -122,13 +122,15 @@ enum ItemDataRole {
    * data for this role should be of type Wt::CheckState.
    */
   CheckStateRole = 4,   
-  ToolTipRole = 5,      //!< Role for a tooltip
-  InternalPathRole = 6, //!< Role for an internal path activated when clicked
-  UrlRole = 7,          //!< Role for a url activated when clicked
-  LevelRole = 8,        //!< Level in aggregation, for header data.
+  ToolTipRole = 5,       //!< Role for a tooltip
+  InternalPathRole = 6,  //!< Role for an internal path activated when clicked
+  UrlRole = 7,           //!< Role for a url activated when clicked
+  LevelRole = 8,         //!< Level in aggregation, for header data.
   MarkerPenColorRole = 16,  //!< Marker pen color (for Chart::WCartesianChart)
   MarkerBrushColorRole = 17,//!< Marker brush color (for Chart::WCartesianChart)
-  UserRole = 32         //!< First role reserved for user purposes
+  BarPenColorRole = 18,  //!< Bar pen color (for Chart::WCartesianChart)
+  BarBrushColorRole = 19,//!< Bar brush color (for Chart::WCartesianChart)
+  UserRole = 32          //!< First role reserved for user purposes
 };
 
 /*! \brief Flags that indicate data item options

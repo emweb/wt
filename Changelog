@@ -3,6 +3,9 @@
 
 	* Dbo/Query: fix limit_ and offset_ not being copied in copy constructor
 
+	* Chart/WCartesianChart: allow custom color for a single bar in a bar series
+	using BarPenColorRole and BarBrushColorRole
+
 21-03-2011:
 	* Dbo/QueryModel: honour original limit() and offset()
 

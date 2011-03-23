@@ -23,6 +23,42 @@
 
 namespace {
   const int TICK_LENGTH = 5;
+
+  using namespace Wt;
+
+  void setPenColor(WPen& pen,
+		   const WModelIndex& xIndex,
+		   const WModelIndex& yIndex,
+		   int colorRole)
+  {
+    boost::any color;
+
+    if (yIndex.isValid())
+      color = yIndex.data(colorRole);
+
+    if (color.empty() && xIndex.isValid())
+      color = xIndex.data(colorRole);
+
+    if (!color.empty())
+      pen.setColor(boost::any_cast<WColor>(color));
+  }
+
+  void setBrushColor(WBrush& brush,
+		     const WModelIndex& xIndex,
+		     const WModelIndex& yIndex,
+		     int colorRole) 
+  {
+    boost::any color;
+
+    if (yIndex.isValid())
+      color = yIndex.data(colorRole);
+
+    if (color.empty() && xIndex.isValid())
+      color = xIndex.data(colorRole);
+
+    if (!color.empty())
+      brush.setColor(boost::any_cast<WColor>(color));
+  }
 }
 
 namespace Wt {
@@ -295,9 +331,16 @@ public:
     bar.closeSubPath();
 
     renderer_.painter().setShadow(series_.shadow());
-    renderer_.painter().fillPath(bar, series_.brush());
+
+    WBrush brush = WBrush(series_.brush());
+    setBrushColor(brush, xIndex, yIndex, BarBrushColorRole);
+    renderer_.painter().fillPath(bar, brush);
+
     renderer_.painter().setShadow(WShadow());
-    renderer_.painter().strokePath(bar, series_.pen());
+
+    WPen pen = WPen(series_.pen());
+    setPenColor(pen, xIndex, yIndex, BarPenColorRole);
+    renderer_.painter().strokePath(bar, pen);
 
     boost::any toolTip = yIndex.data(ToolTipRole);
     if (!toolTip.empty()) {
@@ -604,25 +647,11 @@ public:
 	painter.translate(hv(p));
 
 	WPen pen = WPen(series.markerPen());
-
-	boost::any penColor = yIndex.data(MarkerPenColorRole);
-	if (penColor.empty() && xIndex.isValid())
-	  penColor = xIndex.data(MarkerPenColorRole);
-
-	if (!penColor.empty())
-	  pen.setColor(boost::any_cast<WColor>(penColor));
-
+	setPenColor(pen, xIndex, yIndex, MarkerPenColorRole);
 	painter.setPen(pen);
 
 	WBrush brush = WBrush(series.markerBrush());
-
-	boost::any brushColor = yIndex.data(MarkerBrushColorRole);
-	if (brushColor.empty() && xIndex.isValid())
-	  brushColor = xIndex.data(MarkerBrushColorRole);
-
-	if (!brushColor.empty())
-	  brush.setColor(boost::any_cast<WColor>(brushColor));
-
+	setBrushColor(brush, xIndex, yIndex, MarkerBrushColorRole);
 	painter.setBrush(brush);
 
 	painter.drawPath(marker_);
