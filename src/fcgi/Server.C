@@ -913,6 +913,14 @@ void WServer::stop()
   }
 }
 
+void WServer::resume()
+{
+  if (!isRunning()) {
+    std::cerr << "WServer::resume() error: server not yet started!" << std::endl;
+    return;
+  }
+}
+
 int WServer::waitForShutdown(const char *restartWatchFile)
 {
   for (;;)

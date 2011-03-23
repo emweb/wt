@@ -34,7 +34,7 @@ namespace Wt {
   public:
     /*! \brief Constructor.
      */
-    Touch(int identifier,
+    Touch(unsigned identifier,
 	  int clientX, int clientY,
 	  int documentX, int documentY,
 	  int screenX, int screenY,
@@ -64,7 +64,7 @@ namespace Wt {
     int documentX_, documentY_;
     int screenX_, screenY_;
     int widgetX_, widgetY_;
-    int identifier_;
+    unsigned identifier_;
   };
 
 class WebRequest;

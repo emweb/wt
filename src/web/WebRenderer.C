@@ -153,7 +153,9 @@ void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
   if (!embedded)
     setHeaders(response, "text/javascript; charset=UTF-8");
 
-  response.out() << "window.location.reload(true);";
+  // FIXME: we should foresee something independent of app->javaScriptClass()
+  response.out() <<
+    "if (Wt) Wt._p_.quit(); window.location.reload(true);";
 }
 
 void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)

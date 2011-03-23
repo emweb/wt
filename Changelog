@@ -1,3 +1,8 @@
+23-03-2011:
+	* target/osx: Add script to generate an OSX Framework for iPad/iPhone
+
+	* Dbo/Query: fix limit_ and offset_ not being copied in copy constructor
+
 21-03-2011:
 	* Dbo/QueryModel: honour original limit() and offset()
 

@@ -347,8 +347,8 @@ Query<Result, DynamicBinding>
     where_(other.where_),
     groupBy_(other.groupBy_),
     orderBy_(other.orderBy_),
-    limit_(-1),
-    offset_(-1)
+    limit_(other.limit_),
+    offset_(other.offset_)
 { 
   for (unsigned i = 0; i < other.parameters_.size(); ++i)
     parameters_.push_back(other.parameters_[i]->clone());

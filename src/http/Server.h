@@ -60,8 +60,14 @@ public:
   /// Run the server's io_service loop.
   void run();
 
+  /// Start the server (called from constructor)
+  void start();
+
   /// Stop the server.
   void stop();
+
+  /// Assumes accept sockets have been closed and reopens them.
+  void resume();
 
   /// Returns the http port number.
   int httpPort() const;
@@ -82,6 +88,9 @@ private:
 
   /// Handle a request to stop the server.
   void handleStop();
+
+  /// Handle a request to resume the server.
+  void handleResume();
 
   /// The server's configuration
   Configuration config_;

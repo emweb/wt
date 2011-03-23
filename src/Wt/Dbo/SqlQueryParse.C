@@ -9,9 +9,11 @@
 
 #include <boost/version.hpp>
 
-#if BOOST_VERSION >= 104100
-#define SPIRIT_QUERY_PARSE
-#endif // BOOST_VERSION
+#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104100
+#  define SPIRIT_QUERY_PARSE
+#endif
+
+#undef SPIRIT_QUERY_PARSE
 
 #ifdef SPIRIT_QUERY_PARSE
 

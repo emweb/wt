@@ -1,5 +1,5 @@
 *~
-build*
+build*/*
 doc/reference
 doc/examples
 CVS

@@ -79,25 +79,30 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
   accessLogger_.addField("status", false);
   accessLogger_.addField("bytes", false);
 
+  start();
+}
+
+void Server::start()
+{
   asio::ip::tcp::resolver resolver(io_service_);
 
   // HTTP
-  if (!config.httpAddress().empty()) {
-    std::string httpPort = config.httpPort();
+  if (!config_.httpAddress().empty()) {
+    std::string httpPort = config_.httpPort();
 
     asio::ip::tcp::endpoint tcp_endpoint;
 
     if (httpPort == "0")
       tcp_endpoint.address(asio::ip::address::from_string
-			   (config.httpAddress()));
+			   (config_.httpAddress()));
     else {
 #ifndef NO_RESOLVE_ACCEPT_ADDRESS
-      asio::ip::tcp::resolver::query tcp_query(config.httpAddress(),
-					       config.httpPort());
+      asio::ip::tcp::resolver::query tcp_query(config_.httpAddress(),
+					       config_.httpPort());
       tcp_endpoint = *resolver.resolve(tcp_query);
 #else // !NO_RESOLVE_ACCEPT_ADDRESS
       tcp_endpoint.address
-	(asio::ip::address::from_string(config.httpAddress()));
+	(asio::ip::address::from_string(config_.httpAddress()));
       tcp_endpoint.port(atoi(httpPort.c_str()));
 #endif // NO_RESOLVE_ACCEPT_ADDRESS
     }
@@ -107,36 +112,37 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
     tcp_acceptor_.bind(tcp_endpoint);
     tcp_acceptor_.listen();
 
-    config.log("notice") << "Started server: http://" << config.httpAddress() << ":"
-			 << this->httpPort();
+    config_.log("notice") << "Started server: http://"
+			  << config_.httpAddress() << ":"
+			  << this->httpPort();
 
     new_tcpconnection_.reset
-      (new TcpConnection(io_service_, this, connection_manager_, request_handler_));
-
+      (new TcpConnection(io_service_, this, connection_manager_,
+			 request_handler_));
   }
 
   // HTTPS
-  if (!config.httpsAddress().empty()) {
+  if (!config_.httpsAddress().empty()) {
 #ifdef HTTP_WITH_SSL
-    config.log("notice")
-      << "Starting server: https://" << config.httpsAddress() << ":"
-      << config.httpsPort();
+    config_.log("notice")
+      << "Starting server: https://" << config_.httpsAddress() << ":"
+      << config_.httpsPort();
 
     ssl_context_.set_options(asio::ssl::context::default_workarounds
 			     | asio::ssl::context::no_sslv2
 			     | asio::ssl::context::single_dh_use);
-    ssl_context_.use_certificate_chain_file(config.sslCertificateChainFile());
-    ssl_context_.use_private_key_file(config.sslPrivateKeyFile(),
+    ssl_context_.use_certificate_chain_file(config_.sslCertificateChainFile());
+    ssl_context_.use_private_key_file(config_.sslPrivateKeyFile(),
 				      asio::ssl::context::pem);
-    ssl_context_.use_tmp_dh_file(config.sslTmpDHFile());
+    ssl_context_.use_tmp_dh_file(config_.sslTmpDHFile());
     
     asio::ip::tcp::endpoint ssl_endpoint;
 #ifndef NO_RESOLVE_ACCEPT_ADDRESS
-    asio::ip::tcp::resolver::query ssl_query(config.httpsAddress(),
-					     config.httpsPort());
+    asio::ip::tcp::resolver::query ssl_query(config_.httpsAddress(),
+					     config_.httpsPort());
     ssl_endpoint = *resolver.resolve(ssl_query);
 #else // !NO_RESOLVE_ACCEPT_ADDRESS
-    ssl_endpoint.address(asio::ip::address::from_string(config.httpsAddress()));
+    ssl_endpoint.address(asio::ip::address::from_string(config_.httpsAddress()));
     ssl_endpoint.port(atoi(httpsPort.c_str()));
 #endif // NO_RESOLVE_ACCEPT_ADDRESS
 
@@ -150,9 +156,8 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
 			 request_handler_));
 
 #else // HTTP_WITH_SSL
-    config.log("error")
-      << "Wthttpd was built without support for SSL: "
-      "cannot start https server.";
+    config_.log("error")
+      << "Wthttpd was built without support for SSL: cannot start https server.";
 #endif // HTTP_WITH_SSL
   }
 
@@ -185,6 +190,7 @@ void Server::startAccept()
 			       boost::bind(&Server::handleTcpAccept, this,
 					   asio::placeholders::error)));
   }
+
 #ifdef HTTP_WITH_SSL
   if (new_sslconnection_) {
     ssl_acceptor_.async_accept(new_sslconnection_->socket(),
@@ -218,10 +224,25 @@ void Server::stop()
 		   (boost::bind(&Server::handleStop, this)));
 }
 
+void Server::resume()
+{
+  io_service_.post(boost::bind(&Server::handleResume, this));
+}
+
+void Server::handleResume()
+{
+  tcp_acceptor_.close();
+
+#ifdef HTTP_WITH_SSL
+  ssl_acceptor_.close();
+#endif // HTTP_WITH_SSL
+  
+  start();
+}
+
 void Server::handleTcpAccept(const asio_error_code& e)
 {
-  if (!e)
-  {
+  if (!e) {
     connection_manager_.start(new_tcpconnection_);
     new_tcpconnection_.reset(new TcpConnection(io_service_, this,
           connection_manager_, request_handler_));

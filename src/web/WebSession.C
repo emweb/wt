@@ -1644,23 +1644,26 @@ void WebSession::notify(const WEvent& event)
 			<< std::endl;
             }
 	  }
-	} else {
+	}
+
+	if (handler.response()
+	    && handler.response()->responseType() == WebResponse::Page
+	    && !env_->ajax()) {
+	  const std::string *hashE = request.getParameter("_");
+	  if (hashE)
+	    app_->changeInternalPath(*hashE);
+	  else if (!request.pathInfo().empty())
+	    app_->changeInternalPath(request.pathInfo());
+	  else
+	    app_->changeInternalPath("");
+	}
+
+	if (!signalE) {
 	  log("notice") << "Refreshing session";
 
 	  if (bootStyleResponse_) {
 	    bootStyleResponse_->flush();
 	    bootStyleResponse_ = 0;
-	  }
-
-	  if (handler.response()->responseType() == WebResponse::Page
-	      && !env_->ajax()) {
-	    const std::string *hashE = request.getParameter("_");
-	    if (hashE)
-	      app_->changeInternalPath(*hashE);
-	    else if (!request.pathInfo().empty())
-	      app_->changeInternalPath(request.pathInfo());
-	    else
-	      app_->changeInternalPath("");
 	  }
 
 #ifndef WT_TARGET_JAVA
@@ -1982,7 +1985,8 @@ void WebSession::notifySignal(const WEvent& e)
       if (hashE) {
 	app_->changeInternalPath(*hashE);
 	app_->doJavaScript(WT_CLASS ".scrollIntoView('" + *hashE + "');");
-      }
+      } else
+	app_->changeInternalPath("");
     } else if (*signalE == "none" || *signalE == "load") {
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);

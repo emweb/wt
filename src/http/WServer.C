@@ -281,6 +281,16 @@ BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
 }
 #endif
 
+void WServer::resume()
+{
+  if (!isRunning()) {
+    std::cerr << "WServer::resume() error: server not yet started!" << std::endl;
+    return;
+  } else {
+    impl_->server_->resume();    
+  }
+}
+
 void WServer::stop()
 {
   if (!isRunning()) {

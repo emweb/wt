@@ -61,8 +61,13 @@ OPTION(ENABLE_PANGO "Enable Pango Library, which is used for improved font suppo
 OPTION(ENABLE_EXT "Build Wt Ext library with JavaScript-only widgets (http://extjs.com/)" ON)
 OPTION(ENABLE_SQLITE "Build SQLite3 backend for Wt::Dbo" ON)
 OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
+OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
 OPTION(WT_NO_STD_LOCALE "Build Wt ro run on a system without std::locale support" OFF)
 OPTION(WT_NO_STD_WSTRING "Build Wt ro run on a system without std::wstring support" OFF)
+
+IF(APPLE)
+  OPTION(USE_BOOST_FRAMEWORK "Uses a Boost framework" OFF)
+ENDIF(APPLE)
 
 IF(NOT SHARED_LIBS)
   IF(WIN32)
@@ -100,11 +105,15 @@ SET(BUILD_SHARED_LIBS ${SHARED_LIBS})
 # - cmake version is too old (prior to 2.6 series)
 # - BOOST_COMPILER or BOOST_VERSION was defined (compatibility with existing
 #   build scripts)
-IF(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION)
+# - USE_BOOST_FRAMEWORK: we've adapted the vintage boost cmake find
+#   script to locate a boost.framework
+#
+IF(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION OR USE_BOOST_FRAMEWORK)
   SET(DEFAULT_WT_BOOST_DISCOVERY TRUE)
-ELSE(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION)
+ELSE(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION OR USE_BOOST_FRAMEWORK)
   SET(DEFAULT_WT_BOOST_DISCOVERY FALSE)
-ENDIF(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION)
+ENDIF(DEFINED BOOST_COMPILER OR DEFINED BOOST_VERSION OR USE_BOOST_FRAMEWORK)
+
 # There's no decent boost discovery prior to cmake 2.6
 IF(CMAKE_MAJOR_VERSION LESS 2)
   SET(DEFAULT_WT_BOOST_DISCOVERY TRUE)
@@ -235,10 +244,13 @@ INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
 INCLUDE(cmake/WtFindPangoFt2.txt)
 
-FIND_PACKAGE(Qt4)
-IF(QT_FOUND)
-  INCLUDE(${QT_USE_FILE})
-ENDIF(QT_FOUND)
+IF(ENABLE_QT4)
+  FIND_PACKAGE(Qt4)
+
+  IF(QT_FOUND)
+    INCLUDE(${QT_USE_FILE})
+  ENDIF(QT_FOUND)
+ENDIF(ENABLE_QT4)
 
 INCLUDE(FindThreads)
 

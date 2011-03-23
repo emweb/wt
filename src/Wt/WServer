@@ -198,6 +198,15 @@ public:
    */
   void stop();
 
+  /*! \brief Resumes the server.
+   *
+   * This closes and reopens the listen socket(s) for accepting new
+   * TCP and/or SSL connections. This may be needed when the OS (like
+   * IPhoneOS) has closed the sockets while suspending the
+   * application.
+   */
+  void resume();
+
   /*! \brief Waits for a shutdown signal.
    *
    * This static method blocks the current thread, waiting for a
