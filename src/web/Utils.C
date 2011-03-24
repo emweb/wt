@@ -15,6 +15,7 @@
 #include <boost/lambda/bind.hpp>
 
 #include <cstdlib>
+#include <ctype.h>
 #include <sstream>
 #include <stdio.h>
 #include <iostream>

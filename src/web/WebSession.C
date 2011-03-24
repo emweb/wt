@@ -656,8 +656,16 @@ void WebSession
       return;
     }
 
-  session->log("error") << "WApplication::attachThread(): "
-			<< "no thread is holding this application's lock ?";
+  /*
+   * We actually have two scenarios:
+   * - attachThread() once to have WApplication::instance() work, nothing else
+   *   should execute what we have below. That will not work reliably !
+   * - attachThread() in the wtwithqt case
+   *   should execute what we have supra
+   */
+  session->log("warning") << "WApplication::attachThread(): "
+			  << "no thread is holding this application's lock ?";
+  attachThreadToHandler(new Handler(session, false));
 #else
   attachThreadToHandler(new Handler(session, false));
 #endif 

@@ -243,6 +243,7 @@ INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
 INCLUDE(cmake/WtFindPangoFt2.txt)
+INCLUDE(cmake/WtFindSystemLibraries.txt)
 
 IF(ENABLE_QT4)
   FIND_PACKAGE(Qt4)

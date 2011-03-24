@@ -6,6 +6,8 @@
 
 #include "PlannerApplication.h"
 
+#include <stdlib.h>
+
 using namespace Wt;
 using namespace Wt::Dbo;
 

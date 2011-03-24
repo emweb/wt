@@ -12,6 +12,7 @@
 #include "Tag.h"
 
 #include <Wt/Dbo/Impl>
+#include <ctype.h>
 
 DBO_INSTANTIATE_TEMPLATES(Post);
 

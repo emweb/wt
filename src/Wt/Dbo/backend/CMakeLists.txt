@@ -26,7 +26,12 @@ IF(ENABLE_SQLITE)
 
   MESSAGE("** Wt::Dbo: building SQLite3 backend.")
 
-  TARGET_LINK_LIBRARIES(wtdbosqlite3 wtdbo ${SQLITE3_LIBRARIES} ${BOOST_DT_LIB} ${WT_THREAD_LIB})
+  TARGET_LINK_LIBRARIES(wtdbosqlite3 wtdbo
+      ${SQLITE3_LIBRARIES}
+      ${BOOST_DT_LIB}
+      ${WT_THREAD_LIB}
+      ${WT_MATH_LIBRARY}
+      )
 
   IF(NOT WIN32)
     FIND_LIBRARY(DL_LIB

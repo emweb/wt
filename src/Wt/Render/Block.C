@@ -18,6 +18,7 @@
 #include "WtException.h"
 
 #include <iostream>
+#include <math.h>
 #include <boost/tuple/tuple.hpp>
 #include <boost/algorithm/string.hpp>
 

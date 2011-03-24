@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <stdio.h>
 
 #ifdef WT_HAVE_GNU_REGEX
 #include <regex.h>

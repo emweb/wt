@@ -4,6 +4,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <stdlib.h>
 #if 0
 #include <boost/bind.hpp>
 #include <boost/spirit/include/qi.hpp>

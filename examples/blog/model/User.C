@@ -3,7 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__QNXNTO__)
 #define _XOPEN_SOURCE
 #include <unistd.h>
 #endif

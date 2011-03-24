@@ -65,7 +65,7 @@ void FolderView::dropEvent(const Wt::WDropEvent& event,
 
       WModelIndexSet toChange = selection->selectedIndexes();
 
-      for (WModelIndexSet::const_reverse_iterator i = toChange.rbegin();
+      for (WModelIndexSet::reverse_iterator i = toChange.rbegin();
 	   i != toChange.rend(); ++i) {
 	WModelIndex index = *i;
 
