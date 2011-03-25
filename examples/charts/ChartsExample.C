@@ -131,14 +131,14 @@ CategoryExample::CategoryExample(Wt::WContainerWidget *parent):
    * Create the category chart.
    */
   WCartesianChart *chart = new WCartesianChart(this);
-  //chart->setPreferredMethod(WPaintedWidget::PngImage);
+  // chart->setPreferredMethod(WPaintedWidget::PngImage);
   chart->setModel(model);        // set the model
   chart->setXSeriesColumn(0);    // set the column that holds the categories
   chart->setLegendEnabled(true); // enable the legend
 
   // Provide space for the X and Y axis and title. 
-  chart->setPlotAreaPadding(100, Left);
-  chart->setPlotAreaPadding(50, Top | Bottom);
+  chart->setPlotAreaPadding(80, Left);
+  chart->setPlotAreaPadding(40, Top | Bottom);
 
   /*
    * Add all (but first) column as bar series
@@ -229,8 +229,8 @@ TimeSeriesExample::TimeSeriesExample(Wt::WContainerWidget *parent):
   chart->axis(XAxis).setScale(DateScale); // set scale of X axis to DateScale
 
   // Provide space for the X and Y axis and title. 
-  chart->setPlotAreaPadding(100, Left);
-  chart->setPlotAreaPadding(50, Top | Bottom);
+  chart->setPlotAreaPadding(80, Left);
+  chart->setPlotAreaPadding(40, Top | Bottom);
 
   /*
    * Add first two columns as line series
@@ -281,8 +281,8 @@ ScatterPlotExample::ScatterPlotExample(WContainerWidget *parent):
   chart->axis(YAxis).setLocation(ZeroValue);
 
   // Provide space for the X and Y axis and title. 
-  chart->setPlotAreaPadding(100, Left);
-  chart->setPlotAreaPadding(50, Top | Bottom);
+  chart->setPlotAreaPadding(80, Left);
+  chart->setPlotAreaPadding(40, Top | Bottom);
 
   // Add the curves
   WDataSeries s(1, CurveSeries);

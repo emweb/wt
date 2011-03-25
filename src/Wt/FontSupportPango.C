@@ -27,23 +27,33 @@
 #ifndef DOXYGEN_ONLY
 
 namespace {
-  double pangoUnitsToDouble(const int u) 
-  {
-    return u / PANGO_SCALE;
-  }
 
-  int pangoUnitsFromDouble(const double u)
-  {
-    return (int) u * PANGO_SCALE;
-  }
+double pangoUnitsToDouble(const int u) 
+{
+  return u / PANGO_SCALE;
+}
+
+int pangoUnitsFromDouble(const double u)
+{
+  return (int) u * PANGO_SCALE;
+}
+
+/*
+ * A global font map, since this one leaks as hell, and it cannot stand
+ * being used in thread local storage since cleanup (with thread exit)
+ * doesn't work properly.
+ *
+ * It is not clear what operations involving the font map are thread-safe,
+ * so here we serialize everything using a mutex.
+ */
+
+PangoFontMap *pangoFontMap = 0;
 
 #ifdef WT_THREADED
-  boost::thread_specific_ptr<PangoFontMap> pangoFontMap
-    ((void (*)(PangoFontMap *))g_object_unref);
-#define PANGO_FONT_MAP_PTR pangoFontMap.get()  
+boost::recursive_mutex pangoMutex;
+#define PANGO_LOCK boost::recursive_mutex::scoped_lock lock(pangoMutex);
 #else
-  PangoFontMap *pangoFontMap = 0;
-#define PANGO_FONT_MAP_PTR pangoFontMap
+#define PANGO_LOCK
 #endif // WT_THREADED
 }
 
@@ -76,22 +86,21 @@ FontSupport::FontSupport(WPaintDevice *paintDevice)
   : device_(paintDevice),
     matchFont_(0)
 {
-#ifdef WT_THREADED
-  if (!pangoFontMap.get())
-    pangoFontMap.reset(pango_ft2_font_map_new());
-#else
+  PANGO_LOCK;
+
   if (!pangoFontMap)
     pangoFontMap = pango_ft2_font_map_new();
-#endif
 
   context_
-    = pango_ft2_font_map_create_context((PangoFT2FontMap*)PANGO_FONT_MAP_PTR);
+    = pango_ft2_font_map_create_context((PangoFT2FontMap*)pangoFontMap);
 
   currentFont_ = 0;
 }
 
 FontSupport::~FontSupport()
 {
+  PANGO_LOCK;
+
   if (matchFont_)
     g_object_unref(matchFont_);
 
@@ -161,11 +170,13 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 {
+  PANGO_LOCK;
+
   PangoFontDescription *desc = createFontDescription(f);
 
   if (matchFont_)
     g_object_unref(matchFont_);
-  matchFont_ = pango_font_map_load_font(PANGO_FONT_MAP_PTR, context_, desc);
+  matchFont_ = pango_font_map_load_font(pangoFontMap, context_, desc);
 
   pango_font_description_free(desc);
 
@@ -189,6 +200,8 @@ std::string FontSupport::drawingFontPath() const
 
 std::string FontSupport::fontPath(PangoFont *font)
 {
+  PANGO_LOCK;
+
   PangoFcFont *f = (PangoFcFont *)font;
   FT_Face face = pango_fc_font_lock_face(f);
 
@@ -206,6 +219,8 @@ GList *FontSupport::layoutText(const WFont& font,
 			       std::vector<PangoGlyphString *>& glyphs,
 			       int& width)
 {
+  PANGO_LOCK;
+
   PangoFontDescription *desc = createFontDescription(font);
   pango_context_set_font_description(context_, desc);
   pango_font_description_free(desc);
@@ -250,6 +265,8 @@ GList *FontSupport::layoutText(const WFont& font,
 void FontSupport::drawText(const WFont& font, const WRectF& rect,
 			   WFlags<AlignmentFlag> flags, const WString& text)
 {
+  PANGO_LOCK;
+
   std::string utf8 = text.toUTF8();
 
   std::vector<PangoGlyphString *> glyphs;
@@ -314,6 +331,8 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
 WFontMetrics FontSupport::fontMetrics(const WFont& font)
 {
+  PANGO_LOCK;
+
   PangoFont *pangoFont = matchFont(font).pangoFont();
   PangoFontMetrics *metrics = pango_font_get_metrics(pangoFont, NULL);
 
@@ -335,6 +354,8 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
 WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 				   double maxWidth, bool wordWrap)
 {
+  PANGO_LOCK;
+
   /*
    * Note: accurate measuring on a bitmap requires that the transformation
    * is applied, because hinting may push chars to boundaries e.g. when
@@ -416,6 +437,8 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 			   WFlags<AlignmentFlag> flags,
 			   const WString& text)
 {
+  PANGO_LOCK;
+
   PangoMatrix matrix;
   matrix.xx = transform.m11();
   matrix.xy = transform.m21();
