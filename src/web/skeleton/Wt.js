@@ -116,8 +116,10 @@ this.initAjaxComm = function(url, handler) {
       request = new XMLHttpRequest();
       if (crossDomain) {
 	if ("withCredentials" in request) {
-	  if (url)
+	  if (url) {
 	    request.open(method, url, true);
+	    request.withCredentials = "true";
+	  }
 	} else if (typeof XDomainRequest != "undefined") {
 	  request = new XDomainRequest();
 	  if (url) {

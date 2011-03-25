@@ -7,6 +7,8 @@
 
 	* Wt.js: fitToWindow() when object is wider/taller than window (#766)
 
+	* WebSession: support cookies in CORS (withCredentials flag)
+
 23-03-2011:
 	* target/osx: Add script to generate an OSX Framework for iPad/iPhone
 
