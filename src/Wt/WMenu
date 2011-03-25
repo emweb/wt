@@ -572,6 +572,7 @@ private:
 
   int indexOf(WMenuItem *item) const;
 
+  void itemPathChanged(WMenuItem *item);
   void selectVisual(WMenuItem *item);
   void selectVisual(int item, bool changePath);
   void undoSelectVisual();

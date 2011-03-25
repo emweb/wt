@@ -203,14 +203,19 @@ WMenuItem *WMenu::addItem(WMenuItem *item)
 
   item->renderHidden(item->isHidden());
 
+  itemPathChanged(item);
+
+  return item;
+}
+
+void WMenu::itemPathChanged(WMenuItem *item)
+{
   if (internalPathEnabled_) {
     WApplication *app = wApp;
 
     if (app->internalPathMatches(basePath_ + item->pathComponent()))
-      select(items_.size() - 1, false);
+      select(indexOf(item), false);
   }
-
-  return item;
 }
 
 void WMenu::removeItem(WMenuItem *item)

@@ -109,12 +109,7 @@ WRasterImage::WRasterImage(const std::string& type,
   strcpy(image_->magick, type.c_str());
 
   context_ = 0;
-
-  fontSupport_ = new FontSupport(this);
-
-  /* If the font support can actually render fonts to bitmaps, we use that */
-  if (fontSupport_->canRender())
-    fontSupport_->setDevice(0);
+  fontSupport_ = 0;
 }
 
 void WRasterImage::clear()
@@ -151,6 +146,12 @@ WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 
 void WRasterImage::init()
 {
+  fontSupport_ = new FontSupport(this);
+
+  /* If the font support can actually render fonts to bitmaps, we use that */
+  if (fontSupport_->canRender())
+    fontSupport_->setDevice(0);
+
   internalInit(true);
 }
 
@@ -176,6 +177,14 @@ void WRasterImage::internalInit(bool applyChanges)
 }
 
 void WRasterImage::done()
+{
+  internalDone();
+
+  delete fontSupport_;
+  fontSupport_ = 0;
+}
+
+void WRasterImage::internalDone()
 {
   if (context_) {
     DrawPopGraphicContext(context_); // for painter->combinedTransform()
@@ -276,6 +285,8 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 	applyTransform(t.inverted());
       }
     } else {
+      currentClipPath_ = -1;
+
       if (context_) {
 	DrawPopGraphicContext(context_);
 	DrawPopGraphicContext(context_);
@@ -580,7 +591,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     DrawComposite(context_, OverCompositeOp, rect.x(), rect.y(),
 		  rect.width(), rect.height(), croppedImage);
   } else {
-    done();
+    internalDone();
 
     CompositeImage(image_, OverCompositeOp, croppedImage,
 		   rect.x() + t.dx(), rect.y() + t.dy());
@@ -807,7 +818,7 @@ void WRasterImage::drawText(const WRectF& rect,
     if (painter()->hasClipping())
       setChanged(Clipping);
 
-    done();
+    internalDone();
 
     if (currentClipPath_ != currentClipPathRendered_) {
       if (currentClipPath_ != -1) {

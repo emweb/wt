@@ -149,7 +149,6 @@ private:
 
 #ifdef HAVE_PANGO
 
-  PangoFontMap *fontMap_;
   PangoContext *context_;
   PangoFont *currentFont_;
 

@@ -143,6 +143,9 @@ void WMenuItem::setPathComponent(const std::string& path)
 
   if (itemWidget_)
     updateItemWidget(itemWidget_);
+
+  if (menu_)
+    menu_->itemPathChanged(this);
 }
 
 void WMenuItem::setCloseable(bool closeable)

@@ -36,6 +36,15 @@ namespace {
   {
     return (int) u * PANGO_SCALE;
   }
+
+#ifdef WT_THREADED
+  boost::thread_specific_ptr<PangoFontMap> pangoFontMap
+    ((void (*)(PangoFontMap *))g_object_unref);
+#define PANGO_FONT_MAP_PTR pangoFontMap.get()  
+#else
+  PangoFontMap *pangoFontMap = 0;
+#define PANGO_FONT_MAP_PTR pangoFontMap
+#endif // WT_THREADED
 }
 
 namespace Wt {
@@ -67,21 +76,17 @@ FontSupport::FontSupport(WPaintDevice *paintDevice)
   : device_(paintDevice),
     matchFont_(0)
 {
-  static const char *fontMapKey = "PangoFontMap";
+#ifdef WT_THREADED
+  if (!pangoFontMap.get())
+    pangoFontMap.reset(pango_ft2_font_map_new());
+#else
+  if (!pangoFontMap)
+    pangoFontMap = pango_ft2_font_map_new();
+#endif
 
-  WApplication *app = WApplication::instance();
+  context_
+    = pango_ft2_font_map_create_context((PangoFT2FontMap*)PANGO_FONT_MAP_PTR);
 
-  boost::any fm = app->getObject(fontMapKey);
-  if (!fm.empty()) {
-    fontMap_ = boost::any_cast<boost::shared_ptr<PangoFontMap> >(fm).get();
-  } else {
-    fontMap_ = pango_ft2_font_map_new();
-
-    boost::shared_ptr<PangoFontMap> pfm(fontMap_, g_object_unref);
-    app->storeObject(fontMapKey, pfm);
-  }
-
-  context_ = pango_ft2_font_map_create_context((PangoFT2FontMap*)fontMap_);
   currentFont_ = 0;
 }
 
@@ -160,7 +165,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 
   if (matchFont_)
     g_object_unref(matchFont_);
-  matchFont_ = pango_font_map_load_font(fontMap_, context_, desc);
+  matchFont_ = pango_font_map_load_font(PANGO_FONT_MAP_PTR, context_, desc);
 
   pango_font_description_free(desc);
 

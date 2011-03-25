@@ -173,6 +173,7 @@ private:
   int currentClipPathRendered_;
 
   void internalInit(bool applyChanges = true);
+  void internalDone();
   void paintPath();
   void drawPlainPath(const WPainterPath& path);
   void setTransform(const WTransform& t);

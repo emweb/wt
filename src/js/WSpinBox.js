@@ -25,6 +25,10 @@ WT_DECLARE_WT_MEMBER
    var dragStartXY = null, dragStartValue, changed = false;
    var validator = null;
 
+   function isReadOnly() {
+     return edit.getAttribute("readonly") !== null;
+   }
+
    function getValue() {
      var v = edit.value;
      if (v.substr(0, prefix.length) == prefix) {
@@ -85,6 +89,9 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.mouseMove = function(o, event) {
+     if (isReadOnly())
+       return;
+
      if (!dragStartXY) {
        var xy = WT.widgetCoordinates(edit, event);
        $edit.removeClass('Wt-spinbox-dn').removeClass('Wt-spinbox-up');
@@ -113,6 +120,9 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.mouseDown = function(o, event) {
+     if (isReadOnly())
+       return;
+
      if (edit.style.cursor == CH) {
        WT.capture(null);
        WT.capture(edit);
@@ -136,6 +146,9 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.mouseUp = function(o, event) {
+     if (isReadOnly())
+       return;
+
      if (changed || dragStartXY != null) {
        dragStartXY = null;
        o.onchange();
@@ -145,6 +158,9 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.keyDown = function(o, event) {
+     if (isReadOnly())
+       return;
+
      if (event.keyCode == key_down)
        WT.eventRepeat(function() { dec(); });
      else if (event.keyCode == key_up)
@@ -152,6 +168,9 @@ WT_DECLARE_WT_MEMBER
    };
 
    this.keyUp = function(o, event) {
+     if (isReadOnly())
+       return;
+
      if (changed) {
        changed = false;
        o.onchange();
