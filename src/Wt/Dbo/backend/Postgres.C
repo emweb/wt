@@ -500,6 +500,10 @@ private:
   }
 };
 
+Postgres::Postgres()
+  : conn_(NULL)
+{ }
+
 Postgres::Postgres(const std::string& db)
   : conn_(NULL)
 {
