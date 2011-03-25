@@ -5,6 +5,8 @@
 
 	* W*Slider: fix 0 value and readonly attribute behaviour (#748, #749)
 
+	* Wt.js: fitToWindow() when object is wider/taller than window (#766)
+
 23-03-2011:
 	* target/osx: Add script to generate an OSX Framework for iPad/iPhone
 

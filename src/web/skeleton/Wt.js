@@ -1071,12 +1071,15 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
   var ow = WT.widgetPageCoordinates(e.offsetParent);
 
   var hsides = [ 'left', 'right' ],
-      vsides = ['top', 'bottom' ],
+      vsides = [ 'top', 'bottom' ],
       ew = WT.px(e, 'maxWidth') || e.offsetWidth,
       eh = WT.px(e, 'maxHeight') || e.offsetHeight,
       hside, vside;
 
-  if (x + ew > wx + ws.x) { // too far right, chose other side
+  if (ew > wx) { // wider than window
+    x = wx;
+    hside = 0;
+  } else if (x + ew > wx + ws.x) { // too far right, chose other side
     rightx -= ow.x;
     x = e.offsetParent.offsetWidth - (rightx + WT.px(e, 'marginRight'));
     hside = 1;
@@ -1086,7 +1089,10 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     hside = 0;
   }
 
-  if (y + eh > wy + ws.y) { // too far below, chose other side
+  if (ew > wx) { // taller than window
+    y = wy;
+    vside = 0;
+  } else if (y + eh > wy + ws.y) { // too far below, chose other side
     if (bottomy > wy + ws.y)
       bottomy = wy + ws.y;
     bottomy -= ow.y;
