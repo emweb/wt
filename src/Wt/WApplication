@@ -19,6 +19,8 @@ namespace boost {
   class pool;
 }
 
+#include <boost/any.hpp>
+
 #include <Wt/WObject>
 #include <Wt/WCssStyleSheet>
 #include <Wt/WEvent>

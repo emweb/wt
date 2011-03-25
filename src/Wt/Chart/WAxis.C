@@ -65,8 +65,8 @@ class ExtremesIterator : public SeriesIterator
 public:
   ExtremesIterator(Axis axis, AxisScale scale)
     : axis_(axis), scale_(scale),
-      minimum_(WAxis::AUTO_MINIMUM),
-      maximum_(WAxis::AUTO_MAXIMUM)
+      minimum_(DBL_MAX),
+      maximum_(-DBL_MAX)
   { }
 
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
@@ -102,8 +102,8 @@ WAxis::TickLabel::TickLabel(double v, TickLength length, const WString& l)
     label(l)
 { }
 
-const double WAxis::AUTO_MINIMUM = DBL_MAX;
-const double WAxis::AUTO_MAXIMUM = -DBL_MAX;
+const double WAxis::AUTO_MINIMUM = -DBL_MAX;
+const double WAxis::AUTO_MAXIMUM = DBL_MAX;
 
 WAxis::Segment::Segment()
   : minimum(AUTO_MINIMUM),
@@ -120,6 +120,7 @@ WAxis::WAxis()
     visible_(true),
     location_(MinimumValue),
     scale_(LinearScale),
+    resolution_(0.0),
     labelInterval_(0),
     gridLines_(false),
     gridLinesPen_(gray),
@@ -213,6 +214,12 @@ void WAxis::setRange(double minimum, double maximum)
 
     update();
   }
+}
+
+void WAxis::setResolution(const double resolution)
+{
+  resolution_ = resolution;
+  update();
 }
 
 void WAxis::setAutoLimits(WFlags<AxisValue> locations)
@@ -435,8 +442,8 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
     segment.renderMinimum = segment.minimum;
     segment.renderMaximum = segment.maximum;
 
-    bool findMinimum = segment.renderMinimum == AUTO_MINIMUM;
-    bool findMaximum = segment.renderMaximum == AUTO_MAXIMUM;
+    const bool findMinimum = segment.renderMinimum == AUTO_MINIMUM;
+    const bool findMaximum = segment.renderMaximum == AUTO_MAXIMUM;
 
     if (findMinimum || findMaximum) {
       double minimum = std::numeric_limits<double>::max();
@@ -477,30 +484,44 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
     
     double diff = segment.renderMaximum - segment.renderMinimum;
 
-    if (std::fabs(diff) < std::numeric_limits<double>::epsilon()) {
-      /*
-       * When the two values or equal, there is no way of knowing what
-       * is a plausible range. Take the surrounding integer values
-       */
-      if (scale_ == LogScale) {
-	if (findMinimum)
-	  segment.renderMinimum
-	    = std::pow(10,
-		       (std::floor(std::log10(segment.renderMinimum - 0.1))));
-	if (findMaximum)
-	  segment.renderMaximum
-	    = std::pow(10,
-		       (std::ceil(std::log10(segment.renderMaximum + 0.1))));
-      } else {
-	if (findMinimum)
-	  segment.renderMinimum = std::floor(segment.renderMinimum - 1E-4);
-	if (findMaximum)
-	  segment.renderMaximum = std::ceil(segment.renderMaximum + 1E-4);
-      }
+    if (scale_ == LogScale || scale_ == LinearScale) {
+      double resolution = resolution_;
 
-      diff = segment.renderMaximum - segment.renderMinimum;
+      /*
+       * Old behaviour + for LogScale we ignore a resolution set (because,
+       * we always include a single log (log scale is not useful when
+       * variation is small, anyway).
+       */
+      if (resolution == 0 || scale_ == LogScale)
+	resolution = std::numeric_limits<double>::epsilon();
+
+      if (std::fabs(diff) < resolution) {
+	double average = (segment.renderMaximum + segment.renderMinimum) / 2.0;
+
+	double d = resolution_;
+
+	if (scale_ == LogScale)
+	  d = 0.2;
+	else if (d == 0)
+	  d = 2E-4;
+
+        if (findMinimum && findMaximum) {
+          segment.renderMaximum = average + d / 2.0;
+          segment.renderMinimum = average - d / 2.0;
+        } else if (findMinimum) {
+          segment.renderMinimum = segment.renderMaximum - d;
+        } else if (findMaximum) {
+          segment.renderMaximum = segment.renderMinimum + d;
+        }
+
+	diff = segment.renderMaximum - segment.renderMinimum;
+      }
     }
 
+    /*
+     * Heuristic to extend range to include 0 or to span at least one
+     * log
+     */
     if (scale_ == LinearScale) {
       if (findMinimum && segment.renderMinimum >= 0
 	  && (segment.renderMinimum - 0.50 * diff <= 0))
@@ -520,6 +541,8 @@ void WAxis::computeRange(WChart2DRenderer& renderer, const Segment& segment)
 	segment.renderMaximum = std::pow(10, (maxLog10));
     }
   }
+
+  assert(segment.renderMinimum < segment.renderMaximum);
 }
 
 double WAxis::mapToDevice(const boost::any& value, int segment) const

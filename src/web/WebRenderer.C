@@ -40,6 +40,7 @@ namespace skeletons {
   extern const char *Hybrid_html1;
   extern const char *Wt_js1;
   extern const char *Boot_js1;
+  extern const char *JQuery_js1;
 
   extern std::vector<const char *> JQuery_js();
   extern std::vector<const char *> Wt_js();
@@ -589,11 +590,19 @@ void WebRenderer::serveMainscript(WebResponse& response)
   formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
 
+#ifndef WT_TARGET_JAVA
   std::vector<const char *> parts = skeletons::JQuery_js();
   for (std::size_t i = 0; i < parts.size(); ++i)
     response.out() << parts[i];
+#else
+  response.out() << skeletons::JQuery_js1;
+#endif
 
+#ifndef WT_TARGET_JAVA
   parts = skeletons::Wt_js();
+#else
+  std::vector<const char *> parts = std::vector<const char *>();
+#endif
   std::string Wt_js_combined;
   if (parts.size() > 1)
     for (std::size_t i = 0; i < parts.size(); ++i)

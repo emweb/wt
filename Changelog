@@ -9,6 +9,8 @@
 
 	* WebSession: support cookies in CORS (withCredentials flag)
 
+	* Wt/WAxis: setResolution() implementation, contributed by Gaetano Mendola
+
 23-03-2011:
 	* target/osx: Add script to generate an OSX Framework for iPad/iPhone
 

@@ -282,6 +282,23 @@ public:
    */
   void setRange(double minimum, double maximum);
 
+  /*! \brief Sets the axis resolution.
+   *
+   * Specifies the axis resolution, in case maximum-minimum < resolution
+   * minimum and maximum are modified so the maximum - minimum = resolution
+   *
+   * The default resolution is 0, which uses a built-in epsilon.
+   *
+   * \sa resolution()
+   */
+  void setResolution(double resolution);
+
+  /*! \brief Returns the axis resolution.
+   *
+   * \sa setResolution()
+   */
+  double resolution() const { return resolution_; }
+
   /*! \brief Let the minimum and/or maximum be calculated from the
    *         data.
    *
@@ -500,6 +517,7 @@ private:
   bool             visible_;
   AxisValue        location_;
   AxisScale        scale_;
+  double           resolution_;
   double           labelInterval_;
   WString          labelFormat_;
   bool             gridLines_;

@@ -98,6 +98,16 @@ public:
    */
   int currentYSegment() const { return currentYSegment_; }
 
+  static void setPenColor(WPen& pen,
+			  const WModelIndex& xIndex,
+			  const WModelIndex& yIndex,
+			  int colorRole);
+
+  static void setBrushColor(WBrush& brush,
+			    const WModelIndex& xIndex,
+			    const WModelIndex& yIndex,
+			    int colorRole);
+
 private:
   int currentXSegment_, currentYSegment_;
 };

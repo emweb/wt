@@ -23,42 +23,6 @@
 
 namespace {
   const int TICK_LENGTH = 5;
-
-  using namespace Wt;
-
-  void setPenColor(WPen& pen,
-		   const WModelIndex& xIndex,
-		   const WModelIndex& yIndex,
-		   int colorRole)
-  {
-    boost::any color;
-
-    if (yIndex.isValid())
-      color = yIndex.data(colorRole);
-
-    if (color.empty() && xIndex.isValid())
-      color = xIndex.data(colorRole);
-
-    if (!color.empty())
-      pen.setColor(boost::any_cast<WColor>(color));
-  }
-
-  void setBrushColor(WBrush& brush,
-		     const WModelIndex& xIndex,
-		     const WModelIndex& yIndex,
-		     int colorRole) 
-  {
-    boost::any color;
-
-    if (yIndex.isValid())
-      color = yIndex.data(colorRole);
-
-    if (color.empty() && xIndex.isValid())
-      color = xIndex.data(colorRole);
-
-    if (!color.empty())
-      brush.setColor(boost::any_cast<WColor>(color));
-  }
 }
 
 namespace Wt {
@@ -92,6 +56,41 @@ void SeriesIterator::newValue(const WDataSeries& series,
 			      const WModelIndex& xIndex,
 			      const WModelIndex& yIndex)
 { }
+
+
+void SeriesIterator::setPenColor(WPen& pen,
+				 const WModelIndex& xIndex,
+				 const WModelIndex& yIndex,
+				 int colorRole)
+{
+  boost::any color;
+
+  if (yIndex.isValid())
+    color = yIndex.data(colorRole);
+
+  if (color.empty() && xIndex.isValid())
+    color = xIndex.data(colorRole);
+
+  if (!color.empty())
+    pen.setColor(boost::any_cast<WColor>(color));
+}
+
+void SeriesIterator::setBrushColor(WBrush& brush,
+				   const WModelIndex& xIndex,
+				   const WModelIndex& yIndex,
+				   int colorRole) 
+{
+  boost::any color;
+
+  if (yIndex.isValid())
+    color = yIndex.data(colorRole);
+
+  if (color.empty() && xIndex.isValid())
+    color = xIndex.data(colorRole);
+
+  if (!color.empty())
+    brush.setColor(boost::any_cast<WColor>(color));
+}
 
 class SeriesRenderer;
 
@@ -333,13 +332,13 @@ public:
     renderer_.painter().setShadow(series_.shadow());
 
     WBrush brush = WBrush(series_.brush());
-    setBrushColor(brush, xIndex, yIndex, BarBrushColorRole);
+    SeriesIterator::setBrushColor(brush, xIndex, yIndex, BarBrushColorRole);
     renderer_.painter().fillPath(bar, brush);
 
     renderer_.painter().setShadow(WShadow());
 
     WPen pen = WPen(series_.pen());
-    setPenColor(pen, xIndex, yIndex, BarPenColorRole);
+    SeriesIterator::setPenColor(pen, xIndex, yIndex, BarPenColorRole);
     renderer_.painter().strokePath(bar, pen);
 
     boost::any toolTip = yIndex.data(ToolTipRole);
