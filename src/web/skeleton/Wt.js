@@ -1078,7 +1078,7 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
       eh = WT.px(e, 'maxHeight') || e.offsetHeight,
       hside, vside;
 
-  if (ew > wx) { // wider than window
+  if (ew > ws.x) { // wider than window
     x = wx;
     hside = 0;
   } else if (x + ew > wx + ws.x) { // too far right, chose other side
@@ -1091,7 +1091,7 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     hside = 0;
   }
 
-  if (ew > wx) { // taller than window
+  if (ew > ws.y) { // taller than window
     y = wy;
     vside = 0;
   } else if (y + eh > wy + ws.y) { // too far below, chose other side

@@ -7,7 +7,7 @@
 
 FIND_PACKAGE(PkgConfig)
 
-pkg_check_modules(PC_PANGO_FT2 pangoft2)
+PKG_CHECK_MODULES(PC_PANGO_FT2 pangoft2)
 
 FIND_PATH(PANGO_INCLUDE_DIR pango/pangoft2.h
           HINTS ${PC_PANGO_FT2_INCLUDE_DIRS})

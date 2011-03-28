@@ -413,8 +413,16 @@ private:
 			   std::set<std::string>& tablesDropped);
     virtual void rereadAll();
   };
-
-  typedef std::map<const std::type_info *, MappingInfo *> ClassRegistry;
+  
+  typedef const std::type_info * const_typeinfo_ptr;
+  struct typecomp {
+    bool operator() (const const_typeinfo_ptr& lhs, const const_typeinfo_ptr& rhs) const 
+	{
+		return lhs->before(*rhs);
+	}
+  };
+  
+  typedef std::map<const_typeinfo_ptr, MappingInfo *, typecomp> ClassRegistry;
   typedef std::map<std::string, MappingInfo *> TableRegistry;
 
   ClassRegistry      classRegistry_;

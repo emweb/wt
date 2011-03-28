@@ -665,26 +665,28 @@ void WebRenderer::serveMainscript(WebResponse& response)
     if (app->enableAjax_) {
       // Before-load JavaScript of libraries that were loaded directly
       // in HTML
-      collectedJS1_ << "var form = " WT_CLASS ".getElement('Wt-form'); if (form) {"
-		    << beforeLoadJS_.str();
+      collectedJS1_ << "var form = " WT_CLASS ".getElement('Wt-form'); "
+	"if (form) {" << beforeLoadJS_.str();
+
       beforeLoadJS_.str("");
 
       collectedJS1_
 	<< "var domRoot = " << app->domRoot_->jsRef() << ";"
-	"var form = " WT_CLASS ".getElement('Wt-form');"
 	"domRoot.style.display = form.style.display;"
 	"document.body.replaceChild(domRoot, form);";
 
       // Load JavaScript libraries that were added during enableAjax()
       int librariesLoaded = loadScriptLibraries(collectedJS1_, app); 
 
-      collectedJS1_ << app->newBeforeLoadJavaScript() << "}";
+      collectedJS1_ << app->newBeforeLoadJavaScript();
  
       collectedJS2_
-	<< "if (domRoot) domRoot.style.visibility = 'visible';"
+	<< "domRoot.style.visibility = 'visible';"
 	<< app->javaScriptClass() << "._p_.doAutoJavaScript();";
 
       loadScriptLibraries(collectedJS2_, app, librariesLoaded);
+
+      collectedJS2_ << "}";
 
       app->enableAjax_ = false;
     }

@@ -242,7 +242,11 @@ INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
-INCLUDE(cmake/WtFindPangoFt2.txt)
+
+IF (ENABLE_PANGO)
+  INCLUDE(cmake/WtFindPangoFt2.txt)
+ENDIF (ENABLE_PANGO)
+
 INCLUDE(cmake/WtFindSystemLibraries.txt)
 
 IF(ENABLE_QT4)

@@ -55,7 +55,10 @@ void WCompositeWidget::setId(const std::string& id)
 
 WWidget *WCompositeWidget::find(const std::string& name)
 {
-  return impl_->find(name);
+  if (objectName() == name)
+    return this;
+  else
+    return impl_->find(name);
 }
 
 void WCompositeWidget::setSelectable(bool selectable)
