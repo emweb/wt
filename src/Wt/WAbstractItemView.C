@@ -876,14 +876,14 @@ WModelIndexSet WAbstractItemView::selectedIndexes() const
 
 void WAbstractItemView::scheduleRerender(RenderState what)
 {
-  if (!isRendered())
-    return;
-
   if ((what == NeedRerenderHeader && renderState_ == NeedRerenderData)
       || (what == NeedRerenderData && renderState_ == NeedRerenderHeader))
     renderState_ = NeedRerender;
   else
     renderState_ = std::max(what, renderState_);
+
+  if (!isRendered())
+    return;
 
   askRerender();
 }
