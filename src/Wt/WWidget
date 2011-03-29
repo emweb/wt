@@ -633,7 +633,7 @@ public:
   /*! \brief Returns a JavaScript expression to the corresponding DOM node.
    *
    * You may want to use this in conjunction with JSlot or
-   * WApplication::doJavaScript() in custom JavaScript code.
+   * doJavaScript() in custom JavaScript code.
    *
    * \sa isRendered()
    */
@@ -645,7 +645,7 @@ public:
    * This is only useful when processing dom nodes associated with widgets
    * in custom JavaScript code.
    *
-   * \sa JSlot, WApplication::doJavaScript()
+   * \sa JSlot, doJavaScript()
    */
   virtual void setAttributeValue(const std::string& name,
 				 const WT_USTRING& value) = 0;
@@ -805,16 +805,20 @@ public:
    */
   virtual void setSelectable(bool selectable) = 0;
 
-  /*! \brief Executes the given JavaScript statements, possibly delayed
-   *  until after the widget is rendered.
+  /*! \brief Executes the given JavaScript statements when
+   *         the widget is rendered or updated.
    *
-   * Calling WApplication::doJavaScript() with JavaScript code that refers
-   * to a widget that is still to be rendered causes JavaScript errors. This
-   * happens for example when an object is created, but not yet inserted in
-   * the widget tree.
+   * Calling WApplication::doJavaScript() with JavaScript code that
+   * refers to a widget using jsRef(), that is still to be rendered
+   * may cause JavaScript errors because the corresponding DOM node
+   * does not exist. This happens for example when a widget is
+   * created, but not yet inserted in the widget tree.
    *
-   * This method offers an alternative: it queues up all doJavaScript calls
-   * for widgets that were not yet rendered until they are rendered.
+   * This method guarantees that the JavaScript code is only run when
+   * the corresponding DOM node (using jsRef()) resolves to a valid
+   * DOM object.
+   *
+   * \sa jsRef()
    */
   virtual void doJavaScript(const std::string& js) = 0;
 

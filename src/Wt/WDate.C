@@ -139,11 +139,6 @@ bool WDate::isNull() const
   return year_ == -1;
 }
 
-bool WDate::isLeapYear(int year)
-{
-  return isValid(year, 2, 29);
-}
-
 bool WDate::isValid(int year, int month, int day)
 {
   WDate d(year, month, day);

@@ -1829,6 +1829,7 @@ void WWebWidget::doLoad(WWidget *w)
 void WWebWidget::render(WFlags<RenderFlag> flags)
 {
   WWidget::render(flags);
+
   if (otherImpl_ && otherImpl_->delayedDoJavaScript_) {
     wApp->doJavaScript(otherImpl_->delayedDoJavaScript_->str());
     delete otherImpl_->delayedDoJavaScript_;
@@ -1838,15 +1839,13 @@ void WWebWidget::render(WFlags<RenderFlag> flags)
 
 void WWebWidget::doJavaScript(const std::string& javascript)
 {
-  if (isRendered())
-    wApp->doJavaScript(javascript);
-  else {
-    if (!otherImpl_)
-      otherImpl_ = new OtherImpl;
-    if (!otherImpl_->delayedDoJavaScript_)
-      otherImpl_->delayedDoJavaScript_ = new SStream;
-    (*otherImpl_->delayedDoJavaScript_) << javascript;
-  }
+  if (!otherImpl_)
+    otherImpl_ = new OtherImpl;
+  if (!otherImpl_->delayedDoJavaScript_)
+    otherImpl_->delayedDoJavaScript_ = new SStream;
+  (*otherImpl_->delayedDoJavaScript_) << javascript;
+
+  repaint(RepaintAll);
 }
 
 bool WWebWidget::loaded() const
