@@ -323,7 +323,12 @@ public:
    */
   static WDate currentServerDate();
 
+  /*! \brief Returns whether the given year is a leap year.
+   *
+   * A leap year has 29 days in February, in case you wondered.
+   */
   static bool isLeapYear(int year);
+
   static bool isValid(int year, int month, int day);
 
   /*! \brief Returns the short day name.

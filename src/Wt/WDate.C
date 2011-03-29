@@ -59,17 +59,10 @@ WDate WDate::addDays(int ndays) const
 WDate WDate::addMonths(int nmonths) const
 {
   if (valid_) {
-    int month = month_ + nmonths;
-    div_t a = div(month - 1, 12);
-    int year = year_ + a.quot;
-    month = 1 + a.rem;
+    date d(year_, month_, day_);
+    d += months(nmonths);
 
-    if (month <= 0) {
-      month += 12;
-      year -= 1;
-    }
-
-    return WDate(year, month, day_);
+    return WDate(d.year(), d.month(), d.day());
   } else
     return *this;
 }
@@ -77,7 +70,10 @@ WDate WDate::addMonths(int nmonths) const
 WDate WDate::addYears(int nyears) const
 {
   if (valid_) {
-    return WDate(year_ + nyears, month_, day_);
+    date d(year_, month_, day_);
+    d += years(nyears);
+
+    return WDate(d.year(), d.month(), d.day());
   } else
     return *this;
 }
@@ -97,6 +93,11 @@ void WDate::setDate(int year, int month, int day)
     if (app)
       app->log("warn") << "Invalid date: " << e.what();
   }
+}
+
+bool WDate::isLeapYear(int year)
+{
+ return gregorian_calendar::is_leap_year(year);
 }
 
 int WDate::dayOfWeek() const

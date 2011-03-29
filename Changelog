@@ -1,6 +1,9 @@
 29-03-2011:
 	* WAbstractItemView: fix API usage when not rendered
 
+	* WDate: patches from Gaetano Mendola w.r.t. invalid dates after month/year
+	operations + isLeapYear() implementation
+
 25-03-2011:
 	* FontSupportPango: store leaky pango_font_map in thread local memory
 
