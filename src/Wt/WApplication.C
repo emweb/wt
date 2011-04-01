@@ -1301,7 +1301,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
 void WApplication::UpdateLock::release()
 {
   std::cerr << "Releasing update lock" << std::endl;
-  if (WApplication::instance()->request()) {
+  if (WebSession::Handler::instance()->request()) {
     std::cerr << "Releasing handler" << std::endl;
     WebSession::Handler::instance()->release();
   }

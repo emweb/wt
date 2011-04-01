@@ -1070,6 +1070,9 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
   var wx = document.body.scrollLeft + document.documentElement.scrollLeft;
   var wy = document.body.scrollTop + document.documentElement.scrollTop;
 
+  if (!e.offsetParent)
+    return;
+
   var ow = WT.widgetPageCoordinates(e.offsetParent);
 
   var hsides = [ 'left', 'right' ],
@@ -1129,10 +1132,15 @@ this.positionXY = function(id, x, y) {
 this.Horizontal = 0x1;
 this.Vertical = 0x2;
 
-this.positionAtWidget = function(id, atId, orientation, parentInRoot) {
+this.positionAtWidget = function(id, atId, orientation, parentInRoot,
+				 autoShow) {
   var w = WT.getElement(id),
-    atw = WT.getElement(atId),
-    xy = WT.widgetPageCoordinates(atw),
+    atw = WT.getElement(atId);
+
+  if (!atw || !w)
+    return;
+
+  var xy = WT.widgetPageCoordinates(atw),
     x, y, rightx, bottomy;
 
   if (parentInRoot) {
@@ -1140,8 +1148,9 @@ this.positionAtWidget = function(id, atId, orientation, parentInRoot) {
     $('.Wt-domRoot').get(0).appendChild(w);
   }
 
-  w.style.position='absolute';
-  w.style.display='block';
+  w.style.position = 'absolute';
+  if (autoShow)
+    w.style.display = 'block';
 
   if (orientation == WT.Horizontal) {
     x = xy.x + atw.offsetWidth;

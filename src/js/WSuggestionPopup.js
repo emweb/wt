@@ -48,7 +48,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function positionPopup(edit) {
-     WT.positionAtWidget(el.id, edit.id, WT.Vertical, global);
+     WT.positionAtWidget(el.id, edit.id, WT.Vertical, global, true);
    }
 
    function contentClicked(event) {

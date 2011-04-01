@@ -321,7 +321,9 @@ private:
 
 struct WEvent::Impl {
   WebSession::Handler *handler;
+#ifndef WT_CNOR
   boost::function<void ()> function;
+#endif
   bool renderOnly;
 
   Impl(WebSession::Handler *aHandler, bool doRenderOnly = false)
@@ -329,11 +331,13 @@ struct WEvent::Impl {
       renderOnly(doRenderOnly)
   { }
 
+#ifndef WT_CNOR
   Impl(const boost::function<void ()>& aFunction)
     : handler(0),
       function(aFunction),
       renderOnly(false)
   { }
+#endif
 
   Impl()
     : handler(0)

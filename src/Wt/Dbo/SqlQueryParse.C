@@ -13,8 +13,6 @@
 #  define SPIRIT_QUERY_PARSE
 #endif
 
-#undef SPIRIT_QUERY_PARSE
-
 #ifdef SPIRIT_QUERY_PARSE
 
 #include <boost/spirit/include/qi.hpp>

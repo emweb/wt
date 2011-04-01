@@ -163,7 +163,12 @@ void WFileUpload::onData(::uint64_t current, ::uint64_t total)
 {
   dataReceived_.emit(current, total);
 
-  if (WebSession::Handler::instance()->request()->postDataExceeded()) {
+  WebSession::Handler *h = WebSession::Handler::instance();
+
+  ::int64_t dataExceeded = h->request()->postDataExceeded();
+  h->setRequest(0, 0); // so that triggerUpdate() will work
+
+  if (dataExceeded) {
     if (uploading_) {
       uploading_ = false;
       handleFileTooLargeImpl();

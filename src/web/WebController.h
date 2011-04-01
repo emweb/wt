@@ -34,6 +34,7 @@ class WebStream;
 class WApplication;
 class WAbstractServer;
 
+#ifndef WT_CNOR
 /*
  * An event to be delivered to a session which is not caused by a web
  * request (or, probably not one for that session).
@@ -47,6 +48,7 @@ struct ApplicationEvent {
   std::string sessionId;
   boost::function<void ()> function;
 };
+#endif
 
 /*
  * The controller is a singleton class
@@ -89,8 +91,11 @@ public:
 			   boost::uintmax_t total);
 
   void handleRequest(WebRequest *request);
+
+#ifndef WT_CNOR
   bool handleApplicationEvent(const ApplicationEvent& event);
   void post(const boost::function<void()>& function);
+#endif // WT_CNOR
 
   bool expireSessions();
   void forceShutdown();
