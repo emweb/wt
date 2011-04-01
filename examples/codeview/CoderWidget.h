@@ -20,9 +20,7 @@ public:
   virtual ~CoderWidget();
 
 private:
-  Wt::WApplication *app_;
   CodeSession *session_;
-  CodeSession::Connection connection_;
 
   Wt::WContainerWidget *buffers_;
   Wt::WText *observerCount_;

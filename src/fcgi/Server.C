@@ -821,7 +821,9 @@ struct WServerImpl {
 WServer::WServer(const std::string& applicationPath,
 		 const std::string& configurationFile)
   : impl_(new WServerImpl(applicationPath, configurationFile))
-{ }
+{ 
+  instance_ = this;
+}
 
 WServer::~WServer()
 {
@@ -943,6 +945,20 @@ void WServer::addResource(WResource *resource, const std::string& path)
 void WServer::handleRequest(WebRequest *request)
 {
   theController->handleRequest(request);
+}
+
+void WServer::post(const boost::function<void ()>& function)
+{
+  theController->post(function);
+}
+
+void WServer::post(const std::string& sessionId,
+		   const boost::function<void ()>& function)
+{
+  ApplicationEvent event(sessionId, function);
+
+  post(boost::bind(&WebController::handleApplicationEvent,
+		   theController, event));
 }
 
 std::string WServer::appRoot() const

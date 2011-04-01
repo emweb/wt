@@ -12,6 +12,7 @@
 namespace Wt {
 
 class WebRequest;
+class WServer;
 
 class WT_API WAbstractServer
 {
@@ -20,6 +21,9 @@ public:
 
   virtual void handleRequest(WebRequest *request) = 0;
   virtual bool usesSlashExceptionForInternalPaths() const = 0;
+
+protected:
+  static WServer *instance_;
 };
 
 }

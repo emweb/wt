@@ -21,10 +21,6 @@ using namespace Wt;
  */
 /*@{*/
 
-/*! \brief The single chat server instance.
- */
-SimpleChatServer theServer;
-
 /*! \brief A chat demo application.
  */
 class ChatApplication : public WApplication
@@ -32,24 +28,29 @@ class ChatApplication : public WApplication
 public:
   /*! \brief Create a new instance.
    */
-  ChatApplication(const WEnvironment& env);
+  ChatApplication(const WEnvironment& env, SimpleChatServer& server);
 
 private:
+  SimpleChatServer& server_;
+
   /*! \brief Add another chat client.
    */
   void addChatWidget();
 };
 
-ChatApplication::ChatApplication(const WEnvironment& env)
-  : WApplication(env)
+ChatApplication::ChatApplication(const WEnvironment& env,
+				 SimpleChatServer& server)
+  : WApplication(env),
+    server_(server)
 {
   setTitle("Wt Chat");
   useStyleSheet("chatapp.css");
-  messageResourceBundle().use(Wt::WApplication::appRoot() + "simplechat");
+
+  messageResourceBundle().use(appRoot() + "simplechat");
 
   root()->addWidget(new WText(WString::tr("introduction")));
 
-  SimpleChatWidget *chatWidget = new SimpleChatWidget(theServer, root());
+  SimpleChatWidget *chatWidget = new SimpleChatWidget(server_, root());
   chatWidget->setStyleClass("chat");
 
   root()->addWidget(new WText(WString::tr("details")));
@@ -61,7 +62,7 @@ ChatApplication::ChatApplication(const WEnvironment& env)
 
 void ChatApplication::addChatWidget()
 {
-  SimpleChatWidget *chatWidget2 = new SimpleChatWidget(theServer, root());
+  SimpleChatWidget *chatWidget2 = new SimpleChatWidget(server_, root());
   chatWidget2->setStyleClass("chat");
 }
 
@@ -70,13 +71,13 @@ void ChatApplication::addChatWidget()
 class ChatWidget : public WApplication
 {
 public:
-  ChatWidget(const WEnvironment& env);
+  ChatWidget(const WEnvironment& env, SimpleChatServer& server);
 
 private:
   JSignal<WString> login_;
 };
 
-ChatWidget::ChatWidget(const WEnvironment& env)
+ChatWidget::ChatWidget(const WEnvironment& env, SimpleChatServer& server)
   : WApplication(env),
     login_(this, "login")
 {
@@ -87,7 +88,7 @@ ChatWidget::ChatWidget(const WEnvironment& env)
 
   if (div) {
     setJavaScriptClass(*div);
-    PopupChatWidget *chatWidget = new PopupChatWidget(theServer);
+    PopupChatWidget *chatWidget = new PopupChatWidget(server);
     bindWidget(chatWidget, *div);
 
     login_.connect(chatWidget, &PopupChatWidget::setName);
@@ -102,23 +103,34 @@ ChatWidget::ChatWidget(const WEnvironment& env)
   }
 }
 
-WApplication *createApplication(const WEnvironment& env)
+WApplication *createApplication(const WEnvironment& env,
+				SimpleChatServer& server)
 {
-  return new ChatApplication(env);
+  return new ChatApplication(env, server);
 }
 
-WApplication *createWidget(const WEnvironment& env)
+WApplication *createWidget(const WEnvironment& env, SimpleChatServer& server)
 {
-  return new ChatWidget(env);
+  return new ChatWidget(env, server);
 }
 
 int main(int argc, char **argv)
 {
   Wt::WServer server(argv[0]);
+  SimpleChatServer chatServer(server);
 
   server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
-  server.addEntryPoint(Wt::Application, createApplication);
-  server.addEntryPoint(Wt::WidgetSet, createWidget, "/chat.js");
+
+  /*
+   * We add two entry points: one for the full-window application,
+   * and one for a widget that can be integrated in another page.
+   */
+  server.addEntryPoint(Wt::Application,
+		       boost::bind(createApplication, _1,
+				   boost::ref(chatServer)));
+  server.addEntryPoint(Wt::WidgetSet,
+		       boost::bind(createWidget, _1,
+				   boost::ref(chatServer)), "/chat.js");
 
   if (server.start()) {
     int sig = Wt::WServer::waitForShutdown();

@@ -14,8 +14,16 @@
 /*
  * This is a minimal server push example, which is used to update the GUI
  * while a big work is computing in another thread.
+ *
+ * This example grabs the userinterface UpdateLock to directly modify
+ * an application's user-interface from a worker thread. This works
+ * fine for a thread that was created and is owned by a single
+ * application, doing work involving only that application.
+ *
+ * In more complex scenarios, it may be easier to use WServer::post()
+ * to post an event to a session. This approach is illustrated in the
+ * simplechat example.
  */
-
 class BigWorkWidget : public Wt::WContainerWidget
 {
 public:
@@ -60,9 +68,9 @@ private:
   /*
    * This function runs from another thread.
    *
-   * From within this thread, we cannot use WApplication::instance(), since
-   * that use thread-local storage. We can only access WApplication::instance()
-   * after we have grabbed its update-lock.
+   * From within this thread, we cannot use WApplication::instance(),
+   * since that use thread-local storage. We can only access
+   * WApplication::instance() after we have grabbed its update-lock.
    */
   void doBigWork(Wt::WApplication *app)
   {
@@ -80,6 +88,7 @@ private:
     }
 
     Wt::WApplication::UpdateLock uiLock(app);
+
     if (uiLock) {
       startButton_->enable();
       startButton_->setText("Again!");

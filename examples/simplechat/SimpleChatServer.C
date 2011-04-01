@@ -5,8 +5,7 @@
  */
 
 #include "SimpleChatServer.h"
-
-#include <Wt/SyncLock>
+#include <Wt/WServer>
 
 #include <iostream>
 #include <boost/lexical_cast.hpp>
@@ -45,23 +44,23 @@ const WString ChatEvent::formattedHTML(const WString& user) const
 }
 
 
-SimpleChatServer::SimpleChatServer()
-  : chatEvent_(this)
+SimpleChatServer::SimpleChatServer(WServer& server)
+  : server_(server)
 { }
 
-bool SimpleChatServer::login(const WString& user)
+bool SimpleChatServer::login(const WString& user,
+			     const ChatEventCallback& handleEvent)
 {
-  // In every application path that holds a lock to a mutex while also
-  // trying to update another application (as is in this method the
-  // case during chatEvent_.emit()) we need to use Wt::SyncLock to
-  // avoid dead-locks.
-
-  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
+  boost::recursive_mutex::scoped_lock lock(mutex_);
   
   if (users_.find(user) == users_.end()) {
-    users_.insert(user);
+    UserInfo userInfo;
+    userInfo.sessionId = WApplication::instance()->sessionId();
+    userInfo.eventCallback = handleEvent;
 
-    chatEvent_.emit(ChatEvent(ChatEvent::Login, user));
+    users_[user] = userInfo;
+
+    postChatEvent(ChatEvent(ChatEvent::Login, user));
 
     return true;
   } else
@@ -70,14 +69,14 @@ bool SimpleChatServer::login(const WString& user)
 
 void SimpleChatServer::logout(const WString& user)
 {
-  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
-  
-  UserSet::iterator i = users_.find(user);
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+
+  UserMap::iterator i = users_.find(user);
 
   if (i != users_.end()) {
     users_.erase(i);
 
-    chatEvent_.emit(ChatEvent(ChatEvent::Logout, user));
+    postChatEvent(ChatEvent(ChatEvent::Logout, user));
   }
 }
 
@@ -86,16 +85,16 @@ bool SimpleChatServer::changeName(const WString& user, const WString& newUser)
   if (user == newUser)
     return true;
 
-  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
+  boost::recursive_mutex::scoped_lock lock(mutex_);
   
-  UserSet::iterator i = users_.find(user);
+  UserMap::iterator i = users_.find(user);
 
   if (i != users_.end()) {
     if (users_.find(newUser) == users_.end()) {
       users_.erase(i);
-      users_.insert(newUser);
+      users_[newUser] = i->second;
 
-      chatEvent_.emit(ChatEvent(ChatEvent::Rename, user, newUser));
+      postChatEvent(ChatEvent(ChatEvent::Rename, user, newUser));
 
       return true;
     } else
@@ -106,7 +105,7 @@ bool SimpleChatServer::changeName(const WString& user, const WString& newUser)
 
 WString SimpleChatServer::suggestGuest()
 {
-  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
+  boost::recursive_mutex::scoped_lock lock(mutex_);
 
   for (int i = 1;; ++i) {
     std::string s = "guest " + boost::lexical_cast<std::string>(i);
@@ -119,14 +118,42 @@ WString SimpleChatServer::suggestGuest()
 
 void SimpleChatServer::sendMessage(const WString& user, const WString& message)
 {
-  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
+  postChatEvent(ChatEvent(user, message));
+}
 
-  chatEvent_.emit(ChatEvent(user, message));
+void SimpleChatServer::postChatEvent(const ChatEvent& event)
+{
+  boost::recursive_mutex::scoped_lock lock(mutex_);
+
+  WApplication *app = WApplication::instance();
+
+  for (UserMap::const_iterator i = users_.begin(); i != users_.end(); ++i) {
+    /*
+     * If the user corresponds to the current application, we directly
+     * call the call back method. This avoids an unnecessary delay for
+     * the update to the user causing the event.
+     *
+     * For other uses, we post it to their session. By posting the
+     * event, we avoid dead-lock scenarios, race conditions, and
+     * delivering the event to a session that is just about to be
+     * terminated.
+     */
+    if (app && app->sessionId() == i->second.sessionId)
+      i->second.eventCallback(event);
+    else
+      server_.post(i->second.sessionId,
+		   boost::bind(i->second.eventCallback, event));
+  }
 }
 
 SimpleChatServer::UserSet SimpleChatServer::users()
 {
-  SyncLock<boost::recursive_mutex::scoped_lock> lock(mutex_);
+  boost::recursive_mutex::scoped_lock lock(mutex_);
 
-  return users_;
+  UserSet result;
+  for (UserMap::const_iterator i = users_.begin(); i != users_.end(); ++i)
+    result.insert(i->first);
+
+  return result;
 }
+

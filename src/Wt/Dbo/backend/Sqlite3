@@ -76,6 +76,10 @@ public:
    */
   sqlite3 *connection() { return db_; }
 
+  /*! \brief Returns the underlying connection string.
+   */
+  std::string connectionString() { return conn_; }
+
   /*! \brief Configures how to store date or date time.
    *
    * The default format is ISO8601AsText.

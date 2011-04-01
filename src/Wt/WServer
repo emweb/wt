@@ -22,12 +22,11 @@ struct WServerImpl;
  * This server class represents an instance of an application server.
  *
  * It offers support for multiple application entry points and control
- * over starting and stopping the server (the latter functionality is
- * only for supported for the built-in httpd). This may be used as an
+ * over starting and stopping the server. This may be used as an
  * alternative to using WRun() when you wish to support multiple
- * application entry points, or for integrating a Wt (stand-alone
- * httpd) server application into an existing application, when you want
- * to and start and stop the server as appropriate.
+ * application entry points, or for integrating a %Wt (stand-alone
+ * httpd) server application into an existing application, with control
+ * over starting and stopping the server as appropriate.
  *
  * As an example usage, consider the implementation of WRun(), which
  * starts the server until a Ctrl-C is pressed or a termination signal
@@ -262,14 +261,43 @@ public:
    *
    * \sa WApplication::readConfigurationProperty()
    */
-   bool readConfigurationProperty(const std::string& name,
-				  std::string& value) const;
+  bool readConfigurationProperty(const std::string& name,
+				 std::string& value) const;
 
   void expireSessions();
 
   WServerImpl *impl() { return impl_; }
 
   virtual void handleRequest(WebRequest *request);
+
+  /*! \brief Posts a function to a session.
+   *
+   * This is a thread-safe method to post a particular event
+   * (implemented as a function object) to be run within the context
+   * of a session, identified by its WApplication::sessionId(). The
+   * method will safely handle the case where the session is being
+   * terminated, and the session lock will be taken to execute the
+   * function in the context of the session, just as with a request
+   * initiated by the client.
+   *
+   * The method returns immediately, and the function will be run
+   * within the thread-pool that handles incoming web requests. In
+   * this way, it avoids dead-lock scenarios.
+   *
+   * This provides a good alternative to grabbing the update lock of
+   * an application to directly push changes to a session out of its
+   * event loop.
+   */
+  void post(const std::string& sessionId, const boost::function<void ()>& function);
+
+  /*! \brief Returns the server instance.
+   *
+   * Returns the single server instance. This may be useful when using
+   * WRun(), which does not provide direct access to the instantiated
+   * server, but still you want to use functions like
+   * post().
+   */
+  static WServer *instance() { return instance_; }
 
   /*! \brief Initializes a thread.
    *
@@ -278,7 +306,7 @@ public:
    *
    * The default implementation does nothing.
    *
-   * \note This currently only works for the built-in httpd
+   * \note This currently only works for the built-in httpd connector.
    */
   virtual void initializeThread();
 
@@ -286,6 +314,8 @@ public:
 
 private:
   WServerImpl *impl_;
+
+  void post(const boost::function<void ()>& function);
 };
 
 }

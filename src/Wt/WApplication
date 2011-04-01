@@ -847,21 +847,46 @@ public:
    * response to execution of another thread), and these changes are
    * propagated by calling triggerUpdate().
    *
+   * \if cpp
+   * There are two ways for safely manipulating a session's UI, with
+   * respect to thread-safety and application life-time (the library
+   * can decide to terminate an application if it lost connectivity
+   * with the browser).
+   *
+   * <h3>WServer::post()</h3>
+   *
+   * The easiest and less error-prone solution is to post an event,
+   * represented by a function/method call, to a session using
+   * WServer::post().
+   *
+   * The method is non-blocking: it returns immediately, avoiding
+   * dead-lock scenarios. The function is called from within a thread
+   * of the server's thread pool, and not if the session has been or
+   * is being terminated. The function is called in the context of the
+   * targeted application session, and with exclusive access to the
+   * session.
+   *
+   * <h3>WApplication::UpdateLock</h3>
+   *
+   * A more direct approach is to grab the application's update lock and
+   * manipulate the application's state directly from another thread.
+   *
+   * At any time, the application may be deleted (e.g. because of a
+   * time out or because the user closes the application window). You
+   * should thus make sure you do no longer reference an application
+   * after it has been deleted. When %Wt decides to delete an
+   * application, it first runs WApplication::finalize() and then
+   * invokes the destructor. While doing this, any other thread trying
+   * to grab the update lock will unblock, but the lock will return \c
+   * false. You should therefore always check whether the lock is
+   * valid.
+   *
+   * \elseif java
+   *
    * Note that you need to grab the application's update lock to avoid
    * concurrency problems, whenever you modify the application's state
    * from another thread.
    *
-   * \if cpp
-   * At any time, the application may be deleted (e.g. because
-   * of a time out or because the user closes the application
-   * window). You should thus make sure you do no longer reference an
-   * application after it has been deleted. When Wt decides to delete
-   * an application, it first runs WApplication::finalize() and then
-   * invokes the destructor. While doing this, any other thread trying
-   * to grab the update lock will succeed but WApplication::instance()
-   * will return 0 -- i.e. the application is not actually locked. You
-   * should therefore always check WApplication::instance() after you
-   * locked the application.
    * \endif
    *
    * An example of how to modify the widget tree outside the event loop
@@ -929,11 +954,13 @@ public:
 
   /*! \brief Propagates server-initiated updates.
    *
-   * Propagate changes made to the user interface outside of the main
-   * event loop. This is only possible after a call to
-   * enableUpdates(), and must be done while holding the UpdateLock.
+   * This propagate changes made to the user interface outside of the
+   * main event loop, e.g. from another thread or from within
+   * WServer::post(). This call only has an effect after updates have
+   * been enabled (from within the normal event loop), using
+   * enableUpdates().
    *
-   * \sa enableUpdates(), UpdateLock
+   * \sa enableUpdates()
    */
   void triggerUpdate();
 
@@ -941,9 +968,12 @@ public:
   /*! \brief A RAII lock for manipulating and updating the
    *         application and its widgets outside of the event loop.
    *
-   * You need to take this lock only when you want to manipulate
-   * widgets outside of the event loop. Inside the event loop, this
-   * lock is already held by the library itself.
+   * You can use this lock to manipulate widgets outside of the event
+   * loop. Inside the event loop (including events posted using
+   * WServer::post()), this lock is already held by the library itself.
+   *
+   * The lock is recursive, so trying to take a lock, while already
+   * holding a lock, will not block.
    */
 #else
   /*! \brief A synchronization lock for manipulating and updating the
@@ -967,12 +997,14 @@ public:
      *
      * When one application <i>A</i> is trying to take the lock of an
      * another application <i>B</i>, this lock behaves like a
-     * Wt::SyncLock. Thus while application <i>A</i> waiting for
+     * Wt::SyncLock. Thus while application <i>A</i> waits for
      * application <i>B</i>'s update lock, application <i>B</i> or
      * <i>C</i> may succesfully take application <i>A</i>'s update
      * lock, in this way avoiding dead-lock situations.
      *
-     * \if cpp
+     * You should also consider WServer::post() for lock-free
+     * communication between different application sessions.
+     *
      * As soon as the library decides to destroy the application, the
      * lock will no longer succeed in taking the application lock. You
      * can need to detect this by checking that after the lock is taken,
@@ -983,7 +1015,6 @@ public:
      *   // exclusive access to app state
      * }
      * \endcode
-     * \endif
      */
     UpdateLock(WApplication *app);
 
@@ -1689,7 +1720,6 @@ private:
   Signal<std::string>    internalPathChanged_;
   bool                   internalPathIsChanged_;
   int                    serverPush_;
-  bool			 modifiedWithoutEvent_;
 #ifndef WT_TARGET_JAVA
   boost::pool<boost::default_user_allocator_new_delete> *eventSignalPool_;
 #endif // WT_TARGET_JAVA

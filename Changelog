@@ -1,3 +1,11 @@
+01-04-2011:
+	* Chart/WChart2DRenderer.C: avoid clipping with WRasterImage backend of
+	labels, titles by rendering in a wider box
+
+	* WServer::post(): for lock-free event delivery to a session, instead of
+	taking the WApplication::UpdateLock. Simplechat and codeview exapmles were
+	adapted to use this approach.
+
 29-03-2011:
 	* WAbstractItemView: fix API usage when not rendered
 

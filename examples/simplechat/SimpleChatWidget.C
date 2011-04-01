@@ -27,7 +27,6 @@ SimpleChatWidget::SimpleChatWidget(SimpleChatServer& server,
 				   Wt::WContainerWidget *parent)
   : WContainerWidget(parent),
     server_(server),
-    app_(WApplication::instance()),
     messageReceived_(0)
 {
   user_ = server_.suggestGuest();
@@ -67,21 +66,22 @@ void SimpleChatWidget::letLogin()
 
 void SimpleChatWidget::login()
 {
-  WString name = WWebWidget::escapeText(userNameEdit_->text());
+  if (!loggedIn()) {
+    WString name = WWebWidget::escapeText(userNameEdit_->text());
 
-  messageReceived_ = new WSound("sounds/message_received.mp3");
+    messageReceived_ = new WSound("sounds/message_received.mp3");
 
-  if (!startChat(name))
-    statusMsg_->setText("Sorry, name '" + name + "' is already taken.");
+    if (!startChat(name))
+      statusMsg_->setText("Sorry, name '" + name + "' is already taken.");
+  }
 }
 
 void SimpleChatWidget::logout()
 {
-  if (eventConnection_.connected()) {
-    eventConnection_.disconnect(); // do not listen for more events
+  if (loggedIn()) {
     server_.logout(user_);
 
-    app_->enableUpdates(false);
+    WApplication::instance()->enableUpdates(false);
 
     letLogin();
   }
@@ -149,20 +149,25 @@ void SimpleChatWidget::createLayout(WWidget *messages, WWidget *userList,
   setLayout(vLayout);
 }
 
+bool SimpleChatWidget::loggedIn() const
+{
+  return !userNameEdit_;
+}
+
 bool SimpleChatWidget::startChat(const WString& user)
 {
-  if (server_.login(user)) {
-    // this widget supports server-side updates its processChatEvent()
-    // method is connected to a slot that is triggered from outside this
-    // session's event loop (usually because another user enters text).
-    app_->enableUpdates(true);
+  /*
+   * When logging in, we pass our processChatEvent method as the function that
+   * is used to indicate a new chat event for this user.
+   */
+  if (server_.login(user,
+		    boost::bind(&SimpleChatWidget::processChatEvent, this, _1))) {
+    WApplication::instance()->enableUpdates(true);
 
-    // FIXME, chatEvent() needs to be protected by the server mutex too
-    eventConnection_
-      = server_.chatEvent().connect(this, &SimpleChatWidget::processChatEvent);
     user_ = user;    
 
     clear();
+    userNameEdit_ = 0;
 
     messages_ = new WContainerWidget();
     userList_ = new WContainerWidget();
@@ -279,70 +284,66 @@ void SimpleChatWidget::updateUser()
 
 void SimpleChatWidget::processChatEvent(const ChatEvent& event)
 {
+  // While in principle we are not receiving chat events when not logged in,
+  // We do get the notification that we are logging in, while we are logging in
+  if (!loggedIn())
+    return;
+
+  WApplication *app = WApplication::instance();
+
   /*
-   * This is where the "server-push" happens. This method is called
-   * when a new event or message needs to be notified to the user. In
-   * general, it is called from another session.
+   * This is where the "server-push" happens. The chat server posts to this
+   * event from other sessions, see SimpleChatServer::postChatEvent()
    */
 
   /*
-   * First, take the lock to safely manipulate the UI outside of the
-   * normal event loop, by having exclusive access to the session.
+   * Format and append the line to the conversation.
+   *
+   * This is also the step where the automatic XSS filtering will kick in:
+   * - if another user tried to pass on some JavaScript, it is filtered away.
+   * - if another user did not provide valid XHTML, the text is automatically
+   *   interpreted as PlainText
    */
-  WApplication::UpdateLock lock(app_);
+  /*
+   * If it is not a plain message, also update the user list.
+   */
+  if (event.type() != ChatEvent::Message) {
+    if (event.type() == ChatEvent::Rename
+	&& event.user() == user_)
+      user_ = event.data();
 
-  if (lock) {
-    /*
-     * Format and append the line to the conversation.
-     *
-     * This is also the step where the automatic XSS filtering will kick in:
-     * - if another user tried to pass on some JavaScript, it is filtered away.
-     * - if another user did not provide valid XHTML, the text is automatically
-     *   interpreted as PlainText
-     */
-    bool needPush = false;
-
-    /*
-     * If it is not a normal message, also update the user list.
-     */
-    if (event.type() != ChatEvent::Message) {
-      if (event.type() == ChatEvent::Rename
-	  && event.user() == user_)
-	user_ = event.data();
-
-      needPush = true;
-      updateUsers();
-    }
-
-    bool display = event.type() != ChatEvent::Message
-      || !userList_
-      || (users_.find(event.user()) != users_.end() && users_[event.user()]);
-
-    if (display) {
-      needPush = true;
-
-      WText *w = new WText(event.formattedHTML(user_), messages_);
-      w->setInline(false);
-      w->setStyleClass("chat-msg");
-
-      /*
-       * Leave not more than 100 messages in the back-log
-       */
-      if (messages_->count() > 100)
-	delete messages_->children()[0];
-
-      /*
-       * Little javascript trick to make sure we scroll along with new content
-       */
-      app_->doJavaScript(messages_->jsRef() + ".scrollTop += "
-			 + messages_->jsRef() + ".scrollHeight;");
-
-      /* If this message belongs to another user, play a received sound */
-      if (event.user() != user_ && messageReceived_)
-	messageReceived_->play();
-    }
-
-    if (needPush)
-      app_->triggerUpdate();
+    updateUsers();
   }
+
+  bool display = event.type() != ChatEvent::Message
+    || !userList_
+    || (users_.find(event.user()) != users_.end() && users_[event.user()]);
+
+  if (display) {
+    WText *w = new WText(event.formattedHTML(user_), messages_);
+    w->setInline(false);
+    w->setStyleClass("chat-msg");
+
+    /*
+     * Leave no more than 100 messages in the back-log
+     */
+    if (messages_->count() > 100)
+      delete messages_->children()[0];
+
+    /*
+     * Little javascript trick to make sure we scroll along with new content
+     */
+    app->doJavaScript(messages_->jsRef() + ".scrollTop += "
+		       + messages_->jsRef() + ".scrollHeight;");
+
+    /* If this message belongs to another user, play a received sound */
+    if (event.user() != user_ && messageReceived_)
+      messageReceived_->play();
+  }
+
+  /*
+   * This is the server push action: we propagate the updated UI to the client,
+   * (when the event was triggered by another user)
+   */
+  app->triggerUpdate();
 }

@@ -8,6 +8,8 @@
 
 namespace Wt {
 
+WServer *WAbstractServer::instance_ = 0;
+
 WAbstractServer::~WAbstractServer()
 { }
 

@@ -212,7 +212,7 @@ WString WDate::shortDayName(int weekday)
     = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
   if (WApplication::instance())
-    return WString::tr(WT_WDATE + v[weekday - 1]);
+    return WString::tr(WT_WDATE + "3." + v[weekday - 1]);
   else
     return WString::fromUTF8(v[weekday - 1]);
 }
@@ -269,7 +269,7 @@ WString WDate::shortMonthName(int month)
 			    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
   if (WApplication::instance())
-    return WString::tr(WT_WDATE + v[month - 1]);
+    return WString::tr(WT_WDATE + "3." + v[month - 1]);
   else
     return WString::fromUTF8(v[month - 1]);
 }

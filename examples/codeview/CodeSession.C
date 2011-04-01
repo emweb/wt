@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <Wt/WApplication>
+#include <Wt/WServer>
 #include <Wt/WRandom>
 
 #include "CodeSession.h"
@@ -11,57 +13,69 @@
 boost::recursive_mutex CodeSession::mutex_;
 std::vector<CodeSession *> CodeSession::sessions_;
 
-CodeSession::CodeSession()
-  : observers_(0),
-    coder_(true)
+CodeSession::CodeSession(const CoderCallback& coderCallback)
 {
   generateId();
+
+  coder_ = new Coder();
+  coder_->sessionId = Wt::WApplication::instance()->sessionId();
+  coder_->callback = coderCallback;
 
   Lock lock(mutex_);
   sessions_.push_back(this);
 }
 
-std::pair<CodeSession *, CodeSession::Connection>
-  CodeSession::addObserver(const std::string& anId,
-			   const BufferCallback& bufferCallback)
+CodeSession::~CodeSession()
+{
+  delete coder_;
+}
+
+CodeSession * CodeSession::addObserver(const std::string& id,
+				       const BufferCallback& bufferCallback)
 {
   Lock lock(mutex_);
 
   for (unsigned i = 0; i < sessions_.size(); ++i) {
     CodeSession *session = sessions_[i];
-    if (session->id() == anId) {
-      ++session->observers_;
+    if (session->id() == id) {
+      Observer observer;
+      observer.sessionId = Wt::WApplication::instance()->sessionId();
+      observer.callback = bufferCallback;
 
-      Connection conn = session->bufferChanged_.connect
-	(boost::bind(bufferCallback, _1, _2));
+      session->observers_.push_back(observer);
+      session->postSessionChanged();
 
-      session->sessionChanged_.emit();
-
-      return std::make_pair(session, conn);
+      return session;
     }
   }
 
-  return std::make_pair((CodeSession *)0, Connection());
+  return 0;
 }
 
-void CodeSession::removeObserver(const Connection& connection)
+void CodeSession::removeObserver()
 {
   Lock lock(mutex_);
 
-  --observers_;
-  connection.disconnect();
+  std::string sessionId = Wt::WApplication::instance()->sessionId();
 
-  sessionChanged_.emit();
+  for (unsigned i = 0; i < observers_.size(); ++i) {
+    if (observers_[i].sessionId == sessionId) {
+      observers_.erase(observers_.begin() + i);
 
-  deleteIfEmpty();
+      postSessionChanged();
+
+      deleteIfEmpty();
+      return;
+    }
+  }
 }
 
-void CodeSession::removeCoder(const Connection& connection)
+void CodeSession::removeCoder()
 {
   Lock lock(mutex_);
 
-  coder_ = false;
-  connection.disconnect();
+  delete coder_;
+  coder_ = 0;
 
   deleteIfEmpty();
 }
@@ -72,7 +86,7 @@ void CodeSession::insertBuffer(int index)
 
   buffers_.insert(buffers_.begin() + index, Buffer());
 
-  bufferChanged_.emit(index, Inserted);
+  postBufferChanged(index, Inserted);
 }
 
 void CodeSession::updateBuffer(int buffer, const Wt::WString& name,
@@ -83,7 +97,7 @@ void CodeSession::updateBuffer(int buffer, const Wt::WString& name,
   buffers_[buffer].name = name;
   buffers_[buffer].text = text;
 
-  bufferChanged_.emit(buffer, Changed);
+  postBufferChanged(buffer, Changed);
 }
 
 std::vector<CodeSession::Buffer> CodeSession::buffers() const
@@ -102,7 +116,7 @@ CodeSession::Buffer CodeSession::buffer(int buffer) const
 
 void CodeSession::deleteIfEmpty()
 {
-  if (observers_ == 0 && !coder_) {
+  if (observers_.size() == 0 && !coder_) {
     sessions_.erase(std::find(sessions_.begin(), sessions_.end(), this));
 
     delete this;
@@ -112,4 +126,20 @@ void CodeSession::deleteIfEmpty()
 void CodeSession::generateId()
 {
   id_ = Wt::WRandom::generateId(32);
+}
+
+void CodeSession::postSessionChanged()
+{
+  if (coder_)
+    Wt::WServer::instance()->post(coder_->sessionId, coder_->callback);
+}
+
+void CodeSession::postBufferChanged(int buffer, BufferUpdate update)
+{
+  for (unsigned i = 0; i < observers_.size(); ++i) {
+    Observer& observer = observers_[i];
+    Wt::WServer::instance()
+      ->post(observer.sessionId,
+	     boost::bind(observer.callback, buffer, update));
+  }
 }

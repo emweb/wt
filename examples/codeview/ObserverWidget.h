@@ -19,9 +19,7 @@ public:
   virtual ~ObserverWidget();
 
 private:
-  Wt::WApplication *app_;
   CodeSession *session_;
-  CodeSession::Connection connection_;
 
   void updateBuffer(int buffer, CodeSession::BufferUpdate update);
   void insertBuffer(const CodeSession::Buffer& buffer, int index);

@@ -130,7 +130,9 @@ struct WServerImpl {
 WServer::WServer(const std::string& applicationPath,
 		 const std::string& wtConfigurationFile)
   : impl_(new WServerImpl(applicationPath, wtConfigurationFile))
-{ }
+{
+  instance_ = this;
+}
 
 WServer::~WServer()
 {
@@ -350,12 +352,9 @@ void WServer::restart(int argc, char **argv, char **envp)
   for (int i = 0; i < 5; ++i) {
     int result = execve(path, argv, envp);
     if (result != 0)
-#ifndef WIN32
       sleep(1);
-#else
-      Sleep(1000);
-#endif
   }
+
   perror("execve");
 #endif
 }
@@ -363,6 +362,20 @@ void WServer::restart(int argc, char **argv, char **envp)
 void WServer::handleRequest(WebRequest *request)
 {
   impl_->webController_->handleRequest(request);
+}
+
+void WServer::post(const boost::function<void ()>& function)
+{
+  impl_->server_->service().post(function);
+}
+
+void WServer::post(const std::string& sessionId,
+		   const boost::function<void ()>& function)
+{
+  ApplicationEvent event(sessionId, function);
+
+  post(boost::bind(&WebController::handleApplicationEvent,
+		   impl_->webController_, event));
 }
 
 int WServer::waitForShutdown(const char *restartWatchFile)

@@ -47,7 +47,7 @@ public:
 	  std::wstring s;
 	  s = escape(t.substr(0, i)) + L"<span class=\"pos\">";
 
-	  if (i + 1 < t.length()) {
+	  if (i + 1 < (int)t.length()) {
 	    if (t[i] == '\n')
 	      s += L' ';
 	    s += escape(t.substr(i, 1)) + L"</span>";
@@ -76,16 +76,12 @@ private:
 };
 
 CoderWidget::CoderWidget()
-  : app_(WApplication::instance())
 {
-  app_->enableUpdates(true);
+  WApplication::instance()->enableUpdates(true);
 
-  session_ = new CodeSession();
-  connection_ 
-    = session_->sessionChanged().connect(this,
-					 &CoderWidget::sessionChanged);
+  session_ = new CodeSession(boost::bind(&CoderWidget::sessionChanged, this));
 
-  app_->setInternalPath("/" + session_->id());
+  WApplication::instance()->setInternalPath("/" + session_->id());
 
   WPushButton *addBuffer = new WPushButton("Add file", this);
   observerCount_ = new WText("Observers: 0", this);
@@ -99,8 +95,8 @@ CoderWidget::CoderWidget()
 
 CoderWidget::~CoderWidget()
 {
-  session_->removeCoder(connection_);
-  app_->enableUpdates(false);
+  session_->removeCoder();
+  WApplication::instance()->enableUpdates(false);
 }
 
 void CoderWidget::addBuffer()
@@ -129,11 +125,7 @@ void CoderWidget::changed(BufferEditorWidget *editor)
 
 void CoderWidget::sessionChanged()
 {
-  WApplication::UpdateLock lock(app_);
-
-  if (lock) {
-    observerCount_
-      ->setText(WString("Observers: {1}").arg(session_->observerCount()));
-    app_->triggerUpdate();
-  }
+  observerCount_->setText(WString("Observers: {1}")
+			  .arg(session_->observerCount()));
+  WApplication::instance()->triggerUpdate();
 }

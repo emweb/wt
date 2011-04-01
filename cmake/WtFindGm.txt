@@ -11,6 +11,7 @@ FIND_PATH(GM_INCLUDE_DIR
     ${GM_PREFIX}/include/GraphicsMagick/
     ${GM_PREFIX}/include/
     ${GM_PREFIX}/
+    include/GraphicsMagick/
     /usr/include/GraphicsMagick/
     /usr/include/
 )

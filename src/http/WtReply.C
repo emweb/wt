@@ -284,7 +284,8 @@ void WtReply::readWebSocketMessage(CallbackFunction callBack)
   cin_mem_.str("");
 
   if (connection())
-    connection()->handleReadBody();
+    connection()->server()->service().post
+      (boost::bind(&Connection::handleReadBody, connection()->shared_from_this()));
 }
 
 bool WtReply::readAvailable()

@@ -20,14 +20,17 @@
 BUILD_ARMV6_DIR=$BUILD_DIR/build-armv6
 BUILD_ARMV7_DIR=$BUILD_DIR/build-armv7
 BUILD_I386_DIR=$BUILD_DIR/build-i386
+STAGE_DIR=$BUILD_DIR/stage
 TMP_DIR=$BUILD_DIR/tmp
 
 : ${COMMON_CMAKE_FLAGS=-DUSE_BOOST_FRAMEWORK=ON \
        -DCMAKE_FRAMEWORK_PATH:FILEPATH=$BOOST_FRAMEWORK_PATH \
        -DBOOST_PREFIX=$BOOST_FRAMEWORK_PATH \
+       -DCMAKE_INSTALL_PREFIX=$STAGE_DIR \
        -DSHARED_LIBS=OFF \
        -DCONNECTOR_FCGI=OFF \
        -DBUILD_TESTS=OFF \
+       -DBUILD_EXAMPLES=OFF \
        -DENABLE_GM=OFF \
        -DENABLE_HARU=OFF \
        -DENABLE_QT4=OFF \
@@ -93,10 +96,14 @@ combineLibs()
     ( mkdir -p $TMP_DIR/http &&
 	cd $TMP_DIR/http &&
 	ar x $BUILD_DIR/src/http/libwthttp.a ) || abort "Extract libwthttp.a failed"
+    ( mkdir -p $TMP_DIR/dbosqlite3 &&
+	cd $TMP_DIR/dbosqlite3 &&
+        ar x $BUILD_DIR/src/Wt/Dbo/backend/libwtdbosqlite3.a sqlite3.o &&
+        mv sqlite3.o db_sqlite3.o &&
+        ar x $BUILD_DIR/src/Wt/Dbo/backend/libwtdbosqlite3.a Sqlite3.o) || abort "Extract libwtdbosqlite3.a failed"
     ( mkdir -p $TMP_DIR/dbo &&
 	cd $TMP_DIR/dbo &&
-	ar x $BUILD_DIR/src/Wt/Dbo/backend/libwtdbosqlite3.a &&
-        ar x $BUILD_DIR/src/Wt/Dbo/libwtdbo.a) || abort "Extract libwtdbo*.a failed"
+        ar x $BUILD_DIR/src/Wt/Dbo/libwtdbo.a) || abort "Extract libwtdbo.a failed"
     ( cd $TMP_DIR
 	ar x $BUILD_DIR/src/libwt.a &&
 	ar -rcs $BUILD_DIR/Wt.a *.o */*.o)  || abort "Combine libs $1 failed."
@@ -166,7 +173,7 @@ createFramework()
 EOF
 }
 
-#clean
+clean
 build-armv6
 build-armv7
 build-i386

@@ -24,7 +24,6 @@
 
 namespace Wt {
 
-class CgiParser;
 class Configuration;
 class EntryPoint;
 
@@ -33,12 +32,21 @@ class WebSession;
 class WebStream;
 
 class WApplication;
-class WWidget;
-class WObject;
-class WResource;
-class WStatelessSlot;
-class WWebWidget;
 class WAbstractServer;
+
+/*
+ * An event to be delivered to a session which is not caused by a web
+ * request (or, probably not one for that session).
+ */
+struct ApplicationEvent {
+  ApplicationEvent(const std::string& aSessionId,
+		   const boost::function<void ()>& aFunction)
+    : sessionId(aSessionId),
+      function(aFunction) { }
+
+  std::string sessionId;
+  boost::function<void ()> function;
+};
 
 /*
  * The controller is a singleton class
@@ -46,15 +54,14 @@ class WAbstractServer;
  * It either listens for incoming requests from a webstream, using run(),
  * or it may be used to handle an incoming request, using handleRequest().
  * In the latter case, sessions will only expire with a delay -- at the
- * next request. Seems harmless to me.
+ * next request. Seems harmless to me (but causes confusion to others).
  *
  * There is a method forceShutDown() to quit the controller.
  *
  * It has the following tasks:
  *  - handle session life-cycle: create new sessions, delete quit()ed
  *    sessions, expire sessions on timeout
- *  - forward the request to the proper session
- *  - manage concurrency
+ *  - handles web requests and application events
  */
 class WT_API WebController
 {
@@ -77,18 +84,17 @@ public:
   void run();
   int sessionCount() const;
 
-  /*
-   * Returns whether we should continue receiving data.
-   */
+  // Returns whether we should continue receiving data.
   bool requestDataReceived(WebRequest *request, boost::uintmax_t current,
 			   boost::uintmax_t total);
+
   void handleRequest(WebRequest *request);
+  bool handleApplicationEvent(const ApplicationEvent& event);
+  void post(const boost::function<void()>& function);
 
   bool expireSessions();
-
   void forceShutdown();
 
-  static std::string appSessionCookie(std::string url);
   static std::string sessionFromCookie(std::string cookies,
 				       std::string scriptName,
 				       int sessionIdLength);
@@ -104,9 +110,7 @@ public:
   // returns false if removeSocketNotifier was called while processing
   void socketSelected(int descriptor, WSocketNotifier::Type type);
 
-  std::string switchSession(WebSession *session,
-			    const std::string& newSessionId);
-
+  std::string switchSession(WebSession *session, const std::string& newSessionId);
   std::string generateNewSessionId(boost::shared_ptr<WebSession> session);
 
   WAbstractServer *server_;
@@ -138,6 +142,7 @@ private:
   SocketNotifierMap socketNotifiersExcept_;
   // assumes that you did grab the notifierMutex_
   SocketNotifierMap& socketNotifiers(WSocketNotifier::Type type);
+  void socketNotify(int descriptor, WSocketNotifier::Type type);
 
   // mutex to protect access to the sessions map.
   boost::recursive_mutex mutex_;
@@ -147,10 +152,13 @@ private:
 
   void handleAsyncRequest(WebRequest *request);
   void handleRequestThreaded(WebRequest *request);
+  void updateResourceProgress(WebRequest *request,
+			      boost::uintmax_t current,
+			      boost::uintmax_t total);
 
   const EntryPoint *getEntryPoint(WebRequest *request);
 
-  static void mxml_error_cb(const char *message);
+  static std::string appSessionCookie(std::string url);
 
 #endif // WT_TARGET_JAVA
 
@@ -160,9 +168,6 @@ private:
   }
 #endif //WT_TARGET_JAVA
 };
-
-extern void WebStreamAddSocketNotifier(WSocketNotifier *notifier);
-extern void WebStreamRemoveSocketNotifier(WSocketNotifier *notifier);
 
 }
 

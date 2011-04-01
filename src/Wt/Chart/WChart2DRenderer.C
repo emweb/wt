@@ -1508,7 +1508,7 @@ void WChart2DRenderer::renderLegend()
     int x = w / 2;
     painter_.save();
     painter_.setFont(chart_->titleFont());
-    painter_.drawText(x - 50, 5, 100, 50,
+    painter_.drawText(x - 500, 5, 1000, 50,
 		      AlignCenter | AlignTop,
 		      chart_->title());
     painter_.restore();
@@ -1526,7 +1526,7 @@ void WChart2DRenderer::renderLabel(const WString& text, const WPointF& p,
   AlignmentFlag rHorizontalAlign = horizontalAlign;
   AlignmentFlag rVerticalAlign = verticalAlign;
 
-  double width = 100;
+  double width = 1000;
   double height = 20;
 
   WPointF pos = hv(p);

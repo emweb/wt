@@ -54,6 +54,7 @@ ENDIF(GCC_COMPILER_VERSION MATCHES ".*4\\.4\\.4\\-14ubuntu5.*")
 # Various things that must be configured by the user or packager ...
 #
 OPTION(BUILD_EXAMPLES "Build examples" ON)
+OPTION(INSTALL_EXAMPLES "Install examples (binaries and source)" OFF)
 OPTION(INSTALL_RESOURCES "Install resources directory" ON)
 OPTION(ENABLE_GM "Enable GraphicsMagick, for supporting painting to raster images (PNG, GIF, ...) (WRasterImage)" ON)
 OPTION(ENABLE_HARU "Enable Haru Free PDF Library, which is used to provide support for painting to PDF (WPdfImage)" ON)
@@ -76,6 +77,10 @@ IF(NOT SHARED_LIBS)
     OPTION(SHARED_LIBS "Compile shared libraries" ON)
   ENDIF(WIN32)
 ENDIF(NOT SHARED_LIBS)
+
+IF(NOT EXAMPLES_DESTINATION)
+  SET(EXAMPLES_DESTINATION lib/Wt/examples)
+ENDIF(NOT EXAMPLES_DESTINATION)
 
 IF(WIN32)
   IF(SHARED_LIBS)
@@ -235,7 +240,11 @@ SET(EXAMPLES_CONNECTOR wthttp CACHE STRING "Connector used for examples")
 
 INCLUDE(cmake/WtFindBoost.txt)
 INCLUDE(cmake/WtFindFcgi.txt)
-INCLUDE(cmake/WtFindZlib.txt)
+IF( ${CMAKE_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} LESS 2.8.3 )
+  INCLUDE(cmake/WtFindZlib.txt)
+ELSE( ${CMAKE_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} LESS 2.8.3 )
+  FIND_PACKAGE(ZLIB)
+ENDIF( ${CMAKE_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} LESS 2.8.3 )
 INCLUDE(cmake/WtFindSsl.txt)
 INCLUDE(cmake/WtFindMysqlpp.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
@@ -365,11 +374,7 @@ IF (DOXYGEN_FOUND)
 SUBDIRS(src)
 
 IF(BUILD_EXAMPLES)
-  IF(WIN32)
     SUBDIRS(examples)
-  ELSE(WIN32)
-    SUBDIRS(EXCLUDE_FROM_ALL examples)
-  ENDIF(WIN32)
 ENDIF(BUILD_EXAMPLES)
 
 IF(BUILD_TESTS)
@@ -387,6 +392,11 @@ IF(INSTALL_RESOURCES)
 INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION
     ${CMAKE_INSTALL_PREFIX}/share/Wt/)
 ENDIF(INSTALL_RESOURCES)
+
+IF(INSTALL_EXAMPLES)
+  INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/examples/ DESTINATION
+      ${CMAKE_INSTALL_PREFIX}/${EXAMPLES_DESTINATION} PATTERN "examples/*")
+ENDIF(INSTALL_EXAMPLES)
 
 IF(NOT EXISTS ${DESTDIR}${CONFIGDIR}/wt_config.xml)
   INSTALL(FILES ${WT_BINARY_DIR}/wt_config.xml DESTINATION ${CONFIGDIR})

@@ -228,6 +228,18 @@ void WebController::handleRequestThreaded(WebRequest *request)
 #endif // WT_THREADED
 }
 
+void WebController::post(const boost::function<void()>& function)
+{
+#ifdef WT_THREADED
+  threadPool_.schedule(function);
+#else
+  // What to do? If we are handling a request we could queue the
+  // functions and then run them after the request. If not, we should
+  // invoke immediately.
+  function();
+#endif
+}
+
 std::string WebController::sessionFromCookie(std::string cookies,
 					     std::string scriptName,
 					     int sessionIdLength)
@@ -266,7 +278,7 @@ std::string WebController::sessionFromCookie(std::string cookies,
 }
 
 #ifdef WT_THREADED
-WebController::SocketNotifierMap& 
+WebController::SocketNotifierMap&
 WebController::socketNotifiers(WSocketNotifier::Type type)
 {
   switch (type) {
@@ -304,52 +316,31 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
     }
   }
 
-  /*
-   * Find session
-   */
-  boost::shared_ptr<WebSession> session;
-  {
-    boost::recursive_mutex::scoped_lock lock(mutex_);
-
-    SessionMap::iterator i = sessions_.find(sessionId);
-
-    if (i == sessions_.end() || i->second->dead()) {
-      conf_.log("error")
-	<< "WebController::socketSelected(): socket notification"
-	" for expired session " << sessionId << ". Leaking memory?";
-
-      return;
-    } else {
-      session = i->second;
-    }
-  }
-
-  /*
-   * Take session lock and notify
-   */
-  {
-    WebSession::Handler handler(session, true);
-
-    if (!session->dead()) {
-      WSocketNotifier *notifier = 0;
-      {
-	boost::recursive_mutex::scoped_lock lock(notifierMutex_);
-	SocketNotifierMap &notifiers = socketNotifiers(type);
-	SocketNotifierMap::iterator k = notifiers.find(descriptor);	
-	if (k != notifiers.end()) {
-	  notifier = k->second;
-	  notifiers.erase(k);
-	}
-      }
-
-      session->app()->modifiedWithoutEvent_ = true;
-      if (notifier)
-	notifier->notify();
-      session->app()->modifiedWithoutEvent_ = false;
-    }
-  }
+  ApplicationEvent event(sessionId,
+			 boost::bind(&WebController::socketNotify,
+				     this, descriptor, type));
+  handleApplicationEvent(event);
 #endif // WT_THREADED
 }
+
+#ifdef WT_THREADED
+void WebController::socketNotify(int descriptor, WSocketNotifier::Type type)
+{
+  WSocketNotifier *notifier = 0;
+  {
+    boost::recursive_mutex::scoped_lock lock(notifierMutex_);
+    SocketNotifierMap &notifiers = socketNotifiers(type);
+    SocketNotifierMap::iterator k = notifiers.find(descriptor);	
+    if (k != notifiers.end()) {
+      notifier = k->second;
+      notifiers.erase(k);
+    }
+  }
+
+  if (notifier)
+    notifier->notify();
+}
+#endif // WT_THREADED
 
 void WebController::addSocketNotifier(WSocketNotifier *notifier)
 {
@@ -426,50 +417,78 @@ bool WebController::requestDataReceived(WebRequest *request,
 
     std::string sessionId = *wtdE;
 
-    boost::shared_ptr<WebSession> session;
-    {
-#ifdef WT_THREADED
-      boost::recursive_mutex::scoped_lock lock(mutex_);
-#endif // WT_THREADED
+    ApplicationEvent event(sessionId,
+			   boost::bind(&WebController::updateResourceProgress,
+				       this, request, current, total));
 
-      SessionMap::iterator i = sessions_.find(sessionId);
-
-      if (i == sessions_.end() || i->second->dead())
-	return false;
-      else
-	session = i->second;
-    }
-
-    if (session) {
-      WebSession::Handler handler(session, *request, *(WebResponse *)request);
-
-      if (!session->dead() && session->app()) {
-	const std::string *requestE = request->getParameter("request");
-
-	WResource *resource = 0;
-	if (!requestE && !request->pathInfo().empty())
-	  resource
-	    = session->app()->decodeExposedResource
-	    ("/path/" + request->pathInfo());
-
-	if (!resource) {
-	  const std::string *resourceE = request->getParameter("resource");
-	  resource = session->app()->decodeExposedResource(*resourceE);
-	}
-
-	if (resource) {
-	  // FIXME, we should do this within app()->notify()
-	  session->app()->modifiedWithoutEvent_ = true;
-	  resource->dataReceived().emit(current, total);
-	  session->app()->modifiedWithoutEvent_ = false;
-	}
-      }
-    }
-
-    return !request->postDataExceeded();
+    if (handleApplicationEvent(event))
+      return !request->postDataExceeded();
+    else
+      return false;
   }
 
   return true;
+}
+
+void WebController::updateResourceProgress(WebRequest *request,
+					   boost::uintmax_t current,
+					   boost::uintmax_t total)
+{
+  WebSession::Handler::instance()->setRequest(request, (WebResponse *)request);
+  WApplication *app = WApplication::instance();
+
+  const std::string *requestE = request->getParameter("request");
+
+  WResource *resource = 0;
+  if (!requestE && !request->pathInfo().empty())
+    resource = app->decodeExposedResource("/path/" + request->pathInfo());
+
+  if (!resource) {
+    const std::string *resourceE = request->getParameter("resource");
+    resource = app->decodeExposedResource(*resourceE);
+  }
+
+  if (resource)
+    resource->dataReceived().emit(current, total);
+}
+
+bool WebController::handleApplicationEvent(const ApplicationEvent& event)
+{
+  /*
+   * This should always be run from within a virgin thread of the
+   * thread-pool
+   */
+  assert(!WebSession::Handler::instance());
+
+  /*
+   * Find session (and guard it against deletion)
+   */
+  boost::shared_ptr<WebSession> session;
+  {
+#ifdef WT_THREADED
+    boost::recursive_mutex::scoped_lock lock(mutex_);
+#endif // WT_THREADED
+
+    SessionMap::iterator i = sessions_.find(event.sessionId);
+
+    if (i == sessions_.end() || i->second->dead())
+      return false;
+    else
+      session = i->second;
+  }
+
+  /*
+   * Take session lock and propagate event to the application.
+   */
+  {
+    WebSession::Handler handler(session, true);
+
+    if (!session->dead()) {
+      session->app()->notify(WEvent(WEvent::Impl(event.function)));
+      return true;
+    } else
+      return false;
+  }
 }
 
 void WebController::addUploadProgressUrl(const std::string& url)
@@ -653,16 +672,15 @@ WebController::getEntryPoint(WebRequest *request)
       && conf_.entryPoints()[0].path().empty())
     return &conf_.entryPoints()[0];
 
-  // Multiple entry points.
-  // This case probably only happens with built-in http
+  // Multiple entry points. This case probably only happens with built-in http
   for (unsigned i = 0; i < conf_.entryPoints().size(); ++i) {
     const Wt::EntryPoint& ep = conf_.entryPoints()[i];
-    if (scriptName==ep.path())
+    if (scriptName == ep.path())
       return &ep;
   }
 
   // Multiple entry points: also recognized when prefixed with
-  // scriptName. For HTTP/ISAPI connectors, we only receive URLs
+  // scriptName. For FCGI/ISAPI connectors, we only receive URLs
   // that are subdirs of the scriptname.
   for (unsigned i = 0; i < conf_.entryPoints().size(); ++i) {
     const Wt::EntryPoint& ep = conf_.entryPoints()[i];

@@ -1191,15 +1191,17 @@ if (html5History) {
 
     initialize: function (stateField, histFrame, deployUrl) {
       /* FIXME, should depend on ugly URL settings */
-      if (deployUrl[deployUrl.length - 1] == '/') {
+      if (deployUrl && deployUrl[deployUrl.length - 1] == '/') {
 _$_$if_UGLY_INTERNAL_PATHS_$_();
 	baseUrl = deployUrl + "?_=";
 _$_$endif_$_();
 _$_$ifnot_UGLY_INTERNAL_PATHS_$_();
 	baseUrl = deployUrl.substr(0, deployUrl.length - 1);
 _$_$endif_$_();
-      } else
+      } else if (deployUrl)
 	baseUrl = deployUrl;
+      else
+	baseUrl = window.location.pathname;
     },
 
     navigate: function (state, generateEvent) {

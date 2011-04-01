@@ -577,8 +577,8 @@ WWidgetRasterPainter::~WWidgetRasterPainter()
 WPaintDevice *WWidgetRasterPainter::getPaintDevice(bool paintUpdate)
 {
   if (!device_ || widget_->sizeChanged_) {
-    delete device_;
 #ifdef HAVE_RASTER_IMAGE
+    delete device_;
     device_
       = new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_);
 #else

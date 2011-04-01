@@ -149,7 +149,8 @@ WebSession::~WebSession()
   Handler handler(this);
 
   if (app_)
-    app_->notify(WEvent(WEvent::Impl()));
+    app_->notify
+      (WEvent(WEvent::Impl(boost::bind(&WApplication::finalize, app_))));
 
   delete app_;
 #endif // WT_TARGET_JAVA
@@ -1206,7 +1207,7 @@ void WebSession::handleRequest(Handler& handler)
 	     * This may be when an error was thrown during event
 	     * propagation: then we want to render the error message.
 	     */
-	    app_->notify(WEvent(WEvent::Impl(&handler), true));
+	    app_->notify(WEvent(WEvent::Impl(&handler, true)));
 	  }
 	}
 
@@ -1452,8 +1453,10 @@ const std::string *WebSession::getSignal(const WebRequest& request,
 void WebSession::notify(const WEvent& event)
 {
 #ifndef WT_TARGET_JAVA
-  if (event.impl_.handler == 0) {
-    app_->finalize();
+  if (!event.impl_.handler) {
+    if (event.impl_.function)
+      event.impl_.function();
+
     return;
   }
 #endif // WT_TARGET_JAVA
@@ -1466,7 +1469,7 @@ void WebSession::notify(const WEvent& event)
     // We will want to set these right before doing anything !
     WebSession::Handler::instance()->setRequest(&request, &response);
 
-  if (event.renderOnly) {
+  if (event.impl_.renderOnly) {
     render(handler);
     return;
   }
@@ -1726,7 +1729,7 @@ EventType WebSession::getEventType(const WEvent& event) const
   Handler& handler = *event.impl_.handler;
   WebRequest& request = *handler.request();
 
-  if (event.renderOnly)
+  if (event.impl_.renderOnly)
     return OtherEvent;
 
   const std::string *requestE = request.getParameter("request");

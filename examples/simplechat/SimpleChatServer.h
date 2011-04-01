@@ -7,11 +7,17 @@
 #ifndef SIMPLECHATSERVER_H_
 #define SIMPLECHATSERVER_H_
 
-#include <Wt/WObject>
+#include <boost/noncopyable.hpp>
+
 #include <Wt/WSignal>
 #include <Wt/WString>
 
+namespace Wt {
+  class WServer;
+}
+
 #include <set>
+#include <map>
 #include <boost/thread.hpp>
 
 /**
@@ -69,20 +75,23 @@ private:
   friend class SimpleChatServer;
 };
 
+typedef boost::function<void (const ChatEvent&)> ChatEventCallback;
+
 /*! \brief A simple chat server
  */
-class SimpleChatServer : public Wt::WObject
+class SimpleChatServer : boost::noncopyable
 {
 public:
   /*! \brief Create a new chat server.
    */
-  SimpleChatServer();
+  SimpleChatServer(Wt::WServer& server);
 
   /*! \brief Try to login with given user name.
    *
-   * Returns false if the login was not successfull.
+   * Returns false if the login was not successfull. The passed callback method
+   * is posted to when a new chat event is received.
    */
-  bool login(const Wt::WString& user);
+  bool login(const Wt::WString& user, const ChatEventCallback& handleEvent);
 
   /*! \brief Logout from the server.
    */
@@ -100,12 +109,6 @@ public:
    */
   void sendMessage(const Wt::WString& user, const Wt::WString& message);
 
-  /*! \brief %Signal that will convey chat events.
-   *
-   * Every client should connect to this signal, and process events.
-   */
-  Wt::Signal<ChatEvent>& chatEvent() { return chatEvent_; }
-
   /*! \brief Typedef for a collection of user names.
    */
   typedef std::set<Wt::WString> UserSet;
@@ -115,10 +118,18 @@ public:
   UserSet users();
 
 private:
-  Wt::Signal<ChatEvent>         chatEvent_;
-  boost::recursive_mutex        mutex_;
+  struct UserInfo {
+    std::string sessionId;
+    ChatEventCallback eventCallback;
+  };
 
-  UserSet                       users_;
+  typedef std::map<Wt::WString, UserInfo> UserMap;
+
+  Wt::WServer& server_;
+  boost::recursive_mutex mutex_;
+  UserMap users_;
+
+  void postChatEvent(const ChatEvent& event);
 };
 
 /*@}*/

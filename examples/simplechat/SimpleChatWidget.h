@@ -69,7 +69,6 @@ private:
   UserMap users_;
 
   SimpleChatServer&     server_;
-  Wt::WApplication     *app_;
 
   Wt::JSlot             clearInput_;
 
@@ -84,13 +83,12 @@ private:
   Wt::WPushButton      *sendButton_;
   Wt::WContainerWidget *userList_;
 
-  boost::signals::connection eventConnection_;
-
   Wt::WSound* messageReceived_;
 
   void login();
   void send();
   void updateUser();
+  bool loggedIn() const;
 
   /* called from another session */
   void processChatEvent(const ChatEvent& event);

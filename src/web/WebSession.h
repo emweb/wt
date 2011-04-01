@@ -172,6 +172,7 @@ public:
     WebResponse *response() { return response_; }
     WebRequest *request() { return request_; }
     WebSession *session() const { return session_; }
+    void setRequest(WebRequest *request, WebResponse *response);
 
     int nextSignal;
     std::vector<unsigned int> signalOrder;
@@ -185,8 +186,6 @@ public:
 
   private:
     void init();
-
-    void setRequest(WebRequest *request, WebResponse *response);
 
 #ifdef WT_THREADED
     boost::mutex::scoped_lock lock_;
@@ -322,12 +321,23 @@ private:
 
 struct WEvent::Impl {
   WebSession::Handler *handler;
+  boost::function<void ()> function;
+  bool renderOnly;
 
-  Impl(WebSession::Handler *aHandler) :
-    handler(aHandler) {}
+  Impl(WebSession::Handler *aHandler, bool doRenderOnly = false)
+    : handler(aHandler),
+      renderOnly(doRenderOnly)
+  { }
 
-  Impl() :
-    handler(0) {}
+  Impl(const boost::function<void ()>& aFunction)
+    : handler(0),
+      function(aFunction),
+      renderOnly(false)
+  { }
+
+  Impl()
+    : handler(0)
+  { }
 };
 
 }

@@ -224,7 +224,7 @@ public:
     if (affectedRows_ == 1 && sql_.rfind("returning id") != std::string::npos) {
       state_ = NoFirstRow;
       if (PQntuples(result_) == 1 && PQnfields(result_) == 1) {
-	lastId_ = boost::lexical_cast<int>(PQgetvalue(result_, 0, 0));
+	lastId_ = boost::lexical_cast<long long>(PQgetvalue(result_, 0, 0));
       }
     } else {
       if (PQntuples(result_) == 0) {

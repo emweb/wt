@@ -79,7 +79,6 @@ WApplication::WApplication(const WEnvironment& env)
     localizedStrings_(0),
     internalPathChanged_(this),
     serverPush_(0),
-    modifiedWithoutEvent_(false),
 #ifndef WT_CNOR
     eventSignalPool_(new boost::pool<>(sizeof(EventSignal<>))),
 #endif
@@ -1127,15 +1126,11 @@ void WApplication::triggerUpdate()
 		      "enabled.");
 #endif
 
-  if (!modifiedWithoutEvent_)
+  if (WebSession::Handler::instance()->request())
     return;
 
   if (serverPush_ > 0)
     session_->pushUpdates();
-  else
-    throw WtException("WApplication::triggerUpdate() called but "
-		      "server-triggered updates not enabled using "
-		      "WApplication::enableUpdates()"); 
 }
 
 WApplication::UpdateLock WApplication::getUpdateLock()
@@ -1198,10 +1193,8 @@ public:
     handler_ = new WebSession::Handler(app->weakSession_.lock(), false);
 
     for (;;) {
-      if (handler_->lock().try_lock()) {
-	app->modifiedWithoutEvent_ = true;
+      if (handler_->lock().try_lock())
 	return;
-      }
 
       WebSession::SyncLocks& syncLocks = app->session_->syncLocks_;
       boost::mutex::scoped_lock guard(syncLocks.state_);
@@ -1230,10 +1223,9 @@ public:
 
 #ifdef WT_THREADED
   ~UpdateLockImpl() {
-    if (handler_) {
-      handler_->session()->app()->modifiedWithoutEvent_ = false;
+    if (handler_)
       delete handler_;
-    } else {
+    else {
       assert(syncLockId_);
 
       WebSession::SyncLocks& syncLocks
@@ -1304,16 +1296,13 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
 
   std::cerr << "Creating new handler for app: app.sessionId()" << std::endl;
   new WebSession::Handler(app->session_, true);
-
-  app->modifiedWithoutEvent_ = true;
 }
 
 void WApplication::UpdateLock::release()
 {
   std::cerr << "Releasing update lock" << std::endl;
-  if (WApplication::instance()->modifiedWithoutEvent_) {
+  if (WApplication::instance()->request()) {
     std::cerr << "Releasing handler" << std::endl;
-    WApplication::instance()->modifiedWithoutEvent_ = false;
     WebSession::Handler::instance()->release();
   }
 }

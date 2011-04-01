@@ -37,7 +37,8 @@ public:
     WApplication::instance()->doJavaScript
       (bufferText_->jsRef() + ".innerHTML="
        "'<pre class=\"prettyprint\">' + prettyPrintOne("
-       + text.jsStringLiteral() + ", " + bufferText_->jsRef() + ") + '</pre>';");
+       + text.jsStringLiteral() + ", " + bufferText_->jsRef()
+       + ") + '</pre>';");
   }
 
 private:
@@ -46,30 +47,26 @@ private:
 };
 
 ObserverWidget::ObserverWidget(const std::string& id)
-  : app_(WApplication::instance())
 {
-  app_->enableUpdates(true);
+  WApplication::instance()->enableUpdates(true);
 
-  boost::tie(session_, connection_)
-    = CodeSession::addObserver(id,
-			       boost::bind(&ObserverWidget::updateBuffer, this,
-					   _1, _2));
+  session_ = CodeSession::addObserver
+    (id, boost::bind(&ObserverWidget::updateBuffer, this, _1, _2));
 
   if (session_) {
     std::vector<CodeSession::Buffer> buffers = session_->buffers();
 
     for (unsigned i = 0; i < buffers.size(); ++i)
       insertBuffer(buffers[i], i);
-
   }
 }
 
 ObserverWidget::~ObserverWidget()
 {
   if (session_)
-    session_->removeObserver(connection_);
+    session_->removeObserver();
 
-  app_->enableUpdates(false);
+  WApplication::instance()->enableUpdates(false);
 }
 
 void ObserverWidget::insertBuffer(const CodeSession::Buffer& buffer, int i)
@@ -83,24 +80,20 @@ void ObserverWidget::insertBuffer(const CodeSession::Buffer& buffer, int i)
 
 void ObserverWidget::updateBuffer(int buffer, CodeSession::BufferUpdate update)
 {
-  WApplication::UpdateLock lock(app_);
-
-  if (lock) {
-    switch (update) {
-    case CodeSession::Inserted:
-      insertBuffer(session_->buffer(buffer), buffer);
-      break;
-    case CodeSession::Deleted:
-      delete widget(buffer);
-      break;
-    case CodeSession::Changed:
-      {
-	BufferViewWidget *w = dynamic_cast<BufferViewWidget *>(widget(buffer));
-	w->setName(session_->buffer(buffer).name);
-	w->setText(session_->buffer(buffer).text);
-      }
+  switch (update) {
+  case CodeSession::Inserted:
+    insertBuffer(session_->buffer(buffer), buffer);
+    break;
+  case CodeSession::Deleted:
+    delete widget(buffer);
+    break;
+  case CodeSession::Changed:
+    {
+      BufferViewWidget *w = dynamic_cast<BufferViewWidget *>(widget(buffer));
+      w->setName(session_->buffer(buffer).name);
+      w->setText(session_->buffer(buffer).text);
     }
-
-    app_->triggerUpdate();
   }
+
+  WApplication::instance()->triggerUpdate();
 }

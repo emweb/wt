@@ -30,43 +30,52 @@ public:
 
   typedef boost::function<void(int, BufferUpdate)> BufferCallback;
   typedef boost::function<void(void)> CoderCallback;
-  typedef boost::signals::connection Connection;
 
-  CodeSession();
+  CodeSession(const CoderCallback& coderCallback);
+  ~CodeSession();
 
   std::string id() const { return id_; }
 
-  static std::pair<CodeSession *, Connection>
-    addObserver(const std::string& anId, const BufferCallback& bufferCallback);
+  static CodeSession *
+    addObserver(const std::string& id, const BufferCallback& bufferCallback);
 
-  void removeObserver(const Connection& connection);
-  void removeCoder(const Connection& connection);
+  void removeObserver();
+  void removeCoder();
 
   void insertBuffer(int index);
-  void updateBuffer(int buffer, const Wt::WString& name, const Wt::WString& text);
-
-  Wt::Signal<>& sessionChanged() { return sessionChanged_; }
+  void updateBuffer(int buffer, const Wt::WString& name,
+		    const Wt::WString& text);
 
   std::vector<Buffer> buffers() const;
   Buffer buffer(int buffer) const;
-  int observerCount() const { return observers_; }
+  int observerCount() const { return observers_.size(); }
 
 private:
-  typedef Wt::SyncLock<boost::recursive_mutex::scoped_lock> Lock;
+  typedef boost::recursive_mutex::scoped_lock Lock;
 
-  Wt::Signal<int, BufferUpdate> bufferChanged_;
-  Wt::Signal<> sessionChanged_;
+  struct Coder {
+    std::string sessionId;
+    CoderCallback callback;    
+  };
+
+  struct Observer {
+    std::string sessionId;
+    BufferCallback callback;
+  };
 
   std::string id_;
   std::vector<Buffer> buffers_;
-  int observers_;
-  bool coder_;
+
+  std::vector<Observer> observers_;
+  Coder *coder_;
 
   static std::vector<CodeSession *> sessions_;
   static boost::recursive_mutex mutex_;
 
   void generateId();
   void deleteIfEmpty();
+  void postSessionChanged();
+  void postBufferChanged(int buffer, BufferUpdate update);
 };
 
 #endif // CODE_SESSION_H_

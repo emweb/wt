@@ -20,6 +20,7 @@
 #include "ConnectionManager.h"
 #include "RequestHandler.h"
 #include "StockReply.h"
+#include "Server.h"
 
 //#define DEBUG
 
@@ -236,7 +237,10 @@ void Connection::handleWriteResponse()
 	request_parser_.reset();
 	request_.reset();
 	reply_.reset();
-	handleReadRequest0();
+
+	server_->service()
+	  .post(boost::bind(&Connection::handleReadRequest0,
+			    shared_from_this()));
       }
     }
   }
