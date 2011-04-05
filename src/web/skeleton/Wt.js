@@ -1219,7 +1219,7 @@ if (html5History) {
 	  newState = p.substr(2);
 	if (newState !== currentState) {
 	  currentState = newState;
-	  onStateChange(currentState);  
+	  onStateChange(currentState);
 	}
       }
 
