@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="eu.webtoolkit.android.${APP_NAME}"
+      android:versionCode="1"
+      android:versionName="1.0">
+        <uses-permission
+                android:name="android.permission.INTERNET" />
+    <uses-sdk android:minSdkVersion="4" />
+    <application android:label="${APP_NAME}"
+                 android:debuggable="true">
+        <activity android:name=".${APP_NAME}"
+                  android:label="${APP_NAME}"
+                  android:icon="@drawable/icon"
+                  android:configChanges="orientation">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest> 

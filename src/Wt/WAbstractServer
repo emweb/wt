@@ -22,6 +22,11 @@ public:
   virtual void handleRequest(WebRequest *request) = 0;
   virtual bool usesSlashExceptionForInternalPaths() const = 0;
 
+#ifndef WT_CNOR
+  virtual void post(const std::string& sessionId,
+		    const boost::function<void ()>& function) = 0;
+#endif // WT_CNOR
+
 protected:
   static WServer *instance_;
 };

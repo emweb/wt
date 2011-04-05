@@ -114,6 +114,7 @@ public:
   SessionTracking    sessionTracking() const { return sessionTracking_; }
   bool               reloadIsNewSession() const { return reloadIsNewSession_; }
   int                sessionTimeout() const { return sessionTimeout_; }
+  void               setSessionTimeout(int sessionTimeout);
   int		     indicatorTimeout() const { return indicatorTimeout_; }
   int                serverPushTimeout() const { return serverPushTimeout_; }
   std::string        valgrindPath() const { return valgrindPath_; }

@@ -38,6 +38,8 @@ if (!window._$_WT_CLASS_$_)
 {
 var WT = this;
 
+
+
 this.condCall = function(o, f, a) {
   if (o[f])
     o[f](a);
@@ -89,8 +91,18 @@ this.isIEMobile = navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
   || navigator.userAgent.toLowerCase().indexOf("msie 5") != -1;
 this.isGecko = navigator.userAgent.toLowerCase().indexOf("gecko") != -1;
 this.isOpera = typeof window.opera !== 'undefined';
+this.isAndroid = (navigator.userAgent.toLowerCase().indexOf("safari") != -1)
+  && (navigator.userAgent.toLowerCase().indexOf("android") != -1);
 
 this.updateDelay = this.isIE ? 10 : 51;
+
+if (this.isAndroid) {
+  console.error('init console.error');
+  console.info('init console.info');
+  console.log('init console.log');
+  console.warn('init console.warn');
+}
+
 
 var traceStart = new Date();
 this.trace = function(v, start) {
@@ -1191,11 +1203,28 @@ if (html5History) {
 
       function onPopState(event) {
 	var p = window.location.pathname + window.location.search;
-	currentState = p.substr(baseUrl.length);
-	onStateChange(currentState);
+	var newState = p.substr(baseUrl.length);
+	if (newState != currentState) {
+	  currentState = newState;
+	  onStateChange(currentState);
+	}
+      }
+
+      function onHashChange() {
+	var p = window.location.hash;
+	var newState = null;
+	if (p == '')
+	  newState = p;
+	else if (p.substr(0, 2) == '#/')
+	  newState = p.substr(2);
+	if (newState !== currentState) {
+	  currentState = newState;
+	  onStateChange(currentState);  
+	}
       }
 
       window.addEventListener("popstate", onPopState, false);
+      window.addEventListener("hashchange", onHashChange, false);
     },
 
     initialize: function (stateField, histFrame, deployUrl) {

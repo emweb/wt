@@ -194,9 +194,7 @@ std::string WebSession::docType() const
       "\"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
       "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
   else
-    return "<!DOCTYPE html PUBLIC "
-      "\"-//W3C//DTD HTML 4.01 Transitional//EN\" "
-      "\"http://www.w3.org/TR/html4/loose.dtd\">";
+    return "<!DOCTYPE html>"; // HTML5 hoeray
 }
 
 #ifndef WT_TARGET_JAVA
@@ -224,7 +222,8 @@ void WebSession::setState(State state, int timeout)
     state_ = state;
 
 #ifndef WT_TARGET_JAVA
-    expire_ = Time() + timeout*1000;
+    if (controller_->configuration().sessionTimeout() != -1)
+      expire_ = Time() + timeout*1000;
 #endif // WT_TARGET_JAVA
   }
 }

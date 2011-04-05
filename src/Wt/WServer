@@ -288,7 +288,8 @@ public:
    * an application to directly push changes to a session out of its
    * event loop.
    */
-  void post(const std::string& sessionId, const boost::function<void ()>& function);
+  virtual void post(const std::string& sessionId,
+		    const boost::function<void ()>& function);
 
   /*! \brief Returns the server instance.
    *

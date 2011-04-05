@@ -173,7 +173,7 @@ bool WebController::expireSessions()
 
       int diff = session->expireTime() - now;
 
-      if (diff < 1000) {
+      if (diff < 1000 && configuration().sessionTimeout() != -1) {
 	if (session->shouldDisconnect()) {
 	  if (session->app()->connected_) {
 	    session->app()->connected_ = false;
@@ -316,10 +316,8 @@ void WebController::socketSelected(int descriptor, WSocketNotifier::Type type)
     }
   }
 
-  ApplicationEvent event(sessionId,
-			 boost::bind(&WebController::socketNotify,
-				     this, descriptor, type));
-  handleApplicationEvent(event);
+  server_->post(sessionId, boost::bind(&WebController::socketNotify,
+				       this, descriptor, type));
 #endif // WT_THREADED
 }
 

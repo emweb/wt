@@ -252,8 +252,12 @@ void Home::chatSetUser(const WString& userName)
 {
   WApplication::instance()->doJavaScript
     ("if (window.chat) "
+     "try {"
      """window.chat.emit(window.chat, 'login', "
      ""                   "" + userName.jsStringLiteral() + "); "
+     "} catch (e) {"
+     """window.chatUser = " + userName.jsStringLiteral() + ";"
+     "}"
      "else "
      """window.chatUser = " + userName.jsStringLiteral() + ";");
 }

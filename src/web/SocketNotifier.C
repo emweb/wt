@@ -39,6 +39,7 @@ public:
   {}
   boost::thread thread_;
   boost::mutex mutex_;
+  bool interruptProcessed_;
   boost::condition_variable interrupted_;
   bool terminate_;
 
@@ -76,6 +77,8 @@ SocketNotifier::SocketNotifier(WebController *controller):
   impl_(new SocketNotifierImpl)
 {
   impl_->controller_ = controller;
+  impl_->interruptProcessed_ = true;
+
   createSocketPair();
 }
 
@@ -250,6 +253,7 @@ void SocketNotifier::interruptThread()
   if (!impl_->good_)
     return;
   if (impl_->thread_.joinable()) {
+    impl_->interruptProcessed_ = false;
     char data = 0;
     sendto(impl_->socket1_, &data, 1, 0, 0, 0);
   } else {
@@ -320,7 +324,7 @@ void SocketNotifier::threadEntry()
         if (FD_ISSET(*i, &read_fds)) {
           if (impl_->readFds_.find(*i) != impl_->readFds_.end()) {
             impl_->readFds_.erase(*i);
-            callbacks.push_back(std::make_pair((int)*i, WSocketNotifier::Read));
+	    callbacks.push_back(std::make_pair((int)*i, WSocketNotifier::Read));
           }
         }
       }
@@ -330,7 +334,8 @@ void SocketNotifier::threadEntry()
         if (FD_ISSET(*i, &write_fds)) {
           if (impl_->writeFds_.find(*i) != impl_->writeFds_.end()) {
             impl_->writeFds_.erase(*i);
-            callbacks.push_back(std::make_pair((int)*i, WSocketNotifier::Write));
+	    callbacks.push_back(std::make_pair((int)*i,
+					       WSocketNotifier::Write));
           }
         }
       }
@@ -341,17 +346,21 @@ void SocketNotifier::threadEntry()
           if (impl_->exceptFds_.find(*i) != impl_->exceptFds_.end()) {
             impl_->exceptFds_.erase(*i);
             callbacks.push_back(std::make_pair((int)*i,
-                                WSocketNotifier::Exception));
+					       WSocketNotifier::Exception));
           }
         }
       }
+
+      impl_->interruptProcessed_ = true;
       impl_->interrupted_.notify_all();
       lock.unlock();
+
       // Invoke callbacks
       for (unsigned int i = 0; i < callbacks.size(); ++i) {
         impl_->controller_->socketSelected(callbacks[i].first,
                                            callbacks[i].second);
       }
+
       lock.lock();
     } else {
       // TODO: log
@@ -386,10 +395,15 @@ void SocketNotifier::removeReadSocket(int socket)
 {
   boost::mutex::scoped_lock lock(impl_->mutex_);
   impl_->readFds_.erase(socket);
+
+  while (!impl_->interruptProcessed_)
+    impl_->interrupted_.wait(lock);
+
   interruptThread();
+
   // In order to avoid late event invocation (especially on socket id's
   // that were recycled by the OS), we must wait until the socket was
-  // really removed from the 
+  // really removed
   impl_->interrupted_.wait(lock);
 }
 

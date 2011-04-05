@@ -224,6 +224,11 @@ void Configuration::setDefaultEntryPoint(const std::string& path)
       entryPoints_[i].setPath(path);
 }
 
+void Configuration::setSessionTimeout(int sessionTimeout)
+{
+  sessionTimeout_ = sessionTimeout;
+}
+
 void Configuration::readApplicationSettings(xml_node<> *app)
 {
   xml_node<> *sess = singleChildElement(app, "session-management");

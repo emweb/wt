@@ -207,8 +207,10 @@ void WebRenderer::setPageVars(FileServe& page)
   page.setVar("DOCTYPE", session_.docType());
 
   std::string htmlAttr;
-  if (app && !app->htmlClass_.empty())
+  if (app && !app->htmlClass_.empty()) {
     htmlAttr = " class=\"" + app->htmlClass_ + "\"";
+    app->bodyHtmlClassChanged_ = false;
+  }
 
   if (xhtml) {
     page.setVar("HTMLATTRIBUTES",
@@ -590,6 +592,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
   formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
 
+  response.out() << "if (typeof window.jQuery === 'undefined') {";
 #ifndef WT_TARGET_JAVA
   std::vector<const char *> parts = skeletons::JQuery_js();
   for (std::size_t i = 0; i < parts.size(); ++i)
@@ -597,6 +600,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 #else
   response.out() << skeletons::JQuery_js1;
 #endif
+  response.out() << "}";
 
 #ifndef WT_TARGET_JAVA
   parts = skeletons::Wt_js();
@@ -639,8 +643,14 @@ void WebRenderer::serveMainscript(WebResponse& response)
 				       WebSession::ClearInternalPath)));
   script.setVar("DEPLOY_URL", WWebWidget::jsStringLiteral
 		(session_.deploymentPath()));
-  script.setVar("KEEP_ALIVE",
-		boost::lexical_cast<std::string>(conf.sessionTimeout() / 2));
+  
+  int keepAlive;
+  if (conf.sessionTimeout() == -1)
+    keepAlive = 1000000;
+  else
+    keepAlive = conf.sessionTimeout() / 2;
+  script.setVar("KEEP_ALIVE", boost::lexical_cast<std::string>(keepAlive));
+  
   script.setVar("INITIAL_HASH",
 		WWebWidget::jsStringLiteral(app->internalPath()));
   script.setVar("INDICATOR_TIMEOUT", conf.indicatorTimeout());
@@ -774,13 +784,15 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   if (conf.inlineCss())
     app->styleSheet().javaScriptUpdate(app, response.out(), true);
 
-  response.out() << "document.body.parentNode.className='"
-		 << app->htmlClass_ << "';"
-		 << "document.body.className='" << bodyClassRtl() << "';"
-		 << "document.body.setAttribute('dir', '"
-		 << (app->layoutDirection() == LeftToRight
-		     ? "LTR" : "RTL") << "');";
-  app->bodyHtmlClassChanged_ = false;
+  if (app->bodyHtmlClassChanged_) {
+    response.out() << "document.body.parentNode.className='"
+		   << app->htmlClass_ << "';"
+		   << "document.body.className='" << bodyClassRtl() << "';"
+		   << "document.body.setAttribute('dir', '"
+		   << (app->layoutDirection() == LeftToRight
+		       ? "LTR" : "RTL") << "');";
+    app->bodyHtmlClassChanged_ = false;
+  }
 
 #ifdef DEBUG_JS
   std::stringstream s;
@@ -1056,7 +1068,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
     refresh = 1000000;
   } else {
-    if (app->isQuited())
+    if (app->isQuited() || conf.sessionTimeout() == -1)
       refresh = 1000000;
     else {
       refresh = conf.sessionTimeout() / 3;

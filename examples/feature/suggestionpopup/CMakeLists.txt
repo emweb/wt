@@ -1,3 +1,5 @@
+IF(NOT DEFINED WT_NO_STD_WSTRING)
+
 WT_ADD_EXAMPLE(suggestionpopup.wt SuggestionPopup.C)
 
 #
@@ -7,3 +9,5 @@ WT_ADD_EXAMPLE(suggestionpopup.wt SuggestionPopup.C)
 # instead of the following:
 #
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
+
+ENDIF(NOT DEFINED WT_NO_STD_WSTRING)

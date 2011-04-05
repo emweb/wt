@@ -16,10 +16,8 @@
 #include <Wt/WRandom>
 #include <Wt/Dbo/Impl>
 
-#ifndef WIN32
-#ifndef __CYGWIN__
+#if !defined(WIN32) && !defined(__CYGWIN__) && !defined(ANDROID)
 #define HAVE_CRYPT
-#endif
 #endif
 
 DBO_INSTANTIATE_TEMPLATES(User);

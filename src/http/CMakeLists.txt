@@ -2,6 +2,7 @@ IF(CONNECTOR_HTTP)
   MESSAGE("** Enabling built-in httpd.")
 
   SET(libhttpsources
+    Android.C
     Configuration.C
     Connection.C
     ConnectionManager.C

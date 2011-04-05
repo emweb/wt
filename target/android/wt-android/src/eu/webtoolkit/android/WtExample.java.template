@@ -1,0 +1,73 @@
+package eu.webtoolkit.android.${APP_NAME};
+
+import eu.webtoolkit.android.WtAndroid;
+import android.app.Activity;
+import android.content.res.AssetManager;
+import android.os.Bundle;
+import android.webkit.*;
+import android.net.*;
+import android.content.*;
+import android.util.*;
+
+public class ${APP_NAME} extends Activity
+{
+  public final class WtWebChromeClient extends WebChromeClient {
+        @Override
+        public boolean onJsAlert(WebView view, 
+				 String url, 
+				 String message, 
+				 JsResult result) {
+            Log.d("WtAndroid::onJsAlert", message);
+            return true;
+        }
+
+	public void openFileChooser(ValueCallback<Uri> uploadMsg) {
+	  mUploadMessage = uploadMsg;
+          Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+          i.addCategory(Intent.CATEGORY_OPENABLE);
+          i.setType("image/*");
+          ${APP_NAME}.this.startActivityForResult(
+	  Intent.createChooser(i,"File Chooser"), FILECHOOSER_RESULTCODE);
+         }
+  }
+
+  private ValueCallback<Uri> mUploadMessage;
+  private final static int FILECHOOSER_RESULTCODE=1;
+ 
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode,
+                                  Intent intent) {
+    if(requestCode==FILECHOOSER_RESULTCODE)
+    {
+     if (null == mUploadMessage) return;
+              Uri result = intent == null || resultCode != RESULT_OK ? null
+                      : intent.getData();
+              mUploadMessage.onReceiveValue(result);
+              mUploadMessage = null;
+    }
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    
+    int httpPort 
+    	= WtAndroid.startWt(this);
+    
+    setContentView(R.layout.main);
+        
+    WebView webview = (WebView)findViewById(R.id.webview);
+    webview.loadUrl("http://localhost:" + httpPort);
+        
+    webview.getSettings().setSupportMultipleWindows(false);
+    webview.getSettings().setJavaScriptEnabled(true);
+        
+    webview.setWebChromeClient(new WtWebChromeClient());
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+  }
+}

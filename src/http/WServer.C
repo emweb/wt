@@ -32,6 +32,10 @@
 #include "WebController.h"
 #include "HTTPStream.h"
 
+#ifdef ANDROID
+#include "Android.h"
+#endif
+
 #ifdef WT_THREADED
 typedef boost::thread thread_t;
 #endif
@@ -67,7 +71,11 @@ struct WServerImpl {
       webController_(0),
       serverConfiguration_(0),
       server_(0)
-  { }
+  {
+#ifdef ANDROID
+    preventRemoveOfSymbolsDuringLinking();
+#endif
+  }
   
   ~WServerImpl() {
     delete serverConfiguration_;

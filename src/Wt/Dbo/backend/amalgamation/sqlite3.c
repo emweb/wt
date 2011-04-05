@@ -24502,7 +24502,7 @@ SQLITE_API int sqlite3_fullsync_count = 0;
 ** If you know that your system does support fdatasync() correctly,
 ** then simply compile with -Dfdatasync=fdatasync
 */
-#if !defined(fdatasync) && !defined(__linux__)
+#if !defined(fdatasync) && !defined(__linux__) || defined(ANDROID)
 # define fdatasync fsync
 #endif
 

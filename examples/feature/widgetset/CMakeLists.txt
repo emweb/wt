@@ -1,6 +1,6 @@
 IF (EXAMPLES_CONNECTOR MATCHES "wthttp")
 
-  WT_ADD_EXAMPLE(hello-widgetset.wt hello.C)
+  WT_ADD_EXAMPLE(hellowidgetset.wt hello.C)
 
   #
   # If you have Wt installed somehwere, you should use the

@@ -1,0 +1,30 @@
+<project name="wt-android" default="all" basedir=".">
+  <target name="all" depends="create-assets-zip">
+  </target>
+  
+  <target name="create-assets-zip" depends="copy-res">
+    <mkdir dir="${wt-android.dir}/assets/zip"/>
+
+    <copy todir="${wt-android.dir}assets/zip">
+      <fileset dir="${example.dir}">
+        <exclude name="**/resources/**"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${wt-android.dir}/assets/zip">
+      <fileset dir="${wt.dir}/resources/"/>
+    </copy>
+      
+    <zip destfile="${wt-android.dir}/assets/wt-assets.zip" >
+      <zipfileset dir="${wt-android.dir}/assets/zip" prefix="/"/>
+    </zip>
+
+    <delete dir="${wt-android.dir}/assets/zip"/>
+  </target>
+
+  <target name="copy-res">
+    <copy todir="${wt-android.dir}/res">
+      <fileset dir="${wt.dir}/target/android/wt-android/res"/>
+    </copy>
+  </target>
+</project>

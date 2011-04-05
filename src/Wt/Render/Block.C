@@ -1400,11 +1400,12 @@ void Block::layoutBlock(double& y, int& page, BlockList& floats,
   y -= collapseMarginBottom;
 
   double height = cssHeight(renderer.fontScale());
-  if (height >= 0) {
-    if (type_ == DomElement_TD || type_ == DomElement_TH) {
-      contentsHeight_ = diff(y, page, startY, startPage, renderer);
-    }
 
+  if (type_ == DomElement_TD || type_ == DomElement_TH) {
+    contentsHeight_ = diff(y, page, startY, startPage, renderer);
+  }
+
+  if (height >= 0) {
     page = startPage;
     y = startY;
 

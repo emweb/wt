@@ -24,6 +24,28 @@ SET(WTDBO_SOVERSION 27)
 SET(WTDBOSQLITE3_SOVERSION 27)
 SET(WTDBOPOSTGRES_SOVERSION 27)
 
+IF(ANDROID)
+  IF(NOT DEFINED ANDROID_SDK_DIR)
+    MESSAGE(FATAL_ERROR 
+    "Your configuration is missing the ANDROID_SDK_DIR variable. ")
+  ENDIF(NOT DEFINED ANDROID_SDK_DIR)
+  IF(NOT DEFINED ANDROID_NDK_TOOLS_DIR)
+    MESSAGE(FATAL_ERROR 
+    "Your configuration is missing the ANDROID_NDK_TOOLS_DIR variable. ")
+  ENDIF(NOT DEFINED ANDROID_NDK_TOOLS_DIR)
+  IF(NOT DEFINED ANDROID_STAGING_DIR)	
+    MESSAGE(FATAL_ERROR 
+    "Your configuration is missing the ANDROID_STAGING_DIR variable. ")
+  ENDIF(NOT DEFINED ANDROID_STAGING_DIR)
+  IF(NOT DEFINED ANDROID_SDK_TARGET_ID)	
+    MESSAGE(FATAL_ERROR 
+    "Your configuration is missing the ANDROID_SDK_TARGET_ID variable. ")
+  ENDIF(NOT DEFINED ANDROID_SDK_TARGET_ID)
+
+  SET(SHARED_LIBS OFF)
+  add_definitions(-DANDROID -DWT_NO_STD_WSTRING=ON -DWT_NO_STD_LOCALE=ON)
+ENDIF(ANDROID)
+
 #
 # Ubuntu patched this compiler to hell
 # gcc (Ubuntu/Linaro 4.4.4-14ubuntu5) 4.4.5
@@ -237,6 +259,8 @@ ELSE(WIN32)
 ENDIF(WIN32)
 OPTION(CONNECTOR_HTTP "Compile in stand-alone httpd connector (libwthttp) ?" ON)
 SET(EXAMPLES_CONNECTOR wthttp CACHE STRING "Connector used for examples")
+
+include (CheckSymbolExists)
 
 INCLUDE(cmake/WtFindBoost.txt)
 INCLUDE(cmake/WtFindFcgi.txt)

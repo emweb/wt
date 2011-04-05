@@ -27,6 +27,73 @@ MACRO(WT_ADD_EXAMPLE name)
   ELSE(EXAMPLES_CONNECTOR MATCHES "wtisapi")
     ADD_EXECUTABLE(${ARGV})
   ENDIF(EXAMPLES_CONNECTOR MATCHES "wtisapi")
+
+  if(ANDROID)
+    set(WT_ANDROID plaforms/android/wt-android)
+    make_directory(${CMAKE_CURRENT_BINARY_DIR}/wt-android)
+    make_directory(${CMAKE_CURRENT_BINARY_DIR}/wt-android/libs/armeabi)
+
+    SET(MYLIST ${ARGV})
+    LIST(INSERT MYLIST 1 SHARED)
+    ADD_LIBRARY(${MYLIST})
+    set_target_properties(${name} PROPERTIES 
+      LIBRARY_OUTPUT_DIRECTORY 
+      "${CMAKE_CURRENT_BINARY_DIR}/wt-android/libs/armeabi"
+      OUTPUT_NAME
+      wt-jni)
+
+    string(REPLACE ".wt" "" APP_NAME ${name})
+    string(LENGTH ${APP_NAME} APP_NAME_LENGTH)
+    math(EXPR APP_NAME_LENGTH_MINUS_ONE "${APP_NAME_LENGTH} - 1")
+    string(SUBSTRING ${APP_NAME} 0 1 APP_NAME_BEGIN)
+    string(TOUPPER ${APP_NAME_BEGIN} APP_NAME_BEGIN_UPPER)
+    string(SUBSTRING ${APP_NAME} 1 ${APP_NAME_LENGTH_MINUS_ONE} APP_NAME_END)
+    set(APP_NAME "Wt${APP_NAME_BEGIN_UPPER}${APP_NAME_END}")
+
+    make_directory(${CMAKE_CURRENT_BINARY_DIR}/wt-android/assets)
+    set(WT_ANDROID target/android/wt-android)
+    configure_file(${WT_SOURCE_DIR}/${WT_ANDROID}/src/eu/webtoolkit/android/WtAndroid.java
+      ${CMAKE_CURRENT_BINARY_DIR}/wt-android/src/eu/webtoolkit/android/WtAndroid.java)
+      make_directory(${CMAKE_CURRENT_BINARY_DIR}/wt-android/src/eu/webtoolkit/android/${APP_NAME}/)
+     configure_file("${WT_SOURCE_DIR}/${WT_ANDROID}/src/eu/webtoolkit/android/WtExample.java.template"
+      ${CMAKE_CURRENT_BINARY_DIR}/wt-android/src/eu/webtoolkit/android/${APP_NAME}/${APP_NAME}.java)
+
+       make_directory(${CMAKE_CURRENT_BINARY_DIR}/wt-android/res)
+    FILE(COPY ${WT_SOURCE_DIR}/${WT_ANDROID}/utils.xml
+      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/wt-android)
+    
+    configure_file("${WT_SOURCE_DIR}/${WT_ANDROID}/AndroidManifest.xml.template"
+      ${CMAKE_CURRENT_BINARY_DIR}/wt-android/AndroidManifest.xml)
+
+    add_custom_command(TARGET ${name}	
+      POST_BUILD
+      COMMAND ant -f ${CMAKE_CURRENT_BINARY_DIR}/wt-android/utils.xml
+      -Dwt.dir=${WT_SOURCE_DIR} -Dexample.dir=${CMAKE_CURRENT_SOURCE_DIR} 
+      -Dwt-android.dir=${CMAKE_CURRENT_BINARY_DIR}/wt-android/)
+
+    IF(NOT DEFINED ANDROID_STRIP)
+      MESSAGE(" Warning!!! ANDROID_STRIP is not defined!")
+      MESSAGE(" Warning!!! The so file will not be stripped and your android")
+      MESSAGE("            package might be too large to fit on the target")
+      MESSAGE("            device!")
+    ELSE(NOT DEFINED ANDROID_STRIP)
+      add_custom_command(TARGET ${name}	
+      POST_BUILD
+      COMMAND ${ANDROID_STRIP} 
+      "${CMAKE_CURRENT_BINARY_DIR}/wt-android/libs/armeabi/*")
+    ENDIF(NOT DEFINED ANDROID_STRIP)
+
+    add_custom_command(TARGET ${name}
+    	POST_BUILD
+	COMMAND ${ANDROID_SDK_DIR}/tools/android update project 
+	--name wt-android --target ${ANDROID_SDK_TARGET_ID} 
+	--path ${CMAKE_CURRENT_BINARY_DIR}/wt-android/)
+
+    add_custom_command(TARGET ${name}	
+      POST_BUILD
+      COMMAND ant -f ${CMAKE_CURRENT_BINARY_DIR}/wt-android/build.xml debug)
+  ENDIF(ANDROID)
+
   IF(MSVC)
     SET_TARGET_PROPERTIES(${name} PROPERTIES COMPILE_FLAGS "/W3 /Wp64 /wd4251 /wd4275")
   ENDIF(MSVC)
