@@ -66,6 +66,11 @@ std::string Calendar::createJS(DomElement *inContainer)
   result << elVar() << " = new Ext.DatePicker(" << configStruct() << ");";
   result << elVar() << ".render('" << id() << "');";
 
+  if (selection_.size() == 1)
+    result << elVar() << ".setValue(Date.parseDate('"
+	   << (*selection_.begin()).toString("dd/MM/yyyy").toUTF8()
+	   << "','d/m/Y'));";
+
   bindEventHandler("select", "selectH", result);
   
   return result.str();
