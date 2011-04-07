@@ -47,7 +47,7 @@
 	</div>
 
 	<div id="chat"></div>
-	<script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat"></script>
+	<script src="http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
 
 	<div class="clearall"></div>
       </div>
@@ -874,18 +874,25 @@ features in Wt:
   <li><a href="http://www.postgresql.org/">PostgreSQL</a>: if
     available, then also a
     <a href="/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
-    connector</a> will be built for the ORM library
-    (<a href="/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>)</li>
+    connector</a> for the ORM library
+    (<a href="/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>) will be
+    included.
+   </li>
   <li><a href="http://libharu.org/wiki/Main_Page">libharu</a>: if
-    available,
-    a <a href="/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
-    paint device will be built, allowing to integrate graphics into
-    PDF documents or be served as a PDF document.</li>
+    available, a
+    <a href="/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>
+    paint device will be included, which outputs to PDF. Note,that for more
+    complete support for TrueType fonts and Unicode, you need 
+    <a href="https://github.com/kdeforche/libharu">a patched libharu</a>.</li>
   <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>: if
     available,
     a <a href="/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
-    paint device will be built, allowing to paint graphics on a raster
-    image (like PNG or GIF).</li>
+    paint device will be included, which outputs to raster images like PNG
+    or GIF.</li>
+  <li><a href="http://www.pango.org/">pango</a> (LGPL): if available,
+    text rendering for WPdfImage and WRasterImage will be assisted by
+    this library for TrueType font selection, taking into
+    consideration both the font face and unicode coverage.</li>
 </ul>
 
 <p>The other requirements depend on the connector support you would

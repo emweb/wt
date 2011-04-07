@@ -20,10 +20,14 @@
 using namespace Wt;
 
 FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
+#if BOOST_FILESYSTEM_VERSION < 3
 #ifndef WT_NO_STD_WSTRING
   : WTreeTableNode(Wt::widen(path.leaf()), createIcon(path)),
 #else
-: WTreeTableNode(path.leaf(), createIcon(path)),
+  : WTreeTableNode(path.leaf(), createIcon(path)),
+#endif
+#else
+  : WTreeTableNode(path.leaf(), createIcon(path)),
 #endif
     path_(path)
 {

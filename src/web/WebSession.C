@@ -1094,6 +1094,7 @@ void WebSession::handleRequest(Handler& handler)
 
 #ifndef WT_TARGET_JAVA
 	    if (nojs || noBootStyleResponse_) {
+	      handler.response()->setContentType("text/css");
 	      handler.response()->flush();
 	      handler.setRequest(0, 0);
 	    } else {
@@ -1505,12 +1506,13 @@ void WebSession::notify(const WEvent& event)
     break;
   case WebSession::Loaded:
     if (handler.response()->responseType() == WebResponse::Script) {
+      const std::string *hashE = request.getParameter("_");
+
       if (!env_->doesAjax_) {
 	// upgrade to AJAX -> this becomes a first update we may need
 	// to replay this, so we cannot commit these changes until
 	// we have received an ack for this.
 
-	const std::string *hashE = request.getParameter("_");
 	const std::string *scaleE = request.getParameter("scale");
 
 	env_->doesAjax_ = true;
@@ -1529,6 +1531,9 @@ void WebSession::notify(const WEvent& event)
 	app_->enableAjax();
 	if (env_->internalPath().length() > 1)
 	  app_->changeInternalPath(env_->internalPath());
+      } else {
+	if (hashE)
+	  app_->changeInternalPath(*hashE);
       }
 
       render(handler);

@@ -89,7 +89,7 @@ WApplication::WApplication(const WEnvironment& env)
     exposedOnly_(0),
     loadingIndicator_(0),
     connected_(true),
-    bodyHtmlClassChanged_(false),
+    bodyHtmlClassChanged_(true),
     enableAjax_(false),
     initialized_(false),
     selectionStart_(-1),

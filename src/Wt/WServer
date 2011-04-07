@@ -277,8 +277,11 @@ public:
    * of a session, identified by its WApplication::sessionId(). The
    * method will safely handle the case where the session is being
    * terminated, and the session lock will be taken to execute the
-   * function in the context of the session, just as with a request
-   * initiated by the client.
+   * function in the context of the session (with
+   * WApplication::instance() pointing to the correct application),
+   * just as with a request initiated by the browser. You will
+   * typically also want to push the changes to the client using
+   * server-initiated updates (WApplication::triggerUpdate()).
    *
    * The method returns immediately, and the function will be run
    * within the thread-pool that handles incoming web requests. In

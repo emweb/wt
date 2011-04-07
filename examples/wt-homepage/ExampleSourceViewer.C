@@ -35,7 +35,11 @@ namespace fs = boost::filesystem;
 // Same as p.filename() in latest boost::filesystem
 static std::string filename(const fs::path& p)
 {
+#if BOOST_FILESYSTEM_VERSION < 3
   return p.empty() ? std::string() : *--p.end();
+#else
+  return p.empty() ? std::string() : (*--p.end()).string();
+#endif
 }
 
 // Same as p.stem() in latest boost::filesystem

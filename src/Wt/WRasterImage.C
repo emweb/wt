@@ -37,6 +37,15 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#ifdef WIN32
+namespace {
+  double round(double x)
+  {
+    return floor(x + 0.5);
+  }
+}
+#endif
+
 namespace {
   static const double EPSILON = 1E-5;
 

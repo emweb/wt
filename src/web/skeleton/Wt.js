@@ -84,15 +84,18 @@ var ie = (function(){
     return v > 4 ? v : undef;
 }());
 
+var agent = navigator.userAgent.toLowerCase();
+
 this.isIE = ie !== undefined;
 this.isIE6 = ie === 6;
 this.isIElt9 = ie < 9;
-this.isIEMobile = navigator.userAgent.toLowerCase().indexOf("msie 4") != -1
-  || navigator.userAgent.toLowerCase().indexOf("msie 5") != -1;
-this.isGecko = navigator.userAgent.toLowerCase().indexOf("gecko") != -1;
+this.isIEMobile = agent.indexOf("msie 4")!=-1 || agent.indexOf("msie 5")!=-1;
+this.isGecko = agent.indexOf("gecko") != -1;
 this.isOpera = typeof window.opera !== 'undefined';
-this.isAndroid = (navigator.userAgent.toLowerCase().indexOf("safari") != -1)
-  && (navigator.userAgent.toLowerCase().indexOf("android") != -1);
+this.isAndroid = (agent.indexOf("safari") != -1)
+		  && (agent.indexOf("android") != -1);
+this.isMobileWebKit = (agent.indexOf("applewebkit") != -1)
+		       && (agent.indexOf("mobile") != -1);
 
 this.updateDelay = this.isIE ? 10 : 51;
 
@@ -1185,7 +1188,8 @@ this.hasFocus = function(el) {
   return el == document.activeElement;
 };
 
-var html5History = !!(window.history && window.history.pushState);
+var html5History = !WT.isMobileWebKit
+    && !!(window.history && window.history.pushState);
 
 if (html5History) {
   this.history = (function()

@@ -110,17 +110,20 @@ void WCssDecorationStyle::setBackgroundImage(WResource *resource,
 					     Repeat repeat,
 					     WFlags<Side> sides)
 {
-  backgroundImageResource_ = resource;
   resource->dataChanged().
     connect(this, &WCssDecorationStyle::backgroundImageResourceChanged);
   setBackgroundImage(resource->url(), repeat, sides);
+
+  backgroundImageResource_ = resource;
 }
 
 void WCssDecorationStyle::backgroundImageResourceChanged()
 {
   if (backgroundImageResource_) {
-    setBackgroundImage(backgroundImageResource_->url(),
-                       backgroundImageRepeat_, backgroundImageLocation_);
+    WResource *resource = backgroundImageResource_;
+    setBackgroundImage(resource->url(),
+		       backgroundImageRepeat_, backgroundImageLocation_);
+    backgroundImageResource_ = resource;
   }
 }
 

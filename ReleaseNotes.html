@@ -19,6 +19,181 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 3.1.9 (April 7, 2011)</h2>
+
+<p>
+  This release contains mostly bug fixes and quality improvements.
+</p>
+
+<h3>A) New classes:</h3>
+
+<dl>
+  <dt>
+    <a href="classWt_1_1WAbstractSpinBox.html">WAbstractSpinBox</a>,
+    <a href="classWt_1_1WDoubleSpinBox.html">WDoubleSpinBox</a>
+  </dt>
+  <dd>
+    Refactored and reimplemented the spinbox control into an integer
+    and floating point version, which may be implemented either using
+    a native HTML5 element or a portable Wt implementation.
+  </dd>
+
+</dl>
+
+<h3>B) Main new features in existing classes:</h3>
+
+<dl>
+  <dt>
+    Internal path handling: HTML5 History API
+  </dt>
+  <dd>
+    <div>
+      When the browser supports the HTML5 History API, URLs are now the
+      same for plain HTML and Ajax-enabled session (i.e. without the '#'
+      trick). This can improve load time and improves the
+      user-experience.
+    </div>
+
+    <div>
+      To avoid problems of resolving resources with relative URLs, a
+      new property 'baseURL' can be used (that can be configured in
+      wt_config.xml), which allows all relative URLs be resolved from
+      the same location.
+    </div>
+  </dd>
+
+  <dt>
+    Internal path handling: no ugly internal paths ('?_=/path')
+  </dt>
+  <dd>
+    A new configuration option (--docroot-static) for the built-in
+    httpd allows to specify folders with static paths and when doing
+    so, all other requests are forwarded to the application, which in
+    turn does no longer need to rely on the ugly '?_=' query parameter
+    to encode its internal paths.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WPdfImage.html">WPdfImage</a>, <a href="classWt_1_1WRasterImage.html">WRasterImage</a>
+  </dt>
+  <dd>
+    Improved font support: the library can be optionally built to use
+    libpango for resolving characters to glyphs. This allows text to
+    be rendered using a mix of different fonts that all provide only
+    partial coverage for the entire unicode range. Note that for
+    WPdfImage, this currently requires use of a libharu fork
+    (https://github.com/kdeforche/libharu/tree/)
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WAbstractItemView.html">WAbstractItemView</a>,
+    WTableView and WTreeView
+  </dt>
+  <dd>
+    Implementation of setRowHeaderCount() which fixes the number of
+    columns that are used as row headers and remain fixed while
+    scrolling horiziontally through the table. This replaces the now
+    deprecated setColumn1Fixed() API.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WRasterImage.html">WRasterImage</a>
+  </dt>
+  <dd>
+    Several quality improvements: correct rendering of alpha
+    compositing, text rendering by libpango, 
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WSlider.html">WSlider</a>
+  </dt>
+  <dd>
+    The slider has been reimplemented to allow for using either the
+    native HTML5 slider control, or the Wt implementation. The Wt
+    implementation can now also be styled through CSS.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WServer.html#abca6890dab44d87bd3af64705ac072d3">WRun()</a>,
+    <a href="classWt_1_1WServer.html#a84f84652ccb139850adcf5ea75f50fa5">WServer::addEntryPoint()</a>
+  </dt>
+  <dd>
+    The callback function is now a boost::function<> object, allowing
+    you to bind other variables into the callback function.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WServer.html#a2894484a9661d728dc9aa60ba79bb570">WServer::post()</a>
+  </dt>
+  <dd>
+    A safe method to post events to a session, and a useful
+    alternative to WApplication::UpdateLock. The simplechat and
+    codeview examples were converted to illustrate this method rather
+    than the (dead-lock prone) WApplication::UpdateLock approach.
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1WString.html#abcff7d3d30972762bd5d9279dc903a36">WString::trn()</a>
+  </dt>
+  <dd>
+    Implementation of plural string resolution, with locale-dependent
+    rules. The implementation provided
+    by <a href="classWt_1_1WMessageResourceBundle.html">WMessageResourceBundle</a>
+    allows the same kind of expressions as GNU ngettext().
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Chart_1_1WAxis.html#ab36cb584a0aa8bdcc1c3212a9304e6cd">Chart::WAxis::setResolution()</a>
+  </dt>
+  <dd>
+    Allows to specify the minimum chart axis resolution (contributed by Gaetano Mendola).
+  </dd>
+
+  <dt>
+    <a href="classWt_1_1Dbo_1_1Transaction.html">Dbo::Transaction</a>
+  </dt>
+  <dd>
+    Fixed an issue with internal inconsistencies after transaction rollback.
+  </dd>
+
+</dl>
+
+<h3>C) Non-backwwards compatible changes</h3>
+
+<dl>
+  <dt>Changed i18n keys for <tt>Wt.WDate.Mon-Sun</tt>
+  and <tt>Wt.Date.Jan-Dec</tt></dt>
+  <dd>
+    We were pointed out the fact that the built-in i18n keys for WDate
+    month names had a collision for the month 'May', which had the
+    same key for the abbreviated 3-letter variant as the full length
+    variant. Therefore in this release we reformatted the abbreviated
+    3-letter variant keys to <tt>Wt.WDate.3.Mon-Sun</tt>
+    and <tt>Wt.WDate.3.Jan-Dec</tt>. You will need to update your own
+    languages copies of these (or better, contribute them and we'll
+    maintain them for you!).
+  </dd>
+</dl>
+
+<h3>D) Android and iPad/iPhone targets</h3>
+
+<p>This release contains initial work on supporting Android and
+iPad/iPhone as targets for deploying Wt applications within a webkit
+view widget.</p>
+
+<p>For iPad/iPhone, we added a script that builds Wt as an OSX Framework
+which may be used in XCode to build iOS applications.</p>
+
+<p>For Android, we added support for building the library and examples as
+shared objects which are packaged together with a small Java project
+which instantiates a WebView, into standalone APK files.</p>
+
+<p>This is ongoing work. We need to improve support in Wt for Mobile
+Webkit to make the applications look and behave more as native
+applications on these devices.</p>
+
+<hr>
+
 <h2>Release 3.1.8 (Feb 4, 2011)</h2>
 
 <p>

@@ -170,10 +170,10 @@ void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)
 void WebRenderer::streamRedirectJS(std::ostream& out,
 				   const std::string& redirect)
 {
-  if (session_.app())
+  if (session_.app() && session_.app()->internalPathIsChanged_)
     out << "if (window." << session_.app()->javaScriptClass() << ") "
 	<< session_.app()->javaScriptClass()
-	<< "._p_.setHash('" << session_.app()->internalPath() << ".');\n";
+	<< "._p_.setHash('" << session_.app()->internalPath() << "');\n";
   out <<
     "if (window.location.replace)"
     " window.location.replace('" << redirect << "');"

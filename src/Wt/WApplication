@@ -1891,8 +1891,19 @@ private:
  * This function runs the application server, and should be called
  * only once (e.g. from within your main function).
  *
- * The <i>createApplication</i> argument is a function pointer to
- * create new application instances for each new user surfing to your application.
+ * The \p createApplication parameter is a <tt>boost::function</tt>
+ * object that should create a new application instance for a new user
+ * visiting the application. It is of type:
+ * <tt>boost::function<Wt::WApplication* (const
+ * Wt::WEnvironment&)></tt>, and thus you can pass to it a function
+ * like:
+ *
+ * <pre>
+ * Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+ * {
+ *   // ...
+ * }
+ * </pre>
  *
  * When using the built-in httpd, the implementation listens for POSIX
  * termination signals (or console CTRL-C) event. You can use the
