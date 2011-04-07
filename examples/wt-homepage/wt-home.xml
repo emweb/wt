@@ -114,7 +114,8 @@ interactive web applications.</p>
 desktop GUI APIs, tailored to the web. To the developer, it offers
 complete abstraction of any web-specific implementation details,
 including event handling, graphics support, graceful degradation (or
-progressive enhancement), and pretty URLs.</p>
+progressive enhancement), and pretty URLs using the HTML5 History
+API.</p>
 
 <p>Unlike many page-based frameworks, Wt was designed for creating
 stateful applications that are at the same time highly interactive

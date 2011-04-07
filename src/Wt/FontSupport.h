@@ -7,9 +7,9 @@
 #ifndef FONT_SUPPORT_H_
 #define FONT_SUPPORT_H_
 
+#ifndef HAVE_PANGO
 #include <boost/filesystem/path.hpp>
-
-#ifdef HAVE_PANGO
+#else
 #include <pango/pango.h>
 #endif // HAVE_PANGO
 

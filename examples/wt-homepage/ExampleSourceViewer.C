@@ -195,7 +195,7 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
     ".C", ".cpp", ".h", ".css", ".xml", ".png", ".gif", ".csv", ".ico", 0
   };
 
-  FileItem* dir = new FileItem("icons/yellow-folder-open.png", filename(path),
+  FileItem* dir = new FileItem("/icons/yellow-folder-open.png", filename(path),
 			       "");
   parent->appendRow(dir);
   parent = dir;
@@ -242,12 +242,12 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
 	    std::string label = "<i>class</i> " + className;
 
 	    FileItem *classItem = 
-	      new FileItem("icons/cppclass.png", label, std::string());
+	      new FileItem("/icons/cppclass.png", label, std::string());
 	    classItem->setFlags(classItem->flags() | ItemIsXHTMLText);
 
-	    FileItem *header = new FileItem("icons/document.png", filename(p),
+	    FileItem *header = new FileItem("/icons/document.png", filename(p),
 					    p.string());
-	    FileItem *cpp = new FileItem("icons/document.png",
+	    FileItem *cpp = new FileItem("/icons/document.png",
 					 filename(*it_companion),
 					 (*it_companion).string());
 	    classItem->appendRow(header);
@@ -256,14 +256,14 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
 	    classes.push_back(classItem);
 	    paths.erase(it_companion);
 	  } else {
-	    FileItem *file = new FileItem("icons/document.png", filename(p),
+	    FileItem *file = new FileItem("/icons/document.png", filename(p),
 					  p.string());
 	    files.push_back(file);
 	  }
       } else if (fs::is_directory(p)) {
 	dirs.push_back(p);
       } else {
-	FileItem *file = new FileItem("icons/document.png", filename(p),
+	FileItem *file = new FileItem("/icons/document.png", filename(p),
 				      p.string());
 	files.push_back(file);
       }
@@ -295,11 +295,11 @@ void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
     fs::path p = *i;
     if (fs::is_regular(p)) {
       if (!packageItem) {
-	packageItem = new FileItem("icons/package.png", packageName, "");
+	packageItem = new FileItem("/icons/package.png", packageName, "");
 	parent->appendRow(packageItem);
       }
 
-      FileItem *file = new FileItem("icons/javaclass.png", filename(p),
+      FileItem *file = new FileItem("/icons/javaclass.png", filename(p),
 				    p.string());
       packageItem->appendRow(file);
     }
@@ -321,7 +321,7 @@ void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
 void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent, 
 					  const fs::path& path)
 {
-  FileItem* dir = new FileItem("icons/yellow-folder-open.png", filename(path),
+  FileItem* dir = new FileItem("/icons/yellow-folder-open.png", filename(path),
 			       "");
   parent->appendRow(dir);
   parent = dir;
@@ -333,7 +333,7 @@ void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent,
     fs::path p = *i;
     if (fs::is_directory(p)) {
       if (filename(p) == "src") {
-	FileItem* dir = new FileItem("icons/package-folder-open.png",
+	FileItem* dir = new FileItem("/icons/package-folder-open.png",
 				     filename(p), "");
 	parent->appendRow(dir);
 	javaTraversePackages(dir, p, "");
@@ -351,7 +351,7 @@ void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent,
     javaTraverseDir(parent, dirs[i]);
 
   for (unsigned int i = 0; i < files.size(); i++) {
-    FileItem *file = new FileItem("icons/document.png", filename(files[i]),
+    FileItem *file = new FileItem("/icons/document.png", filename(files[i]),
 				  files[i].string());
     parent->appendRow(file);
   }

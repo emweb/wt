@@ -93,7 +93,7 @@ void Configuration::createOptions(po::options_description& options)
      "document root for static files, optionally followed by a "
      "comma-separated list of paths with static files (even if they "
      "are within a deployment path), after a ';' \n\n"
-     "e.g. --docroot=.;/resources,/style\n")
+     "e.g. --docroot=\".;/resources,/style\"\n")
 
     ("approot",
      po::value<std::string>(&appRoot_)->default_value(appRoot_),

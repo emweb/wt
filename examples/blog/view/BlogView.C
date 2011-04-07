@@ -58,8 +58,8 @@ public:
     WApplication *app = wApp;
 
     app->messageResourceBundle().use(WApplication::appRoot() + "blog");
-    app->useStyleSheet("css/blog.css");
-    app->useStyleSheet("css/asciidoc.css");
+    app->useStyleSheet("/css/blog.css");
+    app->useStyleSheet("/css/asciidoc.css");
     app->internalPathChanged().connect(this, &BlogImpl::handlePathChange);
     login_ = new WTemplate(this);
     panel_ = new WStackedWidget(this);

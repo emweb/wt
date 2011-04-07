@@ -485,11 +485,13 @@ namespace Wt {
   be served by the web server. As a consequence, ugly URLs will be
   generated for internal paths. Since version 3.1.9, it is however
   possible to have clean URLs also when deploying at the root by
-  specifically listing the folders that contain static assets using
-  <tt>--docroot-static</tt>, e.g.
+  specifically listing the folders that contain static assets in
+  --docroot, followed by ';':
+
+  <tt>--docroot</tt>, e.g.
 
   \code
-  $ ../../build/examples/wt-homepage/Home.wt --docroot-static=/css,/resources,/style ...
+  $ ../../build/examples/wt-homepage/Home.wt --docroot=".;/css,/resources,/style,/icons" ...
   \endcode
 
   \subsection wtisapi 9.3 ISAPI
@@ -741,8 +743,14 @@ General options:
   -h [ --help ]                 produce help message
   -t [ --threads ] arg (=10)    number of threads
   --servername arg (=vierwerf)  servername (IP address or DNS name)
-  --docroot arg                 document root for static files
-  --approot arg                 application root for private support files; if 
+  --docroot arg                 document root for static files, optionally 
+                                followed by a comma-separated list of paths 
+                                with static files (even if they are within a 
+                                deployment path), after a ';' 
+                                
+                                e.g. --docroot=".;/resources,/style"
+                                
+   --approot arg                application root for private support files; if 
                                 unspecified, the value of the environment 
                                 variable $WT_APP_ROOT is used, or else the 
                                 current working directory
