@@ -115,11 +115,12 @@ if (needSessionInUrl) {
 
 if (needSessionInUrl) {
   if (hash.length > 0)
-    selfUrl += '#' + hash;
+    selfurl += '#' + hash;
   setUrl(selfUrl);
 } else if (ajax) {
-  var htmlHistory = !!(win.history && win.history.pushState);
-  var canonicalUrl = _$_AJAX_CANONICAL_URL_$_;
+  var htmlHistory = !!(win.history && win.history.pushState),
+      canonicalUrl = _$_AJAX_CANONICAL_URL_$_,
+      hashInfo = '';
   if (!htmlHistory && canonicalUrl.length > 1) {
 _$_$if_HYBRID_$_();
     var pathcookie='WtInternalPath=' + escape(_$_INTERNAL_PATH_$_)
@@ -129,14 +130,25 @@ _$_$endif_$_();
     setUrl(canonicalUrl);
   } else {
     if (hash.length > 1 && hash.charAt(0) == '/') {
-      selfUrl += '&_=' + encodeURIComponent(hash);
+      hashInfo = '&_=' + encodeURIComponent(hash);
 _$_$if_HYBRID_$_();
       if (hash != _$_INTERNAL_PATH_$_)
         setTimeout(hideForm, 10);
 _$_$endif_$_();
     }
 
-    loadScript(selfUrl + scaleInfo + '&request=script&rand=' + rand(), null);
+_$_$ifnot_SPLIT_SCRIPT_$_();
+    loadScript(selfUrl + hashInfo + scaleInfo + '&request=script&rand=' + rand(),
+               null);
+_$_$endif_$_();
+_$_$if_SPLIT_SCRIPT_$_();
+    /* Ideally, we should be able to omit the sessionid too */
+    loadScript(selfUrl + '&request=script&skeleton=true',
+               function() {
+                 loadScript(selfUrl + hashInfo + scaleInfo
+                            + '&request=script&rand=' + rand(), null);
+               });
+_$_$endif_$_();
   }
 }
     }

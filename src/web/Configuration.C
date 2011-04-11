@@ -171,6 +171,7 @@ Configuration::Configuration(const std::string& applicationPath,
     ajaxAgentWhiteList_(false),
     persistentSessions_(false),
     progressiveBoot_(false),
+    splitScript_(false),
     pid_(getpid())
 {
   char *value = 0;
@@ -361,6 +362,8 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   setBoolean(app, "inline-css", inlineCss_);
   setBoolean(app, "persistent-sessions", persistentSessions_);
   setBoolean(app, "progressive-bootstrap", progressiveBoot_);
+  if (progressiveBoot_)
+    setBoolean(app, "split-script", splitScript_);
 
   std::string indicatorTimeoutStr
     = singleChildElementValue(app, "indicator-timeout", "");

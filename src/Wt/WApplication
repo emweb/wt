@@ -1061,15 +1061,9 @@ public:
     friend class WApplication;
   };
 
-  /*!
-   * \if cpp
-   * \brief Grabs and returns the lock for manipulating widgets outside
-   *        the event loop (<b>deprecated</b>).
-   * \endif cpp
-   * \if java
-   * \brief Grabs and returns the lock for manipulating widgets outside
-   *        the event loop.
-   * \endif java
+#ifndef WT_TARGET_JAVA
+  /*! \brief Grabs and returns the lock for manipulating widgets outside
+   *         the event loop (<b>deprecated</b>).
    *
    * You need to keep this lock in scope while manipulating widgets
    * outside of the event loop. In normal cases, inside the %Wt event
@@ -1077,11 +1071,20 @@ public:
    *
    * \sa enableUpdates(), triggerUpdate()
    *
-   * \if cpp
    * \deprecated Use the RAII-style UpdateLock(WApplication *) constructor
    *             instead.
-   * \endif cpp
    */
+#else
+  /*! \brief Grabs and returns the lock for manipulating widgets outside
+   *         the event loop.
+   *
+   * You need to keep this lock in scope while manipulating widgets
+   * outside of the event loop. In normal cases, inside the %Wt event
+   * loop, you do not need to care about it.
+   *
+   * \sa enableUpdates(), triggerUpdate()
+   */
+#endif // WT_TARGET_JAVA
   UpdateLock getUpdateLock();
 
   /*! \brief Attach an auxiliary thread to this application.

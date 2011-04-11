@@ -1702,7 +1702,7 @@ function encodeTouches(s, touches, widgetCoords) {
   return result;
 }
 
-var formObjects = _$_FORM_OBJECTS_$_;
+var formObjects = [];
 
 function encodeEvent(event, i) {
   var se, result, e;
@@ -2261,6 +2261,13 @@ function responseReceived(updateId) {
   comm.responseReceived(updateId);
 }
 
+var pageId = 0;
+
+function setPage(id)
+{
+  pageId = id;
+}
+
 function sendUpdate() {
   if (responsePending)
     return;
@@ -2296,7 +2303,7 @@ function sendUpdate() {
     poll = true;
   }
 
-  data.result += '&ackId=' + ackUpdateId + '&pageId=_$_PAGE_ID_$_';
+  data.result += '&ackId=' + ackUpdateId + '&pageId=' + pageId;
 
   if (websocket.socket != null && websocket.socket.readyState == 1) {
     responsePending = null;
@@ -2537,9 +2544,10 @@ this._p_ = {
   ImagePreloader : ImagePreloader,
 
   doAutoJavaScript : doAutoJavaScript,
-  autoJavaScript : function() {  _$_AUTO_JAVASCRIPT_$_(); },
+  autoJavaScript : function() { },
 
   response : responseReceived,
+  setPage : setPage,
   setCloseMessage : setCloseMessage
 };
 

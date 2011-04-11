@@ -109,6 +109,12 @@ WPaintedWidget::WPaintedWidget(WContainerWidget *parent)
   }
 
   setLayoutSizeAware(true);
+  setJavaScriptMember(WT_RESIZE_JS,
+		      "function(self,w,h) {"
+		      "var lsaJs = " + javaScriptMember(WT_RESIZE_JS)
+		      + "lsaJs(self,w,h);"
+		      "$(self).find('canvas, img').width(w).height(h);"
+		      "}");
   setInline(false);
 }
 
@@ -154,7 +160,7 @@ void WPaintedWidget::layoutSizeChanged(int width, int height)
 {
   resize(WLength::Auto, WLength::Auto);
 
-  resizeCanvas(width, height-5);
+  resizeCanvas(width, height);
 }
 
 void WPaintedWidget::update(WFlags<PaintFlag> flags)
@@ -287,7 +293,6 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
     if (device->painter())
       device->painter()->end();
 #endif // WT_TARGET_JAVA
-
   }
 
   painter_->createContents(canvas, device);
@@ -331,16 +336,17 @@ void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
   bool createdNew = createPainter();
 
   if (needRepaint_) {
-    WPaintDevice *device
-      = painter_->getPaintDevice((repaintFlags_ & PaintUpdate) && !createdNew);
+    WPaintDevice *device = painter_->getPaintDevice
+      ((repaintFlags_ & PaintUpdate) && !createdNew);
 
-    if (renderWidth_ != 0 && renderHeight_ != 0)
+    if (renderWidth_ != 0 && renderHeight_ != 0) {
       paintEvent(device);
 
 #ifdef WT_TARGET_JAVA
-  if (device->painter())
-    device->painter()->end();
+      if (device->painter())
+	device->painter()->end();
 #endif // WT_TARGET_JAVA
+    }
 
     if (createdNew) {
       DomElement *canvas = DomElement::getForUpdate('p' + id(), DomElement_DIV);

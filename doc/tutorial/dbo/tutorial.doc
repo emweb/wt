@@ -94,9 +94,12 @@ a call to
 is used to map the field to a table column name.
 
 As you may see, standard {cpp} types such as +int+, +std::string+ and
-+enum+ types are readily supported by the library. Support for other
++enum+ types are readily supported by the library (a full list of supported 
+types can be found in the documentation of +{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<_T_>]+). Support for other
 types can be added by specializing
 +{doc}structWt_1_1Dbo_1_1sql\__value\__traits.html[Wt::Dbo::sql_value_traits<_T_>]+.
+There is also support for built-in Wt types such as WDate, WDateTime, WTime and 
+WString which can be enabled by including <Wt/Dbo/WtSqlTraits>.
 
 The library defines a number of actions which will be applied to a
 database object using its +persist()+ method, which applies it in turn
@@ -106,7 +109,7 @@ outcomes.
 
 [NOTE]
 ===============================
-For brevity, our example uses public members. There is no nothing that
+For brevity, our example uses public members. There is nothing that
 prevents you to encapsulate your state in private members and provide
 accessor methods. You may even define the persistence method in terms of
 accessor methods by differentiating between read and write actions.

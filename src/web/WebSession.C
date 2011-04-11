@@ -1149,27 +1149,31 @@ void WebSession::handleRequest(Handler& handler)
 	  const std::string *resourceE = request.getParameter("resource");
 
 	  if (handler.response()->responseType() == WebResponse::Script) {
-	    const std::string *hashE = request.getParameter("_");
-	    const std::string *scaleE = request.getParameter("scale");
+	    if (!request.getParameter("skeleton")) {
+	      const std::string *hashE = request.getParameter("_");
+	      const std::string *scaleE = request.getParameter("scale");
 
-	    env_->doesAjax_ = true;
-	    env_->doesCookies_ = !request.headerValue("Cookie").empty();
+	      env_->doesAjax_ = true;
+	      env_->doesCookies_ = !request.headerValue("Cookie").empty();
 
-	    try {
-	      env_->dpiScale_
-		= scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
-	    } catch (boost::bad_lexical_cast &e) {
-	      env_->dpiScale_ = 1;
+	      try {
+		env_->dpiScale_
+		  = scaleE ? boost::lexical_cast<double>(*scaleE) : 1;
+	      } catch (boost::bad_lexical_cast &e) {
+		env_->dpiScale_ = 1;
+	      }
+
+	      // the internal path, when present as an anchor (#), is only
+	      // conveyed in the second request
+	      if (hashE)
+		env_->setInternalPath(*hashE);
+
+	      if (!start())
+		throw WtException("Could not start application.");
+	    } else {
+	      serveResponse(handler);
+	      return;
 	    }
-
-	    // the internal path, when present as an anchor (#), is only
-	    // conveyed in the second request
-	    if (hashE)
-	      env_->setInternalPath(*hashE);
-
-	    if (!start())
-	      throw WtException("Could not start application.");
-
 	  } else if (requestForResource && resourceE && *resourceE == "blank") {
 	    handler.response()->setContentType("text/html");
 	    handler.response()->out() <<
@@ -1476,7 +1480,7 @@ void WebSession::notify(const WEvent& event)
 
   const std::string *requestE = request.getParameter("request");
 
-  const std::string *pageIdE = handler.request()->getParameter("pageId");
+  const std::string *pageIdE = request.getParameter("pageId");
   if (pageIdE
       && *pageIdE != boost::lexical_cast<std::string>(renderer_.pageId())) {
     handler.response()->setContentType("text/javascript; charset=UTF-8");
@@ -1506,34 +1510,36 @@ void WebSession::notify(const WEvent& event)
     break;
   case WebSession::Loaded:
     if (handler.response()->responseType() == WebResponse::Script) {
-      const std::string *hashE = request.getParameter("_");
+      if (!request.getParameter("skeleton")) {
+	const std::string *hashE = request.getParameter("_");
 
-      if (!env_->doesAjax_) {
-	// upgrade to AJAX -> this becomes a first update we may need
-	// to replay this, so we cannot commit these changes until
-	// we have received an ack for this.
+	if (!env_->doesAjax_) {
+	  // upgrade to AJAX -> this becomes a first update we may need
+	  // to replay this, so we cannot commit these changes until
+	  // we have received an ack for this.
 
-	const std::string *scaleE = request.getParameter("scale");
+	  const std::string *scaleE = request.getParameter("scale");
 
-	env_->doesAjax_ = true;
-	env_->doesCookies_ = !request.headerValue("Cookie").empty();
+	  env_->doesAjax_ = true;
+	  env_->doesCookies_ = !request.headerValue("Cookie").empty();
 
-	try {
-	  env_->dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE)
-	    : 1;
-	} catch (boost::bad_lexical_cast &e) {
-	  env_->dpiScale_ = 1;
+	  try {
+	    env_->dpiScale_ = scaleE ? boost::lexical_cast<double>(*scaleE)
+	      : 1;
+	  } catch (boost::bad_lexical_cast &e) {
+	    env_->dpiScale_ = 1;
+	  }
+
+	  if (hashE)
+	    env_->setInternalPath(*hashE);
+
+	  app_->enableAjax();
+	  if (env_->internalPath().length() > 1)
+	    app_->changeInternalPath(env_->internalPath());
+	} else {
+	  if (hashE)
+	    app_->changeInternalPath(*hashE);
 	}
-
-	if (hashE)
-	  env_->setInternalPath(*hashE);
-
-	app_->enableAjax();
-	if (env_->internalPath().length() > 1)
-	  app_->changeInternalPath(env_->internalPath());
-      } else {
-	if (hashE)
-	  app_->changeInternalPath(*hashE);
       }
 
       render(handler);
@@ -1858,7 +1864,8 @@ void WebSession::serveResponse(Handler& handler)
      * page (without Ajax) or the main script (with Ajax).
      */
     if (bootStyleResponse_) {
-      if (handler.response()->responseType() == WebResponse::Script)
+      if (handler.response()->responseType() == WebResponse::Script
+	  && !handler.request()->getParameter("skeleton"))
 	renderer_.serveLinkedCss(*bootStyleResponse_);
       bootStyleResponse_->flush();
       bootStyleResponse_ = 0;

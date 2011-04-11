@@ -173,7 +173,7 @@ createFramework()
 EOF
 }
 
-clean
+#clean
 build-armv6
 build-armv7
 build-i386

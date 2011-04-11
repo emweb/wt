@@ -140,6 +140,7 @@ public:
   const AgentList&   botList() const { return botList_; }
   bool               persistentSessions() const { return persistentSessions_; }
   bool               progressiveBoot() const { return progressiveBoot_; }
+  bool               splitScript() const { return splitScript_; }
 
   WLogger&           logger() { return logger_; }
   WLogEntry          log(const std::string& type) const;
@@ -191,7 +192,7 @@ private:
   bool            ajaxAgentWhiteList_;
   bool            persistentSessions_;
   bool            progressiveBoot_;
-
+  bool            splitScript_;
 
   int		  pid_;
   WLogger         logger_;

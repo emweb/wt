@@ -95,8 +95,11 @@ WRasterImage::WRasterImage(const std::string& type,
   w_ = static_cast<unsigned long>(width.toPixels());
   h_ = static_cast<unsigned long>(height.toPixels());
 
-  if (!w_ || !h_)
-    throw WtException("Raster image should have non-0 width and height");
+  if (!w_ || !h_) {
+    pixels_ = 0;
+    image_ = 0;
+    return;
+  }
 
   unsigned long bufSize = 4 * w_ * h_;
   pixels_ = new unsigned char[bufSize];
@@ -123,6 +126,9 @@ WRasterImage::WRasterImage(const std::string& type,
 
 void WRasterImage::clear()
 {
+  if (!image_)
+    return;
+
   PixelPacket *pixel = SetImagePixels(image_, 0, 0, w_, h_);
   for (unsigned i = 0; i < w_ * h_; ++i)
     WColorToPixelPacket(WColor(0, 0, 0, 1), pixel + i);
@@ -133,8 +139,10 @@ WRasterImage::~WRasterImage()
 {
   beingDeleted();
 
-  DestroyImage(image_);
-  delete[] pixels_;
+  if (image_) {
+    DestroyImage(image_);
+    delete[] pixels_;
+  }
 
   delete fontSupport_;
 }
@@ -155,6 +163,9 @@ WFlags<WPaintDevice::FeatureFlag> WRasterImage::features() const
 
 void WRasterImage::init()
 {
+  if (!w_ || !h_)
+    throw WtException("Raster image should have non-0 width and height");
+
   fontSupport_ = new FontSupport(this);
 
   /* If the font support can actually render fonts to bitmaps, we use that */
@@ -934,18 +945,20 @@ void WRasterImage::handleRequest(const Http::Request& request,
 {
   response.setMimeType("image/" + type_);
 
-  ImageInfo info;
-  GetImageInfo(&info);
+  if (image_) {
+    ImageInfo info;
+    GetImageInfo(&info);
 
-  ExceptionInfo exception;
-  GetExceptionInfo(&exception);
+    ExceptionInfo exception;
+    GetExceptionInfo(&exception);
 
-  std::size_t size;
-  void *data = ImageToBlob(&info, image_, &size, &exception);
+    std::size_t size;
+    void *data = ImageToBlob(&info, image_, &size, &exception);
 
-  response.out().write((const char *)data, size);
-
-  free(data);
+    response.out().write((const char *)data, size);
+ 
+    free(data);
+  }
 }
 
 }

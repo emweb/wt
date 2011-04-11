@@ -86,6 +86,7 @@ WWidget *FormWidgets::wCheckBox()
   WCheckBox *cb = new WCheckBox("Check me!", result);
   cb->setChecked(true);
   ed_->showSignal(cb->checked(), "'Check me!' checked");
+  ed_->showSignal(cb->unChecked(), "'Check me!' unchecked");
   new WBreak(result);
   cb = new WCheckBox("Check me too!", result);
   ed_->showSignal(cb->checked(), "'Check me too!' checked");

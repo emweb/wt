@@ -151,8 +151,10 @@ void WebRenderer::ackUpdate(int updateId)
 void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
 			      bool embedded)
 {
-  if (!embedded)
+  if (!embedded) {
+    response.addHeader("Cache-Control", "no-cache");
     setHeaders(response, "text/javascript; charset=UTF-8");
+  }
 
   // FIXME: we should foresee something independent of app->javaScriptClass()
   response.out() <<
@@ -161,6 +163,7 @@ void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
 
 void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)
 {
+  response.addHeader("Cache-Control", "no-cache");
   setHeaders(response, "text/html; charset=UTF-8");
   response.out() << "<html><script type=\"text/javascript\">";
   letReloadJS(response, newSession, true);
@@ -270,6 +273,7 @@ void WebRenderer::streamBootContent(WebResponse& response,
 		safeJsStringLiteral(session_.ajaxCanonicalUrl(response)));
   bootJs.setVar("APP_CLASS", "Wt");
 
+  bootJs.setCondition("SPLIT_SCRIPT", conf.splitScript());
   bootJs.setCondition("HYBRID", hybrid);
 
   /*
@@ -420,7 +424,6 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
   }
   cookiesToSet_.clear();
 
-  response.addHeader("Cache-Control", "no-cache");
   response.setContentType(mimeType);
 }
 
@@ -428,6 +431,7 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
   rendered_ = true;
 
+  response.addHeader("Cache-Control", "no-cache");
   setHeaders(response, "text/javascript; charset=UTF-8");
 
   collectJavaScript();
@@ -569,6 +573,12 @@ void WebRenderer::serveMainscript(WebResponse& response)
   Configuration& conf = session_.controller()->configuration();
   bool widgetset = session_.type() == WidgetSet;
 
+  bool serveSkeletons = !conf.splitScript() || response.getParameter("skeleton");
+  bool serveRest = !conf.splitScript() || !serveSkeletons;
+
+  if (conf.splitScript() && serveSkeletons)
+    response.addHeader("Cache-Control", "max-age=2592000,private");
+
   setHeaders(response, "text/javascript; charset=UTF-8");
 
   if (!widgetset) {
@@ -586,86 +596,107 @@ void WebRenderer::serveMainscript(WebResponse& response)
   /*
    * Opera and Safari cannot use innerHTML in XHTML documents.
    */
-  const bool xhtml = app->environment().contentType() == WEnvironment::XHTML1;
-  const bool innerHtml = !xhtml || app->environment().agentIsGecko();
+  const bool xhtml = session_.env().contentType() == WEnvironment::XHTML1;
+  const bool innerHtml = !xhtml || session_.env().agentIsGecko();
+
+  if (serveSkeletons) {
+    bool haveJQuery = false;
+    for (unsigned i = 0;
+	 i < app->scriptLibraries_.size() - app->scriptLibrariesAdded_;
+	 ++i) {
+      if (app->scriptLibraries_[i].uri.find("jquery-") != std::string::npos) {
+	haveJQuery = true;
+	break;
+      }
+    }
+
+    if (!haveJQuery) {
+      response.out() << "if (typeof window.jQuery === 'undefined') {";
+#ifndef WT_TARGET_JAVA
+      std::vector<const char *> parts = skeletons::JQuery_js();
+      for (std::size_t i = 0; i < parts.size(); ++i)
+	response.out() << parts[i];
+#else
+      response.out() << skeletons::JQuery_js1;
+#endif
+      response.out() << "}";
+    }
+
+#ifndef WT_TARGET_JAVA
+    std::vector<const char *> parts = skeletons::Wt_js();
+#else
+    std::vector<const char *> parts = std::vector<const char *>();
+#endif
+    std::string Wt_js_combined;
+    if (parts.size() > 1)
+      for (std::size_t i = 0; i < parts.size(); ++i)
+	Wt_js_combined += parts[i];
+
+    FileServe script(parts.size() > 1
+		     ? Wt_js_combined.c_str() : skeletons::Wt_js1);
+
+    script.setCondition
+      ("CATCH_ERROR", conf.errorReporting() != Configuration::NoErrors);
+    script.setCondition
+      ("SHOW_STACK",
+       conf.errorReporting() == Configuration::ErrorMessageWithStack);
+    script.setCondition
+      ("UGLY_INTERNAL_PATHS", session_.useUglyInternalPaths());
+
+#ifdef WT_DEBUG_JS
+    script.setCondition("DYNAMIC_JS", true);
+#else
+    script.setCondition("DYNAMIC_JS", false);
+#endif // WT_DEBUG_JS
+
+    script.setVar("WT_CLASS", WT_CLASS);
+    script.setVar("APP_CLASS", app->javaScriptClass());
+    script.setCondition("STRICTLY_SERIALIZED_EVENTS", conf.serializedEvents());
+    script.setCondition("WEB_SOCKETS", conf.webSockets());
+    script.setVar("INNER_HTML", innerHtml);
+
+    script.setVar("RELATIVE_URL", WWebWidget::jsStringLiteral
+		  (session_.bootstrapUrl(response,
+					 WebSession::ClearInternalPath)));
+    script.setVar("DEPLOY_URL", WWebWidget::jsStringLiteral
+		  (session_.deploymentPath()));
+  
+    int keepAlive;
+    if (conf.sessionTimeout() == -1)
+      keepAlive = 1000000;
+    else
+      keepAlive = conf.sessionTimeout() / 2;
+    script.setVar("KEEP_ALIVE", boost::lexical_cast<std::string>(keepAlive));
+
+    script.setVar("INITIAL_HASH",
+		  WWebWidget::jsStringLiteral(app->internalPath()));
+    script.setVar("INDICATOR_TIMEOUT", conf.indicatorTimeout());
+    script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
+
+    /*
+     * FIXME: is this still required?
+     * Mozilla Bugzilla #246651
+     */
+    script.setVar("CLOSE_CONNECTION",
+		  (conf.serverType() == Configuration::WtHttpdServer)
+		  && session_.env().agentIsGecko()
+		  && session_.env().agent() < WEnvironment::Firefox3_0);
+    script.stream(response.out());
+  }
+
+  if (!serveRest)
+    return;
 
   formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
 
-  response.out() << "if (typeof window.jQuery === 'undefined') {";
-#ifndef WT_TARGET_JAVA
-  std::vector<const char *> parts = skeletons::JQuery_js();
-  for (std::size_t i = 0; i < parts.size(); ++i)
-    response.out() << parts[i];
-#else
-  response.out() << skeletons::JQuery_js1;
-#endif
-  response.out() << "}";
-
-#ifndef WT_TARGET_JAVA
-  parts = skeletons::Wt_js();
-#else
-  std::vector<const char *> parts = std::vector<const char *>();
-#endif
-  std::string Wt_js_combined;
-  if (parts.size() > 1)
-    for (std::size_t i = 0; i < parts.size(); ++i)
-      Wt_js_combined += parts[i];
-
-  FileServe script(parts.size() > 1
-		   ? Wt_js_combined.c_str() : skeletons::Wt_js1);
-
-  script.setCondition
-    ("CATCH_ERROR", conf.errorReporting() != Configuration::NoErrors);
-  script.setCondition
-    ("SHOW_STACK",
-     conf.errorReporting() == Configuration::ErrorMessageWithStack);
-  script.setCondition
-    ("UGLY_INTERNAL_PATHS", session_.useUglyInternalPaths());
-
-#ifdef WT_DEBUG_JS
-  script.setCondition("DYNAMIC_JS", true);
-#else
-  script.setCondition("DYNAMIC_JS", false);
-#endif // WT_DEBUG_JS
-
-  script.setVar("WT_CLASS", WT_CLASS);
-  script.setVar("APP_CLASS", app->javaScriptClass());
-  script.setVar("AUTO_JAVASCRIPT",
-		"(function(){" + app->autoJavaScript_ + "})");
-  script.setCondition("STRICTLY_SERIALIZED_EVENTS", conf.serializedEvents());
-  script.setCondition("WEB_SOCKETS", conf.webSockets());
-  script.setVar("INNER_HTML", innerHtml);
-  script.setVar("FORM_OBJECTS", '[' + currentFormObjectsList_ + ']');
-
-  script.setVar("RELATIVE_URL", WWebWidget::jsStringLiteral
-		(session_.bootstrapUrl(response,
-				       WebSession::ClearInternalPath)));
-  script.setVar("DEPLOY_URL", WWebWidget::jsStringLiteral
-		(session_.deploymentPath()));
-  
-  int keepAlive;
-  if (conf.sessionTimeout() == -1)
-    keepAlive = 1000000;
-  else
-    keepAlive = conf.sessionTimeout() / 2;
-  script.setVar("KEEP_ALIVE", boost::lexical_cast<std::string>(keepAlive));
-  
-  script.setVar("INITIAL_HASH",
-		WWebWidget::jsStringLiteral(app->internalPath()));
-  script.setVar("INDICATOR_TIMEOUT", conf.indicatorTimeout());
-  script.setVar("SERVER_PUSH_TIMEOUT", conf.serverPushTimeout() * 1000);
-  script.setVar("PAGE_ID", pageId_);
-
-  /*
-   * FIXME: is this still required?
-   * Mozilla Bugzilla #246651
-   */
-  script.setVar("CLOSE_CONNECTION",
-		(conf.serverType() == Configuration::WtHttpdServer)
-		&& session_.env().agentIsGecko()
-		&& session_.env().agent() < WEnvironment::Firefox3_0);
-  script.stream(response.out());
+  response.out() << app->javaScriptClass()
+		 << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);"
+		 << app->javaScriptClass()
+		 << "._p_.autoJavaScript=function(){"
+		 << app->autoJavaScript_ << "};"
+		 << app->javaScriptClass()
+		 << "._p_.setPage(" << pageId_ << ");";
 
   app->autoJavaScriptChanged_ = false;
 

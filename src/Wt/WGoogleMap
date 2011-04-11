@@ -134,11 +134,22 @@ public:
 
   /*! \brief Adds a polyline overlay to the map.
    *
-   *  specify a value between 0.0 and 1.0 for the opacity.
+   *  Specify a value between 0.0 and 1.0 for the opacity or set the alpha 
+   *  value in the color.
    */
   void addPolyline(const std::vector<Coordinate>& points,
 		   const WColor& color = red, int width = 2,
 		   double opacity = 1.0);
+
+  /*! \brief Adds a circle to the map.
+   *
+   * The stroke and fill opacity can be configured respectively in
+   * the strokeColor and fillColor.
+   * This feature is only supported by the Google Maps API version 3.
+   */
+  void addCircle(const Coordinate& center, double radius, 
+		 const WColor& strokeColor, int strokeWidth, 
+		 const WColor& fillColor = WColor());
 
   /*! \brief Removes all overlays from the map.
    */

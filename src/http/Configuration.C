@@ -253,7 +253,9 @@ void Configuration::readOptions(const po::variables_map& vm)
       defaultStatic_ = false;
     }
 
-    docRoot_ = parts[0];
+    if (parts.size() > 0)
+      docRoot_ = parts[0];
+
     checkPath(docRoot_, "Document root", Directory);
   } else
     throw Wt::WServer::Exception("Document root (--docroot) was not set.");

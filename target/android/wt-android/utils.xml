@@ -11,7 +11,8 @@
       </fileset>
     </copy>
 
-    <copy todir="${wt-android.dir}/assets/zip">
+    <mkdir dir="${wt-android.dir}/assets/zip/resources"/>
+    <copy todir="${wt-android.dir}/assets/zip/resources">
       <fileset dir="${wt.dir}/resources/"/>
     </copy>
       

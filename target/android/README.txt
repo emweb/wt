@@ -17,7 +17,8 @@ $ export NDK=$ANDROID_HOME/android-ndk-r5b
 
 In order to use the Android NDK, you will need to prepare a
 cross-tailchain for a specific Android target, more information on
-this procedure can be found in docs/STANDALONE-TOOLCHAIN.html.
+this procedure can be found in docs/STANDALONE-TOOLCHAIN.html in the Android 
+NDK directory.
 
 To build a cross-toolchain for android API8 to $ANDROID_HOME/ndk-api8-arm,
 next commands can be used.

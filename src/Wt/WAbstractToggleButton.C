@@ -146,12 +146,21 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
   EventSignal<> *change = voidEventSignal(CHANGE_SIGNAL, false);
   EventSignal<WMouseEvent> *click = mouseEventSignal(CLICK_SIGNAL, false);
 
+  /*
+   * We piggy-back the checked and uncheck signals on the change signal.
+   *
+   * If agent is IE, then we piggy-back the change on the clicked signal.
+   */
+  bool piggyBackChangeOnClick = env.agentIsIE();
+
+  bool needUpdateChangeSignal =
+    (change && change->needsUpdate(all))
+    || (check && check->needsUpdate(all))
+    || (uncheck && uncheck->needsUpdate(all));
+
   bool needUpdateClickedSignal =
-    ((click && click->needsUpdate(all))
-     // onchange does not work on IE
-     || (env.agentIsIE() && change && change->needsUpdate(all))
-     || (check && check->needsUpdate(all))
-     || (uncheck && uncheck->needsUpdate(all)));
+    (click && click->needsUpdate(all))
+     || (piggyBackChangeOnClick && needUpdateChangeSignal);
 
   WFormWidget::updateDom(*input, all);
 
@@ -194,13 +203,14 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     stateChanged_ = false;
   }
 
-  if (needUpdateClickedSignal || all) {
+  std::vector<DomElement::EventAction> changeActions;
+
+  if (needUpdateChangeSignal || all) {
     std::string dom = "o";
-    std::vector<DomElement::EventAction> actions;
 
     if (check) {
       if (check->isConnected())
-	actions.push_back
+	changeActions.push_back
 	  (DomElement::EventAction(dom + ".checked",
 				   check->javaScript(),
 				   check->encodeCmd(),
@@ -210,7 +220,7 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
     if (uncheck) {
       if (uncheck->isConnected())
-	actions.push_back
+	changeActions.push_back
 	  (DomElement::EventAction("!" + dom + ".checked",
 				   uncheck->javaScript(),
 				   uncheck->encodeCmd(),
@@ -219,8 +229,8 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
     }
 
     if (change) {
-      if (env.agentIsIE() && change->needsUpdate(all))
-	actions.push_back
+      if (change->needsUpdate(all))
+	changeActions.push_back
 	  (DomElement::EventAction(std::string(),
 				   change->javaScript(),
 				   change->encodeCmd(),
@@ -228,18 +238,28 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
       change->updateOk();
     }
 
-    if (click) {
-      if (click->needsUpdate(all))
-	actions.push_back
-	  (DomElement::EventAction(std::string(),
-				   click->javaScript(),
-				   click->encodeCmd(),
-				   click->isExposedSignal()));
-      click->updateOk();
-    }
+    if (!piggyBackChangeOnClick)
+      if (!(all && changeActions.empty()))
+	input->setEvent("change", changeActions);
+  }
 
-    if (!(all && actions.empty()))
-      input->setEvent(CLICK_SIGNAL, actions);
+  if (needUpdateClickedSignal || all) {
+    if (piggyBackChangeOnClick) {
+      if (click) {
+	if (click->needsUpdate(all))
+	  changeActions.push_back
+	    (DomElement::EventAction(std::string(),
+				     click->javaScript(),
+				     click->encodeCmd(),
+				     click->isExposedSignal()));
+	click->updateOk();
+      }
+
+      if (!(all && changeActions.empty()))
+	input->setEvent(CLICK_SIGNAL, changeActions);
+    } else
+      if (click)
+	updateSignalConnection(*input, *click, CLICK_SIGNAL, all);
   }
 
   if (&element != input)

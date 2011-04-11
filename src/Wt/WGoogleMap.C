@@ -194,6 +194,8 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
 	"""map.setCenter(new google.maps.LatLng(47.01887777, 8.651888), 13);";
       setJavaScriptMember("wtResize",
                           """function(self, w, h) {"
+			  """self.style.width=w + 'px';"
+			  """self.style.height=h + 'px';"
                           """if (self.map)"
 			  """  self.map.checkResize();"
                           """}");
@@ -211,6 +213,8 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
 
       setJavaScriptMember("wtResize",
                           """function(self, w, h) {"
+			  """self.style.width=w + 'px';"
+			  """self.style.height=h + 'px';"
                           """if (self.map)"
 			  """ google.maps.event.trigger(self.map, 'resize');"
                           """}");
@@ -317,9 +321,48 @@ void WGoogleMap::addMarker(const Coordinate& pos)
   doGmJavaScript(strm.str(), false);
 }
 
+void WGoogleMap::addCircle(const Coordinate& center, double radius, 
+			   const WColor& strokeColor, int strokeWidth,
+			   const WColor& fillColor)
+{
+  if ( apiVersion_ == Version2 ) {
+    throw std::logic_error("WGoogleMap::addCircle is not supported " 
+			   "in the Google Maps API v2.");
+    //we could support this by rendering the circle by rendering 
+    //a set of lines (see maps.forum.nu)
+    //when doing this we can implement a drawPolygon function at the same time
+  } else {
+    std::stringstream strm;
+
+    double strokeOpacity = strokeColor.alpha() / 255.0;
+    double fillOpacity = fillColor.alpha() / 255.0;
+    
+    strm << "var mapLocal = " << jsRef() + ".map;"
+	 << "var latLng  = new google.maps.LatLng(" 
+	 << center.latitude() << "," << center.longitude() << ");"
+	 << "var circle = new google.maps.Circle( "
+            "{ "
+            "  map: mapLocal, "
+            "  radius: " << radius << ", "
+            "  center:  latLng  ,"
+            "  fillOpacity: \"" << fillOpacity << "\","
+            "  fillColor: \"" << fillColor.cssText() << "\","
+            "  strokeWeight: " << strokeWidth << ","
+            "  strokeColor:\"" << strokeColor.cssText() << "\","
+            "  strokeOpacity: " << strokeOpacity <<
+            "} "
+            ");";
+
+    doGmJavaScript(strm.str(), false);
+  }
+}
+
 void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
 			     const WColor& color, int width, double opacity)
 {
+  if (opacity == 1.0)
+    opacity = color.alpha() / 255.0;
+
   // opacity has to be between 0.0 and 1.0
   opacity = std::max(std::min(opacity, 1.0), 0.0);
 
@@ -328,8 +371,6 @@ void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
   for (size_t i = 0; i < points.size(); ++i)
     strm << "waypoints[" << i << "] = new google.maps.LatLng("
 	 << points[i].latitude() << ", " << points[i].longitude() << ");";
-
-
 
   if (apiVersion_ == Version2) {
     strm << "var poly = new google.maps.Polyline(waypoints, \""
