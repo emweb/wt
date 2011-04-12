@@ -5,7 +5,7 @@
       <div class="login-menu">
 	${name} ${passwd} ${rememberMe} ${login-button} ${login-link} ${register-link}
 	<a href="${feed-url}">
-	  <img src="css/rss.png" alt="Rss Feed"
+	  <img src="/css/rss.png" alt="Rss Feed"
 	     style="margin-left: 6px; vertical-align: top;"/>
 	</a>
       </div>
@@ -142,7 +142,7 @@
       <div class="login-menu">
         <b>${user}</b> ${logout-link}
         <a href="${feed-url}">
-	  <img src="css/rss.png" alt="Rss Feed"
+	  <img src="/css/rss.png" alt="Rss Feed"
 	     style="margin-left: 6px; vertical-align: top;"/>
         </a>
       </div>

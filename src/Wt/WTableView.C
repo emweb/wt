@@ -49,6 +49,8 @@ WTableView::WTableView(WContainerWidget *parent)
     dropEvent_(impl_, "dropEvent"),
     columnWidthChanged_(impl_, "columnResized"),
     scrolled_(impl_, "scrolled"),
+    firstColumn_(-1),
+    lastColumn_(-1),
     viewportLeft_(0),
     viewportWidth_(1000),
     viewportTop_(0),
@@ -1310,6 +1312,9 @@ void WTableView::computeRenderedArea()
     renderedFirstColumn_ = rowHeaderCount();
     renderedLastColumn_ = columnCount() - 1;
     for (int i = rowHeaderCount(); i < columnCount(); i++) {
+      if (columnInfo(i).hidden)
+	continue;
+
       int w = static_cast<int>(columnInfo(i).width.toPixels());
 
       if (total <= left && left < total + w)
