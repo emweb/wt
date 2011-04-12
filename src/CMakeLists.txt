@@ -173,6 +173,7 @@ Wt/WStandardItemModel.C
 Wt/WStatelessSlot.C
 Wt/WString.C
 Wt/WSubMenuItem.C
+Wt/WStreamResource.C
 Wt/WStringListModel.C
 Wt/WStringUtil.C
 Wt/WSuggestionPopup.C

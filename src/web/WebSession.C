@@ -881,7 +881,7 @@ void WebSession::handleRequest(Handler& handler)
      * Only if it's proven itself by a correct (existing) wtd, and thus
      * not for a new session.
      */
-    if (wtdE && *wtdE == sessionId_ && state_ != JustCreated) {
+    if ((wtdE && *wtdE == sessionId_) || state_ == JustCreated) {
       handler.response()->addHeader("Access-Control-Allow-Origin", origin);
       handler.response()->addHeader("Access-Control-Allow-Credentials", "true");
 
@@ -1034,20 +1034,15 @@ void WebSession::handleRequest(Handler& handler)
 	  }
 	  break; }
 	case WidgetSet:
-	  if (requestE) {
+	  if (requestE && *requestE == "resource") {
 	    const std::string *resourceE = request.getParameter("resource");
-	    if (*requestE == "resource"
-		&& resourceE && *resourceE == "blank") {
+	    if (resourceE && *resourceE == "blank") {
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out() <<
 		"<html><head><title>bhm</title></head>"
 		"<body>&#160;</body></html>";
-	    } else if (*requestE == "jsupdate") {
-	      handler.response()->setResponseType(WebResponse::Update);
-	      log("notice") << "Signal from dead session, sending reload.";
-	      renderer_.letReloadJS(*handler.response(), true);
-	    } else if (*requestE == "resource") {
-	      log("notice") << "Not serving bootstrap for resource.";
+	    } else {
+	      log("notice") << "Not starting session for resource.";
 	      handler.response()->setContentType("text/html");
 	      handler.response()->out()
 		<< "<html><head></head><body></body></html>";
@@ -1057,7 +1052,7 @@ void WebSession::handleRequest(Handler& handler)
 	  } else {
 	    handler.response()->setResponseType(WebResponse::Script);
 
-	    init(request); // env, url/internalpath
+	    init(request); // env, url/internalpath, initial query parameters
 	    env_->doesAjax_ = true;
 
 	    if (!start())
@@ -1995,45 +1990,52 @@ void WebSession::notifySignal(const WEvent& e)
     if (!signalE)
       return;
 
-    // Save pending changes (e.g. from resource completion)
-    if (i == 0)
-      renderer_.saveChanges();
+    if (*signalE == "none" || *signalE == "load") {
+      if (*signalE == "load" && type() == WidgetSet)
+	renderer_.setRendered(false);
 
-    propagateFormValues(e, se);
-
-    handler.nextSignal = i + 1;
-
-    if (*signalE == "hash") {
-      const std::string *hashE = request.getParameter(se + "_");
-      if (hashE) {
-	app_->changeInternalPath(*hashE);
-	app_->doJavaScript(WT_CLASS ".scrollIntoView('" + *hashE + "');");
-      } else
-	app_->changeInternalPath("");
-    } else if (*signalE == "none" || *signalE == "load") {
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);
     } else {
-      if (*signalE != "res") {
-	for (unsigned k = 0; k < 3; ++k) {
-	  SignalKind kind = (SignalKind)k;
+      // Save pending changes (e.g. from resource completion)
+      if (i == 0)
+	renderer_.saveChanges();
 
-	  if (kind == AutoLearnStateless && request.postDataExceeded())
-	    break;
+      propagateFormValues(e, se);
 
-	  if (*signalE == "user") {
-	    const std::string *idE = request.getParameter(se + "id");
-	    const std::string *nameE = request.getParameter(se + "name");
+      handler.nextSignal = i + 1;
 
-	    if (!idE || !nameE)
+      renderer_.setRendered(true);
+
+      if (*signalE == "hash") {
+	const std::string *hashE = request.getParameter(se + "_");
+	if (hashE) {
+	  app_->changeInternalPath(*hashE);
+	  app_->doJavaScript(WT_CLASS ".scrollIntoView('" + *hashE + "');");
+	} else
+	  app_->changeInternalPath("");
+      } else {
+	if (*signalE != "res") {
+	  for (unsigned k = 0; k < 3; ++k) {
+	    SignalKind kind = (SignalKind)k;
+
+	    if (kind == AutoLearnStateless && request.postDataExceeded())
 	      break;
 
-	    processSignal(decodeSignal(*idE, *nameE), se, request, kind);
-	  } else
-	    processSignal(decodeSignal(*signalE), se, request, kind);
+	    if (*signalE == "user") {
+	      const std::string *idE = request.getParameter(se + "id");
+	      const std::string *nameE = request.getParameter(se + "name");
 
-	  if (kind == LearnedStateless && i == 0)
-	    renderer_.discardChanges();
+	      if (!idE || !nameE)
+		break;
+
+	      processSignal(decodeSignal(*idE, *nameE), se, request, kind);
+	    } else
+	      processSignal(decodeSignal(*signalE), se, request, kind);
+
+	    if (kind == LearnedStateless && i == 0)
+	      renderer_.discardChanges();
+	  }
 	}
       }
     }

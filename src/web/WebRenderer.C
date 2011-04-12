@@ -152,7 +152,7 @@ void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
 			      bool embedded)
 {
   if (!embedded) {
-    response.addHeader("Cache-Control", "no-cache");
+    setCaching(response, false);
     setHeaders(response, "text/javascript; charset=UTF-8");
   }
 
@@ -163,8 +163,9 @@ void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
 
 void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)
 {
-  response.addHeader("Cache-Control", "no-cache");
+  setCaching(response, false);
   setHeaders(response, "text/html; charset=UTF-8");
+
   response.out() << "<html><script type=\"text/javascript\">";
   letReloadJS(response, newSession, true);
   response.out() << "</script><body></body></html>";
@@ -359,8 +360,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 
   boot.setVar("BOOT_STYLE_URL", bootStyleUrl.str());
 
-  response.addHeader("Cache-Control", "no-cache, no-store");
-  response.addHeader("Expires", "-1");
+  setCaching(response, false);
 
   std::string contentType = xhtml ? "application/xhtml+xml" : "text/html";
   contentType += "; charset=UTF-8";
@@ -402,9 +402,19 @@ void WebRenderer::setCookie(const std::string name, const std::string value,
   cookiesToSet_.push_back(Cookie(name, value, path, domain, maxAge));
 }
 
+void WebRenderer::setCaching(WebResponse& response, bool allowCache)
+{
+  if (allowCache)
+    response.addHeader("Cache-Control", "max-age=2592000,private");
+  else {
+    response.addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.addHeader("Pragma", "no-cache");
+    response.addHeader("Expires", "0");
+  }
+}
+
 void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 {
-
   for (unsigned i = 0; i < cookiesToSet_.size(); ++i) {
     std::string cookies;
     std::string value = cookiesToSet_[i].value;
@@ -429,40 +439,42 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 
 void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
 {
-  rendered_ = true;
-
-  response.addHeader("Cache-Control", "no-cache");
+  setCaching(response, false);
   setHeaders(response, "text/javascript; charset=UTF-8");
 
-  collectJavaScript();
+  if (!rendered_) {
+    serveMainAjax(response);
+  } else {
+    collectJavaScript();
 
 #ifdef DEBUG_JS
-  std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
+    std::cerr << collectedJS1_.str() << collectedJS2_.str() << std::endl;
 #endif // DEBUG_JS
 
-  /*
-   * Passing the expectedAckId_ within the collectedJS1_ +
-   * collectedJS2_ risks of inflating responses when a script loading
-   * is blocked. The purpose of the ackId is to detect what has been
-   * succesfully transmitted (mostly in the presence of server push
-   * which can cancel ajax requests. Therefore we chose here to use
-   * the ackIds_ only to signal proper ajax transfers, and thus at the
-   * end of the request transfer.
-   *
-   * It does present us with another probem: what if e.g. an ExtJS
-   * library is still loading and we already update one of its widgets
-   * assuming it has been rendered ? This should be handled
-   * client-side: only when libraries have been loaded, the application can
-   * continue. TO BE DONE.
-   */
-  response.out()
-    << collectedJS1_.str()
-    << collectedJS2_.str()
-    << session_.app()->javaScriptClass()
-    << "._p_.response(" << expectedAckId_ << ");";
+    /*
+     * Passing the expectedAckId_ within the collectedJS1_ +
+     * collectedJS2_ risks of inflating responses when a script loading
+     * is blocked. The purpose of the ackId is to detect what has been
+     * succesfully transmitted (mostly in the presence of server push
+     * which can cancel ajax requests. Therefore we chose here to use
+     * the ackIds_ only to signal proper ajax transfers, and thus at the
+     * end of the request transfer.
+     *
+     * It does present us with another probem: what if e.g. an ExtJS
+     * library is still loading and we already update one of its widgets
+     * assuming it has been rendered ? This should be handled
+     * client-side: only when libraries have been loaded, the application can
+     * continue. TO BE DONE.
+     */
+    response.out()
+      << collectedJS1_.str()
+      << collectedJS2_.str()
+      << session_.app()->javaScriptClass()
+      << "._p_.response(" << expectedAckId_ << ");";
 
-  if (response.isWebSocketRequest() || response.isWebSocketMessage())
-    setJSSynced(false);
+    if (response.isWebSocketRequest() || response.isWebSocketMessage())
+      setJSSynced(false);
+  }
 }
 
 void WebRenderer::collectJavaScript()
@@ -576,9 +588,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
   bool serveSkeletons = !conf.splitScript() || response.getParameter("skeleton");
   bool serveRest = !conf.splitScript() || !serveSkeletons;
 
-  if (conf.splitScript() && serveSkeletons)
-    response.addHeader("Cache-Control", "max-age=2592000,private");
-
+  setCaching(response, conf.splitScript() && serveSkeletons);
   setHeaders(response, "text/javascript; charset=UTF-8");
 
   if (!widgetset) {
@@ -681,28 +691,44 @@ void WebRenderer::serveMainscript(WebResponse& response)
 		  (conf.serverType() == Configuration::WtHttpdServer)
 		  && session_.env().agentIsGecko()
 		  && session_.env().agent() < WEnvironment::Firefox3_0);
+
+    /*
+     * Set the original script params for a widgetset session, so that any
+     * Ajax update request has all the information to reload the session.
+     */
+    std::string params;
+    if (session_.type() == WidgetSet) {
+      const Http::ParameterMap& m = session_.env().getParameterMap();
+
+      for (Http::ParameterMap::const_iterator i = m.begin();
+	   i != m.end(); ++i) {
+	if (!params.empty())
+	  params += '&';
+	params
+	  += Utils::urlEncode(i->first) + '=' + Utils::urlEncode(i->second[0]);
+      }
+    }
+    script.setVar("PARAMS", params);
+
     script.stream(response.out());
   }
 
   if (!serveRest)
     return;
 
-  formObjectsChanged_ = true;
-  currentFormObjectsList_ = createFormObjectsList(app);
-
   response.out() << app->javaScriptClass()
-		 << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);"
-		 << app->javaScriptClass()
-		 << "._p_.autoJavaScript=function(){"
-		 << app->autoJavaScript_ << "};"
-		 << app->javaScriptClass()
 		 << "._p_.setPage(" << pageId_ << ");";
 
-  app->autoJavaScriptChanged_ = false;
+  formObjectsChanged_ = true;
+  app->autoJavaScriptChanged_ = true;
 
-  if (!rendered_)
+  if (session_.type() == WidgetSet) {
+    response.out() << "$(document).ready(function() { "
+		   << app->javaScriptClass()
+		   << "._p_.update(null, 'load', null, false);});\n";
+  } else if (!rendered_) {
     serveMainAjax(response);
-  else {
+  } else {
     if (app->enableAjax_) {
       // Before-load JavaScript of libraries that were loaded directly
       // in HTML
@@ -717,7 +743,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
 	"document.body.replaceChild(domRoot, form);";
 
       // Load JavaScript libraries that were added during enableAjax()
-      int librariesLoaded = loadScriptLibraries(collectedJS1_, app); 
+      int librariesLoaded = loadScriptLibraries(collectedJS1_, app);
 
       collectedJS1_ << app->newBeforeLoadJavaScript();
  
@@ -732,7 +758,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
       app->enableAjax_ = false;
     }
 
-    response.out() << "window." << app->javaScriptClass() << "LoadWidgetTree = function(){\n";
+    response.out() << "window." << app->javaScriptClass()
+		   << "LoadWidgetTree = function(){\n";
 
     visibleOnly_ = false;
 
@@ -783,7 +810,17 @@ void WebRenderer::serveMainAjax(WebResponse& response)
   app->scriptLibrariesAdded_ = app->scriptLibraries_.size();
   int librariesLoaded = loadScriptLibraries(response.out(), app);
 
-  response.out() << std::endl << app->newBeforeLoadJavaScript();
+  response.out() << app->javaScriptClass()
+		 << "._p_.autoJavaScript=function(){"
+		 << app->autoJavaScript_ << "};\n";
+  app->autoJavaScriptChanged_ = false;
+
+  currentFormObjectsList_ = createFormObjectsList(app);
+  response.out() << app->javaScriptClass()
+		 << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);";
+  formObjectsChanged_ = false;
+
+  response.out() << "\n" << app->beforeLoadJavaScript();
 
   if (!widgetset)
     response.out() << "window." << app->javaScriptClass()
@@ -872,23 +909,19 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		 << app->hideLoadingIndicator_.javaScript()
 		 << "}";
 
-  if (widgetset)
-    response.out() << "$(document).ready(function() { "
-		   << app->javaScriptClass() << "._p_.load(false);});\n";
-
-  if (!app->isQuited())
-    response.out() << session_.app()->javaScriptClass()
-		   << "._p_.update(null, 'load', null, false);\n";
-
   if (!widgetset) {
+    if (!app->isQuited())
+      response.out() << session_.app()->javaScriptClass()
+		     << "._p_.update(null, 'load', null, false);\n";
     response.out() << "};\n";
-
-    response.out() << app->javaScriptClass()
-		   << "._p_.setServerPush("
-		   << (app->updatesEnabled() ? "true" : "false") << ");\n"
-		   << "$(document).ready(function() { "
-		   << app->javaScriptClass() << "._p_.load(true);});\n";
   }
+
+  response.out() << app->javaScriptClass()
+		 << "._p_.setServerPush("
+		 << (app->updatesEnabled() ? "true" : "false") << ");\n"
+		 << "$(document).ready(function() { "
+		 << app->javaScriptClass() << "._p_.load("
+		 << (widgetset ? "false" : "true") << ");});\n";
 
   loadScriptLibraries(response.out(), app, librariesLoaded);
 }
@@ -1061,18 +1094,12 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   app->titleChanged_ = false;
 
-  if (hybridPage) {
-    response.addHeader("Cache-Control", "no-cache, no-store");
-    response.addHeader("Expires", "-1");
-  }
-
   std::string contentType = xhtml ? "application/xhtml+xml" : "text/html";
-
   contentType += "; charset=UTF-8";
 
+  setCaching(response, false);
   setHeaders(response, contentType);
 
-  formObjectsChanged_ = true;
   currentFormObjectsList_ = createFormObjectsList(app);
 
   if (hybridPage)

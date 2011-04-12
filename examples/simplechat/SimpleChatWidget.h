@@ -58,11 +58,13 @@ public:
   int userCount() { return users_.size(); }
 
 protected:
-  virtual void createLayout(WWidget *messages, WWidget *userList,
-			    WWidget *messageEdit,
-			    WWidget *sendButton, WWidget *logoutButton);
+  virtual void createLayout(Wt::WWidget *messages, Wt::WWidget *userList,
+			    Wt::WWidget *messageEdit,
+			    Wt::WWidget *sendButton, Wt::WWidget *logoutButton);
 
   virtual void updateUsers();
+
+  virtual void render(Wt::WFlags<Wt::RenderFlag> flags);
 
 private:
   typedef std::map<Wt::WString, bool> UserMap;

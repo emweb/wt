@@ -41,6 +41,7 @@ public:
 
   bool visibleOnly() const { return visibleOnly_; }
   void setVisibleOnly(bool how) { visibleOnly_ = how; }
+  void setRendered(bool how) { rendered_ = how; }
 
   void needUpdate(WWidget *w, bool laterOnly);
   void doneUpdate(WWidget *w);
@@ -98,6 +99,7 @@ private:
   bool           formObjectsChanged_;
 
   void setHeaders(WebResponse& request, const std::string mimeType);
+  void setCaching(WebResponse& response, bool allowCache);
 
   void serveJavaScriptUpdate(WebResponse& response);
   void serveMainscript(WebResponse& response);

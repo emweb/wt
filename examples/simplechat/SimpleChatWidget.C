@@ -154,6 +154,21 @@ bool SimpleChatWidget::loggedIn() const
   return !userNameEdit_;
 }
 
+void SimpleChatWidget::render(WFlags<RenderFlag> flags)
+{
+  if (flags & RenderFull) {
+    if (loggedIn()) {
+      /* Handle a page refresh correctly */
+      messageEdit_->setText(WString::Empty);
+      doJavaScript("setTimeout(function() { "
+		   + messages_->jsRef() + ".scrollTop += "
+		   + messages_->jsRef() + ".scrollHeight;}, 0);");
+    }
+  }
+
+  WContainerWidget::render(flags);
+}
+
 bool SimpleChatWidget::startChat(const WString& user)
 {
   /*

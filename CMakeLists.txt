@@ -93,8 +93,8 @@ OPTION(ENABLE_EXT "Build Wt Ext library with JavaScript-only widgets (http://ext
 OPTION(ENABLE_SQLITE "Build SQLite3 backend for Wt::Dbo" ON)
 OPTION(ENABLE_POSTGRES "Build PostgreSQL backend for Wt::Dbo" ON)
 OPTION(ENABLE_QT4 "Build Qt4 interworking library (libwtwithqt" ON)
-OPTION(WT_NO_STD_LOCALE "Build Wt ro run on a system without std::locale support" OFF)
-OPTION(WT_NO_STD_WSTRING "Build Wt ro run on a system without std::wstring support" OFF)
+OPTION(WT_NO_STD_LOCALE "Build Wt to run on a system without std::locale support" OFF)
+OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring support" OFF)
 
 IF(APPLE)
   OPTION(USE_BOOST_FRAMEWORK "Uses a Boost framework" OFF)
