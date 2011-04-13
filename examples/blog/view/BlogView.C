@@ -109,8 +109,9 @@ private:
   void logout() {
     if (boost::starts_with(wApp->internalPath(), basePath_ + "author/")) {
       wApp->setInternalPath(basePath_, true);
-      wApp->setCookie("bloglogin", "", 0);
     }
+
+    wApp->setCookie("bloglogin", "", 0);
 
     blogView_->userChanged().emit(WString::Empty);
 

@@ -763,6 +763,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
 
     visibleOnly_ = false;
 
+    formObjectsChanged_ = true;
+    currentFormObjectsList_.clear();
     collectJavaScript();
     updateLoadIndicator(collectedJS1_, app, true);
 

@@ -208,7 +208,11 @@ void FontSupport::matchFont(const WFont& font,
 			    const boost::filesystem::path& path,
 			    FontMatch& match) const
 {
+#if BOOST_FILESYSTEM_VERSION < 3
   std::string f = Utils::lowerCase(path.leaf());
+#else
+  std::string f = Utils::lowerCase(path.leaf().string());
+#endif
 
   if (boost::ends_with(f, ".ttf")
       || boost::ends_with(f, ".ttc")) {

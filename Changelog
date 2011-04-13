@@ -1,3 +1,11 @@
+13-04-2011:
+	* WebSession: fix setting cookies when using websockets
+
+	* WApplication: fix unload() interfering with session reload
+	when reload-is-new-session is set to false
+
+	* sqlite3: bump to version 3.7.6
+
 12-04-2011:
 	* WebSession, WebRenderer: handle WidgetSet session reloading
 

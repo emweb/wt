@@ -237,7 +237,7 @@ WApplication::WApplication(const WEnvironment& env)
 
   setLoadingIndicator(new WDefaultLoadingIndicator());
 
-  unloaded_.connect(this, &WApplication::unload);
+  unloaded_.connect(this, &WApplication::doUnload);
 }
 
 void WApplication::setJavaScriptClass(const std::string& javaScriptClass)
@@ -604,6 +604,16 @@ std::string WApplication::fixRelativeUrl(const std::string& url) const
 void WApplication::quit()
 {
   quited_ = true;
+}
+
+void WApplication::doUnload()
+{
+  const Configuration& conf = session_->controller()->configuration();
+
+  if (conf.reloadIsNewSession())
+    unload();
+  else
+    session_->setState(WebSession::Loaded, 5);
 }
 
 void WApplication::unload()

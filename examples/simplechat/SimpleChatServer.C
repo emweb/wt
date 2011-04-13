@@ -91,8 +91,9 @@ bool SimpleChatServer::changeName(const WString& user, const WString& newUser)
 
   if (i != users_.end()) {
     if (users_.find(newUser) == users_.end()) {
+      UserInfo info = i->second;
       users_.erase(i);
-      users_[newUser] = i->second;
+      users_[newUser] = info;
 
       postChatEvent(ChatEvent(ChatEvent::Rename, user, newUser));
 

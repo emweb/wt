@@ -151,6 +151,7 @@ public:
   std::string getCgiHeader(const std::string& headerName) const;
 
   EventType getEventType(const WEvent& event) const;
+  void setState(State state, int timeout);
 
   class Handler {
   public:
@@ -308,8 +309,6 @@ private:
 
   const std::string *getSignal(const WebRequest& request,
 			       const std::string& se) const;
-
-  void setState(State state, int timeout);
 
   void init(const WebRequest& request);
   bool start();

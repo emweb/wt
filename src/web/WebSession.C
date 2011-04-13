@@ -1200,6 +1200,8 @@ void WebSession::handleRequest(Handler& handler)
 	}
 
 	if (requestForResource || !unlockRecursiveEventLoop()) {
+	  setLoaded();
+
 	  app_->notify(WEvent(WEvent::Impl(&handler)));
 	  if (handler.response() && !requestForResource) {
 	    /*
@@ -1210,7 +1212,6 @@ void WebSession::handleRequest(Handler& handler)
 	  }
 	}
 
-	setLoaded();
 	break;
       }
       case Dead:
@@ -1380,8 +1381,15 @@ void WebSession::pushUpdates()
 	&& asyncResponse_->webSocketMessagePending())
       return;
 
-    asyncResponse_->setResponseType(WebResponse::Update);
-    renderer_.serveResponse(*asyncResponse_);
+    if (asyncResponse_->isWebSocketRequest()) {
+      WebSocketMessage m(this);
+      m.setResponseType(WebResponse::Update);
+      renderer_.serveResponse((WebResponse&)m);
+    } else {
+      asyncResponse_->setResponseType(WebResponse::Update);
+      renderer_.serveResponse(*asyncResponse_);
+    }
+
     updatesPending_ = false;
 
     if (!asyncResponse_->isWebSocketRequest()) {

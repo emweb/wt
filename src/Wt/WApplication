@@ -1666,7 +1666,8 @@ protected:
    *
    * When <tt>reload-is-new-session</tt> is set to \c true, then the
    * default implementation of this method terminates this session by
-   * calling quit().
+   * calling quit(), otherwise the session is scheduled to expire within
+   * seconds (since it may be a refresh).
    *
    * You may want to reimplement this if you want to keep the
    * application running until it times out (as was the behaviour
@@ -1819,6 +1820,7 @@ private:
    */
   void setExposeSignals(bool how) { exposeSignals_ = how; }
   bool exposeSignals() const { return exposeSignals_; }
+  void doUnload();
 
   void constrainExposed(WWidget *w);
   WWidget *exposeConstraint() const { return exposedOnly_; }
