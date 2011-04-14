@@ -36,6 +36,10 @@
 #include <windows.h>
 #endif
 
+#ifdef WT_THREADED
+#include <boost/thread.hpp>
+#endif
+
 namespace {
   class RandomDevice
   {
@@ -50,7 +54,8 @@ namespace {
 #endif
   };
 
-  RandomDevice instance;
+  boost::mutex randomInstanceMutex;
+  std::auto_ptr<RandomDevice> instance;
 }
 
 namespace Wt {
@@ -58,7 +63,25 @@ namespace Wt {
 unsigned int WRandom::get()
 {
 #ifdef USE_NDT_RANDOM_DEVICE
-  return instance.rnd();
+  if (!instance.get()) {
+#ifdef WT_THREADED
+    boost::mutex::scoped_lock l(randomInstanceMutex);
+    if (!instance.get())
+#endif
+      instance.reset(new RandomDevice);
+  }
+  try {
+    return instance->rnd();
+  } catch (std::invalid_argument &e) {
+    // Some people fork and reported that random_device does stop working
+    // after the fork.
+#ifdef WT_THREADED
+    boost::mutex::scoped_lock l(randomInstanceMutex);
+#endif
+    instance.reset(new RandomDevice);
+    // If this still fails, something is really wrong.
+    return instance->rnd();
+  }
 #else
   return lrand48();
 #endif

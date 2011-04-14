@@ -77,11 +77,11 @@ WAbstractArea::~WAbstractArea()
     if (i)
       i->removeArea(this);
 
-    delete anchor_;
-
     impl_->facade_ = 0;
     delete impl_;
   }
+
+  delete anchor_;
 }
 
 EventSignal<WKeyEvent>& WAbstractArea::keyWentDown()

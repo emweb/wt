@@ -1,3 +1,6 @@
+14-04-2011:
+	* WAbstractArea: fix anchor not being deleted
+
 13-04-2011:
 	* WebSession: fix setting cookies when using websockets
 

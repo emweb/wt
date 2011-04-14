@@ -1382,9 +1382,11 @@ void WebSession::pushUpdates()
       return;
 
     if (asyncResponse_->isWebSocketRequest()) {
+#ifndef WT_TARGET_JAVA
       WebSocketMessage m(this);
       m.setResponseType(WebResponse::Update);
       renderer_.serveResponse((WebResponse&)m);
+#endif
     } else {
       asyncResponse_->setResponseType(WebResponse::Update);
       renderer_.serveResponse(*asyncResponse_);
@@ -1998,6 +2000,8 @@ void WebSession::notifySignal(const WEvent& e)
     if (!signalE)
       return;
 
+    renderer_.setRendered(true);
+
     if (*signalE == "none" || *signalE == "load") {
       if (*signalE == "load" && type() == WidgetSet)
 	renderer_.setRendered(false);
@@ -2012,8 +2016,6 @@ void WebSession::notifySignal(const WEvent& e)
       propagateFormValues(e, se);
 
       handler.nextSignal = i + 1;
-
-      renderer_.setRendered(true);
 
       if (*signalE == "hash") {
 	const std::string *hashE = request.getParameter(se + "_");

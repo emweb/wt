@@ -27,7 +27,7 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
   : WTreeTableNode(path.leaf(), createIcon(path)),
 #endif
 #else
-  : WTreeTableNode(path.leaf(), createIcon(path)),
+  : WTreeTableNode(path.leaf().string(), createIcon(path)),
 #endif
     path_(path)
 {
