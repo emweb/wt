@@ -953,9 +953,10 @@ void WServer::post(const boost::function<void ()>& function)
 }
 
 void WServer::post(const std::string& sessionId,
-		   const boost::function<void ()>& function)
+		   const boost::function<void ()>& function,
+                   const boost::function<void ()>& fallbackFunction)
 {
-  ApplicationEvent event(sessionId, function);
+  ApplicationEvent event(sessionId, function, fallbackFunction);
 
   post(boost::bind(&WebController::handleApplicationEvent,
 		   theController, event));

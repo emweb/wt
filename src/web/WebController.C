@@ -484,8 +484,11 @@ bool WebController::handleApplicationEvent(const ApplicationEvent& event)
     if (!session->dead()) {
       session->app()->notify(WEvent(WEvent::Impl(event.function)));
       return true;
-    } else
+    } else {
+      if (!event.fallbackFunction.empty())
+        event.fallbackFunction();
       return false;
+    }
   }
 }
 

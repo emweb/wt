@@ -41,12 +41,17 @@ class WAbstractServer;
  */
 struct ApplicationEvent {
   ApplicationEvent(const std::string& aSessionId,
-		   const boost::function<void ()>& aFunction)
+		   const boost::function<void ()>& aFunction,
+                   const boost::function<void ()>& aFallbackFunction
+		     = boost::function<void ()>())
     : sessionId(aSessionId),
-      function(aFunction) { }
+      function(aFunction),
+      fallbackFunction(aFallbackFunction)
+  { }
 
   std::string sessionId;
   boost::function<void ()> function;
+  boost::function<void ()> fallbackFunction;
 };
 #endif
 

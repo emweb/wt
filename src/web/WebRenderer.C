@@ -158,7 +158,7 @@ void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
 
   // FIXME: we should foresee something independent of app->javaScriptClass()
   response.out() <<
-    "if (Wt) Wt._p_.quit(); window.location.reload(true);";
+    "if (window.Wt) window.Wt._p_.quit(); window.location.reload(true);";
 }
 
 void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)

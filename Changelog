@@ -13,6 +13,9 @@
 
 	* WebSession: use baseURL property for self-referencing URLs
 
+	* WServer: post() with optional fallbackFunction that is called
+	when the targeted session is dead (by Gaetano Mendola)
+
 14-04-2011:
 	* WAbstractArea: fix anchor not being deleted
 

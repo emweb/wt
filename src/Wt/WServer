@@ -287,12 +287,17 @@ public:
    * within the thread-pool that handles incoming web requests. In
    * this way, it avoids dead-lock scenarios.
    *
+   * If a \p fallbackFunction is specified then in case the session
+   * is dead, it is called instead.
+   * 
    * This provides a good alternative to grabbing the update lock of
    * an application to directly push changes to a session out of its
    * event loop.
    */
   virtual void post(const std::string& sessionId,
-		    const boost::function<void ()>& function);
+		    const boost::function<void ()>& function,
+                    const boost::function<void ()>& fallbackFunction
+		      = boost::function<void ()>());
 
   /*! \brief Returns the server instance.
    *
