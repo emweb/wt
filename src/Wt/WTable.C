@@ -10,7 +10,9 @@
 #include "Wt/WEnvironment"
 #include "Wt/WTable"
 #include "Wt/WTableCell"
+#include "Wt/WTableRow"
 #include "DomElement.h"
+#include "Utils.h"
 
 namespace Wt {
 
@@ -399,6 +401,47 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
 WTableRow::TableData& WTable::itemAt(int row, int column)
 {
   return rows_[row]->cells_[column];
+}
+
+void WTable::moveRow(int from, int to)
+{
+  if (from < 0 || from >= (int)rows_.size())
+    throw std::logic_error("WTable::moveRow: the from index is not within the "
+			   "current table dimensions.");
+
+  WTableRow* from_tr = rowAt(from);
+
+  Utils::erase(rows_, from_tr);
+  if (to > (int)rows_.size())
+    rowAt(to);
+  rows_.insert(rows_.begin() + to, from_tr);
+
+  flags_.set(BIT_GRID_CHANGED);
+  repaint(RepaintInnerHtml);
+}
+
+void WTable::moveColumn(int from, int to)
+{
+  if (from < 0 || from >= (int)columns_.size())
+    throw std::logic_error("WTable::moveColumn: the from index is not within "
+			   "the current table dimensions.");
+
+  WTableColumn* from_tc = columnAt(from);
+
+  Utils::erase(columns_, from_tc);
+  if (to > (int)columns_.size())
+    columnAt(to);
+  columns_.insert(columns_.begin() + to, from_tc);
+
+  for (unsigned i = 0; i < rows_.size(); i++) {
+    std::vector<WTableRow::TableData>& cells = rows_[i]->cells_;
+    WTableRow::TableData cell = cells[from];
+    cells.erase(cells.begin() + from);
+    cells.insert(cells.begin() + to, cell);
+  }
+
+  flags_.set(BIT_GRID_CHANGED);
+  repaint(RepaintInnerHtml);
 }
 
 }

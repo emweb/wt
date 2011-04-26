@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "Reply.h"
-#include "Connection.h"
+#include "../web/Configuration.h"
 
 namespace http {
 namespace server {
@@ -21,6 +21,7 @@ namespace server {
 class StockReply;
 class HTTPRequest;
 class WtReply;
+class Configuration;
 
 typedef boost::shared_ptr<WtReply> WtReplyPtr;
 
@@ -37,7 +38,6 @@ public:
   virtual void consumeData(Buffer::const_iterator begin,
 			   Buffer::const_iterator end,
 			   Request::State state);
-  virtual void setConnection(Connection *connection);
 
   void setStatus(int status);
   void setContentLength(::int64_t length);

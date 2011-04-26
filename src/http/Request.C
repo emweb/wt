@@ -24,6 +24,7 @@ void Request::reset()
   request_query.clear();
 
   contentLength = -1;
+  webSocketRequest = false;
 }
 
 void Request::transmitHeaders(std::ostream& out) const
@@ -40,16 +41,16 @@ void Request::transmitHeaders(std::ostream& out) const
   }
 }
 
-bool Request::isWebSocketRequest() const
+void Request::enableWebSocket()
 {
+  webSocketRequest = false;
+
   HeaderMap::const_iterator i = headerMap.find("Connection");
   if (i != headerMap.end() && boost::iequals(i->second, "Upgrade")) {
     HeaderMap::const_iterator j = headerMap.find("Upgrade");
     if (j != headerMap.end() && boost::iequals(j->second, "WebSocket"))
-      return true;
+      webSocketRequest = true;
   }
-
-  return false;
 }
 
 bool Request::closeConnection() const 

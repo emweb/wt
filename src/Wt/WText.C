@@ -214,6 +214,8 @@ void WText::render(WFlags<RenderFlag> flags)
 {
   if (textChanged_)
     autoAdjustInline();
+
+  WInteractWidget::render(flags);
 }
 
 void WText::refresh()

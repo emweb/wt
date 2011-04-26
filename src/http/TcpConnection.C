@@ -18,6 +18,9 @@
 
 #include "TcpConnection.h"
 
+//#define DEBUG_ASYNC(a) a  
+#define DEBUG_ASYNC(a)
+
 namespace http {
 namespace server {
 
@@ -34,12 +37,15 @@ asio::ip::tcp::socket& TcpConnection::socket()
 
 void TcpConnection::stop()
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": stop()" << std::endl);
   finishReply();
   try {
     boost::system::error_code ignored_ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    DEBUG_ASYNC(std::cerr << socket().native() << "closing socket" << std::endl);
     socket_.close();
-  } catch (asio_system_error&) {
+  } catch (asio_system_error& e) {
+    DEBUG_ASYNC(std::cerr << socket().native() << ": error " << e.what() << std::endl);
   }
 }
 
@@ -48,6 +54,7 @@ typedef void (Connection::*HandleWrite)(const asio_error_code&);
 
 void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": startAsyncReadRequest" << std::endl);
   setTimeout(timeout);
 
   socket_.async_read_some(asio::buffer(buffer),
@@ -59,6 +66,7 @@ void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 
 void TcpConnection::startAsyncReadBody(Buffer& buffer, int timeout)
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": startAsyncReadBody" << std::endl);
   setTimeout(timeout);
 
   socket_.async_read_some(asio::buffer(buffer),
@@ -72,6 +80,7 @@ void TcpConnection::startAsyncWriteResponse
     (const std::vector<asio::const_buffer>& buffers,
      int timeout)
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": startAsyncWriteResponse" << std::endl);
   setTimeout(timeout);
 
   asio::async_write(socket_, buffers,

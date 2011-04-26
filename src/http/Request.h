@@ -66,12 +66,13 @@ public:
   std::string request_path;
   std::string request_query;
   std::string request_extra_path;
+  bool webSocketRequest;
 
   void reset();
 
   bool closeConnection() const;
   bool acceptGzipEncoding() const;
-  bool isWebSocketRequest() const;
+  void enableWebSocket();
 
   void transmitHeaders(std::ostream& out) const;
 };

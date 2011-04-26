@@ -130,6 +130,8 @@ WColor WDataSeries::labelColor() const
 void WDataSeries::setLabelColor(const WColor& color)
 {
   set(labelColor_, color);
+
+  customFlags_ |= CustomLabelColor;
 }
 
 void WDataSeries::setFillRange(FillRangeType fillRange)

@@ -21,8 +21,11 @@
 #include "RequestHandler.h"
 #include "StockReply.h"
 #include "Server.h"
+#include "WebController.h"
 
 //#define DEBUG
+//#define DEBUG_ASYNC(a) a
+#define DEBUG_ASYNC(a)
 
 namespace http {
 namespace server {
@@ -43,13 +46,12 @@ Connection::~Connection()
 { }
 
 void Connection::finishReply()
-{
-  if (reply_.get())
-    reply_->setConnection(0);
-}
+{ }
 
 void Connection::start()
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": start()" << std::endl);
+
   request_parser_.reset();
   request_.reset();
   try {
@@ -104,17 +106,22 @@ void Connection::handleReadRequest0()
 
   if (result) {
     Reply::status_type status = request_parser_.validate(request_);
+    bool doWebSockets = server_->controller()->configuration().webSockets();
+
+    if (doWebSockets)
+      request_.enableWebSocket();
+
     if (status >= 300)
       sendStockReply(status);
     else {
-      if (request_.isWebSocketRequest())
+      if (request_.webSocketRequest)
 	request_.urlScheme = "ws" + urlScheme().substr(4);
       else
 	request_.urlScheme = urlScheme();
 
       request_.port = socket().local_endpoint().port();
       reply_ = request_handler_.handleRequest(request_);
-      reply_->setConnection(this);
+      reply_->setConnection(shared_from_this());
       moreDataToSend_ = true;
 
       handleReadBody();
@@ -136,7 +143,7 @@ void Connection::sendStockReply(StockReply::status_type status)
   reply_.reset(new StockReply(request_, status, "",
 			      request_handler_.getErrorRoot()));
 
-  reply_->setConnection(this);
+  reply_->setConnection(shared_from_this());
   reply_->setCloseConnection();
   moreDataToSend_ = true;
 
@@ -146,6 +153,8 @@ void Connection::sendStockReply(StockReply::status_type status)
 void Connection::handleReadRequest(const asio_error_code& e,
 				   std::size_t bytes_transferred)
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadRequest(): " << e.message() << std::endl);
+
   cancelTimer();
 
   if (!e) {
@@ -158,31 +167,49 @@ void Connection::handleReadRequest(const asio_error_code& e,
   }
 }
 
-void Connection::handleError(const asio_error_code& e)
+void Connection::close()
 {
+  cancelTimer();
+
+  DEBUG_ASYNC(std::cerr << socket().native() << ": close()" << std::endl);
+
   if (reply_)
     reply_->release();
-  // std::cerr << "asio error: " << this << " " << e.message() << std::endl;
+
   ConnectionManager_.stop(shared_from_this());
+}
+
+void Connection::handleError(const asio_error_code& e)
+{
+  // std::cerr << "asio error: " << socket().native() << " " << e.message() << std::endl;
+  close();
 }
 
 void Connection::handleReadBody()
 {
-  bool result = request_parser_
-    .parseBody(request_, reply_, remaining_, buffer_.data() + buffer_size_);
+  if (reply_) {
+    bool result = request_parser_
+      .parseBody(request_, reply_, remaining_, buffer_.data() + buffer_size_);
 
-  if (!result)
-    startAsyncReadBody(buffer_, CONNECTION_TIMEOUT);
+    if (!result)
+      startAsyncReadBody(buffer_, CONNECTION_TIMEOUT);
+  }
 }
 
 bool Connection::readAvailable()
 {
-  return (remaining_ < buffer_.data() + buffer_size_) || socket().available();
+  try {
+    return (remaining_ < buffer_.data() + buffer_size_) || socket().available();
+  } catch (asio_system_error& e) {
+    return false; // socket(): bad file descriptor
+  }
 }
 
 void Connection::handleReadBody(const asio_error_code& e,
 				std::size_t bytes_transferred)
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": handleReadBody(): " << e.message() << std::endl);
+
   cancelTimer();
 
   if (!e) {
@@ -248,14 +275,14 @@ void Connection::handleWriteResponse()
 
 void Connection::handleWriteResponse(const asio_error_code& e)
 {
+  DEBUG_ASYNC(std::cerr << socket().native() << ": handleWriteResponse(): " << e.message() << std::endl);
+
   cancelTimer();
 
-  if (e != asio::error::operation_aborted) {
-    if (e) {
-      handleError(e);
-    }
+  if (!e)
     handleWriteResponse();
-  }
+  else if (e != asio::error::operation_aborted)
+    handleError(e);
 }
 
 } // namespace server

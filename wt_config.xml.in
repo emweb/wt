@@ -407,7 +407,8 @@
 	       when the app is deployed behind a reverse proxy. This is
                set as base URL in the HTML so that relative URLs (to e.g.
 	       css, images, etc...) work correctly regardless of the
-               internal path.
+               internal path. It is also used as the self-referencing URL,
+	       instead of the relative URLs used by default.
 
 	       Eg. "http://www.webtoolkit.eu/"
 

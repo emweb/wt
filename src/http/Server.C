@@ -27,21 +27,6 @@
 
 #endif // HTTP_WITH_SSL
 
-#if defined(WIN32)
-namespace {
-  SOCKET dup(SOCKET handle) {
-    WSAPROTOCOL_INFO ProtocolInfo;
-    if (WSADuplicateSocket(handle, GetCurrentProcessId(), &ProtocolInfo) == 0) {
-      return WSASocket(ProtocolInfo.iAddressFamily,
-        ProtocolInfo.iSocketType, ProtocolInfo.iProtocol,
-        &ProtocolInfo, 0, 0);
-    } else {
-      return INVALID_SOCKET;
-    }
-  }
-}
-#endif
-
 namespace http {
 namespace server {
 
@@ -52,6 +37,7 @@ Server::Server(const Configuration& config, const Wt::Configuration& wtConfig,
   : config_(config),
     io_service_(),
     accept_strand_(io_service_),
+    post_strand_(io_service_),
     tcp_acceptor_(io_service_),
 #ifdef HTTP_WITH_SSL
     ssl_context_(io_service_, asio::ssl::context::sslv23),
@@ -171,6 +157,16 @@ void Server::start()
 int Server::httpPort() const
 {
   return tcp_acceptor_.local_endpoint().port();
+}
+
+void Server::post(const boost::function<void ()>& function)
+{
+  /*
+   * We would need to serialize events for a single session and thus maintain
+   * a queue per sessionId ?
+   */
+  // io_service_.post(post_strand_.wrap(function));
+  io_service_.post(function);
 }
 
 void Server::startAccept()

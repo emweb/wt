@@ -11,6 +11,8 @@
 
 #include "WtException.h"
 
+#include <set>
+
 namespace Wt {
 
 WLayout::WLayout()
@@ -185,7 +187,7 @@ void WLayout::setParentLayout(WLayout *layout)
   if (layout)
     layout->addChild(this);
   else
-    setParent(0);
+    parent()->removeChild(this);
 }
 
 WLayout *WLayout::parentLayout() const
@@ -201,6 +203,27 @@ void WLayout::setLayoutHint(const std::string& name, const std::string& value)
     if (!hints_)
       hints_ = new HintsList();
     hints_->push_back(Hint(name, value));
+  }
+}
+
+void WLayout::clear()
+{
+  while (count()) {
+    WLayoutItem *item = itemAt(count() - 1);
+
+    if (item) {
+      WWidget* widget = 0;
+
+      if (item->layout())
+	item->layout()->clear();
+      else
+	widget = item->widget();
+
+      removeItem(item);
+      delete item;
+
+      delete widget;
+    }
   }
 }
 

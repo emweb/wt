@@ -132,9 +132,10 @@ void Configuration::createOptions(po::options_description& options)
       "defaults are used").c_str())
 
     ("max-memory-request-size",
-     po::value< ::int64_t >(&maxMemoryRequestSize_),
+     po::value< ::int64_t >(&maxMemoryRequestSize_)
+       ->default_value(maxMemoryRequestSize_),
      "threshold for request size (bytes), for spooling the entire request to "
-     "disk to avoid, to avoid DoS")
+     "disk, to avoid DoS")
 
     ("gdb",
      "do not shutdown when receiving Ctrl-C (and let gdb break instead)")

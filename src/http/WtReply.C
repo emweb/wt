@@ -81,24 +81,19 @@ void WtReply::consumeData(Buffer::const_iterator begin,
     consumeRequestBody(begin, end, state);
 }
 
-void WtReply::setConnection(Connection *connection)
-{
-  Reply::setConnection(connection);
-
-  if (!connection && readMessageCallback_) {
-    Buffer b;
-    consumeWebSocketMessage(b.begin(), b.begin(), Request::Error);
-  }
-}
-
 void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 				 Buffer::const_iterator end,
 				 Request::State state)
 {
+  ConnectionPtr connection = getConnection();
+
+  if (!connection)
+    return;
+
   if (status_ != request_entity_too_large)
     cin_->write(begin, static_cast<std::streamsize>(end - begin));
 
-  if (!request().isWebSocketRequest()) {
+  if (!request().webSocketRequest) {
     if (!httpRequest_)
       httpRequest_ = new HTTPRequest(boost::dynamic_pointer_cast<WtReply>
 				     (shared_from_this()), &entryPoint_);
@@ -106,7 +101,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
     if (end - begin > 0) {
       bodyReceived_ += (end - begin);
 
-      if (!connection()->server()->controller()->requestDataReceived
+      if (!connection->server()->controller()->requestDataReceived
 	  (httpRequest_, bodyReceived_, request().contentLength)) {
 	status_ = request_entity_too_large;
 	setCloseConnection();
@@ -116,7 +111,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
   }
 
   if (state != Request::Partial) {
-    if (request().isWebSocketRequest()) {
+    if (request().webSocketRequest) {
       if (status_ == ok) {
 	assert(state == Request::Complete);
 
@@ -146,7 +141,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 	// This will read more data, starting with the hand-shake.
 	// The computed handshake response will be passed to the next
 	// invocation of this method.
-	connection()->handleReadBody();
+	connection->handleReadBody();
       } else {
 	/*
 	 * We got the nonce and the expected challenge response is
@@ -158,7 +153,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 					   (shared_from_this()), &entryPoint_);
 	  r->setWebSocketRequest(true);
 
-	  connection()->server()->controller()->server_->handleRequest(r);
+	  connection->server()->controller()->server_->handleRequest(r);
 	} else {
 	  setWaitMoreData(false);
 	  setCloseConnection();
@@ -184,7 +179,7 @@ void WtReply::consumeRequestBody(Buffer::const_iterator begin,
 
     HTTPRequest *r = httpRequest_;
     httpRequest_ = 0;
-    connection()->server()->controller()->server_->handleRequest(r);
+    connection->server()->controller()->server_->handleRequest(r);
   }
 }
 
@@ -231,25 +226,24 @@ void WtReply::setLocation(const std::string& location)
 
 void WtReply::send(const std::string& text, CallbackFunction callBack)
 {
-#ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock lock(mutex_);
-#endif // WT_THREADED
+  ConnectionPtr connection = getConnection();
 
-  if (!connection())
+  if (!connection)
     return;
 
   fetchMoreDataCallback_ = callBack;
 
-  if (request().isWebSocketRequest() && sendingMessages_) {
-    // std::cerr << this << " Sending frame of length "
-    //           << text.length() << std::endl;
+  if (request().webSocketRequest && text.empty()) {
+    connection->close();
+    return;
+  }
+
+  if (request().webSocketRequest && sendingMessages_) {
     nextCout_.clear();
     nextCout_ += (char)0;
     nextCout_ += text;
     nextCout_ += (char)0xFF;
   } else {
-    // std::cerr << this << "Sending response of length "
-    //           << text.length() << std::endl;
     nextCout_.assign(text);
     sendingMessages_ = true;
   }
@@ -264,38 +258,38 @@ void WtReply::send(const std::string& text, CallbackFunction callBack)
 
 void WtReply::readWebSocketMessage(CallbackFunction callBack)
 {
-#ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock lock(mutex_);
-#endif // WT_THREADED
+  ConnectionPtr connection = getConnection();
 
-  assert(request().isWebSocketRequest());
+  assert(request().webSocketRequest);
 
   if (readMessageCallback_)
     return;
 
   readMessageCallback_ = callBack;
 
-  if (&cin_mem_ != cin_) {
-    dynamic_cast<std::fstream *>(cin_)->close();
-    delete cin_;
-    cin_ = &cin_mem_;
+  if (!connection) {
+    Buffer b;
+    consumeWebSocketMessage(b.begin(), b.begin(), Request::Error);
+  } else {
+    if (&cin_mem_ != cin_) {
+      dynamic_cast<std::fstream *>(cin_)->close();
+      delete cin_;
+      cin_ = &cin_mem_;
+    }
+
+    cin_mem_.str("");
+
+    connection->server()->service().post
+      (boost::bind(&Connection::handleReadBody, connection));
   }
-
-  cin_mem_.str("");
-
-  if (connection())
-    connection()->server()->service().post
-      (boost::bind(&Connection::handleReadBody, connection()->shared_from_this()));
 }
 
 bool WtReply::readAvailable()
 {
-#ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock lock(mutex_);
-#endif // WT_THREADED
+  ConnectionPtr connection = getConnection();
 
-  if (connection())
-    return connection()->readAvailable();
+  if (connection)
+    return connection->readAvailable();
   else
     return false;
 }

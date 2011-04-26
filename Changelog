@@ -1,3 +1,18 @@
+26-04-2011:
+	* http/Connection: fix a leak in websocket sockets (file descriptors)
+
+	* WLayout: added a clear() method which removes all contents
+
+	* WDataSeries: fix setLabelColor() being ignored
+
+	* Dbo/backend/Postgres: set client encoding to UTF8
+
+	* WTable: added moveRow() and moveColumn() methods
+
+	* WTableView: fix setColumnHidden() with headerColumns()
+
+	* WebSession: use baseURL property for self-referencing URLs
+
 14-04-2011:
 	* WAbstractArea: fix anchor not being deleted
 

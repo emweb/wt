@@ -165,6 +165,13 @@ public:
   int getContentsMargin(Side side) const;
 #endif // WT_TARGET_JAVA
 
+  /*! \brief Removes and deletes all child widgets and nested layouts.
+   *
+   * This is similar to WContainerWidget::clear(), with the exception that
+   * the layout itself is not deleted.
+   */
+  virtual void clear();
+
 protected:
   /*! \brief Create a layout.
    */

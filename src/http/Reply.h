@@ -50,7 +50,10 @@ namespace server {
 class Connection;
 class Reply;
 
+typedef boost::shared_ptr<Connection> ConnectionPtr;
 typedef boost::shared_ptr<Reply> ReplyPtr;
+
+typedef boost::weak_ptr<Connection> ConnectionWeakPtr;
 
 class WTHTTP_API Reply : public boost::enable_shared_from_this<Reply>
 {
@@ -88,7 +91,7 @@ public:
 			   Buffer::const_iterator end,
 			   Request::State state) = 0;
 
-  virtual void setConnection(Connection *connection);
+  void setConnection(ConnectionPtr connection);
   bool nextBuffers(std::vector<asio::const_buffer>& result);
   bool closeConnection() const { return closeConnection_; }
   void setCloseConnection() { closeConnection_ = true; }
@@ -123,16 +126,12 @@ protected:
 
   static std::string httpDate(time_t t);
 
-#ifdef WT_THREADED
-  boost::recursive_mutex mutex_;
-#endif // WT_THREADED
+  ConnectionPtr getConnection() { return connection_.lock(); }
 
-  Connection *connection() { return connection_; }
 private:
   std::vector<std::pair<std::string, std::string> > headers_;
 
-  // protected by replyMutex_
-  Connection *connection_;
+  ConnectionWeakPtr connection_;
 
 #ifndef WIN32
   struct timeval startTime_;

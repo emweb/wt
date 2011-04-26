@@ -1522,6 +1522,13 @@ _$_$endif_$_();
 
 })();
 
+if (window._$_APP_CLASS_$_) {
+  try {
+    window._$_APP_CLASS_$_._p_.quit();
+  } catch (e) {
+  }
+}
+
 window._$_APP_CLASS_$_ = new (function() {
 
 var self = this;
@@ -2160,6 +2167,9 @@ _$_$endif_$_();
 var updateTimeoutStart;
 
 function scheduleUpdate() {
+  if (quited)
+    return;
+
 _$_$if_WEB_SOCKETS_$_();
   if (websocket.state != WebSocketsUnavailable) {
     if (typeof window.WebSocket === 'undefined')

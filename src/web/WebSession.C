@@ -44,6 +44,10 @@ namespace {
   #ifdef WT_TARGET_JAVA
   static Wt::Http::UploadedFile* uf;
   #endif
+
+  bool isAbsoluteUrl(const std::string& url) {
+    return url.find("://") != std::string::npos;
+  }
 }
 
 namespace Wt {
@@ -91,11 +95,9 @@ WebSession::WebSession(WebController *controller,
    * Obtain the applicationName_ as soon as possible for log().
    */
   if (request)
-    deploymentPath_ = request->scriptName();
+    applicationUrl_ = request->scriptName();
   else
-    deploymentPath_ = "/";
-
-  applicationUrl_ = deploymentPath_;
+    applicationUrl_ = "/";
 
   applicationName_ = applicationUrl_;
   baseUrl_ = applicationUrl_;
@@ -244,20 +246,20 @@ void WebSession::init(const WebRequest& request)
 
   absoluteBaseUrl_ = env_->urlScheme() + "://" + env_->hostName() + baseUrl_;
 
+  bool useAbsoluteUrls = controller_
+    ->configuration().readConfigurationProperty("baseURL", absoluteBaseUrl_);
+
   bookmarkUrl_ = applicationName_;
 
   if (applicationName_.empty())
     bookmarkUrl_ = applicationUrl_;
 
-  if (type() == WidgetSet) {
-    /*
-     * We are embedded in another website: we only use absolute URLs.
-     */
-    applicationUrl_ = env_->urlScheme() + "://" + env_->hostName()
-      + applicationUrl_;
-
+  if (type() == WidgetSet || useAbsoluteUrls) {
+    applicationUrl_ = absoluteBaseUrl_ + applicationName_;
     bookmarkUrl_ = applicationUrl_;
   }
+
+  deploymentPath_ = applicationUrl_;
 
   std::string path = request.pathInfo();
   if (path.empty() && hashE)
@@ -295,12 +297,12 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
       if (internalPath.length() > 1)
 	url = "?_=" + Utils::urlEncode(internalPath);
 
-      if (type() == WidgetSet)
+      if (isAbsoluteUrl(applicationUrl_))
 	url = applicationUrl_ + url;
     } else {
       internalPath = WebSession::Handler::instance()->request()->pathInfo();
 
-      if (type() != WidgetSet) {
+      if (!isAbsoluteUrl(applicationUrl_)) {
 	/*
 	 * Java application servers use ";jsessionid=..." which generates
 	 * URLs relative to the current directory, not current filename
@@ -327,7 +329,7 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
     return appendSessionQuery(url);
   }
   case ClearInternalPath: {
-    if (type() != WidgetSet) {
+    if (!isAbsoluteUrl(applicationUrl_)) {
       if (WebSession::Handler::instance()->request()->pathInfo().length() > 1)
 	return appendSessionQuery(baseUrl_ + applicationName_);
       else
@@ -369,10 +371,10 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
 #else
   if (boost::starts_with(result, "?"))
     result = applicationUrl_ + result;
-  
+
   if (WebSession::Handler::instance()->response())
     return WebSession::Handler::instance()->response()->encodeURL(result);
-  
+
 return url;
 #endif // WT_TARGET_JAVA
 }
@@ -909,8 +911,14 @@ void WebSession::handleRequest(Handler& handler)
   }
 
   if (request.isWebSocketRequest()) {
-    handleWebSocketRequest(handler);
-    return;
+    if (state_ != JustCreated) {
+      handleWebSocketRequest(handler);
+      return;
+    } else {
+      handler.response()->flush();
+      kill();
+      return;
+    }
   }
 
   Configuration& conf = controller_->configuration();
@@ -1293,6 +1301,8 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
 #ifndef WT_TARGET_JAVA
   boost::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
+    Handler handler(lock, true);
+
     if (!lock->asyncResponse_ || !lock->asyncResponse_->isWebSocketRequest())
       return;
 
@@ -1318,8 +1328,7 @@ void WebSession::handleWebSocketMessage(boost::weak_ptr<WebSession> session)
       closing = true;
 
     if (!closing) {
-      Handler handler(lock, *message, (WebResponse &)(*message));
-
+      handler.setRequest(message, (WebResponse *)(message));
       lock->handleRequest(handler);
     }
 
@@ -1640,7 +1649,15 @@ void WebSession::notify(const WEvent& event)
 	    canWriteAsyncResponse_ = false;
 	  }
 
-	  if (*signalE != "res" && *signalE != "poll") {
+	  if (*signalE == "poll" && !updatesPending_) {
+	    if (!asyncResponse_) {
+	      asyncResponse_ = handler.response();
+	      canWriteAsyncResponse_ = true;
+	      handler.setRequest(0, 0);
+            }
+	  }
+
+	  if (handler.request()) {
 	    //std::cerr << "signal: " << *signalE << std::endl;
 
 	    /*
@@ -1648,7 +1665,6 @@ void WebSession::notify(const WEvent& event)
 	     * 'poll' : long poll
 	     * 'none' : no event, but perhaps a synchronization
 	     * 'load' : load invisible content
-	     * 'res'  : after a resource received data
 	     */
 
 	    try {
@@ -1661,15 +1677,6 @@ void WebSession::notify(const WEvent& event)
 	      log("error") << "Error during event handling: ";
 	      throw;
 	    }
-	  } else if (*signalE == "poll" && !updatesPending_) {
-	    if (!asyncResponse_) {
-	      asyncResponse_ = handler.response();
-	      canWriteAsyncResponse_ = true;
-	      handler.setRequest(0, 0);
-            } else {
-	      std::cerr << "Poll after web socket connect. Ignoring"
-			<< std::endl;
-            }
 	  }
 	}
 
@@ -1770,8 +1777,7 @@ EventType WebSession::getEventType(const WEvent& event) const
 	return OtherEvent;
       else if (signalE) {
 	if (*signalE == "none" || *signalE == "load" || 
-	    *signalE == "hash" || *signalE == "res" || 
-	    *signalE == "poll")
+	    *signalE == "hash" || *signalE == "poll")
 	  return OtherEvent;
 	else {
 	  std::vector<unsigned int> signalOrder
@@ -1954,8 +1960,8 @@ WebSession::getSignalProcessingOrder(const WEvent& e) const
     }
     if (*signalE != "user" &&
         *signalE != "hash" &&
-        *signalE != "res" &&
         *signalE != "none" &&
+        *signalE != "poll" &&
         *signalE != "load") {
       EventSignalBase *signal = decodeSignal(*signalE);
       if (!signal) {
@@ -2008,7 +2014,7 @@ void WebSession::notifySignal(const WEvent& e)
 
       // We will want invisible changes now too.
       renderer_.setVisibleOnly(false);
-    } else {
+    } else if (*signalE != "poll") {
       // Save pending changes (e.g. from resource completion)
       if (i == 0)
 	renderer_.saveChanges();
@@ -2025,27 +2031,25 @@ void WebSession::notifySignal(const WEvent& e)
 	} else
 	  app_->changeInternalPath("");
       } else {
-	if (*signalE != "res") {
-	  for (unsigned k = 0; k < 3; ++k) {
-	    SignalKind kind = (SignalKind)k;
+	for (unsigned k = 0; k < 3; ++k) {
+	  SignalKind kind = (SignalKind)k;
 
-	    if (kind == AutoLearnStateless && request.postDataExceeded())
+	  if (kind == AutoLearnStateless && request.postDataExceeded())
+	    break;
+
+	  if (*signalE == "user") {
+	    const std::string *idE = request.getParameter(se + "id");
+	    const std::string *nameE = request.getParameter(se + "name");
+
+	    if (!idE || !nameE)
 	      break;
 
-	    if (*signalE == "user") {
-	      const std::string *idE = request.getParameter(se + "id");
-	      const std::string *nameE = request.getParameter(se + "name");
+	    processSignal(decodeSignal(*idE, *nameE), se, request, kind);
+	  } else
+	    processSignal(decodeSignal(*signalE), se, request, kind);
 
-	      if (!idE || !nameE)
-		break;
-
-	      processSignal(decodeSignal(*idE, *nameE), se, request, kind);
-	    } else
-	      processSignal(decodeSignal(*signalE), se, request, kind);
-
-	    if (kind == LearnedStateless && i == 0)
-	      renderer_.discardChanges();
-	  }
+	  if (kind == LearnedStateless && i == 0)
+	    renderer_.discardChanges();
 	}
       }
     }

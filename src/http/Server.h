@@ -69,6 +69,9 @@ public:
   /// Assumes accept sockets have been closed and reopens them.
   void resume();
 
+  /// Posts an event to the thread pool
+  void post(const boost::function<void ()>& function);
+
   /// Returns the http port number.
   int httpPort() const;
 
@@ -79,6 +82,7 @@ public:
   const Configuration &configuration() { return config_; }
 
   asio::io_service &service() { return io_service_; }
+
 private:
   /// Starts accepting http/https connections
   void startAccept();
@@ -103,6 +107,9 @@ private:
 
   /// The strand for handleTcpAccept(), handleSslAccept() and handleStop()
   asio::strand accept_strand_;
+
+  /// The strand for post()
+  asio::strand post_strand_;
 
   /// Acceptor used to listen for incoming http connections.
   asio::ip::tcp::acceptor tcp_acceptor_;

@@ -113,9 +113,7 @@ bool RequestParser::parseBody(Request& req, ReplyPtr reply,
 			      Buffer::const_iterator& begin,
 			      Buffer::const_iterator end)
 {
-  static bool doWebSockets = server_->controller()->configuration().webSockets();
-
-  if (doWebSockets && req.isWebSocketRequest()) {
+  if (req.webSocketRequest) {
     Request::State state = parseWebSocketMessage(req, reply, begin, end);
 
     if (state == Request::Error)

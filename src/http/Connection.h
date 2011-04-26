@@ -58,6 +58,8 @@ public:
   /// Stop all asynchronous operations associated with the connection.
   virtual void stop() = 0;
 
+  void close();
+
   /// Like CGI's Url scheme: http or https
   virtual std::string urlScheme() = 0;
 
@@ -137,6 +139,7 @@ private:
 };
 
 typedef boost::shared_ptr<Connection> ConnectionPtr;
+typedef boost::weak_ptr<Connection> ConnectionWeakPtr;
 
 } // namespace server
 } // namespace http

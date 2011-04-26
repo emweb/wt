@@ -154,6 +154,24 @@ public:
    */
   int headerCount(Orientation orientation = Horizontal);
 
+  /*! \brief Move a table row from its original position to a new position.
+   *
+   * The table expands automatically when to is beyond the current 
+   * table dimensions.
+   *
+   * \sa moveColumn()
+   */
+  void moveRow(int from, int to);
+
+  /*! \brief Move a table column from its original position to a new position.
+   *
+   * The table expands automatically when to is beyond the current 
+   * table dimensions.
+   *
+   * \sa moveRow()
+   */
+  void moveColumn(int from, int to);
+
 private:
   static const int BIT_GRID_CHANGED = 0;
   static const int BIT_COLUMNS_CHANGED = 1;

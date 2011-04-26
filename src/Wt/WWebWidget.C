@@ -843,10 +843,14 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
     else
       return;
   } else {
-    OtherImpl::Member m;
-    m.name = name;
-    m.value = value;
-    members.push_back(m);
+    if (index == -1) {
+      OtherImpl::Member m;
+      m.name = name;
+      m.value = value;
+      members.push_back(m);
+    } else {
+      members[index].value = value;
+    }
   }
 
   if (!otherImpl_->jsMembersSet_)

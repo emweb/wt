@@ -374,7 +374,7 @@ void WServer::handleRequest(WebRequest *request)
 
 void WServer::post(const boost::function<void ()>& function)
 {
-  impl_->server_->service().post(function);
+  impl_->server_->post(function);
 }
 
 void WServer::post(const std::string& sessionId,

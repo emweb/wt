@@ -23,12 +23,6 @@
 #include <boost/lexical_cast.hpp>
 
 #ifdef WIN32
-#ifdef WT_THREADED
-#include <boost/thread/mutex.hpp>
-#endif
-#endif
-
-#ifdef WIN32
 static struct tm* gmtime_r(const time_t* t, struct tm* r)
 {
   // gmtime is threadsafe in windows because it uses TLS
@@ -159,7 +153,6 @@ const char crlf[] = { '\r', '\n' };
 Reply::Reply(const Request& request)
   : request_(request),
     emptyBuffer((void *)0, 0),
-    connection_(0),
     transmitting_(false),
     closeConnection_(false),
     chunkedEncoding_(false),
@@ -207,8 +200,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       bool http10 = (request_.http_version_major == 1)
 	&& (request_.http_version_minor == 0);
 
-      closeConnection_
-	= closeConnection_ || request_.closeConnection();
+      closeConnection_ = closeConnection_ || request_.closeConnection();
 
       /*
        * Status line.
@@ -261,7 +253,6 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       /*
        * Connection
        */
-      //closeConnection_ = true;
       if (closeConnection_) {
 	result.push_back(buf("Connection: close"));
 	result.push_back(asio::buffer(misc_strings::crlf));
@@ -408,38 +399,31 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
   return false;
 }
 
-void Reply::setConnection(Connection *connection)
+void Reply::setConnection(ConnectionPtr connection)
 {
-#ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock lock(mutex_);
-#endif // WT_THREADED
   connection_ = connection;
 
   if (relay_.get())
     relay_->setConnection(connection);
 
-  if (connection) {
-    try {
-      remoteAddress_
-	= connection_->socket().remote_endpoint().address().to_string();
-    } catch (std::exception& e) {
-      std::cerr << "remote_endpoint() threw: " << e.what() << std::endl;
-    }
-    requestMethod_ = request_.method;
-    requestUri_ = request_.uri;
-    requestMajor_ = request_.http_version_major;
-    requestMinor_ = request_.http_version_minor;
+  try {
+    remoteAddress_
+      = connection->socket().remote_endpoint().address().to_string();
+  } catch (std::exception& e) {
+    std::cerr << "remote_endpoint() threw: " << e.what() << std::endl;
   }
+
+  requestMethod_ = request_.method;
+  requestUri_ = request_.uri;
+  requestMajor_ = request_.http_version_major;
+  requestMinor_ = request_.http_version_minor;
 }
 
 void Reply::send()
 {
-#ifdef WT_THREADED
-  boost::recursive_mutex::scoped_lock lock(mutex_);
-#endif // WT_THREADED
-
-  if (/* !finishing_ && */ connection_)
-    connection_->startWriteResponse();
+  ConnectionPtr connection = getConnection();
+  if (connection)
+    connection->startWriteResponse();
 }
 
 void Reply::setRelay(ReplyPtr reply)
