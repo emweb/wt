@@ -1544,9 +1544,13 @@ int WTableView::pageSize() const
   else {
     const int navigationBarHeight = 25; // set in wt.css
 
-    return static_cast<int>
+    int pageSize = static_cast<int>
       ((height().toPixels() - headerHeight().toPixels() - navigationBarHeight)
        / rowHeight().toPixels());
+    if (pageSize <= 0)
+      pageSize = 1;
+
+    return pageSize;
   }
 }
 

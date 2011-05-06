@@ -74,8 +74,10 @@ void WObject::removeChild(WObject *child)
 WObject::~WObject()
 {
 #ifndef WT_CNOR
-  if (destroyed_)
+  if (destroyed_) {
     destroyed_->emit(this);
+    delete destroyed_;
+  }
 #endif
 
   for (unsigned i = 0; i < statelessSlots_.size(); ++i)

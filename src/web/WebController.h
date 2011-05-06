@@ -73,6 +73,8 @@ struct ApplicationEvent {
 class WT_API WebController
 {
 public:
+  static bool isAsyncSupported() { return true; }
+
   WApplication *doCreateApplication(WebSession *session);
   Configuration& configuration();
 
@@ -171,12 +173,6 @@ private:
   static std::string appSessionCookie(std::string url);
 
 #endif // WT_TARGET_JAVA
-
-#ifdef WT_TARGET_JAVA
-  static bool isAsyncSupported() {
-    return false;
-  }
-#endif //WT_TARGET_JAVA
 };
 
 }

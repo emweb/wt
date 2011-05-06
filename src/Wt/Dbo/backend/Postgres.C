@@ -221,7 +221,16 @@ public:
     } else if (PQresultStatus(result_) == PGRES_TUPLES_OK)
       affectedRows_ = PQntuples(result_);
 
-    if (affectedRows_ == 1 && sql_.rfind("returning id") != std::string::npos) {
+    bool isInsertReturningId = false;
+    if (affectedRows_ == 1) {
+      const std::string returning = " returning ";
+      std::size_t j = sql_.rfind(returning);
+      if (j != std::string::npos
+	  && sql_.find(' ', j + returning.length()) == std::string::npos)
+	isInsertReturningId = true;
+    }
+
+    if (isInsertReturningId) {
       state_ = NoFirstRow;
       if (PQntuples(result_) == 1 && PQnfields(result_) == 1) {
 	lastId_ = boost::lexical_cast<long long>(PQgetvalue(result_, 0, 0));
@@ -581,7 +590,7 @@ std::string Postgres::autoincrementSql() const
 
 std::string Postgres::autoincrementInsertSuffix() const
 {
-  return " returning id";
+  return " returning ";
 }
   
 const char *Postgres::dateTimeType(SqlDateTimeType type) const

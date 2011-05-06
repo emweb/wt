@@ -592,9 +592,9 @@ std::string WApplication::fixRelativeUrl(const std::string& url) const
       // internal path folders. but why bother ? we need to fix URLs
       // in external resources anyway for reverse proxies
       if (!url.empty() && url[0] == '/')
-	return /*session_->baseUrl() + url.substr(1) */ url;
+	return /*session_->basePath() + url.substr(1) */ url;
       else
-	return session_->baseUrl() + url;
+	return session_->basePath() + url;
     else
       return url;
   } else

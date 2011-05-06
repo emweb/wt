@@ -1115,15 +1115,30 @@ bindings to Qt and KDE.
 <div>
 <img class="language-icon" src="/icons/clojure-logo.png" alt="Clojure"></img>
 
-Leveraging the JVM's support for other languages, such as <b>Clojure</b>, a
-LISP variant, Raphael Bauduin is experimenting with <a
-href="http://www.nsa.be/index.php/eng/Blog/Using-Jwt-yes-it-s-a-J-with-Clojure">using JWt from within Clojure</a>, documenting his experience in his blog
+Leveraging the JVM's support for other languages, such
+as <b>Clojure</b>, a LISP variant, Ralph Moritz is experimenting
+with <a href="http://lispetc.posterous.com/hello-jwt-from-clojure">using
+JWt from within Clojure</a>, documenting his experience in his blog
 and eventually developing a small support library.
 </div>
 
 <br style="clear: both" />
 
 </li>
+
+<li>
+<div>
+<img class="language-icon" src="/icons/jython-logo.png" alt="Jython"></img>
+
+Albert Cervera i Areny is experimenting to use JWt from <b>Jython</b>,
+another language running on the JVM. He documents how to create and run 
+the "Hello World!" program in Jython in <a href="http://www.nan-tic.com/en/from-pyqt-to-jythonjwt-setting-up-the-environment">this blog post</a>.
+</div>
+
+<br style="clear: both" />
+
+</li>
+
 </ul>
 </p>
 

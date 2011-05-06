@@ -259,6 +259,9 @@ public:
 
   virtual void setHidden(bool hidden);
 
+protected:
+  void render(WFlags<RenderFlag> flags);
+
 private:
   WTemplate        *impl_;
   WText            *caption_;
@@ -275,6 +278,8 @@ private:
   DialogCode result_;
 
   bool recursiveEventLoop_;
+
+  bool addAutoJavaScript_;
 
   void saveCoverState(WApplication *app, WContainerWidget *cover);
   void restoreCoverState(WApplication *app, WContainerWidget *cover);

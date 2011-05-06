@@ -250,6 +250,22 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	result.push_back(asio::buffer(misc_strings::crlf));
       }
 
+      ::int64_t cl = -1;
+
+      if (responseStatus() != not_modified)
+	cl = contentLength();
+      else
+	cl = 0;
+
+      /*
+       * We would need to figure out the content length based on the
+       * response data, but this doesn't work: WtReply reuses the
+       * same buffers over and over, expecting them to be sent
+       * inbetween each call to nextContentBuffer()
+       */
+      if ((cl == -1) && http10)
+	closeConnection_ = true;
+
       /*
        * Connection
        */
@@ -264,8 +280,6 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       }
 
       if (responseStatus() != not_modified) {
-	::int64_t cl = contentLength();
-
 #ifdef WTHTTP_WITH_ZLIB
 	/*
 	 * Content-Encoding: gzip ?
@@ -291,62 +305,31 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 	}
 #endif
 
-	if ((cl == -1) && http10 && !closeConnection_) {
-	  /*
-	   * We need to determine the length of the response...
-	   */
-	  contentSent_ = 0;
-	  std::vector<asio::const_buffer> contentBuffers;
-	  for (;;) {
-	    int originalSize;
-	    int encodedSize;
-	    encodeNextContentBuffer(contentBuffers, originalSize, encodedSize);
-
-	    contentSent_ += encodedSize;
-	    contentOriginalSize_ += originalSize;
-
-	    if (originalSize == 0)
-	      break;
-	  }
-
+	/*
+	 * We do not need to determine the length of the response...
+	 * Transmit only header first.
+	 */
+	if (cl != -1) {
 	  result.push_back 
-	    (buf("Content-Length: "
-		 + boost::lexical_cast<std::string>(contentSent_)));
+	    (buf("Content-Length: " + boost::lexical_cast<std::string>(cl)));
 	  result.push_back(asio::buffer(misc_strings::crlf));
 
+	  chunkedEncoding_ = false;
+	} else
+	  if (closeConnection_)
+	    chunkedEncoding_ = false; // should be false
+	  else
+	    if (!http10 && responseStatus() != switching_protocols)
+	      chunkedEncoding_ = true;
+
+	if (chunkedEncoding_) {
+	  result.push_back(buf("Transfer-Encoding: chunked"));
 	  result.push_back(asio::buffer(misc_strings::crlf));
-      
-	  result.insert(result.end(),
-			contentBuffers.begin(), contentBuffers.end());
-
-	  return finishing_ = true;
-	} else {
-	  /*
-	   * We do not need to determine the length of the response...
-	   * Transmit only header first.
-	   */
-	  if (cl != -1) {
-	    result.push_back 
-	      (buf("Content-Length: " + boost::lexical_cast<std::string>(cl)));
-	    result.push_back(asio::buffer(misc_strings::crlf));
-
-	    chunkedEncoding_ = false;
-	  } else
-	    if (closeConnection_)
-	      chunkedEncoding_ = false; // should be false
-	    else
-	      if (!http10 && responseStatus() != switching_protocols)
-		chunkedEncoding_ = true;
-
-	  if (chunkedEncoding_) {
-	    result.push_back(buf("Transfer-Encoding: chunked"));
-	    result.push_back(asio::buffer(misc_strings::crlf));
-	  }
-
-	  result.push_back(asio::buffer(misc_strings::crlf));
-
-	  return finishing_ = false;
 	}
+
+	result.push_back(asio::buffer(misc_strings::crlf));
+
+	return finishing_ = false;
       } else { // responseStatus() == not-modified
 	result.push_back(asio::buffer(misc_strings::crlf));
 

@@ -251,8 +251,12 @@ void Session::prepareStatements(MappingInfo *mapping)
 
   if (mapping->surrogateIdFieldName) {
     SqlConnection *conn = useConnection();
-    sql << conn->autoincrementInsertSuffix();
+    std::string autoIncrementSuffix = conn->autoincrementInsertSuffix();
     returnConnection(conn);
+
+    if (!autoIncrementSuffix.empty())
+      sql << conn->autoincrementInsertSuffix()
+	  << mapping->surrogateIdFieldName;
   }
 
   mapping->statements.push_back(sql.str()); // SqlInsert

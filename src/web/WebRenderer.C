@@ -111,6 +111,8 @@ std::string WebRenderer::bodyClassRtl() const
     s += session_.app()->layoutDirection() == LeftToRight
       ? "Wt-ltr" : "Wt-rtl";
 
+    session_.app()->bodyHtmlClassChanged_ = false;
+
     return s;
   } else
     return std::string();
@@ -213,7 +215,6 @@ void WebRenderer::setPageVars(FileServe& page)
   std::string htmlAttr;
   if (app && !app->htmlClass_.empty()) {
     htmlAttr = " class=\"" + app->htmlClass_ + "\"";
-    app->bodyHtmlClassChanged_ = false;
   }
 
   if (xhtml) {
@@ -502,7 +503,6 @@ void WebRenderer::collectJavaScript()
 		  << "document.body.setAttribute('dir', '"
 		  << (app->layoutDirection() == LeftToRight
 		      ? "LTR" : "RTL") << "');";
-    app->bodyHtmlClassChanged_ = false;
   }
 
   /*
@@ -668,7 +668,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
     script.setVar("RELATIVE_URL", WWebWidget::jsStringLiteral
 		  (session_.bootstrapUrl(response,
 					 WebSession::ClearInternalPath)));
-    script.setVar("DEPLOY_URL", WWebWidget::jsStringLiteral
+    script.setVar("DEPLOY_PATH", WWebWidget::jsStringLiteral
 		  (session_.deploymentPath()));
   
     int keepAlive;
@@ -861,7 +861,6 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		   << "document.body.setAttribute('dir', '"
 		   << (app->layoutDirection() == LeftToRight
 		       ? "LTR" : "RTL") << "');";
-    app->bodyHtmlClassChanged_ = false;
   }
 
 #ifdef DEBUG_JS

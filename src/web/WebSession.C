@@ -52,7 +52,7 @@ namespace {
 
 namespace Wt {
 
-#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#ifdef WT_BOOST_THREADS
 boost::thread_specific_ptr<WebSession::Handler> WebSession::threadHandler_;
 #else
 WebSession::Handler * WebSession::threadHandler_;
@@ -72,18 +72,22 @@ WebSession::WebSession(WebController *controller,
     renderer_(*this),
     asyncResponse_(0),
     bootStyleResponse_(0),
-    updatesPending_(false),
     canWriteAsyncResponse_(false),
     noBootStyleResponse_(false),
+#ifdef WT_TARGET_JAVA
+    recursiveEvent_(mutex_.newCondition()),
+    newRecursiveEvent_(false),
+    updatesPendingEvent_(mutex_.newCondition()),
+    updatesPending_(false),
+#else
+    newRecursiveEvent_(false),
+    updatesPending_(false),
+#endif
     embeddedEnv_(this),
     app_(0),
     debug_(controller_->configuration().errorReporting()
 	   != Configuration::ErrorMessage),
     recursiveEventLoop_(0)
-#if defined(WT_TARGET_JAVA)
-  ,
-    recursiveEvent_(mutex_.newCondition())
-#endif
 {
 #ifdef WT_THREADED
   syncLocks_.lastId_ = syncLocks_.lockedId_ = 0;
@@ -99,13 +103,15 @@ WebSession::WebSession(WebController *controller,
   else
     applicationUrl_ = "/";
 
-  applicationName_ = applicationUrl_;
-  baseUrl_ = applicationUrl_;
+  deploymentPath_ = applicationUrl_;
 
-  std::string::size_type slashpos = applicationName_.rfind('/');
+  std::string::size_type slashpos = deploymentPath_.rfind('/');
   if (slashpos != std::string::npos) {
-    applicationName_ = applicationName_.substr(slashpos + 1);
-    baseUrl_ = baseUrl_.substr(0, slashpos+1);
+    basePath_ = deploymentPath_.substr(0, slashpos + 1);
+    applicationName_ = deploymentPath_.substr(slashpos + 1);
+  } else { // ?
+    basePath_ = "";
+    applicationName_ = applicationUrl_; 
   }
 
 #ifndef WT_TARGET_JAVA
@@ -132,7 +138,7 @@ WLogEntry WebSession::log(const std::string& type) const
 #ifndef WT_TARGET_JAVA
   e << WLogger::timestamp << WLogger::sep
     << conf.pid() << WLogger::sep
-    << '[' << baseUrl_ << applicationName_ << ' ' << sessionId()
+    << '[' << deploymentPath_ << ' ' << sessionId()
     << ']' << WLogger::sep
     << '[' << type << ']' << WLogger::sep;
 #endif // WT_TARGET_JAVA
@@ -161,6 +167,10 @@ WebSession::~WebSession()
     asyncResponse_->flush();
     asyncResponse_ = 0;
   }
+
+#ifdef WT_BOOST_THREADS
+  updatesPendingEvent_.notify_one();
+#endif // WT_BOOST_THREADS
 
   if (bootStyleResponse_) {
     bootStyleResponse_->flush();
@@ -244,10 +254,22 @@ void WebSession::init(const WebRequest& request)
 
   const std::string *hashE = request.getParameter("_");
 
-  absoluteBaseUrl_ = env_->urlScheme() + "://" + env_->hostName() + baseUrl_;
+  absoluteBaseUrl_ = env_->urlScheme() + "://" + env_->hostName() + basePath_;
 
-  bool useAbsoluteUrls = controller_
-    ->configuration().readConfigurationProperty("baseURL", absoluteBaseUrl_);
+  bool useAbsoluteUrls;
+#ifndef WT_TARGET_JAVA
+  useAbsoluteUrls 
+    = app_->readConfigurationProperty("baseURL", absoluteBaseUrl_);
+#else
+  std::string* absoluteBaseUrl 
+    = app_->readConfigurationProperty("baseURL", absoluteBaseUrl_);
+  if (absoluteBaseUrl != &absoluteBaseUrl_) {
+    absoluteBaseUrl_ = *absoluteBaseUrl;
+    useAbsoluteUrls = true;
+  } else {
+    useAbsoluteUrls = false;
+  }
+#endif
 
   bookmarkUrl_ = applicationName_;
 
@@ -258,8 +280,6 @@ void WebSession::init(const WebRequest& request)
     applicationUrl_ = absoluteBaseUrl_ + applicationName_;
     bookmarkUrl_ = applicationUrl_;
   }
-
-  deploymentPath_ = applicationUrl_;
 
   std::string path = request.pathInfo();
   if (path.empty() && hashE)
@@ -274,7 +294,7 @@ bool WebSession::useUglyInternalPaths() const
    * We need ugly ?_= internal paths if the server does not route
    * /app/foo to an application deployed as /app/
    */
-  if (applicationName_.empty())
+  if (applicationName_.empty() && controller_->server_)
     return controller_->server_->usesSlashExceptionForInternalPaths();
   else
     return false;
@@ -289,19 +309,18 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
 {
   switch (option) {
   case KeepInternalPath: {
-    std::string url, internalPath;
+    std::string url;
+
+    std::string internalPath
+      = app_ ? app_->internalPath() : env_->internalPath();
 
     if (useUglyInternalPaths()) {
-      internalPath = app_ ? app_->internalPath() : env_->internalPath();
-
       if (internalPath.length() > 1)
 	url = "?_=" + Utils::urlEncode(internalPath);
 
       if (isAbsoluteUrl(applicationUrl_))
 	url = applicationUrl_ + url;
     } else {
-      internalPath = WebSession::Handler::instance()->request()->pathInfo();
-
       if (!isAbsoluteUrl(applicationUrl_)) {
 	/*
 	 * Java application servers use ";jsessionid=..." which generates
@@ -331,7 +350,7 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
   case ClearInternalPath: {
     if (!isAbsoluteUrl(applicationUrl_)) {
       if (WebSession::Handler::instance()->request()->pathInfo().length() > 1)
-	return appendSessionQuery(baseUrl_ + applicationName_);
+	return appendSessionQuery(deploymentPath_);
       else
 	return appendSessionQuery(applicationName_);
     } else {
@@ -398,7 +417,7 @@ std::string WebSession::bookmarkUrl(const std::string& internalPath) const
   // there we always know the current request (?)
   if (!env_->ajax() && result.find("://") == std::string::npos
       && (env_->internalPath().length() > 1 || internalPath.length() > 1))
-    result = baseUrl_ + applicationName_;
+    result = deploymentPath_;
 
   return appendInternalPath(result, internalPath);
 }
@@ -582,11 +601,11 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 
 WebSession::Handler *WebSession::Handler::instance()
 {
-#if defined(WT_TARGET_JAVA) || defined(WT_THREADED)
+#ifdef WT_BOOST_THREADS
   return threadHandler_.get();
 #else
   return threadHandler_;
-#endif // WT_TARGET_JAVA || WT_THREADED
+#endif
 }
 
 bool WebSession::Handler::haveLock() const
@@ -617,7 +636,7 @@ WebSession::Handler::attachThreadToHandler(Handler *handler)
 {
   WebSession::Handler *result;
 
-#if defined(WT_TARGET_JAVA) || defined(WT_THREADED)
+#ifdef WT_BOOST_THREADS
   result = threadHandler_.release();
   threadHandler_.reset(handler);
 #else
@@ -633,7 +652,7 @@ void WebSession
 {
   attachThreadToHandler(0);
 
-#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#ifdef WT_BOOST_THREADS
   if (!session.get())
     return;
 
@@ -675,7 +694,7 @@ void WebSession
 #else
   session->log("error") << "WApplication::attachThread(): "
 			<< "needs Wt built with threading enabled";
-#endif // WT_THREADED || WT_TARGET_JAVA
+#endif
 }
 
 #ifdef WT_TARGET_JAVA
@@ -768,15 +787,15 @@ void WebSession::doRecursiveEventLoop()
 {
   Handler *handler = WebSession::Handler::instance();
 
-#if !defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
+#ifndef WT_BOOST_THREADS
   log("error") << "Cannot do recursive event loop without threads";
-#else // WT_THREADED
+#else
 
 #ifdef WT_TARGET_JAVA
   if (handler->request() && !WebController::isAsyncSupported())
-    throw WtException("Server push requires a Servlet 3.0 enabled servlet " 
-		      "container and an application with async-supported "
-		      "enabled.");
+    throw WtException("Recursive eventloop requires a Servlet 3.0 "
+		      "enabled servlet container and an application "
+		      "with async-supported enabled.");
 #endif
   
   /*
@@ -835,7 +854,7 @@ void WebSession::doRecursiveEventLoop()
   app_->notify(WEvent(WEvent::Impl(handler)));
 
   recursiveEventLoop_ = 0;
-#endif // !WT_THREADED && !WT_TARGET_JAVA
+#endif // WT_BOOST_THREADS
 }
 
 void WebSession::expire()
@@ -859,9 +878,9 @@ bool WebSession::unlockRecursiveEventLoop()
 
   newRecursiveEvent_ = true;
 
-#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#ifdef WT_BOOST_THREADS
   recursiveEvent_.notify_one();
-#endif // WT_THREADED
+#endif
 
   return true;
 }
@@ -1357,7 +1376,7 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
     hashE = request.getParameter("_");
 
   if (!request.pathInfo().empty() || (hashE && hashE->length() > 1)) {
-    std::string url = baseUrl() + applicationName();
+    std::string url = deploymentPath_;
 
     bool firstParameter = true;
     for (Http::ParameterMap::const_iterator i
@@ -1416,6 +1435,10 @@ void WebSession::pushUpdates()
 		     boost::weak_ptr<WebSession>(shared_from_this())));
 #endif // WT_TARGET_JAVA
     }
+  } else {
+#ifdef WT_BOOST_THREADS
+    updatesPendingEvent_.notify_one();
+#endif
   }
 }
 
@@ -1649,8 +1672,29 @@ void WebSession::notify(const WEvent& event)
 	    canWriteAsyncResponse_ = false;
 	  }
 
-	  if (*signalE == "poll" && !updatesPending_) {
-	    if (!asyncResponse_) {
+	  if (*signalE == "poll") {
+#ifdef WT_BOOST_THREADS
+	    /*
+	     * If we cannot do async I/O, we cannot suspend the current
+	     * request and return. Thus we need to block the thread, waiting
+	     * for a push update.
+	     */
+	    if (!WebController::isAsyncSupported()) {
+	      while (!updatesPending_) {
+#ifndef WT_TARGET_JAVA
+		updatesPendingEvent_.wait(handler.lock());
+#else
+		try {
+		  updatesPendingEvent_.wait();
+		} catch (InterruptedException ie) {
+		  ie.printStackTrace();
+		}
+#endif // WT_TARGET_JAVA
+	      }
+	    }
+#endif // WT_BOOST_THREADS
+
+	    if (!updatesPending_ && !asyncResponse_) {
 	      asyncResponse_ = handler.response();
 	      canWriteAsyncResponse_ = true;
 	      handler.setRequest(0, 0);

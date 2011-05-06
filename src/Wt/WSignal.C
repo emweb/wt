@@ -136,7 +136,7 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
 
   result << javaScript();
 
-  if (isExposedSignal()) {
+  {
     WApplication *app = WApplication::instance();
 
     result << app->javaScriptClass() << ".emit('"

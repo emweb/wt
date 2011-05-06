@@ -27,7 +27,8 @@ namespace Wt {
 WDialog::WDialog(const WString& windowTitle)
   : modal_(true),
     finished_(this),
-    recursiveEventLoop_(false)
+    recursiveEventLoop_(false),
+    addAutoJavaScript_(false)
 { 
   const char *TEMPLATE =
       "${shadow-x1-x2}"
@@ -109,12 +110,6 @@ WDialog::WDialog(const WString& windowTitle)
     app->setJavaScriptLoaded(THIS_JS);
   }
 
-  setJavaScriptMember("_a", "0;new " WT_CLASS ".WDialog("
-		    + app->javaScriptClass() + "," + jsRef() + ")");
-  app->addAutoJavaScript
-    ("{var obj = $('#" + id() + "').data('obj');"
-     "if (obj) obj.centerDialog();}");
-
   parent->addWidget(this);
 
   titleBar_ = new WContainerWidget();
@@ -131,14 +126,34 @@ WDialog::WDialog(const WString& windowTitle)
 
   saveCoverState(app, app->dialogCover());
 
-  setJavaScriptMember(WT_RESIZE_JS, "$('#" + id() + "').data('obj').wtResize");
-
   hide();
 }
 
 WDialog::~WDialog()
 {
   hide();
+}
+
+void WDialog::render(WFlags<RenderFlag> flags)
+{
+  WWidget::render(flags);
+
+  if (flags & RenderFull) {
+    WApplication *app = WApplication::instance();
+
+    setJavaScriptMember("_a", "0;new " WT_CLASS ".WDialog("
+			+ app->javaScriptClass() + "," + jsRef() + ")");
+
+    if (!addAutoJavaScript_) {
+      app->addAutoJavaScript
+	("{var obj = $('#" + id() + "').data('obj');"
+	 "if (obj) obj.centerDialog();}");
+      addAutoJavaScript_ = true;
+    }
+
+    setJavaScriptMember(WT_RESIZE_JS, 
+			"$('#" + id() + "').data('obj').wtResize");
+  }
 }
 
 void WDialog::rejectWhenEscapePressed()

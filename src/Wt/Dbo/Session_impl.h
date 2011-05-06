@@ -347,9 +347,11 @@ void Session::Mapping<C>
   }
 }
 
-template <class C> void Session::Mapping<C>::rereadAll()
+template <class C>
+void Session::Mapping<C>::rereadAll()
 {
-  for (typename Registry::iterator i = registry_.begin(); i != registry_.end(); ++i)
+  for (typename Registry::iterator i = registry_.begin();
+       i != registry_.end(); ++i)
     i->second->reread();
 }
 

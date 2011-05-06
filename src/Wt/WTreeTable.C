@@ -66,9 +66,6 @@ void WTreeTable::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  if (!app->environment().ajax())
-    return;
-
   const char *THIS_JS = "js/WTreeTable.js";
 
   if (!app->javaScriptLoaded(THIS_JS)) {

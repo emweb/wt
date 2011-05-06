@@ -314,7 +314,7 @@ void DomElement::setEvent(const char *eventName,
     js << "o=this;";
 
     if (anchorClick)
-      js << "if(e.ctrlKey||e.metaKey)return true;else{";
+      js << "if(e.ctrlKey||e.metaKey||(" WT_CLASS ".button(e) > 1))return true;else{";
 
     if (isExposed)
       js << app->javaScriptClass() << "._p_.update(o,'"
@@ -997,7 +997,7 @@ void DomElement::asHTML(EscapeOStream& out,
   javaScript << javaScriptEvenWhenDeleted_ << javaScript_;
 
   for (unsigned i = 0; i < methodCalls_.size(); ++i)
-    javaScript << "$('#" << id_ << "').get(0)." << methodCalls_[i] << ';';
+    javaScript << "$('#" << id_ << "').get(0)." << methodCalls_[i] << ";\n";
 
   if (timeOut_ != -1)
     timeouts.push_back(TimeoutEvent(timeOut_, id_, timeOutJSRepeat_));

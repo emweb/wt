@@ -248,10 +248,9 @@ void WFormWidget::updateDom(DomElement& element, bool all)
 {
   const WEnvironment& env = WApplication::instance()->environment();
 
-  bool piggyBackChangeOnClick
-    = env.agentIsIE() && dynamic_cast<WAbstractToggleButton *>(this);
+  bool onChangeHandledElsewhere = dynamic_cast<WAbstractToggleButton *>(this);
 
-  if (!piggyBackChangeOnClick) {
+  if (!onChangeHandledElsewhere) {
     EventSignal<> *s = voidEventSignal(CHANGE_SIGNAL, false);
     if (s)
       updateSignalConnection(element, *s, "change", all);

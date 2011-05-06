@@ -1260,7 +1260,6 @@ if (html5History) {
     },
 
     initialize: function (stateField, histFrame, deployUrl) {
-      /* FIXME, should depend on ugly URL settings */
       if (deployUrl && deployUrl[deployUrl.length - 1] == '/') {
 _$_$if_UGLY_INTERNAL_PATHS_$_();
 	baseUrl = deployUrl + "?_=";
@@ -1551,6 +1550,7 @@ function onHashChange() {
     return;
   } else {
     currentHash = newLocation;
+    debugger;
     setTimeout(function() { update(null, 'hash', null, true); }, 1);
   }
 };
@@ -1971,7 +1971,7 @@ function load(fullapp) {
       return; // That's too soon baby.
 
     WT.history.initialize("Wt-history-field", "Wt-history-iframe",
-			  _$_DEPLOY_URL_$_);
+			  _$_DEPLOY_PATH_$_);
   }
 
   if (!("activeElement" in document)) {
@@ -2194,7 +2194,7 @@ _$_$if_WEB_SOCKETS_$_();
 	    var query = url.substr(url.indexOf('?'));
 	    wsurl = "ws" + location.protocol.substr(4)
 	      + "//" + location.hostname + ":"
-	     + location.port + _$_DEPLOY_URL_$_ + query;
+	     + location.port + _$_DEPLOY_PATH_$_ + query;
 	  }
 
 	  // console.log("Url: " + wsurl);

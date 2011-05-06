@@ -11,9 +11,13 @@
 #include <vector>
 
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#define WT_BOOST_THREADS
+#endif
+
+#ifdef WT_BOOST_THREADS
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
-#endif // WT_THREADED || WT_TARGET_JAVA
+#endif
 
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -145,7 +149,8 @@ public:
   // http://www.bigapp.com:1234/myapp/
   const std::string& absoluteBaseUrl() const { return absoluteBaseUrl_; }
 
-  const std::string& baseUrl() const { return baseUrl_; }
+  // /myapp/
+  const std::string& basePath() const { return basePath_; }
 
   std::string getCgiValue(const std::string& varName) const;
   std::string getCgiHeader(const std::string& headerName) const;
@@ -202,7 +207,7 @@ public:
     WebSession *session_;
 #ifndef WT_TARGET_JAVA
     boost::shared_ptr<WebSession> sessionPtr_;
-#endif // WT_TARGET_JAVA
+#endif
 
     WebRequest  *request_;
     WebResponse *response_;
@@ -216,9 +221,9 @@ public:
 
   void handleRequest(Handler& handler);
 
-#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#ifdef WT_BOOST_THREADS
   boost::mutex& mutex() { return mutex_; }
-#endif // WT_THREADED || WT_TARGET_JAVA
+#endif
 
   void setLoaded();
 
@@ -244,12 +249,12 @@ private:
   void checkTimers();
   void hibernate();
 
-#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#ifdef WT_BOOST_THREADS
   boost::mutex mutex_;
   static boost::thread_specific_ptr<Handler> threadHandler_;
 #else
   static Handler *threadHandler_;
-#endif // WT_TARGET_JAVA
+#endif
 
   EntryPointType type_;
   std::string    favicon_;
@@ -260,21 +265,27 @@ private:
   WebController *controller_;
   WebRenderer   renderer_;
   std::string   applicationName_;
-  std::string   bookmarkUrl_, baseUrl_, absoluteBaseUrl_;
+  std::string   bookmarkUrl_, basePath_, absoluteBaseUrl_;
   std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
   WebResponse  *asyncResponse_, *bootStyleResponse_;
-  bool          updatesPending_, canWriteAsyncResponse_, noBootStyleResponse_;
+  bool          canWriteAsyncResponse_, noBootStyleResponse_;
   bool          progressiveBoot_;
 
 #ifndef WT_TARGET_JAVA
   Time             expire_;
-#endif // WT_TARGET_JAVA
+#endif
 
-#if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
+#ifdef WT_BOOST_THREADS
   boost::condition recursiveEvent_;
-#endif // WT_THREADED
+#endif
   bool             newRecursiveEvent_;
+
+  /* For synchronous handling */
+#ifdef WT_BOOST_THREADS
+  boost::condition updatesPendingEvent_;
+#endif
+  bool             updatesPending_;
 
   WEnvironment  embeddedEnv_;
   WEnvironment *env_;
