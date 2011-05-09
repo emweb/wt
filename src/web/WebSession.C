@@ -903,6 +903,8 @@ void WebSession::handleRequest(Handler& handler)
      * not for a new session.
      */
     if ((wtdE && *wtdE == sessionId_) || state_ == JustCreated) {
+      if (origin == "null")
+	origin = "*";
       handler.response()->addHeader("Access-Control-Allow-Origin", origin);
       handler.response()->addHeader("Access-Control-Allow-Credentials", "true");
 
