@@ -1550,7 +1550,6 @@ function onHashChange() {
     return;
   } else {
     currentHash = newLocation;
-    debugger;
     setTimeout(function() { update(null, 'hash', null, true); }, 1);
   }
 };
