@@ -606,6 +606,15 @@ void WApplication::quit()
   quited_ = true;
 }
 
+WWidget *WApplication::findWidget(const std::string& name)
+{
+  WWidget *result = domRoot_->find(name);
+  if (!result && domRoot2_)
+    result = domRoot2_->find(name);
+
+  return result;
+}
+
 void WApplication::doUnload()
 {
   const Configuration& conf = session_->controller()->configuration();

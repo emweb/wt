@@ -152,7 +152,7 @@ WT_DECLARE_WT_MEMBER
        if (rowHeaderCount)
 	 hc = hc.firstChild; // Wt-tv-rowc
 
-       if (WT.isHidden(el))
+       if (WT.isHidden(el) || (headers.offsetWidth - hc.offsetWidth < 8))
 	 return;
 
        for (var i=0, length=hc.childNodes.length; i < length; ++i) {

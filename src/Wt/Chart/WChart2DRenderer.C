@@ -720,6 +720,7 @@ WChart2DRenderer::~WChart2DRenderer()
 void WChart2DRenderer::initLayout()
 {
   calcChartArea();           // sets chartArea_
+
   prepareAxes();             // provides logical dimensions to the axes
 }
 
@@ -824,16 +825,16 @@ void WChart2DRenderer::calcChartArea()
   if (chart_->orientation() == Vertical)
     chartArea_ = WRectF(chart_->plotAreaPadding(Left),
 			chart_->plotAreaPadding(Top),
-			std::max(1, width_ - chart_->plotAreaPadding(Left)
+			std::max(10, width_ - chart_->plotAreaPadding(Left)
 				 - chart_->plotAreaPadding(Right)),
-			std::max(1, height_ - chart_->plotAreaPadding(Top)
+			std::max(10, height_ - chart_->plotAreaPadding(Top)
 				 - chart_->plotAreaPadding(Bottom)));
   else
     chartArea_ = WRectF(chart_->plotAreaPadding(Top),
 			chart_->plotAreaPadding(Right),
-			std::max(1, width_ - chart_->plotAreaPadding(Top)
+			std::max(10, width_ - chart_->plotAreaPadding(Top)
 				 - chart_->plotAreaPadding(Bottom)),
-			std::max(1, height_ - chart_->plotAreaPadding(Right)
+			std::max(10, height_ - chart_->plotAreaPadding(Right)
 				 - chart_->plotAreaPadding(Left)));
 }
 

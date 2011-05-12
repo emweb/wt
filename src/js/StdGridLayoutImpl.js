@@ -420,8 +420,8 @@ WT_DECLARE_WT_MEMBER
 	     if (td.colSpan == 1 && ci == columni && td.childNodes.length==1) {
 	       var ch = td.firstChild;
 	       var w = width - self.marginH(ch);
-	       ch.style.width = w + 'px';
 
+	       ch.style.width = w + 'px';
 	       break;
 	     }
 
@@ -538,9 +538,13 @@ WT_DECLARE_WT_MEMBER
 
      if (WT.pctself(col, 'width') == 0)
        adjustColumn(ci, colw + delta);
+     else
+       WT.getElement(id).dirty = true;
 
      if (WT.pctself(coln, 'width') == 0)
        adjustColumn(ci + 1, colnw - delta);
+     else
+       WT.getElement(id).dirty = true;
 
      window.onresize();
    }

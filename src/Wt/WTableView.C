@@ -319,6 +319,16 @@ int WTableView::spannerCount(const Side side) const
   }
 }
 
+void WTableView::setRenderedHeight(double th)
+{
+  table_->setHeight(th);
+  headerColumnsTable_->setHeight(th);
+  for (int i = 0; i < headerColumnsTable_->count() + table_->count(); ++i) {
+    ColumnWidget *w = columnContainer(i);
+    w->setHeight(th);
+  }
+}
+
 void WTableView::setSpannerCount(const Side side, const int count)
 {
   assert(ajaxMode());
@@ -332,15 +342,13 @@ void WTableView::setSpannerCount(const Side side, const int count)
     headerColumnsTable_->setOffsets(to, Top);
 
     double th = size * rowHeight().toPixels();
-    table_->setHeight(th);
-    headerColumnsTable_->setHeight(th);
+    setRenderedHeight(th);
     break;
   }
   case Bottom: {
     int size = model()->rowCount(rootIndex()) - spannerCount(Top) - count;
     double th = size * rowHeight().toPixels();
-    table_->setHeight(th);
-    headerColumnsTable_->setHeight(th);
+    setRenderedHeight(th);
     break;
   }
   case Left: {
@@ -891,6 +899,7 @@ WTableView::ColumnWidget::ColumnWidget(WTableView *view, int column)
   setPositionScheme(Absolute);
   setOffsets(0, Top | Left);
   setOverflow(OverflowHidden);
+  setHeight(view->table_->height());
 
   if (column >= view->rowHeaderCount()) {
     if (view->table_->count() == 0
@@ -988,8 +997,7 @@ void WTableView::setRowHeight(const WLength& rowHeight)
       canvas_->resize(canvas_->width(), ch);
       headerColumnsCanvas_->setHeight(ch);
       double th = renderedRowCount * rowHeight.toPixels();
-      table_->setHeight(th);
-      headerColumnsTable_->setHeight(th);
+      setRenderedHeight(th);
     }
   } else // Plain HTML mode
     resize(width(), height());

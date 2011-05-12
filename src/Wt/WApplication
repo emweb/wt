@@ -265,6 +265,17 @@ public:
    */
   WContainerWidget *root() const { return widgetRoot_; }
 
+  /*! \brief Finds a widget by name.
+   *
+   * This finds a widget in the application's widget hierarchy. It
+   * does not only consider widgets in the root(), but also widgets
+   * that are placed outside this root, such as in dialogs, or other
+   * "roots" such as all the bound widgets in a widgetset application.
+   *
+   * \sa WWidget::setObjectName(), WWidget::find()
+   */
+  WWidget *findWidget(const std::string& name);
+
   /** @name Style sheets and CSS
    */
   //@{

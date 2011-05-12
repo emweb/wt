@@ -242,6 +242,7 @@ private:
 
   bool ajaxMode() const { return table_ != 0; }
   double canvasHeight() const;
+  void setRenderedHeight(double th);
 };
 
 }

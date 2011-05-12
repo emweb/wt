@@ -343,6 +343,9 @@ void WAxis::prepareRender(WChart2DRenderer& renderer) const
   totalRenderLength
     -= SEGMENT_MARGIN * (segments_.size() - 1) + clipMin + clipMax;
 
+  if (totalRenderLength <= 0)
+    return;
+
   int rc = 0;
   if (chart_->model())
     rc = chart_->model()->rowCount();

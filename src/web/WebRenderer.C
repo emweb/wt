@@ -468,10 +468,10 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
      * continue. TO BE DONE.
      */
     response.out()
-      << collectedJS1_.str()
-      << collectedJS2_.str()
       << session_.app()->javaScriptClass()
-      << "._p_.response(" << expectedAckId_ << ");";
+      << "._p_.response(" << expectedAckId_ << ");"
+      << collectedJS1_.str()
+      << collectedJS2_.str();
 
     if (response.isWebSocketRequest() || response.isWebSocketMessage())
       setJSSynced(false);

@@ -21,14 +21,23 @@ WT_DECLARE_WT_MEMBER
 
    var scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
 
-   contentsContainer.onscroll = function() {
-     headerContainer.scrollLeft = contentsContainer.scrollLeft;
-     headerColumnsContainer.scrollTop = contentsContainer.scrollTop;
+   /*
+    * We need to remember this for when going through a hide()
+    * show() cycle.
+    */
+   var scrollTop = 0, scrollLeft = 0;
 
-     if (contentsContainer.scrollTop < scrollY1
+   contentsContainer.onscroll = function() {
+     scrollLeft = headerContainer.scrollLeft
+		   = contentsContainer.scrollLeft;
+     scrollTop = headerColumnsContainer.scrollTop
+		    = contentsContainer.scrollTop;
+
+     if (contentsContainer.clientWidth && contentsContainer.clientHeight
+         && (contentsContainer.scrollTop < scrollY1
 	 || contentsContainer.scrollTop > scrollY2
 	 || contentsContainer.scrollLeft < scrollX1
-	 || contentsContainer.scrollLeft > scrollX2)
+	 || contentsContainer.scrollLeft > scrollX2))
        APP.emit(el, 'scrolled', contentsContainer.scrollLeft,
 	        contentsContainer.scrollTop, contentsContainer.clientWidth,
 	        contentsContainer.clientHeight);
@@ -328,6 +337,14 @@ WT_DECLARE_WT_MEMBER
      if (WT.isHidden(el))
        return;
 
+     if (!WT.isIE && (scrollTop != contentsContainer.scrollTop
+         || scrollLeft != contentsContainer.scrollLeft)) {
+       headerContainer.scrollLeft = contentsContainer.scrollLeft
+				      = scrollLeft;
+       headerColumnsContainer.scrollTop = contentsContainer.scrollTop
+					    = scrollTop;
+     }
+
      var tw = el.offsetWidth - WT.px(el, 'borderLeftWidth')
 	      - WT.px(el, 'borderRightWidth');
 
@@ -339,7 +356,6 @@ WT_DECLARE_WT_MEMBER
      if (tw > 200  // XXX: IE's incremental rendering foobars completely
          && (tw != contentsContainer.tw)) {
        contentsContainer.tw = tw;
-
 
        contentsContainer.style.width = (tw + scrollwidth) + 'px';
        headerContainer.style.width = tw + 'px';

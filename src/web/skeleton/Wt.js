@@ -149,8 +149,13 @@ this.trace = function(v, start) {
     console.log("[" + diff + "]: " + v);
 };
 
+function host(url) {
+  var parts = url.split('/');
+  return parts[2];
+}
+
 this.initAjaxComm = function(url, handler) {
-  var crossDomain = url.indexOf("://") != -1;
+  var crossDomain = url.indexOf("://") != -1 && host(url) != window.location.host;
 
   function createRequest(method, url) {
     var request = null;
@@ -1234,7 +1239,7 @@ if (html5History) {
       cb = onStateChange;
 
       function onPopState(event) {
-	var p = window.location.pathname + window.location.search;
+	var p = window.location.pathname;
 	var newState = p.substr(baseUrl.length);
 	if (newState != currentState) {
 	  currentState = newState;
@@ -1276,9 +1281,17 @@ _$_$endif_$_();
     navigate: function (state, generateEvent) {
       currentState = state;
 
-      var url = baseUrl + state;
+      var url = baseUrl + state + window.location.search;
 
-      window.history.pushState(state, document.title, url);
+      try {
+	window.history.pushState(state, document.title, url);
+      } catch (error) {
+	/*
+	 * In case we are wrong about our baseUrl or base href
+	 * In any case, this shouldn't be fatal.
+	 */
+	console.log(error.toString());
+      }
 
       if (generateEvent)
 	cb(state);
@@ -2498,6 +2511,7 @@ ImagePreloader.prototype.onload = function() {
 };
 
 function enableInternalPaths(initialHash) {
+  currentHash = initialHash;
   WT.history.register(initialHash, onHashChange);
 }
 
