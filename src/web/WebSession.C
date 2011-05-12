@@ -48,6 +48,18 @@ namespace {
   bool isAbsoluteUrl(const std::string& url) {
     return url.find("://") != std::string::npos;
   }
+
+  std::string host(const std::string& url) {
+    std::size_t pos = 0;
+    for (unsigned i = 0; i < 3; ++i) { 
+      pos = url.find('/', pos);
+      if (pos == std::string::npos)
+	return url;
+      else
+	++pos;
+    }
+    return url.substr(0, pos);
+  }
 }
 
 namespace Wt {
@@ -271,6 +283,13 @@ void WebSession::init(const WebRequest& request)
   }
 #endif
 
+  if (useAbsoluteUrls) {
+    std::string::size_type slashpos = absoluteBaseUrl_.rfind('/');
+    if (slashpos != std::string::npos
+	&& slashpos != absoluteBaseUrl_.length() - 1)
+      absoluteBaseUrl_ = absoluteBaseUrl_.substr(0, slashpos + 1);
+  }
+
   bookmarkUrl_ = applicationName_;
 
   if (applicationName_.empty())
@@ -349,7 +368,7 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
   }
   case ClearInternalPath: {
     if (!isAbsoluteUrl(applicationUrl_)) {
-      if (WebSession::Handler::instance()->request()->pathInfo().length() > 1)
+      if (pagePathInfo_.length() > 1)
 	return appendSessionQuery(deploymentPath_);
       else
 	return appendSessionQuery(applicationName_);
@@ -362,6 +381,43 @@ std::string WebSession::bootstrapUrl(const WebResponse& response,
   }
 
   return std::string();
+}
+
+std::string WebSession::fixRelativeUrl(const std::string& url) const
+{
+  if (isAbsoluteUrl(url))
+    return url;
+
+  if (url.length() > 0 && url[0] == '#')
+    return url;
+
+  if (!isAbsoluteUrl(applicationUrl_)) {
+    if (url.empty() || url[0] == '/')
+      return url;
+    else {
+      std::string rel = "";
+
+      for (unsigned i = 0; i < pagePathInfo_.length(); ++i) {
+	if (pagePathInfo_[i] == '/')
+	  rel += "../";
+      }
+
+      return rel + url;
+    }
+  } else
+    return makeAbsoluteUrl(url);
+}
+
+std::string WebSession::makeAbsoluteUrl(const std::string& url) const
+{
+  if (isAbsoluteUrl(url))
+    return url;
+  else {
+    if (url.empty() || url[0] != '/')
+      return absoluteBaseUrl_ + url;
+    else
+      return host(absoluteBaseUrl_) + url;
+  }
 }
 
 std::string WebSession::mostRelativeUrl(const std::string& internalPath) const
@@ -1377,8 +1433,13 @@ std::string WebSession::ajaxCanonicalUrl(const WebResponse& request) const
   if (applicationName_.empty())
     hashE = request.getParameter("_");
 
-  if (!request.pathInfo().empty() || (hashE && hashE->length() > 1)) {
-    std::string url = deploymentPath_;
+  if (!pagePathInfo_.empty() || (hashE && hashE->length() > 1)) {
+    std::string url;
+    if (applicationName_.empty()) {
+      url = fixRelativeUrl(".");
+      url = url.substr(0, url.length() - 1);
+    } else
+      url = fixRelativeUrl(applicationName_);
 
     bool firstParameter = true;
     for (Http::ParameterMap::const_iterator i
@@ -1910,12 +1971,14 @@ void WebSession::serveError(Handler& handler, const std::string& e)
 
 void WebSession::serveResponse(Handler& handler)
 {
+  if (handler.response()->responseType() == WebResponse::Page)
+    pagePathInfo_ = handler.request()->pathInfo();
+
   /*
    * If the request is a web socket message, then we should not actually
    * render -- there may be more messages following.
    */
   if (!handler.request()->isWebSocketMessage()) {
-
     /*
      * In any case, flush the style request when we are serving a new
      * page (without Ajax) or the main script (with Ajax).

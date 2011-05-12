@@ -112,10 +112,8 @@ public:
    */
 
   const std::string& applicationName() const { return applicationName_; }
-
-  // (http://www.bigapp.com) /myapp/app.wt?wtd=ABCD
-  const std::string applicationUrl() const { return applicationUrl_ + sessionQuery(); }
-
+  const std::string applicationUrl() const
+    { return applicationUrl_ + sessionQuery(); }
   const std::string& deploymentPath() const { return deploymentPath_; }
 
   bool useUglyInternalPaths() const;
@@ -140,17 +138,14 @@ public:
   std::string bootstrapUrl(const WebResponse& response, BootstrapOption option)
     const;
 
+  std::string fixRelativeUrl(const std::string& url) const;
+  std::string makeAbsoluteUrl(const std::string& url) const;
+
   // (http://www.bigapp.com/myapp/) app.wt/internal_path
   std::string bookmarkUrl(const std::string& internalPath) const;
 
   // tries to figure out the current bookmark url (from the app or otherwise)
   std::string bookmarkUrl() const;
-
-  // http://www.bigapp.com:1234/myapp/
-  const std::string& absoluteBaseUrl() const { return absoluteBaseUrl_; }
-
-  // /myapp/
-  const std::string& basePath() const { return basePath_; }
 
   std::string getCgiValue(const std::string& varName) const;
   std::string getCgiHeader(const std::string& headerName) const;
@@ -268,6 +263,7 @@ private:
   std::string   bookmarkUrl_, basePath_, absoluteBaseUrl_;
   std::string   applicationUrl_, deploymentPath_;
   std::string   redirect_;
+  std::string   pagePathInfo_;
   WebResponse  *asyncResponse_, *bootStyleResponse_;
   bool          canWriteAsyncResponse_, noBootStyleResponse_;
   bool          progressiveBoot_;

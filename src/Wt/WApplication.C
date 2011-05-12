@@ -560,45 +560,17 @@ void WApplication::setConfirmCloseMessage(const WString& message)
 
 std::string WApplication::url() const
 {
-  return fixRelativeUrl(session_->applicationUrl());
+  return fixRelativeUrl(session_->applicationName());
 }
 
 std::string WApplication::makeAbsoluteUrl(const std::string& url) const
 {
-  if (url.find("://") != std::string::npos)
-    return url;
-  else {
-    if (!url.empty() && url[0] == '/')
-      return environment().urlScheme() + "://" + environment().hostName() + url;
-    else
-      return session_->absoluteBaseUrl() + url;
-  }
+  return session_->makeAbsoluteUrl(url);
 }
 
 std::string WApplication::fixRelativeUrl(const std::string& url) const
 {
-  if (url.find("://") != std::string::npos)
-    return url;
-
-  if (url.length() > 0 && url[0] == '#')
-    return url;
-
-  if (session_->type() == Application) {
-    if (!environment().javaScript()
-	&& !WebSession::Handler::instance()->request()->pathInfo().empty())
-      // This will break reverse proxies:
-      // We could do a '../path/' trick? we could do this to correct
-      // for the current internal path: as many '../' as there are
-      // internal path folders. but why bother ? we need to fix URLs
-      // in external resources anyway for reverse proxies
-      if (!url.empty() && url[0] == '/')
-	return /*session_->basePath() + url.substr(1) */ url;
-      else
-	return session_->basePath() + url;
-    else
-      return url;
-  } else
-    return makeAbsoluteUrl(url);
+  return session_->fixRelativeUrl(url);
 }
 
 void WApplication::quit()
