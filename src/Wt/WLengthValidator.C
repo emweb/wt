@@ -9,7 +9,6 @@
 #include "Wt/WLengthValidator"
 #include "Wt/WApplication"
 
-#include "JavaScriptLoader.h"
 #include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
@@ -122,12 +121,7 @@ WValidator::State WLengthValidator::validate(WT_USTRING& input) const
 
 void WLengthValidator::loadJavaScript(WApplication *app)
 {
-  const char *THIS_JS = "js/WLengthValidator.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WLengthValidator", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WLengthValidator.js", "WLengthValidator", wtjs1);
 }
 
 std::string WLengthValidator::javaScriptValidate() const

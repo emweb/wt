@@ -28,7 +28,7 @@
  */
 
 WT_DECLARE_WT_MEMBER
-(2, "ctor.glMatrix",
+(2, JavaScriptObject, "glMatrix",
   (function() {
 /*
  * vec3 - 3 Dimensional Vector

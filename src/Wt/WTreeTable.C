@@ -14,8 +14,6 @@
 #include "Wt/WText"
 #include "Wt/WTreeTableNode"
 
-#include "JavaScriptLoader.h"
-
 #ifndef WT_DEBUG_JS
 #include "js/WTreeTable.min.js"
 #endif
@@ -66,12 +64,7 @@ void WTreeTable::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  const char *THIS_JS = "js/WTreeTable.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WTreeTable", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WTreeTable.js", "WTreeTable", wtjs1);
 
   /*
    * We should really resolve this: we use setJavaScriptMember()

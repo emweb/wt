@@ -165,7 +165,7 @@ public:
 
   /*! \brief Hide/unhide the widget.
    */
-  void setHidden(bool hidden);
+  virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation());
 
   /*! \brief Sets the bottom of the valid date range.
    */

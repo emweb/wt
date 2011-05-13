@@ -16,8 +16,31 @@
  * Silk screen
  */
 .Wt-dialogcover {
-    background: #CCCCCC;
+    background: rgb(204, 204, 204); /* For IE, ... */
+    background: rgba(204, 204, 204, 0.5);
+    height: 100%; width: 100%;
+    top: 0px; left: 0px;
+    position: fixed;
 }
+
+/*
+ * WStackedWidget
+ */
+.Wt-animated {
+    overflow: hidden;
+    position: relative;
+}
+
+/* This improves it on iPad and reduces artifacts on Safari.
+.Wt-animated > * {
+    -webkit-transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+}
+
+.Wt-animated h3 {
+    -webkit-transform: translate3d(0,0,0);
+}
+*/
 
 /*
  * WCalendar

@@ -282,4 +282,9 @@ void WTabWidget::onItemSelected(WMenuItem *item)
   currentChanged_.emit(menu_->currentIndex());
 }
 
+WStackedWidget *WTabWidget::contentsStack() const
+{
+  return menu_->contentsStack();
+}
+
 }

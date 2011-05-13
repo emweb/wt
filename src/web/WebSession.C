@@ -588,10 +588,6 @@ WebSession::Handler::Handler()
     request_(0),
     response_(0)
 {
-#ifdef WT_TARGET_JAVA
-  locked_ = true;
-#endif // WT_TARGET_JAVA
-
   init();
 }
 
@@ -609,16 +605,14 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
     request_(0),
     response_(0)
 {
+  if (takeLock) {
 #ifdef WT_THREADED
-  if (takeLock)
     lock_.lock();
 #endif
 #ifdef WT_TARGET_JAVA
-  if (takeLock) {
     session->mutex().lock();
-    locked_ = true;
-  }
 #endif // WT_TARGET_JAVA
+  }
 
   init();
 }
@@ -649,7 +643,6 @@ WebSession::Handler::Handler(boost::shared_ptr<WebSession> session,
 {
 #ifdef WT_TARGET_JAVA
   session->mutex().lock();
-  locked_ = true;
 #endif
 
   init();
@@ -669,12 +662,12 @@ bool WebSession::Handler::haveLock() const
 #ifdef WT_THREADED
   return lock_.owns_lock();
 #else
-#ifdef WT_TARGET_JAVA
-  return locked_;
-#else
+#  ifdef WT_TARGET_JAVA
+  return session_->mutex().owns_lock();
+#  else
   return false;
+#  endif
 #endif
-#endif // WT_THREADED
 }
 
 void WebSession::Handler::init()
@@ -756,7 +749,7 @@ void WebSession
 #ifdef WT_TARGET_JAVA
 void WebSession::Handler::release()
 {
-  if (locked_)
+  if (session_->mutex().owns_lock())
     session_->mutex().unlock();
 
   attachThreadToHandler(prevHandler_);
@@ -891,11 +884,7 @@ void WebSession::doRecursiveEventLoop()
     recursiveEvent_.wait(handler->lock());
 #else
   while (!newRecursiveEvent_)
-    try {
-      recursiveEvent_.wait();
-    } catch (InterruptedException ie) {
-      ie.printStackTrace();
-    }
+    recursiveEvent_.wait();
 #endif
 
   if (state_ == Dead) {
@@ -1740,20 +1729,23 @@ void WebSession::notify(const WEvent& event)
 	    /*
 	     * If we cannot do async I/O, we cannot suspend the current
 	     * request and return. Thus we need to block the thread, waiting
-	     * for a push update.
+	     * for a push update. We wait at most twice as long as the client
+	     * will renew this poll connection.
 	     */
 	    if (!WebController::isAsyncSupported()) {
-	      while (!updatesPending_) {
+	      updatesPendingEvent_.notify_one();
+	      if (!updatesPending_) {
 #ifndef WT_TARGET_JAVA
 		updatesPendingEvent_.wait(handler.lock());
 #else
 		try {
-		  updatesPendingEvent_.wait();
-		} catch (InterruptedException ie) {
-		  ie.printStackTrace();
-		}
+		  updatesPendingEvent_.timed_wait
+		    (controller_->configuration().serverPushTimeout() * 2);
+		} catch (InterruptedException& e) { }
 #endif // WT_TARGET_JAVA
 	      }
+	      if (!updatesPending_)
+		return;
 	    }
 #endif // WT_BOOST_THREADS
 

@@ -18,8 +18,6 @@
 #include "SizeHandle.h"
 #include "DomElement.h"
 
-#include "JavaScriptLoader.h"
-
 #ifndef WT_DEBUG_JS
 #include "js/StdGridLayoutImpl.min.js"
 #include "js/WtResize.min.js"
@@ -47,8 +45,6 @@ StdGridLayoutImpl::StdGridLayoutImpl(WLayout *layout, Impl::Grid& grid)
 
     LOAD_JAVASCRIPT(app, THIS_JS, "StdLayout", wtjs1);
     LOAD_JAVASCRIPT(app, THIS_JS, "layouts", appjs1);
-
-    app->setJavaScriptLoaded(THIS_JS);
 
     app->addAutoJavaScript(app->javaScriptClass() + ".layouts.adjust();");
   }
@@ -97,14 +93,8 @@ void StdGridLayoutImpl::updateDom()
 
 const char *StdGridLayoutImpl::childrenResizeJS()
 {
-  const char *THIS_JS = "js/WtResize.js";
-
   WApplication *app = WApplication::instance();
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "ChildrenResize", wtjs10);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WtResize.js", "ChildrenResize", wtjs10);
 
   return WT_CLASS ".ChildrenResize";
 }
@@ -252,14 +242,11 @@ DomElement *StdGridLayoutImpl::createDomElement(bool fitWidth, bool fitHeight,
 	break;
       }
 
-  if (hasResizeHandles
-      && !app->javaScriptLoaded("js/StdGridLayoutImpl-resize.js")) {
+  if (hasResizeHandles) {
     SizeHandle::loadJavaScript(app);
 
     LOAD_JAVASCRIPT(app, "js/StdGridLayoutImpl.js",
 		    "StdLayout.prototype.initResize", wtjs2);
-
-    app->setJavaScriptLoaded("js/StdGridLayoutImpl-resize.js");
   }
 
   int totalColStretch = 0;

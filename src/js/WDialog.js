@@ -7,18 +7,14 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "ctor.WDialog",
- function(APP, el) {
+(1, JavaScriptConstructor, "WDialog",
+ function(APP, el, centerX, centerY) {
    jQuery.data(el, 'obj', this);
 
    var self = this;
    var titlebar = $(el).find(".titlebar").first().get(0);
    var WT = APP.WT;
    var dsx, dsy;
-   var moved = false;
-
-   if (el.style.left != '' || el.style.top != '')
-     moved = true;
 
    function handleMove(event) {
      var e = event||window.event;
@@ -27,7 +23,7 @@ WT_DECLARE_WT_MEMBER
      var wsize = WT.windowSize();
 
      if (wxy.x > 0 && wxy.x < wsize.x && wxy.y > 0 && wxy.y < wsize.y) {
-       moved = true;
+       centerX = centerY = false;
 
        el.style.left = (WT.pxself(el, 'left') + nowxy.x - dsx) + 'px';
        el.style.top = (WT.pxself(el, 'top') + nowxy.y - dsy) + 'px';
@@ -57,33 +53,33 @@ WT_DECLARE_WT_MEMBER
    this.centerDialog = function() {
      if (el.parentNode == null) {
        el = titlebar = null;
-       this.centerDialog = function() { };
        return;
      }
 
      if ((el.style.display != 'none') && (el.style.visibility != 'hidden')) {
-       if (!moved) {
-	 var ws = WT.windowSize();
-	 var w = el.offsetWidth, h = el.offsetHeight;
-	 el.style.left = Math.round((ws.x - w)/2
-	   + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
-	 el.style.top = Math.round((ws.y - h)/2
-	   + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
-	 el.style.marginLeft='';
-	 el.style.marginTop='';
+       var ws = WT.windowSize();
+       var w = el.offsetWidth, h = el.offsetHeight;
 
-	 if (el.style.height != '')
-	   self.wtResize(el, -1, h);
-       }
+       if (centerX)
+	 el.style.left = Math.round((ws.x - w)/2
+	     + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
+
+       if (centerY)
+	 el.style.top = Math.round((ws.y - h)/2
+	     + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
+
+       if (el.style.height != '')
+	 wtResize(el, -1, h);
+
        el.style.visibility = 'visible';
      }
    };
 
-   this.wtResize = function(self, w, h) {
+   function wtResize(self, w, h) {
      h -= 2; w -= 2; // 2 = dialog border
-     self.style.height= h + 'px';
+     self.style.height = h + 'px';
      if (w > 0)
-       self.style.width= w + 'px';
+       self.style.width = w + 'px';
      var c = self.lastChild;
      var t = c.previousSibling;
      h -= t.offsetHeight + 8; // 8 = body padding
@@ -93,4 +89,7 @@ WT_DECLARE_WT_MEMBER
 	 APP.layouts.adjust();
      }
    };
+
+   el.wtResize = wtResize;
+   el.wtPosition = this.centerDialog;
  });

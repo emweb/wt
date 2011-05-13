@@ -10,6 +10,7 @@
 #include <Wt/WEnvironment>
 #include <Wt/WLogger>
 #include <Wt/WMenuItem>
+#include <Wt/WStackedWidget>
 #include <Wt/WTable>
 #include <Wt/WTabWidget>
 #include <Wt/WText>
@@ -89,6 +90,9 @@ WWidget *WtHome::examples()
   result->addWidget(new WText(tr("home.examples")));
 
   examplesMenu_ = new WTabWidget(AlignTop | AlignJustify, result);
+
+  WAnimation animation(WAnimation::SlideInFromRight, WAnimation::EaseIn);
+  examplesMenu_->contentsStack()->setTransitionAnimation(animation, true);
 
   /*
    * The following code is functionally equivalent to:

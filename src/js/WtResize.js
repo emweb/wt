@@ -7,8 +7,8 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-  (10, "ChildrenResize",
-    function(self, w, h) {
+(10, JavaScriptFunction, "ChildrenResize",
+   function(self, w, h) {
       var j, jl, c, WT = this;
       self.style.height = h + 'px';
 

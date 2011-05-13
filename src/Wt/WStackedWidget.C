@@ -4,9 +4,14 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WApplication"
+#include "Wt/WEnvironment"
 #include "Wt/WStackedWidget"
 
 #include "StdGridLayoutImpl.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WStackedWidget.min.js"
+#endif
 
 #include <iostream>
 
@@ -26,6 +31,8 @@ void WStackedWidget::addWidget(WWidget *widget)
 
   if (currentIndex_ == -1)
     currentIndex_ = 0;
+  else
+    widget->hide();
 }
 
 int WStackedWidget::currentIndex() const
@@ -35,8 +42,8 @@ int WStackedWidget::currentIndex() const
 
 WWidget *WStackedWidget::currentWidget() const
 {
-  if (currentIndex_ >= 0)
-    return widget(currentIndex_);
+  if (currentIndex() >= 0)
+    return widget(currentIndex());
   else
     return 0;
 }
@@ -47,22 +54,72 @@ void WStackedWidget::insertWidget(int index, WWidget *widget)
 
   if (currentIndex_ == -1)
     currentIndex_ = 0;
+  else
+    widget->hide();
 }
 
 void WStackedWidget::removeChild(WWidget *child)
 {
   WContainerWidget::removeChild(child);
 
-  if (currentIndex_ >= count())
-    setCurrentIndex(count() - 1);
+  if (currentIndex_ >= count()) {
+    currentIndex_ = -1;
+    if (count() > 0)
+      setCurrentIndex(count() - 1);
+  }
+}
+
+void WStackedWidget::setTransitionAnimation(const WAnimation& animation,
+					    bool autoReverse)
+{
+  if (loadAnimateJS()) {
+    if (!animation.empty())
+      setStyleClass("Wt-animated");
+
+    animation_ = animation;
+    autoReverseAnimation_ = autoReverse;
+
+    setJavaScriptMember("wtAnimateChild", WT_CLASS ".WStackedWidget.animateChild");
+    setJavaScriptMember("wtAutoReverse", autoReverseAnimation_ ? "true" : "false");
+  }
 }
 
 void WStackedWidget::setCurrentIndex(int index)
 {
-  currentIndex_ = index;
+  setCurrentIndex(index, animation_, autoReverseAnimation_);
+}
 
-  for (int i = 0; i < count(); ++i)
-    widget(i)->setHidden(currentIndex_ != i);
+void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
+				     bool autoReverse)
+{
+  if (loadAnimateJS() && !animation.empty()
+      && (isRendered() || !canOptimizeUpdates())) {
+    WWidget *previous = currentWidget();
+
+    setJavaScriptMember("wtAutoReverse", autoReverse ? "true" : "false");
+
+    if (previous)
+      previous->animateHide(animation);
+    widget(index)->animateShow(animation);
+
+    currentIndex_ = index;
+  } else {
+    currentIndex_ = index;
+
+    for (int i = 0; i < count(); ++i)
+      widget(i)->setHidden(currentIndex_ != i);
+  }
+}
+
+bool WStackedWidget::loadAnimateJS()
+{
+  WApplication *app = WApplication::instance();
+
+  if (app->environment().agentIsWebKit()) {
+    LOAD_JAVASCRIPT(app, "js/WStackedWidget.js", "WStackedWidget", wtjs1);
+    return true;
+  } else
+    return false;
 }
 
 void WStackedWidget::setCurrentWidget(WWidget *widget)
@@ -72,14 +129,12 @@ void WStackedWidget::setCurrentWidget(WWidget *widget)
 
 DomElement *WStackedWidget::createDomElement(WApplication *app)
 {
-  setCurrentIndex(currentIndex_);
   return WContainerWidget::createDomElement(app);
 }
 
 void WStackedWidget::getDomChanges(std::vector<DomElement *>& result,
 				   WApplication *app)
 {
-  setCurrentIndex(currentIndex_);
   WContainerWidget::getDomChanges(result, app);
 }
 

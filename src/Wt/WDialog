@@ -193,7 +193,7 @@ public:
    *
    * \sa done(DialogCode r), accept(), reject()
    */
-  DialogCode exec();
+  DialogCode exec(const WAnimation& animation = WAnimation());
 
   /*! \brief Stops the dialog.
    *
@@ -257,7 +257,8 @@ public:
    */
   bool isModal() const { return modal_; }
 
-  virtual void setHidden(bool hidden);
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation());
 
 protected:
   void render(WFlags<RenderFlag> flags);
@@ -279,7 +280,7 @@ private:
 
   bool recursiveEventLoop_;
 
-  bool addAutoJavaScript_;
+  bool initialized_;
 
   void saveCoverState(WApplication *app, WContainerWidget *cover);
   void restoreCoverState(WApplication *app, WContainerWidget *cover);

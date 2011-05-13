@@ -12,7 +12,6 @@
 #include "Wt/WString"
 
 #include "Utils.h"
-#include "JavaScriptLoader.h"
 #include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
@@ -104,12 +103,7 @@ WValidator::State WRegExpValidator::validate(WT_USTRING& input) const
 
 void WRegExpValidator::loadJavaScript(WApplication *app)
 {
-  const char *THIS_JS = "js/WRegExpValidator.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WRegExpValidator", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WRegExpValidator.js", "WRegExpValidator", wtjs1);
 }
 
 std::string WRegExpValidator::javaScriptValidate() const

@@ -99,7 +99,11 @@ WApplication::WApplication(const WEnvironment& env)
     theme_("default"),
     styleSheetsAdded_(0),
     exposeSignals_(true),
+    newBeforeLoadJavaScript_(0),
     autoJavaScriptChanged_(false),
+#ifndef WT_DEBUG_JS
+    newJavaScriptPreamble_(0),
+#endif // WT_DEBUG_JS
     showLoadingIndicator_("showload", this),
     hideLoadingIndicator_("hideload", this),
     unloaded_(this, "Wt-unload"),
@@ -234,6 +238,9 @@ WApplication::WApplication(const WEnvironment& env)
       styleSheet_.addRule("img.Wt-indeterminate", "margin: 4px 3px 0px 4px;");
     else
       styleSheet_.addRule("img.Wt-indeterminate", "margin: 3px 3px 0px 4px;");
+
+  // if (environment().agentIsWebKit())
+  useStyleSheet(WApplication::resourcesUrl() + "transitions.css");
 
   setLoadingIndicator(new WDefaultLoadingIndicator());
 
@@ -837,11 +844,14 @@ void WApplication::enableAjax()
 {
   enableAjax_ = true;
 
-  session_->renderer().beforeLoadJS_ << newBeforeLoadJavaScript_;
-  newBeforeLoadJavaScript_.clear();
-
-  session_->renderer().beforeLoadJS_ << afterLoadJavaScript_;
-  afterLoadJavaScript_.clear();
+#ifdef WT_TARGET_JAVA
+  try {
+#endif
+    streamBeforeLoadJavaScript(session_->renderer().beforeLoadJS_, false);
+    streamAfterLoadJavaScript(session_->renderer().beforeLoadJS_);
+#ifdef WT_TARGET_JAVA
+  } catch (std::io_exception& e) { }
+#endif
 
   domRoot_->enableAjax();
 
@@ -1110,13 +1120,6 @@ void WApplication::enableUpdates(bool enabled)
 
 void WApplication::triggerUpdate()
 {
-#ifdef WT_TARGET_JAVA
-  if (!WebController::isAsyncSupported())
-    throw WtException("Server push requires a Servlet 3.0 enabled servlet " 
-		      "container and an application with async-supported "
-		      "enabled.");
-#endif
-
   if (WebSession::Handler::instance()->request())
     return;
 
@@ -1292,7 +1295,7 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
 void WApplication::UpdateLock::release()
 {
   std::cerr << "Releasing update lock" << std::endl;
-  if (WebSession::Handler::instance()->request()) {
+  if (WebSession::Handler::instance()) {
     std::cerr << "Releasing handler" << std::endl;
     WebSession::Handler::instance()->release();
   }
@@ -1309,8 +1312,7 @@ void WApplication::doJavaScript(const std::string& javascript,
   } else {
     beforeLoadJavaScript_ += javascript;
     beforeLoadJavaScript_ += '\n';
-    newBeforeLoadJavaScript_ += javascript;
-    newBeforeLoadJavaScript_ += '\n';
+    newBeforeLoadJavaScript_ += javascript.length() + 1;
   }
 }
 
@@ -1326,24 +1328,24 @@ void WApplication::declareJavaScriptFunction(const std::string& name,
   doJavaScript(javaScriptClass_ + '.' + name + '=' + function + ';', false);
 }
 
-std::string WApplication::afterLoadJavaScript()
+void WApplication::streamAfterLoadJavaScript(std::ostream& out)
 {
-  std::string result = afterLoadJavaScript_;
+  out << afterLoadJavaScript_;
   afterLoadJavaScript_.clear();
-  return result;
 }
 
-std::string WApplication::newBeforeLoadJavaScript()
+void WApplication::streamBeforeLoadJavaScript(std::ostream& out, bool all)
 {
-  std::string result = newBeforeLoadJavaScript_;
-  newBeforeLoadJavaScript_.clear();
-  return result;
-}
+  streamJavaScriptPreamble(out, all);
 
-std::string WApplication::beforeLoadJavaScript()
-{
-  newBeforeLoadJavaScript_.clear();
-  return beforeLoadJavaScript_;
+  if (!all) {
+    if (newBeforeLoadJavaScript_)
+      out << beforeLoadJavaScript_.substr(beforeLoadJavaScript_.length()
+					  - newBeforeLoadJavaScript_);
+  } else {
+    out << beforeLoadJavaScript_;
+  }
+  newBeforeLoadJavaScript_ = 0;
 }
 
 void WApplication::notify(const WEvent& e)
@@ -1365,8 +1367,15 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
   ScriptLibrary sl(uri, symbol);
 
   if (Utils::indexOf(scriptLibraries_, sl) == -1) {
-    sl.beforeLoadJS = newBeforeLoadJavaScript_;
-    newBeforeLoadJavaScript_.clear();
+#ifdef WT_TARGET_JAVA
+    try {
+#endif
+      std::stringstream ss;
+      streamBeforeLoadJavaScript(ss, false);
+      sl.beforeLoadJS = ss.str();
+#ifdef WT_TARGET_JAVA
+    } catch (std::io_exception& e) { return false; }
+#endif
 
     scriptLibraries_.push_back(sl);
     ++scriptLibrariesAdded_;
@@ -1410,30 +1419,85 @@ SoundManager *WApplication::getSoundManager()
   return soundManager_;
 }
 
+
 #ifdef WT_DEBUG_JS
-#define xstr(s) str(s)
-#define str(s) #s
+
 void WApplication::loadJavaScript(const char *jsFile)
 {
   if (!javaScriptLoaded(jsFile)) {
-    std::string fname = std::string( xstr(WT_DEBUG_JS) "/") + jsFile;
-    std::string jstext = Utils::readJavaScriptFile(fname);
-    doJavaScript("window.currentApp = " + javaScriptClass_ + ";"
-		 + jstext, false);
-
-    setJavaScriptLoaded(jsFile);
+    javaScriptLoaded_.insert(jsFile);
+    newJavaScriptToLoad_.push_back(jsFile);
   }
 }
-#endif
 
-bool WApplication::javaScriptLoaded(const char *jsFile)
+void WApplication::streamJavaScriptPreamble(std::ostream& out, bool all)
 {
-  return javaScriptLoaded_.find(jsFile) != javaScriptLoaded_.end();
+  if (all) {
+    out << "window.currentApp = " + javaScriptClass_ + ";";
+    for (std::set<const char *>::const_iterator i = javaScriptLoaded_.begin();
+	 i != javaScriptLoaded_.end(); ++i)
+      loadJavaScriptFile(out, *i);
+  } else {
+    if (!newJavaScriptToLoad_.empty()) {
+      out << "window.currentApp = " + javaScriptClass_ + ";";
+      for (unsigned i = 0; i < newJavaScriptToLoad_.size(); ++i)
+	loadJavaScriptFile(out, newJavaScriptToLoad_[i]);
+    }
+  }
+
+  newJavaScriptToLoad_.clear();
 }
 
-void WApplication::setJavaScriptLoaded(const char *jsFile)
+void WApplication::loadJavaScriptFile(std::ostream& out, const char *jsFile)
 {
-  javaScriptLoaded_.insert(jsFile);
+#define xstr(s) str(s)
+#define str(s) #s
+  std::string fname = std::string( xstr(WT_DEBUG_JS) "/") + jsFile;
+  out << Utils::readJavaScriptFile(fname);
+}
+
+#else
+
+void WApplication::loadJavaScript(const char *jsFile,
+				  const WJavaScriptPreamble& preamble)
+{
+  if (!javaScriptLoaded(preamble.name)) {
+    javaScriptLoaded_.insert(jsFile);
+    javaScriptLoaded_.insert(preamble.name);
+
+    javaScriptPreamble_.push_back(preamble);
+    ++newJavaScriptPreamble_;
+  }
+}
+
+void WApplication::streamJavaScriptPreamble(std::ostream& out, bool all)
+{
+  if (all)
+    newJavaScriptPreamble_ = javaScriptPreamble_.size();
+
+  for (unsigned i = javaScriptPreamble_.size() - newJavaScriptPreamble_;
+       i < javaScriptPreamble_.size(); ++i) {
+    const WJavaScriptPreamble& preamble = javaScriptPreamble_[i];
+    std::string scope
+      = preamble.scope == ApplicationScope ? javaScriptClass() : WT_CLASS;
+
+    if (preamble.type == JavaScriptFunction) {
+      out << scope << '.' << preamble.name << " = function() { ("
+	  << preamble.src << ").apply(" << scope << ", arguments) };";
+    } else {
+      out << scope << '.' << preamble.name << " = " << preamble.src
+	  << std::endl;
+    }
+  }
+
+  newJavaScriptPreamble_ = 0;
+}
+
+#endif
+
+bool WApplication::javaScriptLoaded(const char *jsFile) const
+{
+  return javaScriptLoaded_.find(jsFile) != javaScriptLoaded_.end();
 }
 
 void WApplication::setFocus(const std::string& id,

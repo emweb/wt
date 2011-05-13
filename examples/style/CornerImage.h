@@ -8,6 +8,7 @@
 #ifndef CORNER_IMAGE_H_
 #define CORNER_IMAGE_H_
 
+#include <Wt/WColor>
 #include <Wt/WImage>
 
 using namespace Wt;

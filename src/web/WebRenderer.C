@@ -518,7 +518,7 @@ void WebRenderer::collectJavaScript()
   /*
    * Everything else happens inside JS1: after libraries have been loaded.
    */
-  collectedJS1_ << app->newBeforeLoadJavaScript();
+  app->streamBeforeLoadJavaScript(collectedJS1_, false);
 
   if (app->domRoot2_)
     app->domRoot2_->rootAsJavaScript(app, collectedJS1_, false);
@@ -745,7 +745,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
       // Load JavaScript libraries that were added during enableAjax()
       int librariesLoaded = loadScriptLibraries(collectedJS1_, app);
 
-      collectedJS1_ << app->newBeforeLoadJavaScript();
+      app->streamBeforeLoadJavaScript(collectedJS1_, false);
  
       collectedJS2_
 	<< "domRoot.style.visibility = 'visible';"
@@ -822,7 +822,8 @@ void WebRenderer::serveMainAjax(WebResponse& response)
 		 << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);";
   formObjectsChanged_ = false;
 
-  response.out() << "\n" << app->beforeLoadJavaScript();
+  response.out() << "\n";
+  app->streamBeforeLoadJavaScript(response.out(), true);
 
   if (!widgetset)
     response.out() << "window." << app->javaScriptClass()
@@ -905,8 +906,8 @@ void WebRenderer::serveMainAjax(WebResponse& response)
     }
   }
 
-  response.out() << app->afterLoadJavaScript()
-		 << "{var o=null,e=null;"
+  app->streamAfterLoadJavaScript(response.out());
+  response.out() << "{var o=null,e=null;"
 		 << app->hideLoadingIndicator_.javaScript()
 		 << "}";
 
@@ -1064,7 +1065,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
   }
   app->scriptLibrariesAdded_ = 0;
 
-  app->newBeforeLoadJavaScript_ = app->beforeLoadJavaScript_;
+  app->newBeforeLoadJavaScript_ = app->beforeLoadJavaScript_.length();
 
   bool hybridPage = session_.progressiveBoot() || session_.env().ajax();
   FileServe page(hybridPage ? skeletons::Hybrid_html1 : skeletons::Plain_html1);
@@ -1294,7 +1295,7 @@ void WebRenderer::collectJavaScriptUpdate(std::ostream& out)
     }
   }
 
-  out << app->afterLoadJavaScript();
+  app->streamAfterLoadJavaScript(out);
 
   if (app->isQuited())
     out << app->javaScriptClass() << "._p_.quit();";
@@ -1348,7 +1349,8 @@ void WebRenderer::collectJS(std::ostream* js)
   WApplication *app = session_.app();
 
   if (js) {
-    *js << app->newBeforeLoadJavaScript();
+    if (!preLearning())
+      app->streamBeforeLoadJavaScript(*js, false);
 
     EscapeOStream sout(*js);
 
@@ -1387,11 +1389,11 @@ void WebRenderer::collectJS(std::ostream* js)
       *js << app->javaScriptClass()
 	  << "._p_.setHash('" << app->newInternalPath_ << "');\n";
 
-    *js << app->afterLoadJavaScript();
+    app->streamAfterLoadJavaScript(*js);
 
     loadScriptLibraries(*js, app, librariesLoaded);
   } else
-    app->afterLoadJavaScript();
+    app->afterLoadJavaScript_.clear();
 
   app->internalPathIsChanged_ = false;
 }

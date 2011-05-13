@@ -183,9 +183,9 @@ bool WCompositeWidget::hiddenKeepsGeometry() const
   return impl_->hiddenKeepsGeometry();
 }
 
-void WCompositeWidget::setHidden(bool how)
+void WCompositeWidget::setHidden(bool hidden, const WAnimation& animation)
 {
-  impl_->setHidden(how);
+  impl_->setHidden(hidden, animation);
 }
 
 bool WCompositeWidget::isHidden() const
@@ -224,9 +224,9 @@ bool WCompositeWidget::isEnabled() const
     return true;
 }
 
-void WCompositeWidget::setPopup(bool how)
+void WCompositeWidget::setPopup(bool popup)
 {
-  impl_->setPopup(how);
+  impl_->setPopup(popup);
 }
 
 bool WCompositeWidget::isPopup() const
@@ -234,11 +234,11 @@ bool WCompositeWidget::isPopup() const
   return impl_->isPopup();
 }
 
-void WCompositeWidget::setInline(bool how)
+void WCompositeWidget::setInline(bool isInline)
 {
   resetLearnedSlot(&WWidget::show);
 
-  impl_->setInline(how);
+  impl_->setInline(isInline);
 }
 
 bool WCompositeWidget::isInline() const
@@ -356,9 +356,9 @@ void WCompositeWidget::removeChild(WWidget *child)
     impl_->setParent(0);
 }
 
-void WCompositeWidget::setHideWithOffsets(bool how)
+void WCompositeWidget::setHideWithOffsets(bool hideWithOffsets)
 {
-  impl_->setHideWithOffsets(how);
+  impl_->setHideWithOffsets(hideWithOffsets);
 }
 
 bool WCompositeWidget::isStubbed() const

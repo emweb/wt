@@ -118,6 +118,8 @@ WWidget *Home::initHome()
   }
 
   WStackedWidget *contents = new WStackedWidget();
+  WAnimation fade(WAnimation::Fade, WAnimation::Linear, 250);
+  contents->setTransitionAnimation(fade);
   contents->setId("main_page");
 
   mainMenu_ = new WMenu(contents, Vertical);

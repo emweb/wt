@@ -16,8 +16,6 @@
 #include "WtException.h"
 #include "WebController.h"
 
-#include "JavaScriptLoader.h"
-
 #ifndef WT_DEBUG_JS
 #include "js/WDialog.min.js"
 #endif
@@ -28,7 +26,7 @@ WDialog::WDialog(const WString& windowTitle)
   : modal_(true),
     finished_(this),
     recursiveEventLoop_(false),
-    addAutoJavaScript_(false)
+    initialized_(false)
 { 
   const char *TEMPLATE =
       "${shadow-x1-x2}"
@@ -41,23 +39,17 @@ WDialog::WDialog(const WString& windowTitle)
 
   WApplication *app = WApplication::instance();
 
-  /* Cannot be done using the CSS stylesheet in case there are
-   * contained elements with setHideWithOffsets() set */
+  /*
+   * Cannot be done using the CSS stylesheet in case there are
+   * contained elements with setHideWithOffsets() set
+   */
   setPositionScheme(app->environment().agent() == WEnvironment::IE6
 		    ? Absolute : Fixed);
 
   if (!app->styleSheet().isDefined(CSS_RULES_NAME)) {
+    /* Needed for the dialog cover */
     if (app->environment().agentIsIElt(9))
       app->styleSheet().addRule("body", "height: 100%;");
-
-    app->styleSheet().addRule("div.Wt-dialogcover", std::string() + 
-			      // IE: requres body.height=100%
-			      "height: 100%; width: 100%;"
-			      "top: 0px; left: 0px;"
-			      "opacity: 0.5; position: fixed;" +
-			      (app->environment().agentIsIElt(9) ?
-			       "filter: alpha(opacity=50);"
-			       : "opacity: 0.5"), CSS_RULES_NAME);
 
     std::string position
       = app->environment().agent() == WEnvironment::IE6 ? "absolute" : "fixed";
@@ -65,14 +57,14 @@ WDialog::WDialog(const WString& windowTitle)
     // we use left: 50%, top: 50%, margin hack when JavaScript is not available
     // see below for an IE workaround
     app->styleSheet().addRule("div.Wt-dialog", std::string() +
-			      (app->environment().ajax()
-			       && !app->environment().agentIsIElt(9) ?
+			      (app->environment().ajax() ?
 			       "visibility: hidden;" : "") +
 			      "position: " + position + ';'
 			      + (!app->environment().ajax() ?
 				 "left: 50%; top: 50%;"
 				 "margin-left: -100px; margin-top: -50px;" :
-				 "left: 0px; top: 0px;"));
+				 "left: 0px; top: 0px;"),
+			      CSS_RULES_NAME);
 
     if (app->environment().agent() == WEnvironment::IE6) {
       app->styleSheet().addRule
@@ -103,12 +95,7 @@ WDialog::WDialog(const WString& windowTitle)
 
   setPopup(true);
 
-  const char *THIS_JS = "js/WDialog.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WDialog", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WDialog.js", "WDialog", wtjs1);
 
   parent->addWidget(this);
 
@@ -136,24 +123,27 @@ WDialog::~WDialog()
 
 void WDialog::render(WFlags<RenderFlag> flags)
 {
-  WWidget::render(flags);
+  if (!initialized_) {
+    initialized_ = true;
 
-  if (flags & RenderFull) {
     WApplication *app = WApplication::instance();
 
-    setJavaScriptMember("_a", "0;new " WT_CLASS ".WDialog("
-			+ app->javaScriptClass() + "," + jsRef() + ")");
+    bool centerX = offset(Left).isAuto() && offset(Right).isAuto(),
+      centerY = offset(Top).isAuto() && offset(Bottom).isAuto();
 
-    if (!addAutoJavaScript_) {
-      app->addAutoJavaScript
-	("{var obj = $('#" + id() + "').data('obj');"
-	 "if (obj) obj.centerDialog();}");
-      addAutoJavaScript_ = true;
-    }
+    setJavaScriptMember("_a","0;new " WT_CLASS ".WDialog("
+			+ app->javaScriptClass() + "," + jsRef()
+			+ "," + (centerX ? "1" : "0")
+			+ "," + (centerY ? "1" : "0") + ");");
+    // so that WWidget::resize() calls it; it is set by js: WDialog()
+    setJavaScriptMember(WT_RESIZE_JS, "0");
 
-    setJavaScriptMember(WT_RESIZE_JS, 
-			"$('#" + id() + "').data('obj').wtResize");
+    app->addAutoJavaScript
+      ("{var obj = $('#" + id() + "').data('obj');"
+       "if (obj) obj.centerDialog();}");
   }
+
+  WCompositeWidget::render(flags);
 }
 
 void WDialog::rejectWhenEscapePressed()
@@ -191,12 +181,12 @@ void WDialog::setTitleBarEnabled(bool enable)
   titleBar_->setHidden(!enable);
 }
 
-WDialog::DialogCode WDialog::exec()
+WDialog::DialogCode WDialog::exec(const WAnimation& animation)
 {
   if (recursiveEventLoop_)
     throw WtException("WDialog::exec(): already in recursive event loop.");
 
-  show();
+  animateShow(animation);
 
 #ifdef WT_TARGET_JAVA
   if (!WebController::isAsyncSupported())
@@ -256,7 +246,7 @@ void WDialog::restoreCoverState(WApplication *app, WContainerWidget *cover)
   app->constrainExposed(previousExposeConstraint_);
 }
 
-void WDialog::setHidden(bool hidden)
+void WDialog::setHidden(bool hidden, const WAnimation& animation)
 {
   if (isHidden() != hidden) {
     if (modal_) {
@@ -265,11 +255,18 @@ void WDialog::setHidden(bool hidden)
 
       if (!cover)
 	return; // when application is being destroyed
-      
+
       if (!hidden) {
 	saveCoverState(app, cover);
 
-	cover->show();
+	if (cover->isHidden()) {
+	  if (!animation.empty()) {
+	    cover->animateShow(WAnimation(WAnimation::Fade, WAnimation::Linear,
+					  animation.duration() * 4));
+	  } else
+	    cover->show();
+	}
+
 	cover->setZIndex(impl_->zIndex() - 1);
 	app->constrainExposed(this);
 
@@ -285,7 +282,7 @@ void WDialog::setHidden(bool hidden)
     }
   }
 
-  WCompositeWidget::setHidden(hidden);
+  WCompositeWidget::setHidden(hidden, animation);
 }
 
 }

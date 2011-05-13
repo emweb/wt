@@ -66,8 +66,8 @@ public:
     rule_->modified();
   }
 
-  virtual void setHidden(bool hidden) {
-    WWebWidget::setHidden(hidden);
+  virtual void setHidden(bool hidden, const WAnimation& animation = WAnimation()) {
+    WWebWidget::setHidden(hidden, animation);
     rule_->modified();
   }
 

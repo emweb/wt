@@ -24,6 +24,7 @@ namespace boost {
 #include <Wt/WObject>
 #include <Wt/WCssStyleSheet>
 #include <Wt/WEvent>
+#include <Wt/WJavaScriptPreamble>
 #include <Wt/WMessageResourceBundle>
 #include <Wt/WSignal>
 #include <Wt/WString>
@@ -1562,10 +1563,11 @@ public:
 
 #ifdef WT_DEBUG_JS
   void loadJavaScript(const char *jsFile);
+#else
+  void loadJavaScript(const char *jsFile, const WJavaScriptPreamble& preamble);
 #endif
 
-  bool javaScriptLoaded(const char *jsFile);
-  void setJavaScriptLoaded(const char *jsFile);
+  bool javaScriptLoaded(const char *jsFile) const;
 
   /*! \brief Sets the message for the user to confirm closing of the
    *         application window/tab.
@@ -1778,10 +1780,18 @@ private:
   bool exposeSignals_;           // if we are currently exposing signals
                                  // (see WViewWidget)
 
-  std::string afterLoadJavaScript_, beforeLoadJavaScript_,
-    newBeforeLoadJavaScript_, autoJavaScript_;
-  std::set<const char*> javaScriptLoaded_;
+  std::string afterLoadJavaScript_, beforeLoadJavaScript_;
+  int newBeforeLoadJavaScript_;
+  std::string autoJavaScript_;
   bool autoJavaScriptChanged_;
+
+#ifndef WT_DEBUG_JS
+  std::vector<WJavaScriptPreamble> javaScriptPreamble_;
+  int newJavaScriptPreamble_;
+#else
+  std::vector<const char *> newJavaScriptToLoad_;
+#endif // WT_DEBUG_JS
+  std::set<const char *> javaScriptLoaded_;
 
   EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
   JSignal<> unloaded_;
@@ -1822,9 +1832,12 @@ private:
    * Methods for accessing javaScript, which may have erase-on-read
    * semantics
    */
-  std::string afterLoadJavaScript();
-  std::string beforeLoadJavaScript();
-  std::string newBeforeLoadJavaScript();
+  void streamAfterLoadJavaScript(std::ostream& out);
+  void streamBeforeLoadJavaScript(std::ostream& out, bool all);
+  void streamJavaScriptPreamble(std::ostream& out, bool all);
+#ifdef WT_DEBUG_JS
+  void loadJavaScriptFile(std::ostream& out, const char *jsFile);
+#endif // WT_DEBUG_JS
 
   /*
    * Methods for accessing exposeSignals_

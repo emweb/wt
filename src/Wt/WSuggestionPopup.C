@@ -16,7 +16,6 @@
 #include "Wt/WSuggestionPopup"
 #include "Wt/WStringListModel"
 
-#include "JavaScriptLoader.h"
 #include "Utils.h"
 #include "EscapeOStream.h"
 
@@ -129,12 +128,8 @@ void WSuggestionPopup::defineJavaScript()
   WApplication *app = WApplication::instance();
 
   const char *THIS_JS = "js/WSuggestionPopup.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopup", wtjs1);
-    LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopupStdMatcher", wtjs2);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopup", wtjs1);
+  LOAD_JAVASCRIPT(app, THIS_JS, "WSuggestionPopupStdMatcher", wtjs2);
 
   app->doJavaScript("new " WT_CLASS ".WSuggestionPopup("
 		    + app->javaScriptClass() + "," + jsRef() + ","

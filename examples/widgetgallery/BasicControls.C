@@ -312,6 +312,8 @@ WWidget *BasicControls::wPanel()
   panel->setCentralWidget(new WText("This is a panel with a title"));
   new WBreak(result);
   panel = new WPanel(result);
+  panel->setAnimation(WAnimation(WAnimation::SlideInFromTop | WAnimation::Fade,
+				 WAnimation::EaseOut, 100));
   panel->setTitle("My third WPanel");
   panel->setCentralWidget(new WText("This is a collapsible panel with "
 				    "a title"));

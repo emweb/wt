@@ -10,7 +10,6 @@
 #include "Wt/WValidator"
 
 #include "DomElement.h"
-#include "JavaScriptLoader.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WSpinBox.min.js"
@@ -105,12 +104,7 @@ void WAbstractSpinBox::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  const char *THIS_JS = "js/WSpinBox.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WSpinBox", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WSpinBox.js", "WSpinBox", wtjs1);
 
   std::string jsObj = "new " WT_CLASS ".WSpinBox("
     + app->javaScriptClass() + "," + jsRef() + ","

@@ -1,3 +1,14 @@
+13-05-2011:
+	* WebSession: relax needs for setting baseURL. Looks good !
+
+	* WWidget, WAnimation: added animation options for setHidden(),
+	and new methods animateShow() and animateHide()
+
+	* WStackedWidget: added support for a transition animation
+
+	* WDialog: added animation support for the dialog cover as well,
+	and improved centering on IE (at least it seems to me ?)
+
 06-05-2011:
 	* WebSession: fix baseURL property usage and internal path
 	inconsistencies

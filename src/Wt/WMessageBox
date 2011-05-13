@@ -154,7 +154,8 @@ public:
    */
   static StandardButton show(const WString& caption,
 			     const WString& text,
-			     WFlags<StandardButton> buttons);
+			     WFlags<StandardButton> buttons,
+			     const WAnimation& animation = WAnimation());
 
   /*! \brief %Signal emitted when a button is clicked.
    */

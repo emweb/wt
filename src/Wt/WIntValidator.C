@@ -10,7 +10,6 @@
 #include "Wt/WString"
 #include "Wt/WApplication"
 
-#include "JavaScriptLoader.h"
 #include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
@@ -137,12 +136,7 @@ WValidator::State WIntValidator::validate(WT_USTRING& input) const
 
 void WIntValidator::loadJavaScript(WApplication *app)
 {
-  const char *THIS_JS = "js/WIntValidator.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WIntValidator", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WIntValidator.js", "WIntValidator", wtjs1);
 }
 
 std::string WIntValidator::javaScriptValidate() const

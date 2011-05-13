@@ -11,7 +11,6 @@
 #include "Wt/WLogger"
 #include "Wt/WWebWidget"
 
-#include "JavaScriptLoader.h"
 #include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
@@ -183,12 +182,7 @@ WValidator::State WDateValidator::validate(WT_USTRING& input) const
 
 void WDateValidator::loadJavaScript(WApplication *app)
 {
-  const char *THIS_JS = "js/WDateValidator.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WDateValidator", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WDateValidator.js", "WDateValidator", wtjs1);
 }
 
 

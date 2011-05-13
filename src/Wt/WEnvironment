@@ -106,6 +106,7 @@ public:
     Firefox3_1b = 6103,         //!< Firefox 3.1b
     Firefox3_5 = 6104,          //!< Firefox 3.5
     Firefox3_6 = 6105,          //!< Firefox 3.6 or later
+    Firefox4_0 = 6106,          //!< Firefox 4.0 or later
     BotAgent = 10000            //!< Bot user agent
   };
 

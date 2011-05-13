@@ -124,6 +124,9 @@ void WEnvironment::init(const WebRequest& request)
 
   for (std::string::size_type pos = 0; pos != std::string::npos;) {
     std::string::size_type komma_pos = ips.find(',', pos);
+    if (komma_pos == std::string::npos)
+      break;
+
     clientAddress_ = ips.substr(pos, komma_pos);
 
     boost::trim(clientAddress_);
@@ -254,8 +257,10 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
 	agent_ = Firefox3_1b;
       else if (userAgent_.find("Firefox/3.5") != std::string::npos)
 	agent_ = Firefox3_5;
-      else
+      else if (userAgent_.find("Firefox/3.6") != std::string::npos)
 	agent_ = Firefox3_6;
+      else
+	agent_ = Firefox4_0;
     }
   }
 

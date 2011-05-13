@@ -61,6 +61,7 @@ Wt/WAbstractToggleButton.C
 Wt/WAccordionLayout.C
 Wt/WAggregateProxyModel.C
 Wt/WAnchor.C
+Wt/WAnimation.C
 Wt/WApplication.C
 Wt/WBatchEditProxyModel.C
 Wt/WBoostAny.C
@@ -115,6 +116,7 @@ Wt/WInteractWidget.C
 Wt/WItemDelegate.C
 Wt/WItemSelectionModel.C
 Wt/WJavaScript.C
+Wt/WJavaScriptPreamble.C
 Wt/WJavaScriptSlot.C
 Wt/WLabel.C
 Wt/WLayout.C

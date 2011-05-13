@@ -24,7 +24,6 @@
 #include "Wt/WWebWidget"
 
 #include "EscapeOStream.h"
-#include "JavaScriptLoader.h"
 #include "Utils.h"
 
 #ifndef WT_DEBUG_JS
@@ -1049,12 +1048,7 @@ void WTreeView::defineJavaScript()
   if (!app->environment().ajax())
     return;
 
-  const char *THIS_JS = "js/WTreeView.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WTreeView", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WTreeView.js", "WTreeView", wtjs1);
 
   app->doJavaScript("new " WT_CLASS ".WTreeView("
 		    + app->javaScriptClass() + "," + jsRef() + ","

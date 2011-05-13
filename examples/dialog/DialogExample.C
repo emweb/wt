@@ -84,14 +84,16 @@ void DialogExample::messageBox2()
   messageBox_
     ->buttonClicked().connect(this, &DialogExample::messageBoxDone);
 
-  messageBox_->show();
+  messageBox_->animateShow
+    (WAnimation(WAnimation::Pop | WAnimation::Fade, WAnimation::Linear, 250));
 }
 
 void DialogExample::messageBox3()
 {
   StandardButton
     result = WMessageBox::show("Confirm", "About to wreak havoc... Continue ?",
-			       Ok | Cancel);
+			       Ok | Cancel,
+			       WAnimation(WAnimation::SlideInFromTop));
 
   if (result == Ok)
     setStatus("Wreaking havoc.");
@@ -112,7 +114,11 @@ void DialogExample::messageBox4()
   messageBox_
     ->buttonClicked().connect(this, &DialogExample::messageBoxDone);
 
-  messageBox_->show();
+  messageBox_->setOffsets(0, Bottom);
+
+  messageBox_->animateShow
+    (WAnimation(WAnimation::SlideInFromBottom
+		| WAnimation::Fade, WAnimation::Linear, 250));
 }
 
 void DialogExample::messageBoxDone(StandardButton result)

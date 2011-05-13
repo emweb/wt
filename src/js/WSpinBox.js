@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "ctor.WSpinBox",
+(1, JavaScriptConstructor, "WSpinBox",
  function(APP, edit, precision, prefix, suffix, minValue, maxValue,
 	  stepValue) {
    /** @const */ var TYPE_INTEGER = 0;

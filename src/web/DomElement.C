@@ -179,6 +179,9 @@ DomElement::~DomElement()
   for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
     delete childrenToAdd_[i].child;
 
+  for (unsigned i = 0; i < updatedChildren_.size(); ++i)
+    delete updatedChildren_[i];
+
   delete replaced_;
   delete insertBefore_;
 }
@@ -1214,7 +1217,6 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
     for (unsigned i = 0; i < updatedChildren_.size(); ++i) {
       DomElement *child = updatedChildren_[i];
       child->asJavaScript(out, Update);
-      delete child;
     }
 
     /*

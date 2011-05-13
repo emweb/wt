@@ -14,8 +14,6 @@
 #include "Utils.h"
 #include "Wt/WApplication"
 
-#include "JavaScriptLoader.h"
-
 #ifndef WT_DEBUG_JS
 #include "js/WGLWidget.min.js"
 #include "js/WtGlMatrix.min.js"
@@ -632,20 +630,8 @@ void WGLWidget::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  const char *GLMATRIX_JS = "js/WtGlMatrix.js";
-
-  if (!app->javaScriptLoaded(GLMATRIX_JS)) {
-    LOAD_JAVASCRIPT(app, GLMATRIX_JS, "glMatrix", wtjs2);
-    app->setJavaScriptLoaded(GLMATRIX_JS);
-  }
-
-  const char *THIS_JS = "js/WGLWidget.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WGLWidget", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
-
+  LOAD_JAVASCRIPT(app, "js/WtGlMatrix.js", "glMatrix", wtjs2);
+  LOAD_JAVASCRIPT(app, "js/WGLWidget.js", "WGLWidget", wtjs1);
 }
 
 void WGLWidget::render(WFlags<RenderFlag> flags)

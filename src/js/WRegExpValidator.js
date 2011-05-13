@@ -6,12 +6,8 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-/*
- * We could merge this with WIntValidator ...
- */
-
 WT_DECLARE_WT_MEMBER
-  (1, "ctor.WRegExpValidator",
+(1, JavaScriptConstructor, "WRegExpValidator",
    function(mandatory, regexp, modifiers, blankError, invalidError) {
 
      var r = regexp ? new RegExp(regexp, modifiers) : null;

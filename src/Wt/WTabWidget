@@ -230,6 +230,8 @@ public:
    */
   Signal<int>& tabClosed() { return tabClosed_; }
 
+  WStackedWidget *contentsStack() const;
+
 private:
   Signal<int> currentChanged_;
   Signal<int> tabClosed_;

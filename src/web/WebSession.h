@@ -193,9 +193,6 @@ public:
 
     Handler(const Handler&);
 #endif // WT_THREADED
-#ifdef WT_TARGET_JAVA
-    bool locked_;
-#endif
 
     Handler *prevHandler_;
 

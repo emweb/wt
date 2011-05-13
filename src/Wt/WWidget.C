@@ -164,6 +164,16 @@ void WWidget::show()
   setHidden(false);
 }
 
+void WWidget::animateShow(const WAnimation& animation)
+{ 
+  setHidden(false, animation);
+}
+
+void WWidget::animateHide(const WAnimation& animation)
+{ 
+  setHidden(true, animation);
+}
+
 void WWidget::disable()
 {
   flags_.set(BIT_WAS_DISABLED, isDisabled());

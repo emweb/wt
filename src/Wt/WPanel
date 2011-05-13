@@ -163,6 +163,12 @@ public:
    */
   void expand();
 
+  /*! \brief Sets an animation.
+   *
+   * The animation is used when collapsing or expanding the panel.
+   */
+  void setAnimation(const WAnimation& transition);
+
   /*! \brief Sets the central widget.
    *
    * Sets the widget that is the contents of the panel. When a widget was
@@ -210,6 +216,7 @@ private:
 
   WTemplate        *impl_;
   WWidget          *centralWidget_;
+  WAnimation       animation_;
 
   Signal<> collapsed_, expanded_;
   Signal<bool> collapsedSS_, expandedSS_;

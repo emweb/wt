@@ -11,7 +11,6 @@
 
 #include "Wt/WApplication"
 
-#include "JavaScriptLoader.h"
 #include "EscapeOStream.h"
 
 #ifndef WT_DEBUG_JS
@@ -141,12 +140,7 @@ WValidator::State WDoubleValidator::validate(WT_USTRING& input) const
 
 void WDoubleValidator::loadJavaScript(WApplication *app)
 {
-  const char *THIS_JS = "js/WDoubleValidator.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WDoubleValidator", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WDoubleValidator.js", "WDoubleValidator", wtjs1);
 }
 
 std::string WDoubleValidator::javaScriptValidate() const

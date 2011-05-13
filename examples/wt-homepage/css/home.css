@@ -1,3 +1,7 @@
+.Wt-animated > * {
+    background-color: #F7F7F7;
+}
+
 .home .Wt-tabs {
     margin-top: 5px;
     margin-bottom: 0px;

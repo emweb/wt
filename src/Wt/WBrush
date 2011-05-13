@@ -52,7 +52,7 @@ public:
 #ifdef WT_TARGET_JAVA
   /*! \brief Clone method.
    *
-   * Clones this WBrush object.
+   * Clones this brush.
    */
   WBrush clone() const;
 #endif

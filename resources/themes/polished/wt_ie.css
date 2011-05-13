@@ -8,6 +8,10 @@
     zoom: 1;
 }
 
+.Wt-dialogcover {
+    filter: alpha(opacity=50);
+}
+
 /*
  * WItemDelegate
  */

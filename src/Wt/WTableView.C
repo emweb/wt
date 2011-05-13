@@ -18,7 +18,6 @@
 #include "Wt/WVBoxLayout"
 #include "Wt/WVBoxLayout"
 
-#include "JavaScriptLoader.h"
 #include "Utils.h"
 #include "EscapeOStream.h"
 
@@ -688,12 +687,7 @@ void WTableView::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
 
-  const char *THIS_JS = "js/WTableView.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WTableView", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WTableView.js", "WTableView", wtjs1);
 
   app->doJavaScript("new " WT_CLASS ".WTableView("
 		    + app->javaScriptClass() + "," + jsRef() + ","

@@ -35,7 +35,7 @@ namespace Wt {
 class WT_API WStackedWidget : public WContainerWidget
 {
 public:
-  /*! \brief Created a new stacked container widget.
+  /*! \brief Creates a new stack.
    */
   WStackedWidget(WContainerWidget *parent = 0);
 
@@ -57,23 +57,54 @@ public:
    */
   void insertWidget(int index, WWidget *widget);
 
-  /*! \brief Shows a particular widget.
+  /*! \brief Changes the current widget.
    *
    * The widget with index \p index is made visible, while all other
-   * widgets are invisible.
+   * widgets are hidden.
+   *
+   * The change of current widget is done using the animation settings
+   * specified by setTransitionAnimation().
+   *
+   * The default value for current index is 0 (provided thath 
    *
    * \sa currentIndex(), setCurrentWidget()
    */
   void setCurrentIndex(int index);
 
-  /*! \brief Shows a particular widget.
+  /*! \brief Changes the current widget using a custom animation.
+   *
+   * \sa currentIndex(), setCurrentWidget()
+   */
+  void setCurrentIndex(int index, const WAnimation& animation,
+		       bool autoReverse = true);
+
+  /*! \brief Changes the current widget.
    *
    * The widget \p widget, which must have been added before, is
-   * made visible, while all other widgets are invisible.
+   * made visible, while all other widgets are hidden.
    *
    * \sa currentWidget(), setCurrentIndex()
    */
   void setCurrentWidget(WWidget *widget);
+
+  /*! \brief Specifies an animation used during transitions.
+   *
+   * The animation is used to hide the previously current widget and
+   * show the next current widget using setCurrentIndex().
+   *
+   * The initial value for \p animation is WAnimation(), specifying
+   * no animation.
+   *
+   * When \p autoReverse is set to \c true, then the reverse animation
+   * is chosen when the new index precedes the current index. This
+   * only applies to WAnimation::SlideLeft, WAnimation::SlideRight,
+   * WAnimation::SlideUp or WAnimation::SlideDown transition
+   * effects.
+   *
+   * \sa setCurrentIndex()
+   */
+  void setTransitionAnimation(const WAnimation& animation,
+			      bool autoReverse = false);
 
 protected:
   virtual void removeChild(WWidget *child);
@@ -82,7 +113,11 @@ protected:
 				    WApplication *app);
 
 private:
+  WAnimation animation_;
+  bool autoReverseAnimation_;
   int currentIndex_;
+
+  bool loadAnimateJS();
 };
 
 }

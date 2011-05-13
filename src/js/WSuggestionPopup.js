@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "ctor.WSuggestionPopup",
+(1, JavaScriptConstructor, "WSuggestionPopup",
  function(APP, el, replacerJS, matcherJS, filterLength, defaultValue, global) {
    $('.Wt-domRoot').add(el);
 
@@ -359,7 +359,7 @@ WT_DECLARE_WT_MEMBER
  });
 
 WT_DECLARE_WT_MEMBER
-(2, "ctor.WSuggestionPopupStdMatcher",
+(2, JavaScriptConstructor, "WSuggestionPopupStdMatcher",
  function(highlightBeginTag, highlightEndTag, listSeparator, whiteSpace,
 	  wordSeparators, appendReplacedText) {
    function parseEdit(edit) {

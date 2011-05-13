@@ -146,12 +146,13 @@ void WMessageBox::onButtonClick(StandardButton b)
 
 StandardButton WMessageBox::show(const WString& caption,
 				 const WString& text,
-				 WFlags<StandardButton> buttons)
+				 WFlags<StandardButton> buttons,
+				 const WAnimation& animation)
 {
   WMessageBox box(caption, text, Information, buttons);
   box.buttonClicked().connect(&box, &WMessageBox::accept);
 
-  box.exec();
+  box.exec(animation);
 
   return box.buttonResult();
 }

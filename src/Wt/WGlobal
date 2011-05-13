@@ -12,6 +12,7 @@
 namespace Wt {
   class JSlot;
   class WAbstractArea;
+  class WAbstractSpinBox;
   class WAbstractItemDelegate;
   class WAbstractItemModel;
   class WAbstractItemView;
@@ -21,6 +22,7 @@ namespace Wt {
   class WAbstractTableModel;
   class WAbstractToggleButton;
   class WAggregateProxyModel;
+  class WAnimation;
   class WAnchor;
   class WApplication;
   class WBatchEditProxyModel;
@@ -47,6 +49,7 @@ namespace Wt {
   class WDefaultLayout;
   class WDefaultLoadingIndicator;
   class WDialog;
+  class WDoubleSpinBox;
   class WDoubleValidator;
   class WEnvironment;
   class WFileResource;

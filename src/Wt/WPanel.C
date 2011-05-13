@@ -169,10 +169,16 @@ void WPanel::expand()
   }
 }
 
+void WPanel::setAnimation(const WAnimation& transition)
+{
+  animation_ = transition;
+}
+
 void WPanel::doCollapse()
 {
   wasCollapsed_ = isCollapsed();
-  centralArea()->hide();
+
+  centralArea()->animateHide(animation_);
 
   collapsedSS_.emit(true);
 }
@@ -180,7 +186,8 @@ void WPanel::doCollapse()
 void WPanel::doExpand()
 {
   wasCollapsed_ = isCollapsed();
-  centralArea()->show();
+
+  centralArea()->animateShow(animation_);
 
   expandedSS_.emit(true);
 }

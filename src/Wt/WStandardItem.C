@@ -204,7 +204,7 @@ void WStandardItem::setIcon(const std::string& uri)
 
 std::string WStandardItem::icon() const
 {
-  boost::any d = data(DisplayRole);
+  boost::any d = data(DecorationRole);
 
   if (!d.empty() && d.type() == typeid(std::string))
     return boost::any_cast<std::string>(d);

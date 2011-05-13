@@ -8,11 +8,11 @@
 #define WWIDGET_H_
 
 #include <Wt/WObject>
+#include <Wt/WGlobal>
+#include <Wt/WAnimation>
 #include <Wt/WLength>
-#include <Wt/WBorder>
 #include <Wt/WSignal>
 #include <Wt/WJavaScript>
-#include <Wt/WGlobal>
 
 #include <boost/utility.hpp>
 #include <vector>
@@ -404,17 +404,16 @@ public:
    */
   virtual bool hiddenKeepsGeometry() const = 0;
 
-  /*! \brief Sets whether the widget is hidden.
+  /*! \brief Hides or shows the widget.
    *
    * Hides or show the widget (including all its descendant widgets).
    * When setting \p hidden = \c false, this widget and all descendant
    * widgets that are not hidden will be shown. A widget is only
    * visible if it and all its ancestors in the widget tree are
    * visible, which may be checked using isVisible().
-   *
-   * \sa hide(), show()
    */
-  virtual void setHidden(bool hidden) = 0;
+  virtual void setHidden(bool hidden,
+			 const WAnimation& animation = WAnimation()) = 0;
 
   /*! \brief Returns whether the widget is set hidden.
    *
@@ -834,15 +833,32 @@ public:
 
   /*! \brief Hides the widget.
    *
-   * This calls \link setHidden() setHidden(true)\endlink.
+   * \sa setHidden()
    */
   void hide();
 
-  /*! \brief Shows the widget.
+  /*! \brief Hides the widget using an animation.
    *
-   * This calls \link setHidden() setHidden(false)\endlink.
+   * To hide the widget, the animation is replayed in reverse. A \p
+   * duration can be specified in milliseconds.
+   *
+   * \sa setHidden()
+   */
+  void animateHide(const WAnimation& animation);
+
+  /*! \brief Hides the widget.
+   *
+   * \sa setHidden()
    */
   void show();
+
+  /*! \brief Shows the widget using an animation.
+   *
+   * A \p duration can be specified in milliseconds.
+   *
+   * \sa setHidden()
+   */
+  void animateShow(const WAnimation& animation);
 
   /*! \brief Enables the widget.
    *

@@ -14,7 +14,6 @@
 #include "Utils.h"
 #include "WtException.h"
 
-#include "JavaScriptLoader.h"
 #ifndef WT_DEBUG_JS
 #include "js/WHTML5Media.min.js"
 #endif
@@ -74,11 +73,8 @@ WHTML5Media::WHTML5Media(WContainerWidget *parent):
   setFormObject(true);
 
   WApplication *app = wApp;
-  const char *THIS_JS = "js/WHTML5Media.js";
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WHTML5Media", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/WHTML5Media.js", "WHTML5Media", wtjs1);
+
   doJavaScript("new " WT_CLASS ".WHTML5Media("
     + app->javaScriptClass() + "," + jsRef() + ");");
   setJavaScriptMember("WtPlay",

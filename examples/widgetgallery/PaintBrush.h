@@ -2,6 +2,7 @@
 
 #include <Wt/WPaintedWidget>
 #include <Wt/WPainterPath>
+#include <Wt/WColor>
 #include <Wt/WEvent>
 
 #include <vector>

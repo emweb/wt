@@ -10,7 +10,6 @@
 #include "Wt/WJavaScript"
 #include "Wt/WLabel"
 
-#include "JavaScriptLoader.h"
 #include "DomElement.h"
 #include "Utils.h"
 
@@ -144,12 +143,7 @@ void WFormWidget::setEmptyText(const WString& emptyText)
 
   if (env.ajax()) {
     if (!emptyText_.empty()) {
-      const char *THIS_JS = "js/WFormWidget.js";
-
-      if (!app->javaScriptLoaded(THIS_JS)) {
-	LOAD_JAVASCRIPT(app, THIS_JS, "WFormWidget", wtjs1);
-	app->setJavaScriptLoaded(THIS_JS);
-      }
+      LOAD_JAVASCRIPT(app, "js/WFormWidget.js", "WFormWidget", wtjs1);
 
       if (!removeEmptyText_) {
 	removeEmptyText_ = new JSlot(this);
@@ -316,12 +310,12 @@ void WFormWidget::setLabel(WLabel *label)
     label_->setHidden(isHidden());
 }
 
-void WFormWidget::setHidden(bool hidden)
+void WFormWidget::setHidden(bool hidden, const WAnimation& animation)
 {
   if (label_)
-    label_->setHidden(hidden);
+    label_->setHidden(hidden, animation);
 
-  WInteractWidget::setHidden(hidden);
+  WInteractWidget::setHidden(hidden, animation);
 }
 
 void WFormWidget::setValidator(WValidator *validator)

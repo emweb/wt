@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "ctor.WGLWidget",
+(1, JavaScriptConstructor, "WGLWidget",
  function(APP, canvas) {
    jQuery.data(canvas, 'obj', this);
 

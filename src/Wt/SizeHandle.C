@@ -7,7 +7,6 @@
 #include "Wt/WApplication"
 
 #include "SizeHandle.h"
-#include "JavaScriptLoader.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/SizeHandle.min.js"
@@ -17,12 +16,7 @@ namespace Wt {
 
 void SizeHandle::loadJavaScript(WApplication *app)
 {
-  const char *THIS_JS = "js/SizeHandle.js";
-
-  if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "SizeHandle", wtjs1);
-    app->setJavaScriptLoaded(THIS_JS);
-  }
+  LOAD_JAVASCRIPT(app, "js/SizeHandle.js", "SizeHandle", wtjs1);
 }
 
 }

@@ -9,6 +9,7 @@
 #ifndef WGOOGLEMAP_H_
 #define WGOOGLEMAP_H_
 
+#include <Wt/WColor>
 #include <Wt/WCompositeWidget>
 #include <Wt/WJavaScript>
 #include <Wt/WSignal>
@@ -18,8 +19,6 @@
 
 namespace Wt
 {
-
-  class WColor;
 
 /*! \class WGoogleMap Wt/WGoogleMap Wt/WGoogleMap
  *  \brief A widget that displays a google map.
@@ -138,7 +137,7 @@ public:
    *  value in the color.
    */
   void addPolyline(const std::vector<Coordinate>& points,
-		   const WColor& color = red, int width = 2,
+		   const WColor& color = WColor(red), int width = 2,
 		   double opacity = 1.0);
 
   /*! \brief Adds a circle to the map.

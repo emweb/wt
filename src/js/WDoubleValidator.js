@@ -11,7 +11,7 @@
  */
 
 WT_DECLARE_WT_MEMBER
-  (1, "ctor.WDoubleValidator",
+(1, JavaScriptConstructor, "WDoubleValidator",
    function(mandatory, bottom, top, blankError,
 	    NaNError, tooSmallError, tooLargeError) {
      this.validate = function(text) {

@@ -526,46 +526,6 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_PADDINGS_CHANGED);
   }
 
-  if (!wApp->session()->renderer().preLearning() && !layout_) {
-    element.setWasEmpty(all || wasEmpty());
-
-    if (transientImpl_) {
-      WApplication *app = WApplication::instance();
-      std::vector<int> orderedInserts;
-      std::vector<WWidget *>& ac = transientImpl_->addedChildren_;
-
-      for (unsigned i = 0; i < ac.size(); ++i)
-	orderedInserts.push_back(Utils::indexOf(*children_, ac[i]));
-
-      Utils::sort(orderedInserts);
-
-      int addedCount = transientImpl_->addedChildren_.size();
-      int totalCount = children_->size();
-      int insertCount = 0;
-      for (unsigned i = 0; i < orderedInserts.size(); ++i) {
-	int pos = orderedInserts[i];
-	
-	DomElement *c = (*children_)[pos]->createSDomElement(app);
-
-	if (pos + (addedCount - insertCount) == totalCount)
-	  element.addChild(c);
-	else
-	  element.insertChildAt(c, pos + firstChildIndex());
-
-	++insertCount;
-      }
-
-      transientImpl_->addedChildren_.clear();
-    }
-  }
-
-  if (flags_.test(BIT_LAYOUT_NEEDS_UPDATE)) {
-    if (layout_)
-      layoutImpl()->updateDom();
-
-    flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
-  }
-
   WInteractWidget::updateDom(element, all);
 
   if (flags_.test(BIT_OVERFLOW_CHANGED)
@@ -678,6 +638,8 @@ void WContainerWidget::getDomChanges(std::vector<DomElement *>& result,
   }
 #endif // WT_NO_LAYOUT
 
+  updateDomChildren(*e, app);
+
   updateDom(*e, false);
 
   result.push_back(e);
@@ -685,11 +647,19 @@ void WContainerWidget::getDomChanges(std::vector<DomElement *>& result,
 
 DomElement *WContainerWidget::createDomElement(WApplication *app)
 {
+  return createDomElement(app, true);
+}
+
+DomElement *WContainerWidget::createDomElement(WApplication *app,
+					       bool addChildren)
+{
   if (transientImpl_)
     transientImpl_->addedChildren_.clear();
 
   DomElement *result = WWebWidget::createDomElement(app);
-  createDomChildren(*result, app);
+
+  if (addChildren)
+    createDomChildren(*result, app);
 
   return result;
 }
@@ -761,6 +731,49 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
 
   if (transientImpl_)
     transientImpl_->addedChildren_.clear();
+}
+
+void WContainerWidget::updateDomChildren(DomElement& parent, WApplication *app)
+{
+  if (!app->session()->renderer().preLearning() && !layout_) {
+    if (parent.mode() == DomElement::ModeUpdate)
+      parent.setWasEmpty(wasEmpty());
+
+    if (transientImpl_) {
+      std::vector<int> orderedInserts;
+      std::vector<WWidget *>& ac = transientImpl_->addedChildren_;
+
+      for (unsigned i = 0; i < ac.size(); ++i)
+	orderedInserts.push_back(Utils::indexOf(*children_, ac[i]));
+
+      Utils::sort(orderedInserts);
+
+      int addedCount = transientImpl_->addedChildren_.size();
+      int totalCount = children_->size();
+      int insertCount = 0;
+      for (unsigned i = 0; i < orderedInserts.size(); ++i) {
+	int pos = orderedInserts[i];
+	
+	DomElement *c = (*children_)[pos]->createSDomElement(app);
+
+	if (pos + (addedCount - insertCount) == totalCount)
+	  parent.addChild(c);
+	else
+	  parent.insertChildAt(c, pos + firstChildIndex());
+
+	++insertCount;
+      }
+
+      transientImpl_->addedChildren_.clear();
+    }
+  }
+
+  if (flags_.test(BIT_LAYOUT_NEEDS_UPDATE)) {
+    if (layout_)
+      layoutImpl()->updateDom();
+
+    flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
+  }
 }
 
 void WContainerWidget::rootAsJavaScript(WApplication *app, std::ostream& out,

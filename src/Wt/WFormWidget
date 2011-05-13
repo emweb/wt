@@ -57,7 +57,7 @@ public:
    * If the widget has a label, it is hidden and shown together with
    * this widget.
    */
-  virtual void setHidden(bool hidden);
+  virtual void setHidden(bool hidden, const WAnimation& animation);
 
   /*! \brief Sets a validator for this field.
    *

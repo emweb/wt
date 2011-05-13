@@ -1,0 +1,123 @@
+// This may look like C code, but it's really -*- C++ -*-
+/*
+ * Copyright (C) 2011 Emweb bvba, Kessel-Lo, Belgium.
+ *
+ * See the LICENSE file for terms of use.
+ */
+#ifndef WTRANSITION_H_
+#define WTRANSITION_H_
+
+#include <Wt/WGlobal>
+
+namespace Wt {
+
+/*! \class WAnimation Wt/WAnimation Wt/WAnimation
+ *  \brief Class that defines a transition effect.
+ *
+ * A class which defines an animation used as a transition to show or
+ * hide a widget.
+ *
+ * \sa WWidget::animateShow(), WWidget::animateHide(), WWidget::setHidden()
+ */
+class WT_API WAnimation
+{
+public:
+  /*! \brief An enumeration describing an anmiation effects
+   */
+  enum AnimationEffect {
+    SlideInFromLeft = 0x1,   //!< Slides right to show, left to hide
+    SlideInFromRight = 0x2,  //!< Slides left to show, right to hide
+    SlideInFromBottom = 0x3, //!< Slides up to show, down to hide
+    SlideInFromTop = 0x4,    //!< Slides down to show, up to hide
+    Pop = 0x5,               //!< Pops up to show, pops away to hide
+    Fade = 0x100             //!< Fade effect
+  };
+
+  /*! \brief A timing function
+   */
+  enum TimingFunction {
+    Ease,                  //!< 
+    Linear,
+    EaseIn,
+    EaseOut,
+    EaseInOut,
+    CubicBezier
+  };
+
+  /*! \brief Default constructor.
+   *
+   * Creates an animation that actually represent <i>no</i> animation.
+   * (effects() == 0).
+   */
+  WAnimation();
+
+  /*! \brief Creates an animation.
+   */
+  WAnimation(WFlags<AnimationEffect> effects, TimingFunction timing = Linear,
+	     int duration = 250);
+
+#ifdef WT_TARGET_JAVA
+  /*! \brief Clone method.
+   *
+   * Clones this transition object.
+   */
+  WAnimation clone() const;
+#endif
+
+  /*! \brief Sets the animation effects.
+   */
+  void setEffects(WFlags<AnimationEffect> effects);
+
+  /*! \brief Returns animation effects.
+   */
+  WFlags<AnimationEffect> effects() const { return effects_; }
+
+  /*! \brief Comparison operator.
+   *
+   * Returns \c true if the transitions are exactly the same.
+   */
+  bool operator==(const WAnimation& other) const;
+
+  /*! \brief Comparison operator.
+   *
+   * Returns \c true if the transitions are different.
+   */
+  bool operator!=(const WAnimation& other) const;
+
+  /*! \brief Sets the duration.
+   *
+   * The default animation duration is 250 ms.
+   *
+   * \sa duration()
+   */
+  void setDuration(int msecs);
+
+  /*! \brief Returns the duration.
+   *
+   * \sa setDuration()
+   */
+  int duration() const { return duration_; }
+
+  void setTimingFunction(TimingFunction function);
+  TimingFunction timingFunction() const { return timing_; }
+
+  /*
+  void setTimingFunction(double x1, double y1, double x2, double y2);
+  const double[] timingFunction();
+  */
+
+  /*! \brief Returns whether the animation is empty.
+   */
+  bool empty() const;
+
+private:
+  WFlags<AnimationEffect> effects_;
+  TimingFunction          timing_;
+  int                     duration_;
+};
+
+W_DECLARE_OPERATORS_FOR_FLAGS(WAnimation::AnimationEffect);
+
+}
+
+#endif // WTRANSITION_H_

@@ -21,9 +21,15 @@
 #include "WtException.h"
 #include "Utils.h"
 #include "XSSFilter.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WWebWidget.min.js"
+#endif
+
 #ifdef max
 #undef max
 #endif
+
 using namespace Wt;
 
 namespace {
@@ -54,13 +60,11 @@ const std::bitset<29> WWebWidget::AllChangeFlags = std::bitset<29>()
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
-{ 
-  specialChildRemove_ = false;
-}
+  : specialChildRemove_(false)
+{ }
 
 WWebWidget::TransientImpl::~TransientImpl()
-{
-}
+{ }
 
 WWebWidget::LayoutImpl::LayoutImpl()
   : positionScheme_(Static),
@@ -931,13 +935,20 @@ bool WWebWidget::hiddenKeepsGeometry() const
     && !flags_.test(BIT_HIDE_WITH_OFFSETS);
 }
 
-void WWebWidget::setHidden(bool hidden)
+void WWebWidget::setHidden(bool hidden, const WAnimation& animation)
 {
-  if (canOptimizeUpdates() && (hidden == isHidden()))
+  if (canOptimizeUpdates() && (animation.empty() && hidden == isHidden()))
     return;
 
   flags_.set(BIT_HIDDEN, hidden);
   flags_.set(BIT_HIDDEN_CHANGED);
+
+  if (!animation.empty()
+      && WApplication::instance()->environment().agentIsWebKit()) {
+    if (!transientImpl_)
+      transientImpl_ = new TransientImpl();
+    transientImpl_->animation_ = animation;
+  }
 
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, true);
@@ -1088,9 +1099,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       }
     } else
       element.setProperty(PropertyStyleDisplay, "none");
-
-    if (!flags_.test(BIT_HIDE_WITH_VISIBILITY))
-      flags_.reset(BIT_HIDDEN_CHANGED);
   }
 
   if (flags_.test(BIT_GEOMETRY_CHANGED) || all) {
@@ -1175,17 +1183,15 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 					       PropertyStyleLeft };
 
 	for (unsigned i = 0; i < 4; ++i) {
-	  if (!layoutImpl_->offsets_[i].isAuto()) {
-	    Property property = properties[i];
+	  Property property = properties[i];
 
-	    WApplication *app = WApplication::instance();
-	    if (app->layoutDirection() == RightToLeft) {
-	      if (i == 1) property = properties[3];
-	      else if (i == 3) property = properties[1];
-	    }
-
-	    element.setProperty(property, layoutImpl_->offsets_[i].cssText());
+	  WApplication *app = WApplication::instance();
+	  if (app->layoutDirection() == RightToLeft) {
+	    if (i == 1) property = properties[3];
+	    else if (i == 3) property = properties[1];
 	  }
+
+	  element.setProperty(property, layoutImpl_->offsets_[i].cssText());
 	}
       }
 
@@ -1424,7 +1430,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_HIDE_WITH_VISIBILITY)) {
     if (flags_.test(BIT_HIDDEN_CHANGED)
 	|| (all && flags_.test(BIT_HIDDEN))) {
-
       if (flags_.test(BIT_HIDDEN)) {
 	element.setProperty(PropertyStyleVisibility, "hidden");
 	if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
@@ -1466,10 +1471,67 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 	element.setProperty(PropertyStyleVisibility, "visible");
 	element.setProperty(PropertyStyleDisplay, ""); // XXX
       }
-
-      flags_.reset(BIT_HIDDEN_CHANGED);
     }
   }
+
+  if ((!all && flags_.test(BIT_HIDDEN_CHANGED))
+      || (all && !flags_.test(BIT_HIDDEN))) {
+    if (transientImpl_ && !transientImpl_->animation_.empty()) {
+      const char *THIS_JS = "js/WWebWidget.js";
+
+      WApplication *app = WApplication::instance();
+
+      LOAD_JAVASCRIPT(app, THIS_JS, "animateDisplay", wtjs1);
+      LOAD_JAVASCRIPT(app, THIS_JS, "animateVisible", wtjs2);
+
+      if (!flags_.test(BIT_HIDE_WITH_VISIBILITY)) {
+	/*
+	 * Not using visibility: delay changing the display property
+	 */
+	SStream ss;
+	ss << WT_CLASS << ".animateDisplay('" << id()
+	   << "'," << (int)transientImpl_->animation_.effects()
+	   << "," << transientImpl_->animation_.timingFunction()
+	   << "," << transientImpl_->animation_.duration()
+	   << ",'" << element.getProperty(PropertyStyleDisplay)
+	   << "');";
+	element.callJavaScript(ss.str());
+
+	if (all)
+	  element.setProperty(PropertyStyleDisplay, "none");
+	else
+	  element.removeProperty(PropertyStyleDisplay);
+      } else {
+	/*
+	 * Using visibility: remember how to show/hide the widget
+	 */
+	SStream ss;
+	ss << WT_CLASS << ".animateVisible('" << id()
+	   << "'," << (int)transientImpl_->animation_.effects()
+	   << "," << transientImpl_->animation_.timingFunction()
+	   << "," << transientImpl_->animation_.duration()
+	   << ",'" << element.getProperty(PropertyStyleVisibility)
+	   << "','" << element.getProperty(PropertyStylePosition)
+	   << "','" << element.getProperty(PropertyStyleTop)
+	   << "','" << element.getProperty(PropertyStyleLeft)
+	   << "');";
+	element.callJavaScript(ss.str());
+
+	if (all) {
+	  element.setProperty(PropertyStyleVisibility, "hidden");
+	  element.setProperty(PropertyStylePosition, "absolute");
+	  element.setProperty(PropertyStyleTop, "-10000px");
+	  element.setProperty(PropertyStyleLeft, "-10000px");
+	} else {
+	  element.removeProperty(PropertyStyleVisibility);
+	  element.removeProperty(PropertyStylePosition);
+	  element.removeProperty(PropertyStyleTop);
+	  element.removeProperty(PropertyStyleLeft);
+	}
+      }
+    }
+  }
+  flags_.reset(BIT_HIDDEN_CHANGED);
 
   renderOk();
 

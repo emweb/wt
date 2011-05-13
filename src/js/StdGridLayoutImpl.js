@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-(1, "ctor.StdLayout",
+(1, JavaScriptConstructor, "StdLayout",
  function(WT, id, config) {
    var self = this;
    var initialized = false;
@@ -375,7 +375,7 @@ WT_DECLARE_WT_MEMBER
  });
 
 WT_DECLARE_WT_MEMBER
-(2, "StdLayout.prototype.initResize",
+(2, JavaScriptPrototype, "StdLayout.prototype.initResize",
  function(WT, id, config) {
    var self = this;
 
@@ -592,7 +592,8 @@ WT_DECLARE_WT_MEMBER
    self.resizeInitialized = true;
  });
 
-WT_DECLARE_APP_MEMBER(1, "layouts",
+WT_DECLARE_APP_MEMBER
+(1, JavaScriptObject, "layouts",
   new (function() {
     var layouts = [], adjusting = false;
 

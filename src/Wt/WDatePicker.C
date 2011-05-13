@@ -184,11 +184,11 @@ void WDatePicker::setDisabled(bool disabled)
   displayWidget_->setHidden(disabled);
 }
 
-void WDatePicker::setHidden(bool hidden)
+void WDatePicker::setHidden(bool hidden, const WAnimation& animation)
 {
-  WCompositeWidget::setHidden(hidden);
-  forEdit_->setHidden(hidden);
-  displayWidget_->setHidden(hidden);
+  WCompositeWidget::setHidden(hidden, animation);
+  forEdit_->setHidden(hidden, animation);
+  displayWidget_->setHidden(hidden, animation);
 }
 
 void WDatePicker::setBottom(const WDate& bottom)

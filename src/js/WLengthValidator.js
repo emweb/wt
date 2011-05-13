@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER
-  (1, "ctor.WLengthValidator",
+(1, JavaScriptConstructor, "WLengthValidator",
    function(mandatory, minLength, maxLength, blankError,
 	    tooShortError, tooLongError) {
      this.validate = function(text) {

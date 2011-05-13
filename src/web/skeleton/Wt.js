@@ -5,30 +5,35 @@
  * For terms of use, see LICENSE.
  */
 _$_$if_DYNAMIC_JS_$_();
-window.WT_DECLARE_WT_MEMBER = function(i, name, fn)
+window.JavaScriptFunction = 1;
+window.JavaScriptConstructor = 2;
+window.JavaScriptObject = 3;
+window.JavaScriptPrototype = 4;
+window.WT_DECLARE_WT_MEMBER = function(i, type, name, fn)
 {
-  var proto = name.indexOf('.prototype');
-  var ctor = name.indexOf('ctor.');
-
-  if (proto != -1)
+  if (type == JavaScriptPrototype) {
+    var proto = name.indexOf('.prototype');
     _$_WT_CLASS_$_[name.substr(0, proto)]
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
-  else if (ctor == 0)
-    _$_WT_CLASS_$_[name.substr(5)] = fn;
-  else
+  } else if (type == JavaScriptFunction) {
     _$_WT_CLASS_$_[name] = function() { fn.apply(_$_WT_CLASS_$_, arguments); };
+  } else {
+    _$_WT_CLASS_$_[name] = fn;
+  }
 };
 
-window.WT_DECLARE_APP_MEMBER = function(i, name, fn)
+window.WT_DECLARE_APP_MEMBER = function(i, type, name, fn)
 {
-  var proto = name.indexOf('.prototype');
-
   var app = window.currentApp;
-  if (proto == -1)
-    app[name] = fn;
-  else
+  if (type == JavaScriptPrototype) {
+    var proto = name.indexOf('.prototype');
     app[name.substr(0, proto)]
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
+  } else if (type == JavaScriptFunction) {
+    app[name] = function() { fn.apply(app, arguments); };
+  } else {
+    app[name] = fn;
+  }
 };
 
 _$_$endif_$_();
@@ -1239,9 +1244,8 @@ if (html5History) {
       cb = onStateChange;
 
       function onPopState(event) {
-	var p = window.location.pathname;
-	var newState = p.substr(baseUrl.length);
-	if (newState != currentState) {
+	var newState = event.state;
+	if (newState && newState != currentState) {
 	  currentState = newState;
 	  onStateChange(currentState);
 	}
@@ -1281,7 +1285,9 @@ _$_$endif_$_();
     navigate: function (state, generateEvent) {
       currentState = state;
 
-      var url = baseUrl + state + window.location.search;
+      var url = baseUrl + state;
+      if (baseUrl.length < 3 && baseUrl.substr(baseUrl.length - 3) != "?_=")
+	url += window.location.search;
 
       try {
 	window.history.pushState(state, document.title, url);
@@ -2532,6 +2538,7 @@ window.onunload = function()
 {
   if (!quited) {
     self.emit(self, "Wt-unload");
+    scheduleUpdate();
     sendUpdate();
   }
 };

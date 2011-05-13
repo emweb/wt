@@ -1,5 +1,9 @@
 /* additional style rules for IE */
 
+.Wt-dialogcover {
+    filter: alpha(opacity=50);
+}
+
 /*
  * WItemDelegate
  */

@@ -11,7 +11,7 @@
  */
 
 WT_DECLARE_WT_MEMBER
-  (1, "ctor.WIntValidator",
+(1, JavaScriptConstructor, "WIntValidator",
    function(mandatory, bottom, top, blankError,
 	    NaNError, tooSmallError, tooLargeError) {
      this.validate = function(text) {

@@ -177,22 +177,22 @@ div#banner_content {
 }
 
 div#banner  {
-	position:relative;
 	background: url(wt_banner.jpg) no-repeat left top;
 	margin-left:-50px;
 	height:96px;
 }
 
 div#banner_end {
-        position:relative;
 	height:96px;
 	background: url(wt_banner_right.jpg) no-repeat right top;
 	z-index:20; 
 }
 
+/*
 div#banner a {
 margin: 0 0 0 -2000px;
 }
+*/
 
 
 div#main_wrapper {
@@ -219,7 +219,6 @@ div #main_menu{
 	padding-left:0px;
 	width:200px;
 	float:left;
-	position:relative;
 }
 
 div #main_menu ul{
@@ -270,7 +269,6 @@ div#main_page{
 	margin-left:64px;
 	margin-right:5px;
 	padding-bottom:30px;
-	position:relative;	
 	float:left;
 	width:63%;
 	min-width:380px;
@@ -294,7 +292,6 @@ div#footer_content {
 
 div#footer_copyright  {
 	float:left;
-	/*position:relative;*/
 	padding:15px;
 	font-size: 1em;
 	font-weight: normal;
@@ -303,7 +300,6 @@ div#footer_copyright  {
 
 div#footer_menu  {
 	float:right;
-	/*position:relative;*/
 	padding:15px;
 	font-size: 1em;
 	font-weight: normal;

@@ -97,9 +97,9 @@ WPopupMenu *WPopupMenu::topLevelMenu()
   return parentItem_ ? parentItem_->topLevelMenu() : this;
 }
 
-void WPopupMenu::setHidden(bool hidden)
+void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
 {
-  WCompositeWidget::setHidden(hidden);
+  WCompositeWidget::setHidden(hidden, animation);
 
   if (hidden)
     renderOutAll();

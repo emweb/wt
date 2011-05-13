@@ -396,7 +396,9 @@ protected:
   virtual void childResized(WWidget *child, WFlags<Orientation> directions);
   virtual void getDomChanges(std::vector<DomElement *>& result,
 			     WApplication *app);
+  DomElement *createDomElement(WApplication *app, bool addChildren);
   void createDomChildren(DomElement& parent, WApplication *app);
+  void updateDomChildren(DomElement& parent, WApplication *app);
 
   virtual DomElementType domElementType() const;
   virtual void           updateDom(DomElement& element, bool all);
