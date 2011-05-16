@@ -319,7 +319,7 @@ bool WebSession::useUglyInternalPaths() const
     return false;
 #else
   //TODO redmine #725
-  return true;
+  return false;
 #endif
 }
 

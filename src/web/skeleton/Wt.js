@@ -1030,9 +1030,17 @@ this.addCssText = function(cssText) {
     var t = document.createTextNode(cssText);
     s.appendChild(t);
   } else {
-    var ss = document.createElement('style');
-    s.parentNode.insertBefore(ss, s);
-    ss.styleSheet.cssText = cssText;
+    var ss = s.previousSibling;
+    if (!ss || ss.tagName.toLowerCase()!='style' || ss.styleSheet.cssText.length > 32*1024)
+    {
+      ss = document.createElement('style');
+      s.parentNode.insertBefore(ss, s);
+      ss.styleSheet.cssText = cssText;
+    }
+    else
+    {
+      ss.styleSheet.cssText += cssText;
+    }
   }
 };
 
